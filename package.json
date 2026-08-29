@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "balance": "vitest run tests/balance.report.test.ts"
+    "balance": "vitest run tests/balance.report.test.ts",
+    "size": "python tools/check_size.py"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
