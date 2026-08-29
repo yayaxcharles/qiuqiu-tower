@@ -6,8 +6,8 @@ import { addStatus, getStatus } from '../../src/engine/statuses';
 import type { CardInstance, CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
 
-function deck(ids: string[]): CardInstance[] { return ids.map((id, i) => inst(id, i + 1)); }
-function start(encounterId: string, ids: string[] = STARTER_DECK, seed = 's', relics = ['blue_headband'], hp = 70): CombatState {
+function deck(ids: readonly string[]): CardInstance[] { return ids.map((id, i) => inst(id, i + 1)); }
+function start(encounterId: string, ids: readonly string[] = STARTER_DECK, seed = 's', relics = ['blue_headband'], hp = 70): CombatState {
   return startCombat({ hp, maxHp: 70, deck: deck(ids), relics, potions: [], encounterId, rng: new Rng(seedFromString(seed)) });
 }
 /** 把指定牌放到手牌最前面（測試用） */
@@ -255,6 +255,56 @@ describe('魔物回合', () => {
     expect(e.charged).toBe(false);
     expect(getStatus(e, '定身')).toBe(0);
   });
+  it('多段攻擊：隱身只擋掉第一段，第二段照樣挨', () => {
+    const cs = start('cucumber');
+    addStatus(cs.player, '隱身', 1);
+    cs.enemies[0]!.move = { intent: 'attack', label: '二連踢', effects: [{ kind: 'damage', amount: 6, times: 2 }] };
+    const hp = cs.player.hp;
+    endTurn(cs);
+    expect(hp - cs.player.hp).toBe(6);                 // 第一下閃掉、第二下打中 6
+    expect(getStatus(cs.player, '隱身')).toBe(0);
+  });
+});
+
+describe('壞毛病與能力牌', () => {
+  it('失手了：回合結束還在手上就扣 1 血', () => {
+    const cs = start('wood_dummy', [...STARTER_DECK, 'shishou']);
+    toHand(cs, 'shishou');
+    const hp = cs.player.hp;
+    endTurn(cs);                                       // 木樁人第一動是硬撐，不會打人
+    expect(hp - cs.player.hp).toBe(1);
+  });
+  it('走火入魔：回合開始抽到就扣 2 血', () => {
+    const cs = start('wood_dummy', [...STARTER_DECK, 'zouhuo']);
+    const uid = toHand(cs, 'zouhuo');
+    const i = cs.player.hand.findIndex((c) => c.uid === uid);
+    cs.player.drawPile.unshift(cs.player.hand.splice(i, 1)[0]!);   // 擺到抽牌堆最上面，下回合一定抽到
+    const hp = cs.player.hp;
+    endTurn(cs);
+    expect(cs.player.hand.some((c) => c.uid === uid)).toBe(true);
+    expect(hp - cs.player.hp).toBe(2);
+  });
+  it('結界：下一回合一開始就有 3 蜷縮', () => {
+    const cs = start('wood_dummy', [...STARTER_DECK, 'jiejie']);
+    cs.player.energy = 3;
+    playCard(cs, toHand(cs, 'jiejie'));
+    expect(cs.player.block).toBe(0);                   // 當回合不給，是下回合開始才給
+    endTurn(cs);
+    expect(cs.turn).toBe(2);
+    expect(cs.player.block).toBe(3);
+  });
+  it('任務完成：擊倒魔物回 6 血', () => {
+    const cs = start('rats2', [...STARTER_DECK, 'renwuwancheng'], 's', ['blue_headband'], 50);
+    cs.player.energy = 9;
+    playCard(cs, toHand(cs, 'renwuwancheng'));
+    const e = cs.enemies[0]!; e.hp = 3;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);
+    expect(e.dead).toBe(true);
+    expect(cs.player.hp).toBe(56);
+  });
+});
+
+describe('魔物回合（續）', () => {
   it('生命歸零就輸；木樁擋一次致命傷', () => {
     const cs = start('cucumber', STARTER_DECK, 's', ['wood_post'], 5);
     cs.enemies[0]!.move = { intent: 'attack', label: '彈起', effects: [{ kind: 'damage', amount: 7 }] };

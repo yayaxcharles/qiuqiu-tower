@@ -110,8 +110,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'recoverFromDiscard': {
       if (p.hand.length >= HAND_LIMIT) return false;   // 滿手就拿不回來，不必開選單
-      return pause(cs, queue, ctx, { from: 'discard', purpose: 'recover', cards: [...p.discardPile], min: 1, max: 1 });
+      // 隔空取物打出後自己已經躺在棄牌堆，不能把自己撿回來無限重打（控制端 2026-08-29 裁決）
+      const cands = p.discardPile.filter((c) => c.uid !== ctx.cardUid);
+      return pause(cs, queue, ctx, { from: 'discard', purpose: 'recover', cards: cands, min: 1, max: 1 });
     }
+    default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }
 

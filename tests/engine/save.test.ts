@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { newRun, runRng } from '../../src/engine/run';
 import { clearSave, hasSave, loadBest, loadRun, recordBest, saveRun, setStore } from '../../src/engine/save';
+import type { RunState } from '../../src/engine/types';
 
 function memStore() {
   const m = new Map<string, string>();
@@ -55,5 +56,29 @@ describe('存檔', () => {
     expect(() => saveRun(newRun('full'))).not.toThrow();
     const r = newRun('full'); r.floor = 11;
     expect(recordBest(r, '2026-08-29')).toEqual({ floor: 11, won: false, turns: 0, date: '2026-08-29' });
+  });
+  it('倉庫讀不出來（getItem 直接爆）也不會把遊戲弄掛', () => {
+    setStore({ getItem: () => { throw new Error('倉庫壞了'); }, setItem: () => {}, removeItem: () => { throw new Error('清不掉'); } });
+    expect(loadRun()).toBeNull();
+    expect(hasSave()).toBe(false);
+    expect(loadBest()).toBeNull();
+    expect(() => clearSave()).not.toThrow();
+    // 讀得出來但是壞的，清除又爆掉：一樣只回 null，不丟例外
+    setStore({ getItem: () => '{oops', setItem: () => {}, removeItem: () => { throw new Error('清不掉'); } });
+    expect(loadRun()).toBeNull();
+    expect(loadBest()).toBeNull();
+  });
+  it('flags：存檔往返留得住；舊存檔沒這欄就補成空的', () => {
+    const run = newRun('flags');
+    run.flags['seen:rat'] = true;
+    saveRun(run);
+    const back = loadRun()!;
+    expect(back.flags).toEqual({ 'seen:rat': true });
+    expect(back).toEqual(run);
+    const old: Partial<RunState> = newRun('old');
+    delete old.flags;                                   // 模擬這次改版之前存下來的檔
+    store.setItem('qiuqiu-tower/run', JSON.stringify(old));
+    expect(loadRun()!.flags).toEqual({});
+    expect(hasSave()).toBe(true);                       // 舊存檔不算壞掉，不該被清掉
   });
 });

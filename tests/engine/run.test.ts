@@ -5,7 +5,7 @@ import { endTurn, startCombat } from '../../src/engine/combat';
 import { nextChoices, nodeById } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { rollCardChoices, rollRelic, rollRewards } from '../../src/engine/rewards';
-import { addCard, addPotion, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, runRng, takeCardReward, takeRelic, upgradeCard } from '../../src/engine/run';
+import { addCard, addPotion, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, runRng, takeCardReward, takeRelic, upgradeCard } from '../../src/engine/run';
 import type { RunState } from '../../src/engine/types';
 
 function fresh(seed = 'run'): RunState { return newRun(seed); }
@@ -74,13 +74,31 @@ describe('戰鬥與獎勵', () => {
     expect(b.kind).toBe('塔主'); expect(b.relic).toBe('tower_token'); expect(b.fish).toBe(100);
     expect(run.status).toBe('won');
   });
-  it('輸了就結束', () => {
+  it('輸了就結束，但打倒過的魔物照樣算進統計', () => {
     const run = fresh('lose');
     chooseNode(run, run.map.start[0]!);
     const cs = beginCombat(run);
+    cs.kills = 2; cs.turn = 4; cs.cardsPlayed = 7;
     cs.player.hp = 0; cs.phase = 'lost';
     expect(finishCombat(run, cs)).toBeNull();
-    expect(run.status).toBe('lost');
+    expect(run.status).toBe('lost'); expect(run.hp).toBe(0);
+    expect(run.stats).toEqual({ kills: 2, turns: 4, cardsPlayed: 7 });
+  });
+  it('小魚乾罐：戰鬥勝利多拿 10 條', () => {
+    const fight = (jar: boolean) => {
+      const run = fresh('jar');
+      if (jar) expect(takeRelic(run, 'fish_jar')).toBe(true);
+      chooseNode(run, run.map.start[0]!);
+      const cs = beginCombat(run);
+      for (const e of cs.enemies) e.dead = true;
+      cs.phase = 'won'; cs.kills = cs.enemies.length;
+      return { run, r: finishCombat(run, cs)! };
+    };
+    const withJar = fight(true), without = fight(false);
+    expect(without.r.fish).toBeGreaterThanOrEqual(10); expect(without.r.fish).toBeLessThanOrEqual(20);
+    expect(withJar.r.fish).toBe(without.r.fish + 10);
+    expect(withJar.r.fish).toBeGreaterThanOrEqual(20); expect(withJar.r.fish).toBeLessThanOrEqual(30);
+    expect(withJar.run.fish).toBe(without.run.fish + 10);
   });
   it('戰鬥還沒結束不准收尾', () => {
     const run = fresh('guard');
@@ -154,6 +172,45 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     const uid = run.deck[0]!.uid;
     expect(buyRemove(run, uid)).toBe(true); expect(run.removeCost).toBe(100); expect(run.deck.some((c) => c.uid === uid)).toBe(false);
     run.fish = 0; expect(buyRemove(run, run.deck[0]!.uid)).toBe(false);
+  });
+  it('買秘寶：扣錢入袋；同一件、已擁有、錢不夠都不賣，狀態不動', () => {
+    const run = fresh('shopR'); run.fish = 500;
+    const shop = makeShop(run);
+    const a = shop.relics[0]!, b = shop.relics[1]!;
+    expect(buyRelic(run, shop, 0)).toBe(true);
+    expect(run.fish).toBe(350); expect(a.sold).toBe(true); expect(run.relics).toContain(a.id);
+    expect(buyRelic(run, shop, 0)).toBe(false);            // 同一格不能買兩次
+    expect(run.fish).toBe(350);
+
+    takeRelic(run, b.id);                                  // 從別處先拿到了同一件
+    const fish = run.fish, n = run.relics.length;
+    expect(buyRelic(run, shop, 1)).toBe(false);
+    expect(run.fish).toBe(fish); expect(run.relics.length).toBe(n); expect(b.sold).toBe(false);
+
+    const poor = fresh('shopR'); poor.fish = 149;          // 差 1 條小魚乾
+    const shop2 = makeShop(poor);
+    expect(buyRelic(poor, shop2, 0)).toBe(false);
+    expect(poor.fish).toBe(149); expect(poor.relics).toEqual(['blue_headband']); expect(shop2.relics[0]!.sold).toBe(false);
+  });
+  it('買忍具：扣錢入袋；同一格、帶滿 3 個、錢不夠都不賣，狀態不動', () => {
+    const run = fresh('shopP'); run.fish = 500;
+    const shop = makeShop(run);
+    const first = shop.potions[0]!.id;
+    expect(buyPotion(run, shop, 0)).toBe(true);
+    expect(run.fish).toBe(455); expect(run.potions).toEqual([first]); expect(shop.potions[0]!.sold).toBe(true);
+    expect(buyPotion(run, shop, 0)).toBe(false);           // 同一格不能買兩次
+    expect(run.fish).toBe(455);
+
+    addPotion(run, 'tuna'); addPotion(run, 'tuna');
+    expect(run.potions.length).toBe(3);
+    const fish = run.fish;
+    expect(buyPotion(run, shop, 1)).toBe(false);           // 帶滿了
+    expect(run.fish).toBe(fish); expect(run.potions.length).toBe(3); expect(shop.potions[1]!.sold).toBe(false);
+
+    const poor = fresh('shopP'); poor.fish = 44;           // 差 1 條小魚乾
+    const shop2 = makeShop(poor);
+    expect(buyPotion(poor, shop2, 0)).toBe(false);
+    expect(poor.fish).toBe(44); expect(poor.potions).toEqual([]); expect(shop2.potions[0]!.sold).toBe(false);
   });
 });
 

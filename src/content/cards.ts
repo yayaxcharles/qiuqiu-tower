@@ -2,7 +2,7 @@ import type { CardDef } from '../engine/types';
 
 const 攻 = '攻擊', 技 = '技能', 能 = '能力';
 
-export const cards: CardDef[] = [
+export const cards: readonly CardDef[] = [
   // ===== 起手 =====
   { id: 'sanjo', name: '參上', cost: 1, type: 攻, rarity: '常見', pool: '起手', target: 'enemy', art: 'ninja/01',
     effects: [{ kind: 'damage', amount: 6 }], upgrade: { effects: [{ kind: 'damage', amount: 9 }] } },
@@ -144,7 +144,7 @@ export const cards: CardDef[] = [
 
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));
 
-export const STARTER_DECK: string[] = [
+export const STARTER_DECK: readonly string[] = [
   'sanjo', 'sanjo', 'sanjo', 'sanjo', 'sanjo',
   'tanding', 'tanding', 'tanding', 'tanding', 'kawarimi',
 ];

@@ -187,6 +187,8 @@ export interface RunState {
   stats: { kills: number; turns: number; cardsPlayed: number };
   removeCost: number;
   status: 'playing' | 'won' | 'lost';
+  /** 一次性旗標（看過哪段對話、觸發過哪個事件之類）；舊存檔沒有這欄，載入時補成 {} */
+  flags: Record<string, boolean>;
 }
 
 // ===== 戰鬥 =====

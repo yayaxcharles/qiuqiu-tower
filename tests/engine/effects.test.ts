@@ -110,6 +110,29 @@ describe('選牌類效果', () => {
     resolveChoice(cs, []);
     expect(cs.player.hand.length).toBe(n - 1 + 1 + 1);    // 打出 −1、逗貓棒 ＋1、讀心術 ＋1
   });
+  // 隔空取物打完就躺在棄牌堆裡，若能把自己撿回來就變成 1 費無限循環（控制端 2026-08-29 裁決）
+  it('隔空取物不能把自己撿回來，只能撿別的牌', () => {
+    const cs = startCombat({ hp: 70, maxHp: 70, deck: deck(['gekong', 'sanjo']), relics: [], potions: [], encounterId: 'wood_dummy', rng: new Rng(seedFromString('fx')) });
+    cs.player.energy = 9;
+    const gek = cs.player.hand.find((c) => c.cardId === 'gekong')!.uid;
+    const san = cs.player.hand.find((c) => c.cardId === 'sanjo')!.uid;
+    expect(playCard(cs, san, cs.enemies[0]!.uid)).toBe(true);      // 先讓棄牌堆有一張別的牌
+    expect(playCard(cs, gek)).toBe(true);
+    expect(cs.player.discardPile.map((c) => c.uid).sort()).toEqual([san, gek].sort());
+    expect(cs.pending?.purpose).toBe('recover');
+    expect(cs.pending!.cards.map((c) => c.uid)).toEqual([san]);
+    expect(cs.pending!.cards.some((c) => c.uid === gek)).toBe(false);
+  });
+  it('棄牌堆只有隔空取物自己時就跳過，不開選單', () => {
+    const cs = startCombat({ hp: 70, maxHp: 70, deck: deck(['gekong', 'sanjo']), relics: [], potions: [], encounterId: 'wood_dummy', rng: new Rng(seedFromString('fx')) });
+    cs.player.energy = 9;
+    const gek = cs.player.hand.find((c) => c.cardId === 'gekong')!.uid;
+    expect(cs.player.discardPile.length).toBe(0);
+    expect(playCard(cs, gek)).toBe(true);
+    expect(cs.player.discardPile.map((c) => c.uid)).toEqual([gek]);   // 自己確實在棄牌堆裡
+    expect(cs.pending).toBeNull();                                    // 但候選排除自己，就沒東西可撿了
+    expect(cs.player.hand.some((c) => c.uid === gek)).toBe(false);
+  });
   it('手牌滿了就拿不回棄牌', () => {
     const cs = start('wood_dummy', ['gekong']);
     const p = cs.player;

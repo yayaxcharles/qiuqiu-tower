@@ -15,38 +15,46 @@ let store: KeyValueStore = (() => {
 })();
 export function setStore(s: KeyValueStore): void { store = s; }
 
-/** 寫不進去就算了（空間滿了、私密模式），不要讓存檔失敗把遊戲打斷 */
+/** 倉庫可能整個壞掉（空間滿了、私密模式、瀏覽器擋站台資料），三個動作都要包起來，不能讓遊戲當掉 */
 function write(key: string, value: string): void {
   try { store.setItem(key, value); } catch { /* 忽略 */ }
+}
+function read(key: string): string | null {
+  try { return store.getItem(key); } catch { return null; }
+}
+function remove(key: string): void {
+  try { store.removeItem(key); } catch { /* 忽略 */ }
 }
 
 export function saveRun(run: RunState): void { write(RUN_KEY, JSON.stringify(run)); }
 
 export function loadRun(): RunState | null {
-  const raw = store.getItem(RUN_KEY);
+  const raw = read(RUN_KEY);
   if (!raw) return null;
   try {
     const run = JSON.parse(raw) as Partial<RunState>;
     if (run.version !== 1 || !Array.isArray(run.deck) || !run.map || !run.rng) { clearSave(); return null; }
+    // 舊存檔沒有 flags：補一個空的就好，不必升版本
+    if (!run.flags || typeof run.flags !== 'object') run.flags = {};
     return run as RunState;
   } catch { clearSave(); return null; }
 }
 export function hasSave(): boolean { return loadRun() !== null; }
-export function clearSave(): void { store.removeItem(RUN_KEY); }
+export function clearSave(): void { remove(RUN_KEY); }
 
 export interface BestRecord { floor: number; won: boolean; turns: number; date: string }
 export function loadBest(): BestRecord | null {
-  const raw = store.getItem(BEST_KEY);
+  const raw = read(BEST_KEY);
   if (!raw) return null;
   try {
     const b = JSON.parse(raw) as Partial<BestRecord>;
     // 欄位對不上就當作壞掉：清掉重來，免得後面拿它去比較時算出怪東西
     if (typeof b.floor !== 'number' || typeof b.won !== 'boolean' || typeof b.turns !== 'number' || typeof b.date !== 'string') {
-      store.removeItem(BEST_KEY);
+      remove(BEST_KEY);
       return null;
     }
     return b as BestRecord;
-  } catch { store.removeItem(BEST_KEY); return null; }
+  } catch { remove(BEST_KEY); return null; }
 }
 function better(a: BestRecord, b: BestRecord): boolean {   // a 是否優於 b
   if (a.won !== b.won) return a.won;

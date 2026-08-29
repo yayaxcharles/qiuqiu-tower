@@ -23,6 +23,7 @@ export function newRun(seed: string): RunState {
     version: 1, seed, rng: rng.state, hp: 70, maxHp: 70, fish: START_FISH,
     deck: [], relics: [], potions: [], floor: 0, map: generateMap(rng), currentNode: null,
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
+    flags: {},
   };
   for (const id of STARTER_DECK) addCard(run, id);
   takeRelic(run, 'blue_headband');
@@ -52,9 +53,10 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   run.stats.turns += cs.turn;
   run.stats.cardsPlayed += cs.cardsPlayed;
   run.potions = [...cs.potions];
+  // 輸掉的那一場也是打倒過魔物的，統計要照收，不然總擊倒數會少算
+  run.stats.kills += cs.kills;
   if (cs.phase === 'lost') { run.hp = 0; run.status = 'lost'; return null; }
   run.hp = cs.player.hp;
-  run.stats.kills += cs.kills;
   run.fish = Math.max(0, run.fish + cs.fishDelta);
   const node = currentNode(run);
   const kind: CombatRewards['kind'] = cs.encounterId === 'tower_master' ? '塔主' : node?.type === '大魔物' ? '大魔物' : '戰鬥';

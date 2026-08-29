@@ -55,7 +55,9 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
   // 已經打贏了，殘餘效果（自傷、壞毛病）不會把球球打死
   if (cs.phase === 'won') { p.hp = Math.max(1, p.hp); return lose; }
   if (p.hp <= 0) {
-    if (hasRelic(cs, 'wood_post') && !p.lethalPrevented) { p.hp = 1; p.lethalPrevented = true; log(cs, '木樁替球球挨了這一下'); }
+    // 擋一次致命傷的秘寶由資料決定（木樁的 preventLethal），不要把 id 寫死在引擎裡
+    const saved = cs.relics.some((id) => relicById[id]?.hooks.preventLethal);
+    if (saved && !p.lethalPrevented) { p.hp = 1; p.lethalPrevented = true; log(cs, '木樁替球球挨了這一下'); }
     else { p.hp = 0; cs.phase = 'lost'; }
   }
   return lose;
@@ -168,6 +170,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'escape': e.dead = true; e.escaped = true; log(cs, `${e.name}帶著小魚乾逃走了`);
         if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won'; break;
       case 'nothing': break;
+      default: { const _never: never = fx; void _never; break; }   // 漏接新的 EnemyEffect 種類會在型別檢查就爆
     }
   }
 }
