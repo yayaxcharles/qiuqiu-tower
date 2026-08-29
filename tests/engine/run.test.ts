@@ -1,0 +1,183 @@
+import { describe, expect, it } from 'vitest';
+import { cardById } from '../../src/content/cards';
+import { relicById } from '../../src/content/relics';
+import { endTurn, startCombat } from '../../src/engine/combat';
+import { nextChoices, nodeById } from '../../src/engine/map';
+import { Rng, seedFromString } from '../../src/engine/rng';
+import { rollCardChoices, rollRelic, rollRewards } from '../../src/engine/rewards';
+import { addCard, addPotion, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, runRng, takeCardReward, takeRelic, upgradeCard } from '../../src/engine/run';
+import type { RunState } from '../../src/engine/types';
+
+function fresh(seed = 'run'): RunState { return newRun(seed); }
+function goTo(run: RunState, type: string): void {   // 一路往上走到第一個指定類型的節點
+  for (let guard = 0; guard < 20; guard++) {
+    const choices = nextChoices(run.map, run.currentNode);
+    const hit = choices.find((n) => n.type === type);
+    chooseNode(run, (hit ?? choices[0]!).id);
+    if (hit) return;
+  }
+  throw new Error(`找不到 ${type}`);
+}
+
+describe('新的一局', () => {
+  it('起手狀態', () => {
+    const run = fresh();
+    expect(run.hp).toBe(70); expect(run.maxHp).toBe(70); expect(run.fish).toBe(50);
+    expect(run.deck.length).toBe(10); expect(run.relics).toEqual(['blue_headband']);
+    expect(run.potions).toEqual([]); expect(run.floor).toBe(0); expect(run.currentNode).toBeNull();
+    expect(run.status).toBe('playing'); expect(run.removeCost).toBe(75);
+  });
+  it('同種子同一局；runRng 會把狀態寫回 run', () => {
+    const a = fresh('x'), b = fresh('x');
+    expect(a.map).toEqual(b.map);
+    const before = JSON.stringify(a.rng);
+    runRng(a).next();
+    expect(JSON.stringify(a.rng)).not.toBe(before);
+  });
+  it('chooseNode 只接受可走的節點', () => {
+    const run = fresh();
+    expect(() => chooseNode(run, 'f3-l0')).toThrow();
+    const n = chooseNode(run, run.map.start[1]!);
+    expect(run.currentNode).toBe(n.id); expect(run.floor).toBe(1);
+  });
+});
+
+describe('戰鬥與獎勵', () => {
+  it('打贏一般戰鬥：生命與小魚乾寫回、給 3 張忍術', () => {
+    const run = fresh('fight');
+    chooseNode(run, run.map.start[0]!);
+    const cs = beginCombat(run);
+    for (const e of cs.enemies) e.hp = 1;
+    cs.player.hp = 40;
+    // 直接把魔物打死：用最簡單的方式——把牠們標記死亡並設勝利
+    for (const e of cs.enemies) { e.dead = true; } cs.phase = 'won'; cs.kills = cs.enemies.length; cs.fishDelta = 5;
+    const r = finishCombat(run, cs)!;
+    expect(r.kind).toBe('戰鬥');
+    expect(r.cards.length).toBe(3);
+    expect(r.cards.every((c) => c.pool === '忍術')).toBe(true);
+    expect(r.fish).toBeGreaterThanOrEqual(10); expect(r.fish).toBeLessThanOrEqual(20);
+    expect(run.hp).toBe(40); expect(run.fish).toBe(50 + 5 + r.fish); expect(run.stats.kills).toBe(cs.enemies.length);
+    takeCardReward(run, r, r.cards[0]!.id);
+    expect(run.deck.length).toBe(11);
+  });
+  it('大魔物獎勵含秘寶與一張絕學；塔主通關', () => {
+    const rng = new Rng(seedFromString('elite'));
+    const r = rollRewards(rng, '大魔物', ['blue_headband'], 0);
+    expect(relicById[r.relic!]?.pool).toBe('大魔物');
+    expect(r.cards.some((c) => c.pool === '絕學')).toBe(true);
+    expect(r.fish).toBe(30);
+    const run = fresh('boss');
+    run.currentNode = 'f15-l1'; run.floor = 15;
+    const cs = beginCombat(run);
+    for (const e of cs.enemies) e.dead = true; cs.phase = 'won'; cs.kills = 1;
+    const b = finishCombat(run, cs)!;
+    expect(b.kind).toBe('塔主'); expect(b.relic).toBe('tower_token'); expect(b.fish).toBe(100);
+    expect(run.status).toBe('won');
+  });
+  it('輸了就結束', () => {
+    const run = fresh('lose');
+    chooseNode(run, run.map.start[0]!);
+    const cs = beginCombat(run);
+    cs.player.hp = 0; cs.phase = 'lost';
+    expect(finishCombat(run, cs)).toBeNull();
+    expect(run.status).toBe('lost');
+  });
+  it('rollCardChoices 不重複、依池；rollRelic 不給已擁有', () => {
+    const rng = new Rng(seedFromString('roll'));
+    const cs = rollCardChoices(rng, '絕學', 3);
+    expect(new Set(cs.map((c) => c.id)).size).toBe(3);
+    expect(cs.every((c) => c.pool === '絕學')).toBe(true);
+    const owned = ['onigiri_bag', 'tuna_can', 'catgrass', 'bell', 'fish_jar', 'catnip', 'tail_bell'];
+    expect(rollRelic(rng, '常見', owned)).toBeNull();
+    expect(relicById[rollRelic(rng, '常見', ['bell'])!]?.pool).toBe('常見');
+  });
+});
+
+describe('牌組、秘寶、忍具', () => {
+  it('加牌、升級、移除', () => {
+    const run = fresh();
+    const c = addCard(run, 'bunshin');
+    expect(upgradeCard(run, c.uid)).toBe(true);
+    expect(run.deck.find((x) => x.uid === c.uid)?.upgraded).toBe(true);
+    expect(upgradeCard(run, c.uid)).toBe(false);
+    expect(removeCard(run, c.uid)).toBe(true); expect(run.deck.length).toBe(10);
+    expect(removeCard(run, 999)).toBe(false);
+  });
+  it('秘寶：不重複、鮪魚罐頭 +10 最大生命、塔主令牌 −10', () => {
+    const run = fresh();
+    expect(takeRelic(run, 'tuna_can')).toBe(true);
+    expect(run.maxHp).toBe(80); expect(run.hp).toBe(80);
+    expect(takeRelic(run, 'tuna_can')).toBe(false);
+    expect(takeRelic(run, 'tower_token')).toBe(true);
+    expect(run.maxHp).toBe(70); expect(run.hp).toBe(70);
+  });
+  it('忍具最多 3 個', () => {
+    const run = fresh();
+    expect(addPotion(run, 'tuna')).toBe(true); addPotion(run, 'tuna'); addPotion(run, 'tuna');
+    expect(addPotion(run, 'rope')).toBe(false); expect(run.potions.length).toBe(3);
+  });
+});
+
+describe('貓窩、紙箱、罐頭鋪', () => {
+  it('打盹回 30%，貓草加倍；磨爪升級', () => {
+    const run = fresh(); run.hp = 20;
+    expect(rest(run, '打盹')).toBe(true); expect(run.hp).toBe(41);
+    run.hp = 20; takeRelic(run, 'catgrass');
+    rest(run, '打盹'); expect(run.hp).toBe(62);
+    const uid = run.deck[0]!.uid;
+    expect(rest(run, '磨爪', uid)).toBe(true); expect(run.deck[0]!.upgraded).toBe(true);
+  });
+  it('紙箱給一件沒有的常見秘寶', () => {
+    const run = fresh();
+    const id = openChest(run)!;
+    expect(relicById[id]?.pool).toBe('常見'); expect(run.relics).toContain(id);
+  });
+  it('罐頭鋪：5 張牌（3 忍術 2 絕學）、2 秘寶、3 忍具；買牌扣錢；放生漲價', () => {
+    const run = fresh('shop'); run.fish = 500;
+    const shop = makeShop(run);
+    expect(shop.cards.length).toBe(5);
+    expect(shop.cards.filter((c) => c.def.pool === '忍術').length).toBe(3);
+    expect(shop.cards.filter((c) => c.def.pool === '絕學').length).toBe(2);
+    expect(shop.relics.length).toBe(2); expect(shop.potions.length).toBe(3);
+    const price = shop.cards[0]!.price;
+    expect(buyCard(run, shop, 0)).toBe(true); expect(run.fish).toBe(500 - price); expect(shop.cards[0]!.sold).toBe(true);
+    expect(buyCard(run, shop, 0)).toBe(false);
+    const uid = run.deck[0]!.uid;
+    expect(buyRemove(run, uid)).toBe(true); expect(run.removeCost).toBe(100); expect(run.deck.some((c) => c.uid === uid)).toBe(false);
+    run.fish = 0; expect(buyRemove(run, run.deck[0]!.uid)).toBe(false);
+  });
+});
+
+describe('事件結果', () => {
+  it('各種整局效果', () => {
+    const run = fresh('ev'); run.hp = 30; run.fish = 40;
+    expect(applyRunEffects(run, [{ kind: 'heal', n: 20 }])).toBeNull(); expect(run.hp).toBe(50);
+    applyRunEffects(run, [{ kind: 'damage', n: 6 }]); expect(run.hp).toBe(44);
+    applyRunEffects(run, [{ kind: 'fishHalve' }]); expect(run.fish).toBe(20);
+    applyRunEffects(run, [{ kind: 'maxHp', n: 5 }]); expect(run.maxHp).toBe(75); expect(run.hp).toBe(49);
+    applyRunEffects(run, [{ kind: 'addCard', cardId: 'zhongji' }]); expect(run.deck.some((c) => c.cardId === 'zhongji')).toBe(true);
+    applyRunEffects(run, [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }]);
+    expect(cardById[run.deck.at(-1)!.cardId]?.rarity).toBe('罕見');
+    applyRunEffects(run, [{ kind: 'potions', n: 2 }]); expect(run.potions.length).toBe(2);
+    expect(applyRunEffects(run, [{ kind: 'removeCard' }])).toEqual({ needs: 'removeCard' });
+    expect(applyRunEffects(run, [{ kind: 'upgradeCard' }])).toEqual({ needs: 'upgradeCard' });
+    expect(applyRunEffects(run, [{ kind: 'fight', encounterId: 'orange_bandit', bonusFish: 40 }])).toEqual({ fight: { encounterId: 'orange_bandit', bonusFish: 40 } });
+    const pick = applyRunEffects(run, [{ kind: 'chooseCard', pool: '絕學', n: 3 }]);
+    expect('chooseCard' in pick! && pick.chooseCard.length).toBe(3);
+    applyRunEffects(run, [{ kind: 'relic', pool: '常見' }]); expect(run.relics.length).toBe(2);
+  });
+  it('賭注照種子決定', () => {
+    const a = fresh('g'), b = fresh('g');
+    const fx = [{ kind: 'gamble' as const, p: 0.5, win: [{ kind: 'maxHp' as const, n: 5 }], lose: [{ kind: 'addCard' as const, cardId: 'shishou' }] }];
+    applyRunEffects(a, fx); applyRunEffects(b, fx);
+    expect(a.maxHp).toBe(b.maxHp); expect(a.deck.length).toBe(b.deck.length);
+  });
+  it('事件戰鬥的獎金加在勝利上', () => {
+    const run = fresh('bonus');
+    chooseNode(run, run.map.start[0]!);
+    const cs = beginCombat(run, 'orange_bandit');
+    for (const e of cs.enemies) e.dead = true; cs.phase = 'won'; cs.kills = 1;
+    const r = finishCombat(run, cs, 40)!;
+    expect(run.fish).toBe(50 + r.fish + 40);
+  });
+});
