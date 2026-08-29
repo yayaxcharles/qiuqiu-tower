@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-build_assets.py — 從 Dropbox 貼圖原圖產出遊戲素材。
-  牌面：整張（含標題帶）→ 寬 400 WebP → public/assets/cards/<set>/<NN>.webp
-  立繪：裁掉頂端標題帶 → 高 640 WebP → public/assets/sprites/<set>/<NN>.webp
+build_assets.py — 從 Dropbox 貼圖原圖產出遊戲素材（只產遊戲真的會用到的鍵）。
+  牌面：整張（含標題帶）→ 寬 360 WebP → public/assets/cards/<set>/<NN>.webp
+        鍵＝掃描 src/content/cards.ts 得到的 art 值（58 張牌）。
+  立繪：裁掉頂端標題帶 → 高 512 WebP → public/assets/sprites/<set>/<NN>.webp
+        鍵＝忍者 40 張（球球固定姿勢＋每張忍術牌的出招姿勢）＋塔主 9 種姿勢（規格 §8.5）。
   另產 public/assets/manifest.json 與 tools/out/review_sprites_<set>.png（抽查拼圖）。
 用法：python tools/build_assets.py [--force] [--check]
   --force  忽略時間戳全部重做
   --check  只驗證產物齊全（給 CI／驗收用），不產圖
+manifest.json 是共用檔：本腳本只換 cards／sprites／review 三節，
+其他鍵（chroma_key.py 寫的 monsters／icons／bg）與 sprites 裡的 codex/* 條目一律保留。
 來源只讀；可重跑。
 """
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -26,16 +31,48 @@ SOURCES = {
 OUT = ROOT / "public" / "assets"
 REVIEW_DIR = ROOT / "tools" / "out"
 OVERRIDES = ROOT / "tools" / "crop_overrides.json"
-CARD_W = 400
-SPRITE_H = 640
-QUALITY = 70
+CARDS_TS = ROOT / "src" / "content" / "cards.ts"
+CARD_W = 360
+CARD_QUALITY = 72
+SPRITE_H = 512
+SPRITE_QUALITY = 70
+MAX_FILE_BYTES = 120_000
+
+ART_RE = re.compile(r"art:\s*'([^']+)'")
+
+# 球球的立繪：固定姿勢與每張忍術牌的出招姿勢，忍者 40 張全要（規格 §8.5）。
+NINJA_SPRITE_KEYS = [f"ninja/{n:02d}" for n in range(1, 41)]
+# 塔主的九種姿勢，來自規格 §6.4 的塔主姿勢表：
+# 待機 36 深藏不露、蓄力 21、鐵頭功 05、金鐘罩 07、獅吼功 06、
+# 醉拳 16、閉關 35、第二階段待機 33 走火入魔、戰敗 28 承讓。
+BOSS_POSE_KEYS = [
+    "daxia/36", "daxia/21", "daxia/05", "daxia/07", "daxia/06",
+    "daxia/16", "daxia/35", "daxia/33", "daxia/28",
+]
+
+
+def card_keys() -> set[str]:
+    """牌面鍵＝src/content/cards.ts 裡出現的 art 值（掃出來的，不手抄清單）。"""
+    if not CARDS_TS.exists():
+        sys.exit(f"找不到牌庫檔：{CARDS_TS}")
+    keys = set(ART_RE.findall(CARDS_TS.read_text(encoding="utf-8")))
+    if not keys:
+        sys.exit(f"在 {CARDS_TS} 掃不到任何 art 鍵，正規表示式可能過期了")
+    return keys
+
+
+def sprite_keys() -> set[str]:
+    """立繪鍵＝忍者 40 張＋塔主 9 種姿勢。"""
+    return set(NINJA_SPRITE_KEYS) | set(BOSS_POSE_KEYS)
 
 
 def title_band_bottom(im: Image.Image) -> tuple[int, bool]:
     """回傳 (裁切線 y, 是否退路)。
     做法：標題帶在最上面，跟角色之間通常有一段完全透明的列。
     從頂端第一個不透明列往下找，找到連續 ≥4 列全透明就當作分界；只在上方 40% 內找。
-    找不到就退路：裁掉 20% 高度，並標記人工檢查。"""
+    找不到就退路：裁掉 20% 高度，並標記人工檢查。
+    註：這批貼圖幾乎都沒有透明間隔，實際採用的線一律來自 crop_overrides.json；
+    本函式只在遇到沒有覆寫值的新圖時當退路，並把該鍵丟進 review 名單提醒人工看圖。"""
     alpha = im.getchannel("A")
     w, h = im.size
     row_opaque = [False] * h
@@ -59,18 +96,63 @@ def title_band_bottom(im: Image.Image) -> tuple[int, bool]:
     return int(h * 0.2), True
 
 
-def save_webp(im: Image.Image, path: Path) -> None:
+def save_webp(im: Image.Image, path: Path, quality: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    im.save(path, "WEBP", quality=QUALITY, method=6)
+    im.save(path, "WEBP", quality=quality, method=6)
 
 
 def newer(src: Path, dst: Path) -> bool:
     return not dst.exists() or src.stat().st_mtime > dst.stat().st_mtime
 
 
+def prune(wanted_cards: set[str], wanted_sprites: set[str]) -> list[str]:
+    """刪掉不再產出的舊 webp。只掃本腳本擁有的四個資料夾
+    （cards/、sprites/ 底下的 ninja 與 daxia），不碰 sprites/codex/ 或
+    chroma_key.py 的 monsters/、icons/、bg/。"""
+    removed = []
+    for group, wanted in (("cards", wanted_cards), ("sprites", wanted_sprites)):
+        for set_name in SOURCES:
+            d = OUT / group / set_name
+            if not d.exists():
+                continue
+            for p in sorted(d.glob("*.webp")):
+                if f"{set_name}/{p.stem}" not in wanted:
+                    p.unlink()
+                    removed.append(p.relative_to(OUT).as_posix())
+    return removed
+
+
+def write_manifest(cards: dict, sprites: dict, review: list) -> dict:
+    """把 cards／sprites／review 三節寫回共用的 manifest.json，其餘鍵原封不動。
+    sprites 裡由 chroma_key.py 寫的 codex/* 條目一併保留。"""
+    path = OUT / "manifest.json"
+    manifest = {}
+    if path.exists():
+        try:
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            sys.exit(f"既有的 manifest.json 解析失敗，先修好再跑：{e}")
+        if not isinstance(manifest, dict):
+            sys.exit("既有的 manifest.json 不是物件，先修好再跑")
+    foreign = {k: v for k, v in manifest.get("sprites", {}).items() if k.startswith("codex/")}
+    manifest["cards"] = cards
+    manifest["sprites"] = {**sprites, **foreign}
+    manifest["review"] = review
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+    if foreign:
+        print(f"（保留 {len(foreign)} 筆 codex 立繪條目：{sorted(foreign)}）")
+    return manifest
+
+
 def build(force: bool) -> dict:
     overrides = json.loads(OVERRIDES.read_text(encoding="utf-8")) if OVERRIDES.exists() else {}
-    manifest = {"cards": {}, "sprites": {}, "review": []}
+    wanted_cards = card_keys()
+    wanted_sprites = sprite_keys()
+    removed = prune(wanted_cards, wanted_sprites)
+    if removed:
+        print(f"刪掉 {len(removed)} 個不再使用的舊檔")
+    cards, sprites, review = {}, {}, []
     for set_name, src_dir in SOURCES.items():
         if not src_dir.exists():
             sys.exit(f"找不到來源資料夾：{src_dir}")
@@ -78,56 +160,123 @@ def build(force: bool) -> dict:
         thumbs = []
         for src in files:
             key = f"{set_name}/{src.stem[:2]}"
-            card_out = OUT / "cards" / set_name / f"{src.stem[:2]}.webp"
-            sprite_out = OUT / "sprites" / set_name / f"{src.stem[:2]}.webp"
-            manifest["cards"][key] = card_out.relative_to(ROOT / "public").as_posix()
-            manifest["sprites"][key] = sprite_out.relative_to(ROOT / "public").as_posix()
+            need_card = key in wanted_cards
+            need_sprite = key in wanted_sprites
+            if not need_card and not need_sprite:
+                continue
             im = Image.open(src).convert("RGBA")
-            if force or newer(src, card_out):
-                card = im.copy()
-                card.thumbnail((CARD_W, CARD_W * 4))
-                save_webp(card, card_out)
-            y, fallback = title_band_bottom(im)
-            if key in overrides:
-                y, fallback = int(overrides[key]), False
-            if fallback:
-                manifest["review"].append(key)
-            if force or newer(src, sprite_out):
-                sprite = im.crop((0, y, im.width, im.height))
-                bbox = sprite.getchannel("A").getbbox()
-                if bbox:
-                    sprite = sprite.crop(bbox)
-                sprite.thumbnail((SPRITE_H * 2, SPRITE_H))
-                save_webp(sprite, sprite_out)
-            t = Image.open(sprite_out).convert("RGBA")
-            t.thumbnail((180, 160))
-            thumbs.append(t)
+            if need_card:
+                card_out = OUT / "cards" / set_name / f"{src.stem[:2]}.webp"
+                cards[key] = card_out.relative_to(ROOT / "public").as_posix()
+                if force or newer(src, card_out):
+                    card = im.copy()
+                    card.thumbnail((CARD_W, CARD_W * 4))
+                    save_webp(card, card_out, CARD_QUALITY)
+            if need_sprite:
+                sprite_out = OUT / "sprites" / set_name / f"{src.stem[:2]}.webp"
+                sprites[key] = sprite_out.relative_to(ROOT / "public").as_posix()
+                if key in overrides:
+                    y, fallback = int(overrides[key]), False
+                else:
+                    y, fallback = title_band_bottom(im)
+                if fallback:
+                    review.append(key)
+                if force or newer(src, sprite_out):
+                    sprite = im.crop((0, y, im.width, im.height))
+                    bbox = sprite.getchannel("A").getbbox()
+                    if bbox:
+                        sprite = sprite.crop(bbox)
+                    sprite.thumbnail((SPRITE_H * 2, SPRITE_H))
+                    save_webp(sprite, sprite_out, SPRITE_QUALITY)
+                t = Image.open(sprite_out).convert("RGBA")
+                t.thumbnail((180, 160))
+                thumbs.append(t)
         cols = 8
         rows = (len(thumbs) + cols - 1) // cols
-        sheet = Image.new("RGBA", (cols * 180, rows * 160), (80, 80, 80, 255))
+        sheet = Image.new("RGBA", (cols * 180, max(rows, 1) * 160), (80, 80, 80, 255))
         for i, t in enumerate(thumbs):
             sheet.paste(t, ((i % cols) * 180, (i // cols) * 160), t)
         REVIEW_DIR.mkdir(parents=True, exist_ok=True)
         sheet.convert("RGB").save(REVIEW_DIR / f"review_sprites_{set_name}.png", quality=85)
-    (OUT / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
-    return manifest
+    return write_manifest(cards, sprites, review)
+
+
+def dir_size(root: Path) -> tuple[int, int]:
+    """回傳 (總位元組, 檔案數)。"""
+    total = count = 0
+    for p in root.rglob("*"):
+        if p.is_file():
+            total += p.stat().st_size
+            count += 1
+    return total, count
 
 
 def check() -> None:
-    manifest = json.loads((OUT / "manifest.json").read_text(encoding="utf-8"))
+    manifest_path = OUT / "manifest.json"
+    if not manifest_path.exists():
+        sys.exit(f"找不到 {manifest_path}，先跑一次產線")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    wanted_cards = card_keys()
+    wanted_sprites = sprite_keys()
     problems = []
+
+    # 牌面：cards.ts 裡每個 art 鍵都必須有檔，缺一張就是錯
+    #（加了新牌卻沒重跑產線，會在這裡被抓到）
+    got_cards = manifest.get("cards", {})
+    for key in sorted(wanted_cards):
+        rel = got_cards.get(key)
+        if rel is None:
+            problems.append(f"牌面缺鍵：{key}（cards.ts 有這張牌，manifest 沒有；加牌後要重跑產線）")
+        elif not (ROOT / "public" / rel).exists():
+            problems.append(f"缺檔：{rel}")
+    extra_cards = sorted(set(got_cards) - wanted_cards)
+    if extra_cards:
+        problems.append(f"牌面多出 {len(extra_cards)} 個沒人用的鍵：{extra_cards}")
+
+    # 立繪：本腳本負責的鍵必須剛好是那 49 個（codex/* 是別的腳本的，不算在內）
+    all_sprites = manifest.get("sprites", {})
+    own_sprites = {k: v for k, v in all_sprites.items() if not k.startswith("codex/")}
+    foreign_sprites = sorted(k for k in all_sprites if k.startswith("codex/"))
+    if set(own_sprites) != wanted_sprites:
+        missing = sorted(wanted_sprites - set(own_sprites))
+        extra = sorted(set(own_sprites) - wanted_sprites)
+        if missing:
+            problems.append(f"立繪缺鍵 {len(missing)} 個：{missing}")
+        if extra:
+            problems.append(f"立繪多出 {len(extra)} 個沒人用的鍵：{extra}")
+    for key, rel in sorted(own_sprites.items()):
+        if not (ROOT / "public" / rel).exists():
+            problems.append(f"缺檔：{rel}")
+
+    # 每個貼圖檔 ≤120 KB；bg／icons／monsters 這類別的腳本的產物只提醒不擋
+    oversize_note = []
     for group in ("cards", "sprites"):
-        if len(manifest[group]) != 80:
-            problems.append(f"{group} 應有 80 筆，實際 {len(manifest[group])}")
-        for key, rel in manifest[group].items():
-            p = ROOT / "public" / rel
-            if not p.exists():
-                problems.append(f"缺檔：{rel}")
-            elif p.stat().st_size > 120_000:
-                problems.append(f"太大（>120KB）：{rel}")
+        d = OUT / group
+        if not d.exists():
+            continue
+        for p in sorted(d.rglob("*.webp")):
+            if p.stat().st_size > MAX_FILE_BYTES:
+                problems.append(f"太大（>120KB）：{p.relative_to(ROOT / 'public').as_posix()}")
+    for p in sorted(OUT.rglob("*")):
+        if p.is_file() and not p.is_relative_to(OUT / "cards") and not p.is_relative_to(OUT / "sprites"):
+            if p.stat().st_size > MAX_FILE_BYTES:
+                oversize_note.append(f"{p.relative_to(ROOT / 'public').as_posix()} {p.stat().st_size:,}")
+
     if problems:
         sys.exit("\n".join(problems))
-    print(f"ok：80 牌面、80 立繪，待人工檢查 {len(manifest['review'])} 張：{manifest['review']}")
+
+    cards_bytes, cards_n = dir_size(OUT / "cards")
+    sprites_bytes, sprites_n = dir_size(OUT / "sprites")
+    total_bytes, total_n = dir_size(OUT)
+    print(f"ok：牌面 {len(got_cards)} 張（cards.ts 掃到 {len(wanted_cards)} 個 art 鍵，全部有檔）、"
+          f"立繪 {len(own_sprites)} 張（應有 {len(wanted_sprites)}），"
+          f"待人工檢查 {len(manifest.get('review', []))} 張：{manifest.get('review', [])}")
+    if foreign_sprites:
+        print(f"另有別的腳本的立繪 {len(foreign_sprites)} 筆（不計入 49）：{foreign_sprites}")
+    print(f"牌面 {cards_n} 檔 {cards_bytes:,} 位元組；立繪 {sprites_n} 檔 {sprites_bytes:,} 位元組")
+    if oversize_note:
+        print(f"提醒：public/assets/ 底下有 {len(oversize_note)} 個非貼圖檔超過 120 KB（不擋）：{oversize_note}")
+    print(f"public/assets/ 總計 {total_bytes:,} 位元組（{total_bytes / 1048576:.2f} MB），{total_n} 個檔")
 
 
 if __name__ == "__main__":
@@ -139,4 +288,5 @@ if __name__ == "__main__":
         check()
     else:
         m = build(args.force)
-        print(f"完成：{len(m['cards'])} 牌面、{len(m['sprites'])} 立繪；待人工檢查：{m['review']}")
+        own = [k for k in m["sprites"] if not k.startswith("codex/")]
+        print(f"完成：{len(m['cards'])} 牌面、{len(own)} 立繪；待人工檢查：{m['review']}")
