@@ -112,7 +112,12 @@
   "codex/curl": "assets/sprites/codex/curl.webp"
  },
  "review": [],
- "monsters": {},
+ "monsters": {
+  "codex/monster_cucumber": {
+   "idle": "assets/monsters/cucumber_idle.webp",
+   "attack": "assets/monsters/cucumber_attack.webp"
+  }
+ },
  "icons": {},
  "bg": {}
 }
