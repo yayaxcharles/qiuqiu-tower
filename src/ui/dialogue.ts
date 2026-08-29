@@ -1,8 +1,14 @@
 import type { DialogueLine } from '../content/dialogue';
 import { el } from './dom';
-import { overlayRoot } from './overlay';
+import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 
-/** 全螢幕對白疊層，點一下下一句；播完自己移除再叫 onDone */
+/**
+ * 全螢幕對白疊層，點一下下一句；播完自己移除再叫 onDone。
+ *
+ * 播的時候底下的畫面層要停用（`lockScreen`）：黑幕只擋滑鼠，底下的按鈕還留在 Tab 順序裡，
+ * 序章時按 Enter 就會再開一局、塔主戰前按 Enter 會去點地圖節點、5F 秘笈與 14F 貓窩的對白
+ * 是蓋在已經畫好的畫面上的，底下那兩顆選項按鈕照樣按得動。
+ */
 export function playDialogue(lines: DialogueLine[], onDone: () => void): void {
   const layer = overlayRoot();
   if (!layer || lines.length === 0) { onDone(); return; }
@@ -25,6 +31,7 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void): void {
     if (ended) return;
     ended = true;
     box.remove();
+    unlockScreen();   // 排在 onDone 之前：回呼裡就會換畫面、擺上新的按鈕
     onDone();
   };
   box.addEventListener('click', () => {
@@ -33,6 +40,7 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void): void {
   });
   render();
   layer.append(box);
+  lockScreen();   // 跟挑牌疊層同一個規矩：貼上去之後才鎖
 }
 
 /** 戰鬥吐槽小氣泡，兩秒後自己淡掉 */

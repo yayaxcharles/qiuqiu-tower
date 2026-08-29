@@ -51,14 +51,21 @@ registerScreen('event', (app, root, props) => {
   /**
    * 把 `applyRunEffects` 回來的那一個待處理結果收乾淨。回 null 就是效果都跑完了，
    * 直接顯示結果；要玩家挑牌就開挑牌疊層；是一場架就交給戰鬥畫面。
+   *
+   * `notes` 是引擎一路記下來的「實際發生了什麼」（賭飯糰中了哪一邊、忍具收不收得下、
+   * 隨機撿到哪一張牌）。挑牌那條路自己還會再補一句，所以用 `noteLine` 接起來一起顯示。
    */
-  function settle(outcome: RunEffectOutcome, resultText: string): void {
-    if (!outcome) { finish(resultText); return; }
+  function settle(outcome: RunEffectOutcome, resultText: string, notes: string[]): void {
+    const noteLine = (extra?: string): string | null => {
+      const all = extra ? [...notes, extra] : notes;
+      return all.length ? all.join('；') : null;
+    };
+    if (!outcome) { finish(resultText, noteLine()); return; }
     if ('needs' in outcome) {
       const up = outcome.needs === 'upgradeCard';
       const filter = up ? (c: CardInstance) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病' : () => true;
       // 一張都不合就直接跳過（疊層本身也擋得住鎖死，但沒得挑還開一個空視窗只是煩人）
-      if (!run.deck.some(filter)) { finish(resultText, up ? '沒有可以升級的牌' : '沒有牌可以移除'); return; }
+      if (!run.deck.some(filter)) { finish(resultText, noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除')); return; }
       // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
       // 效果已經跑掉了，選項卻還在，看起來像還能再選一次。按鈕等挑完牌才由 finish 補上。
       panel(resultText, null, '');
@@ -67,10 +74,10 @@ registerScreen('event', (app, root, props) => {
         cards: run.deck, pickable: true, cancellable: false, filter,
         onPick: (uid) => {
           const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
-          if (uid === null || !c) { finish(resultText); return; }
+          if (uid === null || !c) { finish(resultText, noteLine()); return; }
           const name = cardName(c);
-          if (up) { upgradeCard(run, uid); finish(resultText, `「${name}」升級了`); }
-          else { removeCard(run, uid); finish(resultText, `丟掉了「${name}」`); }
+          if (up) { upgradeCard(run, uid); finish(resultText, noteLine(`「${name}」升級了`)); }
+          else { removeCard(run, uid); finish(resultText, noteLine(`丟掉了「${name}」`)); }
         },
       });
       return;
@@ -78,7 +85,7 @@ registerScreen('event', (app, root, props) => {
     if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard); return; }
     // 打一場：戰鬥畫面會把獎金一路帶到戰後結算，這裡不存檔（節點還沒結束）
     const f = outcome.fight;
-    panel(resultText, null, el('button', { class: 'btn primary', onclick: () => app.startFight(f.encounterId, false, f.bonusFish) }, '開打'));
+    panel(resultText, noteLine(), el('button', { class: 'btn primary', onclick: () => app.startFight(f.encounterId, false, f.bonusFish) }, '開打'));
   }
 
   renderHud(app, root);
@@ -93,7 +100,8 @@ registerScreen('event', (app, root, props) => {
     else btn.addEventListener('click', () => {
       if (cost > run.fish) return;   // 保險：畫面畫完之後小魚乾又變少的話（目前不會發生）也不能透支
       run.fish = Math.max(0, run.fish - cost);
-      settle(applyRunEffects(run, c.outcome), c.result);
+      const notes: string[] = [];
+      settle(applyRunEffects(run, c.outcome, notes), c.result, notes);
     });
     choices.append(btn);
   }

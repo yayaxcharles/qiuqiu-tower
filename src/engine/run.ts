@@ -1,5 +1,5 @@
 import { STARTER_DECK, cardById, cards } from '../content/cards';
-import { potions } from '../content/potions';
+import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
 import { startCombat } from './combat';
 import { generateMap, nextChoices, nodeById } from './map';
@@ -169,8 +169,17 @@ export type RunEffectOutcome =
   | { fight: { encounterId: string; bonusFish: number } }
   | null;
 
-export function applyRunEffects(run: RunState, effects: RunEffect[]): RunEffectOutcome {
+/**
+ * 跑一串整局效果。
+ *
+ * `notes` 是給畫面用的「實際發生了什麼」：有幾種效果**在畫面上完全看不出結果**——賭飯糰
+ * 到底中了哪一邊、忍具帶滿時多的那幾個被靜靜丟掉、隨機撿到的是哪一張牌——事件畫面拿這幾句
+ * 補在結果文案下面（`finish` 的第二個參數）。傳不傳都行，機器人試玩就不傳。
+ * 這裡寫的是敘述句，不是球球講話，所以句尾不加「喵」。
+ */
+export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: string[]): RunEffectOutcome {
   let outcome: RunEffectOutcome = null;
+  const cardName = (id: string): string => cardById[id]?.name ?? id;
   for (const fx of effects) {
     switch (fx.kind) {
       case 'heal': run.hp = Math.min(run.maxHp, run.hp + fx.n); break;
@@ -178,22 +187,49 @@ export function applyRunEffects(run: RunState, effects: RunEffect[]): RunEffectO
       case 'damage': run.hp = Math.max(1, run.hp - fx.n); break;
       case 'fish': run.fish = Math.max(0, run.fish + fx.n); break;
       case 'fishHalve': run.fish = Math.floor(run.fish / 2); break;
-      case 'maxHp': run.maxHp += fx.n; run.hp = Math.min(run.maxHp, run.hp + Math.max(0, fx.n)); break;
-      case 'addCard': addCard(run, fx.cardId); break;
+      case 'maxHp':
+        run.maxHp += fx.n; run.hp = Math.min(run.maxHp, run.hp + Math.max(0, fx.n));
+        notes?.push(`最大生命 ${fx.n >= 0 ? '+' : ''}${fx.n}`);
+        break;
+      case 'addCard':
+        addCard(run, fx.cardId);
+        // 壞毛病是被塞進來的，講法要跟「學會了」分開，玩家才知道自己是賺到還是中招
+        notes?.push(cardById[fx.cardId]?.pool === '壞毛病'
+          ? `牌組被塞了一張「${cardName(fx.cardId)}」`
+          : `學會了「${cardName(fx.cardId)}」`);
+        break;
       case 'addRandomCard': {
         const pool = cards.filter((c) => c.pool === fx.pool && (!fx.rarity || c.rarity === fx.rarity));
-        if (pool.length) addCard(run, runRng(run).pick(pool).id);
+        if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id); notes?.push(`撿到了「${def.name}」`); }
         break;
       }
       case 'removeCard': outcome = { needs: 'removeCard' }; break;
       case 'upgradeCard': outcome = { needs: 'upgradeCard' }; break;
-      case 'relic': { const id = rollRelic(runRng(run), fx.pool, run.relics); if (id) takeRelic(run, id); break; }
-      case 'potions': { const rng = runRng(run); for (let i = 0; i < fx.n; i++) addPotion(run, rollPotion(rng)); break; }
+      case 'relic': {
+        const id = rollRelic(runRng(run), fx.pool, run.relics);
+        if (id) { takeRelic(run, id); notes?.push(`得到秘寶「${relicById[id]?.name ?? id}」`); }
+        break;
+      }
+      case 'potions': {
+        // 忍具最多帶三個，滿了 addPotion 會回 false 並把多的靜靜丟掉——那件事一定要講出來，
+        // 不然文案寫著「掏出兩個忍具塞給球球」，玩家一個都沒拿到還以為是壞掉了
+        const rng = runRng(run);
+        const got: string[] = [];
+        let full = 0;
+        for (let i = 0; i < fx.n; i++) {
+          const id = rollPotion(rng);
+          if (addPotion(run, id)) got.push(potionById[id]?.name ?? id); else full += 1;
+        }
+        if (got.length) notes?.push(`拿到忍具「${got.join('」「')}」`);
+        if (full > 0) notes?.push(`忍具帶滿了，還有 ${full} 個收不下`);
+        break;
+      }
       case 'fight': outcome = { fight: { encounterId: fx.encounterId, bonusFish: fx.bonusFish } }; break;
       case 'chooseCard': outcome = { chooseCard: rollCardChoices(runRng(run), fx.pool, fx.n) }; break;
       case 'gamble': {
+        // 中了哪一邊由子效果自己講（贏＝最大生命 +5、輸＝牌組被塞一張「失手了」）
         const sub = runRng(run).chance(fx.p) ? fx.win : fx.lose;
-        const o = applyRunEffects(run, sub); if (o) outcome = o;
+        const o = applyRunEffects(run, sub, notes); if (o) outcome = o;
         break;
       }
       default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆

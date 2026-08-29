@@ -43,6 +43,23 @@ function knownCard(c: unknown): boolean {
   return typeof uid === 'number' && typeof cardId === 'string' && cardById[cardId] !== undefined;
 }
 
+/**
+ * 地圖與「現在站在哪個節點」對不對得起來。
+ *
+ * 跟上面那張牌的檢查是同一個形狀的洞，但失效模式更糟：牌那條是清掉存檔、玩家看得到標題畫面；
+ * 節點這條是 `nodeById` 在畫面函式的第一行就丟「未知的節點」，而 `App.show()` 已經先把畫面層
+ * 清空了——**舞台整個空白**，只剩重整；重整後按「續玩」再白一次，等於「續玩」被下毒。
+ * 動了地圖產生器（樓層數、lane 編號、id 格式）卻忘了升 `version` 就是這個情境。
+ */
+function usableMap(map: unknown, currentNode: unknown): boolean {
+  if (!map || typeof map !== 'object') return false;
+  const { nodes } = map as { nodes?: unknown };
+  if (!Array.isArray(nodes)) return false;
+  if (currentNode === null || currentNode === undefined) return true;   // 還沒踏上第一個節點，合法
+  if (typeof currentNode !== 'string') return false;
+  return nodes.some((n) => !!n && typeof n === 'object' && (n as { id?: unknown }).id === currentNode);
+}
+
 export function loadRun(): RunState | null {
   const raw = read(RUN_KEY);
   if (!raw) return null;
@@ -51,6 +68,8 @@ export function loadRun(): RunState | null {
     if (run.version !== 1 || !Array.isArray(run.deck) || !run.map || !run.rng) { clearSave(); return null; }
     // 牌組裡有牌表認不得的牌（或是壞掉的牌物件）就跟版本不符一樣處理：清掉、當作沒有存檔
     if (!run.deck.every(knownCard)) { clearSave(); return null; }
+    // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
+    if (!usableMap(run.map, run.currentNode)) { clearSave(); return null; }
     // 舊存檔沒有 flags：補一個空的就好，不必升版本
     if (!run.flags || typeof run.flags !== 'object') run.flags = {};
     return run as RunState;

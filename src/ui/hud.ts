@@ -6,13 +6,13 @@ import { showDeckPicker } from './deckview';
 import { el } from './dom';
 import { attachTooltip } from './tooltip';
 
-export interface HudOpts {
-  /** 戰鬥畫面才給：按下忍具要做什麼。地圖／商店這些不能用忍具，就不傳 */
-  onPotion?: (potionId: string, index: number) => void;
-}
-
-/** 上方狀態列：樓層、生命、小魚乾、秘寶、忍具、牌組、種子 */
-export function renderHud(app: App, root: HTMLElement, opts: HudOpts = {}): HTMLElement {
+/**
+ * 上方狀態列：樓層、生命、小魚乾、秘寶、忍具、牌組、種子。
+ *
+ * 忍具在這裡**只是畫出來給人看**，按不動：規格 §8.4 修訂後忍具搬到戰場的左下角，
+ * 而且戰鬥中這一列的生命與忍具兩格是用 CSS 隱藏的（戰鬥途中 `run.potions` 是過期值）。
+ */
+export function renderHud(app: App, root: HTMLElement): HTMLElement {
   const run = app.run;
   const hud = el('div', { class: 'hud' });
   root.append(hud);
@@ -45,8 +45,6 @@ export function renderHud(app: App, root: HTMLElement, opts: HudOpts = {}): HTML
     if (id && p) {
       slot.append(el('img', { src: artUrl('icons', p.art), alt: p.name }));
       slot.title = `${p.name}：${p.text}`;
-      const onPotion = opts.onPotion;
-      if (onPotion) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id, i)); }
     }
     potions.append(slot);
   }

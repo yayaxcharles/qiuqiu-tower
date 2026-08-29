@@ -1,7 +1,7 @@
 import type { CardInstance } from '../engine/types';
 import { cardNode } from './cardview';
 import { el } from './dom';
-import { overlayRoot } from './overlay';
+import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
 
 export interface DeckPickerOpts {
@@ -50,26 +50,16 @@ export function deckPickerLayout(
 export function showDeckPicker(opts: DeckPickerOpts): void {
   const layer = overlayRoot();
   if (!layer) { opts.onPick(null); return; }   // 沒有舞台就別把呼叫端的回呼吊在半空
-  /**
-   * 疊層開著的時候，把底下的畫面層整個停用。全螢幕黑幕只擋得住滑鼠，畫面層的按鈕還留在
-   * Tab 順序裡，按 Enter 照樣會被觸發：事件的選項會再跑一次效果（劫富濟貧就會再砍一半小魚乾、
-   * 再回一次血、再開一個挑牌視窗），罐頭鋪的「離開」會把地圖畫到底下去。`inert` 連鍵盤焦點
-   * 與點擊一起擋掉，正好是這裡要的。**四條出路都要還原**：挑一張、不選、點黑幕、沒得挑只能關。
-   *
-   * 這一行只是把畫面層**找出來**（純查詢、不會丟例外，下面的 `dismiss` 要抓著它）；
-   * 真正上鎖排到最後、疊層貼上去之後才做，理由見那邊的註解。
-   */
-  const screen = layer.parentElement?.querySelector<HTMLElement>('#screen') ?? null;
   const overlay = el('div', { class: 'modal-overlay' });
   /**
-   * 收掉疊層。還原畫面層要排在 onPick 之前：呼叫端在 onPick 裡就會重畫畫面、擺上新的按鈕，
-   * 這時候畫面層還停用著的話整個遊戲就按不動了（`#screen` 清空重畫不會把 inert 帶走）。
+   * 收掉疊層。**四條出路都會走到這裡**：挑一張、不選、點黑幕、沒得挑只能關，所以鎖一定還得掉。
+   * `unlockScreen()` 排在 onPick 之前的理由見 `overlay.ts`。
    * 也順手關掉還浮著的名詞提示：滑鼠停在牌面名詞上時整個疊層被移除，
    * mouseleave 不會發生，提示框就變成孤兒黏在畫面上。
    */
   const dismiss = (uid: number | null): void => {
     overlay.remove();
-    screen?.removeAttribute('inert');
+    unlockScreen();
     hideTooltip();
     opts.onPick(uid);
   };
@@ -102,5 +92,5 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
    * 滑鼠點不動、Tab 也跳不進去，玩家只能重整；重整後按「續玩」再按一次「牌組」又鎖回去。
    * 擺到這裡之後，最壞情況退回成「按鈕按下去沒反應」，遊戲照樣能玩。
    */
-  screen?.setAttribute('inert', '');
+  lockScreen();
 }

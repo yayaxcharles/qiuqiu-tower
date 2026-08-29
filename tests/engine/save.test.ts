@@ -42,6 +42,29 @@ describe('存檔', () => {
     expect(loadRun()).toBeNull();
     expect(store.raw.has('qiuqiu-tower/run')).toBe(false);
   });
+  it('地圖壞掉或站在不存在的節點上：當作不相容，清掉回 null', () => {
+    // 動過地圖產生器（id 格式、樓層數）卻忘了升版本的舊存檔。以前這種檔載得進來，
+    // 等到地圖畫面呼叫 nodeById 才丟「未知的節點」——那時畫面層已經清空了，舞台整個空白
+    const gone: Partial<RunState> = newRun('node-gone');
+    gone.currentNode = 'f9-l9';
+    store.setItem('qiuqiu-tower/run', JSON.stringify(gone));
+    expect(loadRun()).toBeNull(); expect(hasSave()).toBe(false);
+    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);   // 不只回 null，壞存檔要被清掉
+    // 地圖本身缺 nodes 陣列（!run.map 擋不住這種）
+    const noNodes: Partial<RunState> = newRun('no-nodes');
+    noNodes.map = { start: [] } as unknown as RunState['map'];
+    store.setItem('qiuqiu-tower/run', JSON.stringify(noNodes));
+    expect(loadRun()).toBeNull();
+    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);
+    // 反過來：currentNode 是 null（開局還沒踏上第一個節點）與真的在地圖上的節點都要照收
+    const fresh = newRun('node-ok');
+    saveRun(fresh);
+    expect(loadRun()).not.toBeNull();
+    const walking = newRun('node-walk');
+    walking.currentNode = walking.map.nodes[0]!.id;
+    saveRun(walking);
+    expect(loadRun()?.currentNode).toBe(walking.map.nodes[0]!.id);
+  });
   it('clearSave', () => {
     saveRun(newRun('c')); expect(hasSave()).toBe(true);
     clearSave(); expect(hasSave()).toBe(false);
