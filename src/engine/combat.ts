@@ -1,8 +1,9 @@
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
+import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { advanceMove, damageEnemy, damagePlayer, drawCards, findEnemy, gainStealth, log, makeEnemy, runEnemyEffects } from './actions';
-import { cardStats, discardHand } from './deck';
+import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
 import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } from './statuses';
@@ -152,4 +153,37 @@ export function endTurn(cs: CombatState): void {
 
 export function combatResult(cs: CombatState): { hp: number; fishDelta: number; kills: number; potions: string[] } {
   return { hp: cs.player.hp, fishDelta: cs.fishDelta, kills: cs.kills, potions: [...cs.potions] };
+}
+
+export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
+  const pd = cs.pending;
+  if (!pd) return false;
+  const allowed = new Set(pd.cards.map((c) => c.uid));
+  const uniq = [...new Set(chosenUids)];
+  if (uniq.length < pd.min || uniq.length > pd.max || uniq.some((u) => !allowed.has(u))) return false;
+  const p = cs.player;
+  for (const uid of uniq) {
+    switch (pd.purpose) {
+      case 'exhaust': moveCard(p, uid, 'exhaust'); break;
+      case 'retain': p.retained.push(uid); break;
+      case 'discard': moveCard(p, uid, 'discard'); break;
+      case 'recover': moveCard(p, uid, 'hand'); break;
+      case 'scryDiscard': moveCard(p, uid, 'discard'); break;
+    }
+  }
+  cs.pending = null;
+  applyEffects(cs, pd.remaining, pd.ctx);
+  return true;
+}
+
+export function usePotion(cs: CombatState, potionId: string, targetUid?: number): boolean {
+  if (cs.phase !== 'player' || cs.pending) return false;
+  const i = cs.potions.indexOf(potionId);
+  const def = potionById[potionId];
+  if (i < 0 || !def) return false;
+  if (def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return false;
+  cs.potions.splice(i, 1);
+  log(cs, `球球用了「${def.name}」`);
+  applyEffects(cs, def.effects, { targetUid, source: 'potion' });
+  return true;
 }

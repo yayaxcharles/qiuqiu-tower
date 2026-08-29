@@ -1,8 +1,8 @@
 import { aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log } from './actions';
 import { endTurn } from './combat';
-import { addStatus, getStatus } from './statuses';
-import { TURN_DECAY } from './types';
-import type { CombatState, Effect, EffectCtx } from './types';
+import { addStatus, getStatus, removeStatus } from './statuses';
+import { DEBUFFS, TURN_DECAY } from './types';
+import type { CardInstance, CombatState, Effect, EffectCtx } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
 export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx): void {
@@ -69,7 +69,54 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'immuneThisTurn': p.immune = true; return false;
     case 'doubleNextAttack': p.doubleNext = 1; return false;
     case 'endTurn': queue.length = 0; endTurn(cs); return false;
-    default:
-      throw new Error(`效果尚未實作：${fx.kind}`);   // Task 10 補齊
+    case 'stealBlock': {
+      for (const t of targetsOf(cs, ctx, false)) { p.block += t.block; t.block = 0; }
+      return false;
+    }
+    case 'damageEqualBlock': {
+      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, p.block, { noStrength: true }).killed) ctx.killed = true;
+      return false;
+    }
+    case 'transferDebuffs': {
+      for (const t of targetsOf(cs, ctx, false)) for (const name of DEBUFFS) {
+        const v = getStatus(p, name);
+        if (v > 0) { removeStatus(p, name); addStatus(t, name, v); }
+      }
+      return false;
+    }
+    case 'removeStatuses': {
+      for (const t of targetsOf(cs, ctx, false)) {
+        for (const name of fx.names) removeStatus(t, name);
+        if (fx.removeBlock) t.block = 0;
+      }
+      return false;
+    }
+    case 'scry': {
+      const cards = p.drawPile.slice(0, fx.n);
+      return pause(cs, queue, ctx, { from: 'scry', purpose: 'scryDiscard', cards, min: 0, max: cards.length });
+    }
+    case 'exhaustFromHand': {
+      const n = Math.min(fx.n, p.hand.length);
+      return pause(cs, queue, ctx, { from: 'hand', purpose: 'exhaust', cards: [...p.hand], min: n, max: n });
+    }
+    case 'retainFromHand': {
+      const n = Math.min(fx.n, p.hand.length);
+      return pause(cs, queue, ctx, { from: 'hand', purpose: 'retain', cards: [...p.hand], min: n, max: n });
+    }
+    case 'discardFromHand': {
+      const n = Math.min(fx.n, p.hand.length);
+      return pause(cs, queue, ctx, { from: 'hand', purpose: 'discard', cards: [...p.hand], min: n, max: n });
+    }
+    case 'recoverFromDiscard':
+      return pause(cs, queue, ctx, { from: 'discard', purpose: 'recover', cards: [...p.discardPile], min: 1, max: 1 });
   }
+}
+
+/** 戰鬥已分出勝負或候選為空就跳過；否則把剩餘效果收進 pending 並清空佇列 */
+function pause(cs: CombatState, queue: Effect[], ctx: EffectCtx,
+  spec: { from: 'hand' | 'discard' | 'scry'; purpose: 'exhaust' | 'retain' | 'discard' | 'recover' | 'scryDiscard'; cards: CardInstance[]; min: number; max: number }): boolean {
+  if (cs.phase !== 'player' || spec.cards.length === 0) return false;
+  cs.pending = { kind: 'chooseCards', ...spec, remaining: [...queue], ctx };
+  queue.length = 0;
+  return true;
 }
