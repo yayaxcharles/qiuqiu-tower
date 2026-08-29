@@ -50,6 +50,8 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
     }
   }
   p.hp -= lose;
+  // 已經打贏了，殘餘效果（自傷、壞毛病）不會把球球打死
+  if (cs.phase === 'won') { p.hp = Math.max(1, p.hp); return lose; }
   if (p.hp <= 0) {
     if (hasRelic(cs, 'wood_post') && !p.lethalPrevented) { p.hp = 1; p.lethalPrevented = true; log(cs, '木樁替球球挨了這一下'); }
     else { p.hp = 0; cs.phase = 'lost'; }

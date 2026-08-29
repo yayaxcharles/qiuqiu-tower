@@ -111,6 +111,14 @@ describe('出牌', () => {
     expect(cs.fishDelta).toBe(15);
     expect(combatResult(cs).fishDelta).toBe(15);
   });
+  it('判贏之後不會被自傷打死', () => {
+    const cs = start('cucumber', [...STARTER_DECK, 'tietou'], 's', [], 2);
+    const e = cs.enemies[0]!; e.hp = 3;
+    playCard(cs, toHand(cs, 'tietou'), e.uid);   // 打 16 擊倒 → 後面的自傷 2 不該把球球打死
+    expect(cs.phase).toBe('won');
+    expect(cs.player.hp).toBe(1);
+    expect(cs.kills).toBe(1);
+  });
 });
 
 describe('魔物回合', () => {
