@@ -1,4 +1,5 @@
 import { enemyById } from '../content/enemies';
+import { relicById } from '../content/relics';
 import { draw } from './deck';
 import { applyEffects } from './effects';
 import { addStatus, computeAttack, computeBlock, getStatus } from './statuses';
@@ -15,9 +16,10 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   return v;
 }
 
+/** 每回合第一次拿隱身時吃秘寶加成（紙袋的 stealthBonus），加成量由秘寶資料決定 */
 export function gainStealth(cs: CombatState, n: number): void {
   let amt = n;
-  if (hasRelic(cs, 'paper_bag') && !cs.player.firstStealthGiven) amt += 1;
+  if (!cs.player.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
   cs.player.firstStealthGiven = true;
   addStatus(cs.player, '隱身', amt);
 }
