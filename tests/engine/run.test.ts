@@ -82,6 +82,15 @@ describe('戰鬥與獎勵', () => {
     expect(finishCombat(run, cs)).toBeNull();
     expect(run.status).toBe('lost');
   });
+  it('戰鬥還沒結束不准收尾', () => {
+    const run = fresh('guard');
+    chooseNode(run, run.map.start[0]!);
+    const hp = run.hp, fish = run.fish;
+    const cs = beginCombat(run);
+    expect(cs.phase).toBe('player');
+    expect(() => finishCombat(run, cs)).toThrow();
+    expect(run.hp).toBe(hp); expect(run.fish).toBe(fish);
+  });
   it('rollCardChoices 不重複、依池；rollRelic 不給已擁有', () => {
     const rng = new Rng(seedFromString('roll'));
     const cs = rollCardChoices(rng, '絕學', 3);

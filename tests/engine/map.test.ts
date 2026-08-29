@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
 import { generateMap, nextChoices, nodesOnFloor, validateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
+import type { GameMap } from '../../src/engine/types';
 
 describe('地圖', () => {
   it('200 個種子全部合法', () => {
@@ -40,5 +41,16 @@ describe('地圖', () => {
       for (const f of [2, 3, 4]) for (const n of nodesOnFloor(m, f)) { total++; if (n.type === '戰鬥') fight++; }
     }
     expect(fight / total).toBeGreaterThan(0.5); expect(fight / total).toBeLessThan(0.75);
+  });
+  it('validateMap 抓得到動過手腳的地圖', () => {
+    const good = generateMap(new Rng(seedFromString('tamper')));
+    expect(validateMap(good)).toEqual([]);
+    const bad: GameMap = structuredClone(good);
+    nodesOnFloor(bad, 1)[0]!.type = '事件';                              // 1F 不該有事件，且它沒有 eventId
+    bad.nodes.find((n) => n.type === '戰鬥')!.encounterId = 'no_such_encounter';   // 遭遇 id 不存在
+    nodesOnFloor(bad, 13)[0]!.type = '貓窩';                             // 13F 不可放貓窩
+    const problems = validateMap(bad);
+    expect(problems.length).toBeGreaterThanOrEqual(3);
+    expect(validateMap(good)).toEqual([]);                               // 原圖沒被改到
   });
 });

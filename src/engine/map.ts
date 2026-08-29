@@ -59,7 +59,9 @@ export function generateMap(rng: Rng): GameMap {
     const cands = mid.filter((n) => n.type === '戰鬥'); (cands.length ? rng.pick(cands) : mid[0]!).type = '罐頭鋪';
   }
   if (!mid.some((n) => n.type === '貓窩')) {
-    const cands = mid.filter((n) => n.type === '戰鬥' && n.floor !== 13); (cands.length ? rng.pick(cands) : mid[0]!).type = '貓窩';
+    const cands = mid.filter((n) => n.type === '戰鬥' && n.floor !== 13);
+    const spare = mid.filter((n) => n.type !== '罐頭鋪' && n.floor !== 13);   // 退路避開剛放上去的罐頭鋪，也避開 13F
+    (cands.length ? rng.pick(cands) : spare[0]!).type = '貓窩';
   }
   // 內容：遭遇與事件
   const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined).map((e) => e.id));

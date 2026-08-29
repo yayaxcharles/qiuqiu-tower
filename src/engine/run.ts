@@ -48,6 +48,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
 }
 
 export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): CombatRewards | null {
+  if (cs.phase === 'player') throw new Error('戰鬥尚未結束');
   run.stats.turns += cs.turn;
   run.stats.cardsPlayed += cs.cardsPlayed;
   run.potions = [...cs.potions];
@@ -193,6 +194,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[]): RunEffectO
         const o = applyRunEffects(run, sub); if (o) outcome = o;
         break;
       }
+      default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆
     }
   }
   return outcome;
