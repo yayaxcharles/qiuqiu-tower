@@ -48,6 +48,20 @@ describe('選牌類效果', () => {
     expect(resolveChoice(cs, [victim])).toBe(true);
     expect(cs.player.exhaustPile.map((c) => c.uid)).toContain(victim);
   });
+  // 告退是消耗牌：手牌只剩它的時候不能再自己洗回來無限打（控制端 2026-08-29 裁決）
+  it('告退：牌組只剩它時打完就進消耗堆，抽不回來', () => {
+    const cs = startCombat({ hp: 70, maxHp: 70, deck: deck(['gaotui']), relics: [], potions: [], encounterId: 'wood_dummy', rng: new Rng(seedFromString('fx')) });
+    cs.player.energy = 9;
+    const uid = cs.player.hand[0]!.uid;
+    expect(cs.player.hand.length).toBe(1);
+    expect(cs.player.discardPile.length).toBe(0);
+    expect(playCard(cs, uid)).toBe(true);
+    expect(cs.pending).toBeNull();                                        // 手牌已空，沒東西可消耗，不開選單
+    expect(cs.player.exhaustPile.map((c) => c.uid)).toEqual([uid]);
+    expect(cs.player.hand.some((c) => c.uid === uid)).toBe(false);
+    expect(cs.player.discardPile.some((c) => c.uid === uid)).toBe(false);
+    expect(cs.player.drawPile.some((c) => c.uid === uid)).toBe(false);
+  });
   it('拖字訣：保留的牌回合結束不棄', () => {
     const cs = start('wood_dummy', ['tuozi']);
     playCard(cs, toHand(cs, 'tuozi'));

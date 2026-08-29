@@ -77,7 +77,7 @@ export const cards: CardDef[] = [
     effects: [{ kind: 'energy', n: 1 }], upgrade: { effects: [{ kind: 'energy', n: 1 }, { kind: 'draw', n: 1 }] } },
   { id: 'xianshuile', name: '先睡了', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'ninja/38',
     effects: [{ kind: 'heal', n: 4 }, { kind: 'endTurn' }], upgrade: { effects: [{ kind: 'heal', n: 7 }, { kind: 'endTurn' }] } },
-  { id: 'gaotui', name: '告退', cost: 0, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'ninja/39',
+  { id: 'gaotui', name: '告退', cost: 0, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'ninja/39', keywords: ['消耗'],
     effects: [{ kind: 'exhaustFromHand', n: 1 }, { kind: 'draw', n: 1 }], upgrade: { effects: [{ kind: 'exhaustFromHand', n: 1 }, { kind: 'draw', n: 2 }] } },
   { id: 'meikandao', name: '我什麼都沒看到', cost: 2, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'ninja/31', keywords: ['消耗'],
     effects: [{ kind: 'immuneThisTurn' }], upgrade: { cost: 1 } },
