@@ -116,8 +116,100 @@
   "codex/monster_cucumber": {
    "idle": "assets/monsters/cucumber_idle.webp",
    "attack": "assets/monsters/cucumber_attack.webp"
+  },
+  "codex/monster_rat": {
+   "idle": "assets/monsters/rat_idle.webp",
+   "attack": "assets/monsters/rat_attack.webp"
+  },
+  "codex/monster_onigiri": {
+   "idle": "assets/monsters/onigiri_idle.webp",
+   "attack": "assets/monsters/onigiri_attack.webp"
+  },
+  "codex/monster_wood_dummy": {
+   "idle": "assets/monsters/wood_dummy_idle.webp",
+   "attack": "assets/monsters/wood_dummy_attack.webp"
+  },
+  "codex/monster_goat": {
+   "idle": "assets/monsters/goat_idle.webp",
+   "attack": "assets/monsters/goat_attack.webp"
+  },
+  "codex/monster_vacuum": {
+   "idle": "assets/monsters/vacuum_idle.webp",
+   "attack": "assets/monsters/vacuum_attack.webp"
+  },
+  "codex/monster_black_ninja": {
+   "idle": "assets/monsters/black_ninja_idle.webp",
+   "attack": "assets/monsters/black_ninja_attack.webp"
+  },
+  "codex/monster_orange_bandit": {
+   "idle": "assets/monsters/orange_bandit_idle.webp",
+   "attack": "assets/monsters/orange_bandit_attack.webp"
+  },
+  "codex/monster_catgrass_bug": {
+   "idle": "assets/monsters/catgrass_bug_idle.webp",
+   "attack": "assets/monsters/catgrass_bug_attack.webp"
+  },
+  "codex/monster_scarecrow": {
+   "idle": "assets/monsters/scarecrow_idle.webp",
+   "attack": "assets/monsters/scarecrow_attack.webp"
+  },
+  "codex/monster_big_cucumber": {
+   "idle": "assets/monsters/big_cucumber_idle.webp",
+   "attack": "assets/monsters/big_cucumber_attack.webp"
+  },
+  "codex/monster_ninja_boss": {
+   "idle": "assets/monsters/ninja_boss_idle.webp",
+   "attack": "assets/monsters/ninja_boss_attack.webp"
+  },
+  "codex/monster_giant_onigiri": {
+   "idle": "assets/monsters/giant_onigiri_idle.webp",
+   "attack": "assets/monsters/giant_onigiri_attack.webp"
+  },
+  "codex/monster_black_kitten": {
+   "idle": "assets/monsters/black_kitten_idle.webp",
+   "attack": "assets/monsters/black_kitten_attack.webp"
   }
  },
- "icons": {},
- "bg": {}
+ "icons": {
+  "icon/onigiri_full": "assets/icons/onigiri_full.webp",
+  "icon/onigiri_empty": "assets/icons/onigiri_empty.webp",
+  "icon/fish": "assets/icons/fish.webp",
+  "icon/status_claw": "assets/icons/status_claw.webp",
+  "icon/status_step": "assets/icons/status_step.webp",
+  "icon/status_belly": "assets/icons/status_belly.webp",
+  "icon/status_lazy": "assets/icons/status_lazy.webp",
+  "icon/status_puff": "assets/icons/status_puff.webp",
+  "icon/status_choke": "assets/icons/status_choke.webp",
+  "icon/status_stealth": "assets/icons/status_stealth.webp",
+  "icon/status_stun": "assets/icons/status_stun.webp",
+  "icon/status_thorns": "assets/icons/status_thorns.webp",
+  "codex/potion_smoke_bomb": "assets/icons/potion_smoke_bomb.webp",
+  "codex/potion_shuriken": "assets/icons/potion_shuriken.webp",
+  "codex/potion_onigiri": "assets/icons/potion_onigiri.webp",
+  "codex/potion_catgrass_tea": "assets/icons/potion_catgrass_tea.webp",
+  "codex/potion_firecracker": "assets/icons/potion_firecracker.webp",
+  "codex/potion_rope": "assets/icons/potion_rope.webp",
+  "codex/potion_tuna": "assets/icons/potion_tuna.webp",
+  "codex/potion_whetstone": "assets/icons/potion_whetstone.webp",
+  "codex/relic_headband": "assets/icons/relic_headband.webp",
+  "codex/relic_onigiri_bag": "assets/icons/relic_onigiri_bag.webp",
+  "codex/relic_tuna_can": "assets/icons/relic_tuna_can.webp",
+  "codex/relic_catgrass": "assets/icons/relic_catgrass.webp",
+  "codex/relic_bell": "assets/icons/relic_bell.webp",
+  "codex/relic_fish_jar": "assets/icons/relic_fish_jar.webp",
+  "codex/relic_catnip": "assets/icons/relic_catnip.webp",
+  "codex/relic_tail_bell": "assets/icons/relic_tail_bell.webp",
+  "codex/relic_wood_post": "assets/icons/relic_wood_post.webp",
+  "codex/relic_yarn_ball": "assets/icons/relic_yarn_ball.webp",
+  "codex/relic_cat_teaser": "assets/icons/relic_cat_teaser.webp",
+  "codex/relic_scroll": "assets/icons/relic_scroll.webp",
+  "codex/relic_paper_bag": "assets/icons/relic_paper_bag.webp",
+  "codex/relic_bronze_mirror": "assets/icons/relic_bronze_mirror.webp",
+  "codex/relic_tower_token": "assets/icons/relic_tower_token.webp"
+ },
+ "bg": {
+  "bg/low": "assets/bg/low.webp",
+  "bg/mid": "assets/bg/mid.webp",
+  "bg/top": "assets/bg/top.webp"
+ }
 }

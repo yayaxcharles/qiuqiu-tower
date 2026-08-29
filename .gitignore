@@ -6,3 +6,4 @@ Thumbs.db
 .superpowers/
 tools/out/
 __pycache__/
+tools/codex_raw/
