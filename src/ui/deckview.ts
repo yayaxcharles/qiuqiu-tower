@@ -1,6 +1,8 @@
 import type { CardInstance } from '../engine/types';
 import { cardNode } from './cardview';
 import { el } from './dom';
+import { overlayRoot } from './overlay';
+import { hideTooltip } from './tooltip';
 
 export interface DeckPickerOpts {
   title: string;
@@ -15,16 +17,16 @@ export interface DeckPickerOpts {
 
 /** 牌組檢視／挑牌疊層。挑完或關掉都會叫 onPick（沒挑就給 null） */
 export function showDeckPicker(opts: DeckPickerOpts): void {
-  const stage = document.getElementById('stage');
-  if (!stage) { opts.onPick(null); return; }   // 沒有舞台就別把呼叫端的回呼吊在半空
+  const layer = overlayRoot();
+  if (!layer) { opts.onPick(null); return; }   // 沒有舞台就別把呼叫端的回呼吊在半空
   const overlay = el('div', { class: 'modal-overlay' });
   /**
-   * 收掉疊層。順手把還浮著的名詞提示也清掉：滑鼠停在牌面名詞上時整個疊層被移除，
-   * mouseleave 不會發生，提示框就變成孤兒黏在畫面上（tooltip.ts 沒有對外的關閉函式）。
+   * 收掉疊層。順手關掉還浮著的名詞提示：滑鼠停在牌面名詞上時整個疊層被移除，
+   * mouseleave 不會發生，提示框就變成孤兒黏在畫面上。
    */
   const dismiss = (uid: number | null): void => {
     overlay.remove();
-    for (const t of stage.querySelectorAll('.tooltip')) t.remove();
+    hideTooltip();
     opts.onPick(uid);
   };
   const grid = el('div', { class: 'deck-grid' });
@@ -46,5 +48,5 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     el('h2', { class: 'modal-title' }, opts.title),
     grid,
     el('div', { class: 'modal-foot' }, close)));
-  stage.append(overlay);
+  layer.append(overlay);
 }

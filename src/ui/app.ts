@@ -7,6 +7,8 @@ import type { CombatState, RunState } from '../engine/types';
 import { computeScale } from './assets';
 import { playDialogue, toast } from './dialogue';
 import { clear, el } from './dom';
+import { setOverlayRoot } from './overlay';
+import { hideTooltip } from './tooltip';
 
 export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'result';
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
@@ -17,11 +19,19 @@ export function registerScreen(name: ScreenName, render: Renderer): void { scree
 export class App {
   run: RunState | null = null;
   cs: CombatState | null = null;
+  /** 外框：固定 1280×720，整個等比縮放去貼合視窗 */
   stage: HTMLElement;
+  /** 畫面層：每次 show() 就整個清空重畫，畫面渲染函式拿到的 root 就是它 */
+  screen: HTMLElement;
+  /** 疊層：吐槽、對白、名詞提示、牌組視窗住這裡，換畫面時不會被清掉 */
+  overlay: HTMLElement;
 
   constructor(root: HTMLElement) {
-    this.stage = el('div', { id: 'stage' });
+    this.screen = el('div', { id: 'screen' });
+    this.overlay = el('div', { id: 'overlay' });
+    this.stage = el('div', { id: 'stage' }, this.screen, this.overlay);
     root.append(this.stage);
+    setOverlayRoot(this.overlay);
     const fit = (): void => {
       this.stage.style.transform = `scale(${computeScale(window.innerWidth, window.innerHeight)})`;
     };
@@ -29,12 +39,17 @@ export class App {
     fit();
   }
 
+  /**
+   * 換畫面。**只清畫面層**：疊層留著，所以戰鬥畫面每動一次就重畫也不會把吐槽掃掉、
+   * 播到一半的對白也不會被拔走（拔走的話它的 onDone 永遠不會叫，流程會靜靜卡死）。
+   */
   show(name: ScreenName, props: unknown = {}): void {
     const r = screens.get(name);
     if (!r) throw new Error(`畫面尚未登記：${name}`);
-    clear(this.stage);
+    hideTooltip();   // 提示框的錨點就要被清掉了，不先關掉會變成孤兒黏在畫面上
+    clear(this.screen);
     this.stage.dataset['screen'] = name;
-    r(this, this.stage, props);
+    r(this, this.screen, props);
   }
 
   newRun(seed?: string): void {
