@@ -23,6 +23,12 @@ const STATUS_ICON: Record<StatusName, string> = {
 };
 /** 狀態排列順序寫死，好的排前面，才不會每次重畫就換位置（物件鍵的順序不保證） */
 const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '定身', '翻肚', '懶洋洋', '炸毛', '噎到'];
+/**
+ * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
+ * 規格 §2 的名詞表根本沒有這個詞、牌面也刻意不講（見 `cardtext.ts` 的 `isDive`），
+ * 所以牌子跟著牌面的講法寫「下回合隱身」；其餘狀態的名字就是名詞表上的名字，不用改。
+ */
+const STATUS_LABEL: Partial<Record<StatusName, string>> = { 潛水: '下回合隱身' };
 /** 意圖沒有圖示素材（美術清單只做了狀態圖示），用一個中文字當記號，字型一定有 */
 const INTENT_GLYPH: Record<Intent, string> = { attack: '攻', block: '守', buff: '強', debuff: '弱', special: '？', summon: '召', idle: '…' };
 const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
@@ -34,17 +40,39 @@ const POSE = {
   idle: 'ninja/32', attack: 'ninja/01', hit: 'ninja/34', dodge: 'ninja/08',
   hungry: 'ninja/38', win: 'ninja/04', lose: 'ninja/36', curl: 'codex/curl',
 };
+/**
+ * 塔主的九種姿勢（規格 §6.4 與 §8.5 逐張列出，圖也只生這九張）。鍵直接用招式名——
+ * `enemies.ts` 裡塔主的 `move.label` 與規格的姿勢名一字不差，不用再多一層對照。
+ * 第二階段的「鐵砂掌」規格沒有配姿勢（大俠 08 沒進產物），對不到就退回該階段的待機圖。
+ */
+const BOSS_MOVE_POSE: Record<string, string> = {
+  蓄力: 'daxia/21', 鐵頭功: 'daxia/05', 金鐘罩: 'daxia/07', 獅吼功: 'daxia/06',
+  醉拳: 'daxia/16', 閉關: 'daxia/35',
+};
+const BOSS_IDLE = 'daxia/36';          // 深藏不露
+const BOSS_IDLE_PHASE2 = 'daxia/33';   // 走火入魔
+const BOSS_DEFEAT = 'daxia/28';        // 承讓
+
+/** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
+interface Acted { label: string; attacked: boolean }
 
 interface Snap {
   hp: number;
   block: number;
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean }>;
   logLen: number;
 }
 function snap(cs: CombatState): Snap {
   return {
     hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length,
-    enemies: new Map(cs.enemies.map((e) => [e.uid, { hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent }])),
+    enemies: new Map(cs.enemies.map((e) => [e.uid, {
+      hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent,
+      // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
+      // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
+      label: e.move.label, turnCount: e.turnCount,
+      // 攻擊被定身擋掉的那一拍不算出手（引擎在 endTurn 裡整段跳過），立繪與前撲都不該動
+      stunned: e.move.intent === 'attack' && getStatus(e, '定身') > 0,
+    }])),
   };
 }
 
@@ -65,6 +93,11 @@ registerScreen('combat', (app, root, props) => {
 
   let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
   let pose = POSE.idle;
+  /**
+   * 這一拍出手的魔物（uid → 牠剛使出的招式）。跟球球的姿勢同一個節奏：`settle` 重算、
+   * 650 毫秒後跟著還原成待機。魔物只在 `endTurn` 裡行動，所以出牌那幾次結算這張表一定是空的。
+   */
+  let acting = new Map<number, Acted>();
   let hint = '';
   let hungryTurn = -1;
   let lowHpTold = false;
@@ -93,7 +126,7 @@ registerScreen('combat', (app, root, props) => {
     if (u.block > 0) row.append(chip('蜷縮', null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
       const v = getStatus(u, name);
-      if (v > 0) row.append(chip(name, STATUS_ICON[name], String(v)));
+      if (v > 0) row.append(chip(STATUS_LABEL[name] ?? name, STATUS_ICON[name], String(v)));
     }
     return row;
   }
@@ -123,11 +156,19 @@ registerScreen('combat', (app, root, props) => {
     return node;
   }
 
-  /** 塔主的 art 是沒有編號的 'daxia'，兩個階段各對一張立繪；其餘魔物走 monsters 那一組 */
+  /**
+   * 魔物的立繪。塔主的 art 是沒有編號的 'daxia'，九種姿勢各自一張（戰敗＞剛使出的招式＞該階段待機）；
+   * 其餘魔物只有待機與攻擊兩張，出手的那一拍換成攻擊圖。
+   */
   function enemySprite(e: EnemyCombat, def: EnemyDef | undefined): string {
+    const act = acting.get(e.uid);
+    if (def?.art === 'daxia') {
+      if (e.dead) return artUrl('sprites', BOSS_DEFEAT);
+      const idle = e.phase > 0 ? BOSS_IDLE_PHASE2 : BOSS_IDLE;
+      return artUrl('sprites', (act ? BOSS_MOVE_POSE[act.label] : undefined) ?? idle);
+    }
     if (!def) return monsterUrl('', 'idle');
-    if (def.art === 'daxia') return artUrl('sprites', e.phase > 0 ? 'daxia/33' : 'daxia/36');
-    return monsterUrl(def.art, 'idle');
+    return monsterUrl(def.art, act?.attacked ? 'attack' : 'idle');
   }
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
@@ -324,6 +365,14 @@ registerScreen('combat', (app, root, props) => {
     else if (p.block > before.block && !opts.attack) pose = POSE.curl;
     else if (posePref) pose = posePref;
     else if (hungry) pose = POSE.hungry;
+    // 魔物的姿勢也要在畫之前決定。「這一拍有沒有出手」看回合數有沒有往前走：
+    // 挨打與閃避（`hurt || dodged`）認不出「攻擊被蜷縮整個擋掉」與「裝死術免疫」那兩種也確實出手的情形。
+    acting = new Map();
+    for (const e of cs.enemies) {
+      const b = before.enemies.get(e.uid);
+      if (!b || e.dead || e.turnCount === b.turnCount || b.stunned) continue;
+      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' });
+    }
     render();
 
     // 畫完才把動畫類別與浮動數字掛到剛生出來的節點上
@@ -333,7 +382,8 @@ registerScreen('combat', (app, root, props) => {
       if (!b || !node) continue;
       if (e.hp < b.hp) { node.classList.add('hit'); node.append(el('div', { class: 'num' }, `-${b.hp - e.hp}`)); }
       if (!b.dead && e.dead) node.classList.add('dead');
-      else if (b.intent === 'attack' && !e.dead && (hurt || dodged)) node.classList.add('attack');
+      // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
+      else if (acting.get(e.uid)?.attacked) node.classList.add('attack');
       if (b.phase === 0 && e.phase > 0) bossPhase2();
     }
     const cat = root.querySelector<HTMLElement>('.unit.player');
@@ -350,7 +400,10 @@ registerScreen('combat', (app, root, props) => {
 
     const mine = ++seq;
     window.setTimeout(() => {
-      if (seq === mine && app.cs === cs && !ended && cs.phase === 'player') { pose = POSE.idle; render(); }
+      if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
+      pose = POSE.idle;
+      acting = new Map();   // 魔物也一起收回待機，出手的立繪只亮這一拍
+      render();
     }, 650);
 
     if (cs.phase !== 'player' && !ended) {
