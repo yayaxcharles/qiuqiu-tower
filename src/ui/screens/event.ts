@@ -18,10 +18,13 @@ registerScreen('event', (app, root, props) => {
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   const { eventId } = props as { eventId?: string };
   const ev = eventId ? eventById[eventId] : undefined;
-  if (!ev) { app.backToMap(); return; }   // 節點沒帶事件 id 就別停在一片空白，直接收尾回地圖
+  // 節點沒帶事件 id 就別停在一片空白，直接回地圖。這裡走 show 不走 backToMap：
+  // backToMap 會存檔，而這是「進節點」的當下、節點還沒結算，存下去就違反「節點結算完才存」的規矩
+  // （引擎保證事件節點一定帶得到 eventId，所以這條路今天走不到，但規矩要處處成立）
+  if (!ev) { app.show('map'); return; }
 
-  /** 事件的每一條路都收在這個版面：結果一句話，加一顆按鈕 */
-  function panel(resultText: string, note: string | null, button: HTMLElement): void {
+  /** 事件的每一條路都收在這個版面：結果一句話，加一顆按鈕（挑牌那條路先不放按鈕，傳 ''） */
+  function panel(resultText: string, note: string | null, button: Node | string): void {
     clear(root);
     renderHud(app, root);
     root.append(el('div', { class: 'screen event' },
@@ -56,6 +59,9 @@ registerScreen('event', (app, root, props) => {
       const filter = up ? (c: CardInstance) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病' : () => true;
       // 一張都不合就直接跳過（疊層本身也擋得住鎖死，但沒得挑還開一個空視窗只是煩人）
       if (!run.deck.some(filter)) { finish(resultText, up ? '沒有可以升級的牌' : '沒有牌可以移除'); return; }
+      // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
+      // 效果已經跑掉了，選項卻還在，看起來像還能再選一次。按鈕等挑完牌才由 finish 補上。
+      panel(resultText, null, '');
       showDeckPicker({
         title: up ? '選一張牌升級' : '選一張牌移除',
         cards: run.deck, pickable: true, cancellable: false, filter,

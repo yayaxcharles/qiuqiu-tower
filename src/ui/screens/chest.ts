@@ -10,10 +10,12 @@ import { renderHud } from '../hud';
 registerScreen('chest', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
-  renderHud(app, root);
   toast(dialogue.chestLine, '球球');
   // 常見秘寶全部拿過的話會回 null，那就是一個空紙箱（引擎不會硬塞別的池子給你）
   const id = openChest(run);
+  // 狀態列一定要等開箱之後才畫：鮪魚罐頭那類秘寶會當場改最大生命，先畫的話玩家會看到
+  // 「最大生命 +10」的訊息，配上還沒加的血條與少一格的秘寶列，要回地圖才對得起來
+  renderHud(app, root);
   const def = id ? relicById[id] : undefined;
   const url = def ? artUrl('icons', def.art) : '';
   const body = def
