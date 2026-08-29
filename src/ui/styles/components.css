@@ -94,13 +94,11 @@
 .modal-foot { text-align: center; }
 .deck-grid {
   display: grid;
-  /* 145＝170×0.85、213＝250×0.85：配合 .card.small 的縮放，格子才貼著縮小後的牌 */
-  grid-template-columns: repeat(6, 145px);
-  grid-auto-rows: 213px;
+  /* 小牌自己就是 145×213 的真尺寸，格子跟著內容走就好 */
+  grid-template-columns: repeat(6, auto);
   justify-content: center;
   gap: 10px;
   margin: 10px 0;
-  overflow: hidden;   /* 縮放不改版面框，超出去的空白裁掉免得長出捲軸 */
 }
 .deck-empty {
   grid-column: 1 / -1;
@@ -124,7 +122,6 @@
   box-sizing: border-box;
   user-select: none;
 }
-.card.small { transform: scale(.85); transform-origin: top left; }
 .card.clickable { cursor: pointer; }
 .card.clickable:hover { box-shadow: 0 0 0 3px var(--accent); }
 .card.selected { outline: 4px solid #ffd35c; }
@@ -165,6 +162,44 @@
   font-size: 11px;
   opacity: .7;
   padding-bottom: 4px;
+}
+
+/*
+ * 小牌＝真的比較小的一張牌（145×213＝170×250 的 0.85），不是把大牌 transform 縮小。
+ * 縮放只改畫出來的樣子、不改版面框，排成一列每張會多出 25px 的空白；
+ * 所以這裡把每個內部尺寸各自乘 0.85，看起來一樣、量起來也一樣。
+ */
+.card.small {
+  width: 145px;
+  height: 213px;
+  border-width: 2.5px;
+  border-radius: 10px;
+}
+.card.small .card-cost {
+  left: 5px;
+  top: 5px;
+  width: 25.5px;
+  height: 25.5px;
+  border-width: 1.7px;
+  line-height: 22px;
+  font-size: 13.6px;
+}
+.card.small .card-art {
+  width: 127.5px;
+  height: 102px;
+  margin-top: 6.8px;
+}
+.card.small .card-name {
+  font-size: 12.75px;
+  margin-top: 1.7px;
+}
+.card.small .card-text {
+  font-size: 10.6px;
+  padding: 1.7px 6.8px;
+}
+.card.small .card-type {
+  font-size: 9.35px;
+  padding-bottom: 3.4px;
 }
 .card.type-攻擊 { background: #fff4ee; }
 .card.type-技能 { background: #eef5ff; }
