@@ -50,7 +50,7 @@ tests/ui/*.test.ts               純函式（縮放計算、assets 查表、版�
 
 ---
 
-### Task B1: 貼圖素材產線 `tools/build_assets.py`
+### Task 1: 貼圖素材產線 `tools/build_assets.py`
 
 **Files:**
 - Create: `tools/build_assets.py`, `tools/crop_overrides.json`
@@ -238,7 +238,7 @@ git commit -m "美術：貼圖產線（牌面與立繪 WebP＋manifest）"
 
 ---
 
-### Task B2: Codex 生圖批次（魔物、圖示、背景、蜷縮）與去背
+### Task 2: Codex 生圖批次（魔物、圖示、背景、蜷縮）與去背
 
 **Files:**
 - Create: `tools/codex_prompts/template.md`, `tools/codex_prompts/subjects.json`, `tools/codex_run.py`, `tools/chroma_key.py`
@@ -532,7 +532,7 @@ git commit -m "美術：Codex 生圖批次（魔物、圖示、背景、蜷縮�
 
 ---
 
-### Task B3: 畫面骨架、縮放、素材查表、標題畫面、對白疊層、名詞提示
+### Task 3: 畫面骨架、縮放、素材查表、標題畫面、對白疊層、名詞提示
 
 **Files:**
 - Create: `src/ui/dom.ts`, `src/ui/assets.ts`, `src/ui/app.ts`, `src/ui/dialogue.ts`, `src/ui/tooltip.ts`, `src/ui/screens/title.ts`, `src/ui/styles/base.css`
@@ -900,7 +900,7 @@ git commit -m "畫面：骨架、縮放、素材查表、標題、對白疊層�
 
 ---
 
-### Task B4: 牌面文字、牌元件、牌組檢視、狀態列、地圖畫面
+### Task 4: 牌面文字、牌元件、牌組檢視、狀態列、地圖畫面
 
 **Files:**
 - Create: `src/ui/cardtext.ts`, `src/ui/cardview.ts`, `src/ui/deckview.ts`, `src/ui/hud.ts`, `src/ui/screens/map.ts`, `src/ui/styles/map.css`
@@ -1208,7 +1208,7 @@ git commit -m "畫面：牌面文字與牌元件、牌組檢視、狀態列、�
 
 ---
 
-### Task B5: 戰鬥畫面
+### Task 5: 戰鬥畫面
 
 **Files:**
 - Create: `src/ui/screens/combat.ts`, `src/ui/styles/combat.css`
@@ -1479,7 +1479,7 @@ git commit -m "畫面：戰鬥（出牌、選目標、意圖、待選、動畫�
 
 ---
 
-### Task B6: 獎勵、事件、罐頭鋪、貓窩、紙箱、結算畫面
+### Task 6: 獎勵、事件、罐頭鋪、貓窩、紙箱、結算畫面
 
 **Files:**
 - Create: `src/ui/screens/reward.ts`, `event.ts`, `shop.ts`, `rest.ts`, `chest.ts`, `result.ts`, `src/ui/styles/screens.css`
@@ -1727,7 +1727,7 @@ git commit -m "畫面：獎勵、事件、罐頭鋪、貓窩、紙箱、結算"
 
 ---
 
-### Task B7: 大小檢查、部署到 GitHub Pages、說明檔
+### Task 7: 大小檢查、部署到 GitHub Pages、說明檔
 
 **Files:**
 - Create: `tools/check_size.py`, `.github/workflows/deploy.yml`, `README.md`
@@ -1860,6 +1860,6 @@ git commit -m "建置：大小檢查、GitHub Pages 部署流程與說明"
 - `npm test` 全綠、`npx tsc --noEmit` 無錯誤、`python tools/check_size.py` 印「大小 OK」。
 - 素材：80 牌面、80 立繪、Codex 約 73 張全部到位（`python tools/chroma_key.py --check` 尚缺 0 張），抽查過邊緣。
 - 瀏覽器實際打完一整局並截圖九個畫面；續玩、最佳成績、種子重現都試過。
-- 線上網址能開、能玩（使用者做完 B7 步驟 5 後）。
+- 線上網址能開、能玩（使用者做完任務 7 步驟 5 後）。
 - 在 `Dropbox\claude-config\SHARED_WORKLOG.md` 補一筆，並在記憶池新增 `project_qiuqiu_tower.md`（位置、指令、素材產線、部署方式、未做清單）。
 - 最終真人驗收是使用者：畫面順不順手、台詞有沒有貓味、平衡要不要調。
