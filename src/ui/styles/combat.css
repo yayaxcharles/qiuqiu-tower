@@ -1,0 +1,316 @@
+/* ===== 戰鬥畫面 ===== */
+.combat {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* 背景圖還沒生好時就用漸層撐著；有圖時行內樣式會蓋掉這裡的 background-image */
+.battle-bg {
+  position: absolute;
+  inset: 0;
+  background-color: #221c17;
+  background-image: radial-gradient(circle at 50% 24%, #4c4136 0%, #2a231c 58%, #171310 100%);
+  background-size: cover;
+  background-position: center bottom;
+}
+
+/* 選目標時鋪的接盤子：點空白處就取消。魔物、手牌、按鈕都疊在它上面，照樣點得到 */
+.target-catcher {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: crosshair;
+}
+
+/* ===== 戰場 ===== */
+.combat .field {
+  position: absolute;
+  left: 0;
+  top: 56px;
+  width: 1280px;
+  height: 414px;   /* 下緣 470，剛好在手牌上緣（476）之上，魔物的狀態列不會被牌壓到 */
+  z-index: 2;
+  pointer-events: none;   /* 只是個定位容器，別擋住底下的接盤子 */
+}
+.combat .unit {
+  position: absolute;
+  bottom: 0;
+  width: 190px;
+  text-align: center;
+  pointer-events: auto;
+}
+.combat .unit.player {
+  left: 30px;
+  width: 240px;
+}
+.combat .sprite {
+  display: block;
+  margin: 0 auto;
+  width: 240px;
+  height: 300px;
+  object-fit: contain;        /* 立繪長寬各不相同，用外框裝住就不會被拉變形 */
+  object-position: center bottom;
+  animation: idle-bob 2.4s ease-in-out infinite;
+}
+.combat .unit.size-small .sprite { width: 130px; height: 150px; }
+.combat .unit.size-medium .sprite { width: 180px; height: 210px; }
+.combat .unit.size-large .sprite { width: 230px; height: 280px; }
+.combat .unit .name {
+  font-size: 15px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 2px #000, 0 0 4px #000;
+}
+.combat .unit.targetable {
+  cursor: pointer;
+  filter: drop-shadow(0 0 8px #ffd35c) drop-shadow(0 0 16px #ffd35c);
+}
+.combat .unit.gone:not(.dead) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.combat .hpbar {
+  position: relative;
+  height: 18px;
+  margin: 2px auto 0;
+  width: 92%;
+  background: #3a2a22;
+  border: 2px solid #2b2118;
+  border-radius: 9px;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 14px;
+  color: #fff;
+}
+.combat .hpbar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #d9534f;
+  transition: width .25s;
+}
+.combat .hpbar span { position: relative; text-shadow: 0 1px 1px #000; }
+
+/* 狀態與蜷縮的小牌子 */
+.combat .chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 3px;
+  min-height: 24px;   /* 佔住高度，有沒有狀態版面都一樣 */
+}
+.combat .chip {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .6);
+  color: #fff;
+  font-size: 12px;
+  line-height: 16px;
+}
+.combat .chip img { width: 16px; height: 16px; }
+.combat .chip b { font-weight: normal; }
+.combat .chip.block { background: #2e6db4; }
+
+/* 魔物頭上的意圖 */
+.combat .intent {
+  display: inline-block;
+  margin-bottom: 2px;
+  padding: 1px 9px;
+  border: 2px solid var(--ink);
+  border-radius: 11px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.combat .i-attack { background: #ffd0d0; }
+.combat .i-block { background: #cfe2ff; }
+.combat .i-buff { background: #dff5d8; }
+.combat .i-debuff { background: #efd6ff; }
+.combat .i-special, .combat .i-summon { background: #ffe9a8; }
+.combat .i-idle { background: #e6e0d6; }
+
+/* ===== 左下：飯糰、忍具、牌堆 ===== */
+.combat .side {
+  position: absolute;
+  left: 16px;
+  top: 496px;
+  width: 220px;
+  z-index: 3;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+.combat .energy {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 17px;
+}
+.combat .energy img { width: 36px; height: 36px; }
+.combat .pip {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #2b2118;
+  border-radius: 50%;
+  background: #6b5a48;
+  box-sizing: border-box;
+}
+.combat .pip.full { background: #ffe9a8; }
+.combat .potions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.combat .potion {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(0, 0, 0, .35);
+}
+.combat .potion.empty { border: 2px dashed rgba(255, 255, 255, .35); background: none; }
+.combat .potion img { width: 42px; height: 42px; }
+.combat .potion b { font-size: 11px; line-height: 1.1; }
+.combat .potion.usable { cursor: pointer; box-shadow: 0 0 0 2px #ffd35c; }
+.combat .piles {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* ===== 手牌 ===== */
+.combat .hand {
+  position: absolute;
+  left: 250px;
+  top: 476px;   /* 底邊 689，扇形最外側的牌轉開之後仍在 720 以內 */
+  width: 840px;
+  height: 213px;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;   /* 牌與牌之間的空隙要能穿透到接盤子 */
+}
+.combat .hand .card {
+  pointer-events: auto;
+  transition: transform .12s ease-out;
+}
+.combat .hand .card:hover {
+  transform: translateY(-46px) scale(1.06) !important;
+  z-index: 50 !important;
+}
+
+/* ===== 右下按鈕、記事、提示 ===== */
+.combat .end-turn {
+  position: absolute;
+  right: 20px;
+  top: 560px;
+  z-index: 3;
+}
+.combat .log {
+  position: absolute;
+  left: 16px;
+  top: 64px;
+  width: 250px;
+  z-index: 3;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+  opacity: .85;
+}
+.combat .target-hint {
+  position: absolute;
+  left: 50%;
+  top: 444px;
+  transform: translateX(-50%);
+  z-index: 6;
+  padding: 5px 16px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: #ffd35c;
+  font-size: 17px;
+  white-space: nowrap;
+}
+.combat .target-hint.warn { background: #ffd8d0; }
+
+/*
+ * 同時浮著兩句吐槽時把第二句往下挪：吐槽都貼在 top: 60px（共用的 base.css），
+ * 塔主進第二階段那兩句、餓扁與生命過低同時觸發時都會疊成一團。
+ */
+#stage[data-screen="combat"] .toast ~ .toast { top: 116px; }
+
+/* 待選牌視窗底部的計數 */
+.pick-count {
+  display: inline-block;
+  margin-right: 12px;
+  font-size: 16px;
+}
+
+/*
+ * 戰鬥中的生命與忍具以戰鬥狀態（cs）為準，整局狀態（run）要等這場打完才寫回，
+ * 所以狀態列那兩格在戰鬥中一定是舊值——藏起來，改由球球腳下的生命條與左下的忍具格顯示。
+ */
+#stage[data-screen="combat"] .hud-hp,
+#stage[data-screen="combat"] .hud-potions { display: none; }
+
+/* ===== 動畫 ===== */
+.combat .unit.attack .sprite { animation: lunge .4s ease-out; }
+.combat .unit.enemy.attack .sprite { animation: lunge-left .4s ease-out; }
+.combat .unit.hit .sprite {
+  animation: shake .4s;
+  filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);
+}
+.combat .unit.dodge .sprite { animation: dodge .5s ease-out; }
+.combat .unit.dead { animation: fall .6s ease-in forwards; }
+.combat .num {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  z-index: 4;
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffec99;
+  text-shadow: 0 2px 3px #000, 0 0 6px #000;
+  transform: translate(-50%, 0);
+  animation: float 1s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes lunge {
+  30% { transform: translateX(64px); }
+  100% { transform: translateX(0); }
+}
+@keyframes lunge-left {
+  30% { transform: translateX(-64px); }
+  100% { transform: translateX(0); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-11px); }
+  75% { transform: translateX(11px); }
+}
+@keyframes dodge {
+  40% { opacity: .3; transform: translateX(-52px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes fall {
+  to { transform: rotate(80deg) translateY(70px); opacity: 0; }
+}
+@keyframes float {
+  from { transform: translate(-50%, 0); opacity: 1; }
+  to { transform: translate(-50%, -64px); opacity: 0; }
+}

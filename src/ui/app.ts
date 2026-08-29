@@ -1,7 +1,7 @@
 import { dialogue, type DialogueLine } from '../content/dialogue';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
-import { beginCombat, chooseNode, newRun as engineNewRun } from '../engine/run';
+import { beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { loadRun, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { computeScale } from './assets';
@@ -121,6 +121,27 @@ export class App {
       }
     };
     if (isBoss) playDialogue(dialogue.bossIntro, go); else go();
+  }
+
+  /**
+   * 一場戰鬥收尾。**只有戰鬥已經分出勝負才可以叫**（`finishCombat` 對還在打的戰鬥會丟例外）。
+   * 這裡是任務 5 唯一的存檔點，也就是 save() 註解講的「節點結算完那一次」：
+   * 戰後的生命、小魚乾、忍具與這場設下的初見旗標一起帶走。輸掉或打贏塔主時 `run.status`
+   * 已經不是 'playing'，save() 自己會略過（整局結束，存檔留給結算畫面收尾）。
+   */
+  afterCombat(bonusFish = 0): void {
+    const run = this.run;
+    const cs = this.cs;
+    if (!run || !cs) { this.show('title'); return; }
+    const rewards = finishCombat(run, cs, bonusFish);
+    this.cs = null;
+    this.save();
+    if (!rewards) { playDialogue(dialogue.defeat, () => this.show('result')); return; }
+    if (rewards.kind === '塔主') { playDialogue(dialogue.victory, () => this.show('result')); return; }
+    // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
+    const go = (): void => this.show('reward', { ...rewards, bonusFish });
+    if (rewards.kind === '大魔物') this.playOnce('firstElite', dialogue.afterFirstElite, go);
+    else go();
   }
 
   nodeTitle(nodeId: string): string {
