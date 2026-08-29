@@ -8,8 +8,8 @@ import type { CardInstance, CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
 
 function deck(ids: string[]): CardInstance[] { return ids.map((id, i) => inst(id, i + 1)); }
-function start(encounterId: string, extra: string[] = [], potions: string[] = [], seed = 'fx'): CombatState {
-  const cs = startCombat({ hp: 70, maxHp: 70, deck: deck([...STARTER_DECK, ...extra]), relics: [], potions, encounterId, rng: new Rng(seedFromString(seed)) });
+function start(encounterId: string, extra: string[] = [], potions: string[] = [], seed = 'fx', relics: string[] = []): CombatState {
+  const cs = startCombat({ hp: 70, maxHp: 70, deck: deck([...STARTER_DECK, ...extra]), relics, potions, encounterId, rng: new Rng(seedFromString(seed)) });
   cs.player.energy = 9;
   return cs;
 }
@@ -77,6 +77,35 @@ describe('選牌類效果', () => {
     playCard(cs, uid);
     expect(cs.pending).toBeNull();
     expect(cs.player.hand.length).toBe(1);   // 只有抽到的 1 張
+  });
+  it('逗貓棒的補抽排在牌效果之前，不會動到讀心術的候選', () => {
+    const cs = start('wood_dummy', ['duxin'], [], 'fx', ['cat_teaser']);
+    const e = cs.enemies[0]!.uid;
+    playCard(cs, toHand(cs, 'sanjo'), e);
+    playCard(cs, toHand(cs, 'sanjo'), e);
+    const uid = toHand(cs, 'duxin');
+    const n = cs.player.hand.length;
+    playCard(cs, uid);                                   // 第 3 張：先補抽 1，才結算讀心術
+    expect(cs.pending?.purpose).toBe('scryDiscard');
+    expect(cs.pending!.cards.length).toBeGreaterThan(0);
+    const top3 = cs.player.drawPile.slice(0, 3).map((c) => c.uid);
+    for (const c of cs.pending!.cards) {
+      expect(cs.player.hand.some((h) => h.uid === c.uid)).toBe(false);   // 候選不會被補抽拿進手牌
+      expect(top3).toContain(c.uid);                                     // 候選就是現在抽牌堆最上面那幾張
+    }
+    resolveChoice(cs, []);
+    expect(cs.player.hand.length).toBe(n - 1 + 1 + 1);    // 打出 −1、逗貓棒 ＋1、讀心術 ＋1
+  });
+  it('手牌滿了就拿不回棄牌', () => {
+    const cs = start('wood_dummy', ['gekong']);
+    const p = cs.player;
+    const uid = toHand(cs, 'gekong');
+    while (p.drawPile.length > 0) p.hand.push(p.drawPile.shift()!);   // 湊成 11 張手牌（含隔空取物本身）
+    expect(p.hand.length).toBe(11);
+    playCard(cs, uid);
+    expect(p.hand.length).toBe(10);                    // 打出後剛好滿手
+    expect(p.discardPile.length).toBeGreaterThan(0);   // 棄牌堆有牌，所以不是「候選為空」才跳過
+    expect(cs.pending).toBeNull();
   });
   it('已經分出勝負就不暫停選牌', () => {
     const cs = start('wood_dummy');

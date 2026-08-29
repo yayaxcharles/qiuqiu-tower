@@ -99,11 +99,12 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
   p.firstCardPlayed = true;
   if (st.def.type === '攻擊') p.attackedThisTurn = true;
   log(cs, `球球打出「${st.name}」`);
-  applyEffects(cs, st.effects, ctx);
+  // 秘寶的第 N 張補抽排在牌效果之前：這張牌若要選牌，候選才不會被之後的補抽動到
   for (const rid of cs.relics) {
     const h = relicById[rid]?.hooks.drawOnNthCard;
     if (h && p.cardsPlayedThisTurn === h.n) drawCards(cs, h.draw);
   }
+  applyEffects(cs, st.effects, ctx);
   return true;
 }
 

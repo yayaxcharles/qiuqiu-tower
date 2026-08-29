@@ -1,5 +1,6 @@
 import { aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log } from './actions';
 import { endTurn } from './combat';
+import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
 import { DEBUFFS, TURN_DECAY } from './types';
 import type { CardInstance, CombatState, Effect, EffectCtx } from './types';
@@ -107,8 +108,10 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const n = Math.min(fx.n, p.hand.length);
       return pause(cs, queue, ctx, { from: 'hand', purpose: 'discard', cards: [...p.hand], min: n, max: n });
     }
-    case 'recoverFromDiscard':
+    case 'recoverFromDiscard': {
+      if (p.hand.length >= HAND_LIMIT) return false;   // 滿手就拿不回來，不必開選單
       return pause(cs, queue, ctx, { from: 'discard', purpose: 'recover', cards: [...p.discardPile], min: 1, max: 1 });
+    }
   }
 }
 
