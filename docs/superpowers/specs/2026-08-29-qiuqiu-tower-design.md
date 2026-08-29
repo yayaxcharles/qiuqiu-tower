@@ -81,9 +81,10 @@
 - 魔物打你：先看隱身（有就消耗 1 層、傷害 0、觸發閃避動畫），再套同一條公式（魔物爪力、魔物懶洋洋、你的翻肚、你的蜷縮）。
 - 蜷縮：牌面值 ＋ 貓步 → 炸毛 ×0.75 → 捨去。
 - 反彈：攻擊「打中」（扣到蜷縮或生命）才觸發。
+- 忍具的傷害與「絕學·太極」不吃爪力；懶洋洋、翻肚、蜷縮照常套用。
 
 ### 5.3 球球
-- 最大生命 70。起手牌組 10 張：參上 ×5、淡定 ×4、忍術·替身術 ×1。起始秘寶：藍頭巾。忍具欄 3 格，開局 0 個。
+- 最大生命 70。起手牌組 10 張：參上 ×5、淡定 ×4、忍術·替身術 ×1。起始秘寶：藍頭巾。忍具欄 3 格，開局 0 個。開局小魚乾 50。
 - 餓扁（0 顆飯糰）時 0 費牌仍可出。
 
 ### 5.4 獎勵
@@ -114,7 +115,7 @@
 | 忍術·聲東擊西 | 1 | 攻 | 常見 | 造成 5 傷，給 1 懶洋洋 | 7 傷、2 層 |
 | 忍術·順手牽羊 | 1 | 攻 | 常見 | 造成 6 傷；擊倒目標則 +15 小魚乾 | 9 傷、+25 |
 | 我在這 | 1 | 攻 | 常見 | 造成 6 傷；目標有翻肚則抽 1 張 | 9 傷 |
-| 交出來 | 1 | 攻 | 常見 | 造成 4 傷，奪走目標全部蜷縮變成你的 | 6 傷 |
+| 交出來 | 1 | 攻 | 常見 | 奪走目標全部蜷縮變成你的，再造成 4 傷 | 6 傷 |
 | 速速退散 | 2 | 攻 | 常見 | 對全體魔物造成 8 傷 | 11 傷 |
 | 忍術·分身術 | 1 | 攻 | 罕見 | 造成 3 傷，次數＝連抓＋1（上限 5 次） | 4 傷 |
 | 如影隨形 | 2 | 攻 | 罕見 | 造成 5 傷 2 次，獲得 1 隱身 | 7 傷 2 次 |
@@ -233,7 +234,7 @@
 |---|---|---|---|
 | 吸塵器 | 44～48 | 噪音（給你 2 炸毛、2 翻肚）→ 攻 8 → 吸走（你隨機 1 張手牌進棄牌堆） | 「嗡————」 |
 | 黑貓忍者 | 36～40 | 隱身（自己 1 隱身）→ 攻 6 二連 → 手裡劍 攻 9 | 「同行，別擋路。」 |
-| 橘貓山賊 | 48～52 | 搶劫（偷走 10 小魚乾，擊倒牠全部拿回）→ 攻 10 → 蜷縮 8 | 「留下買路財！」 |
+| 橘貓山賊 | 48～52 | 搶劫（偷走 10 小魚乾，擊倒牠全部拿回）→ 攻 10 → 蜷縮 8 → 搶劫 → 逃走（帶著偷走的小魚乾離場，不算擊倒） | 「留下買路財！」 |
 | 貓草蟲（2 隻） | 18～22 | 攻 5 → 吐（給你 2 噎到） | 「嘶——」 |
 
 **強池（11～13F，每場 1～2 隻）**
@@ -336,7 +337,7 @@ public/assets/ 產出的圖
 - 效果（Effect）種類：`damage{amount, times?, ignoreBlock?, scaleWithCombo?}`、`block{amount}`、`draw{n}`、`drawNextTurn{n}`、`status{name, amount, target}`、`removeStatuses{names, target}`、`transferDebuffs`、`energy{n}`、`heal{n}`、`gold{n, onKill?}`、`scry{n}`、`exhaustFromHand{n}`、`retainFromHand{n}`、`stealBlock`、`damageEqualBlock`、`doubleNextAttack`、`recoverFromDiscard`、`endTurn`、`noAttacksThisTurn`、`immuneThisTurn`、`power{trigger: 'turnStart'|'onKill'|'turnEndNoAttack', effects}`（結界、封印解除、任務完成這類能力牌與尾巴鈴走這條）。新效果＝加一個 case，並補測試。
 - 魔物：`{ id, name, hp: [min,max], pattern: 'cycle'|'random', moves: Move[], onDeath?, phases? }`；Move＝`{ intent: 'attack'|'block'|'buff'|'debuff'|'special', label, effects }`。
 - 事件：`{ id, title, text, choices: [{ label, requires?, outcome: Effect[] | 'fight:橘貓山賊' }] }`。
-- 存檔：`{ version: 1, seed, rngState, floor, node, hp, maxHp, fish, deck, relics, potions, map, flags }`；每離開一個節點寫一次；讀檔時版本不符就拒讀並提示。
+- 存檔：`{ version: 1, seed, rngState, floor, node, hp, maxHp, fish, deck, relics, potions, map, flags }`；`flags` 是 `Record<string, boolean>`，記「序章已播」「某魔物已初見」「7F 頭目台詞已播」「5F 秘笈對白已播」這類只播一次的事（鍵如 `seen:rat`、`prologue`、`firstElite`、`secretScroll`）；每離開一個節點寫一次；讀檔時版本不符就拒讀並提示。
 
 ### 8.4 畫面與動畫
 - 戰鬥版面：球球在左、魔物在右（最多 3 隻）、手牌在下、飯糰與牌堆在左下、忍具與秘寶列在上方、魔物頭上意圖。
