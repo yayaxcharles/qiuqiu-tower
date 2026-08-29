@@ -3,3 +3,5 @@ dist/
 .vite/
 *.log
 Thumbs.db
+.superpowers/
+tools/out/
