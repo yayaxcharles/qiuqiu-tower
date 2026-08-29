@@ -6,6 +6,7 @@ import { cardStats, discardHand } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
 import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } from './statuses';
+import { TURN_DECAY } from './types';
 import type { CardInstance, CombatState, EffectCtx, PlayerCombat } from './types';
 
 type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount';
@@ -24,7 +25,7 @@ export function startCombat(input: {
     hand: [], drawPile: input.rng.shuffle(input.deck), discardPile: [], exhaustPile: [],
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
     noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
-    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false,
+    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {},
   };
   const cs: CombatState = {
     rng: input.rng, player, enemies: [], relics: [...input.relics], potions: [...input.potions],
@@ -46,6 +47,7 @@ export function startPlayerTurn(cs: CombatState): void {
   const p = cs.player;
   cs.turn += 1;
   p.block = 0;
+  p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
   const poison = getStatus(p, '噎到');
   if (poison > 0) { addStatus(p, '噎到', -1); damagePlayer(cs, p, poison, { direct: true }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
@@ -116,7 +118,11 @@ export function endTurn(cs: CombatState): void {
     for (const pw of p.powers) if (pw.trigger === 'turnEndNoAttack') applyEffects(cs, pw.effects, { source: 'power' });
   }
   discardHand(p);
-  decayTurnStatuses(p);
+  // 球球的減益衰減：這回合自己給自己疊的先放過一次（下一回合結束才開始減），魔物施加的照常減
+  for (const name of TURN_DECAY) {
+    if (p.freshDebuffs[name]) { delete p.freshDebuffs[name]; continue; }
+    if (getStatus(p, name) > 0) addStatus(p, name, -1);
+  }
   for (const e of [...cs.enemies]) {
     if (e.dead || cs.phase !== 'player') continue;
     e.block = 0;
@@ -126,7 +132,8 @@ export function endTurn(cs: CombatState): void {
     if (ph?.strengthPerTurn) addStatus(e, '爪力', ph.strengthPerTurn);
     if (def?.strengthEveryNTurns && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
     tickPoison(e);
-    if (e.hp === 0) { damageEnemy(cs, e, 0, { direct: true }); continue; }
+    damageEnemy(cs, e, 0, { direct: true });   // 結算噎到：順手處理毒死與掉到階段門檻以下
+    if (e.dead || cs.phase !== 'player') continue;
     if (e.move.intent === 'attack' && getStatus(e, '定身') > 0) {
       addStatus(e, '定身', -1);
       log(cs, `${e.name}被定住了，這一下打不出來`);

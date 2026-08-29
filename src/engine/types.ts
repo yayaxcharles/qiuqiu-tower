@@ -209,6 +209,8 @@ export interface PlayerCombat extends Unit {
   firstStealthGiven: boolean;
   firstCardPlayed: boolean;
   lethalPrevented: boolean;
+  /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */
+  freshDebuffs: Partial<Record<StatusName, number>>;
 }
 export interface EnemyCombat extends Unit {
   uid: number;

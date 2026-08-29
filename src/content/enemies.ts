@@ -42,7 +42,7 @@ export const enemies: EnemyDef[] = [
   { id: 'vacuum', name: '吸塵器', hp: [44, 48], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_vacuum',
     line: '嗡————',
     moves: [
-      { intent: 'debuff', label: '噪音', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 1 }] },
+      { intent: 'debuff', label: '噪音', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 2 }] },
       { intent: 'attack', label: '撞', effects: [{ kind: 'damage', amount: 8 }] },
       { intent: 'special', label: '吸走', effects: [{ kind: 'discardRandomHand', n: 1 }] },
     ] },
@@ -90,7 +90,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'debuff', label: '嚇人', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
       { intent: 'attack', label: '彈起', effects: [{ kind: 'damage', amount: 11 }] },
       { intent: 'attack', label: '彈起', effects: [{ kind: 'damage', amount: 11 }] },
-      { intent: 'attack', label: '翻滾', effects: [{ kind: 'damage', amount: 6 }, { kind: 'statusPlayer', name: '翻肚', amount: 1 }] },
+      { intent: 'attack', label: '翻滾', effects: [{ kind: 'damage', amount: 6 }, { kind: 'statusPlayer', name: '翻肚', amount: 2 }] },
     ] },
 
   // ===== 大魔物 =====

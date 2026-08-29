@@ -15,6 +15,6 @@ export function blankPlayer(deckIds: string[] = []): PlayerCombat {
     hand: [], drawPile: deckIds.map((id, i) => inst(id, i + 1)), discardPile: [], exhaustPile: [],
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
     noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
-    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false,
+    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {},
   };
 }

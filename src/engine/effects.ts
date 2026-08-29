@@ -1,13 +1,15 @@
 import { aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log } from './actions';
 import { endTurn } from './combat';
 import { addStatus, getStatus } from './statuses';
+import { TURN_DECAY } from './types';
 import type { CombatState, Effect, EffectCtx } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
 export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx): void {
   const queue = [...effects];
   while (queue.length > 0) {
-    if (cs.phase !== 'player') return;
+    // 只有打輸了才半途收手；打贏了剩下的效果照樣結算（例如順手牽羊的小魚乾）
+    if (cs.phase === 'lost') return;
     const fx = queue.shift() as Effect;
     const paused = applyOne(cs, fx, ctx, queue);
     if (paused) return;
@@ -52,6 +54,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'status': {
       if (fx.target === 'self') {
         if (fx.name === '隱身') gainStealth(cs, fx.amount); else addStatus(p, fx.name, fx.amount);
+        // 自己給自己疊的減益，這回合結束先不衰減
+        if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = 1;
       } else {
         for (const t of targetsOf(cs, ctx, fx.target === 'all')) addStatus(t, fx.name, fx.amount);
       }

@@ -102,6 +102,15 @@ describe('出牌', () => {
     expect(cs.player.hp).toBe(53);
     expect(combatResult(cs).kills).toBe(1);
   });
+  it('打倒最後一隻之後，同一張牌剩下的效果照樣結算', () => {
+    const cs = start('cucumber', [...STARTER_DECK, 'shunshou']);
+    const e = cs.enemies[0]!; e.hp = 3;
+    playCard(cs, toHand(cs, 'shunshou'), e.uid);   // 打 6 擊倒 → 再結算「擊倒就 +15 小魚乾」
+    expect(cs.phase).toBe('won');
+    expect(cs.kills).toBe(1);
+    expect(cs.fishDelta).toBe(15);
+    expect(combatResult(cs).fishDelta).toBe(15);
+  });
 });
 
 describe('魔物回合', () => {
@@ -172,6 +181,30 @@ describe('魔物回合', () => {
     expect(cs.phase).toBe('won');
     expect(cs.kills).toBe(0);
     expect(combatResult(cs).fishDelta).toBe(-20);
+  });
+  it('自己疊的翻肚當回合不衰減，撐得到魔物那一下', () => {
+    const cs = start('cucumber', [...STARTER_DECK, 'chudashi']);
+    playCard(cs, toHand(cs, 'chudashi'));            // 抽 2、自己疊 1 層翻肚
+    expect(getStatus(cs.player, '翻肚')).toBe(1);
+    cs.enemies[0]!.move = { intent: 'attack', label: '彈起', effects: [{ kind: 'damage', amount: 7 }] };
+    const hp = cs.player.hp;
+    endTurn(cs);
+    expect(hp - cs.player.hp).toBe(10);               // 7 × 1.5 → 10，翻肚 這回合沒被吃掉
+    expect(getStatus(cs.player, '翻肚')).toBe(1);
+    cs.enemies[0]!.move = { intent: 'attack', label: '彈起', effects: [{ kind: 'damage', amount: 7 }] };
+    const hp2 = cs.player.hp;
+    endTurn(cs);
+    expect(hp2 - cs.player.hp).toBe(7);               // 下一回合結束才衰減，這一下回到 7
+    expect(getStatus(cs.player, '翻肚')).toBe(0);
+  });
+  it('噎到把塔主毒過門檻就進第二階段', () => {
+    const cs = start('tower_master');
+    const e = cs.enemies[0]!;
+    e.hp = 82; addStatus(e, '噎到', 3);
+    endTurn(cs);
+    expect(e.hp).toBe(79);
+    expect(e.phase).toBe(1);
+    expect(e.block).toBe(20);
   });
   it('生命歸零就輸；木樁擋一次致命傷', () => {
     const cs = start('cucumber', STARTER_DECK, 's', ['wood_post'], 5);
