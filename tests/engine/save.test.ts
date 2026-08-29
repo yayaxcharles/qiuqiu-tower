@@ -60,6 +60,13 @@ describe('存檔', () => {
     expect(recordBest(e).turns).toBe(60);
     expect(loadBest()?.turns).toBe(60);
   });
+  it('同一局記兩次成績結果一樣（結束時記一次、結算畫面再記一次）', () => {
+    const r = newRun('twice'); r.floor = 12; r.status = 'lost'; r.stats.turns = 44;
+    const first = recordBest(r, '2026-08-29');
+    const second = recordBest(r, '2026-08-29');
+    expect(second).toEqual(first);
+    expect(loadBest()).toEqual(first);
+  });
   it('最佳成績欄位壞掉就清掉回 null', () => {
     store.setItem('qiuqiu-tower/best', '{"floor":"abc"}');
     expect(loadBest()).toBeNull();
