@@ -69,8 +69,8 @@ export class App {
   }
 
   /**
-   * 存檔時機鐵則：**只有一個節點結算完才可以呼叫**——任務 5 的 afterCombat（獎勵拿完）、
-   * 任務 6 的 backToMap（事件／罐頭鋪／貓窩／紙箱收尾），再加上開局那一次（見 newRun）。
+   * 存檔時機鐵則：**只有一個節點結算完才可以呼叫**——實際上就是 backToMap()（戰鬥的獎勵挑完、
+   * 事件／罐頭鋪／貓窩／紙箱收尾都走它），再加上開局那一次（見 newRun）。
    * 規格 §3：「每離開一個節點就自動存檔」「戰鬥中途關掉，下次從該場戰鬥開頭重打」。
    *
    * 進節點時、戰鬥進行中、播對白時**一律不要存**。進節點就存的話，chooseNode() 已經把
@@ -80,9 +80,9 @@ export class App {
   save(): void { if (this.run && this.run.status === 'playing') saveRun(this.run); }
 
   /**
-   * 節點結算完的收尾：存檔再回地圖。事件、罐頭鋪、貓窩、紙箱、獎勵挑完牌都走這裡，
-   * 也是這幾種節點唯一的存檔點（戰鬥那條路由 afterCombat 負責）。只播一次的劇情旗標
-   * 寫在 run.flags 裡、不自己存檔，就是靠這一次存檔帶走。
+   * 節點結算完的收尾：存檔再回地圖。事件、罐頭鋪、貓窩、紙箱、戰鬥的獎勵挑完牌都走這裡，
+   * 也是遊戲進行中唯一的存檔點。只播一次的劇情旗標寫在 run.flags 裡、不自己存檔，
+   * 就是靠這一次存檔帶走。
    */
   backToMap(): void { this.save(); this.show('map'); }
 
@@ -121,7 +121,7 @@ export class App {
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
       this.show('combat', { bonusFish });
       if (firstNew) {
-        run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由戰後結算那次帶走
+        run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
         toast(dialogue.firstMeet[firstNew] ?? '', '球球');
       } else {
         toast(dialogue.battleStart[Math.floor(Math.random() * dialogue.battleStart.length)] ?? '', '球球');
@@ -132,9 +132,11 @@ export class App {
 
   /**
    * 一場戰鬥收尾。**只有戰鬥已經分出勝負才可以叫**（`finishCombat` 對還在打的戰鬥會丟例外）。
-   * 這裡是任務 5 唯一的存檔點，也就是 save() 註解講的「節點結算完那一次」：
-   * 戰後的生命、小魚乾、忍具與這場設下的初見旗標一起帶走。輸掉或打贏塔主時 `run.status`
-   * 已經不是 'playing'，save() 自己會略過（整局結束，存檔留給結算畫面收尾）。
+   * **這裡不存檔**：finishCombat 已經把小魚乾、秘寶、忍具寫進 run，但三選一的牌還沒挑，
+   * 這時候存下去、玩家在獎勵畫面重整，那張牌就無聲無息地不見了。規格 §3 說離開節點才存，
+   * 而戰鬥節點要等獎勵拿完才算離開，所以存檔交給獎勵畫面收尾的 backToMap()。
+   * 輸掉與打贏塔主不經過獎勵畫面，但那兩條路的 `run.status` 已經不是 'playing'，
+   * 本來 save() 就會略過（整局結束，存檔留給結算畫面清掉）。
    */
   afterCombat(bonusFish = 0): void {
     const run = this.run;
@@ -142,7 +144,6 @@ export class App {
     if (!run || !cs) { this.show('title'); return; }
     const rewards = finishCombat(run, cs, bonusFish);
     this.cs = null;
-    this.save();
     if (!rewards) { playDialogue(dialogue.defeat, () => this.show('result')); return; }
     if (rewards.kind === '塔主') { playDialogue(dialogue.victory, () => this.show('result')); return; }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面

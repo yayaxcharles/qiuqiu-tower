@@ -340,7 +340,9 @@ registerScreen('combat', (app, root, props) => {
     if (cat) {
       if (hurt) { cat.classList.add('hit'); cat.append(el('div', { class: 'num' }, `-${before.hp - p.hp}`)); }
       else if (dodged) cat.classList.add('dodge');
-      else if (posePref) cat.classList.add('attack');
+      // 前撲只給攻擊牌（規格 §8.4）：看 opts.attack，不能看有沒有指定姿勢——每張出的牌都會指定姿勢，
+      // 拿它當條件的話「淡定」這種防禦牌也會蜷成球又往前撲
+      else if (opts.attack) cat.classList.add('attack');
     }
 
     if (hungry) { hungryTurn = cs.turn; toast(dialogue.hungry, '球球'); }
@@ -360,11 +362,15 @@ registerScreen('combat', (app, root, props) => {
     syncPicker();
   }
 
-  /** 塔主進第二階段的兩句：吐槽是同一個位置，錯開時間放才不會疊在一起 */
+  /**
+   * 塔主進第二階段的兩句：吐槽是同一個位置，錯開時間放才不會疊在一起。
+   * 第二句晚 1.4 秒才放，比交棒的 1300 毫秒還久，所以要跟其他延遲回呼一樣先確認這場還在
+   * （`app.cs === cs`）——不然階段一換就把塔主打死的話，這句會飄到結算畫面上（吐槽住在疊層，換畫面不會被清掉）。
+   */
   function bossPhase2(): void {
     const [a, b] = dialogue.bossPhase2;
     if (a) toast(a.text, a.speaker);
-    if (b) window.setTimeout(() => toast(b.text, b.speaker), 1400);
+    if (b) window.setTimeout(() => { if (app.cs === cs) toast(b.text, b.speaker); }, 1400);
   }
 
   // ===== 待選牌 =====
