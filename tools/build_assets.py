@@ -11,9 +11,12 @@ build_assets.py — 從 Dropbox 貼圖原圖產出遊戲素材（只產遊戲真
   --check  只驗證產物齊全（給 CI／驗收用），不產圖
 manifest.json 是共用檔：本腳本只換 cards／sprites／review 三節，
 其他鍵（chroma_key.py 寫的 monsters／icons／bg）與 sprites 裡的 codex/* 條目一律保留。
+裁切線一律取自 tools/crop_overrides.json（怎麼量出來的寫在該檔的 _readme）；
+每個覆寫值都記著當時來源 PNG 的指紋，指紋對不上就照舊用該值但發警告並列入 review。
 來源只讀；可重跑。
 """
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -38,7 +41,8 @@ SPRITE_H = 512
 SPRITE_QUALITY = 70
 MAX_FILE_BYTES = 120_000
 
-ART_RE = re.compile(r"art:\s*'([^']+)'")
+# \b 是為了只吃 art: 這個欄位，別讓 heart:、fanart: 之類結尾是 art 的欄位混進來。
+ART_RE = re.compile(r"\bart:\s*'([^']+)'")
 
 # 球球的立繪：固定姿勢與每張忍術牌的出招姿勢，忍者 40 張全要（規格 §8.5）。
 NINJA_SPRITE_KEYS = [f"ninja/{n:02d}" for n in range(1, 41)]
@@ -64,6 +68,40 @@ def card_keys() -> set[str]:
 def sprite_keys() -> set[str]:
     """立繪鍵＝忍者 40 張＋塔主 9 種姿勢。"""
     return set(NINJA_SPRITE_KEYS) | set(BOSS_POSE_KEYS)
+
+
+def source_fingerprint(path: Path) -> str:
+    """來源 PNG 的指紋：「位元組數-SHA-1 前 8 碼」。
+    刻意不用修改時間：Dropbox 在另一台機器重新同步會換掉時間戳，
+    內容其實沒變，拿時間戳當指紋會天天誤報。"""
+    h = hashlib.sha1()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return f"{path.stat().st_size}-{h.hexdigest()[:8]}"
+
+
+def load_overrides() -> dict[str, dict]:
+    """讀 crop_overrides.json，一律回傳 {鍵: {"y": 裁切線, "source": 指紋或 None}}。
+    新格式：{"_readme": "…", "overrides": {"ninja/01": {"y": 427, "source": "…"}}}
+    舊的扁平格式 {"ninja/01": 427} 也照收，當作「沒記指紋」——不檢查、不發警告。"""
+    if not OVERRIDES.exists():
+        return {}
+    raw = json.loads(OVERRIDES.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        sys.exit(f"{OVERRIDES} 不是物件，先修好再跑")
+    table = raw["overrides"] if isinstance(raw.get("overrides"), dict) else raw
+    out: dict[str, dict] = {}
+    for key, val in table.items():
+        if key.startswith("_"):          # _readme 這類說明鍵不是裁切線
+            continue
+        if isinstance(val, dict):
+            if "y" not in val:
+                sys.exit(f"{OVERRIDES} 的 {key} 沒有 y 值，先修好再跑")
+            out[key] = {"y": int(val["y"]), "source": val.get("source") or None}
+        else:
+            out[key] = {"y": int(val), "source": None}
+    return out
 
 
 def title_band_bottom(im: Image.Image) -> tuple[int, bool]:
@@ -146,7 +184,12 @@ def write_manifest(cards: dict, sprites: dict, review: list) -> dict:
 
 
 def build(force: bool) -> dict:
-    overrides = json.loads(OVERRIDES.read_text(encoding="utf-8")) if OVERRIDES.exists() else {}
+    # 來源檢查一定要排在 prune() 之前：沒同步 Dropbox 的機器（工作機、CI）
+    # 若先刪再中止，等於把已產好的 webp 全刪光卻補不回來。
+    missing = [str(d) for d in SOURCES.values() if not d.exists()]
+    if missing:
+        sys.exit("找不到來源資料夾（沒有刪任何檔就停下了）：\n" + "\n".join(missing))
+    overrides = load_overrides()
     wanted_cards = card_keys()
     wanted_sprites = sprite_keys()
     removed = prune(wanted_cards, wanted_sprites)
@@ -154,8 +197,6 @@ def build(force: bool) -> dict:
         print(f"刪掉 {len(removed)} 個不再使用的舊檔")
     cards, sprites, review = {}, {}, []
     for set_name, src_dir in SOURCES.items():
-        if not src_dir.exists():
-            sys.exit(f"找不到來源資料夾：{src_dir}")
         files = sorted(p for p in src_dir.glob("*.png") if p.stem[:2].isdigit())
         thumbs = []
         for src in files:
@@ -175,12 +216,20 @@ def build(force: bool) -> dict:
             if need_sprite:
                 sprite_out = OUT / "sprites" / set_name / f"{src.stem[:2]}.webp"
                 sprites[key] = sprite_out.relative_to(ROOT / "public").as_posix()
-                if key in overrides:
-                    y, fallback = int(overrides[key]), False
+                ov = overrides.get(key)
+                if ov:
+                    y = ov["y"]
+                    # 有覆寫值就不再猜，但要確認當初量這條線的那張原圖沒被換掉；
+                    # 換掉了照樣用舊值（亂猜更糟），只是叫人來看一眼。
+                    now = source_fingerprint(src)
+                    if ov["source"] and ov["source"] != now:
+                        print(f"警告：{key} 的來源圖換過了（記錄 {ov['source']}、現在 {now}）；"
+                              f"仍照 crop_overrides.json 的 y={y} 裁，已列入待人工檢查")
+                        review.append(key)
                 else:
                     y, fallback = title_band_bottom(im)
-                if fallback:
-                    review.append(key)
+                    if fallback:
+                        review.append(key)
                 if force or newer(src, sprite_out):
                     sprite = im.crop((0, y, im.width, im.height))
                     bbox = sprite.getchannel("A").getbbox()
@@ -248,7 +297,8 @@ def check() -> None:
         if not (ROOT / "public" / rel).exists():
             problems.append(f"缺檔：{rel}")
 
-    # 每個貼圖檔 ≤120 KB；bg／icons／monsters 這類別的腳本的產物只提醒不擋
+    # 每個貼圖檔 ≤MAX_FILE_BYTES；bg／icons／monsters 這類別的腳本的產物只提醒不擋
+    limit_kb = MAX_FILE_BYTES // 1000
     oversize_note = []
     for group in ("cards", "sprites"):
         d = OUT / group
@@ -256,7 +306,7 @@ def check() -> None:
             continue
         for p in sorted(d.rglob("*.webp")):
             if p.stat().st_size > MAX_FILE_BYTES:
-                problems.append(f"太大（>120KB）：{p.relative_to(ROOT / 'public').as_posix()}")
+                problems.append(f"太大（>{limit_kb}KB）：{p.relative_to(ROOT / 'public').as_posix()}")
     for p in sorted(OUT.rglob("*")):
         if p.is_file() and not p.is_relative_to(OUT / "cards") and not p.is_relative_to(OUT / "sprites"):
             if p.stat().st_size > MAX_FILE_BYTES:
@@ -268,14 +318,19 @@ def check() -> None:
     cards_bytes, cards_n = dir_size(OUT / "cards")
     sprites_bytes, sprites_n = dir_size(OUT / "sprites")
     total_bytes, total_n = dir_size(OUT)
+    review = manifest.get("review", [])
     print(f"ok：牌面 {len(got_cards)} 張（cards.ts 掃到 {len(wanted_cards)} 個 art 鍵，全部有檔）、"
           f"立繪 {len(own_sprites)} 張（應有 {len(wanted_sprites)}），"
-          f"待人工檢查 {len(manifest.get('review', []))} 張：{manifest.get('review', [])}")
+          f"待人工檢查 {len(review)} 張：{review}")
+    if review:
+        # 只是提醒，不擋：這些是裁切線沒把握的（來源圖換過，或沒有覆寫值走了退路）。
+        print("↑ 這幾張的裁切線沒把握，請人打開 tools/out/review_sprites_<套組>.png "
+              "或原圖看一眼，必要時更新 tools/crop_overrides.json 的 y 與 source。")
     if foreign_sprites:
         print(f"另有別的腳本的立繪 {len(foreign_sprites)} 筆（不計入 49）：{foreign_sprites}")
     print(f"牌面 {cards_n} 檔 {cards_bytes:,} 位元組；立繪 {sprites_n} 檔 {sprites_bytes:,} 位元組")
     if oversize_note:
-        print(f"提醒：public/assets/ 底下有 {len(oversize_note)} 個非貼圖檔超過 120 KB（不擋）：{oversize_note}")
+        print(f"提醒：public/assets/ 底下有 {len(oversize_note)} 個非貼圖檔超過 {limit_kb} KB（不擋）：{oversize_note}")
     print(f"public/assets/ 總計 {total_bytes:,} 位元組（{total_bytes / 1048576:.2f} MB），{total_n} 個檔")
 
 

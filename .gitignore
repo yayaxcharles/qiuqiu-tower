@@ -5,3 +5,4 @@ dist/
 Thumbs.db
 .superpowers/
 tools/out/
+__pycache__/
