@@ -55,9 +55,11 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
    * Tab 順序裡，按 Enter 照樣會被觸發：事件的選項會再跑一次效果（劫富濟貧就會再砍一半小魚乾、
    * 再回一次血、再開一個挑牌視窗），罐頭鋪的「離開」會把地圖畫到底下去。`inert` 連鍵盤焦點
    * 與點擊一起擋掉，正好是這裡要的。**四條出路都要還原**：挑一張、不選、點黑幕、沒得挑只能關。
+   *
+   * 這一行只是把畫面層**找出來**（純查詢、不會丟例外，下面的 `dismiss` 要抓著它）；
+   * 真正上鎖排到最後、疊層貼上去之後才做，理由見那邊的註解。
    */
   const screen = layer.parentElement?.querySelector<HTMLElement>('#screen') ?? null;
-  screen?.setAttribute('inert', '');
   const overlay = el('div', { class: 'modal-overlay' });
   /**
    * 收掉疊層。還原畫面層要排在 onPick 之前：呼叫端在 onPick 裡就會重畫畫面、擺上新的按鈕，
@@ -93,4 +95,12 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     grid,
     el('div', { class: 'modal-foot' }, close)));
   layer.append(overlay);
+  /**
+   * 上鎖**一定要排在疊層貼上去之後**。前面每一步都可能丟例外——最現實的是 `cardNode` →
+   * `cardStats` 碰到牌表已經沒有的牌 id 就丟「未知的牌」（改過牌 id 的舊存檔就會這樣）。
+   * 要是先鎖再組疊層，那一丟例外就變成：畫面層停用了，畫面上卻沒有任何疊層可以關掉，
+   * 滑鼠點不動、Tab 也跳不進去，玩家只能重整；重整後按「續玩」再按一次「牌組」又鎖回去。
+   * 擺到這裡之後，最壞情況退回成「按鈕按下去沒反應」，遊戲照樣能玩。
+   */
+  screen?.setAttribute('inert', '');
 }
