@@ -2,7 +2,7 @@ import { dialogue, type DialogueLine } from '../content/dialogue';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
 import { beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
-import { loadRun, saveRun } from '../engine/save';
+import { clearSave, loadRun, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { computeScale } from './assets';
 import { playDialogue, toast } from './dialogue';
@@ -135,8 +135,7 @@ export class App {
    * **這裡不存檔**：finishCombat 已經把小魚乾、秘寶、忍具寫進 run，但三選一的牌還沒挑，
    * 這時候存下去、玩家在獎勵畫面重整，那張牌就無聲無息地不見了。規格 §3 說離開節點才存，
    * 而戰鬥節點要等獎勵拿完才算離開，所以存檔交給獎勵畫面收尾的 backToMap()。
-   * 輸掉與打贏塔主不經過獎勵畫面，但那兩條路的 `run.status` 已經不是 'playing'，
-   * 本來 save() 就會略過（整局結束，存檔留給結算畫面清掉）。
+   * 輸掉與打贏塔主不經過獎勵畫面，那兩條路改成當場清存檔（見下面那行的說明）。
    */
   afterCombat(bonusFish = 0): void {
     const run = this.run;
@@ -144,6 +143,14 @@ export class App {
     if (!run || !cs) { this.show('title'); return; }
     const rewards = finishCombat(run, cs, bonusFish);
     this.cs = null;
+    // 整局結束（陣亡或通關）就**當場定案**，不等結算畫面。
+    // 從這裡到結算畫面之間隔著 1300 毫秒的交棒，陣亡還要多播一段玩家自己點過去的對白；
+    // 要是等結算畫面才清，玩家在這段空窗關掉分頁再按「續玩」，就會退回這場戰鬥之前重打
+    // ＝免費復活。打贏塔主同理，可以退回去重打塔主刷更好的牌組。死了就是死了，當場清掉。
+    // 結算畫面的 recordBest(run) 讀的是記憶體裡的 run，不受影響；它自己那次 clearSave()
+    // 就變成無害的第二次呼叫（clearSave 只是 removeItem，重複叫沒有副作用）。
+    // 其餘存檔時機一律不動：進行中的一局仍然只有 backToMap() 會寫。
+    if (run.status !== 'playing') clearSave();
     if (!rewards) { playDialogue(dialogue.defeat, () => this.show('result')); return; }
     if (rewards.kind === '塔主') { playDialogue(dialogue.victory, () => this.show('result')); return; }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
