@@ -15,7 +15,12 @@ let store: KeyValueStore = (() => {
 })();
 export function setStore(s: KeyValueStore): void { store = s; }
 
-export function saveRun(run: RunState): void { store.setItem(RUN_KEY, JSON.stringify(run)); }
+/** 寫不進去就算了（空間滿了、私密模式），不要讓存檔失敗把遊戲打斷 */
+function write(key: string, value: string): void {
+  try { store.setItem(key, value); } catch { /* 忽略 */ }
+}
+
+export function saveRun(run: RunState): void { write(RUN_KEY, JSON.stringify(run)); }
 
 export function loadRun(): RunState | null {
   const raw = store.getItem(RUN_KEY);
@@ -33,7 +38,15 @@ export interface BestRecord { floor: number; won: boolean; turns: number; date: 
 export function loadBest(): BestRecord | null {
   const raw = store.getItem(BEST_KEY);
   if (!raw) return null;
-  try { return JSON.parse(raw) as BestRecord; } catch { return null; }
+  try {
+    const b = JSON.parse(raw) as Partial<BestRecord>;
+    // 欄位對不上就當作壞掉：清掉重來，免得後面拿它去比較時算出怪東西
+    if (typeof b.floor !== 'number' || typeof b.won !== 'boolean' || typeof b.turns !== 'number' || typeof b.date !== 'string') {
+      store.removeItem(BEST_KEY);
+      return null;
+    }
+    return b as BestRecord;
+  } catch { store.removeItem(BEST_KEY); return null; }
 }
 function better(a: BestRecord, b: BestRecord): boolean {   // a 是否優於 b
   if (a.won !== b.won) return a.won;
@@ -44,6 +57,6 @@ export function recordBest(run: RunState, date = new Date().toISOString().slice(
   const cur: BestRecord = { floor: run.floor, won: run.status === 'won', turns: run.stats.turns, date };
   const old = loadBest();
   const best = old && !better(cur, old) ? old : cur;
-  store.setItem(BEST_KEY, JSON.stringify(best));
+  write(BEST_KEY, JSON.stringify(best));
   return best;
 }

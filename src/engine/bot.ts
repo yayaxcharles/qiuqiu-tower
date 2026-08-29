@@ -10,9 +10,9 @@ import type { CombatState, RunState } from './types';
 
 export interface BotStats { seed: string; won: boolean; floor: number; turns: number; kills: number; deckSize: number }
 
-export function playCombat(cs: CombatState, rng: Rng, maxTurns: number): void {
+export function playCombat(cs: CombatState, rng: Rng, maxTurns: number, seed = '?'): void {
   while (cs.phase === 'player') {
-    if (cs.turn > maxTurns) throw new Error(`戰鬥超過 ${maxTurns} 回合：${cs.encounterId}`);
+    if (cs.turn > maxTurns) throw new Error(`種子 ${seed}：戰鬥超過 ${maxTurns} 回合：${cs.encounterId}`);
     if (cs.pending) {
       const pd = cs.pending;
       const n = rng.int(pd.min, pd.max);
@@ -24,7 +24,10 @@ export function playCombat(cs: CombatState, rng: Rng, maxTurns: number): void {
     if (cs.potions.length > 0 && rng.chance(0.3)) {
       const pid = rng.pick(cs.potions);
       const def = potionById[pid]!;
-      usePotion(cs, pid, def.target === 'enemy' ? rng.pick(enemies).uid : undefined);
+      // 用不出來就是引擎出事了（階段不對、有待選、忍具不在身上、目標無效），不吞掉
+      if (!usePotion(cs, pid, def.target === 'enemy' ? rng.pick(enemies).uid : undefined)) {
+        throw new Error(`種子 ${seed}：第 ${cs.turn} 回合用不了忍具 ${pid}（${cs.encounterId}）`);
+      }
       continue;
     }
     const playable = cs.player.hand.filter((c) => {
@@ -35,11 +38,14 @@ export function playCombat(cs: CombatState, rng: Rng, maxTurns: number): void {
     const card = rng.pick(playable);
     const def = cardById[card.cardId]!;
     const target = def.target === 'enemy' ? rng.pick(aliveEnemies(cs)).uid : undefined;
-    if (!playCard(cs, card.uid, target)) endTurn(cs);
+    // canPlay 剛剛才說可以打，打不出來就是引擎出事了，不要用結束回合蓋過去
+    if (!playCard(cs, card.uid, target)) {
+      throw new Error(`種子 ${seed}：第 ${cs.turn} 回合打不出 ${card.cardId}（${cs.encounterId}）`);
+    }
   }
 }
 
-function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTurns: number): void {
+function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTurns: number, seed: string): void {
   if (!outcome) return;
   if ('needs' in outcome) {
     const cands = run.deck.filter((c) => (outcome.needs === 'removeCard') || (!c.upgraded && cardById[c.cardId]?.pool !== '壞毛病'));
@@ -48,7 +54,7 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
     if (outcome.chooseCard.length) addCard(run, rng.pick(outcome.chooseCard).id);
   } else if ('fight' in outcome) {
     const cs = beginCombat(run, outcome.fight.encounterId);
-    playCombat(cs, rng, maxTurns);
+    playCombat(cs, rng, maxTurns, seed);
     const r = finishCombat(run, cs, outcome.fight.bonusFish);
     if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
   }
@@ -67,7 +73,7 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {})
     switch (node.type) {
       case '戰鬥': case '大魔物': case '塔主': {
         const cs = beginCombat(run);
-        playCombat(cs, rng, maxTurns);
+        playCombat(cs, rng, maxTurns, seed);
         const r = finishCombat(run, cs);
         if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
         break;
@@ -76,8 +82,8 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {})
         const ev = eventById[node.eventId!]!;
         const options = ev.choices.filter((c) => (c.costFish ?? 0) <= run.fish);
         const c = rng.pick(options.length ? options : ev.choices);
-        if (c.costFish) run.fish -= c.costFish;
-        handleOutcome(run, rng, applyRunEffects(run, c.outcome), maxTurns);
+        run.fish = Math.max(0, run.fish - (c.costFish ?? 0));   // 買不起也硬選的話，小魚乾扣到 0 為止，不會變負的
+        handleOutcome(run, rng, applyRunEffects(run, c.outcome), maxTurns, seed);
         break;
       }
       case '罐頭鋪': {
