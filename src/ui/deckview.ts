@@ -27,9 +27,12 @@ export interface DeckPickerLayout {
 /**
  * 疊層開起來會長什麼樣。抽成純函式是為了把「會不會鎖死」這件事釘在測試裡。
  *
- * 鎖死長這樣：`pickable` 且 `cancellable: false`，濾網卻一張都不合（或牌組根本是空的）——
- * 每張牌都是停用的、關閉鈕也是停用的，玩家只能重整。所以沒得挑的時候一律放行關閉，
- * 並且補一行字講清楚為什麼沒得挑（不然按下去毫無反應，看起來像壞掉）。
+ * 鎖死長這樣：`cancellable: false`，卻**一張都點不下去**——每張牌都是停用的、關閉鈕也是停用的，
+ * 玩家只能重整。會發生的情形有兩種：`pickable` 但濾網一張都不合（或牌組是空的）；
+ * 以及 `pickable: false` 的純檢視也寫了 `cancellable: false`（那就完全沒有出口）。
+ * 所以判準一律是「有沒有東西可以點」：`choices === 0` 就放行關閉，
+ * 並且在真的沒得挑的時候補一行字講清楚為什麼（不然按下去毫無反應，看起來像壞掉）。
+ * 有牌可挑時「一定要挑一張」的規矩完全不變。
  */
 export function deckPickerLayout(
   opts: Pick<DeckPickerOpts, 'cards' | 'pickable' | 'cancellable' | 'filter'>): DeckPickerLayout {
@@ -38,7 +41,7 @@ export function deckPickerLayout(
   const nothingToPick = opts.pickable && choices === 0;
   return {
     choices,
-    closable: opts.cancellable || nothingToPick,
+    closable: opts.cancellable || choices === 0,
     note: opts.cards.length === 0 ? '（沒有牌）' : nothingToPick ? '（沒有可以挑的牌）' : null,
   };
 }

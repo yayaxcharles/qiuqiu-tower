@@ -1,0 +1,162 @@
+/* ===== 節點畫面共用（獎勵、事件、罐頭鋪、貓窩、紙箱、結算） ===== */
+/* 上緣讓開 56px 給狀態列；結算畫面沒有狀態列，自己蓋掉（見最下面） */
+.screen {
+  position: absolute;
+  left: 0;
+  top: 56px;
+  width: 1280px;
+  height: 664px;
+  box-sizing: border-box;
+  padding: 20px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  overflow: auto;
+}
+.screen h1 {
+  margin: 0;
+  font-size: 36px;
+}
+.screen h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+/* ===== 獎勵 ===== */
+.reward-items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.reward-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 18px;
+}
+.reward-item img { width: 40px; height: 40px; object-fit: contain; }
+.reward-cards {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+.reward-cards .card { transition: transform .15s; }
+.reward-cards .card.clickable:hover { transform: translateY(-10px); }
+
+/* ===== 事件 ===== */
+.event-text, .event-result {
+  max-width: 900px;
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.6;
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 14px 22px;
+}
+.event-note {
+  margin: 0;
+  font-size: 19px;
+  color: var(--accent);
+  font-weight: bold;
+}
+.event-choices, .rest-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  width: 560px;
+}
+
+/* ===== 罐頭鋪 ===== */
+.shopkeeper { margin: 0; font-size: 18px; opacity: .85; }
+/* 同一排的格子等高（stretch），價錢一律沉到格子底部，說明長短不一也不會排得參差不齊 */
+.shop-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: stretch;
+}
+.shop-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 170px;
+  box-sizing: border-box;
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+/* 牌那一排的格子只是牌加價錢，不要再套一層框 */
+.shop-item.card-item {
+  width: auto;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.shop-item img { width: 56px; height: 56px; object-fit: contain; }
+.shop-item .shop-name { font-weight: bold; font-size: 16px; }
+.shop-item .small { font-size: 12px; opacity: .8; text-align: center; }
+.shop-item .price { margin-top: auto; padding-top: 4px; font-weight: bold; color: var(--accent); }
+.shop-item.sold { opacity: .4; pointer-events: none; }
+/* 買不起：看得到但點不動，價錢照樣寫著（玩家要知道差多少） */
+.shop-item.poor { opacity: .55; cursor: default; }
+.shop-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: auto;
+}
+
+/* ===== 貓窩 ===== */
+.rest-result { font-size: 22px; }
+
+/*
+ * 吐槽是疊層元件，固定貼在 top: 60px（base.css）——那個位置在戰鬥畫面是空的，
+ * 但在紙箱與貓窩剛好壓到標題。這兩個畫面把它挪到內容下方的空地，免得標題被蓋住。
+ */
+#stage[data-screen="chest"] .toast,
+#stage[data-screen="rest"] .toast { top: 320px; }
+
+/* ===== 結算 ===== */
+.screen.result {
+  top: 0;
+  height: 720px;
+  justify-content: center;
+  gap: 10px;
+  background: radial-gradient(circle at 50% 40%, #fffaf0 0%, var(--paper) 62%, #e6d9c2 100%);
+}
+.screen.result.lost {
+  color: #f6efe3;
+  background: radial-gradient(circle at 50% 40%, #3a2c20 0%, #241b14 70%);
+}
+.result-cat { height: 220px; object-fit: contain; }
+.result-stats { font-size: 20px; }
+.result-stats.small { font-size: 14px; opacity: .7; }
+.result-relics {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 900px;
+}
+.result-relic img { width: 40px; height: 40px; display: block; object-fit: contain; }
+.result-relic.name-only {
+  border: 2px solid currentColor;
+  border-radius: 10px;
+  padding: 3px 10px;
+  font-size: 15px;
+}
+.result-actions { display: flex; gap: 14px; }
+.result-best { font-size: 18px; }
+.teaser { margin: 0; font-size: 20px; opacity: .85; }

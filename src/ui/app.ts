@@ -80,6 +80,13 @@ export class App {
   save(): void { if (this.run && this.run.status === 'playing') saveRun(this.run); }
 
   /**
+   * 節點結算完的收尾：存檔再回地圖。事件、罐頭鋪、貓窩、紙箱、獎勵挑完牌都走這裡，
+   * 也是這幾種節點唯一的存檔點（戰鬥那條路由 afterCombat 負責）。只播一次的劇情旗標
+   * 寫在 run.flags 裡、不自己存檔，就是靠這一次存檔帶走。
+   */
+  backToMap(): void { this.save(); this.show('map'); }
+
+  /**
    * 只播一次的劇情：旗標寫在 run.flags 裡，但**不在這裡存檔**——旗標由下一次節點結算的存檔帶走。
    * 中途重整最多重播一句初見台詞，無害。之後的 firstElite、secretScroll 也走這個。
    */
