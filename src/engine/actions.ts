@@ -1,0 +1,163 @@
+import { enemyById } from '../content/enemies';
+import { draw } from './deck';
+import { applyEffects } from './effects';
+import { addStatus, computeAttack, computeBlock, getStatus } from './statuses';
+import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, Unit } from './types';
+
+export function log(cs: CombatState, msg: string): void { cs.log.push(msg); }
+export function aliveEnemies(cs: CombatState): EnemyCombat[] { return cs.enemies.filter((e) => !e.dead); }
+export function findEnemy(cs: CombatState, uid: number): EnemyCombat | undefined { return cs.enemies.find((e) => e.uid === uid && !e.dead); }
+export function hasRelic(cs: CombatState, id: string): boolean { return cs.relics.includes(id); }
+
+export function gainBlock(cs: CombatState, u: Unit, base: number): number {
+  const v = computeBlock(base, u);
+  u.block += v;
+  return v;
+}
+
+export function gainStealth(cs: CombatState, n: number): void {
+  let amt = n;
+  if (hasRelic(cs, 'paper_bag') && !cs.player.firstStealthGiven) amt += 1;
+  cs.player.firstStealthGiven = true;
+  addStatus(cs.player, '隱身', amt);
+}
+
+export function healPlayer(cs: CombatState, n: number): number {
+  const p = cs.player; const before = p.hp;
+  p.hp = Math.min(p.maxHp, p.hp + n);
+  return p.hp - before;
+}
+
+export function drawCards(cs: CombatState, n: number): CardInstance[] { return draw(cs.player, n, cs.rng); }
+
+/** 魔物（或自傷）打球球。direct＝不看隱身、不看蜷縮、不套公式（自傷、噎到、壞毛病用） */
+export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts: { direct?: boolean } = {}): number {
+  const p = cs.player;
+  let lose: number;
+  if (opts.direct) {
+    lose = base;
+  } else {
+    if (p.immune) { log(cs, '球球躲在角落，什麼都沒看到'); return 0; }
+    if (getStatus(p, '隱身') > 0) { addStatus(p, '隱身', -1); log(cs, '球球閃過了'); return 0; }
+    const dmg = computeAttack(base, attacker, p);
+    const absorbed = Math.min(p.block, dmg);
+    p.block -= absorbed;
+    lose = dmg - absorbed;
+    const thorns = getStatus(p, '反彈');
+    if (dmg > 0 && thorns > 0 && attacker !== p) {
+      const e = cs.enemies.find((x) => x === attacker);
+      if (e) damageEnemy(cs, e, thorns, { direct: true });
+    }
+  }
+  p.hp -= lose;
+  if (p.hp <= 0) {
+    if (hasRelic(cs, 'wood_post') && !p.lethalPrevented) { p.hp = 1; p.lethalPrevented = true; log(cs, '木樁替球球挨了這一下'); }
+    else { p.hp = 0; cs.phase = 'lost'; }
+  }
+  return lose;
+}
+
+function currentPhase(e: EnemyCombat): EnemyPhase | undefined {
+  return enemyById[e.enemyId]?.phases?.[e.phase - 1];
+}
+function moveSet(e: EnemyCombat): { moves: EnemyMove[]; pattern: 'cycle' | 'random' } {
+  const def = enemyById[e.enemyId]!;
+  const ph = currentPhase(e);
+  return ph ? { moves: ph.moves, pattern: ph.pattern } : { moves: def.moves, pattern: def.pattern };
+}
+
+export function advanceMove(cs: CombatState, e: EnemyCombat): void {
+  const { moves, pattern } = moveSet(e);
+  if (pattern === 'random') { e.move = cs.rng.pick(moves); return; }
+  e.moveIndex = (e.moveIndex + 1) % moves.length;
+  e.move = moves[e.moveIndex] as EnemyMove;
+}
+
+function checkPhase(cs: CombatState, e: EnemyCombat): void {
+  const def = enemyById[e.enemyId]!;
+  const next = def.phases?.[e.phase];
+  if (!next || e.hp >= next.hpBelow || e.dead) return;
+  e.phase += 1;
+  e.moveIndex = 0;
+  if (next.line) log(cs, `${e.name}：${next.line}`);
+  runEnemyEffects(cs, e, next.onEnter, false);
+  e.move = next.pattern === 'random' ? cs.rng.pick(next.moves) : (next.moves[0] as EnemyMove);
+}
+
+function killEnemy(cs: CombatState, e: EnemyCombat): void {
+  e.dead = true;
+  cs.kills += 1;
+  const def = enemyById[e.enemyId]!;
+  if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
+  if (e.stolen > 0) { cs.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
+  for (const pw of cs.player.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { source: 'power' });
+  if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
+}
+
+export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
+  opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean } = {}): { dealt: number; killed: boolean } {
+  if (e.dead) return { dealt: 0, killed: false };
+  let lose: number;
+  if (opts.direct) {
+    lose = base;
+  } else {
+    if (getStatus(e, '隱身') > 0) { addStatus(e, '隱身', -1); log(cs, `${e.name}閃過了`); return { dealt: 0, killed: false }; }
+    const dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
+    if (opts.ignoreBlock) lose = dmg;
+    else { const absorbed = Math.min(e.block, dmg); e.block -= absorbed; lose = dmg - absorbed; }
+  }
+  e.hp = Math.max(0, e.hp - lose);
+  if (e.hp === 0) { killEnemy(cs, e); return { dealt: lose, killed: true }; }
+  checkPhase(cs, e);
+  return { dealt: lose, killed: false };
+}
+
+export function makeEnemy(cs: CombatState, enemyId: string, index: number): EnemyCombat {
+  const def = enemyById[enemyId];
+  if (!def) throw new Error(`未知的魔物：${enemyId}`);
+  const hp = cs.rng.int(def.hp[0], def.hp[1]);
+  const moveIndex = def.pattern === 'cycle' ? index % def.moves.length : 0;
+  const move = def.pattern === 'cycle' ? (def.moves[moveIndex] as EnemyMove) : cs.rng.pick(def.moves);
+  return {
+    uid: cs.nextEnemyUid++, enemyId, name: def.name, hp, maxHp: hp, block: 0, statuses: {},
+    moveIndex, turnCount: 0, phase: 0, charged: false, move, dead: false, escaped: false, stolen: 0,
+  };
+}
+
+/** 包成函式再讀，免得 TypeScript 把 cs.phase 窄化後，看不見 damagePlayer 途中把戰鬥打成敗北 */
+function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
+
+export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyEffect[], charged: boolean): void {
+  const p = cs.player;
+  for (const fx of effects) {
+    if (isLost(cs)) return;
+    switch (fx.kind) {
+      case 'damage': {
+        const base = fx.amount * (charged ? 2 : 1);
+        for (let i = 0; i < (fx.times ?? 1); i++) { damagePlayer(cs, e, base); if (isLost(cs)) return; }
+        break;
+      }
+      case 'damageRandom': damagePlayer(cs, e, cs.rng.int(fx.min, fx.max) * (charged ? 2 : 1)); break;
+      case 'block': gainBlock(cs, e, fx.amount); break;
+      case 'statusSelf': addStatus(e, fx.name, fx.amount); break;
+      case 'statusPlayer': addStatus(p, fx.name, fx.amount); break;
+      case 'heal': e.hp = Math.min(e.maxHp, e.hp + fx.n); break;
+      case 'stealFish': e.stolen += fx.n; cs.stolenFish += fx.n; cs.fishDelta -= fx.n; log(cs, `${e.name}偷走了 ${fx.n} 小魚乾`); break;
+      case 'discardRandomHand': {
+        for (let i = 0; i < fx.n && p.hand.length > 0; i++) {
+          const c = cs.rng.pick(p.hand);
+          p.hand.splice(p.hand.indexOf(c), 1); p.discardPile.push(c);
+        }
+        break;
+      }
+      case 'summon': {
+        for (let i = 0; i < fx.n && aliveEnemies(cs).length < 5; i++) cs.enemies.push(makeEnemy(cs, fx.enemyId, i));
+        break;
+      }
+      case 'chargeNext': e.charged = true; break;
+      case 'escape': e.dead = true; e.escaped = true; log(cs, `${e.name}帶著小魚乾逃走了`);
+        if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won'; break;
+      case 'nothing': break;
+    }
+  }
+}

@@ -7,14 +7,15 @@ export const HAND_LIMIT = 10;
 export function cardStats(inst: CardInstance): { def: CardDef; name: string; cost: number; effects: Effect[]; keywords: Keyword[] } {
   const def = cardById[inst.cardId];
   if (!def) throw new Error(`未知的牌：${inst.cardId}`);
-  if (!inst.upgraded) return { def, name: def.name, cost: def.cost, effects: def.effects, keywords: def.keywords ?? [] };
+  // 回傳副本，避免引擎就地改到 cardById 的牌表資料
+  if (!inst.upgraded) return { def, name: def.name, cost: def.cost, effects: [...def.effects], keywords: [...(def.keywords ?? [])] };
   const u = def.upgrade;
   return {
     def,
     name: def.name + '＋',
     cost: u.cost ?? def.cost,
-    effects: u.effects ?? def.effects,
-    keywords: u.keywords ?? def.keywords ?? [],
+    effects: [...(u.effects ?? def.effects)],
+    keywords: [...(u.keywords ?? def.keywords ?? [])],
   };
 }
 
