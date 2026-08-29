@@ -78,7 +78,8 @@ export function advanceMove(cs: CombatState, e: EnemyCombat): void {
 function checkPhase(cs: CombatState, e: EnemyCombat): void {
   const def = enemyById[e.enemyId]!;
   const next = def.phases?.[e.phase];
-  if (!next || e.hp >= next.hpBelow || e.dead) return;
+  // hpBelow 語意＝「生命 ≤ 此值就切換」，所以剛好等於門檻也要進下一階段
+  if (!next || e.hp > next.hpBelow || e.dead) return;
   e.phase += 1;
   e.moveIndex = 0;
   if (next.line) log(cs, `${e.name}：${next.line}`);
@@ -132,11 +133,16 @@ function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
 export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyEffect[], charged: boolean): void {
   const p = cs.player;
   for (const fx of effects) {
+    if (e.dead) return;        // 已經倒下（例如被反彈打死）就不再執行剩下的效果
     if (isLost(cs)) return;
     switch (fx.kind) {
       case 'damage': {
         const base = fx.amount * (charged ? 2 : 1);
-        for (let i = 0; i < (fx.times ?? 1); i++) { damagePlayer(cs, e, base); if (isLost(cs)) return; }
+        for (let i = 0; i < (fx.times ?? 1); i++) {
+          if (e.dead) return;      // 被反彈打死，剩下的段數不能再打
+          damagePlayer(cs, e, base);
+          if (isLost(cs)) return;
+        }
         break;
       }
       case 'damageRandom': damagePlayer(cs, e, cs.rng.int(fx.min, fx.max) * (charged ? 2 : 1)); break;

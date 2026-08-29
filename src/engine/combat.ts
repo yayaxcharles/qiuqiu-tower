@@ -48,6 +48,7 @@ export function startPlayerTurn(cs: CombatState): void {
   cs.turn += 1;
   p.block = 0;
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
+  p.firstStealthGiven = false;   // 也要先清，潛水轉隱身才吃得到紙袋的每回合第一次加成
   const poison = getStatus(p, '噎到');
   if (poison > 0) { addStatus(p, '噎到', -1); damagePlayer(cs, p, poison, { direct: true }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
@@ -55,7 +56,7 @@ export function startPlayerTurn(cs: CombatState): void {
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { source: 'power' });
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnEnergy') : 0);
   p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0;
-  p.firstStealthGiven = false; p.firstCardPlayed = false; p.doubleNext = 0;
+  p.firstCardPlayed = false; p.doubleNext = 0;
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnDraw') : 0);
   p.drawNextTurn = 0;
   drawCards(cs, n);
@@ -136,6 +137,7 @@ export function endTurn(cs: CombatState): void {
     if (e.dead || cs.phase !== 'player') continue;
     if (e.move.intent === 'attack' && getStatus(e, '定身') > 0) {
       addStatus(e, '定身', -1);
+      e.charged = false;   // 這一下被定掉，蓄力也一起作廢
       log(cs, `${e.name}被定住了，這一下打不出來`);
     } else {
       const charged = e.charged;

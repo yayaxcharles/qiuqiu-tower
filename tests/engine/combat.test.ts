@@ -40,6 +40,15 @@ describe('開戰與回合開始', () => {
     expect(a.player.hand.map((c) => c.uid)).toEqual(b.player.hand.map((c) => c.uid));
     expect(a.enemies.map((e) => e.hp)).toEqual(b.enemies.map((e) => e.hp));
   });
+  it('紙袋加成算得到潛水轉隱身', () => {
+    const cs = start('cucumber', [...STARTER_DECK, 'qianshui'], 's', ['paper_bag']);
+    playCard(cs, toHand(cs, 'qianshui'));   // 隱身 1＋紙袋 1 → 2，同時拿 1 層潛水
+    expect(getStatus(cs.player, '隱身')).toBe(2);
+    endTurn(cs);                            // 黃瓜怪第一手是嚇人，不會吃掉隱身
+    // 新回合開始潛水轉隱身：1＋紙袋 1 → 再加 2，合計 4
+    expect(getStatus(cs.player, '潛水')).toBe(0);
+    expect(getStatus(cs.player, '隱身')).toBe(4);
+  });
 });
 
 describe('出牌', () => {
@@ -213,6 +222,38 @@ describe('魔物回合', () => {
     expect(e.hp).toBe(79);
     expect(e.phase).toBe(1);
     expect(e.block).toBe(20);
+  });
+  it('魔物被反彈打死，剩下的段數不再打', () => {
+    const cs = start('black_ninja');
+    const e = cs.enemies[0]!; e.hp = 1;
+    e.move = { intent: 'attack', label: '二連斬', effects: [{ kind: 'damage', amount: 6, times: 2 }] };
+    addStatus(cs.player, '反彈', 2);
+    const hp = cs.player.hp;
+    endTurn(cs);
+    expect(e.dead).toBe(true);
+    expect(hp - cs.player.hp).toBe(6);       // 只吃到第一段，第二段沒打出來
+    expect(cs.phase).toBe('won');
+  });
+  it('血量剛好等於階段門檻就切換', () => {
+    const cs = start('tower_master');
+    const e = cs.enemies[0]!;
+    e.hp = 81; e.block = 5;                  // 參上打 6：擋掉 5、只掉 1 → 剛好 80
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);
+    expect(e.hp).toBe(80);
+    expect(e.phase).toBe(1);
+  });
+  it('定身跳掉的那一下，蓄力也一起作廢', () => {
+    const cs = start('tower_master');
+    const e = cs.enemies[0]!;
+    endTurn(cs);                             // 蓄力
+    expect(e.charged).toBe(true);
+    expect(e.move.label).toBe('鐵頭功');
+    addStatus(e, '定身', 1);
+    const hp = cs.player.hp;
+    endTurn(cs);
+    expect(cs.player.hp).toBe(hp);
+    expect(e.charged).toBe(false);
+    expect(getStatus(e, '定身')).toBe(0);
   });
   it('生命歸零就輸；木樁擋一次致命傷', () => {
     const cs = start('cucumber', STARTER_DECK, 's', ['wood_post'], 5);
