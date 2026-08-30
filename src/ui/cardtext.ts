@@ -3,7 +3,7 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
 
 /**
  * 規格 §6.1 有幾張牌的兩段效果是各自獨立的子句，用分號接才讀得順：
- * 順手牽羊（造成 6 傷；擊倒目標則 +15 小魚乾）、我在這、戰術撤退、讀心術、拖字訣。
+ * 順手牽羊（造成 6 點傷害；打倒牠就多拿 15 條小魚乾）、我在這、戰術撤退、讀心術、拖字訣。
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand']);
 const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn']);

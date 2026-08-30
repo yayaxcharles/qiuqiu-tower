@@ -26,8 +26,8 @@ registerScreen('shop', (app, root) => {
   const line = dialogue.shopkeeper[Math.floor(Math.random() * dialogue.shopkeeper.length)] ?? '';
 
   /**
-   * 貨架上的一格：圖、名字、說明、價錢。賣掉了寫「售出」；買不起或現在拿不了（例如忍具帶滿）
-   * 就變淡、點不動，但價錢照樣寫著——「售出」與「買不起」是兩件事，不要混成同一個樣子。
+   * 貨架上的一格：圖、名字、說明、價錢。賣掉了寫「賣掉了」；買不起或現在拿不了（例如忍具帶滿）
+   * 就變淡、點不動，但價錢照樣寫著——「賣掉了」與「買不起」是兩件事，不要混成同一個樣子。
    */
   function stall(key: string, name: string, text: string, price: number,
     sold: boolean, blocked: boolean, buy: () => void): HTMLElement {
@@ -36,7 +36,7 @@ registerScreen('shop', (app, root) => {
       icon(key, name),
       el('div', { class: 'shop-name' }, name),
       el('div', { class: 'small' }, text),
-      el('div', { class: 'price' }, sold ? '售出' : `${price} 小魚乾`));
+      el('div', { class: 'price' }, sold ? '賣掉了' : `${price} 條小魚乾`));
     if (!sold && !blocked && afford) node.addEventListener('click', buy);
     return node;
   }
@@ -50,7 +50,7 @@ registerScreen('shop', (app, root) => {
       const buyable = !it.sold && run.fish >= it.price;
       cards.append(el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}` },
         cardNode(it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) render(); } }),
-        el('div', { class: 'price' }, it.sold ? '售出' : `${it.price} 小魚乾`)));
+        el('div', { class: 'price' }, it.sold ? '賣掉了' : `${it.price} 條小魚乾`)));
     });
 
     const goods = el('div', { class: 'shop-row' });
@@ -65,7 +65,7 @@ registerScreen('shop', (app, root) => {
     shop.potions.forEach((it, i) => {
       const d = potionById[it.id];
       if (!d) return;
-      // 忍具最多帶三支，帶滿了就買不下去（buyPotion 會擋）：講明原因，不要假裝是售出
+      // 忍具最多帶三支，帶滿了就買不下去（buyPotion 會擋）：講明原因，不要假裝是賣掉了
       const full = run.potions.length >= 3;
       goods.append(stall(d.art, d.name, full ? `${d.text}（忍具帶滿了）` : d.text, it.price, it.sold, full,
         () => { if (buyPotion(run, shop, i)) render(); }));
@@ -74,10 +74,10 @@ registerScreen('shop', (app, root) => {
     const remove = el('button', {
       class: 'btn',
       onclick: () => showDeckPicker({
-        title: `放生一張牌（${run.removeCost} 小魚乾）`, cards: run.deck, pickable: true, cancellable: true,
+        title: `放生一張牌（${run.removeCost} 條小魚乾）`, cards: run.deck, pickable: true, cancellable: true,
         onPick: (uid) => { if (uid !== null) buyRemove(run, uid); render(); },
       }),
-    }, `放生一張牌：${run.removeCost} 小魚乾`);
+    }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
 
     root.append(el('div', { class: 'screen shop' },

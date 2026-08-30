@@ -35,8 +35,8 @@ const STATUS_LABEL: Partial<Record<StatusName, string>> = { 潛水: '下回合�
 /** 意圖沒有圖示素材（美術清單只做了狀態圖示），用一個中文字當記號，字型一定有 */
 const INTENT_GLYPH: Record<Intent, string> = { attack: '攻', block: '守', buff: '強', debuff: '弱', special: '？', summon: '召', idle: '…' };
 const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
-  exhaust: '選要消耗的牌', retain: '選要保留到下回合的牌', discard: '選要棄掉的牌',
-  recover: '選要拿回手上的牌', scryDiscard: '抽牌堆頂的牌，選要丟掉的',
+  exhaust: '挑要消耗的牌', retain: '挑要留到下回合的牌', discard: '挑要丟掉的牌',
+  recover: '挑要拿回手上的牌', scryDiscard: '這是抽牌堆最上面的牌，挑要丟掉的',
 };
 /** 球球的姿勢（規格 §8.4）：待機淡定、出招參上、挨打中計了、閃避替身術、餓扁先睡了、勝利任務完成、陣亡任務失敗、蜷縮捲成球 */
 const POSE = {

@@ -66,7 +66,7 @@ export const dialogue = {
   ],
   victoryTeaser: '塔上面……好像還有樓層喵？',
   defeat: <DialogueLine[]>[
-    { speaker: '旁白', text: '球球躺平了。' },
+    { speaker: '旁白', text: '球球倒下了。' },
     { speaker: '球球', text: '先睡了喵……' },
     { speaker: '旁白', text: '夢裡有人把牠扛回村子。醒來，塔還在。' },
   ],

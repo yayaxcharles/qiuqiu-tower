@@ -31,12 +31,12 @@ registerScreen('rest', (app, root) => {
 
   function show(): void {
     renderHud(app, root);
-    const nap = el('button', { class: 'btn primary' }, heal > 0 ? `打盹（回復 ${heal} 生命）` : '打盹（生命已經滿了）');
+    const nap = el('button', { class: 'btn primary' }, heal > 0 ? `打盹（回復 ${heal} 點生命）` : '打盹（生命已經滿了）');
     nap.addEventListener('click', () => {
       if (used) return;
       used = true;
       rest(run, '打盹');
-      afterAction(`球球睡了一下，回復 ${heal} 生命。`, dialogue.restLines[0] ?? '');
+      afterAction(`球球睡了一下，回復 ${heal} 點生命。`, dialogue.restLines[0] ?? '');
     });
 
     const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌）');
@@ -59,7 +59,7 @@ registerScreen('rest', (app, root) => {
 
     root.append(el('div', { class: 'screen rest' },
       el('h1', {}, '貓窩'),
-      el('p', {}, '暖暖的，只能選一件事做。'),
+      el('p', {}, '貓窩暖暖的，只能挑一件事做。'),
       el('div', { class: 'rest-actions' }, nap, sharpen)));
   }
 

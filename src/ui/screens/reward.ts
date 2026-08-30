@@ -29,9 +29,9 @@ registerScreen('reward', (app, root, props) => {
   renderHud(app, root);
 
   const items = el('div', { class: 'reward-items' },
-    el('div', { class: 'reward-item' }, icon('icon/fish', ''), `＋${r.fish} 小魚乾`));
+    el('div', { class: 'reward-item' }, icon('icon/fish', ''), `＋${r.fish} 條小魚乾`));
   // 獎金另起一行：r.fish 是規格 §5.4 的戰利品，兩個數字不併成一個，玩家才看得出獎金有沒有拿到
-  if (bonus > 0) items.append(el('div', { class: 'reward-item' }, icon('icon/fish', ''), `＋${bonus} 小魚乾（事件獎金）`));
+  if (bonus > 0) items.append(el('div', { class: 'reward-item' }, icon('icon/fish', ''), `＋${bonus} 條小魚乾（事件獎金）`));
   const relic = r.relic ? relicById[r.relic] : undefined;
   if (relic) items.append(el('div', { class: 'reward-item' }, icon(relic.art, relic.name), `秘寶「${relic.name}」：${relic.text}`));
   const potion = r.potion ? potionById[r.potion] : undefined;
