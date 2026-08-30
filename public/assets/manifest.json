@@ -205,11 +205,19 @@
   "codex/relic_scroll": "assets/icons/relic_scroll.webp",
   "codex/relic_paper_bag": "assets/icons/relic_paper_bag.webp",
   "codex/relic_bronze_mirror": "assets/icons/relic_bronze_mirror.webp",
-  "codex/relic_tower_token": "assets/icons/relic_tower_token.webp"
+  "codex/relic_tower_token": "assets/icons/relic_tower_token.webp",
+  "icon/node_boss": "assets/icons/node_boss.webp",
+  "icon/node_chest": "assets/icons/node_chest.webp",
+  "icon/node_elite": "assets/icons/node_elite.webp",
+  "icon/node_event": "assets/icons/node_event.webp",
+  "icon/node_fight": "assets/icons/node_fight.webp",
+  "icon/node_rest": "assets/icons/node_rest.webp",
+  "icon/node_shop": "assets/icons/node_shop.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
   "bg/mid": "assets/bg/mid.webp",
-  "bg/top": "assets/bg/top.webp"
+  "bg/top": "assets/bg/top.webp",
+  "bg/map": "assets/bg/map.webp"
  }
 }
