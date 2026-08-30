@@ -61,6 +61,12 @@ function centreLane(nodes: readonly MapNode[]): number {
   return (Math.min(...lanes) + Math.max(...lanes)) / 2;
 }
 
+/**
+ * 上一次看到玩家站在第幾層。純粹是畫面上的事（決定要不要演爬升），不進存檔。
+ * 跟種子綁在一起：換一局要從頭算，不然新局開頭會從上一局的樓層滑下來。
+ */
+let lastFloor: { seed: string; floor: number } | null = null;
+
 registerScreen('map', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
@@ -163,8 +169,21 @@ registerScreen('map', (app, root) => {
   // 打開時捲到「你現在站的那一層」，並讓它落在畫面偏下的位置——接下來要走的路在上方看得見。
   // 開局還沒進塔（currentNode 是 null）就對到 1F，等於捲到最底。
   const here = run.currentNode ? byId.get(run.currentNode)?.floor ?? 1 : 1;
-  const want = floorY(here) - VIEW_H * 0.68;
-  scroll.scrollTop = Math.max(0, Math.min(INNER_H - VIEW_H, want));
+  const clamp = (y: number): number => Math.max(0, Math.min(INNER_H - VIEW_H, y - VIEW_H * 0.68));
+  const want = clamp(floorY(here));
+
+  // 打完一層回到地圖，原本畫面直接跳到新位置，走了一層完全沒有感覺。
+  // 這裡先把畫面擺回上一層的位置、再滑上去，就看得到自己往上爬了一層。
+  // 只在「確實往上走了」才播：重進同一層（存檔載入、看完牌組回來）直接定位，不要每次都演一次。
+  const climbed = lastFloor && lastFloor.seed === run.seed && here > lastFloor.floor
+    ? clamp(floorY(lastFloor.floor)) : null;
+  if (climbed !== null && climbed !== want && typeof scroll.scrollTo === 'function') {
+    scroll.scrollTop = climbed;
+    // 等這一格畫完再捲，不然瀏覽器會把「設起點」跟「捲到終點」併成一次，畫面還是用跳的
+    requestAnimationFrame(() => scroll.scrollTo({ top: want, behavior: 'smooth' }));
+  }
+  else scroll.scrollTop = want;
+  lastFloor = { seed: run.seed, floor: here };
 
   renderHud(app, root);
   root.append(el('div', { class: 'map-hint' }, run.currentNode ? '選下一層要去哪' : '從 1F 選一條路進塔'));
