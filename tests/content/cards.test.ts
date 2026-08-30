@@ -15,11 +15,13 @@ describe('牌資料', () => {
     expect(new Set(cards.map((c) => c.name)).size).toBe(cards.length);
     for (const c of cards) expect(cardById[c.id]).toBe(c);
   });
-  it('費用 0～3，貼圖位置格式正確', () => {
+  it('費用 0～3，插圖鍵就是自己的牌號', () => {
+    // 2026-08-30 起每張牌都有專屬插圖，鍵一律是 `card/<自己的 id>`。
+    // 這條比「格式對不對」嚴格：兩張牌不小心指到同一張圖也會被抓到。
     for (const c of cards) {
       expect(c.cost, c.name).toBeGreaterThanOrEqual(0);
       expect(c.cost, c.name).toBeLessThanOrEqual(3);
-      expect(c.art, c.name).toMatch(/^(ninja|daxia)\/\d{2}$|^codex\/[a-z_]+$/);
+      expect(c.art, c.name).toBe(`card/${c.id}`);
     }
   });
   it('非壞毛病的牌都有升級內容', () => {

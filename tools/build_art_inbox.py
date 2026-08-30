@@ -7,6 +7,7 @@ build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔�
   節點圖示  map_node_*.png  → public/assets/icons/node_*.webp（綠幕去背，96x96）
   畫面底圖  screen_*.png    → public/assets/bg/screen_*.webp（1280x720）
   牌的底紋  card_paper_*.png → public/assets/bg/card_paper_*.webp（256x256，可平鋪）
+  牌面插圖  card_<牌號>.png  → public/assets/cards/card/<牌號>.webp（去背，300x225）
   面板角花  frame_corner.png → public/assets/icons/corner_{tl,tr,bl,br}.webp（去背後自動鏡射出四個角）
   腳印      map_path.png     → public/assets/icons/paw.webp（去背、轉成朝右，放進 3:2 的框留出間距）
   主角立繪  hero_*.png       → public/assets/sprites/hero/*.webp（去背後放進同一張畫布、底部對齊）
@@ -23,7 +24,7 @@ from pathlib import Path
 from PIL import Image, ImageOps
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from chroma_key import key_out   # noqa: E402  沿用同一套門檻與去綠邊
+from chroma_key import CARD_BAND, CARD_HARD, CARD_SOFT, key_out   # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 INBOX = ROOT / "tools" / "art_inbox"
@@ -91,6 +92,26 @@ def main() -> None:
             dst, "WEBP", quality=92, method=6)
         manifest["bg"][f"bg/card_paper_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"牌底紋 card_paper_{name}.webp {dst.stat().st_size // 1024} KB")
+
+    # 牌面插圖。兩點跟其他批不一樣：
+    #  1. 用 CARD_* 那組門檻——這批的特效本身就是綠色（殘影、音波、半透明的身體），
+    #     用一般門檻會被挖得坑坑洞洞（量測與取值理由見 chroma_key.py）。
+    #  2. crop=False：保留原本 4:3 的畫布。裁到主體邊界的話，每張主體的留白不同，
+    #     牌面用等比縮放塞進 150×120 的框，同一隻貓會忽大忽小。
+    for src in sorted(INBOX.glob("card_*.png")):
+        if src.stem.startswith("card_paper_"):
+            continue   # 那是紙紋，滿版、不去背，上面另外處理
+        cid = src.stem[len("card_"):]
+        keyed = key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False)
+        dst = OUT / "cards" / "card" / f"{cid}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        keyed.resize((300, 225), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
+        manifest["cards"][f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
+    n_cards = sum(1 for f in INBOX.glob("card_*.png") if not f.stem.startswith("card_paper_"))
+    if n_cards:
+        total = sum((OUT / "cards" / "card" / f.name).stat().st_size
+                    for f in (OUT / "cards" / "card").glob("*.webp"))
+        print(f"牌面插圖 {n_cards} 張，共 {total // 1024} KB")
 
     # 面板角花：只生左上角那一片，其餘三角由這裡鏡射出來（省三次生圖，也保證四角完全對稱）
     corner_src = INBOX / "frame_corner.png"

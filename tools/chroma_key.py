@@ -29,18 +29,32 @@ SUBJECTS = json.loads((ROOT / "tools" / "codex_prompts" / "subjects.json").read_
 HARD = 220
 SOFT = 150
 
+# 牌面那批（2026-08-30 交件）另用一組門檻：那批的插圖**特效本身就是綠色**
+# （瞬間移動的殘影、隱身術半透明的身體、獅吼功的音波），用上面那組會被挖得坑坑洞洞。
+# 量過全部 58 張：特效最綠到 236，背景最低 233——兩者幾乎剛好不重疊，
+# 門檻取 232 時「背景誤留 0%、主體誤削 0.006%」。邊緣的過渡帶因此變窄，去綠邊帶寬補到 3。
+CARD_SOFT = 232
+CARD_HARD = 248
+CARD_BAND = 3
+
 # 去綠邊只作用在「離透明區 DESPILL_BAND 像素以內」的邊緣帶。
 # 任務書原版是「凡綠度 > 0 就把綠壓到 max(紅,藍)」，那是全圖套用；碰到黃瓜怪這種綠色主體，
 # 瓜身會被壓成灰橄欖色。綠邊只會出現在主體與綠幕交界的那幾個像素，所以限定在邊緣帶處理。
 DESPILL_BAND = 2
 
 
-def key_out(im: Image.Image) -> Image.Image:
-    """綠幕→透明：以「綠減去紅藍的最大值」當綠度；綠度 ≥HARD 全透明、≤SOFT 全不透明、中間線性。
-    接著只在邊緣帶把綠壓到不超過紅藍最大值（去綠邊，不動主體內部）；最後 alpha 收 1 像素。"""
+def key_out(im: Image.Image, soft: int = SOFT, hard: int = HARD,
+            band: int = DESPILL_BAND, crop: bool = True) -> Image.Image:
+    """綠幕→透明：以「綠減去紅藍的最大值」當綠度；綠度 ≥hard 全透明、≤soft 全不透明、中間線性。
+    接著只在邊緣帶把綠壓到不超過紅藍最大值（去綠邊，不動主體內部）；最後 alpha 收 1 像素。
+
+    門檻可以逐批調（見檔頭說明）。`crop=False` 會保留原畫布不裁到主體邊界——
+    牌面那批要保留原本的構圖比例，裁掉之後每張的主體會被縮放成不同大小。
+    """
     im = im.convert("RGBA")
     px = im.load()
     w, h = im.size
+    HARD, SOFT, DESPILL_BAND = hard, soft, band   # noqa: N806  以下沿用原本的區域名稱
     span = float(HARD - SOFT)
     for y in range(h):
         for x in range(w):
@@ -62,6 +76,8 @@ def key_out(im: Image.Image) -> Image.Image:
                 px[x, y] = (r, max(r, b), b, a)
     alpha = alpha.filter(ImageFilter.MinFilter(3))
     im.putalpha(alpha)
+    if not crop:
+        return im
     bbox = alpha.getbbox()
     return im.crop(bbox) if bbox else im
 
