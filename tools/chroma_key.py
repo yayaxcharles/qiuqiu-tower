@@ -4,7 +4,7 @@ chroma_key.py — 把 tools/codex_raw 的綠幕圖去背、去綠邊、縮到規
 用法：python tools/chroma_key.py [--check]
   背景圖（bg/*）不去背，只縮成 1280x720。
   manifest 是「讀進來再合併」：任務 1 寫的 cards／sprites／review 一律原樣保留，只新增 monsters／icons／bg
-  與 sprites 底下的 codex/curl 一筆。
+  與 codex/curl（同時登記在 sprites 與 cards）。
 """
 import argparse
 import json
@@ -108,7 +108,10 @@ def process() -> dict:
         elif group == "icons":
             manifest["icons"][f"codex/{name}" if name.startswith(("relic_", "potion_")) else f"icon/{name}"] = rel
         else:
+            # 同一個檔登記兩個群組：立繪用（戰鬥中蜷起來）與牌面用（「淡定」的牌圖）。
+            # 兩邊指到同一個路徑，不會多佔體積。
             manifest["sprites"]["codex/curl"] = rel
+            manifest["cards"]["codex/curl"] = rel
     MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     return {"missing": missing}
 

@@ -444,7 +444,7 @@ registerScreen('combat', (app, root, props) => {
     const hungry = cs.phase === 'player' && p.energy === 0 && hungryTurn !== cs.turn
       && p.hand.some((c) => cardStats(c).cost > 0);
     // 姿勢優先序：分出勝負 ＞ 挨打 ＞ 閃過 ＞ 蜷縮 ＞ 這張牌 ＞ 餓扁 ＞ 待機。先決定再畫，姿勢才看得到。
-    // 蜷縮排在牌姿勢前面是因為「淡定」的牌圖就是待機那張，照牌圖換等於什麼都沒動；
+    // 蜷縮排在牌姿勢前面：擋下傷害這件事比「剛剛打的是哪張牌」更該讓玩家看到。
     // 攻擊牌例外（交出來會奪走蜷縮），那種時候還是要看到出招的姿勢。
     if (cs.phase === 'won') pose = POSE.win;
     else if (cs.phase === 'lost') pose = POSE.lose;

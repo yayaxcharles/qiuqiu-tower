@@ -6,7 +6,7 @@ export const cards: readonly CardDef[] = [
   // ===== 起手 =====
   { id: 'sanjo', name: '參上', cost: 1, type: 攻, rarity: '常見', pool: '起手', target: 'enemy', art: 'ninja/01',
     effects: [{ kind: 'damage', amount: 6 }], upgrade: { effects: [{ kind: 'damage', amount: 9 }] } },
-  { id: 'tanding', name: '淡定', cost: 1, type: 技, rarity: '常見', pool: '起手', target: 'self', art: 'ninja/32',
+  { id: 'tanding', name: '淡定', cost: 1, type: 技, rarity: '常見', pool: '起手', target: 'self', art: 'codex/curl',
     effects: [{ kind: 'block', amount: 5 }], upgrade: { effects: [{ kind: 'block', amount: 8 }] } },
   { id: 'kawarimi', name: '忍術·替身術', cost: 0, type: 技, rarity: '常見', pool: '起手', target: 'self', art: 'ninja/08',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }],
