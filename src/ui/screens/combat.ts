@@ -126,6 +126,12 @@ registerScreen('combat', (app, root, props) => {
   const lastHpPct = new Map<string, number>();   // 生命條上一次畫到哪，重畫後才滑得動
   let shownCards = new Set<number>();            // 上一次畫的手牌，認出哪幾張是新抽的
   let dealDelay = 0;                             // 新手牌進場前要等多久（結束回合那一拍會等）
+  /**
+   * 上一次畫的飯糰數。出牌是整場最常做的動作，但飯糰原本只是**默默少一顆**，
+   * 一整排都沒動靜。這裡認出剛被吃掉的是哪幾顆，讓它們消下去。
+   * −1 代表這場還沒畫過，第一次畫不演。
+   */
+  let lastEnergy = -1;
 
   /** 可以操作嗎：分出勝負、還在等玩家選牌時，出牌／忍具／結束回合都會被引擎靜默拒絕，所以先反灰 */
   function canAct(): boolean { return !ended && cs.phase === 'player' && !cs.pending; }
@@ -294,9 +300,14 @@ registerScreen('combat', (app, root, props) => {
     const energy = el('div', { class: 'energy' });
     for (let i = 0; i < Math.max(p.maxEnergy, p.energy); i++) {
       const url = artUrl('icons', i < p.energy ? 'icon/onigiri_full' : 'icon/onigiri_empty');
+      // 剛被吃掉的那幾顆（在新的顆數之後、舊的顆數之內）縮一下再變空的
+      const eaten = lastEnergy > p.energy && i >= p.energy && i < lastEnergy ? ' eaten' : '';
       // 飯糰圖還沒生好就畫一顆圓點，至少數得出來剩幾顆
-      energy.append(isFallback(url) ? el('div', { class: `pip${i < p.energy ? ' full' : ''}` }) : el('img', { src: url, alt: '' }));
+      energy.append(isFallback(url)
+        ? el('div', { class: `pip${i < p.energy ? ' full' : ''}${eaten}` })
+        : el('img', { class: `onigiri${eaten}`, src: url, alt: '' }));
     }
+    lastEnergy = p.energy;
     energy.append(el('span', {}, `${p.energy}/${p.maxEnergy}`));
     attachTooltip(energy, '飯糰');
 
