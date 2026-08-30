@@ -4,6 +4,10 @@ build_assets.py — 從 Dropbox 貼圖原圖產出遊戲素材（只產遊戲真
   牌面：整張（含標題帶）→ 寬 360 WebP → public/assets/cards/<set>/<NN>.webp
         鍵＝掃描 src/content/cards.ts 得到的 art 值（58 張牌）。
   立繪：裁掉頂端標題帶 → 高 512 WebP → public/assets/sprites/<set>/<NN>.webp
+        ⚠ 2026-08-30 起遊戲**不再使用貼圖版立繪**（主角與塔主都換成 hero/*、boss/* 的專畫版），
+          這一節產出的 ninja/*、daxia/* 已經沒有任何程式引用，共約 1.86 MB。
+          重跑本腳本會把它們寫回去、也會把 manifest 補回那些鍵——重跑後記得再刪一次，
+          或只跑牌面那一節（牌面 cards/* 還在用）。
         鍵＝忍者 40 張（球球固定姿勢＋每張忍術牌的出招姿勢）＋塔主 9 種姿勢（規格 §8.5）。
   另產 public/assets/manifest.json 與 tools/out/review_sprites_<set>.png（抽查拼圖）。
 用法：python tools/build_assets.py [--force] [--check]

@@ -10,7 +10,7 @@ registerScreen('title', (app, root) => {
   root.append(screenBg('bg/screen_title'));
   root.append(
     el('div', { class: 'title-screen' },
-      el('img', { class: 'title-cat', src: artUrl('sprites', 'ninja/01'), alt: '球球' }),
+      el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/ninja_win'), alt: '球球' }),
       el('h1', {}, '球球勇闖魔物塔'),
       el('div', { class: 'title-buttons' },
         el('button', { class: 'btn primary', onclick: () => app.newRun(seed.value) }, '新的一局'),

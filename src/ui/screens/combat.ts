@@ -39,32 +39,26 @@ const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
   recover: '挑要拿回手上的牌', scryDiscard: '這是抽牌堆最上面的牌，挑要丟掉的',
 };
 /**
- * 球球的姿勢。
- *
- * 2026-08-30 起改用專為這款遊戲畫的忍者裝立繪（`hero/*`），七張的主體高度一致、
- * 打包時又放進同一張畫布底部對齊，所以換姿勢不會忽大忽小。
- *
- * **還缺兩張**：餓扁與陣亡沒有對應的新立繪，暫時沿用貼圖（`ninja/38`、`ninja/36`），
- * 那兩拍的畫風會跟其他姿勢不一樣。補齊之後把這兩行換成 `hero/…` 即可。
- * 挨打刻意也用待機那張：挨打本來就會套抖動與閃紅，姿勢看不太出來，
- * 與其用畫風不同的貼圖閃一下，不如維持同一隻貓。
+ * 球球的姿勢。全部是專為這款遊戲畫的忍者裝立繪（`hero/*`），打包時放進同一張畫布
+ * 底部對齊，換姿勢不會忽大忽小。`hero/ninja_guard`（抱胸格擋）與 `hero/idle`、
+ * `hero/armed` 目前沒排到位置，留著備用。
  */
 const POSE = {
-  idle: 'hero/ninja', attack: 'hero/ninja_attack', hit: 'hero/ninja', dodge: 'hero/ninja_dodge',
-  hungry: 'ninja/38', win: 'hero/ninja_win', lose: 'ninja/36', curl: 'hero/ninja_guard',
+  idle: 'hero/ninja', attack: 'hero/ninja_attack', hit: 'hero/ninja_hit', dodge: 'hero/ninja_dodge',
+  hungry: 'hero/ninja_hungry', win: 'hero/ninja_win', lose: 'hero/ninja_lose', curl: 'hero/ninja_curl',
 };
 /**
- * 塔主的九種姿勢（規格 §6.4 與 §8.5 逐張列出，圖也只生這九張）。鍵直接用招式名——
- * `enemies.ts` 裡塔主的 `move.label` 與規格的姿勢名一字不差，不用再多一層對照。
- * 第二階段的「鐵砂掌」規格沒有配姿勢（大俠 08 沒進產物），對不到就退回該階段的待機圖。
+ * 塔主的姿勢。鍵直接用招式名——`enemies.ts` 裡塔主的 `move.label` 與這裡一字不差，
+ * 不用再多一層對照。2026-08-30 起換成專畫的立繪（`boss/*`），**十招全部有圖**：
+ * 先前缺姿勢、只能退回待機圖的「鐵砂掌」也補上了。
  */
 const BOSS_MOVE_POSE: Record<string, string> = {
-  蓄力: 'daxia/21', 鐵頭功: 'daxia/05', 金鐘罩: 'daxia/07', 獅吼功: 'daxia/06',
-  醉拳: 'daxia/16', 閉關: 'daxia/35',
+  蓄力: 'boss/charge', 鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar',
+  醉拳: 'boss/drunk', 閉關: 'boss/seclude', 鐵砂掌: 'boss/palm',
 };
-const BOSS_IDLE = 'daxia/36';          // 深藏不露
-const BOSS_IDLE_PHASE2 = 'daxia/33';   // 走火入魔
-const BOSS_DEFEAT = 'daxia/28';        // 承讓
+const BOSS_IDLE = 'boss/idle1';          // 深藏不露
+const BOSS_IDLE_PHASE2 = 'boss/idle2';   // 走火入魔
+const BOSS_DEFEAT = 'boss/defeat';       // 承讓
 
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
 interface Acted { label: string; attacked: boolean }

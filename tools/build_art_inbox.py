@@ -10,6 +10,8 @@ build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔�
   面板角花  frame_corner.png → public/assets/icons/corner_{tl,tr,bl,br}.webp（去背後自動鏡射出四個角）
   腳印      map_path.png     → public/assets/icons/paw.webp（去背、轉成朝右，放進 3:2 的框留出間距）
   主角立繪  hero_*.png       → public/assets/sprites/hero/*.webp（去背後放進同一張畫布、底部對齊）
+  塔主立繪  boss_*.png       → public/assets/sprites/boss/*.webp（同上，另一張共用畫布）
+  戰鬥背景  battle_*.png     → public/assets/bg/{low,mid,top}.webp（1280x720）
 
 manifest 一律「讀進來再合併」：其他工具寫的鍵原樣保留，只新增 bg/map 與 icon/node_*。
 去背沿用 chroma_key.py 的 key_out（門檻是照實際素材量出來的，不要在這裡另訂一套）。
@@ -138,21 +140,33 @@ def main() -> None:
     # 主角立繪：七張的主體高度本來就一致（實測都是 797），但寬度隨姿勢差很多。
     # 畫面用 object-fit: contain 塞進 240×300 的框，圖檔寬高比不同就會被縮成不同比例，
     # 換個姿勢貓就忽大忽小。所以全部放進「同一張畫布」再底部對齊置中，比例才鎖得住。
-    heroes = sorted(INBOX.glob("hero_*.png"))
-    if heroes:
-        keyed = {f.stem[len("hero_"):]: key_out(Image.open(f)) for f in heroes}
+    for group in ("hero", "boss"):
+        files = sorted(INBOX.glob(f"{group}_*.png"))
+        if not files:
+            continue
+        keyed = {f.stem[len(group) + 1:]: key_out(Image.open(f)) for f in files}
         pad = 10
         cw = max(im.width for im in keyed.values()) + pad * 2
         ch = max(im.height for im in keyed.values()) + pad * 2
         for name, im in sorted(keyed.items()):
             canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
             canvas.paste(im, ((cw - im.width) // 2, ch - pad - im.height), im)
-            dst = OUT / "sprites" / "hero" / f"{name}.webp"
+            dst = OUT / "sprites" / group / f"{name}.webp"
             dst.parent.mkdir(parents=True, exist_ok=True)
             canvas.save(dst, "WEBP", quality=82, method=6)
-            manifest["sprites"][f"hero/{name}"] = dst.relative_to(OUT.parent).as_posix()
-            print(f"立繪 hero/{name}.webp {dst.stat().st_size // 1024} KB")
-        print(f"  （共用畫布 {cw}x{ch}，底部對齊，換姿勢不會忽大忽小）")
+            manifest["sprites"][f"{group}/{name}"] = dst.relative_to(OUT.parent).as_posix()
+            print(f"立繪 {group}/{name}.webp {dst.stat().st_size // 1024} KB")
+        print(f"  （{group} 共用畫布 {cw}x{ch}，底部對齊，換姿勢不會忽大忽小）")
+
+    # 戰鬥背景：地板交界畫在畫面高度 56%，跟角色腳底（y=402／720）對齊
+    for src in sorted(INBOX.glob("battle_*.png")):
+        name = src.stem.replace("battle_", "")
+        dst = OUT / "bg" / f"{name}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        ImageOps.fit(Image.open(src).convert("RGB"), (1280, 720), Image.LANCZOS).save(
+            dst, "WEBP", quality=80, method=6)
+        manifest["bg"][f"bg/{name}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"戰鬥背景 {name}.webp {dst.stat().st_size // 1024} KB")
 
     MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"完成；尚缺 {len(missing)} 張：{missing}")
