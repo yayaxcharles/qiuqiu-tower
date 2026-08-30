@@ -12,6 +12,16 @@ const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus'
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
 
 /**
+ * 各狀態的量詞。少了量詞的「獲得 1 隱身」「給目標 2 翻肚」唸起來不像中文，
+ * 加上「層／點」才是一句話。分法照規格 §2 的名詞表：
+ * 撐幾回合的算層（隱身、翻肚、懶洋洋、炸毛、噎到），數值型的算點（爪力、貓步、反彈）。
+ */
+const STATUS_UNIT: Readonly<Record<string, string>> = {
+  隱身: '層', 翻肚: '層', 懶洋洋: '層', 炸毛: '層', 噎到: '層',
+  爪力: '點', 貓步: '點', 反彈: '點',
+};
+
+/**
  * 潛水是引擎內部用來記「下回合開始換成隱身」的暫存狀態（見 glossary 與 combat.ts 的回合開始結算）。
  * 牌面不講這個名字，照規格 §6.1 寫成「下回合開始再獲得 N 隱身」。
  */
@@ -51,8 +61,9 @@ function sep(prev: Effect, next: Effect): string {
 
 interface Ctx {
   /**
-   * 這條效果掛在能力牌的觸發子句底下——同一條 block 在牌面直接寫是「蜷縮 5」，
-   * 掛在觸發底下要寫成「每回合開始獲得 3 蜷縮」（規格 §6.1 結界、秘寶尾巴鈴都是這個講法）。
+   * 這條效果掛在能力牌的觸發子句底下。
+   * 措辭改寫後蜷縮一律講「獲得 N 點蜷縮」，兩種情境已經同一種講法，這個旗標目前不影響文字；
+   * 留著是因為 power 的內層仍照它遞迴，之後要分開講時有地方掛。
    */
   inPower?: boolean;
   /** 前一條效果，用來收掉重複的主詞與接「再」 */
@@ -61,60 +72,66 @@ interface Ctx {
   youHeal?: boolean;
 }
 
-/** 一條效果的文字 */
+/**
+ * 一條效果的文字。
+ *
+ * 2026-08-30 全面改寫措辭：原本是「造成 6 傷」「蜷縮 5」「獲得 1 隱身」這種
+ * 沒動詞也沒量詞的寫法，唸出來不像人話。現在一律補齊「N 點傷害」「N 點蜷縮」
+ * 「N 層隱身」「N 張牌」，句子也改成台灣人會講的語序。
+ */
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
     case 'damage': {
-      // 前面剛「奪走目標全部蜷縮」，這一下要接「再造成 N 傷」（規格 §6.1 交出來）
+      // 前面剛「把目標的蜷縮全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
       const again = ctx.prev?.kind === 'stealBlock' ? '再' : '';
-      const head = fx.target === 'all' ? `對全體魔物造成 ${fx.amount} 傷` : `${again}造成 ${fx.amount} 傷`;
-      const cap = fx.comboCap === undefined ? '' : `（上限 ${fx.comboCap} 次）`;
+      const head = fx.target === 'all' ? `對全體魔物造成 ${fx.amount} 點傷害` : `${again}造成 ${fx.amount} 點傷害`;
+      const cap = fx.comboCap === undefined ? '' : `（最多 ${fx.comboCap} 次）`;
       const times = fx.scaleWithCombo
-        ? `，次數＝連抓＋1${cap}`
-        : (fx.times ?? 1) > 1 ? ` ${fx.times} 次` : '';
+        ? `，打的次數是連抓再加 1${cap}`
+        : (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
       return head + times + (fx.ignoreBlock ? '，無視蜷縮' : '');
     }
-    case 'damageRandom': return `造成 ${fx.min}～${fx.max} 隨機傷害`;
-    case 'damageEqualBlock': return '對目標造成等同你目前蜷縮值的傷害（蜷縮不減）';
-    case 'selfDamage': return `自己受 ${fx.amount} 傷`;
-    case 'block': return ctx.inPower ? `獲得 ${fx.amount} 蜷縮` : `蜷縮 ${fx.amount}`;
-    case 'stealBlock': return '奪走目標全部蜷縮變成你的';
-    case 'draw': return `抽 ${fx.n} 張`;
-    case 'drawIfTargetStatus': return `目標有${fx.name}則抽 ${fx.n} 張`;
-    case 'drawNextTurn': return `下回合開始多抽 ${fx.n} 張`;
+    case 'damageRandom': return `隨機造成 ${fx.min}～${fx.max} 點傷害`;
+    case 'damageEqualBlock': return '造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少';
+    case 'selfDamage': return `自己也受 ${fx.amount} 點傷害`;
+    case 'block': return `獲得 ${fx.amount} 點蜷縮`;
+    case 'stealBlock': return '把目標的蜷縮全部搶過來';
+    case 'draw': return `抽 ${fx.n} 張牌`;
+    case 'drawIfTargetStatus': return `目標身上有${fx.name}就抽 ${fx.n} 張牌`;
+    case 'drawNextTurn': return `下回合開始時多抽 ${fx.n} 張牌`;
     case 'status': {
-      if (isDive(fx)) return `下回合開始再獲得 ${fx.amount} 隱身`;
+      if (isDive(fx)) return `下回合開始時再獲得 ${fx.amount} 層隱身`;
       const oneShot = ONE_SHOT.has(fx.name);
-      const body = oneShot ? fx.name : `${fx.amount} ${fx.name}`;
+      const body = oneShot ? fx.name : `${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`;
       const say = (head: string): string => (oneShot ? head + body : `${head} ${body}`);
       if (namesAllFoes(fx) && namesAllFoes(ctx.prev)) {
-        // 主詞前一條已經講過了：接在同一條狀態後面就只留層數，接在傷害後面補個「給」
-        return ctx.prev?.kind === 'status' ? body : say('給');
+        // 主詞前一條已經講過了：接在同一條狀態後面只留層數，接在傷害後面補一句誰獲得
+        return ctx.prev?.kind === 'status' ? body : say('再讓牠們獲得');
       }
-      // 自己吃減益要講「自己獲得」，不然「獲得 1 翻肚」會被讀成好事（規格 §6.1 出大事了的措辭）
+      // 自己吃減益要講「自己獲得」，不然「獲得 1 層翻肚」會被讀成好事（規格 §6.1 出大事了的措辭）
       return fx.target === 'self' ? say(DEBUFFS.includes(fx.name) ? '自己獲得' : '獲得')
         : fx.target === 'all' ? say('全體魔物獲得')
           : say('給目標');
     }
     case 'removeStatuses': return `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與蜷縮' : ''}`;
-    case 'transferDebuffs': return '把你身上的翻肚、懶洋洋、炸毛、噎到全部移到目標身上';
+    case 'transferDebuffs': return '把你身上的翻肚、懶洋洋、炸毛、噎到全部丟到目標身上';
     case 'energy': return `獲得 ${fx.n} 顆飯糰`;
-    case 'heal': return `${ctx.youHeal ? '你' : ''}回復 ${fx.n} 生命`;
-    case 'gold': return fx.onKill ? `擊倒目標則 +${fx.n} 小魚乾` : `+${fx.n} 小魚乾`;
-    case 'scry': return `看抽牌堆頂 ${fx.n} 張、可丟掉任意張`;
-    case 'exhaustFromHand': return `消耗手牌中 ${fx.n} 張牌`;
-    case 'retainFromHand': return `選 ${fx.n} 張手牌保留到下回合`;
-    case 'discardFromHand': return `棄 ${fx.n} 張`;
-    case 'recoverFromDiscard': return '從棄牌堆選 1 張牌回到手上';
-    case 'doubleNextAttack': return '本回合下一張攻擊牌傷害加倍';
-    case 'endTurn': return '然後立刻結束回合';
-    case 'noAttacksThisTurn': return '本回合不能再打攻擊牌';
-    case 'immuneThisTurn': return '本回合魔物的攻擊全部打不到你';
+    case 'heal': return `${ctx.youHeal ? '你' : ''}回復 ${fx.n} 點生命`;
+    case 'gold': return fx.onKill ? `打倒牠就多拿 ${fx.n} 條小魚乾` : `多拿 ${fx.n} 條小魚乾`;
+    case 'scry': return `看抽牌堆最上面 ${fx.n} 張，想丟掉哪幾張都可以`;
+    case 'exhaustFromHand': return `消耗手牌裡的 ${fx.n} 張牌`;
+    case 'retainFromHand': return `挑 ${fx.n} 張手牌留到下回合`;
+    case 'discardFromHand': return `丟掉 ${fx.n} 張牌`;
+    case 'recoverFromDiscard': return '從棄牌堆挑 1 張牌回到手上';
+    case 'doubleNextAttack': return '本回合打出的下一張攻擊牌，傷害加倍';
+    case 'endTurn': return '然後直接結束這回合';
+    case 'noAttacksThisTurn': return '這回合不能再打攻擊牌';
+    case 'immuneThisTurn': return '這回合魔物打不到你';
     case 'power': {
       const inner = fx.effects.map((e) => one(e, { inPower: true })).join('，');
-      return fx.trigger === 'turnStart' ? `每回合開始${inner}`
-        : fx.trigger === 'onKill' ? `每擊倒一隻魔物${inner}`
-          : `回合結束時若本回合沒打攻擊牌，${inner}`;
+      return fx.trigger === 'turnStart' ? `每回合開始時${inner}`
+        : fx.trigger === 'onKill' ? `每打倒一隻魔物就${inner}`
+          : `回合結束時，如果這回合沒打過攻擊牌，${inner}`;
     }
   }
 }
@@ -136,9 +153,9 @@ export function describeCard(def: CardDef, upgraded: boolean): string {
     }
     parts.push(text + (FLAVOUR[def.id] ?? '') + '。');
   }
-  if (def.curse?.onTurnEnd) parts.push(`回合結束時若在手牌，受 ${def.curse.onTurnEnd} 傷。`);
-  if (def.curse?.onTurnStart) parts.push(`每回合開始若在手牌，受 ${def.curse.onTurnStart} 傷。`);
-  if (def.curse?.onDraw) parts.push('抽到時失去 1 顆飯糰。');
+  if (def.curse?.onTurnEnd) parts.push(`回合結束時還在手上的話，受 ${def.curse.onTurnEnd} 點傷害。`);
+  if (def.curse?.onTurnStart) parts.push(`每回合開始時還在手上的話，受 ${def.curse.onTurnStart} 點傷害。`);
+  if (def.curse?.onDraw) parts.push('抽到的時候會少 1 顆飯糰。');
   if (keywords.includes('消耗')) parts.push('消耗。');
   if (keywords.includes('保留')) parts.push('保留。');
   return parts.join('');
