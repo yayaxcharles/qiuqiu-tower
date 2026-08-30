@@ -59,7 +59,7 @@ function hostScale(host: Element): number {
 }
 
 /**
- * 在 `host` 上放一團特效。`host` 要是有 position 的節點（`.unit` 就是）。
+ * 在 `unit`（一個 `.unit` 節點）身上放一團特效，實際掛的位置是它裡面的立繪框。
  *
  * 圖沒生出來時 `artUrl` 會回一個灰剪影，那個東西疊在臉上很難看，
  * 所以查不到就整個不放——特效是加分項，缺了不能變扣分。
