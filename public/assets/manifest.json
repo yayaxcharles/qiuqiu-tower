@@ -110,7 +110,14 @@
   "daxia/33": "assets/sprites/daxia/33.webp",
   "daxia/35": "assets/sprites/daxia/35.webp",
   "daxia/36": "assets/sprites/daxia/36.webp",
-  "codex/curl": "assets/sprites/codex/curl.webp"
+  "codex/curl": "assets/sprites/codex/curl.webp",
+  "hero/armed": "assets/sprites/hero/armed.webp",
+  "hero/idle": "assets/sprites/hero/idle.webp",
+  "hero/ninja": "assets/sprites/hero/ninja.webp",
+  "hero/ninja_attack": "assets/sprites/hero/ninja_attack.webp",
+  "hero/ninja_dodge": "assets/sprites/hero/ninja_dodge.webp",
+  "hero/ninja_guard": "assets/sprites/hero/ninja_guard.webp",
+  "hero/ninja_win": "assets/sprites/hero/ninja_win.webp"
  },
  "review": [],
  "monsters": {

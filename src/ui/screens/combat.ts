@@ -38,10 +38,20 @@ const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
   exhaust: '挑要消耗的牌', retain: '挑要留到下回合的牌', discard: '挑要丟掉的牌',
   recover: '挑要拿回手上的牌', scryDiscard: '這是抽牌堆最上面的牌，挑要丟掉的',
 };
-/** 球球的姿勢（規格 §8.4）：待機淡定、出招參上、挨打中計了、閃避替身術、餓扁先睡了、勝利任務完成、陣亡任務失敗、蜷縮捲成球 */
+/**
+ * 球球的姿勢。
+ *
+ * 2026-08-30 起改用專為這款遊戲畫的忍者裝立繪（`hero/*`），七張的主體高度一致、
+ * 打包時又放進同一張畫布底部對齊，所以換姿勢不會忽大忽小。
+ *
+ * **還缺兩張**：餓扁與陣亡沒有對應的新立繪，暫時沿用貼圖（`ninja/38`、`ninja/36`），
+ * 那兩拍的畫風會跟其他姿勢不一樣。補齊之後把這兩行換成 `hero/…` 即可。
+ * 挨打刻意也用待機那張：挨打本來就會套抖動與閃紅，姿勢看不太出來，
+ * 與其用畫風不同的貼圖閃一下，不如維持同一隻貓。
+ */
 const POSE = {
-  idle: 'ninja/32', attack: 'ninja/01', hit: 'ninja/34', dodge: 'ninja/08',
-  hungry: 'ninja/38', win: 'ninja/04', lose: 'ninja/36', curl: 'codex/curl',
+  idle: 'hero/ninja', attack: 'hero/ninja_attack', hit: 'hero/ninja', dodge: 'hero/ninja_dodge',
+  hungry: 'ninja/38', win: 'hero/ninja_win', lose: 'ninja/36', curl: 'hero/ninja_guard',
 };
 /**
  * 塔主的九種姿勢（規格 §6.4 與 §8.5 逐張列出，圖也只生這九張）。鍵直接用招式名——

@@ -53,6 +53,9 @@
   object-position: center bottom;
   animation: idle-bob 2.4s ease-in-out infinite;
 }
+/* 主角的框開寬一點：新立繪的畫布是 758×817（含最寬的出招姿勢），
+   用 240 寬會以寬度為準縮小，上面白留一截；270 才把高度吃滿。 */
+.combat .unit.player .sprite { width: 270px; height: 300px; }
 .combat .unit.size-small .sprite { width: 130px; height: 150px; }
 .combat .unit.size-medium .sprite { width: 180px; height: 210px; }
 .combat .unit.size-large .sprite { width: 230px; height: 280px; }

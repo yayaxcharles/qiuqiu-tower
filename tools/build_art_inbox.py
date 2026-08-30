@@ -9,6 +9,7 @@ build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔�
   牌的底紋  card_paper_*.png → public/assets/bg/card_paper_*.webp（256x256，可平鋪）
   面板角花  frame_corner.png → public/assets/icons/corner_{tl,tr,bl,br}.webp（去背後自動鏡射出四個角）
   腳印      map_path.png     → public/assets/icons/paw.webp（去背、轉成朝右，放進 3:2 的框留出間距）
+  主角立繪  hero_*.png       → public/assets/sprites/hero/*.webp（去背後放進同一張畫布、底部對齊）
 
 manifest 一律「讀進來再合併」：其他工具寫的鍵原樣保留，只新增 bg/map 與 icon/node_*。
 去背沿用 chroma_key.py 的 key_out（門檻是照實際素材量出來的，不要在這裡另訂一套）。
@@ -133,6 +134,25 @@ def main() -> None:
             dst, "WEBP", quality=88, method=6)
         manifest["icons"][f"icon/node_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"圖示 node_{name}.webp {dst.stat().st_size // 1024} KB")
+
+    # 主角立繪：七張的主體高度本來就一致（實測都是 797），但寬度隨姿勢差很多。
+    # 畫面用 object-fit: contain 塞進 240×300 的框，圖檔寬高比不同就會被縮成不同比例，
+    # 換個姿勢貓就忽大忽小。所以全部放進「同一張畫布」再底部對齊置中，比例才鎖得住。
+    heroes = sorted(INBOX.glob("hero_*.png"))
+    if heroes:
+        keyed = {f.stem[len("hero_"):]: key_out(Image.open(f)) for f in heroes}
+        pad = 10
+        cw = max(im.width for im in keyed.values()) + pad * 2
+        ch = max(im.height for im in keyed.values()) + pad * 2
+        for name, im in sorted(keyed.items()):
+            canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+            canvas.paste(im, ((cw - im.width) // 2, ch - pad - im.height), im)
+            dst = OUT / "sprites" / "hero" / f"{name}.webp"
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            canvas.save(dst, "WEBP", quality=82, method=6)
+            manifest["sprites"][f"hero/{name}"] = dst.relative_to(OUT.parent).as_posix()
+            print(f"立繪 hero/{name}.webp {dst.stat().st_size // 1024} KB")
+        print(f"  （共用畫布 {cw}x{ch}，底部對齊，換姿勢不會忽大忽小）")
 
     MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"完成；尚缺 {len(missing)} 張：{missing}")
