@@ -122,6 +122,32 @@
   box-sizing: border-box;
   user-select: none;
 }
+/*
+ * 稀有度：邊框顏色＋右上角的小星星。原本牌面完全看不出稀有度，
+ * 拿到一張罕見或稀有牌跟常見長得一模一樣，沒有「挖到寶」的感覺。
+ * 星星用 CSS 畫（不另外生圖）：牌只有 170 寬，圖示縮到那個大小也只剩一個點。
+ */
+.card.rarity-罕見 { border-color: #2f5fa8; }
+.card.rarity-稀有 { border-color: #b8860b; }
+.card.rarity-罕見::before,
+.card.rarity-稀有::before {
+  content: '★';
+  position: absolute;
+  right: 7px;
+  top: 4px;
+  font-size: 15px;
+  line-height: 1;
+  pointer-events: none;
+}
+.card.rarity-罕見::before { color: #2f5fa8; }
+.card.rarity-稀有::before {
+  content: '★★';
+  color: #b8860b;
+  letter-spacing: -2px;
+  text-shadow: 0 0 6px rgba(255, 200, 60, .8);
+}
+.card.small.rarity-罕見::before, .card.small.rarity-稀有::before { font-size: 12.8px; right: 6px; }
+
 .card.clickable { cursor: pointer; }
 .card.clickable:hover { box-shadow: 0 0 0 3px var(--accent); }
 .card.selected { outline: 4px solid #ffd35c; }

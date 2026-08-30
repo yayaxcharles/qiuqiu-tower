@@ -33,7 +33,8 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
     cost = upgraded ? (def.upgrade.cost ?? def.cost) : def.cost;
   }
 
-  const cls = ['card', `type-${def.type}`];
+  // 牌型決定底紋顏色、稀有度決定邊框（見 components.css）——兩件事各自一個類別
+  const cls = ['card', `type-${def.type}`, `rarity-${def.rarity}`];
   if (opts.small) cls.push('small');
   if (opts.selected) cls.push('selected');
   if (opts.disabled) cls.push('disabled');
