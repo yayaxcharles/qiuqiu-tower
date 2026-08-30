@@ -13,6 +13,8 @@ import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { renderHud } from '../hud';
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
 import { overlayRoot } from '../overlay';
 import { attachTooltip, hideTooltip } from '../tooltip';
 
@@ -278,10 +280,66 @@ registerScreen('combat', (app, root, props) => {
     const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() }, '結束回合');
     if (!canAct()) endBtn.setAttribute('disabled', 'disabled');
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-6).map((l) => el('div', {}, l))));
-    if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '點一隻魔物打牠（Esc 或點空白處取消）' : '點一隻魔物用忍具（Esc 或點空白處取消）'));
+    if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
     renderHud(app, box);
     root.append(box);
+    // 箭頭要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後
+    if (targeting) mountArrow(box);
+  }
+
+  /**
+   * 選目標時從牌拉一條弧線到滑鼠（類殺戮尖塔）。
+   *
+   * 出牌仍然是「點牌再點魔物」，這條線只是指引——原本選了牌之後畫面沒有任何連線，
+   * 玩家不知道自己正牽著什麼、要往哪放。
+   *
+   * 兩個控制點都拉到終點上方，線就會從牌往上翹、再從上面落到目標，箭頭固定朝下
+   * （終點的切線恆為正 y，所以不用算角度）。滑到魔物身上會吸附到牠身上並轉亮。
+   */
+  function mountArrow(box: HTMLElement): void {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'target-arrow');
+    svg.setAttribute('viewBox', '0 0 1280 720');
+    const line = document.createElementNS(SVG_NS, 'path');
+    line.setAttribute('class', 'arrow-line');
+    const head = document.createElementNS(SVG_NS, 'path');
+    head.setAttribute('class', 'arrow-head');
+    svg.append(line, head);
+    box.append(svg);
+
+    // 舞台整個被 transform: scale() 縮過，滑鼠的座標得換算回 1280×720 的舞台座標
+    const rect = app.stage.getBoundingClientRect();
+    const k = rect.width > 0 ? 1280 / rect.width : 1;
+    const toStage = (cx: number, cy: number): { x: number; y: number } => (
+      { x: (cx - rect.left) * k, y: (cy - rect.top) * k });
+    const centreOf = (n: Element, yFrac: number): { x: number; y: number } => {
+      const r = n.getBoundingClientRect();
+      return toStage(r.left + r.width / 2, r.top + r.height * yFrac);
+    };
+
+    // 起點：選中的那張牌的上緣中央；忍具沒有選中樣式，退回球球身上
+    const src = box.querySelector('.card.selected') ?? box.querySelector('.unit.player .sprite');
+    const from = src ? centreOf(src, 0.08) : { x: 640, y: 620 };
+
+    const draw = (to: { x: number; y: number }, snapped: boolean): void => {
+      const lift = Math.min(240, 90 + Math.hypot(to.x - from.x, to.y - from.y) * 0.35);
+      line.setAttribute('d',
+        `M ${from.x} ${from.y} C ${from.x} ${from.y - lift}, ${to.x} ${to.y - lift}, ${to.x} ${to.y}`);
+      head.setAttribute('d',
+        `M ${to.x} ${to.y} L ${to.x - 11} ${to.y - 17} L ${to.x + 11} ${to.y - 17} Z`);
+      svg.classList.toggle('snap', snapped);
+    };
+
+    // 還沒動滑鼠時先指著第一隻活著的魔物，不要留一條長度是零的線在原地
+    const first = box.querySelector('.unit.enemy.targetable');
+    draw(first ? centreOf(first, 0.45) : { x: 900, y: 300 }, false);
+
+    // 監聽掛在 box 上：每次重畫都會換一個 box，舊的連同監聽一起被丟掉，不用自己收
+    box.addEventListener('mousemove', (ev) => {
+      const foe = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.unit.enemy.targetable');
+      draw(foe ? centreOf(foe, 0.45) : toStage(ev.clientX, ev.clientY), !!foe);
+    });
   }
 
   // ===== 操作 =====
@@ -387,6 +445,8 @@ registerScreen('combat', (app, root, props) => {
       else if (acting.get(e.uid)?.attacked) node.classList.add('attack');
       if (b.phase === 0 && e.phase > 0) bossPhase2();
     }
+    // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
+    if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>('.unit.player');
     if (cat) {
       if (hurt) { cat.classList.add('hit'); cat.append(el('div', { class: 'num' }, `-${before.hp - p.hp}`)); }
@@ -399,13 +459,16 @@ registerScreen('combat', (app, root, props) => {
     if (hungry) { hungryTurn = cs.turn; toast(dialogue.hungry, '球球'); }
     if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(dialogue.lowHp, '球球'); }
 
+    // 姿勢停留時間：一般 650 毫秒看得清楚，但蜷縮例外——它是「縮成一顆球」的靜態姿勢，
+    // 沒有前撲、沒有閃紅，650 毫秒閃一下根本來不及看到牠縮起來，拉到 1200。
+    const hold = pose === POSE.curl ? 1200 : 650;
     const mine = ++seq;
     window.setTimeout(() => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
       pose = POSE.idle;
       acting = new Map();   // 魔物也一起收回待機，出手的立繪只亮這一拍
       render();
-    }, 650);
+    }, hold);
 
     if (cs.phase !== 'player' && !ended) {
       ended = true;

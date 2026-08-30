@@ -118,6 +118,13 @@
 .combat .chip img { width: 16px; height: 16px; }
 .combat .chip b { font-weight: normal; }
 .combat .chip.block { background: #2e6db4; }
+/* 蜷縮剛加上去時彈一下：姿勢換了還是容易漏看「這回合擋了多少」 */
+.combat .chip.block.gain { animation: block-pop .55s ease-out; }
+@keyframes block-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.55); box-shadow: 0 0 0 4px rgba(120, 190, 255, .75); }
+  100% { transform: scale(1); }
+}
 
 /* 魔物頭上的意圖 */
 .combat .intent {
@@ -314,3 +321,28 @@
   from { transform: translate(-50%, 0); opacity: 1; }
   to { transform: translate(-50%, -64px); opacity: 0; }
 }
+
+/* ===== 選目標的指引箭頭 ===== */
+/* 蓋在戰場上、但在疊層（z-index 50）之下；不吃滑鼠，免得擋住要點的魔物 */
+.combat .target-arrow {
+  position: absolute;
+  inset: 0;
+  width: 1280px;
+  height: 720px;
+  pointer-events: none;
+  z-index: 40;
+}
+.combat .arrow-line {
+  fill: none;
+  stroke: rgba(255, 214, 130, .85);
+  stroke-width: 6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, .85));
+}
+.combat .arrow-head {
+  fill: rgba(255, 214, 130, .85);
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, .85));
+}
+/* 吸附到魔物身上就轉亮，讓「放開就會打這隻」很明確 */
+.combat .target-arrow.snap .arrow-line { stroke: #fff0c4; stroke-width: 7; }
+.combat .target-arrow.snap .arrow-head { fill: #fff0c4; }
