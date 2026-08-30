@@ -42,18 +42,28 @@ const JITTER_Y = 18;   // 上下最多偏這麼多（樓層間距 108、節點 6
  * 每個節點再依種子各自偏一點，免得路線排成整齊的直行、看起來像表格。
  */
 const LANE_STEP = 150;
-const CENTRE_LANE = 2;
 
-function pos(n: MapNode, seed: string): { x: number; y: number } {
+function pos(n: MapNode, seed: string, centre: number): { x: number; y: number } {
   const jx = (hash01(`${seed}|${n.id}|x`) - 0.5) * 2 * JITTER_X;
   const jy = (hash01(`${seed}|${n.id}|y`) - 0.5) * 2 * JITTER_Y;
-  return { x: 640 + (n.lane - CENTRE_LANE) * LANE_STEP + jx, y: floorY(n.floor) + jy };
+  return { x: 640 + (n.lane - centre) * LANE_STEP + jx, y: floorY(n.floor) + jy };
+}
+
+/**
+ * 這張地圖實際用到哪些車道的中心點。
+ * 五條車道但只走三條路線，用到的車道常常整片偏一邊；固定以第 2 道置中的話，
+ * 另一邊就空出一大塊、樓層標籤也離節點很遠。改成照這一局真正用到的範圍置中。
+ */
+function centreLane(nodes: readonly MapNode[]): number {
+  const lanes = nodes.map((n) => n.lane);
+  return (Math.min(...lanes) + Math.max(...lanes)) / 2;
 }
 
 registerScreen('map', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
 
+  const centre = centreLane(run.map.nodes);
   const inner = el('div', { class: 'map-inner', style: `height:${INNER_H}px` });
   const scroll = el('div', { class: 'map-scroll' }, inner);
 
@@ -71,11 +81,11 @@ registerScreen('map', (app, root) => {
   svg.setAttribute('height', String(INNER_H));
   const paths: SVGPathElement[] = [];
   for (const n of run.map.nodes) {
-    const a = pos(n, run.seed);
+    const a = pos(n, run.seed, centre);
     for (const id of n.next) {
       const m = byId.get(id);
       if (!m) continue;
-      const b = pos(m, run.seed);
+      const b = pos(m, run.seed, centre);
       const dx = b.x - a.x, dy = b.y - a.y;
       const full = Math.hypot(dx, dy) || 1;
       // 兩端各讓開 R+6：節點是去背圖示、沒有底盤，線畫到圓心就會從圖示的透明處穿出來
@@ -105,7 +115,7 @@ registerScreen('map', (app, root) => {
   // 可走的下一步：開局 currentNode 是 null，nextChoices 會回 1F 的三個節點
   const choices = new Set(nextChoices(run.map, run.currentNode).map((n) => n.id));
   for (const n of run.map.nodes) {
-    const { x, y } = pos(n, run.seed);
+    const { x, y } = pos(n, run.seed, centre);
     const cls = ['map-node', `t-${n.type}`];
     if (n.id === run.currentNode) cls.push('current');
     if (choices.has(n.id)) cls.push('choice');

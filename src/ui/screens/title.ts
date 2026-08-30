@@ -10,7 +10,10 @@ registerScreen('title', (app, root) => {
   root.append(screenBg('bg/screen_title'));
   root.append(
     el('div', { class: 'title-screen' },
-      el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/ninja_win'), alt: '球球' }),
+      // 陰影跟戰鬥畫面同一招：去背的角色貼在背景上就是浮著，腳下墊一片橢圓才像站著
+      el('div', { class: 'title-cat-box' },
+        el('div', { class: 'ground-shadow' }),
+        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/ninja_win'), alt: '球球' })),
       el('h1', {}, '球球勇闖魔物塔'),
       el('div', { class: 'title-buttons' },
         el('button', { class: 'btn primary', onclick: () => app.newRun(seed.value) }, '新的一局'),

@@ -93,7 +93,22 @@ img { -webkit-user-drag: none; }
   z-index: 1;
   color: #f8f2e6;
 }
+.title-cat-box { position: relative; }
+.title-cat-box .ground-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  width: 44%;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, .32) 52%, rgba(0, 0, 0, 0) 76%);
+  pointer-events: none;
+}
 .title-cat {
+  position: relative;
+  display: block;
   height: 320px;
   animation: idle-bob 2.4s ease-in-out infinite;
 }

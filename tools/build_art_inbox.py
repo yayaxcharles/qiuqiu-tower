@@ -98,15 +98,28 @@ def main() -> None:
     #     用一般門檻會被挖得坑坑洞洞（量測與取值理由見 chroma_key.py）。
     #  2. crop=False：保留原本 4:3 的畫布。裁到主體邊界的話，每張主體的留白不同，
     #     牌面用等比縮放塞進 150×120 的框，同一隻貓會忽大忽小。
-    for src in sorted(INBOX.glob("card_*.png")):
-        if src.stem.startswith("card_paper_"):
-            continue   # 那是紙紋，滿版、不去背，上面另外處理
-        cid = src.stem[len("card_"):]
-        keyed = key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False)
-        dst = OUT / "cards" / "card" / f"{cid}.webp"
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        keyed.resize((300, 225), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
-        manifest["cards"][f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
+    faces = [f for f in sorted(INBOX.glob("card_*.png")) if not f.stem.startswith("card_paper_")]
+    if faces:
+        # 先各自去背裁到主體，再放進「照最大主體算出來的共用畫布」。
+        # 一開始是直接保留原本 4:3 的畫布（crop=False），想讓每張貓一樣大——
+        # 結果每張都帶著同一圈空白，牌面的圖框只有 150×120，主體實際只畫到 75～114 像素寬，
+        # 小得看不清楚。改成裁掉共用的空白、但保留彼此的相對大小：畫面看起來大了三成，
+        # 每張貓仍然一樣大。
+        keyed = {f.stem[len("card_"):]: key_out(Image.open(f), CARD_SOFT, CARD_HARD, CARD_BAND)
+                 for f in faces}
+        pad = 6
+        cw = max(im.width for im in keyed.values()) + pad * 2
+        ch = max(im.height for im in keyed.values()) + pad * 2
+        scale = min(300 / cw, 240 / ch)
+        for cid, im in sorted(keyed.items()):
+            canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+            canvas.paste(im, ((cw - im.width) // 2, (ch - im.height) // 2), im)
+            dst = OUT / "cards" / "card" / f"{cid}.webp"
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            canvas.resize((round(cw * scale), round(ch * scale)), Image.LANCZOS).save(
+                dst, "WEBP", quality=84, method=6)
+            manifest["cards"][f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"  （牌面共用畫布 {cw}x{ch} → 輸出 {round(cw*scale)}x{round(ch*scale)}）")
     n_cards = sum(1 for f in INBOX.glob("card_*.png") if not f.stem.startswith("card_paper_"))
     if n_cards:
         total = sum((OUT / "cards" / "card" / f.name).stat().st_size
