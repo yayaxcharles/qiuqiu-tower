@@ -30,13 +30,13 @@ registerScreen('map', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
 
-  // 底圖固定不跟著捲：整張圖是「下面地牢、上面月夜」的完整構圖，
-  // 硬拉成內容那麼高會變形。改成隨捲動微調背景位置，爬高時多露一點天空。
-  const bg = el('div', { class: 'map-bg', style: `background-image:url(${artUrl('bg', 'bg/map')})` });
-  root.append(bg);
-
   const inner = el('div', { class: 'map-inner', style: `height:${INNER_H}px` });
   const scroll = el('div', { class: 'map-scroll' }, inner);
+
+  // 底圖是直式長條圖，尺寸就照捲軸內容做（1280×INNER_H），所以放進捲軸裡跟著捲：
+  // 爬到下面是地牢石造、中段木造樓層、爬到頂真的看得到夜空。
+  // 第一版用 16:9 的底圖，拉長會變形，只能固定不動再疊一層漸層假裝高度——已經拿掉。
+  inner.append(el('div', { class: 'map-bg', style: `background-image:url(${artUrl('bg', 'bg/map_tall')})` }));
 
   // 路線：一條邊一個長條 div，轉到線的角度，背景把腳印沿著它平鋪（樣式見 map.css）
   const byId = new Map(run.map.nodes.map((n) => [n.id, n]));
@@ -89,16 +89,6 @@ registerScreen('map', (app, root) => {
   const here = run.currentNode ? byId.get(run.currentNode)?.floor ?? 1 : 1;
   const want = floorY(here) - VIEW_H * 0.68;
   scroll.scrollTop = Math.max(0, Math.min(INNER_H - VIEW_H, want));
-
-  // 背景微幅反向位移：捲到頂時露出上緣（天空），捲到底時露出下緣（地牢石板）。
-  // 幅度就是背景圖蓋滿畫面後多出來的那一點，不會拉伸變形。
-  const syncBg = (): void => {
-    const max = INNER_H - VIEW_H;
-    const p = max > 0 ? scroll.scrollTop / max : 0;
-    bg.style.backgroundPosition = `center ${(p * 100).toFixed(1)}%`;
-  };
-  scroll.addEventListener('scroll', syncBg);
-  syncBg();
 
   renderHud(app, root);
   root.append(el('div', { class: 'map-hint' }, run.currentNode ? '選下一層要去哪' : '從 1F 選一條路進塔'));

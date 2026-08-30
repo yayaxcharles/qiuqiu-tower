@@ -1,10 +1,14 @@
 /* ===== 地圖畫面 ===== */
-/* 底圖沒生好時漸層撐著；有圖時行內樣式會蓋掉這裡的 background-image */
+/* 狀態列後面是捲軸看不到的地方，鋪深色免得透出舞台的米色 */
+#stage[data-screen="map"] { background-color: #14100c; }
+/* 底圖沒生好時漸層撐著；有圖時行內樣式會蓋掉這裡的 background-image。
+   這層放在捲軸內容裡，尺寸跟內容一樣高，所以跟著捲。 */
 .map-bg {
   position: absolute;
   inset: 0;
   background-color: #2b2420;
-  background-image: linear-gradient(#2b2420, #4a3a2e 40%, #8a6a48);
+  /* 退路漸層的方向要跟長條底圖一致：上面是夜空、下面是地牢 */
+  background-image: linear-gradient(#1b2440, #3a3128 45%, #6b543a);
   background-size: cover;
   background-position: center;
 }
@@ -30,21 +34,6 @@
 .map-inner {
   position: relative;
   width: 1280px;
-}
-/* 底圖固定不捲，爬十五層看到的景會一模一樣。這層漸層跟著內容捲，
-   下面偏暖（火把）、上面偏冷（月夜），往上爬就真的感覺到高度。
-   等以後有長條版底圖可以直接拿掉這條。 */
-.map-inner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(to bottom,
-    rgba(66, 92, 156, .5) 0%,
-    rgba(48, 60, 108, .32) 26%,
-    rgba(20, 20, 30, .1) 52%,
-    rgba(0, 0, 0, 0) 68%,
-    rgba(96, 48, 12, .3) 100%);
 }
 /*
  * 路徑＝一串腳印。作法是一條邊一個長條 div，轉到那條線的角度，

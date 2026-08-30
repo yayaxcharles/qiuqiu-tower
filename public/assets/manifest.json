@@ -223,7 +223,6 @@
   "bg/low": "assets/bg/low.webp",
   "bg/mid": "assets/bg/mid.webp",
   "bg/top": "assets/bg/top.webp",
-  "bg/map": "assets/bg/map.webp",
   "bg/screen_chest": "assets/bg/screen_chest.webp",
   "bg/screen_event": "assets/bg/screen_event.webp",
   "bg/screen_rest": "assets/bg/screen_rest.webp",
@@ -233,6 +232,7 @@
   "bg/screen_title": "assets/bg/screen_title.webp",
   "bg/card_paper_attack": "assets/bg/card_paper_attack.webp",
   "bg/card_paper_power": "assets/bg/card_paper_power.webp",
-  "bg/card_paper_skill": "assets/bg/card_paper_skill.webp"
+  "bg/card_paper_skill": "assets/bg/card_paper_skill.webp",
+  "bg/map_tall": "assets/bg/map_tall.webp"
  }
 }

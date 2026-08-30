@@ -3,7 +3,7 @@
 build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔，並併進 manifest.json。
 用法：python tools/build_art_inbox.py
 
-  地圖底圖  map_bg.png      → public/assets/bg/map.webp（1280x720）
+  地圖底圖  map_tall.png    → public/assets/bg/map_tall.webp（1280x1704，跟著捲軸捲）
   節點圖示  map_node_*.png  → public/assets/icons/node_*.webp（綠幕去背，96x96）
   畫面底圖  screen_*.png    → public/assets/bg/screen_*.webp（1280x720）
   牌的底紋  card_paper_*.png → public/assets/bg/card_paper_*.webp（256x256，可平鋪）
@@ -51,15 +51,19 @@ def main() -> None:
 
     missing = []
 
-    bg_src = INBOX / "map_bg.png"
+    # 地圖底圖跟著捲軸捲，所以尺寸就是捲軸內容的大小 1280x1704
+    # （= 上下留白 96×2 ＋ 十四段樓層間距 108，見 src/ui/screens/map.ts）。
+    # 早期的 16:9 版 map_bg.png 已停用：拉成 1704 高會變形，只能固定不動，
+    # 結果是爬十五層看到的景一模一樣。
+    bg_src = INBOX / "map_tall.png"
     if bg_src.exists():
-        dst = OUT / "bg" / "map.webp"
+        dst = OUT / "bg" / "map_tall.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
-        # fit 而不是 resize：交來的圖不見得剛好 16:9，直接 resize 會把畫面拉變形
-        ImageOps.fit(Image.open(bg_src).convert("RGB"), (1280, 720), Image.LANCZOS).save(
+        # fit 而不是 resize：交來的圖不見得剛好那個比例，直接 resize 會把畫面拉變形
+        ImageOps.fit(Image.open(bg_src).convert("RGB"), (1280, 1704), Image.LANCZOS).save(
             dst, "WEBP", quality=80, method=6)
-        manifest["bg"]["bg/map"] = dst.relative_to(OUT.parent).as_posix()
-        print(f"底圖 map.webp {dst.stat().st_size // 1024} KB")
+        manifest["bg"]["bg/map_tall"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"地圖底圖 map_tall.webp {dst.stat().st_size // 1024} KB")
     else:
         missing.append(bg_src.name)
 
