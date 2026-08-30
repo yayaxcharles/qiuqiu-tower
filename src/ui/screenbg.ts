@@ -1,5 +1,5 @@
 import { artUrl } from './assets';
-import { el } from './dom';
+import { clear, el } from './dom';
 
 /**
  * 節點畫面的底圖層。鋪滿整個舞台（含狀態列後面），放在畫面內容之前 append。
@@ -10,6 +10,19 @@ import { el } from './dom';
  */
 export function screenBg(key: string): HTMLElement {
   return el('div', { class: 'screen-bg', style: `background-image:url(${artUrl('bg', key)})` });
+}
+
+/**
+ * 清掉畫面內容，但把底圖那一層留著。
+ *
+ * 畫面內部重畫（事件選完、貓窩做完事、罐頭鋪買完東西）一律用這個，不要用 clear(root)——
+ * 底圖是 root 的第一個子節點，clear 會把它一起清掉，畫面就變成一片米白、中間浮一小塊面板，
+ * 看起來像當掉。2026-08-30 加底圖時漏掉這件事，事件選完真的被當成當機回報過。
+ */
+export function clearKeepBg(root: HTMLElement): void {
+  const bg = root.querySelector('.screen-bg');
+  clear(root);
+  if (bg) root.append(bg);
 }
 
 /** 樓層對應的戰鬥背景（1–5 塔下、6–10 塔中、11+ 塔頂）。戰鬥與緊接其後的獎勵畫面共用同一張。 */

@@ -4,11 +4,11 @@ import { relicById } from '../../content/relics';
 import { buyCard, buyPotion, buyRelic, buyRemove, makeShop } from '../../engine/run';
 import type { RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { screenBg } from '../screenbg';
+import { clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
-import { clear, el } from '../dom';
+import { el } from '../dom';
 import { renderHud } from '../hud';
 
 /** 圖示還沒生好時 artUrl 會回一張灰剪影；貨架每格都寫著名字，寧可不放圖也不要排一列灰影 */
@@ -42,7 +42,7 @@ registerScreen('shop', (app, root) => {
   }
 
   function render(): void {
-    clear(root);
+    clearKeepBg(root);
     renderHud(app, root);
 
     const cards = el('div', { class: 'shop-row' });

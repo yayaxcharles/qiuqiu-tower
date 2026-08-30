@@ -4,10 +4,10 @@ import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, upgradeCard, type RunEffectOutcome } from '../../engine/run';
 import type { CardDef, CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { screenBg } from '../screenbg';
+import { clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
-import { clear, el } from '../dom';
+import { el } from '../dom';
 import { renderHud } from '../hud';
 
 function cardName(c: CardInstance): string {
@@ -27,7 +27,7 @@ registerScreen('event', (app, root, props) => {
 
   /** 事件的每一條路都收在這個版面：結果一句話，加一顆按鈕（挑牌那條路先不放按鈕，傳 ''） */
   function panel(resultText: string, note: string | null, button: Node | string): void {
-    clear(root);
+    clearKeepBg(root);
     renderHud(app, root);
     root.append(el('div', { class: 'screen event' },
       el('p', { class: 'event-result' }, resultText),
@@ -39,7 +39,7 @@ registerScreen('event', (app, root, props) => {
 
   /** 選一招（大俠傳功那種）：挑完就收尾，也可以都不要 */
   function chooseCard(resultText: string, defs: CardDef[]): void {
-    clear(root);
+    clearKeepBg(root);
     renderHud(app, root);
     const grid = el('div', { class: 'reward-cards' });
     for (const c of defs) grid.append(cardNode(c, { onClick: () => { addCard(run, c.id); finish(resultText, `學會了「${c.name}」`); } }));

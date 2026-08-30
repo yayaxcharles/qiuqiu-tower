@@ -4,10 +4,10 @@ import { relicById } from '../../content/relics';
 import { rest } from '../../engine/run';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { screenBg } from '../screenbg';
+import { clearKeepBg, screenBg } from '../screenbg';
 import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
-import { clear, el } from '../dom';
+import { el } from '../dom';
 import { renderHud } from '../hud';
 
 registerScreen('rest', (app, root) => {
@@ -22,7 +22,7 @@ registerScreen('rest', (app, root) => {
 
   /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖 */
   function afterAction(text: string, line: string): void {
-    clear(root);
+    clearKeepBg(root);
     renderHud(app, root);
     root.append(el('div', { class: 'screen rest' }, el('h1', {}, '貓窩'), el('p', { class: 'rest-result' }, text)));
     toast(line, '球球');
