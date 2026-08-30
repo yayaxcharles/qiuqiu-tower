@@ -94,6 +94,13 @@
   line-height: 14px;
   color: #fff;
 }
+.combat .hpbar-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #ffd9a0;
+}
 .combat .hpbar-fill {
   position: absolute;
   left: 0;
@@ -301,6 +308,31 @@
 .combat .unit.gone .ground-shadow { opacity: 0; }
 
 /* ===== 動畫 ===== */
+/* 挨重擊時整個戰場震一下（只在 .combat 上，舞台身上有 scale 不能碰） */
+.combat.shaken { animation: screen-shake .3s ease-out; }
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-7px, 3px); }
+  35% { transform: translate(6px, -3px); }
+  55% { transform: translate(-4px, 2px); }
+  80% { transform: translate(2px, -1px); }
+}
+/* 飛出去的牌：複製到疊層上飛，所以要自己定位，也不能吃滑鼠 */
+.card.flying {
+  position: absolute;
+  z-index: 45;
+  pointer-events: none;
+  margin: 0;
+}
+
+/* 打不出來的牌左右抖一下 */
+.combat .hand .card.nope { animation: card-nope .34s ease-out; }
+@keyframes card-nope {
+  0%, 100% { margin-left: var(--nope-m, 0); }
+  20% { transform: translateX(-9px) rotate(-2deg); }
+  45% { transform: translateX(8px) rotate(2deg); }
+  70% { transform: translateX(-4px); }
+}
 @keyframes idle-breathe {
   0%, 100% { transform: scaleY(1); }
   50% { transform: scaleY(1.022) scaleX(.995); }

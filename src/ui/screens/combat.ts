@@ -169,7 +169,20 @@ registerScreen('combat', (app, root, props) => {
     if (prev !== pct && typeof fill.animate === 'function') {
       fill.animate([{ width: `${prev}%` }, { width: `${pct}%` }], { duration: 380, easing: 'ease-out' });
     }
-    return el('div', { class: 'hpbar' }, fill, el('span', {}, `${hp}/${maxHp}`));
+    // 掉血時在後面留一條淺色殘影，慢半拍才追上來——一眼看得出「剛剛掉了這麼多」。
+    // 只有掉血才留（回血不需要），而且是額外一層，血條本身的數值照舊。
+    const ghost = prev > pct
+      ? el('div', { class: 'hpbar-ghost', style: `width:${pct}%` })
+      : '';
+    if (ghost && typeof ghost.animate === 'function') {
+      // 前 40% 的時間停在舊長度（讓玩家看清楚掉了多少），之後才追上來
+      ghost.animate([
+        { width: `${prev}%`, offset: 0 },
+        { width: `${prev}%`, offset: 0.4 },
+        { width: `${pct}%`, offset: 1 },
+      ], { duration: 900, easing: 'ease-in' });
+    }
+    return el('div', { class: 'hpbar' }, ghost, fill, el('span', {}, `${hp}/${maxHp}`));
   }
 
   /** 魔物頭上的意圖：攻擊直接算進爪力／懶洋洋／翻肚與蓄力，玩家看到的就是真的會挨幾下 */
@@ -318,7 +331,17 @@ registerScreen('combat', (app, root, props) => {
       node.style.margin = `0 ${((step - 145) / 2).toFixed(1)}px`;
       node.style.zIndex = String(i + 1);
       // 打不出來的原因直接用引擎給的字串，畫面不要自己再寫一套
-      if (!chk.ok) { node.title = chk.reason; node.addEventListener('click', () => { hint = chk.reason; render(); }); }
+      if (!chk.ok) {
+        node.title = chk.reason;
+        // 點下去除了顯示原因，牌本身也抖一下：只有一行小字，玩家常常沒發現自己點了。
+        // 動畫要加在**重畫之後**的那張牌上——render() 會把手牌整個重生，
+        // 加在這個 node 上會連同它一起被丟掉，動畫根本不會播。
+        node.addEventListener('click', () => {
+          hint = chk.reason;
+          render();
+          root.querySelector(`.hand .card[data-uid="${c.uid}"]`)?.classList.add('nope');
+        });
+      }
       // 只有這次才出現在手上的牌才播進場動畫：每次重畫都播的話，光是選個目標整手牌就會抖一次
       if (!shownCards.has(c.uid)) { node.classList.add('dealt'); node.style.animationDelay = `${dealDelay + i * 45}ms`; }
       hand.append(node);
@@ -436,18 +459,59 @@ registerScreen('combat', (app, root, props) => {
     else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); });
   }
 
+  /**
+   * 打出去的牌飛向目標。
+   *
+   * 原本牌是**直接消失**的——按下去手牌就少一張，中間沒有任何過程，
+   * 這是整場戰鬥最「卡」的地方。這裡把那張牌複製一份丟到疊層，讓它飛過去再淡掉。
+   *
+   * 複製到疊層而不是動原本那張：出牌會整個重畫手牌，原本那張連同動畫一起被丟掉；
+   * 疊層不隨畫面重畫，所以飛行過程才播得完。
+   */
+  function flyCard(uid: number, targetUid: number | undefined): void {
+    const layer = overlayRoot();
+    const from = root.querySelector<HTMLElement>(`.hand .card[data-uid="${uid}"]`);
+    if (!layer || !from || typeof from.animate !== 'function') return;
+    const stage = app.stage.getBoundingClientRect();
+    const k = stage.width > 0 ? 1280 / stage.width : 1;
+    const r = from.getBoundingClientRect();
+    const dest = targetUid === undefined
+      ? root.querySelector('.unit.player .sprite')
+      : root.querySelector(`.unit.enemy[data-uid="${targetUid}"] .sprite`);
+    const dr = dest?.getBoundingClientRect();
+
+    const ghost = from.cloneNode(true) as HTMLElement;
+    ghost.classList.add('flying');
+    ghost.style.left = `${(r.left - stage.left) * k}px`;
+    ghost.style.top = `${(r.top - stage.top) * k}px`;
+    ghost.style.width = `${r.width * k}px`;
+    ghost.style.height = `${r.height * k}px`;
+    layer.append(ghost);
+
+    const dx = dr ? (dr.left + dr.width / 2 - (r.left + r.width / 2)) * k : 0;
+    const dy = dr ? (dr.top + dr.height / 2 - (r.top + r.height / 2)) * k : -160;
+    ghost.animate([
+      { transform: 'translate(0,0) scale(1)', opacity: 1 },
+      { transform: `translate(${dx * 0.55}px, ${dy * 0.55}px) scale(.85)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${dx}px, ${dy}px) scale(.35)`, opacity: 0 },
+    ], { duration: 340, easing: 'cubic-bezier(.4,0,.6,1)' }).addEventListener('finish', () => ghost.remove());
+    // animate() 保險：動畫被節流沒跑完也要把它收掉，不然疊層會留一堆殘影
+    window.setTimeout(() => ghost.remove(), 1200);
+  }
+
   function play(uid: number, targetUid: number | undefined): void {
     const card = cs.player.hand.find((c) => c.uid === uid);
     if (!card) return;
     const st = cardStats(card);
     const chk = canPlay(cs, uid, targetUid);
     if (!chk.ok) { hint = chk.reason; render(); return; }
-    // 出招換成這張牌的姿勢；大俠牌沒有對應立繪（只做了塔主九張），退回「參上」
-    const wanted = st.def.art.startsWith('ninja/') ? st.def.art : POSE.attack;
+    flyCard(uid, targetUid);
+    // 出招一律用「參上」。以前是照牌面貼圖換姿勢，但牌面已經換成專畫的插圖（`card/*`），
+    // 那批不是球球的立繪、也沒有對應的姿勢，所以那條規則已經沒有意義了。
     act(() => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       if (!playCard(cs, uid, targetUid)) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
-    }, { pose: wanted, attack: st.def.type === '攻擊' });
+    }, { pose: POSE.attack, attack: st.def.type === '攻擊' });
   }
 
   function onPotion(id: string): void {
@@ -527,7 +591,18 @@ registerScreen('combat', (app, root, props) => {
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>('.unit.player');
     if (cat) {
-      if (hurt) { cat.classList.add('hit'); cat.append(floatNum(`-${before.hp - p.hp}`)); }
+      if (hurt) {
+        cat.classList.add('hit');
+        cat.append(floatNum(`-${before.hp - p.hp}`));
+        // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
+        // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
+        // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。
+        if (before.hp - p.hp >= p.maxHp * 0.08) {
+          const box = root.querySelector<HTMLElement>('.combat');
+          box?.classList.add('shaken');
+          window.setTimeout(() => box?.classList.remove('shaken'), 300);
+        }
+      }
       else if (dodged) cat.classList.add('dodge');
       // 前撲只給攻擊牌（規格 §8.4）：看 opts.attack，不能看有沒有指定姿勢——每張出的牌都會指定姿勢，
       // 拿它當條件的話「淡定」這種防禦牌也會蜷成球又往前撲

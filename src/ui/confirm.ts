@@ -45,7 +45,14 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
     pair,
     el('div', { class: 'modal-foot' },
       el('button', { class: 'btn', onclick: () => dismiss(false) }, '再看看'),
-      el('button', { class: 'btn primary', onclick: () => dismiss(true) }, '就磨這張'))));
+      el('button', {
+        class: 'btn primary',
+        // 成交要看得到：升級後那張閃一下金光再收，不要按完畫面就跳走
+        onclick: () => {
+          pair.querySelector('.confirm-side.after .card')?.classList.add('forged');
+          window.setTimeout(() => dismiss(true), 420);
+        },
+      }, '就磨這張'))));
   // 點旁邊的黑幕＝取消。這一步沒有「非選不可」的情境，一律放行
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(false); });
   layer.append(overlay);

@@ -63,6 +63,13 @@ img { -webkit-user-drag: none; }
   cursor: pointer;
 }
 .btn:hover:not(:disabled) { background: #ffeed8; }
+/*
+ * 按下去要有反應。原本按鈕只有 hover 換色，點下去到畫面換掉之間完全沒有動作，
+ * 升級一張牌、選一個事件選項都只是「點一下然後畫面就變了」，手感很死。
+ * transition 只給 transform：背景色的變化要即時，位移才需要過場。
+ */
+.btn { transition: transform .08s ease-out; }
+.btn:active:not(:disabled) { transform: translateY(2px) scale(.97); }
 .btn.primary { background: var(--accent); color: #fff; }
 .btn.primary:hover:not(:disabled) { background: #b3611f; }
 .btn:disabled { opacity: .4; cursor: default; }
@@ -237,4 +244,19 @@ img { -webkit-user-drag: none; }
   font-size: 34px;
   color: var(--accent);
   font-weight: bold;
+}
+
+/* 挑牌時「選中」的那一下：彈起來、鑲一圈亮邊，讓玩家看清楚自己選到哪張 */
+.card.picked { animation: card-picked .26s ease-out forwards; }
+@keyframes card-picked {
+  0% { transform: scale(1); }
+  55% { transform: scale(1.14) translateY(-8px); box-shadow: 0 0 0 4px #ffd35c, 0 10px 22px rgba(0, 0, 0, .35); }
+  100% { transform: scale(1.08) translateY(-6px); box-shadow: 0 0 0 4px #ffd35c; }
+}
+/* 磨爪成交：升級後那張閃一下金光 */
+.card.forged { animation: card-forged .42s ease-out; }
+@keyframes card-forged {
+  0% { filter: none; transform: scale(1); }
+  35% { filter: brightness(1.9) saturate(1.3); transform: scale(1.1); }
+  100% { filter: none; transform: scale(1); }
 }

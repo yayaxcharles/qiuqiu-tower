@@ -69,11 +69,14 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
   for (const c of opts.cards) {
     const ok = opts.filter ? opts.filter(c) : true;
     const pick = opts.pickable && ok;
-    grid.append(cardNode(c, {
+    const node = cardNode(c, {
       small: true,
       disabled: opts.pickable && !ok,
-      onClick: pick ? () => dismiss(c.uid) : undefined,
-    }));
+      // 選中的牌先彈一下再收視窗。原本是點下去視窗立刻消失，
+      // 玩家連自己選到哪一張都來不及看清楚，升級／移除更是完全沒有「成交」的感覺。
+      onClick: pick ? () => { node.classList.add('picked'); window.setTimeout(() => dismiss(c.uid), 260); } : undefined,
+    });
+    grid.append(node);
   }
   if (layout.note) grid.append(el('div', { class: 'deck-empty' }, layout.note));
   const close = el('button', { class: 'btn', onclick: () => dismiss(null) },
