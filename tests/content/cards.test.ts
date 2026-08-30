@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 3、忍術 33、絕學 18、壞毛病 4', () => {
+  it('數量：起手 3、忍術 48、絕學 23、壞毛病 4', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     expect(count('起手')).toBe(3);
-    expect(count('忍術')).toBe(33);
-    expect(count('絕學')).toBe(18);
+    expect(count('忍術')).toBe(48);
+    expect(count('絕學')).toBe(23);
     expect(count('壞毛病')).toBe(4);
-    expect(cards.length).toBe(58);
+    expect(cards.length).toBe(78);
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);

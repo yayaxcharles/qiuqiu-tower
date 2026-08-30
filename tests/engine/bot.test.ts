@@ -18,9 +18,9 @@ describe('隨機試玩', () => {
   });
   // 回歸：這兩個種子在戰鬥上限 60 回合時會爆掉（bal-369 是「告退」把牌組消耗光後的僵持，
   // 已於改成消耗牌後解掉；bal-453 是龜縮拖塔主）。釘住精確統計值，順便涵蓋「不丟例外」。
-  // 2026-08-30 地圖兩度改版（先改路線式產生、再加不交叉規則），同種子走的路線跟著變，數值重錄兩次。
+  // 2026-08-30 地圖兩度改版（先改路線式產生、再加不交叉規則、又新增 20 張牌），同種子的牌與路線都變了，數值重錄過三次。
   it('曾經打超過 60 回合的種子照樣跑得完，而且結果不變', () => {
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 7, turns: 21, kills: 4, deckSize: 12 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 12, turns: 50, kills: 9, deckSize: 18 });
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 7, turns: 18, kills: 4, deckSize: 12 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 12, turns: 42, kills: 7, deckSize: 17 });
   });
 });
