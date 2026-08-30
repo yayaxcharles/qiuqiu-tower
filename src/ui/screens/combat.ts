@@ -107,6 +107,9 @@ registerScreen('combat', (app, root, props) => {
   let ended = false;
   let picker: HTMLElement | null = null;
   let seq = 0;   // 每次結算 +1，讓過期的計時器認出自己已經不是最新的一次
+  const lastHpPct = new Map<string, number>();   // 生命條上一次畫到哪，重畫後才滑得動
+  let shownCards = new Set<number>();            // 上一次畫的手牌，認出哪幾張是新抽的
+  let dealDelay = 0;                             // 新手牌進場前要等多久（結束回合那一拍會等）
 
   /** 可以操作嗎：分出勝負、還在等玩家選牌時，出牌／忍具／結束回合都會被引擎靜默拒絕，所以先反灰 */
   function canAct(): boolean { return !ended && cs.phase === 'player' && !cs.pending; }
@@ -124,6 +127,13 @@ registerScreen('combat', (app, root, props) => {
     return node;
   }
 
+  /** 飄起來的傷害數字。飄完自己移除，免得留在 DOM 裡等下一次重畫才被掃掉 */
+  function floatNum(text: string): HTMLElement {
+    const node = el('div', { class: 'num' }, text);
+    node.addEventListener('animationend', () => node.remove());
+    return node;
+  }
+
   function statusRow(u: Unit): HTMLElement {
     const row = el('div', { class: 'chips' });
     if (u.block > 0) row.append(chip('蜷縮', null, String(u.block), 'block'));
@@ -134,11 +144,24 @@ registerScreen('combat', (app, root, props) => {
     return row;
   }
 
-  function hpBar(hp: number, maxHp: number): HTMLElement {
+  /**
+   * 生命條。CSS 上本來就寫了 width 的過場，但每次動作整個畫面重畫、條也是新生的，
+   * 新元素的初始值不會觸發過場，所以血量一直是用跳的。
+   * 這裡自己記住上一次畫的長度，再用 animate() 從舊值播到新值。
+   *
+   * 用 animate() 而不是「先設舊值、下一幀改新值」：後者要靠 requestAnimationFrame 補上新值，
+   * 分頁切到背景時瀏覽器會把 rAF 停掉，血條就卡在舊值＝顯示錯的血量。
+   * animate() 是把元素本身的正確值當底、動畫疊在上面播，動畫被節流也不會顯示錯的數字。
+   */
+  function hpBar(key: string, hp: number, maxHp: number): HTMLElement {
     const pct = maxHp > 0 ? Math.max(0, (hp / maxHp) * 100) : 0;
-    return el('div', { class: 'hpbar' },
-      el('div', { class: 'hpbar-fill', style: `width:${pct}%` }),
-      el('span', {}, `${hp}/${maxHp}`));
+    const prev = lastHpPct.get(key) ?? pct;
+    lastHpPct.set(key, pct);
+    const fill = el('div', { class: 'hpbar-fill', style: `width:${pct}%` });
+    if (prev !== pct && typeof fill.animate === 'function') {
+      fill.animate([{ width: `${prev}%` }, { width: `${pct}%` }], { duration: 380, easing: 'ease-out' });
+    }
+    return el('div', { class: 'hpbar' }, fill, el('span', {}, `${hp}/${maxHp}`));
   }
 
   /** 魔物頭上的意圖：攻擊直接算進爪力／懶洋洋／翻肚與蓄力，玩家看到的就是真的會挨幾下 */
@@ -185,7 +208,7 @@ registerScreen('combat', (app, root, props) => {
       intentChip(e),
       el('img', { class: 'sprite', src: enemySprite(e, def), alt: e.name }),
       el('div', { class: 'name' }, e.name),
-      hpBar(e.hp, e.maxHp),
+      hpBar(`e${e.uid}`, e.hp, e.maxHp),
       statusRow(e));
     if (targeting && !e.dead) node.addEventListener('click', () => pickTarget(e.uid));
     return node;
@@ -252,8 +275,11 @@ registerScreen('combat', (app, root, props) => {
       node.style.zIndex = String(i + 1);
       // 打不出來的原因直接用引擎給的字串，畫面不要自己再寫一套
       if (!chk.ok) { node.title = chk.reason; node.addEventListener('click', () => { hint = chk.reason; render(); }); }
+      // 只有這次才出現在手上的牌才播進場動畫：每次重畫都播的話，光是選個目標整手牌就會抖一次
+      if (!shownCards.has(c.uid)) { node.classList.add('dealt'); node.style.animationDelay = `${dealDelay + i * 45}ms`; }
       hand.append(node);
     });
+    shownCards = new Set(p.hand.map((c) => c.uid));
     return hand;
   }
 
@@ -272,7 +298,7 @@ registerScreen('combat', (app, root, props) => {
       el('div', { class: 'unit player' },
         el('img', { class: 'sprite', src: artUrl('sprites', pose), alt: '球球' }),
         el('div', { class: 'name' }, '球球'),
-        hpBar(cs.player.hp, cs.player.maxHp),
+        hpBar('player', cs.player.hp, cs.player.maxHp),
         statusRow(cs.player)));
     cs.enemies.forEach((e, i) => field.append(enemyUnit(e, i, cs.enemies.length)));
     box.append(field, sidePanel(), handRow());
@@ -393,20 +419,23 @@ registerScreen('combat', (app, root, props) => {
   function onEndTurn(): void {
     if (!canAct()) return;
     targeting = null;
-    act(() => endTurn(cs));
+    act(() => endTurn(cs), { deal: true });
   }
 
   // ===== 結算與動畫 =====
 
   /** 跑一個引擎動作，然後照「前後差異」放姿勢、動畫與台詞 */
-  function act(fn: () => void, opts: { pose?: string; attack?: boolean } = {}): void {
+  function act(fn: () => void, opts: { pose?: string; attack?: boolean; deal?: boolean } = {}): void {
     const before = snap(cs);
     hint = '';
     fn();
     settle(before, opts);
   }
 
-  function settle(before: Snap, opts: { pose?: string; attack?: boolean } = {}): void {
+  function settle(before: Snap, opts: { pose?: string; attack?: boolean; deal?: boolean } = {}): void {
+    // 結束回合那一拍，魔物出手與新手牌是同一次重畫。手牌立刻滑進來會跟魔物前撲擠在一起，
+    // 所以那一拍讓手牌晚 460 毫秒再進場：先看牠們打完，再看自己摸到什麼。
+    dealDelay = opts.deal ? 460 : 0;
     const posePref = opts.pose;
     const p = cs.player;
     const fresh = cs.log.slice(before.logLen);
@@ -439,17 +468,22 @@ registerScreen('combat', (app, root, props) => {
       const b = before.enemies.get(e.uid);
       const node = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
       if (!b || !node) continue;
-      if (e.hp < b.hp) { node.classList.add('hit'); node.append(el('div', { class: 'num' }, `-${b.hp - e.hp}`)); }
+      if (e.hp < b.hp) { node.classList.add('hit'); node.append(floatNum(`-${b.hp - e.hp}`)); }
       if (!b.dead && e.dead) node.classList.add('dead');
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
-      else if (acting.get(e.uid)?.attacked) node.classList.add('attack');
+      else if (acting.get(e.uid)?.attacked) {
+        node.classList.add('attack');
+        // 一整排同時前撲很像機器人；照排列位置各差 110 毫秒，看起來才像各打各的
+        const sp = node.querySelector<HTMLElement>('.sprite');
+        if (sp) sp.style.animationDelay = `${cs.enemies.indexOf(e) * 110}ms`;
+      }
       if (b.phase === 0 && e.phase > 0) bossPhase2();
     }
     // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>('.unit.player');
     if (cat) {
-      if (hurt) { cat.classList.add('hit'); cat.append(el('div', { class: 'num' }, `-${before.hp - p.hp}`)); }
+      if (hurt) { cat.classList.add('hit'); cat.append(floatNum(`-${before.hp - p.hp}`)); }
       else if (dodged) cat.classList.add('dodge');
       // 前撲只給攻擊牌（規格 §8.4）：看 opts.attack，不能看有沒有指定姿勢——每張出的牌都會指定姿勢，
       // 拿它當條件的話「淡定」這種防禦牌也會蜷成球又往前撲
@@ -467,7 +501,15 @@ registerScreen('combat', (app, root, props) => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
       pose = POSE.idle;
       acting = new Map();   // 魔物也一起收回待機，出手的立繪只亮這一拍
-      render();
+      // **就地換圖，不要 render()**：這一拍畫面沒有任何資料變動，只是姿勢收回待機。
+      // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
+      // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。
+      const cat = root.querySelector<HTMLImageElement>('.unit.player .sprite');
+      if (cat) cat.src = artUrl('sprites', pose);
+      for (const e of cs.enemies) {
+        const img = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
+        if (img) img.src = enemySprite(e, enemyById[e.enemyId]);
+      }
     }, hold);
 
     if (cs.phase !== 'player' && !ended) {

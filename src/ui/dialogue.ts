@@ -25,6 +25,12 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void): void {
     speaker.textContent = l.speaker === '旁白' ? '' : l.speaker;
     text.textContent = l.text;
     box.classList.toggle('narration', l.speaker === '旁白');
+    // 換下一句時讓框輕輕彈一下：不然只有文字默默換掉，玩家不確定自己剛剛那一下有沒有點到
+    const inner = box.querySelector('.dialogue-box');
+    if (i > 0 && inner && typeof inner.animate === 'function') {
+      inner.animate([{ transform: 'translateY(6px)', opacity: .55 }, { transform: 'none', opacity: 1 }],
+        { duration: 160, easing: 'ease-out' });
+    }
   };
   /** 收尾只會發生一次：對白住在疊層裡，換畫面不會把它拔走，這個旗標再擋住連點重播 */
   const end = (): void => {

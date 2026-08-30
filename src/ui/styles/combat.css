@@ -91,7 +91,7 @@
   top: 0;
   height: 100%;
   background: #d9534f;
-  transition: width .25s;
+  transition: width .38s ease-out;
 }
 .combat .hpbar span { position: relative; text-shadow: 0 1px 1px #000; }
 
@@ -318,8 +318,18 @@
   to { transform: rotate(80deg) translateY(70px); opacity: 0; }
 }
 @keyframes float {
-  from { transform: translate(-50%, 0); opacity: 1; }
-  to { transform: translate(-50%, -64px); opacity: 0; }
+  0% { transform: translate(-50%, 6px) scale(.7); opacity: 0; }
+  18% { transform: translate(-50%, -6px) scale(1.12); opacity: 1; }
+  30% { transform: translate(-50%, -12px) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -70px); opacity: 0; }
+}
+/* 新抽到的牌從下面滑上來。只有真的新出現的牌會掛這個類別（見 handRow） */
+.combat .hand .card.dealt { animation: card-in .34s cubic-bezier(.2, .9, .3, 1.2) backwards; }
+/* 注意：@keyframes 裡不能加 !important，加了整條會被忽略（只會剩淡入、不會滑）。
+   這裡不用 !important 也蓋得過行內的扇形角度——動畫的優先序本來就高於行內樣式，
+   而且只寫 from、to 那格會自動取用元素當下的值，所以會從下方滑回它該在的角度。 */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(58px) scale(.9); }
 }
 
 /* ===== 選目標的指引箭頭 ===== */

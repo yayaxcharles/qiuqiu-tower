@@ -50,6 +50,13 @@ export class App {
     clear(this.screen);
     this.stage.dataset['screen'] = name;
     r(this, this.screen, props);
+    // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
+    // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
+    // 所以出一張牌不會整個畫面閃一次。
+    if (typeof this.screen.animate === 'function') {
+      this.screen.animate([{ opacity: 0, transform: 'scale(.988)' }, { opacity: 1, transform: 'none' }],
+        { duration: 220, easing: 'ease-out' });
+    }
   }
 
   newRun(seed?: string): void {

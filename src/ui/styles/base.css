@@ -116,6 +116,12 @@ img { -webkit-user-drag: none; }
 .title-note { font-size: 14px; opacity: .75; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
 
 /* ===== 對白疊層 ===== */
+.dialogue-overlay { animation: fade-in .16s ease-out; }
+.dialogue-box { animation: dialogue-in .28s cubic-bezier(.2, .9, .3, 1.12); }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes dialogue-in {
+  from { opacity: 0; transform: translateY(26px); }
+}
 .dialogue-overlay {
   position: absolute;
   inset: 0;
@@ -167,6 +173,11 @@ img { -webkit-user-drag: none; }
   transition: opacity .4s;
 }
 .toast.out { opacity: 0; }
+.toast { animation: toast-in .28s cubic-bezier(.2, .9, .3, 1.15); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, -14px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
 
 /* ===== 名詞提示 ===== */
 .tooltip {
