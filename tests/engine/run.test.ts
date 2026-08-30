@@ -67,7 +67,7 @@ describe('戰鬥與獎勵', () => {
     expect(r.cards.some((c) => c.pool === '絕學')).toBe(true);
     expect(r.fish).toBe(30);
     const run = fresh('boss');
-    run.currentNode = 'f15-l1'; run.floor = 15;
+    run.currentNode = run.map.nodes.find((n) => n.type === '塔主')!.id; run.floor = 15;
     const cs = beginCombat(run);
     for (const e of cs.enemies) e.dead = true; cs.phase = 'won'; cs.kills = 1;
     const b = finishCombat(run, cs)!;

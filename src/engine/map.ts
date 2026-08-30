@@ -4,8 +4,48 @@ import type { Rng } from './rng';
 import type { GameMap, MapNode, NodeType } from './types';
 
 export const FLOORS = 15;
-const LANES = 3;
+/**
+ * 五條車道、三條路線（類殺戮尖塔）。
+ *
+ * 舊版是「每層固定三格、排成整齊的三行」，看起來像表格而不是一座塔。
+ * 改成先走出三條由下往上的路線，**只有路線經過的格子才生節點**——
+ * 於是每層會有 1～3 格、落在五個位置中的哪幾個都不一定，很多格子是空的。
+ * 開局仍是三選一（三條路線的起點各不相同），這點沒變。
+ */
+const LANES = 5;
+const PATHS = 3;
 const CONVERGED: Record<number, NodeType> = { 8: '紙箱', 14: '貓窩', 15: '塔主' };
+
+/** 這一層有哪些車道可以站：匯合層只有正中間那格 */
+function lanesOn(floor: number): number[] {
+  if (CONVERGED[floor]) return [(LANES - 1) / 2];
+  return Array.from({ length: LANES }, (_, i) => i);
+}
+
+/**
+ * 走出 PATHS 條路線，回傳「每條路線在每一層站哪個車道」。
+ *
+ * 每條路線每一層只能往左右移動一格（或原地），**路線之間允許重疊**——重疊的那一層
+ * 就只生一個節點，於是有些樓層只有一格、有些兩格、有些三格，位置也各不相同。
+ * 這正是要的效果；一開始加了「優先挑沒人佔的車道」，結果三條路線永遠不相遇，
+ * 每層還是滿滿三格，跟舊版沒兩樣。
+ * 起點強制三條不同（開局仍是三選一）。匯合層強制走中間；剛離開匯合層時放行到
+ * 任何車道，讓那一格往外散開。
+ */
+function walkPaths(rng: Rng): number[][] {
+  const starts = rng.shuffle(lanesOn(1)).slice(0, PATHS);
+  const lanes: number[][] = starts.map((l) => [l]);
+  for (let f = 2; f <= FLOORS; f++) {
+    const allowed = lanesOn(f);
+    const fromConverged = CONVERGED[f - 1] !== undefined;
+    for (let p = 0; p < PATHS; p++) {
+      const cur = lanes[p]![f - 2]!;
+      const cands = allowed.filter((l) => fromConverged || Math.abs(l - cur) <= 1);
+      lanes[p]!.push(cands.length ? rng.pick(cands) : allowed[0]!);
+    }
+  }
+  return lanes;
+}
 
 export function poolForFloor(floor: number): '弱' | '中' | '強' {
   return floor <= 4 ? '弱' : floor <= 10 ? '中' : '強';
@@ -26,15 +66,31 @@ function tableFor(floor: number): [NodeType, number][] {
 }
 
 export function generateMap(rng: Rng): GameMap {
-  const nodes: MapNode[] = [];
+  // 先走路線，再把「路線踩過的格子」變成節點：沒被踩到的格子就是空的
+  const paths = walkPaths(rng);
+  const cells = new Map<string, MapNode>();
   const byFloor: MapNode[][] = [];
-  for (let f = 1; f <= FLOORS; f++) {
-    const row: MapNode[] = [];
-    const conv = CONVERGED[f];
-    if (conv) row.push({ id: `f${f}-l1`, floor: f, lane: 1, type: conv, next: [] });
-    else for (let l = 0; l < LANES; l++) row.push({ id: `f${f}-l${l}`, floor: f, lane: l, type: '戰鬥', next: [] });
-    byFloor[f] = row;
-    nodes.push(...row);
+  for (let f = 1; f <= FLOORS; f++) byFloor[f] = [];
+  for (const lane of paths) {
+    for (let f = 1; f <= FLOORS; f++) {
+      const l = lane[f - 1]!;
+      const key = `${f}:${l}`;
+      if (cells.has(key)) continue;
+      const node: MapNode = { id: `f${f}-l${l}`, floor: f, lane: l, type: CONVERGED[f] ?? '戰鬥', next: [] };
+      cells.set(key, node);
+      byFloor[f]!.push(node);
+    }
+  }
+  for (let f = 1; f <= FLOORS; f++) byFloor[f]!.sort((a, b) => a.lane - b.lane);
+  const nodes: MapNode[] = [];
+  for (let f = 1; f <= FLOORS; f++) nodes.push(...byFloor[f]!);
+  // 邊就是路線的每一步；同一步可能被多條路線走過，去重
+  for (const lane of paths) {
+    for (let f = 1; f < FLOORS; f++) {
+      const a = cells.get(`${f}:${lane[f - 1]!}`)!;
+      const bId = `f${f + 1}-l${lane[f]!}`;
+      if (!a.next.includes(bId)) a.next.push(bId);
+    }
   }
   // 類型
   for (let f = 2; f <= 13; f++) {
@@ -75,14 +131,6 @@ export function generateMap(rng: Rng): GameMap {
       else { n.eventId = eventQueue[eventIdx % eventQueue.length]; eventIdx++; }
     }
   }
-  // 邊
-  for (let f = 1; f < FLOORS; f++) {
-    const cur = byFloor[f]!, nxt = byFloor[f + 1]!;
-    for (const n of cur) {
-      if (nxt.length === 1 || cur.length === 1) n.next = nxt.map((m) => m.id);
-      else n.next = nxt.filter((m) => Math.abs(m.lane - n.lane) <= 1).map((m) => m.id);
-    }
-  }
   return { nodes, start: byFloor[1]!.map((n) => n.id) };
 }
 
@@ -112,7 +160,8 @@ export function validateMap(map: GameMap): string[] {
   if (!nodesOnFloor(map, 7).some((n) => n.type === '大魔物')) p.push('7F 至少一個大魔物');
   for (let f = 1; f <= FLOORS; f++) {
     const row = nodesOnFloor(map, f);
-    if (row.length !== (CONVERGED[f] ? 1 : 3)) p.push(`${f}F 節點數錯誤`);
+    // 非匯合層的格數由路線決定（1～PATHS 都合法），只要不是空的、也沒超過路線數就行
+    if (CONVERGED[f] ? row.length !== 1 : row.length < 1 || row.length > PATHS) p.push(`${f}F 節點數錯誤`);
     if (row.filter((n) => n.type === '罐頭鋪').length > 1) p.push(`${f}F 罐頭鋪超過一個`);
     if (row.filter((n) => n.type === '大魔物').length > 1) p.push(`${f}F 大魔物超過一個`);
     if (f === 13 && row.some((n) => n.type === '貓窩')) p.push('13F 不可放貓窩');
@@ -140,5 +189,11 @@ export function validateMap(map: GameMap): string[] {
     for (const m of map.nodes) if (m.next.includes(id)) stack.push(m.id);
   }
   for (const n of map.nodes) if (!reach.has(n.id)) p.push(`${n.id} 到不了 15F`);
+  // 反過來也要成立：孤島節點畫得出來卻走不到，玩家會看到一個永遠點不動的格子
+  const from = new Set<string>(map.start);
+  for (let f = 1; f < FLOORS; f++) {
+    for (const n of map.nodes) if (n.floor === f && from.has(n.id)) for (const id of n.next) from.add(id);
+  }
+  for (const n of map.nodes) if (!from.has(n.id)) p.push(`${n.id} 從 1F 走不到`);
   return p;
 }

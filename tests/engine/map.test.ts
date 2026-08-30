@@ -25,14 +25,39 @@ describe('地圖', () => {
     expect(nodesOnFloor(m, 15).map((n) => n.type)).toEqual(['塔主']);
     expect(nodesOnFloor(m, 15)[0]?.encounterId).toBe('tower_master');
   });
-  it('走法：入口 3 選、匯合層 1 選、匯合後 3 選', () => {
+  it('走法：入口三選、匯合層只有一格、每一步都只走到相鄰車道', () => {
+    // 節點的位置由路線決定，不再是固定的三行，所以這裡驗結構、不寫死車道編號
     const m = generateMap(new Rng(seedFromString('walk')));
     expect(nextChoices(m, null).length).toBe(3);
-    expect(nextChoices(m, 'f7-l0').map((n) => n.id)).toEqual(['f8-l1']);
-    expect(nextChoices(m, 'f8-l1').length).toBe(3);
-    expect(nextChoices(m, 'f2-l0').map((n) => n.lane)).toEqual([0, 1]);
-    expect(nextChoices(m, 'f2-l1').map((n) => n.lane)).toEqual([0, 1, 2]);
-    expect(nextChoices(m, 'f15-l1')).toEqual([]);
+    const chest = nodesOnFloor(m, 8);
+    expect(chest.length).toBe(1);
+    // 7F 的每一格都只能通到 8F 那唯一一格
+    for (const n of nodesOnFloor(m, 7)) expect(n.next).toEqual([chest[0]!.id]);
+    expect(nextChoices(m, nodesOnFloor(m, 15)[0]!.id)).toEqual([]);
+  });
+  it('200 個種子：每一步都是相鄰車道（剛離開匯合層除外）', () => {
+    for (let i = 0; i < 200; i++) {
+      const m = generateMap(new Rng(seedFromString(`step-${i}`)));
+      for (const n of m.nodes) {
+        // 匯合層只有一格，往上是往外散開，這一步不受相鄰限制
+        if (nodesOnFloor(m, n.floor).length === 1) continue;
+        for (const id of n.next) {
+          const t = m.nodes.find((x) => x.id === id)!;
+          if (nodesOnFloor(m, t.floor).length === 1) continue;
+          expect(Math.abs(t.lane - n.lane), `seed step-${i} ${n.id}→${id}`).toBeLessThanOrEqual(1);
+        }
+      }
+    }
+  });
+  it('200 個種子：確實有樓層是空著幾格的（不再是每層都排滿）', () => {
+    let varied = 0;
+    for (let i = 0; i < 200; i++) {
+      const m = generateMap(new Rng(seedFromString(`sparse-${i}`)));
+      // 非匯合層裡，只要有一層不是三格，就算這張地圖有疏密變化
+      const rows = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13].map((f) => nodesOnFloor(m, f).length);
+      if (rows.some((c) => c < 3)) varied++;
+    }
+    expect(varied).toBeGreaterThan(150);
   });
   it('比例大致合理（200 張地圖）', () => {
     let fight = 0, total = 0;

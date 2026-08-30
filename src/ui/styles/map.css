@@ -36,26 +36,29 @@
   width: 1280px;
 }
 /*
- * 路徑＝一串腳印。作法是一條邊一個長條 div，轉到那條線的角度，
- * 背景把腳印橫向平鋪；腳印素材本身已經轉成朝右，轉過去就等於朝行進方向。
- * 一條邊一個節點（約七十個），不是一個腳印一個節點（那要三百多個）。
+ * 路徑：一條很淡的曲線＋沿線鋪的腳印。
+ * 線負責「看得懂哪個節點接哪個」——八十條路徑交錯，光靠腳印只會看成一地散點；
+ * 腳印負責味道。兩者都在同一個 SVG 裡（見 map.ts）。
  */
-.map-edge {
+.map-edges {
   position: absolute;
-  height: 20px;
-  /* 兩層：腳印在上、一條很淡的細線在下。
-     只放腳印讀不出「哪個節點接哪個」——八十條路徑交錯，四五個腳印看起來只是散點；
-     補一條線就看得懂了，腳印退回去當味道。 */
-  background-image: var(--paw), linear-gradient(rgba(255, 238, 200, 1), rgba(255, 238, 200, 1));
-  background-repeat: repeat-x, no-repeat;
-  background-position: center, center;
-  background-size: 46px 20px, 100% 2px;
-  opacity: .34;
+  inset: 0;
+  width: 1280px;
   pointer-events: none;
 }
+.map-edges path {
+  fill: none;
+  stroke: rgba(255, 238, 200, .3);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.map-paw { opacity: .38; }
+
+/* 樓層標籤。節點依種子各自偏了一點，標籤仍貼在該樓層的名目高度，才不會跟著歪 */
 .map-floor-label {
   position: absolute;
-  left: 300px;
+  /* 車道從三條加到五條之後最左那格會蓋到這裡，標籤往左讓開 */
+  left: 214px;
   width: 66px;
   height: 24px;
   line-height: 24px;
@@ -64,9 +67,7 @@
   color: rgba(255, 240, 210, .62);
   text-shadow: 0 1px 3px rgba(0, 0, 0, .9);
 }
-/* 節點不放圓底盤：底盤本來只是為了襯中文字，改用圖示之後拿掉底盤，
-   圖示才放得到 46 像素（原本連底盤才 34），也不會在暗背景上多一圈亮邊。
-   選得動與目前所在改用外光暈表示，光暈跟著圖示外形走，比方形陰影乾淨。 */
+
 .map-node {
   position: absolute;
   width: 64px;
