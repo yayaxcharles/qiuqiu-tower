@@ -8,6 +8,7 @@ build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔�
   畫面底圖  screen_*.png    → public/assets/bg/screen_*.webp（1280x720）
   牌的底紋  card_paper_*.png → public/assets/bg/card_paper_*.webp（256x256，可平鋪）
   牌面插圖  card_<牌號>.png  → public/assets/cards/card/<牌號>.webp（去背，300x225）
+  事件插圖  event_<事件號>.png → public/assets/bg/event_<事件號>.webp（去背，560x420）
   面板角花  frame_corner.png → public/assets/icons/corner_{tl,tr,bl,br}.webp（去背後自動鏡射出四個角）
   牌框      frame_{common,uncommon,rare}.png → public/assets/icons/cardframe_*.webp（去背，340x510）
   腳印      map_path.png     → public/assets/icons/paw.webp（去背、轉成朝右，放進 3:2 的框留出間距）
@@ -126,6 +127,17 @@ def main() -> None:
         total = sum((OUT / "cards" / "card" / f.name).stat().st_size
                     for f in (OUT / "cards" / "card").glob("*.webp"))
         print(f"牌面插圖 {n_cards} 張，共 {total // 1024} KB")
+
+    # 事件插圖：每個事件一張。去背（畫面上只有角色與必要道具，浮在面板上），
+    # 保留原畫布不裁，十張的角色大小才會一致。顯示 420 寬，輸出兩倍。
+    for src in sorted(INBOX.glob("event_*.png")):
+        eid = src.stem[len("event_"):]
+        keyed = key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False)
+        dst = OUT / "bg" / f"event_{eid}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        keyed.resize((560, 420), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
+        manifest["bg"][f"bg/event_{eid}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"事件插圖 event_{eid}.webp {dst.stat().st_size // 1024} KB")
 
     # 牌框：稀有度用的邊框。只有「畫得出質感」的才生圖——常見那款是兩條線，程式畫就好
     # （實測生過一張，結果跟 CSS 兩行一樣，還多佔位元組）。

@@ -106,6 +106,13 @@
 .reward-cards .card.clickable:hover { transform: translateY(-10px); }
 
 /* ===== 事件 ===== */
+.event-art {
+  display: block;
+  width: 420px;
+  height: 236px;
+  object-fit: contain;
+  margin: 2px auto 4px;
+}
 .event-text, .event-result {
   max-width: 900px;
   margin: 0;

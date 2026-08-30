@@ -4,11 +4,22 @@ import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, upgradeCard, type RunEffectOutcome } from '../../engine/run';
 import type { CardDef, CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
+import { artUrl } from '../assets';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+
+/**
+ * 事件的插圖。十個事件本來共用同一張空走廊當底圖——文字寫著「轉角站著一隻橘貓山賊」，
+ * 畫面上卻什麼都沒有，故事裡的角色不在畫面上，難怪沒有故事感。
+ * 每個事件配一張自己的插圖；還沒生好的就不放（`artUrl` 會回灰剪影，那比沒有更糟）。
+ */
+function eventArt(id: string): HTMLElement | string {
+  const url = artUrl('bg', `bg/event_${id}`);
+  return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' });
+}
 
 function cardName(c: CardInstance): string {
   return (cardById[c.cardId]?.name ?? c.cardId) + (c.upgraded ? '＋' : '');
@@ -29,7 +40,9 @@ registerScreen('event', (app, root, props) => {
   function panel(resultText: string, note: string | null, button: Node | string): void {
     clearKeepBg(root);
     renderHud(app, root);
+    // 結果畫面沿用同一張插圖：選完之後畫面整個換掉的話，前後接不起來
     root.append(el('div', { class: 'screen event' },
+      ev ? eventArt(ev.id) : '',
       el('p', { class: 'event-result' }, resultText),
       note ? el('p', { class: 'event-note' }, note) : '',
       button));
@@ -109,6 +122,7 @@ registerScreen('event', (app, root, props) => {
   }
   root.append(el('div', { class: 'screen event' },
     el('h1', {}, ev.title),
+    eventArt(ev.id),
     el('p', { class: 'event-text' }, ev.text),
     choices));
 
