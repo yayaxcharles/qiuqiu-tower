@@ -209,7 +209,12 @@
   "icon/corner_bl": "assets/icons/corner_bl.webp",
   "icon/corner_br": "assets/icons/corner_br.webp",
   "icon/paw": "assets/icons/paw.webp",
-  "icon/cardframe_rare": "assets/icons/cardframe_rare.webp"
+  "icon/cardframe_rare": "assets/icons/cardframe_rare.webp",
+  "icon/vfx_hit": "assets/icons/vfx_hit.webp",
+  "icon/vfx_slash": "assets/icons/vfx_slash.webp",
+  "icon/vfx_block": "assets/icons/vfx_block.webp",
+  "icon/vfx_buff": "assets/icons/vfx_buff.webp",
+  "icon/vfx_heal": "assets/icons/vfx_heal.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",

@@ -429,9 +429,11 @@
   transform-origin: center;
   animation: vfx-pop 460ms ease-out forwards;
 }
+/* 位移是 `-50%, 50%` 不是 `-50%, -50%`：改用 bottom 定位之後，
+   要往下補半個身高，中心點才會落在 bottom 指定的那個高度。 */
 @keyframes vfx-pop {
-  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(.45); }
-  22%  { opacity: 1; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(1.12); }
-  45%  { opacity: 1; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(1.18); }
+  0%   { opacity: 0; transform: translate(-50%, 50%) rotate(var(--vfx-rot, 0deg)) scale(.45); }
+  22%  { opacity: var(--vfx-peak, 1); transform: translate(-50%, 50%) rotate(var(--vfx-rot, 0deg)) scale(1.12); }
+  45%  { opacity: var(--vfx-peak, 1); transform: translate(-50%, 50%) rotate(var(--vfx-rot, 0deg)) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, 50%) rotate(var(--vfx-rot, 0deg)) scale(1.18); }
 }
