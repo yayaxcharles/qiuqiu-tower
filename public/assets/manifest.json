@@ -216,7 +216,8 @@
   "icon/vfx_buff": "assets/icons/vfx_buff.webp",
   "icon/vfx_heal": "assets/icons/vfx_heal.webp",
   "icon/vfx_debuff": "assets/icons/vfx_debuff.webp",
-  "icon/vfx_poison": "assets/icons/vfx_poison.webp"
+  "icon/vfx_poison": "assets/icons/vfx_poison.webp",
+  "icon/vfx_smoke": "assets/icons/vfx_smoke.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
