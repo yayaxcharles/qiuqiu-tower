@@ -198,6 +198,22 @@ def main() -> None:
         manifest["icons"][f"icon/node_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"圖示 node_{name}.webp {dst.stat().st_size // 1024} KB")
 
+    # 打擊特效：這批只有「一團光」，不像圖示要對齊格線，所以**不塞進正方框**——
+    # 斬擊是橫的、火花是圓的，硬塞成正方形會把橫的那張壓扁。裁到主體後照原比例縮，
+    # 長邊 256 就夠用（畫面上最大的斬擊也才 200 寬）。
+    for src in sorted(INBOX.glob("vfx_*.png")):
+        name = src.stem.replace("vfx_", "")
+        im = key_out(Image.open(src))
+        box = im.getbbox()
+        if box:
+            im = im.crop(box)
+        im.thumbnail((256, 256), Image.LANCZOS)
+        dst = OUT / "icons" / f"vfx_{name}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        im.save(dst, "WEBP", quality=86, method=6)
+        manifest["icons"][f"icon/vfx_{name}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"特效 vfx_{name}.webp {im.width}x{im.height} {dst.stat().st_size // 1024} KB")
+
     # 主角立繪：七張的主體高度本來就一致（實測都是 797），但寬度隨姿勢差很多。
     # 畫面用 object-fit: contain 塞進 240×300 的框，圖檔寬高比不同就會被縮成不同比例，
     # 換個姿勢貓就忽大忽小。所以全部放進「同一張畫布」再底部對齊置中，比例才鎖得住。

@@ -417,3 +417,21 @@
 /* 吸附到魔物身上就轉亮，讓「放開就會打這隻」很明確 */
 .combat .target-arrow.snap .arrow-line { stroke: #fff0c4; stroke-width: 7; }
 .combat .target-arrow.snap .arrow-head { fill: #fff0c4; }
+
+/* 打擊特效：疊在角色身上蹦一下就沒。
+   放大＋淡出，不做位移——位移會讓人覺得「有東西飛走了」，
+   但這是打中的瞬間，該是原地炸開。 */
+.combat .vfx {
+  position: absolute;
+  left: 50%;
+  z-index: 5;
+  pointer-events: none;
+  transform-origin: center;
+  animation: vfx-pop 460ms ease-out forwards;
+}
+@keyframes vfx-pop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(.45); }
+  22%  { opacity: 1; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(1.12); }
+  45%  { opacity: 1; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--vfx-rot, 0deg)) scale(1.18); }
+}

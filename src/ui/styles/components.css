@@ -264,3 +264,37 @@
 .card.type-攻擊 { background-color: #fff4ee; background-image: var(--paper-attack); }
 .card.type-技能 { background-color: #eef5ff; background-image: var(--paper-skill); }
 .card.type-能力 { background-color: #f3eeff; background-image: var(--paper-power); }
+
+/* 小魚乾增減：數字蹦一下，旁邊飄一個 +N／−N。
+   進帳是金色的往上飄，花掉是紅色的往下沉——不用看清楚數字也知道是進是出。 */
+.hud-fish.gain { animation: fish-pop 480ms ease-out; }
+.hud-fish.spend { animation: fish-dip 480ms ease-out; }
+@keyframes fish-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  to { transform: scale(1); }
+}
+@keyframes fish-dip {
+  0% { transform: scale(1); }
+  30% { transform: scale(.82); }
+  to { transform: scale(1); }
+}
+.hud-fish { position: relative; }
+.hud-fish-diff {
+  position: absolute;
+  left: 100%;
+  margin-left: 4px;
+  white-space: nowrap;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #000, 0 0 5px #000;
+  pointer-events: none;
+  animation: fish-diff 1000ms ease-out forwards;
+}
+.hud-fish.gain .hud-fish-diff { color: #ffe066; }
+.hud-fish.spend .hud-fish-diff { color: #ff9f8a; }
+@keyframes fish-diff {
+  0%  { opacity: 0; transform: translateY(4px); }
+  20% { opacity: 1; transform: translateY(-2px); }
+  60% { opacity: 1; transform: translateY(-8px); }
+  to  { opacity: 0; transform: translateY(-20px); }
+}

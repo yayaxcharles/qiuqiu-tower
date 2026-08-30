@@ -12,6 +12,16 @@ import { attachTooltip } from './tooltip';
  * 忍具在這裡**只是畫出來給人看**，按不動：規格 §8.4 修訂後忍具搬到戰場的左下角，
  * 而且戰鬥中這一列的生命與忍具兩格是用 CSS 隱藏的（戰鬥途中 `run.potions` 是過期值）。
  */
+/**
+ * 上一次畫的小魚乾數，用來判斷「這次是不是變了」。
+ *
+ * 買東西、拿獎勵、事件給錢，原本都只是這個數字**默默換一個值**——
+ * 按下去跟沒按下去看起來一樣，這是「只是點擊」感最重的一處。
+ * 記在模組層而不是整局狀態裡：這純粹是畫面上的事，不該存進存檔。
+ * 連種子一起記，換一局要從頭算，不然新局第一次畫就會平白蹦一下。
+ */
+let lastFish: { seed: string; n: number } | null = null;
+
 export function renderHud(app: App, root: HTMLElement): HTMLElement {
   const run = app.run;
   const hud = el('div', { class: 'hud' });
@@ -27,6 +37,12 @@ export function renderHud(app: App, root: HTMLElement): HTMLElement {
     el('img', { src: artUrl('icons', 'icon/fish'), alt: '' }),
     el('span', {}, String(run.fish)));
   attachTooltip(fish, '小魚乾');
+  const diff = lastFish && lastFish.seed === run.seed ? run.fish - lastFish.n : 0;
+  if (diff !== 0) {
+    fish.classList.add(diff > 0 ? 'gain' : 'spend');
+    fish.append(el('span', { class: 'hud-fish-diff' }, `${diff > 0 ? '+' : ''}${diff}`));
+  }
+  lastFish = { seed: run.seed, n: run.fish };
 
   const relics = el('div', { class: 'hud-relics' });
   for (const id of run.relics) {

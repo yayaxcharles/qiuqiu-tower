@@ -13,6 +13,7 @@ import { STATUS_UNIT } from '../cardtext';
 import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
+import { burst } from '../fx';
 import { renderHud } from '../hud';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -57,17 +58,34 @@ const BOSS_DEFEAT = BOSS_ART.defeat;       // 承讓
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
 interface Acted { label: string; attacked: boolean }
 
+/** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
+const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈'];
+const BAD_STATUS: readonly StatusName[] = ['定身', '翻肚', '懶洋洋', '炸毛', '噎到'];
+const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
+  names.reduce((t, k) => t + getStatus(u, k), 0);
+/**
+ * 這下掉血是不是噎到造成的？噎到每結算一次就自己少 1，拿「少了剛好一層」當判準最準，
+ * 比翻紀錄字串可靠。認錯了也只是換一種光，不會壞掉。
+ */
+const chokeTick = (now: number, was: number): boolean => was > 0 && now === was - 1;
+
 interface Snap {
   hp: number;
   block: number;
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean }>;
+  buff: number;
+  debuff: number;
+  choke: number;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number }>;
   logLen: number;
 }
 function snap(cs: CombatState): Snap {
   return {
     hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length,
+    buff: sumStatus(cs.player, GOOD_STATUS), debuff: sumStatus(cs.player, BAD_STATUS),
+    choke: getStatus(cs.player, '噎到'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent,
+      debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'),
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
       label: e.move.label, turnCount: e.turnCount,
@@ -576,8 +594,18 @@ registerScreen('combat', (app, root, props) => {
       const b = before.enemies.get(e.uid);
       const node = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
       if (!b || !node) continue;
-      if (e.hp < b.hp) { node.classList.add('hit'); node.append(floatNum(`-${b.hp - e.hp}`)); }
-      if (!b.dead && e.dead) node.classList.add('dead');
+      if (e.hp < b.hp) {
+        node.classList.add('hit');
+        node.append(floatNum(`-${b.hp - e.hp}`));
+        // 出攻擊牌打的放斬擊，其他來源（反彈、中毒、自傷）放撞擊火花：
+        // 同樣是掉血，但「我砍的」跟「牠自己踩到的」該長得不一樣
+        burst(node, chokeTick(getStatus(e, '噎到'), b.choke) ? 'poison'
+          : opts.attack ? 'slash' : 'hit');
+      }
+      else if (e.hp > b.hp) burst(node, 'heal');
+      if (sumStatus(e, BAD_STATUS) > b.debuff) burst(node, 'debuff');
+      // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
+      if (!b.dead && e.dead) { node.classList.add('dead'); burst(node, 'smoke', 160); }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {
         node.classList.add('attack');
@@ -591,9 +619,14 @@ registerScreen('combat', (app, root, props) => {
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>('.unit.player');
     if (cat) {
+      if (p.hp > before.hp) burst(cat, 'heal');
+      if (p.block > before.block) burst(cat, 'block');
+      if (sumStatus(p, GOOD_STATUS) > before.buff) burst(cat, 'buff');
+      if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
       if (hurt) {
         cat.classList.add('hit');
         cat.append(floatNum(`-${before.hp - p.hp}`));
+        burst(cat, chokeTick(getStatus(p, '噎到'), before.choke) ? 'poison' : 'hit');
         // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
         // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
         // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。

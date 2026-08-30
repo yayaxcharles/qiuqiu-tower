@@ -225,3 +225,32 @@
 .result-actions { display: flex; gap: 14px; }
 .result-best { font-size: 18px; }
 .teaser { margin: 0; font-size: 20px; opacity: .85; }
+
+/* 選完之後的反應。原本選項一按，結果那段字就「瞬間出現在原地」，
+   跟按了沒反應很難分。這裡讓結果滑進來、獎勵那句再晚一點蹦出來——
+   收穫感就是從這個先後順序來的。
+   只掛在 .event-result／.rest-result 上，不掛問題那段（.event-text）：
+   問題是一進畫面就在的，讓它也動反而變成每進一個事件都要等它演完。 */
+.event-result, .rest-result {
+  animation: result-in 320ms cubic-bezier(.2, .9, .3, 1.08) backwards;
+}
+@keyframes result-in {
+  from { opacity: 0; transform: translateY(14px); }
+}
+.event-note {
+  animation: note-pop 420ms cubic-bezier(.2, .9, .3, 1.2) 220ms backwards;
+}
+@keyframes note-pop {
+  from { opacity: 0; transform: scale(.82); }
+  60%  { opacity: 1; transform: scale(1.06); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* 獎勵一項一項報出來，不要三項一起蹦出來——一起出現會全部漏看 */
+.reward-item {
+  animation: result-in 300ms cubic-bezier(.2, .9, .3, 1.08) backwards;
+}
+.reward-item:nth-child(2) { animation-delay: 110ms; }
+.reward-item:nth-child(3) { animation-delay: 220ms; }
+.reward-item:nth-child(4) { animation-delay: 330ms; }
+.reward-item:nth-child(n+5) { animation-delay: 420ms; }
