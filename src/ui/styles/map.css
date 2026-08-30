@@ -8,26 +8,63 @@
   background-size: cover;
   background-position: center;
 }
+/* 捲軸：一次看得到 664（720 減狀態列 56），內容比它高，往上捲＝往上爬 */
+.map-scroll {
+  position: absolute;
+  left: 0;
+  top: 56px;
+  width: 1280px;
+  height: 664px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 236, 190, .35) transparent;
+}
+.map-scroll::-webkit-scrollbar { width: 8px; }
+.map-scroll::-webkit-scrollbar-track { background: transparent; }
+.map-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 236, 190, .3);
+  border-radius: 4px;
+}
+.map-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 236, 190, .5); }
+.map-inner {
+  position: relative;
+  width: 1280px;
+}
+/* 底圖固定不捲，爬十五層看到的景會一模一樣。這層漸層跟著內容捲，
+   下面偏暖（火把）、上面偏冷（月夜），往上爬就真的感覺到高度。
+   等以後有長條版底圖可以直接拿掉這條。 */
+.map-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(66, 92, 156, .5) 0%,
+    rgba(48, 60, 108, .32) 26%,
+    rgba(20, 20, 30, .1) 52%,
+    rgba(0, 0, 0, 0) 68%,
+    rgba(96, 48, 12, .3) 100%);
+}
 .map-edges {
   position: absolute;
   inset: 0;
   width: 1280px;
-  height: 720px;
   pointer-events: none;
 }
 .map-edges line {
   stroke: rgba(255, 236, 190, .42);
-  stroke-width: 3;
-  stroke-dasharray: 6 6;
+  stroke-width: 4;
+  stroke-dasharray: 7 9;
 }
 .map-floor-label {
   position: absolute;
-  left: 330px;
-  width: 56px;
-  height: 22px;
-  line-height: 22px;
+  left: 300px;
+  width: 66px;
+  height: 24px;
+  line-height: 24px;
   text-align: right;
-  font-size: 14px;
+  font-size: 16px;
   color: rgba(255, 240, 210, .62);
   text-shadow: 0 1px 3px rgba(0, 0, 0, .9);
 }
@@ -36,8 +73,8 @@
    選得動與目前所在改用外光暈表示，光暈跟著圖示外形走，比方形陰影乾淨。 */
 .map-node {
   position: absolute;
-  width: 46px;
-  height: 46px;
+  width: 64px;
+  height: 64px;
   padding: 0;
   border: none;
   background: none;
