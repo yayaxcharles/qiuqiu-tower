@@ -126,6 +126,16 @@ registerScreen('combat', (app, root, props) => {
 
   // ===== 元件 =====
 
+  /**
+   * 立繪連同腳下的接地陰影。陰影是一片橢圓漸層，貼在立繪框的底邊——
+   * 少了它，去背的角色貼在背景上就是「浮著」，跟站在地上差很多。
+   */
+  function spriteBox(src: string, alt: string): HTMLElement {
+    return el('div', { class: 'sprite-box' },
+      el('div', { class: 'ground-shadow' }),
+      el('img', { class: 'sprite', src, alt }));
+  }
+
   function chip(term: string, iconKey: string | null, value: string, extra = ''): HTMLElement {
     const node = el('div', { class: `chip ${extra}`.trim() });
     const url = iconKey ? artUrl('icons', iconKey) : '';
@@ -216,7 +226,7 @@ registerScreen('combat', (app, root, props) => {
     if (targeting && !e.dead) cls.push('targetable');
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), style: `left:${left}px` },
       intentChip(e),
-      el('img', { class: 'sprite', src: enemySprite(e, def), alt: e.name }),
+      spriteBox(enemySprite(e, def), e.name),
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp, e.maxHp),
       statusRow(e));
@@ -306,7 +316,7 @@ registerScreen('combat', (app, root, props) => {
 
     const field = el('div', { class: 'field' },
       el('div', { class: 'unit player' },
-        el('img', { class: 'sprite', src: artUrl('sprites', pose), alt: '球球' }),
+        spriteBox(artUrl('sprites', pose), '球球'),
         el('div', { class: 'name' }, '球球'),
         hpBar('player', cs.player.hp, cs.player.maxHp),
         statusRow(cs.player)));
