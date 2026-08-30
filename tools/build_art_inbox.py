@@ -9,6 +9,7 @@ build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔�
   牌的底紋  card_paper_*.png → public/assets/bg/card_paper_*.webp（256x256，可平鋪）
   牌面插圖  card_<牌號>.png  → public/assets/cards/card/<牌號>.webp（去背，300x225）
   面板角花  frame_corner.png → public/assets/icons/corner_{tl,tr,bl,br}.webp（去背後自動鏡射出四個角）
+  牌框      frame_{common,uncommon,rare}.png → public/assets/icons/cardframe_*.webp（去背，340x510）
   腳印      map_path.png     → public/assets/icons/paw.webp（去背、轉成朝右，放進 3:2 的框留出間距）
   主角立繪  hero_*.png       → public/assets/sprites/hero/*.webp（去背後放進同一張畫布、底部對齊）
   塔主立繪  boss_*.png       → public/assets/sprites/boss/*.webp（同上，另一張共用畫布）
@@ -125,6 +126,20 @@ def main() -> None:
         total = sum((OUT / "cards" / "card" / f.name).stat().st_size
                     for f in (OUT / "cards" / "card").glob("*.webp"))
         print(f"牌面插圖 {n_cards} 張，共 {total // 1024} KB")
+
+    # 牌框：稀有度用的邊框。只有「畫得出質感」的才生圖——常見那款是兩條線，程式畫就好
+    # （實測生過一張，結果跟 CSS 兩行一樣，還多佔位元組）。
+    # 不裁到主體邊界：框本來就要貼齊牌的四邊，裁掉會對不準。輸出 340x510＝牌的兩倍。
+    for src in sorted(INBOX.glob("frame_*.png")):
+        tag = src.stem[len("frame_"):]
+        if tag == "corner":
+            continue   # 那是面板的角花，下面另外處理
+        keyed = key_out(Image.open(src), crop=False)
+        dst = OUT / "icons" / f"cardframe_{tag}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        keyed.resize((340, 510), Image.LANCZOS).save(dst, "WEBP", quality=86, method=6)
+        manifest["icons"][f"icon/cardframe_{tag}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"牌框 cardframe_{tag}.webp {dst.stat().st_size // 1024} KB")
 
     # 面板角花：只生左上角那一片，其餘三角由這裡鏡射出來（省三次生圖，也保證四角完全對稱）
     corner_src = INBOX / "frame_corner.png"

@@ -50,6 +50,7 @@ export function applyArtVars(): void {
     '--corner-bl': 'icon/corner_bl',
     '--corner-br': 'icon/corner_br',
     '--paw': 'icon/paw',
+    '--cardframe-rare': 'icon/cardframe_rare',
   };
   const root = document.documentElement;
   for (const [name, key] of Object.entries(vars)) {

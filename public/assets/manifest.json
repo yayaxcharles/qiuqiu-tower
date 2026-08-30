@@ -188,7 +188,8 @@
   "icon/corner_tr": "assets/icons/corner_tr.webp",
   "icon/corner_bl": "assets/icons/corner_bl.webp",
   "icon/corner_br": "assets/icons/corner_br.webp",
-  "icon/paw": "assets/icons/paw.webp"
+  "icon/paw": "assets/icons/paw.webp",
+  "icon/cardframe_rare": "assets/icons/cardframe_rare.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
