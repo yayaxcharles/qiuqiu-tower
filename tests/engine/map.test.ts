@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
-import { generateMap, nextChoices, nodesOnFloor, validateMap } from '../../src/engine/map';
+import { FLOORS, generateMap, nextChoices, nodesOnFloor, validateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import type { GameMap } from '../../src/engine/types';
 
@@ -45,6 +45,26 @@ describe('地圖', () => {
           const t = m.nodes.find((x) => x.id === id)!;
           if (nodesOnFloor(m, t.floor).length === 1) continue;
           expect(Math.abs(t.lane - n.lane), `seed step-${i} ${n.id}→${id}`).toBeLessThanOrEqual(1);
+        }
+      }
+    }
+  });
+  it('200 個種子：任兩條路徑都不交叉', () => {
+    // 兩條邊會交叉，就是這一層互換了左右位置：起點 a1<a2 卻走到 b1>b2。
+    // 產生器規定「左邊的路線不能跑到右邊路線的右邊」，所以這件事不該發生。
+    for (let i = 0; i < 200; i++) {
+      const m = generateMap(new Rng(seedFromString(`cross-${i}`)));
+      for (let f = 1; f < FLOORS; f++) {
+        const edges: [number, number][] = [];
+        for (const n of nodesOnFloor(m, f)) {
+          for (const id of n.next) edges.push([n.lane, m.nodes.find((x) => x.id === id)!.lane]);
+        }
+        for (let a = 0; a < edges.length; a++) {
+          for (let b = a + 1; b < edges.length; b++) {
+            const [a1, b1] = edges[a]!; const [a2, b2] = edges[b]!;
+            expect((a1 - a2) * (b1 - b2), `seed cross-${i} ${f}F：${a1}→${b1} 與 ${a2}→${b2} 交叉`)
+              .toBeGreaterThanOrEqual(0);
+          }
         }
       }
     }

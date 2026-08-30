@@ -33,15 +33,25 @@ function lanesOn(floor: number): number[] {
  * 任何車道，讓那一格往外散開。
  */
 function walkPaths(rng: Rng): number[][] {
-  const starts = rng.shuffle(lanesOn(1)).slice(0, PATHS);
+  // 起點固定由左到右排好，之後每一層都維持這個左右順序（見下面的不交叉規則）
+  const starts = rng.shuffle(lanesOn(1)).slice(0, PATHS).sort((a, b) => a - b);
   const lanes: number[][] = starts.map((l) => [l]);
   for (let f = 2; f <= FLOORS; f++) {
     const allowed = lanesOn(f);
     const fromConverged = CONVERGED[f - 1] !== undefined;
+    // **不交叉**：左邊的路線永遠不能跑到右邊路線的右邊。
+    // 兩條路線會交叉，就是因為這一層互換了左右位置（A 往右、B 往左）；
+    // 只要規定「這一層選的車道不能小於左邊那條剛選的」，順序就永遠保持住，線也就不會打架。
+    // 允許相等（併成同一格）——那是設計要的疏密變化，不是交叉。
+    let floor = Math.min(...allowed);
     for (let p = 0; p < PATHS; p++) {
       const cur = lanes[p]![f - 2]!;
-      const cands = allowed.filter((l) => fromConverged || Math.abs(l - cur) <= 1);
-      lanes[p]!.push(cands.length ? rng.pick(cands) : allowed[0]!);
+      const near = allowed.filter((l) => fromConverged || Math.abs(l - cur) <= 1);
+      const ok = near.filter((l) => l >= floor);
+      const pool = ok.length ? ok : near.filter((l) => l >= Math.min(...near));
+      const chosen = pool.length ? rng.pick(pool) : (near[near.length - 1] ?? allowed[0]!);
+      lanes[p]!.push(chosen);
+      floor = chosen;
     }
   }
   return lanes;
