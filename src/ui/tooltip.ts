@@ -10,11 +10,11 @@ const RE = TERMS.length
 
 let tip: HTMLElement | null = null;
 
-function showTip(anchor: HTMLElement, term: string): void {
+function showTip(anchor: HTMLElement, term: string, body?: string): void {
   hideTooltip();
   const layer = overlayRoot();
   if (!layer) return;
-  tip = el('div', { class: 'tooltip' }, el('b', {}, term), el('div', {}, glossary[term] ?? ''));
+  tip = el('div', { class: 'tooltip' }, el('b', {}, term), el('div', {}, body ?? glossary[term] ?? ''));
   layer.append(tip);
   const r = anchor.getBoundingClientRect();
   const s = layer.getBoundingClientRect();   // 疊層鋪滿整個舞台（inset: 0），量到的框跟 #stage 一模一樣
@@ -33,6 +33,16 @@ export function hideTooltip(): void { tip?.remove(); tip = null; }
 export function attachTooltip(node: HTMLElement, term: string): void {
   node.classList.add('has-tip');
   node.addEventListener('mouseenter', () => showTip(node, term));
+  node.addEventListener('mouseleave', hideTooltip);
+}
+
+/**
+ * 自由文字版的提示框（不查名詞表）。魔物頭上的意圖用這個：
+ * 那裡只寫得下「攻 4」這種短標籤，滑上去才講得完「牠這一下實際會做什麼」。
+ */
+export function attachTextTooltip(node: HTMLElement, title: string, body: string): void {
+  node.classList.add('has-tip');
+  node.addEventListener('mouseenter', () => showTip(node, title, body));
   node.addEventListener('mouseleave', hideTooltip);
 }
 

@@ -50,6 +50,7 @@ export function deckPickerLayout(
 export function showDeckPicker(opts: DeckPickerOpts): void {
   const layer = overlayRoot();
   if (!layer) { opts.onPick(null); return; }   // 沒有舞台就別把呼叫端的回呼吊在半空
+  hideTooltip();   // 同 confirm.ts：疊層蓋上來時 mouseleave 不會發生，提示框會卡在上面
   const overlay = el('div', { class: 'modal-overlay' });
   /**
    * 收掉疊層。**四條出路都會走到這裡**：挑一張、不選、點黑幕、沒得挑只能關，所以鎖一定還得掉。

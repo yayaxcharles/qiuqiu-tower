@@ -16,7 +16,7 @@ const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
  * 加上「層／點」才是一句話。分法照規格 §2 的名詞表：
  * 撐幾回合的算層（隱身、翻肚、懶洋洋、炸毛、噎到），數值型的算點（爪力、貓步、反彈）。
  */
-const STATUS_UNIT: Readonly<Record<string, string>> = {
+export const STATUS_UNIT: Readonly<Record<string, string>> = {
   隱身: '層', 翻肚: '層', 懶洋洋: '層', 炸毛: '層', 噎到: '層',
   爪力: '點', 貓步: '點', 反彈: '點',
 };

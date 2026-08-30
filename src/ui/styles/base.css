@@ -211,3 +211,30 @@ img { -webkit-user-drag: none; }
   text-decoration: underline dotted;
   cursor: help;
 }
+
+/* ===== 升級確認：現在 vs 磨爪之後 ===== */
+.confirm-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin: 6px 0 14px;
+}
+.confirm-side { text-align: center; }
+.confirm-label {
+  font-size: 15px;
+  margin-bottom: 6px;
+  opacity: .75;
+}
+.confirm-side.after .confirm-label {
+  color: var(--accent);
+  font-weight: bold;
+  opacity: 1;
+}
+/* 升級後那張加一圈外框，一眼看得出「這是變成的樣子」 */
+.confirm-side.after .card { box-shadow: 0 0 0 3px var(--accent); }
+.confirm-arrow {
+  font-size: 34px;
+  color: var(--accent);
+  font-weight: bold;
+}

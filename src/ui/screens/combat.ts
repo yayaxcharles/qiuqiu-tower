@@ -9,6 +9,7 @@ import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingCh
 import { registerScreen } from '../app';
 import { tierBgKey } from '../screenbg';
 import { artUrl, monsterUrl } from '../assets';
+import { STATUS_UNIT } from '../cardtext';
 import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
@@ -16,7 +17,7 @@ import { renderHud } from '../hud';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 import { overlayRoot } from '../overlay';
-import { attachTooltip, hideTooltip } from '../tooltip';
+import { attachTextTooltip, attachTooltip, hideTooltip } from '../tooltip';
 
 const STATUS_ICON: Record<StatusName, string> = {
   爪力: 'icon/status_claw', 貓步: 'icon/status_step', 翻肚: 'icon/status_belly',
@@ -185,8 +186,44 @@ registerScreen('combat', (app, root, props) => {
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     const node = el('div', { class: `intent i-${m.intent}` }, text);
-    node.title = m.label;
+    // 牌子上只寫得下「攻 4」這種短標籤，滑上去才講得完牠這一下實際會做什麼
+    attachTextTooltip(node, m.label, describeMove(e));
     return node;
+  }
+
+  /**
+   * 魔物這一拍要做什麼，寫成一句話給提示框用。
+   * 數字跟牌子上一樣是**算完的**（吃過爪力、懶洋洋、你的翻肚與蓄力），玩家看到的就是真的會挨幾下。
+   */
+  function describeMove(e: EnemyCombat): string {
+    const m = e.move;
+    if (m.intent === 'attack' && getStatus(e, '定身') > 0) return '被定住了，這一次攻擊會落空。';
+    const x = e.charged ? 2 : 1;
+    const parts: string[] = [];
+    for (const fx of m.effects) {
+      switch (fx.kind) {
+        case 'damage': {
+          const n = computeAttack(fx.amount * x, e, cs.player);
+          parts.push((fx.times ?? 1) > 1 ? `造成 ${n} 點傷害，連打 ${fx.times} 次` : `造成 ${n} 點傷害`);
+          break;
+        }
+        case 'damageRandom':
+          parts.push(`造成 ${computeAttack(fx.min * x, e, cs.player)}～${computeAttack(fx.max * x, e, cs.player)} 點傷害`);
+          break;
+        case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點蜷縮`); break;
+        case 'statusPlayer': parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
+        case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
+        case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
+        case 'summon': parts.push('叫來幫手'); break;
+        case 'heal': parts.push(`自己回復 ${fx.n} 點生命`); break;
+        case 'stealFish': parts.push(`偷走你 ${fx.n} 條小魚乾`); break;
+        case 'discardRandomHand': parts.push(`隨機丟掉你 ${fx.n} 張手牌`); break;
+        case 'escape': parts.push('逃走'); break;
+        case 'nothing': parts.push('發呆，什麼都不做'); break;
+      }
+    }
+    const body = parts.length ? parts.join('，') : '看不出來要做什麼';
+    return e.charged && m.intent === 'attack' ? `${body}（已蓄力，傷害已經算進去了）。` : `${body}。`;
   }
 
   /**

@@ -5,6 +5,7 @@ import { rest } from '../../engine/run';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
+import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
 import { el } from '../dom';
@@ -48,10 +49,14 @@ registerScreen('rest', (app, root) => {
         onPick: (uid) => {
           const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
           if (uid === null || !c || used) return;   // 沒挑就回貓窩再選一次
-          const name = cardById[c.cardId]?.name ?? c.cardId;
-          used = true;
-          rest(run, '磨爪', uid);
-          afterAction(`「${name}」磨利了，變成「${name}＋」。`, dialogue.restLines[1] ?? '');
+          // 先讓玩家看到升級後長什麼樣再決定。按「再看看」就退回貓窩，可以重挑，不算用掉這次機會。
+          showUpgradeConfirm(c, (ok) => {
+            if (!ok || used) return;
+            const name = cardById[c.cardId]?.name ?? c.cardId;
+            used = true;
+            rest(run, '磨爪', uid);
+            afterAction(`「${name}」磨利了，變成「${name}＋」。`, dialogue.restLines[1] ?? '');
+          });
         },
       });
     });
