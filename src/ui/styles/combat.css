@@ -425,6 +425,8 @@
   position: absolute;
   left: 50%;
   z-index: 5;
+  /* 框是正方形的，圖照原比例塞進去，細長的圖才不會被拉爆 */
+  object-fit: contain;
   pointer-events: none;
   transform-origin: center;
   animation: vfx-pop 460ms ease-out forwards;

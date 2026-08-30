@@ -16,7 +16,7 @@ import { artUrl } from './assets';
  */
 
 /**
- * 有哪幾種特效：`w` 是畫多寬、`spin` 是隨機旋轉範圍（連續打才不會每下同一個角度）、
+ * 有哪幾種特效：`w` 是**長邊**畫多大、`spin` 是隨機旋轉範圍（連續打才不會每下同一個角度）、
  * `b` 是中心點離腳底多高（立繪框高度的比例）、`peak` 是最濃的時候多不透明。
  *
  * `peak` 只有盾跟煙需要：那兩張是**大片實心**，不透一點會整個把角色蓋掉，
@@ -26,9 +26,9 @@ const FX = {
   hit: { w: 150, spin: 180, b: 0.33 },
   slash: { w: 190, spin: 16, b: 0.30 },
   block: { w: 150, spin: 0, b: 0.30, peak: 0.7 },
-  heal: { w: 140, spin: 0, b: 0.38 },
-  buff: { w: 100, spin: 0, b: 0.78 },
-  debuff: { w: 100, spin: 0, b: 0.78 },
+  heal: { w: 150, spin: 0, b: 0.38 },
+  buff: { w: 100, spin: 0, b: 0.5 },
+  debuff: { w: 100, spin: 0, b: 0.5 },
   poison: { w: 130, spin: 0, b: 0.38 },
   smoke: { w: 180, spin: 0, b: 0.18, peak: 0.85 },
 } as const;
@@ -36,6 +36,8 @@ const FX = {
 // 但裡面那隻長得多高完全不一定——黃瓜怪是扁的，只佔框底部一小塊，
 // 一開始抓 0.42 的斬擊整個飛到牠上方的空氣裡。寧可偏低：
 // 打在身體下半部看起來像砍到，飄在頭上看起來像沒打中。
+// 兩個箭頭本來想放「頭上」（0.78），結果黃瓜怪頭上是一片空氣，橘箭頭還飄到戰鬥紀錄上——
+// 「頭」在哪這件事每隻都不一樣，改成一律放身上。
 
 export type FxKind = keyof typeof FX;
 
@@ -73,7 +75,12 @@ export function burst(unit: Element | null | undefined, kind: FxKind, delay = 0)
   img.className = 'vfx';
   img.src = url;
   img.alt = '';
-  img.style.width = `${Math.round(cfg.w * hostScale(unit))}px`;
+  // 給的是一個**正方形的框**，圖再照原比例塞進去（樣式那邊 object-fit: contain）。
+  // 本來只設寬度，結果治療那張是細長的直條（87x256），寬度設 147 高度就被拉到 432——
+  // 星星從畫面頂端一路散到手牌上。用長邊定尺寸，什麼形狀的圖都不會爆框。
+  const px = `${Math.round(cfg.w * hostScale(unit))}px`;
+  img.style.width = px;
+  img.style.height = px;
   img.style.bottom = `${cfg.b * 100}%`;
   if (cfg.spin) img.style.setProperty('--vfx-rot', `${(Math.random() * 2 - 1) * cfg.spin}deg`);
   if ('peak' in cfg) img.style.setProperty('--vfx-peak', String(cfg.peak));
