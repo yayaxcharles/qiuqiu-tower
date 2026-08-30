@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
+import { BOSS_MOVE_ART, enemies } from '../../src/content/enemies';
 import { describeCard } from '../../src/ui/cardtext';
 
 /**
@@ -68,5 +69,20 @@ describe('牌面文字', () => {
     expect(t('jiaochulai', true)).toBe('把目標的蜷縮全部搶過來，再造成 6 點傷害。');
     expect(t('bianshen')).toBe('獲得 9 點蜷縮（變成飯糰）。');
     expect(t('bianshen', true)).toBe('獲得 12 點蜷縮（變成飯糰）。');
+  });
+});
+
+describe('塔主姿勢對照', () => {
+  it('兩個階段的每一招都配得到專屬立繪，也沒有多餘的姿勢', () => {
+    // 招式名同時是姿勢表的鍵。加了新招卻忘了配圖，畫面會靜靜退回待機圖、看不出來，所以在這裡擋。
+    const boss = enemies.find((e) => e.art === 'daxia');
+    expect(boss, '找不到塔主').toBeTruthy();
+    const labels = new Set([
+      ...boss!.moves.map((m) => m.label),
+      ...(boss!.phases ?? []).flatMap((p) => (p.moves ?? []).map((m) => m.label)),
+    ]);
+    const posed = new Set(Object.keys(BOSS_MOVE_ART));
+    expect([...labels].filter((l) => !posed.has(l)), '這些招式沒有專屬姿勢').toEqual([]);
+    expect([...posed].filter((p) => !labels.has(p)), '這些姿勢沒有招式在用').toEqual([]);
   });
 });

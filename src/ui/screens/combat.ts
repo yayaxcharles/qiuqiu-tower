@@ -1,5 +1,5 @@
 import { dialogue } from '../../content/dialogue';
-import { enemyById } from '../../content/enemies';
+import { BOSS_ART, BOSS_MOVE_ART, enemyById } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
 import { canPlay, endTurn, playCard, resolveChoice, usePotion } from '../../engine/combat';
@@ -47,18 +47,11 @@ const POSE = {
   idle: 'hero/ninja', attack: 'hero/ninja_attack', hit: 'hero/ninja_hit', dodge: 'hero/ninja_dodge',
   hungry: 'hero/ninja_hungry', win: 'hero/ninja_win', lose: 'hero/ninja_lose', curl: 'hero/ninja_curl',
 };
-/**
- * 塔主的姿勢。鍵直接用招式名——`enemies.ts` 裡塔主的 `move.label` 與這裡一字不差，
- * 不用再多一層對照。2026-08-30 起換成專畫的立繪（`boss/*`），**十招全部有圖**：
- * 先前缺姿勢、只能退回待機圖的「鐵砂掌」也補上了。
- */
-const BOSS_MOVE_POSE: Record<string, string> = {
-  蓄力: 'boss/charge', 鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar',
-  醉拳: 'boss/drunk', 閉關: 'boss/seclude', 鐵砂掌: 'boss/palm',
-};
-const BOSS_IDLE = 'boss/idle1';          // 深藏不露
-const BOSS_IDLE_PHASE2 = 'boss/idle2';   // 走火入魔
-const BOSS_DEFEAT = 'boss/defeat';       // 承讓
+// 塔主的姿勢對照表放在內容層（`enemies.ts`），跟招式定義擺在一起，加招時比較不會漏配。
+const BOSS_MOVE_POSE = BOSS_MOVE_ART;
+const BOSS_IDLE = BOSS_ART.idle1;          // 深藏不露
+const BOSS_IDLE_PHASE2 = BOSS_ART.idle2;   // 走火入魔
+const BOSS_DEFEAT = BOSS_ART.defeat;       // 承讓
 
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
 interface Acted { label: string; attacked: boolean }

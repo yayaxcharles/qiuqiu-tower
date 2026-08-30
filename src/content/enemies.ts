@@ -135,6 +135,18 @@ export const enemies: EnemyDef[] = [
     }] },
 ];
 
+/**
+ * 塔主每一招的專屬立繪，鍵就是招式名。
+ * **加新招一定要一起加這裡**，否則畫面會靜靜退回待機圖、看不出來少了什麼——
+ * `tests/ui/cardtext.test.ts` 有一條會擋住這種漏配。
+ */
+export const BOSS_MOVE_ART: Record<string, string> = {
+  蓄力: 'boss/charge', 鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar',
+  醉拳: 'boss/drunk', 閉關: 'boss/seclude', 鐵砂掌: 'boss/palm',
+};
+/** 塔主的三張非招式立繪：第一階段待機（深藏不露）、第二階段待機（走火入魔）、戰敗（承讓） */
+export const BOSS_ART = { idle1: 'boss/idle1', idle2: 'boss/idle2', defeat: 'boss/defeat' } as const;
+
 export const enemyById: Record<string, EnemyDef> = Object.fromEntries(enemies.map((e) => [e.id, e]));
 
 export const encounters: EncounterDef[] = [
