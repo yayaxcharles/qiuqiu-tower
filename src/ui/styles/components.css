@@ -123,16 +123,33 @@
   user-select: none;
 }
 /*
+ * 牌框：外框之外再加一條內線（雙線框）。用 inset 的陰影畫，不另外生圖——
+ * 實測用 codex 生了一張「兩條圓角細線」的牌框，跟這兩行的結果一樣，
+ * 但那是固定比例的點陣圖、縮放會糊、還多佔位元組。這種純幾何的東西交給程式。
+ */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 8px;
+  border: 1px solid currentColor;
+  opacity: .28;
+  pointer-events: none;
+}
+.card.rarity-稀有::after { opacity: .5; }
+
+/*
  * 稀有度：邊框顏色＋右上角的小星星。原本牌面完全看不出稀有度，
  * 拿到一張罕見或稀有牌跟常見長得一模一樣，沒有「挖到寶」的感覺。
  * 星星用 CSS 畫（不另外生圖）：牌只有 170 寬，圖示縮到那個大小也只剩一個點。
  */
-.card.rarity-罕見 { border-color: #2f5fa8; }
-.card.rarity-稀有 { border-color: #b8860b; }
+.card.rarity-罕見 { border-color: #2f5fa8; color: #2f5fa8; }
+.card.rarity-稀有 { border-color: #b8860b; color: #b8860b; }
 .card.rarity-罕見::before,
 .card.rarity-稀有::before {
   content: '★';
   position: absolute;
+  z-index: 2;
   right: 7px;
   top: 4px;
   font-size: 15px;
@@ -153,6 +170,8 @@
 .card.selected { outline: 4px solid #ffd35c; }
 .card.disabled { opacity: .45; }
 .card-cost {
+  color: var(--ink);
+  z-index: 2;
   position: absolute;
   left: 6px;
   top: 6px;
@@ -173,11 +192,13 @@
   margin-top: 8px;
 }
 .card-name {
+  color: var(--ink);
   font-weight: bold;
   font-size: 15px;
   margin-top: 2px;
 }
 .card-text {
+  color: var(--ink);
   font-size: 12.5px;
   padding: 2px 8px;
   text-align: center;
@@ -185,6 +206,7 @@
   flex: 1;
 }
 .card-type {
+  color: var(--ink);
   font-size: 11px;
   opacity: .7;
   padding-bottom: 4px;
