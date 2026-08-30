@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-build_map_art.py — 把 tools/art_inbox 交來的地圖素材處理成遊戲用檔，並併進 manifest.json。
-用法：python tools/build_map_art.py
+build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔，並併進 manifest.json。
+用法：python tools/build_art_inbox.py
 
-  底圖  map_bg.png        → public/assets/bg/map.webp（1280x720）
-  圖示  map_node_*.png    → public/assets/icons/node_*.webp（綠幕去背，96x96）
+  地圖底圖  map_bg.png      → public/assets/bg/map.webp（1280x720）
+  節點圖示  map_node_*.png  → public/assets/icons/node_*.webp（綠幕去背，96x96）
+  畫面底圖  screen_*.png    → public/assets/bg/screen_*.webp（1280x720）
 
 manifest 一律「讀進來再合併」：其他工具寫的鍵原樣保留，只新增 bg/map 與 icon/node_*。
 去背沿用 chroma_key.py 的 key_out（門檻是照實際素材量出來的，不要在這裡另訂一套）。
@@ -58,6 +59,17 @@ def main() -> None:
         print(f"底圖 map.webp {dst.stat().st_size // 1024} KB")
     else:
         missing.append(bg_src.name)
+
+    # 畫面底圖：品質壓 74（比地圖底圖低一階）。七張一起進來，用 80 會吃掉圖片預算的餘裕，
+    # 而這幾張中央本來就被面板蓋住、實際看得到的只有邊緣景物，壓一階看不太出來。
+    for src in sorted(INBOX.glob("screen_*.png")):
+        name = src.stem.replace("screen_", "")
+        dst = OUT / "bg" / f"screen_{name}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        ImageOps.fit(Image.open(src).convert("RGB"), (1280, 720), Image.LANCZOS).save(
+            dst, "WEBP", quality=74, method=6)
+        manifest["bg"][f"bg/screen_{name}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"畫面底圖 screen_{name}.webp {dst.stat().st_size // 1024} KB")
 
     for src in sorted(INBOX.glob("map_node_*.png")):
         name = src.stem.replace("map_node_", "")

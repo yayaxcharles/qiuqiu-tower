@@ -4,6 +4,7 @@ import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, upgradeCard, type RunEffectOutcome } from '../../engine/run';
 import type { CardDef, CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
+import { screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
 import { clear, el } from '../dom';
@@ -14,6 +15,7 @@ function cardName(c: CardInstance): string {
 }
 
 registerScreen('event', (app, root, props) => {
+  root.append(screenBg('bg/screen_event'));
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   const { eventId } = props as { eventId?: string };

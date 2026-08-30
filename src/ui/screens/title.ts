@@ -2,10 +2,12 @@ import { hasSave, loadBest } from '../../engine/save';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
 import { el } from '../dom';
+import { screenBg } from '../screenbg';
 
 registerScreen('title', (app, root) => {
   const seed = el('input', { class: 'seed', placeholder: '種子（可留空）' });
   const best = loadBest();
+  root.append(screenBg('bg/screen_title'));
   root.append(
     el('div', { class: 'title-screen' },
       el('img', { class: 'title-cat', src: artUrl('sprites', 'ninja/01'), alt: '球球' }),

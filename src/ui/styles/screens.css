@@ -1,3 +1,35 @@
+/* ===== 節點畫面底圖 ===== */
+/*
+ * 底圖鋪滿整個舞台，內容則收進中央一塊米色面板（見 .screen）。
+ * 一開始試過「在底圖中央洗一片米色」，結果是畫面正中一團白霧、四周也被洗淡，
+ * 很糊。改成正統做法：場景歸場景、面板歸面板——這批底圖本來就是照
+ * 「中央會被面板蓋住」畫的，四邊的景物剛好露在面板外面。
+ * 罩子只留很淡的暗角，讓米色面板浮出來。
+ */
+.screen-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+.screen-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 78% 82% at 50% 48%,
+    rgba(10, 8, 6, .18) 0%,
+    rgba(10, 8, 6, .34) 62%,
+    rgba(10, 8, 6, .58) 100%);
+}
+/* 開始畫面沒有面板，罩子放淡一點，讓貓村夜景看得清楚 */
+#stage[data-screen="title"] .screen-bg::after {
+  background: radial-gradient(ellipse 80% 84% at 50% 46%,
+    rgba(10, 12, 24, .1) 0%,
+    rgba(10, 12, 24, .26) 66%,
+    rgba(10, 12, 24, .5) 100%);
+}
+
 /* ===== 節點畫面共用（獎勵、事件、罐頭鋪、貓窩、紙箱、結算） ===== */
 /* 上緣讓開 56px 給狀態列；結算畫面沒有狀態列，自己蓋掉（見最下面） */
 .screen {
@@ -7,12 +39,30 @@
   width: 1280px;
   height: 664px;
   box-sizing: border-box;
-  padding: 20px 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
   overflow: auto;
+  z-index: 1;
+  /* 內容收進中央面板，四邊透出底圖的景物。
+     面板貼著內容大小（fit-content）而不是撐滿：罐頭鋪只有兩三排，撐滿會把整間店遮掉。
+     上限 1060 寬是照最寬的那一排（五張牌 170×5＋間隔 14×4＝906）留的餘裕；
+     上限 624 高留給狀態列（56）與上下各一點邊——獎勵畫面排三張 250 高的牌，
+     600 會差幾像素擠出捲軸。置中點 388＝狀態列下方那塊的正中。 */
+  left: 50%;
+  top: 388px;
+  transform: translate(-50%, -50%);
+  width: fit-content;
+  min-width: 560px;
+  max-width: 1060px;
+  height: auto;
+  max-height: 624px;
+  padding: 24px 44px;
+  background: rgba(248, 242, 232, .95);
+  border: 3px solid rgba(58, 42, 28, .7);
+  border-radius: 16px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, .55);
 }
 .screen h1 {
   margin: 0;
@@ -129,16 +179,17 @@
 #stage[data-screen="rest"] .toast { top: 320px; }
 
 /* ===== 結算 ===== */
+/* 結算沒有狀態列，置中點回到畫面正中、上限也放寬 */
 .screen.result {
-  top: 0;
-  height: 720px;
+  top: 360px;
+  max-height: 668px;
   justify-content: center;
   gap: 10px;
-  background: radial-gradient(circle at 50% 40%, #fffaf0 0%, var(--paper) 62%, #e6d9c2 100%);
 }
 .screen.result.lost {
   color: #f6efe3;
-  background: radial-gradient(circle at 50% 40%, #3a2c20 0%, #241b14 70%);
+  background: rgba(30, 24, 19, .9);
+  border-color: rgba(200, 180, 150, .45);
 }
 .result-cat { height: 220px; object-fit: contain; }
 .result-stats { font-size: 20px; }

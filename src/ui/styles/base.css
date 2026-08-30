@@ -87,7 +87,11 @@ img { -webkit-user-drag: none; }
   align-items: center;
   justify-content: center;
   gap: 18px;
-  background: radial-gradient(circle at 50% 38%, #fffaf0 0%, var(--paper) 62%, #e6d9c2 100%);
+  /* 底圖交給 .screen-bg（見 screens.css）。開始畫面刻意不加面板——第一眼要看到貓村夜景，
+     所以這裡不洗白，改把字翻成米色加深色描邊，直接壓在夜景上。 */
+  position: absolute;
+  z-index: 1;
+  color: #f8f2e6;
 }
 .title-cat {
   height: 320px;
@@ -101,15 +105,15 @@ img { -webkit-user-drag: none; }
   margin: 0;
   font-size: 52px;
   letter-spacing: 6px;
-  text-shadow: 2px 3px 0 rgba(201, 112, 42, .28);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, .95), 0 0 18px rgba(0, 0, 0, .8), 2px 3px 0 rgba(201, 112, 42, .5);
 }
 .title-buttons {
   display: flex;
   align-items: center;
   gap: 14px;
 }
-.title-best { font-size: 20px; }
-.title-note { font-size: 14px; opacity: .6; }
+.title-best { font-size: 20px; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
+.title-note { font-size: 14px; opacity: .75; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
 
 /* ===== 對白疊層 ===== */
 .dialogue-overlay {

@@ -7,6 +7,7 @@ import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit } from '../../engine/types';
 import { registerScreen } from '../app';
+import { tierBgKey } from '../screenbg';
 import { artUrl, monsterUrl } from '../assets';
 import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
@@ -89,7 +90,7 @@ registerScreen('combat', (app, root, props) => {
   const run: RunState = app.run;
   const cs: CombatState = app.cs;
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
-  const bgKey = run.floor <= 5 ? 'bg/low' : run.floor <= 10 ? 'bg/mid' : 'bg/top';
+  const bgKey = tierBgKey(run.floor);
 
   let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
   let pose = POSE.idle;

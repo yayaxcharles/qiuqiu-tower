@@ -218,6 +218,13 @@
   "bg/low": "assets/bg/low.webp",
   "bg/mid": "assets/bg/mid.webp",
   "bg/top": "assets/bg/top.webp",
-  "bg/map": "assets/bg/map.webp"
+  "bg/map": "assets/bg/map.webp",
+  "bg/screen_chest": "assets/bg/screen_chest.webp",
+  "bg/screen_event": "assets/bg/screen_event.webp",
+  "bg/screen_rest": "assets/bg/screen_rest.webp",
+  "bg/screen_result_lose": "assets/bg/screen_result_lose.webp",
+  "bg/screen_result_win": "assets/bg/screen_result_win.webp",
+  "bg/screen_shop": "assets/bg/screen_shop.webp",
+  "bg/screen_title": "assets/bg/screen_title.webp"
  }
 }

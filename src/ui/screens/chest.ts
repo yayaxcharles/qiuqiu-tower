@@ -2,12 +2,14 @@ import { dialogue } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { openChest } from '../../engine/run';
 import { registerScreen } from '../app';
+import { screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 
 registerScreen('chest', (app, root) => {
+  root.append(screenBg('bg/screen_chest'));
   const run = app.run;
   if (!run) { app.show('title'); return; }
   toast(dialogue.chestLine, '球球');

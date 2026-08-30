@@ -2,6 +2,7 @@ import { dialogue } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { clearSave, recordBest } from '../../engine/save';
 import { registerScreen } from '../app';
+import { screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
@@ -29,6 +30,7 @@ registerScreen('result', (app, root) => {
 
   const lastWords = won ? dialogue.victoryTeaser : (dialogue.defeat.find((l) => l.speaker === '球球')?.text ?? '');
 
+  root.append(screenBg(won ? 'bg/screen_result_win' : 'bg/screen_result_lose'));
   root.append(el('div', { class: `screen result ${won ? 'won' : 'lost'}` },
     el('img', { class: 'result-cat', src: artUrl('sprites', won ? 'ninja/04' : 'ninja/36'), alt: '' }),
     el('h1', {}, won ? '通關' : '任務失敗'),

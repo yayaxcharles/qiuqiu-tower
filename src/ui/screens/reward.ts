@@ -3,6 +3,7 @@ import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
 import { takeCardReward } from '../../engine/run';
 import { registerScreen } from '../app';
+import { screenBg, tierBgKey } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
 import { el } from '../dom';
@@ -18,6 +19,8 @@ function icon(key: string, alt: string): Node | string {
 }
 
 registerScreen('reward', (app, root, props) => {
+  // 獎勵是戰鬥的延續，沿用同一張戰場背景，玩家不會覺得換了地方
+  root.append(screenBg(tierBgKey(app.run?.floor ?? 1)));
   const run = app.run;
   if (!run) { app.show('title'); return; }
   // 戰利品與事件獎金分兩欄送過來（見 app.afterCombat）：CombatRewards 本身沒有 bonusFish 這一欄
