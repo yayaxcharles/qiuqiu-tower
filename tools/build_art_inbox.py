@@ -6,6 +6,9 @@ build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔�
   地圖底圖  map_bg.png      → public/assets/bg/map.webp（1280x720）
   節點圖示  map_node_*.png  → public/assets/icons/node_*.webp（綠幕去背，96x96）
   畫面底圖  screen_*.png    → public/assets/bg/screen_*.webp（1280x720）
+  牌的底紋  card_paper_*.png → public/assets/bg/card_paper_*.webp（256x256，可平鋪）
+  面板角花  frame_corner.png → public/assets/icons/corner_{tl,tr,bl,br}.webp（去背後自動鏡射出四個角）
+  腳印      map_path.png     → public/assets/icons/paw.webp（去背、轉成朝右，放進 3:2 的框留出間距）
 
 manifest 一律「讀進來再合併」：其他工具寫的鍵原樣保留，只新增 bg/map 與 icon/node_*。
 去背沿用 chroma_key.py 的 key_out（門檻是照實際素材量出來的，不要在這裡另訂一套）。
@@ -70,6 +73,53 @@ def main() -> None:
             dst, "WEBP", quality=74, method=6)
         manifest["bg"][f"bg/screen_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"畫面底圖 screen_{name}.webp {dst.stat().st_size // 1024} KB")
+
+    # 牌的底紋：近乎純色的紙紋，縮到 256 當平鋪磚。品質給高一點——這種平坦漸層
+    # 壓太狠會出現一圈一圈的色帶，而檔案本來就只有幾 KB，省不了什麼。
+    for src in sorted(INBOX.glob("card_paper_*.png")):
+        name = src.stem.replace("card_paper_", "")
+        dst = OUT / "bg" / f"card_paper_{name}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        Image.open(src).convert("RGB").resize((256, 256), Image.LANCZOS).save(
+            dst, "WEBP", quality=92, method=6)
+        manifest["bg"][f"bg/card_paper_{name}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"牌底紋 card_paper_{name}.webp {dst.stat().st_size // 1024} KB")
+
+    # 面板角花：只生左上角那一片，其餘三角由這裡鏡射出來（省三次生圖，也保證四角完全對稱）
+    corner_src = INBOX / "frame_corner.png"
+    if corner_src.exists():
+        base = key_out(Image.open(corner_src))
+        base.thumbnail((96, 96), Image.LANCZOS)
+        flips = {
+            "tl": base,
+            "tr": base.transpose(Image.FLIP_LEFT_RIGHT),
+            "bl": base.transpose(Image.FLIP_TOP_BOTTOM),
+            "br": base.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM),
+        }
+        for tag, im in flips.items():
+            dst = OUT / "icons" / f"corner_{tag}.webp"
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            im.save(dst, "WEBP", quality=88, method=6)
+            manifest["icons"][f"icon/corner_{tag}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"角花 corner_*.webp ×4 {(OUT / 'icons' / 'corner_tl.webp').stat().st_size // 1024} KB/張")
+
+    # 腳印：地圖上的路徑改用腳印串起來。
+    # 原圖的腳掌朝上，先順時針轉 90 度變成朝右——畫面那邊會把整條路徑轉到線的角度，
+    # 「朝右」等於「朝行進方向」，轉過去才會像沿著路走。
+    # 再放進一個很寬的透明框：平鋪時多出來的那段空白就是腳印之間的間距。
+    # 框寬 130 對腳印 50，等於腳印只佔三分之一——一開始用 3:2 的框，
+    # 八十條路徑的腳印擠在一起像壁紙，拉開之後才像一串腳印。
+    paw_src = INBOX / "map_path.png"
+    if paw_src.exists():
+        paw = key_out(Image.open(paw_src)).rotate(-90, expand=True)
+        paw.thumbnail((50, 50), Image.LANCZOS)
+        cell = Image.new("RGBA", (130, 56), (0, 0, 0, 0))
+        cell.paste(paw, ((130 - paw.width) // 2, (56 - paw.height) // 2), paw)
+        dst = OUT / "icons" / "paw.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        cell.save(dst, "WEBP", quality=88, method=6)
+        manifest["icons"]["icon/paw"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"腳印 paw.webp {dst.stat().st_size // 1024} KB")
 
     for src in sorted(INBOX.glob("map_node_*.png")):
         name = src.stem.replace("map_node_", "")

@@ -5,7 +5,6 @@ import { artUrl } from '../assets';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
 const ICON: Record<MapNode['type'], string> = {
   戰鬥: 'icon/node_fight', 大魔物: 'icon/node_elite', 事件: 'icon/node_event',
   罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
@@ -39,11 +38,7 @@ registerScreen('map', (app, root) => {
   const inner = el('div', { class: 'map-inner', style: `height:${INNER_H}px` });
   const scroll = el('div', { class: 'map-scroll' }, inner);
 
-  // 路線：一層 SVG 畫線，不吃滑鼠
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('class', 'map-edges');
-  svg.setAttribute('viewBox', `0 0 1280 ${INNER_H}`);
-  svg.setAttribute('height', String(INNER_H));
+  // 路線：一條邊一個長條 div，轉到線的角度，背景把腳印沿著它平鋪（樣式見 map.css）
   const byId = new Map(run.map.nodes.map((n) => [n.id, n]));
   for (const n of run.map.nodes) {
     const a = pos(n);
@@ -51,19 +46,18 @@ registerScreen('map', (app, root) => {
       const m = byId.get(id);
       if (!m) continue;
       const b = pos(m);
-      // 兩端各縮 R+6：節點是去背圖示、沒有底盤，線若畫到圓心就會從圖示的透明處穿出來。
       const dx = b.x - a.x, dy = b.y - a.y;
-      const len = Math.hypot(dx, dy) || 1;
-      const t = (R + 6) / len;
-      const line = document.createElementNS(SVG_NS, 'line');
-      line.setAttribute('x1', String(a.x + dx * t));
-      line.setAttribute('y1', String(a.y + dy * t));
-      line.setAttribute('x2', String(b.x - dx * t));
-      line.setAttribute('y2', String(b.y - dy * t));
-      svg.append(line);
+      const full = Math.hypot(dx, dy) || 1;
+      // 兩端各讓開 R+6：節點是去背圖示、沒有底盤，腳印鋪到圓心就會從圖示的透明處穿出來
+      const len = Math.max(1, full - 2 * (R + 6));
+      const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+      const deg = Math.atan2(dy, dx) * 180 / Math.PI;
+      inner.append(el('div', {
+        class: 'map-edge',
+        style: `left:${cx - len / 2}px;top:${cy - 10}px;width:${len}px;transform:rotate(${deg.toFixed(2)}deg)`,
+      }));
     }
   }
-  inner.append(svg);
 
   // 樓層標
   for (let f = 1; f <= FLOORS; f++) {

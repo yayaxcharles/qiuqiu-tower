@@ -201,6 +201,12 @@
   font-size: 9.35px;
   padding-bottom: 3.4px;
 }
-.card.type-攻擊 { background: #fff4ee; }
-.card.type-技能 { background: #eef5ff; }
-.card.type-能力 { background: #f3eeff; }
+/* 三種牌用紙紋分辨。底色留著當退路：紙紋沒生好時 var() 會是空的，至少還有原本的淡色。
+   平鋪 128 而不是原尺寸 256：牌只有 170 寬，磚太大等於看不到紋理。 */
+.card.type-攻擊, .card.type-技能, .card.type-能力 {
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+.card.type-攻擊 { background-color: #fff4ee; background-image: var(--paper-attack); }
+.card.type-技能 { background-color: #eef5ff; background-image: var(--paper-skill); }
+.card.type-能力 { background-color: #f3eeff; background-image: var(--paper-power); }

@@ -59,7 +59,13 @@
   height: auto;
   max-height: 624px;
   padding: 24px 44px;
-  background: rgba(248, 242, 232, .95);
+  /* 四個角花：只有左上那片是生的圖，另外三個是打包時鏡射出來的。
+     用四層背景圖而不是加四個 div，這樣每個畫面的內容都不用動。 */
+  background-color: rgba(248, 242, 232, .95);
+  background-image: var(--corner-tl), var(--corner-tr), var(--corner-bl), var(--corner-br);
+  background-position: left 7px top 7px, right 7px top 7px, left 7px bottom 7px, right 7px bottom 7px;
+  background-repeat: no-repeat;
+  background-size: 40px 40px;
   border: 3px solid rgba(58, 42, 28, .7);
   border-radius: 16px;
   box-shadow: 0 14px 44px rgba(0, 0, 0, .55);
@@ -188,7 +194,8 @@
 }
 .screen.result.lost {
   color: #f6efe3;
-  background: rgba(30, 24, 19, .9);
+  /* 只換底色，四層角花照舊（用 background 簡寫會把圖一起洗掉） */
+  background-color: rgba(30, 24, 19, .9);
   border-color: rgba(200, 180, 150, .45);
 }
 .result-cat { height: 220px; object-fit: contain; }

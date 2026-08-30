@@ -212,7 +212,12 @@
   "icon/node_event": "assets/icons/node_event.webp",
   "icon/node_fight": "assets/icons/node_fight.webp",
   "icon/node_rest": "assets/icons/node_rest.webp",
-  "icon/node_shop": "assets/icons/node_shop.webp"
+  "icon/node_shop": "assets/icons/node_shop.webp",
+  "icon/corner_tl": "assets/icons/corner_tl.webp",
+  "icon/corner_tr": "assets/icons/corner_tr.webp",
+  "icon/corner_bl": "assets/icons/corner_bl.webp",
+  "icon/corner_br": "assets/icons/corner_br.webp",
+  "icon/paw": "assets/icons/paw.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
@@ -225,6 +230,9 @@
   "bg/screen_result_lose": "assets/bg/screen_result_lose.webp",
   "bg/screen_result_win": "assets/bg/screen_result_win.webp",
   "bg/screen_shop": "assets/bg/screen_shop.webp",
-  "bg/screen_title": "assets/bg/screen_title.webp"
+  "bg/screen_title": "assets/bg/screen_title.webp",
+  "bg/card_paper_attack": "assets/bg/card_paper_attack.webp",
+  "bg/card_paper_power": "assets/bg/card_paper_power.webp",
+  "bg/card_paper_skill": "assets/bg/card_paper_skill.webp"
  }
 }

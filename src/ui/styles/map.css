@@ -46,16 +46,23 @@
     rgba(0, 0, 0, 0) 68%,
     rgba(96, 48, 12, .3) 100%);
 }
-.map-edges {
+/*
+ * 路徑＝一串腳印。作法是一條邊一個長條 div，轉到那條線的角度，
+ * 背景把腳印橫向平鋪；腳印素材本身已經轉成朝右，轉過去就等於朝行進方向。
+ * 一條邊一個節點（約七十個），不是一個腳印一個節點（那要三百多個）。
+ */
+.map-edge {
   position: absolute;
-  inset: 0;
-  width: 1280px;
+  height: 20px;
+  /* 兩層：腳印在上、一條很淡的細線在下。
+     只放腳印讀不出「哪個節點接哪個」——八十條路徑交錯，四五個腳印看起來只是散點；
+     補一條線就看得懂了，腳印退回去當味道。 */
+  background-image: var(--paw), linear-gradient(rgba(255, 238, 200, 1), rgba(255, 238, 200, 1));
+  background-repeat: repeat-x, no-repeat;
+  background-position: center, center;
+  background-size: 46px 20px, 100% 2px;
+  opacity: .34;
   pointer-events: none;
-}
-.map-edges line {
-  stroke: rgba(255, 236, 190, .42);
-  stroke-width: 4;
-  stroke-dasharray: 7 9;
 }
 .map-floor-label {
   position: absolute;
