@@ -225,6 +225,16 @@
   "bg/card_paper_attack": "assets/bg/card_paper_attack.webp",
   "bg/card_paper_power": "assets/bg/card_paper_power.webp",
   "bg/card_paper_skill": "assets/bg/card_paper_skill.webp",
-  "bg/map_tall": "assets/bg/map_tall.webp"
+  "bg/map_tall": "assets/bg/map_tall.webp",
+  "bg/event_blocked": "assets/bg/event_blocked.webp",
+  "bg/event_daxia_teach": "assets/bg/event_daxia_teach.webp",
+  "bg/event_hidden_box": "assets/bg/event_hidden_box.webp",
+  "bg/event_lost_kitten": "assets/bg/event_lost_kitten.webp",
+  "bg/event_rat_stall": "assets/bg/event_rat_stall.webp",
+  "bg/event_rescue": "assets/bg/event_rescue.webp",
+  "bg/event_robin": "assets/bg/event_robin.webp",
+  "bg/event_seclusion": "assets/bg/event_seclusion.webp",
+  "bg/event_sunbath": "assets/bg/event_sunbath.webp",
+  "bg/event_toll": "assets/bg/event_toll.webp"
  }
 }
