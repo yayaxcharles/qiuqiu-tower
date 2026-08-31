@@ -210,33 +210,56 @@
 }
 
 /* 魔物頭上的意圖 */
+/* 魔物頭上的意圖。原本是白底黑框的小藥丸，七種意圖只差一個很淡的底色，
+   遠看全都一樣白。現在做成一塊掛在頭上的小木牌：
+   深色外框、上亮下暗的立體感、底下一根接到頭上的短繩。
+   顏色也從粉彩改成飽和的，一眼就分得出這一手是要打人還是要防。 */
 .combat .intent {
+  position: relative;
   display: inline-block;
-  margin-bottom: 2px;
-  padding: 1px 9px;
-  border: 2px solid var(--ink);
-  border-radius: 11px;
-  background: #fff;
+  margin-bottom: 8px;
+  padding: 2px 11px 3px;
+  border: 2.5px solid #2b2118;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: bold;
   white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 1px 2px #0000009e;
+  box-shadow: 0 2px 0 #00000042, inset 0 1px 0 #ffffff59, inset 0 -2px 4px #0000002e;
+}
+/* 短繩：把牌子接到魔物頭上，不然它像浮在空中 */
+.combat .intent::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 2.5px;
+  height: 7px;
+  background: #2b2118;
+  transform: translateX(-50%);
 }
 /* 要打人的那個牌子會抽動：靜態的字看久了會變成背景，
    而「牠下一手要打我」正是最該一眼看到的東西。只有攻擊意圖會動，
    其他（防禦、增益）保持安靜，才不會整排都在跳、什麼都突顯不了。 */
 .combat .i-attack {
-  background: #ffd0d0;
+  background: linear-gradient(#e06a5c, #b8342a);
   animation: intent-throb 1.15s ease-in-out infinite;
 }
 @keyframes intent-throb {
   0%, 100% { scale: 1; box-shadow: 0 0 0 0 #ff6a6a00; }
   50% { scale: 1.07; box-shadow: 0 0 0 3px #ff6a6a3d; }
 }
-.combat .i-block { background: #cfe2ff; }
-.combat .i-buff { background: #dff5d8; }
-.combat .i-debuff { background: #efd6ff; }
-.combat .i-special, .combat .i-summon { background: #ffe9a8; }
-.combat .i-idle { background: #e6e0d6; }
+/* 七種意圖各一個飽和色，都用上亮下暗的漸層做出木牌的厚度 */
+.combat .i-block { background: linear-gradient(#5b9bde, #2e6db4); }
+.combat .i-buff { background: linear-gradient(#e0a63c, #b87515); }
+.combat .i-debuff { background: linear-gradient(#a86fd0, #7a3fae); }
+.combat .i-special, .combat .i-summon { background: linear-gradient(#d8a13c, #a86d12); }
+/* 發呆這一手不痛不癢，故意做得灰、暗、沒精神，才不會跟會痛的那幾個搶注意力 */
+.combat .i-idle {
+  background: linear-gradient(#8d8578, #6b6459);
+  box-shadow: 0 2px 0 #00000042, inset 0 1px 0 #ffffff33;
+}
 
 /* ===== 左下：飯糰、忍具、牌堆 ===== */
 .combat .side {

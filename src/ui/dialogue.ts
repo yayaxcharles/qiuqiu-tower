@@ -17,7 +17,9 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void): void {
   const box = el('div', { class: 'dialogue-overlay' });
   const speaker = el('div', { class: 'dialogue-speaker' });
   const text = el('div', { class: 'dialogue-text' });
-  const hint = el('div', { class: 'dialogue-hint' }, '點一下繼續');
+  // 提示分成「字」跟「腳印」兩塊：腳印要自己跳，字不要跟著動
+  const hint = el('div', { class: 'dialogue-hint' },
+    el('span', {}, '點一下繼續'), el('i', { class: 'paw' }));
   box.append(el('div', { class: 'dialogue-box' }, speaker, text, hint));
   const render = (): void => {
     const l = lines[i];
