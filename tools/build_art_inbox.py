@@ -100,7 +100,18 @@ def main() -> None:
     #     用一般門檻會被挖得坑坑洞洞（量測與取值理由見 chroma_key.py）。
     #  2. crop=False：保留原本 4:3 的畫布。裁到主體邊界的話，每張主體的留白不同，
     #     牌面用等比縮放塞進 150×120 的框，同一隻貓會忽大忽小。
-    faces = [f for f in sorted(INBOX.glob("card_*.png")) if not f.stem.startswith("card_paper_")]
+    # 只收「牌檔裡真的有這個牌號」的圖。生圖工具會在工作目錄留下雜檔
+    # （2026-08-31 撿到 card_cuimian__ffmpeg.png 與 card_cuimian_thumbnail_check.png，
+    # 後者是它自己做的 150x112 縮圖檢查），不擋的話會被當成兩張新牌收進清單。
+    import re as _re
+    known = set(_re.findall(r"\{ id: '([a-z_]+)'", (ROOT / "src/content/cards.ts").read_text(encoding="utf-8")))
+    faces, unknown = [], []
+    for f in sorted(INBOX.glob("card_*.png")):
+        if f.stem.startswith("card_paper_"):
+            continue
+        (faces if f.stem[len("card_"):] in known else unknown).append(f)
+    if unknown:
+        print(f"  略過 {len(unknown)} 個認不出牌號的檔：{[f.name for f in unknown]}")
     if faces:
         # 先各自去背裁到主體，再放進「照最大主體算出來的共用畫布」。
         # 一開始是直接保留原本 4:3 的畫布（crop=False），想讓每張貓一樣大——
@@ -122,7 +133,7 @@ def main() -> None:
                 dst, "WEBP", quality=84, method=6)
             manifest["cards"][f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"  （牌面共用畫布 {cw}x{ch} → 輸出 {round(cw*scale)}x{round(ch*scale)}）")
-    n_cards = sum(1 for f in INBOX.glob("card_*.png") if not f.stem.startswith("card_paper_"))
+    n_cards = len(faces)
     if n_cards:
         total = sum((OUT / "cards" / "card" / f.name).stat().st_size
                     for f in (OUT / "cards" / "card").glob("*.webp"))
