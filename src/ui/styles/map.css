@@ -63,22 +63,24 @@
   stroke: rgba(255, 238, 200, .3);
   stroke-width: 3;
   stroke-linecap: round;
-  /* 路上有光緩緩往上流。虛線的間隔一直在跑，看起來就像這條路是通的、
-     而且是往上走的。`stroke-dashoffset` 給負值＝往前跑，正好是「往塔上爬」的方向。 */
-  stroke-dasharray: 7 13;
-  animation: path-flow 2.6s linear infinite;
+  /* 路本身不動。本來讓虛線流動，但 `stroke-dashoffset` 是**唯一不走合成器**的動畫，
+     32 段路徑每一幀都要重新描一次；方向感改由腳印依序亮起來表達，
+     那個動的是 opacity，走合成器，便宜很多，也比較像真的有人在走。 */
 }
-@keyframes path-flow {
-  to { stroke-dashoffset: -20; }
-}
-/* 腳印明滅：跟路上流動的光錯開一點，路才不會整條都在同一個節奏 */
+/* 腳印一顆一顆依序亮，像有人正踩著這條路往上走。
+   每顆的起跑時間差 0.16 秒（在 map.ts 用負的 animation-delay 設），
+   所以看起來是一路往前走，不是整條一起閃。
+   亮的那一下只佔週期的一小段（12%～26%），其餘時間是暗的，
+   才會讀成「一個腳印亮過去」而不是「整條路在呼吸」。 */
 .map-paw {
-  opacity: .38;
-  animation: paw-breathe 3.3s ease-in-out infinite;
+  opacity: .22;
+  animation: paw-step 2.4s ease-in-out infinite;
 }
-@keyframes paw-breathe {
-  0%, 100% { opacity: .3; }
-  50% { opacity: .52; }
+@keyframes paw-step {
+  0%, 100% { opacity: .22; }
+  12% { opacity: .78; }
+  26% { opacity: .4; }
+  40% { opacity: .22; }
 }
 
 /* 樓層標籤。節點依種子各自偏了一點，標籤仍貼在該樓層的名目高度，才不會跟著歪 */

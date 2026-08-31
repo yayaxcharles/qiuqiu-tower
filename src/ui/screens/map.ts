@@ -161,6 +161,16 @@ registerScreen('map', (app, root) => {
         img.setAttribute('y', String(pt.y - 10.5));
         img.setAttribute('transform', `rotate(${deg.toFixed(1)} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
         img.setAttribute('class', 'map-paw');
+        // 一顆一顆依序亮起來，像有人正踩著路往塔上走。
+        //
+        // 延遲照**在地圖上的高度**算，不照這一段路的第幾顆：每段路只有兩三顆腳印，
+        // 用序號的話波走三步就重來，看不出在往哪走。改用高度之後，
+        // 全地圖同一個高度的腳印一起亮，亮帶再整片往上移，才讀得出「往上爬」。
+        //
+        // 負延遲＝動畫「已經播了一段」，所以一進畫面每條路就都在走，不用等第一輪。
+        // 越下面（y 越大）進度越前面，亮帶因此是由下往上跑。
+        // 波長 420 像素≈四層樓，週期 2.4 秒。
+        img.style.animationDelay = `${-(((pt.y % 420) / 420) * 2.4).toFixed(2)}s`;
         svg.append(img);
       }
     }
