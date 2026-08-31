@@ -115,6 +115,56 @@ export const enemies: EnemyDef[] = [
     line: '喵嗚！', moves: [{ intent: 'attack', label: '抓', effects: [{ kind: 'damage', amount: 3 }] }] },
 
   // ===== 塔主 =====
+  // ===== 2026-08-31 補的兩個塔主。原本只有大俠貓，每局結局都一樣 =====
+
+  // 貓又婆婆：**磨不死的那種**。自己會回血，還會放出兩條會互相復活的尾巴。
+  // 尾巴同組（`reviveGroup: 'tail'`），只清掉一條沒用，要同一回合兩條一起清。
+  // 解法是爆發與清場，慢慢磨只會被她回滿。
+  { id: 'nekomata', name: '貓又婆婆', hp: [150, 150], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata',
+    line: '孩子，你走得太上面了。',
+    moves: [
+      { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }] },
+      { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 12 }] },
+      { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
+    ],
+    phases: [{
+      hpBelow: 70, line: '（尾巴分成了好幾條）', pattern: 'cycle',
+      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }, { kind: 'heal', n: 20 }],
+      moves: [
+        { intent: 'attack', label: '亂尾', effects: [{ kind: 'damage', amount: 5, times: 4 }] },
+        { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 15 }] },
+        { intent: 'debuff', label: '招魂', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 3 }, { kind: 'statusPlayer', name: '翻肚', amount: 3 }] },
+        { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 14 }] },
+      ],
+    }] },
+  // 婆婆的尾巴：兩條同組，只要還有一條站著，倒下的那條下回合就爬起來
+  { id: 'nekomata_tail', name: '貓又的尾巴', hp: [18, 18], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_nekomata_tail',
+    line: '（尾巴自己動了）', reviveGroup: 'tail', reviveHp: 6,
+    moves: [
+      { intent: 'attack', label: '抽', effects: [{ kind: 'damage', amount: 5 }] },
+      { intent: 'special', label: '渡氣', effects: [{ kind: 'heal', n: 6 }] },
+    ] },
+
+  // 鐵爪機關貓：**蜷縮擋不住的那種**。招招都是多段小刀，而且每兩回合自己變強。
+  // 十點蜷縮對 4×4 只擋得掉前兩下，解法是隱身跟定身，不是硬擋。
+  { id: 'iron_claw', name: '鐵爪機關貓', hp: [140, 140], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
+    line: '（齒輪轉了一圈）', strengthEveryNTurns: 2,
+    moves: [
+      { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
+      { intent: 'buff', label: '上緊發條', effects: [{ kind: 'statusSelf', name: '爪力', amount: 3 }] },
+      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 3, times: 6 }] },
+      { intent: 'block', label: '收爪', effects: [{ kind: 'block', amount: 16 }] },
+    ],
+    phases: [{
+      hpBelow: 65, line: '（外殼彈開，裡面全是爪子）', pattern: 'cycle', strengthPerTurn: 1,
+      onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 6 }],
+      moves: [
+        { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 6 }] },
+        { intent: 'debuff', label: '卡住', effects: [{ kind: 'discardRandomHand', n: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 3 }] },
+        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 5, times: 5 }] },
+      ],
+    }] },
   { id: 'tower_master', name: '走火入魔的大俠貓', hp: [160, 160], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
     line: '難逢敵手。',
     moves: [
@@ -352,6 +402,8 @@ export const encounters: EncounterDef[] = [
   { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'] },
   { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'] },
   { id: 'tower_master', pool: '塔主', enemies: ['tower_master'] },
+  { id: 'nekomata', pool: '塔主', enemies: ['nekomata'] },
+  { id: 'iron_claw', pool: '塔主', enemies: ['iron_claw'] },
 
   // ===== 2026-08-31 補：中後段本來只有 4＋3 組，一直重複同一場仗 =====
   // 新怪

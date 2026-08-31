@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
-import { relicById } from '../../src/content/relics';
+import { relicById, relics } from '../../src/content/relics';
 import { endTurn, startCombat } from '../../src/engine/combat';
 import { nextChoices, nodeById } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -114,7 +114,9 @@ describe('戰鬥與獎勵', () => {
     const cs = rollCardChoices(rng, '絕學', 3);
     expect(new Set(cs.map((c) => c.id)).size).toBe(3);
     expect(cs.every((c) => c.pool === '絕學')).toBe(true);
-    const owned = ['onigiri_bag', 'tuna_can', 'catgrass', 'bell', 'fish_jar', 'catnip', 'tail_bell'];
+    // 「全部都拿過了就給不出東西」。本來是寫死七個 id，秘寶一加就會壞——
+    // 改成動態撈出整個池，之後再加秘寶也不用回來改這裡。
+    const owned = relics.filter((r) => r.pool === '常見').map((r) => r.id);
     expect(rollRelic(rng, '常見', owned)).toBeNull();
     expect(relicById[rollRelic(rng, '常見', ['bell'])!]?.pool).toBe('常見');
   });

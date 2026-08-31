@@ -28,6 +28,8 @@ export type Effect =
   | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all' }
   | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean }
   | { kind: 'transferDebuffs' }
+  /** 清掉自己身上所有減益。跟 `transferDebuffs` 的差別是「丟掉」不是「丟給別人」 */
+  | { kind: 'cleanse' }
   | { kind: 'energy'; n: number }
   | { kind: 'heal'; n: number }
   | { kind: 'gold'; n: number; onKill?: boolean }

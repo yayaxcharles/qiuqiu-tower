@@ -1,4 +1,5 @@
 import { STARTER_DECK, cardById, cards } from '../content/cards';
+import { encounterById } from '../content/enemies';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
 import { startCombat } from './combat';
@@ -59,7 +60,9 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   run.hp = cs.player.hp;
   run.fish = Math.max(0, run.fish + cs.fishDelta);
   const node = currentNode(run);
-  const kind: CombatRewards['kind'] = cs.encounterId === 'tower_master' ? '塔主' : node?.type === '大魔物' ? '大魔物' : '戰鬥';
+  // 看遭遇屬於哪個池，不要比對特定 id——塔主現在有三個，寫死 id 會漏掉另外兩個
+  const isBoss = encounterById[cs.encounterId ?? '']?.pool === '塔主';
+  const kind: CombatRewards['kind'] = isBoss ? '塔主' : node?.type === '大魔物' ? '大魔物' : '戰鬥';
   const winGold = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.winGold ?? 0), 0);
   const r = rollRewards(runRng(run), kind, run.relics, winGold);
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去

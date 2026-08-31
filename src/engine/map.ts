@@ -135,7 +135,9 @@ export function generateMap(rng: Rng): GameMap {
   for (const n of nodes) {
     if (n.type === '戰鬥') n.encounterId = rng.pick(encountersOfPool(poolForFloor(n.floor))).id;
     else if (n.type === '大魔物') n.encounterId = rng.pick(encountersOfPool('大魔物')).id;
-    else if (n.type === '塔主') n.encounterId = 'tower_master';
+    // 塔主從池子裡隨機挑。本來寫死成大俠貓，等於每一局的結局都一模一樣——
+    // 不管你這局組出什麼牌組，最後都是同一隻、同一套招、同一個階段變身。
+    else if (n.type === '塔主') n.encounterId = rng.pick(encountersOfPool('塔主')).id;
     else if (n.type === '事件') {
       if (n.floor === 5) n.eventId = FIXED_EVENT_FLOOR_5;
       else { n.eventId = eventQueue[eventIdx % eventQueue.length]; eventIdx++; }
@@ -162,7 +164,8 @@ export function nextChoices(map: GameMap, currentNodeId: string | null): MapNode
 export function validateMap(map: GameMap): string[] {
   const p: string[] = [];
   const top = nodesOnFloor(map, FLOORS);
-  if (top.length !== 1 || top[0]?.type !== '塔主' || top[0]?.encounterId !== 'tower_master') p.push('15F 必須是唯一的塔主');
+  const bossIds = new Set(encountersOfPool('塔主').map((e) => e.id));
+  if (top.length !== 1 || top[0]?.type !== '塔主' || !bossIds.has(top[0]?.encounterId ?? '')) p.push('15F 必須是唯一的塔主');
   if (nodesOnFloor(map, 8).map((n) => n.type).join() !== '紙箱') p.push('8F 必須是唯一的紙箱');
   if (nodesOnFloor(map, 14).map((n) => n.type).join() !== '貓窩') p.push('14F 必須是唯一的貓窩');
   if (!nodesOnFloor(map, 1).every((n) => n.type === '戰鬥')) p.push('1F 必須全是戰鬥');

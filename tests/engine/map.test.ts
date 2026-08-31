@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { encountersOfPool } from '../../src/content/enemies';
 import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
 import { FLOORS, generateMap, nextChoices, nodesOnFloor, validateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -23,7 +24,9 @@ describe('地圖', () => {
     expect(nodesOnFloor(m, 8).map((n) => n.type)).toEqual(['紙箱']);
     expect(nodesOnFloor(m, 14).map((n) => n.type)).toEqual(['貓窩']);
     expect(nodesOnFloor(m, 15).map((n) => n.type)).toEqual(['塔主']);
-    expect(nodesOnFloor(m, 15)[0]?.encounterId).toBe('tower_master');
+    // 塔主 2026-08-31 起有三個、隨機挑，所以只驗「是塔主池裡的某一個」
+    const bossIds = encountersOfPool('塔主').map((e) => e.id);
+    expect(bossIds).toContain(nodesOnFloor(m, 15)[0]?.encounterId);
   });
   it('走法：入口三選、匯合層只有一格、每一步都只走到相鄰車道', () => {
     // 節點的位置由路線決定，不再是固定的三行，所以這裡驗結構、不寫死車道編號

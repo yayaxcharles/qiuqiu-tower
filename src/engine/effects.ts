@@ -81,6 +81,10 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, p.block, { noStrength: true }).killed) ctx.killed = true;
       return false;
     }
+    case 'cleanse': {
+      for (const name of DEBUFFS) if (getStatus(p, name) > 0) removeStatus(p, name);
+      return false;
+    }
     case 'transferDebuffs': {
       for (const t of targetsOf(cs, ctx, false)) for (const name of DEBUFFS) {
         const v = getStatus(p, name);

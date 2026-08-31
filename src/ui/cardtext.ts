@@ -115,6 +115,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     }
     case 'removeStatuses': return `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與蜷縮' : ''}`;
     case 'transferDebuffs': return '把你身上的翻肚、懶洋洋、炸毛、噎到全部丟到目標身上';
+    case 'cleanse': return '清掉自己身上所有的減益';
     case 'energy': return `獲得 ${fx.n} 顆飯糰`;
     case 'heal': return `${ctx.youHeal ? '你' : ''}回復 ${fx.n} 點生命`;
     case 'gold': return fx.onKill ? `打倒牠就多拿 ${fx.n} 條小魚乾` : `多拿 ${fx.n} 條小魚乾`;
