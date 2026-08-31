@@ -99,21 +99,83 @@
 }
 
 /* ===== 獎勵 ===== */
+/* ===== 打贏的結算畫面 =====
+   本來是「標題一行字＋三行戰利品＋一排牌」全部靠 gap 疊在一起，
+   沒有分區也沒有層次，所以很死板。現在分三塊：
+   上面一條橫幅放標題、中間一個框起來的戰利品區、下面才是選牌。 */
+
+/* 標題橫幅：掛在面板上緣的木牌，跟對白框的名牌同一套 */
+.reward-banner {
+  align-self: center;
+  margin: -6px 0 2px;
+  padding: 4px 34px 6px;
+  border: 3px solid #3a2a1c;
+  border-radius: 11px;
+  background: linear-gradient(#c9702a, #8a4a22);
+  box-shadow: 0 3px 0 #00000038, inset 0 1px 0 #ffffff4d;
+}
+.reward-banner h1 {
+  margin: 0;
+  color: #fff6e2;
+  font-size: 30px;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 3px #00000099;
+}
+
+/* 戰利品區：框起來自成一塊，跟下面的選牌分開 */
+.reward-loot {
+  position: relative;
+  align-self: stretch;
+  margin: 10px 0 2px;
+  padding: 16px 20px 14px;
+  border: 2px solid #3a2a1c4d;
+  border-radius: 12px;
+  background: #3a2a1c0a;
+}
+/* 「戰利品」三個字騎在框線上，像貼在框上的標籤 */
+.reward-loot-label {
+  position: absolute;
+  top: 0;
+  left: 22px;
+  transform: translateY(-52%);
+  padding: 1px 12px 2px;
+  border-radius: 6px;
+  background: #f8f2e8;
+  color: #7a5a34;
+  font-size: 14px;
+  letter-spacing: 3px;
+}
+
 .reward-items {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  align-items: stretch;
+  gap: 9px;
 }
 .reward-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--panel);
-  border: 2px solid var(--ink);
-  border-radius: 12px;
-  padding: 8px 14px;
+  gap: 12px;
+  background: linear-gradient(#fffdf7, #f4ead6);
+  border: 2px solid #3a2a1c;
+  border-left-width: 6px;
+  border-radius: 10px;
+  padding: 9px 16px;
   font-size: 18px;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 4px #0000001f;
+}
+/* 左邊那條粗邊依戰利品種類換色，一眼看得出這行是錢、是秘寶還是忍具 */
+.reward-item.loot { border-left-color: #c9a227; }
+.reward-item.relic { border-left-color: #7a3fae; }
+.reward-item.potion { border-left-color: #2e6db4; }
+/* 名稱一行、說明一行。本來全部擠成一句「秘寶「藍頭巾」：每場戰鬥…」，讀起來很長 */
+.reward-line { display: flex; flex-direction: column; gap: 1px; text-align: left; }
+.reward-line b { font-size: 18px; }
+.reward-line em {
+  font-style: normal;
+  font-size: 14px;
+  color: #6b5a45;
+  line-height: 1.4;
 }
 .reward-item img { width: 40px; height: 40px; object-fit: contain; }
 .reward-cards {

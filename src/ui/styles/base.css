@@ -144,6 +144,34 @@ img { -webkit-user-drag: none; }
 @keyframes dialogue-in {
   from { opacity: 0; transform: translateY(26px); }
 }
+/* 說話者的立繪，站在對白框左邊。
+   本來只靠名字那塊小木牌區分誰在講，旁白則是整塊不顯示——差別太弱，
+   使用者的原話：「是旁白還是球球在講話，從對話框中看不出來，缺少故事感」。
+   放上臉之後一眼就認得出來，而**旁白沒有臉**，那個空缺本身就是訊號。 */
+.dialogue-portrait {
+  position: absolute;
+  /* 站在對白框左上方，腳被框的上緣擋住一截——這是視覺小說的標準擺法，
+     角色像站在框後面，而不是浮在旁邊的一張貼紙。
+     bottom 要比框頂再低一點（框高約 180、離底 40，所以框頂在 220），
+     取 168 讓腳確實被壓住。 */
+  left: 96px;
+  bottom: 168px;
+  z-index: 49;
+  width: 330px;
+  height: 380px;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .65));
+}
+.dialogue-portrait.in {
+  animation: portrait-in 260ms cubic-bezier(.2, .9, .3, 1.1);
+}
+/* 從左邊滑進來一點點。幅度小是刻意的：換人講話要看得出來，但不能搶走文字 */
+@keyframes portrait-in {
+  from { opacity: 0; transform: translateX(-22px) scale(.96); }
+}
+
 .dialogue-overlay {
   position: absolute;
   inset: 0;
@@ -222,9 +250,35 @@ img { -webkit-user-drag: none; }
   min-height: 68px;
   line-height: 1.55;
 }
-.dialogue-overlay.narration .dialogue-text { color: #52463a; }
-/* 旁白沒有名牌，上緣的留白就不需要那麼多 */
-.dialogue-overlay.narration .dialogue-box { padding-top: 22px; }
+/* ===== 旁白：整塊都要跟「有人在講話」長得不一樣 =====
+   只是把名牌藏起來、字調灰一點還不夠——那看起來只像「這句忘了寫名字」。
+   旁白是說書的聲音，所以：字置中、間距拉開、色調偏冷偏淡、紙也換一種，
+   前後各加一個小標記把它框起來。跟「有人在講話」的靠左、有臉、有名牌完全分開。 */
+.dialogue-overlay.narration .dialogue-box {
+  padding: 24px 64px 26px;
+  background-image:
+    var(--corner-tl), var(--corner-tr), var(--corner-bl), var(--corner-br),
+    repeating-linear-gradient(58deg, #00000005 0 2px, #0000 2px 7px),
+    radial-gradient(120% 100% at 50% 0%, #f3f1ea 0%, #e6e2d6 72%, #d8d3c3 100%);
+  border-color: #4a4438;
+}
+.dialogue-overlay.narration .dialogue-text {
+  color: #443d33;
+  text-align: center;
+  letter-spacing: 2px;
+  line-height: 1.75;
+  font-size: 22px;
+}
+/* 前後的小標記：讓旁白讀起來像被引出來的一段，不是誰的台詞 */
+.dialogue-overlay.narration .dialogue-text::before,
+.dialogue-overlay.narration .dialogue-text::after {
+  content: '◆';
+  margin: 0 14px;
+  color: #4a443880;
+  font-size: 13px;
+  vertical-align: middle;
+}
+.dialogue-overlay.narration .dialogue-hint { color: #5c5648; }
 
 /* 提示改成「一行小字＋一顆會跳的腳印」。原本只是右下角一行灰字，
    跟框裡的其他文字混在一起，看不出是「還要再點」。 */

@@ -28,24 +28,36 @@ registerScreen('reward', (app, root, props) => {
   const bonus = r.bonusFish ?? 0;
   renderHud(app, root);
 
+  // 文案一律寫成完整的句子。「＋17 條小魚乾」讀起來像記帳欄位，不像遊戲在跟你講話
   const items = el('div', { class: 'reward-items' },
-    el('div', { class: 'reward-item' }, icon('icon/fish', ''), `＋${r.fish} 條小魚乾`));
+    el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
+      el('span', { class: 'reward-line' }, `獲得 ${r.fish} 條小魚乾`)));
   // 獎金另起一行：r.fish 是規格 §5.4 的戰利品，兩個數字不併成一個，玩家才看得出獎金有沒有拿到
-  if (bonus > 0) items.append(el('div', { class: 'reward-item' }, icon('icon/fish', ''), `＋${bonus} 條小魚乾（事件獎金）`));
+  if (bonus > 0) items.append(el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
+    el('span', { class: 'reward-line' }, `事件獎金再拿 ${bonus} 條小魚乾`)));
   const relic = r.relic ? relicById[r.relic] : undefined;
-  if (relic) items.append(el('div', { class: 'reward-item' }, icon(relic.art, relic.name), `秘寶「${relic.name}」：${relic.text}`));
+  if (relic) items.append(el('div', { class: 'reward-item relic' }, icon(relic.art, relic.name),
+    el('span', { class: 'reward-line' },
+      el('b', {}, `獲得秘寶「${relic.name}」`), el('em', {}, relic.text))));
   const potion = r.potion ? potionById[r.potion] : undefined;
-  if (potion) items.append(el('div', { class: 'reward-item' }, icon(potion.art, potion.name), `忍具「${potion.name}」：${potion.text}`));
+  if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),
+    el('span', { class: 'reward-line' },
+      el('b', {}, `獲得忍具「${potion.name}」`), el('em', {}, potion.text))));
 
   /** 挑完牌（或跳過）才算這個節點結算完，這時候才存檔回地圖 */
   const done = (cardId: string | null): void => { takeCardReward(run, r, cardId); app.backToMap(); };
   const cards = el('div', { class: 'reward-cards' });
   for (const c of r.cards) cards.append(cardNode(c, { onClick: () => done(c.id) }));
 
+  // 標題依戰鬥種類換句話，打倒塔主不該跟打贏小老鼠共用同一句
+  const title = r.kind === '塔主' ? '打倒塔主了' : r.kind === '大魔物' ? '打倒大魔物' : '打贏了';
   root.append(el('div', { class: 'screen reward' },
-    el('h1', {}, r.kind === '大魔物' ? '打倒大魔物' : '打贏了'),
-    items,
+    el('div', { class: 'reward-banner' }, el('h1', {}, title)),
+    el('div', { class: 'reward-loot' },
+      el('div', { class: 'reward-loot-label' }, '戰利品'),
+      items),
     r.cards.length ? el('h2', {}, '選一張牌帶走') : '',
     cards,
-    el('button', { class: 'btn primary', onclick: () => done(null) }, r.cards.length ? '不拿牌，繼續' : '繼續')));
+    el('button', { class: 'btn primary', onclick: () => done(null) },
+      r.cards.length ? '放棄牌並跳過' : '繼續')));
 });
