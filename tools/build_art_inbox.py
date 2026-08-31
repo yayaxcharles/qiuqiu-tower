@@ -225,6 +225,20 @@ def main() -> None:
         manifest["icons"][f"icon/vfx_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"特效 vfx_{name}.webp {im.width}x{im.height} {dst.stat().st_size // 1024} KB")
 
+    # 秘寶與忍具圖示：檔名 `relic_<牌號>.png`、`potion_<牌號>.png`。
+    # 塞進正方框（顯示只有 32～40 像素，備兩倍），跟節點圖示同一套處理。
+    for prefix in ("relic", "potion"):
+        for src in sorted(INBOX.glob(f"{prefix}_*.png")):
+            name = src.stem[len(prefix) + 1:]
+            dst = OUT / "icons" / f"{prefix}_{name}.webp"
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            fit_square(key_out(Image.open(src)), ICON_PX, ICON_FILL).save(
+                dst, "WEBP", quality=88, method=6)
+            manifest["icons"][f"codex/{prefix}_{name}"] = dst.relative_to(OUT.parent).as_posix()
+        n_icon = len(list(INBOX.glob(f"{prefix}_*.png")))
+        if n_icon:
+            print(f"{'秘寶' if prefix == 'relic' else '忍具'}圖示 {n_icon} 張")
+
     # 魔物立繪：檔名是 `monster_<牌號>_<idle|attack>.png`。
     # 每隻的兩張要一起放進「同一張畫布」再底部對齊，跟主角立繪同一個道理——
     # 不然待機換出手的瞬間，同一隻怪會忽大忽小。
