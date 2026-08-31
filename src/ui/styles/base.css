@@ -231,10 +231,16 @@ img { -webkit-user-drag: none; }
   left: 76px;
   transform: translateY(-52%);
   padding: 3px 18px 4px;
+  /* 名牌換成生出來的胡桃木牌（九宮格橫拉，配合兩到六個字的名字）。
+     生不出來時下面的漸層當退路。 */
   border: 3px solid #3a2a1c;
   border-radius: 9px;
   background: linear-gradient(#a8623099, #8a4a22) padding-box,
               linear-gradient(#c9702a, #8a4a22) border-box;
+  border-image-source: var(--ui-nameplate);
+  border-image-slice: 30% 24% 32% 24% fill;
+  border-image-width: 13px 11px 14px 11px;
+  border-image-repeat: stretch;
   color: #fff6e2;
   font-size: 19px;
   font-weight: bold;

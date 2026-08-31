@@ -217,7 +217,16 @@
   "icon/vfx_heal": "assets/icons/vfx_heal.webp",
   "icon/vfx_debuff": "assets/icons/vfx_debuff.webp",
   "icon/vfx_poison": "assets/icons/vfx_poison.webp",
-  "icon/vfx_smoke": "assets/icons/vfx_smoke.webp"
+  "icon/vfx_smoke": "assets/icons/vfx_smoke.webp",
+  "icon/ui_beam": "assets/icons/ui_beam.webp",
+  "icon/ui_intent_attack": "assets/icons/ui_intent_attack.webp",
+  "icon/ui_intent_block": "assets/icons/ui_intent_block.webp",
+  "icon/ui_intent_buff": "assets/icons/ui_intent_buff.webp",
+  "icon/ui_intent_debuff": "assets/icons/ui_intent_debuff.webp",
+  "icon/ui_intent_idle": "assets/icons/ui_intent_idle.webp",
+  "icon/ui_intent_special": "assets/icons/ui_intent_special.webp",
+  "icon/ui_nameplate": "assets/icons/ui_nameplate.webp",
+  "icon/ui_note": "assets/icons/ui_note.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",

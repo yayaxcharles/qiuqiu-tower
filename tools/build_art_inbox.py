@@ -23,6 +23,7 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageOps
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -224,6 +225,30 @@ def main() -> None:
         im.save(dst, "WEBP", quality=86, method=6)
         manifest["icons"][f"icon/vfx_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"特效 vfx_{name}.webp {im.width}x{im.height} {dst.stat().st_size // 1024} KB")
+
+    # 介面裝飾素材：木樑、名牌、意圖木牌、說明框的紙片。
+    # 意圖木牌下面有一條垂下來的繩子，寬度只有牌身的一小截。
+    # 那截要切掉——樣式表是把牌身橫向拉伸來配合不同寬度的字，
+    # 繩子跟著拉會變成一條粗帶子。切點用「從下往上找到第一列夠寬的」自動抓，
+    # 不寫死比例（每張生出來的繩長都不一樣）。
+    for src in sorted(INBOX.glob("ui_*.png")):
+        name = src.stem[len("ui_"):]
+        im = key_out(Image.open(src))
+        box = im.getbbox()
+        if box:
+            im = im.crop(box)
+        if name.startswith("intent_"):
+            a = np.asarray(im)
+            widths = (a[:, :, 3] > 30).sum(axis=1)
+            wide = widths.max()
+            rows = np.nonzero(widths > wide * 0.55)[0]
+            if len(rows):
+                im = im.crop((0, 0, im.width, int(rows[-1]) + 1))
+        dst = OUT / "icons" / f"ui_{name}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        im.save(dst, "WEBP", quality=86, method=6)
+        manifest["icons"][f"icon/ui_{name}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"介面素材 ui_{name}.webp {im.width}x{im.height} {dst.stat().st_size // 1024} KB")
 
     # 秘寶與忍具圖示：檔名 `relic_<牌號>.png`、`potion_<牌號>.png`。
     # 塞進正方框（顯示只有 32～40 像素，備兩倍），跟節點圖示同一套處理。

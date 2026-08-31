@@ -244,20 +244,29 @@
    其他（防禦、增益）保持安靜，才不會整排都在跳、什麼都突顯不了。 */
 .combat .i-attack {
   background: linear-gradient(#e06a5c, #b8342a);
+  border-image-source: var(--ui-intent-attack);
   animation: intent-throb 1.15s ease-in-out infinite;
 }
 @keyframes intent-throb {
   0%, 100% { scale: 1; box-shadow: 0 0 0 0 #ff6a6a00; }
   50% { scale: 1.07; box-shadow: 0 0 0 3px #ff6a6a3d; }
 }
-/* 七種意圖各一個飽和色，都用上亮下暗的漸層做出木牌的厚度 */
-.combat .i-block { background: linear-gradient(#5b9bde, #2e6db4); }
-.combat .i-buff { background: linear-gradient(#e0a63c, #b87515); }
-.combat .i-debuff { background: linear-gradient(#a86fd0, #7a3fae); }
-.combat .i-special, .combat .i-summon { background: linear-gradient(#d8a13c, #a86d12); }
+/* 七種意圖各一塊生出來的木牌。用 `border-image` 九宮格：兩端固定、中間橫向拉伸，
+   配合「攻 4」到「叫幫手」不同長度的字。木紋本來就是橫的（生圖時就照這個要求畫），
+   所以橫拉不會露餡。生不出來的話下面的漸層當退路，不會開天窗。 */
+.combat .intent[class*='i-'] {
+  border-image-slice: 34% 22% 30% 22% fill;
+  border-image-width: 12px 9px 11px 9px;
+  border-image-repeat: stretch;
+}
+.combat .i-block { background: linear-gradient(#5b9bde, #2e6db4); border-image-source: var(--ui-intent-block); }
+.combat .i-buff { background: linear-gradient(#e0a63c, #b87515); border-image-source: var(--ui-intent-buff); }
+.combat .i-debuff { background: linear-gradient(#a86fd0, #7a3fae); border-image-source: var(--ui-intent-debuff); }
+.combat .i-special, .combat .i-summon { background: linear-gradient(#d8a13c, #a86d12); border-image-source: var(--ui-intent-special); }
 /* 發呆這一手不痛不癢，故意做得灰、暗、沒精神，才不會跟會痛的那幾個搶注意力 */
 .combat .i-idle {
   background: linear-gradient(#8d8578, #6b6459);
+  border-image-source: var(--ui-intent-idle);
   box-shadow: 0 2px 0 #00000042, inset 0 1px 0 #ffffff33;
 }
 

@@ -50,6 +50,16 @@ export function applyArtVars(): void {
     '--corner-bl': 'icon/corner_bl',
     '--corner-br': 'icon/corner_br',
     '--paw': 'icon/paw',
+    // 介面裝飾素材（木樑、名牌、六種意圖木牌、說明框的紙片）
+    '--ui-beam': 'icon/ui_beam',
+    '--ui-nameplate': 'icon/ui_nameplate',
+    '--ui-note': 'icon/ui_note',
+    '--ui-intent-attack': 'icon/ui_intent_attack',
+    '--ui-intent-block': 'icon/ui_intent_block',
+    '--ui-intent-buff': 'icon/ui_intent_buff',
+    '--ui-intent-debuff': 'icon/ui_intent_debuff',
+    '--ui-intent-special': 'icon/ui_intent_special',
+    '--ui-intent-idle': 'icon/ui_intent_idle',
     '--cardframe-rare': 'icon/cardframe_rare',
   };
   const root = document.documentElement;
