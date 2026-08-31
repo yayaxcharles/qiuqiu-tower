@@ -97,6 +97,18 @@
   border-radius: 9px;
   border-width: 2px;
 }
+/* 狀態列裡的按鈕要跟木樑同一套，白色藥丸貼在木頭上很突兀 */
+.hud .btn.small {
+  border-color: #1c140d;
+  background: linear-gradient(#6b5136, #4a3826);
+  color: #ffeeca;
+  text-shadow: 0 1px 2px #00000080;
+  box-shadow: inset 0 1px 0 #ffffff2e, 0 2px 0 #00000047;
+}
+.hud .btn.small:hover:not(:disabled) { background: linear-gradient(#7d6041, #57432d); }
+/* 小魚乾的數字也給描邊，壓在木紋上才讀得清楚 */
+.hud-fish span { text-shadow: 0 1px 2px #000000a6; }
+.hud-seed { text-shadow: 0 1px 2px #00000080; }
 
 /* ===== 疊層視窗（牌組檢視、挑牌） ===== */
 .modal-overlay {
