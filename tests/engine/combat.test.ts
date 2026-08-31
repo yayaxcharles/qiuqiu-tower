@@ -63,12 +63,14 @@ describe('出牌', () => {
     expect(cs.player.cardsPlayedThisTurn).toBe(1);
   });
   it('飯糰不夠不能出；0 費可以出', () => {
-    const cs = start('cucumber');
+    const cs = start('cucumber', [...STARTER_DECK, 'taxue']);
     cs.player.energy = 0;
     const uid = toHand(cs, 'sanjo');
     expect(canPlay(cs, uid, cs.enemies[0]!.uid)).toEqual({ ok: false, reason: '餓扁了' });
     expect(playCard(cs, uid, cs.enemies[0]!.uid)).toBe(false);
-    const k = toHand(cs, 'kawarimi');
+    // 這裡要的是「0 費的牌在沒飯糰時照樣打得出來」。
+    // 本來用替身術，牠 2026-08-31 漲到 2 飯糰了，改用同樣給隱身、還是 0 費的踏雪無痕。
+    const k = toHand(cs, 'taxue');
     expect(playCard(cs, k)).toBe(true);
     expect(getStatus(cs.player, '隱身')).toBe(1);
   });
@@ -293,14 +295,14 @@ describe('壞毛病與能力牌', () => {
     expect(cs.turn).toBe(2);
     expect(cs.player.block).toBe(3);
   });
-  it('任務完成：擊倒魔物回 6 血', () => {
+  it('吸貓大法：本回合擊倒魔物回 4 血', () => {
     const cs = start('rats2', [...STARTER_DECK, 'renwuwancheng'], 's', ['blue_headband'], 50);
     cs.player.energy = 9;
     playCard(cs, toHand(cs, 'renwuwancheng'));
     const e = cs.enemies[0]!; e.hp = 3;
     playCard(cs, toHand(cs, 'sanjo'), e.uid);
     expect(e.dead).toBe(true);
-    expect(cs.player.hp).toBe(56);
+    expect(cs.player.hp).toBe(54);
   });
 });
 

@@ -27,7 +27,8 @@ describe('牌面文字', () => {
 
   it('能力牌的觸發子句', () => {
     expect(t('jiejie')).toBe('每回合開始時獲得 3 點蜷縮。');
-    expect(t('renwuwancheng')).toBe('每打倒一隻魔物就回復 6 點生命。');
+    // 只限本回合的能力要講出來，不然玩家會當成永久的
+    expect(t('renwuwancheng')).toBe('這回合內，每打倒一隻魔物就回復 4 點生命。');
     expect(t('xianshuile')).toBe('回復 4 點生命，然後直接結束這回合。');
   });
 

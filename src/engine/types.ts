@@ -40,7 +40,8 @@ export type Effect =
   | { kind: 'endTurn' }
   | { kind: 'noAttacksThisTurn' }
   | { kind: 'immuneThisTurn' }
-  | { kind: 'power'; trigger: PowerTrigger; effects: Effect[] };
+  /** `thisTurn` ＝這個能力只在本回合有效，回合結束就消失（例如「吸貓大法」） */
+  | { kind: 'power'; trigger: PowerTrigger; effects: Effect[]; thisTurn?: true };
 
 export interface CardDef {
   id: string;
@@ -201,7 +202,7 @@ export interface PlayerCombat extends Unit {
   discardPile: CardInstance[];
   exhaustPile: CardInstance[];
   retained: number[];
-  powers: { trigger: PowerTrigger; effects: Effect[] }[];
+  powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true }[];
   doubleNext: number;
   drawNextTurn: number;
   noAttacks: boolean;

@@ -65,7 +65,10 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'energy': p.energy += fx.n; return false;
     case 'heal': healPlayer(cs, fx.n); return false;
     case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
-    case 'power': p.powers.push({ trigger: fx.trigger, effects: fx.effects }); return false;
+    case 'power':
+      // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來
+      p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}) });
+      return false;
     case 'noAttacksThisTurn': p.noAttacks = true; return false;
     case 'immuneThisTurn': p.immune = true; return false;
     case 'doubleNextAttack': p.doubleNext = 1; return false;

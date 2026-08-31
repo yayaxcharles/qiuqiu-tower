@@ -120,6 +120,9 @@ export function endTurn(cs: CombatState): void {
     for (const rid of cs.relics) { const h = relicById[rid]?.hooks.turnEndNoAttack; if (h) applyEffects(cs, h, { source: 'relic' }); }
     for (const pw of p.powers) if (pw.trigger === 'turnEndNoAttack') applyEffects(cs, pw.effects, { source: 'power' });
   }
+  // 只限本回合的能力到這裡就過期。放在「沒出攻擊牌」的結算之後：
+  // 那一段也會觸發能力，先讓它算完再清，不然本回合最後一次會少算。
+  p.powers = p.powers.filter((pw) => !pw.thisTurn);
   discardHand(p);
   // 球球的減益衰減：這回合自己給自己疊的先放過一次（下一回合結束才開始減），魔物施加的照常減
   for (const name of TURN_DECAY) {

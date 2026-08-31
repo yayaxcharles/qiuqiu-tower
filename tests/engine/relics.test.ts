@@ -77,8 +77,9 @@ describe('秘寶（戰鬥端）', () => {
     expect(cs.player.hand.length).toBe(n3);       // 第 3 張：−1 ＋1
   });
   it('紙袋：每回合第一次隱身多 1 層', () => {
-    const cs = start(['paper_bag'], 'wood_dummy', 60, ['kawarimi']);
-    playCard(cs, toHand(cs, 'kawarimi')); expect(getStatus(cs.player, '隱身')).toBe(2);
-    playCard(cs, toHand(cs, 'kawarimi')); expect(getStatus(cs.player, '隱身')).toBe(3);
+    // 要連打兩張給隱身的牌，所以得挑 0 費的：替身術 2026-08-31 漲到 2 飯糰，一回合打不了兩次
+    const cs = start(['paper_bag'], 'wood_dummy', 60, ['taxue', 'taxue']);
+    playCard(cs, toHand(cs, 'taxue')); expect(getStatus(cs.player, '隱身')).toBe(2);
+    playCard(cs, toHand(cs, 'taxue')); expect(getStatus(cs.player, '隱身')).toBe(3);
   });
 });

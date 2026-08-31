@@ -129,9 +129,11 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'immuneThisTurn': return '這回合魔物打不到你';
     case 'power': {
       const inner = fx.effects.map((e) => one(e, { inPower: true })).join('，');
-      return fx.trigger === 'turnStart' ? `每回合開始時${inner}`
-        : fx.trigger === 'onKill' ? `每打倒一隻魔物就${inner}`
-          : `回合結束時，如果這回合沒打過攻擊牌，${inner}`;
+      // 只限本回合的能力一定要講出來，不然玩家會當成永久的（「吸貓大法」的基礎版就是這種）
+      const scope = fx.thisTurn ? '這回合內，' : '';
+      return fx.trigger === 'turnStart' ? `${scope}每回合開始時${inner}`
+        : fx.trigger === 'onKill' ? `${scope}每打倒一隻魔物就${inner}`
+          : `${scope}回合結束時，如果這回合沒打過攻擊牌，${inner}`;
     }
   }
 }

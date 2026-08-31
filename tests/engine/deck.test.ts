@@ -7,11 +7,11 @@ describe('牌堆', () => {
   it('cardStats：升級版覆蓋費用／效果／關鍵字', () => {
     expect(cardStats(inst('sanjo', 1)).effects).toEqual([{ kind: 'damage', amount: 6 }]);
     expect(cardStats(inst('sanjo', 1, true)).effects).toEqual([{ kind: 'damage', amount: 9 }]);
-    expect(cardStats(inst('shuaiguo', 2)).cost).toBe(1);
+    expect(cardStats(inst('shuaiguo', 2)).cost).toBe(2);
     expect(cardStats(inst('shuaiguo', 2, true)).cost).toBe(0);
     expect(cardStats(inst('taxue', 3)).keywords).toEqual(['消耗']);
     expect(cardStats(inst('taxue', 3, true)).keywords).toEqual([]);
-    expect(cardStats(inst('sanjo', 1, true)).name).toBe('參上＋');
+    expect(cardStats(inst('sanjo', 1, true)).name).toBe('貓抓＋');
   });
   it('抽牌：抽牌堆空時把棄牌堆洗回，同種子同順序', () => {
     const rng = new Rng(seedFromString('deck'));
