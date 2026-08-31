@@ -20,8 +20,9 @@ describe('隨機試玩', () => {
   // 已於改成消耗牌後解掉；bal-453 是龜縮拖塔主）。釘住精確統計值，順便涵蓋「不丟例外」。
   // 2026-08-30 地圖兩度改版（先改路線式產生、再加不交叉規則、又新增 20 張牌），同種子的牌與路線都變了，數值重錄過三次。
   // 2026-08-31 依 Word 對照表的批改調了 27 張牌的費用／名稱／稀有度，又重錄一次。
+  // 同日再補 14 隻魔物與 23 組遭遇，出怪的擲骰全變了，再重錄一次。
   it('曾經打超過 60 回合的種子照樣跑得完，而且結果不變', () => {
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 13, turns: 41, kills: 4, deckSize: 15 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 12, turns: 50, kills: 8, deckSize: 17 });
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 6, turns: 17, kills: 4, deckSize: 13 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 9, turns: 36, kills: 7, deckSize: 17 });
   });
 });

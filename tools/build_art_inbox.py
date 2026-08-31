@@ -225,6 +225,36 @@ def main() -> None:
         manifest["icons"][f"icon/vfx_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"特效 vfx_{name}.webp {im.width}x{im.height} {dst.stat().st_size // 1024} KB")
 
+    # 魔物立繪：檔名是 `monster_<牌號>_<idle|attack>.png`。
+    # 每隻的兩張要一起放進「同一張畫布」再底部對齊，跟主角立繪同一個道理——
+    # 不然待機換出手的瞬間，同一隻怪會忽大忽小。
+    # 不同魔物之間**不共用**畫布：體型分小中大三級，本來就該不一樣大。
+    mon_files = sorted(INBOX.glob("monster_*.png"))
+    by_id: dict[str, dict[str, Image.Image]] = {}
+    for f in mon_files:
+        stem = f.stem[len("monster_"):]
+        if "_" not in stem:
+            print(f"  略過（檔名要 monster_<牌號>_<idle|attack>.png）：{f.name}")
+            continue
+        mid, pose = stem.rsplit("_", 1)
+        if pose not in ("idle", "attack"):
+            print(f"  略過（姿勢只收 idle／attack）：{f.name}")
+            continue
+        by_id.setdefault(mid, {})[pose] = key_out(Image.open(f))
+    for mid, poses in sorted(by_id.items()):
+        pad = 8
+        cw = max(im.width for im in poses.values()) + pad * 2
+        ch = max(im.height for im in poses.values()) + pad * 2
+        for pose, im in sorted(poses.items()):
+            canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+            canvas.paste(im, ((cw - im.width) // 2, ch - pad - im.height), im)
+            canvas.thumbnail((420, 640), Image.LANCZOS)
+            dst = OUT / "monsters" / f"{mid}_{pose}.webp"
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            canvas.save(dst, "WEBP", quality=84, method=6)
+            manifest.setdefault("monsters", {}).setdefault(f"codex/monster_{mid}", {})[pose] =                 dst.relative_to(OUT.parent).as_posix()
+        print(f"魔物 {mid}：{'／'.join(sorted(poses))}（畫布 {cw}x{ch}，底部對齊）")
+
     # 主角立繪：七張的主體高度本來就一致（實測都是 797），但寬度隨姿勢差很多。
     # 畫面用 object-fit: contain 塞進 240×300 的框，圖檔寬高比不同就會被縮成不同比例，
     # 換個姿勢貓就忽大忽小。所以全部放進「同一張畫布」再底部對齊置中，比例才鎖得住。

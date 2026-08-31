@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { encounterById, encounters, encountersOfPool, enemies, enemyById } from '../../src/content/enemies';
 
 describe('魔物資料', () => {
-  it('數量：一般 12、大魔物 2、塔主 1、召喚 1', () => {
+  it('數量：一般 28、大魔物 4、塔主 1、召喚 3', () => {
     const n = (p: string) => enemies.filter((e) => e.pool === p).length;
-    expect(n('弱') + n('中') + n('強')).toBe(12);
-    expect(n('大魔物')).toBe(2); expect(n('塔主')).toBe(1); expect(n('召喚')).toBe(1);
+    // 2026-08-31 補 14 隻：中後段本來只有 4＋3 組遭遇，一直重複同一場仗
+    expect(n('弱') + n('中') + n('強')).toBe(28);
+    expect(n('大魔物')).toBe(4); expect(n('塔主')).toBe(1); expect(n('召喚')).toBe(3);
     expect(new Set(enemies.map((e) => e.id)).size).toBe(enemies.length);
   });
   it('生命區間合法、至少一個動作、有台詞與圖', () => {

@@ -24,7 +24,7 @@ export const cards: readonly CardDef[] = [
   { id: 'wozaizhe', name: '我在這', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/wozaizhe',
     effects: [{ kind: 'damage', amount: 6 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 9 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }] } },
-  { id: 'jiaochulai', name: '交出來', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/jiaochulai',
+  { id: 'jiaochulai', name: '交出來', cost: 2, type: 技, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/jiaochulai',
     effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 4 }], upgrade: { effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 6 }] } },
   { id: 'susu', name: '速速退散', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'all', art: 'card/susu',
     effects: [{ kind: 'damage', amount: 8, target: 'all' }], upgrade: { effects: [{ kind: 'damage', amount: 11, target: 'all' }] } },

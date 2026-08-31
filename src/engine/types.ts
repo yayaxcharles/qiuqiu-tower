@@ -132,6 +132,13 @@ export interface EnemyDef {
   art: string;
   size: 'small' | 'medium' | 'large';
   onDeathHealPlayer?: number;
+  /**
+   * 「一起死才算數」：同一個 `reviveGroup` 的怪，只要還有同伴活著，
+   * 倒下的那隻會在下一個回合開始時爬起來（回到 `reviveHp` 的血量）。
+   * 要一次把整組清光才打得完。
+   */
+  reviveGroup?: string;
+  reviveHp?: number;
   strengthEveryNTurns?: number;
   phases?: EnemyPhase[];
 }

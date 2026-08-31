@@ -129,6 +129,24 @@ export function endTurn(cs: CombatState): void {
     if (p.freshDebuffs[name]) { delete p.freshDebuffs[name]; continue; }
     if (getStatus(p, name) > 0) addStatus(p, name, -1);
   }
+  // 「一起死才算數」：同組只要還有一隻活著，倒下的同伴就爬起來。
+  //
+  // 放在魔物行動之前：爬起來的當回合就會出手，玩家才感覺得到「沒清乾淨的代價」。
+  // 逃走的（`escaped`）不算倒下，不會被扶起來。
+  // 擊殺數要扣回去——同一隻爬起來再打倒不該重複計數。
+  for (const e of cs.enemies) {
+    const rdef = enemyById[e.enemyId];
+    if (!e.dead || e.escaped || !rdef?.reviveGroup) continue;
+    const hasFriend = cs.enemies.some((o) => o !== e && !o.dead
+      && enemyById[o.enemyId]?.reviveGroup === rdef.reviveGroup);
+    if (!hasFriend) continue;
+    e.dead = false;
+    e.hp = rdef.reviveHp ?? Math.max(1, Math.round((rdef.hp[0] + rdef.hp[1]) / 4));
+    e.block = 0;
+    cs.kills = Math.max(0, cs.kills - 1);
+    log(cs, `${e.name}又爬起來了`);
+  }
+
   for (const e of [...cs.enemies]) {
     if (e.dead || cs.phase !== 'player') continue;
     e.block = 0;
