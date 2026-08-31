@@ -10,6 +10,10 @@
   /* 退路漸層的方向要跟長條底圖一致：上面是夜空、下面是地牢 */
   background-image: linear-gradient(#1b2440, #3a3128 45%, #6b543a);
   background-size: cover;
+  /* 塔裡的火光也在晃。跟戰鬥畫面同一套作法：火把畫死在圖裡、位置對不了，
+     就讓整張圖的亮度輕微起伏。週期取 6.9 秒（跟戰鬥那邊的 5.7 不同），
+     兩個畫面切換時才不會看出是同一段動畫。 */
+  animation: map-torchlight 6.9s ease-in-out infinite;
   background-position: center;
 }
 /* 捲軸：一次看得到 664（720 減狀態列 56），內容比它高，往上捲＝往上爬 */
@@ -46,13 +50,36 @@
   width: 1280px;
   pointer-events: none;
 }
+@keyframes map-torchlight {
+  0%, 100% { filter: brightness(1); }
+  19% { filter: brightness(1.06) saturate(1.04); }
+  36% { filter: brightness(.98); }
+  58% { filter: brightness(1.045) saturate(1.03); }
+  79% { filter: brightness(1.02); }
+}
+
 .map-edges path {
   fill: none;
   stroke: rgba(255, 238, 200, .3);
   stroke-width: 3;
   stroke-linecap: round;
+  /* 路上有光緩緩往上流。虛線的間隔一直在跑，看起來就像這條路是通的、
+     而且是往上走的。`stroke-dashoffset` 給負值＝往前跑，正好是「往塔上爬」的方向。 */
+  stroke-dasharray: 7 13;
+  animation: path-flow 2.6s linear infinite;
 }
-.map-paw { opacity: .38; }
+@keyframes path-flow {
+  to { stroke-dashoffset: -20; }
+}
+/* 腳印明滅：跟路上流動的光錯開一點，路才不會整條都在同一個節奏 */
+.map-paw {
+  opacity: .38;
+  animation: paw-breathe 3.3s ease-in-out infinite;
+}
+@keyframes paw-breathe {
+  0%, 100% { opacity: .3; }
+  50% { opacity: .52; }
+}
 
 /* 樓層標籤。節點依種子各自偏了一點，標籤仍貼在該樓層的名目高度，才不會跟著歪 */
 .map-floor-label {
@@ -88,9 +115,16 @@
   object-fit: contain;
 }
 .map-node.past { opacity: .3; filter: grayscale(.75) drop-shadow(0 0 2px rgba(0, 0, 0, .8)); }
+/* 現在站的這格會輕輕浮著。原本只有一圈不會動的橘光，
+   在一片靜止的地圖上很難一眼認出「我在這」。 */
 .map-node.current {
   opacity: 1;
   filter: drop-shadow(0 0 5px #c9702a) drop-shadow(0 0 10px rgba(201, 112, 42, .7));
+  animation: node-here 2.2s ease-in-out infinite;
+}
+@keyframes node-here {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.05); }
 }
 .map-node.choice {
   opacity: 1;

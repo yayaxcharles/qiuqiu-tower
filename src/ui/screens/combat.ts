@@ -386,7 +386,9 @@ registerScreen('combat', (app, root, props) => {
     const bg = el('div', { class: 'battle-bg' });
     const bgUrl = artUrl('bg', bgKey);
     if (!isFallback(bgUrl)) bg.style.backgroundImage = `url(${bgUrl})`;
-    box.append(bg);
+    // 空氣裡的浮塵。畫面靜止時總得有東西在動，不然看起來像一張截圖
+    // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。三層各自飄，樣式在 combat.css。
+    box.append(bg, el('div', { class: 'motes' }, el('i'), el('i'), el('i')));
     // 選目標時鋪一層透明的接盤子：點空白處＝取消。魔物與手牌都疊在它上面，照樣點得到
     if (targeting) box.append(el('div', { class: 'target-catcher', onclick: () => { targeting = null; render(); } }));
 

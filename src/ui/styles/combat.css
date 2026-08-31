@@ -13,7 +13,74 @@
   background-image: radial-gradient(circle at 50% 24%, #4c4136 0%, #2a231c 58%, #171310 100%);
   background-size: cover;
   background-position: center bottom;
+  /* 火把在跳。背景是一張畫死的圖，火把畫在裡面、位置每張都不一樣，
+     所以不去對位置放光源，改成讓**整個場景**的亮度輕微起伏——
+     那正是火光照在石牆上會發生的事。
+     三段長度不同的關鍵影格（不是規律的來回），閃起來才不像呼吸燈。 */
+  animation: torchlight 5.7s ease-in-out infinite;
 }
+/* 只調亮度還是太含蓄，再疊一層真的在晃的暖光：從畫面上緣打下來，
+   位置與濃度都在變，看起來就像有火在旁邊燒。跟亮度那層週期不同（4.3 vs 5.7 秒），
+   兩個錯開才不會整齊到像呼吸燈。 */
+.battle-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 45% at 30% 8%, #ff9c3a2e 0%, #0000 70%),
+              radial-gradient(55% 42% at 88% 10%, #ffb0482b 0%, #0000 72%);
+  animation: torchglow 4.3s ease-in-out infinite;
+}
+@keyframes torchglow {
+  0%, 100% { opacity: .85; transform: translateY(0) scale(1); }
+  23% { opacity: 1; transform: translateY(-4px) scale(1.03); }
+  46% { opacity: .7; transform: translateY(2px) scale(.985); }
+  71% { opacity: .95; transform: translateY(-2px) scale(1.015); }
+}
+
+@keyframes torchlight {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  17% { filter: brightness(1.055) saturate(1.05); }
+  31% { filter: brightness(.985) saturate(.99); }
+  52% { filter: brightness(1.04) saturate(1.03); }
+  63% { filter: brightness(1.005); }
+  81% { filter: brightness(1.07) saturate(1.06); }
+}
+
+/* 空氣裡的浮塵。畫面靜止時總得有東西在動，不然看起來像一張截圖。
+   三層各自飄、速度與方向都不一樣，才不會看出是同一個圖案在重複。
+   用 radial-gradient 畫點，不另外生圖：這種東西 CSS 畫比生圖準也不佔位元組。 */
+.combat .motes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .5;
+}
+.combat .motes i {
+  position: absolute;
+  inset: -10% -10% -10% -10%;
+  display: block;
+  background-repeat: repeat;
+}
+.combat .motes i:nth-child(1) {
+  background-image: radial-gradient(circle, #ffe9c0cc 1px, #0000 1.6px);
+  background-size: 190px 150px;
+  animation: mote-drift-a 41s linear infinite;
+}
+.combat .motes i:nth-child(2) {
+  background-image: radial-gradient(circle, #ffdca899 1.4px, #0000 2.2px);
+  background-size: 270px 210px;
+  animation: mote-drift-b 63s linear infinite;
+}
+.combat .motes i:nth-child(3) {
+  background-image: radial-gradient(circle, #fff4d766 2px, #0000 3px);
+  background-size: 410px 330px;
+  animation: mote-drift-c 89s linear infinite;
+}
+@keyframes mote-drift-a { to { transform: translate(190px, -150px); } }
+@keyframes mote-drift-b { to { transform: translate(-270px, -210px); } }
+@keyframes mote-drift-c { to { transform: translate(140px, -330px); } }
 
 /* 選目標時鋪的接盤子：點空白處就取消。魔物、手牌、按鈕都疊在它上面，照樣點得到 */
 .target-catcher {
@@ -57,7 +124,7 @@
   object-position: center bottom;
   /* 待機動作改成「呼吸」不是「上下飄」。原本用 idle-bob 整隻上下平移，
      角色會離開地面，跟接地陰影一起看更假；改成以腳底為原點的微幅縮放。 */
-  animation: idle-breathe 3.4s ease-in-out infinite;
+  animation: idle-breathe 2.6s ease-in-out infinite;
 }
 /* 主角的框開寬一點：新立繪的畫布是 758×817（含最寬的出招姿勢），
    用 240 寬會以寬度為準縮小，上面白留一截；270 才把高度吃滿。 */
@@ -154,7 +221,17 @@
   font-weight: bold;
   white-space: nowrap;
 }
-.combat .i-attack { background: #ffd0d0; }
+/* 要打人的那個牌子會抽動：靜態的字看久了會變成背景，
+   而「牠下一手要打我」正是最該一眼看到的東西。只有攻擊意圖會動，
+   其他（防禦、增益）保持安靜，才不會整排都在跳、什麼都突顯不了。 */
+.combat .i-attack {
+  background: #ffd0d0;
+  animation: intent-throb 1.15s ease-in-out infinite;
+}
+@keyframes intent-throb {
+  0%, 100% { scale: 1; box-shadow: 0 0 0 0 #ff6a6a00; }
+  50% { scale: 1.07; box-shadow: 0 0 0 3px #ff6a6a3d; }
+}
 .combat .i-block { background: #cfe2ff; }
 .combat .i-buff { background: #dff5d8; }
 .combat .i-debuff { background: #efd6ff; }
@@ -231,6 +308,31 @@
 .combat .hand .card {
   pointer-events: auto;
   transition: transform .12s ease-out;
+  /* 手牌輕輕起伏，像拿在手上會晃。幅度很小（3 像素、0.4 度）——
+     大了會看不清楚牌面，也會跟滑過去抬起來的動作打架。 */
+  animation: card-idle 3.8s ease-in-out infinite;
+}
+/* 錯開起跑時間，整排才不會像同一塊木板在上下 */
+.combat .hand .card:nth-child(2) { animation-delay: -.5s; }
+.combat .hand .card:nth-child(3) { animation-delay: -1s; }
+.combat .hand .card:nth-child(4) { animation-delay: -1.6s; }
+.combat .hand .card:nth-child(5) { animation-delay: -2.2s; }
+.combat .hand .card:nth-child(6) { animation-delay: -2.7s; }
+.combat .hand .card:nth-child(7) { animation-delay: -3.2s; }
+/* 滑過去、飛出去、被擋下來抖動時不要晃：那幾個都有自己的動作，疊在一起會打架。
+   **剛發到的牌（`.dealt`）不在這個名單裡**——那個類別加上去就不會拿掉，
+   列進來等於把起伏永久關掉（第一次寫就是這樣，整排牌完全不動）。
+   它改成在自己那條規則裡把兩個動畫都列出來。 */
+.combat .hand .card:hover,
+.combat .hand .card.nope,
+.card.flying { animation: none; }
+/* **動的是 `translate`／`rotate` 這兩個獨立屬性，不是 `transform`。**
+   扇形的角度是渲染時用行內 `transform` 寫上去的，而動畫的優先序高於行內樣式——
+   如果這裡動 `transform`，一開始播整排牌的扇形就會被抹平變成一直線。
+   獨立屬性是跟 `transform` **疊加**的，所以扇形留著，起伏疊在上面。 */
+@keyframes card-idle {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  50% { translate: 0 -3px; rotate: .4deg; }
 }
 .combat .hand .card:hover {
   transform: translateY(-46px) scale(1.06) !important;
@@ -333,9 +435,16 @@
   45% { transform: translateX(8px) rotate(2deg); }
   70% { transform: translateX(-4px); }
 }
+/* 待機：原本 scaleY 只放大 2.2%，量過等於看不見——畫面靜止時整個戰鬥場只有這一個動畫在跑，
+   跑了等於沒跑。加大到 5%，並配一點左右晃與極輕的傾斜，看起來才像活的。
+   原點在腳底（`transform-origin: center bottom`），所以放再大腳都黏在地上，
+   不會變回以前那種「浮在空中上上下下」。
+   週期用 2.6 秒不是 3.4：太慢會像慢動作，這個長度接近人真的呼吸。 */
 @keyframes idle-breathe {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(1.022) scaleX(.995); }
+  0%, 100% { transform: scaleY(1) scaleX(1) rotate(0deg); }
+  28% { transform: scaleY(1.035) scaleX(.988) rotate(-.5deg); }
+  50% { transform: scaleY(1.05) scaleX(.982) rotate(0deg); }
+  76% { transform: scaleY(1.028) scaleX(.99) rotate(.5deg); }
 }
 .combat .unit.attack .sprite { animation: lunge .4s ease-out; }
 .combat .unit.enemy.attack .sprite { animation: lunge-left .4s ease-out; }
@@ -385,7 +494,12 @@
   100% { transform: translate(-50%, -70px); opacity: 0; }
 }
 /* 新抽到的牌從下面滑上來。只有真的新出現的牌會掛這個類別（見 handRow） */
-.combat .hand .card.dealt { animation: card-in .34s cubic-bezier(.2, .9, .3, 1.2) backwards; }
+/* 進場與起伏兩個一起掛：進場動的是 `transform`、起伏動的是 `translate`／`rotate`，
+   是不同的屬性，不會互相蓋掉。只列一個的話會把基礎規則的起伏整條換掉。 */
+.combat .hand .card.dealt {
+  animation: card-in .34s cubic-bezier(.2, .9, .3, 1.2) backwards,
+             card-idle 3.8s ease-in-out infinite;
+}
 /* 注意：@keyframes 裡不能加 !important，加了整條會被忽略（只會剩淡入、不會滑）。
    這裡不用 !important 也蓋得過行內的扇形角度——動畫的優先序本來就高於行內樣式，
    而且只寫 from、to 那格會自動取用元素當下的值，所以會從下方滑回它該在的角度。 */
