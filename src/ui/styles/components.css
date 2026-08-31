@@ -8,34 +8,58 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 0 16px;
+  padding: 0 18px;
   box-sizing: border-box;
+  /* 狀態列本來是一條純色深灰條——整場都在畫面上，卻是唯一完全沒設計的地方。
+     做成一根橫木樑：上下各一條亮邊與暗邊做出厚度、底下一條深色的投影把它跟場景分開，
+     木紋用很淡的斜條紋帶出來（跟對白框、說明框同一種紙木質感）。 */
+  background-image:
+    repeating-linear-gradient(96deg, #ffffff06 0 2px, #0000 2px 9px),
+    linear-gradient(#4a382a, #3a2a1c 55%, #2b1f14);
+  border-bottom: 3px solid #1c140d;
+  box-shadow: inset 0 1px 0 #ffffff26, inset 0 -2px 6px #00000073, 0 3px 10px #0009;
   background: rgba(43, 33, 24, .85);
   color: #f6efe3;
   z-index: 10;
 }
 .hud-floor {
-  min-width: 46px;
+  /* 樓層做成掛在樑上的小木牌：整場最常看的數字，要一眼找得到 */
+  min-width: 52px;
+  padding: 2px 10px 3px;
+  border: 2px solid #1c140d;
+  border-radius: 7px;
+  background: linear-gradient(#c9702a, #94501a);
+  color: #fff6e2;
   font-size: 20px;
   font-weight: bold;
+  text-align: center;
+  text-shadow: 0 1px 2px #00000080;
+  box-shadow: inset 0 1px 0 #ffffff4d, 0 2px 0 #00000047;
 }
 .hud-hp {
   position: relative;
   width: 220px;
-  height: 22px;
-  background: #3a2a22;
-  border-radius: 11px;
+  height: 24px;
+  /* 血條做成嵌在樑上的凹槽：內側暗、外側有一圈深邊，看起來是挖進去的 */
+  background: #241a12;
+  border: 2px solid #1a120c;
+  border-radius: 12px;
+  box-sizing: border-box;
   overflow: hidden;
   text-align: center;
   font-size: 14px;
-  line-height: 22px;
+  line-height: 20px;
+  box-shadow: inset 0 2px 5px #000000a6;
 }
 .hud-hp-bar {
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  background: #d9534f;
+  /* 血本身有厚度：上面一道亮邊、下面壓暗，不是一塊平的紅色 */
+  background: linear-gradient(#e8695f, #c0362f 60%, #9c2a24);
+  box-shadow: inset 0 1px 0 #ffffff59;
+  transition: width 380ms ease-out;
 }
 .hud-hp span { position: relative; }
 .hud-fish {
@@ -46,7 +70,15 @@
 }
 .hud-fish img { width: 26px; height: 26px; }
 .hud-relics, .hud-potions { display: flex; gap: 6px; }
+/* 秘寶與忍具做成嵌在樑上的小凹槽，才不會像浮在木頭上的貼紙 */
+.hud-relic, .hud-potion {
+  border-radius: 8px;
+  background: #0000004d;
+  box-shadow: inset 0 1px 3px #000000a6, 0 1px 0 #ffffff1a;
+}
 .hud-relic img, .hud-potion img { width: 32px; height: 32px; display: block; }
+.hud-relic { transition: transform 120ms ease-out; }
+.hud-relic:hover { transform: translateY(-2px) scale(1.08); }
 .hud-potion {
   width: 32px;
   height: 32px;
@@ -114,7 +146,11 @@
   height: 250px;
   border: 3px solid var(--ink);
   border-radius: 12px;
-  background: #fff;
+  /* 從一塊白方塊變成有厚度的卡紙：上緣一道亮邊（紙面反光）、下緣壓暗、
+     外面一層落地陰影。牌只有 170x250、文字已經快滿，所以厚度全部做在
+     現有的邊框上，不佔任何內部空間。 */
+  background: linear-gradient(#fff 0%, #fdfaf3 62%, #f2e9d8 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 6px #8a6a3f2e, 0 2px 5px #0000004d;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -151,25 +187,40 @@
  */
 .card.rarity-罕見 { border-color: #2f5fa8; color: #2f5fa8; }
 .card.rarity-稀有 { border-color: #b8860b; color: #b8860b; }
+/* 稀有度改用**畫出來的寶石**，不用打上去的「★」字元——
+   字元會跟著字型走、大小不好控，而且看起來像文字不像徽記。
+   菱形用 clip-path 切，一樣不生圖、縮放不糊。 */
 .card.rarity-罕見::before,
 .card.rarity-稀有::before {
-  content: '★';
+  content: '';
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   right: 7px;
-  top: 4px;
-  font-size: 15px;
-  line-height: 1;
+  top: 7px;
+  width: 13px;
+  height: 13px;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
   pointer-events: none;
 }
-.card.rarity-罕見::before { color: #2f5fa8; }
-.card.rarity-稀有::before {
-  content: '★★';
-  color: #b8860b;
-  letter-spacing: -2px;
-  text-shadow: 0 0 6px rgba(255, 200, 60, .8);
+.card.rarity-罕見::before {
+  background: linear-gradient(#7ea9e0, #2f5fa8 55%, #1d3f74);
 }
-.card.small.rarity-罕見::before, .card.small.rarity-稀有::before { font-size: 12.8px; right: 6px; }
+.card.rarity-稀有::before {
+  width: 16px;
+  height: 16px;
+  right: 6px;
+  top: 6px;
+  background: linear-gradient(#ffe9a8, #e8b23a 50%, #a8760c);
+  box-shadow: 0 0 7px #ffc83ce0;
+  animation: rare-gem 2.6s ease-in-out infinite;
+}
+/* 稀有牌的寶石會慢慢亮起來——拿到稀有牌該有「挖到寶」的感覺 */
+@keyframes rare-gem {
+  0%, 100% { box-shadow: 0 0 6px #ffc83c8c; }
+  50% { box-shadow: 0 0 12px #ffc83cf5; }
+}
+.card.small.rarity-罕見::before { width: 11px; height: 11px; right: 6px; top: 6px; }
+.card.small.rarity-稀有::before { width: 13px; height: 13px; right: 5px; top: 5px; }
 
 .card.clickable { cursor: pointer; }
 .card.clickable:hover { box-shadow: 0 0 0 3px var(--accent); }
@@ -184,12 +235,14 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #ffe9a8;
+  /* 從一個素圓圈變成有厚度的代幣：上亮下暗＋內側亮邊＋底下一圈影子 */
+  background: radial-gradient(circle at 38% 30%, #fff6d2, #ffe08a 55%, #e0ac41);
   border: 2px solid var(--ink);
   box-sizing: border-box;
   text-align: center;
   line-height: 26px;
   font-weight: bold;
+  box-shadow: inset 0 1px 0 #fffdf0, inset 0 -2px 3px #b8842899, 0 1px 2px #00000059;
 }
 .card-art {
   width: 150px;
@@ -198,10 +251,19 @@
   margin-top: 8px;
 }
 .card-name {
+  /* 牌名加一條淡底襯與上下細線，把它跟插圖分開——
+     本來名字直接貼在圖下面，圖一花就讀不到 */
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 2px;
+  padding: 1px 6px 2px;
+  border-top: 1px solid #3a2a1c26;
+  border-bottom: 1px solid #3a2a1c26;
+  background: #3a2a1c0f;
   color: var(--ink);
   font-weight: bold;
   font-size: 15px;
-  margin-top: 2px;
+  text-align: center;
 }
 .card-text {
   color: var(--ink);
@@ -212,10 +274,16 @@
   flex: 1;
 }
 .card-type {
+  /* 類型從一行灰字變成底部的小標籤，跟規則文字分得開 */
+  align-self: stretch;
+  margin: 0 8px 4px;
+  padding: 1px 0 2px;
+  border-radius: 5px;
+  background: #3a2a1c14;
   color: var(--ink);
   font-size: 11px;
-  opacity: .7;
-  padding-bottom: 4px;
+  opacity: .75;
+  letter-spacing: 2px;
 }
 
 /*
