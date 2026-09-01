@@ -292,6 +292,12 @@ export interface CombatState {
   pending: PendingChoice | null;
   log: string[];
   encounterId: string;
+  /**
+   * 牌效果要求結束回合（撒手鐧、先睡了）。以前是效果裡直接呼叫 endTurn，
+   * 敵方回合被壓縮在同一次重畫裡閃過，玩家看起來像「打完馬上又輪到我」。
+   * 改成掛旗子，由呼叫端（畫面／機器人）用跟按鈕一樣的流程收尾。
+   */
+  endTurnRequested: boolean;
   stolenFish: number;       // 山賊偷走的，擊倒牠全部拿回
   fishDelta: number;        // 牌效果賺到的小魚乾
   kills: number;

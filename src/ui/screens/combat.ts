@@ -716,6 +716,12 @@ registerScreen('combat', (app, root, props) => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       if (!playCard(cs, uid, targetUid)) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
     }, { pose: POSE.attack, attack: st.def.type === '攻擊' });
+    // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
+    // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
+    // 稍等 650 毫秒讓這張牌的傷害數字與姿勢先播完，不然出招跟收牌疊在同一拍。
+    if (cs.endTurnRequested) window.setTimeout(() => {
+      if (app.cs === cs && cs.endTurnRequested && cs.phase === 'player') onEndTurn();
+    }, 650);
   }
 
   function onPotion(id: string): void {

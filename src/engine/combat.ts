@@ -30,7 +30,7 @@ export function startCombat(input: {
   };
   const cs: CombatState = {
     rng: input.rng, player, enemies: [], relics: [...input.relics], potions: [...input.potions],
-    turn: 0, phase: 'player', pending: null, log: [], encounterId: input.encounterId,
+    turn: 0, phase: 'player', pending: null, log: [], encounterId: input.encounterId, endTurnRequested: false,
     stolenFish: 0, fishDelta: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
   };
   enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, enc.hpScale ?? 1)));
@@ -113,6 +113,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
 
 export function endTurn(cs: CombatState): void {
   if (cs.phase !== 'player' || cs.pending) return;
+  cs.endTurnRequested = false;   // 這個請求到這裡就兌現了
   const p = cs.player;
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
