@@ -117,7 +117,8 @@
   "boss/palm": "assets/sprites/boss/palm.webp",
   "boss/roar": "assets/sprites/boss/roar.webp",
   "boss/seclude": "assets/sprites/boss/seclude.webp",
-  "shop/keeper": "assets/sprites/shop/keeper.webp"
+  "shop/keeper": "assets/sprites/shop/keeper.webp",
+  "hero/cover": "assets/sprites/hero/cover.webp"
  },
  "review": [],
  "monsters": {

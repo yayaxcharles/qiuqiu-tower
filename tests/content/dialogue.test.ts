@@ -11,8 +11,10 @@ describe('對白', () => {
     expect(qiuqiuLineOk('我來了')).toBe(false);
   });
   it('球球每一句都以喵結尾；旁白不加喵', () => {
-    const groups = [dialogue.prologue, dialogue.secretScroll, dialogue.afterFirstElite, dialogue.restBeforeBoss,
-      dialogue.bossIntro, dialogue.bossPhase2, dialogue.victory, dialogue.defeat];
+    const groups = [dialogue.prologue, dialogue.secretScroll, dialogue.afterFirstElite,
+      ...dialogue.restBeforeBossByAct, ...Object.values(dialogue.bossIntroById), dialogue.bossIntroGeneric,
+      ...Object.values(dialogue.bossPhase2ById), dialogue.bossPhase2Generic,
+      dialogue.actClear1, dialogue.actClear2, dialogue.victory, dialogue.defeat];
     for (const g of groups) for (const l of g) {
       if (l.speaker === '球球') expect(qiuqiuLineOk(l.text), l.text).toBe(true);
       if (l.speaker === '旁白') expect(qiuqiuLineOk(l.text), l.text).toBe(false);
@@ -24,8 +26,9 @@ describe('對白', () => {
   it('每種魔物都有初見吐槽', () => {
     for (const e of enemies) expect(dialogue.firstMeet[e.id], e.id).toBeTruthy();
   });
-  it('塔主只講大俠貼圖標題', () => {
-    const groups = [dialogue.bossIntro, dialogue.bossPhase2, dialogue.victory];
+  it('師父（tower_master）只講大俠貼圖標題', () => {
+    // 這條風格規矩只管師父本人：其他關主（貓又婆婆等）的塔主台詞是一般對白
+    const groups = [dialogue.bossIntroById['tower_master']!, dialogue.bossPhase2ById['tower_master']!, dialogue.victory];
     for (const g of groups) for (const l of g) if (l.speaker === '塔主') expect(DAXIA_TITLES, l.text).toContain(l.text.replace(/[。！]$/u, ''));
   });
 });

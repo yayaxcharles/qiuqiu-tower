@@ -131,12 +131,13 @@ export const enemies: EnemyDef[] = [
   // 貓又婆婆：**磨不死的那種**。自己會回血，還會放出兩條會互相復活的尾巴。
   // 尾巴同組（`reviveGroup: 'tail'`），只清掉一條沒用，要同一回合兩條一起清。
   // 解法是爆發與清場，慢慢磨只會被她回滿。
-  { id: 'nekomata', name: '貓又婆婆', hp: [150, 150], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata',
+  // 2026-09-01 減壓：血 150→130、吸魂 12→9，配合鐵爪一起降到第一關牌組打得動的量級
+  { id: 'nekomata', name: '貓又婆婆', hp: [130, 130], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata',
     line: '孩子，你走得太上面了。',
     moves: [
       { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }] },
       { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
-      { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 12 }] },
+      { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 9 }] },
       { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
     ],
     phases: [{
@@ -159,12 +160,15 @@ export const enemies: EnemyDef[] = [
 
   // 鐵爪機關貓：**蜷縮擋不住的那種**。招招都是多段小刀，而且每兩回合自己變強。
   // 十點蜷縮對 4×4 只擋得掉前兩下，解法是隱身跟定身，不是硬擋。
-  { id: 'iron_claw', name: '鐵爪機關貓', hp: [140, 140], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
-    line: '（齒輪轉了一圈）', strengthEveryNTurns: 2,
+  // 2026-09-01 減壓：原本三個成長來源疊加（每 2 回合+1、發條+3、二階段每回合+1），
+  // 爪力疊到 +4 之後 3×6 變 7×6＝42、4×4 變 9×4＝36，第一關牌組完全扛不住（使用者實玩回報）。
+  // 段數砍一級、發條 +3→+2、自動成長改每 3 回合、血 140→120。多段穿蜷縮的性格保留。
+  { id: 'iron_claw', name: '鐵爪機關貓', hp: [120, 120], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
+    line: '（齒輪轉了一圈）', strengthEveryNTurns: 3,
     moves: [
-      { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
-      { intent: 'buff', label: '上緊發條', effects: [{ kind: 'statusSelf', name: '爪力', amount: 3 }] },
-      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 3, times: 6 }] },
+      { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
+      { intent: 'buff', label: '上緊發條', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
+      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 3, times: 4 }] },
       { intent: 'block', label: '收爪', effects: [{ kind: 'block', amount: 16 }] },
     ],
     phases: [{

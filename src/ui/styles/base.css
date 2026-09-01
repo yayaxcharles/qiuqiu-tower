@@ -117,6 +117,8 @@ img { -webkit-user-drag: none; }
   position: relative;
   display: block;
   height: 320px;
+  /* 貼圖的題字已改成米白（黑墨字壓在夜景上看不清），再墊一圈深色投影保底 */
+  filter: drop-shadow(0 3px 10px #000000cc);
   animation: idle-bob 2.4s ease-in-out infinite;
 }
 @keyframes idle-bob {
@@ -508,11 +510,13 @@ img { -webkit-user-drag: none; }
 }
 
 /* 標題畫面的副標「球球參上」：小一號、拉開字距，墊在主標下面 */
-.title .title-sub {
-  margin-top: -6px;
-  font-size: 21px;
-  letter-spacing: 7px;
-  color: #e8d9b8;
-  text-shadow: 0 2px 4px #000000b0;
-  opacity: .92;
+/* 副標再放大一輪（30 還是被嫌小）：粗體、亮金、描邊，跟主標同一個量級的存在感 */
+.title-screen .title-sub {
+  margin-top: -4px;
+  font-size: 42px;
+  font-weight: bold;
+  letter-spacing: 12px;
+  color: #ffd97a;
+  text-shadow: 0 2px 3px #000, 0 0 14px #00000090, 0 4px 10px #000000c0;
+  opacity: 1;
 }

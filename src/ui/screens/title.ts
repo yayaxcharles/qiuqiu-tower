@@ -18,7 +18,8 @@ registerScreen('title', (app, root) => {
       // 陰影跟戰鬥畫面同一招：去背的角色貼在背景上就是浮著，腳下墊一片橢圓才像站著
       el('div', { class: 'title-cat-box' },
         el('div', { class: 'ground-shadow' }),
-        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/ninja_win'), alt: '球球' })),
+        // 封面主圖用 LINE 貼圖的「參上」那張（使用者指定）：爆炸背景＋題字，比乾站著的立繪有氣勢
+        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' })),
       // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名，球球退到副標——
       // 他還是主角，但招牌要像作品名，不是一句口語
       el('h1', {}, '爪破魔塔'),

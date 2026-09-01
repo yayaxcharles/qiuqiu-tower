@@ -159,7 +159,11 @@ export class App {
         toast(dialogue.battleStart[Math.floor(Math.random() * dialogue.battleStart.length)] ?? '', '球球');
       }
     };
-    if (isBoss) playDialogue(dialogue.bossIntro, go); else go();
+    if (isBoss) {
+      // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上
+      const bossId = encounterById[encounterId]?.enemies[0] ?? '';
+      playDialogue(dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go);
+    } else go();
   }
 
   /**

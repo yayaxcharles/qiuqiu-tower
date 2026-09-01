@@ -75,5 +75,10 @@ registerScreen('rest', (app, root) => {
   // 先把貓窩畫出來，14F 塔主戰前那段獨白再蓋上去播（只播一次，旗標在 run.flags，由結算那次存檔帶走）。
   // 反過來先播的話，玩家會對著一片空白的舞台看獨白。
   show();
-  if (run.floor === 14) app.playOnce('restBeforeBoss', dialogue.restBeforeBoss, () => { /* 看完就選 */ });
+  // 「floor === 14」在跨關累計後只會中第一關（第二三關是 29、44）——用關內樓層判斷，
+  // 獨白內容也依關數換（前兩關的關主不是師父，師父的戲留到第三關）
+  if (run.floor % 15 === 14) {
+    const monologue = dialogue.restBeforeBossByAct[run.act - 1] ?? dialogue.restBeforeBossByAct[0]!;
+    app.playOnce(`restBeforeBoss${run.act}`, monologue, () => { /* 看完就選 */ });
+  }
 });

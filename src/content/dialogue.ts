@@ -68,27 +68,75 @@ export const dialogue = {
     { speaker: '黑貓忍者頭目', text: '上面那位，不是你認識的那隻貓了。' },
     { speaker: '球球', text: '那我更要上去看喵。' },
   ],
-  restBeforeBoss: <DialogueLine[]>[
-    { speaker: '球球', text: '上面就是師父了喵。' },
-    { speaker: '球球', text: '我以前連馬步都蹲不好，他就一直笑我圓喵。' },
-    { speaker: '球球', text: '圓也可以爬到這裡喵。' },
+  /**
+   * 關主戰前一晚（各關 14F 貓窩）的獨白，依關數換。
+   * 三關制之前只有一段、內容寫死「上面就是師父」——現在前兩關的關主不是師父，
+   * 師父的戲留到第三關才對（使用者抓到的劇情錯位）。
+   */
+  restBeforeBossByAct: <DialogueLine[][]>[
+    [ // 第一關：上面是守塔的魔物，師父還很遠
+      { speaker: '球球', text: '上面有一隻很強的，看門的喵。' },
+      { speaker: '球球', text: '打贏牠，才算真的進了這座塔喵。' },
+      { speaker: '球球', text: '先睡飽。明天用全力喵。' },
+    ],
+    [ // 第二關：開始聽見塔頂的動靜
+      { speaker: '球球', text: '越往上，魔氣越重喵。' },
+      { speaker: '球球', text: '剛剛好像聽到塔頂有聲音……很像師父喵。' },
+      { speaker: '球球', text: '再一層。就快到了喵。' },
+    ],
+    [ // 第三關：明天就是師父（沿用原本那段）
+      { speaker: '球球', text: '上面就是師父了喵。' },
+      { speaker: '球球', text: '我以前連馬步都蹲不好，他就一直笑我圓喵。' },
+      { speaker: '球球', text: '圓也可以爬到這裡喵。' },
+    ],
   ],
-  bossIntro: <DialogueLine[]>[
-    { speaker: '塔主', text: '難逢敵手。' },
-    { speaker: '球球', text: '師父，是我，球球喵。' },
-    { speaker: '塔主', text: '退隱江湖。' },
-    { speaker: '球球', text: '你不下去，我就把你打下去喵。' },
+  /**
+   * 關主開場對白，鍵＝關主的魔物 id；沒寫的用 generic。
+   * 師父那段只掛在 tower_master（第三關固定關主）身上。
+   */
+  bossIntroById: <Record<string, DialogueLine[]>>{
+    nekomata: [
+      { speaker: '塔主', text: '孩子，回頭吧。上面的東西，不是你打得動的。' },
+      { speaker: '球球', text: '婆婆讓路，我趕時間喵。' },
+      { speaker: '塔主', text: '……那就試試你的斤兩。' },
+    ],
+    iron_claw: [
+      { speaker: '塔主', text: '（喀嚓、喀嚓——五對鐵爪同時張開）' },
+      { speaker: '球球', text: '機器貓不會累……那就在它累之前打壞它喵！' },
+    ],
+    tower_master: [
+      { speaker: '塔主', text: '難逢敵手。' },
+      { speaker: '球球', text: '師父，是我，球球喵。' },
+      { speaker: '塔主', text: '退隱江湖。' },
+      { speaker: '球球', text: '你不下去，我就把你打下去喵。' },
+    ],
+  },
+  bossIntroGeneric: <DialogueLine[]>[
+    { speaker: '塔主', text: '到此為止了。' },
+    { speaker: '球球', text: '擋路的，都一樣喵。' },
   ],
-  bossPhase2: <DialogueLine[]>[
-    { speaker: '塔主', text: '走火入魔。' },
-    { speaker: '球球', text: '師父撐住，快結束了喵。' },
+  /** 關主進入第二階段的兩句，鍵同上；沒寫的用 generic */
+  bossPhase2ById: <Record<string, DialogueLine[]>>{
+    tower_master: [
+      { speaker: '塔主', text: '走火入魔。' },
+      { speaker: '球球', text: '師父撐住，快結束了喵。' },
+    ],
+    nekomata: [
+      { speaker: '塔主', text: '老骨頭，也有火氣。' },
+      { speaker: '球球', text: '婆婆認真了……小心喵！' },
+    ],
+  },
+  bossPhase2Generic: <DialogueLine[]>[
+    { speaker: '塔主', text: '（氣勢整個變了）' },
+    { speaker: '球球', text: '牠變強了……撐住喵！' },
   ],
   victory: <DialogueLine[]>[
     { speaker: '塔主', text: '承讓。' },
     { speaker: '球球', text: '領教了喵。' },
     { speaker: '旁白', text: '師父醒了。球球把他扛在背上，一層一層走下塔。' },
   ],
-  victoryTeaser: '塔上面……好像還有樓層喵？',
+  // 三關制之後這句只在「真通關」時出現：塔清完了，沒有更多樓層，改成收尾的話
+  victoryTeaser: '塔安靜下來了。回家吃小魚乾喵。',
   /** 打倒第一關關主（塔下→塔中）。師父還在更上面，故事往上推一層 */
   actClear1: <DialogueLine[]>[
     { speaker: '旁白', text: '守塔的魔物倒下了。牆邊有一道往上的樓梯，飄著飯菜香。' },
