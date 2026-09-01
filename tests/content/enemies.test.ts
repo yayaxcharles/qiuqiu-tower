@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { encounterById, encounters, encountersOfPool, enemies, enemyById } from '../../src/content/enemies';
 
 describe('魔物資料', () => {
-  it('數量：一般 28、大魔物 4、塔主 3、召喚 4', () => {
+  it('數量：一般 28、大魔物 4、塔主 3、召喚 5', () => {
     const n = (p: string) => enemies.filter((e) => e.pool === p).length;
     // 2026-08-31 補 14 隻：中後段本來只有 4＋3 組遭遇，一直重複同一場仗
     expect(n('弱') + n('中') + n('強')).toBe(28);
-    expect(n('大魔物')).toBe(4); expect(n('塔主')).toBe(3); expect(n('召喚')).toBe(4);
+    // 召喚 5：2026-09-01 加了切磋的白貓（只有事件會遇到——之前偷懶借黑貓忍者當對手）
+    expect(n('大魔物')).toBe(4); expect(n('塔主')).toBe(3); expect(n('召喚')).toBe(5);
     expect(new Set(enemies.map((e) => e.id)).size).toBe(enemies.length);
   });
   it('生命區間合法、至少一個動作、有台詞與圖', () => {

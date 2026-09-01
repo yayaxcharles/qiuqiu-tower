@@ -53,6 +53,17 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '二連斬', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'attack', label: '手裡劍', effects: [{ kind: 'damage', amount: 9 }] },
     ] },
+  // 切磋的白貓：只有「想切磋的白貓」事件會遇到（pool 召喚＝不進隨機池）。
+  // 之前偷懶借黑貓忍者當對手，事件圖跟文案都是白貓、打起來卻是黑貓（使用者抓到）。
+  // 招式走堂堂正正的劍客路線：起手亮劍（蓄力）、正面重斬，跟忍者的隱身流分開。
+  { id: 'white_duelist', name: '切磋的白貓', hp: [38, 42], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_white_duelist',
+    line: '打一場。全力來。',
+    moves: [
+      { intent: 'special', label: '亮劍', effects: [{ kind: 'chargeNext' }] },
+      { intent: 'attack', label: '正面斬', effects: [{ kind: 'damage', amount: 8 }] },
+      { intent: 'block', label: '架勢', effects: [{ kind: 'block', amount: 7 }] },
+      { intent: 'attack', label: '突刺', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
+    ] },
   { id: 'orange_bandit', name: '橘貓山賊', hp: [48, 52], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_orange_bandit',
     line: '留下買路財！',
     moves: [
@@ -394,6 +405,7 @@ export const encounters: EncounterDef[] = [
   { id: 'goat', pool: '弱', enemies: ['goat'] },
   { id: 'vacuum', pool: '中', enemies: ['vacuum'] },
   { id: 'black_ninja', pool: '中', enemies: ['black_ninja'] },
+  { id: 'white_duelist', pool: '召喚', enemies: ['white_duelist'] },
   { id: 'orange_bandit', pool: '中', enemies: ['orange_bandit'] },
   { id: 'catgrass_bugs', pool: '中', enemies: ['catgrass_bug', 'catgrass_bug'] },
   { id: 'scarecrow', pool: '強', enemies: ['scarecrow'] },

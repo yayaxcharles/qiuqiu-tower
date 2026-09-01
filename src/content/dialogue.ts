@@ -14,6 +14,7 @@ export const dialogue = {
   ],
   /** 每種魔物第一次登場時球球的吐槽（鍵＝魔物 id） */
   firstMeet: <Record<string, string>>{
+    white_duelist: '好正式的架勢……牠是認真的喵。',
     rat: '偷小魚乾的就是你們喵！',
     yarn_ball: '那顆……會自己滾耶喵。',
     soy_bottle: '倒了就算了，還會動是怎樣喵。',

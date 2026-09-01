@@ -88,7 +88,7 @@ export const events: EventDef[] = [
   { id: 'sparring_cat', title: '想切磋的白貓',
     text: '一隻白貓擋在路中間，抱著手臂。「打一場。輸了我讓路，贏了……我也讓路。」',
     choices: [
-      { label: '打一場（打贏多拿 60 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'black_ninja', bonusFish: 60 }], result: '白貓退到旁邊。「不錯。」' },
+      { label: '打一場（打贏多拿 60 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'white_duelist', bonusFish: 60 }], result: '白貓退到旁邊。「不錯。」' },
       { label: '不打（掉 8 點生命，被牠撞開）', outcome: [{ kind: 'damage', n: 8 }], result: '球球被撞得踉蹌了一下。白貓：「沒禮貌。」' },
     ] },
 
