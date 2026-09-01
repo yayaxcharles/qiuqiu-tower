@@ -884,7 +884,7 @@ registerScreen('combat', (app, root, props) => {
         const sp = node.querySelector<HTMLElement>('.sprite');
         if (sp) sp.style.animationDelay = `${cs.enemies.indexOf(e) * 110}ms`;
       }
-      if (b.phase === 0 && e.phase > 0) bossPhase2(e.enemyId);
+      if (e.phase > b.phase) bossPhaseTalk(e.enemyId, e.phase);
     }
     // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
@@ -955,8 +955,10 @@ registerScreen('combat', (app, root, props) => {
    * 第二句晚 1.4 秒才放，比交棒的 1300 毫秒還久，所以要跟其他延遲回呼一樣先確認這場還在
    * （`app.cs === cs`）——不然階段一換就把塔主打死的話，這句會飄到結算畫面上（吐槽住在疊層，換畫面不會被清掉）。
    */
-  function bossPhase2(bossId: string): void {
-    const [a, b] = dialogue.bossPhase2ById[bossId] ?? dialogue.bossPhase2Generic;
+  function bossPhaseTalk(bossId: string, phase: number): void {
+    const [a, b] = phase >= 2
+      ? (dialogue.bossPhase3ById[bossId] ?? dialogue.bossPhase3Generic)
+      : (dialogue.bossPhase2ById[bossId] ?? dialogue.bossPhase2Generic);
     if (a) toast(a.text, a.speaker);
     if (b) window.setTimeout(() => { if (app.cs === cs) toast(b.text, b.speaker); }, 1400);
   }

@@ -14,6 +14,7 @@ describe('對白', () => {
     const groups = [dialogue.prologue, dialogue.secretScroll, dialogue.afterFirstElite,
       ...dialogue.restBeforeBossByAct, ...Object.values(dialogue.bossIntroById), dialogue.bossIntroGeneric,
       ...Object.values(dialogue.bossPhase2ById), dialogue.bossPhase2Generic,
+      ...Object.values(dialogue.bossPhase3ById), dialogue.bossPhase3Generic,
       dialogue.actClear1, dialogue.actClear2, dialogue.victory, dialogue.defeat];
     for (const g of groups) for (const l of g) {
       if (l.speaker === '球球') expect(qiuqiuLineOk(l.text), l.text).toBe(true);
@@ -28,7 +29,7 @@ describe('對白', () => {
   });
   it('師父（tower_master）只講大俠貼圖標題', () => {
     // 這條風格規矩只管師父本人：其他關主（貓又婆婆等）的塔主台詞是一般對白
-    const groups = [dialogue.bossIntroById['tower_master']!, dialogue.bossPhase2ById['tower_master']!, dialogue.victory];
+    const groups = [dialogue.bossIntroById['tower_master']!, dialogue.bossPhase2ById['tower_master']!, dialogue.bossPhase3ById['tower_master']!, dialogue.victory];
     for (const g of groups) for (const l of g) if (l.speaker === '塔主') expect(DAXIA_TITLES, l.text).toContain(l.text.replace(/[。！]$/u, ''));
   });
 });

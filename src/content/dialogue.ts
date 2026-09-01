@@ -110,6 +110,23 @@ export const dialogue = {
       { speaker: '塔主', text: '退隱江湖。' },
       { speaker: '球球', text: '你不下去，我就把你打下去喵。' },
     ],
+    // ---- 生圖中的新關主（接資料時直接生效；先寫好劇情不用等）----
+  orange_king: [
+      { speaker: '塔主', text: '打擾本王吃飯的，要留下全部的小魚乾。' },
+      { speaker: '球球', text: '小魚乾是我的，師父也是我的喵！' },
+    ],
+    cowcat_boss: [
+      { speaker: '塔主', text: '塔下那群傢伙擋不住你，很好。二當家親自陪你過招。' },
+      { speaker: '球球', text: '讓開，我趕時間喵。' },
+    ],
+    tanuki_lord: [
+      { speaker: '塔主', text: '呵呵，貓小弟，喝一杯再打不遲。' },
+      { speaker: '球球', text: '狸貓的酒不能喝，師父說過喵。' },
+    ],
+    persian_lady: [
+      { speaker: '塔主', text: '髒兮兮的野貓，也敢踏進本小姐的樓層？' },
+      { speaker: '球球', text: '踏都踏了，還要踏過去喵。' },
+    ],
   },
   bossIntroGeneric: <DialogueLine[]>[
     { speaker: '塔主', text: '到此為止了。' },
@@ -125,10 +142,37 @@ export const dialogue = {
       { speaker: '塔主', text: '老骨頭，也有火氣。' },
       { speaker: '球球', text: '婆婆認真了……小心喵！' },
     ],
+    orange_king: [
+      { speaker: '塔主', text: '本王生氣了。' },
+      { speaker: '球球', text: '滾過來了——好大一顆喵！' },
+    ],
+    cowcat_boss: [
+      { speaker: '塔主', text: '黑手練完了，換白手。' },
+      { speaker: '球球', text: '打完一半還有一半……真麻煩喵！' },
+    ],
+    tanuki_lord: [
+      { speaker: '塔主', text: '（葫蘆一拋）變！' },
+      { speaker: '球球', text: '哪一個才是本體喵！？' },
+    ],
+    persian_lady: [
+      { speaker: '塔主', text: '你們還愣著做什麼！上啊！' },
+      { speaker: '球球', text: '先打倒僕人，大小姐就沒轍了喵。' },
+    ],
   },
   bossPhase2Generic: <DialogueLine[]>[
     { speaker: '塔主', text: '（氣勢整個變了）' },
     { speaker: '球球', text: '牠變強了……撐住喵！' },
+  ],
+  /** 第三階段（目前只有師父有三階段；新關主做了三階段就補進來） */
+  bossPhase3ById: <Record<string, DialogueLine[]>>{
+    tower_master: [
+      { speaker: '塔主', text: '深藏不露。' },
+      { speaker: '球球', text: '全力的師父……我也接得住喵！' },
+    ],
+  },
+  bossPhase3Generic: <DialogueLine[]>[
+    { speaker: '塔主', text: '（魔氣直往天上冒）' },
+    { speaker: '球球', text: '還沒完嗎……撐到底喵！' },
   ],
   victory: <DialogueLine[]>[
     { speaker: '塔主', text: '承讓。' },

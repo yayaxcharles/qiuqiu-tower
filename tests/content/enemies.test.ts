@@ -41,10 +41,11 @@ describe('魔物資料', () => {
     for (const p of ['弱', '中', '強', '大魔物', '塔主'] as const) expect(encountersOfPool(p).length, p).toBeGreaterThan(0);
     expect(encounters.some((enc) => enc.enemies.includes('black_kitten'))).toBe(false);
   });
-  it('塔主兩階段', () => {
+  it('塔主三階段', () => {
     const boss = enemyById['tower_master']!;
-    expect(boss.phases?.length).toBe(1);
-    expect(boss.phases?.[0]?.hpBelow).toBe(80);
+    expect(boss.phases?.length).toBe(2);
+    expect(boss.phases?.[0]?.hpBelow).toBe(120);
     expect(boss.phases?.[0]?.strengthPerTurn).toBe(1);
+    expect(boss.phases?.[1]?.hpBelow).toBe(60);
   });
 });

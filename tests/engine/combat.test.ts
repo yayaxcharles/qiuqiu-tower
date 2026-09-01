@@ -152,23 +152,30 @@ describe('魔物回合', () => {
     expect(cs.player.hp).toBe(hp);
     expect(getStatus(e, '定身')).toBe(0);
   });
-  it('蓄力讓下一次攻擊加倍', () => {
+  it('塔主第三階段的蓄力讓下一次攻擊加倍', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
+    addStatus(cs.player, '爪力', 10);
+    e.hp = 125;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 109，進第二階段
+    expect(e.phase).toBe(1);
+    e.block = 0; e.hp = 61;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // → 45，進第三階段
+    expect(e.phase).toBe(2);
     expect(e.move.label).toBe('蓄力');
     endTurn(cs);                       // 蓄力
     expect(e.charged).toBe(true);
     const hp = cs.player.hp;
-    endTurn(cs);                       // 鐵頭功 12×2
-    expect(cs.player.hp).toBe(hp - 24);
+    endTurn(cs);                       // 亡命一擊 22×2＋爪力 2（倍擊只翻基礎值）
+    expect(cs.player.hp).toBe(hp - 46);
     expect(e.charged).toBe(false);
   });
-  it('塔主掉到 80 以下進第二階段：蜷縮 20、每回合 +1 爪力', () => {
+  it('塔主掉到 120 以下進第二階段：防禦 20、每回合 +1 爪力', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
-    e.hp = 82; cs.player.energy = 3;
+    e.hp = 125; cs.player.energy = 3;
     addStatus(cs.player, '爪力', 10);
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 66
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 109
     expect(e.phase).toBe(1);
     expect(e.block).toBe(20);
     expect(e.move.label).toBe('醉拳');
@@ -247,9 +254,10 @@ describe('魔物回合', () => {
   it('定身跳掉的那一下，蓄力也一起作廢', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
+    e.move = { intent: 'special', label: '蓄力', effects: [{ kind: 'chargeNext' }] };
     endTurn(cs);                             // 蓄力
     expect(e.charged).toBe(true);
-    expect(e.move.label).toBe('鐵頭功');
+    e.move = { intent: 'attack', label: '鐵頭功', effects: [{ kind: 'damage', amount: 14 }] };
     addStatus(e, '定身', 1);
     const hp = cs.player.hp;
     endTurn(cs);
