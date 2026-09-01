@@ -183,7 +183,7 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     expect(buyRelic(run, shop, 0)).toBe(true);
     expect(run.fish).toBe(500 - a.price); expect(a.sold).toBe(true); expect(run.relics).toContain(a.id);
     expect(buyRelic(run, shop, 0)).toBe(false);            // 同一格不能買兩次
-    expect(run.fish).toBe(350);
+    expect(run.fish).toBe(500 - a.price);
 
     takeRelic(run, b.id);                                  // 從別處先拿到了同一件
     const fish = run.fish, n = run.relics.length;
@@ -193,7 +193,7 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     const poor = fresh('shopR'); const shop2 = makeShop(poor);
     poor.fish = shop2.relics[0]!.price - 1;                // 差 1 條小魚乾（分級定價後照標價算）
     expect(buyRelic(poor, shop2, 0)).toBe(false);
-    expect(poor.fish).toBe(149); expect(poor.relics).toEqual(['blue_headband']); expect(shop2.relics[0]!.sold).toBe(false);
+    expect(poor.fish).toBe(shop2.relics[0]!.price - 1); expect(poor.relics).toEqual(['blue_headband']); expect(shop2.relics[0]!.sold).toBe(false);
   });
   it('買忍具：扣錢入袋；同一格、帶滿 3 個、錢不夠都不賣，狀態不動', () => {
     const run = fresh('shopP'); run.fish = 500;
@@ -214,7 +214,7 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     const poor = fresh('shopP'); const shop2 = makeShop(poor);
     poor.fish = shop2.potions[0]!.price - 1;               // 差 1 條小魚乾（分級定價後照標價算）
     expect(buyPotion(poor, shop2, 0)).toBe(false);
-    expect(poor.fish).toBe(44); expect(poor.potions).toEqual([]); expect(shop2.potions[0]!.sold).toBe(false);
+    expect(poor.fish).toBe(shop2.potions[0]!.price - 1); expect(poor.potions).toEqual([]); expect(shop2.potions[0]!.sold).toBe(false);
   });
 });
 
