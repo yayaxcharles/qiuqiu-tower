@@ -631,16 +631,19 @@ export const encounters: EncounterDef[] = [
   { id: 'ink_cat', pool: '中', enemies: ['ink_cat'], acts: [2] },
   { id: 'ronin_duo', pool: '強', enemies: ['shiba_ronin', 'shamisen_cat'], hpScale: 0.8, acts: [2] },
   { id: 'lantern_pair', pool: '強', enemies: ['lantern_ghost', 'windchime_sprite'], hpScale: 0.8, acts: [2] },
-  { id: 'ink_geta', pool: '強', enemies: ['ink_cat', 'geta_monster'], hpScale: 0.8, acts: [2] },
-  { id: 'tanuki_gang', pool: '強', enemies: ['tanuki_kid', 'tanuki_kid'], hpScale: 0.8, acts: [2] },
+  // ink_cat＋geta_monster 探測 7/40 是殺手組（隱身＋雙 12 重踩疊在一起），拆開改配三味線
+  { id: 'ink_shami', pool: '強', enemies: ['ink_cat', 'shamisen_cat'], hpScale: 0.8, acts: [2] },
+  { id: 'tanuki_gang', pool: '強', enemies: ['tanuki_kid', 'tanuki_kid', 'tanuki_kid'], hpScale: 0.9, acts: [2] },   // 兩隻探測 40/40 太軟，改三兄弟 0.9
   { id: 'moon_rabbit', pool: '中', enemies: ['moon_rabbit'], acts: [3] },
   { id: 'owl_sentry', pool: '中', enemies: ['owl_sentry'], acts: [3] },
   { id: 'paper_crane', pool: '中', enemies: ['paper_crane'], acts: [3] },
   { id: 'night_panther', pool: '中', enemies: ['night_panther'], acts: [3] },
   { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], acts: [3] },
-  { id: 'crane_pair', pool: '強', enemies: ['paper_crane', 'paper_crane'], hpScale: 0.8, acts: [3] },
-  { id: 'moon_watch', pool: '強', enemies: ['owl_sentry', 'moon_rabbit'], hpScale: 0.8, acts: [3] },
-  { id: 'night_hunt', pool: '強', enemies: ['night_panther', 'miasma_blob'], hpScale: 0.8, acts: [3] },
+  { id: 'crane_pair', pool: '強', enemies: ['paper_crane', 'paper_crane'], hpScale: 0.75, acts: [3] },
+  // 塔頂雙怪組的教訓（探測 1～6/40）：血量倍率救不了「兩隻重砲同回合疊擊」，
+  // 要拆組合——重砲一定配有守勢回合的（紙鶴會摺翼、墨貓會入卷軸那型）。
+  // 貓頭鷹＋月兔那組直接砍掉，牠們照樣在中池單獨出場。
+  { id: 'night_hunt', pool: '強', enemies: ['night_panther', 'paper_crane'], hpScale: 0.75, acts: [3] },
   { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], acts: [3] },
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
