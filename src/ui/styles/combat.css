@@ -106,6 +106,9 @@
 .combat .unit {
   position: absolute;
   bottom: 0;
+  /* 有人倒下或被召喚出來時，剩下的魔物會重新置中。滑過去而不是瞬間跳位，
+     不然一隻死掉整排會抽動一下，看起來像畫面壞掉。 */
+  transition: left 260ms cubic-bezier(.3, .8, .4, 1);
   width: 190px;
   text-align: center;
   pointer-events: auto;

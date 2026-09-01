@@ -14,6 +14,7 @@ import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
+import { enemyLeft } from '../enemylayout';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 
@@ -348,8 +349,7 @@ registerScreen('combat', (app, root, props) => {
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
     const def = enemyById[e.enemyId];
-    const step = n <= 2 ? 210 : n === 3 ? 205 : n === 4 ? 180 : 150;
-    const left = Math.round(875 - ((n - 1) * step) / 2 - 95 + i * step);
+    const left = enemyLeft(i, n);   // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）
     const cls = ['unit', 'enemy', `size-${def?.size ?? 'medium'}`];
     if (e.dead) cls.push('gone');
     if (targeting && !e.dead) cls.push('targetable');
@@ -526,7 +526,12 @@ registerScreen('combat', (app, root, props) => {
         el('div', { class: 'name' }, '球球'),
         hpBar('player', cs.player.hp, cs.player.maxHp),
         statusRow(cs.player, true)));
-    cs.enemies.forEach((e, i) => field.append(enemyUnit(e, i, cs.enemies.length)));
+    // 排位置只算**活著的**。倒下的魔物還留在 `cs.enemies` 裡（要放倒地動畫），
+    // 但牠們不該再佔位子——之前是拿整個陣列來排，塔主召喚第二、第三批之後
+    // 總數一路變大、新小怪的索引也一路往後，算出來的 left 直接超出舞台 1280
+    // （第三批會落在 1380）。倒下的排在 -1，反正牠們是隱形的。
+    const alive = cs.enemies.filter((e) => !e.dead);
+    cs.enemies.forEach((e) => field.append(enemyUnit(e, e.dead ? -1 : alive.indexOf(e), alive.length)));
     box.append(field, sidePanel(), handRow());
 
     const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() }, '結束回合');
