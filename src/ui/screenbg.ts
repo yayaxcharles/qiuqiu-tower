@@ -25,9 +25,18 @@ export function clearKeepBg(root: HTMLElement): void {
   if (bg) root.append(bg);
 }
 
-/** 樓層對應的戰鬥背景（1–5 塔下、6–10 塔中、11+ 塔頂）。戰鬥與緊接其後的獎勵畫面共用同一張。 */
+/**
+ * 樓層對應的戰鬥背景（1–5 塔下、6–10 塔中、11+ 塔頂）。
+ * 戰鬥與緊接其後的獎勵畫面共用同一張。
+ *
+ * 每個層級有三張，用樓層挑——**不能用亂數**：戰鬥畫面每出一張牌就重畫一次，
+ * 用亂數的話背景會一直換。用樓層當索引，同一層永遠是同一張，
+ * 但相鄰的樓層會不一樣，走五層就不會一直看同一面牆（那正是本來的毛病）。
+ */
+const BG_VARIANTS = ['', '_b', '_c'] as const;
 export function tierBgKey(floor: number): string {
-  return floor <= 5 ? 'bg/low' : floor <= 10 ? 'bg/mid' : 'bg/top';
+  const tier = floor <= 5 ? 'low' : floor <= 10 ? 'mid' : 'top';
+  return `bg/${tier}${BG_VARIANTS[Math.abs(floor) % BG_VARIANTS.length]}`;
 }
 
 /**

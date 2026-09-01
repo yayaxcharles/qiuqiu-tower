@@ -77,7 +77,23 @@
   "card/tuishou": "assets/cards/card/tuishou.webp",
   "card/wanhua": "assets/cards/card/wanhua.webp",
   "card/weihe": "assets/cards/card/weihe.webp",
-  "card/yingzi": "assets/cards/card/yingzi.webp"
+  "card/yingzi": "assets/cards/card/yingzi.webp",
+  "card/fanpu": "assets/cards/card/fanpu.webp",
+  "card/fanwei": "assets/cards/card/fanwei.webp",
+  "card/huanying": "assets/cards/card/huanying.webp",
+  "card/huxin": "assets/cards/card/huxin.webp",
+  "card/jiedao": "assets/cards/card/jiedao.webp",
+  "card/jingzhi": "assets/cards/card/jingzhi.webp",
+  "card/jiuweiquan": "assets/cards/card/jiuweiquan.webp",
+  "card/liandao": "assets/cards/card/liandao.webp",
+  "card/maoqiu": "assets/cards/card/maoqiu.webp",
+  "card/sanhua": "assets/cards/card/sanhua.webp",
+  "card/shibai": "assets/cards/card/shibai.webp",
+  "card/shierlian": "assets/cards/card/shierlian.webp",
+  "card/tiexin": "assets/cards/card/tiexin.webp",
+  "card/wangming": "assets/cards/card/wangming.webp",
+  "card/wufeng": "assets/cards/card/wufeng.webp",
+  "card/zuiyang": "assets/cards/card/zuiyang.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
@@ -159,6 +175,18 @@
   "codex/monster_black_kitten": {
    "idle": "assets/monsters/black_kitten_idle.webp",
    "attack": "assets/monsters/black_kitten_attack.webp"
+  },
+  "codex/monster_iron_claw": {
+   "attack": "assets/monsters/iron_claw_attack.webp",
+   "idle": "assets/monsters/iron_claw_idle.webp"
+  },
+  "codex/monster_nekomata": {
+   "attack": "assets/monsters/nekomata_attack.webp",
+   "idle": "assets/monsters/nekomata_idle.webp"
+  },
+  "codex/monster_nekomata_tail": {
+   "attack": "assets/monsters/nekomata_tail_attack.webp",
+   "idle": "assets/monsters/nekomata_tail_idle.webp"
   }
  },
  "icons": {
@@ -226,7 +254,39 @@
   "icon/ui_intent_idle": "assets/icons/ui_intent_idle.webp",
   "icon/ui_intent_special": "assets/icons/ui_intent_special.webp",
   "icon/ui_nameplate": "assets/icons/ui_nameplate.webp",
-  "icon/ui_note": "assets/icons/ui_note.webp"
+  "icon/ui_note": "assets/icons/ui_note.webp",
+  "codex/relic_claw_sheath": "assets/icons/relic_claw_sheath.webp",
+  "codex/relic_counting_beads": "assets/icons/relic_counting_beads.webp",
+  "codex/relic_dried_squid": "assets/icons/relic_dried_squid.webp",
+  "codex/relic_fish_bone": "assets/icons/relic_fish_bone.webp",
+  "codex/relic_ghost_bell": "assets/icons/relic_ghost_bell.webp",
+  "codex/relic_golden_bowl": "assets/icons/relic_golden_bowl.webp",
+  "codex/relic_iron_collar": "assets/icons/relic_iron_collar.webp",
+  "codex/relic_last_breath": "assets/icons/relic_last_breath.webp",
+  "codex/relic_lucky_coin": "assets/icons/relic_lucky_coin.webp",
+  "codex/relic_master_belt": "assets/icons/relic_master_belt.webp",
+  "codex/relic_nine_tails": "assets/icons/relic_nine_tails.webp",
+  "codex/relic_sardine_tin": "assets/icons/relic_sardine_tin.webp",
+  "codex/relic_shadow_cloak": "assets/icons/relic_shadow_cloak.webp",
+  "codex/relic_small_cushion": "assets/icons/relic_small_cushion.webp",
+  "codex/relic_soft_pad": "assets/icons/relic_soft_pad.webp",
+  "codex/relic_still_water": "assets/icons/relic_still_water.webp",
+  "codex/relic_straw_hat": "assets/icons/relic_straw_hat.webp",
+  "codex/relic_warm_blanket": "assets/icons/relic_warm_blanket.webp",
+  "codex/relic_worn_scroll": "assets/icons/relic_worn_scroll.webp",
+  "codex/relic_wrist_guard": "assets/icons/relic_wrist_guard.webp",
+  "codex/potion_cat_step": "assets/icons/potion_cat_step.webp",
+  "codex/potion_claw_oil": "assets/icons/potion_claw_oil.webp",
+  "codex/potion_dried_fish_bundle": "assets/icons/potion_dried_fish_bundle.webp",
+  "codex/potion_iron_paw": "assets/icons/potion_iron_paw.webp",
+  "codex/potion_milk": "assets/icons/potion_milk.webp",
+  "codex/potion_mirror_shard": "assets/icons/potion_mirror_shard.webp",
+  "codex/potion_needle_rain": "assets/icons/potion_needle_rain.webp",
+  "codex/potion_nine_lives": "assets/icons/potion_nine_lives.webp",
+  "codex/potion_nip_ball": "assets/icons/potion_nip_ball.webp",
+  "codex/potion_pepper": "assets/icons/potion_pepper.webp",
+  "codex/potion_quilt": "assets/icons/potion_quilt.webp",
+  "codex/potion_secret_scroll": "assets/icons/potion_secret_scroll.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
@@ -252,6 +312,12 @@
   "bg/event_robin": "assets/bg/event_robin.webp",
   "bg/event_seclusion": "assets/bg/event_seclusion.webp",
   "bg/event_sunbath": "assets/bg/event_sunbath.webp",
-  "bg/event_toll": "assets/bg/event_toll.webp"
+  "bg/event_toll": "assets/bg/event_toll.webp",
+  "bg/low_b": "assets/bg/low_b.webp",
+  "bg/low_c": "assets/bg/low_c.webp",
+  "bg/mid_b": "assets/bg/mid_b.webp",
+  "bg/mid_c": "assets/bg/mid_c.webp",
+  "bg/top_b": "assets/bg/top_b.webp",
+  "bg/top_c": "assets/bg/top_c.webp"
  }
 }

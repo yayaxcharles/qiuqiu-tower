@@ -68,7 +68,7 @@ def main() -> None:
         dst.parent.mkdir(parents=True, exist_ok=True)
         # fit 而不是 resize：交來的圖不見得剛好那個比例，直接 resize 會把畫面拉變形
         ImageOps.fit(Image.open(bg_src).convert("RGB"), (1280, 1704), Image.LANCZOS).save(
-            dst, "WEBP", quality=80, method=6)
+            dst, "WEBP", quality=66, method=6)
         manifest["bg"]["bg/map_tall"] = dst.relative_to(OUT.parent).as_posix()
         print(f"地圖底圖 map_tall.webp {dst.stat().st_size // 1024} KB")
     else:
@@ -81,7 +81,7 @@ def main() -> None:
         dst = OUT / "bg" / f"screen_{name}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         ImageOps.fit(Image.open(src).convert("RGB"), (1280, 720), Image.LANCZOS).save(
-            dst, "WEBP", quality=74, method=6)
+            dst, "WEBP", quality=66, method=6)
         manifest["bg"][f"bg/screen_{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"畫面底圖 screen_{name}.webp {dst.stat().st_size // 1024} KB")
 
@@ -131,7 +131,7 @@ def main() -> None:
             dst = OUT / "cards" / "card" / f"{cid}.webp"
             dst.parent.mkdir(parents=True, exist_ok=True)
             canvas.resize((round(cw * scale), round(ch * scale)), Image.LANCZOS).save(
-                dst, "WEBP", quality=84, method=6)
+                dst, "WEBP", quality=78, method=6)
             manifest["cards"][f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"  （牌面共用畫布 {cw}x{ch} → 輸出 {round(cw*scale)}x{round(ch*scale)}）")
     n_cards = len(faces)
@@ -290,7 +290,7 @@ def main() -> None:
             canvas.thumbnail((420, 640), Image.LANCZOS)
             dst = OUT / "monsters" / f"{mid}_{pose}.webp"
             dst.parent.mkdir(parents=True, exist_ok=True)
-            canvas.save(dst, "WEBP", quality=84, method=6)
+            canvas.save(dst, "WEBP", quality=78, method=6)
             manifest.setdefault("monsters", {}).setdefault(f"codex/monster_{mid}", {})[pose] =                 dst.relative_to(OUT.parent).as_posix()
         print(f"魔物 {mid}：{'／'.join(sorted(poses))}（畫布 {cw}x{ch}，底部對齊）")
 
@@ -321,7 +321,7 @@ def main() -> None:
         dst = OUT / "bg" / f"{name}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         ImageOps.fit(Image.open(src).convert("RGB"), (1280, 720), Image.LANCZOS).save(
-            dst, "WEBP", quality=80, method=6)
+            dst, "WEBP", quality=68, method=6)
         manifest["bg"][f"bg/{name}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"戰鬥背景 {name}.webp {dst.stat().st_size // 1024} KB")
 
