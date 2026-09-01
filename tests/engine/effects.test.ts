@@ -157,10 +157,11 @@ describe('其他效果', () => {
     const cs = start('wood_dummy', ['jiaochulai', 'taiji']);
     const e = cs.enemies[0]!; e.block = 8; const hp = e.hp;
     playCard(cs, toHand(cs, 'jiaochulai'), e.uid);
-    expect(cs.player.block).toBe(8); expect(e.block).toBe(0); expect(e.hp).toBe(hp - 4);
+    // 交出來 4→5（2026-09-01 常見牌 +1）
+    expect(cs.player.block).toBe(8); expect(e.block).toBe(0); expect(e.hp).toBe(hp - 5);
     cs.player.block = 10;
     playCard(cs, toHand(cs, 'taiji'), e.uid);
-    expect(e.hp).toBe(hp - 14); expect(cs.player.block).toBe(10);
+    expect(e.hp).toBe(hp - 15); expect(cs.player.block).toBe(10);
   });
   it('甩鍋術把負面狀態丟給魔物；封口術拆增益與蜷縮', () => {
     const cs = start('wood_dummy', ['shuaiguo', 'fengkou']);

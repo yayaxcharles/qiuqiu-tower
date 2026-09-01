@@ -146,7 +146,17 @@ export interface EnemyDef {
   strengthEveryNTurns?: number;
   phases?: EnemyPhase[];
 }
-export interface EncounterDef { id: string; pool: EnemyPool; enemies: string[] }
+export interface EncounterDef {
+  id: string;
+  pool: EnemyPool;
+  enemies: string[];
+  /**
+   * 這一場的成員血量倍率（不動魔物本身的定義）。
+   * 兩隻全規格怪同場的強遭遇用 0.8：單獨出場照舊、組隊出場各減兩成
+   * （2026-09-01 實測那幾組對 17 張牌的勝率 0～18%，使用者拍板減血 20%）。
+   */
+  hpScale?: number;
+}
 
 // ===== 事件與整局效果 =====
 export type RunEffect =

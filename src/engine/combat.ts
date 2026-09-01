@@ -33,7 +33,7 @@ export function startCombat(input: {
     turn: 0, phase: 'player', pending: null, log: [], encounterId: input.encounterId,
     stolenFish: 0, fishDelta: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
   };
-  enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k)));
+  enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, enc.hpScale ?? 1)));
   for (const e of cs.enemies) log(cs, `${e.name}：${enemyById[e.enemyId]?.line ?? ''}`);
   for (const rid of cs.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;

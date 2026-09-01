@@ -122,10 +122,10 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   return { dealt: lose, killed: false };
 }
 
-export function makeEnemy(cs: CombatState, enemyId: string, index: number): EnemyCombat {
+export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpScale = 1): EnemyCombat {
   const def = enemyById[enemyId];
   if (!def) throw new Error(`未知的魔物：${enemyId}`);
-  const hp = cs.rng.int(def.hp[0], def.hp[1]);
+  const hp = Math.max(1, Math.round(cs.rng.int(def.hp[0], def.hp[1]) * hpScale));
   const moveIndex = def.pattern === 'cycle' ? index % def.moves.length : 0;
   const move = def.pattern === 'cycle' ? (def.moves[moveIndex] as EnemyMove) : cs.rng.pick(def.moves);
   return {

@@ -13,8 +13,8 @@ describe('牌面文字', () => {
   it('傷害、蜷縮、抽牌都帶量詞', () => {
     expect(t('sanjo')).toBe('造成 6 點傷害。');
     expect(t('sanjo', true)).toBe('造成 9 點傷害。');
-    expect(t('zhuangsi')).toBe('獲得 5 點蜷縮，獲得 1 層隱身。消耗。');
-    expect(t('susu')).toBe('對全體魔物造成 8 點傷害。');
+    expect(t('zhuangsi')).toBe('獲得 6 點蜷縮，獲得 1 層隱身。消耗。');
+    expect(t('susu')).toBe('對全體魔物造成 9 點傷害。');
     expect(t('taxue')).toBe('獲得 1 層隱身。消耗。');
     expect(t('taxue', true)).toBe('獲得 1 層隱身。');
     expect(t('fengkou')).toBe('移除目標的爪力、貓步與防禦。');
@@ -22,7 +22,7 @@ describe('牌面文字', () => {
 
   it('連抓與擊倒獎金講成人話，不用算式', () => {
     expect(t('bunshin')).toBe('造成 3 點傷害，打的次數是連抓再加 1（最多 5 次）。');
-    expect(t('shunshou')).toBe('造成 6 點傷害；打倒牠就多拿 15 條小魚乾。');
+    expect(t('shunshou')).toBe('造成 7 點傷害；打倒牠就多拿 15 條小魚乾。');
   });
 
   it('能力牌的觸發子句', () => {
@@ -56,7 +56,7 @@ describe('牌面文字', () => {
     expect(t('shihou')).toBe('對全體魔物造成 10 點傷害，再讓牠們獲得 1 層懶洋洋。');
     expect(t('shihou', true)).toBe('對全體魔物造成 13 點傷害，再讓牠們獲得 1 層懶洋洋。');
     // 單體維持統一的「給目標 N 層 X」，不跟著收
-    expect(t('shengdong')).toBe('造成 5 點傷害，給目標 1 層懶洋洋。');
+    expect(t('shengdong')).toBe('造成 6 點傷害，給目標 1 層懶洋洋。');
   });
 
   it('同時動到魔物的牌，回復要講清楚是誰回', () => {
@@ -66,12 +66,12 @@ describe('牌面文字', () => {
   });
 
   it('牌面只講規則：交出來先搶再打，變身術不留玩笑話', () => {
-    expect(t('jiaochulai')).toBe('把目標的防禦全部搶過來，再造成 4 點傷害。');
-    expect(t('jiaochulai', true)).toBe('把目標的防禦全部搶過來，再造成 6 點傷害。');
+    expect(t('jiaochulai')).toBe('把目標的防禦全部搶過來，再造成 5 點傷害。');
+    expect(t('jiaochulai', true)).toBe('把目標的防禦全部搶過來，再造成 7 點傷害。');
     // 變身術本來寫「獲得 9 點蜷縮（變成飯糰）」，有玩家問「變成飯糰是不是多拿一顆飯糰」——
     // 飯糰是飽足的單位，這句玩笑話剛好撞到規則名詞，整句拿掉。玩笑話交給圖去講。
-    expect(t('bianshen')).toBe('獲得 9 點蜷縮。');
-    expect(t('bianshen', true)).toBe('獲得 12 點蜷縮。');
+    expect(t('bianshen')).toBe('獲得 10 點蜷縮。');
+    expect(t('bianshen', true)).toBe('獲得 13 點蜷縮。');
     // 鐵頭功先打人再自傷，「也」有對象；拼命只有自傷，寫「也」會害玩家去找那個不存在的前一下
     expect(t('tietou')).toBe('造成 16 點傷害，自己也受 2 點傷害。');
     expect(t('boming')).toBe('自己受 3 點傷害，獲得 2 顆飯糰。消耗。');

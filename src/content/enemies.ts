@@ -409,7 +409,7 @@ export const encounters: EncounterDef[] = [
   { id: 'orange_bandit', pool: '中', enemies: ['orange_bandit'] },
   { id: 'catgrass_bugs', pool: '中', enemies: ['catgrass_bug', 'catgrass_bug'] },
   { id: 'scarecrow', pool: '強', enemies: ['scarecrow'] },
-  { id: 'black_ninja_duo', pool: '強', enemies: ['black_ninja_elite', 'black_ninja_elite'] },
+  { id: 'black_ninja_duo', pool: '強', enemies: ['black_ninja_elite', 'black_ninja_elite'], hpScale: 0.8 },
   { id: 'big_cucumber', pool: '強', enemies: ['big_cucumber'] },
   { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'] },
   { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'] },
@@ -440,14 +440,14 @@ export const encounters: EncounterDef[] = [
   { id: 'bug_hedgehog', pool: '中', enemies: ['catgrass_bug', 'hedgehog'] },
   // 這兩組是「兩隻全規格中型怪同場」（合計 82～90 血），實測 6F 的典型牌組
   // 對它們勝率只有 2%／7%、其他中型遭遇都是 92% 起——放錯池了，移到強池（11F+）
-  { id: 'ninja_can', pool: '強', enemies: ['black_ninja', 'can_spirit'] },
-  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'] },
+  { id: 'ninja_can', pool: '強', enemies: ['black_ninja', 'can_spirit'], hpScale: 0.8 },
+  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'], hpScale: 0.8 },
   { id: 'bandit_chipmunk', pool: '中', enemies: ['orange_bandit', 'chipmunk'] },
-  { id: 'lion_mirror', pool: '強', enemies: ['stone_lion', 'mirror_cat'] },
-  { id: 'centipede_mirror', pool: '強', enemies: ['broom_centipede', 'mirror_cat'] },
-  { id: 'shadow_kittens', pool: '強', enemies: ['shadow_kitten_a', 'shadow_kitten_b', 'shadow_kitten_c'] },
+  { id: 'lion_mirror', pool: '強', enemies: ['stone_lion', 'mirror_cat'], hpScale: 0.8 },
+  { id: 'centipede_mirror', pool: '強', enemies: ['broom_centipede', 'mirror_cat'], hpScale: 0.8 },
+  { id: 'shadow_kittens', pool: '強', enemies: ['shadow_kitten_a', 'shadow_kitten_b', 'shadow_kitten_c'], hpScale: 0.8 },
   { id: 'training_post', pool: '中', enemies: ['training_post'] },
-  { id: 'phantom_ninja', pool: '強', enemies: ['catnip_phantom', 'black_ninja_elite'] },
+  { id: 'phantom_ninja', pool: '強', enemies: ['catnip_phantom', 'black_ninja_elite'], hpScale: 0.8 },
 ];
 
 export const encounterById: Record<string, EncounterDef> = Object.fromEntries(encounters.map((e) => [e.id, e]));
