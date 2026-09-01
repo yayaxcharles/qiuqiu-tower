@@ -165,9 +165,11 @@ export const cards: readonly CardDef[] = [
   { id: 'suoyituan', name: '縮成一團', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/suoyituan',
     effects: [{ kind: 'block', amount: 5 }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'block', amount: 7 }, { kind: 'draw', n: 1 }] } },
+  // 2026-09-01 使用者點名翻肚（易傷）供給太少（全牌庫只有盯上你了會掛）：威嚇加掛 1 層，
+  // 跟盯上你了分工——盯上=純堆層數，威嚇=削攻擊順手掛一層
   { id: 'weihe', name: '威嚇', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/weihe',
-    effects: [{ kind: 'status', name: '炸毛', amount: 2, target: 'enemy' }],
-    upgrade: { effects: [{ kind: 'status', name: '炸毛', amount: 3, target: 'enemy' }] } },
+    effects: [{ kind: 'status', name: '炸毛', amount: 2, target: 'enemy' }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'status', name: '炸毛', amount: 3, target: 'enemy' }, { kind: 'status', name: '翻肚', amount: 2, target: 'enemy' }] } },
   { id: 'paozhao', name: '忍術·拋爪', cost: 0, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/paozhao',
     effects: [{ kind: 'damage', amount: 2 }], upgrade: { effects: [{ kind: 'damage', amount: 4 }] } },
   // 0 費回 6（2026-09-01 使用者拍板）：反正是消耗牌、一局只有一次，1 費的門檻只是煩人

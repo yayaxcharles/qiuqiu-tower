@@ -138,6 +138,22 @@ registerScreen('combat', (app, root, props) => {
    */
   let acting = new Map<number, Acted>();
   let hint = '';
+  /**
+   * 三步教學（-1＝不顯示）。只在第一關 1F、這台瀏覽器沒看完過教學時出現：
+   * 出第一張牌進第 2 步、按結束回合進第 3 步、再結束一回合就收工寫進瀏覽器。
+   * 寫 localStorage 一律 try/catch——無痕視窗會炸，炸了就當看過。
+   */
+  let tutStep = -1;
+  try { if (run.act === 1 && run.floor === 1 && window.localStorage.getItem('qiuqiu.tutorial') !== 'done') tutStep = 0; } catch { /* 讀不到就不教 */ }
+  const TUT_TEXT = [
+    '先點一張牌：攻擊牌要再點一隻魔物才會出招，其他牌點了就生效',
+    '魔物頭上的圖示＝牠下一回合要做的事（滑鼠移上去有說明）；飯糰用完就按「結束回合」',
+    '蜷縮（藍色盾）幫你擋攻擊，撐到你下回合開始；打倒全部魔物就贏了',
+  ];
+  function tutDone(): void {
+    tutStep = -1;
+    try { window.localStorage.setItem('qiuqiu.tutorial', 'done'); } catch { /* 存不了就每局都教 */ }
+  }
   let hungryTurn = -1;
   let lowHpTold = false;
   let ended = false;
@@ -557,6 +573,10 @@ registerScreen('combat', (app, root, props) => {
     // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 的 dealing）
     if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled');
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-6).map((l) => el('div', {}, l))));
+    if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },
+      el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
+      el('span', {}, TUT_TEXT[tutStep] ?? ''),
+      el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕')));
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
     renderHud(app, box, cs.fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
@@ -716,6 +736,7 @@ registerScreen('combat', (app, root, props) => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       if (!playCard(cs, uid, targetUid)) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
     }, { pose: POSE.attack, attack: st.def.type === '攻擊' });
+    if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
     // 稍等 650 毫秒讓這張牌的傷害數字與姿勢先播完，不然出招跟收牌疊在同一拍。
@@ -790,6 +811,8 @@ registerScreen('combat', (app, root, props) => {
     // 收牌那段刻意不重畫，箭頭留著就會指著一張已經飛走的牌。
     const wasTargeting = targeting !== null;
     targeting = null;
+    if (tutStep === 1) tutStep = 2;
+    else if (tutStep === 2) tutDone();
     hideTooltip();
     if (wasTargeting) render();
     sfx('turn_end');
