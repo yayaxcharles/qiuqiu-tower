@@ -75,6 +75,9 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number): { ok:
   const st = cardStats(card);
   if (st.keywords.includes('不可打出')) return { ok: false, reason: '不可打出' };
   if (st.def.type === '攻擊' && cs.player.noAttacks) return { ok: false, reason: '本回合不能再打攻擊牌' };
+  // 球球被定身：這回合攻擊牌整排打不出（毛線球怪的「纏住」）。
+  // 這一側漏了很久——引擎本來只實作魔物被定身那一半，玩家身上的定身完全沒作用
+  if (st.def.type === '攻擊' && getStatus(cs.player, '定身') > 0) return { ok: false, reason: '被纏住了，打不出攻擊牌' };
   let cost = st.cost;
   if (!cs.player.firstCardPlayed) cost = Math.max(0, cost - relicSum(cs.relics, 'firstCardDiscount'));
   if (cost > cs.player.energy) return { ok: false, reason: '餓扁了' };

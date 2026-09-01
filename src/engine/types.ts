@@ -11,7 +11,9 @@ export type StatusName =
   | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '噎到' | '隱身' | '定身' | '反彈' | '潛水';
 export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '噎到'];
 /** 回合結束層數 −1 的狀態 */
-export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛'];
+// 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
+// （魔物身上的定身不走這條——那邊是「出招時消耗」，在 endTurn 的攻擊判定裡處理）
+export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '定身'];
 
 export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack';
 

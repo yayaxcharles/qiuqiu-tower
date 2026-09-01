@@ -170,8 +170,9 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'status', name: '炸毛', amount: 3, target: 'enemy' }] } },
   { id: 'paozhao', name: '忍術·拋爪', cost: 0, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/paozhao',
     effects: [{ kind: 'damage', amount: 2 }], upgrade: { effects: [{ kind: 'damage', amount: 4 }] } },
-  { id: 'tianmao', name: '舔毛', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/tianmao',
-    keywords: ['消耗'], effects: [{ kind: 'heal', n: 5 }], upgrade: { effects: [{ kind: 'heal', n: 8 }] } },
+  // 0 費回 6（2026-09-01 使用者拍板）：反正是消耗牌、一局只有一次，1 費的門檻只是煩人
+  { id: 'tianmao', name: '舔毛', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/tianmao',
+    keywords: ['消耗'], effects: [{ kind: 'heal', n: 6 }], upgrade: { effects: [{ kind: 'heal', n: 9 }] } },
   { id: 'canying', name: '忍術·殘影', cost: 3, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/canying',
     effects: [{ kind: 'damage', amount: 5 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 7 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
