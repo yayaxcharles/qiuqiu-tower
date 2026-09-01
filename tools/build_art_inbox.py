@@ -293,10 +293,12 @@ def main() -> None:
         for pose, im in sorted(poses.items()):
             canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
             canvas.paste(im, ((cw - im.width) // 2, ch - pad - im.height), im)
-            canvas.thumbnail((420, 640), Image.LANCZOS)
+            # 畫面上最大的體型是 230x280（`.unit.size-large .sprite`），
+            # 存兩倍給高解析度螢幕就夠了。本來存到 420x640，等於多背了一倍多的位元組。
+            canvas.thumbnail((460, 560), Image.LANCZOS)
             dst = OUT / "monsters" / f"{mid}_{pose}.webp"
             dst.parent.mkdir(parents=True, exist_ok=True)
-            canvas.save(dst, "WEBP", quality=78, method=6)
+            canvas.save(dst, "WEBP", quality=72, method=6)
             manifest.setdefault("monsters", {}).setdefault(f"codex/monster_{mid}", {})[pose] =                 dst.relative_to(OUT.parent).as_posix()
         print(f"魔物 {mid}：{'／'.join(sorted(poses))}（畫布 {cw}x{ch}，底部對齊）")
 
