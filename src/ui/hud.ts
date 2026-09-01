@@ -4,7 +4,7 @@ import type { App } from './app';
 import { artUrl } from './assets';
 import { showDeckPicker } from './deckview';
 import { el } from './dom';
-import { attachTooltip } from './tooltip';
+import { attachTextTooltip, attachTooltip } from './tooltip';
 
 /**
  * 上方狀態列：樓層、生命、小魚乾、秘寶、忍具、牌組、種子。
@@ -22,11 +22,21 @@ import { attachTooltip } from './tooltip';
  */
 let lastFish: { seed: string; n: number } | null = null;
 
-export function renderHud(app: App, root: HTMLElement): HTMLElement {
+/**
+ * `fishDelta`＝戰鬥途中還沒併回整局的小魚乾增減。
+ *
+ * 戰鬥中賺到或被偷走的小魚乾都先記在 `cs.fishDelta`，**打完才**加進 `run.fish`。
+ * 狀態列如果照著 `run.fish` 畫，山賊偷走的當下數字完全不動，玩家看不出自己在失血
+ * （使用者的原話：「偷了以後沒有顯示偷了多少小魚乾，上方小魚乾好像沒有看到減少」）。
+ * 戰鬥畫面把當下的 delta 傳進來，這裡就畫「現在實際有多少」——偷走馬上少、
+ * 打倒牠馬上加回來，本來就有的變動閃光也跟著會亮。
+ */
+export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLElement {
   const run = app.run;
   const hud = el('div', { class: 'hud' });
   root.append(hud);
   if (!run) return hud;   // 沒有整局就掛個空殼，不要讓畫面整個掛掉
+  const fishNow = Math.max(0, run.fish + fishDelta);
 
   const pct = run.maxHp > 0 ? Math.max(0, Math.round((run.hp / run.maxHp) * 100)) : 0;
   const hp = el('div', { class: 'hud-hp' },
@@ -35,21 +45,24 @@ export function renderHud(app: App, root: HTMLElement): HTMLElement {
 
   const fish = el('div', { class: 'hud-fish' },
     el('img', { src: artUrl('icons', 'icon/fish'), alt: '' }),
-    el('span', {}, String(run.fish)));
+    el('span', {}, String(fishNow)));
   attachTooltip(fish, '小魚乾');
-  const diff = lastFish && lastFish.seed === run.seed ? run.fish - lastFish.n : 0;
+  const diff = lastFish && lastFish.seed === run.seed ? fishNow - lastFish.n : 0;
   if (diff !== 0) {
     fish.classList.add(diff > 0 ? 'gain' : 'spend');
     fish.append(el('span', { class: 'hud-fish-diff' }, `${diff > 0 ? '+' : ''}${diff}`));
   }
-  lastFish = { seed: run.seed, n: run.fish };
+  lastFish = { seed: run.seed, n: fishNow };
 
   const relics = el('div', { class: 'hud-relics' });
   for (const id of run.relics) {
     const r = relicById[id];
     if (!r) continue;
     const node = el('div', { class: 'hud-relic' }, el('img', { src: artUrl('icons', r.art), alt: r.name }));
-    node.title = `${r.name}：${r.text}`;
+    // 原本掛瀏覽器原生的 `title`：要停住一秒才跳出來、長相也跟遊戲裡其他提示不一樣，
+    // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
+    // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
+    attachTextTooltip(node, r.name, r.text);
     relics.append(node);
   }
 
@@ -58,9 +71,10 @@ export function renderHud(app: App, root: HTMLElement): HTMLElement {
     const id = run.potions[i];
     const p = id ? potionById[id] : undefined;
     const slot = el('div', { class: `hud-potion${p ? '' : ' empty'}` });
+    // 提示只掛在有東西的格子上：空格掛了也只會跳出一個沒內容的框，反而讓人以為那格有東西。
     if (id && p) {
       slot.append(el('img', { src: artUrl('icons', p.art), alt: p.name }));
-      slot.title = `${p.name}：${p.text}`;
+      attachTextTooltip(slot, p.name, p.text);
     }
     potions.append(slot);
   }
@@ -75,6 +89,6 @@ export function renderHud(app: App, root: HTMLElement): HTMLElement {
   hud.append(
     el('div', { class: 'hud-floor' }, run.floor > 0 ? `${run.floor}F` : '塔下'),
     hp, fish, relics, potions, deckBtn,
-    el('div', { class: 'hud-seed' }, `種子 ${run.seed}`));
+    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`));
   return hud;
 }

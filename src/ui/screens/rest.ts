@@ -46,6 +46,7 @@ registerScreen('rest', (app, root) => {
       if (used) return;
       showDeckPicker({
         title: '磨爪：選一張牌升級', cards: run.deck, pickable: true, cancellable: true, filter: upgradable,
+        previewUpgrade: true,
         onPick: (uid) => {
           const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
           if (uid === null || !c || used) return;   // 沒挑就回貓窩再選一次

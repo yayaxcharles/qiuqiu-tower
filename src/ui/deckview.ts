@@ -1,3 +1,4 @@
+import { cardStats } from '../engine/deck';
 import type { CardInstance } from '../engine/types';
 import { cardNode } from './cardview';
 import { el } from './dom';
@@ -12,6 +13,14 @@ export interface DeckPickerOpts {
   /** false＝不給關，一定要挑一張 */
   cancellable: boolean;
   filter?: (c: CardInstance) => boolean;
+  /**
+   * true＝滑鼠移到牌上時，旁邊浮出「升級後」的完整牌面。
+   *
+   * 磨爪與事件的升級都只列出現在的牌，玩家挑的時候根本不知道升級後會變怎樣
+   * （使用者的原話：「我還是不知道升級後的牌會變怎樣」）。升級的差異寫在牌表的
+   * `upgrade` 裡，畫一張 `upgraded: true` 的牌就是了，不用另外描述差在哪。
+   */
+  previewUpgrade?: boolean;
   onPick: (uid: number | null) => void;
 }
 
@@ -59,6 +68,7 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
    * mouseleave 不會發生，提示框就變成孤兒黏在畫面上。
    */
   const dismiss = (uid: number | null): void => {
+    hidePreview();
     overlay.remove();
     unlockScreen();
     hideTooltip();
@@ -66,6 +76,32 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
   };
   const layout = deckPickerLayout(opts);
   const grid = el('div', { class: 'deck-grid' });
+
+  /**
+   * 「升級後」的浮動預覽。位置用舞台座標算：舞台整個被 `transform: scale()` 縮過，
+   * 所以量到的螢幕像素要除以縮放比才是舞台像素。放不下右邊就翻到左邊。
+   */
+  let preview: HTMLElement | null = null;
+  const hidePreview = (): void => { preview?.remove(); preview = null; };
+  function showPreview(node: HTMLElement, c: CardInstance): void {
+    hidePreview();
+    const stage = document.getElementById('stage');
+    if (!stage) return;
+    const k = 1280 / stage.getBoundingClientRect().width;
+    const or = overlay.getBoundingClientRect();
+    const cr = node.getBoundingClientRect();
+    const box = el('div', { class: 'upgrade-preview' },
+      el('div', { class: 'upgrade-preview-label' }, '升級後'),
+      cardNode(cardStats(c).def, { upgraded: true }));
+    // 右邊放不下（牌 170 寬＋間距）就翻到左邊
+    const right = (cr.right - or.left) * k + 14;
+    const flip = right + 186 > 1280;
+    box.style.left = `${flip ? (cr.left - or.left) * k - 186 : right}px`;
+    box.style.top = `${Math.min((cr.top - or.top) * k - 10, 720 - 300)}px`;
+    overlay.append(box);
+    preview = box;
+  }
+
   for (const c of opts.cards) {
     const ok = opts.filter ? opts.filter(c) : true;
     const pick = opts.pickable && ok;
@@ -74,8 +110,12 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
       disabled: opts.pickable && !ok,
       // 選中的牌先彈一下再收視窗。原本是點下去視窗立刻消失，
       // 玩家連自己選到哪一張都來不及看清楚，升級／移除更是完全沒有「成交」的感覺。
-      onClick: pick ? () => { node.classList.add('picked'); window.setTimeout(() => dismiss(c.uid), 260); } : undefined,
+      onClick: pick ? () => { node.classList.add('picked'); hidePreview(); window.setTimeout(() => dismiss(c.uid), 260); } : undefined,
     });
+    if (opts.previewUpgrade && ok) {
+      node.addEventListener('mouseenter', () => showPreview(node, c));
+      node.addEventListener('mouseleave', hidePreview);
+    }
     grid.append(node);
   }
   if (layout.note) grid.append(el('div', { class: 'deck-empty' }, layout.note));

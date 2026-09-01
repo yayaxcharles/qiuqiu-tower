@@ -217,6 +217,17 @@ img { -webkit-user-drag: none; }
     inset 0 -3px 8px #8a6a3f33,
     0 12px 30px #000000a6;
 }
+/* 有名牌的時候，左上角的角花要讓位——名牌就切齊在那個角上，
+   角花的橫向那截會被壓住，只剩一條垂直捲鬚吊在名牌下面，很像多出來的東西。
+   只改 `background-size` 的第一格（左上角）為 0，不動 `background-image`
+   與 `background-position`：那兩個是四層疊起來的，重寫整串很容易改錯。 */
+.dialogue-box:has(.dialogue-speaker:not(:empty)) {
+  background-size: 0 0, 52px 52px, 52px 52px, 52px 52px, auto, auto;
+  /* 名牌整塊落在框內，會壓到第一行字的左上角。有名字時上緣多讓一點：
+     名牌下緣在離框外緣 48.7 處，再留 6 像素才輪到文字。 */
+  padding-top: 51px;
+}
+
 /* 內側那條細線。用 ::before 不用第二層 border：border 只有一層，
    而傳統對話框就是要「粗外框＋細內線」兩條才有那個味道。 */
 .dialogue-box::before {
@@ -233,12 +244,15 @@ img { -webkit-user-drag: none; }
 .dialogue-speaker {
   position: absolute;
   top: 0;
-  /* 330 不是 76：說話者的立繪站在框的左上方、佔到舞台座標 426，
-     名牌放 76 會整個被立繪蓋住（只露出一小角在貓腳後面）。
-     移到立繪右邊，讀起來就是「貓在左、名字在牠旁邊」。
-     （76 那版是為了讓開左上角的角花，角花佔到 60；現在更右邊，自然也讓開了。） */
-  left: 330px;
-  transform: translateY(-52%);
+  /* 名牌切齊對白框的左上角。-4 是框的外框粗細：絕對定位的 left 是從
+     內距框算起，扣掉 4 才會跟框的最外緣對齊，看起來像釘在框角上的牌子。
+     （放框中間那幾版都不行：不管貼在立繪旁邊還是更右邊，都變成一塊
+     浮在上緣、沒有著落的標籤。） */
+  /* 貼齊框內那條細線的左上角。細線是 `.dialogue-box::before` 的 `inset: 7px`，
+     名牌用同一個 7 就會剛好壓在線上（絕對定位的原點跟 ::before 一樣是內距框）。
+     換算成離框最外緣是 11 像素＝外框 4 ＋ 內縮 7。 */
+  left: 7px;
+  top: 7px;
   padding: 3px 18px 4px;
   /* 名牌換成生出來的胡桃木牌（九宮格橫拉，配合兩到六個字的名字）。
      生不出來時下面的漸層當退路。 */

@@ -4,8 +4,10 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
 /**
  * 規格 §6.1 有幾張牌的兩段效果是各自獨立的子句，用分號接才讀得順：
  * 順手牽羊（造成 6 點傷害；打倒牠就多拿 15 條小魚乾）、我在這、戰術撤退、讀心術、拖字訣。
+ * 借刀也算：前半句「造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少」自己就含逗號，
+ * 後面再用逗號接「獲得 6 點蜷縮」會黏成一長串，看不出那 6 點是另一件事。
  */
-const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand']);
+const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
 const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn']);
 
 /** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
@@ -45,10 +47,14 @@ function touchesFoes(effects: readonly Effect[]): boolean {
 }
 
 /**
- * 規格 §6.1 留在牌面上的玩笑話。牌表（`src/content/cards.ts`）沒有這個欄位，
- * 又不歸畫面層去加，所以按牌號補在這裡。
+ * 這張牌有沒有打魔物——自傷寫成「自己**也**受 N 點傷害」時，那個「也」要有對象才成立。
+ * 鐵頭功、亡命是先打人再自傷，「也」對；拼命只有自傷（拿血換飯糰），
+ * 寫「也」會害玩家回頭去找那個根本不存在的前一下。
  */
-const FLAVOUR: Readonly<Record<string, string>> = { bianshen: '（變成飯糰）' };
+const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(['damage', 'damageRandom', 'damageEqualBlock']);
+function hurtsFoes(effects: readonly Effect[]): boolean {
+  return effects.some((e) => HURT_KINDS.has(e.kind));
+}
 
 function sep(prev: Effect, next: Effect): string {
   // 「獲得 1 隱身」跟「下回合開始再獲得 1 隱身」是兩件事，用分號分開（規格 §6.1 潛水術）
@@ -70,6 +76,8 @@ interface Ctx {
   prev?: Effect | undefined;
   /** 這張牌同時動到魔物，回復要寫「你回復」 */
   youHeal?: boolean;
+  /** 這張牌同時也打了魔物，自傷才寫得出「自己也受」 */
+  alsoHurts?: boolean;
 }
 
 /**
@@ -82,20 +90,20 @@ interface Ctx {
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
     case 'damage': {
-      // 前面剛「把目標的蜷縮全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
+      // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
       const again = ctx.prev?.kind === 'stealBlock' ? '再' : '';
       const head = fx.target === 'all' ? `對全體魔物造成 ${fx.amount} 點傷害` : `${again}造成 ${fx.amount} 點傷害`;
       const cap = fx.comboCap === undefined ? '' : `（最多 ${fx.comboCap} 次）`;
       const times = fx.scaleWithCombo
         ? `，打的次數是連抓再加 1${cap}`
         : (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
-      return head + times + (fx.ignoreBlock ? '，無視蜷縮' : '');
+      return head + times + (fx.ignoreBlock ? '，無視防禦' : '');
     }
     case 'damageRandom': return `隨機造成 ${fx.min}～${fx.max} 點傷害`;
     case 'damageEqualBlock': return '造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少';
-    case 'selfDamage': return `自己也受 ${fx.amount} 點傷害`;
+    case 'selfDamage': return `自己${ctx.alsoHurts ? '也' : ''}受 ${fx.amount} 點傷害`;
     case 'block': return `獲得 ${fx.amount} 點蜷縮`;
-    case 'stealBlock': return '把目標的蜷縮全部搶過來';
+    case 'stealBlock': return '把目標的防禦全部搶過來';
     case 'draw': return `抽 ${fx.n} 張牌`;
     case 'drawIfTargetStatus': return `目標身上有${fx.name}就抽 ${fx.n} 張牌`;
     case 'drawNextTurn': return `下回合開始時多抽 ${fx.n} 張牌`;
@@ -113,7 +121,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
         : fx.target === 'all' ? say('全體魔物獲得')
           : say('給目標');
     }
-    case 'removeStatuses': return `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與蜷縮' : ''}`;
+    case 'removeStatuses': return `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與防禦' : ''}`;
     case 'transferDebuffs': return '把你身上的翻肚、懶洋洋、炸毛、噎到全部丟到目標身上';
     case 'cleanse': return '清掉自己身上所有的減益';
     case 'energy': return `獲得 ${fx.n} 顆飯糰`;
@@ -147,14 +155,18 @@ export function describeCard(def: CardDef, upgraded: boolean): string {
   if (keywords.includes('不可打出')) parts.push('不能打出。');
   if (effects.length) {
     const youHeal = touchesFoes(effects);
+    const alsoHurts = hurtsFoes(effects);
     let text = '';
     for (let i = 0; i < effects.length; i++) {
       const fx = effects[i];
       if (!fx) continue;
       const prev = effects[i - 1];
-      text += (prev ? sep(prev, fx) : '') + one(fx, { prev, youHeal });
+      text += (prev ? sep(prev, fx) : '') + one(fx, { prev, youHeal, alsoHurts });
     }
-    parts.push(text + (FLAVOUR[def.id] ?? '') + '。');
+    // 這裡曾經按牌號補一句玩笑話（變身術的「（變成飯糰）」）。拿掉了：飯糰是飽足的單位，
+    // 玩家看到「獲得 9 點蜷縮（變成飯糰）」會以為那張牌還附送一顆飯糰，真的有人這樣問過。
+    // 牌面只講規則，玩笑話交給圖去講。
+    parts.push(text + '。');
   }
   if (def.curse?.onTurnEnd) parts.push(`回合結束時還在手上的話，受 ${def.curse.onTurnEnd} 點傷害。`);
   if (def.curse?.onTurnStart) parts.push(`每回合開始時還在手上的話，受 ${def.curse.onTurnStart} 點傷害。`);

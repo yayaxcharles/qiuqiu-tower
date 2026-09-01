@@ -7,7 +7,7 @@ import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit } from '../../engine/types';
 import { registerScreen } from '../app';
-import { tierBgKey } from '../screenbg';
+import { tierBgKey, tierBgZoom } from '../screenbg';
 import { artUrl, monsterUrl } from '../assets';
 import { STATUS_UNIT } from '../cardtext';
 import { cardNode } from '../cardview';
@@ -198,12 +198,21 @@ registerScreen('combat', (app, root, props) => {
     return node;
   }
 
-  function statusRow(u: Unit): HTMLElement {
+  /**
+   * 一排狀態牌子。`mine` 是「這排是球球自己的」。
+   *
+   * 擋傷害這件事兩邊都有，但講法不一樣：球球是「蜷縮」（縮成一球），
+   * 魔物就直接叫「防禦」——蜷縮是球球專屬的用詞，套到木樁人身上很怪。
+   * 好狀態與壞狀態各給一個底色，一眼看得出這一個是在幫你還是在害你。
+   */
+  function statusRow(u: Unit, mine = false): HTMLElement {
     const row = el('div', { class: 'chips' });
-    if (u.block > 0) row.append(chip('蜷縮', null, String(u.block), 'block'));
+    if (u.block > 0) row.append(chip(mine ? '蜷縮' : '防禦', null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
       const v = getStatus(u, name);
-      if (v > 0) row.append(chip(STATUS_LABEL[name] ?? name, STATUS_ICON[name], String(v)));
+      if (v <= 0) continue;
+      const tone = GOOD_STATUS.includes(name) ? 'good' : BAD_STATUS.includes(name) ? 'bad' : '';
+      row.append(chip(STATUS_LABEL[name] ?? name, STATUS_ICON[name], String(v), tone));
     }
     return row;
   }
@@ -279,7 +288,7 @@ registerScreen('combat', (app, root, props) => {
         case 'damageRandom':
           parts.push(`造成 ${computeAttack(fx.min * x, e, cs.player)}～${computeAttack(fx.max * x, e, cs.player)} 點傷害`);
           break;
-        case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點蜷縮`); break;
+        case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點防禦`); break;
         case 'statusPlayer': parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
@@ -350,10 +359,13 @@ registerScreen('combat', (app, root, props) => {
       const id = cs.potions[i];
       const def = id ? potionById[id] : undefined;
       const slot = el('div', { class: `potion${def ? '' : ' empty'}` });
+      // 提示只掛在有忍具的格子上：空格跳出一個沒內容的框，反而讓人以為那格有東西。
       if (id && def) {
         const url = artUrl('icons', def.art);
         slot.append(isFallback(url) ? el('b', {}, def.name) : el('img', { src: url, alt: def.name }));
-        slot.title = `${def.name}：${def.text}`;
+        // 這格是戰鬥中唯一能查忍具做什麼的地方，用瀏覽器原生的 `title` 要停住一秒才跳、
+        // 長相又跟旁邊的飯糰、連抓提示不同款，玩家等不到就以為沒說明。改掛遊戲自己的提示框。
+        attachTextTooltip(slot, def.name, def.text);
         if (canAct()) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }
       }
       potions.append(slot);
@@ -393,9 +405,10 @@ registerScreen('combat', (app, root, props) => {
       node.style.transform = `rotate(${((i - mid) * spread).toFixed(2)}deg) translateY(${(Math.abs(i - mid) * lift).toFixed(0)}px)`;
       node.style.margin = `0 ${((step - 145) / 2).toFixed(1)}px`;
       node.style.zIndex = String(i + 1);
-      // 打不出來的原因直接用引擎給的字串，畫面不要自己再寫一套
+      // 打不出來的原因直接用引擎給的字串，畫面不要自己再寫一套。
+      // 用遊戲自己的說明框而不是瀏覽器原生的 `title`：原生的要停一秒才出現、樣式也不同
       if (!chk.ok) {
-        node.title = chk.reason;
+        attachTextTooltip(node, '這張打不出來', chk.reason);
         // 點下去除了顯示原因，牌本身也抖一下：只有一行小字，玩家常常沒發現自己點了。
         // 動畫要加在**重畫之後**的那張牌上——render() 會把手牌整個重生，
         // 加在這個 node 上會連同它一起被丟掉，動畫根本不會播。
@@ -419,7 +432,11 @@ registerScreen('combat', (app, root, props) => {
     const box = el('div', { class: 'combat' });
     const bg = el('div', { class: 'battle-bg' });
     const bgUrl = artUrl('bg', bgKey);
-    if (!isFallback(bgUrl)) bg.style.backgroundImage = `url(${bgUrl})`;
+    if (!isFallback(bgUrl)) {
+      bg.style.backgroundImage = `url(${bgUrl})`;
+      // 放大率各張不同（見 tierBgZoom）：讓畫上的牆腳對到角色的腳底
+      bg.style.backgroundSize = `auto ${tierBgZoom(bgKey)}%`;
+    }
     // 空氣裡的浮塵。畫面靜止時總得有東西在動，不然看起來像一張截圖
     // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。三層各自飄，樣式在 combat.css。
     box.append(bg, el('div', { class: 'motes' }, el('i'), el('i'), el('i')));
@@ -431,7 +448,7 @@ registerScreen('combat', (app, root, props) => {
         spriteBox(artUrl('sprites', pose), '球球'),
         el('div', { class: 'name' }, '球球'),
         hpBar('player', cs.player.hp, cs.player.maxHp),
-        statusRow(cs.player)));
+        statusRow(cs.player, true)));
     cs.enemies.forEach((e, i) => field.append(enemyUnit(e, i, cs.enemies.length)));
     box.append(field, sidePanel(), handRow());
 
@@ -440,7 +457,7 @@ registerScreen('combat', (app, root, props) => {
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-6).map((l) => el('div', {}, l))));
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
-    renderHud(app, box);
+    renderHud(app, box, cs.fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
     root.append(box);
     // 箭頭要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後
     if (targeting) mountArrow(box);
@@ -508,8 +525,13 @@ registerScreen('combat', (app, root, props) => {
     if (!card) return;
     hint = '';
     if (cardStats(card).def.target === 'enemy') {
+      const already = targeting?.kind === 'card' && targeting.uid === uid;
+      const alive = aliveEnemies(cs);
+      // 場上只剩一隻的時候，連點兩下就直接打牠——反正也沒別的可以選，
+      // 還要移到魔物身上再點一次很囉嗦。兩隻以上照舊：要自己挑目標。
+      if (already && alive.length === 1) { targeting = null; play(uid, alive[0]!.uid); return; }
       // 再點一次同一張＝取消；點另一張＝改選那一張
-      targeting = targeting?.kind === 'card' && targeting.uid === uid ? null : { kind: 'card', uid };
+      targeting = already ? null : { kind: 'card', uid };
       render();
       return;
     }

@@ -41,6 +41,12 @@ registerScreen('shop', (app, root) => {
     return node;
   }
 
+  /** 一個掛著木牌標籤的貨架，跟戰利品畫面同一套 */
+  function shelf(label: string, body: HTMLElement, extra = ''): HTMLElement {
+    return el('div', { class: `shelf ${extra}`.trim() },
+      el('div', { class: 'shelf-label' }, label), body);
+  }
+
   function render(): void {
     clearKeepBg(root);
     renderHud(app, root);
@@ -53,21 +59,24 @@ registerScreen('shop', (app, root) => {
         el('div', { class: 'price' }, it.sold ? '賣掉了' : `${it.price} 條小魚乾`)));
     });
 
-    const goods = el('div', { class: 'shop-row' });
+    // 秘寶與忍具分成兩個貨架。本來兩種混在同一排，玩家看不出哪個是整局有效的秘寶、
+    // 哪個是喝掉就沒的忍具（使用者的原話：「上面是卡牌 下面是藥水? 感覺可以分區或框起來」）
+    const relics = el('div', { class: 'shop-row' });
     shop.relics.forEach((it, i) => {
       const d = relicById[it.id];
       if (!d) return;
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = run.relics.includes(it.id);
-      goods.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
+      relics.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
         () => { if (buyRelic(run, shop, i)) render(); }));
     });
+    const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
       const d = potionById[it.id];
       if (!d) return;
       // 忍具最多帶三支，帶滿了就買不下去（buyPotion 會擋）：講明原因，不要假裝是賣掉了
       const full = run.potions.length >= 3;
-      goods.append(stall(d.art, d.name, full ? `${d.text}（忍具帶滿了）` : d.text, it.price, it.sold, full,
+      potions.append(stall(d.art, d.name, full ? `${d.text}（忍具帶滿了）` : d.text, it.price, it.sold, full,
         () => { if (buyPotion(run, shop, i)) render(); }));
     });
 
@@ -80,11 +89,21 @@ registerScreen('shop', (app, root) => {
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
 
+    // 老闆站在左上角，台詞裝進他旁邊的泡泡——本來只有一行灰字寫著「橘貓老闆：「…」」，
+    // 店裡看不到老闆，跟對白框沒有立繪是同一個毛病。
+    const keeperUrl = artUrl('sprites', 'shop/keeper');
+    const head = el('div', { class: 'shop-head' },
+      keeperUrl.startsWith('data:') ? '' : el('img', { class: 'shop-keeper', src: keeperUrl, alt: '橘貓老闆' }),
+      el('div', { class: 'shop-head-text' },
+        el('div', { class: 'shop-sign' }, '罐頭鋪'),
+        el('div', { class: 'shop-bubble' }, line)));
+
     root.append(el('div', { class: 'screen shop' },
-      el('h1', {}, '罐頭鋪'),
-      el('p', { class: 'shopkeeper' }, `橘貓老闆：「${line}」`),
-      cards,
-      goods,
+      head,
+      shelf('新招', cards, 'shelf-cards'),
+      el('div', { class: 'shop-shelves' },
+        shelf('秘寶', relics),
+        shelf('忍具', potions)),
       el('div', { class: 'shop-actions' },
         remove,
         el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開'))));

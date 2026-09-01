@@ -80,11 +80,14 @@
 }
 .hud-fish img { width: 26px; height: 26px; }
 .hud-relics, .hud-potions { display: flex; gap: 6px; }
-/* 秘寶與忍具做成嵌在樑上的小凹槽，才不會像浮在木頭上的貼紙 */
+/* 秘寶與忍具嵌在樑上的小凹槽。凹槽本來是半透明黑底，但 55 個圖示裡有 19 個
+   本身就是深色（影子斗篷 30、護腕 32、算珠 37…），深色畫在深色上等於看不見。
+   改成淺色的嵌板：凹陷感靠內側下緣的暗邊做，不再靠整塊塗黑。 */
 .hud-relic, .hud-potion {
   border-radius: 8px;
-  background: #0000004d;
-  box-shadow: inset 0 1px 3px #000000a6, 0 1px 0 #ffffff1a;
+  background: linear-gradient(#fbf6ec, #e6d9c0);
+  border: 1.5px solid #3a2a1c;
+  box-shadow: inset 0 -2px 3px #8a6a3f3d, inset 0 1px 0 #fff, 0 1px 0 #ffffff26;
 }
 .hud-relic img, .hud-potion img { width: 32px; height: 32px; display: block; }
 .hud-relic { transition: transform 120ms ease-out; }
@@ -94,7 +97,13 @@
   height: 32px;
   border-radius: 6px;
 }
-.hud-potion.empty { border: 1px dashed rgba(255, 255, 255, .4); box-sizing: border-box; }
+/* 空格子維持深色虛線：「這格是空的」跟「這格有東西」要一眼分得開 */
+.hud-potion.empty {
+  background: #00000047;
+  border: 1px dashed rgba(255, 255, 255, .45);
+  box-shadow: inset 0 1px 3px #0000008a;
+  box-sizing: border-box;
+}
 .hud-potion.usable { cursor: pointer; }
 .hud-seed {
   margin-left: auto;
@@ -209,31 +218,40 @@
  */
 .card.rarity-罕見 { border-color: #2f5fa8; color: #2f5fa8; }
 .card.rarity-稀有 { border-color: #b8860b; color: #b8860b; }
-/* 稀有度改用**畫出來的寶石**，不用打上去的「★」字元——
-   字元會跟著字型走、大小不好控，而且看起來像文字不像徽記。
-   菱形用 clip-path 切，一樣不生圖、縮放不糊。 */
-.card.rarity-罕見::before,
-.card.rarity-稀有::before {
+/* 稀有度記號本來是右上角一顆小菱形，13 像素、離文字很遠，等於沒有
+   （使用者的原話：「很不顯眼」）。搬到底部「攻擊／技能」那條標籤的字前面，
+   順便把整條標籤依稀有度染色——那條本來就在正下方置中，一眼就掃得到。
+   菱形用 clip-path 切，不生圖、縮放不糊。 */
+.card.rarity-罕見 .card-type::before,
+.card.rarity-稀有 .card-type::before {
   content: '';
-  position: absolute;
-  z-index: 3;
-  right: 7px;
-  top: 7px;
-  width: 13px;
-  height: 13px;
+  display: inline-block;
+  vertical-align: -1px;
+  margin-right: 6px;
+  width: 11px;
+  height: 11px;
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-  pointer-events: none;
 }
-.card.rarity-罕見::before {
+.card.rarity-罕見 .card-type {
+  background: #2f5fa826;
+  color: #234a85;
+  opacity: 1;
+}
+.card.rarity-罕見 .card-type::before {
   background: linear-gradient(#7ea9e0, #2f5fa8 55%, #1d3f74);
 }
-.card.rarity-稀有::before {
-  width: 16px;
-  height: 16px;
-  right: 6px;
-  top: 6px;
+.card.rarity-稀有 .card-type {
+  background: #b8860b2e;
+  color: #85610a;
+  opacity: 1;
+  font-weight: bold;
+}
+.card.rarity-稀有 .card-type::before {
+  width: 13px;
+  height: 13px;
+  vertical-align: -2px;
   background: linear-gradient(#ffe9a8, #e8b23a 50%, #a8760c);
-  box-shadow: 0 0 7px #ffc83ce0;
+  box-shadow: 0 0 6px #ffc83ce0;
   animation: rare-gem 2.6s ease-in-out infinite;
 }
 /* 稀有牌的寶石會慢慢亮起來——拿到稀有牌該有「挖到寶」的感覺 */
@@ -298,6 +316,7 @@
 .card-type {
   /* 類型從一行灰字變成底部的小標籤，跟規則文字分得開 */
   align-self: stretch;
+  text-align: center;   /* 標籤本身是整條寬的，不設這個字會靠在左下角 */
   margin: 0 8px 4px;
   padding: 1px 0 2px;
   border-radius: 5px;
@@ -387,4 +406,31 @@
   20% { opacity: 1; transform: translateY(-2px); }
   60% { opacity: 1; transform: translateY(-8px); }
   to  { opacity: 0; transform: translateY(-20px); }
+}
+
+
+/* 升級選牌時浮在旁邊的「升級後」預覽。用舞台座標定位（deckview.ts 算好寫進行內樣式），
+   疊在疊層之上，本身不吃滑鼠事件——不然滑上去會把底下那張牌的 mouseleave 觸發掉。 */
+.upgrade-preview {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: result-in 140ms ease-out;
+}
+.upgrade-preview-label {
+  padding: 1px 12px 2px;
+  border: 2px solid #3a2a1c;
+  border-radius: 7px;
+  background: linear-gradient(#c9702a, #8a4a22);
+  color: #fff6e2;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 2px #00000080;
+}
+.upgrade-preview .card {
+  box-shadow: 0 10px 26px #000000a6, inset 0 1px 0 #fff;
 }

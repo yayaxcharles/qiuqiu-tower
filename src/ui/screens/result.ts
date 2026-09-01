@@ -6,6 +6,7 @@ import { screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
+import { attachTextTooltip } from '../tooltip';
 
 registerScreen('result', (app, root) => {
   const run = app.run;
@@ -24,7 +25,9 @@ registerScreen('result', (app, root) => {
     const node = url.startsWith('data:')
       ? el('div', { class: 'result-relic name-only' }, d.name)
       : el('div', { class: 'result-relic' }, el('img', { src: url, alt: d.name }));
-    node.title = `${d.name}：${d.text}`;
+    // 用遊戲自己的說明框，不要瀏覽器原生的 `title`：原生的要停一秒才出現、樣式也不同，
+    // 玩家常常以為根本沒有說明（狀態列與戰鬥畫面的忍具格已經一起改過）
+    attachTextTooltip(node, d.name, d.text);
     relics.append(node);
   }
 
@@ -36,7 +39,7 @@ registerScreen('result', (app, root) => {
     el('h1', {}, won ? '通關' : '任務失敗'),
     el('div', { class: 'result-stats' },
       `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${run.deck.length} 張`),
-    el('div', { class: 'result-stats small' }, `種子 ${run.seed}`),
+    el('div', { class: 'result-stats small' }, `本局代碼 ${run.seed}`),
     relics,
     el('div', { class: 'result-actions' },
       el('button', {

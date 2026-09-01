@@ -107,8 +107,8 @@
 /* 標題橫幅：掛在面板上緣的木牌，跟對白框的名牌同一套 */
 .reward-banner {
   align-self: center;
-  margin: -6px 0 2px;
-  padding: 4px 34px 6px;
+  margin: -4px 0 0;
+  padding: 2px 30px 4px;
   border: 3px solid #3a2a1c;
   border-radius: 11px;
   background: linear-gradient(#c9702a, #8a4a22);
@@ -117,17 +117,19 @@
 .reward-banner h1 {
   margin: 0;
   color: #fff6e2;
-  font-size: 30px;
+  font-size: 26px;
   letter-spacing: 3px;
   text-shadow: 0 2px 3px #00000099;
 }
 
 /* 戰利品區：框起來自成一塊，跟下面的選牌分開 */
+/* 這一整個畫面的高度是硬上限：面板最多 648，四件戰利品＋一排 250 高的牌
+   原本疊到 812，會擠出捲軸。所以每一格都比一般畫面再收一點。 */
 .reward-loot {
   position: relative;
   align-self: stretch;
-  margin: 10px 0 2px;
-  padding: 16px 20px 14px;
+  margin: 6px 0 0;
+  padding: 10px 14px 9px;
   border: 2px solid #3a2a1c4d;
   border-radius: 12px;
   background: #3a2a1c0a;
@@ -146,22 +148,25 @@
   letter-spacing: 3px;
 }
 
+/* 只有一行字的戰利品（小魚乾）用 flex 換行自己併排：
+   兩筆就左右各一，只有一筆就自己撐滿，不用在程式那邊分情況。 */
 .reward-items {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: stretch;
-  gap: 9px;
+  gap: 5px;
 }
 .reward-item {
+  flex: 1 1 250px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: linear-gradient(#fffdf7, #f4ead6);
   border: 2px solid #3a2a1c;
   border-left-width: 6px;
   border-radius: 10px;
-  padding: 9px 16px;
-  font-size: 18px;
+  padding: 5px 12px;
+  font-size: 16px;
   box-shadow: inset 0 1px 0 #fff, 0 2px 4px #0000001f;
 }
 /* 左邊那條粗邊依戰利品種類換色，一眼看得出這行是錢、是秘寶還是忍具 */
@@ -170,14 +175,30 @@
 .reward-item.potion { border-left-color: #2e6db4; }
 /* 名稱一行、說明一行。本來全部擠成一句「秘寶「藍頭巾」：每場戰鬥…」，讀起來很長 */
 .reward-line { display: flex; flex-direction: column; gap: 1px; text-align: left; }
-.reward-line b { font-size: 18px; }
+/* 有說明的（秘寶、忍具）字比較多，一律自己佔滿一整排 */
+.reward-item:has(em) { flex-basis: 100%; }
+.reward-line b { font-size: 16px; }
 .reward-line em {
   font-style: normal;
-  font-size: 14px;
+  font-size: 12.5px;
   color: #6b5a45;
-  line-height: 1.4;
+  line-height: 1.3;
 }
-.reward-item img { width: 40px; height: 40px; object-fit: contain; }
+.reward-item img { width: 28px; height: 28px; object-fit: contain; }
+/* 獎勵畫面自己一套尺寸：面板放到 648（狀態列 56 以下還留得住），
+   上下留白與間距都收一點，讓四件戰利品那種最擠的情況也不用拉捲軸。 */
+.screen.reward {
+  gap: 8px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  max-height: 648px;
+  /* 面板寬度本來跟著內容跑，秘寶說明一長就撐到 850，
+     中間那排三張牌只有 550，看起來一邊空一大塊。收到 720：
+     說明換行成兩排，高度還在上限內。 */
+  max-width: 720px;
+}
+.screen.reward h2 { font-size: 18px; }
+.screen.reward .btn { padding: 7px 22px; font-size: 16px; }
 .reward-cards {
   display: flex;
   gap: 20px;
@@ -187,12 +208,24 @@
 .reward-cards .card.clickable:hover { transform: translateY(-10px); }
 
 /* ===== 事件 ===== */
+/* 事件拿到的秘寶／忍具借用戰利品那套列。事件畫面比戰利品窄，收一下不要橫跨整塊 */
+.event-gains { align-self: center; width: 100%; max-width: 640px; margin-top: 2px; }
+/* 事件畫面的高度是硬上限。最擠的情況＝插圖＋兩行敘述＋三個選項，其中最長的選項
+   34 個字會折成兩行，量出來會擠出捲軸（貓薄荷那個就是，超出 33 像素）。
+   照最壞情況一次收好：上下留白、間距、標題、插圖各收一點，面板上限比照戰利品畫面拉到 648。 */
+.screen.event {
+  gap: 10px;
+  padding: 14px 44px;
+  max-height: 648px;
+}
+.screen.event h1 { font-size: 28px; }
 .event-art {
   display: block;
-  width: 420px;
-  height: 236px;
+  /* 350x196 維持原本 420x236 的比例，只是整體縮一號 */
+  width: 350px;
+  height: 196px;
   object-fit: contain;
-  margin: 2px auto 4px;
+  margin: 0 auto 2px;
 }
 .event-text, .event-result {
   max-width: 900px;
@@ -219,7 +252,175 @@
 }
 
 /* ===== 罐頭鋪 ===== */
-.shopkeeper { margin: 0; font-size: 18px; opacity: .85; }
+/* ===== 罐頭鋪 =====
+   本來是「標題一行、老闆台詞一行灰字、兩排貨」，店裡看不到老闆，
+   而且兩排貨沒有標示，分不出上面是牌、下面是什麼。
+   現在：老闆站左上角配台詞泡泡，貨分成三個掛木牌標籤的貨架。
+   高度是硬上限（面板 648），所以每一格都比一般畫面再收一點。 */
+/* 面板本來寬 1060、幾乎把整張店景蓋掉，玩家只看到一大片米色
+   （使用者的原話：「只用橘色底不太好」——那片米色就是面板不是底圖）。
+   貨架格子收窄到 148、內距收到 28，面板跟著縮到約 920，
+   左右各露出 180 像素的罐頭架與魚乾，一眼就看得出人在店裡。 */
+/* 貨架改成有厚度的木架子之後，每座架子的上下內距各多吃掉幾像素。
+   面板高度是硬上限（648），所以同一批像素要從別的地方還回來：
+   面板自己的上下留白與三段之間的間距各收一點，總高才壓得住。 */
+.screen.shop {
+  gap: 7px;
+  padding: 10px 26px;
+  max-width: 940px;
+  max-height: 648px;
+  /* 罐頭鋪不要那塊米色面板，直接站在店景上。
+     貨架自己就是深色木頭、有外框有落地陰影；招牌是木牌、老闆的台詞是白底泡泡，
+     每一塊都自帶對比，不需要面板墊底。面板拿掉之後整間店才看得到。
+     四個角花是 `.screen` 用背景圖疊的，連同底色一起清掉——沒有面板就沒有角可以掛。 */
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  /* `.screen` 預設 `overflow: auto`，會把跑到面板外面的東西裁掉——老闆就是這樣整個消失的。
+     這個畫面已經沒有面板可言，不需要裁切。代價是內容超過 max-height 時會溢出而不是出捲軸，
+     所以量過才敢這樣寫：實測 621、把說明字串加長 25% 壓力測試也只到 635，上限 648。
+     以後要是把秘寶／忍具的說明再寫長，或商品變多，要回來重量一次。 */
+  overflow: visible;
+}
+/* 店裡的貨架格子比別處窄一點，換兩側的店景露出來 */
+.screen.shop .shop-item { width: 148px; }
+.screen.shop .shop-item.card-item { width: auto; }
+.shop-head {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 2px;
+}
+/* 老闆站到貨架左邊的空地上，不排進版面。
+   面板拿掉之後畫面就是整間店，他縮在角落只有 84 像素、還壓在魚燈籠上，
+   看起來像貼紙。改成絕對定位站在左側留白（舞台 1280 減內容 940，兩側各餘 170），
+   高度就不吃版面上限，可以放大成真的站在店裡的人。 */
+.shop-keeper {
+  position: absolute;
+  left: -158px;
+  bottom: 4px;
+  width: 150px;
+  height: 196px;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 6px 14px #000000a6);
+}
+.shop-head-text { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+/* 店名做成掛在牆上的木招牌，跟對白框的名牌同一套 */
+.shop-sign {
+  padding: 2px 22px 4px;
+  border: 3px solid #3a2a1c;
+  border-radius: 9px;
+  background: linear-gradient(#c9702a, #8a4a22);
+  box-shadow: 0 3px 0 #00000038, inset 0 1px 0 #ffffff4d;
+  color: #fff6e2;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 3px #00000099;
+}
+/* 老闆講話的泡泡，尾巴指向他。
+   底下的貨架換成木頭之後，泡泡再用一片純白就像網頁的輸入框，
+   所以跟價標同一套：微微的紙色漸層＋一道落影，看起來是張紙不是一個欄位 */
+.shop-bubble {
+  position: relative;
+  align-self: flex-start;   /* 只有一句話，不要拉滿整排 */
+  max-width: 560px;
+  padding: 6px 13px 7px;
+  border: 2px solid #3a2a1c;
+  border-radius: 10px;
+  background: linear-gradient(#fffdf7, #f7eede);
+  box-shadow: inset 0 1px 0 #ffffffd9, 0 3px 7px -2px #00000047;
+  font-size: 15px;
+  line-height: 1.35;
+  text-align: left;
+}
+/* 尾巴拿掉了：老闆改站到畫面左下角的地板上，泡泡在右上方，
+   尾巴會指著一個沒有人的位置，比沒有尾巴更奇怪。
+   泡泡就當成招牌下面的一句招呼，老闆本人在畫面裡看得到。 */
+
+/* 貨架＝店裡真的一座木架子，不是「框起來的一區」。
+   本來是淡淡的圓角虛框（#3a2a1c0a 底、半透明邊），店景一露出來，
+   商品格就等於直接壓在照片上，像網頁表格貼在圖上
+   （使用者的原話：「罐頭鋪有背景感覺直接渲染購物格不太好看」）。
+   現在一座架子由三件東西組成：木紋背板（.shelf 本體）、
+   上緣掛木牌的橫木（::before）、底下承重的層板（::after）。
+   商品站在層板上、影子落在層板上，才會像「架上的貨」。 */
+.shelf {
+  position: relative;
+  /* 沒有面板墊底了，靠自己的落地陰影跟店景分開，不然木架子會黏在木牆上 */
+  box-shadow: 0 8px 22px #00000073;
+  /* 下內距刻意等於層板厚度：商品的底邊就正好壓在層板上表面，不是浮在半空 */
+  padding: 9px 16px 14px;
+  border: 2px solid #3a2a1c;
+  border-radius: 10px;
+  background:
+    /* 三層疊出木頭：細木紋 → 板材接縫 → 底色。
+       只有一層純色的話再怎麼調都像色塊，木紋是靠密一點的細條紋撐起來的 */
+    repeating-linear-gradient(90deg,
+      #ffffff0a 0 2px, #00000000 2px 5px, #0000000f 5px 7px, #00000000 7px 13px),
+    repeating-linear-gradient(90deg,
+      #00000000 0 46px, #0000002e 46px 48px, #ffffff14 48px 50px),
+    linear-gradient(#69472d, #56391f 58%, #402a17);
+  box-shadow:
+    inset 0 11px 14px -9px #000000b3,   /* 架子上方往裡凹的暗部 */
+    inset 7px 0 9px -7px #0000008c,     /* 左右兩根立柱擋住的光，讓架子有深度 */
+    inset -7px 0 9px -7px #0000008c,
+    inset 0 0 0 1px #ffffff1a,
+    0 5px 12px -3px #00000073;
+}
+/* 橫木與層板都是絕對定位的偽元素，DOM 順序在商品之後＝預設會蓋在商品上面。
+   壓成 z-index 0、商品那層抬到 1，架子才是在商品後面（見 .shop-item） */
+.shelf::before,
+.shelf::after { z-index: 0; }
+/* 上緣的橫木：木牌就掛在這根上面 */
+.shelf::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(#9c6b3e, #714a28);
+  box-shadow: 0 2px 5px #00000059;
+}
+/* 底下的層板：上表面一條亮邊、前緣厚一截、下面再壓一道影子＝看得出是塊有厚度的板子 */
+.shelf::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(#c08e56 0 2px, #9a6a3c 2px 6px, #7b5233 6px 100%);
+  box-shadow:
+    inset 0 1px 0 #e8c294a6,
+    0 -5px 9px -3px #00000073;          /* 往上打的影子＝層板前緣擋住了架子裡的光 */
+}
+.shelf-cards { align-self: stretch; }
+/* 標籤本來是米色小紙片，貼在木架子上會像便利貼。改成跟店招同一塊料的木牌，
+   半掛在上緣橫木上——三個標籤跟「罐頭鋪」招牌就成了同一套東西 */
+.shelf-label {
+  position: absolute;
+  top: 0;
+  left: 18px;
+  transform: translateY(-54%);
+  padding: 1px 13px 2px;
+  border: 2px solid #3a2a1c;
+  border-radius: 7px;
+  background: linear-gradient(#c9702a, #8a4a22);
+  box-shadow: 0 2px 0 #00000047, inset 0 1px 0 #ffffff4d;
+  color: #fff6e2;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-shadow: 0 1px 2px #00000099;
+}
+/* 秘寶與忍具並排：2 格＋3 格剛好塞得下一行，不用多佔一排的高度 */
+.shop-shelves { display: flex; gap: 14px; align-self: center; }
 /* 同一排的格子等高（stretch），價錢一律沉到格子底部，說明長短不一也不會排得參差不齊 */
 .shop-row {
   display: flex;
@@ -227,34 +428,126 @@
   justify-content: center;
   align-items: stretch;
 }
+/* 一件貨＝一張立在層板上的紙價標：紙面上緣有反光、下緣有自己的厚度，
+   再往下才是落在層板上的影子。原本只是「米色圓角方塊」，沒有厚度也沒有影子，
+   所以看起來是浮在店景上的方框而不是架上的東西。 */
 .shop-item {
+  position: relative;               /* 落地陰影是絕對定位的 ::after，掛在自己下面 */
+  z-index: 1;                       /* 站在層板前面，不要被層板蓋住（見 .shelf::after） */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   width: 170px;
   box-sizing: border-box;
-  background: var(--panel);
+  background: linear-gradient(#fffdf6, #f7ecd8 66%, #eddfc4);
   border: 2px solid var(--ink);
-  border-radius: 12px;
-  padding: 8px;
+  border-radius: 10px;
+  /* 下內距是 0：底下那條價錢帶自己貼齊格子底邊，當成價標的底端 */
+  padding: 6px 8px 0;
   font-size: 14px;
   cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 #ffffffd9,        /* 紙面上緣的反光 */
+    0 3px 0 #2b211859,              /* 價標自己的厚度 */
+    0 8px 11px -4px #00000080;      /* 落在層板上的影子 */
+  transition: transform .12s ease-out, box-shadow .12s ease-out;
 }
-/* 牌那一排的格子只是牌加價錢，不要再套一層框 */
+/* 相鄰兩件貨之間插一根立柱，架子就分成一格一格的貨位，
+   不然一整排東西並在同一片木板前面，還是像「一排並排的方框」。
+   位置：間隔 14、柱寬 6，left −10 剛好落在間隔正中。
+   下緣只到層板上表面（bottom −2），層板要維持一整條不被切斷，才看得出是同一塊板子。
+   z-index −1＝躲到自己這一格的紙背後，但仍在架子背板前面（.shop-item 是 z-index 1 的堆疊脈絡）。 */
+.shop-row .shop-item + .shop-item::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: -9px;                        /* 往上頂到架子的內緣（＝.shelf 的上內距） */
+  bottom: -2px;
+  width: 6px;
+  background: linear-gradient(90deg,
+    #33240f 0 1px, #a2734a 1px 3px, #70491f 3px 5px, #33240f 5px 6px);
+  box-shadow: 2px 0 5px #00000080;
+  z-index: -1;
+  pointer-events: none;
+}
+/* 落地陰影：貼著層板的一小攤暗影，東西才會「站」在板子上而不是黏在背板上 */
+.shop-item::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #000000a6 0%, #00000000 74%);
+  pointer-events: none;
+}
+/* 買得起的才給「拿起來看一下」的反應：抬一點、影子拉長 */
+.shop-item:not(.sold):not(.poor):hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 #ffffffd9,
+    0 3px 0 #2b211859,
+    0 12px 14px -4px #00000099;
+}
+/* 隔板是掛在格子身上的（::before），格子一抬隔板會跟著抬。
+   架子不該跟著動，所以把那 3 像素原地補回去 */
+.shop-item:not(.sold):not(.poor):hover::before { transform: translateY(3px); }
+/* 牌那一排的格子只是牌加價錢，不要再套一層框——牌自己就是那張紙 */
 .shop-item.card-item {
   width: auto;
   background: none;
   border: none;
   padding: 0;
+  box-shadow: none;
 }
-.shop-item img { width: 56px; height: 56px; object-fit: contain; }
-.shop-item .shop-name { font-weight: bold; font-size: 16px; }
-.shop-item .small { font-size: 12px; opacity: .8; text-align: center; }
-.shop-item .price { margin-top: auto; padding-top: 4px; font-weight: bold; color: var(--accent); }
-.shop-item.sold { opacity: .4; pointer-events: none; }
-/* 買不起：看得到但點不動，價錢照樣寫著（玩家要知道差多少） */
-.shop-item.poor { opacity: .55; cursor: default; }
+.shop-item.card-item:not(.sold):not(.poor):hover { transform: translateY(-3px); box-shadow: none; }
+.shop-item img { width: 40px; height: 40px; object-fit: contain; }
+.shop-item .shop-name { font-weight: bold; font-size: 15px; }
+.shop-item .small { font-size: 11.5px; line-height: 1.3; color: #5c4a35; text-align: center; }
+/* 價錢做成價標底部那條牛皮紙色的帶子，橫貫整格、切齊圓角，
+   像貼在貨架上的標價條；深色的字壓在淺色帶子上才讀得動 */
+.shop-item .price {
+  margin-top: auto;
+  align-self: stretch;
+  margin-left: -8px;
+  margin-right: -8px;
+  padding: 3px 0 4px;
+  border-top: 2px solid var(--ink);
+  border-radius: 0 0 8px 8px;       /* 外框 10 減掉 2 的邊＝內圓角剛好 8，才貼得齊 */
+  background: linear-gradient(#f5dcab, #e2bd7e);
+  color: #5e3410;
+  font-weight: bold;
+  font-size: 12.5px;
+  text-align: center;
+}
+/* 牌沒有外框，價錢就縮成一張獨立的小價牌立在牌底下 */
+.shop-item.card-item .price {
+  align-self: center;
+  margin: 5px 0 0;
+  padding: 1px 11px 2px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 #2b211859;
+}
+/* 賣掉了：東西被拿走了，剩一個褪色的空貨位——紙面轉灰、厚度換成往內凹、落地陰影收掉。
+   淡化與去色**只套在子元素上**，不套在格子本身：格子身上掛著隔板（::before），
+   在格子上套 opacity／filter 會連隔板一起洗白，架子就缺一根柱子。 */
+.shop-item.sold { pointer-events: none; }
+.shop-item.sold:not(.card-item) {
+  background: linear-gradient(#efe8db, #e3dacb 66%, #d6cbb8);
+  box-shadow: inset 0 2px 6px #00000047;   /* 沒有厚度、反而往內凹 */
+}
+.shop-item.sold > * { opacity: .45; filter: grayscale(.85); }
+.shop-item.sold::after { opacity: 0; }
+.shop-item.sold .price { background: linear-gradient(#ded4c4, #c9bda9); }
+/* 買不起：貨還好端端立在架上（紙面、厚度、影子都在），只有內容淡下去、價錢轉成紅字。
+   刻意**不**把整格一起調淡——玩家要知道差多少錢，價錢一定要維持清楚。
+   跟「賣掉了」就一眼分得出來：這裡是立著的、價錢紅字；那裡是灰的、塌下去的。 */
+.shop-item.poor { cursor: default; }
+.shop-item.poor > :not(.price) { opacity: .5; }
+.shop-item.poor .price { color: #8a2f1c; }
 .shop-actions {
   display: flex;
   gap: 14px;

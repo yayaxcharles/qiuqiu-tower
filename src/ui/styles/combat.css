@@ -11,6 +11,9 @@
   inset: 0;
   background-color: #221c17;
   background-image: radial-gradient(circle at 50% 24%, #4c4136 0%, #2a231c 58%, #171310 100%);
+  /* 貼齊下緣，放大率由行內樣式逐張指定（見 screenbg.ts 的 tierBgZoom）：
+     九張背景畫的牆腳高低不一，要各自放大才能讓地板接到角色腳底。
+     這裡的 cover 只是沒有圖時的退路。 */
   background-size: cover;
   background-position: center bottom;
   /* 火把在跳。背景是一張畫死的圖，火把畫在裡面、位置每張都不一樣，
@@ -187,20 +190,31 @@
   margin-top: 3px;
   min-height: 24px;   /* 佔住高度，有沒有狀態版面都一樣 */
 }
+/* 狀態牌子本來是半透明黑底。但九個狀態圖示裡有四個本身就是深色
+   （隱身最暗、其次爪力、定身、懶洋洋），深色圖畫在黑底上等於看不見——
+   隱身那顆整個糊成一塊深藍。改成淺色牌子＋深色字，每個圖示都讀得出來。 */
 .combat .chip {
   display: flex;
   align-items: center;
   gap: 2px;
   padding: 1px 5px;
+  border: 1.5px solid #3a2a1c;
   border-radius: 6px;
-  background: rgba(0, 0, 0, .6);
-  color: #fff;
+  background: linear-gradient(#fbf6ec, #ebdfc9);
+  color: #2b2118;
   font-size: 12px;
   line-height: 16px;
+  box-shadow: 0 1px 2px #00000047;
 }
 .combat .chip img { width: 16px; height: 16px; }
 .combat .chip b { font-weight: normal; }
-.combat .chip.block { background: #2e6db4; }
+/* 幫你的偏綠、害你的偏紅，不用讀字就知道這一個是好是壞 */
+.combat .chip.good { background: linear-gradient(#e9f7e1, #c6e7b8); }
+.combat .chip.bad { background: linear-gradient(#fce3e0, #f2c4bf); }
+.combat .chip.block { background: linear-gradient(#6ba6e2, #2e6db4); color: #fff; }
+/* 自己的狀態要比魔物的更好認：牌子大一點、圖示大一點 */
+.combat .unit.player .chip { padding: 2px 7px; font-size: 13px; }
+.combat .unit.player .chip img { width: 19px; height: 19px; }
 /* 蜷縮剛加上去時彈一下：姿勢換了還是容易漏看「這回合擋了多少」 */
 .combat .chip.block.gain { animation: block-pop .55s ease-out; }
 @keyframes block-pop {
@@ -234,17 +248,9 @@
   text-shadow: 0 1px 2px #0000009e;
   box-shadow: 0 2px 0 #00000042, inset 0 1px 0 #ffffff59, inset 0 -2px 4px #0000002e;
 }
-/* 短繩：把牌子接到魔物頭上，不然它像浮在空中 */
-.combat .intent::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 2.5px;
-  height: 7px;
-  background: #2b2118;
-  transform: translateX(-50%);
-}
+/* 這裡本來有一截「短繩」把牌子接到魔物頭上。但牌子是掛在圖頂上方 8 像素，
+   繩子只有 7 像素接不到，看起來就是牌子下面多一條懸空的黑線。
+   牌子的木牌圖本身左右下角已經畫了兩顆掛釘，不需要繩子，直接拿掉。 */
 /* 要打人的那個牌子會抽動：靜態的字看久了會變成背景，
    而「牠下一手要打我」正是最該一眼看到的東西。只有攻擊意圖會動，
    其他（防禦、增益）保持安靜，才不會整排都在跳、什麼都突顯不了。 */
