@@ -104,6 +104,30 @@ describe('地圖', () => {
 });
 
 describe('分岔的選擇要有意義', () => {
+  it('5F 是唯一的匯合劇情點（大俠傳功），不再有三顆同事件的假分岔', () => {
+    for (let i = 0; i < 30; i++) {
+      const m = generateMap(new Rng(seedFromString(`f5-${i}`)));
+      const f5 = m.nodes.filter((n) => n.floor === 5);
+      expect(f5.length).toBe(1);
+      expect(f5[0]!.type).toBe('事件');
+    }
+  });
+
+  it('一條路不會連續兩層同一種非戰鬥節點', () => {
+    for (let i = 0; i < 60; i++) {
+      const m = generateMap(new Rng(seedFromString(`vert-${i}`)));
+      const byId = new Map(m.nodes.map((n) => [n.id, n]));
+      for (const n of m.nodes) {
+        if (n.type === '戰鬥') continue;
+        for (const id of n.next) {
+          const kid = byId.get(id)!;
+          if (kid.floor === 5 || kid.floor === 8 || kid.floor === 14 || kid.floor === 15) continue;
+          expect(kid.type, `${n.id}(${n.type}) → ${kid.id}`).not.toBe(n.type);
+        }
+      }
+    }
+  });
+
   it('同一個分岔出去的兩條路，不會是同一種非戰鬥節點（5F 的劇情層除外）', () => {
     for (let i = 0; i < 60; i++) {
       const m = generateMap(new Rng(seedFromString(`fork-${i}`)));
