@@ -26,7 +26,7 @@ export function bossPoolForAct(act: number): string[] {
   return ['nekomata', 'iron_claw', 'orange_king'];
 }
 const PRICE: Record<Rarity, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
-const RELIC_PRICE = 150, POTION_PRICE = 45;
+const RELIC_PRICE = 150, POTION_PRICE = 45;   // 沒標價的保底值；各件的價差標在 relics.ts／potions.ts
 
 export function runRng(run: RunState): Rng {
   const rng = new Rng(run.rng);
@@ -197,8 +197,11 @@ export function makeShop(run: RunState): ShopStock {
   for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...run.relics, ...relicIds]); if (id) relicIds.push(id); }
   return {
     cards: cardDefs.map((def) => ({ def, price: PRICE[def.rarity], sold: false })),
-    relics: relicIds.map((id) => ({ id, price: RELIC_PRICE, sold: false })),
-    potions: Array.from({ length: 3 }, () => ({ id: rollPotion(rng), price: POTION_PRICE, sold: false })),
+    relics: relicIds.map((id) => ({ id, price: relicById[id]?.price ?? RELIC_PRICE, sold: false })),
+    potions: Array.from({ length: 3 }, () => {
+      const id = rollPotion(rng);
+      return { id, price: potionById[id]?.price ?? POTION_PRICE, sold: false };
+    }),
   };
 }
 

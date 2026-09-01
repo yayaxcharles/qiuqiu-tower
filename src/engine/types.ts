@@ -75,6 +75,8 @@ export interface RelicDef {
   pool: RelicPool;
   text: string;
   art: string;
+  /** 罐頭鋪售價。不填＝150。強弱要有價差（使用者指定），數字標在各件定義上 */
+  price?: number;
   hooks: {
     firstTurnDraw?: number;
     firstTurnEnergy?: number;
@@ -96,6 +98,8 @@ export interface PotionDef {
   name: string;
   text: string;
   art: string;
+  /** 罐頭鋪售價。不填＝45。 */
+  price?: number;
   target: 'enemy' | 'all' | 'self';
   effects: Effect[];
 }

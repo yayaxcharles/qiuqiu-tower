@@ -7,11 +7,11 @@ export function qiuqiuLineOk(text: string): boolean {
 
 export const dialogue = {
   prologue: <DialogueLine[]>[
-    { speaker: '旁白', text: '球球是大俠貓的徒弟。師父教他蜷縮，他縮得歪歪的，師父也只是笑。' },
-    { speaker: '旁白', text: '貓村旁邊，一夜之間長出一座塔。魔物從塔裡爬下來，偷走了村裡一半的小魚乾。' },
-    { speaker: '旁白', text: '塔頂住著球球的師父，那位戴斗笠的大俠貓。他閉關練功，練到走火入魔，把自己關在上面。' },
+    { speaker: '旁白', text: '球球是大俠貓的徒弟。師父在道場教他蜷縮，他縮得歪歪的，師父也只是笑。' },
+    { speaker: '旁白', text: '那天夜裡，村子旁一夜長出的魔塔亮了。魔氣找上了師父——他抱著頭跪倒，毛全豎起，眼睛亮成紫色。' },
+    { speaker: '旁白', text: '師父一句話也沒留，衝上塔頂把自己關在最上面。魔物跟著爬下來，偷走了村裡一半的小魚乾。' },
     { speaker: '球球', text: '沒人派我去，我自己去喵。' },
-    { speaker: '球球', text: '把師父抓回來，順便把小魚乾拿回來喵。' },
+    { speaker: '球球', text: '把師父帶回家，順便把小魚乾拿回來喵。' },
   ],
   /** 每種魔物第一次登場時球球的吐槽（鍵＝魔物 id） */
   firstMeet: <Record<string, string>>{

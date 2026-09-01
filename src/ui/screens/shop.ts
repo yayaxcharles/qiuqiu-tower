@@ -93,11 +93,12 @@ registerScreen('shop', (app, root) => {
     // 老闆站在左上角，台詞裝進他旁邊的泡泡——本來只有一行灰字寫著「橘貓老闆：「…」」，
     // 店裡看不到老闆，跟對白框沒有立繪是同一個毛病。
     const keeperUrl = artUrl('sprites', 'shop/keeper');
+    // 台詞泡泡掛在老闆頭上（使用者指定）：講話的人跟話要在同一個位置
     const head = el('div', { class: 'shop-head' },
       keeperUrl.startsWith('data:') ? '' : el('img', { class: 'shop-keeper', src: keeperUrl, alt: '橘貓老闆' }),
+      keeperUrl.startsWith('data:') ? el('div', { class: 'shop-bubble' }, line) : el('div', { class: 'shop-bubble keeper-bubble' }, line),
       el('div', { class: 'shop-head-text' },
-        el('div', { class: 'shop-sign' }, '罐頭鋪'),
-        el('div', { class: 'shop-bubble' }, line)));
+        el('div', { class: 'shop-sign' }, '罐頭鋪')));
 
     root.append(el('div', { class: 'screen shop' },
       head,

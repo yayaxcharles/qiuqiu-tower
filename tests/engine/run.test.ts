@@ -181,7 +181,7 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     const shop = makeShop(run);
     const a = shop.relics[0]!, b = shop.relics[1]!;
     expect(buyRelic(run, shop, 0)).toBe(true);
-    expect(run.fish).toBe(350); expect(a.sold).toBe(true); expect(run.relics).toContain(a.id);
+    expect(run.fish).toBe(500 - a.price); expect(a.sold).toBe(true); expect(run.relics).toContain(a.id);
     expect(buyRelic(run, shop, 0)).toBe(false);            // 同一格不能買兩次
     expect(run.fish).toBe(350);
 
@@ -190,8 +190,8 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     expect(buyRelic(run, shop, 1)).toBe(false);
     expect(run.fish).toBe(fish); expect(run.relics.length).toBe(n); expect(b.sold).toBe(false);
 
-    const poor = fresh('shopR'); poor.fish = 149;          // 差 1 條小魚乾
-    const shop2 = makeShop(poor);
+    const poor = fresh('shopR'); const shop2 = makeShop(poor);
+    poor.fish = shop2.relics[0]!.price - 1;                // 差 1 條小魚乾（分級定價後照標價算）
     expect(buyRelic(poor, shop2, 0)).toBe(false);
     expect(poor.fish).toBe(149); expect(poor.relics).toEqual(['blue_headband']); expect(shop2.relics[0]!.sold).toBe(false);
   });
@@ -199,10 +199,11 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     const run = fresh('shopP'); run.fish = 500;
     const shop = makeShop(run);
     const first = shop.potions[0]!.id;
+    const paid = 500 - shop.potions[0]!.price;
     expect(buyPotion(run, shop, 0)).toBe(true);
-    expect(run.fish).toBe(455); expect(run.potions).toEqual([first]); expect(shop.potions[0]!.sold).toBe(true);
+    expect(run.fish).toBe(paid); expect(run.potions).toEqual([first]); expect(shop.potions[0]!.sold).toBe(true);
     expect(buyPotion(run, shop, 0)).toBe(false);           // 同一格不能買兩次
-    expect(run.fish).toBe(455);
+    expect(run.fish).toBe(paid);
 
     addPotion(run, 'tuna'); addPotion(run, 'tuna');
     expect(run.potions.length).toBe(3);
@@ -210,8 +211,8 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     expect(buyPotion(run, shop, 1)).toBe(false);           // 帶滿了
     expect(run.fish).toBe(fish); expect(run.potions.length).toBe(3); expect(shop.potions[1]!.sold).toBe(false);
 
-    const poor = fresh('shopP'); poor.fish = 44;           // 差 1 條小魚乾
-    const shop2 = makeShop(poor);
+    const poor = fresh('shopP'); const shop2 = makeShop(poor);
+    poor.fish = shop2.potions[0]!.price - 1;               // 差 1 條小魚乾（分級定價後照標價算）
     expect(buyPotion(poor, shop2, 0)).toBe(false);
     expect(poor.fish).toBe(44); expect(poor.potions).toEqual([]); expect(shop2.potions[0]!.sold).toBe(false);
   });

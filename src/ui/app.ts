@@ -85,8 +85,8 @@ export class App {
     // 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白
     const proSlides = [
       { img: 'still_teach', lines: dialogue.prologue.slice(0, 1) },
-      { img: 'still_rush', lines: dialogue.prologue.slice(1, 2) },
-      { img: 'still_corrupt', lines: dialogue.prologue.slice(2, 3) },
+      { img: 'still_corrupt', lines: dialogue.prologue.slice(1, 2) },
+      { img: 'still_rush', lines: dialogue.prologue.slice(2, 3) },
       { img: 'still_depart', lines: dialogue.prologue.slice(3) },
     ];
     const after = (): void => { this.save(); this.show('map'); };

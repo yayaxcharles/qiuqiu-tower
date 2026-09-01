@@ -632,3 +632,25 @@
 .screen.actclear .reward-item.clickable:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 #fff, 0 4px 9px #00000038; }
 
 .screen.actclear .reward-item.selected { outline: 3px solid #ffd35c; box-shadow: inset 0 1px 0 #fff, 0 0 0 3px #ffd35c40; }
+
+
+/* 老闆頭上的台詞泡泡：跟老闆同一套絕對定位（右側空地），下緣長一根小尾巴指向他 */
+.keeper-bubble {
+  position: absolute;
+  right: -166px;
+  bottom: 206px;
+  width: 170px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+.keeper-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #f3e9d2;
+  border-bottom: 0;
+}
