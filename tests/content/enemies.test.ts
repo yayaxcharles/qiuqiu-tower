@@ -46,8 +46,8 @@ describe('魔物資料', () => {
   it('塔主三階段', () => {
     const boss = enemyById['tower_master']!;
     expect(boss.phases?.length).toBe(2);
-    expect(boss.phases?.[0]?.hpBelow).toBe(120);
+    expect(boss.phases?.[0]?.hpBelow).toBe(170);
     expect(boss.phases?.[0]?.strengthPerTurn).toBe(1);
-    expect(boss.phases?.[1]?.hpBelow).toBe(60);
+    expect(boss.phases?.[1]?.hpBelow).toBe(85);
   });
 });

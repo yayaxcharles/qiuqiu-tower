@@ -156,28 +156,29 @@ describe('魔物回合', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
     addStatus(cs.player, '爪力', 10);
-    e.hp = 125;
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 109，進第二階段
+    e.hp = 175;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 159，進第二階段
     expect(e.phase).toBe(1);
-    e.block = 0; e.hp = 61;
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // → 45，進第三階段
+    e.block = 0; e.hp = 90;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // → 74，進第三階段
     expect(e.phase).toBe(2);
     expect(e.move.label).toBe('蓄力');
     endTurn(cs);                       // 蓄力
     expect(e.charged).toBe(true);
+    cs.player.hp = 70; cs.player.block = 0;
     const hp = cs.player.hp;
-    endTurn(cs);                       // 亡命一擊 22×2＋爪力 2（倍擊只翻基礎值）
-    expect(cs.player.hp).toBe(hp - 46);
+    endTurn(cs);                       // 亡命一擊 30×2＋爪力 3（倍擊只翻基礎值）
+    expect(cs.player.hp).toBe(hp - 63);
     expect(e.charged).toBe(false);
   });
   it('塔主掉到 120 以下進第二階段：防禦 20、每回合 +1 爪力', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
-    e.hp = 125; cs.player.energy = 3;
+    e.hp = 175; cs.player.energy = 3;
     addStatus(cs.player, '爪力', 10);
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 109
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 159
     expect(e.phase).toBe(1);
-    expect(e.block).toBe(20);
+    expect(e.block).toBe(24);
     expect(e.move.label).toBe('醉拳');
     endTurn(cs);
     expect(getStatus(e, '爪力')).toBe(1);
@@ -226,11 +227,11 @@ describe('魔物回合', () => {
   it('噎到把塔主毒過門檻就進第二階段', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
-    e.hp = 82; addStatus(e, '噎到', 3);
+    e.hp = 172; addStatus(e, '噎到', 3);
     endTurn(cs);
-    expect(e.hp).toBe(79);
+    expect(e.hp).toBe(169);
     expect(e.phase).toBe(1);
-    expect(e.block).toBe(20);
+    expect(e.block).toBe(24);
   });
   it('魔物被反彈打死，剩下的段數不再打', () => {
     const cs = start('black_ninja');

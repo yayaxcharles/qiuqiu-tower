@@ -197,31 +197,31 @@ export const enemies: EnemyDef[] = [
   // 放大版，「同門過招」一看就懂。數值照 31–45F 的牌組規模抓，第一二關的關主碰不到他。
   // 第三階段的大招走「蓄力→倍擊」的明牌流程：看到蓄力就知道下一下會翻倍，
   // 解法是定身、隱身或堆大蜷縮——考的是整局學會的所有工具。
-  { id: 'tower_master', name: '走火入魔的大俠貓', hp: [180, 180], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
+  { id: 'tower_master', name: '走火入魔的大俠貓', hp: [260, 260], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
     line: '難逢敵手。',
     moves: [
-      { intent: 'attack', label: '鐵頭功', effects: [{ kind: 'damage', amount: 14 }] },
-      { intent: 'block', label: '金鐘罩', effects: [{ kind: 'block', amount: 18 }] },
-      { intent: 'attack', label: '獅吼功', effects: [{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
-      { intent: 'attack', label: '沾衣十八跌', effects: [{ kind: 'damage', amount: 5, times: 3 }] },
+      { intent: 'attack', label: '鐵頭功', effects: [{ kind: 'damage', amount: 18 }] },
+      { intent: 'block', label: '金鐘罩', effects: [{ kind: 'block', amount: 22 }] },
+      { intent: 'attack', label: '獅吼功', effects: [{ kind: 'damage', amount: 11 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
+      { intent: 'attack', label: '沾衣十八跌', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
     ],
     phases: [{
-      hpBelow: 120, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 1,
-      onEnter: [{ kind: 'block', amount: 20 }],
+      hpBelow: 170, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 1,
+      onEnter: [{ kind: 'block', amount: 24 }],
       moves: [
-        { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 8, max: 18 }] },
-        { intent: 'attack', label: '鐵砂掌', effects: [{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
-        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 5, times: 3 }] },
-        { intent: 'block', label: '閉關', effects: [{ kind: 'block', amount: 20 }] },
+        { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 10, max: 24 }] },
+        { intent: 'attack', label: '鐵砂掌', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 6, times: 4 }] },
+        { intent: 'block', label: '閉關', effects: [{ kind: 'block', amount: 26 }] },
       ],
     }, {
-      hpBelow: 60, line: '深藏不露', pattern: 'cycle',
-      onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }, { kind: 'statusSelf', name: '反彈', amount: 4 }],
+      hpBelow: 85, line: '深藏不露', pattern: 'cycle',
+      onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '反彈', amount: 6 }],
       moves: [
         { intent: 'special', label: '蓄力', effects: [{ kind: 'chargeNext' }] },
-        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 22 }] },
-        { intent: 'attack', label: '縮地連斬', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
-        { intent: 'block', label: '氣沉丹田', effects: [{ kind: 'block', amount: 14 }, { kind: 'heal', n: 6 }] },
+        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 30 }] },
+        { intent: 'attack', label: '縮地連斬', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+        { intent: 'block', label: '氣沉丹田', effects: [{ kind: 'block', amount: 18 }, { kind: 'heal', n: 10 }] },
       ],
     }] },
   // ===== 2026-08-31 補的 14 隻：中後段一直重複同一場仗，而且性質偏食 =====
