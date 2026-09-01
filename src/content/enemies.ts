@@ -206,7 +206,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '沾衣十八跌', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
     ],
     phases: [{
-      hpBelow: 170, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 1,
+      hpBelow: 170, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 2,
       onEnter: [{ kind: 'block', amount: 24 }],
       moves: [
         { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 10, max: 24 }] },
@@ -216,12 +216,13 @@ export const enemies: EnemyDef[] = [
         { intent: 'block', label: '閉關', effects: [{ kind: 'block', amount: 26 }] },
       ],
     }, {
-      hpBelow: 85, line: '深藏不露', pattern: 'cycle',
+      hpBelow: 85, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 3,
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '反彈', amount: 6 }],
       moves: [
         { intent: 'special', label: '蓄力', effects: [{ kind: 'chargeNext' }] },
         { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 30 }] },
         { intent: 'attack', label: '縮地連斬', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+        { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 9, times: 4 }] },
         { intent: 'block', label: '氣沉丹田', effects: [{ kind: 'block', amount: 18 }, { kind: 'heal', n: 10 }] },
       ],
     }] },
@@ -608,7 +609,7 @@ export const BOSS_MOVE_ART: Record<string, string> = {
   蓄力: 'boss/charge', 鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar',
   醉拳: 'boss/drunk', 閉關: 'boss/seclude', 鐵砂掌: 'boss/palm',
   // 三階段重做（2026-09-01）加的招，先共用最接近的現有立繪
-  沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm',
+  沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm', 狂風連掌: 'boss/drunk',
   縮地連斬: 'boss/drunk', 氣沉丹田: 'boss/seclude',
 };
 /** 塔主的三張非招式立繪：第一階段待機（深藏不露）、第二階段待機（走火入魔）、戰敗（承讓） */

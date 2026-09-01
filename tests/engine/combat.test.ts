@@ -165,10 +165,10 @@ describe('魔物回合', () => {
     expect(e.move.label).toBe('蓄力');
     endTurn(cs);                       // 蓄力
     expect(e.charged).toBe(true);
-    cs.player.hp = 70; cs.player.block = 0;
+    cs.player.hp = 80; cs.player.block = 0;
     const hp = cs.player.hp;
-    endTurn(cs);                       // 亡命一擊 30×2＋爪力 3（倍擊只翻基礎值）
-    expect(cs.player.hp).toBe(hp - 63);
+    endTurn(cs);                       // 亡命一擊 30×2＋爪力 9（進場3＋每回合3×2；倍擊只翻基礎值）
+    expect(cs.player.hp).toBe(hp - 69);
     expect(e.charged).toBe(false);
   });
   it('塔主掉到 120 以下進第二階段：防禦 20、每回合 +1 爪力', () => {
@@ -181,7 +181,7 @@ describe('魔物回合', () => {
     expect(e.block).toBe(24);
     expect(e.move.label).toBe('醉拳');
     endTurn(cs);
-    expect(getStatus(e, '爪力')).toBe(1);
+    expect(getStatus(e, '爪力')).toBe(2);
   });
   it('召喚小黑貓；木樁人每 3 回合 +1 爪力', () => {
     const cs = start('ninja_boss');
