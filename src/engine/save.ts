@@ -72,6 +72,8 @@ export function loadRun(): RunState | null {
     if (!usableMap(run.map, run.currentNode)) { clearSave(); return null; }
     // 舊存檔沒有 flags：補一個空的就好，不必升版本
     if (!run.flags || typeof run.flags !== 'object') run.flags = {};
+    // 舊存檔沒有 trail（足跡紀錄之前存的）：從現在站的格子開始記，之前走過的路照暗
+    run.trail ??= run.currentNode ? [run.currentNode] : [];
     // 舊存檔沒有 act（三關制之前存的）：當第一關。地圖照舊能走，打贏關主就接第二關
     if (typeof run.act !== 'number' || run.act < 1) run.act = 1;
     return run as RunState;

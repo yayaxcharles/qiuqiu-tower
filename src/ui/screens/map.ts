@@ -90,6 +90,9 @@ registerScreen('map', (app, root) => {
   svg.setAttribute('viewBox', `0 0 1280 ${INNER_H}`);
   svg.setAttribute('height', String(INNER_H));
   const paths: SVGPathElement[] = [];
+  // 實際走過的邊＝足跡裡相鄰兩格（起點那步是「(無)→第一格」，沒有邊）
+  const walked = new Set<string>();
+  for (let i = 1; i < run.trail.length; i++) walked.add(`${run.trail[i - 1]}>${run.trail[i]}`);
   for (const n of run.map.nodes) {
     const a = pos(n, run.seed, centre);
     for (const id of n.next) {
@@ -111,8 +114,10 @@ registerScreen('map', (app, root) => {
       const cy = (p0.y + p1.y) / 2 + (dx / full) * bend;
       const path = document.createElementNS(SVG_NS, 'path');
       path.setAttribute('d', `M ${p0.x} ${p0.y} Q ${cx} ${cy} ${p1.x} ${p1.y}`);
+      // 走過的路亮、沒走過的暗（使用者指定）；腳印也只鋪在走過的路上
+      if (walked.has(`${n.id}>${id}`)) path.setAttribute('class', 'walked');
       svg.append(path);
-      paths.push(path);
+      if (walked.has(`${n.id}>${id}`)) paths.push(path);
     }
   }
   inner.append(svg);

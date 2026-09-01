@@ -39,7 +39,7 @@ export function newRun(seed: string): RunState {
   const run: RunState = {
     version: 1, seed, rng: rng.state, hp: 70, maxHp: 70, fish: START_FISH, act: 1,
     deck: [], relics: [], potions: [], floor: 0,
-    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1) }), currentNode: null,
+    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1) }), currentNode: null, trail: [],
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
     flags: {},
   };
@@ -56,6 +56,7 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
   const n = nextChoices(run.map, run.currentNode).find((x) => x.id === nodeId);
   if (!n) throw new Error(`不能走到 ${nodeId}`);
   run.currentNode = n.id;
+  run.trail.push(n.id);   // 足跡：地圖上「走過的路亮起來」靠這條
   // 顯示用的樓層是**跨關累計**的（第二關從 16F 起跳），地圖節點自己的 floor 仍是關內 1～15
   run.floor = (run.act - 1) * FLOORS + n.floor;
   return n;
@@ -104,6 +105,7 @@ export function advanceAct(run: RunState): void {
   run.hp = run.maxHp;
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act) });
   run.currentNode = null;
+  run.trail = [];
   run.floor = (run.act - 1) * FLOORS;
 }
 

@@ -242,6 +242,8 @@ export interface RunState {
   floor: number;
   map: GameMap;
   currentNode: string | null;
+  /** 這一關實際走過的節點足跡（依序）。畫地圖時「走過的路亮、沒走過的暗」靠這條；換關清空。 */
+  trail: string[];
   nextUid: number;
   stats: { kills: number; turns: number; cardsPlayed: number };
   removeCost: number;

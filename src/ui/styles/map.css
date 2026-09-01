@@ -60,12 +60,17 @@
 
 .map-edges path {
   fill: none;
-  stroke: rgba(255, 238, 200, .3);
+  /* 沒走過的路：暗線（2026-09-02 使用者指定「走過的亮、沒走過的暗」；腳印只鋪走過的） */
+  stroke: rgba(255, 238, 200, .13);
   stroke-width: 3;
   stroke-linecap: round;
   /* 路本身不動。本來讓虛線流動，但 `stroke-dashoffset` 是**唯一不走合成器**的動畫，
      32 段路徑每一幀都要重新描一次；方向感改由腳印依序亮起來表達，
      那個動的是 opacity，走合成器，便宜很多，也比較像真的有人在走。 */
+}
+.map-edges path.walked {
+  stroke: rgba(255, 224, 150, .78);
+  filter: drop-shadow(0 0 4px rgba(255, 211, 92, .5));
 }
 /* 腳印一顆一顆依序亮，像有人正踩著這條路往上走。
    每顆的起跑時間差 0.16 秒（在 map.ts 用負的 animation-delay 設），
