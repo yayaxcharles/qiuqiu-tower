@@ -125,11 +125,8 @@
 .map-node.current {
   opacity: .48;
   filter: grayscale(.35) drop-shadow(0 0 3px rgba(201, 112, 42, .55));
-  animation: node-here 2.2s ease-in-out infinite;
-}
-@keyframes node-here {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  /* 不再上下浮動：會動的效果只留給「可以點的下一格」。
+     站的這格連浮動都有的話，跟下一格的縮放跳動搶注意力（使用者的原話）。 */
 }
 .map-node.choice {
   opacity: 1;
