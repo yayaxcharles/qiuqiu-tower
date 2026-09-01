@@ -119,7 +119,13 @@ export type EnemyEffect =
 export interface EnemyMove { intent: Intent; label: string; effects: EnemyEffect[] }
 export type EnemyPool = '弱' | '中' | '強' | '大魔物' | '塔主' | '召喚';
 export interface EnemyPhase {
-  hpBelow: number;
+  /** 門檻式變身：血打到 ≤ 此值就進這個階段（貓又、橘皮大王用）。跟 hpBar 二選一。 */
+  hpBelow?: number;
+  /**
+   * 血條式變身（師父用）：上一條血打完不算死，改成蹲下調息、無敵一回合，
+   * 然後亮出這一條新血（hp 與 maxHp 都換成這個值）。
+   */
+  hpBar?: number;
   onEnter: EnemyEffect[];
   line?: string;
   pattern: 'cycle' | 'random';
@@ -275,6 +281,8 @@ export interface EnemyCombat extends Unit {
   charged: boolean;
   /** 「重生中」倒數：倒下時由 reviveDelay 設定，每回合結束減一，歸零爬起來。0＝沒在重生。 */
   reviveIn: number;
+  /** 無敵倒數（血條式變身的蹲下回合）：>0 時任何傷害都不吃 */
+  invulnIn: number;
   move: EnemyMove;
   dead: boolean;
   escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退

@@ -1,0 +1,1 @@
+放 Pixabay 載的音效檔（mp3/wav/ogg 皆可），Claude 會轉檔覆蓋到 public/assets/sfx/。對照 docs/音效替換清單.md 第二輪清單。

@@ -152,36 +152,50 @@ describe('魔物回合', () => {
     expect(cs.player.hp).toBe(hp);
     expect(getStatus(e, '定身')).toBe(0);
   });
-  it('塔主第三階段的蓄力讓下一次攻擊加倍', () => {
+  it('塔主第三條血的蓄力讓下一次攻擊加倍', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
     addStatus(cs.player, '爪力', 10);
-    e.hp = 175;
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 159，進第二階段
+    e.hp = 16; e.invulnIn = 0;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 第一條打完 → 蹲下，亮 200
     expect(e.phase).toBe(1);
-    e.block = 0; e.hp = 90;
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // → 74，進第三階段
+    endTurn(cs);                                // 蹲下調息那回合
+    e.hp = 16; e.block = 0;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 第二條打完 → 亮 250
     expect(e.phase).toBe(2);
+    expect(e.hp).toBe(250);
+    expect(e.move.label).toBe('蹲下調息');
+    endTurn(cs);                                // 蹲下；起身後照表輪到蓄力
     expect(e.move.label).toBe('蓄力');
-    endTurn(cs);                       // 蓄力
+    endTurn(cs);                                // 蓄力
     expect(e.charged).toBe(true);
-    cs.player.hp = 80; cs.player.block = 0;
+    cs.player.hp = 90; cs.player.block = 0;
     const hp = cs.player.hp;
-    endTurn(cs);                       // 亡命一擊 30×2＋爪力 9（進場3＋每回合3×2；倍擊只翻基礎值）
-    expect(cs.player.hp).toBe(hp - 69);
+    // 爪力累計：第一次蹲下那回合 +2（二階段）、三階段進場 +3、之後三回合各 +3 ＝ 14
+    endTurn(cs);                       // 亡命一擊 30×2＋爪力 14（倍擊只翻基礎值）
+    expect(cs.player.hp).toBe(hp - 74);
     expect(e.charged).toBe(false);
   });
-  it('塔主掉到 120 以下進第二階段：防禦 20、每回合 +1 爪力', () => {
+  it('塔主第一條血打完：蹲下無敵一回合、亮出 200 的第二條', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
-    e.hp = 175; cs.player.energy = 3;
+    cs.player.energy = 3;
     addStatus(cs.player, '爪力', 10);
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷 → 159
+    e.hp = 10;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷把第一條打完
     expect(e.phase).toBe(1);
-    expect(e.block).toBe(24);
-    expect(e.move.label).toBe('醉拳');
-    endTurn(cs);
+    expect(e.hp).toBe(200);
+    expect(e.maxHp).toBe(200);
+    expect(e.invulnIn).toBe(1);
+    expect(e.move.label).toBe('蹲下調息');
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 無敵中：一滴血都打不掉
+    expect(e.hp).toBe(200);
+    endTurn(cs);                                // 蹲下那回合過完就站起來（也吃到每回合 +2 爪力）
+    expect(e.invulnIn).toBe(0);
     expect(getStatus(e, '爪力')).toBe(2);
+    cs.player.energy = 3;
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 站起來就打得到了
+    expect(e.hp).toBe(200 - 16);
   });
   it('召喚小黑貓；木樁人每 3 回合 +1 爪力', () => {
     const cs = start('ninja_boss');
@@ -234,14 +248,14 @@ describe('魔物回合', () => {
     expect(getStatus(cs.player, '爪力')).toBe(3);
     expect(getStatus(cs.player, '貓步')).toBe(2);
   });
-  it('噎到把塔主毒過門檻就進第二階段', () => {
+  it('噎到把塔主第一條血毒完，一樣蹲下換條不算死', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
-    e.hp = 172; addStatus(e, '噎到', 3);
+    e.hp = 3; addStatus(e, '噎到', 3);
     endTurn(cs);
-    expect(e.hp).toBe(169);
+    expect(e.dead).toBe(false);
     expect(e.phase).toBe(1);
-    expect(e.block).toBe(24);
+    expect(e.hp).toBe(200);
   });
   it('魔物被反彈打死，剩下的段數不再打', () => {
     const cs = start('black_ninja');
@@ -254,12 +268,12 @@ describe('魔物回合', () => {
     expect(hp - cs.player.hp).toBe(6);       // 只吃到第一段，第二段沒打出來
     expect(cs.phase).toBe('won');
   });
-  it('血量剛好等於階段門檻就切換', () => {
-    const cs = start('tower_master');
+  it('血量剛好等於階段門檻就切換（門檻式：橘皮大王 55）', () => {
+    const cs = start('orange_king');
     const e = cs.enemies[0]!;
-    e.hp = 81; e.block = 5;                  // 參上打 6：擋掉 5、只掉 1 → 剛好 80
+    e.hp = 56; e.block = 5;                  // 參上打 6：擋掉 5、只掉 1 → 剛好 55
     playCard(cs, toHand(cs, 'sanjo'), e.uid);
-    expect(e.hp).toBe(80);
+    expect(e.hp).toBe(55);
     expect(e.phase).toBe(1);
   });
   it('定身跳掉的那一下，蓄力也一起作廢', () => {

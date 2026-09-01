@@ -85,8 +85,9 @@ export function advanceMove(cs: CombatState, e: EnemyCombat): void {
 function checkPhase(cs: CombatState, e: EnemyCombat): void {
   const def = enemyById[e.enemyId]!;
   const next = def.phases?.[e.phase];
-  // hpBelow 語意＝「生命 ≤ 此值就切換」，所以剛好等於門檻也要進下一階段
-  if (!next || e.hp > next.hpBelow || e.dead) return;
+  // hpBelow 語意＝「生命 ≤ 此值就切換」，所以剛好等於門檻也要進下一階段。
+  // 血條式（hpBar）的階段不走這裡——那種要等整條血歸零，在 damageEnemy 裡切換。
+  if (!next || next.hpBelow === undefined || e.hp > next.hpBelow || e.dead) return;
   e.phase += 1;
   e.moveIndex = 0;
   if (next.line) log(cs, `${e.name}：${next.line}`);
@@ -111,6 +112,8 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
 export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean } = {}): { dealt: number; killed: boolean } {
   if (e.dead) return { dealt: 0, killed: false };
+  // 蹲下調息中（血條式變身的過場）：無敵，什麼傷害都不吃
+  if (e.invulnIn > 0) { log(cs, `${e.name}正在調息，毫髮無傷`); return { dealt: 0, killed: false }; }
   // 僕從護體：還有同伴活著就毫髮無傷（含直傷）。放在隱身之前——被護著的時候不消耗隱身層數
   if (enemyById[e.enemyId]?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) {
     log(cs, `${e.name}被僕從護著，毫髮無傷`);
@@ -126,7 +129,25 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     else { const absorbed = Math.min(e.block, dmg); e.block -= absorbed; lose = dmg - absorbed; }
   }
   e.hp = Math.max(0, e.hp - lose);
-  if (e.hp === 0) { killEnemy(cs, e); return { dealt: lose, killed: true }; }
+  if (e.hp === 0) {
+    // 血條式變身：這條打完不算死——蹲下調息（無敵一回合），亮出下一條血
+    const next = enemyById[e.enemyId]?.phases?.[e.phase];
+    if (next?.hpBar) {
+      e.phase += 1;
+      e.hp = next.hpBar;
+      e.maxHp = next.hpBar;
+      e.block = 0;
+      e.invulnIn = 1;
+      e.moveIndex = -1;   // 起身後 advanceMove 會 +1，從新階段的第一招開始
+      e.move = { intent: 'special', label: '蹲下調息', effects: [{ kind: 'nothing' }] };
+      if (next.line) log(cs, `${e.name}：${next.line}`);
+      log(cs, `${e.name}蹲了下來調息，暫時打不進去`);
+      runEnemyEffects(cs, e, next.onEnter, false);
+      return { dealt: lose, killed: false };
+    }
+    killEnemy(cs, e);
+    return { dealt: lose, killed: true };
+  }
   checkPhase(cs, e);
   return { dealt: lose, killed: false };
 }
@@ -139,7 +160,7 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   const move = def.pattern === 'cycle' ? (def.moves[moveIndex] as EnemyMove) : cs.rng.pick(def.moves);
   return {
     uid: cs.nextEnemyUid++, enemyId, name: def.name, hp, maxHp: hp, block: 0, statuses: {},
-    moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0,
+    moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0, invulnIn: 0,
     move: def.chooseMove?.(1, def.moves) ?? move, dead: false, escaped: false, stolen: 0,
   };
 }

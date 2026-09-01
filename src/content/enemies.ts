@@ -197,7 +197,7 @@ export const enemies: EnemyDef[] = [
   // 放大版，「同門過招」一看就懂。數值照 31–45F 的牌組規模抓，第一二關的關主碰不到他。
   // 第三階段的大招走「蓄力→倍擊」的明牌流程：看到蓄力就知道下一下會翻倍，
   // 解法是定身、隱身或堆大蜷縮——考的是整局學會的所有工具。
-  { id: 'tower_master', name: '走火入魔的大俠貓', hp: [260, 260], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
+  { id: 'tower_master', name: '走火入魔的大俠貓', hp: [100, 100], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
     line: '難逢敵手。',
     moves: [
       { intent: 'attack', label: '鐵頭功', effects: [{ kind: 'damage', amount: 18 }] },
@@ -206,7 +206,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '沾衣十八跌', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
     ],
     phases: [{
-      hpBelow: 170, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 2,
+      hpBar: 200, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 2,
       onEnter: [{ kind: 'block', amount: 24 }],
       moves: [
         { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 10, max: 24 }] },
@@ -216,7 +216,7 @@ export const enemies: EnemyDef[] = [
         { intent: 'block', label: '閉關', effects: [{ kind: 'block', amount: 26 }] },
       ],
     }, {
-      hpBelow: 85, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 3,
+      hpBar: 250, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 3,
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '反彈', amount: 6 }],
       moves: [
         { intent: 'special', label: '蓄力', effects: [{ kind: 'chargeNext' }] },
@@ -609,7 +609,7 @@ export const BOSS_MOVE_ART: Record<string, string> = {
   蓄力: 'boss/charge', 鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar',
   醉拳: 'boss/drunk', 閉關: 'boss/seclude', 鐵砂掌: 'boss/palm',
   // 三階段重做（2026-09-01）加的招，先共用最接近的現有立繪
-  沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm', 狂風連掌: 'boss/drunk',
+  沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm', 狂風連掌: 'boss/drunk', 蹲下調息: 'boss/seclude',
   縮地連斬: 'boss/drunk', 氣沉丹田: 'boss/seclude',
 };
 /** 塔主的三張非招式立繪：第一階段待機（深藏不露）、第二階段待機（走火入魔）、戰敗（承讓） */

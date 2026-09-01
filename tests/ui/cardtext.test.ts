@@ -89,7 +89,9 @@ describe('塔主姿勢對照', () => {
       ...boss!.moves.map((m) => m.label),
       ...(boss!.phases ?? []).flatMap((p) => (p.moves ?? []).map((m) => m.label)),
     ]);
-    const posed = new Set(Object.keys(BOSS_MOVE_ART));
+    // 蹲下調息是血條式變身時引擎現生的過場招，不在招式表裡，但要有姿勢
+    const posed = new Set(Object.keys(BOSS_MOVE_ART).filter((k) => k !== '蹲下調息'));
+    expect(BOSS_MOVE_ART['蹲下調息']).toBeTruthy();
     expect([...labels].filter((l) => !posed.has(l)), '這些招式沒有專屬姿勢').toEqual([]);
     expect([...posed].filter((p) => !labels.has(p)), '這些姿勢沒有招式在用').toEqual([]);
   });

@@ -175,6 +175,7 @@ export function endTurn(cs: CombatState): void {
       runEnemyEffects(cs, e, e.move.effects, charged);
     }
     decayTurnStatuses(e);
+    if (e.invulnIn > 0) e.invulnIn -= 1;   // 蹲下調息演完這回合就站起來，下回合開始照常挨打
     if (!e.dead) advanceMove(cs, e);
   }
   if (cs.phase === 'player') startPlayerTurn(cs);
