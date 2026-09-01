@@ -389,6 +389,8 @@ registerScreen('combat', (app, root, props) => {
       if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
       if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
       if (def?.reviveGroup) row.prepend(chip('同生共死', null, '', 'bad'));
+      // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
+      if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
     }
     if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), style: `left:${left}px` },

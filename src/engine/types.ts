@@ -146,6 +146,11 @@ export interface EnemyDef {
   /** 倒下幾個回合後才爬起來。不填＝1（下一回合就起來，貓又的尾巴用這個）。 */
   reviveDelay?: number;
   strengthEveryNTurns?: number;
+  /**
+   * 僕從護體：場上還有**任何同伴**站著，這隻就完全不受傷（波斯大小姐用）。
+   * 正解是先清光僕從。規則照「隱藏機制全部掛牌可見」的原則在畫面上掛牌子。
+   */
+  guardedByAllies?: boolean;
   phases?: EnemyPhase[];
 }
 export interface EncounterDef {
@@ -158,6 +163,11 @@ export interface EncounterDef {
    * （2026-09-01 實測那幾組對 17 張牌的勝率 0～18%，使用者拍板減血 20%）。
    */
   hpScale?: number;
+  /**
+   * 這場遭遇只在哪幾關出現（不填＝每一關都行）。
+   * 三關制的專屬池：第一關的怪標 [1]、塔中標 [2]、塔頂標 [3]。
+   */
+  acts?: number[];
 }
 
 // ===== 事件與整局效果 =====

@@ -265,6 +265,18 @@ describe('魔物回合', () => {
     expect(e.charged).toBe(false);
     expect(getStatus(e, '定身')).toBe(0);
   });
+  it('僕從護體：僕從還站著打不動本體，也不消耗她的隱身；清光僕從才打得到', () => {
+    const cs = start('persian_lady');
+    const lady = cs.enemies.find((e) => e.enemyId === 'persian_lady')!;
+    addStatus(cs.player, '爪力', 20);
+    playCard(cs, toHand(cs, 'sanjo'), lady.uid);          // 26 傷 → 被護著，一滴血都不掉
+    expect(lady.hp).toBe(lady.maxHp);
+    for (const e of cs.enemies) if (e.enemyId !== 'persian_lady') { e.hp = 1; playCard(cs, toHand(cs, 'sanjo'), e.uid); }
+    expect(cs.enemies.filter((e) => !e.dead)).toHaveLength(1);
+    cs.player.energy = 3;
+    playCard(cs, toHand(cs, 'sanjo'), lady.uid);          // 僕從清光，這下就痛了
+    expect(lady.hp).toBe(lady.maxHp - 26);
+  });
   it('多段攻擊：隱身只擋掉第一段，第二段照樣挨', () => {
     const cs = start('cucumber');
     addStatus(cs.player, '隱身', 1);

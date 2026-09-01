@@ -65,8 +65,8 @@ function walkPaths(rng: Rng): number[][] {
  * 第二關開場就是中等、第三關全程都是強的。之後做了新魔物再把這裡換成各關自己的池。
  */
 export function poolForFloor(floor: number, act = 1): '弱' | '中' | '強' {
-  if (act >= 3) return '強';
-  if (act === 2) return floor <= 4 ? '中' : '強';
+  // 二、三關都給四層「該關中池」緩衝再進強池；池內容依 acts 標籤換成該關專屬怪
+  if (act >= 2) return floor <= 4 ? '中' : '強';
   // 弱怪陪到 5F：實測 300 局最常死在 6～7F——弱換中的斷層太早，
   // 牌組才十二三張就撞上 36～52 血的中型怪
   return floor <= 5 ? '弱' : floor <= 10 ? '中' : '強';
@@ -194,7 +194,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   let eventIdx = 0;
   for (const n of nodes) {
     if (n.type === '戰鬥') {
-      let pool = encountersOfPool(poolForFloor(n.floor, act));
+      let pool = encountersOfPool(poolForFloor(n.floor, act), act);
       // 第一關前三層只抽單隻怪：牌組還是初始十張，兩隻一起上打不動
       // （實測 200 張圖，前三層 45% 的戰鬥是多隻）。4F 起照常。
       if (act <= 1 && n.floor <= 3) {
@@ -203,7 +203,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       }
       n.encounterId = rng.pick(pool).id;
     }
-    else if (n.type === '大魔物') n.encounterId = rng.pick(encountersOfPool('大魔物')).id;
+    else if (n.type === '大魔物') n.encounterId = rng.pick(encountersOfPool('大魔物', act)).id;
     // 塔主：呼叫端會指定這一關的候選（第一、二關不含大俠貓，他是第三關固定的最終頭目）；
     // 沒指定就整池隨機（測試與舊呼叫端用）。
     else if (n.type === '塔主') {

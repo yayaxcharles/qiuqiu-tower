@@ -19,8 +19,11 @@ export const ACT_NAMES = ['塔下', '塔中', '塔頂'] as const;
  * 骨架先跟第一關共用同一池。
  */
 export function bossPoolForAct(act: number): string[] {
-  if (act >= ACTS) return ['tower_master'];
-  return ['nekomata', 'iron_claw'];
+  // 塔下三選一（貓又／鐵爪／橘皮大王）、塔中三選一（奶牛貓／狸大人／波斯大小姐）、
+  // 塔頂固定師父。新關主的立繪還在生圖中：資料先接好，圖裝進資產包才會推上線。
+  if (act >= 3) return ['tower_master'];
+  if (act === 2) return ['cowcat_boss', 'tanuki_lord', 'persian_lady'];
+  return ['nekomata', 'iron_claw', 'orange_king'];
 }
 const PRICE: Record<Rarity, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
 const RELIC_PRICE = 150, POTION_PRICE = 45;

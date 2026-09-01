@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { encounterById, encounters, encountersOfPool, enemies, enemyById } from '../../src/content/enemies';
 
 describe('魔物資料', () => {
-  it('數量：一般 28、大魔物 4、塔主 3、召喚 5', () => {
+  it('數量：一般 40、大魔物 5、塔主 7、召喚 7', () => {
     const n = (p: string) => enemies.filter((e) => e.pool === p).length;
-    // 2026-08-31 補 14 隻：中後段本來只有 4＋3 組遭遇，一直重複同一場仗
-    expect(n('弱') + n('中') + n('強')).toBe(28);
-    // 召喚 5：2026-09-01 加了切磋的白貓（只有事件會遇到——之前偷懶借黑貓忍者當對手）
-    expect(n('大魔物')).toBe(4); expect(n('塔主')).toBe(3); expect(n('召喚')).toBe(5);
+    // 2026-09-01 三關制內容包：塔中 7＋塔頂 5 進一般池、影球球進大魔物、
+    // 關主 3→7（橘皮大王＋第二關三選一）、召喚加執事貓與女僕貓
+    expect(n('弱') + n('中') + n('強')).toBe(40);
+    expect(n('大魔物')).toBe(5); expect(n('塔主')).toBe(7); expect(n('召喚')).toBe(7);
     expect(new Set(enemies.map((e) => e.id)).size).toBe(enemies.length);
   });
   it('生命區間合法、至少一個動作、有台詞與圖', () => {
@@ -32,6 +32,8 @@ describe('魔物資料', () => {
         expect(enemyById[id], enc.id).toBeTruthy();
         const mp = enemyById[id]!.pool;
         if (mp === enc.pool) continue;
+        // 塔主的隨從例外：波斯大小姐開場就帶執事貓與女僕貓（僕從護體要有僕從可打）
+        if (enc.pool === '塔主' && mp === '召喚') continue;
         const ok = order.indexOf(enc.pool) - order.indexOf(mp) === 1;
         expect(ok, `${enc.id}：成員 ${id}（${mp}）不該出現在 ${enc.pool} 遭遇`).toBe(true);
       }

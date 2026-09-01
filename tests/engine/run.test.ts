@@ -258,10 +258,10 @@ describe('三關制', () => {
     for (const seed of ['a1', 'a2', 'a3']) {
       const run = newRun(seed);
       const boss = run.map.nodes.find((n) => n.type === '塔主')!;
-      expect(['nekomata', 'iron_claw']).toContain(boss.encounterId);
+      expect(['nekomata', 'iron_claw', 'orange_king']).toContain(boss.encounterId);
       advanceAct(run);
       const boss2 = run.map.nodes.find((n) => n.type === '塔主')!;
-      expect(['nekomata', 'iron_claw']).toContain(boss2.encounterId);
+      expect(['cowcat_boss', 'tanuki_lord', 'persian_lady']).toContain(boss2.encounterId);
       advanceAct(run);
       const boss3 = run.map.nodes.find((n) => n.type === '塔主')!;
       expect(boss3.encounterId).toBe('tower_master');

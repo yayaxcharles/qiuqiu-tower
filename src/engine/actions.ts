@@ -107,6 +107,11 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
 export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean } = {}): { dealt: number; killed: boolean } {
   if (e.dead) return { dealt: 0, killed: false };
+  // 僕從護體：還有同伴活著就毫髮無傷（含直傷）。放在隱身之前——被護著的時候不消耗隱身層數
+  if (enemyById[e.enemyId]?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) {
+    log(cs, `${e.name}被僕從護著，毫髮無傷`);
+    return { dealt: 0, killed: false };
+  }
   let lose: number;
   if (opts.direct) {
     lose = base;
