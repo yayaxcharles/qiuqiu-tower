@@ -4,6 +4,7 @@ import { nodeById } from '../engine/map';
 import { beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
+import { type BgmName, setBgm } from './bgm';
 import { computeScale } from './assets';
 import { playDialogue, toast } from './dialogue';
 import { clear, el } from './dom';
@@ -43,9 +44,24 @@ export class App {
    * 換畫面。**只清畫面層**：疊層留著，所以戰鬥畫面每動一次就重畫也不會把吐槽掃掉、
    * 播到一半的對白也不會被拔走（拔走的話它的 onDone 永遠不會叫，流程會靜靜卡死）。
    */
+  /** 這個畫面配哪首曲子。戰鬥另外處理（要分一般戰／關主戰，見 startFight） */
+  private bgmFor(name: ScreenName): BgmName | null {
+    const act = this.run?.act ?? 1;
+    const actTrack = (['act1', 'act2', 'act3'] as const)[Math.min(3, Math.max(1, act)) - 1]!;
+    switch (name) {
+      case 'title': case 'result': return 'leisure';
+      case 'map': case 'event': case 'chest': case 'actclear': case 'reward': return actTrack;
+      case 'shop': return 'shop';
+      case 'rest': return 'rest';
+      default: return null;   // combat 在 startFight 裡自己設
+    }
+  }
+
   show(name: ScreenName, props: unknown = {}): void {
     const r = screens.get(name);
     if (!r) throw new Error(`畫面尚未登記：${name}`);
+    const track = this.bgmFor(name);
+    if (track) setBgm(track);
     hideTooltip();   // 提示框的錨點就要被清掉了，不先關掉會變成孤兒黏在畫面上
     clear(this.screen);
     this.stage.dataset['screen'] = name;
@@ -125,6 +141,7 @@ export class App {
   startFight(encounterId: string, isBoss = false, bonusFish = 0): void {
     const run = this.run;
     if (!run) return;
+    setBgm(isBoss ? 'boss' : 'battle');
     const go = (): void => {
       this.cs = beginCombat(run, encounterId);
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);

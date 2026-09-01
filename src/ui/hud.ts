@@ -4,6 +4,7 @@ import type { App } from './app';
 import { artUrl } from './assets';
 import { ACT_NAMES } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
+import { musicOn, toggleMusic } from './bgm';
 import { showDeckPicker } from './deckview';
 import { el } from './dom';
 import { attachTextTooltip, attachTooltip } from './tooltip';
@@ -93,18 +94,24 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
    * 不會因為進戰鬥就被藏起來（生命與忍具那兩格在戰鬥中是隱藏的）。
    * 狀態記在瀏覽器裡，換一局也記得。按下去順便播一聲，讓玩家知道「開了」是什麼音量。
    */
-  const sound = el('button', { class: 'btn small hud-sound' }, soundOn() ? '🔊 音效' : '🔇 靜音');
+  const sound = el('button', { class: 'btn small hud-sound' }, soundOn() ? '🔊 音效' : '🔇 音效');
   sound.title = '開關音效';
   sound.addEventListener('click', () => {
     const on = toggleSound();
-    sound.textContent = on ? '🔊 音效' : '🔇 靜音';
+    sound.textContent = on ? '🔊 音效' : '🔇 音效';
     if (on) play('click');
+  });
+  // 音樂另一顆開關：有人想聽音效不聽音樂，反過來也有，不能綁在一起
+  const music = el('button', { class: 'btn small hud-sound' }, musicOn() ? '🎵 音樂' : '🔇 音樂');
+  music.title = '開關音樂';
+  music.addEventListener('click', () => {
+    music.textContent = toggleMusic() ? '🎵 音樂' : '🔇 音樂';
   });
 
   hud.append(
     // 還沒踏上這一關的第一個節點時顯示關名（塔下／塔中／塔頂），之後顯示累計樓層
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
     hp, fish, relics, potions, deckBtn,
-    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`), sound);
+    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`), music, sound);
   return hud;
 }

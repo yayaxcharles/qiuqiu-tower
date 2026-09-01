@@ -6,6 +6,7 @@ import './ui/styles/screens.css';
 import { App } from './ui/app';
 import { loadManifest, preloadArt } from './ui/assets';
 import { unlockOnFirstGesture } from './ui/audio';
+import { unlockBgmOnFirstGesture } from './ui/bgm';
 import { applyArtVars } from './ui/screenbg';
 import './ui/screens/actclear';
 import './ui/screens/chest';
@@ -23,6 +24,7 @@ async function boot(): Promise<void> {
   applyArtVars();
   // 音訊環境要等使用者動過畫面才建得起來（瀏覽器的自動播放限制）
   unlockOnFirstGesture();
+  unlockBgmOnFirstGesture();
   const root = document.getElementById('app');
   if (!root) return;
   const app = new App(root);
