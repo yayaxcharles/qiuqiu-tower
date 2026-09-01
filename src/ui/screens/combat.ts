@@ -95,7 +95,7 @@ interface Snap {
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number; block: number }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number; block: number; stealth: number }>;
   logLen: number;
 }
 function snap(cs: CombatState): Snap {
@@ -104,7 +104,7 @@ function snap(cs: CombatState): Snap {
     buff: sumStatus(cs.player, GOOD_STATUS), debuff: sumStatus(cs.player, BAD_STATUS),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
-      hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent, block: e.block,
+      hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'),
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'),
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
@@ -840,6 +840,14 @@ registerScreen('combat', (app, root, props) => {
       }
       // 打到了但一點血都沒掉＝整下被防禦吃掉，要有「鏘」的一聲，不然像沒打到
       else if (opts.attack && !e.dead && b.block > 0 && e.block < b.block) sfx('blocked');
+      // 隱身被消耗、血卻沒動＝這一下被閃掉了。本來只有左上角一行小字，
+      // 玩家丟了 16 點的忍具看到毫無反應，只會以為遊戲壞掉（使用者真的回報過）。
+      // 頭上飄「閃過！」＋一團煙＋咻一聲，跟被打、被擋同一個等級的回饋。
+      if (!e.dead && getStatus(e, '隱身') < b.stealth && e.hp === b.hp) {
+        node.append(floatNum('閃過！'));
+        burst(node, 'smoke');
+        sfx('dodge');
+      }
       else if (e.hp > b.hp) burst(node, 'heal');
       if (sumStatus(e, BAD_STATUS) > b.debuff) burst(node, 'debuff');
       // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
