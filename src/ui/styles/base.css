@@ -154,11 +154,15 @@ img { -webkit-user-drag: none; }
      角色像站在框後面，而不是浮在旁邊的一張貼紙。
      bottom 要比框頂再低一點（框高約 180、離底 40，所以框頂在 220），
      取 168 讓腳確實被壓住。 */
-  left: 96px;
-  bottom: 168px;
-  z-index: 49;
-  width: 330px;
-  height: 380px;
+  /* 靠左站，腳被框的上緣擋住一截。bottom 比框頂（離底 40＋框高約 163＝203）低一點，
+     腳才會確實被壓住、看起來像站在框後面。 */
+  left: 60px;
+  bottom: 176px;
+  /* 0 不是 49：立繪要畫在對白框**後面**，腳才會被框擋住。
+     設 49 的話它會蓋在框的邊框上，看起來像踩在框上而不是站在框後。 */
+  z-index: 0;
+  width: 300px;
+  height: 350px;
   object-fit: contain;
   object-position: center bottom;
   pointer-events: none;
@@ -186,7 +190,9 @@ img { -webkit-user-drag: none; }
    現在做成一塊有厚度的木牌：深色外框、內側一條細線（傳統對話框的雙線）、
    四個角掛上跟其他面板同一套的角花、紙的紋理靠斜向細條紋做出來。 */
 .dialogue-box {
+  /* 疊在立繪前面（立繪是 0），角色的腳才會被框擋住 */
   position: relative;
+  z-index: 1;
   box-sizing: border-box;
   width: 1000px;
   margin-bottom: 40px;
@@ -227,8 +233,11 @@ img { -webkit-user-drag: none; }
 .dialogue-speaker {
   position: absolute;
   top: 0;
-  /* 76 不是 30：左上角的角花佔到 60，名牌從 30 開始會壓在它身上 */
-  left: 76px;
+  /* 330 不是 76：說話者的立繪站在框的左上方、佔到舞台座標 426，
+     名牌放 76 會整個被立繪蓋住（只露出一小角在貓腳後面）。
+     移到立繪右邊，讀起來就是「貓在左、名字在牠旁邊」。
+     （76 那版是為了讓開左上角的角花，角花佔到 60；現在更右邊，自然也讓開了。） */
+  left: 330px;
   transform: translateY(-52%);
   padding: 3px 18px 4px;
   /* 名牌換成生出來的胡桃木牌（九宮格橫拉，配合兩到六個字的名字）。
