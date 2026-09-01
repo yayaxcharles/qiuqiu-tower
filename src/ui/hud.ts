@@ -1,4 +1,5 @@
 import { potionById } from '../content/potions';
+import { showCompendium } from './compendium';
 import { relicById } from '../content/relics';
 import type { App } from './app';
 import { artUrl } from './assets';
@@ -112,10 +113,15 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   vol.title = '音樂音量';
   vol.addEventListener('input', () => setMusicVolume(Number(vol.value)));
 
+  // 圖鑑：整個牌庫一覽＋升級版勾選（使用者點名）。放牌組鈕旁邊——都是「查牌」的入口
+  const compBtn = el('button', { class: 'btn small' }, '📖 圖鑑');
+  compBtn.title = '全部卡牌與效果一覽，可切換看升級版';
+  compBtn.addEventListener('click', () => showCompendium());
+
   hud.append(
     // 還沒踏上這一關的第一個節點時顯示關名（塔下／塔中／塔頂），之後顯示累計樓層
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
-    hp, fish, relics, potions, deckBtn,
+    hp, fish, relics, potions, deckBtn, compBtn,
     seedTag(run.seed), music, vol, sound);
   return hud;
 }

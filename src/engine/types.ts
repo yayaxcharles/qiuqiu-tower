@@ -111,7 +111,7 @@ export type EnemyEffect =
   | { kind: 'heal'; n: number }
   | { kind: 'stealFish'; n: number }
   | { kind: 'discardRandomHand'; n: number }
-  | { kind: 'summon'; enemyId: string; n: number }
+  | { kind: 'summon'; enemyId: string; n: number; max?: number }   // max＝同種活著的上限，補召不爆量
   | { kind: 'chargeNext' }
   | { kind: 'escape' }
   | { kind: 'nothing' };
@@ -151,6 +151,13 @@ export interface EnemyDef {
    * 正解是先清光僕從。規則照「隱藏機制全部掛牌可見」的原則在畫面上掛牌子。
    */
   guardedByAllies?: boolean;
+  /**
+   * 照表出招：回傳第 `turn` 回合（1 起算）要出的招；回傳 undefined 就照 pattern 走。
+   * `moves` 是當下階段的招式表（進了階段就是階段的表）。
+   * 貓又婆婆用：召喚要有固定節奏（1 召、4 準備、5 召、9 準備、10 召……），
+   * cycle/random 都表達不了「每五回合一組、前一回合先預告」。
+   */
+  chooseMove?: (turn: number, moves: EnemyMove[]) => EnemyMove | undefined;
   phases?: EnemyPhase[];
 }
 export interface EncounterDef {

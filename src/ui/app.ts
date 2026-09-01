@@ -5,7 +5,7 @@ import { ACTS, beginCombat, chooseNode, finishCombat, newRun as engineNewRun } f
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale } from './assets';
+import { computeScale, monsterUrl } from './assets';
 import { playDialogue, toast } from './dialogue';
 import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
@@ -160,9 +160,15 @@ export class App {
       }
     };
     if (isBoss) {
-      // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上
-      const bossId = encounterById[encounterId]?.enemies[0] ?? '';
-      playDialogue(dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go);
+      // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。
+      // 波斯大小姐那場的第一隻是執事貓，所以要挑「塔主池」的那隻當本人。
+      const ids = encounterById[encounterId]?.enemies ?? [];
+      const bossId = ids.find((id) => enemyById[id]?.pool === '塔主') ?? ids[0] ?? '';
+      const bd = enemyById[bossId];
+      const cast = bd && bossId !== 'tower_master'
+        ? { 塔主: { name: bd.name, portrait: monsterUrl(bd.art, 'idle') } }
+        : undefined;   // 師父維持「塔主」木牌與大俠貓立繪
+      playDialogue(dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go, cast);
     } else go();
   }
 

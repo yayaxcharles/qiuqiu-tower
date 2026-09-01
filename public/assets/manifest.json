@@ -257,6 +257,86 @@
   "codex/monster_training_post": {
    "attack": "assets/monsters/training_post_attack.webp",
    "idle": "assets/monsters/training_post_idle.webp"
+  },
+  "codex/monster_butler_cat": {
+   "attack": "assets/monsters/butler_cat_attack.webp",
+   "idle": "assets/monsters/butler_cat_idle.webp"
+  },
+  "codex/monster_cowcat_boss": {
+   "attack": "assets/monsters/cowcat_boss_attack.webp",
+   "idle": "assets/monsters/cowcat_boss_idle.webp"
+  },
+  "codex/monster_geta_monster": {
+   "attack": "assets/monsters/geta_monster_attack.webp",
+   "idle": "assets/monsters/geta_monster_idle.webp"
+  },
+  "codex/monster_ink_cat": {
+   "attack": "assets/monsters/ink_cat_attack.webp",
+   "idle": "assets/monsters/ink_cat_idle.webp"
+  },
+  "codex/monster_lantern_ghost": {
+   "attack": "assets/monsters/lantern_ghost_attack.webp",
+   "idle": "assets/monsters/lantern_ghost_idle.webp"
+  },
+  "codex/monster_maid_cat": {
+   "attack": "assets/monsters/maid_cat_attack.webp",
+   "idle": "assets/monsters/maid_cat_idle.webp"
+  },
+  "codex/monster_miasma_blob": {
+   "attack": "assets/monsters/miasma_blob_attack.webp",
+   "idle": "assets/monsters/miasma_blob_idle.webp"
+  },
+  "codex/monster_moon_rabbit": {
+   "attack": "assets/monsters/moon_rabbit_attack.webp",
+   "idle": "assets/monsters/moon_rabbit_idle.webp"
+  },
+  "codex/monster_night_panther": {
+   "attack": "assets/monsters/night_panther_attack.webp",
+   "idle": "assets/monsters/night_panther_idle.webp"
+  },
+  "codex/monster_orange_king": {
+   "attack": "assets/monsters/orange_king_attack.webp",
+   "idle": "assets/monsters/orange_king_idle.webp"
+  },
+  "codex/monster_owl_sentry": {
+   "attack": "assets/monsters/owl_sentry_attack.webp",
+   "idle": "assets/monsters/owl_sentry_idle.webp"
+  },
+  "codex/monster_paper_crane": {
+   "attack": "assets/monsters/paper_crane_attack.webp",
+   "idle": "assets/monsters/paper_crane_idle.webp"
+  },
+  "codex/monster_persian_lady": {
+   "attack": "assets/monsters/persian_lady_attack.webp",
+   "idle": "assets/monsters/persian_lady_idle.webp"
+  },
+  "codex/monster_shamisen_cat": {
+   "attack": "assets/monsters/shamisen_cat_attack.webp",
+   "idle": "assets/monsters/shamisen_cat_idle.webp"
+  },
+  "codex/monster_shiba_ronin": {
+   "attack": "assets/monsters/shiba_ronin_attack.webp",
+   "idle": "assets/monsters/shiba_ronin_idle.webp"
+  },
+  "codex/monster_tanuki_kid": {
+   "attack": "assets/monsters/tanuki_kid_attack.webp",
+   "idle": "assets/monsters/tanuki_kid_idle.webp"
+  },
+  "codex/monster_tanuki_lord": {
+   "attack": "assets/monsters/tanuki_lord_attack.webp",
+   "idle": "assets/monsters/tanuki_lord_idle.webp"
+  },
+  "codex/monster_windchime_sprite": {
+   "attack": "assets/monsters/windchime_sprite_attack.webp",
+   "idle": "assets/monsters/windchime_sprite_idle.webp"
+  },
+  "codex/monster_shadow_cat": {
+   "attack": "assets/monsters/shadow_cat_attack.webp",
+   "idle": "assets/monsters/shadow_cat_idle.webp"
+  },
+  "codex/monster_white_duelist": {
+   "attack": "assets/monsters/white_duelist_attack.webp",
+   "idle": "assets/monsters/white_duelist_idle.webp"
   }
  },
  "icons": {

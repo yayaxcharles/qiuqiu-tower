@@ -568,6 +568,8 @@ registerScreen('combat', (app, root, props) => {
     // 總數一路變大、新小怪的索引也一路往後，算出來的 left 直接超出舞台 1280
     // （第三批會落在 1380）。倒下的排在 -1，反正牠們是隱形的。
     const alive = cs.enemies.filter((e) => !e.dead);
+    // 四隻以上時欄距（150）比單位窄（190），狀態牌子會互相壓到——整場掛 crowd 讓牌子縮小
+    box.classList.toggle('crowd', alive.length >= 4);
     cs.enemies.forEach((e) => field.append(enemyUnit(e, e.dead ? -1 : alive.indexOf(e), alive.length)));
     box.append(field, sidePanel(), handRow());
 
@@ -1004,8 +1006,11 @@ registerScreen('combat', (app, root, props) => {
     const [a, b] = phase >= 2
       ? (dialogue.bossPhase3ById[bossId] ?? dialogue.bossPhase3Generic)
       : (dialogue.bossPhase2ById[bossId] ?? dialogue.bossPhase2Generic);
-    if (a) toast(a.text, a.speaker);
-    if (b) window.setTimeout(() => { if (app.cs === cs) toast(b.text, b.speaker); }, 1400);
+    // 「塔主」木牌只留給師父本人；其他關主的吐槽掛自己的名字（貓又婆婆等）
+    const name = (sp: string): string =>
+      sp === '塔主' && bossId !== 'tower_master' ? (enemyById[bossId]?.name ?? sp) : sp;
+    if (a) toast(a.text, name(a.speaker));
+    if (b) window.setTimeout(() => { if (app.cs === cs) toast(b.text, name(b.speaker)); }, 1400);
   }
 
   // ===== 待選牌 =====

@@ -744,3 +744,9 @@
   text-shadow: 0 2px 6px rgba(0,0,0,.8);
 }
 .vs-overlay .vs-boss { color: #ff9d6c; }
+
+
+/* ===== 擠版防護：場上四隻以上，狀態牌子與名字縮一號，才不會互相壓字 ===== */
+.combat.crowd .unit .chip { font-size: 10px; padding: 1px 5px; gap: 2px; }
+.combat.crowd .unit .chip img { width: 12px; height: 12px; }
+.combat.crowd .unit .name { font-size: 13px; }

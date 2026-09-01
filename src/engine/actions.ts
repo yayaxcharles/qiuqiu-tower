@@ -74,6 +74,9 @@ function moveSet(e: EnemyCombat): { moves: EnemyMove[]; pattern: 'cycle' | 'rand
 
 export function advanceMove(cs: CombatState, e: EnemyCombat): void {
   const { moves, pattern } = moveSet(e);
+  // 照表出招的怪先問表（turnCount 是「已經行動過的回合數」，下一動＝+1）
+  const scripted = enemyById[e.enemyId]?.chooseMove?.(e.turnCount + 1, moves);
+  if (scripted) { e.move = scripted; return; }
   if (pattern === 'random') { e.move = cs.rng.pick(moves); return; }
   e.moveIndex = (e.moveIndex + 1) % moves.length;
   e.move = moves[e.moveIndex] as EnemyMove;
@@ -88,7 +91,8 @@ function checkPhase(cs: CombatState, e: EnemyCombat): void {
   e.moveIndex = 0;
   if (next.line) log(cs, `${e.name}：${next.line}`);
   runEnemyEffects(cs, e, next.onEnter, false);
-  e.move = next.pattern === 'random' ? cs.rng.pick(next.moves) : (next.moves[0] as EnemyMove);
+  e.move = def.chooseMove?.(e.turnCount + 1, next.moves)
+    ?? (next.pattern === 'random' ? cs.rng.pick(next.moves) : (next.moves[0] as EnemyMove));
 }
 
 function killEnemy(cs: CombatState, e: EnemyCombat): void {
@@ -135,7 +139,8 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   const move = def.pattern === 'cycle' ? (def.moves[moveIndex] as EnemyMove) : cs.rng.pick(def.moves);
   return {
     uid: cs.nextEnemyUid++, enemyId, name: def.name, hp, maxHp: hp, block: 0, statuses: {},
-    moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0, move, dead: false, escaped: false, stolen: 0,
+    moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0,
+    move: def.chooseMove?.(1, def.moves) ?? move, dead: false, escaped: false, stolen: 0,
   };
 }
 
@@ -171,7 +176,11 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         break;
       }
       case 'summon': {
-        for (let i = 0; i < fx.n && aliveEnemies(cs).length < 5; i++) cs.enemies.push(makeEnemy(cs, fx.enemyId, i));
+        for (let i = 0; i < fx.n && aliveEnemies(cs).length < 5; i++) {
+          // max＝這種怪同時在場的上限（補召）：尾巴還剩一條就只補一條，不會越疊越多
+          if (fx.max !== undefined && cs.enemies.filter((o) => o.enemyId === fx.enemyId && !o.dead).length >= fx.max) break;
+          cs.enemies.push(makeEnemy(cs, fx.enemyId, i));
+        }
         break;
       }
       case 'chargeNext': e.charged = true; break;

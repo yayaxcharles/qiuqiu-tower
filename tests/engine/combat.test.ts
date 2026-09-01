@@ -265,6 +265,27 @@ describe('魔物回合', () => {
     expect(e.charged).toBe(false);
     expect(getStatus(e, '定身')).toBe(0);
   });
+  it('貓又照表出招：1 召、4 準備、5 補召；尾巴打死不復活、上限兩條', () => {
+    const cs = start('nekomata');
+    const neko = cs.enemies[0]!;
+    expect(neko.move.label).toBe('放尾巴');
+    endTurn(cs);                                    // 第 1 回合：放兩條尾巴
+    const tails = () => cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).length;
+    expect(tails()).toBe(2);
+    endTurn(cs);                                    // 第 2、3 回合打普通招
+    endTurn(cs);
+    expect(neko.move.label).toBe('準備放尾巴');
+    const tail = cs.enemies.find((e) => e.enemyId === 'nekomata_tail')!;
+    tail.hp = 1; cs.player.energy = 3;
+    playCard(cs, toHand(cs, 'sanjo'), tail.uid);
+    expect(tail.dead).toBe(true);
+    endTurn(cs);                                    // 第 4 回合：準備（尾巴不會爬回來）
+    expect(tail.dead).toBe(true);
+    expect(tails()).toBe(1);
+    expect(neko.move.label).toBe('放尾巴');
+    endTurn(cs);                                    // 第 5 回合：補召回到兩條（上限 2，不會疊三條）
+    expect(tails()).toBe(2);
+  });
   it('僕從護體：僕從還站著打不動本體，也不消耗她的隱身；清光僕從才打得到', () => {
     const cs = start('persian_lady');
     const lady = cs.enemies.find((e) => e.enemyId === 'persian_lady')!;

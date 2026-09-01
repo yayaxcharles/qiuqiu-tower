@@ -24,7 +24,10 @@ function portraitOf(speaker: DialogueLine['speaker']): string | null {
   return null;   // 旁白沒有臉
 }
 
-export function playDialogue(lines: DialogueLine[], onDone: () => void): void {
+/** 「塔主」這個說話者實際上是誰：關主開場時傳進來，木牌與立繪都換成該關關主本人 */
+export interface SpeakerCast { name: string; portrait: string }
+
+export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: { 塔主?: SpeakerCast }): void {
   const layer = overlayRoot();
   if (!layer || lines.length === 0) { onDone(); return; }
   let i = 0;
@@ -40,11 +43,14 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void): void {
   const render = (): void => {
     const l = lines[i];
     if (!l) return;
-    speaker.textContent = l.speaker === '旁白' ? '' : l.speaker;
+    // 「塔主」有指定本人時換成本人：第一關打貓又婆婆，卻掛師父的臉跟「塔主」木牌，
+    // 玩家會以為在跟師父講話（使用者實玩回報）
+    const who = l.speaker === '塔主' ? cast?.['塔主'] : undefined;
+    speaker.textContent = l.speaker === '旁白' ? '' : (who?.name ?? l.speaker);
     text.textContent = l.text;
     box.classList.toggle('narration', l.speaker === '旁白');
     // 換人講話才重設圖，同一個人連講好幾句時不要每句都重播進場動畫
-    const url = portraitOf(l.speaker);
+    const url = who?.portrait ?? portraitOf(l.speaker);
     if (url && portrait.dataset['who'] !== l.speaker) {
       portrait.src = url;
       portrait.dataset['who'] = l.speaker;

@@ -1,4 +1,8 @@
-import type { EncounterDef, EnemyDef, EnemyPool } from '../engine/types';
+import type { EnemyMove,EncounterDef, EnemyDef, EnemyPool } from '../engine/types';
+
+// 貓又婆婆照表出招用的兩招（chooseMove 每回合回傳同一份物件，方便畫面比對）
+const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 2 }] };
+const NEKO_PREP: EnemyMove = { intent: 'special', label: '準備放尾巴', effects: [{ kind: 'nothing' }] };
 
 export const enemies: EnemyDef[] = [
   // ===== 弱池 =====
@@ -132,17 +136,24 @@ export const enemies: EnemyDef[] = [
   // 尾巴同組（`reviveGroup: 'tail'`），只清掉一條沒用，要同一回合兩條一起清。
   // 解法是爆發與清場，慢慢磨只會被她回滿。
   // 2026-09-01 減壓：血 150→130、吸魂 12→9，配合鐵爪一起降到第一關牌組打得動的量級
+  // 貓又婆婆（2026-09-01 依實玩重做）：召喚改固定節奏——第 1 回合放尾巴，之後每五回合一組
+  // （4 準備、5 放；9 準備、10 放……），「準備」回合是明牌的輸出窗口。
+  // 尾巴上限 2 條（補召不爆量）、8 血、**不再復活**——原本的無限復活把輸出全吃掉（機器人探測 0/60 的病根）。
   { id: 'nekomata', name: '貓又婆婆', hp: [105, 105], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata',
     line: '孩子，你走得太上面了。',
+    chooseMove: (turn, moves) => {
+      if (turn === 1 || turn % 5 === 0) return NEKO_SUMMON;
+      if (turn % 5 === 4) return NEKO_PREP;
+      return moves[turn % moves.length];
+    },
     moves: [
-      { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }] },
       { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
       { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 7 }] },
       { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
     ],
     phases: [{
       hpBelow: 55, line: '（尾巴分成了好幾條）', pattern: 'cycle',
-      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }, { kind: 'heal', n: 12 }],
+      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 2 }, { kind: 'heal', n: 12 }],
       moves: [
         { intent: 'attack', label: '亂尾', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
         { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 10 }] },
@@ -150,9 +161,10 @@ export const enemies: EnemyDef[] = [
         { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 12 }] },
       ],
     }] },
-  // 婆婆的尾巴：兩條同組，只要還有一條站著，倒下的那條下回合就爬起來
-  { id: 'nekomata_tail', name: '貓又的尾巴', hp: [14, 14], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_nekomata_tail',
-    line: '（尾巴自己動了）', reviveGroup: 'tail', reviveHp: 6,
+  // 婆婆的尾巴：8 血的小隨從，打掉就沒了（2026-09-01 拿掉同生共死——
+  // 無限復活讓玩家的輸出全打水漂，改成婆婆照固定節奏補召）
+  { id: 'nekomata_tail', name: '貓又的尾巴', hp: [8, 8], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_nekomata_tail',
+    line: '（尾巴自己動了）',
     moves: [
       { intent: 'attack', label: '抽', effects: [{ kind: 'damage', amount: 5 }] },
       { intent: 'special', label: '渡氣', effects: [{ kind: 'heal', n: 4 }] },
