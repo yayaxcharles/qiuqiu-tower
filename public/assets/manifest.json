@@ -116,7 +116,8 @@
   "boss/idle2": "assets/sprites/boss/idle2.webp",
   "boss/palm": "assets/sprites/boss/palm.webp",
   "boss/roar": "assets/sprites/boss/roar.webp",
-  "boss/seclude": "assets/sprites/boss/seclude.webp"
+  "boss/seclude": "assets/sprites/boss/seclude.webp",
+  "shop/keeper": "assets/sprites/shop/keeper.webp"
  },
  "review": [],
  "monsters": {
@@ -386,6 +387,27 @@
   "bg/mid_b": "assets/bg/mid_b.webp",
   "bg/mid_c": "assets/bg/mid_c.webp",
   "bg/top_b": "assets/bg/top_b.webp",
-  "bg/top_c": "assets/bg/top_c.webp"
+  "bg/top_c": "assets/bg/top_c.webp",
+  "bg/event_broken_shrine": "assets/bg/event_broken_shrine.webp",
+  "bg/event_cat_tower": "assets/bg/event_cat_tower.webp",
+  "bg/event_catnip_field": "assets/bg/event_catnip_field.webp",
+  "bg/event_crying_wall": "assets/bg/event_crying_wall.webp",
+  "bg/event_fish_pond": "assets/bg/event_fish_pond.webp",
+  "bg/event_gambling_rats": "assets/bg/event_gambling_rats.webp",
+  "bg/event_greedy_merchant": "assets/bg/event_greedy_merchant.webp",
+  "bg/event_heavy_door": "assets/bg/event_heavy_door.webp",
+  "bg/event_lost_scroll": "assets/bg/event_lost_scroll.webp",
+  "bg/event_medicine_cat": "assets/bg/event_medicine_cat.webp",
+  "bg/event_mirror_hall": "assets/bg/event_mirror_hall.webp",
+  "bg/event_moon_window": "assets/bg/event_moon_window.webp",
+  "bg/event_noisy_kitchen": "assets/bg/event_noisy_kitchen.webp",
+  "bg/event_old_master_ghost": "assets/bg/event_old_master_ghost.webp",
+  "bg/event_old_well": "assets/bg/event_old_well.webp",
+  "bg/event_sleeping_guard": "assets/bg/event_sleeping_guard.webp",
+  "bg/event_sparring_cat": "assets/bg/event_sparring_cat.webp",
+  "bg/event_stuck_kitten": "assets/bg/event_stuck_kitten.webp",
+  "bg/event_training_hall": "assets/bg/event_training_hall.webp",
+  "bg/event_weapon_rack": "assets/bg/event_weapon_rack.webp",
+  "bg/event_catnip_field_take": "assets/bg/event_catnip_field_take.webp"
  }
 }
