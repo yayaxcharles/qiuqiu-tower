@@ -128,7 +128,9 @@ registerScreen('combat', (app, root, props) => {
   const run: RunState = app.run;
   const cs: CombatState = app.cs;
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
-  const bgKey = tierBgKey(run.floor);
+  // 關主戰用專屬戰場（boss1/2/3 依關數）；圖還沒生好就照舊用該關色調
+  const bossBgKey = encounterById[cs.encounterId]?.pool === '塔主' ? `boss${run.act}` : '';
+  const bgKey = bossBgKey && !isFallback(artUrl('bg', bossBgKey)) ? bossBgKey : tierBgKey(run.floor);
 
   let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
   let pose = POSE.idle;

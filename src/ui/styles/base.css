@@ -543,3 +543,18 @@ img { -webkit-user-drag: none; }
   100% { transform: translate(calc(var(--sway, 40px) * -0.4), 104vh) rotate(420deg); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .title-petals { display: none; } }
+
+
+/* ===== 插圖幻燈片（序章／結局）===== */
+.slide-overlay {
+  position: absolute; inset: 0; z-index: 90;
+  background: #000;
+  pointer-events: auto; cursor: pointer;
+}
+.slide-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity .6s ease;
+}
+.slide-img.show { opacity: 1; }
+.slide-overlay .slide-box { position: absolute; left: 90px; right: 90px; bottom: 34px; }

@@ -87,6 +87,27 @@ def main() -> None:
 
     # 牌的底紋：近乎純色的紙紋，縮到 256 當平鋪磚。品質給高一點——這種平坦漸層
     # 壓太狠會出現一圈一圈的色帶，而檔案本來就只有幾 KB，省不了什麼。
+    # 劇情定格圖（序章／結局幻燈片）：跟畫面底圖同規格
+    for src in sorted(INBOX.glob("still_*.png")):
+        if "." in src.stem:
+            continue   # 生圖工具的雜檔（縮圖檢查等）一律不收
+        dst = OUT / "bg" / f"{src.stem}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        ImageOps.fit(Image.open(src).convert("RGB"), (1280, 720), Image.LANCZOS).save(
+            dst, "WEBP", quality=70, method=6)
+        manifest["bg"][f"bg/{src.stem}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"劇情定格 {src.stem}.webp {dst.stat().st_size // 1024} KB")
+
+    # 師父正常形態（綠幕去背的單張立繪，之後接對白頭像）
+    mn = INBOX / "master_normal.png"
+    if mn.exists():
+        keyed = key_out(Image.open(mn).convert("RGB"))
+        dst = OUT / "sprites" / "master_normal.webp"
+        keyed.thumbnail((640, 720), Image.LANCZOS)
+        keyed.save(dst, "WEBP", quality=80, method=6)
+        manifest.setdefault("sprites", {})["master/normal"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"師父正常形態 master_normal.webp {dst.stat().st_size // 1024} KB")
+
     for src in sorted(INBOX.glob("card_paper_*.png")):
         name = src.stem.replace("card_paper_", "")
         dst = OUT / "bg" / f"card_paper_{name}.webp"

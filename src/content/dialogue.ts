@@ -7,6 +7,7 @@ export function qiuqiuLineOk(text: string): boolean {
 
 export const dialogue = {
   prologue: <DialogueLine[]>[
+    { speaker: '旁白', text: '球球是大俠貓的徒弟。師父教他蜷縮，他縮得歪歪的，師父也只是笑。' },
     { speaker: '旁白', text: '貓村旁邊，一夜之間長出一座塔。魔物從塔裡爬下來，偷走了村裡一半的小魚乾。' },
     { speaker: '旁白', text: '塔頂住著球球的師父，那位戴斗笠的大俠貓。他閉關練功，練到走火入魔，把自己關在上面。' },
     { speaker: '球球', text: '沒人派我去，我自己去喵。' },
@@ -197,7 +198,8 @@ export const dialogue = {
   victory: <DialogueLine[]>[
     { speaker: '塔主', text: '承讓。' },
     { speaker: '球球', text: '領教了喵。' },
-    { speaker: '旁白', text: '師父醒了。球球把他扛在背上，一層一層走下塔。' },
+    { speaker: '旁白', text: '師父醒了。球球撲進他懷裡，兩個人哭得一塌糊塗。' },
+    { speaker: '旁白', text: '夕陽把兩個影子拉得長長的。回家，吃小魚乾。' },
   ],
   // 三關制之後這句只在「真通關」時出現：塔清完了，沒有更多樓層，改成收尾的話
   victoryTeaser: '塔安靜下來了。回家吃小魚乾喵。',

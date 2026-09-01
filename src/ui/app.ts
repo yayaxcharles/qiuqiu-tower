@@ -1,4 +1,5 @@
 import { dialogue, type DialogueLine } from '../content/dialogue';
+import { playSlides, slidesReady } from './slides';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
@@ -81,7 +82,19 @@ export class App {
     this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`);
     this.cs = null;
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
-    this.playOnce('prologue', dialogue.prologue, () => { this.save(); this.show('map'); });
+    // 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白
+    const proSlides = [
+      { img: 'still_teach', lines: dialogue.prologue.slice(0, 1) },
+      { img: 'still_rush', lines: dialogue.prologue.slice(1, 2) },
+      { img: 'still_corrupt', lines: dialogue.prologue.slice(2, 3) },
+      { img: 'still_depart', lines: dialogue.prologue.slice(3) },
+    ];
+    const after = (): void => { this.save(); this.show('map'); };
+    if (this.run && !this.run.flags['prologue']) {
+      this.run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
+      if (slidesReady(proSlides)) playSlides(proSlides, after);
+      else playDialogue(dialogue.prologue, after);
+    } else after();
   }
 
   continueRun(): boolean {
@@ -200,7 +213,16 @@ export class App {
     if (rewards.kind === '塔主') {
       // 第三關的關主倒下才是通關；前兩關的關主打完走過場對白 → 過關畫面（回滿血、挑秘寶、進下一關）。
       // 過關那條路 status 還是 playing，存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫。
-      if (run.status === 'won') { playDialogue(dialogue.victory, () => this.show('result')); return; }
+      if (run.status === 'won') {
+        // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
+        const endSlides = [
+          { img: 'still_embrace', lines: dialogue.victory.slice(0, 3) },
+          { img: 'still_home', lines: dialogue.victory.slice(3) },
+        ];
+        if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
+        else playDialogue(dialogue.victory, () => this.show('result'));
+        return;
+      }
       playDialogue(run.act === 1 ? dialogue.actClear1 : dialogue.actClear2, () => this.show('actclear'));
       return;
     }
