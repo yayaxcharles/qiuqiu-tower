@@ -438,8 +438,10 @@ export const encounters: EncounterDef[] = [
   { id: 'rat_soy', pool: '弱', enemies: ['rat', 'soy_bottle'] },
   { id: 'cucumber_yarn', pool: '弱', enemies: ['cucumber', 'yarn_ball'] },
   { id: 'bug_hedgehog', pool: '中', enemies: ['catgrass_bug', 'hedgehog'] },
-  { id: 'ninja_can', pool: '中', enemies: ['black_ninja', 'can_spirit'] },
-  { id: 'vacuum_claw', pool: '中', enemies: ['vacuum', 'five_claw'] },
+  // 這兩組是「兩隻全規格中型怪同場」（合計 82～90 血），實測 6F 的典型牌組
+  // 對它們勝率只有 2%／7%、其他中型遭遇都是 92% 起——放錯池了，移到強池（11F+）
+  { id: 'ninja_can', pool: '強', enemies: ['black_ninja', 'can_spirit'] },
+  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'] },
   { id: 'bandit_chipmunk', pool: '中', enemies: ['orange_bandit', 'chipmunk'] },
   { id: 'lion_mirror', pool: '強', enemies: ['stone_lion', 'mirror_cat'] },
   { id: 'centipede_mirror', pool: '強', enemies: ['broom_centipede', 'mirror_cat'] },

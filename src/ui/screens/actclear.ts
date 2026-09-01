@@ -1,11 +1,12 @@
 import { actWalkTransition } from '../acttransition';
 import { play } from '../audio';
 import { relicById } from '../../content/relics';
-import { ACT_NAMES, advanceAct, rollActRelics, takeRelic } from '../../engine/run';
+import { ACT_NAMES, addCard, advanceAct, rollActCards, rollActRelics, takeRelic } from '../../engine/run';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { el } from '../dom';
+import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 
 /**
@@ -21,6 +22,9 @@ registerScreen('actclear', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
   const picks = rollActRelics(run);
+  const cardPicks = rollActCards(run);
+  let pickedCard: string | null = null;   // 只擲一次、只挑一張；重畫不重擲
+  let pickedRelic: string | null = null;
   play('victory');
 
   const done = (relicId: string | null): void => {
@@ -40,21 +44,38 @@ registerScreen('actclear', (app, root) => {
       const d = relicById[id];
       if (!d) continue;
       const url = artUrl('icons', d.art);
-      const node = el('div', { class: 'reward-item relic clickable' },
+      const node = el('div', { class: `reward-item relic clickable${pickedRelic === id ? ' selected' : ''}` },
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('span', { class: 'reward-line' }, el('b', {}, d.name), el('em', {}, d.text)));
-      node.addEventListener('click', () => done(id));
+      // 點了亮起、可換選；跟牌一樣按「出發」才一起結算，不然拿了秘寶就直接被送走、牌都來不及挑
+      node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); render(); });
       items.append(node);
     }
+    // 稀有牌三選一：點了亮起、可換選；帶不帶都能出發
+    const cardRow = el('div', { class: 'reward-cards' });
+    for (const c of cardPicks) {
+      const node = cardNode(c, {
+        small: true,
+        selected: pickedCard === c.id,
+        onClick: () => { pickedCard = pickedCard === c.id ? null : c.id; play('click'); render(); },
+      });
+      cardRow.append(node);
+    }
     const next = ACT_NAMES[run.act] ?? '塔頂';
+    const goLabel = pickedCard ? `帶著新招上${next}` : `出發，上${next}`;
     root.append(el('div', { class: 'screen reward actclear' },
       el('div', { class: 'reward-banner' }, el('h1', {}, `${ACT_NAMES[run.act - 1] ?? ''}破關`)),
       el('p', { class: 'actclear-note' }, `球球歇了口氣，體力全滿。前方就是${next}。`),
       picks.length
         ? el('div', { class: 'reward-loot' }, el('div', { class: 'reward-loot-label' }, '挑一件秘寶'), items)
         : '',
-      el('button', { class: 'btn primary', onclick: () => done(null) },
-        picks.length ? `不拿了，直接上${next}` : `出發，上${next}`)));
+      cardPicks.length
+        ? el('div', { class: 'reward-loot' }, el('div', { class: 'reward-loot-label' }, '挑一張牌（可不挑）'), cardRow)
+        : '',
+      el('button', {
+        class: 'btn primary',
+        onclick: () => { if (pickedCard) addCard(run, pickedCard); done(pickedRelic); },
+      }, goLabel)));
   }
   render();
 });

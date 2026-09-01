@@ -22,11 +22,18 @@ describe('魔物資料', () => {
   it('召喚與遭遇引用的魔物都存在，池一致', () => {
     for (const e of enemies) for (const m of e.moves) for (const fx of m.effects)
       if (fx.kind === 'summon') expect(enemyById[fx.enemyId], `${e.name} 召喚`).toBeTruthy();
+    // 遭遇的池可以比成員高一階：兩隻全規格中型怪同場（ninja_can、vacuum_claw）
+    // 實測是強怪等級的戰鬥，放中池會在 6F 把人打死（勝率 2%）。
+    // 低於成員的池仍然抓（把強怪塞進弱遭遇一定是手滑）。
+    const order = ['弱', '中', '強'];
     for (const enc of encounters) {
       expect(encounterById[enc.id]).toBe(enc);
       for (const id of enc.enemies) {
         expect(enemyById[id], enc.id).toBeTruthy();
-        expect(enemyById[id]?.pool, enc.id).toBe(enc.pool);
+        const mp = enemyById[id]!.pool;
+        if (mp === enc.pool) continue;
+        const ok = order.indexOf(enc.pool) - order.indexOf(mp) === 1;
+        expect(ok, `${enc.id}：成員 ${id}（${mp}）不該出現在 ${enc.pool} 遭遇`).toBe(true);
       }
     }
   });

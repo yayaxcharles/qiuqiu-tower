@@ -79,7 +79,9 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const isBoss = encounterById[cs.encounterId ?? '']?.pool === '塔主';
   const kind: CombatRewards['kind'] = isBoss ? '塔主' : node?.type === '大魔物' ? '大魔物' : '戰鬥';
   const winGold = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.winGold ?? 0), 0);
-  const r = rollRewards(runRng(run), kind, run.relics, winGold);
+  // 「後期」＝第一關的 8F 起、或第二關以後：獎勵抽好一點的牌
+  const late = run.act >= 2 || run.floor >= 8;
+  const r = rollRewards(runRng(run), kind, run.relics, winGold, late);
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
   if (r.potion && !addPotion(run, r.potion)) r.potion = null;
@@ -100,6 +102,18 @@ export function advanceAct(run: RunState): void {
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act) });
   run.currentNode = null;
   run.floor = (run.act - 1) * FLOORS;
+}
+
+/**
+ * 過關獎勵之二：稀有牌三選一（兩張忍術＋一張絕學）。
+ * 打倒關主原本一張牌都不給，牌組跨關幾乎只靠一般戰鬥的常見池長大，
+ * 中後期永遠差一口氣——這是「牌組養不起來」的另一個病根。
+ */
+export function rollActCards(run: RunState): CardDef[] {
+  const rng = runRng(run);
+  const jue = rollCardChoices(rng, '絕學', 1, [], true);
+  const ren = rollCardChoices(rng, '忍術', 2, jue.map((c) => c.id), true);
+  return rng.shuffle([...jue, ...ren]);
 }
 
 /** 過關獎勵：大魔物級秘寶三選一。池子抽乾了就有幾件算幾件（有可能一件都不剩）。 */

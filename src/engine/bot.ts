@@ -4,7 +4,7 @@ import { canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
-import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActRelics, takeCardReward, takeRelic, upgradeCard, type RunEffectOutcome } from './run';
+import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic, upgradeCard, type RunEffectOutcome } from './run';
 import { potionById } from '../content/potions';
 import type { CombatState, RunState } from './types';
 
@@ -80,6 +80,8 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {})
         if (node.type === '塔主' && run.status === 'playing' && run.act < ACTS) {
           const picks = rollActRelics(run);
           if (picks.length) takeRelic(run, rng.pick(picks));
+          const cardPicks = rollActCards(run);
+          if (cardPicks.length && rng.chance(0.9)) addCard(run, rng.pick(cardPicks).id);
           advanceAct(run);
         }
         break;

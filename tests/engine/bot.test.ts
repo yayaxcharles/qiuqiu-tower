@@ -25,6 +25,6 @@ describe('隨機試玩', () => {
   it('曾經打超過 60 回合的種子照樣跑得完，而且結果不變', () => {
     // 2026-09-01 地圖規則改動（5F 匯合、分岔與直向查重）後同種子的走向跟著變，錨值更新
     expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 4, turns: 32, kills: 3, deckSize: 13 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 13, turns: 62, kills: 6, deckSize: 19 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 7, turns: 32, kills: 3, deckSize: 16 });
   });
 });

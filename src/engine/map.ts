@@ -67,7 +67,9 @@ function walkPaths(rng: Rng): number[][] {
 export function poolForFloor(floor: number, act = 1): '弱' | '中' | '強' {
   if (act >= 3) return '強';
   if (act === 2) return floor <= 4 ? '中' : '強';
-  return floor <= 4 ? '弱' : floor <= 10 ? '中' : '強';
+  // 弱怪陪到 5F：實測 300 局最常死在 6～7F——弱換中的斷層太早，
+  // 牌組才十二三張就撞上 36～52 血的中型怪
+  return floor <= 5 ? '弱' : floor <= 10 ? '中' : '強';
 }
 
 function roll(rng: Rng, table: [NodeType, number][]): NodeType {
