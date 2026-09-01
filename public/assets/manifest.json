@@ -118,7 +118,8 @@
   "boss/roar": "assets/sprites/boss/roar.webp",
   "boss/seclude": "assets/sprites/boss/seclude.webp",
   "shop/keeper": "assets/sprites/shop/keeper.webp",
-  "hero/cover": "assets/sprites/hero/cover.webp"
+  "hero/cover": "assets/sprites/hero/cover.webp",
+  "master/normal": "assets/sprites/master_normal.webp"
  },
  "review": [],
  "monsters": {
@@ -489,6 +490,12 @@
   "bg/event_stuck_kitten": "assets/bg/event_stuck_kitten.webp",
   "bg/event_training_hall": "assets/bg/event_training_hall.webp",
   "bg/event_weapon_rack": "assets/bg/event_weapon_rack.webp",
-  "bg/event_catnip_field_take": "assets/bg/event_catnip_field_take.webp"
+  "bg/event_catnip_field_take": "assets/bg/event_catnip_field_take.webp",
+  "bg/still_corrupt": "assets/bg/still_corrupt.webp",
+  "bg/still_depart": "assets/bg/still_depart.webp",
+  "bg/still_embrace": "assets/bg/still_embrace.webp",
+  "bg/still_home": "assets/bg/still_home.webp",
+  "bg/still_rush": "assets/bg/still_rush.webp",
+  "bg/still_teach": "assets/bg/still_teach.webp"
  }
 }
