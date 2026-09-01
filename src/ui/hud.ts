@@ -2,6 +2,7 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import type { App } from './app';
 import { artUrl } from './assets';
+import { ACT_NAMES } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
 import { showDeckPicker } from './deckview';
 import { el } from './dom';
@@ -101,7 +102,8 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   });
 
   hud.append(
-    el('div', { class: 'hud-floor' }, run.floor > 0 ? `${run.floor}F` : '塔下'),
+    // 還沒踏上這一關的第一個節點時顯示關名（塔下／塔中／塔頂），之後顯示累計樓層
+    el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
     hp, fish, relics, potions, deckBtn,
     el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`), sound);
   return hud;

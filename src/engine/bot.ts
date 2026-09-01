@@ -4,7 +4,7 @@ import { canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
-import { addCard, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, takeCardReward, upgradeCard, type RunEffectOutcome } from './run';
+import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActRelics, takeCardReward, takeRelic, upgradeCard, type RunEffectOutcome } from './run';
 import { potionById } from '../content/potions';
 import type { CombatState, RunState } from './types';
 
@@ -68,7 +68,7 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {})
   const rng = new Rng(seedFromString('bot:' + seed));
   let guard = 0;
   while (run.status === 'playing') {
-    if (++guard > 40) throw new Error('節點推進超過 40 次');
+    if (++guard > 140) throw new Error('節點推進超過 140 次');   // 三關最多約 45 個節點，留餘裕
     const node = chooseNode(run, rng.pick(nextChoices(run.map, run.currentNode)).id);
     switch (node.type) {
       case '戰鬥': case '大魔物': case '塔主': {
@@ -76,6 +76,12 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {})
         playCombat(cs, rng, maxTurns, seed);
         const r = finishCombat(run, cs);
         if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
+        // 打倒前兩關的關主：挑一件過關秘寶、進下一關（跟玩家在過關畫面做的事一樣）
+        if (node.type === '塔主' && run.status === 'playing' && run.act < ACTS) {
+          const picks = rollActRelics(run);
+          if (picks.length) takeRelic(run, rng.pick(picks));
+          advanceAct(run);
+        }
         break;
       }
       case '事件': {

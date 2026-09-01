@@ -88,6 +88,18 @@ export const dialogue = {
     { speaker: '旁白', text: '師父醒了。球球把他扛在背上，一層一層走下塔。' },
   ],
   victoryTeaser: '塔上面……好像還有樓層喵？',
+  /** 打倒第一關關主（塔下→塔中）。師父還在更上面，故事往上推一層 */
+  actClear1: <DialogueLine[]>[
+    { speaker: '旁白', text: '守塔的魔物倒下了。牆邊有一道往上的樓梯，飄著飯菜香。' },
+    { speaker: '球球', text: '小魚乾只找回一半……上面還有喵。' },
+    { speaker: '旁白', text: '球球舔了舔爪子，往塔中爬去。' },
+  ],
+  /** 打倒第二關關主（塔中→塔頂）。點出最終頭目是誰 */
+  actClear2: <DialogueLine[]>[
+    { speaker: '旁白', text: '魔物散去的瞬間，塔頂傳來一聲熟悉的長嘯。' },
+    { speaker: '球球', text: '這個聲音……是師父喵！' },
+    { speaker: '旁白', text: '月光從塔頂的裂縫漏下來。最後一段樓梯，就在眼前。' },
+  ],
   defeat: <DialogueLine[]>[
     { speaker: '旁白', text: '球球倒下了。' },
     { speaker: '球球', text: '先睡了喵……' },

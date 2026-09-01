@@ -57,7 +57,14 @@ function walkPaths(rng: Rng): number[][] {
   return lanes;
 }
 
-export function poolForFloor(floor: number): '弱' | '中' | '強' {
+/**
+ * 這一層抽哪個強度的遭遇池。`floor` 是**關內**樓層（1～15）。
+ * 第二、三關還沒有專屬魔物（立繪要另外生），骨架先把現有的池子整段往上移：
+ * 第二關開場就是中等、第三關全程都是強的。之後做了新魔物再把這裡換成各關自己的池。
+ */
+export function poolForFloor(floor: number, act = 1): '弱' | '中' | '強' {
+  if (act >= 3) return '強';
+  if (act === 2) return floor <= 4 ? '中' : '強';
   return floor <= 4 ? '弱' : floor <= 10 ? '中' : '強';
 }
 
@@ -75,7 +82,15 @@ function tableFor(floor: number): [NodeType, number][] {
   return [['戰鬥', 45], ['事件', 25], ['罐頭鋪', 10], ['貓窩', 10], ['大魔物', 10]];   // 9–13
 }
 
-export function generateMap(rng: Rng): GameMap {
+export interface MapOpts {
+  /** 第幾關：決定遭遇池的強度（見 poolForFloor）。 */
+  act?: number;
+  /** 這一關的關主候選（遭遇 id）。不給就整個塔主池隨機——關主的分配規則在 run.ts。 */
+  bossIds?: string[];
+}
+
+export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
+  const act = opts.act ?? 1;
   // 先走路線，再把「路線踩過的格子」變成節點：沒被踩到的格子就是空的
   const paths = walkPaths(rng);
   const cells = new Map<string, MapNode>();
@@ -133,11 +148,14 @@ export function generateMap(rng: Rng): GameMap {
   const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined).map((e) => e.id));
   let eventIdx = 0;
   for (const n of nodes) {
-    if (n.type === '戰鬥') n.encounterId = rng.pick(encountersOfPool(poolForFloor(n.floor))).id;
+    if (n.type === '戰鬥') n.encounterId = rng.pick(encountersOfPool(poolForFloor(n.floor, act))).id;
     else if (n.type === '大魔物') n.encounterId = rng.pick(encountersOfPool('大魔物')).id;
-    // 塔主從池子裡隨機挑。本來寫死成大俠貓，等於每一局的結局都一模一樣——
-    // 不管你這局組出什麼牌組，最後都是同一隻、同一套招、同一個階段變身。
-    else if (n.type === '塔主') n.encounterId = rng.pick(encountersOfPool('塔主')).id;
+    // 塔主：呼叫端會指定這一關的候選（第一、二關不含大俠貓，他是第三關固定的最終頭目）；
+    // 沒指定就整池隨機（測試與舊呼叫端用）。
+    else if (n.type === '塔主') {
+      const pool = encountersOfPool('塔主').filter((e) => !opts.bossIds || opts.bossIds.includes(e.id));
+      n.encounterId = rng.pick(pool.length ? pool : encountersOfPool('塔主')).id;
+    }
     else if (n.type === '事件') {
       if (n.floor === 5) n.eventId = FIXED_EVENT_FLOOR_5;
       else { n.eventId = eventQueue[eventIdx % eventQueue.length]; eventIdx++; }

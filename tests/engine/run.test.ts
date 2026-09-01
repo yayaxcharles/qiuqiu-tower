@@ -5,7 +5,7 @@ import { endTurn, startCombat } from '../../src/engine/combat';
 import { nextChoices, nodeById } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { rollCardChoices, rollRelic, rollRewards } from '../../src/engine/rewards';
-import { addCard, addPotion, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, runRng, takeCardReward, takeRelic, upgradeCard } from '../../src/engine/run';
+import { addCard, addPotion, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard } from '../../src/engine/run';
 import type { RunState } from '../../src/engine/types';
 
 function fresh(seed = 'run'): RunState { return newRun(seed); }
@@ -72,7 +72,8 @@ describe('戰鬥與獎勵', () => {
     for (const e of cs.enemies) e.dead = true; cs.phase = 'won'; cs.kills = 1;
     const b = finishCombat(run, cs)!;
     expect(b.kind).toBe('塔主'); expect(b.relic).toBe('tower_token'); expect(b.fish).toBe(100);
-    expect(run.status).toBe('won');
+    // 三關制：第一關的關主倒下不算通關，整局還在進行、等著進第二關
+    expect(run.status).toBe('playing');
   });
   it('輸了就結束，但打倒過的魔物照樣算進統計', () => {
     const run = fresh('lose');
@@ -251,3 +252,61 @@ describe('事件結果', () => {
     expect(run.fish).toBe(50 + r.fish + 40);
   });
 });
+
+describe('三關制', () => {
+  it('第一二關的關主不是大俠貓；第三關固定是他', () => {
+    for (const seed of ['a1', 'a2', 'a3']) {
+      const run = newRun(seed);
+      const boss = run.map.nodes.find((n) => n.type === '塔主')!;
+      expect(['nekomata', 'iron_claw']).toContain(boss.encounterId);
+      advanceAct(run);
+      const boss2 = run.map.nodes.find((n) => n.type === '塔主')!;
+      expect(['nekomata', 'iron_claw']).toContain(boss2.encounterId);
+      advanceAct(run);
+      const boss3 = run.map.nodes.find((n) => n.type === '塔主')!;
+      expect(boss3.encounterId).toBe('tower_master');
+    }
+  });
+
+  it('advanceAct：回滿血、換新地圖、樓層累計、第三關封頂', () => {
+    const run = newRun('acts');
+    run.hp = 12;
+    const oldMap = run.map;
+    advanceAct(run);
+    expect(run.act).toBe(2);
+    expect(run.hp).toBe(run.maxHp);          // 回滿血（使用者拍板）
+    expect(run.map).not.toBe(oldMap);        // 新地圖
+    expect(run.currentNode).toBeNull();
+    expect(run.floor).toBe(15);              // 第二關從 16F 起跳，基底 15
+    const n2 = chooseNode(run, run.map.start[0]!);
+    expect(run.floor).toBe(15 + n2.floor);   // 顯示樓層累計
+    advanceAct(run);
+    expect(run.act).toBe(3);
+    advanceAct(run);                          // 第三關再叫一次要原地不動
+    expect(run.act).toBe(3);
+  });
+
+  it('第三關的關主倒下才算通關', () => {
+    const run = newRun('final');
+    advanceAct(run); advanceAct(run);
+    expect(run.act).toBe(3);
+    run.currentNode = run.map.nodes.find((n) => n.type === '塔主')!.id;
+    const cs = beginCombat(run);
+    expect(cs.enemies[0]!.enemyId).toBe('tower_master');
+    for (const e of cs.enemies) e.dead = true; cs.phase = 'won'; cs.kills = 1;
+    finishCombat(run, cs);
+    expect(run.status).toBe('won');
+  });
+
+  it('過關秘寶三選一：都是大魔物池、不重複、不含已有的', () => {
+    const run = newRun('relics');
+    const picks = rollActRelics(run);
+    expect(picks.length).toBe(3);
+    expect(new Set(picks).size).toBe(3);
+    for (const id of picks) {
+      expect(relicById[id]?.pool).toBe('大魔物');
+      expect(run.relics).not.toContain(id);
+    }
+  });
+});
+

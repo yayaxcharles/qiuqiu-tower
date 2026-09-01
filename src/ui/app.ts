@@ -10,7 +10,7 @@ import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 
-export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'result';
+export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'actclear' | 'result';
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
@@ -162,7 +162,13 @@ export class App {
     // 其餘存檔時機一律不動：進行中的一局仍然只有 backToMap() 會寫。
     if (run.status !== 'playing') { recordBest(run); clearSave(); }
     if (!rewards) { playDialogue(dialogue.defeat, () => this.show('result')); return; }
-    if (rewards.kind === '塔主') { playDialogue(dialogue.victory, () => this.show('result')); return; }
+    if (rewards.kind === '塔主') {
+      // 第三關的關主倒下才是通關；前兩關的關主打完走過場對白 → 過關畫面（回滿血、挑秘寶、進下一關）。
+      // 過關那條路 status 還是 playing，存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫。
+      if (run.status === 'won') { playDialogue(dialogue.victory, () => this.show('result')); return; }
+      playDialogue(run.act === 1 ? dialogue.actClear1 : dialogue.actClear2, () => this.show('actclear'));
+      return;
+    }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
     const go = (): void => this.show('reward', { ...rewards, bonusFish });
     if (rewards.kind === '大魔物') this.playOnce('firstElite', dialogue.afterFirstElite, go);

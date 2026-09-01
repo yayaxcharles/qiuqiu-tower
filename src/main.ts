@@ -7,6 +7,7 @@ import { App } from './ui/app';
 import { loadManifest, preloadArt } from './ui/assets';
 import { unlockOnFirstGesture } from './ui/audio';
 import { applyArtVars } from './ui/screenbg';
+import './ui/screens/actclear';
 import './ui/screens/chest';
 import './ui/screens/combat';
 import './ui/screens/event';

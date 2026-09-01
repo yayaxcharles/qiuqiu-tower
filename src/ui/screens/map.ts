@@ -117,8 +117,10 @@ registerScreen('map', (app, root) => {
   inner.append(svg);
 
   // 樓層標
+  // 標籤用跨關累計的樓層（第二關 16F～30F），節點自己的 floor 仍是關內 1～15
+  const base = (run.act - 1) * FLOORS;
   for (let f = 1; f <= FLOORS; f++) {
-    inner.append(el('div', { class: 'map-floor-label', style: `top:${floorY(f) - 12}px` }, `${f}F`));
+    inner.append(el('div', { class: 'map-floor-label', style: `top:${floorY(f) - 12}px` }, `${base + f}F`));
   }
 
   // 可走的下一步：開局 currentNode 是 null，nextChoices 會回 1F 的三個節點
@@ -197,5 +199,5 @@ registerScreen('map', (app, root) => {
   lastFloor = { seed: run.seed, floor: here };
 
   renderHud(app, root);
-  root.append(el('div', { class: 'map-hint' }, run.currentNode ? '選下一層要去哪' : '從 1F 選一條路進塔'));
+  root.append(el('div', { class: 'map-hint' }, run.currentNode ? '選下一層要去哪' : run.act > 1 ? `從 ${base + 1}F 選一條路往上` : '從 1F 選一條路進塔'));
 });

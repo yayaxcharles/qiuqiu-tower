@@ -34,8 +34,14 @@ export function clearKeepBg(root: HTMLElement): void {
  * 但相鄰的樓層會不一樣，走五層就不會一直看同一面牆（那正是本來的毛病）。
  */
 const BG_VARIANTS = ['', '_b', '_c'] as const;
+/**
+ * `floor` 是跨關累計的樓層。三關制之後一關一個色調：
+ * 塔下（1–15）石牢、塔中（16–30）木造、塔頂（31–45）夜空石台——
+ * 原本 15 層內就把三種跑完，改成一關一種，「越爬越高」才有感。
+ * 同一關內仍用樓層輪三張變化圖。
+ */
 export function tierBgKey(floor: number): string {
-  const tier = floor <= 5 ? 'low' : floor <= 10 ? 'mid' : 'top';
+  const tier = floor <= 15 ? 'low' : floor <= 30 ? 'mid' : 'top';
   return `bg/${tier}${BG_VARIANTS[Math.abs(floor) % BG_VARIANTS.length]}`;
 }
 

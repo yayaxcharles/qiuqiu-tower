@@ -59,8 +59,9 @@ describe('afterCombat：整局結束當場定案', () => {
     expect(hasSave()).toBe(false);
   });
 
-  it('打贏塔主：一樣當場清掉，不能退回去重打塔主', () => {
+  it('打贏第三關的塔主：一樣當場清掉，不能退回去重打塔主', () => {
     const { run, cs } = fightTo('boss', 'won');
+    run.act = 3;                       // 三關制：只有第三關的關主倒下才算通關
     cs.encounterId = 'tower_master';   // 讓 finishCombat 判成塔主，run.status 會變 'won'
     const { app, shown } = stubApp(run, cs);
     app.afterCombat();
@@ -68,6 +69,17 @@ describe('afterCombat：整局結束當場定案', () => {
     expect(shown.map((s) => s.name)).toEqual(['result']);
     expect(shown[0]!.saveStillThere).toBe(false);
     expect(hasSave()).toBe(false);
+  });
+
+  it('打贏第一關的塔主：整局還在進行、走過關畫面，存檔不清', () => {
+    const { run, cs } = fightTo('boss', 'won');
+    cs.encounterId = 'nekomata';
+    const { app, shown } = stubApp(run, cs);
+    app.afterCombat();
+    expect(run.status).toBe('playing');
+    expect(shown.map((s) => s.name)).toEqual(['actclear']);
+    // 存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫，這裡不清也不寫
+    expect(hasSave()).toBe(true);
   });
 
   it('一般戰鬥打贏：存檔照舊留著，這次改動不動進行中的一局', () => {

@@ -625,3 +625,8 @@
 .reward-item:nth-child(3) { animation-delay: 220ms; }
 .reward-item:nth-child(4) { animation-delay: 330ms; }
 .reward-item:nth-child(n+5) { animation-delay: 420ms; }
+
+/* ===== 過關畫面 ===== */
+.actclear-note { margin: 0; font-size: 19px; }
+.screen.actclear .reward-item.clickable { cursor: pointer; }
+.screen.actclear .reward-item.clickable:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 #fff, 0 4px 9px #00000038; }

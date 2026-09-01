@@ -3,12 +3,25 @@ import { encounterById } from '../content/enemies';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
 import { startCombat } from './combat';
-import { generateMap, nextChoices, nodeById } from './map';
+import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { rollCardChoices, rollPotion, rollRelic, rollRewards, type CombatRewards } from './rewards';
 import type { CardDef, CardInstance, CombatState, MapNode, Rarity, RunEffect, RunState } from './types';
 
 export const START_FISH = 50;
+export const ACTS = 3;
+export const ACT_NAMES = ['塔下', '塔中', '塔頂'] as const;
+
+/**
+ * 這一關的關主候選（遭遇 id）。
+ * 走火入魔的大俠貓是故事的最終頭目（師父閉關走火入魔、把自己關在塔頂），
+ * 固定守在第三關；前兩關從其餘塔主隨機。第二關還沒有專屬關主（立繪要另外生），
+ * 骨架先跟第一關共用同一池。
+ */
+export function bossPoolForAct(act: number): string[] {
+  if (act >= ACTS) return ['tower_master'];
+  return ['nekomata', 'iron_claw'];
+}
 const PRICE: Record<Rarity, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
 const RELIC_PRICE = 150, POTION_PRICE = 45;
 
@@ -21,8 +34,9 @@ export function runRng(run: RunState): Rng {
 export function newRun(seed: string): RunState {
   const rng = new Rng(seedFromString(seed));
   const run: RunState = {
-    version: 1, seed, rng: rng.state, hp: 70, maxHp: 70, fish: START_FISH,
-    deck: [], relics: [], potions: [], floor: 0, map: generateMap(rng), currentNode: null,
+    version: 1, seed, rng: rng.state, hp: 70, maxHp: 70, fish: START_FISH, act: 1,
+    deck: [], relics: [], potions: [], floor: 0,
+    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1) }), currentNode: null,
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
     flags: {},
   };
@@ -39,7 +53,8 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
   const n = nextChoices(run.map, run.currentNode).find((x) => x.id === nodeId);
   if (!n) throw new Error(`不能走到 ${nodeId}`);
   run.currentNode = n.id;
-  run.floor = n.floor;
+  // 顯示用的樓層是**跨關累計**的（第二關從 16F 起跳），地圖節點自己的 floor 仍是關內 1～15
+  run.floor = (run.act - 1) * FLOORS + n.floor;
   return n;
 }
 
@@ -68,8 +83,34 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
   if (r.potion && !addPotion(run, r.potion)) r.potion = null;
-  if (kind === '塔主') run.status = 'won';
+  // 只有第三關的關主倒下才算通關；前兩關的關主打完由 advanceAct 接手進下一關
+  if (kind === '塔主' && run.act >= ACTS) run.status = 'won';
   return r;
+}
+
+/**
+ * 進下一關：回滿血、生下一關的地圖、回到「還沒踏上第一個節點」的狀態。
+ * 回滿血是跟「殺戮尖塔」一樣的取捨——後面的怪更痛，不回滿活不到第三關。
+ * 這裡**不存檔**（規格 §3：節點結算完才存），存檔交給過關畫面收尾的 backToMap()。
+ */
+export function advanceAct(run: RunState): void {
+  if (run.act >= ACTS || run.status !== 'playing') return;
+  run.act += 1;
+  run.hp = run.maxHp;
+  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act) });
+  run.currentNode = null;
+  run.floor = (run.act - 1) * FLOORS;
+}
+
+/** 過關獎勵：大魔物級秘寶三選一。池子抽乾了就有幾件算幾件（有可能一件都不剩）。 */
+export function rollActRelics(run: RunState, n = 3): string[] {
+  const rng = runRng(run);
+  const out: string[] = [];
+  for (let i = 0; i < n; i++) {
+    const id = rollRelic(rng, '大魔物', [...run.relics, ...out]);
+    if (id) out.push(id);
+  }
+  return out;
 }
 
 export function takeCardReward(run: RunState, rewards: CombatRewards, cardId: string | null): void {
@@ -247,8 +288,11 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'chooseCard': outcome = { chooseCard: rollCardChoices(runRng(run), fx.pool, fx.n) }; break;
       case 'gamble': {
         // 中了哪一邊由子效果自己講（贏＝最大生命 +5、輸＝牌組被塞一張「失手了」）
-        const sub = runRng(run).chance(fx.p) ? fx.win : fx.lose;
-        const o = applyRunEffects(run, sub, notes, gains); if (o) outcome = o;
+        const won = runRng(run).chance(fx.p);
+        // 中沒中要自己講。兩邊的結果文案往往同一句（「井底傳來一聲悶響」），
+        // 輸的那邊效果常常是空的——玩家按下去只看到圖換了一張，會以為按了沒反應
+        notes?.push(won ? '中了！' : '沒中……');
+        const o = applyRunEffects(run, won ? fx.win : fx.lose, notes, gains); if (o) outcome = o;
         break;
       }
       default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆
