@@ -927,6 +927,12 @@ registerScreen('combat', (app, root, props) => {
         sfx(getStatus(p, '隱身') > before.stealth ? 'stealth' : 'buff');
       }
       if (sumStatus(p, BAD_STATUS) > before.debuff) { burst(cat, 'debuff'); sfx('debuff'); }
+      // 破功：疊好的成長被拍散——數字默默變小很容易漏看，飄字＋紫光講清楚
+      if (sumStatus(p, GOOD_STATUS) < before.buff && p.hp === before.hp) {
+        cat.append(floatNum('氣勁被拍散！'));
+        burst(cat, 'debuff');
+        sfx('debuff', 0.8);
+      }
       if (hurt) {
         cat.classList.add('hit');
         // 邊緣紅暈：挨打的訊號要大到用餘光就看得到（受擊姿勢＋抖動一直都有，但視線常在手牌）

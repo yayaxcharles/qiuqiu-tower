@@ -112,6 +112,7 @@ export type EnemyEffect =
   | { kind: 'stealFish'; n: number }
   | { kind: 'discardRandomHand'; n: number }
   | { kind: 'summon'; enemyId: string; n: number; max?: number }   // max＝同種活著的上限，補召不爆量
+  | { kind: 'purgePlayer'; names: StatusName[] }   // 破功：把玩家這些狀態各拍掉一半（向下取整保留）
   | { kind: 'chargeNext' }
   | { kind: 'escape' }
   | { kind: 'nothing' };

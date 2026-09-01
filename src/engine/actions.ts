@@ -183,6 +183,16 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         }
         break;
       }
+      case 'purgePlayer': {
+        // 破功（師父專用）：爪力／貓步這類疊起來的成長被拍散一半。減益不動——只拆你蓋的塔
+        const hitNames = fx.names.filter((n) => getStatus(cs.player, n) > 0);
+        for (const n of hitNames) {
+          const cur = getStatus(cs.player, n);
+          addStatus(cs.player, n, -(cur - Math.floor(cur / 2)));
+        }
+        if (hitNames.length) log(cs, `${e.name}一掌拍散了球球的氣勁（${hitNames.join('、')}減半）`);
+        break;
+      }
       case 'chargeNext': e.charged = true; break;
       case 'escape': e.dead = true; e.escaped = true; log(cs, `${e.name}帶著小魚乾逃走了`);
         if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won'; break;

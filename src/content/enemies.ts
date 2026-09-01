@@ -212,6 +212,7 @@ export const enemies: EnemyDef[] = [
         { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 10, max: 24 }] },
         { intent: 'attack', label: '鐵砂掌', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
         { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 6, times: 4 }] },
+        { intent: 'debuff', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }] },
         { intent: 'block', label: '閉關', effects: [{ kind: 'block', amount: 26 }] },
       ],
     }, {
@@ -607,7 +608,7 @@ export const BOSS_MOVE_ART: Record<string, string> = {
   蓄力: 'boss/charge', 鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar',
   醉拳: 'boss/drunk', 閉關: 'boss/seclude', 鐵砂掌: 'boss/palm',
   // 三階段重做（2026-09-01）加的招，先共用最接近的現有立繪
-  沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt',
+  沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm',
   縮地連斬: 'boss/drunk', 氣沉丹田: 'boss/seclude',
 };
 /** 塔主的三張非招式立繪：第一階段待機（深藏不露）、第二階段待機（走火入魔）、戰敗（承讓） */

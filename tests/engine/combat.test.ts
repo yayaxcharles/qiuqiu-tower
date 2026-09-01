@@ -224,6 +224,16 @@ describe('魔物回合', () => {
     expect(hp2 - cs.player.hp).toBe(7);               // 下一回合結束才衰減，這一下回到 7
     expect(getStatus(cs.player, '翻肚')).toBe(0);
   });
+  it('破功把爪力與貓步拍掉一半（向下取整保留）', () => {
+    const cs = start('tower_master');
+    const e = cs.enemies[0]!;
+    addStatus(cs.player, '爪力', 7);
+    addStatus(cs.player, '貓步', 4);
+    e.move = { intent: 'debuff', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }] };
+    endTurn(cs);
+    expect(getStatus(cs.player, '爪力')).toBe(3);
+    expect(getStatus(cs.player, '貓步')).toBe(2);
+  });
   it('噎到把塔主毒過門檻就進第二階段', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
