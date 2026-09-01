@@ -8,6 +8,18 @@ import { clear, el } from './dom';
  * （見 screens.css 的 .screen），面板外面就是景物。文字顏色一律不動——面板與牌本來
  * 就是淺底深字，不必為了配深色底圖去改一堆散落各處的顏色。
  */
+/**
+ * 依關數挑底圖的變體：塔中用 `<key>_mid`、塔頂用 `<key>_top`，清單裡沒有那張就退回原圖。
+ * 2026-09-02 實玩：第二關的事件／貓窩／罐頭鋪／紙箱畫面全是第一關的石牢，
+ * 「越爬越高」在戰鬥背景做到了、節點畫面沒跟上。變體圖由生圖批次補，沒到之前照舊。
+ */
+export function actVariantKey(base: string, act: number): string {
+  const suffix = act >= 3 ? '_top' : act === 2 ? '_mid' : '';
+  if (!suffix) return base;
+  const key = `${base}${suffix}`;
+  return artUrl('bg', key).startsWith('data:') ? base : key;
+}
+
 export function screenBg(key: string): HTMLElement {
   return el('div', { class: 'screen-bg', style: `background-image:url(${artUrl('bg', key)})` });
 }

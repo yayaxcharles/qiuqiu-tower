@@ -444,6 +444,10 @@
  * 塔主進第二階段那兩句、餓扁與生命過低同時觸發時都會疊成一團。
  */
 #stage[data-screen="combat"] .toast ~ .toast { top: 116px; }
+/* 教學條（.tut-bar）跟吐槽都貼在畫面頂端同一個位置（60／64px），第一場戰鬥的
+   「餓扁了」吐槽會整個壓在教學字上（2026-09-02 實玩截圖）。教學條還在時把吐槽往下推一格。 */
+#stage[data-screen="combat"]:has(.tut-bar) .toast { top: 118px; }
+#stage[data-screen="combat"]:has(.tut-bar) .toast ~ .toast { top: 174px; }
 
 /* 待選牌視窗底部的計數 */
 .pick-count {

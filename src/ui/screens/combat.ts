@@ -92,6 +92,7 @@ interface Snap {
   hp: number;
   block: number;
   buff: number;
+  growth: number;   // 爪力＋貓步：「氣勁被拍散」只看這兩個——隱身被打掉一層不是被拍散（2026-09-02 實玩：閃過攻擊也會飄這行字）
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
@@ -102,6 +103,7 @@ function snap(cs: CombatState): Snap {
   return {
     hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length,
     buff: sumStatus(cs.player, GOOD_STATUS), debuff: sumStatus(cs.player, BAD_STATUS),
+    growth: getStatus(cs.player, '爪力') + getStatus(cs.player, '貓步'),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'),
@@ -929,7 +931,7 @@ registerScreen('combat', (app, root, props) => {
       }
       if (sumStatus(p, BAD_STATUS) > before.debuff) { burst(cat, 'debuff'); sfx('debuff'); }
       // 破功：疊好的成長被拍散——數字默默變小很容易漏看，飄字＋紫光講清楚
-      if (sumStatus(p, GOOD_STATUS) < before.buff && p.hp === before.hp) {
+      if (getStatus(p, '爪力') + getStatus(p, '貓步') < before.growth && p.hp === before.hp) {
         cat.append(floatNum('氣勁被拍散！'));
         burst(cat, 'debuff');
         sfx('debuff', 0.8);

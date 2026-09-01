@@ -85,7 +85,12 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const winGold = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.winGold ?? 0), 0);
   // 「後期」＝第一關的 8F 起、或第二關以後：獎勵抽好一點的牌
   const late = run.act >= 2 || run.floor >= 8;
-  const r = rollRewards(runRng(run), kind, run.relics, winGold, late);
+  // 牌組裡已經有兩張的不再開（第三張同名牌等於少一個選項）；稀有保底見 RunState.rarePity
+  const counts = new Map<string, number>();
+  for (const c of run.deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
+  const exclude = [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
+  const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4 });
+  if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
   if (r.potion && !addPotion(run, r.potion)) r.potion = null;
@@ -177,7 +182,11 @@ export function rest(run: RunState, choice: '打盹' | '磨爪', uid?: number): 
     run.hp = Math.min(run.maxHp, run.hp + Math.floor(run.maxHp * 0.3 * mult));
     return true;
   }
-  return uid !== undefined && upgradeCard(run, uid);
+  // 磨爪順便回一成血（打盹的三分之一）：一關只有兩三次貓窩，升級跟回血硬碰硬的話
+  // 血一掉就永遠選打盹，四十五層只升得了三四張牌（2026-09-02 機器人實測平均 3.6 張）
+  const ok = uid !== undefined && upgradeCard(run, uid);
+  if (ok) run.hp = Math.min(run.maxHp, run.hp + Math.floor(run.maxHp * 0.1));
+  return ok;
 }
 
 export function openChest(run: RunState): string | null {

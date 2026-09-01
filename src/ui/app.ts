@@ -84,10 +84,10 @@ export class App {
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     // 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白
     const proSlides = [
-      { img: 'still_teach', lines: dialogue.prologue.slice(0, 1) },
-      { img: 'still_corrupt', lines: dialogue.prologue.slice(1, 2) },
-      { img: 'still_rush', lines: dialogue.prologue.slice(2, 3) },
-      { img: 'still_depart', lines: dialogue.prologue.slice(3) },
+      { img: 'bg/still_teach', lines: dialogue.prologue.slice(0, 1) },
+      { img: 'bg/still_corrupt', lines: dialogue.prologue.slice(1, 2) },
+      { img: 'bg/still_rush', lines: dialogue.prologue.slice(2, 3) },
+      { img: 'bg/still_depart', lines: dialogue.prologue.slice(3) },
     ];
     const after = (): void => { this.save(); this.show('map'); };
     if (this.run && !this.run.flags['prologue']) {
@@ -216,8 +216,8 @@ export class App {
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         const endSlides = [
-          { img: 'still_embrace', lines: dialogue.victory.slice(0, 4) },
-          { img: 'still_home', lines: dialogue.victory.slice(4) },
+          { img: 'bg/still_embrace', lines: dialogue.victory.slice(0, 4) },
+          { img: 'bg/still_home', lines: dialogue.victory.slice(4) },
         ];
         if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
         else playDialogue(dialogue.victory, () => this.show('result'));

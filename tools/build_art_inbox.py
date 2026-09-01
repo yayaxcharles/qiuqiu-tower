@@ -73,6 +73,15 @@ def main() -> None:
         print(f"地圖底圖 map_tall.webp {dst.stat().st_size // 1024} KB")
     else:
         missing.append(bg_src.name)
+    # 第二、三關的長條圖（map_tall_mid／map_tall_top）：規格跟 map_tall 一樣，鍵是 bg/map_tall_<段>
+    for src in sorted(INBOX.glob("map_tall_*.png")):
+        if "." in src.stem:
+            continue
+        dst = OUT / "bg" / f"{src.stem}.webp"
+        ImageOps.fit(Image.open(src).convert("RGB"), (1280, 1704), Image.LANCZOS).save(
+            dst, "WEBP", quality=66, method=6)
+        manifest["bg"][f"bg/{src.stem}"] = dst.relative_to(OUT.parent).as_posix()
+        print(f"地圖底圖 {src.stem}.webp {dst.stat().st_size // 1024} KB")
 
     # 畫面底圖：品質壓 74（比地圖底圖低一階）。七張一起進來，用 80 會吃掉圖片預算的餘裕，
     # 而這幾張中央本來就被面板蓋住、實際看得到的只有邊緣景物，壓一階看不太出來。

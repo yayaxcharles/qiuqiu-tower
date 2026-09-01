@@ -5,7 +5,7 @@ import { relicById } from '../../content/relics';
 import { rest } from '../../engine/run';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { clearKeepBg, screenBg } from '../screenbg';
+import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
@@ -13,7 +13,7 @@ import { el } from '../dom';
 import { renderHud } from '../hud';
 
 registerScreen('rest', (app, root) => {
-  root.append(screenBg('bg/screen_rest'));
+  root.append(screenBg(actVariantKey('bg/screen_rest', app.run?.act ?? 1)));
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   // 顯示用的回復量：貓草那類秘寶會加倍，而且不會超過缺的血

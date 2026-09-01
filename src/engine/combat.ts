@@ -34,6 +34,7 @@ export function startCombat(input: {
     stolenFish: 0, fishDelta: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
   };
   enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, enc.hpScale ?? 1)));
+  if (enc.strength) for (const e of cs.enemies) addStatus(e, '爪力', enc.strength);   // 魔氣（見 EncounterDef.strength）
   for (const e of cs.enemies) log(cs, `${e.name}：${enemyById[e.enemyId]?.line ?? ''}`);
   for (const rid of cs.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;

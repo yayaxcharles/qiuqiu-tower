@@ -109,19 +109,19 @@ export const enemies: EnemyDef[] = [
     ] },
 
   // ===== 大魔物 =====
-  { id: 'ninja_boss', name: '黑貓忍者頭目', hp: [90, 90], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_ninja_boss',
+  { id: 'ninja_boss', name: '黑貓忍者頭目', hp: [105, 105], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_ninja_boss',
     line: '上面那位，不是你認識的那隻貓了。',
     moves: [
       { intent: 'buff', label: '隱身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 2 }] },
       { intent: 'summon', label: '分身', effects: [{ kind: 'summon', enemyId: 'black_kitten', n: 2 }] },
-      { intent: 'attack', label: '連擊', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
-      { intent: 'attack', label: '手裡劍雨', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '連擊', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
+      { intent: 'attack', label: '手裡劍雨', effects: [{ kind: 'damage', amount: 15 }] },
     ] },
-  { id: 'giant_onigiri', name: '巨型飯糰', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_giant_onigiri',
+  { id: 'giant_onigiri', name: '巨型飯糰', hp: [125, 125], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_giant_onigiri',
     line: '好、好重……', onDeathHealPlayer: 10,
     moves: [
       { intent: 'block', label: '結成飯糰', effects: [{ kind: 'block', amount: 12 }] },
-      { intent: 'attack', label: '壓扁', effects: [{ kind: 'damage', amount: 14 }] },
+      { intent: 'attack', label: '壓扁', effects: [{ kind: 'damage', amount: 17 }] },
       { intent: 'debuff', label: '黏住', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
     ] },
 
@@ -185,12 +185,12 @@ export const enemies: EnemyDef[] = [
       { intent: 'block', label: '收爪', effects: [{ kind: 'block', amount: 12 }] },
     ],
     phases: [{
-      hpBelow: 65, line: '（外殼彈開，裡面全是爪子）', pattern: 'cycle', strengthPerTurn: 1,
-      onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 6 }],
+      hpBelow: 55, line: '（外殼彈開，裡面全是爪子）', pattern: 'cycle',
+      onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 3 }],
       moves: [
-        { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 6 }] },
+        { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 5 }] },
         { intent: 'debuff', label: '卡住', effects: [{ kind: 'discardRandomHand', n: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 3 }] },
-        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
+        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
       ],
     }] },
   // 第三關的最終戰（2026-09-01 重做成三階段）。他是師父：招式全是玩家牌組裡絕學的
@@ -310,7 +310,7 @@ export const enemies: EnemyDef[] = [
     line: '你看得到自己嗎？',
     moves: [
       { intent: 'debuff', label: '照鏡子', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
-      { intent: 'buff', label: '學起來', effects: [{ kind: 'statusSelf', name: '爪力', amount: 3 }] },
+      { intent: 'buff', label: '學起來', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
       { intent: 'attack', label: '一模一樣', effects: [{ kind: 'damage', amount: 10 }] },
       { intent: 'attack', label: '反照', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
     ] },
@@ -382,13 +382,13 @@ export const enemies: EnemyDef[] = [
 
   // --- 大魔物 ---
   // 召喚＋干擾＋多段，三種麻煩一次來
-  { id: 'roomba_king', name: '掃地機器人王', hp: [95, 95], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_roomba_king',
+  { id: 'roomba_king', name: '掃地機器人王', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_roomba_king',
     line: '偵測到灰塵。清除。',
     moves: [
       { intent: 'summon', label: '放出小掃把', effects: [{ kind: 'summon', enemyId: 'mini_broom', n: 2 }] },
-      { intent: 'attack', label: '滾刷', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
+      { intent: 'attack', label: '滾刷', effects: [{ kind: 'damage', amount: 5, times: 4 }] },
       { intent: 'debuff', label: '吸走', effects: [{ kind: 'discardRandomHand', n: 2 }] },
-      { intent: 'attack', label: '全力清潔', effects: [{ kind: 'damage', amount: 16 }] },
+      { intent: 'attack', label: '全力清潔', effects: [{ kind: 'damage', amount: 19 }] },
     ] },
   { id: 'mini_broom', name: '小掃把', hp: [8, 8], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_mini_broom',
     line: '（刷刷刷）',
@@ -396,13 +396,13 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '刷', effects: [{ kind: 'damage', amount: 3 }] },
     ] },
   // 反彈＋回血＋變身：把三個最煩的性質疊在一起當大魔物
-  { id: 'calico_monk', name: '三花貓武僧', hp: [100, 100], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_calico_monk',
+  { id: 'calico_monk', name: '三花貓武僧', hp: [115, 115], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_calico_monk',
     line: '出手之前，先想清楚。',
     moves: [
       { intent: 'buff', label: '運氣', effects: [{ kind: 'statusSelf', name: '反彈', amount: 5 }] },
-      { intent: 'attack', label: '掌', effects: [{ kind: 'damage', amount: 11 }] },
+      { intent: 'attack', label: '掌', effects: [{ kind: 'damage', amount: 13 }] },
       { intent: 'special', label: '調息', effects: [{ kind: 'heal', n: 10 }] },
-      { intent: 'attack', label: '連環掌', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
+      { intent: 'attack', label: '連環掌', effects: [{ kind: 'damage', amount: 7, times: 3 }] },
     ],
     phases: [{
       hpBelow: 45, line: '（睜開眼）', pattern: 'cycle',
@@ -417,100 +417,100 @@ export const enemies: EnemyDef[] = [
   // 立繪生圖中；資料先接好、遭遇掛 acts 標籤，圖裝進資產包前不會推上線。
 
   // --- 塔中魔物（中池 acts:[2]）：血 34–58、單發 7–13，比第一關強池再上一級 ---
-  { id: 'shiba_ronin', name: '柴犬浪人', hp: [46, 52], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shiba_ronin',
+  { id: 'shiba_ronin', name: '柴犬浪人', hp: [58, 64], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shiba_ronin',
     line: '……借過。', moves: [
       { intent: 'buff', label: '拔刀式', effects: [{ kind: 'chargeNext' }] },
-      { intent: 'attack', label: '居合斬', effects: [{ kind: 'damage', amount: 11 }] },
+      { intent: 'attack', label: '居合斬', effects: [{ kind: 'damage', amount: 14 }] },
       { intent: 'debuff', label: '挑釁', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
-      { intent: 'block', label: '收刀', effects: [{ kind: 'block', amount: 10 }] },
+      { intent: 'block', label: '收刀', effects: [{ kind: 'block', amount: 12 }] },
     ] },
-  { id: 'shamisen_cat', name: '三味線貓', hp: [40, 46], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shamisen_cat',
+  { id: 'shamisen_cat', name: '三味線貓', hp: [52, 58], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shamisen_cat',
     line: '（調了調弦）', moves: [
       { intent: 'debuff', label: '走音', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
-      { intent: 'attack', label: '高音', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
-      { intent: 'attack', label: '亂彈', effects: [{ kind: 'damage', amount: 4, times: 2 }] },
-      { intent: 'block', label: '調弦', effects: [{ kind: 'block', amount: 8 }, { kind: 'heal', n: 4 }] },
+      { intent: 'attack', label: '高音', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'attack', label: '亂彈', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
+      { intent: 'block', label: '調弦', effects: [{ kind: 'block', amount: 8 }, { kind: 'heal', n: 6 }] },
     ] },
-  { id: 'lantern_ghost', name: '燈籠妖', hp: [44, 50], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_lantern_ghost',
+  { id: 'lantern_ghost', name: '燈籠妖', hp: [56, 62], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_lantern_ghost',
     line: '（火光晃了一下）', moves: [
-      { intent: 'attack', label: '舔火', effects: [{ kind: 'damage', amount: 7 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
-      { intent: 'attack', label: '吐火', effects: [{ kind: 'damage', amount: 10 }] },
+      { intent: 'attack', label: '舔火', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'attack', label: '吐火', effects: [{ kind: 'damage', amount: 13 }] },
       { intent: 'block', label: '燈芯補油', effects: [{ kind: 'block', amount: 6 }, { kind: 'heal', n: 8 }] },
-      { intent: 'attack', label: '撲上來', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
+      { intent: 'attack', label: '撲上來', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
     ] },
-  { id: 'windchime_sprite', name: '風鈴精', hp: [36, 42], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_windchime_sprite',
+  { id: 'windchime_sprite', name: '風鈴精', hp: [46, 52], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_windchime_sprite',
     line: '（叮——）', moves: [
-      { intent: 'debuff', label: '搖鈴', effects: [{ kind: 'discardRandomHand', n: 1 }, { kind: 'damage', amount: 4 }] },
-      { intent: 'attack', label: '音波', effects: [{ kind: 'damage', amount: 6 }] },
+      { intent: 'debuff', label: '搖鈴', effects: [{ kind: 'discardRandomHand', n: 1 }, { kind: 'damage', amount: 5 }] },
+      { intent: 'attack', label: '音波', effects: [{ kind: 'damage', amount: 8 }] },
       { intent: 'block', label: '風護', effects: [{ kind: 'block', amount: 9 }] },
-      { intent: 'attack', label: '亂風', effects: [{ kind: 'damage', amount: 3, times: 3 }] },
+      { intent: 'attack', label: '亂風', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
     ] },
-  { id: 'tanuki_kid', name: '狸小弟', hp: [34, 40], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_tanuki_kid',
+  { id: 'tanuki_kid', name: '狸小弟', hp: [42, 48], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_tanuki_kid',
     line: '看我的！', moves: [
       { intent: 'buff', label: '變身戲法', effects: [{ kind: 'chargeNext' }] },
-      { intent: 'attack', label: '葉子彈', effects: [{ kind: 'damage', amount: 7 }] },
+      { intent: 'attack', label: '葉子彈', effects: [{ kind: 'damage', amount: 9 }] },
       { intent: 'debuff', label: '搗蛋', effects: [{ kind: 'discardRandomHand', n: 1 }] },
       { intent: 'block', label: '裝可愛', effects: [{ kind: 'block', amount: 8 }] },
     ] },
-  { id: 'geta_monster', name: '木屐怪', hp: [50, 58], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_geta_monster',
+  { id: 'geta_monster', name: '木屐怪', hp: [62, 70], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_geta_monster',
     line: '（咚、咚）', moves: [
-      { intent: 'attack', label: '踩踏', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '踩踏', effects: [{ kind: 'damage', amount: 14 }] },
       { intent: 'block', label: '站穩', effects: [{ kind: 'block', amount: 12 }] },
-      { intent: 'attack', label: '絆倒', effects: [{ kind: 'damage', amount: 6 }, { kind: 'statusPlayer', name: '定身', amount: 1 }] },
-      { intent: 'attack', label: '再踩', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '絆倒', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '定身', amount: 1 }] },
+      { intent: 'attack', label: '再踩', effects: [{ kind: 'damage', amount: 14 }] },
     ] },
-  { id: 'ink_cat', name: '掛軸墨貓', hp: [42, 48], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_ink_cat',
+  { id: 'ink_cat', name: '掛軸墨貓', hp: [54, 60], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_ink_cat',
     line: '（墨滴在地上開了花）', moves: [
-      { intent: 'attack', label: '墨爪', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
+      { intent: 'attack', label: '墨爪', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'debuff', label: '潑墨', effects: [{ kind: 'statusPlayer', name: '翻肚', amount: 2 }] },
       { intent: 'block', label: '隱入卷軸', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }, { kind: 'block', amount: 6 }] },
-      { intent: 'attack', label: '一筆斬', effects: [{ kind: 'damage', amount: 13 }] },
+      { intent: 'attack', label: '一筆斬', effects: [{ kind: 'damage', amount: 16 }] },
     ] },
 
   // --- 塔頂魔物（中池 acts:[3]）：血 48–80、單發 12–17，全帶一手拿手戲 ---
-  { id: 'moon_rabbit', name: '月見兔', hp: [62, 70], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_moon_rabbit',
+  { id: 'moon_rabbit', name: '月見兔', hp: [76, 84], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_moon_rabbit',
     line: '（杵聲不緊不慢）', moves: [
       { intent: 'buff', label: '搗麻糬', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
-      { intent: 'attack', label: '杵擊', effects: [{ kind: 'damage', amount: 14 }] },
-      { intent: 'attack', label: '麻糬黏住', effects: [{ kind: 'damage', amount: 6 }, { kind: 'statusPlayer', name: '定身', amount: 1 }] },
+      { intent: 'attack', label: '杵擊', effects: [{ kind: 'damage', amount: 17 }] },
+      { intent: 'attack', label: '麻糬黏住', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '定身', amount: 1 }] },
       { intent: 'special', label: '月光', effects: [{ kind: 'heal', n: 10 }] },
     ] },
-  { id: 'owl_sentry', name: '貓頭鷹夜哨', hp: [56, 64], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_owl_sentry',
+  { id: 'owl_sentry', name: '貓頭鷹夜哨', hp: [70, 78], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_owl_sentry',
     line: '（頭轉了一整圈）', moves: [
       { intent: 'debuff', label: '夜視鎖定', effects: [{ kind: 'statusPlayer', name: '翻肚', amount: 2 }] },
-      { intent: 'attack', label: '俯衝', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
+      { intent: 'attack', label: '俯衝', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
       { intent: 'block', label: '展翅警戒', effects: [{ kind: 'block', amount: 14 }] },
-      { intent: 'attack', label: '爪擊', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '爪擊', effects: [{ kind: 'damage', amount: 15 }] },
     ] },
-  { id: 'paper_crane', name: '紙鶴式神', hp: [48, 54], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_paper_crane',
+  { id: 'paper_crane', name: '紙鶴式神', hp: [58, 64], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_paper_crane',
     line: '（摺痕發著微光）', moves: [
       { intent: 'block', label: '摺翼', effects: [{ kind: 'block', amount: 10 }, { kind: 'statusSelf', name: '隱身', amount: 1 }] },
-      { intent: 'attack', label: '紙刃', effects: [{ kind: 'damage', amount: 5, times: 3 }] },
-      { intent: 'attack', label: '折射', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
-      { intent: 'attack', label: '銳襲', effects: [{ kind: 'damage', amount: 15 }] },
+      { intent: 'attack', label: '紙刃', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
+      { intent: 'attack', label: '折射', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
+      { intent: 'attack', label: '銳襲', effects: [{ kind: 'damage', amount: 18 }] },
     ] },
-  { id: 'miasma_blob', name: '魔氣凝塊', hp: [70, 80], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_miasma_blob',
+  { id: 'miasma_blob', name: '魔氣凝塊', hp: [84, 94], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_miasma_blob',
     line: '（隱約有一張貓臉）', moves: [
-      { intent: 'attack', label: '侵蝕', effects: [{ kind: 'damage', amount: 7 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'attack', label: '侵蝕', effects: [{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
       { intent: 'buff', label: '膨脹', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }, { kind: 'block', amount: 8 }] },
-      { intent: 'attack', label: '魔氣浪', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
+      { intent: 'attack', label: '魔氣浪', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
       { intent: 'special', label: '凝聚再生', effects: [{ kind: 'heal', n: 12 }] },
     ] },
-  { id: 'night_panther', name: '夜行黑豹', hp: [58, 66], pool: '中', pattern: 'cycle', size: 'large', art: 'codex/monster_night_panther',
+  { id: 'night_panther', name: '夜行黑豹', hp: [72, 80], pool: '中', pattern: 'cycle', size: 'large', art: 'codex/monster_night_panther',
     line: '（鈴鐺一聲都沒響）', moves: [
       { intent: 'buff', label: '潛影', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }] },
-      { intent: 'attack', label: '猛撲', effects: [{ kind: 'damage', amount: 17 }] },
-      { intent: 'attack', label: '撕裂', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
+      { intent: 'attack', label: '猛撲', effects: [{ kind: 'damage', amount: 20 }] },
+      { intent: 'attack', label: '撕裂', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
       { intent: 'debuff', label: '低吼', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
     ] },
 
   // --- 影球球（第三關鏡像精英）：招式全是玩家起手牌的影子版 ---
-  { id: 'shadow_cat', name: '影球球', hp: [75, 75], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
+  { id: 'shadow_cat', name: '影球球', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
     line: '（跟你擺出一樣的架式）', moves: [
-      { intent: 'attack', label: '影爪抓', effects: [{ kind: 'damage', amount: 12 }] },
-      { intent: 'block', label: '影蜷縮', effects: [{ kind: 'block', amount: 12 }] },
+      { intent: 'attack', label: '影爪抓', effects: [{ kind: 'damage', amount: 16 }] },
+      { intent: 'block', label: '影蜷縮', effects: [{ kind: 'block', amount: 16 }] },
       { intent: 'buff', label: '影分身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }] },
-      { intent: 'attack', label: '影撒手鐧', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
+      { intent: 'attack', label: '影撒手鐧', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
     ] },
 
   // --- 新關主：橘皮大王（第一關第三選，強度對齊二刀後的 105 級距）---
@@ -534,46 +534,46 @@ export const enemies: EnemyDef[] = [
 
   // --- 第二關關主三選一 ---
   // 奶牛貓二當家：黑白換式的循環拳師，換式與運勁回合就是輸出窗口
-  { id: 'cowcat_boss', name: '奶牛貓二當家', hp: [170, 170], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_cowcat_boss',
+  { id: 'cowcat_boss', name: '奶牛貓二當家', hp: [190, 190], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_cowcat_boss',
     line: '亮傢伙吧。', moves: [
-      { intent: 'attack', label: '黑手重錘', effects: [{ kind: 'damage', amount: 16 }] },
-      { intent: 'attack', label: '白手連打', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
+      { intent: 'attack', label: '黑手重錘', effects: [{ kind: 'damage', amount: 22 }] },
+      { intent: 'attack', label: '白手連打', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
       { intent: 'block', label: '換式・沉腰', effects: [{ kind: 'block', amount: 16 }, { kind: 'statusSelf', name: '爪力', amount: 1 }] },
-      { intent: 'attack', label: '黑白亂舞', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
+      { intent: 'attack', label: '黑白亂舞', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
       { intent: 'special', label: '運勁', effects: [{ kind: 'heal', n: 10 }, { kind: 'block', amount: 8 }] },
     ],
     phases: [{
       hpBelow: 85, line: '（黑白兩色的毛全豎了起來）', pattern: 'cycle',
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],
       moves: [
-        { intent: 'attack', label: '合一連環', effects: [{ kind: 'damage', amount: 7, times: 3 }] },
-        { intent: 'attack', label: '崩拳', effects: [{ kind: 'damage', amount: 20 }] },
+        { intent: 'attack', label: '合一連環', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
+        { intent: 'attack', label: '崩拳', effects: [{ kind: 'damage', amount: 27 }] },
         { intent: 'block', label: '鐵壁', effects: [{ kind: 'block', amount: 20 }] },
       ],
     }] },
   // 狸大人：出招隨機的戲法師，會叫狸小弟上場
-  { id: 'tanuki_lord', name: '狸大人', hp: [160, 160], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord',
+  { id: 'tanuki_lord', name: '狸大人', hp: [180, 180], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord',
     line: '呵呵，來得正好。', moves: [
-      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damageRandom', min: 8, max: 20 }] },
+      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damageRandom', min: 12, max: 24 }] },
       { intent: 'block', label: '葉隱', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }, { kind: 'block', amount: 10 }] },
       { intent: 'summon', label: '喚小弟', effects: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 1 }] },
       { intent: 'debuff', label: '肚皮鼓', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
-      { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
     ],
     phases: [{
       hpBelow: 80, line: '（葫蘆見底了）', pattern: 'random',
       onEnter: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 1 }],
       moves: [
-        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damageRandom', min: 12, max: 24 }] },
+        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damageRandom', min: 14, max: 26 }] },
         { intent: 'buff', label: '大變身', effects: [{ kind: 'chargeNext' }] },
-        { intent: 'attack', label: '泰山鼓壓', effects: [{ kind: 'damage', amount: 15 }] },
+        { intent: 'attack', label: '泰山鼓壓', effects: [{ kind: 'damage', amount: 21 }] },
       ],
     }] },
   // 波斯大小姐：僕從護體——執事與女僕還站著她就不受傷，先清僕從才打得到本體
-  { id: 'persian_lady', name: '波斯大小姐', hp: [130, 130], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_persian_lady',
+  { id: 'persian_lady', name: '波斯大小姐', hp: [150, 150], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_persian_lady',
     line: '哼。', guardedByAllies: true, moves: [
       { intent: 'buff', label: '擺架子', effects: [{ kind: 'statusSelf', name: '爪力', amount: 1 }, { kind: 'block', amount: 10 }] },
-      { intent: 'attack', label: '扇子拍', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '扇子拍', effects: [{ kind: 'damage', amount: 16 }] },
       { intent: 'debuff', label: '尖叫', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 1 }] },
       { intent: 'special', label: '補香水', effects: [{ kind: 'heal', n: 12 }] },
     ],
@@ -581,14 +581,14 @@ export const enemies: EnemyDef[] = [
       hpBelow: 65, line: '你們這群沒用的東西！', pattern: 'cycle',
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],
       moves: [
-        { intent: 'attack', label: '貴族之怒', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
-        { intent: 'attack', label: '甩尾', effects: [{ kind: 'damage', amount: 14 }] },
+        { intent: 'attack', label: '貴族之怒', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
+        { intent: 'attack', label: '甩尾', effects: [{ kind: 'damage', amount: 20 }] },
         { intent: 'debuff', label: '歇斯底里', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
       ],
     }] },
   { id: 'butler_cat', name: '執事貓', hp: [34, 34], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_butler_cat',
     line: '（扶了扶單眼鏡）', moves: [
-      { intent: 'attack', label: '拋托盤', effects: [{ kind: 'damage', amount: 9 }] },
+      { intent: 'attack', label: '拋托盤', effects: [{ kind: 'damage', amount: 10 }] },
       { intent: 'block', label: '布陣', effects: [{ kind: 'block', amount: 10 }] },
       { intent: 'special', label: '奉茶', effects: [{ kind: 'heal', n: 8 }] },
     ] },
@@ -630,10 +630,14 @@ export const encounters: EncounterDef[] = [
   { id: 'orange_bandit', pool: '中', enemies: ['orange_bandit'], acts: [1] },
   { id: 'catgrass_bugs', pool: '中', enemies: ['catgrass_bug', 'catgrass_bug'], acts: [1] },
   { id: 'scarecrow', pool: '強', enemies: ['scarecrow'], acts: [1] },
-  { id: 'black_ninja_duo', pool: '強', enemies: ['black_ninja_elite', 'black_ninja_elite'], hpScale: 0.8, acts: [1] },
+  { id: 'black_ninja_duo', pool: '強', enemies: ['black_ninja_elite', 'black_ninja_elite'], hpScale: 0.75, acts: [1] },
   { id: 'big_cucumber', pool: '強', enemies: ['big_cucumber'], acts: [1] },
-  { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'] },
-  { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'] },
+  // 精英分關：塔中照本體數值；塔頂同一隻掛「魔氣」——血 ×1.3、出場帶 3 點爪力（掛成爪力牌子，滑上去看得到）。
+  // 2026-09-02 機器人 200 局：精英在 29～31F 平均只掉 2～4 血、影球球 0.8 血，比一般戰還軟。
+  { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'], acts: [2] },
+  { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'], acts: [2] },
+  { id: 'ninja_boss_top', pool: '大魔物', enemies: ['ninja_boss'], hpScale: 1.5, strength: 5, acts: [3] },
+  { id: 'giant_onigiri_top', pool: '大魔物', enemies: ['giant_onigiri'], hpScale: 1.5, strength: 5, acts: [3] },
   { id: 'tower_master', pool: '塔主', enemies: ['tower_master'] },
   // ===== 三關制內容包（2026-09-01）：塔中/塔頂專屬池；雙怪照慣例 0.8 血 =====
   { id: 'shiba_ronin', pool: '中', enemies: ['shiba_ronin'], acts: [2] },
@@ -648,17 +652,19 @@ export const encounters: EncounterDef[] = [
   // ink_cat＋geta_monster 探測 7/40 是殺手組（隱身＋雙 12 重踩疊在一起），拆開改配三味線
   { id: 'ink_shami', pool: '強', enemies: ['ink_cat', 'shamisen_cat'], hpScale: 0.8, acts: [2] },
   { id: 'tanuki_gang', pool: '強', enemies: ['tanuki_kid', 'tanuki_kid', 'tanuki_kid'], hpScale: 0.9, acts: [2] },   // 兩隻探測 40/40 太軟，改三兄弟 0.9
-  { id: 'moon_rabbit', pool: '中', enemies: ['moon_rabbit'], acts: [3] },
-  { id: 'owl_sentry', pool: '中', enemies: ['owl_sentry'], acts: [3] },
-  { id: 'paper_crane', pool: '中', enemies: ['paper_crane'], acts: [3] },
-  { id: 'night_panther', pool: '中', enemies: ['night_panther'], acts: [3] },
-  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], acts: [3] },
-  { id: 'crane_pair', pool: '強', enemies: ['paper_crane', 'paper_crane'], hpScale: 0.75, acts: [3] },
+  // 塔頂＝魔氣加成（設計總覽 §2）：中池一律血 ×1.2、出場帶 2 點爪力；強池帶 3 點。
+  // 2026-09-02 機器人 300 局：第一刀之後塔頂一般戰每場仍只掉 1～3 血、四回合打完，比塔中還軟。
+  { id: 'moon_rabbit', pool: '中', enemies: ['moon_rabbit'], hpScale: 1.25, strength: 3, acts: [3] },
+  { id: 'owl_sentry', pool: '中', enemies: ['owl_sentry'], hpScale: 1.25, strength: 3, acts: [3] },
+  { id: 'paper_crane', pool: '中', enemies: ['paper_crane'], hpScale: 1.25, strength: 3, acts: [3] },
+  { id: 'night_panther', pool: '中', enemies: ['night_panther'], hpScale: 1.25, strength: 3, acts: [3] },
+  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.25, strength: 4, acts: [3] },
+  { id: 'crane_pair', pool: '強', enemies: ['paper_crane', 'paper_crane'], hpScale: 0.85, strength: 3, acts: [3] },
   // 塔頂雙怪組的教訓（探測 1～6/40）：血量倍率救不了「兩隻重砲同回合疊擊」，
   // 要拆組合——重砲一定配有守勢回合的（紙鶴會摺翼、墨貓會入卷軸那型）。
   // 貓頭鷹＋月兔那組直接砍掉，牠們照樣在中池單獨出場。
-  { id: 'night_hunt', pool: '強', enemies: ['night_panther', 'paper_crane'], hpScale: 0.75, acts: [3] },
-  { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], acts: [3] },
+  { id: 'night_hunt', pool: '強', enemies: ['night_panther', 'paper_crane'], hpScale: 0.85, strength: 3, acts: [3] },
+  { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], strength: 4, acts: [3] },
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
   { id: 'tanuki_lord', pool: '塔主', enemies: ['tanuki_lord'] },
@@ -680,8 +686,10 @@ export const encounters: EncounterDef[] = [
   { id: 'broom_centipede', pool: '強', enemies: ['broom_centipede'], acts: [1] },
   { id: 'stone_lion', pool: '強', enemies: ['stone_lion'], acts: [1] },
   { id: 'catnip_phantom', pool: '強', enemies: ['catnip_phantom'], acts: [1] },
-  { id: 'roomba_king', pool: '大魔物', enemies: ['roomba_king'] },
-  { id: 'calico_monk', pool: '大魔物', enemies: ['calico_monk'] },
+  { id: 'roomba_king', pool: '大魔物', enemies: ['roomba_king'], acts: [2] },
+  { id: 'calico_monk', pool: '大魔物', enemies: ['calico_monk'], acts: [2] },
+  { id: 'roomba_king_top', pool: '大魔物', enemies: ['roomba_king'], hpScale: 1.5, strength: 5, acts: [3] },
+  { id: 'calico_monk_top', pool: '大魔物', enemies: ['calico_monk'], hpScale: 1.5, strength: 5, acts: [3] },
   // 混編：用既有的怪兩兩配對，不用新美術就能立刻多出變化。
   // 配對原則是「兩隻的路數要互補」，逼玩家取捨先打哪一隻。
   { id: 'rat_soy', pool: '弱', enemies: ['rat', 'soy_bottle'], acts: [1] },
@@ -690,13 +698,14 @@ export const encounters: EncounterDef[] = [
   // 這兩組是「兩隻全規格中型怪同場」（合計 82～90 血），實測 6F 的典型牌組
   // 對它們勝率只有 2%／7%、其他中型遭遇都是 92% 起——放錯池了，移到強池（11F+）
   { id: 'ninja_can', pool: '強', enemies: ['black_ninja', 'can_spirit'], hpScale: 0.8, acts: [1] },
-  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'], hpScale: 0.8, acts: [1] },
+  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'], hpScale: 0.7, acts: [1] },
   { id: 'bandit_chipmunk', pool: '中', enemies: ['orange_bandit', 'chipmunk'], acts: [1] },
-  { id: 'lion_mirror', pool: '強', enemies: ['stone_lion', 'mirror_cat'], hpScale: 0.8, acts: [1] },
-  { id: 'centipede_mirror', pool: '強', enemies: ['broom_centipede', 'mirror_cat'], hpScale: 0.8, acts: [1] },
-  { id: 'shadow_kittens', pool: '強', enemies: ['shadow_kitten_a', 'shadow_kitten_b', 'shadow_kitten_c'], hpScale: 0.8, acts: [1] },
+  // 石獅子＋鏡子貓：兩隻都會自己疊爪力，0.7 倍血在第一關仍 15/44 敗（機器人 300 局），搬到塔中強池才合身
+  { id: 'lion_mirror', pool: '強', enemies: ['stone_lion', 'mirror_cat'], hpScale: 0.8, acts: [2] },
+  { id: 'centipede_mirror', pool: '強', enemies: ['broom_centipede', 'mirror_cat'], hpScale: 0.7, acts: [1] },
+  { id: 'shadow_kittens', pool: '強', enemies: ['shadow_kitten_a', 'shadow_kitten_b', 'shadow_kitten_c'], hpScale: 0.7, acts: [1] },
   { id: 'training_post', pool: '中', enemies: ['training_post'], acts: [1] },
-  { id: 'phantom_ninja', pool: '強', enemies: ['catnip_phantom', 'black_ninja_elite'], hpScale: 0.8, acts: [1] },
+  { id: 'phantom_ninja', pool: '強', enemies: ['catnip_phantom', 'black_ninja_elite'], hpScale: 0.75, acts: [1] },
 ];
 
 export const encounterById: Record<string, EncounterDef> = Object.fromEntries(encounters.map((e) => [e.id, e]));

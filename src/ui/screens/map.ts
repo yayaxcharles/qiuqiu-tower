@@ -4,6 +4,7 @@ import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl } from '../assets';
+import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 
@@ -80,7 +81,8 @@ registerScreen('map', (app, root) => {
   // 底圖是直式長條圖，尺寸就照捲軸內容做（1280×INNER_H），所以放進捲軸裡跟著捲：
   // 爬到下面是地牢石造、中段木造樓層、爬到頂真的看得到夜空。
   // 第一版用 16:9 的底圖，拉長會變形，只能固定不動再疊一層漸層假裝高度——已經拿掉。
-  inner.append(el('div', { class: 'map-bg', style: `background-image:url(${artUrl('bg', 'bg/map_tall')})` }));
+  // 三關各一張長條圖（塔下石牢→塔中木造→塔頂夜空）；後兩張還沒生好之前退回第一張
+  inner.append(el('div', { class: 'map-bg', style: `background-image:url(${artUrl('bg', actVariantKey('bg/map_tall', run.act))})` }));
 
   // 路線：每條邊一條 SVG 曲線，控制點往側邊推一點，線就會彎（直線排在一起太像電路圖）。
   // 腳印等一下沿著曲線鋪上去——鋪的時候要量曲線長度，所以得等 SVG 進到文件裡才做。
@@ -136,7 +138,9 @@ registerScreen('map', (app, root) => {
    */
   function nodeIcon(n: MapNode): string {
     if (n.type === '塔主' && n.encounterId) {
-      const enemyId = encounterById[n.encounterId]?.enemies[0];
+      // 關主戰的成員可能有僕從排在前面（波斯大小姐那場第一隻是執事貓），圖示要用塔主池那隻
+      const ids = encounterById[n.encounterId]?.enemies ?? [];
+      const enemyId = ids.find((id) => enemyById[id]?.pool === '塔主') ?? ids[0];
       const art = enemyId ? enemyById[enemyId]?.art : undefined;
       if (art) {
         const url = monsterUrl(art, 'idle');
