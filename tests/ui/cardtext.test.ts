@@ -61,7 +61,7 @@ describe('牌面文字', () => {
 
   it('同時動到魔物的牌，回復要講清楚是誰回', () => {
     expect(t('yide')).toBe('全體魔物獲得 3 層懶洋洋，你回復 5 點生命。');
-    expect(t('guixi')).toBe('回復 8 點生命。消耗。');
+    expect(t('guixi')).toBe('回復 10 點生命。消耗。');
     expect(t('xianshuile', true)).toBe('回復 7 點生命，然後直接結束這回合。');
   });
 

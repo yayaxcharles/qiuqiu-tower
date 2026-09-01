@@ -55,11 +55,13 @@ export const cards: readonly CardDef[] = [
   { id: 'dingshang', name: '盯上你了', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/dingshang',
     effects: [{ kind: 'status', name: '翻肚', amount: 2, target: 'enemy' }], upgrade: { effects: [{ kind: 'status', name: '翻肚', amount: 3, target: 'enemy' }] } },
   { id: 'chudashi', name: '出大事了', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/chudashi',
-    effects: [{ kind: 'draw', n: 2 }, { kind: 'status', name: '翻肚', amount: 1, target: 'self' }], upgrade: { effects: [{ kind: 'draw', n: 2 }] } },
+    // 比千里眼（1 費抽 2 無代價）多個缺點零補償；抽 3＝高風險高報酬，升級版拿掉代價
+    effects: [{ kind: 'draw', n: 3 }, { kind: 'status', name: '翻肚', amount: 1, target: 'self' }], upgrade: { effects: [{ kind: 'draw', n: 3 }] } },
   { id: 'youcike', name: '有刺客', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/youcike', keywords: ['消耗'],
     effects: [{ kind: 'draw', n: 2 }], upgrade: { effects: [{ kind: 'draw', n: 3 }] } },
   { id: 'zhanshu', name: '戰術撤退', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/zhanshu',
-    effects: [{ kind: 'block', amount: 9 }, { kind: 'noAttacksThisTurn' }], upgrade: { effects: [{ kind: 'block', amount: 12 }, { kind: 'noAttacksThisTurn' }] } },
+    // 比變身術（1 費 10 蜷縮無限制）多個缺點還少 1 點＝純劣化；補一張抽牌當「過渡回合」的定位
+    effects: [{ kind: 'block', amount: 9 }, { kind: 'draw', n: 1 }, { kind: 'noAttacksThisTurn' }], upgrade: { effects: [{ kind: 'block', amount: 12 }, { kind: 'draw', n: 1 }, { kind: 'noAttacksThisTurn' }] } },
   { id: 'tuozi', name: '忍術·拖字訣', cost: 2, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/tuozi',
     effects: [{ kind: 'retainFromHand', n: 1 }, { kind: 'draw', n: 1 }], upgrade: { effects: [{ kind: 'retainFromHand', n: 2 }, { kind: 'draw', n: 1 }] } },
   { id: 'shuaiguo', name: '忍術·甩鍋術', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/shuaiguo',
@@ -72,7 +74,8 @@ export const cards: readonly CardDef[] = [
   { id: 'fengkou', name: '忍術·封口術', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/fengkou',
     effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true }],
     upgrade: { effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
-  { id: 'qianshui', name: '忍術·潛水術', cost: 3, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/qianshui',
+  // 3 費跟隱身術（常見、當下 2 層）幾乎同價還更慢；降 1 費，走「便宜但分期」
+  { id: 'qianshui', name: '忍術·潛水術', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/qianshui',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'status', name: '潛水', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }, { kind: 'status', name: '潛水', amount: 2, target: 'self' }] } },
   { id: 'touchi', name: '忍術·偷吃術', cost: 0, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/touchi', keywords: ['消耗'],
@@ -86,14 +89,17 @@ export const cards: readonly CardDef[] = [
   { id: 'jiejie', name: '結界', cost: 2, type: 能, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/jiejie',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 3 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 4 }] }] } },
+  // 跟忍術·反彈只差 1 點＝純劣化，改走攻守一體；純反彈留給忍術·反彈
   { id: 'fantan', name: '反彈', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fantan',
-    effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }], upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 4, target: 'self' }] } },
+    effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'block', amount: 6 }],
+    upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }, { kind: 'block', amount: 8 }] } },
   // 基礎版只有本回合有效（`thisTurn`），磨爪之後變成永久的——升級同時拿掉限制又加量
   { id: 'renwuwancheng', name: '忍術·吸貓大法', cost: 1, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/renwuwancheng',
     effects: [{ kind: 'power', trigger: 'onKill', thisTurn: true, effects: [{ kind: 'heal', n: 4 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 6 }] }] } },
   { id: 'fengyin', name: '封印解除', cost: 3, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/fengyin',
-    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] }], upgrade: { cost: 2 } },
+    // 原本跟鐵心（2 費）同效果還貴 1 費＝純劣化，改成攻防雙成長，3 費才值
+    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'status', name: '貓步', amount: 1, target: 'self' }] }], upgrade: { cost: 2 } },
 
   // ===== 絕學（18） =====
   { id: 'tieshazhang', name: '絕學·鐵砂掌', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/tieshazhang',
@@ -102,10 +108,11 @@ export const cards: readonly CardDef[] = [
   { id: 'qinna', name: '絕學·擒拿手', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/qinna',
     effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '炸毛', amount: 2, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'status', name: '炸毛', amount: 3, target: 'enemy' }] } },
-  { id: 'juye', name: '絕學·聚葉成刀', cost: 1, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/juye',
-    effects: [{ kind: 'damage', amount: 4, times: 3 }], upgrade: { effects: [{ kind: 'damage', amount: 5, times: 3 }] } },
+  // 原本 1 費 4×3 把肉球連擊（1 費 4×2）整張壓死；改打全體、跟十二連環成系列，單體連打讓給肉球
+  { id: 'juye', name: '絕學·聚葉成刀', cost: 1, type: 攻, rarity: '常見', pool: '絕學', target: 'all', art: 'card/juye',
+    effects: [{ kind: 'damage', amount: 3, times: 2, target: 'all' }], upgrade: { effects: [{ kind: 'damage', amount: 4, times: 2, target: 'all' }] } },
   { id: 'jinzhong', name: '絕學·金鐘罩', cost: 2, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/jinzhong',
-    effects: [{ kind: 'block', amount: 15 }], upgrade: { effects: [{ kind: 'block', amount: 19 }] } },
+    effects: [{ kind: 'block', amount: 17 }], upgrade: { effects: [{ kind: 'block', amount: 22 }] } },
   { id: 'qinggong', name: '絕學·輕功', cost: 3, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/qinggong',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'draw', n: 2 }], upgrade: { cost: 0 } },
   { id: 'taxue', name: '絕學·踏雪無痕', cost: 0, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/taxue', keywords: ['消耗'],
@@ -128,7 +135,7 @@ export const cards: readonly CardDef[] = [
   { id: 'gekong', name: '絕學·隔空取物', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/gekong',
     effects: [{ kind: 'recoverFromDiscard' }], upgrade: { cost: 0 } },
   { id: 'guixi', name: '絕學·龜息術', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/guixi', keywords: ['消耗'],
-    effects: [{ kind: 'heal', n: 8 }], upgrade: { effects: [{ kind: 'heal', n: 12 }] } },
+    effects: [{ kind: 'heal', n: 10 }], upgrade: { effects: [{ kind: 'heal', n: 14 }] } },
   { id: 'taiji', name: '絕學·太極', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/taiji',
     effects: [{ kind: 'damageEqualBlock' }], upgrade: { cost: 0 } },
   { id: 'mabu', name: '絕學·馬步', cost: 1, type: 能, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/mabu',
@@ -210,9 +217,10 @@ export const cards: readonly CardDef[] = [
   { id: 'fanwei', name: '犯胃痛', cost: 0, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/fanwei', keywords: ['不可打出'], effects: [], upgrade: {}, curse: { onTurnEnd: 3 } },
   // 2026-08-31 補 12 張稀有：本來只有 8 張，獎勵畫面很快就重複。
   // 稀有牌該是「改變打法」的，不是「數字比較大」的，所以都掛在少見的機制上。
+  // 跟沾衣十八跌一字不差（同 5×3），改走「破防連斬」：打高防怪的稀有解，跟瞬間移動成系列
   { id: 'liandao', name: '絕學·連刀', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/liandao',
-    effects: [{ kind: 'damage', amount: 5, times: 3 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 5, times: 4 }] } },
+    effects: [{ kind: 'damage', amount: 4, times: 3, ignoreBlock: true }],
+    upgrade: { effects: [{ kind: 'damage', amount: 5, times: 3, ignoreBlock: true }] } },
   { id: 'huanying', name: '忍術·幻影分身', cost: 2, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/huanying',
     effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }, { kind: 'draw', n: 2 }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 4, target: 'self' }, { kind: 'draw', n: 3 }] } },
