@@ -163,7 +163,14 @@ export type RunEffect =
   | { kind: 'fight'; encounterId: string; bonusFish: number }
   | { kind: 'chooseCard'; pool: Pool; n: number }
   | { kind: 'gamble'; p: number; win: RunEffect[]; lose: RunEffect[] };
-export interface EventChoice { label: string; costFish?: number; outcome: RunEffect[]; result: string }
+/**
+ * `resultArt`＝這個選項有自己的結果插圖時，圖檔的鍵（對應 `bg/event_<resultArt>`）。
+ * 沒填就沿用事件本身的場景圖。選了之後畫面上如果只有文字換掉、圖一模一樣，
+ * 玩家感覺不到「我剛剛做了一件事」。
+ */
+export interface EventChoice {
+  label: string; costFish?: number; outcome: RunEffect[]; result: string; resultArt?: string;
+}
 export interface EventDef { id: string; title: string; text: string; choices: EventChoice[]; fixedFloor?: number }
 
 // ===== 地圖 =====

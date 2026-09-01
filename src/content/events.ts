@@ -181,7 +181,8 @@ export const events: EventDef[] = [
     choices: [
       { label: '滾一滾（回復一半生命，但多一張壞毛病）', outcome: [{ kind: 'healPercent', p: 0.5 }, { kind: 'addCard', cardId: 'zouhuo' }],
         result: '球球滾得很開心，起來的時候頭有點暈。' },
-      { label: '採一把帶走（拿兩支忍具）', outcome: [{ kind: 'potions', n: 2 }], result: '球球採了一把塞進懷裡。' },
+      { label: '採一把帶走（拿兩支忍具）', outcome: [{ kind: 'potions', n: 2 }],
+        result: '球球採了一把塞進懷裡。', resultArt: 'catnip_field_take' },
       { label: '憋氣走過（什麼都不會發生）', outcome: [], result: '球球憋著氣快步通過。' },
     ] },
 

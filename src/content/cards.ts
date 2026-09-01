@@ -226,7 +226,9 @@ export const cards: readonly CardDef[] = [
   { id: 'tiexin', name: '絕學·鐵心', cost: 2, type: 能, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/tiexin',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] }],
     upgrade: { cost: 1 } },
-  { id: 'sanhua', name: '忍術·三花聚頂', cost: 2, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/sanhua',
+  // 費 2 回 2＝淨零，牌面讀起來像白忙一場，而且飽足剩 1 點時打不出來——
+  // 偏偏那正是最需要補牌的時候。改成費 1 回 2：真的聚到氣，名字才名副其實。
+  { id: 'sanhua', name: '忍術·三花聚頂', cost: 1, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/sanhua',
     effects: [{ kind: 'draw', n: 3 }, { kind: 'energy', n: 2 }],
     upgrade: { effects: [{ kind: 'draw', n: 4 }, { kind: 'energy', n: 2 }] } },
   { id: 'fanpu', name: '絕學·返璞', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/fanpu', keywords: ['消耗'],

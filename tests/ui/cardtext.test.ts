@@ -17,7 +17,7 @@ describe('牌面文字', () => {
     expect(t('susu')).toBe('對全體魔物造成 8 點傷害。');
     expect(t('taxue')).toBe('獲得 1 層隱身。消耗。');
     expect(t('taxue', true)).toBe('獲得 1 層隱身。');
-    expect(t('fengkou')).toBe('移除目標的爪力、貓步與蜷縮。');
+    expect(t('fengkou')).toBe('移除目標的爪力、貓步與防禦。');
   });
 
   it('連抓與擊倒獎金講成人話，不用算式', () => {
@@ -65,11 +65,18 @@ describe('牌面文字', () => {
     expect(t('xianshuile', true)).toBe('回復 7 點生命，然後直接結束這回合。');
   });
 
-  it('交出來先搶蜷縮再打，變身術留著玩笑話', () => {
-    expect(t('jiaochulai')).toBe('把目標的蜷縮全部搶過來，再造成 4 點傷害。');
-    expect(t('jiaochulai', true)).toBe('把目標的蜷縮全部搶過來，再造成 6 點傷害。');
-    expect(t('bianshen')).toBe('獲得 9 點蜷縮（變成飯糰）。');
-    expect(t('bianshen', true)).toBe('獲得 12 點蜷縮（變成飯糰）。');
+  it('牌面只講規則：交出來先搶再打，變身術不留玩笑話', () => {
+    expect(t('jiaochulai')).toBe('把目標的防禦全部搶過來，再造成 4 點傷害。');
+    expect(t('jiaochulai', true)).toBe('把目標的防禦全部搶過來，再造成 6 點傷害。');
+    // 變身術本來寫「獲得 9 點蜷縮（變成飯糰）」，有玩家問「變成飯糰是不是多拿一顆飯糰」——
+    // 飯糰是飽足的單位，這句玩笑話剛好撞到規則名詞，整句拿掉。玩笑話交給圖去講。
+    expect(t('bianshen')).toBe('獲得 9 點蜷縮。');
+    expect(t('bianshen', true)).toBe('獲得 12 點蜷縮。');
+    // 鐵頭功先打人再自傷，「也」有對象；拼命只有自傷，寫「也」會害玩家去找那個不存在的前一下
+    expect(t('tietou')).toBe('造成 16 點傷害，自己也受 2 點傷害。');
+    expect(t('boming')).toBe('自己受 3 點傷害，獲得 2 顆飯糰。消耗。');
+    // 前半句自己就含逗號，後面再用逗號接會黏成一長串，看不出那 6 點是另一件事
+    expect(t('jiedao')).toBe('造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少；獲得 6 點蜷縮。');
   });
 });
 

@@ -180,7 +180,15 @@ export type RunEffectOutcome =
  * 補在結果文案下面（`finish` 的第二個參數）。傳不傳都行，機器人試玩就不傳。
  * 這裡寫的是敘述句，不是球球講話，所以句尾不加「喵」。
  */
-export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: string[]): RunEffectOutcome {
+/**
+ * 事件實際拿到手的東西。`notes` 只寫得出一行字（「拿到忍具「鐵爪套」「小魚乾串」」），
+ * 玩家看不到那是什麼、有什麼用——使用者的原話：「圖片跟功能這邊沒顯示出來會不知道拿到了甚麼」。
+ * 所以另外收一份結構化的清單，畫面拿它排出圖示＋名稱＋效果，跟戰利品畫面同一種列。
+ */
+export type RunGain = { kind: '秘寶' | '忍具'; id: string };
+
+export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: string[],
+  gains?: RunGain[]): RunEffectOutcome {
   let outcome: RunEffectOutcome = null;
   const cardName = (id: string): string => cardById[id]?.name ?? id;
   for (const fx of effects) {
@@ -210,20 +218,18 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'upgradeCard': outcome = { needs: 'upgradeCard' }; break;
       case 'relic': {
         const id = rollRelic(runRng(run), fx.pool, run.relics);
-        if (id) { takeRelic(run, id); notes?.push(`得到秘寶「${relicById[id]?.name ?? id}」`); }
+        if (id) { takeRelic(run, id); gains?.push({ kind: '秘寶', id }); }
         break;
       }
       case 'potions': {
         // 忍具最多帶三個，滿了 addPotion 會回 false 並把多的靜靜丟掉——那件事一定要講出來，
         // 不然文案寫著「掏出兩個忍具塞給球球」，玩家一個都沒拿到還以為是壞掉了
         const rng = runRng(run);
-        const got: string[] = [];
         let full = 0;
         for (let i = 0; i < fx.n; i++) {
           const id = rollPotion(rng);
-          if (addPotion(run, id)) got.push(potionById[id]?.name ?? id); else full += 1;
+          if (addPotion(run, id)) gains?.push({ kind: '忍具', id }); else full += 1;
         }
-        if (got.length) notes?.push(`拿到忍具「${got.join('」「')}」`);
         if (full > 0) notes?.push(`忍具帶滿了，還有 ${full} 個收不下`);
         break;
       }
@@ -232,7 +238,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'gamble': {
         // 中了哪一邊由子效果自己講（贏＝最大生命 +5、輸＝牌組被塞一張「失手了」）
         const sub = runRng(run).chance(fx.p) ? fx.win : fx.lose;
-        const o = applyRunEffects(run, sub, notes); if (o) outcome = o;
+        const o = applyRunEffects(run, sub, notes, gains); if (o) outcome = o;
         break;
       }
       default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆
