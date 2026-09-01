@@ -53,12 +53,17 @@ export function showCompendium(): void {
       close),
     grid);
 
-  const onKey = (ev: KeyboardEvent): void => {
-    if (ev.key === 'Escape') { box.remove(); window.removeEventListener('keydown', onKey); }
+  // 半透明背幕：接住圖鑑外的點擊（點外面＝關閉），免得誤點到底下的畫面
+  const backdrop = el('div', { class: 'comp-backdrop' });
+  const dismiss = (): void => {
+    box.remove(); backdrop.remove();
+    window.removeEventListener('keydown', onKey);
   };
-  close.addEventListener('click', () => { box.remove(); window.removeEventListener('keydown', onKey); });
+  const onKey = (ev: KeyboardEvent): void => { if (ev.key === 'Escape') dismiss(); };
+  close.addEventListener('click', dismiss);
+  backdrop.addEventListener('click', dismiss);
   window.addEventListener('keydown', onKey);
 
   render();
-  layer.append(box);
+  layer.append(backdrop, box);
 }

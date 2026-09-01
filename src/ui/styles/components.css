@@ -500,8 +500,14 @@
 
 
 /* ===== 卡牌圖鑑 ===== */
+.comp-backdrop {
+  position: absolute; inset: 0; z-index: 69;
+  background: rgba(0, 0, 0, .45);
+  pointer-events: auto;
+}
 .compendium {
   position: absolute; inset: 24px 40px; z-index: 70;
+  pointer-events: auto;   /* 疊層容器是 none，不開這行點擊與滾輪會穿到底下的畫面 */
   display: flex; flex-direction: column;
   background: rgba(24, 18, 10, .97);
   border: 2px solid #c9a227; border-radius: 14px;
