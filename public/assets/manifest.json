@@ -189,10 +189,12 @@
    "idle": "assets/monsters/nekomata_tail_idle.webp"
   },
   "codex/monster_box_lurker": {
-   "attack": "assets/monsters/box_lurker_attack.webp"
+   "attack": "assets/monsters/box_lurker_attack.webp",
+   "idle": "assets/monsters/box_lurker_idle.webp"
   },
   "codex/monster_broom_centipede": {
-   "attack": "assets/monsters/broom_centipede_attack.webp"
+   "attack": "assets/monsters/broom_centipede_attack.webp",
+   "idle": "assets/monsters/broom_centipede_idle.webp"
   },
   "codex/monster_calico_monk": {
    "attack": "assets/monsters/calico_monk_attack.webp",
@@ -219,7 +221,8 @@
    "idle": "assets/monsters/five_claw_idle.webp"
   },
   "codex/monster_hedgehog": {
-   "attack": "assets/monsters/hedgehog_attack.webp"
+   "attack": "assets/monsters/hedgehog_attack.webp",
+   "idle": "assets/monsters/hedgehog_idle.webp"
   },
   "codex/monster_mini_broom": {
    "attack": "assets/monsters/mini_broom_attack.webp",
@@ -238,7 +241,8 @@
    "idle": "assets/monsters/shadow_kitten_idle.webp"
   },
   "codex/monster_soy_bottle": {
-   "idle": "assets/monsters/soy_bottle_idle.webp"
+   "idle": "assets/monsters/soy_bottle_idle.webp",
+   "attack": "assets/monsters/soy_bottle_attack.webp"
   },
   "codex/monster_stone_lion": {
    "attack": "assets/monsters/stone_lion_attack.webp",
@@ -247,6 +251,10 @@
   "codex/monster_yarn_ball": {
    "attack": "assets/monsters/yarn_ball_attack.webp",
    "idle": "assets/monsters/yarn_ball_idle.webp"
+  },
+  "codex/monster_training_post": {
+   "attack": "assets/monsters/training_post_attack.webp",
+   "idle": "assets/monsters/training_post_idle.webp"
   }
  },
  "icons": {
