@@ -496,6 +496,9 @@
   "bg/still_embrace": "assets/bg/still_embrace.webp",
   "bg/still_home": "assets/bg/still_home.webp",
   "bg/still_rush": "assets/bg/still_rush.webp",
-  "bg/still_teach": "assets/bg/still_teach.webp"
+  "bg/still_teach": "assets/bg/still_teach.webp",
+  "bg/boss1": "assets/bg/boss1.webp",
+  "bg/boss2": "assets/bg/boss2.webp",
+  "bg/boss3": "assets/bg/boss3.webp"
  }
 }
