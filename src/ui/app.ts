@@ -1,7 +1,7 @@
 import { dialogue, type DialogueLine } from '../content/dialogue';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
-import { beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
+import { ACTS, beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
@@ -49,7 +49,9 @@ export class App {
     const act = this.run?.act ?? 1;
     const actTrack = (['act1', 'act2', 'act3'] as const)[Math.min(3, Math.max(1, act)) - 1]!;
     switch (name) {
-      case 'title': case 'result': return 'leisure';
+      // 結算分輸贏：贏放通關曲、輸放陣亡曲——原本共用休閒曲，剛死掉卻放輕鬆的曲子，調性不對
+      case 'result': return this.run?.status === 'won' ? 'ending' : this.run?.status === 'lost' ? 'defeat' : 'leisure';
+      case 'title': return 'leisure';
       case 'map': case 'event': case 'chest': case 'actclear': case 'reward': return actTrack;
       case 'shop': return 'shop';
       case 'rest': return 'rest';
@@ -141,7 +143,11 @@ export class App {
   startFight(encounterId: string, isBoss = false, bonusFish = 0): void {
     const run = this.run;
     if (!run) return;
-    setBgm(isBoss ? 'boss' : 'battle');
+    // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
+    const pool = encounterById[encounterId]?.pool;
+    setBgm(encounterId === 'shadow_cat' ? 'shadow'
+      : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
+        : pool === '大魔物' ? 'elite' : 'battle');
     const go = (): void => {
       this.cs = beginCombat(run, encounterId);
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);

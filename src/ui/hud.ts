@@ -4,7 +4,7 @@ import type { App } from './app';
 import { artUrl } from './assets';
 import { ACT_NAMES } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
-import { musicOn, toggleMusic } from './bgm';
+import { musicOn, musicVolume, setMusicVolume, toggleMusic } from './bgm';
 import { showDeckPicker } from './deckview';
 import { el } from './dom';
 import { attachTextTooltip, attachTooltip } from './tooltip';
@@ -107,11 +107,15 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   music.addEventListener('click', () => {
     music.textContent = toggleMusic() ? '🎵 音樂' : '🔇 音樂';
   });
+  // 音量拉桿：拉了立刻生效、直接記住，不經過任何重畫
+  const vol = el('input', { class: 'hud-vol', type: 'range', min: '0', max: '100', value: String(musicVolume()) }) as HTMLInputElement;
+  vol.title = '音樂音量';
+  vol.addEventListener('input', () => setMusicVolume(Number(vol.value)));
 
   hud.append(
     // 還沒踏上這一關的第一個節點時顯示關名（塔下／塔中／塔頂），之後顯示累計樓層
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
     hp, fish, relics, potions, deckBtn,
-    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`), music, sound);
+    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`), music, vol, sound);
   return hud;
 }

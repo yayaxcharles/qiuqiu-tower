@@ -113,6 +113,14 @@
   padding: 2px 10px;
   font-size: 13px;
 }
+/* 音樂音量拉桿：窄窄一條塞在兩顆開關中間，配木頭色 */
+.hud-vol {
+  flex: 0 0 auto;
+  width: 64px;
+  margin-left: 4px;
+  accent-color: #c9702a;
+  cursor: pointer;
+}
 .hud-seed {
   margin-left: auto;
   font-size: 12px;

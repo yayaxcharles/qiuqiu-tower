@@ -296,7 +296,7 @@
    高度就不吃版面上限，可以放大成真的站在店裡的人。 */
 .shop-keeper {
   position: absolute;
-  left: -158px;
+  right: -158px;   /* 改站右側空地（使用者指定右下角）；老闆的立繪本來就面朝左，站右邊剛好面向店裡 */
   bottom: 4px;
   width: 150px;
   height: 196px;

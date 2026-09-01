@@ -9,11 +9,39 @@ import { BASE } from './assets';
  *    載入中遊戲照常玩，曲子好了才淡入。
  */
 
-export type BgmName = 'leisure' | 'act1' | 'act2' | 'act3' | 'battle' | 'boss' | 'shop' | 'rest';
+export type BgmName =
+  | 'leisure' | 'act1' | 'act2' | 'act3' | 'battle' | 'boss' | 'shop' | 'rest'
+  | 'elite'      // 大魔物（精英）戰
+  | 'finalboss'  // 第三關的走火入魔大俠貓
+  | 'shadow'     // 影球球鏡像戰（遭遇 id 是 shadow_cat 時）
+  | 'ending'     // 通關的結算
+  | 'defeat';    // 陣亡的結算
 
 const STORE_KEY = 'qiuqiu.music';
-const VOLUME = 0.4;          // 音樂墊在音效底下，不能搶
+const VOL_KEY = 'qiuqiu.music.vol';
+/** 預設 15／100。使用者實聽的結論：0.4 太大聲，音樂要墊在音效底下 */
+const DEFAULT_VOL = 15;
 const FADE_MS = 450;
+
+function readVolume(): number {
+  try {
+    const v = Number(window.localStorage.getItem(VOL_KEY));
+    if (Number.isFinite(v) && v >= 0 && v <= 100 && window.localStorage.getItem(VOL_KEY) !== null) return v;
+  } catch { /* 讀不到就用預設 */ }
+  return DEFAULT_VOL;
+}
+
+let volume = readVolume();
+
+export function musicVolume(): number { return volume; }
+
+/** 音量拉桿直接叫這個：立即生效、記進瀏覽器。拖動中不重畫任何東西。 */
+export function setMusicVolume(v: number): void {
+  volume = Math.max(0, Math.min(100, Math.round(v)));
+  try { window.localStorage.setItem(VOL_KEY, String(volume)); } catch { /* 存不了就算了 */ }
+  // 正在淡入淡出就把過場砍掉直接設定——使用者在拉的時候要立刻聽到差別
+  if (el && !el.paused) { window.clearInterval(fadeTimer); el.volume = volume / 100; }
+}
 
 function readEnabled(): boolean {
   try { return window.localStorage.getItem(STORE_KEY) !== 'off'; } catch { return true; }
@@ -62,7 +90,7 @@ function startPlaying(name: BgmName): void {
     a.volume = 0;
     el = a;
     // play() 可能被瀏覽器拒絕（理論上解鎖後不會，但拒絕就靜靜算了，不能讓畫面炸掉）
-    a.play().then(() => fade(a, VOLUME)).catch(() => { /* 沒聲音就沒聲音 */ });
+    a.play().then(() => fade(a, volume / 100)).catch(() => { /* 沒聲音就沒聲音 */ });
   };
   if (el && !el.paused) fade(el, 0, swap);   // 前一首淡出再接，不要硬切
   else swap();
