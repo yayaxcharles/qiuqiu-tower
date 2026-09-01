@@ -116,6 +116,41 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     // 還沒踏上這一關的第一個節點時顯示關名（塔下／塔中／塔頂），之後顯示累計樓層
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
     hp, fish, relics, potions, deckBtn,
-    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`), music, vol, sound);
+    seedTag(run.seed), music, vol, sound);
   return hud;
+}
+
+/**
+ * 「本局代碼」做成點一下就複製的按鈕。
+ *
+ * 代碼的用途就是抄給別人（或自己下一局貼上）重玩同一座塔，
+ * 但它只是一行字、選取起來又小又難按（使用者的原話：「不能複製耶」）。
+ * 剪貼簿權限包在 try 裡：不安全的來源或舊瀏覽器沒有 `navigator.clipboard`，
+ * 失敗就退回「選取那段文字」讓人自己按複製，不能什麼都不發生。
+ */
+export function seedTag(seed: string): HTMLElement {
+  const node = el('button', { class: 'hud-seed seed-copy' }, `本局代碼 ${seed} ⧉`);
+  node.title = '點一下複製代碼';
+  node.addEventListener('click', () => {
+    const done = (): void => {
+      play('click');
+      node.textContent = '已複製！';
+      window.setTimeout(() => { node.textContent = `本局代碼 ${seed} ⧉`; }, 1200);
+    };
+    try {
+      void navigator.clipboard.writeText(seed).then(done, () => selectFallback(node));
+    } catch {
+      selectFallback(node);
+    }
+  });
+  return node;
+}
+
+/** 複製失敗的退路：把整段文字選起來，使用者自己按複製就好 */
+function selectFallback(node: HTMLElement): void {
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  const sel = window.getSelection();
+  sel?.removeAllRanges();
+  sel?.addRange(range);
 }

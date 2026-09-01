@@ -450,3 +450,15 @@
 .upgrade-preview .card {
   box-shadow: 0 10px 26px #000000a6, inset 0 1px 0 #fff;
 }
+
+/* 本局代碼是一顆可以按的複製鈕：底跟框都極淡，維持狀態列的低調，滑過去才亮 */
+.seed-copy {
+  border: 1px solid #ffffff26;
+  border-radius: 6px;
+  padding: 1px 8px;
+  background: #00000026;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.seed-copy:hover { background: #00000047; border-color: #ffffff59; }

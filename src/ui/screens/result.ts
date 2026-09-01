@@ -7,6 +7,7 @@ import { screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
+import { seedTag } from '../hud';
 import { attachTextTooltip } from '../tooltip';
 
 registerScreen('result', (app, root) => {
@@ -42,7 +43,7 @@ registerScreen('result', (app, root) => {
     el('h1', {}, won ? '通關' : '任務失敗'),
     el('div', { class: 'result-stats' },
       `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${run.deck.length} 張`),
-    el('div', { class: 'result-stats small' }, `本局代碼 ${run.seed}`),
+    seedTag(run.seed),
     relics,
     el('div', { class: 'result-actions' },
       el('button', {
