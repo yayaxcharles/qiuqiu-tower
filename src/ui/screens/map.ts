@@ -154,6 +154,8 @@ registerScreen('map', (app, root) => {
     if (n.id === run.currentNode) cls.push('current');
     if (choices.has(n.id)) cls.push('choice');
     if (n.floor < run.floor) cls.push('past');
+    // 真的打過／辦完的（足跡上的格子）蓋一顆勾勾章——跟「只是在下面的樓層」區隔開
+    if (n.id !== run.currentNode && run.trail.includes(n.id)) cls.push('cleared');
     const btn = el('button', {
       class: cls.join(' '),
       style: `left:${x - R}px;top:${y - R}px`,
