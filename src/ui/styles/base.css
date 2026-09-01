@@ -506,3 +506,13 @@ img { -webkit-user-drag: none; }
   text-shadow: 0 1px 3px #000;
   opacity: .8;
 }
+
+/* 標題畫面的副標「球球參上」：小一號、拉開字距，墊在主標下面 */
+.title .title-sub {
+  margin-top: -6px;
+  font-size: 21px;
+  letter-spacing: 7px;
+  color: #e8d9b8;
+  text-shadow: 0 2px 4px #000000b0;
+  opacity: .92;
+}

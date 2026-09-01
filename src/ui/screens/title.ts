@@ -19,7 +19,10 @@ registerScreen('title', (app, root) => {
       el('div', { class: 'title-cat-box' },
         el('div', { class: 'ground-shadow' }),
         el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/ninja_win'), alt: '球球' })),
-      el('h1', {}, '球球勇闖魔物塔'),
+      // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名，球球退到副標——
+      // 他還是主角，但招牌要像作品名，不是一句口語
+      el('h1', {}, '爪破魔塔'),
+      el('div', { class: 'title-sub' }, '－ 球球參上 －'),
       el('div', { class: 'title-buttons' },
         el('button', { class: 'btn primary', onclick: () => app.newRun(seed.value) }, '新的一局'),
         // 沒存檔時才加 disabled：這個屬性只要存在就會生效，給空字串也一樣

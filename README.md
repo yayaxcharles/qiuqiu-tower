@@ -1,9 +1,9 @@
-# 球球勇闖魔物塔
+# 爪破魔塔：球球參上（Clawbreak Tower: Qiuqiu Arrives）
 
 灰貓忍者「球球」爬一座魔物塔的牌組構築遊戲，玩法接近《殺戮尖塔》。純網頁、免安裝、不用開帳號，
 整個遊戲就是一包靜態檔案，丟到 GitHub Pages 就能玩。
 
-線上玩：<https://yayax.github.io/qiuqiu-tower/>
+線上玩：<https://yayaxcharles.github.io/qiuqiu-tower/>
 （要先照最後一節推上 GitHub 並把 Pages 打開，這個網址才會活。）
 
 畫面 1280×720 橫向，視窗改變時整個等比縮放。電腦滑鼠操作，不支援手機。
