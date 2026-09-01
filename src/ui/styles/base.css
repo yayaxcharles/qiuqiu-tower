@@ -520,3 +520,26 @@ img { -webkit-user-drag: none; }
   text-shadow: 0 2px 3px #000, 0 0 14px #00000090, 0 4px 10px #000000c0;
   opacity: 1;
 }
+
+
+/* ===== 標題畫面的飄落粒子（金葉＋淡櫻）===== */
+.title-petals { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.title-petals i {
+  position: absolute; top: -24px;
+  width: 13px; height: 13px;
+  border-radius: 62% 38% 55% 45% / 50% 60% 40% 50%;
+  opacity: .7;
+  animation-name: petal-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.title-petals i.leaf { background: radial-gradient(circle at 35% 30%, #ffd88a, #d99a2b 70%); }
+.title-petals i.sakura { background: radial-gradient(circle at 35% 30%, #ffd9e3, #f5a8bd 70%); width: 11px; height: 11px; }
+@keyframes petal-fall {
+  0% { transform: translate(0, -4vh) rotate(0deg); opacity: 0; }
+  8% { opacity: .75; }
+  50% { transform: translate(var(--sway, 40px), 48vh) rotate(200deg); }
+  92% { opacity: .6; }
+  100% { transform: translate(calc(var(--sway, 40px) * -0.4), 104vh) rotate(420deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .title-petals { display: none; } }

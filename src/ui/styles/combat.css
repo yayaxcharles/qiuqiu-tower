@@ -521,7 +521,8 @@
   filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);
 }
 .combat .unit.dodge .sprite { animation: dodge .5s ease-out; }
-.combat .unit.dead { animation: fall .6s ease-in forwards; }
+/* 倒下改「溶解」：下沉＋褪色＋模糊＋轉灰，配原本晚 160 毫秒的那團煙剛好接上 */
+.combat .unit.dead { animation: dissolve .8s ease-in forwards; }
 .combat .num {
   position: absolute;
   left: 50%;
@@ -572,8 +573,10 @@
   40% { opacity: .3; transform: translateX(-52px); }
   100% { opacity: 1; transform: none; }
 }
-@keyframes fall {
-  to { transform: rotate(80deg) translateY(70px); opacity: 0; }
+@keyframes dissolve {
+  0% { opacity: 1; filter: none; transform: translateY(0) scale(1); }
+  45% { opacity: .85; filter: grayscale(.6) brightness(1.35); }
+  100% { opacity: 0; filter: grayscale(1) brightness(1.7) blur(6px); transform: translateY(10px) scale(.94); }
 }
 /* 傷害數字：蹦出來的時候誇張一點（1.45 倍再彈回 1），
    而且是**歪的**——正正方方地浮上去看起來像 UI 標籤，歪一點才像被打出來的。
@@ -687,3 +690,57 @@
   font-size: 14px; cursor: pointer; padding: 2px 4px;
 }
 .tut-bar .tut-close:hover { color: #fff; }
+
+
+/* ===== 關主變身演出 ===== */
+.combat.phase-flash::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 40; pointer-events: none;
+  background: radial-gradient(circle at 62% 40%, rgba(255,255,255,.95), rgba(255,244,214,.35) 45%, transparent 75%);
+  animation: phase-flash .8s ease-out forwards;
+}
+@keyframes phase-flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+.combat .unit.phase-pulse .sprite { animation: phase-pulse .9s ease-out; }
+@keyframes phase-pulse {
+  0% { transform: scale(1); filter: none; }
+  30% { transform: scale(1.16); filter: brightness(1.6) drop-shadow(0 0 24px rgba(255,220,120,.9)); }
+  100% { transform: scale(1); filter: none; }
+}
+
+/* ===== 球球挨打的邊緣紅暈：訊號要大到用餘光就看得到 ===== */
+.combat.player-hurt::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 39; pointer-events: none;
+  box-shadow: inset 0 0 90px 30px rgba(200, 30, 30, .55);
+  animation: hurt-vignette .5s ease-out forwards;
+}
+@keyframes hurt-vignette { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ===== 關主戰 VS 開場閃卡 ===== */
+.vs-overlay {
+  position: absolute; inset: 0; z-index: 60;
+  background: rgba(12, 8, 4, .82);
+  display: flex; align-items: center; justify-content: center; gap: 48px;
+  animation: vs-in .25s ease-out, vs-out .3s ease-in 1.1s forwards;
+  cursor: pointer;
+}
+@keyframes vs-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vs-out { to { opacity: 0; } }
+.vs-overlay img { height: 380px; filter: drop-shadow(0 10px 24px rgba(0,0,0,.6)); }
+.vs-overlay .vs-left { animation: vs-slam-l .45s cubic-bezier(.2,.9,.3,1.2); }
+.vs-overlay .vs-right { transform: scaleX(-1); animation: vs-slam-r .45s cubic-bezier(.2,.9,.3,1.2); }
+@keyframes vs-slam-l { from { transform: translateX(-320px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes vs-slam-r { from { transform: translateX(320px) scaleX(-1); opacity: 0; } to { transform: translateX(0) scaleX(-1); opacity: 1; } }
+.vs-overlay .vs-mark {
+  font-size: 84px; font-weight: 900; color: #ffd35c;
+  text-shadow: 0 4px 0 #7a4a00, 0 0 34px rgba(255, 190, 60, .8);
+  animation: vs-mark-pop .5s cubic-bezier(.2,1.6,.4,1);
+}
+@keyframes vs-mark-pop { from { transform: scale(3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.vs-overlay .vs-banner {
+  position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 26px; align-items: baseline;
+  font-size: 30px; font-weight: 800; color: #f3e9d2;
+  text-shadow: 0 2px 6px rgba(0,0,0,.8);
+}
+.vs-overlay .vs-boss { color: #ff9d6c; }

@@ -1,5 +1,5 @@
 import { dialogue } from '../../content/dialogue';
-import { BOSS_ART, BOSS_MOVE_ART, enemyById } from '../../content/enemies';
+import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
 import { canPlay, endTurn, playCard, resolveChoice, usePotion } from '../../engine/combat';
@@ -909,7 +909,7 @@ registerScreen('combat', (app, root, props) => {
         const sp = node.querySelector<HTMLElement>('.sprite');
         if (sp) sp.style.animationDelay = `${cs.enemies.indexOf(e) * 110}ms`;
       }
-      if (e.phase > b.phase) bossPhaseTalk(e.enemyId, e.phase);
+      if (e.phase > b.phase) { bossPhaseTalk(e.enemyId, e.phase); phaseBurst(node); }
     }
     // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
@@ -925,6 +925,10 @@ registerScreen('combat', (app, root, props) => {
       if (sumStatus(p, BAD_STATUS) > before.debuff) { burst(cat, 'debuff'); sfx('debuff'); }
       if (hurt) {
         cat.classList.add('hit');
+        // 邊緣紅暈：挨打的訊號要大到用餘光就看得到（受擊姿勢＋抖動一直都有，但視線常在手牌）
+        const box = root.querySelector('.combat');
+        box?.classList.add('player-hurt');
+        window.setTimeout(() => { box?.classList.remove('player-hurt'); }, 500);
         cat.append(floatNum(`-${before.hp - p.hp}`));
         const pPoison = chokeTick(getStatus(p, '噎到'), before.choke);
         burst(cat, pPoison ? 'poison' : 'hit');
@@ -980,6 +984,22 @@ registerScreen('combat', (app, root, props) => {
    * 第二句晚 1.4 秒才放，比交棒的 1300 毫秒還久，所以要跟其他延遲回呼一樣先確認這場還在
    * （`app.cs === cs`）——不然階段一換就把塔主打死的話，這句會飄到結算畫面上（吐槽住在疊層，換畫面不會被清掉）。
    */
+  /**
+   * 變身那一拍的演出：全場閃白、鏡頭震一下、變身那隻的立繪脹大再回來。
+   * 類別 950 毫秒後拆掉——這幾個都是一次性動畫，留著的話下次加不回去（動畫不重播）。
+   */
+  function phaseBurst(node: HTMLElement): void {
+    const box = root.querySelector('.combat');
+    box?.classList.add('phase-flash', 'shaken');
+    node.classList.add('phase-pulse');
+    sfx('hit_heavy', 0.62);   // 沒有專屬吼聲，拿重擊音壓低半檔當「氣勢炸開」
+    window.setTimeout(() => {
+      if (app.cs !== cs) return;
+      box?.classList.remove('phase-flash', 'shaken');
+      node.classList.remove('phase-pulse');
+    }, 950);
+  }
+
   function bossPhaseTalk(bossId: string, phase: number): void {
     const [a, b] = phase >= 2
       ? (dialogue.bossPhase3ById[bossId] ?? dialogue.bossPhase3Generic)
@@ -1047,4 +1067,27 @@ registerScreen('combat', (app, root, props) => {
 
   render();
   syncPicker();
+
+  // ===== 關主戰的 VS 開場閃卡：兩張立繪對衝＋名字橫幅，1.4 秒自動收、點一下也收 =====
+  // 疊在第一次畫面上面；素材還沒生好（灰剪影）就整個不放，寧缺勿醜。
+  const bossDef = encounterById[cs.encounterId]?.pool === '塔主'
+    ? cs.enemies.map((e) => enemyById[e.enemyId]).find((d) => d?.pool === '塔主')
+    : undefined;
+  if (bossDef) {
+    const heroUrl = artUrl('sprites', POSE.idle);
+    const bossUrl = bossDef.art === 'daxia' ? artUrl('sprites', BOSS_IDLE) : monsterUrl(bossDef.art, 'idle');
+    if (!isFallback(heroUrl) && !isFallback(bossUrl)) {
+      const ov = el('div', { class: 'vs-overlay' },
+        el('img', { class: 'vs-left', src: heroUrl, alt: '球球' }),
+        el('div', { class: 'vs-mark' }, 'VS'),
+        el('img', { class: 'vs-right', src: bossUrl, alt: bossDef.name }),
+        el('div', { class: 'vs-banner' },
+          el('span', { class: 'vs-name' }, '球球'),
+          el('span', { class: 'vs-boss' }, bossDef.name)));
+      root.append(ov);
+      sfx('hit_heavy', 0.5);
+      const off = window.setTimeout(() => ov.remove(), 1400);
+      ov.addEventListener('pointerdown', () => { window.clearTimeout(off); ov.remove(); });
+    }
+  }
 });

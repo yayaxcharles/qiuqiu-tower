@@ -232,8 +232,34 @@
  * 拿到一張罕見或稀有牌跟常見長得一模一樣，沒有「挖到寶」的感覺。
  * 星星用 CSS 畫（不另外生圖）：牌只有 170 寬，圖示縮到那個大小也只剩一個點。
  */
-.card.rarity-罕見 { border-color: #2f5fa8; color: #2f5fa8; }
-.card.rarity-稀有 { border-color: #b8860b; color: #b8860b; }
+.card.rarity-罕見 {
+  border-color: #4a7cc7;
+  color: #2f5fa8;
+  box-shadow: 0 0 0 1px #9dbdea66, 0 2px 10px #2f5fa833;
+}
+.card.rarity-稀有 {
+  border-color: #d4a017;
+  color: #b8860b;
+  box-shadow: 0 0 0 1px #ffd35c88, 0 2px 12px #b8860b44;
+  position: relative;
+  overflow: hidden;
+}
+/* 稀有牌的微光掃過：一道斜光每四秒掠過牌面一次，「挖到寶」的訊號。
+   蓋在牌面最上層但不吃滑鼠；用 translateX 跑（transform 不觸發重排）。 */
+.card.rarity-稀有::before {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: -80%;
+  width: 55%;
+  background: linear-gradient(115deg, transparent, rgba(255, 236, 170, .38) 50%, transparent);
+  transform: skewX(-18deg);
+  animation: rare-sheen 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+@keyframes rare-sheen {
+  0%, 62% { left: -80%; }
+  86%, 100% { left: 130%; }
+}
 /* 稀有度記號本來是右上角一顆小菱形，13 像素、離文字很遠，等於沒有
    （使用者的原話：「很不顯眼」）。搬到底部「攻擊／技能」那條標籤的字前面，
    順便把整條標籤依稀有度染色——那條本來就在正下方置中，一眼就掃得到。

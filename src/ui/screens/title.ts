@@ -13,6 +13,14 @@ registerScreen('title', (app, root) => {
   });
   const best = loadBest();
   root.append(screenBg('bg/screen_title'));
+  // 飄落的花瓣與落葉：畫面靜止時總得有東西在動（跟戰鬥的浮塵同一個道理）。
+  // 十片各自的起點、時長、延遲都拉開，看起來才不像輸送帶。
+  root.append(el('div', { class: 'title-petals' },
+    ...Array.from({ length: 10 }, (_, i) => el('i', {
+      style: `left:${(i * 9.7 + 3) % 100}%; animation-duration:${9 + (i * 2.3) % 8}s; ` +
+        `animation-delay:${-(i * 1.7) % 12}s; --sway:${34 + (i * 13) % 40}px;`,
+      class: i % 3 === 0 ? 'sakura' : 'leaf',
+    }))));
   root.append(
     el('div', { class: 'title-screen' },
       // 陰影跟戰鬥畫面同一招：去背的角色貼在背景上就是浮著，腳下墊一片橢圓才像站著
