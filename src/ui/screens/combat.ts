@@ -1012,14 +1012,17 @@ registerScreen('combat', (app, root, props) => {
   }
 
   function bossPhaseTalk(bossId: string, phase: number): void {
-    const [a, b] = phase >= 2
+    const lines = phase >= 2
       ? (dialogue.bossPhase3ById[bossId] ?? dialogue.bossPhase3Generic)
       : (dialogue.bossPhase2ById[bossId] ?? dialogue.bossPhase2Generic);
     // 「塔主」木牌只留給師父本人；其他關主的吐槽掛自己的名字（貓又婆婆等）
     const name = (sp: string): string =>
       sp === '塔主' && bossId !== 'tower_master' ? (enemyById[bossId]?.name ?? sp) : sp;
-    if (a) toast(a.text, name(a.speaker));
-    if (b) window.setTimeout(() => { if (app.cs === cs) toast(b.text, name(b.speaker)); }, 1400);
+    // 潤飾版有三句的組（狸大人）：整串照 1.4 秒一句輪播，跟原本兩句的節奏一致
+    lines.forEach((l, i) => {
+      if (i === 0) { toast(l.text, name(l.speaker)); return; }
+      window.setTimeout(() => { if (app.cs === cs) toast(l.text, name(l.speaker)); }, 1400 * i);
+    });
   }
 
   // ===== 待選牌 =====

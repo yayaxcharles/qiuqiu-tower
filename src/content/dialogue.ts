@@ -7,11 +7,11 @@ export function qiuqiuLineOk(text: string): boolean {
 
 export const dialogue = {
   prologue: <DialogueLine[]>[
-    { speaker: '旁白', text: '球球是大俠貓的徒弟。師父在道場教他蜷縮，他縮得歪歪的，師父也只是笑。' },
-    { speaker: '旁白', text: '那天夜裡，村子旁一夜長出的魔塔亮了。魔氣找上了師父——他抱著頭跪倒，毛全豎起，眼睛亮成紫色。' },
-    { speaker: '旁白', text: '師父一句話也沒留，衝上塔頂把自己關在最上面。魔物跟著爬下來，偷走了村裡一半的小魚乾。' },
-    { speaker: '球球', text: '沒人派我去，我自己去喵。' },
-    { speaker: '球球', text: '把師父帶回家，順便把小魚乾拿回來喵。' },
+    { speaker: '旁白', text: '球球是大俠貓的徒弟。每次練習蜷縮，他總會歪成一團；師父看了不但不責備，反而笑著再示範一次。' },
+    { speaker: '旁白', text: '那天夜裡，一座魔塔突然在村外拔地而起，塔頂亮起詭異的紫光。一縷魔氣鑽進師父體內；他痛苦地跪倒在地，渾身毛髮豎起，雙眼也染成紫色。' },
+    { speaker: '旁白', text: '受到魔氣操控的師父一語不發，直奔魔塔，把自己關在塔頂。隨後，塔裡的魔物闖進村子，搶走了村裡所有的小魚乾。' },
+    { speaker: '球球', text: '這樣下去不行，我決定要去塔裡喵。' },
+    { speaker: '球球', text: '我要把師父帶回家，也要把村裡的小魚乾全部拿回來喵。' },
   ],
   /** 每種魔物第一次登場時球球的吐槽（鍵＝魔物 id） */
   firstMeet: <Record<string, string>>{
@@ -95,20 +95,21 @@ export const dialogue = {
    * 師父的戲留到第三關才對（使用者抓到的劇情錯位）。
    */
   restBeforeBossByAct: <DialogueLine[][]>[
-    [ // 第一關：上面是守塔的魔物，師父還很遠
-      { speaker: '球球', text: '上面有一隻很強的，看門的喵。' },
-      { speaker: '球球', text: '打贏牠，才算真的進了這座塔喵。' },
-      { speaker: '球球', text: '先睡飽。明天用全力喵。' },
+    [
+      { speaker: '球球', text: '明天要面對的，是這一層最強的守關者喵。' },
+      { speaker: '球球', text: '只有打贏他，我才能繼續往塔中走喵。' },
+      { speaker: '球球', text: '今晚先睡飽，明天再拿出全力喵。' },
     ],
-    [ // 第二關：開始聽見塔頂的動靜
-      { speaker: '球球', text: '越往上，魔氣越重喵。' },
-      { speaker: '球球', text: '剛剛好像聽到塔頂有聲音……很像師父喵。' },
-      { speaker: '球球', text: '再一層。就快到了喵。' },
+    [
+      { speaker: '球球', text: '越往上走，魔氣就越重喵。' },
+      { speaker: '球球', text: '剛才從塔頂傳來的聲音……一定是師父喵。' },
+      { speaker: '球球', text: '只差最後一段路了。師父，等我喵。' },
     ],
-    [ // 第三關：明天就是師父（沿用原本那段）
-      { speaker: '球球', text: '上面就是師父了喵。' },
-      { speaker: '球球', text: '我以前連馬步都蹲不好，他就一直笑我圓喵。' },
-      { speaker: '球球', text: '圓也可以爬到這裡喵。' },
+    [
+      { speaker: '球球', text: '明天一上樓，就會見到師父了喵。' },
+      { speaker: '球球', text: '以前我連馬步都蹲不穩，他總笑我圓得像顆球喵。' },
+      { speaker: '球球', text: '可是這顆圓滾滾的球，已經一路爬到塔頂了喵。' },
+      { speaker: '球球', text: '明天，換我帶師父回家喵。' },
     ],
   ],
   /**
@@ -116,37 +117,36 @@ export const dialogue = {
    * 師父那段只掛在 tower_master（第三關固定關主）身上。
    */
   bossIntroById: <Record<string, DialogueLine[]>>{
-    nekomata: [
-      { speaker: '塔主', text: '孩子，回頭吧。上面的東西，不是你打得動的。' },
-      { speaker: '球球', text: '婆婆讓路，我趕時間喵。' },
-      { speaker: '塔主', text: '……那就試試你的斤兩。' },
-    ],
-    iron_claw: [
-      { speaker: '塔主', text: '（喀嚓、喀嚓——五對鐵爪同時張開）' },
-      { speaker: '球球', text: '機器貓不會累……那就在它累之前打壞它喵！' },
-    ],
     tower_master: [
       { speaker: '塔主', text: '難逢敵手。' },
-      { speaker: '球球', text: '師父，是我，球球喵。' },
+      { speaker: '球球', text: '師父，是我！我是球球，你看清楚喵！' },
       { speaker: '塔主', text: '退隱江湖。' },
-      { speaker: '球球', text: '你不下去，我就把你打下去喵。' },
+      { speaker: '球球', text: '要退隱，也得先跟我回家。你不肯醒，我就把你打醒喵！' },
     ],
-    // ---- 生圖中的新關主（接資料時直接生效；先寫好劇情不用等）----
-  orange_king: [
-      { speaker: '塔主', text: '打擾本王吃飯的，要留下全部的小魚乾。' },
-      { speaker: '球球', text: '小魚乾是我的，師父也是我的喵！' },
+    nekomata: [
+      { speaker: '塔主', text: '孩子，回去吧。再往上走，可不是逞強就能活下來的地方。' },
+      { speaker: '球球', text: '婆婆，得罪了。師父還在上面等我喵。' },
+      { speaker: '塔主', text: '好吧。那就讓婆婆看看，你到底有多少本事。' },
+    ],
+    iron_claw: [
+      { speaker: '旁白', text: '齒輪高速轉動，五對鐵爪同時張開，發出一連串刺耳的喀嚓聲。' },
+      { speaker: '球球', text: '機關貓不會累……那我就趁它還能動的時候，把它拆掉喵！' },
+    ],
+    orange_king: [
+      { speaker: '塔主', text: '敢打擾本王用膳，就把身上的小魚乾全留下！' },
+      { speaker: '球球', text: '想都別想。小魚乾和師父，我都要帶回去喵！' },
     ],
     cowcat_boss: [
-      { speaker: '塔主', text: '塔下那群傢伙擋不住你，很好。二當家親自陪你過招。' },
-      { speaker: '球球', text: '讓開，我趕時間喵。' },
+      { speaker: '塔主', text: '塔下那群傢伙攔不住你，算你有點本事。接下來，就由本二當家親自陪你過招。' },
+      { speaker: '球球', text: '我不是來比武的。快讓路，我還要去找師父喵。' },
     ],
     tanuki_lord: [
-      { speaker: '塔主', text: '呵呵，貓小弟，喝一杯再打不遲。' },
-      { speaker: '球球', text: '狸貓的酒不能喝，師父說過喵。' },
+      { speaker: '塔主', text: '呵呵，小兄弟，何必急著動手？先陪老夫喝一杯吧。' },
+      { speaker: '球球', text: '師父交代過，狸貓遞來的酒絕對不能喝喵。' },
     ],
     persian_lady: [
-      { speaker: '塔主', text: '髒兮兮的野貓，也敢踏進本小姐的樓層？' },
-      { speaker: '球球', text: '踏都踏了，還要踏過去喵。' },
+      { speaker: '塔主', text: '渾身髒兮兮的野貓，也敢闖進本小姐的樓層？' },
+      { speaker: '球球', text: '都已經走到這裡了，我當然還要一路走上塔頂喵。' },
     ],
   },
   bossIntroGeneric: <DialogueLine[]>[
@@ -157,27 +157,28 @@ export const dialogue = {
   bossPhase2ById: <Record<string, DialogueLine[]>>{
     tower_master: [
       { speaker: '塔主', text: '走火入魔。' },
-      { speaker: '球球', text: '師父撐住，快結束了喵。' },
+      { speaker: '球球', text: '我知道你還聽得見！再撐一下，我一定會把你帶回來喵！' },
     ],
     nekomata: [
-      { speaker: '塔主', text: '老骨頭，也有火氣。' },
-      { speaker: '球球', text: '婆婆認真了……小心喵！' },
+      { speaker: '塔主', text: '老婆子還沒拿出真本事呢。' },
+      { speaker: '球球', text: '婆婆的火氣上來了……這下得小心喵！' },
     ],
     orange_king: [
-      { speaker: '塔主', text: '本王生氣了。' },
-      { speaker: '球球', text: '滾過來了——好大一顆喵！' },
+      { speaker: '塔主', text: '你真的惹怒本王了！' },
+      { speaker: '球球', text: '他整隻捲起來了——好大一顆球喵！' },
     ],
     cowcat_boss: [
-      { speaker: '塔主', text: '黑手練完了，換白手。' },
-      { speaker: '球球', text: '打完一半還有一半……真麻煩喵！' },
+      { speaker: '塔主', text: '黑爪只是熱身，接下來換白爪！' },
+      { speaker: '球球', text: '剛才那樣居然才算一半……真會拖時間喵！' },
     ],
     tanuki_lord: [
-      { speaker: '塔主', text: '（葫蘆一拋）變！' },
-      { speaker: '球球', text: '哪一個才是本體喵！？' },
+      { speaker: '旁白', text: '狸大人把酒葫蘆拋向半空，白煙「砰」地炸開，轉眼變出一群分身。' },
+      { speaker: '塔主', text: '看仔細了——變！' },
+      { speaker: '球球', text: '一下變出這麼多隻……到底哪一隻才是真的喵！？' },
     ],
     persian_lady: [
-      { speaker: '塔主', text: '你們還愣著做什麼！上啊！' },
-      { speaker: '球球', text: '先打倒僕人，大小姐就沒轍了喵。' },
+      { speaker: '塔主', text: '你們還站著做什麼？快替本小姐收拾他！' },
+      { speaker: '球球', text: '原來妳只會躲在僕人後面。那我就先把他們打倒喵！' },
     ],
   },
   bossPhase2Generic: <DialogueLine[]>[
@@ -188,7 +189,7 @@ export const dialogue = {
   bossPhase3ById: <Record<string, DialogueLine[]>>{
     tower_master: [
       { speaker: '塔主', text: '深藏不露。' },
-      { speaker: '球球', text: '全力的師父……我也接得住喵！' },
+      { speaker: '球球', text: '原來師父到現在都還沒使出全力……好，我也不會再保留了喵！' },
     ],
   },
   bossPhase3Generic: <DialogueLine[]>[
@@ -196,29 +197,30 @@ export const dialogue = {
     { speaker: '球球', text: '還沒完嗎……撐到底喵！' },
   ],
   victory: <DialogueLine[]>[
+    { speaker: '旁白', text: '最後一縷魔氣從師父身上散去，他眼中的紫光終於熄滅。' },
     { speaker: '塔主', text: '承讓。' },
-    { speaker: '球球', text: '領教了喵。' },
-    { speaker: '旁白', text: '師父醒了。球球撲進他懷裡，兩個人哭得一塌糊塗。' },
-    { speaker: '旁白', text: '夕陽把兩個影子拉得長長的。回家，吃小魚乾。' },
+    { speaker: '球球', text: '領教了，師父喵。' },
+    { speaker: '旁白', text: '球球再也忍不住，撲進師父懷裡。師父緊緊抱住他，師徒倆又哭又笑，誰也捨不得先放手。' },
+    { speaker: '旁白', text: '夕陽把一大一小的影子拉得長長的。球球和師父並肩走回村子，今晚終於可以安心地一起吃小魚乾了。' },
   ],
   // 三關制之後這句只在「真通關」時出現：塔清完了，沒有更多樓層，改成收尾的話
-  victoryTeaser: '塔安靜下來了。回家吃小魚乾喵。',
+  victoryTeaser: '魔塔終於安靜了。回家吃小魚乾喵。',
   /** 打倒第一關關主（塔下→塔中）。師父還在更上面，故事往上推一層 */
   actClear1: <DialogueLine[]>[
-    { speaker: '旁白', text: '守塔的魔物倒下了。牆邊有一道往上的樓梯，飄著飯菜香。' },
-    { speaker: '球球', text: '小魚乾只找回一半……上面還有喵。' },
-    { speaker: '旁白', text: '球球舔了舔爪子，往塔中爬去。' },
+    { speaker: '旁白', text: '守關的魔物倒下後，牆邊露出一道往上的樓梯，樓上還飄來淡淡的飯菜香。' },
+    { speaker: '球球', text: '被搶走的小魚乾才找回一半，剩下的果然還在上面喵。' },
+    { speaker: '旁白', text: '球球深吸一口氣，沿著樓梯繼續往塔中前進。' },
   ],
   /** 打倒第二關關主（塔中→塔頂）。點出最終頭目是誰 */
   actClear2: <DialogueLine[]>[
-    { speaker: '旁白', text: '魔物散去的瞬間，塔頂傳來一聲熟悉的長嘯。' },
-    { speaker: '球球', text: '這個聲音……是師父喵！' },
-    { speaker: '旁白', text: '月光從塔頂的裂縫漏下來。最後一段樓梯，就在眼前。' },
+    { speaker: '旁白', text: '魔物化成煙霧散去時，塔頂忽然傳來一聲熟悉的長喵聲。' },
+    { speaker: '球球', text: '這聲音……是師父！他就在上面喵！' },
+    { speaker: '旁白', text: '月光穿過塔頂的裂縫，落在最後一段樓梯上。通往塔頂的路，終於出現了。' },
   ],
   defeat: <DialogueLine[]>[
-    { speaker: '旁白', text: '球球倒下了。' },
-    { speaker: '球球', text: '先睡了喵……' },
-    { speaker: '旁白', text: '夢裡有人把牠扛回村子。醒來，塔還在。' },
+    { speaker: '旁白', text: '球球耗盡力氣，倒在冰冷的地面上。' },
+    { speaker: '球球', text: '我先……睡一下……喵。' },
+    { speaker: '旁白', text: '朦朧間，他感覺有人把自己背了起來。再次睜眼時，他已躺在村裡；遠處的魔塔仍舊矗立，等著他再次出發。' },
   ],
   shopkeeper: ['賒帳？貓沒有在賒帳的。', '不買不要摸。', '小魚乾要數清楚，我不找零。'],
   restLines: ['貓窩暖暖的，先睡一下喵。', '磨一磨爪子，等一下才好用喵。'],

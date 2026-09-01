@@ -216,8 +216,8 @@ export class App {
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         const endSlides = [
-          { img: 'still_embrace', lines: dialogue.victory.slice(0, 3) },
-          { img: 'still_home', lines: dialogue.victory.slice(3) },
+          { img: 'still_embrace', lines: dialogue.victory.slice(0, 4) },
+          { img: 'still_home', lines: dialogue.victory.slice(4) },
         ];
         if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
         else playDialogue(dialogue.victory, () => this.show('result'));
