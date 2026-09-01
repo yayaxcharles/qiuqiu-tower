@@ -157,7 +157,7 @@ img { -webkit-user-drag: none; }
   /* 靠左站，腳被框的上緣擋住一截。bottom 比框頂（離底 40＋框高約 163＝203）低一點，
      腳才會確實被壓住、看起來像站在框後面。 */
   left: 60px;
-  bottom: 176px;
+  bottom: 196px;
   /* 0 不是 49：立繪要畫在對白框**後面**，腳才會被框擋住。
      設 49 的話它會蓋在框的邊框上，看起來像踩在框上而不是站在框後。 */
   z-index: 0;
@@ -197,7 +197,7 @@ img { -webkit-user-drag: none; }
   width: 1000px;
   margin-bottom: 40px;
   padding: 26px 34px 30px;
-  font-size: 24px;
+  font-size: 30px;
   color: #2b2118;
   /* 四個角花先疊，最底層才是紙。斜條紋是紙的纖維，很淡，近看才看得到 */
   background-image:
@@ -262,7 +262,8 @@ img { -webkit-user-drag: none; }
 .dialogue-speaker:empty { display: none; }
 
 .dialogue-text {
-  min-height: 68px;
+  /* 兩行的高度（30px × 1.55 × 2 ≈ 94）。短句與長句的框一樣高，一句一句換的時候框才不會忽高忽低。 */
+  min-height: 94px;
   line-height: 1.55;
 }
 /* ===== 旁白：整塊都要跟「有人在講話」長得不一樣 =====
@@ -282,7 +283,7 @@ img { -webkit-user-drag: none; }
   text-align: center;
   letter-spacing: 2px;
   line-height: 1.75;
-  font-size: 22px;
+  font-size: 27px;
 }
 /* 前後的小標記：讓旁白讀起來像被引出來的一段，不是誰的台詞 */
 .dialogue-overlay.narration .dialogue-text::before,
