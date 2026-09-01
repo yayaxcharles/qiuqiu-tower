@@ -7,8 +7,8 @@
   height: 56px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 18px;
+  gap: 10px;   /* 地圖畫面的項目最多（血條、忍具、牌組、圖鑑、代碼、三顆音訊鈕），16px 會擠到折行 */
+  padding: 0 14px;
   box-sizing: border-box;
   /* 狀態列本來是一條純色深灰條——整場都在畫面上，卻是唯一完全沒設計的地方。
      做成一根橫木樑：上下各一條亮邊與暗邊做出厚度、底下一條深色的投影把它跟場景分開，
@@ -530,3 +530,8 @@
 .compendium .comp-pool { font-size: 17px; font-weight: 700; color: #ffd35c; }
 .compendium .comp-note { font-size: 12px; color: #b9ab8a; }
 .compendium .comp-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+
+/* 頂列的鈕與數字一律不折行、不被壓扁——空間不夠時由「本局代碼」那格負責縮 */
+.hud .btn, .hud-floor, .hud-fish, .hud-relics, .hud-potions { white-space: nowrap; flex: none; }
+.hud .hud-seed { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
