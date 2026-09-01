@@ -23,7 +23,8 @@ describe('隨機試玩', () => {
   // 同日再補 14 隻魔物與 23 組遭遇、2 個塔主、20 個事件、20 個秘寶、12 個忍具、16 張牌，
   // 每加一批內容擲骰就全變，所以最後統一重錄一次。
   it('曾經打超過 60 回合的種子照樣跑得完，而且結果不變', () => {
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 7, turns: 17, kills: 3, deckSize: 13 });
+    // 2026-09-01 地圖規則改動（5F 匯合、分岔與直向查重）後同種子的走向跟著變，錨值更新
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 10, turns: 63, kills: 5, deckSize: 13 });
     expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 11, turns: 49, kills: 11, deckSize: 15 });
   });
 });

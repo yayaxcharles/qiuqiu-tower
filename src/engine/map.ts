@@ -14,7 +14,9 @@ export const FLOORS = 15;
  */
 const LANES = 5;
 const PATHS = 3;
-const CONVERGED: Record<number, NodeType> = { 8: '紙箱', 14: '貓窩', 15: '塔主' };
+// 5F 也是匯合層：大俠傳功是固定劇情，之前整層都放同一個事件，
+// 畫面上三顆毛線球看起來是分岔、其實選哪顆都一樣（使用者附截圖抓到的假分岔）
+const CONVERGED: Record<number, NodeType> = { 5: '事件', 8: '紙箱', 14: '貓窩', 15: '塔主' };
 
 /** 這一層有哪些車道可以站：匯合層只有正中間那格 */
 function lanesOn(floor: number): number[] {
@@ -121,7 +123,6 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   for (let f = 2; f <= 13; f++) {
     if (CONVERGED[f]) continue;
     const row = byFloor[f]!;
-    if (f === 5) { for (const n of row) n.type = '事件'; continue; }
     let shops = 0, elites = 0;
     for (const n of row) {
       let t = roll(rng, tableFor(f));
@@ -156,9 +157,19 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     const seen = new Set<NodeType>();
     for (const id of n.next) {
       const kid = byId.get(id);
-      if (!kid || kid.floor === 5 || CONVERGED[kid.floor] || kid.type === '戰鬥') continue;
+      if (!kid || CONVERGED[kid.floor] || kid.type === '戰鬥') continue;
       if (seen.has(kid.type)) kid.type = '戰鬥';
       else seen.add(kid.type);
+    }
+  }
+  // 直向也查：下一層不能跟上一層同一種非戰鬥節點——
+  // 一條路連吃兩三層事件跟連抽兩間店一樣無聊（使用者截圖：4F 事件→5F 事件→6F 事件）。
+  // 匯合層是固定的不動；被改成戰鬥的節點之後照常抽遭遇。
+  for (const n of nodes) {
+    for (const id of n.next) {
+      const kid = byId.get(id);
+      if (!kid || CONVERGED[kid.floor] || kid.type === '戰鬥') continue;
+      if (kid.type === n.type) kid.type = '戰鬥';
     }
   }
 
@@ -205,7 +216,8 @@ export function validateMap(map: GameMap): string[] {
   if (nodesOnFloor(map, 8).map((n) => n.type).join() !== '紙箱') p.push('8F 必須是唯一的紙箱');
   if (nodesOnFloor(map, 14).map((n) => n.type).join() !== '貓窩') p.push('14F 必須是唯一的貓窩');
   if (!nodesOnFloor(map, 1).every((n) => n.type === '戰鬥')) p.push('1F 必須全是戰鬥');
-  if (!nodesOnFloor(map, 5).every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)) p.push('5F 必須全是大俠傳功');
+  const f5 = nodesOnFloor(map, 5);
+  if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)) p.push('5F 必須是唯一的大俠傳功');
   if (!nodesOnFloor(map, 7).some((n) => n.type === '大魔物')) p.push('7F 至少一個大魔物');
   for (let f = 1; f <= FLOORS; f++) {
     const row = nodesOnFloor(map, f);
