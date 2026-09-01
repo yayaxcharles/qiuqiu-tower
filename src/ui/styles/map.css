@@ -117,16 +117,19 @@
   object-fit: contain;
 }
 .map-node.past { opacity: .3; filter: grayscale(.75) drop-shadow(0 0 2px rgba(0, 0, 0, .8)); }
-/* 現在站的這格會輕輕浮著。原本只有一圈不會動的橘光，
-   在一片靜止的地圖上很難一眼認出「我在這」。 */
+/* 現在站的這格：壓暗、不再發光。
+   原本它跟「可以走的下一格」一樣亮還會動，連續兩個同類節點（事件接事件）排在一起時
+   兩顆都在發光，一時間分不出哪個才是可以點的（使用者的原話）。
+   改成「亮的一律是可以點的」這一條規則：站的位置只留輕輕的浮動當「我在這」的記號，
+   亮度壓到跟走過的節點差不多。 */
 .map-node.current {
-  opacity: 1;
-  filter: drop-shadow(0 0 5px #c9702a) drop-shadow(0 0 10px rgba(201, 112, 42, .7));
+  opacity: .48;
+  filter: grayscale(.35) drop-shadow(0 0 3px rgba(201, 112, 42, .55));
   animation: node-here 2.2s ease-in-out infinite;
 }
 @keyframes node-here {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-5px) scale(1.05); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 .map-node.choice {
   opacity: 1;
