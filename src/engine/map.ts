@@ -144,6 +144,24 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     const spare = mid.filter((n) => n.type !== '罐頭鋪' && n.floor !== 13);   // 退路避開剛放上去的罐頭鋪，也避開 13F
     (cands.length ? rng.pick(cands) : spare[0]!).type = '貓窩';
   }
+  // 同一個分岔出去的路，不可以是同一種非戰鬥節點。
+  // 兩條都是事件（或都是貓窩）的分岔等於沒得選，走哪邊都一樣——分岔的意義就是選擇。
+  // 撞到就把多的那條改成戰鬥；戰鬥本來就是預設的填充節點，重複沒關係（遭遇還會不一樣）。
+  // 5F 不動（整層都是大俠傳功的固定事件，那是刻意的劇情層）；匯合層是單格，撞不到。
+  // 排在保底之後：保底可能把戰鬥改成貓窩，反而製造出重複的分岔，先保底再查重。
+  // 罐頭鋪與大魔物每層最多一個（擲型別時就擋了），不會在這裡撞到。
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  for (const n of nodes) {
+    if (n.next.length < 2) continue;
+    const seen = new Set<NodeType>();
+    for (const id of n.next) {
+      const kid = byId.get(id);
+      if (!kid || kid.floor === 5 || CONVERGED[kid.floor] || kid.type === '戰鬥') continue;
+      if (seen.has(kid.type)) kid.type = '戰鬥';
+      else seen.add(kid.type);
+    }
+  }
+
   // 內容：遭遇與事件
   const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined).map((e) => e.id));
   let eventIdx = 0;

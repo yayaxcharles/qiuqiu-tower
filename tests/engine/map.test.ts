@@ -102,3 +102,21 @@ describe('地圖', () => {
     expect(validateMap(good)).toEqual([]);                               // 原圖沒被改到
   });
 });
+
+describe('分岔的選擇要有意義', () => {
+  it('同一個分岔出去的兩條路，不會是同一種非戰鬥節點（5F 的劇情層除外）', () => {
+    for (let i = 0; i < 60; i++) {
+      const m = generateMap(new Rng(seedFromString(`fork-${i}`)));
+      const byId = new Map(m.nodes.map((n) => [n.id, n]));
+      for (const n of m.nodes) {
+        if (n.next.length < 2) continue;
+        const kinds = n.next
+          .map((id) => byId.get(id)!)
+          .filter((k) => k.floor !== 5 && k.type !== '戰鬥')
+          .map((k) => k.type);
+        expect(new Set(kinds).size, `${n.id} 的分岔：${kinds.join('、')}`).toBe(kinds.length);
+      }
+    }
+  });
+});
+
