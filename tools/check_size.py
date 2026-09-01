@@ -28,6 +28,11 @@
 還要伺服器另外加特殊標頭才跑得動的東西」。7.5 MB 離那還有一倍以上的餘裕，
 而且遊戲會在開場後把圖全部預載，一般寬頻約一到兩秒就下載完。
 
+2026-09-02 再校準：三關制內容全上（魔物 54 隻、背景 60 張、關數變體節點畫面 8 張＋地圖長條圖 3 張）
+之後實測 程式 191 KB、樣式 49 KB、圖片 8.7 MB；預算改成 程式 200 KB、樣式 55 KB、圖片 9 MB、
+首載總計 9.5 MB（跟設計總覽 §12 的 9 MB 對齊）。「其他」（背景音樂 27 MB）是點到才串流下載的，
+不計入首載總計——照舊算進去的話總計永遠超標、這支檢查就形同虛設。
+
 單位一律用 1 KB = 1000 位元組、1 MB = 1000 KB，跟 Vite 建置時印的數字同一套，方便對照。
 """
 from __future__ import annotations
@@ -40,11 +45,11 @@ DIST = ROOT / "dist"
 
 # 類別 → (中文標籤, 上限位元組)；上限 None 代表不列管，只是列出來讓總計對得起來
 CATEGORIES: dict[str, tuple[str, int | None]] = {
-    "js": ("程式", 150_000),
-    "css": ("樣式", 45_000),
-    "img": ("圖片", 7_000_000),
+    "js": ("程式", 200_000),
+    "css": ("樣式", 55_000),
+    "img": ("圖片", 9_000_000),
     "other": ("其他", None),
-    "total": ("總計", 7_500_000),
+    "total": ("首載總計", 9_500_000),
 }
 
 IMAGE_SUFFIXES = {".webp", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".avif"}
@@ -79,8 +84,9 @@ def scan(dist: Path) -> tuple[dict[str, int], dict[str, int], list[tuple[int, Pa
         kind = classify(p)
         sizes[kind] += n
         counts[kind] += 1
-        sizes["total"] += n
-        counts["total"] += 1
+        if kind != "other":   # 背景音樂點到才下載，不算首載
+            sizes["total"] += n
+            counts["total"] += 1
         files.append((n, p))
     return sizes, counts, files
 

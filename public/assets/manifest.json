@@ -499,6 +499,16 @@
   "bg/still_teach": "assets/bg/still_teach.webp",
   "bg/boss1": "assets/bg/boss1.webp",
   "bg/boss2": "assets/bg/boss2.webp",
-  "bg/boss3": "assets/bg/boss3.webp"
+  "bg/boss3": "assets/bg/boss3.webp",
+  "bg/screen_chest_mid": "assets/bg/screen_chest_mid.webp",
+  "bg/screen_chest_top": "assets/bg/screen_chest_top.webp",
+  "bg/screen_event_mid": "assets/bg/screen_event_mid.webp",
+  "bg/screen_event_top": "assets/bg/screen_event_top.webp",
+  "bg/screen_rest_mid": "assets/bg/screen_rest_mid.webp",
+  "bg/screen_rest_top": "assets/bg/screen_rest_top.webp",
+  "bg/screen_shop_mid": "assets/bg/screen_shop_mid.webp",
+  "bg/screen_shop_top": "assets/bg/screen_shop_top.webp",
+  "bg/map_tall_mid": "assets/bg/map_tall_mid.webp",
+  "bg/map_tall_top": "assets/bg/map_tall_top.webp"
  }
 }
