@@ -141,6 +141,8 @@ export interface EnemyDef {
    */
   reviveGroup?: string;
   reviveHp?: number;
+  /** 倒下幾個回合後才爬起來。不填＝1（下一回合就起來，貓又的尾巴用這個）。 */
+  reviveDelay?: number;
   strengthEveryNTurns?: number;
   phases?: EnemyPhase[];
 }
@@ -241,6 +243,8 @@ export interface EnemyCombat extends Unit {
   turnCount: number;
   phase: number;
   charged: boolean;
+  /** 「重生中」倒數：倒下時由 reviveDelay 設定，每回合結束減一，歸零爬起來。0＝沒在重生。 */
+  reviveIn: number;
   move: EnemyMove;
   dead: boolean;
   escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退

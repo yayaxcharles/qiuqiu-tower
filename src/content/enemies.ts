@@ -310,19 +310,19 @@ export const enemies: EnemyDef[] = [
   // 倒下的那隻下個回合就會爬起來（回到 8 血）。要在同一回合內把三隻一起清光。
   // 血量刻意壓低（22～26），因為真正的難點是「湊出一回合三殺」，不是耐打。
   { id: 'shadow_kitten_a', name: '影子小貓·壹', hp: [22, 26], pool: '強', pattern: 'cycle', size: 'small', art: 'codex/monster_shadow_kitten',
-    line: '（三個影子動了一下）', reviveGroup: 'shadow', reviveHp: 8,
+    line: '（三個影子連在一起——只要還有一個站著，倒下的就會爬回來）', reviveGroup: 'shadow', reviveHp: 8, reviveDelay: 2,
     moves: [
       { intent: 'attack', label: '影抓', effects: [{ kind: 'damage', amount: 7 }] },
       { intent: 'buff', label: '交疊', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
     ] },
   { id: 'shadow_kitten_b', name: '影子小貓·貳', hp: [22, 26], pool: '強', pattern: 'cycle', size: 'small', art: 'codex/monster_shadow_kitten',
-    line: '（另一個也動了）', reviveGroup: 'shadow', reviveHp: 8,
+    line: '（另一個也動了）', reviveGroup: 'shadow', reviveHp: 8, reviveDelay: 2,
     moves: [
       { intent: 'debuff', label: '掩影', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
       { intent: 'attack', label: '影抓', effects: [{ kind: 'damage', amount: 7 }] },
     ] },
   { id: 'shadow_kitten_c', name: '影子小貓·參', hp: [22, 26], pool: '強', pattern: 'cycle', size: 'small', art: 'codex/monster_shadow_kitten',
-    line: '（第三個一直沒動）', reviveGroup: 'shadow', reviveHp: 8,
+    line: '（第三個一直沒動）', reviveGroup: 'shadow', reviveHp: 8, reviveDelay: 2,
     moves: [
       { intent: 'block', label: '疊影', effects: [{ kind: 'block', amount: 8 }] },
       { intent: 'attack', label: '影抓', effects: [{ kind: 'damage', amount: 7 }] },

@@ -214,7 +214,7 @@ registerScreen('combat', (app, root, props) => {
     // 圖示還沒生好就寫名字：一排灰剪影根本認不出誰是誰
     if (url && !isFallback(url)) node.append(el('img', { src: url, alt: term }));
     else node.append(el('b', {}, term));
-    node.append(el('span', {}, value));
+    if (value) node.append(el('span', {}, value));   // 純標記的牌子（同生共死）沒有數字欄
     attachTooltip(node, term);
     return node;
   }
@@ -351,16 +351,35 @@ registerScreen('combat', (app, root, props) => {
     const def = enemyById[e.enemyId];
     const left = enemyLeft(i, n);   // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）
     const cls = ['unit', 'enemy', `size-${def?.size ?? 'medium'}`];
-    if (e.dead) cls.push('gone');
+    // 「重生中」的不藏起來：倒下但同伴還在，畫成半透明的殘影＋倒數牌子，
+    // 玩家才知道牠會爬回來、還剩幾回合可以清場（本來直接隱形，看起來像打完了）
+    const reviving = e.dead && e.reviveIn > 0
+      && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === def?.reviveGroup);
+    if (e.dead && !reviving) cls.push('gone');
+    if (reviving) cls.push('reviving');
     if (targeting && !e.dead) cls.push('targetable');
     // 意圖牌子放進立繪框裡（不是當它的兄弟節點）：框裡才有「圖畫實際佔多高」這個座標，
     // 牌子用絕對定位掛在圖畫頂端，扁的魔物才不會讓牌子飄在半空。
     // 放在外面用負邊界試過兩次都不準——那個排版下負邊界只挪了 15 像素而不是 130。
+    const row = statusRow(e);
+    // 引擎裡玩家看不到的狀態，全部做成牌子掛出來（滑上去有白話說明）——
+    // 「機制是對的但畫面沒講」已經連續中招三次：隱身閃避、蜷縮延遲、影子復活
+    if (!e.dead) {
+      if (def?.onDeathHealPlayer) row.prepend(chip('打倒回血', null, String(def.onDeathHealPlayer), 'good'));
+      if (def?.strengthEveryNTurns) {
+        const left = def.strengthEveryNTurns - (e.turnCount % def.strengthEveryNTurns);
+        row.prepend(chip('越戰越勇', null, String(left), 'bad'));
+      }
+      if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
+      if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
+      if (def?.reviveGroup) row.prepend(chip('同生共死', null, '', 'bad'));
+    }
+    if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), style: `left:${left}px` },
-      spriteBox(enemySprite(e, def), e.name, def?.size ?? 'medium', intentChip(e)),
+      spriteBox(enemySprite(e, def), e.name, def?.size ?? 'medium', reviving ? undefined : intentChip(e)),
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp, e.maxHp),
-      statusRow(e));
+      row);
     if (targeting && !e.dead) node.addEventListener('click', () => pickTarget(e.uid));
     return node;
   }

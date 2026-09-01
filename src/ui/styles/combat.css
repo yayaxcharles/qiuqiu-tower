@@ -152,6 +152,19 @@
   opacity: 0;
   pointer-events: none;
 }
+/* 重生中：倒下但會爬回來的，畫成貼地的半透明黑殘影。
+   不能全隱形——玩家會以為打完了；也不能像活著——牠現在打不到也不能被打 */
+.combat .unit.reviving { pointer-events: none; }
+.combat .unit.reviving .sprite {
+  opacity: .38;
+  filter: grayscale(1) brightness(.25) blur(1px);
+  translate: 0 10px;
+  scale: 1 .9;                 /* 略壓扁，像攤在地上的影子 */
+  transition: opacity .3s, filter .3s;
+}
+.combat .unit.reviving .ground-shadow { opacity: .25; }
+.combat .unit.reviving .name { opacity: .55; }
+.combat .unit.reviving .hpbar { visibility: hidden; }   /* 沒有血量可言，留空位不跳版 */
 
 .combat .hpbar {
   position: relative;

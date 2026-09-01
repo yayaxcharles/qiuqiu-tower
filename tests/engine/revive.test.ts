@@ -22,12 +22,18 @@ describe('一起死才算數', () => {
     });
     expect(cs.enemies.length).toBe(3);
 
-    // 只打倒一隻：同伴還站著，所以還不算贏
+    // 只打倒一隻：同伴還站著，所以還不算贏；「重生中」從 2 起算
     damageEnemy(cs, cs.enemies[0]!, 999, { direct: true });
     expect(cs.enemies[0]!.dead).toBe(true);
+    expect(cs.enemies[0]!.reviveIn).toBe(2);
     expect(cs.phase).toBe('player');
 
-    // 回合開始時爬起來，血量回到 reviveHp
+    // 第一個回合結束：還躺著，倒數 2 → 1（使用者拍板：一回合就復活太快，要躺兩回合）
+    endTurn(cs);
+    expect(cs.enemies[0]!.dead).toBe(true);
+    expect(cs.enemies[0]!.reviveIn).toBe(1);
+
+    // 第二個回合結束才爬起來，血量回到 reviveHp
     endTurn(cs);
     expect(cs.enemies[0]!.dead).toBe(false);
     expect(cs.enemies[0]!.hp).toBe(8);

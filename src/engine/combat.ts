@@ -140,6 +140,9 @@ export function endTurn(cs: CombatState): void {
     const hasFriend = cs.enemies.some((o) => o !== e && !o.dead
       && enemyById[o.enemyId]?.reviveGroup === rdef.reviveGroup);
     if (!hasFriend) continue;
+    // 「重生中」倒數：還沒數完就先躺著（影子小貓要躺兩回合，玩家才有湊一波清光的時間窗）
+    if (e.reviveIn > 1) { e.reviveIn -= 1; continue; }
+    e.reviveIn = 0;
     e.dead = false;
     e.hp = rdef.reviveHp ?? Math.max(1, Math.round((rdef.hp[0] + rdef.hp[1]) / 4));
     e.block = 0;
