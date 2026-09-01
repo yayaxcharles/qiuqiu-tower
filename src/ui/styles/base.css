@@ -441,3 +441,62 @@ img { -webkit-user-drag: none; }
   35% { filter: brightness(1.9) saturate(1.3); transform: scale(1.1); }
   100% { filter: none; transform: scale(1); }
 }
+
+/* ===== 節點之間的走路過場 ===== */
+.walk-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 70;               /* 蓋過畫面層，讓底下換畫面時看不到 */
+  overflow: hidden;
+  background: #171310;
+  opacity: 1;
+  transition: opacity 220ms ease-out;
+  cursor: pointer;           /* 點一下跳過 */
+}
+.walk-overlay.out { opacity: 0; pointer-events: none; }
+/* 背景放大一號、往左捲：畫面在動＝人在前進。
+   放大到 118% 是為了留出可以捲的餘裕（原圖跟舞台等寬，不放大一捲就露邊）。 */
+.walk-bg {
+  position: absolute;
+  inset: 0;
+  background-size: auto 118%;
+  background-position: left bottom;
+  animation: walk-scroll 1300ms linear forwards;
+}
+@keyframes walk-scroll {
+  to { background-position-x: -210px; }
+}
+/* 球球：上下小彈跳＋輕微搖擺＝走路。動的是獨立屬性，不碰 transform */
+.walk-cat {
+  position: absolute;
+  left: 340px;
+  bottom: 236px;
+  width: 250px;
+  filter: drop-shadow(0 8px 14px #00000080);
+  animation: walk-bob 340ms ease-in-out infinite;
+}
+@keyframes walk-bob {
+  0%, 100% { translate: 0 0; rotate: -1.6deg; }
+  50% { translate: 0 -13px; rotate: 1.6deg; }
+}
+.walk-shadow {
+  position: absolute;
+  left: 375px;
+  bottom: 228px;
+  width: 185px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #00000059 0%, #0000003b 52%, #0000 76%);
+  animation: walk-shadow-squash 340ms ease-in-out infinite;
+}
+@keyframes walk-shadow-squash {
+  0%, 100% { scale: 1 1; opacity: .9; }
+  50% { scale: .82 1; opacity: .55; }
+}
+
+/* 一般畫面掛上來時淡淡滑入，換場不要用「瞬間出現」的
+   （戰鬥畫面不加：它的根節點會被震動動畫借用 animation 屬性，疊上去會互相蓋） */
+.screen { animation: screen-in 240ms ease-out; }
+@keyframes screen-in {
+  from { opacity: 0; translate: 0 10px; }
+}

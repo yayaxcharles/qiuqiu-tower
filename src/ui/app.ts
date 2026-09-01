@@ -4,6 +4,7 @@ import { nodeById } from '../engine/map';
 import { beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
+import { walkTransition } from './transition';
 import { computeScale } from './assets';
 import { playDialogue, toast } from './dialogue';
 import { clear, el } from './dom';
@@ -108,16 +109,20 @@ export class App {
     const run = this.run;
     if (!run) return;
     const node = chooseNode(run, nodeId);
-    // 這裡不存檔（見 save() 的註解）：節點結算完才存，重整就回到上一個結算過的節點重選
-    switch (node.type) {
-      case '戰鬥': case '大魔物': case '塔主':
-        if (node.encounterId) this.startFight(node.encounterId, node.type === '塔主');
-        break;
-      case '事件': this.show('event', { eventId: node.eventId }); break;
-      case '罐頭鋪': this.show('shop'); break;
-      case '貓窩': this.show('rest'); break;
-      case '紙箱': this.show('chest'); break;
-    }
+    // 這裡不存檔（見 save() 的註解）：節點結算完才存，重整就回到上一個結算過的節點重選。
+    // 先放一段球球走路的過場再切畫面——「移動到下一個地方」要看得到，
+    // 不然點一下就瞬間跳掉，場景再漂亮也感覺不到自己在爬塔
+    walkTransition(this.stage, run.floor, () => {
+      switch (node.type) {
+        case '戰鬥': case '大魔物': case '塔主':
+          if (node.encounterId) this.startFight(node.encounterId, node.type === '塔主');
+          break;
+        case '事件': this.show('event', { eventId: node.eventId }); break;
+        case '罐頭鋪': this.show('shop'); break;
+        case '貓窩': this.show('rest'); break;
+        case '紙箱': this.show('chest'); break;
+      }
+    });
   }
 
   startFight(encounterId: string, isBoss = false, bonusFish = 0): void {
