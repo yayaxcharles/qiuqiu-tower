@@ -132,30 +132,30 @@ export const enemies: EnemyDef[] = [
   // 尾巴同組（`reviveGroup: 'tail'`），只清掉一條沒用，要同一回合兩條一起清。
   // 解法是爆發與清場，慢慢磨只會被她回滿。
   // 2026-09-01 減壓：血 150→130、吸魂 12→9，配合鐵爪一起降到第一關牌組打得動的量級
-  { id: 'nekomata', name: '貓又婆婆', hp: [130, 130], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata',
+  { id: 'nekomata', name: '貓又婆婆', hp: [105, 105], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata',
     line: '孩子，你走得太上面了。',
     moves: [
       { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }] },
-      { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
-      { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 9 }] },
-      { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
+      { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 7 }] },
+      { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
     ],
     phases: [{
-      hpBelow: 70, line: '（尾巴分成了好幾條）', pattern: 'cycle',
-      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }, { kind: 'heal', n: 20 }],
+      hpBelow: 55, line: '（尾巴分成了好幾條）', pattern: 'cycle',
+      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2 }, { kind: 'heal', n: 12 }],
       moves: [
-        { intent: 'attack', label: '亂尾', effects: [{ kind: 'damage', amount: 5, times: 4 }] },
-        { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 15 }] },
-        { intent: 'debuff', label: '招魂', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 3 }, { kind: 'statusPlayer', name: '翻肚', amount: 3 }] },
-        { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 14 }] },
+        { intent: 'attack', label: '亂尾', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
+        { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 10 }] },
+        { intent: 'debuff', label: '招魂', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 2 }] },
+        { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 12 }] },
       ],
     }] },
   // 婆婆的尾巴：兩條同組，只要還有一條站著，倒下的那條下回合就爬起來
-  { id: 'nekomata_tail', name: '貓又的尾巴', hp: [18, 18], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_nekomata_tail',
+  { id: 'nekomata_tail', name: '貓又的尾巴', hp: [14, 14], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_nekomata_tail',
     line: '（尾巴自己動了）', reviveGroup: 'tail', reviveHp: 6,
     moves: [
       { intent: 'attack', label: '抽', effects: [{ kind: 'damage', amount: 5 }] },
-      { intent: 'special', label: '渡氣', effects: [{ kind: 'heal', n: 6 }] },
+      { intent: 'special', label: '渡氣', effects: [{ kind: 'heal', n: 4 }] },
     ] },
 
   // 鐵爪機關貓：**蜷縮擋不住的那種**。招招都是多段小刀，而且每兩回合自己變強。
@@ -163,13 +163,14 @@ export const enemies: EnemyDef[] = [
   // 2026-09-01 減壓：原本三個成長來源疊加（每 2 回合+1、發條+3、二階段每回合+1），
   // 爪力疊到 +4 之後 3×6 變 7×6＝42、4×4 變 9×4＝36，第一關牌組完全扛不住（使用者實玩回報）。
   // 段數砍一級、發條 +3→+2、自動成長改每 3 回合、血 140→120。多段穿蜷縮的性格保留。
-  { id: 'iron_claw', name: '鐵爪機關貓', hp: [120, 120], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
-    line: '（齒輪轉了一圈）', strengthEveryNTurns: 3,
+  // 2026-09-01 二刀（機器人探測 0/60 勝）：血 105、自動成長改每 4 回合、絞刃 3×3、全開 4×4、收爪 12。
+  { id: 'iron_claw', name: '鐵爪機關貓', hp: [105, 105], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
+    line: '（齒輪轉了一圈）', strengthEveryNTurns: 4,
     moves: [
       { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
       { intent: 'buff', label: '上緊發條', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
-      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 3, times: 4 }] },
-      { intent: 'block', label: '收爪', effects: [{ kind: 'block', amount: 16 }] },
+      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 3, times: 3 }] },
+      { intent: 'block', label: '收爪', effects: [{ kind: 'block', amount: 12 }] },
     ],
     phases: [{
       hpBelow: 65, line: '（外殼彈開，裡面全是爪子）', pattern: 'cycle', strengthPerTurn: 1,
@@ -177,7 +178,7 @@ export const enemies: EnemyDef[] = [
       moves: [
         { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 6 }] },
         { intent: 'debuff', label: '卡住', effects: [{ kind: 'discardRandomHand', n: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 3 }] },
-        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 5, times: 5 }] },
+        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
       ],
     }] },
   // 第三關的最終戰（2026-09-01 重做成三階段）。他是師父：招式全是玩家牌組裡絕學的
