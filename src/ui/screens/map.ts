@@ -2,7 +2,8 @@ import { play } from '../audio';
 import { FLOORS, nextChoices } from '../../engine/map';
 import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl } from '../assets';
+import { enemyById, encounterById } from '../../content/enemies';
+import { artUrl, monsterUrl } from '../assets';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 
@@ -123,6 +124,23 @@ registerScreen('map', (app, root) => {
     inner.append(el('div', { class: 'map-floor-label', style: `top:${floorY(f) - 12}px` }, `${base + f}F`));
   }
 
+  /**
+   * 節點的圖示。塔主那格不用通用的「斗笠」圖——一進這一關就該看得到這關的王是誰
+   * （使用者的原話），所以直接拿該關關主的立繪當圖示，樣式上也放大一號。
+   * 立繪還沒生好（灰剪影）就退回通用圖示，不要掛一張認不出來的灰影。
+   */
+  function nodeIcon(n: MapNode): string {
+    if (n.type === '塔主' && n.encounterId) {
+      const enemyId = encounterById[n.encounterId]?.enemies[0];
+      const art = enemyId ? enemyById[enemyId]?.art : undefined;
+      if (art) {
+        const url = monsterUrl(art, 'idle');
+        if (!url.startsWith('data:')) return url;
+      }
+    }
+    return artUrl('icons', ICON[n.type]);
+  }
+
   // 可走的下一步：開局 currentNode 是 null，nextChoices 會回 1F 的三個節點
   const choices = new Set(nextChoices(run.map, run.currentNode).map((n) => n.id));
   for (const n of run.map.nodes) {
@@ -135,7 +153,7 @@ registerScreen('map', (app, root) => {
       class: cls.join(' '),
       style: `left:${x - R}px;top:${y - R}px`,
       title: `${n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
-    }, el('img', { src: artUrl('icons', ICON[n.type]), alt: n.type, draggable: 'false' }));
+    }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
     if (choices.has(n.id)) btn.addEventListener('click', () => { play('step'); app.enterNode(n.id); });
     inner.append(btn);

@@ -77,7 +77,21 @@ function roll(rng: Rng, table: [NodeType, number][]): NodeType {
   return table[table.length - 1]![0];
 }
 
-function tableFor(floor: number): [NodeType, number][] {
+/**
+ * 各層抽節點型別的權重表，**依關數不同**。
+ *
+ * 第一關（2026-09-01 依實測調整）：沒有大魔物——精英怪的強度是照「牌組已經成形」設計的，
+ * 放在第一關等於用初始十張牌去撞（使用者實玩：「菁英怪太強」）。戰鬥比重也調高：
+ * 牌組要靠戰鬥獎勵長大，事件與商店太密會「牌還沒湊好就一直逛街」。
+ * 第二、三關恢復原本的表（含大魔物），玩家此時有牌組也有秘寶。
+ */
+function tableFor(floor: number, act: number): [NodeType, number][] {
+  if (act <= 1) {
+    if (floor >= 2 && floor <= 4) return [['戰鬥', 70], ['事件', 22], ['罐頭鋪', 8]];
+    if (floor === 6) return [['戰鬥', 62], ['事件', 26], ['罐頭鋪', 12]];
+    if (floor === 7) return [['戰鬥', 68], ['事件', 32]];
+    return [['戰鬥', 56], ['事件', 21], ['罐頭鋪', 11], ['貓窩', 12]];   // 9–13
+  }
   if (floor >= 2 && floor <= 4) return [['戰鬥', 60], ['事件', 30], ['罐頭鋪', 10]];
   if (floor === 6) return [['戰鬥', 50], ['事件', 35], ['罐頭鋪', 15]];
   if (floor === 7) return [['戰鬥', 60], ['事件', 40]];
@@ -125,7 +139,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     const row = byFloor[f]!;
     let shops = 0, elites = 0;
     for (const n of row) {
-      let t = roll(rng, tableFor(f));
+      let t = roll(rng, tableFor(f, act));
       if (t === '罐頭鋪' && shops >= 1) t = '戰鬥';
       if (t === '大魔物' && elites >= 1) t = '戰鬥';
       if (t === '貓窩' && f === 13) t = '戰鬥';
@@ -133,7 +147,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       if (t === '大魔物') elites++;
       n.type = t;
     }
-    if (f === 7 && elites === 0) rng.pick(row).type = '大魔物';
+    if (act >= 2 && f === 7 && elites === 0) rng.pick(row).type = '大魔物';   // 第一關沒有精英（見 tableFor）
   }
   // 9–13F 保證至少一個罐頭鋪、一個貓窩
   const mid = [9, 10, 11, 12, 13].flatMap((f) => byFloor[f]!);
@@ -177,7 +191,16 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined).map((e) => e.id));
   let eventIdx = 0;
   for (const n of nodes) {
-    if (n.type === '戰鬥') n.encounterId = rng.pick(encountersOfPool(poolForFloor(n.floor, act))).id;
+    if (n.type === '戰鬥') {
+      let pool = encountersOfPool(poolForFloor(n.floor, act));
+      // 第一關前三層只抽單隻怪：牌組還是初始十張，兩隻一起上打不動
+      // （實測 200 張圖，前三層 45% 的戰鬥是多隻）。4F 起照常。
+      if (act <= 1 && n.floor <= 3) {
+        const solo = pool.filter((enc) => enc.enemies.length === 1);
+        if (solo.length) pool = solo;
+      }
+      n.encounterId = rng.pick(pool).id;
+    }
     else if (n.type === '大魔物') n.encounterId = rng.pick(encountersOfPool('大魔物')).id;
     // 塔主：呼叫端會指定這一關的候選（第一、二關不含大俠貓，他是第三關固定的最終頭目）；
     // 沒指定就整池隨機（測試與舊呼叫端用）。
@@ -218,7 +241,9 @@ export function validateMap(map: GameMap): string[] {
   if (!nodesOnFloor(map, 1).every((n) => n.type === '戰鬥')) p.push('1F 必須全是戰鬥');
   const f5 = nodesOnFloor(map, 5);
   if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)) p.push('5F 必須是唯一的大俠傳功');
-  if (!nodesOnFloor(map, 7).some((n) => n.type === '大魔物')) p.push('7F 至少一個大魔物');
+  // 7F 精英保底只適用第二關起；驗證函式看不到關數，改成寬鬆版：
+  // 有大魔物的圖照樣檢查每層上限（下面那段），沒有的（第一關）不算錯
+
   for (let f = 1; f <= FLOORS; f++) {
     const row = nodesOnFloor(map, f);
     // 非匯合層的格數由路線決定（1～PATHS 都合法），只要不是空的、也沒超過路線數就行

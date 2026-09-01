@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { encountersOfPool } from '../../src/content/enemies';
 import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
+import { encounterById } from '../../src/content/enemies';
 import { FLOORS, generateMap, nextChoices, nodesOnFloor, validateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import type { GameMap } from '../../src/engine/types';
@@ -20,7 +21,10 @@ describe('地圖', () => {
     const m = generateMap(new Rng(seedFromString('fixed')));
     expect(nodesOnFloor(m, 1).every((n) => n.type === '戰鬥')).toBe(true);
     expect(nodesOnFloor(m, 5).every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)).toBe(true);
-    expect(nodesOnFloor(m, 7).some((n) => n.type === '大魔物')).toBe(true);
+    // 三關制後第一關沒有精英（強度是照牌組成形後設計的）；7F 的精英保底改成第二關起
+    expect(nodesOnFloor(m, 7).some((n) => n.type === '大魔物')).toBe(false);
+    const m2 = generateMap(new Rng(seedFromString('m-act2')), { act: 2 });
+    expect(nodesOnFloor(m2, 7).some((n) => n.type === '大魔物')).toBe(true);
     expect(nodesOnFloor(m, 8).map((n) => n.type)).toEqual(['紙箱']);
     expect(nodesOnFloor(m, 14).map((n) => n.type)).toEqual(['貓窩']);
     expect(nodesOnFloor(m, 15).map((n) => n.type)).toEqual(['塔主']);
@@ -139,6 +143,25 @@ describe('分岔的選擇要有意義', () => {
           .filter((k) => k.floor !== 5 && k.type !== '戰鬥')
           .map((k) => k.type);
         expect(new Set(kinds).size, `${n.id} 的分岔：${kinds.join('、')}`).toBe(kinds.length);
+      }
+    }
+  });
+});
+
+describe('第一關的難度守則', () => {
+  it('第一關整張圖沒有大魔物；第二關有', () => {
+    for (let i = 0; i < 40; i++) {
+      const a1 = generateMap(new Rng(seedFromString(`d1-${i}`)));
+      expect(a1.nodes.some((n) => n.type === '大魔物')).toBe(false);
+    }
+  });
+
+  it('第一關前三層的戰鬥都是單隻怪', () => {
+    for (let i = 0; i < 40; i++) {
+      const m = generateMap(new Rng(seedFromString(`solo-${i}`)));
+      for (const n of m.nodes) {
+        if (n.type !== '戰鬥' || n.floor > 3) continue;
+        expect(encounterById[n.encounterId!]!.enemies.length, `${n.id}`).toBe(1);
       }
     }
   });

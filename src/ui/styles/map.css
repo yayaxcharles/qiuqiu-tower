@@ -147,3 +147,13 @@
   font-size: 18px;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
 }
+
+/* 塔主那格放大一號：這一關的王要一眼看到。
+   圖是關主的立繪不是圓形圖示，用底部對齊讓他「站」在原本的節點位置上 */
+.map-node.t-塔主 {
+  width: 110px;
+  height: 128px;
+  margin-left: -23px;   /* (110-64)/2：放大後仍以原節點中心對齊 */
+  margin-top: -58px;    /* 底部貼回原位置：128-64=64，再讓腳略高於原點 6px */
+}
+.map-node.t-塔主 img { object-position: center bottom; }

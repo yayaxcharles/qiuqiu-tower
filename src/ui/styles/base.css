@@ -448,3 +448,61 @@ img { -webkit-user-drag: none; }
 @keyframes screen-in {
   from { opacity: 0; translate: 0 10px; }
 }
+
+/* ===== 過關的走路轉場（一關一次，約三秒，點一下跳過） ===== */
+.actwalk-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  overflow: hidden;
+  background: #171310;
+  opacity: 1;
+  transition: opacity 400ms ease-out;
+  cursor: pointer;
+  animation: actwalk-in 500ms ease-out;
+}
+@keyframes actwalk-in { from { opacity: 0; } }
+.actwalk-overlay.out { opacity: 0; pointer-events: none; }
+.actwalk-bg {
+  position: absolute;
+  inset: 0;
+  background-size: auto 118%;
+  background-position: left bottom;
+  animation: actwalk-scroll 3400ms linear forwards;
+}
+@keyframes actwalk-scroll { to { background-position-x: -230px; } }
+.actwalk-cat {
+  position: absolute;
+  left: 340px;
+  bottom: 236px;
+  width: 250px;
+  filter: drop-shadow(0 8px 14px #00000080);
+  animation: actwalk-bob 470ms ease-in-out infinite;   /* 比戰鬥間的步伐慢，走得從容 */
+}
+@keyframes actwalk-bob {
+  0%, 100% { translate: 0 0; rotate: -1.4deg; }
+  50% { translate: 0 -11px; rotate: 1.4deg; }
+}
+.actwalk-shadow {
+  position: absolute;
+  left: 375px;
+  bottom: 228px;
+  width: 185px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #00000059 0%, #0000003b 52%, #0000 76%);
+  animation: actwalk-squash 470ms ease-in-out infinite;
+}
+@keyframes actwalk-squash {
+  0%, 100% { scale: 1 1; opacity: .9; }
+  50% { scale: .82 1; opacity: .55; }
+}
+.actwalk-hint {
+  position: absolute;
+  right: 28px;
+  bottom: 18px;
+  color: #f8f2e6;
+  font-size: 17px;
+  text-shadow: 0 1px 3px #000;
+  opacity: .8;
+}
