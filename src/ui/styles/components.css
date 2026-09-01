@@ -310,8 +310,6 @@
   0%, 100% { box-shadow: 0 0 6px #ffc83c8c; }
   50% { box-shadow: 0 0 12px #ffc83cf5; }
 }
-.card.small.rarity-罕見::before { width: 11px; height: 11px; right: 6px; top: 6px; }
-.card.small.rarity-稀有::before { width: 13px; height: 13px; right: 5px; top: 5px; }
 
 .card.clickable { cursor: pointer; }
 .card.clickable:hover { box-shadow: 0 0 0 3px var(--accent); }
@@ -506,7 +504,8 @@
   pointer-events: auto;
 }
 .compendium {
-  position: absolute; inset: 24px 40px; z-index: 70;
+  /* 留邊要夠明顯：貼滿到邊會像破版（使用者：「有點超出畫面」）。頂列（HUD）下方開始。 */
+  position: absolute; inset: 64px 90px 44px; z-index: 70;
   pointer-events: auto;   /* 疊層容器是 none，不開這行點擊與滾輪會穿到底下的畫面 */
   display: flex; flex-direction: column;
   background: rgba(24, 18, 10, .97);
