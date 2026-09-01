@@ -187,6 +187,66 @@
   "codex/monster_nekomata_tail": {
    "attack": "assets/monsters/nekomata_tail_attack.webp",
    "idle": "assets/monsters/nekomata_tail_idle.webp"
+  },
+  "codex/monster_box_lurker": {
+   "attack": "assets/monsters/box_lurker_attack.webp"
+  },
+  "codex/monster_broom_centipede": {
+   "attack": "assets/monsters/broom_centipede_attack.webp"
+  },
+  "codex/monster_calico_monk": {
+   "attack": "assets/monsters/calico_monk_attack.webp",
+   "idle": "assets/monsters/calico_monk_idle.webp"
+  },
+  "codex/monster_can_spirit": {
+   "attack": "assets/monsters/can_spirit_attack.webp",
+   "idle": "assets/monsters/can_spirit_idle.webp"
+  },
+  "codex/monster_catnip_phantom": {
+   "attack": "assets/monsters/catnip_phantom_attack.webp",
+   "idle": "assets/monsters/catnip_phantom_idle.webp"
+  },
+  "codex/monster_chipmunk": {
+   "attack": "assets/monsters/chipmunk_attack.webp",
+   "idle": "assets/monsters/chipmunk_idle.webp"
+  },
+  "codex/monster_dozing_tabby": {
+   "attack": "assets/monsters/dozing_tabby_attack.webp",
+   "idle": "assets/monsters/dozing_tabby_idle.webp"
+  },
+  "codex/monster_five_claw": {
+   "attack": "assets/monsters/five_claw_attack.webp",
+   "idle": "assets/monsters/five_claw_idle.webp"
+  },
+  "codex/monster_hedgehog": {
+   "attack": "assets/monsters/hedgehog_attack.webp"
+  },
+  "codex/monster_mini_broom": {
+   "attack": "assets/monsters/mini_broom_attack.webp",
+   "idle": "assets/monsters/mini_broom_idle.webp"
+  },
+  "codex/monster_mirror_cat": {
+   "attack": "assets/monsters/mirror_cat_attack.webp",
+   "idle": "assets/monsters/mirror_cat_idle.webp"
+  },
+  "codex/monster_roomba_king": {
+   "attack": "assets/monsters/roomba_king_attack.webp",
+   "idle": "assets/monsters/roomba_king_idle.webp"
+  },
+  "codex/monster_shadow_kitten": {
+   "attack": "assets/monsters/shadow_kitten_attack.webp",
+   "idle": "assets/monsters/shadow_kitten_idle.webp"
+  },
+  "codex/monster_soy_bottle": {
+   "idle": "assets/monsters/soy_bottle_idle.webp"
+  },
+  "codex/monster_stone_lion": {
+   "attack": "assets/monsters/stone_lion_attack.webp",
+   "idle": "assets/monsters/stone_lion_idle.webp"
+  },
+  "codex/monster_yarn_ball": {
+   "attack": "assets/monsters/yarn_ball_attack.webp",
+   "idle": "assets/monsters/yarn_ball_idle.webp"
   }
  },
  "icons": {

@@ -275,6 +275,12 @@ def main() -> None:
         if "_" not in stem:
             print(f"  略過（檔名要 monster_<牌號>_<idle|attack>.png）：{f.name}")
             continue
+        # 生圖工具會在工作目錄留暫存檔（`*.tmp.png`、`*.final.tmp.png`、
+        # 還有像 `monsters__vacuum_attack.tmp.png` 這種）。檔名有「.」的一律不是正式產出，
+        # 收進來會變成一隻叫「shadow_kitten_attack.final」的假魔物。
+        if "." in stem:
+            print(f"  略過（暫存檔）：{f.name}")
+            continue
         mid, pose = stem.rsplit("_", 1)
         if pose not in ("idle", "attack"):
             print(f"  略過（姿勢只收 idle／attack）：{f.name}")
