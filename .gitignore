@@ -9,3 +9,7 @@ __pycache__/
 tools/codex_raw/
 tools/art_inbox/
 pic/
+# 生壞了的舊素材備份，與我做來對照用的拼貼圖，都不進版控
+tools/art_inbox_backup/
+tools/_*.png
+tools/_*.json
