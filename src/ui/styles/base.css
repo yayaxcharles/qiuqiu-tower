@@ -285,15 +285,8 @@ img { -webkit-user-drag: none; }
   line-height: 1.75;
   font-size: 27px;
 }
-/* 前後的小標記：讓旁白讀起來像被引出來的一段，不是誰的台詞 */
-.dialogue-overlay.narration .dialogue-text::before,
-.dialogue-overlay.narration .dialogue-text::after {
-  content: '◆';
-  margin: 0 14px;
-  color: #4a443880;
-  font-size: 13px;
-  vertical-align: middle;
-}
+/* 這裡本來在旁白前後各加一個小菱形當裝飾，使用者覺得怪，拿掉了。
+   旁白本來就有四個區別：沒有立繪、沒有名牌、字置中、紙色偏冷，夠分辨了。 */
 .dialogue-overlay.narration .dialogue-hint { color: #5c5648; }
 
 /* 提示改成「一行小字＋一顆會跳的腳印」。原本只是右下角一行灰字，
