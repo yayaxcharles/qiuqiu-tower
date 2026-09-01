@@ -9,7 +9,7 @@ export interface Manifest {
 
 let manifest: Manifest = { cards: {}, sprites: {}, monsters: {}, icons: {}, bg: {}, review: [] };
 
-const BASE = (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
+export const BASE = (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
 
 /** 缺圖時的灰色剪影：清單還沒生好也不會出現破圖 */
 const SILHOUETTE = 'data:image/svg+xml;utf8,' + encodeURIComponent(

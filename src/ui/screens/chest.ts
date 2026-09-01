@@ -1,3 +1,4 @@
+import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { openChest } from '../../engine/run';
@@ -19,6 +20,7 @@ registerScreen('chest', (app, root) => {
   // 「最大生命 +10」的訊息，配上還沒加的血條與少一格的秘寶列，要回地圖才對得起來
   renderHud(app, root);
   const def = id ? relicById[id] : undefined;
+  play(def ? 'relic' : 'click');   // 空箱子沒有拿到東西，不要放拿寶的音
   const url = def ? artUrl('icons', def.art) : '';
   const body = def
     ? el('div', { class: 'reward-item' },

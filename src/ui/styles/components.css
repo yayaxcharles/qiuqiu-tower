@@ -105,6 +105,14 @@
   box-sizing: border-box;
 }
 .hud-potion.usable { cursor: pointer; }
+/* 音效開關固定在最右邊；本局代碼原本靠 margin-left:auto 推到底，
+   現在右邊多了一顆按鈕，改成由代碼那格吃掉剩餘空間，兩個都不會跳位 */
+.hud-sound {
+  flex: 0 0 auto;
+  margin-left: 10px;
+  padding: 2px 10px;
+  font-size: 13px;
+}
 .hud-seed {
   margin-left: auto;
   font-size: 12px;

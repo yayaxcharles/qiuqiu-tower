@@ -1,3 +1,4 @@
+import { play } from '../audio';
 import { cardById } from '../../content/cards';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
@@ -106,21 +107,37 @@ registerScreen('event', (app, root, props) => {
       const up = outcome.needs === 'upgradeCard';
       const filter = up ? (c: CardInstance) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病' : () => true;
       // 一張都不合就直接跳過（疊層本身也擋得住鎖死，但沒得挑還開一個空視窗只是煩人）
-      if (!run.deck.some(filter)) { finish(resultText, noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除'), gains); return; }
+      const usable = run.deck.filter(filter).length;
+      if (usable === 0) { finish(resultText, noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除'), gains); return; }
+      // 要挑的張數可能比牌組裡合格的還多（例如只剩一張沒升級過的牌卻要升兩張），
+      // 那就以實際挑得到的為準，不然確認鈕永遠按不下去、玩家被鎖在疊層裡
+      const want = Math.min(outcome.n, usable);
+      const verb = up ? '升級' : '移除';
+      /** 把挑好的牌一次結算完，說明文字寫成「「A」「B」升級了」 */
+      const settleCards = (uids: readonly number[]): void => {
+        const names: string[] = [];
+        for (const uid of uids) {
+          const c = run.deck.find((x) => x.uid === uid);
+          if (!c) continue;
+          names.push(cardName(c));
+          if (up) upgradeCard(run, uid); else removeCard(run, uid);
+          play(up ? 'upgrade' : 'click');
+        }
+        const note = names.length
+          ? `「${names.join('」「')}」${up ? '升級了' : '被丟掉了'}`
+          : undefined;
+        finish(resultText, noteLine(note), gains);
+      };
       // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
       // 效果已經跑掉了，選項卻還在，看起來像還能再選一次。按鈕等挑完牌才由 finish 補上。
       panel(resultText, null, '', gains, resultArt);
       showDeckPicker({
-        title: up ? '選一張牌升級' : '選一張牌移除',
+        title: want > 1 ? `選 ${want} 張牌${verb}` : `選一張牌${verb}`,
         previewUpgrade: up,   // 升級才需要看「變成什麼樣」；移除不用
         cards: run.deck, pickable: true, cancellable: false, filter,
-        onPick: (uid) => {
-          const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
-          if (uid === null || !c) { finish(resultText, noteLine(), gains); return; }
-          const name = cardName(c);
-          if (up) { upgradeCard(run, uid); finish(resultText, noteLine(`「${name}」升級了`), gains); }
-          else { removeCard(run, uid); finish(resultText, noteLine(`丟掉了「${name}」`), gains); }
-        },
+        pickCount: want,
+        onPick: (uid) => settleCards(uid === null ? [] : [uid]),
+        onPickMany: settleCards,
       });
       return;
     }
@@ -141,6 +158,7 @@ registerScreen('event', (app, root, props) => {
     if (poor) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
       if (cost > run.fish) return;   // 保險：畫面畫完之後小魚乾又變少的話（目前不會發生）也不能透支
+      play('click');
       run.fish = Math.max(0, run.fish - cost);
       resultArt = c.resultArt;
       const notes: string[] = [];

@@ -382,6 +382,12 @@
   transform: translateY(-46px) scale(1.06) !important;
   z-index: 50 !important;
 }
+/* 回合交接的過場期間，整排手牌不吃滑鼠。
+   `collecting`＝正在飛向「結束回合」（引擎還沒換回合，這時候出牌畫面會跟引擎對不上）；
+   `dealing`＝新的一批還在從牌堆飛過來（滑過去會被 :hover 拉起來，飛到一半的牌就爛了）。
+   兩個都由 combat.ts 掛上去、時間到再拿掉。 */
+.combat .hand.collecting .card,
+.combat .hand.dealing .card { pointer-events: none; }
 
 /* ===== 右下按鈕、記事、提示 ===== */
 .combat .end-turn {
@@ -564,18 +570,31 @@
   60% { transform: translate(-50%, -34px) scale(1) rotate(0deg); opacity: 1; }
   100% { transform: translate(-50%, -78px) scale(.92); opacity: 0; }
 }
-/* 新抽到的牌從下面滑上來。只有真的新出現的牌會掛這個類別（見 handRow） */
-/* 進場與起伏兩個一起掛：進場動的是 `transform`、起伏動的是 `translate`／`rotate`，
-   是不同的屬性，不會互相蓋掉。只列一個的話會把基礎規則的起伏整條換掉。 */
+/* 新抽到的牌從左下角的牌堆飛出來、落到扇形的定位上。
+   只有真的新出現的牌會掛這個類別（見 handRow），出發時間也在那裡一張一張錯開。
+   原本是「從下面往上滑 58 像素」，那看起來像整排牌從畫面外冒出來，
+   跟「從牌堆抽了幾張到手上」是兩回事。
+
+   進場與起伏兩個一起掛：只列一個的話會把基礎規則的起伏整條換掉。
+   **card-deal 要排在 card-idle 後面**——兩個都在動 `translate`／`rotate`，
+   同一個屬性由排在後面的那個作數；順序寫反的話進場動畫會被起伏蓋掉、整個看不見。
+   card-deal 是有限長度、又只填 backwards，播完就不再作數，起伏自己接回去。 */
 .combat .hand .card.dealt {
-  animation: card-in .34s cubic-bezier(.2, .9, .3, 1.2) backwards,
-             card-idle 3.8s ease-in-out infinite;
+  animation: card-idle 3.8s ease-in-out infinite,
+             card-deal .44s cubic-bezier(.22, .85, .3, 1.02) backwards;
 }
-/* 注意：@keyframes 裡不能加 !important，加了整條會被忽略（只會剩淡入、不會滑）。
-   這裡不用 !important 也蓋得過行內的扇形角度——動畫的優先序本來就高於行內樣式，
-   而且只寫 from、to 那格會自動取用元素當下的值，所以會從下方滑回它該在的角度。 */
-@keyframes card-in {
-  from { opacity: 0; transform: translateY(58px) scale(.9); }
+/* 起點是每張牌各自的 `--deal-dx`／`--deal-dy`（牌堆中心到自己定位的差，由 combat.ts 的
+   dealFrom 量好寫進行內樣式）。**這裡刻意不寫 var() 的退路值**：值還沒寫進來的那一瞬間
+   整條宣告會失效、位移當成沒有，牌就停在自己的定位上——比亂猜一個方向飛出去好。
+
+   注意兩件踩過的坑：
+   1. `@keyframes` 裡不能加 `!important`，加了整條會被靜默丟掉。
+   2. **動的是 `translate`／`rotate`／`scale` 三個獨立屬性，不是 `transform`**：
+      扇形的角度是行內 `transform` 寫的，動 `transform` 會把扇形抹平成一直線。 */
+@keyframes card-deal {
+  from { opacity: 0; translate: var(--deal-dx) var(--deal-dy); rotate: -22deg; scale: .55; }
+  20% { opacity: 1; }
+  to { opacity: 1; translate: 0 0; rotate: 0deg; scale: 1; }
 }
 
 /* ===== 選目標的指引箭頭 ===== */

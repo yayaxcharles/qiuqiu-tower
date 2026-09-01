@@ -188,7 +188,8 @@ img { -webkit-user-drag: none; }
 }
 /* 對白框。原本是「奶油底色＋一條框線＋圓角」，跟一般網頁的提示方塊沒兩樣。
    現在做成一塊有厚度的木牌：深色外框、內側一條細線（傳統對話框的雙線）、
-   四個角掛上跟其他面板同一套的角花、紙的紋理靠斜向細條紋做出來。 */
+   紙的紋理靠斜向細條紋做出來。
+   （四個角本來還各掛一片角花，2026-09-01 連同其他面板的一起拿掉了。） */
 .dialogue-box {
   /* 疊在立繪前面（立繪是 0），角色的腳才會被框擋住 */
   position: relative;
@@ -199,16 +200,11 @@ img { -webkit-user-drag: none; }
   padding: 26px 34px 30px;
   font-size: 30px;
   color: #2b2118;
-  /* 四個角花先疊，最底層才是紙。斜條紋是紙的纖維，很淡，近看才看得到 */
+  /* 上面是紙的纖維（很淡的斜條紋，近看才看得到），底下才是紙本身的漸層 */
   background-image:
-    var(--corner-tl), var(--corner-tr), var(--corner-bl), var(--corner-br),
     repeating-linear-gradient(58deg, #00000005 0 2px, #0000 2px 7px),
     radial-gradient(120% 100% at 50% 0%, #fffaf0 0%, #f3e8d2 70%, #e9dbc0 100%);
-  background-position:
-    left 8px top 8px, right 8px top 8px, left 8px bottom 8px, right 8px bottom 8px,
-    0 0, 0 0;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
-  background-size: 52px 52px, 52px 52px, 52px 52px, 52px 52px, auto, auto;
+  background-repeat: repeat, no-repeat;
   border: 4px solid #3a2a1c;
   border-radius: 14px;
   /* 三層陰影＝厚度：內側亮邊（紙面反光）、內側暗邊（凹槽）、外面落地的影子 */
@@ -217,12 +213,9 @@ img { -webkit-user-drag: none; }
     inset 0 -3px 8px #8a6a3f33,
     0 12px 30px #000000a6;
 }
-/* 有名牌的時候，左上角的角花要讓位——名牌就切齊在那個角上，
-   角花的橫向那截會被壓住，只剩一條垂直捲鬚吊在名牌下面，很像多出來的東西。
-   只改 `background-size` 的第一格（左上角）為 0，不動 `background-image`
-   與 `background-position`：那兩個是四層疊起來的，重寫整串很容易改錯。 */
+/* 有名牌的時候上緣要多讓一點。
+   （這條原本還負責把左上角的角花藏起來——角花已經拿掉，只剩讓位這件事。） */
 .dialogue-box:has(.dialogue-speaker:not(:empty)) {
-  background-size: 0 0, 52px 52px, 52px 52px, 52px 52px, auto, auto;
   /* 名牌整塊落在框內，會壓到第一行字的左上角。有名字時上緣多讓一點：
      名牌下緣在離框外緣 48.7 處，再留 6 像素才輪到文字。 */
   padding-top: 51px;
@@ -287,7 +280,6 @@ img { -webkit-user-drag: none; }
 .dialogue-overlay.narration .dialogue-box {
   padding: 24px 64px 26px;
   background-image:
-    var(--corner-tl), var(--corner-tr), var(--corner-bl), var(--corner-br),
     repeating-linear-gradient(58deg, #00000005 0 2px, #0000 2px 7px),
     radial-gradient(120% 100% at 50% 0%, #f3f1ea 0%, #e6e2d6 72%, #d8d3c3 100%);
   border-color: #4a4438;

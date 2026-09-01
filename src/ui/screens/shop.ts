@@ -1,3 +1,4 @@
+import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
@@ -55,7 +56,7 @@ registerScreen('shop', (app, root) => {
     shop.cards.forEach((it, i) => {
       const buyable = !it.sold && run.fish >= it.price;
       cards.append(el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}` },
-        cardNode(it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) render(); } }),
+        cardNode(it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); render(); } } }),
         el('div', { class: 'price' }, it.sold ? '賣掉了' : `${it.price} 條小魚乾`)));
     });
 
@@ -68,7 +69,7 @@ registerScreen('shop', (app, root) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = run.relics.includes(it.id);
       relics.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
-        () => { if (buyRelic(run, shop, i)) render(); }));
+        () => { if (buyRelic(run, shop, i)) { play('relic'); render(); } }));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -77,14 +78,14 @@ registerScreen('shop', (app, root) => {
       // 忍具最多帶三支，帶滿了就買不下去（buyPotion 會擋）：講明原因，不要假裝是賣掉了
       const full = run.potions.length >= 3;
       potions.append(stall(d.art, d.name, full ? `${d.text}（忍具帶滿了）` : d.text, it.price, it.sold, full,
-        () => { if (buyPotion(run, shop, i)) render(); }));
+        () => { if (buyPotion(run, shop, i)) { play('buy'); render(); } }));
     });
 
     const remove = el('button', {
       class: 'btn',
       onclick: () => showDeckPicker({
         title: `放生一張牌（${run.removeCost} 條小魚乾）`, cards: run.deck, pickable: true, cancellable: true,
-        onPick: (uid) => { if (uid !== null) buyRemove(run, uid); render(); },
+        onPick: (uid) => { if (uid !== null) { buyRemove(run, uid); play('upgrade'); } render(); },
       }),
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');

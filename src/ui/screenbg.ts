@@ -67,7 +67,7 @@ export function tierBgZoom(key: string): number {
 }
 
 /**
- * 純裝飾用的素材（牌的底紋、面板四角的角花、地圖的腳印）交給 CSS 用。
+ * 純裝飾用的素材（牌的底紋、地圖的腳印、介面的木樑與牌子）交給 CSS 用。
  *
  * 這些是樣式表要用的圖，但網址得從 manifest 查、還要帶 BASE 前綴，CSS 自己拿不到。
  * 開場讀完 manifest 呼叫一次，把網址寫進 :root 的自訂屬性，樣式表就能 var() 取用。
@@ -81,10 +81,10 @@ export function applyArtVars(): void {
     '--paper-power': 'bg/card_paper_power',
   };
   const icons: Record<string, string> = {
-    '--corner-tl': 'icon/corner_tl',
-    '--corner-tr': 'icon/corner_tr',
-    '--corner-bl': 'icon/corner_bl',
-    '--corner-br': 'icon/corner_br',
+    // 這裡本來還有四個 `--corner-*`（面板與對白框四個角掛的角花）。
+    // 2026-09-01 拿掉：事件那幾張圖的邊框跟角花疊在一起很雜，而且只拿掉事件的話
+    // 各畫面會變成有的有、有的沒有。素材檔還留著，要復原就把四行加回來、
+    // 再把 screens.css 的 `.screen` 與 base.css 的 `.dialogue-box` 那幾層背景圖補回去。
     '--paw': 'icon/paw',
     // 介面裝飾素材（木樑、名牌、六種意圖木牌、說明框的紙片）
     '--ui-beam': 'icon/ui_beam',

@@ -1,3 +1,4 @@
+import { play } from '../audio';
 import { FLOORS, nextChoices } from '../../engine/map';
 import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -134,7 +135,7 @@ registerScreen('map', (app, root) => {
       title: `${n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
     }, el('img', { src: artUrl('icons', ICON[n.type]), alt: n.type, draggable: 'false' }));
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
-    if (choices.has(n.id)) btn.addEventListener('click', () => app.enterNode(n.id));
+    if (choices.has(n.id)) btn.addEventListener('click', () => { play('step'); app.enterNode(n.id); });
     inner.append(btn);
   }
 

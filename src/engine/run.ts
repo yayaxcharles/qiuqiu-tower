@@ -167,7 +167,11 @@ export function buyRemove(run: RunState, uid: number): boolean {
 }
 
 export type RunEffectOutcome =
-  | { needs: 'removeCard' | 'upgradeCard' }
+  /**
+   * `n`＝要玩家挑幾張。本來只是一個旗標，事件寫兩次 `upgradeCard` 也只會覆蓋成同一個，
+   * 畫面就只跳一次選牌——「升級兩張牌」的事件實際上只升到一張（鏡子、腳印兩個事件都中招）。
+   */
+  | { needs: 'removeCard' | 'upgradeCard'; n: number }
   | { chooseCard: CardDef[] }
   | { fight: { encounterId: string; bonusFish: number } }
   | null;
@@ -214,8 +218,14 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id); notes?.push(`撿到了「${def.name}」`); }
         break;
       }
-      case 'removeCard': outcome = { needs: 'removeCard' }; break;
-      case 'upgradeCard': outcome = { needs: 'upgradeCard' }; break;
+      // 同一種連寫幾次就累加張數；換成另一種就重算（目前沒有事件混用，但規矩要成立）
+      case 'removeCard':
+      case 'upgradeCard': {
+        const need = fx.kind;
+        outcome = outcome && 'needs' in outcome && outcome.needs === need
+          ? { needs: need, n: outcome.n + 1 } : { needs: need, n: 1 };
+        break;
+      }
       case 'relic': {
         const id = rollRelic(runRng(run), fx.pool, run.relics);
         if (id) { takeRelic(run, id); gains?.push({ kind: '秘寶', id }); }

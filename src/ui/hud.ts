@@ -2,6 +2,7 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import type { App } from './app';
 import { artUrl } from './assets';
+import { play, soundOn, toggleSound } from './audio';
 import { showDeckPicker } from './deckview';
 import { el } from './dom';
 import { attachTextTooltip, attachTooltip } from './tooltip';
@@ -86,9 +87,22 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     }),
   }, `牌組 ${run.deck.length}`);
 
+  /**
+   * 音效開關。放在右上角、本局代碼旁邊——那裡是整場都在的位置，
+   * 不會因為進戰鬥就被藏起來（生命與忍具那兩格在戰鬥中是隱藏的）。
+   * 狀態記在瀏覽器裡，換一局也記得。按下去順便播一聲，讓玩家知道「開了」是什麼音量。
+   */
+  const sound = el('button', { class: 'btn small hud-sound' }, soundOn() ? '🔊 音效' : '🔇 靜音');
+  sound.title = '開關音效';
+  sound.addEventListener('click', () => {
+    const on = toggleSound();
+    sound.textContent = on ? '🔊 音效' : '🔇 靜音';
+    if (on) play('click');
+  });
+
   hud.append(
     el('div', { class: 'hud-floor' }, run.floor > 0 ? `${run.floor}F` : '塔下'),
     hp, fish, relics, potions, deckBtn,
-    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`));
+    el('div', { class: 'hud-seed' }, `本局代碼 ${run.seed}`), sound);
   return hud;
 }

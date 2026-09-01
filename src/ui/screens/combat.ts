@@ -13,6 +13,7 @@ import { STATUS_UNIT } from '../cardtext';
 import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
+import { play as sfx } from '../audio';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 
@@ -40,6 +41,23 @@ const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
   exhaust: '挑要消耗的牌', retain: '挑要留到下回合的牌', discard: '挑要丟掉的牌',
   recover: '挑要拿回手上的牌', scryDiscard: '這是抽牌堆最上面的牌，挑要丟掉的',
 };
+/**
+ * 回合交接的節拍（毫秒）。按下「結束回合」之後畫面依序做三件事：
+ *
+ *   收牌（手上剩的牌飛向右下角的按鈕）→ 引擎結算、魔物出手 → 發牌（新手牌從左下角的牌堆飛出來）
+ *
+ * 原本這三件事之間**沒有任何過場**：按下去手牌瞬間消失、下一批瞬間出現，
+ * 感覺不到「這一回合結束了」。
+ *
+ * `COLLECT_WAIT` 是「等多久再叫引擎」，故意比整段收牌短：牌是自己在飛的，
+ * 不必等最後一張落地才讓魔物開始動作，不然一回合要拖快兩秒。
+ * `DEAL_FLY` 要跟 `combat.css` 的 `card-deal` 同一個長度（那邊算什麼時候把手牌交還給玩家用）。
+ */
+const COLLECT_FLY = 300;       // 一張牌飛到「結束回合」要多久
+const COLLECT_STAGGER = 38;    // 每張牌錯開多久出發
+const COLLECT_WAIT = 330;      // 按下去之後多久叫引擎（跑 endTurn）
+const DEAL_FLY = 440;          // 一張新牌從牌堆飛到定位要多久（＝ card-deal 的長度）
+
 /**
  * 球球的姿勢。全部是專為這款遊戲畫的忍者裝立繪（`hero/*`），打包時放進同一張畫布
  * 底部對齊，換姿勢不會忽大忽小。`hero/ninja_guard`（抱胸格擋）與 `hero/idle`、
@@ -75,16 +93,17 @@ interface Snap {
   buff: number;
   debuff: number;
   choke: number;
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number }>;
+  stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number; block: number }>;
   logLen: number;
 }
 function snap(cs: CombatState): Snap {
   return {
     hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length,
     buff: sumStatus(cs.player, GOOD_STATUS), debuff: sumStatus(cs.player, BAD_STATUS),
-    choke: getStatus(cs.player, '噎到'),
+    choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
-      hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent,
+      hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent, block: e.block,
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'),
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
@@ -127,14 +146,22 @@ registerScreen('combat', (app, root, props) => {
   let shownCards = new Set<number>();            // 上一次畫的手牌，認出哪幾張是新抽的
   let dealDelay = 0;                             // 新手牌進場前要等多久（結束回合那一拍會等）
   /**
+   * 收牌動畫進行中：按下「結束回合」之後、引擎真的跑 `endTurn` 之前的那幾百毫秒。
+   *
+   * 這段時間畫面上的手牌正往右下角的按鈕飛，但**引擎還停在上一回合**——
+   * 這時候讓玩家出牌，牌會從已經飛走的那疊裡被打出來，畫面與引擎就對不上了。
+   * 所以 `canAct()` 一律回 false，出牌、忍具、再按一次結束回合全部擋掉。
+   */
+  let collecting = false;
+  /**
    * 上一次畫的飯糰數。出牌是整場最常做的動作，但飯糰原本只是**默默少一顆**，
    * 一整排都沒動靜。這裡認出剛被吃掉的是哪幾顆，讓它們消下去。
    * −1 代表這場還沒畫過，第一次畫不演。
    */
   let lastEnergy = -1;
 
-  /** 可以操作嗎：分出勝負、還在等玩家選牌時，出牌／忍具／結束回合都會被引擎靜默拒絕，所以先反灰 */
-  function canAct(): boolean { return !ended && cs.phase === 'player' && !cs.pending; }
+  /** 可以操作嗎：分出勝負、還在等玩家選牌、收牌動畫還在跑的時候，出牌／忍具／結束回合都不受理 */
+  function canAct(): boolean { return !ended && !collecting && cs.phase === 'player' && !cs.pending; }
 
   // ===== 元件 =====
 
@@ -375,7 +402,8 @@ registerScreen('combat', (app, root, props) => {
     attachTooltip(combo, '連抓');
     const piles = el('div', { class: 'piles' },
       el('span', {}, `第 ${cs.turn} 回合`),
-      el('span', {}, `抽牌 ${p.drawPile.length}`),
+      // 這一行同時是「牌堆在哪」的座標：新發的牌就是從這裡飛出來的（見 dealFrom）
+      el('span', { class: 'pile-draw' }, `抽牌 ${p.drawPile.length}`),
       el('span', {}, `棄牌 ${p.discardPile.length}`),
       el('span', {}, `消耗 ${p.exhaustPile.length}`),
       combo);
@@ -418,12 +446,61 @@ registerScreen('combat', (app, root, props) => {
           root.querySelector(`.hand .card[data-uid="${c.uid}"]`)?.classList.add('nope');
         });
       }
-      // 只有這次才出現在手上的牌才播進場動畫：每次重畫都播的話，光是選個目標整手牌就會抖一次
+      // 只有這次才出現在手上的牌才播進場動畫：每次重畫都播的話，光是選個目標整手牌就會抖一次。
+      // 一張一張錯開 45 毫秒出發，整排才不會像同一塊板子被推上來。
       if (!shownCards.has(c.uid)) { node.classList.add('dealt'); node.style.animationDelay = `${dealDelay + i * 45}ms`; }
       hand.append(node);
     });
+    // 換回合那一拍要等魔物打完才發牌（dealDelay），這段期間整排牌先不吃滑鼠：
+    // 還沒飛到定位的牌被點下去，畫面與引擎會差一拍。時間到再由 unlockHand 解開。
+    if (dealDelay > 0) hand.classList.add('dealing');
     shownCards = new Set(p.hand.map((c) => c.uid));
     return hand;
+  }
+
+  /**
+   * 新發到的牌從哪裡飛出來：左下角的牌堆（側邊欄的「抽牌 N」那一行）。
+   *
+   * 每張牌各算一次「牌堆中心 → 自己在扇形上的定位」的差，寫成 `--deal-dx`／`--deal-dy`，
+   * `combat.css` 的 `card-deal` 就照這個位移把牌從牌堆拉回來。要等節點真的進到文件裡
+   * 才量得到位置，所以這件事排在 `root.append(box)` 之後。
+   *
+   * **量的是 `offsetLeft`／`offsetTop`（版面座標），不是 `getBoundingClientRect()`**：
+   * 那時候 `card-deal` 的 backwards 填充已經把牌縮小、轉開、推到牌堆上了，量外框會量到
+   * 動畫中的位置，算出來的起點會再偏一次。版面座標不吃 transform，量到的永遠是定位點。
+   */
+  function dealFrom(box: HTMLElement): void {
+    const cards = box.querySelectorAll<HTMLElement>('.hand .card.dealt');
+    const hand = box.querySelector<HTMLElement>('.hand');
+    const pile = box.querySelector('.pile-draw') ?? box.querySelector('.piles');
+    if (!cards.length || !hand || !pile) return;
+    // 舞台整個被 transform: scale() 縮過，量到的螢幕座標要除以縮放比才是舞台座標
+    const stage = app.stage.getBoundingClientRect();
+    const k = stage.width > 0 ? 1280 / stage.width : 1;
+    const hr = hand.getBoundingClientRect();     // 手牌區沒有 transform，外框就是它的版面位置
+    const pr = pile.getBoundingClientRect();
+    const ax = (pr.left + pr.width / 2 - hr.left) * k;   // 牌堆中心，換算成「相對於手牌區」
+    const ay = (pr.top + pr.height / 2 - hr.top) * k;
+    for (const node of cards) {
+      node.style.setProperty('--deal-dx', `${(ax - node.offsetLeft - node.offsetWidth / 2).toFixed(0)}px`);
+      node.style.setProperty('--deal-dy', `${(ay - node.offsetTop - node.offsetHeight / 2).toFixed(0)}px`);
+    }
+  }
+
+  /**
+   * 發牌動畫跑完，把手牌與「結束回合」交還給玩家。
+   *
+   * 只動 class 與 disabled、**不重畫**：這一拍畫面上還有飄著的傷害數字（1 秒）與倒地動畫，
+   * `render()` 會把它們砍在半路（跟 settle 收姿勢那段同一個道理）。
+   * 中途要是重畫過，這裡拿到的是已經被丟掉的節點，動它不會有任何影響，正好。
+   */
+  function unlockHand(box: HTMLElement, wait: number): void {
+    const hand = box.querySelector<HTMLElement>('.hand');
+    const btn = box.querySelector<HTMLElement>('.end-turn');
+    window.setTimeout(() => {
+      hand?.classList.remove('dealing');
+      if (app.cs === cs && canAct()) btn?.removeAttribute('disabled');
+    }, wait);
   }
 
   function render(): void {
@@ -453,14 +530,29 @@ registerScreen('combat', (app, root, props) => {
     box.append(field, sidePanel(), handRow());
 
     const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() }, '結束回合');
-    if (!canAct()) endBtn.setAttribute('disabled', 'disabled');
+    // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 的 dealing）
+    if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled');
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-6).map((l) => el('div', {}, l))));
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
     renderHud(app, box, cs.fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
     root.append(box);
+    // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
+    // dealFrom 排在同一拍（不是下一幀）：動畫要到下一幀才開始播，這時候補上位移還來得及。
+    dealFrom(box);
+    if (dealDelay > 0) {
+      unlockHand(box, dealDelay + DEAL_FLY + cs.player.hand.length * 45);
+      // 抽牌聲跟著畫面上的飛入逐張響，音高每張微調，不然像複讀機
+      sfx('turn_start');
+      cs.player.hand.forEach((_, i) => window.setTimeout(
+        () => sfx('draw', 0.95 + i * 0.05), dealDelay + i * 45));
+    }
     // 箭頭要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後
     if (targeting) mountArrow(box);
+    // `dealDelay` 是**一次性**的：settle 設好、緊接著那一次重畫用掉就歸零。
+    // 不歸零的話，換完回合之後每一次重畫（點一張要選目標的牌、按 Esc 取消）
+    // 都會以為自己還在發牌，把整排手牌與「結束回合」再鎖一秒多。
+    dealDelay = 0;
   }
 
   /**
@@ -593,6 +685,7 @@ registerScreen('combat', (app, root, props) => {
     const chk = canPlay(cs, uid, targetUid);
     if (!chk.ok) { hint = chk.reason; render(); return; }
     flyCard(uid, targetUid);
+    sfx('draw', 1.15);   // 牌離手的紙聲，比抽牌高一點才分得出是哪個動作
     // 出招一律用「參上」。以前是照牌面貼圖換姿勢，但牌面已經換成專畫的插圖（`card/*`），
     // 那批不是球球的立繪、也沒有對應的姿勢，所以那條規則已經沒有意義了。
     act(() => {
@@ -611,10 +704,75 @@ registerScreen('combat', (app, root, props) => {
     act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); });
   }
 
+  /**
+   * 收牌：手上剩下的牌往右下角的「結束回合」飛過去，縮小、轉開、淡掉，像被收回牌堆。
+   *
+   * **動的是原本那幾張牌，不是複製到疊層的分身**（出牌的 `flyCard` 才需要分身）：
+   * 這一段從頭到尾不重畫，所以牌不會被丟掉，動畫播得完；而且分身是照外框
+   * （`getBoundingClientRect`）定位的，扇形轉開的牌外框比牌本身大一圈，複製過去會被拉扁。
+   *
+   * **動的是 `translate`／`rotate`／`scale` 三個獨立屬性，不是 `transform`**：
+   * 扇形的角度是渲染時用行內 `transform` 寫上去的，動 `transform` 會把整個扇形抹平。
+   * 獨立屬性跟 `transform` 是相乘疊加的，扇形留著、飛行疊在上面。
+   *
+   * 回傳「等多久再叫引擎」；沒有牌可收（或這個瀏覽器沒有 `animate`）就回 0，呼叫端照舊直接結算。
+   */
+  function collectHand(): number {
+    const hand = root.querySelector<HTMLElement>('.hand');
+    const btn = root.querySelector<HTMLElement>('.end-turn');
+    const cards = [...root.querySelectorAll<HTMLElement>('.hand .card')];
+    if (!hand || !btn || !cards.length || typeof cards[0]!.animate !== 'function') return 0;
+    // 舞台整個被 transform: scale() 縮過，量到的螢幕座標要除以縮放比才是舞台座標
+    const stage = app.stage.getBoundingClientRect();
+    const k = stage.width > 0 ? 1280 / stage.width : 1;
+    const br = btn.getBoundingClientRect();
+    const bx = br.left + br.width / 2;
+    const by = br.top + br.height / 2;
+    cards.forEach((node, i) => {
+      const r = node.getBoundingClientRect();
+      const dx = (bx - r.left - r.width / 2) * k;
+      const dy = (by - r.top - r.height / 2) * k;
+      // 一張往左轉、一張往右轉，越後面轉越多：整排一起轉同一邊會像一塊板子在倒
+      const spin = (i % 2 ? 1 : -1) * (16 + i * 4);
+      node.animate([
+        { translate: '0 0', rotate: '0deg', scale: 1, opacity: 1 },
+        { translate: `${(dx * 0.42).toFixed(0)}px ${(dy * 0.42).toFixed(0)}px`,
+          rotate: `${(spin * 0.45).toFixed(0)}deg`, scale: 0.78, opacity: 1, offset: 0.5 },
+        { translate: `${dx.toFixed(0)}px ${dy.toFixed(0)}px`, rotate: `${spin}deg`, scale: 0.12, opacity: 0 },
+      ], {
+        duration: COLLECT_FLY,
+        delay: i * COLLECT_STAGGER,
+        easing: 'cubic-bezier(.5, 0, .8, .35)',   // 慢慢起步、越飛越快，像被吸進去
+        // both＝出發前先定住（不讓手牌的起伏動畫繼續晃）、飛完之後停在按鈕上不要彈回來。
+        // 引擎比最後一張牌早跑完，沒有 forwards 的話前面幾張會先跳回原位再被重畫掉。
+        fill: 'both',
+      });
+    });
+    // 飛走的牌不要再吃滑鼠：滑過去會被 :hover 拉起來，整段動畫就爛了
+    hand.classList.add('collecting');
+    btn.setAttribute('disabled', 'disabled');
+    return COLLECT_WAIT;
+  }
+
   function onEndTurn(): void {
     if (!canAct()) return;
+    // 選著目標的時候按結束回合：先重畫一次把指引箭頭與選起來的那張牌收掉，再開始收牌。
+    // 收牌那段刻意不重畫，箭頭留著就會指著一張已經飛走的牌。
+    const wasTargeting = targeting !== null;
     targeting = null;
-    act(() => endTurn(cs), { deal: true });
+    hideTooltip();
+    if (wasTargeting) render();
+    sfx('turn_end');
+    const wait = collectHand();
+    if (wait <= 0) { act(() => endTurn(cs), { deal: true }); return; }
+    // 這段時間引擎還停在上一回合，畫面上的數字（飽足、抽牌數）跟引擎仍然是一致的——
+    // 因為根本還沒有人動過它。收完牌才真的換回合，那時候整個畫面一起重畫。
+    collecting = true;
+    window.setTimeout(() => {
+      if (app.cs !== cs || !collecting) return;   // 這場已經被接手就算了
+      collecting = false;
+      act(() => endTurn(cs), { deal: true });
+    }, wait);
   }
 
   // ===== 結算與動畫 =====
@@ -668,13 +826,19 @@ registerScreen('combat', (app, root, props) => {
         node.append(floatNum(`-${b.hp - e.hp}`));
         // 出攻擊牌打的放斬擊，其他來源（反彈、中毒、自傷）放撞擊火花：
         // 同樣是掉血，但「我砍的」跟「牠自己踩到的」該長得不一樣
-        burst(node, chokeTick(getStatus(e, '噎到'), b.choke) ? 'poison'
-          : opts.attack ? 'slash' : 'hit');
+        const poisoned = chokeTick(getStatus(e, '噎到'), b.choke);
+        burst(node, poisoned ? 'poison' : opts.attack ? 'slash' : 'hit');
+        // 音高照打掉的血量微調：連續打同一隻時，一模一樣的聲音聽起來像卡帶
+        const heavy = b.hp - e.hp >= 12;
+        sfx(poisoned ? 'poison' : opts.attack ? (heavy ? 'hit_heavy' : 'claw') : 'hit',
+          poisoned ? 1 : 0.94 + Math.random() * 0.12);
       }
+      // 打到了但一點血都沒掉＝整下被防禦吃掉，要有「鏘」的一聲，不然像沒打到
+      else if (opts.attack && !e.dead && b.block > 0 && e.block < b.block) sfx('blocked');
       else if (e.hp > b.hp) burst(node, 'heal');
       if (sumStatus(e, BAD_STATUS) > b.debuff) burst(node, 'debuff');
       // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
-      if (!b.dead && e.dead) { node.classList.add('dead'); burst(node, 'smoke', 160); }
+      if (!b.dead && e.dead) { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {
         node.classList.add('attack');
@@ -688,14 +852,20 @@ registerScreen('combat', (app, root, props) => {
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>('.unit.player');
     if (cat) {
-      if (p.hp > before.hp) burst(cat, 'heal');
-      if (p.block > before.block) burst(cat, 'block');
-      if (sumStatus(p, GOOD_STATUS) > before.buff) burst(cat, 'buff');
-      if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
+      if (p.hp > before.hp) { burst(cat, 'heal'); sfx('heal'); }
+      if (p.block > before.block) { burst(cat, 'block'); sfx('block'); }
+      if (sumStatus(p, GOOD_STATUS) > before.buff) {
+        burst(cat, 'buff');
+        // 隱身有專屬的一團煙，跟一般增益的亮音分開
+        sfx(getStatus(p, '隱身') > before.stealth ? 'stealth' : 'buff');
+      }
+      if (sumStatus(p, BAD_STATUS) > before.debuff) { burst(cat, 'debuff'); sfx('debuff'); }
       if (hurt) {
         cat.classList.add('hit');
         cat.append(floatNum(`-${before.hp - p.hp}`));
-        burst(cat, chokeTick(getStatus(p, '噎到'), before.choke) ? 'poison' : 'hit');
+        const pPoison = chokeTick(getStatus(p, '噎到'), before.choke);
+        burst(cat, pPoison ? 'poison' : 'hit');
+        sfx(pPoison ? 'poison' : 'hurt');
         // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
         // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
         // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。

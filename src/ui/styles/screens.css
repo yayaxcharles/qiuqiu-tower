@@ -78,13 +78,11 @@
   height: auto;
   max-height: 624px;
   padding: 24px 44px;
-  /* 四個角花：只有左上那片是生的圖，另外三個是打包時鏡射出來的。
-     用四層背景圖而不是加四個 div，這樣每個畫面的內容都不用動。 */
+  /* 面板只剩底色與外框。四個角本來各疊一片角花（`--corner-*` 那四層背景圖），
+     2026-09-01 全部拿掉：事件那幾張圖的邊框跟角花疊在一起很雜，而且只拿掉事件的話
+     各畫面會變成有的有、有的沒有。要留底色請寫 `background-color`，不要用 `background`
+     簡寫——簡寫會把 `background-image` 一起重設。 */
   background-color: rgba(248, 242, 232, .95);
-  background-image: var(--corner-tl), var(--corner-tr), var(--corner-bl), var(--corner-br);
-  background-position: left 7px top 7px, right 7px top 7px, left 7px bottom 7px, right 7px bottom 7px;
-  background-repeat: no-repeat;
-  background-size: 40px 40px;
   border: 3px solid rgba(58, 42, 28, .7);
   border-radius: 16px;
   box-shadow: 0 14px 44px rgba(0, 0, 0, .55);
@@ -271,8 +269,7 @@
   max-height: 648px;
   /* 罐頭鋪不要那塊米色面板，直接站在店景上。
      貨架自己就是深色木頭、有外框有落地陰影；招牌是木牌、老闆的台詞是白底泡泡，
-     每一塊都自帶對比，不需要面板墊底。面板拿掉之後整間店才看得到。
-     四個角花是 `.screen` 用背景圖疊的，連同底色一起清掉——沒有面板就沒有角可以掛。 */
+     每一塊都自帶對比，不需要面板墊底。面板拿掉之後整間店才看得到。 */
   background-color: transparent;
   background-image: none;
   border: none;

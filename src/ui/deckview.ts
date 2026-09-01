@@ -1,5 +1,6 @@
 import { cardStats } from '../engine/deck';
 import type { CardInstance } from '../engine/types';
+import { play } from './audio';
 import { cardNode } from './cardview';
 import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
@@ -21,7 +22,15 @@ export interface DeckPickerOpts {
    * `upgrade` 裡，畫一張 `upgraded: true` 的牌就是了，不用另外描述差在哪。
    */
   previewUpgrade?: boolean;
+  /**
+   * 要玩家挑幾張，預設 1。大於 1＝多選：點過的牌會亮起來、再點一次取消，
+   * 湊滿張數確認鈕才按得下去。挑完一次回報全部，不要挑一張就把視窗收掉
+   * （使用者的原話：「升級兩張牌結果我點一張就跳過去結束了」）。
+   */
+  pickCount?: number;
   onPick: (uid: number | null) => void;
+  /** 多選時改叫這個；使用者放棄就給空陣列 */
+  onPickMany?: (uids: number[]) => void;
 }
 
 export interface DeckPickerLayout {
@@ -67,12 +76,15 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
    * 也順手關掉還浮著的名詞提示：滑鼠停在牌面名詞上時整個疊層被移除，
    * mouseleave 不會發生，提示框就變成孤兒黏在畫面上。
    */
+  const many = Math.max(1, opts.pickCount ?? 1);
+  const chosen: number[] = [];
   const dismiss = (uid: number | null): void => {
     hidePreview();
     overlay.remove();
     unlockScreen();
     hideTooltip();
-    opts.onPick(uid);
+    if (many > 1) opts.onPickMany?.(uid === null ? [] : chosen);
+    else opts.onPick(uid);
   };
   const layout = deckPickerLayout(opts);
   const grid = el('div', { class: 'deck-grid' });
@@ -110,7 +122,22 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
       disabled: opts.pickable && !ok,
       // 選中的牌先彈一下再收視窗。原本是點下去視窗立刻消失，
       // 玩家連自己選到哪一張都來不及看清楚，升級／移除更是完全沒有「成交」的感覺。
-      onClick: pick ? () => { node.classList.add('picked'); hidePreview(); window.setTimeout(() => dismiss(c.uid), 260); } : undefined,
+      // 單選：選中的牌先彈一下再收視窗（原本點下去視窗立刻消失，玩家看不清自己選到哪張）。
+      // 多選：點一下亮起、再點一下取消，湊滿才收。
+      onClick: pick ? () => {
+        if (many > 1) {
+          const at = chosen.indexOf(c.uid);
+          if (at >= 0) { chosen.splice(at, 1); node.classList.remove('selected'); }
+          else if (chosen.length < many) { chosen.push(c.uid); node.classList.add('selected'); play('click'); }
+          else return;   // already full: 先取消一張才能改選
+          refreshConfirm();
+          return;
+        }
+        node.classList.add('picked');
+        play('click');
+        hidePreview();
+        window.setTimeout(() => dismiss(c.uid), 260);
+      } : undefined,
     });
     if (opts.previewUpgrade && ok) {
       node.addEventListener('mouseenter', () => showPreview(node, c));
@@ -119,6 +146,17 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     grid.append(node);
   }
   if (layout.note) grid.append(el('div', { class: 'deck-empty' }, layout.note));
+  // 多選才需要確認鈕：單選點下去就成交，多一顆按鈕只是多一步
+  const confirm = many > 1
+    ? el('button', { class: 'btn primary', onclick: () => dismiss(chosen[0] ?? null) }, '確定')
+    : null;
+  function refreshConfirm(): void {
+    if (!confirm) return;
+    confirm.textContent = `確定（${chosen.length}／${many}）`;
+    if (chosen.length === many) confirm.removeAttribute('disabled');
+    else confirm.setAttribute('disabled', 'disabled');
+  }
+  refreshConfirm();
   const close = el('button', { class: 'btn', onclick: () => dismiss(null) },
     opts.pickable && layout.choices > 0 ? '不選' : '關閉');
   // 點旁邊的黑幕等於按關閉；一定要挑一張的時候就不理（但沒得挑就得放行，見 deckPickerLayout）
@@ -127,7 +165,7 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
   overlay.append(el('div', { class: 'modal' },
     el('h2', { class: 'modal-title' }, opts.title),
     grid,
-    el('div', { class: 'modal-foot' }, close)));
+    el('div', { class: 'modal-foot' }, confirm ?? '', close)));
   layer.append(overlay);
   /**
    * 上鎖**一定要排在疊層貼上去之後**。前面每一步都可能丟例外——最現實的是 `cardNode` →

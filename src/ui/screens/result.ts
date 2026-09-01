@@ -1,3 +1,4 @@
+import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { clearSave, recordBest } from '../../engine/save';
@@ -9,6 +10,8 @@ import { el } from '../dom';
 import { attachTextTooltip } from '../tooltip';
 
 registerScreen('result', (app, root) => {
+  // 進畫面就放對應的收尾音；這時候玩家一定已經點過東西，音訊環境是解鎖的
+  play(app.run?.status === 'won' ? 'victory' : 'defeat');
   const run = app.run;
   if (!run) { app.show('title'); return; }
   const won = run.status === 'won';

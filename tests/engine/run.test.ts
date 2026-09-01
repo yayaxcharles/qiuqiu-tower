@@ -227,8 +227,10 @@ describe('事件結果', () => {
     applyRunEffects(run, [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }]);
     expect(cardById[run.deck.at(-1)!.cardId]?.rarity).toBe('罕見');
     applyRunEffects(run, [{ kind: 'potions', n: 2 }]); expect(run.potions.length).toBe(2);
-    expect(applyRunEffects(run, [{ kind: 'removeCard' }])).toEqual({ needs: 'removeCard' });
-    expect(applyRunEffects(run, [{ kind: 'upgradeCard' }])).toEqual({ needs: 'upgradeCard' });
+    expect(applyRunEffects(run, [{ kind: 'removeCard' }])).toEqual({ needs: 'removeCard', n: 1 });
+    expect(applyRunEffects(run, [{ kind: 'upgradeCard' }])).toEqual({ needs: 'upgradeCard', n: 1 });
+    // 寫兩次就是要挑兩張——「升級兩張牌」的事件本來只升到一張
+    expect(applyRunEffects(run, [{ kind: 'upgradeCard' }, { kind: 'upgradeCard' }])).toEqual({ needs: 'upgradeCard', n: 2 });
     expect(applyRunEffects(run, [{ kind: 'fight', encounterId: 'orange_bandit', bonusFish: 40 }])).toEqual({ fight: { encounterId: 'orange_bandit', bonusFish: 40 } });
     const pick = applyRunEffects(run, [{ kind: 'chooseCard', pool: '絕學', n: 3 }]);
     expect('chooseCard' in pick! && pick.chooseCard.length).toBe(3);
