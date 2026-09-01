@@ -215,9 +215,15 @@
    深色外框、上亮下暗的立體感、底下一根接到頭上的短繩。
    顏色也從粉彩改成飽和的，一眼就分得出這一手是要打人還是要防。 */
 .combat .intent {
-  position: relative;
   display: inline-block;
-  margin-bottom: 8px;
+  /* 掛在圖畫頂端上方 8 像素。`--drawn-h` 是圖畫實際佔的高度（combat.ts 算好寫進來），
+     圖是貼在框底部的，所以這個高度就是圖畫的頂端。
+     沒算到時退回框高的一半，至少不會跑到畫面外。 */
+  position: absolute;
+  bottom: calc(var(--drawn-h, 50%) + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
   padding: 2px 11px 3px;
   border: 2.5px solid #2b2118;
   border-radius: 8px;

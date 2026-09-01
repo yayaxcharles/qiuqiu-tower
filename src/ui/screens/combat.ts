@@ -142,11 +142,43 @@ registerScreen('combat', (app, root, props) => {
    * 立繪連同腳下的接地陰影。陰影是一片橢圓漸層，貼在立繪框的底邊——
    * 少了它，去背的角色貼在背景上就是「浮著」，跟站在地上差很多。
    */
-  function spriteBox(src: string, alt: string): HTMLElement {
-    return el('div', { class: 'sprite-box' },
+  /**
+   * 立繪框的尺寸，跟 `combat.css` 的 `.unit.size-* .sprite` 必須一致。
+   * 這裡重複一份是刻意的：算「頭頂空多少」不需要量 DOM，用常數算最準——
+   * 量 DOM 的版本試過兩次都抓錯時機（節點還沒進畫面、或體型樣式還沒套上），
+   * 黃瓜怪量出 136 而正確值是 162。
+   */
+  const SPRITE_BOX: Record<string, [number, number]> = {
+    small: [130, 150], medium: [180, 210], large: [230, 280], player: [270, 300],
+  };
+
+  /**
+   * 立繪框是固定高度、圖用 `object-fit: contain` 貼在底部，
+   * 所以很扁的魔物（黃瓜怪那種）上面會空一大截，頭上的意圖牌子就飄在半空、
+   * 那條短繩根本接不到牠。這裡算出空掉的高度寫成 `--head-gap`，
+   * 樣式表用負的 margin 把牌子往下拉，牌子才會真的掛在頭上。
+   */
+  function spriteBox(src: string, alt: string, size: keyof typeof SPRITE_BOX = 'player',
+                     over?: HTMLElement | string): HTMLElement {
+    const img = el('img', { class: 'sprite', src, alt }) as HTMLImageElement;
+    const [bw, bh] = SPRITE_BOX[size] ?? SPRITE_BOX['medium']!;
+    const box = el('div', { class: 'sprite-box' },
       el('div', { class: 'ground-shadow' }),
-      el('img', { class: 'sprite', src, alt }));
+      img);
+    if (over) box.append(over);
+    // `--drawn-h`＝圖畫實際佔的高度。圖是貼在框底部的，所以「圖畫頂端」就在這個高度上，
+    // 意圖牌子用它當 bottom 就會剛好掛在頭上。算的是常數不是量 DOM：
+    // 量 DOM 試過兩次都抓錯時機（節點還沒進畫面、體型樣式還沒套上）。
+    const fit = (): void => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      const drawn = Math.min(bh, bw * img.naturalHeight / img.naturalWidth);
+      box.style.setProperty('--drawn-h', `${Math.round(drawn)}px`);
+    };
+    // 圖已經在快取裡就直接算（開場會把所有圖預載完，多數情況都是這條）
+    if (img.complete) fit(); else img.addEventListener('load', fit, { once: true });
+    return box;
   }
+
 
   function chip(term: string, iconKey: string | null, value: string, extra = ''): HTMLElement {
     const node = el('div', { class: `chip ${extra}`.trim() });
@@ -285,9 +317,11 @@ registerScreen('combat', (app, root, props) => {
     const cls = ['unit', 'enemy', `size-${def?.size ?? 'medium'}`];
     if (e.dead) cls.push('gone');
     if (targeting && !e.dead) cls.push('targetable');
+    // 意圖牌子放進立繪框裡（不是當它的兄弟節點）：框裡才有「圖畫實際佔多高」這個座標，
+    // 牌子用絕對定位掛在圖畫頂端，扁的魔物才不會讓牌子飄在半空。
+    // 放在外面用負邊界試過兩次都不準——那個排版下負邊界只挪了 15 像素而不是 130。
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), style: `left:${left}px` },
-      intentChip(e),
-      spriteBox(enemySprite(e, def), e.name),
+      spriteBox(enemySprite(e, def), e.name, def?.size ?? 'medium', intentChip(e)),
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp, e.maxHp),
       statusRow(e));
