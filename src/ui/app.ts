@@ -8,7 +8,7 @@ import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
 import { computeScale, monsterUrl } from './assets';
-import { playDialogue, toast } from './dialogue';
+import { playDialogue, toast, bubbleAt } from './dialogue';
 import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
@@ -188,6 +188,22 @@ export class App {
       this.cs = beginCombat(run, encounterId);
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
       this.show('combat', { bonusFish, bonusUpgrades });
+      // 魔物的開場台詞從頭上冒泡泡（一隻接一隻），左上角的紀錄照舊保留當備查
+      const cs = this.cs;
+      window.setTimeout(() => {
+        if (this.cs !== cs) return;
+        const stage = this.stage.getBoundingClientRect();
+        const k = stage.width > 0 ? 1280 / stage.width : 1;
+        cs.enemies.filter((e) => !e.dead && enemyById[e.enemyId]?.line).forEach((e, i) => {
+          window.setTimeout(() => {
+            if (this.cs !== cs) return;
+            const sprite = this.screen.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
+            if (!sprite) return;
+            const r = sprite.getBoundingClientRect();
+            bubbleAt(enemyById[e.enemyId]?.line ?? '', e.name, (r.left + r.width / 2 - stage.left) * k, (r.top - stage.top) * k + 16);
+          }, i * 420);
+        });
+      }, 500);
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
         toast(dialogue.firstMeet[firstNew] ?? '', '球球');

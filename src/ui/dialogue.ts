@@ -85,6 +85,21 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
   lockScreen();   // 跟挑牌疊層同一個規矩：貼上去之後才鎖
 }
 
+/**
+ * 掛在指定位置的對話泡泡（舞台座標）：魔物開場那句「塔主有令，閒貓勿入」本來只寫在左上角的紀錄裡，
+ * 使用者 2026-09-02：「非常好但左上角不顯眼」→ 改成從魔物頭上冒出來。尾巴在右下角指向頭。
+ */
+export function bubbleAt(text: string, speaker: string, headX: number, headY: number): void {
+  if (!text) return;
+  const layer = overlayRoot();
+  if (!layer) return;
+  const t = el('div', { class: 'toast bubble-at tail-right', style: `right:${Math.round(1280 - headX - 34)}px; top:${Math.round(headY - 74)}px` },
+    speaker ? el('b', {}, `${speaker}：`) : '', text);
+  layer.append(t);
+  setTimeout(() => t.classList.add('out'), 3300);   // 一句台詞要讀完，留久一點
+  setTimeout(() => t.remove(), 3800);
+}
+
 /** 戰鬥吐槽小氣泡，兩秒後自己淡掉 */
 export function toast(text: string, speaker = ''): void {
   if (!text) return;
