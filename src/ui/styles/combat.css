@@ -634,18 +634,18 @@
 .combat .arrow-outline { fill: none; stroke: #1d140ccc; stroke-width: 10; stroke-linecap: round; }
 .combat .arrow-line {
   fill: none;
-  stroke: #ffd98a;
+  stroke: #ff9c8c;   /* 淡紅（使用者 2026-09-02：黃色線有點難看） */
   stroke-width: 4.5;
   stroke-linecap: round;
   stroke-dasharray: 14 10;
   animation: arrow-flow .55s linear infinite;
 }
 @keyframes arrow-flow { to { stroke-dashoffset: -24; } }
-.combat .arrow-head { fill: #ffd98a; stroke: #1d140ccc; stroke-width: 2.5; stroke-linejoin: round; }
-.combat .arrow-tip { fill: none; stroke: #ffd98a; stroke-width: 3; opacity: 0; }
+.combat .arrow-head { fill: #ff9c8c; stroke: #1d140ccc; stroke-width: 2.5; stroke-linejoin: round; }
+.combat .arrow-tip { fill: none; stroke: #ff9c8c; stroke-width: 3; opacity: 0; }
 /* 吸附到魔物身上就轉亮，讓「放開就會打這隻」很明確 */
-.combat .target-arrow.snap .arrow-line { stroke: #fff3d6; stroke-width: 5.5; }
-.combat .target-arrow.snap .arrow-head { fill: #fff3d6; }
+.combat .target-arrow.snap .arrow-line { stroke: #ffd6cc; stroke-width: 5.5; }
+.combat .target-arrow.snap .arrow-head { fill: #ffd6cc; }
 .combat .target-arrow.snap .arrow-tip { opacity: .9; animation: arrow-tip-pulse .8s ease-out infinite; }
 @keyframes arrow-tip-pulse { from { r: 12; opacity: .95; } to { r: 30; opacity: 0; } }
 
