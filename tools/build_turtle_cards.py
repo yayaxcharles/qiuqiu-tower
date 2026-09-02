@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""阿甲（烏龜）牌組資料：起手 4＋龜甲流＋玄武訣，鏡像球球的牌標 mirror。輸出 docs/角色二_烏龜_牌組.json 與 scratchpad/turtle_cards.json"""
+"""阿甲（烏龜）牌組資料（2026-09-03 已套用使用者第一輪改動：留殼 2 費、甲裂不歸零、磨甲改能力、深呼吸 2 費、龜甲盾改反彈；刪咚咚／彈殼／慢慢來／撿寶／大吼）：起手 4＋龜甲流＋玄武訣，鏡像球球的牌標 mirror。輸出 docs/角色二_烏龜_牌組.json 與 scratchpad/turtle_cards.json"""
 import json, io, os
 from collections import Counter
 ROOT = r'F:\ClaudeWork\qiuqiu-tower'
@@ -23,8 +23,8 @@ add('guixi_qi', '龜息', '起手', '常見', '技能', 1, '獲得 4 點蜷縮�
 
 # ===== 龜甲流（基本功，對應忍術池）=====
 K = '龜甲流'
-for args in [('keqiao', '殼角頂', 'shunkan'), ('nijiang', '泥漿彈', 'shengdong'), ('jianbao', '撿寶', 'shunshou'), ('manmanlai', '慢慢來', 'wozaizhe'),
-             ('kejiewo', '殼借我', 'jiaochulai'), ('hengsao', '橫掃', 'susu'), ('dongdong', '咚咚', 'roubao'), ('danke', '彈殼', 'paozhao'),
+for args in [('keqiao', '殼角頂', 'shunkan'), ('nijiang', '泥漿彈', 'shengdong'),
+             ('kejiewo', '殼借我', 'jiaochulai'), ('hengsao', '橫掃', 'susu'),
              ('shunshi', '順勢一撞', 'luoye'), ('sichuzhangwang', '四處張望', 'qianliyan'), ('manmanxiang', '慢慢想', 'shunfenger'),
              ('deng', '瞪', 'dingshang'), ('xiayitiao', '嚇一跳', 'chudashi'), ('youdongjing', '有動靜', 'youcike'), ('tuotuolala', '拖拖拉拉', 'tuozi'),
              ('shensishulv', '深思熟慮', 'duxin'), ('yingke', '硬殼', 'bianshen'), ('manbanpai', '慢半拍', 'suoyituan'), ('xianduoyixia', '先躲一下', 'zhanshu'),
@@ -40,19 +40,19 @@ add('jiabei', '甲背衝撞', K, '常見', '攻擊', 2, '造成 10 點傷害，�
 add('zhongta', '重踏', K, '常見', '攻擊', 1, '造成 6 點傷害；你的蜷縮在 10 點以上就再造成 6 點。', '造成 8 點傷害；你的蜷縮在 10 點以上就再造成 8 點。', 1, '', '獨有：新效果「蜷縮門檻加傷」')
 add('shuaiwei', '甩尾', K, '常見', '攻擊', 1, '造成 3 點傷害，連打 2 次；每打中一次獲得 2 點蜷縮。', '造成 4 點傷害，連打 2 次；每打中一次獲得 2 點蜷縮。', 1, '', '獨有：新效果「命中得蜷縮」')
 add('zhanwen', '站穩', K, '常見', '技能', 0, '獲得 3 點蜷縮。', '獲得 5 點蜷縮。', 0, '', '獨有')
-add('shenhuxi', '深呼吸', K, '常見', '技能', 1, '獲得 6 點蜷縮，回復 2 點生命。', '獲得 8 點蜷縮，回復 3 點生命。', 1, '', '獨有')
+add('shenhuxi', '深呼吸', K, '常見', '技能', 2, '獲得 6 點蜷縮，回復 2 點生命。', '獲得 8 點蜷縮，回復 3 點生命。', 2, '', '獨有')
 add('yingjie', '硬接', K, '罕見', '技能', 1, '獲得 8 點蜷縮；這回合獲得 3 點反彈（回合結束消失）。', '獲得 10 點蜷縮；這回合獲得 4 點反彈。', 1, '', '獨有：新效果「本回合反彈」')
-add('mojia', '磨甲', K, '罕見', '技能', 1, '消耗手牌裡的 1 張牌，獲得 7 點蜷縮。', '消耗手牌裡的 1 張牌，獲得 10 點蜷縮。', 1, '', '獨有：用既有的「消耗手牌」＋蜷縮')
+add('mojia', '磨甲', K, '稀有', '能力', 3, '使身上的蜷縮數值乘以 2 倍。', '使身上的蜷縮數值乘以 3 倍。', 3, '', '獨有（2026-09-03 使用者改成能力）：需新效果「蜷縮加倍」')
 add('laoyou', '老友', K, '罕見', '技能', 1, '抽 2 張牌；你的蜷縮在 10 點以上就再抽 1 張。', '抽 3 張牌；你的蜷縮在 10 點以上就再抽 1 張。', 1, '', '獨有：新效果「蜷縮門檻加抽」')
 add('yikehuanjin', '以殼換勁', K, '罕見', '技能', 1, '失去全部蜷縮，每失去 5 點獲得 1 點爪力。', '失去全部蜷縮，每失去 4 點獲得 1 點爪力。', 1, '', '獨有：新效果「蜷縮換爪力」')
-add('jiliang', '甲裂', K, '罕見', '攻擊', 2, '把你全部的蜷縮換成傷害打出去，蜷縮歸零。', '費用變 1。', 1, '', '獨有：新效果「蜷縮換傷害」')
-add('liuke', '留殼', K, '罕見', '能力', 1, '回合開始時蜷縮不歸零。', '費用變 0。', 0, '', '獨有：新效果「留殼」（跟起始秘寶老龜甲疊加時取大）')
-add('guijiadun', '龜甲盾', K, '罕見', '技能', 2, '獲得 14 點蜷縮，給目標 1 層翻肚。', '獲得 18 點蜷縮，給目標 1 層翻肚。', 2, '', '獨有')
+add('jiliang', '甲裂', K, '罕見', '攻擊', 2, '造成等同於蜷縮數值的傷害。', '費用變 1。', 1, '', '獨有（2026-09-03 使用者改：不再歸零）')
+add('liuke', '留殼', K, '罕見', '能力', 2, '回合開始時蜷縮不歸零。', '費用變 1。', 1, '', '獨有：新效果「留殼」（跟起始秘寶老龜甲疊加時取大）')
+add('guijiadun', '龜甲盾', K, '罕見', '技能', 2, '獲得 14 點蜷縮，獲得 3 點反彈。', '獲得 20 點蜷縮，獲得 5 點反彈。', 2, '', '獨有')
 
 # ===== 玄武訣（絕學等級）=====
 X = '玄武訣'
 for args in [('nizhua', '泥爪', 'tieshazhang'), ('yazhi', '壓制', 'qinna'), ('shuaisha', '甩沙', 'juye'), ('tiejia', '鐵甲', 'jinzhong'),
-             ('yingtou', '硬頭', 'tietou'), ('dahou', '大吼', 'shihou'), ('dingxue', '頂穴', 'dianxue'), ('luanzhuang', '亂撞', 'zuiquan'),
+             ('yingtou', '硬頭', 'tietou'), ('dingxue', '頂穴', 'dianxue'), ('luanzhuang', '亂撞', 'zuiquan'),
              ('nuoyinuo', '挪一挪', 'yixing'), ('jianhuilai', '撿回來', 'gekong'), ('guixidafa', '龜息大法', 'guixi'), ('zhanzhuang', '站樁', 'mabu'),
              ('xujin', '蓄勁', 'yungong'), ('yikefuren', '以殼服人', 'yide'), ('yaoyikou', '咬一口', 'dieda'), ('sanlianding', '三連頂', 'shibadie'),
              ('cijia', '刺甲', 'hujin'), ('yingcheng', '硬撐', 'boming'), ('lianding', '連頂', 'liandao'), ('gunyiquan', '滾一圈', 'shierlian'),

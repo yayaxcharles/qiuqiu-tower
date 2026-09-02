@@ -60,7 +60,7 @@ td select { width:auto; }
 </main>
 <script>
 const BASE = __DATA__;
-const KEY = 'qiuqiu.turtle.cards.v1';
+const KEY = 'qiuqiu.turtle.cards.v2';   // v2：2026-09-03 第一輪改動已套進底稿，舊的本機改動作廢
 let EDITS = {}; let ADDED = []; let REMOVED = [];
 try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) { EDITS = s.edits || {}; ADDED = s.added || []; REMOVED = s.removed || []; } } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ edits: EDITS, added: ADDED, removed: REMOVED })); } catch (e) {} };
