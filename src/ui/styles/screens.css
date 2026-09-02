@@ -883,3 +883,24 @@
 .hud-diff.d3 { color: #f0a24a; border-color: #f0a24a99; }
 .hud-diff.d4 { color: #ff7a4a; border-color: #ff7a4a99; }
 .hud-diff.d5 { color: #ff4a3a; border-color: #ff4a3ab3; background: #4a0a0a80; }
+
+/* 紙箱／事件的劇場版面（使用者 2026-09-02：「球球有點擋到字，稍微右移一點」「一定要鑽進去喵的字跟圖卡到了」）：
+   1. 球球立繪往左挪 30、名字與對白往右挪 80，腳不再踩在名字上；
+   2. 劇場畫面的吐槽泡泡改放右上角（原本在正中央，會壓在秘寶圖上）。戰鬥畫面的吐槽位置不動。 */
+.scene .scene-portrait { left: 4px; }
+.scene:has(.scene-goods) .scene-portrait { left: 0; }
+.scene .dialogue-box.scene-box { padding-left: 290px; }   /* 球球立繪右緣約在 340，字從 290 起、名字不再被腳踩到 */
+.scene .scene-box .dialogue-speaker { left: 290px; }
+#stage:has(.scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
+@keyframes toast-in-side { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+
+/* 罐頭鋪貨架（使用者 2026-09-02：「太緊湊、下面到放生鈕還有很大空間、卡牌跟文字超出到下面的貨架」）：
+   取消九折縮放、兩座架子間距拉開、層板下內距加深讓價標穩穩坐在板子上、貨格與字放大一號 */
+.scene-goods { transform: none; gap: 14px; padding-top: 2px; }
+.shelf { padding-bottom: 20px; }
+.shop-item { width: 182px; font-size: 15px; gap: 4px; }
+.shop-item .small { font-size: 12.5px; }
+.shop-item img { width: 46px; height: 46px; }
+.shop-item.card-item .price { margin-top: 9px; }
+.shop-shelves { gap: 22px; }
+.shop-row { gap: 16px; }
