@@ -93,9 +93,25 @@ export function bubbleAt(text: string, speaker: string, headX: number, headY: nu
   if (!text) return;
   const layer = overlayRoot();
   if (!layer) return;
-  const t = el('div', { class: 'toast bubble-at tail-right', style: `right:${Math.round(1280 - headX - 34)}px; top:${Math.round(headY - 74)}px` },
+  let top = Math.round(headY - 74);
+  const t = el('div', { class: 'toast bubble-at tail-right', style: `right:${Math.round(1280 - headX - 34)}px; top:${top}px` },
     speaker ? el('b', {}, `${speaker}：`) : '', text);
   layer.append(t);
+  // 兩隻怪一起出場講話，泡泡會疊在一起把前一句蓋掉（2026-09-02 烏天狗＋貓頭鷹那組）：
+  // 撞到還在畫面上的泡泡就往上疊一層；上面沒位子了就先收起來，等前一顆消失再冒出來。
+  // 用 offset 框比（不含冒出來的位移動畫），單位就是疊層自己的 1280 座標，不用換算縮放。
+  const others = [...layer.querySelectorAll<HTMLElement>('.bubble-at:not(.out)')].filter((o) => o !== t);
+  const box = (x: HTMLElement): [number, number, number, number] => [x.offsetLeft, x.offsetTop, x.offsetLeft + x.offsetWidth, x.offsetTop + x.offsetHeight];
+  const hits = (): boolean => {
+    const [l, tp, r, b] = box(t);
+    return others.some((o) => { const [ql, qt, qr, qb] = box(o); return l < qr - 2 && r > ql + 2 && tp < qb - 2 && b > qt + 2; });
+  };
+  const TOP_MIN = 62;   // 再上去就壓到狀態列
+  for (let i = 0; i < 4 && hits(); i++) {
+    const h = t.offsetHeight + 8;
+    if (top - h < TOP_MIN) { t.remove(); window.setTimeout(() => bubbleAt(text, speaker, headX, headY), 1200); return; }
+    top -= h; t.style.top = `${top}px`;
+  }
   setTimeout(() => t.classList.add('out'), 3300);   // 一句台詞要讀完，留久一點
   setTimeout(() => t.remove(), 3800);
 }
