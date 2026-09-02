@@ -754,3 +754,6 @@
 .combat.crowd .unit .chip { font-size: 10px; padding: 1px 5px; gap: 2px; }
 .combat.crowd .unit .chip img { width: 12px; height: 12px; }
 .combat.crowd .unit .name { font-size: 13px; }
+
+/* 「擋住 N」：藍色，跟掉血的紅字分開 */
+.combat .num.blocked { color: #8fc4ff; text-shadow: 0 2px 0 #123, 0 0 10px #1a3a6a; font-size: 32px; }

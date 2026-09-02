@@ -12,8 +12,43 @@ import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
+import { burst } from '../fx';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+
+/**
+ * 結果畫面要秀出來的牌：學會的彈出來、升級的打鐵發金光、丟掉的化成煙散掉、被塞的壞毛病抖一下。
+ * 本來只有一行字「「淡定」被丟掉了」（使用者 2026-09-02：「感覺不太有回饋感」）。
+ */
+type ShowKind = 'learn' | 'upgrade' | 'remove' | 'curse';
+type Showcase = { kind: ShowKind; card: CardInstance }[];
+
+function showcaseNode(items: Showcase): HTMLElement {
+  const box = el('div', { class: 'showcase' });
+  for (const it of items) {
+    const node = cardNode(it.card);
+    node.classList.add('showcase-card', it.kind);
+    if (it.kind === 'upgrade') node.classList.add('forged');
+    box.append(node);
+    // 特效要等節點進到文件裡才量得到位置
+    window.setTimeout(() => burst(node, it.kind === 'remove' ? 'smoke' : it.kind === 'curse' ? 'debuff' : 'buff'), it.kind === 'remove' ? 420 : 60);
+  }
+  return box;
+}
+
+/** 拿到的秘寶／忍具放大彈出來（框裡那一列照舊寫名稱與效果） */
+function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
+  const box = el('div', { class: 'showcase icons' });
+  for (const g of gains) {
+    const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
+    const url = d ? artUrl('icons', d.art) : '';
+    if (!d || url.startsWith('data:')) continue;
+    const node = el('img', { class: 'showcase-icon', src: url, alt: d.name });
+    box.append(node);
+    window.setTimeout(() => burst(node, 'buff'), 60);
+  }
+  return box.childElementCount ? box : '';
+}
 
 /**
  * 事件的插圖。十個事件本來共用同一張空走廊當底圖——文字寫著「轉角站著一隻橘貓山賊」，
@@ -65,14 +100,17 @@ registerScreen('event', (app, root, props) => {
    * （挑牌那條路先不放按鈕，傳 ''）。
    */
   function panel(resultText: string, note: string | null, button: Node | string,
-    gains: readonly RunGain[] = [], art?: string): void {
+    gains: readonly RunGain[] = [], art?: string, show: Showcase = []): void {
     clearKeepBg(root);
     renderHud(app, root);
     // 結果畫面預設沿用同一張插圖：選完之後畫面整個換掉的話，前後接不起來。
     // 但選項自己有 `resultArt` 時就換成那張——像貓薄荷「採一把」那種，
     // 有專屬的結果圖才看得出「我剛剛真的做了那件事」。
+    // 有牌要秀（學會／升級／丟掉）就把牌放在插圖的位置；只拿到秘寶忍具就放大圖示
+    const illo = ev ? eventArt(art ?? ev.id) : '';
+    const artNode = show.length ? showcaseNode(show) : gains.length ? (gainsNode(gains) || illo) : illo;
     root.append(sceneView({
-      art: ev ? eventArt(art ?? ev.id) : '',
+      art: artNode,
       speaker: title,
       text: resultText,
       extra: [gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
@@ -80,15 +118,15 @@ registerScreen('event', (app, root, props) => {
     }));
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
-  const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = []): void =>
-    panel(resultText, note, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'), gains, resultArt);
+  const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void =>
+    panel(resultText, note, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'), gains, resultArt, show);
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
   function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = []): void {
     clearKeepBg(root);
     renderHud(app, root);
     const grid = el('div', { class: 'reward-cards' });
-    for (const c of defs) grid.append(cardNode(c, { onClick: () => { addCard(run, c.id); finish(resultText, `學會了「${c.name}」`, gains); } }));
+    for (const c of defs) grid.append(cardNode(c, { onClick: () => { const got = addCard(run, c.id); finish(resultText, `學會了「${c.name}」`, gains, [{ kind: 'learn', card: got }]); } }));
     root.append(sceneView({
       art: grid,
       speaker: title,
@@ -104,12 +142,14 @@ registerScreen('event', (app, root, props) => {
    * `notes` 是引擎一路記下來的「實際發生了什麼」（賭飯糰中了哪一邊、忍具收不收得下、
    * 隨機撿到哪一張牌）。挑牌那條路自己還會再補一句，所以用 `noteLine` 接起來一起顯示。
    */
-  function settle(outcome: RunEffectOutcome, resultText: string, notes: string[], gains: RunGain[]): void {
+  function settle(outcome: RunEffectOutcome, resultText: string, notes: string[], gains: RunGain[], added: CardInstance[] = []): void {
     const noteLine = (extra?: string): string | null => {
       const all = extra ? [...notes, extra] : notes;
       return all.length ? all.join('；') : null;
     };
-    if (!outcome) { finish(resultText, noteLine(), gains); return; }
+    // 效果直接塞進牌組的牌（撿到、學會、被塞壞毛病）也要秀
+    const gotShow: Showcase = added.map((c) => ({ kind: cardById[c.cardId]?.pool === '壞毛病' ? 'curse' : 'learn', card: c }));
+    if (!outcome) { finish(resultText, noteLine(), gains, gotShow); return; }
     if ('needs' in outcome) {
       const up = outcome.needs === 'upgradeCard';
       const filter = up ? (c: CardInstance) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病' : () => true;
@@ -123,17 +163,20 @@ registerScreen('event', (app, root, props) => {
       /** 把挑好的牌一次結算完，說明文字寫成「「A」「B」升級了」 */
       const settleCards = (uids: readonly number[]): void => {
         const names: string[] = [];
+        const show: Showcase = [...gotShow];
         for (const uid of uids) {
           const c = run.deck.find((x) => x.uid === uid);
           if (!c) continue;
           names.push(cardName(c));
+          const before = { ...c };   // 丟掉的牌要用「丟掉前」的樣子秀
           if (up) upgradeCard(run, uid); else removeCard(run, uid);
-          play(up ? 'upgrade' : 'click');
+          show.push(up ? { kind: 'upgrade', card: c } : { kind: 'remove', card: before });
+          play(up ? 'upgrade' : 'dodge');
         }
         const note = names.length
           ? `「${names.join('」「')}」${up ? '升級了' : '被丟掉了'}`
           : undefined;
-        finish(resultText, noteLine(note), gains);
+        finish(resultText, noteLine(note), gains, show);
       };
       // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
       // 效果已經跑掉了，選項卻還在，看起來像還能再選一次。按鈕等挑完牌才由 finish 補上。
@@ -170,7 +213,9 @@ registerScreen('event', (app, root, props) => {
       resultArt = c.resultArt;
       const notes: string[] = [];
       const gains: RunGain[] = [];
-      settle(applyRunEffects(run, c.outcome, notes, gains), c.result, notes, gains);
+      const had = new Set(run.deck.map((x) => x.uid));
+      const outcome = applyRunEffects(run, c.outcome, notes, gains);
+      settle(outcome, c.result, notes, gains, run.deck.filter((x) => !had.has(x.uid)));
     });
     choices.push(btn);
   }

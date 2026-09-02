@@ -8,6 +8,7 @@ import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+import { sceneView } from '../scene';
 
 /**
  * 圖示還沒生好時 `artUrl` 會回一張灰剪影 data URI。這裡每個項目旁邊都有名字與說明，
@@ -51,13 +52,12 @@ registerScreen('reward', (app, root, props) => {
 
   // 標題依戰鬥種類換句話，打倒塔主不該跟打贏小老鼠共用同一句
   const title = r.kind === '塔主' ? '打倒塔主了' : r.kind === '大魔物' ? '打倒大魔物' : '打贏了';
-  root.append(el('div', { class: 'screen reward' },
-    el('div', { class: 'reward-banner' }, el('h1', {}, title)),
-    el('div', { class: 'reward-loot' },
-      el('div', { class: 'reward-loot-label' }, '戰利品'),
-      items),
-    r.cards.length ? el('h2', {}, '選一張牌帶走') : '',
-    cards,
-    el('button', { class: 'btn primary', onclick: () => done(null) },
-      r.cards.length ? '放棄牌並跳過' : '繼續')));
+  // 劇場版面（跟事件、貓窩同一套）：三張牌立在畫面中央，戰利品寫在底下的帶子裡
+  root.append(sceneView({
+    art: r.cards.length ? cards : '',
+    speaker: title,
+    text: r.cards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
+    extra: [items],
+    actions: [el('button', { class: 'btn primary', onclick: () => done(null) }, r.cards.length ? '放棄牌並跳過' : '繼續')],
+  }));
 });

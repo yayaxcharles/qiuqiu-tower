@@ -48,6 +48,8 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
     const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
     p.block -= absorbed;
     lose = dmg - absorbed;
+    // 擋下來要留紀錄：畫面靠這行飄「擋住 N」跟盾牌，不然整下被吃掉看起來像沒打到（使用者回報）
+    if (absorbed > 0) log(cs, `蜷縮擋下了 ${absorbed} 點`);
     if (opts.pierce && dmg > 0) log(cs, '這一下穿過了蜷縮');
     const thorns = getStatus(p, '反彈');
     if (dmg > 0 && thorns > 0 && attacker !== p) {
@@ -130,7 +132,10 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     if (getStatus(e, '隱身') > 0) { addStatus(e, '隱身', -1); log(cs, `${e.name}閃過了`); return { dealt: 0, killed: false }; }
     const dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
     if (opts.ignoreBlock) lose = dmg;
-    else { const absorbed = Math.min(e.block, dmg); e.block -= absorbed; lose = dmg - absorbed; }
+    else {
+      const absorbed = Math.min(e.block, dmg); e.block -= absorbed; lose = dmg - absorbed;
+      if (absorbed > 0) log(cs, `${e.name}的防禦擋下了 ${absorbed} 點`);   // 同上：魔物那邊也要飄「擋住 N」
+    }
   }
   e.hp = Math.max(0, e.hp - lose);
   if (e.hp === 0) {

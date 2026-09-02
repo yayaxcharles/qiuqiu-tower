@@ -8,6 +8,7 @@ import { artUrl } from '../assets';
 import { el } from '../dom';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
+import { sceneView } from '../scene';
 
 /**
  * 過關畫面：打倒第一、二關的關主之後（第三關直接進結算，不走這裡）。
@@ -39,43 +40,44 @@ registerScreen('actclear', (app, root) => {
     if (!run) return;
     clearKeepBg(root);
     renderHud(app, root);
-    const items = el('div', { class: 'reward-items' });
+    // 秘寶三選一：大圖示的方塊，點了亮起、可換選；跟牌一樣按「出發」才一起結算
+    const relicRow = el('div', { class: 'pick-row' });
     for (const id of picks) {
       const d = relicById[id];
       if (!d) continue;
       const url = artUrl('icons', d.art);
-      const node = el('div', { class: `reward-item relic clickable${pickedRelic === id ? ' selected' : ''}` },
+      const node = el('div', { class: `pick-tile${pickedRelic === id ? ' selected' : ''}` },
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
-        el('span', { class: 'reward-line' }, el('b', {}, d.name), el('em', {}, d.text)));
-      // 點了亮起、可換選；跟牌一樣按「出發」才一起結算，不然拿了秘寶就直接被送走、牌都來不及挑
+        el('b', {}, d.name),
+        el('em', {}, d.text));
       node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); render(); });
-      items.append(node);
+      relicRow.append(node);
     }
     // 稀有牌三選一：點了亮起、可換選；帶不帶都能出發
     const cardRow = el('div', { class: 'reward-cards' });
     for (const c of cardPicks) {
-      const node = cardNode(c, {
+      cardRow.append(cardNode(c, {
         small: true,
         selected: pickedCard === c.id,
         onClick: () => { pickedCard = pickedCard === c.id ? null : c.id; play('click'); render(); },
-      });
-      cardRow.append(node);
+      }));
     }
     const next = ACT_NAMES[run.act] ?? '塔頂';
     const goLabel = pickedCard ? `帶著新招上${next}` : `出發，上${next}`;
-    root.append(el('div', { class: 'screen reward actclear' },
-      el('div', { class: 'reward-banner' }, el('h1', {}, `${ACT_NAMES[run.act - 1] ?? ''}破關`)),
-      el('p', { class: 'actclear-note' }, `球球歇了口氣，體力全滿。前方就是${next}。`),
-      picks.length
-        ? el('div', { class: 'reward-loot' }, el('div', { class: 'reward-loot-label' }, '挑一件秘寶'), items)
-        : '',
-      cardPicks.length
-        ? el('div', { class: 'reward-loot' }, el('div', { class: 'reward-loot-label' }, '挑一張牌（可不挑）'), cardRow)
-        : '',
-      el('button', {
+    // 劇場版面：秘寶一排、牌一排立在畫面中央；說明與出發鈕在底下的帶子裡
+    root.append(sceneView({
+      art: el('div', { class: 'scene-picks' },
+        picks.length ? el('div', { class: 'pick-label' }, '挑一件秘寶') : '',
+        picks.length ? relicRow : '',
+        cardPicks.length ? el('div', { class: 'pick-label' }, '挑一張牌（可不挑）') : '',
+        cardPicks.length ? cardRow : ''),
+      speaker: `${ACT_NAMES[run.act - 1] ?? ''}破關`,
+      text: `球球歇了口氣，體力全滿。前方就是${next}。`,
+      actions: [el('button', {
         class: 'btn primary',
         onclick: () => { if (pickedCard) addCard(run, pickedCard); done(pickedRelic); },
-      }, goLabel)));
+      }, goLabel)],
+    }));
   }
   render();
 });

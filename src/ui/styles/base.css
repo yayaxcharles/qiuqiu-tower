@@ -595,3 +595,25 @@ img { -webkit-user-drag: none; }
 /* 升級確認的兩顆鈕本來貼在一起（使用者 2026-09-02：「再看看」「就磨這張」太近）：拉開間距、鈕做寬一點 */
 .modal-foot { gap: 28px; }
 .modal-foot .btn { min-width: 150px; }
+
+/* ===== 對白框全面改成半透明漸層帶（2026-09-02 使用者：「投影片這樣改超棒，其他的也可以這樣嗎」） =====
+   對白疊層：黑幕淡一點、框變成貼在畫面下緣的漸層帶，字米白加深影；名牌照舊。立繪站在帶子上緣。 */
+.dialogue-overlay { background: rgba(0, 0, 0, .32); }
+.dialogue-overlay .dialogue-box {
+  width: 100%; margin: 0; padding: 34px 120px 30px;
+  border: none; border-radius: 0; box-shadow: none;
+  background: linear-gradient(to top, rgba(8, 6, 4, .9) 0%, rgba(8, 6, 4, .8) 58%, rgba(8, 6, 4, 0) 100%);
+  color: #f6efe3;
+}
+.dialogue-overlay .dialogue-box::before { display: none; }
+.dialogue-overlay .dialogue-box:has(.dialogue-speaker:not(:empty)) { padding-top: 60px; }
+.dialogue-overlay .dialogue-speaker { left: 120px; top: 14px; }
+.dialogue-overlay .dialogue-text { text-shadow: 0 2px 6px #000000d9; }
+.dialogue-overlay.narration .dialogue-box {
+  padding-left: 120px; padding-right: 120px;
+  background: linear-gradient(to top, rgba(8, 6, 4, .9) 0%, rgba(8, 6, 4, .8) 58%, rgba(8, 6, 4, 0) 100%);
+  border: none;
+}
+.dialogue-overlay.narration .dialogue-text { color: #f6efe3; }
+.dialogue-overlay .dialogue-hint, .dialogue-overlay.narration .dialogue-hint { color: #d9cdb4; }
+.dialogue-portrait { bottom: 130px; left: 48px; }

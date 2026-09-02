@@ -15,7 +15,7 @@ import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
-import { enemyLeft } from '../enemylayout';
+import { enemyLeft, nextLineup } from '../enemylayout';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 
@@ -166,6 +166,7 @@ registerScreen('combat', (app, root, props) => {
   const lastHpPct = new Map<string, number>();   // 生命條上一次畫到哪，重畫後才滑得動
   let shownCards = new Set<number>();            // 上一次畫的手牌，認出哪幾張是新抽的
   let dealDelay = 0;                             // 新手牌進場前要等多久（結束回合那一拍會等）
+  let lineup: number[] = cs.enemies.map((e) => e.uid);   // 魔物的排位名單（見 render 裡的說明）
   /**
    * 收牌動畫進行中：按下「結束回合」之後、引擎真的跑 `endTurn` 之前的那幾百毫秒。
    *
@@ -240,8 +241,19 @@ registerScreen('combat', (app, root, props) => {
   }
 
   /** 飄起來的傷害數字。飄完自己移除，免得留在 DOM 裡等下一次重畫才被掃掉 */
-  function floatNum(text: string): HTMLElement {
-    const node = el('div', { class: 'num' }, text);
+  /** 這一拍的紀錄裡，某個開頭（「蜷縮擋下了」或「〇〇的防禦擋下了」）總共擋了幾點；多段攻擊會有好幾行，加總 */
+  function blockedAmount(lines: readonly string[], prefix: string): number {
+    let sum = 0;
+    for (const l of lines) {
+      if (!l.startsWith(prefix)) continue;
+      const m = /(\d+) 點$/.exec(l);
+      if (m) sum += Number(m[1]);
+    }
+    return sum;
+  }
+
+  function floatNum(text: string, cls = ''): HTMLElement {
+    const node = el('div', { class: `num${cls ? ' ' + cls : ''}` }, text);
     node.addEventListener('animationend', () => node.remove());
     return node;
   }
@@ -574,9 +586,11 @@ registerScreen('combat', (app, root, props) => {
     // 總數一路變大、新小怪的索引也一路往後，算出來的 left 直接超出舞台 1280
     // （第三批會落在 1380）。倒下的排在 -1，反正牠們是隱形的。
     const alive = cs.enemies.filter((e) => !e.dead);
+    // 位子排好就不動（倒下的照樣佔位），只有召喚新魔物上場才重排——見 enemylayout.ts 的 nextLineup
+    lineup = nextLineup(lineup, alive.map((e) => e.uid));
     // 四隻以上時欄距（150）比單位窄（190），狀態牌子會互相壓到——整場掛 crowd 讓牌子縮小
-    box.classList.toggle('crowd', alive.length >= 4);
-    cs.enemies.forEach((e) => field.append(enemyUnit(e, e.dead ? -1 : alive.indexOf(e), alive.length)));
+    box.classList.toggle('crowd', lineup.length >= 4);
+    cs.enemies.forEach((e) => field.append(enemyUnit(e, lineup.indexOf(e.uid), lineup.length)));
     box.append(field, sidePanel(), handRow());
 
     const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() }, '結束回合');
@@ -899,8 +913,13 @@ registerScreen('combat', (app, root, props) => {
         sfx(poisoned ? 'poison' : opts.attack ? (heavy ? 'hit_heavy' : 'claw') : 'hit',
           poisoned ? 1 : 0.94 + Math.random() * 0.12);
       }
-      // 打到了但一點血都沒掉＝整下被防禦吃掉，要有「鏘」的一聲，不然像沒打到
-      else if (opts.attack && !e.dead && b.block > 0 && e.block < b.block) sfx('blocked');
+      // 被防禦擋下的部分：飄「擋住 N」＋盾牌閃一下（整下被吃掉時只有一聲「鏘」的話，看起來像沒打到——使用者 2026-09-02 回報）
+      const guarded = blockedAmount(fresh, `${e.name}的防禦擋下了`);
+      if (!e.dead && guarded > 0) {
+        node.append(floatNum(`擋住 ${guarded}`, 'blocked'));
+        burst(node, 'block');
+        if (e.hp === b.hp) sfx('blocked');
+      }
       // 隱身被消耗、血卻沒動＝這一下被閃掉了。本來只有左上角一行小字，
       // 玩家丟了 16 點的忍具看到毫無反應，只會以為遊戲壞掉（使用者真的回報過）。
       // 頭上飄「閃過！」＋一團煙＋咻一聲，跟被打、被擋同一個等級的回饋。
@@ -939,6 +958,13 @@ registerScreen('combat', (app, root, props) => {
         cat.append(floatNum('氣勁被拍散！'));
         burst(cat, 'debuff');
         sfx('debuff', 0.8);
+      }
+      // 蜷縮擋下的部分也要看得到：飄「擋住 N」＋盾牌閃一下＋「鏘」（球球比照魔物）
+      const guarded = blockedAmount(fresh, '蜷縮擋下了');
+      if (guarded > 0) {
+        cat.append(floatNum(`擋住 ${guarded}`, 'blocked'));
+        burst(cat, 'block');
+        sfx('blocked');
       }
       if (hurt) {
         cat.classList.add('hit');

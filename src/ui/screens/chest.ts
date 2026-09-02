@@ -31,8 +31,11 @@ registerScreen('chest', (app, root) => {
     art: def && !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: def.name }) : '',
     portrait: hero.startsWith('data:') ? undefined : hero,
     speaker: '紙箱',
-    text: def ? `找到秘寶「${def.name}」！` : '紙箱是空的——常見的秘寶都拿過了，裡面只剩一堆碎紙。',
-    extra: def ? [el('p', { class: 'event-note' }, def.text)] : [],
+    text: def ? '球球把箱子翻了個底朝天，找到了——' : '紙箱是空的——常見的秘寶都拿過了，裡面只剩一堆碎紙。',
+    // 秘寶名字做成木牌、效果一行米白字（本來只有「找到秘寶XX」加一行橘字，使用者：「沒設計感」）
+    extra: def ? [el('div', { class: 'loot-block' },
+      el('div', { class: 'loot-plate' }, el('span', { class: 'loot-kind' }, '秘寶'), el('b', { class: 'loot-name' }, def.name)),
+      el('p', { class: 'loot-effect' }, def.text))] : [],
     actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')],
   }));
 });

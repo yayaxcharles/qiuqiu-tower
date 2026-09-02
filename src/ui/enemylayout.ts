@@ -23,6 +23,18 @@ export function enemyStep(n: number): number {
  * 第 `i` 隻（從 0 起算）在 `n` 隻裡的左緣座標。
  * `i < 0` 代表已經倒下、不佔位子的，擺回中央（牠們是隱形的，位置不影響畫面）。
  */
+/**
+ * 這一拍要照誰排位子。
+ *
+ * 位子一旦排好就**不動**：兩隻打死後面那隻，前面那隻不該滑到中間（使用者 2026-09-02 回報）。
+ * 所以倒下的照樣佔著位子（牠是隱形的，佔著沒差）。只有**新魔物上場**（召喚）才重排，
+ * 而且重排時把倒下的清出名單——不清的話塔主召喚第二、第三批會一路排到畫面外（那是原本的 bug）。
+ */
+export function nextLineup(prev: readonly number[], aliveUids: readonly number[]): number[] {
+  const newcomer = aliveUids.some((uid) => !prev.includes(uid));
+  return newcomer ? [...aliveUids] : [...prev];
+}
+
 export function enemyLeft(i: number, n: number): number {
   if (i < 0) return 780;
   const step = enemyStep(n);

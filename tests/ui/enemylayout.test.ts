@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { STAGE_W, UNIT_W, enemyLeft } from '../../src/ui/enemylayout';
+import { STAGE_W, UNIT_W, enemyLeft, nextLineup } from '../../src/ui/enemylayout';
 
 describe('魔物在戰場上的位置', () => {
   it('一到五隻都要整排待在畫面裡', () => {
@@ -37,5 +37,12 @@ describe('魔物在戰場上的位置', () => {
   it('倒下的（-1）擺在中央，不會算出畫面外的座標', () => {
     expect(enemyLeft(-1, 5)).toBe(780);
     expect(enemyLeft(-1, 1) + UNIT_W).toBeLessThanOrEqual(STAGE_W);
+  });
+
+  // 使用者 2026-09-02 回報：兩隻打死後面那隻，前面那隻會滑到中間
+  it('排位名單：有人倒下不重排、有新魔物上場才重排（而且清掉倒下的）', () => {
+    expect(nextLineup([1, 2], [1])).toEqual([1, 2]);        // 2 號倒了，1 號留在原位
+    expect(nextLineup([1, 2], [1, 3, 4])).toEqual([1, 3, 4]); // 召喚 3、4：重排，倒下的 2 號清出去
+    expect(nextLineup([1, 2], [1, 2])).toEqual([1, 2]);
   });
 });

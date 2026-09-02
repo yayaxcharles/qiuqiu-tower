@@ -11,6 +11,8 @@ import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
 import { el } from '../dom';
+import { burst } from '../fx';
+import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 
@@ -31,12 +33,20 @@ registerScreen('rest', (app, root) => {
   let used = false;   // 一個貓窩只能做一件事
 
   /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖 */
-  function afterAction(text: string, line: string): void {
+  function afterAction(text: string, line: string, card?: CardInstance): void {
     clearKeepBg(root);
     renderHud(app, root);
-    root.append(sceneView({ portrait: heroPortrait(), text }));
+    // 磨好的牌放大秀出來、打鐵發金光（本來只有一行字，使用者：「不太有回饋感」）
+    let art: HTMLElement | '' = '';
+    if (card) {
+      const node = cardNode(card);
+      node.classList.add('showcase-card', 'upgrade', 'forged');
+      art = el('div', { class: 'showcase' }, node);
+      window.setTimeout(() => burst(node, 'buff'), 60);
+    }
+    root.append(sceneView({ art, portrait: heroPortrait(), text }));
     toast(line, '球球');
-    window.setTimeout(() => app.backToMap(), 900);
+    window.setTimeout(() => app.backToMap(), card ? 1500 : 900);
   }
 
   function show(): void {
@@ -68,7 +78,7 @@ registerScreen('rest', (app, root) => {
             used = true;
             rest(run, '磨爪', uid);
             play('upgrade');
-            afterAction(`「${name}」磨利了，變成「${name}＋」。`, dialogue.restLines[1] ?? '');
+            afterAction(`「${name}」磨利了，變成「${name}＋」。`, dialogue.restLines[1] ?? '', c);
           });
         },
       });
