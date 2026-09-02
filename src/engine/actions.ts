@@ -187,7 +187,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   }
   e.hp = Math.max(0, e.hp - lose);
   if (lose > 0) {
-    // 打痛牠才會發生的三件事。**先叫醒再看死沒死**：被一擊打死的當然不用醒，所以擺在扣血之後、判死之前
+    // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。
     // 飛行、鱗甲只被「攻擊」剝落（噎到那種直傷不算）；沉睡與縮殼是**任何**扣血都算
     if (!opts.direct) {
       if (getStatus(e, '飛行') > 0) { addStatus(e, '飛行', -1); if (getStatus(e, '飛行') === 0) log(cs, `${e.name}被打了下來`); }
