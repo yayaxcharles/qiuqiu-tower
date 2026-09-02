@@ -52,17 +52,18 @@ registerScreen('rest', (app, root) => {
 
     const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌，順便回一成血）');
     // rest(run, '磨爪') 沒有 uid 會回 false，所以一定要先挑牌再叫
-    sharpen.addEventListener('click', () => {
-      if (used) return;
+    /** 開牌堆挑一張。「再看看」要回到這裡重挑，不是退回貓窩再選一次打盹／磨爪（使用者 2026-09-02 回報） */
+    const pickCard = (): void => {
       showDeckPicker({
         title: '磨爪：選一張牌升級', cards: run.deck, pickable: true, cancellable: true, filter: upgradable,
         previewUpgrade: true,
         onPick: (uid) => {
           const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
-          if (uid === null || !c || used) return;   // 沒挑就回貓窩再選一次
-          // 先讓玩家看到升級後長什麼樣再決定。按「再看看」就退回貓窩，可以重挑，不算用掉這次機會。
+          if (uid === null || !c || used) return;   // 按取消才真的回貓窩
+          // 先讓玩家看到升級後長什麼樣再決定。按「再看看」就回到牌堆重挑，不算用掉這次機會。
           showUpgradeConfirm(c, (ok) => {
-            if (!ok || used) return;
+            if (used) return;
+            if (!ok) { pickCard(); return; }
             const name = cardById[c.cardId]?.name ?? c.cardId;
             used = true;
             rest(run, '磨爪', uid);
@@ -71,7 +72,8 @@ registerScreen('rest', (app, root) => {
           });
         },
       });
-    });
+    };
+    sharpen.addEventListener('click', () => { if (!used) pickCard(); });
     if (!run.deck.some(upgradable)) sharpen.setAttribute('disabled', 'disabled');
 
     // 劇場版面：底圖就是貓窩本身，球球蜷在左邊，對白框裡直接放兩個選項
