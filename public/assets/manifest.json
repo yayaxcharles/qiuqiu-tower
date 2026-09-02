@@ -383,6 +383,41 @@
   "codex/monster_dango_slime": {
    "attack": "assets/monsters/dango_slime_attack.webp",
    "idle": "assets/monsters/dango_slime_idle.webp"
+  },
+  "codex/monster_curse_priest": {
+   "attack": "assets/monsters/curse_priest_attack.webp",
+   "idle": "assets/monsters/curse_priest_idle.webp"
+  },
+  "codex/monster_hibernating_bear": {
+   "attack": "assets/monsters/hibernating_bear_attack.webp",
+   "idle": "assets/monsters/hibernating_bear_idle.webp"
+  },
+  "codex/monster_lantern_moth": {
+   "attack": "assets/monsters/lantern_moth_attack.webp",
+   "idle": "assets/monsters/lantern_moth_idle.webp"
+  },
+  "codex/monster_moon_moth_queen": {
+   "idle": "assets/monsters/moon_moth_queen_idle.webp"
+  },
+  "codex/monster_phantom_fox": {
+   "attack": "assets/monsters/phantom_fox_attack.webp",
+   "idle": "assets/monsters/phantom_fox_idle.webp"
+  },
+  "codex/monster_plated_beetle": {
+   "attack": "assets/monsters/plated_beetle_attack.webp",
+   "idle": "assets/monsters/plated_beetle_idle.webp"
+  },
+  "codex/monster_puffer_spirit": {
+   "attack": "assets/monsters/puffer_spirit_attack.webp",
+   "idle": "assets/monsters/puffer_spirit_idle.webp"
+  },
+  "codex/monster_rat_general": {
+   "attack": "assets/monsters/rat_general_attack.webp",
+   "idle": "assets/monsters/rat_general_idle.webp"
+  },
+  "codex/monster_red_oni": {
+   "attack": "assets/monsters/red_oni_attack.webp",
+   "idle": "assets/monsters/red_oni_idle.webp"
   }
  },
  "icons": {
