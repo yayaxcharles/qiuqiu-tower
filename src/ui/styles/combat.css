@@ -779,3 +779,21 @@
 /* 師父的框開到 350／370 之後，意圖牌子掛在圖畫頂端會頂進狀態列（2026-09-02 截圖檢查）：
    師父的牌子改成壓在斗笠上半部（往下 44），三個階段都留在狀態列下面 */
 .combat .unit.enemy.master .intent { bottom: calc(var(--drawn-h, 50%) - 44px); }
+
+/* 意圖牌子改成跟按鈕同一套「深色玻璃＋金邊」，但底色照意圖保留（使用者 2026-09-02：「保持底色比較清楚」）：
+   攻＝紅、守＝藍、強＝金、弱化＝紫、特殊／召喚＝橙、發呆＝灰，顏色壓深一點、半透明，金線細、字米白 */
+.combat .intent[class*='i-'] {
+  border-image: none; border: 1.5px solid #ffd98a99; border-radius: 9px;
+  color: #fff3d6; text-shadow: 0 1px 2px #000000cc;
+  box-shadow: 0 3px 8px #00000080, inset 0 1px 0 #ffffff1f;
+}
+.combat .i-attack { background: linear-gradient(#c23a2ee8, #7a1f17f2); }
+.combat .i-block { background: linear-gradient(#3273bde8, #1c4a80f2); }
+.combat .i-buff { background: linear-gradient(#c07d16e8, #7a4a0af2); }
+.combat .i-debuff { background: linear-gradient(#8348b8e8, #4a2270f2); }
+.combat .i-special, .combat .i-summon { background: linear-gradient(#b8761ae8, #6d4408f2); }
+.combat .i-idle { background: linear-gradient(#6f685ce8, #3f3a33f2); box-shadow: 0 3px 8px #00000080, inset 0 1px 0 #ffffff14; }
+@keyframes intent-throb {
+  0%, 100% { scale: 1; box-shadow: 0 3px 8px #00000080, 0 0 0 0 #ff6a6a00; }
+  50% { scale: 1.07; box-shadow: 0 3px 8px #00000080, 0 0 0 3px #ff6a6a3d; }
+}
