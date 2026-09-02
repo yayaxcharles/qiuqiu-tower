@@ -115,6 +115,14 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
   if (e.stolen > 0) { cs.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   for (const pw of cs.player.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { source: 'power' });
+  // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
+  for (const rid of cs.relics) {
+    const h = relicById[rid]?.hooks;
+    if (!h) continue;
+    if (h.killHeal) healPlayer(cs, h.killHeal);
+    if (h.killStrength) addStatus(cs.player, '爪力', h.killStrength);
+    if (h.killFish) cs.fishDelta += h.killFish;
+  }
   if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
 }
 
@@ -209,10 +217,26 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         break;
       }
       case 'summon': {
-        for (let i = 0; i < fx.n && aliveEnemies(cs).length < 5; i++) {
-          // max＝這種怪同時在場的上限（補召）：尾巴還剩一條就只補一條，不會越疊越多
-          if (fx.max !== undefined && cs.enemies.filter((o) => o.enemyId === fx.enemyId && !o.dead).length >= fx.max) break;
-          cs.enemies.push(makeEnemy(cs, fx.enemyId, i));
+        for (let i = 0; i < fx.n; i++) {
+          const same = cs.enemies.filter((o) => o.enemyId === fx.enemyId && !o.dead);
+          // 場上塞不下（五個單位）或這種怪到上限：不硬召，改把一隻的血量接到現有的最弱那隻身上
+          // （使用者 2026-09-02：「畫面塞不下，四隻後再召喚就是把尾巴血量加上去」）
+          if (aliveEnemies(cs).length >= 5 || (fx.max !== undefined && same.length >= fx.max)) {
+            const weakest = same.sort((a, b) => a.hp - b.hp)[0];
+            const sdef = enemyById[fx.enemyId];
+            if (weakest && sdef) {
+              const add = Math.round((sdef.hp[0] + sdef.hp[1]) / 2);
+              weakest.maxHp += add; weakest.hp += add;
+              log(cs, `${e.name}把力量灌進${weakest.name}（+${add} 生命）`);
+            }
+            continue;
+          }
+          const fresh = makeEnemy(cs, fx.enemyId, i);
+          // 剛冒出來的這回合站不穩：先掛「剛冒出來」，下一回合才照表出招——不然血條式變身時
+          // 尾巴在玩家回合中途冒出來、回合一結束就直接打人（使用者 2026-09-02：「突然出現尾巴直接打人很怪」）
+          fresh.move = { intent: 'idle', label: '剛冒出來', effects: [{ kind: 'nothing' }] };
+          fresh.moveIndex = -1;
+          cs.enemies.push(fresh);
         }
         break;
       }

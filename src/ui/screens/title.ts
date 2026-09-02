@@ -1,5 +1,7 @@
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
 import { hasSave, loadBestFor, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
+import { showCompendium } from '../compendium';
+import { showItemCompendium } from '../itemcompendium';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
 import { el } from '../dom';
@@ -58,6 +60,10 @@ registerScreen('title', (app, root) => {
         el('button', { class: 'btn', ...(hasSave() ? {} : { disabled: 'disabled' }), onclick: () => { if (!app.continueRun()) app.show('title'); } }, '續玩'),
         seed),
       el('div', { class: 'diff-picker' }, el('span', { class: 'diff-label' }, '難度'), ...diffBtns),
+      // 圖鑑放封面（使用者：秘寶、忍具不需要一直看，不放遊戲內）
+      el('div', { class: 'title-books' },
+        el('button', { class: 'btn small', onclick: () => showCompendium() }, '📖 卡牌圖鑑'),
+        el('button', { class: 'btn small', onclick: () => showItemCompendium() }, '🎒 秘寶與忍具圖鑑')),
       diffText,
       bestLine,
       el('div', { class: 'title-note' }, '存檔存在這台電腦的瀏覽器裡。'),

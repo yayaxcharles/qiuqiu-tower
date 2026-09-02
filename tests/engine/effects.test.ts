@@ -92,8 +92,8 @@ describe('選牌類效果', () => {
     expect(cs.pending).toBeNull();
     expect(cs.player.hand.length).toBe(1);   // 只有抽到的 1 張
   });
-  it('逗貓棒的補抽排在牌效果之前，不會動到讀心術的候選', () => {
-    const cs = start('wood_dummy', ['duxin'], [], 'fx', ['cat_teaser']);
+  it('算盤珠的補抽排在牌效果之前（逗貓棒 2026-09-02 改成攻擊牌機率抽），不會動到讀心術的候選', () => {
+    const cs = start('wood_dummy', ['duxin'], [], 'fx', ['counting_beads']);
     const e = cs.enemies[0]!.uid;
     playCard(cs, toHand(cs, 'sanjo'), e);
     playCard(cs, toHand(cs, 'sanjo'), e);
@@ -108,7 +108,7 @@ describe('選牌類效果', () => {
       expect(top3).toContain(c.uid);                                     // 候選就是現在抽牌堆最上面那幾張
     }
     resolveChoice(cs, []);
-    expect(cs.player.hand.length).toBe(n - 1 + 1 + 1);    // 打出 −1、逗貓棒 ＋1、讀心術 ＋1
+    expect(cs.player.hand.length).toBe(n - 1 + 1 + 1);    // 打出 −1、算盤珠 ＋1、讀心術 ＋1
   });
   // 隔空取物打完就躺在棄牌堆裡，若能把自己撿回來就變成 1 費無限循環（控制端 2026-08-29 裁決）
   it('隔空取物不能把自己撿回來，只能撿別的牌', () => {

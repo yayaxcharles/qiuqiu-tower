@@ -10,7 +10,7 @@ import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } fro
 import { TURN_DECAY } from './types';
 import type { CardInstance, CombatState, EffectCtx, PlayerCombat, StatusName } from './types';
 
-type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount';
+type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount' | 'blockKeep' | 'killHeal' | 'killStrength' | 'killFish' | 'combatEndHeal';
 function relicSum(relics: string[], key: NumHook): number {
   return relics.reduce((s, id) => s + (relicById[id]?.hooks[key] ?? 0), 0);
 }
@@ -18,7 +18,7 @@ function relicSum(relics: string[], key: NumHook): number {
 export function startCombat(input: {
   hp: number; maxHp: number; deck: CardInstance[]; relics: string[]; potions: string[]; encounterId: string; rng: Rng;
   /** 難度旋鈕（見 content/difficulty.ts）：血量倍率乘在遭遇的 hpScale 上、爪力加在遭遇的魔氣上 */
-  mods?: { hpMul?: number; strength?: number };
+  mods?: { hpMul?: number; strength?: number; startBlock?: number };
 }): CombatState {
   const enc = encounterById[input.encounterId];
   if (!enc) throw new Error(`未知的遭遇：${input.encounterId}`);
@@ -52,6 +52,8 @@ export function startCombat(input: {
     const hooks = relicById[rid]?.hooks.combatStart;
     if (hooks) applyEffects(cs, hooks, { source: 'relic' });
   }
+  // 暖毯：打盹後帶進來的蜷縮（run.ts 的 rest 記、beginCombat 帶進來）
+  if (input.mods?.startBlock) { cs.player.block += input.mods.startBlock; log(cs, `暖毯還熱著，先有 ${input.mods.startBlock} 點蜷縮`); }
   startPlayerTurn(cs);
   return cs;
 }
@@ -60,7 +62,7 @@ export function startPlayerTurn(cs: CombatState): void {
   if (cs.phase !== 'player') return;
   const p = cs.player;
   cs.turn += 1;
-  p.block = 0;
+  p.block = Math.min(p.block, relicSum(cs.relics, 'blockKeep'));   // 守護符：留一部分蜷縮到下一回合
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
   p.firstStealthGiven = false;   // 也要先清，潛水轉隱身才吃得到紙袋的每回合第一次加成
   const poison = getStatus(p, '噎到');
@@ -70,10 +72,13 @@ export function startPlayerTurn(cs: CombatState): void {
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { source: 'power' });
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnEnergy') : 0);
   p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0;
-  p.firstCardPlayed = false; p.doubleNext = 0;
+  p.firstCardPlayed = false;
+  if (cs.turn > 1) p.doubleNext = 0;   // 第一回合不清：秘笈在開戰時給的「第一擊加倍」要留到打出去
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnDraw') : 0);
   p.drawNextTurn = 0;
   drawCards(cs, n);
+  // 每回合開始的秘寶效果（鐵砂袋、靈貓鈴）：排在抽牌之後，抽到的牌才算進這回合的手牌
+  for (const rid of cs.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) applyEffects(cs, h, { source: 'relic' }); }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
     if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true }); }
@@ -113,14 +118,25 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
   p.cardsPlayedThisTurn += 1;
   cs.cardsPlayed += 1;
   p.firstCardPlayed = true;
+  const firstAttack = st.def.type === '攻擊' && !p.attackedThisTurn;
   if (st.def.type === '攻擊') p.attackedThisTurn = true;
   log(cs, `球球打出「${st.name}」`);
   // 秘寶的第 N 張補抽排在牌效果之前：這張牌若要選牌，候選才不會被之後的補抽動到
   for (const rid of cs.relics) {
     const h = relicById[rid]?.hooks.drawOnNthCard;
     if (h && p.cardsPlayedThisTurn === h.n) drawCards(cs, h.draw);
+    const e = relicById[rid]?.hooks.energyOnNthCard;
+    if (e && p.cardsPlayedThisTurn === e.n) p.energy += e.energy;
   }
   applyEffects(cs, st.effects, ctx);
+  // 打出攻擊牌之後的秘寶效果（逗貓棒、貓抓板）：牌效果算完才觸發，打贏了就不用
+  if (st.def.type === '攻擊' && cs.phase === 'player') {
+    for (const rid of cs.relics) {
+      const h = relicById[rid]?.hooks.onAttackPlayed;
+      if (!h || (h.firstEachTurn && !firstAttack) || (h.chance !== undefined && !cs.rng.chance(h.chance))) continue;
+      applyEffects(cs, h.effects, { source: 'relic' });
+    }
+  }
   return true;
 }
 
@@ -196,7 +212,13 @@ export function endTurn(cs: CombatState): void {
     } else {
       const charged = e.charged;
       if (e.move.intent === 'attack') e.charged = false;
+      const hpBefore = cs.player.hp;
       runEnemyEffects(cs, e, e.move.effects, charged);
+      // 被打掉血的秘寶效果（毛線手套）：每回合最多一次
+      if (cs.player.hp < hpBefore && cs.phase === 'player' && cs.player.hitRelicTurn !== cs.turn) {
+        cs.player.hitRelicTurn = cs.turn;
+        for (const rid of cs.relics) { const h = relicById[rid]?.hooks.onHit; if (h) applyEffects(cs, h, { source: 'relic' }); }
+      }
     }
     decayTurnStatuses(e);
     if (e.invulnIn > 0) e.invulnIn -= 1;   // 蹲下調息演完這回合就站起來，下回合開始照常挨打
@@ -239,5 +261,7 @@ export function usePotion(cs: CombatState, potionId: string, targetUid?: number)
   cs.potions.splice(i, 1);
   log(cs, `球球用了「${def.name}」`);
   applyEffects(cs, def.effects, { targetUid, source: 'potion' });
+  // 用忍具之後的秘寶效果（舊毛巾、貓薄荷煙斗、九命鈴）
+  if (cs.phase === 'player') for (const rid of cs.relics) { const h = relicById[rid]?.hooks.onPotionUse; if (h) applyEffects(cs, h, { source: 'relic' }); }
   return true;
 }

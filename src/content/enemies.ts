@@ -1,7 +1,8 @@
 import type { EnemyMove,EncounterDef, EnemyDef, EnemyPool } from '../engine/types';
 
 // 貓又婆婆照表出招用的兩招（chooseMove 每回合回傳同一份物件，方便畫面比對）
-const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 2 }] };
+// 尾巴最多四條（畫面塞得下五個單位）；已經四條時再放＝把血量接到現有尾巴上（使用者 2026-09-02）
+const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
 const NEKO_PREP: EnemyMove = { intent: 'special', label: '準備放尾巴', effects: [{ kind: 'nothing' }] };
 
 export const enemies: EnemyDef[] = [
@@ -153,7 +154,7 @@ export const enemies: EnemyDef[] = [
     ],
     phases: [{
       hpBelow: 55, line: '（尾巴分成了好幾條）', pattern: 'cycle',
-      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 2 }, { kind: 'heal', n: 12 }],
+      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }, { kind: 'heal', n: 12 }],
       moves: [
         { intent: 'attack', label: '亂尾', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
         { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 10 }] },

@@ -64,7 +64,9 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   for (const id of run.relics) {
     const r = relicById[id];
     if (!r) continue;
-    const node = el('div', { class: 'hud-relic' }, el('img', { src: artUrl('icons', r.art), alt: r.name }));
+    // 圖還沒生好的秘寶用名字前兩個字當牌子，不畫灰剪影
+    const url = artUrl('icons', r.art);
+    const node = el('div', { class: 'hud-relic' }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
     // 原本掛瀏覽器原生的 `title`：要停住一秒才跳出來、長相也跟遊戲裡其他提示不一樣，
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。

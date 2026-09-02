@@ -117,8 +117,9 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damage', amount: 3, times: 2, target: 'all' }], upgrade: { effects: [{ kind: 'damage', amount: 4, times: 2, target: 'all' }] } },
   { id: 'jinzhong', name: '絕學·金鐘罩', cost: 2, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/jinzhong',
     effects: [{ kind: 'block', amount: 17 }], upgrade: { effects: [{ kind: 'block', amount: 22 }] } },
-  { id: 'qinggong', name: '絕學·輕功', cost: 3, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/qinggong',
-    effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'draw', n: 2 }], upgrade: { cost: 0 } },
+  // 2026-09-02 使用者：輕功改 2 費、升級 1 費（原本 3 費、升級 0 費）
+  { id: 'qinggong', name: '絕學·輕功', cost: 2, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/qinggong',
+    effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'draw', n: 2 }], upgrade: { cost: 1 } },
   { id: 'taxue', name: '絕學·踏雪無痕', cost: 0, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/taxue', keywords: ['消耗'],
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }], upgrade: { keywords: [] } },
   { id: 'xuli', name: '絕學·蓄力', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/xuli',
@@ -173,7 +174,8 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'block', amount: 7 }, { kind: 'draw', n: 1 }] } },
   // 2026-09-01 使用者點名翻肚（易傷）供給太少（全牌庫只有盯上你了會掛）：威嚇加掛 1 層，
   // 跟盯上你了分工——盯上=純堆層數，威嚇=削攻擊順手掛一層
-  { id: 'weihe', name: '威嚇', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/weihe',
+  // 2026-09-02 使用者：威嚇與威嚇＋太強，改 2 費（原 1 費）
+  { id: 'weihe', name: '威嚇', cost: 2, type: 技, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/weihe',
     effects: [{ kind: 'status', name: '炸毛', amount: 2, target: 'enemy' }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'status', name: '炸毛', amount: 3, target: 'enemy' }, { kind: 'status', name: '翻肚', amount: 2, target: 'enemy' }] } },
   { id: 'paozhao', name: '忍術·拋爪', cost: 0, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/paozhao',

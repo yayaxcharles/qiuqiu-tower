@@ -93,6 +93,27 @@ export interface RelicDef {
     drawOnNthCard?: { n: number; draw: number };
     stealthBonus?: number;
     energyPerTurn?: number;
+    // ---- 2026-09-02 秘寶擴充到 60 件加的掛鉤（各自接在引擎哪裡見 combat.ts／actions.ts／run.ts 的註解）----
+    /** 使用忍具之後 */
+    onPotionUse?: Effect[];
+    /** 打出攻擊牌之後：chance＝機率（不填＝必定）、firstEachTurn＝每回合只算第一張 */
+    onAttackPlayed?: { effects: Effect[]; chance?: number; firstEachTurn?: boolean };
+    /** 被魔物打掉血時（每回合最多一次） */
+    onHit?: Effect[];
+    killHeal?: number; killStrength?: number; killFish?: number;
+    /** 打贏一場回幾點 */
+    combatEndHeal?: number;
+    /** 罐頭鋪價格倍率（0.9＝九折） */
+    shopDiscount?: number;
+    /** 打盹額外回幾點；打盹後下一場開戰帶幾點蜷縮 */
+    restFlat?: number; restNextFightBlock?: number;
+    energyOnNthCard?: { n: number; energy: number };
+    /** 每回合開始時 */
+    turnStart?: Effect[];
+    /** 回合結束最多留幾點蜷縮到下一回合 */
+    blockKeep?: number;
+    /** 戰鬥獎勵的牌多幾張可選 */
+    rewardChoices?: number;
   };
 }
 
@@ -270,6 +291,8 @@ export interface RunState {
   /** 難度 1～5（見 content/difficulty.ts）。舊存檔沒有這欄，載入時補成 1。 */
   difficulty?: number;
   status: 'playing' | 'won' | 'lost';
+  /** 暖毯：打盹後下一場開戰帶的蜷縮，開戰用掉就歸零 */
+  restBlock?: number;
   /** 一次性旗標（看過哪段對話、觸發過哪個事件之類）；舊存檔沒有這欄，載入時補成 {} */
   flags: Record<string, boolean>;
   /**
@@ -282,6 +305,8 @@ export interface RunState {
 // ===== 戰鬥 =====
 export interface Unit { hp: number; maxHp: number; block: number; statuses: Partial<Record<StatusName, number>> }
 export interface PlayerCombat extends Unit {
+  /** 被打掉血的秘寶效果（onHit）這回合已經觸發過：記回合數 */
+  hitRelicTurn?: number;
   energy: number;
   maxEnergy: number;
   hand: CardInstance[];

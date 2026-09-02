@@ -1,8 +1,7 @@
 import { play } from '../audio';
 import { cardById } from '../../content/cards';
 import { dialogue, pick } from '../../content/dialogue';
-import { relicById } from '../../content/relics';
-import { rest } from '../../engine/run';
+import { napHeal, rest } from '../../engine/run';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
@@ -27,8 +26,7 @@ registerScreen('rest', (app, root) => {
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   // 顯示用的回復量：貓草那類秘寶會加倍，而且不會超過缺的血
-  const mult = run.relics.reduce((m, id) => m * (relicById[id]?.hooks.restMultiplier ?? 1), 1);
-  const heal = Math.min(run.maxHp - run.hp, Math.floor(run.maxHp * 0.3 * mult));
+  const heal = Math.min(run.maxHp - run.hp, napHeal(run));   // 算法跟引擎共用（貓草倍率＋貓草種子固定加成）
   const upgradable = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   let used = false;   // 一個貓窩只能做一件事
 

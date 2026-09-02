@@ -318,7 +318,7 @@ describe('魔物回合', () => {
     expect(e.charged).toBe(false);
     expect(getStatus(e, '定身')).toBe(0);
   });
-  it('貓又照表出招：1 召、4 準備、5 補召；尾巴打死不復活、上限兩條', () => {
+  it('貓又照表出招：1 召、4 準備、5 補召；尾巴打死不復活、上限四條、滿了就把血灌給現有的', () => {
     const cs = start('nekomata');
     const neko = cs.enemies[0]!;
     expect(neko.move.label).toBe('放尾巴');
@@ -336,8 +336,20 @@ describe('魔物回合', () => {
     expect(tail.dead).toBe(true);
     expect(tails()).toBe(1);
     expect(neko.move.label).toBe('放尾巴');
-    endTurn(cs);                                    // 第 5 回合：補召回到兩條（上限 2，不會疊三條）
-    expect(tails()).toBe(2);
+    endTurn(cs);                                    // 第 5 回合：補召兩條 → 三條（上限 4）
+    expect(tails()).toBe(3);
+    // 剛冒出來的尾巴這回合站不穩：掛「剛冒出來」，下一回合才照表出招
+    const fresh = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead && e.move.label === '剛冒出來');
+    expect(fresh.length).toBe(2);
+    // 滿四條之後再放＝把血灌給最弱的那條，不會出現第五條
+    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
+    cs.player.block = 99; endTurn(cs);
+    expect(tails()).toBe(4);
+    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 1, max: 4 }] };
+    const hpSum = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).reduce((a, e) => a + e.maxHp, 0);
+    cs.player.block = 99; endTurn(cs);
+    expect(tails()).toBe(4);
+    expect(cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).reduce((a, e) => a + e.maxHp, 0)).toBe(hpSum + 8);
   });
   it('僕從護體：僕從還站著打不動本體，也不消耗她的隱身；清光僕從才打得到', () => {
     const cs = start('persian_lady');
@@ -401,8 +413,8 @@ describe('壞毛病與能力牌', () => {
 });
 
 describe('魔物回合（續）', () => {
-  it('生命歸零就輸；木樁擋一次致命傷', () => {
-    const cs = start('cucumber', STARTER_DECK, 's', ['wood_post'], 5);
+  it('生命歸零就輸；最後一口氣擋一次致命傷（木樁 2026-09-02 改成給翻肚）', () => {
+    const cs = start('cucumber', STARTER_DECK, 's', ['last_breath'], 5);
     cs.enemies[0]!.move = { intent: 'attack', label: '彈起', effects: [{ kind: 'damage', amount: 7 }] };
     endTurn(cs);
     expect(cs.player.hp).toBe(1); expect(cs.phase).toBe('player');

@@ -4,10 +4,10 @@ import { relicById, relics } from '../../src/content/relics';
 
 describe('秘寶', () => {
   it('35 件、池數正確、id 不重複', () => {
-    expect(relics.length).toBe(36);   // 36＝加忍具袋（2026-09-02）
+    expect(relics.length).toBe(60);   // 60＝2026-09-02 擴充（36 → 60，五件重複的換了效果）
     const n = (p: string) => relics.filter((r) => r.pool === p).length;
-    expect(n('起始')).toBe(1); expect(n('常見')).toBe(18); expect(n('大魔物')).toBe(12); expect(n('塔主')).toBe(5);
-    expect(new Set(relics.map((r) => r.id)).size).toBe(36);
+    expect(n('起始')).toBe(1); expect(n('常見')).toBe(28); expect(n('大魔物')).toBe(21); expect(n('塔主')).toBe(10);
+    expect(new Set(relics.map((r) => r.id)).size).toBe(60);
     expect(relicById['blue_headband']?.hooks.firstTurnDraw).toBe(1);
   });
   it('每件至少一個掛鉤且有說明', () => {

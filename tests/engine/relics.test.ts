@@ -36,8 +36,8 @@ describe('秘寶（戰鬥端）', () => {
     const cs = start(['tower_token']);
     expect(cs.player.energy).toBe(4); endTurn(cs); expect(cs.player.energy).toBe(4);
   });
-  it('鈴鐺、秘笈、銅鏡、貓薄荷：開戰效果', () => {
-    const cs = start(['bell', 'scroll', 'bronze_mirror', 'catnip']);
+  it('鈴鐺、護腕、銅鏡、貓薄荷：開戰效果（秘笈 2026-09-02 改成第一擊加倍）', () => {
+    const cs = start(['bell', 'wrist_guard', 'bronze_mirror', 'catnip']);
     expect(getStatus(cs.player, '隱身')).toBe(1);
     expect(getStatus(cs.player, '爪力')).toBe(1);
     expect(getStatus(cs.player, '反彈')).toBe(2);
@@ -60,8 +60,8 @@ describe('秘寶（戰鬥端）', () => {
     playCard(cs, toHand(cs, 'sanjo'), e); expect(cs.player.energy).toBe(3);
     playCard(cs, toHand(cs, 'sanjo'), e); expect(cs.player.energy).toBe(2);
   });
-  it('逗貓棒：第 3 張牌抽 1', () => {
-    const cs = start(['cat_teaser'], 'wood_dummy');
+  it('算盤珠：第 3 張牌抽 1（逗貓棒 2026-09-02 改成攻擊牌機率抽）', () => {
+    const cs = start(['counting_beads'], 'wood_dummy');
     const e = cs.enemies[0]!.uid;
     cs.player.energy = 9;
     // toHand 會把不在手上的參上撈進手牌，所以每張都要「撈完之後」才量手牌張數

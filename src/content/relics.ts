@@ -12,11 +12,10 @@ export const relics: RelicDef[] = [
     hooks: { combatStart: [{ kind: 'heal', n: 3 }] } },
   { id: 'tail_bell', name: '尾巴鈴', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，獲得 4 點蜷縮。', art: 'codex/relic_tail_bell', price: 120,
     hooks: { turnEndNoAttack: [{ kind: 'block', amount: 4 }] } },
-  { id: 'wood_post', name: '木樁', pool: '大魔物', text: '每場戰鬥第一次會被打死時，改成留 1 點生命。', art: 'codex/relic_wood_post', price: 200, hooks: { preventLethal: true } },
+  { id: 'wood_post', name: '木樁', pool: '大魔物', text: '每場戰鬥開始時給全體魔物 1 層翻肚。', art: 'codex/relic_wood_post', price: 200, hooks: { combatStart: [{ kind: 'status', name: '翻肚', amount: 1, target: 'all' }] } },
   { id: 'yarn_ball', name: '毛線球', pool: '大魔物', text: '每回合第一張打出的牌費用 −1（最低 0）。', art: 'codex/relic_yarn_ball', price: 210, hooks: { firstCardDiscount: 1 } },
-  { id: 'cat_teaser', name: '逗貓棒', pool: '大魔物', text: '每回合打出第 3 張牌時抽 1 張牌。', art: 'codex/relic_cat_teaser', price: 190, hooks: { drawOnNthCard: { n: 3, draw: 1 } } },
-  { id: 'scroll', name: '秘笈', pool: '大魔物', text: '每場戰鬥開始時獲得 1 點爪力。', art: 'codex/relic_scroll', price: 190,
-    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] } },
+  { id: 'cat_teaser', name: '逗貓棒', pool: '大魔物', text: '每打出一張攻擊牌，有兩成機會抽 1 張牌。', art: 'codex/relic_cat_teaser', price: 190, hooks: { onAttackPlayed: { chance: 0.2, effects: [{ kind: 'draw', n: 1 }] } } },
+  { id: 'scroll', name: '秘笈', pool: '大魔物', text: '每場戰鬥第一次攻擊傷害加倍。', art: 'codex/relic_scroll', price: 190, hooks: { combatStart: [{ kind: 'doubleNextAttack' }] } },
   { id: 'paper_bag', name: '紙袋', pool: '大魔物', text: '每回合第一次獲得隱身時多 1 層。', art: 'codex/relic_paper_bag', price: 180, hooks: { stealthBonus: 1 } },
   { id: 'bronze_mirror', name: '銅鏡', pool: '大魔物', text: '每場戰鬥開始時獲得 2 點反彈。', art: 'codex/relic_bronze_mirror', price: 170,
     hooks: { combatStart: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] } },
@@ -34,10 +33,10 @@ export const relics: RelicDef[] = [
   { id: 'dried_squid', name: '魷魚絲', pool: '常見', text: '最大生命 +6。', art: 'codex/relic_dried_squid', price: 90, hooks: { maxHp: 6 } },
   { id: 'fish_bone', name: '魚骨頭', pool: '常見', text: '最大生命 +16。', art: 'codex/relic_fish_bone', price: 160, hooks: { maxHp: 16 } },
   { id: 'small_cushion', name: '小坐墊', pool: '常見', text: '每場戰鬥第一回合多抽 2 張牌。', art: 'codex/relic_small_cushion', price: 160, hooks: { firstTurnDraw: 2 } },
-  { id: 'sardine_tin', name: '沙丁魚罐', pool: '常見', text: '打贏一場多拿 12 條小魚乾。', art: 'codex/relic_sardine_tin', price: 110, hooks: { winGold: 12 } },
+  { id: 'sardine_tin', name: '沙丁魚罐', pool: '常見', text: '每打倒一隻魔物回復 2 點生命。', art: 'codex/relic_sardine_tin', price: 110, hooks: { killHeal: 2 } },
   { id: 'worn_scroll', name: '破卷軸', pool: '常見', text: '每場戰鬥第一張牌少花 1 顆飯糰。', art: 'codex/relic_worn_scroll', price: 130, hooks: { firstCardDiscount: 1 } },
   { id: 'lucky_coin', name: '幸運錢幣', pool: '常見', text: '打贏一場多拿 20 條小魚乾。', art: 'codex/relic_lucky_coin', price: 140, hooks: { winGold: 20 } },
-  { id: 'warm_blanket', name: '暖毯', pool: '常見', text: '在貓窩打盹回的血變成三倍。', art: 'codex/relic_warm_blanket', price: 150, hooks: { restMultiplier: 3 } },
+  { id: 'warm_blanket', name: '暖毯', pool: '常見', text: '打盹之後，下一場戰鬥開始時獲得 12 點蜷縮。', art: 'codex/relic_warm_blanket', price: 150, hooks: { restNextFightBlock: 12 } },
 
   // --- 大魔物：打贏精英才拿得到，效果要有存在感 ---
   { id: 'iron_collar', name: '鐵項圈', pool: '大魔物', text: '每場戰鬥開始時獲得 10 點蜷縮。', art: 'codex/relic_iron_collar', price: 190, hooks: { combatStart: [{ kind: 'block', amount: 10 }] } },
@@ -52,6 +51,34 @@ export const relics: RelicDef[] = [
   { id: 'last_breath', name: '最後一口氣', pool: '塔主', text: '每場戰鬥第一次會被打倒時，留下 1 點生命。', art: 'codex/relic_last_breath', price: 230, hooks: { preventLethal: true } },
   { id: 'master_belt', name: '掌門腰帶', pool: '塔主', text: '最大生命 +25。', art: 'codex/relic_master_belt', price: 230, hooks: { maxHp: 25 } },
   { id: 'golden_bowl', name: '金飯碗', pool: '塔主', text: '每場戰鬥第一回合多 2 顆飯糰。', art: 'codex/relic_golden_bowl', price: 240, hooks: { firstTurnEnergy: 2 } },
+  // ===== 2026-09-02 擴充到 60 件（使用者：「36 件不夠，補到 60，效果你設計」）。圖還沒生的先用名字顯示 =====
+  // --- 常見（+10）---
+  { id: 'feather_toy', name: '羽毛玩具', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，抽 1 張牌。', art: 'codex/relic_feather_toy', price: 130, hooks: { turnEndNoAttack: [{ kind: 'draw', n: 1 }] } },
+  { id: 'old_towel', name: '舊毛巾', pool: '常見', text: '每次使用忍具後回復 4 點生命。', art: 'codex/relic_old_towel', price: 120, hooks: { onPotionUse: [{ kind: 'heal', n: 4 }] } },
+  { id: 'coin_jar', name: '零錢罐', pool: '常見', text: '罐頭鋪的東西打九折。', art: 'codex/relic_coin_jar', price: 120, hooks: { shopDiscount: 0.9 } },
+  { id: 'scratch_board', name: '貓抓板', pool: '常見', text: '每回合第一張攻擊牌打出後獲得 3 點蜷縮。', art: 'codex/relic_scratch_board', price: 140, hooks: { onAttackPlayed: { firstEachTurn: true, effects: [{ kind: 'block', amount: 3 }] } } },
+  { id: 'wooden_fish', name: '木魚', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，回復 2 點生命。', art: 'codex/relic_wooden_fish', price: 130, hooks: { turnEndNoAttack: [{ kind: 'heal', n: 2 }] } },
+  { id: 'warm_stone', name: '暖爐石', pool: '常見', text: '每打贏一場戰鬥回復 4 點生命。', art: 'codex/relic_warm_stone', price: 140, hooks: { combatEndHeal: 4 } },
+  { id: 'yarn_gloves', name: '毛線手套', pool: '常見', text: '被魔物打掉血時獲得 1 點爪力（每回合最多一次）。', art: 'codex/relic_yarn_gloves', price: 150, hooks: { onHit: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] } },
+  { id: 'catgrass_seed', name: '貓草種子', pool: '常見', text: '在貓窩打盹額外回復 8 點生命。', art: 'codex/relic_catgrass_seed', price: 110, hooks: { restFlat: 8 } },
+  { id: 'crane_bookmark', name: '紙鶴書籤', pool: '常見', text: '每場戰鬥第一回合多抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_crane_bookmark', price: 160, hooks: { firstTurnDraw: 1, firstTurnEnergy: 1 } },
+  { id: 'bamboo_copter', name: '竹蜻蜓', pool: '常見', text: '每回合打出第 4 張牌時多 1 顆飯糰。', art: 'codex/relic_bamboo_copter', price: 150, hooks: { energyOnNthCard: { n: 4, energy: 1 } } },
+  // --- 大魔物（+9）---
+  { id: 'ink_jade', name: '墨玉', pool: '大魔物', text: '每場戰鬥開始時給全體魔物 2 層懶洋洋。', art: 'codex/relic_ink_jade', price: 200, hooks: { combatStart: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }] } },
+  { id: 'sand_bag', name: '鐵砂袋', pool: '大魔物', text: '每回合開始時獲得 3 點蜷縮。', art: 'codex/relic_sand_bag', price: 190, hooks: { turnStart: [{ kind: 'block', amount: 3 }] } },
+  { id: 'spirit_bell', name: '靈貓鈴', pool: '大魔物', text: '每回合開始時多抽 1 張牌。', art: 'codex/relic_spirit_bell', price: 220, hooks: { turnStart: [{ kind: 'draw', n: 1 }] } },
+  { id: 'obsidian_claw', name: '黑曜爪', pool: '大魔物', text: '每打倒一隻魔物獲得 1 點爪力。', art: 'codex/relic_obsidian_claw', price: 210, hooks: { killStrength: 1 } },
+  { id: 'guard_charm', name: '守護符', pool: '大魔物', text: '回合結束時最多保留 8 點蜷縮到下一回合。', art: 'codex/relic_guard_charm', price: 200, hooks: { blockKeep: 8 } },
+  { id: 'turtle_shell', name: '龜甲', pool: '大魔物', text: '每場戰鬥開始時獲得 6 點蜷縮與 3 點反彈。', art: 'codex/relic_turtle_shell', price: 200, hooks: { combatStart: [{ kind: 'block', amount: 6 }, { kind: 'status', name: '反彈', amount: 3, target: 'self' }] } },
+  { id: 'wind_chime', name: '風鈴', pool: '大魔物', text: '回合結束時，如果這回合沒打過攻擊牌，獲得 2 層隱身。', art: 'codex/relic_wind_chime', price: 200, hooks: { turnEndNoAttack: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }] } },
+  { id: 'catnip_pipe', name: '貓薄荷煙斗', pool: '大魔物', text: '每次使用忍具後抽 2 張牌。', art: 'codex/relic_catnip_pipe', price: 190, hooks: { onPotionUse: [{ kind: 'draw', n: 2 }] } },
+  { id: 'coin_sword', name: '銅錢劍', pool: '大魔物', text: '每打倒一隻魔物多拿 8 條小魚乾。', art: 'codex/relic_coin_sword', price: 180, hooks: { killFish: 8 } },
+  // --- 塔主（+5）---
+  { id: 'tower_moon', name: '塔頂之月', pool: '塔主', text: '每場戰鬥開始時獲得 3 點爪力與 3 點貓步。', art: 'codex/relic_tower_moon', price: 240, hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }, { kind: 'status', name: '貓步', amount: 3, target: 'self' }] } },
+  { id: 'daruma', name: '不倒翁', pool: '塔主', text: '最大生命 +20；每打贏一場戰鬥回復 6 點生命。', art: 'codex/relic_daruma', price: 240, hooks: { maxHp: 20, combatEndHeal: 6 } },
+  { id: 'nine_bell', name: '九命鈴', pool: '塔主', text: '忍具可以多帶兩支；每次使用忍具後回復 3 點生命。', art: 'codex/relic_nine_bell', price: 230, hooks: { potionSlots: 2, onPotionUse: [{ kind: 'heal', n: 3 }] } },
+  { id: 'gold_claws', name: '金爪套', pool: '塔主', text: '每回合打出第 3 張牌時抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_gold_claws', price: 240, hooks: { drawOnNthCard: { n: 3, draw: 1 }, energyOnNthCard: { n: 3, energy: 1 } } },
+  { id: 'master_seal', name: '掌門印', pool: '塔主', text: '戰鬥獎勵的牌多一張可選。', art: 'codex/relic_master_seal', price: 230, hooks: { rewardChoices: 1 } },
 ];
 
 export const relicById: Record<string, RelicDef> = Object.fromEntries(relics.map((r) => [r.id, r]));

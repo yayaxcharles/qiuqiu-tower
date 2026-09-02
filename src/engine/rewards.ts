@@ -55,23 +55,24 @@ export function rollPotion(rng: Rng): string { return rng.pick(potions).id; }
  * `opts.rareBonus`＝稀有保底權重。兩者都只影響牌，不影響小魚乾／忍具／秘寶。
  */
 export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string[], winGoldBonus: number,
-  late = false, opts: { exclude?: string[]; rareBonus?: number } = {}): CombatRewards {
+  late = false, opts: { exclude?: string[]; rareBonus?: number; extraChoices?: number } = {}): CombatRewards {
   const ex = opts.exclude ?? [];
   const bonus = opts.rareBonus ?? 0;
+  const extra = opts.extraChoices ?? 0;   // 掌門印：牌多幾張可選
   if (kind === '塔主') return { kind, cards: [], fish: 100 + winGoldBonus, potion: null, relic: owned.includes('tower_token') ? null : 'tower_token' };
   if (kind === '大魔物') {
     const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus);
-    const rest = rollCardChoices(rng, '忍術', 2, ex, late, bonus);
+    const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus);
     return { kind, cards: rng.shuffle([...jue, ...rest]), fish: 35 + winGoldBonus, potion: rng.chance(0.5) ? rollPotion(rng) : null, relic: rollRelic(rng, '大魔物', owned) };
   }
   // 小魚乾 10～20 → 15～25：原本一關打完約 90 條，罐頭鋪一張常見牌 50、
   // 等於整關只逛得起一次店，商店形同虛設
-  let picks = rollCardChoices(rng, '忍術', 3, ex, late, bonus);
+  let picks = rollCardChoices(rng, '忍術', 3 + extra, ex, late, bonus);
   // 後期（8F 起、第二關起）四分之一的戰利品把一張忍術換成絕學：
   // 絕學原本只有精英、關主、事件、商店拿得到，一般戰鬥打四十場看到的永遠是忍術池那三十幾張
   if (late && rng.chance(0.25)) {
     const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus);
-    if (jue.length) picks = rng.shuffle([...picks.slice(0, 2), ...jue]);
+    if (jue.length) picks = rng.shuffle([...picks.slice(0, 2 + extra), ...jue]);
   }
   return { kind, cards: picks, fish: rng.int(15, 25) + winGoldBonus, potion: rng.chance(0.4) ? rollPotion(rng) : null, relic: null };
 }

@@ -75,8 +75,10 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   const m = runMods(run);
   // 難度：所有魔物帶爪力、血量倍率；難度 5 的塔頂大魔物再加魔氣
   const strength = m.enemyStrength + (run.act >= ACTS && encounterById[enc]?.pool === '大魔物' ? m.topEliteStrength : 0);
+  const startBlock = run.restBlock ?? 0;
+  run.restBlock = 0;   // 暖毯的蜷縮只帶一場
   return startCombat({ hp: run.hp, maxHp: run.maxHp, deck: run.deck.map((c) => ({ ...c })), relics: run.relics, potions: run.potions, encounterId: enc, rng: runRng(run),
-    mods: { hpMul: m.hpMul, strength } });
+    mods: { hpMul: m.hpMul, strength, startBlock } });
 }
 
 export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): CombatRewards | null {
@@ -88,6 +90,9 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   run.stats.kills += cs.kills;
   if (cs.phase === 'lost') { run.hp = 0; run.status = 'lost'; return null; }
   run.hp = cs.player.hp;
+  // 打贏回血的秘寶（暖爐石、不倒翁）
+  const endHeal = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.combatEndHeal ?? 0), 0);
+  if (endHeal > 0) run.hp = Math.min(run.maxHp, run.hp + endHeal);
   run.fish = Math.max(0, run.fish + cs.fishDelta);
   const node = currentNode(run);
   // 看遭遇屬於哪個池，不要比對特定 id——塔主現在有三個，寫死 id 會漏掉另外兩個
@@ -100,7 +105,8 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const counts = new Map<string, number>();
   for (const c of run.deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
   const exclude = [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
-  const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4 });
+  const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0);   // 掌門印：牌多一張可選
+  const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
@@ -199,10 +205,17 @@ export function addPotion(run: RunState, potionId: string): boolean {
   return true;
 }
 
+/** 打盹回多少：最大生命三成 × 秘寶倍率（貓草）＋ 固定加成（貓草種子）。畫面顯示與實際結算共用這一條 */
+export function napHeal(run: RunState): number {
+  const mult = run.relics.reduce((m, id) => m * (relicById[id]?.hooks.restMultiplier ?? 1), 1);
+  const flat = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.restFlat ?? 0), 0);
+  return Math.floor(run.maxHp * 0.3 * mult) + flat;
+}
 export function rest(run: RunState, choice: '打盹' | '磨爪', uid?: number): boolean {
   if (choice === '打盹') {
-    const mult = run.relics.reduce((m, id) => m * (relicById[id]?.hooks.restMultiplier ?? 1), 1);
-    run.hp = Math.min(run.maxHp, run.hp + Math.floor(run.maxHp * 0.3 * mult));
+    run.hp = Math.min(run.maxHp, run.hp + napHeal(run));
+    // 暖毯：打盹後下一場開戰帶蜷縮
+    run.restBlock = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.restNextFightBlock ?? 0), 0);
     return true;
   }
   // 磨爪順便回一成血（打盹的三分之一）：一關只有兩三次貓窩，升級跟回血硬碰硬的話
@@ -225,7 +238,8 @@ export interface ShopStock {
 }
 
 export function makeShop(run: RunState): ShopStock {
-  const shopMul = runMods(run).shopMul;   // 難度 4 起貴一成
+  // 難度 4 起貴一成；零錢罐九折（兩者相乘）
+  const shopMul = runMods(run).shopMul * run.relics.reduce((m, id) => m * (relicById[id]?.hooks.shopDiscount ?? 1), 1);
   const rng = runRng(run);
   const cardDefs = [...rollCardChoices(rng, '忍術', 3), ...rollCardChoices(rng, '絕學', 2)];
   const relicIds: string[] = [];
