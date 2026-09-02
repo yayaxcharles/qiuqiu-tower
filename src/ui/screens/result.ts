@@ -8,6 +8,7 @@ import { artUrl } from '../assets';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { seedTag } from '../hud';
+import { sceneView } from '../scene';
 import { attachTextTooltip } from '../tooltip';
 
 registerScreen('result', (app, root) => {
@@ -36,21 +37,26 @@ registerScreen('result', (app, root) => {
   }
 
   const lastWords = won ? dialogue.victoryTeaser : (dialogue.defeat.find((l) => l.speaker === '球球')?.text ?? '');
+  const hero = artUrl('sprites', won ? 'hero/ninja_win' : 'hero/ninja_lose');
 
+  // 劇場版面：球球站在帶子左邊（贏的姿勢或倒下的姿勢），成績、秘寶、最佳成績寫在帶子裡
   root.append(screenBg(won ? 'bg/screen_result_win' : 'bg/screen_result_lose'));
-  root.append(el('div', { class: `screen result ${won ? 'won' : 'lost'}` },
-    el('img', { class: 'result-cat', src: artUrl('sprites', won ? 'hero/ninja_win' : 'hero/ninja_lose'), alt: '' }),
-    el('h1', {}, won ? '通關' : '任務失敗'),
-    el('div', { class: 'result-stats' },
-      `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${run.deck.length} 張`),
-    seedTag(run.seed),
-    relics,
-    el('div', { class: 'result-actions' },
+  root.append(sceneView({
+    portrait: hero.startsWith('data:') ? undefined : hero,
+    speaker: won ? '通關' : '任務失敗',
+    text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : '球球倒下了。'),
+    extra: [
+      el('div', { class: 'result-stats' },
+        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${run.deck.length} 張`),
+      el('div', { class: 'result-row' }, relics, seedTag(run.seed)),
+      el('div', { class: 'result-best' }, `最佳成績：${best.floor}F${best.won ? `（通關，${best.turns} 回合）` : ''}`),
+    ],
+    actions: [
       el('button', {
         class: 'btn',
         onclick: () => showDeckPicker({ title: `最終牌組（${run.deck.length} 張）`, cards: run.deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
       }, '看牌組'),
-      el('button', { class: 'btn primary', onclick: () => { app.run = null; app.cs = null; app.show('title'); } }, '回到村子')),
-    el('div', { class: 'result-best' }, `最佳成績：${best.floor}F${best.won ? `（通關，${best.turns} 回合）` : ''}`),
-    lastWords ? el('p', { class: 'teaser' }, `球球：「${lastWords}」`) : ''));
+      el('button', { class: 'btn primary', onclick: () => { app.run = null; app.cs = null; app.show('title'); } }, '回到村子'),
+    ],
+  }));
 });

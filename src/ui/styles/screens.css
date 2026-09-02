@@ -793,3 +793,40 @@
 
 /* 升級確認、挑牌視窗的鈕也走木牌（使用者：「再看看」「就磨這張」太醜） */
 .modal-foot .btn { min-width: 170px; }
+
+/* ===== 過關畫面：選到的秘寶／牌要一眼看得出來（使用者：「只有微微黃光不太明顯」） =====
+   粗金框＋外光暈＋右上角打勾章＋微微抬高；同排其他的壓暗，選中的更跳出來 */
+.scene-picks .card.selected, .pick-tile.selected {
+  outline: none; position: relative;
+  box-shadow: 0 0 0 5px #ffd35c, 0 0 0 8px #7a4a12, 0 0 34px 8px #ffcf6acc, 0 10px 22px #000000a6;
+  transform: translateY(-10px) scale(1.04);
+}
+.scene-picks .card.selected::after, .pick-tile.selected::after {
+  content: '✓ 選這個'; position: absolute; top: -16px; right: -14px; z-index: 3;
+  padding: 3px 12px 4px; border-radius: 999px;
+  background: linear-gradient(#ffe08a, #e0a23a); border: 2px solid #7a4a12;
+  color: #3a2a1c; font-size: 14px; font-weight: bold; letter-spacing: 1px;
+  box-shadow: 0 3px 8px #00000080;
+  animation: showcase-pop .3s cubic-bezier(.2, .9, .3, 1.3) both;
+}
+.pick-row:has(.selected) .pick-tile:not(.selected), .scene-picks .reward-cards:has(.selected) .card:not(.selected) { opacity: .55; filter: saturate(.7); }
+.pick-row:has(.selected) .pick-tile:not(.selected):hover, .scene-picks .reward-cards:has(.selected) .card:not(.selected):hover { opacity: .9; }
+/* ===== 結算畫面（劇場版面） ===== */
+.scene .result-stats { margin: 6px 0 4px; font-size: 18px; color: #f6efe3; opacity: .92; text-shadow: 0 2px 6px #000000d9; }
+.scene .result-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin: 4px 0; }
+.scene .result-relics { display: flex; gap: 8px; flex-wrap: wrap; }
+.scene .result-relic { width: 44px; height: 44px; padding: 4px; box-sizing: border-box; border-radius: 10px; background: #fffaf0e6; border: 2px solid #3a2a1c; }
+.scene .result-relic img { width: 100%; height: 100%; object-fit: contain; }
+.scene .result-relic.name-only { width: auto; font-size: 13px; color: var(--ink); }
+.scene .result-best { font-size: 16px; color: #ffd98a; text-shadow: 0 2px 6px #000000d9; }
+.scene .hud-seed { color: #d9cdb4; }
+/* 牌本身已經有 ::after（牌框那層），打勾章要把它的鋪滿設定整個蓋掉，不然變成一整片黃 */
+.scene-picks .card.selected::after {
+  inset: auto; left: auto; bottom: auto; top: -16px; right: -14px;
+  width: auto; height: auto; transform: none; opacity: 1; background-image: none;
+  background: linear-gradient(#ffe08a, #e0a23a); border-radius: 999px;
+}
+/* 牌的外框會把超出的東西裁掉，打勾章改貼在牌內的右上角 */
+.scene-picks .card.selected::after { top: 6px; right: 6px; }
+/* 結算帶子裡的本局代碼：縮回小標籤，跟秘寶排同一列（繼承帶子的大字會變成一塊巨大的牌） */
+.scene .result-row .hud-seed { font-size: 14px; padding: 4px 10px; margin-left: 6px; }
