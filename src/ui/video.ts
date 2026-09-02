@@ -16,7 +16,9 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 export function playVideo(name: 'opening' | 'ending', onDone: () => void): void {
   const layer = overlayRoot();
   if (!layer) { onDone(); return; }
-  const v = el('video', { class: 'cine-video', playsinline: '', preload: 'auto' });
+  // muted：影片本身沒有音軌（配樂走遊戲的背景音樂），標成靜音瀏覽器就一定准自動播放，不必賭手勢判定
+  const v = el('video', { class: 'cine-video', playsinline: '', preload: 'auto', muted: '' });
+  v.muted = true;
   v.src = `${BASE}video/${name}.mp4`;
   const skip = el('button', { class: 'btn small cine-skip' }, '跳過 ▸');
   const box = el('div', { class: 'cine-overlay' }, v, skip);
