@@ -340,7 +340,8 @@
    "idle": "assets/monsters/white_duelist_idle.webp"
   },
   "codex/monster_fox_miko": {
-   "idle": "assets/monsters/fox_miko_idle.webp"
+   "idle": "assets/monsters/fox_miko_idle.webp",
+   "attack": "assets/monsters/fox_miko_attack.webp"
   },
   "codex/monster_kappa": {
    "attack": "assets/monsters/kappa_attack.webp",
@@ -357,6 +358,10 @@
   "codex/monster_tofu_boy": {
    "attack": "assets/monsters/tofu_boy_attack.webp",
    "idle": "assets/monsters/tofu_boy_idle.webp"
+  },
+  "codex/monster_armor_ghost": {
+   "attack": "assets/monsters/armor_ghost_attack.webp",
+   "idle": "assets/monsters/armor_ghost_idle.webp"
   }
  },
  "icons": {
