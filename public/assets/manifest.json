@@ -480,7 +480,12 @@
   "codex/relic_scratch_board": "assets/icons/relic_scratch_board.webp",
   "codex/relic_warm_stone": "assets/icons/relic_warm_stone.webp",
   "codex/relic_wooden_fish": "assets/icons/relic_wooden_fish.webp",
-  "codex/relic_yarn_gloves": "assets/icons/relic_yarn_gloves.webp"
+  "codex/relic_yarn_gloves": "assets/icons/relic_yarn_gloves.webp",
+  "codex/relic_bamboo_copter": "assets/icons/relic_bamboo_copter.webp",
+  "codex/relic_ink_jade": "assets/icons/relic_ink_jade.webp",
+  "codex/relic_obsidian_claw": "assets/icons/relic_obsidian_claw.webp",
+  "codex/relic_sand_bag": "assets/icons/relic_sand_bag.webp",
+  "codex/relic_spirit_bell": "assets/icons/relic_spirit_bell.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
