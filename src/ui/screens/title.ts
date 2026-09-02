@@ -1,4 +1,5 @@
-import { hasSave, loadBest } from '../../engine/save';
+import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
+import { hasSave, loadBestFor, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
 import { el } from '../dom';
@@ -11,7 +12,26 @@ registerScreen('title', (app, root) => {
     class: 'seed', placeholder: '本局代碼（可留空）',
     title: '填同一組代碼會生出一模一樣的塔：地圖、遭遇、罐頭鋪的貨全部一樣。留空就隨機開一局。',
   });
-  const best = loadBest();
+  // 難度選擇（2026-09-02）：五級、通關才解鎖下一級；選到哪級就顯示哪級的最佳成績與這級多了什麼
+  let level = selectedDifficulty();
+  const unlocked = unlockedDifficulty();
+  const bestLine = el('div', { class: 'title-best' });
+  const diffText = el('div', { class: 'diff-text' });
+  const diffBtns: HTMLButtonElement[] = [];
+  const refreshDiff = (): void => {
+    const best = loadBestFor(level);
+    bestLine.textContent = best ? `難度 ${level} 最佳成績：到達 ${best.floor}F${best.won ? '（通關）' : ''}` : `難度 ${level} 還沒有成績`;
+    diffText.textContent = `${DIFFICULTY_NAMES[level - 1]}：${DIFFICULTY_TEXT[level - 1]}${level > 1 ? '（含前面各級）' : ''}`;
+    diffBtns.forEach((b, i) => b.classList.toggle('selected', i + 1 === level));
+  };
+  for (let i = 1; i <= MAX_DIFFICULTY; i++) {
+    const locked = i > unlocked;
+    const b = el('button', { class: 'btn small diff-btn' + (locked ? ' locked' : ''), ...(locked ? { disabled: 'disabled' } : {}),
+      onclick: () => { level = i; setSelectedDifficulty(i); refreshDiff(); } }, locked ? `🔒 ${i}` : `${i} ${DIFFICULTY_NAMES[i - 1]}`) as HTMLButtonElement;
+    if (locked) b.title = `通關難度 ${i - 1} 才解鎖`;
+    diffBtns.push(b);
+  }
+  refreshDiff();
   root.append(screenBg('bg/screen_title'));
   // 飄落的花瓣與落葉：畫面靜止時總得有東西在動（跟戰鬥的浮塵同一個道理）。
   // 十片各自的起點、時長、延遲都拉開，看起來才不像輸送帶。
@@ -33,11 +53,13 @@ registerScreen('title', (app, root) => {
       el('h1', {}, '爪破魔塔'),
       el('div', { class: 'title-sub' }, '－ 球球參上 －'),
       el('div', { class: 'title-buttons' },
-        el('button', { class: 'btn primary', onclick: () => app.newRun(seed.value) }, '新的一局'),
+        el('button', { class: 'btn primary', onclick: () => app.newRun(seed.value, level) }, '新的一局'),
         // 沒存檔時才加 disabled：這個屬性只要存在就會生效，給空字串也一樣
         el('button', { class: 'btn', ...(hasSave() ? {} : { disabled: 'disabled' }), onclick: () => { if (!app.continueRun()) app.show('title'); } }, '續玩'),
         seed),
-      el('div', { class: 'title-best' }, best ? `最佳成績：到達 ${best.floor}F${best.won ? '（通關）' : ''}` : '還沒有成績'),
+      el('div', { class: 'diff-picker' }, el('span', { class: 'diff-label' }, '難度'), ...diffBtns),
+      diffText,
+      bestLine,
       el('div', { class: 'title-note' }, '存檔存在這台電腦的瀏覽器裡。'),
       // 版權列：使用者 2026-09-02 指定放製作者與信箱
       el('div', { class: 'title-credit' }, '© 2026 葉彥呈 Charles Y.C. Yeh ｜ yayaxyayax@gmail.com')));

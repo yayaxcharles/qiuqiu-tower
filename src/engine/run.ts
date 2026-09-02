@@ -1,4 +1,5 @@
 import { STARTER_DECK, cardById, cards } from '../content/cards';
+import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById } from '../content/enemies';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -34,16 +35,22 @@ export function runRng(run: RunState): Rng {
   return rng;
 }
 
-export function newRun(seed: string): RunState {
+/** 這一局的難度旋鈕（舊存檔沒有 difficulty 就是 1） */
+export function runMods(run: RunState): DifficultyMods { return difficultyMods(run.difficulty ?? 1); }
+
+export function newRun(seed: string, difficulty = 1): RunState {
   const rng = new Rng(seedFromString(seed));
+  const level = clampDifficulty(difficulty);
+  const mods = difficultyMods(level);
   const run: RunState = {
-    version: 1, seed, rng: rng.state, hp: 70, maxHp: 70, fish: START_FISH, act: 1,
+    version: 1, seed, rng: rng.state, hp: mods.maxHp, maxHp: mods.maxHp, fish: START_FISH, act: 1, difficulty: level,
     deck: [], relics: [], potions: [], floor: 0,
-    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1) }), currentNode: null, trail: [],
+    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul }), currentNode: null, trail: [],
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
     flags: {},
   };
   for (const id of STARTER_DECK) addCard(run, id);
+  if (mods.startCurse) addCard(run, mods.startCurse);   // 難度 4 起：開局就背一張壞毛病
   takeRelic(run, 'blue_headband');
   return run;
 }
@@ -65,7 +72,11 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
 export function beginCombat(run: RunState, encounterId?: string): CombatState {
   const enc = encounterId ?? currentNode(run)?.encounterId;
   if (!enc) throw new Error('目前節點沒有遭遇');
-  return startCombat({ hp: run.hp, maxHp: run.maxHp, deck: run.deck.map((c) => ({ ...c })), relics: run.relics, potions: run.potions, encounterId: enc, rng: runRng(run) });
+  const m = runMods(run);
+  // 難度：所有魔物帶爪力、血量倍率；難度 5 的塔頂大魔物再加魔氣
+  const strength = m.enemyStrength + (run.act >= ACTS && encounterById[enc]?.pool === '大魔物' ? m.topEliteStrength : 0);
+  return startCombat({ hp: run.hp, maxHp: run.maxHp, deck: run.deck.map((c) => ({ ...c })), relics: run.relics, potions: run.potions, encounterId: enc, rng: runRng(run),
+    mods: { hpMul: m.hpMul, strength } });
 }
 
 export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): CombatRewards | null {
@@ -107,8 +118,10 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
 export function advanceAct(run: RunState): void {
   if (run.act >= ACTS || run.status !== 'playing') return;
   run.act += 1;
-  run.hp = run.maxHp;
-  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act) });
+  // 過關回血：難度 3 起只補回缺血的七成五（殺戮尖塔進階 5 的做法）
+  const heal = runMods(run).actHeal;
+  run.hp = heal >= 1 ? run.maxHp : Math.min(run.maxHp, run.hp + Math.round((run.maxHp - run.hp) * heal));
+  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul });
   run.currentNode = null;
   run.trail = [];
   run.floor = (run.act - 1) * FLOORS;
@@ -171,7 +184,7 @@ export function takeRelic(run: RunState, relicId: string): boolean {
 }
 
 export function addPotion(run: RunState, potionId: string): boolean {
-  if (run.potions.length >= 3 || !potions.some((p) => p.id === potionId)) return false;
+  if (run.potions.length >= runMods(run).potionSlots || !potions.some((p) => p.id === potionId)) return false;
   run.potions.push(potionId);
   return true;
 }
@@ -202,16 +215,17 @@ export interface ShopStock {
 }
 
 export function makeShop(run: RunState): ShopStock {
+  const shopMul = runMods(run).shopMul;   // 難度 4 起貴一成
   const rng = runRng(run);
   const cardDefs = [...rollCardChoices(rng, '忍術', 3), ...rollCardChoices(rng, '絕學', 2)];
   const relicIds: string[] = [];
   for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...run.relics, ...relicIds]); if (id) relicIds.push(id); }
   return {
-    cards: cardDefs.map((def) => ({ def, price: PRICE[def.rarity], sold: false })),
-    relics: relicIds.map((id) => ({ id, price: relicById[id]?.price ?? RELIC_PRICE, sold: false })),
+    cards: cardDefs.map((def) => ({ def, price: Math.round(PRICE[def.rarity] * shopMul), sold: false })),
+    relics: relicIds.map((id) => ({ id, price: Math.round((relicById[id]?.price ?? RELIC_PRICE) * shopMul), sold: false })),
     potions: Array.from({ length: 3 }, () => {
       const id = rollPotion(rng);
-      return { id, price: potionById[id]?.price ?? POTION_PRICE, sold: false };
+      return { id, price: Math.round((potionById[id]?.price ?? POTION_PRICE) * shopMul), sold: false };
     }),
   };
 }
@@ -271,7 +285,8 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
     switch (fx.kind) {
       case 'heal': run.hp = Math.min(run.maxHp, run.hp + fx.n); break;
       case 'healPercent': run.hp = Math.min(run.maxHp, run.hp + Math.floor(run.maxHp * fx.p)); break;
-      case 'damage': run.hp = Math.max(1, run.hp - fx.n); break;
+      // 難度 4 起壞事件更壞：掉血乘 1.5、賭博成功率乘 0.7
+      case 'damage': run.hp = Math.max(1, run.hp - Math.round(fx.n * (runMods(run).unlucky ? 1.5 : 1))); break;
       case 'fish': run.fish = Math.max(0, run.fish + fx.n); break;
       case 'fishHalve': run.fish = Math.floor(run.fish / 2); break;
       case 'maxHp':
@@ -324,7 +339,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'chooseCard': outcome = { chooseCard: rollCardChoices(runRng(run), fx.pool, fx.n) }; break;
       case 'gamble': {
         // 中了哪一邊由子效果自己講（贏＝最大生命 +5、輸＝牌組被塞一張「失手了」）
-        const won = runRng(run).chance(fx.p);
+        const won = runRng(run).chance(fx.p * (runMods(run).unlucky ? 0.7 : 1));
         // 中沒中要自己講。兩邊的結果文案往往同一句（「井底傳來一聲悶響」），
         // 輸的那邊效果常常是空的——玩家按下去只看到圖換了一張，會以為按了沒反應
         notes?.push(won ? '中了！' : '沒中……');

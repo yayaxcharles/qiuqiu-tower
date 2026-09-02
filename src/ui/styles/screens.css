@@ -850,3 +850,24 @@
 .scene .reward-items { justify-content: center; gap: 8px; }
 .scene .reward-items .reward-item { flex: 0 1 auto; border-radius: 999px; border-left-width: 6px; padding: 4px 18px 4px 12px; }
 .scene .reward-items .reward-item:has(em) { flex-basis: auto; max-width: 620px; border-radius: 16px; }
+
+/* ===== 難度（2026-09-02）：標題畫面的五顆小鈕、狀態列的牌子 ===== */
+.diff-picker { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.diff-label { color: #ffd98a; font-weight: bold; letter-spacing: 2px; text-shadow: 0 1px 3px #000c; margin-right: 4px; }
+.diff-btn { min-width: 64px; padding: 4px 10px; font-size: 14px; }
+.diff-btn.selected { outline: 3px solid #ffd35c; box-shadow: 0 0 0 3px #ffd35c40, 0 4px 0 #00000059; filter: saturate(1.2) brightness(1.15); }
+.diff-btn.locked { opacity: .5; }
+.diff-text { margin-top: 6px; font-size: 14px; color: #f6efe3; text-shadow: 0 1px 3px #000c; max-width: 720px; text-align: center; }
+.hud-diff { font-size: 13px; font-weight: bold; color: #ffd98a; border: 1px solid #ffd98a99; border-radius: 6px; padding: 1px 8px; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+/* 標題畫面多了難度那排之後，作者資訊被擠到舞台外（使用者 2026-09-02：「我的名稱不見了？」）：
+   說明與作者列釘在舞台底部，難度那排的間距收緊，整頁在 720 高裡放得下 */
+.title-note { position: absolute; left: 0; right: 0; bottom: 26px; margin: 0; }
+.title-credit { position: absolute; left: 0; right: 0; bottom: 7px; margin: 0; }
+.diff-picker { margin-top: 4px; }
+.diff-text { margin-top: 3px; font-size: 13px; }
+.title-best { font-size: 18px; }
+.title-screen { gap: 11px; }
+.title-cat-box .title-cat { height: 290px; }
+.title-screen h1 { margin: 0; }
+.title-sub { margin: 0; }
+.title-note, .title-credit { text-align: center; }   /* 釘在底部後要自己置中（絕對定位不吃 flex 的置中） */

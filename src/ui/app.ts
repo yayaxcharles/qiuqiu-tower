@@ -3,7 +3,7 @@ import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
-import { ACTS, beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
+import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun, runMods } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
@@ -79,8 +79,8 @@ export class App {
     }
   }
 
-  newRun(seed?: string): void {
-    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`);
+  newRun(seed?: string, difficulty = 1): void {
+    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty);
     this.cs = null;
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     // 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白
@@ -126,7 +126,18 @@ export class App {
    * 也是遊戲進行中唯一的存檔點。只播一次的劇情旗標寫在 run.flags 裡、不自己存檔，
    * 就是靠這一次存檔帶走。
    */
-  backToMap(): void { this.save(); this.show('map'); }
+  backToMap(): void {
+    const run = this.run;
+    const node = run ? currentNode(run) : null;
+    // 難度 5 的前哨戰打完：不回地圖、不回血，直接開最終戰
+    if (run && node?.type === '塔主' && node.encounterId && run.flags['final_prefight'] && !run.flags['final_boss']) {
+      run.flags['final_boss'] = true;
+      this.save();
+      this.startFight(node.encounterId, true);
+      return;
+    }
+    this.save(); this.show('map');
+  }
 
   /**
    * 只播一次的劇情：旗標寫在 run.flags 裡，但**不在這裡存檔**——旗標由下一次節點結算的存檔帶走。
@@ -148,7 +159,14 @@ export class App {
     // 實際玩起來每一場都要等、很卡節奏，拆掉了；換場的感覺交給畫面淡入就好
     switch (node.type) {
       case '戰鬥': case '大魔物': case '塔主':
-        if (node.encounterId) this.startFight(node.encounterId, node.type === '塔主');
+        if (!node.encounterId) break;
+        // 難度 5：最終戰前先跟影球球打一場（打完的獎勵照一般戰鬥給，回到地圖那一拍直接接師父，見 backToMap）
+        if (node.type === '塔主' && run.act >= ACTS && runMods(run).finalPrefight && !run.flags['final_prefight']) {
+          run.flags['final_prefight'] = true;
+          this.startFight('shadow_cat', false);
+          break;
+        }
+        this.startFight(node.encounterId, node.type === '塔主');
         break;
       case '事件': this.show('event', { eventId: node.eventId }); break;
       case '罐頭鋪': this.show('shop'); break;

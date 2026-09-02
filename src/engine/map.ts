@@ -87,20 +87,25 @@ function roll(rng: Rng, table: [NodeType, number][]): NodeType {
  * 牌組要靠戰鬥獎勵長大，事件與商店太密會「牌還沒湊好就一直逛街」。
  * 第二、三關恢復原本的表（含大魔物），玩家此時有牌組也有秘寶。
  */
-function tableFor(floor: number, act: number): [NodeType, number][] {
+function tableFor(floor: number, act: number, eliteMul = 1): [NodeType, number][] {
   if (act <= 1) {
     if (floor >= 2 && floor <= 4) return [['戰鬥', 70], ['事件', 22], ['罐頭鋪', 8]];
     if (floor === 6) return [['戰鬥', 62], ['事件', 26], ['罐頭鋪', 12]];
     if (floor === 7) return [['戰鬥', 68], ['事件', 32]];
-    return [['戰鬥', 56], ['事件', 21], ['罐頭鋪', 11], ['貓窩', 12]];   // 9–13
+    // 難度 2 起（eliteMul > 1）第一關 9–13F 也開放大魔物，每關最多一個
+    return eliteMul > 1
+      ? [['戰鬥', 50], ['事件', 21], ['罐頭鋪', 11], ['貓窩', 12], ['大魔物', 6]]
+      : [['戰鬥', 56], ['事件', 21], ['罐頭鋪', 11], ['貓窩', 12]];   // 9–13
   }
   if (floor >= 2 && floor <= 4) return [['戰鬥', 60], ['事件', 30], ['罐頭鋪', 10]];
   if (floor === 6) return [['戰鬥', 50], ['事件', 35], ['罐頭鋪', 15]];
   if (floor === 7) return [['戰鬥', 60], ['事件', 40]];
-  return [['戰鬥', 45], ['事件', 25], ['罐頭鋪', 10], ['貓窩', 10], ['大魔物', 10]];   // 9–13
+  return [['戰鬥', 45], ['事件', 25], ['罐頭鋪', 10], ['貓窩', 10], ['大魔物', Math.round(10 * eliteMul)]];   // 9–13
 }
 
 export interface MapOpts {
+  /** 大魔物節點的權重倍率（難度 2 起 1.6）：>1 時二、三關每關最多兩個、第一關也開放一個 */
+  eliteMul?: number;
   /** 第幾關：決定遭遇池的強度（見 poolForFloor）。 */
   act?: number;
   /** 這一關的關主候選（遭遇 id）。不給就整個塔主池隨機——關主的分配規則在 run.ts。 */
@@ -136,20 +141,24 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     }
   }
   // 類型
+  const eliteMul = opts.eliteMul ?? 1;
+  const eliteCap = eliteMul > 1 && act >= 2 ? 2 : 1;   // 難度 2 起二、三關可以兩個大魔物
   for (let f = 2; f <= 13; f++) {
     if (CONVERGED[f]) continue;
     const row = byFloor[f]!;
     let shops = 0, elites = 0;
     for (const n of row) {
-      let t = roll(rng, tableFor(f, act));
+      let t = roll(rng, tableFor(f, act, eliteMul));
       if (t === '罐頭鋪' && shops >= 1) t = '戰鬥';
-      if (t === '大魔物' && elites >= 1) t = '戰鬥';
+      if (t === '大魔物' && elites >= eliteCap) t = '戰鬥';
       if (t === '貓窩' && f === 13) t = '戰鬥';
       if (t === '罐頭鋪') shops++;
       if (t === '大魔物') elites++;
       n.type = t;
     }
     if (act >= 2 && f === 7 && elites === 0) rng.pick(row).type = '大魔物';   // 第一關沒有精英（見 tableFor）
+    // 難度 2 起（eliteMul > 1）二、三關 11F 再保證一個：只靠權重抽，整關平均只多兩成，湊不到「多六成」
+    if (eliteMul > 1 && act >= 2 && f === 11 && elites === 0) rng.pick(row).type = '大魔物';
   }
   // 9–13F 保證至少一個罐頭鋪、一個貓窩
   const mid = [9, 10, 11, 12, 13].flatMap((f) => byFloor[f]!);
@@ -218,7 +227,11 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       }
       n.encounterId = nextEncounter(`${poolForFloor(n.floor, act)}:${pool.length}`, pool.map((e) => e.id));
     }
-    else if (n.type === '大魔物') n.encounterId = rng.pick(encountersOfPool('大魔物', act)).id;
+    else if (n.type === '大魔物') {
+      // 第一關本來沒有大魔物遭遇（難度 2 起才開放），借塔中的精英池（不含 _top 加強版）
+      const pool = encountersOfPool('大魔物', act);
+      n.encounterId = rng.pick(pool.length ? pool : encountersOfPool('大魔物', 2)).id;
+    }
     // 塔主：呼叫端會指定這一關的候選（第一、二關不含大俠貓，他是第三關固定的最終頭目）；
     // 沒指定就整池隨機（測試與舊呼叫端用）。
     else if (n.type === '塔主') {

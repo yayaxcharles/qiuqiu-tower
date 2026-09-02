@@ -1,3 +1,5 @@
+import type { RunState } from '../engine/types';
+import { DIFFICULTY_TEXT, difficultyName } from '../content/difficulty';
 import { potionById } from '../content/potions';
 import { showCompendium } from './compendium';
 import { relicById } from '../content/relics';
@@ -121,6 +123,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   hud.append(
     // 還沒踏上這一關的第一個節點時顯示關名（塔下／塔中／塔頂），之後顯示累計樓層
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
+    diffBadge(run),
     hp, fish, relics, potions, deckBtn, compBtn,
     seedTag(run.seed), music, vol, sound);
   return hud;
@@ -134,6 +137,15 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
  * 剪貼簿權限包在 try 裡：不安全的來源或舊瀏覽器沒有 `navigator.clipboard`，
  * 失敗就退回「選取那段文字」讓人自己按複製，不能什麼都不發生。
  */
+/** 難度牌子：難度 1 不掛（跟現在一樣）；2 起掛「難度 N·名字」，滑上去列出這局多了哪些懲罰 */
+function diffBadge(run: RunState): HTMLElement | string {
+  const level = run.difficulty ?? 1;
+  if (level <= 1) return '';
+  const node = el('div', { class: 'hud-diff' }, `難度 ${level}·${difficultyName(level)}`);
+  attachTextTooltip(node, `難度 ${level} ${difficultyName(level)}`, DIFFICULTY_TEXT.slice(1, level).map((t, i) => `${i + 2}：${t}`).join('\n'));
+  return node;
+}
+
 export function seedTag(seed: string): HTMLElement {
   const node = el('button', { class: 'hud-seed seed-copy' }, `本局代碼 ${seed} ⧉`);
   node.title = '點一下複製代碼';

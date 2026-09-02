@@ -1,3 +1,4 @@
+import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
 import type { RunState } from './types';
 
@@ -5,6 +6,8 @@ export interface KeyValueStore { getItem(k: string): string | null; setItem(k: s
 
 const RUN_KEY = 'qiuqiu-tower/run';
 const BEST_KEY = 'qiuqiu-tower/best';
+const UNLOCK_KEY = 'qiuqiu-tower/difficulty-unlocked';
+const SELECT_KEY = 'qiuqiu-tower/difficulty';
 
 function memoryStore(): KeyValueStore {
   const m = new Map<string, string>();
@@ -76,6 +79,8 @@ export function loadRun(): RunState | null {
     run.trail ??= run.currentNode ? [run.currentNode] : [];
     // 舊存檔沒有 act（三關制之前存的）：當第一關。地圖照舊能走，打贏關主就接第二關
     if (typeof run.act !== 'number' || run.act < 1) run.act = 1;
+    // 舊存檔沒有 difficulty（難度制之前存的）：當難度 1
+    if (typeof run.difficulty !== 'number') run.difficulty = 1;
     return run as RunState;
   } catch { clearSave(); return null; }
 }
@@ -101,10 +106,35 @@ function better(a: BestRecord, b: BestRecord): boolean {   // a 是否優於 b
   if (a.floor !== b.floor) return a.floor > b.floor;
   return a.turns < b.turns;
 }
+/** 某個難度的最佳成績（跟總成績分開記；標題畫面選到哪級就顯示哪級） */
+export function loadBestFor(level: number): BestRecord | null {
+  const raw = read(`${BEST_KEY}/${clampDifficulty(level)}`);
+  if (!raw) return null;
+  try {
+    const b = JSON.parse(raw) as Partial<BestRecord>;
+    if (typeof b.floor !== 'number' || typeof b.won !== 'boolean' || typeof b.turns !== 'number' || typeof b.date !== 'string') return null;
+    return b as BestRecord;
+  } catch { return null; }
+}
+/** 解鎖到第幾級難度（通關第 n 級就開第 n＋1 級）；沒記錄＝1 */
+export function unlockedDifficulty(): number {
+  const v = Number(read(UNLOCK_KEY) ?? '1');
+  return Number.isFinite(v) ? clampDifficulty(v) : 1;
+}
+export function selectedDifficulty(): number {
+  const v = Number(read(SELECT_KEY) ?? '1');
+  return Math.min(unlockedDifficulty(), Number.isFinite(v) ? clampDifficulty(v) : 1);
+}
+export function setSelectedDifficulty(level: number): void { write(SELECT_KEY, String(clampDifficulty(level))); }
 export function recordBest(run: RunState, date = new Date().toISOString().slice(0, 10)): BestRecord {
   const cur: BestRecord = { floor: run.floor, won: run.status === 'won', turns: run.stats.turns, date };
   const old = loadBest();
   const best = old && !better(cur, old) ? old : cur;
   write(BEST_KEY, JSON.stringify(best));
+  // 分難度再記一份；通關就解鎖下一級
+  const level = clampDifficulty(run.difficulty ?? 1);
+  const oldL = loadBestFor(level);
+  write(`${BEST_KEY}/${level}`, JSON.stringify(oldL && !better(cur, oldL) ? oldL : cur));
+  if (cur.won && level < MAX_DIFFICULTY && unlockedDifficulty() <= level) write(UNLOCK_KEY, String(level + 1));
   return best;
 }

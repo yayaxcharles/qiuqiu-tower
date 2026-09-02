@@ -263,6 +263,8 @@ export interface RunState {
   removeCost: number;
   /** 第幾關（1＝塔下、2＝塔中、3＝塔頂）。舊存檔沒有這欄，載入時補成 1。 */
   act: number;
+  /** 難度 1～5（見 content/difficulty.ts）。舊存檔沒有這欄，載入時補成 1。 */
+  difficulty?: number;
   status: 'playing' | 'won' | 'lost';
   /** 一次性旗標（看過哪段對話、觸發過哪個事件之類）；舊存檔沒有這欄，載入時補成 {} */
   flags: Record<string, boolean>;

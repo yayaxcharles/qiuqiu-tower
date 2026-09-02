@@ -446,8 +446,8 @@ function nodeScore(run: RunState, n: MapNode): number {
   }
 }
 
-export function smartRun(seed: string): SmartStats {
-  const run = newRun(seed);
+export function smartRun(seed: string, difficulty = 1): SmartStats {
+  const run = newRun(seed, difficulty);
   const rng = new Rng(seedFromString('smart:' + seed));
   const stats: SmartStats = { seed, won: false, floor: 0, act: 1, deckSize: 0, deckIds: [], relicIds: [], upgraded: 0, relics: 0, diedTo: null, bosses: [], fights: [] };
   let guard = 0;

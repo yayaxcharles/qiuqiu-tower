@@ -10,6 +10,8 @@ import { smartRun, type SmartStats } from '../src/engine/smartbot';
  */
 const env = (globalThis as unknown as { process?: { env: Record<string, string | undefined> } }).process?.env ?? {};
 const N = Number(env['SMART_N'] ?? 12);
+/** 難度（1～5）：`SMART_DIFF=3 SMART_N=300 npx vitest run --reporter=verbose tests/smart.report.test.ts` */
+const DIFF = Number(env['SMART_DIFF'] ?? 1);
 
 function report(rs: SmartStats[]): string[] {
   const n = rs.length;
@@ -56,9 +58,9 @@ function report(rs: SmartStats[]): string[] {
 }
 
 describe('會算傷害的機器人', () => {
-  it(`${N} 局統計`, () => {
+  it(`${N} 局統計（難度 ${DIFF}）`, () => {
     const rs: SmartStats[] = [];
-    for (let i = 0; i < N; i++) rs.push(smartRun(`smart-${i}`));
+    for (let i = 0; i < N; i++) rs.push(smartRun(`smart-${i}`, DIFF));
     console.log(report(rs).join('\n'));
     expect(rs.length).toBe(N);
   }, 600_000);

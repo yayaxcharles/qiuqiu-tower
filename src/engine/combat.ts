@@ -17,6 +17,8 @@ function relicSum(relics: string[], key: NumHook): number {
 
 export function startCombat(input: {
   hp: number; maxHp: number; deck: CardInstance[]; relics: string[]; potions: string[]; encounterId: string; rng: Rng;
+  /** 難度旋鈕（見 content/difficulty.ts）：血量倍率乘在遭遇的 hpScale 上、爪力加在遭遇的魔氣上 */
+  mods?: { hpMul?: number; strength?: number };
 }): CombatState {
   const enc = encounterById[input.encounterId];
   if (!enc) throw new Error(`未知的遭遇：${input.encounterId}`);
@@ -33,8 +35,9 @@ export function startCombat(input: {
     turn: 0, phase: 'player', pending: null, log: [], encounterId: input.encounterId, endTurnRequested: false,
     stolenFish: 0, fishDelta: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
   };
-  enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, enc.hpScale ?? 1)));
-  if (enc.strength) for (const e of cs.enemies) addStatus(e, '爪力', enc.strength);   // 魔氣（見 EncounterDef.strength）
+  enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1))));
+  const strength = (enc.strength ?? 0) + (input.mods?.strength ?? 0);   // 魔氣（見 EncounterDef.strength）＋難度
+  if (strength) for (const e of cs.enemies) addStatus(e, '爪力', strength);
   for (const e of cs.enemies) log(cs, `${e.name}：${enemyById[e.enemyId]?.line ?? ''}`);
   for (const rid of cs.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;
