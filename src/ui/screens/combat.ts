@@ -663,11 +663,18 @@ registerScreen('combat', (app, root, props) => {
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('class', 'target-arrow');
     svg.setAttribute('viewBox', '0 0 1280 720');
+    // 線分三層（2026-09-02 使用者：「線條太難看」）：深色描邊墊底、金色虛線在上（虛線會往目標流動）、
+    // 箭頭帶缺口、吸附時目標腳下多一圈脈動的光環
+    const outline = document.createElementNS(SVG_NS, 'path');
+    outline.setAttribute('class', 'arrow-outline');
     const line = document.createElementNS(SVG_NS, 'path');
     line.setAttribute('class', 'arrow-line');
     const head = document.createElementNS(SVG_NS, 'path');
     head.setAttribute('class', 'arrow-head');
-    svg.append(line, head);
+    const tip = document.createElementNS(SVG_NS, 'circle');
+    tip.setAttribute('class', 'arrow-tip');
+    tip.setAttribute('r', '22');
+    svg.append(outline, line, tip, head);
     box.append(svg);
 
     // 舞台整個被 transform: scale() 縮過，滑鼠的座標得換算回 1280×720 的舞台座標
@@ -686,10 +693,13 @@ registerScreen('combat', (app, root, props) => {
 
     const draw = (to: { x: number; y: number }, snapped: boolean): void => {
       const lift = Math.min(240, 90 + Math.hypot(to.x - from.x, to.y - from.y) * 0.35);
-      line.setAttribute('d',
-        `M ${from.x} ${from.y} C ${from.x} ${from.y - lift}, ${to.x} ${to.y - lift}, ${to.x} ${to.y}`);
+      const d = `M ${from.x} ${from.y} C ${from.x} ${from.y - lift}, ${to.x} ${to.y - lift}, ${to.x} ${to.y - 14}`;
+      outline.setAttribute('d', d);
+      line.setAttribute('d', d);
+      // 帶缺口的箭頭（尾端凹進去），比實心三角形有「箭」的樣子
       head.setAttribute('d',
-        `M ${to.x} ${to.y} L ${to.x - 11} ${to.y - 17} L ${to.x + 11} ${to.y - 17} Z`);
+        `M ${to.x} ${to.y} L ${to.x - 14} ${to.y - 24} L ${to.x} ${to.y - 16} L ${to.x + 14} ${to.y - 24} Z`);
+      tip.setAttribute('cx', String(to.x)); tip.setAttribute('cy', String(to.y + 6));
       svg.classList.toggle('snap', snapped);
     };
 

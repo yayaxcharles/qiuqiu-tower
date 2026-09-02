@@ -630,20 +630,24 @@
   pointer-events: none;
   z-index: 40;
 }
+/* 指向線（2026-09-02 重畫）：深色描邊 → 金色虛線往目標流動 → 帶缺口的箭頭；吸附時整條轉亮、目標腳下一圈脈動光環 */
+.combat .arrow-outline { fill: none; stroke: #1d140ccc; stroke-width: 10; stroke-linecap: round; }
 .combat .arrow-line {
   fill: none;
-  stroke: rgba(255, 214, 130, .85);
-  stroke-width: 6;
+  stroke: #ffd98a;
+  stroke-width: 4.5;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, .85));
+  stroke-dasharray: 14 10;
+  animation: arrow-flow .55s linear infinite;
 }
-.combat .arrow-head {
-  fill: rgba(255, 214, 130, .85);
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, .85));
-}
+@keyframes arrow-flow { to { stroke-dashoffset: -24; } }
+.combat .arrow-head { fill: #ffd98a; stroke: #1d140ccc; stroke-width: 2.5; stroke-linejoin: round; }
+.combat .arrow-tip { fill: none; stroke: #ffd98a; stroke-width: 3; opacity: 0; }
 /* 吸附到魔物身上就轉亮，讓「放開就會打這隻」很明確 */
-.combat .target-arrow.snap .arrow-line { stroke: #fff0c4; stroke-width: 7; }
-.combat .target-arrow.snap .arrow-head { fill: #fff0c4; }
+.combat .target-arrow.snap .arrow-line { stroke: #fff3d6; stroke-width: 5.5; }
+.combat .target-arrow.snap .arrow-head { fill: #fff3d6; }
+.combat .target-arrow.snap .arrow-tip { opacity: .9; animation: arrow-tip-pulse .8s ease-out infinite; }
+@keyframes arrow-tip-pulse { from { r: 12; opacity: .95; } to { r: 30; opacity: 0; } }
 
 /* 打擊特效：疊在角色身上蹦一下就沒。
    放大＋淡出，不做位移——位移會讓人覺得「有東西飛走了」，
@@ -801,7 +805,7 @@
 /* 戰鬥裡球球的吐槽改成對話泡泡（使用者 2026-09-02：「球球戰鬥時會出現在畫面正中央講話，可以用對話泡泡的感覺」）：
    米白泡泡、深字、左下角一個小尾巴指向球球的頭（球球站在左邊，頭頂約在 x 165、y 100） */
 #stage[data-screen="combat"] .toast {
-  left: 235px; top: 62px; transform: none;
+  left: 200px; top: 62px; transform: none;   /* 再靠近球球的頭一點（使用者 2026-09-02） */
   background: #fffdf6; color: #2b2118; border: 2px solid #2b2118; border-radius: 16px;
   padding: 8px 18px; font-size: 19px;
   box-shadow: 0 4px 12px #00000080;
@@ -817,3 +821,13 @@
   border: 9px solid transparent; border-top: 11px solid #fffdf6; border-bottom: 0;
 }
 @keyframes bubble-in { from { opacity: 0; transform: translateY(8px) scale(.92); } to { opacity: 1; transform: none; } }
+
+/* 所有單位的立繪都改成 flex 置中（2026-09-02 使用者：「稻草人守衛的位置偏右邊」）：
+   大型魔物的框 230、球球 270，比單位格（190／240）寬，margin:auto 算成 0 就整張往右溢出，中心偏右 15～20；
+   flex 置中會讓超出的部分左右各分一半，名字、血條、意圖牌子才對得上中線（師父那條先前已這樣修） */
+.combat .unit .sprite-box { display: flex; justify-content: center; }
+.combat .sprite { margin: 0; }
+
+/* 指向提示條也換成深色玻璃金邊，跟其他牌子一致 */
+.combat .target-hint { background: linear-gradient(#2c1d12e6, #140c07f2); color: #ffd98a; border: 1.5px solid #ffd98a8c; text-shadow: 0 1px 2px #000000cc; box-shadow: 0 4px 12px #00000080; }
+.combat .target-hint.warn { background: linear-gradient(#5a1a12e6, #2a0a06f2); color: #ffb3a3; border-color: #ff8a6a99; }
