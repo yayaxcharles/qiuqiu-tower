@@ -57,3 +57,37 @@ describe('稽核修正（第二輪）', () => {
     expect(notes.some((n) => n.includes('拿過了'))).toBe(true);
   });
 });
+
+describe('師父的看破（2026-09-03 玩家回報：隱身十幾層沒觸發就被打死→使用者改成拍掉一半）', () => {
+  it('拆招先把隱身拍掉一半（12→6）再打 8×2：剩下的隱身照閃，最後留 4', () => {
+    const cs = start('tower_master');
+    const boss = cs.enemies[0]!;
+    cs.player.statuses['隱身'] = 12;
+    boss.move = { intent: 'attack', label: '拆招', effects: [{ kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 8, times: 2 }] };
+    const hp = cs.player.hp;
+    endTurn(cs);
+    expect(cs.player.statuses['隱身'] ?? 0).toBe(4);
+    expect(cs.player.hp).toBe(hp);
+    expect(cs.log.some((l) => l.includes('看穿了球球的身法'))).toBe(true);
+  });
+  it('拍掉一半是向下取整保留：3 層剩 1、1 層剩 0', () => {
+    for (const [before, after] of [[3, 1], [2, 1], [1, 0]] as const) {
+      const cs = start('tower_master');
+      cs.player.statuses['隱身'] = before; cs.player.block = 99;
+      cs.enemies[0]!.move = { intent: 'attack', label: '看破', effects: [{ kind: 'stripPlayer', names: ['隱身', '潛水'] }] };
+      endTurn(cs);
+      expect(cs.player.statuses['隱身'] ?? 0, `${before} 層`).toBe(after);
+    }
+  });
+  it('穿心掌那種穿透攻擊，隱身還是閃得掉（沒有看破的招才靠隱身）', () => {
+    const cs = start('tower_master');
+    const boss = cs.enemies[0]!;
+    cs.player.statuses['隱身'] = 2;
+    boss.move = { intent: 'attack', label: '穿心掌', effects: [{ kind: 'damage', amount: 20, pierce: true }] };
+    const hp = cs.player.hp;
+    endTurn(cs);
+    expect(cs.player.hp).toBe(hp);
+    expect(cs.player.statuses['隱身']).toBe(1);
+  });
+});
+

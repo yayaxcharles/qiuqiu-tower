@@ -356,6 +356,12 @@ registerScreen('combat', (app, root, props) => {
     else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, cs.player)}～${computeAttack(rnd.max * x, e, cs.player)}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
+    // 看破／破功要寫在牌子上：使用者的朋友囤了十幾層隱身，看牌子只寫「攻 8×2」以為閃得掉，
+    // 結果先被拍掉隱身再挨打（2026-09-03 回報）。牌子上先講，滑上去的提示再講細節
+    if (getStatus(e, '定身') === 0) {
+      if (m.effects.some(has('stripPlayer'))) text += '（看破）';
+      if (m.effects.some(has('purgePlayer'))) text += '（破功）';
+    }
     const node = el('div', { class: `intent i-${m.intent}` }, text);
     // 牌子上只寫得下「攻 4」這種短標籤，滑上去才講得完牠這一下實際會做什麼
     attachTextTooltip(node, m.label, describeMove(e));
@@ -386,7 +392,7 @@ registerScreen('combat', (app, root, props) => {
         case 'statusPlayer': parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
-        case 'stripPlayer': parts.push(`看破：把你身上的${fx.names.join('、')}全部拍掉`); break;
+        case 'stripPlayer': parts.push(`看破：把你身上的${fx.names.join('、')}拍掉一半`); break;
         case 'purgePlayer': parts.push(`破功：把你身上的${fx.names.join('、')}各拍散一半`); break;
         case 'summon': parts.push('叫來幫手'); break;
         case 'heal': parts.push(`自己回復 ${fx.n} 點生命`); break;

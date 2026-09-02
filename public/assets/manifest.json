@@ -371,6 +371,18 @@
   "codex/monster_armor_ghost": {
    "attack": "assets/monsters/armor_ghost_attack.webp",
    "idle": "assets/monsters/armor_ghost_idle.webp"
+  },
+  "codex/monster_armadillo_pup": {
+   "attack": "assets/monsters/armadillo_pup_attack.webp",
+   "idle": "assets/monsters/armadillo_pup_idle.webp"
+  },
+  "codex/monster_dango_bit": {
+   "attack": "assets/monsters/dango_bit_attack.webp",
+   "idle": "assets/monsters/dango_bit_idle.webp"
+  },
+  "codex/monster_dango_slime": {
+   "attack": "assets/monsters/dango_slime_attack.webp",
+   "idle": "assets/monsters/dango_slime_idle.webp"
   }
  },
  "icons": {
@@ -485,7 +497,17 @@
   "codex/relic_ink_jade": "assets/icons/relic_ink_jade.webp",
   "codex/relic_obsidian_claw": "assets/icons/relic_obsidian_claw.webp",
   "codex/relic_sand_bag": "assets/icons/relic_sand_bag.webp",
-  "codex/relic_spirit_bell": "assets/icons/relic_spirit_bell.webp"
+  "codex/relic_spirit_bell": "assets/icons/relic_spirit_bell.webp",
+  "codex/relic_catnip_pipe": "assets/icons/relic_catnip_pipe.webp",
+  "codex/relic_coin_sword": "assets/icons/relic_coin_sword.webp",
+  "codex/relic_daruma": "assets/icons/relic_daruma.webp",
+  "codex/relic_gold_claws": "assets/icons/relic_gold_claws.webp",
+  "codex/relic_guard_charm": "assets/icons/relic_guard_charm.webp",
+  "codex/relic_master_seal": "assets/icons/relic_master_seal.webp",
+  "codex/relic_nine_bell": "assets/icons/relic_nine_bell.webp",
+  "codex/relic_tower_moon": "assets/icons/relic_tower_moon.webp",
+  "codex/relic_turtle_shell": "assets/icons/relic_turtle_shell.webp",
+  "codex/relic_wind_chime": "assets/icons/relic_wind_chime.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
