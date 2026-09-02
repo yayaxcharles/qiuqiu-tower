@@ -11,7 +11,12 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
  * 拿不到圖的舊存檔、離線快取都還能把劇情看完。
  * 鎖畫面規矩跟對白疊層一樣（見 dialogue.ts 的說明）。
  */
-export interface Slide { img: string; lines: DialogueLine[] }
+/**
+ * `box`＝台詞框貼在畫面的上緣還是下緣。預設貼上緣：這批劇情圖的主角幾乎都畫在畫面下半
+ * （球球站在樓梯口、師父跪在地上），框壓在下面正好把主角遮掉——使用者 2026-09-02：
+ * 「對話框在正下方擋住投影片圖了有點可惜」。框本身也改成半透明的漸層，不是不透明的木牌，圖整張都看得到。
+ */
+export interface Slide { img: string; lines: DialogueLine[]; box?: 'top' | 'bottom' }
 
 export function slidesReady(slides: Slide[]): boolean {
   return slides.every((s) => !artUrl('bg', s.img).startsWith('data:'));
@@ -43,6 +48,7 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
       back.classList.add('show');
       front.classList.remove('show');
       front = back;
+      box.querySelector('.slide-box')?.classList.toggle('at-bottom', slides[cur.si]!.box === 'bottom');
     }
     speaker.textContent = cur.l.speaker === '旁白' ? '' : cur.l.speaker;
     text.textContent = cur.l.text;

@@ -560,7 +560,28 @@ img { -webkit-user-drag: none; }
   opacity: 0; transition: opacity .6s ease;
 }
 .slide-img.show { opacity: 1; }
-.slide-overlay .slide-box { position: absolute; left: 90px; right: 90px; bottom: 34px; }
+/* 幻燈片的台詞框：半透明漸層貼在畫面上緣（預設）或下緣，不再是不透明木牌——圖整張看得到。
+   字改成米白加深影，名牌照舊。（2026-09-02 使用者：「對話框在正下方擋住投影片圖了有點可惜」） */
+.slide-overlay .slide-box {
+  position: absolute; left: 0; right: 0; top: 0; bottom: auto;
+  width: auto; margin: 0; padding: 30px 120px 34px;
+  border: none; border-radius: 0; box-shadow: none;
+  background: linear-gradient(to bottom, rgba(8, 6, 4, .86) 0%, rgba(8, 6, 4, .74) 55%, rgba(8, 6, 4, 0) 100%);
+  color: #f6efe3;
+}
+.slide-overlay .slide-box::before { display: none; }
+.slide-overlay .slide-box.at-bottom {
+  top: auto; bottom: 0; padding: 40px 120px 26px;
+  background: linear-gradient(to top, rgba(8, 6, 4, .86) 0%, rgba(8, 6, 4, .74) 55%, rgba(8, 6, 4, 0) 100%);
+}
+.slide-overlay .slide-box:has(.dialogue-speaker:not(:empty)) { padding-top: 54px; }
+.slide-overlay .slide-box .dialogue-speaker { left: 120px; top: 10px; }
+.slide-overlay .slide-box .dialogue-text { text-shadow: 0 2px 6px #000000d9; }
+.slide-overlay.narration .slide-box { background: linear-gradient(to bottom, rgba(8, 6, 4, .86) 0%, rgba(8, 6, 4, .74) 55%, rgba(8, 6, 4, 0) 100%); border: none; }
+.slide-overlay.narration .slide-box.at-bottom { background: linear-gradient(to top, rgba(8, 6, 4, .86) 0%, rgba(8, 6, 4, .74) 55%, rgba(8, 6, 4, 0) 100%); }
+.slide-overlay.narration .slide-box .dialogue-text { color: #f6efe3; }
+.slide-overlay .slide-box .dialogue-hint { color: #d9cdb4; }
+.slide-overlay.narration .slide-box .dialogue-hint { color: #d9cdb4; }
 
 /* ===== 過場影片（開頭／結尾） ===== */
 .cine-overlay {

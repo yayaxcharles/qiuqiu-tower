@@ -7,6 +7,7 @@ import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit } from '../../engine/types';
 import { registerScreen } from '../app';
+import { COLLECT_FLY, collectTiming } from '../collect';
 import { tierBgKey, tierBgZoom } from '../screenbg';
 import { artUrl, monsterUrl } from '../assets';
 import { STATUS_UNIT } from '../cardtext';
@@ -54,9 +55,8 @@ const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
  * 不必等最後一張落地才讓魔物開始動作，不然一回合要拖快兩秒。
  * `DEAL_FLY` 要跟 `combat.css` 的 `card-deal` 同一個長度（那邊算什麼時候把手牌交還給玩家用）。
  */
-const COLLECT_FLY = 300;       // 一張牌飛到「結束回合」要多久
-const COLLECT_STAGGER = 38;    // 每張牌錯開多久出發
-const COLLECT_WAIT = 330;      // 按下去之後多久叫引擎（跑 endTurn）
+// 收牌的三個數字（一張飛多久、每張錯開多久、引擎等多久）搬到 collect.ts：
+// 引擎等多久要看手上有幾張牌（見那邊的說明），不再是固定值。
 const DEAL_FLY = 440;          // 一張新牌從牌堆飛到定位要多久（＝ card-deal 的長度）
 
 /**
@@ -789,6 +789,9 @@ registerScreen('combat', (app, root, props) => {
     const br = btn.getBoundingClientRect();
     const bx = br.left + br.width / 2;
     const by = br.top + br.height / 2;
+    // 牌多就把出發間隔壓縮、引擎多等一點：固定 38×i 配固定 330 的話，第八張起重畫時還沒出發，
+    // 看起來就是「別的牌飛走了、這幾張留在原地」（使用者 2026-09-02 回報）
+    const { stagger, wait } = collectTiming(cards.length);
     cards.forEach((node, i) => {
       const r = node.getBoundingClientRect();
       const dx = (bx - r.left - r.width / 2) * k;
@@ -802,7 +805,7 @@ registerScreen('combat', (app, root, props) => {
         { translate: `${dx.toFixed(0)}px ${dy.toFixed(0)}px`, rotate: `${spin}deg`, scale: 0.12, opacity: 0 },
       ], {
         duration: COLLECT_FLY,
-        delay: i * COLLECT_STAGGER,
+        delay: Math.round(i * stagger),
         easing: 'cubic-bezier(.5, 0, .8, .35)',   // 慢慢起步、越飛越快，像被吸進去
         // both＝出發前先定住（不讓手牌的起伏動畫繼續晃）、飛完之後停在按鈕上不要彈回來。
         // 引擎比最後一張牌早跑完，沒有 forwards 的話前面幾張會先跳回原位再被重畫掉。
@@ -812,7 +815,7 @@ registerScreen('combat', (app, root, props) => {
     // 飛走的牌不要再吃滑鼠：滑過去會被 :hover 拉起來，整段動畫就爛了
     hand.classList.add('collecting');
     btn.setAttribute('disabled', 'disabled');
-    return COLLECT_WAIT;
+    return wait;
   }
 
   function onEndTurn(): void {
