@@ -871,3 +871,15 @@
 .title-screen h1 { margin: 0; }
 .title-sub { margin: 0; }
 .title-note, .title-credit { text-align: center; }   /* 釘在底部後要自己置中（絕對定位不吃 flex 的置中） */
+
+/* 難度顏色：1 到 5 越來越紅（使用者 2026-09-02） */
+.diff-btn.d1 { background: linear-gradient(#fffdf7, #f1e9d8); color: #3a2a1c; }
+.diff-btn.d2 { background: linear-gradient(#fff3c4, #f5d97a); color: #3a2a1c; }
+.diff-btn.d3 { background: linear-gradient(#ffd19a, #f0a24a); color: #3a2a1c; }
+.diff-btn.d4 { background: linear-gradient(#ff9a6a, #e0552a); color: #fff6e2; text-shadow: 0 1px 2px #00000080; }
+.diff-btn.d5 { background: linear-gradient(#e64a3a, #8e1414); color: #fff6e2; text-shadow: 0 1px 2px #000000a6; }
+.diff-btn.locked { background: linear-gradient(#8a8a8a, #5a5a5a); color: #ddd; }
+.hud-diff.d2 { color: #f5d97a; border-color: #f5d97a99; }
+.hud-diff.d3 { color: #f0a24a; border-color: #f0a24a99; }
+.hud-diff.d4 { color: #ff7a4a; border-color: #ff7a4a99; }
+.hud-diff.d5 { color: #ff4a3a; border-color: #ff4a3ab3; background: #4a0a0a80; }

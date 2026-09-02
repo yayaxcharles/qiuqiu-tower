@@ -26,7 +26,7 @@ registerScreen('title', (app, root) => {
   };
   for (let i = 1; i <= MAX_DIFFICULTY; i++) {
     const locked = i > unlocked;
-    const b = el('button', { class: 'btn small diff-btn' + (locked ? ' locked' : ''), ...(locked ? { disabled: 'disabled' } : {}),
+    const b = el('button', { class: `btn small diff-btn d${i}` + (locked ? ' locked' : ''), ...(locked ? { disabled: 'disabled' } : {}),
       onclick: () => { level = i; setSelectedDifficulty(i); refreshDiff(); } }, locked ? `🔒 ${i}` : `${i} ${DIFFICULTY_NAMES[i - 1]}`) as HTMLButtonElement;
     if (locked) b.title = `通關難度 ${i - 1} 才解鎖`;
     diffBtns.push(b);

@@ -141,7 +141,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
 function diffBadge(run: RunState): HTMLElement | string {
   const level = run.difficulty ?? 1;
   if (level <= 1) return '';
-  const node = el('div', { class: 'hud-diff' }, `難度 ${level}·${difficultyName(level)}`);
+  const node = el('div', { class: `hud-diff d${level}` }, `難度 ${level}·${difficultyName(level)}`);
   attachTextTooltip(node, `難度 ${level} ${difficultyName(level)}`, DIFFICULTY_TEXT.slice(1, level).map((t, i) => `${i + 2}：${t}`).join('\n'));
   return node;
 }
