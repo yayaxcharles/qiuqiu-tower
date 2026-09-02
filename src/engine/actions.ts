@@ -210,10 +210,11 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'heal': e.hp = Math.min(e.maxHp, e.hp + fx.n); break;
       case 'stealFish': e.stolen += fx.n; cs.stolenFish += fx.n; cs.fishDelta -= fx.n; log(cs, `${e.name}偷走了 ${fx.n} 小魚乾`); break;
       case 'discardRandomHand': {
-        for (let i = 0; i < fx.n && p.hand.length > 0; i++) {
-          const c = cs.rng.pick(p.hand);
-          p.hand.splice(p.hand.indexOf(c), 1); p.discardPile.push(c);
-        }
+        // 魔物出手時你的手牌早就在回合結束時全棄掉了，「隨機丟手牌」實際上什麼都沒發生
+        // （使用者 2026-09-02：「完全沒看到效果」）。改成真正有感的版本：下回合少抽幾張，最少還是抽得到 1 張。
+        const cut = Math.min(fx.n, Math.max(0, 5 + p.drawNextTurn - 1));
+        p.drawNextTurn -= cut;
+        log(cs, `${e.name}把你的牌吹散了，下回合少抽 ${cut} 張`);
         break;
       }
       case 'summon': {

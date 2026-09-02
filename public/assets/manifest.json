@@ -119,7 +119,16 @@
   "boss/seclude": "assets/sprites/boss/seclude.webp",
   "shop/keeper": "assets/sprites/shop/keeper.webp",
   "hero/cover": "assets/sprites/hero/cover.webp",
-  "master/normal": "assets/sprites/master_normal.webp"
+  "master/normal": "assets/sprites/master_normal.webp",
+  "boss/palm2": "assets/sprites/boss/palm2.webp",
+  "boss/drunk2": "assets/sprites/boss/drunk2.webp",
+  "boss/guard2": "assets/sprites/boss/guard2.webp",
+  "boss/idle3": "assets/sprites/boss/idle3.webp",
+  "boss/headbutt3": "assets/sprites/boss/headbutt3.webp",
+  "boss/palm3": "assets/sprites/boss/palm3.webp",
+  "boss/guard3": "assets/sprites/boss/guard3.webp",
+  "hero/ninja_power": "assets/sprites/hero/ninja_power.webp",
+  "hero/ninja_hurt": "assets/sprites/hero/ninja_hurt.webp"
  },
  "review": [],
  "monsters": {

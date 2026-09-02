@@ -379,7 +379,7 @@ registerScreen('combat', (app, root, props) => {
         case 'summon': parts.push('叫來幫手'); break;
         case 'heal': parts.push(`自己回復 ${fx.n} 點生命`); break;
         case 'stealFish': parts.push(`偷走你 ${fx.n} 條小魚乾`); break;
-        case 'discardRandomHand': parts.push(`隨機丟掉你 ${fx.n} 張手牌`); break;
+        case 'discardRandomHand': parts.push(`讓你下回合少抽 ${fx.n} 張牌`); break;
         case 'escape': parts.push('逃走'); break;
         case 'nothing': parts.push('發呆，什麼都不做'); break;
       }
@@ -1003,6 +1003,12 @@ registerScreen('combat', (app, root, props) => {
       // 破功：疊好的成長被拍散——數字默默變小很容易漏看，飄字＋紫光講清楚
       if (getStatus(p, '爪力') + getStatus(p, '貓步') < before.growth && p.hp === before.hp) {
         cat.append(floatNum('氣勁被拍散！'));
+        burst(cat, 'debuff'); sfx('debuff', 0.8);
+      }
+      // 被吹散手牌（下回合少抽）：飄一句在球球身上，紀錄框裡也有
+      const blown = fresh.find((l) => l.includes('下回合少抽'));
+      if (blown) {
+        cat.append(floatNum(blown.slice(blown.indexOf('下回合')), 'bad'));
         burst(cat, 'debuff');
         sfx('debuff', 0.8);
       }
