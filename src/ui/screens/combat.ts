@@ -381,7 +381,7 @@ registerScreen('combat', (app, root, props) => {
         case 'statusPlayer': parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
-        case 'stripPlayer': parts.push(`看破：把你身上的${fx.names.join('、')}全部拍掉`); break;
+        case 'stripPlayer': parts.push(`看破：把你身上的${fx.names.join('、')}拍掉一半`); break;
         case 'purgePlayer': parts.push(`破功：把你身上的${fx.names.join('、')}各拍散一半`); break;
         case 'summon': parts.push('叫來幫手'); break;
         case 'heal': parts.push(`自己回復 ${fx.n} 點生命`); break;

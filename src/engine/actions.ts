@@ -269,10 +269,11 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         break;
       }
       case 'stripPlayer': {
-        // 看破（師父專用）：先囤好的隱身／潛水整個拍掉——不像破功只拍一半，閃避流要重新蓄
+        // 看破：先囤好的隱身／潛水拍掉一半（向下取整保留：3 剩 1、2 剩 1、1 剩 0）。
+        // 原本是整個拍掉，使用者 2026-09-03：「太強了，拍掉一半就好，3 就拍掉剩 1」
         const hit = fx.names.filter((n) => getStatus(cs.player, n) > 0);
-        for (const n of hit) addStatus(cs.player, n, -getStatus(cs.player, n));
-        if (hit.length) log(cs, `${e.name}看穿了球球的身法（${hit.join('、')}全消）`);
+        for (const n of hit) { const cur = getStatus(cs.player, n); addStatus(cs.player, n, -(cur - Math.floor(cur / 2))); }
+        if (hit.length) log(cs, `${e.name}看穿了球球的身法（${hit.join('、')}少了一半）`);
         break;
       }
       case 'chargeNext': e.charged = true; break;
