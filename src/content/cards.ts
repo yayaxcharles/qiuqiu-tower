@@ -72,8 +72,9 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }, { kind: 'status', name: '炸毛', amount: 2, target: 'all' }],
     upgrade: { effects: [{ kind: 'status', name: '懶洋洋', amount: 3, target: 'all' }, { kind: 'status', name: '炸毛', amount: 3, target: 'all' }] } },
   { id: 'fengkou', name: '忍術·封口術', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/fengkou',
-    effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true }],
-    upgrade: { effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
+    // 本來整個拆光（爪力、貓步、防禦全歸零）——對疊了 20 點防禦的師父等於一費清場，使用者 2026-09-02：太強。改最多各 5 點
+    effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true, max: 5 }],
+    upgrade: { effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true, max: 5 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
   // 3 費跟隱身術（常見、當下 2 層）幾乎同價還更慢；降 1 費，走「便宜但分期」
   { id: 'qianshui', name: '忍術·潛水術', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/qianshui',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'status', name: '潛水', amount: 1, target: 'self' }],
@@ -99,7 +100,10 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 6 }] }] } },
   { id: 'fengyin', name: '封印解除', cost: 3, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/fengyin',
     // 原本跟鐵心（2 費）同效果還貴 1 費＝純劣化，改成攻防雙成長，3 費才值
-    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'status', name: '貓步', amount: 1, target: 'self' }] }], upgrade: { cost: 2 } },
+    // 機器人 300 局：到第三關的牌組 65% 有這張，是爪力堆最快的單一來源（每回合 +1 爪力 +1 貓步，打完最終戰 +14）。
+    // 升級本來降到 2 費＝更早開起來；改成費用不變、打出時先各得 2 點（使用者 2026-09-02：爪力堆太快）
+    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'status', name: '貓步', amount: 1, target: 'self' }] }],
+    upgrade: { effects: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }, { kind: 'status', name: '貓步', amount: 2, target: 'self' }, { kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'status', name: '貓步', amount: 1, target: 'self' }] }] } },
 
   // ===== 絕學（18） =====
   { id: 'tieshazhang', name: '絕學·鐵砂掌', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/tieshazhang',
@@ -160,8 +164,10 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damage', amount: 4 }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'draw', n: 1 }] } },
   { id: 'liangzhua', name: '亮出爪子', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/liangzhua',
+    // 升級本來是拿掉「消耗」——一費一次 +1、每輪都能再打，是後期爪力堆最快的來源之一
+    // （使用者 2026-09-02：「爪力累積好像太快了」）。改成 +2 但照樣消耗：一局只吃得到一次
     keywords: ['消耗'], effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }],
-    upgrade: { keywords: [] } },
+    upgrade: { effects: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }] } },
   { id: 'suoyituan', name: '縮成一團', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/suoyituan',
     effects: [{ kind: 'block', amount: 5 }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'block', amount: 7 }, { kind: 'draw', n: 1 }] } },
@@ -238,7 +244,8 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'power', trigger: 'turnEndNoAttack', effects: [{ kind: 'block', amount: 12 }] }] } },
   { id: 'tiexin', name: '絕學·鐵心', cost: 2, type: 能, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/tiexin',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] }],
-    upgrade: { cost: 1 } },
+    // 升級本來是 2 費→1 費：成長引擎變成順手一丟，後期滾太快（使用者 2026-09-02）。改成打出時先得 2 點、費用不變
+    upgrade: { effects: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }, { kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] }] } },
   // 費 2 回 2＝淨零，牌面讀起來像白忙一場，而且飽足剩 1 點時打不出來——
   // 偏偏那正是最需要補牌的時候。改成費 1 回 2：真的聚到氣，名字才名副其實。
   { id: 'sanhua', name: '忍術·三花聚頂', cost: 1, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/sanhua',
@@ -256,9 +263,11 @@ export const cards: readonly CardDef[] = [
   { id: 'huxin', name: '絕學·護心', cost: 1, type: 能, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/huxin',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 5 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 8 }] }] } },
-  { id: 'jiuweiquan', name: '絕學·九尾拳', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiuweiquan',
-    effects: [{ kind: 'damage', amount: 9 }, { kind: 'status', name: '爪力', amount: 2, target: 'self' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 12 }, { kind: 'status', name: '爪力', amount: 2, target: 'self' }] } },
+  // 2 費打 9 再 +2 爪力、不消耗＝每兩回合就 +2，是稀有牌裡滾最快的。使用者 2026-09-02：「讓某些強力牌 COST 較高」
+  // → 抬到 3 費（一回合的飽足全押在這張上），傷害補到 11／15 讓它仍然值得打
+  { id: 'jiuweiquan', name: '絕學·九尾拳', cost: 3, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiuweiquan',
+    effects: [{ kind: 'damage', amount: 11 }, { kind: 'status', name: '爪力', amount: 2, target: 'self' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 15 }, { kind: 'status', name: '爪力', amount: 2, target: 'self' }] } },
 ];
 
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));

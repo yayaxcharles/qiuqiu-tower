@@ -593,7 +593,7 @@ img { -webkit-user-drag: none; }
 .cine-skip { position: absolute; right: 24px; bottom: 20px; opacity: .85; }
 .cine-skip:hover { opacity: 1; }
 /* 升級確認的兩顆鈕本來貼在一起（使用者 2026-09-02：「再看看」「就磨這張」太近）：拉開間距、鈕做寬一點 */
-.modal-foot { gap: 28px; }
+.modal-foot { gap: 56px; }   /* 磨爪確認的「再看看」「就磨這張」再拉開一點（使用者 2026-09-02） */
 .modal-foot .btn { min-width: 150px; }
 
 /* ===== 對白框全面改成半透明漸層帶（2026-09-02 使用者：「投影片這樣改超棒，其他的也可以這樣嗎」） =====

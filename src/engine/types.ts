@@ -28,7 +28,8 @@ export type Effect =
   | { kind: 'drawIfTargetStatus'; name: StatusName; n: number }
   | { kind: 'drawNextTurn'; n: number }
   | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all' }
-  | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean }
+  /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5） */
+  | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number }
   | { kind: 'transferDebuffs' }
   /** 清掉自己身上所有減益。跟 `transferDebuffs` 的差別是「丟掉」不是「丟給別人」 */
   | { kind: 'cleanse' }
@@ -137,6 +138,11 @@ export interface EnemyPhase {
   pattern: 'cycle' | 'random';
   moves: EnemyMove[];
   strengthPerTurn?: number;
+  /**
+   * 每回合開始先震散玩家這些狀態各幾點（師父二、三階段用：1／1、2／2），
+   * 讓爪力、貓步堆不到無限（使用者 2026-09-02 的設計）。紀錄寫「<名字>震散了你 N 點爪力、N 點貓步」。
+   */
+  drainPlayerPerTurn?: Partial<Record<StatusName, number>>;
 }
 export interface EnemyDef {
   id: string;
@@ -209,7 +215,8 @@ export type RunEffect =
   | { kind: 'upgradeCard' }
   | { kind: 'relic'; pool: RelicPool }
   | { kind: 'potions'; n: number }
-  | { kind: 'fight'; encounterId: string; bonusFish: number }
+  /** `bonusUpgrades`＝打贏後在獎勵畫面挑幾張牌升級（鏡子走廊用）。`encounterId` 若有 `_a<關數>` 的版本會自動換成該關的 */
+  | { kind: 'fight'; encounterId: string; bonusFish: number; bonusUpgrades?: number }
   | { kind: 'chooseCard'; pool: Pool; n: number }
   | { kind: 'gamble'; p: number; win: RunEffect[]; lose: RunEffect[] };
 /**

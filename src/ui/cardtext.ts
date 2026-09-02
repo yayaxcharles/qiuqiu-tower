@@ -121,7 +121,9 @@ function one(fx: Effect, ctx: Ctx = {}): string {
         : fx.target === 'all' ? say('全體魔物獲得')
           : say('給目標');
     }
-    case 'removeStatuses': return `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與防禦' : ''}`;
+    case 'removeStatuses': return fx.max === undefined
+      ? `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與防禦' : ''}`
+      : `移除目標最多 ${fx.max} 點${fx.names.join('、')}${fx.removeBlock ? `與 ${fx.max} 點防禦` : ''}`;
     case 'transferDebuffs': return '把你身上的翻肚、懶洋洋、炸毛、噎到全部丟到目標身上';
     case 'cleanse': return '清掉自己身上所有的減益';
     case 'energy': return `獲得 ${fx.n} 顆飯糰`;

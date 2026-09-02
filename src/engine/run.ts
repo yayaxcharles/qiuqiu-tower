@@ -245,7 +245,7 @@ export type RunEffectOutcome =
    */
   | { needs: 'removeCard' | 'upgradeCard'; n: number }
   | { chooseCard: CardDef[] }
-  | { fight: { encounterId: string; bonusFish: number } }
+  | { fight: { encounterId: string; bonusFish: number; bonusUpgrades?: number } }
   | null;
 
 /**
@@ -315,7 +315,12 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         if (full > 0) notes?.push(`忍具帶滿了，還有 ${full} 個收不下`);
         break;
       }
-      case 'fight': outcome = { fight: { encounterId: fx.encounterId, bonusFish: fx.bonusFish } }; break;
+      case 'fight': {
+        // 事件寫 `mirror_duel`，實際打 `mirror_duel_a<關數>`：同一個事件三關都抽得到，對手要跟著關卡變強
+        const byAct = `${fx.encounterId}_a${run.act}`;
+        outcome = { fight: { encounterId: encounterById[byAct] ? byAct : fx.encounterId, bonusFish: fx.bonusFish, bonusUpgrades: fx.bonusUpgrades } };
+        break;
+      }
       case 'chooseCard': outcome = { chooseCard: rollCardChoices(runRng(run), fx.pool, fx.n) }; break;
       case 'gamble': {
         // 中了哪一邊由子效果自己講（贏＝最大生命 +5、輸＝牌組被塞一張「失手了」）

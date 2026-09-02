@@ -1,11 +1,15 @@
+import { play } from '../audio';
+import { cardById } from '../../content/cards';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
-import { takeCardReward } from '../../engine/run';
+import { takeCardReward, upgradeCard } from '../../engine/run';
+import type { CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
 import { screenBg, tierBgKey } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
+import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
@@ -25,8 +29,9 @@ registerScreen('reward', (app, root, props) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
   // 戰利品與事件獎金分兩欄送過來（見 app.afterCombat）：CombatRewards 本身沒有 bonusFish 這一欄
-  const r = props as CombatRewards & { bonusFish?: number };
+  const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number };
   const bonus = r.bonusFish ?? 0;
+  const ups = r.bonusUpgrades ?? 0;
   renderHud(app, root);
 
   // 文案一律寫成完整的句子。「＋17 條小魚乾」讀起來像記帳欄位，不像遊戲在跟你講話
@@ -36,6 +41,27 @@ registerScreen('reward', (app, root, props) => {
   // 獎金另起一行：r.fish 是規格 §5.4 的戰利品，兩個數字不併成一個，玩家才看得出獎金有沒有拿到
   if (bonus > 0) items.append(el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
     el('span', { class: 'reward-line' }, `事件獎金再拿 ${bonus} 條小魚乾`)));
+  // 鏡子走廊：打贏鏡中球球的獎勵是挑牌升級。進畫面就開挑牌疊層（不能取消），挑完那一行改寫成升了哪幾張
+  const upFilter = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
+  const want = Math.min(ups, run.deck.filter(upFilter).length);
+  if (ups > 0) {
+    const line = el('span', { class: 'reward-line' }, want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
+    items.append(el('div', { class: 'reward-item loot' }, line));
+    if (want > 0) showDeckPicker({
+      title: want > 1 ? `選 ${want} 張牌升級` : '選一張牌升級', previewUpgrade: true,
+      cards: run.deck, pickable: true, cancellable: false, filter: upFilter, pickCount: want,
+      onPick: (uid) => settleUpgrades(uid === null ? [] : [uid]), onPickMany: settleUpgrades,
+    });
+  }
+  function settleUpgrades(uids: readonly number[]): void {
+    const names: string[] = [];
+    for (const uid of uids) {
+      const c = run!.deck.find((x) => x.uid === uid);
+      if (!c || !upgradeCard(run!, uid)) continue;
+      names.push(`「${cardById[c.cardId]?.name ?? c.cardId}」`);
+    }
+    if (names.length) { play('upgrade'); const line = items.querySelector('.reward-item:last-child .reward-line'); if (line) line.textContent = `${names.join('')}升級了`; }
+  }
   const relic = r.relic ? relicById[r.relic] : undefined;
   if (relic) items.append(el('div', { class: 'reward-item relic' }, icon(relic.art, relic.name),
     el('span', { class: 'reward-line' },

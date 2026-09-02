@@ -8,7 +8,7 @@ import { applyEffects } from './effects';
 import type { Rng } from './rng';
 import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } from './statuses';
 import { TURN_DECAY } from './types';
-import type { CardInstance, CombatState, EffectCtx, PlayerCombat } from './types';
+import type { CardInstance, CombatState, EffectCtx, PlayerCombat, StatusName } from './types';
 
 type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount';
 function relicSum(relics: string[], key: NumHook): number {
@@ -162,6 +162,15 @@ export function endTurn(cs: CombatState): void {
     const def = enemyById[e.enemyId];
     const ph = def?.phases?.[e.phase - 1];
     if (ph?.strengthPerTurn) addStatus(e, '爪力', ph.strengthPerTurn);
+    // 師父二、三階段：每回合先把你堆的爪力、貓步震掉幾點（見 EnemyPhase.drainPlayerPerTurn）
+    if (ph?.drainPlayerPerTurn) {
+      const parts: string[] = [];
+      for (const [name, n] of Object.entries(ph.drainPlayerPerTurn) as [StatusName, number][]) {
+        const cut = Math.min(n, getStatus(cs.player, name));
+        if (cut > 0) { addStatus(cs.player, name, -cut); parts.push(`${cut} 點${name}`); }
+      }
+      if (parts.length) log(cs, `${e.name}震散了你 ${parts.join('、')}`);
+    }
     if (def?.strengthEveryNTurns && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
     tickPoison(e);
     damageEnemy(cs, e, 0, { direct: true });   // 結算噎到：順手處理毒死與掉到階段門檻以下

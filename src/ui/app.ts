@@ -157,19 +157,19 @@ export class App {
     }
   }
 
-  startFight(encounterId: string, isBoss = false, bonusFish = 0): void {
+  startFight(encounterId: string, isBoss = false, bonusFish = 0, bonusUpgrades = 0): void {
     const run = this.run;
     if (!run) return;
     // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
     const pool = encounterById[encounterId]?.pool;
     const battleTrack = (['battle', 'battle2', 'battle3'] as const)[Math.min(3, Math.max(1, run.act)) - 1]!;
-    setBgm(encounterId === 'shadow_cat' ? 'shadow'
+    setBgm(encounterId === 'shadow_cat' || encounterId.startsWith('mirror_duel') ? 'shadow'
       : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
         : pool === '大魔物' ? 'elite' : battleTrack);
     const go = (): void => {
       this.cs = beginCombat(run, encounterId);
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
-      this.show('combat', { bonusFish });
+      this.show('combat', { bonusFish, bonusUpgrades });
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
         toast(dialogue.firstMeet[firstNew] ?? '', '球球');
@@ -197,7 +197,7 @@ export class App {
    * 而戰鬥節點要等獎勵拿完才算離開，所以存檔交給獎勵畫面收尾的 backToMap()。
    * 輸掉與打贏塔主不經過獎勵畫面，那兩條路改成當場清存檔（見下面那行的說明）。
    */
-  afterCombat(bonusFish = 0): void {
+  afterCombat(bonusFish = 0, bonusUpgrades = 0): void {
     const run = this.run;
     const cs = this.cs;
     if (!run || !cs) { this.show('title'); return; }
@@ -244,7 +244,7 @@ export class App {
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
-    const go = (): void => this.show('reward', { ...rewards, bonusFish });
+    const go = (): void => this.show('reward', { ...rewards, bonusFish, bonusUpgrades });
     // 「上面那位不是你認識的那隻貓了」是黑貓忍者頭目的台詞，只在打倒他之後演；
     // 其他精英（掃地機器人王、三花貓武僧……）打完不該冒出黑貓頭目的臉講話（使用者 2026-09-02 回報）
     const beatNinjaBoss = (encounterById[cs.encounterId]?.enemies ?? []).includes('ninja_boss');

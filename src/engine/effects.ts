@@ -96,8 +96,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'removeStatuses': {
       for (const t of targetsOf(cs, ctx, false)) {
-        for (const name of fx.names) removeStatus(t, name);
-        if (fx.removeBlock) t.block = 0;
+        for (const name of fx.names) {
+          if (fx.max === undefined) removeStatus(t, name);
+          else addStatus(t, name, -Math.min(fx.max, getStatus(t, name)));
+        }
+        if (fx.removeBlock) t.block = fx.max === undefined ? 0 : Math.max(0, t.block - fx.max);
       }
       return false;
     }

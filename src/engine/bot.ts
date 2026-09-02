@@ -58,6 +58,10 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
     playCombat(cs, rng, maxTurns, seed);
     const r = finishCombat(run, cs, outcome.fight.bonusFish);
     if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
+    if (r) for (let i = 0; i < (outcome.fight.bonusUpgrades ?? 0); i++) {
+      const cands = run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病');
+      if (cands.length) upgradeCard(run, rng.pick(cands).uid);
+    }
   }
 }
 

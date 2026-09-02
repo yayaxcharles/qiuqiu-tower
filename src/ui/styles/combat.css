@@ -760,3 +760,7 @@
 
 /* 「反彈！」：紫色，跟掉血的紅字、擋住的藍字分開；飄在數字上面一點 */
 .combat .num.thorn { color: #d9a3ff; text-shadow: 0 2px 0 #3a1a4a, 0 0 10px #6a2a8a; font-size: 30px; top: 16%; }
+
+/* 師父換血條的光暈（2026-09-02）：第二階段走火入魔＝紅、第三階段真面目＝紫。只動濾鏡，不碰前撲用的 transform */
+.combat .unit.enemy.phase-1 .sprite { filter: drop-shadow(0 0 14px rgba(255, 90, 40, .8)) drop-shadow(0 0 4px rgba(255, 60, 20, .9)); }
+.combat .unit.enemy.phase-2 .sprite { filter: drop-shadow(0 0 18px rgba(160, 70, 255, .9)) drop-shadow(0 0 5px rgba(90, 20, 200, 1)) contrast(1.08); }

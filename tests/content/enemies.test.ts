@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { encounterById, encounters, encountersOfPool, enemies, enemyById } from '../../src/content/enemies';
 
 describe('魔物資料', () => {
-  it('數量：一般 40、大魔物 5、塔主 7、召喚 7', () => {
+  it('數量：一般 46、大魔物 5、塔主 7、召喚 8', () => {
     const n = (p: string) => enemies.filter((e) => e.pool === p).length;
     // 2026-09-01 三關制內容包：塔中 7＋塔頂 5 進一般池、影球球進大魔物、
     // 關主 3→7（橘皮大王＋第二關三選一）、召喚加執事貓與女僕貓
-    expect(n('弱') + n('中') + n('強')).toBe(40);
-    expect(n('大魔物')).toBe(5); expect(n('塔主')).toBe(7); expect(n('召喚')).toBe(7);
+    // 一般 46＝2026-09-02 補怪：塔中唐傘小僧、河童、豆腐小僧；塔頂烏天狗、白狐巫女、空鎧武者
+    expect(n('弱') + n('中') + n('強')).toBe(46);
+    // 召喚 8＝再加鏡子走廊的鏡中球球（2026-09-02）
+    expect(n('大魔物')).toBe(5); expect(n('塔主')).toBe(7); expect(n('召喚')).toBe(8);
     expect(new Set(enemies.map((e) => e.id)).size).toBe(enemies.length);
   });
   it('生命區間合法、至少一個動作、有台詞與圖', () => {
@@ -48,8 +50,18 @@ describe('魔物資料', () => {
     expect(boss.hp).toEqual([120, 120]);
     expect(boss.phases?.length).toBe(2);
     expect(boss.phases?.[0]?.hpBar).toBe(240);
-    expect(boss.phases?.[0]?.strengthPerTurn).toBe(2);
+    // 師父 3.0（2026-09-02）：每回合 +1 爪力，二階段震散你 1／1、三階段 2／2，全程不蓄力
+    expect(boss.phases?.[0]?.strengthPerTurn).toBe(1);
+    expect(boss.phases?.[0]?.drainPlayerPerTurn).toEqual({ 爪力: 1, 貓步: 1 });
     expect(boss.phases?.[1]?.hpBar).toBe(300);
-    expect(boss.phases?.[1]?.strengthPerTurn).toBe(3);
+    expect(boss.phases?.[1]?.strengthPerTurn).toBe(1);
+    expect(boss.phases?.[1]?.drainPlayerPerTurn).toEqual({ 爪力: 2, 貓步: 2 });
+    const allMoves = [...boss.moves, ...(boss.phases ?? []).flatMap((ph) => ph.moves)];
+    expect(allMoves.some((m) => m.effects.some((fx) => fx.kind === 'chargeNext'))).toBe(false);
+    // 第一條血：招招都是攻擊帶防禦
+    for (const m of boss.moves) {
+      expect(m.effects.some((fx) => fx.kind === 'damage'), m.label).toBe(true);
+      expect(m.effects.some((fx) => fx.kind === 'block'), m.label).toBe(true);
+    }
   });
 });

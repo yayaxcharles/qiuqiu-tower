@@ -1,5 +1,5 @@
 import { dialogue } from '../../content/dialogue';
-import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById } from '../../content/enemies';
+import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
 import { canPlay, endTurn, playCard, resolveChoice, usePotion } from '../../engine/combat';
@@ -9,7 +9,7 @@ import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingCh
 import { registerScreen } from '../app';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { tierBgKey, tierBgZoom } from '../screenbg';
-import { artUrl, monsterUrl } from '../assets';
+import { artUrl, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT } from '../cardtext';
 import { cardNode } from '../cardview';
 import { toast } from '../dialogue';
@@ -67,12 +67,24 @@ const DEAL_FLY = 440;          // 一張新牌從牌堆飛到定位要多久（�
 const POSE = {
   idle: 'hero/ninja', attack: 'hero/ninja_attack', hit: 'hero/ninja_hit', dodge: 'hero/ninja_dodge',
   hungry: 'hero/ninja_hungry', win: 'hero/ninja_win', lose: 'hero/ninja_lose', curl: 'hero/ninja_curl',
+  // 待機的兩個變化（2026-09-02，使用者：「腳色外觀是不是可以做點變化」）：血見底的掛彩、爪力堆高的氣勢
+  power: 'hero/ninja_power', hurt: 'hero/ninja_hurt',
 };
 // 塔主的姿勢對照表放在內容層（`enemies.ts`），跟招式定義擺在一起，加招時比較不會漏配。
 const BOSS_MOVE_POSE = BOSS_MOVE_ART;
-const BOSS_IDLE = BOSS_ART.idle1;          // 深藏不露
-const BOSS_IDLE_PHASE2 = BOSS_ART.idle2;   // 走火入魔
+const BOSS_IDLE = BOSS_ART.idle1;          // 第一階段
 const BOSS_DEFEAT = BOSS_ART.defeat;       // 承讓
+/** 各階段的待機圖：第三階段的圖還沒生好就先用第二階段的（走火入魔），不能是灰剪影 */
+function bossIdle(phase: number): string {
+  if (phase >= 2 && hasSprite(BOSS_ART.idle3)) return BOSS_ART.idle3;
+  return phase >= 1 ? BOSS_ART.idle2 : BOSS_IDLE;
+}
+/** 出招圖：先找該階段自己的，沒有（或還沒生）就用第一階段共用的那張 */
+function bossMovePose(phase: number, label: string): string | undefined {
+  const own = BOSS_MOVE_ART_PHASE[phase - 1]?.[label];
+  if (own && hasSprite(own)) return own;
+  return BOSS_MOVE_POSE[label];
+}
 
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
 interface Acted { label: string; attacked: boolean }
@@ -130,11 +142,19 @@ registerScreen('combat', (app, root, props) => {
   const run: RunState = app.run;
   const cs: CombatState = app.cs;
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
+  const bonusUpgrades = (props as { bonusUpgrades?: number } | null)?.bonusUpgrades ?? 0;
   // 關主戰用專屬戰場（boss1/2/3 依關數）；圖還沒生好就照舊用該關色調
   const bossBgKey = encounterById[cs.encounterId]?.pool === '塔主' ? `boss${run.act}` : '';
   const bgKey = bossBgKey && !isFallback(artUrl('bg', bossBgKey)) ? bossBgKey : tierBgKey(run.floor);
 
   let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
+  /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
+  const idlePose = (): string => {
+    const p = cs.player;
+    if (p.hp <= Math.ceil(p.maxHp * 0.3) && hasSprite(POSE.hurt)) return POSE.hurt;
+    if (getStatus(p, '爪力') >= 5 && hasSprite(POSE.power)) return POSE.power;
+    return POSE.idle;
+  };
   let pose = POSE.idle;
   /**
    * 這一拍出手的魔物（uid → 牠剛使出的招式）。跟球球的姿勢同一個節奏：`settle` 重算、
@@ -373,8 +393,7 @@ registerScreen('combat', (app, root, props) => {
     const act = acting.get(e.uid);
     if (def?.art === 'daxia') {
       if (e.dead) return artUrl('sprites', BOSS_DEFEAT);
-      const idle = e.phase > 0 ? BOSS_IDLE_PHASE2 : BOSS_IDLE;
-      return artUrl('sprites', (act ? BOSS_MOVE_POSE[act.label] : undefined) ?? idle);
+      return artUrl('sprites', (act ? bossMovePose(e.phase, act.label) : undefined) ?? bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');
     return monsterUrl(def.art, act?.attacked ? 'attack' : 'idle');
@@ -390,6 +409,8 @@ registerScreen('combat', (app, root, props) => {
       && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === def?.reviveGroup);
     if (e.dead && !reviving) cls.push('gone');
     if (reviving) cls.push('reviving');
+    // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
+    if (def?.art === 'daxia' && e.phase > 0) cls.push(`phase-${e.phase}`);
     if (targeting && !e.dead) cls.push('targetable');
     // 意圖牌子放進立繪框裡（不是當它的兄弟節點）：框裡才有「圖畫實際佔多高」這個座標，
     // 牌子用絕對定位掛在圖畫頂端，扁的魔物才不會讓牌子飄在半空。
@@ -869,6 +890,10 @@ registerScreen('combat', (app, root, props) => {
     // 結束回合那一拍，魔物出手與新手牌是同一次重畫。手牌立刻滑進來會跟魔物前撲擠在一起，
     // 所以那一拍讓手牌晚 460 毫秒再進場：先看牠們打完，再看自己摸到什麼。
     dealDelay = opts.deal ? 460 : 0;
+    // 新回合的手牌全部當成新抽的：上一手沒打完的牌丟進棄牌堆後洗回來、或被拖字訣留下的那張，
+    // 編號跟上一手一樣，會被當成「已經在手上」直接出現在定位，其他牌卻還在從牌堆飛——
+    // 使用者 2026-09-02：「最後一張牌已經出現，其他牌才從左邊飛出來」
+    if (opts.deal) shownCards.clear();
     const posePref = opts.pose;
     const p = cs.player;
     const fresh = cs.log.slice(before.logLen);
@@ -1005,7 +1030,7 @@ registerScreen('combat', (app, root, props) => {
     const mine = ++seq;
     window.setTimeout(() => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
-      pose = POSE.idle;
+      pose = idlePose();
       acting = new Map();   // 魔物也一起收回待機，出手的立繪只亮這一拍
       // **就地換圖，不要 render()**：這一拍畫面沒有任何資料變動，只是姿勢收回待機。
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
@@ -1022,7 +1047,7 @@ registerScreen('combat', (app, root, props) => {
       ended = true;
       if (cs.phase === 'won') toast(dialogue.battleWin[Math.floor(Math.random() * dialogue.battleWin.length)] ?? '', '球球');
       // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
-      window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish); }, 1300);
+      window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, 1300);
     }
     syncPicker();
   }

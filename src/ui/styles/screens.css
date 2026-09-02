@@ -696,9 +696,14 @@
 .scene-goods { transform: scale(.9); transform-origin: top center; max-height: none; overflow: visible; }
 .scene:has(.scene-goods) .scene-portrait { height: 290px; bottom: 140px; left: 24px; }
 /* 紙箱：秘寶的圖放大立在中上（圖示原檔夠大，放到 200 還清楚），輕輕上下浮 */
-.scene-art > img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
+.scene-art img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
+/* 秘寶圖上下直接寫字（不用木牌）：上面是效果那句話、下面是「秘寶」小標＋名字 */
+.loot-stack { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.loot-above { margin: 0; font-size: 21px; color: #f6efe3; text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3; letter-spacing: 1px; }
+.loot-below { display: flex; align-items: baseline; gap: 10px; color: #fff3d6; text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3; }
+.chest-loot-missing { width: 160px; height: 200px; }
 @keyframes loot-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.scene:has(.chest-loot) .scene-art { top: 120px; }
+.scene:has(.loot-stack) .scene-art { top: 56px; }
 /* 劇場版面的對白框也改成貼下緣的半透明漸層帶（跟幻燈片、對白疊層同一套） */
 .scene .dialogue-box.scene-box {
   left: 0; right: 0; bottom: 0; padding: 36px 120px 24px;
@@ -771,18 +776,8 @@
 .scene-actions .btn:disabled, .modal-foot .btn:disabled { opacity: .45; filter: grayscale(.5); }
 
 /* ===== 拿到東西的名牌：木牌上寫名字、旁邊一個小標籤寫種類、底下一行效果 ===== */
-.loot-block { text-align: center; margin: 4px 0 2px; }
-.loot-plate {
-  display: inline-flex; align-items: center; gap: 12px; padding: 6px 26px 8px;
-  border: 3px solid #3a2a1c; border-radius: 10px;
-  background: linear-gradient(#a8623099, #8a4a22) padding-box, linear-gradient(#c9702a, #8a4a22) border-box;
-  border-image-source: var(--ui-nameplate); border-image-slice: 30% 24% 32% 24% fill; border-image-width: 14px 12px 15px 12px; border-image-repeat: stretch;
-  color: #fff6e2; text-shadow: 0 1px 2px #00000099; box-shadow: 0 4px 0 #00000059, 0 6px 14px #00000073;
-  animation: showcase-pop .45s cubic-bezier(.2, .9, .3, 1.2) both;
-}
 .loot-kind { font-size: 14px; letter-spacing: 2px; padding: 1px 8px 2px; border: 1px solid #ffd98aa6; border-radius: 6px; color: #ffd98a; }
-.loot-name { font-size: 28px; letter-spacing: 2px; }
-.loot-effect { margin: 10px 0 0; font-size: 20px; color: #f6efe3; text-shadow: 0 2px 6px #000000d9; }
+.loot-name { font-size: 30px; letter-spacing: 2px; }
 /* 帶子裡的戰利品列是米白紙條：字要回深色，不能繼承帶子的米白（實測整行變成白字白底） */
 .scene .reward-items .reward-item, .scene .reward-items .reward-item b, .scene .reward-items .reward-item em { color: var(--ink); text-shadow: none; }
 .scene .reward-items .reward-item em { color: #5a4a3a; }
@@ -830,3 +825,28 @@
 .scene-picks .card.selected::after { top: 6px; right: 6px; }
 /* 結算帶子裡的本局代碼：縮回小標籤，跟秘寶排同一列（繼承帶子的大字會變成一塊巨大的牌） */
 .scene .result-row .hud-seed { font-size: 14px; padding: 4px 10px; margin-left: 6px; }
+
+/* ===== 2026-09-02 使用者：「黑色背景下木牌子有點突兀」 =====
+   半透明深色帶子（劇場版面、對話疊層、投影片）上的說話者不再用胡桃木牌：
+   改成金字＋一條細金線，跟帶子同一個調子。淺色紙框（戰鬥吐槽那種）仍維持木牌。 */
+.scene .scene-box .dialogue-speaker,
+.dialogue-overlay .dialogue-speaker,
+.slide-overlay .slide-box .dialogue-speaker {
+  border: 0; border-image: none; background: none; box-shadow: none; border-radius: 0;
+  padding: 0 2px 3px;
+  color: #ffd98a;
+  font-size: 21px;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 6px #000000e6, 0 0 12px #00000099;
+  border-bottom: 2px solid #ffd98a99;
+}
+/* 名字沒有牌子之後不用讓那麼多位 */
+.scene .dialogue-box.scene-box:has(.dialogue-speaker:not(:empty)),
+.dialogue-overlay .dialogue-box:has(.dialogue-speaker:not(:empty)),
+.slide-overlay .slide-box:has(.dialogue-speaker:not(:empty)) { padding-top: 52px; }
+
+/* 戰利品列（使用者：「打贏獲得小魚乾那個長條也好長」）：
+   帶子裡的戰利品改成置中的短藥丸，寬度只包住文字；有說明的（秘寶、忍具）也不撐滿整排 */
+.scene .reward-items { justify-content: center; gap: 8px; }
+.scene .reward-items .reward-item { flex: 0 1 auto; border-radius: 999px; border-left-width: 6px; padding: 4px 18px 4px 12px; }
+.scene .reward-items .reward-item:has(em) { flex-basis: auto; max-width: 620px; border-radius: 16px; }

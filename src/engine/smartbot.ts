@@ -34,6 +34,9 @@ export interface SmartStats {
   floor: number;
   act: number;
   deckSize: number;
+  /** 收局時的牌組與秘寶（看爪力從哪裡來用） */
+  deckIds: string[];
+  relicIds: string[];
   upgraded: number;
   relics: number;
   /** 陣亡的那場遭遇（打贏就是 null） */
@@ -41,7 +44,7 @@ export interface SmartStats {
   /** 每一場關主戰：進場血量與結果 */
   bosses: { id: string; act: number; hpIn: number; maxHp: number; won: boolean; turns: number }[];
   /** 每一場戰鬥：遭遇、掉了多少血、回合數 */
-  fights: { id: string; floor: number; hpLost: number; turns: number; won: boolean }[];
+  fights: { id: string; floor: number; act: number; hpLost: number; turns: number; won: boolean; str: number }[];
 }
 
 // ===== 牌的靜態評分（挑獎勵、商店、升級、放生用）。10 最想要、0 不要 =====
@@ -248,7 +251,11 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'stealBlock': value += (target !== undefined ? enemies.find((e) => e.uid === target)?.block ?? 0 : 0) * 1.2; break;
       case 'cleanse': value += Object.entries(p.statuses).filter(([k, v]) => ['翻肚', '懶洋洋', '炸毛', '噎到'].includes(k) && (v ?? 0) > 0).length * 4; break;
       case 'transferDebuffs': value += (getStatus(p, '噎到') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5; break;
-      case 'removeStatuses': value += (target !== undefined ? (enemies.find((e) => e.uid === target)?.block ?? 0) * 0.8 + getStatus(enemies.find((e) => e.uid === target) ?? p, '爪力') * 4 : 0); break;
+      case 'removeStatuses': {
+        const cap = fx.max ?? 99;
+        value += (target !== undefined ? Math.min(cap, enemies.find((e) => e.uid === target)?.block ?? 0) * 0.8 + Math.min(cap, getStatus(enemies.find((e) => e.uid === target) ?? p, '爪力')) * 4 : 0);
+        break;
+      }
       case 'scry': value += 1; break;
       case 'exhaustFromHand': value += p.hand.some((h) => cardById[h.cardId]?.pool === '壞毛病') ? 4 : -1; break;
       case 'retainFromHand': value += 1.5; break;
@@ -382,6 +389,7 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, seed:
     if (id) addCard(run, id);
   } else if ('fight' in outcome) {
     fight(run, rng, outcome.fight.encounterId, outcome.fight.bonusFish, seed, stats);
+    if (run.status === 'playing') for (let i = 0; i < (outcome.fight.bonusUpgrades ?? 0); i++) { const u = bestUpgrade(run); if (u) upgradeCard(run, u.uid); }
   }
 }
 
@@ -391,7 +399,7 @@ function fight(run: RunState, rng: Rng, encounterId: string | undefined, bonusFi
   smartCombat(cs, rng, 200, seed);
   const isBoss = encounterById[cs.encounterId]?.pool === '塔主';
   const r = finishCombat(run, cs, bonusFish);
-  stats.fights.push({ id: cs.encounterId, floor: run.floor, hpLost: hpIn - (r ? run.hp : 0), turns: cs.turn, won: !!r });
+  stats.fights.push({ id: cs.encounterId, floor: run.floor, act: run.act, hpLost: hpIn - (r ? run.hp : 0), turns: cs.turn, won: !!r, str: cs.player.statuses['爪力'] ?? 0 });
   if (isBoss) stats.bosses.push({ id: cs.encounterId, act: run.act, hpIn, maxHp: run.maxHp, won: !!r, turns: cs.turn });
   if (!r) { stats.diedTo = (cs.turn > 200 ? '僵局:' : '') + cs.encounterId; return; }
   if (r.cards.length) takeCardReward(run, r, pickCard(run, r.cards));
@@ -416,7 +424,7 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
       case 'upgradeCard': v += bestUpgrade(run) ? 16 : 0; break;
       case 'relic': v += fx.pool === '大魔物' ? 34 : 24; break;
       case 'potions': v += Math.min(fx.n, 3 - run.potions.length) * 7; break;
-      case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6; break;
+      case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;
       case 'chooseCard': v += fx.pool === '絕學' ? 14 : 9; break;
       case 'gamble': v += fx.p * eventValue(run, fx.win, 0) + (1 - fx.p) * eventValue(run, fx.lose, 0); break;
       default: break;
@@ -441,7 +449,7 @@ function nodeScore(run: RunState, n: MapNode): number {
 export function smartRun(seed: string): SmartStats {
   const run = newRun(seed);
   const rng = new Rng(seedFromString('smart:' + seed));
-  const stats: SmartStats = { seed, won: false, floor: 0, act: 1, deckSize: 0, upgraded: 0, relics: 0, diedTo: null, bosses: [], fights: [] };
+  const stats: SmartStats = { seed, won: false, floor: 0, act: 1, deckSize: 0, deckIds: [], relicIds: [], upgraded: 0, relics: 0, diedTo: null, bosses: [], fights: [] };
   let guard = 0;
   while (run.status === 'playing') {
     if (++guard > 140) throw new Error('節點推進超過 140 次');
@@ -498,5 +506,7 @@ export function smartRun(seed: string): SmartStats {
   stats.deckSize = run.deck.length;
   stats.upgraded = run.deck.filter((c) => c.upgraded).length;
   stats.relics = run.relics.length;
+  stats.deckIds = run.deck.map((c) => c.cardId + (c.upgraded ? '+' : ''));
+  stats.relicIds = [...run.relics];
   return stats;
 }

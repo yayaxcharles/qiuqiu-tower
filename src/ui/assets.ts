@@ -30,6 +30,9 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
   return rel ? `${BASE}${rel}` : SILHOUETTE;
 }
 
+/** 這張立繪生好了沒（階段專屬圖、球球狀態圖還沒落地時要退回一般圖，不能畫成灰剪影） */
+export function hasSprite(key: string): boolean { return manifest.sprites[key] !== undefined; }
+
 export function monsterUrl(artKey: string, pose: 'idle' | 'attack'): string {
   const m = manifest.monsters[artKey];
   const rel = m?.[pose] ?? m?.idle;

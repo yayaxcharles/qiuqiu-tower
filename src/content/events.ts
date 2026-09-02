@@ -119,8 +119,10 @@ export const events: EventDef[] = [
   { id: 'mirror_hall', title: '鏡子走廊',
     text: '整條走廊兩側都是鏡子，裡面有無數隻球球同時看著你。',
     choices: [
-      { label: '跟自己過招（升級兩張牌，但掉 12 點生命）', outcome: [{ kind: 'upgradeCard' }, { kind: 'upgradeCard' }, { kind: 'damage', n: 12 }],
-        result: '球球跟鏡子裡的自己打了很久，兩邊都掛彩。' },
+      // 本來是「直接升級兩張牌、掉 12 血」——使用者 2026-09-02：「我以為會有一個影球球是敵人跟我對打」。
+      // 改成真的打一場（對手依關數變強），贏了才在獎勵畫面挑兩張牌升級
+      { label: '跟鏡子裡的自己過招（要打一場，贏了升級兩張牌）', outcome: [{ kind: 'fight', encounterId: 'mirror_duel', bonusFish: 0, bonusUpgrades: 2 }],
+        result: '鏡子裡的球球跨了出來，擺出跟你一模一樣的架式。' },
       { label: '快步走過（什麼都不會發生）', outcome: [], result: '球球低著頭走過去，不敢看旁邊。' },
     ] },
 

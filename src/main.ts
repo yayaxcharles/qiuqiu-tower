@@ -28,6 +28,9 @@ async function boot(): Promise<void> {
   const root = document.getElementById('app');
   if (!root) return;
   const app = new App(root);
+  // 開發模式把 app 掛到 window：瀏覽器主控台可以直接叫 __app.startFight('mirror_duel', false, 0, 2) 之類的來驗畫面，
+  // 不用真的打到那個節點。正式版（GitHub Pages）不掛。
+  if ((import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV) (window as unknown as { __app?: App }).__app = app;
   app.show('title');
   // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
   // 不 await——預載完不完成都不影響能不能玩。

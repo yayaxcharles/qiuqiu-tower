@@ -27,15 +27,17 @@ registerScreen('chest', (app, root) => {
 
   // 劇場版面（使用者 2026-09-02：「紙箱事件那邊也要重畫」）：秘寶的圖放大立在中上、
   // 球球站在框左邊，找到什麼、有什麼用寫在框裡
+  // 秘寶的圖浮在中上，效果那句話疊在圖的上方、名字直接寫在圖的下方——都不用框或木牌
+  // （使用者 2026-09-02：「不要用背景格子按鈕，直接把字出現在道具圖片下方」）
+  const stack = def ? el('div', { class: 'loot-stack' },
+    el('p', { class: 'loot-above' }, def.text),
+    !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: def.name }) : el('div', { class: 'chest-loot-missing' }),
+    el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '秘寶'), el('b', { class: 'loot-name' }, def.name))) : '';
   root.append(sceneView({
-    art: def && !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: def.name }) : '',
+    art: stack,
     portrait: hero.startsWith('data:') ? undefined : hero,
     speaker: '紙箱',
     text: def ? '球球把箱子翻了個底朝天，找到了——' : '紙箱是空的——常見的秘寶都拿過了，裡面只剩一堆碎紙。',
-    // 秘寶名字做成木牌、效果一行米白字（本來只有「找到秘寶XX」加一行橘字，使用者：「沒設計感」）
-    extra: def ? [el('div', { class: 'loot-block' },
-      el('div', { class: 'loot-plate' }, el('span', { class: 'loot-kind' }, '秘寶'), el('b', { class: 'loot-name' }, def.name)),
-      el('p', { class: 'loot-effect' }, def.text))] : [],
     actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')],
   }));
 });

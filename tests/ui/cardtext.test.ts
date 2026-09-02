@@ -17,7 +17,7 @@ describe('牌面文字', () => {
     expect(t('susu')).toBe('對全體魔物造成 9 點傷害。');
     expect(t('taxue')).toBe('獲得 1 層隱身。消耗。');
     expect(t('taxue', true)).toBe('獲得 1 層隱身。');
-    expect(t('fengkou')).toBe('移除目標的爪力、貓步與防禦。');
+    expect(t('fengkou')).toBe('移除目標最多 5 點爪力、貓步與 5 點防禦。');
   });
 
   it('連抓與擊倒獎金講成人話，不用算式', () => {
@@ -81,7 +81,7 @@ describe('牌面文字', () => {
 });
 
 describe('塔主姿勢對照', () => {
-  it('兩個階段的每一招都配得到專屬立繪，也沒有多餘的姿勢', () => {
+  it('三個階段的每一招都配得到專屬立繪，也沒有多餘的姿勢', () => {
     // 招式名同時是姿勢表的鍵。加了新招卻忘了配圖，畫面會靜靜退回待機圖、看不出來，所以在這裡擋。
     const boss = enemies.find((e) => e.art === 'daxia');
     expect(boss, '找不到塔主').toBeTruthy();
