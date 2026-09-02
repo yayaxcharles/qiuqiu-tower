@@ -509,6 +509,12 @@
   "bg/screen_shop_mid": "assets/bg/screen_shop_mid.webp",
   "bg/screen_shop_top": "assets/bg/screen_shop_top.webp",
   "bg/map_tall_mid": "assets/bg/map_tall_mid.webp",
-  "bg/map_tall_top": "assets/bg/map_tall_top.webp"
+  "bg/map_tall_top": "assets/bg/map_tall_top.webp",
+  "bg/still_act1_climb": "assets/bg/still_act1_climb.webp",
+  "bg/still_act1_fish": "assets/bg/still_act1_fish.webp",
+  "bg/still_act1_stairs": "assets/bg/still_act1_stairs.webp",
+  "bg/still_act2_moonstairs": "assets/bg/still_act2_moonstairs.webp",
+  "bg/still_act2_smoke": "assets/bg/still_act2_smoke.webp",
+  "bg/still_act2_voice": "assets/bg/still_act2_voice.webp"
  }
 }
