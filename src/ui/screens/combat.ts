@@ -219,6 +219,8 @@ registerScreen('combat', (app, root, props) => {
    */
   const SPRITE_BOX: Record<string, [number, number]> = {
     small: [130, 150], medium: [180, 210], large: [230, 280], player: [270, 300],
+    // 師父三個階段的框（跟 combat.css 的 .unit.enemy.master 三條一致，改要一起改）
+    master: [320, 320], master1: [350, 350], master2: [370, 370],
   };
 
   /**
@@ -410,7 +412,8 @@ registerScreen('combat', (app, root, props) => {
     if (e.dead && !reviving) cls.push('gone');
     if (reviving) cls.push('reviving');
     // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
-    if (def?.art === 'daxia' && e.phase > 0) cls.push(`phase-${e.phase}`);
+    // 師父本人（art 'daxia'）掛 master：框開得比球球大（使用者 2026-09-02：「師傅體型比球球小」），換血條再放大
+    if (def?.art === 'daxia') { cls.push('master'); if (e.phase > 0) cls.push(`phase-${e.phase}`); }
     if (targeting && !e.dead) cls.push('targetable');
     // 意圖牌子放進立繪框裡（不是當它的兄弟節點）：框裡才有「圖畫實際佔多高」這個座標，
     // 牌子用絕對定位掛在圖畫頂端，扁的魔物才不會讓牌子飄在半空。
@@ -433,7 +436,9 @@ registerScreen('combat', (app, root, props) => {
     }
     if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), style: `left:${left}px` },
-      spriteBox(enemySprite(e, def), e.name, def?.size ?? 'medium', reviving ? undefined : intentChip(e)),
+      spriteBox(enemySprite(e, def), e.name,
+        def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (def?.size ?? 'medium'),
+        reviving ? undefined : intentChip(e)),
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp, e.maxHp),
       row);

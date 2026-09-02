@@ -762,5 +762,17 @@
 .combat .num.thorn { color: #d9a3ff; text-shadow: 0 2px 0 #3a1a4a, 0 0 10px #6a2a8a; font-size: 30px; top: 16%; }
 
 /* 師父換血條的光暈（2026-09-02）：第二階段走火入魔＝紅、第三階段真面目＝紫。只動濾鏡，不碰前撲用的 transform */
-.combat .unit.enemy.phase-1 .sprite { filter: drop-shadow(0 0 14px rgba(255, 90, 40, .8)) drop-shadow(0 0 4px rgba(255, 60, 20, .9)); }
-.combat .unit.enemy.phase-2 .sprite { filter: drop-shadow(0 0 18px rgba(160, 70, 255, .9)) drop-shadow(0 0 5px rgba(90, 20, 200, 1)) contrast(1.08); }
+.combat .unit.enemy.phase-1 .sprite-box { filter: drop-shadow(0 0 14px rgba(255, 90, 40, .8)) drop-shadow(0 0 4px rgba(255, 60, 20, .9)); }
+.combat .unit.enemy.phase-2 .sprite-box { filter: drop-shadow(0 0 18px rgba(160, 70, 255, .9)) drop-shadow(0 0 5px rgba(90, 20, 200, 1)) contrast(1.08); }
+/* 光暈掛在 .sprite-box 不掛 .sprite：挨打的閃紅（.unit.hit .sprite 的 filter）才不會被階段光暈蓋掉 */
+
+/* 師父的體型（使用者 2026-09-02：「師傅應該比球球大隻，入魔了更大隻」）：
+   師父的畫布 998×878 比較寬，用 230 的框會以寬度為準縮小、看起來比球球（270×300 的框）矮一截。
+   框改成正方形、依階段放大：第一條血 320、走火入魔 350、真面目 370（實際畫出來的貓約是框的 0.88 倍高）。
+   框只往上長（底部對齊），意圖牌子掛在圖畫實際的頂端，370 時還不會頂到狀態列。 */
+/* 框比魔物格（190 寬）寬，用 margin:auto 置中會算成 0 而整張往右溢出（使用者：「師傅偏右邊」）；
+   改用 flex 置中，超出的部分左右各分一半，名字、血條、意圖牌子都還對得上中線 */
+.combat .unit.enemy.master .sprite-box { display: flex; justify-content: center; }
+.combat .unit.enemy.master .sprite { width: 320px; height: 320px; margin: 0; }
+.combat .unit.enemy.master.phase-1 .sprite { width: 350px; height: 350px; }
+.combat .unit.enemy.master.phase-2 .sprite { width: 370px; height: 370px; }   /* 380 會頂到狀態列下緣 */
