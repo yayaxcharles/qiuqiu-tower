@@ -338,9 +338,10 @@ describe('魔物回合', () => {
     expect(neko.move.label).toBe('放尾巴');
     endTurn(cs);                                    // 第 5 回合：補召兩條 → 三條（上限 4）
     expect(tails()).toBe(3);
-    // 剛冒出來的尾巴這回合站不穩：掛「剛冒出來」，下一回合才照表出招
-    const fresh = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead && e.move.label === '剛冒出來');
+    // 敵方回合召出來的尾巴這回合本來就不動（快照），意圖照表先亮出來，不再掛「剛冒出來」（2026-09-02 稽核 M-2）
+    const fresh = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead && e.turnCount === 0);
     expect(fresh.length).toBe(2);
+    expect(fresh.every((e) => e.move.label !== '剛冒出來')).toBe(true);
     // 滿四條之後再放＝把血灌給最弱的那條，不會出現第五條
     neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
     cs.player.block = 99; endTurn(cs);

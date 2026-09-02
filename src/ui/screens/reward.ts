@@ -75,10 +75,11 @@ registerScreen('reward', (app, root, props) => {
     const line = el('span', { class: 'reward-line' }, el('b', {}, `忍具帶滿了，「${missed.name}」收不下`), el('em', {}, missed.text));
     items.append(el('div', { class: 'reward-item potion' }, icon(missed.art, missed.name), line));
     const newId = r.potionMissed;
-    window.setTimeout(() => showPotionSwap(run, newId, (idx) => {
+    // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）
+    window.setTimeout(() => { if (!line.isConnected) return; showPotionSwap(run, newId, (idx) => {
       // 狀態列要先拆掉舊的再畫：renderHud 只會往 root 再掛一條（實測疊成兩條）
       if (idx >= 0) { play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text)); root.querySelector('.hud')?.remove(); renderHud(app, root); }
-    }), 350);
+    }); }, 350);
   }
   const potion = r.potion ? potionById[r.potion] : undefined;
   if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),

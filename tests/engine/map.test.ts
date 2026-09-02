@@ -4,6 +4,7 @@ import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
 import { encounterById } from '../../src/content/enemies';
 import { FLOORS, generateMap, nextChoices, nodesOnFloor, validateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
+import { advanceAct, newRun } from '../../src/engine/run';
 import type { GameMap } from '../../src/engine/types';
 
 describe('地圖', () => {
@@ -11,6 +12,13 @@ describe('地圖', () => {
     for (let i = 0; i < 200; i++) {
       const m = generateMap(new Rng(seedFromString(`map-${i}`)));
       expect(validateMap(m), `seed map-${i}`).toEqual([]);
+    }
+  });
+  it('第二、三關各 200 個種子也合法（validateMap 要帶關數，2026-09-02 稽核 M-3）', () => {
+    for (let i = 0; i < 200; i++) {
+      const r = newRun(`map-act-${i}`);
+      advanceAct(r); expect(validateMap(r.map, 2), `seed map-act-${i} 第二關`).toEqual([]);
+      advanceAct(r); expect(validateMap(r.map, 3), `seed map-act-${i} 第三關`).toEqual([]);
     }
   });
   it('同種子同地圖', () => {

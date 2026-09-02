@@ -79,8 +79,8 @@ describe('召喚規則', () => {
           if (cs.phase !== 'player') break;
           expect(cs.enemies.filter((e) => !e.dead).length, `${enc.id} 種子 ${i}`).toBeLessThanOrEqual(5);
           const fresh = cs.enemies.filter((e) => !before.has(e.uid));
-          // 這一拍冒出來的：不可能在同一拍就打人（掛剛冒出來），玩家的血只會被舊的打
-          for (const f of fresh) expect(f.move.label, `${enc.id} 種子 ${i} 新召的 ${f.name}`).toBe('剛冒出來');
+          // 這一拍冒出來的：不可能在同一拍就打人（敵方回合跑的是快照），意圖照表先亮給玩家看，不再掛「剛冒出來」（2026-09-02 稽核 M-2）
+          for (const f of fresh) { expect(f.turnCount, `${enc.id} 種子 ${i} 新召的 ${f.name}`).toBe(0); expect(f.move.label, `${enc.id} 種子 ${i} 新召的 ${f.name}`).not.toBe('剛冒出來'); }
           void hpBefore;
           void endTurn;
         }

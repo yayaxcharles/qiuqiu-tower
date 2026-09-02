@@ -348,6 +348,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'relic': {
         const id = rollRelic(runRng(run), fx.pool, run.relics);
         if (id) { takeRelic(run, id); gains?.push({ kind: '秘寶', id }); }
+        else notes?.push('這一池的秘寶都拿過了，沒有新的可拿');   // 收齊整池才會踩到，但不能靜靜什麼都不給（2026-09-02 稽核 L-4）
         break;
       }
       case 'potions': {

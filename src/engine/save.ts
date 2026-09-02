@@ -73,6 +73,8 @@ export function loadRun(): RunState | null {
     if (!run.deck.every(knownCard)) { clearSave(); return null; }
     // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
     if (!usableMap(run.map, run.currentNode)) { clearSave(); return null; }
+    // 忍具、秘寶、統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
+    if (!Array.isArray(run.potions) || !Array.isArray(run.relics) || !run.stats || typeof run.stats !== 'object') { clearSave(); return null; }
     // 舊存檔沒有 flags：補一個空的就好，不必升版本
     if (!run.flags || typeof run.flags !== 'object') run.flags = {};
     // 舊存檔沒有 trail（足跡紀錄之前存的）：從現在站的格子開始記，之前走過的路照暗

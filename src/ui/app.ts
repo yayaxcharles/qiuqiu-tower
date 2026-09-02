@@ -24,6 +24,8 @@ export class App {
   cs: CombatState | null = null;
   /** 外框：固定 1280×720，整個等比縮放去貼合視窗 */
   stage: HTMLElement;
+  /** 換畫面時要一起拆掉的東西（例如戰鬥畫面掛在 window 上的鍵盤監聽器） */
+  disposers: Array<() => void> = [];
   /** 畫面層：每次 show() 就整個清空重畫，畫面渲染函式拿到的 root 就是它 */
   screen: HTMLElement;
   /** 疊層：吐槽、對白、名詞提示、牌組視窗住這裡，換畫面時不會被清掉 */
@@ -67,6 +69,7 @@ export class App {
     const track = this.bgmFor(name);
     if (track) setBgm(track);
     hideTooltip();   // 提示框的錨點就要被清掉了，不先關掉會變成孤兒黏在畫面上
+    for (const d of this.disposers.splice(0)) d();
     clear(this.screen);
     this.stage.dataset['screen'] = name;
     r(this, this.screen, props);

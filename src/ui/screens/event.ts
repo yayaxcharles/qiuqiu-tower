@@ -127,6 +127,7 @@ registerScreen('event', (app, root, props) => {
     const askNext = (i: number): void => {
       const g = missed[i];
       if (!g) return;
+      if (!root.querySelector('.reward-item.missed')) return;   // 玩家已經離開這個畫面（2026-09-02 稽核 M-1）
       showPotionSwap(run, g.id, (idx) => {
         if (idx >= 0) {
           play('relic'); root.querySelector('.hud')?.remove(); renderHud(app, root);   // 先拆舊的，不然疊兩條

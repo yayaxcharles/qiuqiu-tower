@@ -385,6 +385,8 @@ export interface CombatState {
   potions: string[];        // 從整局複製進來，用掉就移除，戰後寫回
   turn: number;
   phase: 'player' | 'won' | 'lost';
+  /** 敵方回合正在逐隻出招（endTurn 的迴圈裡）；召喚要靠它分「敵方回合召的」與「玩家回合中途冒出來的」 */
+  enemyActing?: boolean;
   pending: PendingChoice | null;
   log: string[];
   encounterId: string;

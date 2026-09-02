@@ -376,6 +376,7 @@ registerScreen('combat', (app, root, props) => {
         case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
         case 'stripPlayer': parts.push(`看破：把你身上的${fx.names.join('、')}全部拍掉`); break;
+        case 'purgePlayer': parts.push(`破功：把你身上的${fx.names.join('、')}各拍散一半`); break;
         case 'summon': parts.push('叫來幫手'); break;
         case 'heal': parts.push(`自己回復 ${fx.n} 點生命`); break;
         case 'stealFish': parts.push(`偷走你 ${fx.n} 條小魚乾`); break;
@@ -1169,6 +1170,7 @@ registerScreen('combat', (app, root, props) => {
     if (ev.key === 'Escape' && targeting) { targeting = null; render(); }
   };
   window.addEventListener('keydown', onKey);
+  app.disposers.push(() => window.removeEventListener('keydown', onKey));   // 換畫面就拆，不用等下一次按鍵（2026-09-02 稽核 L-8）
 
   render();
   syncPicker();

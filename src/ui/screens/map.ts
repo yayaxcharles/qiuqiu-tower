@@ -157,13 +157,14 @@ registerScreen('map', (app, root) => {
     const cls = ['map-node', `t-${n.type}`];
     if (n.id === run.currentNode) cls.push('current');
     if (choices.has(n.id)) cls.push('choice');
-    if (n.floor < run.floor) cls.push('past');
+    // n.floor 是關內 1～15，run.floor 是跨關累計（第二關 16～30）——直接比會把第二、三關整張標成走過（2026-09-02 稽核 H-1）
+    if (n.floor < run.floor - base) cls.push('past');
     // 真的打過／辦完的（足跡上的格子）蓋一顆勾勾章——跟「只是在下面的樓層」區隔開
     if (n.id !== run.currentNode && run.trail.includes(n.id)) cls.push('cleared');
     const btn = el('button', {
       class: cls.join(' '),
       style: `left:${x - R}px;top:${y - R}px`,
-      title: `${n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
+      title: `${base + n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
     }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
     if (choices.has(n.id)) btn.addEventListener('click', () => { play('step'); app.enterNode(n.id); });

@@ -248,8 +248,12 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
           if (cs.mods?.strength) addStatus(fresh, '爪力', cs.mods.strength);   // 難度／魔氣的爪力，召喚出來的也要有（審查 #9）
           // 剛冒出來的這回合站不穩：先掛「剛冒出來」，下一回合才照表出招——不然血條式變身時
           // 尾巴在玩家回合中途冒出來、回合一結束就直接打人（使用者 2026-09-02：「突然出現尾巴直接打人很怪」）
-          fresh.move = { intent: 'idle', label: '剛冒出來', effects: [{ kind: 'nothing' }] };
-          fresh.moveIndex = -1;
+          // 敵方回合中途召出來的：endTurn 跑的是快照，這回合本來就不會動，下回合照表出招（意圖先亮給玩家看）。
+          // 只有玩家回合中途冒出來的（血條式變身 onEnter）才需要掛「剛冒出來」，不然會多發呆一整回合（2026-09-02 稽核 M-2）
+          if (!cs.enemyActing) {
+            fresh.move = { intent: 'idle', label: '剛冒出來', effects: [{ kind: 'nothing' }] };
+            fresh.moveIndex = -1;
+          }
           cs.enemies.push(fresh);
         }
         break;

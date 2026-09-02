@@ -261,7 +261,7 @@ export function nextChoices(map: GameMap, currentNodeId: string | null): MapNode
   return nodeById(map, currentNodeId).next.map((id) => nodeById(map, id));
 }
 
-export function validateMap(map: GameMap): string[] {
+export function validateMap(map: GameMap, act = 1): string[] {
   const p: string[] = [];
   const top = nodesOnFloor(map, FLOORS);
   const bossIds = new Set(encountersOfPool('塔主').map((e) => e.id));
@@ -290,7 +290,7 @@ export function validateMap(map: GameMap): string[] {
     if ((n.type === '戰鬥' || n.type === '大魔物' || n.type === '塔主')) {
       const enc = n.encounterId ? encounterById[n.encounterId] : undefined;
       if (!enc) p.push(`${n.id} 缺遭遇`);
-      else if (n.type === '戰鬥' && enc.pool !== poolForFloor(n.floor)) p.push(`${n.id} 遭遇池不符`);
+      else if (n.type === '戰鬥' && enc.pool !== poolForFloor(n.floor, act)) p.push(`${n.id} 遭遇池不符`);
       else if (n.type === '大魔物' && enc.pool !== '大魔物') p.push(`${n.id} 應為大魔物池`);
     }
     if (n.type === '事件' && !(n.eventId && eventById[n.eventId])) p.push(`${n.id} 缺事件`);

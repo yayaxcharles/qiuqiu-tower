@@ -172,6 +172,10 @@ export const dialogue = {
       { speaker: '塔主', text: '老婆子還沒拿出真本事呢。' },
       { speaker: '球球', text: '婆婆的火氣上來了……這下得小心喵！' },
     ],
+    iron_claw: [
+      { speaker: '塔主', text: '齒輪過熱……切換第二形態。' },
+      { speaker: '球球', text: '它的爪子燒紅了——別被夾到喵！' },
+    ],
     orange_king: [
       { speaker: '塔主', text: '你真的惹怒本王了！' },
       { speaker: '球球', text: '他整隻捲起來了——好大一顆球喵！' },
@@ -237,5 +241,5 @@ export const dialogue = {
   chestLines: ['紙箱！一定要鑽進去喵。', '有箱子！先進去再說喵。', '這箱子的大小剛剛好喵。', '裡面該不會有東西吧喵。', '箱子就是要鑽的喵。'],
 };
 
-/** 從一組台詞裡隨機挑一句（純畫面用，不動引擎的亂數） */
+/** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */
 export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random() * xs.length)] ?? xs[0]!; }

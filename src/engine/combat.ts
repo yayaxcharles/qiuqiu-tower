@@ -38,7 +38,7 @@ export function startCombat(input: {
   enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1))));
   const strength = (enc.strength ?? 0) + (input.mods?.strength ?? 0);   // 魔氣（見 EncounterDef.strength）＋難度
   if (strength) for (const e of cs.enemies) addStatus(e, '爪力', strength);
-  cs.mods = { hpMul: input.mods?.hpMul ?? 1, strength };   // 召喚出來的也照這組套（審查 #9）
+  cs.mods = { hpMul: (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1), strength };   // 召喚出來的也照這組套（審查 #9；含遭遇的 hpScale，2026-09-02 稽核 L-2）
   if (cs.relics.some((id) => relicById[id]?.hooks.firstAttackDouble)) cs.player.firstAttackDouble = true;   // 秘笈
   for (const e of cs.enemies) {
     // 開場台詞從 line 與 lines 裡挑一句。不用戰鬥亂數（會動到整場的抽牌順序、機器人錨值），
@@ -189,6 +189,7 @@ export function endTurn(cs: CombatState): void {
     log(cs, `${e.name}又爬起來了`);
   }
 
+  cs.enemyActing = true;
   for (const e of [...cs.enemies]) {
     if (e.dead || cs.phase !== 'player') continue;
     e.block = 0;
@@ -233,6 +234,7 @@ export function endTurn(cs: CombatState): void {
     if (!e.dead) advanceMove(cs, e);
   }
   // 蜷縮撐到你下回合開始：魔物打完了才修剪，守護符留 8 點、沒有守護符就歸零（審查 #1）
+  cs.enemyActing = false;
   cs.player.block = Math.min(cs.player.block, relicSum(cs.relics, 'blockKeep'));
   if (cs.phase === 'player') startPlayerTurn(cs);
 }
