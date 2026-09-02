@@ -987,3 +987,4 @@
 
 /* 帶滿收不下的忍具列：壓暗一點，跟真的拿到的分開 */
 .scene .reward-items .reward-item.missed { opacity: .7; border-style: dashed; }
+.swap-modal .modal-foot { margin-top: 22px; }   /* 「不換」鈕跟清單拉開，不壓到最後一支（使用者 2026-09-02） */
