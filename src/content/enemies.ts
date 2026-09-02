@@ -763,10 +763,12 @@ export const encounters: EncounterDef[] = [
   // 2026-09-02 補怪：塔頂單怪 4→7、強池再加三組（空鎧武者血厚，倍率壓低）
   { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.25, strength: 3, acts: [3] },
   { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.25, strength: 3, acts: [3] },
-  { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.1, strength: 3, acts: [3] },
+  // TODO 空鎧武者的圖還沒生（Codex 額度 15:52 重置後補），圖進來再打開下面這行
+  // { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.1, strength: 3, acts: [3] },
   { id: 'fox_crane', pool: '強', enemies: ['fox_miko', 'paper_crane'], hpScale: 0.8, strength: 3, acts: [3] },
   { id: 'tengu_owl', pool: '強', enemies: ['tengu', 'owl_sentry'], hpScale: 0.8, strength: 3, acts: [3] },
-  { id: 'armor_rabbit', pool: '強', enemies: ['armor_ghost', 'moon_rabbit'], hpScale: 0.7, strength: 3, acts: [3] },
+  // TODO 空鎧武者的圖還沒生（Codex 額度 15:52 重置後補），圖進來再打開下面這行
+  // { id: 'armor_rabbit', pool: '強', enemies: ['armor_ghost', 'moon_rabbit'], hpScale: 0.7, strength: 3, acts: [3] },
   { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], strength: 4, acts: [3] },
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
