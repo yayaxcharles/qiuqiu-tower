@@ -906,3 +906,25 @@
 .shop-item.card-item .price { margin-top: 9px; }
 .shop-shelves { gap: 22px; }
 .shop-row { gap: 16px; }
+
+/* ===== 帶子裡的按鈕改「深色玻璃＋金邊」（使用者 2026-09-02：木牌在全黑背景上很突兀，外圈那道白更不搭）：
+   跟金字名牌同一個調子——深色半透明底、一圈細金線、金字；主要鈕底色暖一點、金線亮一點，不再有外圈光環。
+   戰鬥的「結束回合」與淺色面板（磨爪確認、挑牌）裡的木牌不動。 ===== */
+.scene-actions .btn, .dialogue-overlay .btn {
+  border-image: none; border: 1.5px solid #ffd98a8c; border-radius: 12px;
+  background: linear-gradient(#2c1d12e6, #140c07f2);
+  color: #ffd98a; text-shadow: 0 1px 2px #000000cc;
+  box-shadow: 0 4px 12px #00000080, inset 0 1px 0 #ffffff14;
+}
+.scene-actions .btn:hover:not(:disabled), .dialogue-overlay .btn:hover:not(:disabled) {
+  filter: none; background: linear-gradient(#3d2a1ae6, #1d120af2); border-color: #ffd98a; color: #fff3d6;
+}
+.scene-actions .btn.primary {
+  filter: none; background: linear-gradient(#7a3d15f0, #4a2209f5); border-color: #ffd98a; color: #fff3d6;
+  box-shadow: 0 4px 12px #00000080, 0 0 14px #c9702a55, inset 0 1px 0 #ffffff1f;
+}
+.scene-actions .btn.primary:hover:not(:disabled) { filter: none; background: linear-gradient(#8f4a1cf0, #5a2a0cf5); box-shadow: 0 4px 12px #00000080, 0 0 18px #e0883a77, inset 0 1px 0 #ffffff1f; }
+.scene-actions .btn:disabled { opacity: .4; filter: grayscale(.6); }
+/* 貓窩：球球要正好趴在蒲團上（使用者 2026-09-02：「現在稍微偏左了」）。蒲團畫在底圖上約 x 300、y 470～540（舞台座標），
+   立繪底邊放到 160、左緣 150，趴姿的圖寬約 300 → 屁股坐進蒲團、中心對到蒲團 */
+#stage[data-screen="rest"] .scene-portrait { left: 156px; bottom: 150px; }
