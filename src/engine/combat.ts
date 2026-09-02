@@ -38,7 +38,16 @@ export function startCombat(input: {
   enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1))));
   const strength = (enc.strength ?? 0) + (input.mods?.strength ?? 0);   // 魔氣（見 EncounterDef.strength）＋難度
   if (strength) for (const e of cs.enemies) addStatus(e, '爪力', strength);
-  for (const e of cs.enemies) log(cs, `${e.name}：${enemyById[e.enemyId]?.line ?? ''}`);
+  for (const e of cs.enemies) {
+    // 開場台詞從 line 與 lines 裡挑一句。不用戰鬥亂數（會動到整場的抽牌順序、機器人錨值），
+    // 用亂數種子的目前狀態加編號做一個穩定的選法：同一局同一場永遠同一句，不同局會不同
+    const def = enemyById[e.enemyId];
+    const pool = [def?.line ?? '', ...(def?.lines ?? [])].filter((l) => l.length > 0);
+    const st = (cs.rng as unknown as { state?: unknown }).state;
+    const seed = typeof st === 'number' ? st : (typeof st === 'object' && st !== null ? Object.values(st as Record<string, unknown>).reduce<number>((a, v) => a + (typeof v === 'number' ? v : 0), 0) : 0);
+    e.line = pool.length ? pool[Math.abs(Math.floor(seed) + e.uid * 7) % pool.length] : def?.line;
+    log(cs, `${e.name}：${e.line ?? ''}`);
+  }
   for (const rid of cs.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;
     if (hooks) applyEffects(cs, hooks, { source: 'relic' });

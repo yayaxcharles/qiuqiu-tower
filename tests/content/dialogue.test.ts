@@ -20,8 +20,8 @@ describe('對白', () => {
       if (l.speaker === '球球') expect(qiuqiuLineOk(l.text), l.text).toBe(true);
       if (l.speaker === '旁白') expect(qiuqiuLineOk(l.text), l.text).toBe(false);
     }
-    for (const s of [...dialogue.battleStart, ...dialogue.battleWin, ...dialogue.restLines,
-      dialogue.hungry, dialogue.lowHp, dialogue.chestLine, dialogue.victoryTeaser]) expect(qiuqiuLineOk(s), s).toBe(true);
+    for (const s of [...dialogue.battleStart, ...dialogue.battleWin, ...dialogue.restNapLines, ...dialogue.restSharpenLines,
+      ...dialogue.hungry, ...dialogue.lowHp, ...dialogue.chestLines, dialogue.victoryTeaser]) expect(qiuqiuLineOk(s), s).toBe(true);
     for (const s of Object.values(dialogue.firstMeet)) expect(qiuqiuLineOk(s), s).toBe(true);
   });
   it('每種魔物都有初見吐槽', () => {

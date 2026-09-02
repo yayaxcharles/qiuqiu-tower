@@ -1,6 +1,6 @@
 import { play } from '../audio';
 import { cardById } from '../../content/cards';
-import { dialogue } from '../../content/dialogue';
+import { dialogue, pick } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { rest } from '../../engine/run';
 import type { CardInstance, RunState } from '../../engine/types';
@@ -57,7 +57,7 @@ registerScreen('rest', (app, root) => {
       used = true;
       rest(run, '打盹');
       play('heal');
-      afterAction(`球球睡了一下，回復 ${heal} 點生命。`, dialogue.restLines[0] ?? '');
+      afterAction(`球球睡了一下，回復 ${heal} 點生命。`, pick(dialogue.restNapLines));
     });
 
     const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌，順便回一成血）');
@@ -78,7 +78,7 @@ registerScreen('rest', (app, root) => {
             used = true;
             rest(run, '磨爪', uid);
             play('upgrade');
-            afterAction(`「${name}」磨利了，變成「${name}＋」。`, dialogue.restLines[1] ?? '', c);
+            afterAction(`「${name}」磨利了，變成「${name}＋」。`, pick(dialogue.restSharpenLines), c);
           });
         },
       });

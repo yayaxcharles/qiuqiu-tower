@@ -200,7 +200,7 @@ export class App {
             const sprite = this.screen.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
             if (!sprite) return;
             const r = sprite.getBoundingClientRect();
-            bubbleAt(enemyById[e.enemyId]?.line ?? '', e.name, (r.left + r.width / 2 - stage.left) * k, (r.top - stage.top) * k + 16);
+            bubbleAt(e.line ?? enemyById[e.enemyId]?.line ?? '', e.name, (r.left + r.width / 2 - stage.left) * k, (r.top - stage.top) * k + 16);
           }, i * 420);
         });
       }, 500);

@@ -1,5 +1,5 @@
 import { potionCapacity } from '../../engine/run';
-import { dialogue } from '../../content/dialogue';
+import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
@@ -1038,8 +1038,8 @@ registerScreen('combat', (app, root, props) => {
       else if (opts.attack) cat.classList.add('attack');
     }
 
-    if (hungry) { hungryTurn = cs.turn; toast(dialogue.hungry, '球球'); }
-    if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(dialogue.lowHp, '球球'); }
+    if (hungry) { hungryTurn = cs.turn; toast(pick(dialogue.hungry), '球球'); }
+    if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(pick(dialogue.lowHp), '球球'); }
 
     // 姿勢停留時間：一般 650 毫秒看得清楚，但蜷縮例外——它是「縮成一顆球」的靜態姿勢，
     // 沒有前撲、沒有閃紅，650 毫秒閃一下根本來不及看到牠縮起來，拉到 1200。

@@ -154,6 +154,8 @@ export interface EnemyDef {
   pattern: 'cycle' | 'random';
   moves: EnemyMove[];
   line: string;
+  /** 開場台詞的其他版本：戰鬥開始時從 line 與 lines 裡挑一句（2026-09-02 使用者：「出場台詞做幾個不同的隨機」） */
+  lines?: string[];
   art: string;
   size: 'small' | 'medium' | 'large';
   onDeathHealPlayer?: number;
@@ -304,6 +306,8 @@ export interface EnemyCombat extends Unit {
   uid: number;
   enemyId: string;
   name: string;
+  /** 這一場實際講的開場台詞（從 EnemyDef.line／lines 挑出來的） */
+  line?: string;
   moveIndex: number;
   turnCount: number;
   phase: number;

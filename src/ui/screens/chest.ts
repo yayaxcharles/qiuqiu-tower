@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { dialogue } from '../../content/dialogue';
+import { dialogue, pick } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { openChest } from '../../engine/run';
 import { registerScreen } from '../app';
@@ -14,7 +14,7 @@ registerScreen('chest', (app, root) => {
   root.append(screenBg(actVariantKey('bg/screen_chest', app.run?.act ?? 1)));
   const run = app.run;
   if (!run) { app.show('title'); return; }
-  toast(dialogue.chestLine, '球球');
+  toast(pick(dialogue.chestLines), '球球');
   // 常見秘寶全部拿過的話會回 null，那就是一個空紙箱（引擎不會硬塞別的池子給你）
   const id = openChest(run);
   // 狀態列一定要等開箱之後才畫：鮪魚罐頭那類秘寶會當場改最大生命，先畫的話玩家會看到
