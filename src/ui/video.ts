@@ -16,9 +16,10 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 export function playVideo(name: 'opening' | 'ending', onDone: () => void): void {
   const layer = overlayRoot();
   if (!layer) { onDone(); return; }
-  // muted：影片本身沒有音軌（配樂走遊戲的背景音樂），標成靜音瀏覽器就一定准自動播放，不必賭手勢判定
-  const v = el('video', { class: 'cine-video', playsinline: '', preload: 'auto', muted: '' });
-  v.muted = true;
+  // 不標 muted、但檔案裡留一條靜音音軌：Chrome 把「靜音或沒聲音」的影片當省電對象，分頁一到背景就直接暫停
+  // （AbortError: video-only background media was paused to save power），標 muted 或拿掉音軌都會中招。
+  // 有聲音軌又不靜音的影片，只要玩家點過畫面（按「新的一局」就算）就准自動播放；被拒絕的話 catch 會直接跳過。
+  const v = el('video', { class: 'cine-video', playsinline: '', preload: 'auto' });
   v.src = `${BASE}video/${name}.mp4`;
   const skip = el('button', { class: 'btn small cine-skip' }, '跳過 ▸');
   const box = el('div', { class: 'cine-overlay' }, v, skip);
