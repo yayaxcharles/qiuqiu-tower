@@ -54,7 +54,10 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
     const thorns = getStatus(p, '反彈');
     if (dmg > 0 && thorns > 0 && attacker !== p) {
       const e = cs.enemies.find((x) => x === attacker);
-      if (e) damageEnemy(cs, e, thorns, { direct: true });
+      if (e) {
+        log(cs, `反彈回敬了${e.name} ${thorns} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
+        damageEnemy(cs, e, thorns, { direct: true });
+      }
     }
   }
   p.hp -= lose;

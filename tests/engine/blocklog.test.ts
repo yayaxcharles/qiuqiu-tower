@@ -34,4 +34,14 @@ describe('擋下傷害的紀錄', () => {
     expect(cs.log.some((l) => l === `${e.name}的防禦擋下了 6 點`)).toBe(true);
     expect(e.hp).toBe(e.maxHp);
   });
+  it('反彈回敬魔物時，紀錄寫「反彈回敬了<名字> N 點」', () => {
+    const cs = start('cucumber');
+    const e = cs.enemies[0]!;
+    e.move = { intent: 'attack', label: '彈起', effects: [{ kind: 'damage', amount: 7 }] };
+    cs.player.statuses['反彈'] = 4;
+    const hp = e.hp;
+    endTurn(cs);
+    expect(cs.log.some((l) => l === `${e.name}：反彈回敬了` || l === `反彈回敬了${e.name} 4 點`)).toBe(true);
+    expect(e.hp).toBe(hp - 4);
+  });
 });

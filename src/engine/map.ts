@@ -197,7 +197,14 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   const encQueues = new Map<string, { list: string[]; at: number }>();
   const nextEncounter = (key: string, ids: string[]): string => {
     let q = encQueues.get(key);
-    if (!q || q.at >= q.list.length) { q = { list: rng.shuffle(ids), at: 0 }; encQueues.set(key, q); }
+    if (!q || q.at >= q.list.length) {
+      const list = rng.shuffle(ids);
+      // 重洗的第一個不能跟上一輪最後一個一樣，不然銜接處還是會連兩場同一組
+      const last = q?.list[q.list.length - 1];
+      if (list.length > 1 && list[0] === last) { const j = 1 + Math.floor(rng.next() * (list.length - 1)); [list[0], list[j]] = [list[j]!, list[0]!]; }
+      q = { list, at: 0 };
+      encQueues.set(key, q);
+    }
     return q.list[q.at++]!;
   };
   for (const n of nodes) {

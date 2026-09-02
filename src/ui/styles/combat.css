@@ -757,3 +757,6 @@
 
 /* 「擋住 N」：藍色，跟掉血的紅字分開 */
 .combat .num.blocked { color: #8fc4ff; text-shadow: 0 2px 0 #123, 0 0 10px #1a3a6a; font-size: 32px; }
+
+/* 「反彈！」：紫色，跟掉血的紅字、擋住的藍字分開；飄在數字上面一點 */
+.combat .num.thorn { color: #d9a3ff; text-shadow: 0 2px 0 #3a1a4a, 0 0 10px #6a2a8a; font-size: 30px; top: 16%; }

@@ -244,7 +244,10 @@ export class App {
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
     const go = (): void => this.show('reward', { ...rewards, bonusFish });
-    if (rewards.kind === '大魔物') this.playOnce('firstElite', dialogue.afterFirstElite, go);
+    // 「上面那位不是你認識的那隻貓了」是黑貓忍者頭目的台詞，只在打倒他之後演；
+    // 其他精英（掃地機器人王、三花貓武僧……）打完不該冒出黑貓頭目的臉講話（使用者 2026-09-02 回報）
+    const beatNinjaBoss = (encounterById[cs.encounterId]?.enemies ?? []).includes('ninja_boss');
+    if (rewards.kind === '大魔物' && beatNinjaBoss) this.playOnce('firstElite', dialogue.afterFirstElite, go);
     else go();
   }
 

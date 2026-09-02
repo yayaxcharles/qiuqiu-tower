@@ -913,6 +913,11 @@ registerScreen('combat', (app, root, props) => {
         sfx(poisoned ? 'poison' : opts.attack ? (heavy ? 'hit_heavy' : 'claw') : 'hit',
           poisoned ? 1 : 0.94 + Math.random() * 0.12);
       }
+      // 反彈回敬的那幾下：飄「反彈！」＋刺一聲，被反彈打死的才看得出是怎麼死的
+      if (fresh.some((l) => l.startsWith(`反彈回敬了${e.name} `))) {
+        node.append(floatNum('反彈！', 'thorn'));
+        sfx('thorns');
+      }
       // 被防禦擋下的部分：飄「擋住 N」＋盾牌閃一下（整下被吃掉時只有一聲「鏘」的話，看起來像沒打到——使用者 2026-09-02 回報）
       const guarded = blockedAmount(fresh, `${e.name}的防禦擋下了`);
       if (!e.dead && guarded > 0) {
