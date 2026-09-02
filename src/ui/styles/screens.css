@@ -783,3 +783,6 @@
 .loot-kind { font-size: 14px; letter-spacing: 2px; padding: 1px 8px 2px; border: 1px solid #ffd98aa6; border-radius: 6px; color: #ffd98a; }
 .loot-name { font-size: 28px; letter-spacing: 2px; }
 .loot-effect { margin: 10px 0 0; font-size: 20px; color: #f6efe3; text-shadow: 0 2px 6px #000000d9; }
+/* 帶子裡的戰利品列是米白紙條：字要回深色，不能繼承帶子的米白（實測整行變成白字白底） */
+.scene .reward-items .reward-item, .scene .reward-items .reward-item b, .scene .reward-items .reward-item em { color: var(--ink); text-shadow: none; }
+.scene .reward-items .reward-item em { color: #5a4a3a; }
