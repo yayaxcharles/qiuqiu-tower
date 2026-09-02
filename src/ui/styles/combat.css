@@ -797,3 +797,23 @@
   0%, 100% { scale: 1; box-shadow: 0 3px 8px #00000080, 0 0 0 0 #ff6a6a00; }
   50% { scale: 1.07; box-shadow: 0 3px 8px #00000080, 0 0 0 3px #ff6a6a3d; }
 }
+
+/* 戰鬥裡球球的吐槽改成對話泡泡（使用者 2026-09-02：「球球戰鬥時會出現在畫面正中央講話，可以用對話泡泡的感覺」）：
+   米白泡泡、深字、左下角一個小尾巴指向球球的頭（球球站在左邊，頭頂約在 x 165、y 100） */
+#stage[data-screen="combat"] .toast {
+  left: 235px; top: 62px; transform: none;
+  background: #fffdf6; color: #2b2118; border: 2px solid #2b2118; border-radius: 16px;
+  padding: 8px 18px; font-size: 19px;
+  box-shadow: 0 4px 12px #00000080;
+  animation: bubble-in .26s cubic-bezier(.2, .9, .3, 1.2);
+}
+#stage[data-screen="combat"] .toast b { color: #7a3d15; }
+#stage[data-screen="combat"] .toast::before {
+  content: ''; position: absolute; left: 22px; bottom: -14px;
+  border: 12px solid transparent; border-top: 14px solid #2b2118; border-bottom: 0;
+}
+#stage[data-screen="combat"] .toast::after {
+  content: ''; position: absolute; left: 25px; bottom: -9px;
+  border: 9px solid transparent; border-top: 11px solid #fffdf6; border-bottom: 0;
+}
+@keyframes bubble-in { from { opacity: 0; transform: translateY(8px) scale(.92); } to { opacity: 1; transform: none; } }

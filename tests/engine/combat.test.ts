@@ -293,6 +293,17 @@ describe('魔物回合', () => {
     expect(e.hp).toBe(55);
     expect(e.phase).toBe(1);
   });
+  it('定身擋的是整個動作：偷小魚乾、疊防禦也動不了（使用者 2026-09-02 實玩回報）', () => {
+    const cs = start('orange_bandit');
+    const e = cs.enemies[0]!;
+    e.move = { intent: 'special', label: '搶劫', effects: [{ kind: 'stealFish', n: 20 }] };
+    addStatus(e, '定身', 1);
+    const fish = cs.fishDelta;
+    endTurn(cs);
+    expect(cs.fishDelta).toBe(fish);
+    expect(cs.log.some((l) => l === `${e.name}被定住了，這回合動不了`)).toBe(true);
+    expect(getStatus(e, '定身')).toBe(0);
+  });
   it('定身跳掉的那一下，蓄力也一起作廢', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;

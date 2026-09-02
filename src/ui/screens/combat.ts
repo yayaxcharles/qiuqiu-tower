@@ -340,7 +340,7 @@ registerScreen('combat', (app, root, props) => {
     const rnd = m.effects.find(has('damageRandom'));
     const blk = m.effects.find(has('block'));
     let text = `${INTENT_GLYPH[m.intent]} ${m.label}`;
-    if (m.intent === 'attack' && getStatus(e, '定身') > 0) text = '被定住了';
+    if (getStatus(e, '定身') > 0) text = '被定住了';   // 定身擋整個動作（2026-09-02）
     else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, cs.player)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿）' : ''}`).join('＋')}`;
     else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, cs.player)}～${computeAttack(rnd.max * x, e, cs.player)}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
@@ -357,7 +357,7 @@ registerScreen('combat', (app, root, props) => {
    */
   function describeMove(e: EnemyCombat): string {
     const m = e.move;
-    if (m.intent === 'attack' && getStatus(e, '定身') > 0) return '被定住了，這一次攻擊會落空。';
+    if (getStatus(e, '定身') > 0) return '被定住了，這回合什麼都做不了。';
     const x = e.charged ? 2 : 1;
     const parts: string[] = [];
     for (const fx of m.effects) {

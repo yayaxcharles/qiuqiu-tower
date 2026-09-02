@@ -967,3 +967,8 @@
 .modal-foot .btn:hover:not(:disabled) { filter: none; background: linear-gradient(#3d2a1ae6, #1d120af2); border-color: #ffd98a; color: #fff3d6; }
 .modal-foot .btn.primary { filter: none; background: linear-gradient(#7a3d15f0, #4a2209f5); border-color: #ffd98a; color: #fff3d6; box-shadow: 0 4px 12px #00000080, 0 0 14px #c9702a55, inset 0 1px 0 #ffffff1f; }
 .modal-foot .btn.primary:hover:not(:disabled) { filter: none; background: linear-gradient(#8f4a1cf0, #5a2a0cf5); }
+
+/* 對話疊層（戰鬥前後的喊話）：立繪本來站在帶子上緣、腳踩到名字，也壓在戰鬥裡的球球身上（使用者 2026-09-02：「講話時球球的位置會卡到」）。
+   1. 立繪抬到帶子上方（兩行對白的帶子高約 210）；2. 疊層在戰鬥畫面上時，戰場上的球球先隱形，講完再回來 */
+.dialogue-overlay .dialogue-portrait { bottom: 214px; height: 290px; }
+#stage:has(#overlay .dialogue-overlay) .combat .unit.player .sprite-box { visibility: hidden; }

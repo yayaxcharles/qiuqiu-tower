@@ -178,10 +178,12 @@ export function endTurn(cs: CombatState): void {
     tickPoison(e);
     damageEnemy(cs, e, 0, { direct: true });   // 結算噎到：順手處理毒死與掉到階段門檻以下
     if (e.dead || cs.phase !== 'player') continue;
-    if (e.move.intent === 'attack' && getStatus(e, '定身') > 0) {
+    // 定身擋的是魔物**整個動作**，不只攻擊：偷小魚乾、召喚、疊防禦一律動不了
+    // （原本只擋攻擊，使用者 2026-09-02 實玩：「定身敵人好像只能阻止攻擊？偷竊照偷」）
+    if (getStatus(e, '定身') > 0) {
       addStatus(e, '定身', -1);
       e.charged = false;   // 這一下被定掉，蓄力也一起作廢
-      log(cs, `${e.name}被定住了，這一下打不出來`);
+      log(cs, `${e.name}被定住了，這回合動不了`);
     } else {
       const charged = e.charged;
       if (e.move.intent === 'attack') e.charged = false;
