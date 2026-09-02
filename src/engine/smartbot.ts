@@ -178,6 +178,9 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       let v = dmg > 0 ? dmg : getStatus(e, '隱身') > 0 ? 3 / Math.max(1, st.cost) : 0;
       if (dmg >= e.hp) v += 8 + incomingHits(cs, e).reduce((s, h) => s + h, 0);   // 收頭：牠這回合的傷害也一起省掉
       else v += e.hp < 20 ? 2 : 0;
+      // 牠身上有反彈：每打一下就被刺一下（2026-09-02 反彈才真的生效），多段牌撞上去很痛
+      const hits = st.effects.reduce((n, fx) => n + (fx.kind === 'damage' ? (fx.times ?? 1) : fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock' ? 1 : 0), 0);
+      if (getStatus(e, '反彈') > 0 && dmg < e.hp) v -= getStatus(e, '反彈') * hits * (lowHp ? 4 : 1.5);
       if (!best || v > best.v) best = { e, v };
     }
     if (def.target === 'all') {

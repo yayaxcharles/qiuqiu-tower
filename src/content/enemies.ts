@@ -187,7 +187,7 @@ export const enemies: EnemyDef[] = [
     ],
     phases: [{
       hpBelow: 55, line: '（外殼彈開，裡面全是爪子）', pattern: 'cycle',
-      onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 3 }],
+      onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 1 }],   // 反彈 2026-09-02 才真的生效：關主只給 1（機器人實測 2 就從 17% 敗變 37% 敗）
       moves: [
         { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 5 }] },
         { intent: 'debuff', label: '卡住', effects: [{ kind: 'discardRandomHand', n: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 3 }] },
@@ -226,7 +226,7 @@ export const enemies: EnemyDef[] = [
       ],
     }, {
       hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 2, 貓步: 2 },
-      onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }, { kind: 'statusSelf', name: '反彈', amount: 6 }],
+      onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],   // 第三條血本來還有反彈 6：反彈生效後配上震散太狠（機器人 97% 敗），拿掉，只留爪力
       moves: [
         { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 22, times: 2, pierce: true }] },
         { intent: 'attack', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 14 }] },
@@ -269,9 +269,9 @@ export const enemies: EnemyDef[] = [
   { id: 'hedgehog', name: '刺蝟師傅', hp: [34, 38], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_hedgehog',
     line: '來啊，看誰比較痛。', lines: ['抱我啊，來啊。', '刺不是裝飾。'],
     moves: [
-      { intent: 'buff', label: '豎刺', effects: [{ kind: 'statusSelf', name: '反彈', amount: 4 }] },
+      { intent: 'buff', label: '豎刺', effects: [{ kind: 'statusSelf', name: '反彈', amount: 1 }] },   // 第一關的反彈 1 就夠痛（實測 2 讓整關掉血多一成五）
       { intent: 'attack', label: '撞', effects: [{ kind: 'damage', amount: 8 }] },
-      { intent: 'block', label: '縮起來', effects: [{ kind: 'block', amount: 10 }, { kind: 'statusSelf', name: '反彈', amount: 2 }] },
+      { intent: 'block', label: '縮起來', effects: [{ kind: 'block', amount: 10 }, { kind: 'statusSelf', name: '反彈', amount: 1 }] },
       { intent: 'attack', label: '刺', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
     ] },
   // **回血坦**：每回合回 7，打不夠快就永遠磨不死。逼玩家組出爆發
@@ -408,14 +408,14 @@ export const enemies: EnemyDef[] = [
   { id: 'calico_monk', name: '三花貓武僧', hp: [115, 115], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_calico_monk',
     line: '出手之前，先想清楚。', lines: ['心浮氣躁，練不成的。', '（合掌）請。'],
     moves: [
-      { intent: 'buff', label: '運氣', effects: [{ kind: 'statusSelf', name: '反彈', amount: 5 }] },
+      { intent: 'buff', label: '運氣', effects: [{ kind: 'statusSelf', name: '反彈', amount: 1 }] },
       { intent: 'attack', label: '掌', effects: [{ kind: 'damage', amount: 13 }] },
       { intent: 'special', label: '調息', effects: [{ kind: 'heal', n: 10 }] },
       { intent: 'attack', label: '連環掌', effects: [{ kind: 'damage', amount: 7, times: 3 }] },
     ],
     phases: [{
       hpBelow: 45, line: '（睜開眼）', pattern: 'cycle',
-      onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 8 }, { kind: 'block', amount: 15 }],
+      onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 2 }, { kind: 'block', amount: 15 }],
       moves: [
         { intent: 'attack', label: '怒掌', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
         { intent: 'debuff', label: '喝', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 2 }] },
