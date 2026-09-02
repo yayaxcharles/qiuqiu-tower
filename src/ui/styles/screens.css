@@ -889,8 +889,10 @@
    2. 劇場畫面的吐槽泡泡改放右上角（原本在正中央，會壓在秘寶圖上）。戰鬥畫面的吐槽位置不動。 */
 .scene .scene-portrait { left: 4px; }
 .scene:has(.scene-goods) .scene-portrait { left: 0; }
-.scene .dialogue-box.scene-box { padding-left: 290px; }   /* 球球立繪右緣約在 340，字從 290 起、名字不再被腳踩到 */
-.scene .scene-box .dialogue-speaker { left: 290px; }
+/* 字不往右讓（讓了整條帶子看起來偏右，使用者 2026-09-02：「不是置中而是整體偏右」）；
+   改成把球球立繪抬高一點，腳底離開名字那一行就不會踩到 */
+.scene .scene-portrait { bottom: 172px; height: 300px; }
+.scene:has(.scene-goods) .scene-portrait { bottom: 160px; height: 280px; }
 #stage:has(.scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
 @keyframes toast-in-side { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
 
