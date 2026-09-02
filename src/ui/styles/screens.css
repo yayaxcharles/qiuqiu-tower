@@ -754,7 +754,7 @@
 .scene-art:has(.scene-picks) { top: 50%; transform: translate(-50%, -66%); max-height: none; }
 
 /* ===== 帶子裡的按鈕：木牌質感（跟名牌同一塊料），不再是白底黑框（使用者：「按鈕可以好看些嗎」） ===== */
-.scene-actions .btn, .dialogue-overlay .btn {
+.scene-actions .btn, .dialogue-overlay .btn, .modal-foot .btn {
   color: #fff6e2; font-weight: bold; letter-spacing: 1px;
   border: 3px solid #3a2a1c; border-radius: 10px;
   background: linear-gradient(#a8623099, #7f4420) padding-box, linear-gradient(#c9702a, #8a4a22) border-box;
@@ -765,10 +765,10 @@
   text-shadow: 0 1px 2px #00000099;
   box-shadow: 0 4px 0 #00000059, 0 6px 14px #00000073;
 }
-.scene-actions .btn:hover:not(:disabled), .dialogue-overlay .btn:hover:not(:disabled) { filter: brightness(1.12); background: linear-gradient(#b86e38, #8a4a22) padding-box, linear-gradient(#c9702a, #8a4a22) border-box; }
-.scene-actions .btn.primary { filter: saturate(1.15) brightness(1.08); box-shadow: 0 0 0 2px #ffd98a66, 0 4px 0 #00000059, 0 6px 14px #00000073; }
-.scene-actions .btn.primary:hover:not(:disabled) { filter: saturate(1.2) brightness(1.18); }
-.scene-actions .btn:disabled { opacity: .45; filter: grayscale(.5); }
+.scene-actions .btn:hover:not(:disabled), .dialogue-overlay .btn:hover:not(:disabled), .modal-foot .btn:hover:not(:disabled) { filter: brightness(1.12); background: linear-gradient(#b86e38, #8a4a22) padding-box, linear-gradient(#c9702a, #8a4a22) border-box; }
+.scene-actions .btn.primary, .modal-foot .btn.primary { filter: saturate(1.15) brightness(1.08); box-shadow: 0 0 0 2px #ffd98a66, 0 4px 0 #00000059, 0 6px 14px #00000073; }
+.scene-actions .btn.primary:hover:not(:disabled), .modal-foot .btn.primary:hover:not(:disabled) { filter: saturate(1.2) brightness(1.18); }
+.scene-actions .btn:disabled, .modal-foot .btn:disabled { opacity: .45; filter: grayscale(.5); }
 
 /* ===== 拿到東西的名牌：木牌上寫名字、旁邊一個小標籤寫種類、底下一行效果 ===== */
 .loot-block { text-align: center; margin: 4px 0 2px; }
@@ -790,3 +790,6 @@
    兩條半透明帶子疊在一起、兩隻球球站同一個角落，畫面會互卡（使用者 2026-09-02 回報）。對白收掉就回來。 */
 #stage:has(#overlay .dialogue-overlay) .scene .scene-box,
 #stage:has(#overlay .dialogue-overlay) .scene .scene-portrait { visibility: hidden; }
+
+/* 升級確認、挑牌視窗的鈕也走木牌（使用者：「再看看」「就磨這張」太醜） */
+.modal-foot .btn { min-width: 170px; }
