@@ -371,6 +371,18 @@
   "codex/monster_armor_ghost": {
    "attack": "assets/monsters/armor_ghost_attack.webp",
    "idle": "assets/monsters/armor_ghost_idle.webp"
+  },
+  "codex/monster_armadillo_pup": {
+   "attack": "assets/monsters/armadillo_pup_attack.webp",
+   "idle": "assets/monsters/armadillo_pup_idle.webp"
+  },
+  "codex/monster_dango_bit": {
+   "attack": "assets/monsters/dango_bit_attack.webp",
+   "idle": "assets/monsters/dango_bit_idle.webp"
+  },
+  "codex/monster_dango_slime": {
+   "attack": "assets/monsters/dango_slime_attack.webp",
+   "idle": "assets/monsters/dango_slime_idle.webp"
   }
  },
  "icons": {
