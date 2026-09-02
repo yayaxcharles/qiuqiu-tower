@@ -957,3 +957,13 @@
 .scene .reward-items .reward-item.potion { border-color: #8fc2ffb3; }
 /* 結算畫面的帶子比較高（成績、秘寶、最佳三行），球球要站得更高才不會踩到名字 */
 #stage[data-screen="result"] .scene-portrait { bottom: 300px; height: 260px; }
+/* 淺色面板（磨爪確認、挑牌）裡的按鈕也統一深色玻璃（使用者：全部都改）；兩顆之間用外距拉開（.modal-foot 不是 flex，gap 沒作用） */
+.modal-foot .btn, .scene-actions .btn, .dialogue-overlay .btn {
+  border-image: none; border: 1.5px solid #ffd98a8c; border-radius: 12px;
+  background: linear-gradient(#2c1d12e6, #140c07f2); color: #ffd98a; text-shadow: 0 1px 2px #000000cc;
+  box-shadow: 0 4px 12px #00000080, inset 0 1px 0 #ffffff14;
+}
+.modal-foot .btn { margin: 0 22px; }
+.modal-foot .btn:hover:not(:disabled) { filter: none; background: linear-gradient(#3d2a1ae6, #1d120af2); border-color: #ffd98a; color: #fff3d6; }
+.modal-foot .btn.primary { filter: none; background: linear-gradient(#7a3d15f0, #4a2209f5); border-color: #ffd98a; color: #fff3d6; box-shadow: 0 4px 12px #00000080, 0 0 14px #c9702a55, inset 0 1px 0 #ffffff1f; }
+.modal-foot .btn.primary:hover:not(:disabled) { filter: none; background: linear-gradient(#8f4a1cf0, #5a2a0cf5); }
