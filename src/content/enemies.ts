@@ -193,37 +193,41 @@ export const enemies: EnemyDef[] = [
         { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
       ],
     }] },
-  // 第三關的最終戰（2026-09-01 重做成三階段）。他是師父：招式全是玩家牌組裡絕學的
-  // 放大版，「同門過招」一看就懂。數值照 31–45F 的牌組規模抓，第一二關的關主碰不到他。
-  // 第三階段的大招走「蓄力→倍擊」的明牌流程：看到蓄力就知道下一下會翻倍，
-  // 解法是定身、隱身或堆大蜷縮——考的是整局學會的所有工具。
-  { id: 'tower_master', name: '走火入魔的大俠貓', hp: [100, 100], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
+  // 第三關的最終戰。他是師父：招式全是玩家牌組裡絕學的放大版，「同門過招」一看就懂。
+  // 2026-09-01 重做成三條血；2026-09-02 使用者實打回報「太弱」，機器人也 94% 勝——改成 2.0：
+  //   ・血 120／240／300（總 660，原 550）
+  //   ・兩個新機制，都走明牌：**穿透**（穿心掌、亡命一擊：蜷縮擋不住，只有隱身、定身、無敵接得住）、
+  //     **看破**（拆招、破功、看破：把先囤好的隱身／潛水整個拍掉——閃避流不能靠開場囤三層隱身混過）
+  //   ・第三條血固定節奏：蓄力→亡命一擊（穿透兩段，蓄力後 30×2）→狂風連掌→看破→氣沉丹田（回 20）→再來一輪，
+  //     每回合 +3 爪力。解法是「看到蓄力就備兩層隱身或定身」，不再是「金鐘罩一張擋完」。
+  { id: 'tower_master', name: '走火入魔的大俠貓', hp: [120, 120], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
     line: '難逢敵手。',
     moves: [
       { intent: 'attack', label: '鐵頭功', effects: [{ kind: 'damage', amount: 18 }] },
       { intent: 'block', label: '金鐘罩', effects: [{ kind: 'block', amount: 22 }] },
       { intent: 'attack', label: '獅吼功', effects: [{ kind: 'damage', amount: 11 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
-      { intent: 'attack', label: '沾衣十八跌', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
+      { intent: 'attack', label: '沾衣十八跌', effects: [{ kind: 'damage', amount: 7, times: 3 }] },
+      { intent: 'debuff', label: '拆招', effects: [{ kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 8 }] },
     ],
     phases: [{
-      hpBar: 200, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 2,
+      hpBar: 240, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 2,
       onEnter: [{ kind: 'block', amount: 24 }],
       moves: [
-        { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 10, max: 24 }] },
-        { intent: 'attack', label: '鐵砂掌', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
-        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 6, times: 4 }] },
-        { intent: 'debuff', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }] },
-        { intent: 'block', label: '閉關', effects: [{ kind: 'block', amount: 26 }] },
+        { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 12, max: 26 }] },
+        { intent: 'attack', label: '穿心掌', effects: [{ kind: 'damage', amount: 14, pierce: true }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 7, times: 4 }] },
+        { intent: 'debuff', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },
+        { intent: 'block', label: '閉關', effects: [{ kind: 'block', amount: 24 }, { kind: 'heal', n: 12 }] },
       ],
     }, {
-      hpBar: 250, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 3,
-      onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '反彈', amount: 6 }],
+      hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 3,
+      onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '反彈', amount: 8 }],
       moves: [
         { intent: 'special', label: '蓄力', effects: [{ kind: 'chargeNext' }] },
-        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 30 }] },
-        { intent: 'attack', label: '縮地連斬', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 15, times: 2, pierce: true }] },
         { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 9, times: 4 }] },
-        { intent: 'block', label: '氣沉丹田', effects: [{ kind: 'block', amount: 18 }, { kind: 'heal', n: 10 }] },
+        { intent: 'debuff', label: '看破', effects: [{ kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'damage', amount: 10 }] },
+        { intent: 'block', label: '氣沉丹田', effects: [{ kind: 'block', amount: 18 }, { kind: 'heal', n: 20 }] },
       ],
     }] },
   // ===== 2026-08-31 補的 14 隻：中後段一直重複同一場仗，而且性質偏食 =====
@@ -607,10 +611,10 @@ export const enemies: EnemyDef[] = [
  */
 export const BOSS_MOVE_ART: Record<string, string> = {
   蓄力: 'boss/charge', 鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar',
-  醉拳: 'boss/drunk', 閉關: 'boss/seclude', 鐵砂掌: 'boss/palm',
+  醉拳: 'boss/drunk', 閉關: 'boss/seclude',
   // 三階段重做（2026-09-01）加的招，先共用最接近的現有立繪
   沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm', 狂風連掌: 'boss/drunk', 蹲下調息: 'boss/seclude',
-  縮地連斬: 'boss/drunk', 氣沉丹田: 'boss/seclude',
+  氣沉丹田: 'boss/seclude', 拆招: 'boss/palm', 穿心掌: 'boss/palm', 看破: 'boss/roar',
 };
 /** 塔主的三張非招式立繪：第一階段待機（深藏不露）、第二階段待機（走火入魔）、戰敗（承讓） */
 export const BOSS_ART = { idle1: 'boss/idle1', idle2: 'boss/idle2', defeat: 'boss/defeat' } as const;

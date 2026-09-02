@@ -1,5 +1,6 @@
 import { dialogue, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
+import { playVideo } from './video';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, finishCombat, newRun as engineNewRun } from '../engine/run';
@@ -92,8 +93,11 @@ export class App {
     const after = (): void => { this.save(); this.show('map'); };
     if (this.run && !this.run.flags['prologue']) {
       this.run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
-      if (slidesReady(proSlides)) playSlides(proSlides, after);
-      else playDialogue(dialogue.prologue, after);
+      // 使用者自製的開頭影片先播（沒檔就直接略過），再接序章幻燈片
+      playVideo('opening', () => {
+        if (slidesReady(proSlides)) playSlides(proSlides, after);
+        else playDialogue(dialogue.prologue, after);
+      });
     } else after();
   }
 
@@ -219,8 +223,11 @@ export class App {
           { img: 'bg/still_embrace', lines: dialogue.victory.slice(0, 4) },
           { img: 'bg/still_home', lines: dialogue.victory.slice(4) },
         ];
-        if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
-        else playDialogue(dialogue.victory, () => this.show('result'));
+        // 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片
+        playVideo('ending', () => {
+          if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
+          else playDialogue(dialogue.victory, () => this.show('result'));
+        });
         return;
       }
       playDialogue(run.act === 1 ? dialogue.actClear1 : dialogue.actClear2, () => this.show('actclear'));

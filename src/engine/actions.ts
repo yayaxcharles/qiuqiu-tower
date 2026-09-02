@@ -32,8 +32,11 @@ export function healPlayer(cs: CombatState, n: number): number {
 
 export function drawCards(cs: CombatState, n: number): CardInstance[] { return draw(cs.player, n, cs.rng); }
 
-/** 魔物（或自傷）打球球。direct＝不看隱身、不看蜷縮、不套公式（自傷、噎到、壞毛病用） */
-export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts: { direct?: boolean } = {}): number {
+/**
+ * 魔物（或自傷）打球球。direct＝不看隱身、不看蜷縮、不套公式（自傷、噎到、壞毛病用）；
+ * pierce＝穿透：套公式、吃隱身與反彈，但**跳過蜷縮**（師父的穿心掌、亡命一擊）
+ */
+export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts: { direct?: boolean; pierce?: boolean } = {}): number {
   const p = cs.player;
   let lose: number;
   if (opts.direct) {
@@ -42,9 +45,10 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
     if (p.immune) { log(cs, '球球躲在角落，什麼都沒看到'); return 0; }
     if (getStatus(p, '隱身') > 0) { addStatus(p, '隱身', -1); log(cs, '球球閃過了'); return 0; }
     const dmg = computeAttack(base, attacker, p);
-    const absorbed = Math.min(p.block, dmg);
+    const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
     p.block -= absorbed;
     lose = dmg - absorbed;
+    if (opts.pierce && dmg > 0) log(cs, '這一下穿過了蜷縮');
     const thorns = getStatus(p, '反彈');
     if (dmg > 0 && thorns > 0 && attacker !== p) {
       const e = cs.enemies.find((x) => x === attacker);
@@ -178,7 +182,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         const base = fx.amount * (charged ? 2 : 1);
         for (let i = 0; i < (fx.times ?? 1); i++) {
           if (e.dead) return;      // 被反彈打死，剩下的段數不能再打
-          damagePlayer(cs, e, base);
+          damagePlayer(cs, e, base, { pierce: fx.pierce });
           if (isLost(cs)) return;
         }
         break;
@@ -212,6 +216,13 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
           addStatus(cs.player, n, -(cur - Math.floor(cur / 2)));
         }
         if (hitNames.length) log(cs, `${e.name}一掌拍散了球球的氣勁（${hitNames.join('、')}減半）`);
+        break;
+      }
+      case 'stripPlayer': {
+        // 看破（師父專用）：先囤好的隱身／潛水整個拍掉——不像破功只拍一半，閃避流要重新蓄
+        const hit = fx.names.filter((n) => getStatus(cs.player, n) > 0);
+        for (const n of hit) addStatus(cs.player, n, -getStatus(cs.player, n));
+        if (hit.length) log(cs, `${e.name}看穿了球球的身法（${hit.join('、')}全消）`);
         break;
       }
       case 'chargeNext': e.charged = true; break;

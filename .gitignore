@@ -15,3 +15,4 @@ tools/_*.png
 tools/_*.json
 # 使用者挑的音樂原始檔（正式檔在 public/bgm/，這裡是挑選時的暫存）
 music/
+影片素材/

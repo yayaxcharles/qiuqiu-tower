@@ -82,14 +82,18 @@ const relicRating = (id: string): number => RELIC_RATING[id] ?? 5;
 
 /** 這隻魔物這一拍會打出來的每一下（已算爪力、蓄力、你的翻肚），沒攻擊就是空陣列 */
 function incomingHits(cs: CombatState, e: EnemyCombat): number[] {
+  return incomingHitList(cs, e).map((h) => h.dmg);
+}
+/** 同上，但帶著「這一下穿不穿蜷縮」 */
+function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce: boolean }[] {
   if (e.dead) return [];
   const m = e.move;
   if (m.intent === 'attack' && getStatus(e, '定身') > 0) return [];
   const x = e.charged ? 2 : 1;
-  const hits: number[] = [];
+  const hits: { dmg: number; pierce: boolean }[] = [];
   for (const fx of m.effects) {
-    if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push(computeAttack(fx.amount * x, e, cs.player));
-    else if (fx.kind === 'damageRandom') hits.push(computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, cs.player));
+    if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * x, e, cs.player), pierce: !!fx.pierce });
+    else if (fx.kind === 'damageRandom') hits.push({ dmg: computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, cs.player), pierce: false });
   }
   return hits;
 }
@@ -98,10 +102,12 @@ function incomingHits(cs: CombatState, e: EnemyCombat): number[] {
 function expectedIncoming(cs: CombatState): number {
   const p = cs.player;
   if (p.immune) return 0;
-  const all = aliveEnemies(cs).flatMap((e) => incomingHits(cs, e));
+  const all = aliveEnemies(cs).flatMap((e) => incomingHitList(cs, e));
   const dodged = getStatus(p, '隱身');
-  const rest = all.slice(dodged);
-  return Math.max(0, rest.reduce((s, h) => s + h, 0) - p.block);
+  const rest = all.slice(dodged);   // 隱身照順序閃掉前幾下
+  const pierce = rest.filter((h) => h.pierce).reduce((s, h) => s + h.dmg, 0);   // 穿透的那幾下蜷縮擋不住
+  const normal = rest.filter((h) => !h.pierce).reduce((s, h) => s + h.dmg, 0);
+  return Math.max(0, normal - p.block) + pierce;
 }
 function incomingHitCount(cs: CombatState): number {
   return aliveEnemies(cs).reduce((s, e) => s + incomingHits(cs, e).length, 0);

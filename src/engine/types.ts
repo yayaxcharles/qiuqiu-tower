@@ -107,7 +107,8 @@ export interface PotionDef {
 // ===== 魔物 =====
 export type Intent = 'attack' | 'block' | 'buff' | 'debuff' | 'special' | 'summon' | 'idle';
 export type EnemyEffect =
-  | { kind: 'damage'; amount: number; times?: number }
+  /** `pierce`＝穿透：無視蜷縮直接扣血（隱身照樣閃得掉、反彈照樣回敬）。師父的穿心掌、亡命一擊用 */
+  | { kind: 'damage'; amount: number; times?: number; pierce?: true }
   | { kind: 'damageRandom'; min: number; max: number }
   | { kind: 'block'; amount: number }
   | { kind: 'statusSelf'; name: StatusName; amount: number }
@@ -117,6 +118,7 @@ export type EnemyEffect =
   | { kind: 'discardRandomHand'; n: number }
   | { kind: 'summon'; enemyId: string; n: number; max?: number }   // max＝同種活著的上限，補召不爆量
   | { kind: 'purgePlayer'; names: StatusName[] }   // 破功：把玩家這些狀態各拍掉一半（向下取整保留）
+  | { kind: 'stripPlayer'; names: StatusName[] }   // 看破：把玩家這些狀態整個拍掉（隱身、潛水——先囤好的閃避全沒）
   | { kind: 'chargeNext' }
   | { kind: 'escape' }
   | { kind: 'nothing' };

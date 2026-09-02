@@ -161,9 +161,9 @@ describe('魔物回合', () => {
     expect(e.phase).toBe(1);
     endTurn(cs);                                // 蹲下調息那回合
     e.hp = 16; e.block = 0;
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 第二條打完 → 亮 250
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 第二條打完 → 亮 300
     expect(e.phase).toBe(2);
-    expect(e.hp).toBe(250);
+    expect(e.hp).toBe(300);
     expect(e.move.label).toBe('蹲下調息');
     endTurn(cs);                                // 蹲下；起身後照表輪到蓄力
     expect(e.move.label).toBe('蓄力');
@@ -172,11 +172,11 @@ describe('魔物回合', () => {
     cs.player.hp = 90; cs.player.block = 0;
     const hp = cs.player.hp;
     // 爪力累計：第一次蹲下那回合 +2（二階段）、三階段進場 +3、之後三回合各 +3 ＝ 14
-    endTurn(cs);                       // 亡命一擊 30×2＋爪力 14（倍擊只翻基礎值）
-    expect(cs.player.hp).toBe(hp - 74);
+    endTurn(cs);                       // 亡命一擊 15×2 蓄力後 30×2，各加爪力 14（倍擊只翻基礎值）＝ 44×2；穿透，蜷縮擋不住
+    expect(cs.player.hp).toBe(hp - 88);
     expect(e.charged).toBe(false);
   });
-  it('塔主第一條血打完：蹲下無敵一回合、亮出 200 的第二條', () => {
+  it('塔主第一條血打完：蹲下無敵一回合、亮出 240 的第二條', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
     cs.player.energy = 3;
@@ -184,18 +184,18 @@ describe('魔物回合', () => {
     e.hp = 10;
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 16 傷把第一條打完
     expect(e.phase).toBe(1);
-    expect(e.hp).toBe(200);
-    expect(e.maxHp).toBe(200);
+    expect(e.hp).toBe(240);
+    expect(e.maxHp).toBe(240);
     expect(e.invulnIn).toBe(1);
     expect(e.move.label).toBe('蹲下調息');
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 無敵中：一滴血都打不掉
-    expect(e.hp).toBe(200);
+    expect(e.hp).toBe(240);
     endTurn(cs);                                // 蹲下那回合過完就站起來（也吃到每回合 +2 爪力）
     expect(e.invulnIn).toBe(0);
     expect(getStatus(e, '爪力')).toBe(2);
     cs.player.energy = 3;
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 站起來就打得到了
-    expect(e.hp).toBe(200 - 16);
+    expect(e.hp).toBe(240 - 16);
   });
   it('召喚小黑貓；木樁人每 3 回合 +1 爪力', () => {
     const cs = start('ninja_boss');
@@ -255,7 +255,7 @@ describe('魔物回合', () => {
     endTurn(cs);
     expect(e.dead).toBe(false);
     expect(e.phase).toBe(1);
-    expect(e.hp).toBe(200);
+    expect(e.hp).toBe(240);
   });
   it('魔物被反彈打死，剩下的段數不再打', () => {
     const cs = start('black_ninja');

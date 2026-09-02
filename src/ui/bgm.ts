@@ -96,6 +96,10 @@ function startPlaying(name: BgmName): void {
   else swap();
 }
 
+/** 過場影片播放中先把音樂停住（影片有自己的聲音），播完 resumeBgm 接回同一首 */
+export function pauseBgm(): void { el?.pause(); }
+export function resumeBgm(): void { if (el && enabled) void el.play().catch(() => { /* 沒聲音就沒聲音 */ }); }
+
 /**
  * 換到某首曲子。同一首正在放就不動它——每次換畫面都會呼叫，
  * 地圖→事件→地圖這種同曲切換不能讓音樂重頭來。

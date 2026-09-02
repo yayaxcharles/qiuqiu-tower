@@ -307,7 +307,7 @@ registerScreen('combat', (app, root, props) => {
     const blk = m.effects.find(has('block'));
     let text = `${INTENT_GLYPH[m.intent]} ${m.label}`;
     if (m.intent === 'attack' && getStatus(e, '定身') > 0) text = '被定住了';
-    else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, cs.player)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}`).join('＋')}`;
+    else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, cs.player)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿）' : ''}`).join('＋')}`;
     else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, cs.player)}～${computeAttack(rnd.max * x, e, cs.player)}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
@@ -330,7 +330,7 @@ registerScreen('combat', (app, root, props) => {
       switch (fx.kind) {
         case 'damage': {
           const n = computeAttack(fx.amount * x, e, cs.player);
-          parts.push((fx.times ?? 1) > 1 ? `造成 ${n} 點傷害，連打 ${fx.times} 次` : `造成 ${n} 點傷害`);
+          parts.push(((fx.times ?? 1) > 1 ? `造成 ${n} 點傷害，連打 ${fx.times} 次` : `造成 ${n} 點傷害`) + (fx.pierce ? '（穿透：蜷縮擋不住，隱身閃得掉）' : ''));
           break;
         }
         case 'damageRandom':
@@ -340,6 +340,7 @@ registerScreen('combat', (app, root, props) => {
         case 'statusPlayer': parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
+        case 'stripPlayer': parts.push(`看破：把你身上的${fx.names.join('、')}全部拍掉`); break;
         case 'summon': parts.push('叫來幫手'); break;
         case 'heal': parts.push(`自己回復 ${fx.n} 點生命`); break;
         case 'stealFish': parts.push(`偷走你 ${fx.n} 條小魚乾`); break;
