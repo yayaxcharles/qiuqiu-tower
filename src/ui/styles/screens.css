@@ -928,3 +928,32 @@
 /* 貓窩：球球要正好趴在蒲團上（使用者 2026-09-02：「現在稍微偏左了」）。蒲團畫在底圖上約 x 300、y 470～540（舞台座標），
    立繪底邊放到 160、左緣 150，趴姿的圖寬約 300 → 屁股坐進蒲團、中心對到蒲團 */
 #stage[data-screen="rest"] .scene-portrait { left: 156px; bottom: 150px; }
+
+/* ===== 2026-09-02 使用者：「按鈕樣式你都改成這樣吧」——全部按鈕統一深色玻璃＋金邊（含標題、疊層、結束回合、狀態列小鈕）。
+   難度鈕保留自己的顏色（.diff-btn.dN 在後面蓋掉底色）。 ===== */
+.btn {
+  border-image: none; border: 1.5px solid #ffd98a8c; border-radius: 12px;
+  background: linear-gradient(#2c1d12e6, #140c07f2);
+  color: #ffd98a; text-shadow: 0 1px 2px #000000cc; font-weight: bold;
+  box-shadow: 0 4px 12px #00000080, inset 0 1px 0 #ffffff14;
+}
+.btn:hover:not(:disabled) { filter: none; background: linear-gradient(#3d2a1ae6, #1d120af2); border-color: #ffd98a; color: #fff3d6; }
+.btn.primary {
+  filter: none; background: linear-gradient(#7a3d15f0, #4a2209f5); border-color: #ffd98a; color: #fff3d6;
+  box-shadow: 0 4px 12px #00000080, 0 0 14px #c9702a55, inset 0 1px 0 #ffffff1f;
+}
+.btn.primary:hover:not(:disabled) { filter: none; background: linear-gradient(#8f4a1cf0, #5a2a0cf5); box-shadow: 0 4px 12px #00000080, 0 0 18px #e0883a77, inset 0 1px 0 #ffffff1f; }
+.btn:disabled { opacity: .4; filter: grayscale(.6); box-shadow: none; }
+.btn.small { border-radius: 8px; box-shadow: 0 2px 6px #00000066, inset 0 1px 0 #ffffff14; }
+.modal-foot .btn { border-image: none; }
+/* 戰利品那條藥丸也換成同一套（使用者：「獲得小魚乾那邊也可以改」） */
+.scene .reward-items .reward-item {
+  background: linear-gradient(#2c1d12e6, #140c07f2); border: 1.5px solid #ffd98a8c; border-left-width: 1.5px;
+  box-shadow: 0 4px 12px #00000080, inset 0 1px 0 #ffffff14;
+}
+.scene .reward-items .reward-item, .scene .reward-items .reward-item b { color: #ffd98a; text-shadow: 0 1px 2px #000000cc; }
+.scene .reward-items .reward-item em { color: #f6efe3; }
+.scene .reward-items .reward-item.relic { border-color: #c9a0ffb3; }
+.scene .reward-items .reward-item.potion { border-color: #8fc2ffb3; }
+/* 結算畫面的帶子比較高（成績、秘寶、最佳三行），球球要站得更高才不會踩到名字 */
+#stage[data-screen="result"] .scene-portrait { bottom: 300px; height: 260px; }

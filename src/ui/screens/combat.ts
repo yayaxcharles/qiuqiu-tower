@@ -622,7 +622,8 @@ registerScreen('combat', (app, root, props) => {
     const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() }, '結束回合');
     // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 的 dealing）
     if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled');
-    box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-6).map((l) => el('div', {}, l))));
+    // 紀錄只留四行：六行時最後兩行會壓到球球的頭（2026-09-02 截圖檢查）
+    box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },
       el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
       el('span', {}, TUT_TEXT[tutStep] ?? ''),

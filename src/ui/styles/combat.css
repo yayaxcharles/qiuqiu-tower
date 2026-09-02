@@ -776,3 +776,6 @@
 .combat .unit.enemy.master .sprite { width: 320px; height: 320px; margin: 0; }
 .combat .unit.enemy.master.phase-1 .sprite { width: 350px; height: 350px; }
 .combat .unit.enemy.master.phase-2 .sprite { width: 370px; height: 370px; }   /* 380 會頂到狀態列下緣 */
+/* 師父的框開到 350／370 之後，意圖牌子掛在圖畫頂端會頂進狀態列（2026-09-02 截圖檢查）：
+   師父的牌子改成壓在斗笠上半部（往下 44），三個階段都留在狀態列下面 */
+.combat .unit.enemy.master .intent { bottom: calc(var(--drawn-h, 50%) - 44px); }
