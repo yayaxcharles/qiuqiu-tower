@@ -786,3 +786,7 @@
 /* 帶子裡的戰利品列是米白紙條：字要回深色，不能繼承帶子的米白（實測整行變成白字白底） */
 .scene .reward-items .reward-item, .scene .reward-items .reward-item b, .scene .reward-items .reward-item em { color: var(--ink); text-shadow: none; }
 .scene .reward-items .reward-item em { color: #5a4a3a; }
+/* 對白疊層蓋在劇場版面上時（14F 貓窩的關主戰前獨白、5F 秘笈那段），底下那條帶子、按鈕與立繪先藏起來：
+   兩條半透明帶子疊在一起、兩隻球球站同一個角落，畫面會互卡（使用者 2026-09-02 回報）。對白收掉就回來。 */
+#stage:has(#overlay .dialogue-overlay) .scene .scene-box,
+#stage:has(#overlay .dialogue-overlay) .scene .scene-portrait { visibility: hidden; }
