@@ -71,7 +71,8 @@ stills = {}
 for name, desc in STILLS.items():
     fid = f'{name}.png'
     stills[fid] = (desc + "\n\nFull scene illustration with background, landscape 1280x720. No text, no letters, no watermark, no border.\n"
-                   "Match the turtle character in the attached reference sheet exactly (same face, shell, red headband, vest).\n"
+                   "Match the characters in the attached reference sheet EXACTLY: the turtle A-Jia is the sheet's RIGHT part (same face, shell, red headband, vest); "
+                   "the grey tabby ninja cat Qiuqiu and the old master cat with the straw hat are the sheet's LEFT part - whenever they appear, keep their designs exactly.\n"
                    "Style: thick black outlines, flat colors with subtle soft gradients, cute cartoon look, not photorealistic. "
                    f"Draw a real background here (not green). Output 1280x720 PNG. Save the image as {fid} in the current directory and report the path.")
 
