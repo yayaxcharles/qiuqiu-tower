@@ -16,10 +16,10 @@ describe('狀態效果', () => {
     expect(getStatus(u, '翻肚')).toBe(1); expect(getStatus(u, '懶洋洋')).toBe(0); expect(getStatus(u, '炸毛')).toBe(0);
     expect(getStatus(u, '爪力')).toBe(3); expect(getStatus(u, '隱身')).toBe(2);
   });
-  it('噎到直接扣血、層數減一', () => {
+  it('噎到發作：回傳該掉的血、層數減一（扣血由呼叫端走 damageEnemy／damagePlayer，審查 #10）', () => {
     const u = blankUnit(20); u.block = 5; addStatus(u, '噎到', 3);
     expect(tickPoison(u)).toBe(3);
-    expect(u.hp).toBe(17); expect(u.block).toBe(5); expect(getStatus(u, '噎到')).toBe(2);
+    expect(u.hp).toBe(20); expect(u.block).toBe(5); expect(getStatus(u, '噎到')).toBe(2);
     expect(tickPoison(blankUnit())).toBe(0);
   });
   it('攻擊公式：爪力→懶洋洋→翻肚→捨去', () => {

@@ -14,14 +14,15 @@ export function removeStatus(u: Unit, name: StatusName): void {
   delete u.statuses[name];
 }
 
-export function decayTurnStatuses(u: Unit): void {
-  for (const name of TURN_DECAY) if (getStatus(u, name) > 0) addStatus(u, name, -1);
+/** `except`＝這次不衰減的（魔物的定身是出招時消耗，不再回合結束多扣一次——審查 #5） */
+export function decayTurnStatuses(u: Unit, except: readonly StatusName[] = []): void {
+  for (const name of TURN_DECAY) if (!except.includes(name) && getStatus(u, name) > 0) addStatus(u, name, -1);
 }
 
+/** 噎到發作：只扣層數、回傳這次該掉的血，扣血由呼叫端走 damageEnemy／damagePlayer（才吃得到無敵、僕從護體——審查 #10） */
 export function tickPoison(u: Unit): number {
   const n = getStatus(u, '噎到');
   if (n <= 0) return 0;
-  u.hp = Math.max(0, u.hp - n);
   addStatus(u, '噎到', -1);
   return n;
 }

@@ -972,6 +972,9 @@ registerScreen('combat', (app, root, props) => {
       // 頭上飄「閃過！」＋一團煙＋咻一聲，跟被打、被擋同一個等級的回饋。
       if (!e.dead && getStatus(e, '隱身') < b.stealth && e.hp === b.hp) {
         node.append(floatNum('閃過！'));
+      }
+      if (fresh.some((l) => l === `${e.name}掙脫了定身`)) {
+        node.append(floatNum('掙脫！'));
         burst(node, 'smoke');
         sfx('dodge');
       }

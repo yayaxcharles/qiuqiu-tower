@@ -9,7 +9,7 @@ export type TargetMode = 'enemy' | 'all' | 'self' | 'none';
 
 export type StatusName =
   | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '噎到' | '隱身' | '定身' | '反彈' | '潛水';
-export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '噎到'];
+export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '噎到', '定身'];   // 溫牛奶、返璞「清掉所有減益」含定身（審查 #16）
 /** 回合結束層數 −1 的狀態 */
 // 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
 // （魔物身上的定身不走這條——那邊是「出招時消耗」，在 endTurn 的攻擊判定裡處理）
@@ -81,6 +81,12 @@ export interface RelicDef {
   hooks: {
     /** 忍具多帶幾支（忍具袋） */
     potionSlots?: number;
+    /** 每次獲得隱身都多幾層（影披風；紙袋的 stealthBonus 是每回合第一次） */
+    stealthBonusEvery?: number;
+    /** 每場戰鬥第一張牌少花幾顆飯糰（破卷軸；毛線球的 firstCardDiscount 是每回合） */
+    firstCardDiscountCombat?: number;
+    /** 每場戰鬥第一張攻擊牌傷害加倍（秘笈） */
+    firstAttackDouble?: boolean;
     firstTurnDraw?: number;
     firstTurnEnergy?: number;
     maxHp?: number;
@@ -307,6 +313,10 @@ export interface Unit { hp: number; maxHp: number; block: number; statuses: Part
 export interface PlayerCombat extends Unit {
   /** 被打掉血的秘寶效果（onHit）這回合已經觸發過：記回合數 */
   hitRelicTurn?: number;
+  /** 這場戰鬥打過第一張牌了（破卷軸用） */
+  firstCardEver?: boolean;
+  /** 秘笈：這場第一張攻擊牌加倍，打出去就消掉 */
+  firstAttackDouble?: boolean;
   energy: number;
   maxEnergy: number;
   hand: CardInstance[];
@@ -366,6 +376,8 @@ export interface PendingChoice {
   ctx: EffectCtx;
 }
 export interface CombatState {
+  /** 難度與遭遇給的血量倍率、出場爪力：召喚出來的也要套（審查 #9） */
+  mods?: { hpMul: number; strength: number };
   rng: Rng;                 // 戰鬥不存檔，直接帶亂數物件
   player: PlayerCombat;
   enemies: EnemyCombat[];

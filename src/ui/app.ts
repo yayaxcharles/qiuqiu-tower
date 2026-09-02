@@ -106,6 +106,12 @@ export class App {
     if (!run) return false;
     this.run = run;
     this.cs = null;
+    // 難度 5：前哨戰打完存檔時人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）
+    const node = currentNode(run);
+    if (node?.type === '塔主' && node.encounterId && run.flags['final_boss'] && run.status === 'playing') {
+      this.startFight(node.encounterId, true);
+      return true;
+    }
     this.show('map');
     return true;
   }

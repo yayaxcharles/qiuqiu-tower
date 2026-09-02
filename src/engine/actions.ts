@@ -20,6 +20,7 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
 export function gainStealth(cs: CombatState, n: number): void {
   let amt = n;
   if (!cs.player.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
+  amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
   cs.player.firstStealthGiven = true;
   addStatus(cs.player, '隱身', amt);
 }
@@ -66,7 +67,11 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
   if (p.hp <= 0) {
     // 擋一次致命傷的秘寶由資料決定（木樁的 preventLethal），不要把 id 寫死在引擎裡
     const saved = cs.relics.some((id) => relicById[id]?.hooks.preventLethal);
-    if (saved && !p.lethalPrevented) { p.hp = 1; p.lethalPrevented = true; log(cs, '木樁替球球挨了這一下'); }
+    if (saved && !p.lethalPrevented) {
+      p.hp = 1; p.lethalPrevented = true;
+      const saver = cs.relics.map((id) => relicById[id]).find((r) => r?.hooks.preventLethal);
+      log(cs, `${saver?.name ?? '秘寶'}替球球挨了這一下`);
+    }
     else { p.hp = 0; cs.phase = 'lost'; }
   }
   return lose;
@@ -114,9 +119,11 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   const def = enemyById[e.enemyId]!;
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
   if (e.stolen > 0) { cs.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
-  for (const pw of cs.player.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { source: 'power' });
+  // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
+  const reviving = !!rd?.reviveGroup && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === rd.reviveGroup);
+  if (!reviving) for (const pw of cs.player.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { source: 'power' });
   // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
-  for (const rid of cs.relics) {
+  if (!reviving) for (const rid of cs.relics) {
     const h = relicById[rid]?.hooks;
     if (!h) continue;
     if (h.killHeal) healPlayer(cs, h.killHeal);
@@ -147,6 +154,11 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       const absorbed = Math.min(e.block, dmg); e.block -= absorbed; lose = dmg - absorbed;
       if (absorbed > 0) log(cs, `${e.name}的防禦擋下了 ${absorbed} 點`);   // 同上：魔物那邊也要飄「擋住 N」
     }
+  }
+  // 魔物身上的反彈：你每打一下就被刺一下（刺蝟師傅、龜甲、師父第三條血——以前只有球球的反彈有效）
+  if (!opts.direct) {
+    const th = getStatus(e, '反彈');
+    if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true }); }
   }
   e.hp = Math.max(0, e.hp - lose);
   if (e.hp === 0) {
@@ -232,7 +244,8 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
             }
             continue;
           }
-          const fresh = makeEnemy(cs, fx.enemyId, i);
+          const fresh = makeEnemy(cs, fx.enemyId, i, cs.mods?.hpMul ?? 1);
+          if (cs.mods?.strength) addStatus(fresh, '爪力', cs.mods.strength);   // 難度／魔氣的爪力，召喚出來的也要有（審查 #9）
           // 剛冒出來的這回合站不穩：先掛「剛冒出來」，下一回合才照表出招——不然血條式變身時
           // 尾巴在玩家回合中途冒出來、回合一結束就直接打人（使用者 2026-09-02：「突然出現尾巴直接打人很怪」）
           fresh.move = { intent: 'idle', label: '剛冒出來', effects: [{ kind: 'nothing' }] };

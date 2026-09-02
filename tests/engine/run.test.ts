@@ -299,13 +299,13 @@ describe('三關制', () => {
     expect(run.status).toBe('won');
   });
 
-  it('過關秘寶三選一：都是大魔物池、不重複、不含已有的', () => {
+  it('過關秘寶三選一：都是塔主池（審查 #2 之前一直抽錯池）、不重複、不含已有的', () => {
     const run = newRun('relics');
     const picks = rollActRelics(run);
     expect(picks.length).toBe(3);
     expect(new Set(picks).size).toBe(3);
     for (const id of picks) {
-      expect(relicById[id]?.pool).toBe('大魔物');
+      expect(relicById[id]?.pool).toBe('塔主');
       expect(run.relics).not.toContain(id);
     }
   });

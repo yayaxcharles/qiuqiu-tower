@@ -68,7 +68,8 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'transferDebuffs' }], upgrade: { cost: 0 } },
   { id: 'dingshen', name: '忍術·定身術', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/dingshen',
     effects: [{ kind: 'status', name: '定身', amount: 1, target: 'enemy' }], upgrade: { cost: 0 } },
-  { id: 'cuimian', name: '忍術·催眠術', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/cuimian',
+  // 2026-09-02 使用者：催眠術與催眠術＋都改 3 費
+  { id: 'cuimian', name: '忍術·催眠術', cost: 3, type: 技, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/cuimian',
     effects: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }, { kind: 'status', name: '炸毛', amount: 2, target: 'all' }],
     upgrade: { effects: [{ kind: 'status', name: '懶洋洋', amount: 3, target: 'all' }, { kind: 'status', name: '炸毛', amount: 3, target: 'all' }] } },
   { id: 'fengkou', name: '忍術·封口術', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/fengkou',
@@ -232,7 +233,8 @@ export const cards: readonly CardDef[] = [
   { id: 'liandao', name: '絕學·連刀', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/liandao',
     effects: [{ kind: 'damage', amount: 4, times: 3, ignoreBlock: true }],
     upgrade: { effects: [{ kind: 'damage', amount: 5, times: 3, ignoreBlock: true }] } },
-  { id: 'huanying', name: '忍術·幻影分身', cost: 2, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/huanying',
+  // 2026-09-02 使用者：幻影分身改 3 費
+  { id: 'huanying', name: '忍術·幻影分身', cost: 3, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/huanying',
     effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }, { kind: 'draw', n: 2 }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 4, target: 'self' }, { kind: 'draw', n: 3 }] } },
   { id: 'jiedao', name: '絕學·借刀', cost: 1, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiedao',

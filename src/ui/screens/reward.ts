@@ -43,10 +43,12 @@ registerScreen('reward', (app, root, props) => {
   if (bonus > 0) items.append(el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
     el('span', { class: 'reward-line' }, `事件獎金再拿 ${bonus} 條小魚乾`)));
   // 鏡子走廊：打贏鏡中球球的獎勵是挑牌升級。進畫面就開挑牌疊層（不能取消），挑完那一行改寫成升了哪幾張
+  let upLine: HTMLElement | null = null;
   const upFilter = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   const want = Math.min(ups, run.deck.filter(upFilter).length);
   if (ups > 0) {
-    const line = el('span', { class: 'reward-line' }, want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
+    upLine = el('span', { class: 'reward-line' }, want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
+    const line = upLine;
     items.append(el('div', { class: 'reward-item loot' }, line));
     if (want > 0) showDeckPicker({
       title: want > 1 ? `選 ${want} 張牌升級` : '選一張牌升級', previewUpgrade: true,
@@ -61,7 +63,7 @@ registerScreen('reward', (app, root, props) => {
       if (!c || !upgradeCard(run!, uid)) continue;
       names.push(`「${cardById[c.cardId]?.name ?? c.cardId}」`);
     }
-    if (names.length) { play('upgrade'); const line = items.querySelector('.reward-item:last-child .reward-line'); if (line) line.textContent = `${names.join('')}升級了`; }
+    if (names.length) { play('upgrade'); if (upLine) upLine.textContent = `${names.join('')}升級了`; }   // 直接改存起來的那一行，不找 last-child（後面還會掛忍具列——審查 #12）
   }
   const relic = r.relic ? relicById[r.relic] : undefined;
   if (relic) items.append(el('div', { class: 'reward-item relic' }, icon(relic.art, relic.name),

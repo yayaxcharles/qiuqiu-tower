@@ -10,7 +10,7 @@ import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } fro
 import { TURN_DECAY } from './types';
 import type { CardInstance, CombatState, EffectCtx, PlayerCombat, StatusName } from './types';
 
-type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount' | 'blockKeep' | 'killHeal' | 'killStrength' | 'killFish' | 'combatEndHeal';
+type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount' | 'firstCardDiscountCombat' | 'blockKeep' | 'killHeal' | 'killStrength' | 'killFish' | 'combatEndHeal';
 function relicSum(relics: string[], key: NumHook): number {
   return relics.reduce((s, id) => s + (relicById[id]?.hooks[key] ?? 0), 0);
 }
@@ -38,6 +38,8 @@ export function startCombat(input: {
   enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1))));
   const strength = (enc.strength ?? 0) + (input.mods?.strength ?? 0);   // 魔氣（見 EncounterDef.strength）＋難度
   if (strength) for (const e of cs.enemies) addStatus(e, '爪力', strength);
+  cs.mods = { hpMul: input.mods?.hpMul ?? 1, strength };   // 召喚出來的也照這組套（審查 #9）
+  if (cs.relics.some((id) => relicById[id]?.hooks.firstAttackDouble)) cs.player.firstAttackDouble = true;   // 秘笈
   for (const e of cs.enemies) {
     // 開場台詞從 line 與 lines 裡挑一句。不用戰鬥亂數（會動到整場的抽牌順序、機器人錨值），
     // 用亂數種子的目前狀態加編號做一個穩定的選法：同一局同一場永遠同一句，不同局會不同
@@ -62,18 +64,19 @@ export function startPlayerTurn(cs: CombatState): void {
   if (cs.phase !== 'player') return;
   const p = cs.player;
   cs.turn += 1;
-  p.block = Math.min(p.block, relicSum(cs.relics, 'blockKeep'));   // 守護符：留一部分蜷縮到下一回合
+  // 蜷縮不在這裡清：回合結束、魔物打完才照守護符留量修剪（見 endTurn 尾端）——
+  // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
-  p.firstStealthGiven = false;   // 也要先清，潛水轉隱身才吃得到紙袋的每回合第一次加成
+  if (cs.turn > 1) p.firstStealthGiven = false;   // 第一回合不清：開戰的鈴鐺已經吃過紙袋的加成（審查 #14）
   const poison = getStatus(p, '噎到');
   if (poison > 0) { addStatus(p, '噎到', -1); damagePlayer(cs, p, poison, { direct: true }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
   if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive); }
-  for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { source: 'power' });
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnEnergy') : 0);
+  // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
+  for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { source: 'power' });
   p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0;
-  p.firstCardPlayed = false;
-  if (cs.turn > 1) p.doubleNext = 0;   // 第一回合不清：秘笈在開戰時給的「第一擊加倍」要留到打出去
+  p.firstCardPlayed = false; p.doubleNext = 0;   // 蓄力只撐到回合結束；秘笈的第一擊加倍走自己的旗標（審查 #8）
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnDraw') : 0);
   p.drawNextTurn = 0;
   drawCards(cs, n);
@@ -98,6 +101,7 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number): { ok:
   if (st.def.type === '攻擊' && getStatus(cs.player, '定身') > 0) return { ok: false, reason: '被纏住了，打不出攻擊牌' };
   let cost = st.cost;
   if (!cs.player.firstCardPlayed) cost = Math.max(0, cost - relicSum(cs.relics, 'firstCardDiscount'));
+  if (!cs.player.firstCardEver) cost = Math.max(0, cost - relicSum(cs.relics, 'firstCardDiscountCombat'));   // 破卷軸：整場只有第一張（審查 #7）
   if (cost > cs.player.energy) return { ok: false, reason: '餓扁了' };
   if (st.def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return { ok: false, reason: '要選一隻魔物' };
   return { ok: true, cost };
@@ -115,9 +119,11 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
   (toExhaust ? p.exhaustPile : p.discardPile).push(card);
   const ctx: EffectCtx = { targetUid, cardUid: uid, cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn };
   if (st.def.type === '攻擊' && p.doubleNext > 0) { ctx.doubleDamage = true; p.doubleNext = 0; }
+  if (st.def.type === '攻擊' && p.firstAttackDouble) { ctx.doubleDamage = true; p.firstAttackDouble = false; log(cs, '秘笈：第一擊加倍'); }
   p.cardsPlayedThisTurn += 1;
   cs.cardsPlayed += 1;
   p.firstCardPlayed = true;
+  p.firstCardEver = true;
   const firstAttack = st.def.type === '攻擊' && !p.attackedThisTurn;
   if (st.def.type === '攻擊') p.attackedThisTurn = true;
   log(cs, `球球打出「${st.name}」`);
@@ -200,9 +206,11 @@ export function endTurn(cs: CombatState): void {
       if (parts.length) log(cs, `${e.name}震散了你 ${parts.join('、')}`);
     }
     if (def?.strengthEveryNTurns && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
-    tickPoison(e);
-    damageEnemy(cs, e, 0, { direct: true });   // 結算噎到：順手處理毒死與掉到階段門檻以下
+    // 結算噎到：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架式不出手（審查 #18）
+    const phaseBefore = e.phase;
+    damageEnemy(cs, e, tickPoison(e), { direct: true });
     if (e.dead || cs.phase !== 'player') continue;
+    if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架式`); decayTurnStatuses(e, ['定身']); continue; }
     // 定身擋的是魔物**整個動作**，不只攻擊：偷小魚乾、召喚、疊防禦一律動不了
     // （原本只擋攻擊，使用者 2026-09-02 實玩：「定身敵人好像只能阻止攻擊？偷竊照偷」）
     if (getStatus(e, '定身') > 0) {
@@ -220,10 +228,12 @@ export function endTurn(cs: CombatState): void {
         for (const rid of cs.relics) { const h = relicById[rid]?.hooks.onHit; if (h) applyEffects(cs, h, { source: 'relic' }); }
       }
     }
-    decayTurnStatuses(e);
+    decayTurnStatuses(e, ['定身']);   // 魔物的定身在出招那一拍消耗，這裡不再多扣一次（審查 #5）
     if (e.invulnIn > 0) e.invulnIn -= 1;   // 蹲下調息演完這回合就站起來，下回合開始照常挨打
     if (!e.dead) advanceMove(cs, e);
   }
+  // 蜷縮撐到你下回合開始：魔物打完了才修剪，守護符留 8 點、沒有守護符就歸零（審查 #1）
+  cs.player.block = Math.min(cs.player.block, relicSum(cs.relics, 'blockKeep'));
   if (cs.phase === 'player') startPlayerTurn(cs);
 }
 

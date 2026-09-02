@@ -58,7 +58,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         // 自己給自己疊的減益，這回合結束先不衰減
         if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = 1;
       } else {
-        for (const t of targetsOf(cs, ctx, fx.target === 'all')) addStatus(t, fx.name, fx.amount);
+        for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
+          // 定身對魔物只有七成機會成功（使用者 2026-09-02：「定身太強」）；沒中就寫在紀錄、畫面飄「掙脫」
+          if (fx.name === '定身' && !cs.rng.chance(0.7)) { log(cs, `${t.name}掙脫了定身`); continue; }
+          addStatus(t, fx.name, fx.amount);
+        }
       }
       return false;
     }

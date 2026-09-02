@@ -150,7 +150,8 @@ export function rollActRelics(run: RunState, n = 3): string[] {
   const rng = runRng(run);
   const out: string[] = [];
   for (let i = 0; i < n; i++) {
-    const id = rollRelic(rng, '大魔物', [...run.relics, ...out]);
+    // 過關三選一抽塔主池（圖鑑也這樣寫）；塔主池抽完了才退回大魔物池——以前一直抽大魔物池，塔主池九件永遠拿不到（審查 #2）
+    const id = rollRelic(rng, '塔主', [...run.relics, ...out]) ?? rollRelic(rng, '大魔物', [...run.relics, ...out]);
     if (id) out.push(id);
   }
   return out;
