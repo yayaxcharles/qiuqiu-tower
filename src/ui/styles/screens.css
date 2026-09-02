@@ -695,3 +695,7 @@
 .scene-art:has(.scene-goods) { left: calc(50% + 96px); top: 10px; max-height: none; }
 .scene-goods { transform: scale(.9); transform-origin: top center; max-height: none; overflow: visible; }
 .scene:has(.scene-goods) .scene-portrait { height: 290px; bottom: 140px; left: 24px; }
+/* 紙箱：秘寶的圖放大立在中上（圖示原檔夠大，放到 200 還清楚），輕輕上下浮 */
+.scene-art > img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
+@keyframes loot-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.scene:has(.chest-loot) .scene-art { top: 120px; }

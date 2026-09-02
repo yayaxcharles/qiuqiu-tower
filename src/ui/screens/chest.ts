@@ -8,6 +8,7 @@ import { artUrl } from '../assets';
 import { toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+import { sceneView } from '../scene';
 
 registerScreen('chest', (app, root) => {
   root.append(screenBg(actVariantKey('bg/screen_chest', app.run?.act ?? 1)));
@@ -22,14 +23,16 @@ registerScreen('chest', (app, root) => {
   const def = id ? relicById[id] : undefined;
   play(def ? 'relic' : 'click');   // 空箱子沒有拿到東西，不要放拿寶的音
   const url = def ? artUrl('icons', def.art) : '';
-  const body = def
-    ? el('div', { class: 'reward-item' },
-      url.startsWith('data:') ? '' : el('img', { src: url, alt: def.name }),
-      `找到秘寶「${def.name}」：${def.text}`)
-    : el('div', { class: 'reward-item' }, '紙箱是空的——常見的秘寶都拿過了，裡面只剩一堆碎紙。');
+  const hero = artUrl('sprites', 'hero/ninja');
 
-  root.append(el('div', { class: 'screen chest' },
-    el('h1', {}, '紙箱'),
-    body,
-    el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')));
+  // 劇場版面（使用者 2026-09-02：「紙箱事件那邊也要重畫」）：秘寶的圖放大立在中上、
+  // 球球站在框左邊，找到什麼、有什麼用寫在框裡
+  root.append(sceneView({
+    art: def && !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: def.name }) : '',
+    portrait: hero.startsWith('data:') ? undefined : hero,
+    speaker: '紙箱',
+    text: def ? `找到秘寶「${def.name}」！` : '紙箱是空的——常見的秘寶都拿過了，裡面只剩一堆碎紙。',
+    extra: def ? [el('p', { class: 'event-note' }, def.text)] : [],
+    actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')],
+  }));
 });
