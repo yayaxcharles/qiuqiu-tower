@@ -192,6 +192,14 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   // 內容：遭遇與事件
   const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined).map((e) => e.id));
   let eventIdx = 0;
+  // 遭遇也排成洗好的佇列、一池一條：整關抽完一輪才會重複（本來每格獨立亂抽，塔頂強池只有三組，
+  // 九場架平均每組遇三次；使用者：「怎麼一直遇到重複的」）。佇列用完就重洗再來一輪。
+  const encQueues = new Map<string, { list: string[]; at: number }>();
+  const nextEncounter = (key: string, ids: string[]): string => {
+    let q = encQueues.get(key);
+    if (!q || q.at >= q.list.length) { q = { list: rng.shuffle(ids), at: 0 }; encQueues.set(key, q); }
+    return q.list[q.at++]!;
+  };
   for (const n of nodes) {
     if (n.type === '戰鬥') {
       let pool = encountersOfPool(poolForFloor(n.floor, act), act);
@@ -201,7 +209,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
         const solo = pool.filter((enc) => enc.enemies.length === 1);
         if (solo.length) pool = solo;
       }
-      n.encounterId = rng.pick(pool).id;
+      n.encounterId = nextEncounter(`${poolForFloor(n.floor, act)}:${pool.length}`, pool.map((e) => e.id));
     }
     else if (n.type === '大魔物') n.encounterId = rng.pick(encountersOfPool('大魔物', act)).id;
     // 塔主：呼叫端會指定這一關的候選（第一、二關不含大俠貓，他是第三關固定的最終頭目）；

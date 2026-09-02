@@ -55,7 +55,7 @@ describe('戰鬥與獎勵', () => {
     expect(r.kind).toBe('戰鬥');
     expect(r.cards.length).toBe(3);
     expect(r.cards.every((c) => c.pool === '忍術')).toBe(true);
-    expect(r.fish).toBeGreaterThanOrEqual(10); expect(r.fish).toBeLessThanOrEqual(20);
+    expect(r.fish).toBeGreaterThanOrEqual(15); expect(r.fish).toBeLessThanOrEqual(25);   // 2026-09-01 戰利品改成 15～25
     expect(run.hp).toBe(40); expect(run.fish).toBe(50 + 5 + r.fish); expect(run.stats.kills).toBe(cs.enemies.length);
     takeCardReward(run, r, r.cards[0]!.id);
     expect(run.deck.length).toBe(11);

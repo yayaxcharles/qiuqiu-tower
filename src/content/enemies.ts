@@ -656,6 +656,12 @@ export const encounters: EncounterDef[] = [
   // ink_cat＋geta_monster 探測 7/40 是殺手組（隱身＋雙 12 重踩疊在一起），拆開改配三味線
   { id: 'ink_shami', pool: '強', enemies: ['ink_cat', 'shamisen_cat'], hpScale: 0.8, acts: [2] },
   { id: 'tanuki_gang', pool: '強', enemies: ['tanuki_kid', 'tanuki_kid', 'tanuki_kid'], hpScale: 0.9, acts: [2] },   // 兩隻探測 40/40 太軟，改三兄弟 0.9
+  // 2026-09-02 使用者：「第二層一直遇到重複的」——塔中 5～13F 的強池原本只有五組、塔頂只有三組，
+  // 一關九場架從三五組裡抽，當然一直重複。用現有魔物再組四組，配上地圖「同一關不重複抽」的規則。
+  { id: 'shiba_geta', pool: '強', enemies: ['shiba_ronin', 'geta_monster'], hpScale: 0.8, acts: [2] },
+  { id: 'lantern_ink', pool: '強', enemies: ['lantern_ghost', 'ink_cat'], hpScale: 0.8, acts: [2] },
+  { id: 'chime_duo', pool: '強', enemies: ['windchime_sprite', 'windchime_sprite'], hpScale: 0.85, acts: [2] },
+  { id: 'tanuki_shami', pool: '強', enemies: ['tanuki_kid', 'shamisen_cat'], hpScale: 0.85, acts: [2] },
   // 塔頂＝魔氣加成（設計總覽 §2）：中池一律血 ×1.2、出場帶 2 點爪力；強池帶 3 點。
   // 2026-09-02 機器人 300 局：第一刀之後塔頂一般戰每場仍只掉 1～3 血、四回合打完，比塔中還軟。
   { id: 'moon_rabbit', pool: '中', enemies: ['moon_rabbit'], hpScale: 1.25, strength: 3, acts: [3] },
@@ -668,6 +674,10 @@ export const encounters: EncounterDef[] = [
   // 要拆組合——重砲一定配有守勢回合的（紙鶴會摺翼、墨貓會入卷軸那型）。
   // 貓頭鷹＋月兔那組直接砍掉，牠們照樣在中池單獨出場。
   { id: 'night_hunt', pool: '強', enemies: ['night_panther', 'paper_crane'], hpScale: 0.85, strength: 3, acts: [3] },
+  { id: 'owl_rabbit', pool: '強', enemies: ['owl_sentry', 'moon_rabbit'], hpScale: 0.8, strength: 3, acts: [3] },
+  { id: 'panther_owl', pool: '強', enemies: ['night_panther', 'owl_sentry'], hpScale: 0.8, strength: 3, acts: [3] },
+  { id: 'blob_crane', pool: '強', enemies: ['miasma_blob', 'paper_crane'], hpScale: 0.75, strength: 3, acts: [3] },
+  { id: 'rabbit_crane', pool: '強', enemies: ['moon_rabbit', 'paper_crane'], hpScale: 0.8, strength: 3, acts: [3] },
   { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], strength: 4, acts: [3] },
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
