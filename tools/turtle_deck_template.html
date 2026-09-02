@@ -1,0 +1,124 @@
+<title>阿甲牌組工作檯</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root { --bg:#eef2e6; --panel:#f8faf3; --ink:#1f2a1c; --muted:#5f6d57; --line:#c9d3bd; --accent:#2f7d4f; --shell:#7a5c2e; --unique:#dcefd9; --mirror:#f3ecdc; --changed:#fff1c2; --del:#b3412f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141a12; --panel:#1d251a; --ink:#e6eddf; --muted:#a6b39c; --line:#35412f; --accent:#7fd19a; --shell:#d9b57a; --unique:#233a25; --mirror:#3a3324; --changed:#4a3f14; --del:#ff9a88; } }
+:root[data-theme="dark"] { --bg:#141a12; --panel:#1d251a; --ink:#e6eddf; --muted:#a6b39c; --line:#35412f; --accent:#7fd19a; --shell:#d9b57a; --unique:#233a25; --mirror:#3a3324; --changed:#4a3f14; --del:#ff9a88; }
+body { background:var(--bg); color:var(--ink); font-family:"Noto Sans TC",system-ui,sans-serif; font-size:14px; line-height:1.5; margin:0; }
+main { max-width:1280px; margin:0 auto; padding:26px 20px 60px; }
+h1 { font-family:"Noto Serif TC",serif; font-size:30px; margin:0 0 4px; text-wrap:balance; }
+h1 small { font-size:15px; color:var(--shell); font-weight:600; margin-left:10px; }
+.lede { color:var(--muted); max-width:78ch; margin:0 0 16px; }
+.summary { display:flex; flex-wrap:wrap; gap:8px 18px; margin:0 0 14px; font-size:13px; color:var(--muted); }
+.summary b { color:var(--ink); }
+.bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:0 0 12px; }
+.bar label { font-size:13px; color:var(--muted); }
+select, input[type=number] { font:inherit; font-size:13px; padding:3px 6px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink); }
+button { font:inherit; font-size:13px; padding:6px 12px; border:1px solid var(--line); border-radius:8px; background:var(--panel); color:var(--ink); cursor:pointer; }
+button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+button.danger { color:var(--del); }
+.legend { display:flex; gap:10px; font-size:12px; margin-left:auto; }
+.legend span { padding:2px 8px; border-radius:6px; border:1px solid var(--line); }
+.legend .u { background:var(--unique); } .legend .m { background:var(--mirror); } .legend .c { background:var(--changed); }
+.tablewrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--panel); }
+table { border-collapse:collapse; width:100%; min-width:1180px; font-size:13px; }
+th { position:sticky; top:0; background:var(--panel); text-align:left; padding:8px 8px; border-bottom:2px solid var(--line); font-weight:700; white-space:nowrap; z-index:1; }
+td { padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+tr.u td { background:var(--unique); } tr.m td { background:var(--mirror); }
+td.changed { box-shadow:inset 0 0 0 2px var(--accent); background:var(--changed) !important; }
+td[contenteditable] { min-width:60px; outline:none; border-radius:4px; }
+td[contenteditable]:focus { box-shadow:inset 0 0 0 2px var(--accent); background:var(--panel); }
+td.name { font-weight:700; white-space:nowrap; }
+td.num { text-align:center; font-variant-numeric:tabular-nums; }
+td.eff { min-width:260px; }
+td.mirror { color:var(--muted); white-space:nowrap; font-size:12px; }
+td.note { color:var(--muted); min-width:180px; }
+td select { width:auto; }
+.out { width:100%; box-sizing:border-box; margin-top:12px; font:12px/1.5 ui-monospace,Consolas,monospace; padding:10px; border:1px solid var(--line); border-radius:8px; background:var(--panel); color:var(--ink); }
+.note-p { color:var(--muted); font-size:12px; margin:8px 0 0; }
+</style>
+<main>
+<h1>阿甲牌組工作檯 <small>烏龜・龜甲流／玄武訣</small></h1>
+<p class="lede">每一格都能直接改：點文字就能編輯，費用與升級費是數字格，池、稀有度、類型用下拉。綠底是阿甲獨有的牌，沙色是「跟球球某張效果一樣、只換名字和圖」的鏡像牌（右邊寫著對應球球的哪一張）。改過的格子會標黃；改動只存在你這台電腦的瀏覽器裡。改完按「列出改動」把改過和新增的牌整理成文字貼給我，我照著做進遊戲；「匯出全部」是整張表。</p>
+<div class="summary" id="summary"></div>
+<div class="bar">
+  <label>池 <select id="pool"><option value="">全部</option><option>起手</option><option>龜甲流</option><option>玄武訣</option></select></label>
+  <label>稀有 <select id="rar"><option value="">全部</option><option>常見</option><option>罕見</option><option>稀有</option></select></label>
+  <label>類型 <select id="typ"><option value="">全部</option><option>攻擊</option><option>技能</option><option>能力</option></select></label>
+  <label>來源 <select id="src"><option value="">全部</option><option value="u">獨有</option><option value="m">鏡像</option></select></label>
+  <button id="add" class="primary" type="button">新增一張</button>
+  <button id="export" type="button">列出改動</button>
+  <button id="exportAll" type="button">匯出全部</button>
+  <button id="reset" class="danger" type="button">全部還原</button>
+  <span class="legend"><span class="u">獨有</span><span class="m">鏡像</span><span class="c">改過</span></span>
+</div>
+<div class="tablewrap"><table id="t"><thead><tr>
+<th>牌名</th><th>池</th><th>稀有</th><th>類型</th><th>費</th><th>升級費</th><th>效果</th><th>升級後</th><th>同球球</th><th>備註</th><th></th>
+</tr></thead><tbody id="tb"></tbody></table></div>
+<textarea id="out" class="out" hidden readonly rows="8"></textarea>
+<p class="note-p">數字慣例照球球：1 費≈貓抓 6 傷或淡定 5 蜷縮的價值；阿甲的獨有牌多半把「蜷縮」當攻擊資源，數字先照設計稿起手值，之後用機器人與你的手感再調。</p>
+</main>
+<script>
+const BASE = __DATA__;
+const KEY = 'qiuqiu.turtle.cards.v1';
+let EDITS = {}; let ADDED = []; let REMOVED = [];
+try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) { EDITS = s.edits || {}; ADDED = s.added || []; REMOVED = s.removed || []; } } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ edits: EDITS, added: ADDED, removed: REMOVED })); } catch (e) {} };
+const FIELDS = ['name', 'pool', 'rarity', 'type', 'cost', 'cost2', 'text', 'text2', 'note'];
+function rows() {
+  const all = [...BASE.map((c) => ({ ...c, ...(EDITS[c.id] || {}), base: c })), ...ADDED.map((c) => ({ ...c, base: null }))];
+  return all.filter((c) => !REMOVED.includes(c.id));
+}
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
+function sel(field, value, opts, id) { return '<select data-id="' + id + '" data-f="' + field + '">' + opts.map((o) => '<option' + (o === value ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>'; }
+function changedCls(c, f) { return c.base && String(c[f]) !== String(c.base[f]) ? ' changed' : ''; }
+function render() {
+  const fp = document.getElementById('pool').value, fr = document.getElementById('rar').value, ft = document.getElementById('typ').value, fs = document.getElementById('src').value;
+  const rs = rows().filter((c) => (!fp || c.pool === fp) && (!fr || c.rarity === fr) && (!ft || c.type === ft) && (!fs || (fs === 'u' ? !c.mirror : !!c.mirror)));
+  const tb = document.getElementById('tb'); tb.replaceChildren();
+  for (const c of rs) {
+    const tr = document.createElement('tr'); tr.className = c.mirror ? 'm' : 'u'; tr.dataset.id = c.id;
+    tr.innerHTML =
+      '<td class="name' + changedCls(c, 'name') + '" contenteditable data-f="name">' + esc(c.name) + '</td>' +
+      '<td class="' + changedCls(c, 'pool').trim() + '">' + sel('pool', c.pool, ['起手', '龜甲流', '玄武訣'], c.id) + '</td>' +
+      '<td class="' + changedCls(c, 'rarity').trim() + '">' + sel('rarity', c.rarity, ['常見', '罕見', '稀有'], c.id) + '</td>' +
+      '<td class="' + changedCls(c, 'type').trim() + '">' + sel('type', c.type, ['攻擊', '技能', '能力'], c.id) + '</td>' +
+      '<td class="num' + changedCls(c, 'cost') + '"><input type="number" min="0" max="5" step="1" value="' + c.cost + '" data-id="' + c.id + '" data-f="cost"></td>' +
+      '<td class="num' + changedCls(c, 'cost2') + '"><input type="number" min="0" max="5" step="1" value="' + c.cost2 + '" data-id="' + c.id + '" data-f="cost2"></td>' +
+      '<td class="eff' + changedCls(c, 'text') + '" contenteditable data-f="text">' + esc(c.text) + '</td>' +
+      '<td class="eff' + changedCls(c, 'text2') + '" contenteditable data-f="text2">' + esc(c.text2) + '</td>' +
+      '<td class="mirror">' + (c.mirror ? esc(c.mirrorName) + '<br><span style="opacity:.7">' + esc(c.mirror) + '</span>' : '—') + '</td>' +
+      '<td class="note' + changedCls(c, 'note') + '" contenteditable data-f="note">' + esc(c.note) + '</td>' +
+      '<td><button type="button" class="danger" data-del="' + c.id + '">刪</button></td>';
+    tb.append(tr);
+  }
+  tb.querySelectorAll('td[contenteditable]').forEach((td) => td.addEventListener('blur', (ev) => setField(td.closest('tr').dataset.id, td.dataset.f, td.textContent.trim())));
+  tb.querySelectorAll('select[data-f]').forEach((s) => s.addEventListener('change', (ev) => setField(s.dataset.id, s.dataset.f, s.value)));
+  tb.querySelectorAll('input[data-f]').forEach((i) => i.addEventListener('change', (ev) => setField(i.dataset.id, i.dataset.f, Math.max(0, Math.min(5, Math.round(Number(i.value) || 0))))));
+  tb.querySelectorAll('button[data-del]').forEach((b) => b.addEventListener('click', () => { const id = b.dataset.del; if (ADDED.some((c) => c.id === id)) ADDED = ADDED.filter((c) => c.id !== id); else REMOVED.push(id); save(); render(); }));
+  const all = rows(); const cnt = (f) => { const m = {}; for (const c of all) m[c[f]] = (m[c[f]] || 0) + 1; return Object.entries(m).map(([k, v]) => k + ' ' + v).join('、'); };
+  document.getElementById('summary').innerHTML = '<span>共 <b>' + all.length + '</b> 張（球球 86 張）</span><span>池：' + cnt('pool') + '</span><span>稀有：' + cnt('rarity') + '</span><span>類型：' + cnt('type') + '</span><span>獨有 <b>' + all.filter((c) => !c.mirror).length + '</b>／鏡像 <b>' + all.filter((c) => c.mirror).length + '</b></span><span>改過 <b>' + Object.keys(EDITS).length + '</b>、新增 <b>' + ADDED.length + '</b>、刪除 <b>' + REMOVED.length + '</b></span>';
+}
+function setField(id, f, v) {
+  const added = ADDED.find((c) => c.id === id);
+  if (added) { added[f] = v; save(); render(); return; }
+  const base = BASE.find((c) => c.id === id); if (!base) return;
+  const cur = { ...(EDITS[id] || {}) };
+  if (String(base[f]) === String(v)) delete cur[f]; else cur[f] = v;
+  if (Object.keys(cur).length) EDITS[id] = cur; else delete EDITS[id];
+  save(); render();
+}
+const line = (c) => c.name + '（' + c.id + '）｜' + c.pool + '｜' + c.rarity + '｜' + c.type + '｜費 ' + c.cost + '／升級費 ' + c.cost2 + '｜' + c.text + '｜升級後：' + c.text2 + (c.mirror ? '｜同球球：' + c.mirrorName : '') + (c.note ? '｜備註：' + c.note : '');
+document.getElementById('export').addEventListener('click', () => {
+  const out = [];
+  for (const [id, e] of Object.entries(EDITS)) { const b = BASE.find((c) => c.id === id); if (!b) continue; out.push('改：' + b.name + '（' + id + '）：' + Object.entries(e).map(([f, v]) => f + ' ' + b[f] + ' → ' + v).join('；')); }
+  for (const c of ADDED) out.push('新增：' + line(c));
+  for (const id of REMOVED) { const b = BASE.find((c) => c.id === id); if (b) out.push('刪除：' + b.name + '（' + id + '）'); }
+  const ta = document.getElementById('out'); ta.hidden = false; ta.value = out.length ? out.join('\n') : '還沒有改動。';
+});
+document.getElementById('exportAll').addEventListener('click', () => { const ta = document.getElementById('out'); ta.hidden = false; ta.value = rows().map(line).join('\n'); });
+document.getElementById('add').addEventListener('click', () => { const id = 'new_' + Date.now().toString(36); ADDED.push({ id, name: '新牌', pool: '龜甲流', rarity: '常見', type: '攻擊', cost: 1, cost2: 1, text: '（寫效果）', text2: '（寫升級後效果）', mirror: '', mirrorName: '', note: '' }); save(); render(); });
+document.getElementById('reset').addEventListener('click', () => { EDITS = {}; ADDED = []; REMOVED = []; save(); document.getElementById('out').hidden = true; render(); });
+for (const id of ['pool', 'rar', 'typ', 'src']) document.getElementById(id).addEventListener('change', render);
+render();
+</script>
