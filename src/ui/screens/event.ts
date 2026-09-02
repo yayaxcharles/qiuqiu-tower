@@ -13,6 +13,7 @@ import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+import { sceneView } from '../scene';
 
 /**
  * 事件的插圖。十個事件本來共用同一張空走廊當底圖——文字寫著「轉角站著一隻橘貓山賊」，
@@ -57,8 +58,12 @@ registerScreen('event', (app, root, props) => {
   // backToMap 會存檔，而這是「進節點」的當下、節點還沒結算，存下去就違反「節點結算完才存」的規矩
   // （引擎保證事件節點一定帶得到 eventId，所以這條路今天走不到，但規矩要處處成立）
   if (!ev) { app.show('map'); return; }
+  const title = ev.title;
 
-  /** 事件的每一條路都收在這個版面：結果一句話，加一顆按鈕（挑牌那條路先不放按鈕，傳 ''） */
+  /**
+   * 事件的每一條路都收在這個劇場版面：插圖立在中上、結果一句話寫在對白框、按鈕排在框裡
+   * （挑牌那條路先不放按鈕，傳 ''）。
+   */
   function panel(resultText: string, note: string | null, button: Node | string,
     gains: readonly RunGain[] = [], art?: string): void {
     clearKeepBg(root);
@@ -66,28 +71,30 @@ registerScreen('event', (app, root, props) => {
     // 結果畫面預設沿用同一張插圖：選完之後畫面整個換掉的話，前後接不起來。
     // 但選項自己有 `resultArt` 時就換成那張——像貓薄荷「採一把」那種，
     // 有專屬的結果圖才看得出「我剛剛真的做了那件事」。
-    root.append(el('div', { class: 'screen event' },
-      ev ? eventArt(art ?? ev.id) : '',
-      el('p', { class: 'event-result' }, resultText),
-      gainRows(gains),
-      note ? el('p', { class: 'event-note' }, note) : '',
-      button));
+    root.append(sceneView({
+      art: ev ? eventArt(art ?? ev.id) : '',
+      speaker: title,
+      text: resultText,
+      extra: [gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
+      actions: button ? [button] : [],
+    }));
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
   const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = []): void =>
     panel(resultText, note, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'), gains, resultArt);
 
-  /** 選一招（大俠傳功那種）：挑完就收尾，也可以都不要 */
+  /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
   function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = []): void {
     clearKeepBg(root);
     renderHud(app, root);
     const grid = el('div', { class: 'reward-cards' });
     for (const c of defs) grid.append(cardNode(c, { onClick: () => { addCard(run, c.id); finish(resultText, `學會了「${c.name}」`, gains); } }));
-    root.append(el('div', { class: 'screen event' },
-      el('p', { class: 'event-result' }, resultText),
-      el('h2', {}, '選一招'),
-      grid,
-      el('button', { class: 'btn', onclick: () => finish(resultText, '一招都沒挑', gains) }, '都不要')));
+    root.append(sceneView({
+      art: grid,
+      speaker: title,
+      text: `${resultText}　選一招帶走。`,
+      actions: [el('button', { class: 'btn', onclick: () => finish(resultText, '一招都沒挑', gains) }, '都不要')],
+    }));
   }
 
   /**
@@ -148,7 +155,7 @@ registerScreen('event', (app, root, props) => {
   }
 
   renderHud(app, root);
-  const choices = el('div', { class: 'event-choices' });
+  const choices: HTMLElement[] = [];
   for (const c of ev.choices) {
     const cost = c.costFish ?? 0;
     // 選項自己的文案就寫著要付多少（「付 30 小魚乾」「買一顆（20 小魚乾）」），這裡不要再補一次價錢；
@@ -165,13 +172,10 @@ registerScreen('event', (app, root, props) => {
       const gains: RunGain[] = [];
       settle(applyRunEffects(run, c.outcome, notes, gains), c.result, notes, gains);
     });
-    choices.append(btn);
+    choices.push(btn);
   }
-  root.append(el('div', { class: 'screen event' },
-    el('h1', {}, ev.title),
-    eventArt(ev.id),
-    el('p', { class: 'event-text' }, ev.text),
-    choices));
+  // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
+  root.append(sceneView({ art: eventArt(ev.id), speaker: title, text: ev.text, actions: choices, column: true }));
 
   // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走
   if (ev.id === FIXED_EVENT_FLOOR_5) app.playOnce('secretScroll', dialogue.secretScroll, () => { /* 看完就直接選 */ });

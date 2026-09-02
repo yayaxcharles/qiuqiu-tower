@@ -5,12 +5,20 @@ import { relicById } from '../../content/relics';
 import { rest } from '../../engine/run';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
+import { artUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+import { sceneView } from '../scene';
+
+/** 球球蜷在貓窩旁的立繪；圖還沒生好就不放 */
+function heroPortrait(): string | undefined {
+  const url = artUrl('sprites', 'hero/ninja_curl');
+  return url.startsWith('data:') ? undefined : url;
+}
 
 registerScreen('rest', (app, root) => {
   root.append(screenBg(actVariantKey('bg/screen_rest', app.run?.act ?? 1)));
@@ -26,7 +34,7 @@ registerScreen('rest', (app, root) => {
   function afterAction(text: string, line: string): void {
     clearKeepBg(root);
     renderHud(app, root);
-    root.append(el('div', { class: 'screen rest' }, el('h1', {}, '貓窩'), el('p', { class: 'rest-result' }, text)));
+    root.append(sceneView({ portrait: heroPortrait(), text }));
     toast(line, '球球');
     window.setTimeout(() => app.backToMap(), 900);
   }
@@ -38,11 +46,11 @@ registerScreen('rest', (app, root) => {
       if (used) return;
       used = true;
       rest(run, '打盹');
-    play('heal');
+      play('heal');
       afterAction(`球球睡了一下，回復 ${heal} 點生命。`, dialogue.restLines[0] ?? '');
     });
 
-    const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌）');
+    const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌，順便回一成血）');
     // rest(run, '磨爪') 沒有 uid 會回 false，所以一定要先挑牌再叫
     sharpen.addEventListener('click', () => {
       if (used) return;
@@ -66,10 +74,13 @@ registerScreen('rest', (app, root) => {
     });
     if (!run.deck.some(upgradable)) sharpen.setAttribute('disabled', 'disabled');
 
-    root.append(el('div', { class: 'screen rest' },
-      el('h1', {}, '貓窩'),
-      el('p', {}, '貓窩暖暖的，只能挑一件事做。'),
-      el('div', { class: 'rest-actions' }, nap, sharpen)));
+    // 劇場版面：底圖就是貓窩本身，球球蜷在左邊，對白框裡直接放兩個選項
+    root.append(sceneView({
+      portrait: heroPortrait(),
+      speaker: '貓窩',
+      text: '貓窩暖暖的，只能挑一件事做。',
+      actions: [nap, sharpen],
+    }));
   }
 
   // 先把貓窩畫出來，14F 塔主戰前那段獨白再蓋上去播（只播一次，旗標在 run.flags，由結算那次存檔帶走）。

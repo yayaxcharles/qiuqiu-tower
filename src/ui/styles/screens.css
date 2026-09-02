@@ -654,3 +654,44 @@
   border-top-color: #f3e9d2;
   border-bottom: 0;
 }
+
+/* ===== 劇場版面（事件／貓窩／罐頭鋪）：底圖鋪滿、主圖在中上、對白框在底下 =====
+   對白框沿用 .dialogue-box 的紙與名牌；差別只在定位（貼著舞台底邊、左右各留 90）跟按鈕排法。 */
+.scene { position: absolute; left: 0; top: 56px; width: 1280px; height: 664px; z-index: 1; }
+.scene-art {
+  position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
+  max-width: 1080px; max-height: 392px;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.scene-art > img.event-art { width: auto; height: 360px; max-width: 700px; margin: 0; filter: drop-shadow(0 10px 18px #000000a6); }
+.scene-art .reward-cards { margin: 8px 0 0; }
+.scene-portrait {
+  position: absolute; left: 34px; bottom: 150px; height: 330px; width: auto; max-width: 300px;
+  object-fit: contain; object-position: center bottom;
+  filter: drop-shadow(0 8px 16px #000000a6);
+  animation: portrait-in 260ms cubic-bezier(.2, .9, .3, 1.1);
+}
+.scene .dialogue-box.scene-box {
+  position: absolute; left: 90px; right: 90px; bottom: 30px;
+  width: auto; margin: 0; padding: 22px 34px 22px;
+}
+.scene .scene-text { min-height: 0; font-size: 22px; line-height: 1.6; }
+.scene .scene-box.narration { padding: 22px 56px 22px; }
+.scene .scene-box.narration .scene-text { text-align: center; letter-spacing: 1.5px; color: #443d33; }
+.scene .scene-box.narration .dialogue-speaker { display: none; }
+.scene-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+.scene-actions .btn { min-width: 220px; }
+.scene-actions.column { flex-direction: column; align-items: stretch; }
+.scene-actions.column .btn { width: 100%; text-align: center; }
+.scene .event-gains { max-width: 720px; margin: 8px auto 0; }
+.scene .event-note { margin: 8px 0 0; text-align: center; }
+/* 罐頭鋪：商品架站在中上方那一塊，兩排（新招一排、秘寶與忍具一排） */
+.scene-goods { display: flex; flex-direction: column; align-items: center; gap: 14px; max-height: 392px; overflow: auto; padding: 4px 6px 2px; }
+.scene-goods .shelf-cards { align-self: center; }
+.scene-goods .shop-shelves { align-self: center; }
+/* 名牌釘在框的左上角，會壓到第一行字：有名牌的框把上內距讓出來（旁白沒名牌照舊） */
+.scene .dialogue-box.scene-box:has(.dialogue-speaker:not(:empty)) { padding-top: 46px; }
+/* 罐頭鋪：貨架整組縮九成、往右挪，才不會被老闆的立繪擋到；老闆矮一點站在框後面 */
+.scene-art:has(.scene-goods) { left: calc(50% + 96px); top: 10px; max-height: none; }
+.scene-goods { transform: scale(.9); transform-origin: top center; max-height: none; overflow: visible; }
+.scene:has(.scene-goods) .scene-portrait { height: 290px; bottom: 140px; left: 24px; }

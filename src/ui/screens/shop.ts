@@ -11,6 +11,7 @@ import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+import { sceneView } from '../scene';
 
 /** 圖示還沒生好時 artUrl 會回一張灰剪影；貨架每格都寫著名字，寧可不放圖也不要排一列灰影 */
 function icon(key: string, alt: string): Node | string {
@@ -25,6 +26,9 @@ registerScreen('shop', (app, root) => {
   // 進貨只做一次：makeShop 會推進 run.rng，每次重畫都叫的話買一樣東西整個貨架就換一批
   const shop = makeShop(run);
   const line = dialogue.shopkeeper[Math.floor(Math.random() * dialogue.shopkeeper.length)] ?? '';
+  // 老闆站在對白框左邊講話（劇場版面）；立繪沒生好就只留對白
+  const keeperUrl = artUrl('sprites', 'shop/keeper');
+  const keeper = keeperUrl.startsWith('data:') ? undefined : keeperUrl;
 
   /**
    * 貨架上的一格：圖、名字、說明、價錢。賣掉了寫「賣掉了」；買不起或現在拿不了（例如忍具帶滿）
@@ -90,25 +94,18 @@ registerScreen('shop', (app, root) => {
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
 
-    // 老闆站在左上角，台詞裝進他旁邊的泡泡——本來只有一行灰字寫著「橘貓老闆：「…」」，
-    // 店裡看不到老闆，跟對白框沒有立繪是同一個毛病。
-    const keeperUrl = artUrl('sprites', 'shop/keeper');
-    // 台詞泡泡掛在老闆頭上（使用者指定）：講話的人跟話要在同一個位置
-    const head = el('div', { class: 'shop-head' },
-      keeperUrl.startsWith('data:') ? '' : el('img', { class: 'shop-keeper', src: keeperUrl, alt: '橘貓老闆' }),
-      keeperUrl.startsWith('data:') ? el('div', { class: 'shop-bubble' }, line) : el('div', { class: 'shop-bubble keeper-bubble' }, line),
-      el('div', { class: 'shop-head-text' },
-        el('div', { class: 'shop-sign' }, '罐頭鋪')));
-
-    root.append(el('div', { class: 'screen shop' },
-      head,
+    // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
+    // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
+    const goods = el('div', { class: 'scene-goods' },
       shelf('新招', cards, 'shelf-cards'),
-      el('div', { class: 'shop-shelves' },
-        shelf('秘寶', relics),
-        shelf('忍具', potions)),
-      el('div', { class: 'shop-actions' },
-        remove,
-        el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開'))));
+      el('div', { class: 'shop-shelves' }, shelf('秘寶', relics), shelf('忍具', potions)));
+    root.append(sceneView({
+      art: goods,
+      portrait: keeper,
+      speaker: '橘貓老闆',
+      text: line,
+      actions: [remove, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開')],
+    }));
   }
 
   render();
