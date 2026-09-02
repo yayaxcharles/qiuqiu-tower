@@ -984,3 +984,6 @@
 .swap-text b { font-size: 15px; }
 .swap-text em { font-style: normal; font-size: 12.5px; color: #6b5a45; }
 .swap-go { color: #7a3d15; font-weight: bold; white-space: nowrap; }
+
+/* 帶滿收不下的忍具列：壓暗一點，跟真的拿到的分開 */
+.scene .reward-items .reward-item.missed { opacity: .7; border-style: dashed; }

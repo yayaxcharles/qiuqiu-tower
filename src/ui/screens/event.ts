@@ -72,10 +72,11 @@ function gainRows(gains: readonly RunGain[]): HTMLElement | string {
     const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
     if (!d) continue;
     const url = artUrl('icons', d.art);
-    box.append(el('div', { class: `reward-item ${g.kind === '秘寶' ? 'relic' : 'potion'}` },
+    // 帶滿收不下的忍具要寫清楚（不然看起來像拿到了）；換掉舊的之後由 finish 的回呼改成「換成了」
+    box.append(el('div', { class: `reward-item ${g.kind === '秘寶' ? 'relic' : 'potion'}${g.missed ? ' missed' : ''}`, 'data-gain': g.id },
       url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
       el('span', { class: 'reward-line' },
-        el('b', {}, `拿到${g.kind}「${d.name}」`), el('em', {}, d.text))));
+        el('b', {}, g.missed ? `忍具帶滿了，「${d.name}」收不下` : `拿到${g.kind}「${d.name}」`), el('em', {}, d.text))));
   }
   return box;
 }
@@ -121,9 +122,22 @@ registerScreen('event', (app, root, props) => {
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
   const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void => {
     panel(resultText, note, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'), gains, resultArt, show);
-    // 忍具帶滿收不下的（gains 裡標 missed）：結果畫好之後問要不要換掉一支
-    const missedGain = gains.find((g) => g.kind === '忍具' && g.missed);
-    if (missedGain) window.setTimeout(() => showPotionSwap(run, missedGain.id, (idx) => { if (idx >= 0) { play('relic'); renderHud(app, root); } }), 400);
+    // 忍具帶滿收不下的（gains 裡標 missed）：結果畫好之後一支一支問要不要換掉舊的
+    const missed = gains.filter((g) => g.kind === '忍具' && g.missed);
+    const askNext = (i: number): void => {
+      const g = missed[i];
+      if (!g) return;
+      showPotionSwap(run, g.id, (idx) => {
+        if (idx >= 0) {
+          play('relic'); root.querySelector('.hud')?.remove(); renderHud(app, root);   // 先拆舊的，不然疊兩條
+          const row = root.querySelector(`.reward-item.missed[data-gain="${g.id}"]`);
+          const d = potionById[g.id];
+          if (row && d) { row.classList.remove('missed'); row.querySelector('b')!.textContent = `換成了「${d.name}」`; }
+        }
+        askNext(i + 1);
+      });
+    };
+    if (missed.length) window.setTimeout(() => askNext(0), 400);
   };
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */

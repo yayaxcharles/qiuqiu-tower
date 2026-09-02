@@ -74,7 +74,8 @@ registerScreen('reward', (app, root, props) => {
     items.append(el('div', { class: 'reward-item potion' }, icon(missed.art, missed.name), line));
     const newId = r.potionMissed;
     window.setTimeout(() => showPotionSwap(run, newId, (idx) => {
-      if (idx >= 0) { play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text)); renderHud(app, root); }
+      // 狀態列要先拆掉舊的再畫：renderHud 只會往 root 再掛一條（實測疊成兩條）
+      if (idx >= 0) { play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text)); root.querySelector('.hud')?.remove(); renderHud(app, root); }
     }), 350);
   }
   const potion = r.potion ? potionById[r.potion] : undefined;
