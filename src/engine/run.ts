@@ -20,11 +20,12 @@ export const ACT_NAMES = ['塔下', '塔中', '塔頂'] as const;
  * 骨架先跟第一關共用同一池。
  */
 export function bossPoolForAct(act: number): string[] {
-  // 塔下三選一（貓又／鐵爪／橘皮大王）、塔中三選一（奶牛貓／狸大人／波斯大小姐）、
-  // 塔頂固定師父。新關主的立繪還在生圖中：資料先接好，圖裝進資產包才會推上線。
+  // 塔下五選一（貓又／鐵爪／橘皮大王／蛙大名／犰狳王）、
+  // 塔中五選一（奶牛貓／狸大人／波斯大小姐／沉睡的龍貓／詛咒老住持）、塔頂固定師父。
+  // 新關主的立繪還在生圖中：資料先接好，圖裝進資產包才會推上線（沒圖就是灰剪影，不會報錯）。
   if (act >= 3) return ['tower_master'];
-  if (act === 2) return ['cowcat_boss', 'tanuki_lord', 'persian_lady'];
-  return ['nekomata', 'iron_claw', 'orange_king'];
+  if (act === 2) return ['cowcat_boss', 'tanuki_lord', 'persian_lady', 'dragon_cat', 'hex_abbot'];
+  return ['nekomata', 'iron_claw', 'orange_king', 'frog_daimyo', 'armadillo_king'];
 }
 const PRICE: Record<Rarity, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
 const RELIC_PRICE = 150, POTION_PRICE = 45;   // 沒標價的保底值；各件的價差標在 relics.ts／potions.ts
@@ -333,7 +334,8 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
           : `學會了「${cardName(fx.cardId)}」`);
         break;
       case 'addRandomCard': {
-        const pool = cards.filter((c) => c.pool === fx.pool && (!fx.rarity || c.rarity === fx.rarity));
+        // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）只有魔物塞得進來，事件不能抽到
+        const pool = cards.filter((c) => c.pool === fx.pool && !c.combatOnly && (!fx.rarity || c.rarity === fx.rarity));
         if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id); notes?.push(`撿到了「${def.name}」`); }
         break;
       }

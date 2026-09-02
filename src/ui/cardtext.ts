@@ -155,6 +155,9 @@ export function describeCard(def: CardDef, upgraded: boolean): string {
   const keywords = upgraded ? (def.upgrade.keywords ?? def.keywords ?? []) : (def.keywords ?? []);
   const parts: string[] = [];
   if (keywords.includes('不可打出')) parts.push('不能打出。');
+  // 打得出來卻什麼都不做的牌（黏液）：規則就是「花那點飽足把它丟掉」，要講清楚，
+  // 不然牌面只剩一句「消耗。」，玩家會以為漏了什麼
+  if (!effects.length && !keywords.includes('不可打出')) parts.push('打出去什麼事都不會發生。');
   if (effects.length) {
     const youHeal = touchesFoes(effects);
     const alsoHurts = hurtsFoes(effects);
@@ -175,5 +178,6 @@ export function describeCard(def: CardDef, upgraded: boolean): string {
   if (def.curse?.onDraw) parts.push('抽到的時候會少 1 顆飯糰。');
   if (keywords.includes('消耗')) parts.push('消耗。');
   if (keywords.includes('保留')) parts.push('保留。');
+  if (keywords.includes('虛幻')) parts.push('回合結束還在手上就消失。');
   return parts.join('');
 }

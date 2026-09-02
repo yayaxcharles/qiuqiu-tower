@@ -16,6 +16,25 @@ export const dialogue = {
   /** 每種魔物第一次登場時球球的吐槽（鍵＝魔物 id） */
   firstMeet: <Record<string, string>>{
     white_duelist: '好正式的架勢……牠是認真的喵。',
+    // ---- 2026-09-02 第二波怪 ----
+    dango_slime: '團子？看起來好好吃……不對，牠在動喵！',
+    dango_bit: '打一隻變兩隻，這樣算賺還是虧喵？',
+    armadillo_pup: '牠一被打就縮起來了，好硬喵。',
+    lantern_moth: '在天上飛的很難打中，先把牠打下來喵。',
+    hibernating_bear: '牠在睡覺……輕一點，千萬別吵醒牠喵。',
+    puffer_spirit: '越鼓越大顆……那個等一下一定會炸喵！',
+    plated_beetle: '整身都是鐵殼，每回合還會自己長回來喵。',
+    rat_general: '有隻老鼠在指揮！先打那隻帶頭的喵。',
+    curse_priest: '牠一直在唸咒，我的牌堆變得怪怪的喵。',
+    phantom_fox: '牠半透明的……好像快要不見了喵。',
+    red_oni: '這隻越打越氣，別再惹牠了喵。',
+    moon_moth_queen: '好大一隻蛾！鱗粉別噴到我臉上喵。',
+    jizo_golem: '石頭做的地藏，那一掌下來會很痛喵。',
+    frog_daimyo: '青蛙也當起大名了？塔裡什麼都有喵。',
+    tadpole: '小蝌蚪也來湊熱鬧喵。',
+    armadillo_king: '好大一顆球……這殼要怎麼打開喵？',
+    dragon_cat: '牠在睡……身上還有鱗片，是龍嗎喵？',
+    hex_abbot: '老住持唸的不是經，是詛咒喵！',
     // ---- 三關制內容包（2026-09-01）----
     shiba_ronin: '狗？塔裡怎麼會有狗喵！',
     shamisen_cat: '琴聲不太對勁，摀住耳朵喵。',
@@ -157,6 +176,23 @@ export const dialogue = {
       { speaker: '塔主', text: '渾身髒兮兮的野貓，也敢闖進本小姐的樓層？' },
       { speaker: '球球', text: '都已經走到這裡了，我當然還要一路走上塔頂喵。' },
     ],
+    // ---- 2026-09-02 第二波新關主 ----
+    frog_daimyo: [
+      { speaker: '塔主', text: '呱——本大名的池子，什麼時候輪到一隻小貓來撒野了？' },
+      { speaker: '球球', text: '我不是來撒野的，我是來借過的。讓一下喵。' },
+    ],
+    armadillo_king: [
+      { speaker: '旁白', text: '那顆巨大的球緩緩轉了半圈，露出一雙沉靜的眼睛。殼上的舊傷一道疊著一道。' },
+      { speaker: '球球', text: '打不開的殼……那我就一直敲，敲到它裂開為止喵。' },
+    ],
+    dragon_cat: [
+      { speaker: '旁白', text: '巨大的身軀盤成一圈，鼻孔冒出一小縷煙。牠還在睡。' },
+      { speaker: '球球', text: '牠睡得好熟……這幾下我可要打得準一點喵。' },
+    ],
+    hex_abbot: [
+      { speaker: '塔主', text: '施主一路殺上來，手上的血債要怎麼算？' },
+      { speaker: '球球', text: '我沒殺誰，我只是要接師父回家。老住持讓開喵。' },
+    ],
   },
   bossIntroGeneric: <DialogueLine[]>[
     { speaker: '塔主', text: '到此為止了。' },
@@ -192,6 +228,15 @@ export const dialogue = {
     persian_lady: [
       { speaker: '塔主', text: '你們還站著做什麼？快替本小姐收拾他！' },
       { speaker: '球球', text: '原來妳只會躲在僕人後面。那我就先把他們打倒喵！' },
+    ],
+    // ---- 2026-09-02 第二波新關主（有第二階段的兩個）----
+    frog_daimyo: [
+      { speaker: '塔主', text: '來人！' },
+      { speaker: '球球', text: '一下子游出來這麼多隻……先把小的清掉喵！' },
+    ],
+    hex_abbot: [
+      { speaker: '塔主', text: '阿彌陀佛。' },
+      { speaker: '球球', text: '他身上長出一層鱗甲了……這下更難打進去喵！' },
     ],
   },
   bossPhase2Generic: <DialogueLine[]>[

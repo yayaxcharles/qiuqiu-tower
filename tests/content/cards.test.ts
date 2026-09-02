@@ -2,13 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 3、忍術 52、絕學 31、壞毛病 8', () => {
+  it('數量：起手 3、忍術 52、絕學 31、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     expect(count('起手')).toBe(3);
     expect(count('忍術')).toBe(52);
     expect(count('絕學')).toBe(31);
-    expect(count('壞毛病')).toBe(8);
-    expect(cards.length).toBe(94);
+    // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
+    expect(count('壞毛病')).toBe(10);
+    expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
+    expect(cards.length).toBe(96);
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -30,10 +32,20 @@ describe('牌資料', () => {
       expect(u.cost !== undefined || u.effects !== undefined || u.keywords !== undefined, c.name).toBe(true);
     }
   });
-  it('壞毛病一律不可打出且無效果', () => {
-    for (const c of cards.filter((x) => x.pool === '壞毛病')) {
+  it('壞毛病一律不可打出且無效果（戰鬥雜牌除外）', () => {
+    // 戰鬥雜牌（黏液）是**打得出來**的：規則就是「花 1 顆飯糰把它甩掉」，所以另外驗
+    for (const c of cards.filter((x) => x.pool === '壞毛病' && !x.combatOnly)) {
       expect(c.keywords).toContain('不可打出');
       expect(c.effects).toEqual([]);
+    }
+  });
+  it('戰鬥雜牌：沒有效果、進得了牌堆卻留不下來', () => {
+    for (const c of cards.filter((x) => x.combatOnly)) {
+      expect(c.pool, c.name).toBe('壞毛病');
+      expect(c.effects, c.name).toEqual([]);
+      // 打得出來的（黏液）要消耗、打不出來的（眼冒金星）要虛幻——兩條路都不會賴在牌堆裡
+      const kw = c.keywords ?? [];
+      expect(kw.includes('消耗') || kw.includes('虛幻'), c.name).toBe(true);
     }
   });
   it('目標模式與效果一致', () => {

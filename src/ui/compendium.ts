@@ -29,7 +29,9 @@ export function showCompendium(): void {
   const render = (): void => {
     grid.replaceChildren();
     for (const pool of POOL_ORDER) {
-      const group = cards.filter((c) => c.pool === pool);
+      // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不列進圖鑑：那不是「牌組會有的牌」，
+      // 是魔物臨時塞進來、打完就沒的東西
+      const group = cards.filter((c) => c.pool === pool && !c.combatOnly);
       if (!group.length) continue;
       grid.append(el('div', { class: 'comp-section' },
         el('span', { class: 'comp-pool' }, `${pool}（${group.length}）`),

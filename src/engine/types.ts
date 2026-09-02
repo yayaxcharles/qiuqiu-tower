@@ -4,11 +4,18 @@ import type { Rng, RngState } from './rng';
 export type CardType = '攻擊' | '技能' | '能力';
 export type Rarity = '常見' | '罕見' | '稀有';
 export type Pool = '起手' | '忍術' | '絕學' | '壞毛病';
-export type Keyword = '消耗' | '保留' | '不可打出';
+/** 虛幻＝回合結束時還留在手上就直接消失，不進棄牌堆（魔物塞給你的「眼冒金星」用） */
+export type Keyword = '消耗' | '保留' | '不可打出' | '虛幻';
 export type TargetMode = 'enemy' | 'all' | 'self' | 'none';
 
+/**
+ * 後面五個（縮殼、飛行、鱗甲、沉睡、消散）是 2026-09-02 第二波魔物帶進來的，
+ * **只會出現在魔物身上**，而且各自有自己的衰減規則（見 combat.ts 的魔物迴圈與 actions.ts 的 damageEnemy），
+ * 所以刻意不放進 `TURN_DECAY`——通用的「回合結束 −1」不管它們。
+ */
 export type StatusName =
-  | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '噎到' | '隱身' | '定身' | '反彈' | '潛水';
+  | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '噎到' | '隱身' | '定身' | '反彈' | '潛水'
+  | '縮殼' | '飛行' | '鱗甲' | '沉睡' | '消散';
 export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '噎到', '定身'];   // 溫牛奶、返璞「清掉所有減益」含定身（審查 #16）
 /** 回合結束層數 −1 的狀態 */
 // 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
@@ -64,6 +71,11 @@ export interface CardDef {
   upgrade: { cost?: number; effects?: Effect[]; keywords?: Keyword[] };
   /** 壞毛病副作用 */
   curse?: { onTurnEnd?: number; onTurnStart?: number; onDraw?: 'loseEnergy' };
+  /**
+   * 戰鬥雜牌：只有魔物在戰鬥中塞得進來（黏液、眼冒金星），
+   * 不會出現在事件、獎勵與圖鑑的壞毛病清單裡。戰鬥本來就用牌組的副本，戰鬥結束自然消失。
+   */
+  combatOnly?: boolean;
 }
 
 export interface CardInstance { uid: number; cardId: string; upgraded: boolean }
@@ -151,6 +163,15 @@ export type EnemyEffect =
   | { kind: 'stripPlayer'; names: StatusName[] }   // 看破：把玩家這些狀態整個拍掉（隱身、潛水——先囤好的閃避全沒）
   | { kind: 'chargeNext' }
   | { kind: 'escape' }
+  // ---- 2026-09-02 第二波魔物 ----
+  /** 自爆：先照 amount 打球球（吃蜷縮、隱身照閃），然後牠自己倒下（算打倒） */
+  | { kind: 'selfDestruct'; amount: number }
+  /** 鼓舞：場上所有活著的魔物（含自己）獲得狀態 */
+  | { kind: 'statusAllies'; name: StatusName; amount: number }
+  /** 盾陣：場上所有活著的魔物（含自己）獲得防禦 */
+  | { kind: 'blockAllies'; amount: number }
+  /** 塞牌：把 n 張雜牌塞進球球的棄牌堆，或洗進抽牌堆的隨機位置 */
+  | { kind: 'giveCard'; cardId: string; n: number; to: 'discard' | 'draw' }
   | { kind: 'nothing' };
 export interface EnemyMove { intent: Intent; label: string; effects: EnemyEffect[] }
 export type EnemyPool = '弱' | '中' | '強' | '大魔物' | '塔主' | '召喚';
@@ -209,6 +230,29 @@ export interface EnemyDef {
    */
   chooseMove?: (turn: number, moves: EnemyMove[]) => EnemyMove | undefined;
   phases?: EnemyPhase[];
+
+  // ===== 2026-09-02 第二波魔物的被動（畫面上都掛牌子，見 ui/screens/combat.ts 的 enemyUnit）=====
+  /**
+   * 分裂：血量掉到最大值 × `below` 以下時，本體消失（**不算打倒**、不掉戰利品），
+   * 原地冒出 `n` 隻 `enemyId`，每隻的血量＝本體剩下的血。一場只會發生一次。
+   */
+  splitInto?: { enemyId: string; n: number; below: number };
+  /** 詛咒：玩家每打出一張**技能**牌，就把 n 張 `cardId` 洗進玩家的抽牌堆 */
+  hexOnSkill?: { cardId: string; n: number };
+  /** 憤怒：玩家每打出一張**技能**牌，牠就 +N 爪力 */
+  angerOnSkill?: number;
+  /** 被打醒時跑的效果（配「沉睡」用；自然睡飽醒來不算——那不會生氣） */
+  onWake?: EnemyEffect[];
+  /** 開戰帶飛行 N；每個牠的回合開始補回 N */
+  flying?: number;
+  /** 開戰帶鱗甲 N */
+  plating?: number;
+  /** 開戰帶縮殼 N */
+  curlUp?: number;
+  /** 開戰帶沉睡 N */
+  asleep?: number;
+  /** 開戰帶消散 N */
+  fadeAfter?: number;
 }
 export interface EncounterDef {
   id: string;
@@ -353,8 +397,10 @@ export interface EnemyCombat extends Unit {
   invulnIn: number;
   move: EnemyMove;
   dead: boolean;
-  escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退
+  escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退（消散、分裂也走這條）
   stolen: number;     // 這隻偷走的小魚乾，擊倒牠時退回
+  /** 分裂過了：一場只裂一次（見 EnemyDef.splitInto） */
+  split?: boolean;
 }
 export interface EffectCtx {
   targetUid?: number;
@@ -401,4 +447,10 @@ export interface CombatState {
   kills: number;
   cardsPlayed: number;
   nextEnemyUid: number;
+  /**
+   * 魔物塞牌給球球（黏液、眼冒金星）時要發的下一個牌編號。
+   * 從「牌組副本裡最大的編號 +1」起跳，才不會跟原本的牌撞號——
+   * 撞號的話 `moveCard`／`retained` 那些靠 uid 找牌的地方會抓錯張。
+   */
+  nextCardUid: number;
 }

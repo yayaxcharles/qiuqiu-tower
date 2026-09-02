@@ -2,14 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { encounterById, encounters, encountersOfPool, enemies, enemyById } from '../../src/content/enemies';
 
 describe('魔物資料', () => {
-  it('數量：一般 46、大魔物 5、塔主 7、召喚 8', () => {
+  it('數量：一般 58、大魔物 5、塔主 11、召喚 10', () => {
     const n = (p: string) => enemies.filter((e) => e.pool === p).length;
     // 2026-09-01 三關制內容包：塔中 7＋塔頂 5 進一般池、影球球進大魔物、
     // 關主 3→7（橘皮大王＋第二關三選一）、召喚加執事貓與女僕貓
     // 一般 46＝2026-09-02 補怪：塔中唐傘小僧、河童、豆腐小僧；塔頂烏天狗、白狐巫女、空鎧武者
-    expect(n('弱') + n('中') + n('強')).toBe(46);
-    // 召喚 8＝再加鏡子走廊的鏡中球球（2026-09-02）
-    expect(n('大魔物')).toBe(5); expect(n('塔主')).toBe(7); expect(n('召喚')).toBe(8);
+    // 一般 46→58、塔主 7→11、召喚 8→10＝2026-09-02 第二波怪（docs/怪物擴充_第二波_設計稿.md）：
+    // 塔下 4 隻、塔中 4 隻、塔頂 4 隻；關主蛙大名、犰狳王、沉睡的龍貓、詛咒老住持；召喚小團子、蝌蚪兵
+    expect(n('弱') + n('中') + n('強')).toBe(58);
+    expect(n('大魔物')).toBe(5); expect(n('塔主')).toBe(11); expect(n('召喚')).toBe(10);
     expect(new Set(enemies.map((e) => e.id)).size).toBe(enemies.length);
   });
   it('生命區間合法、至少一個動作、有台詞與圖', () => {
@@ -24,9 +25,10 @@ describe('魔物資料', () => {
   it('召喚與遭遇引用的魔物都存在，池一致', () => {
     for (const e of enemies) for (const m of e.moves) for (const fx of m.effects)
       if (fx.kind === 'summon') expect(enemyById[fx.enemyId], `${e.name} 召喚`).toBeTruthy();
-    // 遭遇的池可以比成員高一階：兩隻全規格中型怪同場（ninja_can、vacuum_claw）
-    // 實測是強怪等級的戰鬥，放中池會在 6F 把人打死（勝率 2%）。
-    // 低於成員的池仍然抓（把強怪塞進弱遭遇一定是手滑）。
+    // 遭遇的池可以比成員高：兩隻全規格中型怪同場（ninja_can、vacuum_claw）
+    // 實測是強怪等級的戰鬥，放中池會在 6F 把人打死（勝率 2%）；
+    // 也有「一隻大的配一隻小的當添頭」的組合（bear_pup＝冬眠熊＋犰狳寶寶、rat_general＝鼠大將＋兩隻小老鼠兵），
+    // 那種一次差兩階也是刻意的。**低於**成員的池仍然抓（把強怪塞進弱遭遇一定是手滑）。
     const order = ['弱', '中', '強'];
     for (const enc of encounters) {
       expect(encounterById[enc.id]).toBe(enc);
@@ -36,7 +38,7 @@ describe('魔物資料', () => {
         if (mp === enc.pool) continue;
         // 塔主的隨從例外：波斯大小姐開場就帶執事貓與女僕貓（僕從護體要有僕從可打）
         if (enc.pool === '塔主' && mp === '召喚') continue;
-        const ok = order.indexOf(enc.pool) - order.indexOf(mp) === 1;
+        const ok = order.indexOf(enc.pool) - order.indexOf(mp) >= 1;
         expect(ok, `${enc.id}：成員 ${id}（${mp}）不該出現在 ${enc.pool} 遭遇`).toBe(true);
       }
     }

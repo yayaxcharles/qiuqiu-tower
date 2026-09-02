@@ -1,4 +1,5 @@
 import { potionCapacity } from '../../engine/run';
+import { cardById } from '../../content/cards';
 import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
@@ -29,9 +30,13 @@ const STATUS_ICON: Record<StatusName, string> = {
   懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 噎到: 'icon/status_choke',
   隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
   潛水: 'icon/status_stealth',
+  // 第二波魔物的五個狀態。圖示還沒生：`chip()` 會退回寫名字（灰剪影一排認不出誰是誰）
+  縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate',
+  沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
 };
 /** 狀態排列順序寫死，好的排前面，才不會每次重畫就換位置（物件鍵的順序不保證） */
-const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '定身', '翻肚', '懶洋洋', '炸毛', '噎到'];
+const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲',
+  '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
  * 規格 §2 的名詞表根本沒有這個詞、牌面也刻意不講（見 `cardtext.ts` 的 `isDive`），
@@ -91,8 +96,10 @@ function bossMovePose(phase: number, label: string): string | undefined {
 interface Acted { label: string; attacked: boolean }
 
 /** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
-const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈'];
-const BAD_STATUS: readonly StatusName[] = ['定身', '翻肚', '懶洋洋', '炸毛', '噎到'];
+// 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲對魔物是好事（金光），
+// 沉睡、消散對牠是壞事（紫光）。球球身上永遠不會有這五個。
+const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲'];
+const BAD_STATUS: readonly StatusName[] = ['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
 const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
   names.reduce((t, k) => t + getStatus(u, k), 0);
 /**
@@ -340,8 +347,11 @@ registerScreen('combat', (app, root, props) => {
     const hits = m.effects.filter(has('damage'));
     const rnd = m.effects.find(has('damageRandom'));
     const blk = m.effects.find(has('block'));
+    const boom = m.effects.find(has('selfDestruct'));
     let text = `${INTENT_GLYPH[m.intent]} ${m.label}`;
-    if (getStatus(e, '定身') > 0) text = '被定住了';   // 定身擋整個動作（2026-09-02）
+    if (getStatus(e, '沉睡') > 0) text = '呼呼大睡';   // 睡著的什麼都不做（2026-09-02 第二波）
+    else if (getStatus(e, '定身') > 0) text = '被定住了';   // 定身擋整個動作（2026-09-02）
+    else if (boom) text = `攻 ${computeAttack(boom.amount * x, e, cs.player)}（爆）`;
     else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, cs.player)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿）' : ''}`).join('＋')}`;
     else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, cs.player)}～${computeAttack(rnd.max * x, e, cs.player)}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
@@ -358,6 +368,7 @@ registerScreen('combat', (app, root, props) => {
    */
   function describeMove(e: EnemyCombat): string {
     const m = e.move;
+    if (getStatus(e, '沉睡') > 0) return `睡著了，這回合什麼都不會做。再睡 ${getStatus(e, '沉睡')} 回合；打痛牠會提早醒，而且醒來會很生氣。`;
     if (getStatus(e, '定身') > 0) return '被定住了，這回合什麼都做不了。';
     const x = e.charged ? 2 : 1;
     const parts: string[] = [];
@@ -382,7 +393,14 @@ registerScreen('combat', (app, root, props) => {
         case 'stealFish': parts.push(`偷走你 ${fx.n} 條小魚乾`); break;
         case 'discardRandomHand': parts.push(`讓你下回合少抽 ${fx.n} 張牌`); break;
         case 'escape': parts.push('逃走'); break;
+        // ---- 2026-09-02 第二波魔物的四個新效果 ----
+        case 'selfDestruct': parts.push(`自爆：造成 ${computeAttack(fx.amount * x, e, cs.player)} 點傷害，然後牠自己也倒下`); break;
+        case 'statusAllies': parts.push(`全體魔物獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '點'}${fx.name}`); break;
+        case 'blockAllies': parts.push(`全體魔物獲得 ${fx.amount} 點防禦`); break;
+        case 'giveCard': parts.push(`把 ${fx.n} 張「${cardById[fx.cardId]?.name ?? fx.cardId}」塞進你的${fx.to === 'discard' ? '棄牌堆' : '抽牌堆'}`); break;
         case 'nothing': parts.push('發呆，什麼都不做'); break;
+        // 漏接新的 EnemyEffect 種類會在型別檢查就爆——魔物做得到的事，提示框一定要講得出來
+        default: { const _never: never = fx; void _never; break; }
       }
     }
     const body = parts.length ? parts.join('，') : '看不出來要做什麼';
@@ -435,6 +453,11 @@ registerScreen('combat', (app, root, props) => {
       if (def?.reviveGroup) row.prepend(chip('同生共死', null, '', 'bad'));
       // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
       if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
+      // 第二波魔物的三個被動（2026-09-02）。狀態型的（縮殼、飛行、鱗甲、沉睡、消散）自己就是狀態牌子，
+      // 這三個沒有層數可掛，所以照「僕從護體」那一套做成小牌
+      if (def?.splitInto && !e.split) row.prepend(chip('分裂', null, '', 'bad'));
+      if (def?.hexOnSkill) row.prepend(chip('詛咒', null, '', 'bad'));
+      if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
     }
     if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), style: `left:${left}px` },
