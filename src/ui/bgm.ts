@@ -11,6 +11,10 @@ import { BASE } from './assets';
 
 export type BgmName =
   | 'leisure' | 'act1' | 'act2' | 'act3' | 'battle' | 'boss' | 'shop' | 'rest'
+  // 塔中／塔頂的一般戰：同一首出征曲用 ffmpeg 做的兩個變奏（塔中升兩個半音、塔頂降三個半音加回音），
+  // 三關的地圖曲本來就各一首，但戰鬥（玩最久的地方）三關共用一首，整關聽起來就沒換（使用者 2026-09-02）。
+  // 之後有真正的新曲子，直接覆蓋 public/bgm/battle2.mp3、battle3.mp3 就好。
+  | 'battle2' | 'battle3'
   | 'elite'      // 大魔物（精英）戰
   | 'finalboss'  // 第三關的走火入魔大俠貓
   | 'shadow'     // 影球球鏡像戰（遭遇 id 是 shadow_cat 時）

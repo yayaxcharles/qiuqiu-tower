@@ -162,9 +162,10 @@ export class App {
     if (!run) return;
     // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
     const pool = encounterById[encounterId]?.pool;
+    const battleTrack = (['battle', 'battle2', 'battle3'] as const)[Math.min(3, Math.max(1, run.act)) - 1]!;
     setBgm(encounterId === 'shadow_cat' ? 'shadow'
       : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
-        : pool === '大魔物' ? 'elite' : 'battle');
+        : pool === '大魔物' ? 'elite' : battleTrack);
     const go = (): void => {
       this.cs = beginCombat(run, encounterId);
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
