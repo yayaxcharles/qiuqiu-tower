@@ -96,6 +96,9 @@ function startPlaying(name: BgmName): void {
   else swap();
 }
 
+/** 過場影片播放中把音樂停住（影片自己帶配樂）；播完由 video.ts 用 setBgm 接下一幕的曲子 */
+export function pauseBgm(): void { el?.pause(); }
+
 /**
  * 換到某首曲子。同一首正在放就不動它——每次換畫面都會呼叫，
  * 地圖→事件→地圖這種同曲切換不能讓音樂重頭來。

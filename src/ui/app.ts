@@ -230,7 +230,16 @@ export class App {
         });
         return;
       }
-      playDialogue(run.act === 1 ? dialogue.actClear1 : dialogue.actClear2, () => this.show('actclear'));
+      // 過關過場也走插圖幻燈片（使用者 2026-09-02：「開頭跟結尾的投影片過場很棒，希望每個關卡關主都有」）：
+      // 三句台詞配三張圖——樓梯露出來、小魚乾只找回一半、爬上塔中／魔物化煙、師父的聲音、月光下的最後一段樓梯。
+      // 圖還沒生好（舊快取）就退回純文字對白，跟序章同一套規矩。
+      const lines = run.act === 1 ? dialogue.actClear1 : dialogue.actClear2;
+      const stills = run.act === 1
+        ? ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb']
+        : ['bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs'];
+      const actSlides = stills.map((img, i) => ({ img, lines: lines.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
+      if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear'));
+      else playDialogue(lines, () => this.show('actclear'));
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面

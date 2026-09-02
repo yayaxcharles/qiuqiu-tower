@@ -38,5 +38,7 @@ registerScreen('title', (app, root) => {
         el('button', { class: 'btn', ...(hasSave() ? {} : { disabled: 'disabled' }), onclick: () => { if (!app.continueRun()) app.show('title'); } }, '續玩'),
         seed),
       el('div', { class: 'title-best' }, best ? `最佳成績：到達 ${best.floor}F${best.won ? '（通關）' : ''}` : '還沒有成績'),
-      el('div', { class: 'title-note' }, '存檔存在這台電腦的瀏覽器裡。')));
+      el('div', { class: 'title-note' }, '存檔存在這台電腦的瀏覽器裡。'),
+      // 版權列：使用者 2026-09-02 指定放製作者與信箱
+      el('div', { class: 'title-credit' }, '© 2026 葉彥呈 Charles Y.C. Yeh ｜ yayaxyayax@gmail.com')));
 });

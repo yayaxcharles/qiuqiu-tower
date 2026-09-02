@@ -47,7 +47,9 @@ html, body {
   z-index: 100;         /* 整層壓在畫面層上面；層內誰蓋誰仍看各自的 z-index */
   pointer-events: none; /* 平常不擋畫面，需要吃點擊的疊層自己開回來（見下一條） */
 }
-.dialogue-overlay, .modal-overlay { pointer-events: auto; }
+/* 過場影片也要吃點擊：2026-09-02 使用者回報「跳過按鈕壞的」——疊層預設 pointer-events: none，
+   影片層沒開回來，跳過鈕點不到（自動化測試用程式點沒踩到，真人滑鼠才會） */
+.dialogue-overlay, .modal-overlay, .cine-overlay { pointer-events: auto; }
 
 img { -webkit-user-drag: none; }
 
@@ -138,6 +140,7 @@ img { -webkit-user-drag: none; }
 }
 .title-best { font-size: 20px; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
 .title-note { font-size: 14px; opacity: .75; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
+.title-credit { margin-top: 10px; font-size: 12px; letter-spacing: .04em; opacity: .6; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
 
 /* ===== 對白疊層 ===== */
 .dialogue-overlay { animation: fade-in .16s ease-out; }
