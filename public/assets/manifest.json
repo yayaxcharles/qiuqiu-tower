@@ -470,7 +470,17 @@
   "codex/potion_nip_ball": "assets/icons/potion_nip_ball.webp",
   "codex/potion_pepper": "assets/icons/potion_pepper.webp",
   "codex/potion_quilt": "assets/icons/potion_quilt.webp",
-  "codex/potion_secret_scroll": "assets/icons/potion_secret_scroll.webp"
+  "codex/potion_secret_scroll": "assets/icons/potion_secret_scroll.webp",
+  "codex/relic_catgrass_seed": "assets/icons/relic_catgrass_seed.webp",
+  "codex/relic_coin_jar": "assets/icons/relic_coin_jar.webp",
+  "codex/relic_crane_bookmark": "assets/icons/relic_crane_bookmark.webp",
+  "codex/relic_feather_toy": "assets/icons/relic_feather_toy.webp",
+  "codex/relic_old_towel": "assets/icons/relic_old_towel.webp",
+  "codex/relic_potion_bag": "assets/icons/relic_potion_bag.webp",
+  "codex/relic_scratch_board": "assets/icons/relic_scratch_board.webp",
+  "codex/relic_warm_stone": "assets/icons/relic_warm_stone.webp",
+  "codex/relic_wooden_fish": "assets/icons/relic_wooden_fish.webp",
+  "codex/relic_yarn_gloves": "assets/icons/relic_yarn_gloves.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
