@@ -11,6 +11,7 @@ import { artUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
+import { showPotionSwap } from '../potionswap';
 import { el } from '../dom';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
@@ -118,8 +119,12 @@ registerScreen('event', (app, root, props) => {
     }));
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
-  const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void =>
+  const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void => {
     panel(resultText, note, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'), gains, resultArt, show);
+    // 忍具帶滿收不下的（gains 裡標 missed）：結果畫好之後問要不要換掉一支
+    const missedGain = gains.find((g) => g.kind === '忍具' && g.missed);
+    if (missedGain) window.setTimeout(() => showPotionSwap(run, missedGain.id, (idx) => { if (idx >= 0) { play('relic'); renderHud(app, root); } }), 400);
+  };
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
   function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = []): void {

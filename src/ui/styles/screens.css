@@ -972,3 +972,15 @@
    1. 立繪抬到帶子上方（兩行對白的帶子高約 210）；2. 疊層在戰鬥畫面上時，戰場上的球球先隱形，講完再回來 */
 .dialogue-overlay .dialogue-portrait { bottom: 214px; height: 290px; }
 #stage:has(#overlay .dialogue-overlay) .combat .unit.player .sprite-box { visibility: hidden; }
+
+/* ===== 換忍具的小視窗（2026-09-02） ===== */
+.swap-modal { max-width: 560px; }
+.swap-new { display: flex; align-items: center; gap: 12px; margin: 6px 0 12px; padding: 8px 12px; border: 1.5px solid #ffd98a99; border-radius: 10px; background: #fff8e8; }
+.swap-new img, .swap-item img { width: 40px; height: 40px; object-fit: contain; }
+.swap-list { display: flex; flex-direction: column; gap: 8px; }
+.swap-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: 1.5px solid #3a2a1c66; border-radius: 10px; background: #fffdf6; cursor: pointer; text-align: left; font: inherit; color: var(--ink); }
+.swap-item:hover { border-color: #c9702a; background: #fff3dd; }
+.swap-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.swap-text b { font-size: 15px; }
+.swap-text em { font-style: normal; font-size: 12.5px; color: #6b5a45; }
+.swap-go { color: #7a3d15; font-weight: bold; white-space: nowrap; }

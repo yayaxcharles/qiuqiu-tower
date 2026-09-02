@@ -79,6 +79,8 @@ export interface RelicDef {
   /** 罐頭鋪售價。不填＝150。強弱要有價差（使用者指定），數字標在各件定義上 */
   price?: number;
   hooks: {
+    /** 忍具多帶幾支（忍具袋） */
+    potionSlots?: number;
     firstTurnDraw?: number;
     firstTurnEnergy?: number;
     maxHp?: number;

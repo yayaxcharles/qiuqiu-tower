@@ -10,6 +10,7 @@ import { screenBg, tierBgKey } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
+import { showPotionSwap } from '../potionswap';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
@@ -66,6 +67,16 @@ registerScreen('reward', (app, root, props) => {
   if (relic) items.append(el('div', { class: 'reward-item relic' }, icon(relic.art, relic.name),
     el('span', { class: 'reward-line' },
       el('b', {}, `獲得秘寶「${relic.name}」`), el('em', {}, relic.text))));
+  // 忍具帶滿收不下：先問要不要換掉一支（換了就把那一行改成「換成了」）
+  const missed = r.potionMissed ? potionById[r.potionMissed] : undefined;
+  if (missed && r.potionMissed) {
+    const line = el('span', { class: 'reward-line' }, el('b', {}, `忍具帶滿了，「${missed.name}」收不下`), el('em', {}, missed.text));
+    items.append(el('div', { class: 'reward-item potion' }, icon(missed.art, missed.name), line));
+    const newId = r.potionMissed;
+    window.setTimeout(() => showPotionSwap(run, newId, (idx) => {
+      if (idx >= 0) { play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text)); renderHud(app, root); }
+    }), 350);
+  }
   const potion = r.potion ? potionById[r.potion] : undefined;
   if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),
     el('span', { class: 'reward-line' },

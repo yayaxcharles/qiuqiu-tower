@@ -104,7 +104,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
-  if (r.potion && !addPotion(run, r.potion)) r.potion = null;
+  if (r.potion && !addPotion(run, r.potion)) { r.potionMissed = r.potion; r.potion = null; }   // 帶滿：留著讓獎勵畫面問要不要換
   // 只有第三關的關主倒下才算通關；前兩關的關主打完由 advanceAct 接手進下一關
   if (kind === '塔主' && run.act >= ACTS) run.status = 'won';
   return r;
@@ -183,8 +183,18 @@ export function takeRelic(run: RunState, relicId: string): boolean {
   return true;
 }
 
+/** 忍具格數＝難度給的格數＋秘寶加成（忍具袋） */
+export function potionCapacity(run: RunState): number {
+  return runMods(run).potionSlots + run.relics.reduce((s, id) => s + (relicById[id]?.hooks.potionSlots ?? 0), 0);
+}
+/** 帶滿時用新的換掉第 index 支（2026-09-02 使用者：「滿的話新拿到的可以把舊的替換掉」） */
+export function replacePotion(run: RunState, index: number, potionId: string): boolean {
+  if (index < 0 || index >= run.potions.length || !potions.some((p) => p.id === potionId)) return false;
+  run.potions[index] = potionId;
+  return true;
+}
 export function addPotion(run: RunState, potionId: string): boolean {
-  if (run.potions.length >= runMods(run).potionSlots || !potions.some((p) => p.id === potionId)) return false;
+  if (run.potions.length >= potionCapacity(run) || !potions.some((p) => p.id === potionId)) return false;
   run.potions.push(potionId);
   return true;
 }
@@ -243,9 +253,15 @@ export function buyRelic(run: RunState, shop: ShopStock, i: number): boolean {
   const it = shop.relics[i]; if (!it || it.sold || run.relics.includes(it.id) || !pay(run, it.price)) return false;
   it.sold = true; takeRelic(run, it.id); return true;
 }
-export function buyPotion(run: RunState, shop: ShopStock, i: number): boolean {
-  const it = shop.potions[i]; if (!it || it.sold || run.potions.length >= 3 || !pay(run, it.price)) return false;
-  it.sold = true; addPotion(run, it.id); return true;
+/** `replaceIndex`＝帶滿時要換掉哪一支；帶滿又沒指定就不賣（錢也不扣） */
+export function buyPotion(run: RunState, shop: ShopStock, i: number, replaceIndex?: number): boolean {
+  const it = shop.potions[i]; if (!it || it.sold) return false;
+  const full = run.potions.length >= potionCapacity(run);
+  if (full && (replaceIndex === undefined || replaceIndex < 0 || replaceIndex >= run.potions.length)) return false;
+  if (!pay(run, it.price)) return false;
+  it.sold = true;
+  if (full) replacePotion(run, replaceIndex!, it.id); else addPotion(run, it.id);
+  return true;
 }
 export function buyRemove(run: RunState, uid: number): boolean {
   if (!run.deck.some((c) => c.uid === uid) || !pay(run, run.removeCost)) return false;
@@ -275,7 +291,8 @@ export type RunEffectOutcome =
  * 玩家看不到那是什麼、有什麼用——使用者的原話：「圖片跟功能這邊沒顯示出來會不知道拿到了甚麼」。
  * 所以另外收一份結構化的清單，畫面拿它排出圖示＋名稱＋效果，跟戰利品畫面同一種列。
  */
-export type RunGain = { kind: '秘寶' | '忍具'; id: string };
+/** `missed`＝忍具帶滿收不下（畫面會問要不要換掉一支舊的） */
+export type RunGain = { kind: '秘寶' | '忍具'; id: string; missed?: boolean };
 
 export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: string[],
   gains?: RunGain[]): RunEffectOutcome {
@@ -325,7 +342,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         let full = 0;
         for (let i = 0; i < fx.n; i++) {
           const id = rollPotion(rng);
-          if (addPotion(run, id)) gains?.push({ kind: '忍具', id }); else full += 1;
+          if (addPotion(run, id)) gains?.push({ kind: '忍具', id }); else { full += 1; gains?.push({ kind: '忍具', id, missed: true }); }
         }
         if (full > 0) notes?.push(`忍具帶滿了，還有 ${full} 個收不下`);
         break;

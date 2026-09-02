@@ -1,3 +1,4 @@
+import { potionCapacity } from '../../engine/run';
 import { dialogue } from '../../content/dialogue';
 import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
@@ -463,7 +464,7 @@ registerScreen('combat', (app, root, props) => {
     attachTooltip(energy, '飯糰');
 
     const potions = el('div', { class: 'potions' });
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < potionCapacity(run); i++) {   // 格數隨難度與忍具袋變
       const id = cs.potions[i];
       const def = id ? potionById[id] : undefined;
       const slot = el('div', { class: `potion${def ? '' : ' empty'}` });

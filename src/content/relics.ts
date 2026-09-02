@@ -27,6 +27,8 @@ export const relics: RelicDef[] = [
 
   // --- 常見：開場就有感的小加成 ---
   { id: 'straw_hat', name: '斗笠', pool: '常見', text: '每場戰鬥開始時獲得 4 點蜷縮。', art: 'codex/relic_straw_hat', price: 120, hooks: { combatStart: [{ kind: 'block', amount: 4 }] } },
+  // 2026-09-02 使用者：「忍具滿了後續都拿不到？該出個秘寶增加格子」
+  { id: 'potion_bag', name: '忍具袋', pool: '常見', text: '忍具可以多帶一支。', art: 'codex/relic_potion_bag', price: 140, hooks: { potionSlots: 1 } },
   { id: 'wrist_guard', name: '護腕', pool: '常見', text: '每場戰鬥開始時獲得 1 點爪力。', art: 'codex/relic_wrist_guard', price: 150, hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] } },
   { id: 'soft_pad', name: '軟墊', pool: '常見', text: '每場戰鬥開始時獲得 1 點貓步。', art: 'codex/relic_soft_pad', price: 150, hooks: { combatStart: [{ kind: 'status', name: '貓步', amount: 1, target: 'self' }] } },
   { id: 'dried_squid', name: '魷魚絲', pool: '常見', text: '最大生命 +6。', art: 'codex/relic_dried_squid', price: 90, hooks: { maxHp: 6 } },

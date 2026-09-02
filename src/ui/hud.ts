@@ -5,7 +5,7 @@ import { showCompendium } from './compendium';
 import { relicById } from '../content/relics';
 import type { App } from './app';
 import { artUrl } from './assets';
-import { ACT_NAMES } from '../engine/run';
+import { ACT_NAMES, potionCapacity } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
 import { musicOn, musicVolume, setMusicVolume, toggleMusic } from './bgm';
 import { showDeckPicker } from './deckview';
@@ -73,7 +73,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   }
 
   const potions = el('div', { class: 'hud-potions' });
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < potionCapacity(run); i++) {   // 格數隨難度與忍具袋變
     const id = run.potions[i];
     const p = id ? potionById[id] : undefined;
     const slot = el('div', { class: `hud-potion${p ? '' : ' empty'}` });

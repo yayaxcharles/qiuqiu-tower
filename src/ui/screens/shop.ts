@@ -2,7 +2,8 @@ import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
-import { buyCard, buyPotion, buyRelic, buyRemove, makeShop } from '../../engine/run';
+import { buyCard, buyPotion, buyRelic, buyRemove, makeShop, potionCapacity } from '../../engine/run';
+import { showPotionSwap } from '../potionswap';
 import type { RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
@@ -79,10 +80,14 @@ registerScreen('shop', (app, root) => {
     shop.potions.forEach((it, i) => {
       const d = potionById[it.id];
       if (!d) return;
-      // 忍具最多帶三支，帶滿了就買不下去（buyPotion 會擋）：講明原因，不要假裝是賣掉了
-      const full = run.potions.length >= 3;
-      potions.append(stall(d.art, d.name, full ? `${d.text}（忍具帶滿了）` : d.text, it.price, it.sold, full,
-        () => { if (buyPotion(run, shop, i)) { play('buy'); render(); } }));
+      // 帶滿了還是能買：先問要換掉哪一支，選了才付錢（2026-09-02）
+      const full = run.potions.length >= potionCapacity(run);
+      const poor = run.fish < it.price;
+      potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, it.price, it.sold, poor,
+        () => {
+          if (!full) { if (buyPotion(run, shop, i)) { play('buy'); render(); } return; }
+          showPotionSwap(run, it.id, (idx) => { if (idx >= 0 && buyPotion(run, shop, i, idx)) { play('buy'); render(); } }, { apply: false });
+        }));
     });
 
     const remove = el('button', {

@@ -4,7 +4,11 @@ import { relics } from '../content/relics';
 import type { Rng } from './rng';
 import type { CardDef, Pool, Rarity, RelicPool } from './types';
 
-export interface CombatRewards { kind: '戰鬥' | '大魔物' | '塔主'; cards: CardDef[]; fish: number; potion: string | null; relic: string | null }
+export interface CombatRewards {
+  kind: '戰鬥' | '大魔物' | '塔主'; cards: CardDef[]; fish: number; potion: string | null; relic: string | null;
+  /** 忍具帶滿收不下的那支：獎勵畫面會問要不要換掉一支舊的（2026-09-02） */
+  potionMissed?: string | null;
+}
 
 const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];
 /**
