@@ -25,7 +25,8 @@ describe('隨機試玩', () => {
   it('曾經打超過 60 回合的種子照樣跑得完，而且結果不變', () => {
     // 2026-09-01 地圖規則改動（5F 匯合、分岔與直向查重）後同種子的走向跟著變，錨值更新
     // 2026-09-02 遭遇改成整關洗牌佇列（不重複抽）＋塔中塔頂各補四組雙人遭遇，擲骰順序又變，錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 9, turns: 32, kills: 5, deckSize: 15 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 12, turns: 54, kills: 6, deckSize: 15 });
+    // 2026-09-02 晚：起始血 70→76、師父第二階段段數 7→6／4→3，錨值重錄
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 9, turns: 34, kills: 6, deckSize: 15 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 12, turns: 55, kills: 6, deckSize: 15 });
   });
 });

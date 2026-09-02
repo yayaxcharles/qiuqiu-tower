@@ -73,7 +73,7 @@ describe('秘寶新掛鉤', () => {
   it('貓草種子＋貓草：打盹回三成×2＋8；暖毯：下一場開戰 12 點蜷縮', () => {
     const r = newRun('rest-hooks'); r.hp = 10;
     takeRelic(r, 'catgrass'); takeRelic(r, 'catgrass_seed'); takeRelic(r, 'warm_blanket');
-    expect(napHeal(r)).toBe(Math.floor(70 * 0.3 * 2) + 8);
+    expect(napHeal(r)).toBe(Math.floor(76 * 0.3 * 2) + 8);
     rest(r, '打盹');
     expect(r.restBlock).toBe(12);
   });

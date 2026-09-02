@@ -16,7 +16,7 @@ describe('難度表', () => {
     expect(DIFFICULTY_NAMES.length).toBe(MAX_DIFFICULTY);
     expect(DIFFICULTY_TEXT.length).toBe(MAX_DIFFICULTY);
     const m1 = difficultyMods(1);
-    expect(m1).toEqual({ eliteMul: 1, enemyStrength: 0, hpMul: 1, actHeal: 1, startCurse: null, potionSlots: 3, shopMul: 1, unlucky: false, maxHp: 70, topEliteStrength: 0, finalPrefight: false });
+    expect(m1).toEqual({ eliteMul: 1, enemyStrength: 0, hpMul: 1, actHeal: 1, startCurse: null, potionSlots: 3, shopMul: 1, unlucky: false, maxHp: 76, topEliteStrength: 0, finalPrefight: false });
     for (let d = 2; d <= MAX_DIFFICULTY; d++) {
       const a = difficultyMods(d - 1), b = difficultyMods(d);
       expect(b.eliteMul).toBeGreaterThanOrEqual(a.eliteMul);
@@ -31,7 +31,7 @@ describe('難度表', () => {
     const r1 = newRun('d1', 1), r4 = newRun('d4', 4), r5 = newRun('d5', 5);
     expect(r1.deck.length).toBe(STARTER_DECK.length);
     expect(r4.deck.filter((c) => c.cardId === 'zhongji').length).toBe(1);
-    expect(r5.maxHp).toBe(64); expect(r5.hp).toBe(64); expect(r5.difficulty).toBe(5);
+    expect(r5.maxHp).toBe(70); expect(r5.hp).toBe(70); expect(r5.difficulty).toBe(5);
     expect(addPotion(r4, 'whetstone')).toBe(true); expect(addPotion(r4, 'whetstone')).toBe(true);
     expect(addPotion(r4, 'whetstone')).toBe(false);   // 第三支塞不進去
     expect(addPotion(r1, 'whetstone') && addPotion(r1, 'whetstone') && addPotion(r1, 'whetstone')).toBe(true);
@@ -49,7 +49,7 @@ describe('難度表', () => {
     r.hp = 30; r.maxHp = 70;
     advanceAct(r);
     expect(r.hp).toBe(60);
-    const r1 = newRun('heal1', 1); r1.hp = 30; advanceAct(r1); expect(r1.hp).toBe(70);
+    const r1 = newRun('heal1', 1); r1.hp = 30; advanceAct(r1); expect(r1.hp).toBe(76);
   });
   it('罐頭鋪：難度 4 貴一成；壞事件掉血乘 1.5', () => {
     const r = newRun('shop', 4); const r1 = newRun('shop', 1);
@@ -58,7 +58,7 @@ describe('難度表', () => {
     for (const c of s.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * 1.1));
     for (const c of s1.cards) expect(c.price).toBe(base[c.def.rarity]);
     applyRunEffects(r, [{ kind: 'damage', n: 10 }]); applyRunEffects(r1, [{ kind: 'damage', n: 10 }]);
-    expect(r.hp).toBe(70 - 15); expect(r1.hp).toBe(70 - 10);
+    expect(r.hp).toBe(76 - 15); expect(r1.hp).toBe(76 - 10);
   });
   it('地圖：難度 2 起大魔物節點更多（100 張圖平均）', () => {
     const count = (mul: number): number => {

@@ -22,7 +22,7 @@ function goTo(run: RunState, type: string): void {   // 一路往上走到第一
 describe('新的一局', () => {
   it('起手狀態', () => {
     const run = fresh();
-    expect(run.hp).toBe(70); expect(run.maxHp).toBe(70); expect(run.fish).toBe(50);
+    expect(run.hp).toBe(76); expect(run.maxHp).toBe(76); expect(run.fish).toBe(50);
     expect(run.deck.length).toBe(10); expect(run.relics).toEqual(['blue_headband']);
     expect(run.potions).toEqual([]); expect(run.floor).toBe(0); expect(run.currentNode).toBeNull();
     expect(run.status).toBe('playing'); expect(run.removeCost).toBe(75);
@@ -136,10 +136,10 @@ describe('牌組、秘寶、忍具', () => {
   it('秘寶：不重複、鮪魚罐頭 +10 最大生命、塔主令牌 −10', () => {
     const run = fresh();
     expect(takeRelic(run, 'tuna_can')).toBe(true);
-    expect(run.maxHp).toBe(80); expect(run.hp).toBe(80);
+    expect(run.maxHp).toBe(86); expect(run.hp).toBe(86);
     expect(takeRelic(run, 'tuna_can')).toBe(false);
     expect(takeRelic(run, 'tower_token')).toBe(true);
-    expect(run.maxHp).toBe(70); expect(run.hp).toBe(70);
+    expect(run.maxHp).toBe(76); expect(run.hp).toBe(76);
   });
   it('忍具最多 3 個', () => {
     const run = fresh();
@@ -151,9 +151,9 @@ describe('牌組、秘寶、忍具', () => {
 describe('貓窩、紙箱、罐頭鋪', () => {
   it('打盹回 30%，貓草加倍；磨爪升級', () => {
     const run = fresh(); run.hp = 20;
-    expect(rest(run, '打盹')).toBe(true); expect(run.hp).toBe(41);
+    expect(rest(run, '打盹')).toBe(true); expect(run.hp).toBe(42);
     run.hp = 20; takeRelic(run, 'catgrass');
-    rest(run, '打盹'); expect(run.hp).toBe(62);
+    rest(run, '打盹'); expect(run.hp).toBe(65);
     const uid = run.deck[0]!.uid;
     expect(rest(run, '磨爪', uid)).toBe(true); expect(run.deck[0]!.upgraded).toBe(true);
   });
@@ -224,7 +224,7 @@ describe('事件結果', () => {
     expect(applyRunEffects(run, [{ kind: 'heal', n: 20 }])).toBeNull(); expect(run.hp).toBe(50);
     applyRunEffects(run, [{ kind: 'damage', n: 6 }]); expect(run.hp).toBe(44);
     applyRunEffects(run, [{ kind: 'fishHalve' }]); expect(run.fish).toBe(20);
-    applyRunEffects(run, [{ kind: 'maxHp', n: 5 }]); expect(run.maxHp).toBe(75); expect(run.hp).toBe(49);
+    applyRunEffects(run, [{ kind: 'maxHp', n: 5 }]); expect(run.maxHp).toBe(81); expect(run.hp).toBe(49);
     applyRunEffects(run, [{ kind: 'addCard', cardId: 'zhongji' }]); expect(run.deck.some((c) => c.cardId === 'zhongji')).toBe(true);
     applyRunEffects(run, [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }]);
     expect(cardById[run.deck.at(-1)!.cardId]?.rarity).toBe('罕見');

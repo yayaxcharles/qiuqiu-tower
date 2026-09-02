@@ -218,9 +218,9 @@ export const enemies: EnemyDef[] = [
       hpBar: 240, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 1, 貓步: 1 },
       onEnter: [{ kind: 'block', amount: 20 }],
       moves: [
-        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 6, times: 7 }, { kind: 'block', amount: 6 }] },
+        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 6, times: 6 }, { kind: 'block', amount: 6 }] },   // 2026-09-02 使用者：第二階段段數降一點（7→6、4→3）
         { intent: 'attack', label: '穿心掌', effects: [{ kind: 'damage', amount: 20, pierce: true }, { kind: 'block', amount: 10 }] },
-        { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 11, times: 4 }] },
+        { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 11, times: 3 }] },
         { intent: 'attack', label: '金鐘罩', effects: [{ kind: 'block', amount: 24 }, { kind: 'damage', amount: 10 }] },
         { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 14, max: 30 }, { kind: 'block', amount: 8 }] },
       ],
