@@ -203,6 +203,34 @@ registerScreen('combat', (app, root, props) => {
   let dealDelay = 0;                             // 新手牌進場前要等多久（結束回合那一拍會等）
   let lineup: number[] = cs.enemies.map((e) => e.uid);   // 魔物的排位名單（見 render 裡的說明）
   /**
+   * 開戰先把這場會用到的立繪解碼好（使用者 2026-09-03：「第一次攻擊動作有點 LAG，下一次就正常」）：
+   * 出手圖是換 src 的那一拍才第一次載入＋解碼，第一次前撲就會頓一下。這裡用 Image.decode() 先熱身，
+   * 物件留在 keep 裡免得被回收；召喚出新魔物時（render 裡）再補熱。
+   */
+  const warmed = new Set<string>();
+  const keep: HTMLImageElement[] = [];
+  const warm = (url: string): void => {
+    if (!url || url.startsWith('data:') || warmed.has(url)) return;
+    warmed.add(url);
+    const im = new Image();
+    im.src = url;
+    keep.push(im);
+    if (typeof im.decode === 'function') im.decode().catch(() => { /* 解不開就算了，畫面照常 */ });
+  };
+  const warmAll = (): void => {
+    for (const key of Object.values(POSE)) warm(artUrl('sprites', key));
+    for (const e of cs.enemies) {
+      const def = enemyById[e.enemyId];
+      if (!def) continue;
+      if (def.art === 'daxia') {
+        for (const key of [...Object.values(BOSS_ART), ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) warm(artUrl('sprites', key));
+      } else {
+        warm(monsterUrl(def.art, 'idle')); warm(monsterUrl(def.art, 'attack'));
+      }
+    }
+  };
+  warmAll();
+  /**
    * 收牌動畫進行中：按下「結束回合」之後、引擎真的跑 `endTurn` 之前的那幾百毫秒。
    *
    * 這段時間畫面上的手牌正往右下角的按鈕飛，但**引擎還停在上一回合**——
@@ -684,6 +712,7 @@ registerScreen('combat', (app, root, props) => {
   }
 
   function render(): void {
+    warmAll();   // 召喚出來的新魔物也先把兩張圖熱好
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     clear(root);
     const box = el('div', { class: 'combat' });
