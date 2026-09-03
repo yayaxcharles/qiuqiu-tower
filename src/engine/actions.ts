@@ -132,7 +132,8 @@ function checkPhase(cs: CombatState, e: EnemyCombat): void {
   // 血條式（hpBar）的階段不走這裡——那種要等整條血歸零，在 damageEnemy 裡切換。
   if (!next || next.hpBelow === undefined || e.hp > next.hpBelow || e.dead) return;
   e.phase += 1;
-  e.moveIndex = 0;
+  // 用 onEnterMove 時 moveIndex 設 -1：那招做完 advanceMove 會 +1，新階段從第一招開始（稽核 2026-09-04 L-5）
+  e.moveIndex = next.onEnterMove ? -1 : 0;
   if (next.line) log(cs, `${e.name}：${next.line}`);
   runEnemyEffects(cs, e, next.onEnter, false);
   e.move = next.onEnterMove
@@ -142,16 +143,17 @@ function checkPhase(cs: CombatState, e: EnemyCombat): void {
 
 function killEnemy(cs: CombatState, e: EnemyCombat): void {
   e.dead = true;
-  // 同生共死組的成員倒下就開始倒數「重生中」；沒有同組概念的魔物維持 0
+  // 同生共死組的成員倒下就開始倒數「重生中」；沒有同組概念的魔物、或同伴已經都不在的維持 0
+  // （同伴都不在的不該再占召喚名額，稽核 2026-09-04 L-4）
   const rd = enemyById[e.enemyId];
+  const reviving = !!rd?.reviveGroup && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === rd.reviveGroup);
   // 預設躺兩回合（使用者 2026-09-03：一回合就爬起來沒緩衝；躺著期間把其他同伴清掉就算贏）
-  e.reviveIn = rd?.reviveGroup ? (rd.reviveDelay ?? 2) : 0;
+  e.reviveIn = reviving ? (rd!.reviveDelay ?? 2) : 0;
   cs.kills += 1;
   const def = enemyById[e.enemyId]!;
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
   if (e.stolen > 0) { cs.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
-  const reviving = !!rd?.reviveGroup && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === rd.reviveGroup);
   if (!reviving) for (const pw of cs.player.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { source: 'power' });
   // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
   if (!reviving) for (const rid of cs.relics) {
@@ -357,6 +359,9 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
               const add = Math.round((sdef.hp[0] + sdef.hp[1]) / 2);
               weakest.maxHp += add; weakest.hp += add;
               log(cs, `${e.name}把力量灌進${weakest.name}（+${add} 生命）`);
+            } else if (sdef) {
+              // 名額被「躺著重生中」的占滿、卻沒有活著的可以灌血：不要靜默吞掉（稽核 2026-09-04 M-2）
+              log(cs, `${e.name}想召喚，可是${sdef.name}都還躺著`);
             }
             break;   // 灌一次就好：召兩隻的招（狸大人喚小弟）滿場時不該灌兩次（稽核 2026-09-03）
           }

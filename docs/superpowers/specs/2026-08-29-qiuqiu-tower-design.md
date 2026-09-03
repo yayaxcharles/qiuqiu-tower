@@ -130,7 +130,7 @@
 | 我在這 | 1 | 攻 | 常見 | 造成 6 傷；目標有翻肚則抽 1 張 | 9 傷 |
 | 交出來 | 1 | 攻 | 常見 | 奪走目標全部蜷縮變成你的，再造成 4 傷 | 6 傷 |
 | 速速退散 | 2 | 攻 | 常見 | 對全體魔物造成 8 傷 | 11 傷 |
-| 忍術·分身術 | 1 | 攻 | 罕見 | 造成 3 傷，次數＝連抓＋1（上限 5 次） | 4 傷 |
+| 忍術·分身術 | 1 | 攻 | 罕見 | 造成 3 傷；這場戰鬥中這張牌每打出一次傷害 +3（2026-09-03 改） | 5 傷、每次 +5、費用 2 |
 | 如影隨形 | 2 | 攻 | 罕見 | 造成 5 傷 2 次，獲得 1 隱身 | 7 傷 2 次 |
 | 忍術·障眼法 | 1 | 技 | 常見 | 獲得 1 隱身，抽 1 張 | 抽 2 張 |
 | 忍術·隱身術 | 1 | 技 | 常見 | 獲得 2 隱身 | 3 隱身 |
@@ -286,7 +286,7 @@
 | 迷路的小黑貓 | 黑貓忍者的小孩在哭 | 帶著牠：獲得 2 個隨機忍具／指路：獲得 15 小魚乾 |
 
 ### 6.6 罐頭鋪與貓窩
-- 罐頭鋪（橘貓老闆）：5 張牌（3 忍術＋2 絕學；常見 50、罕見 75、稀有 150 小魚乾）、2 件常見秘寶（150）、3 個忍具（各 45）、「放生」一張牌（75，每用一次 +25）。老闆台詞：「賒帳？貓沒有在賒帳的。」
+- 罐頭鋪（橘貓老闆）：5 張牌（以忍術為主，絕學低機率一張：第一關 20%／第二關 30%／第三關 40%；稀有度隨關數 60/30/10→35/40/25（至少一稀有）→20/40/40（至少兩稀有），2026-09-03 改；常見 50、罕見 75、稀有 150 小魚乾）、2 件常見秘寶（150）、3 個忍具（各 45）、「放生」一張牌（75，每用一次 +25）。老闆台詞：「賒帳？貓沒有在賒帳的。」
 - 貓窩：打盹（回復最大生命 30%）或磨爪（升級 1 張牌）。
 
 ## 7. 劇情
@@ -347,7 +347,7 @@ public/assets/ 產出的圖
 
 ### 8.3 資料格式（節錄）
 - 牌：`{ id, name, cost, type, rarity, pool: '忍術'|'絕學'|'起手'|'壞毛病', target: 'enemy'|'all'|'self'|'none', effects: Effect[], upgrade: Partial<Card>, keywords: ('消耗'|'保留'|'不可打出')[], art: 'ninja/10' }`
-- 效果（Effect）種類：`damage{amount, times?, ignoreBlock?, scaleWithCombo?}`、`block{amount}`、`draw{n}`、`drawNextTurn{n}`、`status{name, amount, target}`、`removeStatuses{names, target}`、`transferDebuffs`、`energy{n}`、`heal{n}`、`gold{n, onKill?}`、`scry{n}`、`exhaustFromHand{n}`、`retainFromHand{n}`、`stealBlock`、`damageEqualBlock`、`doubleNextAttack`、`recoverFromDiscard`、`endTurn`、`noAttacksThisTurn`、`immuneThisTurn`、`power{trigger: 'turnStart'|'onKill'|'turnEndNoAttack', effects}`（結界、封印解除、任務完成這類能力牌與尾巴鈴走這條）。新效果＝加一個 case，並補測試。
+- 效果（Effect）種類（2026-09-04 註：此清單落後多代，權威以 `src/engine/types.ts` 為準；新增 `damageRamp{amount, step}`）：`damage{amount, times?, ignoreBlock?, scaleWithCombo?}`、`block{amount}`、`draw{n}`、`drawNextTurn{n}`、`status{name, amount, target}`、`removeStatuses{names, target}`、`transferDebuffs`、`energy{n}`、`heal{n}`、`gold{n, onKill?}`、`scry{n}`、`exhaustFromHand{n}`、`retainFromHand{n}`、`stealBlock`、`damageEqualBlock`、`doubleNextAttack`、`recoverFromDiscard`、`endTurn`、`noAttacksThisTurn`、`immuneThisTurn`、`power{trigger: 'turnStart'|'onKill'|'turnEndNoAttack', effects}`（結界、封印解除、任務完成這類能力牌與尾巴鈴走這條）。新效果＝加一個 case，並補測試。
 - 魔物：`{ id, name, hp: [min,max], pattern: 'cycle'|'random', moves: Move[], onDeath?, phases? }`；Move＝`{ intent: 'attack'|'block'|'buff'|'debuff'|'special', label, effects }`。
 - 事件：`{ id, title, text, choices: [{ label, requires?, outcome: Effect[] | 'fight:橘貓山賊' }] }`。
 - 存檔：`{ version: 1, seed, rngState, floor, node, hp, maxHp, fish, deck, relics, potions, map, flags }`；`flags` 是 `Record<string, boolean>`，記「序章已播」「某魔物已初見」「7F 頭目台詞已播」「5F 秘笈對白已播」這類只播一次的事（鍵如 `seen:rat`、`prologue`、`firstElite`、`secretScroll`）；每離開一個節點寫一次；讀檔時版本不符就拒讀並提示。

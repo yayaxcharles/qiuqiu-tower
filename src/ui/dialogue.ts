@@ -1,6 +1,7 @@
 import type { DialogueLine } from '../content/dialogue';
 import { artUrl, monsterUrl } from './assets';
 import { el } from './dom';
+import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 
 /**
@@ -76,18 +77,9 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     unlockScreen();   // 排在 onDone 之前：回呼裡就會換畫面、擺上新的按鈕
     onDone();
   };
-  // 連點保護（使用者 2026-09-03：開頭影片「跳過」狂點，後面幾下會直接落在這層上，把台詞一口氣點掉、圖還沒淡入就換）：
-  // 剛出現的 700 毫秒內不吃點擊，之後兩下之間至少隔 220 毫秒，一下只推進一句
-  const mountedAt = performance.now();
-  let lastAdvance = 0;
-  const tooSoon = (ev: Event): boolean => {
-    // 用事件自己的時間戳（滑鼠真正點下去的時刻）而不是處理當下：畫面一忙，連點會擠在一起延後處理，處理時間看起來就隔很久
-    const now = ev.timeStamp || performance.now();
-    if (now - mountedAt < 700 || now - lastAdvance < 220) return true;
-    lastAdvance = now; return false;
-  };
+  const gate = newClickGate();   // 連點保護，規則見 clickgate.ts
   box.addEventListener('click', (ev) => {
-    if (tooSoon(ev)) return;
+    if (!gateAccept(gate, eventNow(ev))) return;
     i += 1;
     if (i >= lines.length) end(); else render();
   });

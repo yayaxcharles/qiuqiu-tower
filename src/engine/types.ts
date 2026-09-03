@@ -187,7 +187,7 @@ export interface EnemyPhase {
    */
   hpBar?: number;
   onEnter: EnemyEffect[];
-  /** 換階段後的第一招固定是它：先掛在頭上讓玩家看到，牠的回合才做（貓又換階段放尾巴——原本寫在 onEnter 會在玩家回合中途憑空冒出尾巴，使用者 2026-09-03） */
+  /** 換階段後的第一招固定是它：先掛在頭上讓玩家看到，牠的回合才做（貓又換階段放尾巴——原本寫在 onEnter 會在玩家回合中途憑空冒出尾巴，使用者 2026-09-03）。**只對 hpBelow 門檻式階段有效**；血條式（hpBar）換血條固定是「蹲下調息」，這欄會被忽略。 */
   onEnterMove?: EnemyMove;
   line?: string;
   pattern: 'cycle' | 'random';
@@ -390,7 +390,7 @@ export interface PlayerCombat extends Unit {
   exhaustPile: CardInstance[];
   retained: number[];
   /** 掛在球球身上的能力；`cardId` 記來源牌，戰鬥畫面用它掛「這是哪張牌的效果」的牌子（使用者 2026-09-03） */
-  powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string }[];
+  powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string; upgraded?: boolean }[];
   doubleNext: number;
   drawNextTurn: number;
   noAttacks: boolean;
@@ -417,6 +417,8 @@ export interface EnemyCombat extends Unit {
   reviveIn: number;
   /** 無敵倒數（血條式變身的蹲下回合）：>0 時任何傷害都不吃 */
   invulnIn: number;
+  /** 這一拍剛從同生共死爬起來：狀態照結算，但不出招、頭上那招留到下回合（稽核 2026-09-04 M-1） */
+  justRevived?: boolean;
   move: EnemyMove;
   dead: boolean;
   escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退（消散、分裂也走這條）
@@ -428,6 +430,7 @@ export interface EffectCtx {
   targetUid?: number;
   cardUid?: number;
   cardId?: string;         // 打出的是哪張牌（能力牌掛牌子用）
+  cardUpgraded?: boolean;  // 那張牌升級了沒（牌子的說明要念對版本，稽核 2026-09-04 H-2）
   cardType?: CardType;
   source?: 'card' | 'potion' | 'relic' | 'power';
   combo?: number;          // 這張牌之前本回合已打出的牌數

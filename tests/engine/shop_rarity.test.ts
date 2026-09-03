@@ -1,5 +1,5 @@
 // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03：第二關要比較常看到稀有牌、第三關更高）
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { makeShop, newRun } from '../../src/engine/run';
 
 function tally(act: number, n = 300) {
@@ -18,7 +18,9 @@ function tally(act: number, n = 300) {
 }
 
 describe('罐頭鋪稀有度隨關數上升', () => {
-  const a1 = tally(1), a2 = tally(2), a3 = tally(3);
+  // 放 beforeAll 而不是 describe 本體：tally 裡有 expect，收集階段失敗會變成「收集錯誤」難查（稽核 2026-09-04 L-11）
+  let a1: ReturnType<typeof tally>, a2: ReturnType<typeof tally>, a3: ReturnType<typeof tally>;
+  beforeAll(() => { a1 = tally(1); a2 = tally(2); a3 = tally(3); });
   it('稀有牌比例：第一關 < 第二關 < 第三關', () => {
     expect(a1.rare).toBeGreaterThan(0.04); expect(a1.rare).toBeLessThan(0.2);
     expect(a2.rare).toBeGreaterThan(a1.rare + 0.1);

@@ -177,6 +177,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   let endsTurn = false;
   let target: number | undefined;
   const combo = p.cardsPlayedThisTurn;
+  const plays = cs.cardPlays?.[c.uid] ?? 0;   // 分身術這場已打過幾次
   const hasDamage = st.effects.some((fx) => fx.kind === 'damage' || fx.kind === 'damageRamp' || fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock');
 
   if (hasDamage) {
@@ -184,7 +185,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
     let best: { e: EnemyCombat; v: number } | null = null;
     for (const e of enemies) {
       if (!attackable(cs, e)) continue;
-      const dmg = damageTo(cs, st.effects, e, combo, p.doubleNext > 0, cs.cardPlays?.[c.uid] ?? 0);
+      const dmg = damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays);
       // 牠有隱身：這一下會落空，但不打掉那層永遠打不到牠——便宜的攻擊牌照樣值得丟
       let v = dmg > 0 ? dmg : getStatus(e, '隱身') > 0 ? 3 / Math.max(1, st.cost) : 0;
       if (dmg >= e.hp) v += 8 + incomingHits(cs, e).reduce((s, h) => s + h, 0);   // 收頭：牠這回合的傷害也一起省掉
@@ -195,8 +196,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       if (!best || v > best.v) best = { e, v };
     }
     if (def.target === 'all') {
-      value += enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, cs.cardPlays?.[c.uid] ?? 0), 0);
-      if (best) value += best.v - damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, cs.cardPlays?.[c.uid] ?? 0);
+      value += enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays), 0);
+      if (best) value += best.v - damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, plays);
     } else if (best) { value += best.v; target = best.e.uid; }
     if (def.target === 'enemy' && !target) return null;
     // 全場快清光了就別留手

@@ -746,7 +746,7 @@
 @keyframes vs-out { to { opacity: 0; } }
 .vs-overlay img { height: 380px; filter: drop-shadow(0 10px 24px rgba(0,0,0,.6)); }
 .vs-overlay .vs-left { animation: vs-slam-l .45s cubic-bezier(.2,.9,.3,1.2); }
-/* 右邊的關主不翻面：魔物立繪一律朝左，本來就面向左邊的球球；以前的 scaleX(-1) 讓牠背對球球（使用者 2026-09-03：「出現的時候面向怪怪的」） */
+/* 右邊的關主不翻面：魔物立繪一律朝左、球球立繪朝右，左右站好本來就是面對面；以前的 scaleX(-1) 讓關主背對球球（使用者 2026-09-03：「出現的時候面向怪怪的」） */
 .vs-overlay .vs-right { animation: vs-slam-r .45s cubic-bezier(.2,.9,.3,1.2); }
 @keyframes vs-slam-l { from { transform: translateX(-320px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes vs-slam-r { from { transform: translateX(320px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -870,3 +870,6 @@
 /* 牌堆計數器可點開（2026-09-03） */
 .combat .piles .pile-btn { cursor: pointer; text-decoration: underline dotted #d8c08a; text-underline-offset: 3px; }
 .combat .piles .pile-btn:hover { color: #ffd98a; }
+
+/* 球球身上的能力牌牌子（封印解除、結界……）：虛線邊框，跟一般狀態分開看（2026-09-04） */
+.combat .chip.power { border-style: dashed; }

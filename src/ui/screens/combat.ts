@@ -358,15 +358,18 @@ registerScreen('combat', (app, root, props) => {
     // （使用者 2026-09-03：「爪力的確有加，但我不知道是哪張牌的效果」）
     const powers = mine ? (u as Partial<CombatState['player']>).powers ?? [] : [];
     if (powers.length) {
+      // 升級版與基本版分開掛（說明要念對版本，稽核 2026-09-04 H-2）
       const counts = new Map<string, number>();
-      for (const pw of powers) if (pw.cardId) counts.set(pw.cardId, (counts.get(pw.cardId) ?? 0) + 1);
-      for (const [cardId, n] of counts) {
-        const def = cardById[cardId];
+      for (const pw of powers) if (pw.cardId) { const k = `${pw.cardId}|${pw.upgraded ? 1 : 0}`; counts.set(k, (counts.get(k) ?? 0) + 1); }
+      for (const [key, n] of counts) {
+        const [cardId, up] = key.split('|');
+        const def = cardById[cardId!];
         if (!def) continue;
-        const name = def.name.replace(/^忍術·/, '');
+        const upgraded = up === '1';
+        const name = def.name.replace(/^忍術·/, '') + (upgraded ? '＋' : '');
         const node = el('div', { class: 'chip good power' }, el('b', {}, name));
         if (n > 1) node.append(el('span', {}, String(n)));
-        attachTextTooltip(node, `${def.name}（能力，這場戰鬥持續生效）`, describeCard(def, false));
+        attachTextTooltip(node, `${def.name}${upgraded ? '＋' : ''}（能力，這場戰鬥持續生效）`, describeCard(def, upgraded));
         row.append(node);
       }
     }

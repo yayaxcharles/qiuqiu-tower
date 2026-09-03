@@ -135,12 +135,12 @@ export const enemies: EnemyDef[] = [
   // ===== 2026-08-31 補的兩個塔主。原本只有大俠貓，每局結局都一樣 =====
 
   // 貓又婆婆：**磨不死的那種**。自己會回血，還會放出兩條會互相復活的尾巴。
-  // 尾巴同組（`reviveGroup: 'tail'`），只清掉一條沒用，要同一回合兩條一起清。
+  // 尾巴不復活（2026-09-01 拿掉同生共死）、同時最多四條，滿了就把血灌給現有的（見檔頭 NEKO_SUMMON）。
   // 解法是爆發與清場，慢慢磨只會被她回滿。
   // 2026-09-01 減壓：血 150→130、吸魂 12→9，配合鐵爪一起降到第一關牌組打得動的量級
   // 貓又婆婆（2026-09-01 依實玩重做）：召喚改固定節奏——第 1 回合放尾巴，之後每五回合一組
   // （4 準備、5 放；9 準備、10 放……），「準備」回合是明牌的輸出窗口。
-  // 尾巴上限 2 條（補召不爆量）、8 血、**不再復活**——原本的無限復活把輸出全吃掉（機器人探測 0/60 的病根）。
+  // 尾巴 8 血、**不再復活**——原本的無限復活把輸出全吃掉（機器人探測 0/60 的病根）；上限四條由 NEKO_SUMMON 的 max 決定。
   { id: 'nekomata', name: '貓又婆婆', hp: [175, 175], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata', strengthEveryNTurns: 2,   // 2026-09-03 第三輪
     plating: 7,   // 老貓皮：每回合長 7 點防禦（2026-09-03 關主加硬）
     line: '孩子，你走得太上面了。', lines: ['孩子，回頭還來得及。', '上面的路，婆婆不放行。'],
@@ -821,7 +821,7 @@ export const enemies: EnemyDef[] = [
       onEnter: [{ kind: 'summon', enemyId: 'tadpole', n: 2, max: 2 }],
       moves: [
         { intent: 'block', label: '號令', effects: [{ kind: 'blockAllies', amount: 10 }] },
-        { intent: 'attack', label: '舌捲', effects: [{ kind: 'damage', amount: 15 }] },
+        { intent: 'attack', label: '大舌捲', effects: [{ kind: 'damage', amount: 15 }] },   // 跟一階段 6×3 的「舌捲」不同招，別共用名字（稽核 2026-09-04 M-3）
         { intent: 'attack', label: '重跳壓', effects: [{ kind: 'damage', amount: 26 }] },
       ],
     }] },

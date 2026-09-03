@@ -119,7 +119,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
   p.hand.splice(p.hand.indexOf(card), 1);
   const toExhaust = st.keywords.includes('消耗') || st.def.type === '能力';
   (toExhaust ? p.exhaustPile : p.discardPile).push(card);
-  const ctx: EffectCtx = { targetUid, cardUid: uid, cardId: st.def.id, cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn };
+  const ctx: EffectCtx = { targetUid, cardUid: uid, cardId: st.def.id, cardUpgraded: card.upgraded, cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn };
   if (st.def.type === '攻擊' && p.doubleNext > 0) { ctx.doubleDamage = true; p.doubleNext = 0; }
   if (st.def.type === '攻擊' && p.firstAttackDouble) { ctx.doubleDamage = true; p.firstAttackDouble = false; log(cs, '秘笈：第一擊加倍'); }
   p.cardsPlayedThisTurn += 1;
@@ -199,7 +199,6 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // 放在魔物行動之前：爬起來的當回合就會出手，玩家才感覺得到「沒清乾淨的代價」。
   // 逃走的（`escaped`）不算倒下，不會被扶起來。
   // 擊殺數要扣回去——同一隻爬起來再打倒不該重複計數。
-  const revivedNow = new Set<number>();
   for (const e of cs.enemies) {
     const rdef = enemyById[e.enemyId];
     if (!e.dead || e.escaped || !rdef?.reviveGroup || rdef.neverRevive) continue;
@@ -214,10 +213,11 @@ export function beginEnemyTurn(cs: CombatState): boolean {
     e.hp = rdef.reviveHp ?? Math.max(1, Math.round((rdef.hp[0] + rdef.hp[1]) / 4));
     e.block = 0;
     cs.kills = Math.max(0, cs.kills - 1);
-    // 爬起來的這一拍不出手（不進 enemyQueue）：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）。
-    // 立刻排下一招，玩家回合就看得到新意圖；自檢時發現若只掛「剛爬起來」的閒置招，牠下一拍又會白白發呆一輪
+    // 爬起來的這一拍不出手：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）。
+    // 立刻排下一招，玩家回合就看得到新意圖；自檢時發現若只掛「剛爬起來」的閒置招，牠下一拍又會白白發呆一輪。
+    // 牠照樣進佇列跑 stepEnemyTurn（噎到、鱗甲、定身要正常結算），只靠 justRevived 跳過「出招」那一段（稽核 2026-09-04 M-1）
     advanceMove(cs, e);
-    revivedNow.add(e.uid);
+    e.justRevived = true;
     log(cs, `${e.name}又爬起來了`);
   }
 
@@ -227,7 +227,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // （鼠大將、蛙大名，2026-09-02 第二波）本來會被排在後面的同伴自己洗掉。
   for (const e of cs.enemies) if (!e.dead) e.block = 0;
   // 這回合要行動的名單在這裡定案：中途被召喚出來的不算（跟以前一次跑完的行為一樣）
-  cs.enemyQueue = cs.enemies.filter((e) => !e.dead && !revivedNow.has(e.uid)).map((e) => e.uid);
+  cs.enemyQueue = cs.enemies.filter((e) => !e.dead).map((e) => e.uid);
   return true;
 }
 
@@ -239,7 +239,9 @@ export function stepEnemyTurn(cs: CombatState): boolean {
   if (!e) return true;
   {
     if (e.dead || cs.phase !== 'player') return true;
-    e.turnCount += 1;
+    const skipAct = !!e.justRevived;   // 剛爬起來：狀態照結算，但不出招、不算牠的回合數
+    e.justRevived = false;
+    if (!skipAct) e.turnCount += 1;
     const def = enemyById[e.enemyId];
     // 飛行：牠自己的回合一開始就補回滿層——上一輪被你打下來，這一輪牠又飛起來了
     if (def?.flying) { removeStatus(e, '飛行'); addStatus(e, '飛行', def.flying); }
@@ -266,6 +268,9 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     damageEnemy(cs, e, tickPoison(e), { direct: true });
     if (e.dead || cs.phase !== 'player') return true;
     if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架式`); decayTurnStatuses(e, ['定身']); return true; }
+    // 出招途中換階段的偵測：被球球的反彈打過門檻（checkPhase 排好 onEnterMove）或血條式蹲下調息，
+    // 尾端就不能再 advanceMove 把那招蓋掉（稽核 2026-09-04 H-1，反彈流打貓又時尾巴永遠放不出來的病根）
+    const phaseAtAct = e.phase;
     // 沉睡：睡著的什麼都不做，每個牠的回合睡掉一層。**打痛牠會提早醒**（在 damageEnemy 裡處理，還會觸發 onWake）
     if (getStatus(e, '沉睡') > 0) {
       addStatus(e, '沉睡', -1);
@@ -277,6 +282,8 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       addStatus(e, '定身', -1);
       e.charged = false;   // 這一下被定掉，蓄力也一起作廢
       log(cs, `${e.name}被定住了，這回合動不了`);
+    } else if (skipAct) {
+      // 剛爬起來的這一拍不出手，頭上排好的那招留到下回合
     } else {
       const charged = e.charged;
       if (e.move.intent === 'attack') e.charged = false;
@@ -306,6 +313,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     // 還在睡就繼續顯示「呼呼大睡」；睡飽自然醒的（沒被打醒＝不生氣）從招式表第一招開始
     if (getStatus(e, '沉睡') > 0) e.move = SLEEP_MOVE;
     else if (e.move === SLEEP_MOVE) { e.moveIndex = -1; advanceMove(cs, e); }
+    else if (skipAct || e.phase !== phaseAtAct) { /* 剛爬起來的那招、或換階段時排好的那招，留著給下回合 */ }
     else advanceMove(cs, e);
   }
   return true;

@@ -250,8 +250,14 @@ export function makeShop(run: RunState): ShopStock {
   // 絕學只低機率出現一張（使用者 2026-09-03）：第一關 20%、第二關 30%、第三關 40%；其餘都是忍術
   const jueN = rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
   const cardDefs = [...rollCardChoices(rng, '忍術', 5 - jueN, [], false, 0, odds), ...rollCardChoices(rng, '絕學', jueN, [], false, 0, odds)];
+  // 稀有保底：不夠就把某一格換成同池的稀有牌。要換的格子隨機挑、忍術格優先——原本固定從最後一格（絕學）往前掃，
+  // 二三關那張絕學有五到七成變成稀有、整店最貴的一格永遠是它（稽核 2026-09-04 M-4）。
+  // 保底不是硬保證：同池稀有牌都已經在架上就放棄（稀有忍術 9 張、稀有絕學 11 張，實測三關各 3000 間 0 次失敗）。
+  // 加上保底後的實測分布：第一關 60／30／10、第二關 33／37／30、第三關 17／35／48（常見／罕見／稀有）。
   const wantRare = run.act >= 3 ? 2 : run.act === 2 ? 1 : 0;
-  for (let i = cardDefs.length - 1; i >= 0 && cardDefs.filter((c) => c.rarity === '稀有').length < wantRare; i--) {
+  const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
+  for (const i of order) {
+    if (cardDefs.filter((c) => c.rarity === '稀有').length >= wantRare) break;
     const cur = cardDefs[i]!;
     if (cur.rarity === '稀有') continue;
     const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !cardDefs.some((d) => d.id === c.id));

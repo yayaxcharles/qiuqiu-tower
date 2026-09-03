@@ -31,7 +31,8 @@ describe('隨機試玩', () => {
     // 第一關的地圖多了大魔物節點，路線與遭遇的擲骰順序整個位移，錨值重錄一次
     // 2026-09-03 晚地圖優化（每層至少兩格、分岔要有非戰鬥、大魔物避得開、不連四戰）：路線與擲骰順序又變，錨值重錄
     // 2026-09-03 晚：罐頭鋪改依關數配稀有度＋絕學低機率、同生共死躺兩回合且爬起來那拍不出手：擲骰與戰局變了，錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 12, turns: 57, kills: 8, deckSize: 17 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 9, turns: 28, kills: 6, deckSize: 16 });
+    // 2026-09-04 凌晨：稀有保底改隨機格（多吃一次洗牌擲骰），錨值重錄
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 12, turns: 60, kills: 9, deckSize: 19 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 6, turns: 19, kills: 3, deckSize: 14 });
   });
 });

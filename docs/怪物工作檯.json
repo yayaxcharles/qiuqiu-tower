@@ -5456,7 +5456,7 @@
       },
       {
        "intent": "attack",
-       "label": "舌捲",
+       "label": "大舌捲",
        "effects": [
         {
          "kind": "damage",
