@@ -314,7 +314,9 @@ export type RunEffect =
   /** `bonusUpgrades`＝打贏後在獎勵畫面挑幾張牌升級（鏡子走廊用）。`encounterId` 若有 `_a<關數>` 的版本會自動換成該關的 */
   | { kind: 'fight'; encounterId: string; bonusFish: number; bonusUpgrades?: number }
   | { kind: 'chooseCard'; pool: Pool; n: number }
-  | { kind: 'gamble'; p: number; win: RunEffect[]; lose: RunEffect[] };
+  | { kind: 'gamble'; p: number; win: RunEffect[]; lose: RunEffect[] }
+  /** 在本局旗標上記一筆（事件前後集用：下一關的地圖生成時看旗標決定要不要排後集） */
+  | { kind: 'flag'; name: string };
 /**
  * `resultArt`＝這個選項有自己的結果插圖時，圖檔的鍵（對應 `bg/event_<resultArt>`）。
  * 沒填就沿用事件本身的場景圖。選了之後畫面上如果只有文字換掉、圖一模一樣，
@@ -323,7 +325,12 @@ export type RunEffect =
 export interface EventChoice {
   label: string; costFish?: number; outcome: RunEffect[]; result: string; resultArt?: string;
 }
-export interface EventDef { id: string; title: string; text: string; choices: EventChoice[]; fixedFloor?: number }
+export interface EventDef {
+  id: string; title: string; text: string; choices: EventChoice[]; fixedFloor?: number;
+  /** 前後集（2026-09-04）：要有這個本局旗標才會排進地圖（旗標由前集選項的 `flag` 效果設）；`acts` 限定只在哪幾關出現 */
+  requiresFlag?: string;
+  acts?: number[];
+}
 
 // ===== 地圖 =====
 export type NodeType = '戰鬥' | '大魔物' | '事件' | '罐頭鋪' | '貓窩' | '紙箱' | '塔主';

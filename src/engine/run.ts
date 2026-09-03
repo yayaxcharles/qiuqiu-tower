@@ -1,13 +1,14 @@
 import { STARTER_DECK, cardById, cards } from '../content/cards';
+import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
-import { encounterById } from '../content/enemies';
+import { encounterById, enemyById } from '../content/enemies';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
 import { startCombat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { rollCardChoices, rollPotion, rollRelic, rollRewards, type CombatRewards } from './rewards';
-import type { CardDef, CardInstance, CombatState, MapNode, Rarity, RunEffect, RunState } from './types';
+import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, Rarity, RunEffect, RunState } from './types';
 
 export const START_FISH = 50;
 export const ACTS = 3;
@@ -46,7 +47,7 @@ export function newRun(seed: string, difficulty = 1): RunState {
   const run: RunState = {
     version: 1, seed, rng: rng.state, hp: mods.maxHp, maxHp: mods.maxHp, fish: START_FISH, act: 1, difficulty: level,
     deck: [], relics: [], potions: [], floor: 0,
-    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul }), currentNode: null, trail: [],
+    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul, flags: {} }), currentNode: null, trail: [],
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
     flags: {},
   };
@@ -78,8 +79,32 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   const strength = m.enemyStrength + (run.act >= ACTS && encounterById[enc]?.pool === '大魔物' ? m.topEliteStrength : 0);
   const startBlock = run.restBlock ?? 0;
   run.restBlock = 0;   // 暖毯的蜷縮只帶一場
-  return startCombat({ hp: run.hp, maxHp: run.maxHp, deck: run.deck.map((c) => ({ ...c })), relics: run.relics, potions: run.potions, encounterId: enc, rng: runRng(run),
+  const cs = startCombat({ hp: run.hp, maxHp: run.maxHp, deck: run.deck.map((c) => ({ ...c })), relics: run.relics, potions: run.potions, encounterId: enc, rng: runRng(run),
     mods: { hpMul: m.hpMul, strength, startBlock } });
+  applyBossPrefix(run, cs);
+  return cs;
+}
+
+/**
+ * 關主隨機前綴（使用者 2026-09-04：「同一個關主偶爾帶不同開場狀態，重玩才不會每次一樣」）。
+ * 塔下、塔中的關主戰有 35% 機率抽到一個；師父（第三關）不抽。名字直接改成「暴怒的橘皮大王」，
+ * 開場紀錄講一句它做了什麼。三種都是有得有失：暴怒＝爪力 +2 但血 −10%；疲憊＝血 −15% 但開場 8 點防禦；披甲＝鱗甲 2（每回合長防禦）但血 −5%。
+ */
+export const BOSS_PREFIXES: { label: string; line: string; apply: (e: EnemyCombat) => void }[] = [
+  { label: '暴怒的', line: '牠氣得毛都豎起來了（爪力 +2，生命 −10%）', apply: (e) => { addStatus(e, '爪力', 2); e.maxHp = Math.round(e.maxHp * 0.9); e.hp = e.maxHp; } },
+  { label: '疲憊的', line: '牠看起來累壞了（生命 −15%，但先架好 8 點防禦）', apply: (e) => { e.maxHp = Math.round(e.maxHp * 0.85); e.hp = e.maxHp; e.block += 8; } },
+  { label: '披甲的', line: '牠身上多披了一層甲（鱗甲 2：每回合長出防禦，生命 −5%）', apply: (e) => { addStatus(e, '鱗甲', 2); e.maxHp = Math.round(e.maxHp * 0.95); e.hp = e.maxHp; } },
+];
+export function applyBossPrefix(run: RunState, cs: CombatState): void {
+  if (encounterById[cs.encounterId]?.pool !== '塔主' || run.act >= ACTS) return;
+  const boss = cs.enemies.find((e) => enemyById[e.enemyId]?.pool === '塔主');
+  if (!boss) return;
+  const rng = runRng(run);
+  if (!rng.chance(0.35)) return;
+  const p = rng.pick(BOSS_PREFIXES);
+  p.apply(boss);
+  boss.name = p.label + boss.name;
+  cs.log.push(`${boss.name}：${p.line}`);
 }
 
 export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): CombatRewards | null {
@@ -128,7 +153,7 @@ export function advanceAct(run: RunState): void {
   // 過關回血：難度 3 起只補回缺血的七成五（殺戮尖塔進階 5 的做法）
   const heal = runMods(run).actHeal;
   run.hp = heal >= 1 ? run.maxHp : Math.min(run.maxHp, run.hp + Math.round((run.maxHp - run.hp) * heal));
-  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul });
+  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags });
   run.currentNode = null;
   run.trail = [];
   run.floor = (run.act - 1) * FLOORS;
@@ -391,6 +416,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         break;
       }
       case 'chooseCard': outcome = { chooseCard: rollCardChoices(runRng(run), fx.pool, fx.n) }; break;
+      case 'flag': run.flags[fx.name] = true; break;
       case 'gamble': {
         // 中了哪一邊由子效果自己講（贏＝最大生命 +5、輸＝牌組被塞一張「失手了」）
         const won = runRng(run).chance(fx.p * (runMods(run).unlucky ? 0.7 : 1));

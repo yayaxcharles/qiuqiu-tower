@@ -5,8 +5,8 @@ import { FIXED_EVENT_FLOOR_5, eventById, events } from '../../src/content/events
 
 describe('事件資料', () => {
   it('30 個事件、id 不重複、每個 1～3 個選項', () => {
-    expect(events.length).toBe(30);
-    expect(new Set(events.map((e) => e.id)).size).toBe(30);
+    expect(events.length).toBe(35);   // 30＋2026-09-04 五個前後集的後集
+    expect(new Set(events.map((e) => e.id)).size).toBe(35);
     for (const e of events) {
       expect(eventById[e.id]).toBe(e);
       expect(e.choices.length, e.id).toBeGreaterThanOrEqual(1);

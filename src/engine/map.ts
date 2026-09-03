@@ -125,6 +125,8 @@ export interface MapOpts {
   act?: number;
   /** 這一關的關主候選（遭遇 id）。不給就整個塔主池隨機——關主的分配規則在 run.ts。 */
   bossIds?: string[];
+  /** 本局旗標：事件前後集看它決定後集要不要排進來（沒給＝只排沒有條件的事件） */
+  flags?: Record<string, boolean>;
 }
 
 export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
@@ -284,7 +286,10 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   };
   for (const id of byFloor[1]!.map((x) => x.id)) walk(byId.get(id)!, []);
   // 內容：遭遇與事件
-  const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined).map((e) => e.id));
+  // 事件前後集（2026-09-04）：後集要有前集留下的旗標、且在指定的關才排進來；這一關的選擇要到下一關的地圖才看得到結果
+  const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined
+    && (!e.acts || e.acts.includes(act))
+    && (!e.requiresFlag || opts.flags?.[e.requiresFlag])).map((e) => e.id));
   let eventIdx = 0;
   // 遭遇也排成洗好的佇列、一池一條：整關抽完一輪才會重複（本來每格獨立亂抽，塔頂強池只有三組，
   // 九場架平均每組遇三次；使用者：「怎麼一直遇到重複的」）。佇列用完就重洗再來一輪。

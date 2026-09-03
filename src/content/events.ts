@@ -12,20 +12,20 @@ export const events: EventDef[] = [
   { id: 'toll', title: '留下買路財',
     text: '轉角站著一隻橘貓山賊，手裡的木棒比牠還長。「留下買路財！」牠喊得很大聲，腿在抖。',
     choices: [
-      { label: '付 30 條小魚乾買路', costFish: 30, outcome: [], result: '山賊數了三遍才讓路。球球：「數這麼慢，你是第一天當山賊喵？」' },
-      { label: '打一場（贏了多拿 40 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'orange_bandit', bonusFish: 40 }], result: '球球：「小魚乾是我的，不給喵。」' },
+      { label: '付 30 條小魚乾買路', costFish: 30, outcome: [{ kind: 'flag', name: 'toll_paid' }], result: '山賊數了三遍才讓路。球球：「數這麼慢，你是第一天當山賊喵？」' },
+      { label: '打一場（贏了多拿 40 條小魚乾）', outcome: [{ kind: 'flag', name: 'toll_fought' }, { kind: 'fight', encounterId: 'orange_bandit', bonusFish: 40 }], result: '球球：「小魚乾是我的，不給喵。」' },
     ] },
   { id: 'robin', title: '劫富濟貧',
     text: '一群餓到肚子叫的村貓縮在角落，牠們的小魚乾被魔物搶光了。',
     choices: [
-      { label: '分一半小魚乾給牠們（回復 15 點生命、移除一張牌）', outcome: [{ kind: 'fishHalve' }, { kind: 'heal', n: 15 }, { kind: 'removeCard' }], result: '村貓們圍過來幫球球梳毛，順手梳掉一張不順手的牌。球球：「不用謝，江湖規矩喵。」' },
+      { label: '分一半小魚乾給牠們（回復 15 點生命、移除一張牌）', outcome: [{ kind: 'flag', name: 'robin_shared' }, { kind: 'fishHalve' }, { kind: 'heal', n: 15 }, { kind: 'removeCard' }], result: '村貓們圍過來幫球球梳毛，順手梳掉一張不順手的牌。球球：「不用謝，江湖規矩喵。」' },
       { label: '裝作沒看到', outcome: [], result: '球球走過去，沒有回頭。球球：「我自己也快沒小魚乾了喵……」' },
     ] },
   { id: 'rescue', title: '江湖救急',
     text: '一隻受傷的村貓趴在地上，旁邊放著牠最後一包小魚乾和一罐貓草藥。「幫我……隨便拿一樣走。」',
     choices: [
-      { label: '拿貓草藥（回復 20 點生命）', outcome: [{ kind: 'heal', n: 20 }], result: '藥很苦。球球：「苦的才有效喵。」' },
-      { label: '拿小魚乾（拿 40 條小魚乾）', outcome: [{ kind: 'fish', n: 40 }], result: '村貓揮揮手要球球快走。球球：「我會把塔主打下來還你喵。」' },
+      { label: '拿貓草藥（回復 20 點生命）', outcome: [{ kind: 'flag', name: 'rescue_took_herb' }, { kind: 'heal', n: 20 }], result: '藥很苦。球球：「苦的才有效喵。」' },
+      { label: '拿小魚乾（拿 40 條小魚乾）', outcome: [{ kind: 'flag', name: 'rescue_took_fish' }, { kind: 'fish', n: 40 }], result: '村貓揮揮手要球球快走。球球：「我會把塔主打下來還你喵。」' },
     ] },
   { id: 'blocked', title: '此路不通',
     text: '樓梯被一座垃圾山堵住，最上面插著一塊牌子：此路不通。牌子是新的。',
@@ -241,6 +241,38 @@ export const events: EventDef[] = [
         outcome: [{ kind: 'addCard', cardId: 'neili' }, { kind: 'relic', pool: '大魔物' }],
         result: '「這是你自己選的。」灰貓收下了什麼東西。' },
       { label: '不做生意', outcome: [], result: '灰貓推了推眼鏡，讓開了。' },
+    ] },
+  // ===== 事件前後集（2026-09-04，使用者：「第一關遇到的角色第二關再出現，看上次的選擇」）=====
+  // 後集只在第二、三關的地圖排進來，而且要有前集留下的旗標；前集在哪一關遇到都行。
+  { id: 'toll_again_paid', title: '山賊再現', acts: [2, 3], requiresFlag: 'toll_paid',
+    text: '轉角又是那隻橘貓山賊。牠看到球球，木棒「咚」一聲掉在地上。「是、是你！上次那 30 條……我後來全拿去買藥給我娘了。」牠從懷裡掏出一個小包。',
+    choices: [
+      { label: '收下回禮（拿 60 條小魚乾、一支忍具）', outcome: [{ kind: 'fish', n: 60 }, { kind: 'potions', n: 1 }], result: '包裡是牠娘醃的小魚乾，還有一罐藥。球球：「你娘的手藝比你當山賊強多了喵。」' },
+      { label: '不用了，錢留給你娘', outcome: [{ kind: 'maxHp', n: 5 }], result: '山賊愣了一下，深深鞠了個躬。球球覺得胸口暖暖的，走路都有力了（最大生命 +5）。球球：「下次不要再當山賊了喵。」' },
+    ] },
+  { id: 'toll_again_fought', title: '山賊帶朋友來了', acts: [2, 3], requiresFlag: 'toll_fought',
+    text: '轉角站著那隻橘貓山賊——這次旁邊多了兩隻，木棒也換成三根。「上次是我大意！今天……今天有三個！」三個的腿一起在抖。',
+    choices: [
+      { label: '再打一場（贏了多拿 70 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'orange_bandit_pair', bonusFish: 70 }], result: '球球：「三個一起上也一樣喵。」' },
+      { label: '付 45 條小魚乾息事寧人', costFish: 45, outcome: [], result: '三隻山賊分錢分了很久。球球：「你們連分錢都要吵，難怪搶不到東西喵。」' },
+    ] },
+  { id: 'rescue_return_herb', title: '村貓的回禮', acts: [2, 3], requiresFlag: 'rescue_took_herb',
+    text: '一隻眼熟的村貓從樓梯間跳出來，腳上的傷已經好了。「是你！上次你只拿了藥、把小魚乾留給我……我後來靠那包撐過了三天。」牠把一件用小魚乾串成的護身符塞進球球手裡。',
+    choices: [
+      { label: '收下護身符（隨機一件常見秘寶）', outcome: [{ kind: 'relic', pool: '常見' }], result: '護身符有點腥，但很暖。球球：「你有好好活著，就是最好的回禮喵。」' },
+      { label: '請牠幫忙磨爪子（升級一張牌）', outcome: [{ kind: 'upgradeCard' }], result: '村貓以前是磨刀匠。球球：「原來你這麼厲害，那你早點說喵。」' },
+    ] },
+  { id: 'rescue_return_fish', title: '欠村貓的那一份', acts: [2, 3], requiresFlag: 'rescue_took_fish',
+    text: '一隻瘦得只剩骨頭的村貓靠在牆邊。球球認得牠——上次自己拿走了牠最後一包小魚乾。牠抬起頭，沒有說話。',
+    choices: [
+      { label: '把 40 條小魚乾還牠（回復 25 點生命、移除一張牌）', costFish: 40, outcome: [{ kind: 'heal', n: 25 }, { kind: 'removeCard' }], result: '村貓抱著小魚乾哭了。球球心裡那塊石頭放下了，連步伐都輕了。球球：「對不起，我還你了喵。」' },
+      { label: '裝作不認識牠', outcome: [{ kind: 'addCard', cardId: 'dazed_card' }], result: '球球低著頭快步走過。那雙眼睛一直跟到樓梯口，害他整晚睡不好（牌組多一張眼冒金星）。球球：「……我只是急著救師父喵。」' },
+    ] },
+  { id: 'robin_feast', title: '村貓的謝宴', acts: [2, 3], requiresFlag: 'robin_shared',
+    text: '樓梯間飄來烤魚的香味。那群曾經餓到肚子叫的村貓圍著一鍋湯，看到球球全站了起來。「上次分我們一半的那位！坐、快坐！」',
+    choices: [
+      { label: '吃頓飽的（回復全部生命）', outcome: [{ kind: 'healPercent', p: 1 }], result: '湯裡全是小魚乾。球球吃到肚子圓得像顆球。球球：「這才叫小魚乾湯喵。」' },
+      { label: '打包帶走（拿 50 條小魚乾、一支忍具）', outcome: [{ kind: 'fish', n: 50 }, { kind: 'potions', n: 1 }], result: '村貓們硬是塞了滿滿一袋。球球：「路上吃，謝謝你們喵。」' },
     ] },
 ];
 

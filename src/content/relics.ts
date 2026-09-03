@@ -79,6 +79,17 @@ export const relics: RelicDef[] = [
   { id: 'nine_bell', name: '九命鈴', pool: '塔主', text: '忍具可以多帶兩支；每次使用忍具後回復 3 點生命。', art: 'codex/relic_nine_bell', price: 230, hooks: { potionSlots: 2, onPotionUse: [{ kind: 'heal', n: 3 }] } },
   { id: 'gold_claws', name: '金爪套', pool: '塔主', text: '每回合打出第 3 張牌時抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_gold_claws', price: 240, hooks: { drawOnNthCard: { n: 3, draw: 1 }, energyOnNthCard: { n: 3, energy: 1 } } },
   { id: 'master_seal', name: '掌門印', pool: '塔主', text: '戰鬥獎勵的牌多一張可選。', art: 'codex/relic_master_seal', price: 230, hooks: { rewardChoices: 1 } },
+  // ===== 代價秘寶（2026-09-04，使用者：「很強但有代價的，玩家會猶豫，選擇才有趣」）。圖示還沒生，先顯示文字牌 =====
+  { id: 'blood_dagger', name: '血契短刀', pool: '大魔物', text: '每場戰鬥開始獲得 3 點爪力；拿到時最大生命 −12。', art: 'codex/relic_blood_dagger', price: 210,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }], maxHp: -12 } },
+  { id: 'miasma_charm', name: '魔氣護符', pool: '大魔物', text: '每回合多 1 顆飯糰；每場戰鬥開始帶 2 層炸毛（獲得的蜷縮只剩 0.75 倍）。', art: 'codex/relic_miasma_charm', price: 240,
+    hooks: { energyPerTurn: 1, combatStart: [{ kind: 'status', name: '炸毛', amount: 2, target: 'self' }] } },
+  { id: 'iron_sand_vest', name: '鐵砂衣', pool: '常見', text: '回合結束最多留 6 點蜷縮到下一回合；每場戰鬥開始失去 4 點生命。', art: 'codex/relic_iron_sand_vest', price: 140,
+    hooks: { blockKeep: 6, combatStart: [{ kind: 'selfDamage', amount: 4 }] } },
+  { id: 'glutton_purse', name: '貪吃錢袋', pool: '常見', text: '每場打贏多拿 25 條小魚乾；罐頭鋪的價格漲三成。', art: 'codex/relic_glutton_purse', price: 120,
+    hooks: { winGold: 25, shopDiscount: 1.3 } },
+  { id: 'black_cat_mask', name: '黑貓面具', pool: '大魔物', text: '每場戰鬥第一回合多 2 顆飯糰；開戰帶 1 層懶洋洋（造成的傷害只剩 0.75 倍）。', art: 'codex/relic_black_cat_mask', price: 230,
+    hooks: { firstTurnEnergy: 2, combatStart: [{ kind: 'status', name: '懶洋洋', amount: 1, target: 'self' }] } },
 ];
 
 export const relicById: Record<string, RelicDef> = Object.fromEntries(relics.map((r) => [r.id, r]));

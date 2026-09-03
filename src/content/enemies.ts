@@ -1036,6 +1036,7 @@ export const encounters: EncounterDef[] = [
   { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3 },
   { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6 },
   { id: 'orange_bandit', pool: '中', enemies: ['orange_bandit'], acts: [1] },
+  { id: 'orange_bandit_pair', pool: '中', enemies: ['orange_bandit', 'orange_bandit', 'orange_bandit'], hpScale: 0.8, acts: [] },   // 事件「山賊帶朋友來了」專用：acts 空＝不進任何一關的隨機池；三隻各八成血（2026-09-04）
   { id: 'catgrass_bugs', pool: '中', enemies: ['catgrass_bug', 'catgrass_bug'], acts: [1] },
   { id: 'scarecrow', pool: '強', enemies: ['scarecrow'], acts: [1] },
   { id: 'black_ninja_duo', pool: '強', enemies: ['black_ninja_elite', 'black_ninja_elite'], hpScale: 0.75, acts: [1] },
