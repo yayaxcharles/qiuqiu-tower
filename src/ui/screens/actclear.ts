@@ -9,6 +9,7 @@ import { el } from '../dom';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { preloadActMonsters } from '../preload';
 
 /**
  * 過關畫面：打倒第一、二關的關主之後（第三關直接進結算，不走這裡）。
@@ -30,6 +31,7 @@ registerScreen('actclear', (app, root, props) => {
 
   const go = (): void => {
     advanceAct(run);
+    void preloadActMonsters(run.act);   // 進下一關前把那一關的魔物立繪抓好（分關載入）
     // 三秒的走路轉場（使用者點名要的儀式感）：背景已經是下一關的色調，
     // 走完才落地到新地圖；backToMap 在轉場回呼裡跑＝存檔照舊在節點結算時寫
     actWalkTransition(app.stage, run.floor + 1, () => app.backToMap());

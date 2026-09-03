@@ -5,6 +5,7 @@ import './ui/styles/combat.css';
 import './ui/styles/screens.css';
 import { App } from './ui/app';
 import { loadManifest, preloadArt } from './ui/assets';
+import { preloadActMonsters } from './ui/preload';
 import { unlockOnFirstGesture } from './ui/audio';
 import { unlockBgmOnFirstGesture } from './ui/bgm';
 import { applyArtVars } from './ui/screenbg';
@@ -34,7 +35,8 @@ async function boot(): Promise<void> {
   app.show('title');
   // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
   // 不 await——預載完不完成都不影響能不能玩。
-  void preloadArt();
+  // UI／牌面／背景先，再抓第一關會遇到的魔物；第二三關的等過關畫面再抓（分關載入，見 preload.ts）
+  void preloadArt().then(() => preloadActMonsters(1));
 }
 
 void boot();

@@ -1,6 +1,7 @@
 import { dialogue, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
+import { warmEncounter } from './preload';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun, runMods } from '../engine/run';
@@ -212,10 +213,13 @@ export class App {
         : pool === '大魔物' ? 'elite' : battleTrack);
     const go = (): void => {
       this.cs = beginCombat(run, encounterId);
+      const cs = this.cs;
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
+      // 開打前先把這場魔物（含召喚物）的立繪解碼好，最多等 1.5 秒；沒等到也照開（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）
+      const proceed = (): void => {
+      if (this.cs !== cs) return;
       this.show('combat', { bonusFish, bonusUpgrades });
       // 魔物的開場台詞從頭上冒泡泡（一隻接一隻），左上角的紀錄照舊保留當備查
-      const cs = this.cs;
       window.setTimeout(() => {
         if (this.cs !== cs) return;
         const stage = this.stage.getBoundingClientRect();
@@ -236,6 +240,8 @@ export class App {
       } else {
         toast(dialogue.battleStart[Math.floor(Math.random() * dialogue.battleStart.length)] ?? '', '球球');
       }
+      };
+      void warmEncounter(encounterId).then(proceed, proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。

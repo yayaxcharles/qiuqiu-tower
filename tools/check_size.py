@@ -48,9 +48,22 @@ CATEGORIES: dict[str, tuple[str, int | None]] = {
     "js": ("程式", 200_000),
     "css": ("樣式", 55_000),
     "img": ("圖片", 9_000_000),
+    "deferred": ("分關載入", None),
     "other": ("其他", None),
     "total": ("首載總計", 9_500_000),
 }
+
+# 第一關用不到的魔物立繪（`docs/怪物分關.json`：檔案相對路徑 → 最早出現的關數，由 tools/dump_monster_acts.test.ts 產生）
+# 進第二三關才載（src/ui/preload.ts），所以不算首載。
+DEFERRED_FILE = ROOT / "docs" / "怪物分關.json"
+
+
+def load_deferred() -> set[str]:
+    import json
+    if not DEFERRED_FILE.exists():
+        return set()
+    data = json.loads(DEFERRED_FILE.read_text(encoding="utf-8"))
+    return {rel for rel, act in data.items() if int(act) >= 2}
 
 IMAGE_SUFFIXES = {".webp", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".avif"}
 
@@ -77,14 +90,17 @@ def scan(dist: Path) -> tuple[dict[str, int], dict[str, int], list[tuple[int, Pa
     sizes = {k: 0 for k in CATEGORIES}
     counts = {k: 0 for k in CATEGORIES}
     files: list[tuple[int, Path]] = []
+    deferred = load_deferred()
     for p in dist.rglob("*"):
         if not p.is_file():
             continue
         n = p.stat().st_size
         kind = classify(p)
+        if kind == "img" and p.relative_to(dist).as_posix() in deferred:
+            kind = "deferred"
         sizes[kind] += n
         counts[kind] += 1
-        if kind != "other":   # 背景音樂點到才下載，不算首載
+        if kind not in ("other", "deferred"):   # 背景音樂點到才下載、二三關魔物進關才載，都不算首載
             sizes["total"] += n
             counts["total"] += 1
         files.append((n, p))

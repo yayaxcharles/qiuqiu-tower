@@ -873,3 +873,37 @@
 
 /* 球球身上的能力牌牌子（封印解除、結界……）：虛線邊框，跟一般狀態分開看（2026-09-04） */
 .combat .chip.power { border-style: dashed; }
+
+/* ===== 關主專屬的待機與收尾（使用者 2026-09-04：只做關主，小怪不用） ===== */
+/* 關主呼吸慢一拍：體型大、氣場穩 */
+.combat .unit.enemy.boss .sprite { animation-duration: 4.4s; }
+/* 睡著的關主（沉睡的龍貓）頭上冒 Zzz */
+.combat .unit.enemy.boss.asleep .sprite-box::after {
+  content: 'Zzz';
+  position: absolute; right: 6%; top: 2%;
+  font: 900 26px/1 system-ui, sans-serif; color: #d6e8ff; text-shadow: 0 2px 4px #000a;
+  pointer-events: none;
+  animation: zzz-float 2.4s ease-in-out infinite;
+}
+@keyframes zzz-float {
+  0% { opacity: 0; transform: translateY(8px) scale(.8); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-28px) scale(1.15); }
+}
+/* 關主倒下：先白到發光停一拍，再往前慢慢倒、褪色 */
+.combat .unit.enemy.boss-fall .sprite { animation: boss-fall 1.7s cubic-bezier(.3, .7, .4, 1) forwards; }
+@keyframes boss-fall {
+  0%, 20% { transform: none; filter: brightness(2.6) saturate(0); }
+  24% { filter: none; }
+  100% { transform: translateY(46px) rotate(-16deg) scale(.96); opacity: 0; filter: grayscale(1) brightness(.55); }
+}
+.combat .unit.enemy.boss-fall .ground-shadow,
+.combat .unit.enemy.boss-fall .name,
+.combat .unit.enemy.boss-fall .chips,
+.combat .unit.enemy.boss-fall .hpbar,
+.combat .unit.enemy.boss-fall .intent { opacity: 0; transition: opacity .5s; }
+.combat .unit.enemy.boss-fall { pointer-events: none; }
+/* 最後一擊的白閃，蓋在整個戰場上 0.7 秒 */
+.combat .boss-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; z-index: 60; animation: boss-flash .7s ease-out forwards; }
+@keyframes boss-flash { 0% { opacity: .92; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .combat .boss-flash { display: none; } }

@@ -507,11 +507,16 @@ registerScreen('combat', (app, root, props) => {
     const def = enemyById[e.enemyId];
     const left = enemyLeft(i, n);   // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）
     const cls = ['unit', 'enemy', `size-${def?.size ?? 'medium'}`];
+    // 關主的待機呼吸慢一點、睡著的冒 Zzz（使用者 2026-09-04：待機差異只做關主）
+    const bossUnit = def?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主';
+    if (bossUnit) cls.push('boss');
+    if (bossUnit && getStatus(e, '沉睡') > 0) cls.push('asleep');
     // 「重生中」的不藏起來：倒下但同伴還在，畫成半透明的殘影＋倒數牌子，
     // 玩家才知道牠會爬回來、還剩幾回合可以清場（本來直接隱形，看起來像打完了）
     const reviving = e.dead && e.reviveIn > 0
       && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === def?.reviveGroup);
-    if (e.dead && !reviving) cls.push('gone');
+    // 關主被打倒：不是直接消失，而是慢慢倒下（收尾節奏，使用者 2026-09-04）
+    if (e.dead && !reviving) cls.push(bossUnit && cs.phase === 'won' ? 'boss-fall' : 'gone');
     if (reviving) cls.push('reviving');
     // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
     // 師父本人（art 'daxia'）掛 master：框開得比球球大（使用者 2026-09-02：「師傅體型比球球小」），換血條再放大
@@ -1173,7 +1178,7 @@ registerScreen('combat', (app, root, props) => {
       else if (e.hp > b.hp) burst(node, 'heal');
       if (sumStatus(e, BAD_STATUS) > b.debuff) burst(node, 'debuff');
       // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
-      if (!b.dead && e.dead) { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); }
+      if (!b.dead && e.dead) { if (!node.classList.contains('boss-fall')) node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {
         node.classList.add('attack');
@@ -1293,8 +1298,11 @@ registerScreen('combat', (app, root, props) => {
     if (cs.phase !== 'player' && !ended) {
       ended = true;
       if (cs.phase === 'won') toast(dialogue.battleWin[Math.floor(Math.random() * dialogue.battleWin.length)] ?? '', '球球');
+      // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
+      const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
+      if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
       // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
-      window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, 1300);
+      window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, bossWon ? 2400 : 1300);
     }
     syncPicker();
   }
