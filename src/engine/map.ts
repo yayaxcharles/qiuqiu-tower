@@ -103,7 +103,7 @@ function tableFor(floor: number, act: number, eliteMul = 1): [NodeType, number][
 }
 
 export interface MapOpts {
-  /** 大魔物節點的權重倍率（難度 2 起 1.6）：>1 時二、三關每關最多兩個、第一關也開放一個 */
+  /** 大魔物節點的權重倍率（難度 2 起 1.6）：>1 時同一層最多兩個，並在 11F 再保底一個 */
   eliteMul?: number;
   /** 第幾關：決定遭遇池的強度（見 poolForFloor）。 */
   act?: number;
@@ -175,7 +175,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   // 撞到就把多的那條改成戰鬥；戰鬥本來就是預設的填充節點，重複沒關係（遭遇還會不一樣）。
   // 5F 不動（整層都是大俠傳功的固定事件，那是刻意的劇情層）；匯合層是單格，撞不到。
   // 排在保底之後：保底可能把戰鬥改成貓窩，反而製造出重複的分岔，先保底再查重。
-  // 罐頭鋪與大魔物每層最多一個（擲型別時就擋了），不會在這裡撞到。
+  // 罐頭鋪每層最多一個、大魔物每層最多 eliteCap 個（擲型別時就擋了），撞到也只是多改一格成戰鬥。
   const byId = new Map(nodes.map((n) => [n.id, n]));
   for (const n of nodes) {
     if (n.next.length < 2) continue;
