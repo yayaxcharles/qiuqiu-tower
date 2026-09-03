@@ -917,9 +917,9 @@ export const enemies: EnemyDef[] = [
     reviveGroup: 'imps', reviveHp: 30,   // 先打倒鬼將、小鬼還在時牠會以 30 血爬起來（引擎預設 75 太狠）；號令 +2→+1、血 150→140（機器人 8 場輸 5，2026-09-03 驗收）
     moves: [
       { intent: 'buff', label: '號令', effects: [{ kind: 'statusAllies', name: '爪力', amount: 1 }] },
-      { intent: 'attack', label: '鐵棒', effects: [{ kind: 'damage', amount: 18 }] },
+      { intent: 'attack', label: '鐵棒', effects: [{ kind: 'damage', amount: 16 }] },
       { intent: 'block', label: '盾陣', effects: [{ kind: 'blockAllies', amount: 12 }] },
-      { intent: 'attack', label: '橫掃', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+      { intent: 'attack', label: '橫掃', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
     ] },
   // 小鬼：跟鬼將同一組（reviveGroup 'imps'），鬼將還站著就會爬起來。要三隻同一回合一起清光
   { id: 'imp', name: '小鬼', hp: [12, 12], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_imp',
