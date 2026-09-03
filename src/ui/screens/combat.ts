@@ -644,6 +644,45 @@ registerScreen('combat', (app, root, props) => {
     }, wait);
   }
 
+  /**
+   * 就地修補戰場（敵方回合逐隻演出用）：只把「這一步有變」的單位換成新節點，其餘節點原封不動，
+   * 呼吸動畫才不會每一步重來。回 false＝這一步換不了（節點不齊、有新召喚的），呼叫端改整頁重畫。
+   */
+  function patchField(before: Snap): boolean {
+    const box = root.querySelector<HTMLElement>('.combat');
+    const field = box?.querySelector<HTMLElement>('.field');
+    if (!box || !field) return false;
+    if (cs.enemies.some((e) => !e.dead && !lineup.includes(e.uid))) return false;
+    for (const e of cs.enemies) {
+      const old = field.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
+      if (!old) return false;
+      const b = before.enemies.get(e.uid);
+      const changed = !b || b.hp !== e.hp || b.block !== e.block || b.dead !== e.dead || b.phase !== e.phase
+        || b.turnCount !== e.turnCount || b.label !== e.move.label || b.intent !== e.move.intent
+        || b.debuff !== sumStatus(e, BAD_STATUS) || b.stealth !== getStatus(e, '隱身') || b.choke !== getStatus(e, '噎到')
+        || acting.has(e.uid) || old.classList.contains('attack') || old.classList.contains('hit');
+      if (changed) old.replaceWith(enemyUnit(e, lineup.indexOf(e.uid), lineup.length));
+    }
+    const pNode = field.querySelector<HTMLElement>('.unit.player');
+    if (!pNode) return false;
+    const p = cs.player;
+    const pChanged = before.hp !== p.hp || before.block !== p.block || before.buff !== sumStatus(p, GOOD_STATUS)
+      || before.debuff !== sumStatus(p, BAD_STATUS) || before.stealth !== getStatus(p, '隱身')
+      || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== artUrl('sprites', pose)
+      || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack');
+    if (pChanged) pNode.replaceWith(el('div', { class: 'unit player' },
+      spriteBox(artUrl('sprites', pose), '球球'),
+      el('div', { class: 'name' }, '球球'),
+      hpBar('player', p.hp, p.maxHp),
+      statusRow(p, true)));
+    box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
+    box.querySelector('.hud')?.remove();
+    renderHud(app, box, cs.fishDelta);
+    const endBtn = box.querySelector<HTMLElement>('.end-turn');
+    if (endBtn) { if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }
+    return true;
+  }
+
   function render(): void {
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     clear(root);
@@ -960,7 +999,7 @@ registerScreen('combat', (app, root, props) => {
   function runEnemyTurn(): void {
     const before = snap(cs);
     if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); return; }
-    settle(before, {});
+    settle(before, { light: true });
     enemyTurnRunning = true;
     const step = (): void => {
       if (app.cs !== cs) { enemyTurnRunning = false; return; }
@@ -976,7 +1015,7 @@ registerScreen('combat', (app, root, props) => {
       const acted = cs.log.length !== b.logLen
         || cs.enemies.some((e) => (b.enemies.get(e.uid)?.turnCount ?? e.turnCount) !== e.turnCount);
       if (!acted) { step(); return; }
-      settle(b, {});
+      settle(b, { light: true });
       window.setTimeout(step, cs.phase === 'player' ? 720 : 400);
     };
     step();
@@ -992,7 +1031,7 @@ registerScreen('combat', (app, root, props) => {
     settle(before, opts);
   }
 
-  function settle(before: Snap, opts: { pose?: string; attack?: boolean; deal?: boolean } = {}): void {
+  function settle(before: Snap, opts: { pose?: string; attack?: boolean; deal?: boolean; light?: boolean } = {}): void {
     // 結束回合那一拍，魔物出手與新手牌是同一次重畫。手牌立刻滑進來會跟魔物前撲擠在一起，
     // 所以那一拍讓手牌晚 460 毫秒再進場：先看牠們打完，再看自己摸到什麼。
     dealDelay = opts.deal ? 460 : 0;
@@ -1025,7 +1064,9 @@ registerScreen('combat', (app, root, props) => {
       if (!b || e.dead || e.turnCount === b.turnCount || b.stunned) continue;
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' });
     }
-    render();
+    // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
+    // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。
+    if (!(opts.light && patchField(before))) render();
 
     // 畫完才把動畫類別與浮動數字掛到剛生出來的節點上
     for (const e of cs.enemies) {
@@ -1076,7 +1117,7 @@ registerScreen('combat', (app, root, props) => {
         node.classList.add('attack');
         // 一整排同時前撲很像機器人；照排列位置各差 110 毫秒，看起來才像各打各的
         const sp = node.querySelector<HTMLElement>('.sprite');
-        if (sp) sp.style.animationDelay = `${cs.enemies.indexOf(e) * 110}ms`;
+        if (sp) sp.style.animationDelay = enemyTurnRunning ? '0ms' : `${cs.enemies.indexOf(e) * 110}ms`;
       }
       if (e.phase > b.phase) { bossPhaseTalk(e.enemyId, e.phase); phaseBurst(node); }
     }
