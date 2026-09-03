@@ -397,7 +397,8 @@
    "idle": "assets/monsters/lantern_moth_idle.webp"
   },
   "codex/monster_moon_moth_queen": {
-   "idle": "assets/monsters/moon_moth_queen_idle.webp"
+   "idle": "assets/monsters/moon_moth_queen_idle.webp",
+   "attack": "assets/monsters/moon_moth_queen_attack.webp"
   },
   "codex/monster_phantom_fox": {
    "attack": "assets/monsters/phantom_fox_attack.webp",
@@ -418,6 +419,30 @@
   "codex/monster_red_oni": {
    "attack": "assets/monsters/red_oni_attack.webp",
    "idle": "assets/monsters/red_oni_idle.webp"
+  },
+  "codex/monster_armadillo_king": {
+   "attack": "assets/monsters/armadillo_king_attack.webp",
+   "idle": "assets/monsters/armadillo_king_idle.webp"
+  },
+  "codex/monster_dragon_cat": {
+   "attack": "assets/monsters/dragon_cat_attack.webp",
+   "idle": "assets/monsters/dragon_cat_idle.webp"
+  },
+  "codex/monster_frog_daimyo": {
+   "attack": "assets/monsters/frog_daimyo_attack.webp",
+   "idle": "assets/monsters/frog_daimyo_idle.webp"
+  },
+  "codex/monster_hex_abbot": {
+   "attack": "assets/monsters/hex_abbot_attack.webp",
+   "idle": "assets/monsters/hex_abbot_idle.webp"
+  },
+  "codex/monster_jizo_golem": {
+   "attack": "assets/monsters/jizo_golem_attack.webp",
+   "idle": "assets/monsters/jizo_golem_idle.webp"
+  },
+  "codex/monster_tadpole": {
+   "attack": "assets/monsters/tadpole_attack.webp",
+   "idle": "assets/monsters/tadpole_idle.webp"
   }
  },
  "icons": {
