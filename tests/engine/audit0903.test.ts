@@ -17,12 +17,12 @@ function start(encounterId: string, hp = 400): CombatState {
 }
 
 describe('稽核 2026-09-03', () => {
-  it('狸大人：每兩回合 +1 爪力真的有掛上（原本被同一行的註解吃掉）', () => {
-    expect(enemyById['tanuki_lord']?.strengthEveryNTurns).toBe(2);
+  it('狸大人：每三回合 +1 爪力真的有掛上（原本被同一行的註解吃掉）', () => {
+    expect(enemyById['tanuki_lord']?.strengthEveryNTurns).toBe(3);
     const cs = start('tanuki_lord');
     const e = cs.enemies[0]!;
     const before = getStatus(e, '爪力');
-    endTurn(cs); endTurn(cs); endTurn(cs); endTurn(cs);
+    for (let i = 0; i < 6; i++) endTurn(cs);
     expect(getStatus(e, '爪力')).toBeGreaterThanOrEqual(before + 2);
   });
 
