@@ -18,7 +18,7 @@ import { sceneView } from '../scene';
  * 不然玩家開著開發工具就能刷選項。挑完才呼叫 `advanceAct`——它會回滿血、
  * 生下一關的地圖；存檔交給 backToMap()（規矩：節點結算完才存）。
  */
-registerScreen('actclear', (app, root) => {
+registerScreen('actclear', (app, root, props) => {
   root.append(screenBg('bg/screen_result_win'));
   const run = app.run;
   if (!run) { app.show('title'); return; }
@@ -101,6 +101,28 @@ registerScreen('actclear', (app, root) => {
         onclick: () => { if (pickedCard) addCard(run, pickedCard); done(pickedRelic); },
       }, goLabel)],
     }));
+  }
+  // 關主留下的信物（塔主令牌）先正式亮一次，按了「收下」才進三選一
+  // （使用者 2026-09-03：「獲得塔主令牌我還是沒看到動畫或事件呈現」——關主戰打贏不走獎勵畫面，信物是 finishCombat 直接收進包包的）
+  const bossRelicId = (props as { bossRelic?: string | null } | undefined)?.bossRelic ?? null;
+  const bossRelic = bossRelicId ? relicById[bossRelicId] : undefined;
+  if (bossRelic) {
+    clearKeepBg(root);
+    renderHud(app, root);
+    const url = artUrl('icons', bossRelic.art);
+    const hero = artUrl('sprites', 'hero/ninja_win');
+    const stack = el('div', { class: 'loot-stack' },
+      el('p', { class: 'loot-above' }, bossRelic.text),
+      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: bossRelic.name }) : el('div', { class: 'chest-loot-missing' }),
+      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '關主的信物'), el('b', { class: 'loot-name' }, bossRelic.name)));
+    root.append(sceneView({
+      art: stack,
+      portrait: hero.startsWith('data:') ? undefined : hero,
+      speaker: '球球',
+      text: `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`,
+      actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); render(); } }, '收下')],
+    }));
+    return;
   }
   render();
 });

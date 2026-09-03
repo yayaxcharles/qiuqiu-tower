@@ -316,12 +316,12 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
   const cardName = (id: string): string => cardById[id]?.name ?? id;
   for (const fx of effects) {
     switch (fx.kind) {
-      case 'heal': run.hp = Math.min(run.maxHp, run.hp + fx.n); break;
-      case 'healPercent': run.hp = Math.min(run.maxHp, run.hp + Math.floor(run.maxHp * fx.p)); break;
+      case 'heal': { const got = Math.min(run.maxHp, run.hp + fx.n) - run.hp; run.hp += got; if (got > 0) notes?.push(`回復了 ${got} 點生命`); break; }
+      case 'healPercent': { const got = Math.min(run.maxHp, run.hp + Math.floor(run.maxHp * fx.p)) - run.hp; run.hp += got; if (got > 0) notes?.push(`回復了 ${got} 點生命`); break; }
       // 難度 4 起壞事件更壞：掉血乘 1.5、賭博成功率乘 0.7
-      case 'damage': run.hp = Math.max(1, run.hp - Math.round(fx.n * (runMods(run).unlucky ? 1.5 : 1))); break;
-      case 'fish': run.fish = Math.max(0, run.fish + fx.n); break;
-      case 'fishHalve': run.fish = Math.floor(run.fish / 2); break;
+      case 'damage': { const lost = run.hp - Math.max(1, run.hp - Math.round(fx.n * (runMods(run).unlucky ? 1.5 : 1))); run.hp -= lost; if (lost > 0) notes?.push(`受了 ${lost} 點傷害`); break; }
+      case 'fish': { const before = run.fish; run.fish = Math.max(0, run.fish + fx.n); const d = run.fish - before; if (d > 0) notes?.push(`拿到 ${d} 條小魚乾`); else if (d < 0) notes?.push(`少了 ${-d} 條小魚乾`); break; }
+      case 'fishHalve': { const gone = run.fish - Math.floor(run.fish / 2); run.fish -= gone; if (gone > 0) notes?.push(`分出去 ${gone} 條小魚乾`); break; }
       case 'maxHp':
         run.maxHp += fx.n; run.hp = Math.min(run.maxHp, run.hp + Math.max(0, fx.n));
         notes?.push(`最大生命 ${fx.n >= 0 ? '+' : ''}${fx.n}`);

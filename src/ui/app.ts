@@ -299,8 +299,10 @@ export class App {
         ? ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb']
         : ['bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs'];
       const actSlides = stills.map((img, i) => ({ img, lines: lines.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
-      if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear'));
-      else playDialogue(lines, () => this.show('actclear'));
+      // 關主留下的信物（塔主令牌）帶進過關畫面先亮一次（使用者 2026-09-03：獲得令牌一直沒看到呈現）
+      const bossRelic = rewards.relic;
+      if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear', { bossRelic }));
+      else playDialogue(lines, () => this.show('actclear', { bossRelic }));
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
