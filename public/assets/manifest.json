@@ -443,6 +443,49 @@
   "codex/monster_tadpole": {
    "attack": "assets/monsters/tadpole_attack.webp",
    "idle": "assets/monsters/tadpole_idle.webp"
+  },
+  "codex/monster_drum_tanuki": {
+   "attack": "assets/monsters/drum_tanuki_attack.webp",
+   "idle": "assets/monsters/drum_tanuki_idle.webp"
+  },
+  "codex/monster_drunk_dog": {
+   "attack": "assets/monsters/drunk_dog_attack.webp",
+   "idle": "assets/monsters/drunk_dog_idle.webp"
+  },
+  "codex/monster_imp": {
+   "attack": "assets/monsters/imp_attack.webp"
+  },
+  "codex/monster_iron_arhat": {
+   "attack": "assets/monsters/iron_arhat_attack.webp",
+   "idle": "assets/monsters/iron_arhat_idle.webp"
+  },
+  "codex/monster_mirror_sage": {
+   "attack": "assets/monsters/mirror_sage_attack.webp",
+   "idle": "assets/monsters/mirror_sage_idle.webp"
+  },
+  "codex/monster_mirror_shard": {
+   "attack": "assets/monsters/mirror_shard_attack.webp",
+   "idle": "assets/monsters/mirror_shard_idle.webp"
+  },
+  "codex/monster_oni_general": {
+   "attack": "assets/monsters/oni_general_attack.webp",
+   "idle": "assets/monsters/oni_general_idle.webp"
+  },
+  "codex/monster_paper_tiger": {
+   "attack": "assets/monsters/paper_tiger_attack.webp",
+   "idle": "assets/monsters/paper_tiger_idle.webp"
+  },
+  "codex/monster_shadow_spider": {
+   "attack": "assets/monsters/shadow_spider_attack.webp",
+   "idle": "assets/monsters/shadow_spider_idle.webp"
+  },
+  "codex/monster_void_cat": {
+   "attack": "assets/monsters/void_cat_attack.webp",
+   "idle": "assets/monsters/void_cat_idle.webp"
+  },
+  "codex/monster_wild_boar": {
+   "attack": "assets/monsters/wild_boar_attack.webp",
+   "idle": "assets/monsters/wild_boar_idle.webp"
   }
  },
  "icons": {
