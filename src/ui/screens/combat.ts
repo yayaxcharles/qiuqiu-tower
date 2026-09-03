@@ -1239,7 +1239,8 @@ registerScreen('combat', (app, root, props) => {
     // 一排魔物的前撲各錯開 110 毫秒（見下方 animationDelay），停留時間要算進最後一隻撲完的時間，
     // 不然第三隻起會撲到一半被切回待機（稽核 2026-09-03）
     const stagger = Math.max(0, cs.enemies.length - 1) * 110;
-    const hold = pose === POSE.curl ? 1200 : Math.max(650, stagger + 560);
+    // 蜷縮本來停 1200：使用者 2026-09-03 晚「有點太長，有時候會拖到下一回合」→ 縮到 700，仍比一般姿勢多停一點
+    const hold = pose === POSE.curl ? 700 : Math.max(650, stagger + 560);
     const mine = ++seq;
     window.setTimeout(() => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;

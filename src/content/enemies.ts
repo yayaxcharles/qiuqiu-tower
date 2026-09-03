@@ -830,15 +830,15 @@ export const enemies: EnemyDef[] = [
       { intent: 'block', label: '護主', effects: [{ kind: 'block', amount: 5 }] },
     ] },
   // 犰狳王：縮殼 15 ＋鱗甲 4。開場那一擊會被吃掉一大半，之後每回合還會自己補甲
-  { id: 'armadillo_king', name: '犰狳王', hp: [130, 130], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_armadillo_king',
-    thorns: 3, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
+  { id: 'armadillo_king', name: '犰狳王', hp: [150, 150], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_armadillo_king',
+    thorns: 4, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
     line: '（整隻縮成一顆巨大的球）', lines: ['（殼上一道一道全是舊傷）', '（球身緩緩轉了半圈）'],
     curlUp: 15, plating: 4,
     moves: [
-      { intent: 'attack', label: '滾壓', effects: [{ kind: 'damage', amount: 16 }] },
+      { intent: 'attack', label: '滾壓', effects: [{ kind: 'damage', amount: 18 }] },
       { intent: 'block', label: '龜縮', effects: [{ kind: 'block', amount: 15 }] },
-      { intent: 'attack', label: '甩尾', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
-      { intent: 'attack', label: '全速滾壓', effects: [{ kind: 'damage', amount: 18 }] },
+      { intent: 'attack', label: '甩尾', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+      { intent: 'attack', label: '全速滾壓', effects: [{ kind: 'damage', amount: 22 }] },
     ] },
   // 沉睡的龍貓：開場睡兩回合白給你打，但打痛就醒、醒來 +4 爪力。要不要偷這兩回合是這場的抉擇
   // 沉睡的龍貓（2026-09-03 重做：使用者「完全沒機制，作為第二關的王比菁英還不如」）
