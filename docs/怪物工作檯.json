@@ -1,0 +1,6429 @@
+{
+ "generatedAt": "2026-09-03",
+ "monsters": [
+  {
+   "id": "rat",
+   "name": "小老鼠兵",
+   "hp": [
+    12,
+    15
+   ],
+   "pool": "弱",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_rat",
+   "acts": [
+    1,
+    3
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "啃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "啃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "躲",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 5
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "cucumber",
+   "name": "黃瓜怪",
+   "hp": [
+    30,
+    34
+   ],
+   "pool": "弱",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_cucumber",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "嚇人",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "彈起",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "彈起",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "onigiri_monster",
+   "name": "飯糰怪",
+   "hp": [
+    26,
+    30
+   ],
+   "pool": "弱",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_onigiri",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "onDeathHealPlayer": 3
+   },
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "黏住",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "結成飯糰",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "wood_dummy",
+   "name": "木樁人",
+   "hp": [
+    40,
+    40
+   ],
+   "pool": "弱",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_wood_dummy",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "strengthEveryNTurns": 3
+   },
+   "moves": [
+    {
+     "intent": "block",
+     "label": "硬撐",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "揮臂",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "揮臂",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "goat",
+   "name": "迷途山羊",
+   "hp": [
+    24,
+    28
+   ],
+   "pool": "弱",
+   "size": "medium",
+   "pattern": "random",
+   "art": "codex/monster_goat",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "衝撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "吃草",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 5
+      }
+     ]
+    },
+    {
+     "intent": "idle",
+     "label": "發呆",
+     "effects": [
+      {
+       "kind": "nothing"
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "vacuum",
+   "name": "吸塵器",
+   "hp": [
+    44,
+    48
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_vacuum",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "噪音",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "翻肚",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "吸走",
+     "effects": [
+      {
+       "kind": "discardRandomHand",
+       "n": 1
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "black_ninja",
+   "name": "黑貓忍者",
+   "hp": [
+    36,
+    40
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_black_ninja",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "隱身",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "二連斬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "手裡劍",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "white_duelist",
+   "name": "切磋的白貓",
+   "hp": [
+    38,
+    42
+   ],
+   "pool": "召喚",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_white_duelist",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "special",
+     "label": "亮劍",
+     "effects": [
+      {
+       "kind": "chargeNext"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "正面斬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "架勢",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 7
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "突刺",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "orange_bandit",
+   "name": "橘貓山賊",
+   "hp": [
+    48,
+    52
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_orange_bandit",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "special",
+     "label": "搶劫",
+     "effects": [
+      {
+       "kind": "stealFish",
+       "n": 10
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "掄棒",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "擋",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "搶劫",
+     "effects": [
+      {
+       "kind": "stealFish",
+       "n": 10
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "逃走",
+     "effects": [
+      {
+       "kind": "escape"
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "catgrass_bug",
+   "name": "貓草蟲",
+   "hp": [
+    18,
+    22
+   ],
+   "pool": "中",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_catgrass_bug",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "咬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "吐",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "scarecrow",
+   "name": "稻草人守衛",
+   "hp": [
+    55,
+    60
+   ],
+   "pool": "強",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_scarecrow",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "重劈",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "架起",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "蓄力",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "black_ninja_elite",
+   "name": "黑貓忍者（老手）",
+   "hp": [
+    36,
+    40
+   ],
+   "pool": "強",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_black_ninja",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "隱身",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "二連斬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "手裡劍",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "big_cucumber",
+   "name": "大黃瓜怪",
+   "hp": [
+    70,
+    70
+   ],
+   "pool": "強",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_big_cucumber",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "嚇人",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "彈起",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "彈起",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "翻滾",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "翻肚",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "ninja_boss",
+   "name": "黑貓忍者頭目",
+   "hp": [
+    105,
+    105
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_ninja_boss",
+   "acts": [
+    2,
+    3
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "隱身",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "summon",
+     "label": "分身",
+     "effects": [
+      {
+       "kind": "summon",
+       "enemyId": "black_kitten",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "連擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "手裡劍雨",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 15
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "giant_onigiri",
+   "name": "巨型飯糰",
+   "hp": [
+    125,
+    125
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_giant_onigiri",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "onDeathHealPlayer": 10
+   },
+   "moves": [
+    {
+     "intent": "block",
+     "label": "結成飯糰",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "壓扁",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 17
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "黏住",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "black_kitten",
+   "name": "小黑貓",
+   "hp": [
+    10,
+    10
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_black_kitten",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "抓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 3
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "nekomata",
+   "name": "貓又婆婆",
+   "hp": [
+    175,
+    175
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_nekomata",
+   "acts": [],
+   "passives": {
+    "strengthEveryNTurns": 2,
+    "plating": 7
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "鬼火",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "吸魂",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 7
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "雙尾抽",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 55,
+     "line": "（尾巴分成了好幾條）",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "summon",
+       "enemyId": "nekomata_tail",
+       "n": 2,
+       "max": 4
+      },
+      {
+       "kind": "heal",
+       "n": 12
+      },
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "亂尾",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 5,
+         "times": 4
+        }
+       ]
+      },
+      {
+       "intent": "special",
+       "label": "吸魂",
+       "effects": [
+        {
+         "kind": "heal",
+         "n": 10
+        }
+       ]
+      },
+      {
+       "intent": "debuff",
+       "label": "招魂",
+       "effects": [
+        {
+         "kind": "statusPlayer",
+         "name": "懶洋洋",
+         "amount": 2
+        },
+        {
+         "kind": "statusPlayer",
+         "name": "翻肚",
+         "amount": 2
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "鬼火",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 16
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "nekomata_tail",
+   "name": "貓又的尾巴",
+   "hp": [
+    8,
+    8
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_nekomata_tail",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "抽",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "渡氣",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 4
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "iron_claw",
+   "name": "鐵爪機關貓",
+   "hp": [
+    135,
+    135
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_iron_claw",
+   "acts": [],
+   "passives": {
+    "strengthEveryNTurns": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "四連爪",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "上緊發條",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "絞刃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 3,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "收爪",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 55,
+     "line": "（外殼彈開，裡面全是爪子）",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "statusSelf",
+       "name": "反彈",
+       "amount": 1
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "爪暴",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 4,
+         "times": 5
+        }
+       ]
+      },
+      {
+       "intent": "debuff",
+       "label": "卡住",
+       "effects": [
+        {
+         "kind": "discardRandomHand",
+         "n": 2
+        },
+        {
+         "kind": "statusPlayer",
+         "name": "炸毛",
+         "amount": 3
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "全開",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 4,
+         "times": 3
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "tower_master",
+   "name": "走火入魔的大俠貓",
+   "hp": [
+    120,
+    120
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "daxia",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "鐵頭功",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 16
+      },
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "拆招",
+     "effects": [
+      {
+       "kind": "stripPlayer",
+       "names": [
+        "隱身",
+        "潛水"
+       ]
+      },
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 2
+      },
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "金鐘罩",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 18
+      },
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "獅吼功",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 1
+      },
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "沾衣十八跌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 3
+      },
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBar": 240,
+     "line": "走火入魔",
+     "pattern": "cycle",
+     "strengthPerTurn": 1,
+     "drainPlayerPerTurn": {
+      "爪力": 1,
+      "貓步": 1
+     },
+     "onEnter": [
+      {
+       "kind": "block",
+       "amount": 20
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "十二連環",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 7,
+         "times": 6
+        },
+        {
+         "kind": "block",
+         "amount": 6
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "穿心掌",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 20,
+         "pierce": true
+        },
+        {
+         "kind": "block",
+         "amount": 10
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "狂風連掌",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 12,
+         "times": 3
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "金鐘罩",
+       "effects": [
+        {
+         "kind": "block",
+         "amount": 24
+        },
+        {
+         "kind": "damage",
+         "amount": 10
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "醉拳",
+       "effects": [
+        {
+         "kind": "damageRandom",
+         "min": 14,
+         "max": 30
+        },
+        {
+         "kind": "block",
+         "amount": 8
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "hpBar": 300,
+     "line": "深藏不露",
+     "pattern": "cycle",
+     "strengthPerTurn": 2,
+     "drainPlayerPerTurn": {
+      "爪力": 2,
+      "貓步": 2
+     },
+     "onEnter": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "亡命一擊",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 26,
+         "times": 2,
+         "pierce": true
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "破功",
+       "effects": [
+        {
+         "kind": "purgePlayer",
+         "names": [
+          "爪力",
+          "貓步"
+         ]
+        },
+        {
+         "kind": "stripPlayer",
+         "names": [
+          "隱身",
+          "潛水"
+         ]
+        },
+        {
+         "kind": "damage",
+         "amount": 14
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "狂風連掌",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 10,
+         "times": 7
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "氣沉丹田",
+       "effects": [
+        {
+         "kind": "block",
+         "amount": 28
+        },
+        {
+         "kind": "heal",
+         "n": 15
+        },
+        {
+         "kind": "damage",
+         "amount": 8
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "看破",
+       "effects": [
+        {
+         "kind": "stripPlayer",
+         "names": [
+          "隱身",
+          "潛水"
+         ]
+        },
+        {
+         "kind": "statusPlayer",
+         "name": "炸毛",
+         "amount": 2
+        },
+        {
+         "kind": "damage",
+         "amount": 12,
+         "times": 2
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "yarn_ball",
+   "name": "毛線球怪",
+   "hp": [
+    20,
+    24
+   ],
+   "pool": "弱",
+   "size": "small",
+   "pattern": "random",
+   "art": "codex/monster_yarn_ball",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "纏住",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "定身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "滾",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "縮成球",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "soy_bottle",
+   "name": "打翻的醬油瓶",
+   "hp": [
+    16,
+    20
+   ],
+   "pool": "弱",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_soy_bottle",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "滴",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "潑",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "滴",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "box_lurker",
+   "name": "紙箱怪",
+   "hp": [
+    28,
+    32
+   ],
+   "pool": "弱",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_box_lurker",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "block",
+     "label": "躲進箱子",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "探頭",
+     "effects": [
+      {
+       "kind": "chargeNext"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "暴衝",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "hedgehog",
+   "name": "刺蝟師傅",
+   "hp": [
+    34,
+    38
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_hedgehog",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "豎刺",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "反彈",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "縮起來",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      },
+      {
+       "kind": "statusSelf",
+       "name": "反彈",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "刺",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "can_spirit",
+   "name": "貓罐頭精",
+   "hp": [
+    46,
+    50
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_can_spirit",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "special",
+     "label": "補滿",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 7
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "砸",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "補滿",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 7
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "罐頭蓋",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "five_claw",
+   "name": "五爪貓",
+   "hp": [
+    30,
+    34
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_five_claw",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "五連爪",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 3,
+       "times": 5
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "磨爪",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "三連爪",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 3,
+       "times": 3
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "dozing_tabby",
+   "name": "打盹的虎斑",
+   "hp": [
+    40,
+    44
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_dozing_tabby",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "idle",
+     "label": "睡",
+     "effects": [
+      {
+       "kind": "nothing"
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "打呵欠",
+     "effects": [
+      {
+       "kind": "chargeNext"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "翻身壓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "chipmunk",
+   "name": "花栗鼠",
+   "hp": [
+    14,
+    18
+   ],
+   "pool": "中",
+   "size": "small",
+   "pattern": "random",
+   "art": "codex/monster_chipmunk",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "搶",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      },
+      {
+       "kind": "stealFish",
+       "n": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "咬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "summon",
+     "label": "叫同伴",
+     "effects": [
+      {
+       "kind": "summon",
+       "enemyId": "chipmunk_small",
+       "n": 1
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "chipmunk_small",
+   "name": "小花栗鼠",
+   "hp": [
+    10,
+    10
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_chipmunk",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "咬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "mirror_cat",
+   "name": "鏡子貓",
+   "hp": [
+    50,
+    54
+   ],
+   "pool": "強",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_mirror_cat",
+   "acts": [
+    1,
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "照鏡子",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "學起來",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "一模一樣",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "反照",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "broom_centipede",
+   "name": "掃把蜈蚣",
+   "hp": [
+    44,
+    48
+   ],
+   "pool": "強",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_broom_centipede",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "掃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 2,
+       "times": 6
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "揚塵",
+     "effects": [
+      {
+       "kind": "discardRandomHand",
+       "n": 1
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "橫掃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 3,
+       "times": 4
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "捲起來",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "stone_lion",
+   "name": "石獅子",
+   "hp": [
+    62,
+    66
+   ],
+   "pool": "強",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_stone_lion",
+   "acts": [
+    1,
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "block",
+     "label": "鎮守",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "石掌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "鎮守",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 14
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 32,
+     "line": "（裂開了）",
+     "pattern": "cycle",
+     "strengthPerTurn": 1,
+     "onEnter": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 3
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "碎石",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 8,
+         "times": 2
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "獅吼",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 11
+        },
+        {
+         "kind": "statusPlayer",
+         "name": "炸毛",
+         "amount": 2
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "catnip_phantom",
+   "name": "貓薄荷幻影",
+   "hp": [
+    46,
+    50
+   ],
+   "pool": "強",
+   "size": "medium",
+   "pattern": "random",
+   "art": "codex/monster_catnip_phantom",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "幻擊",
+     "effects": [
+      {
+       "kind": "damageRandom",
+       "min": 5,
+       "max": 18
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "迷幻",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "翻肚",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "朦朧",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "亂舞",
+     "effects": [
+      {
+       "kind": "damageRandom",
+       "min": 4,
+       "max": 14
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "shadow_kitten_a",
+   "name": "影子小貓·壹",
+   "hp": [
+    22,
+    26
+   ],
+   "pool": "強",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_shadow_kitten",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "reviveGroup": "shadow",
+    "reviveHp": 8,
+    "reviveDelay": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "影抓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "交疊",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "shadow_kitten_b",
+   "name": "影子小貓·貳",
+   "hp": [
+    22,
+    26
+   ],
+   "pool": "強",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_shadow_kitten",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "reviveGroup": "shadow",
+    "reviveHp": 8,
+    "reviveDelay": 2
+   },
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "掩影",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "影抓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "shadow_kitten_c",
+   "name": "影子小貓·參",
+   "hp": [
+    22,
+    26
+   ],
+   "pool": "強",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_shadow_kitten",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "reviveGroup": "shadow",
+    "reviveHp": 8,
+    "reviveDelay": 2
+   },
+   "moves": [
+    {
+     "intent": "block",
+     "label": "疊影",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "影抓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "training_post",
+   "name": "練功樁",
+   "hp": [
+    52,
+    56
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_training_post",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "strengthEveryNTurns": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "反擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "穩住",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "重擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "roomba_king",
+   "name": "掃地機器人王",
+   "hp": [
+    110,
+    110
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_roomba_king",
+   "acts": [
+    2,
+    3
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "summon",
+     "label": "放出小掃把",
+     "effects": [
+      {
+       "kind": "summon",
+       "enemyId": "mini_broom",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "滾刷",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5,
+       "times": 4
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "吸走",
+     "effects": [
+      {
+       "kind": "discardRandomHand",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "全力清潔",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 19
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "mini_broom",
+   "name": "小掃把",
+   "hp": [
+    8,
+    8
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_mini_broom",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "刷",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 3
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "calico_monk",
+   "name": "三花貓武僧",
+   "hp": [
+    115,
+    115
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_calico_monk",
+   "acts": [
+    2,
+    3
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "運氣",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "反彈",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "掌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 13
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "調息",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 10
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "連環掌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7,
+       "times": 3
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 45,
+     "line": "（睜開眼）",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "statusSelf",
+       "name": "反彈",
+       "amount": 2
+      },
+      {
+       "kind": "block",
+       "amount": 15
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "怒掌",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 9,
+         "times": 2
+        }
+       ]
+      },
+      {
+       "intent": "debuff",
+       "label": "喝",
+       "effects": [
+        {
+         "kind": "statusPlayer",
+         "name": "懶洋洋",
+         "amount": 2
+        },
+        {
+         "kind": "statusPlayer",
+         "name": "翻肚",
+         "amount": 2
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "shiba_ronin",
+   "name": "柴犬浪人",
+   "hp": [
+    58,
+    64
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_shiba_ronin",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "拔刀式",
+     "effects": [
+      {
+       "kind": "chargeNext"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "居合斬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "挑釁",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "收刀",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "shamisen_cat",
+   "name": "三味線貓",
+   "hp": [
+    52,
+    58
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_shamisen_cat",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "走音",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "高音",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 3
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "亂彈",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "調弦",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      },
+      {
+       "kind": "heal",
+       "n": 6
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "lantern_ghost",
+   "name": "燈籠妖",
+   "hp": [
+    56,
+    62
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_lantern_ghost",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "舔火",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 3
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "吐火",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 13
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "燈芯補油",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 6
+      },
+      {
+       "kind": "heal",
+       "n": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撲上來",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "windchime_sprite",
+   "name": "風鈴精",
+   "hp": [
+    46,
+    52
+   ],
+   "pool": "中",
+   "size": "small",
+   "pattern": "random",
+   "art": "codex/monster_windchime_sprite",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "搖鈴",
+     "effects": [
+      {
+       "kind": "discardRandomHand",
+       "n": 1
+      },
+      {
+       "kind": "damage",
+       "amount": 5
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "音波",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "風護",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "亂風",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4,
+       "times": 3
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "tanuki_kid",
+   "name": "狸小弟",
+   "hp": [
+    42,
+    48
+   ],
+   "pool": "中",
+   "size": "small",
+   "pattern": "random",
+   "art": "codex/monster_tanuki_kid",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "變身戲法",
+     "effects": [
+      {
+       "kind": "chargeNext"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "葉子彈",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "搗蛋",
+     "effects": [
+      {
+       "kind": "discardRandomHand",
+       "n": 1
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "裝可愛",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "geta_monster",
+   "name": "木屐怪",
+   "hp": [
+    62,
+    70
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_geta_monster",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "踩踏",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "站穩",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "絆倒",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "定身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "再踩",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "ink_cat",
+   "name": "掛軸墨貓",
+   "hp": [
+    54,
+    60
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_ink_cat",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "thorns": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "墨爪",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "潑墨",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "翻肚",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "隱入卷軸",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      },
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "一筆斬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 16
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "kasa_obake",
+   "name": "唐傘小僧",
+   "hp": [
+    52,
+    58
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_kasa_obake",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "block",
+     "label": "撐傘",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      },
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "旋傘",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "單腳跳踢",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 13
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "舌頭一舔",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "kappa",
+   "name": "河童",
+   "hp": [
+    66,
+    74
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_kappa",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "相撲推",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 13
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "頂皿蓄水",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      },
+      {
+       "kind": "heal",
+       "n": 10
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "拽走小魚乾",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      },
+      {
+       "kind": "stealFish",
+       "n": 20
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "甲羅撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "tofu_boy",
+   "name": "豆腐小僧",
+   "hp": [
+    40,
+    46
+   ],
+   "pool": "中",
+   "size": "small",
+   "pattern": "random",
+   "art": "codex/monster_tofu_boy",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "請吃豆腐",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 4
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "豆腐砸",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "躲進斗笠",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撒黴豆腐",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 1
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "moon_rabbit",
+   "name": "月見兔",
+   "hp": [
+    76,
+    84
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_moon_rabbit",
+   "acts": [
+    2
+   ],
+   "passives": {
+    "flying": 2
+   },
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "搗麻糬",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "杵擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 17
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "麻糬黏住",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "定身",
+       "amount": 1
+      },
+      {
+       "kind": "giveCard",
+       "cardId": "slime_card",
+       "n": 1,
+       "to": "discard"
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "月光",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 10
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "owl_sentry",
+   "name": "貓頭鷹夜哨",
+   "hp": [
+    70,
+    78
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_owl_sentry",
+   "acts": [
+    2
+   ],
+   "passives": {
+    "hexOnSkill": {
+     "cardId": "dazed_card",
+     "n": 1
+    }
+   },
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "夜視鎖定",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "翻肚",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "俯衝",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "展翅警戒",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "爪擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 15
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "paper_crane",
+   "name": "紙鶴式神",
+   "hp": [
+    58,
+    64
+   ],
+   "pool": "中",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_paper_crane",
+   "acts": [
+    2
+   ],
+   "passives": {
+    "flying": 2,
+    "curlUp": 10
+   },
+   "moves": [
+    {
+     "intent": "block",
+     "label": "摺翼",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      },
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "紙刃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "折射",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "銳襲",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 18
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "miasma_blob",
+   "name": "魔氣凝塊",
+   "hp": [
+    84,
+    94
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_miasma_blob",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "plating": 4,
+    "angerOnSkill": 1
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "侵蝕",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 3
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "膨脹",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      },
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "魔氣浪",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "凝聚再生",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "night_panther",
+   "name": "夜行黑豹",
+   "hp": [
+    72,
+    80
+   ],
+   "pool": "中",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_night_panther",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "strengthEveryNTurns": 1
+   },
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "潛影",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      },
+      {
+       "kind": "chargeNext"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "猛撲",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 22
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撕裂",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "低吼",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "shadow_cat",
+   "name": "影球球",
+   "hp": [
+    110,
+    110
+   ],
+   "pool": "大魔物",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_shadow_cat",
+   "acts": [
+    3
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "影爪抓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 16
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "影蜷縮",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 16
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "影分身",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "影撒手鐧",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "tengu",
+   "name": "烏天狗",
+   "hp": [
+    72,
+    80
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_tengu",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "angerOnSkill": 1,
+    "flying": 3
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "羽扇颶風",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      },
+      {
+       "kind": "discardRandomHand",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "天狗飛斬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 20
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "乘風",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      },
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "看穿",
+     "effects": [
+      {
+       "kind": "stripPlayer",
+       "names": [
+        "隱身",
+        "潛水"
+       ]
+      },
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "fox_miko",
+   "name": "白狐巫女",
+   "hp": [
+    64,
+    70
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_fox_miko",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "thorns": 2,
+    "hexOnSkill": {
+     "cardId": "dazed_card",
+     "n": 1
+    }
+   },
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "祓除",
+     "effects": [
+      {
+       "kind": "purgePlayer",
+       "names": [
+        "爪力",
+        "貓步"
+       ]
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "狐火",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "結界",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "狐火纏身",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "armor_ghost",
+   "name": "空鎧武者",
+   "hp": [
+    88,
+    96
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_armor_ghost",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "plating": 6,
+    "curlUp": 8
+   },
+   "moves": [
+    {
+     "intent": "block",
+     "label": "盾牆",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      },
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "槍突",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "鐵壁",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      },
+      {
+       "kind": "damage",
+       "amount": 6
+      },
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "橫掃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12,
+       "times": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 1
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "mirror_qiuqiu",
+   "name": "鏡中球球",
+   "hp": [
+    60,
+    66
+   ],
+   "pool": "召喚",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_shadow_cat",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "鏡爪抓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "鏡蜷縮",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "鏡肉球連擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "鏡分身",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "orange_king",
+   "name": "橘皮大王",
+   "hp": [
+    180,
+    180
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_orange_king",
+   "acts": [],
+   "passives": {
+    "curlUp": 15,
+    "strengthEveryNTurns": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "肚皮壓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 18
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "打呵欠",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 8
+      },
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "丟魚骨頭",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "滾來滾去",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 55,
+     "line": "（整顆站了起來）",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "block",
+       "amount": 12
+      },
+      {
+       "kind": "statusSelf",
+       "name": "反彈",
+       "amount": 3
+      }
+     ],
+     "moves": [
+      {
+       "intent": "special",
+       "label": "蓄力",
+       "effects": [
+        {
+         "kind": "chargeNext"
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "泰山壓頂",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 24,
+         "pierce": true
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "龍捲滾",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 12,
+         "times": 2
+        }
+       ]
+      },
+      {
+       "intent": "special",
+       "label": "揉麵團",
+       "effects": [
+        {
+         "kind": "heal",
+         "n": 10
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "cowcat_boss",
+   "name": "奶牛貓二當家",
+   "hp": [
+    260,
+    260
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_cowcat_boss",
+   "acts": [],
+   "passives": {
+    "strengthEveryNTurns": 2,
+    "angerOnSkill": 2,
+    "plating": 7
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "黑手重錘",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "白手連打",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "換式・沉腰",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 16
+      },
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 1
+      },
+      {
+       "kind": "stripPlayer",
+       "names": [
+        "隱身",
+        "潛水"
+       ]
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "黑白亂舞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "運勁",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 10
+      },
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 85,
+     "line": "（黑白兩色的毛全豎了起來）",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "合一連環",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 9,
+         "times": 3
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "崩拳",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 26,
+         "pierce": true
+        }
+       ]
+      },
+      {
+       "intent": "block",
+       "label": "鐵壁",
+       "effects": [
+        {
+         "kind": "block",
+         "amount": 20
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "tanuki_lord",
+   "name": "狸大人",
+   "hp": [
+    225,
+    225
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "random",
+   "art": "codex/monster_tanuki_lord",
+   "acts": [],
+   "passives": {
+    "angerOnSkill": 1,
+    "strengthEveryNTurns": 3,
+    "hexOnSkill": {
+     "cardId": "dazed_card",
+     "n": 1
+    }
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "醉八仙",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "醉八仙",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "葉隱",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      },
+      {
+       "kind": "block",
+       "amount": 10
+      },
+      {
+       "kind": "stripPlayer",
+       "names": [
+        "隱身",
+        "潛水"
+       ]
+      }
+     ]
+    },
+    {
+     "intent": "summon",
+     "label": "喚小弟",
+     "effects": [
+      {
+       "kind": "summon",
+       "enemyId": "tanuki_kid",
+       "n": 2,
+       "max": 2
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "肚皮鼓",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      },
+      {
+       "kind": "stripPlayer",
+       "names": [
+        "隱身",
+        "潛水"
+       ]
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "酒氣",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 3
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "噎到",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 130,
+     "line": "（葫蘆見底了）",
+     "pattern": "random",
+     "onEnter": [
+      {
+       "kind": "summon",
+       "enemyId": "tanuki_kid",
+       "n": 2,
+       "max": 2
+      },
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "醉拳真髓",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 9,
+         "times": 3
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "醉拳真髓",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 9,
+         "times": 3
+        }
+       ]
+      },
+      {
+       "intent": "buff",
+       "label": "大變身",
+       "effects": [
+        {
+         "kind": "chargeNext"
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "泰山鼓壓",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 32,
+         "pierce": true
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "persian_lady",
+   "name": "波斯大小姐",
+   "hp": [
+    240,
+    240
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_persian_lady",
+   "acts": [],
+   "passives": {
+    "strengthEveryNTurns": 1,
+    "guardedByAllies": true
+   },
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "擺架子",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 3
+      },
+      {
+       "kind": "block",
+       "amount": 10
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "扇子拍",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11,
+       "times": 3
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "尖叫",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "翻肚",
+       "amount": 1
+      },
+      {
+       "kind": "stripPlayer",
+       "names": [
+        "隱身",
+        "潛水"
+       ]
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "補香水",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 12
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 65,
+     "line": "你們這群沒用的東西！",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "貴族之怒",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 12,
+         "times": 2
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "甩尾",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 30,
+         "pierce": true
+        }
+       ]
+      },
+      {
+       "intent": "debuff",
+       "label": "歇斯底里",
+       "effects": [
+        {
+         "kind": "statusPlayer",
+         "name": "懶洋洋",
+         "amount": 2
+        },
+        {
+         "kind": "statusPlayer",
+         "name": "炸毛",
+         "amount": 2
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "butler_cat",
+   "name": "執事貓",
+   "hp": [
+    34,
+    34
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_butler_cat",
+   "acts": [],
+   "passives": {
+    "reviveGroup": "court",
+    "reviveHp": 30
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "拋托盤",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "布陣",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "奉茶",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 8
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "maid_cat",
+   "name": "女僕貓",
+   "hp": [
+    30,
+    30
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_maid_cat",
+   "acts": [],
+   "passives": {
+    "reviveGroup": "court",
+    "reviveHp": 30
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "雞毛撢亂揮",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "撢塵護主",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "大掃除",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 1
+      },
+      {
+       "kind": "damage",
+       "amount": 3
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "dango_slime",
+   "name": "團子史萊姆",
+   "hp": [
+    36,
+    40
+   ],
+   "pool": "弱",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_dango_slime",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "splitInto": {
+     "enemyId": "dango_bit",
+     "n": 2,
+     "below": 0.5
+    }
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "黏一下",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      },
+      {
+       "kind": "giveCard",
+       "cardId": "slime_card",
+       "n": 1,
+       "to": "discard"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "再撞一次",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "dango_bit",
+   "name": "小團子",
+   "hp": [
+    10,
+    10
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_dango_bit",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "armadillo_pup",
+   "name": "犰狳寶寶",
+   "hp": [
+    24,
+    28
+   ],
+   "pool": "弱",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_armadillo_pup",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "curlUp": 8
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "滾",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "縮",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "加速滾",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "lantern_moth",
+   "name": "燈蛾",
+   "hp": [
+    30,
+    34
+   ],
+   "pool": "中",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_lantern_moth",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "flying": 3
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "撲翅",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "鱗粉",
+     "effects": [
+      {
+       "kind": "giveCard",
+       "cardId": "dazed_card",
+       "n": 1,
+       "to": "draw"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "咬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "hibernating_bear",
+   "name": "冬眠熊",
+   "hp": [
+    62,
+    68
+   ],
+   "pool": "強",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_hibernating_bear",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "asleep": 3,
+    "onWake": [
+     {
+      "kind": "statusSelf",
+      "name": "爪力",
+      "amount": 3
+     }
+    ]
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "拍",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "熊抱",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      },
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "再拍一下",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "puffer_spirit",
+   "name": "河豚精",
+   "hp": [
+    52,
+    58
+   ],
+   "pool": "強",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_puffer_spirit",
+   "acts": [
+    2
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "block",
+     "label": "鼓氣",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "再鼓一口",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "爆炸",
+     "effects": [
+      {
+       "kind": "selfDestruct",
+       "amount": 28
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "plated_beetle",
+   "name": "鎧甲獨角仙",
+   "hp": [
+    60,
+    66
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_plated_beetle",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "strengthEveryNTurns": 2,
+    "plating": 6
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "頂",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "衝撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "磨甲",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 10
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "rat_general",
+   "name": "鼠大將",
+   "hp": [
+    60,
+    66
+   ],
+   "pool": "強",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_rat_general",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "curlUp": 8
+   },
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "號令",
+     "effects": [
+      {
+       "kind": "statusAllies",
+       "name": "爪力",
+       "amount": 3
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "盾陣",
+     "effects": [
+      {
+       "kind": "blockAllies",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "揮刀",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 18
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "curse_priest",
+   "name": "詛咒神官",
+   "hp": [
+    54,
+    60
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_curse_priest",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "angerOnSkill": 1,
+    "hexOnSkill": {
+     "cardId": "dazed_card",
+     "n": 1
+    }
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "咒印",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 5,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "念咒",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "懶洋洋",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "咒杖",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "phantom_fox",
+   "name": "幻狐",
+   "hp": [
+    70,
+    78
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_phantom_fox",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "fadeAfter": 4,
+    "strengthEveryNTurns": 1
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "撕",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "狐火",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "red_oni",
+   "name": "赤鬼武夫",
+   "hp": [
+    90,
+    100
+   ],
+   "pool": "強",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_red_oni",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "strengthEveryNTurns": 2,
+    "angerOnSkill": 1
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "鐵棒",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 16
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "怒吼",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      },
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "橫掃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "moon_moth_queen",
+   "name": "月蛾后",
+   "hp": [
+    66,
+    72
+   ],
+   "pool": "中",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_moon_moth_queen",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "thorns": 1,
+    "flying": 4
+   },
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "鱗粉",
+     "effects": [
+      {
+       "kind": "giveCard",
+       "cardId": "dazed_card",
+       "n": 1,
+       "to": "draw"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "吸",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      },
+      {
+       "kind": "heal",
+       "n": 6
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撲",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 3,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "jizo_golem",
+   "name": "地藏石偶",
+   "hp": [
+    96,
+    104
+   ],
+   "pool": "強",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_jizo_golem",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "strengthEveryNTurns": 2,
+    "plating": 8
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "石掌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 24,
+       "pierce": true
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "合十",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "再一記石掌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 22,
+       "pierce": true
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "frog_daimyo",
+   "name": "蛙大名",
+   "hp": [
+    160,
+    160
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_frog_daimyo",
+   "acts": [],
+   "passives": {
+    "plating": 4,
+    "strengthEveryNTurns": 3,
+    "reviveGroup": "pond",
+    "neverRevive": true
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "舌捲",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 15
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "蛙鳴",
+     "effects": [
+      {
+       "kind": "giveCard",
+       "cardId": "slime_card",
+       "n": 2,
+       "to": "discard"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "跳壓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 20
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 55,
+     "line": "來人！",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "summon",
+       "enemyId": "tadpole",
+       "n": 2,
+       "max": 2
+      }
+     ],
+     "moves": [
+      {
+       "intent": "block",
+       "label": "號令",
+       "effects": [
+        {
+         "kind": "blockAllies",
+         "amount": 10
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "舌捲",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 15
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "重跳壓",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 26
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "tadpole",
+   "name": "蝌蚪兵",
+   "hp": [
+    10,
+    10
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_tadpole",
+   "acts": [],
+   "passives": {
+    "reviveGroup": "pond",
+    "reviveHp": 6
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "咬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 4
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "護主",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 5
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "armadillo_king",
+   "name": "犰狳王",
+   "hp": [
+    130,
+    130
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_armadillo_king",
+   "acts": [],
+   "passives": {
+    "thorns": 3,
+    "strengthEveryNTurns": 2,
+    "curlUp": 15,
+    "plating": 4
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "滾壓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "龜縮",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 15
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "甩尾",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "全速滾壓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 16
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "dragon_cat",
+   "name": "沉睡的龍貓",
+   "hp": [
+    240,
+    240
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_dragon_cat",
+   "acts": [],
+   "passives": {
+    "asleep": 1,
+    "onWake": [
+     {
+      "kind": "statusSelf",
+      "name": "爪力",
+      "amount": 2
+     }
+    ],
+    "plating": 9,
+    "thorns": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "龍息",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 22
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "尾掃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "盤踞",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 18
+      },
+      {
+       "kind": "heal",
+       "n": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "龍息",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 22
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 120,
+     "pattern": "cycle",
+     "line": "……吵醒我的，要付代價。",
+     "onEnter": [
+      {
+       "kind": "purgePlayer",
+       "names": [
+        "爪力",
+        "貓步"
+       ]
+      },
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 3
+      },
+      {
+       "kind": "statusSelf",
+       "name": "鱗甲",
+       "amount": 4
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "龍炎",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 27,
+         "pierce": true
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "吞天",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 17,
+         "times": 2
+        },
+        {
+         "kind": "heal",
+         "n": 8
+        }
+       ]
+      },
+      {
+       "intent": "debuff",
+       "label": "咆哮",
+       "effects": [
+        {
+         "kind": "giveCard",
+         "cardId": "dazed_card",
+         "n": 2,
+         "to": "draw"
+        },
+        {
+         "kind": "statusPlayer",
+         "name": "炸毛",
+         "amount": 2
+        }
+       ]
+      },
+      {
+       "intent": "block",
+       "label": "盤踞",
+       "effects": [
+        {
+         "kind": "block",
+         "amount": 22
+        },
+        {
+         "kind": "heal",
+         "n": 8
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "hex_abbot",
+   "name": "詛咒老住持",
+   "hp": [
+    220,
+    220
+   ],
+   "pool": "塔主",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_hex_abbot",
+   "acts": [],
+   "passives": {
+    "hexOnSkill": {
+     "cardId": "dazed_card",
+     "n": 1
+    },
+    "thorns": 3,
+    "angerOnSkill": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "木魚",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 24
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "唸經",
+     "effects": [
+      {
+       "kind": "giveCard",
+       "cardId": "slime_card",
+       "n": 2,
+       "to": "discard"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "佛掌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 30
+      }
+     ]
+    }
+   ],
+   "phases": [
+    {
+     "hpBelow": 85,
+     "line": "阿彌陀佛。",
+     "pattern": "cycle",
+     "onEnter": [
+      {
+       "kind": "statusSelf",
+       "name": "鱗甲",
+       "amount": 6
+      }
+     ],
+     "moves": [
+      {
+       "intent": "attack",
+       "label": "大佛掌",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 36
+        }
+       ]
+      },
+      {
+       "intent": "attack",
+       "label": "急木魚",
+       "effects": [
+        {
+         "kind": "damage",
+         "amount": 24
+        }
+       ]
+      },
+      {
+       "intent": "debuff",
+       "label": "唸經",
+       "effects": [
+        {
+         "kind": "giveCard",
+         "cardId": "slime_card",
+         "n": 2,
+         "to": "discard"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "wild_boar",
+   "name": "山豬頭目",
+   "hp": [
+    78,
+    78
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_wild_boar",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "angerOnSkill": 1
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "衝撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "亂踩",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "衝撞",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "paper_tiger",
+   "name": "紙老虎",
+   "hp": [
+    66,
+    66
+   ],
+   "pool": "大魔物",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_paper_tiger",
+   "acts": [
+    1
+   ],
+   "passives": {
+    "thorns": 2
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "撲",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 11
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "抓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "虛張聲勢",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "drum_tanuki",
+   "name": "太鼓狸",
+   "hp": [
+    80,
+    80
+   ],
+   "pool": "大魔物",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_drum_tanuki",
+   "acts": [
+    1
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "敲鼓",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "special",
+     "label": "打鼓助勢",
+     "effects": [
+      {
+       "kind": "chargeNext"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "重擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "iron_arhat",
+   "name": "鐵羅漢",
+   "hp": [
+    120,
+    120
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_iron_arhat",
+   "acts": [
+    2
+   ],
+   "passives": {
+    "plating": 8,
+    "curlUp": 12
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "鐵拳",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 22
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "金剛立",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "羅漢掌",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 28
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "shadow_spider",
+   "name": "織影蜘蛛",
+   "hp": [
+    110,
+    110
+   ],
+   "pool": "大魔物",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_shadow_spider",
+   "acts": [
+    2
+   ],
+   "passives": {
+    "flying": 3
+   },
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "吐絲",
+     "effects": [
+      {
+       "kind": "giveCard",
+       "cardId": "dazed_card",
+       "n": 1,
+       "to": "draw"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "咬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 20
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "撲",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "drunk_dog",
+   "name": "醉拳狗",
+   "hp": [
+    125,
+    125
+   ],
+   "pool": "大魔物",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_drunk_dog",
+   "acts": [
+    2
+   ],
+   "passives": {
+    "fadeAfter": 6,
+    "strengthEveryNTurns": 1
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "醉步",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "灌酒",
+     "effects": [
+      {
+       "kind": "heal",
+       "n": 10
+      },
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "醉拳",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 24
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "oni_general",
+   "name": "鬼將",
+   "hp": [
+    140,
+    140
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_oni_general",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "reviveGroup": "imps",
+    "reviveHp": 30
+   },
+   "moves": [
+    {
+     "intent": "buff",
+     "label": "號令",
+     "effects": [
+      {
+       "kind": "statusAllies",
+       "name": "爪力",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "鐵棒",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 16
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "盾陣",
+     "effects": [
+      {
+       "kind": "blockAllies",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "橫掃",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "imp",
+   "name": "小鬼",
+   "hp": [
+    12,
+    12
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_imp",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "reviveGroup": "imps",
+    "reviveHp": 8
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "戳",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "躲",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 6
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "mirror_sage",
+   "name": "鏡仙",
+   "hp": [
+    180,
+    180
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_mirror_sage",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "splitInto": {
+     "enemyId": "mirror_shard",
+     "n": 2,
+     "below": 0.5
+    },
+    "hexOnSkill": {
+     "cardId": "dazed_card",
+     "n": 1
+    }
+   },
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "鏡光",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "幻影",
+     "effects": [
+      {
+       "kind": "giveCard",
+       "cardId": "slime_card",
+       "n": 2,
+       "to": "discard"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "鏡光",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 16
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "mirror_shard",
+   "name": "鏡影",
+   "hp": [
+    20,
+    20
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_mirror_shard",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "鏡刺",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 10
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "碎光",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "void_cat",
+   "name": "虛無貓",
+   "hp": [
+    190,
+    190
+   ],
+   "pool": "大魔物",
+   "size": "large",
+   "pattern": "cycle",
+   "art": "codex/monster_void_cat",
+   "acts": [
+    3
+   ],
+   "passives": {
+    "phasing": true
+   },
+   "moves": [
+    {
+     "intent": "debuff",
+     "label": "黑火",
+     "effects": [
+      {
+       "kind": "giveCard",
+       "cardId": "dazed_card",
+       "n": 2,
+       "to": "draw"
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "虛爪",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 15
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "吞噬",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 12,
+       "times": 2,
+       "pierce": true
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  }
+ ]
+}

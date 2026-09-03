@@ -1,0 +1,161 @@
+<title>怪物工作檯</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap">
+<style>
+:root{--bg:#f4efe4;--ink:#2b2118;--muted:#7a6a55;--card:#fffaf0;--line:#d9c9a8;--accent:#c9702a;--ok:#3f7d4e;--field:#fff;--check1:#cdc4b2;--check2:#bdb3a0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1d1611;--ink:#f3e9d6;--muted:#b3a48c;--card:#2a211a;--line:#4a3a2b;--field:#1a140f;--check1:#5a4d3c;--check2:#4b4032}}
+:root[data-theme="dark"]{--bg:#1d1611;--ink:#f3e9d6;--muted:#b3a48c;--card:#2a211a;--line:#4a3a2b;--field:#1a140f;--check1:#5a4d3c;--check2:#4b4032}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;padding:18px 22px 80px}
+h1{font-size:22px;margin:0 0 2px}.sub{color:var(--muted);margin:0 0 12px;max-width:80ch}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0 10px;border-bottom:1px solid var(--line);margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.top button,.top input[type=search]{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit}
+.top button{cursor:pointer}.top button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.top .save{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:700}.top .save:disabled{opacity:.5;cursor:default}
+.top .status{color:var(--muted);font-size:13px;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
+.mon{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.mon.dirty{border-color:var(--accent);box-shadow:0 0 0 2px #c9702a33}
+.mon header{display:flex;align-items:baseline;gap:8px}.mon header input.name{font-weight:700;font-size:16px;width:10em}
+.mon code{color:var(--muted);font-size:12px}.meta{font-size:12px;color:var(--muted)}
+.pics{display:flex;gap:8px}.pics figure{margin:0;flex:1;text-align:center;background:repeating-conic-gradient(var(--check1) 0 25%,var(--check2) 0 50%) 0 0/16px 16px;border-radius:8px;padding:4px}
+.pics img{max-width:100%;height:120px;object-fit:contain;display:block;margin:0 auto}.pics .ph{height:120px;display:grid;place-items:center;color:var(--muted)}
+figcaption{font-size:11px;color:#3a3028;background:#fff8;border-radius:4px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+input[type=number]{width:4.5em;font-variant-numeric:tabular-nums}input[type=text]{width:8em}input.wide{width:14em}
+.row{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}.lbl{color:var(--muted);font-size:12px}
+.sec{border-top:1px dashed var(--line);padding-top:6px}.sec>b{font-size:13px}
+.move{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;padding:4px 6px;border-radius:6px;background:#00000008;margin-top:4px}
+.fx{display:inline-flex;gap:4px;align-items:center;background:var(--field);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.fx .k{font-size:12px;color:var(--accent);font-weight:700}
+textarea.note{width:100%;min-height:48px;resize:vertical}
+.phase{border-left:3px solid var(--accent);padding-left:8px;margin-top:6px}
+.json{width:100%;height:160px;font:12px ui-monospace,monospace}
+</style>
+<h1>怪物工作檯</h1>
+<p class="sub">每隻魔物的血量、被動、招式數值都能直接改；改過的卡會亮橘框。按「儲存到這一頁」會把改好的資料存回這個網址（我之後讀回來套進程式）。存不了時用「顯示 JSON」把文字整段複製給我。</p>
+<div class="top" id="top">
+  <button aria-pressed="true" data-f="all">全部</button><button aria-pressed="false" data-f="1">第一關</button><button aria-pressed="false" data-f="2">第二關</button><button aria-pressed="false" data-f="3">第三關</button><button aria-pressed="false" data-f="elite">大魔物</button><button aria-pressed="false" data-f="boss">關主</button><button aria-pressed="false" data-f="dirty">改過的</button>
+  <input type="search" id="q" placeholder="找名字或 id">
+  <button class="save" id="save" disabled>儲存到這一頁</button><button id="showjson">顯示 JSON</button>
+  <span class="status" id="status">讀取中…</span>
+</div>
+<div class="grid" id="grid"></div>
+<textarea class="json" id="jsonbox" hidden></textarea>
+<script id="data" type="application/json">__DATA__</script>
+<script id="imgs" type="application/json">__IMAGES__</script>
+<script id="app">
+(() => {
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const IMGS = JSON.parse(document.getElementById('imgs').textContent);
+const ORIG = JSON.stringify(DATA.monsters);
+const grid = document.getElementById('grid'); const status = document.getElementById('status'); const saveBtn = document.getElementById('save');
+const INTENTS = ['attack', 'block', 'buff', 'debuff', 'special', 'summon'];
+const POOL_ORDER = { '弱': 0, '中': 1, '強': 2, '大魔物': 3, '塔主': 4, '召喚': 5 };
+const el = (tag, attrs = {}, ...kids) => { const n = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else if (v !== undefined && v !== null) n.setAttribute(k, v); } for (const c of kids) n.append(c); return n; };
+
+// 泛用欄位：數字→數字框、布林→勾選、字串→文字框、陣列／物件→JSON 文字
+function field(obj, key, onChange) {
+  const v = obj[key];
+  if (typeof v === 'number') { const i = el('input', { type: 'number', value: v, step: 1 }); i.addEventListener('input', () => { obj[key] = Number(i.value); onChange(); }); return i; }
+  if (typeof v === 'boolean') { const i = el('input', { type: 'checkbox' }); i.checked = v; i.addEventListener('change', () => { obj[key] = i.checked; onChange(); }); return i; }
+  if (typeof v === 'string') { const i = el('input', { type: 'text', value: v, class: v.length > 8 ? 'wide' : '' }); i.addEventListener('input', () => { obj[key] = i.value; onChange(); }); return i; }
+  const i = el('input', { type: 'text', value: JSON.stringify(v), class: 'wide' }); i.title = '陣列／物件用 JSON 寫';
+  i.addEventListener('change', () => { try { obj[key] = JSON.parse(i.value); i.style.borderColor = ''; onChange(); } catch { i.style.borderColor = 'red'; } }); return i;
+}
+function effectRow(fx, onChange) {
+  const box = el('span', { class: 'fx' }, el('span', { class: 'k' }, fx.kind));
+  for (const k of Object.keys(fx)) { if (k === 'kind') continue; box.append(el('span', { class: 'lbl' }, k), field(fx, k, onChange)); }
+  return box;
+}
+function moveRow(mv, onChange) {
+  const sel = el('select'); for (const it of INTENTS) sel.append(el('option', { value: it, selected: it === mv.intent ? '' : undefined }, it)); if (!INTENTS.includes(mv.intent)) sel.append(el('option', { value: mv.intent, selected: '' }, mv.intent));
+  sel.addEventListener('change', () => { mv.intent = sel.value; onChange(); });
+  const lab = el('input', { type: 'text', value: mv.label }); lab.addEventListener('input', () => { mv.label = lab.value; onChange(); });
+  const row = el('div', { class: 'move' }, sel, lab);
+  for (const fx of mv.effects) row.append(effectRow(fx, onChange));
+  return row;
+}
+function card(m) {
+  const node = el('article', { class: 'mon', 'data-id': m.id, 'data-act': m.acts.join(','), 'data-pool': m.pool });
+  const mark = () => { node.classList.add('dirty'); m._dirty = true; saveBtn.disabled = false; status.textContent = '有未儲存的修改'; };
+  const name = el('input', { type: 'text', class: 'name', value: m.name }); name.addEventListener('input', () => { m.name = name.value; mark(); });
+  node.append(el('header', {}, name, el('code', {}, m.id)));
+  const pics = el('div', { class: 'pics' });
+  for (const [lab, key] of [['待機', 'idle'], ['出手', 'attack']]) { const src = IMGS[m.id]?.[key]; pics.append(el('figure', {}, src ? el('img', { src, alt: '' }) : el('div', { class: 'ph' }, '沒有圖'), el('figcaption', {}, lab))); }
+  node.append(pics);
+  const act = m.acts.length ? '第' + m.acts.join('、') + '關' : (m.pool === '塔主' ? '關主' : '召喚／其他');
+  node.append(el('div', { class: 'meta' }, `${act}・${m.pool}池・${m.size}・出招 ${m.pattern}`));
+  const hp0 = el('input', { type: 'number', value: m.hp[0] }), hp1 = el('input', { type: 'number', value: m.hp[1] });
+  hp0.addEventListener('input', () => { m.hp[0] = Number(hp0.value); mark(); }); hp1.addEventListener('input', () => { m.hp[1] = Number(hp1.value); mark(); });
+  node.append(el('div', { class: 'row' }, el('span', { class: 'lbl' }, '血'), hp0, el('span', {}, '～'), hp1));
+  const pk = Object.keys(m.passives);
+  if (pk.length) { const row = el('div', { class: 'row sec' }, el('b', {}, '被動')); for (const k of pk) row.append(el('span', { class: 'lbl' }, k), field(m.passives, k, mark)); node.append(row); }
+  const mv = el('div', { class: 'sec' }, el('b', {}, '招式')); for (const x of m.moves) mv.append(moveRow(x, mark)); node.append(mv);
+  if (m.phases.length) {
+    const ph = el('div', { class: 'sec' }, el('b', {}, '階段'));
+    m.phases.forEach((p, i) => {
+      const box = el('div', { class: 'phase' }, el('div', { class: 'row' }, el('b', {}, `第 ${i + 2} 階段`)));
+      const row = box.firstChild;
+      for (const k of Object.keys(p)) { if (k === 'moves' || k === 'onEnter') continue; row.append(el('span', { class: 'lbl' }, k), field(p, k, mark)); }
+      if (p.onEnter) { const r2 = el('div', { class: 'row' }, el('span', { class: 'lbl' }, '進場')); for (const fx of p.onEnter) r2.append(effectRow(fx, mark)); box.append(r2); }
+      for (const x of p.moves ?? []) box.append(moveRow(x, mark));
+      ph.append(box);
+    });
+    node.append(ph);
+  }
+  const note = el('textarea', { class: 'note', placeholder: '備註：想改什麼、覺得哪裡怪，寫在這裡' }); note.value = m.note || ''; note.addEventListener('input', () => { m.note = note.value; mark(); });
+  node.append(note);
+  return node;
+}
+DATA.monsters.sort((a, b) => (a.acts[0] ?? 9) - (b.acts[0] ?? 9) || (POOL_ORDER[a.pool] ?? 6) - (POOL_ORDER[b.pool] ?? 6) || a.id.localeCompare(b.id));
+for (const m of DATA.monsters) grid.append(card(m));
+status.textContent = `${DATA.monsters.length} 隻・資料日期 ${DATA.generatedAt}`;
+
+// 篩選
+let filter = 'all', query = '';
+function applyFilter() {
+  for (const node of grid.children) {
+    const m = DATA.monsters.find((x) => x.id === node.dataset.id); if (!m) continue;
+    let show = true;
+    if (filter === 'boss') show = m.pool === '塔主'; else if (filter === 'elite') show = m.pool === '大魔物'; else if (filter === 'dirty') show = !!m._dirty; else if (filter !== 'all') show = m.acts.includes(Number(filter));
+    if (show && query) show = (m.name + ' ' + m.id).toLowerCase().includes(query);
+    node.hidden = !show;
+  }
+}
+const top = document.getElementById('top');
+top.addEventListener('click', (e) => { const b = e.target.closest('button[data-f]'); if (!b) return; for (const x of top.querySelectorAll('button[data-f]')) x.setAttribute('aria-pressed', String(x === b)); filter = b.dataset.f; applyFilter(); });
+document.getElementById('q').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); applyFilter(); });
+
+// 匯出：去掉暫存欄位
+function exportData() { return { generatedAt: DATA.generatedAt, savedAt: new Date().toISOString(), monsters: DATA.monsters.map(({ _dirty, ...m }) => m) }; }
+document.getElementById('showjson').addEventListener('click', () => { const box = document.getElementById('jsonbox'); box.hidden = !box.hidden; if (!box.hidden) { box.value = JSON.stringify(exportData(), null, 1); box.focus(); box.select(); } });
+
+// 儲存：從資料重新產生整份文件再發佈（不序列化畫面）
+function buildDocument() {
+  const safe = (s) => s.replace(/<\//g, '<\\/');
+  const style = document.querySelector('style').textContent;
+  const app = document.getElementById('app').textContent;
+  const imgs = document.getElementById('imgs').textContent;
+  const head = `<!doctype html>\n<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>怪物工作檯</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"><style>${style}</style></head><body>`;
+  const body = document.getElementById('body-skeleton').textContent;
+  return head + body + `<script id="body-skeleton" type="text/plain">${safe(body)}<\/script><script id="data" type="application/json">${safe(JSON.stringify(exportData()))}<\/script><script id="imgs" type="application/json">${safe(imgs)}<\/script><script id="app">${safe(app)}<\/script></body></html>`;
+}
+saveBtn.addEventListener('click', async () => {
+  const art = await claude.use('artifact');
+  if (!art) { status.textContent = '這個頁面存不了（沒有權限），請用「顯示 JSON」複製給我'; return; }
+  saveBtn.disabled = true; status.textContent = '儲存中…';
+  try { await art.publish(buildDocument()); status.textContent = '已儲存，頁面會重新載入'; }
+  catch (e) { status.textContent = '儲存失敗：' + (e && e.code ? e.code : e); saveBtn.disabled = false; }
+});
+claude.use('artifact').then((a) => { if (!a) { saveBtn.title = '這一頁沒有儲存權限，改用「顯示 JSON」'; } });
+})();
+</script>
+<script id="body-skeleton" type="text/plain"><h1>怪物工作檯</h1>
+<p class="sub">每隻魔物的血量、被動、招式數值都能直接改；改過的卡會亮橘框。按「儲存到這一頁」會把改好的資料存回這個網址（我之後讀回來套進程式）。存不了時用「顯示 JSON」把文字整段複製給我。</p>
+<div class="top" id="top">
+  <button aria-pressed="true" data-f="all">全部</button><button aria-pressed="false" data-f="1">第一關</button><button aria-pressed="false" data-f="2">第二關</button><button aria-pressed="false" data-f="3">第三關</button><button aria-pressed="false" data-f="elite">大魔物</button><button aria-pressed="false" data-f="boss">關主</button><button aria-pressed="false" data-f="dirty">改過的</button>
+  <input type="search" id="q" placeholder="找名字或 id">
+  <button class="save" id="save" disabled>儲存到這一頁</button><button id="showjson">顯示 JSON</button>
+  <span class="status" id="status">讀取中…</span>
+</div>
+<div class="grid" id="grid"></div>
+<textarea class="json" id="jsonbox" hidden></textarea></script>

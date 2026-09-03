@@ -703,7 +703,7 @@ export const enemies: EnemyDef[] = [
     line: '（滾了一圈）', lines: ['（黏在地上又彈起來）', '（比剛才小一號）'],
     moves: [{ intent: 'attack', label: '撞', effects: [{ kind: 'damage', amount: 4 }] }] },
   // 縮殼：第一次被打痛就長出一層厚防禦。第一擊要嘛戳一下騙它縮，要嘛一口氣打穿
-  { id: 'armadillo_pup', name: '犰狳寶寶', hp: [24, 28], pool: '弱', pattern: 'cycle', size: 'small', art: 'codex/monster_armadillo_pup',
+  { id: 'armadillo_pup', name: '犰狳寶寶', hp: [24, 28], pool: '弱', pattern: 'cycle', size: 'medium', art: 'codex/monster_armadillo_pup',   // 中框：橫躺的體型塞小框會被壓扁（使用者 2026-09-03）
     line: '（縮成一顆球，只露出一隻眼睛）', lines: ['（殼上還有奶漬）', '（滾過來又滾回去）'],
     curlUp: 8,
     moves: [
