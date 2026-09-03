@@ -217,7 +217,7 @@ export interface EnemyDef {
   reviveHp?: number;
   /** 在同一組裡只當「錨」：牠活著同伴會爬起來，牠自己倒了就不會（蛙大名） */
   neverRevive?: boolean;
-  /** 倒下幾個回合後才爬起來。不填＝1（下一回合就起來，貓又的尾巴用這個）。 */
+  /** 倒下幾個回合後才爬起來。不填＝2（躺一個完整回合，玩家有時間把同伴清掉；2026-09-03 從 1 改成 2）。 */
   reviveDelay?: number;
   strengthEveryNTurns?: number;
   /**

@@ -143,7 +143,8 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   e.dead = true;
   // 同生共死組的成員倒下就開始倒數「重生中」；沒有同組概念的魔物維持 0
   const rd = enemyById[e.enemyId];
-  e.reviveIn = rd?.reviveGroup ? (rd.reviveDelay ?? 1) : 0;
+  // 預設躺兩回合（使用者 2026-09-03：一回合就爬起來沒緩衝；躺著期間把其他同伴清掉就算贏）
+  e.reviveIn = rd?.reviveGroup ? (rd.reviveDelay ?? 2) : 0;
   cs.kills += 1;
   const def = enemyById[e.enemyId]!;
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);

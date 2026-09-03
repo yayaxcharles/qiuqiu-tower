@@ -39,6 +39,9 @@ describe('稽核 2026-09-03', () => {
     damageEnemy(cs, tadpoles[0]!, 999, { direct: true });
     endTurn(cs);
     expect(frog.dead, '蛙大名不該復活').toBe(true);
+    expect(tadpoles[0]!.dead, '蝌蚪兵要躺兩回合').toBe(true);   // 2026-09-03 改：預設躺兩回合才爬起來
+    endTurn(cs);
+    expect(frog.dead, '蛙大名不該復活').toBe(true);
     expect(tadpoles[0]!.dead, '蝌蚪兵該爬起來').toBe(false);
   });
 

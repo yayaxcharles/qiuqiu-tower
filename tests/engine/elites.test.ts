@@ -152,6 +152,9 @@ describe('第三關菁英（強機制）', () => {
     expect(imps[0]!.dead).toBe(true);
     gen.move = { intent: 'block', label: '盾陣', effects: [{ kind: 'blockAllies', amount: 12 }] };
     endTurn(cs);
+    expect(imps[0]!.dead, '小鬼要躺兩回合才爬起來').toBe(true);   // 2026-09-03 改：預設躺兩回合
+    expect(imps[0]!.reviveIn).toBe(1);
+    endTurn(cs);
     expect(imps[0]!.dead, '鬼將還在，小鬼爬起來了').toBe(false);
     expect(imps[0]!.hp).toBe(8);
 
