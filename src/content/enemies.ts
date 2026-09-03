@@ -220,20 +220,20 @@ export const enemies: EnemyDef[] = [
       hpBar: 240, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 1, 貓步: 1 },
       onEnter: [{ kind: 'block', amount: 20 }],
       moves: [
-        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 6, times: 6 }, { kind: 'block', amount: 6 }] },   // 2026-09-02 使用者：第二階段段數降一點（7→6、4→3）
+        { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 7, times: 6 }, { kind: 'block', amount: 6 }] },   // 2026-09-02 使用者：第二階段段數降一點（7→6、4→3）
         { intent: 'attack', label: '穿心掌', effects: [{ kind: 'damage', amount: 20, pierce: true }, { kind: 'block', amount: 10 }] },
-        { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 11, times: 3 }] },
+        { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 12, times: 3 }] },
         { intent: 'attack', label: '金鐘罩', effects: [{ kind: 'block', amount: 24 }, { kind: 'damage', amount: 10 }] },
         { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 14, max: 30 }, { kind: 'block', amount: 8 }] },
       ],
     }, {
-      hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 1, 貓步: 1 },   // 2026-09-03 新地圖下機器人只剩兩成，震散降到 1／1
+      hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 2, drainPlayerPerTurn: { 爪力: 2, 貓步: 2 },   // 使用者 2026-09-03 晚：師父不放軟，維持第三條血每回合 +2、震散 2／2
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],   // 第三條血本來還有反彈 6：反彈生效後配上震散太狠（機器人 97% 敗），拿掉，只留爪力
       moves: [
-        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 22, times: 2, pierce: true }] },
+        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 26, times: 2, pierce: true }] },
         { intent: 'attack', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 14 }] },
-        { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 9, times: 7 }] },
-        { intent: 'attack', label: '氣沉丹田', effects: [{ kind: 'block', amount: 28 }, { kind: 'heal', n: 12 }, { kind: 'damage', amount: 8 }] },
+        { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 10, times: 7 }] },
+        { intent: 'attack', label: '氣沉丹田', effects: [{ kind: 'block', amount: 28 }, { kind: 'heal', n: 15 }, { kind: 'damage', amount: 8 }] },
         { intent: 'attack', label: '看破', effects: [{ kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'damage', amount: 12, times: 2 }] },
       ],
     }] },
