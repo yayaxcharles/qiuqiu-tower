@@ -60,11 +60,16 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
  * 魔物（或自傷）打球球。direct＝不看隱身、不看蜷縮、不套公式（自傷、噎到、壞毛病用）；
  * pierce＝穿透：套公式、吃隱身與反彈，但**跳過蜷縮**（師父的穿心掌、亡命一擊）
  */
-export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts: { direct?: boolean; pierce?: boolean } = {}): number {
+export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts: { direct?: boolean; pierce?: boolean; throughBlock?: boolean } = {}): number {
   const p = cs.player;
   let lose: number;
   if (opts.direct) {
     lose = base;
+    // 反彈那種「直傷但先扣蜷縮」（使用者 2026-09-03：被反彈的人都應該優先扣蜷縮，蜷縮 4 被反彈 2 就剩 2）
+    if (opts.throughBlock) {
+      const absorbed = Math.min(p.block, base); p.block -= absorbed; lose = base - absorbed;
+      if (absorbed > 0) log(cs, `蜷縮擋下了 ${absorbed} 點`);
+    }
   } else {
     if (p.immune) { log(cs, '球球躲在角落，什麼都沒看到'); return 0; }
     if (getStatus(p, '隱身') > 0) { addStatus(p, '隱身', -1); log(cs, '球球閃過了'); return 0; }
@@ -80,7 +85,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
       const e = cs.enemies.find((x) => x === attacker);
       if (e) {
         log(cs, `反彈回敬了${e.name} ${thorns} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
-        damageEnemy(cs, e, thorns, { direct: true });
+        damageEnemy(cs, e, thorns, { direct: true, throughBlock: true });
       }
     }
   }
@@ -157,7 +162,7 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
 }
 
 export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
-  opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean } = {}): { dealt: number; killed: boolean } {
+  opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean; throughBlock?: boolean } = {}): { dealt: number; killed: boolean } {
   if (e.dead) return { dealt: 0, killed: false };
   // 蹲下調息中（血條式變身的過場）：無敵，什麼傷害都不吃
   if (e.invulnIn > 0) { log(cs, `${e.name}正在調息，毫髮無傷`); return { dealt: 0, killed: false }; }
@@ -169,6 +174,11 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   let lose: number;
   if (opts.direct) {
     lose = base;
+    // 反彈：直傷但先扣魔物的防禦（同上，兩邊規則一樣）
+    if (opts.throughBlock) {
+      const absorbed = Math.min(e.block, base); e.block -= absorbed; lose = base - absorbed;
+      if (absorbed > 0) log(cs, `${e.name}的防禦擋下了 ${absorbed} 點`);
+    }
   } else {
     if (getStatus(e, '隱身') > 0) { addStatus(e, '隱身', -1); log(cs, `${e.name}閃過了`); return { dealt: 0, killed: false }; }
     let dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
@@ -183,7 +193,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   // 魔物身上的反彈：你每打一下就被刺一下（刺蝟師傅、龜甲、師父第三條血——以前只有球球的反彈有效）
   if (!opts.direct) {
     const th = getStatus(e, '反彈');
-    if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true }); }
+    if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true, throughBlock: true }); }
   }
   // 虛化（虛無貓）：身體半透明，**每一段**傷害最多只扣 1 點血——攻擊、噎到、反彈一視同仁。
   // 擺在扣血之前、防禦結算之後：防禦照原本的量擋掉，虛化只管「真的扣進血條的那幾點」

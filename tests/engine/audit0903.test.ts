@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { enemyById } from '../../src/content/enemies';
-import { damageEnemy } from '../../src/engine/actions';
+import { damageEnemy, damagePlayer } from '../../src/engine/actions';
 import { endTurn, startCombat } from '../../src/engine/combat';
 import { Rng, seedFromString } from '../../src/engine/rng';
-import { getStatus } from '../../src/engine/statuses';
+import { addStatus, getStatus } from '../../src/engine/statuses';
 import type { CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
 
@@ -53,5 +53,22 @@ describe('稽核 2026-09-03', () => {
     lord.move = summon; endTurn(cs);
     const grown = kids.filter((k, i) => k.maxHp > hpBefore[i]!);
     expect(grown.length, '只有一隻被灌血').toBe(1);
+  });
+
+  it('反彈先扣蜷縮：球球蜷縮 4 打有反彈 2 的魔物，血不掉、蜷縮剩 2；魔物有防禦時被球球的反彈也先扣防禦', () => {
+    const cs = start('cucumber');
+    const e = cs.enemies[0]!;
+    addStatus(e, '反彈', 2);
+    cs.player.block = 4;
+    const hp = cs.player.hp;
+    damageEnemy(cs, e, 5);
+    expect(cs.player.hp).toBe(hp);
+    expect(cs.player.block).toBe(2);
+    // 反過來：球球身上反彈 3，魔物帶 5 點防禦打過來，反彈先扣牠的防禦
+    addStatus(cs.player, '反彈', 3);
+    e.block = 5; const ehp = e.hp;
+    damagePlayer(cs, e, 3);
+    expect(e.hp).toBe(ehp);
+    expect(e.block).toBe(2);
   });
 });
