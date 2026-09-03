@@ -243,7 +243,18 @@ export function makeShop(run: RunState): ShopStock {
   // 難度 4 起貴一成；零錢罐九折（兩者相乘）
   const shopMul = runMods(run).shopMul * run.relics.reduce((m, id) => m * (relicById[id]?.hooks.shopDiscount ?? 1), 1);
   const rng = runRng(run);
-  const cardDefs = [...rollCardChoices(rng, '忍術', 3), ...rollCardChoices(rng, '絕學', 2)];
+  // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03：第二關要比較常看到稀有牌可以買、第三關更高）：
+  // 第一關 常見 60／罕見 30／稀有 10；第二關 35／40／25 且至少一張稀有；第三關 20／40／40 且至少兩張稀有
+  const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
+    : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
+  const cardDefs = [...rollCardChoices(rng, '忍術', 3, [], false, 0, odds), ...rollCardChoices(rng, '絕學', 2, [], false, 0, odds)];
+  const wantRare = run.act >= 3 ? 2 : run.act === 2 ? 1 : 0;
+  for (let i = cardDefs.length - 1; i >= 0 && cardDefs.filter((c) => c.rarity === '稀有').length < wantRare; i--) {
+    const cur = cardDefs[i]!;
+    if (cur.rarity === '稀有') continue;
+    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !cardDefs.some((d) => d.id === c.id));
+    if (pool.length) cardDefs[i] = rng.pick(pool);
+  }
   const relicIds: string[] = [];
   for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...run.relics, ...relicIds]); if (id) relicIds.push(id); }
   return {

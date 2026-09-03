@@ -19,8 +19,8 @@ const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀�
 const RARITY_ODDS_LATE: [Rarity, number][] = [['常見', 40], ['罕見', 45], ['稀有', 15]];
 
 /** `rareBonus`＝稀有保底加的權重（見 RunState.rarePity）：連續沒開出稀有，稀有那格越來越大 */
-function rollRarity(rng: Rng, available: Set<Rarity>, late = false, rareBonus = 0): Rarity {
-  const table = (late ? RARITY_ODDS_LATE : RARITY_ODDS)
+function rollRarity(rng: Rng, available: Set<Rarity>, late = false, rareBonus = 0, odds?: readonly [Rarity, number][]): Rarity {
+  const table = (odds ?? (late ? RARITY_ODDS_LATE : RARITY_ODDS))
     .filter(([r]) => available.has(r))
     .map(([r, w]): [Rarity, number] => [r, r === '稀有' ? w + rareBonus : w]);
   const total = table.reduce((s, [, w]) => s + w, 0);
@@ -29,14 +29,14 @@ function rollRarity(rng: Rng, available: Set<Rarity>, late = false, rareBonus = 
   return table[table.length - 1]![0];
 }
 
-export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0): CardDef[] {
+export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0, odds?: readonly [Rarity, number][]): CardDef[] {
   const out: CardDef[] = [];
   const taken = new Set(exclude);
   for (let i = 0; i < n; i++) {
     // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不進任何獎勵池
     const remaining = cards.filter((c) => c.pool === pool && !c.combatOnly && !taken.has(c.id));
     if (remaining.length === 0) break;
-    const rar = rollRarity(rng, new Set(remaining.map((c) => c.rarity)), late, rareBonus);
+    const rar = rollRarity(rng, new Set(remaining.map((c) => c.rarity)), late, rareBonus, odds);
     const pick = rng.pick(remaining.filter((c) => c.rarity === rar));
     taken.add(pick.id);
     out.push(pick);
