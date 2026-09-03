@@ -37,10 +37,25 @@ export class App {
     this.stage = el('div', { id: 'stage' }, this.screen, this.overlay);
     root.append(this.stage);
     setOverlayRoot(this.overlay);
+    // 手機直立時的提示（舞台是橫的 16:9，直著看只剩一條），放在舞台外面、不隨舞台縮放
+    const hint = el('div', { id: 'rotate-hint' }, el('div', { class: 'rotate-card' }, el('div', { class: 'rotate-icon' }, '📱↻'), el('div', {}, '請把手機橫過來玩'), el('small', {}, '這款遊戲是橫向畫面')));
+    root.append(hint);
+    // 偵測是什麼裝置（粗指標＝觸控）跟現在直的還是橫的，寫在 <html> 上給樣式表用；
+    // 縮放一律「等比貼合視窗」，手機用 visualViewport 才算得到扣掉網址列後的真實高度
     const fit = (): void => {
-      this.stage.style.transform = `scale(${computeScale(window.innerWidth, window.innerHeight)})`;
+      const vv = window.visualViewport;
+      const w = vv?.width ?? window.innerWidth, h = vv?.height ?? window.innerHeight;
+      const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+      const shortSide = Math.min(window.screen.width, window.screen.height);
+      const device = coarse ? (shortSide < 600 ? 'phone' : 'tablet') : 'desktop';
+      const html = document.documentElement;
+      html.dataset['device'] = device;
+      html.dataset['orient'] = h > w ? 'portrait' : 'landscape';
+      this.stage.style.transform = `scale(${computeScale(w, h)})`;
     };
     window.addEventListener('resize', fit);
+    window.visualViewport?.addEventListener('resize', fit);
+    window.addEventListener('orientationchange', () => window.setTimeout(fit, 80));
     fit();
   }
 

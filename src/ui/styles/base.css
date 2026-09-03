@@ -23,6 +23,14 @@ html, body {
   overflow: hidden;
 }
 
+/* 手機直立時蓋一層「請橫放」；平板與電腦不管方向都直接顯示舞台 */
+#rotate-hint { display: none; position: fixed; inset: 0; z-index: 1000; background: #0f0a06f2; color: #fff3d6; place-items: center; text-align: center; font-size: 22px; line-height: 1.6; }
+#rotate-hint .rotate-card { padding: 28px 36px; border: 1.5px solid #ffd98a8c; border-radius: 16px; background: #2a1a0dcc; }
+#rotate-hint .rotate-icon { font-size: 44px; margin-bottom: 8px; }
+#rotate-hint small { display: block; font-size: 14px; color: #c9b58f; margin-top: 4px; }
+html[data-device="phone"][data-orient="portrait"] #rotate-hint { display: grid; }
+html { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
 /* 舞台固定 1280×720，整個等比縮放去貼合視窗 */
 #stage {
   position: relative;
