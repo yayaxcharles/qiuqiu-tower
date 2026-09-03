@@ -250,6 +250,10 @@ export const dialogue = {
       { speaker: '塔主', text: '阿彌陀佛。' },
       { speaker: '球球', text: '他身上長出一層鱗甲了……這下更難打進去喵！' },
     ],
+    dragon_cat: [
+      { speaker: '塔主', text: '……吵醒我的，要付代價。' },
+      { speaker: '球球', text: '牠真的醒了——鱗片全張開了，撐住喵！' },
+    ],
   },
   bossPhase2Generic: <DialogueLine[]>[
     { speaker: '塔主', text: '（氣勢整個變了）' },

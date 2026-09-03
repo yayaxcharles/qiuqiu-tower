@@ -231,3 +231,24 @@ describe('第三關菁英（強機制）', () => {
     expect(getStatus(e, '噎到'), '噎到照樣少一層').toBe(8);
   });
 });
+
+describe('沉睡的龍貓（2026-09-03 重做）', () => {
+  it('開場：睡一回合、鱗甲 6、逆鱗 2；半血覺醒：拍掉一半爪力貓步、自己 +3 爪力、鱗甲加到 10、招式換成龍炎那套', () => {
+    const cs = start('dragon_cat');
+    const e = cs.enemies[0]!;
+    expect(e.maxHp).toBe(200);
+    expect(getStatus(e, '沉睡')).toBe(1);
+    expect(getStatus(e, '鱗甲')).toBe(6);
+    expect(getStatus(e, '反彈')).toBe(2);
+    cs.player.statuses['爪力'] = 6; cs.player.statuses['貓步'] = 4;
+    damageEnemy(cs, e, 120, { direct: true });   // 200→80：跨過半血
+    expect(e.phase).toBe(1);
+    expect(getStatus(cs.player, '爪力')).toBe(3);
+    expect(getStatus(cs.player, '貓步')).toBe(2);
+    expect(getStatus(e, '爪力')).toBe(3 + 2);   // 覺醒 +3、被打醒 +2
+    expect(getStatus(e, '鱗甲')).toBe(10);
+    expect(getStatus(e, '沉睡')).toBe(0);
+    expect(['龍炎', '吞天', '咆哮', '盤踞']).toContain(e.move.label);
+  });
+});
+

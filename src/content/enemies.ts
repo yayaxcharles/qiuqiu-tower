@@ -821,15 +821,28 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '全速滾壓', effects: [{ kind: 'damage', amount: 16 }] },
     ] },
   // 沉睡的龍貓：開場睡兩回合白給你打，但打痛就醒、醒來 +4 爪力。要不要偷這兩回合是這場的抉擇
-  { id: 'dragon_cat', name: '沉睡的龍貓', hp: [190, 190], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_dragon_cat',
+  // 沉睡的龍貓（2026-09-03 重做：使用者「完全沒機制，作為第二關的王比菁英還不如」）
+  // 開場只睡一回合（打醒＝更兇 +2 爪力）；整場鱗甲 6（牠的回合結束長防禦、被打痛剝一層）＋逆鱗 2 點反彈（多段牌自己會痛）；
+  // 半血「龍魂覺醒」：拍掉你一半爪力貓步、自己 +3 爪力、鱗甲加到 10；之後龍炎穿透、吞天邊打邊回血、咆哮塞眼冒金星
+  { id: 'dragon_cat', name: '沉睡的龍貓', hp: [200, 200], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_dragon_cat',
     line: '（盤成一圈，鼻孔冒出一小縷煙）', lines: ['（鱗片隨著呼吸起伏）', '（睡夢中低吼了一聲）'],
-    asleep: 2, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 4 }],
+    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 6, thorns: 2,
     moves: [
-      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 18 }] },
-      { intent: 'attack', label: '撕咬', effects: [{ kind: 'damage', amount: 12, times: 2 }] },
-      { intent: 'block', label: '盤踞', effects: [{ kind: 'block', amount: 20 }, { kind: 'heal', n: 10 }] },
-      { intent: 'attack', label: '烈焰龍息', effects: [{ kind: 'damage', amount: 20 }] },
-    ] },
+      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 16 }] },
+      { intent: 'attack', label: '尾掃', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
+      { intent: 'block', label: '盤踞', effects: [{ kind: 'block', amount: 18 }, { kind: 'heal', n: 8 }] },
+      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 16 }] },
+    ],
+    phases: [{
+      hpBelow: 100, pattern: 'cycle', line: '……吵醒我的，要付代價。',
+      onEnter: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '鱗甲', amount: 4 }],
+      moves: [
+        { intent: 'attack', label: '龍炎', effects: [{ kind: 'damage', amount: 22, pierce: true }] },
+        { intent: 'attack', label: '吞天', effects: [{ kind: 'damage', amount: 12, times: 2 }, { kind: 'heal', n: 8 }] },
+        { intent: 'debuff', label: '咆哮', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 2, to: 'draw' }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
+        { intent: 'block', label: '盤踞', effects: [{ kind: 'block', amount: 22 }, { kind: 'heal', n: 8 }] },
+      ],
+    }] },
   // 詛咒老住持：整場都在往你的抽牌堆洗眼冒金星，二階段再給自己披一層鱗甲
   { id: 'hex_abbot', name: '詛咒老住持', hp: [170, 170], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_hex_abbot',
     line: '（木魚一聲一聲，敲得很慢）', lines: ['施主，回頭是岸。', '（念珠一顆顆撥過去）'],
