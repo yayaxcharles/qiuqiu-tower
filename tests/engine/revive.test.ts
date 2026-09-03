@@ -33,10 +33,16 @@ describe('一起死才算數', () => {
     expect(cs.enemies[0]!.dead).toBe(true);
     expect(cs.enemies[0]!.reviveIn).toBe(1);
 
-    // 第二個回合結束才爬起來，血量回到 reviveHp
+    // 第二個回合結束才爬起來，血量回到 reviveHp；爬起來那一拍不出手（turnCount 不動），但頭上已排好真的招式給玩家看
+    const tcBefore = cs.enemies[0]!.turnCount;
     endTurn(cs);
     expect(cs.enemies[0]!.dead).toBe(false);
     expect(cs.enemies[0]!.hp).toBe(8);
+    expect(cs.enemies[0]!.turnCount, '爬起來那回合不出手').toBe(tcBefore);
+    expect(cs.enemies[0]!.move.intent, '意圖不是閒置').not.toBe('idle');
+    // 再下一個回合牠就正常出手
+    endTurn(cs);
+    expect(cs.enemies[0]!.turnCount).toBe(tcBefore + 1);
 
     // 同一回合把三隻一起清光才算贏
     for (const e of cs.enemies) damageEnemy(cs, e, 999, { direct: true });

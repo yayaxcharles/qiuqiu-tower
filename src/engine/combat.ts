@@ -211,9 +211,9 @@ export function beginEnemyTurn(cs: CombatState): boolean {
     e.hp = rdef.reviveHp ?? Math.max(1, Math.round((rdef.hp[0] + rdef.hp[1]) / 4));
     e.block = 0;
     cs.kills = Math.max(0, cs.kills - 1);
-    // 爬起來的這一拍不出手：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）；
-    // 下一個回合開始由 advanceMove 排新招，玩家看得到意圖再挨
-    e.move = { intent: 'idle', label: '剛爬起來', effects: [{ kind: 'nothing' }] };
+    // 爬起來的這一拍不出手（不進 enemyQueue）：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）。
+    // 立刻排下一招，玩家回合就看得到新意圖；自檢時發現若只掛「剛爬起來」的閒置招，牠下一拍又會白白發呆一輪
+    advanceMove(cs, e);
     revivedNow.add(e.uid);
     log(cs, `${e.name}又爬起來了`);
   }
