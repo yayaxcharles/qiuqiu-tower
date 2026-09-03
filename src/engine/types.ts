@@ -387,7 +387,8 @@ export interface PlayerCombat extends Unit {
   discardPile: CardInstance[];
   exhaustPile: CardInstance[];
   retained: number[];
-  powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true }[];
+  /** 掛在球球身上的能力；`cardId` 記來源牌，戰鬥畫面用它掛「這是哪張牌的效果」的牌子（使用者 2026-09-03） */
+  powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string }[];
   doubleNext: number;
   drawNextTurn: number;
   noAttacks: boolean;
@@ -424,6 +425,7 @@ export interface EnemyCombat extends Unit {
 export interface EffectCtx {
   targetUid?: number;
   cardUid?: number;
+  cardId?: string;         // 打出的是哪張牌（能力牌掛牌子用）
   cardType?: CardType;
   source?: 'card' | 'potion' | 'relic' | 'power';
   combo?: number;          // 這張牌之前本回合已打出的牌數

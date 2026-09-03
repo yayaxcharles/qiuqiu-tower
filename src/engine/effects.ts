@@ -81,7 +81,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
     case 'power':
       // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來
-      p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}) });
+      p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}) });
       return false;
     case 'noAttacksThisTurn': p.noAttacks = true; return false;
     case 'immuneThisTurn': p.immune = true; return false;

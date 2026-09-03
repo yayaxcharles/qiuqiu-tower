@@ -119,7 +119,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
   p.hand.splice(p.hand.indexOf(card), 1);
   const toExhaust = st.keywords.includes('消耗') || st.def.type === '能力';
   (toExhaust ? p.exhaustPile : p.discardPile).push(card);
-  const ctx: EffectCtx = { targetUid, cardUid: uid, cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn };
+  const ctx: EffectCtx = { targetUid, cardUid: uid, cardId: st.def.id, cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn };
   if (st.def.type === '攻擊' && p.doubleNext > 0) { ctx.doubleDamage = true; p.doubleNext = 0; }
   if (st.def.type === '攻擊' && p.firstAttackDouble) { ctx.doubleDamage = true; p.firstAttackDouble = false; log(cs, '秘笈：第一擊加倍'); }
   p.cardsPlayedThisTurn += 1;

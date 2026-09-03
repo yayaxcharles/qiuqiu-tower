@@ -65,12 +65,13 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
   // 剛出現的 700 毫秒內不吃點擊，之後兩下之間至少隔 220 毫秒，一下只推進一句
   const mountedAt = performance.now();
   let lastAdvance = 0;
-  const tooSoon = (): boolean => {
-    const now = performance.now();
+  const tooSoon = (ev: Event): boolean => {
+    // 用事件自己的時間戳（滑鼠真正點下去的時刻）而不是處理當下：畫面一忙，連點會擠在一起延後處理，處理時間看起來就隔很久
+    const now = ev.timeStamp || performance.now();
     if (now - mountedAt < 700 || now - lastAdvance < 220) return true;
     lastAdvance = now; return false;
   };
-  box.addEventListener('click', () => { if (tooSoon()) return; i += 1; if (i >= flat.length) end(); else render(); });
+  box.addEventListener('click', (ev) => { if (tooSoon(ev)) return; i += 1; if (i >= flat.length) end(); else render(); });
   render();
   layer.append(box);
   lockScreen();
