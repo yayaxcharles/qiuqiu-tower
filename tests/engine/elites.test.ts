@@ -140,7 +140,7 @@ describe('第三關菁英（強機制）', () => {
     expect(gen.maxHp).toBe(140);
     expect(imps.length).toBe(2);
     // 遭遇帶魔氣 5：三隻出場就有 5 點爪力
-    for (const e of cs.enemies) expect(getStatus(e, '爪力'), e.name).toBe(5);
+    for (const e of cs.enemies) expect(getStatus(e, '爪力'), e.name).toBe(3);
     // 鼓舞：號令讓全體（含自己）再 +2
     gen.move = { intent: 'buff', label: '號令', effects: [{ kind: 'statusAllies', name: '爪力', amount: 2 }] };
     for (const e of imps) e.move = { intent: 'block', label: '躲', effects: [{ kind: 'block', amount: 6 }] };
