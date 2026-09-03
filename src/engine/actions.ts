@@ -1,9 +1,13 @@
+import { cardById } from '../content/cards';
 import { enemyById } from '../content/enemies';
 import { relicById } from '../content/relics';
 import { draw } from './deck';
 import { applyEffects } from './effects';
-import { addStatus, computeAttack, computeBlock, getStatus } from './statuses';
+import { addStatus, computeAttack, computeBlock, getStatus, removeStatus } from './statuses';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, Unit } from './types';
+
+/** 沉睡中的魔物頭上顯示的意圖。每次都是同一份物件，畫面比對「這一拍出的是哪一招」才穩 */
+export const SLEEP_MOVE: EnemyMove = { intent: 'idle', label: '呼呼大睡', effects: [{ kind: 'nothing' }] };
 
 export function log(cs: CombatState, msg: string): void { cs.log.push(msg); }
 export function aliveEnemies(cs: CombatState): EnemyCombat[] { return cs.enemies.filter((e) => !e.dead); }
@@ -32,6 +36,25 @@ export function healPlayer(cs: CombatState, n: number): number {
 }
 
 export function drawCards(cs: CombatState, n: number): CardInstance[] { return draw(cs.player, n, cs.rng); }
+
+/**
+ * 魔物塞牌給球球（黏液、眼冒金星）。
+ *
+ * `discard`＝丟進棄牌堆（這一輪打不到，洗牌之後才會遇到）；
+ * `draw`＝洗進抽牌堆的隨機位置（可能下一張就抽到，比較討厭）。
+ * 位置只用 `cs.rng`，同種子才重現得出同一局。
+ */
+export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n: number, to: 'discard' | 'draw'): void {
+  const def = cardById[cardId];
+  if (!def) throw new Error(`未知的牌：${cardId}`);
+  const p = cs.player;
+  for (let i = 0; i < n; i++) {
+    const card: CardInstance = { uid: cs.nextCardUid++, cardId, upgraded: false };
+    if (to === 'discard') p.discardPile.push(card);
+    else p.drawPile.splice(cs.rng.int(0, p.drawPile.length), 0, card);
+  }
+  log(cs, `${from.name}把 ${n} 張「${def.name}」塞進你的${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
+}
 
 /**
  * 魔物（或自傷）打球球。direct＝不看隱身、不看蜷縮、不套公式（自傷、噎到、壞毛病用）；
@@ -148,7 +171,9 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     lose = base;
   } else {
     if (getStatus(e, '隱身') > 0) { addStatus(e, '隱身', -1); log(cs, `${e.name}閃過了`); return { dealt: 0, killed: false }; }
-    const dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
+    let dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
+    // 飛行：打得到的只有一半，**先減半再扣防禦**（燈蛾、月蛾后）。噎到那種直傷不吃這條
+    if (getStatus(e, '飛行') > 0 && dmg > 0) { dmg = Math.floor(dmg / 2); log(cs, `${e.name}在天上，這一下只擦到一半`); }
     if (opts.ignoreBlock) lose = dmg;
     else {
       const absorbed = Math.min(e.block, dmg); e.block -= absorbed; lose = dmg - absorbed;
@@ -161,6 +186,28 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true }); }
   }
   e.hp = Math.max(0, e.hp - lose);
+  if (lose > 0) {
+    // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。
+    // 飛行、鱗甲只被「攻擊」剝落（噎到那種直傷不算）；沉睡與縮殼是**任何**扣血都算
+    if (!opts.direct) {
+      if (getStatus(e, '飛行') > 0) { addStatus(e, '飛行', -1); if (getStatus(e, '飛行') === 0) log(cs, `${e.name}被打了下來`); }
+      if (getStatus(e, '鱗甲') > 0) { addStatus(e, '鱗甲', -1); log(cs, `${e.name}的鱗甲剝落了一層`); }
+    }
+    if (getStatus(e, '沉睡') > 0 && e.hp > 0) {
+      removeStatus(e, '沉睡');
+      log(cs, `${e.name}被打醒了`);
+      const wake = enemyById[e.enemyId]?.onWake;
+      if (wake) runEnemyEffects(cs, e, wake, false);
+      e.moveIndex = -1;   // 醒過來從招式表的第一招開始（advanceMove 會 +1）
+      advanceMove(cs, e);
+    }
+    if (getStatus(e, '縮殼') > 0 && e.hp > 0) {
+      const n = getStatus(e, '縮殼');
+      removeStatus(e, '縮殼');   // 一場只縮一次
+      gainBlock(cs, e, n);
+      log(cs, `${e.name}縮回殼裡，長出 ${n} 點防禦`);
+    }
+  }
   if (e.hp === 0) {
     // 血條式變身：這條打完不算死——蹲下調息（無敵一回合），亮出下一條血
     const next = enemyById[e.enemyId]?.phases?.[e.phase];
@@ -180,8 +227,38 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     killEnemy(cs, e);
     return { dealt: lose, killed: true };
   }
+  const sp = enemyById[e.enemyId]?.splitInto;
+  if (sp && !e.split && e.hp <= e.maxHp * sp.below) { splitEnemy(cs, e, sp); return { dealt: lose, killed: false }; }
   checkPhase(cs, e);
   return { dealt: lose, killed: false };
+}
+
+/**
+ * 分裂（團子史萊姆）：本體消失、原地冒出幾隻小的，每隻的血量＝本體剩下的血。
+ *
+ * 本體走 `escaped` 那條路——**不算打倒**：擊倒獎勵（吸貓大法、黑曜爪那些）不發、
+ * 偷走的小魚乾也不退。剛冒出來的照既有的召喚規則：玩家回合中途冒出來的先掛「剛冒出來」，
+ * 敵方回合冒出來的照表亮意圖（`endTurn` 跑的是快照，那一拍本來就不會動）。
+ */
+function splitEnemy(cs: CombatState, e: EnemyCombat, sp: { enemyId: string; n: number; below: number }): void {
+  const hp = e.hp;
+  e.split = true;
+  e.dead = true;
+  e.escaped = true;
+  log(cs, `${e.name}裂開了`);
+  for (let i = 0; i < sp.n; i++) {
+    if (aliveEnemies(cs).length >= 5) break;   // 畫面塞不下五個以上
+    const fresh = makeEnemy(cs, sp.enemyId, i, cs.mods?.hpMul ?? 1);
+    fresh.hp = hp; fresh.maxHp = hp;           // 血量照本體剩下的，不用小怪自己的區間
+    if (cs.mods?.strength) addStatus(fresh, '爪力', cs.mods.strength);
+    if (!cs.enemyActing) {
+      fresh.move = { intent: 'idle', label: '剛冒出來', effects: [{ kind: 'nothing' }] };
+      fresh.moveIndex = -1;
+    }
+    cs.enemies.push(fresh);
+  }
+  // 塞不下半隻（極端情況）就等於清場了，該判贏
+  if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
 }
 
 export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpScale = 1): EnemyCombat {
@@ -190,11 +267,22 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   const hp = Math.max(1, Math.round(cs.rng.int(def.hp[0], def.hp[1]) * hpScale));
   const moveIndex = def.pattern === 'cycle' ? index % def.moves.length : 0;
   const move = def.pattern === 'cycle' ? (def.moves[moveIndex] as EnemyMove) : cs.rng.pick(def.moves);
-  return {
+  const e: EnemyCombat = {
     uid: cs.nextEnemyUid++, enemyId, name: def.name, hp, maxHp: hp, block: 0, statuses: {},
     moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0, invulnIn: 0,
     move: def.chooseMove?.(1, def.moves) ?? move, dead: false, escaped: false, stolen: 0,
   };
+  // 開戰就帶的被動狀態（第二波魔物）。全部走正常的狀態欄位，畫面上就有牌子、滑上去有說明
+  if (def.flying) addStatus(e, '飛行', def.flying);
+  if (def.plating) addStatus(e, '鱗甲', def.plating);
+  if (def.curlUp) addStatus(e, '縮殼', def.curlUp);
+  if (def.fadeAfter) addStatus(e, '消散', def.fadeAfter);
+  if (def.asleep) {
+    addStatus(e, '沉睡', def.asleep);
+    e.move = SLEEP_MOVE;   // 睡著的頭上顯示「呼呼大睡」；醒來時 moveIndex −1 → advanceMove 從第一招開始
+    e.moveIndex = -1;
+  }
+  return e;
 }
 
 /** 包成函式再讀，免得 TypeScript 把 cs.phase 窄化後，看不見 damagePlayer 途中把戰鬥打成敗北 */
@@ -279,6 +367,25 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'chargeNext': e.charged = true; break;
       case 'escape': e.dead = true; e.escaped = true; log(cs, `${e.name}帶著小魚乾逃走了`);
         if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won'; break;
+      case 'selfDestruct': {
+        // 自爆（河豚精）：先打人（吃蜷縮、隱身照閃），然後自己倒下——這一下**算打倒**，戰利品照發
+        log(cs, `${e.name}炸開了`);
+        damagePlayer(cs, e, fx.amount * (charged ? 2 : 1));
+        if (isLost(cs)) return;
+        if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true });
+        return;   // 自己都沒了，後面的效果不用跑
+      }
+      case 'statusAllies': {
+        for (const o of aliveEnemies(cs)) addStatus(o, fx.name, fx.amount);
+        log(cs, `${e.name}一聲令下，全體獲得 ${fx.amount} 點${fx.name}`);
+        break;
+      }
+      case 'blockAllies': {
+        for (const o of aliveEnemies(cs)) gainBlock(cs, o, fx.amount);
+        log(cs, `${e.name}擺出盾陣，全體獲得 ${fx.amount} 點防禦`);
+        break;
+      }
+      case 'giveCard': giveCards(cs, e, fx.cardId, fx.n, fx.to); break;
       case 'nothing': break;
       default: { const _never: never = fx; void _never; break; }   // 漏接新的 EnemyEffect 種類會在型別檢查就爆
     }

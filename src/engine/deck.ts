@@ -43,7 +43,11 @@ export function draw(p: PlayerCombat, n: number, rng: Rng): CardInstance[] {
 export function discardHand(p: PlayerCombat): void {
   const keep: CardInstance[] = [];
   for (const c of p.hand) {
-    const retain = cardStats(c).keywords.includes('保留') || p.retained.includes(c.uid);
+    const kw = cardStats(c).keywords;
+    const retain = kw.includes('保留') || p.retained.includes(c.uid);
+    // 虛幻（眼冒金星）：回合結束還在手上就直接消失，不進棄牌堆——放進消耗堆，
+    // 側邊欄的「消耗 N」數得出來，玩家才看得到它真的走了
+    if (kw.includes('虛幻') && !retain) { p.exhaustPile.push(c); continue; }
     if (retain) keep.push(c); else p.discardPile.push(c);
   }
   p.hand = keep;

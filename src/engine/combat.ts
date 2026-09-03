@@ -2,7 +2,7 @@ import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
-import { advanceMove, damageEnemy, damagePlayer, drawCards, findEnemy, gainStealth, log, makeEnemy, runEnemyEffects } from './actions';
+import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, giveCards, log, makeEnemy, runEnemyEffects, SLEEP_MOVE } from './actions';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
@@ -34,6 +34,8 @@ export function startCombat(input: {
     rng: input.rng, player, enemies: [], relics: [...input.relics], potions: [...input.potions],
     turn: 0, phase: 'player', pending: null, log: [], encounterId: input.encounterId, endTurnRequested: false,
     stolenFish: 0, fishDelta: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
+    // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
+    nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
   };
   enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1))));
   const strength = (enc.strength ?? 0) + (input.mods?.strength ?? 0);   // 魔氣（見 EncounterDef.strength）＋難度
@@ -143,6 +145,16 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
       applyEffects(cs, h.effects, { source: 'relic' });
     }
   }
+  // 打出**技能**牌會惹到的兩種魔物（2026-09-02 第二波）：
+  // 詛咒（詛咒神官、詛咒老住持）＝往你的抽牌堆洗爛牌；憤怒（赤鬼武夫）＝牠自己 +爪力。
+  // 能力牌不算——規格只點名技能牌
+  if (st.def.type === '技能' && cs.phase === 'player') {
+    for (const e of aliveEnemies(cs)) {
+      const d = enemyById[e.enemyId];
+      if (d?.hexOnSkill) giveCards(cs, e, d.hexOnSkill.cardId, d.hexOnSkill.n, 'draw');
+      if (d?.angerOnSkill) { addStatus(e, '爪力', d.angerOnSkill); log(cs, `${e.name}被激怒了`); }
+    }
+  }
   return true;
 }
 
@@ -190,11 +202,16 @@ export function endTurn(cs: CombatState): void {
   }
 
   cs.enemyActing = true;
+  // 魔物的防禦在敵方回合**開始時一次全部歸零**，不是各自輪到才歸零。
+  // 對既有的魔物完全等價（沒有誰會替別人加防禦），但「盾陣」那種替全體加防禦的招
+  // （鼠大將、蛙大名，2026-09-02 第二波）本來會被排在後面的同伴自己洗掉。
+  for (const e of cs.enemies) if (!e.dead) e.block = 0;
   for (const e of [...cs.enemies]) {
     if (e.dead || cs.phase !== 'player') continue;
-    e.block = 0;
     e.turnCount += 1;
     const def = enemyById[e.enemyId];
+    // 飛行：牠自己的回合一開始就補回滿層——上一輪被你打下來，這一輪牠又飛起來了
+    if (def?.flying) { removeStatus(e, '飛行'); addStatus(e, '飛行', def.flying); }
     const ph = def?.phases?.[e.phase - 1];
     if (ph?.strengthPerTurn) addStatus(e, '爪力', ph.strengthPerTurn);
     // 師父二、三階段：每回合先把你堆的爪力、貓步震掉幾點（見 EnemyPhase.drainPlayerPerTurn）
@@ -212,9 +229,14 @@ export function endTurn(cs: CombatState): void {
     damageEnemy(cs, e, tickPoison(e), { direct: true });
     if (e.dead || cs.phase !== 'player') continue;
     if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架式`); decayTurnStatuses(e, ['定身']); continue; }
+    // 沉睡：睡著的什麼都不做，每個牠的回合睡掉一層。**打痛牠會提早醒**（在 damageEnemy 裡處理，還會觸發 onWake）
+    if (getStatus(e, '沉睡') > 0) {
+      addStatus(e, '沉睡', -1);
+      log(cs, `${e.name}睡得很熟，什麼都沒做`);
+    }
     // 定身擋的是魔物**整個動作**，不只攻擊：偷小魚乾、召喚、疊防禦一律動不了
     // （原本只擋攻擊，使用者 2026-09-02 實玩：「定身敵人好像只能阻止攻擊？偷竊照偷」）
-    if (getStatus(e, '定身') > 0) {
+    else if (getStatus(e, '定身') > 0) {
       addStatus(e, '定身', -1);
       e.charged = false;   // 這一下被定掉，蓄力也一起作廢
       log(cs, `${e.name}被定住了，這回合動不了`);
@@ -231,7 +253,23 @@ export function endTurn(cs: CombatState): void {
     }
     decayTurnStatuses(e, ['定身']);   // 魔物的定身在出招那一拍消耗，這裡不再多扣一次（審查 #5）
     if (e.invulnIn > 0) e.invulnIn -= 1;   // 蹲下調息演完這回合就站起來，下回合開始照常挨打
-    if (!e.dead) advanceMove(cs, e);
+    // 鱗甲：牠的回合結束長出等同層數的防禦（被打痛一下就剝落一層，見 damageEnemy）
+    const plating = getStatus(e, '鱗甲');
+    if (plating > 0 && !e.dead) gainBlock(cs, e, plating);
+    // 消散：每個牠的回合結束少一層，歸零就散去。走 escape 那條路——不算打倒、不掉戰利品
+    if (getStatus(e, '消散') > 0 && !e.dead) {
+      addStatus(e, '消散', -1);
+      if (getStatus(e, '消散') === 0) {
+        e.dead = true; e.escaped = true;
+        log(cs, `${e.name}散去了`);
+        if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
+      }
+    }
+    if (e.dead) continue;
+    // 還在睡就繼續顯示「呼呼大睡」；睡飽自然醒的（沒被打醒＝不生氣）從招式表第一招開始
+    if (getStatus(e, '沉睡') > 0) e.move = SLEEP_MOVE;
+    else if (e.move === SLEEP_MOVE) { e.moveIndex = -1; advanceMove(cs, e); }
+    else advanceMove(cs, e);
   }
   // 蜷縮撐到你下回合開始：魔物打完了才修剪，守護符留 8 點、沒有守護符就歸零（審查 #1）
   cs.enemyActing = false;

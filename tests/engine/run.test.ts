@@ -259,10 +259,11 @@ describe('三關制', () => {
     for (const seed of ['a1', 'a2', 'a3']) {
       const run = newRun(seed);
       const boss = run.map.nodes.find((n) => n.type === '塔主')!;
-      expect(['nekomata', 'iron_claw', 'orange_king']).toContain(boss.encounterId);
+      // 2026-09-02 第二波：前兩關的關主池各從三個補到五個（蛙大名、犰狳王／沉睡的龍貓、詛咒老住持）
+      expect(['nekomata', 'iron_claw', 'orange_king', 'frog_daimyo', 'armadillo_king']).toContain(boss.encounterId);
       advanceAct(run);
       const boss2 = run.map.nodes.find((n) => n.type === '塔主')!;
-      expect(['cowcat_boss', 'tanuki_lord', 'persian_lady']).toContain(boss2.encounterId);
+      expect(['cowcat_boss', 'tanuki_lord', 'persian_lady', 'dragon_cat', 'hex_abbot']).toContain(boss2.encounterId);
       advanceAct(run);
       const boss3 = run.map.nodes.find((n) => n.type === '塔主')!;
       expect(boss3.encounterId).toBe('tower_master');

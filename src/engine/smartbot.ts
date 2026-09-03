@@ -94,9 +94,13 @@ function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce
   if (m.intent === 'attack' && getStatus(e, '定身') > 0) return [];
   const x = e.charged ? 2 : 1;
   const hits: { dmg: number; pierce: boolean }[] = [];
+  // 睡著的什麼都不做（第二波魔物的沉睡）：這一拍不會有任何一下
+  if (getStatus(e, '沉睡') > 0) return [];
   for (const fx of m.effects) {
     if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * x, e, cs.player), pierce: !!fx.pierce });
     else if (fx.kind === 'damageRandom') hits.push({ dmg: computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, cs.player), pierce: false });
+    // 自爆那一下照樣要擋（河豚精的 28 點是整場最痛的單發之一）
+    else if (fx.kind === 'selfDestruct') hits.push({ dmg: computeAttack(fx.amount * x, e, cs.player), pierce: false });
   }
   return hits;
 }
@@ -129,20 +133,22 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
   let block = e.block;
   let total = 0;
   const p = cs.player;
+  // 飛行（燈蛾、月蛾后）：每一下先減半，扣到血就掉一層，掉到 0 之後才打得到全額
+  let flying = getStatus(e, '飛行');
+  const swing = (raw: number, ignoreBlock = false): void => {
+    const dmg = flying > 0 ? Math.floor(raw / 2) : raw;
+    const ab = ignoreBlock ? 0 : Math.min(block, dmg);
+    block -= ab; total += dmg - ab;
+    if (flying > 0 && dmg - ab > 0) flying -= 1;
+  };
   for (const fx of effects) {
     if (fx.kind === 'damage') {
       const times = fx.scaleWithCombo ? Math.min(combo + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
-      for (let i = 0; i < times; i++) {
-        const dmg = computeAttack(fx.amount * (doubled ? 2 : 1), p, e);
-        if (fx.ignoreBlock) total += dmg;
-        else { const ab = Math.min(block, dmg); block -= ab; total += dmg - ab; }
-      }
+      for (let i = 0; i < times; i++) swing(computeAttack(fx.amount * (doubled ? 2 : 1), p, e), fx.ignoreBlock);
     } else if (fx.kind === 'damageRandom') {
-      const dmg = computeAttack(Math.round((fx.min + fx.max) / 2) * (doubled ? 2 : 1), p, e);
-      const ab = Math.min(block, dmg); block -= ab; total += dmg - ab;
+      swing(computeAttack(Math.round((fx.min + fx.max) / 2) * (doubled ? 2 : 1), p, e));
     } else if (fx.kind === 'damageEqualBlock') {
-      const dmg = computeAttack(p.block, p, e, { noStrength: true });
-      const ab = Math.min(block, dmg); block -= ab; total += dmg - ab;
+      swing(computeAttack(p.block, p, e, { noStrength: true }));
     }
   }
   return total;

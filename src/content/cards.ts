@@ -273,6 +273,16 @@ export const cards: readonly CardDef[] = [
   { id: 'jiuweiquan', name: '絕學·九尾拳', cost: 3, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiuweiquan',
     effects: [{ kind: 'damage', amount: 11 }, { kind: 'status', name: '爪力', amount: 2, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 15 }, { kind: 'status', name: '爪力', amount: 2, target: 'self' }] } },
+
+  // ===== 2026-09-02 第二波魔物的戰鬥雜牌（`combatOnly`）=====
+  // 只有魔物在戰鬥中塞得進來：不會出現在事件、獎勵與圖鑑的壞毛病清單裡。
+  // 戰鬥本來就用牌組的**副本**，所以打完自然消失，不用另外清。
+  // 黏液：不是不能打，是「要花 1 顆飯糰才丟得掉」——那顆飯糰就是牠的代價
+  { id: 'slime_card', name: '黏液', cost: 1, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/slime_card',
+    keywords: ['消耗'], effects: [], upgrade: {}, combatOnly: true },
+  // 眼冒金星：連丟都丟不掉，只能佔一格手牌到回合結束（虛幻＝結束就消失，不會塞爆棄牌堆）
+  { id: 'dazed_card', name: '眼冒金星', cost: 0, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/dazed_card',
+    keywords: ['不可打出', '虛幻'], effects: [], upgrade: {}, combatOnly: true },
 ];
 
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));
