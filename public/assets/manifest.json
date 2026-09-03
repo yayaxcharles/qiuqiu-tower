@@ -93,7 +93,9 @@
   "card/tiexin": "assets/cards/card/tiexin.webp",
   "card/wangming": "assets/cards/card/wangming.webp",
   "card/wufeng": "assets/cards/card/wufeng.webp",
-  "card/zuiyang": "assets/cards/card/zuiyang.webp"
+  "card/zuiyang": "assets/cards/card/zuiyang.webp",
+  "card/dazed_card": "assets/cards/card/dazed_card.webp",
+  "card/slime_card": "assets/cards/card/slime_card.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",

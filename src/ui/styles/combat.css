@@ -778,11 +778,13 @@
    改用 flex 置中，超出的部分左右各分一半，名字、血條、意圖牌子都還對得上中線 */
 .combat .unit.enemy.master .sprite-box { display: flex; justify-content: center; }
 .combat .unit.enemy.master .sprite { width: 320px; height: 320px; margin: 0; }
-.combat .unit.enemy.master.phase-1 .sprite { width: 350px; height: 350px; }
-.combat .unit.enemy.master.phase-2 .sprite { width: 370px; height: 370px; }   /* 380 會頂到狀態列下緣 */
-/* 師父的框開到 350／370 之後，意圖牌子掛在圖畫頂端會頂進狀態列（2026-09-02 截圖檢查）：
-   師父的牌子改成壓在斗笠上半部（往下 44），三個階段都留在狀態列下面 */
-.combat .unit.enemy.master .intent { bottom: calc(var(--drawn-h, 50%) - 44px); }
+.combat .unit.enemy.master.phase-1 .sprite { width: 340px; height: 340px; }
+.combat .unit.enemy.master.phase-2 .sprite { width: 350px; height: 350px; }
+/* 師父的意圖牌子（2026-09-03 使用者：「頭上的標籤穿模了」）：原本為了不頂進狀態列而往下壓 44，結果整塊蓋在斗笠／臉上。
+   改回掛在圖畫頂端上方 6 像素，但用 min() 封頂：牌子底邊離框底最多 310（舞台 y≈92，狀態列下緣在 60）。
+   量過三階段（框底 y 402、圖 760×669）：一階段 320 框畫高 282 → 牌子 y 88～114；二階段 340 → 299 → 97～123；
+   三階段 350 → 308 → 剛好貼著封頂線、不壓到頭。三階段從 370 縮到 350 就是為了讓牌子塞得下。 */
+.combat .unit.enemy.master .intent { bottom: min(calc(var(--drawn-h, 50%) + 6px), 310px); }
 
 /* 意圖牌子改成跟按鈕同一套「深色玻璃＋金邊」，但底色照意圖保留（使用者 2026-09-02：「保持底色比較清楚」）：
    攻＝紅、守＝藍、強＝金、弱化＝紫、特殊／召喚＝橙、發呆＝灰，顏色壓深一點、半透明，金線細、字米白 */

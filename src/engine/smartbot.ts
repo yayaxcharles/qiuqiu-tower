@@ -357,7 +357,10 @@ export function smartCombat(cs: CombatState, rng: Rng, maxTurns = 200, seed = '?
     if (!playCard(cs, pick.uid, pick.target)) throw new Error(`種子 ${seed}：第 ${cs.turn} 回合打不出 ${pick.uid}（${cs.encounterId}）`);
     if (cs.endTurnRequested) endTurn(cs);
   }
+  // 調平衡用：`SMART_TRACE=<encounterId>` 會把那場的完整戰鬥紀錄印出來（例：SMART_TRACE=tanuki_lord SMART_N=600 …）
+  if (TRACE && cs.encounterId === TRACE) console.log(['[trace]', seed, cs.encounterId, cs.phase, `剩 ${cs.player.hp}`, ...cs.log].join('\n'));
 }
+const TRACE = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.['SMART_TRACE'];
 
 // ===== 整局 =====
 

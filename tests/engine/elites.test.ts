@@ -139,13 +139,13 @@ describe('第三關菁英（強機制）', () => {
     const imps = cs.enemies.filter((e) => e.enemyId === 'imp');
     expect(gen.maxHp).toBe(140);
     expect(imps.length).toBe(2);
-    // 遭遇帶魔氣 5：三隻出場就有 5 點爪力
-    for (const e of cs.enemies) expect(getStatus(e, '爪力'), e.name).toBe(3);
+    // 遭遇帶魔氣 4：三隻出場就有 4 點爪力
+    for (const e of cs.enemies) expect(getStatus(e, '爪力'), e.name).toBe(4);
     // 鼓舞：號令讓全體（含自己）再 +2
     gen.move = { intent: 'buff', label: '號令', effects: [{ kind: 'statusAllies', name: '爪力', amount: 1 }] };
     for (const e of imps) e.move = { intent: 'block', label: '躲', effects: [{ kind: 'block', amount: 6 }] };
     endTurn(cs);
-    for (const e of cs.enemies) expect(getStatus(e, '爪力'), e.name).toBe(4);
+    for (const e of cs.enemies) expect(getStatus(e, '爪力'), e.name).toBe(5);
 
     // 鬼將還站著：小鬼倒下，下一個回合結束就爬起來（回到 reviveHp 8）
     damageEnemy(cs, imps[0]!, imps[0]!.hp, { direct: true });
@@ -166,7 +166,7 @@ describe('第三關菁英（強機制）', () => {
   it('鏡仙・分裂＋詛咒：半血裂成兩隻鏡影；每打一張技能牌被洗一張眼冒金星', () => {
     const cs = start('mirror_sage', 400, ['tanding', 'sanjo']);
     const e = cs.enemies[0]!;
-    expect(e.maxHp).toBe(160);
+    expect(e.maxHp).toBe(180);
     // 詛咒：技能牌會被塞牌，攻擊牌不會
     expect(playCard(cs, handCard(cs, 'sanjo').uid, e.uid)).toBe(true);
     expect(countOf(cs, 'dazed_card'), '攻擊牌不觸發').toBe(0);
@@ -182,13 +182,13 @@ describe('第三關菁英（強機制）', () => {
     expect(shards.length).toBe(2);
     for (const s of shards) { expect(s.hp).toBe(half); expect(s.maxHp).toBe(half); }
     // 魔氣（遭遇的 strength 5）也要套到分裂出來的
-    for (const s of shards) expect(getStatus(s, '爪力')).toBe(5);
+    for (const s of shards) expect(getStatus(s, '爪力')).toBe(6);
   });
 
   it('虛無貓・虛化：虛實交替、每一段最多扣 1 點、防禦照扣、噎到也只扣 1', () => {
     const cs = start('void_cat');
     const e = cs.enemies[0]!;
-    expect(e.maxHp).toBe(170);
+    expect(e.maxHp).toBe(190);
     expect(getStatus(e, '虛化'), '開戰就是虛的').toBe(1);
 
     // 每一段最多 1 點：一記 40 也只掉 1
@@ -233,20 +233,20 @@ describe('第三關菁英（強機制）', () => {
 });
 
 describe('沉睡的龍貓（2026-09-03 重做）', () => {
-  it('開場：睡一回合、鱗甲 6、逆鱗 2；半血覺醒：拍掉一半爪力貓步、自己 +3 爪力、鱗甲加到 10、招式換成龍炎那套', () => {
+  it('開場：睡一回合、鱗甲 9、逆鱗 2；半血覺醒：拍掉一半爪力貓步、自己 +3 爪力、鱗甲加到 13、招式換成龍炎那套', () => {
     const cs = start('dragon_cat');
     const e = cs.enemies[0]!;
-    expect(e.maxHp).toBe(200);
+    expect(e.maxHp).toBe(240);
     expect(getStatus(e, '沉睡')).toBe(1);
-    expect(getStatus(e, '鱗甲')).toBe(6);
+    expect(getStatus(e, '鱗甲')).toBe(9);
     expect(getStatus(e, '反彈')).toBe(2);
     cs.player.statuses['爪力'] = 6; cs.player.statuses['貓步'] = 4;
-    damageEnemy(cs, e, 120, { direct: true });   // 200→80：跨過半血
+    damageEnemy(cs, e, 130, { direct: true });   // 240→110：跨過半血（120）
     expect(e.phase).toBe(1);
     expect(getStatus(cs.player, '爪力')).toBe(3);
     expect(getStatus(cs.player, '貓步')).toBe(2);
     expect(getStatus(e, '爪力')).toBe(3 + 2);   // 覺醒 +3、被打醒 +2
-    expect(getStatus(e, '鱗甲')).toBe(10);
+    expect(getStatus(e, '鱗甲')).toBe(13);
     expect(getStatus(e, '沉睡')).toBe(0);
     expect(['龍炎', '吞天', '咆哮', '盤踞']).toContain(e.move.label);
   });

@@ -92,6 +92,10 @@ function bossIdle(phase: number): string {
 function bossMovePose(phase: number, label: string): string | undefined {
   const own = BOSS_MOVE_ART_PHASE[phase - 1]?.[label];
   if (own && hasSprite(own)) return own;
+  // 二、三階段沒有自己那張圖就回傳 undefined → 用該階段的待機圖。以前退回第一階段的出招圖，
+  // 跨階段那一拍（血量在你的回合跨線，牠這回合出的還是上一階段宣告的招）會突然冒出戴斗笠的舊師父
+  // ——使用者 2026-09-03：「都到第二第三階段換造型了，還是會突然出現調息的圖片」。
+  if (phase >= 1) return undefined;
   return BOSS_MOVE_POSE[label];
 }
 
@@ -1109,6 +1113,14 @@ registerScreen('combat', (app, root, props) => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
       pose = idlePose();
       acting = new Map();   // 魔物也一起收回待機，出手的立繪只亮這一拍
+      // 動畫類別也要一起收。這裡刻意不重畫，`attack`／`hit`／`dodge` 就會留在節點上，
+      // 立繪的 animation 停在前撲／抖動跑完的那一格，待機的呼吸動畫回不來——
+      // 使用者 2026-09-03：「球球跟師父換動作後不會上下飄動了，定在原地不動」。
+      for (const u of root.querySelectorAll<HTMLElement>('.unit.attack, .unit.hit, .unit.dodge')) {
+        u.classList.remove('attack', 'hit', 'dodge');
+        const sp = u.querySelector<HTMLElement>('.sprite');
+        if (sp) sp.style.animationDelay = '';
+      }
       // **就地換圖，不要 render()**：這一拍畫面沒有任何資料變動，只是姿勢收回待機。
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
       // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。

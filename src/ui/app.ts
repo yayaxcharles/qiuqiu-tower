@@ -72,6 +72,8 @@ export class App {
     for (const d of this.disposers.splice(0)) d();
     clear(this.screen);
     this.stage.dataset['screen'] = name;
+    // 也標上關數：同一個畫面在不同關換底圖時（貓窩的蒲團位置各關不同），樣式表用它換版面
+    this.stage.dataset['act'] = String(this.run?.act ?? 1);
     r(this, this.screen, props);
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
