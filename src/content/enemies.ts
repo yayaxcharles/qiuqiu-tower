@@ -615,7 +615,7 @@ export const enemies: EnemyDef[] = [
   // --- 第二關關主三選一 ---
   // 奶牛貓二當家：黑白換式的循環拳師，換式與運勁回合就是輸出窗口
   { id: 'cowcat_boss', name: '奶牛貓二當家', hp: [260, 260], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_cowcat_boss', strengthEveryNTurns: 2,   // 2026-09-03 第五輪
-    angerOnSkill: 3, plating: 7,   // 拳師：你躲一下牠就更火；每回合沉腰長 7 點防禦
+    angerOnSkill: 2, plating: 7,   // 拳師：你躲一下牠就更火；每回合沉腰長 7 點防禦
     line: '亮傢伙吧。', lines: ['來得正好，正想活動筋骨。', '（轉了轉木棍）'], moves: [
       { intent: 'attack', label: '黑手重錘', effects: [{ kind: 'damage', amount: 12, times: 3 }] },
       { intent: 'attack', label: '白手連打', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
@@ -628,16 +628,16 @@ export const enemies: EnemyDef[] = [
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],
       moves: [
         { intent: 'attack', label: '合一連環', effects: [{ kind: 'damage', amount: 9, times: 3 }] },
-        { intent: 'attack', label: '崩拳', effects: [{ kind: 'damage', amount: 34, pierce: true }] },
+        { intent: 'attack', label: '崩拳', effects: [{ kind: 'damage', amount: 30, pierce: true }] },
         { intent: 'block', label: '鐵壁', effects: [{ kind: 'block', amount: 20 }] },
       ],
     }] },
   // 狸大人：出招隨機的戲法師，會叫狸小弟上場
-  { id: 'tanuki_lord', name: '狸大人', hp: [280, 280], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord', angerOnSkill: 1, strengthEveryNTurns: 1,   // 第四輪：打技能牌會被牠嗆；第五輪：每回合 +1，拖 20 回合就是 +20（稽核 2026-09-03：這欄原本被前面的註解吃掉沒生效）
+  { id: 'tanuki_lord', name: '狸大人', hp: [250, 250], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord', angerOnSkill: 1, strengthEveryNTurns: 2,   // 第四輪：打技能牌會被牠嗆；第五輪：每回合 +1，拖 20 回合就是 +20（稽核 2026-09-03：這欄原本被前面的註解吃掉沒生效）
     hexOnSkill: { cardId: 'dazed_card', n: 1 },   // 戲法：你每打一張技能牌就被變出一張眼冒金星
     line: '呵呵，來得正好。', lines: ['喝一杯再打？不喝？那打吧。', '（拍了拍肚皮，咚咚響）'], moves: [
-      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
-      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
+      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
+      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
       { intent: 'block', label: '葉隱', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }, { kind: 'block', amount: 10 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破
       { intent: 'summon', label: '喚小弟', effects: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 2 }] },
       { intent: 'debuff', label: '肚皮鼓', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },
@@ -647,8 +647,8 @@ export const enemies: EnemyDef[] = [
       hpBelow: 130, line: '（葫蘆見底了）', pattern: 'random',
       onEnter: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 2 }, { kind: 'statusSelf', name: '爪力', amount: 2 }],
       moves: [
-        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 11, times: 3 }] },
-        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 11, times: 3 }] },
+        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 9, times: 3 }] },
+        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 9, times: 3 }] },
         { intent: 'buff', label: '大變身', effects: [{ kind: 'chargeNext' }] },
         { intent: 'attack', label: '泰山鼓壓', effects: [{ kind: 'damage', amount: 32, pierce: true }] },
       ],
@@ -657,7 +657,7 @@ export const enemies: EnemyDef[] = [
   { id: 'persian_lady', name: '波斯大小姐', hp: [240, 240], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_persian_lady', strengthEveryNTurns: 1,   // 2026-09-03 第五輪：每回合 +1
     line: '哼。', lines: ['髒東西，不要靠近本小姐。', '（用扇子遮住鼻子）'], guardedByAllies: true, moves: [
       { intent: 'buff', label: '擺架子', effects: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'block', amount: 10 }] },
-      { intent: 'attack', label: '扇子拍', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
+      { intent: 'attack', label: '扇子拍', effects: [{ kind: 'damage', amount: 11, times: 3 }] },
       { intent: 'debuff', label: '尖叫', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 1 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破
       { intent: 'special', label: '補香水', effects: [{ kind: 'heal', n: 12 }] },
     ],
@@ -805,8 +805,8 @@ export const enemies: EnemyDef[] = [
 
   // --- 第二波新關主（塔下兩個、塔中兩個；塔頂仍固定師父）---
   // 蛙大名：半血叫兩隻蝌蚪兵出來，然後改走「全體疊防禦」的拖延流
-  { id: 'frog_daimyo', name: '蛙大名', hp: [150, 150], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_frog_daimyo',
-    plating: 4, reviveGroup: 'pond', neverRevive: true,   // 蛙皮每回合長甲；蝌蚪兵跟牠同組，牠還在小兵就會爬起來；牠自己倒了就倒了（稽核 2026-09-03）
+  { id: 'frog_daimyo', name: '蛙大名', hp: [160, 160], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_frog_daimyo',
+    plating: 4, strengthEveryNTurns: 3, reviveGroup: 'pond', neverRevive: true,   // 蛙皮每回合長甲；蝌蚪兵跟牠同組，牠還在小兵就會爬起來；牠自己倒了就倒了（稽核 2026-09-03）
     line: '（呱了一聲，扇子一開）', lines: ['何方妖貓，膽敢闖本大名的池子？', '（鼓起腮幫子，呱——）'],
     moves: [
       { intent: 'attack', label: '舌捲', effects: [{ kind: 'damage', amount: 15 }] },
@@ -819,7 +819,7 @@ export const enemies: EnemyDef[] = [
       moves: [
         { intent: 'block', label: '號令', effects: [{ kind: 'blockAllies', amount: 10 }] },
         { intent: 'attack', label: '舌捲', effects: [{ kind: 'damage', amount: 15 }] },
-        { intent: 'attack', label: '重跳壓', effects: [{ kind: 'damage', amount: 22 }] },
+        { intent: 'attack', label: '重跳壓', effects: [{ kind: 'damage', amount: 26 }] },
       ],
     }] },
   { id: 'tadpole', name: '蝌蚪兵', hp: [10, 10], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_tadpole',
@@ -1070,7 +1070,7 @@ export const encounters: EncounterDef[] = [
   { id: 'moon_rabbit', pool: '中', enemies: ['moon_rabbit'], acts: [2] },
   { id: 'owl_sentry', pool: '中', enemies: ['owl_sentry'], acts: [2] },
   { id: 'paper_crane', pool: '中', enemies: ['paper_crane'], acts: [2] },
-  { id: 'crane_pair', pool: '強', enemies: ['paper_crane', 'paper_crane'], hpScale: 0.85, acts: [2] },
+  { id: 'crane_pair', pool: '強', enemies: ['paper_crane', 'paper_crane'], hpScale: 0.75, acts: [2] },
   { id: 'owl_rabbit', pool: '強', enemies: ['owl_sentry', 'moon_rabbit'], hpScale: 0.8, acts: [2] },
   { id: 'rabbit_shami', pool: '強', enemies: ['moon_rabbit', 'shamisen_cat'], hpScale: 0.8, acts: [2] },
   { id: 'crane_lantern', pool: '強', enemies: ['paper_crane', 'lantern_ghost'], hpScale: 0.8, acts: [2] },
