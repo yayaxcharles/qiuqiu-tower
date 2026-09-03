@@ -1,4 +1,4 @@
-import { dialogue, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, dialogue, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
 import { warmEncounter } from './preload';
@@ -286,14 +286,16 @@ export class App {
       // 過關那條路 status 還是 playing，存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫。
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
+        // 師父醒來的第一句依這一路的打法換（爪力／隱身／蜷縮流），難度 4 以上多一句旁白（使用者 2026-09-04）
+        const vic = victoryLinesFor(run.deck.map((c) => c.cardId), run.difficulty ?? 1);
         const endSlides = [
-          { img: 'bg/still_embrace', lines: dialogue.victory.slice(0, 4) },
-          { img: 'bg/still_home', lines: dialogue.victory.slice(4) },
+          { img: 'bg/still_embrace', lines: vic.slice(0, 4) },
+          { img: 'bg/still_home', lines: vic.slice(4) },
         ];
         // 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片
         playVideo('ending', () => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
-          else playDialogue(dialogue.victory, () => this.show('result'));
+          else playDialogue(vic, () => this.show('result'));
         });
         return;
       }
@@ -307,8 +309,17 @@ export class App {
       const actSlides = stills.map((img, i) => ({ img, lines: lines.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
       // 關主留下的信物（塔主令牌）帶進過關畫面先亮一次（使用者 2026-09-03：獲得令牌一直沒看到呈現）
       const bossRelic = rewards.relic;
-      if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear', { bossRelic }));
-      else playDialogue(lines, () => this.show('actclear', { bossRelic }));
+      const toSlides = (): void => {
+        if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear', { bossRelic }));
+        else playDialogue(lines, () => this.show('actclear', { bossRelic }));
+      };
+      // 關主倒下後先演牠的收場（被控制的清醒道謝、自願的嘴硬、路過的讓路），再接過關幻燈片（使用者 2026-09-04）
+      const ids = encounterById[cs.encounterId]?.enemies ?? [];
+      const bossId = ids.find((id) => enemyById[id]?.pool === '塔主') ?? '';
+      const outro = dialogue.bossDefeatById[bossId];
+      const bd = enemyById[bossId];
+      if (outro && bd) playDialogue(outro, toSlides, { 塔主: { name: bd.name, portrait: monsterUrl(bd.art, 'idle') } });
+      else toSlides();
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面

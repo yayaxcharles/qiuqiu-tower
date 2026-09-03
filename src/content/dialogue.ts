@@ -1,3 +1,4 @@
+import { cardById } from './cards';
 export interface DialogueLine { speaker: '球球' | '塔主' | '旁白' | '黑貓忍者頭目'; text: string }
 
 /** 球球台詞的句尾檢查：去掉結尾標點後最後一個字必須是「喵」 */
@@ -166,50 +167,113 @@ export const dialogue = {
     nekomata: [
       { speaker: '塔主', text: '孩子，回去吧。再往上走，可不是逞強就能活下來的地方。' },
       { speaker: '球球', text: '婆婆，得罪了。師父還在上面等我喵。' },
+      { speaker: '塔主', text: '你師父……婆婆見過他上去。那雙眼睛已經是紫的了。婆婆守在這，就是不想再有孩子跟上去送命。' },
       { speaker: '塔主', text: '好吧。那就讓婆婆看看，你到底有多少本事。' },
     ],
     iron_claw: [
-      { speaker: '旁白', text: '齒輪高速轉動，五對鐵爪同時張開，發出一連串刺耳的喀嚓聲。' },
+      { speaker: '旁白', text: '齒輪高速轉動，五對鐵爪同時張開，發出一連串刺耳的喀嚓聲。胸口的核心透著跟塔頂一樣的紫光。' },
+      { speaker: '球球', text: '這光……跟師父眼裡的一樣。是塔在操縱它喵。' },
       { speaker: '球球', text: '機關貓不會累……那我就趁它還能動的時候，把它拆掉喵！' },
     ],
     orange_king: [
       { speaker: '塔主', text: '敢打擾本王用膳，就把身上的小魚乾全留下！' },
+      { speaker: '球球', text: '村裡的小魚乾就是你搶的？你跟上面那隻大貓是一夥的喵？' },
+      { speaker: '塔主', text: '一夥？本王只是趁塔冒出來的時候搬進來罷了。上面那位，本王可不敢惹。' },
       { speaker: '球球', text: '想都別想。小魚乾和師父，我都要帶回去喵！' },
     ],
     cowcat_boss: [
       { speaker: '塔主', text: '塔下那群傢伙攔不住你，算你有點本事。接下來，就由本二當家親自陪你過招。' },
+      { speaker: '球球', text: '二當家？那大當家是誰喵？' },
+      { speaker: '塔主', text: '塔頂那位紫眼睛的大貓。他一句話，這座塔的傢伙都得聽。' },
       { speaker: '球球', text: '我不是來比武的。快讓路，我還要去找師父喵。' },
     ],
     tanuki_lord: [
       { speaker: '塔主', text: '呵呵，小兄弟，何必急著動手？先陪老夫喝一杯吧。' },
       { speaker: '球球', text: '師父交代過，狸貓遞來的酒絕對不能喝喵。' },
+      { speaker: '塔主', text: '你師父？呵，上面那位灌的可不是酒，是魔氣。喝了就再也想不起自己是誰。' },
     ],
     persian_lady: [
       { speaker: '塔主', text: '渾身髒兮兮的野貓，也敢闖進本小姐的樓層？' },
       { speaker: '球球', text: '都已經走到這裡了，我當然還要一路走上塔頂喵。' },
+      { speaker: '塔主', text: '塔頂？那隻紫眼睛的大貓連本小姐都不放在眼裡。你要去送死，本小姐先把你攔下來。' },
     ],
     // ---- 2026-09-02 第二波新關主 ----
     frog_daimyo: [
       { speaker: '塔主', text: '呱——本大名的池子，什麼時候輪到一隻小貓來撒野了？' },
       { speaker: '球球', text: '我不是來撒野的，我是來借過的。讓一下喵。' },
+      { speaker: '塔主', text: '借過？上面那位紫眼睛的說了，一個都不許放上去。本大名答應過的事，呱，就要做到。' },
     ],
     armadillo_king: [
-      { speaker: '旁白', text: '那顆巨大的球緩緩轉了半圈，露出一雙沉靜的眼睛。殼上的舊傷一道疊著一道。' },
+      { speaker: '旁白', text: '那顆巨大的球緩緩轉了半圈，露出一雙沉靜的眼睛。殼上的舊傷一道疊著一道——都是塔冒出來那天留下的。' },
+      { speaker: '球球', text: '牠不像壞人……可是牠擋在路上喵。' },
       { speaker: '球球', text: '打不開的殼……那我就一直敲，敲到它裂開為止喵。' },
     ],
     dragon_cat: [
-      { speaker: '旁白', text: '巨大的身軀盤成一圈，鼻孔冒出一小縷煙。牠還在睡。' },
+      { speaker: '旁白', text: '巨大的身軀盤成一圈，鼻孔冒出一小縷煙。牠還在睡——塔還沒冒出來之前，牠就睡在這裡了。' },
       { speaker: '球球', text: '牠睡得好熟……這幾下我可要打得準一點喵。' },
     ],
     hex_abbot: [
       { speaker: '塔主', text: '施主一路殺上來，手上的血債要怎麼算？' },
       { speaker: '球球', text: '我沒殺誰，我只是要接師父回家。老住持讓開喵。' },
+      { speaker: '塔主', text: '你師父？呵……貧僧也曾想勸他。結果你看，貧僧的眼睛也紫了。' },
     ],
   },
   bossIntroGeneric: <DialogueLine[]>[
     { speaker: '塔主', text: '到此為止了。' },
     { speaker: '球球', text: '擋路的，都一樣喵。' },
   ],
+  /**
+   * 關主被打倒後的收場（使用者 2026-09-04：關主要跟師父有關係，打倒後照身分反應）。
+   * 身分三種：被魔氣控制的（清醒道謝）、自願守塔的（嘴硬或悔悟）、只是路過被殃及的（讓路）。
+   * 稱呼規則：魔物叫他「塔主／上面那位／紫眼睛的大貓」，球球叫「師父」，旁白用「大俠貓」。
+   * 沒寫的關主不演（師父那場走結局影片）。
+   */
+  bossDefeatById: <Record<string, DialogueLine[]>>{
+    nekomata: [   // 自願守塔（勸退者）
+      { speaker: '塔主', text: '……好孩子。婆婆攔不住你了。' },
+      { speaker: '塔主', text: '記住，他還沒被魔氣吞光。你要快，再晚，剩下的就不是你師父了。' },
+      { speaker: '球球', text: '婆婆，我一定把他帶回來喵。' },
+    ],
+    iron_claw: [   // 被塔操縱的機器
+      { speaker: '旁白', text: '齒輪一顆一顆停下，胸口那團紫光散了。它本來只是塔裡的一台守門機關，被同一股魔氣牽著動。' },
+      { speaker: '球球', text: '操縱它的東西，就在塔頂喵。' },
+    ],
+    orange_king: [   // 路過被殃及（趁亂搬進來的）
+      { speaker: '塔主', text: '別打了別打了！本王只是想吃飽……' },
+      { speaker: '塔主', text: '小魚乾在後面的桶子裡，拿去。上面那位上去以後，這塔裡就再也沒有能吃的東西了。' },
+      { speaker: '球球', text: '早說嘛喵。' },
+    ],
+    frog_daimyo: [   // 自願守塔（守信的大名）
+      { speaker: '塔主', text: '呱……本大名答應過的事，沒做到。' },
+      { speaker: '塔主', text: '罷了。你這膽子，本大名認了。上去吧，池子借你過。' },
+    ],
+    armadillo_king: [   // 路過被殃及（守著自己地方的老傢伙）
+      { speaker: '旁白', text: '巨大的殼緩緩鬆開。牠看了球球一眼，慢慢挪到牆邊，把路讓了出來。' },
+      { speaker: '球球', text: '……對不起，也謝謝你喵。' },
+    ],
+    cowcat_boss: [   // 自願（塔裡的二當家）
+      { speaker: '塔主', text: '二當家……居然輸給你這種小不點。' },
+      { speaker: '塔主', text: '去吧。跟你講，上面那位的脾氣比我差一百倍。他一掌拍下來，連我都不敢站著。' },
+      { speaker: '球球', text: '他以前連罰我蹲馬步都捨不得喵。' },
+    ],
+    tanuki_lord: [   // 自願（騙子）
+      { speaker: '塔主', text: '呵呵……老夫本想騙你一杯酒的。' },
+      { speaker: '塔主', text: '上面那位喝的不是酒，是魔氣。喝了就想不起自己是誰。小兄弟，你上去可要記得叫醒他。' },
+    ],
+    persian_lady: [   // 自願（自尊心）
+      { speaker: '塔主', text: '哼……本小姐的樓層，讓你過。' },
+      { speaker: '塔主', text: '上面那隻紫眼睛的大貓，本小姐才懶得管。你要去救他，隨便你。' },
+    ],
+    dragon_cat: [   // 路過被殃及（本來就睡在這裡）
+      { speaker: '旁白', text: '龍貓睜開一隻眼睛，看了球球一會，又慢慢閉上。牠只是想繼續睡。' },
+      { speaker: '球球', text: '……那你好好睡喵。' },
+    ],
+    hex_abbot: [   // 被魔氣控制（清醒）
+      { speaker: '塔主', text: '……施主，貧僧清醒了。' },
+      { speaker: '塔主', text: '上面那位陷得比貧僧深得多。若還救得回來，那只能靠他最掛念的人。快去。' },
+      { speaker: '球球', text: '我就是那個人喵。' },
+    ],
+  },
   /** 關主進入第二階段的兩句，鍵同上；沒寫的用 generic */
   bossPhase2ById: <Record<string, DialogueLine[]>>{
     tower_master: [
@@ -277,6 +341,17 @@ export const dialogue = {
     { speaker: '旁白', text: '球球再也忍不住，撲進師父懷裡。師父緊緊抱住他，師徒倆又哭又笑，誰也捨不得先放手。' },
     { speaker: '旁白', text: '夕陽把一大一小的影子拉得長長的。球球和師父並肩走回村子，今晚終於可以安心地一起吃小魚乾了。' },
   ],
+  /**
+   * 結局第二句（師父醒來說的第一句）依球球這一路的打法換（使用者 2026-09-04）：
+   * 爪力流、隱身流、蜷縮流各一句，看牌組裡哪一類最多；都不明顯就照舊「承讓。」；難度 4 以上再補一句旁白。
+   */
+  masterFirstWords: <Record<'strength' | 'stealth' | 'block' | 'plain', string>>{
+    strength: '你這爪子……比我教的還利。',
+    stealth: '身法練成這樣，難怪我一掌都打不到你。',
+    block: '護得住自己，就護得住別人。你出師了。',
+    plain: '承讓。',
+  },
+  hardModeEpilogue: '這一路，球球走的是最陡的那條樓梯。師父後來每次講起，都要多說一遍。',
   // 三關制之後這句只在「真通關」時出現：塔清完了，沒有更多樓層，改成收尾的話
   victoryTeaser: '魔塔終於安靜了。回家吃小魚乾喵。',
   /** 打倒第一關關主（塔下→塔中）。師父還在更上面，故事往上推一層 */
@@ -304,3 +379,23 @@ export const dialogue = {
 
 /** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */
 export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random() * xs.length)] ?? xs[0]!; }
+
+/** 結局那五句：第二句（師父的第一句話）依牌組傾向換；難度 4 以上多一句旁白。牌組看牌面文字裡出現最多的關鍵字。 */
+export function victoryLinesFor(deckIds: readonly string[], difficulty: number): DialogueLine[] {
+  const count = { strength: 0, stealth: 0, block: 0 };
+  for (const id of deckIds) {
+    const def = cardById[id];
+    if (!def) continue;
+    const txt = JSON.stringify(def.effects);
+    if (txt.includes('爪力')) count.strength += 1;
+    if (txt.includes('隱身') || txt.includes('潛水')) count.stealth += 1;
+    if (txt.includes('"block"') || txt.includes('蜷縮')) count.block += 1;
+  }
+  const top = (Object.entries(count) as ['strength' | 'stealth' | 'block', number][]).sort((a, b) => b[1] - a[1])[0]!;
+  const key = top[1] >= 4 ? top[0] : 'plain';
+  const lines = dialogue.victory.map((l) => ({ ...l }));
+  const second = lines[1];
+  if (second && second.speaker === '塔主') second.text = dialogue.masterFirstWords[key];
+  if (difficulty >= 4) lines.push({ speaker: '旁白', text: dialogue.hardModeEpilogue });
+  return lines;
+}

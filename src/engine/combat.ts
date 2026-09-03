@@ -172,6 +172,9 @@ export function endTurn(cs: CombatState): void {
 }
 
 /** 敵方回合前半：詛咒發作、沒攻擊的鉤子、棄手牌、減益衰減、同伴復活、魔物防禦歸零，並排好這回合要行動的魔物。回 false＝這回合結束不了（不在玩家回合、還有牌要選、或球球被詛咒打倒） */
+/** 魔氣暴走從第幾回合開始（玩家回合的計數） */
+export const RAMPAGE_TURN = 8;
+
 export function beginEnemyTurn(cs: CombatState): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
   cs.endTurnRequested = false;   // 這個請求到這裡就兌現了
@@ -226,6 +229,13 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // 對既有的魔物完全等價（沒有誰會替別人加防禦），但「盾陣」那種替全體加防禦的招
   // （鼠大將、蛙大名，2026-09-02 第二波）本來會被排在後面的同伴自己洗掉。
   for (const e of cs.enemies) if (!e.dead) e.block = 0;
+  // 魔氣暴走（使用者 2026-09-04：「拖著的都要有代價」）：第 RAMPAGE_TURN 回合起，每個敵方回合全體魔物 +1 爪力。
+  // 治龜縮——機器人打龍貓拖三十多回合就是沒代價；正常戰鬥七八回合內結束不會碰到
+  if (cs.turn >= RAMPAGE_TURN) {
+    const alive = cs.enemies.filter((e) => !e.dead);
+    for (const e of alive) addStatus(e, '爪力', 1);
+    if (alive.length) log(cs, cs.turn === RAMPAGE_TURN ? '魔氣開始暴走了！魔物全體爪力 +1，之後每回合都會再加' : '魔氣暴走：魔物全體爪力 +1');
+  }
   // 這回合要行動的名單在這裡定案：中途被召喚出來的不算（跟以前一次跑完的行為一樣）
   cs.enemyQueue = cs.enemies.filter((e) => !e.dead).map((e) => e.uid);
   return true;

@@ -4,7 +4,7 @@ import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
-import { beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
+import { RAMPAGE_TURN, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance } from '../../engine/types';
@@ -547,6 +547,8 @@ registerScreen('combat', (app, root, props) => {
       if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
     }
     if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
+    // 魔氣暴走：第 8 回合起掛在每隻魔物身上，提醒拖下去每回合都會更痛
+    if (!e.dead && cs.turn >= RAMPAGE_TURN) row.prepend(chip('魔氣暴走', null, '', 'bad'));
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), 'data-id': e.enemyId, style: `left:${left}px` },
       spriteBox(enemySprite(e, def), e.name,
         def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (SPRITE_SIZE_OVERRIDE[e.enemyId] ?? def?.size ?? 'medium'),
