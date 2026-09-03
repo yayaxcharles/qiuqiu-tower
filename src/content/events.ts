@@ -156,7 +156,7 @@ export const events: EventDef[] = [
     choices: [
       { label: '賭大的（50 條小魚乾，七成機率贏 130）', costFish: 50,
         outcome: [{ kind: 'gamble', p: 0.7, win: [{ kind: 'fish', n: 130 }], lose: [] }],
-        result: '碗掀開了。' },
+        result: '三隻老鼠屏住呼吸……碗掀開了。' },
       { label: '掀桌（打一場，贏了拿 80 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'rats3', bonusFish: 80 }],
         result: '老鼠們四散奔逃。' },
       { label: '不賭', outcome: [], result: '球球轉身就走。球球：「那個碗有問題喵。」' },

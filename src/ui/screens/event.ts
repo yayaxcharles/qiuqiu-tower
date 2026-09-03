@@ -111,11 +111,17 @@ registerScreen('event', (app, root, props) => {
     // 有牌要秀（學會／升級／丟掉）就把牌放在插圖的位置；只拿到秘寶忍具就放大圖示
     const illo = ev ? eventArt(art ?? ev.id) : '';
     const artNode = show.length ? showcaseNode(show) : gains.length ? (gainsNode(gains) || illo) : illo;
+    // 賭局要有結果的感覺（使用者 2026-09-03：「碗掀開了應該要有結果，直接小魚乾加減了，沒感受到贏還是輸」）：
+    // 引擎記的「中了！／沒中……」不只寫成一行小字，還蓋一個大戳章＋音效
+    const won = note?.includes('中了！') ?? false;
+    const lost = note?.includes('沒中') ?? false;
+    const stamp = won || lost ? el('div', { class: `gamble-stamp ${won ? 'win' : 'lose'}` }, won ? '賭贏了！' : '賭輸了……') : '';
+    if (won) play('victory'); else if (lost) play('defeat');
     root.append(sceneView({
       art: artNode,
       speaker: title,
       text: resultText,
-      extra: [gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
+      extra: [stamp, gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
       actions: button ? [button] : [],
     }));
   }
