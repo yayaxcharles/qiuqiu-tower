@@ -350,6 +350,8 @@ registerScreen('combat', (app, root, props) => {
     const hits = m.effects.filter(has('damage'));
     const rnd = m.effects.find(has('damageRandom'));
     const blk = m.effects.find(has('block'));
+    const blkAll = m.effects.find(has('blockAllies'));
+    const buffAll = m.effects.find(has('statusAllies'));
     const boom = m.effects.find(has('selfDestruct'));
     let text = `${INTENT_GLYPH[m.intent]} ${m.label}`;
     if (getStatus(e, '沉睡') > 0) text = '呼呼大睡';   // 睡著的什麼都不做（2026-09-02 第二波）
@@ -358,6 +360,9 @@ registerScreen('combat', (app, root, props) => {
     else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, cs.player)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿）' : ''}`).join('＋')}`;
     else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, cs.player)}～${computeAttack(rnd.max * x, e, cs.player)}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
+    // 盾陣／號令這種給全體的：牌子上也要有數字（使用者 2026-09-03：「有格檔但沒看到格檔值」）
+    else if (blkAll) text = `守 ${computeBlock(blkAll.amount, e)}（全體）`;
+    else if (buffAll) text = `${INTENT_GLYPH[m.intent]} 全體 +${buffAll.amount} ${buffAll.name}`;
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     // 看破／破功要寫在牌子上：使用者的朋友囤了十幾層隱身，看牌子只寫「攻 8×2」以為閃得掉，
     // 結果先被拍掉隱身再挨打（2026-09-03 回報）。牌子上先講，滑上去的提示再講細節
