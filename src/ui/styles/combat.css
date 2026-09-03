@@ -138,6 +138,8 @@
 .combat .unit.size-small .sprite { width: 130px; height: 150px; }
 .combat .unit.size-medium .sprite { width: 180px; height: 210px; }
 .combat .unit.size-large .sprite { width: 230px; height: 280px; }
+/* 犰狳寶寶：橫躺的方圖，小框顯得扁、中框又太高，單獨給 150×150（跟 combat.ts 的 SPRITE_BOX.pup 一致） */
+.combat .unit.enemy[data-id="armadillo_pup"] .sprite { width: 150px; height: 150px; }
 .combat .unit .name {
   font-size: 15px;
   font-weight: bold;

@@ -236,7 +236,10 @@ registerScreen('combat', (app, root, props) => {
     small: [130, 150], medium: [180, 210], large: [230, 280], player: [270, 300],
     // 師父三個階段的框（跟 combat.css 的 .unit.enemy.master 三條一致，改要一起改）
     master: [320, 320], master1: [340, 340], master2: [350, 350],
+    // 個別放寬的框（跟 combat.css 的 [data-id=…] 那條一致）：犰狳寶寶是橫躺的方圖，小框顯得扁、中框又太高
+    pup: [150, 150],
   };
+  const SPRITE_SIZE_OVERRIDE: Record<string, keyof typeof SPRITE_BOX> = { armadillo_pup: 'pup' };
 
   /**
    * 立繪框是固定高度、圖用 `object-fit: contain` 貼在底部，
@@ -479,9 +482,9 @@ registerScreen('combat', (app, root, props) => {
       if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
     }
     if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
-    const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), style: `left:${left}px` },
+    const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), 'data-id': e.enemyId, style: `left:${left}px` },
       spriteBox(enemySprite(e, def), e.name,
-        def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (def?.size ?? 'medium'),
+        def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (SPRITE_SIZE_OVERRIDE[e.enemyId] ?? def?.size ?? 'medium'),
         reviving ? undefined : intentChip(e)),
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp, e.maxHp),
