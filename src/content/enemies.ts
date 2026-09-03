@@ -150,9 +150,9 @@ export const enemies: EnemyDef[] = [
       return moves[turn % moves.length];
     },
     moves: [
-      { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 14 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },   // 12→14：換階段召喚改成先預告後，機器人勝率 48%→58%，補回（2026-09-04）
       { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 7 }] },
-      { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+      { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 9, times: 3 }] },   // 10×2→9×3（同上）
     ],
     phases: [{
       hpBelow: 55, line: '（尾巴分成了好幾條）', pattern: 'cycle',
@@ -849,7 +849,7 @@ export const enemies: EnemyDef[] = [
   // 半血「龍魂覺醒」：拍掉你一半爪力貓步、自己 +3 爪力、鱗甲加到 10；之後龍炎穿透、吞天邊打邊回血、咆哮塞眼冒金星
   { id: 'dragon_cat', name: '沉睡的龍貓', hp: [240, 240], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_dragon_cat',
     line: '（盤成一圈，鼻孔冒出一小縷煙）', lines: ['（鱗片隨著呼吸起伏）', '（睡夢中低吼了一聲）'],
-    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 10, thorns: 4,
+    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 10, thorns: 5,
     moves: [
       { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 21 }] },
       { intent: 'attack', label: '尾掃', effects: [{ kind: 'damage', amount: 11, times: 2 }] },

@@ -900,8 +900,8 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 10,
-       "times": 2
+       "amount": 9,
+       "times": 3
       }
      ]
     }
@@ -913,12 +913,6 @@
      "pattern": "cycle",
      "onEnter": [
       {
-       "kind": "summon",
-       "enemyId": "nekomata_tail",
-       "n": 2,
-       "max": 4
-      },
-      {
        "kind": "heal",
        "n": 12
       },
@@ -928,6 +922,18 @@
        "amount": 2
       }
      ],
+     "onEnterMove": {
+      "intent": "summon",
+      "label": "放尾巴",
+      "effects": [
+       {
+        "kind": "summon",
+        "enemyId": "nekomata_tail",
+        "n": 2,
+        "max": 4
+       }
+      ]
+     },
      "moves": [
       {
        "intent": "attack",
@@ -935,7 +941,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 5,
+         "amount": 4,
          "times": 4
         }
        ]
@@ -972,7 +978,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 16
+         "amount": 14
         }
        ]
       }
@@ -1023,8 +1029,8 @@
    "id": "iron_claw",
    "name": "鐵爪機關貓",
    "hp": [
-    135,
-    135
+    125,
+    125
    ],
    "pool": "塔主",
    "size": "large",
@@ -1032,7 +1038,7 @@
    "art": "codex/monster_iron_claw",
    "acts": [],
    "passives": {
-    "strengthEveryNTurns": 2
+    "strengthEveryNTurns": 3
    },
    "moves": [
     {
@@ -3984,8 +3990,8 @@
    "id": "orange_king",
    "name": "橘皮大王",
    "hp": [
-    180,
-    180
+    165,
+    165
    ],
    "pool": "塔主",
    "size": "large",
@@ -4081,7 +4087,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 24,
+         "amount": 27,
          "pierce": true
         }
        ]
@@ -4136,7 +4142,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 11,
+       "amount": 10,
        "times": 3
       }
      ]
@@ -4437,8 +4443,8 @@
    "id": "persian_lady",
    "name": "波斯大小姐",
    "hp": [
-    240,
-    240
+    220,
+    220
    ],
    "pool": "塔主",
    "size": "large",
@@ -4471,7 +4477,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 11,
+       "amount": 10,
        "times": 3
       }
      ]
@@ -4530,7 +4536,7 @@
         {
          "kind": "damage",
          "amount": 12,
-         "times": 2
+         "times": 3
         }
        ]
       },
@@ -4540,7 +4546,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 30,
+         "amount": 22,
          "pierce": true
         }
        ]
@@ -4772,7 +4778,7 @@
     28
    ],
    "pool": "弱",
-   "size": "medium",
+   "size": "small",
    "pattern": "cycle",
    "art": "codex/monster_armadillo_pup",
    "acts": [
@@ -5374,8 +5380,8 @@
    "id": "frog_daimyo",
    "name": "蛙大名",
    "hp": [
-    160,
-    160
+    150,
+    150
    ],
    "pool": "塔主",
    "size": "large",
@@ -5384,7 +5390,7 @@
    "acts": [],
    "passives": {
     "plating": 4,
-    "strengthEveryNTurns": 3,
+    "strengthEveryNTurns": 2,
     "reviveGroup": "pond",
     "neverRevive": true
    },
@@ -5395,7 +5401,8 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 15
+       "amount": 6,
+       "times": 3
       }
      ]
     },
@@ -5417,7 +5424,8 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 20
+       "amount": 20,
+       "pierce": true
       }
      ]
     }
@@ -5516,8 +5524,8 @@
    "id": "armadillo_king",
    "name": "犰狳王",
    "hp": [
-    130,
-    130
+    150,
+    150
    ],
    "pool": "塔主",
    "size": "large",
@@ -5525,7 +5533,7 @@
    "art": "codex/monster_armadillo_king",
    "acts": [],
    "passives": {
-    "thorns": 3,
+    "thorns": 4,
     "strengthEveryNTurns": 2,
     "curlUp": 15,
     "plating": 4
@@ -5537,7 +5545,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 14
+       "amount": 18
       }
      ]
     },
@@ -5557,7 +5565,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 8,
+       "amount": 10,
        "times": 2
       }
      ]
@@ -5568,7 +5576,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 16
+       "amount": 22
       }
      ]
     }
@@ -5597,8 +5605,8 @@
       "amount": 2
      }
     ],
-    "plating": 9,
-    "thorns": 2
+    "plating": 10,
+    "thorns": 5
    },
    "moves": [
     {
@@ -5607,7 +5615,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 22
+       "amount": 21
       }
      ]
     },
@@ -5642,7 +5650,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 22
+       "amount": 21
       }
      ]
     }
@@ -5678,7 +5686,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 27,
+         "amount": 30,
          "pierce": true
         }
        ]
@@ -5689,7 +5697,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 17,
+         "amount": 15,
          "times": 2
         },
         {
@@ -5747,6 +5755,7 @@
    "art": "codex/monster_hex_abbot",
    "acts": [],
    "passives": {
+    "strengthEveryNTurns": 2,
     "hexOnSkill": {
      "cardId": "dazed_card",
      "n": 1
@@ -5761,7 +5770,8 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 24
+       "amount": 8,
+       "times": 2
       }
      ]
     },
@@ -5783,7 +5793,8 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 30
+       "amount": 13,
+       "times": 2
       }
      ]
     }
@@ -5807,7 +5818,8 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 36
+         "amount": 16,
+         "times": 2
         }
        ]
       },
@@ -5817,7 +5829,8 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 24
+         "amount": 8,
+         "times": 2
         }
        ]
       },
