@@ -339,7 +339,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
               weakest.maxHp += add; weakest.hp += add;
               log(cs, `${e.name}把力量灌進${weakest.name}（+${add} 生命）`);
             }
-            continue;
+            break;   // 灌一次就好：召兩隻的招（狸大人喚小弟）滿場時不該灌兩次（稽核 2026-09-03）
           }
           const fresh = makeEnemy(cs, fx.enemyId, i, cs.mods?.hpMul ?? 1);
           if (cs.mods?.strength) addStatus(fresh, '爪力', cs.mods.strength);   // 難度／魔氣的爪力，召喚出來的也要有（審查 #9）

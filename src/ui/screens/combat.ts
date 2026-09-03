@@ -235,7 +235,7 @@ registerScreen('combat', (app, root, props) => {
   const SPRITE_BOX: Record<string, [number, number]> = {
     small: [130, 150], medium: [180, 210], large: [230, 280], player: [270, 300],
     // 師父三個階段的框（跟 combat.css 的 .unit.enemy.master 三條一致，改要一起改）
-    master: [320, 320], master1: [350, 350], master2: [370, 370],
+    master: [320, 320], master1: [340, 340], master2: [350, 350],
   };
 
   /**
@@ -1107,7 +1107,10 @@ registerScreen('combat', (app, root, props) => {
 
     // 姿勢停留時間：一般 650 毫秒看得清楚，但蜷縮例外——它是「縮成一顆球」的靜態姿勢，
     // 沒有前撲、沒有閃紅，650 毫秒閃一下根本來不及看到牠縮起來，拉到 1200。
-    const hold = pose === POSE.curl ? 1200 : 650;
+    // 一排魔物的前撲各錯開 110 毫秒（見下方 animationDelay），停留時間要算進最後一隻撲完的時間，
+    // 不然第三隻起會撲到一半被切回待機（稽核 2026-09-03）
+    const stagger = Math.max(0, cs.enemies.length - 1) * 110;
+    const hold = pose === POSE.curl ? 1200 : Math.max(650, stagger + 560);
     const mine = ++seq;
     window.setTimeout(() => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;

@@ -187,7 +187,7 @@ export function endTurn(cs: CombatState): void {
   // 擊殺數要扣回去——同一隻爬起來再打倒不該重複計數。
   for (const e of cs.enemies) {
     const rdef = enemyById[e.enemyId];
-    if (!e.dead || e.escaped || !rdef?.reviveGroup) continue;
+    if (!e.dead || e.escaped || !rdef?.reviveGroup || rdef.neverRevive) continue;
     const hasFriend = cs.enemies.some((o) => o !== e && !o.dead
       && enemyById[o.enemyId]?.reviveGroup === rdef.reviveGroup);
     if (!hasFriend) continue;
