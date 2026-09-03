@@ -140,13 +140,13 @@ function buildDocument() {
   return head + body + `<script id="body-skeleton" type="text/plain">${safe(body)}<\/script><script id="data" type="application/json">${safe(JSON.stringify(exportData()))}<\/script><script id="imgs" type="application/json">${safe(imgs)}<\/script><script id="app">${safe(app)}<\/script></body></html>`;
 }
 saveBtn.addEventListener('click', async () => {
-  const art = await claude.use('artifact');
+  const art = window.claude && window.claude.use ? await window.claude.use('artifact') : null;
   if (!art) { status.textContent = '這個頁面存不了（沒有權限），請用「顯示 JSON」複製給我'; return; }
   saveBtn.disabled = true; status.textContent = '儲存中…';
   try { await art.publish(buildDocument()); status.textContent = '已儲存，頁面會重新載入'; }
   catch (e) { status.textContent = '儲存失敗：' + (e && e.code ? e.code : e); saveBtn.disabled = false; }
 });
-claude.use('artifact').then((a) => { if (!a) { saveBtn.title = '這一頁沒有儲存權限，改用「顯示 JSON」'; } });
+if (window.claude && window.claude.use) window.claude.use('artifact').then((a) => { if (!a) { saveBtn.title = '這一頁沒有儲存權限，改用「顯示 JSON」'; } });
 })();
 </script>
 <script id="body-skeleton" type="text/plain"><h1>怪物工作檯</h1>

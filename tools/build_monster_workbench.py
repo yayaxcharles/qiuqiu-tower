@@ -13,9 +13,14 @@ manifest = json.loads((ROOT / 'public' / 'assets' / 'manifest.json').read_text(e
 mon = manifest.get('monsters', {})
 
 def b64(rel):
+    # 縮成 160 高的小圖再嵌：整包原圖 7 MB 在雲端頁面開不起來，縮圖不到 1 MB
+    from PIL import Image
+    import io as _io
     p = ROOT / 'public' / rel
     if not p.exists(): return None
-    return 'data:image/webp;base64,' + base64.b64encode(p.read_bytes()).decode()
+    im = Image.open(p).convert('RGBA'); im.thumbnail((200, 160))
+    buf = _io.BytesIO(); im.save(buf, 'WEBP', quality=72, method=6)
+    return 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
 
 images = {}
 for m in data['monsters']:
