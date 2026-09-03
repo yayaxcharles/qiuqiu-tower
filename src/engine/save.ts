@@ -118,10 +118,9 @@ export function loadBestFor(level: number): BestRecord | null {
     return b as BestRecord;
   } catch { return null; }
 }
-/** 解鎖到第幾級難度（通關第 n 級就開第 n＋1 級）；沒記錄＝1 */
+/** 解鎖到第幾級難度。2026-09-03 使用者拍板：五級預設全開，讓玩家自己選；通關紀錄仍照舊寫（UNLOCK_KEY），只是不再拿來鎖 */
 export function unlockedDifficulty(): number {
-  const v = Number(read(UNLOCK_KEY) ?? '1');
-  return Number.isFinite(v) ? clampDifficulty(v) : 1;
+  return MAX_DIFFICULTY;
 }
 export function selectedDifficulty(): number {
   const v = Number(read(SELECT_KEY) ?? '1');

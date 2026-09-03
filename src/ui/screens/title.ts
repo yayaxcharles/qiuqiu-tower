@@ -14,7 +14,7 @@ registerScreen('title', (app, root) => {
     class: 'seed', placeholder: '本局代碼（可留空）',
     title: '填同一組代碼會生出一模一樣的塔：地圖、遭遇、罐頭鋪的貨全部一樣。留空就隨機開一局。',
   });
-  // 難度選擇（2026-09-02）：五級、通關才解鎖下一級；選到哪級就顯示哪級的最佳成績與這級多了什麼
+  // 難度選擇（2026-09-02）：五級；2026-09-03 起預設全開放（unlockedDifficulty 固定回 5），選到哪級就顯示哪級的最佳成績與這級多了什麼
   let level = selectedDifficulty();
   const unlocked = unlockedDifficulty();
   const bestLine = el('div', { class: 'title-best' });

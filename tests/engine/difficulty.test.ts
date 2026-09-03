@@ -77,18 +77,18 @@ describe('難度表', () => {
     expect(a1).toBeGreaterThan(0); expect(a1h).toBeGreaterThan(a1);
     expect(encounterById['shadow_cat']).toBeTruthy();   // 難度 5 的前哨戰用
   });
-  it('成績分難度記，通關解鎖下一級', () => {
+  it('成績分難度記；五級預設全開（2026-09-03 拍板）', () => {
     const mem = new Map<string, string>();
     setStore({ getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => { mem.set(k, v); }, removeItem: (k) => { mem.delete(k); } });
-    expect(unlockedDifficulty()).toBe(1);
+    expect(unlockedDifficulty()).toBe(5);
     const r = newRun('win', 1); r.status = 'won'; r.floor = 45;
     recordBest(r, '2026-09-02');
-    expect(unlockedDifficulty()).toBe(2);
+    expect(unlockedDifficulty()).toBe(5);
     expect(loadBestFor(1)?.won).toBe(true);
     expect(loadBestFor(2)).toBeNull();
     const r3 = newRun('lose', 2); r3.status = 'lost'; r3.floor = 12;
     recordBest(r3, '2026-09-02');
-    expect(unlockedDifficulty()).toBe(2);   // 沒通關不解鎖
+    expect(unlockedDifficulty()).toBe(5);   // 全開，跟通關無關
     expect(loadBestFor(2)?.floor).toBe(12);
   });
 });
