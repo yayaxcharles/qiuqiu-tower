@@ -33,6 +33,27 @@ registerScreen('reward', (app, root, props) => {
   const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number };
   const bonus = r.bonusFish ?? 0;
   const ups = r.bonusUpgrades ?? 0;
+  // 打倒關主拿到的信物（塔主令牌）先正式亮一次，按了「收下」才進獎勵清單
+  // （使用者 2026-09-03：「第一關過關拿的塔主令牌是突然出現的，完全沒看到哪時候獲得」）。
+  // 用 props 帶旗標重進同一個畫面：獎勵早就擲好了，重進不會重擲。
+  const bossRelic = r.kind === '塔主' && r.relic ? relicById[r.relic] : undefined;
+  if (bossRelic && !(props as { tokenShown?: boolean }).tokenShown) {
+    renderHud(app, root);
+    const url = artUrl('icons', bossRelic.art);
+    const hero = artUrl('sprites', 'hero/ninja_win');
+    const stack = el('div', { class: 'loot-stack' },
+      el('p', { class: 'loot-above' }, bossRelic.text),
+      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: bossRelic.name }) : el('div', { class: 'chest-loot-missing' }),
+      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '關主的信物'), el('b', { class: 'loot-name' }, bossRelic.name)));
+    root.append(sceneView({
+      art: stack,
+      portrait: hero.startsWith('data:') ? undefined : hero,
+      speaker: '球球',
+      text: `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`,
+      actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); app.show('reward', { ...r, tokenShown: true }); } }, '收下')],
+    }));
+    return;
+  }
   renderHud(app, root);
 
   // 文案一律寫成完整的句子。「＋17 條小魚乾」讀起來像記帳欄位，不像遊戲在跟你講話

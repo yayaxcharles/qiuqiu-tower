@@ -450,6 +450,8 @@ export interface CombatState {
   phase: 'player' | 'won' | 'lost';
   /** 敵方回合正在逐隻出招（endTurn 的迴圈裡）；召喚要靠它分「敵方回合召的」與「玩家回合中途冒出來的」 */
   enemyActing?: boolean;
+  /** 敵方回合排隊要行動的魔物 uid（beginEnemyTurn 排好、stepEnemyTurn 一隻一隻拿），畫面靠它逐隻演出 */
+  enemyQueue?: number[];
   pending: PendingChoice | null;
   log: string[];
   encounterId: string;

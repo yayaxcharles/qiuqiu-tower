@@ -158,15 +158,26 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
   return true;
 }
 
+/**
+ * 結束回合＝敵方回合前半 → 魔物一隻一隻行動 → 收尾。三段拆開是給畫面逐隻演出用的
+ * （使用者 2026-09-03：「怪物一次打完所有動作，看不出來誰動了」）；引擎、機器人、測試一律走這個包起來的版本，結果跟拆開前一模一樣。
+ */
 export function endTurn(cs: CombatState): void {
-  if (cs.phase !== 'player' || cs.pending) return;
+  if (!beginEnemyTurn(cs)) return;
+  while (stepEnemyTurn(cs)) { /* 一隻一隻 */ }
+  finishEnemyTurn(cs);
+}
+
+/** 敵方回合前半：詛咒發作、沒攻擊的鉤子、棄手牌、減益衰減、同伴復活、魔物防禦歸零，並排好這回合要行動的魔物。回 false＝這回合結束不了（不在玩家回合、還有牌要選、或球球被詛咒打倒） */
+export function beginEnemyTurn(cs: CombatState): boolean {
+  if (cs.phase !== 'player' || cs.pending) return false;
   cs.endTurnRequested = false;   // 這個請求到這裡就兌現了
   const p = cs.player;
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
     if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true }); }
   }
-  if (cs.phase !== 'player') return;
+  if (cs.phase !== 'player') return false;
   if (!p.attackedThisTurn) {
     for (const rid of cs.relics) { const h = relicById[rid]?.hooks.turnEndNoAttack; if (h) applyEffects(cs, h, { source: 'relic' }); }
     for (const pw of p.powers) if (pw.trigger === 'turnEndNoAttack') applyEffects(cs, pw.effects, { source: 'power' });
@@ -206,8 +217,19 @@ export function endTurn(cs: CombatState): void {
   // 對既有的魔物完全等價（沒有誰會替別人加防禦），但「盾陣」那種替全體加防禦的招
   // （鼠大將、蛙大名，2026-09-02 第二波）本來會被排在後面的同伴自己洗掉。
   for (const e of cs.enemies) if (!e.dead) e.block = 0;
-  for (const e of [...cs.enemies]) {
-    if (e.dead || cs.phase !== 'player') continue;
+  // 這回合要行動的名單在這裡定案：中途被召喚出來的不算（跟以前一次跑完的行為一樣）
+  cs.enemyQueue = cs.enemies.filter((e) => !e.dead).map((e) => e.uid);
+  return true;
+}
+
+/** 讓排隊的下一隻魔物行動。回 false＝這回合沒有魔物要動了；回 true 但什麼都沒發生＝那隻已經倒下或球球已倒（跳過） */
+export function stepEnemyTurn(cs: CombatState): boolean {
+  const uid = cs.enemyQueue?.shift();
+  if (uid === undefined) return false;
+  const e = cs.enemies.find((x) => x.uid === uid);
+  if (!e) return true;
+  {
+    if (e.dead || cs.phase !== 'player') return true;
     e.turnCount += 1;
     const def = enemyById[e.enemyId];
     // 飛行：牠自己的回合一開始就補回滿層——上一輪被你打下來，這一輪牠又飛起來了
@@ -233,8 +255,8 @@ export function endTurn(cs: CombatState): void {
     // 結算噎到：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架式不出手（審查 #18）
     const phaseBefore = e.phase;
     damageEnemy(cs, e, tickPoison(e), { direct: true });
-    if (e.dead || cs.phase !== 'player') continue;
-    if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架式`); decayTurnStatuses(e, ['定身']); continue; }
+    if (e.dead || cs.phase !== 'player') return true;
+    if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架式`); decayTurnStatuses(e, ['定身']); return true; }
     // 沉睡：睡著的什麼都不做，每個牠的回合睡掉一層。**打痛牠會提早醒**（在 damageEnemy 裡處理，還會觸發 onWake）
     if (getStatus(e, '沉睡') > 0) {
       addStatus(e, '沉睡', -1);
@@ -271,12 +293,18 @@ export function endTurn(cs: CombatState): void {
         if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
       }
     }
-    if (e.dead) continue;
+    if (e.dead) return true;
     // 還在睡就繼續顯示「呼呼大睡」；睡飽自然醒的（沒被打醒＝不生氣）從招式表第一招開始
     if (getStatus(e, '沉睡') > 0) e.move = SLEEP_MOVE;
     else if (e.move === SLEEP_MOVE) { e.moveIndex = -1; advanceMove(cs, e); }
     else advanceMove(cs, e);
   }
+  return true;
+}
+
+/** 敵方回合收尾：蜷縮修剪、換回玩家回合（抽新手牌） */
+export function finishEnemyTurn(cs: CombatState): void {
+  cs.enemyQueue = [];
   // 蜷縮撐到你下回合開始：魔物打完了才修剪，守護符留 8 點、沒有守護符就歸零（審查 #1）
   cs.enemyActing = false;
   cs.player.block = Math.min(cs.player.block, relicSum(cs.relics, 'blockKeep'));

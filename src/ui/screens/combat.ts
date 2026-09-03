@@ -4,7 +4,7 @@ import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
-import { canPlay, endTurn, playCard, resolveChoice, usePotion } from '../../engine/combat';
+import { beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance } from '../../engine/types';
@@ -218,7 +218,8 @@ registerScreen('combat', (app, root, props) => {
   let lastEnergy = -1;
 
   /** 可以操作嗎：分出勝負、還在等玩家選牌、收牌動畫還在跑的時候，出牌／忍具／結束回合都不受理 */
-  function canAct(): boolean { return !ended && !collecting && cs.phase === 'player' && !cs.pending; }
+  let enemyTurnRunning = false;   // 魔物正在一隻一隻出手：這段期間不收玩家的操作
+  function canAct(): boolean { return !ended && !collecting && !enemyTurnRunning && cs.phase === 'player' && !cs.pending; }
 
   // ===== 元件 =====
 
@@ -940,15 +941,45 @@ registerScreen('combat', (app, root, props) => {
     if (wasTargeting) render();
     sfx('turn_end');
     const wait = collectHand();
-    if (wait <= 0) { act(() => endTurn(cs), { deal: true }); return; }
+    if (wait <= 0) { runEnemyTurn(); return; }
     // 這段時間引擎還停在上一回合，畫面上的數字（飽足、抽牌數）跟引擎仍然是一致的——
     // 因為根本還沒有人動過它。收完牌才真的換回合，那時候整個畫面一起重畫。
     collecting = true;
     window.setTimeout(() => {
       if (app.cs !== cs || !collecting) return;   // 這場已經被接手就算了
       collecting = false;
-      act(() => endTurn(cs), { deal: true });
+      runEnemyTurn();
     }, wait);
+  }
+
+  /**
+   * 敵方回合逐隻演出（使用者 2026-09-03：「所有怪物一次打完所有動作，看不出來怪物有動作」）：
+   * 前半（詛咒、棄牌、復活）先畫一拍，然後一隻出手、畫一拍、停 720 毫秒，再換下一隻；
+   * 全部動完才收尾發新手牌。中途畫面被接手（app.cs 換了）就整個放掉。
+   */
+  function runEnemyTurn(): void {
+    const before = snap(cs);
+    if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); return; }
+    settle(before, {});
+    enemyTurnRunning = true;
+    const step = (): void => {
+      if (app.cs !== cs) { enemyTurnRunning = false; return; }
+      const b = snap(cs);
+      const more = stepEnemyTurn(cs);
+      if (!more) {
+        finishEnemyTurn(cs);
+        enemyTurnRunning = false;
+        settle(b, { deal: true });
+        return;
+      }
+      // 這一步有沒有東西可看：有魔物真的動了（回合數推進）或紀錄多了行
+      const acted = cs.log.length !== b.logLen
+        || cs.enemies.some((e) => (b.enemies.get(e.uid)?.turnCount ?? e.turnCount) !== e.turnCount);
+      if (!acted) { step(); return; }
+      settle(b, {});
+      window.setTimeout(step, cs.phase === 'player' ? 720 : 400);
+    };
+    step();
   }
 
   // ===== 結算與動畫 =====
