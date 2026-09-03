@@ -135,7 +135,8 @@ function checkPhase(cs: CombatState, e: EnemyCombat): void {
   e.moveIndex = 0;
   if (next.line) log(cs, `${e.name}：${next.line}`);
   runEnemyEffects(cs, e, next.onEnter, false);
-  e.move = def.chooseMove?.(e.turnCount + 1, next.moves)
+  e.move = next.onEnterMove
+    ?? def.chooseMove?.(e.turnCount + 1, next.moves)
     ?? (next.pattern === 'random' ? cs.rng.pick(next.moves) : (next.moves[0] as EnemyMove));
 }
 

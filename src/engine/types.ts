@@ -187,6 +187,8 @@ export interface EnemyPhase {
    */
   hpBar?: number;
   onEnter: EnemyEffect[];
+  /** 換階段後的第一招固定是它：先掛在頭上讓玩家看到，牠的回合才做（貓又換階段放尾巴——原本寫在 onEnter 會在玩家回合中途憑空冒出尾巴，使用者 2026-09-03） */
+  onEnterMove?: EnemyMove;
   line?: string;
   pattern: 'cycle' | 'random';
   moves: EnemyMove[];

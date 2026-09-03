@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { damageEnemy } from '../../src/engine/actions';
 import { STARTER_DECK } from '../../src/content/cards';
 import { canPlay, combatResult, endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -329,7 +330,7 @@ describe('魔物回合', () => {
     expect(e.charged).toBe(false);
     expect(getStatus(e, '定身')).toBe(0);
   });
-  it('貓又照表出招：1 召、4 準備、5 補召；尾巴打死不復活、同時最多兩條、滿了就把血灌給現有的', () => {
+  it('貓又照表出招：1 召、4 準備、5 補召；尾巴打死不復活、上限四條、滿了就把血灌給現有的', () => {
     const cs = start('nekomata');
     const neko = cs.enemies[0]!;
     expect(neko.move.label).toBe('放尾巴');
@@ -347,18 +348,36 @@ describe('魔物回合', () => {
     expect(tail.dead).toBe(true);
     expect(tails()).toBe(1);
     expect(neko.move.label).toBe('放尾巴');
-    endTurn(cs);                                    // 第 5 回合：補召 → 只補到兩條（2026-09-03 使用者：四條同時在場是 bug，上限 4→2）
-    expect(tails()).toBe(2);
+    endTurn(cs);                                    // 第 5 回合：補召兩條 → 三條（上限 4）
+    expect(tails()).toBe(3);
     // 敵方回合召出來的尾巴這回合本來就不動（快照），意圖照表先亮出來，不再掛「剛冒出來」（2026-09-02 稽核 M-2）
     const fresh = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead && e.turnCount === 0);
-    expect(fresh.length).toBe(1);
+    expect(fresh.length).toBe(2);
     expect(fresh.every((e) => e.move.label !== '剛冒出來')).toBe(true);
-    // 兩條都在時再放＝把血灌給最弱的那條，不會出現第三條
-    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 1, max: 2 }] };
+    // 滿四條之後再放＝把血灌給最弱的那條，不會出現第五條
+    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
+    cs.player.block = 99; endTurn(cs);
+    expect(tails()).toBe(4);
+    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 1, max: 4 }] };
     const hpSum = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).reduce((a, e) => a + e.maxHp, 0);
     cs.player.block = 99; endTurn(cs);
-    expect(tails()).toBe(2);
+    expect(tails()).toBe(4);
     expect(cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).reduce((a, e) => a + e.maxHp, 0)).toBe(hpSum + 8);
+  });
+  it('貓又換階段不會憑空冒尾巴：先只回血加爪力、頭上亮「放尾巴」，牠的回合才放兩條（使用者 2026-09-03）', () => {
+    const cs = start('nekomata');
+    const neko = cs.enemies[0]!;
+    endTurn(cs);                                    // 第 1 回合放兩條
+    const tails = () => cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).length;
+    expect(tails()).toBe(2);
+    // 玩家回合中途把牠打到門檻以下：當下尾巴數不變，意圖換成「放尾巴」
+    neko.block = 0; neko.hp = 56;
+    damageEnemy(cs, neko, 5, { direct: true });
+    expect(neko.phase).toBe(1);
+    expect(tails(), '換階段當下不該冒尾巴').toBe(2);
+    expect(neko.move.label).toBe('放尾巴');
+    cs.player.block = 99; endTurn(cs);              // 牠的回合才放：2 → 4（上限四條）
+    expect(tails()).toBe(4);
   });
   it('僕從護體：僕從還站著打不動本體，也不消耗她的隱身；清光僕從才打得到', () => {
     const cs = start('persian_lady');

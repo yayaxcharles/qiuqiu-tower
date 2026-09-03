@@ -2,8 +2,8 @@ import type { EnemyMove,EncounterDef, EnemyDef, EnemyPool } from '../engine/type
 
 // 貓又婆婆照表出招用的兩招（chooseMove 每回合回傳同一份物件，方便畫面比對）
 // 尾巴最多四條（畫面塞得下五個單位）；已經四條時再放＝把血量接到現有尾巴上（使用者 2026-09-02）
-// 尾巴同時最多兩條（2026-09-03 使用者：四條同時在場是 bug；原上限 4）：補召只補到兩條，滿了就把血灌給現有的
-const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 2 }] };
+// 尾巴同時最多四條，滿了就把血灌給現有的（使用者 2026-09-03：四條可以，問題是換階段時尾巴「憑空」冒出來——見 phases.onEnterMove）
+const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
 const NEKO_PREP: EnemyMove = { intent: 'special', label: '準備放尾巴', effects: [{ kind: 'nothing' }] };
 
 export const enemies: EnemyDef[] = [
@@ -156,7 +156,9 @@ export const enemies: EnemyDef[] = [
     ],
     phases: [{
       hpBelow: 55, line: '（尾巴分成了好幾條）', pattern: 'cycle',
-      onEnter: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 2 }, { kind: 'heal', n: 12 }, { kind: 'statusSelf', name: '爪力', amount: 2 }],
+      // 換階段當下只回血加爪力；尾巴改成下一招（onEnterMove）放——原本寫在這裡會在玩家回合中途憑空多兩條，看起來像 bug（使用者 2026-09-03）
+      onEnter: [{ kind: 'heal', n: 12 }, { kind: 'statusSelf', name: '爪力', amount: 2 }],
+      onEnterMove: NEKO_SUMMON,
       moves: [
         { intent: 'attack', label: '亂尾', effects: [{ kind: 'damage', amount: 4, times: 4 }] },
         { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 10 }] },
