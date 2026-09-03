@@ -853,3 +853,7 @@
   padding: 5px 8px; border-radius: 8px;
   background: linear-gradient(#1a120ccc, #0d0806d9); border: 1px solid #ffd98a55;
 }
+
+/* 牌堆計數器可點開（2026-09-03） */
+.combat .piles .pile-btn { cursor: pointer; text-decoration: underline dotted #d8c08a; text-underline-offset: 3px; }
+.combat .piles .pile-btn:hover { color: #ffd98a; }

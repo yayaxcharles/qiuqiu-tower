@@ -7,13 +7,14 @@ import { aliveEnemies } from '../../engine/actions';
 import { canPlay, endTurn, playCard, resolveChoice, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
-import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit } from '../../engine/types';
+import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { tierBgKey, tierBgZoom } from '../screenbg';
 import { artUrl, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT } from '../cardtext';
 import { cardNode } from '../cardview';
+import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
@@ -523,11 +524,23 @@ registerScreen('combat', (app, root, props) => {
     const piles = el('div', { class: 'piles' },
       el('span', {}, `第 ${cs.turn} 回合`),
       // 這一行同時是「牌堆在哪」的座標：新發的牌就是從這裡飛出來的（見 dealFrom）
-      el('span', { class: 'pile-draw' }, `抽牌 ${p.drawPile.length}`),
-      el('span', {}, `棄牌 ${p.discardPile.length}`),
-      el('span', {}, `消耗 ${p.exhaustPile.length}`),
+      // 三個牌堆都點得開（使用者 2026-09-03：「戰鬥中我看不到我的抽牌堆跟棄牌堆」）：
+      // 抽牌堆照名字排序，不洩漏真正的順序；棄牌堆、消耗堆照丟進去的順序
+      pileBtn('pile-draw', `抽牌 ${p.drawPile.length}`, '抽牌堆', () => [...p.drawPile].sort((x, y) => (cardById[x.cardId]?.name ?? '').localeCompare(cardById[y.cardId]?.name ?? '', 'zh-Hant'))),
+      pileBtn('pile-discard', `棄牌 ${p.discardPile.length}`, '棄牌堆', () => p.discardPile),
+      pileBtn('pile-exhaust', `消耗 ${p.exhaustPile.length}`, '消耗堆', () => p.exhaustPile),
       combo);
     return el('div', { class: 'side' }, energy, potions, piles);
+  }
+
+  /** 牌堆計數器：點一下翻開來看（只是看看，不能挑） */
+  function pileBtn(cls: string, label: string, title: string, cards: () => CardInstance[]): HTMLElement {
+    const node = el('span', { class: `${cls} pile-btn`, title: `點一下看${title}` }, label);
+    node.addEventListener('click', () => {
+      const list = cards();
+      showDeckPicker({ title: `${title}（${list.length} 張）`, cards: list, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } });
+    });
+    return node;
   }
 
   function handRow(): HTMLElement {
