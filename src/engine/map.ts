@@ -34,7 +34,23 @@ function lanesOn(floor: number): number[] {
  * 起點強制三條不同（開局仍是三選一）。匯合層強制走中間；剛離開匯合層時放行到
  * 任何車道，讓那一格往外散開。
  */
+/** 2～13F 的非匯合層每層至少兩格：只剩一格的那層等於沒得選（使用者 2026-09-03：「只剩一條路可以選」） */
+function everyFloorHasChoice(lanes: number[][]): boolean {
+  for (let f = 2; f <= 13; f++) {
+    if (CONVERGED[f]) continue;
+    if (new Set(lanes.map((l) => l[f - 1])).size < 2) return false;
+  }
+  return true;
+}
 function walkPaths(rng: Rng): number[][] {
+  let last: number[][] = [];
+  for (let attempt = 0; attempt < 60; attempt++) {
+    last = walkPathsOnce(rng);
+    if (everyFloorHasChoice(last)) return last;
+  }
+  return last;
+}
+function walkPathsOnce(rng: Rng): number[][] {
   // 起點固定由左到右排好，之後每一層都維持這個左右順序（見下面的不交叉規則）
   const starts = rng.shuffle(lanesOn(1)).slice(0, PATHS).sort((a, b) => a - b);
   const lanes: number[][] = starts.map((l) => [l]);
@@ -139,9 +155,54 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       if (!a.next.includes(bId)) a.next.push(bId);
     }
   }
-  // 類型
+  // 類型：一層一層生、當層就修。四條規則（2026-09-03 使用者：「只剩一條路可以選、都通到菁英怪或戰鬥」）：
+  //   直向不重複同一種非戰鬥節點、同分岔的兄弟不重複、大魔物一定避得開、每個分岔至少有一條非戰鬥的路。
+  // 一層修完才生下一層，所以修下一層時上一層已經定案，不會像以前那樣事後補修又互相打架。
   const eliteMul = opts.eliteMul ?? 1;
-  const eliteCap = eliteMul > 1 ? 2 : 1;   // 難度 2 起每一層可以兩個大魔物（2026-09-03 起三關都適用）
+  const eliteCap = eliteMul > 1 ? 2 : 1;   // 難度 2 起每一層可以兩個大魔物（三關都適用）
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const parentsOf = new Map<string, MapNode[]>();
+  for (const n of nodes) for (const id of n.next) parentsOf.set(id, [...(parentsOf.get(id) ?? []), n]);
+  const isFight = (t: NodeType): boolean => t === '戰鬥' || t === '大魔物';
+  /** 大魔物避得開：該層兩格以上，而且每個能走到它的上一格都還有另一條不是大魔物的路 */
+  const eliteAllowed = (n: MapNode): boolean =>
+    byFloor[n.floor]!.length >= 2
+    && (parentsOf.get(n.id) ?? []).every((p) => p.next.length < 2 || p.next.some((id) => id !== n.id && byId.get(id)?.type !== '大魔物'));
+  /**
+   * 把一格戰鬥換成非戰鬥節點：不能跟上一格、同分岔的兄弟、（已定型的）下一格撞型；
+   * 罐頭鋪每層一間；貓窩只在 7～12F。挑不到就回 false。
+   */
+  const toNonCombat = (n: MapNode, depth = 0): boolean => {
+    const taken = new Set<NodeType>();
+    for (const p of parentsOf.get(n.id) ?? []) { taken.add(p.type); for (const id of p.next) if (id !== n.id) taken.add(byId.get(id)!.type); }
+    for (const id of n.next) taken.add(byId.get(id)!.type);
+    const cands: [NodeType, number][] = [];
+    if (!taken.has('事件')) cands.push(['事件', 3]);
+    if (!taken.has('罐頭鋪') && !byFloor[n.floor]!.some((x) => x.type === '罐頭鋪')) cands.push(['罐頭鋪', 1]);
+    if (!taken.has('貓窩') && (n.floor === 4 || (n.floor >= 7 && n.floor <= 12))) cands.push(['貓窩', 1]);   // 4F 的貓窩＝見大俠前歇一下
+    if (cands.length) { n.type = roll(rng, cands); return true; }
+    // 挑不到（多半是上一格是事件、而這一層的罐頭鋪已經給了別格）：把那間罐頭鋪搬過來——
+    // 搬走的那格改回戰鬥後，它自己的分岔還有非戰鬥的路才准搬
+    if (!taken.has('罐頭鋪')) {
+      const shop = byFloor[n.floor]!.find((x) => x.type === '罐頭鋪');
+      if (shop) {
+        const safe = (parentsOf.get(shop.id) ?? []).every((p) => p.next.some((id) => id !== shop.id && !isFight(byId.get(id)!.type)));
+        if (safe || depth < 2) {
+          shop.type = '戰鬥'; n.type = '罐頭鋪';
+          // 搬走之後那格的分岔可能變成全戰鬥，再修一次（最多兩層，不會無限追）
+          if (!safe) for (const p of parentsOf.get(shop.id) ?? []) {
+            const kids = p.next.map((id) => byId.get(id)!);
+            if (kids.length >= 2 && kids.every((k) => isFight(k.type))) for (const k of rng.shuffle(kids.filter((k) => k.type === '戰鬥'))) if (toNonCombat(k, depth + 1)) break;
+          }
+          return true;
+        }
+      }
+    }
+    // 最後手段：連兩層事件（比「兩邊都要打」好一點），但不接受連三層
+    if (!(parentsOf.get(n.id) ?? []).some((p) => p.type === '事件' && (parentsOf.get(p.id) ?? []).some((g) => g.type === '事件'))
+      && !n.next.some((id) => byId.get(id)!.type === '事件')) { n.type = '事件'; return true; }
+    return false;
+  };
   for (let f = 2; f <= 13; f++) {
     if (CONVERGED[f]) continue;
     const row = byFloor[f]!;
@@ -155,49 +216,73 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       if (t === '大魔物') elites++;
       n.type = t;
     }
-    // 整關至少一個大魔物：7F 沒抽到就直接放一個（2026-09-03 起第一關也照這條，見 tableFor）
-    if (f === 7 && elites === 0) rng.pick(row).type = '大魔物';
-    // 難度 2 起（eliteMul > 1）11F 再保證一個：只靠權重抽，整關平均只多兩成，湊不到「多六成」
-    if (eliteMul > 1 && f === 11 && elites === 0) rng.pick(row).type = '大魔物';
+    // 直向：跟上一格同一種非戰鬥節點就改戰鬥（連吃兩層事件、連逛兩間店都無聊）
+    for (const n of row) {
+      if (n.type === '戰鬥') continue;
+      if ((parentsOf.get(n.id) ?? []).some((p) => p.type === n.type)) n.type = '戰鬥';
+    }
+    // 同分岔的兄弟不重複同一種非戰鬥節點（兩邊都是事件等於沒得選）
+    for (const p of byFloor[f - 1]!) {
+      const seen = new Set<NodeType>();
+      for (const id of p.next) {
+        const kid = byId.get(id)!;
+        if (kid.type === '戰鬥') continue;
+        if (seen.has(kid.type)) kid.type = '戰鬥'; else seen.add(kid.type);
+      }
+    }
+    // 大魔物避得開
+    for (const n of row) if (n.type === '大魔物' && !eliteAllowed(n)) n.type = '戰鬥';
+    // 分岔至少一條非戰鬥的路：兩邊都是戰鬥（或戰鬥對大魔物）就把一邊換掉
+    for (const p of byFloor[f - 1]!) {
+      const kids = p.next.map((id) => byId.get(id)!);
+      if (kids.length < 2 || !kids.every((k) => isFight(k.type))) continue;
+      for (const k of rng.shuffle(kids.filter((k) => k.type === '戰鬥'))) if (toNonCombat(k)) break;
+    }
   }
-  // 9–13F 保證至少一個罐頭鋪、一個貓窩
+  // 整關至少一個大魔物（難度 2 起至少兩個）：7F 優先，沒位置就往 9～13F 找，只挑避得開、而且分岔另一邊不是戰鬥的格子
+  const wantElites = eliteMul > 1 ? 2 : 1;
+  const fixForksAround = (n: MapNode): void => {
+    for (const p of parentsOf.get(n.id) ?? []) {
+      const kids = p.next.map((id) => byId.get(id)!);
+      if (kids.length >= 2 && kids.every((k) => isFight(k.type))) for (const k of rng.shuffle(kids.filter((k) => k.type === '戰鬥'))) if (toNonCombat(k)) break;
+    }
+  };
+  for (const strict of [true, false]) {
+    for (const f of [7, 9, 10, 11, 12, 13]) {
+      if (nodes.filter((n) => n.type === '大魔物').length >= wantElites) break;
+      const cands = byFloor[f]!.filter((n) => n.type === '戰鬥' && eliteAllowed(n)
+        && (!strict || (parentsOf.get(n.id) ?? []).every((p) => p.next.some((id) => id !== n.id && !isFight(byId.get(id)!.type)))));
+      if (cands.length) { const e = rng.pick(cands); e.type = '大魔物'; fixForksAround(e); }
+    }
+  }
+  // 9–13F 保證至少一個罐頭鋪、一個貓窩（挑不會跟鄰居撞型的戰鬥格）
   const mid = [9, 10, 11, 12, 13].flatMap((f) => byFloor[f]!);
+  const safeFor = (t: NodeType) => (n: MapNode): boolean => {
+    if (n.type !== '戰鬥' || (t === '貓窩' && n.floor === 13)) return false;
+    const around = [...(parentsOf.get(n.id) ?? []), ...n.next.map((id) => byId.get(id)!)];
+    for (const p of parentsOf.get(n.id) ?? []) for (const id of p.next) around.push(byId.get(id)!);
+    if (t === '罐頭鋪' && byFloor[n.floor]!.some((x) => x.type === '罐頭鋪')) return false;
+    return !around.some((x) => x !== n && x.type === t);
+  };
   if (!mid.some((n) => n.type === '罐頭鋪')) {
-    const cands = mid.filter((n) => n.type === '戰鬥'); (cands.length ? rng.pick(cands) : mid[0]!).type = '罐頭鋪';
+    const cands = mid.filter(safeFor('罐頭鋪')); if (cands.length) rng.pick(cands).type = '罐頭鋪';
   }
   if (!mid.some((n) => n.type === '貓窩')) {
-    const cands = mid.filter((n) => n.type === '戰鬥' && n.floor !== 13);
-    const spare = mid.filter((n) => n.type !== '罐頭鋪' && n.floor !== 13);   // 退路避開剛放上去的罐頭鋪，也避開 13F
-    (cands.length ? rng.pick(cands) : spare[0]!).type = '貓窩';
+    const cands = mid.filter(safeFor('貓窩')); if (cands.length) rng.pick(cands).type = '貓窩';
   }
-  // 同一個分岔出去的路，不可以是同一種非戰鬥節點。
-  // 兩條都是事件（或都是貓窩）的分岔等於沒得選，走哪邊都一樣——分岔的意義就是選擇。
-  // 撞到就把多的那條改成戰鬥；戰鬥本來就是預設的填充節點，重複沒關係（遭遇還會不一樣）。
-  // 5F 不動（整層都是大俠傳功的固定事件，那是刻意的劇情層）；匯合層是單格，撞不到。
-  // 排在保底之後：保底可能把戰鬥改成貓窩，反而製造出重複的分岔，先保底再查重。
-  // 罐頭鋪每層最多一個、大魔物每層最多 eliteCap 個（擲型別時就擋了），撞到也只是多改一格成戰鬥。
-  const byId = new Map(nodes.map((n) => [n.id, n]));
-  for (const n of nodes) {
-    if (n.next.length < 2) continue;
-    const seen = new Set<NodeType>();
-    for (const id of n.next) {
-      const kid = byId.get(id);
-      if (!kid || CONVERGED[kid.floor] || kid.type === '戰鬥') continue;
-      if (seen.has(kid.type)) kid.type = '戰鬥';
-      else seen.add(kid.type);
+  // 一條路不連續四場戰鬥（含大魔物）：走遍所有路線，第四場那格換成非戰鬥
+  const walk = (n: MapNode, run: MapNode[]): void => {
+    let streak: MapNode[] = [];
+    if (isFight(n.type) && n.floor >= 2) {   // 1F 規定是戰鬥，不算進連戰
+      streak = [...run, n];
+      if (streak.length >= 4) {
+        for (const x of [...streak].reverse().filter((y) => y.type === '戰鬥')) if (toNonCombat(x)) break;
+        streak = [];
+      }
     }
-  }
-  // 直向也查：下一層不能跟上一層同一種非戰鬥節點——
-  // 一條路連吃兩三層事件跟連抽兩間店一樣無聊（使用者截圖：4F 事件→5F 事件→6F 事件）。
-  // 匯合層是固定的不動；被改成戰鬥的節點之後照常抽遭遇。
-  for (const n of nodes) {
-    for (const id of n.next) {
-      const kid = byId.get(id);
-      if (!kid || CONVERGED[kid.floor] || kid.type === '戰鬥') continue;
-      if (kid.type === n.type) kid.type = '戰鬥';
-    }
-  }
-
+    for (const id of n.next) walk(byId.get(id)!, streak);
+  };
+  for (const id of byFloor[1]!.map((x) => x.id)) walk(byId.get(id)!, []);
   // 內容：遭遇與事件
   const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined).map((e) => e.id));
   let eventIdx = 0;
@@ -271,8 +356,8 @@ export function validateMap(map: GameMap, act = 1): string[] {
   if (!nodesOnFloor(map, 1).every((n) => n.type === '戰鬥')) p.push('1F 必須全是戰鬥');
   const f5 = nodesOnFloor(map, 5);
   if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)) p.push('5F 必須是唯一的大俠傳功');
-  // 7F 的精英保底三關都適用（2026-09-03 起第一關也開放菁英），驗證函式不必再分關數
-  if (!nodesOnFloor(map, 7).some((n) => n.type === '大魔物')) p.push('7F 必須有一個大魔物');
+  // 整關至少一個大魔物（2026-09-03 起不再綁 7F：大魔物要放在避得開的格子，7F 沒位置就往上放）
+  if (!map.nodes.some((n) => n.type === '大魔物')) p.push('整關必須至少有一個大魔物');
 
   for (let f = 1; f <= FLOORS; f++) {
     const row = nodesOnFloor(map, f);
@@ -284,7 +369,8 @@ export function validateMap(map: GameMap, act = 1): string[] {
     // （2026-09-03 菁英擴充時量到的；當時還沒有任何測試拿難度 2 的圖來驗，所以一直沒被抓到）
     if (row.filter((n) => n.type === '大魔物').length > 2) p.push(`${f}F 大魔物超過兩個`);
     if (f === 13 && row.some((n) => n.type === '貓窩')) p.push('13F 不可放貓窩');
-    if (f >= 2 && f <= 6 && row.some((n) => n.type === '貓窩' || n.type === '大魔物')) p.push(`${f}F 不該有貓窩或大魔物`);
+    if (f >= 2 && f <= 6 && row.some((n) => n.type === '大魔物')) p.push(`${f}F 不該有大魔物`);
+    if ((f === 2 || f === 3 || f === 5 || f === 6) && row.some((n) => n.type === '貓窩')) p.push(`${f}F 不該有貓窩`);   // 4F 例外：分岔補位用
   }
   const mid = map.nodes.filter((n) => n.floor >= 9 && n.floor <= 13);
   if (!mid.some((n) => n.type === '罐頭鋪')) p.push('9–13F 至少一個罐頭鋪');

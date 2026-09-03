@@ -96,9 +96,9 @@ describe('戰鬥與獎勵', () => {
       return { run, r: finishCombat(run, cs)! };
     };
     const withJar = fight(true), without = fight(false);
-    expect(without.r.fish).toBeGreaterThanOrEqual(10); expect(without.r.fish).toBeLessThanOrEqual(20);
+    expect(without.r.fish).toBeGreaterThanOrEqual(15); expect(without.r.fish).toBeLessThanOrEqual(25);   // 戰利品 15～25（2026-09-01）
     expect(withJar.r.fish).toBe(without.r.fish + 10);
-    expect(withJar.r.fish).toBeGreaterThanOrEqual(20); expect(withJar.r.fish).toBeLessThanOrEqual(30);
+    expect(withJar.r.fish).toBeGreaterThanOrEqual(25); expect(withJar.r.fish).toBeLessThanOrEqual(35);
     expect(withJar.run.fish).toBe(without.run.fish + 10);
   });
   it('戰鬥還沒結束不准收尾', () => {

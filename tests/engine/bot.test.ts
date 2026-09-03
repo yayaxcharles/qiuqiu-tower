@@ -29,7 +29,8 @@ describe('隨機試玩', () => {
     // 2026-09-02 第二波怪（12 隻新怪、18 組新遭遇、4 個新關主進池）：抽到的怪與擲骰順序全變，錨值重錄
     // 2026-09-03 菁英擴充（9 隻新菁英、9 組新遭遇；第一關開放大魔物節點）：
     // 第一關的地圖多了大魔物節點，路線與遭遇的擲骰順序整個位移，錨值重錄一次
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 12, turns: 43, kills: 8, deckSize: 16 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 11, turns: 22, kills: 3, deckSize: 16 });
+    // 2026-09-03 晚地圖優化（每層至少兩格、分岔要有非戰鬥、大魔物避得開、不連四戰）：路線與擲骰順序又變，錨值重錄
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 11, turns: 46, kills: 7, deckSize: 18 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 6, turns: 19, kills: 4, deckSize: 14 });
   });
 });

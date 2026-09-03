@@ -29,10 +29,10 @@ describe('地圖', () => {
     const m = generateMap(new Rng(seedFromString('fixed')));
     expect(nodesOnFloor(m, 1).every((n) => n.type === '戰鬥')).toBe(true);
     expect(nodesOnFloor(m, 5).every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)).toBe(true);
-    // 2026-09-03 菁英擴充：第一關也開放菁英，7F 的「整關至少一個」保底三關都適用
-    expect(nodesOnFloor(m, 7).some((n) => n.type === '大魔物')).toBe(true);
+    // 2026-09-03 菁英擴充：第一關也開放菁英，「整關至少一個」保底三關都適用（同日起不綁 7F：大魔物要放在避得開的格子）
+    expect(m.nodes.some((n) => n.type === '大魔物')).toBe(true);
     const m2 = generateMap(new Rng(seedFromString('m-act2')), { act: 2 });
-    expect(nodesOnFloor(m2, 7).some((n) => n.type === '大魔物')).toBe(true);
+    expect(m2.nodes.some((n) => n.type === '大魔物')).toBe(true);
     expect(nodesOnFloor(m, 8).map((n) => n.type)).toEqual(['紙箱']);
     expect(nodesOnFloor(m, 14).map((n) => n.type)).toEqual(['貓窩']);
     expect(nodesOnFloor(m, 15).map((n) => n.type)).toEqual(['塔主']);
@@ -125,19 +125,27 @@ describe('分岔的選擇要有意義', () => {
     }
   });
 
-  it('一條路不會連續兩層同一種非戰鬥節點', () => {
+  it('一條路不會連續兩層同一種非戰鬥節點（分岔補位的最後手段允許極少數連兩層事件，但絕不連三層）', () => {
+    let twice = 0;
     for (let i = 0; i < 60; i++) {
       const m = generateMap(new Rng(seedFromString(`vert-${i}`)));
       const byId = new Map(m.nodes.map((n) => [n.id, n]));
+      let hit = false;
       for (const n of m.nodes) {
         if (n.type === '戰鬥') continue;
         for (const id of n.next) {
           const kid = byId.get(id)!;
           if (kid.floor === 5 || kid.floor === 8 || kid.floor === 14 || kid.floor === 15) continue;
-          expect(kid.type, `${n.id}(${n.type}) → ${kid.id}`).not.toBe(n.type);
+          if (kid.type !== n.type) continue;
+          // 2026-09-03 地圖優化：分岔兩邊都是戰鬥又挑不到別種節點時，最後手段是再放一個事件（只准事件、只准連兩層）
+          expect(n.type, `${n.id}(${n.type}) → ${kid.id}`).toBe('事件');
+          hit = true;
+          for (const gid of kid.next) expect(byId.get(gid)!.type, `${kid.id} → ${gid} 連三層事件`).not.toBe('事件');
         }
       }
+      if (hit) twice++;
     }
+    expect(twice, '連兩層事件的地圖要很少').toBeLessThanOrEqual(3);
   });
 
   it('同一個分岔出去的兩條路，不會是同一種非戰鬥節點（5F 的劇情層除外）', () => {
@@ -158,12 +166,11 @@ describe('分岔的選擇要有意義', () => {
 
 describe('第一關的難度守則', () => {
   // 2026-09-03 菁英擴充：第一關開放菁英，規則跟第二、三關一模一樣
-  // （7F 保底一個、9–13F 照權重抽、難度 1 每層最多一個、難度 2 起每層最多兩個並在 11F 再保底一個）
+  // （整關保底一個、放在避得開的格子；9–13F 照權重抽、難度 1 每層最多一個、難度 2 起每層最多兩個並保底兩個）
   it('第一關 200 顆種子：每顆都有大魔物，難度 1 每層最多 1 個、難度 2 每層最多 2 個', () => {
     for (let i = 0; i < 200; i++) {
       const easy = generateMap(new Rng(seedFromString(`a1-elite-${i}`)), { act: 1 });
       expect(easy.nodes.some((n) => n.type === '大魔物'), `seed a1-elite-${i}`).toBe(true);
-      expect(nodesOnFloor(easy, 7).some((n) => n.type === '大魔物'), `seed a1-elite-${i} 的 7F`).toBe(true);
       expect(validateMap(easy, 1), `seed a1-elite-${i}`).toEqual([]);
       const hard = generateMap(new Rng(seedFromString(`a1-elite-${i}`)), { act: 1, eliteMul: 1.6 });
       expect(hard.nodes.some((n) => n.type === '大魔物'), `seed a1-elite-${i} 難度 2`).toBe(true);
