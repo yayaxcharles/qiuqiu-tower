@@ -377,7 +377,9 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         const won = runRng(run).chance(fx.p * (runMods(run).unlucky ? 0.7 : 1));
         // 中沒中要自己講。兩邊的結果文案往往同一句（「井底傳來一聲悶響」），
         // 輸的那邊效果常常是空的——玩家按下去只看到圖換了一張，會以為按了沒反應
-        notes?.push(won ? '中了！' : '沒中……');
+        // 贏的那邊如果是小魚乾，把數字寫進去（使用者 2026-09-03：掀碗後沒感受到贏還是輸）
+        const prize = won ? fx.win.reduce((sum, e) => sum + (e.kind === 'fish' ? e.n : 0), 0) : 0;
+        notes?.push(won ? (prize > 0 ? `中了！贏了 ${prize} 條小魚乾` : '中了！') : '沒中……');
         const o = applyRunEffects(run, won ? fx.win : fx.lose, notes, gains); if (o) outcome = o;
         break;
       }
