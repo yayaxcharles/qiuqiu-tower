@@ -418,6 +418,11 @@
 }
 /* 秘寶與忍具並排：2 格＋3 格剛好塞得下一行，不用多佔一排的高度 */
 .shop-shelves { display: flex; gap: 14px; align-self: center; }
+/* 秘寶架與忍具架並排時兩座一樣高，但裡面那排貨只有自己的內容高：說明字少的那排就浮在半空、沒踩在層板上
+   （使用者 2026-09-03：「忍具的道具位置壞掉了」——忍具帶滿時多一句「帶滿了…」把忍具排撐高，秘寶排就浮起來，反過來亦然）。
+   架子改成直向彈性盒、貨排撐滿剩下的高度，兩座架子的貨就等高、都坐在層板上，立柱也頂得到上緣橫木 */
+.shop-shelves > .shelf { display: flex; flex-direction: column; }
+.shop-shelves > .shelf > .shop-row { flex: 1; }
 /* 同一排的格子等高（stretch），價錢一律沉到格子底部，說明長短不一也不會排得參差不齊 */
 .shop-row {
   display: flex;
