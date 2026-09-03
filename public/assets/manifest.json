@@ -643,7 +643,12 @@
   "codex/relic_wind_chime": "assets/icons/relic_wind_chime.webp",
   "icon/vfx_charge": "assets/icons/vfx_charge.webp",
   "icon/vfx_curse": "assets/icons/vfx_curse.webp",
-  "icon/vfx_strip": "assets/icons/vfx_strip.webp"
+  "icon/vfx_strip": "assets/icons/vfx_strip.webp",
+  "codex/relic_black_cat_mask": "assets/icons/relic_black_cat_mask.webp",
+  "codex/relic_blood_dagger": "assets/icons/relic_blood_dagger.webp",
+  "codex/relic_glutton_purse": "assets/icons/relic_glutton_purse.webp",
+  "codex/relic_iron_sand_vest": "assets/icons/relic_iron_sand_vest.webp",
+  "codex/relic_miasma_charm": "assets/icons/relic_miasma_charm.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
