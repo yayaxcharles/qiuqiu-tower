@@ -922,7 +922,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '橫掃', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
     ] },
   // 小鬼：跟鬼將同一組（reviveGroup 'imps'），鬼將還站著就會爬起來。要三隻同一回合一起清光
-  { id: 'imp', name: '小鬼', hp: [16, 16], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_imp',
+  { id: 'imp', name: '小鬼', hp: [12, 12], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_imp',
     line: '（躲在鬼將腳邊，探出半顆頭）', lines: ['（呲牙笑了一下）', '（拿著一根小木棒）'],
     reviveGroup: 'imps', reviveHp: 8,
     moves: [
@@ -1138,7 +1138,7 @@ export const encounters: EncounterDef[] = [
   { id: 'shadow_spider', pool: '大魔物', enemies: ['shadow_spider'], acts: [2] },
   { id: 'drunk_dog', pool: '大魔物', enemies: ['drunk_dog'], acts: [2] },
   // 鬼將帶兩隻小鬼上場（跟波斯大小姐帶執事貓、女僕貓同一套）：三隻同一組，要一起清光才算贏
-  { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 5, acts: [3] },
+  { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 3, acts: [3] },   // 三隻共享魔氣，5 會讓小鬼一下 11 點；機器人 21 場輸 11 → 降 3（2026-09-03）
   { id: 'mirror_sage', pool: '大魔物', enemies: ['mirror_sage'], strength: 5, acts: [3] },
   { id: 'void_cat', pool: '大魔物', enemies: ['void_cat'], strength: 5, acts: [3] },
 ];
