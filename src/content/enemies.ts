@@ -1004,9 +1004,9 @@ export const encounters: EncounterDef[] = [
   // 精英分關：塔中照本體數值；塔頂同一隻掛「魔氣」——血 ×1.3、出場帶 3 點爪力（掛成爪力牌子，滑上去看得到）。
   // 2026-09-02 機器人 200 局：精英在 29～31F 平均只掉 2～4 血、影球球 0.8 血，比一般戰還軟。
   { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'], acts: [2] },
-  { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'], acts: [2] },
+  // 巨型飯糰＝第一關的福利菁英（使用者 2026-09-03：只放第一關才會隨機出現，當作福利）：血打七折、打倒回 10 血
+  { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'], hpScale: 0.7, acts: [1] },
   { id: 'ninja_boss_top', pool: '大魔物', enemies: ['ninja_boss'], hpScale: 1.5, strength: 5, acts: [3] },
-  { id: 'giant_onigiri_top', pool: '大魔物', enemies: ['giant_onigiri'], hpScale: 1.5, strength: 5, acts: [3] },
   { id: 'tower_master', pool: '塔主', enemies: ['tower_master'] },
   // ===== 三關制內容包（2026-09-01）：塔中/塔頂專屬池；雙怪照慣例 0.8 血 =====
   { id: 'shiba_ronin', pool: '中', enemies: ['shiba_ronin'], acts: [2] },
@@ -1130,7 +1130,7 @@ export const encounters: EncounterDef[] = [
 
   // ===== 2026-09-03 菁英擴充（設計稿 §2）：每關 3 隻 =====
   // 血量就是魔物本身的值，不另外掛 hpScale；第三關照塔頂慣例帶魔氣 5（跟既有的 _top 加強版同一個口徑）。
-  // 既有的 ninja_boss_top、giant_onigiri_top、roomba_king_top、calico_monk_top 通通保留，這裡只加不換。
+  // 既有的 ninja_boss_top、roomba_king_top、calico_monk_top 保留（giant_onigiri 已改成第一關福利菁英），這裡只加不換。
   { id: 'wild_boar', pool: '大魔物', enemies: ['wild_boar'], acts: [1] },
   { id: 'paper_tiger', pool: '大魔物', enemies: ['paper_tiger'], acts: [1] },
   { id: 'drum_tanuki', pool: '大魔物', enemies: ['drum_tanuki'], acts: [1] },

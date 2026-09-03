@@ -176,9 +176,9 @@ describe('第一關的難度守則', () => {
     }
   });
 
-  it('第一關的大魔物只抽得到第一關自己的三隻菁英', () => {
+  it('第一關的大魔物只抽得到第一關自己的三隻菁英加福利的巨型飯糰', () => {
     const act1Elites = new Set(encountersOfPool('大魔物', 1).map((e) => e.id));
-    expect(act1Elites).toEqual(new Set(['wild_boar', 'paper_tiger', 'drum_tanuki']));
+    expect(act1Elites).toEqual(new Set(['wild_boar', 'paper_tiger', 'drum_tanuki', 'giant_onigiri']));
     for (let i = 0; i < 60; i++) {
       const m = generateMap(new Rng(seedFromString(`a1-pool-${i}`)), { act: 1 });
       for (const n of m.nodes) if (n.type === '大魔物') expect(act1Elites.has(n.encounterId!), n.encounterId).toBe(true);
