@@ -183,11 +183,13 @@
   },
   "codex/monster_ninja_boss": {
    "idle": "assets/monsters/ninja_boss_idle.webp",
-   "attack": "assets/monsters/ninja_boss_attack.webp"
+   "attack": "assets/monsters/ninja_boss_attack.webp",
+   "hurt": "assets/monsters/ninja_boss_hurt.webp"
   },
   "codex/monster_giant_onigiri": {
    "idle": "assets/monsters/giant_onigiri_idle.webp",
-   "attack": "assets/monsters/giant_onigiri_attack.webp"
+   "attack": "assets/monsters/giant_onigiri_attack.webp",
+   "hurt": "assets/monsters/giant_onigiri_hurt.webp"
   },
   "codex/monster_black_kitten": {
    "idle": "assets/monsters/black_kitten_idle.webp",
@@ -195,11 +197,13 @@
   },
   "codex/monster_iron_claw": {
    "attack": "assets/monsters/iron_claw_attack.webp",
-   "idle": "assets/monsters/iron_claw_idle.webp"
+   "idle": "assets/monsters/iron_claw_idle.webp",
+   "hurt": "assets/monsters/iron_claw_hurt.webp"
   },
   "codex/monster_nekomata": {
    "attack": "assets/monsters/nekomata_attack.webp",
-   "idle": "assets/monsters/nekomata_idle.webp"
+   "idle": "assets/monsters/nekomata_idle.webp",
+   "hurt": "assets/monsters/nekomata_hurt.webp"
   },
   "codex/monster_nekomata_tail": {
    "attack": "assets/monsters/nekomata_tail_attack.webp",
@@ -215,7 +219,8 @@
   },
   "codex/monster_calico_monk": {
    "attack": "assets/monsters/calico_monk_attack.webp",
-   "idle": "assets/monsters/calico_monk_idle.webp"
+   "idle": "assets/monsters/calico_monk_idle.webp",
+   "hurt": "assets/monsters/calico_monk_hurt.webp"
   },
   "codex/monster_can_spirit": {
    "attack": "assets/monsters/can_spirit_attack.webp",
@@ -251,7 +256,8 @@
   },
   "codex/monster_roomba_king": {
    "attack": "assets/monsters/roomba_king_attack.webp",
-   "idle": "assets/monsters/roomba_king_idle.webp"
+   "idle": "assets/monsters/roomba_king_idle.webp",
+   "hurt": "assets/monsters/roomba_king_hurt.webp"
   },
   "codex/monster_shadow_kitten": {
    "attack": "assets/monsters/shadow_kitten_attack.webp",
@@ -279,7 +285,8 @@
   },
   "codex/monster_cowcat_boss": {
    "attack": "assets/monsters/cowcat_boss_attack.webp",
-   "idle": "assets/monsters/cowcat_boss_idle.webp"
+   "idle": "assets/monsters/cowcat_boss_idle.webp",
+   "hurt": "assets/monsters/cowcat_boss_hurt.webp"
   },
   "codex/monster_geta_monster": {
    "attack": "assets/monsters/geta_monster_attack.webp",
@@ -311,7 +318,8 @@
   },
   "codex/monster_orange_king": {
    "attack": "assets/monsters/orange_king_attack.webp",
-   "idle": "assets/monsters/orange_king_idle.webp"
+   "idle": "assets/monsters/orange_king_idle.webp",
+   "hurt": "assets/monsters/orange_king_hurt.webp"
   },
   "codex/monster_owl_sentry": {
    "attack": "assets/monsters/owl_sentry_attack.webp",
@@ -323,7 +331,8 @@
   },
   "codex/monster_persian_lady": {
    "attack": "assets/monsters/persian_lady_attack.webp",
-   "idle": "assets/monsters/persian_lady_idle.webp"
+   "idle": "assets/monsters/persian_lady_idle.webp",
+   "hurt": "assets/monsters/persian_lady_hurt.webp"
   },
   "codex/monster_shamisen_cat": {
    "attack": "assets/monsters/shamisen_cat_attack.webp",
@@ -339,7 +348,8 @@
   },
   "codex/monster_tanuki_lord": {
    "attack": "assets/monsters/tanuki_lord_attack.webp",
-   "idle": "assets/monsters/tanuki_lord_idle.webp"
+   "idle": "assets/monsters/tanuki_lord_idle.webp",
+   "hurt": "assets/monsters/tanuki_lord_hurt.webp"
   },
   "codex/monster_windchime_sprite": {
    "attack": "assets/monsters/windchime_sprite_attack.webp",
@@ -347,7 +357,8 @@
   },
   "codex/monster_shadow_cat": {
    "attack": "assets/monsters/shadow_cat_attack.webp",
-   "idle": "assets/monsters/shadow_cat_idle.webp"
+   "idle": "assets/monsters/shadow_cat_idle.webp",
+   "hurt": "assets/monsters/shadow_cat_hurt.webp"
   },
   "codex/monster_white_duelist": {
    "attack": "assets/monsters/white_duelist_attack.webp",
@@ -427,19 +438,23 @@
   },
   "codex/monster_armadillo_king": {
    "attack": "assets/monsters/armadillo_king_attack.webp",
-   "idle": "assets/monsters/armadillo_king_idle.webp"
+   "idle": "assets/monsters/armadillo_king_idle.webp",
+   "hurt": "assets/monsters/armadillo_king_hurt.webp"
   },
   "codex/monster_dragon_cat": {
    "attack": "assets/monsters/dragon_cat_attack.webp",
-   "idle": "assets/monsters/dragon_cat_idle.webp"
+   "idle": "assets/monsters/dragon_cat_idle.webp",
+   "hurt": "assets/monsters/dragon_cat_hurt.webp"
   },
   "codex/monster_frog_daimyo": {
    "attack": "assets/monsters/frog_daimyo_attack.webp",
-   "idle": "assets/monsters/frog_daimyo_idle.webp"
+   "idle": "assets/monsters/frog_daimyo_idle.webp",
+   "hurt": "assets/monsters/frog_daimyo_hurt.webp"
   },
   "codex/monster_hex_abbot": {
    "attack": "assets/monsters/hex_abbot_attack.webp",
-   "idle": "assets/monsters/hex_abbot_idle.webp"
+   "idle": "assets/monsters/hex_abbot_idle.webp",
+   "hurt": "assets/monsters/hex_abbot_hurt.webp"
   },
   "codex/monster_jizo_golem": {
    "attack": "assets/monsters/jizo_golem_attack.webp",
@@ -451,11 +466,13 @@
   },
   "codex/monster_drum_tanuki": {
    "attack": "assets/monsters/drum_tanuki_attack.webp",
-   "idle": "assets/monsters/drum_tanuki_idle.webp"
+   "idle": "assets/monsters/drum_tanuki_idle.webp",
+   "hurt": "assets/monsters/drum_tanuki_hurt.webp"
   },
   "codex/monster_drunk_dog": {
    "attack": "assets/monsters/drunk_dog_attack.webp",
-   "idle": "assets/monsters/drunk_dog_idle.webp"
+   "idle": "assets/monsters/drunk_dog_idle.webp",
+   "hurt": "assets/monsters/drunk_dog_hurt.webp"
   },
   "codex/monster_imp": {
    "attack": "assets/monsters/imp_attack.webp",
@@ -463,11 +480,13 @@
   },
   "codex/monster_iron_arhat": {
    "attack": "assets/monsters/iron_arhat_attack.webp",
-   "idle": "assets/monsters/iron_arhat_idle.webp"
+   "idle": "assets/monsters/iron_arhat_idle.webp",
+   "hurt": "assets/monsters/iron_arhat_hurt.webp"
   },
   "codex/monster_mirror_sage": {
    "attack": "assets/monsters/mirror_sage_attack.webp",
-   "idle": "assets/monsters/mirror_sage_idle.webp"
+   "idle": "assets/monsters/mirror_sage_idle.webp",
+   "hurt": "assets/monsters/mirror_sage_hurt.webp"
   },
   "codex/monster_mirror_shard": {
    "attack": "assets/monsters/mirror_shard_attack.webp",
@@ -475,23 +494,28 @@
   },
   "codex/monster_oni_general": {
    "attack": "assets/monsters/oni_general_attack.webp",
-   "idle": "assets/monsters/oni_general_idle.webp"
+   "idle": "assets/monsters/oni_general_idle.webp",
+   "hurt": "assets/monsters/oni_general_hurt.webp"
   },
   "codex/monster_paper_tiger": {
    "attack": "assets/monsters/paper_tiger_attack.webp",
-   "idle": "assets/monsters/paper_tiger_idle.webp"
+   "idle": "assets/monsters/paper_tiger_idle.webp",
+   "hurt": "assets/monsters/paper_tiger_hurt.webp"
   },
   "codex/monster_shadow_spider": {
    "attack": "assets/monsters/shadow_spider_attack.webp",
-   "idle": "assets/monsters/shadow_spider_idle.webp"
+   "idle": "assets/monsters/shadow_spider_idle.webp",
+   "hurt": "assets/monsters/shadow_spider_hurt.webp"
   },
   "codex/monster_void_cat": {
    "attack": "assets/monsters/void_cat_attack.webp",
-   "idle": "assets/monsters/void_cat_idle.webp"
+   "idle": "assets/monsters/void_cat_idle.webp",
+   "hurt": "assets/monsters/void_cat_hurt.webp"
   },
   "codex/monster_wild_boar": {
    "attack": "assets/monsters/wild_boar_attack.webp",
-   "idle": "assets/monsters/wild_boar_idle.webp"
+   "idle": "assets/monsters/wild_boar_idle.webp",
+   "hurt": "assets/monsters/wild_boar_hurt.webp"
   }
  },
  "icons": {
