@@ -4,6 +4,7 @@ import { relicById } from '../content/relics';
 import { draw } from './deck';
 import { applyEffects } from './effects';
 import { addStatus, computeAttack, computeBlock, getStatus, removeStatus } from './statuses';
+import { DEBUFFS } from './types';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, Unit } from './types';
 
 /** 沉睡中的魔物頭上顯示的意圖。每次都是同一份物件，畫面比對「這一拍出的是哪一招」才穩 */
@@ -233,6 +234,10 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       e.maxHp = next.hpBar;
       e.block = 0;
       e.invulnIn = 1;
+      // 換血條時把身上的減益全部化掉，增益（爪力等）留著——尾王要越打越難（使用者 2026-09-03）
+      const purged = DEBUFFS.filter((name) => getStatus(e, name) > 0);
+      for (const name of purged) removeStatus(e, name);
+      if (purged.length) log(cs, `${e.name}調息之際把身上的${purged.join('、')}全化掉了`);
       e.moveIndex = -1;   // 起身後 advanceMove 會 +1，從新階段的第一招開始
       e.move = { intent: 'special', label: '蹲下調息', effects: [{ kind: 'nothing' }] };
       if (next.line) log(cs, `${e.name}：${next.line}`);

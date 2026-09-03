@@ -71,4 +71,18 @@ describe('稽核 2026-09-03', () => {
     expect(e.hp).toBe(ehp);
     expect(e.block).toBe(2);
   });
+
+  it('師父換血條：身上的減益全部化掉，增益留著（使用者 2026-09-03）', () => {
+    const cs = start('tower_master');
+    const e = cs.enemies[0]!;
+    addStatus(e, '翻肚', 2); addStatus(e, '噎到', 3); addStatus(e, '定身', 1); addStatus(e, '爪力', 4);
+    e.hp = 1; e.invulnIn = 0;
+    damageEnemy(cs, e, 10, { direct: true });
+    expect(e.phase).toBe(1);
+    expect(getStatus(e, '翻肚')).toBe(0);
+    expect(getStatus(e, '噎到')).toBe(0);
+    expect(getStatus(e, '定身')).toBe(0);
+    expect(getStatus(e, '爪力'), '增益要留著').toBe(4);
+    expect(cs.log.some((l) => l.includes('全化掉了'))).toBe(true);
+  });
 });
