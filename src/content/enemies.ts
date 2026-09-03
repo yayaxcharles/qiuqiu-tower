@@ -831,14 +831,14 @@ export const enemies: EnemyDef[] = [
     ] },
   // 犰狳王：縮殼 15 ＋鱗甲 4。開場那一擊會被吃掉一大半，之後每回合還會自己補甲
   { id: 'armadillo_king', name: '犰狳王', hp: [130, 130], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_armadillo_king',
-    thorns: 4, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
+    thorns: 5, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
     line: '（整隻縮成一顆巨大的球）', lines: ['（殼上一道一道全是舊傷）', '（球身緩緩轉了半圈）'],
     curlUp: 15, plating: 4,
     moves: [
-      { intent: 'attack', label: '滾壓', effects: [{ kind: 'damage', amount: 14 }] },
+      { intent: 'attack', label: '滾壓', effects: [{ kind: 'damage', amount: 16 }] },
       { intent: 'block', label: '龜縮', effects: [{ kind: 'block', amount: 15 }] },
-      { intent: 'attack', label: '甩尾', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
-      { intent: 'attack', label: '全速滾壓', effects: [{ kind: 'damage', amount: 16 }] },
+      { intent: 'attack', label: '甩尾', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
+      { intent: 'attack', label: '全速滾壓', effects: [{ kind: 'damage', amount: 19 }] },
     ] },
   // 沉睡的龍貓：開場睡兩回合白給你打，但打痛就醒、醒來 +4 爪力。要不要偷這兩回合是這場的抉擇
   // 沉睡的龍貓（2026-09-03 重做：使用者「完全沒機制，作為第二關的王比菁英還不如」）
@@ -846,25 +846,25 @@ export const enemies: EnemyDef[] = [
   // 半血「龍魂覺醒」：拍掉你一半爪力貓步、自己 +3 爪力、鱗甲加到 10；之後龍炎穿透、吞天邊打邊回血、咆哮塞眼冒金星
   { id: 'dragon_cat', name: '沉睡的龍貓', hp: [240, 240], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_dragon_cat',
     line: '（盤成一圈，鼻孔冒出一小縷煙）', lines: ['（鱗片隨著呼吸起伏）', '（睡夢中低吼了一聲）'],
-    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 9, thorns: 4,
+    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 10, thorns: 4,
     moves: [
-      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 19 }] },
+      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 21 }] },
       { intent: 'attack', label: '尾掃', effects: [{ kind: 'damage', amount: 11, times: 2 }] },
       { intent: 'block', label: '盤踞', effects: [{ kind: 'block', amount: 18 }, { kind: 'heal', n: 8 }] },
-      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 19 }] },
+      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 21 }] },
     ],
     phases: [{
       hpBelow: 120, pattern: 'cycle', line: '……吵醒我的，要付代價。',
       onEnter: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '鱗甲', amount: 4 }],
       moves: [
-        { intent: 'attack', label: '龍炎', effects: [{ kind: 'damage', amount: 27, pierce: true }] },
+        { intent: 'attack', label: '龍炎', effects: [{ kind: 'damage', amount: 30, pierce: true }] },
         { intent: 'attack', label: '吞天', effects: [{ kind: 'damage', amount: 15, times: 2 }, { kind: 'heal', n: 8 }] },
         { intent: 'debuff', label: '咆哮', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 2, to: 'draw' }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
         { intent: 'block', label: '盤踞', effects: [{ kind: 'block', amount: 22 }, { kind: 'heal', n: 8 }] },
       ],
     }] },
   // 詛咒老住持：整場都在往你的抽牌堆洗眼冒金星，二階段再給自己披一層鱗甲
-  { id: 'hex_abbot', name: '詛咒老住持', hp: [220, 220], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_hex_abbot',
+  { id: 'hex_abbot', name: '詛咒老住持', hp: [220, 220], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_hex_abbot', strengthEveryNTurns: 2,
     line: '（木魚一聲一聲，敲得很慢）', lines: ['施主，回頭是岸。', '（念珠一顆顆撥過去）'],
     hexOnSkill: { cardId: 'dazed_card', n: 1 }, thorns: 5, angerOnSkill: 2,   // 念珠反彈；你越躲他越氣（2026-09-03 關主加硬）
     moves: [
