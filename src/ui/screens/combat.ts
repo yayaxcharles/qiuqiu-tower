@@ -11,7 +11,7 @@ import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingCh
 import { registerScreen } from '../app';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { tierBgKey, tierBgZoom } from '../screenbg';
-import { artUrl, monsterUrl, hasSprite } from '../assets';
+import { artUrl, hasMonsterPose, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT } from '../cardtext';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
@@ -78,6 +78,8 @@ const POSE = {
   hungry: 'hero/ninja_hungry', win: 'hero/ninja_win', lose: 'hero/ninja_lose', curl: 'hero/ninja_curl',
   // 待機的兩個變化（2026-09-02，使用者：「腳色外觀是不是可以做點變化」）：血見底的掛彩、爪力堆高的氣勢
   power: 'hero/ninja_power', hurt: 'hero/ninja_hurt',
+  // 2026-09-03 晚補的動態：施展忍術（打技能／能力牌時用；圖還沒生好就退回出招圖）
+  skill: 'hero/ninja_skill',
 };
 // 塔主的姿勢對照表放在內容層（`enemies.ts`），跟招式定義擺在一起，加招時比較不會漏配。
 const BOSS_MOVE_POSE = BOSS_MOVE_ART;
@@ -123,7 +125,7 @@ interface Snap {
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number; block: number; stealth: number }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean }>;
   logLen: number;
 }
 function snap(cs: CombatState): Snap {
@@ -134,7 +136,7 @@ function snap(cs: CombatState): Snap {
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'),
-      debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'),
+      debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
       label: e.move.label, turnCount: e.turnCount,
@@ -176,6 +178,8 @@ registerScreen('combat', (app, root, props) => {
    * 650 毫秒後跟著還原成待機。魔物只在 `endTurn` 裡行動，所以出牌那幾次結算這張表一定是空的。
    */
   let acting = new Map<number, Acted>();
+  /** 這一拍被打到的魔物：有挨打圖的換挨打圖（2026-09-03 晚補的動態） */
+  let hurtSet = new Set<number>();
   let hint = '';
   /**
    * 三步教學（-1＝不顯示）。只在第一關 1F、這台瀏覽器沒看完過教學時出現：
@@ -226,6 +230,7 @@ registerScreen('combat', (app, root, props) => {
         for (const key of [...Object.values(BOSS_ART), ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) warm(artUrl('sprites', key));
       } else {
         warm(monsterUrl(def.art, 'idle')); warm(monsterUrl(def.art, 'attack'));
+        if (hasMonsterPose(def.art, 'hurt')) warm(monsterUrl(def.art, 'hurt'));
       }
     }
   };
@@ -469,7 +474,9 @@ registerScreen('combat', (app, root, props) => {
       return artUrl('sprites', (act ? bossMovePose(e.phase, act.label) : undefined) ?? bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');
-    return monsterUrl(def.art, act?.attacked ? 'attack' : 'idle');
+    if (act?.attacked) return monsterUrl(def.art, 'attack');
+    if (hurtSet.has(e.uid) && !e.dead && hasMonsterPose(def.art, 'hurt')) return monsterUrl(def.art, 'hurt');
+    return monsterUrl(def.art, 'idle');
   }
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
@@ -924,7 +931,7 @@ registerScreen('combat', (app, root, props) => {
     act(() => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       if (!playCard(cs, uid, targetUid)) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
-    }, { pose: POSE.attack, attack: st.def.type === '攻擊' });
+    }, { pose: st.def.type !== '攻擊' && hasSprite(POSE.skill) ? POSE.skill : POSE.attack, attack: st.def.type === '攻擊' });
     if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
@@ -1088,8 +1095,10 @@ registerScreen('combat', (app, root, props) => {
     // 魔物的姿勢也要在畫之前決定。「這一拍有沒有出手」看回合數有沒有往前走：
     // 挨打與閃避（`hurt || dodged`）認不出「攻擊被蜷縮整個擋掉」與「裝死術免疫」那兩種也確實出手的情形。
     acting = new Map();
+    hurtSet = new Set();
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
+      if (b && e.hp < b.hp) hurtSet.add(e.uid);
       if (!b || e.dead || e.turnCount === b.turnCount || b.stunned) continue;
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' });
     }
@@ -1148,11 +1157,27 @@ registerScreen('combat', (app, root, props) => {
         const sp = node.querySelector<HTMLElement>('.sprite');
         if (sp) sp.style.animationDelay = enemyTurnRunning ? '0ms' : `${cs.enemies.indexOf(e) * 110}ms`;
       }
+      else if (acting.has(e.uid)) node.classList.add('cast');   // 非攻擊招：原地蓄勢一下（樣式在 combat.css），不然看起來像沒動
+      // 出招的結果各疊一團光（使用者 2026-09-03：「怪物放特效或格擋完全看不出動作」）：
+      // 格擋、增益、蓄力在牠身上；減益、詛咒塞牌、看破在球球身上；召喚的煙在新冒出來的那隻身上
+      if (acting.has(e.uid) && !e.dead) {
+        if (e.block > b.block) burst(node, 'block');
+        if (sumStatus(e, GOOD_STATUS) > b.buff) burst(node, 'buff');
+        if (e.charged && !b.charged) burst(node, 'charge');
+      }
       if (e.phase > b.phase) { bossPhaseTalk(e.enemyId, e.phase); phaseBurst(node); }
     }
     // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>('.unit.player');
+    // 魔物對球球做的事也要在球球身上看得到：被塞牌／被減益／被看破
+    if (cat && acting.size > 0) {
+      if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
+      if (fresh.some((l) => l.includes('塞進你的'))) burst(cat, 'curse');
+      if (fresh.some((l) => l.includes('看穿了球球的身法') || l.includes('拍散') || l.includes('震散'))) burst(cat, 'strip');
+    }
+    // 剛被召喚出來的：煙
+    for (const e of cs.enemies) if (!before.enemies.has(e.uid) && !e.dead) { const n = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`); if (n) burst(n, 'smoke'); }
     if (cat) {
       if (p.hp > before.hp) { burst(cat, 'heal'); sfx('heal'); }
       if (p.block > before.block) { burst(cat, 'block'); sfx('block'); }
@@ -1220,11 +1245,12 @@ registerScreen('combat', (app, root, props) => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
       pose = idlePose();
       acting = new Map();   // 魔物也一起收回待機，出手的立繪只亮這一拍
+      hurtSet = new Set();
       // 動畫類別也要一起收。這裡刻意不重畫，`attack`／`hit`／`dodge` 就會留在節點上，
       // 立繪的 animation 停在前撲／抖動跑完的那一格，待機的呼吸動畫回不來——
       // 使用者 2026-09-03：「球球跟師父換動作後不會上下飄動了，定在原地不動」。
-      for (const u of root.querySelectorAll<HTMLElement>('.unit.attack, .unit.hit, .unit.dodge')) {
-        u.classList.remove('attack', 'hit', 'dodge');
+      for (const u of root.querySelectorAll<HTMLElement>('.unit.attack, .unit.hit, .unit.dodge, .unit.cast')) {
+        u.classList.remove('attack', 'hit', 'dodge', 'cast');
         const sp = u.querySelector<HTMLElement>('.sprite');
         if (sp) sp.style.animationDelay = '';
       }

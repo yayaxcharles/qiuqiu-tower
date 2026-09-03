@@ -522,6 +522,14 @@
    拉長之後那一縮才讀得到（姿勢會停 650 毫秒，塞得下）。 */
 .combat .unit.attack .sprite { animation: lunge .52s ease-out; }
 .combat .unit.enemy.attack .sprite { animation: lunge-left .52s ease-out; }
+/* 非攻擊招（格擋、增益、蓄力、召喚、詛咒）：原地蹲一下再彈起＋短暫發亮，讓人看得出牠做了事（2026-09-03 晚） */
+.combat .unit.enemy.cast .sprite { animation: cast-pop .52s ease-out; }
+@keyframes cast-pop {
+  0% { transform: scaleY(1) scaleX(1); filter: none; }
+  30% { transform: scaleY(.88) scaleX(1.08); filter: brightness(1.15); }
+  60% { transform: scaleY(1.08) scaleX(.96) translateY(-10px); filter: brightness(1.45) drop-shadow(0 0 12px #ffe9a8); }
+  100% { transform: scaleY(1) scaleX(1); filter: none; }
+}
 .combat .unit.hit .sprite {
   animation: shake .4s;
   filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);

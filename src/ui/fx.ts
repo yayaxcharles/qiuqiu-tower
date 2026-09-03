@@ -31,7 +31,12 @@ const FX = {
   debuff: { w: 100, spin: 0, b: 0.5 },
   poison: { w: 130, spin: 0, b: 0.38 },
   smoke: { w: 180, spin: 0, b: 0.18, peak: 0.85 },
+  // 2026-09-03 晚：魔物出招的回饋（蓄力、詛咒塞牌、看破）。圖檔在 vfx3.json 生，還沒生好就退回相近的那張（見 fxKey）
+  charge: { w: 170, spin: 0, b: 0.42, peak: 0.85 },
+  curse: { w: 150, spin: 0, b: 0.5 },
+  strip: { w: 170, spin: 0, b: 0.45 },
 } as const;
+const FALLBACK: Partial<Record<keyof typeof FX, keyof typeof FX>> = { charge: 'buff', curse: 'debuff', strip: 'hit' };
 // 這組高度是**看著畫面調的**，不是算出來的：立繪框每個體型一樣高，
 // 但裡面那隻長得多高完全不一定——黃瓜怪是扁的，只佔框底部一小塊，
 // 一開始抓 0.42 的斬擊整個飛到牠上方的空氣裡。寧可偏低：
@@ -67,7 +72,9 @@ function hostScale(host: Element): number {
 export function burst(unit: Element | null | undefined, kind: FxKind, delay = 0): void {
   const host = unit?.querySelector('.sprite-box');
   if (!unit || !host) return;
-  const url = artUrl('icons', `icon/vfx_${kind}`);
+  let url = artUrl('icons', `icon/vfx_${kind}`);
+  const fb = FALLBACK[kind];
+  if (url.startsWith('data:') && fb) url = artUrl('icons', `icon/vfx_${fb}`);
   if (url.startsWith('data:')) return;   // 剪影＝這張還沒生，安靜跳過
 
   const cfg = FX[kind];

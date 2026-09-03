@@ -312,8 +312,8 @@ def main() -> None:
             print(f"  略過（暫存檔）：{f.name}")
             continue
         mid, pose = stem.rsplit("_", 1)
-        if pose not in ("idle", "attack"):
-            print(f"  略過（姿勢只收 idle／attack）：{f.name}")
+        if pose not in ("idle", "attack", "hurt", "block"):
+            print(f"  略過（姿勢只收 idle／attack／hurt／block）：{f.name}")
             continue
         by_id.setdefault(mid, {})[pose] = key_out(Image.open(f))
     for mid, poses in sorted(by_id.items()):

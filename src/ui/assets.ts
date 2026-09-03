@@ -1,7 +1,7 @@
 export interface Manifest {
   cards: Record<string, string>;
   sprites: Record<string, string>;
-  monsters: Record<string, { idle?: string; attack?: string }>;
+  monsters: Record<string, { idle?: string; attack?: string; hurt?: string; block?: string }>;
   icons: Record<string, string>;
   bg: Record<string, string>;
   review: string[];
@@ -33,7 +33,9 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
 /** 這張立繪生好了沒（階段專屬圖、球球狀態圖還沒落地時要退回一般圖，不能畫成灰剪影） */
 export function hasSprite(key: string): boolean { return manifest.sprites[key] !== undefined; }
 
-export function monsterUrl(artKey: string, pose: 'idle' | 'attack'): string {
+export type MonsterPose = 'idle' | 'attack' | 'hurt' | 'block';
+export function hasMonsterPose(artKey: string, pose: MonsterPose): boolean { return manifest.monsters[artKey]?.[pose] !== undefined; }
+export function monsterUrl(artKey: string, pose: MonsterPose): string {
   const m = manifest.monsters[artKey];
   const rel = m?.[pose] ?? m?.idle;
   return rel ? `${BASE}${rel}` : SILHOUETTE;
