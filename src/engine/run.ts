@@ -247,7 +247,9 @@ export function makeShop(run: RunState): ShopStock {
   // 第一關 常見 60／罕見 30／稀有 10；第二關 35／40／25 且至少一張稀有；第三關 20／40／40 且至少兩張稀有
   const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
     : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
-  const cardDefs = [...rollCardChoices(rng, '忍術', 3, [], false, 0, odds), ...rollCardChoices(rng, '絕學', 2, [], false, 0, odds)];
+  // 絕學只低機率出現一張（使用者 2026-09-03）：第一關 20%、第二關 30%、第三關 40%；其餘都是忍術
+  const jueN = rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
+  const cardDefs = [...rollCardChoices(rng, '忍術', 5 - jueN, [], false, 0, odds), ...rollCardChoices(rng, '絕學', jueN, [], false, 0, odds)];
   const wantRare = run.act >= 3 ? 2 : run.act === 2 ? 1 : 0;
   for (let i = cardDefs.length - 1; i >= 0 && cardDefs.filter((c) => c.rarity === '稀有').length < wantRare; i--) {
     const cur = cardDefs[i]!;

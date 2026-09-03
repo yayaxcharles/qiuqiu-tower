@@ -162,12 +162,12 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     const id = openChest(run)!;
     expect(relicById[id]?.pool).toBe('常見'); expect(run.relics).toContain(id);
   });
-  it('罐頭鋪：5 張牌（3 忍術 2 絕學）、2 秘寶、3 忍具；買牌扣錢；放生漲價', () => {
+  it('罐頭鋪：5 張牌（忍術為主、絕學最多一張）、2 秘寶、3 忍具；買牌扣錢；放生漲價', () => {
     const run = fresh('shop'); run.fish = 500;
     const shop = makeShop(run);
     expect(shop.cards.length).toBe(5);
-    expect(shop.cards.filter((c) => c.def.pool === '忍術').length).toBe(3);
-    expect(shop.cards.filter((c) => c.def.pool === '絕學').length).toBe(2);
+    expect(shop.cards.filter((c) => c.def.pool === '忍術').length).toBeGreaterThanOrEqual(4);
+    expect(shop.cards.filter((c) => c.def.pool === '絕學').length).toBeLessThanOrEqual(1);
     expect(shop.relics.length).toBe(2); expect(shop.potions.length).toBe(3);
     const price = shop.cards[0]!.price;
     expect(buyCard(run, shop, 0)).toBe(true); expect(run.fish).toBe(500 - price); expect(shop.cards[0]!.sold).toBe(true);

@@ -196,19 +196,25 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // 放在魔物行動之前：爬起來的當回合就會出手，玩家才感覺得到「沒清乾淨的代價」。
   // 逃走的（`escaped`）不算倒下，不會被扶起來。
   // 擊殺數要扣回去——同一隻爬起來再打倒不該重複計數。
+  const revivedNow = new Set<number>();
   for (const e of cs.enemies) {
     const rdef = enemyById[e.enemyId];
     if (!e.dead || e.escaped || !rdef?.reviveGroup || rdef.neverRevive) continue;
     const hasFriend = cs.enemies.some((o) => o !== e && !o.dead
       && enemyById[o.enemyId]?.reviveGroup === rdef.reviveGroup);
-    if (!hasFriend) continue;
-    // 「重生中」倒數：還沒數完就先躺著（影子小貓要躺兩回合，玩家才有湊一波清光的時間窗）
+    // 同組沒人站著＝真的倒了：倒數歸零，之後不再占召喚上限的名額（2026-09-03 稽核）
+    if (!hasFriend) { e.reviveIn = 0; continue; }
+    // 「重生中」倒數：還沒數完就先躺著（預設躺兩回合，玩家才有湊一波清光的時間窗）
     if (e.reviveIn > 1) { e.reviveIn -= 1; continue; }
     e.reviveIn = 0;
     e.dead = false;
     e.hp = rdef.reviveHp ?? Math.max(1, Math.round((rdef.hp[0] + rdef.hp[1]) / 4));
     e.block = 0;
     cs.kills = Math.max(0, cs.kills - 1);
+    // 爬起來的這一拍不出手：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）；
+    // 下一個回合開始由 advanceMove 排新招，玩家看得到意圖再挨
+    e.move = { intent: 'idle', label: '剛爬起來', effects: [{ kind: 'nothing' }] };
+    revivedNow.add(e.uid);
     log(cs, `${e.name}又爬起來了`);
   }
 
@@ -218,7 +224,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // （鼠大將、蛙大名，2026-09-02 第二波）本來會被排在後面的同伴自己洗掉。
   for (const e of cs.enemies) if (!e.dead) e.block = 0;
   // 這回合要行動的名單在這裡定案：中途被召喚出來的不算（跟以前一次跑完的行為一樣）
-  cs.enemyQueue = cs.enemies.filter((e) => !e.dead).map((e) => e.uid);
+  cs.enemyQueue = cs.enemies.filter((e) => !e.dead && !revivedNow.has(e.uid)).map((e) => e.uid);
   return true;
 }
 

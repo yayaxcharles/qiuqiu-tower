@@ -671,14 +671,14 @@ export const enemies: EnemyDef[] = [
       ],
     }] },
   { id: 'butler_cat', name: '執事貓', hp: [34, 34], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_butler_cat',
-    reviveGroup: 'court', reviveHp: 24,   // 主子還在，僕從就會爬起來：要同一回合把兩個一起清掉（2026-09-03 關主加硬）
+    reviveGroup: 'court', reviveHp: 24,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
     line: '（扶了扶單眼鏡）', lines: ['大小姐面前，請保持距離。', '（推了推單片眼鏡）'], moves: [
       { intent: 'attack', label: '拋托盤', effects: [{ kind: 'damage', amount: 14 }] },
       { intent: 'block', label: '布陣', effects: [{ kind: 'block', amount: 10 }] },
       { intent: 'special', label: '奉茶', effects: [{ kind: 'heal', n: 8 }] },
     ] },
   { id: 'maid_cat', name: '女僕貓', hp: [30, 30], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_maid_cat',
-    reviveGroup: 'court', reviveHp: 24,   // 主子還在，僕從就會爬起來：要同一回合把兩個一起清掉（2026-09-03 關主加硬）
+    reviveGroup: 'court', reviveHp: 24,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
     line: '（緊緊抱著雞毛撢）', lines: ['我、我會保護大小姐的！', '（把雞毛撢子抱得更緊）'], moves: [
       { intent: 'attack', label: '雞毛撢亂揮', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'block', label: '撢塵護主', effects: [{ kind: 'block', amount: 9 }] },

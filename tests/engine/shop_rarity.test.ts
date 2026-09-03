@@ -3,17 +3,18 @@ import { describe, expect, it } from 'vitest';
 import { makeShop, newRun } from '../../src/engine/run';
 
 function tally(act: number, n = 300) {
-  let rare = 0, uncommon = 0, total = 0, minRare = 99;
+  let rare = 0, uncommon = 0, total = 0, minRare = 99, jueShops = 0;
   for (let i = 0; i < n; i++) {
     const run = newRun(`shop-rarity-${i}`); run.act = act;
     const shop = makeShop(run);
     expect(shop.cards.length).toBe(5);
     expect(new Set(shop.cards.map((c) => c.def.id)).size).toBe(5);
-    expect(shop.cards.filter((c) => c.def.pool === '忍術').length).toBe(3);
+    const jue = shop.cards.filter((c) => c.def.pool === '絕學').length;
+    expect(jue).toBeLessThanOrEqual(1); jueShops += jue;
     const r = shop.cards.filter((c) => c.def.rarity === '稀有').length;
     rare += r; uncommon += shop.cards.filter((c) => c.def.rarity === '罕見').length; total += 5; minRare = Math.min(minRare, r);
   }
-  return { rare: rare / total, uncommon: uncommon / total, minRare };
+  return { rare: rare / total, uncommon: uncommon / total, minRare, jue: jueShops / n };
 }
 
 describe('罐頭鋪稀有度隨關數上升', () => {
@@ -28,6 +29,11 @@ describe('罐頭鋪稀有度隨關數上升', () => {
     expect(a1.minRare).toBe(0);
     expect(a2.minRare).toBeGreaterThanOrEqual(1);
     expect(a3.minRare).toBeGreaterThanOrEqual(2);
+  });
+  it('絕學低機率出現一張：第一關約兩成、第二關約三成、第三關約四成的鋪子有', () => {
+    expect(a1.jue).toBeGreaterThan(0.1); expect(a1.jue).toBeLessThan(0.3);
+    expect(a2.jue).toBeGreaterThan(0.2); expect(a2.jue).toBeLessThan(0.4);
+    expect(a3.jue).toBeGreaterThan(0.3); expect(a3.jue).toBeLessThan(0.5);
   });
   it('罕見牌在二三關占四成上下（保底補的是稀有，不是罕見）', () => {
     expect(a2.uncommon).toBeGreaterThan(0.3); expect(a3.uncommon).toBeGreaterThan(0.25);

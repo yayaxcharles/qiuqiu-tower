@@ -344,11 +344,13 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       }
       case 'summon': {
         for (let i = 0; i < fx.n; i++) {
-          const same = cs.enemies.filter((o) => o.enemyId === fx.enemyId && !o.dead);
+          // 躺著等重生的也占名額（2026-09-03 稽核：蛙大名原本會一邊復活蝌蚪一邊再召兩隻，場上冒出四隻）
+          const onField = (o: EnemyCombat) => !o.dead || (o.reviveIn > 0 && !o.escaped);
+          const same = cs.enemies.filter((o) => o.enemyId === fx.enemyId && onField(o));
           // 場上塞不下（五個單位）或這種怪到上限：不硬召，改把一隻的血量接到現有的最弱那隻身上
           // （使用者 2026-09-02：「畫面塞不下，四隻後再召喚就是把尾巴血量加上去」）
-          if (aliveEnemies(cs).length >= 5 || (fx.max !== undefined && same.length >= fx.max)) {
-            const weakest = same.sort((a, b) => a.hp - b.hp)[0];
+          if (cs.enemies.filter(onField).length >= 5 || (fx.max !== undefined && same.length >= fx.max)) {
+            const weakest = same.filter((o) => !o.dead).sort((a, b) => a.hp - b.hp)[0];
             const sdef = enemyById[fx.enemyId];
             if (weakest && sdef) {
               const add = Math.round((sdef.hp[0] + sdef.hp[1]) / 2);
