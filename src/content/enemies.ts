@@ -665,20 +665,20 @@ export const enemies: EnemyDef[] = [
       hpBelow: 65, line: '你們這群沒用的東西！', pattern: 'cycle',
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],
       moves: [
-        { intent: 'attack', label: '貴族之怒', effects: [{ kind: 'damage', amount: 12, times: 2 }] },
+        { intent: 'attack', label: '貴族之怒', effects: [{ kind: 'damage', amount: 12, times: 3 }] },   // 12×2→12×3：僕從改躺兩回合後機器人勝率 65%，補回來（2026-09-03 晚）
         { intent: 'attack', label: '甩尾', effects: [{ kind: 'damage', amount: 22, pierce: true }] },
         { intent: 'debuff', label: '歇斯底里', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
       ],
     }] },
   { id: 'butler_cat', name: '執事貓', hp: [34, 34], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_butler_cat',
-    reviveGroup: 'court', reviveHp: 24,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
+    reviveGroup: 'court', reviveHp: 30,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
     line: '（扶了扶單眼鏡）', lines: ['大小姐面前，請保持距離。', '（推了推單片眼鏡）'], moves: [
       { intent: 'attack', label: '拋托盤', effects: [{ kind: 'damage', amount: 14 }] },
       { intent: 'block', label: '布陣', effects: [{ kind: 'block', amount: 10 }] },
       { intent: 'special', label: '奉茶', effects: [{ kind: 'heal', n: 8 }] },
     ] },
   { id: 'maid_cat', name: '女僕貓', hp: [30, 30], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_maid_cat',
-    reviveGroup: 'court', reviveHp: 24,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
+    reviveGroup: 'court', reviveHp: 30,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
     line: '（緊緊抱著雞毛撢）', lines: ['我、我會保護大小姐的！', '（把雞毛撢子抱得更緊）'], moves: [
       { intent: 'attack', label: '雞毛撢亂揮', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'block', label: '撢塵護主', effects: [{ kind: 'block', amount: 9 }] },
@@ -806,12 +806,12 @@ export const enemies: EnemyDef[] = [
   // --- 第二波新關主（塔下兩個、塔中兩個；塔頂仍固定師父）---
   // 蛙大名：半血叫兩隻蝌蚪兵出來，然後改走「全體疊防禦」的拖延流
   { id: 'frog_daimyo', name: '蛙大名', hp: [150, 150], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_frog_daimyo',
-    plating: 4, strengthEveryNTurns: 3, reviveGroup: 'pond', neverRevive: true,   // 蛙皮每回合長甲；蝌蚪兵跟牠同組，牠還在小兵就會爬起來；牠自己倒了就倒了（稽核 2026-09-03）
+    plating: 4, strengthEveryNTurns: 2, reviveGroup: 'pond', neverRevive: true,   // 蛙皮每回合長甲；蝌蚪兵跟牠同組，牠還在小兵就會爬起來；牠自己倒了就倒了（稽核 2026-09-03）。成長 3→2 回合：同生共死改躺兩回合後機器人勝率飆到 68%，補回來（2026-09-03 晚）
     line: '（呱了一聲，扇子一開）', lines: ['何方妖貓，膽敢闖本大名的池子？', '（鼓起腮幫子，呱——）'],
     moves: [
-      { intent: 'attack', label: '舌捲', effects: [{ kind: 'damage', amount: 15 }] },
+      { intent: 'attack', label: '舌捲', effects: [{ kind: 'damage', amount: 6, times: 3 }] },   // 15→6×3：單發機器人全躲掉，多段才打得進（2026-09-03 晚）
       { intent: 'debuff', label: '蛙鳴', effects: [{ kind: 'giveCard', cardId: 'slime_card', n: 2, to: 'discard' }] },
-      { intent: 'attack', label: '跳壓', effects: [{ kind: 'damage', amount: 18 }] },
+      { intent: 'attack', label: '跳壓', effects: [{ kind: 'damage', amount: 20, pierce: true }] },   // 18→20 穿透：蜷縮擋不住（同上）
     ],
     phases: [{
       hpBelow: 55, line: '來人！', pattern: 'cycle',
