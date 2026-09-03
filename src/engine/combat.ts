@@ -173,7 +173,7 @@ export function endTurn(cs: CombatState): void {
 
 /** 敵方回合前半：詛咒發作、沒攻擊的鉤子、棄手牌、減益衰減、同伴復活、魔物防禦歸零，並排好這回合要行動的魔物。回 false＝這回合結束不了（不在玩家回合、還有牌要選、或球球被詛咒打倒） */
 /** 魔氣暴走從第幾回合開始（玩家回合的計數） */
-export const RAMPAGE_TURN = 8;
+export const RAMPAGE_TURN = 10;   // 8 太早：機器人打關主平均 9～14 回合，等於每場關主戰都被加成，第一關到達率掉 8 個百分點（2026-09-04 實測）
 
 export function beginEnemyTurn(cs: CombatState): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
@@ -230,7 +230,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // （鼠大將、蛙大名，2026-09-02 第二波）本來會被排在後面的同伴自己洗掉。
   for (const e of cs.enemies) if (!e.dead) e.block = 0;
   // 魔氣暴走（使用者 2026-09-04：「拖著的都要有代價」）：第 RAMPAGE_TURN 回合起，每個敵方回合全體魔物 +1 爪力。
-  // 治龜縮——機器人打龍貓拖三十多回合就是沒代價；正常戰鬥七八回合內結束不會碰到
+  // 治龜縮——機器人打龍貓拖三十多回合就是沒代價；正常戰鬥七八回合內結束不會碰到、關主戰打得乾脆也碰不到
   if (cs.turn >= RAMPAGE_TURN) {
     const alive = cs.enemies.filter((e) => !e.dead);
     for (const e of alive) addStatus(e, '爪力', 1);
