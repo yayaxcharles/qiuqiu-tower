@@ -61,7 +61,7 @@ describe('魔物資料', () => {
     expect(boss.phases?.[0]?.drainPlayerPerTurn).toEqual({ 爪力: 1, 貓步: 1 });
     expect(boss.phases?.[1]?.hpBar).toBe(300);
     expect(boss.phases?.[1]?.strengthPerTurn).toBe(1);
-    expect(boss.phases?.[1]?.drainPlayerPerTurn).toEqual({ 爪力: 2, 貓步: 2 });
+    expect(boss.phases?.[1]?.drainPlayerPerTurn).toEqual({ 爪力: 1, 貓步: 1 });   // 2026-09-03 晚：三階段也降到 1／1
     const allMoves = [...boss.moves, ...(boss.phases ?? []).flatMap((ph) => ph.moves)];
     expect(allMoves.some((m) => m.effects.some((fx) => fx.kind === 'chargeNext'))).toBe(false);
     // 第一條血：招招都是攻擊帶防禦

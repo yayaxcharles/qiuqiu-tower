@@ -174,7 +174,7 @@ describe('魔物回合', () => {
     expect(cs.player.hp).toBe(hp - 54);
     expect(e.charged).toBe(false);
   });
-  it('塔主二、三階段每回合震散你的爪力與貓步（1／1、2／2），拍到 0 就停', () => {
+  it('塔主二、三階段每回合震散你的爪力與貓步（1／1、1／1），拍到 0 就停', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
     addStatus(cs.player, '爪力', 10);
@@ -190,8 +190,8 @@ describe('魔物回合', () => {
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 進三階段
     cs.player.block = 99; cs.player.hp = 90;
     endTurn(cs);                                // 三階段：震散 2 爪力（貓步已經 0，不寫進紀錄）
-    expect(getStatus(cs.player, '爪力')).toBe(7);
-    expect(cs.log.some((l) => l === `${e.name}震散了你 2 點爪力`)).toBe(true);
+    expect(getStatus(cs.player, '爪力')).toBe(8);
+    expect(cs.log.some((l) => l === `${e.name}震散了你 1 點爪力`)).toBe(true);
   });
   it('塔主第一條血打完：蹲下無敵一回合、亮出 240 的第二條', () => {
     const cs = start('tower_master');

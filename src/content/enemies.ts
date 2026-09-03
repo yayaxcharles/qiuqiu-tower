@@ -227,7 +227,7 @@ export const enemies: EnemyDef[] = [
         { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 14, max: 30 }, { kind: 'block', amount: 8 }] },
       ],
     }, {
-      hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 2, 貓步: 2 },
+      hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 1, 貓步: 1 },   // 2026-09-03 新地圖下機器人只剩兩成，震散降到 1／1
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],   // 第三條血本來還有反彈 6：反彈生效後配上震散太狠（機器人 97% 敗），拿掉，只留爪力
       moves: [
         { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 22, times: 2, pierce: true }] },
