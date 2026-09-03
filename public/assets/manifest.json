@@ -130,7 +130,10 @@
   "boss/palm3": "assets/sprites/boss/palm3.webp",
   "boss/guard3": "assets/sprites/boss/guard3.webp",
   "hero/ninja_power": "assets/sprites/hero/ninja_power.webp",
-  "hero/ninja_hurt": "assets/sprites/hero/ninja_hurt.webp"
+  "hero/ninja_hurt": "assets/sprites/hero/ninja_hurt.webp",
+  "hero/ninja_skill": "assets/sprites/hero/ninja_skill.webp",
+  "hero/ninja_throw": "assets/sprites/hero/ninja_throw.webp",
+  "boss/roar3": "assets/sprites/boss/roar3.webp"
  },
  "review": [],
  "monsters": {
