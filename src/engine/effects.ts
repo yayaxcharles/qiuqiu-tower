@@ -53,7 +53,14 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base).killed) ctx.killed = true;
       return false;
     }
-    case 'selfDamage': damagePlayer(cs, p, fx.amount, { direct: true }); return false;
+    case 'selfDamage': {
+      // 秘寶的代價（鐵砂衣開戰扣血）不能把球球直接打死，至少留 1 血，而且要留一行紀錄（稽核 2026-09-04 高 1）
+      const amount = ctx.source === 'relic' ? Math.min(fx.amount, Math.max(0, p.hp - 1)) : fx.amount;
+      if (amount <= 0) return false;
+      damagePlayer(cs, p, amount, { direct: true });
+      if (ctx.source === 'relic') log(cs, `秘寶的代價：失去 ${amount} 點生命`);
+      return false;
+    }
     case 'block': gainBlock(cs, p, fx.amount); return false;
     case 'draw': drawCards(cs, fx.n); return false;
     case 'drawIfTargetStatus': {

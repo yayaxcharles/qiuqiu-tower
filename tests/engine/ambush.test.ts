@@ -4,6 +4,7 @@ import { STARTER_DECK } from '../../src/content/cards';
 import { encounterById } from '../../src/content/enemies';
 import { endTurn, startCombat } from '../../src/engine/combat';
 import { Rng, seedFromString } from '../../src/engine/rng';
+import { getStatus } from '../../src/engine/statuses';
 import { inst } from '../helpers';
 
 describe('伏兵', () => {
@@ -24,5 +25,15 @@ describe('伏兵', () => {
   it('掛伏兵的遭遇只有三組，援軍都是存在的魔物', () => {
     const withAmbush = Object.values(encounterById).filter((e) => e.reinforce?.length);
     expect(withAmbush.length).toBe(3);
+  });
+  it('塔頂單怪戰的紙鶴援軍壓回小怪量級（血 ×0.5、爪力 3），不吃遭遇的 1.6× 與 8 魔氣（稽核 2026-09-04 中 8）', () => {
+    const enc = Object.values(encounterById).find((e) => e.reinforce?.some((r) => r.enemyId === 'paper_crane'))!;
+    const cs = startCombat({ hp: 999, maxHp: 999, deck: STARTER_DECK.map((id, i) => inst(id, i + 1)), relics: [], potions: [], encounterId: enc.id, rng: new Rng(seedFromString('crane')) });   // startCombat 自己會把遭遇的 hpScale／strength 寫進 mods
+    while (cs.turn < 4) { cs.player.block = 999; endTurn(cs); }
+    cs.player.block = 999; endTurn(cs);
+    const crane = cs.enemies.find((e) => e.enemyId === 'paper_crane')!;
+    expect(crane).toBeTruthy();
+    expect(crane.maxHp).toBeLessThan(60);
+    expect(getStatus(crane, '爪力')).toBe(3);
   });
 });

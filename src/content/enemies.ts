@@ -1082,7 +1082,7 @@ export const encounters: EncounterDef[] = [
   // 塔頂＝魔氣加成（設計總覽 §2）：中池一律血 ×1.2、出場帶 2 點爪力；強池帶 3 點。
   // 2026-09-02 機器人 300 局：第一刀之後塔頂一般戰每場仍只掉 1～3 血、四回合打完，比塔中還軟。
   { id: 'night_panther', pool: '中', enemies: ['night_panther'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.6, strength: 8, acts: [3] , reinforce: [{ turn: 4, enemyId: 'paper_crane', line: '伏兵！一隻紙鶴從樑上飄了下來' }] },   // 伏兵（2026-09-04）
+  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.6, strength: 8, acts: [3] , reinforce: [{ turn: 4, enemyId: 'paper_crane', hpScale: 0.5, strength: 3, line: '伏兵！一隻紙鶴從樑上飄了下來' }] },   // 伏兵（2026-09-04）：壓回小怪量級（不然照 1.6×＋8 爪力放大會是 98 血 8 爪力，稽核中 8）
   // 塔頂雙怪組的教訓（探測 1～6/40）：血量倍率救不了「兩隻重砲同回合疊擊」，
   // 要拆組合——重砲一定配有守勢回合的（紙鶴會摺翼、墨貓會入卷軸那型）。
   // 貓頭鷹＋月兔那組直接砍掉，牠們照樣在中池單獨出場。

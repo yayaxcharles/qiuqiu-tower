@@ -287,9 +287,11 @@ export interface EncounterDef {
   hpScale?: number;
   /**
    * 伏兵（2026-09-04）：打到第 `turn` 回合的敵方回合，`enemyId` 從煙裡跳出 `n` 隻（`line`＝紀錄那一句）。
-   * 援軍那一拍不出招（意圖先亮給玩家看），下回合才動。只掛在少數遭遇上，援軍一律用小怪，免得難度暴衝。
+   * 援軍那一拍不出招（意圖先亮給玩家看），下回合才動。只掛在少數遭遇上；預設會跟著遭遇的血量倍率與魔氣放大，塔頂要用 hpScale／strength 壓回小怪的量級。
    */
-  reinforce?: { turn: number; enemyId: string; n?: number; line?: string }[];
+  reinforce?: { turn: number; enemyId: string; n?: number; line?: string;
+    /** 援軍的血量倍率與爪力：不填＝照這場遭遇的 hpScale／strength 放大（塔頂單怪戰是 1.6×＋8 爪力，會很痛，要小怪就填小一點） */
+    hpScale?: number; strength?: number }[];
   /**
    * 這場遭遇只在哪幾關出現（不填＝每一關都行）。
    * 三關制的專屬池：第一關的怪標 [1]、塔中標 [2]、塔頂標 [3]。

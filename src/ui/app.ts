@@ -1,7 +1,7 @@
 import { victoryLinesFor, dialogue, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
-import { warmEncounter } from './preload';
+import { preloadActMonsters, warmEncounter } from './preload';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun, runMods } from '../engine/run';
@@ -127,6 +127,7 @@ export class App {
     if (!run) return false;
     this.run = run;
     this.cs = null;
+    void preloadActMonsters(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 難度 5：前哨戰打完存檔時人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）
     const node = currentNode(run);
     if (node?.type === '塔主' && node.encounterId && run.flags['final_boss'] && run.status === 'playing') {
@@ -202,9 +203,12 @@ export class App {
     }
   }
 
+  /** 開打前暖機那一小段時間的重入鎖：擋住連點「開打」或再點地圖（稽核 2026-09-04 中 7） */
+  private fightPending = false;
+
   startFight(encounterId: string, isBoss = false, bonusFish = 0, bonusUpgrades = 0): void {
     const run = this.run;
-    if (!run) return;
+    if (!run || this.fightPending) return;
     // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
     const pool = encounterById[encounterId]?.pool;
     const battleTrack = (['battle', 'battle2', 'battle3'] as const)[Math.min(3, Math.max(1, run.act)) - 1]!;
@@ -216,7 +220,11 @@ export class App {
       const cs = this.cs;
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
       // 開打前先把這場魔物（含召喚物）的立繪解碼好，最多等 1.5 秒；沒等到也照開（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）
+      this.fightPending = true;
+      this.stage.classList.add('fight-pending');
       const proceed = (): void => {
+      this.fightPending = false;
+      this.stage.classList.remove('fight-pending');
       if (this.cs !== cs) return;
       this.show('combat', { bonusFish, bonusUpgrades });
       // 魔物的開場台詞從頭上冒泡泡（一隻接一隻），左上角的紀錄照舊保留當備查
@@ -288,9 +296,11 @@ export class App {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         // 師父醒來的第一句依這一路的打法換（爪力／隱身／蜷縮流），難度 4 以上多一句旁白（使用者 2026-09-04）
         const vic = victoryLinesFor(run.deck.map((c) => c.cardId), run.difficulty ?? 1);
+        // 第一張圖（相擁）放到「撲進師父懷裡」那句為止，之後的（回家路、難度旁白）配第二張
+        const cut = Math.max(1, vic.findIndex((l) => l.text.includes('撲進')) + 1);
         const endSlides = [
-          { img: 'bg/still_embrace', lines: vic.slice(0, 4) },
-          { img: 'bg/still_home', lines: vic.slice(4) },
+          { img: 'bg/still_embrace', lines: vic.slice(0, cut) },
+          { img: 'bg/still_home', lines: vic.slice(cut) },
         ];
         // 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片
         playVideo('ending', () => {
@@ -318,7 +328,8 @@ export class App {
       const bossId = ids.find((id) => enemyById[id]?.pool === '塔主') ?? '';
       const outro = dialogue.bossDefeatById[bossId];
       const bd = enemyById[bossId];
-      if (outro && bd) playDialogue(outro, toSlides, { 塔主: { name: bd.name, portrait: monsterUrl(bd.art, 'idle') } });
+      const bossUnit = cs.enemies.find((e) => e.enemyId === bossId);
+      if (outro && bd) playDialogue(outro, toSlides, { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(bd.art, 'idle') } });   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
       else toSlides();
       return;
     }

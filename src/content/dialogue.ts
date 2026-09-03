@@ -1,4 +1,4 @@
-import { cardById } from './cards';
+import { STARTER_DECK, cardById } from './cards';
 export interface DialogueLine { speaker: '球球' | '塔主' | '旁白' | '黑貓忍者頭目'; text: string }
 
 /** 球球台詞的句尾檢查：去掉結尾標點後最後一個字必須是「喵」 */
@@ -345,11 +345,18 @@ export const dialogue = {
    * 結局第二句（師父醒來說的第一句）依球球這一路的打法換（使用者 2026-09-04）：
    * 爪力流、隱身流、蜷縮流各一句，看牌組裡哪一類最多；都不明顯就照舊「承讓。」；難度 4 以上再補一句旁白。
    */
+  // 師父只講大俠貼圖標題（專案規矩，tests/content/dialogue.test.ts 守著）：換句也只能在標題裡挑，
+  // 個人化的那一句改由旁白講（稽核 2026-09-04 中 5）
   masterFirstWords: <Record<'strength' | 'stealth' | 'block' | 'plain', string>>{
-    strength: '你這爪子……比我教的還利。',
-    stealth: '身法練成這樣，難怪我一掌都打不到你。',
-    block: '護得住自己，就護得住別人。你出師了。',
+    strength: '難逢敵手。',
+    stealth: '深藏不露。',
+    block: '在下不才。',
     plain: '承讓。',
+  },
+  masterFirstWordsNarration: <Record<'strength' | 'stealth' | 'block', string>>{
+    strength: '師父看了看球球的爪子，又看了看自己的，笑了——這小子的爪子已經比他教的還利。',
+    stealth: '師父想起剛才那一路空掌，忍不住搖頭——這身法，他一掌都碰不到。',
+    block: '師父拍了拍球球圓滾滾的肚子——能護得住自己，就護得住別人；這孩子出師了。',
   },
   hardModeEpilogue: '這一路，球球走的是最陡的那條樓梯。師父後來每次講起，都要多說一遍。',
   // 三關制之後這句只在「真通關」時出現：塔清完了，沒有更多樓層，改成收尾的話
@@ -381,21 +388,36 @@ export const dialogue = {
 export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random() * xs.length)] ?? xs[0]!; }
 
 /** 結局那五句：第二句（師父的第一句話）依牌組傾向換；難度 4 以上多一句旁白。牌組看牌面文字裡出現最多的關鍵字。 */
-export function victoryLinesFor(deckIds: readonly string[], difficulty: number): DialogueLine[] {
+/**
+ * 牌組傾向：只看這一路**自己拿的牌**（起始那十張不算——它們本來就偏蜷縮，算進去每個人都是蜷縮流），
+ * 而且只算「對球球自己」的效果（給敵人拆爪力的封口術不算爪力流）；某一派要至少 4 張、佔拿到的牌四分之一以上、領先第二名兩張以上才算。
+ */
+export function deckLeaning(deckIds: readonly string[]): 'strength' | 'stealth' | 'block' | 'plain' {
   const count = { strength: 0, stealth: 0, block: 0 };
-  for (const id of deckIds) {
+  const starter = new Set<string>(STARTER_DECK);
+  const picked = deckIds.filter((id) => !starter.has(id));
+  for (const id of picked) {
     const def = cardById[id];
     if (!def) continue;
-    const txt = JSON.stringify(def.effects);
-    if (txt.includes('爪力')) count.strength += 1;
-    if (txt.includes('隱身') || txt.includes('潛水')) count.stealth += 1;
-    if (txt.includes('"block"') || txt.includes('蜷縮')) count.block += 1;
+    const fx = [...def.effects, ...(def.upgrade?.effects ?? [])];
+    const selfStatus = (name: string) => fx.some((e) => e.kind === 'status' && e.target === 'self' && e.name === name);
+    if (selfStatus('爪力')) count.strength += 1;
+    if (selfStatus('隱身') || selfStatus('潛水')) count.stealth += 1;
+    if (fx.some((e) => e.kind === 'block')) count.block += 1;
   }
-  const top = (Object.entries(count) as ['strength' | 'stealth' | 'block', number][]).sort((a, b) => b[1] - a[1])[0]!;
-  const key = top[1] >= 4 ? top[0] : 'plain';
+  const sorted = (Object.entries(count) as ['strength' | 'stealth' | 'block', number][]).sort((a, b) => b[1] - a[1]);
+  const [top, second] = [sorted[0]!, sorted[1]!];
+  if (picked.length === 0 || top[1] < 4 || top[1] < Math.ceil(picked.length / 4) || top[1] - second[1] < 2) return 'plain';
+  return top[0];
+}
+
+/** 結局那五句：第二句（師父的第一句話）依牌組傾向在貼圖標題裡換；有傾向時多一句旁白講出個人化的評語；難度 4 以上再多一句旁白。 */
+export function victoryLinesFor(deckIds: readonly string[], difficulty: number): DialogueLine[] {
+  const key = deckLeaning(deckIds);
   const lines = dialogue.victory.map((l) => ({ ...l }));
   const second = lines[1];
   if (second && second.speaker === '塔主') second.text = dialogue.masterFirstWords[key];
+  if (key !== 'plain') lines.splice(2, 0, { speaker: '旁白', text: dialogue.masterFirstWordsNarration[key] });
   if (difficulty >= 4) lines.push({ speaker: '旁白', text: dialogue.hardModeEpilogue });
   return lines;
 }

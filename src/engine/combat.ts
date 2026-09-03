@@ -241,13 +241,18 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // 伏兵：排在佇列定案之後才跳出來＝這一拍不出招，玩家下回合看得到牠的意圖再挨（使用者 2026-09-04：「要合理，怕難度太高」）
   for (const r of encounterById[cs.encounterId]?.reinforce ?? []) {
     if (r.turn !== cs.turn) continue;
-    if (cs.enemies.filter((e) => !e.dead).length >= 5) break;   // 場上塞不下就不來了
-    for (let i = 0; i < (r.n ?? 1) && cs.enemies.filter((e) => !e.dead).length < 5; i++) {
-      const fresh = makeEnemy(cs, r.enemyId, cs.enemies.length, cs.mods?.hpMul ?? 1);
-      if (cs.mods?.strength) addStatus(fresh, '爪力', cs.mods.strength);
+    let came = 0;
+    for (let i = 0; i < (r.n ?? 1) && cs.enemies.filter((e) => !e.dead).length < 5; i++) {   // 場上最多五隻，塞不下就少來幾隻
+      const fresh = makeEnemy(cs, r.enemyId, i, (cs.mods?.hpMul ?? 1) * (r.hpScale ?? 1));
+      const str = r.strength ?? cs.mods?.strength ?? 0;
+      if (str > 0) addStatus(fresh, '爪力', str);
       cs.enemies.push(fresh);
+      came++;
     }
-    log(cs, r.line ?? `伏兵！${enemyById[r.enemyId]?.name ?? r.enemyId}從煙裡跳了出來`);
+    if (came === 0) continue;
+    const name = enemyById[r.enemyId]?.name ?? r.enemyId;
+    // 紀錄照實際來了幾隻講（只來得及一隻就不要說兩隻，稽核 2026-09-04 低 12）
+    log(cs, came === (r.n ?? 1) && r.line ? r.line : `伏兵！${came > 1 ? `${came} 隻` : ''}${name}從煙裡跳了出來`);
   }
   return true;
 }

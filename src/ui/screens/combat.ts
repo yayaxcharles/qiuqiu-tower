@@ -185,6 +185,8 @@ registerScreen('combat', (app, root, props) => {
   let acting = new Map<number, Acted>();
   /** 這一拍被打到的魔物：有挨打圖的換挨打圖（2026-09-03 晚補的動態） */
   let hurtSet = new Set<number>();
+  /** 在「這一擊打贏」那一拍倒下的關主：只有這些才演白閃慢倒；早就倒了的（波斯先倒、僕從後倒）維持消散、不會復活再倒一次（稽核 2026-09-04 高 2） */
+  const bossFallUids = new Set<number>();
   let hint = '';
   /**
    * 三步教學（-1＝不顯示）。只在第一關 1F、這台瀏覽器沒看完過教學時出現：
@@ -516,7 +518,7 @@ registerScreen('combat', (app, root, props) => {
     const reviving = e.dead && e.reviveIn > 0
       && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === def?.reviveGroup);
     // 關主被打倒：不是直接消失，而是慢慢倒下（收尾節奏，使用者 2026-09-04）
-    if (e.dead && !reviving) cls.push(bossUnit && cs.phase === 'won' ? 'boss-fall' : 'gone');
+    if (e.dead && !reviving) cls.push(bossFallUids.has(e.uid) ? 'boss-fall' : 'gone');
     if (reviving) cls.push('reviving');
     // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
     // 師父本人（art 'daxia'）掛 master：框開得比球球大（使用者 2026-09-02：「師傅體型比球球小」），換血條再放大
@@ -547,7 +549,7 @@ registerScreen('combat', (app, root, props) => {
       if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
     }
     if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
-    // 魔氣暴走：第 8 回合起掛在每隻魔物身上，提醒拖下去每回合都會更痛
+    // 魔氣暴走：第 RAMPAGE_TURN（10）回合起掛在每隻魔物身上，提醒拖下去每回合都會更痛
     if (!e.dead && cs.turn >= RAMPAGE_TURN) row.prepend(chip('魔氣暴走', null, '', 'bad'));
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), 'data-id': e.enemyId, style: `left:${left}px` },
       spriteBox(enemySprite(e, def), e.name,
@@ -1130,6 +1132,7 @@ registerScreen('combat', (app, root, props) => {
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
       if (b && e.hp < b.hp) hurtSet.add(e.uid);
+      if (b && !b.dead && e.dead && cs.phase === 'won' && enemyById[e.enemyId]?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主') bossFallUids.add(e.uid);
       if (!b || e.dead || e.turnCount === b.turnCount || b.stunned) continue;
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' });
     }
@@ -1180,7 +1183,8 @@ registerScreen('combat', (app, root, props) => {
       else if (e.hp > b.hp) burst(node, 'heal');
       if (sumStatus(e, BAD_STATUS) > b.debuff) burst(node, 'debuff');
       // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
-      if (!b.dead && e.dead) { if (!node.classList.contains('boss-fall')) node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); }
+      // 關主的白閃慢倒不放小怪化煙的煙與音效（調性不合，稽核 2026-09-04 低 22）
+      if (!b.dead && e.dead) { if (bossFallUids.has(e.uid)) { sfx('enemy_down'); } else { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); } }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {
         node.classList.add('attack');
@@ -1206,10 +1210,11 @@ registerScreen('combat', (app, root, props) => {
       if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
       if (fresh.some((l) => l.includes('塞進你的'))) burst(cat, 'curse');
       if (fresh.some((l) => l.includes('看穿了球球的身法') || l.includes('拍散') || l.includes('震散'))) burst(cat, 'strip');
-      if (fresh.some((l) => l.startsWith('伏兵'))) toast('有伏兵跳出來了喵！', '球球');
     }
     // 剛被召喚出來的：煙
     for (const e of cs.enemies) if (!before.enemies.has(e.uid) && !e.dead) { const n = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`); if (n) burst(n, 'smoke'); }
+    // 伏兵是在敵方回合開頭冒出來的，那一拍還沒有人出手，所以不能放在上面那個「有人出招」的區塊裡（稽核 2026-09-04 高 3）
+    if (fresh.some((l) => l.startsWith('伏兵'))) toast('有伏兵跳出來了喵！', '球球');
     if (cat) {
       if (p.hp > before.hp) { burst(cat, 'heal'); sfx('heal'); }
       if (p.block > before.block) { burst(cat, 'block'); sfx('block'); }

@@ -625,3 +625,6 @@ img { -webkit-user-drag: none; }
 .dialogue-overlay.narration .dialogue-text { color: #f6efe3; }
 .dialogue-overlay .dialogue-hint, .dialogue-overlay.narration .dialogue-hint { color: #d9cdb4; }
 .dialogue-portrait { bottom: 130px; left: 48px; }
+
+/* 開打前暖機那一小段時間（最多 1.5 秒）整個舞台不吃點擊：連點「開打」或再點地圖會多跑一次開戰（稽核 2026-09-04 中 7） */
+#stage.fight-pending { pointer-events: none; }

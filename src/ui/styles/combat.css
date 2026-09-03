@@ -902,6 +902,7 @@
 .combat .unit.enemy.boss-fall .chips,
 .combat .unit.enemy.boss-fall .hpbar,
 .combat .unit.enemy.boss-fall .intent { opacity: 0; transition: opacity .5s; }
+.combat .unit.enemy.boss-fall .sprite-box::after { display: none; }   /* 睡著的關主倒下時 Zzz 不要跟著飄（稽核 2026-09-04 低 22） */
 .combat .unit.enemy.boss-fall { pointer-events: none; }
 /* 最後一擊的白閃，蓋在整個戰場上 0.7 秒 */
 .combat .boss-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; z-index: 60; animation: boss-flash .7s ease-out forwards; }

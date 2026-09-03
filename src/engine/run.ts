@@ -103,7 +103,10 @@ export function applyBossPrefix(run: RunState, cs: CombatState): void {
   if (!rng.chance(0.35)) return;
   const p = rng.pick(BOSS_PREFIXES);
   p.apply(boss);
+  const oldName = boss.name;
   boss.name = p.label + boss.name;
+  // startCombat 已經用舊名字印了開場白，一併改寫，紀錄裡才不會同一隻兩個名字（稽核 2026-09-04 中 9）
+  cs.log = cs.log.map((l) => (l.startsWith(oldName + '：') ? boss.name + l.slice(oldName.length) : l));
   cs.log.push(`${boss.name}：${p.line}`);
 }
 

@@ -1,5 +1,5 @@
 // 產生 docs/怪物分關.json：每張魔物立繪最早在第幾關會用到（tools/check_size.py 拿它把二三關的圖歸「分關載入」）。
-// 跑法：npx vitest run tools/dump_monster_acts.test.ts（改了遭遇或關主池就重跑一次並提交）
+// `npx vitest run` 會一起跑到（tools/ 也在測試範圍），所以檔案不會過期；改了遭遇或關主池跑完測試把 docs/怪物分關.json 一起提交就好
 import { readFileSync, writeFileSync } from 'node:fs';
 import { it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';

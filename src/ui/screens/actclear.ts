@@ -23,6 +23,7 @@ registerScreen('actclear', (app, root, props) => {
   root.append(screenBg('bg/screen_result_win'));
   const run = app.run;
   if (!run) { app.show('title'); return; }
+  void preloadActMonsters(run.act + 1);   // 一進過關畫面就開始抓下一關的魔物立繪（玩家看幻燈片、挑秘寶的這幾十秒剛好用，稽核 2026-09-04 低 21）
   const picks = rollActRelics(run);
   const cardPicks = rollActCards(run);
   let pickedCard: string | null = null;   // 只擲一次、只挑一張；重畫不重擲
@@ -31,7 +32,6 @@ registerScreen('actclear', (app, root, props) => {
 
   const go = (): void => {
     advanceAct(run);
-    void preloadActMonsters(run.act);   // 進下一關前把那一關的魔物立繪抓好（分關載入）
     // 三秒的走路轉場（使用者點名要的儀式感）：背景已經是下一關的色調，
     // 走完才落地到新地圖；backToMap 在轉場回呼裡跑＝存檔照舊在節點結算時寫
     actWalkTransition(app.stage, run.floor + 1, () => app.backToMap());

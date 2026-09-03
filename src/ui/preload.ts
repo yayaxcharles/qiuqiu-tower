@@ -60,6 +60,8 @@ function urlsFor(defs: EnemyDef[]): string[] {
 }
 
 const warmed = new Set<string>();
+/** 撐住 Image 物件的參照：沒人引用的圖下載沒完成就可能被回收（稽核 2026-09-04 低 14） */
+const keep: HTMLImageElement[] = [];
 
 /** 把一批圖片下載並解碼好（失敗就算了，不該讓流程停掉） */
 async function decodeAll(urls: string[], concurrency = 4): Promise<void> {
@@ -71,8 +73,11 @@ async function decodeAll(urls: string[], concurrency = 4): Promise<void> {
       const url = todo[i]!;
       try {
         const img = new Image();
+        keep.push(img);
         img.src = url;
+        // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
         if (typeof img.decode === 'function') await img.decode();
+        else await new Promise<void>((res) => { img.onload = () => res(); img.onerror = () => res(); });
         warmed.add(url);
       } catch { /* 少一張只是那張晚一點出現 */ }
     }
@@ -94,5 +99,7 @@ export function warmEncounter(encounterId: string, timeoutMs = 1500): Promise<vo
   for (const id of enc.enemies) relatedIds(id, ids);
   const defs = [...ids].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d);
   const work = decodeAll(urlsFor(defs), 6);
-  return Promise.race([work, new Promise<void>((r) => setTimeout(r, timeoutMs))]);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
+  return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });
 }
