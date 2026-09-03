@@ -34,32 +34,32 @@ function handCard(cs: CombatState, cardId: string): CardInstance {
 }
 
 describe('第一關菁英（單一機制）', () => {
-  it('山豬頭目・憤怒：每打一張技能牌 +2 爪力，攻擊牌不算', () => {
+  it('山豬頭目・憤怒：每打一張技能牌 +1 爪力，攻擊牌不算', () => {
     const cs = start('wild_boar', 400, ['sanjo', 'tanding']);
     const e = cs.enemies[0]!;
-    expect(e.maxHp).toBe(84);
+    expect(e.maxHp).toBe(78);
     expect(getStatus(e, '爪力')).toBe(0);
     expect(playCard(cs, handCard(cs, 'sanjo').uid, e.uid)).toBe(true);
     expect(getStatus(e, '爪力'), '攻擊牌不會激怒牠').toBe(0);
     expect(playCard(cs, handCard(cs, 'tanding').uid)).toBe(true);
-    expect(getStatus(e, '爪力'), '技能牌一張 +2').toBe(2);
+    expect(getStatus(e, '爪力'), '技能牌一張 +2').toBe(1);
     expect(cs.log.some((l) => l.includes('被激怒了'))).toBe(true);
   });
 
-  it('紙老虎・反彈：開戰就帶 3 點，整場都在，每打一下回敬 3', () => {
+  it('紙老虎・反彈：開戰就帶 2 點，整場都在，每打一下回敬 2', () => {
     const cs = start('paper_tiger');
     const e = cs.enemies[0]!;
-    expect(e.maxHp).toBe(72);
-    expect(getStatus(e, '反彈'), '開戰就有').toBe(3);
+    expect(e.maxHp).toBe(66);
+    expect(getStatus(e, '反彈'), '開戰就有').toBe(2);
     const hp0 = cs.player.hp;
     damageEnemy(cs, e, 5);
-    expect(hp0 - cs.player.hp, '砍一下自己痛 3').toBe(3);
+    expect(hp0 - cs.player.hp, '砍一下自己痛 2').toBe(2);
     // 多段砍下去段段都要痛：兩下就是 6
     const hp1 = cs.player.hp;
     damageEnemy(cs, e, 5); damageEnemy(cs, e, 5);
-    expect(hp1 - cs.player.hp).toBe(6);
+    expect(hp1 - cs.player.hp).toBe(4);
     endTurn(cs);
-    expect(getStatus(e, '反彈'), '整場不消失').toBe(3);
+    expect(getStatus(e, '反彈'), '整場不消失').toBe(2);
   });
 
   it('太鼓狸・蓄力：打鼓助勢之後那一下傷害加倍（14 → 28）', () => {
@@ -137,7 +137,7 @@ describe('第三關菁英（強機制）', () => {
     const cs = start('oni_general');
     const gen = cs.enemies.find((e) => e.enemyId === 'oni_general')!;
     const imps = cs.enemies.filter((e) => e.enemyId === 'imp');
-    expect(gen.maxHp).toBe(150);
+    expect(gen.maxHp).toBe(140);
     expect(imps.length).toBe(2);
     // 遭遇帶魔氣 5：三隻出場就有 5 點爪力
     for (const e of cs.enemies) expect(getStatus(e, '爪力'), e.name).toBe(5);

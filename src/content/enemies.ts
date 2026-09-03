@@ -855,18 +855,18 @@ export const enemies: EnemyDef[] = [
 
   // --- 第一關（塔下）：只有單一機制，一隻教一件事 ---
   // 憤怒：你每打一張技能牌牠就 +2 爪力。這一場的解法是拿攻擊牌速戰速決，別在牠面前慢慢鋪
-  { id: 'wild_boar', name: '山豬頭目', hp: [84, 84], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_wild_boar',
+  { id: 'wild_boar', name: '山豬頭目', hp: [78, 78], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_wild_boar',
     line: '（鼻子噴出兩道白氣，前腳刨著地）', lines: ['（獠牙刮過石頭，火星四濺）', '（低下頭，對準了你）'],
-    angerOnSkill: 2,
+    angerOnSkill: 1,   // 機器人 100 局 26 場輸 15：+2 滾雪球太快，改 +1（跟赤鬼武夫一樣）；血 84→78（2026-09-03 驗收）
     moves: [
       { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 12 }] },
       { intent: 'attack', label: '亂踩', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 12 }] },
     ] },
   // 反彈 3：開戰就帶著，整場都在。多段小刀砍下去自己會先痛死，要嘛少段數重擊、要嘛先疊好蜷縮
-  { id: 'paper_tiger', name: '紙老虎', hp: [72, 72], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_paper_tiger',
+  { id: 'paper_tiger', name: '紙老虎', hp: [66, 66], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_paper_tiger',
     line: '（紙糊的身體，吼聲卻震得地板發抖）', lines: ['（紙做的鬍鬚一根根豎起來）', '（張開嘴，裡面是空的）'],
-    thorns: 3,
+    thorns: 2,   // 3 點對第一關的多段牌太痛（機器人贏也掉 35 血），改 2、血 72→66（2026-09-03 驗收）
     moves: [
       { intent: 'attack', label: '撲', effects: [{ kind: 'damage', amount: 11 }] },
       { intent: 'attack', label: '抓', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
@@ -912,11 +912,11 @@ export const enemies: EnemyDef[] = [
 
   // --- 第三關（塔頂）：強機制 ---
   // 鼓舞＋一起死才算：牠會把全體餵大，而且跟兩隻小鬼同一組——只要有同伴站著，倒下的就會爬回來
-  { id: 'oni_general', name: '鬼將', hp: [150, 150], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_oni_general',
+  { id: 'oni_general', name: '鬼將', hp: [140, 140], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_oni_general',
     line: '（鐵棒往地上一頓，兩隻小鬼從陰影裡鑽出來）', lines: ['小的們，上！', '（角上纏著一圈鐵環，叮噹作響）'],
-    reviveGroup: 'imps',
+    reviveGroup: 'imps', reviveHp: 30,   // 先打倒鬼將、小鬼還在時牠會以 30 血爬起來（引擎預設 75 太狠）；號令 +2→+1、血 150→140（機器人 8 場輸 5，2026-09-03 驗收）
     moves: [
-      { intent: 'buff', label: '號令', effects: [{ kind: 'statusAllies', name: '爪力', amount: 2 }] },
+      { intent: 'buff', label: '號令', effects: [{ kind: 'statusAllies', name: '爪力', amount: 1 }] },
       { intent: 'attack', label: '鐵棒', effects: [{ kind: 'damage', amount: 18 }] },
       { intent: 'block', label: '盾陣', effects: [{ kind: 'blockAllies', amount: 12 }] },
       { intent: 'attack', label: '橫掃', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
