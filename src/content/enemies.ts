@@ -593,7 +593,7 @@ export const enemies: EnemyDef[] = [
     ] },
 
   // --- 新關主：橘皮大王（第一關第三選，強度對齊二刀後的 105 級距）---
-  { id: 'orange_king', name: '橘皮大王', hp: [180, 180], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_orange_king',
+  { id: 'orange_king', name: '橘皮大王', hp: [190, 190], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_orange_king',
     curlUp: 15, strengthEveryNTurns: 2,   // 一顆球：第一次被打痛整顆縮起來長 15 點防禦
     line: '（一邊嚼一邊看你）', lines: ['嚼嚼……你是誰？', '（打了個飽嗝）'], moves: [
       { intent: 'attack', label: '肚皮壓', effects: [{ kind: 'damage', amount: 18 }] },
@@ -606,7 +606,7 @@ export const enemies: EnemyDef[] = [
       onEnter: [{ kind: 'block', amount: 12 }, { kind: 'statusSelf', name: '反彈', amount: 3 }],   // 站起來全身是刺
       moves: [
         { intent: 'special', label: '蓄力', effects: [{ kind: 'chargeNext' }] },
-        { intent: 'attack', label: '泰山壓頂', effects: [{ kind: 'damage', amount: 24, pierce: true }] },
+        { intent: 'attack', label: '泰山壓頂', effects: [{ kind: 'damage', amount: 27, pierce: true }] },
         { intent: 'attack', label: '龍捲滾', effects: [{ kind: 'damage', amount: 12, times: 2 }] },
         { intent: 'special', label: '揉麵團', effects: [{ kind: 'heal', n: 10 }] },
       ],
@@ -831,7 +831,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 犰狳王：縮殼 15 ＋鱗甲 4。開場那一擊會被吃掉一大半，之後每回合還會自己補甲
   { id: 'armadillo_king', name: '犰狳王', hp: [130, 130], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_armadillo_king',
-    thorns: 3, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
+    thorns: 4, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
     line: '（整隻縮成一顆巨大的球）', lines: ['（殼上一道一道全是舊傷）', '（球身緩緩轉了半圈）'],
     curlUp: 15, plating: 4,
     moves: [
@@ -846,19 +846,19 @@ export const enemies: EnemyDef[] = [
   // 半血「龍魂覺醒」：拍掉你一半爪力貓步、自己 +3 爪力、鱗甲加到 10；之後龍炎穿透、吞天邊打邊回血、咆哮塞眼冒金星
   { id: 'dragon_cat', name: '沉睡的龍貓', hp: [240, 240], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_dragon_cat',
     line: '（盤成一圈，鼻孔冒出一小縷煙）', lines: ['（鱗片隨著呼吸起伏）', '（睡夢中低吼了一聲）'],
-    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 9, thorns: 2,
+    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 9, thorns: 4,
     moves: [
-      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 22 }] },
+      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 19 }] },
       { intent: 'attack', label: '尾掃', effects: [{ kind: 'damage', amount: 11, times: 2 }] },
       { intent: 'block', label: '盤踞', effects: [{ kind: 'block', amount: 18 }, { kind: 'heal', n: 8 }] },
-      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 22 }] },
+      { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 19 }] },
     ],
     phases: [{
       hpBelow: 120, pattern: 'cycle', line: '……吵醒我的，要付代價。',
       onEnter: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'statusSelf', name: '鱗甲', amount: 4 }],
       moves: [
         { intent: 'attack', label: '龍炎', effects: [{ kind: 'damage', amount: 27, pierce: true }] },
-        { intent: 'attack', label: '吞天', effects: [{ kind: 'damage', amount: 17, times: 2 }, { kind: 'heal', n: 8 }] },
+        { intent: 'attack', label: '吞天', effects: [{ kind: 'damage', amount: 15, times: 2 }, { kind: 'heal', n: 8 }] },
         { intent: 'debuff', label: '咆哮', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 2, to: 'draw' }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
         { intent: 'block', label: '盤踞', effects: [{ kind: 'block', amount: 22 }, { kind: 'heal', n: 8 }] },
       ],
@@ -866,18 +866,18 @@ export const enemies: EnemyDef[] = [
   // 詛咒老住持：整場都在往你的抽牌堆洗眼冒金星，二階段再給自己披一層鱗甲
   { id: 'hex_abbot', name: '詛咒老住持', hp: [220, 220], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_hex_abbot',
     line: '（木魚一聲一聲，敲得很慢）', lines: ['施主，回頭是岸。', '（念珠一顆顆撥過去）'],
-    hexOnSkill: { cardId: 'dazed_card', n: 1 }, thorns: 3, angerOnSkill: 2,   // 念珠反彈；你越躲他越氣（2026-09-03 關主加硬）
+    hexOnSkill: { cardId: 'dazed_card', n: 1 }, thorns: 5, angerOnSkill: 2,   // 念珠反彈；你越躲他越氣（2026-09-03 關主加硬）
     moves: [
-      { intent: 'attack', label: '木魚', effects: [{ kind: 'damage', amount: 24 }] },
+      { intent: 'attack', label: '木魚', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
       { intent: 'debuff', label: '唸經', effects: [{ kind: 'giveCard', cardId: 'slime_card', n: 2, to: 'discard' }] },
-      { intent: 'attack', label: '佛掌', effects: [{ kind: 'damage', amount: 30 }] },
+      { intent: 'attack', label: '佛掌', effects: [{ kind: 'damage', amount: 14, times: 2 }] },
     ],
     phases: [{
       hpBelow: 85, line: '阿彌陀佛。', pattern: 'cycle',
       onEnter: [{ kind: 'statusSelf', name: '鱗甲', amount: 6 }],
       moves: [
-        { intent: 'attack', label: '大佛掌', effects: [{ kind: 'damage', amount: 36 }] },
-        { intent: 'attack', label: '急木魚', effects: [{ kind: 'damage', amount: 24 }] },
+        { intent: 'attack', label: '大佛掌', effects: [{ kind: 'damage', amount: 18, times: 2 }] },
+        { intent: 'attack', label: '急木魚', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
         { intent: 'debuff', label: '唸經', effects: [{ kind: 'giveCard', cardId: 'slime_card', n: 2, to: 'discard' }] },
       ],
     }] },
