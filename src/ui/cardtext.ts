@@ -41,7 +41,7 @@ function namesAllFoes(fx: Effect | undefined): boolean {
 
 /** 這張牌有沒有動到魔物——有的話回復要寫成「你回復 N 生命」才分得清誰回血（規格 §6.1 以德服人） */
 const FOE_KINDS: ReadonlySet<Effect['kind']> = new Set(
-  ['damage', 'damageRandom', 'damageEqualBlock', 'stealBlock', 'removeStatuses', 'transferDebuffs']);
+  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'stealBlock', 'removeStatuses', 'transferDebuffs']);
 function touchesFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => FOE_KINDS.has(e.kind) || (e.kind === 'status' && e.target !== 'self'));
 }
@@ -51,7 +51,7 @@ function touchesFoes(effects: readonly Effect[]): boolean {
  * 鐵頭功、亡命是先打人再自傷，「也」對；拼命只有自傷（拿血換飯糰），
  * 寫「也」會害玩家回頭去找那個根本不存在的前一下。
  */
-const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(['damage', 'damageRandom', 'damageEqualBlock']);
+const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock']);
 function hurtsFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => HURT_KINDS.has(e.kind));
 }
@@ -99,6 +99,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
         : (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
       return head + times + (fx.ignoreBlock ? '，無視防禦' : '');
     }
+    case 'damageRamp': return `造成 ${fx.amount} 點傷害，這場戰鬥中這張牌每打出一次，傷害就再加 ${fx.step} 點`;
     case 'damageRandom': return `隨機造成 ${fx.min}～${fx.max} 點傷害`;
     case 'damageEqualBlock': return '造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少';
     case 'selfDamage': return `自己${ctx.alsoHurts ? '也' : ''}受 ${fx.amount} 點傷害`;

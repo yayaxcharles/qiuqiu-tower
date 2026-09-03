@@ -52,7 +52,7 @@ describe('牌資料', () => {
     for (const c of cards) {
       const hitsAll = c.effects.some((e) => ('target' in e && e.target === 'all'));
       const hitsOne = c.effects.some((e) =>
-        (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
+        (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageRamp' || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
         (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus');
       if (hitsAll) expect(c.target, c.name).toBe('all');

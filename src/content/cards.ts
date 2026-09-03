@@ -31,8 +31,9 @@ export const cards: readonly CardDef[] = [
   { id: 'susu', name: '速速退散', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'all', art: 'card/susu',
     effects: [{ kind: 'damage', amount: 9, target: 'all' }], upgrade: { effects: [{ kind: 'damage', amount: 12, target: 'all' }] } },
   { id: 'bunshin', name: '忍術·分身術', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/bunshin',
-    effects: [{ kind: 'damage', amount: 3, scaleWithCombo: true, comboCap: 5 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 4, scaleWithCombo: true, comboCap: 5 }] } },
+    // 2026-09-03 使用者改效果：3 點起、這場每打出一次就 +3（只限這場）；升級 5／+5 但 2 費
+    effects: [{ kind: 'damageRamp', amount: 3, step: 3 }],
+    upgrade: { cost: 2, effects: [{ kind: 'damageRamp', amount: 5, step: 5 }] } },
   { id: 'ruying', name: '如影隨形', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/ruying',
     effects: [{ kind: 'damage', amount: 5, times: 2 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 7, times: 2 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },

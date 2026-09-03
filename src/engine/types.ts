@@ -27,6 +27,8 @@ export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack';
 
 export type Effect =
   | { kind: 'damage'; amount: number; times?: number; ignoreBlock?: boolean; scaleWithCombo?: boolean; comboCap?: number; target?: 'enemy' | 'all' }
+  /** 分身術（2026-09-03）：造成 amount 點傷害；這場戰鬥裡同一張牌每打出一次，之後的傷害就多 step 點（看 CombatState.cardPlays） */
+  | { kind: 'damageRamp'; amount: number; step: number }
   | { kind: 'damageRandom'; min: number; max: number }
   | { kind: 'damageEqualBlock' }
   | { kind: 'selfDamage'; amount: number }
@@ -452,6 +454,8 @@ export interface CombatState {
   enemyActing?: boolean;
   /** 敵方回合排隊要行動的魔物 uid（beginEnemyTurn 排好、stepEnemyTurn 一隻一隻拿），畫面靠它逐隻演出 */
   enemyQueue?: number[];
+  /** 這場戰鬥裡每張牌（uid）已打出的次數：分身術疊傷害用；每場戰鬥重新算 */
+  cardPlays?: Record<number, number>;
   pending: PendingChoice | null;
   log: string[];
   encounterId: string;

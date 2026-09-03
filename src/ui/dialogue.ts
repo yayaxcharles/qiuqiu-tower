@@ -76,7 +76,17 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     unlockScreen();   // 排在 onDone 之前：回呼裡就會換畫面、擺上新的按鈕
     onDone();
   };
+  // 連點保護（使用者 2026-09-03：開頭影片「跳過」狂點，後面幾下會直接落在這層上，把台詞一口氣點掉、圖還沒淡入就換）：
+  // 剛出現的 700 毫秒內不吃點擊，之後兩下之間至少隔 220 毫秒，一下只推進一句
+  const mountedAt = performance.now();
+  let lastAdvance = 0;
+  const tooSoon = (): boolean => {
+    const now = performance.now();
+    if (now - mountedAt < 700 || now - lastAdvance < 220) return true;
+    lastAdvance = now; return false;
+  };
   box.addEventListener('click', () => {
+    if (tooSoon()) return;
     i += 1;
     if (i >= lines.length) end(); else render();
   });

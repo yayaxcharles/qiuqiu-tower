@@ -80,7 +80,12 @@ const POSE = {
   power: 'hero/ninja_power', hurt: 'hero/ninja_hurt',
   // 2026-09-03 晚補的動態：施展忍術（打技能／能力牌時用；圖還沒生好就退回出招圖）
   skill: 'hero/ninja_skill',
+  // 擲手裡劍（2026-09-03 晚生的圖）：撒手鐧那張牌、手裡劍與針雨兩支忍具用；沒圖就退回出招圖
+  throw: 'hero/ninja_throw',
 };
+/** 出手時該用擲手裡劍立繪的牌與忍具 */
+const THROW_CARDS: ReadonlySet<string> = new Set(['sashoujian']);
+const THROW_POTIONS: ReadonlySet<string> = new Set(['shuriken', 'needle_rain']);
 // 塔主的姿勢對照表放在內容層（`enemies.ts`），跟招式定義擺在一起，加招時比較不會漏配。
 const BOSS_MOVE_POSE = BOSS_MOVE_ART;
 const BOSS_IDLE = BOSS_ART.idle1;          // 第一階段
@@ -875,7 +880,7 @@ registerScreen('combat', (app, root, props) => {
     targeting = null;
     if (!t || !canAct()) { render(); return; }
     if (t.kind === 'card') play(t.uid, enemyUid);
-    else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); });
+    else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); }, THROW_POTIONS.has(t.id) && hasSprite(POSE.throw) ? { pose: POSE.throw, attack: true } : {});
   }
 
   /**
@@ -931,7 +936,7 @@ registerScreen('combat', (app, root, props) => {
     act(() => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       if (!playCard(cs, uid, targetUid)) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
-    }, { pose: st.def.type !== '攻擊' && hasSprite(POSE.skill) ? POSE.skill : POSE.attack, attack: st.def.type === '攻擊' });
+    }, { pose: st.def.type !== '攻擊' && hasSprite(POSE.skill) ? POSE.skill : THROW_CARDS.has(st.def.id) && hasSprite(POSE.throw) ? POSE.throw : POSE.attack, attack: st.def.type === '攻擊' });
     if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
@@ -948,7 +953,7 @@ registerScreen('combat', (app, root, props) => {
     hint = '';
     // 只有打魔物的忍具要選目標（手裡劍、麻繩）；全體與自己用的直接用掉
     if (def.target === 'enemy') { targeting = { kind: 'potion', id }; render(); return; }
-    act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); });
+    act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); }, THROW_POTIONS.has(id) && hasSprite(POSE.throw) ? { pose: POSE.throw, attack: true } : {});
   }
 
   /**

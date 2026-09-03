@@ -746,9 +746,10 @@
 @keyframes vs-out { to { opacity: 0; } }
 .vs-overlay img { height: 380px; filter: drop-shadow(0 10px 24px rgba(0,0,0,.6)); }
 .vs-overlay .vs-left { animation: vs-slam-l .45s cubic-bezier(.2,.9,.3,1.2); }
-.vs-overlay .vs-right { transform: scaleX(-1); animation: vs-slam-r .45s cubic-bezier(.2,.9,.3,1.2); }
+/* 右邊的關主不翻面：魔物立繪一律朝左，本來就面向左邊的球球；以前的 scaleX(-1) 讓牠背對球球（使用者 2026-09-03：「出現的時候面向怪怪的」） */
+.vs-overlay .vs-right { animation: vs-slam-r .45s cubic-bezier(.2,.9,.3,1.2); }
 @keyframes vs-slam-l { from { transform: translateX(-320px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes vs-slam-r { from { transform: translateX(320px) scaleX(-1); opacity: 0; } to { transform: translateX(0) scaleX(-1); opacity: 1; } }
+@keyframes vs-slam-r { from { transform: translateX(320px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .vs-overlay .vs-mark {
   font-size: 84px; font-weight: 900; color: #ffd35c;
   text-shadow: 0 4px 0 #7a4a00, 0 0 34px rgba(255, 190, 60, .8);

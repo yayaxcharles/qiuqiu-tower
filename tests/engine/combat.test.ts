@@ -95,14 +95,25 @@ describe('出牌', () => {
     playCard(cs, toHand(cs, 'zhanshu'));
     expect(canPlay(cs, toHand(cs, 'sanjo'), cs.enemies[0]!.uid).ok).toBe(false);
   });
-  it('分身術照連抓數打', () => {
+  it('分身術：3 點起、這場戰鬥同一張每打出一次就 +3；升級 5／+5 且 2 費；換一場歸零（2026-09-03 改效果）', () => {
     const cs = start('wood_dummy', [...STARTER_DECK, 'bunshin']);
-    cs.player.energy = 5;
-    playCard(cs, toHand(cs, 'kawarimi'));
-    playCard(cs, toHand(cs, 'tanding'));
-    const e = cs.enemies[0]!; e.block = 0; const hp = e.hp;
-    playCard(cs, toHand(cs, 'bunshin'), e.uid);   // 連抓 2 → 3 次 × 3
-    expect(e.hp).toBe(hp - 9);
+    cs.player.energy = 9;
+    const e = cs.enemies[0]!; e.block = 0;
+    let hp = e.hp;
+    playCard(cs, toHand(cs, 'bunshin'), e.uid); expect(hp - e.hp).toBe(3); hp = e.hp;      // 第一次 3
+    e.block = 0; playCard(cs, toHand(cs, 'bunshin'), e.uid); expect(hp - e.hp).toBe(6); hp = e.hp;   // 第二次 6
+    e.block = 0; playCard(cs, toHand(cs, 'bunshin'), e.uid); expect(hp - e.hp).toBe(9);              // 第三次 9
+    // 升級版：2 費、5 點起、每次 +5（同一張牌，這場已打三次 → 5 + 5×3 = 20）
+    const uid = toHand(cs, 'bunshin');
+    const ci = cs.player.hand.find((c) => c.uid === uid)!; ci.upgraded = true;
+    const energy = cs.player.energy; hp = e.hp; e.block = 0;
+    expect(playCard(cs, uid, e.uid)).toBe(true);
+    expect(energy - cs.player.energy).toBe(2);
+    expect(hp - e.hp).toBe(20);
+    // 換一場戰鬥從頭算
+    const cs2 = start('wood_dummy', [...STARTER_DECK, 'bunshin']);
+    const e2 = cs2.enemies[0]!; e2.block = 0; const hp2 = e2.hp;
+    playCard(cs2, toHand(cs2, 'bunshin'), e2.uid); expect(hp2 - e2.hp).toBe(3);
   });
   it('擊倒最後一隻就勝利，飯糰怪回血', () => {
     const cs = start('onigiri_monster', STARTER_DECK, 's', [], 50);
@@ -318,7 +329,7 @@ describe('魔物回合', () => {
     expect(e.charged).toBe(false);
     expect(getStatus(e, '定身')).toBe(0);
   });
-  it('貓又照表出招：1 召、4 準備、5 補召；尾巴打死不復活、上限四條、滿了就把血灌給現有的', () => {
+  it('貓又照表出招：1 召、4 準備、5 補召；尾巴打死不復活、同時最多兩條、滿了就把血灌給現有的', () => {
     const cs = start('nekomata');
     const neko = cs.enemies[0]!;
     expect(neko.move.label).toBe('放尾巴');
@@ -336,20 +347,17 @@ describe('魔物回合', () => {
     expect(tail.dead).toBe(true);
     expect(tails()).toBe(1);
     expect(neko.move.label).toBe('放尾巴');
-    endTurn(cs);                                    // 第 5 回合：補召兩條 → 三條（上限 4）
-    expect(tails()).toBe(3);
+    endTurn(cs);                                    // 第 5 回合：補召 → 只補到兩條（2026-09-03 使用者：四條同時在場是 bug，上限 4→2）
+    expect(tails()).toBe(2);
     // 敵方回合召出來的尾巴這回合本來就不動（快照），意圖照表先亮出來，不再掛「剛冒出來」（2026-09-02 稽核 M-2）
     const fresh = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead && e.turnCount === 0);
-    expect(fresh.length).toBe(2);
+    expect(fresh.length).toBe(1);
     expect(fresh.every((e) => e.move.label !== '剛冒出來')).toBe(true);
-    // 滿四條之後再放＝把血灌給最弱的那條，不會出現第五條
-    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
-    cs.player.block = 99; endTurn(cs);
-    expect(tails()).toBe(4);
-    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 1, max: 4 }] };
+    // 兩條都在時再放＝把血灌給最弱的那條，不會出現第三條
+    neko.move = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 1, max: 2 }] };
     const hpSum = cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).reduce((a, e) => a + e.maxHp, 0);
     cs.player.block = 99; endTurn(cs);
-    expect(tails()).toBe(4);
+    expect(tails()).toBe(2);
     expect(cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).reduce((a, e) => a + e.maxHp, 0)).toBe(hpSum + 8);
   });
   it('僕從護體：僕從還站著打不動本體，也不消耗她的隱身；清光僕從才打得到', () => {

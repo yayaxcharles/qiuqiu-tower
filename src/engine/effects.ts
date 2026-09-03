@@ -38,6 +38,16 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       }
       return false;
     }
+    case 'damageRamp': {
+      // 分身術：這場戰鬥裡這張牌（同一個 uid）之前每打出一次，這次就多 step 點；次數在 playCard 打完才 +1
+      const plays = ctx.cardUid !== undefined ? (cs.cardPlays?.[ctx.cardUid] ?? 0) : 0;
+      const base = (fx.amount + fx.step * plays) * (ctx.doubleDamage ? 2 : 1);
+      for (const t of targetsOf(cs, ctx, false)) {
+        const r = damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion' });
+        if (r.killed) ctx.killed = true;
+      }
+      return false;
+    }
     case 'damageRandom': {
       const base = cs.rng.int(fx.min, fx.max) * (ctx.doubleDamage ? 2 : 1);
       for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base).killed) ctx.killed = true;

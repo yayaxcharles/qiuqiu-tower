@@ -137,6 +137,9 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
     if (e && p.cardsPlayedThisTurn === e.n) p.energy += e.energy;
   }
   applyEffects(cs, st.effects, ctx);
+  // 這張牌這場打過幾次（分身術疊傷害用）：效果結算完才 +1，第一次打是 0 次
+  cs.cardPlays = cs.cardPlays ?? {};
+  cs.cardPlays[uid] = (cs.cardPlays[uid] ?? 0) + 1;
   // 打出攻擊牌之後的秘寶效果（逗貓棒、貓抓板）：牌效果算完才觸發，打贏了就不用
   if (st.def.type === '攻擊' && cs.phase === 'player') {
     for (const rid of cs.relics) {

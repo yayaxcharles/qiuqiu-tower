@@ -127,7 +127,7 @@ function attackable(cs: CombatState, e: EnemyCombat): boolean {
 }
 
 /** 這張牌打在這隻魔物身上大概能扣多少血（吃過爪力、翻肚、防禦、隱身） */
-function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: number, doubled: boolean): number {
+function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: number, doubled: boolean, plays = 0): number {
   if (!attackable(cs, e)) return 0;
   if (getStatus(e, '隱身') > 0) return 0;
   let block = e.block;
@@ -147,6 +147,9 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
     if (fx.kind === 'damage') {
       const times = fx.scaleWithCombo ? Math.min(combo + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
       for (let i = 0; i < times; i++) swing(computeAttack(fx.amount * (doubled ? 2 : 1), p, e), fx.ignoreBlock);
+    } else if (fx.kind === 'damageRamp') {
+      // 分身術：這場這張已打過幾次就加幾段（plays 由呼叫端查 cs.cardPlays）
+      swing(computeAttack((fx.amount + fx.step * plays) * (doubled ? 2 : 1), p, e));
     } else if (fx.kind === 'damageRandom') {
       swing(computeAttack(Math.round((fx.min + fx.max) / 2) * (doubled ? 2 : 1), p, e));
     } else if (fx.kind === 'damageEqualBlock') {
@@ -174,26 +177,26 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   let endsTurn = false;
   let target: number | undefined;
   const combo = p.cardsPlayedThisTurn;
-  const hasDamage = st.effects.some((fx) => fx.kind === 'damage' || fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock');
+  const hasDamage = st.effects.some((fx) => fx.kind === 'damage' || fx.kind === 'damageRamp' || fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock');
 
   if (hasDamage) {
     // 挑目標：能打死的優先（少一隻就少挨一份），否則打最矮的能打的那隻
     let best: { e: EnemyCombat; v: number } | null = null;
     for (const e of enemies) {
       if (!attackable(cs, e)) continue;
-      const dmg = damageTo(cs, st.effects, e, combo, p.doubleNext > 0);
+      const dmg = damageTo(cs, st.effects, e, combo, p.doubleNext > 0, cs.cardPlays?.[c.uid] ?? 0);
       // 牠有隱身：這一下會落空，但不打掉那層永遠打不到牠——便宜的攻擊牌照樣值得丟
       let v = dmg > 0 ? dmg : getStatus(e, '隱身') > 0 ? 3 / Math.max(1, st.cost) : 0;
       if (dmg >= e.hp) v += 8 + incomingHits(cs, e).reduce((s, h) => s + h, 0);   // 收頭：牠這回合的傷害也一起省掉
       else v += e.hp < 20 ? 2 : 0;
       // 牠身上有反彈：每打一下就被刺一下（2026-09-02 反彈才真的生效），多段牌撞上去很痛
-      const hits = st.effects.reduce((n, fx) => n + (fx.kind === 'damage' ? (fx.times ?? 1) : fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock' ? 1 : 0), 0);
+      const hits = st.effects.reduce((n, fx) => n + (fx.kind === 'damage' ? (fx.times ?? 1) : fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock' || fx.kind === 'damageRamp' ? 1 : 0), 0);
       if (getStatus(e, '反彈') > 0 && dmg < e.hp) v -= getStatus(e, '反彈') * hits * (lowHp ? 4 : 1.5);
       if (!best || v > best.v) best = { e, v };
     }
     if (def.target === 'all') {
-      value += enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0), 0);
-      if (best) value += best.v - damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0);
+      value += enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, cs.cardPlays?.[c.uid] ?? 0), 0);
+      if (best) value += best.v - damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, cs.cardPlays?.[c.uid] ?? 0);
     } else if (best) { value += best.v; target = best.e.uid; }
     if (def.target === 'enemy' && !target) return null;
     // 全場快清光了就別留手
