@@ -27,7 +27,9 @@ describe('隨機試玩', () => {
     // 2026-09-02 遭遇改成整關洗牌佇列（不重複抽）＋塔中塔頂各補四組雙人遭遇，擲骰順序又變，錨值重錄
     // 2026-09-02 晚：起始血 70→76、師父第二階段段數 7→6／4→3，錨值重錄；再晚：敵方回合召喚的不再多發呆一回合，再重錄
     // 2026-09-02 第二波怪（12 隻新怪、18 組新遭遇、4 個新關主進池）：抽到的怪與擲骰順序全變，錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 10, turns: 35, kills: 7, deckSize: 17 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 11, turns: 51, kills: 6, deckSize: 14 });
+    // 2026-09-03 菁英擴充（9 隻新菁英、9 組新遭遇；第一關開放大魔物節點）：
+    // 第一關的地圖多了大魔物節點，路線與遭遇的擲骰順序整個位移，錨值重錄一次
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 12, turns: 43, kills: 8, deckSize: 16 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 11, turns: 22, kills: 3, deckSize: 16 });
   });
 });

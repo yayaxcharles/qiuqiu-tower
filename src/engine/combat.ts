@@ -212,6 +212,12 @@ export function endTurn(cs: CombatState): void {
     const def = enemyById[e.enemyId];
     // 飛行：牠自己的回合一開始就補回滿層——上一輪被你打下來，這一輪牠又飛起來了
     if (def?.flying) { removeStatus(e, '飛行'); addStatus(e, '飛行', def.flying); }
+    // 虛化（2026-09-03 菁英擴充）：牠的每個回合開始切換一次，所以是虛一回合、實一回合。
+    // 開戰帶著虛化（makeEnemy），所以玩家的第一回合打不動牠，第二回合才是輸出窗口
+    if (def?.phasing) {
+      if (getStatus(e, '虛化') > 0) { removeStatus(e, '虛化'); log(cs, `${e.name}實體化了，這回合打得進去`); }
+      else { addStatus(e, '虛化', 1); log(cs, `${e.name}變得半透明`); }
+    }
     const ph = def?.phases?.[e.phase - 1];
     if (ph?.strengthPerTurn) addStatus(e, '爪力', ph.strengthPerTurn);
     // 師父二、三階段：每回合先把你堆的爪力、貓步震掉幾點（見 EnemyPhase.drainPlayerPerTurn）

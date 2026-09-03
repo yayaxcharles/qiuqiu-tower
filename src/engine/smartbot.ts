@@ -135,10 +135,12 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
   const p = cs.player;
   // 飛行（燈蛾、月蛾后）：每一下先減半，扣到血就掉一層，掉到 0 之後才打得到全額
   let flying = getStatus(e, '飛行');
+  // 虛化（虛無貓，2026-09-03）：每一段最多只扣 1 點血。防禦照原本的量扣掉，只有進血條的那幾點被壓成 1
+  const phasing = getStatus(e, '虛化') > 0;
   const swing = (raw: number, ignoreBlock = false): void => {
     const dmg = flying > 0 ? Math.floor(raw / 2) : raw;
     const ab = ignoreBlock ? 0 : Math.min(block, dmg);
-    block -= ab; total += dmg - ab;
+    block -= ab; total += phasing ? Math.min(1, dmg - ab) : dmg - ab;
     if (flying > 0 && dmg - ab > 0) flying -= 1;
   };
   for (const fx of effects) {

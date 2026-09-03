@@ -82,24 +82,23 @@ function roll(rng: Rng, table: [NodeType, number][]): NodeType {
 /**
  * 各層抽節點型別的權重表，**依關數不同**。
  *
- * 第一關（2026-09-01 依實測調整）：沒有大魔物——精英怪的強度是照「牌組已經成形」設計的，
- * 放在第一關等於用初始十張牌去撞（使用者實玩：「菁英怪太強」）。戰鬥比重也調高：
- * 牌組要靠戰鬥獎勵長大，事件與商店太密會「牌還沒湊好就一直逛街」。
- * 第二、三關恢復原本的表（含大魔物），玩家此時有牌組也有秘寶。
+ * 第一關的 2～7F 戰鬥比重比較高：牌組要靠戰鬥獎勵長大，事件與商店太密會
+ * 「牌還沒湊好就一直逛街」。9–13F 三關一律同一張表（含大魔物）。
+ *
+ * 2026-09-03 菁英擴充：第一關也開放大魔物，規則跟第二、三關一模一樣。
+ * 以前不開是因為當時的菁英只有一批「照牌組已經成形」設計的（使用者實玩：「菁英怪太強」）；
+ * 現在第一關有自己的三隻（山豬頭目、紙老虎、太鼓狸，血 72～84、單一機制），強度對得上初期牌組。
  */
 function tableFor(floor: number, act: number, eliteMul = 1): [NodeType, number][] {
   if (act <= 1) {
     if (floor >= 2 && floor <= 4) return [['戰鬥', 70], ['事件', 22], ['罐頭鋪', 8]];
     if (floor === 6) return [['戰鬥', 62], ['事件', 26], ['罐頭鋪', 12]];
     if (floor === 7) return [['戰鬥', 68], ['事件', 32]];
-    // 難度 2 起（eliteMul > 1）第一關 9–13F 也開放大魔物，每關最多一個
-    return eliteMul > 1
-      ? [['戰鬥', 50], ['事件', 21], ['罐頭鋪', 11], ['貓窩', 12], ['大魔物', 6]]
-      : [['戰鬥', 56], ['事件', 21], ['罐頭鋪', 11], ['貓窩', 12]];   // 9–13
+  } else {
+    if (floor >= 2 && floor <= 4) return [['戰鬥', 60], ['事件', 30], ['罐頭鋪', 10]];
+    if (floor === 6) return [['戰鬥', 50], ['事件', 35], ['罐頭鋪', 15]];
+    if (floor === 7) return [['戰鬥', 60], ['事件', 40]];
   }
-  if (floor >= 2 && floor <= 4) return [['戰鬥', 60], ['事件', 30], ['罐頭鋪', 10]];
-  if (floor === 6) return [['戰鬥', 50], ['事件', 35], ['罐頭鋪', 15]];
-  if (floor === 7) return [['戰鬥', 60], ['事件', 40]];
   return [['戰鬥', 45], ['事件', 25], ['罐頭鋪', 10], ['貓窩', 10], ['大魔物', Math.round(10 * eliteMul)]];   // 9–13
 }
 
@@ -142,7 +141,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   }
   // 類型
   const eliteMul = opts.eliteMul ?? 1;
-  const eliteCap = eliteMul > 1 && act >= 2 ? 2 : 1;   // 難度 2 起二、三關可以兩個大魔物
+  const eliteCap = eliteMul > 1 ? 2 : 1;   // 難度 2 起每一層可以兩個大魔物（2026-09-03 起三關都適用）
   for (let f = 2; f <= 13; f++) {
     if (CONVERGED[f]) continue;
     const row = byFloor[f]!;
@@ -156,9 +155,10 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       if (t === '大魔物') elites++;
       n.type = t;
     }
-    if (act >= 2 && f === 7 && elites === 0) rng.pick(row).type = '大魔物';   // 第一關沒有精英（見 tableFor）
-    // 難度 2 起（eliteMul > 1）二、三關 11F 再保證一個：只靠權重抽，整關平均只多兩成，湊不到「多六成」
-    if (eliteMul > 1 && act >= 2 && f === 11 && elites === 0) rng.pick(row).type = '大魔物';
+    // 整關至少一個大魔物：7F 沒抽到就直接放一個（2026-09-03 起第一關也照這條，見 tableFor）
+    if (f === 7 && elites === 0) rng.pick(row).type = '大魔物';
+    // 難度 2 起（eliteMul > 1）11F 再保證一個：只靠權重抽，整關平均只多兩成，湊不到「多六成」
+    if (eliteMul > 1 && f === 11 && elites === 0) rng.pick(row).type = '大魔物';
   }
   // 9–13F 保證至少一個罐頭鋪、一個貓窩
   const mid = [9, 10, 11, 12, 13].flatMap((f) => byFloor[f]!);
@@ -228,7 +228,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       n.encounterId = nextEncounter(`${poolForFloor(n.floor, act)}:${pool.length}`, pool.map((e) => e.id));
     }
     else if (n.type === '大魔物') {
-      // 第一關本來沒有大魔物遭遇（難度 2 起才開放），借塔中的精英池（不含 _top 加強版）
+      // 三關各有自己的菁英池（2026-09-03 起第一關也有三隻）；萬一某關的池是空的就退回塔中的
       const pool = encountersOfPool('大魔物', act);
       n.encounterId = rng.pick(pool.length ? pool : encountersOfPool('大魔物', 2)).id;
     }
@@ -271,15 +271,18 @@ export function validateMap(map: GameMap, act = 1): string[] {
   if (!nodesOnFloor(map, 1).every((n) => n.type === '戰鬥')) p.push('1F 必須全是戰鬥');
   const f5 = nodesOnFloor(map, 5);
   if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)) p.push('5F 必須是唯一的大俠傳功');
-  // 7F 精英保底只適用第二關起；驗證函式看不到關數，改成寬鬆版：
-  // 有大魔物的圖照樣檢查每層上限（下面那段），沒有的（第一關）不算錯
+  // 7F 的精英保底三關都適用（2026-09-03 起第一關也開放菁英），驗證函式不必再分關數
+  if (!nodesOnFloor(map, 7).some((n) => n.type === '大魔物')) p.push('7F 必須有一個大魔物');
 
   for (let f = 1; f <= FLOORS; f++) {
     const row = nodesOnFloor(map, f);
     // 非匯合層的格數由路線決定（1～PATHS 都合法），只要不是空的、也沒超過路線數就行
     if (CONVERGED[f] ? row.length !== 1 : row.length < 1 || row.length > PATHS) p.push(`${f}F 節點數錯誤`);
     if (row.filter((n) => n.type === '罐頭鋪').length > 1) p.push(`${f}F 罐頭鋪超過一個`);
-    if (row.filter((n) => n.type === '大魔物').length > 1) p.push(`${f}F 大魔物超過一個`);
+    // 難度 2 起（eliteMul > 1）同一層允許兩個大魔物——見 generateMap 的 eliteCap。
+    // 本來這裡寫死「超過一個就是錯」，跟產生器不一致：難度 2 的圖每 200 張約有 10 張被誤判成壞圖
+    // （2026-09-03 菁英擴充時量到的；當時還沒有任何測試拿難度 2 的圖來驗，所以一直沒被抓到）
+    if (row.filter((n) => n.type === '大魔物').length > 2) p.push(`${f}F 大魔物超過兩個`);
     if (f === 13 && row.some((n) => n.type === '貓窩')) p.push('13F 不可放貓窩');
     if (f >= 2 && f <= 6 && row.some((n) => n.type === '貓窩' || n.type === '大魔物')) p.push(`${f}F 不該有貓窩或大魔物`);
   }

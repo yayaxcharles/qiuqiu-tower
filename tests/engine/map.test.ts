@@ -29,8 +29,8 @@ describe('地圖', () => {
     const m = generateMap(new Rng(seedFromString('fixed')));
     expect(nodesOnFloor(m, 1).every((n) => n.type === '戰鬥')).toBe(true);
     expect(nodesOnFloor(m, 5).every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)).toBe(true);
-    // 三關制後第一關沒有精英（強度是照牌組成形後設計的）；7F 的精英保底改成第二關起
-    expect(nodesOnFloor(m, 7).some((n) => n.type === '大魔物')).toBe(false);
+    // 2026-09-03 菁英擴充：第一關也開放菁英，7F 的「整關至少一個」保底三關都適用
+    expect(nodesOnFloor(m, 7).some((n) => n.type === '大魔物')).toBe(true);
     const m2 = generateMap(new Rng(seedFromString('m-act2')), { act: 2 });
     expect(nodesOnFloor(m2, 7).some((n) => n.type === '大魔物')).toBe(true);
     expect(nodesOnFloor(m, 8).map((n) => n.type)).toEqual(['紙箱']);
@@ -157,10 +157,31 @@ describe('分岔的選擇要有意義', () => {
 });
 
 describe('第一關的難度守則', () => {
-  it('第一關整張圖沒有大魔物；第二關有', () => {
-    for (let i = 0; i < 40; i++) {
-      const a1 = generateMap(new Rng(seedFromString(`d1-${i}`)));
-      expect(a1.nodes.some((n) => n.type === '大魔物')).toBe(false);
+  // 2026-09-03 菁英擴充：第一關開放菁英，規則跟第二、三關一模一樣
+  // （7F 保底一個、9–13F 照權重抽、難度 1 每層最多一個、難度 2 起每層最多兩個並在 11F 再保底一個）
+  it('第一關 200 顆種子：每顆都有大魔物，難度 1 每層最多 1 個、難度 2 每層最多 2 個', () => {
+    for (let i = 0; i < 200; i++) {
+      const easy = generateMap(new Rng(seedFromString(`a1-elite-${i}`)), { act: 1 });
+      expect(easy.nodes.some((n) => n.type === '大魔物'), `seed a1-elite-${i}`).toBe(true);
+      expect(nodesOnFloor(easy, 7).some((n) => n.type === '大魔物'), `seed a1-elite-${i} 的 7F`).toBe(true);
+      expect(validateMap(easy, 1), `seed a1-elite-${i}`).toEqual([]);
+      const hard = generateMap(new Rng(seedFromString(`a1-elite-${i}`)), { act: 1, eliteMul: 1.6 });
+      expect(hard.nodes.some((n) => n.type === '大魔物'), `seed a1-elite-${i} 難度 2`).toBe(true);
+      expect(validateMap(hard, 1), `seed a1-elite-${i} 難度 2`).toEqual([]);
+      for (let f = 1; f <= FLOORS; f++) {
+        const cnt = (m: GameMap): number => nodesOnFloor(m, f).filter((n) => n.type === '大魔物').length;
+        expect(cnt(easy), `seed a1-elite-${i} 的 ${f}F（難度 1）`).toBeLessThanOrEqual(1);
+        expect(cnt(hard), `seed a1-elite-${i} 的 ${f}F（難度 2）`).toBeLessThanOrEqual(2);
+      }
+    }
+  });
+
+  it('第一關的大魔物只抽得到第一關自己的三隻菁英', () => {
+    const act1Elites = new Set(encountersOfPool('大魔物', 1).map((e) => e.id));
+    expect(act1Elites).toEqual(new Set(['wild_boar', 'paper_tiger', 'drum_tanuki']));
+    for (let i = 0; i < 60; i++) {
+      const m = generateMap(new Rng(seedFromString(`a1-pool-${i}`)), { act: 1 });
+      for (const n of m.nodes) if (n.type === '大魔物') expect(act1Elites.has(n.encounterId!), n.encounterId).toBe(true);
     }
   });
 

@@ -33,9 +33,11 @@ const STATUS_ICON: Record<StatusName, string> = {
   // 第二波魔物的五個狀態。圖示還沒生：`chip()` 會退回寫名字（灰剪影一排認不出誰是誰）
   縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate',
   沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
+  // 菁英擴充的虛化（2026-09-03）：圖示同樣還沒生，先寫名字
+  虛化: 'icon/status_phase',
 };
 /** 狀態排列順序寫死，好的排前面，才不會每次重畫就換位置（物件鍵的順序不保證） */
-const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲',
+const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲', '虛化',
   '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
@@ -96,9 +98,9 @@ function bossMovePose(phase: number, label: string): string | undefined {
 interface Acted { label: string; attacked: boolean }
 
 /** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
-// 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲對魔物是好事（金光），
-// 沉睡、消散對牠是壞事（紫光）。球球身上永遠不會有這五個。
-const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲'];
+// 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲、虛化對魔物是好事（金光），
+// 沉睡、消散對牠是壞事（紫光）。球球身上永遠不會有這六個。
+const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲', '虛化'];
 const BAD_STATUS: readonly StatusName[] = ['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
 const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
   names.reduce((t, k) => t + getStatus(u, k), 0);
@@ -302,7 +304,8 @@ registerScreen('combat', (app, root, props) => {
       const v = getStatus(u, name);
       if (v <= 0) continue;
       const tone = GOOD_STATUS.includes(name) ? 'good' : BAD_STATUS.includes(name) ? 'bad' : '';
-      row.append(chip(STATUS_LABEL[name] ?? name, STATUS_ICON[name], String(v), tone));
+      // 虛化只有「有／沒有」兩種狀態，層數永遠是 1，寫個 1 出來反而讓人以為還能疊——照「無敵」那樣只寫名字
+      row.append(chip(STATUS_LABEL[name] ?? name, STATUS_ICON[name], name === '虛化' ? '' : String(v), tone));
     }
     return row;
   }

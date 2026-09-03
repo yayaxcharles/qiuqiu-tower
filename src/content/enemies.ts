@@ -848,6 +848,113 @@ export const enemies: EnemyDef[] = [
         { intent: 'debuff', label: '唸經', effects: [{ kind: 'giveCard', cardId: 'slime_card', n: 2, to: 'discard' }] },
       ],
     }] },
+
+  // ===== 2026-09-03 菁英擴充：每關 3 隻新菁英、2 種召喚小怪、新機制「虛化」 =====
+  // 設計稿：docs/菁英擴充_設計稿.md。血量是單獨出場的值（遭遇不另帶 hpScale；第三關照慣例帶魔氣 5）。
+  // 機制全部重用第二波與更早做好的那些，只有「虛化」是新的。
+
+  // --- 第一關（塔下）：只有單一機制，一隻教一件事 ---
+  // 憤怒：你每打一張技能牌牠就 +2 爪力。這一場的解法是拿攻擊牌速戰速決，別在牠面前慢慢鋪
+  { id: 'wild_boar', name: '山豬頭目', hp: [84, 84], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_wild_boar',
+    line: '（鼻子噴出兩道白氣，前腳刨著地）', lines: ['（獠牙刮過石頭，火星四濺）', '（低下頭，對準了你）'],
+    angerOnSkill: 2,
+    moves: [
+      { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '亂踩', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
+      { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 12 }] },
+    ] },
+  // 反彈 3：開戰就帶著，整場都在。多段小刀砍下去自己會先痛死，要嘛少段數重擊、要嘛先疊好蜷縮
+  { id: 'paper_tiger', name: '紙老虎', hp: [72, 72], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_paper_tiger',
+    line: '（紙糊的身體，吼聲卻震得地板發抖）', lines: ['（紙做的鬍鬚一根根豎起來）', '（張開嘴，裡面是空的）'],
+    thorns: 3,
+    moves: [
+      { intent: 'attack', label: '撲', effects: [{ kind: 'damage', amount: 11 }] },
+      { intent: 'attack', label: '抓', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
+      { intent: 'block', label: '虛張聲勢', effects: [{ kind: 'block', amount: 12 }] },
+    ] },
+  // 蓄力：看到「打鼓助勢」就知道下一下是 28，該疊蜷縮或用定身把那一下弄掉
+  { id: 'drum_tanuki', name: '太鼓狸', hp: [80, 80], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_drum_tanuki',
+    line: '（咚——鼓聲從肚子裡傳出來）', lines: ['（把鼓背到身前，咚咚敲了兩下）', '（鼓面繃得很緊）'],
+    moves: [
+      { intent: 'attack', label: '敲鼓', effects: [{ kind: 'damage', amount: 8 }] },
+      { intent: 'special', label: '打鼓助勢', effects: [{ kind: 'chargeNext' }] },
+      { intent: 'attack', label: '重擊', effects: [{ kind: 'damage', amount: 14 }] },
+    ] },
+
+  // --- 第二關（塔中）：兩個機制疊在一起 ---
+  // 鱗甲 8＋縮殼 12：第一下會被縮殼吃掉一大半，之後每回合還自己補 8 點甲。多段牌剝甲、大招牌收頭
+  { id: 'iron_arhat', name: '鐵羅漢', hp: [120, 120], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_arhat',
+    line: '（鐵鑄的身體，合十的手緩緩放下）', lines: ['（一步踏下去，地板裂了一道縫）', '（鐵皮摩擦的聲音）'],
+    plating: 8, curlUp: 12,
+    moves: [
+      { intent: 'attack', label: '鐵拳', effects: [{ kind: 'damage', amount: 14 }] },
+      { intent: 'block', label: '金剛立', effects: [{ kind: 'block', amount: 12 }] },
+      { intent: 'attack', label: '羅漢掌', effects: [{ kind: 'damage', amount: 18 }] },
+    ] },
+  // 飛行 3＋塞牌：吊在絲上打得到一半，還一直往你抽牌堆塞眼冒金星。多段小刀先把牠扯下來
+  { id: 'shadow_spider', name: '織影蜘蛛', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_spider',
+    line: '（八隻眼睛同時看過來，絲從天花板垂下）', lines: ['（絲網在暗處反光）', '（悄悄吊下來一點點）'],
+    flying: 3,
+    moves: [
+      { intent: 'debuff', label: '吐絲', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 1, to: 'draw' }] },
+      { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '撲', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
+    ] },
+  // 消散 6＋每回合成長：六個回合內打不倒牠就散去，秘寶也跟著沒了。時間賽跑，而且牠越拖越強
+  { id: 'drunk_dog', name: '醉拳狗', hp: [125, 125], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_drunk_dog',
+    line: '（腳步東倒西歪，酒葫蘆卻拿得很穩）', lines: ['（打了個酒嗝，笑了一下）', '（晃了晃葫蘆，還有半瓶）'],
+    fadeAfter: 6, strengthEveryNTurns: 1,
+    moves: [
+      { intent: 'attack', label: '醉步', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
+      { intent: 'buff', label: '灌酒', effects: [{ kind: 'heal', n: 10 }, { kind: 'statusSelf', name: '爪力', amount: 2 }] },
+      { intent: 'attack', label: '醉拳', effects: [{ kind: 'damage', amount: 16 }] },
+    ] },
+
+  // --- 第三關（塔頂）：強機制 ---
+  // 鼓舞＋一起死才算：牠會把全體餵大，而且跟兩隻小鬼同一組——只要有同伴站著，倒下的就會爬回來
+  { id: 'oni_general', name: '鬼將', hp: [150, 150], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_oni_general',
+    line: '（鐵棒往地上一頓，兩隻小鬼從陰影裡鑽出來）', lines: ['小的們，上！', '（角上纏著一圈鐵環，叮噹作響）'],
+    reviveGroup: 'imps',
+    moves: [
+      { intent: 'buff', label: '號令', effects: [{ kind: 'statusAllies', name: '爪力', amount: 2 }] },
+      { intent: 'attack', label: '鐵棒', effects: [{ kind: 'damage', amount: 18 }] },
+      { intent: 'block', label: '盾陣', effects: [{ kind: 'blockAllies', amount: 12 }] },
+      { intent: 'attack', label: '橫掃', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+    ] },
+  // 小鬼：跟鬼將同一組（reviveGroup 'imps'），鬼將還站著就會爬起來。要三隻同一回合一起清光
+  { id: 'imp', name: '小鬼', hp: [16, 16], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_imp',
+    line: '（躲在鬼將腳邊，探出半顆頭）', lines: ['（呲牙笑了一下）', '（拿著一根小木棒）'],
+    reviveGroup: 'imps', reviveHp: 8,
+    moves: [
+      { intent: 'attack', label: '戳', effects: [{ kind: 'damage', amount: 6 }] },
+      { intent: 'block', label: '躲', effects: [{ kind: 'block', amount: 6 }] },
+    ] },
+  // 分裂＋詛咒：打到半血裂成兩隻鏡影（血＝裂開時剩下的），而且你每打一張技能牌就被塞一張眼冒金星
+  { id: 'mirror_sage', name: '鏡仙', hp: [160, 160], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_mirror_sage',
+    line: '（鏡面裡有無數個你，每一個都在動）', lines: ['（鏡子轉了半圈，映出你的背影）', '（鏡中的你先開口了）'],
+    splitInto: { enemyId: 'mirror_shard', n: 2, below: 0.5 },
+    hexOnSkill: { cardId: 'dazed_card', n: 1 },
+    moves: [
+      { intent: 'attack', label: '鏡光', effects: [{ kind: 'damage', amount: 14 }] },
+      { intent: 'debuff', label: '幻影', effects: [{ kind: 'giveCard', cardId: 'slime_card', n: 2, to: 'discard' }] },
+      { intent: 'attack', label: '鏡光', effects: [{ kind: 'damage', amount: 16 }] },
+    ] },
+  // 鏡影：只從鏡仙分裂出來，血量由分裂當下決定（這裡的區間會被 splitEnemy 覆蓋掉）
+  { id: 'mirror_shard', name: '鏡影', hp: [20, 20], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_mirror_shard',
+    line: '（碎片站了起來，也有一張臉）', lines: ['（映著半張你的臉）', '（邊緣還很鋒利）'],
+    moves: [
+      { intent: 'attack', label: '鏡刺', effects: [{ kind: 'damage', amount: 10 }] },
+      { intent: 'attack', label: '碎光', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
+    ] },
+  // 虛化（新機制）＋塞牌：虛一回合、實一回合，虛的那回合每一下最多只扣 1 點血。要把爆發留到牠實體化那回合
+  { id: 'void_cat', name: '虛無貓', hp: [170, 170], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_void_cat',
+    line: '（身體時有時無，像被誰擦掉了一半）', lines: ['（伸出的爪子穿過了牆）', '（連影子都是透明的）'],
+    phasing: true,
+    moves: [
+      { intent: 'debuff', label: '黑火', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 2, to: 'draw' }] },
+      { intent: 'attack', label: '虛爪', effects: [{ kind: 'damage', amount: 15 }] },
+      { intent: 'attack', label: '吞噬', effects: [{ kind: 'damage', amount: 12, times: 2, pierce: true }] },
+    ] },
 ];
 
 /**
@@ -1020,6 +1127,20 @@ export const encounters: EncounterDef[] = [
   { id: 'armadillo_king', pool: '塔主', enemies: ['armadillo_king'] },
   { id: 'dragon_cat', pool: '塔主', enemies: ['dragon_cat'] },
   { id: 'hex_abbot', pool: '塔主', enemies: ['hex_abbot'] },
+
+  // ===== 2026-09-03 菁英擴充（設計稿 §2）：每關 3 隻 =====
+  // 血量就是魔物本身的值，不另外掛 hpScale；第三關照塔頂慣例帶魔氣 5（跟既有的 _top 加強版同一個口徑）。
+  // 既有的 ninja_boss_top、giant_onigiri_top、roomba_king_top、calico_monk_top 通通保留，這裡只加不換。
+  { id: 'wild_boar', pool: '大魔物', enemies: ['wild_boar'], acts: [1] },
+  { id: 'paper_tiger', pool: '大魔物', enemies: ['paper_tiger'], acts: [1] },
+  { id: 'drum_tanuki', pool: '大魔物', enemies: ['drum_tanuki'], acts: [1] },
+  { id: 'iron_arhat', pool: '大魔物', enemies: ['iron_arhat'], acts: [2] },
+  { id: 'shadow_spider', pool: '大魔物', enemies: ['shadow_spider'], acts: [2] },
+  { id: 'drunk_dog', pool: '大魔物', enemies: ['drunk_dog'], acts: [2] },
+  // 鬼將帶兩隻小鬼上場（跟波斯大小姐帶執事貓、女僕貓同一套）：三隻同一組，要一起清光才算贏
+  { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 5, acts: [3] },
+  { id: 'mirror_sage', pool: '大魔物', enemies: ['mirror_sage'], strength: 5, acts: [3] },
+  { id: 'void_cat', pool: '大魔物', enemies: ['void_cat'], strength: 5, acts: [3] },
 ];
 
 export const encounterById: Record<string, EncounterDef> = Object.fromEntries(encounters.map((e) => [e.id, e]));

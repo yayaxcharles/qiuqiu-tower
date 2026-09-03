@@ -68,13 +68,13 @@ describe('難度表', () => {
     };
     const plain = count(1), hard = count(1.6);
     expect(hard).toBeGreaterThan(plain * 1.4);
-    // 第一關：難度 1 沒有大魔物、難度 2 起有
+    // 第一關（2026-09-03 菁英擴充後也有大魔物）：難度 1 就有，難度 2 起更多
     let a1 = 0, a1h = 0;
     for (let i = 0; i < 60; i++) {
       a1 += generateMap(new Rng(seedFromString(`a${i}`)), { act: 1 }).nodes.filter((x) => x.type === '大魔物').length;
       a1h += generateMap(new Rng(seedFromString(`a${i}`)), { act: 1, eliteMul: 1.6 }).nodes.filter((x) => x.type === '大魔物').length;
     }
-    expect(a1).toBe(0); expect(a1h).toBeGreaterThan(0);
+    expect(a1).toBeGreaterThan(0); expect(a1h).toBeGreaterThan(a1);
     expect(encounterById['shadow_cat']).toBeTruthy();   // 難度 5 的前哨戰用
   });
   it('成績分難度記，通關解鎖下一級', () => {

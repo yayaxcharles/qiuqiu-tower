@@ -185,6 +185,12 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     const th = getStatus(e, '反彈');
     if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true }); }
   }
+  // 虛化（虛無貓）：身體半透明，**每一段**傷害最多只扣 1 點血——攻擊、噎到、反彈一視同仁。
+  // 擺在扣血之前、防禦結算之後：防禦照原本的量擋掉，虛化只管「真的扣進血條的那幾點」
+  if (getStatus(e, '虛化') > 0 && lose > 1) {
+    log(cs, `${e.name}半透明的，這一下只碰到 1 點`);
+    lose = 1;
+  }
   e.hp = Math.max(0, e.hp - lose);
   if (lose > 0) {
     // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。
@@ -277,6 +283,9 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   if (def.plating) addStatus(e, '鱗甲', def.plating);
   if (def.curlUp) addStatus(e, '縮殼', def.curlUp);
   if (def.fadeAfter) addStatus(e, '消散', def.fadeAfter);
+  // 2026-09-03 菁英擴充：開戰帶反彈（紙老虎，整場不消失）、開戰帶虛化（虛無貓，之後每回合開始切換）
+  if (def.thorns) addStatus(e, '反彈', def.thorns);
+  if (def.phasing) addStatus(e, '虛化', 1);
   if (def.asleep) {
     addStatus(e, '沉睡', def.asleep);
     e.move = SLEEP_MOVE;   // 睡著的頭上顯示「呼呼大睡」；醒來時 moveIndex −1 → advanceMove 從第一招開始

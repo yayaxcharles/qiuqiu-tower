@@ -17,7 +17,7 @@ export const DIFFICULTY_TEXT = [
 ] as const;
 
 export interface DifficultyMods {
-  /** 大魔物節點的權重倍率（>1 時每關最多兩個、第一關也開放一個） */
+  /** 大魔物節點的權重倍率（>1 時同一層最多兩個，並在 11F 再保底一個；三關通用） */
   eliteMul: number;
   /** 所有魔物出場帶的爪力 */
   enemyStrength: number;
