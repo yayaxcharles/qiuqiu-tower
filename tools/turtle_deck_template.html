@@ -1,4 +1,4 @@
-<title>阿甲牌組工作檯</title>
+<title>姆斯牌組工作檯</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
 :root { --bg:#eef2e6; --panel:#f8faf3; --ink:#1f2a1c; --muted:#5f6d57; --line:#c9d3bd; --accent:#2f7d4f; --shell:#7a5c2e; --unique:#dcefd9; --mirror:#f3ecdc; --changed:#fff1c2; --del:#b3412f; }
@@ -38,8 +38,8 @@ td select { width:auto; }
 .note-p { color:var(--muted); font-size:12px; margin:8px 0 0; }
 </style>
 <main>
-<h1>阿甲牌組工作檯 <small>烏龜・龜甲流／玄武訣</small></h1>
-<p class="lede">每一格都能直接改：點文字就能編輯，費用與升級費是數字格，池、稀有度、類型用下拉。綠底是阿甲獨有的牌，沙色是「跟球球某張效果一樣、只換名字和圖」的鏡像牌（右邊寫著對應球球的哪一張）。改過的格子會標黃；改動只存在你這台電腦的瀏覽器裡。改完按「列出改動」把改過和新增的牌整理成文字貼給我，我照著做進遊戲；「匯出全部」是整張表。</p>
+<h1>姆斯牌組工作檯 <small>烏龜・龜甲流／玄武訣</small></h1>
+<p class="lede">每一格都能直接改：點文字就能編輯，費用與升級費是數字格，池、稀有度、類型用下拉。綠底是姆斯獨有的牌，沙色是「跟球球某張效果一樣、只換名字和圖」的鏡像牌（右邊寫著對應球球的哪一張）。改過的格子會標黃；改動只存在你這台電腦的瀏覽器裡。改完按「列出改動」把改過和新增的牌整理成文字貼給我，我照著做進遊戲；「匯出全部」是整張表。</p>
 <div class="summary" id="summary"></div>
 <div class="bar">
   <label>池 <select id="pool"><option value="">全部</option><option>起手</option><option>龜甲流</option><option>玄武訣</option></select></label>
@@ -56,7 +56,7 @@ td select { width:auto; }
 <th>牌名</th><th>池</th><th>稀有</th><th>類型</th><th>費</th><th>升級費</th><th>效果</th><th>升級後</th><th>同球球</th><th>備註</th><th></th>
 </tr></thead><tbody id="tb"></tbody></table></div>
 <textarea id="out" class="out" hidden readonly rows="8"></textarea>
-<p class="note-p">數字慣例照球球：1 費≈貓抓 6 傷或淡定 5 蜷縮的價值；阿甲的獨有牌多半把「蜷縮」當攻擊資源，數字先照設計稿起手值，之後用機器人與你的手感再調。</p>
+<p class="note-p">數字慣例照球球：1 費≈貓抓 6 傷或淡定 5 蜷縮的價值；姆斯的獨有牌多半把「蜷縮」當攻擊資源，數字先照設計稿起手值，之後用機器人與你的手感再調。</p>
 </main>
 <script>
 const BASE = __DATA__;

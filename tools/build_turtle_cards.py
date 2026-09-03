@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""阿甲（烏龜）牌組資料（2026-09-03 已套用使用者第一輪改動：留殼 2 費、甲裂不歸零、磨甲改能力、深呼吸 2 費、龜甲盾改反彈；刪咚咚／彈殼／慢慢來／撿寶／大吼）：起手 4＋龜甲流＋玄武訣，鏡像球球的牌標 mirror。輸出 docs/角色二_烏龜_牌組.json 與 scratchpad/turtle_cards.json"""
+"""姆斯（烏龜）牌組資料（2026-09-03 已套用使用者第一輪改動：留殼 2 費、甲裂不歸零、磨甲改能力、深呼吸 2 費、龜甲盾改反彈；刪咚咚／彈殼／慢慢來／撿寶／大吼）：起手 4＋龜甲流＋玄武訣，鏡像球球的牌標 mirror。輸出 docs/角色二_烏龜_牌組.json 與 scratchpad/turtle_cards.json"""
 import json, io, os
 from collections import Counter
 ROOT = r'F:\ClaudeWork\qiuqiu-tower'

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-"""阿甲（烏龜）角色二的生圖工作檔（2026-09-03 夜）：
+"""姆斯（烏龜）角色二的生圖工作檔（2026-09-03 夜）：
 
-  ajia_ref.json    1 張  角色設定表（先生這張，其餘全部用它當 --ref）
-  ajia_hero.json  11 張  戰鬥立繪（一律朝右，跟球球同一套狀態）
-  ajia_stills.json 3 張  序章幻燈片（阿甲視角）
-  ajia_cards.json 86 張  牌面插圖（讀 docs/角色二_烏龜_牌組.json）
+  mus_ref.json    1 張  角色設定表（先生這張，其餘全部用它當 --ref）
+  mus_hero.json  11 張  戰鬥立繪（一律朝右，跟球球同一套狀態）
+  mus_stills.json 3 張  序章幻燈片（姆斯視角）
+  mus_cards.json 86 張  牌面插圖（讀 docs/角色二_烏龜_牌組.json）
 
-跑法：python tools/make_ajia_art_jobs.py
-      python tools/codex_gen.py tools/codex_jobs/ajia_ref.json --timeout 900 --retries 2
-      python tools/codex_gen.py tools/codex_jobs/ajia_hero.json --ref tools/codex_raw/ajia_ref.png ...
+跑法：python tools/make_mus_art_jobs.py
+      python tools/codex_gen.py tools/codex_jobs/mus_ref.json --timeout 900 --retries 2
+      python tools/codex_gen.py tools/codex_jobs/mus_hero.json --ref tools/codex_raw/mus_ref.png ...
 接入：立繪要另外打包畫布（不要直接丟 build_art_inbox，會跟球球的畫布互相影響）；牌面等牌進 cards.ts 後再進 art_inbox。
 """
 import json
@@ -17,19 +17,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 JOBS = ROOT / 'tools' / 'codex_jobs'
 
-TURTLE = ("A-Jia, a small round turtle ninja: olive-green skin, a domed brown shell with hexagonal plates, "
-          "a RED headband with two trailing tails, a short brown sleeveless vest, big gentle round eyes, "
+TURTLE = ("Mus, a small round turtle disciple of the Turtle-Shell school: olive-green skin, a domed brown shell with hexagonal plates "
+          "and a small carved clan emblem (a circle with a turtle-shell hexagon) on the back of the shell, "
+          "a RED headband with two trailing tails, a short brown sleeveless vest, cloth leg wraps (gaiters) on the lower legs, "
+          "a conical straw hat hanging on the back by a cord, big gentle round eyes with slightly droopy eyelids, "
           "stubby arms and legs, a calm slow-but-sturdy personality")
 STYLE = ("Style: thick black outlines, flat colors with subtle soft gradients, cute cartoon look, not photorealistic.\n"
          "Background must be a solid pure green (#00FF00), completely flat, for chroma keying. Nothing green on the character except its skin, which must stay olive (not pure green).")
 
 # ---------- 設定表 ----------
-ref = {"ajia_ref.png":
+ref = {"mus_ref.png":
        "Character design sheet for a cute cartoon game. The character: " + TURTLE + ".\n\n"
        "Show the SAME character three times side by side on one canvas: full body front view, full body side view facing RIGHT, "
        "and a big face close-up with a friendly smile. Same proportions as a chibi mascot: head about as big as the body.\n"
        "Draw everything SOLID and OPAQUE. Nothing else in the picture: no text, no letters, no labels, no watermark, no border, no ground.\n"
-       + STYLE + "\nOutput 1024x1024 PNG. Save the image as ajia_ref.png in the current directory and report the path."}
+       + STYLE + "\nOutput 1024x1024 PNG. Save the image as mus_ref.png in the current directory and report the path."}
 
 # ---------- 戰鬥立繪（朝右）----------
 POSES = {
@@ -47,7 +49,7 @@ POSES = {
 }
 hero = {}
 for pose, text in POSES.items():
-    fid = f'hero_ajia_{pose}.png'
+    fid = f'hero_mus_{pose}.png'
     hero[fid] = ("The character: " + TURTLE + " (exactly the same design as the reference image).\n\nPose: " + text +
                  "\n\nFull body, FACING RIGHT (the character looks toward the right edge of the picture), feet at the very bottom edge of the picture, "
                  "do not draw it floating. Fill the frame vertically.\nKeep the exact same character design as the reference image - only the pose and expression differ.\n"
@@ -59,19 +61,19 @@ for pose, text in POSES.items():
 QIUQIU = ("the small grey tabby ninja cat Qiuqiu: light grey fur with dark stripes, white chest and paws, a NAVY headband with two trailing tails, "
           "a dark navy ninja outfit, big round eyes")
 STILLS = {
-    'still_ajia_village': ("Dawn at the gate of a small ninja village in the mountains. " + QIUQIU + " is a tiny figure already running away up the road "
-                           "toward a distant dark tower. In the foreground " + TURTLE + " stands at the gate holding a straw hat, watching the cat go, "
+    'still_mus_village': ("Dawn at the gate of a small ninja village in the mountains. " + QIUQIU + " is a tiny figure already running away up the road "
+                           "toward a distant dark tower. In the foreground " + TURTLE + " stands at the gate, this time holding the straw hat in one hand instead of on the back, watching the cat go, "
                            "worried but calm. Soft pink and gold morning light."),
-    'still_ajia_pack': ("Night inside a small wooden hut lit by one paper lantern. " + TURTLE + " kneels on the floor carefully packing a cloth bundle: "
+    'still_mus_pack': ("Night inside a small wooden hut lit by one paper lantern. " + TURTLE + " kneels on the floor carefully packing a cloth bundle: "
                         "rice balls, a rope, a small bell, a folded map. A wooden turtle-shell shield leans against the wall. Warm cozy lantern light, deep blue night outside the window."),
-    'still_ajia_tower': ("The foot of a huge dark stone tower at dusk, its top lost in purple clouds. " + TURTLE + " stands small at the bottom with a bundle on the back, "
+    'still_mus_tower': ("The foot of a huge dark stone tower at dusk, its top lost in purple clouds. " + TURTLE + " stands small at the bottom with a bundle on the back, "
                          "looking straight up with a determined face, one foot already on the first stone step. Torches on the wall, moody purple and orange sky."),
 }
 stills = {}
 for name, desc in STILLS.items():
     fid = f'{name}.png'
     stills[fid] = (desc + "\n\nFull scene illustration with background, landscape 1280x720. No text, no letters, no watermark, no border.\n"
-                   "Match the characters in the attached reference sheet EXACTLY: the turtle A-Jia is the sheet's RIGHT part (same face, shell, red headband, vest); "
+                   "Match the characters in the attached reference sheet EXACTLY: the turtle Mus is the sheet's RIGHT part (same face, shell, red headband, vest); "
                    "the grey tabby ninja cat Qiuqiu and the old master cat with the straw hat are the sheet's LEFT part - whenever they appear, keep their designs exactly.\n"
                    "Style: thick black outlines, flat colors with subtle soft gradients, cute cartoon look, not photorealistic. "
                    f"Draw a real background here (not green). Output 1280x720 PNG. Save the image as {fid} in the current directory and report the path.")
@@ -172,7 +174,7 @@ for c in cards_src:
     g = GIST.get(c['id'])
     if not g:
         missing.append(c['id']); continue
-    fid = f"card_ajia_{c['id']}.png"
+    fid = f"card_mus_{c['id']}.png"
     cards[fid] = ("A small turtle ninja, cartoon illustration for a card game, landscape composition.\n"
                   "Same character as the reference image: " + TURTLE + ".\n"
                   "Subject: " + g + "\n"
@@ -182,6 +184,6 @@ for c in cards_src:
 if missing:
     print('沒有描述的牌：', missing)
 
-for name, jobs in (('ajia_ref', ref), ('ajia_hero', hero), ('ajia_stills', stills), ('ajia_cards', cards)):
+for name, jobs in (('mus_ref', ref), ('mus_hero', hero), ('mus_stills', stills), ('mus_cards', cards)):
     (JOBS / f'{name}.json').write_text(json.dumps(jobs, ensure_ascii=False, indent=1), encoding='utf-8')
     print(name, len(jobs), '張')
