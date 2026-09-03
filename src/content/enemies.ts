@@ -1120,12 +1120,12 @@ export const encounters: EncounterDef[] = [
   // 這兩組是「兩隻全規格中型怪同場」（合計 82～90 血），實測 6F 的典型牌組
   // 對它們勝率只有 2%／7%、其他中型遭遇都是 92% 起——放錯池了，移到強池（11F+）
   { id: 'ninja_can', pool: '強', enemies: ['black_ninja', 'can_spirit'], hpScale: 0.8, acts: [1] },
-  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'], hpScale: 0.6, acts: [1] },   // 機器人 1200 局輸 18%，比關主還兇 → 0.6
+  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'], hpScale: 0.7, acts: [1] },   // 機器人會輸 18%，但真人三輪都一次過（使用者 2026-09-03），維持 0.7
   { id: 'bandit_chipmunk', pool: '中', enemies: ['orange_bandit', 'chipmunk'], acts: [1] },
   // 石獅子＋鏡子貓：兩隻都會自己疊爪力，0.7 倍血在第一關仍 15/44 敗（機器人 300 局），搬到塔中強池才合身
   { id: 'lion_mirror', pool: '強', enemies: ['stone_lion', 'mirror_cat'], hpScale: 0.8, acts: [2] },
   { id: 'centipede_mirror', pool: '強', enemies: ['broom_centipede', 'mirror_cat'], hpScale: 0.7, acts: [1] },
-  { id: 'shadow_kittens', pool: '強', enemies: ['shadow_kitten_a', 'shadow_kitten_b', 'shadow_kitten_c'], hpScale: 0.6, acts: [1] },   // 輸 20% → 0.6
+  { id: 'shadow_kittens', pool: '強', enemies: ['shadow_kitten_a', 'shadow_kitten_b', 'shadow_kitten_c'], hpScale: 0.7, acts: [1] },   // 機器人輸 20%、真人不覺得兇，維持 0.7
   { id: 'training_post', pool: '中', enemies: ['training_post'], acts: [1] },
   { id: 'phantom_ninja', pool: '強', enemies: ['catnip_phantom', 'black_ninja_elite'], hpScale: 0.75, acts: [1] },
 
@@ -1153,11 +1153,11 @@ export const encounters: EncounterDef[] = [
   { id: 'plated_beetle', pool: '中', enemies: ['plated_beetle'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'curse_priest', pool: '中', enemies: ['curse_priest'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'rat_general', pool: '強', enemies: ['rat_general', 'rat', 'rat'], hpScale: 1.2, strength: 6, acts: [3] },
-  { id: 'ink_panther', pool: '強', enemies: ['ink_cat', 'night_panther'], hpScale: 1.0, strength: 5, acts: [3] },   // 輸 32% → 魔氣 5
-  { id: 'beetle_armor', pool: '強', enemies: ['plated_beetle', 'armor_ghost'], hpScale: 1.0, strength: 5, acts: [3] },   // 輸 33% → 魔氣 5
+  { id: 'ink_panther', pool: '強', enemies: ['ink_cat', 'night_panther'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 32%、真人不覺得兇，維持魔氣 6
+  { id: 'beetle_armor', pool: '強', enemies: ['plated_beetle', 'armor_ghost'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 33%、真人不覺得兇，維持魔氣 6
   { id: 'priest_fox', pool: '強', enemies: ['curse_priest', 'fox_miko'], hpScale: 1.0, strength: 6, acts: [3] },
   { id: 'priest_moth', pool: '強', enemies: ['curse_priest', 'moon_moth_queen'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'tengu_beetle', pool: '強', enemies: ['tengu', 'plated_beetle'], hpScale: 1.0, strength: 5, acts: [3] },   // 輸 22% → 魔氣 5
+  { id: 'tengu_beetle', pool: '強', enemies: ['tengu', 'plated_beetle'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 22%、真人不覺得兇，維持魔氣 6
   { id: 'blob_ink', pool: '強', enemies: ['miasma_blob', 'ink_cat'], hpScale: 1.0, strength: 6, acts: [3] },
   { id: 'panther_fox', pool: '強', enemies: ['night_panther', 'phantom_fox'], hpScale: 1.0, strength: 6, acts: [3] },
   { id: 'tengu_priest', pool: '強', enemies: ['tengu', 'curse_priest'], hpScale: 1.0, strength: 6, acts: [3] },
