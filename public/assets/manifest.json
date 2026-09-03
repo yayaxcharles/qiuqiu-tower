@@ -613,7 +613,10 @@
   "codex/relic_nine_bell": "assets/icons/relic_nine_bell.webp",
   "codex/relic_tower_moon": "assets/icons/relic_tower_moon.webp",
   "codex/relic_turtle_shell": "assets/icons/relic_turtle_shell.webp",
-  "codex/relic_wind_chime": "assets/icons/relic_wind_chime.webp"
+  "codex/relic_wind_chime": "assets/icons/relic_wind_chime.webp",
+  "icon/vfx_charge": "assets/icons/vfx_charge.webp",
+  "icon/vfx_curse": "assets/icons/vfx_curse.webp",
+  "icon/vfx_strip": "assets/icons/vfx_strip.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
