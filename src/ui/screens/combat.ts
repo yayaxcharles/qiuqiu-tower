@@ -1206,6 +1206,7 @@ registerScreen('combat', (app, root, props) => {
       if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
       if (fresh.some((l) => l.includes('塞進你的'))) burst(cat, 'curse');
       if (fresh.some((l) => l.includes('看穿了球球的身法') || l.includes('拍散') || l.includes('震散'))) burst(cat, 'strip');
+      if (fresh.some((l) => l.startsWith('伏兵'))) toast('有伏兵跳出來了喵！', '球球');
     }
     // 剛被召喚出來的：煙
     for (const e of cs.enemies) if (!before.enemies.has(e.uid) && !e.dead) { const n = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`); if (n) burst(n, 'smoke'); }

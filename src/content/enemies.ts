@@ -1053,7 +1053,7 @@ export const encounters: EncounterDef[] = [
   { id: 'shamisen_cat', pool: '中', enemies: ['shamisen_cat'], acts: [2] },
   { id: 'lantern_ghost', pool: '中', enemies: ['lantern_ghost'], acts: [2] },
   { id: 'windchime_sprite', pool: '中', enemies: ['windchime_sprite'], acts: [2] },
-  { id: 'tanuki_kid', pool: '中', enemies: ['tanuki_kid'], acts: [2] },
+  { id: 'tanuki_kid', pool: '中', enemies: ['tanuki_kid'], acts: [2], reinforce: [{ turn: 3, enemyId: 'tanuki_kid', line: '伏兵！又一隻小狸從草叢裡滾了出來' }] },   // 伏兵（2026-09-04）
   { id: 'geta_monster', pool: '中', enemies: ['geta_monster'], acts: [2] },
   { id: 'ronin_duo', pool: '強', enemies: ['shiba_ronin', 'shamisen_cat'], hpScale: 0.8, acts: [2] },
   { id: 'lantern_pair', pool: '強', enemies: ['lantern_ghost', 'windchime_sprite'], hpScale: 0.8, acts: [2] },
@@ -1066,7 +1066,7 @@ export const encounters: EncounterDef[] = [
   { id: 'tanuki_shami', pool: '強', enemies: ['tanuki_kid', 'shamisen_cat'], hpScale: 0.85, acts: [2] },
   // 2026-09-02 補怪：塔中單怪 7→10、強池再加兩組
   { id: 'kasa_obake', pool: '中', enemies: ['kasa_obake'], acts: [2] },
-  { id: 'kappa', pool: '中', enemies: ['kappa'], acts: [2] },
+  { id: 'kappa', pool: '中', enemies: ['kappa'], acts: [2], reinforce: [{ turn: 3, enemyId: 'tadpole', n: 2, line: '伏兵！河童吹了聲口哨，兩隻蝌蚪兵從水裡鑽出來' }] },   // 伏兵（2026-09-04）
   { id: 'tofu_boy', pool: '中', enemies: ['tofu_boy'], acts: [2] },
   { id: 'kasa_tofu', pool: '強', enemies: ['kasa_obake', 'tofu_boy'], hpScale: 0.85, acts: [2] },
   { id: 'kappa_geta', pool: '強', enemies: ['kappa', 'geta_monster'], hpScale: 0.8, acts: [2] },
@@ -1082,7 +1082,7 @@ export const encounters: EncounterDef[] = [
   // 塔頂＝魔氣加成（設計總覽 §2）：中池一律血 ×1.2、出場帶 2 點爪力；強池帶 3 點。
   // 2026-09-02 機器人 300 局：第一刀之後塔頂一般戰每場仍只掉 1～3 血、四回合打完，比塔中還軟。
   { id: 'night_panther', pool: '中', enemies: ['night_panther'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.6, strength: 8, acts: [3] },
+  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.6, strength: 8, acts: [3] , reinforce: [{ turn: 4, enemyId: 'paper_crane', line: '伏兵！一隻紙鶴從樑上飄了下來' }] },   // 伏兵（2026-09-04）
   // 塔頂雙怪組的教訓（探測 1～6/40）：血量倍率救不了「兩隻重砲同回合疊擊」，
   // 要拆組合——重砲一定配有守勢回合的（紙鶴會摺翼、墨貓會入卷軸那型）。
   // 貓頭鷹＋月兔那組直接砍掉，牠們照樣在中池單獨出場。
