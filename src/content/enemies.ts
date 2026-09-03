@@ -633,22 +633,22 @@ export const enemies: EnemyDef[] = [
       ],
     }] },
   // 狸大人：出招隨機的戲法師，會叫狸小弟上場
-  { id: 'tanuki_lord', name: '狸大人', hp: [260, 260], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord', angerOnSkill: 1,   // 2026-09-03 第四輪：打技能牌會被牠嗆 strengthEveryNTurns: 1,   // 2026-09-03 第五輪：每回合 +1，拖 20 回合就是 +20（機器人跟牠耗 21 回合才掉 9 血）
+  { id: 'tanuki_lord', name: '狸大人', hp: [280, 280], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord', angerOnSkill: 1,   // 2026-09-03 第四輪：打技能牌會被牠嗆 strengthEveryNTurns: 1,   // 2026-09-03 第五輪：每回合 +1，拖 20 回合就是 +20（機器人跟牠耗 21 回合才掉 9 血）
     hexOnSkill: { cardId: 'dazed_card', n: 1 },   // 戲法：你每打一張技能牌就被變出一張眼冒金星
     line: '呵呵，來得正好。', lines: ['喝一杯再打？不喝？那打吧。', '（拍了拍肚皮，咚咚響）'], moves: [
-      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 15, times: 2 }] },
-      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 15, times: 2 }] },
+      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
+      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
       { intent: 'block', label: '葉隱', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }, { kind: 'block', amount: 10 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破
       { intent: 'summon', label: '喚小弟', effects: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 2 }] },
-      { intent: 'debuff', label: '肚皮鼓', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
+      { intent: 'debuff', label: '肚皮鼓', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },
       { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 8, times: 3 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
     ],
     phases: [{
       hpBelow: 130, line: '（葫蘆見底了）', pattern: 'random',
       onEnter: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 2 }, { kind: 'statusSelf', name: '爪力', amount: 2 }],
       moves: [
-        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 16, times: 2 }] },
-        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 16, times: 2 }] },
+        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 11, times: 3 }] },
+        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 11, times: 3 }] },
         { intent: 'buff', label: '大變身', effects: [{ kind: 'chargeNext' }] },
         { intent: 'attack', label: '泰山鼓壓', effects: [{ kind: 'damage', amount: 32, pierce: true }] },
       ],
