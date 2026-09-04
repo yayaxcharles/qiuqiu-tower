@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-03",
+ "generatedAt": "2026-09-04",
  "monsters": [
   {
    "id": "rat",
@@ -714,8 +714,7 @@
    "pattern": "cycle",
    "art": "codex/monster_ninja_boss",
    "acts": [
-    2,
-    3
+    2
    ],
    "passives": {},
    "moves": [
@@ -2402,8 +2401,7 @@
    "pattern": "cycle",
    "art": "codex/monster_roomba_king",
    "acts": [
-    2,
-    3
+    2
    ],
    "passives": {},
    "moves": [
@@ -2493,8 +2491,7 @@
    "pattern": "cycle",
    "art": "codex/monster_calico_monk",
    "acts": [
-    2,
-    3
+    2
    ],
    "passives": {},
    "moves": [

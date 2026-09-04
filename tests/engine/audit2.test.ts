@@ -29,8 +29,9 @@ describe('稽核修正（第二輪）', () => {
     expect(kit.turnCount).toBe(1);   // 第二個敵方回合就照表行動，不會多發呆一回合
     expect(cs.enemyActing).toBeFalsy();
   });
-  it('L-2 召喚出來的吃到遭遇的血量倍率（塔頂黑貓頭目的小黑貓 10→19）', () => {
-    const cs = start('ninja_boss_top');
+  it('L-2 召喚出來的吃到遭遇的血量倍率（1.9× 的黑貓頭目，小黑貓 10→19）', () => {
+    // ninja_boss_top 已拿掉（使用者 2026-09-04：黑貓頭目不在塔頂出現），直接給倍率
+    const cs = startCombat({ hp: 70, maxHp: 70, deck: STARTER_DECK.map((id, i) => inst(id, i + 1)), relics: [], potions: [], encounterId: 'ninja_boss', rng: new Rng(seedFromString('l2')), mods: { hpMul: 1.9, strength: 0 } });
     const boss = cs.enemies[0]!;
     boss.move = SUMMON;
     endTurn(cs);

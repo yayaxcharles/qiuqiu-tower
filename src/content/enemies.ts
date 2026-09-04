@@ -1050,7 +1050,6 @@ export const encounters: EncounterDef[] = [
   { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'], acts: [2] },
   // 巨型飯糰＝第一關的福利菁英（使用者 2026-09-03：只放第一關才會隨機出現，當作福利）：血 100（125×0.8）、打倒回 10 血
   { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'], hpScale: 0.8, acts: [1] },
-  { id: 'ninja_boss_top', pool: '大魔物', enemies: ['ninja_boss'], hpScale: 1.9, strength: 10, acts: [3] },   // 1.5／5→1.9／8：塔頂菁英不能比一般強戰（1.6／8）軟（使用者 2026-09-04）
   { id: 'tower_master', pool: '塔主', enemies: ['tower_master'] },
   // ===== 三關制內容包（2026-09-01）：塔中/塔頂專屬池；雙怪照慣例 0.8 血 =====
   { id: 'shiba_ronin', pool: '中', enemies: ['shiba_ronin'], acts: [2] },
@@ -1118,7 +1117,6 @@ export const encounters: EncounterDef[] = [
   { id: 'catnip_phantom', pool: '強', enemies: ['catnip_phantom'], acts: [1] },
   { id: 'roomba_king', pool: '大魔物', enemies: ['roomba_king'], acts: [2] },
   { id: 'calico_monk', pool: '大魔物', enemies: ['calico_monk'], acts: [2] },
-  { id: 'roomba_king_top', pool: '大魔物', enemies: ['roomba_king'], hpScale: 1.9, strength: 10, acts: [3] },   // 同上
   // 混編：用既有的怪兩兩配對，不用新美術就能立刻多出變化。
   // 配對原則是「兩隻的路數要互補」，逼玩家取捨先打哪一隻。
   { id: 'rat_soy', pool: '弱', enemies: ['rat', 'soy_bottle'], acts: [1] },
@@ -1176,7 +1174,7 @@ export const encounters: EncounterDef[] = [
 
   // ===== 2026-09-03 菁英擴充（設計稿 §2）：每關 3 隻 =====
   // 血量就是魔物本身的值，不另外掛 hpScale；第三關照塔頂慣例帶魔氣 5（跟既有的 _top 加強版同一個口徑）。
-  // 既有的 ninja_boss_top、roomba_king_top、calico_monk_top 保留（giant_onigiri 已改成第一關福利菁英），這裡只加不換。
+  // 塔頂版 ninja_boss_top、roomba_king_top、calico_monk_top 已於 2026-09-04 全部拿掉（使用者：這三隻不在塔頂出現）（giant_onigiri 已改成第一關福利菁英），這裡只加不換。
   { id: 'wild_boar', pool: '大魔物', enemies: ['wild_boar'], acts: [1] },
   { id: 'paper_tiger', pool: '大魔物', enemies: ['paper_tiger'], acts: [1] },
   { id: 'drum_tanuki', pool: '大魔物', enemies: ['drum_tanuki'], acts: [1] },
