@@ -292,6 +292,8 @@ export interface EncounterDef {
   reinforce?: { turn: number; enemyId: string; n?: number; line?: string;
     /** 援軍的血量倍率與爪力：不填＝照這場遭遇的 hpScale／strength 放大（塔頂單怪戰是 1.6×＋8 爪力，會很痛，要小怪就填小一點） */
     hpScale?: number; strength?: number }[];
+  /** 立繪還沒到齊：地圖抽不到（encountersOfPool 會濾掉）。第三波怪物用，art_wave3.sh 接完圖會拿掉 */
+  hidden?: boolean;
   /**
    * 這場遭遇只在哪幾關出現（不填＝每一關都行）。
    * 三關制的專屬池：第一關的怪標 [1]、塔中標 [2]、塔頂標 [3]。

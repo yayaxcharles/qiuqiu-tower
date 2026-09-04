@@ -995,6 +995,107 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '虛爪', effects: [{ kind: 'damage', amount: 15 }] },
       { intent: 'attack', label: '吞噬', effects: [{ kind: 'damage', amount: 12, times: 2, pierce: true }] },
     ] },
+
+  // ===== 2026-09-04 第三波（方案乙：塔中 6 隻）——立繪到齊前遭遇標 hidden，見 docs/怪物擴充_第三波_設計稿.md =====
+  { id: 'snow_cat', name: '雪女貓', hp: [52, 56], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_snow_cat',
+    line: '（吐出一口白霧）', lines: ['冷嗎？再靠近一點就更冷了。', '（髮梢結了一層霜）'], moves: [
+      { intent: 'attack', label: '冰吐息', effects: [{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
+      { intent: 'block', label: '寒氣', effects: [{ kind: 'block', amount: 8 }, { kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
+      { intent: 'attack', label: '凝霜', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
+    ] },
+  { id: 'fortune_cat', name: '招財貓', hp: [58, 62], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_fortune_cat',
+    line: '（舉起的那隻手招了招）', lines: ['歡迎光臨，小魚乾請放這邊。', '（鈴鐺叮了一聲）'], moves: [
+      { intent: 'debuff', label: '招手', effects: [{ kind: 'stealFish', n: 12 }, { kind: 'block', amount: 6 }] },
+      { intent: 'attack', label: '金幣雨', effects: [{ kind: 'damage', amount: 11 }] },
+      { intent: 'buff', label: '護體', effects: [{ kind: 'statusSelf', name: '爪力', amount: 1 }, { kind: 'block', amount: 10 }] },
+    ] },
+  { id: 'lantern_fish', name: '提燈鮟鱇', hp: [46, 50], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_lantern_fish',
+    flying: 2,   // 飄在半空：攻擊只打得到一半，打中兩下才掉下來
+    line: '（頭上的燈亮了一下）', lines: ['（張開一口細牙）', '（燈光晃啊晃）'], moves: [
+      { intent: 'debuff', label: '燈光', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
+      { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 13 }] },
+      { intent: 'attack', label: '深海壓', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
+    ] },
+  { id: 'puppeteer', name: '傀儡師', hp: [44, 48], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_puppeteer',
+    line: '（手指一勾，線動了）', lines: ['別看我，看它們。', '（袖子裡又掉出一具）'], moves: [
+      { intent: 'summon', label: '操偶', effects: [{ kind: 'summon', enemyId: 'puppet', n: 1, max: 2 }] },
+      { intent: 'attack', label: '針刺', effects: [{ kind: 'damage', amount: 8 }] },
+      { intent: 'block', label: '布陣', effects: [{ kind: 'blockAllies', amount: 6 }] },
+    ] },
+  { id: 'puppet', name: '傀儡', hp: [14, 16], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_puppet',
+    line: '（喀、喀）', lines: ['（關節轉了一圈）', '（線繃緊了）'], moves: [
+      { intent: 'attack', label: '木拳', effects: [{ kind: 'damage', amount: 6 }] },
+      { intent: 'block', label: '硬化', effects: [{ kind: 'block', amount: 5 }] },
+    ] },
+  { id: 'shuten_imp', name: '酒吞小鬼', hp: [60, 64], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shuten_imp',
+    strengthEveryNTurns: 2,   // 越喝越猛：每兩回合 +1 爪力
+    line: '（仰頭灌了一大口）', lines: ['再來一杯！', '（酒瓶見底了，換下一瓶）'], moves: [
+      { intent: 'attack', label: '酒瓶砸', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'buff', label: '灌酒', effects: [{ kind: 'heal', n: 6 }, { kind: 'statusSelf', name: '爪力', amount: 2 }] },
+      { intent: 'attack', label: '醉拳', effects: [{ kind: 'damage', amount: 5, times: 3 }] },
+    ] },
+  // 紙燈籠雙子：一對同生共死（另一盞還亮著就會重新點起來）；兩隻共用一張立繪
+  { id: 'lantern_twin_a', name: '紙燈籠雙子・甲', hp: [30, 32], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_lantern_twin',
+    reviveGroup: 'twins', reviveHp: 12,
+    line: '（火苗晃了一下）', lines: ['（另一盞也亮了）', '（紙面透出橘光）'], moves: [
+      { intent: 'attack', label: '火苗', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '噎到', amount: 1 }] },
+      { intent: 'debuff', label: '照亮', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
+    ] },
+  { id: 'lantern_twin_b', name: '紙燈籠雙子・乙', hp: [30, 32], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_lantern_twin',
+    reviveGroup: 'twins', reviveHp: 12,
+    line: '（往甲那邊靠了靠）', lines: ['（火光更旺了）', '（紙面上的臉笑了）'], moves: [
+      { intent: 'attack', label: '燈火', effects: [{ kind: 'damage', amount: 9 }] },
+      { intent: 'block', label: '護火', effects: [{ kind: 'blockAllies', amount: 5 }] },
+    ] },
+  // ===== 2026-09-04 第三波（方案丙：塔頂 3 隻＋菁英 2 組） =====
+  { id: 'miasma_crows', name: '魔氣鴉群', hp: [70, 76], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_miasma_crows',
+    flying: 1, splitInto: { enemyId: 'crow_small', n: 2, below: 0.5 },   // 半血散成兩群小鴉
+    line: '（嘎——嘎——）', lines: ['（黑影遮住了火把）', '（幾十雙紅眼睛）'], moves: [
+      { intent: 'attack', label: '啄擊', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
+      { intent: 'debuff', label: '遮天', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
+      { intent: 'attack', label: '俯衝', effects: [{ kind: 'damage', amount: 18 }] },
+    ] },
+  { id: 'crow_small', name: '小鴉群', hp: [24, 26], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_crow_small',
+    flying: 1,
+    line: '（嘎）', lines: ['（撲翅）', '（繞著頭頂飛）'], moves: [
+      { intent: 'attack', label: '啄', effects: [{ kind: 'damage', amount: 7 }] },
+      { intent: 'debuff', label: '亂飛', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
+    ] },
+  { id: 'wraith_samurai', name: '怨靈武者', hp: [80, 86], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_wraith_samurai',
+    thorns: 3, fadeAfter: 6,   // 六回合內打不死就散去（沒戰利品）；碰牠會被反彈
+    line: '（鎧甲裡沒有人）', lines: ['……回去。', '（刀鞘裡傳出低語）'], moves: [
+      { intent: 'attack', label: '怨斬', effects: [{ kind: 'damage', amount: 16 }] },
+      { intent: 'debuff', label: '怨念', effects: [{ kind: 'statusPlayer', name: '翻肚', amount: 1 }, { kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
+      { intent: 'block', label: '殘影', effects: [{ kind: 'block', amount: 12 }, { kind: 'statusSelf', name: '反彈', amount: 1 }] },
+    ] },
+  { id: 'twin_hound', name: '雙頭魔犬', hp: [84, 90], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_twin_hound',
+    angerOnSkill: 1,   // 你每打一張技能牌牠就多 1 爪力
+    line: '（兩張嘴同時低吼）', lines: ['（左邊的頭先咬）', '（右邊的頭流著口水）'], moves: [
+      { intent: 'attack', label: '雙咬', effects: [{ kind: 'damage', amount: 9, times: 2 }] },
+      { intent: 'buff', label: '咆哮', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
+      { intent: 'attack', label: '撲殺', effects: [{ kind: 'damage', amount: 22 }] },
+    ] },
+  { id: 'guardian_statue', name: '塔頂守護石像', hp: [230, 240], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_guardian_statue',
+    plating: 8, thorns: 5, strengthEveryNTurns: 3,   // 唯一的硬體菁英：每回合長甲、碰牠反彈、慢慢變強
+    line: '（石眼亮起紫光）', lines: ['（石縫裡落下碎屑）', '（沉重的一步，地面震了一下）'], moves: [
+      { intent: 'attack', label: '石拳', effects: [{ kind: 'damage', amount: 20 }] },
+      { intent: 'attack', label: '震地', effects: [{ kind: 'damage', amount: 12, times: 2 }] },
+      { intent: 'debuff', label: '石化凝視', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'block', amount: 15 }] },
+    ] },
+  // 面具舞者：每三回合換一張面具（笑→怒→泣），九招輪一圈；chooseMove 直接用回合數挑
+  { id: 'mask_dancer', name: '面具舞者', hp: [200, 210], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_mask_dancer',
+    chooseMove: (turn, moves) => moves[(turn - 1) % moves.length],
+    line: '（換上笑面）', lines: ['（面具後面沒有聲音）', '（腳尖點地，轉了一圈）'], moves: [
+      { intent: 'attack', label: '笑面・扇舞', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
+      { intent: 'attack', label: '笑面・連拍', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
+      { intent: 'attack', label: '笑面・踢', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '怒面・怒斬', effects: [{ kind: 'damage', amount: 18, pierce: true }] },
+      { intent: 'buff', label: '怒面・蓄怒', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }, { kind: 'block', amount: 8 }] },
+      { intent: 'attack', label: '怒面・怒踏', effects: [{ kind: 'damage', amount: 14, times: 2 }] },
+      { intent: 'special', label: '泣面・拭淚', effects: [{ kind: 'heal', n: 20 }] },
+      { intent: 'debuff', label: '泣面・淚眼', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 2, to: 'discard' }] },
+      { intent: 'block', label: '泣面・掩面', effects: [{ kind: 'block', amount: 20 }] },
+    ] },
 ];
 
 /**
@@ -1185,10 +1286,39 @@ export const encounters: EncounterDef[] = [
   { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 5, acts: [3] },   // 4→5（三隻共享；2026-09-04 塔頂菁英加硬，小鬼一下 11）   // 三隻共享魔氣，5 會讓小鬼一下 11 點；機器人 21 場輸 11 → 降 3，第三關加硬再回 4（2026-09-03）
   { id: 'mirror_sage', pool: '大魔物', enemies: ['mirror_sage'], hpScale: 1.2, strength: 10, acts: [3] },   // 6→8、血 1.2×（2026-09-04 塔頂菁英加硬）
   { id: 'void_cat', pool: '大魔物', enemies: ['void_cat'], hpScale: 1.2, strength: 10, acts: [3] },   // 塔頂菁英第二刀：機器人 1.9×／8 仍幾乎零敗（2026-09-04）   // 同上
+
+  // ===== 2026-09-04 第三波遭遇（hidden：立繪到齊後由 art_wave3.sh 拿掉） =====
+  { id: 'snow_cat', pool: '中', enemies: ['snow_cat'], acts: [2], hidden: true },
+  { id: 'fortune_cat', pool: '中', enemies: ['fortune_cat'], acts: [2], hidden: true },
+  { id: 'lantern_fish', pool: '中', enemies: ['lantern_fish'], acts: [2], hidden: true },
+  { id: 'puppeteer', pool: '中', enemies: ['puppeteer'], acts: [2], hidden: true },
+  { id: 'shuten_imp', pool: '中', enemies: ['shuten_imp'], acts: [2], hidden: true },
+  { id: 'snow_shamisen', pool: '強', enemies: ['snow_cat', 'shamisen_cat'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'fortune_tanuki', pool: '強', enemies: ['fortune_cat', 'tanuki_kid'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'lanternfish_rabbit', pool: '強', enemies: ['lantern_fish', 'moon_rabbit'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'puppeteer_geta', pool: '強', enemies: ['puppeteer', 'geta_monster'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'shuten_ronin', pool: '強', enemies: ['shuten_imp', 'shiba_ronin'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'snow_lantern', pool: '強', enemies: ['snow_cat', 'lantern_ghost'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'fortune_chime', pool: '強', enemies: ['fortune_cat', 'windchime_sprite'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'lanternfish_crane', pool: '強', enemies: ['lantern_fish', 'paper_crane'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'shuten_kappa', pool: '強', enemies: ['shuten_imp', 'kappa'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'puppeteer_tofu', pool: '強', enemies: ['puppeteer', 'tofu_boy'], hpScale: 0.85, acts: [2], hidden: true },
+  { id: 'snow_shuten', pool: '強', enemies: ['snow_cat', 'shuten_imp'], hpScale: 0.8, acts: [2], hidden: true },
+  { id: 'lantern_twins', pool: '強', enemies: ['lantern_twin_a', 'lantern_twin_b'], acts: [2], hidden: true },
+  { id: 'miasma_crows', pool: '中', enemies: ['miasma_crows'], hpScale: 1.6, strength: 8, acts: [3], hidden: true },
+  { id: 'wraith_samurai', pool: '中', enemies: ['wraith_samurai'], hpScale: 1.6, strength: 8, acts: [3], hidden: true },
+  { id: 'twin_hound', pool: '中', enemies: ['twin_hound'], hpScale: 1.6, strength: 8, acts: [3], hidden: true },
+  { id: 'crows_ink', pool: '強', enemies: ['miasma_crows', 'ink_cat'], hpScale: 1.0, strength: 6, acts: [3], hidden: true },
+  { id: 'wraith_armor', pool: '強', enemies: ['wraith_samurai', 'armor_ghost'], hpScale: 1.0, strength: 6, acts: [3], hidden: true },
+  { id: 'hound_panther', pool: '強', enemies: ['twin_hound', 'night_panther'], hpScale: 1.0, strength: 6, acts: [3], hidden: true },
+  { id: 'wraith_priest', pool: '強', enemies: ['wraith_samurai', 'curse_priest'], hpScale: 1.0, strength: 6, acts: [3], hidden: true },
+  { id: 'hound_crows', pool: '強', enemies: ['twin_hound', 'miasma_crows'], hpScale: 1.0, strength: 6, acts: [3], hidden: true },
+  { id: 'guardian_statue', pool: '大魔物', enemies: ['guardian_statue'], strength: 6, acts: [3], hidden: true },
+  { id: 'mask_dancer', pool: '大魔物', enemies: ['mask_dancer'], strength: 6, acts: [3], hidden: true },
 ];
 
 export const encounterById: Record<string, EncounterDef> = Object.fromEntries(encounters.map((e) => [e.id, e]));
 
 export function encountersOfPool(pool: EnemyPool, act?: number): EncounterDef[] {
-  return encounters.filter((e) => e.pool === pool && (act === undefined || !e.acts || e.acts.includes(act)));
+  return encounters.filter((e) => e.pool === pool && !e.hidden && (act === undefined || !e.acts || e.acts.includes(act)));
 }
