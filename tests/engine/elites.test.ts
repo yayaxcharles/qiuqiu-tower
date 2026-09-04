@@ -185,7 +185,7 @@ describe('第三關菁英（強機制）', () => {
     expect(shards.length).toBe(2);
     for (const s of shards) { expect(s.hp).toBe(half); expect(s.maxHp).toBe(half); }
     // 魔氣（遭遇的 strength 5）也要套到分裂出來的
-    for (const s of shards) expect(getStatus(s, '爪力')).toBe(8);   // 魔氣 6→8（2026-09-04）
+    for (const s of shards) expect(getStatus(s, '爪力')).toBe(10);   // 魔氣 6→8→10（2026-09-04）
   });
 
   it('虛無貓・虛化：虛實交替、每一段最多扣 1 點、防禦照扣、噎到也只扣 1', () => {

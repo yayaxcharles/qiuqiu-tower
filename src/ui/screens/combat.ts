@@ -378,6 +378,9 @@ registerScreen('combat', (app, root, props) => {
         row.append(node);
       }
     }
+    // 牌子太多（一堆增益＋一堆能力牌）會疊到四五排、把整隻貓往上頂到頭被切掉（使用者 2026-09-04 要求測的情境）：
+    // 超過八個就縮小字與間距、排寬一點，十六個也壓得進三排
+    if (mine && row.children.length > 8) row.classList.add('many');
     return row;
   }
 

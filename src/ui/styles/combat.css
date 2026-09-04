@@ -908,3 +908,8 @@
 .combat .boss-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; z-index: 60; animation: boss-flash .7s ease-out forwards; }
 @keyframes boss-flash { 0% { opacity: .92; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .combat .boss-flash { display: none; } }
+
+/* 球球腳下牌子超過八個：縮小、排寬（框 266 → 360 置中），十六個牌子壓進三排，貓不會被頂到頭出畫面（2026-09-04） */
+.combat .unit.player .chips.many { width: 360px; margin-left: -47px; gap: 2px; }
+.combat .unit.player .chips.many .chip { font-size: 11px; padding: 1px 5px; gap: 2px; }
+.combat .unit.player .chips.many .chip img { width: 14px; height: 14px; }
