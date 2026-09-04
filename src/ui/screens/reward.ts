@@ -110,7 +110,8 @@ registerScreen('reward', (app, root, props) => {
   /** 挑完牌（或跳過）才算這個節點結算完，這時候才存檔回地圖 */
   const done = (cardId: string | null): void => { takeCardReward(run, r, cardId); app.backToMap(); };
   const cards = el('div', { class: 'reward-cards' });
-  for (const c of r.cards) cards.append(cardNode(c, { onClick: () => done(c.id) }));
+  // 開出升級牌的那一格照升級版畫（名字帶＋、數字是升級後的）
+  for (const c of r.cards) cards.append(cardNode(c.id === r.upgradedCard ? { uid: -1, cardId: c.id, upgraded: true } : c, { onClick: () => done(c.id) }));
 
   // 標題依戰鬥種類換句話，打倒塔主不該跟打贏小老鼠共用同一句
   const title = r.kind === '塔主' ? '打倒塔主了' : r.kind === '大魔物' ? '打倒大魔物' : '打贏了';

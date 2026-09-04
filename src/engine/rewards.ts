@@ -8,6 +8,8 @@ export interface CombatRewards {
   kind: '戰鬥' | '大魔物' | '塔主'; cards: CardDef[]; fish: number; potion: string | null; relic: string | null;
   /** 忍具帶滿收不下的那支：獎勵畫面會問要不要換掉一支舊的（2026-09-02） */
   potionMissed?: string | null;
+  /** 這一格牌是「已經升級過的」版本（使用者 2026-09-04：第二關兩成、第三關四成的獎勵有一張升級牌） */
+  upgradedCard?: string;
 }
 
 const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];
@@ -56,15 +58,19 @@ export function rollPotion(rng: Rng): string { return rng.pick(potions).id; }
  * `opts.rareBonus`＝稀有保底權重。兩者都只影響牌，不影響小魚乾／忍具／秘寶。
  */
 export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string[], winGoldBonus: number,
-  late = false, opts: { exclude?: string[]; rareBonus?: number; extraChoices?: number } = {}): CombatRewards {
+  late = false, opts: { exclude?: string[]; rareBonus?: number; extraChoices?: number; upgradeChance?: number } = {}): CombatRewards {
   const ex = opts.exclude ?? [];
   const bonus = opts.rareBonus ?? 0;
   const extra = opts.extraChoices ?? 0;   // 掌門印：牌多幾張可選
   if (kind === '塔主') return { kind, cards: [], fish: 100 + winGoldBonus, potion: null, relic: owned.includes('tower_token') ? null : 'tower_token' };
+  // 升級牌：依機率挑三選一裡的一張改成升級版（第二關 20%、第三關 40%；第一關 0）
+  const withUpgrade = (cards: CardDef[]): { upgradedCard?: string } =>
+    cards.length && (opts.upgradeChance ?? 0) > 0 && rng.chance(opts.upgradeChance ?? 0) ? { upgradedCard: rng.pick(cards).id } : {};
   if (kind === '大魔物') {
     const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus);
     const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus);
-    return { kind, cards: rng.shuffle([...jue, ...rest]), fish: 35 + winGoldBonus, potion: rng.chance(0.5) ? rollPotion(rng) : null, relic: rollRelic(rng, '大魔物', owned) };
+    const cards = rng.shuffle([...jue, ...rest]);
+    return { kind, cards, fish: 35 + winGoldBonus, potion: rng.chance(0.5) ? rollPotion(rng) : null, relic: rollRelic(rng, '大魔物', owned), ...withUpgrade(cards) };
   }
   // 小魚乾 10～20 → 15～25：原本一關打完約 90 條，罐頭鋪一張常見牌 50、
   // 等於整關只逛得起一次店，商店形同虛設
@@ -75,5 +81,5 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
     const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus);
     if (jue.length) picks = rng.shuffle([...picks.slice(0, 2 + extra), ...jue]);
   }
-  return { kind, cards: picks, fish: rng.int(15, 25) + winGoldBonus, potion: rng.chance(0.4) ? rollPotion(rng) : null, relic: null };
+  return { kind, cards: picks, fish: rng.int(15, 25) + winGoldBonus, potion: rng.chance(0.4) ? rollPotion(rng) : null, relic: null, ...withUpgrade(picks) };
 }
