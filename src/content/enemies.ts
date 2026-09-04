@@ -604,8 +604,9 @@ export const enemies: EnemyDef[] = [
   // 鏡子走廊事件的對手（使用者 2026-09-02：「我以為會有一個影球球是敵人跟我對打」）：
   // 借影球球的立繪、招式是縮小版；三關各一個遭遇，靠 hpScale／strength 跟著關卡變強。
   // 池標「召喚」＝不進任何隨機池，只由事件叫出來（切磋的白貓同一套）
-  // 2026-09-04 使用者：「強度太低、要有特色」→ 血量拉高、招式加重，並加「照著學」把你的爪力貓步抄過去
-  { id: 'mirror_qiuqiu', name: '鏡中球球', hp: [92, 100], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
+  // 2026-09-04 使用者：「強度太低、要有特色」→ 招式加重並加「照著學」抄你的爪力貓步。
+  // 血量先拉到 92，機器人實測第八層平均掉 21 點血、打 10.8 回合太拖，同日調回 70（傷害不動）
+  { id: 'mirror_qiuqiu', name: '鏡中球球', hp: [70, 76], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
     // 2026-09-04 使用者：對白改成「是球球的影子」，不要再講「跟你長得一樣」
     line: '（從鏡子裡跨出來，貼著地面滑到你面前）', lines: ['（是球球的影子，站起來了）', '（影子學著你的動作，先出手了）'], moves: [
       { intent: 'buff', label: '照著學', effects: [{ kind: 'copyPlayerStatus', names: ['爪力', '貓步'] }, { kind: 'statusSelf', name: '隱身', amount: 1 }] },
