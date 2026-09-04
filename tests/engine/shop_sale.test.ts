@@ -1,7 +1,7 @@
 // 罐頭鋪：每店一件特價、重整貨架一次、二三關珍品架（使用者 2026-09-04）
 import { describe, expect, it } from 'vitest';
 import { relicById } from '../../src/content/relics';
-import { RESHUFFLE_COST, SALE_RATES, TREASURE_MIN_PRICE, buyCard, makeShop, newRun, repriceShop, reshuffleShop, takeRelic } from '../../src/engine/run';
+import { RESHUFFLE_COST, SALE_RATES, buyCard, makeShop, newRun, repriceShop, reshuffleShop, takeRelic } from '../../src/engine/run';
 
 describe('特價', () => {
   it('每間店剛好一件特價，折數只會是 7／5／4／3 折，比例接近 45／30／15／10；特價 = 原價 × 折數', () => {
@@ -53,7 +53,7 @@ describe('重整貨架', () => {
 });
 
 describe('珍品架', () => {
-  it('第一關兩件常見秘寶；第二三關第三件是大魔物池、標價至少 250', () => {
+  it('第一關兩件常見秘寶；第二三關第三件是大魔物池、標價照那件秘寶自己的定價', () => {
     const r1 = newRun('t1'); expect(makeShop(r1).relics.length).toBe(2);
     for (const act of [2, 3]) {
       const run = newRun(`t${act}`); run.act = act;
@@ -61,7 +61,7 @@ describe('珍品架', () => {
       expect(shop.relics.length).toBe(3);
       const t = shop.relics[2]!;
       expect(relicById[t.id]!.pool).toBe('大魔物');
-      expect(t.base).toBeGreaterThanOrEqual(TREASURE_MIN_PRICE);
+      expect(t.base).toBe(relicById[t.id]!.price ?? 150);
     }
   });
 });

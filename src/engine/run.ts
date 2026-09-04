@@ -277,8 +277,6 @@ export interface ShopStock {
 /** 特價折數與權重：七折最常見、三折最少（使用者 2026-09-04：「不一定五折，7／5／4／3 折隨機，機率你定」） */
 export const SALE_RATES: readonly [number, number][] = [[0.7, 45], [0.5, 30], [0.4, 15], [0.3, 10]];
 export const RESHUFFLE_COST = 75;
-/** 二三關珍品架（大魔物池秘寶）的最低標價 */
-export const TREASURE_MIN_PRICE = 250;
 
 function priceOf(base: number, mul: number, sale?: number): number { return Math.round(base * mul * (sale ?? 1)); }
 
@@ -344,14 +342,14 @@ export function makeShop(run: RunState): ShopStock {
   const cardDefs = rollShopCards(run, rng, 5, []);
   const relicIds: string[] = [];
   for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...run.relics, ...relicIds]); if (id) relicIds.push(id); }
-  // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價至少 250——後期有個貴的東西可以存錢追
+  // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）
   let treasure: string | null = null;
   if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...run.relics, ...relicIds]); if (treasure) relicIds.push(treasure); }
   // 升級牌：依關數機率把五張裡的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
   const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
   const shop: ShopStock = {
     cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
-    relics: relicIds.map((id) => { const base = id === treasure ? Math.max(TREASURE_MIN_PRICE, relicById[id]?.price ?? RELIC_PRICE) : (relicById[id]?.price ?? RELIC_PRICE); return { id, base, price: priceOf(base, shopMul), sold: false }; }),
+    relics: relicIds.map((id) => { const base = relicById[id]?.price ?? RELIC_PRICE; return { id, base, price: priceOf(base, shopMul), sold: false }; }),
     potions: Array.from({ length: 3 }, () => {
       const id = rollPotion(rng);
       const base = potionById[id]?.price ?? POTION_PRICE;
