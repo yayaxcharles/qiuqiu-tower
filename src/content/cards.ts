@@ -95,8 +95,8 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 3 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 4 }] }] } },
   // 跟忍術·反彈只差 1 點＝純劣化，改走攻守一體；純反彈留給忍術·反彈
-  // 2026-09-04 使用者：跟忍術·反彈撞名，改成同時講到反彈＋蜷縮的忍者名（撒菱＝忍者撒在地上的鐵蒺藜）
-  { id: 'fantan', name: '忍術·撒菱陣', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fantan',
+  // 2026-09-04 使用者：跟忍術·反彈撞名，改成同時講到反彈＋蜷縮的忍者名（鐵蒺藜＝忍者撒在地上的尖刺，2026-09-04 使用者從撒菱陣改定）
+  { id: 'fantan', name: '忍術·鐵蒺藜', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fantan',
     effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'block', amount: 6 }],
     upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }, { kind: 'block', amount: 8 }] } },
   // 基礎版只有本回合有效（`thisTurn`），磨爪之後變成永久的——升級同時拿掉限制又加量
