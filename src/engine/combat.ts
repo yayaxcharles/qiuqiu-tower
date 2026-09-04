@@ -230,7 +230,8 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // 魔物的防禦在敵方回合**開始時一次全部歸零**，不是各自輪到才歸零。
   // 對既有的魔物完全等價（沒有誰會替別人加防禦），但「盾陣」那種替全體加防禦的招
   // （鼠大將、蛙大名，2026-09-02 第二波）本來會被排在後面的同伴自己洗掉。
-  for (const e of cs.enemies) if (!e.dead) e.block = 0;
+  // 不壞身（鐵羅漢）不歸零：牠的防禦一路往上疊，逼玩家一直動手打（使用者 2026-09-04）
+  for (const e of cs.enemies) if (!e.dead && getStatus(e, '不壞身') === 0) e.block = 0;
   // 魔氣暴走（使用者 2026-09-04：「拖著的都要有代價」）：第 RAMPAGE_TURN 回合起，每個敵方回合全體魔物 +1 爪力。
   // 治龜縮——機器人打龍貓拖三十多回合就是沒代價；正常戰鬥七八回合內結束不會碰到、關主戰打得乾脆也碰不到
   if (cs.turn >= RAMPAGE_TURN) {
@@ -328,6 +329,9 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     // 鱗甲：牠的回合結束長出等同層數的防禦（被打痛一下就剝落一層，見 damageEnemy）
     const plating = getStatus(e, '鱗甲');
     if (plating > 0 && !e.dead) gainBlock(cs, e, plating);
+    // 不壞身：回合結束再加 N 點防禦，配上「敵方回合不歸零」就會一路疊上去
+    const iron = getStatus(e, '不壞身');
+    if (iron > 0 && !e.dead) gainBlock(cs, e, iron);
     // 消散：每個牠的回合結束少一層，歸零就散去。走 escape 那條路——不算打倒、不掉戰利品
     if (getStatus(e, '消散') > 0 && !e.dead) {
       addStatus(e, '消散', -1);

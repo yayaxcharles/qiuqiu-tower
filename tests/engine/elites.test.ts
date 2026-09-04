@@ -84,19 +84,19 @@ describe('第一關菁英（單一機制）', () => {
 });
 
 describe('第二關菁英（兩個機制）', () => {
-  it('鐵羅漢・鱗甲 8 ＋縮殼 12：第一下先被殼吃掉，之後每回合自己補甲', () => {
+  it('鐵羅漢・不壞身 10：防禦不歸零、每回合再加 10，一路疊上去', () => {
     const cs = start('iron_arhat');
     const e = cs.enemies[0]!;
-    expect(e.maxHp).toBe(120);
-    expect(getStatus(e, '鱗甲')).toBe(8);
-    expect(getStatus(e, '縮殼')).toBe(12);
-    damageEnemy(cs, e, 5);
-    expect(e.block, '第一次被打痛就縮出 12 點防禦').toBe(12);
-    expect(getStatus(e, '縮殼'), '縮殼一場只有一次').toBe(0);
-    expect(getStatus(e, '鱗甲'), '同一下也剝掉一層甲').toBe(7);
+    expect(e.maxHp).toBe(130);
+    expect(getStatus(e, '鱗甲')).toBe(6);
+    expect(getStatus(e, '不壞身')).toBe(10);
+    expect(getStatus(e, '縮殼'), '縮殼拿掉了，跟不壞身重複').toBe(0);
     e.block = 0;
     endTurn(cs);
-    expect(e.block, '牠的回合結束長出等同鱗甲層數的防禦').toBeGreaterThanOrEqual(7);
+    const first = e.block;
+    expect(first, '回合結束：鱗甲 6（被打掉一層剩 5）＋不壞身 10').toBeGreaterThanOrEqual(15);
+    endTurn(cs);
+    expect(e.block, '敵方回合不歸零，第二輪繼續往上疊').toBeGreaterThan(first);
   });
 
   it('織影蜘蛛・飛行 3 ＋塞牌：打得到一半，吐絲往抽牌堆塞眼冒金星', () => {

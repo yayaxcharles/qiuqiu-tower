@@ -97,7 +97,19 @@
   "card/dazed_card": "assets/cards/card/dazed_card.webp",
   "card/slime_card": "assets/cards/card/slime_card.webp",
   "card/dilie": "assets/cards/card/dilie.webp",
-  "card/luanwu": "assets/cards/card/luanwu.webp"
+  "card/luanwu": "assets/cards/card/luanwu.webp",
+  "card/beici": "assets/cards/card/beici.webp",
+  "card/bengquan": "assets/cards/card/bengquan.webp",
+  "card/cuiye": "assets/cards/card/cuiye.webp",
+  "card/doumao": "assets/cards/card/doumao.webp",
+  "card/ehou": "assets/cards/card/ehou.webp",
+  "card/huixuan": "assets/cards/card/huixuan.webp",
+  "card/jieli": "assets/cards/card/jieli.webp",
+  "card/lianhuan": "assets/cards/card/lianhuan.webp",
+  "card/maoqiudan": "assets/cards/card/maoqiudan.webp",
+  "card/qianglafen": "assets/cards/card/qianglafen.webp",
+  "card/tiebushan": "assets/cards/card/tiebushan.webp",
+  "card/zhuiji": "assets/cards/card/zhuiji.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",

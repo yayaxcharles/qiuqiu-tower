@@ -86,7 +86,7 @@ export const events: EventDef[] = [
     ] },
 
   { id: 'sparring_cat', title: '想切磋的白貓',
-    text: '一隻白貓擋在路中間，抱著手臂。「打一場。輸了我讓路，贏了……我也讓路。」',
+    text: '一隻白貓擋在路中間，抱著手臂，旁邊還站著一隻黑貓。「打一場。我師弟也一起——輸了我讓路，贏了……我也讓路。」',
     choices: [
       { label: '打一場（打贏多拿 60 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'white_duelist', bonusFish: 60 }], result: '白貓退到旁邊。「不錯。」' },
       { label: '不打（掉 8 點生命，被牠撞開）', outcome: [{ kind: 'damage', n: 8 }], result: '球球被撞得踉蹌了一下。白貓：「沒禮貌。」' },
@@ -122,7 +122,7 @@ export const events: EventDef[] = [
       // 本來是「直接升級兩張牌、掉 12 血」——使用者 2026-09-02：「我以為會有一個影球球是敵人跟我對打」。
       // 改成真的打一場（對手依關數變強），贏了才在獎勵畫面挑兩張牌升級
       { label: '跟鏡子裡的自己過招（要打一場，贏了升級兩張牌）', outcome: [{ kind: 'fight', encounterId: 'mirror_duel', bonusFish: 0, bonusUpgrades: 2 }],
-        result: '鏡子裡的球球跨了出來，擺出跟你一模一樣的架式。' },
+        result: '鏡子裡的球球跨了出來——是球球自己的影子，擺出架式。' },
       { label: '快步走過（什麼都不會發生）', outcome: [], result: '球球低著頭走過去，不敢看旁邊。' },
     ] },
 

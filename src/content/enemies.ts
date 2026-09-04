@@ -64,13 +64,23 @@ export const enemies: EnemyDef[] = [
   // 切磋的白貓：只有「想切磋的白貓」事件會遇到（pool 召喚＝不進隨機池）。
   // 之前偷懶借黑貓忍者當對手，事件圖跟文案都是白貓、打起來卻是黑貓（使用者抓到）。
   // 招式走堂堂正正的劍客路線：起手亮劍（蓄力）、正面重斬，跟忍者的隱身流分開。
-  { id: 'white_duelist', name: '切磋的白貓', hp: [38, 42], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_white_duelist',
+  // 2026-09-04 使用者：「白貓超弱、血少攻低技能爛」→ 血量與招式全面加重，並帶一個陪練的同伴
+  { id: 'white_duelist', name: '切磋的白貓', hp: [66, 72], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_white_duelist',
     line: '打一場。全力來。', lines: ['點到為止？不，全力。', '讓我看看你的爪子。'],
     moves: [
       { intent: 'special', label: '亮劍', effects: [{ kind: 'chargeNext' }] },
-      { intent: 'attack', label: '正面斬', effects: [{ kind: 'damage', amount: 8 }] },
-      { intent: 'block', label: '架勢', effects: [{ kind: 'block', amount: 7 }] },
-      { intent: 'attack', label: '突刺', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
+      { intent: 'attack', label: '正面斬', effects: [{ kind: 'damage', amount: 13 }] },
+      { intent: 'block', label: '架勢', effects: [{ kind: 'block', amount: 10 }] },
+      { intent: 'attack', label: '突刺', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
+      { intent: 'buff', label: '凝神', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
+    ] },
+  // 白貓的陪練同伴（借黑貓忍者的立繪；牠是真的黑貓，不是拿黑貓冒充白貓）
+  { id: 'sparring_partner', name: '陪練的黑貓', hp: [34, 38], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_black_ninja',
+    line: '（站在白貓旁邊，抱著手）', lines: ['師姐說全力，那就全力。', '（把手裏劍在指間轉了一圈）'],
+    moves: [
+      { intent: 'attack', label: '飛鏢', effects: [{ kind: 'damage', amount: 7 }] },
+      { intent: 'debuff', label: '撒沙', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
+      { intent: 'attack', label: '側踢', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
     ] },
   { id: 'orange_bandit', name: '橘貓山賊', hp: [48, 52], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_orange_bandit',
     line: '留下買路財！', lines: ['小魚乾全部拿出來！', '此路是我開！'],
@@ -589,12 +599,15 @@ export const enemies: EnemyDef[] = [
   // 鏡子走廊事件的對手（使用者 2026-09-02：「我以為會有一個影球球是敵人跟我對打」）：
   // 借影球球的立繪、招式是縮小版；三關各一個遭遇，靠 hpScale／strength 跟著關卡變強。
   // 池標「召喚」＝不進任何隨機池，只由事件叫出來（切磋的白貓同一套）
-  { id: 'mirror_qiuqiu', name: '鏡中球球', hp: [60, 66], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
-    line: '（從鏡子裡跨出來，學你歪了歪頭）', lines: ['（做了個跟你一模一樣的鬼臉）', '（嘴型跟你說一樣的話）'], moves: [
-      { intent: 'attack', label: '鏡爪抓', effects: [{ kind: 'damage', amount: 9 }] },
-      { intent: 'block', label: '鏡蜷縮', effects: [{ kind: 'block', amount: 9 }] },
-      { intent: 'attack', label: '鏡肉球連擊', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
-      { intent: 'buff', label: '鏡分身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }] },
+  // 2026-09-04 使用者：「強度太低、要有特色」→ 血量拉高、招式加重，並加「照著學」把你的爪力貓步抄過去
+  { id: 'mirror_qiuqiu', name: '鏡中球球', hp: [92, 100], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
+    // 2026-09-04 使用者：對白改成「是球球的影子」，不要再講「跟你長得一樣」
+    line: '（從鏡子裡跨出來，貼著地面滑到你面前）', lines: ['（是球球的影子，站起來了）', '（影子學著你的動作，先出手了）'], moves: [
+      { intent: 'buff', label: '照著學', effects: [{ kind: 'copyPlayerStatus', names: ['爪力', '貓步'] }, { kind: 'statusSelf', name: '隱身', amount: 1 }] },
+      { intent: 'attack', label: '鏡爪抓', effects: [{ kind: 'damage', amount: 13 }] },
+      { intent: 'block', label: '鏡蜷縮', effects: [{ kind: 'block', amount: 12 }] },
+      { intent: 'attack', label: '鏡肉球連擊', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
+      { intent: 'attack', label: '鏡撒手鐧', effects: [{ kind: 'damage', amount: 18 }] },
     ] },
 
   // --- 新關主：橘皮大王（第一關第三選，強度對齊二刀後的 105 級距）---
@@ -922,14 +935,16 @@ export const enemies: EnemyDef[] = [
     ] },
 
   // --- 第二關（塔中）：兩個機制疊在一起 ---
-  // 鱗甲 8＋縮殼 12：第一下會被縮殼吃掉一大半，之後每回合還自己補 8 點甲。多段牌剝甲、大招牌收頭
-  { id: 'iron_arhat', name: '鐵羅漢', hp: [120, 120], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_arhat',
+  // 不壞身 10（2026-09-04 使用者指定）：每回合結束 +10 防禦，而且防禦不歸零、一路往上疊。
+  // 站著不打就再也打不穿，逼玩家每回合都要輸出；縮殼拿掉（跟不壞身重複），鱗甲留 6 讓多段牌仍有事做
+  { id: 'iron_arhat', name: '鐵羅漢', hp: [130, 130], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_arhat',
     line: '（鐵鑄的身體，合十的手緩緩放下）', lines: ['（一步踏下去，地板裂了一道縫）', '（鐵皮摩擦的聲音）'],
-    plating: 8, curlUp: 12,
+    plating: 6, ironBody: 10,
     moves: [
       { intent: 'attack', label: '鐵拳', effects: [{ kind: 'damage', amount: 22 }] },
       { intent: 'block', label: '金剛立', effects: [{ kind: 'block', amount: 12 }] },
       { intent: 'attack', label: '羅漢掌', effects: [{ kind: 'damage', amount: 28 }] },
+      { intent: 'attack', label: '鐵山靠', effects: [{ kind: 'damage', amount: 14, times: 2 }] },
     ] },
   // 飛行 3＋塞牌：吊在絲上打得到一半，還一直往你抽牌堆塞眼冒金星。多段小刀先把牠扯下來
   { id: 'shadow_spider', name: '織影蜘蛛', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_spider',
@@ -1135,7 +1150,7 @@ export const encounters: EncounterDef[] = [
   { id: 'goat', pool: '弱', enemies: ['goat'], acts: [1] },
   { id: 'vacuum', pool: '中', enemies: ['vacuum'], acts: [1] },
   { id: 'black_ninja', pool: '中', enemies: ['black_ninja'], acts: [1] },
-  { id: 'white_duelist', pool: '召喚', enemies: ['white_duelist'] },
+  { id: 'white_duelist', pool: '召喚', enemies: ['white_duelist', 'sparring_partner'] },
   // 鏡子走廊：事件寫 mirror_duel，引擎依關數接成 _a2／_a3，找不到就打基本版（見 run.ts 的 fight）
   { id: 'mirror_duel', pool: '召喚', enemies: ['mirror_qiuqiu'] },   // 第一關用這個基本版（沒有 _a1）
   { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3 },

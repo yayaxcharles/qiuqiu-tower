@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { encounterById, encounters, encountersOfPool, enemies, enemyById } from '../../src/content/enemies';
 
 describe('魔物資料', () => {
-  it('數量：一般 68、大魔物 16、塔主 11、召喚 14', () => {
+  it('數量：一般 68、大魔物 16、塔主 11、召喚 15', () => {
     const n = (p: string) => enemies.filter((e) => e.pool === p).length;
     // 一般 58→68、大魔物 14→16、召喚 12→14＝2026-09-04 第三波（docs/怪物擴充_第三波_設計稿.md）：塔中 7（含雙子兩隻）、塔頂 3、菁英 2、召喚 傀儡與小鴉群
     // 2026-09-01 三關制內容包：塔中 7＋塔頂 5 進一般池、影球球進大魔物、
@@ -14,7 +14,7 @@ describe('魔物資料', () => {
     // 每關 3 隻新菁英（塔下山豬頭目、紙老虎、太鼓狸；塔中鐵羅漢、織影蜘蛛、醉拳狗；
     // 塔頂鬼將、鏡仙、虛無貓），召喚加小鬼與鏡影
     expect(n('弱') + n('中') + n('強')).toBe(68);
-    expect(n('大魔物')).toBe(16); expect(n('塔主')).toBe(11); expect(n('召喚')).toBe(14);
+    expect(n('大魔物')).toBe(16); expect(n('塔主')).toBe(11); expect(n('召喚')).toBe(15);
     expect(new Set(enemies.map((e) => e.id)).size).toBe(enemies.length);
   });
   it('生命區間合法、至少一個動作、有台詞與圖', () => {

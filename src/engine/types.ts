@@ -16,7 +16,7 @@ export type TargetMode = 'enemy' | 'all' | 'self' | 'none';
  */
 export type StatusName =
   | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '噎到' | '隱身' | '定身' | '反彈' | '潛水'
-  | '縮殼' | '飛行' | '鱗甲' | '沉睡' | '消散' | '虛化'
+  | '縮殼' | '飛行' | '鱗甲' | '沉睡' | '消散' | '虛化' | '不壞身'
   | '鐵布衫';   // 2026-09-04：下回合開始換成等量蜷縮（跟潛水→隱身同型）
 export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '噎到', '定身'];   // 溫牛奶、返璞「清掉所有減益」含定身（審查 #16）
 /** 回合結束層數 −1 的狀態 */
@@ -168,6 +168,8 @@ export type EnemyEffect =
   | { kind: 'discardRandomHand'; n: number }
   | { kind: 'summon'; enemyId: string; n: number; max?: number; noPour?: true }   // max＝同種活著的上限，補召不爆量；noPour＝滿了就不做事（不走「灌血給最弱那隻」的通則）
   | { kind: 'purgePlayer'; names: StatusName[] }   // 破功：把玩家這些狀態各拍掉一半（向下取整保留）
+  /** 照著學（鏡中球球）：把玩家這些狀態的層數抄過來（只抄比自己高的，不會愈抄愈少） */
+  | { kind: 'copyPlayerStatus'; names: StatusName[] }
   | { kind: 'stripPlayer'; names: StatusName[] }   // 看破：把玩家這些狀態整個拍掉（隱身、潛水——先囤好的閃避全沒）
   | { kind: 'chargeNext' }
   | { kind: 'escape' }
@@ -279,6 +281,11 @@ export interface EnemyDef {
    * 跟飛行／鱗甲／縮殼那幾個開戰被動同一套做法，在 makeEnemy 掛上去。
    */
   thorns?: number;
+  /**
+   * 不壞身（2026-09-04 使用者指定的鐵羅漢特性）：每個牠的回合結束獲得 N 點防禦，
+   * 而且牠的防禦**不會在敵方回合開始歸零**，會一路往上疊。不動手打就永遠打不穿。
+   */
+  ironBody?: number;
 }
 export interface EncounterDef {
   id: string;

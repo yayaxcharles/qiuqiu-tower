@@ -311,6 +311,7 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   if (def.fadeAfter) addStatus(e, '消散', def.fadeAfter);
   // 2026-09-03 菁英擴充：開戰帶反彈（紙老虎，整場不消失）、開戰帶虛化（虛無貓，之後每回合開始切換）
   if (def.thorns) addStatus(e, '反彈', def.thorns);
+  if (def.ironBody) addStatus(e, '不壞身', def.ironBody);
   if (def.phasing) addStatus(e, '虛化', 1);
   if (def.asleep) {
     addStatus(e, '沉睡', def.asleep);
@@ -397,7 +398,15 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         if (hitNames.length) log(cs, `${e.name}一掌拍散了球球的氣勁（${hitNames.join('、')}減半）`);
         break;
       }
-      case 'stripPlayer': {
+      case 'copyPlayerStatus': {
+      for (const name of fx.names) {
+        const mine = getStatus(e, name);
+        const yours = getStatus(cs.player, name);
+        if (yours > mine) { addStatus(e, name, yours - mine); log(cs, `${e.name}照著學走了你的${name}`); }
+      }
+      break;
+    }
+    case 'stripPlayer': {
         // 看破：先囤好的隱身／潛水拍掉一半（向下取整保留：3 剩 1、2 剩 1、1 剩 0）。
         // 原本是整個拍掉，使用者 2026-09-03：「太強了，拍掉一半就好，3 就拍掉剩 1」
         const hit = fx.names.filter((n) => getStatus(cs.player, n) > 0);

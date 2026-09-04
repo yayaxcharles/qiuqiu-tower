@@ -369,8 +369,8 @@
    "id": "white_duelist",
    "name": "切磋的白貓",
    "hp": [
-    38,
-    42
+    66,
+    72
    ],
    "pool": "召喚",
    "size": "medium",
@@ -394,7 +394,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 8
+       "amount": 13
       }
      ]
     },
@@ -404,13 +404,74 @@
      "effects": [
       {
        "kind": "block",
-       "amount": 7
+       "amount": 10
       }
      ]
     },
     {
      "intent": "attack",
      "label": "突刺",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 2
+      }
+     ]
+    },
+    {
+     "intent": "buff",
+     "label": "凝神",
+     "effects": [
+      {
+       "kind": "statusSelf",
+       "name": "爪力",
+       "amount": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
+   "id": "sparring_partner",
+   "name": "陪練的黑貓",
+   "hp": [
+    34,
+    38
+   ],
+   "pool": "召喚",
+   "size": "medium",
+   "pattern": "cycle",
+   "art": "codex/monster_black_ninja",
+   "acts": [],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "飛鏢",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 7
+      }
+     ]
+    },
+    {
+     "intent": "debuff",
+     "label": "撒沙",
+     "effects": [
+      {
+       "kind": "statusPlayer",
+       "name": "炸毛",
+       "amount": 2
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "側踢",
      "effects": [
       {
        "kind": "damage",
@@ -3927,8 +3988,8 @@
    "id": "mirror_qiuqiu",
    "name": "鏡中球球",
    "hp": [
-    60,
-    66
+    92,
+    100
    ],
    "pool": "召喚",
    "size": "medium",
@@ -3938,12 +3999,30 @@
    "passives": {},
    "moves": [
     {
+     "intent": "buff",
+     "label": "照著學",
+     "effects": [
+      {
+       "kind": "copyPlayerStatus",
+       "names": [
+        "爪力",
+        "貓步"
+       ]
+      },
+      {
+       "kind": "statusSelf",
+       "name": "隱身",
+       "amount": 1
+      }
+     ]
+    },
+    {
      "intent": "attack",
      "label": "鏡爪抓",
      "effects": [
       {
        "kind": "damage",
-       "amount": 9
+       "amount": 13
       }
      ]
     },
@@ -3953,7 +4032,7 @@
      "effects": [
       {
        "kind": "block",
-       "amount": 9
+       "amount": 12
       }
      ]
     },
@@ -3963,19 +4042,18 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 5,
+       "amount": 7,
        "times": 2
       }
      ]
     },
     {
-     "intent": "buff",
-     "label": "鏡分身",
+     "intent": "attack",
+     "label": "鏡撒手鐧",
      "effects": [
       {
-       "kind": "statusSelf",
-       "name": "隱身",
-       "amount": 1
+       "kind": "damage",
+       "amount": 18
       }
      ]
     }
@@ -6007,8 +6085,8 @@
    "id": "iron_arhat",
    "name": "鐵羅漢",
    "hp": [
-    120,
-    120
+    130,
+    130
    ],
    "pool": "大魔物",
    "size": "large",
@@ -6018,8 +6096,8 @@
     2
    ],
    "passives": {
-    "plating": 8,
-    "curlUp": 12
+    "plating": 6,
+    "ironBody": 10
    },
    "moves": [
     {
@@ -6049,6 +6127,17 @@
       {
        "kind": "damage",
        "amount": 28
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "鐵山靠",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 14,
+       "times": 2
       }
      ]
     }
