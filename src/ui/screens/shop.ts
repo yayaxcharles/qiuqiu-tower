@@ -61,7 +61,7 @@ registerScreen('shop', (app, root) => {
     shop.cards.forEach((it, i) => {
       const buyable = !it.sold && run.fish >= it.price;
       cards.append(el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}` },
-        cardNode(it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); render(); } } }),
+        cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); render(); } } }),   // 升級格照＋版畫
         el('div', { class: 'price' }, it.sold ? '賣掉了' : `${it.price} 條小魚乾`)));
     });
 

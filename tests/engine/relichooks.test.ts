@@ -77,11 +77,11 @@ describe('秘寶新掛鉤', () => {
     rest(r, '打盹');
     expect(r.restBlock).toBe(12);
   });
-  it('零錢罐：罐頭鋪九折；掌門印：獎勵四張牌', () => {
+  it('零錢罐：罐頭鋪八折；掌門印：獎勵四張牌', () => {
     const r = newRun('shop-hooks'); takeRelic(r, 'coin_jar');
     const s = makeShop(r);
     const base: Record<string, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
-    for (const c of s.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * 0.9));
+    for (const c of s.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * 0.8));
     const rw = rollRewards(new Rng(seedFromString('rw')), '戰鬥', [], 0, false, { extraChoices: 1 });
     expect(rw.cards.length).toBe(4);
   });

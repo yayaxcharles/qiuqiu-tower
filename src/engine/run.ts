@@ -135,8 +135,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   for (const c of run.deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
   const exclude = [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
   const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0);   // 掌門印：牌多一張可選
-  // 戰鬥獎勵有機會直接開出升級牌：第一關 10%、第二關 20%、第三關 40%（使用者 2026-09-04）
-  const upgradeChance = run.act >= 3 ? 0.4 : run.act === 2 ? 0.2 : 0.1;
+  const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（第一關 10%、第二關 20%、第三關 40%）
   const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
@@ -264,14 +263,30 @@ export function openChest(run: RunState): string | null {
 }
 
 export interface ShopStock {
-  cards: { def: CardDef; price: number; sold: boolean }[];
-  relics: { id: string; price: number; sold: boolean }[];
-  potions: { id: string; price: number; sold: boolean }[];
+  /** `base`＝未打折的定價；`price`＝現在的售價（買到零錢罐那一刻整間店重標，見 repriceShop）；`upgraded`＝這格是升級版 */
+  cards: { def: CardDef; base: number; price: number; sold: boolean; upgraded?: boolean }[];
+  relics: { id: string; base: number; price: number; sold: boolean }[];
+  potions: { id: string; base: number; price: number; sold: boolean }[];
+}
+
+/** 罐頭鋪價格倍率：難度 4 起貴一成 × 帶著的秘寶折扣（零錢罐八折、貪吃錢袋漲三成，相乘） */
+export function shopMulFor(run: RunState): number {
+  return runMods(run).shopMul * run.relics.reduce((m, id) => m * (relicById[id]?.hooks.shopDiscount ?? 1), 1);
+}
+
+/** 依現在的倍率把還沒賣掉的東西重新標價（買到會改價格的秘寶時叫——使用者 2026-09-04：買了零錢罐商品沒跟著變） */
+export function repriceShop(run: RunState, shop: ShopStock): void {
+  const mul = shopMulFor(run);
+  for (const it of [...shop.cards, ...shop.relics, ...shop.potions]) if (!it.sold) it.price = Math.round(it.base * mul);
+}
+
+/** 戰鬥獎勵、罐頭鋪、事件選牌開出「升級牌」的機率：第一關 10%、第二關 20%、第三關 40%（使用者 2026-09-04） */
+export function upgradeChanceFor(run: RunState): number {
+  return run.act >= 3 ? 0.4 : run.act === 2 ? 0.2 : 0.1;
 }
 
 export function makeShop(run: RunState): ShopStock {
-  // 難度 4 起貴一成；零錢罐九折（兩者相乘）
-  const shopMul = runMods(run).shopMul * run.relics.reduce((m, id) => m * (relicById[id]?.hooks.shopDiscount ?? 1), 1);
+  const shopMul = shopMulFor(run);
   const rng = runRng(run);
   // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03：第二關要比較常看到稀有牌可以買、第三關更高）：
   // 第一關 常見 60／罕見 30／稀有 10；第二關 35／40／25 且至少一張稀有；第三關 20／40／40 且至少兩張稀有
@@ -295,12 +310,15 @@ export function makeShop(run: RunState): ShopStock {
   }
   const relicIds: string[] = [];
   for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...run.relics, ...relicIds]); if (id) relicIds.push(id); }
+  // 升級牌：依關數機率把五張裡的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
+  const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
   return {
-    cards: cardDefs.map((def) => ({ def, price: Math.round(PRICE[def.rarity] * shopMul), sold: false })),
-    relics: relicIds.map((id) => ({ id, price: Math.round((relicById[id]?.price ?? RELIC_PRICE) * shopMul), sold: false })),
+    cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: Math.round(PRICE[def.rarity] * shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
+    relics: relicIds.map((id) => { const base = relicById[id]?.price ?? RELIC_PRICE; return { id, base, price: Math.round(base * shopMul), sold: false }; }),
     potions: Array.from({ length: 3 }, () => {
       const id = rollPotion(rng);
-      return { id, price: Math.round((potionById[id]?.price ?? POTION_PRICE) * shopMul), sold: false };
+      const base = potionById[id]?.price ?? POTION_PRICE;
+      return { id, base, price: Math.round(base * shopMul), sold: false };
     }),
   };
 }
@@ -312,11 +330,13 @@ function pay(run: RunState, price: number): boolean {
 }
 export function buyCard(run: RunState, shop: ShopStock, i: number): boolean {
   const it = shop.cards[i]; if (!it || it.sold || !pay(run, it.price)) return false;
-  it.sold = true; addCard(run, it.def.id); return true;
+  it.sold = true; addCard(run, it.def.id, !!it.upgraded); return true;   // 標成升級版的那格買到就是升級牌
 }
 export function buyRelic(run: RunState, shop: ShopStock, i: number): boolean {
   const it = shop.relics[i]; if (!it || it.sold || run.relics.includes(it.id) || !pay(run, it.price)) return false;
-  it.sold = true; takeRelic(run, it.id); return true;
+  it.sold = true; takeRelic(run, it.id);
+  repriceShop(run, shop);   // 零錢罐、貪吃錢袋這類改價的秘寶買到當下整間店重標（使用者 2026-09-04）
+  return true;
 }
 /** `replaceIndex`＝帶滿時要換掉哪一支；帶滿又沒指定就不賣（錢也不扣） */
 export function buyPotion(run: RunState, shop: ShopStock, i: number, replaceIndex?: number): boolean {
@@ -339,7 +359,7 @@ export type RunEffectOutcome =
    * 畫面就只跳一次選牌——「升級兩張牌」的事件實際上只升到一張（鏡子、腳印兩個事件都中招）。
    */
   | { needs: 'removeCard' | 'upgradeCard'; n: number }
-  | { chooseCard: CardDef[] }
+  | { chooseCard: CardDef[]; upgradedCard?: string }   // `upgradedCard`＝這一張是升級版（機率同戰鬥獎勵）
   /** `afterWin`＝同一個選項裡其他的獎勵效果（秘寶、小魚乾、牌……），要等打贏才發；事件畫面開打前把它放進 run.pendingAfterFight */
   | { fight: { encounterId: string; bonusFish: number; bonusUpgrades?: number; afterWin?: RunEffect[] } }
   | null;
@@ -427,7 +447,13 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         outcome = { fight: { encounterId: encounterById[byAct] ? byAct : fx.encounterId, bonusFish: fx.bonusFish, bonusUpgrades: fx.bonusUpgrades, ...(deferred.length ? { afterWin: deferred } : {}) } };
         break;
       }
-      case 'chooseCard': outcome = { chooseCard: rollCardChoices(runRng(run), fx.pool, fx.n) }; break;
+      case 'chooseCard': {
+        const rng = runRng(run);
+        const picks = rollCardChoices(rng, fx.pool, fx.n);
+        const up = picks.length && rng.chance(upgradeChanceFor(run)) ? rng.pick(picks).id : undefined;
+        outcome = { chooseCard: picks, ...(up ? { upgradedCard: up } : {}) };
+        break;
+      }
       case 'flag': run.flags[fx.name] = true; break;
       case 'gamble': {
         // 中了哪一邊由子效果自己講（贏＝最大生命 +5、輸＝牌組被塞一張「失手了」）

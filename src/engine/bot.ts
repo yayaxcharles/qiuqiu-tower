@@ -52,7 +52,7 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
     const cands = run.deck.filter((c) => (outcome.needs === 'removeCard') || (!c.upgraded && cardById[c.cardId]?.pool !== '壞毛病'));
     if (cands.length) { const c = rng.pick(cands); outcome.needs === 'removeCard' ? removeCard(run, c.uid) : upgradeCard(run, c.uid); }
   } else if ('chooseCard' in outcome) {
-    if (outcome.chooseCard.length) addCard(run, rng.pick(outcome.chooseCard).id);
+    if (outcome.chooseCard.length) { const id = rng.pick(outcome.chooseCard).id; addCard(run, id, outcome.upgradedCard === id); }
   } else if ('fight' in outcome) {
     const cs = beginCombat(run, outcome.fight.encounterId);
     playCombat(cs, rng, maxTurns, seed);

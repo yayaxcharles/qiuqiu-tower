@@ -148,11 +148,14 @@ registerScreen('event', (app, root, props) => {
   };
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
-  function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = []): void {
+  function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = [], upgradedCard?: string): void {
     clearKeepBg(root);
     renderHud(app, root);
     const grid = el('div', { class: 'reward-cards' });
-    for (const c of defs) grid.append(cardNode(c, { onClick: () => { const got = addCard(run, c.id); finish(resultText, `學會了「${c.name}」`, gains, [{ kind: 'learn', card: got }]); } }));
+    for (const c of defs) {
+      const up = c.id === upgradedCard;   // 開出升級版的那張：照＋版畫、學到就是升級牌（使用者 2026-09-04）
+      grid.append(cardNode(up ? { uid: -1, cardId: c.id, upgraded: true } : c, { onClick: () => { const got = addCard(run, c.id, up); finish(resultText, `學會了「${c.name}${up ? '＋' : ''}」`, gains, [{ kind: 'learn', card: got }]); } }));
+    }
     root.append(sceneView({
       art: grid,
       speaker: title,
@@ -217,7 +220,7 @@ registerScreen('event', (app, root, props) => {
       });
       return;
     }
-    if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard, gains); return; }
+    if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard, gains, outcome.upgradedCard); return; }
     // 打一場：戰鬥畫面會把獎金一路帶到戰後結算，這裡不存檔（節點還沒結束）
     const f = outcome.fight;
     panel(resultText, noteLine(), el('button', { class: 'btn primary', onclick: () => {

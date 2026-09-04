@@ -403,8 +403,8 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, seed:
       else { const u = bestUpgrade(run); if (u) upgradeCard(run, u.uid); }
     }
   } else if ('chooseCard' in outcome) {
-    const id = pickCard(run, outcome.chooseCard) ?? outcome.chooseCard[0]?.id;
-    if (id) addCard(run, id);
+    const id = pickCard(run, outcome.chooseCard) ?? outcome.chooseCard[0]?.id;   // 開出升級版的那張學到就是升級牌（下面 addCard 帶旗標）
+    if (id) addCard(run, id, outcome.upgradedCard === id);
   } else if ('fight' in outcome) {
     fight(run, rng, outcome.fight.encounterId, outcome.fight.bonusFish, seed, stats);
     if (run.status === 'playing') for (let i = 0; i < (outcome.fight.bonusUpgrades ?? 0); i++) { const u = bestUpgrade(run); if (u) upgradeCard(run, u.uid); }

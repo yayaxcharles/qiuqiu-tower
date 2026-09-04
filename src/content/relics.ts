@@ -55,7 +55,7 @@ export const relics: RelicDef[] = [
   // --- 常見（+10）---
   { id: 'feather_toy', name: '羽毛玩具', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，下回合多抽 1 張牌。', art: 'codex/relic_feather_toy', price: 130, hooks: { turnEndNoAttack: [{ kind: 'drawNextTurn', n: 1 }] } },
   { id: 'old_towel', name: '舊毛巾', pool: '常見', text: '每次使用忍具後回復 4 點生命。', art: 'codex/relic_old_towel', price: 120, hooks: { onPotionUse: [{ kind: 'heal', n: 4 }] } },
-  { id: 'coin_jar', name: '零錢罐', pool: '常見', text: '罐頭鋪的東西打九折。', art: 'codex/relic_coin_jar', price: 120, hooks: { shopDiscount: 0.9 } },
+  { id: 'coin_jar', name: '零錢罐', pool: '常見', text: '罐頭鋪的東西打八折（買到的當下整間店就重新標價）。', art: 'codex/relic_coin_jar', price: 120, hooks: { shopDiscount: 0.8 } },   // 九折→八折、當下生效（使用者 2026-09-04）
   { id: 'scratch_board', name: '貓抓板', pool: '常見', text: '每回合第一張攻擊牌打出後獲得 3 點蜷縮。', art: 'codex/relic_scratch_board', price: 140, hooks: { onAttackPlayed: { firstEachTurn: true, effects: [{ kind: 'block', amount: 3 }] } } },
   { id: 'wooden_fish', name: '木魚', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，回復 2 點生命。', art: 'codex/relic_wooden_fish', price: 130, hooks: { turnEndNoAttack: [{ kind: 'heal', n: 2 }] } },
   { id: 'warm_stone', name: '暖爐石', pool: '常見', text: '每打贏一場戰鬥回復 4 點生命。', art: 'codex/relic_warm_stone', price: 140, hooks: { combatEndHeal: 4 } },
