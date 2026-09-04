@@ -123,13 +123,13 @@ export const enemies: EnemyDef[] = [
     ] },
 
   // ===== 大魔物 =====
-  { id: 'ninja_boss', name: '黑貓忍者頭目', hp: [105, 105], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_ninja_boss',
+  { id: 'ninja_boss', name: '黑貓忍者頭目', hp: [115, 115], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_ninja_boss',
     line: '上面那位，不是你認識的那隻貓了。', lines: ['走到這裡，算你有點本事。', '上面的東西，不是你能碰的。'],
     moves: [
-      { intent: 'buff', label: '隱身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 2 }] },
-      { intent: 'summon', label: '分身', effects: [{ kind: 'summon', enemyId: 'black_kitten', n: 2 }] },
-      { intent: 'attack', label: '連擊', effects: [{ kind: 'damage', amount: 8, times: 2 }] },
-      { intent: 'attack', label: '手裡劍雨', effects: [{ kind: 'damage', amount: 15 }] },
+      { intent: 'buff', label: '隱身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 2 }, { kind: 'statusSelf', name: '爪力', amount: 2 }] },
+      { intent: 'summon', label: '分身', effects: [{ kind: 'summon', enemyId: 'black_kitten', n: 2 }, { kind: 'damage', amount: 8 }] },
+      { intent: 'attack', label: '連擊', effects: [{ kind: 'damage', amount: 11, times: 2 }] },
+      { intent: 'attack', label: '手裡劍雨', effects: [{ kind: 'damage', amount: 20 }] },
     ] },
   { id: 'giant_onigiri', name: '巨型飯糰', hp: [125, 125], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_giant_onigiri',
     line: '好、好重……', lines: ['好、好擠……', '別、別把我壓扁……'], onDeathHealPlayer: 10,
@@ -422,13 +422,13 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '刷', effects: [{ kind: 'damage', amount: 3 }] },
     ] },
   // 反彈＋回血＋變身：把三個最煩的性質疊在一起當大魔物
-  { id: 'calico_monk', name: '三花貓武僧', hp: [115, 115], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_calico_monk',
+  { id: 'calico_monk', name: '三花貓武僧', hp: [125, 125], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_calico_monk',
     line: '出手之前，先想清楚。', lines: ['心浮氣躁，練不成的。', '（合掌）請。'],
     moves: [
-      { intent: 'buff', label: '運氣', effects: [{ kind: 'statusSelf', name: '反彈', amount: 1 }] },
-      { intent: 'attack', label: '掌', effects: [{ kind: 'damage', amount: 13 }] },
-      { intent: 'special', label: '調息', effects: [{ kind: 'heal', n: 10 }] },
-      { intent: 'attack', label: '連環掌', effects: [{ kind: 'damage', amount: 7, times: 3 }] },
+      { intent: 'buff', label: '運氣', effects: [{ kind: 'statusSelf', name: '反彈', amount: 2 }, { kind: 'statusSelf', name: '爪力', amount: 1 }] },
+      { intent: 'attack', label: '掌', effects: [{ kind: 'damage', amount: 17 }] },
+      { intent: 'special', label: '調息', effects: [{ kind: 'heal', n: 8 }] },
+      { intent: 'attack', label: '連環掌', effects: [{ kind: 'damage', amount: 9, times: 3 }] },
     ],
     phases: [{
       hpBelow: 45, line: '（睜開眼）', pattern: 'cycle',
@@ -452,10 +452,10 @@ export const enemies: EnemyDef[] = [
     ] },
   { id: 'shamisen_cat', name: '三味線貓', hp: [52, 58], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shamisen_cat',
     line: '（調了調弦）', lines: ['（撥了一聲弦）', '聽完再走。'], moves: [
-      { intent: 'debuff', label: '走音', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
-      { intent: 'attack', label: '高音', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
-      { intent: 'attack', label: '亂彈', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
-      { intent: 'block', label: '調弦', effects: [{ kind: 'block', amount: 8 }, { kind: 'heal', n: 6 }] },
+      { intent: 'debuff', label: '走音', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }, { kind: 'damage', amount: 6 }] },
+      { intent: 'attack', label: '高音', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'attack', label: '亂彈', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
+      { intent: 'block', label: '調弦', effects: [{ kind: 'block', amount: 8 }, { kind: 'heal', n: 4 }] },
     ] },
   { id: 'lantern_ghost', name: '燈籠妖', hp: [56, 62], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_lantern_ghost',
     line: '（火光晃了一下）', lines: ['（舌頭伸得老長）', '（燈裡的火噗一聲變大）'], moves: [
@@ -466,17 +466,17 @@ export const enemies: EnemyDef[] = [
     ] },
   { id: 'windchime_sprite', name: '風鈴精', hp: [46, 52], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_windchime_sprite',
     line: '（叮——）', lines: ['（叮鈴、叮鈴）', '（風不知道從哪裡來的）'], moves: [
-      { intent: 'debuff', label: '搖鈴', effects: [{ kind: 'discardRandomHand', n: 1 }, { kind: 'damage', amount: 5 }] },
-      { intent: 'attack', label: '音波', effects: [{ kind: 'damage', amount: 8 }] },
-      { intent: 'block', label: '風護', effects: [{ kind: 'block', amount: 9 }] },
-      { intent: 'attack', label: '亂風', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
+      { intent: 'debuff', label: '搖鈴', effects: [{ kind: 'discardRandomHand', n: 1 }, { kind: 'damage', amount: 8 }] },
+      { intent: 'attack', label: '音波', effects: [{ kind: 'damage', amount: 11 }] },
+      { intent: 'block', label: '風護', effects: [{ kind: 'block', amount: 9 }, { kind: 'damage', amount: 4 }] },
+      { intent: 'attack', label: '亂風', effects: [{ kind: 'damage', amount: 5, times: 3 }] },
     ] },
   { id: 'tanuki_kid', name: '狸小弟', hp: [42, 48], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_tanuki_kid',
     line: '看我的！', lines: ['我可是會變身的！', '不准笑我！'], moves: [
       { intent: 'buff', label: '變身戲法', effects: [{ kind: 'chargeNext' }] },
-      { intent: 'attack', label: '葉子彈', effects: [{ kind: 'damage', amount: 9 }] },
-      { intent: 'debuff', label: '搗蛋', effects: [{ kind: 'discardRandomHand', n: 1 }] },
-      { intent: 'block', label: '裝可愛', effects: [{ kind: 'block', amount: 8 }] },
+      { intent: 'attack', label: '葉子彈', effects: [{ kind: 'damage', amount: 13 }] },
+      { intent: 'debuff', label: '搗蛋', effects: [{ kind: 'discardRandomHand', n: 1 }, { kind: 'damage', amount: 6 }] },
+      { intent: 'block', label: '裝可愛', effects: [{ kind: 'block', amount: 8 }, { kind: 'damage', amount: 5 }] },
     ] },
   { id: 'geta_monster', name: '木屐怪', hp: [62, 70], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_geta_monster',
     line: '（咚、咚）', lines: ['（咚咚、咚咚）', '（另一隻不知道去哪了）'], moves: [
@@ -512,9 +512,9 @@ export const enemies: EnemyDef[] = [
   { id: 'tofu_boy', name: '豆腐小僧', hp: [40, 46], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_tofu_boy',
     line: '請、請吃豆腐……', lines: ['不、不吃也沒關係……', '（把托盤舉得高高的）'], moves: [
       { intent: 'debuff', label: '請吃豆腐', effects: [{ kind: 'statusPlayer', name: '噎到', amount: 4 }] },
-      { intent: 'attack', label: '豆腐砸', effects: [{ kind: 'damage', amount: 8 }] },
-      { intent: 'block', label: '躲進斗笠', effects: [{ kind: 'block', amount: 12 }] },
-      { intent: 'attack', label: '撒黴豆腐', effects: [{ kind: 'damage', amount: 4 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
+      { intent: 'attack', label: '豆腐砸', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'block', label: '躲進斗笠', effects: [{ kind: 'block', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'attack', label: '撒黴豆腐', effects: [{ kind: 'damage', amount: 7 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
     ] },
 
   // --- 原塔頂魔物（中池）：血 48–80、單發 12–17，全帶一手拿手戲。2026-09-03 換池：月見兔、貓頭鷹夜哨、紙鶴式神降到塔中（數字退回加硬前），其餘留塔頂 ---
@@ -1020,9 +1020,9 @@ export const enemies: EnemyDef[] = [
     ] },
   { id: 'fortune_cat', name: '招財貓', hp: [58, 62], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_fortune_cat',
     line: '（舉起的那隻手招了招）', lines: ['歡迎光臨，小魚乾請放這邊。', '（鈴鐺叮了一聲）'], moves: [
-      { intent: 'debuff', label: '招手', effects: [{ kind: 'stealFish', n: 12 }, { kind: 'block', amount: 6 }] },
-      { intent: 'attack', label: '金幣雨', effects: [{ kind: 'damage', amount: 11 }] },
-      { intent: 'buff', label: '護體', effects: [{ kind: 'statusSelf', name: '爪力', amount: 1 }, { kind: 'block', amount: 10 }] },
+      { intent: 'debuff', label: '招手', effects: [{ kind: 'stealFish', n: 12 }, { kind: 'block', amount: 6 }, { kind: 'damage', amount: 6 }] },
+      { intent: 'attack', label: '金幣雨', effects: [{ kind: 'damage', amount: 15 }] },
+      { intent: 'buff', label: '護體', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }, { kind: 'block', amount: 10 }] },
     ] },
   { id: 'lantern_fish', name: '提燈鮟鱇', hp: [46, 50], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_lantern_fish',
     flying: 2,   // 飄在半空：攻擊只打得到一半，打中兩下才掉下來
@@ -1033,9 +1033,9 @@ export const enemies: EnemyDef[] = [
     ] },
   { id: 'puppeteer', name: '傀儡師', hp: [44, 48], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_puppeteer',
     line: '（手指一勾，線動了）', lines: ['別看我，看它們。', '（袖子裡又掉出一具）'], moves: [
-      { intent: 'summon', label: '操偶', effects: [{ kind: 'summon', enemyId: 'puppet', n: 1, max: 2 }] },
-      { intent: 'attack', label: '針刺', effects: [{ kind: 'damage', amount: 8 }] },
-      { intent: 'block', label: '布陣', effects: [{ kind: 'blockAllies', amount: 6 }] },
+      { intent: 'summon', label: '操偶', effects: [{ kind: 'summon', enemyId: 'puppet', n: 1, max: 2 }, { kind: 'damage', amount: 5 }] },
+      { intent: 'attack', label: '針刺', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'block', label: '布陣', effects: [{ kind: 'blockAllies', amount: 6 }, { kind: 'statusSelf', name: '爪力', amount: 2 }] },
     ] },
   { id: 'puppet', name: '傀儡', hp: [14, 16], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_puppet',
     line: '（喀、喀）', lines: ['（關節轉了一圈）', '（線繃緊了）'], moves: [
@@ -1151,10 +1151,22 @@ export const encounters: EncounterDef[] = [
   { id: 'vacuum', pool: '中', enemies: ['vacuum'], acts: [1] },
   { id: 'black_ninja', pool: '中', enemies: ['black_ninja'], acts: [1] },
   { id: 'white_duelist', pool: '召喚', enemies: ['white_duelist', 'sparring_partner'] },
+  { id: 'white_duelist_a2', pool: '召喚', enemies: ['white_duelist', 'sparring_partner'], hpScale: 1.35, strength: 3, acts: [] },
+  { id: 'white_duelist_a3', pool: '召喚', enemies: ['white_duelist', 'sparring_partner', 'sparring_partner'], hpScale: 1.5, strength: 6, acts: [] },
   // 鏡子走廊：事件寫 mirror_duel，引擎依關數接成 _a2／_a3，找不到就打基本版（見 run.ts 的 fight）
   { id: 'mirror_duel', pool: '召喚', enemies: ['mirror_qiuqiu'] },   // 第一關用這個基本版（沒有 _a1）
-  { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3 },
-  { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6 },
+  { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [] },
+  { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [] },
+  // 2026-09-04 使用者：「事件怪有點爛」——事件對手原本第二三關還在打第一關的怪。
+  // 引擎會先找 `<遭遇>_a<關數>`，找不到才退回基本版（run.ts 的 fight），所以只要補這幾筆就跟著關卡變強。
+  { id: 'orange_bandit_a2', pool: '中', enemies: ['orange_bandit', 'orange_bandit'], hpScale: 1.3, strength: 3, acts: [] },
+  { id: 'orange_bandit_a3', pool: '中', enemies: ['orange_bandit', 'orange_bandit'], hpScale: 1.7, strength: 6, acts: [] },
+  { id: 'orange_bandit_pair_a2', pool: '中', enemies: ['orange_bandit', 'orange_bandit', 'orange_bandit'], hpScale: 1.2, strength: 3, acts: [] },
+  { id: 'orange_bandit_pair_a3', pool: '中', enemies: ['orange_bandit', 'orange_bandit', 'orange_bandit', 'orange_bandit'], hpScale: 1.4, strength: 6, acts: [] },
+  { id: 'rats3_a2', pool: '弱', enemies: ['rat', 'rat', 'rat', 'rat'], hpScale: 3, strength: 4, acts: [] },
+  { id: 'rats3_a3', pool: '弱', enemies: ['rat', 'rat', 'rat', 'rat', 'rat'], hpScale: 4.5, strength: 7, acts: [] },
+  { id: 'wood_dummy_a2', pool: '弱', enemies: ['wood_dummy'], hpScale: 2.4, strength: 5, acts: [] },
+  { id: 'wood_dummy_a3', pool: '弱', enemies: ['wood_dummy'], hpScale: 3.4, strength: 9, acts: [] },
   { id: 'orange_bandit', pool: '中', enemies: ['orange_bandit'], acts: [1] },
   { id: 'orange_bandit_pair', pool: '中', enemies: ['orange_bandit', 'orange_bandit', 'orange_bandit'], hpScale: 0.8, acts: [] },   // 事件「山賊帶朋友來了」專用：acts 空＝不進任何一關的隨機池；三隻各八成血（2026-09-04）
   { id: 'catgrass_bugs', pool: '中', enemies: ['catgrass_bug', 'catgrass_bug'], acts: [1] },
