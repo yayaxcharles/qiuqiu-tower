@@ -81,7 +81,8 @@ export const cards: readonly CardDef[] = [
   // 3 費跟隱身術（常見、當下 2 層）幾乎同價還更慢；降 1 費，走「便宜但分期」
   { id: 'qianshui', name: '忍術·潛水術', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/qianshui',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'status', name: '潛水', amount: 1, target: 'self' }],
-    upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }, { kind: 'status', name: '潛水', amount: 2, target: 'self' }] } },
+    // 升級版 2／2→1／2（使用者 2026-09-04：現在 1、下回合 2）
+    upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'status', name: '潛水', amount: 2, target: 'self' }] } },
   { id: 'touchi', name: '忍術·偷吃術', cost: 0, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/touchi', keywords: ['消耗'],
     effects: [{ kind: 'energy', n: 1 }], upgrade: { effects: [{ kind: 'energy', n: 1 }, { kind: 'draw', n: 1 }] } },
   { id: 'xianshuile', name: '先睡了', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/xianshuile',
