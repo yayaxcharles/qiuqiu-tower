@@ -36,8 +36,8 @@ describe('隨機試玩', () => {
     // 2026-09-04 早：第一關獎勵也有一成升級牌（多吃一次擲骰），錨值重錄
     // 2026-09-04 早：地圖怪物冷卻（相鄰兩層不重複）改了抽法，錨值重錄
     // 2026-09-04：隱身改成蜷縮先擋（無上限）、殘影與幻影分身調整，錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 12, turns: 67, kills: 10, deckSize: 16 });   // 2026-09-04 午後：靜止改 3 費、撒菱陣等牌調整後重錄
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 11, turns: 61, kills: 8, deckSize: 16 });   // 2026-09-04 午後：靜止改 3 費、撒菱陣等牌調整後重錄
     // 2026-09-04 早：罐頭鋪升級牌多吃一次擲骰，錨值重錄
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 13, turns: 64, kills: 8, deckSize: 18 });   // 2026-09-04 罐頭鋪特價／珍品多吃擲骰
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 11, turns: 34, kills: 6, deckSize: 15 });   // 2026-09-04 罐頭鋪特價／珍品多吃擲骰
   });
 });

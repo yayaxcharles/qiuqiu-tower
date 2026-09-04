@@ -95,7 +95,9 @@
   "card/wufeng": "assets/cards/card/wufeng.webp",
   "card/zuiyang": "assets/cards/card/zuiyang.webp",
   "card/dazed_card": "assets/cards/card/dazed_card.webp",
-  "card/slime_card": "assets/cards/card/slime_card.webp"
+  "card/slime_card": "assets/cards/card/slime_card.webp",
+  "card/dilie": "assets/cards/card/dilie.webp",
+  "card/luanwu": "assets/cards/card/luanwu.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",

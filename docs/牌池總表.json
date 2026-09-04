@@ -2469,7 +2469,7 @@
   "type": "攻擊",
   "target": "all",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage"
@@ -2494,7 +2494,7 @@
   "type": "攻擊",
   "target": "all",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage",

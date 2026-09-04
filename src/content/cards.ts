@@ -274,11 +274,11 @@ export const cards: readonly CardDef[] = [
   { id: 'jingzhi', name: '忍術·靜止', cost: 3, type: 技, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/jingzhi',
     effects: [{ kind: 'status', name: '定身', amount: 1, target: 'all' }],
     upgrade: { cost: 2 } },
-  // 2026-09-04 使用者：忍術池補兩張全體牌（hidden：牌面插圖到齊後由 art_aoe_cards_0904.sh 拿掉）
-  { id: 'luanwu', name: '忍術·手裏劍亂舞', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/luanwu', hidden: true,
+  // 2026-09-04 使用者：忍術池補兩張全體牌（牌面插圖已接入、開放）
+  { id: 'luanwu', name: '忍術·手裏劍亂舞', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/luanwu',
     effects: [{ kind: 'damage', amount: 5, target: 'all', times: 2 }],
     upgrade: { effects: [{ kind: 'damage', amount: 7, target: 'all', times: 2 }] } },
-  { id: 'dilie', name: '忍術·地裂陣', cost: 3, type: 攻, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/dilie', hidden: true,
+  { id: 'dilie', name: '忍術·地裂陣', cost: 3, type: 攻, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/dilie',
     effects: [{ kind: 'damage', amount: 14, target: 'all' }, { kind: 'block', amount: 8 }],
     upgrade: { effects: [{ kind: 'damage', amount: 18, target: 'all' }, { kind: 'block', amount: 10 }] } },
   // 2026-09-04 牌池體檢補牌（使用者拍板：忍術攻擊 4、絕學常見 3、解減益 1、噎到流 4；hidden：牌面到齊後由 art_cards_0904b.sh 拿掉）
