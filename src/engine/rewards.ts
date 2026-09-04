@@ -1,4 +1,5 @@
 import { cards } from '../content/cards';
+import type { Hero } from './hero';
 import { potions } from '../content/potions';
 import { relics } from '../content/relics';
 import type { Rng } from './rng';
@@ -31,12 +32,15 @@ function rollRarity(rng: Rng, available: Set<Rarity>, late = false, rareBonus = 
   return table[table.length - 1]![0];
 }
 
-export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0, odds?: readonly [Rarity, number][]): CardDef[] {
+export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0, odds?: readonly [Rarity, number][], hero: Hero = 'ninja'): CardDef[] {
   const out: CardDef[] = [];
   const taken = new Set(exclude);
   for (let i = 0; i < n; i++) {
     // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不進任何獎勵池
-    const remaining = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden && !taken.has(c.id));
+    // 職業獨占（2026-09-05）：沒標 hero 的共用，標了的只有那個職業開得到——
+    // 不濾的話武士會開出隱身牌，但他整套機制裡根本沒有隱身
+    const remaining = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden
+      && (!c.hero || c.hero === hero) && !taken.has(c.id));
     if (remaining.length === 0) break;
     const rar = rollRarity(rng, new Set(remaining.map((c) => c.rarity)), late, rareBonus, odds);
     const pick = rng.pick(remaining.filter((c) => c.rarity === rar));
@@ -58,8 +62,9 @@ export function rollPotion(rng: Rng): string { return rng.pick(potions).id; }
  * `opts.rareBonus`＝稀有保底權重。兩者都只影響牌，不影響小魚乾／忍具／秘寶。
  */
 export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string[], winGoldBonus: number,
-  late = false, opts: { exclude?: string[]; rareBonus?: number; extraChoices?: number; upgradeChance?: number } = {}): CombatRewards {
+  late = false, opts: { exclude?: string[]; rareBonus?: number; extraChoices?: number; upgradeChance?: number; hero?: Hero } = {}): CombatRewards {
   const ex = opts.exclude ?? [];
+  const hero = opts.hero ?? 'ninja';   // 職業獨占牌的過濾（2026-09-05）
   const bonus = opts.rareBonus ?? 0;
   const extra = opts.extraChoices ?? 0;   // 掌門印：牌多幾張可選
   if (kind === '塔主') return { kind, cards: [], fish: 100 + winGoldBonus, potion: null, relic: owned.includes('tower_token') ? null : 'tower_token' };
@@ -67,18 +72,18 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
   const withUpgrade = (cards: CardDef[]): { upgradedCard?: string } =>
     cards.length && (opts.upgradeChance ?? 0) > 0 && rng.chance(opts.upgradeChance ?? 0) ? { upgradedCard: rng.pick(cards).id } : {};
   if (kind === '大魔物') {
-    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus);
-    const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus);
+    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero);
+    const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus, undefined, hero);
     const cards = rng.shuffle([...jue, ...rest]);
     return { kind, cards, fish: 35 + winGoldBonus, potion: rng.chance(0.5) ? rollPotion(rng) : null, relic: rollRelic(rng, '大魔物', owned), ...withUpgrade(cards) };
   }
   // 小魚乾 10～20 → 15～25：原本一關打完約 90 條，罐頭鋪一張常見牌 50、
   // 等於整關只逛得起一次店，商店形同虛設
-  let picks = rollCardChoices(rng, '忍術', 3 + extra, ex, late, bonus);
+  let picks = rollCardChoices(rng, '忍術', 3 + extra, ex, late, bonus, undefined, hero);
   // 後期（8F 起、第二關起）四分之一的戰利品把一張忍術換成絕學：
   // 絕學原本只有精英、關主、事件、商店拿得到，一般戰鬥打四十場看到的永遠是忍術池那三十幾張
   if (late && rng.chance(0.25)) {
-    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus);
+    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero);
     if (jue.length) picks = rng.shuffle([...picks.slice(0, 2 + extra), ...jue]);
   }
   return { kind, cards: picks, fish: rng.int(15, 25) + winGoldBonus, potion: rng.chance(0.4) ? rollPotion(rng) : null, relic: null, ...withUpgrade(picks) };

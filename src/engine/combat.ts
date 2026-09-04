@@ -23,7 +23,7 @@ export function startCombat(input: {
   const enc = encounterById[input.encounterId];
   if (!enc) throw new Error(`未知的遭遇：${input.encounterId}`);
   const player: PlayerCombat = {
-    hp: input.hp, maxHp: input.maxHp, block: 0, statuses: {},
+    hp: input.hp, maxHp: input.maxHp, block: 0, armour: 0, statuses: {},
     energy: 0, maxEnergy: 3 + relicSum(input.relics, 'energyPerTurn'),
     hand: [], drawPile: input.rng.shuffle(input.deck), discardPile: [], exhaustPile: [],
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,

@@ -68,6 +68,8 @@ export interface CardDef {
   type: CardType;
   rarity: Rarity;
   pool: Pool;
+  /** 職業獨占：沒寫＝兩個職業共用；'ninja' 的隱身潛水那批武士拿不到（見 engine/hero） */
+  hero?: 'ninja' | 'samurai';
   target: TargetMode;
   effects: Effect[];
   keywords?: Keyword[];
@@ -374,6 +376,8 @@ export interface GameMap { nodes: MapNode[]; start: string[] }
 // ===== 整局 =====
 export interface RunState {
   version: 1;
+  /** 這一局的職業。舊存檔沒有這一欄＝忍者，所以是可選的、不必升 version（升了會清掉進行中的局） */
+  hero?: 'ninja' | 'samurai';
   seed: string;
   rng: RngState;
   hp: number;
@@ -411,6 +415,12 @@ export interface RunState {
 // ===== 戰鬥 =====
 export interface Unit { hp: number; maxHp: number; block: number; statuses: Partial<Record<StatusName, number>> }
 export interface PlayerCombat extends Unit {
+  /**
+   * 甲（武士球球的防禦，2026-09-05）。跟蜷縮並列但性格相反：**回合開始不歸零**，被打會永久扣。
+   * 受傷順序是 蜷縮 → 甲 → 生命——蜷縮回合末反正要消失，先用它擋；擋不完才啃甲。
+   * 忍者球球整場都是 0，行為跟加這個欄位之前一模一樣。
+   */
+  armour: number;
   /** 被打掉血的秘寶效果（onHit）這回合已經觸發過：記回合數 */
   hitRelicTurn?: number;
   /** 這場戰鬥打過第一張牌了（破卷軸用） */

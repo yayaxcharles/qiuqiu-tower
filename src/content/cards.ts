@@ -10,7 +10,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damage', amount: 6 }], upgrade: { effects: [{ kind: 'damage', amount: 9 }] } },
   { id: 'tanding', name: '淡定', cost: 1, type: 技, rarity: '常見', pool: '起手', target: 'self', art: 'card/tanding',
     effects: [{ kind: 'block', amount: 5 }], upgrade: { effects: [{ kind: 'block', amount: 8 }] } },
-  { id: 'kawarimi', name: '忍術·替身術', cost: 2, type: 技, rarity: '常見', pool: '起手', target: 'self', art: 'card/kawarimi',
+  { id: 'kawarimi', name: '忍術·替身術', cost: 2, type: 技, rarity: '常見', hero: 'ninja', pool: '起手', target: 'self', art: 'card/kawarimi',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'draw', n: 1 }] } },
 
@@ -34,17 +34,17 @@ export const cards: readonly CardDef[] = [
     // 2026-09-03 使用者改效果：3 點起、這場每打出一次就 +3（只限這場）；升級 5／+5 但 2 費
     effects: [{ kind: 'damageRamp', amount: 3, step: 3 }],
     upgrade: { cost: 2, effects: [{ kind: 'damageRamp', amount: 5, step: 5 }] } },
-  { id: 'ruying', name: '如影隨形', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/ruying',
+  { id: 'ruying', name: '如影隨形', cost: 2, type: 攻, rarity: '罕見', hero: 'ninja', pool: '忍術', target: 'enemy', art: 'card/ruying',
     effects: [{ kind: 'damage', amount: 5, times: 2 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 7, times: 2 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
-  { id: 'zhangyan', name: '忍術·障眼法', cost: 2, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/zhangyan',
+  { id: 'zhangyan', name: '忍術·障眼法', cost: 2, type: 技, rarity: '常見', hero: 'ninja', pool: '忍術', target: 'self', art: 'card/zhangyan',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'draw', n: 2 }] } },
-  { id: 'yinshen', name: '忍術·隱身術', cost: 3, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/yinshen',
+  { id: 'yinshen', name: '忍術·隱身術', cost: 3, type: 技, rarity: '常見', hero: 'ninja', pool: '忍術', target: 'self', art: 'card/yinshen',
     effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }], upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }] } },
   { id: 'bianshen', name: '忍術·變身術', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/bianshen',
     effects: [{ kind: 'block', amount: 10 }], upgrade: { effects: [{ kind: 'block', amount: 13 }] } },
-  { id: 'zhuangsi', name: '忍術·裝死術', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/zhuangsi', keywords: ['消耗'],
+  { id: 'zhuangsi', name: '忍術·裝死術', cost: 1, type: 技, rarity: '常見', hero: 'ninja', pool: '忍術', target: 'self', art: 'card/zhuangsi', keywords: ['消耗'],
     effects: [{ kind: 'block', amount: 6 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'block', amount: 9 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
   { id: 'duxin', name: '忍術·讀心術', cost: 2, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/duxin',
@@ -79,7 +79,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true, max: 5 }],
     upgrade: { effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步'], removeBlock: true, max: 5 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
   // 3 費跟隱身術（常見、當下 2 層）幾乎同價還更慢；降 1 費，走「便宜但分期」
-  { id: 'qianshui', name: '忍術·潛水術', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/qianshui',
+  { id: 'qianshui', name: '忍術·潛水術', cost: 2, type: 技, rarity: '罕見', hero: 'ninja', pool: '忍術', target: 'self', art: 'card/qianshui',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'status', name: '潛水', amount: 1, target: 'self' }],
     // 升級版 2／2→1／2（使用者 2026-09-04：現在 1、下回合 2）
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'status', name: '潛水', amount: 2, target: 'self' }] } },
@@ -123,9 +123,9 @@ export const cards: readonly CardDef[] = [
   { id: 'jinzhong', name: '絕學·金鐘罩', cost: 2, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/jinzhong',
     effects: [{ kind: 'block', amount: 17 }], upgrade: { effects: [{ kind: 'block', amount: 22 }] } },
   // 2026-09-02 使用者：輕功改 2 費、升級 1 費（原本 3 費、升級 0 費）
-  { id: 'qinggong', name: '絕學·輕功', cost: 2, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/qinggong',
+  { id: 'qinggong', name: '絕學·輕功', cost: 2, type: 技, rarity: '常見', hero: 'ninja', pool: '絕學', target: 'self', art: 'card/qinggong',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'draw', n: 2 }], upgrade: { cost: 1 } },
-  { id: 'taxue', name: '絕學·踏雪無痕', cost: 0, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/taxue', keywords: ['消耗'],
+  { id: 'taxue', name: '絕學·踏雪無痕', cost: 0, type: 技, rarity: '稀有', hero: 'ninja', pool: '絕學', target: 'self', art: 'card/taxue', keywords: ['消耗'],
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }], upgrade: { keywords: [] } },
   { id: 'xuli', name: '絕學·蓄力', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/xuli',
     effects: [{ kind: 'doubleNextAttack' }], upgrade: { cost: 0 } },
@@ -191,7 +191,7 @@ export const cards: readonly CardDef[] = [
   { id: 'tianmao', name: '舔毛', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/tianmao',
     keywords: ['消耗'], effects: [{ kind: 'heal', n: 6 }], upgrade: { effects: [{ kind: 'heal', n: 9 }] } },
   // 2026-09-04：3 費打 5 被兩費的如影隨形全面壓過 → 2 費打 8（升級 11）
-  { id: 'canying', name: '忍術·殘影', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/canying',
+  { id: 'canying', name: '忍術·殘影', cost: 2, type: 攻, rarity: '罕見', hero: 'ninja', pool: '忍術', target: 'enemy', art: 'card/canying',
     effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 11 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
   { id: 'caiweiba', name: '忍術·踩尾巴', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/caiweiba',
@@ -241,7 +241,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damage', amount: 4, times: 3, ignoreBlock: true }],
     upgrade: { effects: [{ kind: 'damage', amount: 5, times: 3, ignoreBlock: true }] } },
   // 2026-09-02 使用者：幻影分身改 3 費
-  { id: 'huanying', name: '忍術·幻影分身', cost: 3, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/huanying',
+  { id: 'huanying', name: '忍術·幻影分身', cost: 3, type: 技, rarity: '稀有', hero: 'ninja', pool: '忍術', target: 'self', art: 'card/huanying',
     // 2026-09-04 整體隱身太強：3／4 層→2／3 層（抽牌不動）
     effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }, { kind: 'draw', n: 2 }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }, { kind: 'draw', n: 3 }] } },

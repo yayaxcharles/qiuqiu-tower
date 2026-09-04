@@ -2,6 +2,7 @@ import { STARTER_DECK, cardById, cards } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById, enemyById } from '../content/enemies';
+import { heroOf } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -41,12 +42,12 @@ export function runRng(run: RunState): Rng {
 /** 這一局的難度旋鈕（舊存檔沒有 difficulty 就是 1） */
 export function runMods(run: RunState): DifficultyMods { return difficultyMods(run.difficulty ?? 1); }
 
-export function newRun(seed: string, difficulty = 1): RunState {
+export function newRun(seed: string, difficulty = 1, hero: 'ninja' | 'samurai' = 'ninja'): RunState {
   const rng = new Rng(seedFromString(seed));
   const level = clampDifficulty(difficulty);
   const mods = difficultyMods(level);
   const run: RunState = {
-    version: 1, seed, rng: rng.state, hp: mods.maxHp, maxHp: mods.maxHp, fish: START_FISH, act: 1, difficulty: level,
+    version: 1, ...(hero === 'ninja' ? {} : { hero }), seed, rng: rng.state, hp: mods.maxHp, maxHp: mods.maxHp, fish: START_FISH, act: 1, difficulty: level,
     deck: [], relics: [], potions: [], floor: 0,
     map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul, flags: {} }), currentNode: null, trail: [],
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
@@ -176,7 +177,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0)
     + (mod?.extraCard ? 1 : 0);   // 掌門印：牌多一張可選
   const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（第一關 10%、第二關 20%、第三關 40%）
-  const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance });
+  const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(run) });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
   // 倍率只吃戰利品本身：事件獎金（bonusFish）本來就在外面，秘寶承諾的加成（winGold）也要先扣掉再乘——
   // 不然帶滿三件加小魚乾的秘寶時，「餓扁了的」會把秘寶答應你的 +55 砍成 +27（稽核 2026-09-04 夜 M-2）
@@ -213,8 +214,9 @@ export function advanceAct(run: RunState): void {
  */
 export function rollActCards(run: RunState): CardDef[] {
   const rng = runRng(run);
-  const jue = rollCardChoices(rng, '絕學', 1, [], true);
-  const ren = rollCardChoices(rng, '忍術', 2, jue.map((c) => c.id), true);
+  const h = heroOf(run);
+  const jue = rollCardChoices(rng, '絕學', 1, [], true, 0, undefined, h);
+  const ren = rollCardChoices(rng, '忍術', 2, jue.map((c) => c.id), true, 0, undefined, h);
   return rng.shuffle([...jue, ...ren]);
 }
 
@@ -341,7 +343,7 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): C
   const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
     : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
   const jueN = n > 0 && rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
-  const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds)];
+  const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds, heroOf(run)), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds, heroOf(run))];
   const wantRare = Math.min(n, run.act >= 3 ? 2 : run.act === 2 ? 1 : 0);
   const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
   for (const i of order) {
@@ -541,7 +543,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       }
       case 'chooseCard': {
         const rng = runRng(run);
-        const picks = rollCardChoices(rng, fx.pool, fx.n);
+        const picks = rollCardChoices(rng, fx.pool, fx.n, [], false, 0, undefined, heroOf(run));
         const up = picks.length && rng.chance(upgradeChanceFor(run)) ? rng.pick(picks).id : undefined;
         outcome = { chooseCard: picks, ...(up ? { upgradedCard: up } : {}) };
         break;
