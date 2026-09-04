@@ -2,6 +2,9 @@ import { victoryLinesFor, dialogue, type DialogueLine } from '../content/dialogu
 import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
 import { preloadActMonsters, warmEncounter } from './preload';
+import { potionById } from '../content/potions';
+import { relicById } from '../content/relics';
+import { resolvePendingAfterFight, type RunGain } from '../engine/run';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun, runMods } from '../engine/run';
@@ -277,6 +280,13 @@ export class App {
     if (!run || !cs) { this.show('title'); return; }
     const rewards = finishCombat(run, cs, bonusFish);
     this.cs = null;
+    // 事件「要打一場」附帶的獎勵：打贏才發、輸了清掉（使用者 2026-09-04：秘寶不該還沒打就到手）
+    const afterNotes: string[] = []; const afterGains: RunGain[] = [];
+    resolvePendingAfterFight(run, cs.phase === 'won', afterNotes, afterGains);
+    const afterToasts = [
+      ...afterGains.map((g) => g.kind === '秘寶' ? `打贏了，拿到秘寶「${relicById[g.id]?.name ?? g.id}」` : `打贏了，拿到忍具「${potionById[g.id]?.name ?? g.id}」`),
+      ...afterNotes.filter((n) => n !== '獎勵要打贏才拿得到').map((n) => `打贏了，${n}`),
+    ];
     // 整局結束（陣亡或通關）就**當場定案**，不等結算畫面。
     // 從這裡到結算畫面之間隔著 1300 毫秒的交棒，陣亡還要多播一段玩家自己點過去的對白；
     // 要是等結算畫面才清，玩家在這段空窗關掉分頁再按「續玩」，就會退回這場戰鬥之前重打
@@ -334,7 +344,7 @@ export class App {
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
-    const go = (): void => this.show('reward', { ...rewards, bonusFish, bonusUpgrades });
+    const go = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, '球球'), 400 + i * 1400)); };
     // 「上面那位不是你認識的那隻貓了」是黑貓忍者頭目的台詞，只在打倒他之後演；
     // 其他精英（掃地機器人王、三花貓武僧……）打完不該冒出黑貓頭目的臉講話（使用者 2026-09-02 回報）
     const beatNinjaBoss = (encounterById[cs.encounterId]?.enemies ?? []).includes('ninja_boss');

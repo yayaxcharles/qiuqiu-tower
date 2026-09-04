@@ -129,7 +129,7 @@ export const events: EventDef[] = [
   { id: 'sleeping_guard', title: '睡著的守衛',
     text: '一隻大橘貓靠著門睡著了，腰間掛著一串鑰匙，還有一個鼓鼓的錢袋。',
     choices: [
-      { label: '偷錢袋（＋70 條小魚乾，但要打一場）', outcome: [{ kind: 'fish', n: 70 }, { kind: 'fight', encounterId: 'orange_bandit', bonusFish: 0 }],
+      { label: '偷錢袋（要打一場，打贏拿 70 條小魚乾）', outcome: [{ kind: 'fish', n: 70 }, { kind: 'fight', encounterId: 'orange_bandit', bonusFish: 0 }],
         result: '錢袋到手的瞬間，牠睜開了眼睛。' },
       { label: '悄悄走過（獲得 1 層隱身的心得，最大生命 +4）', outcome: [{ kind: 'maxHp', n: 4 }], result: '球球屏住呼吸走過去了。球球：「這才是忍者喵。」' },
     ] },
@@ -218,7 +218,7 @@ export const events: EventDef[] = [
     choices: [
       { label: '照著腳印練（升級兩張牌）', outcome: [{ kind: 'upgradeCard' }, { kind: 'upgradeCard' }],
         result: '球球照著踩了一遍，動作順了很多。' },
-      { label: '找找有沒有留下東西（拿到一個罕見秘寶，但要打一場）',
+      { label: '找找有沒有留下東西（要打一場，打贏拿一個秘寶）',
         outcome: [{ kind: 'relic', pool: '大魔物' }, { kind: 'fight', encounterId: 'wood_dummy', bonusFish: 30 }],
         result: '櫃子裡真的有東西，但木樁人也醒了。' },
     ] },

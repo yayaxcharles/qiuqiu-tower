@@ -220,7 +220,10 @@ registerScreen('event', (app, root, props) => {
     if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard, gains); return; }
     // 打一場：戰鬥畫面會把獎金一路帶到戰後結算，這裡不存檔（節點還沒結束）
     const f = outcome.fight;
-    panel(resultText, noteLine(), el('button', { class: 'btn primary', onclick: () => app.startFight(f.encounterId, false, f.bonusFish, f.bonusUpgrades ?? 0) }, '開打'), gains, resultArt);
+    panel(resultText, noteLine(), el('button', { class: 'btn primary', onclick: () => {
+      if (app.run) app.run.pendingAfterFight = f.afterWin;   // 秘寶等獎勵打贏才發（使用者 2026-09-04）
+      app.startFight(f.encounterId, false, f.bonusFish, f.bonusUpgrades ?? 0);
+    } }, '開打'), gains, resultArt);
   }
 
   renderHud(app, root);

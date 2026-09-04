@@ -338,7 +338,8 @@ export type RunEffectOutcome =
    */
   | { needs: 'removeCard' | 'upgradeCard'; n: number }
   | { chooseCard: CardDef[] }
-  | { fight: { encounterId: string; bonusFish: number; bonusUpgrades?: number } }
+  /** `afterWin`＝同一個選項裡其他的獎勵效果（秘寶、小魚乾、牌……），要等打贏才發；事件畫面開打前把它放進 run.pendingAfterFight */
+  | { fight: { encounterId: string; bonusFish: number; bonusUpgrades?: number; afterWin?: RunEffect[] } }
   | null;
 
 /**
@@ -361,7 +362,13 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
   gains?: RunGain[]): RunEffectOutcome {
   let outcome: RunEffectOutcome = null;
   const cardName = (id: string): string => cardById[id]?.name ?? id;
-  for (const fx of effects) {
+  // 同一個選項裡有「打一場」：其他獎勵（秘寶、小魚乾、牌……）不能先發，要等打贏（使用者 2026-09-04）。
+  // 旗標照常記（那是「你選了什麼」，不是獎勵）。
+  const fightIdx = effects.findIndex((e) => e.kind === 'fight');
+  const deferred: RunEffect[] = fightIdx >= 0 ? effects.filter((e) => e.kind !== 'fight' && e.kind !== 'flag') : [];
+  const now = fightIdx >= 0 ? effects.filter((e) => e.kind === 'fight' || e.kind === 'flag') : effects;
+  if (deferred.length) notes?.push('獎勵要打贏才拿得到');
+  for (const fx of now) {
     switch (fx.kind) {
       case 'heal': { const got = Math.min(run.maxHp, run.hp + fx.n) - run.hp; run.hp += got; if (got > 0) notes?.push(`回復了 ${got} 點生命`); break; }
       case 'healPercent': { const got = Math.min(run.maxHp, run.hp + Math.floor(run.maxHp * fx.p)) - run.hp; run.hp += got; if (got > 0) notes?.push(`回復了 ${got} 點生命`); break; }
@@ -415,7 +422,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'fight': {
         // 事件寫 `mirror_duel`，實際打 `mirror_duel_a<關數>`：同一個事件三關都抽得到，對手要跟著關卡變強
         const byAct = `${fx.encounterId}_a${run.act}`;
-        outcome = { fight: { encounterId: encounterById[byAct] ? byAct : fx.encounterId, bonusFish: fx.bonusFish, bonusUpgrades: fx.bonusUpgrades } };
+        outcome = { fight: { encounterId: encounterById[byAct] ? byAct : fx.encounterId, bonusFish: fx.bonusFish, bonusUpgrades: fx.bonusUpgrades, ...(deferred.length ? { afterWin: deferred } : {}) } };
         break;
       }
       case 'chooseCard': outcome = { chooseCard: rollCardChoices(runRng(run), fx.pool, fx.n) }; break;
@@ -435,4 +442,15 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
     }
   }
   return outcome;
+}
+
+/**
+ * 事件「要打一場」附帶的獎勵：打贏才發、輸了清掉。戰鬥收尾（app.afterCombat）在算完戰利品後叫一次；
+ * 回傳的 notes／gains 給畫面跳提示用。
+ */
+export function resolvePendingAfterFight(run: RunState, won: boolean, notes?: string[], gains?: RunGain[]): void {
+  const list = run.pendingAfterFight;
+  run.pendingAfterFight = undefined;
+  if (!list || !won) return;
+  applyRunEffects(run, list, notes, gains);
 }
