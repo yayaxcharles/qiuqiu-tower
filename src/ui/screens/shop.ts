@@ -2,7 +2,7 @@ import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
-import { buyCard, buyPotion, buyRelic, buyRemove, makeShop, potionCapacity } from '../../engine/run';
+import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShop, potionCapacity, reshuffleShop, shopMulFor } from '../../engine/run';
 import { showPotionSwap } from '../potionswap';
 import type { RunState } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -35,14 +35,26 @@ registerScreen('shop', (app, root) => {
    * 貨架上的一格：圖、名字、說明、價錢。賣掉了寫「賣掉了」；買不起或現在拿不了（例如忍具帶滿）
    * 就變淡、點不動，但價錢照樣寫著——「賣掉了」與「買不起」是兩件事，不要混成同一個樣子。
    */
+  /** 價錢牌：特價的把原價劃掉、特價紅字放大（使用者 2026-09-04：「要明顯」） */
+  function priceNode(price: number, sold: boolean, base?: number, sale?: number): HTMLElement {
+    if (sold) return el('div', { class: 'price' }, '賣掉了');
+    if (sale && base !== undefined) {
+      const orig = Math.round(base * shopMulFor(run));
+      return el('div', { class: 'price sale' }, el('s', {}, String(orig)), el('b', {}, `${price} 條小魚乾`));
+    }
+    return el('div', { class: 'price' }, `${price} 條小魚乾`);
+  }
+  const saleTag = (sale?: number): HTMLElement | '' => (sale ? el('div', { class: 'sale-tag' }, `特價 ${Math.round(sale * 10)} 折`) : '');
+
   function stall(key: string, name: string, text: string, price: number,
-    sold: boolean, blocked: boolean, buy: () => void): HTMLElement {
+    sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number): HTMLElement {
     const afford = run.fish >= price;
-    const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}` },
+    const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}` },
+      saleTag(sold ? undefined : sale),
       icon(key, name),
       el('div', { class: 'shop-name' }, name),
       el('div', { class: 'small' }, text),
-      el('div', { class: 'price' }, sold ? '賣掉了' : `${price} 條小魚乾`));
+      priceNode(price, sold, base, sale));
     if (!sold && !blocked && afford) node.addEventListener('click', buy);
     return node;
   }
@@ -60,9 +72,10 @@ registerScreen('shop', (app, root) => {
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
       const buyable = !it.sold && run.fish >= it.price;
-      cards.append(el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}` },
+      cards.append(el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
+        saleTag(it.sold ? undefined : it.sale),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); render(); } } }),   // 升級格照＋版畫
-        el('div', { class: 'price' }, it.sold ? '賣掉了' : `${it.price} 條小魚乾`)));
+        priceNode(it.price, it.sold, it.base, it.sale)));
     });
 
     // 秘寶與忍具分成兩個貨架。本來兩種混在同一排，玩家看不出哪個是整局有效的秘寶、
@@ -74,7 +87,7 @@ registerScreen('shop', (app, root) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = run.relics.includes(it.id);
       relics.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
-        () => { if (buyRelic(run, shop, i)) { play('relic'); render(); } }));
+        () => { if (buyRelic(run, shop, i)) { play('relic'); render(); } }, it.base, it.sale));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -87,7 +100,7 @@ registerScreen('shop', (app, root) => {
         () => {
           if (!full) { if (buyPotion(run, shop, i)) { play('buy'); render(); } return; }
           showPotionSwap(run, it.id, (idx) => { if (idx >= 0 && buyPotion(run, shop, i, idx)) { play('buy'); render(); } }, { apply: false });
-        }));
+        }, it.base, it.sale));
     });
 
     const remove = el('button', {
@@ -98,18 +111,22 @@ registerScreen('shop', (app, root) => {
       }),
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
+    // 重整貨架：75 條、每店一次，只換沒賣掉的牌格（使用者 2026-09-04）
+    const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); render(); } } },
+      shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
+    if (shop.reshuffled || run.fish < RESHUFFLE_COST || shop.cards.every((c) => c.sold)) reshuffle.setAttribute('disabled', 'disabled');
 
     // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
     const goods = el('div', { class: 'scene-goods' },
       shelf('新招', cards, 'shelf-cards'),
-      el('div', { class: 'shop-shelves' }, shelf('秘寶', relics), shelf('忍具', potions)));
+      el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));   // 珍品架多一格時六格並排，格子縮一點
     root.append(sceneView({
       art: goods,
       portrait: keeper,
       speaker: '橘貓老闆',
       text: line,
-      actions: [remove, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開')],
+      actions: [reshuffle, remove, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開')],
     }));
   }
 

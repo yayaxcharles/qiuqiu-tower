@@ -38,6 +38,6 @@ describe('隨機試玩', () => {
     // 2026-09-04：隱身改成蜷縮先擋、隱身上限 5、殘影與幻影分身調整，錨值重錄
     expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 11, turns: 63, kills: 9, deckSize: 16 });
     // 2026-09-04 早：罐頭鋪升級牌多吃一次擲骰，錨值重錄
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 7, turns: 28, kills: 5, deckSize: 14 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 9, turns: 39, kills: 6, deckSize: 16 });   // 2026-09-04 罐頭鋪特價／珍品多吃擲骰
   });
 });

@@ -10,16 +10,16 @@ describe('零錢罐', () => {
     shop.relics[0] = { id: 'coin_jar', base: 120, price: 120, sold: false };
     const before = shop.cards.map((c) => c.price);
     expect(buyRelic(run, shop, 0)).toBe(true);
-    shop.cards.forEach((c, i) => expect(c.price).toBe(Math.round(before[i]! * 0.8)));
-    for (const p of shop.potions) expect(p.price).toBe(Math.round(p.base * 0.8));
+    shop.cards.forEach((c, i) => expect(c.price).toBe(Math.round(before[i]! * 0.8)));   // 特價格：原本就是 base×折數，再乘 0.8 一樣成立
+    for (const p of shop.potions) expect(p.price).toBe(Math.round(p.base * 0.8 * (p.sale ?? 1)));
     expect(shop.relics[0]!.price, '賣掉的那格不重標').toBe(120);
   });
   it('已經帶著零錢罐再逛店，定價一開始就是八折；repriceShop 對照 base', () => {
     const run = newRun('jar2'); takeRelic(run, 'coin_jar');
     const shop = makeShop(run);
-    for (const c of shop.cards) expect(c.price).toBe(Math.round(c.base * 0.8));
+    for (const c of shop.cards) expect(c.price).toBe(Math.round(c.base * 0.8 * (c.sale ?? 1)));
     repriceShop(run, shop);
-    for (const c of shop.cards) expect(c.price).toBe(Math.round(c.base * 0.8));
+    for (const c of shop.cards) expect(c.price).toBe(Math.round(c.base * 0.8 * (c.sale ?? 1)));
   });
 });
 

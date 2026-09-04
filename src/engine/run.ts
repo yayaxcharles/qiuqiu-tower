@@ -263,11 +263,24 @@ export function openChest(run: RunState): string | null {
 }
 
 export interface ShopStock {
-  /** `base`＝未打折的定價；`price`＝現在的售價（買到零錢罐那一刻整間店重標，見 repriceShop）；`upgraded`＝這格是升級版 */
-  cards: { def: CardDef; base: number; price: number; sold: boolean; upgraded?: boolean }[];
-  relics: { id: string; base: number; price: number; sold: boolean }[];
-  potions: { id: string; base: number; price: number; sold: boolean }[];
+  /**
+   * `base`＝未打折的定價；`price`＝現在的售價（買到零錢罐那一刻整間店重標，見 repriceShop）；`upgraded`＝這格是升級版；
+   * `sale`＝特價折數（0.7＝七折；每間店隨機一件，使用者 2026-09-04）
+   */
+  cards: { def: CardDef; base: number; price: number; sold: boolean; upgraded?: boolean; sale?: number }[];
+  relics: { id: string; base: number; price: number; sold: boolean; sale?: number }[];
+  potions: { id: string; base: number; price: number; sold: boolean; sale?: number }[];
+  /** 重整貨架用過了沒（每店一次，75 條；賣掉的格子不動） */
+  reshuffled?: boolean;
 }
+
+/** 特價折數與權重：七折最常見、三折最少（使用者 2026-09-04：「不一定五折，7／5／4／3 折隨機，機率你定」） */
+export const SALE_RATES: readonly [number, number][] = [[0.7, 45], [0.5, 30], [0.4, 15], [0.3, 10]];
+export const RESHUFFLE_COST = 75;
+/** 二三關珍品架（大魔物池秘寶）的最低標價 */
+export const TREASURE_MIN_PRICE = 250;
+
+function priceOf(base: number, mul: number, sale?: number): number { return Math.round(base * mul * (sale ?? 1)); }
 
 /** 罐頭鋪價格倍率：難度 4 起貴一成 × 帶著的秘寶折扣（零錢罐八折、貪吃錢袋漲三成，相乘） */
 export function shopMulFor(run: RunState): number {
@@ -277,7 +290,46 @@ export function shopMulFor(run: RunState): number {
 /** 依現在的倍率把還沒賣掉的東西重新標價（買到會改價格的秘寶時叫——使用者 2026-09-04：買了零錢罐商品沒跟著變） */
 export function repriceShop(run: RunState, shop: ShopStock): void {
   const mul = shopMulFor(run);
-  for (const it of [...shop.cards, ...shop.relics, ...shop.potions]) if (!it.sold) it.price = Math.round(it.base * mul);
+  for (const it of [...shop.cards, ...shop.relics, ...shop.potions]) if (!it.sold) it.price = priceOf(it.base, mul, it.sale);
+}
+
+/** 罐頭鋪的牌：依關數的稀有度配額抽 n 張（排除 `exclude`），並套稀有保底 */
+function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): CardDef[] {
+  const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
+    : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
+  const jueN = n > 0 && rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
+  const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds)];
+  const wantRare = Math.min(n, run.act >= 3 ? 2 : run.act === 2 ? 1 : 0);
+  const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
+  for (const i of order) {
+    if (cardDefs.filter((c) => c.rarity === '稀有').length >= wantRare) break;
+    const cur = cardDefs[i]!;
+    if (cur.rarity === '稀有') continue;
+    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
+    if (pool.length) cardDefs[i] = rng.pick(pool);
+  }
+  return cardDefs;
+}
+
+/**
+ * 重整貨架（使用者 2026-09-04）：75 條、每店一次，只換還沒賣掉的牌格（賣掉的維持原牌、寫「賣掉了」，免得越買越多）；
+ * 特價如果掛在被換掉的格子上，新牌繼承那個折數。
+ */
+export function reshuffleShop(run: RunState, shop: ShopStock): boolean {
+  if (shop.reshuffled || !pay(run, RESHUFFLE_COST)) return false;
+  shop.reshuffled = true;
+  const rng = runRng(run);
+  const open = shop.cards.map((c, i) => (c.sold ? -1 : i)).filter((i) => i >= 0);
+  if (!open.length) return true;
+  const fresh = rollShopCards(run, rng, open.length, shop.cards.map((c) => c.def.id));
+  const upIdx = fresh.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, fresh.length - 1) : -1;
+  const mul = shopMulFor(run);
+  open.forEach((slot, k) => {
+    const def = fresh[k]; if (!def) return;
+    const prev = shop.cards[slot]!;
+    shop.cards[slot] = { def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], mul, prev.sale), sold: false, ...(k === upIdx ? { upgraded: true } : {}), ...(prev.sale ? { sale: prev.sale } : {}) };
+  });
+  return true;
 }
 
 /** 戰鬥獎勵、罐頭鋪、事件選牌開出「升級牌」的機率：第一關 10%、第二關 20%、第三關 40%（使用者 2026-09-04） */
@@ -288,39 +340,34 @@ export function upgradeChanceFor(run: RunState): number {
 export function makeShop(run: RunState): ShopStock {
   const shopMul = shopMulFor(run);
   const rng = runRng(run);
-  // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03：第二關要比較常看到稀有牌可以買、第三關更高）：
-  // 第一關 常見 60／罕見 30／稀有 10；第二關 35／40／25 且至少一張稀有；第三關 20／40／40 且至少兩張稀有
-  const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
-    : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
-  // 絕學只低機率出現一張（使用者 2026-09-03）：第一關 20%、第二關 30%、第三關 40%；其餘都是忍術
-  const jueN = rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
-  const cardDefs = [...rollCardChoices(rng, '忍術', 5 - jueN, [], false, 0, odds), ...rollCardChoices(rng, '絕學', jueN, [], false, 0, odds)];
-  // 稀有保底：不夠就把某一格換成同池的稀有牌。要換的格子隨機挑、忍術格優先——原本固定從最後一格（絕學）往前掃，
-  // 二三關那張絕學有五到七成變成稀有、整店最貴的一格永遠是它（稽核 2026-09-04 M-4）。
-  // 保底不是硬保證：同池稀有牌都已經在架上就放棄（稀有忍術 9 張、稀有絕學 11 張，實測三關各 3000 間 0 次失敗）。
-  // 加上保底後的實測分布：第一關 60／30／10、第二關 33／37／30、第三關 17／35／48（常見／罕見／稀有）。
-  const wantRare = run.act >= 3 ? 2 : run.act === 2 ? 1 : 0;
-  const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
-  for (const i of order) {
-    if (cardDefs.filter((c) => c.rarity === '稀有').length >= wantRare) break;
-    const cur = cardDefs[i]!;
-    if (cur.rarity === '稀有') continue;
-    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !cardDefs.some((d) => d.id === c.id));
-    if (pool.length) cardDefs[i] = rng.pick(pool);
-  }
+  // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03）、絕學低機率一張、稀有保底（稽核 2026-09-04 M-4）——全部在 rollShopCards 裡
+  const cardDefs = rollShopCards(run, rng, 5, []);
   const relicIds: string[] = [];
   for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...run.relics, ...relicIds]); if (id) relicIds.push(id); }
+  // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價至少 250——後期有個貴的東西可以存錢追
+  let treasure: string | null = null;
+  if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...run.relics, ...relicIds]); if (treasure) relicIds.push(treasure); }
   // 升級牌：依關數機率把五張裡的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
   const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
-  return {
-    cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: Math.round(PRICE[def.rarity] * shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
-    relics: relicIds.map((id) => { const base = relicById[id]?.price ?? RELIC_PRICE; return { id, base, price: Math.round(base * shopMul), sold: false }; }),
+  const shop: ShopStock = {
+    cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
+    relics: relicIds.map((id) => { const base = id === treasure ? Math.max(TREASURE_MIN_PRICE, relicById[id]?.price ?? RELIC_PRICE) : (relicById[id]?.price ?? RELIC_PRICE); return { id, base, price: priceOf(base, shopMul), sold: false }; }),
     potions: Array.from({ length: 3 }, () => {
       const id = rollPotion(rng);
       const base = potionById[id]?.price ?? POTION_PRICE;
-      return { id, base, price: Math.round(base * shopMul), sold: false };
+      return { id, base, price: priceOf(base, shopMul), sold: false };
     }),
   };
+  // 每店一件特價（使用者 2026-09-04）：全部商品裡隨機一件，折數照 SALE_RATES 的權重抽
+  const all = [...shop.cards, ...shop.relics, ...shop.potions];
+  if (all.length) {
+    const total = SALE_RATES.reduce((s, [, w]) => s + w, 0);
+    let roll = rng.next() * total; let rate = SALE_RATES[0]![0];
+    for (const [rt, w] of SALE_RATES) { roll -= w; if (roll < 0) { rate = rt; break; } }
+    const it = all[rng.int(0, all.length - 1)]!;
+    it.sale = rate; it.price = priceOf(it.base, shopMul, rate);
+  }
+  return shop;
 }
 
 function pay(run: RunState, price: number): boolean {
