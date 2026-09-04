@@ -135,8 +135,8 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   for (const c of run.deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
   const exclude = [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
   const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0);   // 掌門印：牌多一張可選
-  // 第二關起的戰鬥獎勵有機會直接開出升級牌：第二關 20%、第三關 40%（使用者 2026-09-04）
-  const upgradeChance = run.act >= 3 ? 0.4 : run.act === 2 ? 0.2 : 0;
+  // 戰鬥獎勵有機會直接開出升級牌：第一關 10%、第二關 20%、第三關 40%（使用者 2026-09-04）
+  const upgradeChance = run.act >= 3 ? 0.4 : run.act === 2 ? 0.2 : 0.1;
   const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去

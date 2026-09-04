@@ -5,6 +5,8 @@ import type { EnemyMove,EncounterDef, EnemyDef, EnemyPool } from '../engine/type
 // 尾巴同時最多四條，滿了就把血灌給現有的（使用者 2026-09-03：四條可以，問題是換階段時尾巴「憑空」冒出來——見 phases.onEnterMove）
 const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
 const NEKO_PREP: EnemyMove = { intent: 'special', label: '準備放尾巴', effects: [{ kind: 'nothing' }] };
+// 波斯大小姐每十回合（第 9、19、29…次出招）把倒下的執事貓、女僕貓叫回來；兩個都還站著就改成灌血給他們（召喚滿了的通則）——使用者 2026-09-04：「增加打她的難度」
+const PERSIAN_CALL: EnemyMove = { intent: 'summon', label: '喚僕從', effects: [{ kind: 'summon', enemyId: 'butler_cat', n: 1, max: 1 }, { kind: 'summon', enemyId: 'maid_cat', n: 1, max: 1 }] };
 
 export const enemies: EnemyDef[] = [
   // ===== 弱池 =====
@@ -658,7 +660,9 @@ export const enemies: EnemyDef[] = [
     }] },
   // 波斯大小姐：僕從護體——執事與女僕還站著她就不受傷，先清僕從才打得到本體
   { id: 'persian_lady', name: '波斯大小姐', hp: [220, 220], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_persian_lady', strengthEveryNTurns: 1,   // 2026-09-03 第五輪：每回合 +1
-    line: '哼。', lines: ['髒東西，不要靠近本小姐。', '（用扇子遮住鼻子）'], guardedByAllies: true, moves: [
+    line: '哼。', lines: ['髒東西，不要靠近本小姐。', '（用扇子遮住鼻子）'], guardedByAllies: true,
+    chooseMove: (turn) => (turn % 10 === 9 ? PERSIAN_CALL : undefined),   // 其餘回合照表輪招
+    moves: [
       { intent: 'buff', label: '擺架子', effects: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'block', amount: 10 }] },
       { intent: 'attack', label: '扇子拍', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
       { intent: 'debuff', label: '尖叫', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 1 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破

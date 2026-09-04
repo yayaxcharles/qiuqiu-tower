@@ -5,7 +5,7 @@ import { Rng, seedFromString } from '../../src/engine/rng';
 import { newRun, takeCardReward } from '../../src/engine/run';
 
 describe('獎勵開出升級牌', () => {
-  it('機率照關數：0／20%／40%，而且升級的那張一定在三張裡', () => {
+  it('機率照關數：10%／20%／40%（0 就完全不出），而且升級的那張一定在三張裡', () => {
     const rate = (p: number) => {
       let n = 0;
       for (let i = 0; i < 2000; i++) {
@@ -15,6 +15,7 @@ describe('獎勵開出升級牌', () => {
       return n / 2000;
     };
     expect(rate(0)).toBe(0);
+    expect(rate(0.1)).toBeGreaterThan(0.08); expect(rate(0.1)).toBeLessThan(0.12);
     expect(rate(0.2)).toBeGreaterThan(0.17); expect(rate(0.2)).toBeLessThan(0.23);
     expect(rate(0.4)).toBeGreaterThan(0.36); expect(rate(0.4)).toBeLessThan(0.44);
   });
