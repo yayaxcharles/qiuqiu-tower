@@ -1,7 +1,7 @@
 import { potionCapacity } from '../../engine/run';
 import { cardById } from '../../content/cards';
 import { dialogue, pick } from '../../content/dialogue';
-import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE, showsTelegraph } from '../../content/enemies';
+import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
 import { RAMPAGE_TURN, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
@@ -11,6 +11,7 @@ import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingCh
 import { registerScreen } from '../app';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { tierBgKey, tierBgZoom } from '../screenbg';
+import { telegraphTarget } from '../telegraph';
 import { artUrl, hasMonsterPose, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
@@ -1081,17 +1082,12 @@ registerScreen('combat', (app, root, props) => {
     root.querySelector<HTMLElement>('.unit.enemy.telegraph')?.classList.remove('telegraph');
   }
   /**
-   * 亮出下一個要出手的那隻（只有關主與菁英，見 `showsTelegraph`）。
-   *
-   * 下一個是誰直接偷看 `cs.enemyQueue[0]`——只讀不動佇列，所以引擎一行都不用改。
-   * 回傳有沒有真的亮，呼叫端才知道要不要等這 0.32 秒。
+   * 亮出下一個要出手的那隻。該不該亮的判斷在 `ui/telegraph.ts`（純函式、只讀不寫、有測試釘著），
+   * 這裡只負責掛 class。回傳有沒有真的亮，呼叫端才知道要不要等這 0.32 秒。
    */
   function telegraphNext(): boolean {
-    const uid = cs.enemyQueue?.[0];
-    if (uid === undefined || cs.phase !== 'player') return false;
-    const e = cs.enemies.find((x) => x.uid === uid);
-    // 已經倒下的、剛爬起來這拍不出招的：亮了也不會動，不要騙人
-    if (!e || e.dead || e.justRevived || !showsTelegraph(e.enemyId)) return false;
+    const uid = telegraphTarget(cs);   // 該不該亮的條件全在那支純函式裡（有測試釘著它不碰引擎）
+    if (uid === undefined) return false;
     const node = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${uid}"]`);
     if (!node) return false;
     node.classList.add('telegraph');
@@ -1101,8 +1097,10 @@ registerScreen('combat', (app, root, props) => {
   function runEnemyTurn(): void {
     const before = snap(cs);
     if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); return; }
-    settle(before, { light: true });
+    // 旗標要在 settle 之前設：預告加了延遲之後，settle 畫出來的「結束回合」鈕會亮著閃 0.32 秒
+    // （點了仍被 canAct 擋住，但看起來像可以點）——稽核 2026-09-04 夜 L-2
     enemyTurnRunning = true;
+    settle(before, { light: true });
     const step = (): void => {
       if (app.cs !== cs) { enemyTurnRunning = false; return; }
       clearTelegraph();

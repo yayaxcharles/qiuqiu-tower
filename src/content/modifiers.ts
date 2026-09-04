@@ -1,4 +1,4 @@
-import { addStatus } from '../engine/statuses';
+import { addStatus, getStatus } from '../engine/statuses';
 import type { EnemyCombat } from '../engine/types';
 
 /**
@@ -28,7 +28,14 @@ export interface EncounterModifier {
   extraCard?: boolean;
 }
 
-/** 改最大生命並補到滿。開戰時魔物都是滿血，所以直接跟著改 hp（跟 BOSS_PREFIXES 同一套做法）。 */
+/**
+ * 改最大生命並補到滿。開戰時魔物都是滿血，所以直接跟著改 hp（跟 BOSS_PREFIXES 同一套做法）。
+ *
+ * 已知偏移（稽核 2026-09-04 夜 L-5，刻意不修）：石獅子與三花貓武僧的階段是按**絕對血量**切的
+ * （`EnemyPhase.hpBelow`），縮放最大生命會讓那個門檻的相對位置移動 ±15 個百分點。
+ * 不跟著縮是因為 `hpBelow` 掛在共用的 `EnemyDef` 上，改它會污染同一場的其他個體。
+ * 影響只是換階段早一點或晚一點，不會 0 血也不會跳過階段。
+ */
 function scaleHp(e: EnemyCombat, mul: number): void {
   e.maxHp = Math.round(e.maxHp * mul);
   e.hp = e.maxHp;
@@ -37,12 +44,15 @@ function scaleHp(e: EnemyCombat, mul: number): void {
 export const ENCOUNTER_MODIFIERS: EncounterModifier[] = [
   { id: 'furious', label: '暴怒的', desc: '爪力 +2，但生命只剩九成',
     apply: (e) => { addStatus(e, '爪力', 2); scaleHp(e, 0.9); } },
+  // 鐵羅漢帶「不壞身」＝防禦不歸零，給牠防禦或鱗甲會從「有得有失」反轉成純加強
+  // （8 點變永久護盾、鱗甲跟不壞身相加變每回合長 18 點）。稽核 2026-09-04 夜 L-3
   { id: 'weary', label: '疲憊的', desc: '生命 −15%，但開場先架好 8 點防禦',
-    apply: (e) => { scaleHp(e, 0.85); e.block += 8; } },
+    apply: (e) => { scaleHp(e, 0.85); if (getStatus(e, '不壞身') === 0) e.block += 8; } },
   { id: 'plated', label: '披甲的', desc: '鱗甲 2（每回合長出防禦），生命 −5%',
-    apply: (e) => { addStatus(e, '鱗甲', 2); scaleHp(e, 0.95); } },
+    apply: (e) => { if (getStatus(e, '不壞身') === 0) addStatus(e, '鱗甲', 2); scaleHp(e, 0.95); } },
+  // 本來就睡著的（冬眠熊）或正在消散倒數的，再加定身等於白送五回合／直接把牠拖到消失。稽核同上 L-4
   { id: 'dozing', label: '打瞌睡的', desc: '前兩回合睡著、打不出攻擊，但生命多兩成',
-    apply: (e) => { addStatus(e, '定身', 2); scaleHp(e, 1.2); } },
+    apply: (e) => { if (getStatus(e, '沉睡') === 0 && getStatus(e, '消散') === 0) addStatus(e, '定身', 2); scaleHp(e, 1.2); } },
   { id: 'plump', label: '肥美的', desc: '生命 +25%，但打贏的小魚乾加倍', fishMul: 2,
     apply: (e) => { scaleHp(e, 1.25); } },
   { id: 'starved', label: '餓扁了的', desc: '生命 −25%，但身上沒油水，小魚乾只有一半', fishMul: 0.5,

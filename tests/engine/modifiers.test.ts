@@ -5,7 +5,8 @@ import { enemyById } from '../../src/content/enemies';
 import { ENCOUNTER_MODIFIERS, modifierById } from '../../src/content/modifiers';
 import { generateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
-import { beginCombat, finishCombat, newRun } from '../../src/engine/run';
+import { endTurn } from '../../src/engine/combat';
+import { beginCombat, finishCombat, newRun, takeRelic } from '../../src/engine/run';
 import { loadRun, saveRun, setStore } from '../../src/engine/save';
 import { getStatus } from '../../src/engine/statuses';
 import type { CombatState } from '../../src/engine/types';
@@ -41,7 +42,15 @@ describe('修飾詞表', () => {
 describe('修飾詞套用到整場的每一隻魔物', () => {
   it('沒有修飾詞就什麼都不變', () => {
     const cs = fight();
-    for (const e of cs.enemies) expect(getStatus(e, '爪力')).toBe(0);
+    expect(cs.enemies.length).toBeGreaterThan(0);
+    for (const e of cs.enemies) {
+      const def = enemyById[e.enemyId]!;
+      expect(e.name, '名字').toBe(def.name);
+      expect(getStatus(e, '爪力'), '爪力').toBe(0);
+      expect(getStatus(e, '鱗甲'), '鱗甲').toBe(0);
+      expect(getStatus(e, '定身'), '定身').toBe(0);
+      expect(e.hp, '滿血').toBe(e.maxHp);
+    }
   });
 
   it('暴怒的：每隻爪力 +2、最大生命剩九成', () => {
@@ -168,6 +177,8 @@ describe('舊存檔相容', () => {
     expect(m.get('qiuqiu-tower/run')).not.toContain('modifier');
     const back = loadRun();
     expect(back, '舊存檔不該被判定為壞檔清掉').not.toBeNull();
+    // 這一條才是重點：有人為了新欄位順手升版本，loadRun 會把玩家進行中的局整個清掉
+    expect(back!.version, '加可選欄位不可以升存檔版本').toBe(1);
     expect(back!.map.nodes.every((n) => n.modifier === undefined)).toBe(true);
   });
 });
@@ -178,6 +189,7 @@ describe('修飾詞會改魔物的名字（使用者 2026-09-04）', () => {
     const run = newRun('rename');
     const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
     node.modifier = modifier;
+    node.encounterId = encounterId;   // 護欄會擋「節點標的跟實際打的不是同一場」，這裡要對齊
     run.currentNode = node.id;
     return beginCombat(run, encounterId);
   }
@@ -207,5 +219,115 @@ describe('修飾詞會改魔物的名字（使用者 2026-09-04）', () => {
   it('紀錄裡講一句這個修飾詞在做什麼', () => {
     const cs = fightEnc('plump', 'rats3');
     expect(cs.log.some((l) => l.includes('小魚乾加倍'))).toBe(true);
+  });
+});
+
+describe('小魚乾倍率只吃戰利品，不吃秘寶的加成（稽核 2026-09-04 夜 M-2）', () => {
+  /** 帶著兩件加小魚乾的秘寶（+10、+20）打贏一場 */
+  function lootWithRelics(modifier?: string) {
+    const run = newRun('relic-mul');
+    takeRelic(run, 'fish_jar');    // 打贏 +10
+    takeRelic(run, 'lucky_coin');  // 打贏 +20
+    const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+    node.modifier = modifier;
+    node.encounterId = 'rats3';
+    run.currentNode = node.id;
+    const cs = beginCombat(run, 'rats3');
+    for (const e of cs.enemies) { e.hp = 0; e.dead = true; }
+    cs.phase = 'won';
+    return finishCombat(run, cs)!;
+  }
+
+  it('餓扁了的：戰利品砍半，但秘寶承諾的 30 條一條不少', () => {
+    const base = lootWithRelics(), cut = lootWithRelics('starved');
+    expect(cut.fish).toBe(Math.round((base.fish - 30) * 0.5) + 30);
+    expect(cut.fish, '秘寶的 30 條不該被砍').toBeGreaterThanOrEqual(30);
+  });
+
+  it('肥美的：戰利品加倍，秘寶的 30 條不會跟著變 60', () => {
+    const base = lootWithRelics(), fat = lootWithRelics('plump');
+    expect(fat.fish).toBe((base.fish - 30) * 2 + 30);
+  });
+});
+
+describe('護欄與邊界（稽核 2026-09-04 夜）', () => {
+  it('節點標的跟實際打的不是同一場，修飾詞不生效（事件戰、前哨戰這類覆寫遭遇的路徑）', () => {
+    const run = newRun('guard');
+    const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+    node.modifier = 'furious';
+    node.encounterId = 'rats3';
+    run.currentNode = node.id;
+    const cs = beginCombat(run, 'tanuki_gang');   // 事件戰那樣覆寫掉遭遇
+    for (const e of cs.enemies) {
+      expect(getStatus(e, '爪力'), e.name).toBe(0);
+      expect(e.name).toBe(enemyById[e.enemyId]!.name);
+    }
+  });
+
+  it('伏兵是戰鬥中才冒出來的：不冠名、也不吃修飾詞的效果', () => {
+    const run = newRun('ambush-mod');
+    const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+    node.modifier = 'furious';
+    node.encounterId = 'kappa';
+    run.currentNode = node.id;
+    const cs = beginCombat(run, 'kappa');
+    expect(cs.enemies[0]!.name).toBe('暴怒的' + enemyById['kappa']!.name);
+    for (let i = 0; i < 3; i++) { cs.player.block = 999; endTurn(cs); }
+    const tadpoles = cs.enemies.filter((e) => e.enemyId === 'tadpole');
+    expect(tadpoles.length, '第 3 回合的伏兵該來了').toBe(2);
+    for (const t of tadpoles) {
+      expect(t.name, '半路加入的不冠名').toBe(enemyById['tadpole']!.name);
+      expect(getStatus(t, '爪力'), '半路加入的不吃效果').toBe(0);
+    }
+  });
+
+  it('被竄改的存檔寫進物件原型上的字（constructor、__proto__）不會當成修飾詞', () => {
+    for (const bad of ['constructor', '__proto__', 'toString']) {
+      const run = newRun('proto');
+      const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+      node.modifier = bad;
+      run.currentNode = node.id;
+      const cs = beginCombat(run);
+      for (const e of cs.enemies) expect(e.name, bad).toBe(enemyById[e.enemyId]!.name);
+      expect(cs.log.some((l) => l.includes('undefined')), bad).toBe(false);
+    }
+  });
+});
+
+describe('修飾詞撞上既有機制不可以反轉成純加強（稽核 2026-09-04 夜 L-3、L-4）', () => {
+  function one(modifier: string | undefined, encounterId: string) {
+    const run = newRun('clash');
+    const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+    node.modifier = modifier;
+    node.encounterId = encounterId;
+    run.currentNode = node.id;
+    return beginCombat(run, encounterId).enemies[0]!;
+  }
+
+  it('鐵羅漢帶「不壞身」（防禦不歸零）：疲憊的那 8 點防禦不能給，不然變永久護盾', () => {
+    const base = one(undefined, 'iron_arhat'), weary = one('weary', 'iron_arhat');
+    expect(getStatus(base, '不壞身'), '前提：鐵羅漢真的帶不壞身').toBeGreaterThan(0);
+    expect(weary.block, '不能白送永久防禦').toBe(base.block);
+    expect(weary.maxHp, '生命照樣 −15%').toBe(Math.round(base.maxHp * 0.85));
+  });
+
+  it('鐵羅漢帶「不壞身」：披甲的鱗甲不能給，不然每回合長 18 點防禦一路疊', () => {
+    const base = one(undefined, 'iron_arhat'), plated = one('plated', 'iron_arhat');
+    expect(getStatus(plated, '鱗甲'), '不能疊在不壞身上').toBe(getStatus(base, '鱗甲'));
+    expect(plated.maxHp).toBe(Math.round(base.maxHp * 0.95));
+  });
+
+  it('冬眠熊本來就睡著：打瞌睡的不能再加定身，不然白拿五回合', () => {
+    const base = one(undefined, 'hibernating_bear'), dozing = one('dozing', 'hibernating_bear');
+    expect(getStatus(base, '沉睡'), '前提：冬眠熊開場真的在睡').toBeGreaterThan(0);
+    expect(getStatus(dozing, '定身'), '睡著的不再加定身').toBe(0);
+    expect(dozing.maxHp, '生命照樣 +20%').toBe(Math.round(base.maxHp * 1.2));
+  });
+
+  it('一般魔物不受影響：打瞌睡的照樣定身 2、疲憊的照樣 8 點防禦', () => {
+    const base = one(undefined, 'rats3');
+    expect(getStatus(one('dozing', 'rats3'), '定身')).toBe(2);
+    expect(one('weary', 'rats3').block - base.block).toBe(8);
+    expect(getStatus(one('plated', 'rats3'), '鱗甲')).toBe(2);
   });
 });

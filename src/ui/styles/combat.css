@@ -141,6 +141,9 @@
 /* 犰狳寶寶：橫躺的方圖，小框顯得扁、中框又太高，單獨給 150×150（跟 combat.ts 的 SPRITE_BOX.pup 一致） */
 .combat .unit.enemy[data-id="armadillo_pup"] .sprite { width: 150px; height: 150px; }
 .combat .unit .name {
+  /* 冠上修飾詞之後名字會變長（「中了魔氣的黑貓忍者（老手）」13 字＞框寬 190px）。
+     折行會把那一隻的立繪整個頂高 18px、跟旁邊站不到同一條線上——寧可讓字凸出框外。 */
+  white-space: nowrap;
   font-size: 15px;
   font-weight: bold;
   color: #fff;

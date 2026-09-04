@@ -100,8 +100,20 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
  * 戰鬥中才冒出來的（伏兵、召喚物）不冠名：修飾詞講的是「原本站在這裡的這一群」，
  * 河童叫來的蝌蚪兵本來就不是那一群的。
  */
+function nodeModifier(run: RunState, encounterId: string | undefined) {
+  const node = currentNode(run);
+  // 護欄一：遭遇 id 可以被呼叫端覆寫（事件戰、難度 5 前哨戰、鏡像戰），節點標的跟實際打的不是同一場時
+  // 修飾詞不能生效——今天四條覆寫路徑都落在事件或塔主節點（那些節點不會有修飾詞）所以碰不到，
+  // 但那是巧合不是設計，補一行讓它變明文（稽核 2026-09-04 夜 L-1）
+  if (!node || node.encounterId !== encounterId) return undefined;
+  // 護欄二：`modifierById` 是 Object.fromEntries 建的，原型上的字（constructor、__proto__、toString）
+  // 查得到東西。被竄改的存檔寫 `modifier: "constructor"` 會變成「undefined木樁人」（稽核同上 L-6）
+  const id = node.modifier;
+  return id && Object.hasOwn(modifierById, id) ? modifierById[id] : undefined;
+}
+
 export function applyEncounterModifier(run: RunState, cs: CombatState): void {
-  const mod = modifierById[currentNode(run)?.modifier ?? ''];
+  const mod = nodeModifier(run, cs.encounterId);
   if (!mod) return;
   const oldNames = [...new Set(cs.enemies.map((e) => e.name))];
   for (const e of cs.enemies) { mod.apply(e); e.name = mod.label + e.name; }
@@ -160,14 +172,15 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   for (const c of run.deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
   const exclude = [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
   // 遭遇修飾詞掛在戰利品上的兩條：中了魔氣的多挑一張牌、肥美的／餓扁了的改小魚乾（見 content/modifiers）
-  const mod = modifierById[node?.modifier ?? ''];
+  const mod = nodeModifier(run, cs.encounterId);
   const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0)
     + (mod?.extraCard ? 1 : 0);   // 掌門印：牌多一張可選
   const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（第一關 10%、第二關 20%、第三關 40%）
   const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
-  // 倍率只吃戰利品本身，不吃事件獎金（獎金是另一件事）
-  if (mod?.fishMul) r.fish = Math.round(r.fish * mod.fishMul);
+  // 倍率只吃戰利品本身：事件獎金（bonusFish）本來就在外面，秘寶承諾的加成（winGold）也要先扣掉再乘——
+  // 不然帶滿三件加小魚乾的秘寶時，「餓扁了的」會把秘寶答應你的 +55 砍成 +27（稽核 2026-09-04 夜 M-2）
+  if (mod?.fishMul) r.fish = Math.round((r.fish - winGold) * mod.fishMul) + winGold;
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
   if (r.potion && !addPotion(run, r.potion)) { r.potionMissed = r.potion; r.potion = null; }   // 帶滿：留著讓獎勵畫面問要不要換
