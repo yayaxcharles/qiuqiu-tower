@@ -58,3 +58,27 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
   layer.append(overlay);
   lockScreen();
 }
+
+/**
+ * 放生前的確認（使用者 2026-09-04：「放生牌選牌後沒有跳確定」）：把那張牌放大、寫清楚要花多少小魚乾，
+ * 按「再看看」回牌堆重挑（呼叫端負責重開挑牌），按「放生」才真的扣錢移牌。
+ */
+export function showRemoveConfirm(card: CardInstance, cost: number, onDone: (ok: boolean) => void): void {
+  const layer = overlayRoot();
+  if (!layer) { onDone(false); return; }
+  const def = cardById[card.cardId];
+  if (!def) { onDone(false); return; }
+  hideTooltip();
+  const overlay = el('div', { class: 'modal-overlay' });
+  const dismiss = (ok: boolean): void => { overlay.remove(); unlockScreen(); hideTooltip(); onDone(ok); };
+  const shown = cardNode(card);
+  overlay.append(el('div', { class: 'modal' },
+    el('h2', { class: 'modal-title' }, `要放生「${def.name}${card.upgraded ? '＋' : ''}」嗎？`),
+    el('div', { class: 'confirm-pair' }, el('div', { class: 'confirm-side' }, el('div', { class: 'confirm-label' }, `花 ${cost} 條小魚乾，這張牌從牌組裡永遠拿掉`), shown)),
+    el('div', { class: 'modal-foot' },
+      el('button', { class: 'btn', onclick: () => dismiss(false) }, '再看看'),
+      el('button', { class: 'btn primary', onclick: () => { shown.classList.add('released'); window.setTimeout(() => dismiss(true), 300); } }, '放生'))));
+  overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(false); });
+  layer.append(overlay);
+  lockScreen();
+}

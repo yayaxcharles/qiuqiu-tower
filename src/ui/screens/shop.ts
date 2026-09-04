@@ -9,6 +9,7 @@ import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
+import { showRemoveConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
@@ -103,12 +104,22 @@ registerScreen('shop', (app, root) => {
         }, it.base, it.sale));
     });
 
+    // 放生：挑完先跳確認（使用者 2026-09-04：「選牌後沒有跳確定」），按「再看看」回牌堆重挑
+    const pickRelease = (): void => showDeckPicker({
+      title: `放生一張牌（${run.removeCost} 條小魚乾）`, cards: run.deck, pickable: true, cancellable: true,
+      onPick: (uid) => {
+        const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
+        if (uid === null || !c) { render(); return; }
+        showRemoveConfirm(c, run.removeCost, (ok) => {
+          if (!ok) { pickRelease(); return; }
+          if (buyRemove(run, uid)) play('upgrade');
+          render();
+        });
+      },
+    });
     const remove = el('button', {
       class: 'btn',
-      onclick: () => showDeckPicker({
-        title: `放生一張牌（${run.removeCost} 條小魚乾）`, cards: run.deck, pickable: true, cancellable: true,
-        onPick: (uid) => { if (uid !== null) { buyRemove(run, uid); play('upgrade'); } render(); },
-      }),
+      onclick: () => pickRelease(),
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，只換沒賣掉的牌格（使用者 2026-09-04）
