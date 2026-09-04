@@ -910,6 +910,6 @@
 @media (prefers-reduced-motion: reduce) { .combat .boss-flash { display: none; } }
 
 /* 球球腳下牌子超過八個：縮小、排寬（框 266 → 360 置中），十六個牌子壓進三排，貓不會被頂到頭出畫面（2026-09-04） */
-.combat .unit.player .chips.many { width: 360px; margin-left: -47px; gap: 2px; }
+.combat .unit.player .chips.many { width: 360px; margin-left: -20px; gap: 2px; }   /* 往右延伸：往左會被舞台邊緣切掉 */
 .combat .unit.player .chips.many .chip { font-size: 11px; padding: 1px 5px; gap: 2px; }
 .combat .unit.player .chips.many .chip img { width: 14px; height: 14px; }
