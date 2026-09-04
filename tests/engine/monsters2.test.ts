@@ -190,13 +190,16 @@ describe('第二波魔物的機制', () => {
     expect(cs.player.discardPile.some((c) => c.uid === slime.uid)).toBe(false);
   });
 
-  it('眼冒金星：不可打出，回合結束就消失（不進棄牌堆）', () => {
+  it('眼冒金星：0 費打得出去，打出就消耗（不進棄牌堆）', () => {
     const cs = start('wood_dummy', 400, ['dazed_card', 'tanding']);
     const dazed = cs.player.hand.find((c) => c.cardId === 'dazed_card')!;
-    expect(canPlay(cs, dazed.uid).ok).toBe(false);
+    expect(canPlay(cs, dazed.uid).ok).toBe(true);
+    const energy = cs.player.energy;
+    playCard(cs, dazed.uid);
+    expect(cs.player.energy, '不花飯糰').toBe(energy);
+    expect(cs.player.exhaustPile.some((c) => c.uid === dazed.uid), '打出就消耗').toBe(true);
     endTurn(cs);
     expect(cs.player.discardPile.some((c) => c.uid === dazed.uid), '不進棄牌堆').toBe(false);
-    expect(cs.player.exhaustPile.some((c) => c.uid === dazed.uid), '直接消失').toBe(true);
   });
 
   it('戰鬥雜牌只有魔物塞得進來：事件抽壞毛病抽不到', () => {

@@ -31,6 +31,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const times = fx.scaleWithCombo ? Math.min((ctx.combo ?? 0) + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
       const base = fx.amount * (ctx.doubleDamage ? 2 : 1);
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
+        // 背刺：目標身上沒有任何減益，這一段就不打
+        if (fx.ifTargetDebuffed && !DEBUFFS.some((d) => getStatus(t, d) > 0)) continue;
         for (let i = 0; i < times; i++) {
           const r = damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion' });
           if (r.killed) { ctx.killed = true; break; }
@@ -83,7 +85,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       }
       return false;
     }
-    case 'energy': p.energy += fx.n; return false;
+    case 'energy': if (!fx.onKill || ctx.killed) p.energy += fx.n; return false;   // 追擊：onKill 只在打倒目標時退飯糰
     case 'heal': healPlayer(cs, fx.n); return false;
     case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
     case 'power':
@@ -105,7 +107,16 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'cleanse': {
-      for (const name of DEBUFFS) if (getStatus(p, name) > 0) removeStatus(p, name);
+      // 抖毛只清 max 種，照 DEBUFFS 的順序（翻肚最先）；返璞、溫牛奶不給 max＝全清
+      let left = fx.max ?? 99;
+      for (const name of DEBUFFS) if (left > 0 && getStatus(p, name) > 0) { removeStatus(p, name); left--; }
+      return false;
+    }
+    case 'doubleStatus': {
+      for (const t of targetsOf(cs, ctx, false)) {
+        const cur = getStatus(t, fx.name);
+        if (cur > 0) addStatus(t, fx.name, cur + (fx.add ?? 0));
+      }
       return false;
     }
     case 'transferDebuffs': {

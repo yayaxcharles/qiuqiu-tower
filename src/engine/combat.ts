@@ -74,6 +74,8 @@ export function startPlayerTurn(cs: CombatState): void {
   if (poison > 0) { addStatus(p, '噎到', -1); damagePlayer(cs, p, poison, { direct: true }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
   if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive); }
+  const iron = getStatus(p, '鐵布衫');
+  if (iron > 0) { removeStatus(p, '鐵布衫'); p.block += iron; }
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnEnergy') : 0);
   // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { source: 'power' });

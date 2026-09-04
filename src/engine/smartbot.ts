@@ -231,6 +231,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
           else if (fx.name === '貓步') value += fx.amount * 3;
           else if (fx.name === '反彈') value += fx.amount * Math.min(hits, 4) * 0.8;
           else if (fx.name === '潛水') value += fx.amount * 4;
+          else if (fx.name === '鐵布衫') value += fx.amount * 0.9;
           else if (fx.name === '翻肚') value -= 6;   // 出大事了的代價
         } else {
           const n = fx.target === 'all' ? enemies.length : 1;
@@ -273,6 +274,12 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'noAttacksThisTurn': value -= p.hand.filter((h) => cardById[h.cardId]?.type === '攻擊').length * 2; break;
       case 'stealBlock': value += (target !== undefined ? enemies.find((e) => e.uid === target)?.block ?? 0 : 0) * 1.2; break;
       case 'cleanse': value += Object.entries(p.statuses).filter(([k, v]) => ['翻肚', '懶洋洋', '炸毛', '噎到'].includes(k) && (v ?? 0) > 0).length * 4; break;
+      case 'doubleStatus': {
+        const best = enemies.reduce((m, e) => Math.max(m, getStatus(e, fx.name)), 0);
+        value += best * (best + 1) / 2 * 0.9;
+        if (best > 0 && def.target === 'enemy' && !hasDamage) target = enemies.find((e) => getStatus(e, fx.name) === best)!.uid;
+        break;
+      }
       case 'transferDebuffs': value += (getStatus(p, '噎到') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5; break;
       case 'removeStatuses': {
         const cap = fx.max ?? 99;

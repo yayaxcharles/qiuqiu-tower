@@ -91,6 +91,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
+      if (fx.ifTargetDebuffed) return `目標身上有任何減益就再造成 ${fx.amount} 點傷害`;
       const again = ctx.prev?.kind === 'stealBlock' ? '再' : '';
       const head = fx.target === 'all' ? `對全體魔物造成 ${fx.amount} 點傷害` : `${again}造成 ${fx.amount} 點傷害`;
       const cap = fx.comboCap === undefined ? '' : `（最多 ${fx.comboCap} 次）`;
@@ -110,6 +111,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'drawNextTurn': return `下回合開始時多抽 ${fx.n} 張牌`;
     case 'status': {
       if (isDive(fx)) return `下回合開始時再獲得 ${fx.amount} 層隱身`;
+      if (fx.name === '鐵布衫') return `下回合開始時再獲得 ${fx.amount} 點蜷縮`;
       const oneShot = ONE_SHOT.has(fx.name);
       const body = oneShot ? fx.name : `${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`;
       const say = (head: string): string => (oneShot ? head + body : `${head} ${body}`);
@@ -126,8 +128,9 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       ? `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與防禦' : ''}`
       : `移除目標最多 ${fx.max} 點${fx.names.join('、')}${fx.removeBlock ? `與 ${fx.max} 點防禦` : ''}`;
     case 'transferDebuffs': return '把你身上的翻肚、懶洋洋、炸毛、噎到全部丟到目標身上';
-    case 'cleanse': return '清掉自己身上所有的減益';
-    case 'energy': return `獲得 ${fx.n} 顆飯糰`;
+    case 'cleanse': return fx.max ? `清掉自己身上 ${fx.max} 種減益` : '清掉自己身上所有的減益';
+    case 'energy': return fx.onKill ? `打倒牠就拿回 ${fx.n} 顆飯糰` : `獲得 ${fx.n} 顆飯糰`;
+    case 'doubleStatus': return `把目標身上的${fx.name}翻倍` + (fx.add ? `，再加 ${fx.add} 層` : '');
     case 'heal': return `${ctx.youHeal ? '你' : ''}回復 ${fx.n} 點生命`;
     case 'gold': return fx.onKill ? `打倒牠就多拿 ${fx.n} 條小魚乾` : `多拿 ${fx.n} 條小魚乾`;
     case 'scry': return `看抽牌堆最上面 ${fx.n} 張，想丟掉哪幾張都可以`;

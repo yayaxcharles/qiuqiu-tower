@@ -2,15 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 3、忍術 54（含 2 張待圖 hidden）、絕學 31、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 3、忍術 61、絕學 36（含 14 張待圖 hidden）、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     expect(count('起手')).toBe(3);
-    expect(count('忍術')).toBe(54);
-    expect(count('絕學')).toBe(31);
+    expect(count('忍術')).toBe(61);
+    expect(count('絕學')).toBe(36);
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(98);
+    expect(cards.length).toBe(110);
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -43,7 +43,7 @@ describe('牌資料', () => {
     for (const c of cards.filter((x) => x.combatOnly)) {
       expect(c.pool, c.name).toBe('壞毛病');
       expect(c.effects, c.name).toEqual([]);
-      // 打得出來的（黏液）要消耗、打不出來的（眼冒金星）要虛幻——兩條路都不會賴在牌堆裡
+      // 兩張都走消耗（2026-09-04 眼冒金星從不可打出＋虛幻改成 0 費消耗）——不會賴在牌堆裡
       const kw = c.keywords ?? [];
       expect(kw.includes('消耗') || kw.includes('虛幻'), c.name).toBe(true);
     }
@@ -54,7 +54,7 @@ describe('牌資料', () => {
       const hitsOne = c.effects.some((e) =>
         (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageRamp' || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
-        (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus');
+        (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus');
       if (hitsAll) expect(c.target, c.name).toBe('all');
       else if (hitsOne) expect(c.target, c.name).toBe('enemy');
       else if (c.pool === '壞毛病') expect(c.target, c.name).toBe('none');
@@ -73,12 +73,15 @@ describe('牌資料', () => {
     for (const id of STARTER_DECK) expect(cardById[id]?.pool).toBe('起手');
   });
 
-  it('待圖 hidden 牌只有兩張，且獎勵池抽不到', async () => {
+  it('待圖 hidden＝還沒有牌面圖；有圖的不可以還掛著 hidden；獎勵池抽不到 hidden', async () => {
     const { rollCardChoices } = await import('../../src/engine/rewards');
     const { Rng, seedFromString } = await import('../../src/engine/rng');
-    expect(cards.filter((c) => c.hidden).map((c) => c.id).sort()).toEqual(['dilie', 'luanwu']);
+    const manifest = (await import('../../public/assets/manifest.json')).default as { cards: Record<string, string> };
+    for (const c of cards) expect(!!manifest.cards[c.art], c.name + '：有圖=' + !!manifest.cards[c.art] + '、hidden=' + !!c.hidden).toBe(!c.hidden);
     for (let seed = 0; seed < 300; seed++) {
-      for (const c of rollCardChoices(new Rng(seedFromString('hidden-' + seed)), '忍術', 6, [], true, 0)) expect(c.hidden).toBeUndefined();
+      for (const pool of ['忍術', '絕學'] as const) {
+        for (const c of rollCardChoices(new Rng(seedFromString('hidden-' + seed)), pool, 6, [], true, 0)) expect(c.hidden).toBeUndefined();
+      }
     }
   });
 });

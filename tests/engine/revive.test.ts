@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { STARTER_DECK } from '../../src/content/cards';
 import { damageEnemy } from '../../src/engine/actions';
+import { applyEffects } from '../../src/engine/effects';
 import { endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import type { CardInstance } from '../../src/engine/types';
@@ -50,16 +51,12 @@ describe('一起死才算數', () => {
   });
 
   it('只限本回合的能力，回合結束就過期', () => {
-    // 吸貓大法的基礎版是 `thisTurn` 的能力：本回合每打倒一隻魔物回 4 血，回合一過就沒了
+    // `thisTurn` 的能力：本回合每打倒一隻魔物回 4 血，回合一過就沒了（2026-09-04 吸貓大法改整場有效，改用合成能力測）
     const cs = startCombat({
-      hp: 40, maxHp: 70, deck: deck([...STARTER_DECK, 'renwuwancheng']), relics: [], potions: [],
+      hp: 40, maxHp: 70, deck: deck([...STARTER_DECK]), relics: [], potions: [],
       encounterId: 'rats2', rng: new Rng(seedFromString('pw')),
     });
-    cs.player.energy = 9;
-    const c = [...cs.player.hand, ...cs.player.drawPile].find((x) => x.cardId === 'renwuwancheng')!;
-    cs.player.drawPile.splice(cs.player.drawPile.indexOf(c), 1);
-    cs.player.hand.unshift(c);
-    playCard(cs, c.uid);
+    applyEffects(cs, [{ kind: 'power', trigger: 'onKill', thisTurn: true, effects: [{ kind: 'heal', n: 4 }] }], { source: 'power' });
     expect(cs.player.powers.length).toBe(1);
 
     // 本回合打倒魔物有回血

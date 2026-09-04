@@ -429,14 +429,14 @@ describe('壞毛病與能力牌', () => {
     expect(cs.turn).toBe(2);
     expect(cs.player.block).toBe(3);
   });
-  it('吸貓大法：本回合擊倒魔物回 4 血', () => {
+  it('吸貓大法：擊倒魔物回 3 血（未升級也整場有效）', () => {
     const cs = start('rats2', [...STARTER_DECK, 'renwuwancheng'], 's', ['blue_headband'], 50);
     cs.player.energy = 9;
     playCard(cs, toHand(cs, 'renwuwancheng'));
     const e = cs.enemies[0]!; e.hp = 3;
     playCard(cs, toHand(cs, 'sanjo'), e.uid);
     expect(e.dead).toBe(true);
-    expect(cs.player.hp).toBe(54);
+    expect(cs.player.hp).toBe(53);
   });
 });
 

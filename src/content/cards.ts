@@ -95,12 +95,13 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 3 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 4 }] }] } },
   // 跟忍術·反彈只差 1 點＝純劣化，改走攻守一體；純反彈留給忍術·反彈
-  { id: 'fantan', name: '反彈', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fantan',
+  // 2026-09-04 使用者：跟忍術·反彈撞名，改成同時講到反彈＋蜷縮的忍者名（撒菱＝忍者撒在地上的鐵蒺藜）
+  { id: 'fantan', name: '忍術·撒菱陣', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fantan',
     effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'block', amount: 6 }],
     upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }, { kind: 'block', amount: 8 }] } },
   // 基礎版只有本回合有效（`thisTurn`），磨爪之後變成永久的——升級同時拿掉限制又加量
   { id: 'renwuwancheng', name: '忍術·吸貓大法', cost: 1, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/renwuwancheng',
-    effects: [{ kind: 'power', trigger: 'onKill', thisTurn: true, effects: [{ kind: 'heal', n: 4 }] }],
+    effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 3 }] }],   // 2026-09-04 未升級也整場有效（原本只撐一回合、回 4）
     upgrade: { effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 6 }] }] } },
   { id: 'fengyin', name: '封印解除', cost: 3, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/fengyin',
     // 原本跟鐵心（2 費）同效果還貴 1 費＝純劣化，改成攻防雙成長，3 費才值
@@ -195,7 +196,7 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damage', amount: 11 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
   { id: 'caiweiba', name: '忍術·踩尾巴', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/caiweiba',
     effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '噎到', amount: 2, target: 'enemy' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '噎到', amount: 3, target: 'enemy' }] } },
+    upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '噎到', amount: 3, target: 'enemy' }] } },   // 2026-09-04 升級傷害 6→8（原本沒漲）
   { id: 'diaohu', name: '忍術·調虎離山', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/diaohu',
     effects: [{ kind: 'status', name: '懶洋洋', amount: 1, target: 'all' }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }, { kind: 'draw', n: 1 }] } },
@@ -280,6 +281,43 @@ export const cards: readonly CardDef[] = [
   { id: 'dilie', name: '忍術·地裂陣', cost: 3, type: 攻, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/dilie', hidden: true,
     effects: [{ kind: 'damage', amount: 14, target: 'all' }, { kind: 'block', amount: 8 }],
     upgrade: { effects: [{ kind: 'damage', amount: 18, target: 'all' }, { kind: 'block', amount: 10 }] } },
+  // 2026-09-04 牌池體檢補牌（使用者拍板：忍術攻擊 4、絕學常見 3、解減益 1、噎到流 4；hidden：牌面到齊後由 art_cards_0904b.sh 拿掉）
+  { id: 'huixuan', name: '忍術·迴旋踢', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/huixuan', hidden: true,
+    effects: [{ kind: 'damage', amount: 7 }, { kind: 'block', amount: 3 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'block', amount: 4 }] } },
+  { id: 'lianhuan', name: '忍術·連環踢', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/lianhuan', hidden: true,
+    effects: [{ kind: 'damage', amount: 5, times: 3 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 6, times: 3 }] } },
+  { id: 'beici', name: '忍術·背刺', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/beici', hidden: true,
+    effects: [{ kind: 'damage', amount: 6 }, { kind: 'damage', amount: 6, ifTargetDebuffed: true }],
+    upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'damage', amount: 8, ifTargetDebuffed: true }] } },
+  { id: 'zhuiji', name: '忍術·追擊', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/zhuiji', hidden: true,
+    effects: [{ kind: 'damage', amount: 10 }, { kind: 'energy', n: 2, onKill: true }],
+    upgrade: { effects: [{ kind: 'damage', amount: 14 }, { kind: 'energy', n: 2, onKill: true }] } },
+  { id: 'doumao', name: '忍術·抖毛', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/doumao', hidden: true,
+    effects: [{ kind: 'cleanse', max: 1 }, { kind: 'draw', n: 1 }],
+    upgrade: { effects: [{ kind: 'cleanse', max: 2 }, { kind: 'draw', n: 1 }] } },
+  { id: 'maoqiudan', name: '忍術·毛球彈', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/maoqiudan', hidden: true,
+    effects: [{ kind: 'damage', amount: 4 }, { kind: 'status', name: '噎到', amount: 3, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '噎到', amount: 4, target: 'enemy' }] } },
+  { id: 'qianglafen', name: '忍術·嗆辣粉', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/qianglafen', hidden: true,
+    effects: [{ kind: 'status', name: '噎到', amount: 3, target: 'all' }],
+    upgrade: { effects: [{ kind: 'status', name: '噎到', amount: 4, target: 'all' }] } },
+  { id: 'bengquan', name: '絕學·崩拳', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/bengquan', hidden: true,
+    effects: [{ kind: 'damage', amount: 12 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 16 }] } },
+  { id: 'tiebushan', name: '絕學·鐵布衫', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/tiebushan', hidden: true,
+    effects: [{ kind: 'block', amount: 8 }, { kind: 'status', name: '鐵布衫', amount: 4, target: 'self' }],
+    upgrade: { effects: [{ kind: 'block', amount: 10 }, { kind: 'status', name: '鐵布衫', amount: 6, target: 'self' }] } },
+  { id: 'jieli', name: '絕學·借力', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/jieli', hidden: true,
+    effects: [{ kind: 'block', amount: 5 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'block', amount: 8 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
+  { id: 'cuiye', name: '絕學·催噎', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/cuiye', hidden: true,
+    effects: [{ kind: 'doubleStatus', name: '噎到' }],
+    upgrade: { effects: [{ kind: 'doubleStatus', name: '噎到', add: 2 }] } },
+  { id: 'ehou', name: '絕學·扼喉', cost: 2, type: 攻, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/ehou', hidden: true,
+    effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '噎到', amount: 4, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'status', name: '噎到', amount: 5, target: 'enemy' }] } },
   { id: 'huxin', name: '絕學·護心', cost: 1, type: 能, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/huxin',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 5 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 8 }] }] } },
@@ -295,9 +333,9 @@ export const cards: readonly CardDef[] = [
   // 黏液：不是不能打，是「要花 1 顆飯糰才丟得掉」——那顆飯糰就是牠的代價
   { id: 'slime_card', name: '黏液', cost: 1, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/slime_card',
     keywords: ['消耗'], effects: [], upgrade: {}, combatOnly: true },
-  // 眼冒金星：連丟都丟不掉，只能佔一格手牌到回合結束（虛幻＝結束就消失，不會塞爆棄牌堆）
+  // 眼冒金星：2026-09-04 使用者改「走消耗」：0 費打出去就消耗掉，代價是抽到它等於少抽一張牌（原本是不可打出＋虛幻）
   { id: 'dazed_card', name: '眼冒金星', cost: 0, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/dazed_card',
-    keywords: ['不可打出', '虛幻'], effects: [], upgrade: {}, combatOnly: true },
+    keywords: ['消耗'], effects: [], upgrade: {}, combatOnly: true },
 ];
 
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));

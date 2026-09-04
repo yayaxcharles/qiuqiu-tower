@@ -9,6 +9,7 @@
     "noImplicitOverride": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "resolveJsonModule": true,
     "types": []
   },
   "include": ["src", "tests", "scripts", "vite.config.ts"]

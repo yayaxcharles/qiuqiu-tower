@@ -16,7 +16,8 @@ export type TargetMode = 'enemy' | 'all' | 'self' | 'none';
  */
 export type StatusName =
   | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '噎到' | '隱身' | '定身' | '反彈' | '潛水'
-  | '縮殼' | '飛行' | '鱗甲' | '沉睡' | '消散' | '虛化';
+  | '縮殼' | '飛行' | '鱗甲' | '沉睡' | '消散' | '虛化'
+  | '鐵布衫';   // 2026-09-04：下回合開始換成等量蜷縮（跟潛水→隱身同型）
 export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '噎到', '定身'];   // 溫牛奶、返璞「清掉所有減益」含定身（審查 #16）
 /** 回合結束層數 −1 的狀態 */
 // 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
@@ -26,7 +27,7 @@ export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛
 export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack';
 
 export type Effect =
-  | { kind: 'damage'; amount: number; times?: number; ignoreBlock?: boolean; scaleWithCombo?: boolean; comboCap?: number; target?: 'enemy' | 'all' }
+  | { kind: 'damage'; amount: number; times?: number; ignoreBlock?: boolean; scaleWithCombo?: boolean; comboCap?: number; target?: 'enemy' | 'all'; ifTargetDebuffed?: boolean }
   /** 分身術（2026-09-03）：造成 amount 點傷害；這場戰鬥裡同一張牌每打出一次，之後的傷害就多 step 點（看 CombatState.cardPlays） */
   | { kind: 'damageRamp'; amount: number; step: number }
   | { kind: 'damageRandom'; min: number; max: number }
@@ -40,10 +41,12 @@ export type Effect =
   | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all' }
   /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5） */
   | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number }
+  /** 催噎：目標身上這個狀態翻倍（沒有就沒事），再加 add 層 */
+  | { kind: 'doubleStatus'; name: StatusName; add?: number }
   | { kind: 'transferDebuffs' }
   /** 清掉自己身上所有減益。跟 `transferDebuffs` 的差別是「丟掉」不是「丟給別人」 */
-  | { kind: 'cleanse' }
-  | { kind: 'energy'; n: number }
+  | { kind: 'cleanse'; max?: number }
+  | { kind: 'energy'; n: number; onKill?: boolean }
   | { kind: 'heal'; n: number }
   | { kind: 'gold'; n: number; onKill?: boolean }
   | { kind: 'scry'; n: number }

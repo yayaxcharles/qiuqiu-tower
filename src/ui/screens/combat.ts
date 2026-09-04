@@ -31,6 +31,7 @@ const STATUS_ICON: Record<StatusName, string> = {
   懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 噎到: 'icon/status_choke',
   隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
   潛水: 'icon/status_stealth',
+  鐵布衫: 'icon/status_plate',   // 沒生圖示→退回寫字「下回合蜷縮」
   // 第二波魔物的五個狀態。圖示還沒生：`chip()` 會退回寫名字（灰剪影一排認不出誰是誰）
   縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate',
   沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
@@ -38,14 +39,14 @@ const STATUS_ICON: Record<StatusName, string> = {
   虛化: 'icon/status_phase',
 };
 /** 狀態排列順序寫死，好的排前面，才不會每次重畫就換位置（物件鍵的順序不保證） */
-const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲', '虛化',
+const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '縮殼', '飛行', '鱗甲', '虛化',
   '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
  * 規格 §2 的名詞表根本沒有這個詞、牌面也刻意不講（見 `cardtext.ts` 的 `isDive`），
  * 所以牌子跟著牌面的講法寫「下回合隱身」；其餘狀態的名字就是名詞表上的名字，不用改。
  */
-const STATUS_LABEL: Partial<Record<StatusName, string>> = { 潛水: '下回合隱身' };
+const STATUS_LABEL: Partial<Record<StatusName, string>> = { 潛水: '下回合隱身', 鐵布衫: '下回合蜷縮' };
 /** 意圖沒有圖示素材（美術清單只做了狀態圖示），用一個中文字當記號，字型一定有 */
 const INTENT_GLYPH: Record<Intent, string> = { attack: '攻', block: '守', buff: '強', debuff: '弱', special: '？', summon: '召', idle: '…' };
 const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
@@ -112,7 +113,7 @@ interface Acted { label: string; attacked: boolean }
 /** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
 // 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲、虛化對魔物是好事（金光），
 // 沉睡、消散對牠是壞事（紫光）。球球身上永遠不會有這六個。
-const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '反彈', '縮殼', '飛行', '鱗甲', '虛化'];
+const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '縮殼', '飛行', '鱗甲', '虛化'];
 const BAD_STATUS: readonly StatusName[] = ['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
 const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
   names.reduce((t, k) => t + getStatus(u, k), 0);
