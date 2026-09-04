@@ -151,8 +151,10 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'status', name: '貓步', amount: 2, target: 'self' }], upgrade: { effects: [{ kind: 'status', name: '貓步', amount: 3, target: 'self' }] } },
   { id: 'yungong', name: '絕學·運功', cost: 1, type: 能, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/yungong',
     effects: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }], upgrade: { effects: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }] } },
+  // 2026-09-04 使用者：升級從「費用變 1」改成「全體懶洋洋 5」，費用維持 2
   { id: 'yide', name: '絕學·以德服人', cost: 2, type: 技, rarity: '稀有', pool: '絕學', target: 'all', art: 'card/yide',
-    effects: [{ kind: 'status', name: '懶洋洋', amount: 3, target: 'all' }, { kind: 'heal', n: 5 }], upgrade: { cost: 1 } },
+    effects: [{ kind: 'status', name: '懶洋洋', amount: 3, target: 'all' }, { kind: 'heal', n: 5 }],
+    upgrade: { effects: [{ kind: 'status', name: '懶洋洋', amount: 5, target: 'all' }, { kind: 'heal', n: 5 }] } },
 
   // ===== 壞毛病（4） =====
   { id: 'zhongji', name: '中計了', cost: 0, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/zhongji', keywords: ['不可打出'], effects: [], upgrade: {} },
@@ -264,11 +266,20 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'cleanse' }, { kind: 'heal', n: 8 }],
     upgrade: { cost: 1, effects: [{ kind: 'cleanse' }, { kind: 'heal', n: 14 }] } },
   { id: 'shierlian', name: '絕學·十二連環', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', target: 'all', art: 'card/shierlian',
-    effects: [{ kind: 'damage', amount: 6, target: 'all', times: 2 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 8, target: 'all', times: 2 }] } },
-  { id: 'jingzhi', name: '忍術·靜止', cost: 2, type: 技, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/jingzhi',
+    // 2026-09-04 使用者：稀有兩費 6×2 太弱 → 5×3／6×3（三段，吃三份爪力）
+    effects: [{ kind: 'damage', amount: 5, target: 'all', times: 3 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 6, target: 'all', times: 3 }] } },
+  // 2026-09-04 使用者：2 費（升級 1 費）→ 3 費（升級 2 費），全體定身太強
+  { id: 'jingzhi', name: '忍術·靜止', cost: 3, type: 技, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/jingzhi',
     effects: [{ kind: 'status', name: '定身', amount: 1, target: 'all' }],
-    upgrade: { cost: 1 } },
+    upgrade: { cost: 2 } },
+  // 2026-09-04 使用者：忍術池補兩張全體牌（hidden：牌面插圖到齊後由 art_aoe_cards_0904.sh 拿掉）
+  { id: 'luanwu', name: '忍術·手裏劍亂舞', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/luanwu', hidden: true,
+    effects: [{ kind: 'damage', amount: 5, target: 'all', times: 2 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 7, target: 'all', times: 2 }] } },
+  { id: 'dilie', name: '忍術·地裂陣', cost: 3, type: 攻, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/dilie', hidden: true,
+    effects: [{ kind: 'damage', amount: 14, target: 'all' }, { kind: 'block', amount: 8 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 18, target: 'all' }, { kind: 'block', amount: 10 }] } },
   { id: 'huxin', name: '絕學·護心', cost: 1, type: 能, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/huxin',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 5 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 8 }] }] } },

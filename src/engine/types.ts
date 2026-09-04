@@ -79,6 +79,8 @@ export interface CardDef {
    * 不會出現在事件、獎勵與圖鑑的壞毛病清單裡。戰鬥本來就用牌組的副本，戰鬥結束自然消失。
    */
   combatOnly?: boolean;
+  /** 牌面插圖還沒到齊：不進獎勵、罐頭鋪、事件、圖鑑；圖接入後由生圖腳本拿掉 */
+  hidden?: true;
 }
 
 export interface CardInstance { uid: number; cardId: string; upgraded: boolean }

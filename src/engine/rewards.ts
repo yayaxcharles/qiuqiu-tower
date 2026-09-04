@@ -36,7 +36,7 @@ export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string
   const taken = new Set(exclude);
   for (let i = 0; i < n; i++) {
     // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不進任何獎勵池
-    const remaining = cards.filter((c) => c.pool === pool && !c.combatOnly && !taken.has(c.id));
+    const remaining = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden && !taken.has(c.id));
     if (remaining.length === 0) break;
     const rar = rollRarity(rng, new Set(remaining.map((c) => c.rarity)), late, rareBonus, odds);
     const pick = rng.pick(remaining.filter((c) => c.rarity === rar));

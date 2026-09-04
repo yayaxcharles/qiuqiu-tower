@@ -305,7 +305,7 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): C
     if (cardDefs.filter((c) => c.rarity === '稀有').length >= wantRare) break;
     const cur = cardDefs[i]!;
     if (cur.rarity === '稀有') continue;
-    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
+    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !c.hidden && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
     if (pool.length) cardDefs[i] = rng.pick(pool);
   }
   return cardDefs;
@@ -460,7 +460,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         break;
       case 'addRandomCard': {
         // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）只有魔物塞得進來，事件不能抽到
-        const pool = cards.filter((c) => c.pool === fx.pool && !c.combatOnly && (!fx.rarity || c.rarity === fx.rarity));
+        const pool = cards.filter((c) => c.pool === fx.pool && !c.combatOnly && !c.hidden && (!fx.rarity || c.rarity === fx.rarity));
         if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id); notes?.push(`撿到了「${def.name}」`); }
         break;
       }
