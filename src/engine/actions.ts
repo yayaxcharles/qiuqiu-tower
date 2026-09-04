@@ -22,17 +22,13 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
 }
 
 /** 每回合第一次拿隱身時吃秘寶加成（紙袋的 stealthBonus），加成量由秘寶資料決定 */
-/** 隱身最多疊幾層（使用者 2026-09-04：整體隱身太強、囤到十幾層把單發全躲光；但看破會拍掉一半，上限不能太低，取 5） */
-export const STEALTH_CAP = 5;
-
+// 隱身**沒有上限**（使用者 2026-09-04 明示：要能無限疊，不能設上限；平衡靠「蜷縮先擋」的判定順序與看破）
 export function gainStealth(cs: CombatState, n: number): void {
   let amt = n;
   if (!cs.player.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
   amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
   cs.player.firstStealthGiven = true;
-  const room = Math.max(0, STEALTH_CAP - getStatus(cs.player, '隱身'));
-  if (amt > room) { log(cs, `隱身最多只能疊 ${STEALTH_CAP} 層，多的 ${amt - room} 層散掉了`); amt = room; }
-  if (amt > 0) addStatus(cs.player, '隱身', amt);
+  addStatus(cs.player, '隱身', amt);
 }
 
 export function healPlayer(cs: CombatState, n: number): number {
