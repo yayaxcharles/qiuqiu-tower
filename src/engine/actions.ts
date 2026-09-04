@@ -360,6 +360,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
           // 場上塞不下（五個單位）或這種怪到上限：不硬召，改把一隻的血量接到現有的最弱那隻身上
           // （使用者 2026-09-02：「畫面塞不下，四隻後再召喚就是把尾巴血量加上去」）
           if (cs.enemies.filter(onField).length >= 5 || (fx.max !== undefined && same.length >= fx.max)) {
+            if (fx.noPour) break;   // 這招只補位不灌血（波斯喚僕從，稽核 2026-09-04 中 5）
             const weakest = same.filter((o) => !o.dead).sort((a, b) => a.hp - b.hp)[0];
             const sdef = enemyById[fx.enemyId];
             if (weakest && sdef) {

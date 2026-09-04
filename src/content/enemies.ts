@@ -5,8 +5,8 @@ import type { EnemyMove,EncounterDef, EnemyDef, EnemyPool } from '../engine/type
 // 尾巴同時最多四條，滿了就把血灌給現有的（使用者 2026-09-03：四條可以，問題是換階段時尾巴「憑空」冒出來——見 phases.onEnterMove）
 const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
 const NEKO_PREP: EnemyMove = { intent: 'special', label: '準備放尾巴', effects: [{ kind: 'nothing' }] };
-// 波斯大小姐每十回合（第 9、19、29…次出招）把倒下的執事貓、女僕貓叫回來；兩個都還站著就改成灌血給他們（召喚滿了的通則）——使用者 2026-09-04：「增加打她的難度」
-const PERSIAN_CALL: EnemyMove = { intent: 'summon', label: '喚僕從', effects: [{ kind: 'summon', enemyId: 'butler_cat', n: 1, max: 1 }, { kind: 'summon', enemyId: 'maid_cat', n: 1, max: 1 }] };
+// 波斯大小姐每十回合（第 9、19、29…次出招）把倒下的執事貓、女僕貓叫回來；兩個都還站著就什麼都不做——使用者 2026-09-04：「增加打她的難度」
+const PERSIAN_CALL: EnemyMove = { intent: 'summon', label: '喚僕從', effects: [{ kind: 'summon', enemyId: 'butler_cat', n: 1, max: 1, noPour: true }, { kind: 'summon', enemyId: 'maid_cat', n: 1, max: 1, noPour: true }] };   // noPour：僕從還站著就什麼都不做，不套「滿了灌血」通則（稽核 2026-09-04 中 5：會每十回合把僕從最大生命疊上去）
 
 export const enemies: EnemyDef[] = [
   // ===== 弱池 =====
@@ -1146,7 +1146,7 @@ export const encounters: EncounterDef[] = [
   { id: 'scarecrow', pool: '強', enemies: ['scarecrow'], acts: [1] },
   { id: 'black_ninja_duo', pool: '強', enemies: ['black_ninja_elite', 'black_ninja_elite'], hpScale: 0.75, acts: [1] },
   { id: 'big_cucumber', pool: '強', enemies: ['big_cucumber'], acts: [1] },
-  // 精英分關：塔中照本體數值；塔頂同一隻掛「魔氣」——血 ×1.3、出場帶 3 點爪力（掛成爪力牌子，滑上去看得到）。
+  // 精英分關：塔中照本體數值；塔頂的菁英各自標 hpScale／strength（2026-09-04 起：影球球 1.2×／9、鏡仙與虛無貓 1.2×／10、鬼將 5），黑貓頭目／掃地機王／三花貓武僧的塔頂版已拿掉。
   // 2026-09-02 機器人 200 局：精英在 29～31F 平均只掉 2～4 血、影球球 0.8 血，比一般戰還軟。
   { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'], acts: [2] },
   // 巨型飯糰＝第一關的福利菁英（使用者 2026-09-03：只放第一關才會隨機出現，當作福利）：血 100（125×0.8）、打倒回 10 血
@@ -1194,7 +1194,8 @@ export const encounters: EncounterDef[] = [
   { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], hpScale: 1.2, strength: 9, acts: [3] },   // 4→7、血 1.2×（2026-09-04 塔頂菁英加硬）
+  { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], hpScale: 1.2, strength: 9, acts: [3] },   // 塔頂菁英版：血 1.2×、魔氣 9（2026-09-04 加硬兩刀 4→7→9）
+  { id: 'shadow_cat_prefight', pool: '大魔物', enemies: ['shadow_cat'], strength: 4, acts: [] },   // 難度 5 最終戰前哨戰專用（acts 空＝不進菁英池）；跟塔頂菁英的加硬脫鉤（稽核 2026-09-04 中 4）
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
   { id: 'tanuki_lord', pool: '塔主', enemies: ['tanuki_lord'] },
@@ -1283,9 +1284,9 @@ export const encounters: EncounterDef[] = [
   { id: 'shadow_spider', pool: '大魔物', enemies: ['shadow_spider'], acts: [2] },
   { id: 'drunk_dog', pool: '大魔物', enemies: ['drunk_dog'], acts: [2] },
   // 鬼將帶兩隻小鬼上場（跟波斯大小姐帶執事貓、女僕貓同一套）：三隻同一組，要一起清光才算贏
-  { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 5, acts: [3] },   // 4→5（三隻共享；2026-09-04 塔頂菁英加硬，小鬼一下 11）   // 三隻共享魔氣，5 會讓小鬼一下 11 點；機器人 21 場輸 11 → 降 3，第三關加硬再回 4（2026-09-03）
-  { id: 'mirror_sage', pool: '大魔物', enemies: ['mirror_sage'], hpScale: 1.2, strength: 10, acts: [3] },   // 6→8、血 1.2×（2026-09-04 塔頂菁英加硬）
-  { id: 'void_cat', pool: '大魔物', enemies: ['void_cat'], hpScale: 1.2, strength: 10, acts: [3] },   // 塔頂菁英第二刀：機器人 1.9×／8 仍幾乎零敗（2026-09-04）   // 同上
+  { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 5, acts: [3] },   // 魔氣 5（三隻共享；2026-09-03 曾 5→4 因機器人 21 場輸 11，2026-09-04 塔頂菁英加硬回 5，小鬼一下 11）
+  { id: 'mirror_sage', pool: '大魔物', enemies: ['mirror_sage'], hpScale: 1.2, strength: 10, acts: [3] },   // 血 1.2×、魔氣 10（2026-09-04 加硬兩刀 6→8→10）
+  { id: 'void_cat', pool: '大魔物', enemies: ['void_cat'], hpScale: 1.2, strength: 10, acts: [3] },   // 血 1.2×、魔氣 10（2026-09-04 加硬兩刀 6→8→10；機器人到塔頂樣本少，以真人為準）
 
   // ===== 2026-09-04 第三波遭遇（hidden：立繪到齊後由 art_wave3.sh 拿掉） =====
   { id: 'snow_cat', pool: '中', enemies: ['snow_cat'], acts: [2], hidden: true },

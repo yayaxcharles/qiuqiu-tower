@@ -161,7 +161,7 @@ export type EnemyEffect =
   | { kind: 'heal'; n: number }
   | { kind: 'stealFish'; n: number }
   | { kind: 'discardRandomHand'; n: number }
-  | { kind: 'summon'; enemyId: string; n: number; max?: number }   // max＝同種活著的上限，補召不爆量
+  | { kind: 'summon'; enemyId: string; n: number; max?: number; noPour?: true }   // max＝同種活著的上限，補召不爆量；noPour＝滿了就不做事（不走「灌血給最弱那隻」的通則）
   | { kind: 'purgePlayer'; names: StatusName[] }   // 破功：把玩家這些狀態各拍掉一半（向下取整保留）
   | { kind: 'stripPlayer'; names: StatusName[] }   // 看破：把玩家這些狀態整個拍掉（隱身、潛水——先囤好的閃避全沒）
   | { kind: 'chargeNext' }
@@ -292,7 +292,7 @@ export interface EncounterDef {
   reinforce?: { turn: number; enemyId: string; n?: number; line?: string;
     /** 援軍的血量倍率與爪力：不填＝照這場遭遇的 hpScale／strength 放大（塔頂單怪戰是 1.6×＋8 爪力，會很痛，要小怪就填小一點） */
     hpScale?: number; strength?: number }[];
-  /** 立繪還沒到齊：地圖抽不到（encountersOfPool 會濾掉）。第三波怪物用，art_wave3.sh 接完圖會拿掉 */
+  /** 立繪還沒到齊：地圖抽不到（encountersOfPool 會濾掉）。第三波怪物用；立繪由 tools/make_wave3_monster_jobs.py 的工作檔生（背景腳本在 scratchpad art_wave3.sh），接完圖後把這個旗標拿掉 */
   hidden?: boolean;
   /**
    * 這場遭遇只在哪幾關出現（不填＝每一關都行）。

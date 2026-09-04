@@ -12,8 +12,7 @@ import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
   finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic,
-  upgradeCard, type RunEffectOutcome,
-} from './run';
+  upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, RunEffect, RunState } from './types';
 
 /**
@@ -217,8 +216,14 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'status':
         if (fx.target === 'self') {
           if (fx.name === '隱身') {
-            // 隱身現在排在蜷縮後面：只有蜷縮擋不完的那幾下才值錢。把「超過現有蜷縮的下」由大到小排，估前幾層閃掉的價值（八成）
-            const all = enemies.flatMap((e) => incomingHits(cs, e)).filter((h) => h > p.block).sort((a, b) => b - a);
+            // 隱身排在蜷縮後面：照引擎順序把蜷縮一路吃掉，留下「擋不完的那幾下」（穿透不看蜷縮），由大到小估前幾層閃掉的價值（八成）（稽核 2026-09-04 低 7）
+            let pool = p.block;
+            const passing: number[] = [];
+            for (const h of enemies.flatMap((e) => incomingHitList(cs, e))) {
+              const ab = h.pierce ? 0 : Math.min(pool, h.dmg); pool -= ab;
+              if (h.dmg - ab > 0) passing.push(h.dmg - ab);
+            }
+            const all = passing.sort((a, b) => b - a);
             const cur = getStatus(p, '隱身');
             const gain = all.slice(cur, cur + fx.amount).reduce((s, h) => s + h, 0) * 0.8;
             value += gain * (lowHp ? 3 : danger ? 1.6 : 1.1) + (fx.amount - Math.min(fx.amount, Math.max(0, all.length - cur))) * 1.5;
@@ -409,7 +414,9 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, seed:
     const id = pickCard(run, outcome.chooseCard) ?? outcome.chooseCard[0]?.id;   // 開出升級版的那張學到就是升級牌（下面 addCard 帶旗標）
     if (id) addCard(run, id, outcome.upgradedCard === id);
   } else if ('fight' in outcome) {
+    run.pendingAfterFight = outcome.fight.afterWin;   // 事件附帶的獎勵：打贏才發（稽核 2026-09-04 中 2）
     fight(run, rng, outcome.fight.encounterId, outcome.fight.bonusFish, seed, stats);
+    resolvePendingAfterFight(run, run.status === 'playing');
     if (run.status === 'playing') for (let i = 0; i < (outcome.fight.bonusUpgrades ?? 0); i++) { const u = bestUpgrade(run); if (u) upgradeCard(run, u.uid); }
   }
 }

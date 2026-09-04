@@ -24,7 +24,9 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
   // 提示框就會卡在疊層上面（實測看得到）。
   hideTooltip();
   const overlay = el('div', { class: 'modal-overlay' });
+  let done = false;
   const dismiss = (ok: boolean): void => {
+    if (done) return; done = true;   // 420 毫秒的收尾期間再點黑幕不會變成「取消了卻還是升級」（稽核 2026-09-04 低 9）
     overlay.remove();
     unlockScreen();
     hideTooltip();
@@ -49,6 +51,7 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
         class: 'btn primary',
         // 成交要看得到：升級後那張閃一下金光再收，不要按完畫面就跳走
         onclick: () => {
+          overlay.style.pointerEvents = 'none';
           pair.querySelector('.confirm-side.after .card')?.classList.add('forged');
           window.setTimeout(() => dismiss(true), 420);
         },
@@ -70,14 +73,15 @@ export function showRemoveConfirm(card: CardInstance, cost: number, onDone: (ok:
   if (!def) { onDone(false); return; }
   hideTooltip();
   const overlay = el('div', { class: 'modal-overlay' });
-  const dismiss = (ok: boolean): void => { overlay.remove(); unlockScreen(); hideTooltip(); onDone(ok); };
+  let done = false;
+  const dismiss = (ok: boolean): void => { if (done) return; done = true; overlay.remove(); unlockScreen(); hideTooltip(); onDone(ok); };
   const shown = cardNode(card);
   overlay.append(el('div', { class: 'modal' },
     el('h2', { class: 'modal-title' }, `要放生「${def.name}${card.upgraded ? '＋' : ''}」嗎？`),
     el('div', { class: 'confirm-pair' }, el('div', { class: 'confirm-side' }, el('div', { class: 'confirm-label' }, `花 ${cost} 條小魚乾，這張牌從牌組裡永遠拿掉`), shown)),
     el('div', { class: 'modal-foot' },
       el('button', { class: 'btn', onclick: () => dismiss(false) }, '再看看'),
-      el('button', { class: 'btn primary', onclick: () => { shown.classList.add('released'); window.setTimeout(() => dismiss(true), 300); } }, '放生'))));
+      el('button', { class: 'btn primary', onclick: () => { overlay.style.pointerEvents = 'none'; shown.classList.add('released'); window.setTimeout(() => dismiss(true), 300); } }, '放生'))));
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(false); });
   layer.append(overlay);
   lockScreen();

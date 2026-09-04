@@ -1,4 +1,4 @@
-// 第二關起戰鬥獎勵開出升級牌（使用者 2026-09-04：第二關 20%、第三關 40%，三張裡一張是＋版）
+// 戰鬥獎勵開出升級牌（使用者 2026-09-04：第一關 10%、第二關 20%、第三關 40%，三張裡一張是＋版）
 import { describe, expect, it } from 'vitest';
 import { rollRewards } from '../../src/engine/rewards';
 import { Rng, seedFromString } from '../../src/engine/rng';

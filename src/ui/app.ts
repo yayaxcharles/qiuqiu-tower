@@ -194,7 +194,7 @@ export class App {
         // 難度 5：最終戰前先跟影球球打一場（打完的獎勵照一般戰鬥給，回到地圖那一拍直接接師父，見 backToMap）
         if (node.type === '塔主' && run.act >= ACTS && runMods(run).finalPrefight && !run.flags['final_prefight']) {
           run.flags['final_prefight'] = true;
-          this.startFight('shadow_cat', false);
+          this.startFight('shadow_cat_prefight', false);   // 前哨戰用自己的遭遇，不跟塔頂菁英連動（稽核 2026-09-04 中 4）
           break;
         }
         this.startFight(node.encounterId, node.type === '塔主');
@@ -215,7 +215,7 @@ export class App {
     // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
     const pool = encounterById[encounterId]?.pool;
     const battleTrack = (['battle', 'battle2', 'battle3'] as const)[Math.min(3, Math.max(1, run.act)) - 1]!;
-    setBgm(encounterId === 'shadow_cat' || encounterId.startsWith('mirror_duel') ? 'shadow'
+    setBgm(encounterId.startsWith('shadow_cat') || encounterId.startsWith('mirror_duel') ? 'shadow'
       : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
         : pool === '大魔物' ? 'elite' : battleTrack);
     const go = (): void => {
@@ -284,8 +284,8 @@ export class App {
     const afterNotes: string[] = []; const afterGains: RunGain[] = [];
     resolvePendingAfterFight(run, cs.phase === 'won', afterNotes, afterGains);
     const afterToasts = [
-      ...afterGains.map((g) => g.kind === '秘寶' ? `打贏了，拿到秘寶「${relicById[g.id]?.name ?? g.id}」` : `打贏了，拿到忍具「${potionById[g.id]?.name ?? g.id}」`),
-      ...afterNotes.filter((n) => n !== '獎勵要打贏才拿得到').map((n) => `打贏了，${n}`),
+      ...afterGains.map((g) => g.kind === '秘寶' ? `打贏了，拿到秘寶「${relicById[g.id]?.name ?? g.id}」` : g.missed ? `打贏了，可是忍具帶滿了，「${potionById[g.id]?.name ?? g.id}」收不下` : `打贏了，拿到忍具「${potionById[g.id]?.name ?? g.id}」`),
+      ...afterNotes.map((n) => `打贏了，${n}`),
     ];
     // 整局結束（陣亡或通關）就**當場定案**，不等結算畫面。
     // 從這裡到結算畫面之間隔著 1300 毫秒的交棒，陣亡還要多播一段玩家自己點過去的對白；

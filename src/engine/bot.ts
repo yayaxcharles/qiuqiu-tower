@@ -4,7 +4,7 @@ import { canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
-import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic, upgradeCard, type RunEffectOutcome } from './run';
+import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import { potionById } from '../content/potions';
 import type { CombatState, RunState } from './types';
 
@@ -54,9 +54,11 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
   } else if ('chooseCard' in outcome) {
     if (outcome.chooseCard.length) { const id = rng.pick(outcome.chooseCard).id; addCard(run, id, outcome.upgradedCard === id); }
   } else if ('fight' in outcome) {
+    run.pendingAfterFight = outcome.fight.afterWin;   // 事件附帶的獎勵：打贏才發（跟畫面同一條路，稽核 2026-09-04 中 2）
     const cs = beginCombat(run, outcome.fight.encounterId);
     playCombat(cs, rng, maxTurns, seed);
     const r = finishCombat(run, cs, outcome.fight.bonusFish);
+    resolvePendingAfterFight(run, cs.phase === 'won');
     if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
     if (r) for (let i = 0; i < (outcome.fight.bonusUpgrades ?? 0); i++) {
       const cands = run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病');

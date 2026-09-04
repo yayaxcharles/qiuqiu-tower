@@ -316,11 +316,10 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): C
  * 特價如果掛在被換掉的格子上，新牌繼承那個折數。
  */
 export function reshuffleShop(run: RunState, shop: ShopStock): boolean {
-  if (shop.reshuffled || !pay(run, RESHUFFLE_COST)) return false;
+  const open = shop.cards.map((c, i) => (c.sold ? -1 : i)).filter((i) => i >= 0);
+  if (shop.reshuffled || !open.length || !pay(run, RESHUFFLE_COST)) return false;   // 沒有空格可換就不收錢（稽核 2026-09-04 低 1）
   shop.reshuffled = true;
   const rng = runRng(run);
-  const open = shop.cards.map((c, i) => (c.sold ? -1 : i)).filter((i) => i >= 0);
-  if (!open.length) return true;
   const fresh = rollShopCards(run, rng, open.length, shop.cards.map((c) => c.def.id));
   const upIdx = fresh.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, fresh.length - 1) : -1;
   const mul = shopMulFor(run);
@@ -348,7 +347,7 @@ export function makeShop(run: RunState): ShopStock {
   // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）
   let treasure: string | null = null;
   if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...run.relics, ...relicIds]); if (treasure) relicIds.push(treasure); }
-  // 升級牌：依關數機率把五張裡的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
+  // 升級牌：依關數機率把架上（第一關五張、第二關起六張）的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
   const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
   const shop: ShopStock = {
     cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
@@ -435,8 +434,10 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
   // 同一個選項裡有「打一場」：其他獎勵（秘寶、小魚乾、牌……）不能先發，要等打贏（使用者 2026-09-04）。
   // 旗標照常記（那是「你選了什麼」，不是獎勵）。
   const fightIdx = effects.findIndex((e) => e.kind === 'fight');
-  const deferred: RunEffect[] = fightIdx >= 0 ? effects.filter((e) => e.kind !== 'fight' && e.kind !== 'flag') : [];
-  const now = fightIdx >= 0 ? effects.filter((e) => e.kind === 'fight' || e.kind === 'flag') : effects;
+  // 要玩家互動的（挑牌、放生、升級）不能延後——延後了就沒有畫面接手、會被靜靜吞掉（稽核 2026-09-04 中 1）；它們當場做，其餘戰利品打贏才發
+  const interactive = (e: RunEffect): boolean => e.kind === 'chooseCard' || e.kind === 'removeCard' || e.kind === 'upgradeCard';
+  const deferred: RunEffect[] = fightIdx >= 0 ? effects.filter((e) => e.kind !== 'fight' && e.kind !== 'flag' && !interactive(e)) : [];
+  const now = fightIdx >= 0 ? effects.filter((e) => e.kind === 'fight' || e.kind === 'flag' || interactive(e)) : effects;
   if (deferred.length) notes?.push('獎勵要打贏才拿得到');
   for (const fx of now) {
     switch (fx.kind) {

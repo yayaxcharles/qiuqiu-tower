@@ -33,6 +33,7 @@ export function enemyIdsForAct(act: number): Set<string> {
   const pools: EnemyPool[] = act >= 2 ? ['中', '強', '大魔物'] : ['弱', '中', '強', '大魔物'];
   const ids = new Set<string>();
   for (const enc of encounters) {
+    if (enc.hidden) continue;   // 立繪還沒到齊的遭遇地圖抽不到，也不用預載（稽核 2026-09-04 中 3）
     const inAct = !enc.acts || enc.acts.includes(act);
     const take = (pools.includes(enc.pool) && inAct) || (enc.pool === '塔主' && bossPoolForAct(act).includes(enc.id));
     if (!take) continue;

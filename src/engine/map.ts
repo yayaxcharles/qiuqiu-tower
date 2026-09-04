@@ -298,9 +298,13 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   // 池裡的遭遇大多是同一批中型怪兩兩配對（風鈴怪在三組裡），佇列只擋「同一組」不擋「同一隻」。
   // 這裡記每一層用過哪些怪，抽的時候從佇列往後找第一組跟「這一層與前兩層」都沒有共同魔物的，換到前面來用；
   // 全部都撞就照原本順序拿（池太小時難免）。事件裡的戰鬥不經過這裡，不受影響。
-  const usedByFloor = new Map<number, Set<string>>();
+  // 一般戰與菁英各記一份：兩池目前沒有共用的怪，但以後若有，不該讓隔壁層的一般戰左右菁英的抽法（稽核 2026-09-04 低 14）
+  const usedByFloorAll = new Map<string, Map<number, Set<string>>>();
   const monstersOf = (encId: string): string[] => encounterById[encId]?.enemies ?? [];
   const nextEncounter = (key: string, ids: string[], floor: number): string => {
+    const group = key.startsWith('大魔物') ? '大魔物' : '一般';
+    let usedByFloor = usedByFloorAll.get(group);
+    if (!usedByFloor) { usedByFloor = new Map(); usedByFloorAll.set(group, usedByFloor); }
     let q = encQueues.get(key);
     if (!q || q.at >= q.list.length) {
       const list = rng.shuffle(ids);
