@@ -11,7 +11,7 @@ import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingCh
 import { registerScreen } from '../app';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { tierBgKey, tierBgZoom } from '../screenbg';
-import { telegraphTarget } from '../telegraph';
+import { telegraphTarget, willAct } from '../telegraph';
 import { artUrl, hasMonsterPose, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
@@ -132,7 +132,7 @@ interface Snap {
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; stunned: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean }>;
   logLen: number;
 }
 function snap(cs: CombatState): Snap {
@@ -147,8 +147,10 @@ function snap(cs: CombatState): Snap {
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
       label: e.move.label, turnCount: e.turnCount,
-      // 攻擊被定身擋掉的那一拍不算出手（引擎在 endTurn 裡整段跳過），立繪與前撲都不該動
-      stunned: e.move.intent === 'attack' && getStatus(e, '定身') > 0,
+      // 被定身或睡著的那一拍不算出手（引擎在 endTurn 裡整段跳過），立繪與前撲都不該動。
+      // 原本只認「攻擊被定身擋掉」，所以山賊的「搶劫」、招財貓的「招手」這種非攻擊招被定住時，
+      // 畫面照演一次蓄勢，看起來像牠真的搶到了（使用者 2026-09-04 回報）
+      noAct: !willAct(e),
     }])),
   };
 }
@@ -1172,7 +1174,7 @@ registerScreen('combat', (app, root, props) => {
       const b = before.enemies.get(e.uid);
       if (b && e.hp < b.hp) hurtSet.add(e.uid);
       if (b && !b.dead && e.dead && cs.phase === 'won' && enemyById[e.enemyId]?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主') bossFallUids.add(e.uid);
-      if (!b || e.dead || e.turnCount === b.turnCount || b.stunned) continue;
+      if (!b || e.dead || e.turnCount === b.turnCount || b.noAct) continue;
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' });
     }
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
