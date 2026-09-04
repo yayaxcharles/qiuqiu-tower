@@ -29,13 +29,13 @@ describe('稽核修正（第二輪）', () => {
     expect(kit.turnCount).toBe(1);   // 第二個敵方回合就照表行動，不會多發呆一回合
     expect(cs.enemyActing).toBeFalsy();
   });
-  it('L-2 召喚出來的吃到遭遇的血量倍率（塔頂黑貓頭目的小黑貓 10→15）', () => {
+  it('L-2 召喚出來的吃到遭遇的血量倍率（塔頂黑貓頭目的小黑貓 10→19）', () => {
     const cs = start('ninja_boss_top');
     const boss = cs.enemies[0]!;
     boss.move = SUMMON;
     endTurn(cs);
     const kit = cs.enemies.find((e) => e.enemyId === 'black_kitten')!;
-    expect(kit.maxHp).toBe(15);
+    expect(kit.maxHp).toBe(19);
   });
   it('L-1 存檔缺忍具／秘寶／統計欄位就當不相容，不會讀進來炸畫面', () => {
     const mem = new Map<string, string>();

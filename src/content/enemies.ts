@@ -1050,7 +1050,7 @@ export const encounters: EncounterDef[] = [
   { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'], acts: [2] },
   // 巨型飯糰＝第一關的福利菁英（使用者 2026-09-03：只放第一關才會隨機出現，當作福利）：血 100（125×0.8）、打倒回 10 血
   { id: 'giant_onigiri', pool: '大魔物', enemies: ['giant_onigiri'], hpScale: 0.8, acts: [1] },
-  { id: 'ninja_boss_top', pool: '大魔物', enemies: ['ninja_boss'], hpScale: 1.5, strength: 5, acts: [3] },
+  { id: 'ninja_boss_top', pool: '大魔物', enemies: ['ninja_boss'], hpScale: 1.9, strength: 8, acts: [3] },   // 1.5／5→1.9／8：塔頂菁英不能比一般強戰（1.6／8）軟（使用者 2026-09-04）
   { id: 'tower_master', pool: '塔主', enemies: ['tower_master'] },
   // ===== 三關制內容包（2026-09-01）：塔中/塔頂專屬池；雙怪照慣例 0.8 血 =====
   { id: 'shiba_ronin', pool: '中', enemies: ['shiba_ronin'], acts: [2] },
@@ -1094,7 +1094,7 @@ export const encounters: EncounterDef[] = [
   { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], strength: 4, acts: [3] },
+  { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], hpScale: 1.2, strength: 7, acts: [3] },   // 4→7、血 1.2×（2026-09-04 塔頂菁英加硬）
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
   { id: 'tanuki_lord', pool: '塔主', enemies: ['tanuki_lord'] },
@@ -1118,8 +1118,7 @@ export const encounters: EncounterDef[] = [
   { id: 'catnip_phantom', pool: '強', enemies: ['catnip_phantom'], acts: [1] },
   { id: 'roomba_king', pool: '大魔物', enemies: ['roomba_king'], acts: [2] },
   { id: 'calico_monk', pool: '大魔物', enemies: ['calico_monk'], acts: [2] },
-  { id: 'roomba_king_top', pool: '大魔物', enemies: ['roomba_king'], hpScale: 1.5, strength: 5, acts: [3] },
-  { id: 'calico_monk_top', pool: '大魔物', enemies: ['calico_monk'], hpScale: 1.5, strength: 5, acts: [3] },
+  { id: 'roomba_king_top', pool: '大魔物', enemies: ['roomba_king'], hpScale: 1.9, strength: 8, acts: [3] },   // 同上
   // 混編：用既有的怪兩兩配對，不用新美術就能立刻多出變化。
   // 配對原則是「兩隻的路數要互補」，逼玩家取捨先打哪一隻。
   { id: 'rat_soy', pool: '弱', enemies: ['rat', 'soy_bottle'], acts: [1] },
@@ -1185,9 +1184,9 @@ export const encounters: EncounterDef[] = [
   { id: 'shadow_spider', pool: '大魔物', enemies: ['shadow_spider'], acts: [2] },
   { id: 'drunk_dog', pool: '大魔物', enemies: ['drunk_dog'], acts: [2] },
   // 鬼將帶兩隻小鬼上場（跟波斯大小姐帶執事貓、女僕貓同一套）：三隻同一組，要一起清光才算贏
-  { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 4, acts: [3] },   // 三隻共享魔氣，5 會讓小鬼一下 11 點；機器人 21 場輸 11 → 降 3，第三關加硬再回 4（2026-09-03）
-  { id: 'mirror_sage', pool: '大魔物', enemies: ['mirror_sage'], strength: 6, acts: [3] },
-  { id: 'void_cat', pool: '大魔物', enemies: ['void_cat'], strength: 6, acts: [3] },
+  { id: 'oni_general', pool: '大魔物', enemies: ['oni_general', 'imp', 'imp'], strength: 5, acts: [3] },   // 4→5（三隻共享；2026-09-04 塔頂菁英加硬，小鬼一下 11）   // 三隻共享魔氣，5 會讓小鬼一下 11 點；機器人 21 場輸 11 → 降 3，第三關加硬再回 4（2026-09-03）
+  { id: 'mirror_sage', pool: '大魔物', enemies: ['mirror_sage'], hpScale: 1.2, strength: 8, acts: [3] },   // 6→8、血 1.2×（2026-09-04 塔頂菁英加硬）
+  { id: 'void_cat', pool: '大魔物', enemies: ['void_cat'], hpScale: 1.2, strength: 8, acts: [3] },   // 同上
 ];
 
 export const encounterById: Record<string, EncounterDef> = Object.fromEntries(encounters.map((e) => [e.id, e]));
