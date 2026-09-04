@@ -6,6 +6,10 @@ import type { EnemyMove,EncounterDef, EnemyDef, EnemyPool } from '../engine/type
 const NEKO_SUMMON: EnemyMove = { intent: 'summon', label: '放尾巴', effects: [{ kind: 'summon', enemyId: 'nekomata_tail', n: 2, max: 4 }] };
 const NEKO_PREP: EnemyMove = { intent: 'special', label: '準備放尾巴', effects: [{ kind: 'nothing' }] };
 // 波斯大小姐每十回合（第 9、19、29…次出招）把倒下的執事貓、女僕貓叫回來；兩個都還站著就什麼都不做——使用者 2026-09-04：「增加打她的難度」
+// 三花貓武僧的破式（2026-09-04 使用者：「加上幾回合會破我方隱身一半的機制」）：
+// 每三回合插一次，把球球囤好的隱身與潛水各砍一半（向下取整），順手一掌。
+// 走既有的 `purgePlayer`（減半）而不是 `stripPlayer`（整個拍掉），隱身流仍有得玩、只是不能無腦囤。
+const MONK_BREAK: EnemyMove = { intent: 'debuff', label: '破式', effects: [{ kind: 'purgePlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 10 }] };
 const PERSIAN_CALL: EnemyMove = { intent: 'summon', label: '喚僕從', effects: [{ kind: 'summon', enemyId: 'butler_cat', n: 1, max: 1, noPour: true }, { kind: 'summon', enemyId: 'maid_cat', n: 1, max: 1, noPour: true }] };   // noPour：僕從還站著就什麼都不做，不套「滿了灌血」通則（稽核 2026-09-04 中 5：會每十回合把僕從最大生命疊上去）
 
 export const enemies: EnemyDef[] = [
@@ -423,6 +427,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 反彈＋回血＋變身：把三個最煩的性質疊在一起當大魔物
   { id: 'calico_monk', name: '三花貓武僧', hp: [125, 125], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_calico_monk',
+    chooseMove: (turn) => (turn % 3 === 0 ? MONK_BREAK : undefined),   // 每三回合破式一次，其餘照表輪招
     line: '出手之前，先想清楚。', lines: ['心浮氣躁，練不成的。', '（合掌）請。'],
     moves: [
       { intent: 'buff', label: '運氣', effects: [{ kind: 'statusSelf', name: '反彈', amount: 2 }, { kind: 'statusSelf', name: '爪力', amount: 1 }] },
