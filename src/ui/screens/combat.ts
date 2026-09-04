@@ -642,6 +642,7 @@ registerScreen('combat', (app, root, props) => {
       const chk = canPlay(cs, c.uid, st.def.target === 'enemy' ? aliveEnemies(cs)[0]?.uid : undefined);
       const node = cardNode(c, {
         small: true,
+        plays: cs.cardPlays?.[c.uid] ?? 0,
         selected: targeting?.kind === 'card' && targeting.uid === c.uid,
         disabled: !canAct() || !chk.ok,
         onClick: () => onCard(c.uid),

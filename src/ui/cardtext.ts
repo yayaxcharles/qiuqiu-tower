@@ -78,6 +78,8 @@ interface Ctx {
   youHeal?: boolean;
   /** 這張牌同時也打了魔物，自傷才寫得出「自己也受」 */
   alsoHurts?: boolean;
+  /** 分身術這場已經打過幾次：牌面要印「這次打出去實際打幾點」，不是永遠印基礎值 */
+  plays?: number;
 }
 
 /**
@@ -100,7 +102,13 @@ function one(fx: Effect, ctx: Ctx = {}): string {
         : (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
       return head + times + (fx.ignoreBlock ? '，無視防禦' : '');
     }
-    case 'damageRamp': return `造成 ${fx.amount} 點傷害，這場戰鬥中這張牌每打出一次，傷害就再加 ${fx.step} 點`;
+    case 'damageRamp': {
+      // 疊過就印當下的數字，後面補一句原本幾點，玩家才看得出疊了多少（使用者 2026-09-04）
+      const plays = ctx.plays ?? 0;
+      const now = fx.amount + fx.step * plays;
+      const grew = plays > 0 ? `（原本 ${fx.amount} 點）` : '';
+      return `造成 ${now} 點傷害${grew}，這場戰鬥中這張牌每打出一次，傷害就再加 ${fx.step} 點`;
+    }
     case 'damageRandom': return `隨機造成 ${fx.min}～${fx.max} 點傷害`;
     case 'damageEqualBlock': return '造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少';
     case 'selfDamage': return `自己${ctx.alsoHurts ? '也' : ''}受 ${fx.amount} 點傷害`;
@@ -154,7 +162,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
 }
 
 /** 牌面規則文字，措辭照規格 §6.1 的牌表 */
-export function describeCard(def: CardDef, upgraded: boolean): string {
+export function describeCard(def: CardDef, upgraded: boolean, plays = 0): string {
   const effects = upgraded ? (def.upgrade.effects ?? def.effects) : def.effects;
   const keywords = upgraded ? (def.upgrade.keywords ?? def.keywords ?? []) : (def.keywords ?? []);
   const parts: string[] = [];
@@ -170,7 +178,7 @@ export function describeCard(def: CardDef, upgraded: boolean): string {
       const fx = effects[i];
       if (!fx) continue;
       const prev = effects[i - 1];
-      text += (prev ? sep(prev, fx) : '') + one(fx, { prev, youHeal, alsoHurts });
+      text += (prev ? sep(prev, fx) : '') + one(fx, { prev, youHeal, alsoHurts, plays });
     }
     // 這裡曾經按牌號補一句玩笑話（變身術的「（變成飯糰）」）。拿掉了：飯糰是飽足的單位，
     // 玩家看到「獲得 9 點蜷縮（變成飯糰）」會以為那張牌還附送一顆飯糰，真的有人這樣問過。

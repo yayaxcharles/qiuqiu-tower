@@ -12,6 +12,8 @@ export interface CardViewOpts {
   small?: boolean;
   selected?: boolean;
   disabled?: boolean;
+  /** 分身術這場已經打過幾次（`cs.cardPlays`）：牌面要印這次實際打幾點 */
+  plays?: number;
 }
 
 /** 畫一張牌：費用、圖、名字、規則文字（名詞會自動變成可提示的）、牌型 */
@@ -44,7 +46,7 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
     el('div', { class: 'card-cost' }, String(cost)),
     el('img', { class: 'card-art', src: artUrl('cards', def.art), alt: def.name, draggable: 'false' }),
     el('div', { class: 'card-name' }, def.name + (upgraded ? '＋' : '')),
-    el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded))),
+    el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, opts.plays ?? 0))),
     el('div', { class: 'card-type' }, def.type));
 
   if (uid !== null) node.dataset['uid'] = String(uid);

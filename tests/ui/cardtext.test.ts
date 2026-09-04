@@ -22,6 +22,9 @@ describe('牌面文字', () => {
 
   it('連抓與擊倒獎金講成人話，不用算式', () => {
     expect(t('bunshin')).toBe('造成 3 點傷害，這場戰鬥中這張牌每打出一次，傷害就再加 3 點。');
+    // 疊過之後牌面要改印「這次實際打幾點」（使用者 2026-09-04：第二次打出仍顯示原本的字，看不出傷害）
+    expect(describeCard(cardById['bunshin']!, false, 2)).toBe('造成 9 點傷害（原本 3 點），這場戰鬥中這張牌每打出一次，傷害就再加 3 點。');
+    expect(describeCard(cardById['bunshin']!, true, 1)).toBe('造成 10 點傷害（原本 5 點），這場戰鬥中這張牌每打出一次，傷害就再加 5 點。');
     expect(t('shunshou')).toBe('造成 7 點傷害；打倒牠就多拿 15 條小魚乾。');
   });
 
