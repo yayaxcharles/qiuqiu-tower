@@ -75,7 +75,7 @@ export function startPlayerTurn(cs: CombatState): void {
   const dive = getStatus(p, '潛水');
   if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive); }
   const iron = getStatus(p, '鐵布衫');
-  if (iron > 0) { removeStatus(p, '鐵布衫'); p.block += iron; }
+  if (iron > 0) { removeStatus(p, '鐵布衫'); gainBlock(cs, p, iron); }   // 走 gainBlock：跟牌上其他蜷縮一樣吃貓步（稽核 低-1）
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnEnergy') : 0);
   // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { source: 'power' });
@@ -152,8 +152,8 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
   }
   // 打出**技能**牌會惹到的兩種魔物（2026-09-02 第二波）：
   // 詛咒（詛咒神官、詛咒老住持）＝往你的抽牌堆洗爛牌；憤怒（赤鬼武夫）＝牠自己 +爪力。
-  // 能力牌不算——規格只點名技能牌
-  if (st.def.type === '技能' && cs.phase === 'player') {
+  // 能力牌不算——規格只點名技能牌；戰鬥雜牌（黏液、眼冒金星）也不算，不然「打出去就消耗」對詛咒魔物會變成打一張補一張（稽核 2026-09-04 午後 高-1）
+  if (st.def.type === '技能' && !st.def.combatOnly && cs.phase === 'player') {
     for (const e of aliveEnemies(cs)) {
       const d = enemyById[e.enemyId];
       if (d?.hexOnSkill) giveCards(cs, e, d.hexOnSkill.cardId, d.hexOnSkill.n, 'draw');

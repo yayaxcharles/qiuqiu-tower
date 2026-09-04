@@ -35,7 +35,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         if (fx.ifTargetDebuffed && !DEBUFFS.some((d) => getStatus(t, d) > 0)) continue;
         for (let i = 0; i < times; i++) {
           const r = damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion' });
-          if (r.killed) { ctx.killed = true; break; }
+          if (r.killed) { if (!t.reviveIn) ctx.killed = true; break; }   // 同生共死的「暫時倒下」不算擊倒，跟 killEnemy 不發擊倒能力同口徑（稽核 中-3）
         }
       }
       return false;
@@ -115,7 +115,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'doubleStatus': {
       for (const t of targetsOf(cs, ctx, false)) {
         const cur = getStatus(t, fx.name);
-        if (cur > 0) addStatus(t, fx.name, cur + (fx.add ?? 0));
+        // 0 層：基礎版催不動（寫進紀錄，玩家才知道飯糰花去哪）；升級版的「再加 add 層」照加
+        if (cur === 0 && !fx.add) { log(cs, `${t.name}身上沒有${fx.name}，催不動`); continue; }
+        addStatus(t, fx.name, cur + (fx.add ?? 0));
       }
       return false;
     }

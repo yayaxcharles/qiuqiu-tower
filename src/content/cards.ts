@@ -99,7 +99,7 @@ export const cards: readonly CardDef[] = [
   { id: 'fantan', name: '忍術·鐵蒺藜', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fantan',
     effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'block', amount: 6 }],
     upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }, { kind: 'block', amount: 8 }] } },
-  // 基礎版只有本回合有效（`thisTurn`），磨爪之後變成永久的——升級同時拿掉限制又加量
+  // 2026-09-04 起基礎版也整場有效（每殺回 3），磨爪只加量（回 6）
   { id: 'renwuwancheng', name: '忍術·吸貓大法', cost: 1, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/renwuwancheng',
     effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 3 }] }],   // 2026-09-04 未升級也整場有效（原本只撐一回合、回 4）
     upgrade: { effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 6 }] }] } },

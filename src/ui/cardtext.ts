@@ -61,7 +61,7 @@ function sep(prev: Effect, next: Effect): string {
   if (isDive(next)) return '；';
   // 連續兩條都打全體魔物：主詞只講一次，第二條用頓號接在後面（規格 §6.1 催眠術）
   if (namesAllFoes(prev) && namesAllFoes(next) && next.kind === 'status' && prev.kind === 'status') return '、';
-  if (next.kind === 'gold' && next.onKill) return '；';
+  if ((next.kind === 'gold' || next.kind === 'energy') && next.onKill) return '；';
   return CLAUSE_AFTER.has(prev.kind) || CLAUSE_BEFORE.has(next.kind) ? '；' : '，';
 }
 
@@ -130,7 +130,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'transferDebuffs': return '把你身上的翻肚、懶洋洋、炸毛、噎到全部丟到目標身上';
     case 'cleanse': return fx.max ? `清掉自己身上 ${fx.max} 種減益` : '清掉自己身上所有的減益';
     case 'energy': return fx.onKill ? `打倒牠就拿回 ${fx.n} 顆飯糰` : `獲得 ${fx.n} 顆飯糰`;
-    case 'doubleStatus': return `把目標身上的${fx.name}翻倍` + (fx.add ? `，再加 ${fx.add} 層` : '');
+    case 'doubleStatus': return `把目標身上的${fx.name}翻倍` + (fx.add ? `，再加 ${fx.add} 層` : '（沒有就沒效果）');
     case 'heal': return `${ctx.youHeal ? '你' : ''}回復 ${fx.n} 點生命`;
     case 'gold': return fx.onKill ? `打倒牠就多拿 ${fx.n} 條小魚乾` : `多拿 ${fx.n} 條小魚乾`;
     case 'scry': return `看抽牌堆最上面 ${fx.n} 張，想丟掉哪幾張都可以`;
@@ -144,7 +144,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'immuneThisTurn': return '這回合魔物打不到你';
     case 'power': {
       const inner = fx.effects.map((e) => one(e, { inPower: true })).join('，');
-      // 只限本回合的能力一定要講出來，不然玩家會當成永久的（「吸貓大法」的基礎版就是這種）
+      // 只限本回合的能力一定要講出來，不然玩家會當成永久的（2026-09-04 起沒有牌用 `thisTurn`，保留給日後）
       const scope = fx.thisTurn ? '這回合內，' : '';
       return fx.trigger === 'turnStart' ? `${scope}每回合開始時${inner}`
         : fx.trigger === 'onKill' ? `${scope}每打倒一隻魔物就${inner}`

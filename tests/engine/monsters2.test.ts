@@ -202,6 +202,16 @@ describe('第二波魔物的機制', () => {
     expect(cs.player.discardPile.some((c) => c.uid === dazed.uid), '不進棄牌堆').toBe(false);
   });
 
+  it('戰鬥雜牌打出去不算「打技能牌」：對詛咒魔物打眼冒金星不會再被塞一張、也不激怒', () => {
+    const cs = start('owl_sentry', 400, ['dazed_card', 'tanding']);
+    const dazed = cs.player.hand.find((c) => c.cardId === 'dazed_card')!;
+    const before = countOf(cs, 'dazed_card');
+    const claw = cs.enemies[0]!.statuses['爪力'] ?? 0;
+    playCard(cs, dazed.uid);
+    expect(countOf(cs, 'dazed_card'), '不再增生').toBe(before);
+    expect(cs.enemies[0]!.statuses['爪力'] ?? 0, '不激怒').toBe(claw);
+  });
+
   it('戰鬥雜牌只有魔物塞得進來：事件抽壞毛病抽不到', () => {
     const run = newRun('junk-pool');
     for (let i = 0; i < 60; i++) applyRunEffects(run, [{ kind: 'addRandomCard', pool: '壞毛病' }]);

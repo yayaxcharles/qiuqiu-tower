@@ -58,7 +58,7 @@ export type Effect =
   | { kind: 'endTurn' }
   | { kind: 'noAttacksThisTurn' }
   | { kind: 'immuneThisTurn' }
-  /** `thisTurn` ＝這個能力只在本回合有效，回合結束就消失（例如「吸貓大法」） */
+  /** `thisTurn` ＝這個能力只在本回合有效，回合結束就消失（2026-09-04 起沒有牌在用；吸貓大法基礎版改成整場有效） */
   | { kind: 'power'; trigger: PowerTrigger; effects: Effect[]; thisTurn?: true };
 
 export interface CardDef {

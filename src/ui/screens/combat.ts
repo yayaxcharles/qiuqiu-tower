@@ -31,7 +31,7 @@ const STATUS_ICON: Record<StatusName, string> = {
   懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 噎到: 'icon/status_choke',
   隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
   潛水: 'icon/status_stealth',
-  鐵布衫: 'icon/status_plate',   // 沒生圖示→退回寫字「下回合蜷縮」
+  鐵布衫: 'icon/status_iron',   // 沒生圖示→退回寫字「下回合蜷縮」；不借鱗甲的鍵，免得日後鱗甲生了圖撞到
   // 第二波魔物的五個狀態。圖示還沒生：`chip()` 會退回寫名字（灰剪影一排認不出誰是誰）
   縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate',
   沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
