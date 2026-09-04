@@ -716,7 +716,9 @@
   "codex/relic_blood_dagger": "assets/icons/relic_blood_dagger.webp",
   "codex/relic_glutton_purse": "assets/icons/relic_glutton_purse.webp",
   "codex/relic_iron_sand_vest": "assets/icons/relic_iron_sand_vest.webp",
-  "codex/relic_miasma_charm": "assets/icons/relic_miasma_charm.webp"
+  "codex/relic_miasma_charm": "assets/icons/relic_miasma_charm.webp",
+  "icon/status_iron_body": "assets/icons/status_iron_body.webp",
+  "icon/status_iron": "assets/icons/status_iron.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
