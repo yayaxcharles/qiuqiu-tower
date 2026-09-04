@@ -40,7 +40,7 @@ describe('重整貨架', () => {
     expect(shop.cards[1]!.def.id).toBe(before[1]); expect(shop.cards[1]!.sold).toBe(true);
     expect(shop.cards[3]!.def.id).toBe(before[3]); expect(shop.cards[3]!.sold).toBe(true);
     for (const i of [0, 2, 4]) { expect(shop.cards[i]!.sold).toBe(false); expect(before.includes(shop.cards[i]!.def.id), `第 ${i} 格要換新牌`).toBe(false); }
-    expect(new Set(shop.cards.map((c) => c.def.id)).size).toBe(5);
+    expect(new Set(shop.cards.map((c) => c.def.id)).size).toBe(shop.cards.length);
     if (saleSlot >= 0) expect(shop.cards[saleSlot]!.sale).toBeTruthy();
     expect(reshuffleShop(run, shop), '只能一次').toBe(false);
   });

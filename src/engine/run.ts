@@ -279,6 +279,8 @@ export const SALE_RATES: readonly [number, number][] = [[0.7, 45], [0.5, 30], [0
 export const RESHUFFLE_COST = 75;
 
 function priceOf(base: number, mul: number, sale?: number): number { return Math.round(base * mul * (sale ?? 1)); }
+/** 罐頭鋪牌格數：第一關 5、第二關起 6 */
+export function shopCardCount(run: RunState): number { return run.act >= 2 ? 6 : 5; }
 
 /** 罐頭鋪價格倍率：難度 4 起貴一成 × 帶著的秘寶折扣（零錢罐八折、貪吃錢袋漲三成，相乘） */
 export function shopMulFor(run: RunState): number {
@@ -339,7 +341,8 @@ export function makeShop(run: RunState): ShopStock {
   const shopMul = shopMulFor(run);
   const rng = runRng(run);
   // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03）、絕學低機率一張、稀有保底（稽核 2026-09-04 M-4）——全部在 rollShopCards 裡
-  const cardDefs = rollShopCards(run, rng, 5, []);
+  // 第二關起貨架放六張牌（使用者 2026-09-04：新招區還有空間）；第一關五張
+  const cardDefs = rollShopCards(run, rng, shopCardCount(run), []);
   const relicIds: string[] = [];
   for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...run.relics, ...relicIds]); if (id) relicIds.push(id); }
   // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）

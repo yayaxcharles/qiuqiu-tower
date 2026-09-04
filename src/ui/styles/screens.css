@@ -1037,3 +1037,7 @@
 .shop-shelves.six .shop-item .small { font-size: 11.5px; }
 .shop-shelves.six { gap: 14px; }
 .shop-shelves.six .shop-row { gap: 12px; }
+
+/* 第二關起新招區六張牌：格距縮一點，整排仍在舞台內（2026-09-04） */
+.shelf-cards.six .shop-row { gap: 12px; }
+.shelf-cards.six .shop-item.card-item { width: 158px; }

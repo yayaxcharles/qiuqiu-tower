@@ -7,12 +7,13 @@ function tally(act: number, n = 300) {
   for (let i = 0; i < n; i++) {
     const run = newRun(`shop-rarity-${i}`); run.act = act;
     const shop = makeShop(run);
-    expect(shop.cards.length).toBe(5);
-    expect(new Set(shop.cards.map((c) => c.def.id)).size).toBe(5);
+    const want = act >= 2 ? 6 : 5;   // 第二關起六張（2026-09-04）
+    expect(shop.cards.length).toBe(want);
+    expect(new Set(shop.cards.map((c) => c.def.id)).size).toBe(want);
     const jue = shop.cards.filter((c) => c.def.pool === '絕學').length;
     expect(jue).toBeLessThanOrEqual(1); jueShops += jue;
     const r = shop.cards.filter((c) => c.def.rarity === '稀有').length;
-    rare += r; uncommon += shop.cards.filter((c) => c.def.rarity === '罕見').length; total += 5; minRare = Math.min(minRare, r);
+    rare += r; uncommon += shop.cards.filter((c) => c.def.rarity === '罕見').length; total += shop.cards.length; minRare = Math.min(minRare, r);
   }
   return { rare: rare / total, uncommon: uncommon / total, minRare, jue: jueShops / n };
 }

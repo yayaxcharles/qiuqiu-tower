@@ -130,7 +130,7 @@ registerScreen('shop', (app, root) => {
     // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
     const goods = el('div', { class: 'scene-goods' },
-      shelf('新招', cards, 'shelf-cards'),
+      shelf('新招', cards, `shelf-cards${shop.cards.length >= 6 ? ' six' : ''}`),
       el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));   // 珍品架多一格時六格並排，格子縮一點
     root.append(sceneView({
       art: goods,
