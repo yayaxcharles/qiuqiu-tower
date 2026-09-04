@@ -4,7 +4,7 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
 /**
  * 規格 §6.1 有幾張牌的兩段效果是各自獨立的子句，用分號接才讀得順：
  * 順手牽羊（造成 6 點傷害；打倒牠就多拿 15 條小魚乾）、我在這、戰術撤退、讀心術、拖字訣。
- * 借刀也算：前半句「造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少」自己就含逗號，
+ * 借力使力也算：前半句「造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少」自己就含逗號，
  * 後面再用逗號接「獲得 6 點蜷縮」會黏成一長串，看不出那 6 點是另一件事。
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);

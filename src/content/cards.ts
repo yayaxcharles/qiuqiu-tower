@@ -245,7 +245,7 @@ export const cards: readonly CardDef[] = [
     // 2026-09-04 整體隱身太強：3／4 層→2／3 層（抽牌不動）
     effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }, { kind: 'draw', n: 2 }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }, { kind: 'draw', n: 3 }] } },
-  { id: 'jiedao', name: '絕學·借刀', cost: 1, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiedao',
+  { id: 'jiedao', name: '絕學·借力使力', cost: 1, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiedao',
     effects: [{ kind: 'damageEqualBlock' }, { kind: 'block', amount: 6 }],
     upgrade: { effects: [{ kind: 'damageEqualBlock' }, { kind: 'block', amount: 10 }] } },
   { id: 'wangming', name: '絕學·亡命', cost: 0, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/wangming', keywords: ['消耗'],
@@ -309,7 +309,7 @@ export const cards: readonly CardDef[] = [
   { id: 'tiebushan', name: '絕學·鐵布衫', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/tiebushan', hidden: true,
     effects: [{ kind: 'block', amount: 8 }, { kind: 'status', name: '鐵布衫', amount: 4, target: 'self' }],
     upgrade: { effects: [{ kind: 'block', amount: 10 }, { kind: 'status', name: '鐵布衫', amount: 6, target: 'self' }] } },
-  { id: 'jieli', name: '絕學·借力', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/jieli', hidden: true,
+  { id: 'jieli', name: '絕學·卸勁', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/jieli', hidden: true,
     effects: [{ kind: 'block', amount: 5 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'block', amount: 8 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
   { id: 'cuiye', name: '絕學·催噎', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/cuiye', hidden: true,
