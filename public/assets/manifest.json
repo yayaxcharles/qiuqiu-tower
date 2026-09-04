@@ -516,6 +516,60 @@
    "attack": "assets/monsters/wild_boar_attack.webp",
    "idle": "assets/monsters/wild_boar_idle.webp",
    "hurt": "assets/monsters/wild_boar_hurt.webp"
+  },
+  "codex/monster_crow_small": {
+   "attack": "assets/monsters/crow_small_attack.webp",
+   "idle": "assets/monsters/crow_small_idle.webp"
+  },
+  "codex/monster_fortune_cat": {
+   "attack": "assets/monsters/fortune_cat_attack.webp",
+   "idle": "assets/monsters/fortune_cat_idle.webp"
+  },
+  "codex/monster_guardian_statue": {
+   "attack": "assets/monsters/guardian_statue_attack.webp",
+   "hurt": "assets/monsters/guardian_statue_hurt.webp",
+   "idle": "assets/monsters/guardian_statue_idle.webp"
+  },
+  "codex/monster_lantern_fish": {
+   "attack": "assets/monsters/lantern_fish_attack.webp",
+   "idle": "assets/monsters/lantern_fish_idle.webp"
+  },
+  "codex/monster_lantern_twin": {
+   "attack": "assets/monsters/lantern_twin_attack.webp",
+   "idle": "assets/monsters/lantern_twin_idle.webp"
+  },
+  "codex/monster_mask_dancer": {
+   "attack": "assets/monsters/mask_dancer_attack.webp",
+   "hurt": "assets/monsters/mask_dancer_hurt.webp",
+   "idle": "assets/monsters/mask_dancer_idle.webp"
+  },
+  "codex/monster_miasma_crows": {
+   "attack": "assets/monsters/miasma_crows_attack.webp",
+   "idle": "assets/monsters/miasma_crows_idle.webp"
+  },
+  "codex/monster_puppet": {
+   "attack": "assets/monsters/puppet_attack.webp",
+   "idle": "assets/monsters/puppet_idle.webp"
+  },
+  "codex/monster_puppeteer": {
+   "attack": "assets/monsters/puppeteer_attack.webp",
+   "idle": "assets/monsters/puppeteer_idle.webp"
+  },
+  "codex/monster_shuten_imp": {
+   "attack": "assets/monsters/shuten_imp_attack.webp",
+   "idle": "assets/monsters/shuten_imp_idle.webp"
+  },
+  "codex/monster_snow_cat": {
+   "attack": "assets/monsters/snow_cat_attack.webp",
+   "idle": "assets/monsters/snow_cat_idle.webp"
+  },
+  "codex/monster_twin_hound": {
+   "attack": "assets/monsters/twin_hound_attack.webp",
+   "idle": "assets/monsters/twin_hound_idle.webp"
+  },
+  "codex/monster_wraith_samurai": {
+   "attack": "assets/monsters/wraith_samurai_attack.webp",
+   "idle": "assets/monsters/wraith_samurai_idle.webp"
   }
  },
  "icons": {

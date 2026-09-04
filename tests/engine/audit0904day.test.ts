@@ -27,7 +27,7 @@ describe('稽核 2026-09-04 白天', () => {
   });
   it('中 3：hidden 遭遇不進預載名單、地圖也抽不到', () => {
     const hiddenOnly = new Set(encounters.filter((e) => e.hidden).flatMap((e) => e.enemies).filter((id) => !encounters.some((e) => !e.hidden && e.enemies.includes(id))));
-    expect(hiddenOnly.size).toBeGreaterThan(5);
+    // 第三波立繪 2026-09-04 14:18 到齊後 hidden 已全數拿掉，這裡可能是 0；下面的檢查對之後再掛 hidden 的遭遇一樣有效
     for (const act of [1, 2, 3]) for (const id of enemyIdsForAct(act)) expect(hiddenOnly.has(id), `${id} 在第 ${act} 關預載名單`).toBe(false);
     for (let i = 0; i < 60; i++) for (const act of [1, 2, 3]) for (const n of generateMap(new Rng(seedFromString(`h${i}`)), { act, flags: {} }).nodes) if (n.encounterId) expect(encounterById[n.encounterId]!.hidden, `${n.encounterId} 被抽到`).toBeFalsy();
   });
