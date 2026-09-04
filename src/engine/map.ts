@@ -294,7 +294,13 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   // 遭遇也排成洗好的佇列、一池一條：整關抽完一輪才會重複（本來每格獨立亂抽，塔頂強池只有三組，
   // 九場架平均每組遇三次；使用者：「怎麼一直遇到重複的」）。佇列用完就重洗再來一輪。
   const encQueues = new Map<string, { list: string[]; at: number }>();
-  const nextEncounter = (key: string, ids: string[]): string => {
+  // 同一隻怪的冷卻（使用者 2026-09-04：「第二關二十幾層一直遇到風鈴怪」）：
+  // 池裡的遭遇大多是同一批中型怪兩兩配對（風鈴怪在三組裡），佇列只擋「同一組」不擋「同一隻」。
+  // 這裡記每一層用過哪些怪，抽的時候從佇列往後找第一組跟「這一層與前兩層」都沒有共同魔物的，換到前面來用；
+  // 全部都撞就照原本順序拿（池太小時難免）。事件裡的戰鬥不經過這裡，不受影響。
+  const usedByFloor = new Map<number, Set<string>>();
+  const monstersOf = (encId: string): string[] => encounterById[encId]?.enemies ?? [];
+  const nextEncounter = (key: string, ids: string[], floor: number): string => {
     let q = encQueues.get(key);
     if (!q || q.at >= q.list.length) {
       const list = rng.shuffle(ids);
@@ -304,7 +310,18 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       q = { list, at: 0 };
       encQueues.set(key, q);
     }
-    return q.list[q.at++]!;
+    const recent = new Set<string>();
+    for (const f of [floor, floor - 1, floor - 2]) for (const id of usedByFloor.get(f) ?? []) recent.add(id);
+    let pick = q.at;
+    for (let i = q.at; i < q.list.length; i++) {
+      if (monstersOf(q.list[i]!).every((id) => !recent.has(id))) { pick = i; break; }
+    }
+    [q.list[q.at], q.list[pick]] = [q.list[pick]!, q.list[q.at]!];
+    const chosen = q.list[q.at++]!;
+    const set = usedByFloor.get(floor) ?? new Set<string>();
+    for (const id of monstersOf(chosen)) set.add(id);
+    usedByFloor.set(floor, set);
+    return chosen;
   };
   for (const n of nodes) {
     if (n.type === '戰鬥') {
@@ -315,12 +332,14 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
         const solo = pool.filter((enc) => enc.enemies.length === 1);
         if (solo.length) pool = solo;
       }
-      n.encounterId = nextEncounter(`${poolForFloor(n.floor, act)}:${pool.length}`, pool.map((e) => e.id));
+      n.encounterId = nextEncounter(`${poolForFloor(n.floor, act)}:${pool.length}`, pool.map((e) => e.id), n.floor);
     }
     else if (n.type === '大魔物') {
       // 三關各有自己的菁英池（2026-09-03 起第一關也有三隻）；萬一某關的池是空的就退回塔中的
       const pool = encountersOfPool('大魔物', act);
-      n.encounterId = rng.pick(pool.length ? pool : encountersOfPool('大魔物', 2)).id;
+      // 菁英也走佇列：同一關兩個菁英節點不要抽到同一隻（2026-09-04）
+      const ids = (pool.length ? pool : encountersOfPool('大魔物', 2)).map((e) => e.id);
+      n.encounterId = nextEncounter(`大魔物:${ids.length}`, ids, n.floor);
     }
     // 塔主：呼叫端會指定這一關的候選（第一、二關不含大俠貓，他是第三關固定的最終頭目）；
     // 沒指定就整池隨機（測試與舊呼叫端用）。

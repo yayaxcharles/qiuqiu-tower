@@ -34,7 +34,8 @@ describe('隨機試玩', () => {
     // 2026-09-04 凌晨：稀有保底改隨機格（多吃一次洗牌擲骰），錨值重錄
     // 2026-09-04 夜：關主前綴多吃一次擲骰、魔氣暴走、事件後集，錨值重錄
     // 2026-09-04 早：第一關獎勵也有一成升級牌（多吃一次擲骰），錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 11, turns: 65, kills: 7, deckSize: 17 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 6, turns: 30, kills: 3, deckSize: 15 });
+    // 2026-09-04 早：地圖怪物冷卻（相鄰兩層不重複）改了抽法，錨值重錄
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 10, turns: 55, kills: 8, deckSize: 15 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 11, turns: 36, kills: 7, deckSize: 17 });
   });
 });

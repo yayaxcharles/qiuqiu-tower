@@ -354,7 +354,10 @@ registerScreen('combat', (app, root, props) => {
       if (v <= 0) continue;
       const tone = GOOD_STATUS.includes(name) ? 'good' : BAD_STATUS.includes(name) ? 'bad' : '';
       // 虛化只有「有／沒有」兩種狀態，層數永遠是 1，寫個 1 出來反而讓人以為還能疊——照「無敵」那樣只寫名字
-      row.append(chip(STATUS_LABEL[name] ?? name, STATUS_ICON[name], name === '虛化' ? '' : String(v), tone));
+      // 球球身上的減益（魔物放的翻肚、懶洋洋、炸毛、噎到）用名字寫出來、淺紅底，跟能力牌的牌子一樣看得懂
+      //（使用者 2026-09-04：只有小圖示認不出是什麼、也看不出是壞的）
+      const textOnly = mine && tone === 'bad';
+      row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), tone));
     }
     // 球球身上生效中的能力牌（封印解除、結界……）：一張一個牌子，疊了幾張寫數字，滑上去看那張牌的效果
     // （使用者 2026-09-03：「爪力的確有加，但我不知道是哪張牌的效果」）
