@@ -187,9 +187,10 @@ export const cards: readonly CardDef[] = [
   // 0 費回 6（2026-09-01 使用者拍板）：反正是消耗牌、一局只有一次，1 費的門檻只是煩人
   { id: 'tianmao', name: '舔毛', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/tianmao',
     keywords: ['消耗'], effects: [{ kind: 'heal', n: 6 }], upgrade: { effects: [{ kind: 'heal', n: 9 }] } },
-  { id: 'canying', name: '忍術·殘影', cost: 3, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/canying',
-    effects: [{ kind: 'damage', amount: 5 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 7 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
+  // 2026-09-04：3 費打 5 被兩費的如影隨形全面壓過 → 2 費打 8（升級 11）
+  { id: 'canying', name: '忍術·殘影', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/canying',
+    effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 11 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
   { id: 'caiweiba', name: '忍術·踩尾巴', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/caiweiba',
     effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '噎到', amount: 2, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '噎到', amount: 3, target: 'enemy' }] } },
@@ -238,8 +239,9 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damage', amount: 5, times: 3, ignoreBlock: true }] } },
   // 2026-09-02 使用者：幻影分身改 3 費
   { id: 'huanying', name: '忍術·幻影分身', cost: 3, type: 技, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/huanying',
-    effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }, { kind: 'draw', n: 2 }],
-    upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 4, target: 'self' }, { kind: 'draw', n: 3 }] } },
+    // 2026-09-04 整體隱身太強：3／4 層→2／3 層（抽牌不動）
+    effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }, { kind: 'draw', n: 2 }],
+    upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }, { kind: 'draw', n: 3 }] } },
   { id: 'jiedao', name: '絕學·借刀', cost: 1, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiedao',
     effects: [{ kind: 'damageEqualBlock' }, { kind: 'block', amount: 6 }],
     upgrade: { effects: [{ kind: 'damageEqualBlock' }, { kind: 'block', amount: 10 }] } },

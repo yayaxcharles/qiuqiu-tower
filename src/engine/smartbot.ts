@@ -105,16 +105,19 @@ function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce
   return hits;
 }
 
-/** 這回合還會吃到多少：全部的下 − 隱身閃掉的前幾下 − 蜷縮 */
+/** 這回合還會吃到多少：照引擎的順序模擬——每一下先由蜷縮擋，擋不完的那一下才耗一層隱身閃掉；穿透不看蜷縮（2026-09-04 判定順序改了） */
 function expectedIncoming(cs: CombatState): number {
   const p = cs.player;
   if (p.immune) return 0;
   const all = aliveEnemies(cs).flatMap((e) => incomingHitList(cs, e));
-  const dodged = getStatus(p, '隱身');
-  const rest = all.slice(dodged);   // 隱身照順序閃掉前幾下
-  const pierce = rest.filter((h) => h.pierce).reduce((s, h) => s + h.dmg, 0);   // 穿透的那幾下蜷縮擋不住
-  const normal = rest.filter((h) => !h.pierce).reduce((s, h) => s + h.dmg, 0);
-  return Math.max(0, normal - p.block) + pierce;
+  let block = p.block; let stealth = getStatus(p, '隱身'); let taken = 0;
+  for (const h of all) {
+    const absorbed = h.pierce ? 0 : Math.min(block, h.dmg);
+    const rest = h.dmg - absorbed;
+    if (rest > 0 && stealth > 0) { stealth -= 1; block -= absorbed; continue; }
+    block -= absorbed; taken += rest;
+  }
+  return taken;
 }
 function incomingHitCount(cs: CombatState): number {
   return aliveEnemies(cs).reduce((s, e) => s + incomingHits(cs, e).length, 0);
@@ -214,11 +217,11 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'status':
         if (fx.target === 'self') {
           if (fx.name === '隱身') {
-            // 每層閃一下：把最大的幾下當作被閃掉的價值（實際是照順序，這裡估個上界的八成）
-            const all = enemies.flatMap((e) => incomingHits(cs, e)).sort((a, b) => b - a);
+            // 隱身現在排在蜷縮後面：只有蜷縮擋不完的那幾下才值錢。把「超過現有蜷縮的下」由大到小排，估前幾層閃掉的價值（八成）
+            const all = enemies.flatMap((e) => incomingHits(cs, e)).filter((h) => h > p.block).sort((a, b) => b - a);
             const cur = getStatus(p, '隱身');
             const gain = all.slice(cur, cur + fx.amount).reduce((s, h) => s + h, 0) * 0.8;
-            value += gain * (lowHp ? 3 : danger ? 1.6 : 1.1) + (fx.amount - Math.min(fx.amount, Math.max(0, hits - cur))) * 1.5;
+            value += gain * (lowHp ? 3 : danger ? 1.6 : 1.1) + (fx.amount - Math.min(fx.amount, Math.max(0, all.length - cur))) * 1.5;
           } else if (fx.name === '爪力') value += fx.amount * 4 * Math.min(1, totalEnemyHp / 40);
           else if (fx.name === '貓步') value += fx.amount * 3;
           else if (fx.name === '反彈') value += fx.amount * Math.min(hits, 4) * 0.8;

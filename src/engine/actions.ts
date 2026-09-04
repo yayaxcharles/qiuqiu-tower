@@ -22,12 +22,17 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
 }
 
 /** 每回合第一次拿隱身時吃秘寶加成（紙袋的 stealthBonus），加成量由秘寶資料決定 */
+/** 隱身最多疊幾層（使用者 2026-09-04：整體隱身太強、囤到十幾層把單發全躲光；但看破會拍掉一半，上限不能太低，取 5） */
+export const STEALTH_CAP = 5;
+
 export function gainStealth(cs: CombatState, n: number): void {
   let amt = n;
   if (!cs.player.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
   amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
   cs.player.firstStealthGiven = true;
-  addStatus(cs.player, '隱身', amt);
+  const room = Math.max(0, STEALTH_CAP - getStatus(cs.player, '隱身'));
+  if (amt > room) { log(cs, `隱身最多只能疊 ${STEALTH_CAP} 層，多的 ${amt - room} 層散掉了`); amt = room; }
+  if (amt > 0) addStatus(cs.player, '隱身', amt);
 }
 
 export function healPlayer(cs: CombatState, n: number): number {
@@ -73,9 +78,15 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
     }
   } else {
     if (p.immune) { log(cs, '球球躲在角落，什麼都沒看到'); return 0; }
-    if (getStatus(p, '隱身') > 0) { addStatus(p, '隱身', -1); log(cs, '球球閃過了'); return 0; }
     const dmg = computeAttack(base, attacker, p);
+    // 判定順序改成「蜷縮先擋，擋不完的那一下才用隱身閃」（使用者 2026-09-04：隱身判定在前、強度又比蜷縮高太多，玩家只拿隱身不拿蜷縮）。
+    // 隱身只在「蜷縮擋完還有剩」時才消耗一層，整下落空；穿透招蜷縮擋不住，還是直接看隱身。
     const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
+    if (dmg - absorbed > 0 && getStatus(p, '隱身') > 0) {
+      p.block -= absorbed;
+      if (absorbed > 0) log(cs, `蜷縮擋下了 ${absorbed} 點`);
+      addStatus(p, '隱身', -1); log(cs, '球球閃過了'); return 0;
+    }
     p.block -= absorbed;
     lose = dmg - absorbed;
     // 擋下來要留紀錄：畫面靠這行飄「擋住 N」跟盾牌，不然整下被吃掉看起來像沒打到（使用者回報）
