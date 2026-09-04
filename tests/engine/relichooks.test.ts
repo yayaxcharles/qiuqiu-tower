@@ -81,7 +81,9 @@ describe('秘寶新掛鉤', () => {
     const r = newRun('shop-hooks'); takeRelic(r, 'coin_jar');
     const s = makeShop(r);
     const base: Record<string, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
-    for (const c of s.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * 0.8));
+    // 每間店會隨機挑一件特價（2026-09-04 上線），那一格的價錢是「八折再乘特價折數」。
+    // 原本這行只比對八折，靠這個種子剛好沒把特價抽到牌上才過——把特價一起算進來才是真的在測零錢罐。
+    for (const c of s.cards) expect(c.price, c.def.name).toBe(Math.round(base[c.def.rarity]! * 0.8 * (c.sale ?? 1)));
     const rw = rollRewards(new Rng(seedFromString('rw')), '戰鬥', [], 0, false, { extraChoices: 1 });
     expect(rw.cards.length).toBe(4);
   });

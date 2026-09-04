@@ -363,6 +363,11 @@ export interface MapNode {
   next: string[];
   encounterId?: string;
   eventId?: string;
+  /**
+   * 遭遇修飾詞的 id（見 content/modifiers）。地圖生成時就抽好寫在這裡，地圖上才標得出來。
+   * 可選欄位：舊存檔沒有這一欄＝那一局沒有修飾詞，不必升存檔版本（升了會清掉進行中的局）。
+   */
+  modifier?: string;
 }
 export interface GameMap { nodes: MapNode[]; start: string[] }
 

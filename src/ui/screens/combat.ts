@@ -1,7 +1,7 @@
 import { potionCapacity } from '../../engine/run';
 import { cardById } from '../../content/cards';
 import { dialogue, pick } from '../../content/dialogue';
-import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
+import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE, showsTelegraph } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies } from '../../engine/actions';
 import { RAMPAGE_TURN, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
@@ -1074,6 +1074,30 @@ registerScreen('combat', (app, root, props) => {
    * 前半（詛咒、棄牌、復活）先畫一拍，然後一隻出手、畫一拍、停 720 毫秒，再換下一隻；
    * 全部動完才收尾發新手牌。中途畫面被接手（app.cs 換了）就整個放掉。
    */
+  /** 預告亮多久。這 0.32 秒是從兩隻之間那 720 毫秒的乾等裡借的，不是外加上去的。 */
+  const TELEGRAPH_MS = 320;
+  /** 收掉蹲低的姿勢：那隻要真的出手了，得先彈回來才接得上前撲。 */
+  function clearTelegraph(): void {
+    root.querySelector<HTMLElement>('.unit.enemy.telegraph')?.classList.remove('telegraph');
+  }
+  /**
+   * 亮出下一個要出手的那隻（只有關主與菁英，見 `showsTelegraph`）。
+   *
+   * 下一個是誰直接偷看 `cs.enemyQueue[0]`——只讀不動佇列，所以引擎一行都不用改。
+   * 回傳有沒有真的亮，呼叫端才知道要不要等這 0.32 秒。
+   */
+  function telegraphNext(): boolean {
+    const uid = cs.enemyQueue?.[0];
+    if (uid === undefined || cs.phase !== 'player') return false;
+    const e = cs.enemies.find((x) => x.uid === uid);
+    // 已經倒下的、剛爬起來這拍不出招的：亮了也不會動，不要騙人
+    if (!e || e.dead || e.justRevived || !showsTelegraph(e.enemyId)) return false;
+    const node = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${uid}"]`);
+    if (!node) return false;
+    node.classList.add('telegraph');
+    return true;
+  }
+
   function runEnemyTurn(): void {
     const before = snap(cs);
     if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); return; }
@@ -1081,6 +1105,7 @@ registerScreen('combat', (app, root, props) => {
     enemyTurnRunning = true;
     const step = (): void => {
       if (app.cs !== cs) { enemyTurnRunning = false; return; }
+      clearTelegraph();
       const b = snap(cs);
       const more = stepEnemyTurn(cs);
       if (!more) {
@@ -1094,9 +1119,16 @@ registerScreen('combat', (app, root, props) => {
         || cs.enemies.some((e) => (b.enemies.get(e.uid)?.turnCount ?? e.turnCount) !== e.turnCount);
       if (!acted) { step(); return; }
       settle(b, { light: true });
-      window.setTimeout(step, cs.phase === 'player' ? 720 : 400);
+      const gap = cs.phase === 'player' ? 720 : 400;
+      // 前 0.4 秒看上一隻的結果，剩下 0.32 秒亮下一隻：兩段加起來還是原本的 720，節奏不變
+      if (cs.phase === 'player') {
+        window.setTimeout(() => { if (app.cs === cs) telegraphNext(); }, gap - TELEGRAPH_MS);
+      }
+      window.setTimeout(step, gap);
     };
-    step();
+    // 整個回合的第一隻沒有「上一隻的結果」可以借時間，這 0.32 秒是真的多花的（一回合一次）
+    if (telegraphNext()) window.setTimeout(step, TELEGRAPH_MS);
+    else step();
   }
 
   // ===== 結算與動畫 =====

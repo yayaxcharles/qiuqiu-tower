@@ -181,3 +181,23 @@
   margin-top: -58px;    /* 底部貼回原位置：128-64=64，再讓腳略高於原點 6px */
 }
 .map-node.t-塔主 img { object-position: center bottom; }
+
+/* 遭遇修飾詞的小牌子（2026-09-04）：掛在節點正下方，跟魔物頭上的意圖牌同一套木牌長相。
+   走過的、打完的格子不顯示——那些場已經結束了，留著只是把地圖弄亂。 */
+.map-mod {
+  position: absolute;
+  left: 50%;
+  top: 62px;
+  transform: translateX(-50%);
+  padding: 1px 6px 2px;
+  border: 1.5px solid #2b2118;
+  border-radius: 7px;
+  background: linear-gradient(#f2d693, #d3a552);
+  color: #2b2118;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.map-node.past .map-mod, .map-node.cleared .map-mod { display: none; }

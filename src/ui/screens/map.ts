@@ -1,3 +1,4 @@
+import { modifierById } from '../../content/modifiers';
 import { play } from '../audio';
 import { FLOORS, nextChoices } from '../../engine/map';
 import type { MapNode } from '../../engine/types';
@@ -161,11 +162,17 @@ registerScreen('map', (app, root) => {
     if (n.floor < run.floor - base) cls.push('past');
     // 真的打過／辦完的（足跡上的格子）蓋一顆勾勾章——跟「只是在下面的樓層」區隔開
     if (n.id !== run.currentNode && run.trail.includes(n.id)) cls.push('cleared');
+    // 遭遇修飾詞（2026-09-04）：節點下面掛一塊小牌子，選路的當下就看得到這一場不一樣；
+    // 完整的得與失放進原生的 title 泡泡，滑鼠停一下就出來。
+    const mod = n.modifier ? modifierById[n.modifier] : undefined;
     const btn = el('button', {
       class: cls.join(' '),
       style: `left:${x - R}px;top:${y - R}px`,
-      title: `${base + n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
+      title: `${base + n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`
+        + (mod ? `
+【${mod.label}】${mod.desc}` : ''),
     }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
+    if (mod) btn.append(el('span', { class: 'map-mod' }, mod.label));
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
     if (choices.has(n.id)) btn.addEventListener('click', () => { play('step'); app.enterNode(n.id); });
     inner.append(btn);

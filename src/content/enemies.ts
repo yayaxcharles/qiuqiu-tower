@@ -1356,3 +1356,14 @@ export const encounterById: Record<string, EncounterDef> = Object.fromEntries(en
 export function encountersOfPool(pool: EnemyPool, act?: number): EncounterDef[] {
   return encounters.filter((e) => e.pool === pool && !e.hidden && (act === undefined || !e.acts || e.acts.includes(act)));
 }
+
+/**
+ * 這隻魔物出手前要不要先亮半拍的預告（使用者 2026-09-04 拍板：只給關主與菁英）。
+ *
+ * 小怪不亮是刻意的：預告會變成一種訊號——會蹲下去的那隻才是重點。
+ * 順帶一提，關主帶的僕從（執事貓、女僕貓、小鬼）算「召喚」不算菁英，所以也不亮。
+ */
+export function showsTelegraph(enemyId: string): boolean {
+  const pool = enemyById[enemyId]?.pool;
+  return pool === '塔主' || pool === '大魔物';
+}

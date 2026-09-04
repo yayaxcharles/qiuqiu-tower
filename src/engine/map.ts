@@ -1,3 +1,4 @@
+import { ENCOUNTER_MODIFIERS, modifierChanceFor } from '../content/modifiers';
 import { encounterById, encountersOfPool } from '../content/enemies';
 import { FIXED_EVENT_FLOOR_5, eventById, events } from '../content/events';
 import type { Rng } from './rng';
@@ -354,6 +355,11 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     else if (n.type === '事件') {
       if (n.floor === 5) n.eventId = FIXED_EVENT_FLOOR_5;
       else { n.eventId = eventQueue[eventIdx % eventQueue.length]; eventIdx++; }
+    }
+    // 遭遇修飾詞（使用者 2026-09-04 拍板）：一般怪與菁英在這裡就抽好，地圖上才標得出來、
+    // 玩家才有得規劃路線。關主不抽——牠走自己的前綴（run.ts 的 BOSS_PREFIXES），兩套不重疊。
+    if (n.type === '戰鬥' || n.type === '大魔物') {
+      if (rng.chance(modifierChanceFor(act))) n.modifier = rng.pick(ENCOUNTER_MODIFIERS).id;
     }
   }
   return { nodes, start: byFloor[1]!.map((n) => n.id) };

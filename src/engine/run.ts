@@ -2,6 +2,7 @@ import { STARTER_DECK, cardById, cards } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById, enemyById } from '../content/enemies';
+import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
 import { startCombat } from './combat';
@@ -82,7 +83,31 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   const cs = startCombat({ hp: run.hp, maxHp: run.maxHp, deck: run.deck.map((c) => ({ ...c })), relics: run.relics, potions: run.potions, encounterId: enc, rng: runRng(run),
     mods: { hpMul: m.hpMul, strength, startBlock } });
   applyBossPrefix(run, cs);
+  applyEncounterModifier(run, cs);
   return cs;
+}
+
+/**
+ * 遭遇修飾詞（使用者 2026-09-04 拍板）：一般怪與菁英在地圖生成時就抽好標在節點上，
+ * 開戰時整場的**每一隻**魔物都吃一次。關主走自己的 `BOSS_PREFIXES`，兩套互不干擾——
+ * 關主節點的 `modifier` 本來就不會被填（見 map.ts）。
+ *
+ * 整場的魔物都冠上修飾詞的名字（「暴怒的老鼠」，使用者 2026-09-04 指定），這樣戰鬥中的每一行
+ * 紀錄、每一顆頭上的名牌都看得到這場不一樣，不用回頭想地圖上寫了什麼。
+ * `startCombat` 已經用舊名字印過開場白，跟 applyBossPrefix 一樣要一併改寫，
+ * 不然同一隻在紀錄裡會有兩個名字。
+ *
+ * 戰鬥中才冒出來的（伏兵、召喚物）不冠名：修飾詞講的是「原本站在這裡的這一群」，
+ * 河童叫來的蝌蚪兵本來就不是那一群的。
+ */
+export function applyEncounterModifier(run: RunState, cs: CombatState): void {
+  const mod = modifierById[currentNode(run)?.modifier ?? ''];
+  if (!mod) return;
+  const oldNames = [...new Set(cs.enemies.map((e) => e.name))];
+  for (const e of cs.enemies) { mod.apply(e); e.name = mod.label + e.name; }
+  // 比對「舊名字＋全形冒號」而不是只比名字：「老鼠」才不會把「老鼠將軍：…」那行也改掉
+  cs.log = cs.log.map((l) => (oldNames.some((n) => l.startsWith(n + '：')) ? mod.label + l : l));
+  cs.log.push(`${mod.label}：${mod.desc}`);
 }
 
 /**
@@ -134,10 +159,15 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const counts = new Map<string, number>();
   for (const c of run.deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
   const exclude = [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
-  const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0);   // 掌門印：牌多一張可選
+  // 遭遇修飾詞掛在戰利品上的兩條：中了魔氣的多挑一張牌、肥美的／餓扁了的改小魚乾（見 content/modifiers）
+  const mod = modifierById[node?.modifier ?? ''];
+  const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0)
+    + (mod?.extraCard ? 1 : 0);   // 掌門印：牌多一張可選
   const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（第一關 10%、第二關 20%、第三關 40%）
   const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
+  // 倍率只吃戰利品本身，不吃事件獎金（獎金是另一件事）
+  if (mod?.fishMul) r.fish = Math.round(r.fish * mod.fishMul);
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
   if (r.potion && !addPotion(run, r.potion)) { r.potionMissed = r.potion; r.potion = null; }   // 帶滿：留著讓獎勵畫面問要不要換

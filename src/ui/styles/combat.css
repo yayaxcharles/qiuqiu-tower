@@ -530,6 +530,21 @@
   60% { transform: scaleY(1.08) scaleX(.96) translateY(-10px); filter: brightness(1.45) drop-shadow(0 0 12px #ffe9a8); }
   100% { transform: scaleY(1) scaleX(1); filter: none; }
 }
+/* 出招預告（2026-09-04 拍板）：關主與菁英動手前先亮 0.32 秒——頭上的意圖牌放大加暖光，
+   立繪蹲低停住像在蓄力，然後才真的打出來。目的是讓人讀得懂下一拍要發生什麼，
+   多隻的場也分得出誰先動。小怪不做（使用者裁決）：會蹲下去的那隻才是重點。
+   這 0.32 秒是從原本兩隻之間那 720 毫秒的乾等裡借的，整場節奏不變。
+   `forwards` 是關鍵——動畫跑完停在蹲低那一格等著，class 被拿掉才彈回來接前撲。 */
+.combat .unit.enemy.telegraph .intent {
+  transform: translateX(-50%) scale(1.25);
+  box-shadow: 0 0 14px 3px #ffd97a, 0 0 26px #ffb84a80;
+  transition: transform .16s ease-out, box-shadow .16s ease-out;
+}
+.combat .unit.enemy.telegraph .sprite { animation: telegraph-crouch .32s ease-out forwards; }
+@keyframes telegraph-crouch {
+  0% { transform: scaleY(1) scaleX(1); filter: none; }
+  100% { transform: scaleY(.9) scaleX(1.06); filter: brightness(1.12) drop-shadow(0 0 10px #ffd97a66); }
+}
 .combat .unit.hit .sprite {
   animation: shake .4s;
   filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);
