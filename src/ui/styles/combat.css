@@ -376,6 +376,10 @@
   /* 手牌輕輕起伏，像拿在手上會晃。幅度很小（3 像素、0.4 度）——
      大了會看不清楚牌面，也會跟滑過去抬起來的動作打架。 */
   animation: card-idle 3.8s ease-in-out infinite;
+  /* 起伏會微微旋轉（0.4 度）＋非整數像素位移，牌面上的小字每一格都被重新描一次邊，看起來像在閃
+     （玩家 2026-09-06 回報「字會閃爍」）。給每張牌自己的合成層：文字只描一次，之後當成一張圖在動 */
+  will-change: transform;
+  backface-visibility: hidden;
 }
 /* 錯開起跑時間，整排才不會像同一塊木板在上下 */
 .combat .hand .card:nth-child(2) { animation-delay: -.5s; }

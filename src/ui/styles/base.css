@@ -371,11 +371,15 @@ img { -webkit-user-drag: none; }
   font-size: 15px;
   line-height: 1.45;
   color: #2b2118;
-  z-index: 60;
+  /* 60→100：圖鑑疊層是 70，提示框原本躲在它底下，圖鑑裡的牌滑上去看不到說明（使用者 2026-09-06） */
+  z-index: 100;
   pointer-events: none;
   box-shadow: inset 0 -3px 7px #8a6a3f2b, 0 8px 20px #00000080;
   animation: tip-in 130ms ease-out;
 }
+/* 自由文字提示（意圖、藥水）底下補的名詞說明：一詞一行，比正文小一號 */
+.tooltip .tip-term { margin: 6px 11px 0; padding-top: 5px; border-top: 1px dashed #3a2a1c40; font-size: 13.5px; line-height: 1.4; }
+.tooltip .tip-term-name { font-weight: 700; color: #6a4a22; margin-right: 4px; }
 @keyframes tip-in {
   from { opacity: 0; transform: translateY(5px); }
 }

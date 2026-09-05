@@ -181,7 +181,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const mod = nodeModifier(run, cs.encounterId);
   const extraChoices = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0)
     + (mod?.extraCard ? 1 : 0);   // 掌門印：牌多一張可選
-  const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（第一關 10%、第二關 20%、第三關 40%）
+  const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（數字見 upgradeChanceFor）
   const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(run) });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
   // 肥美／餓扁改固定加減（下一輪平衡 2026-09-05）：倍率對 15～25 條的戰利品只有 ±10～20 條，換的卻是 ±25% 血，秤不平；
@@ -382,9 +382,11 @@ export function reshuffleShop(run: RunState, shop: ShopStock): boolean {
   return true;
 }
 
-/** 戰鬥獎勵、罐頭鋪、事件選牌開出「升級牌」的機率：第一關 10%、第二關 20%、第三關 40%（使用者 2026-09-04） */
+/** 戰鬥獎勵、罐頭鋪、事件選牌開出「升級牌」的機率：第一關 20%、第二關 25%、第三關 40%（2026-09-04 定 10／20／40，2026-09-06 第二輪平衡調高） */
 export function upgradeChanceFor(run: RunState): number {
-  return run.act >= 3 ? 0.4 : run.act === 2 ? 0.2 : 0.1;
+  // 第一關 10→20%、第二關 20→25%（第二輪平衡 2026-09-06）：牌組品質是關主戰勝負的主因（體檢：好牌組對第一關關主 71～93%），
+  // 機器人每隻關主 +2～3 點、通關 0.67→0.80%
+  return run.act >= 3 ? 0.4 : run.act === 2 ? 0.25 : 0.2;
 }
 
 export function makeShop(run: RunState): ShopStock {

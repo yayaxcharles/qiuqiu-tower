@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
 import { glossary } from '../../src/content/glossary';
 import { potionById } from '../../src/content/potions';
-import { RAMPAGE_TURN, startCombat } from '../../src/engine/combat';
+import { BOSS_RAMPAGE_TURN, RAMPAGE_TURN, startCombat } from '../../src/engine/combat';
 import { runEnemyEffects } from '../../src/engine/actions';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { applyRunEffects, beginCombat, finishCombat, newRun } from '../../src/engine/run';
@@ -25,6 +25,7 @@ describe('名詞表與牌面文字要跟引擎規則同步', () => {
   });
   it('「魔氣暴走」寫的回合數跟 RAMPAGE_TURN 一致', () => {
     expect(glossary['魔氣暴走']).toContain(`第 ${RAMPAGE_TURN} 回合`);
+    expect(glossary['魔氣暴走'], '關主戰的回合數也要跟常數一致').toContain(`第 ${BOSS_RAMPAGE_TURN} 回合`);
   });
   it('殘破卷軸的文字說的就是它做的事（抽 2、多 2 顆飯糰）', () => {
     const t = potionById['secret_scroll']!.text;

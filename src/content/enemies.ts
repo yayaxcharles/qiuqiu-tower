@@ -664,22 +664,22 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
       { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
       { intent: 'block', label: '葉隱', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }, { kind: 'block', amount: 10 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破
-      { intent: 'summon', label: '喚小弟', effects: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 2 }] },
+      { intent: 'summon', label: '喚小弟', effects: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 1, max: 2 }] },
       { intent: 'debuff', label: '肚皮鼓', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },
       { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 8, times: 3 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
     ],
     phases: [{
       hpBelow: 130, line: '（葫蘆見底了）', pattern: 'random',
-      onEnter: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 2 }, { kind: 'statusSelf', name: '爪力', amount: 2 }],
+      onEnter: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 1, max: 2 }, { kind: 'statusSelf', name: '爪力', amount: 2 }],   // 一次一隻（第二輪平衡 2026-09-06：兩隻蓄力小弟是機器人 21% 的病根）
       moves: [
         { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 9, times: 3 }] },
-        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 9, times: 3 }] },
+        { intent: 'block', label: '葫蘆補酒', effects: [{ kind: 'block', amount: 12 }, { kind: 'heal', n: 6 }] },   // 原本兩招醉拳真髓，二階段四招三招是攻擊；改一招補酒給喘息窗（第二輪平衡 2026-09-06）
         { intent: 'buff', label: '大變身', effects: [{ kind: 'chargeNext' }] },
         { intent: 'attack', label: '泰山鼓壓', effects: [{ kind: 'damage', amount: 32, pierce: true }] },
       ],
     }] },
   // 波斯大小姐：僕從護體——執事與女僕還站著她就不受傷，先清僕從才打得到本體
-  { id: 'persian_lady', name: '波斯大小姐', hp: [220, 220], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_persian_lady', strengthEveryNTurns: 1,   // 2026-09-03 第五輪：每回合 +1
+  { id: 'persian_lady', name: '波斯大小姐', hp: [220, 220], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_persian_lady', strengthEveryNTurns: 3,   // 2026-09-03 第五輪每回合 +1；第二輪平衡 2026-09-06 放慢成每 3 回合（機器人 17%，是第二關最低）
     line: '哼。', lines: ['髒東西，不要靠近本小姐。', '（用扇子遮住鼻子）'], guardedByAllies: true,
     chooseMove: (turn) => (turn % 10 === 9 ? PERSIAN_CALL : undefined),   // 其餘回合照表輪招
     moves: [
@@ -698,14 +698,14 @@ export const enemies: EnemyDef[] = [
       ],
     }] },
   { id: 'butler_cat', name: '執事貓', hp: [34, 34], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_butler_cat',
-    reviveGroup: 'court', reviveHp: 30,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
+    // 同生共死拿掉（第二輪平衡 2026-09-06）：兩個僕從互相復活讓弱牌組永遠打不到本體，機器人 17%→28%；護體本身保留
     line: '（扶了扶單眼鏡）', lines: ['大小姐面前，請保持距離。', '（推了推單片眼鏡）'], moves: [
       { intent: 'attack', label: '拋托盤', effects: [{ kind: 'damage', amount: 14 }] },
       { intent: 'block', label: '布陣', effects: [{ kind: 'block', amount: 10 }] },
       { intent: 'special', label: '奉茶', effects: [{ kind: 'heal', n: 8 }] },
     ] },
   { id: 'maid_cat', name: '女僕貓', hp: [30, 30], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_maid_cat',
-    reviveGroup: 'court', reviveHp: 30,   // 兩個僕從同生共死：另一個還站著，倒下的就會爬起來（主子不在組裡；2026-09-03 關主加硬）
+    // 同生共死拿掉（第二輪平衡 2026-09-06）：兩個僕從互相復活讓弱牌組永遠打不到本體，機器人 17%→28%；護體本身保留
     line: '（緊緊抱著雞毛撢）', lines: ['我、我會保護大小姐的！', '（把雞毛撢子抱得更緊）'], moves: [
       { intent: 'attack', label: '雞毛撢亂揮', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'block', label: '撢塵護主', effects: [{ kind: 'block', amount: 9 }] },
@@ -874,7 +874,7 @@ export const enemies: EnemyDef[] = [
   // 半血「龍魂覺醒」：拍掉你一半爪力貓步、自己 +3 爪力、鱗甲加到 10；之後龍炎穿透、吞天邊打邊回血、咆哮塞眼冒金星
   { id: 'dragon_cat', name: '沉睡的龍貓', hp: [240, 240], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_dragon_cat',
     line: '（盤成一圈，鼻孔冒出一小縷煙）', lines: ['（鱗片隨著呼吸起伏）', '（睡夢中低吼了一聲）'],
-    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 10, thorns: 5,
+    asleep: 1, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 2 }], plating: 10, thorns: 3,   // 反彈 5→3（第二輪平衡 2026-09-06：多段剝鱗甲是設計上的正解，每下付 5 血太痛；砍到 2 機器人 57% 太軟，3 是 45%）
     moves: [
       { intent: 'attack', label: '龍息', effects: [{ kind: 'damage', amount: 21 }] },
       { intent: 'attack', label: '尾掃', effects: [{ kind: 'damage', amount: 11, times: 2 }] },

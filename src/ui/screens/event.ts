@@ -10,6 +10,7 @@ import { registerScreen } from '../app';
 import { artUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
+import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { showPotionSwap } from '../potionswap';
 import { el } from '../dom';
@@ -210,14 +211,22 @@ registerScreen('event', (app, root, props) => {
       // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
       // 效果已經跑掉了，選項卻還在，看起來像還能再選一次。按鈕等挑完牌才由 finish 補上。
       panel(resultText, null, '', gains, resultArt);
-      showDeckPicker({
+      const openPicker = (): void => showDeckPicker({
         title: want > 1 ? `選 ${want} 張牌${verb}` : `選一張牌${verb}`,
         previewUpgrade: up,   // 升級才需要看「變成什麼樣」；移除不用
         cards: run.deck, pickable: true, cancellable: false, filter,
         pickCount: want,
-        onPick: (uid) => settleCards(uid === null ? [] : [uid]),
+        onPick: (uid) => {
+          if (uid === null) { settleCards([]); return; }
+          const c = run.deck.find((x) => x.uid === uid);
+          // 升級一張時跟貓窩磨爪一樣先問「就磨這張／再看看」，按「再看看」回牌堆重挑
+          //（使用者 2026-09-06：事件裡選好牌左鍵就直接升級了，其他地方都有這一步）
+          if (up && c) { showUpgradeConfirm(c, (ok) => { if (ok) settleCards([uid]); else openPicker(); }); return; }
+          settleCards([uid]);
+        },
         onPickMany: settleCards,
       });
+      openPicker();
       return;
     }
     if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard, gains, outcome.upgradedCard); return; }

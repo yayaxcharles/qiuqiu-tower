@@ -24,8 +24,8 @@ describe('零錢罐', () => {
 });
 
 describe('升級牌也在罐頭鋪與事件選牌出現', () => {
-  it('機率照關數（10／20／40%）；買到那格就是升級牌', () => {
-    for (const [act, p] of [[1, 0.1], [2, 0.2], [3, 0.4]] as const) {
+  it('機率照關數（20／25／40%，第二輪平衡 2026-09-06 從 10／20／40 調高）；買到那格就是升級牌', () => {
+    for (const [act, p] of [[1, 0.2], [2, 0.25], [3, 0.4]] as const) {
       let n = 0;
       for (let i = 0; i < 800; i++) { const run = newRun(`su${act}-${i}`); run.act = act; expect(upgradeChanceFor(run)).toBe(p); if (makeShop(run).cards.some((c) => c.upgraded)) n++; }
       expect(n / 800, `第 ${act} 關`).toBeGreaterThan(p - 0.04); expect(n / 800, `第 ${act} 關`).toBeLessThan(p + 0.04);

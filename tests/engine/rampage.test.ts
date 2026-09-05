@@ -1,4 +1,4 @@
-// 魔氣暴走（2026-09-04）：第 RAMPAGE_TURN（10）回合起每個敵方回合全體魔物 +1 爪力；之前不加
+// 魔氣暴走（2026-09-04）：第 RAMPAGE_TURN（10）回合起每個敵方回合全體魔物 +1 爪力；之前不加。關主戰看 BOSS_RAMPAGE_TURN（15，師父除外），釘在 balance_0905.test.ts
 import { describe, expect, it } from 'vitest';
 import { STARTER_DECK } from '../../src/content/cards';
 import { RAMPAGE_TURN, endTurn, startCombat } from '../../src/engine/combat';
@@ -7,7 +7,7 @@ import { getStatus } from '../../src/engine/statuses';
 import { inst } from '../helpers';
 
 describe('魔氣暴走', () => {
-  it('暴走回合（第 10 回合）起每個敵方回合全體 +1 爪力，之前不加', () => {
+  it('暴走回合（一般戰第 10 回合）起每個敵方回合全體 +1 爪力，之前不加', () => {
     const cs = startCombat({ hp: 999, maxHp: 999, deck: STARTER_DECK.map((id, i) => inst(id, i + 1)), relics: [], potions: [], encounterId: 'wood_dummy', rng: new Rng(seedFromString('r')) });
     const e = cs.enemies[0]!;
     const base = getStatus(e, '爪力');

@@ -11,7 +11,7 @@ export interface CombatRewards {
   potionMissed?: string | null;
   /** 這場的遭遇修飾詞（有的話）：獎勵畫面用它解釋小魚乾為什麼多了／少了、為什麼多一張牌可挑 */
   modifier?: { label: string; desc: string };
-  /** 這一格牌是「已經升級過的」版本（使用者 2026-09-04：第一關一成、第二關兩成、第三關四成的獎勵有一張升級牌） */
+  /** 這一格牌是「已經升級過的」版本（機率見 run.ts 的 upgradeChanceFor） */
   upgradedCard?: string;
 }
 
@@ -70,7 +70,7 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
   const bonus = opts.rareBonus ?? 0;
   const extra = opts.extraChoices ?? 0;   // 掌門印：牌多幾張可選
   if (kind === '塔主') return { kind, cards: [], fish: 100 + winGoldBonus, potion: null, relic: owned.includes('tower_token') ? null : 'tower_token' };
-  // 升級牌：依機率挑三選一裡的一張改成升級版（第一關 10%、第二關 20%、第三關 40%，見 run.ts upgradeChanceFor）
+  // 升級牌：依機率挑三選一裡的一張改成升級版（機率見 run.ts upgradeChanceFor）
   const withUpgrade = (cards: CardDef[]): { upgradedCard?: string } =>
     cards.length && (opts.upgradeChance ?? 0) > 0 && rng.chance(opts.upgradeChance ?? 0) ? { upgradedCard: rng.pick(cards).id } : {};
   if (kind === '大魔物') {

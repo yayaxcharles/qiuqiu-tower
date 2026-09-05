@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { STARTER_DECK } from '../../src/content/cards';
 import { enemyById } from '../../src/content/enemies';
 import { modifierById, modifierChanceFor } from '../../src/content/modifiers';
-import { endTurn, playCard, startCombat } from '../../src/engine/combat';
+import { BOSS_RAMPAGE_TURN, RAMPAGE_TURN, endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { generateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { BOSS_PREFIXES, beginCombat, newRun } from '../../src/engine/run';
@@ -136,5 +136,50 @@ describe('修飾詞的數字與難度門檻', () => {
       return;
     }
     throw new Error('40 顆種子都沒抽到中了魔氣的戰鬥節點，測試無效');
+  });
+});
+
+describe('第二輪（2026-09-06 拍板）：波斯、狸大人、龍貓、暴走、升級牌機率', () => {
+  it('波斯本人成長每 3 回合、僕從不再同生共死', () => {
+    expect(enemyById['persian_lady']!.strengthEveryNTurns).toBe(3);
+    expect(enemyById['butler_cat']!.reviveGroup).toBeUndefined();
+    expect(enemyById['maid_cat']!.reviveGroup).toBeUndefined();
+    const cs = start([], 'persian_lady');
+    const butler = cs.enemies.find((e) => e.enemyId === 'butler_cat')!;
+    butler.hp = 1;
+    toHand(cs, 1); playCard(cs, 1, butler.uid);   // 起手 uid 1＝貓抓，先撈到手上
+    expect(butler.dead).toBe(true);
+    expect(butler.reviveIn, '倒了就倒了，不再爬起來').toBe(0);
+  });
+
+  it('狸大人喚小弟一次一隻、二階段有一招補酒；龍貓逆鱗 3', () => {
+    const lord = enemyById['tanuki_lord']!;
+    const call = lord.moves.find((m) => m.label === '喚小弟')!;
+    expect(call.effects[0]).toMatchObject({ kind: 'summon', n: 1, max: 2 });
+    expect(lord.phases![0]!.onEnter![0]).toMatchObject({ kind: 'summon', n: 1, max: 2 });
+    expect(lord.phases![0]!.moves.filter((m) => m.label === '醉拳真髓')).toHaveLength(1);
+    const rest = lord.phases![0]!.moves.find((m) => m.label === '葫蘆補酒')!;
+    expect(rest.intent).toBe('block');
+    expect(rest.effects).toEqual([{ kind: 'block', amount: 12 }, { kind: 'heal', n: 6 }]);
+    expect(enemyById['dragon_cat']!.thorns).toBe(3);
+  });
+
+  it('暴走：一般戰第 10 回合起、關主戰第 15 回合起', () => {
+    expect(BOSS_RAMPAGE_TURN).toBe(15);
+    const boss = start([], 'orange_king', 999);
+    const k = boss.enemies[0]!;
+    const rampLines = () => boss.log.filter((l) => l.includes('魔氣開始暴走')).length;
+    while (boss.turn < RAMPAGE_TURN + 2) { boss.player.block = 999; endTurn(boss); }
+    expect(rampLines(), '關主戰第 12 回合還不該暴走').toBe(0);
+    while (boss.turn < BOSS_RAMPAGE_TURN + 1) { boss.player.block = 999; endTurn(boss); }
+    expect(rampLines(), '關主戰第 15 回合起暴走').toBe(1);
+    expect(k.dead).toBe(false);
+    const normal = start([], 'wood_dummy', 999);
+    while (normal.turn < RAMPAGE_TURN + 1) { normal.player.block = 999; endTurn(normal); }
+    expect(normal.log.filter((l) => l.includes('魔氣開始暴走')).length, '一般戰照舊第 10 回合').toBe(1);
+    // 師父例外：使用者「師父不放軟」，最終戰仍是第 10 回合
+    const master = start([], 'tower_master', 999);
+    while (master.turn < RAMPAGE_TURN + 1) { master.player.block = 999; endTurn(master); }
+    expect(master.log.filter((l) => l.includes('魔氣開始暴走')).length, '師父維持第 10 回合').toBe(1);
   });
 });

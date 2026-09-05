@@ -1,7 +1,8 @@
 // 2026-09-04 凌晨稽核（scratchpad audit_0903_night.md）修掉的問題，各釘一個回歸
 import { describe, expect, it } from 'vitest';
 import { STARTER_DECK, cardById } from '../../src/content/cards';
-import { damageEnemy } from '../../src/engine/actions';
+import { enemyById } from '../../src/content/enemies';
+import { damageEnemy, makeEnemy } from '../../src/engine/actions';
 import { endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { makeShop, newRun } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -57,18 +58,19 @@ describe('稽核 2026-09-04', () => {
   });
 
   it('M-1 剛爬起來的那一拍：不出招，但噎到照扣、定身照遞減，回合數不算', () => {
-    const cs = start('persian_lady');
-    const butler = cs.enemies.find((e) => e.enemyId === 'butler_cat')!;
+    // 波斯的僕從 2026-09-06 起不再同生共死，改用紙燈籠雙子（同組、倒下 2 回合後以 12 血爬起來）當樣本
+    const cs = start('lantern_twins');
+    const butler = cs.enemies.find((e) => e.enemyId === 'lantern_twin_a')!;
     addStatus(butler, '噎到', 5); addStatus(butler, '定身', 2);
     damageEnemy(cs, butler, 999, { direct: true });
     expect(butler.dead).toBe(true); expect(butler.reviveIn).toBe(2);
     cs.player.block = 99; endTurn(cs);                    // 躺著：2 → 1
     expect(butler.dead).toBe(true); expect(butler.reviveIn).toBe(1);
     const tc = butler.turnCount; const hpBefore = cs.player.hp;
-    cs.player.block = 99; endTurn(cs);                    // 爬起來（30 血），這一拍不出招但狀態要結算
+    cs.player.block = 99; endTurn(cs);                    // 爬起來（12 血），這一拍不出招但狀態要結算
     expect(butler.dead).toBe(false);
     expect(butler.turnCount, '爬起來那拍不算回合').toBe(tc);
-    expect(butler.hp, '噎到要扣').toBeLessThan(30);
+    expect(butler.hp, '噎到要扣').toBeLessThan(enemyById['lantern_twin_a']!.reviveHp!);
     expect(getStatus(butler, '噎到')).toBe(4);
     expect(getStatus(butler, '定身'), '定身在那一拍被消耗一層').toBe(1);
     expect(butler.move.intent, '頭上是真的招不是閒置').not.toBe('idle');
@@ -76,8 +78,10 @@ describe('稽核 2026-09-04', () => {
   });
 
   it('L-4／同組沒人站著：第二個倒下的僕從直接 reviveIn 0，之後都不會爬起來', () => {
-    const cs = start('persian_lady');
-    const [b, m] = ['butler_cat', 'maid_cat'].map((id) => cs.enemies.find((e) => e.enemyId === id)!);
+    const cs = start('lantern_twins');
+    // 組外再站一隻木樁人：原本的樣本是波斯（主子在組外），兩個僕從都倒了戰鬥還在繼續，才量得到「倒數歸零」
+    cs.enemies.push(makeEnemy(cs, 'wood_dummy', cs.enemies.length));
+    const [b, m] = ['lantern_twin_a', 'lantern_twin_b'].map((id) => cs.enemies.find((e) => e.enemyId === id)!);
     damageEnemy(cs, b!, 999, { direct: true });
     expect(b!.reviveIn).toBe(2);
     damageEnemy(cs, m!, 999, { direct: true });
@@ -86,7 +90,7 @@ describe('稽核 2026-09-04', () => {
     expect(b!.reviveIn, '同組沒人站著→倒數歸零').toBe(0);
     expect(b!.dead && m!.dead).toBe(true);
     cs.player.block = 99; endTurn(cs); cs.player.block = 99; endTurn(cs);
-    expect(b!.dead && m!.dead, '主子在組外，兩個僕從再也不會爬起來').toBe(true);
+    expect(b!.dead && m!.dead, '同組兩隻都倒了，再也不會爬起來').toBe(true);
   });
 
   it('M-4 稀有保底改成隨機格、忍術格優先：絕學那張變稀有的比例不再遠高於機率表', () => {

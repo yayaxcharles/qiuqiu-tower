@@ -176,10 +176,17 @@ export function endTurn(cs: CombatState): void {
   finishEnemyTurn(cs);
 }
 
-/** 敵方回合前半：詛咒發作、沒攻擊的鉤子、棄手牌、減益衰減、同伴復活、魔物防禦歸零，並排好這回合要行動的魔物。回 false＝這回合結束不了（不在玩家回合、還有牌要選、或球球被詛咒打倒） */
-/** 魔氣暴走從第幾回合開始（玩家回合的計數） */
-export const RAMPAGE_TURN = 10;   // 8 太早：機器人打關主平均 9～14 回合，等於每場關主戰都被加成，第一關到達率掉 8 個百分點（2026-09-04 實測）
+/** 魔氣暴走從第幾回合開始（玩家回合的計數）。10：8 太早——機器人打關主平均 9～14 回合，等於每場關主戰都被加成，第一關到達率掉 8 個百分點（2026-09-04 實測） */
+export const BOSS_RAMPAGE_TURN = 15;
+export const RAMPAGE_TURN = 10;
+/** 這場戰鬥第幾回合起魔氣暴走：關主戰 15、其他 10（畫面的牌子跟引擎用同一條規則）。
+ *  師父例外維持 10：使用者 2026-09-03「師父不放軟」，三條血的最長一戰不因為這條規則變軟（稽核 2026-09-06 低-12） */
+export function rampageTurnFor(cs: CombatState): number {
+  if (cs.encounterId === 'tower_master') return RAMPAGE_TURN;
+  return encounterById[cs.encounterId]?.pool === '塔主' ? BOSS_RAMPAGE_TURN : RAMPAGE_TURN;
+}
 
+/** 敵方回合前半：詛咒發作、沒攻擊的鉤子、棄手牌、減益衰減、同伴復活、魔物防禦歸零，並排好這回合要行動的魔物。回 false＝這回合結束不了（不在玩家回合、還有牌要選、或球球被詛咒打倒） */
 export function beginEnemyTurn(cs: CombatState): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
   cs.endTurnRequested = false;   // 這個請求到這裡就兌現了
@@ -235,10 +242,13 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   for (const e of cs.enemies) if (!e.dead && getStatus(e, '不壞身') === 0) e.block = 0;
   // 魔氣暴走（使用者 2026-09-04：「拖著的都要有代價」）：第 RAMPAGE_TURN 回合起，每個敵方回合全體魔物 +1 爪力。
   // 治龜縮——機器人打龍貓拖三十多回合就是沒代價；正常戰鬥七八回合內結束不會碰到、關主戰打得乾脆也碰不到
-  if (cs.turn >= RAMPAGE_TURN) {
+  // 關主戰延到第 15 回合（第二輪平衡 2026-09-06）：關主戰平均 10～12 回合，第 10 回合起暴走等於每場後半都被加成，
+  // 那是關主自己的成長該做的事；暴走要抓的是一般戰的拖延（體檢 2026-09-05「暴走沒治好龜縮」）
+  const rampAt = rampageTurnFor(cs);
+  if (cs.turn >= rampAt) {
     const alive = cs.enemies.filter((e) => !e.dead);
     for (const e of alive) addStatus(e, '爪力', 1);
-    if (alive.length) log(cs, cs.turn === RAMPAGE_TURN ? '魔氣開始暴走了！魔物全體爪力 +1，之後每回合都會再加' : '魔氣暴走：魔物全體爪力 +1');
+    if (alive.length) log(cs, cs.turn === rampAt ? '魔氣開始暴走了！魔物全體爪力 +1，之後每回合都會再加' : '魔氣暴走：魔物全體爪力 +1');
   }
   // 這回合要行動的名單在這裡定案：中途被召喚出來的不算（跟以前一次跑完的行為一樣）
   cs.enemyQueue = cs.enemies.filter((e) => !e.dead).map((e) => e.uid);

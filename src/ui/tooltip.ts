@@ -10,11 +10,28 @@ const RE = TERMS.length
 
 let tip: HTMLElement | null = null;
 
+/**
+ * 自由文字的提示（魔物意圖、藥水、能力牌）裡出現的名詞，在提示框底下各補一行白話說明——
+ * 意圖寫「給你 2 層炸毛、1 層翻肚」、藥水寫「給目標 2 層翻肚」，玩家滑上去卻看不到翻肚是什麼（使用者 2026-09-06）。
+ * 提示框裡不再套一層提示（滑不進去），直接把說明寫進來。太常見、解釋了只是噪音的詞跳過；最多補三個。
+ */
+const APPENDIX_SKIP = new Set(['飽足', '飯糰', '防禦', '蜷縮', '小魚乾', '本局代碼', '秘寶', '忍具', '罐頭鋪', '貓窩', '紙箱', '大魔物', '塔主', '魔氣暴走', '叼著小魚乾']);
+function glossaryLines(body: string, skip: string): HTMLElement[] {
+  const seen: string[] = [];
+  for (const m of body.matchAll(RE)) {
+    const w = m[0];
+    if (!w || w === skip || APPENDIX_SKIP.has(w) || seen.includes(w) || !glossary[w]) continue;
+    seen.push(w);
+    if (seen.length >= 3) break;
+  }
+  return seen.map((w) => el('div', { class: 'tip-term' }, el('span', { class: 'tip-term-name' }, w + '：'), glossary[w]!));
+}
+
 function showTip(anchor: HTMLElement, term: string, body?: string): void {
   hideTooltip();
   const layer = overlayRoot();
   if (!layer) return;
-  tip = el('div', { class: 'tooltip' }, el('b', {}, term), el('div', {}, body ?? glossary[term] ?? ''));
+  tip = el('div', { class: 'tooltip' }, el('b', {}, term), el('div', {}, body ?? glossary[term] ?? ''), ...(body ? glossaryLines(body, term) : []));
   layer.append(tip);
   const r = anchor.getBoundingClientRect();
   const s = layer.getBoundingClientRect();   // 疊層鋪滿整個舞台（inset: 0），量到的框跟 #stage 一模一樣

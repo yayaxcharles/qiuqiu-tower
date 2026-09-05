@@ -4434,7 +4434,7 @@
       {
        "kind": "summon",
        "enemyId": "tanuki_kid",
-       "n": 2,
+       "n": 1,
        "max": 2
       }
      ]
@@ -4488,7 +4488,7 @@
       {
        "kind": "summon",
        "enemyId": "tanuki_kid",
-       "n": 2,
+       "n": 1,
        "max": 2
       },
       {
@@ -4510,13 +4510,16 @@
        ]
       },
       {
-       "intent": "attack",
-       "label": "醉拳真髓",
+       "intent": "block",
+       "label": "葫蘆補酒",
        "effects": [
         {
-         "kind": "damage",
-         "amount": 9,
-         "times": 3
+         "kind": "block",
+         "amount": 12
+        },
+        {
+         "kind": "heal",
+         "n": 6
         }
        ]
       },
@@ -4558,7 +4561,7 @@
    "art": "codex/monster_persian_lady",
    "acts": [],
    "passives": {
-    "strengthEveryNTurns": 1,
+    "strengthEveryNTurns": 3,
     "guardedByAllies": true
    },
    "moves": [
@@ -4690,10 +4693,7 @@
    "pattern": "cycle",
    "art": "codex/monster_butler_cat",
    "acts": [],
-   "passives": {
-    "reviveGroup": "court",
-    "reviveHp": 30
-   },
+   "passives": {},
    "moves": [
     {
      "intent": "attack",
@@ -4741,10 +4741,7 @@
    "pattern": "cycle",
    "art": "codex/monster_maid_cat",
    "acts": [],
-   "passives": {
-    "reviveGroup": "court",
-    "reviveHp": 30
-   },
+   "passives": {},
    "moves": [
     {
      "intent": "attack",
@@ -5712,7 +5709,7 @@
      }
     ],
     "plating": 10,
-    "thorns": 5
+    "thorns": 3
    },
    "moves": [
     {
