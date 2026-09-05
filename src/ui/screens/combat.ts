@@ -1484,6 +1484,13 @@ registerScreen('combat', (app, root, props) => {
   };
   window.addEventListener('keydown', onKey);
   app.disposers.push(() => window.removeEventListener('keydown', onKey));   // 換畫面就拆，不用等下一次按鍵（2026-09-02 稽核 L-8）
+  // 右鍵也能取消選目標（使用者 2026-09-06：有人建議，跟 Esc、點空白處同一件事）。只在選目標中才攔，平常右鍵照開瀏覽器選單
+  const onContext = (ev: MouseEvent): void => {
+    if (app.cs !== cs) { window.removeEventListener('contextmenu', onContext); return; }
+    if (targeting) { ev.preventDefault(); targeting = null; render(); }
+  };
+  window.addEventListener('contextmenu', onContext);
+  app.disposers.push(() => window.removeEventListener('contextmenu', onContext));
 
   render();
   syncPicker();
