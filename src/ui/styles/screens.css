@@ -1001,6 +1001,11 @@
 /* 帶滿收不下的忍具列：壓暗一點，跟真的拿到的分開 */
 .scene .reward-items .reward-item.missed { opacity: .7; border-style: dashed; }
 .swap-modal .modal-foot { margin-top: 22px; }   /* 「不換」鈕跟清單拉開，不壓到最後一支（使用者 2026-09-02） */
+/* 本局秘寶清單（reliclist.ts）：沿用換忍具的列樣式，但列不是按鈕；件數多時清單自己捲 */
+.relic-list { max-height: 440px; overflow-y: auto; padding-right: 4px; }
+.relic-row, .relic-row:hover { cursor: default; border-color: #3a2a1c66; background: #fffdf6; }
+.relic-row-name { width: 40px; text-align: center; font-size: 13px; }
+.relic-empty { text-align: center; color: #6b5a45; }
 
 /* ===== 秘寶與忍具圖鑑（封面）與狀態列缺圖牌子（2026-09-02） ===== */
 .title-books { display: flex; gap: 8px; justify-content: center; margin-top: 2px; }

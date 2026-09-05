@@ -90,7 +90,17 @@
   box-shadow: inset 0 -2px 3px #8a6a3f3d, inset 0 1px 0 #fff, 0 1px 0 #ffffff26;
 }
 .hud-relic img, .hud-potion img { width: 32px; height: 32px; display: block; }
-.hud-relic { transition: transform 120ms ease-out; }
+/* 東西太多（秘寶 8 格＋忍具 5～6 格）就縮一級，音樂音效鈕才不會被擠出去（使用者 2026-09-06 秘寶清單那批） */
+.hud.crowded .hud-relic img, .hud.crowded .hud-potion img { width: 26px; height: 26px; }
+.hud.crowded .hud-potion { width: 26px; height: 26px; font-size: 12px; }
+.hud.crowded .hud-relics, .hud.crowded .hud-potions { gap: 4px; }
+/* 擠的時候血條不能被壓成一小顆（它是整列唯一會縮的東西）：固定 160，改由間距、按鈕內距、音量拉桿讓位 */
+.hud.crowded { gap: 6px; }
+.hud.crowded .hud-hp { width: 146px; min-width: 146px; flex: none; }
+.hud.crowded .btn.small { padding: 4px 7px; }
+.hud.crowded .hud-vol { width: 46px; }
+.hud-relic { transition: transform 120ms ease-out; cursor: pointer; }   /* 點了開本局秘寶清單 */
+.hud .hud-relic-more { padding: 3px 9px; font-size: 14px; line-height: 1.3; }
 .hud-relic:hover { transform: translateY(-2px) scale(1.08); }
 .hud-potion {
   width: 32px;

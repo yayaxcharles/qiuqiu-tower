@@ -10,6 +10,7 @@ import { play, soundOn, toggleSound } from './audio';
 import { musicOn, musicVolume, setMusicVolume, toggleMusic } from './bgm';
 import { showDeckPicker } from './deckview';
 import { el } from './dom';
+import { showRelicList } from './reliclist';
 import { attachTextTooltip, attachTooltip } from './tooltip';
 
 /**
@@ -61,7 +62,11 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   lastFish = { seed: run.seed, n: fishNow };
 
   const relics = el('div', { class: 'hud-relics' });
-  for (const id of run.relics) {
+  // 最多畫 8 件、最新的排前面，其餘收成「+N」（使用者 2026-09-06：秘寶沒有上限，十幾件會把狀態列擠爆）；
+  // 點任何一件或「+N」開「本局秘寶」清單，一行一件看得完整
+  const MAX_ICONS = 8;
+  const shown = [...run.relics].reverse().slice(0, MAX_ICONS);
+  for (const id of shown) {
     const r = relicById[id];
     if (!r) continue;
     // 圖還沒生好的秘寶用名字前兩個字當牌子，不畫灰剪影
@@ -71,8 +76,12 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
     attachTextTooltip(node, r.name, r.text);
+    node.addEventListener('click', () => showRelicList(run));
     relics.append(node);
   }
+  if (run.relics.length > MAX_ICONS) relics.append(el('button', { class: 'btn small hud-relic-more', onclick: () => showRelicList(run) }, `+${run.relics.length - MAX_ICONS}`));
+  // 秘寶滿 8 格又帶九命鈴／忍具袋（忍具 5～6 格）時整列放不下：圖示與間距縮一級（.hud.crowded）
+  if (shown.length + Math.max(potionCapacity(run), 3) >= 10) hud.classList.add('crowded');
 
   const potions = el('div', { class: 'hud-potions' });
   // 格數隨難度與忍具袋變（見習～高手 3、宗師起 2、忍具袋 +1、九命鈴 +2）。畫面上至少畫 3 格：
