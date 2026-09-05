@@ -49,7 +49,7 @@ export function newRun(seed: string, difficulty = 1, hero: 'ninja' | 'samurai' =
   const run: RunState = {
     version: 1, ...(hero === 'ninja' ? {} : { hero }), seed, rng: rng.state, hp: mods.maxHp, maxHp: mods.maxHp, fish: START_FISH, act: 1, difficulty: level,
     deck: [], relics: [], potions: [], floor: 0,
-    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul, flags: {} }), currentNode: null, trail: [],
+    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul, flags: {}, difficulty: level }), currentNode: null, trail: [],
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
     flags: {},
   };
@@ -127,11 +127,13 @@ export function applyEncounterModifier(run: RunState, cs: CombatState): void {
 /**
  * 關主隨機前綴（使用者 2026-09-04：「同一個關主偶爾帶不同開場狀態，重玩才不會每次一樣」）。
  * 塔下、塔中的關主戰有 35% 機率抽到一個；師父（第三關）不抽。名字直接改成「暴怒的橘皮大王」，
- * 開場紀錄講一句它做了什麼。三種都是有得有失：暴怒＝爪力 +2 但血 −10%；疲憊＝血 −15% 但開場 8 點防禦；披甲＝鱗甲 2（每回合長防禦）但血 −5%。
+ * 開場紀錄講一句它做了什麼。三種都是有得有失：暴怒＝爪力 +2 但血 −20%；疲憊＝血 −10% 但開場 8 點防禦；披甲＝鱗甲 2（每回合長防禦）但血 −5%。
  */
 export const BOSS_PREFIXES: { label: string; line: string; apply: (e: EnemyCombat) => void }[] = [
-  { label: '暴怒的', line: '牠氣得毛都豎起來了（爪力 +2，生命 −10%）', apply: (e) => { addStatus(e, '爪力', 2); e.maxHp = Math.round(e.maxHp * 0.9); e.hp = e.maxHp; } },
-  { label: '疲憊的', line: '牠看起來累壞了（生命 −15%，但先架好 8 點防禦）', apply: (e) => { e.maxHp = Math.round(e.maxHp * 0.85); e.hp = e.maxHp; e.block += 8; } },
+  // 數字（下一輪平衡 2026-09-05，機器人強制每場都套的 A/B）：暴怒 +2／−10% 是純加難（到第二關 −4.7 點）、
+  // 疲憊 −15% 是純送分（+5.8 點）；改成 +2／−20% 與 −10% 之後三個都在 ±1～3 點內，前綴是變化不是懲罰
+  { label: '暴怒的', line: '牠氣得毛都豎起來了（爪力 +2，生命 −20%）', apply: (e) => { addStatus(e, '爪力', 2); e.maxHp = Math.round(e.maxHp * 0.8); e.hp = e.maxHp; } },
+  { label: '疲憊的', line: '牠看起來累壞了（生命 −10%，但先架好 8 點防禦）', apply: (e) => { e.maxHp = Math.round(e.maxHp * 0.9); e.hp = e.maxHp; e.block += 8; } },
   { label: '披甲的', line: '牠身上多披了一層甲（鱗甲 2：每回合長出防禦，生命 −5%）', apply: (e) => { addStatus(e, '鱗甲', 2); e.maxHp = Math.round(e.maxHp * 0.95); e.hp = e.maxHp; } },
 ];
 export function applyBossPrefix(run: RunState, cs: CombatState): void {
@@ -182,9 +184,9 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（第一關 10%、第二關 20%、第三關 40%）
   const r = rollRewards(runRng(run), kind, run.relics, winGold, late, { exclude, rareBonus: (run.rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(run) });
   if (r.cards.length) run.rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (run.rarePity ?? 0) + 1;
-  // 倍率只吃戰利品本身：事件獎金（bonusFish）本來就在外面，秘寶承諾的加成（winGold）也要先扣掉再乘——
-  // 不然帶滿三件加小魚乾的秘寶時，「餓扁了的」會把秘寶答應你的 +55 砍成 +27（稽核 2026-09-04 夜 M-2）
-  if (mod?.fishMul) r.fish = Math.round((r.fish - winGold) * mod.fishMul) + winGold;
+  // 肥美／餓扁改固定加減（下一輪平衡 2026-09-05）：倍率對 15～25 條的戰利品只有 ±10～20 條，換的卻是 ±25% 血，秤不平；
+  // 固定值也不會再碰到「把秘寶答應的加成一起砍掉」那個坑（稽核 2026-09-04 夜 M-2）：下限就是秘寶答應的那份（稽核 2026-09-05 夜 2 低-1）
+  if (mod?.fishAdd) r.fish = Math.max(winGold, r.fish + mod.fishAdd);
   if (mod) r.modifier = { label: mod.label, desc: mod.desc };   // 獎勵畫面要講得出「因為這場是肥美的」
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
@@ -205,7 +207,7 @@ export function advanceAct(run: RunState): void {
   // 過關回血：難度 3 起只補回缺血的七成五（殺戮尖塔進階 5 的做法）
   const heal = runMods(run).actHeal;
   run.hp = heal >= 1 ? run.maxHp : Math.min(run.maxHp, run.hp + Math.round((run.maxHp - run.hp) * heal));
-  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags });
+  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1 });
   run.currentNode = null;
   run.trail = [];
   run.floor = (run.act - 1) * FLOORS;

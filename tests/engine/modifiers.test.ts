@@ -63,10 +63,10 @@ describe('修飾詞套用到整場的每一隻魔物', () => {
     });
   });
 
-  it('打瞌睡的：每隻先睡兩回合（定身 2），但生命多兩成', () => {
+  it('打瞌睡的：每隻先睡一回合（定身 1，下一輪平衡 2026-09-05 從 2 改），但生命多兩成', () => {
     const base = fight(), cs = fight('dozing');
     cs.enemies.forEach((e, i) => {
-      expect(getStatus(e, '定身'), e.name).toBe(2);
+      expect(getStatus(e, '定身'), e.name).toBe(1);
       expect(e.maxHp, e.name).toBe(Math.round(base.enemies[i]!.maxHp * 1.2));
     });
   });
@@ -90,7 +90,7 @@ describe('地圖生成時就抽好修飾詞', () => {
   function rate(act: number, n = 150): number {
     let total = 0, withMod = 0;
     for (let i = 0; i < n; i++) {
-      const map = generateMap(new Rng(seedFromString(`m${act}-${i}`)), { act });
+      const map = generateMap(new Rng(seedFromString(`m${act}-${i}`)), { act, difficulty: 2 });
       for (const node of map.nodes) {
         if (node.type !== '戰鬥' && node.type !== '大魔物') continue;
         total++;
@@ -103,7 +103,7 @@ describe('地圖生成時就抽好修飾詞', () => {
   it('只有一般戰鬥與菁英會有；關主、事件、貓窩、罐頭鋪、紙箱都不會', () => {
     for (let i = 0; i < 40; i++) {
       for (const act of [1, 2, 3]) {
-        const map = generateMap(new Rng(seedFromString(`clean${act}-${i}`)), { act });
+        const map = generateMap(new Rng(seedFromString(`clean${act}-${i}`)), { act, difficulty: 2 });
         for (const node of map.nodes) {
           if (node.type === '戰鬥' || node.type === '大魔物') continue;
           expect(node.modifier, `${node.type} 不該有修飾詞`).toBeUndefined();
@@ -114,7 +114,7 @@ describe('地圖生成時就抽好修飾詞', () => {
 
   it('抽到的一定是表裡有的 id', () => {
     for (let i = 0; i < 40; i++) {
-      const map = generateMap(new Rng(seedFromString(`id${i}`)), { act: 3 });
+      const map = generateMap(new Rng(seedFromString(`id${i}`)), { act: 3, difficulty: 2 });
       for (const node of map.nodes) {
         if (node.modifier) expect(modifierById[node.modifier], node.modifier).toBeDefined();
       }
@@ -147,12 +147,12 @@ describe('修飾詞掛在獎勵上', () => {
     return finishCombat(run, cs)!;
   }
 
-  it('肥美的：小魚乾加倍', () => {
-    expect(loot('plump').fish).toBe(loot().fish * 2);
+  it('肥美的：小魚乾多 40 條（下一輪平衡 2026-09-05 從加倍改固定）', () => {
+    expect(loot('plump').fish).toBe(loot().fish + 40);
   });
 
-  it('餓扁了的：小魚乾剩一半', () => {
-    expect(loot('starved').fish).toBe(Math.round(loot().fish * 0.5));
+  it('餓扁了的：小魚乾少 15 條（從砍半改固定）', () => {
+    expect(loot('starved').fish).toBe(Math.max(0, loot().fish - 15));
   });
 
   it('中了魔氣的：可以挑的牌多一張', () => {
@@ -218,11 +218,11 @@ describe('修飾詞會改魔物的名字（使用者 2026-09-04）', () => {
 
   it('紀錄裡講一句這個修飾詞在做什麼', () => {
     const cs = fightEnc('plump', 'rats3');
-    expect(cs.log.some((l) => l.includes('小魚乾加倍'))).toBe(true);
+    expect(cs.log.some((l) => l.includes('小魚乾多 40 條'))).toBe(true);
   });
 });
 
-describe('小魚乾倍率只吃戰利品，不吃秘寶的加成（稽核 2026-09-04 夜 M-2）', () => {
+describe('小魚乾固定加減，秘寶承諾的加成一條不少（稽核 2026-09-04 夜 M-2；2026-09-05 改固定值後仍要成立）', () => {
   /** 帶著兩件加小魚乾的秘寶（+10、+20）打贏一場 */
   function lootWithRelics(modifier?: string) {
     const run = newRun('relic-mul');
@@ -238,15 +238,15 @@ describe('小魚乾倍率只吃戰利品，不吃秘寶的加成（稽核 2026-0
     return finishCombat(run, cs)!;
   }
 
-  it('餓扁了的：戰利品砍半，但秘寶承諾的 30 條一條不少', () => {
+  it('餓扁了的：少 15 條，但秘寶承諾的 30 條一條不少', () => {
     const base = lootWithRelics(), cut = lootWithRelics('starved');
-    expect(cut.fish).toBe(Math.round((base.fish - 30) * 0.5) + 30);
+    expect(cut.fish).toBe(base.fish - 15);
     expect(cut.fish, '秘寶的 30 條不該被砍').toBeGreaterThanOrEqual(30);
   });
 
-  it('肥美的：戰利品加倍，秘寶的 30 條不會跟著變 60', () => {
+  it('肥美的：多 40 條，秘寶的 30 條不會跟著變', () => {
     const base = lootWithRelics(), fat = lootWithRelics('plump');
-    expect(fat.fish).toBe((base.fish - 30) * 2 + 30);
+    expect(fat.fish).toBe(base.fish + 40);
   });
 });
 
@@ -324,9 +324,9 @@ describe('修飾詞撞上既有機制不可以反轉成純加強（稽核 2026-0
     expect(dozing.maxHp, '生命照樣 +20%').toBe(Math.round(base.maxHp * 1.2));
   });
 
-  it('一般魔物不受影響：打瞌睡的照樣定身 2、疲憊的照樣 8 點防禦', () => {
+  it('一般魔物不受影響：打瞌睡的照樣定身 1、疲憊的照樣 8 點防禦', () => {
     const base = one(undefined, 'rats3');
-    expect(getStatus(one('dozing', 'rats3'), '定身')).toBe(2);
+    expect(getStatus(one('dozing', 'rats3'), '定身')).toBe(1);
     expect(one('weary', 'rats3').block - base.block).toBe(8);
     expect(getStatus(one('plated', 'rats3'), '鱗甲')).toBe(2);
   });

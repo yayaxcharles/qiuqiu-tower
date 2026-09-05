@@ -464,6 +464,8 @@ export interface EnemyCombat extends Unit {
   invulnIn: number;
   /** 這一拍剛從同生共死爬起來：狀態照結算，但不出招、頭上那招留到下回合（稽核 2026-09-04 M-1） */
   justRevived?: boolean;
+  /** 憤怒（angerOnSkill）這回合已經觸發過：每回合最多一次，防禦牌才不會變成餵怪（下一輪平衡 2026-09-05） */
+  angerTurn?: number;
   move: EnemyMove;
   dead: boolean;
   escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退（消散、分裂也走這條）

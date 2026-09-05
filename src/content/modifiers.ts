@@ -12,7 +12,7 @@ import type { EnemyCombat } from '../engine/types';
  * 再往同一個方向踩一腳只會更糟。所以七個裡面有三個對玩家是好事（打瞌睡、肥美、餓扁了），
  * 目的是讓每一場不一樣，不是把難度往上推。
  *
- * 整場的**每一隻**魔物都吃一次 `apply`；獎勵類的（`fishMul`、`extraCard`）是整場算一次。
+ * 整場的**每一隻**魔物都吃一次 `apply`；獎勵類的（`fishAdd`、`extraCard`）是整場算一次。
  */
 export interface EncounterModifier {
   id: string;
@@ -22,8 +22,8 @@ export interface EncounterModifier {
   desc: string;
   /** 這一場的每一隻魔物都套一次 */
   apply: (e: EnemyCombat) => void;
-  /** 打贏拿到的小魚乾倍率（沒寫＝照常） */
-  fishMul?: number;
+  /** 打贏的小魚乾固定加減（沒寫＝照常；少到 0 為止）。原本是倍率 ×2／×0.5，對 15～25 條的戰利品只有 ±10～20 條、換的卻是 ±25% 血（下一輪平衡 2026-09-05） */
+  fishAdd?: number;
   /** 打贏多挑一次牌 */
   extraCard?: boolean;
 }
@@ -51,14 +51,17 @@ export const ENCOUNTER_MODIFIERS: EncounterModifier[] = [
   { id: 'plated', label: '披甲的', desc: '鱗甲 2（每回合長出防禦），生命 −5%',
     apply: (e) => { if (getStatus(e, '不壞身') === 0) addStatus(e, '鱗甲', 2); scaleHp(e, 0.95); } },
   // 本來就睡著的（冬眠熊）或正在消散倒數的，再加定身等於白送五回合／直接把牠拖到消失。稽核同上 L-4
-  { id: 'dozing', label: '打瞌睡的', desc: '前兩回合睡著、打不出攻擊，但生命多兩成',
-    apply: (e) => { if (getStatus(e, '沉睡') === 0 && getStatus(e, '消散') === 0) addStatus(e, '定身', 2); scaleHp(e, 1.2); } },
-  { id: 'plump', label: '肥美的', desc: '生命 +25%，但打贏的小魚乾加倍', fishMul: 2,
+  // 定身 2→1（下一輪平衡 2026-09-05）：兩回合對第一關一般戰是白送（每場掉血 6.2→1.8），一回合仍是好事但不再免費（3.6）
+  { id: 'dozing', label: '打瞌睡的', desc: '第一回合睡著、打不出攻擊，但生命多兩成',
+    apply: (e) => { if (getStatus(e, '沉睡') === 0 && getStatus(e, '消散') === 0) addStatus(e, '定身', 1); scaleHp(e, 1.2); } },
+  { id: 'plump', label: '肥美的', desc: '生命 +25%，但打贏的小魚乾多 40 條', fishAdd: 40,
     apply: (e) => { scaleHp(e, 1.25); } },
-  { id: 'starved', label: '餓扁了的', desc: '生命 −25%，但身上沒油水，小魚乾只有一半', fishMul: 0.5,
+  { id: 'starved', label: '餓扁了的', desc: '生命 −25%，但身上沒油水，小魚乾少 15 條', fishAdd: -15,
     apply: (e) => { scaleHp(e, 0.75); } },
-  { id: 'miasmic', label: '中了魔氣的', desc: '爪力 +3，但打贏可以多挑一次牌', extraCard: true,
-    apply: (e) => { addStatus(e, '爪力', 3); } },
+  // 爪力 3→2（下一輪平衡 2026-09-05）：+3 讓第一關一般戰掉血翻快一倍、第二關勝率掉兩成。
+  // 「多挑一次」其實是三選一變四選一（rewards 的 3 + extra），文字照實寫；真的多拿一張要動獎勵畫面，留下一輪
+  { id: 'miasmic', label: '中了魔氣的', desc: '爪力 +2，但打贏挑牌時多一張可選', extraCard: true,
+    apply: (e) => { addStatus(e, '爪力', 2); } },
 ];
 
 export const modifierById: Record<string, EncounterModifier> =
@@ -67,7 +70,9 @@ export const modifierById: Record<string, EncounterModifier> =
 /**
  * 這一層抽到修飾詞的機率。第一關低是刻意的——前十五層是學遊戲的時候，
  * 版面越乾淨越好；一整關大概只會碰到一次，當作見面禮。越往上越不安定。
+ * 難度 1（見習）整局不抽（使用者 2026-09-05：新手看到就出現有點不好，出師以上才有）。
  */
-export function modifierChanceFor(act: number): number {
+export function modifierChanceFor(act: number, difficulty = 1): number {
+  if (difficulty < 2) return 0;
   return act >= 3 ? 0.3 : act === 2 ? 0.25 : 0.15;
 }

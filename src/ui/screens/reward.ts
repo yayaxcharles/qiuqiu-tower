@@ -60,7 +60,7 @@ registerScreen('reward', (app, root, props) => {
   const items = el('div', { class: 'reward-items' },
     el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
       el('span', { class: 'reward-line' }, `獲得 ${r.fish} 條小魚乾`)));
-  // 修飾詞的歸因：小魚乾為什麼加倍／減半、為什麼多一張牌可挑，畫面上要講得出來（體檢 2026-09-05）
+  // 修飾詞的歸因：小魚乾為什麼多了／少了、為什麼多一張牌可挑，畫面上要講得出來（體檢 2026-09-05）
   if (r.modifier) items.append(el('div', { class: 'reward-item loot' }, el('span', { class: 'reward-line' }, `這場是「${r.modifier.label}」：${r.modifier.desc}`)));
   // 獎金另起一行：r.fish 是規格 §5.4 的戰利品，兩個數字不併成一個，玩家才看得出獎金有沒有拿到
   if (bonus > 0) items.append(el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),

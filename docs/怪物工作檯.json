@@ -925,8 +925,8 @@
    "id": "nekomata",
    "name": "貓又婆婆",
    "hp": [
-    175,
-    175
+    158,
+    158
    ],
    "pool": "塔主",
    "size": "large",
@@ -935,7 +935,7 @@
    "acts": [],
    "passives": {
     "strengthEveryNTurns": 2,
-    "plating": 7
+    "plating": 4
    },
    "moves": [
     {
@@ -1098,8 +1098,8 @@
    "id": "iron_claw",
    "name": "鐵爪機關貓",
    "hp": [
-    125,
-    125
+    113,
+    113
    ],
    "pool": "塔主",
    "size": "large",
@@ -4100,8 +4100,8 @@
    "id": "orange_king",
    "name": "橘皮大王",
    "hp": [
-    165,
-    165
+    149,
+    149
    ],
    "pool": "塔主",
    "size": "large",
@@ -4242,7 +4242,7 @@
    "acts": [],
    "passives": {
     "strengthEveryNTurns": 2,
-    "angerOnSkill": 2,
+    "angerOnSkill": 1,
     "plating": 7
    },
    "moves": [
@@ -4380,11 +4380,7 @@
    "acts": [],
    "passives": {
     "angerOnSkill": 1,
-    "strengthEveryNTurns": 3,
-    "hexOnSkill": {
-     "cardId": "dazed_card",
-     "n": 1
-    }
+    "strengthEveryNTurns": 3
    },
    "moves": [
     {
@@ -5490,8 +5486,8 @@
    "id": "frog_daimyo",
    "name": "蛙大名",
    "hp": [
-    150,
-    150
+    135,
+    135
    ],
    "pool": "塔主",
    "size": "large",
@@ -5499,8 +5495,8 @@
    "art": "codex/monster_frog_daimyo",
    "acts": [],
    "passives": {
-    "plating": 4,
-    "strengthEveryNTurns": 2,
+    "plating": 2,
+    "strengthEveryNTurns": 3,
     "reviveGroup": "pond",
     "neverRevive": true
    },
@@ -5634,8 +5630,8 @@
    "id": "armadillo_king",
    "name": "犰狳王",
    "hp": [
-    150,
-    150
+    135,
+    135
    ],
    "pool": "塔主",
    "size": "large",
@@ -5871,7 +5867,7 @@
      "n": 1
     },
     "thorns": 3,
-    "angerOnSkill": 2
+    "angerOnSkill": 1
    },
    "moves": [
     {

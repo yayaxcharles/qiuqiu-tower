@@ -158,7 +158,9 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number): bool
     for (const e of aliveEnemies(cs)) {
       const d = enemyById[e.enemyId];
       if (d?.hexOnSkill) giveCards(cs, e, d.hexOnSkill.cardId, d.hexOnSkill.n, 'draw');
-      if (d?.angerOnSkill) { addStatus(e, '爪力', d.angerOnSkill); log(cs, `${e.name}被激怒了`); }
+      // 憤怒每回合最多觸發一次（跟毛線手套 onHit 的 hitRelicTurn 同一套）：三隻第二關關主主招都是三段，
+      // 每張技能牌都 +1／+2 會讓「先擋再打」的牌組被判死刑（全面體檢 2026-09-05；下一輪平衡拍板）
+      if (d?.angerOnSkill && e.angerTurn !== cs.turn) { e.angerTurn = cs.turn; addStatus(e, '爪力', d.angerOnSkill); log(cs, `${e.name}被激怒了`); }
     }
   }
   return true;

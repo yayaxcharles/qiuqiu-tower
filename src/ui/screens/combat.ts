@@ -1291,7 +1291,8 @@ registerScreen('combat', (app, root, props) => {
     // 伏兵是在敵方回合開頭冒出來的，那一拍還沒有人出手，所以不能放在上面那個「有人出招」的區塊裡（稽核 2026-09-04 高 3）
     if (fresh.some((l) => l.startsWith('伏兵'))) toast('有伏兵跳出來了喵！', '球球');
     if (cat) {
-      if (p.hp > before.hp) { burst(cat, 'heal'); sfx('heal'); }
+      // 回血也飄數字：打倒巨型飯糰回 10 只有綠光、看起來像沒回（使用者 2026-09-05）
+      if (p.hp > before.hp) { cat.append(floatNum(`+${p.hp - before.hp}`, 'heal')); burst(cat, 'heal'); sfx('heal'); }
       if (p.block > before.block) { burst(cat, 'block'); sfx('block'); }
       if (sumStatus(p, GOOD_STATUS) > before.buff) {
         burst(cat, 'buff');

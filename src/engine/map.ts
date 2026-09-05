@@ -128,6 +128,8 @@ export interface MapOpts {
   bossIds?: string[];
   /** 本局旗標：事件前後集看它決定後集要不要排進來（沒給＝只排沒有條件的事件） */
   flags?: Record<string, boolean>;
+  /** 難度 1～5：見習（1）不抽遭遇修飾詞（使用者 2026-09-05：新手版面要乾淨）。沒給＝1 */
+  difficulty?: number;
 }
 
 export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
@@ -359,7 +361,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     // 遭遇修飾詞（使用者 2026-09-04 拍板）：一般怪與菁英在這裡就抽好，地圖上才標得出來、
     // 玩家才有得規劃路線。關主不抽——牠走自己的前綴（run.ts 的 BOSS_PREFIXES），兩套不重疊。
     if (n.type === '戰鬥' || n.type === '大魔物') {
-      if (rng.chance(modifierChanceFor(act))) n.modifier = rng.pick(ENCOUNTER_MODIFIERS).id;
+      if (rng.chance(modifierChanceFor(act, opts.difficulty ?? 1))) n.modifier = rng.pick(ENCOUNTER_MODIFIERS).id;
     }
   }
   return { nodes, start: byFloor[1]!.map((n) => n.id) };
