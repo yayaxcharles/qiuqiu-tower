@@ -167,7 +167,8 @@ export function seedTag(seed: string, full = false): HTMLElement {
   // 「代碼」兩個字玩家看不懂，改叫「存檔」（使用者 2026-09-06）；完整說明放提示框
   const label = full ? `本局代碼 ${seed} ⧉` : '💾 存檔';
   const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' }, label);
-  attachTextTooltip(node, `存檔代碼 ${seed}`, '點一下複製這串代碼；貼到標題畫面的「本局代碼」欄就能重玩同一局。');
+  // 說明照使用者 2026-09-06 的意思寫，但要講準：代碼是「同一局從頭再來」，不是接續進度——進度本身自動存檔、首頁按「續玩」
+  attachTextTooltip(node, `存檔代碼 ${seed}`, '點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。目前進度會自動存檔，回首頁按「續玩」就接著玩。');
   node.addEventListener('click', () => {
     const done = (): void => {
       play('click');
