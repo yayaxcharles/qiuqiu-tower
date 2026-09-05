@@ -143,7 +143,7 @@ registerScreen('event', (app, root, props) => {
           if (row && d) { row.classList.remove('missed'); row.querySelector('b')!.textContent = `換成了「${d.name}」`; }
         }
         askNext(i + 1);
-      });
+      }, missed.length > 1 ? { progress: `第 ${i + 1}／${missed.length} 支` } : {});
     };
     if (missed.length) window.setTimeout(() => askNext(0), 400);
   };

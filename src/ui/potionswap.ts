@@ -12,7 +12,7 @@ import { hideTooltip } from './tooltip';
  * 疊層規矩同 confirm.ts：疊層貼上去之後才 lockScreen。
  * `onDone(index)`：換掉了第幾支；不換回 -1。呼叫端自己決定要不要真的換（罐頭鋪要先付錢）。
  */
-export function showPotionSwap(run: RunState, newId: string, onDone: (index: number) => void, opts: { apply?: boolean } = {}): void {
+export function showPotionSwap(run: RunState, newId: string, onDone: (index: number) => void, opts: { apply?: boolean; progress?: string } = {}): void {
   const layer = overlayRoot();
   const def = potionById[newId];
   if (!layer || !def) { onDone(-1); return; }
@@ -39,7 +39,8 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
       el('span', { class: 'swap-go' }, '換掉這支')));
   });
   overlay.append(el('div', { class: 'modal swap-modal' },
-    el('h2', { class: 'modal-title' }, `忍具帶滿了。要用「${def.name}」換掉哪一支？`),
+    // 一次收到兩支以上時標「第 1／2 支」：玩家才知道換完這支還有下一支要問（使用者 2026-09-06：以為換完一支就結束）
+    el('h2', { class: 'modal-title' }, `忍具帶滿了。要用「${def.name}」換掉哪一支？${opts.progress ? `（${opts.progress}）` : ''}`),
     el('div', { class: 'swap-new' }, icon(def.art, def.name), el('div', { class: 'swap-text' }, el('b', {}, def.name), el('em', {}, def.text))),
     list,
     el('div', { class: 'modal-foot' }, el('button', { class: 'btn', onclick: () => dismiss(-1) }, '不換，放棄新的'))));

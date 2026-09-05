@@ -149,10 +149,21 @@
    改成「亮的一律是可以點的」這一條規則：站的位置只留輕輕的浮動當「我在這」的記號，
    亮度壓到跟走過的節點差不多。 */
 .map-node.current {
-  opacity: .48;
-  filter: grayscale(.35) drop-shadow(0 0 3px rgba(201, 112, 42, .55));
+  /* 現在站的這格：原本只是半透明帶灰，跟舊樓層分不開（使用者 2026-09-06）。改成全亮＋橘色套圈，
+     跟下一格的黃光抖動是兩種顏色、一靜一動，不搶注意力 */
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgba(255, 150, 50, .9));
   /* 不再上下浮動：會動的效果只留給「可以點的下一格」。
      站的這格連浮動都有的話，跟下一格的縮放跳動搶注意力（使用者的原話）。 */
+}
+.map-node.current::before {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border: 3px solid #ff9a3c;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 154, 60, .7), inset 0 0 8px rgba(255, 154, 60, .35);
+  pointer-events: none;
 }
 .map-node.choice {
   opacity: 1;
