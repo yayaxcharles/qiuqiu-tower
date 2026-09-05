@@ -2,7 +2,7 @@ import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
-import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, giveCards, log, makeEnemy, runEnemyEffects, SLEEP_MOVE } from './actions';
+import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, giveCards, log, makeEnemy, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
@@ -206,11 +206,9 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // 擊殺數要扣回去——同一隻爬起來再打倒不該重複計數。
   for (const e of cs.enemies) {
     const rdef = enemyById[e.enemyId];
-    if (!e.dead || e.escaped || !rdef?.reviveGroup || rdef.neverRevive) continue;
-    const hasFriend = cs.enemies.some((o) => o !== e && !o.dead
-      && enemyById[o.enemyId]?.reviveGroup === rdef.reviveGroup);
-    // 同組沒人站著＝真的倒了：倒數歸零，之後不再占召喚上限的名額（2026-09-03 稽核）
-    if (!hasFriend) { e.reviveIn = 0; continue; }
+    if (!e.dead || e.escaped || !rdef?.reviveGroup) continue;
+    // 同組沒人站著、或牠自己標了倒了就倒了＝真的倒了：倒數歸零，不再占召喚名額（判準與 killEnemy 共用）
+    if (!willRevive(cs, e)) { e.reviveIn = 0; continue; }
     // 「重生中」倒數：還沒數完就先躺著（預設躺兩回合，玩家才有湊一波清光的時間窗）
     if (e.reviveIn > 1) { e.reviveIn -= 1; continue; }
     e.reviveIn = 0;
@@ -314,10 +312,9 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     } else if (skipAct) {
       // 剛爬起來的這一拍不出手，頭上排好的那招留到下回合
     } else {
-      const charged = e.charged;
-      if (e.move.intent === 'attack') e.charged = false;
+      // 蓄力由 runEnemyEffects 在第一次套加倍時自己用掉（不看意圖，見該函式註解）
       const hpBefore = cs.player.hp;
-      runEnemyEffects(cs, e, e.move.effects, charged);
+      runEnemyEffects(cs, e, e.move.effects, e.charged);
       // 被打掉血的秘寶效果（毛線手套）：每回合最多一次
       if (cs.player.hp < hpBefore && cs.phase === 'player' && cs.player.hitRelicTurn !== cs.turn) {
         cs.player.hitRelicTurn = cs.turn;

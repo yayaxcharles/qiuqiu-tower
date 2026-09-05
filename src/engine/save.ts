@@ -1,3 +1,7 @@
+import { encounterById } from '../content/enemies';
+import { eventById } from '../content/events';
+import { potionById } from '../content/potions';
+import { relicById } from '../content/relics';
 import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
 import type { RunState } from './types';
@@ -75,6 +79,10 @@ export function loadRun(): RunState | null {
     if (!usableMap(run.map, run.currentNode)) { clearSave(); return null; }
     // 忍具、秘寶、統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
     if (!Array.isArray(run.potions) || !Array.isArray(run.relics) || !run.stats || typeof run.stats !== 'object') { clearSave(); return null; }
+    // 遭遇、事件、秘寶、忍具的 id 對不上（內容改名、拆併之後帶舊檔）也當不相容。原本只驗牌：
+    // 遭遇 id 對不上要到開戰才丟「未知的遭遇」，例外從點擊事件冒出來，地圖點不動、沒任何訊息（全面體檢 2026-09-05 #4）
+    if (!run.map.nodes.every((n) => (!n.encounterId || encounterById[n.encounterId]) && (!n.eventId || eventById[n.eventId]))) { clearSave(); return null; }
+    if (!run.relics.every((id) => relicById[id]) || !run.potions.every((id) => potionById[id])) { clearSave(); return null; }
     // 舊存檔沒有 flags：補一個空的就好，不必升版本
     if (!run.flags || typeof run.flags !== 'object') run.flags = {};
     // 舊存檔沒有 trail（足跡紀錄之前存的）：從現在站的格子開始記，之前走過的路照暗

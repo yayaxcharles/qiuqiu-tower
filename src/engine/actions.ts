@@ -166,14 +166,25 @@ function checkPhase(cs: CombatState, e: EnemyCombat): void {
     ?? (next.pattern === 'random' ? cs.rng.pick(next.moves) : (next.moves[0] as EnemyMove));
 }
 
+/**
+ * 這隻倒下之後會不會爬回來：要在同生共死組、沒標「倒了就倒了」（`neverRevive`）、沒逃走、
+ * 而且同組還有人站著。引擎的擊倒與復活迴圈、畫面的「重生中」殘影三處共用這一支——
+ * 原本各寫一份，`killEnemy` 那份漏了 `neverRevive`，蛙大名先倒就永遠掛「重生中 2」、
+ * 擊倒秘寶全不發（全面體檢 2026-09-05 #1）。
+ */
+export function willRevive(cs: CombatState, e: EnemyCombat): boolean {
+  const rd = enemyById[e.enemyId];
+  if (!rd?.reviveGroup || rd.neverRevive || e.escaped) return false;
+  return cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === rd.reviveGroup);
+}
+
 function killEnemy(cs: CombatState, e: EnemyCombat): void {
   e.dead = true;
   // 同生共死組的成員倒下就開始倒數「重生中」；沒有同組概念的魔物、或同伴已經都不在的維持 0
   // （同伴都不在的不該再占召喚名額，稽核 2026-09-04 L-4）
-  const rd = enemyById[e.enemyId];
-  const reviving = !!rd?.reviveGroup && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === rd.reviveGroup);
+  const reviving = willRevive(cs, e);
   // 預設躺兩回合（使用者 2026-09-03：一回合就爬起來沒緩衝；躺著期間把其他同伴清掉就算贏）
-  e.reviveIn = reviving ? (rd!.reviveDelay ?? 2) : 0;
+  e.reviveIn = reviving ? (enemyById[e.enemyId]?.reviveDelay ?? 2) : 0;
   cs.kills += 1;
   const def = enemyById[e.enemyId]!;
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
@@ -202,6 +213,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     return { dealt: 0, killed: false };
   }
   let lose: number;
+  let dmg = 0;   // 真的打進去的量；反彈要看它，0 傷不該被刺（直傷分支維持 0，直傷本來就不觸發反彈）
   if (opts.direct) {
     lose = base;
     // 反彈：直傷但先扣魔物的防禦（同上，兩邊規則一樣）
@@ -211,7 +223,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     }
   } else {
     if (getStatus(e, '隱身') > 0) { addStatus(e, '隱身', -1); log(cs, `${e.name}閃過了`); return { dealt: 0, killed: false }; }
-    let dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
+    dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
     // 飛行：打得到的只有一半，**先減半再扣防禦**（燈蛾、月蛾后）。噎到那種直傷不吃這條
     if (getStatus(e, '飛行') > 0 && dmg > 0) { dmg = Math.floor(dmg / 2); log(cs, `${e.name}在天上，這一下只擦到一半`); }
     if (opts.ignoreBlock) lose = dmg;
@@ -220,8 +232,9 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       if (absorbed > 0) log(cs, `${e.name}的防禦擋下了 ${absorbed} 點`);   // 同上：魔物那邊也要飄「擋住 N」
     }
   }
-  // 魔物身上的反彈：你每打一下就被刺一下（刺蝟師傅、龜甲、師父第三條血——以前只有球球的反彈有效）
-  if (!opts.direct) {
+  // 魔物身上的反彈：你每打一下就被刺一下（刺蝟師傅、龜甲、師父第三條血——以前只有球球的反彈有效）。
+  // 跟球球側同一條規則：真的有傷害才刺——蜷縮 0 時打「等同蜷縮」、被飛行減半到 0 都不該掉血（全面體檢 2026-09-05）
+  if (!opts.direct && dmg > 0) {
     const th = getStatus(e, '反彈');
     if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true, throughBlock: true }); }
   }
@@ -343,13 +356,17 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
 function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
 
 export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyEffect[], charged: boolean): void {
+  // 蓄力只加倍**下一次**傷害：第一個吃到加倍的傷害效果就把蓄力用掉。原本是「攻擊意圖的招才清蓄力」，
+  // 狸小弟的搗蛋／裝可愛是減益／防禦意圖卻帶傷害，一次蓄力連吃三招加倍、48 傷（全面體檢 2026-09-05 #3）
+  let mult = charged;
+  const useCharge = (): number => { if (!mult) return 1; mult = false; e.charged = false; return 2; };
   const p = cs.player;
   for (const fx of effects) {
     if (e.dead) return;        // 已經倒下（例如被反彈打死）就不再執行剩下的效果
     if (isLost(cs)) return;
     switch (fx.kind) {
       case 'damage': {
-        const base = fx.amount * (charged ? 2 : 1);
+        const base = fx.amount * useCharge();
         for (let i = 0; i < (fx.times ?? 1); i++) {
           if (e.dead) return;      // 被反彈打死，剩下的段數不能再打
           damagePlayer(cs, e, base, { pierce: fx.pierce });
@@ -357,7 +374,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         }
         break;
       }
-      case 'damageRandom': damagePlayer(cs, e, cs.rng.int(fx.min, fx.max) * (charged ? 2 : 1)); break;
+      case 'damageRandom': damagePlayer(cs, e, cs.rng.int(fx.min, fx.max) * useCharge()); break;
       case 'block': gainBlock(cs, e, fx.amount); break;
       case 'statusSelf': addStatus(e, fx.name, fx.amount); break;
       case 'statusPlayer': addStatus(p, fx.name, fx.amount); break;
@@ -438,7 +455,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'selfDestruct': {
         // 自爆（河豚精）：先打人（吃蜷縮、隱身照閃），然後自己倒下——這一下**算打倒**，戰利品照發
         log(cs, `${e.name}炸開了`);
-        damagePlayer(cs, e, fx.amount * (charged ? 2 : 1));
+        damagePlayer(cs, e, fx.amount * useCharge());
         if (isLost(cs)) return;
         if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true });
         return;   // 自己都沒了，後面的效果不用跑

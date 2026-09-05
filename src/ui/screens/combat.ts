@@ -3,7 +3,7 @@ import { cardById } from '../../content/cards';
 import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
-import { aliveEnemies } from '../../engine/actions';
+import { aliveEnemies, willRevive } from '../../engine/actions';
 import { RAMPAGE_TURN, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
@@ -526,8 +526,7 @@ registerScreen('combat', (app, root, props) => {
     if (bossUnit && getStatus(e, '沉睡') > 0) cls.push('asleep');
     // 「重生中」的不藏起來：倒下但同伴還在，畫成半透明的殘影＋倒數牌子，
     // 玩家才知道牠會爬回來、還剩幾回合可以清場（本來直接隱形，看起來像打完了）
-    const reviving = e.dead && e.reviveIn > 0
-      && cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === def?.reviveGroup);
+    const reviving = e.dead && e.reviveIn > 0 && willRevive(cs, e);   // 判準與引擎共用，不再自己抄一份
     // 關主被打倒：不是直接消失，而是慢慢倒下（收尾節奏，使用者 2026-09-04）
     if (e.dead && !reviving) cls.push(bossFallUids.has(e.uid) ? 'boss-fall' : 'gone');
     if (reviving) cls.push('reviving');
@@ -550,7 +549,7 @@ registerScreen('combat', (app, root, props) => {
       if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
       if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
       if (e.invulnIn > 0) row.prepend(chip('無敵', null, '', 'bad'));
-      if (def?.reviveGroup) row.prepend(chip('同生共死', null, '', 'bad'));
+      if (def?.reviveGroup && !def.neverRevive) row.prepend(chip('同生共死', null, '', 'bad'));   // 蛙大名自己倒了就倒了，不掛這塊牌
       // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
       if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
       // 第二波魔物的三個被動（2026-09-02）。狀態型的（縮殼、飛行、鱗甲、沉睡、消散）自己就是狀態牌子，
