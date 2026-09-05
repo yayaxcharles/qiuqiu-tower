@@ -284,7 +284,7 @@ export const cards: readonly CardDef[] = [
   // 2026-09-04 牌池體檢補牌（使用者拍板：忍術攻擊 4、絕學常見 3、解減益 1、噎到流 4；hidden：牌面到齊後由 art_cards_0904b.sh 拿掉）
   { id: 'huixuan', name: '忍術·迴旋踢', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/huixuan',
     effects: [{ kind: 'damage', amount: 7 }, { kind: 'block', amount: 3 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'block', amount: 4 }] } },
+    upgrade: { effects: [{ kind: 'damage', amount: 7, times: 3 }, { kind: 'block', amount: 4 }] } },   // 升級版 10→7×3（使用者 2026-09-05）
   { id: 'lianhuan', name: '忍術·連環踢', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/lianhuan',
     effects: [{ kind: 'damage', amount: 5, times: 3 }],
     upgrade: { effects: [{ kind: 'damage', amount: 6, times: 3 }] } },

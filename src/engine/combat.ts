@@ -32,7 +32,7 @@ export function startCombat(input: {
   };
   const cs: CombatState = {
     rng: input.rng, player, enemies: [], relics: [...input.relics], potions: [...input.potions],
-    turn: 0, phase: 'player', pending: null, log: [], encounterId: input.encounterId, endTurnRequested: false,
+    turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId, endTurnRequested: false,
     stolenFish: 0, fishDelta: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
@@ -66,6 +66,7 @@ export function startPlayerTurn(cs: CombatState): void {
   if (cs.phase !== 'player') return;
   const p = cs.player;
   cs.turn += 1;
+  cs.hits.length = 0;   // 分段演出只看這一拍新增的幾筆，上一回合的不用留著（稽核 2026-09-05 夜 低-1）
   // 蜷縮不在這裡清：回合結束、魔物打完才照守護符留量修剪（見 endTurn 尾端）——
   // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」

@@ -510,6 +510,9 @@ export interface CombatState {
   cardPlays?: Record<number, number>;
   pending: PendingChoice | null;
   log: string[];
+  /** 這一場打在魔物身上的每一段傷害（依發生順序；amount 是真的扣到血的量，被防禦全吃掉就是 0）。
+   *  畫面靠它把「5 點 ×3」拆成三下演，不用再從總掉血倒推（使用者 2026-09-05：連環踢看起來像一下扣 15） */
+  hits: { uid: number; amount: number }[];
   encounterId: string;
   /**
    * 牌效果要求結束回合（撒手鐧、先睡了）。以前是效果裡直接呼叫 endTurn，

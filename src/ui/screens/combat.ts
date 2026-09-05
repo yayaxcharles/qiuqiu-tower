@@ -134,10 +134,11 @@ interface Snap {
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
   enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean }>;
   logLen: number;
+  hitsLen: number;
 }
 function snap(cs: CombatState): Snap {
   return {
-    hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length,
+    hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length, hitsLen: cs.hits.length,
     buff: sumStatus(cs.player, GOOD_STATUS), debuff: sumStatus(cs.player, BAD_STATUS),
     growth: getStatus(cs.player, '爪力') + getStatus(cs.player, '貓步'),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
@@ -337,6 +338,25 @@ registerScreen('combat', (app, root, props) => {
     return sum;
   }
 
+  /** 多段攻擊一下一下演：每段隔 150 毫秒重掛一次挨打動畫、飄那一段的數字、放一聲。被擋成 0 的那段只閃不飄（「擋住 N」另外飄） */
+  function stageHits(node: HTMLElement, amounts: number[]): void {
+    amounts.forEach((amt, i) => {
+      window.setTimeout(() => {
+        if (app.cs !== cs || !node.isConnected) return;   // 這期間換了戰鬥或畫面重畫過了，節點已經不在舞台上
+        node.classList.remove('hit');
+        void node.offsetWidth;   // 強制重排，動畫才會從頭再播一次
+        node.classList.add('hit');
+        if (amt > 0) {
+          // 三個數字都落在同一點會糊成一團（稽核 2026-09-05 夜 中-1）：照序號左右錯開
+          const num = floatNum(`-${amt}`);
+          num.style.marginLeft = `${Math.round((i - (amounts.length - 1) / 2) * 28)}px`;
+          node.append(num);
+        }
+        burst(node, 'slash');
+        sfx(amt >= 12 ? 'hit_heavy' : 'claw', 0.94 + Math.random() * 0.12);
+      }, i * 150);
+    });
+  }
   function floatNum(text: string, cls = ''): HTMLElement {
     const node = el('div', { class: `num${cls ? ' ' + cls : ''}` }, text);
     node.addEventListener('animationend', () => node.remove());
@@ -1185,11 +1205,17 @@ registerScreen('combat', (app, root, props) => {
     if (!(opts.light && patchField(before))) render();
 
     // 畫完才把動畫類別與浮動數字掛到剛生出來的節點上
+    let stagedMax = 0;   // 本拍最多分幾段：收姿勢與倒下的演出都要排在最後一段之後
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
       const node = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
       if (!b || !node) continue;
-      if (e.hp < b.hp) {
+      // 攻擊牌打出多段（連環踢 5×3）：照引擎記下來的每一段，一下一下演——原本只彈一個總數，
+      // 玩家看到的是「直接扣 15」而不是三下（使用者 2026-09-05）。丟擲類忍具也帶 attack（針雨 4×3 一樣分段）；
+      // 單段、反彈、噎到那些照舊走下面
+      const staged = opts.attack ? cs.hits.slice(before.hitsLen).filter((h) => h.uid === e.uid).map((h) => h.amount) : [];
+      if (e.hp < b.hp && staged.length > 1) { stageHits(node, staged); stagedMax = Math.max(stagedMax, staged.length); }
+      else if (e.hp < b.hp) {
         node.classList.add('hit');
         node.append(floatNum(`-${b.hp - e.hp}`));
         // 出攻擊牌打的放斬擊，其他來源（反彈、中毒、自傷）放撞擊火花：
@@ -1228,7 +1254,12 @@ registerScreen('combat', (app, root, props) => {
       if (sumStatus(e, BAD_STATUS) > b.debuff) burst(node, 'debuff');
       // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
       // 關主的白閃慢倒不放小怪化煙的煙與音效（調性不合，稽核 2026-09-04 低 22）
-      if (!b.dead && e.dead) { if (bossFallUids.has(e.uid)) { sfx('enemy_down'); } else { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); } }
+      // 分段演出時倒下要等最後一段打完再演，不然溶解跟煙會插在三段中間、最後那下的數字反而看不到（稽核 2026-09-05 夜 高-1）
+      if (!b.dead && e.dead) {
+        const after = staged.length > 1 ? (staged.length - 1) * 150 : 0;
+        const fall = (): void => { if (bossFallUids.has(e.uid)) { sfx('enemy_down'); } else { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); } };
+        if (after > 0) window.setTimeout(() => { if (app.cs === cs && node.isConnected) fall(); }, after); else fall();
+      }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {
         node.classList.add('attack');
@@ -1321,7 +1352,8 @@ registerScreen('combat', (app, root, props) => {
     // 不然第三隻起會撲到一半被切回待機（稽核 2026-09-03）
     const stagger = Math.max(0, cs.enemies.length - 1) * 110;
     // 蜷縮本來停 1200：使用者 2026-09-03 晚「有點太長，有時候會拖到下一回合」→ 縮到 700，仍比一般姿勢多停一點
-    const hold = pose === POSE.curl ? 700 : Math.max(650, stagger + 560);
+    // 分段演出：最後一段在 (段數−1)×150 毫秒掛上、抖 400 毫秒，收姿勢要等它抖完（稽核 2026-09-05 夜 低-3）
+    const hold = pose === POSE.curl ? 700 : Math.max(650, stagger + 560, stagedMax > 1 ? (stagedMax - 1) * 150 + 460 : 0);
     const mine = ++seq;
     window.setTimeout(() => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;

@@ -244,6 +244,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     log(cs, `${e.name}半透明的，這一下只碰到 1 點`);
     lose = 1;
   }
+  cs.hits.push({ uid: e.uid, amount: Math.min(lose, e.hp) });   // 每一段各記一筆（含被擋成 0 的）、只記真的扣到血的量，畫面拆多段用
   e.hp = Math.max(0, e.hp - lose);
   if (lose > 0) {
     // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。
