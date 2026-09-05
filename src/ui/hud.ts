@@ -164,9 +164,10 @@ function diffBadge(run: RunState): HTMLElement | string {
 export function seedTag(seed: string, full = false): HTMLElement {
   // 十三位數字整條印在狀態列太佔位（使用者 2026-09-06）：狀態列做成跟「圖鑑」一樣的小按鈕，
   // 完整代碼滑上去看、點一下複製；結算畫面（full）空間夠，照舊整串印出來
-  const label = full ? `本局代碼 ${seed} ⧉` : '📋 代碼';
+  // 「代碼」兩個字玩家看不懂，改叫「存檔」（使用者 2026-09-06）；完整說明放提示框
+  const label = full ? `本局代碼 ${seed} ⧉` : '💾 存檔';
   const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' }, label);
-  attachTextTooltip(node, `本局代碼 ${seed}`, '點一下複製，貼到標題畫面的「本局代碼」就能重玩同一局。');
+  attachTextTooltip(node, `存檔代碼 ${seed}`, '點一下複製這串代碼；貼到標題畫面的「本局代碼」欄就能重玩同一局。');
   node.addEventListener('click', () => {
     const done = (): void => {
       play('click');
