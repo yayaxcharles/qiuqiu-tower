@@ -68,9 +68,11 @@
      32 段路徑每一幀都要重新描一次；方向感改由腳印依序亮起來表達，
      那個動的是 opacity，走合成器，便宜很多，也比較像真的有人在走。 */
 }
+/* 走過的路：加粗、加亮（使用者 2026-09-06：「走過的路不會亮」——3 像素、七成八透明的線在深色背景上太淡） */
 .map-edges path.walked {
-  stroke: rgba(255, 224, 150, .78);
-  filter: drop-shadow(0 0 4px rgba(255, 211, 92, .5));
+  stroke: rgba(255, 230, 160, .97);
+  stroke-width: 5.5;
+  filter: drop-shadow(0 0 5px rgba(255, 211, 92, .85)) drop-shadow(0 0 12px rgba(255, 190, 70, .45));
 }
 /* 腳印一顆一顆依序亮，像有人正踩著這條路往上走。
    每顆的起跑時間差 0.16 秒（在 map.ts 用負的 animation-delay 設），
@@ -123,7 +125,7 @@
 }
 .map-node.past { opacity: .3; filter: grayscale(.75) drop-shadow(0 0 2px rgba(0, 0, 0, .8)); }
 /* 打完的格子（足跡上）：比其他舊樓層清楚一點，右上角蓋一顆勾勾章＝「這格辦完了」 */
-.map-node.cleared { opacity: .55; filter: grayscale(.35) drop-shadow(0 0 2px rgba(0, 0, 0, .8)); }
+.map-node.cleared { opacity: .72; filter: grayscale(.2) drop-shadow(0 0 3px rgba(255, 211, 92, .45)); }   /* .55→.72：打過的格子要看得出來（使用者 2026-09-06） */
 .map-node.cleared::after {
   content: '✓';
   position: absolute;

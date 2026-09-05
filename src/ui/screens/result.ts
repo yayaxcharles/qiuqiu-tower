@@ -48,7 +48,7 @@ registerScreen('result', (app, root) => {
     extra: [
       el('div', { class: 'result-stats' },
         `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${run.deck.length} 張`),
-      el('div', { class: 'result-row' }, relics, seedTag(run.seed)),
+      el('div', { class: 'result-row' }, relics, seedTag(run.seed, true)),
       el('div', { class: 'result-best' }, `最佳成績：${best.floor}F${best.won ? `（通關，${best.turns} 回合）` : ''}`),
     ],
     actions: [

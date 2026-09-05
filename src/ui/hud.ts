@@ -75,15 +75,19 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   }
 
   const potions = el('div', { class: 'hud-potions' });
-  for (let i = 0; i < potionCapacity(run); i++) {   // 格數隨難度與忍具袋變
-    const id = run.potions[i];
+  // 格數隨難度與忍具袋變（見習～高手 3、宗師起 2、忍具袋 +1、九命鈴 +2）。畫面上至少畫 3 格：
+  // 宗師起少掉的那一格畫成鎖住的格子而不是消失，格數才不會一局兩格一局三格（使用者 2026-09-06）
+  const cap = potionCapacity(run);
+  for (let i = 0; i < Math.max(cap, 3); i++) {
+    const locked = i >= cap;
+    const id = locked ? undefined : run.potions[i];
     const p = id ? potionById[id] : undefined;
-    const slot = el('div', { class: `hud-potion${p ? '' : ' empty'}` });
-    // 提示只掛在有東西的格子上：空格掛了也只會跳出一個沒內容的框，反而讓人以為那格有東西。
+    const slot = el('div', { class: `hud-potion${p ? '' : locked ? ' locked' : ' empty'}` }, locked ? '🔒' : '');
+    // 提示只掛在有東西或鎖住的格子上：空格掛了也只會跳出一個沒內容的框，反而讓人以為那格有東西。
     if (id && p) {
       slot.append(el('img', { src: artUrl('icons', p.art), alt: p.name }));
       attachTextTooltip(slot, p.name, p.text);
-    }
+    } else if (locked) attachTextTooltip(slot, '這一格鎖住了', '宗師以上只能帶兩支忍具；拿到忍具袋或九命鈴會多出格子。');
     potions.append(slot);
   }
 
@@ -148,19 +152,24 @@ function diffBadge(run: RunState): HTMLElement | string {
   return node;
 }
 
-export function seedTag(seed: string): HTMLElement {
-  const node = el('button', { class: 'hud-seed seed-copy' }, `本局代碼 ${seed} ⧉`);
-  node.title = '點一下複製代碼';
+export function seedTag(seed: string, full = false): HTMLElement {
+  // 十三位數字整條印在狀態列太佔位（使用者 2026-09-06）：狀態列做成跟「圖鑑」一樣的小按鈕，
+  // 完整代碼滑上去看、點一下複製；結算畫面（full）空間夠，照舊整串印出來
+  const label = full ? `本局代碼 ${seed} ⧉` : '📋 代碼';
+  const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' }, label);
+  attachTextTooltip(node, `本局代碼 ${seed}`, '點一下複製，貼到標題畫面的「本局代碼」就能重玩同一局。');
   node.addEventListener('click', () => {
     const done = (): void => {
       play('click');
       node.textContent = '已複製！';
-      window.setTimeout(() => { node.textContent = `本局代碼 ${seed} ⧉`; }, 1200);
+      window.setTimeout(() => { node.textContent = label; }, 1200);
     };
+    // 剪貼簿不能用時把整串代碼印出來讓人自己選：這時候按鈕上本來只有「代碼」兩個字
+    const fallback = (): void => { node.textContent = seed; selectFallback(node); };
     try {
-      void navigator.clipboard.writeText(seed).then(done, () => selectFallback(node));
+      void navigator.clipboard.writeText(seed).then(done, fallback);
     } catch {
-      selectFallback(node);
+      fallback();
     }
   });
   return node;

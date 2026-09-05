@@ -613,11 +613,15 @@ registerScreen('combat', (app, root, props) => {
     attachTooltip(energy, '飯糰');
 
     const potions = el('div', { class: 'potions' });
-    for (let i = 0; i < potionCapacity(run); i++) {   // 格數隨難度與忍具袋變
-      const id = cs.potions[i];
+    // 格數隨難度與忍具袋變；跟狀態列同一套：至少畫 3 格，宗師起少掉的那格畫成鎖住（稽核 2026-09-06 介面 中-2）
+    const cap = potionCapacity(run);
+    for (let i = 0; i < Math.max(cap, 3); i++) {
+      const locked = i >= cap;
+      const id = locked ? undefined : cs.potions[i];
       const def = id ? potionById[id] : undefined;
-      const slot = el('div', { class: `potion${def ? '' : ' empty'}` });
-      // 提示只掛在有忍具的格子上：空格跳出一個沒內容的框，反而讓人以為那格有東西。
+      const slot = el('div', { class: `potion${def ? '' : locked ? ' locked' : ' empty'}` }, locked ? '🔒' : '');
+      if (locked) attachTextTooltip(slot, '這一格鎖住了', '宗師以上只能帶兩支忍具；拿到忍具袋或九命鈴會多出格子。');
+      // 提示只掛在有忍具或鎖住的格子上：空格跳出一個沒內容的框，反而讓人以為那格有東西。
       if (id && def) {
         const url = artUrl('icons', def.art);
         slot.append(isFallback(url) ? el('b', {}, def.name) : el('img', { src: url, alt: def.name }));

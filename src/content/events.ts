@@ -135,10 +135,10 @@ export const events: EventDef[] = [
     ] },
 
   { id: 'medicine_cat', title: '賣藥的三花貓',
-    text: '一隻三花貓在牆邊擺了個小攤，攤上排著幾個瓶子。「不保證有效，但一定有反應。」',
+    text: '一隻三花貓在牆邊擺了個小攤，攤上排著幾個藥水瓶跟忍具。「不保證有效，但一定有反應。」',
     choices: [
-      { label: '買一瓶（25 條小魚乾，拿兩支忍具）', costFish: 25, outcome: [{ kind: 'potions', n: 2 }], result: '三花貓收了錢，塞了兩個瓶子給球球。' },
-      { label: '買祖傳的（60 條小魚乾，最大生命 +12）', costFish: 60, outcome: [{ kind: 'maxHp', n: 12 }], result: '球球喝下去，覺得身體暖暖的。' },
+      { label: '買兩個隨機忍具（花費 25 條小魚乾）', costFish: 25, outcome: [{ kind: 'potions', n: 2 }], result: '三花貓收了錢，隨手抓了兩個忍具塞給球球。' },   // 文案照使用者 2026-09-06（結果句也講「忍具」，不再講「瓶子」）
+      { label: '買祖傳的藥水（最大生命值 +12，花費 60 條小魚乾）', costFish: 60, outcome: [{ kind: 'maxHp', n: 12 }], result: '球球喝下去，覺得身體暖暖的。' },
       { label: '不買', outcome: [], result: '三花貓聳聳肩。' },
     ] },
 
