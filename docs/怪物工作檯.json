@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-04",
+ "generatedAt": "2026-09-05",
  "monsters": [
   {
    "id": "rat",
@@ -5643,7 +5643,7 @@
    "art": "codex/monster_armadillo_king",
    "acts": [],
    "passives": {
-    "thorns": 4,
+    "thorns": 2,
     "strengthEveryNTurns": 2,
     "curlUp": 15,
     "plating": 4
