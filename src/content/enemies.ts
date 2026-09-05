@@ -857,9 +857,10 @@ export const enemies: EnemyDef[] = [
     ] },
   // 犰狳王：縮殼 15 ＋鱗甲 4。開場那一擊會被吃掉一大半，之後每回合還會自己補甲
   { id: 'armadillo_king', name: '犰狳王', hp: [150, 150], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_armadillo_king',
-    thorns: 4, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
+    thorns: 2, strengthEveryNTurns: 2,   // 殼上全是刺；越滾越猛
     line: '（整隻縮成一顆巨大的球）', lines: ['（殼上一道一道全是舊傷）', '（球身緩緩轉了半圈）'],
-    curlUp: 15, plating: 4,
+    curlUp: 15, plating: 4,   // 反彈 4→2（全面體檢 2026-09-05）：機器人 600 局牠 22% 是第一關五隻最低、陣亡榜第二；受控探針每場被反彈 44.7 點＝進場血的七成，忍術池最好的攻擊幾乎都是多段，每張要付 8～12 點血
+
     moves: [
       { intent: 'attack', label: '滾壓', effects: [{ kind: 'damage', amount: 18 }] },
       { intent: 'block', label: '龜縮', effects: [{ kind: 'block', amount: 15 }] },
