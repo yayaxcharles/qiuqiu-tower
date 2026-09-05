@@ -172,7 +172,7 @@ export type EnemyEffect =
   | { kind: 'purgePlayer'; names: StatusName[] }   // 破功：把玩家這些狀態各拍掉一半（向下取整保留）
   /** 照著學（鏡中球球）：把玩家這些狀態的層數抄過來（只抄比自己高的，不會愈抄愈少） */
   | { kind: 'copyPlayerStatus'; names: StatusName[] }
-  | { kind: 'stripPlayer'; names: StatusName[] }   // 看破：把玩家這些狀態整個拍掉（隱身、潛水——先囤好的閃避全沒）
+  | { kind: 'stripPlayer'; names: StatusName[] }   // 看破：把玩家這些狀態拍掉一半（2026-09-03 起，跟破功同一套算法）（隱身、潛水——先囤好的閃避全沒）
   | { kind: 'chargeNext' }
   | { kind: 'escape' }
   // ---- 2026-09-02 第二波魔物 ----

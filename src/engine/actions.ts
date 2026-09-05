@@ -5,7 +5,7 @@ import { draw } from './deck';
 import { applyEffects } from './effects';
 import { addStatus, computeAttack, computeBlock, getStatus, removeStatus } from './statuses';
 import { DEBUFFS } from './types';
-import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, Unit } from './types';
+import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, Unit, StatusName } from './types';
 
 /** 沉睡中的魔物頭上顯示的意圖。每次都是同一份物件，畫面比對「這一拍出的是哪一招」才穩 */
 export const SLEEP_MOVE: EnemyMove = { intent: 'idle', label: '呼呼大睡', effects: [{ kind: 'nothing' }] };
@@ -355,6 +355,13 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
 /** 包成函式再讀，免得 TypeScript 把 cs.phase 窄化後，看不見 damagePlayer 途中把戰鬥打成敗北 */
 function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
 
+/** 把球球身上指定的狀態各減半（向下取整保留），回傳真的有動到的那幾個。破功與看破共用（原本兩份一字不差）。 */
+function halvePlayerStatuses(cs: CombatState, names: readonly StatusName[]): StatusName[] {
+  const hit = names.filter((n) => getStatus(cs.player, n) > 0);
+  for (const n of hit) { const cur = getStatus(cs.player, n); addStatus(cs.player, n, -(cur - Math.floor(cur / 2))); }
+  return hit;
+}
+
 export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyEffect[], charged: boolean): void {
   // 蓄力只加倍**下一次**傷害：第一個吃到加倍的傷害效果就把蓄力用掉。原本是「攻擊意圖的招才清蓄力」，
   // 狸小弟的搗蛋／裝可愛是減益／防禦意圖卻帶傷害，一次蓄力連吃三招加倍、48 傷（全面體檢 2026-09-05 #3）
@@ -425,11 +432,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       }
       case 'purgePlayer': {
         // 破功（師父專用）：爪力／貓步這類疊起來的成長被拍散一半。減益不動——只拆你蓋的塔
-        const hitNames = fx.names.filter((n) => getStatus(cs.player, n) > 0);
-        for (const n of hitNames) {
-          const cur = getStatus(cs.player, n);
-          addStatus(cs.player, n, -(cur - Math.floor(cur / 2)));
-        }
+        const hitNames = halvePlayerStatuses(cs, fx.names);
         if (hitNames.length) log(cs, `${e.name}一掌拍散了球球的氣勁（${hitNames.join('、')}減半）`);
         break;
       }
@@ -444,8 +447,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
     case 'stripPlayer': {
         // 看破：先囤好的隱身／潛水拍掉一半（向下取整保留：3 剩 1、2 剩 1、1 剩 0）。
         // 原本是整個拍掉，使用者 2026-09-03：「太強了，拍掉一半就好，3 就拍掉剩 1」
-        const hit = fx.names.filter((n) => getStatus(cs.player, n) > 0);
-        for (const n of hit) { const cur = getStatus(cs.player, n); addStatus(cs.player, n, -(cur - Math.floor(cur / 2))); }
+        const hit = halvePlayerStatuses(cs, fx.names);   // 跟破功同一支算法，只差紀錄句
         if (hit.length) log(cs, `${e.name}看穿了球球的身法（${hit.join('、')}少了一半）`);
         break;
       }

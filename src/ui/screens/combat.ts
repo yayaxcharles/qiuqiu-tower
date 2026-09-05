@@ -475,7 +475,11 @@ registerScreen('combat', (app, root, props) => {
           parts.push(`造成 ${computeAttack(fx.min * x, e, cs.player)}～${computeAttack(fx.max * x, e, cs.player)} 點傷害`);
           break;
         case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點防禦`); break;
-        case 'statusPlayer': parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
+        case 'statusPlayer':
+          // 定身沒有量詞（「給你 1 定身」讀不通）：直接講後果
+          if (fx.name === '定身') parts.push('把你定住：這回合打不出攻擊牌');
+          else parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`);
+          break;
         case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
         case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
         case 'copyPlayerStatus': parts.push(`照著學：把你身上的${fx.names.join('、')}抄一份過去`); break;
@@ -1466,7 +1470,8 @@ registerScreen('combat', (app, root, props) => {
         el('img', { class: 'vs-right', src: bossUrl, alt: bossDef.name }),
         el('div', { class: 'vs-banner' },
           el('span', { class: 'vs-name' }, '球球'),
-          el('span', { class: 'vs-boss' }, bossDef.name)));
+          // 名字用場上那隻的（可能已冠上「暴怒的」前綴），跟頭上的名牌一致
+          el('span', { class: 'vs-boss' }, cs.enemies.find((u) => enemyById[u.enemyId]?.pool === '塔主')?.name ?? bossDef.name)));
       root.append(ov);
       sfx('hit_heavy', 0.5);
       const off = window.setTimeout(() => ov.remove(), 1400);

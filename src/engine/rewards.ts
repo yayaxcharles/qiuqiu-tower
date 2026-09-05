@@ -9,6 +9,8 @@ export interface CombatRewards {
   kind: '戰鬥' | '大魔物' | '塔主'; cards: CardDef[]; fish: number; potion: string | null; relic: string | null;
   /** 忍具帶滿收不下的那支：獎勵畫面會問要不要換掉一支舊的（2026-09-02） */
   potionMissed?: string | null;
+  /** 這場的遭遇修飾詞（有的話）：獎勵畫面用它解釋小魚乾為什麼加倍／減半、為什麼多一張牌 */
+  modifier?: { label: string; desc: string };
   /** 這一格牌是「已經升級過的」版本（使用者 2026-09-04：第一關一成、第二關兩成、第三關四成的獎勵有一張升級牌） */
   upgradedCard?: string;
 }

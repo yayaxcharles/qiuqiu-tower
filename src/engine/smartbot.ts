@@ -1,10 +1,11 @@
+import { DEBUFFS } from './types';
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { aliveEnemies } from './actions';
-import { canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
+import { canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
@@ -90,11 +91,9 @@ function incomingHits(cs: CombatState, e: EnemyCombat): number[] {
 function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce: boolean }[] {
   if (e.dead) return [];
   const m = e.move;
-  if (m.intent === 'attack' && getStatus(e, '定身') > 0) return [];
+  if (!willAct(e)) return [];   // 定身擋整個動作、沉睡什麼都不做——跟引擎與畫面同一支判準
   const x = e.charged ? 2 : 1;
   const hits: { dmg: number; pierce: boolean }[] = [];
-  // 睡著的什麼都不做（第二波魔物的沉睡）：這一拍不會有任何一下
-  if (getStatus(e, '沉睡') > 0) return [];
   for (const fx of m.effects) {
     if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * x, e, cs.player), pierce: !!fx.pierce });
     else if (fx.kind === 'damageRandom') hits.push({ dmg: computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, cs.player), pierce: false });
@@ -273,7 +272,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'endTurn': endsTurn = true; break;
       case 'noAttacksThisTurn': value -= p.hand.filter((h) => cardById[h.cardId]?.type === '攻擊').length * 2; break;
       case 'stealBlock': value += (target !== undefined ? enemies.find((e) => e.uid === target)?.block ?? 0 : 0) * 1.2; break;
-      case 'cleanse': value += Object.entries(p.statuses).filter(([k, v]) => ['翻肚', '懶洋洋', '炸毛', '噎到'].includes(k) && (v ?? 0) > 0).length * 4; break;
+      case 'cleanse': value += Object.entries(p.statuses).filter(([k, v]) => (DEBUFFS as readonly string[]).includes(k) && (v ?? 0) > 0).length * 4; break;
       case 'doubleStatus': {
         const best = enemies.reduce((m, e) => Math.max(m, getStatus(e, fx.name)), 0);
         value += best * (best + 1) / 2 * 0.9;
@@ -291,7 +290,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'retainFromHand': value += 1.5; break;
       case 'discardFromHand': value -= 1; break;
       case 'recoverFromDiscard': value += p.discardPile.length ? 3 : -5; break;
-      default: break;
+      case 'damage': case 'damageEqualBlock': case 'damageRamp': case 'damageRandom': break;   // 傷害在 switch 之前的傷害估算區另算，這裡不重複計
+      default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }
   // 要指定目標卻還沒挑（盯上你了、威嚇、封口術這類不打人的）：減益丟給最壯的那隻
@@ -462,7 +462,8 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
       case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;
       case 'chooseCard': v += fx.pool === '絕學' ? 14 : 9; break;
       case 'gamble': v += fx.p * eventValue(run, fx.win, 0) + (1 - fx.p) * eventValue(run, fx.lose, 0); break;
-      default: break;
+      case 'flag': break;   // 旗標只影響後集事件會不會出現，對機器人的當下估值沒有意義
+      default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }
   return v;

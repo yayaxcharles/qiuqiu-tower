@@ -53,7 +53,8 @@ export function newRun(seed: string, difficulty = 1, hero: 'ninja' | 'samurai' =
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, removeCost: 75, status: 'playing',
     flags: {},
   };
-  for (const id of STARTER_DECK) addCard(run, id);
+  // 起手牌照職業過濾：替身術是忍者獨占，武士先用一張坦定補位（武士自己的起手牌等 20 張武士牌做好再換）
+  for (const id of STARTER_DECK) addCard(run, (cardById[id]?.hero && cardById[id]!.hero !== hero) ? 'tanding' : id);
   if (mods.startCurse) addCard(run, mods.startCurse);   // 難度 4 起：開局就背一張壞毛病
   takeRelic(run, 'blue_headband');
   return run;
@@ -137,7 +138,9 @@ export function applyBossPrefix(run: RunState, cs: CombatState): void {
   if (encounterById[cs.encounterId]?.pool !== '塔主' || run.act >= ACTS) return;
   const boss = cs.enemies.find((e) => enemyById[e.enemyId]?.pool === '塔主');
   if (!boss) return;
-  const rng = runRng(run);
+  // 用這場戰鬥自己的亂數，不再另叫 runRng：原本這一叫會把 run.rng 換成新複本，整場關主戰在舊物件上推進、
+  // run.rng 停在抽前綴那一刻，戰後的獎勵是從開打前的亂數接下去抽（全面體檢 2026-09-05）
+  const rng = cs.rng;
   if (!rng.chance(0.35)) return;
   const p = rng.pick(BOSS_PREFIXES);
   p.apply(boss);
@@ -182,6 +185,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   // 倍率只吃戰利品本身：事件獎金（bonusFish）本來就在外面，秘寶承諾的加成（winGold）也要先扣掉再乘——
   // 不然帶滿三件加小魚乾的秘寶時，「餓扁了的」會把秘寶答應你的 +55 砍成 +27（稽核 2026-09-04 夜 M-2）
   if (mod?.fishMul) r.fish = Math.round((r.fish - winGold) * mod.fishMul) + winGold;
+  if (mod) r.modifier = { label: mod.label, desc: mod.desc };   // 獎勵畫面要講得出「因為這場是肥美的」
   run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
   if (r.relic) takeRelic(run, r.relic);
   if (r.potion && !addPotion(run, r.potion)) { r.potionMissed = r.potion; r.potion = null; }   // 帶滿：留著讓獎勵畫面問要不要換
@@ -350,7 +354,7 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): C
     if (cardDefs.filter((c) => c.rarity === '稀有').length >= wantRare) break;
     const cur = cardDefs[i]!;
     if (cur.rarity === '稀有') continue;
-    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !c.hidden && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
+    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && !c.combatOnly && !c.hidden && (!c.hero || c.hero === heroOf(run)) && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
     if (pool.length) cardDefs[i] = rng.pick(pool);
   }
   return cardDefs;
@@ -505,7 +509,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         break;
       case 'addRandomCard': {
         // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）只有魔物塞得進來，事件不能抽到
-        const pool = cards.filter((c) => c.pool === fx.pool && !c.combatOnly && !c.hidden && (!fx.rarity || c.rarity === fx.rarity));
+        const pool = cards.filter((c) => c.pool === fx.pool && !c.combatOnly && !c.hidden && (!c.hero || c.hero === heroOf(run)) && (!fx.rarity || c.rarity === fx.rarity));
         if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id); notes?.push(`撿到了「${def.name}」`); }
         break;
       }

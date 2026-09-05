@@ -8,7 +8,7 @@ import { applyEffects } from './effects';
 import type { Rng } from './rng';
 import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } from './statuses';
 import { TURN_DECAY } from './types';
-import type { CardInstance, CombatState, EffectCtx, PlayerCombat, StatusName } from './types';
+import type { CardInstance, CombatState, EffectCtx, PlayerCombat, StatusName, EnemyCombat } from './types';
 
 type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount' | 'firstCardDiscountCombat' | 'blockKeep' | 'killHeal' | 'killStrength' | 'killFish' | 'combatEndHeal';
 function relicSum(relics: string[], key: NumHook): number {
@@ -259,6 +259,17 @@ export function beginEnemyTurn(cs: CombatState): boolean {
 }
 
 /** 讓排隊的下一隻魔物行動。回 false＝這回合沒有魔物要動了；回 true 但什麼都沒發生＝那隻已經倒下或球球已倒（跳過） */
+/**
+ * 這一拍這隻魔物到底會不會出手：倒下、剛爬起來、被定身（擋整個動作）、睡著的都不會。
+ * 畫面（預告、出招演出）與機器人（估算下一拍會挨幾下）都問這一支——原本三處各寫一份，
+ * 機器人那份還停在「定身只擋攻擊」的舊規則（全面體檢 2026-09-05）。
+ * `stepEnemyTurn` 自己的分支有各自的紀錄文字所以沒改寫，但判準必須跟這裡一致（tests/ui/telegraph.test.ts 釘著）。
+ */
+export function willAct(e: EnemyCombat): boolean {
+  if (e.dead || e.justRevived) return false;
+  return getStatus(e, '定身') === 0 && getStatus(e, '沉睡') === 0;
+}
+
 export function stepEnemyTurn(cs: CombatState): boolean {
   const uid = cs.enemyQueue?.shift();
   if (uid === undefined) return false;

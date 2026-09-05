@@ -1,5 +1,5 @@
 import { showsTelegraph } from '../content/enemies';
-import { getStatus } from '../engine/statuses';
+import { willAct } from '../engine/combat';
 import type { CombatState, EnemyCombat } from '../engine/types';
 
 /**
@@ -19,10 +19,7 @@ import type { CombatState, EnemyCombat } from '../engine/types';
  * 引擎那次修了，畫面這邊漏跟）。所以山賊被定住時「搶劫」不該演、招財貓的「招手」也不該演。
  * 沉睡同理：睡著的什麼都不做。
  */
-export function willAct(e: EnemyCombat): boolean {
-  if (e.dead || e.justRevived) return false;
-  return getStatus(e, '定身') === 0 && getStatus(e, '沉睡') === 0;
-}
+export { willAct } from '../engine/combat';
 
 export function telegraphTarget(cs: CombatState): number | undefined {
   if (cs.phase !== 'player') return undefined;

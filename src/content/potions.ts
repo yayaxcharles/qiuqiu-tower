@@ -21,7 +21,7 @@ export const potions: PotionDef[] = [
   { id: 'mirror_shard', name: '鏡片', text: '獲得 5 點反彈。', art: 'codex/potion_mirror_shard', price: 40, target: 'self', effects: [{ kind: 'status', name: '反彈', amount: 5, target: 'self' }] },
   { id: 'nip_ball', name: '貓薄荷球', text: '給全體魔物 2 層懶洋洋與 2 層翻肚。', art: 'codex/potion_nip_ball', price: 50, target: 'all', effects: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }, { kind: 'status', name: '翻肚', amount: 2, target: 'all' }] },
   { id: 'dried_fish_bundle', name: '小魚乾串', text: '本回合多 2 顆飯糰。', art: 'codex/potion_dried_fish_bundle', price: 55, target: 'self', effects: [{ kind: 'energy', n: 2 }] },
-  { id: 'secret_scroll', name: '殘破卷軸', text: '抽 2 張牌，這回合它們不消耗飯糰。', art: 'codex/potion_secret_scroll', price: 55, target: 'self', effects: [{ kind: 'draw', n: 2 }, { kind: 'energy', n: 2 }] },
+  { id: 'secret_scroll', name: '殘破卷軸', text: '抽 2 張牌，並多 2 顆飯糰。', art: 'codex/potion_secret_scroll', price: 55, target: 'self', effects: [{ kind: 'draw', n: 2 }, { kind: 'energy', n: 2 }] },
   { id: 'iron_paw', name: '鐵爪套', text: '對目標造成 16 點傷害。', art: 'codex/potion_iron_paw', price: 60, target: 'enemy', effects: [{ kind: 'damage', amount: 16 }] },
   { id: 'nine_lives', name: '九命符', text: '回復 20 點生命。', art: 'codex/potion_nine_lives', price: 60, target: 'self', effects: [{ kind: 'heal', n: 20 }] },
 ];
