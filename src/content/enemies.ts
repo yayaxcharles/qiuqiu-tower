@@ -249,7 +249,7 @@ export const enemies: EnemyDef[] = [
         { intent: 'attack', label: '醉拳', effects: [{ kind: 'damageRandom', min: 14, max: 30 }, { kind: 'block', amount: 8 }] },
       ],
     }, {
-      hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 2, drainPlayerPerTurn: { 爪力: 2, 貓步: 2 },   // 使用者 2026-09-03 晚：師父不放軟，維持第三條血每回合 +2、震散 2／2
+      hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 2, 貓步: 2 },   // 成長 2→1（使用者 2026-09-06：衝通關 2%）；震散 2／2 照舊   // 使用者 2026-09-03 晚：師父不放軟，維持第三條血每回合 +2、震散 2／2
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],   // 第三條血本來還有反彈 6：反彈生效後配上震散太狠（機器人 97% 敗），拿掉，只留爪力
       moves: [
         { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 26, times: 2, pierce: true }] },

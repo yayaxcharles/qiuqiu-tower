@@ -1396,7 +1396,7 @@
      "hpBar": 300,
      "line": "深藏不露",
      "pattern": "cycle",
-     "strengthPerTurn": 2,
+     "strengthPerTurn": 1,
      "drainPlayerPerTurn": {
       "爪力": 2,
       "貓步": 2

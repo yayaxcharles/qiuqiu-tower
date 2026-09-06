@@ -189,7 +189,7 @@ describe('師父前的補給與第二條血（2026-09-06 拍板）', () => {
     const boss = enemyById['tower_master']!;
     expect(boss.phases![0]!.strengthPerTurn).toBeUndefined();
     expect(boss.phases![0]!.drainPlayerPerTurn).toBeUndefined();
-    expect(boss.phases![1]!.strengthPerTurn).toBe(2);
+    expect(boss.phases![1]!.strengthPerTurn).toBe(1);   // 2→1（2026-09-06 第二刀）
     expect(boss.phases![1]!.drainPlayerPerTurn).toEqual({ 爪力: 2, 貓步: 2 });
   });
   it('44F 的貓窩打盹回滿；其他樓層照舊三成', () => {

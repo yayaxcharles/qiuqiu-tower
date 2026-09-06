@@ -61,7 +61,7 @@ describe('魔物資料', () => {
     expect(boss.phases?.[0]?.strengthPerTurn).toBeUndefined();
     expect(boss.phases?.[0]?.drainPlayerPerTurn).toBeUndefined();
     expect(boss.phases?.[1]?.hpBar).toBe(300);
-    expect(boss.phases?.[1]?.strengthPerTurn).toBe(2);   // 第三條血每回合 +2
+    expect(boss.phases?.[1]?.strengthPerTurn).toBe(1);   // 第三條血每回合 +1（2026-09-06 從 2 改）
     expect(boss.phases?.[1]?.drainPlayerPerTurn).toEqual({ 爪力: 2, 貓步: 2 });
     const allMoves = [...boss.moves, ...(boss.phases ?? []).flatMap((ph) => ph.moves)];
     expect(allMoves.some((m) => m.effects.some((fx) => fx.kind === 'chargeNext'))).toBe(false);
