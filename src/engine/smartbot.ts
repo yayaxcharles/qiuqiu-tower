@@ -530,7 +530,8 @@ export function smartRun(seed: string, difficulty = 1): SmartStats {
       }
       case '貓窩': {
         const u = bestUpgrade(run);
-        if (run.hp < run.maxHp * 0.6 || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
+        // 44F 打盹回滿：真人只要沒滿血都會睡，機器人比照（不然 60% 以上的血會去磨爪、量不到補給的效果）
+        if (run.hp < run.maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
         break;
       }
       case '紙箱': openChest(run); break;

@@ -6,7 +6,7 @@ import { modifierById, modifierChanceFor } from '../../src/content/modifiers';
 import { BOSS_RAMPAGE_TURN, RAMPAGE_TURN, endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { generateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
-import { BOSS_PREFIXES, beginCombat, newRun } from '../../src/engine/run';
+import { BOSS_PREFIXES, beginCombat, napHeal, newRun, rest } from '../../src/engine/run';
 import { getStatus } from '../../src/engine/statuses';
 import type { CombatState, EnemyCombat } from '../../src/engine/types';
 import { inst } from '../helpers';
@@ -181,5 +181,26 @@ describe('第二輪（2026-09-06 拍板）：波斯、狸大人、龍貓、暴�
     const master = start([], 'tower_master', 999);
     while (master.turn < RAMPAGE_TURN + 1) { master.player.block = 999; endTurn(master); }
     expect(master.log.filter((l) => l.includes('魔氣開始暴走')).length, '師父維持第 10 回合').toBe(1);
+  });
+});
+
+describe('師父前的補給與第二條血（2026-09-06 拍板）', () => {
+  it('師父第二條血不成長、不震散；第三條血照舊', () => {
+    const boss = enemyById['tower_master']!;
+    expect(boss.phases![0]!.strengthPerTurn).toBeUndefined();
+    expect(boss.phases![0]!.drainPlayerPerTurn).toBeUndefined();
+    expect(boss.phases![1]!.strengthPerTurn).toBe(2);
+    expect(boss.phases![1]!.drainPlayerPerTurn).toEqual({ 爪力: 2, 貓步: 2 });
+  });
+  it('44F 的貓窩打盹回滿；其他樓層照舊三成', () => {
+    const run = newRun('final-rest', 1);
+    run.act = 3; run.floor = 44; run.hp = 20;
+    expect(napHeal(run)).toBe(run.maxHp);
+    rest(run, '打盹');
+    expect(run.hp).toBe(run.maxHp);
+    run.floor = 43; run.hp = 20;
+    expect(napHeal(run)).toBe(Math.floor(run.maxHp * 0.3));
+    run.act = 1; run.floor = 14; run.hp = 20;
+    expect(napHeal(run), '第一關 14F 不回滿').toBe(Math.floor(run.maxHp * 0.3));
   });
 });

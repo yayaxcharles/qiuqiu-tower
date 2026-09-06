@@ -49,7 +49,8 @@ registerScreen('rest', (app, root) => {
 
   function show(): void {
     renderHud(app, root);
-    const nap = el('button', { class: 'btn primary' }, heal > 0 ? `打盹（回復 ${heal} 點生命）` : '打盹（生命已經滿了）');
+    const finalRest = run.act >= 3 && run.floor === 44;   // 師父前一格：回滿（引擎 napHeal 同一條規則）
+    const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前好好睡一覺：回滿 ${heal} 點生命）` : `打盹（回復 ${heal} 點生命）`) : '打盹（生命已經滿了）');
     nap.addEventListener('click', () => {
       if (used) return;
       used = true;

@@ -237,7 +237,9 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '沾衣十八跌', effects: [{ kind: 'damage', amount: 6, times: 3 }, { kind: 'block', amount: 6 }] },
     ],
     phases: [{
-      hpBar: 240, line: '走火入魔', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 1, 貓步: 1 },
+      // 第二條血不再每回合 +1、也不吸你的爪力貓步（使用者 2026-09-06 拍板：師父第二條血放軟，第三條血原樣）。
+      // 機器人試過血 −10%、招式減傷都沒用，只有這兩條「越打越輸」的成長有用（15%→19／20%）
+      hpBar: 240, line: '走火入魔', pattern: 'cycle',
       onEnter: [{ kind: 'block', amount: 20 }],
       moves: [
         { intent: 'attack', label: '十二連環', effects: [{ kind: 'damage', amount: 7, times: 6 }, { kind: 'block', amount: 6 }] },   // 2026-09-02 使用者：第二階段段數降一點（7→6、4→3）

@@ -289,6 +289,9 @@ export function addPotion(run: RunState, potionId: string): boolean {
 
 /** 打盹回多少：最大生命三成 × 秘寶倍率（貓草）＋ 固定加成（貓草種子）。畫面顯示與實際結算共用這一條 */
 export function napHeal(run: RunState): number {
+  // 44F（第三關 14F，師父前一格）的貓窩打盹回滿：走到師父面前平均只剩七成六的血，17 回合的最終戰撐不住
+  //（使用者 2026-09-06 拍板「師父前補給」；44F 本來就保底一個貓窩，差的是回多少）
+  if (run.act >= 3 && run.floor === 44) return run.maxHp;
   const mult = run.relics.reduce((m, id) => m * (relicById[id]?.hooks.restMultiplier ?? 1), 1);
   const flat = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.restFlat ?? 0), 0);
   return Math.floor(run.maxHp * 0.3 * mult) + flat;

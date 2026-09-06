@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-05",
+ "generatedAt": "2026-09-06",
  "monsters": [
   {
    "id": "rat",
@@ -1313,11 +1313,6 @@
      "hpBar": 240,
      "line": "走火入魔",
      "pattern": "cycle",
-     "strengthPerTurn": 1,
-     "drainPlayerPerTurn": {
-      "爪力": 1,
-      "貓步": 1
-     },
      "onEnter": [
       {
        "kind": "block",

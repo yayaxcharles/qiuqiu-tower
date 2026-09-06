@@ -172,7 +172,7 @@ describe('魔物回合', () => {
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 第一條打完 → 蹲下，亮 240
     expect(e.phase).toBe(1);
     endTurn(cs);                                // 蹲下調息那回合
-    e.hp = 10; e.block = 0;                     // 蹲下那回合已經被震散 1 點爪力，貓抓只剩 15
+    e.hp = 10; e.block = 0;                     // 第二條血不再震散（2026-09-06），爪力仍是 10、貓抓 16
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 第二條打完 → 亮 300
     expect(e.phase).toBe(2);
     expect(e.hp).toBe(300);
@@ -181,12 +181,12 @@ describe('魔物回合', () => {
     expect(e.move.label).toBe('亡命一擊');
     cs.player.hp = 90; cs.player.block = 50;
     const hp = cs.player.hp;
-    // 師父爪力累計：二階段蹲下那回合 +1、三階段進場 +2、蹲下那回合 +2、這回合 +2 ＝ 7（第三條血每回合 +2）
-    endTurn(cs);                       // 亡命一擊 26×2，各加爪力 7 ＝ 33×2；穿透，50 點蜷縮擋不住
-    expect(cs.player.hp).toBe(hp - 66);
+    // 師父爪力累計：第二條血不再每回合 +1（2026-09-06）；三階段進場 +2、蹲下那回合 +2、這回合 +2 ＝ 6（第三條血每回合 +2）
+    endTurn(cs);                       // 亡命一擊 26×2，各加爪力 6 ＝ 32×2；穿透，50 點蜷縮擋不住
+    expect(cs.player.hp).toBe(hp - 64);
     expect(e.charged).toBe(false);
   });
-  it('塔主二、三階段每回合震散你的爪力與貓步（1／1、2／2），拍到 0 就停', () => {
+  it('塔主第三條血每回合震散你的爪力與貓步（2／2），第二條血不再震散（2026-09-06）；拍到 0 就停', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
     addStatus(cs.player, '爪力', 10);
@@ -194,16 +194,17 @@ describe('魔物回合', () => {
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 進二階段
     addStatus(cs.player, '貓步', 1);
     cs.player.block = 99;
-    endTurn(cs);                                // 二階段第一回合：震散 1 爪力、1 貓步
-    expect(getStatus(cs.player, '爪力')).toBe(9);
-    expect(getStatus(cs.player, '貓步')).toBe(0);
-    expect(cs.log.some((l) => l === `${e.name}震散了你 1 點爪力、1 點貓步`)).toBe(true);
-    e.hp = 10; e.block = 0;                     // 爪力剩 9，貓抓 15
+    endTurn(cs);                                // 二階段第一回合：什麼都不震散
+    expect(getStatus(cs.player, '爪力')).toBe(10);
+    expect(getStatus(cs.player, '貓步')).toBe(1);
+    expect(cs.log.some((l) => l.includes('震散了你'))).toBe(false);
+    e.hp = 10; e.block = 0;                     // 爪力 10，貓抓 16
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 進三階段
     cs.player.block = 99; cs.player.hp = 90;
-    endTurn(cs);                                // 三階段：震散 2 爪力（貓步已經 0，不寫進紀錄）
-    expect(getStatus(cs.player, '爪力')).toBe(7);
-    expect(cs.log.some((l) => l === `${e.name}震散了你 2 點爪力`)).toBe(true);
+    endTurn(cs);                                // 三階段：震散 2 爪力、貓步只有 1 就拍到 0
+    expect(getStatus(cs.player, '爪力')).toBe(8);
+    expect(getStatus(cs.player, '貓步')).toBe(0);
+    expect(cs.log.some((l) => l === `${e.name}震散了你 2 點爪力、1 點貓步`)).toBe(true);
   });
   it('塔主第一條血打完：蹲下無敵一回合、亮出 240 的第二條', () => {
     const cs = start('tower_master');
@@ -219,12 +220,12 @@ describe('魔物回合', () => {
     expect(e.move.label).toBe('蹲下調息');
     playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 無敵中：一滴血都打不掉
     expect(e.hp).toBe(240);
-    endTurn(cs);                                // 蹲下那回合過完就站起來（也吃到每回合 +1 爪力）
+    endTurn(cs);                                // 蹲下那回合過完就站起來（第二條血 2026-09-06 起不再每回合 +1）
     expect(e.invulnIn).toBe(0);
-    expect(getStatus(e, '爪力')).toBe(1);
+    expect(getStatus(e, '爪力')).toBe(0);
     cs.player.energy = 3;
-    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 站起來就打得到了（蹲下那回合震散了你 1 點爪力，所以是 15）
-    expect(e.hp).toBe(240 - 15);
+    playCard(cs, toHand(cs, 'sanjo'), e.uid);   // 站起來就打得到了（第二條血不再震散，爪力 10 整、貓抓 16）
+    expect(e.hp).toBe(240 - 16);
   });
   it('召喚小黑貓；木樁人每 3 回合 +1 爪力', () => {
     const cs = start('ninja_boss');

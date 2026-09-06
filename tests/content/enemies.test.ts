@@ -57,9 +57,9 @@ describe('魔物資料', () => {
     expect(boss.hp).toEqual([120, 120]);
     expect(boss.phases?.length).toBe(2);
     expect(boss.phases?.[0]?.hpBar).toBe(240);
-    // 師父 3.0（2026-09-02）：每回合 +1 爪力，二階段震散你 1／1、三階段 2／2，全程不蓄力
-    expect(boss.phases?.[0]?.strengthPerTurn).toBe(1);
-    expect(boss.phases?.[0]?.drainPlayerPerTurn).toEqual({ 爪力: 1, 貓步: 1 });
+    // 師父 3.0（2026-09-02）：第三條血每回合 +2、震散 2／2，全程不蓄力；第二條血 2026-09-06 放軟（不成長、不震散）
+    expect(boss.phases?.[0]?.strengthPerTurn).toBeUndefined();
+    expect(boss.phases?.[0]?.drainPlayerPerTurn).toBeUndefined();
     expect(boss.phases?.[1]?.hpBar).toBe(300);
     expect(boss.phases?.[1]?.strengthPerTurn).toBe(2);   // 第三條血每回合 +2
     expect(boss.phases?.[1]?.drainPlayerPerTurn).toEqual({ 爪力: 2, 貓步: 2 });
