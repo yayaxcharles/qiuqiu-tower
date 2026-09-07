@@ -9,6 +9,7 @@ import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
+import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { tierBgKey, tierBgZoom } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
@@ -701,6 +702,37 @@ registerScreen('combat', (app, root, props) => {
       // 只有這次才出現在手上的牌才播進場動畫：每次重畫都播的話，光是選個目標整手牌就會抖一次。
       // 一張一張錯開 45 毫秒出發，整排才不會像同一塊板子被推上來。
       if (!shownCards.has(c.uid)) { node.classList.add('dealt'); node.style.animationDelay = `${dealDelay + i * 45}ms`; }
+      // 拖出去打（使用者 2026-09-07）：加一條路，點擊那兩種照舊。打不出來的牌不掛，
+      // 維持「點下去抖一下＋說明」的行為。規則與座標換算見 dragplay.ts
+      if (canAct() && chk.ok) {
+        attachCardDrag(node, {
+          needsTarget: st.def.target === 'enemy',
+          scale: () => { const w = app.stage.getBoundingClientRect().width; return w > 0 ? w / 1280 : 1; },
+          enemyAt: (x, y) => {
+            // 查底下壓到誰之前先把這張牌藏起來：拖著的牌就在游標底下，不藏的話查到的永遠是它自己
+            const keep = node.style.visibility;
+            node.style.visibility = 'hidden';
+            const hit = document.elementFromPoint(x, y)?.closest<HTMLElement>('.unit.enemy');
+            node.style.visibility = keep;
+            const raw = hit?.dataset['uid'];
+            const uid = raw === undefined ? null : Number(raw);
+            return uid !== null && cs.enemies.some((e) => e.uid === uid && !e.dead) ? uid : null;
+          },
+          leftHand: (y) => {
+            const r = root.querySelector('.hand')?.getBoundingClientRect();
+            return !r || y < r.top;
+          },
+          onStart: () => hideTooltip(),
+          onHover: (uid) => {
+            // 拖著的牌會蓋住底下的魔物，不高亮的話多怪時看不出這一下會打誰。
+            // 直接動 class 不重畫：重畫會把正在拖的那張牌換成新節點，拖曳當場斷掉
+            for (const u of root.querySelectorAll('.unit.enemy.drag-over')) u.classList.remove('drag-over');
+            if (uid !== null) root.querySelector(`.unit.enemy[data-uid="${uid}"]`)?.classList.add('drag-over');
+          },
+          onPlay: (targetUid) => play(c.uid, targetUid),
+          onCancel: () => render(),
+        });
+      }
       hand.append(node);
     });
     // 換回合那一拍要等魔物打完才發牌（dealDelay），這段期間整排牌先不吃滑鼠：

@@ -125,7 +125,10 @@ registerScreen('shop', (app, root) => {
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
     const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); render(); } } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
-    if (shop.reshuffled || run.fish < RESHUFFLE_COST || shop.cards.every((c) => c.sold)) reshuffle.setAttribute('disabled', 'disabled');
+    // 有沒有東西可換要看三區加總，不能只看牌格（稽核 2026-09-07 中 1）：
+    // 牌全買光但秘寶或忍具還在架上時，引擎讓你換、按鈕卻是灰的，等於這次改動玩家碰不到
+    const anyLeft = [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
+    if (shop.reshuffled || run.fish < RESHUFFLE_COST || !anyLeft) reshuffle.setAttribute('disabled', 'disabled');
 
     // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。

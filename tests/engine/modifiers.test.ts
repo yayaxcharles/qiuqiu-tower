@@ -251,7 +251,7 @@ describe('小魚乾固定加減，秘寶承諾的加成一條不少（稽核 202
 });
 
 describe('護欄與邊界（稽核 2026-09-04 夜）', () => {
-  it('節點標的跟實際打的不是同一場，修飾詞不生效（事件戰、前哨戰這類覆寫遭遇的路徑）', () => {
+  it('節點標的跟實際打的不是同一場，修飾詞不生效（事件戰這類覆寫遭遇的路徑）', () => {
     const run = newRun('guard');
     const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
     node.modifier = 'furious';

@@ -7,7 +7,7 @@ import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
 import { enemyById, encounterById } from '../content/enemies';
 import { nodeById } from '../engine/map';
-import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun, runMods } from '../engine/run';
+import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
@@ -131,7 +131,8 @@ export class App {
     this.run = run;
     this.cs = null;
     void preloadActMonsters(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
-    // 難度 5：前哨戰打完存檔時人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）
+    // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
+    // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
     const node = currentNode(run);
     if (node?.type === '塔主' && node.encounterId && run.flags['final_boss'] && run.status === 'playing') {
       this.startFight(node.encounterId, true);
@@ -158,7 +159,6 @@ export class App {
    * 就是靠這一次存檔帶走。
    */
   backToMap(): void {
-    const run = this.run;
     this.save(); this.show('map');
   }
 

@@ -75,7 +75,7 @@ describe('難度表', () => {
       a1h += generateMap(new Rng(seedFromString(`a${i}`)), { act: 1, eliteMul: 1.6 }).nodes.filter((x) => x.type === '大魔物').length;
     }
     expect(a1).toBeGreaterThan(0); expect(a1h).toBeGreaterThan(a1);
-    expect(encounterById['shadow_cat']).toBeTruthy();   // 難度 5 的前哨戰用
+    expect(encounterById['shadow_cat']).toBeTruthy();   // 影球球本體：第三關大魔物池
   });
   it('成績分難度記；五級預設全開（2026-09-03 拍板）', () => {
     const mem = new Map<string, string>();

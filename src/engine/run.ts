@@ -104,7 +104,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
  */
 function nodeModifier(run: RunState, encounterId: string | undefined) {
   const node = currentNode(run);
-  // 護欄一：遭遇 id 可以被呼叫端覆寫（事件戰、難度 5 前哨戰、鏡像戰），節點標的跟實際打的不是同一場時
+  // 護欄一：遭遇 id 可以被呼叫端覆寫（事件戰、鏡像戰），節點標的跟實際打的不是同一場時
   // 修飾詞不能生效——今天四條覆寫路徑都落在事件或塔主節點（那些節點不會有修飾詞）所以碰不到，
   // 但那是巧合不是設計，補一行讓它變明文（稽核 2026-09-04 夜 L-1）
   if (!node || node.encounterId !== encounterId) return undefined;
@@ -396,8 +396,11 @@ export function reshuffleShop(run: RunState, shop: ShopStock): boolean {
     shop.cards[slot] = { def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], mul, prev.sale), sold: false, ...(k === upIdx ? { upgraded: true } : {}), ...(prev.sale ? { sale: prev.sale } : {}) };
   });
 
-  // 排除清單要含「這間店沒被換到的秘寶」（賣掉的那幾格還擺在架上），不然會洗出兩件一樣的
-  const taken = [...run.relics, ...shop.relics.filter((_, i) => !openRelics.includes(i)).map((r) => r.id)];
+  // 排除清單含「整排現在擺著的秘寶」——不只賣掉那幾格，要被換掉的那幾格也算。
+  // 只排除賣掉的話，同一格有機會原封不動抽回同一件（常見池扣掉身上的約剩二十來件，
+  // 三格合計一成多的機率至少一格看起來沒變），又變成使用者抱怨的「怎麼沒變換」（稽核 2026-09-07 低 1）。
+  // 牌格本來就是整排排除（見上面傳給 rollShopCards 的第四個參數），兩邊一致。
+  const taken = [...run.relics, ...shop.relics.map((r) => r.id)];
   for (const slot of openRelics) {
     const id = rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken);
     if (!id) continue;   // 池子抽乾就維持原樣，不留空格

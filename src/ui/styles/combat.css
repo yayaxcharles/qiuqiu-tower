@@ -396,6 +396,28 @@
 .combat .hand .card:hover,
 .combat .hand .card.nope,
 .card.flying { animation: none; }
+/*
+ * 正被拖出去打的那張牌（2026-09-07）。**起伏動畫一定要關掉**：它動的也是 `translate`，
+ * 而動畫的優先序高於行內樣式，不關的話拖曳寫上去的位移會被蓋掉、牌根本不跟著手走。
+ * 滑過去本來就會關動畫，但抓住指標後游標移出牌面時 hover 就沒了，動畫會活過來——所以要自己列一條。
+ */
+.combat .hand .card.dragging {
+  cursor: grabbing;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, .55));
+  /* 拖到魔物身上時，牌會把牠整個蓋住、看不出要打誰。半透明加縮一點，底下的目標透得出來。
+     `scale` 跟 `translate` 一樣是獨立屬性，兩個併用不會互相蓋掉 */
+  opacity: .86;
+  scale: .92;
+}
+/* 拖曳中游標壓著的那隻魔物：跟「點牌再選目標」時的可選外框同一套視覺語言，
+   玩家不用學第二種提示。只有要選目標的牌才會亮 */
+.combat .unit.enemy.drag-over .sprite-box {
+  filter: drop-shadow(0 0 10px rgba(255, 90, 60, .95)) drop-shadow(0 0 3px rgba(255, 40, 20, 1));
+}
+.combat .unit.enemy.drag-over .name {
+  color: #ffd9cc;
+  text-shadow: 0 0 8px rgba(255, 70, 40, .9);
+}
 /* **動的是 `translate`／`rotate` 這兩個獨立屬性，不是 `transform`。**
    扇形的角度是渲染時用行內 `transform` 寫上去的，而動畫的優先序高於行內樣式——
    如果這裡動 `transform`，一開始播整排牌的扇形就會被抹平變成一直線。
@@ -656,6 +678,12 @@
   animation: card-idle 3.8s ease-in-out infinite,
              card-deal .44s cubic-bezier(.22, .85, .3, 1.02) backwards;
 }
+/*
+ * 正在拖出去打的那張牌不播任何動畫。**這條一定要排在 `.dealt` 後面**：兩者優先序同分，
+ * 寫在前面會被 `.dealt` 蓋回去，於是 `card-idle` 的 `translate` 贏過拖曳寫上去的行內位移，
+ * 剛發到手的牌就整張黏在原地拖不動（2026-09-07 瀏覽器實測抓到，單元測試看不出來）。
+ */
+.combat .hand .card.dragging { animation: none; }
 /* 起點是每張牌各自的 `--deal-dx`／`--deal-dy`（牌堆中心到自己定位的差，由 combat.ts 的
    dealFrom 量好寫進行內樣式）。**這裡刻意不寫 var() 的退路值**：值還沒寫進來的那一瞬間
    整條宣告會失效、位移當成沒有，牌就停在自己的定位上——比亂猜一個方向飛出去好。
