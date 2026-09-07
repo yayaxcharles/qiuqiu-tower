@@ -9,11 +9,12 @@ import { ACT_NAMES, potionCapacity } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
 import { musicOn, musicVolume, setMusicVolume, toggleMusic } from './bgm';
 import { showDeckPicker } from './deckview';
+import { loadRun } from '../engine/save';
 import { encodeRun } from '../engine/sharecode';
 import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { showRelicList } from './reliclist';
-import { attachTextTooltip, attachTooltip } from './tooltip';
+import { attachTextTooltip, attachTooltip, hideTooltip } from './tooltip';
 
 /**
  * 上方狀態列：樓層、生命、小魚乾、秘寶、忍具、牌組、種子。
@@ -172,21 +173,26 @@ function diffBadge(run: RunState): HTMLElement | string {
  * 現在名實相符了：進行中＝分享局面，結算後＝分享地圖種子（那時人已經死了或通關了，局面沒有意義）。
  */
 export function seedTag(seed: string, full = false, run?: RunState): HTMLElement {
-  const label = full ? `本局代碼 ${seed} ⧉` : '📤 分享局面';
+  const label = full ? `本局代碼 ${seed} ⧉` : run ? '📤 分享局面' : '🎲 本局代碼';
   const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' }, label);
   if (full || !run) {
     attachTextTooltip(node, `本局代碼 ${seed}`, '點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。');
   } else {
-    attachTextTooltip(node, '分享這一刻的局面',
-      '點一下複製一長串局面碼（十幾行，正常）。別人貼到首頁的「本局代碼」欄，就會從你現在這個位置接著打——'
-      + '同一套牌組、秘寶、忍具、血量、樓層。適合幾個人拿一樣的條件比誰打得好。\n'
+    attachTextTooltip(node, '分享目前的局面',
+      '點一下複製一長串局面碼（十幾行，正常）。別人貼到首頁的「本局代碼」欄，就會從你的位置接著打——'
+      + '同一套牌組、秘寶、忍具、血量、樓層。適合幾個人拿一樣的條件比誰打得好。'
+      + '分享的是你最近一次離開節點的狀態，也就是按「續玩」會回到的那個點；'
+      + '戰鬥打到一半按，給出去的是進這場戰鬥之前——這樣對方才打得到同一場。'
       + '你自己的進度本來就會自動存，回首頁按「續玩」即可，不需要這串。');
   }
+  let resetTimer = 0;
   const copy = (text: string): void => {
     const done = (): void => {
       play('click');
       node.textContent = '已複製！';
-      window.setTimeout(() => { node.textContent = label; }, 1400);
+      // 連點時舊的計時器會在新的一次還顯示「產生中…」時把字改回去，看起來像沒反應
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => { node.textContent = label; }, 1400);
     };
     const fallback = (): void => {
       // 老方法退路：塞一個看不見的輸入框、選起來、叫瀏覽器複製。剪貼簿 API 被擋（非安全來源、
@@ -208,7 +214,15 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
     if (full || !run) { copy(seed); return; }
     // 壓縮是非同步的，先把按鈕改成「產生中」，免得玩家以為沒反應又點一次
     node.textContent = '產生中…';
-    void encodeRun(run).then((code) => {
+    // **分享的是「上一個存檔點」，不是此刻的 run**（稽核 2026-09-07 高 1）。
+    // 進節點時 `currentNode` 就被推到新節點，但那個節點還沒結算——存檔機制特地避開這一刻
+    //（見 app.ts 的 save() 註解）。壓當下的 run 會出兩種事：收到的人站在一個還沒打的節點上，
+    // 直接點下一層就跳過去、白賺一層；更糟的是在**關主戰**按分享（正是「三個人打同一隻王」會做的事），
+    // 塔主節點沒有下一層可走、地圖上一顆能點的都沒有、又沒有回首頁的鈕，收到的人只能重整，
+    // 重整後「續玩」又回到同一個死局，而他自己的進度已經被蓋掉了。
+    // 改成分享存檔裡那一份：那正是「續玩」會回到的位置，收到的人自己走進那場戰鬥，條件一樣可比。
+    const shared = loadRun() ?? run;
+    void encodeRun(shared).then((code) => {
       if (code) { copy(code); return; }
       // 壓不動（太舊的瀏覽器）就退回分享種子，並且講清楚差別，不要默默給一串意思不同的東西
       node.textContent = '改複製地圖代碼';
@@ -239,6 +253,8 @@ function execCopy(text: string): boolean {
 function showCopyBox(text: string): void {
   const layer = overlayRoot();
   if (!layer) return;
+  // 疊層蓋上來時 mouseleave 不會發生，分享鈕的提示框會卡在畫面上（deckview／confirm 都記過這個坑）
+  hideTooltip();
   const overlay = el('div', { class: 'modal-overlay' });
   const ta = document.createElement('textarea');
   ta.value = text;

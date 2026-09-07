@@ -94,6 +94,12 @@ export function checkRun(run: Partial<RunState>): RunState | null {
   if (typeof run.act !== 'number' || run.act < 1) run.act = 1;
   // 舊存檔沒有 difficulty（難度制之前存的）：當難度 1
   if (typeof run.difficulty !== 'number') run.difficulty = 1;
+  // 局面碼是手改得動的（就是壓縮過的存檔），把 status 改成 lost、hp 改成 0 也能通過上面每一條，
+  // 然後被寫進收方的存檔，之後每次「續玩」都是頂著 0 血在地圖上亂走（稽核 2026-09-07 低 3）。
+  // 正常玩法產不出這種檔——陣亡與通關當下畫面已經被結算疊層接管，不會存到這個狀態
+  if (run.status !== 'playing') return null;
+  if (typeof run.hp !== 'number' || run.hp <= 0 || typeof run.maxHp !== 'number' || run.maxHp <= 0) return null;
+  if (run.hero !== undefined && run.hero !== 'ninja' && run.hero !== 'samurai') return null;
   return run as RunState;
 }
 
