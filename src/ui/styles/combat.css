@@ -409,15 +409,7 @@
   opacity: .86;
   scale: .92;
 }
-/* 拖曳中游標壓著的那隻魔物：跟「點牌再選目標」時的可選外框同一套視覺語言，
-   玩家不用學第二種提示。只有要選目標的牌才會亮 */
-.combat .unit.enemy.drag-over .sprite-box {
-  filter: drop-shadow(0 0 10px rgba(255, 90, 60, .95)) drop-shadow(0 0 3px rgba(255, 40, 20, 1));
-}
-.combat .unit.enemy.drag-over .name {
-  color: #ffd9cc;
-  text-shadow: 0 0 8px rgba(255, 70, 40, .9);
-}
+
 /* **動的是 `translate`／`rotate` 這兩個獨立屬性，不是 `transform`。**
    扇形的角度是渲染時用行內 `transform` 寫上去的，而動畫的優先序高於行內樣式——
    如果這裡動 `transform`，一開始播整排牌的扇形就會被抹平變成一直線。
@@ -850,6 +842,18 @@
 /* 師父換血條的光暈（2026-09-02）：第二階段走火入魔＝紅、第三階段真面目＝紫。只動濾鏡，不碰前撲用的 transform */
 .combat .unit.enemy.phase-1 .sprite-box { filter: drop-shadow(0 0 14px rgba(255, 90, 40, .8)) drop-shadow(0 0 4px rgba(255, 60, 20, .9)); }
 .combat .unit.enemy.phase-2 .sprite-box { filter: drop-shadow(0 0 18px rgba(160, 70, 255, .9)) drop-shadow(0 0 5px rgba(90, 20, 200, 1)) contrast(1.08); }
+/*
+ * 拖曳中游標壓著的那隻魔物。跟「點牌再選目標」的可選提示同一套視覺語言，玩家不用學第二種。
+ * **這條必須排在上面兩條師父階段光暈後面**：三者都是五個類別、優先序同分，
+ * 寫在前面的話師父換到第二、三條血之後拖過去就不會亮（稽核 2026-09-07 低 2）。
+ */
+.combat .unit.enemy.drag-over .sprite-box {
+  filter: drop-shadow(0 0 10px rgba(255, 90, 60, .95)) drop-shadow(0 0 3px rgba(255, 40, 20, 1));
+}
+.combat .unit.enemy.drag-over .name {
+  color: #ffd9cc;
+  text-shadow: 0 0 8px rgba(255, 70, 40, .9);
+}
 /* 光暈掛在 .sprite-box 不掛 .sprite：挨打的閃紅（.unit.hit .sprite 的 filter）才不會被階段光暈蓋掉 */
 
 /* 師父的體型（使用者 2026-09-02：「師傅應該比球球大隻，入魔了更大隻」）：

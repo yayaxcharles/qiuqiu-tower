@@ -103,7 +103,16 @@ export function attachCardDrag(node: HTMLElement, hooks: CardDragHooks): void {
     if (!s) return;
     // 鍵已經放開卻沒收到 pointerup（在畫面外放開、切走視窗）：補收尾，
     // 不然下次滑過這張牌會從舊起點算位移，牌會憑空跳一段（地圖拖曳踩過同一個坑）
-    if (ev.buttons === 0) { state = null; reset(); hooks.onCancel?.(); return; }
+    if (ev.buttons === 0) {
+      // 手牌是扇形疊著的，在一張牌邊緣按下、還沒到門檻就滑到隔壁再放開，這張牌永遠收不到 pointerup。
+      // 這裡補收尾，但**沒真的拖過就不要叫 onCancel**：那條路會觸發整頁重畫，
+      // 把正在飄的傷害數字砍在半路（稽核 2026-09-07 低 1）
+      const dragged = s.moved;
+      state = null;
+      reset();
+      if (dragged) hooks.onCancel?.();
+      return;
+    }
     const to = cardDragTo(s, ev.clientX, ev.clientY, hooks.scale());
     if (!to.moved) return;
     if (!node.classList.contains('dragging')) {
@@ -125,6 +134,15 @@ export function attachCardDrag(node: HTMLElement, hooks: CardDragHooks): void {
     // 滑鼠三顆鍵共用一個 pointerId：中鍵／右鍵放開不能把左鍵的拖曳打斷
     if (ev.type === 'pointerup' && ev.button !== 0) return;
     state = null;
+    // `pointercancel`＝這次手勢被瀏覽器作廢，玩家沒有放手也沒有確認，
+    // 一律當成反悔退回。照原路走下去的話，牌壓在魔物身上就會被真的打出去、飯糰扣掉，
+    // 而且不可逆（稽核 2026-09-07 中 1）
+    if (ev.type === 'pointercancel') {
+      const dragged = s.moved;
+      reset();
+      if (dragged) hooks.onCancel?.();
+      return;
+    }
     try {
       if (node.hasPointerCapture(ev.pointerId)) node.releasePointerCapture(ev.pointerId);
     } catch { /* 沒抓到就沒得放 */ }

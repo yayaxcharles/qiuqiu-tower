@@ -729,8 +729,12 @@ registerScreen('combat', (app, root, props) => {
             for (const u of root.querySelectorAll('.unit.enemy.drag-over')) u.classList.remove('drag-over');
             if (uid !== null) root.querySelector(`.unit.enemy[data-uid="${uid}"]`)?.classList.add('drag-over');
           },
-          onPlay: (targetUid) => play(c.uid, targetUid),
-          onCancel: () => render(),
+          // 點擊那兩條路都先過 canAct()，拖曳這條原本沒有——撒手鐧那類牌打完到自動結束回合之間
+          // 有 650 毫秒的空窗，在那時候抓起另一張牌拖到魔物回合再放開，就會繞過那道關
+          //（目前靠手牌已被清空撿到安全，但那是巧合）。稽核 2026-09-07 低 3
+          onPlay: (targetUid) => { if (canAct()) play(c.uid, targetUid); },
+          // 退回不需要重畫：reset() 已經把行內位移與層級清乾淨，牌自己會彈回扇形位置。
+          // 重畫反而會在魔物演出中途砍斷動畫與飄字（同上，低 3 的後半）
         });
       }
       hand.append(node);
