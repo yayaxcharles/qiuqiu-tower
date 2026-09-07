@@ -1232,7 +1232,6 @@ export const encounters: EncounterDef[] = [
   { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], hpScale: 1.2, strength: 9, acts: [3] },   // 塔頂菁英版：血 1.2×、魔氣 9（2026-09-04 加硬兩刀 4→7→9）
-  { id: 'shadow_cat_prefight', pool: '大魔物', enemies: ['shadow_cat'], strength: 4, acts: [] },   // 難度 5 最終戰前哨戰專用（acts 空＝不進菁英池）；跟塔頂菁英的加硬脫鉤（稽核 2026-09-04 中 4）
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
   { id: 'tanuki_lord', pool: '塔主', enemies: ['tanuki_lord'] },

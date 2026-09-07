@@ -16,7 +16,7 @@ describe('難度表', () => {
     expect(DIFFICULTY_NAMES.length).toBe(MAX_DIFFICULTY);
     expect(DIFFICULTY_TEXT.length).toBe(MAX_DIFFICULTY);
     const m1 = difficultyMods(1);
-    expect(m1).toEqual({ eliteMul: 1, enemyStrength: 0, hpMul: 1, actHeal: 1, startCurse: null, potionSlots: 3, shopMul: 1, unlucky: false, maxHp: 76, topEliteStrength: 0, finalPrefight: false });
+    expect(m1).toEqual({ eliteMul: 1, enemyStrength: 0, hpMul: 1, actHeal: 1, startCurse: null, potionSlots: 3, shopMul: 1, unlucky: false, maxHp: 76, topEliteStrength: 0 });
     for (let d = 2; d <= MAX_DIFFICULTY; d++) {
       const a = difficultyMods(d - 1), b = difficultyMods(d);
       expect(b.eliteMul).toBeGreaterThanOrEqual(a.eliteMul);

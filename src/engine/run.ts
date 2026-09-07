@@ -366,22 +366,53 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): C
 }
 
 /**
- * 重整貨架（使用者 2026-09-04）：75 條、每店一次，只換還沒賣掉的牌格（賣掉的維持原牌、寫「賣掉了」，免得越買越多）；
- * 特價如果掛在被換掉的格子上，新牌繼承那個折數。
+ * 重整貨架（使用者 2026-09-04；2026-09-07 擴大到整間店）：75 條、每店一次，
+ * **牌、秘寶、忍具三區沒賣掉的格子全部換一批**。
+ *
+ * 原本只換牌格——使用者 2026-09-07 回報「怎麼秘寶跟忍具沒有變換」，按鈕寫「重整貨架」
+ * 卻只動新招區，連他自己都被誤導，所以改成名實相符。
+ * 賣掉的格子一律不動（維持原樣、寫「賣掉了」），免得花 75 條反而把架子變滿、越買越多。
+ * 特價如果掛在被換掉的格子上，新商品繼承那個折數。
+ * 秘寶會避開玩家身上已有的與這間店還留著的，不會洗出重複；珍品架（第三格，第二關起才有）
+ * 照舊抽大魔物池，其餘抽常見——跟 makeShop 的排法一致。忍具跟開店時一樣不去重。
  */
 export function reshuffleShop(run: RunState, shop: ShopStock): boolean {
-  const open = shop.cards.map((c, i) => (c.sold ? -1 : i)).filter((i) => i >= 0);
-  if (shop.reshuffled || !open.length || !pay(run, RESHUFFLE_COST)) return false;   // 沒有空格可換就不收錢（稽核 2026-09-04 低 1）
+  const openOf = (arr: readonly { sold: boolean }[]): number[] =>
+    arr.map((it, i) => (it.sold ? -1 : i)).filter((i) => i >= 0);
+  const openCards = openOf(shop.cards);
+  const openRelics = openOf(shop.relics);
+  const openPotions = openOf(shop.potions);
+  const total = openCards.length + openRelics.length + openPotions.length;
+  if (shop.reshuffled || !total || !pay(run, RESHUFFLE_COST)) return false;   // 沒有空格可換就不收錢（稽核 2026-09-04 低 1）
   shop.reshuffled = true;
   const rng = runRng(run);
-  const fresh = rollShopCards(run, rng, open.length, shop.cards.map((c) => c.def.id));
-  const upIdx = fresh.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, fresh.length - 1) : -1;
   const mul = shopMulFor(run);
-  open.forEach((slot, k) => {
+
+  const fresh = rollShopCards(run, rng, openCards.length, shop.cards.map((c) => c.def.id));
+  const upIdx = fresh.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, fresh.length - 1) : -1;
+  openCards.forEach((slot, k) => {
     const def = fresh[k]; if (!def) return;
     const prev = shop.cards[slot]!;
     shop.cards[slot] = { def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], mul, prev.sale), sold: false, ...(k === upIdx ? { upgraded: true } : {}), ...(prev.sale ? { sale: prev.sale } : {}) };
   });
+
+  // 排除清單要含「這間店沒被換到的秘寶」（賣掉的那幾格還擺在架上），不然會洗出兩件一樣的
+  const taken = [...run.relics, ...shop.relics.filter((_, i) => !openRelics.includes(i)).map((r) => r.id)];
+  for (const slot of openRelics) {
+    const id = rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken);
+    if (!id) continue;   // 池子抽乾就維持原樣，不留空格
+    taken.push(id);
+    const prev = shop.relics[slot]!;
+    const base = relicById[id]?.price ?? RELIC_PRICE;
+    shop.relics[slot] = { id, base, price: priceOf(base, mul, prev.sale), sold: false, ...(prev.sale ? { sale: prev.sale } : {}) };
+  }
+
+  for (const slot of openPotions) {
+    const prev = shop.potions[slot]!;
+    const id = rollPotion(rng);
+    const base = potionById[id]?.price ?? POTION_PRICE;
+    shop.potions[slot] = { id, base, price: priceOf(base, mul, prev.sale), sold: false, ...(prev.sale ? { sale: prev.sale } : {}) };
+  }
   return true;
 }
 

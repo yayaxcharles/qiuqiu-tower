@@ -13,7 +13,7 @@ export const DIFFICULTY_TEXT = [
   '大魔物節點多六成；所有魔物出場就帶 1 點爪力。',
   '所有魔物血量再加一成五；過關只補回七成五的缺血。',
   '開局牌組多一張「中計了」；忍具只能帶兩支；罐頭鋪貴一成；壞事件更壞（賭輸機率提高、掉血代價乘 1.5）。',
-  '最大生命 76 變 70；塔頂的大魔物再多 2 點魔氣；最終戰前先跟影球球打一場，中間不回血。',
+  '最大生命 76 變 70；塔頂的大魔物再多 2 點魔氣。',
 ] as const;
 
 export interface DifficultyMods {
@@ -35,8 +35,6 @@ export interface DifficultyMods {
   maxHp: number;
   /** 塔頂大魔物額外魔氣 */
   topEliteStrength: number;
-  /** 最終戰前先打一場影球球、不回血 */
-  finalPrefight: boolean;
 }
 
 export function clampDifficulty(level: number): number {
@@ -56,7 +54,6 @@ export function difficultyMods(level: number): DifficultyMods {
     unlucky: d >= 4,
     maxHp: d >= 5 ? 70 : 76,   // 2026-09-02 使用者：起始血 70→76（難度 5 同步 64→70，維持少 6）
     topEliteStrength: d >= 5 ? 2 : 0,
-    finalPrefight: d >= 5,
   };
 }
 

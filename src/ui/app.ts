@@ -159,14 +159,6 @@ export class App {
    */
   backToMap(): void {
     const run = this.run;
-    const node = run ? currentNode(run) : null;
-    // 難度 5 的前哨戰打完：不回地圖、不回血，直接開最終戰
-    if (run && node?.type === '塔主' && node.encounterId && run.flags['final_prefight'] && !run.flags['final_boss']) {
-      run.flags['final_boss'] = true;
-      this.save();
-      this.startFight(node.encounterId, true);
-      return;
-    }
     this.save(); this.show('map');
   }
 
@@ -191,12 +183,6 @@ export class App {
     switch (node.type) {
       case '戰鬥': case '大魔物': case '塔主':
         if (!node.encounterId) break;
-        // 難度 5：最終戰前先跟影球球打一場（打完的獎勵照一般戰鬥給，回到地圖那一拍直接接師父，見 backToMap）
-        if (node.type === '塔主' && run.act >= ACTS && runMods(run).finalPrefight && !run.flags['final_prefight']) {
-          run.flags['final_prefight'] = true;
-          this.startFight('shadow_cat_prefight', false);   // 前哨戰用自己的遭遇，不跟塔頂菁英連動（稽核 2026-09-04 中 4）
-          break;
-        }
         this.startFight(node.encounterId, node.type === '塔主');
         break;
       case '事件': this.show('event', { eventId: node.eventId }); break;

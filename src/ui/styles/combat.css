@@ -489,6 +489,23 @@
 }
 .combat .unit.gone .ground-shadow { opacity: 0; }
 
+/*
+ * 飛行中的魔物浮離地面（使用者 2026-09-07：「讓他比較高而不是在地上」）。
+ * 動的是獨立屬性 `translate` 不是 `transform`：受擊抖動、關主倒下、階段光暈那些動畫動的是
+ * `transform`，兩者會互相覆蓋（手牌那段註解就是踩過的坑），獨立屬性則是疊加上去。
+ * 影子留在地上——飛多高全靠影子跟腳底的距離看出來；順便淡一點，像被拉開了距離。
+ * 落地（飛行被打到 0）時 class 拿掉，這個 transition 會把牠緩緩放回地面。
+ */
+.combat .unit.enemy.airborne .sprite-box {
+  translate: 0 -46px;
+  transition: translate 320ms cubic-bezier(.3, .8, .4, 1);
+}
+.combat .unit.enemy.airborne .ground-shadow {
+  translate: 0 46px;
+  opacity: .55;
+  transition: translate 320ms cubic-bezier(.3, .8, .4, 1), opacity 320ms ease-out;
+}
+
 /* ===== 動畫 ===== */
 /* 挨重擊時整個戰場震一下（只在 .combat 上，舞台身上有 scale 不能碰） */
 .combat.shaken { animation: screen-shake .3s ease-out; }

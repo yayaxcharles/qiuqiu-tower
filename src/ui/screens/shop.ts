@@ -122,7 +122,7 @@ registerScreen('shop', (app, root) => {
       onclick: () => pickRelease(),
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
-    // 重整貨架：75 條、每店一次，只換沒賣掉的牌格（使用者 2026-09-04）
+    // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
     const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); render(); } } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
     if (shop.reshuffled || run.fish < RESHUFFLE_COST || shop.cards.every((c) => c.sold)) reshuffle.setAttribute('disabled', 'disabled');
