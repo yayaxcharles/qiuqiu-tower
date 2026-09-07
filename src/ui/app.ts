@@ -125,8 +125,9 @@ export class App {
     } else after();
   }
 
-  continueRun(): boolean {
-    const run = loadRun();
+  /** `from` 給了就用它接著打（貼進來的局面碼走這條），沒給就讀瀏覽器裡的存檔 */
+  continueRun(from?: RunState): boolean {
+    const run = from ?? loadRun();
     if (!run) return false;
     this.run = run;
     this.cs = null;

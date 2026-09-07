@@ -67,31 +67,43 @@ function usableMap(map: unknown, currentNode: unknown): boolean {
   return nodes.some((n) => !!n && typeof n === 'object' && (n as { id?: unknown }).id === currentNode);
 }
 
+/**
+ * 一份解析出來的存檔能不能用；能用就順手把舊版缺的欄位補上，不能用回 null。
+ *
+ * **這裡不碰倉庫**。抽出來是因為局面碼（分享給別人的那串）也要走同一套檢查，
+ * 但別人給的碼壞掉時只該拒收，不該把接收者自己的存檔清掉——原本的寫法是驗到一半就 `clearSave()`，
+ * 直接拿去驗別人的碼會誤刪自己的進度。要不要清存檔由呼叫端決定。
+ */
+export function checkRun(run: Partial<RunState>): RunState | null {
+  if (run.version !== 1 || !Array.isArray(run.deck) || !run.map || !run.rng) return null;
+  // 牌組裡有牌表認不得的牌（或是壞掉的牌物件）就跟版本不符一樣處理：當作不相容
+  if (!run.deck.every(knownCard)) return null;
+  // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
+  if (!usableMap(run.map, run.currentNode)) return null;
+  // 忍具、秘寶、統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
+  if (!Array.isArray(run.potions) || !Array.isArray(run.relics) || !run.stats || typeof run.stats !== 'object') return null;
+  // 遭遇、事件、秘寶、忍具的 id 對不上（內容改名、拆併之後帶舊檔）也當不相容。原本只驗牌：
+  // 遭遇 id 對不上要到開戰才丟「未知的遭遇」，例外從點擊事件冒出來，地圖點不動、沒任何訊息（全面體檢 2026-09-05 #4）
+  if (!run.map.nodes.every((n) => (!n.encounterId || encounterById[n.encounterId]) && (!n.eventId || eventById[n.eventId]))) return null;
+  if (!run.relics.every((id) => relicById[id]) || !run.potions.every((id) => potionById[id])) return null;
+  // 舊存檔沒有 flags：補一個空的就好，不必升版本
+  if (!run.flags || typeof run.flags !== 'object') run.flags = {};
+  // 舊存檔沒有 trail（足跡紀錄之前存的）：從現在站的格子開始記，之前走過的路照暗
+  run.trail ??= run.currentNode ? [run.currentNode] : [];
+  // 舊存檔沒有 act（三關制之前存的）：當第一關。地圖照舊能走，打贏關主就接第二關
+  if (typeof run.act !== 'number' || run.act < 1) run.act = 1;
+  // 舊存檔沒有 difficulty（難度制之前存的）：當難度 1
+  if (typeof run.difficulty !== 'number') run.difficulty = 1;
+  return run as RunState;
+}
+
 export function loadRun(): RunState | null {
   const raw = read(RUN_KEY);
   if (!raw) return null;
   try {
-    const run = JSON.parse(raw) as Partial<RunState>;
-    if (run.version !== 1 || !Array.isArray(run.deck) || !run.map || !run.rng) { clearSave(); return null; }
-    // 牌組裡有牌表認不得的牌（或是壞掉的牌物件）就跟版本不符一樣處理：清掉、當作沒有存檔
-    if (!run.deck.every(knownCard)) { clearSave(); return null; }
-    // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
-    if (!usableMap(run.map, run.currentNode)) { clearSave(); return null; }
-    // 忍具、秘寶、統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
-    if (!Array.isArray(run.potions) || !Array.isArray(run.relics) || !run.stats || typeof run.stats !== 'object') { clearSave(); return null; }
-    // 遭遇、事件、秘寶、忍具的 id 對不上（內容改名、拆併之後帶舊檔）也當不相容。原本只驗牌：
-    // 遭遇 id 對不上要到開戰才丟「未知的遭遇」，例外從點擊事件冒出來，地圖點不動、沒任何訊息（全面體檢 2026-09-05 #4）
-    if (!run.map.nodes.every((n) => (!n.encounterId || encounterById[n.encounterId]) && (!n.eventId || eventById[n.eventId]))) { clearSave(); return null; }
-    if (!run.relics.every((id) => relicById[id]) || !run.potions.every((id) => potionById[id])) { clearSave(); return null; }
-    // 舊存檔沒有 flags：補一個空的就好，不必升版本
-    if (!run.flags || typeof run.flags !== 'object') run.flags = {};
-    // 舊存檔沒有 trail（足跡紀錄之前存的）：從現在站的格子開始記，之前走過的路照暗
-    run.trail ??= run.currentNode ? [run.currentNode] : [];
-    // 舊存檔沒有 act（三關制之前存的）：當第一關。地圖照舊能走，打贏關主就接第二關
-    if (typeof run.act !== 'number' || run.act < 1) run.act = 1;
-    // 舊存檔沒有 difficulty（難度制之前存的）：當難度 1
-    if (typeof run.difficulty !== 'number') run.difficulty = 1;
-    return run as RunState;
+    const run = checkRun(JSON.parse(raw) as Partial<RunState>);
+    if (!run) { clearSave(); return null; }
+    return run;
   } catch { clearSave(); return null; }
 }
 export function hasSave(): boolean { return loadRun() !== null; }

@@ -1049,3 +1049,7 @@
 /* 第二關起新招區六張牌：格距縮一點，整排仍在舞台內（2026-09-04） */
 .shelf-cards.six .shop-row { gap: 12px; }
 .shelf-cards.six .shop-item.card-item { width: 158px; }
+
+/* 首頁：貼進局面碼時的說明。會蓋掉自己進度的時候換成警告色，讓人按下去之前先看到 */
+.title-note.share-note { min-height: 18px; margin-top: 2px; }
+.title-note.share-note.warn { color: #ffd06a; font-weight: 700; }

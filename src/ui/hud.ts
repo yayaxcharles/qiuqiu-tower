@@ -9,7 +9,9 @@ import { ACT_NAMES, potionCapacity } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
 import { musicOn, musicVolume, setMusicVolume, toggleMusic } from './bgm';
 import { showDeckPicker } from './deckview';
+import { encodeRun } from '../engine/sharecode';
 import { el } from './dom';
+import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { showRelicList } from './reliclist';
 import { attachTextTooltip, attachTooltip } from './tooltip';
 
@@ -140,7 +142,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
     diffBadge(run),
     hp, fish, relics, potions, deckBtn, compBtn,
-    seedTag(run.seed), music, vol, sound);
+    seedTag(run.seed, false, run), music, vol, sound);
   return hud;
 }
 
@@ -161,29 +163,97 @@ function diffBadge(run: RunState): HTMLElement | string {
   return node;
 }
 
-export function seedTag(seed: string, full = false): HTMLElement {
-  // 十三位數字整條印在狀態列太佔位（使用者 2026-09-06）：狀態列做成跟「圖鑑」一樣的小按鈕，
-  // 完整代碼滑上去看、點一下複製；結算畫面（full）空間夠，照舊整串印出來
-  // 「代碼」兩個字玩家看不懂，改叫「存檔」（使用者 2026-09-06）；完整說明放提示框
-  const label = full ? `本局代碼 ${seed} ⧉` : '💾 存檔';
+/**
+ * `full`＝結算畫面用的整串版本，複製的是**地圖種子**（同一張地圖從頭再來一次）。
+ * 遊戲進行中的狀態列版本複製的是**局面碼**：連牌組、秘寶、忍具、血量、走到第幾層一起打包，
+ * 別人貼上就從你這個點接著打（使用者 2026-09-07：「讓三個人用同一種牌組跟秘寶打王看看」）。
+ *
+ * 之前狀態列這顆叫「存檔」，使用者自己也以為按了就能把進度傳給別人——名字承諾的比做的多。
+ * 現在名實相符了：進行中＝分享局面，結算後＝分享地圖種子（那時人已經死了或通關了，局面沒有意義）。
+ */
+export function seedTag(seed: string, full = false, run?: RunState): HTMLElement {
+  const label = full ? `本局代碼 ${seed} ⧉` : '📤 分享局面';
   const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' }, label);
-  // 說明照使用者 2026-09-06 的意思寫，但要講準：代碼是「同一局從頭再來」，不是接續進度——進度本身自動存檔、首頁按「續玩」
-  attachTextTooltip(node, `存檔代碼 ${seed}`, '點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。目前進度會自動存檔，回首頁按「續玩」就接著玩。');
-  node.addEventListener('click', () => {
+  if (full || !run) {
+    attachTextTooltip(node, `本局代碼 ${seed}`, '點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。');
+  } else {
+    attachTextTooltip(node, '分享這一刻的局面',
+      '點一下複製一長串局面碼（十幾行，正常）。別人貼到首頁的「本局代碼」欄，就會從你現在這個位置接著打——'
+      + '同一套牌組、秘寶、忍具、血量、樓層。適合幾個人拿一樣的條件比誰打得好。\n'
+      + '你自己的進度本來就會自動存，回首頁按「續玩」即可，不需要這串。');
+  }
+  const copy = (text: string): void => {
     const done = (): void => {
       play('click');
       node.textContent = '已複製！';
-      window.setTimeout(() => { node.textContent = label; }, 1200);
+      window.setTimeout(() => { node.textContent = label; }, 1400);
     };
-    // 剪貼簿不能用時把整串代碼印出來讓人自己選：這時候按鈕上本來只有「代碼」兩個字
-    const fallback = (): void => { node.textContent = seed; selectFallback(node); };
+    const fallback = (): void => {
+      // 老方法退路：塞一個看不見的輸入框、選起來、叫瀏覽器複製。剪貼簿 API 被擋（非安全來源、
+      // 權限沒給）時多半這條還通得過
+      if (execCopy(text)) { done(); return; }
+      // 短的地圖種子可以整串印在按鈕上讓人自己選；**局面碼一千多字元不行**——
+      // 塞進狀態列這顆小按鈕會把整條狀態列撐爆（2026-09-07 實測撞到）。改開一個視窗給人選取
+      if (text.length <= 40) { node.textContent = text; selectFallback(node); return; }
+      showCopyBox(text);
+      node.textContent = label;
+    };
     try {
-      void navigator.clipboard.writeText(seed).then(done, fallback);
+      void navigator.clipboard.writeText(text).then(done, fallback);
     } catch {
       fallback();
     }
+  };
+  node.addEventListener('click', () => {
+    if (full || !run) { copy(seed); return; }
+    // 壓縮是非同步的，先把按鈕改成「產生中」，免得玩家以為沒反應又點一次
+    node.textContent = '產生中…';
+    void encodeRun(run).then((code) => {
+      if (code) { copy(code); return; }
+      // 壓不動（太舊的瀏覽器）就退回分享種子，並且講清楚差別，不要默默給一串意思不同的東西
+      node.textContent = '改複製地圖代碼';
+      window.setTimeout(() => copy(seed), 900);
+    });
   });
   return node;
+}
+
+/** 老方法複製：看不見的輸入框＋execCommand。剪貼簿 API 被擋時多半還通得過 */
+function execCopy(text: string): boolean {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.append(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch { return false; }
+}
+
+/**
+ * 兩條退路都不通時的最後一手：開一個視窗把整串碼放進可選取的文字框。
+ * 局面碼一千多字元，不能像地圖種子那樣印在按鈕上。
+ */
+function showCopyBox(text: string): void {
+  const layer = overlayRoot();
+  if (!layer) return;
+  const overlay = el('div', { class: 'modal-overlay' });
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.readOnly = true;
+  ta.className = 'copy-box';
+  const close = el('button', { class: 'btn', onclick: () => { overlay.remove(); unlockScreen(); } }, '關閉');
+  overlay.append(el('div', { class: 'modal' },
+    el('h2', { class: 'modal-title' }, '自動複製沒成功'),
+    el('div', { class: 'copy-hint' }, '框裡已經整串選起來了，按 Ctrl+C（Mac 是 Cmd+C）複製。'),
+    ta,
+    el('div', { class: 'modal-foot' }, close)));
+  layer.append(overlay);
+  lockScreen();
+  ta.focus();
+  ta.select();
 }
 
 /** 複製失敗的退路：把整段文字選起來，使用者自己按複製就好 */
