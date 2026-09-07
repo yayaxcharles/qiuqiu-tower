@@ -27,7 +27,11 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 236, 190, .35) transparent;
+  /* 可以按住拖著走（見 dragscroll.ts）。節點與捲軸自己的游標特異性更高，會蓋過這個 */
+  cursor: grab;
 }
+/* 真的拖起來才換成抓住的手（文字選取不用管：#stage 整層已經是 user-select: none） */
+.map-scroll.dragging { cursor: grabbing; }
 .map-scroll::-webkit-scrollbar { width: 8px; }
 .map-scroll::-webkit-scrollbar-track { background: transparent; }
 .map-scroll::-webkit-scrollbar-thumb {

@@ -1,3 +1,4 @@
+import { attachDragScroll } from '../dragscroll';
 import { attachTextTooltip } from '../tooltip';
 import { modifierById } from '../../content/modifiers';
 import { play } from '../audio';
@@ -79,6 +80,9 @@ registerScreen('map', (app, root) => {
   const centre = centreLane(run.map.nodes);
   const inner = el('div', { class: 'map-inner', style: `height:${INNER_H}px` });
   const scroll = el('div', { class: 'map-scroll' }, inner);
+  // 按住左鍵拖著地圖走（使用者 2026-09-07：玩家反應只能拉捲軸或滾滾輪很不習慣）。
+  // 移動不到門檻的那一下照舊算點節點，見 dragscroll.ts
+  attachDragScroll(scroll);
 
   // 底圖是直式長條圖，尺寸就照捲軸內容做（1280×INNER_H），所以放進捲軸裡跟著捲：
   // 爬到下面是地牢石造、中段木造樓層、爬到頂真的看得到夜空。
