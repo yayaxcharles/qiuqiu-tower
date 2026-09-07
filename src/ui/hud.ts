@@ -41,11 +41,6 @@ let lastFish: { seed: string; n: number } | null = null;
  * 戰鬥畫面把當下的 delta 傳進來，這裡就畫「現在實際有多少」——偷走馬上少、
  * 打倒牠馬上加回來，本來就有的變動閃光也跟著會亮。
  */
-/** 現在在地圖上嗎——`show()` 是先寫這個標記再重畫，所以在渲染中讀得到正確的值 */
-function onMap(app: App): boolean {
-  return app.stage.dataset['screen'] === 'map';
-}
-
 export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLElement {
   const run = app.run;
   const hud = el('div', { class: 'hud' });
@@ -148,11 +143,9 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
     diffBadge(run),
     hp, fish, relics, potions, deckBtn, compBtn,
-    // 分享局面只在地圖上給（使用者 2026-09-07：「只要每次戰鬥完、下一個節點前紀錄就可以了，
-    // 不需要接近戰鬥中」）。地圖畫面正是節點剛結算完、剛存過檔的那一刻，分享出去的內容
-    // 跟畫面上看到的完全一致，不必再跟玩家解釋「你分享的是上一個存檔點」。
-    // 其他畫面（戰鬥、罐頭鋪、事件、貓窩）那顆鈕退回複製地圖代碼，位置不動、狀態列不會忽大忽小
-    seedTag(run.seed, false, onMap(app) ? run : undefined), music, vol, sound);
+    // 每個畫面都給分享鈕（使用者 2026-09-07：「戰鬥中也能隨手按一下比較方便」）。
+    // 戰鬥中按是安全的——分享的是上一個存檔點（見 seedTag 裡的說明），不是還沒打完的這一格
+    seedTag(run.seed, false, run), music, vol, sound);
   return hud;
 }
 
@@ -190,7 +183,8 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
     attachTextTooltip(node, '分享目前的局面',
       '點一下複製一長串局面碼（十幾行，正常）。別人貼到首頁的「本局代碼」欄，就會從你的位置接著打——'
       + '同一套牌組、秘寶、忍具、血量、樓層。適合幾個人拿一樣的條件比誰打得好。'
-      + '這顆鈕只在地圖上出現，分享的就是你現在站的位置（剛打完、還沒進下一格的那一刻）；'
+      + '分享的是你最近一次離開節點的狀態，也就是按「續玩」會回到的那個點——'
+      + '在地圖上按就是你現在站的位置；戰鬥打到一半按，給出去的是進這場戰鬥之前，這樣對方才打得到同一場。'
       + '你自己的進度本來就會自動存，回首頁按「續玩」即可，不需要這串。');
   }
   let resetTimer = 0;
