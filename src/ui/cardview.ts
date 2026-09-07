@@ -1,7 +1,7 @@
 import { cardStats } from '../engine/deck';
 import type { CardDef, CardInstance } from '../engine/types';
 import { artUrl } from './assets';
-import { describeCard } from './cardtext';
+import { describeCard, upgradedChangedChars } from './cardtext';
 import { el } from './dom';
 import { markupKeywords } from './tooltip';
 
@@ -42,11 +42,19 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
   if (opts.disabled) cls.push('disabled');
   if (opts.onClick && !opts.disabled) cls.push('clickable');
 
+  // 升級動到哪裡就標哪裡（使用者 2026-09-07：「才知道升級跟沒升級牌的差異」）。
+  // 費用比的是牌表上的升級費用，不是畫面上顯示的 cost：顯示值對牌張實例走 cardStats，
+  // 語意是「這張牌現在幾費」，未來若把秘寶減費（毛線球、破卷軸，目前在 combat.canPlay 才扣）
+  // 併進去，拿它來比就會把「戴了減費秘寶」誤標成「升級變便宜」。
+  const plays = opts.plays ?? 0;
+  const changed = upgraded ? upgradedChangedChars(def, plays) : undefined;
+  const costDown = upgraded && (def.upgrade.cost ?? def.cost) < def.cost;
+
   const node = el('div', { class: cls.join(' ') },
-    el('div', { class: 'card-cost' }, String(cost)),
+    el('div', { class: costDown ? 'card-cost cost-down' : 'card-cost' }, String(cost)),
     el('img', { class: 'card-art', src: artUrl('cards', def.art), alt: def.name, draggable: 'false' }),
     el('div', { class: 'card-name' }, def.name + (upgraded ? '＋' : '')),
-    el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, opts.plays ?? 0))),
+    el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),
     el('div', { class: 'card-type' }, def.type));
 
   if (uid !== null) node.dataset['uid'] = String(uid);

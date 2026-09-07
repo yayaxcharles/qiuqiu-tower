@@ -1,6 +1,7 @@
 import { cardStats } from '../engine/deck';
 import type { CardInstance } from '../engine/types';
 import { play } from './audio';
+import { upgradeDiff } from './cardtext';
 import { cardNode } from './cardview';
 import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
@@ -102,15 +103,27 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     const k = 1280 / stage.getBoundingClientRect().width;
     const or = overlay.getBoundingClientRect();
     const cr = node.getBoundingClientRect();
+    // 升級只是「拿掉」東西的牌（出大事了少掉自傷、踏雪無痕少掉消耗、拼命少掉自傷、催噎少掉那句括號），
+    // 差異在升級版牌面上沒有位置可以標色，光看預覽看不出升級了什麼，所以補一行寫清楚少了哪句
+    const def = cardStats(c).def;
+    const gone = upgradeDiff(def).removed;
     const box = el('div', { class: 'upgrade-preview' },
       el('div', { class: 'upgrade-preview-label' }, '升級後'),
-      cardNode(cardStats(c).def, { upgraded: true }));
+      cardNode(def, { upgraded: true }));
+    if (gone.length) {
+      box.append(el('div', { class: 'upgrade-preview-drop' },
+        `少了 ${gone.map((g) => `「${g}」`).join('')}`));
+    }
     // 右邊放不下（牌 170 寬＋間距）就翻到左邊
     const right = (cr.right - or.left) * k + 14;
     const flip = right + 186 > 1280;
     box.style.left = `${flip ? (cr.left - or.left) * k - 186 : right}px`;
-    box.style.top = `${Math.min((cr.top - or.top) * k - 10, 720 - 300)}px`;
+    box.style.top = '0px';
     overlay.append(box);
+    // 上緣要等掛上去、量到真實高度才夾得準：有「少了……」那一行的牌預覽會比別張高，
+    // 照固定值算會掉出舞台下緣（1280×720 的舞台座標）
+    const h = box.offsetHeight || 300;
+    box.style.top = `${Math.max(6, Math.min((cr.top - or.top) * k - 10, 720 - h - 8))}px`;
     preview = box;
   }
 

@@ -64,20 +64,43 @@ export function attachTextTooltip(node: HTMLElement, title: string, body: string
   node.addEventListener('mouseleave', hideTooltip);
 }
 
-/** 把牌面文字裡的名詞包成可提示的 span */
-export function markupKeywords(text: string): DocumentFragment {
+/**
+ * 把牌面文字裡的名詞包成可提示的 span。
+ *
+ * `changed`＝升級版才有：這些字元位置跟沒升級的版本不一樣（見 `cardtext.upgradedChangedChars`），
+ * 包一層 `.upg` 標色，玩家一眼就看得出升級動到哪裡。名詞本身被改到就直接在 `.kw` 上加 `.upg`，
+ * 不要再包一層，不然提示框的滑鼠範圍會被切成兩半。
+ */
+export function markupKeywords(text: string, changed?: ReadonlySet<number>): DocumentFragment {
   const frag = document.createDocumentFragment();
+  const mark = changed && changed.size > 0 ? changed : null;
+  /** 名詞以外的普通文字：照「有沒有被改到」切成一段一段 */
+  const plain = (from: number, to: number): void => {
+    if (from >= to) return;
+    if (!mark) { frag.append(text.slice(from, to)); return; }
+    let i = from;
+    while (i < to) {
+      const on = mark.has(i);
+      let j = i + 1;
+      while (j < to && mark.has(j) === on) j++;
+      const part = text.slice(i, j);
+      frag.append(on ? el('span', { class: 'upg' }, part) : part);
+      i = j;
+    }
+  };
   let last = 0;
   for (const m of text.matchAll(RE)) {
     const word = m[0];
     const at = m.index;
     if (!word || at === undefined) continue;
-    frag.append(text.slice(last, at));
-    const span = el('span', { class: 'kw' }, word);
+    plain(last, at);
+    let hit = false;
+    if (mark) for (let k = 0; k < word.length; k++) if (mark.has(at + k)) { hit = true; break; }
+    const span = el('span', { class: hit ? 'kw upg' : 'kw' }, word);
     attachTooltip(span, word);
     frag.append(span);
     last = at + word.length;
   }
-  frag.append(text.slice(last));
+  plain(last, text.length);
   return frag;
 }
