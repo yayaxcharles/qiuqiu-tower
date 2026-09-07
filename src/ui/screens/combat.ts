@@ -662,6 +662,17 @@ registerScreen('combat', (app, root, props) => {
     return node;
   }
 
+  /** 手牌那支「拿在手上會晃」的循環動畫（`card-idle`）。找不到回 undefined */
+  function idleAnimOf(node: HTMLElement): Animation | undefined {
+    if (typeof node.getAnimations !== 'function') return undefined;
+    return node.getAnimations().find((a) => (a as Animation & { animationName?: string }).animationName === 'card-idle');
+  }
+  /** 晃動動畫現在跑到第幾毫秒；量不到就回 null（拿它當「不用還原」的訊號） */
+  function idleTimeOf(node: HTMLElement): number | null {
+    const t = idleAnimOf(node)?.currentTime;
+    return typeof t === 'number' ? t : null;
+  }
+
   function handRow(): HTMLElement {
     const p = cs.player;
     const n = p.hand.length;
@@ -705,6 +716,7 @@ registerScreen('combat', (app, root, props) => {
       // 拖出去打（使用者 2026-09-07）：加一條路，點擊那兩種照舊。打不出來的牌不掛，
       // 維持「點下去抖一下＋說明」的行為。規則與座標換算見 dragplay.ts
       if (canAct() && chk.ok) {
+        let idleAt: number | null = null;
         attachCardDrag(node, {
           needsTarget: st.def.target === 'enemy',
           scale: () => { const w = app.stage.getBoundingClientRect().width; return w > 0 ? w / 1280 : 1; },
@@ -722,7 +734,26 @@ registerScreen('combat', (app, root, props) => {
             const r = root.querySelector('.hand')?.getBoundingClientRect();
             return !r || y < r.top;
           },
-          onStart: () => hideTooltip(),
+          onStart: () => {
+            hideTooltip();
+            // 拖曳期間會把動畫整個停掉（不然晃動的位移會蓋過拖曳的位移），放開時那條規則一撤，
+            // 瀏覽器把動畫當成新的重播一次——而這張牌身上還掛著「剛發到手」的標記，
+            // 它的進場動畫起點是左下角的牌堆，於是牌先瞬移到牌堆再飛回來，看起來像重抽了一張
+            //（使用者 2026-09-07 回報，實測放開瞬間 x 從 433 跳到 197）。
+            // 這張牌早就發過了，標記拿掉；晃動的進度先記著，放開再接回去，連那點跳動都省掉
+            idleAt = idleTimeOf(node);
+            node.classList.remove('dealt');
+          },
+          onEnd: () => {
+            // 動畫要等 class 撤掉、瀏覽器重新建立之後才接得回去，所以排到下一個畫格
+            const back = idleAt;
+            idleAt = null;
+            if (back === null || typeof window.requestAnimationFrame !== 'function') return;
+            window.requestAnimationFrame(() => {
+              const idle = idleAnimOf(node);
+              if (idle) idle.currentTime = back;
+            });
+          },
           onHover: (uid) => {
             // 拖著的牌會蓋住底下的魔物，不高亮的話多怪時看不出這一下會打誰。
             // 直接動 class 不重畫：重畫會把正在拖的那張牌換成新節點，拖曳當場斷掉

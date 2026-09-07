@@ -67,6 +67,11 @@ export interface CardDragHooks {
   /** 拖曳開始（收提示框、把牌提到最上層之類的收尾交給呼叫端） */
   onStart?: () => void;
   /**
+   * 拖曳收尾（打出、退回、被作廢都會走到，排在 onPlay／onCancel 之前）。
+   * 呼叫端拿它把拖曳期間動過的畫面狀態接回去——手牌那邊用來還原晃動動畫的進度。
+   */
+  onEnd?: () => void;
+  /**
    * 拖曳中游標現在壓在哪隻魔物上（沒壓到給 null）。呼叫端拿它把目標高亮起來——
    * 拖著的牌會把底下的魔物遮住，不高亮的話多怪時根本看不出會打誰。
    * 只有真的換了目標才叫，不會每一格都叫一次。
@@ -91,6 +96,7 @@ export function attachCardDrag(node: HTMLElement, hooks: CardDragHooks): void {
     node.style.translate = '';
     node.style.zIndex = '';
     if (hovered !== null) { hovered = null; hooks.onHover?.(null); }
+    hooks.onEnd?.();
   };
 
   node.addEventListener('pointerdown', (ev) => {
