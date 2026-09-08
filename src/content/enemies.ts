@@ -1142,12 +1142,13 @@ export const BOSS_MOVE_ART: Record<string, string> = {
 export const BOSS_MOVE_ART_PHASE: Record<string, string>[] = [
   // 後半是上一階段宣告、跨線後才出的招（血量在玩家回合跨線時會發生），也配本階段最接近的圖，不退回第一階段
   { 十二連環: 'boss/palm2', 穿心掌: 'boss/palm2', 狂風連掌: 'boss/drunk2', 金鐘罩: 'boss/guard2', 醉拳: 'boss/drunk2',
-    拆招: 'boss/palm2', 沾衣十八跌: 'boss/palm2', 鐵頭功: 'boss/palm2', 獅吼功: 'boss/drunk2', 蹲下調息: 'boss/guard2' },
+    拆招: 'boss/palm2', 沾衣十八跌: 'boss/palm2', 鐵頭功: 'boss/headbutt2', 獅吼功: 'boss/roar2', 蹲下調息: 'boss/guard2' },   // 頭槌、獅吼 2026-09-08 補了自己的圖
   { 亡命一擊: 'boss/headbutt3', 破功: 'boss/palm3', 狂風連掌: 'boss/palm3', 氣沉丹田: 'boss/guard3', 看破: 'boss/palm3',
-    十二連環: 'boss/palm3', 穿心掌: 'boss/palm3', 金鐘罩: 'boss/guard3', 醉拳: 'boss/palm3', 蹲下調息: 'boss/guard3' },   // 換血條時的蹲下調息也用本階段的圖（guard3 就是打坐）
+    十二連環: 'boss/palm3', 穿心掌: 'boss/palm3', 金鐘罩: 'boss/guard3', 醉拳: 'boss/drunk3', 蹲下調息: 'boss/guard3' },   // 醉拳 2026-09-08 補了第三階段的圖   // 換血條時的蹲下調息也用本階段的圖（guard3 就是打坐）
 ];
 /** 塔主的非招式立繪：三個階段各一張待機（深藏不露／走火入魔／真面目）、戰敗（承讓） */
-export const BOSS_ART = { idle1: 'boss/idle1', idle2: 'boss/idle2', idle3: 'boss/idle3', defeat: 'boss/defeat' } as const;
+export const BOSS_ART = { idle1: 'boss/idle1', idle2: 'boss/idle2', idle3: 'boss/idle3', defeat: 'boss/defeat',
+  defeat3: 'boss/defeat3' } as const;   // defeat3＝真面目跪倒、鬼火熄滅：他實際上都在第三階段倒下（使用者 2026-09-08 要的）
 /**
  * 塔主的挨打立繪，三個階段各一張（2026-09-08，使用者：師父被打只有紅閃，一般魔物都有挨打圖）。
  * 索引＝階段（[0] 第一條血、[1] 走火入魔、[2] 真面目）。圖還沒生好時 hasSprite 會擋掉，退回該階段的待機圖。

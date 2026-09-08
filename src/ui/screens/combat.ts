@@ -20,7 +20,7 @@ import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
-import { MIRROR_LEFT, enemyLeft, nextLineup } from '../enemylayout';
+import { enemyLeft, nextLineup } from '../enemylayout';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 
@@ -329,7 +329,7 @@ registerScreen('combat', (app, root, props) => {
     // 個別放寬的框（跟 combat.css 的 [data-id=…] 那條一致）：犰狳寶寶是橫躺的方圖，小框顯得扁、中框又太高
     pup: [150, 150],
     // 鏡中球球要跟主角一樣高（使用者 2026-09-08）：影球球的圖 460×460 主體佔滿，262 的方框畫出來 259 高＝主角站姿
-    mirror: [262, 262],
+    mirror: [290, 262],   // 框比圖寬 28：圖在框裡往右挪 14 像素（見 combat.css 那條的說明）
   };
   const SPRITE_SIZE_OVERRIDE: Record<string, keyof typeof SPRITE_BOX> = { armadillo_pup: 'pup', mirror_qiuqiu: 'mirror' };
 
@@ -579,7 +579,8 @@ registerScreen('combat', (app, root, props) => {
   function enemySprite(e: EnemyCombat, def: EnemyDef | undefined): string {
     const act = acting.get(e.uid);
     if (def?.art === 'daxia') {
-      if (e.dead) return artUrl('sprites', BOSS_DEFEAT);
+      // 倒下：第三階段（他實際上都是這時倒的）用真面目跪倒、鬼火熄滅那張；沒生好時退回第一階段的承讓
+      if (e.dead) return artUrl('sprites', e.phase >= 2 && hasSprite(BOSS_ART.defeat3) ? BOSS_ART.defeat3 : BOSS_DEFEAT);
       // 調息中（血條打光那一刻就開始，無敵一回合）就畫打坐圖。原本只有「他自己出招那一拍」才查招式圖，
       // 結果血一打光他站著換成新階段的待機圖、牌子跟紀錄卻都說他蹲下了，要等你結束回合輪到他才真的蹲
       //（使用者 2026-09-08：「換階段調息時他還是站著」）。引擎的 invulnIn 就是「調息中」，直接看它
@@ -601,8 +602,7 @@ registerScreen('combat', (app, root, props) => {
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
     const def = enemyById[e.enemyId];
-    // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）。鏡中球球單挑站跟主角對稱的位置（見 MIRROR_LEFT）
-    const left = e.enemyId === 'mirror_qiuqiu' && n === 1 ? MIRROR_LEFT : enemyLeft(i, n);
+    const left = enemyLeft(i, n);   // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）
     const cls = ['unit', 'enemy', `size-${def?.size ?? 'medium'}`];
     // 關主的待機呼吸慢一點、睡著的冒 Zzz（使用者 2026-09-04：待機差異只做關主）
     const bossUnit = def?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主';

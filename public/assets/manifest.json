@@ -159,7 +159,11 @@
   "hero/ninja_dizzy": "assets/sprites/hero/ninja_dizzy.webp",
   "hero/ninja_choke": "assets/sprites/hero/ninja_choke.webp",
   "hero/ninja_focus": "assets/sprites/hero/ninja_focus.webp",
-  "hero/ninja_scroll": "assets/sprites/hero/ninja_scroll.webp"
+  "hero/ninja_scroll": "assets/sprites/hero/ninja_scroll.webp",
+  "boss/headbutt2": "assets/sprites/boss/headbutt2.webp",
+  "boss/roar2": "assets/sprites/boss/roar2.webp",
+  "boss/drunk3": "assets/sprites/boss/drunk3.webp",
+  "boss/defeat3": "assets/sprites/boss/defeat3.webp"
  },
  "review": [],
  "monsters": {

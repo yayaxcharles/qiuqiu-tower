@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { HERO_CENTER, MIRROR_LEFT, STAGE_W, UNIT_W, enemyLeft, nextLineup } from '../../src/ui/enemylayout';
+import { STAGE_W, UNIT_W, enemyLeft, nextLineup } from '../../src/ui/enemylayout';
 
 describe('魔物在戰場上的位置', () => {
   it('一到五隻都要整排待在畫面裡', () => {
@@ -44,12 +44,5 @@ describe('魔物在戰場上的位置', () => {
     expect(nextLineup([1, 2], [1])).toEqual([1, 2]);        // 2 號倒了，1 號留在原位
     expect(nextLineup([1, 2], [1, 3, 4])).toEqual([1, 3, 4]); // 召喚 3、4：重排，倒下的 2 號清出去
     expect(nextLineup([1, 2], [1, 2])).toEqual([1, 2]);
-  });
-});
-
-describe('鏡中球球的站位', () => {
-  it('跟主角左右對稱：他的中線在 1280−150，而且整隻（連 262 寬的圖）都在舞台裡', () => {
-    expect(MIRROR_LEFT + UNIT_W / 2).toBe(STAGE_W - HERO_CENTER);
-    expect(MIRROR_LEFT + UNIT_W / 2 + 131).toBeLessThanOrEqual(STAGE_W);
   });
 });
