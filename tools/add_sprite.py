@@ -42,6 +42,8 @@ def box_aspect(mid: str) -> float:
         _SIZES = dict(re.findall(r"\{ id: '([^']+)'[^\n]*?size: '(small|medium|large)'", src))
     if mid in BOX_OVERRIDE:
         return BOX_OVERRIDE[mid]
+    if mid not in _SIZES:
+        print(f"  （{mid} 在 enemies.ts 找不到 size，畫布比例照 medium；共用圖的像 lantern_twin、shadow_kitten 是正常的）")
     return BOX_ASPECT[_SIZES.get(mid, "medium")]
 
 
@@ -115,7 +117,7 @@ def main() -> None:
             report(group, raw_name, out_dir, base_h, mid, pose)
             continue
         if args.refit:
-            src = out_dir / (raw_name if raw_name.endswith(".webp") else f"{raw_name}.webp")
+            src = out_dir / (f"{mid}_{pose}.webp" if group == "monsters" else (raw_name if raw_name.endswith(".webp") else f"{raw_name}.webp"))
             if not src.exists():
                 print(f"找不到 {src}，略過")
                 continue
@@ -132,7 +134,12 @@ def main() -> None:
             im = key_out(Image.open(src))
         # 比畫布還大（寬過 740 或高過 659）就等比縮到塞得進去：挨打姿勢通常橫得比較開，縮一點無妨；
         # 不縮的話貼進去會被切掉一截
-        max_w, max_h = cw - 20, ch - bottom_pad - 5
+        # 塔主／球球的大畫布留 20 像素邊；魔物畫布只有兩三百寬，20 像素會白白把圖壓矮 4～8%（稽核 2026-09-09 低-1），
+        # 而且待機圖本來就貼邊、遊戲用 object-fit: contain 不會裁，魔物只留 2
+        if group == "monsters":
+            max_w, max_h = cw - 2, ch - bottom_pad
+        else:
+            max_w, max_h = cw - 20, ch - bottom_pad - 5
         if im.width > max_w or im.height > max_h:
             k = min(max_w / im.width, max_h / im.height)
             im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
@@ -152,6 +159,8 @@ def main() -> None:
         canvas.save(dst, "WEBP", quality=82, method=6)
         manifest["sprites"][f"{group}/{stem}"] = dst.relative_to(ROOT / "public").as_posix()
         print(f"立繪 {group}/{stem}.webp {dst.stat().st_size // 1024} KB（畫布 {cw}x{ch}、底邊留 {bottom_pad}，跟 {baseline.stem} 對齊）")
+    if args.check:
+        return
     MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print("manifest.json 已併入")
 
