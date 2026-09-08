@@ -20,6 +20,28 @@ describe('全力準備', () => {
     expect(run.deck.find((c) => c.uid === uid)!.upgraded).toBe(true);
   });
 
+  it('難度 4 也開放（邊界），數字照樣', () => {
+    const run = setup(4);
+    const uid = run.deck.find((c) => !c.upgraded)!.uid;
+    expect(fullPrepAvailable(run)).toBe(true);
+    expect(rest(run, '全力準備', uid)).toBe(true);
+    expect(run.hp).toBe(68);
+    expect(run.fish).toBe(0);
+  });
+
+  it('挑到已升級的牌、不存在的牌：回 false，血與魚乾都不動；舊存檔沒有難度欄＝難度 1 不開放', () => {
+    const run = setup(5);
+    const c = run.deck[0]!;
+    c.upgraded = true;
+    expect(rest(run, '全力準備', c.uid)).toBe(false);
+    expect(rest(run, '全力準備', 99999)).toBe(false);
+    expect(run.hp).toBe(30);
+    expect(run.fish).toBe(300);
+    const old = setup(5);
+    delete old.difficulty;
+    expect(fullPrepAvailable(old)).toBe(false);
+  });
+
   it('難度 3 以下、不是 44F 都不開放；沒挑牌不算，什麼都不動', () => {
     for (const run of [setup(3), setup(5, 43), setup(4, 29)]) {
       const uid = run.deck[0]!.uid;
