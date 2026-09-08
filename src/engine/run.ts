@@ -296,7 +296,28 @@ export function napHeal(run: RunState): number {
   const flat = run.relics.reduce((s, id) => s + (relicById[id]?.hooks.restFlat ?? 0), 0);
   return Math.floor(run.maxHp * 0.3 * mult) + flat;
 }
-export function rest(run: RunState, choice: '打盹' | '磨爪', uid?: number): boolean {
+/**
+ * 全力準備（44F、難度 4 起；玩家 2026-09-08 建議）：升級一張牌＋回一成血，再把全部小魚乾換成生命（÷10、無條件捨去），
+ * 小魚乾歸零。師父前一格之後小魚乾本來就沒地方花；打盹照舊回滿，「上樓前想升級又想多回一點」才選這個。
+ */
+export function fullPrepAvailable(run: RunState): boolean {
+  return run.act >= 3 && run.floor === 44 && (run.difficulty ?? 1) >= 4;
+}
+/** 全力準備回多少：一成＋小魚乾÷10（畫面顯示與實際結算共用這一條；封頂在最大生命由 rest 處理） */
+export function fullPrepHeal(run: RunState): { tenth: number; fromFish: number; total: number } {
+  const tenth = Math.floor(run.maxHp * 0.1);
+  const fromFish = Math.floor(run.fish / 10);
+  return { tenth, fromFish, total: tenth + fromFish };
+}
+export function rest(run: RunState, choice: '打盹' | '磨爪' | '全力準備', uid?: number): boolean {
+  if (choice === '全力準備') {
+    if (!fullPrepAvailable(run)) return false;
+    const ok = uid !== undefined && upgradeCard(run, uid);
+    if (!ok) return false;
+    run.hp = Math.min(run.maxHp, run.hp + fullPrepHeal(run).total);
+    run.fish = 0;
+    return true;
+  }
   if (choice === '打盹') {
     run.hp = Math.min(run.maxHp, run.hp + napHeal(run));
     // 暖毯：打盹後下一場開戰帶蜷縮

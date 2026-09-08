@@ -241,6 +241,9 @@
   color: var(--accent);
   font-weight: bold;
 }
+/* 兩行式選項（44F 的全力準備）：第一行選項名，第二行小字寫算好的數字 */
+.btn.two-line { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.25; }
+.btn.two-line .sub { font-size: .78em; opacity: .85; font-weight: normal; }
 .event-choices, .rest-actions {
   display: flex;
   flex-direction: column;

@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { cardById } from '../../content/cards';
 import { dialogue, pick } from '../../content/dialogue';
-import { napHeal, rest } from '../../engine/run';
+import { fullPrepAvailable, fullPrepHeal, napHeal, rest } from '../../engine/run';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
@@ -61,10 +61,11 @@ registerScreen('rest', (app, root) => {
 
     const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌，順便回一成血）');
     // rest(run, '磨爪') 沒有 uid 會回 false，所以一定要先挑牌再叫
-    /** 開牌堆挑一張。「再看看」要回到這裡重挑，不是退回貓窩再選一次打盹／磨爪（使用者 2026-09-02 回報） */
-    const pickCard = (): void => {
+    /** 開牌堆挑一張。「再看看」要回到這裡重挑，不是退回貓窩再選一次打盹／磨爪（使用者 2026-09-02 回報）。
+     *  磨爪與全力準備共用這條，差在結算叫哪個 choice、結束那句話怎麼寫 */
+    const pickCard = (choice: '磨爪' | '全力準備' = '磨爪'): void => {
       showDeckPicker({
-        title: '磨爪：選一張牌升級', cards: run.deck, pickable: true, cancellable: true, filter: upgradable,
+        title: `${choice}：選一張牌升級`, cards: run.deck, pickable: true, cancellable: true, filter: upgradable,
         previewUpgrade: true,
         onPick: (uid) => {
           const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
@@ -72,12 +73,17 @@ registerScreen('rest', (app, root) => {
           // 先讓玩家看到升級後長什麼樣再決定。按「再看看」就回到牌堆重挑，不算用掉這次機會。
           showUpgradeConfirm(c, (ok) => {
             if (used) return;
-            if (!ok) { pickCard(); return; }
+            if (!ok) { pickCard(choice); return; }
             const name = cardById[c.cardId]?.name ?? c.cardId;
             used = true;
-            rest(run, '磨爪', uid);
+            const fish = run.fish;
+            const hpBefore = run.hp;
+            rest(run, choice, uid);
             play('upgrade');
-            afterAction(`「${name}」磨利了，變成「${name}＋」。`, pick(dialogue.restSharpenLines), c);
+            const line = choice === '全力準備'
+              ? `「${name}」磨利了，變成「${name}＋」；${fish} 條小魚乾全吃了，回復 ${run.hp - hpBefore} 點生命。`
+              : `「${name}」磨利了，變成「${name}＋」。`;
+            afterAction(line, pick(dialogue.restSharpenLines), c);
           });
         },
       });
@@ -85,12 +91,25 @@ registerScreen('rest', (app, root) => {
     sharpen.addEventListener('click', () => { if (!used) pickCard(); });
     if (!run.deck.some(upgradable)) sharpen.setAttribute('disabled', 'disabled');
 
+    // 全力準備（44F、難度 4 起；玩家 2026-09-08 建議）：升級一張牌＋回一成血，再把全部小魚乾換成生命（÷10）、魚乾歸零。
+    // 打盹照舊回滿，這個給「上樓前想升級又想多回一點」的人。血滿或魚乾不到 10 條時跟磨爪沒差，就不擺出來
+    let prep: HTMLElement | null = null;
+    if (fullPrepAvailable(run) && run.fish >= 10 && run.hp < run.maxHp) {
+      const h = fullPrepHeal(run);
+      const gain = Math.min(h.total, run.maxHp - run.hp);
+      prep = el('button', { class: 'btn two-line' },
+        el('span', {}, '全力準備（升級一張牌）'),
+        el('span', { class: 'sub' }, `回 ${gain} 點：一成 ${h.tenth} ＋ ${run.fish} 條小魚乾換 ${h.fromFish}${gain < h.total ? '（回到滿）' : ''}，魚乾歸零`));
+      prep.addEventListener('click', () => { if (!used) pickCard('全力準備'); });
+      if (!run.deck.some(upgradable)) prep.setAttribute('disabled', 'disabled');
+    }
+
     // 劇場版面：底圖就是貓窩本身，球球蜷在左邊，對白框裡直接放兩個選項
     root.append(sceneView({
       portrait: heroPortrait(),
       speaker: '貓窩',
       text: '貓窩暖暖的，只能挑一件事做。',
-      actions: [nap, sharpen],
+      actions: prep ? [nap, sharpen, prep] : [nap, sharpen],
     }));
   }
 
