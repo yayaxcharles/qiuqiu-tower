@@ -50,7 +50,9 @@ def main() -> None:
             print(f"  {raw_name} 比畫布大，等比縮到 {im.size}")
         canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
         canvas.paste(im, ((cw - im.width) // 2, ch - bottom_pad - im.height), im)
-        stem = raw_name[len("boss_"):-4] if raw_name.startswith("boss_") else Path(raw_name).stem
+        stem = Path(raw_name).stem
+        if stem.startswith("boss_"):
+            stem = stem[len("boss_"):]
         dst = OUT / f"{stem}.webp"
         canvas.save(dst, "WEBP", quality=82, method=6)
         manifest["sprites"][f"boss/{stem}"] = dst.relative_to(ROOT / "public").as_posix()

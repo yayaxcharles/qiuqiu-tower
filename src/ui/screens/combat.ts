@@ -537,10 +537,14 @@ registerScreen('combat', (app, root, props) => {
       // 結果血一打光他站著換成新階段的待機圖、牌子跟紀錄卻都說他蹲下了，要等你結束回合輪到他才真的蹲
       //（使用者 2026-09-08：「換階段調息時他還是站著」）。引擎的 invulnIn 就是「調息中」，直接看它
       if (e.invulnIn > 0) return artUrl('sprites', bossMovePose(e.phase, '蹲下調息') ?? bossIdle(e.phase));
-      // 挨打圖（2026-09-08）：一般魔物早就有，師父以前只有紅閃。排在出招圖前面——他自己出招那一拍不會同時挨打
+      // 出招圖排在挨打圖前面，跟一般魔物同一個順序（稽核 2026-09-08 中 1）：他出招那一拍常常同時掉血——
+      // 回合開頭的噎到結算、球球的反彈都在同一步扣他的血——挨打圖若優先，噎到流打他每回合都是
+      // 「挨打的表情往前撲」，招式圖全看不到
+      if (act) return artUrl('sprites', bossMovePose(e.phase, act.label) ?? bossIdle(e.phase));
+      // 挨打圖（2026-09-08）：一般魔物早就有，師父以前只有紅閃
       const hurt = BOSS_HURT_ART[Math.min(e.phase, 2)];
       if (hurtSet.has(e.uid) && hurt && hasSprite(hurt)) return artUrl('sprites', hurt);
-      return artUrl('sprites', (act ? bossMovePose(e.phase, act.label) : undefined) ?? bossIdle(e.phase));
+      return artUrl('sprites', bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');
     if (act?.attacked) return monsterUrl(def.art, 'attack');
@@ -1280,7 +1284,9 @@ registerScreen('combat', (app, root, props) => {
       if (b && e.hp < b.hp) hurtSet.add(e.uid);
       if (b && !b.dead && e.dead && cs.phase === 'won' && enemyById[e.enemyId]?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主') bossFallUids.add(e.uid);
       if (!b || e.dead || e.turnCount === b.turnCount || b.noAct) continue;
-      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' });
+      // 調息中的那一拍不算出手：噎到在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
+      // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
+      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0 });
     }
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。

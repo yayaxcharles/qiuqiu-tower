@@ -843,11 +843,16 @@
 .combat .unit.enemy.phase-1 .sprite-box { filter: drop-shadow(0 0 14px rgba(255, 90, 40, .8)) drop-shadow(0 0 4px rgba(255, 60, 20, .9)); }
 .combat .unit.enemy.phase-2 .sprite-box { filter: drop-shadow(0 0 18px rgba(160, 70, 255, .9)) drop-shadow(0 0 5px rgba(90, 20, 200, 1)) contrast(1.08); }
 /*
- * 調息中（血條打光到他下一回合起身）：光暈慢慢呼吸，看得出他在聚氣而不是掛掉了。
- * 只是把既有的階段光暈做明暗循環，不加任何等待、不擋操作（使用者 2026-09-08：不要拉長節奏）。
- * 動的是 .sprite-box 的 filter，跟挨打閃紅（.sprite 的 filter）不同元素，不會互相蓋掉。
+ * 調息中（血條打光到他下一回合起身）：金色光在他身上慢慢呼吸，看得出他在聚氣而不是掛掉了。
+ * 不加任何等待、不擋操作（使用者 2026-09-08：不要拉長節奏）。
+ * **掛在 .sprite 不掛 .sprite-box**：動畫算出來的值會蓋過所有一般宣告，掛在框上會把階段紅／紫光暈
+ * 跟拖曳目標的紅框一起蓋掉（稽核 2026-09-08 低 1）。掛在圖上就是疊在階段光暈上面；
+ * 調息中他無敵，挨打閃紅（也動 .sprite 的 filter）不會發生，不衝突。
+ * 呼吸動畫（idle-breathe，關主版 4.4 秒）要一起列出來，不然這條 animation 會把它換掉、他就僵住了。
  */
-.combat .unit.enemy.master.secluding .sprite-box { animation: seclude-glow 1.6s ease-in-out infinite; }
+.combat .unit.enemy.master.secluding .sprite {
+  animation: idle-breathe 4.4s ease-in-out infinite, seclude-glow 1.6s ease-in-out infinite;
+}
 @keyframes seclude-glow {
   0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 200, 90, .55)) brightness(1); }
   50% { filter: drop-shadow(0 0 26px rgba(255, 220, 120, 1)) drop-shadow(0 0 8px rgba(255, 180, 60, .9)) brightness(1.12); }
