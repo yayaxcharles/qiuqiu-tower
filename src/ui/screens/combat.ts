@@ -20,7 +20,7 @@ import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
-import { enemyLeft, nextLineup } from '../enemylayout';
+import { MIRROR_LEFT, enemyLeft, nextLineup } from '../enemylayout';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 
@@ -150,7 +150,7 @@ function bossMovePose(phase: number, label: string): string | undefined {
 }
 
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
-interface Acted { label: string; attacked: boolean }
+interface Acted { label: string; attacked: boolean; cardIds: string[] | undefined }   // cardIds＝照著學剛打的牌（亮牌面用）
 
 /** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
 // 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲、虛化對魔物是好事（金光），
@@ -173,7 +173,7 @@ interface Snap {
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; cardIds: string[] | undefined }>;
   logLen: number;
   hitsLen: number;
 }
@@ -184,7 +184,7 @@ function snap(cs: CombatState): Snap {
     growth: getStatus(cs.player, '爪力') + getStatus(cs.player, '貓步'),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
-      hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'),
+      hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), cardIds: e.move.cardIds,
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
@@ -328,8 +328,10 @@ registerScreen('combat', (app, root, props) => {
     master: [320, 320], master1: [340, 340], master2: [350, 350],
     // 個別放寬的框（跟 combat.css 的 [data-id=…] 那條一致）：犰狳寶寶是橫躺的方圖，小框顯得扁、中框又太高
     pup: [150, 150],
+    // 鏡中球球要跟主角一樣高（使用者 2026-09-08）：影球球的圖 460×460 主體佔滿，262 的方框畫出來 259 高＝主角站姿
+    mirror: [262, 262],
   };
-  const SPRITE_SIZE_OVERRIDE: Record<string, keyof typeof SPRITE_BOX> = { armadillo_pup: 'pup' };
+  const SPRITE_SIZE_OVERRIDE: Record<string, keyof typeof SPRITE_BOX> = { armadillo_pup: 'pup', mirror_qiuqiu: 'mirror' };
 
   /**
    * 立繪框是固定高度、圖用 `object-fit: contain` 貼在底部，
@@ -506,6 +508,8 @@ registerScreen('combat', (app, root, props) => {
     else if (blkAll) text = `守 ${computeBlock(blkAll.amount, e)}（全體）`;
     else if (buffAll) text = `${INTENT_GLYPH[m.intent]} 全體 +${buffAll.amount} ${buffAll.name}`;
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
+    // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）
+    if (m.cardIds && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = `${m.label}｜${text}`;
     // 看破／破功要寫在牌子上：使用者的朋友囤了十幾層隱身，看牌子只寫「攻 8×2」以為閃得掉，
     // 結果先被拍掉隱身再挨打（2026-09-03 回報）。牌子上先講，滑上去的提示再講細節
     if (getStatus(e, '定身') === 0) {
@@ -597,7 +601,8 @@ registerScreen('combat', (app, root, props) => {
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
     const def = enemyById[e.enemyId];
-    const left = enemyLeft(i, n);   // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）
+    // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）。鏡中球球單挑站跟主角對稱的位置（見 MIRROR_LEFT）
+    const left = e.enemyId === 'mirror_qiuqiu' && n === 1 ? MIRROR_LEFT : enemyLeft(i, n);
     const cls = ['unit', 'enemy', `size-${def?.size ?? 'medium'}`];
     // 關主的待機呼吸慢一點、睡著的冒 Zzz（使用者 2026-09-04：待機差異只做關主）
     const bossUnit = def?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主';
@@ -651,6 +656,14 @@ registerScreen('combat', (app, root, props) => {
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp, e.maxHp),
       row);
+    // 照著學的那一拍（鏡中球球）：他身旁亮出剛打的那幾張牌面，讓玩家看到「他打了哪張」（使用者 2026-09-08）。
+    // 跟出招同一拍亮、收姿勢那一拍一起拿掉（見 hold），不另外加時間
+    const learned = acting.get(e.uid)?.cardIds;
+    if (learned?.length) {
+      const cardsEl = el('div', { class: 'learned' });
+      for (const id of learned) { const def = cardById[id]; if (def) cardsEl.append(cardNode(def, { small: true })); }
+      node.querySelector('.sprite-box')?.append(cardsEl);
+    }
     if (targeting && !e.dead) node.addEventListener('click', () => pickTarget(e.uid));
     return node;
   }
@@ -1335,7 +1348,7 @@ registerScreen('combat', (app, root, props) => {
       if (!b || e.dead || e.turnCount === b.turnCount || b.noAct) continue;
       // 調息中的那一拍不算出手：噎到在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
-      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0 });
+      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, cardIds: b.cardIds });
     }
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。
@@ -1519,6 +1532,7 @@ registerScreen('combat', (app, root, props) => {
       // 動畫類別也要一起收。這裡刻意不重畫，`attack`／`hit`／`dodge` 就會留在節點上，
       // 立繪的 animation 停在前撲／抖動跑完的那一格，待機的呼吸動畫回不來——
       // 使用者 2026-09-03：「球球跟師父換動作後不會上下飄動了，定在原地不動」。
+      for (const n of root.querySelectorAll('.unit .learned')) n.remove();   // 照著學亮出的牌面跟出招圖同一拍收
       for (const u of root.querySelectorAll<HTMLElement>('.unit.attack, .unit.hit, .unit.dodge, .unit.cast')) {
         u.classList.remove('attack', 'hit', 'dodge', 'cast');
         const sp = u.querySelector<HTMLElement>('.sprite');

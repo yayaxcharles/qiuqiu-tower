@@ -140,6 +140,28 @@
 .combat .unit.size-large .sprite { width: 230px; height: 280px; }
 /* 犰狳寶寶：橫躺的方圖，小框顯得扁、中框又太高，單獨給 150×150（跟 combat.ts 的 SPRITE_BOX.pup 一致） */
 .combat .unit.enemy[data-id="armadillo_pup"] .sprite { width: 150px; height: 150px; }
+/* 鏡中球球：跟主角一樣高（combat.ts 的 SPRITE_BOX.mirror 一致；使用者 2026-09-08「大小應該跟主角球球同大小」）。
+   框比魔物欄位的 190 寬沒關係：立繪框是 flex 置中，超出的部分左右各吐一半 */
+.combat .unit.enemy[data-id="mirror_qiuqiu"] .sprite { width: 262px; height: 262px; }
+/* 照著學（鏡中球球）：出招那一拍在他身旁亮出剛打的牌面（縮小的一般牌），收姿勢時由 combat.ts 拿掉 */
+.combat .unit .learned {
+  position: absolute;
+  right: 100%;
+  margin-right: -14px;
+  bottom: 30%;
+  display: flex;
+  gap: 8px;
+  transform-origin: right bottom;
+  transform: scale(.72) rotate(-6deg);
+  z-index: 6;
+  pointer-events: none;
+  animation: learned-pop .22s ease-out both;
+}
+.combat .unit .learned .card { box-shadow: 0 8px 20px #000a; }
+@keyframes learned-pop {
+  from { transform: scale(.3) rotate(-14deg); opacity: 0; }
+  to { transform: scale(.72) rotate(-6deg); opacity: 1; }
+}
 .combat .unit .name {
   /* 冠上修飾詞之後名字會變長（「中了魔氣的黑貓忍者（老手）」13 字＞框寬 190px）。
      折行會把那一隻的立繪整個頂高 18px、跟旁邊站不到同一條線上——寧可讓字凸出框外。 */

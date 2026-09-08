@@ -5,6 +5,7 @@ import { draw } from './deck';
 import { applyEffects } from './effects';
 import { addStatus, computeAttack, computeBlock, getStatus, removeStatus } from './statuses';
 import { DEBUFFS } from './types';
+import { learnedMove, learnsPlayerCards } from './mimic';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, Unit, StatusName } from './types';
 
 /** 沉睡中的魔物頭上顯示的意圖。每次都是同一份物件，畫面比對「這一拍出的是哪一招」才穩 */
@@ -141,6 +142,8 @@ function moveSet(e: EnemyCombat): { moves: EnemyMove[]; pattern: 'cycle' | 'rand
 }
 
 export function advanceMove(cs: CombatState, e: EnemyCombat): void {
+  // 照著學的（鏡中球球）每一動都從球球的牌組抽，抽不到才照表
+  if (learnsPlayerCards(e)) { const learned = learnedMove(cs); if (learned) { e.move = learned; return; } }
   const { moves, pattern } = moveSet(e);
   // 照表出招的怪先問表（turnCount 是「已經行動過的回合數」，下一動＝+1）
   const scripted = enemyById[e.enemyId]?.chooseMove?.(e.turnCount + 1, moves);
@@ -341,6 +344,7 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
     moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0, invulnIn: 0,
     move: def.chooseMove?.(1, def.moves) ?? move, dead: false, escaped: false, stolen: 0,
   };
+  if (def.learnsPlayerCards) e.move = learnedMove(cs) ?? e.move;   // 第一動也是學來的（開戰時牌組已經在抽牌堆裡）
   // 開戰就帶的被動狀態（第二波魔物）。全部走正常的狀態欄位，畫面上就有牌子、滑上去有說明
   if (def.flying) addStatus(e, '飛行', def.flying);
   if (def.plating) addStatus(e, '鱗甲', def.plating);

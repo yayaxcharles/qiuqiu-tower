@@ -185,7 +185,11 @@ export type EnemyEffect =
   /** 塞牌：把 n 張雜牌塞進球球的棄牌堆，或洗進抽牌堆的隨機位置 */
   | { kind: 'giveCard'; cardId: string; n: number; to: 'discard' | 'draw' }
   | { kind: 'nothing' };
-export interface EnemyMove { intent: Intent; label: string; effects: EnemyEffect[] }
+export interface EnemyMove {
+  intent: Intent; label: string; effects: EnemyEffect[];
+  /** 照著學的招（鏡中球球）：這一招是從球球牌組抄來的哪幾張牌，畫面出招時亮牌面用（見 engine/mimic.ts） */
+  cardIds?: string[];
+}
 export type EnemyPool = '弱' | '中' | '強' | '大魔物' | '塔主' | '召喚';
 export interface EnemyPhase {
   /** 門檻式變身：血打到 ≤ 此值就進這個階段（貓又、橘皮大王用）。跟 hpBar 二選一。 */
@@ -214,6 +218,11 @@ export interface EnemyDef {
   hp: [number, number];
   pool: EnemyPool;
   pattern: 'cycle' | 'random';
+  /**
+   * 照著學（鏡中球球，2026-09-08）：招式不照 moves 走，每一動從球球這一局的牌組隨機抽牌翻成一招
+   * （翻法見 engine/mimic.ts；一次抽幾張看遭遇的 learnCards）。moves 只在牌組裡沒半張學得會時當退路。
+   */
+  learnsPlayerCards?: true;
   moves: EnemyMove[];
   line: string;
   /** 開場台詞的其他版本：戰鬥開始時從 line 與 lines 裡挑一句（2026-09-02 使用者：「出場台詞做幾個不同的隨機」） */
@@ -318,6 +327,8 @@ export interface EncounterDef {
    * 魔物頭上會掛爪力牌子、意圖數字也算進去，不是暗中加傷。
    */
   strength?: number;
+  /** 照著學的魔物一動抽幾張牌（不填＝1）。鏡子走廊二、三關版是 2 */
+  learnCards?: number;
 }
 
 // ===== 事件與整局效果 =====

@@ -611,12 +611,12 @@ export const enemies: EnemyDef[] = [
   // 血量先拉到 92，機器人實測第八層平均掉 21 點血、打 10.8 回合太拖，同日調回 70（傷害不動）
   { id: 'mirror_qiuqiu', name: '鏡中球球', hp: [70, 76], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
     // 2026-09-04 使用者：對白改成「是球球的影子」，不要再講「跟你長得一樣」
+    // 2026-09-08 使用者：招式沒特色 → 改成每一動從球球的牌組隨機抽牌照著打（engine/mimic.ts），
+    // 意圖牌先預告是哪張、出招時亮牌面；第一關一動一張、二三關兩張（遭遇的 learnCards）。
+    // 下面這招只是牌組裡沒半張學得會時的退路。
+    learnsPlayerCards: true,
     line: '（從鏡子裡跨出來，貼著地面滑到你面前）', lines: ['（是球球的影子，站起來了）', '（影子學著你的動作，先出手了）'], moves: [
       { intent: 'buff', label: '照著學', effects: [{ kind: 'copyPlayerStatus', names: ['爪力', '貓步'] }, { kind: 'statusSelf', name: '隱身', amount: 1 }] },
-      { intent: 'attack', label: '鏡爪抓', effects: [{ kind: 'damage', amount: 13 }] },
-      { intent: 'block', label: '鏡蜷縮', effects: [{ kind: 'block', amount: 12 }] },
-      { intent: 'attack', label: '鏡肉球連擊', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
-      { intent: 'attack', label: '鏡撒手鐧', effects: [{ kind: 'damage', amount: 18 }] },
     ] },
 
   // --- 新關主：橘皮大王（第一關第三選，強度對齊二刀後的 105 級距）---
@@ -1170,8 +1170,8 @@ export const encounters: EncounterDef[] = [
   { id: 'white_duelist_a3', pool: '召喚', enemies: ['white_duelist', 'sparring_partner', 'sparring_partner'], hpScale: 1.5, strength: 6, acts: [] },
   // 鏡子走廊：事件寫 mirror_duel，引擎依關數接成 _a2／_a3，找不到就打基本版（見 run.ts 的 fight）
   { id: 'mirror_duel', pool: '召喚', enemies: ['mirror_qiuqiu'] },   // 第一關用這個基本版（沒有 _a1）
-  { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [] },
-  { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [] },
+  { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [], learnCards: 2 },
+  { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [], learnCards: 2 },
   // 2026-09-04 使用者：「事件怪有點爛」——事件對手原本第二三關還在打第一關的怪。
   // 引擎會先找 `<遭遇>_a<關數>`，找不到才退回基本版（run.ts 的 fight），所以只要補這幾筆就跟著關卡變強。
   { id: 'orange_bandit_a2', pool: '中', enemies: ['orange_bandit', 'orange_bandit'], hpScale: 1.3, strength: 3, acts: [] },

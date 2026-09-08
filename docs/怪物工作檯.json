@@ -4026,7 +4026,9 @@
    "pattern": "cycle",
    "art": "codex/monster_shadow_cat",
    "acts": [],
-   "passives": {},
+   "passives": {
+    "learnsPlayerCards": true
+   },
    "moves": [
     {
      "intent": "buff",
@@ -4043,47 +4045,6 @@
        "kind": "statusSelf",
        "name": "隱身",
        "amount": 1
-      }
-     ]
-    },
-    {
-     "intent": "attack",
-     "label": "鏡爪抓",
-     "effects": [
-      {
-       "kind": "damage",
-       "amount": 13
-      }
-     ]
-    },
-    {
-     "intent": "block",
-     "label": "鏡蜷縮",
-     "effects": [
-      {
-       "kind": "block",
-       "amount": 12
-      }
-     ]
-    },
-    {
-     "intent": "attack",
-     "label": "鏡肉球連擊",
-     "effects": [
-      {
-       "kind": "damage",
-       "amount": 7,
-       "times": 2
-      }
-     ]
-    },
-    {
-     "intent": "attack",
-     "label": "鏡撒手鐧",
-     "effects": [
-      {
-       "kind": "damage",
-       "amount": 18
       }
      ]
     }

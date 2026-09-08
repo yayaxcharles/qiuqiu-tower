@@ -35,6 +35,15 @@ export function nextLineup(prev: readonly number[], aliveUids: readonly number[]
   return newcomer ? [...aliveUids] : [...prev];
 }
 
+/** 主角的中線（`.combat .unit.player` left 30 + 寬 240 的一半）。鏡中球球要站在跟他左右對稱的位置 */
+export const HERO_CENTER = 150;
+/**
+ * 鏡中球球單挑時的左緣：跟主角左右對稱（中線 1280−150＝1130）。
+ * 單隻魔物的標準站位中線在 875、離舞台中線只有 235，主角卻離中線 490；
+ * 他放大到跟主角同高之後這個不對稱看起來就是「偏左」（使用者 2026-09-08）。
+ */
+export const MIRROR_LEFT = STAGE_W - HERO_CENTER - UNIT_W / 2;
+
 export function enemyLeft(i: number, n: number): number {
   if (i < 0) return 780;
   const step = enemyStep(n);

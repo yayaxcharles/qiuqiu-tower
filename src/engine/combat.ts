@@ -338,6 +338,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     } else {
       // 蓄力由 runEnemyEffects 在第一次套加倍時自己用掉（不看意圖，見該函式註解）
       const hpBefore = cs.player.hp;
+      if (e.move.cardIds) log(cs, `${e.name}照著打出「${e.move.label}」`);   // 照著學的（鏡中球球）：紀錄要寫是哪張牌
       runEnemyEffects(cs, e, e.move.effects, e.charged);
       // 被打掉血的秘寶效果（毛線手套）：每回合最多一次
       if (cs.player.hp < hpBefore && cs.phase === 'player' && cs.player.hitRelicTurn !== cs.turn) {
