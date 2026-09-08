@@ -29,6 +29,22 @@ RAW = ROOT / "tools" / "codex_raw"
 MANIFEST = ROOT / "public" / "assets" / "manifest.json"
 
 
+BOX_ASPECT = {"small": 130 / 150, "medium": 180 / 210, "large": 230 / 280}
+BOX_OVERRIDE = {"armadillo_pup": 1.0}   # 跟 combat.ts 的 SPRITE_SIZE_OVERRIDE 一致
+_SIZES: dict[str, str] | None = None
+
+
+def box_aspect(mid: str) -> float:
+    """這隻魔物在遊戲裡的立繪框長寬比（寬÷高），從 enemies.ts 的 size 讀"""
+    global _SIZES
+    if _SIZES is None:
+        src = (ROOT / "src" / "content" / "enemies.ts").read_text(encoding="utf-8")
+        _SIZES = dict(re.findall(r"\{ id: '([^']+)'[^\n]*?size: '(small|medium|large)'", src))
+    if mid in BOX_OVERRIDE:
+        return BOX_OVERRIDE[mid]
+    return BOX_ASPECT[_SIZES.get(mid, "medium")]
+
+
 def report(group: str, raw_name: str, out_dir: Path, base_h: int, mid: str | None, pose: str | None) -> None:
     """量一張已進倉的圖：主體高度跟基準差幾 %、帶綠像素、半透明像素。差超過 5% 或帶綠超過 0.05% 標 ⚠"""
     import numpy as np
@@ -87,6 +103,11 @@ def main() -> None:
             continue
         base = Image.open(baseline)
         cw, ch = base.size
+        if group == "monsters":
+            # 待機畫布多半貼著待機姿勢裁得很窄，挨打姿勢張手後傾比較寬，塞進窄框只能整隻縮小（老鼠 320→204，
+            # 稻草人 560→315）。畫布放寬到遊戲框的長寬比（高度不動）：遊戲用 object-fit: contain 把圖貼進固定框，
+            # 寬到框的比例為止都不會讓畫出來的高度變小，超過才會。框的尺寸見 combat.css 的 .unit.size-*
+            cw = max(cw, round(ch * box_aspect(mid)))
         bbox_b = base.getbbox() or (0, 0, cw, ch)
         bottom_pad = ch - bbox_b[3]
         base_h = bbox_b[3] - bbox_b[1]   # 基準圖主體多高：--refit 把來源的主體縮到這個高度
