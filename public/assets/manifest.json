@@ -147,7 +147,10 @@
   "hero/ninja_hurt": "assets/sprites/hero/ninja_hurt.webp",
   "hero/ninja_skill": "assets/sprites/hero/ninja_skill.webp",
   "hero/ninja_throw": "assets/sprites/hero/ninja_throw.webp",
-  "boss/roar3": "assets/sprites/boss/roar3.webp"
+  "boss/roar3": "assets/sprites/boss/roar3.webp",
+  "boss/hurt1": "assets/sprites/boss/hurt1.webp",
+  "boss/hurt2": "assets/sprites/boss/hurt2.webp",
+  "boss/hurt3": "assets/sprites/boss/hurt3.webp"
  },
  "review": [],
  "monsters": {

@@ -1,7 +1,7 @@
 import { potionCapacity } from '../../engine/run';
 import { cardById } from '../../content/cards';
 import { dialogue, pick } from '../../content/dialogue';
-import { BOSS_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
+import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
 import { rampageTurnFor, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
@@ -537,6 +537,9 @@ registerScreen('combat', (app, root, props) => {
       // 結果血一打光他站著換成新階段的待機圖、牌子跟紀錄卻都說他蹲下了，要等你結束回合輪到他才真的蹲
       //（使用者 2026-09-08：「換階段調息時他還是站著」）。引擎的 invulnIn 就是「調息中」，直接看它
       if (e.invulnIn > 0) return artUrl('sprites', bossMovePose(e.phase, '蹲下調息') ?? bossIdle(e.phase));
+      // 挨打圖（2026-09-08）：一般魔物早就有，師父以前只有紅閃。排在出招圖前面——他自己出招那一拍不會同時挨打
+      const hurt = BOSS_HURT_ART[Math.min(e.phase, 2)];
+      if (hurtSet.has(e.uid) && hurt && hasSprite(hurt)) return artUrl('sprites', hurt);
       return artUrl('sprites', (act ? bossMovePose(e.phase, act.label) : undefined) ?? bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');

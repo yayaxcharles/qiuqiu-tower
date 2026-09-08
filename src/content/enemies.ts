@@ -1148,6 +1148,11 @@ export const BOSS_MOVE_ART_PHASE: Record<string, string>[] = [
 ];
 /** 塔主的非招式立繪：三個階段各一張待機（深藏不露／走火入魔／真面目）、戰敗（承讓） */
 export const BOSS_ART = { idle1: 'boss/idle1', idle2: 'boss/idle2', idle3: 'boss/idle3', defeat: 'boss/defeat' } as const;
+/**
+ * 塔主的挨打立繪，三個階段各一張（2026-09-08，使用者：師父被打只有紅閃，一般魔物都有挨打圖）。
+ * 索引＝階段（[0] 第一條血、[1] 走火入魔、[2] 真面目）。圖還沒生好時 hasSprite 會擋掉，退回該階段的待機圖。
+ */
+export const BOSS_HURT_ART = ['boss/hurt1', 'boss/hurt2', 'boss/hurt3'] as const;
 
 export const enemyById: Record<string, EnemyDef> = Object.fromEntries(enemies.map((e) => [e.id, e]));
 
