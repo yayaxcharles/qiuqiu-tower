@@ -28,10 +28,16 @@ codex_gen.py — 逐張呼叫 `codex exec` 生圖，輸出到 tools/codex_raw/<�
    固定用 `input=提示詞` 餵進去，有沒有附參考圖都一樣，不用兩套寫法。
 7. **不要先刪再重生。** 之前重生前先 rm 舊檔，結果新的沒生出來、舊的也沒了
    （竹編牌框就是這樣弄丟的）。已存在的檔一律跳過；真要重生請自己先改名備份。
+8. **額度用完要等，不要一路失敗下去。** 2026-09-08 傍晚生到第 50 幾張時 Codex 回
+   「You've hit your usage limit … try again at 5:07 PM」，每張 9 秒就失敗，35 張工單十分鐘內全部
+   燒掉（都沒生）。現在會從錯誤訊息裡抓「幾點幾分再試」，睡到那個時間再重試同一張、不算失敗；
+   抓不到時間就等 30 分鐘。最多等 --max-wait-hours（預設 8）小時。
 """
 import argparse
+import datetime as dt
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -44,13 +50,34 @@ CMD = ["codex", "exec", "--skip-git-repo-check", "-s", "workspace-write",
        "-c", "sandbox_workspace_write.network_access=true", "--cd", str(RAW)]
 
 
+LIMIT_RE = re.compile(r"try again at (\d{1,2}):(\d{2}) ?(AM|PM)", re.I)
+
+
+def limit_wait_seconds(stderr: str, now: dt.datetime | None = None) -> int | None:
+    """錯誤輸出裡有「usage limit」就回要等幾秒（訊息裡的時間＋2 分鐘；抓不到時間＝30 分鐘）；沒有回 None"""
+    if "usage limit" not in stderr:
+        return None
+    m = LIMIT_RE.search(stderr)
+    if not m:
+        return 30 * 60
+    now = now or dt.datetime.now()
+    hour, minute, ampm = int(m.group(1)), int(m.group(2)), m.group(3).upper()
+    hour = hour % 12 + (12 if ampm == "PM" else 0)
+    target = now.replace(hour=hour, minute=minute, second=0, microsecond=0) + dt.timedelta(minutes=2)
+    if target <= now:
+        target += dt.timedelta(days=1)
+    return int((target - now).total_seconds())
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("jobs")
     ap.add_argument("--timeout", type=int, default=900)
     ap.add_argument("--retries", type=int, default=2)
     ap.add_argument("--ref", help="參考圖，會用 codex exec -i 附上去（角色圖一定要給）")
+    ap.add_argument("--max-wait-hours", type=float, default=8, help="額度用完最多等幾小時（坑 8）")
     args = ap.parse_args()
+    waited = 0.0
 
     jobs = json.loads(Path(args.jobs).read_text(encoding="utf-8"))
     ref: list[str] = []
@@ -83,10 +110,25 @@ def main() -> None:
             continue
         t0 = time.time()
         print(f"[生圖] {name}", flush=True)
-        for attempt in range(1, args.retries + 1):
+        attempt = 0
+        while attempt < args.retries:
+            attempt += 1
             try:
-                subprocess.run([*CMD, *ref_i], input=prompt, capture_output=True,
-                               text=True, encoding="utf-8", errors="replace", timeout=args.timeout)
+                r = subprocess.run([*CMD, *ref_i], input=prompt, capture_output=True,
+                                   text=True, encoding="utf-8", errors="replace", timeout=args.timeout)
+                wait = limit_wait_seconds(r.stderr + r.stdout)
+                if wait is not None and not out.exists():
+                    # 額度用完（坑 8）：等到訊息裡的時間再試同一張，不算失敗、不吃重試次數
+                    if waited + wait > args.max_wait_hours * 3600:
+                        print(f"  額度用完，要等 {wait // 60} 分鐘，超過上限 {args.max_wait_hours} 小時，放棄這批", flush=True)
+                        failed += 1
+                        print(f"結束：完成 {done}、失敗 {failed}、已存在跳過 {skipped}（額度用完提早結束）", flush=True)
+                        sys.exit(1)
+                    print(f"  額度用完，等 {wait // 60} 分鐘（{(dt.datetime.now() + dt.timedelta(seconds=wait)):%H:%M} 再試）", flush=True)
+                    time.sleep(wait)
+                    waited += wait
+                    attempt -= 1
+                    continue
             except subprocess.TimeoutExpired:
                 print(f"  第 {attempt} 次逾時（{args.timeout} 秒）", flush=True)
             except OSError as e:
