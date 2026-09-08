@@ -90,6 +90,8 @@ const POSE = {
   claw: 'hero/ninja_claw', kick: 'hero/ninja_kick', dash: 'hero/ninja_dash', punch: 'hero/ninja_punch',
   // 吃喝（回血的牌、飯糰那類忍具）；抱胸格擋（早就畫好，被蜷縮整個擋下時用）
   eat: 'hero/ninja_eat', guard: 'hero/ninja_guard',
+  // 第二批（2026-09-08）：噎到待機、被纏住待機、能力牌凝神、抽牌翻卷軸
+  choke: 'hero/ninja_choke', dizzy: 'hero/ninja_dizzy', focus: 'hero/ninja_focus', scroll: 'hero/ninja_scroll',
 };
 type PoseKey = keyof typeof POSE;
 // 出招圖名單：多段攻擊的兩格輪換只在這些圖之間換，勝利／落敗／蜷縮／挨打不輪換
@@ -104,7 +106,7 @@ const ATTACK_POSE: Readonly<Record<string, PoseKey>> = {
   bengquan: 'punch', jiuweiquan: 'punch', shierlian: 'punch', qinna: 'punch', ehou: 'punch', zuiquan: 'punch', dianxue: 'punch',
 };
 /** 吃喝姿勢：非攻擊的回血牌；忍具裡真的是吃的那三支（卷軸、符咒照施術） */
-const EAT_CARDS: ReadonlySet<string> = new Set(['xianshuile', 'renwuwancheng', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
+const EAT_CARDS: ReadonlySet<string> = new Set(['xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
 const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle']);
 const posePick = (k: PoseKey, fallback: string): string => (hasSprite(POSE[k]) ? POSE[k] : fallback);
 /** 出牌時球球擺什麼姿勢 */
@@ -113,6 +115,9 @@ function cardPose(def: CardDef): { pose: string; attack: boolean } {
   if (THROW_CARDS.has(def.id)) return { pose: posePick('throw', POSE.attack), attack };
   if (attack) { const fam = ATTACK_POSE[def.id]; return { pose: fam ? posePick(fam, POSE.attack) : POSE.attack, attack: true }; }
   if (EAT_CARDS.has(def.id)) return { pose: posePick('eat', posePick('skill', POSE.attack)), attack: false };
+  // 能力牌一律凝神（吸貓大法也是能力牌，打出當下不回血，不算吃）；會抽牌的技能牌翻卷軸；其餘施術
+  if (def.type === '能力') return { pose: posePick('focus', posePick('skill', POSE.attack)), attack: false };
+  if (def.effects.some((e) => e.kind === 'draw')) return { pose: posePick('scroll', posePick('skill', POSE.attack)), attack: false };
   return { pose: posePick('skill', POSE.attack), attack: false };
 }
 /** 用忍具時球球擺什麼姿勢：丟的擲、吃的吃、其餘施術（以前除了丟的都沒姿勢，站著不動） */
@@ -215,6 +220,9 @@ registerScreen('combat', (app, root, props) => {
   const idlePose = (): string => {
     const p = cs.player;
     if (p.hp <= Math.ceil(p.maxHp * 0.3) && hasSprite(POSE.hurt)) return POSE.hurt;
+    // 噎到（每回合掉血）與被纏住（定身，攻擊牌打不出）的待機各有自己的圖：狀態還掛著的期間一看就知道
+    if (getStatus(p, '噎到') > 0 && hasSprite(POSE.choke)) return POSE.choke;
+    if (getStatus(p, '定身') > 0 && hasSprite(POSE.dizzy)) return POSE.dizzy;
     if (getStatus(p, '爪力') >= 5 && hasSprite(POSE.power)) return POSE.power;
     return POSE.idle;
   };

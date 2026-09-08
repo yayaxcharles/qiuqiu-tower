@@ -155,7 +155,11 @@
   "hero/ninja_kick": "assets/sprites/hero/ninja_kick.webp",
   "hero/ninja_dash": "assets/sprites/hero/ninja_dash.webp",
   "hero/ninja_punch": "assets/sprites/hero/ninja_punch.webp",
-  "hero/ninja_eat": "assets/sprites/hero/ninja_eat.webp"
+  "hero/ninja_eat": "assets/sprites/hero/ninja_eat.webp",
+  "hero/ninja_dizzy": "assets/sprites/hero/ninja_dizzy.webp",
+  "hero/ninja_choke": "assets/sprites/hero/ninja_choke.webp",
+  "hero/ninja_focus": "assets/sprites/hero/ninja_focus.webp",
+  "hero/ninja_scroll": "assets/sprites/hero/ninja_scroll.webp"
  },
  "review": [],
  "monsters": {
