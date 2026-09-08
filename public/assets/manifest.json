@@ -179,7 +179,8 @@
   },
   "codex/monster_onigiri": {
    "idle": "assets/monsters/onigiri_idle.webp",
-   "attack": "assets/monsters/onigiri_attack.webp"
+   "attack": "assets/monsters/onigiri_attack.webp",
+   "hurt": "assets/monsters/onigiri_hurt.webp"
   },
   "codex/monster_wood_dummy": {
    "idle": "assets/monsters/wood_dummy_idle.webp",
@@ -313,7 +314,8 @@
   },
   "codex/monster_shadow_kitten": {
    "attack": "assets/monsters/shadow_kitten_attack.webp",
-   "idle": "assets/monsters/shadow_kitten_idle.webp"
+   "idle": "assets/monsters/shadow_kitten_idle.webp",
+   "hurt": "assets/monsters/shadow_kitten_hurt.webp"
   },
   "codex/monster_soy_bottle": {
    "idle": "assets/monsters/soy_bottle_idle.webp",
@@ -347,15 +349,18 @@
   },
   "codex/monster_geta_monster": {
    "attack": "assets/monsters/geta_monster_attack.webp",
-   "idle": "assets/monsters/geta_monster_idle.webp"
+   "idle": "assets/monsters/geta_monster_idle.webp",
+   "hurt": "assets/monsters/geta_monster_hurt.webp"
   },
   "codex/monster_ink_cat": {
    "attack": "assets/monsters/ink_cat_attack.webp",
-   "idle": "assets/monsters/ink_cat_idle.webp"
+   "idle": "assets/monsters/ink_cat_idle.webp",
+   "hurt": "assets/monsters/ink_cat_hurt.webp"
   },
   "codex/monster_lantern_ghost": {
    "attack": "assets/monsters/lantern_ghost_attack.webp",
-   "idle": "assets/monsters/lantern_ghost_idle.webp"
+   "idle": "assets/monsters/lantern_ghost_idle.webp",
+   "hurt": "assets/monsters/lantern_ghost_hurt.webp"
   },
   "codex/monster_maid_cat": {
    "attack": "assets/monsters/maid_cat_attack.webp",
@@ -364,15 +369,18 @@
   },
   "codex/monster_miasma_blob": {
    "attack": "assets/monsters/miasma_blob_attack.webp",
-   "idle": "assets/monsters/miasma_blob_idle.webp"
+   "idle": "assets/monsters/miasma_blob_idle.webp",
+   "hurt": "assets/monsters/miasma_blob_hurt.webp"
   },
   "codex/monster_moon_rabbit": {
    "attack": "assets/monsters/moon_rabbit_attack.webp",
-   "idle": "assets/monsters/moon_rabbit_idle.webp"
+   "idle": "assets/monsters/moon_rabbit_idle.webp",
+   "hurt": "assets/monsters/moon_rabbit_hurt.webp"
   },
   "codex/monster_night_panther": {
    "attack": "assets/monsters/night_panther_attack.webp",
-   "idle": "assets/monsters/night_panther_idle.webp"
+   "idle": "assets/monsters/night_panther_idle.webp",
+   "hurt": "assets/monsters/night_panther_hurt.webp"
   },
   "codex/monster_orange_king": {
    "attack": "assets/monsters/orange_king_attack.webp",
@@ -381,11 +389,13 @@
   },
   "codex/monster_owl_sentry": {
    "attack": "assets/monsters/owl_sentry_attack.webp",
-   "idle": "assets/monsters/owl_sentry_idle.webp"
+   "idle": "assets/monsters/owl_sentry_idle.webp",
+   "hurt": "assets/monsters/owl_sentry_hurt.webp"
   },
   "codex/monster_paper_crane": {
    "attack": "assets/monsters/paper_crane_attack.webp",
-   "idle": "assets/monsters/paper_crane_idle.webp"
+   "idle": "assets/monsters/paper_crane_idle.webp",
+   "hurt": "assets/monsters/paper_crane_hurt.webp"
   },
   "codex/monster_persian_lady": {
    "attack": "assets/monsters/persian_lady_attack.webp",
@@ -394,11 +404,13 @@
   },
   "codex/monster_shamisen_cat": {
    "attack": "assets/monsters/shamisen_cat_attack.webp",
-   "idle": "assets/monsters/shamisen_cat_idle.webp"
+   "idle": "assets/monsters/shamisen_cat_idle.webp",
+   "hurt": "assets/monsters/shamisen_cat_hurt.webp"
   },
   "codex/monster_shiba_ronin": {
    "attack": "assets/monsters/shiba_ronin_attack.webp",
-   "idle": "assets/monsters/shiba_ronin_idle.webp"
+   "idle": "assets/monsters/shiba_ronin_idle.webp",
+   "hurt": "assets/monsters/shiba_ronin_hurt.webp"
   },
   "codex/monster_tanuki_kid": {
    "attack": "assets/monsters/tanuki_kid_attack.webp",
@@ -412,7 +424,8 @@
   },
   "codex/monster_windchime_sprite": {
    "attack": "assets/monsters/windchime_sprite_attack.webp",
-   "idle": "assets/monsters/windchime_sprite_idle.webp"
+   "idle": "assets/monsters/windchime_sprite_idle.webp",
+   "hurt": "assets/monsters/windchime_sprite_hurt.webp"
   },
   "codex/monster_shadow_cat": {
    "attack": "assets/monsters/shadow_cat_attack.webp",
@@ -426,27 +439,33 @@
   },
   "codex/monster_fox_miko": {
    "idle": "assets/monsters/fox_miko_idle.webp",
-   "attack": "assets/monsters/fox_miko_attack.webp"
+   "attack": "assets/monsters/fox_miko_attack.webp",
+   "hurt": "assets/monsters/fox_miko_hurt.webp"
   },
   "codex/monster_kappa": {
    "attack": "assets/monsters/kappa_attack.webp",
-   "idle": "assets/monsters/kappa_idle.webp"
+   "idle": "assets/monsters/kappa_idle.webp",
+   "hurt": "assets/monsters/kappa_hurt.webp"
   },
   "codex/monster_kasa_obake": {
    "attack": "assets/monsters/kasa_obake_attack.webp",
-   "idle": "assets/monsters/kasa_obake_idle.webp"
+   "idle": "assets/monsters/kasa_obake_idle.webp",
+   "hurt": "assets/monsters/kasa_obake_hurt.webp"
   },
   "codex/monster_tengu": {
    "attack": "assets/monsters/tengu_attack.webp",
-   "idle": "assets/monsters/tengu_idle.webp"
+   "idle": "assets/monsters/tengu_idle.webp",
+   "hurt": "assets/monsters/tengu_hurt.webp"
   },
   "codex/monster_tofu_boy": {
    "attack": "assets/monsters/tofu_boy_attack.webp",
-   "idle": "assets/monsters/tofu_boy_idle.webp"
+   "idle": "assets/monsters/tofu_boy_idle.webp",
+   "hurt": "assets/monsters/tofu_boy_hurt.webp"
   },
   "codex/monster_armor_ghost": {
    "attack": "assets/monsters/armor_ghost_attack.webp",
-   "idle": "assets/monsters/armor_ghost_idle.webp"
+   "idle": "assets/monsters/armor_ghost_idle.webp",
+   "hurt": "assets/monsters/armor_ghost_hurt.webp"
   },
   "codex/monster_armadillo_pup": {
    "attack": "assets/monsters/armadillo_pup_attack.webp",
@@ -465,7 +484,8 @@
   },
   "codex/monster_curse_priest": {
    "attack": "assets/monsters/curse_priest_attack.webp",
-   "idle": "assets/monsters/curse_priest_idle.webp"
+   "idle": "assets/monsters/curse_priest_idle.webp",
+   "hurt": "assets/monsters/curse_priest_hurt.webp"
   },
   "codex/monster_hibernating_bear": {
    "attack": "assets/monsters/hibernating_bear_attack.webp",
@@ -474,31 +494,38 @@
   },
   "codex/monster_lantern_moth": {
    "attack": "assets/monsters/lantern_moth_attack.webp",
-   "idle": "assets/monsters/lantern_moth_idle.webp"
+   "idle": "assets/monsters/lantern_moth_idle.webp",
+   "hurt": "assets/monsters/lantern_moth_hurt.webp"
   },
   "codex/monster_moon_moth_queen": {
    "idle": "assets/monsters/moon_moth_queen_idle.webp",
-   "attack": "assets/monsters/moon_moth_queen_attack.webp"
+   "attack": "assets/monsters/moon_moth_queen_attack.webp",
+   "hurt": "assets/monsters/moon_moth_queen_hurt.webp"
   },
   "codex/monster_phantom_fox": {
    "attack": "assets/monsters/phantom_fox_attack.webp",
-   "idle": "assets/monsters/phantom_fox_idle.webp"
+   "idle": "assets/monsters/phantom_fox_idle.webp",
+   "hurt": "assets/monsters/phantom_fox_hurt.webp"
   },
   "codex/monster_plated_beetle": {
    "attack": "assets/monsters/plated_beetle_attack.webp",
-   "idle": "assets/monsters/plated_beetle_idle.webp"
+   "idle": "assets/monsters/plated_beetle_idle.webp",
+   "hurt": "assets/monsters/plated_beetle_hurt.webp"
   },
   "codex/monster_puffer_spirit": {
    "attack": "assets/monsters/puffer_spirit_attack.webp",
-   "idle": "assets/monsters/puffer_spirit_idle.webp"
+   "idle": "assets/monsters/puffer_spirit_idle.webp",
+   "hurt": "assets/monsters/puffer_spirit_hurt.webp"
   },
   "codex/monster_rat_general": {
    "attack": "assets/monsters/rat_general_attack.webp",
-   "idle": "assets/monsters/rat_general_idle.webp"
+   "idle": "assets/monsters/rat_general_idle.webp",
+   "hurt": "assets/monsters/rat_general_hurt.webp"
   },
   "codex/monster_red_oni": {
    "attack": "assets/monsters/red_oni_attack.webp",
-   "idle": "assets/monsters/red_oni_idle.webp"
+   "idle": "assets/monsters/red_oni_idle.webp",
+   "hurt": "assets/monsters/red_oni_hurt.webp"
   },
   "codex/monster_armadillo_king": {
    "attack": "assets/monsters/armadillo_king_attack.webp",
@@ -522,11 +549,13 @@
   },
   "codex/monster_jizo_golem": {
    "attack": "assets/monsters/jizo_golem_attack.webp",
-   "idle": "assets/monsters/jizo_golem_idle.webp"
+   "idle": "assets/monsters/jizo_golem_idle.webp",
+   "hurt": "assets/monsters/jizo_golem_hurt.webp"
   },
   "codex/monster_tadpole": {
    "attack": "assets/monsters/tadpole_attack.webp",
-   "idle": "assets/monsters/tadpole_idle.webp"
+   "idle": "assets/monsters/tadpole_idle.webp",
+   "hurt": "assets/monsters/tadpole_hurt.webp"
   },
   "codex/monster_drum_tanuki": {
    "attack": "assets/monsters/drum_tanuki_attack.webp",
@@ -540,7 +569,8 @@
   },
   "codex/monster_imp": {
    "attack": "assets/monsters/imp_attack.webp",
-   "idle": "assets/monsters/imp_idle.webp"
+   "idle": "assets/monsters/imp_idle.webp",
+   "hurt": "assets/monsters/imp_hurt.webp"
   },
   "codex/monster_iron_arhat": {
    "attack": "assets/monsters/iron_arhat_attack.webp",
@@ -554,7 +584,8 @@
   },
   "codex/monster_mirror_shard": {
    "attack": "assets/monsters/mirror_shard_attack.webp",
-   "idle": "assets/monsters/mirror_shard_idle.webp"
+   "idle": "assets/monsters/mirror_shard_idle.webp",
+   "hurt": "assets/monsters/mirror_shard_hurt.webp"
   },
   "codex/monster_oni_general": {
    "attack": "assets/monsters/oni_general_attack.webp",
@@ -583,11 +614,13 @@
   },
   "codex/monster_crow_small": {
    "attack": "assets/monsters/crow_small_attack.webp",
-   "idle": "assets/monsters/crow_small_idle.webp"
+   "idle": "assets/monsters/crow_small_idle.webp",
+   "hurt": "assets/monsters/crow_small_hurt.webp"
   },
   "codex/monster_fortune_cat": {
    "attack": "assets/monsters/fortune_cat_attack.webp",
-   "idle": "assets/monsters/fortune_cat_idle.webp"
+   "idle": "assets/monsters/fortune_cat_idle.webp",
+   "hurt": "assets/monsters/fortune_cat_hurt.webp"
   },
   "codex/monster_guardian_statue": {
    "attack": "assets/monsters/guardian_statue_attack.webp",
@@ -596,11 +629,13 @@
   },
   "codex/monster_lantern_fish": {
    "attack": "assets/monsters/lantern_fish_attack.webp",
-   "idle": "assets/monsters/lantern_fish_idle.webp"
+   "idle": "assets/monsters/lantern_fish_idle.webp",
+   "hurt": "assets/monsters/lantern_fish_hurt.webp"
   },
   "codex/monster_lantern_twin": {
    "attack": "assets/monsters/lantern_twin_attack.webp",
-   "idle": "assets/monsters/lantern_twin_idle.webp"
+   "idle": "assets/monsters/lantern_twin_idle.webp",
+   "hurt": "assets/monsters/lantern_twin_hurt.webp"
   },
   "codex/monster_mask_dancer": {
    "attack": "assets/monsters/mask_dancer_attack.webp",
@@ -609,31 +644,38 @@
   },
   "codex/monster_miasma_crows": {
    "attack": "assets/monsters/miasma_crows_attack.webp",
-   "idle": "assets/monsters/miasma_crows_idle.webp"
+   "idle": "assets/monsters/miasma_crows_idle.webp",
+   "hurt": "assets/monsters/miasma_crows_hurt.webp"
   },
   "codex/monster_puppet": {
    "attack": "assets/monsters/puppet_attack.webp",
-   "idle": "assets/monsters/puppet_idle.webp"
+   "idle": "assets/monsters/puppet_idle.webp",
+   "hurt": "assets/monsters/puppet_hurt.webp"
   },
   "codex/monster_puppeteer": {
    "attack": "assets/monsters/puppeteer_attack.webp",
-   "idle": "assets/monsters/puppeteer_idle.webp"
+   "idle": "assets/monsters/puppeteer_idle.webp",
+   "hurt": "assets/monsters/puppeteer_hurt.webp"
   },
   "codex/monster_shuten_imp": {
    "attack": "assets/monsters/shuten_imp_attack.webp",
-   "idle": "assets/monsters/shuten_imp_idle.webp"
+   "idle": "assets/monsters/shuten_imp_idle.webp",
+   "hurt": "assets/monsters/shuten_imp_hurt.webp"
   },
   "codex/monster_snow_cat": {
    "attack": "assets/monsters/snow_cat_attack.webp",
-   "idle": "assets/monsters/snow_cat_idle.webp"
+   "idle": "assets/monsters/snow_cat_idle.webp",
+   "hurt": "assets/monsters/snow_cat_hurt.webp"
   },
   "codex/monster_twin_hound": {
    "attack": "assets/monsters/twin_hound_attack.webp",
-   "idle": "assets/monsters/twin_hound_idle.webp"
+   "idle": "assets/monsters/twin_hound_idle.webp",
+   "hurt": "assets/monsters/twin_hound_hurt.webp"
   },
   "codex/monster_wraith_samurai": {
    "attack": "assets/monsters/wraith_samurai_attack.webp",
-   "idle": "assets/monsters/wraith_samurai_idle.webp"
+   "idle": "assets/monsters/wraith_samurai_idle.webp",
+   "hurt": "assets/monsters/wraith_samurai_hurt.webp"
   }
  },
  "icons": {
