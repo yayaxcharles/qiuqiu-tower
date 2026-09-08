@@ -7,7 +7,7 @@ import { aliveEnemies, willRevive } from '../../engine/actions';
 import { rampageTurnFor, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
-import type { CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance } from '../../engine/types';
+import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
@@ -85,7 +85,40 @@ const POSE = {
   skill: 'hero/ninja_skill',
   // 擲手裡劍（2026-09-03 晚生的圖）：撒手鐧那張牌、手裡劍與針雨兩支忍具用；沒圖就退回出招圖
   throw: 'hero/ninja_throw',
+  // 攻擊招式分家（2026-09-08，使用者：三十幾張攻擊牌全長一樣）：原本那張 attack 其實是掌推，
+  // 新畫爪擊、踢技、頭槌衝撞、拳四種；多段攻擊時兩張輪流換。沒圖時 hasSprite 擋掉退回掌推
+  claw: 'hero/ninja_claw', kick: 'hero/ninja_kick', dash: 'hero/ninja_dash', punch: 'hero/ninja_punch',
+  // 吃喝（回血的牌、飯糰那類忍具）；抱胸格擋（早就畫好，被蜷縮整個擋下時用）
+  eat: 'hero/ninja_eat', guard: 'hero/ninja_guard',
 };
+type PoseKey = keyof typeof POSE;
+/** 攻擊牌 → 招式家族。沒列的用原本那張掌推（鐵砂掌、沾衣十八跌、借力使使力、獅吼功那幾張本來就是掌） */
+const ATTACK_POSE: Readonly<Record<string, PoseKey>> = {
+  sanjo: 'claw', dieda: 'claw', paozhao: 'claw', liandao: 'claw', roubao: 'claw', juye: 'claw', luoye: 'claw',
+  ruying: 'claw', shengdong: 'claw', shunshou: 'claw', wozaizhe: 'claw', susu: 'claw', bunshin: 'claw',
+  canying: 'claw', maoqiudan: 'claw', luanwu: 'claw', zhuiji: 'claw',
+  huixuan: 'kick', lianhuan: 'kick', caiweiba: 'kick', dilie: 'kick',
+  tietou: 'dash', wangming: 'dash', shunkan: 'dash', beici: 'dash',
+  bengquan: 'punch', jiuweiquan: 'punch', shierlian: 'punch', qinna: 'punch', ehou: 'punch', zuiquan: 'punch', dianxue: 'punch',
+};
+/** 吃喝姿勢：非攻擊的回血牌；忍具裡真的是吃的那三支（卷軸、符咒照施術） */
+const EAT_CARDS: ReadonlySet<string> = new Set(['xianshuile', 'renwuwancheng', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
+const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle']);
+const posePick = (k: PoseKey, fallback: string): string => (hasSprite(POSE[k]) ? POSE[k] : fallback);
+/** 出牌時球球擺什麼姿勢 */
+function cardPose(def: CardDef): { pose: string; attack: boolean } {
+  const attack = def.type === '攻擊';
+  if (THROW_CARDS.has(def.id)) return { pose: posePick('throw', POSE.attack), attack };
+  if (attack) { const fam = ATTACK_POSE[def.id]; return { pose: fam ? posePick(fam, POSE.attack) : POSE.attack, attack: true }; }
+  if (EAT_CARDS.has(def.id)) return { pose: posePick('eat', posePick('skill', POSE.attack)), attack: false };
+  return { pose: posePick('skill', POSE.attack), attack: false };
+}
+/** 用忍具時球球擺什麼姿勢：丟的擲、吃的吃、其餘施術（以前除了丟的都沒姿勢，站著不動） */
+function potionPose(id: string): { pose?: string; attack?: boolean } {
+  if (THROW_POTIONS.has(id)) return hasSprite(POSE.throw) ? { pose: POSE.throw, attack: true } : {};
+  if (EAT_POTIONS.has(id) && hasSprite(POSE.eat)) return { pose: POSE.eat };
+  return hasSprite(POSE.skill) ? { pose: POSE.skill } : {};
+}
 /** 出手時該用擲手裡劍立繪的牌與忍具 */
 const THROW_CARDS: ReadonlySet<string> = new Set(['sashoujian']);
 const THROW_POTIONS: ReadonlySet<string> = new Set(['shuriken', 'needle_rain']);
@@ -1029,7 +1062,7 @@ registerScreen('combat', (app, root, props) => {
     targeting = null;
     if (!t || !canAct()) { render(); return; }
     if (t.kind === 'card') play(t.uid, enemyUid);
-    else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); }, THROW_POTIONS.has(t.id) && hasSprite(POSE.throw) ? { pose: POSE.throw, attack: true } : {});
+    else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); }, potionPose(t.id));
   }
 
   /**
@@ -1085,7 +1118,7 @@ registerScreen('combat', (app, root, props) => {
     act(() => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       if (!playCard(cs, uid, targetUid)) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
-    }, { pose: st.def.type !== '攻擊' && hasSprite(POSE.skill) ? POSE.skill : THROW_CARDS.has(st.def.id) && hasSprite(POSE.throw) ? POSE.throw : POSE.attack, attack: st.def.type === '攻擊' });
+    }, cardPose(st.def));
     if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
@@ -1102,7 +1135,7 @@ registerScreen('combat', (app, root, props) => {
     hint = '';
     // 只有打魔物的忍具要選目標（手裡劍、麻繩）；全體與自己用的直接用掉
     if (def.target === 'enemy') { targeting = { kind: 'potion', id }; render(); return; }
-    act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); }, THROW_POTIONS.has(id) && hasSprite(POSE.throw) ? { pose: POSE.throw, attack: true } : {});
+    act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); }, potionPose(id));
   }
 
   /**
@@ -1268,10 +1301,16 @@ registerScreen('combat', (app, root, props) => {
     // 姿勢優先序：分出勝負 ＞ 挨打 ＞ 閃過 ＞ 蜷縮 ＞ 這張牌 ＞ 餓扁 ＞ 待機。先決定再畫，姿勢才看得到。
     // 蜷縮排在牌姿勢前面：擋下傷害這件事比「剛剛打的是哪張牌」更該讓玩家看到。
     // 攻擊牌例外（交出來會奪走蜷縮），那種時候還是要看到出招的姿勢。
+    const enemyActed = cs.enemies.some((e) => { const b = before.enemies.get(e.uid); return !!b && e.turnCount !== b.turnCount; });
     if (cs.phase === 'won') pose = POSE.win;
     else if (cs.phase === 'lost') pose = POSE.lose;
-    else if (hurt) pose = POSE.hit;
+    // 自己出手那一拍（posePref 有值）牌的姿勢優先：鐵頭功、亡命這些自傷牌不然永遠看不到頭槌圖，
+    // 自傷本身靠球球身上的紅閃與飄數字表現就夠了（2026-09-08）。魔物打過來的挨打照舊排最前面
+    else if (hurt && !posePref) pose = POSE.hit;
     else if (dodged) pose = POSE.dodge;
+    // 敵人打過來被蜷縮（或甲）整個擋掉：切抱胸格擋——這張早就畫好卻沒人用（2026-09-08）。
+    // 只認「這一拍有魔物出手、血沒掉、紀錄有擋下」；自己回合疊蜷縮走下一條的 curl
+    else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了') || l.startsWith('甲擋下了')) && hasSprite(POSE.guard)) pose = POSE.guard;
     else if (p.block > before.block && !opts.attack) pose = POSE.curl;
     else if (posePref) pose = posePref;
     else if (hungry) pose = POSE.hungry;
@@ -1364,6 +1403,22 @@ registerScreen('combat', (app, root, props) => {
         if (e.charged && !b.charged) burst(node, 'charge');
       }
       if (e.phase > b.phase) { bossPhaseTalk(e.enemyId, e.phase); phaseBurst(node); }
+    }
+    // 多段攻擊時球球的出招圖兩張輪流換（2026-09-08）：跟 stageHits 同一個 150 毫秒節拍，一毫秒都不多花。
+    // 第二格用爪擊；這張牌本身就是爪擊的話換成掌推。收姿勢排在最後一段之後（見 hold），不會撞到
+    if (opts.attack && stagedMax > 1) {
+      const alt = pose === POSE.claw ? POSE.attack : POSE.claw;
+      if (hasSprite(alt) && hasSprite(pose)) {
+        const first = artUrl('sprites', pose);
+        const second = artUrl('sprites', alt);
+        for (let i = 1; i < stagedMax; i++) {
+          window.setTimeout(() => {
+            if (app.cs !== cs) return;
+            const img = root.querySelector<HTMLImageElement>('.unit.player .sprite');
+            if (img) img.src = i % 2 ? second : first;
+          }, i * 150);
+        }
+      }
     }
     // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
     if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');

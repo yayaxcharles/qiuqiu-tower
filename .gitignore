@@ -16,3 +16,6 @@ tools/_*.json
 # 使用者挑的音樂原始檔（正式檔在 public/bgm/，這裡是挑選時的暫存）
 music/
 影片素材/
+
+# 魔物挨打圖生圖用的參考圖，由 tools/build_art_queue.py 從遊戲內待機圖鋪白底產生，不進倉
+tools/ref/monster_refs/

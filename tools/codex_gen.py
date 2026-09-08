@@ -63,7 +63,14 @@ def main() -> None:
     RAW.mkdir(parents=True, exist_ok=True)
     done = failed = skipped = 0
 
-    for name, prompt in jobs.items():
+    for name, job in jobs.items():
+        # 2026-09-08 起一條工單可以自己帶參考圖：{"prompt": "...", "ref": "路徑"}，沒帶的用 --ref。
+        # 魔物挨打圖每隻要配自己的待機圖當參考，76 隻總不能開 76 個工作檔
+        prompt = job if isinstance(job, str) else job["prompt"]
+        ref_i = ref
+        if isinstance(job, dict) and job.get("ref"):
+            rp = Path(job["ref"]).resolve()
+            ref_i = ["-i", str(rp)] if rp.exists() else ref
         out = RAW / name
         if out.exists():
             skipped += 1
@@ -72,7 +79,7 @@ def main() -> None:
         print(f"[生圖] {name}", flush=True)
         for attempt in range(1, args.retries + 1):
             try:
-                subprocess.run([*CMD, *ref], input=prompt, capture_output=True,
+                subprocess.run([*CMD, *ref_i], input=prompt, capture_output=True,
                                text=True, encoding="utf-8", errors="replace", timeout=args.timeout)
             except subprocess.TimeoutExpired:
                 print(f"  第 {attempt} 次逾時（{args.timeout} 秒）", flush=True)
