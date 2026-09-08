@@ -812,6 +812,11 @@
   "bg/still_act1_stairs": "assets/bg/still_act1_stairs.webp",
   "bg/still_act2_moonstairs": "assets/bg/still_act2_moonstairs.webp",
   "bg/still_act2_smoke": "assets/bg/still_act2_smoke.webp",
-  "bg/still_act2_voice": "assets/bg/still_act2_voice.webp"
+  "bg/still_act2_voice": "assets/bg/still_act2_voice.webp",
+  "bg/event_toll_again_paid": "assets/bg/event_toll_again_paid.webp",
+  "bg/event_toll_again_fought": "assets/bg/event_toll_again_fought.webp",
+  "bg/event_rescue_return_herb": "assets/bg/event_rescue_return_herb.webp",
+  "bg/event_rescue_return_fish": "assets/bg/event_rescue_return_fish.webp",
+  "bg/event_robin_feast": "assets/bg/event_robin_feast.webp"
  }
 }
