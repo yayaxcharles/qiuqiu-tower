@@ -69,8 +69,14 @@ def main() -> None:
         prompt = job if isinstance(job, str) else job["prompt"]
         ref_i = ref
         if isinstance(job, dict) and job.get("ref"):
-            rp = Path(job["ref"]).resolve()
-            ref_i = ["-i", str(rp)] if rp.exists() else ref
+            # 工單裡的相對路徑一律相對倉庫根目錄，不看在哪個目錄執行；找不到要喊出來，
+            # 不然就是坑 4 的無參考圖生圖、還回報成功（稽核 2026-09-08 低-3）
+            rp = Path(job["ref"])
+            rp = (rp if rp.is_absolute() else ROOT / rp).resolve()
+            if rp.exists():
+                ref_i = ["-i", str(rp)]
+            else:
+                print(f"  ⚠ 參考圖不存在：{rp}，改用 --ref{'' if ref else '（也沒給，會沒參考圖）'}", flush=True)
         out = RAW / name
         if out.exists():
             skipped += 1

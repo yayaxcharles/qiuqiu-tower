@@ -92,6 +92,8 @@ const POSE = {
   eat: 'hero/ninja_eat', guard: 'hero/ninja_guard',
 };
 type PoseKey = keyof typeof POSE;
+// 出招圖名單：多段攻擊的兩格輪換只在這些圖之間換，勝利／落敗／蜷縮／挨打不輪換
+const ATTACK_POSES = new Set<string>([POSE.attack, POSE.claw, POSE.kick, POSE.dash, POSE.punch, POSE.throw]);
 /** 攻擊牌 → 招式家族。沒列的用原本那張掌推（鐵砂掌、沾衣十八跌、借力使使力、獅吼功那幾張本來就是掌） */
 const ATTACK_POSE: Readonly<Record<string, PoseKey>> = {
   sanjo: 'claw', dieda: 'claw', paozhao: 'claw', liandao: 'claw', roubao: 'claw', juye: 'claw', luoye: 'claw',
@@ -1405,15 +1407,18 @@ registerScreen('combat', (app, root, props) => {
       if (e.phase > b.phase) { bossPhaseTalk(e.enemyId, e.phase); phaseBurst(node); }
     }
     // 多段攻擊時球球的出招圖兩張輪流換（2026-09-08）：跟 stageHits 同一個 150 毫秒節拍，一毫秒都不多花。
-    // 第二格用爪擊；這張牌本身就是爪擊的話換成掌推。收姿勢排在最後一段之後（見 hold），不會撞到
-    if (opts.attack && stagedMax > 1) {
+    // 第二格用爪擊；這張牌本身就是爪擊的話換成掌推。收姿勢排在最後一段之後（見 hold），不會撞到。
+    // 只有出招圖才輪換：最後一段打死最後一隻時 pose 已經是勝利圖，換成爪擊會把勝利圖蓋掉（稽核 2026-09-08 中-1）；
+    // 計時器認序號，0.3 秒內連出兩張牌時舊的那組不會把新姿勢改掉（低-1）
+    const mine = ++seq;
+    if (opts.attack && stagedMax > 1 && ATTACK_POSES.has(pose)) {
       const alt = pose === POSE.claw ? POSE.attack : POSE.claw;
       if (hasSprite(alt) && hasSprite(pose)) {
         const first = artUrl('sprites', pose);
         const second = artUrl('sprites', alt);
         for (let i = 1; i < stagedMax; i++) {
           window.setTimeout(() => {
-            if (app.cs !== cs) return;
+            if (seq !== mine || app.cs !== cs) return;
             const img = root.querySelector<HTMLImageElement>('.unit.player .sprite');
             if (img) img.src = i % 2 ? second : first;
           }, i * 150);
@@ -1498,7 +1503,6 @@ registerScreen('combat', (app, root, props) => {
     // 蜷縮本來停 1200：使用者 2026-09-03 晚「有點太長，有時候會拖到下一回合」→ 縮到 700，仍比一般姿勢多停一點
     // 分段演出：最後一段在 (段數−1)×150 毫秒掛上、抖 400 毫秒，收姿勢要等它抖完（稽核 2026-09-05 夜 低-3）
     const hold = pose === POSE.curl ? 700 : Math.max(650, stagger + 560, stagedMax > 1 ? (stagedMax - 1) * 150 + 460 : 0);
-    const mine = ++seq;
     window.setTimeout(() => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
       pose = idlePose();

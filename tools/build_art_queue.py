@@ -5,7 +5,7 @@ build_art_queue.py — 建 2026-09-08 補圖長隊的五份工單（不生圖，
 用法：python tools/build_art_queue.py
   產出（都在 tools/codex_jobs/）：
     hero_states2.json      球球第二批 4 張：翻肚待機、噎到待機、凝神（能力牌）、翻卷軸（抽牌）
-    boss_moves2.json       師父 3 張：第二階段缺的頭槌、獅吼；第三階段缺的醉拳
+    boss_moves2.json       師父 4 張：第二階段缺的頭槌、獅吼；第三階段缺的醉拳；真面目跪倒的戰敗圖 defeat3
     event_art3.json        事件插圖 5 張（原本沒插圖、只有文字的那五個）
     monster_hurt_act1.json 第一關魔物挨打圖 27 隻
     monster_hurt_rest.json 其餘魔物挨打圖 49 隻
@@ -84,6 +84,26 @@ BOSS = {
                             "both fists clenched at the sides, three curved shockwave lines bursting from the mouth"),
     "boss_drunk3.png": B3 + ("a lurching drunken-boxing stance: one leg lifted, body swaying sideways, one clawed paw "
                              "dangling loose and the other raised crooked, flames wobbling with the sway, a mad grin"),
+    # 2026-09-08 使用者要的第四張：真面目跪倒、鬼火熄滅（原本的 defeat 是第一階段戴斗笠的樣子，他其實是在第三階段倒下的）
+    "boss_defeat3.png": ("The character: the grey tabby cat kung-fu master exactly as shown in the reference image - his true form: "
+                         "no hat, a torn ear, a scar across one eye, fur standing on end, the robe shredded to the waist showing a "
+                         "muscular striped torso, claws out. But the fight is over: his eyes are closed and exhausted (NO white glow), "
+                         "and every ghost flame has gone out - NO flames anywhere on him, only two or three thin wisps of grey smoke "
+                         "drifting up from his shoulders and paws.\n\nPose: "
+                         "collapsed onto one knee with the other leg folded under him, one clawed paw planted flat on the ground "
+                         "propping himself up, the other arm hanging limp, head bowed low, shoulders slumped, mouth slightly open "
+                         "panting, tail lying flat on the ground - beaten but still dignified, facing LEFT"),
+}
+# 這張要照第三階段的待機原稿畫（真面目的長相），其他三張照 boss_ref2.png
+BOSS_REF = {"boss_defeat3.png": "tools/codex_raw/boss_idle3.png"}
+# 球球的擲姿重生：原稿手裡劍畫得太遠、整張比高還寬，貼進畫布只能縮 14%（稽核 2026-09-08 中-2）。
+# 球球那批已經在跑、工單改不進去，搭師父這批的順風車（每條工單自帶參考圖，放哪個檔都一樣）
+HERO_EXTRA = {
+    "hero_ninja_throw2.png": HERO_CH + ("throwing a shuriken: side-on throwing stance, the throwing arm extended forward at "
+                                        "shoulder height, the other paw pulled back, knees bent. The shuriken is SMALL (about the "
+                                        "size of his paw) and drawn right at his fingertips, just leaving the paw - NOT far in front "
+                                        "of him, no speed lines. The whole character must fit inside a square: not wider than it is tall")
+                             + HERO_TAIL.format(name="hero_ninja_throw2.png"),
 }
 
 # ---------- 事件：拿既有事件範本，換掉 Scene 那一段 ----------
@@ -125,8 +145,9 @@ MON_POSE = ("\n\nPose: just took a heavy hit - recoiling back and away to the ri
 def main() -> None:
     dump("hero_states2.json", {k: {"prompt": HERO_CH + v + HERO_TAIL.format(name=k), "ref": "tools/ref/hero_combat_ref.png"}
                                for k, v in HERO2.items()})
-    dump("boss_moves2.json", {k: {"prompt": v + BOSS_TAIL.format(name=k), "ref": "tools/ref/boss_ref2.png"}
-                              for k, v in BOSS.items()})
+    dump("boss_moves2.json", {**{k: {"prompt": v + BOSS_TAIL.format(name=k), "ref": BOSS_REF.get(k, "tools/ref/boss_ref2.png")}
+                                 for k, v in BOSS.items()},
+                              **{k: {"prompt": v, "ref": "tools/ref/hero_combat_ref.png"} for k, v in HERO_EXTRA.items()}})
 
     tmpl = json.loads((JOBS / "event_art.json").read_text(encoding="utf-8"))["event_toll.png"]
     head, rest = tmpl.split("Scene:", 1)
@@ -137,9 +158,13 @@ def main() -> None:
     subjects = json.loads((ROOT / "tools" / "codex_prompts" / "subjects.json").read_text(encoding="utf-8"))
     src = (ROOT / "src" / "content" / "enemies.ts").read_text(encoding="utf-8")
     act1: set[str] = set()
-    for en, acts in re.findall(r"\{ id: '[^']+', pool: '[^']+', enemies: \[([^\]]+)\][^}]*acts: \[([^\]]*)\]", src):
-        if "1" in acts.split(","):
-            act1.update(re.findall(r"'([^']+)'", en))
+    # 沒寫 acts 的遭遇各關都會用（事件對決的白貓就是），也算第一關；acts: [] 才是真的排除（稽核 2026-09-08 低-2）
+    for m in re.finditer(r"\{ id: '[^']+', pool: '[^']+', enemies: \[([^\]]+)\]([^}]*)\}", src):
+        acts = re.search(r"acts: \[([^\]]*)\]", m.group(2))
+        if acts is None or "1" in acts.group(1).split(","):
+            act1.update(re.findall(r"'([^']+)'", m.group(1)))
+    # 被召喚／分裂出來的小怪（貓又尾巴、小團子）不在遭遇名單裡，但第一關就會冒出來
+    act1.update(re.findall(r"(?:kind: 'summon'|splitInto: \{)[^}]*?enemyId: '([^']+)'", src))
     missing = [k.split("/")[-1][len("monster_"):] for k, poses in manifest["monsters"].items() if "hurt" not in poses]
     REFDIR.mkdir(parents=True, exist_ok=True)
 
