@@ -7,7 +7,10 @@
  * - 給自己的狀態只收爪力、貓步、隱身（魔物身上這三個引擎本來就會算，舊版「照著學」抄的也是前兩個）
  * - 給對手的狀態翻成 statusPlayer（翻肚、懶洋洋、炸毛、噎到、定身）
  * - 抽牌、飯糰、看牌、留牌、消耗、棄牌、清減益這類「操作手牌」的效果他學不來，直接略過（那張牌其餘效果照翻）
- * - 其他（能力、自傷、以蜷縮為傷害、偷防禦、結束回合……）翻不成，整張牌不進他的池子
+ * - 「這回合不能攻擊」這種只綁自己的限制也略過（戰術撤退的 9 點蜷縮照學）
+ * - 有條件的加成（背刺「目標有減益才多打」）不學那一段，只學無條件的部分
+ * - 其他（能力效果、自傷、以蜷縮為傷害、偷防禦、結束回合……）翻不成，整張牌不進他的池子；
+ *   能力牌本身不是一律排除——馬步、運功這種只加爪力／貓步的照收（跟舊版照著學抄的東西一樣）
  * 一張牌至少要翻出一個效果才算數。抽牌用戰鬥亂數（cs.rng），同一個局面碼永遠抽到同一張。
  */
 import { encounterById, enemyById } from '../content/enemies';
@@ -20,6 +23,7 @@ const SELF_OK: readonly StatusName[] = ['爪力', '貓步', '隱身'];
 const SKIP: ReadonlySet<string> = new Set([
   'draw', 'drawIfTargetStatus', 'drawNextTurn', 'energy', 'gold', 'scry',
   'exhaustFromHand', 'retainFromHand', 'discardFromHand', 'recoverFromDiscard', 'cleanse', 'removeStatuses',
+  'noAttacksThisTurn',
 ]);
 
 /** 這張牌翻成魔物的效果；翻不成回 null */
@@ -30,6 +34,7 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
   for (const fx of effects) {
     switch (fx.kind) {
       case 'damage': {
+        if (fx.ifTargetDebuffed) break;   // 背刺那種「目標有減益才多打」的那一段不學（稽核 2026-09-08 低-4）
         const hit: Extract<EnemyEffect, { kind: 'damage' }> = { kind: 'damage', amount: fx.amount };
         if (fx.times !== undefined && fx.times > 1) hit.times = fx.times;
         if (fx.ignoreBlock) hit.pierce = true;
@@ -61,7 +66,7 @@ export function learnsPlayerCards(e: EnemyCombat): boolean {
 }
 
 /**
- * 他下一動要「學」的那一招：抽 n 張（遭遇的 learnCards，不填＝1）不同的牌，效果接在一起、牌名用「＋」串。
+ * 他下一動要「學」的那一招：抽 n 張（遭遇的 learnCards，不填＝1）不同的牌，效果接在一起、牌名用「、」串。
  * 池子空的（牌組裡沒半張學得會的）回 undefined，讓呼叫端退回牠自己的招式表。
  */
 export function learnedMove(cs: CombatState): EnemyMove | undefined {
@@ -79,5 +84,6 @@ export function learnedMove(cs: CombatState): EnemyMove | undefined {
   const intent: Intent = effects.some((f) => f.kind === 'damage') ? 'attack'
     : effects.some((f) => f.kind === 'block') ? 'block'
       : effects.some((f) => f.kind === 'statusPlayer') ? 'debuff' : 'buff';
-  return { intent, label: picks.map((c) => cardStats(c).name).join('＋'), effects, cardIds: picks.map((c) => c.cardId) };
+  // 牌名用「、」串：升級牌的名字結尾就是「＋」，用「＋」串會變成「淡定＋＋貓抓＋」（稽核 2026-09-08 中-1）
+  return { intent, label: picks.map((c) => cardStats(c).name).join('、'), effects, learned: picks.map((c) => ({ cardId: c.cardId, upgraded: c.upgraded })) };
 }

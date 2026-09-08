@@ -27,50 +27,77 @@ describe('鏡中球球照著學', () => {
     expect(learnCard(inst('tieshazhang', 1, true))).toEqual([{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '噎到', amount: 4 }]);
   });
 
-  it('開戰第一動就是學來的牌：牌名當標籤、cardIds 記那張；球球的牌一張都沒少', () => {
+  it('開戰第一動就是學來的牌：牌名當標籤、learned 記那張；球球的牌一張都沒少', () => {
     const cs = fight('mirror_duel');
     const e = cs.enemies[0]!;
-    expect(e.move.cardIds).toHaveLength(1);
-    const id = e.move.cardIds![0]!;
+    expect(e.move.learned).toHaveLength(1);
+    const id = e.move.learned![0]!.cardId;
     expect(STARTER_DECK).toContain(id);
     expect(e.move.label).toBe(cardById[id]!.name);
     expect(pileCount(cs)).toBe(STARTER_DECK.length);
   });
 
-  it('二三關版一動兩張，牌名用＋串、效果接在一起', () => {
+  it('二三關版一動兩張，牌名用「、」串、效果接在一起', () => {
     const cs = fight('mirror_duel_a2');
     const e = cs.enemies[0]!;
-    expect(e.move.cardIds).toHaveLength(2);
-    expect(e.move.label).toContain('＋');
+    expect(e.move.learned).toHaveLength(2);
+    expect(e.move.label).toContain('、');
     expect(e.move.effects.length).toBeGreaterThanOrEqual(2);
   });
 
   it('每一動重抽；同一個種子永遠抽到同一張（局面碼要能重現）', () => {
     const a = fight('mirror_duel', 'seedX');
     const b = fight('mirror_duel', 'seedX');
-    expect(a.enemies[0]!.move.cardIds).toEqual(b.enemies[0]!.move.cardIds);
+    expect(a.enemies[0]!.move.learned).toEqual(b.enemies[0]!.move.learned);
     endTurn(a); endTurn(b);
-    expect(a.enemies[0]!.move.cardIds).toEqual(b.enemies[0]!.move.cardIds);
-    expect(a.enemies[0]!.move.cardIds).toHaveLength(1);
+    expect(a.enemies[0]!.move.learned).toEqual(b.enemies[0]!.move.learned);
+    expect(a.enemies[0]!.move.learned).toHaveLength(1);
     expect(pileCount(a)).toBe(STARTER_DECK.length);
   });
 
   it('學來的貓抓真的會打到球球、學來的淡定給他自己蜷縮', () => {
     const cs = fight('mirror_duel');
     const e = cs.enemies[0]!;
-    e.move = { intent: 'attack', label: '貓抓', effects: learnCard(inst('sanjo', 99))!, cardIds: ['sanjo'] };
+    e.move = { intent: 'attack', label: '貓抓', effects: learnCard(inst('sanjo', 99))!, learned: [{ cardId: 'sanjo', upgraded: false }] };
     endTurn(cs);
     expect(cs.player.hp).toBe(74);
     expect(cs.log.some((l) => l.includes('貓抓'))).toBe(true);
-    e.move = { intent: 'block', label: '淡定', effects: learnCard(inst('tanding', 99))!, cardIds: ['tanding'] };
+    e.move = { intent: 'block', label: '淡定', effects: learnCard(inst('tanding', 99))!, learned: [{ cardId: 'tanding', upgraded: false }] };
     endTurn(cs);
     expect(e.block).toBe(5);
+  });
+
+  it('升級牌：標籤是「淡定＋、貓抓＋」不是「淡定＋＋貓抓＋」，learned 帶升級旗標', () => {
+    const cs = fight('mirror_duel_a2', 'up', ['tanding', 'sanjo']);
+    for (const c of [...cs.player.drawPile, ...cs.player.hand]) c.upgraded = true;
+    const m = learnedMove(cs)!;
+    expect(m.label.split('、')).toHaveLength(2);
+    expect(m.label).not.toContain('＋＋');
+    expect(m.learned!.every((c) => c.upgraded)).toBe(true);
+    expect(m.effects).toEqual(expect.arrayContaining([{ kind: 'damage', amount: 9 }]));
+  });
+
+  it('球球的牌是同一批實例、一張都沒被動到；學的張數不會超過池子；別的魔物完全不碰亂數', () => {
+    const cs = fight('mirror_duel_a2', 'pool', ['sanjo', 'qianliyan', 'jiejie']);
+    const uids = [...cs.player.drawPile, ...cs.player.hand].map((c) => c.uid).sort();
+    const m = learnedMove(cs)!;
+    expect(m.learned).toHaveLength(1);   // 池子只有貓抓一張，learnCards 是 2 也只拿 1
+    expect([...cs.player.drawPile, ...cs.player.hand].map((c) => c.uid).sort()).toEqual(uids);
+    // 河童那場：advanceMove 走照表，亂數序列不該被照著學動到
+    const a = fight('kappa', 'rng'); const b = fight('kappa', 'rng');
+    endTurn(a); endTurn(b);
+    expect(a.enemies.map((e) => e.move.label)).toEqual(b.enemies.map((e) => e.move.label));
+    expect(a.enemies[0]!.move.learned).toBeUndefined();
+  });
+
+  it('背刺只學無條件的那一段', () => {
+    expect(learnCard(inst('beici', 1))).toEqual([{ kind: 'damage', amount: 6 }]);
   });
 
   it('牌組裡沒半張學得會的：退回招式表的照著學', () => {
     const cs = fight('mirror_duel', 'none', ['qianliyan', 'qianliyan', 'jiejie']);
     expect(learnedMove(cs)).toBeUndefined();
     expect(cs.enemies[0]!.move.label).toBe('照著學');
-    expect(cs.enemies[0]!.move.cardIds).toBeUndefined();
+    expect(cs.enemies[0]!.move.learned).toBeUndefined();
   });
 });

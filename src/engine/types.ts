@@ -187,8 +187,8 @@ export type EnemyEffect =
   | { kind: 'nothing' };
 export interface EnemyMove {
   intent: Intent; label: string; effects: EnemyEffect[];
-  /** 照著學的招（鏡中球球）：這一招是從球球牌組抄來的哪幾張牌，畫面出招時亮牌面用（見 engine/mimic.ts） */
-  cardIds?: string[];
+  /** 照著學的招（鏡中球球）：這一招是從球球牌組抄來的哪幾張牌（含升級旗標，亮牌面才會畫對版本），見 engine/mimic.ts */
+  learned?: { cardId: string; upgraded: boolean }[];
 }
 export type EnemyPool = '弱' | '中' | '強' | '大魔物' | '塔主' | '召喚';
 export interface EnemyPhase {

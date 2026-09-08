@@ -7,7 +7,7 @@ import { aliveEnemies, willRevive } from '../../engine/actions';
 import { rampageTurnFor, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
-import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance } from '../../engine/types';
+import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
 import { registerScreen } from '../app';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
@@ -110,14 +110,14 @@ const EAT_CARDS: ReadonlySet<string> = new Set(['xianshuile', 'guixi', 'tianmao'
 const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle']);
 const posePick = (k: PoseKey, fallback: string): string => (hasSprite(POSE[k]) ? POSE[k] : fallback);
 /** 出牌時球球擺什麼姿勢 */
-function cardPose(def: CardDef): { pose: string; attack: boolean } {
+function cardPose(def: CardDef, effects: readonly Effect[] = def.effects): { pose: string; attack: boolean } {
   const attack = def.type === '攻擊';
   if (THROW_CARDS.has(def.id)) return { pose: posePick('throw', POSE.attack), attack };
   if (attack) { const fam = ATTACK_POSE[def.id]; return { pose: fam ? posePick(fam, POSE.attack) : POSE.attack, attack: true }; }
   if (EAT_CARDS.has(def.id)) return { pose: posePick('eat', posePick('skill', POSE.attack)), attack: false };
   // 能力牌一律凝神（吸貓大法也是能力牌，打出當下不回血，不算吃）；會抽牌的技能牌翻卷軸；其餘施術
   if (def.type === '能力') return { pose: posePick('focus', posePick('skill', POSE.attack)), attack: false };
-  if (def.effects.some((e) => e.kind === 'draw')) return { pose: posePick('scroll', posePick('skill', POSE.attack)), attack: false };
+  if (effects.some((e) => e.kind === 'draw')) return { pose: posePick('scroll', posePick('skill', POSE.attack)), attack: false };   // 看實際效果：替身術＋、偷吃術＋升級才抽牌
   return { pose: posePick('skill', POSE.attack), attack: false };
 }
 /** 用忍具時球球擺什麼姿勢：丟的擲、吃的吃、其餘施術（以前除了丟的都沒姿勢，站著不動） */
@@ -150,7 +150,8 @@ function bossMovePose(phase: number, label: string): string | undefined {
 }
 
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
-interface Acted { label: string; attacked: boolean; cardIds: string[] | undefined }   // cardIds＝照著學剛打的牌（亮牌面用）
+type Learned = NonNullable<EnemyMove['learned']>;
+interface Acted { label: string; attacked: boolean; learned: Learned | undefined }   // learned＝照著學剛打的牌（亮牌面用）
 
 /** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
 // 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲、虛化對魔物是好事（金光），
@@ -173,7 +174,7 @@ interface Snap {
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; cardIds: string[] | undefined }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
   logLen: number;
   hitsLen: number;
 }
@@ -184,7 +185,7 @@ function snap(cs: CombatState): Snap {
     growth: getStatus(cs.player, '爪力') + getStatus(cs.player, '貓步'),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
-      hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), cardIds: e.move.cardIds,
+      hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), learned: e.move.learned,
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
@@ -283,7 +284,7 @@ registerScreen('combat', (app, root, props) => {
       const def = enemyById[e.enemyId];
       if (!def) continue;
       if (def.art === 'daxia') {
-        for (const key of [...Object.values(BOSS_ART), ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) warm(artUrl('sprites', key));
+        for (const key of [...Object.values(BOSS_ART), ...BOSS_HURT_ART, ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) warm(artUrl('sprites', key));
       } else {
         warm(monsterUrl(def.art, 'idle')); warm(monsterUrl(def.art, 'attack'));
         if (hasMonsterPose(def.art, 'hurt')) warm(monsterUrl(def.art, 'hurt'));
@@ -509,7 +510,7 @@ registerScreen('combat', (app, root, props) => {
     else if (buffAll) text = `${INTENT_GLYPH[m.intent]} 全體 +${buffAll.amount} ${buffAll.name}`;
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）
-    if (m.cardIds && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = `${m.label}｜${text}`;
+    if (m.learned && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = `${m.label}｜${text}`;
     // 看破／破功要寫在牌子上：使用者的朋友囤了十幾層隱身，看牌子只寫「攻 8×2」以為閃得掉，
     // 結果先被拍掉隱身再挨打（2026-09-03 回報）。牌子上先講，滑上去的提示再講細節
     if (getStatus(e, '定身') === 0) {
@@ -658,10 +659,11 @@ registerScreen('combat', (app, root, props) => {
       row);
     // 照著學的那一拍（鏡中球球）：他身旁亮出剛打的那幾張牌面，讓玩家看到「他打了哪張」（使用者 2026-09-08）。
     // 跟出招同一拍亮、收姿勢那一拍一起拿掉（見 hold），不另外加時間
-    const learned = acting.get(e.uid)?.cardIds;
+    const learned = acting.get(e.uid)?.learned;
     if (learned?.length) {
       const cardsEl = el('div', { class: 'learned' });
-      for (const id of learned) { const def = cardById[id]; if (def) cardsEl.append(cardNode(def, { small: true })); }
+      // 用牌的實例畫（帶升級旗標），亮出來的才是他真的打的那個版本（稽核 2026-09-08 中-2）
+      for (const c of learned) if (cardById[c.cardId]) cardsEl.append(cardNode({ uid: 0, cardId: c.cardId, upgraded: c.upgraded }, { small: true }));
       node.querySelector('.sprite-box')?.append(cardsEl);
     }
     if (targeting && !e.dead) node.addEventListener('click', () => pickTarget(e.uid));
@@ -1141,7 +1143,7 @@ registerScreen('combat', (app, root, props) => {
     act(() => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       if (!playCard(cs, uid, targetUid)) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
-    }, cardPose(st.def));
+    }, cardPose(st.def, st.effects));
     if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
@@ -1348,7 +1350,7 @@ registerScreen('combat', (app, root, props) => {
       if (!b || e.dead || e.turnCount === b.turnCount || b.noAct) continue;
       // 調息中的那一拍不算出手：噎到在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
-      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, cardIds: b.cardIds });
+      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, learned: b.learned });
     }
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。

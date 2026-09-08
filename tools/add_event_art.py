@@ -41,6 +41,7 @@ def main() -> None:
         eid = Path(name).stem[len("event_"):]
         keyed = key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False)
         dst = OUT / "bg" / f"event_{eid}.webp"
+        dst.parent.mkdir(parents=True, exist_ok=True)
         keyed.resize((560, 420), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
         manifest["bg"][f"bg/event_{eid}"] = dst.relative_to(OUT.parent).as_posix()
         if src != INBOX / name:
