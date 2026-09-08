@@ -133,7 +133,7 @@ interface Snap {
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean }>;
   logLen: number;
   hitsLen: number;
 }
@@ -144,7 +144,7 @@ function snap(cs: CombatState): Snap {
     growth: getStatus(cs.player, '爪力') + getStatus(cs.player, '貓步'),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
-      hp: e.hp, dead: e.dead, phase: e.phase, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'),
+      hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'),
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
@@ -533,6 +533,10 @@ registerScreen('combat', (app, root, props) => {
     const act = acting.get(e.uid);
     if (def?.art === 'daxia') {
       if (e.dead) return artUrl('sprites', BOSS_DEFEAT);
+      // 調息中（血條打光那一刻就開始，無敵一回合）就畫打坐圖。原本只有「他自己出招那一拍」才查招式圖，
+      // 結果血一打光他站著換成新階段的待機圖、牌子跟紀錄卻都說他蹲下了，要等你結束回合輪到他才真的蹲
+      //（使用者 2026-09-08：「換階段調息時他還是站著」）。引擎的 invulnIn 就是「調息中」，直接看它
+      if (e.invulnIn > 0) return artUrl('sprites', bossMovePose(e.phase, '蹲下調息') ?? bossIdle(e.phase));
       return artUrl('sprites', (act ? bossMovePose(e.phase, act.label) : undefined) ?? bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');
@@ -557,7 +561,7 @@ registerScreen('combat', (app, root, props) => {
     if (reviving) cls.push('reviving');
     // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
     // 師父本人（art 'daxia'）掛 master：框開得比球球大（使用者 2026-09-02：「師傅體型比球球小」），換血條再放大
-    if (def?.art === 'daxia') { cls.push('master'); if (e.phase > 0) cls.push(`phase-${e.phase}`); }
+    if (def?.art === 'daxia') { cls.push('master'); if (e.phase > 0) cls.push(`phase-${e.phase}`); if (!e.dead && e.invulnIn > 0) cls.push('secluding'); }
     // 飛在天上的魔物離地浮起來（使用者 2026-09-07：「讓他能上來一點才有飛行感」）。
     // 看的是**當下的飛行層數**不是牌表上的初始值：打中幾下把牠打下來時，畫面會跟著落地，
     // 玩家一眼看得出「打下來了」，跟「攻擊只打得到一半」那條機制對得上
@@ -835,7 +839,7 @@ registerScreen('combat', (app, root, props) => {
       const old = field.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
       if (!old) return false;
       const b = before.enemies.get(e.uid);
-      const changed = !b || b.hp !== e.hp || b.block !== e.block || b.dead !== e.dead || b.phase !== e.phase
+      const changed = !b || b.hp !== e.hp || b.block !== e.block || b.dead !== e.dead || b.phase !== e.phase || b.secluding !== (e.invulnIn > 0)
         || b.turnCount !== e.turnCount || b.label !== e.move.label || b.intent !== e.move.intent
         || b.debuff !== sumStatus(e, BAD_STATUS) || b.stealth !== getStatus(e, '隱身') || b.choke !== getStatus(e, '噎到')
         || acting.has(e.uid) || old.classList.contains('attack') || old.classList.contains('hit');

@@ -843,6 +843,16 @@
 .combat .unit.enemy.phase-1 .sprite-box { filter: drop-shadow(0 0 14px rgba(255, 90, 40, .8)) drop-shadow(0 0 4px rgba(255, 60, 20, .9)); }
 .combat .unit.enemy.phase-2 .sprite-box { filter: drop-shadow(0 0 18px rgba(160, 70, 255, .9)) drop-shadow(0 0 5px rgba(90, 20, 200, 1)) contrast(1.08); }
 /*
+ * 調息中（血條打光到他下一回合起身）：光暈慢慢呼吸，看得出他在聚氣而不是掛掉了。
+ * 只是把既有的階段光暈做明暗循環，不加任何等待、不擋操作（使用者 2026-09-08：不要拉長節奏）。
+ * 動的是 .sprite-box 的 filter，跟挨打閃紅（.sprite 的 filter）不同元素，不會互相蓋掉。
+ */
+.combat .unit.enemy.master.secluding .sprite-box { animation: seclude-glow 1.6s ease-in-out infinite; }
+@keyframes seclude-glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 200, 90, .55)) brightness(1); }
+  50% { filter: drop-shadow(0 0 26px rgba(255, 220, 120, 1)) drop-shadow(0 0 8px rgba(255, 180, 60, .9)) brightness(1.12); }
+}
+/*
  * 拖曳中游標壓著的那隻魔物。跟「點牌再選目標」的可選提示同一套視覺語言，玩家不用學第二種。
  * **這條必須排在上面兩條師父階段光暈後面**：三者都是五個類別、優先序同分，
  * 寫在前面的話師父換到第二、三條血之後拖過去就不會亮（稽核 2026-09-07 低 2）。
