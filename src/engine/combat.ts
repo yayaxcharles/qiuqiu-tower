@@ -33,7 +33,7 @@ export function startCombat(input: {
   const cs: CombatState = {
     rng: input.rng, player, enemies: [], relics: [...input.relics], potions: [...input.potions],
     turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId, endTurnRequested: false,
-    stolenFish: 0, fishDelta: 0, energyGain: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
+    stolenFish: 0, fishDelta: 0, energyGain: 0, damageDealt: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
   };

@@ -13,12 +13,24 @@ import { clear, el } from './dom';
  * 依關數挑底圖的變體：塔中用 `<key>_mid`、塔頂用 `<key>_top`，清單裡沒有那張就退回原圖。
  * 2026-09-02 實玩：第二關的事件／貓窩／罐頭鋪／紙箱畫面全是第一關的石牢，
  * 「越爬越高」在戰鬥背景做到了、節點畫面沒跟上。變體圖由生圖批次補，沒到之前照舊。
+ *
+ * `floor`（跨關累計的樓層）給了就再往下挑同一關內的第二、三款（`_b`／`_c`），
+ * 跟戰鬥背景 `tierBgKey` 同一套算法。2026-09-10 生的 18 張變體是為這條加的：
+ * 一關睡三次貓窩本來永遠是同一間房，戰鬥背景卻早就會換牆——同一關內也該有變化。
+ *
+ * **不能用亂數挑**：畫面內部重畫時底圖不會重建（`clearKeepBg` 留著那一層），
+ * 但整個畫面重進（買完東西回地圖再進來）會重建，亂數就會讓「同一層的同一間店」每次長不一樣。
+ * 用樓層當索引，同一層永遠同一張，相鄰樓層才不同。
+ *
+ * 退法是**逐段往回退**：`_mid_b` 沒生 → `_mid` → 原圖。這樣只補了一部分變體也不會開天窗。
  */
-export function actVariantKey(base: string, act: number): string {
-  const suffix = act >= 3 ? '_top' : act === 2 ? '_mid' : '';
-  if (!suffix) return base;
-  const key = `${base}${suffix}`;
-  return artUrl('bg', key).startsWith('data:') ? base : key;
+export function actVariantKey(base: string, act: number, floor?: number): string {
+  const act2 = act >= 3 ? '_top' : act === 2 ? '_mid' : '';
+  const v = floor === undefined ? '' : BG_VARIANTS[Math.abs(Math.trunc(floor)) % BG_VARIANTS.length]!;
+  for (const key of [`${base}${act2}${v}`, `${base}${act2}`, base]) {
+    if (!artUrl('bg', key).startsWith('data:')) return key;
+  }
+  return base;
 }
 
 export function screenBg(key: string): HTMLElement {

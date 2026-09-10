@@ -68,12 +68,16 @@ const keep: HTMLImageElement[] = [];
 /**
  * 把一批圖片下載並解碼好（失敗就算了，不該讓流程停掉）。
  *
- * `hold` ＝要不要把 `Image` 留在 `keep` 裡。**底圖一律不留**：一張 1280x720 解碼成點陣圖是 3.5 MB，
- * 三關 27 張加起來將近 100 MB，全部壓到分頁關掉為止；而底圖本來就是拿去當
+ * `hold` ＝要不要把 `Image` 留在 `keep` 裡，可以給 `true`／`false`，也可以給一個逐張決定的函式
+ *（同一批裡有些要留有些不留時用，見 `warmEncounter`）。**底圖一律不留**：一張 1280x720
+ * 解碼成點陣圖是 3.5 MB，三關 27 張加起來將近 100 MB，全部壓到分頁關掉為止；而底圖本來就是拿去當
  * `background-image` 用的，樣式一鋪上去瀏覽器自己就會把它留在快取裡，不需要我們多抓一份。
  * 魔物立繪維持留著（那是 2026-09-04 低 14 加的，一張只有幾十 KB）。
+ *
+ * `urls` 的**順序就是優先序**：工人們從索引 0 往下領號碼牌，排前面的先下載。
  */
-async function decodeAll(urls: string[], concurrency = 4, hold = true): Promise<void> {
+async function decodeAll(urls: string[], concurrency = 4,
+  hold: boolean | ((url: string) => boolean) = true): Promise<void> {
   if (typeof Image === 'undefined') return;   // 測試環境沒有瀏覽器
   const todo = urls.filter((u) => !warmed.has(u) && !u.startsWith('data:'));
   let next = 0;
@@ -82,7 +86,7 @@ async function decodeAll(urls: string[], concurrency = 4, hold = true): Promise<
       const url = todo[i]!;
       try {
         const img = new Image();
-        if (hold) keep.push(img);
+        if (typeof hold === 'function' ? hold(url) : hold) keep.push(img);
         img.src = url;
         // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
         if (typeof img.decode === 'function') await img.decode();
@@ -104,8 +108,12 @@ async function decodeAll(urls: string[], concurrency = 4, hold = true): Promise<
 export function preloadAct(act: number): Promise<void> {
   const defs = [...enemyIdsForAct(act)].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d);
   const bg = bgKeysForAct(act).map((k) => artUrl('bg', k));
-  // 底圖先抓（一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點），但**不留參照**
-  return decodeAll(bg, 4, false).then(() => decodeAll(urlsFor(defs)));
+  // 底圖排前面（一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點），但**不留參照**。
+  // 跟 `warmEncounter` 一樣送**同一批**，不要 `.then()` 串成兩段（稽核 2026-09-10 低-9）：
+  // 串起來的話底圖最後一張解完之前魔物一張都不會開始下載，而 `bgKeysForAct` 從 9 個鍵長到 15 個，
+  // 這裡雖然沒有時限（過關畫面停留幾十秒）不會出事，但兩支寫法不一致，照著抄就會再踩一次。
+  const held = new Set(urlsFor(defs));
+  return decodeAll([...new Set([...bg, ...held])], 4, (u) => held.has(u));
 }
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */
@@ -123,14 +131,23 @@ export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: 
    * 但**冷快取的第一場**（例如剛部署完、所有圖的內容都變了那一次）`warmAll` 自己也還在下載，
    * 玩家已經在出牌了。放進這裡就會卡在既有的 1.5 秒上限內先抓完，不另外增加等待。
    */
-  // **魔物排前面**（稽核 2026-09-10 中-1）：球球那 30 張是 787 KB，一場遭遇的魔物立繪中位數只有
+  // **魔物排前面**（稽核 2026-09-10 中-1）：球球那 27 張（`heroSpriteUrls()` 排掉了
+  // `hero/cover`／`idle`／`armed`）是 787 KB，一場遭遇的魔物立繪中位數只有
   // 64.5 KB。`decodeAll` 的六個工人從同一個索引往下領號碼牌，球球排前面等於要等約 24 張下載完
   // 才輪到第一張魔物圖——冷快取又點得快的話，魔物必然吃滿 1.5 秒還沒好，
   // 等於把「球球突然消失」換成「魔物突然出現」。魔物開打第一格就在畫面上，球球的替代姿勢
   // 最快也要等玩家出第一張牌，先後很明確。
-  // `hold: false`：這 30 張解成點陣圖約 37 MB，而戰鬥畫面掛上時 `combat.ts` 的 `warmAll()`
-  // 自己會再暖一次並留自己那份（每場一份、跟著閉包回收），這裡不需要再永久壓一份（低-3）。
-  const work = decodeAll([...urlsFor(defs), ...heroPoses], 6, false);
+  //
+  // **兩批要送進同一次 `decodeAll`**，不能 `.then()` 串成兩段（稽核 2026-09-10 低-3）：
+  // 串起來的話，魔物那批**最後一張**解完之前球球一張都不會開始下載——魔物只要吃滿 1.5 秒，
+  // 球球等於整批沒暖到，正好是這段當初要修的那個毛病。合成一串交給同一組工人，
+  // 空出來的工人就會自己往下接球球那段，兩批的頭尾自然交疊，優先序還是靠順序決定。
+  // `hold` 逐張決定：魔物那批照 2026-09-04 低 14 的規矩留參照；球球那 27 張解成點陣圖約 33 MB，
+  // 戰鬥畫面掛上時 `combat.ts` 的 `warmAll()` 自己會再暖一次並留自己那份（每場一份、跟著閉包回收），
+  // 這裡不必再永久壓一份。
+  const monsters = urlsFor(defs);
+  const held = new Set(monsters);
+  const work = decodeAll([...new Set([...monsters, ...heroPoses])], 6, (u) => held.has(u));
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
   return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });

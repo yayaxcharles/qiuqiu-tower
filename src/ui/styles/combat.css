@@ -294,7 +294,11 @@
 
 /* 換招那一下把牌子翻過來。**不能動 `transform`**：`.telegraph .intent` 的放大也走 transform，
    兩邊會打架（出招預告正在放大時牌子會被壓回去）。改用獨立屬性 `rotate`＋`scale`，各走各的。 */
-.combat .unit.enemy .intent.changed { animation: intent-flip .42s ease-out; }
+/* 只寫 `animation-name` 那幾格，不要用簡寫（稽核 2026-09-10 低-4）：
+   簡寫的優先序比 `.combat .i-attack` 高，掛著 `changed` 的那 0.42 秒會把攻擊木牌的
+   `intent-throb` 整個停掉——而抽動正是最該一眼看到的東西。兩支並列，翻牌與抽動同時跑。 */
+.combat .unit.enemy .intent.changed { animation-name: intent-flip; animation-duration: .42s; animation-timing-function: ease-out; }
+.combat .unit.enemy .i-attack.changed { animation-name: intent-flip, intent-throb; animation-duration: .42s, 1.15s; animation-timing-function: ease-out, ease-in-out; animation-iteration-count: 1, infinite; }
 @keyframes intent-flip {
   0%   { rotate: x 0deg; filter: brightness(1); }
   45%  { rotate: x 84deg; filter: brightness(1.5); }
@@ -510,6 +514,9 @@
   top: 444px;
   transform: translateX(-50%);
   z-index: 6;
+  /* 這行字沒有東西可以點，但**會吃滑鼠**（稽核 2026-09-10 低-3）：滑上去抬起來的那張牌
+     上緣會頂到這條字底下，游標掃過那一條窄帶就 mouseleave → 牌掉下來 → 又 hover，牌會抖 */
+  pointer-events: none;
   padding: 5px 16px;
   border: 2px solid var(--ink);
   border-radius: 10px;
@@ -517,7 +524,21 @@
   font-size: 17px;
   white-space: nowrap;
 }
-.combat .target-hint.warn { background: #ffd8d0; }
+/* 「這張打不出來」的警告改放**手牌正上方**（使用者 2026-09-10）。
+   原本跟選目標的指引共用 `top: 444px`，正好壓在手牌上：手牌容器 top 476、高 213，
+   小牌也是 213 高（`.card.small`）而且底部對齊，所以牌的上緣就在 y=476，
+   起伏動畫再往上 3 → 473。444 那行字（高約 32）底邊 476，整條貼在牌面上。
+
+   **370 是兩邊夾出來的**（稽核 2026-09-10 低-5）：
+   下面要讓開滑上去的那張牌——抬 46 再放大 1.06（上緣再多 6），上緣頂到 423.6；
+   上面要讓開魔物的名字——`.field` 下緣 470，往上依序是狀態牌子（約 22）、血條（18＋2）、
+   名字（約 22），名字上緣落在 406 上下（字體與牌子數量會讓它浮動幾像素，所以留了餘裕）。
+   四五隻怪的時候最左那隻橫向也會蓋到畫面中線，所以不能只靠橫向錯開。
+   370 的底邊約 402，上下都清得掉。
+   `z-index` 51 純粹是保險（`.combat .hand` 自己是個堆疊脈絡，牌的 50 本來就出不來），
+   配上 `.target-hint` 的 `pointer-events: none` 才是真正不擋人的那條。
+   選目標的指引維持 444（那是講魔物的，靠上面才對）。 */
+.combat .target-hint.warn { background: #ffd8d0; top: 370px; z-index: 51; }
 
 /*
  * 同時浮著兩句吐槽時把第二句往下挪：吐槽都貼在 top: 60px（共用的 base.css），
@@ -816,8 +837,11 @@
 /* 剛補回來的飯糰：從下面彈上來、亮一下就收。`both` 讓它在 animation-delay 期間先停在起點，
    不然三顆會先全部出現在定位、延遲跑完才各自跳一次 */
 .combat .energy .refill { animation: onigiri-refill 380ms cubic-bezier(.2, .9, .3, 1.35) both; }
+/* **起點不能是 `opacity: 0`**：配上 `both` 之後，分頁切到背景時動畫被凍住，
+   那幾顆飯糰會停在全透明、切回來才出現（稽核 2026-09-10 低-2，正是專案踩過的
+   「背景分頁凍住動畫」那個坑）。改用縮放與亮度做進場，透明度全程是 1。 */
 @keyframes onigiri-refill {
-  0%  { transform: translateY(8px) scale(.5); opacity: 0; filter: brightness(1.6) saturate(1.3); }
+  0%  { transform: translateY(8px) scale(.45); opacity: 1; filter: brightness(1.7) saturate(1.3); }
   55% { transform: translateY(0) scale(1.18); opacity: 1; filter: brightness(1.35) saturate(1.2); }
   100% { transform: translateY(0) scale(1); opacity: 1; filter: none; }
 }

@@ -169,6 +169,25 @@
   box-shadow: 0 0 10px rgba(255, 154, 60, .7), inset 0 0 8px rgba(255, 154, 60, .35);
   pointer-events: none;
 }
+/* 球球本人站在現在這一格的左邊（見 map.ts）。
+   `pointer-events: none`：牠疊在地圖上，但不能擋住底下的拖曳與節點點擊。
+   高度 52 比節點的 64 小一點——牠是「站在旁邊的人」，不是另一個節點。
+   輕輕呼吸的起伏是唯一會動的東西（節點的脈動留給可以點的下一格），幅度只有 2 像素。 */
+.map-hero {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .75));
+  animation: map-hero-breathe 2.8s ease-in-out infinite;
+}
+@keyframes map-hero-breathe {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -2px; }
+}
 .map-node.choice {
   opacity: 1;
   cursor: pointer;

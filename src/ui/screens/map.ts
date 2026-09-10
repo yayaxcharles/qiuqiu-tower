@@ -18,6 +18,15 @@ const ICON: Record<MapNode['type'], string> = {
   罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
 };
 
+/** 每種節點圖示的三款（見 `nodeIcon`）。跟底圖的 `BG_VARIANTS` 同一套命名 */
+const ICON_VARIANTS = ['', '_b', '_c'] as const;
+
+/** 地圖上那隻球球的尺寸與跟節點的間隙（樣式在 map.css 的 `.map-hero`，兩邊要一致） */
+const HERO_W = 52;
+const HERO_GAP = 8;
+/** 樓層數字牌子的右緣（map.css 的 `.map-floor-label`：left 214、寬 66）。球球不能壓到它 */
+const LABEL_RIGHT = 280;
+
 // 地圖改成「一條往上爬的長捲軸」（類殺戮尖塔），不再把十五層硬塞進一個畫面。
 // 一次看得到的高度 = 720 減掉狀態列的 56；捲軸內容比它高，用滑鼠滾輪往上爬。
 const VIEW_H = 664;
@@ -153,7 +162,19 @@ registerScreen('map', (app, root) => {
         if (!url.startsWith('data:')) return url;
       }
     }
-    return artUrl('icons', ICON[n.type]);
+    /**
+     * 同一種節點有三款圖示（2026-09-10 生了 14 張變體），**用「樓層＋車道」挑**。
+     *
+     * 一關十五層會看到五六個戰鬥節點，全長同一個手裡劍，整張地圖像用複製貼上的。
+     * 不能用亂數：地圖每次重畫（打完一場回來）都會重跑這裡，亂數會讓同一格的圖示一直換臉。
+     * 只用樓層也不行——同一層並排的兩格是**最容易被看出來一模一樣**的那種，
+     * 而地圖是一整條捲軸，兩格就貼在一起。加上車道，並排的必定錯開。
+     * 變體沒生的退回原圖（塔主那格通常走不到這裡，牠用的是關主立繪）。
+     */
+    const base = ICON[n.type];
+    const v = ICON_VARIANTS[Math.abs(n.floor + n.lane) % ICON_VARIANTS.length]!;
+    const url = artUrl('icons', `${base}${v}`);
+    return url.startsWith('data:') ? artUrl('icons', base) : url;
   }
 
   // 可走的下一步：開局 currentNode 是 null，nextChoices 會回 1F 的三個節點
@@ -179,6 +200,29 @@ registerScreen('map', (app, root) => {
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
     if (choices.has(n.id)) btn.addEventListener('click', () => { play('step'); app.enterNode(n.id); });
     inner.append(btn);
+    /**
+     * 球球本人站在現在這一格旁邊（2026-09-10，使用者：「球球在地圖上的位置也做」）。
+     *
+     * 本來「我在這」只有一圈橘色套圈，那圈跟下一格的黃光只差顏色；一整排圖示裡多一個顏色，
+     * 遠遠看還是一片圖示。放一隻球球進去就變成「圖示裡唯一的活物」，一眼就找得到。
+     *
+     * 站**旁邊**不是疊在節點上：節點自己的圖示要看得見（那格是什麼、辦完了沒），
+     * 而且套圈就是踩在腳邊那圈光。三關各一張姿勢（一路往上越來越戒備）。
+     *
+     * 左右哪一邊要算過（稽核 2026-09-10 中-2）：樓層數字的牌子佔 x 214～280，
+     * 而最左那條車道的節點算出來在 340±14，站左邊的話球球會直接壓在樓層數字上
+     *（`.map-hero` 的層級又比節點高）。所以左邊放不下就改站右邊。
+     */
+    if (n.id === run.currentNode) {
+      const hero = artUrl('icons', `icon/map_hero_${run.act >= 3 ? 'top' : run.act === 2 ? 'mid' : 'low'}`);
+      if (!hero.startsWith('data:')) {
+        const left = x - R - HERO_GAP - HERO_W;
+        inner.append(el('img', {
+          class: 'map-hero', src: hero, alt: '球球', draggable: 'false',
+          style: `left:${left < LABEL_RIGHT + 8 ? x + R + HERO_GAP : left}px;top:${y - 30}px`,
+        }));
+      }
+    }
   }
 
   root.append(scroll);

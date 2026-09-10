@@ -22,8 +22,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           # 對齊作者機器上的 Node 24；cache: npm 會拿 package-lock.json 當快取鍵，所以鎖檔一定要進版控
           node-version: '24'

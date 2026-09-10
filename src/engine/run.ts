@@ -13,6 +13,11 @@ import { rollCardChoices, rollPotion, rollRelic, rollRewards, type CombatRewards
 import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, Rarity, RelicPool, RunEffect, RunState } from './types';
 
 export const START_FISH = 50;
+/**
+ * 魔物自己散掉時，至少要打掉牠們幾成血才拿得到戰利品（見 `finishCombat`）。
+ * 兩成＝認真出兩回合牌就到得了，站著不動永遠是 0。要調鬆緊改這一個數字就好。
+ */
+export const FADE_REWARD_MIN = 0.2;
 export const ACTS = 3;
 export const ACT_NAMES = ['塔下', '塔中', '塔頂'] as const;
 
@@ -182,8 +187,32 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   // 事件獎金在早退之前就先給（稽核 2026-09-10 高-1）：那是玩家答應打這一場換來的，
   // 跟這場有沒有掉戰利品是兩件事，而且獎勵畫面本來就會另起一行印出來。
   if (bonusFish) run.fish += bonusFish;
+  /**
+   * 判準從「有沒有打倒」改成「**有沒有真的在打**」（稽核 2026-09-10 中-2）。
+   *
+   * 原本是「一隻都沒打倒＝零獎勵」，但那對「認真打了六回合、把 125 血的醉拳狗打到剩兩成、
+   * 自己挨了七八十點，最後一回合牠散掉」的人也是零——連大魔物節點那件保底秘寶都沒收。
+   * 難度高的時候六回合打不完並不罕見，那不是剝削、是差一口氣。
+   *
+   * 改成看**打掉了牠們幾成血**：站著不動是 0 成、擺爛剝削照樣拿不到東西；
+   * 只要打進 `FADE_REWARD_MIN` 就照常發獎。門檻放在兩成，因為連續兩回合認真出牌
+   * 通常就超過了，而完全不出牌永遠是 0。
+   *
+   * 量的是**累計打進去的傷害**（`cs.damageDealt`），不是終局缺幾成血（稽核 2026-09-10 中-2）：
+   * 看終局的話，魔物回血等於把玩家打過的功勞洗掉——醉拳狗六回合灌兩次酒各回 10 點，
+   * 真正的門檻被抬到 (0.2×125＋20)/125＝36%（稽核 2026-09-10 低-1 修正數字）。
+   *
+   * 分母仍然是整場所有魔物的最大血總和，**召喚物與分裂出來的也算進去**。
+   * 那是刻意的：多一隻就是多一份工，門檻跟著抬合理。何況目前三隻會自己散掉的
+   *（幻狐、醉拳狗、怨靈武者）都不召喚也不分裂，而分裂本體走的是 `escaped` 不是 `faded`，
+   * 根本進不到這條分支（稽核 2026-09-10 低-2）。
+   */
   if (cs.kills === 0 && cs.enemies.some((e) => e.faded)) {
-    return { kind: '戰鬥', cards: [], fish: 0, potion: null, relic: null, escaped: true };
+    const maxHp = cs.enemies.reduce((s, e) => s + e.maxHp, 0);
+    const dealt = maxHp > 0 ? cs.damageDealt / maxHp : 0;
+    if (dealt < FADE_REWARD_MIN) {
+      return { kind: '戰鬥', cards: [], fish: 0, potion: null, relic: null, escaped: true };
+    }
   }
   // 看遭遇屬於哪個池，不要比對特定 id——塔主現在有三個，寫死 id 會漏掉另外兩個
   const isBoss = encounterById[cs.encounterId ?? '']?.pool === '塔主';

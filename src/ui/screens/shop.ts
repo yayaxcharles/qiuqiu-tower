@@ -22,7 +22,7 @@ function icon(key: string, alt: string): Node | string {
 }
 
 registerScreen('shop', (app, root) => {
-  root.append(screenBg(actVariantKey('bg/screen_shop', app.run?.act ?? 1)));
+  root.append(screenBg(actVariantKey('bg/screen_shop', app.run?.act ?? 1, app.run?.floor)));
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   // 進貨只做一次：makeShop 會推進 run.rng，每次重畫都叫的話買一樣東西整個貨架就換一批

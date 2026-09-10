@@ -160,7 +160,7 @@ function bossMovePose(phase: number, label: string): string | undefined {
 
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
 type Learned = NonNullable<EnemyMove['learned']>;
-interface Acted { label: string; attacked: boolean; learned: Learned | undefined }   // learned＝照著學剛打的牌（亮牌面用）
+interface Acted { label: string; attacked: boolean; blocked: boolean; learned: Learned | undefined }   // learned＝照著學剛打的牌（亮牌面用）；blocked＝這一拍出的是防禦招
 
 /** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
 // 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲、虛化對魔物是好事（金光），
@@ -241,6 +241,12 @@ registerScreen('combat', (app, root, props) => {
   let hurtSet = new Set<number>();
   /** 在「這一擊打贏」那一拍倒下的關主：只有這些才演白閃慢倒；早就倒了的（波斯先倒、僕從後倒）維持消散、不會復活再倒一次（稽核 2026-09-04 高 2） */
   const bossFallUids = new Set<number>();
+  /**
+   * 正在等最後一段演完才補 `dead` 的那幾隻（多段攻擊打死時）。
+   * **記在這裡不記在節點上**：`falling` 本來是加在當下那顆節點，接著出第二張牌就整頁重畫、
+   * 新節點只有 `gone` 沒有 `falling`，那隻怪會直接消失、不演溶解（稽核 2026-09-10 低-6）。
+   */
+  const fallingUids = new Set<number>();
   let hint = '';
   /**
    * 三步教學（-1＝不顯示）。只在第一關 1F、這台瀏覽器沒看完過教學時出現：
@@ -272,6 +278,12 @@ registerScreen('combat', (app, root, props) => {
    * 只在**值真的變了**的時候演，重畫幾十次也不會一直閃。
    */
   const lastChips = new Map<string, number>();
+  /**
+   * 第一次重畫先把現況灌進 `lastChips` 再畫，不然開場就自帶飛行、鱗甲、或被修飾詞加了爪力的魔物，
+   * 整排牌子會在開場白正在冒泡泡的時候一起蹦（稽核 2026-09-10 低-5）。
+   * 跟飯糰那條 `lastEnergy < 0` 同一個做法。
+   */
+  let chipsSeeded = false;
   /**
    * 每隻魔物上一次頭上寫的是什麼。換了就翻一下——牠下一步要幹嘛是這遊戲最該讀懂的資訊，
    * 但換招時牌子只是**默默換字**，一整排怪的時候誰換了根本看不出來。
@@ -310,6 +322,8 @@ registerScreen('combat', (app, root, props) => {
     }
   };
   warmAll();
+  // 開場那一次畫完才開閘，之後的變化才演（低-5）
+  window.setTimeout(() => { chipsSeeded = true; }, 0);
   /**
    * 收牌動畫進行中：按下「結束回合」之後、引擎真的跑 `endTurn` 之前的那幾百毫秒。
    *
@@ -446,7 +460,7 @@ registerScreen('combat', (app, root, props) => {
       const v = getStatus(u, name);
       if (v <= 0) { lastChips.delete(key); continue; }   // 掉光了就忘掉，下次再掛上算「新的」
       const before = lastChips.get(key);
-      const bump = before === undefined || v > before;
+      const bump = chipsSeeded && (before === undefined || v > before);
       lastChips.set(key, v);
       const tone = GOOD_STATUS.includes(name) ? 'good' : BAD_STATUS.includes(name) ? 'bad' : '';
       // 虛化只有「有／沒有」兩種狀態，層數永遠是 1，寫個 1 出來反而讓人以為還能疊——照「無敵」那樣只寫名字
@@ -628,6 +642,15 @@ registerScreen('combat', (app, root, props) => {
     // 順序（出招 → 挨打 → 防禦 → 待機）與理由都在 `monsterpose.ts`，那邊有測試釘著
     return monsterUrl(def.art, monsterPose({
       attacking: !!act?.attacked, hurt: hurtSet.has(e.uid), dead: e.dead, block: e.block,
+      /**
+       * 這一拍的防禦是不是**被動長出來的**（稽核 2026-09-10 中-1 的修正）。
+       *
+       * 第一版寫成「身上有鱗甲或不壞身就一律不畫」，太寬了——鱗甲怪很多同時有主動的防禦招
+       *（鎧甲獨角仙的磨甲、鐵羅漢的金剛立、守護石像的石化凝視⋯⋯九隻，其中三隻是塔主），
+       * 而且塔主前綴「披甲的」會給任何塔主鱗甲 2，中了那場的防禦圖整場都看不到。
+       * 改成看**這一拍出的是不是防禦招**：牠真的擋了就畫，只是被動長的就不畫。
+       */
+      passiveBlock: !acting.get(e.uid)?.blocked && (getStatus(e, '鱗甲') > 0 || getStatus(e, '不壞身') > 0),
       has: (pose) => hasMonsterPose(def.art, pose),
     }));
   }
@@ -644,7 +667,10 @@ registerScreen('combat', (app, root, props) => {
     // 玩家才知道牠會爬回來、還剩幾回合可以清場（本來直接隱形，看起來像打完了）
     const reviving = e.dead && e.reviveIn > 0 && willRevive(cs, e);   // 判準與引擎共用，不再自己抄一份
     // 關主被打倒：不是直接消失，而是慢慢倒下（收尾節奏，使用者 2026-09-04）
-    if (e.dead && !reviving) cls.push(bossFallUids.has(e.uid) ? 'boss-fall' : 'gone');
+    if (e.dead && !reviving) {
+      cls.push(bossFallUids.has(e.uid) ? 'boss-fall' : 'gone');
+      if (fallingUids.has(e.uid)) cls.push('falling');   // 還在等倒下：這段期間要看得見（低-6）
+    }
     if (reviving) cls.push('reviving');
     // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
     // 師父本人（art 'daxia'）掛 master：框開得比球球大（使用者 2026-09-02：「師傅體型比球球小」），換血條再放大
@@ -1277,6 +1303,16 @@ registerScreen('combat', (app, root, props) => {
     // 收牌那段刻意不重畫，箭頭留著就會指著一張已經飛走的牌。
     const wasTargeting = targeting !== null;
     targeting = null;
+    // **「這張打不出來」的提示要在換回合時清掉**（使用者 2026-09-10：「都換回合了、3 飯糰都出來了，
+    // 畫面上還卡死『餓扁了』」）。`hint` 本來只在 `act()`（出牌、用忍具）開頭清，
+    // 結束回合這條路沒清——所以飯糰空了點一張牌之後，那行紅字會一路掛到你下一次出牌為止。
+    //
+    // **變數清掉還不夠，畫面上那顆節點要自己拔**（稽核 2026-09-10 中-1）：沒在選目標的時候
+    // 底下的 `render()` 不會跑，接著走的是 `collectHand()`→`runEnemyTurn()`→`settle(…{ light: true })`，
+    // 而 `patchField()` 只換魔物、球球、紀錄與狀態列，碰不到 `.target-hint`。
+    // 要一路等到回合收尾那次整頁重畫才會消失——中間整個魔物回合（一排怪可以演好幾秒）紅字都還掛著。
+    hint = '';
+    root.querySelector('.target-hint.warn')?.remove();
     if (tutStep === 1) tutStep = 2;
     else if (tutStep === 2) tutDone();
     hideTooltip();
@@ -1409,7 +1445,7 @@ registerScreen('combat', (app, root, props) => {
       if (!b || e.dead || e.turnCount === b.turnCount || b.noAct) continue;
       // 調息中的那一拍不算出手：噎到在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
-      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, learned: b.learned });
+      acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, blocked: b.intent === 'block' && e.invulnIn === 0, learned: b.learned });
     }
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。
@@ -1468,16 +1504,37 @@ registerScreen('combat', (app, root, props) => {
       // 分段演出時倒下要等最後一段打完再演，不然溶解跟煙會插在三段中間、最後那下的數字反而看不到（稽核 2026-09-05 夜 高-1）
       if (!b.dead && e.dead) {
         const after = staged.length > 1 ? (staged.length - 1) * 150 : 0;
-        const fall = (): void => { node.classList.remove('falling'); if (bossFallUids.has(e.uid)) { sfx('enemy_down'); } else { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); } };
+        const fall = (target: HTMLElement): void => {
+          fallingUids.delete(e.uid);
+          target.classList.remove('falling');
+          if (bossFallUids.has(e.uid)) { sfx('enemy_down'); }
+          else { target.classList.add('dead'); burst(target, 'smoke', 160); sfx('enemy_down'); }
+        };
         if (after > 0) {
           // **這段延遲期間不能讓牠隱形**（稽核 2026-09-10 高-1）：`enemyUnit` 一看到 `e.dead` 就掛 `gone`，
           // 而 `.unit.gone:not(.dead)` 是 `opacity: 0`，`dead` 又要等這個計時器才補上。
           // 結果連環踢打死一隻怪，畫面是「牌一打出去魔物瞬間消失、空 0.3 秒、又冒出來、
           // 三個傷害數字同時懸在半空跑到一半才開始溶解」——2026-09-05 夜為了「最後那下的數字看得到」
           // 加的這段延遲，被 `gone` 整個抵銷掉。`falling` 就是「正在等倒下、還要看得見」的記號。
+          fallingUids.add(e.uid);
           node.classList.add('falling');
-          window.setTimeout(() => { if (app.cs === cs && node.isConnected) fall(); }, after);
-        } else fall();
+          /**
+           * **計時器裡不能相信抓在手上的那顆節點，而且無論如何都要把 uid 清掉**
+           *（稽核 2026-09-10 高-1）。
+           *
+           * 原本的守衛是 `node.isConnected`，但這 0.15～0.6 秒之間只要重畫一次
+           *（隨便點一張要選目標的牌就會），舊節點就離開文件 → `fall()` 永遠不跑
+           * → `fallingUids` 裡的 uid 永遠不刪 → 之後每次重畫都再掛一次 `falling`，
+           * 那隻死掉的怪**整場站在場上、血條寫 0、頭上還掛著意圖牌子**。
+           * 比修之前的「立刻消失」更糟。現在改成重新查一次現場那顆節點，查不到也照樣清集合。
+           */
+          window.setTimeout(() => {
+            if (app.cs !== cs) return;
+            const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
+            fallingUids.delete(e.uid);
+            if (live) fall(live);
+          }, after);
+        } else fall(node);
       }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {

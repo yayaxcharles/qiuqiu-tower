@@ -122,12 +122,38 @@ registerScreen('reward', (app, root, props) => {
 
   // 標題依戰鬥種類換句話，打倒塔主不該跟打贏小老鼠共用同一句
   const title = r.kind === '塔主' ? '打倒塔主了' : r.kind === '大魔物' ? '打倒大魔物' : '打贏了';
-  // 劇場版面（跟事件、貓窩同一套）：三張牌立在畫面中央，戰利品寫在底下的帶子裡
+  /**
+   * **魔物自己散掉那一場要走另一套文案與版面**（稽核 2026-09-10 高-1）。
+   *
+   * 這三行本來都拿 `r.cards.length` 當「有沒有東西可挑」，以前那條路走不到，
+   * 加了「散掉沒戰利品」之後天天走得到，於是畫面同時寫著「打贏了」「收拾一下戰利品，繼續往上」
+   * 跟「牠們身上沒有留下任何東西」三句互相打架，中間原本站三張牌的地方整片開天窗。
+   * 現在標題、對白、按鈕全部改看 `r.escaped`，中間擺一張球球撲空的立繪把版面填起來。
+   */
+  /**
+   * 中間那塊不准開天窗（稽核 2026-09-10 低-5）。三種情形各給一張圖：
+   * 散掉了＝撲空的暈頭姿勢；有牌可挑＝那三張牌；**打贏了但沒牌可挑**＝抱著飯糰吃。
+   *
+   * 第三種主要是**每一場塔主戰**（`rollRewards` 對塔主一律回 `cards: []`，戰利品是信物與小魚乾），
+   * 其次才是牌組收窄到抽不出第三種新牌（`finishCombat` 的 `exclude`：同一張已經有兩張就不再開）。
+   * 用「吃飯糰」不用勝利姿勢是因為**塔主那條路前一畫面（信物）左邊剛放過 `ninja_win`**，
+   * 按下「收下」再看到同一張放大到中央 360 高，等於連看兩次（稽核 2026-09-10 低-6）。
+   * 而且吃東西本來就比較搭底下那句「收拾一下戰利品，繼續往上」。
+   */
+  const poseArt = (key: string): HTMLElement | '' => {
+    const url = artUrl('sprites', key);
+    return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' });
+  };
+  const middle = r.escaped ? poseArt('hero/ninja_dizzy')
+    : r.cards.length ? cards
+      : poseArt('hero/ninja_eat');
   root.append(sceneView({
-    art: r.cards.length ? cards : '',
-    speaker: title,
-    text: r.cards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
+    art: middle,
+    speaker: r.escaped ? '牠散掉了' : title,
+    text: r.escaped ? '一團煙散在空氣裡，什麼都沒剩下。走吧。'
+      : r.cards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
     extra: [items],
-    actions: [el('button', { class: 'btn primary', onclick: () => done(null) }, r.cards.length ? '放棄牌並跳過' : '繼續')],
+    actions: [el('button', { class: 'btn primary', onclick: () => done(null) },
+      !r.escaped && r.cards.length ? '放棄牌並跳過' : '繼續')],
   }));
 });

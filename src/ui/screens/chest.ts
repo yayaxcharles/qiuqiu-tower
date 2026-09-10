@@ -11,7 +11,7 @@ import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 
 registerScreen('chest', (app, root) => {
-  root.append(screenBg(actVariantKey('bg/screen_chest', app.run?.act ?? 1)));
+  root.append(screenBg(actVariantKey('bg/screen_chest', app.run?.act ?? 1, app.run?.floor)));
   const run = app.run;
   if (!run) { app.show('title'); return; }
   toast(pick(dialogue.chestLines), '球球');

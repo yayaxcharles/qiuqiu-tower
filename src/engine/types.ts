@@ -551,6 +551,14 @@ export interface CombatState {
    * 使用者 2026-09-10 正是因此回報「追擊沒退飯糰，有 BUG」（引擎其實是對的）。
    */
   energyGain: number;
+  /**
+   * 整場**真的打進魔物血條**的傷害累計（被防禦擋掉的、虛化吃掉的都不算）。
+   *
+   * 只給「魔物散掉時要不要發獎」用（`finishCombat` 的 `FADE_REWARD_MIN`）。
+   * 為什麼不看終局血量：那量的是「牠現在缺幾成血」，魔物回血就等於把玩家打過的功勞洗掉。
+   * 醉拳狗六回合灌兩次酒各回 10 點，實際要打進 36% 才過得了兩成的門檻（稽核 2026-09-10 中-2）。
+   */
+  damageDealt: number;
   kills: number;
   cardsPlayed: number;
   nextEnemyUid: number;

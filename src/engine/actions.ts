@@ -253,6 +253,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     lose = 1;
   }
   cs.hits.push({ uid: e.uid, amount: Math.min(lose, e.hp) });   // 每一段各記一筆（含被擋成 0 的）、只記真的扣到血的量，畫面拆多段用
+  cs.damageDealt += Math.min(lose, e.hp);   // 整場累計（`hits` 每回合會清掉，不能拿來加總），魔物散掉時的獎勵門檻看它
   e.hp = Math.max(0, e.hp - lose);
   if (lose > 0) {
     // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。

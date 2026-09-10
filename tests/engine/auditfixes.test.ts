@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { endTurn, playCard, startCombat } from '../../src/engine/combat';
+import { damageEnemy } from '../../src/engine/actions';
 import { checkRun } from '../../src/engine/save';
 import { finishCombat, newRun, openChest } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -25,6 +26,51 @@ describe('稽核 2026-09-10 的修正', () => {
     expect(r?.relic).toBeNull();
     expect(r?.cards).toEqual([]);
     expect(r?.fish).toBe(0);
+  });
+
+  it('散掉但打進兩成血：獎勵照發（不是「有沒有打倒」）', () => {
+    const run = newRun('dealt', 1);
+    const cs = combat('drunk_dog', []);
+    const foe = cs.enemies[0]!;
+    damageEnemy(cs, foe, 26, { direct: true });   // 125 血打進 26 點＝ 20.8%，剛過門檻
+    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
+    expect(cs.kills).toBe(0);
+    expect(cs.enemies.some((e) => e.faded)).toBe(true);
+    const r = finishCombat(run, cs);
+    expect(r?.escaped).toBeUndefined();          // 有真的在打，不算擺爛
+    expect(r?.cards.length).toBeGreaterThan(0);
+  });
+
+  it('中-2 門檻看累計傷害，牠回血不會把玩家的功勞洗掉', () => {
+    // 醉拳狗六回合灌兩次酒各回 10 點。看「終局缺幾成血」的話，打進 26 點只剩缺 6 點＝ 4.8%，
+    // 明明認真打了六回合卻拿不到東西；真正的門檻被回血抬到 36%（稽核 2026-09-10 中-2）
+    const run = newRun('heal', 1);
+    const cs = combat('drunk_dog', []);
+    const foe = cs.enemies[0]!;
+    damageEnemy(cs, foe, 26, { direct: true });
+    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
+    expect(cs.damageDealt).toBe(26);
+    expect(foe.maxHp - foe.hp).toBeLessThan(foe.maxHp * 0.2);   // 終局缺的血遠不到兩成（牠回血了）
+    expect(finishCombat(run, cs)?.escaped).toBeUndefined();     // 但獎勵照發
+  });
+
+  it('中-2 站著不動一樣沒有戰利品', () => {
+    const run = newRun('idle', 1);
+    const cs = combat('drunk_dog', []);
+    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
+    expect(cs.damageDealt).toBe(0);
+    expect(finishCombat(run, cs)?.escaped).toBe(true);
+  });
+
+  it('中-2 被防禦擋掉的不算「打進去」', () => {
+    const run = newRun('blocked', 1);
+    const cs = combat('drunk_dog', []);
+    const foe = cs.enemies[0]!;
+    foe.block = 999;
+    damageEnemy(cs, foe, 60);        // 全被擋下來，血條一點沒少
+    expect(cs.damageDealt).toBe(0);
+    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
+    expect(finishCombat(run, cs)?.escaped).toBe(true);
   });
 
   it('中-1 逃走招式不算「自己散掉」，獎勵照發', () => {

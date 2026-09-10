@@ -5,7 +5,7 @@ import { monsterPose } from '../../src/ui/monsterpose';
 /** 這隻的姿勢生好了哪幾張；預設四張都有 */
 const has = (...poses: MonsterPose[]) => (p: MonsterPose): boolean => poses.includes(p);
 const ALL = has('idle', 'attack', 'hurt', 'block');
-const base = { attacking: false, hurt: false, dead: false, block: 0, has: ALL };
+const base = { attacking: false, hurt: false, dead: false, block: 0, passiveBlock: false, has: ALL };
 
 describe('魔物選圖', () => {
   it('沒事就是待機', () => {
@@ -27,6 +27,15 @@ describe('魔物選圖', () => {
 
   it('倒下的一律待機，倒下有自己那套演法', () => {
     expect(monsterPose({ ...base, dead: true, hurt: true, block: 14 })).toBe('idle');
+  });
+
+  it('鱗甲／不壞身那種被動長的防禦不畫防禦圖', () => {
+    // 鱗甲是牠自己回合結束長、要到牠下一個回合開始才歸零，所以整個玩家回合都掛著防禦。
+    // 照畫的話那隻魔物從第二回合起再也看不到待機圖（稽核 2026-09-10 中-1）
+    expect(monsterPose({ ...base, block: 6, passiveBlock: true })).toBe('idle');
+    expect(monsterPose({ ...base, block: 6, passiveBlock: false })).toBe('block');
+    // 挨打仍然優先，被動防禦不影響
+    expect(monsterPose({ ...base, hurt: true, block: 6, passiveBlock: true })).toBe('hurt');
   });
 
   it('姿勢沒生好就往下退，不會叫出灰剪影', () => {

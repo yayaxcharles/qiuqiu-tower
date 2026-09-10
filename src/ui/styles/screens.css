@@ -716,12 +716,22 @@
    所以秘寶的百分比座標是「對插圖」算的，換螢幕大小也不會跑掉。
    座標不是目測的：拿去背後的圖掃「亮黃像素」，光柱中心在各個高度都落在寬度的 33%，
    高度 15～25% 那一段最寬（約佔圖寬一半），秘寶就放在那裡。 */
-.chest-scene { position: relative; display: inline-block; line-height: 0; }
+/* **不用 `line-height: 0`** 消底下那條基線縫：那個屬性會繼承進裡面的文字，哪天在光柱旁邊
+   加一行字就會被壓扁（`.fx-host` 剛因為這個害牌名疊到規則文字上，稽核 2026-09-10 低-1）。
+   也**不是** `vertical-align: top`：父層 `.scene-art` 是 flex，flex 項目根本不看 `vertical-align`。
+   真正有效的是把裡面那張 `<img>` 改成 block——沒有行框就沒有基線，縫從源頭消失。 */
+.chest-scene { position: relative; display: inline-block; }
+.chest-scene > img { display: block; }
 .scene-art img.chest-loot.in-beam {
   position: absolute;
   left: 33%;
   top: 22%;
-  height: 34%;
+  /* 28% 而不是 34%：34% 換算下來是 122 像素，秘寶會大到跟那道光柱一樣寬、壓過整張插圖。
+     28% 約 100 像素，跟光柱最寬那一段的比例才對得上。
+     **理由是視覺比例，不是「剛好等於原尺寸」**（稽核 2026-09-10 低-7）：舞台是 `transform: scale()`
+     撐開的，1440p 螢幕上倍率就是 2，100 CSS 像素照樣畫成 200 裝置像素，本來就一直在放大；
+     而且秘寶圖示有 96x96 也有 128x128，沒有單一的「原尺寸」可言。 */
+  height: 28%;
   translate: -50% -50%;
   filter: drop-shadow(0 6px 14px #00000080) drop-shadow(0 0 18px #ffd97a99);
 }
@@ -740,7 +750,7 @@
 /* 光柱裡的佔位塊（秘寶圖示還沒生時）：`.chest-loot-missing` 是 div 不是 img，
    吃不到上面那條 `img.chest-loot.in-beam`，要自己寫一份定位 */
 .scene-art .chest-loot-missing.in-beam {
-  position: absolute; left: 33%; top: 22%; width: 22%; height: 34%;
+  position: absolute; left: 33%; top: 22%; width: 22%; height: 28%;
   translate: -50% -50%;
   border: 3px dashed #ffe0a066; border-radius: 12px; background: #ffffff1a;
 }
@@ -777,8 +787,15 @@
   100% { opacity: 0; transform: translateY(46px) rotate(14deg) scale(.7); filter: grayscale(1) blur(2px); }
 }
 .showcase.icons { gap: 34px; }
-/* 特效的定位參考框（`burst` 掛的 `.vfx` 是絕對定位）。行高歸零，才不會多出一條基線的空隙 */
-.fx-host { position: relative; display: inline-block; line-height: 0; }
+/* 特效的定位參考框（`burst` 掛的 `.vfx` 是絕對定位）。
+   **不能用 `line-height: 0` 消 inline-block 的基線縫**——那個屬性會繼承進裡面的文字，
+   包住牌的時候整張牌的行高被壓成 0，牌名會直接疊到下面的規則文字上
+  （使用者 2026-09-10：「升級牌的瞬間，絕學·借力使力那幾個字直接跟下方字重疊了」）。
+   也**不能**改用 `vertical-align: top`：父層 `.showcase` 是 flex，flex 項目不看 `vertical-align`，
+   那條縫還在（秘寶圖示會比旁邊的牌低 4 像素，`align-items: flex-end` 對不齊）。
+   把裡面那張 `<img>` 改成 block 才是治本：沒有行框就沒有基線。包牌的那種本來就是 div，不受影響。 */
+.fx-host { position: relative; display: inline-block; }
+.fx-host > img { display: block; }
 .showcase-icon { height: 150px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: showcase-pop .55s cubic-bezier(.2, .9, .3, 1.2) both, loot-float 2.6s ease-in-out .6s infinite; }
 /* 中上方那塊放的是牌（大俠傳功的三張、秀牌區）時往下移到那塊空間的正中：貼著上緣太偏上（使用者回報） */
 .scene-art:has(.reward-cards), .scene-art:has(.showcase) { top: 50%; transform: translate(-50%, -78%); }

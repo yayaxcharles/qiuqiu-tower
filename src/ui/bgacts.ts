@@ -18,13 +18,23 @@ const TIER_BY_ACT = ['low', 'mid', 'top'] as const;
 /** 會跟著關數換皮的節點畫面底圖（`actVariantKey` 加 `_mid`／`_top`） */
 const SCREEN_BASES = ['map_tall', 'screen_chest', 'screen_event', 'screen_rest', 'screen_shop'] as const;
 const SCREEN_SUFFIX = ['', '_mid', '_top'] as const;
+/**
+ * 關內還有第二、三款的那幾個（2026-09-10 生了 18 張）。`actVariantKey` 會照樓層輪著挑，
+ * 所以這幾個的三款**都要預載**——只載第一款的話，走到輪到 `_b` 的樓層才現抓，那張就會慢半拍冒出來。
+ * 地圖底圖與事件插圖沒做關內變體（事件是一事件一張，本來就不共用），維持一關一張。
+ */
+const SCREEN_BC = new Set<string>(['screen_chest', 'screen_rest', 'screen_shop']);
 
 /** 這一關會用到的底圖鍵（manifest.bg 的鍵）。關主戰場 `boss<關數>` 也算 */
 export function bgKeysForAct(act: number): string[] {
   const i = Math.min(Math.max(act, 1), 3) - 1;
   const keys = BG_VARIANTS.map((v) => `bg/${TIER_BY_ACT[i]}${v}`);
   keys.push(`bg/boss${i + 1}`);
-  for (const base of SCREEN_BASES) keys.push(`bg/${base}${SCREEN_SUFFIX[i]}`);
+  for (const base of SCREEN_BASES) {
+    const stem = `bg/${base}${SCREEN_SUFFIX[i]}`;
+    if (SCREEN_BC.has(base)) for (const v of BG_VARIANTS) keys.push(`${stem}${v}`);
+    else keys.push(stem);
+  }
   return keys;
 }
 
