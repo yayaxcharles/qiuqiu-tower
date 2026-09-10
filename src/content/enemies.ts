@@ -687,7 +687,7 @@ export const enemies: EnemyDef[] = [
     moves: [
       { intent: 'buff', label: '擺架子', effects: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'block', amount: 10 }] },
       { intent: 'attack', label: '扇子拍', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
-      { intent: 'debuff', label: '尖叫', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 1 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破
+      { intent: 'debuff', label: '尖叫', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 2 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破。翻肚 1→2（稽核 2026-09-10 中-2：給 1 層等於沒給，見下方說明）
       { intent: 'special', label: '補香水', effects: [{ kind: 'heal', n: 12 }] },
     ],
     phases: [{
@@ -1090,7 +1090,10 @@ export const enemies: EnemyDef[] = [
     thorns: 3, fadeAfter: 6,   // 六回合內打不死就散去（沒戰利品）；碰牠會被反彈
     line: '（鎧甲裡沒有人）', lines: ['……回去。', '（刀鞘裡傳出低語）'], moves: [
       { intent: 'attack', label: '怨斬', effects: [{ kind: 'damage', amount: 16 }] },
-      { intent: 'debuff', label: '怨念', effects: [{ kind: 'statusPlayer', name: '翻肚', amount: 1 }, { kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
+      // 翻肚 1→2（稽核 2026-09-10 中-2）：玩家身上的減益在**魔物出手之前**就先減一層（combat.ts 的 freshDebuffs 那段），
+      // 所以給 1 層的翻肚到牠下一次出手前就歸零、等於整個效果作廢。給 2 層的其他七招都正常，只有這招與波斯大小姐的尖叫中招。
+      // 怨靈武者有單怪遭遇，那一場的怨念本來等於只剩炸毛 1。
+      { intent: 'debuff', label: '怨念', effects: [{ kind: 'statusPlayer', name: '翻肚', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
       { intent: 'block', label: '殘影', effects: [{ kind: 'block', amount: 12 }, { kind: 'statusSelf', name: '反彈', amount: 1 }] },
     ] },
   { id: 'twin_hound', name: '雙頭魔犬', hp: [84, 90], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_twin_hound',

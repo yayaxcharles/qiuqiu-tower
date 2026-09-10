@@ -79,7 +79,13 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
    */
   const many = Math.max(1, opts.pickCount ?? 1);
   const chosen: number[] = [];
+  // 連點防護（稽核 2026-09-10 低-1）：單選那條路是「加 picked 類別、等 260 毫秒再收尾」，
+  // 中間沒有旗標的話，對同一張牌快點兩下就會排兩個 dismiss、`onPick` 被叫兩次，
+  // 疊出兩個一模一樣的確認視窗。引擎那邊有守門（不會重複扣錢或白賺升級），純粹是玩家要多關一個視窗。
+  // 寫法跟 `confirm.ts` 的 `done` 一致。
+  let done = false;
   const dismiss = (uid: number | null): void => {
+    if (done) return; done = true;
     hidePreview();
     overlay.remove();
     unlockScreen();

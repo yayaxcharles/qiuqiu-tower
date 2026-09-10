@@ -70,7 +70,11 @@ function hostScale(host: Element): number {
  * 所以查不到就整個不放——特效是加分項，缺了不能變扣分。
  */
 export function burst(unit: Element | null | undefined, kind: FxKind, delay = 0): void {
-  const host = unit?.querySelector('.sprite-box');
+  // 宿主優先用立繪框（戰鬥畫面）；事件、貓窩那幾個畫面傳進來的是牌面或圖示、沒有立繪框，
+  // 就掛在節點自己身上（稽核 2026-09-10 中-2：原本找不到立繪框就整個不放，
+  // 所以貓窩磨爪的金光、事件丟牌的煙、被塞壞毛病的紫光**從來沒出現過**）。
+  // `<img>` 不能有子節點，那種要呼叫端先包一層 `.fx-host`（見 event.ts 的 gainsNode）。
+  const host = unit?.querySelector('.sprite-box') ?? (unit && unit.tagName !== 'IMG' ? unit : null);
   if (!unit || !host) return;
   let url = artUrl('icons', `icon/vfx_${kind}`);
   const fb = FALLBACK[kind];

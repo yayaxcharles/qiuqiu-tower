@@ -52,7 +52,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'damageRandom': {
       const base = cs.rng.int(fx.min, fx.max) * (ctx.doubleDamage ? 2 : 1);
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base).killed) ctx.killed = true;
+      // 忍具的傷害不吃爪力，跟 damage／damageRamp 同口徑（稽核 2026-09-10 低-4：只有這個分支漏寫，
+      // 目前沒有隨機傷害的忍具所以還沒出事，但補上比較保險）
+      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
       return false;
     }
     case 'selfDamage': {
@@ -75,7 +77,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (fx.target === 'self') {
         if (fx.name === '隱身') gainStealth(cs, fx.amount); else addStatus(p, fx.name, fx.amount);
         // 自己給自己疊的減益，這回合結束先不衰減
-        if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = 1;
+        if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = (p.freshDebuffs[fx.name] ?? 0) + fx.amount;
       } else {
         for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
           // 定身對魔物只有七成機會成功（使用者 2026-09-02：「定身太強」）；沒中就寫在紀錄、畫面飄「掙脫」
@@ -85,7 +87,10 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       }
       return false;
     }
-    case 'energy': if (!fx.onKill || ctx.killed) p.energy += fx.n; return false;   // 追擊：onKill 只在打倒目標時退飯糰
+    // 追擊：onKill 只在打倒目標時退飯糰。`energyGain` 是給畫面看的累計（見 types.ts 的說明）
+    case 'energy':
+      if (!fx.onKill || ctx.killed) { p.energy += fx.n; if (fx.n > 0) cs.energyGain += fx.n; }
+      return false;
     case 'heal': healPlayer(cs, fx.n); return false;
     case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
     case 'power':
@@ -103,7 +108,12 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'damageEqualBlock': {
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, p.block, { noStrength: true }).killed) ctx.killed = true;
+      // 這裡也要吃加倍（稽核 2026-09-10 高-2）：四個傷害分支只有它漏接 `ctx.doubleDamage`，
+      // 所以蓄力、秘笈打在「絕學·借力使力」上完全沒作用——蜷縮 20 時打出去還是 20 點，
+      // 紀錄卻已經印了「秘笈：第一擊加倍」。一飯糰的蓄力或一件 190 條的秘寶就這樣被靜靜吃掉。
+      //（「絕學·太極」也是這個分支，但它是技能牌、本來就吃不到加倍，不受影響）
+      const base = p.block * (ctx.doubleDamage ? 2 : 1);
+      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: true }).killed) ctx.killed = true;
       return false;
     }
     case 'cleanse': {

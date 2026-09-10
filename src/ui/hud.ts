@@ -31,6 +31,13 @@ import { attachTextTooltip, attachTooltip, hideTooltip } from './tooltip';
  * 連種子一起記，換一局要從頭算，不然新局第一次畫就會平白蹦一下。
  */
 let lastFish: { seed: string; n: number } | null = null;
+/**
+ * 上一次畫到的秘寶清單（連種子一起記，換一局要從頭算）。這一次多出來的那幾件會彈進來。
+ *
+ * 本來拿到秘寶時狀態列那一格是**無聲出現**的：紙箱、戰利品、事件都會給秘寶，
+ * 玩家的視線那時在畫面中央，回到地圖才發現多了一格、卻不知道是哪一次拿的。
+ */
+let lastRelics: { seed: string; ids: Set<string> } | null = null;
 
 /**
  * `fishDelta`＝戰鬥途中還沒併回整局的小魚乾增減。
@@ -65,6 +72,9 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   lastFish = { seed: run.seed, n: fishNow };
 
   const relics = el('div', { class: 'hud-relics' });
+  // 同一局才比得出「新拿到的」；換一局（或第一次畫）就整份當成已知，不演
+  const seenRelics = lastRelics && lastRelics.seed === run.seed ? lastRelics.ids : null;
+  lastRelics = { seed: run.seed, ids: new Set(run.relics) };
   // 最多畫 8 件、最新的排前面，其餘收成「+N」（使用者 2026-09-06：秘寶沒有上限，十幾件會把狀態列擠爆）；
   // 點任何一件或「+N」開「本局秘寶」清單，一行一件看得完整
   const MAX_ICONS = 8;
@@ -74,7 +84,8 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     if (!r) continue;
     // 圖還沒生好的秘寶用名字前兩個字當牌子，不畫灰剪影
     const url = artUrl('icons', r.art);
-    const node = el('div', { class: 'hud-relic' }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
+    const fresh = seenRelics !== null && !seenRelics.has(id);
+    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}` }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
     // 原本掛瀏覽器原生的 `title`：要停住一秒才跳出來、長相也跟遊戲裡其他提示不一樣，
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
@@ -175,7 +186,13 @@ function diffBadge(run: RunState): HTMLElement | string {
  * 現在名實相符了：進行中＝分享局面，結算後＝分享地圖種子（那時人已經死了或通關了，局面沒有意義）。
  */
 export function seedTag(seed: string, full = false, run?: RunState): HTMLElement {
-  const label = full ? `本局代碼 ${seed} ⧉` : run ? '📤 分享局面' : '🎲 本局代碼';
+  // 代碼是玩家自己打的、長度沒有上限（局面碼本來就一千多字，不能限制輸入框），
+  // 但**按鈕上不能整串印出來**（稽核 2026-09-10 低-4）：實測用 300 字的代碼開局，
+  // 結算畫面那顆按鈕量出來寬 2897，是舞台寬度的 2.4 倍，整行字被切在畫面右緣、
+  // 連後面的複製記號都看不到。舞台是 overflow: hidden 所以頁面不會壞，只是那顆按鈕沒法用。
+  // 複製出去的還是完整的字串，只有顯示會截斷。
+  const shown = seed.length > 28 ? `${seed.slice(0, 16)}…${seed.slice(-6)}` : seed;
+  const label = full ? `本局代碼 ${shown} ⧉` : run ? '📤 分享局面' : '🎲 本局代碼';
   const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' }, label);
   if (full || !run) {
     attachTextTooltip(node, `本局代碼 ${seed}`, '點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。');
@@ -191,10 +208,21 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
   const copy = (text: string): void => {
     const done = (): void => {
       play('click');
-      node.textContent = '已複製！';
+      // **改的是「現在畫面上那一顆」，不是按下當時那一顆**（稽核 2026-09-10 低-2）：
+      // 壓縮局面碼是非同步的，戰鬥畫面每動一次就整頁重畫、`renderHud` 會生一顆全新的分享鈕，
+      // 按下那顆早就被丟掉了。原本的寫法會讓玩家看到「產生中…」之後按鈕跳回「分享局面」——
+      // 其實剪貼簿已經寫進去了，但看起來像沒成功、於是再按一次。
+      // 全畫面只會有一顆 `.seed-copy`：結算畫面不呼叫 `renderHud`，所以狀態列那顆與結算那顆
+      // 不會同時存在（稽核 2026-09-10 低-3 實測）。哪天結算畫面補上狀態列，這裡要改成
+      // 只在同一個畫面根節點裡找，不然 1.4 秒後的計時器會把文字寫到另一顆上。
+      const live = document.querySelector<HTMLElement>('.seed-copy') ?? node;
+      live.textContent = '已複製！';
       // 連點時舊的計時器會在新的一次還顯示「產生中…」時把字改回去，看起來像沒反應
       window.clearTimeout(resetTimer);
-      resetTimer = window.setTimeout(() => { node.textContent = label; }, 1400);
+      resetTimer = window.setTimeout(() => {
+        const back = document.querySelector<HTMLElement>('.seed-copy') ?? node;
+        back.textContent = label;
+      }, 1400);
     };
     const fallback = (): void => {
       // 老方法退路：塞一個看不見的輸入框、選起來、叫瀏覽器複製。剪貼簿 API 被擋（非安全來源、

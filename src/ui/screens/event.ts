@@ -31,9 +31,13 @@ function showcaseNode(items: Showcase): HTMLElement {
     const node = cardNode(it.card);
     node.classList.add('showcase-card', it.kind);
     if (it.kind === 'upgrade') node.classList.add('forged');
-    box.append(node);
+    // 特效包一層再放：`.card` 自己是 `overflow: hidden`，丟牌那團煙（201 像素、中心壓得低）
+    // 掛在牌上會被裁掉下緣約 48 像素，牌底出現一條硬邊（稽核 2026-09-10 低-1）。
+    // `.fx-host` 沒有裁切，尺寸完全跟著牌走，版面一格都不動。
+    const host = el('span', { class: 'fx-host' }, node);
+    box.append(host);
     // 特效要等節點進到文件裡才量得到位置
-    window.setTimeout(() => burst(node, it.kind === 'remove' ? 'smoke' : it.kind === 'curse' ? 'debuff' : 'buff'), it.kind === 'remove' ? 420 : 60);
+    window.setTimeout(() => burst(host, it.kind === 'remove' ? 'smoke' : it.kind === 'curse' ? 'debuff' : 'buff'), it.kind === 'remove' ? 420 : 60);
   }
   return box;
 }
@@ -45,9 +49,11 @@ function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
     const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
     const url = d ? artUrl('icons', d.art) : '';
     if (!d || url.startsWith('data:')) continue;
+    // 包一層才放得下特效：`<img>` 不能有子節點（見 fx.ts 的 burst）
     const node = el('img', { class: 'showcase-icon', src: url, alt: d.name });
-    box.append(node);
-    window.setTimeout(() => burst(node, 'buff'), 60);
+    const host = el('span', { class: 'fx-host' }, node);
+    box.append(host);
+    window.setTimeout(() => burst(host, 'buff'), 60);
   }
   return box.childElementCount ? box : '';
 }

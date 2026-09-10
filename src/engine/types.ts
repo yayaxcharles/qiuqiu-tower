@@ -480,6 +480,14 @@ export interface EnemyCombat extends Unit {
   move: EnemyMove;
   dead: boolean;
   escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退（消散、分裂也走這條）
+  /**
+   * **自己散掉**（消散歸零）才標這個，逃走招式與分裂本體不標。
+   *
+   * `escaped` 三種來源混在一起，拿它當「有沒有戰利品」的判準會誤傷：橘貓山賊第五回合
+   * 帶著小魚乾逃走也是 `escaped`，那是**正常打但差一口氣沒打完**，不該連獎勵都沒有
+   *（實測 1000 局有 11.2% 踩到，而且全是第一關 8F 的山賊）。稽核 2026-09-10 中-1。
+   */
+  faded?: boolean;
   stolen: number;     // 這隻偷走的小魚乾，擊倒牠時退回
   /** 分裂過了：一場只裂一次（見 EnemyDef.splitInto） */
   split?: boolean;
@@ -535,6 +543,14 @@ export interface CombatState {
   endTurnRequested: boolean;
   stolenFish: number;       // 山賊偷走的，擊倒牠全部拿回
   fishDelta: number;        // 牌效果賺到的小魚乾
+  /**
+   * 整場**退回來**的飯糰累計。畫面拿它跟自己的快照相減，就知道這一拍有沒有退飯糰。
+   *
+   * 為什麼要記：出一張牌是「扣費用→跑效果→重畫」一次做完的，畫面永遠只看得到淨值。
+   * 追擊花 2 顆、打死怪退 2 顆，畫面上飯糰從 3 變 3，**看起來就像什麼都沒發生**——
+   * 使用者 2026-09-10 正是因此回報「追擊沒退飯糰，有 BUG」（引擎其實是對的）。
+   */
+  energyGain: number;
   kills: number;
   cardsPlayed: number;
   nextEnemyUid: number;

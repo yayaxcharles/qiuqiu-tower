@@ -28,9 +28,40 @@ registerScreen('shop', (app, root) => {
   // 進貨只做一次：makeShop 會推進 run.rng，每次重畫都叫的話買一樣東西整個貨架就換一批
   const shop = makeShop(run);
   const line = dialogue.shopkeeper[Math.floor(Math.random() * dialogue.shopkeeper.length)] ?? '';
-  // 老闆站在對白框左邊講話（劇場版面）；立繪沒生好就只留對白
-  const keeperUrl = artUrl('sprites', 'shop/keeper');
-  const keeper = keeperUrl.startsWith('data:') ? undefined : keeperUrl;
+
+  /**
+   * 老闆站在對白框左邊講話（劇場版面）；立繪沒生好就只留對白。
+   *
+   * 表情三張：招呼（keeper）、成交（keeper_happy）、錢不夠（keeper_no）。
+   * 買賣成交跟「按了買不起的東西」原本都沒有任何回應——後者尤其糟，格子是暗的、
+   * 點下去整個畫面一動也不動，玩家分不出「不能買」跟「按錯地方沒按到」。
+   * 只換一張圖、`MOOD_MS` 之後換回招呼，遊戲節奏一格都沒有變長。
+   */
+  const MOOD_MS = 1500;
+  type Mood = 'idle' | 'happy' | 'no';
+  let mood: Mood = 'idle';
+  let moodTimer = 0;
+  function keeperArt(): string | undefined {
+    // 新表情沒生好就退回招呼那張，退不了才整個不放（跟原本一樣）
+    for (const key of mood === 'idle' ? ['shop/keeper'] : [`shop/keeper_${mood}`, 'shop/keeper']) {
+      const url = artUrl('sprites', key);
+      if (!url.startsWith('data:')) return url;
+    }
+    return undefined;
+  }
+  // 換畫面時把還沒到期的表情計時器拆掉。
+  // **不能靠 `root.isConnected` 判斷畫面還在不在**：`root` 就是 `app.screen`，那是建構式裡建一次的
+  // 常駐節點，`show()`（`app.ts:92`）只對它跑 `clear()`、從來不換掉它，所以 `isConnected` 永遠是 true。
+  // 沒拆的話：買完東西馬上按「離開」，1.5 秒後計時器照樣觸發 → `render()` → `clearKeepBg(root)`，
+  // **地圖被整個抹掉、換成剛才那家店的貨架**，而且那份貨架是活的、還能再買一輪（稽核 2026-09-10 高-1）。
+  app.disposers.push(() => window.clearTimeout(moodTimer));
+  function setMood(m: Mood): void {
+    // 不要因為「表情沒變」就提早跳出：買第二張牌時表情還停在成交，但貨架非重畫不可
+    mood = m;
+    window.clearTimeout(moodTimer);
+    if (m !== 'idle') moodTimer = window.setTimeout(() => setMood('idle'), MOOD_MS);
+    render();
+  }
 
   /**
    * 貨架上的一格：圖、名字、說明、價錢。賣掉了寫「賣掉了」；買不起或現在拿不了（例如忍具帶滿）
@@ -57,6 +88,7 @@ registerScreen('shop', (app, root) => {
       el('div', { class: 'small' }, text),
       priceNode(price, sold, base, sale));
     if (!sold && !blocked && afford) node.addEventListener('click', buy);
+    else if (!sold) node.addEventListener('click', () => setMood('no'));   // 買不起：老闆搖頭，不再是死按鈕
     return node;
   }
 
@@ -73,10 +105,13 @@ registerScreen('shop', (app, root) => {
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
       const buyable = !it.sold && run.fish >= it.price;
-      cards.append(el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
+      const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         saleTag(it.sold ? undefined : it.sale),
-        cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); render(); } } }),   // 升級格照＋版畫
-        priceNode(it.price, it.sold, it.base, it.sale)));
+        cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); setMood('happy'); } } }),   // 升級格照＋版畫
+        priceNode(it.price, it.sold, it.base, it.sale));
+      // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
+      if (!it.sold && !buyable) slot.addEventListener('click', () => setMood('no'));
+      cards.append(slot);
     });
 
     // 秘寶與忍具分成兩個貨架。本來兩種混在同一排，玩家看不出哪個是整局有效的秘寶、
@@ -88,7 +123,7 @@ registerScreen('shop', (app, root) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = run.relics.includes(it.id);
       relics.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
-        () => { if (buyRelic(run, shop, i)) { play('relic'); render(); } }, it.base, it.sale));
+        () => { if (buyRelic(run, shop, i)) { play('relic'); setMood('happy'); } }, it.base, it.sale));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -99,8 +134,8 @@ registerScreen('shop', (app, root) => {
       const poor = run.fish < it.price;
       potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, it.price, it.sold, poor,
         () => {
-          if (!full) { if (buyPotion(run, shop, i)) { play('buy'); render(); } return; }
-          showPotionSwap(run, it.id, (idx) => { if (idx >= 0 && buyPotion(run, shop, i, idx)) { play('buy'); render(); } }, { apply: false });
+          if (!full) { if (buyPotion(run, shop, i)) { play('buy'); setMood('happy'); } return; }
+          showPotionSwap(run, it.id, (idx) => { if (idx >= 0 && buyPotion(run, shop, i, idx)) { play('buy'); setMood('happy'); } }, { apply: false });
         }, it.base, it.sale));
     });
 
@@ -112,7 +147,7 @@ registerScreen('shop', (app, root) => {
         if (uid === null || !c) { render(); return; }
         showRemoveConfirm(c, run.removeCost, (ok) => {
           if (!ok) { pickRelease(); return; }
-          if (buyRemove(run, uid)) play('upgrade');
+          if (buyRemove(run, uid)) { play('upgrade'); setMood('happy'); return; }
           render();
         });
       },
@@ -123,7 +158,7 @@ registerScreen('shop', (app, root) => {
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
-    const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); render(); } } },
+    const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); setMood('happy'); } } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
     // 有沒有東西可換要看三區加總，不能只看牌格（稽核 2026-09-07 中 1）：
     // 牌全買光但秘寶或忍具還在架上時，引擎讓你換、按鈕卻是灰的，等於這次改動玩家碰不到
@@ -137,7 +172,7 @@ registerScreen('shop', (app, root) => {
       el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));   // 珍品架多一格時六格並排，格子縮一點
     root.append(sceneView({
       art: goods,
-      portrait: keeper,
+      portrait: keeperArt(),
       speaker: '橘貓老闆',
       text: line,
       actions: [reshuffle, remove, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開')],

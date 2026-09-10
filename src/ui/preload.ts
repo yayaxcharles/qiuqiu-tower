@@ -1,7 +1,8 @@
 import { encounterById, encounters, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { hasMonsterPose, monsterUrl, type MonsterPose } from './assets';
+import { artUrl, hasMonsterPose, monsterUrl, type MonsterPose } from './assets';
+import { bgKeysForAct } from './bgacts';
 
 /**
  * 魔物立繪的分關預載（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）。
@@ -64,8 +65,15 @@ const warmed = new Set<string>();
 /** 撐住 Image 物件的參照：沒人引用的圖下載沒完成就可能被回收（稽核 2026-09-04 低 14） */
 const keep: HTMLImageElement[] = [];
 
-/** 把一批圖片下載並解碼好（失敗就算了，不該讓流程停掉） */
-async function decodeAll(urls: string[], concurrency = 4): Promise<void> {
+/**
+ * 把一批圖片下載並解碼好（失敗就算了，不該讓流程停掉）。
+ *
+ * `hold` ＝要不要把 `Image` 留在 `keep` 裡。**底圖一律不留**：一張 1280x720 解碼成點陣圖是 3.5 MB，
+ * 三關 27 張加起來將近 100 MB，全部壓到分頁關掉為止；而底圖本來就是拿去當
+ * `background-image` 用的，樣式一鋪上去瀏覽器自己就會把它留在快取裡，不需要我們多抓一份。
+ * 魔物立繪維持留著（那是 2026-09-04 低 14 加的，一張只有幾十 KB）。
+ */
+async function decodeAll(urls: string[], concurrency = 4, hold = true): Promise<void> {
   if (typeof Image === 'undefined') return;   // 測試環境沒有瀏覽器
   const todo = urls.filter((u) => !warmed.has(u) && !u.startsWith('data:'));
   let next = 0;
@@ -74,7 +82,7 @@ async function decodeAll(urls: string[], concurrency = 4): Promise<void> {
       const url = todo[i]!;
       try {
         const img = new Image();
-        keep.push(img);
+        if (hold) keep.push(img);
         img.src = url;
         // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
         if (typeof img.decode === 'function') await img.decode();
@@ -86,10 +94,18 @@ async function decodeAll(urls: string[], concurrency = 4): Promise<void> {
   await Promise.all(Array.from({ length: concurrency }, worker));
 }
 
-/** 背景預載整關的魔物立繪（開場預載完 UI 後叫第一關；過關畫面叫下一關） */
-export function preloadActMonsters(act: number): Promise<void> {
+/**
+ * 背景預載整關的魔物立繪**與底圖**（開場預載完 UI 後叫第一關；過關畫面叫下一關）。
+ *
+ * 底圖也在這裡是 2026-09-10 加的：第二關的木造牆、第三關的夜空石台那 18 張本來在開場就全載，
+ * 第一關一輩子看不到。改成跟魔物同一個時機補——過關畫面停留的那幾十秒足夠抓完。
+ * 底圖排在魔物前面：一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點。
+ */
+export function preloadAct(act: number): Promise<void> {
   const defs = [...enemyIdsForAct(act)].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d);
-  return decodeAll(urlsFor(defs));
+  const bg = bgKeysForAct(act).map((k) => artUrl('bg', k));
+  // 底圖先抓（一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點），但**不留參照**
+  return decodeAll(bg, 4, false).then(() => decodeAll(urlsFor(defs)));
 }
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */

@@ -1,3 +1,5 @@
+import { deferredBgKeys } from './bgacts';
+
 export interface Manifest {
   cards: Record<string, string>;
   sprites: Record<string, string>;
@@ -56,11 +58,14 @@ export function monsterUrl(artKey: string, pose: MonsterPose): string {
  */
 export async function preloadArt(): Promise<void> {
   const order: (keyof Manifest)[] = ['sprites', 'icons', 'cards', 'bg'];
+  // 第二、三關才看得到的底圖開場不載，過關時再由 `preloadAct` 補（跟魔物立繪同一套）
+  const skip = deferredBgKeys();
   const urls: string[] = [];
   for (const g of order) {
     const group = manifest[g];
     if (!group || Array.isArray(group)) continue;
-    for (const v of Object.values(group)) {
+    for (const [key, v] of Object.entries(group)) {
+      if (g === 'bg' && skip.has(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
       else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
     }

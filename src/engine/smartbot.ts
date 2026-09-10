@@ -1,4 +1,4 @@
-import { DEBUFFS } from './types';
+import { DEBUFFS, TURN_DECAY } from './types';
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
@@ -14,7 +14,7 @@ import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
   finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
-import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, RunEffect, RunState } from './types';
+import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, RunEffect, RunState, Unit } from './types';
 
 /**
  * 會算傷害的機器人（2026-09-02）。
@@ -83,6 +83,18 @@ const relicRating = (id: string): number => RELIC_RATING[id] ?? 5;
 
 // ===== 戰鬥 =====
 
+/** 玩家在「回合結束的減益衰減跑完之後」的樣子。只用來估傷害，不動真的狀態 */
+function decayedDefender(cs: CombatState): Unit {
+  const p = cs.player;
+  const statuses = { ...p.statuses };
+  for (const name of TURN_DECAY) {
+    const fresh = p.freshDebuffs[name] ?? 0;
+    const have = statuses[name] ?? 0;
+    if (have > fresh) statuses[name] = have - 1;
+  }
+  return { hp: p.hp, maxHp: p.maxHp, block: p.block, statuses };
+}
+
 /** 這隻魔物這一拍會打出來的每一下（已算爪力、蓄力、你的翻肚），沒攻擊就是空陣列 */
 function incomingHits(cs: CombatState, e: EnemyCombat): number[] {
   return incomingHitList(cs, e).map((h) => h.dmg);
@@ -93,12 +105,17 @@ function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce
   const m = e.move;
   if (!willAct(e)) return [];   // 定身擋整個動作、沉睡什麼都不做——跟引擎與畫面同一支判準
   const x = e.charged ? 2 : 1;
+  // 翻肚（受傷 ×1.5）要照**衰減之後**的層數算（稽核 2026-09-10 低-5）：
+  // 引擎在魔物出手之前就先把玩家的減益減一層（`endTurn` 裡那段），所以身上剛好 1 層翻肚時
+  // 魔物實際打過來是不吃加成的，機器人卻按 1.5 倍估、於是多擋少打。這只影響平衡報告的數字，
+  // 但平衡就是靠這支量的。自己這回合疊上去的那幾層不衰減，判準跟引擎那邊一致。
+  const player = decayedDefender(cs);
   const hits: { dmg: number; pierce: boolean }[] = [];
   for (const fx of m.effects) {
-    if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * x, e, cs.player), pierce: !!fx.pierce });
-    else if (fx.kind === 'damageRandom') hits.push({ dmg: computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, cs.player), pierce: false });
+    if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * x, e, player), pierce: !!fx.pierce });
+    else if (fx.kind === 'damageRandom') hits.push({ dmg: computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, player), pierce: false });
     // 自爆那一下照樣要擋（河豚精的 28 點是整場最痛的單發之一）
-    else if (fx.kind === 'selfDestruct') hits.push({ dmg: computeAttack(fx.amount * x, e, cs.player), pierce: false });
+    else if (fx.kind === 'selfDestruct') hits.push({ dmg: computeAttack(fx.amount * x, e, player), pierce: false });
   }
   return hits;
 }
@@ -154,7 +171,10 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
     } else if (fx.kind === 'damageRandom') {
       swing(computeAttack(Math.round((fx.min + fx.max) / 2) * (doubled ? 2 : 1), p, e));
     } else if (fx.kind === 'damageEqualBlock') {
-      swing(computeAttack(p.block, p, e, { noStrength: true }));
+      // 這裡也要乘加倍，跟 `effects.ts` 同步（稽核 2026-09-10 中-3）：
+      // 同一支函式的 damage／damageRamp／damageRandom 三個分支都乘了，只有這個漏掉，
+      // 蓄力／秘笈在手時「絕學·借力使力」的價值被低估一半，機器人不會挑它、牌價值表也偏低
+      swing(computeAttack(p.block * (doubled ? 2 : 1), p, e, { noStrength: true }));
     }
   }
   return total;

@@ -90,6 +90,13 @@
   box-shadow: inset 0 -2px 3px #8a6a3f3d, inset 0 1px 0 #fff, 0 1px 0 #ffffff26;
 }
 .hud-relic img, .hud-potion img { width: 32px; height: 32px; display: block; }
+/* 這一次才拿到的秘寶：轉著彈進來、外圈亮一下金光，讓人看得到它是什麼時候進來的 */
+.hud-relic.fresh { animation: relic-in .72s cubic-bezier(.2, .9, .3, 1.3); }
+@keyframes relic-in {
+  0%   { transform: scale(.3) rotate(-25deg); opacity: 0; }
+  45%  { transform: scale(1.28) rotate(6deg); opacity: 1; box-shadow: 0 0 0 5px rgba(255, 225, 150, .85), 0 0 18px rgba(255, 210, 120, .9); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
 /* 東西太多（秘寶 8 格＋忍具 5～6 格）就縮一級，音樂音效鈕才不會被擠出去（使用者 2026-09-06 秘寶清單那批） */
 .hud.crowded .hud-relic img, .hud.crowded .hud-potion img { width: 26px; height: 26px; }
 .hud.crowded .hud-potion { width: 26px; height: 26px; font-size: 12px; }

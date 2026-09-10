@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-08",
+ "generatedAt": "2026-09-10",
  "monsters": [
   {
    "id": "rat",
@@ -4559,7 +4559,7 @@
       {
        "kind": "statusPlayer",
        "name": "翻肚",
-       "amount": 1
+       "amount": 2
       },
       {
        "kind": "stripPlayer",
@@ -7071,7 +7071,7 @@
       {
        "kind": "statusPlayer",
        "name": "翻肚",
-       "amount": 1
+       "amount": 2
       },
       {
        "kind": "statusPlayer",

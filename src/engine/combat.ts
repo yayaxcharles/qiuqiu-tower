@@ -33,7 +33,7 @@ export function startCombat(input: {
   const cs: CombatState = {
     rng: input.rng, player, enemies: [], relics: [...input.relics], potions: [...input.potions],
     turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId, endTurnRequested: false,
-    stolenFish: 0, fishDelta: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
+    stolenFish: 0, fishDelta: 0, energyGain: 0, kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
   };
@@ -204,10 +204,18 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   // 那一段也會觸發能力，先讓它算完再清，不然本回合最後一次會少算。
   p.powers = p.powers.filter((pw) => !pw.thisTurn);
   discardHand(p);
-  // 球球的減益衰減：這回合自己給自己疊的先放過一次（下一回合結束才開始減），魔物施加的照常減
+  /**
+   * 球球的減益衰減：這回合自己給自己疊的先放過一次（下一回合結束才開始減），魔物施加的照常減。
+   *
+   * `freshDebuffs` 記的是**層數**不是旗標（稽核 2026-09-10 低-1）。原本一個名字一個旗標，
+   * 只要這回合自己疊過同名的減益，連魔物先前給的那幾層都一起被凍住：
+   * 身上有魔物給的 3 層翻肚、打一張自帶 1 層翻肚的「出大事了」變 4 層，回合結束**還是 4 層**。
+   * 現在只要「總層數比自己疊的多」就照減一層，多出來的那些本來就是魔物給的。
+   */
   for (const name of TURN_DECAY) {
-    if (p.freshDebuffs[name]) { delete p.freshDebuffs[name]; continue; }
-    if (getStatus(p, name) > 0) addStatus(p, name, -1);
+    const fresh = p.freshDebuffs[name] ?? 0;
+    if (getStatus(p, name) > fresh) addStatus(p, name, -1);
+    delete p.freshDebuffs[name];
   }
   // 「一起死才算數」：同組只要還有一隻活著，倒下的同伴就爬起來。
   //
@@ -302,10 +310,21 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       if (getStatus(e, '虛化') > 0) { removeStatus(e, '虛化'); log(cs, `${e.name}實體化了，這回合打得進去`); }
       else { addStatus(e, '虛化', 1); log(cs, `${e.name}變得半透明`); }
     }
+    /**
+     * 被定住或睡著的這一拍，**每回合成長與震散都不跑**（稽核 2026-09-10 中-1）。
+     *
+     * 使用者 2026-09-02 拍板「魔物被定住是整個動作做不了」，名詞表也寫著沉睡是「什麼都不做」；
+     * 但這三行原本排在定身判斷的**上面**，所以照跑。實測把師父第三條血定住，同一拍會出現
+     * 「震散了你 2 點爪力、2 點貓步」跟「被定住了，這回合動不了」兩行自相矛盾的紀錄——
+     * 玩家花掉最寶貴的控場資源，最痛的那個效果照樣吃到。
+     *
+     * 回合結束長防禦的鱗甲、不壞身不在這條裡：那兩個是被動、不是牠做的動作。
+     */
+    const frozen = getStatus(e, '定身') > 0 || getStatus(e, '沉睡') > 0;
     const ph = def?.phases?.[e.phase - 1];
-    if (ph?.strengthPerTurn) addStatus(e, '爪力', ph.strengthPerTurn);
+    if (ph?.strengthPerTurn && !frozen) addStatus(e, '爪力', ph.strengthPerTurn);
     // 師父二、三階段：每回合先把你堆的爪力、貓步震掉幾點（見 EnemyPhase.drainPlayerPerTurn）
-    if (ph?.drainPlayerPerTurn) {
+    if (ph?.drainPlayerPerTurn && !frozen) {
       const parts: string[] = [];
       for (const [name, n] of Object.entries(ph.drainPlayerPerTurn) as [StatusName, number][]) {
         const cut = Math.min(n, getStatus(cs.player, name));
@@ -313,7 +332,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       }
       if (parts.length) log(cs, `${e.name}震散了你 ${parts.join('、')}`);
     }
-    if (def?.strengthEveryNTurns && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
+    if (def?.strengthEveryNTurns && !frozen && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
     // 結算噎到：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架式不出手（審查 #18）
     const phaseBefore = e.phase;
     damageEnemy(cs, e, tickPoison(e), { direct: true });
@@ -358,7 +377,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     if (getStatus(e, '消散') > 0 && !e.dead) {
       addStatus(e, '消散', -1);
       if (getStatus(e, '消散') === 0) {
-        e.dead = true; e.escaped = true;
+        e.dead = true; e.escaped = true; e.faded = true;   // 自己散掉的才算「什麼都沒留下」（見 types.ts 的 faded）
         log(cs, `${e.name}散去了`);
         if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
       }

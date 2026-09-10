@@ -1,7 +1,7 @@
 import { victoryLinesFor, dialogue, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
-import { preloadActMonsters, warmEncounter } from './preload';
+import { preloadAct, warmEncounter } from './preload';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
@@ -131,7 +131,7 @@ export class App {
     if (!run) return false;
     this.run = run;
     this.cs = null;
-    void preloadActMonsters(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
+    void preloadAct(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
     const node = currentNode(run);
@@ -220,13 +220,15 @@ export class App {
       // 魔物的開場台詞從頭上冒泡泡（一隻接一隻），左上角的紀錄照舊保留當備查
       window.setTimeout(() => {
         if (this.cs !== cs) return;
-        const stage = this.stage.getBoundingClientRect();
-        const k = stage.width > 0 ? 1280 / stage.width : 1;
         cs.enemies.filter((e) => !e.dead && enemyById[e.enemyId]?.line).forEach((e, i) => {
           window.setTimeout(() => {
             if (this.cs !== cs) return;
             const sprite = this.screen.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
             if (!sprite) return;
+            // 舞台的框在**要用的那一刻**才量：泡泡最晚會在 1.8 秒後才冒出來，
+            // 中途改視窗大小的話，開頭量好的倍率就對不上了（跟指引箭頭同一個坑，稽核 2026-09-10 中-3）
+            const stage = this.stage.getBoundingClientRect();
+            const k = stage.width > 0 ? 1280 / stage.width : 1;
             const r = sprite.getBoundingClientRect();
             bubbleAt(e.line ?? enemyById[e.enemyId]?.line ?? '', e.name, (r.left + r.width / 2 - stage.left) * k, (r.top - stage.top) * k + 16);
           }, i * 420);

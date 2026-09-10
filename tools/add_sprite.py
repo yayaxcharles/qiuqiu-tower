@@ -2,7 +2,7 @@
 """
 add_sprite.py — 把新的立繪（綠幕 PNG）照**既有畫布**去背進倉，不動同組其他張。
 
-用法：python tools/add_sprite.py [--group boss|hero] [--baseline idle1] 檔名.png [...]
+用法：python tools/add_sprite.py [--group boss|hero|monsters|shop] [--baseline idle1] 檔名.png [...]
   來源在 tools/codex_raw/，輸出到 public/assets/sprites/<group>/<名>.webp，並併進 manifest.json。
   預設 --group boss --baseline idle1；球球的招式圖用 --group hero --baseline ninja_attack。
 
@@ -75,10 +75,10 @@ def report(group: str, raw_name: str, out_dir: Path, base_h: int, mid: str | Non
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("names", nargs="+", help="tools/codex_raw 裡的檔名，例如 boss_hurt1.png、hero_ninja_kick.png")
-    ap.add_argument("--group", default="boss", choices=("boss", "hero", "monsters"),
+    ap.add_argument("--group", default="boss", choices=("boss", "hero", "monsters", "shop"),
                     help="monsters＝每隻照自己的 <id>_idle.webp 貼，輸出 public/assets/monsters/<id>_<pose>.webp")
     ap.add_argument("--check", action="store_true", help="只量不寫：每張在遊戲框裡畫多高、帶綠與半透明像素，對照基準")
-    ap.add_argument("--baseline", default=None, help="同組的一張現成 webp 檔名（不含副檔名），畫布照它；預設 boss=idle1、hero=ninja_attack")
+    ap.add_argument("--baseline", default=None, help="同組的一張現成 webp 檔名（不含副檔名），畫布照它；預設 boss=idle1、hero=ninja_attack、shop=keeper")
     ap.add_argument("--refit", action="store_true",
                     help="來源改成同組現成的 webp（已去背），把主體高度縮放到跟基準圖一樣、貼回基準畫布。"
                          "球球的待機批畫布 1005×1037、出招批 640×625，同一個框裡貓會差兩成（使用者 2026-09-08：忽大忽小），用這個把站姿全部對齊")
@@ -98,7 +98,8 @@ def main() -> None:
             baseline = out_dir / f"{mid}_idle.webp"
         else:
             out_dir = ROOT / "public" / "assets" / "sprites" / group
-            baseline = out_dir / f"{args.baseline or ('idle1' if group == 'boss' else 'ninja_attack')}.webp"
+            _DEFAULT_BASE = {"boss": "idle1", "hero": "ninja_attack", "shop": "keeper"}
+            baseline = out_dir / f"{args.baseline or _DEFAULT_BASE.get(group, 'ninja_attack')}.webp"
             mid = pose = None
         if not baseline.exists():
             print(f"基準圖不存在：{baseline}，略過 {raw_name}")

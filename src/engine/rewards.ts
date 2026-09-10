@@ -13,6 +13,8 @@ export interface CombatRewards {
   modifier?: { label: string; desc: string };
   /** 這一格牌是「已經升級過的」版本（機率見 run.ts 的 upgradeChanceFor） */
   upgradedCard?: string;
+  /** 這場魔物是自己散掉的、你一隻都沒打倒：沒有戰利品，獎勵畫面要講清楚為什麼（稽核 2026-09-10 高-1） */
+  escaped?: boolean;
 }
 
 const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];

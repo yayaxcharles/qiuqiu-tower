@@ -39,8 +39,10 @@ registerScreen('rest', (app, root) => {
     if (card) {
       const node = cardNode(card);
       node.classList.add('showcase-card', 'upgrade', 'forged');
-      art = el('div', { class: 'showcase' }, node);
-      window.setTimeout(() => burst(node, 'buff'), 60);
+      // 跟事件那邊同一個理由：牌是 `overflow: hidden`，特效要包一層才不會被裁（稽核 2026-09-10 低-1）
+      const host = el('span', { class: 'fx-host' }, node);
+      art = el('div', { class: 'showcase' }, host);
+      window.setTimeout(() => burst(host, 'buff'), 60);
     }
     root.append(sceneView({ art, portrait: heroPortrait(), text }));
     toast(line, '球球');

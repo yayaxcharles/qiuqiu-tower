@@ -53,9 +53,9 @@ CATEGORIES: dict[str, tuple[str, int | None]] = {
     "total": ("首載總計", 9_500_000),
 }
 
-# 第一關用不到的魔物立繪（`docs/怪物分關.json`：檔案相對路徑 → 最早出現的關數，由 tools/dump_monster_acts.test.ts 產生）
-# 進第二三關才載（src/ui/preload.ts），所以不算首載。
-DEFERRED_FILE = ROOT / "docs" / "怪物分關.json"
+# 第一關用不到的魔物立繪與底圖（`docs/分關載入.json`：檔案相對路徑 → 最早出現的關數，
+# 由 tools/dump_monster_acts.test.ts 產生）。進第二三關才載（src/ui/preload.ts 的 preloadAct），所以不算首載。
+DEFERRED_FILE = ROOT / "docs" / "分關載入.json"
 
 
 def load_deferred() -> set[str]:

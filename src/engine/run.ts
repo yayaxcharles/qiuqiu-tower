@@ -10,7 +10,7 @@ import { startCombat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { rollCardChoices, rollPotion, rollRelic, rollRewards, type CombatRewards } from './rewards';
-import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, Rarity, RunEffect, RunState } from './types';
+import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, Rarity, RelicPool, RunEffect, RunState } from './types';
 
 export const START_FISH = 50;
 export const ACTS = 3;
@@ -167,6 +167,24 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   if (endHeal > 0) run.hp = Math.min(run.maxHp, run.hp + endHeal);
   run.fish = Math.max(0, run.fish + cs.fishDelta);
   const node = currentNode(run);
+  // **全場都是自己散掉的、你一隻都沒真的打倒＝沒有戰利品**（稽核 2026-09-10 高-1）。
+  //
+  // `combat.ts` 那邊的註解本來就寫著「不算打倒、不掉戰利品」，但它只把魔物標成 `escaped`，
+  // 場上一空就判贏，這裡照樣發全額獎勵。實測：第二關的醉拳狗（消散 6）一張牌都不打、
+  // 連按六次結束回合，就白拿一件大魔物秘寶＋三張牌＋35 條小魚乾；第三關的怨靈武者擺爛
+  // 只挨 48 點。等於「站著不動」嚴格優於認真打。
+  //
+  // 判準用 `cs.kills === 0`：只要真的打倒過任何一隻（包含把三隻裡的兩隻打死、第三隻散掉），
+  // 就照常發獎，不會誤傷正常打完的人。偷來的小魚乾（`fishDelta`）已經在上面結算過，不收回。
+  // **判準是「自己散掉」（`faded`），不是「離場」（`escaped`）**（稽核 2026-09-10 中-1）：
+  // `escaped` 還包含逃走招式與分裂本體，用它會把「橘貓山賊第五回合帶錢跑掉」也算進來——
+  // 那是正常打但差一口氣，實測 1000 局有 11.2% 踩到而且全是第一關的山賊，等於平白沒收獎勵。
+  // 事件獎金在早退之前就先給（稽核 2026-09-10 高-1）：那是玩家答應打這一場換來的，
+  // 跟這場有沒有掉戰利品是兩件事，而且獎勵畫面本來就會另起一行印出來。
+  if (bonusFish) run.fish += bonusFish;
+  if (cs.kills === 0 && cs.enemies.some((e) => e.faded)) {
+    return { kind: '戰鬥', cards: [], fish: 0, potion: null, relic: null, escaped: true };
+  }
   // 看遭遇屬於哪個池，不要比對特定 id——塔主現在有三個，寫死 id 會漏掉另外兩個
   const isBoss = encounterById[cs.encounterId ?? '']?.pool === '塔主';
   const kind: CombatRewards['kind'] = isBoss ? '塔主' : node?.type === '大魔物' ? '大魔物' : '戰鬥';
@@ -188,7 +206,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   // 固定值也不會再碰到「把秘寶答應的加成一起砍掉」那個坑（稽核 2026-09-04 夜 M-2）：下限就是秘寶答應的那份（稽核 2026-09-05 夜 2 低-1）
   if (mod?.fishAdd) r.fish = Math.max(winGold, r.fish + mod.fishAdd);
   if (mod) r.modifier = { label: mod.label, desc: mod.desc };   // 獎勵畫面要講得出「因為這場是肥美的」
-  run.fish += r.fish + bonusFish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去
+  run.fish += r.fish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去（bonusFish 在上面早退之前就加過了）
   if (r.relic) takeRelic(run, r.relic);
   if (r.potion && !addPotion(run, r.potion)) { r.potionMissed = r.potion; r.potion = null; }   // 帶滿：留著讓獎勵畫面問要不要換
   // 只有第三關的關主倒下才算通關；前兩關的關主打完由 advanceAct 接手進下一關
@@ -331,10 +349,26 @@ export function rest(run: RunState, choice: '打盹' | '磨爪' | '全力準備'
   return ok;
 }
 
+/**
+ * 紙箱節點：**一定給一件秘寶**（使用者 2026-09-10：「紙箱節點是一定有寶物，不要有空的，
+ * 除非是事件的紙箱」）。
+ *
+ * 本來只抽常見池，30 件收齊之後就開出空箱——走到紙箱、看完演出、什麼都沒有，
+ * 那個節點等於白走一趟。現在常見抽不到就往上退到大魔物池、再退到塔主池；
+ * 三池 64 件全部收齊才會真的空（那時整局也差不多結束了）。
+ *
+ * **事件裡的紙箱不走這裡**（`applyRunEffects` 的 `relic` 效果），那邊指定哪一池就是哪一池，
+ * 抽不到會照舊寫一句「這一池的秘寶都拿過了」——事件本來就會有拿不到東西的選項。
+ */
+const CHEST_POOLS: RelicPool[] = ['常見', '大魔物', '塔主'];
+
 export function openChest(run: RunState): string | null {
-  const id = rollRelic(runRng(run), '常見', run.relics);
-  if (id) takeRelic(run, id);
-  return id;
+  const rng = runRng(run);
+  for (const pool of CHEST_POOLS) {
+    const id = rollRelic(rng, pool, run.relics);
+    if (id) { takeRelic(run, id); return id; }
+  }
+  return null;
 }
 
 export interface ShopStock {

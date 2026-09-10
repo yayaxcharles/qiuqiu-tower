@@ -9,6 +9,7 @@ add_event_art.py — 只把指定的幾張事件插圖進倉，不動收件匣�
   整批重跑 build_art_inbox.py 會把 197 張 WebP 重新編碼一遍（2026-09-06 踩過），補幾張就用這支。
   事件畫面靠事件編號自動找圖（event.ts 的 artUrl('bg', `bg/event_<id>`)），events.ts 不用改。
 """
+import argparse
 import json
 import shutil
 import sys
@@ -18,14 +19,38 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_art_inbox import INBOX, MANIFEST, OUT  # noqa: E402
-from chroma_key import CARD_BAND, CARD_HARD, CARD_SOFT, key_out  # noqa: E402
+from chroma_key import CARD_BAND, CARD_HARD, CARD_SOFT, HARD, SOFT, key_out  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "tools" / "codex_raw"
 
 
+def despill_all(im: Image.Image) -> Image.Image:
+    """整張把綠壓到不超過紅藍的最大值。
+
+    `key_out` 的去綠邊只作用在「離透明區幾個像素以內」的邊緣帶，那對一般插圖夠了；
+    但主體本身有一大片**亮黃色**（紙箱那道寶光）時，黃與綠幕之間的過渡帶很寬，
+    邊緣帶掃不到的地方會留下一圈螢光綠（實測 2.84% 的可見像素帶綠、綠度中位 139）。
+    這支給「畫面裡本來就沒有任何綠色」的圖用——整張壓下去不會傷到主體。
+    """
+    px = im.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = px[x, y]
+            if a and g > max(r, b):
+                px[x, y] = (r, max(r, b), b, a)
+    return im
+
+
 def main() -> None:
-    names = sys.argv[1:]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("names", nargs="*", help="event_<事件編號>.png")
+    ap.add_argument("--strict", action="store_true",
+                    help="用比較嚴的去背門檻（150/220，不是牌面那套 232/248）並整張去綠邊。"
+                         "畫面裡本來就沒有綠色、又有大片亮黃或亮色光的圖用這個，"
+                         "不然黃綠交界會留一圈螢光綠")
+    args = ap.parse_args()
+    names = args.names
     if not names:
         sys.exit(__doc__)
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -39,7 +64,10 @@ def main() -> None:
             print(f"找不到 {name}（codex_raw 與 art_inbox 都沒有），略過")
             continue
         eid = Path(name).stem[len("event_"):]
-        keyed = key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False)
+        keyed = (key_out(Image.open(src), SOFT, HARD, CARD_BAND, crop=False) if args.strict
+                 else key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False))
+        if args.strict:
+            keyed = despill_all(keyed)
         dst = OUT / "bg" / f"event_{eid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         keyed.resize((560, 420), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)

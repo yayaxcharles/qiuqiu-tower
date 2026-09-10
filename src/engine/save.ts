@@ -4,6 +4,7 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
+import { ACTS } from './run';
 import type { RunState } from './types';
 
 export interface KeyValueStore { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void }
@@ -60,11 +61,38 @@ function knownCard(c: unknown): boolean {
  */
 function usableMap(map: unknown, currentNode: unknown): boolean {
   if (!map || typeof map !== 'object') return false;
-  const { nodes } = map as { nodes?: unknown };
-  if (!Array.isArray(nodes)) return false;
+  const { nodes, start } = map as { nodes?: unknown; start?: unknown };
+  if (!Array.isArray(nodes) || nodes.length === 0) return false;
+  const ids = new Set<string>();
+  for (const n of nodes) {
+    if (!n || typeof n !== 'object') return false;
+    const id = (n as { id?: unknown }).id;
+    if (typeof id !== 'string') return false;
+    ids.add(id);
+  }
+  /**
+   * `start` 與每個節點的 `next` 都要指得到東西（稽核 2026-09-10 中-3）。
+   *
+   * 原本只檢查「`nodes` 是陣列」跟「`currentNode` 找得到」，而且 `currentNode === null`
+   * 直接放行——但**每次過關 `advanceAct` 都會把 `currentNode` 設成 null 再存檔**，
+   * 所以「關卡交界」這個每一局都會經過的狀態，是完全不驗地圖的。
+   * 實測放行後的下場：`start` 不見 → `nextChoices` 丟 TypeError；`start` 指到不存在的節點
+   * → 「未知的節點」；某個 `next` 指到不存在的節點 → 走第一步才炸；`nodes` 空陣列 → 地圖一格都點不到。
+   * 全部都是上面那段註解在防的「舞台整個空白」。
+   */
+  if (!Array.isArray(start) || start.length === 0) return false;
+  if (!start.every((id) => typeof id === 'string' && ids.has(id))) return false;
+  for (const n of nodes) {
+    // **不能豁免 `undefined`**（稽核 2026-09-10 中-2）：地圖產生器最後一層給的是 `next: []` 不是
+    // `undefined`（`map.ts` 一律給空陣列），所以「沒有這個欄位」只會是被改壞的檔——
+    // 放行的話 `nextChoices` 會丟 TypeError，正是這條檢查要防的「舞台整個空白」。
+    const next = (n as { next?: unknown }).next;
+    if (!Array.isArray(next)) return false;
+    if (!next.every((id) => typeof id === 'string' && ids.has(id))) return false;
+  }
   if (currentNode === null || currentNode === undefined) return true;   // 還沒踏上第一個節點，合法
   if (typeof currentNode !== 'string') return false;
-  return nodes.some((n) => !!n && typeof n === 'object' && (n as { id?: unknown }).id === currentNode);
+  return ids.has(currentNode);
 }
 
 /**
@@ -100,6 +128,22 @@ export function checkRun(run: Partial<RunState>): RunState | null {
   if (run.status !== 'playing') return null;
   if (typeof run.hp !== 'number' || run.hp <= 0 || typeof run.maxHp !== 'number' || run.maxHp <= 0) return null;
   if (run.hero !== undefined && run.hero !== 'ninja' && run.hero !== 'samurai') return null;
+  /**
+   * 幾個「放行之後靜靜壞給你看」的欄位（稽核 2026-09-10 低-2、低-3）。實測放行的下場：
+   * - `removeCost` 不見 → `pay(run, undefined)` 的比較永遠成立 → **放生變免費、`run.fish` 變 NaN**，之後整局的小魚乾都是 NaN
+   * - `trail` 是字串 → `run.trail.push` 丟 TypeError
+   * - `act = 9` → `finishCombat` 的 `run.act >= ACTS` 成立，打贏任何一個關主就直接判通關
+   * - `rng` 的四個欄位型別壞掉 → `>>> 0` 全變 0 → 那一局的商店、獎勵、魔物血量全部退化成「永遠第一個」，玩家看不出哪裡怪
+   */
+  const finite = (v: unknown): boolean => typeof v === 'number' && Number.isFinite(v);
+  if (!finite(run.removeCost) || !finite(run.nextUid) || !finite(run.fish) || run.fish! < 0) return null;
+  if (!Array.isArray(run.trail)) return null;
+  if (run.act > ACTS) return null;
+  if (run.hp > run.maxHp) return null;
+  const rs = run.rng as unknown as Record<string, unknown>;
+  if (!['a', 'b', 'c', 'd'].every((k) => finite(rs[k]))) return null;
+  // uid 撞號會讓「放生這一張」放掉別張（`deck.find` 只找得到第一個）
+  if (new Set(run.deck.map((c) => c.uid)).size !== run.deck.length) return null;
   return run as RunState;
 }
 

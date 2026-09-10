@@ -23,6 +23,7 @@ import { play as sfx } from '../audio';
 import { enemyLeft, nextLineup } from '../enemylayout';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
+import { monsterPose } from '../monsterpose';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 import { overlayRoot } from '../overlay';
@@ -33,11 +34,13 @@ const STATUS_ICON: Record<StatusName, string> = {
   懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 噎到: 'icon/status_choke',
   隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
   潛水: 'icon/status_stealth',
-  鐵布衫: 'icon/status_iron',   // 沒生圖示→退回寫字「下回合蜷縮」；不借鱗甲的鍵，免得日後鱗甲生了圖撞到
-  // 第二波魔物的五個狀態。圖示還沒生：`chip()` 會退回寫名字（灰剪影一排認不出誰是誰）
+  鐵布衫: 'icon/status_iron',   // 不借鱗甲的鍵，免得兩邊撞到
+  // 第二波魔物的五個狀態（2026-09-10 圖示補齊）
   縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate', 不壞身: 'icon/status_iron_body',
   沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
-  // 菁英擴充的虛化（2026-09-03）：圖示同樣還沒生，先寫名字
+  // 菁英擴充的虛化（2026-09-03；圖示 2026-09-10 補上）。
+  // 虛化的意思就是「半透明」，但圖示不能真的畫半透明——綠幕會從身體裡透出來、去背後整張帶綠
+  //（codex_gen.py 的坑 5）。改用「實心淡色本體＋錯位殘影」表達。
   虛化: 'icon/status_phase',
 };
 /** 狀態排列順序寫死，好的排前面，才不會每次重畫就換位置（物件鍵的順序不保證） */
@@ -174,6 +177,7 @@ interface Snap {
   debuff: number;
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
+  energyGain: number;   // 整場退回來的飯糰累計，用來認出「這一拍退了幾顆」（見 types.ts 的說明）
   enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
   logLen: number;
   hitsLen: number;
@@ -181,6 +185,7 @@ interface Snap {
 function snap(cs: CombatState): Snap {
   return {
     hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length, hitsLen: cs.hits.length,
+    energyGain: cs.energyGain,
     buff: sumStatus(cs.player, GOOD_STATUS), debuff: sumStatus(cs.player, BAD_STATUS),
     growth: getStatus(cs.player, '爪力') + getStatus(cs.player, '貓步'),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
@@ -260,6 +265,19 @@ registerScreen('combat', (app, root, props) => {
   let picker: HTMLElement | null = null;
   let seq = 0;   // 每次結算 +1，讓過期的計時器認出自己已經不是最新的一次
   const lastHpPct = new Map<string, number>();   // 生命條上一次畫到哪，重畫後才滑得動
+  /**
+   * 狀態牌子上一次是幾層（鍵＝`<誰>|<狀態名>`）。新掛上、或層數變多的那一個彈一下。
+   *
+   * 本來狀態牌子完全沒有動靜：中了翻肚、被疊爪力，牌子就這樣憑空出現在那一排，
+   * 玩家很容易整場都沒發現自己身上多了什麼。跟生命條的 `lastHpPct` 同一套做法——
+   * 只在**值真的變了**的時候演，重畫幾十次也不會一直閃。
+   */
+  const lastChips = new Map<string, number>();
+  /**
+   * 每隻魔物上一次頭上寫的是什麼。換了就翻一下——牠下一步要幹嘛是這遊戲最該讀懂的資訊，
+   * 但換招時牌子只是**默默換字**，一整排怪的時候誰換了根本看不出來。
+   */
+  const lastIntent = new Map<number, string>();
   let shownCards = new Set<number>();            // 上一次畫的手牌，認出哪幾張是新抽的
   let dealDelay = 0;                             // 新手牌進場前要等多久（結束回合那一拍會等）
   let lineup: number[] = cs.enemies.map((e) => e.uid);   // 魔物的排位名單（見 render 裡的說明）
@@ -288,6 +306,7 @@ registerScreen('combat', (app, root, props) => {
       } else {
         warm(monsterUrl(def.art, 'idle')); warm(monsterUrl(def.art, 'attack'));
         if (hasMonsterPose(def.art, 'hurt')) warm(monsterUrl(def.art, 'hurt'));
+        if (hasMonsterPose(def.art, 'block')) warm(monsterUrl(def.art, 'block'));
       }
     }
   };
@@ -306,6 +325,9 @@ registerScreen('combat', (app, root, props) => {
    * −1 代表這場還沒畫過，第一次畫不演。
    */
   let lastEnergy = -1;
+  /** 這一拍退回來幾顆飯糰（`settle` 算好、下一次畫側欄時消耗掉）。出牌是一次結算完才重畫，
+   *  光比前後的顆數看不出「花了又退回來」，所以要靠引擎累計的 `energyGain` 相減 */
+  let energyRefund = 0;
 
   /** 可以操作嗎：分出勝負、還在等玩家選牌、收牌動畫還在跑的時候，出牌／忍具／結束回合都不受理 */
   let enemyTurnRunning = false;   // 魔物正在一隻一隻出手：這段期間不收玩家的操作
@@ -362,8 +384,8 @@ registerScreen('combat', (app, root, props) => {
   }
 
 
-  function chip(term: string, iconKey: string | null, value: string, extra = ''): HTMLElement {
-    const node = el('div', { class: `chip ${extra}`.trim() });
+  function chip(term: string, iconKey: string | null, value: string, extra = '', bump = false): HTMLElement {
+    const node = el('div', { class: `chip ${extra}${bump ? ' up' : ''}`.trim() });
     const url = iconKey ? artUrl('icons', iconKey) : '';
     // 圖示還沒生好就寫名字：一排灰剪影根本認不出誰是誰
     if (url && !isFallback(url)) node.append(el('img', { src: url, alt: term }));
@@ -417,18 +439,22 @@ registerScreen('combat', (app, root, props) => {
    * 魔物就直接叫「防禦」——蜷縮是球球專屬的用詞，套到木樁人身上很怪。
    * 好狀態與壞狀態各給一個底色，一眼看得出這一個是在幫你還是在害你。
    */
-  function statusRow(u: Unit, mine = false): HTMLElement {
+  function statusRow(u: Unit, mine = false, who = 'player'): HTMLElement {
     const row = el('div', { class: 'chips' });
     if (u.block > 0) row.append(chip(mine ? '蜷縮' : '防禦', null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
+      const key = `${who}|${name}`;
       const v = getStatus(u, name);
-      if (v <= 0) continue;
+      if (v <= 0) { lastChips.delete(key); continue; }   // 掉光了就忘掉，下次再掛上算「新的」
+      const before = lastChips.get(key);
+      const bump = before === undefined || v > before;
+      lastChips.set(key, v);
       const tone = GOOD_STATUS.includes(name) ? 'good' : BAD_STATUS.includes(name) ? 'bad' : '';
       // 虛化只有「有／沒有」兩種狀態，層數永遠是 1，寫個 1 出來反而讓人以為還能疊——照「無敵」那樣只寫名字
       // 球球身上的減益（魔物放的翻肚、懶洋洋、炸毛、噎到）用名字寫出來、淺紅底，跟能力牌的牌子一樣看得懂
       //（使用者 2026-09-04：只有小圖示認不出是什麼、也看不出是壞的）
       const textOnly = mine && tone === 'bad';
-      row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), tone));
+      row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), tone, bump));
     }
     // 球球身上生效中的能力牌（封印解除、結界……）：一張一個牌子，疊了幾張寫數字，滑上去看那張牌的效果
     // （使用者 2026-09-03：「爪力的確有加，但我不知道是哪張牌的效果」）
@@ -517,7 +543,11 @@ registerScreen('combat', (app, root, props) => {
       if (m.effects.some(has('stripPlayer'))) text += '（看破）';
       if (m.effects.some(has('purgePlayer'))) text += '（破功）';
     }
-    const node = el('div', { class: `intent i-${m.intent}` }, text);
+    // 換招才翻牌子（第一次看到這隻不算換：開場整排一起翻很吵，而且那時本來就在看牠們的開場白）
+    const before = lastIntent.get(e.uid);
+    const flip = before !== undefined && before !== text;
+    lastIntent.set(e.uid, text);
+    const node = el('div', { class: `intent i-${m.intent}${flip ? ' changed' : ''}` }, text);
     // 牌子上只寫得下「攻 4」這種短標籤，滑上去才講得完牠這一下實際會做什麼
     attachTextTooltip(node, m.label, describeMove(e));
     return node;
@@ -596,9 +626,11 @@ registerScreen('combat', (app, root, props) => {
       return artUrl('sprites', bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');
-    if (act?.attacked) return monsterUrl(def.art, 'attack');
-    if (hurtSet.has(e.uid) && !e.dead && hasMonsterPose(def.art, 'hurt')) return monsterUrl(def.art, 'hurt');
-    return monsterUrl(def.art, 'idle');
+    // 順序（出招 → 挨打 → 防禦 → 待機）與理由都在 `monsterpose.ts`，那邊有測試釘著
+    return monsterUrl(def.art, monsterPose({
+      attacking: !!act?.attacked, hurt: hurtSet.has(e.uid), dead: e.dead, block: e.block,
+      has: (pose) => hasMonsterPose(def.art, pose),
+    }));
   }
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
@@ -626,7 +658,7 @@ registerScreen('combat', (app, root, props) => {
     // 意圖牌子放進立繪框裡（不是當它的兄弟節點）：框裡才有「圖畫實際佔多高」這個座標，
     // 牌子用絕對定位掛在圖畫頂端，扁的魔物才不會讓牌子飄在半空。
     // 放在外面用負邊界試過兩次都不準——那個排版下負邊界只挪了 15 像素而不是 130。
-    const row = statusRow(e);
+    const row = statusRow(e, false, `e${e.uid}`);
     // 引擎裡玩家看不到的狀態，全部做成牌子掛出來（滑上去有白話說明）——
     // 「機制是對的但畫面沒講」已經連續中招三次：隱身閃避、蜷縮延遲、影子復活
     if (!e.dead) {
@@ -677,12 +709,27 @@ registerScreen('combat', (app, root, props) => {
       const url = artUrl('icons', i < p.energy ? 'icon/onigiri_full' : 'icon/onigiri_empty');
       // 剛被吃掉的那幾顆（在新的顆數之後、舊的顆數之內）縮一下再變空的
       const eaten = lastEnergy > p.energy && i >= p.energy && i < lastEnergy ? ' eaten' : '';
+      /**
+       * 剛**補回來**的那幾顆（在舊的顆數之後、新的顆數之內）跳回來、亮一下。
+       *
+       * 本來只演「吃掉」不演「回來」，所以追擊打死怪退兩顆飯糰是無聲補上的——
+       * 使用者 2026-09-10 就是因為看不到才回報「追擊沒退飯糰，有 BUG」（引擎其實是對的）。
+       * 回合開始整排補滿也走這條，等於多一個「新回合」的節拍；一顆差 60 毫秒，不是整排一起跳。
+       * `lastEnergy < 0` 是「這場的第一次重畫」，那時不能演，不然開場三顆會無緣無故跳一次。
+       */
+      // 兩種都算「補回來」：①顆數真的變多（回合開始補滿）②這一拍退過飯糰（追擊打死怪，顆數可能沒變）
+      const grew = lastEnergy >= 0 && lastEnergy < p.energy && i >= lastEnergy && i < p.energy;
+      const back = energyRefund > 0 && i >= p.energy - energyRefund && i < p.energy;
+      const refill = grew || back ? ' refill' : '';
       // 飯糰圖還沒生好就畫一顆圓點，至少數得出來剩幾顆
-      energy.append(isFallback(url)
-        ? el('div', { class: `pip${i < p.energy ? ' full' : ''}${eaten}` })
-        : el('img', { class: `onigiri${eaten}`, src: url, alt: '' }));
+      const pip = isFallback(url)
+        ? el('div', { class: `pip${i < p.energy ? ' full' : ''}${eaten}${refill}` })
+        : el('img', { class: `onigiri${eaten}${refill}`, src: url, alt: '' });
+      if (refill) pip.style.animationDelay = `${Math.max(0, i - (back ? p.energy - energyRefund : lastEnergy)) * 60}ms`;
+      energy.append(pip);
     }
     lastEnergy = p.energy;
+    energyRefund = 0;   // 演過就清掉，下次重畫不會再演一次
     energy.append(el('span', {}, `${p.energy}/${p.maxEnergy}`));
     attachTooltip(energy, '飯糰');
 
@@ -1024,11 +1071,20 @@ registerScreen('combat', (app, root, props) => {
     svg.append(outline, line, tip, head);
     box.append(svg);
 
-    // 舞台整個被 transform: scale() 縮過，滑鼠的座標得換算回 1280×720 的舞台座標
-    const rect = app.stage.getBoundingClientRect();
-    const k = rect.width > 0 ? 1280 / rect.width : 1;
-    const toStage = (cx: number, cy: number): { x: number; y: number } => (
-      { x: (cx - rect.left) * k, y: (cy - rect.top) * k });
+    /**
+     * 舞台整個被 `transform: scale()` 縮過，滑鼠的座標得換算回 1280×720 的舞台座標。
+     *
+     * **框要在用的當下現查，不能開頭量一次存起來**（稽核 2026-09-10 中-3）：選目標的時候
+     * 把視窗放大縮小（或按最大化），舊的倍率就對不上了——實測把縮放從 1.121 改成 0.6，
+     * 同一個版面位置畫出來橫向差 205、縱向差 134，箭頭指在別的地方，而且要按 Esc 重選才會修正。
+     * 吸附判定走 `elementFromPoint`（即時座標）所以還是打得到滑鼠底下那隻，但玩家會以為自己選錯。
+     * 專案裡 `tooltip.ts`、`dragplay.ts`、`dragscroll.ts` 都是現查，這裡是唯一的例外。
+     */
+    const toStage = (cx: number, cy: number): { x: number; y: number } => {
+      const rect = app.stage.getBoundingClientRect();
+      const k = rect.width > 0 ? 1280 / rect.width : 1;
+      return { x: (cx - rect.left) * k, y: (cy - rect.top) * k };
+    };
     const centreOf = (n: Element, yFrac: number): { x: number; y: number } => {
       const r = n.getBoundingClientRect();
       return toStage(r.left + r.width / 2, r.top + r.height * yFrac);
@@ -1311,13 +1367,17 @@ registerScreen('combat', (app, root, props) => {
   function settle(before: Snap, opts: { pose?: string; attack?: boolean; deal?: boolean; light?: boolean } = {}): void {
     // 結束回合那一拍，魔物出手與新手牌是同一次重畫。手牌立刻滑進來會跟魔物前撲擠在一起，
     // 所以那一拍讓手牌晚 460 毫秒再進場：先看牠們打完，再看自己摸到什麼。
-    dealDelay = opts.deal ? 460 : 0;
+    // 打完了就不要再演發牌（稽核 2026-09-10 低-3）：`runEnemyTurn` 收尾一律傳 `deal: true`，
+    // 不看勝負，於是球球倒下的那一拍照樣放一聲「新回合開始」的提示音，跟畫面完全對不上。
+    dealDelay = opts.deal && cs.phase === 'player' ? 460 : 0;
     // 新回合的手牌全部當成新抽的：上一手沒打完的牌丟進棄牌堆後洗回來、或被拖字訣留下的那張，
     // 編號跟上一手一樣，會被當成「已經在手上」直接出現在定位，其他牌卻還在從牌堆飛——
     // 使用者 2026-09-02：「最後一張牌已經出現，其他牌才從左邊飛出來」
     if (opts.deal) shownCards.clear();
     const posePref = opts.pose;
     const p = cs.player;
+    // 這一拍退了幾顆飯糰（追擊）。側欄下一次畫的時候會把那幾顆演成「跳回來」
+    energyRefund = Math.max(0, cs.energyGain - before.energyGain);
     const fresh = cs.log.slice(before.logLen);
     const hurt = p.hp < before.hp;
     const dodged = fresh.some((l) => l.includes('球球閃過了'));
@@ -1409,8 +1469,16 @@ registerScreen('combat', (app, root, props) => {
       // 分段演出時倒下要等最後一段打完再演，不然溶解跟煙會插在三段中間、最後那下的數字反而看不到（稽核 2026-09-05 夜 高-1）
       if (!b.dead && e.dead) {
         const after = staged.length > 1 ? (staged.length - 1) * 150 : 0;
-        const fall = (): void => { if (bossFallUids.has(e.uid)) { sfx('enemy_down'); } else { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); } };
-        if (after > 0) window.setTimeout(() => { if (app.cs === cs && node.isConnected) fall(); }, after); else fall();
+        const fall = (): void => { node.classList.remove('falling'); if (bossFallUids.has(e.uid)) { sfx('enemy_down'); } else { node.classList.add('dead'); burst(node, 'smoke', 160); sfx('enemy_down'); } };
+        if (after > 0) {
+          // **這段延遲期間不能讓牠隱形**（稽核 2026-09-10 高-1）：`enemyUnit` 一看到 `e.dead` 就掛 `gone`，
+          // 而 `.unit.gone:not(.dead)` 是 `opacity: 0`，`dead` 又要等這個計時器才補上。
+          // 結果連環踢打死一隻怪，畫面是「牌一打出去魔物瞬間消失、空 0.3 秒、又冒出來、
+          // 三個傷害數字同時懸在半空跑到一半才開始溶解」——2026-09-05 夜為了「最後那下的數字看得到」
+          // 加的這段延遲，被 `gone` 整個抵銷掉。`falling` 就是「正在等倒下、還要看得見」的記號。
+          node.classList.add('falling');
+          window.setTimeout(() => { if (app.cs === cs && node.isConnected) fall(); }, after);
+        } else fall();
       }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {

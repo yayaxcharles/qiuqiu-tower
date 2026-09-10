@@ -51,6 +51,12 @@ CMD = ["codex", "exec", "--skip-git-repo-check", "-s", "workspace-write",
 
 
 LIMIT_RE = re.compile(r"try again at (\d{1,2}):(\d{2}) ?(AM|PM)", re.I)
+# 坑 9（2026-09-10）：生圖模型會回「Selected model is at capacity」——這是**伺服器當下滿載**，
+# 不是額度用完、也不是提示詞有問題。它 16 秒就失敗，兩次重試在半分鐘內全部燒光，
+# 整批工單就這樣「全失敗」收場（紙箱那兩張第一次就是這樣掛的）。
+# 認出來就固定等 CAPACITY_WAIT 秒再試同一張，不吃重試次數。
+CAPACITY_RE = re.compile(r"at capacity", re.I)
+CAPACITY_WAIT = 180
 
 
 def limit_wait_seconds(stderr: str, now: dt.datetime | None = None) -> int | None:
@@ -127,6 +133,16 @@ def main() -> None:
                     print(f"  額度用完，等 {wait // 60} 分鐘（{(dt.datetime.now() + dt.timedelta(seconds=wait)):%H:%M} 再試）", flush=True)
                     time.sleep(wait)
                     waited += wait
+                    attempt -= 1
+                    continue
+                if not out.exists() and CAPACITY_RE.search(r.stderr + r.stdout):
+                    # 坑 9：模型滿載，等一下再試同一張，不吃重試次數
+                    if waited + CAPACITY_WAIT > args.max_wait_hours * 3600:
+                        print("  模型持續滿載，等待時間已到上限，放棄這批", flush=True)
+                        break
+                    print(f"  模型滿載，等 {CAPACITY_WAIT // 60} 分鐘再試同一張", flush=True)
+                    time.sleep(CAPACITY_WAIT)
+                    waited += CAPACITY_WAIT
                     attempt -= 1
                     continue
             except subprocess.TimeoutExpired:

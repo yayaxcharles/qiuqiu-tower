@@ -178,10 +178,13 @@
   cursor: pointer;
   filter: drop-shadow(0 0 8px #ffd35c) drop-shadow(0 0 16px #ffd35c);
 }
-.combat .unit.gone:not(.dead) {
+/* `falling`＝多段攻擊打死時，還在等最後一段演完才補 `dead`。那段期間要看得見，
+   不然分段的傷害數字全部透明（稽核 2026-09-10 高-1，見 combat.ts 的說明） */
+.combat .unit.gone:not(.dead):not(.falling) {
   opacity: 0;
   pointer-events: none;
 }
+.combat .unit.gone.falling { pointer-events: none; }
 /* 重生中：倒下但會爬回來的，畫成貼地的半透明黑殘影。
    不能全隱形——玩家會以為打完了；也不能像活著——牠現在打不到也不能被打 */
 .combat .unit.reviving { pointer-events: none; }
@@ -261,6 +264,26 @@
 /* 自己的狀態要比魔物的更好認：牌子大一點、圖示大一點 */
 .combat .unit.player .chip { padding: 2px 7px; font-size: 13px; }
 .combat .unit.player .chip img { width: 19px; height: 19px; }
+/* 剛掛上、或層數剛變多的狀態牌子彈一下。好的（金）壞的（紅）用不同顏色的外圈，
+   不必讀字就知道是被加了東西還是拿到了東西。跟蜷縮那條同一個做法，只在值真的變了時才演。 */
+.combat .chip.up { animation: chip-up .5s ease-out; }
+.combat .chip.up.good { animation-name: chip-up-good; }
+.combat .chip.up.bad { animation-name: chip-up-bad; }
+@keyframes chip-up {
+  0%   { transform: scale(.6); }
+  40%  { transform: scale(1.35); box-shadow: 0 0 0 4px rgba(255, 235, 180, .8); }
+  100% { transform: scale(1); }
+}
+@keyframes chip-up-good {
+  0%   { transform: scale(.6); }
+  40%  { transform: scale(1.35); box-shadow: 0 0 0 4px rgba(150, 235, 130, .85); }
+  100% { transform: scale(1); }
+}
+@keyframes chip-up-bad {
+  0%   { transform: scale(.6); }
+  40%  { transform: scale(1.35); box-shadow: 0 0 0 4px rgba(255, 130, 120, .85); }
+  100% { transform: scale(1); }
+}
 /* 蜷縮剛加上去時彈一下：姿勢換了還是容易漏看「這回合擋了多少」 */
 .combat .chip.block.gain { animation: block-pop .55s ease-out; }
 @keyframes block-pop {
@@ -269,6 +292,14 @@
   100% { transform: scale(1); }
 }
 
+/* 換招那一下把牌子翻過來。**不能動 `transform`**：`.telegraph .intent` 的放大也走 transform，
+   兩邊會打架（出招預告正在放大時牌子會被壓回去）。改用獨立屬性 `rotate`＋`scale`，各走各的。 */
+.combat .unit.enemy .intent.changed { animation: intent-flip .42s ease-out; }
+@keyframes intent-flip {
+  0%   { rotate: x 0deg; filter: brightness(1); }
+  45%  { rotate: x 84deg; filter: brightness(1.5); }
+  100% { rotate: x 0deg; filter: brightness(1); }
+}
 /* 魔物頭上的意圖 */
 /* 魔物頭上的意圖。原本是白底黑框的小藥丸，七種意圖只差一個很淡的底色，
    遠看全都一樣白。現在做成一塊掛在頭上的小木牌：
@@ -613,6 +644,17 @@
   animation: shake .4s;
   filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);
 }
+/* 出招那一拍同時掉血（噎到結算、球球的反彈都在同一步扣血）：紅閃要看得見。
+   `cast-pop` 的關鍵影格自己寫了 `filter`，而**動畫算出的值蓋過所有一般宣告、不看優先序**，
+   所以上面那條紅閃整整 0.52 秒完全不生效、等動畫跑完才突然紅一下（稽核 2026-09-10 中-1）。
+   同一支動畫再寫一個帶紅的版本，squash 的動作與紅閃就能同時成立。 */
+.combat .unit.enemy.cast.hit .sprite { animation: cast-pop-hit .52s ease-out; }
+@keyframes cast-pop-hit {
+  0%   { transform: scaleY(1) scaleX(1); filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg); }
+  30%  { transform: scaleY(.88) scaleX(1.08); filter: brightness(1.62) sepia(1) saturate(6) hue-rotate(-35deg); }
+  60%  { transform: scaleY(1.08) scaleX(.96) translateY(-10px); filter: brightness(1.75) sepia(1) saturate(6) hue-rotate(-35deg); }
+  100% { transform: scaleY(1) scaleX(1); filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg); }
+}
 .combat .unit.dodge .sprite { animation: dodge .5s ease-out; }
 /* 倒下改「溶解」：下沉＋褪色＋模糊＋轉灰，配原本晚 160 毫秒的那團煙剛好接上 */
 .combat .unit.dead { animation: dissolve .8s ease-in forwards; }
@@ -747,7 +789,9 @@
 /* 打擊特效：疊在角色身上蹦一下就沒。
    放大＋淡出，不做位移——位移會讓人覺得「有東西飛走了」，
    但這是打中的瞬間，該是原地炸開。 */
-.combat .vfx {
+/* 不掛 `.combat` 前綴（稽核 2026-09-10 中-2）：事件、貓窩畫面也會放特效，
+   原本這條被鎖在戰鬥畫面裡，那三處就算生出節點也沒有樣式、等於什麼都沒發生 */
+.vfx {
   position: absolute;
   left: 50%;
   z-index: 5;
@@ -769,6 +813,14 @@
 /* 剛被吃掉的飯糰：先撐大再縮回去，順便閃一下。
    出牌是整場最常做的動作，原本這一排完全沒動靜，扣了什麼都不知道。 */
 .combat .energy .eaten { animation: onigiri-eaten 420ms ease-out; }
+/* 剛補回來的飯糰：從下面彈上來、亮一下就收。`both` 讓它在 animation-delay 期間先停在起點，
+   不然三顆會先全部出現在定位、延遲跑完才各自跳一次 */
+.combat .energy .refill { animation: onigiri-refill 380ms cubic-bezier(.2, .9, .3, 1.35) both; }
+@keyframes onigiri-refill {
+  0%  { transform: translateY(8px) scale(.5); opacity: 0; filter: brightness(1.6) saturate(1.3); }
+  55% { transform: translateY(0) scale(1.18); opacity: 1; filter: brightness(1.35) saturate(1.2); }
+  100% { transform: translateY(0) scale(1); opacity: 1; filter: none; }
+}
 @keyframes onigiri-eaten {
   0%  { transform: scale(1.3); filter: brightness(1.8) saturate(1.4); }
   45% { transform: scale(.78); filter: brightness(1.15); }

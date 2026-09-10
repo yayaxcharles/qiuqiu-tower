@@ -671,7 +671,9 @@
   max-width: 1080px; max-height: 392px;
   display: flex; align-items: flex-end; justify-content: center;
 }
-.scene-art > img.event-art { width: auto; height: 360px; max-width: 700px; margin: 0; filter: drop-shadow(0 10px 18px #000000a6); }
+/* 直接放的（事件）與包在 `.chest-scene` 裡的（紙箱，秘寶要疊上去所以多一層定位框）都算 */
+.scene-art > img.event-art,
+.scene-art > .chest-scene > img.event-art { width: auto; height: 360px; max-width: 700px; margin: 0; filter: drop-shadow(0 10px 18px #000000a6); }
 .scene-art .reward-cards { margin: 8px 0 0; }
 .scene-portrait {
   position: absolute; left: 34px; bottom: 150px; height: 330px; width: auto; max-width: 300px;
@@ -708,11 +710,40 @@
 #stage[data-screen="shop"] .scene-portrait { scale: -1 1; }
 /* 紙箱：秘寶的圖放大立在中上（圖示原檔夠大，放到 200 還清楚），輕輕上下浮 */
 .scene-art img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
+
+/* 紙箱插圖版（2026-09-10）：插圖跟事件同一套，秘寶疊在插圖那道金光裡。
+   `.chest-scene` 只是個定位用的外框，尺寸完全跟著裡面那張插圖走（inline-block ＋ relative），
+   所以秘寶的百分比座標是「對插圖」算的，換螢幕大小也不會跑掉。
+   座標不是目測的：拿去背後的圖掃「亮黃像素」，光柱中心在各個高度都落在寬度的 33%，
+   高度 15～25% 那一段最寬（約佔圖寬一半），秘寶就放在那裡。 */
+.chest-scene { position: relative; display: inline-block; line-height: 0; }
+.scene-art img.chest-loot.in-beam {
+  position: absolute;
+  left: 33%;
+  top: 22%;
+  height: 34%;
+  translate: -50% -50%;
+  filter: drop-shadow(0 6px 14px #00000080) drop-shadow(0 0 18px #ffd97a99);
+}
+/* 浮動改用獨立屬性：`translate` 已經拿去置中了，再用 transform 動 Y 才不會打架 */
+.scene-art img.chest-loot.in-beam { animation: loot-float-beam 2.6s ease-in-out infinite; }
+@keyframes loot-float-beam { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+/* 秘寶的「秘寶｜名字｜效果」排在對白框正文下面 */
+.chest-loot-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.chest-loot-line .loot-name { font-size: 21px; color: #ffe9b8; }
+.chest-loot-line .loot-text { color: #e8dcc6; }
 /* 秘寶圖上下直接寫字（不用木牌）：上面是效果那句話、下面是「秘寶」小標＋名字 */
 .loot-stack { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .loot-above { margin: 0; font-size: 21px; color: #f6efe3; text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3; letter-spacing: 1px; }
 .loot-below { display: flex; align-items: baseline; gap: 10px; color: #fff3d6; text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3; }
 .chest-loot-missing { width: 160px; height: 200px; }
+/* 光柱裡的佔位塊（秘寶圖示還沒生時）：`.chest-loot-missing` 是 div 不是 img，
+   吃不到上面那條 `img.chest-loot.in-beam`，要自己寫一份定位 */
+.scene-art .chest-loot-missing.in-beam {
+  position: absolute; left: 33%; top: 22%; width: 22%; height: 34%;
+  translate: -50% -50%;
+  border: 3px dashed #ffe0a066; border-radius: 12px; background: #ffffff1a;
+}
 @keyframes loot-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 .scene:has(.loot-stack) .scene-art { top: 56px; }
 /* 劇場版面的對白框也改成貼下緣的半透明漸層帶（跟幻燈片、對白疊層同一套） */
@@ -746,6 +777,8 @@
   100% { opacity: 0; transform: translateY(46px) rotate(14deg) scale(.7); filter: grayscale(1) blur(2px); }
 }
 .showcase.icons { gap: 34px; }
+/* 特效的定位參考框（`burst` 掛的 `.vfx` 是絕對定位）。行高歸零，才不會多出一條基線的空隙 */
+.fx-host { position: relative; display: inline-block; line-height: 0; }
 .showcase-icon { height: 150px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: showcase-pop .55s cubic-bezier(.2, .9, .3, 1.2) both, loot-float 2.6s ease-in-out .6s infinite; }
 /* 中上方那塊放的是牌（大俠傳功的三張、秀牌區）時往下移到那塊空間的正中：貼著上緣太偏上（使用者回報） */
 .scene-art:has(.reward-cards), .scene-art:has(.showcase) { top: 50%; transform: translate(-50%, -78%); }

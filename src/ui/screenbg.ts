@@ -1,4 +1,5 @@
 import { artUrl } from './assets';
+import { BG_VARIANTS } from './bgacts';
 import { clear, el } from './dom';
 
 /**
@@ -45,7 +46,7 @@ export function clearKeepBg(root: HTMLElement): void {
  * 用亂數的話背景會一直換。用樓層當索引，同一層永遠是同一張，
  * 但相鄰的樓層會不一樣，走五層就不會一直看同一面牆（那正是本來的毛病）。
  */
-const BG_VARIANTS = ['', '_b', '_c'] as const;
+// 這份清單搬到 `bgacts.ts` 了：分關預載也要照同一套算鍵名，兩邊各留一份遲早會走鐘
 /**
  * `floor` 是跨關累計的樓層。三關制之後一關一個色調：
  * 塔下（1–15）石牢、塔中（16–30）木造、塔頂（31–45）夜空石台——

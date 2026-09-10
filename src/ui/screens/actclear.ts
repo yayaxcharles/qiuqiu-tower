@@ -9,7 +9,7 @@ import { el } from '../dom';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
-import { preloadActMonsters } from '../preload';
+import { preloadAct } from '../preload';
 
 /**
  * 過關畫面：打倒第一、二關的關主之後（第三關直接進結算，不走這裡）。
@@ -23,7 +23,7 @@ registerScreen('actclear', (app, root, props) => {
   root.append(screenBg('bg/screen_result_win'));
   const run = app.run;
   if (!run) { app.show('title'); return; }
-  void preloadActMonsters(run.act + 1);   // 一進過關畫面就開始抓下一關的魔物立繪（玩家看幻燈片、挑秘寶的這幾十秒剛好用，稽核 2026-09-04 低 21）
+  void preloadAct(run.act + 1);   // 一進過關畫面就開始抓下一關的魔物立繪（玩家看幻燈片、挑秘寶的這幾十秒剛好用，稽核 2026-09-04 低 21）
   const picks = rollActRelics(run);
   const cardPicks = rollActCards(run);
   let pickedCard: string | null = null;   // 只擲一次、只挑一張；重畫不重擲
