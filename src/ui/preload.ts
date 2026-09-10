@@ -14,7 +14,7 @@ import { bgKeysForAct } from './bgacts';
  * 首載預算（tools/check_size.py）配合這裡：第一關用不到的魔物歸「分關載入」，不算首載。
  */
 
-const POSES: MonsterPose[] = ['idle', 'attack', 'hurt', 'block'];
+const POSES: MonsterPose[] = ['idle', 'attack', 'hurt', 'block', 'down'];
 
 /** 這隻怪自己＋牠召得出來的、分裂得出來的全部魔物 id */
 function relatedIds(id: string, out: Set<string>): void {

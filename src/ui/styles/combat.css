@@ -1104,6 +1104,64 @@
 .combat .unit.enemy.boss-fall .intent { opacity: 0; transition: opacity .5s; }
 .combat .unit.enemy.boss-fall .sprite-box::after { display: none; }   /* 睡著的關主倒下時 Zzz 不要跟著飄（稽核 2026-09-04 低 22） */
 .combat .unit.enemy.boss-fall { pointer-events: none; }
+
+/*
+ * 有倒地圖的那 26 隻（大魔物與塔主）倒下時走另一套（2026-09-11）。
+ *
+ * `monsterpose.ts` 已經把立繪換成「趴平、眼睛變叉」那張，這裡只改**動作**：
+ * 上面兩支動畫都是替「站著的圖」寫的——`boss-fall` 往下 46 像素再轉 −16 度、
+ * `dissolve` 往下 10 像素——套在一張已經趴著的圖上，看起來像屍體在地上滑行打轉。
+ *
+ * 改成「原地留著、慢慢褪掉」。**一秒都沒有多花**：0.8 秒的溶解與 1.7 秒的關主倒下
+ * 本來就在那裡，只是那段時間裡玩家終於看得到牠是怎麼倒的，而不是一張站姿慢慢變透明。
+ * 關主那支保留開頭的白閃（那是「最後一擊打中了」的回饋），只拿掉位移與旋轉，
+ * 並把停在畫面上的時間往後挪——趴著的樣子要看得到才有意義。
+ */
+.combat .unit.enemy.boss-fall.downed .sprite { animation: boss-fall-down 1.7s ease-out forwards; }
+@keyframes boss-fall-down {
+  0%, 20% { filter: brightness(2.6) saturate(0); }
+  24% { filter: none; }
+  70% { opacity: 1; filter: none; }
+  100% { opacity: 0; filter: grayscale(1) brightness(.55); }
+}
+.combat .unit.enemy.downed.dead { animation: dissolve-down .8s ease-in forwards; }
+/*
+ * 趴在地上的要留著影子，不然看起來像浮在地板上方——`.unit.gone .ground-shadow` 是
+ * 直接設成 0（那條給「化成一團煙消失」用的，那時本來就不該有影子）。
+ * 影子平常是框寬的 58%（對一個站著的身體剛好），趴下去身體橫過整個框，跟著放寬到 80%。
+ *
+ * **大魔物與塔主要分開寫**（不能一條 `.downed` 打死）：
+ * 大魔物走 `dissolve-down`，那支動畫掛在**整隻**身上，影子的 opacity 會跟著一起帶走；
+ * 塔主走 `boss-fall-down`，那支只掛在 `.sprite` 上，影子不會跟著淡——
+ * 而且 `.boss-fall .ground-shadow` 跟這裡都是五個類別、**特異性剛好打平**，
+ * 打平時後面那條贏，所以一條 `.downed` 會蓋掉塔主原本的淡出、
+ * 留下一團身體已經褪光、影子還在的孤兒（這專案踩過同特異性後來居上的坑）。
+ * 塔主這條自己配一支同步的淡出動畫。
+ */
+.combat .unit.enemy.downed .ground-shadow { opacity: .45; width: 125%; }
+.combat .unit.enemy.boss-fall.downed .ground-shadow {
+  width: 125%;
+  animation: down-shadow 1.7s ease-out forwards;
+}
+/*
+ * 倒地時把頭上的意圖牌子整個拿掉（稽核 2026-09-11 中-1）。
+ *
+ * 牌子的高度是照 `--drawn-h` 擺的，而 `--drawn-h` 用**畫布**的長寬比算——倒地圖的畫布跟待機
+ * 一模一樣，所以牌子還掛在「站著時的頭頂」那個高度，可是畫出來的身體只剩八九十像素，
+ * 中間空一大截，牌子底下那根接到頭上的短繩直接指著空氣（正是 `--drawn-h` 當初要修的毛病）。
+ * 塔主那條 1104 行本來就有 `.boss-fall .intent { opacity: 0 }`，16 隻大魔物漏了；
+ * 而且 `dissolve-down` 前 40% 把透明度壓在 1，比舊的 `dissolve` 更看得清楚。
+ * 用 `display: none` 不是 `opacity`：牠已經死了，那塊空間也不必留著。
+ */
+.combat .unit.enemy.downed .intent { display: none; }
+@keyframes down-shadow {
+  0%, 70% { opacity: .45; }
+  100% { opacity: 0; }
+}
+@keyframes dissolve-down {
+  0%, 40% { opacity: 1; filter: none; }
+  100% { opacity: 0; filter: grayscale(1) brightness(1.7) blur(5px); }
+}
 /* 最後一擊的白閃，蓋在整個戰場上 0.7 秒 */
 .combat .boss-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; z-index: 60; animation: boss-flash .7s ease-out forwards; }
 @keyframes boss-flash { 0% { opacity: .92; } 100% { opacity: 0; } }

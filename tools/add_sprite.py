@@ -89,9 +89,9 @@ def main() -> None:
         # 每張各自決定基準：boss／hero 用 --baseline，monsters 用該怪自己的 idle
         if group == "monsters":
             stem0 = Path(raw_name).stem
-            m = re.match(r"monster_(.+)_(idle|attack|hurt|block)$", stem0)
+            m = re.match(r"monster_(.+)_(idle|attack|hurt|block|down)$", stem0)
             if not m:
-                print(f"檔名要是 monster_<id>_<idle|attack|hurt|block>.png：{raw_name}，略過")
+                print(f"檔名要是 monster_<id>_<idle|attack|hurt|block|down>.png：{raw_name}，略過")
                 continue
             mid, pose = m.group(1), m.group(2)
             out_dir = ROOT / "public" / "assets" / "monsters"
@@ -111,6 +111,11 @@ def main() -> None:
             # 稻草人 560→315）。畫布放寬到遊戲框的長寬比（高度不動）：遊戲用 object-fit: contain 把圖貼進固定框，
             # 寬到框的比例為止都不會讓畫出來的高度變小，超過才會。框的尺寸見 combat.css 的 .unit.size-*
             cw = max(cw, round(ch * box_aspect(mid)))
+            # 倒地圖（`down`）是橫躺的、寬遠大於高，走的仍是這一條。真正的不變量是**畫布高度**
+            # 不變（待機畫布特別窄的像 ninja_boss 341→402，寬度會被上面那行放寬到框比例，
+            # 跟牠自己的 hurt／block 一致）：高度一樣 → contain 的縮放率一樣 → 腳印不變。
+            # 主體等比縮到塞得下再貼底。遊戲用 object-fit: contain，所以畫出來就是
+            # 「原地趴下、比站著矮一截」，不會撞到旁邊那隻，也不會離地飄著。
         bbox_b = base.getbbox() or (0, 0, cw, ch)
         bottom_pad = ch - bbox_b[3]
         base_h = bbox_b[3] - bbox_b[1]   # 基準圖主體多高：--refit 把來源的主體縮到這個高度

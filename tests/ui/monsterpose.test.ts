@@ -25,8 +25,20 @@ describe('魔物選圖', () => {
     expect(monsterPose({ ...base, hurt: true, block: 14 })).toBe('hurt');
   });
 
-  it('倒下的一律待機，倒下有自己那套演法', () => {
+  it('倒下就換倒地圖；沒生那張的照舊回待機', () => {
+    // 有生：趴平、眼睛變叉那張。倒下優先於挨打與防禦（牠已經不在戰鬥裡了）
+    expect(monsterPose({ ...base, dead: true, hurt: true, block: 14, has: has('idle', 'hurt', 'block', 'down') })).toBe('down');
+    // 沒生（一般小怪）：回待機，靠 `gone` 的溶解演出。**一場打掉五六隻小怪，
+    // 每一隻都演一次倒地會變成過場稅**（使用者的鐵則：拉長節奏的動畫一律不做）
     expect(monsterPose({ ...base, dead: true, hurt: true, block: 14 })).toBe('idle');
+  });
+
+  it('出招優先於倒下：這是防迴歸的護欄', () => {
+    // 今天走不到這個組合：`combat.ts` 的 `acting` 迴圈寫 `if (... || e.dead || ...) continue`，
+    // 死掉的魔物進不了那張表，所以 `attacking` 對已死的永遠是 false（稽核 2026-09-11 低-1）。
+    // 留著這條是為了哪天有人放寬那個 continue——招式圖不能被倒地圖蓋掉，
+    // 不然「出招那一拍同時被反彈打死」整套出招演出就白做了
+    expect(monsterPose({ ...base, attacking: true, dead: true, has: has('idle', 'down') })).toBe('attack');
   });
 
   it('鱗甲／不壞身那種被動長的防禦不畫防禦圖', () => {

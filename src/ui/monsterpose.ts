@@ -33,11 +33,18 @@ export interface PoseInput {
  * 不在出招那一步。看當下的防禦點數，才跟旁邊那個「防禦 14」的牌子對得起來——
  * 牌子掛幾回合，牠就縮著幾回合。**但被動長出來的防禦（鱗甲、不壞身）除外**，見 `passiveBlock`。
  *
- * 倒下的一律回待機：倒下有自己的一套（`gone`／`boss-fall`／殘影），不要在這裡插手。
+ * **倒下就換成倒地圖**（趴平、眼睛變叉；2026-09-11 只有 16 隻大魔物與 10 隻塔主有這張）。
+ * 沒生這張的（一般小怪）照舊回待機，倒下靠 `gone` 淡出——**一場打掉五六隻小怪，
+ * 每一隻都演一次倒地會變成過場稅**（使用者的鐵則：拉長節奏的動畫一律不做）。
+ * 大魔物與塔主一局只遇得到幾隻，那一下「打贏了」的實感換得起。
+ *
+ * **不多花任何時間**：`gone` 與 `boss-fall` 本來就要淡出，這裡只是把淡出的那張圖從
+ * 「站得直挺挺的待機」換成「趴在地上」。重生中的殘影（`reviving`）也走這條——
+ * 倒在那裡等著爬起來，比半透明的站姿更說得通。
  */
 export function monsterPose(o: PoseInput): MonsterPose {
   if (o.attacking) return 'attack';
-  if (o.dead) return 'idle';
+  if (o.dead) return o.has('down') ? 'down' : 'idle';
   if (o.hurt && o.has('hurt')) return 'hurt';
   if (o.block > 0 && !o.passiveBlock && o.has('block')) return 'block';
   return 'idle';

@@ -321,6 +321,8 @@ registerScreen('combat', (app, root, props) => {
         warm(monsterUrl(def.art, 'idle')); warm(monsterUrl(def.art, 'attack'));
         if (hasMonsterPose(def.art, 'hurt')) warm(monsterUrl(def.art, 'hurt'));
         if (hasMonsterPose(def.art, 'block')) warm(monsterUrl(def.art, 'block'));
+        // 倒地圖（大魔物與塔主才有）：打死那一刻才現抓的話，牠會先變空白再冒出來
+        if (hasMonsterPose(def.art, 'down')) warm(monsterUrl(def.art, 'down'));
       }
     }
   };
@@ -673,7 +675,22 @@ registerScreen('combat', (app, root, props) => {
     if (e.dead && !reviving) {
       cls.push(bossFallUids.has(e.uid) ? 'boss-fall' : 'gone');
       if (fallingUids.has(e.uid)) cls.push('falling');   // 還在等倒下：這段期間要看得見（低-6）
+      /**
+       * 這一隻有倒地圖（趴平、眼睛變叉）——16 隻大魔物與 10 隻塔主有，一般小怪沒有。
+       * `monsterpose.ts` 已經把圖換過去了，這個類別是給**動畫**看的：
+       * `boss-fall` 原本是「站著往前傾倒」（往下 46 像素、轉 −16 度），
+       * 套在一張已經趴著的圖上會變成屍體躺在地上打轉。見 combat.css。
+       */
+      if (def && hasMonsterPose(def.art, 'down')) cls.push('downed');
     }
+    /**
+     * 重生中的殘影也掛 `downed`（稽核 2026-09-11 低-1）：`monsterPose` 只看 `dead`，
+     * 所以殘影早就在用倒地圖了，但影子與意圖牌子那幾條規則靠這個類別才吃得到——
+     * 不掛的話會是「趴著的半透明身體＋一團縮在肚子底下的窄影子＋飄在半空的意圖牌」。
+     * **只掛類別、不掛 `dead`**：`dissolve-down` 要 `.downed.dead` 才觸發，殘影不該被溶掉。
+     * 這是真的會遇到的畫面——鬼將（大魔物，有倒地圖）帶 `reviveGroup`，小鬼還活著時牠會爬起來。
+     */
+    if (reviving && def && hasMonsterPose(def.art, 'down')) cls.push('downed');
     if (reviving) cls.push('reviving');
     // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
     // 師父本人（art 'daxia'）掛 master：框開得比球球大（使用者 2026-09-02：「師傅體型比球球小」），換血條再放大
