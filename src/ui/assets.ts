@@ -38,8 +38,14 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  *（使用者 2026-09-10 在剛部署完、整包圖都要重抓的那一次遇到）。
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
+const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/idle', 'hero/armed']);
 export function heroSpriteUrls(): string[] {
-  return Object.entries(manifest.sprites).filter(([k]) => k.startsWith('hero/')).map(([, v]) => `${BASE}${v}`);
+  // 排掉戰鬥裡永遠用不到的三張（稽核 2026-09-10 低-2）：`cover` 只有標題畫面用，
+  // `idle`／`armed` 是舊素材、`combat.ts` 的註解自己寫「目前沒排到位置，留著備用」。
+  // 三張共 89 KB，佔這批暖圖的一成一，卻只是擋在魔物前面。
+  return Object.entries(manifest.sprites)
+    .filter(([k]) => k.startsWith('hero/') && !HERO_NOT_IN_COMBAT.has(k))
+    .map(([, v]) => `${BASE}${v}`);
 }
 
 /** 這張立繪生好了沒（階段專屬圖、球球狀態圖還沒落地時要退回一般圖，不能畫成灰剪影） */

@@ -123,7 +123,14 @@ export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: 
    * 但**冷快取的第一場**（例如剛部署完、所有圖的內容都變了那一次）`warmAll` 自己也還在下載，
    * 玩家已經在出牌了。放進這裡就會卡在既有的 1.5 秒上限內先抓完，不另外增加等待。
    */
-  const work = decodeAll([...heroPoses, ...urlsFor(defs)], 6);
+  // **魔物排前面**（稽核 2026-09-10 中-1）：球球那 30 張是 787 KB，一場遭遇的魔物立繪中位數只有
+  // 64.5 KB。`decodeAll` 的六個工人從同一個索引往下領號碼牌，球球排前面等於要等約 24 張下載完
+  // 才輪到第一張魔物圖——冷快取又點得快的話，魔物必然吃滿 1.5 秒還沒好，
+  // 等於把「球球突然消失」換成「魔物突然出現」。魔物開打第一格就在畫面上，球球的替代姿勢
+  // 最快也要等玩家出第一張牌，先後很明確。
+  // `hold: false`：這 30 張解成點陣圖約 37 MB，而戰鬥畫面掛上時 `combat.ts` 的 `warmAll()`
+  // 自己會再暖一次並留自己那份（每場一份、跟著閉包回收），這裡不需要再永久壓一份（低-3）。
+  const work = decodeAll([...urlsFor(defs), ...heroPoses], 6, false);
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
   return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });
