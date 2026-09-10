@@ -883,7 +883,8 @@
   "icon/status_phase": "assets/icons/status_phase.webp",
   "icon/map_hero_low": "assets/icons/map_hero_low.webp",
   "icon/map_hero_mid": "assets/icons/map_hero_mid.webp",
-  "icon/map_hero_top": "assets/icons/map_hero_top.webp"
+  "icon/map_hero_top": "assets/icons/map_hero_top.webp",
+  "icon/vfx_fly_wind": "assets/icons/vfx_fly_wind.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
@@ -986,6 +987,10 @@
   "bg/screen_chest_mid_b": "assets/bg/screen_chest_mid_b.webp",
   "bg/screen_chest_mid_c": "assets/bg/screen_chest_mid_c.webp",
   "bg/screen_chest_top_b": "assets/bg/screen_chest_top_b.webp",
-  "bg/screen_chest_top_c": "assets/bg/screen_chest_top_c.webp"
+  "bg/screen_chest_top_c": "assets/bg/screen_chest_top_c.webp",
+  "bg/event_chest_closed": "assets/bg/event_chest_closed.webp",
+  "bg/door_act1": "assets/bg/door_act1.webp",
+  "bg/door_act2": "assets/bg/door_act2.webp",
+  "bg/door_act3": "assets/bg/door_act3.webp"
  }
 }

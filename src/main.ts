@@ -11,6 +11,7 @@ import { unlockBgmOnFirstGesture } from './ui/bgm';
 import { applyArtVars } from './ui/screenbg';
 import './ui/screens/actclear';
 import './ui/screens/chest';
+import './ui/screens/bossdoor';
 import './ui/screens/combat';
 import './ui/screens/event';
 import './ui/screens/map';

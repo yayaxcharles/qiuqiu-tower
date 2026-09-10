@@ -427,7 +427,18 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     // 還在睡就繼續顯示「呼呼大睡」；睡飽自然醒的（沒被打醒＝不生氣）從招式表第一招開始
     if (getStatus(e, '沉睡') > 0) e.move = SLEEP_MOVE;
     else if (e.move === SLEEP_MOVE) { e.moveIndex = -1; advanceMove(cs, e); }
-    else if (skipAct || e.phase !== phaseAtAct) { /* 剛爬起來的那招、或換階段時排好的那招，留著給下回合 */ }
+    /**
+     * **這一拍才換階段的，那一招留給下回合**。
+     *
+     * 血條式（`hpBar`）的「蹲下調息」是 `damageEnemy` 當場塞進 `e.move` 的（`REST_MOVE`）：
+     * 牠出招途中被球球的反彈打完當前那條血，就在這一拍換了階段。照常排招會把調息蓋掉，
+     * 師父白賺給玩家的那個回合整個消失（稽核 2026-09-10 高-1，實測被換成「十二連環」）。
+     *
+     * 判準是「**這一拍**換過階段」不是「現在這招是不是調息」：牠真的**演完**調息之後
+     * 本來就該排下一招（塔主第三條血起身接亡命一擊那條測試守著這件事）。
+     * 換階段發生在玩家回合中途時，`phaseAtAct` 已經是新階段、不會誤判。
+     */
+    else if (skipAct || e.phase !== phaseAtAct) { /* 剛爬起來的、或這一拍換過階段的，留著給下回合 */ }
     else advanceMove(cs, e);
   }
   return true;

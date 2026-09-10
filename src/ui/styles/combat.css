@@ -483,11 +483,16 @@
   z-index: 50 !important;
 }
 /* 回合交接的過場期間，整排手牌不吃滑鼠。
-   `collecting`＝正在飛向「結束回合」（引擎還沒換回合，這時候出牌畫面會跟引擎對不上）；
-   `dealing`＝新的一批還在從牌堆飛過來（滑過去會被 :hover 拉起來，飛到一半的牌就爛了）。
-   兩個都由 combat.ts 掛上去、時間到再拿掉。 */
-.combat .hand.collecting .card,
-.combat .hand.dealing .card { pointer-events: none; }
+   `collecting`＝正在飛向「結束回合」（引擎還沒換回合，這時候出牌畫面會跟引擎對不上），
+   由 combat.ts 掛上去、時間到再拿掉。
+   **發牌那一段已經不走整排鎖了**：改成每張自己掛 `no-touch`、自己的 `card-deal` 播完就拿掉
+   （見下面那條與 combat.ts）。 */
+.combat .hand.collecting .card { pointer-events: none; }
+/* 發牌改成**一張一張**交還（2026-09-10）：整排一起鎖到最後一張落地的話，
+   第一張早就停在定位卻還要再等 225 毫秒（滿手十張時 450 毫秒）才點得動，
+   牌就在那裡、點下去沒反應——使用者回報的「LAG 一下」就是這個，不是效能。
+   `no-touch` 由 combat.ts 在 `card-deal` 播完時各自拿掉。 */
+.combat .hand .card.no-touch { pointer-events: none; }
 
 /* ===== 右下按鈕、記事、提示 ===== */
 .combat .end-turn {
@@ -1104,3 +1109,34 @@
 .combat .unit.player .chips.many { width: 360px; margin-left: -20px; gap: 2px; }   /* 往右延伸：往左會被舞台邊緣切掉 */
 .combat .unit.player .chips.many .chip { font-size: 11px; padding: 1px 5px; gap: 2px; }
 .combat .unit.player .chips.many .chip img { width: 14px; height: 14px; }
+
+/*
+ * 飛行怪腳下的那陣風（使用者 2026-09-10：「怪物有飛行 BUFF 的時候，腳下生一個龍捲風的圖，
+ * 因為飛行怪物會平移起來、有點空間，這點空間可以用會動的龍捲風表示牠在飛行」）。
+ *
+ * 掛在 `.ground-shadow` 的假元素上：那個節點已經被 `translate: 0 46px` 抵銷回地面，
+ * 風跟著它就會待在地上、剛好填滿身體浮起來留下的那 46 像素。
+ * 而且陰影是 `.sprite-box` 的第一個子節點、畫在立繪**後面**，風不會蓋到怪。
+ *
+ * 寬度用 `min(100%, 130px)`：陰影寬度是立繪框的 58%，小怪算出來 133、大怪 235，
+ * 不夾住的話大怪腳下會出現一陣比牠自己還寬的風。
+ */
+.combat .unit.enemy.airborne .ground-shadow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: min(100%, 130px);
+  height: 56px;
+  translate: -50% 0;
+  background: var(--vfx-fly-wind) center bottom / contain no-repeat;
+  pointer-events: none;
+  /* 只動 `scale` 與 `rotate` 這兩個獨立屬性，`translate` 的置中留給上面那條一般宣告——
+     動畫的計算值會蓋過一般宣告，把 translate 也寫進動畫的話置中就得在每一格重寫一次 */
+  animation: fly-wind 1.1s ease-in-out infinite;
+}
+/* 靜態圖靠「橫向擠壓＋左右擺」演出旋轉感，不真的轉（真的轉會看出它只是一張貼圖） */
+@keyframes fly-wind {
+  0%, 100% { scale: 1 1; rotate: -4deg; }
+  50%      { scale: .9 1.06; rotate: 4deg; }
+}

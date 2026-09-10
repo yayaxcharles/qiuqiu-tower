@@ -531,12 +531,12 @@
      ]
     },
     {
-     "intent": "special",
-     "label": "搶劫",
+     "intent": "attack",
+     "label": "掄棒",
      "effects": [
       {
-       "kind": "stealFish",
-       "n": 10
+       "kind": "damage",
+       "amount": 10
       }
      ]
     },
@@ -1933,7 +1933,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 6
+       "amount": 5
       }
      ]
     },
@@ -1956,8 +1956,8 @@
    "id": "chipmunk_small",
    "name": "小花栗鼠",
    "hp": [
-    10,
-    10
+    12,
+    12
    ],
    "pool": "召喚",
    "size": "small",
@@ -1972,7 +1972,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 4
+       "amount": 6
       }
      ]
     }
@@ -6751,7 +6751,7 @@
    "id": "puppet",
    "name": "傀儡",
    "hp": [
-    14,
+    15,
     16
    ],
    "pool": "召喚",
@@ -6767,7 +6767,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 6
+       "amount": 7
       }
      ]
     },

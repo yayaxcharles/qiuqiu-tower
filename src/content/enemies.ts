@@ -88,11 +88,13 @@ export const enemies: EnemyDef[] = [
     ] },
   { id: 'orange_bandit', name: '橘貓山賊', hp: [48, 52], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_orange_bandit',
     line: '留下買路財！', lines: ['小魚乾全部拿出來！', '此路是我開！'],
+    // 循環表裡的第二次「搶劫」拿掉（2026-09-10）：逃跑加了冷卻之後（見 actions.ts 的 `ESCAPE_GAP`）
+    // 牠站得比以前久，兩格搶劫等於一場被偷四輪 40 條——使用者裁定減成一次
     moves: [
       { intent: 'special', label: '搶劫', effects: [{ kind: 'stealFish', n: 10 }] },
       { intent: 'attack', label: '掄棒', effects: [{ kind: 'damage', amount: 10 }] },
       { intent: 'block', label: '擋', effects: [{ kind: 'block', amount: 8 }] },
-      { intent: 'special', label: '搶劫', effects: [{ kind: 'stealFish', n: 10 }] },
+      { intent: 'attack', label: '掄棒', effects: [{ kind: 'damage', amount: 10 }] },
       { intent: 'special', label: '逃走', effects: [{ kind: 'escape' }] },
     ] },
   { id: 'catgrass_bug', name: '貓草蟲', hp: [18, 22], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_catgrass_bug',
@@ -328,13 +330,16 @@ export const enemies: EnemyDef[] = [
     line: '這個我先收著！', lines: ['這是我撿到的！', '嘴巴裡的不算！'],
     moves: [
       { intent: 'attack', label: '搶', effects: [{ kind: 'damage', amount: 4 }, { kind: 'stealFish', n: 8 }] },
-      { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 6 }] },
+      { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 5 }] },
       { intent: 'summon', label: '叫同伴', effects: [{ kind: 'summon', enemyId: 'chipmunk_small', n: 1 }] },
     ] },
-  { id: 'chipmunk_small', name: '小花栗鼠', hp: [10, 10], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_chipmunk',
+  // 血 10→12、咬 4→5（2026-09-10）：召喚間隔從「幾乎每回合」（1,3,2,1,1,2,2,1）變成至少四回合
+  //（見 actions.ts 的 `SUMMON_GAP`），機器人勝率 74%→92%，補成 85%。
+  // 純召喚物（pool 召喚），只有花栗鼠叫得出來，改牠不會波及別的遭遇
+  { id: 'chipmunk_small', name: '小花栗鼠', hp: [12, 12], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_chipmunk',
     line: '我也要！', lines: ['分我一點！', '我先！我先！'],
     moves: [
-      { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 4 }] },
+      { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 6 }] },
     ] },
 
   // --- 強（約 11～14 樓）---
@@ -1047,9 +1052,12 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '針刺', effects: [{ kind: 'damage', amount: 12 }] },
       { intent: 'block', label: '布陣', effects: [{ kind: 'blockAllies', amount: 6 }, { kind: 'statusSelf', name: '爪力', amount: 2 }] },
     ] },
-  { id: 'puppet', name: '傀儡', hp: [14, 16], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_puppet',
+  // 血 14~16→15~16、木拳 6→7（2026-09-10）：召喚間隔 3→5（見 actions.ts 的 `SUMMON_GAP`），
+  // 機器人勝率 10%→18.7%，補成 14.7%。**刻意不補回原本的難度**：降頻是為了讓這場打得完，
+  // 補到 10% 等於白做。純召喚物（pool 召喚），只有傀儡師叫得出來，改牠不會波及別的遭遇
+  { id: 'puppet', name: '傀儡', hp: [15, 16], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_puppet',
     line: '（喀、喀）', lines: ['（關節轉了一圈）', '（線繃緊了）'], moves: [
-      { intent: 'attack', label: '木拳', effects: [{ kind: 'damage', amount: 6 }] },
+      { intent: 'attack', label: '木拳', effects: [{ kind: 'damage', amount: 7 }] },
       { intent: 'block', label: '硬化', effects: [{ kind: 'block', amount: 5 }] },
     ] },
   { id: 'shuten_imp', name: '酒吞小鬼', hp: [60, 64], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shuten_imp',

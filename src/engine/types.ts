@@ -478,6 +478,20 @@ export interface EnemyCombat extends Unit {
   /** 憤怒（angerOnSkill）這回合已經觸發過：每回合最多一次，防禦牌才不會變成餵怪（下一輪平衡 2026-09-05） */
   angerTurn?: number;
   move: EnemyMove;
+  /**
+   * 排好、**要等下一回合才亮出來**的招（換階段的 `onEnterMove` 用）。
+   *
+   * 為什麼不直接寫進 `move`：那是玩家頭上看得到的預告。牠在**玩家回合中途**被打過換階段門檻時
+   * 直接改 `move`，等於「牌子上寫吸魂、你照著規劃了整個回合、牠卻在同一回合放出兩條尾巴」——
+   * 使用者 2026-09-10 回報的正是這個（實測第七回合預告「吸魂」，打完當場變「放尾巴」並立刻放）。
+   * 排進這裡，牠這一回合照原本預告的招出手，`advanceMove` 收尾時才把它換成下一回合的預告，
+   * 玩家就有一整個回合可以應對。牠自己出招途中換階段（球球的反彈打過門檻）也走同一條路。
+   */
+  queuedMove?: EnemyMove;
+  /** 上一次真的召喚出東西是牠的第幾個回合（見 actions.ts 的 `SUMMON_GAP`） */
+  lastSummonTurn?: number;
+  /** 第一次偷到小魚乾是**這場的第幾個回合**（`cs.turn`）。逃跑冷卻從這裡算，見 actions.ts 的 `ESCAPE_GAP` */
+  stolenTurn?: number;
   dead: boolean;
   escaped: boolean;   // 逃走：不算擊倒、偷走的小魚乾不退（消散、分裂也走這條）
   /**

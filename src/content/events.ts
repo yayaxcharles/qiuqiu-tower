@@ -145,7 +145,9 @@ export const events: EventDef[] = [
   { id: 'stuck_kitten', title: '卡住的小貓',
     text: '一隻小貓的頭卡在欄杆中間，四條腿在空中亂踢。',
     choices: [
-      { label: '幫牠（回復 15 點生命，牠媽媽給了你謝禮）', outcome: [{ kind: 'heal', n: 15 }, { kind: 'fish', n: 20 }],
+      // 先講因（媽媽給謝禮）再講果（回血），跟結果那句話同一個順序；
+      // 謝禮的 20 條小魚乾原本只寫在結果裡、選項上看不到（使用者 2026-09-10）
+      { label: '幫忙（牠媽媽給了謝禮：20 條小魚乾，回復 15 點生命）', outcome: [{ kind: 'heal', n: 15 }, { kind: 'fish', n: 20 }],
         result: '小貓的媽媽從轉角衝出來，塞了一把小魚乾給球球。' },
       { label: '先學牠怎麼卡住的（獲得一張罕見的忍術）', outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }],
         result: '球球研究了一下，學到了奇怪的東西。' },

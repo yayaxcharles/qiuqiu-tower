@@ -247,10 +247,18 @@ describe('魔物回合', () => {
   it('山賊逃走：偷走的不退、不算擊倒、剩下沒魔物就結束', () => {
     const cs = start('orange_bandit');
     const e = cs.enemies[0]!;
-    for (let i = 0; i < 5 && cs.phase === 'player'; i++) { cs.player.block = 99; endTurn(cs); }
+    /**
+     * 2026-09-10 起逃跑有冷卻（`ESCAPE_GAP`）：偷到之後至少要撐五個回合才跑得掉
+     *（使用者：「起碼五回合後才能逃跑」），所以不再是固定第五回合，要多跑幾圈等牠。
+     * 這條測試守的是「跑掉之後的結算」，不是第幾回合跑。
+     */
+    for (let i = 0; i < 14 && cs.phase === 'player'; i++) { cs.player.block = 99; endTurn(cs); }
     expect(e.escaped).toBe(true);
     expect(cs.phase).toBe('won');
     expect(cs.kills).toBe(0);
+    // 逃跑冷卻讓牠多站了幾回合，本來會偷四輪 40 條；循環表的第二格「搶劫」改成「掄棒」之後
+    // 回到一場 20 條（使用者 2026-09-10 裁定）。牠賴著不走，你就有五個回合以上可以打死牠
+    // **把整筆錢拿回來**（見 killEnemy）
     expect(combatResult(cs).fishDelta).toBe(-20);
   });
   it('自己疊的翻肚當回合不衰減，撐得到魔物那一下', () => {
@@ -365,20 +373,40 @@ describe('魔物回合', () => {
     expect(tails()).toBe(4);
     expect(cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).reduce((a, e) => a + e.maxHp, 0)).toBe(hpSum + 8);
   });
-  it('貓又換階段不會憑空冒尾巴：先只回血加爪力、頭上亮「放尾巴」，牠的回合才放兩條（使用者 2026-09-03）', () => {
+  it('貓又換階段不會憑空冒尾巴，而且**不會在同一回合偷換預告**（使用者 2026-09-03、09-10）', () => {
     const cs = start('nekomata');
     const neko = cs.enemies[0]!;
     endTurn(cs);                                    // 第 1 回合放兩條
     const tails = () => cs.enemies.filter((e) => e.enemyId === 'nekomata_tail' && !e.dead).length;
     expect(tails()).toBe(2);
-    // 玩家回合中途把牠打到門檻以下：當下尾巴數不變，意圖換成「放尾巴」
+    // 玩家回合中途把牠打到門檻以下
+    const told = neko.move.label;                   // 玩家這回合已經照這個預告規劃過了
     neko.block = 0; neko.hp = 56;
     damageEnemy(cs, neko, 5, { direct: true });
     expect(neko.phase).toBe(1);
     expect(tails(), '換階段當下不該冒尾巴').toBe(2);
-    expect(neko.move.label).toBe('放尾巴');
-    cs.player.block = 99; endTurn(cs);              // 牠的回合才放：2 → 4（上限四條）
-    expect(tails()).toBe(4);
+    /**
+     * **頭上的預告不准當場被換掉**（使用者 2026-09-10：「第七回合牠是補血，結果又直接跑出兩條尾巴」）。
+     * 舊寫法在這裡就把 `move` 改成「放尾巴」，於是牠在**同一個回合**放尾巴——
+     * 玩家看著「吸魂」規劃完整個回合，收到的卻是兩條尾巴。
+     * 現在排進 `queuedMove`，這一回合照原本預告的招出手，下一回合才亮「放尾巴」。
+     */
+    expect(neko.move.label, '預告不能在玩家回合中途被換掉').toBe(told);
+    expect(neko.queuedMove?.label, '換階段的招要排隊').toBe('放尾巴');
+    cs.player.block = 99; endTurn(cs);              // 這一回合照舊預告出手，尾巴不變
+    expect(tails(), '換階段那一回合還不放').toBe(2);
+    /**
+     * 排好的那招還要等召喚冷卻（`SUMMON_GAP`，使用者 2026-09-10：「至少要相隔四個回合」）。
+     * 第 1 回合剛放過，所以要等到第 5 回合才輪得到——剛好落在貓又本來的節奏上
+     *（第 4 回合亮「準備放尾巴」、第 5 回合放）。放出來的**前一個回合**頭上一定看得到預告。
+     */
+    let sawTelegraph = false;
+    for (let i = 0; i < 6 && tails() < 4; i++) {
+      if (neko.move.label === '放尾巴') sawTelegraph = true;
+      cs.player.block = 99; endTurn(cs);
+    }
+    expect(sawTelegraph, '放之前一定要先在頭上亮過預告').toBe(true);
+    expect(tails(), '冷卻到了才放：2 → 4（上限四條）').toBe(4);
   });
   it('僕從護體：僕從還站著打不動本體，也不消耗她的隱身；清光僕從才打得到', () => {
     const cs = start('persian_lady');

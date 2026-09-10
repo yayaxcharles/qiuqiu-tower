@@ -13,7 +13,7 @@ import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, 
 import { registerScreen } from '../app';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
-import { tierBgKey, tierBgZoom } from '../screenbg';
+import { battleBgKey, tierBgZoom } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { artUrl, hasMonsterPose, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
@@ -226,9 +226,9 @@ registerScreen('combat', (app, root, props) => {
   const cs: CombatState = app.cs;
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
   const bonusUpgrades = (props as { bonusUpgrades?: number } | null)?.bonusUpgrades ?? 0;
-  // 關主戰用專屬戰場（boss1/2/3 依關數）；圖還沒生好就照舊用該關色調
-  const bossBgKey = encounterById[cs.encounterId]?.pool === '塔主' ? `boss${run.act}` : '';
-  const bgKey = bossBgKey && !isFallback(artUrl('bg', bossBgKey)) ? bossBgKey : tierBgKey(run.floor);
+  // 關主戰用專屬戰場（boss1/2/3 依關數）；圖還沒生好就照舊用該關色調。
+  // 算法搬到 `screenbg.ts` 的 `battleBgKey` 給關主門共用（稽核 2026-09-10 中-2，順便修掉少 `bg/` 前綴那個老 bug）
+  const bgKey = battleBgKey(run.act, run.floor, encounterById[cs.encounterId]?.pool === '塔主');
 
   let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
@@ -856,7 +856,58 @@ registerScreen('combat', (app, root, props) => {
       }
       // 只有這次才出現在手上的牌才播進場動畫：每次重畫都播的話，光是選個目標整手牌就會抖一次。
       // 一張一張錯開 45 毫秒出發，整排才不會像同一塊板子被推上來。
-      if (!shownCards.has(c.uid)) { node.classList.add('dealt'); node.style.animationDelay = `${dealDelay + i * 45}ms`; }
+      if (!shownCards.has(c.uid)) {
+        node.classList.add('dealt');
+        node.style.animationDelay = `${dealDelay + i * 45}ms`;
+        /**
+         * **只有換回合那一批才鎖**（`dealDelay > 0`，稽核 2026-09-10 中-1）。
+         *
+         * 舊的整排鎖也是這個條件；改成逐張時如果不加這個判斷，鎖的範圍會**變大**：
+         * 開場第一手（`dealDelay` 是 0）第五張要等 620 毫秒才點得動，
+         * 回合中途抽牌（替身術那類）滿手時最久 845 毫秒——而且那兩種情形
+         * 「結束回合」的按鈕是活的，變成按鈕能點、牌不能點，正是這次要修的那種手感。
+         */
+        if (dealDelay > 0) {
+          /**
+           * 飛行中的那張不吃滑鼠，**但一飛到定位就立刻交還**（使用者 2026-09-10：
+           * 「每回合抽完牌後，選牌打牌會 LAG 一下、點了會稍微沒反應」）。
+           *
+           * 原本是整排掛 `.dealing`、等**最後一張**落地才一起解鎖，可是每張各自錯開 45 毫秒出發，
+           * 於是第一張早就停在定位、卻還要再等 225 毫秒（滿手十張時 450 毫秒）才點得動——
+           * 牌明明就在那裡、點下去沒反應，那正是「卡頓」的體感來源，而且完全不是效能問題。
+           * 改成一張一張自己解鎖：`card-deal` 播完就把 `no-touch` 拿掉。
+           * 只動這個類別、不動 `dealt`：`dealt` 那條規則同時掛著起伏動畫，一拿掉起伏會從頭重播、
+           * 整排牌會各自跳一下（見 combat.css 的說明）。
+           */
+          node.classList.add('no-touch');
+          /**
+           * **`animationcancel` 一定要一起聽**（稽核 2026-09-10 中-2）。
+           *
+           * 動畫被 `animation: none` 撤掉時瀏覽器送的是 `animationcancel`，不是 `animationend`。
+           * 撤得掉這支的規則有三條：`:hover`／`.nope` 排在 `.dealt` 前面、蓋不過它；
+           * `.dragging` 排在後面、真的撤得掉，但 `no-touch` 期間 `pointer-events: none`、牌根本抓不起來，
+           * 所以今天三條都走不到（稽核 2026-09-10 低-4 更正：原本這裡只寫了前兩條）；
+           * 但那是**純粹的順序巧合**——哪天有人在後面補一條
+           *（最像的候選是 `@media (prefers-reduced-motion: reduce)` 關掉發牌動畫，這專案已經有三塊），
+           * `no-touch` 就永遠留著、那張牌整場點不動，而且 jsdom 不跑 CSS 動畫、單元測試看不出來。
+           * 失手的代價太大，兩行就補起來。
+           */
+          const free = (ev: AnimationEvent): void => {
+            if (ev.animationName === 'card-deal') node.classList.remove('no-touch');
+          };
+          node.addEventListener('animationend', free);
+          node.addEventListener('animationcancel', free);
+          /**
+           * 兜底：時間到就無條件解鎖（稽核 2026-09-10 低-7）。
+           *
+           * 兩種情形三個事件一個都不會發：①哪天有人在 `.dealt` 後面補一條 `animation: none`，
+           * `card-deal` 從頭就不在動畫清單裡；②分頁切到背景時 CSS 動畫被凍住，
+           * 而 `unlockEndTurn` 的計時器照跑——會出現「結束回合能按、牌還鎖著」。
+           * 這一行讓最壞情況只是「晚一點解鎖」，不會變成「那張牌整場點不動」。
+           */
+          window.setTimeout(() => node.classList.remove('no-touch'), dealDelay + i * 45 + DEAL_FLY + 250);
+        }
+      }
       // 拖出去打（使用者 2026-09-07）：加一條路，點擊那兩種照舊。打不出來的牌不掛，
       // 維持「點下去抖一下＋說明」的行為。規則與座標換算見 dragplay.ts
       if (canAct() && chk.ok) {
@@ -914,9 +965,9 @@ registerScreen('combat', (app, root, props) => {
       }
       hand.append(node);
     });
-    // 換回合那一拍要等魔物打完才發牌（dealDelay），這段期間整排牌先不吃滑鼠：
-    // 還沒飛到定位的牌被點下去，畫面與引擎會差一拍。時間到再由 unlockHand 解開。
-    if (dealDelay > 0) hand.classList.add('dealing');
+    // 「還沒飛到定位的牌不吃滑鼠」現在是**每張自己管**（見上面掛 `no-touch` 那段）。
+    // 原本在這裡替整排掛 `.dealing`、等最後一張落地才一起解開，那讓先落地的牌白等 225～450 毫秒。
+    // `unlockEndTurn` 留著：它還要負責在發牌演完之後把「結束回合」的按鈕解灰。
     shownCards = new Set(p.hand.map((c) => c.uid));
     return hand;
   }
@@ -957,11 +1008,9 @@ registerScreen('combat', (app, root, props) => {
    * `render()` 會把它們砍在半路（跟 settle 收姿勢那段同一個道理）。
    * 中途要是重畫過，這裡拿到的是已經被丟掉的節點，動它不會有任何影響，正好。
    */
-  function unlockHand(box: HTMLElement, wait: number): void {
-    const hand = box.querySelector<HTMLElement>('.hand');
+  function unlockEndTurn(box: HTMLElement, wait: number): void {
     const btn = box.querySelector<HTMLElement>('.end-turn');
     window.setTimeout(() => {
-      hand?.classList.remove('dealing');
       if (app.cs === cs && canAct()) btn?.removeAttribute('disabled');
     }, wait);
   }
@@ -1043,7 +1092,7 @@ registerScreen('combat', (app, root, props) => {
     box.append(field, sidePanel(), handRow());
 
     const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() }, '結束回合');
-    // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 的 dealing）
+    // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 掛 `no-touch` 那段）
     if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled');
     // 紀錄只留四行：六行時最後兩行會壓到球球的頭（2026-09-02 截圖檢查）
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
@@ -1060,7 +1109,7 @@ registerScreen('combat', (app, root, props) => {
     // dealFrom 排在同一拍（不是下一幀）：動畫要到下一幀才開始播，這時候補上位移還來得及。
     dealFrom(box);
     if (dealDelay > 0) {
-      unlockHand(box, dealDelay + DEAL_FLY + cs.player.hand.length * 45);
+      unlockEndTurn(box, dealDelay + DEAL_FLY + cs.player.hand.length * 45);
       // 抽牌聲跟著畫面上的飛入逐張響，音高每張微調，不然像複讀機
       sfx('turn_start');
       cs.player.hand.forEach((_, i) => window.setTimeout(

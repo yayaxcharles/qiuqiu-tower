@@ -25,7 +25,7 @@ function toHand(cs: CombatState, cardId: string, upgraded = false): number {
 }
 
 describe('稽核 2026-09-04', () => {
-  it('H-1 反彈流打貓又：牠出招時被反彈打過門檻，頭上排好的「放尾巴」不會被洗掉，下回合尾巴照放', () => {
+  it('H-1 反彈流打貓又：牠出招時被反彈打過門檻，換階段排好的「放尾巴」不會被弄丟（冷卻到了就放）', () => {
     const cs = start('nekomata');
     const neko = cs.enemies[0]!;
     endTurn(cs);                                          // 第 1 回合放兩條
@@ -38,10 +38,16 @@ describe('稽核 2026-09-04', () => {
     cs.player.block = 0;
     endTurn(cs);                                          // 三下各被反彈 3 → 57-9=48 ≤ 55 換階段（回血 12）
     expect(neko.phase).toBe(1);
-    expect(neko.move.label, '換階段排好的招不該被 advanceMove 蓋掉').toBe('放尾巴');
+    /**
+     * 2026-09-10 起這一招是**排隊**的（`queuedMove`），不再當場蓋掉頭上的預告——
+     * 那會讓玩家看著「吸魂」規劃完整個回合卻吃到兩條尾巴（使用者回報）。
+     * 而且召喚有 `SUMMON_GAP` 的冷卻：第 1 回合才放過，要等四個牠的回合才輪得到。
+     * 這條測試守的重點沒變：**那一招不會被弄丟**，冷卻到了一定放得出來。
+     */
+    expect(neko.queuedMove?.label, '換階段排好的招要留著').toBe('放尾巴');
     expect(tails(), '換階段當下不冒尾巴').toBe(2);
-    cs.player.block = 99; endTurn(cs);
-    expect(tails()).toBe(4);
+    for (let i = 0; i < 5 && tails() < 4; i++) { cs.player.block = 99; endTurn(cs); }
+    expect(tails(), '冷卻到了就放得出來').toBe(4);
   });
 
   it('H-2 升級過的能力牌：power 記得升級與否，說明文字要念升級版', () => {

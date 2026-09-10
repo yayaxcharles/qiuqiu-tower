@@ -133,13 +133,15 @@ describe('牌組、秘寶、忍具', () => {
     expect(removeCard(run, c.uid)).toBe(true); expect(run.deck.length).toBe(10);
     expect(removeCard(run, 999)).toBe(false);
   });
-  it('秘寶：不重複、鮪魚罐頭 +10 最大生命、塔主令牌 −10', () => {
+  it('秘寶：不重複、鮪魚罐頭 +10 最大生命、塔主令牌不再扣血', () => {
     const run = fresh();
     expect(takeRelic(run, 'tuna_can')).toBe(true);
     expect(run.maxHp).toBe(86); expect(run.hp).toBe(86);
     expect(takeRelic(run, 'tuna_can')).toBe(false);
+    // 塔主令牌 2026-09-10 起是純獎勵（原本 `maxHp: -10`）：打倒關主的信物，一局一次、沒得選，
+    // 不該在剛過關最虛的時候再扣一刀（使用者裁定）
     expect(takeRelic(run, 'tower_token')).toBe(true);
-    expect(run.maxHp).toBe(76); expect(run.hp).toBe(76);
+    expect(run.maxHp).toBe(86); expect(run.hp).toBe(86);
   });
   it('忍具最多 3 個', () => {
     const run = fresh();

@@ -754,9 +754,59 @@
 .scene-art img.chest-loot.in-beam { animation: loot-float-beam 2.6s ease-in-out infinite; }
 @keyframes loot-float-beam { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 /* 秘寶的「秘寶｜名字｜效果」排在對白框正文下面 */
-.chest-loot-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
-.chest-loot-line .loot-name { font-size: 21px; color: #ffe9b8; }
-.chest-loot-line .loot-text { color: #e8dcc6; }
+/*
+ * 第一段：還沒開的箱子（2026-09-10，使用者要的過場）。
+ * 浮著、罩一層暖光、滑鼠變手指——三件事一起說「這個可以點」。
+ * 光用 `drop-shadow` 疊，不用外框：插圖是去背的不規則形狀，方框會露出它的邊界。
+ */
+.chest-waiting { cursor: pointer; }
+/* 浮動與光暈**寫在同一支動畫裡**：兩件事一起呼吸，才像「它在等你」而不是兩個獨立效果。
+   房間本來就暗，只給一層淡光完全看不出來，所以光是會脈動的。 */
+.chest-waiting .chest-closed { animation: chest-idle 2.4s ease-in-out infinite; }
+@keyframes chest-idle {
+  0%, 100% { translate: 0 0; filter: drop-shadow(0 0 8px #ffd88a66) drop-shadow(0 10px 18px #000000a6); }
+  50% { translate: 0 -9px; filter: drop-shadow(0 0 20px #ffe6a8) drop-shadow(0 0 40px #ffc86e99) drop-shadow(0 10px 18px #000000a6); }
+}
+/* 滑上去再亮一階。**掛在外層那個 div、不掛圖片本身**：圖片的 `filter` 正被動畫佔著，
+   而動畫的計算值蓋過所有一般宣告，寫在圖片上會完全沒作用（這專案踩過好幾次）。
+   外層是另一個元素，它的 filter 跟圖片的疊加，互不打架。 */
+.chest-waiting { transition: filter .18s; }
+.chest-waiting:hover { filter: brightness(1.1) drop-shadow(0 0 18px #ffd88a80); }
+/* 點下去那一下：整張亮一下、往上彈一點。0.36 秒，而且不擋下一段——
+   `chest.ts` 不等它演完就換畫面，這是回饋不是過場稅 */
+.chest-scene.bursting .chest-closed {
+  animation: chest-burst .36s cubic-bezier(.2, .9, .3, 1.3);
+}
+@keyframes chest-burst {
+  0%   { translate: 0 0; scale: 1; filter: brightness(1) drop-shadow(0 10px 18px #000000a6); }
+  45%  { translate: 0 -16px; scale: 1.07; filter: brightness(1.9) drop-shadow(0 0 40px #ffe6a8); }
+  100% { translate: 0 0; scale: 1; filter: brightness(1) drop-shadow(0 10px 18px #000000a6); }
+}
+/* 第二段進場：光柱與秘寶一起亮起來。同樣不靠 `opacity: 0` 起跳
+   （分頁在背景時動畫被凍住會停在全透明，這專案踩過兩次） */
+.chest-opened .event-art { animation: chest-open-in .34s cubic-bezier(.2, .9, .3, 1.15); }
+@keyframes chest-open-in {
+  from { scale: .94; filter: brightness(1.8); }
+  to   { scale: 1; filter: none; }
+}
+
+/* 秘寶的名字與效果貼在插圖正下方（見 chest.ts）。
+   **絕對定位**：`.chest-scene` 的尺寸就是插圖本身，秘寶疊在光柱裡的座標是對它算百分比的，
+   放一個佔位子的節點進去會把框撐高、秘寶就飄出光柱。
+   `left: 50%` ＋ `translateX(-50%)` 對齊插圖中線；寬度收在插圖以內、太長就自己折行。 */
+.chest-loot-line {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 700px;
+  display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap;
+  /* 這一行現在站在插圖與背景上（不再有對白框的底），字要自己撐起可讀度 */
+  text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3;
+}
+.chest-loot-line .loot-name { font-size: 24px; color: #ffe9b8; }
+.chest-loot-line .loot-text { font-size: 19px; color: #f0e6d2; }
 /* 秘寶圖上下直接寫字（不用木牌）：上面是效果那句話、下面是「秘寶」小標＋名字 */
 .loot-stack { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .loot-above { margin: 0; font-size: 21px; color: #f6efe3; text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3; letter-spacing: 1px; }
@@ -801,7 +851,11 @@
   40% { opacity: .9; transform: translateY(-6px) rotate(-3deg); filter: grayscale(.4); }
   100% { opacity: 0; transform: translateY(46px) rotate(14deg) scale(.7); filter: grayscale(1) blur(2px); }
 }
-.showcase.icons { gap: 34px; }
+.showcase.icons { gap: 34px; align-items: flex-end; flex-wrap: wrap; }   /* 三件以上要能換行：三個 360 寬加間隔是 1148，父層只有 1080（稽核 2026-09-10 低-8） */
+/* 事件拿到的秘寶／忍具：效果在上、圖示在中、名字在下（見 event.ts 的 `gainsNode`）。
+   排版照紙箱退路版那一套，但**不共用 `.loot-stack` 的類別**——那個帶著自己的 `.scene-art` 定位。 */
+.gain-stack { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 360px; }
+.gain-stack .loot-above { font-size: 19px; line-height: 1.35; text-align: center; }
 /* 特效的定位參考框（`burst` 掛的 `.vfx` 是絕對定位）。
    **不能用 `line-height: 0` 消 inline-block 的基線縫**——那個屬性會繼承進裡面的文字，
    包住牌的時候整張牌的行高被壓成 0，牌名會直接疊到下面的規則文字上
@@ -1121,3 +1175,90 @@
 /* 首頁：貼進局面碼時的說明。會蓋掉自己進度的時候換成警告色，讓人按下去之前先看到 */
 .title-note.share-note { min-height: 18px; margin-top: 2px; }
 .title-note.share-note.warn { color: #ffd06a; font-weight: 700; }
+
+/* ===== 關主戰前的那扇門（見 screens/bossdoor.ts） ===== */
+/*
+ * 一扇關著的對開門擋在路上，點下去左右拉開、裡面透出光，接著才進關主戰。
+ * 門只有**一張圖**：疊兩份、各自用 `clip-path` 切掉一半當左右兩扇，
+ * 所以生圖時就要求「左右對稱、接縫正好在正中央」，切出來才對得起來。
+ */
+.boss-door { position: absolute; inset: 0; cursor: pointer; overflow: hidden; }
+/*
+ * **關著的時候看不到後面的戰場**（使用者 2026-09-10：「門沒有滿版，旁邊場景露出來了，很怪」）。
+ *
+ * 門的原圖是直式（560×714），畫面是橫的（1280×720）——硬把門撐滿整個畫面一定得裁掉一大半
+ *（實測 `object-fit: cover` 放大到兩倍多，一扇門上出現四個門環、中縫也接不起來），
+ * 拉寬又會變形。所以門維持原比例、**兩側改用一層暗牆擋住**：
+ * 你站在門前面，兩邊本來就該是牆，看不到裡面才對。推開門時暗牆跟著淡掉，戰場整片露出來。
+ */
+.boss-door .door-wall {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* 中間偏暗、四角更暗：像門口那一小圈光照不到的石壁 */
+  background: radial-gradient(ellipse 60% 70% at 50% 50%, #241b14 0%, #120d09 60%, #080605 100%);
+  transition: opacity 700ms ease-out;
+}
+.boss-door.opening .door-wall { opacity: 0; }
+.boss-door .door-leaf {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 100%;
+  width: auto;
+  translate: -50% -50%;
+  /* 門後面透出來的光比門本身晚一步亮，所以門要疊在光與暗牆上面 */
+  z-index: 3;
+  transition: translate 820ms cubic-bezier(.5, 0, .3, 1);
+  filter: drop-shadow(0 0 30px #000000cc);
+}
+.boss-door .door-leaf.left { clip-path: inset(0 50% 0 0); }
+.boss-door .door-leaf.right { clip-path: inset(0 0 0 50%); }
+/* 推開：兩扇各往自己那一側整個滑出畫面。`translate` 是獨立屬性，
+   置中的 -50% 要跟位移寫在同一個值裡（不能只寫一個軸，另一個會被歸零） */
+.boss-door.opening .door-leaf.left { translate: -190% -50%; }
+.boss-door.opening .door-leaf.right { translate: 90% -50%; }
+/* 門縫裡的光。**要閃一下就散掉，不能一路亮到底**：
+   第一版是「越開越亮、停在最亮」，結果門一拉開整片戰場被一團黃光蓋光，
+   什麼都看不到——那跟「讓玩家看見自己要踏進哪裡」正好相反。
+   改成用動畫走完整個過程：細縫 → 炸開 → 收乾淨，最後留下的是戰場本身。 */
+.boss-door .door-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 620px;
+  translate: -50% -50%;
+  z-index: 2;
+  /* **不能刺眼**（使用者 2026-09-10）：中心不用接近純白的 `#fff6d8`，改成暖琥珀，
+     而且外圈很早就開始透明——這是「門縫透出來的光」，不是閃光彈。 */
+  background: radial-gradient(ellipse at center, #ffdda6 0%, #f0b06a 38%, #f0b06a00 66%);
+  opacity: .5;
+  pointer-events: none;
+  /* 打在門後的場景上用「疊加」而不是蓋住：暗處被提亮、亮處幾乎不動，
+     不會像一塊不透明的黃布把戰場糊掉 */
+  mix-blend-mode: screen;
+}
+.boss-door.opening .door-glow { animation: door-flare 900ms ease-out forwards; }
+@keyframes door-flare {
+  0%   { width: 14px;  opacity: .55; }
+  30%  { width: 520px; opacity: .42; }
+  100% { width: 980px; opacity: 0; }
+}
+/* 提示與按鈕：貼在畫面下緣，門拉開時一起淡掉，不要卡在光裡 */
+.boss-door .door-hint {
+  position: absolute;
+  left: 0; right: 0; bottom: 46px;
+  z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  transition: opacity 300ms ease-out;
+}
+.boss-door.opening .door-hint { opacity: 0; pointer-events: none; }
+.boss-door .door-line {
+  margin: 0;
+  font-size: 22px;
+  color: #f6efe3;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3;
+}
+.boss-door .btn { min-width: 220px; }

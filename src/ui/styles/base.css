@@ -632,6 +632,10 @@ img { -webkit-user-drag: none; }
 
 /* 開打前暖機那一小段時間（最多 1.5 秒）整個舞台不吃點擊：連點「開打」或再點地圖會多跑一次開戰（稽核 2026-09-04 中 7） */
 #stage.fight-pending { pointer-events: none; }
+/* 關主門推開的那 0.9 秒同理：狀態列的層級是 10、畫在門上面又照樣可以按，
+   這段期間按「牌組」或「圖鑑」會開一個疊層，接著關主開場對白也是疊層，兩個疊在一起
+   要先關掉一個才點得動另一個（稽核 2026-09-10 低-1）。門由 bossdoor.ts 掛上、時間到自己拆 */
+#stage.door-opening { pointer-events: none; }
 
 /* 放生確認：按下去那張牌淡出飄走（2026-09-04） */
 .card.released { animation: card-release .3s ease-in forwards; }

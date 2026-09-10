@@ -19,7 +19,9 @@ export const relics: RelicDef[] = [
   { id: 'paper_bag', name: '紙袋', pool: '大魔物', text: '每回合第一次獲得隱身時多 1 層。', art: 'codex/relic_paper_bag', price: 180, hooks: { stealthBonus: 1 } },
   { id: 'bronze_mirror', name: '銅鏡', pool: '大魔物', text: '每場戰鬥開始時獲得 2 點反彈。', art: 'codex/relic_bronze_mirror', price: 170,
     hooks: { combatStart: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] } },
-  { id: 'tower_token', name: '塔主令牌', pool: '塔主', text: '每回合多 1 顆飯糰；最大生命 −10。', art: 'codex/relic_tower_token', price: 220, hooks: { energyPerTurn: 1, maxHp: -10 } },
+  // 2026-09-10 拿掉「最大生命 −10」：這件是打倒關主的信物，一局只拿得到一次、也沒得選，
+  // 純獎勵就好，不該在剛過關最虛的時候再扣一刀（使用者裁定）
+  { id: 'tower_token', name: '塔主令牌', pool: '塔主', text: '每回合多 1 顆飯糰。', art: 'codex/relic_tower_token', price: 220, hooks: { energyPerTurn: 1 } },
   // ===== 2026-08-31 補 20 個。本來只有 15 個，兩三局就看完 =====
   // 原本每種觸發時機只有一個，所以每次拿到的感覺都一樣。
   // 這裡刻意讓同一種時機有多個強度／代價不同的版本，選擇才有意義。

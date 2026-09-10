@@ -55,12 +55,28 @@ registerScreen('shop', (app, root) => {
   // 沒拆的話：買完東西馬上按「離開」，1.5 秒後計時器照樣觸發 → `render()` → `clearKeepBg(root)`，
   // **地圖被整個抹掉、換成剛才那家店的貨架**，而且那份貨架是活的、還能再買一輪（稽核 2026-09-10 高-1）。
   app.disposers.push(() => window.clearTimeout(moodTimer));
+  /**
+   * 換老闆的表情。**只換立繪那張圖，不重畫整頁**（使用者 2026-09-10：
+   * 「罐頭鋪橘貓老闆動畫時，離開商店按鈕好像會不能點、暫時鎖住？」）。
+   *
+   * 原本每次都 `render()`，而表情 1.5 秒後還會自己再回到招呼那張、**再重畫一次**。
+   * 那一下會把畫面上每一個節點都換成新的，包含「離開」那顆鈕——
+   * 玩家正壓著按鈕的時候撞上這一拍，按下去的是舊節點、放開的是新節點，
+   * 瀏覽器就不會發出 click，那顆鈕看起來就是「按了沒反應」。時間點又剛好落在表情動畫的尾巴，
+   * 所以體感是「老闆在動的時候按不動」。
+   *
+   * 貨架真的變了（買到東西、重新進貨）由呼叫端自己 `render()`；
+   * 買不起那種只是換個臉，本來就不必重畫任何東西。
+   */
   function setMood(m: Mood): void {
-    // 不要因為「表情沒變」就提早跳出：買第二張牌時表情還停在成交，但貨架非重畫不可
     mood = m;
     window.clearTimeout(moodTimer);
     if (m !== 'idle') moodTimer = window.setTimeout(() => setMood('idle'), MOOD_MS);
-    render();
+    const img = root.querySelector<HTMLImageElement>('.scene-portrait');
+    const url = keeperArt();
+    // 比 `getAttribute` 不比 `img.src`：後者的 getter 回的是解析過的絕對網址，
+    // 跟 `artUrl` 給的相對路徑永遠不相等，那個判斷等於沒作用（稽核 2026-09-10 低-5）
+    if (img && url && img.getAttribute('src') !== url) img.src = url;
   }
 
   /**
@@ -107,7 +123,7 @@ registerScreen('shop', (app, root) => {
       const buyable = !it.sold && run.fish >= it.price;
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         saleTag(it.sold ? undefined : it.sale),
-        cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); setMood('happy'); } } }),   // 升級格照＋版畫
+        cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); setMood('happy'); render(); } } }),   // 升級格照＋版畫
         priceNode(it.price, it.sold, it.base, it.sale));
       // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
       if (!it.sold && !buyable) slot.addEventListener('click', () => setMood('no'));
@@ -123,7 +139,7 @@ registerScreen('shop', (app, root) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = run.relics.includes(it.id);
       relics.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
-        () => { if (buyRelic(run, shop, i)) { play('relic'); setMood('happy'); } }, it.base, it.sale));
+        () => { if (buyRelic(run, shop, i)) { play('relic'); setMood('happy'); render(); } }, it.base, it.sale));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -134,8 +150,8 @@ registerScreen('shop', (app, root) => {
       const poor = run.fish < it.price;
       potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, it.price, it.sold, poor,
         () => {
-          if (!full) { if (buyPotion(run, shop, i)) { play('buy'); setMood('happy'); } return; }
-          showPotionSwap(run, it.id, (idx) => { if (idx >= 0 && buyPotion(run, shop, i, idx)) { play('buy'); setMood('happy'); } }, { apply: false });
+          if (!full) { if (buyPotion(run, shop, i)) { play('buy'); setMood('happy'); render(); } return; }
+          showPotionSwap(run, it.id, (idx) => { if (idx >= 0 && buyPotion(run, shop, i, idx)) { play('buy'); setMood('happy'); render(); } }, { apply: false });
         }, it.base, it.sale));
     });
 
@@ -147,7 +163,8 @@ registerScreen('shop', (app, root) => {
         if (uid === null || !c) { render(); return; }
         showRemoveConfirm(c, run.removeCost, (ok) => {
           if (!ok) { pickRelease(); return; }
-          if (buyRemove(run, uid)) { play('upgrade'); setMood('happy'); return; }
+          // 放生成功也要重畫：牌組少一張、小魚乾也扣了（本來靠 setMood 順便重畫，那條路已經拆掉）
+          if (buyRemove(run, uid)) { play('upgrade'); setMood('happy'); }
           render();
         });
       },
@@ -158,7 +175,7 @@ registerScreen('shop', (app, root) => {
     }, `放生一張牌：${run.removeCost} 條小魚乾`);
     if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
-    const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); setMood('happy'); } } },
+    const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); setMood('happy'); render(); } } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
     // 有沒有東西可換要看三區加總，不能只看牌格（稽核 2026-09-07 中 1）：
     // 牌全買光但秘寶或忍具還在架上時，引擎讓你換、按鈕卻是灰的，等於這次改動玩家碰不到

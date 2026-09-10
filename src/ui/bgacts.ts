@@ -30,6 +30,10 @@ export function bgKeysForAct(act: number): string[] {
   const i = Math.min(Math.max(act, 1), 3) - 1;
   const keys = BG_VARIANTS.map((v) => `bg/${TIER_BY_ACT[i]}${v}`);
   keys.push(`bg/boss${i + 1}`);
+  // 關主戰前那扇門也是一關一扇（稽核 2026-09-10 中-1）：沒列進來的話三扇全算首載，
+  // 第二、三關那兩扇 65 KB 是白背的——第一關的玩家一輩子看不到。
+  // 「二三關減一關」的減法會自己把 act1 那扇留在首載、另外兩扇歸分關載入，不用另外列白名單。
+  keys.push(`bg/door_act${i + 1}`);
   for (const base of SCREEN_BASES) {
     const stem = `bg/${base}${SCREEN_SUFFIX[i]}`;
     if (SCREEN_BC.has(base)) for (const v of BG_VARIANTS) keys.push(`${stem}${v}`);

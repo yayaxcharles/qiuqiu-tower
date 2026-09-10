@@ -10,6 +10,15 @@ import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, En
 
 /** 沉睡中的魔物頭上顯示的意圖。每次都是同一份物件，畫面比對「這一拍出的是哪一招」才穩 */
 export const SLEEP_MOVE: EnemyMove = { intent: 'idle', label: '呼呼大睡', effects: [{ kind: 'nothing' }] };
+/**
+ * 血條式變身（`hpBar`，今天只有師父）打完一條血之後的那一拍：蹲下來、無敵一回合。
+ *
+ * **提成常數是為了讓回合尾端認得出它**（稽核 2026-09-10 高-1）：那一招是在
+ * `damageEnemy` 裡當場塞進 `e.move` 的，如果尾端照常 `advanceMove`，它會被下一階段的第一招蓋掉，
+ * 玩家白賺的那個調息回合就整個消失、下一回合直接吃滿傷害。
+ * 跟 `SLEEP_MOVE` 同一套：靠物件身分比對（`e.move === REST_MOVE`），所以一定要共用同一個物件。
+ */
+export const REST_MOVE: EnemyMove = { intent: 'special', label: '蹲下調息', effects: [{ kind: 'nothing' }] };
 
 export function log(cs: CombatState, msg: string): void { cs.log.push(msg); }
 
@@ -212,16 +221,100 @@ function moveSet(e: EnemyCombat): { moves: EnemyMove[]; pattern: 'cycle' | 'rand
   return ph ? { moves: ph.moves, pattern: ph.pattern } : { moves: def.moves, pattern: def.pattern };
 }
 
+/**
+ * 兩次召喚之間**至少要隔幾個牠自己的回合**（使用者 2026-09-10：
+ * 「尾巴不能一直招喚，至少要相隔四個回合……不然永遠打不完」）。
+ *
+ * 4 ＝ 貓又婆婆本來就在用的節奏（第 1 回合放、第 4 回合預告、第 5 回合再放）。
+ * 實測沒守規矩的有三隻：花栗鼠間隔 1,3,2,1,1,2,2,1（幾乎每回合都在叫同伴）、
+ * 傀儡師 3、狸大人 2。**寫在引擎不寫在各隻的招式表**：這是通則，
+ * 寫進資料的話下次加新怪一定會忘，而且忘了不會有任何測試爆掉。
+ *
+ * 玩家看得到的預告不受影響：`advanceMove` 本來就在牠出手的**前一個回合**排好招，
+ * 所以「牠要召喚了」照樣會提前一回合亮在牠頭上。
+ */
+export const SUMMON_GAP = 4;
+
+/**
+ * 偷到東西之後**至少要撐幾個回合才准帶著跑**（使用者 2026-09-10：
+ * 「第二回合橘貓山賊偷到了 10 條小魚乾，就得第 6 回合準備逃跑，第 7 回合才能跑掉」）。
+ *
+ * 5 ＝ 從偷到的那個回合算起，第 5 個回合之後才逃得掉：偷在第 2 回合 → 最快第 7 回合跑。
+ * 頭上的「逃走」預告會在**前一個回合**（第 6 回合）就亮出來，那就是使用者說的「準備逃跑」——
+ * `advanceMove` 本來就提前一回合排招，不必另外做預告招。
+ *
+ * **沒偷到東西就不准跑**：牠是來搶劫的，空手跑掉沒有意義，而且玩家會覺得被耍。
+ * 冷卻記在**每一隻身上**，所以兩隻山賊各偷各的、各跑各的，不會被綁在一起。
+ */
+export const ESCAPE_GAP = 5;
+
+/** 這一招會不會生出東西來 */
+function isSummon(m: EnemyMove): boolean { return m.effects.some((f) => f.kind === 'summon'); }
+
+/**
+ * 這一招現在放得出來嗎。只擋兩種有冷卻的行為（召喚、帶錢逃跑），其他招一律放行。
+ * 擋住的話 `advanceMove` 會改挑別招，冷卻好了自然輪回來。
+ */
+function moveReady(cs: CombatState, e: EnemyCombat, m: EnemyMove): boolean {
+  if (isSummon(m)) {
+    return e.lastSummonTurn === undefined || (e.turnCount + 1) - e.lastSummonTurn >= SUMMON_GAP;
+  }
+  if (m.effects.some((f) => f.kind === 'escape')) {
+    if (e.stolen <= 0 || e.stolenTurn === undefined) return false;   // 空手不跑
+    return (cs.turn + 1) - e.stolenTurn >= ESCAPE_GAP;
+  }
+  return true;
+}
+
 export function advanceMove(cs: CombatState, e: EnemyCombat): void {
+  // 換階段排好的那一招優先（見 EnemyCombat.queuedMove）：它就是為了「下一回合才亮出來」而存在的
+  if (e.queuedMove) {
+    const q = e.queuedMove;
+    delete e.queuedMove;
+    // 冷卻沒到就先放著，等冷卻好了再輪到它（不是丟掉——換階段那招是設計的一部分）
+    if (moveReady(cs, e, q)) { e.move = q; return; }
+    e.queuedMove = q;
+  }
   // 照著學的（鏡中球球）每一動都從球球的牌組抽，抽不到才照表
   if (learnsPlayerCards(e)) { const learned = learnedMove(cs); if (learned) { e.move = learned; return; } }
   const { moves, pattern } = moveSet(e);
+  /**
+   * 被冷卻擋掉的那一招**排進佇列，不是丟掉**（稽核 2026-09-10 中-1）。
+   *
+   * 原本只是「跳過、挑別招」，於是循環表的索引推過了那一格，橘貓山賊的「逃走」得再繞一整圈
+   * 才輪回來——實測第 9 回合才跑，比使用者要的第 7 回合晚兩輪。
+   * 排進佇列之後，`advanceMove` 開頭會優先看它、冷卻一好就立刻輪到，
+   * 而且佇列只裝一招，不會愈積愈多。
+   */
+  const hold = (m: EnemyMove): void => { if (!e.queuedMove) e.queuedMove = m; };
   // 照表出招的怪先問表（turnCount 是「已經行動過的回合數」，下一動＝+1）
   const scripted = enemyById[e.enemyId]?.chooseMove?.(e.turnCount + 1, moves);
-  if (scripted) { e.move = scripted; return; }
-  if (pattern === 'random') { e.move = cs.rng.pick(moves); return; }
-  e.moveIndex = (e.moveIndex + 1) % moves.length;
-  e.move = moves[e.moveIndex] as EnemyMove;
+  if (scripted) {
+    if (moveReady(cs, e, scripted)) { e.move = scripted; return; }
+    hold(scripted);
+  }
+  if (pattern === 'random') {
+    // 抽到冷卻中的就改抽別的；整組都放不出來的話只好照抽（那種怪不存在，但不要因此當掉）
+    const ok = moves.filter((m) => moveReady(cs, e, m));
+    e.move = cs.rng.pick(ok.length ? ok : moves);
+    return;
+  }
+  /**
+   * 循環表：往下找第一招放得出來的。整圈都放不出來就**照原本那一招**（`i === moves.length` 時
+   * 算出來的索引就是 `moveIndex` 本身），不讓它卡死——今天沒有任何一隻的招式表全是召喚或逃走，
+   * 走不到這條，但不留退路的話以後加一隻就會無限迴圈（稽核 2026-09-10 低-2 修正註解）。
+   *
+   * **被擋掉的那一格不算走過**（稽核 2026-09-10 中-1）：原本 `e.moveIndex = idx` 會把索引推過
+   * 那一格，橘貓山賊的「逃走」被冷卻擋掉之後就得再繞一整圈才輪回來，實測第 9 回合才跑、
+   * 比使用者要的第 7 回合晚兩輪，還多偷了一輪。改成「填空的那一招不動索引」，
+   * 冷卻一好，下一回合第一個候選還是它。
+   */
+  for (let i = 1; i <= moves.length; i++) {
+    const idx = (e.moveIndex + i) % moves.length;
+    const m = moves[idx] as EnemyMove;
+    if (moveReady(cs, e, m) || i === moves.length) { e.moveIndex = idx; e.move = m; return; }
+    hold(m);   // 這一格被冷卻擋住：記著，冷卻好了第一個就輪它
+  }
 }
 
 function checkPhase(cs: CombatState, e: EnemyCombat): void {
@@ -235,9 +328,15 @@ function checkPhase(cs: CombatState, e: EnemyCombat): void {
   e.moveIndex = next.onEnterMove ? -1 : 0;
   if (next.line) log(cs, `${e.name}：${next.line}`);
   runEnemyEffects(cs, e, next.onEnter, false);
-  e.move = next.onEnterMove
-    ?? def.chooseMove?.(e.turnCount + 1, next.moves)
-    ?? (next.pattern === 'random' ? cs.rng.pick(next.moves) : (next.moves[0] as EnemyMove));
+  if (next.onEnterMove) {
+    // **排隊、不當場換掉頭上的預告**（使用者 2026-09-10：「第七回合牠是補血，結果又直接跑出兩條尾巴」）。
+    // 這條大多在**玩家回合中途**觸發（打過血量門檻），當場改 `move` 等於預告說謊：
+    // 玩家照著「吸魂」規劃完整個回合，牠卻在同一回合放尾巴。詳見 `EnemyCombat.queuedMove`。
+    e.queuedMove = next.onEnterMove;
+  } else {
+    e.move = def.chooseMove?.(e.turnCount + 1, next.moves)
+      ?? (next.pattern === 'random' ? cs.rng.pick(next.moves) : (next.moves[0] as EnemyMove));
+  }
 }
 
 /**
@@ -365,7 +464,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       for (const name of purged) removeStatus(e, name);
       if (purged.length) log(cs, `${e.name}調息之際把身上的${purged.join('、')}全化掉了`);
       e.moveIndex = -1;   // 起身後 advanceMove 會 +1，從新階段的第一招開始
-      e.move = { intent: 'special', label: '蹲下調息', effects: [{ kind: 'nothing' }] };
+      e.move = REST_MOVE;
       if (next.line) log(cs, `${e.name}：${next.line}`);
       log(cs, `${e.name}蹲了下來調息，暫時打不進去`);
       runEnemyEffects(cs, e, next.onEnter, false);
@@ -412,7 +511,22 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   const def = enemyById[enemyId];
   if (!def) throw new Error(`未知的魔物：${enemyId}`);
   const hp = Math.max(1, Math.round(cs.rng.int(def.hp[0], def.hp[1]) * hpScale));
-  const moveIndex = def.pattern === 'cycle' ? index % def.moves.length : 0;
+  /**
+   * 開場那一招也要過冷卻（稽核 2026-09-10 低-3）。
+   *
+   * 循環表的起點是 `index % moves.length`，讓同一場的第 N 隻從第 N 招開始（一排小怪才不會同步）。
+   * 但橘貓山賊的「逃走」正好排在第五招——排到第五隻時，牠第一回合頭上就掛「逃走」，
+   * 而且 `stolen` 是 0 也照跑，正是這批要修掉的行為。今天最多的那組只有四隻、碰不到，
+   * 但那是巧合不是設計。往下挑到第一招放得出來的為止。
+   */
+  let moveIndex = def.pattern === 'cycle' ? index % def.moves.length : 0;
+  if (def.pattern === 'cycle') {
+    for (let i = 0; i < def.moves.length; i++) {
+      const m = def.moves[(moveIndex + i) % def.moves.length] as EnemyMove;
+      // 開場一定是「還沒偷過、還沒召喚過」，所以只要看這一招是不是那兩種有冷卻的行為
+      if (!m.effects.some((f) => f.kind === 'escape')) { moveIndex = (moveIndex + i) % def.moves.length; break; }
+    }
+  }
   const move = def.pattern === 'cycle' ? (def.moves[moveIndex] as EnemyMove) : cs.rng.pick(def.moves);
   const e: EnemyCombat = {
     uid: cs.nextEnemyUid++, enemyId, name: def.name, hp, maxHp: hp, block: 0, statuses: {},
@@ -471,7 +585,13 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'statusSelf': addStatus(e, fx.name, fx.amount); break;
       case 'statusPlayer': addStatus(p, fx.name, fx.amount); break;
       case 'heal': e.hp = Math.min(e.maxHp, e.hp + fx.n); break;
-      case 'stealFish': e.stolen += fx.n; cs.stolenFish += fx.n; cs.fishDelta -= fx.n; log(cs, `${e.name}偷走了 ${fx.n} 小魚乾`); break;
+      case 'stealFish':
+        e.stolen += fx.n; cs.stolenFish += fx.n; cs.fishDelta -= fx.n;
+        // 逃跑冷卻從**第一次**偷到算起（見 `ESCAPE_GAP`）：再偷第二次不會把時鐘重設，
+        // 不然牠可以一直偷一直重設、永遠不跑，玩家也永遠追不回那筆錢
+        e.stolenTurn ??= cs.turn;
+        log(cs, `${e.name}偷走了 ${fx.n} 小魚乾`);
+        break;
       case 'discardRandomHand': {
         // 魔物出手時你的手牌早就在回合結束時全棄掉了，「隨機丟手牌」實際上什麼都沒發生
         // （使用者 2026-09-02：「完全沒看到效果」）。改成真正有感的版本：下回合少抽幾張，最少還是抽得到 1 張。
@@ -481,6 +601,9 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         break;
       }
       case 'summon': {
+        // 這一拍記下來，冷卻從這裡算（見 `SUMMON_GAP`）。灌血給現有的那條路也算「召喚過了」——
+        // 玩家的感受是一樣的：牠又動了一次召喚，場面又硬了一截
+        e.lastSummonTurn = e.turnCount;
         for (let i = 0; i < fx.n; i++) {
           // 躺著等重生的也占名額（2026-09-03 稽核：蛙大名原本會一邊復活蝌蚪一邊再召兩隻，場上冒出四隻）
           const onField = (o: EnemyCombat) => !o.dead || (o.reviveIn > 0 && !o.escaped);

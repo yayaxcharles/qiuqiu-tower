@@ -42,17 +42,34 @@ function showcaseNode(items: Showcase): HTMLElement {
   return box;
 }
 
-/** 拿到的秘寶／忍具放大彈出來（框裡那一列照舊寫名稱與效果） */
+/**
+ * 拿到的秘寶／忍具放大彈出來，**效果直接寫在那顆跳動的圖示上方**
+ *（使用者 2026-09-10：「效果應該要在跳動的這個圖案上方也有大字顯示」）。
+ *
+ * 原本圖示是孤零零一顆，要往下掃到對白框裡那一列才知道它是什麼、有什麼用——
+ * 跟紙箱那次同一個毛病（說明離主體太遠）。排法照紙箱退路版那一套：
+ * 效果在上、圖示在中、「秘寶／忍具＋名字」在下，一眼從上讀到下。
+ * **不共用 `.loot-stack` 那個類別**：它自己帶著一條 `.scene:has(.loot-stack) .scene-art { top: 56px }`，
+ * 跟 `.scene-art:has(.showcase)` 的 `translate(-50%, -78%)` 疊起來會把整塊推到畫面外
+ *（實測效果那行整條被切掉）。另開 `.gain-stack`，只借排版不借定位。
+ * 帶滿收不下的忍具不放大（那不是「拿到」），留給對白框裡那一列去說明。
+ */
 function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
   const box = el('div', { class: 'showcase icons' });
   for (const g of gains) {
+    if (g.missed) continue;
     const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
     const url = d ? artUrl('icons', d.art) : '';
     if (!d || url.startsWith('data:')) continue;
     // 包一層才放得下特效：`<img>` 不能有子節點（見 fx.ts 的 burst）
     const node = el('img', { class: 'showcase-icon', src: url, alt: d.name });
     const host = el('span', { class: 'fx-host' }, node);
-    box.append(host);
+    box.append(el('div', { class: 'gain-stack' },
+      el('p', { class: 'loot-above' }, d.text),
+      host,
+      el('div', { class: 'loot-below' },
+        el('span', { class: 'loot-kind' }, g.kind),
+        el('b', { class: 'loot-name' }, d.name))));
     window.setTimeout(() => burst(host, 'buff'), 60);
   }
   return box.childElementCount ? box : '';

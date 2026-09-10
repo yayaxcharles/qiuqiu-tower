@@ -4,7 +4,7 @@ import { bgKeysForAct, deferredBgKeys } from '../../src/ui/bgacts';
 describe('底圖分關', () => {
   it('每關拿到自己的戰鬥背景三張、關主戰場一張、節點畫面（貓窩／罐頭鋪／紙箱各三款）', () => {
     expect(bgKeysForAct(1)).toEqual([
-      'bg/low', 'bg/low_b', 'bg/low_c', 'bg/boss1',
+      'bg/low', 'bg/low_b', 'bg/low_c', 'bg/boss1', 'bg/door_act1',
       'bg/map_tall',
       'bg/screen_chest', 'bg/screen_chest_b', 'bg/screen_chest_c',
       'bg/screen_event',
@@ -17,6 +17,9 @@ describe('底圖分關', () => {
     expect(bgKeysForAct(3)).toContain('bg/top_b');
     expect(bgKeysForAct(3)).toContain('bg/screen_rest_top');
     expect(bgKeysForAct(3)).toContain('bg/screen_rest_top_b');
+    // 關主門也是一關一扇，二三關那兩扇要能歸分關載入（稽核 2026-09-10 中-1）
+    expect(bgKeysForAct(2)).toContain('bg/door_act2');
+    expect(bgKeysForAct(3)).toContain('bg/door_act3');
     // 事件與地圖底圖沒做關內變體，不該憑空長出 `_b`
     expect(bgKeysForAct(1)).not.toContain('bg/screen_event_b');
     expect(bgKeysForAct(1)).not.toContain('bg/map_tall_b');
@@ -32,8 +35,8 @@ describe('底圖分關', () => {
 
   it('可延後的只有二三關專屬那幾張（各關的節點畫面現在一種三款）', () => {
     const skip = deferredBgKeys();
-    // 二三關各：戰鬥背景 3＋關主 1＋地圖 1＋事件 1＋（貓窩／罐頭鋪／紙箱各 3 款＝ 9）＝ 15
-    expect(skip.size).toBe(30);
+    // 二三關各：戰鬥背景 3＋關主 1＋關主門 1＋地圖 1＋事件 1＋（貓窩／罐頭鋪／紙箱各 3 款＝ 9）＝ 16
+    expect(skip.size).toBe(32);
     expect([...skip].every((k) => k.startsWith('bg/'))).toBe(true);
   });
 

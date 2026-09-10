@@ -6,6 +6,7 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
 import { enemyById, encounterById } from '../content/enemies';
+import { hasBossDoor } from './screenbg';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
@@ -17,7 +18,7 @@ import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 
-export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'actclear' | 'result';
+export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result';
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
@@ -75,7 +76,7 @@ export class App {
       // 結算分輸贏：贏放通關曲、輸放陣亡曲——原本共用休閒曲，剛死掉卻放輕鬆的曲子，調性不對
       case 'result': return this.run?.status === 'won' ? 'ending' : this.run?.status === 'lost' ? 'defeat' : 'leisure';
       case 'title': return 'leisure';
-      case 'map': case 'event': case 'chest': case 'actclear': case 'reward': return actTrack;
+      case 'map': case 'event': case 'chest': case 'bossdoor': case 'actclear': case 'reward': return actTrack;
       case 'shop': return 'shop';
       case 'rest': return 'rest';
       default: return null;   // combat 在 startFight 裡自己設
@@ -136,6 +137,9 @@ export class App {
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
     const node = currentNode(run);
     if (node?.type === '塔主' && node.encounterId && run.flags['final_boss'] && run.status === 'playing') {
+      // 這條**刻意不補關主門**（稽核 2026-09-10 低-2）：`final_boss` 這個旗標全專案只有這裡讀、
+      // 沒有任何地方寫（2026-09-07 拿掉了），只有那之前存的檔才走得到。為一條走不到的舊路加過場沒有意義，
+      // 而且那是「重整後接回殘局」的情境，玩家已經看過門了，再演一次反而怪
       this.startFight(node.encounterId, true);
       return true;
     }
@@ -184,7 +188,10 @@ export class App {
     switch (node.type) {
       case '戰鬥': case '大魔物': case '塔主':
         if (!node.encounterId) break;
-        this.startFight(node.encounterId, node.type === '塔主');
+        // 關主戰前先擋一扇門（使用者 2026-09-10：「讓玩家有種必須得打開門、打過這隻 BOSS 才能往上」）。
+        // 門還沒生好就跳過，直接開打——不要為了一張圖把關主戰卡住
+        if (node.type === '塔主' && hasBossDoor(run.act)) this.show('bossdoor', { encounterId: node.encounterId });
+        else this.startFight(node.encounterId, node.type === '塔主');
         break;
       case '事件': this.show('event', { eventId: node.eventId }); break;
       case '罐頭鋪': this.show('shop'); break;

@@ -93,6 +93,41 @@ const BG_ZOOM: Record<string, number> = {
   'bg/mid': 109, 'bg/mid_b': 106, 'bg/mid_c': 108,
   'bg/top': 108, 'bg/top_b': 113, 'bg/top_c': 109,
 };
+/**
+ * 關主戰前那扇門的鍵。三關各一扇，材質跟該關的場景一致（塔下石門、塔中木門、塔頂夜空石門）。
+ *
+ * **放在這裡不放在 `screens/bossdoor.ts`**：`app.ts` 要用 `hasBossDoor` 決定要不要走那個畫面，
+ * 而 `bossdoor.ts` 又得跟 `app.ts` 拿 `registerScreen`——兩邊互相引入的話，
+ * 模組初始化時 `registerScreen` 還沒定義好，整包會在載入階段就炸（實測 `aftercombat.test.ts` 整檔載不起來）。
+ * 這兩支只是算鍵名、不碰畫面，放在這個誰都能引用的模組最乾淨。
+ */
+export function bossDoorKey(act: number): string {
+  return `bg/door_act${Math.min(3, Math.max(1, act))}`;
+}
+
+/** 這一關的門生好了沒。沒生好就整段跳過、直接開打（不要為了一張圖把關主戰卡住） */
+export function hasBossDoor(act: number): boolean {
+  return !artUrl('bg', bossDoorKey(act)).startsWith('data:');
+}
+
+/**
+ * 這一場該用哪張戰場底圖。關主戰有專屬的三張（`bg/boss1`～`3`），其餘照樓層的色調輪。
+ *
+ * **抽成一支給兩個地方共用**（稽核 2026-09-10 中-2）：戰鬥畫面與關主門的門後景各寫一份的話，
+ * 門一推開看到的走廊會跟推開之後的戰場對不起來。
+ *
+ * 順帶修掉一個老 bug：原本戰鬥畫面寫的是 `artUrl('bg', \`boss${act}\`)`，**少了 `bg/` 前綴**——
+ * manifest 的鍵是 `bg/boss1`，查不到就回一張灰剪影的 data URI，於是判斷永遠退回樓層色調，
+ * 三張畫好的關主戰場（合計 89 KB）從來沒被畫出來過。
+ */
+export function battleBgKey(act: number, floor: number, isBoss: boolean): string {
+  if (isBoss) {
+    const key = `bg/boss${Math.min(3, Math.max(1, act))}`;
+    if (!artUrl('bg', key).startsWith('data:')) return key;
+  }
+  return tierBgKey(floor);
+}
+
 export function tierBgZoom(key: string): number {
   return BG_ZOOM[key] ?? 100;
 }
@@ -128,6 +163,7 @@ export function applyArtVars(): void {
     '--ui-intent-special': 'icon/ui_intent_special',
     '--ui-intent-idle': 'icon/ui_intent_idle',
     '--cardframe-rare': 'icon/cardframe_rare',
+    '--vfx-fly-wind': 'icon/vfx_fly_wind',   // 飛行怪腳下那陣風（combat.css 的 `.airborne`）
   };
   const root = document.documentElement;
   for (const [name, key] of Object.entries(vars)) {
