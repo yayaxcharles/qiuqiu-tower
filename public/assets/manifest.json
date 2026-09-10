@@ -165,7 +165,12 @@
   "boss/drunk3": "assets/sprites/boss/drunk3.webp",
   "boss/defeat3": "assets/sprites/boss/defeat3.webp",
   "shop/keeper_happy": "assets/sprites/shop/keeper_happy.webp",
-  "shop/keeper_no": "assets/sprites/shop/keeper_no.webp"
+  "shop/keeper_no": "assets/sprites/shop/keeper_no.webp",
+  "hero/ninja_belly": "assets/sprites/hero/ninja_belly.webp",
+  "hero/ninja_lazy": "assets/sprites/hero/ninja_lazy.webp",
+  "hero/ninja_puff": "assets/sprites/hero/ninja_puff.webp",
+  "hero/ninja_stealth": "assets/sprites/hero/ninja_stealth.webp",
+  "hero/ninja_iron": "assets/sprites/hero/ninja_iron.webp"
  },
  "review": [],
  "monsters": {

@@ -109,13 +109,21 @@ export function preloadAct(act: number): Promise<void> {
 }
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */
-export function warmEncounter(encounterId: string, timeoutMs = 1500): Promise<void> {
+export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: readonly string[] = []): Promise<void> {
   const enc = encounterById[encounterId];
   if (!enc) return Promise.resolve();
   const ids = new Set<string>();
   for (const id of enc.enemies) relatedIds(id, ids);
   const defs = [...ids].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d);
-  const work = decodeAll(urlsFor(defs), 6);
+  /**
+   * 球球那三十張姿勢也一起暖（2026-09-10，使用者回報「球球的腳色會突然消失再出現」）。
+   *
+   * 換姿勢是直接換 `<img>` 的 `src`。圖已經在快取裡就是無縫的，**還沒下載好就會先畫成一片空白、
+   * 載好才冒出來**——正好是「消失又出現」。平常碰不到（`combat.ts` 的 `warmAll` 開戰時會暖），
+   * 但**冷快取的第一場**（例如剛部署完、所有圖的內容都變了那一次）`warmAll` 自己也還在下載，
+   * 玩家已經在出牌了。放進這裡就會卡在既有的 1.5 秒上限內先抓完，不另外增加等待。
+   */
+  const work = decodeAll([...heroPoses, ...urlsFor(defs)], 6);
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
   return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });

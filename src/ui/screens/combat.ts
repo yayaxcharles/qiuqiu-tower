@@ -24,6 +24,7 @@ import { enemyLeft, nextLineup } from '../enemylayout';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
+import { idlePoseKey } from '../heropose';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 import { overlayRoot } from '../overlay';
@@ -86,6 +87,11 @@ const POSE = {
   power: 'hero/ninja_power', hurt: 'hero/ninja_hurt',
   // 2026-09-03 晚補的動態：施展忍術（打技能／能力牌時用；圖還沒生好就退回出招圖）
   skill: 'hero/ninja_skill',
+  // 2026-09-10 補的待機狀態（使用者：「補足球球的動作跟狀態」）：這五個狀態掛在身上時
+  // 本來都用同一張站姿，看不出自己中了什麼。隱身那張是實心的煙遮住下半身，
+  // **不能畫半透明**（綠幕會從身體裡透出來、去背後整張帶綠，codex_gen.py 的坑 5）
+  belly: 'hero/ninja_belly', lazy: 'hero/ninja_lazy', puff: 'hero/ninja_puff',
+  stealth: 'hero/ninja_stealth', iron: 'hero/ninja_iron',
   // 擲手裡劍（2026-09-03 晚生的圖）：撒手鐧那張牌、手裡劍與針雨兩支忍具用；沒圖就退回出招圖
   throw: 'hero/ninja_throw',
   // 攻擊招式分家（2026-09-08，使用者：三十幾張攻擊牌全長一樣）：原本那張 attack 其實是掌推，
@@ -223,15 +229,8 @@ registerScreen('combat', (app, root, props) => {
 
   let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
-  const idlePose = (): string => {
-    const p = cs.player;
-    if (p.hp <= Math.ceil(p.maxHp * 0.3) && hasSprite(POSE.hurt)) return POSE.hurt;
-    // 噎到（每回合掉血）與被纏住（定身，攻擊牌打不出）的待機各有自己的圖：狀態還掛著的期間一看就知道
-    if (getStatus(p, '噎到') > 0 && hasSprite(POSE.choke)) return POSE.choke;
-    if (getStatus(p, '定身') > 0 && hasSprite(POSE.dizzy)) return POSE.dizzy;
-    if (getStatus(p, '爪力') >= 5 && hasSprite(POSE.power)) return POSE.power;
-    return POSE.idle;
-  };
+  // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
+  const idlePose = (): string => idlePoseKey(cs.player, POSE, hasSprite);
   let pose = POSE.idle;
   /**
    * 這一拍出手的魔物（uid → 牠剛使出的招式）。跟球球的姿勢同一個節奏：`settle` 重算、

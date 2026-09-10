@@ -32,6 +32,16 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
   return rel ? `${BASE}${rel}` : SILHOUETTE;
 }
 
+/**
+ * 球球全部姿勢的網址。開打前一起暖（`warmEncounter`）——換姿勢是直接換 `<img>` 的 `src`，
+ * 圖還沒下載好會先畫成一片空白、載好才冒出來，看起來就是「角色突然消失再出現」
+ *（使用者 2026-09-10 在剛部署完、整包圖都要重抓的那一次遇到）。
+ * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
+ */
+export function heroSpriteUrls(): string[] {
+  return Object.entries(manifest.sprites).filter(([k]) => k.startsWith('hero/')).map(([, v]) => `${BASE}${v}`);
+}
+
 /** 這張立繪生好了沒（階段專屬圖、球球狀態圖還沒落地時要退回一般圖，不能畫成灰剪影） */
 export function hasSprite(key: string): boolean { return manifest.sprites[key] !== undefined; }
 

@@ -11,7 +11,7 @@ import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as eng
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, monsterUrl } from './assets';
+import { computeScale, heroSpriteUrls, monsterUrl } from './assets';
 import { playDialogue, toast, bubbleAt } from './dialogue';
 import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
@@ -241,7 +241,7 @@ export class App {
         toast(dialogue.battleStart[Math.floor(Math.random() * dialogue.battleStart.length)] ?? '', '球球');
       }
       };
-      void warmEncounter(encounterId).then(proceed, proceed);
+      void warmEncounter(encounterId, 1500, heroSpriteUrls()).then(proceed, proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。
