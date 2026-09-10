@@ -85,7 +85,8 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     // 圖還沒生好的秘寶用名字前兩個字當牌子，不畫灰剪影
     const url = artUrl('icons', r.art);
     const fresh = seenRelics !== null && !seenRelics.has(id);
-    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}` }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
+    // `data-relic`：戰鬥畫面靠它找到「剛剛發動的那一件」讓它閃一下（見 combat.ts 的 `flashRelics`）
+    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}`, 'data-relic': id }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
     // 原本掛瀏覽器原生的 `title`：要停住一秒才跳出來、長相也跟遊戲裡其他提示不一樣，
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
@@ -93,6 +94,8 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     node.addEventListener('click', () => showRelicList(run));
     relics.append(node);
   }
+  // 收起來的那幾件發動時，改閃這顆「+N」（使用者 2026-09-10：「秘寶超過會堆疊起來，會不會 HUD 看不到？」）。
+  // 秘寶沒有上限、只畫最新的 8 件，所以早期拿的（例如開局那條藍頭巾）滿 9 件之後就躲在這裡面了
   if (run.relics.length > MAX_ICONS) relics.append(el('button', { class: 'btn small hud-relic-more', onclick: () => showRelicList(run) }, `+${run.relics.length - MAX_ICONS}`));
   // 秘寶滿 8 格又帶九命鈴／忍具袋（忍具 5～6 格）時整列放不下：圖示與間距縮一級（.hud.crowded）
   if (shown.length + Math.max(potionCapacity(run), 3) >= 10) hud.classList.add('crowded');

@@ -12,6 +12,69 @@ import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, En
 export const SLEEP_MOVE: EnemyMove = { intent: 'idle', label: '呼呼大睡', effects: [{ kind: 'nothing' }] };
 
 export function log(cs: CombatState, msg: string): void { cs.log.push(msg); }
+
+/** 秘寶發動那一行的開頭。同一拍連著發動的會併進同一行（見 `fireRelic`） */
+const RELIC_LOG = '秘寶發動：';
+
+/**
+ * 記一筆「這件秘寶剛剛動了」，並印進戰報。
+ *
+ * 秘寶的效果多半是靜悄悄套上去的——靈貓鈴多抽一張牌、貓抓板多長一點蜷縮，數字就這樣變了，
+ * 玩家不知道是誰做的，久了會以為那件秘寶根本沒作用（使用者 2026-09-10 點名要補回饋）。
+ * 每個掛鉤**真的做了事**的那一刻叫一次；純粹一直生效、沒有「發動」時刻可言的不叫。
+ *
+ * 注意有的效果自己也會印一行（鐵砂衣的開場自傷走 `selfDamage`，`effects.ts` 對秘寶來源的自傷
+ * 會印「秘寶的代價：失去 N 點生命」），那種就會是兩行——那是對的，代價本來就該講清楚。
+ *
+ * **連著發動的併成一行**（稽核 2026-09-10 中-4）：紀錄框只顯示最後四行。
+ * 開場帶六件秘寶時實測九行紀錄裡看得到的四行全是「發動」，三隻魔物的開場台詞一句都不剩；
+ * 靜靜過一回合也會被回合開始與回合結束那兩批塞滿。用「上一行也是發動就接在後面」的作法，
+ * 開場那一批、回合開始那一批、回合結束那一批、一拍清場那一批各自天然收成一行，
+ * 而且不必替不同掛鉤訂不同規則——中間只要插進任何別的紀錄（鐵砂衣的自傷、魔物出招），
+ * 下一件就會自己另起一行，順序讀起來仍然是對的。
+ */
+export function fireRelic(cs: CombatState, id: string): void {
+  const def = relicById[id];
+  if (!def) return;
+  cs.relicFired.push(id);
+  const last = cs.log[cs.log.length - 1];
+  if (last === undefined || !last.startsWith(RELIC_LOG)) { log(cs, `${RELIC_LOG}${def.name}`); return; }
+  const body = last.slice(RELIC_LOG.length);
+  /**
+   * 同一件在同一行裡不重複寫（稽核 2026-09-10 複核 中-2）。
+   * 資料表裡有四種組合會讓同一件在同一拍叫兩次以上：紙鶴書籤同掛第一回合多抽與多吃、
+   * 魔氣護符與黑貓面具的加成跟開場效果、以及一拍打死好幾隻時擊倒獎勵每隻各叫一次。
+   * 畫面那側有 `new Set` 擋著，戰報這側沒有，會印成「秘寶發動：沙丁魚罐、沙丁魚罐、沙丁魚罐」。
+   */
+  const folded = /^(.+)…等 (\d+) 件$/.exec(body);
+  if (folded) {
+    if (folded[1]!.split('、').includes(def.name)) return;
+    cs.log[cs.log.length - 1] = `${RELIC_LOG}${folded[1]}…等 ${Number(folded[2]) + 1} 件`;
+    return;
+  }
+  const names = body.split('、');
+  if (names.includes(def.name)) return;
+  /**
+   * 第四件起收成「…等 N 件」（稽核 2026-09-10 複核 低-2）。
+   * 併成一行解掉了「四筆都是發動」，但紀錄框只有 216 像素寬、放得下約五個視覺行，
+   * 開場帶八件會發動的秘寶時那一筆會自己折成三四行，魔物的開場台詞照樣被擠出框外。
+   */
+  cs.log[cs.log.length - 1] = names.length >= 3
+    ? `${RELIC_LOG}${names.join('、')}…等 ${names.length + 1} 件`
+    : `${RELIC_LOG}${names.join('、')}、${def.name}`;
+}
+
+/**
+ * 只推進「發動過」的清單、不印紀錄。
+ *
+ * 給**自己已經有專屬紀錄句**的那幾件用（最後一口氣「替球球挨了這一下」、秘笈「第一擊加倍」、
+ * 暖毯「還熱著」）：那些句子講得比「發動」清楚，再多印一行是重複。
+ * 但畫面那側的金光與名牌照樣要演，所以清單一定要推。
+ */
+export function markRelic(cs: CombatState, id: string): void {
+  if (relicById[id]) cs.relicFired.push(id);
+}
+
 export function aliveEnemies(cs: CombatState): EnemyCombat[] { return cs.enemies.filter((e) => !e.dead); }
 export function findEnemy(cs: CombatState, uid: number): EnemyCombat | undefined { return cs.enemies.find((e) => e.uid === uid && !e.dead); }
 export function hasRelic(cs: CombatState, id: string): boolean { return cs.relics.includes(id); }
@@ -26,6 +89,13 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
 // 隱身**沒有上限**（使用者 2026-09-04 明示：要能無限疊，不能設上限；平衡靠「蜷縮先擋」的判定順序與看破）
 export function gainStealth(cs: CombatState, n: number): void {
   let amt = n;
+  // 加成的那幾件也要看得到在做事（稽核 2026-09-10 中-3）：這裡是它們唯一的「發動時刻」
+  for (const id of cs.relics) {
+    const h = relicById[id]?.hooks;
+    if (!h) continue;
+    const first = !cs.player.firstStealthGiven && (h.stealthBonus ?? 0) > 0;
+    if (first || (h.stealthBonusEvery ?? 0) > 0) fireRelic(cs, id);
+  }
   if (!cs.player.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
   amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
   cs.player.firstStealthGiven = true;
@@ -120,12 +190,13 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
   // 已經打贏了，殘餘效果（自傷、壞毛病）不會把球球打死
   if (cs.phase === 'won') { p.hp = Math.max(1, p.hp); return lose; }
   if (p.hp <= 0) {
-    // 擋一次致命傷的秘寶由資料決定（木樁的 preventLethal），不要把 id 寫死在引擎裡
-    const saved = cs.relics.some((id) => relicById[id]?.hooks.preventLethal);
-    if (saved && !p.lethalPrevented) {
+    // 擋一次致命傷的秘寶由資料決定（最後一口氣的 preventLethal），不要把 id 寫死在引擎裡
+    const saverId = cs.relics.find((id) => relicById[id]?.hooks.preventLethal);
+    if (saverId && !p.lethalPrevented) {
       p.hp = 1; p.lethalPrevented = true;
-      const saver = cs.relics.map((id) => relicById[id]).find((r) => r?.hooks.preventLethal);
-      log(cs, `${saver?.name ?? '秘寶'}替球球挨了這一下`);
+      // 這條自己有專屬的紀錄句子（比「發動」講得清楚），所以只推清單、不再多印一行
+      markRelic(cs, saverId);
+      log(cs, `${relicById[saverId]?.name ?? '秘寶'}替球球挨了這一下`);
     }
     else { p.hp = 0; cs.phase = 'lost'; }
   }
@@ -198,6 +269,9 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   if (!reviving) for (const rid of cs.relics) {
     const h = relicById[rid]?.hooks;
     if (!h) continue;
+    // 滿血時沙丁魚罐回 0 點：那一下什麼都沒發生，不該閃金光也不該佔一格紀錄（稽核 2026-09-10 低-9）
+    const heals = !!h.killHeal && cs.player.hp < cs.player.maxHp;
+    if (heals || h.killStrength || h.killFish) fireRelic(cs, rid);
     if (h.killHeal) healPlayer(cs, h.killHeal);
     if (h.killStrength) addStatus(cs.player, '爪力', h.killStrength);
     if (h.killFish) cs.fishDelta += h.killFish;

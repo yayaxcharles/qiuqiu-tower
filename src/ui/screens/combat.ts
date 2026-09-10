@@ -1,5 +1,6 @@
 import { potionCapacity } from '../../engine/run';
 import { cardById } from '../../content/cards';
+import { relicById } from '../../content/relics';
 import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
@@ -7,6 +8,7 @@ import { aliveEnemies, willRevive } from '../../engine/actions';
 import { rampageTurnFor, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
+import { DEBUFFS } from '../../engine/types';
 import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
 import { registerScreen } from '../app';
 import { attachCardDrag } from '../dragplay';
@@ -187,11 +189,12 @@ interface Snap {
   enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
   logLen: number;
   hitsLen: number;
+  relicFiredLen: number;   // 這一拍哪幾件秘寶動了：跟 `cs.relicFired` 相減就知道（見 `flashRelics`）
 }
 function snap(cs: CombatState): Snap {
   return {
     hp: cs.player.hp, block: cs.player.block, logLen: cs.log.length, hitsLen: cs.hits.length,
-    energyGain: cs.energyGain,
+    energyGain: cs.energyGain, relicFiredLen: cs.relicFired.length,
     buff: sumStatus(cs.player, GOOD_STATUS), debuff: sumStatus(cs.player, BAD_STATUS),
     growth: getStatus(cs.player, '爪力') + getStatus(cs.player, '貓步'),
     choke: getStatus(cs.player, '噎到'), stealth: getStatus(cs.player, '隱身'),
@@ -999,6 +1002,7 @@ registerScreen('combat', (app, root, props) => {
     renderHud(app, box, cs.fishDelta);
     const endBtn = box.querySelector<HTMLElement>('.end-turn');
     if (endBtn) { if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }
+    paintFlashes(performance.now());   // 狀態列剛重建，還在演的秘寶要補回去（稽核 2026-09-10 複核 中-1）
     return true;
   }
 
@@ -1051,6 +1055,7 @@ registerScreen('combat', (app, root, props) => {
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
     renderHud(app, box, cs.fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
     root.append(box);
+    paintFlashes(performance.now());   // 同 patchField：整頁重畫也要把還在演的秘寶補回去（稽核 2026-09-10 複核 中-1）
     // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
     // dealFrom 排在同一拍（不是下一幀）：動畫要到下一幀才開始播，這時候補上位移還來得及。
     dealFrom(box);
@@ -1399,6 +1404,131 @@ registerScreen('combat', (app, root, props) => {
     settle(before, opts);
   }
 
+  /**
+   * 這一拍發動過的秘寶：狀態列那一格閃一下金光，名字往下浮一下。
+   *
+   * 為什麼要做：秘寶的效果都是靜悄悄套上去的，玩家看到的只有「數字變了」，
+   * 不知道是誰做的，久了就以為那件秘寶沒作用（使用者 2026-09-10 指定要補）。
+   *
+   * **演出要撐得過重畫，所以狀態記在這裡、節點每次重新掛**（稽核 2026-09-10 高-1）。
+   * 原本是掛完就走，但 `patchField`／`render` 都會把整條 `.hud` 拆掉重建，而一般小怪沒有出招預告
+   *（`telegraphNext()` 只對大魔物與塔主回真），`runEnemyTurn` 的下一個 `step()` 是**同步**接著跑的——
+   * 名牌從掛上去到被丟掉全在同一個工作裡，瀏覽器連一次都還沒重繪。受害的正好是
+   * 「這回合沒出攻擊牌」那五件（尾巴鈴、止水碗、羽毛玩具、木魚、風鈴），本來就最沒手感的那批。
+   * 改成：`flashing` 記著「還在演的是哪幾件、從什麼時候開始演」，每次 `flashRelics` 被叫到
+   *（它本來就排在每一次重畫之後）就照現在的狀態列重掛一次，並用**負的 `animation-delay`**
+   * 讓動畫從該有的進度接著演，而不是每次都從頭開始。
+   */
+  const FLASH_MS = 1050;
+  /** 還在演的秘寶：`row` 是它在名牌那一疊的第幾行，重掛時要維持住才不會上下跳 */
+  const flashing: { id: string; start: number; row: number }[] = [];
+  let flashTimer: number | undefined;
+  app.disposers.push(() => { if (flashTimer !== undefined) window.clearTimeout(flashTimer); });
+
+  /** 這件秘寶是「代價」不是「好處」嗎：開場扣血或給自己減益的（鐵砂衣、魔氣護符、黑貓面具） */
+  function isCostRelic(id: string): boolean {
+    const fx = relicById[id]?.hooks.combatStart;
+    if (!fx) return false;
+    return fx.some((e) => e.kind === 'selfDamage'
+      || (e.kind === 'status' && e.target === 'self' && DEBUFFS.includes(e.name)));
+  }
+
+  /**
+   * 把還在演的全部照現在的狀態列重掛一次。`now` 決定每一張要從動畫的哪一格接著演。
+   *
+   * **每一條重畫的路徑最後都要叫它**（稽核 2026-09-10 複核 中-1），不能只掛在結算那條：
+   * `render()` 另外有十個不經過 `settle` 的呼叫點（點牌選目標、Esc 取消、關教學、右鍵…），
+   * 每一個都會 `clear(root)` 把整條狀態列連同名牌丟掉。回合開始的秘寶正在演的那 0.3 秒裡
+   * 玩家點一張要選目標的牌，金光就當場消失、而且不會再回來。
+   */
+  function paintFlashes(now: number): void {
+    const hud = root.querySelector<HTMLElement>('.hud');
+    if (!hud) return;
+    for (const stale of hud.querySelectorAll('.relic-pop')) stale.remove();
+    const more = hud.querySelector<HTMLElement>('.hud-relic-more');
+    const live = new Set<HTMLElement>();
+    for (const f of flashing) {
+      const def = relicById[f.id];
+      // 滿八件之後其餘收成一顆「+N」，找不到自己的格子就閃那顆（使用者 2026-09-10：
+      // 「秘寶現在上面超過會堆疊起來，會不會 HUD 看不到？」）
+      const slot = hud.querySelector<HTMLElement>(`.hud-relic[data-relic="${f.id}"]`) ?? more;
+      if (!def || !slot) continue;
+      const elapsed = now - f.start;
+      const delay = f.row * 90 - elapsed;
+      /**
+       * 格子的金光**只有在這個節點還沒開始演的時候才設**（稽核 2026-09-10 複核 低-1、低-3）。
+       * 重畫過的節點是全新的，動畫從零開始，負延遲正好把它推到該有的進度；
+       * 但 `tickFlashes` 那條路沒有人重畫，同一個工作裡把 `.fired` 拿掉再加回去不會重啟動畫，
+       * 再寫一次延遲等於把進度往前跳。用 `data-fired-at` 認節點：對得上就別碰。
+       * 好幾件都落在同一顆「+N」上時也只由**第一筆**負責，不然最後一件會把延遲蓋掉。
+       */
+      if (!live.has(slot)) {
+        live.add(slot);
+        if (slot.dataset['firedAt'] !== String(f.start)) {
+          slot.dataset['firedAt'] = String(f.start);
+          slot.style.animationDelay = `${delay}ms`;
+          slot.classList.add('fired');
+        }
+      }
+      const pop = el('span', { class: `relic-pop${isCostRelic(f.id) ? ' cost' : ''}` }, def.name);
+      /**
+       * 一次好幾件時要**排成一疊**，不能只錯開時間。兩種撞法都真的會發生：
+       * ①收在「+N」裡的好幾件同時發動，名牌會疊在同一顆鈕底下；
+       * ②開場秘寶有 17 件帶 `combatStart`，帶三五件時各自的格子只隔 44 像素，
+       * 但名牌是照字寬長的（「沙丁魚罐」比格子寬得多），左右一定會咬到。
+       * 照 `row` 一行一行往下掛就都解決了，每行 22 像素。
+       *
+       * 金光跟名牌用**同一個延遲**（稽核 2026-09-10 低-12）：原本金光一律不延遲、名牌才錯開，
+       * 帶六件開場秘寶時第六個名字浮出來的當下，那一格的光早就滅了。
+       */
+      pop.style.animationDelay = `${delay}ms`;
+      if (f.row > 0) pop.style.marginTop = `${4 + f.row * 22}px`;
+      slot.append(pop);
+    }
+    // 已經演完的把類別與行內樣式一起清掉，別留在節點上（稽核 2026-09-10 複核 低-3）
+    for (const lit of hud.querySelectorAll<HTMLElement>('.fired')) {
+      if (live.has(lit)) continue;
+      lit.classList.remove('fired');
+      lit.style.removeProperty('animation-delay');
+      delete lit.dataset['firedAt'];
+    }
+  }
+
+  /** 到期的清掉、重畫一次；還有在演的就再約下一次 */
+  function tickFlashes(): void {
+    flashTimer = undefined;
+    if (app.cs !== cs) return;   // 畫面已經換掉：這一場的演出不用再管了
+    const now = performance.now();
+    for (let i = flashing.length - 1; i >= 0; i--) if (now - flashing[i]!.start >= FLASH_MS + flashing[i]!.row * 90) flashing.splice(i, 1);
+    paintFlashes(now);
+    scheduleFlashTick(now);
+  }
+
+  function scheduleFlashTick(now: number): void {
+    if (flashTimer !== undefined || !flashing.length) return;
+    const next = Math.min(...flashing.map((f) => f.start + FLASH_MS + f.row * 90 - now));
+    flashTimer = window.setTimeout(tickFlashes, Math.max(16, next));
+  }
+
+  function flashRelics(before: { relicFiredLen: number }): void {
+    const now = performance.now();
+    for (let i = flashing.length - 1; i >= 0; i--) if (now - flashing[i]!.start >= FLASH_MS + flashing[i]!.row * 90) flashing.splice(i, 1);
+    // 同一拍同一件發動兩次只演一次：閃兩次看起來像畫面在抖
+    for (const id of new Set(cs.relicFired.slice(before.relicFiredLen))) {
+      if (!relicById[id]) continue;
+      // 上一拍才演過、還沒收尾的就**接續**，不要再推一筆（稽核 2026-09-10 複核 低-4）：
+      // 影披風連打兩張隱身牌、貓抓板連續出攻擊牌，一秒內兩次就會看到同一個名字上下排兩行
+      const again = flashing.find((f) => f.id === id);
+      if (again) { again.start = now; continue; }
+      // 行號取「目前沒人佔的最小一行」，這樣先到期的空出來的位置會被接著用，不會愈疊愈長
+      const used = new Set(flashing.map((f) => f.row));
+      let row = 0; while (used.has(row)) row += 1;
+      flashing.push({ id, start: now, row });
+    }
+    paintFlashes(now);
+    scheduleFlashTick(now);
+  }
+
   function settle(before: Snap, opts: { pose?: string; attack?: boolean; deal?: boolean; light?: boolean } = {}): void {
     // 結束回合那一拍，魔物出手與新手牌是同一次重畫。手牌立刻滑進來會跟魔物前撲擠在一起，
     // 所以那一拍讓手牌晚 460 毫秒再進場：先看牠們打完，再看自己摸到什麼。
@@ -1450,6 +1580,7 @@ registerScreen('combat', (app, root, props) => {
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。
     if (!(opts.light && patchField(before))) render();
+    flashRelics(before);
 
     // 畫完才把動畫類別與浮動數字掛到剛生出來的節點上
     let stagedMax = 0;   // 本拍最多分幾段：收姿勢與倒下的演出都要排在最後一段之後
@@ -1789,6 +1920,20 @@ registerScreen('combat', (app, root, props) => {
 
   render();
   syncPicker();
+  /**
+   * 開戰就發動的那幾件（`combatStart` 有 17 件，加上飯糰上限、第一回合多抽多吃那幾件）也要演。
+   *
+   * 那批是在 `startCombat` 裡跑完的，比這個畫面誕生還早，任何一次 `settle` 的快照都追不到，
+   * 不補這一段的話「開場秘寶」會是唯一永遠看不到回饋的一類——偏偏那類最多。
+   * `relicFiredLen: 0` ＝把目前為止的全部演一次；此時清單裡也就只有開場那批。
+   *
+   * **關主戰要等 VS 閃卡收掉才演**（稽核 2026-09-10 中-5）：那張閃卡的底是 82% 的黑幕、
+   * 層級 60（狀態列只有 10），1.1 秒才開始淡出、1.4 秒收乾淨，而名牌整段只有 1 秒——
+   * 原本整段生命週期都埋在黑幕底下，等閃卡收掉時早就沒東西可看了。
+   * 這是純粹把畫面回饋往後挪，不擋玩家輸入，不算「拉長節奏」。
+   */
+  const openingFlash = (): void => flashRelics({ relicFiredLen: 0 } as Snap);
+  let vsShown = false;
 
   // ===== 關主戰的 VS 開場閃卡：兩張立繪對衝＋名字橫幅，1.4 秒自動收、點一下也收 =====
   // 疊在第一次畫面上面；素材還沒生好（灰剪影）就整個不放，寧缺勿醜。
@@ -1809,8 +1954,15 @@ registerScreen('combat', (app, root, props) => {
           el('span', { class: 'vs-boss' }, cs.enemies.find((u) => enemyById[u.enemyId]?.pool === '塔主')?.name ?? bossDef.name)));
       root.append(ov);
       sfx('hit_heavy', 0.5);
-      const off = window.setTimeout(() => ov.remove(), 1400);
-      ov.addEventListener('pointerdown', () => { window.clearTimeout(off); ov.remove(); });
+      // 閃卡收掉才演開場秘寶（見上面 `openingFlash` 的說明）。點掉閃卡的話立刻接上，不用乾等
+      let flashed = false;
+      const runFlash = (): void => { if (!flashed && app.cs === cs) { flashed = true; openingFlash(); } };
+      const off = window.setTimeout(() => { ov.remove(); runFlash(); }, 1400);
+      const offFlash = window.setTimeout(runFlash, 1500);   // 閃卡被別的路徑拿掉時的保險
+      app.disposers.push(() => { window.clearTimeout(off); window.clearTimeout(offFlash); });
+      ov.addEventListener('pointerdown', () => { window.clearTimeout(off); ov.remove(); runFlash(); });
+      vsShown = true;
     }
   }
+  if (!vsShown) openingFlash();
 });

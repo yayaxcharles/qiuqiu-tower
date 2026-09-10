@@ -97,6 +97,63 @@
   45%  { transform: scale(1.28) rotate(6deg); opacity: 1; box-shadow: 0 0 0 5px rgba(255, 225, 150, .85), 0 0 18px rgba(255, 210, 120, .9); }
   100% { transform: scale(1) rotate(0); opacity: 1; }
 }
+/*
+ * **這一件剛剛發動了**（2026-09-10）：秘寶的效果都是靜悄悄套上去的，玩家只看到數字變了、
+ * 不知道是誰做的。發動的那一格套一圈金光跳一下，名字往下浮一行。
+ *
+ * 排在 `.fresh` 後面是刻意的：兩條都用 `animation` 簡寫，同分時後面的贏。
+ * 剛拿到又立刻發動（開場觸發的秘寶）時，該看到的是「它在做事」而不是「它進來了」。
+ *
+ * 往**下**浮不是往上：狀態列貼在畫面最上緣（top 0、高 56），往上浮會直接出界。
+ */
+.hud-relic { position: relative; }   /* 發動時浮出來的名牌（`.relic-pop`）以這一格定位 */
+.hud-relic.fired { animation: relic-fire .62s cubic-bezier(.2, .9, .3, 1.25); z-index: 3; }
+@keyframes relic-fire {
+  0%   { transform: scale(1); box-shadow: inset 0 -2px 3px #8a6a3f3d, inset 0 1px 0 #fff; }
+  35%  { transform: scale(1.22); box-shadow: 0 0 0 4px rgba(255, 228, 156, .95), 0 0 18px rgba(255, 206, 110, .95); }
+  100% { transform: scale(1); box-shadow: inset 0 -2px 3px #8a6a3f3d, inset 0 1px 0 #fff; }
+}
+/* 收起來的那幾件（`+N` 後面）發動時閃這顆鈕。它是 `.btn`，尺寸不同、不能套上面那組縮放 */
+/* `position` 要**常駐**在按鈕本體上，不能只寫在 `.fired` 裡（稽核 2026-09-10 中-6）：
+   好幾件收起來的秘寶同時發動時名牌都掛在這一顆鈕上，第一張到期就把 `fired` 拿掉，
+   剩下的名牌會瞬間失去定位祖先、改以 `.hud`（寬 1280）為準，`left: 50%` 從鈕上跳到畫面正中央 */
+.hud .hud-relic-more { position: relative; }
+.hud-relic-more.fired { animation: relic-more-fire .62s ease-out; z-index: 3; }
+@keyframes relic-more-fire {
+  0%, 100% { box-shadow: none; }
+  35% { box-shadow: 0 0 0 4px rgba(255, 228, 156, .95), 0 0 18px rgba(255, 206, 110, .95); }
+}
+/* 浮出來的名字。`pointer-events: none`：狀態列那一格點下去要開秘寶清單，不能被這行字擋住 */
+.relic-pop {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 7px;
+  background: linear-gradient(#2c1d12f2, #140c07f7);
+  border: 1.5px solid #ffd98a99;
+  color: #ffe6a8;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px #000;
+  box-shadow: 0 4px 12px #00000080;
+  pointer-events: none;
+  z-index: 4;
+  animation: relic-pop .95s ease-out both;
+}
+/* 代價型的秘寶（鐵砂衣開場扣血、魔氣護符給炸毛、黑貓面具給懶洋洋）換一套暗紅（稽核 2026-09-10 低-10）。
+   金光金字是「這件在幫你」的語彙，純扣分的也用同一套，玩家會讀反 */
+.relic-pop.cost { background: linear-gradient(#3a1410f2, #1a0806f7); border-color: #ff8a6a99; color: #ffb3a3; }
+@keyframes relic-pop {
+  0%   { opacity: 0; transform: translate(-50%, -6px); }
+  18%  { opacity: 1; transform: translate(-50%, 0); }
+  72%  { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 6px); }
+}
+
 /* 東西太多（秘寶 8 格＋忍具 5～6 格）就縮一級，音樂音效鈕才不會被擠出去（使用者 2026-09-06 秘寶清單那批） */
 .hud.crowded .hud-relic img, .hud.crowded .hud-potion img { width: 26px; height: 26px; }
 .hud.crowded .hud-potion { width: 26px; height: 26px; font-size: 12px; }
