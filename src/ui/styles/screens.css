@@ -625,9 +625,24 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* 獎勵一項一項報出來，不要三項一起蹦出來——一起出現會全部漏看 */
+/*
+ * 獎勵一項一項報出來，不要三項一起蹦出來——一起出現會全部漏看。
+ *
+ * **這一組不共用 `result-in`**，因為它是唯一帶延遲的（下面 110～420 毫秒），
+ * 而 `result-in` 的起點是 `opacity: 0`：配上 `backwards`，那段延遲期間元素就停在全透明，
+ * 分頁切到背景時動畫被凍住，那幾行會一直是空白、切回來才冒出來
+ *（專案在飯糰補回的 `onigiri-refill` 踩過同一個坑，使用者 2026-09-10 指定要修這條）。
+ * 改用位移＋亮度做進場，**透明度全程是 1**：就算凍住也是「已經在定位、只是還沒收亮」，
+ * 看得到東西。正常播放時跟原本幾乎沒有差別。
+ *
+ * `result-in` 的另外兩個用處（`.event-result`／`.rest-result`、`.upgrade-preview`）沒有延遲，
+ * 風險窗口只有動畫開始那一瞬間，維持原樣不動。
+ */
 .reward-item {
-  animation: result-in 300ms cubic-bezier(.2, .9, .3, 1.08) backwards;
+  animation: reward-in 300ms cubic-bezier(.2, .9, .3, 1.08) backwards;
+}
+@keyframes reward-in {
+  from { transform: translateY(14px); filter: brightness(1.5); }
 }
 .reward-item:nth-child(2) { animation-delay: 110ms; }
 .reward-item:nth-child(3) { animation-delay: 220ms; }
