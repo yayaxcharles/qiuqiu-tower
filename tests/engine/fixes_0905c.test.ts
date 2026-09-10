@@ -11,7 +11,7 @@ import { inst } from '../helpers';
 /**
  * 2026-09-05 晚使用者回報的三件：
  * 1. 連環踢「造成 5 點傷害，連打 3 次」畫面卻只彈一個 −15——引擎要把每一段留下來（`cs.hits`），畫面才拆得成三下。
- * 2. 迴旋踢升級版改成 7 點 ×3（蜷縮 4 照舊）。
+ * 2. 迴旋踢升級版：2026-09-11 從 7 點 ×3 改回單段 10 點（蜷縮 4 照舊，使用者裁定）。
  * 3. 打贏巨型飯糰有沒有回血：`onDeathHealPlayer: 10`，這裡釘住它真的會回、而且不超過上限。
  * 對手一律木樁人（不出手），數字才好算。
  */
@@ -54,16 +54,16 @@ describe('多段傷害每一段都留下紀錄（畫面拆成一下一下演）'
   });
 });
 
-describe('迴旋踢升級版：7 點 ×3、蜷縮 4', () => {
+describe('迴旋踢升級版：10 點、蜷縮 4', () => {
   it('效果表', () => {
-    expect(cardById['huixuan']!.upgrade!.effects).toEqual([{ kind: 'damage', amount: 7, times: 3 }, { kind: 'block', amount: 4 }]);
-    expect(describeCard(cardById['huixuan']!, true)).toContain('造成 7 點傷害，連打 3 次');
+    expect(cardById['huixuan']!.upgrade!.effects).toEqual([{ kind: 'damage', amount: 10 }, { kind: 'block', amount: 4 }]);
+    expect(describeCard(cardById['huixuan']!, true)).toContain('造成 10 點傷害');
   });
-  it('實打木樁人：掉 21 血、球球得 4 蜷縮', () => {
+  it('實打木樁人：掉 10 血、球球得 4 蜷縮', () => {
     const cs = start([['huixuan', true]]); toHand(cs, 100);
     const e = cs.enemies[0]!; const hp0 = e.hp;
     playCard(cs, 100, e.uid);
-    expect(hp0 - e.hp).toBe(21);
+    expect(hp0 - e.hp).toBe(10);
     expect(cs.player.block).toBe(4);
   });
 });

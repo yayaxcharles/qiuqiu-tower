@@ -19,6 +19,13 @@ import { preloadAct } from '../preload';
  * 不然玩家開著開發工具就能刷選項。挑完才呼叫 `advanceAct`——它會回滿血、
  * 生下一關的地圖；存檔交給 backToMap()（規矩：節點結算完才存）。
  */
+/**
+ * 「繼續往○○前進」裡的那個地名。**不直接用 `ACT_NAMES`**：那組是給木牌與標題用的短名
+ *（塔下／塔中／塔頂），塞進句子裡唸起來卡。使用者 2026-09-11 的原話是「塔的中央部位」。
+ * 索引是**下一關**的關數（打完第一關時 `run.act` 還是 1，要往第 2 關去）。
+ */
+const NEXT_PLACE: Record<number, string> = { 1: '塔的中央部位', 2: '塔頂' };
+
 registerScreen('actclear', (app, root, props) => {
   root.append(screenBg('bg/screen_result_win'));
   const run = app.run;
@@ -98,8 +105,10 @@ registerScreen('actclear', (app, root, props) => {
         picks.length ? relicRow : '',
         cardPicks.length ? el('div', { class: 'pick-label' }, '挑一張牌（可不挑）') : '',
         cardPicks.length ? cardRow : ''),
-      speaker: `${ACT_NAMES[run.act - 1] ?? ''}破關`,
-      text: `球球歇了口氣，體力全滿。前方就是${next}。`,
+      // 文案 2026-09-11 改（使用者）：「破關」像在講整個遊戲通關，但這只是過了一關；
+      // 「通過」才是「爬過這一段、還要繼續往上」的意思
+      speaker: `通過${ACT_NAMES[run.act - 1] ?? ''}`,
+      text: `球球歇了口氣，回復完體力，繼續往${NEXT_PLACE[run.act] ?? '塔頂'}前進。`,
       actions: [el('button', {
         class: 'btn primary' + (mustPickRelic ? ' disabled' : ''),
         ...(mustPickRelic ? { disabled: 'true' } : {}),

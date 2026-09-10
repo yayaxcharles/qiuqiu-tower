@@ -91,6 +91,8 @@ interface Ctx {
  */
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
+    case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
+    case 'skipEnemyTurn': return '魔物這回合不出手';
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
       if (fx.ifTargetDebuffed) return `目標身上有任何減益就再造成 ${fx.amount} 點傷害`;
@@ -139,7 +141,11 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'cleanse': return fx.max ? `清掉自己身上 ${fx.max} 種減益` : '清掉自己身上所有的減益';
     case 'energy': return fx.onKill ? `打倒牠就拿回 ${fx.n} 顆飯糰` : `獲得 ${fx.n} 顆飯糰`;
     case 'doubleStatus': return `把目標身上的${fx.name}翻倍` + (fx.add ? `，再加 ${fx.add} 層` : '（沒有就沒效果）');
-    case 'heal': return `${ctx.youHeal ? '你' : ''}回復 ${fx.n} 點生命`;
+    // `percent` 照實際數字印，不要寫死「一半」：型別上它是任意數字，
+    // 哪天加一支回三成的，文字會跟實際回的血對不上（稽核 2026-09-11 低-2）
+    case 'heal': return fx.percent
+      ? `${ctx.youHeal ? '你' : ''}回復最大生命的 ${fx.percent}%`
+      : `${ctx.youHeal ? '你' : ''}回復 ${fx.n} 點生命`;
     case 'gold': return fx.onKill ? `打倒牠就多拿 ${fx.n} 條小魚乾` : `多拿 ${fx.n} 條小魚乾`;
     case 'scry': return `看抽牌堆最上面 ${fx.n} 張，想丟掉哪幾張都可以`;
     case 'exhaustFromHand': return `消耗手牌裡的 ${fx.n} 張牌`;

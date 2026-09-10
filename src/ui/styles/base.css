@@ -396,7 +396,11 @@ img { -webkit-user-drag: none; }
   text-shadow: 0 1px 2px #00000073;
   box-shadow: inset 0 1px 0 #ffffff33, 0 1px 0 #3a2a1c;
 }
-.tooltip > div { padding: 0 11px; }
+/* `pre-line`＝字串裡的換行真的換行，但連續空白仍然收成一個（複核 2026-09-11 低-5）。
+   說明框的內文是丟進來的純文字節點，沒有這條的話忍具的「用不出來的原因」與難度說明的
+   `join('
+')` 都會被折成一個空白、擠在同一段裡。 */
+.tooltip > div { padding: 0 11px; white-space: pre-line; }
 /* 底下的尖角，指向滑鼠指到的那個東西。用兩層三角形疊出外框：
    外層深色大一點、內層紙色小一點，尖角才會跟框一樣有邊。 */
 .tooltip::before, .tooltip::after {

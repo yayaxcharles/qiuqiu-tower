@@ -72,6 +72,27 @@ export function monsterUrl(artKey: string, pose: MonsterPose): string {
  * 順序照「多快會用到」排：立繪與圖示馬上要，牌面進戰鬥要，背景最重但可以晚一點。
  * 一次六張：太多會跟畫面搶頻寬，反而開場更慢。
  */
+/**
+ * 已經下載＋解碼過的圖，兩支預載共用同一份紀錄。
+ *
+ * 放在 `assets.ts` 而不是 `preload.ts`：`preload.ts` 已經引用這裡，反過來再引用一次會成環——
+ * 這個專案踩過（`bossdoor.ts` 與 `app.ts` 互相引用，害一支測試在載入階段就掛掉、測試數靜靜少了四條）。
+ */
+export const warmed = new Set<string>();
+
+/**
+ * 登記「這張已經解碼過了」，之後 `preload.ts` 的 `decodeAll` 就會跳過它。
+ *
+ * 開場的 `preloadArt` 自己寫了一份解碼迴圈、不經過 `decodeAll`，所以解完的那幾百張
+ * 從來沒被登記——`preloadAct(1)` 接著又照 `bgKeysForAct(1)` 解一次。
+ * 以前那份清單只有 19 個鍵、重工看不出來；2026-09-11 把事件插圖也照關數分流之後長到約 50 個，
+ * 開場等於多解碼三十幾張 1024×768（複核 2026-09-11 低-4）。
+ * 圖檔本身在瀏覽器快取裡、不會重新下載，但解碼是實打實的 CPU，舊機器上就是開場多卡一下。
+ */
+export function markWarmed(urls: Iterable<string>): void {
+  for (const u of urls) if (!u.startsWith('data:')) warmed.add(u);
+}
+
 export async function preloadArt(): Promise<void> {
   const order: (keyof Manifest)[] = ['sprites', 'icons', 'cards', 'bg'];
   // 第二、三關才看得到的底圖開場不載，過關時再由 `preloadAct` 補（跟魔物立繪同一套）
@@ -101,6 +122,8 @@ export async function preloadArt(): Promise<void> {
     }
   };
   await Promise.all(Array.from({ length: 6 }, worker));
+  // 登記進共用的「解過了」名單，`preloadAct(1)` 才不會把同一批再解一次（複核 2026-09-11 低-4）
+  markWarmed(urls);
 }
 
 export function computeScale(w: number, h: number): number { return Math.min(w / 1280, h / 720); }

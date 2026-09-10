@@ -13,7 +13,7 @@ import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, 
 import { registerScreen } from '../app';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
-import { battleBgKey, tierBgZoom } from '../screenbg';
+import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { artUrl, hasMonsterPose, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
@@ -776,8 +776,17 @@ registerScreen('combat', (app, root, props) => {
         slot.append(isFallback(url) ? el('b', {}, def.name) : el('img', { src: url, alt: def.name }));
         // 這格是戰鬥中唯一能查忍具做什麼的地方，用瀏覽器原生的 `title` 要停住一秒才跳、
         // 長相又跟旁邊的飯糰、連抓提示不同款，玩家等不到就以為沒說明。改掛遊戲自己的提示框。
-        attachTextTooltip(slot, def.name, def.text);
-        if (canAct()) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }
+        /**
+         * 有使用條件的（起死回生丹：生命低於三成才准用）要**看得出來為什麼用不了**。
+         * 條件本身寫在忍具資料上、引擎與畫面共用同一支（`PotionDef.usable`）——
+         * 兩邊各寫一套遲早會走鐘，罐頭鋪的「買不起」踩過這個坑。
+         * 點下去沒反應是最糟的：格子變灰、說明多一行原因，玩家才知道是「還不能用」不是「壞了」。
+         */
+        const ready = !def.usable || def.usable.check(p.hp, p.maxHp);
+        attachTextTooltip(slot, def.name, ready ? def.text : `${def.text}
+（${def.usable!.reason}）`);
+        if (!ready) slot.classList.add('not-ready');
+        if (canAct() && ready) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }
       }
       potions.append(slot);
     }
@@ -1060,13 +1069,10 @@ registerScreen('combat', (app, root, props) => {
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     clear(root);
     const box = el('div', { class: 'combat' });
-    const bg = el('div', { class: 'battle-bg' });
-    const bgUrl = artUrl('bg', bgKey);
-    if (!isFallback(bgUrl)) {
-      bg.style.backgroundImage = `url(${bgUrl})`;
-      // 放大率各張不同（見 tierBgZoom）：讓畫上的牆腳對到角色的腳底
-      bg.style.backgroundSize = `auto ${tierBgZoom(bgKey)}%`;
-    }
+    // 鋪法（圖＋放大率＋貼齊下緣）交給 `battleBgStyle` 一支管：關主門的門後景也叫同一支，
+    // 兩邊就不可能再分岔（稽核 2026-09-11 中-1：門一開跟進戰鬥的背景差 27%）。
+    // 放大率各張不同（見 tierBgZoom）：讓畫上的牆腳對到角色的腳底
+    const bg = el('div', { class: 'battle-bg', style: battleBgStyle(bgKey) });
     // 空氣裡的浮塵。畫面靜止時總得有東西在動，不然看起來像一張截圖
     // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。三層各自飄，樣式在 combat.css。
     box.append(bg, el('div', { class: 'motes' }, el('i'), el('i'), el('i')));

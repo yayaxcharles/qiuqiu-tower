@@ -408,6 +408,10 @@
 .combat .potion.empty { border: 2px dashed rgba(255, 255, 255, .35); background: none; }
 .combat .potion.locked { border: 2px dashed rgba(255, 255, 255, .2); background: #00000040; display: flex; align-items: center; justify-content: center; font-size: 18px; opacity: .75; }
 .combat .potion img { width: 42px; height: 42px; }
+/* 條件還沒到、用不出來的（起死回生丹要血低於三成）：變灰、不亮，滑上去的說明會寫原因。
+   跟「空格」與「鎖住」長得不一樣——那兩種是沒東西，這種是有東西但現在用不上 */
+.combat .potion.not-ready { filter: grayscale(.85) brightness(.7); }
+.combat .potion.not-ready img { opacity: .8; }
 .combat .potion b { font-size: 11px; line-height: 1.1; }
 .combat .potion.usable { cursor: pointer; box-shadow: 0 0 0 2px #ffd35c; }
 .combat .piles {

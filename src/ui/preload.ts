@@ -1,7 +1,7 @@
 import { encounterById, encounters, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, hasMonsterPose, monsterUrl, type MonsterPose } from './assets';
+import { artUrl, hasMonsterPose, monsterUrl, warmed, type MonsterPose } from './assets';
 import { bgKeysForAct } from './bgacts';
 
 /**
@@ -61,7 +61,6 @@ function urlsFor(defs: EnemyDef[]): string[] {
   return [...new Set(urls)];
 }
 
-const warmed = new Set<string>();
 /** 撐住 Image 物件的參照：沒人引用的圖下載沒完成就可能被回收（稽核 2026-09-04 低 14） */
 const keep: HTMLImageElement[] = [];
 

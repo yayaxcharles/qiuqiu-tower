@@ -92,6 +92,20 @@ const BG_ZOOM: Record<string, number> = {
   'bg/low': 106, 'bg/low_b': 109, 'bg/low_c': 111,
   'bg/mid': 109, 'bg/mid_b': 106, 'bg/mid_c': 108,
   'bg/top': 108, 'bg/top_b': 113, 'bg/top_c': 109,
+  /**
+   * 關主專屬戰場（2026-09-11 才第一次被校正）。
+   *
+   * 那三張畫好之後**從來沒被畫出來過**——查表少了 `bg/` 前綴，一直退回樓層色調（稽核 2026-09-10 中-2）。
+   * 一接上去使用者馬上回報「15F 打機關貓時球球跟王都浮在空中，背景的地板比較低」：
+   * 它們是照 1280x720 整張構圖畫的，地板佔了下面一大半，牆腳落在 400 出頭，
+   * 而立繪的腳線固定在 403——角色等於站在最後面那道牆前，身體卻是前景的大小，看起來就是浮著。
+   *
+   * 數字是把球球與鐵爪機關貓實際疊上去比出來的（100／109／118／127 四段）：
+   * 塔下那張 127 才真的踩到地磚（鳥居頂端還留在畫面內），塔中塔頂 124。
+   * 代價是上緣裁掉兩成多，但那一帶本來就是天花板與夜空，主體全留著。
+   * **換這三張圖就要重量一次**——牆腳位置變了，數字就不對了。
+   */
+  'bg/boss1': 127, 'bg/boss2': 124, 'bg/boss3': 124,
 };
 /**
  * 關主戰前那扇門的鍵。三關各一扇，材質跟該關的場景一致（塔下石門、塔中木門、塔頂夜空石門）。
@@ -130,6 +144,25 @@ export function battleBgKey(act: number, floor: number, isBoss: boolean): string
 
 export function tierBgZoom(key: string): number {
   return BG_ZOOM[key] ?? 100;
+}
+
+/**
+ * 戰場那張圖該怎麼鋪——**圖跟放大率一起給**，讓所有畫戰場的地方長得一模一樣。
+ *
+ * 戰鬥畫面用 `.battle-bg`（貼齊下緣＋各張不同的放大率，牆腳才對得到角色的腳底），
+ * 關主門的門後景卻掛在 `.screen-bg` 上（`cover` ＋置中）。
+ * `bg/boss1~3` 沒進 `BG_ZOOM` 之前兩邊剛好都是 100、看不出差別；
+ * 加了 127／124 之後**門一拉開看到的地板比較低、圖比較小，0.9 秒後切進戰鬥會整個放大又往下沉**
+ *（第一關差 27%，很明顯）。這正是當初抽出 `battleBgKey` 要防的事——鍵共用了、放大率沒共用
+ *（稽核 2026-09-11 中-1）。
+ *
+ * 回傳行內樣式字串：`.screen-bg` 的閃爍動畫只動 `filter`，行內寫 `background-size` 不會被蓋掉。
+ * 圖還沒生好（`artUrl` 回 `data:` 佔位）就回空字串，讓呼叫端自己決定退路。
+ */
+export function battleBgStyle(key: string): string {
+  const url = artUrl('bg', key);
+  if (url.startsWith('data:')) return '';
+  return `background-image:url(${url});background-size:auto ${tierBgZoom(key)}%;background-position:center bottom`;
 }
 
 /**

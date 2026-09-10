@@ -4,9 +4,9 @@ import { encounterById } from '../../src/content/enemies';
 import { FIXED_EVENT_FLOOR_5, eventById, events } from '../../src/content/events';
 
 describe('事件資料', () => {
-  it('30 個事件、id 不重複、每個 1～3 個選項', () => {
-    expect(events.length).toBe(35);   // 30＋2026-09-04 五個前後集的後集
-    expect(new Set(events.map((e) => e.id)).size).toBe(35);
+  it('38 個事件、id 不重複、每個 1～3 個選項', () => {
+    expect(events.length).toBe(38);   // 30＋五個前後集的後集＋2026-09-11 三個（換家的老鼠、磨到只剩一把刀、速成的卷軸）
+    expect(new Set(events.map((e) => e.id)).size).toBe(38);
     for (const e of events) {
       expect(eventById[e.id]).toBe(e);
       expect(e.choices.length, e.id).toBeGreaterThanOrEqual(1);

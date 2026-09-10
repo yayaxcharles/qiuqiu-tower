@@ -42,7 +42,9 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
         break;
       }
       case 'block': out.push({ kind: 'block', amount: fx.amount }); break;
-      case 'heal': out.push({ kind: 'heal', n: fx.n }); break;
+      // `percent` 要一起帶（稽核 2026-09-11 低-3）：帶 percent 的效果 `n` 是 0，
+      // 漏掉就變成學了一張回 0 血的牌。今天沒有這種牌，是埋著的
+      case 'heal': out.push({ kind: 'heal', n: fx.n, ...(fx.percent ? { percent: fx.percent } : {}) }); break;
       case 'status':
         if (fx.target === 'self') { if (SELF_OK.includes(fx.name)) out.push({ kind: 'statusSelf', name: fx.name, amount: fx.amount }); }
         else if (DEBUFFS.includes(fx.name)) out.push({ kind: 'statusPlayer', name: fx.name, amount: fx.amount });

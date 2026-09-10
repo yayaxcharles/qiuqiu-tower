@@ -24,6 +24,30 @@ export const potions: PotionDef[] = [
   { id: 'secret_scroll', name: '殘破卷軸', text: '抽 2 張牌，並多 2 顆飯糰。', art: 'codex/potion_secret_scroll', price: 55, target: 'self', effects: [{ kind: 'draw', n: 2 }, { kind: 'energy', n: 2 }] },
   { id: 'iron_paw', name: '鐵爪套', text: '對目標造成 16 點傷害。', art: 'codex/potion_iron_paw', price: 60, target: 'enemy', effects: [{ kind: 'damage', amount: 16 }] },
   { id: 'nine_lives', name: '九命符', text: '回復 20 點生命。', art: 'codex/potion_nine_lives', price: 60, target: 'self', effects: [{ kind: 'heal', n: 20 }] },
+
+  /*
+   * 2026-09-11 第二批（使用者指定）。
+   *
+   * 為什麼要加這一批：原本 20 支裡有 15 支是**純數值**（打幾點、回幾血、加幾點爪力、抽幾張、給幾顆飯糰），
+   * 「該不該現在用忍具」不太需要想——反正回血就喝。這一批全是**改變當回合玩法**的，
+   * 用掉的時機才是決定本身。價格照「換得掉多少一回合」訂，不照數字大小。
+   */
+  { id: 'clone_oil', name: '分身油', text: '這回合下一張攻擊牌的傷害加倍。', art: 'codex/potion_clone_oil', price: 65, target: 'self',
+    effects: [{ kind: 'doubleNextAttack' }] },
+  { id: 'iron_salve', name: '鐵布衫膏', text: '本回合不受任何傷害。', art: 'codex/potion_iron_salve', price: 75, target: 'self',
+    effects: [{ kind: 'immuneThisTurn' }] },
+  // 只在快死的時候用得出來：平常是一格廢物，關鍵時刻是一條命。所以價格壓在中段
+  { id: 'revive_pill', name: '起死回生丹', text: '只在生命低於三成時用得出來：回復一半的最大生命。', art: 'codex/potion_revive_pill', price: 60, target: 'self',
+    usable: { check: (hp, maxHp) => hp * 10 < maxHp * 3, reason: '生命高於三成，還用不上' },
+    effects: [{ kind: 'heal', n: 0, percent: 50 }] },
+  { id: 'first_incense', name: '先手香', text: '魔物這回合不出手。', art: 'codex/potion_first_incense', price: 80, target: 'self',
+    effects: [{ kind: 'skipEnemyTurn' }] },
+  { id: 'pick_back', name: '撿回來', text: '從棄牌堆挑一張拿回手上。', art: 'codex/potion_pick_back', price: 50, target: 'self',
+    effects: [{ kind: 'recoverFromDiscard' }] },
+  { id: 'claw_bolt', name: '貓爪雷', text: '對隨機魔物造成 10 點傷害，打 3 次。', art: 'codex/potion_claw_bolt', price: 65, target: 'self',
+    effects: [{ kind: 'damageScatter', amount: 10, times: 3 }] },
+  { id: 'bind_nail', name: '定身釘', text: '給全體魔物 1 層定身（每隻各有七成會中）。', art: 'codex/potion_bind_nail', price: 70, target: 'all',
+    effects: [{ kind: 'status', name: '定身', amount: 1, target: 'all' }] },
 ];
 
 export const potionById: Record<string, PotionDef> = Object.fromEntries(potions.map((p) => [p.id, p]));

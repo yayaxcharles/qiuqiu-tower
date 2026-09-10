@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
-import { battleBgKey, bossDoorKey } from '../screenbg';
+import { battleBgKey, battleBgStyle, bossDoorKey } from '../screenbg';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 
@@ -24,8 +24,15 @@ registerScreen('bossdoor', (app, root, props) => {
   renderHud(app, root);
 
   const door = artUrl('bg', bossDoorKey(run.act));
-  // 門後面就是這一關的戰場，門一開就看得到自己要踏進哪裡
-  const behind = el('div', { class: 'screen-bg', style: `background-image:url(${artUrl('bg', battleBgKey(run.act, run.floor, true))})` });
+  /**
+   * 門後面就是這一關的戰場，門一開就看得到自己要踏進哪裡。
+   *
+   * **鋪法要跟戰鬥畫面一字不差**（`battleBgStyle`，稽核 2026-09-11 中-1）：
+   * `.screen-bg` 本來是 `cover` ＋置中，而戰鬥是「貼齊下緣＋各張不同的放大率」。
+   * 只共用鍵、不共用放大率的話，門一拉開你看到的地板比較低，0.9 秒後切進戰鬥時
+   * 整張背景會放大又往下沉一截——第一關差 27%，眼睛看得很清楚。
+   */
+  const behind = el('div', { class: 'screen-bg', style: battleBgStyle(battleBgKey(run.act, run.floor, true)) });
 
   let opened = false;
   const open = (): void => {
@@ -63,7 +70,7 @@ registerScreen('bossdoor', (app, root, props) => {
     el('img', { class: 'door-leaf right', src: door, alt: '' }),
     el('div', { class: 'door-glow' }),
     el('div', { class: 'door-hint' },
-      el('p', { class: 'door-line' }, '門後方有某種強大的生物擋住了去路。'),
+      el('p', { class: 'door-line' }, '出現一扇門擋住了去路，門後方似乎有股強大的氣息。'),
       el('button', { class: 'btn primary', onclick: open }, '推開門')));
   scene.addEventListener('click', open);
   root.append(scene);

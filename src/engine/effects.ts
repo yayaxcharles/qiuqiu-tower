@@ -1,4 +1,4 @@
-import { aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log } from './actions';
+import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log } from './actions';
 import { endTurn } from './combat';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
@@ -50,6 +50,34 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       }
       return false;
     }
+    case 'damageScatter': {
+      /**
+       * 貓爪雷：**每一下各自隨機挑一隻打得到的**打。跟 `damage` 的 `times` 不同——那是同一隻連打幾下。
+       * 每一下都重抽，所以打到一半有人倒下，剩下的自然打在活著的身上，不會空砍。
+       * 傷害不吃爪力（跟其他忍具同口徑）。
+       *
+       * **挑的是 `attackable` 不是「還活著」**（稽核 2026-09-11 中-2）：調息中的關主與被僕從護著的
+       * 那隻活著但完全吃不到傷害，盲抽會讓三下全打在牠身上、65 條小魚乾換到 0 傷害。
+       *
+       * 兩種收手要分開：**全打光了**就安靜結束（本來就打完了）；**活著卻一隻都打不到**
+       * 才留一行紀錄——那時再揮也是 0 傷害，但玩家得知道錢花到哪去了，不能靜靜什麼都沒發生。
+       * 不要「退回去揮空」：那會在紀錄裡印出「毫髮無傷」，反而像是打中了卻沒效果。
+       */
+      for (let i = 0; i < fx.times; i++) {
+        const alive = cs.enemies.filter((e) => !e.dead);
+        if (!alive.length) break;
+        const hittable = alive.filter((e) => attackable(cs, e));
+        if (!hittable.length) { log(cs, '雷光劈了下去，卻沒有一隻打得到'); break; }
+        const t = cs.rng.pick(hittable);
+        if (damageEnemy(cs, t, fx.amount * (ctx.doubleDamage ? 2 : 1), { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
+      }
+      return false;
+    }
+    case 'skipEnemyTurn':
+      // 先手香：這一輪魔物整排不出手。預告留著（下回合照樣出那一招），只是這一輪跳過
+      cs.skipEnemies = true;
+      log(cs, '一股香氣散開，魔物們都愣住了');
+      return false;
     case 'damageRandom': {
       const base = cs.rng.int(fx.min, fx.max) * (ctx.doubleDamage ? 2 : 1);
       // 忍具的傷害不吃爪力，跟 damage／damageRamp 同口徑（稽核 2026-09-10 低-4：只有這個分支漏寫，
@@ -91,7 +119,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'energy':
       if (!fx.onKill || ctx.killed) { p.energy += fx.n; if (fx.n > 0) cs.energyGain += fx.n; }
       return false;
-    case 'heal': healPlayer(cs, fx.n); return false;
+    // `percent`＝回最大生命的百分之幾（起死回生丹）。用最大生命當基準不是「缺的血」：
+    // 缺得越多回越多會變成「越晚喝越賺」，那會逼玩家故意拖到快死
+    case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n); return false;
     case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
     case 'power':
       // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來

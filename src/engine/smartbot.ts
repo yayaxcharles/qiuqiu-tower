@@ -4,7 +4,7 @@ import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
-import { aliveEnemies } from './actions';
+import { aliveEnemies, attackable } from './actions';
 import { canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
 import { nextChoices } from './map';
@@ -138,12 +138,6 @@ function incomingHitCount(cs: CombatState): number {
   return aliveEnemies(cs).reduce((s, e) => s + incomingHits(cs, e).length, 0);
 }
 
-function attackable(cs: CombatState, e: EnemyCombat): boolean {
-  if (e.dead || e.invulnIn > 0) return false;
-  if (enemyById[e.enemyId]?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) return false;
-  return true;
-}
-
 /** 這張牌打在這隻魔物身上大概能扣多少血（吃過爪力、翻肚、防禦、隱身） */
 function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: number, doubled: boolean, plays = 0): number {
   if (!attackable(cs, e)) return 0;
@@ -270,7 +264,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'drawNextTurn': value += fx.n * 2; break;
       case 'drawIfTargetStatus': value += 1; break;
       case 'energy': value += fx.n * 3.5; break;
-      case 'heal': value += Math.min(fx.n, p.maxHp - p.hp) * (danger ? 1.5 : 0.9); break;
+      case 'heal': value += Math.min(fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p.maxHp - p.hp) * (danger ? 1.5 : 0.9); break;
       case 'gold': value += fx.onKill ? 0.5 : fx.n * 0.15; break;
       case 'power': {
         // 能力越早放越划算：粗估還要打幾回合
@@ -311,6 +305,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'discardFromHand': value -= 1; break;
       case 'recoverFromDiscard': value += p.discardPile.length ? 3 : -5; break;
       case 'damage': case 'damageEqualBlock': case 'damageRamp': case 'damageRandom': break;   // 傷害在 switch 之前的傷害估算區另算，這裡不重複計
+      case 'damageScatter': value += fx.amount * fx.times * 0.8; break;   // 打散：單隻場面等於集中火力，多隻場面會浪費一點，打八折
+      case 'skipEnemyTurn': value += 12; break;                          // 整輪不挨打，價值約等於一次大防禦
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }
@@ -349,12 +345,20 @@ function pickPending(cs: CombatState, rng: Rng): void {
 function maybePotion(cs: CombatState, incoming: number): boolean {
   const p = cs.player;
   const enemies = aliveEnemies(cs).filter((e) => attackable(cs, e));
+  const boss = cs.enemies.some((e) => enemyById[e.enemyId]?.pool === '塔主');
   for (const id of [...cs.potions]) {
     const def = potionById[id];
     if (!def) continue;
+    // 有使用條件的（起死回生丹要血低於三成）現在用不出來就跳過（稽核 2026-09-11 中-3）。
+    // 不濾的話 `usePotion` 會回 false，而 `maybePotion` 拿到 false 就整支 return，
+    // 同一輪連後面那支九命符都不會試——`bot.ts` 補了這一條，這裡漏了，兩支機器人不同調
+    const u = def.usable;
+    if (u && !u.check(p.hp, p.maxHp)) continue;
     const kinds = def.effects.map((f) => f.kind);
     const heal = def.effects.find((f) => f.kind === 'heal');
-    if (heal && heal.kind === 'heal' && p.hp <= p.maxHp * 0.4 && p.maxHp - p.hp >= heal.n) return usePotion(cs, id);
+    // `percent` 是回最大生命的百分之幾，`n` 這時是 0——照 `n` 判會讓「缺的血夠不夠回」恆為真
+    const healAmt = heal?.kind === 'heal' ? (heal.percent ? Math.round(p.maxHp * heal.percent / 100) : heal.n) : 0;
+    if (healAmt > 0 && p.hp <= p.maxHp * 0.4 && p.maxHp - p.hp >= healAmt) return usePotion(cs, id);
     if ((kinds.includes('block') || (kinds.includes('status') && def.effects.some((f) => f.kind === 'status' && f.name === '隱身')))
       && incoming >= 10 && p.hp - incoming <= p.maxHp * 0.35) return usePotion(cs, id);
     const dmg = def.effects.find((f) => f.kind === 'damage');
@@ -367,8 +371,42 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     if (kinds.includes('energy') && p.energy === 0 && p.hand.filter((c) => canPlay(cs, c.uid, enemies[0]?.uid).ok || cardStats(c).cost > 0).length >= 2
       && (incoming > p.block || enemies.some((e) => e.hp <= 15))) return usePotion(cs, id);
     if (kinds.includes('cleanse') && getStatus(p, '噎到') >= 4) return usePotion(cs, id);
+    /*
+     * 2026-09-11 新增的那批忍具（稽核中-4）。原本 `maybePotion` 只認回血、防禦、隱身、傷害、
+     * 飯糰、清減益與關主戰那兩種狀態，七支新忍具裡有五支它一輩子不會用——
+     * 忍具池 20→27 之後有兩成六的抽中率是機器人拿了不會用的東西，
+     * 而 `tests/smart.report.test.ts` 是這個專案唯一的平衡訊號來源，那份報告會靜靜失真。
+     */
+    // 貓爪雷：隨機分散，所以只在「有人快死了」或「一群小怪」時才划算
+    const scatter = def.effects.find((f) => f.kind === 'damageScatter');
+    if (scatter?.kind === 'damageScatter') {
+      const total = scatter.amount * scatter.times;
+      if (enemies.length === 1 && enemies[0]!.hp + enemies[0]!.block <= total) return usePotion(cs, id);
+      if (enemies.length >= 2 && enemies.every((e) => e.hp <= scatter.amount)) return usePotion(cs, id);
+    }
+    /*
+     * 下面幾條各自帶一個「已經生效就別再燒」的守衛（複核 2026-09-11 中-1）。
+     * 用掉忍具只會改 `cs.skipEnemies`／`p.immune`／`p.doubleNext` 這些旗標，
+     * `incoming`、`p.hp`、`p.block` 一個都沒變，`smartCombat` 的 `continue` 會讓這支再跑一次，
+     * 帶兩支同款就在同一輪連燒兩支——分身油最慘，`doubleNext = 1` 是**指派**不是累加，第二支全白費。
+     */
+    // 先手香：整輪不挨打。挨的量夠大才捨得用，跟防禦、隱身那條同一個門檻
+    if (kinds.includes('skipEnemyTurn') && !cs.skipEnemies && incoming >= 12 && p.hp - (incoming - p.block) <= p.maxHp * 0.45) return usePotion(cs, id);
+    // 鐵布衫膏：這回合免疫，用在會被打很痛的那一輪（比先手香更該留到大場面）
+    if (kinds.includes('immuneThisTurn') && !p.immune && incoming >= 15 && p.hp - (incoming - p.block) <= p.maxHp * 0.4) return usePotion(cs, id);
+    // 分身油：下一擊加倍，關主戰蓄力那一拍最有價值；手上得真的有攻擊牌打得出去
+    if (kinds.includes('doubleNextAttack') && boss && p.doubleNext === 0 && p.energy >= 1
+      && p.hand.some((c) => cardById[c.cardId]?.type === '攻擊' && cardStats(c).effects.some((f) => f.kind === 'damage' && f.amount >= 10))) return usePotion(cs, id);
+    // 定身釘：只有七成會中，所以留到「下一拍會被打很痛」時用
+    if (def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && f.name === '定身')
+      && incoming >= 12 && p.hp - (incoming - p.block) <= p.maxHp * 0.45) {
+      const t = enemies[0];
+      if (t && def.target === 'enemy') return usePotion(cs, id, t.uid);
+      if (def.target === 'all') return usePotion(cs, id);
+    }
+    // 撿回來：棄牌堆有東西、手牌又空得差不多時才有意義
+    if (kinds.includes('recoverFromDiscard') && p.discardPile.length > 0 && p.hand.length <= 2 && p.energy >= 1) return usePotion(cs, id);
     // 攻擊型狀態忍具：關主戰開頭就用
-    const boss = cs.enemies.some((e) => enemyById[e.enemyId]?.pool === '塔主');
     if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return usePotion(cs, id);
     if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '噎到'))) {
       const t = enemies[0];
@@ -465,9 +503,23 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
   const hpPct = run.hp / run.maxHp;
   let v = -costFish * 0.35;
   if (costFish > run.fish) return -999;
+  /*
+   * **同一個選項裡連著砍好幾張、升好幾張的，第二張起要縮水**（稽核 2026-09-11 低-4）。
+   *
+   * 「磨到只剩一把刀」是三個 `removeCard` 連寫，原本每一個都給滿分 18（只要牌組裡「有」廢牌就給），
+   * 三張共 54、扣掉最大生命 −8 的 17.6 之後穩賺，所以機器人一定會磨；
+   * 可是牌組只剩一張廢牌時，第二、三張砍的是好牌。「速成的卷軸」的兩個 `upgradeCard` 同理。
+   * 這裡照「這個選項裡已經用掉幾張」往下算：砍到沒廢牌就掉到 2 分（等於在砍好牌），
+   * 升級也一樣——沒得升就是 0。
+   */
+  let removed = 0, upgraded = 0;
+  const junk = deckJunk(run).length;
+  const upgradable = run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病').length;
   for (const fx of effects) {
     switch (fx.kind) {
       case 'heal': v += Math.min(fx.n, run.maxHp - run.hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
+      // 交出一件秘寶：本身是純損失，但它一定跟「換兩件」綁在一起，淨值由那兩件的 relic 估值補回來
+      case 'loseRelic': v -= 14; break;
       case 'healPercent': v += Math.min(run.maxHp * fx.p, run.maxHp - run.hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
       case 'damage': v -= fx.n * (hpPct < 0.4 ? 4 : hpPct < 0.6 ? 1.8 : 0.9); break;
       case 'fish': v += fx.n * 0.35; break;
@@ -475,8 +527,8 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
       case 'maxHp': v += fx.n * 2.2; break;
       case 'addCard': v += cardById[fx.cardId]?.pool === '壞毛病' ? -28 : 6; break;
       case 'addRandomCard': v += fx.rarity === '罕見' ? 8 : fx.rarity === '稀有' ? 14 : 4; break;
-      case 'removeCard': v += deckJunk(run).length ? 18 : 2; break;
-      case 'upgradeCard': v += bestUpgrade(run) ? 16 : 0; break;
+      case 'removeCard': v += removed++ < junk ? 18 : 2; break;
+      case 'upgradeCard': v += upgraded++ < upgradable ? 16 : 0; break;
       case 'relic': v += fx.pool === '大魔物' ? 34 : 24; break;
       case 'potions': v += Math.min(fx.n, 3 - run.potions.length) * 7; break;
       case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;

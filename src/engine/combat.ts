@@ -317,6 +317,33 @@ export function beginEnemyTurn(cs: CombatState): boolean {
     // 紀錄照實際來了幾隻講（只來得及一隻就不要說兩隻，稽核 2026-09-04 低 12）
     log(cs, came === (r.n ?? 1) && r.line ? r.line : `伏兵！${came > 1 ? `${came} 隻` : ''}${name}從煙裡跳了出來`);
   }
+  /**
+   * 先手香（`skipEnemyTurn`）：這一輪整排魔物不出手。
+   *
+   * **佇列清空**，不是逐隻跳過——排空的話 `stepEnemyTurn` 一次都不會跑，
+   * 牠們的預告、鱗甲、噎到、定身層數全部原封不動留到下一輪，正是「這一輪沒發生」的語意。
+   * 旗標在這裡就清掉：只擋一輪，不會不小心連擋兩輪。
+   * 上面那些（減益衰減、爬起來、防禦歸零、魔氣暴走）照跑——那些是回合換手的結算，不是魔物的行動。
+   *
+   * **一定要排在伏兵迴圈後面**（稽核 2026-09-11 中-1）。原本是提前 `return`，
+   * 而伏兵只認 `r.turn === cs.turn` 那一個回合號碼——在援軍要來的那一輪用先手香，
+   * 那一段整個沒跑過，`cs.turn` 之後再也不會回到 3，**那批援軍整場都不會出現**，
+   * 而且畫面上沒有任何提示（小狸、河童第 3 回合，瘴氣泥第 4 回合三場都中）。
+   * 伏兵本來就排在佇列定案之後、這一拍不出招，所以讓牠們照樣跳出來不違反「魔物這回合不出手」。
+   */
+  if (cs.skipEnemies) {
+    cs.skipEnemies = false;
+    cs.enemyQueue = [];
+    /**
+     * **剛爬起來的旗標要一起清掉**（複核 2026-09-11 低-1）。
+     * `justRevived` 只有 `stepEnemyTurn` 會清，而這裡把佇列排空之後那支一次都不會跑——
+     * 在「同伴剛爬起來」那一輪用先手香，牠的旗標會留到下一輪再被判一次，
+     * 等於白賺兩輪不出手，而且 `willAct` 回 false 會讓畫面連預告都不亮。
+     * 這一輪本來就沒有人出招，「不出招」這件事已經達成了，旗標的任務算完成。
+     */
+    for (const e of cs.enemies) e.justRevived = false;
+    log(cs, '魔物們還愣著，這一輪沒動手');
+  }
   return true;
 }
 
@@ -487,6 +514,8 @@ export function usePotion(cs: CombatState, potionId: string, targetUid?: number)
   const i = cs.potions.indexOf(potionId);
   const def = potionById[potionId];
   if (i < 0 || !def) return false;
+  // 有使用條件的（起死回生丹：生命低於三成才准用）。畫面讀同一個 `usable` 把格子變灰並寫原因，見 `ui/screens/combat.ts` 的忍具列
+  if (def.usable && !def.usable.check(cs.player.hp, cs.player.maxHp)) return false;
   if (def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return false;
   cs.potions.splice(i, 1);
   log(cs, `球球用了「${def.name}」`);

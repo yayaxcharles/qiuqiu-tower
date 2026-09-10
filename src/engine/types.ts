@@ -31,6 +31,16 @@ export type Effect =
   /** 分身術（2026-09-03）：造成 amount 點傷害；這場戰鬥裡同一張牌每打出一次，之後的傷害就多 step 點（看 CombatState.cardPlays） */
   | { kind: 'damageRamp'; amount: number; step: number }
   | { kind: 'damageRandom'; min: number; max: number }
+  /**
+   * 貓爪雷：每一下**各自隨機挑一隻活著的**打（不是全體、也不是指定一隻）。
+   * 跟 `damage` 的 `times` 不同——那是同一隻連打幾下。單隻場面等於集中火力，多隻場面就打散。
+   */
+  | { kind: 'damageScatter'; amount: number; times: number }
+  /**
+   * 先手香：**直接跳過魔物這一回合的行動**。牠們的預告留著（下回合照樣會出那一招），
+   * 只是這一輪不動手。跟定身的差別：定身是掛在單一隻身上、會消耗層數；這個是整場一次。
+   */
+  | { kind: 'skipEnemyTurn' }
   | { kind: 'damageEqualBlock' }
   | { kind: 'selfDamage'; amount: number }
   | { kind: 'block'; amount: number }
@@ -47,7 +57,7 @@ export type Effect =
   /** 清掉自己身上所有減益。跟 `transferDebuffs` 的差別是「丟掉」不是「丟給別人」 */
   | { kind: 'cleanse'; max?: number }
   | { kind: 'energy'; n: number; onKill?: boolean }
-  | { kind: 'heal'; n: number }
+  | { kind: 'heal'; n: number; percent?: number }   // `percent`＝改成回最大生命的百分之幾（起死回生丹），有它就不看 `n`
   | { kind: 'gold'; n: number; onKill?: boolean }
   | { kind: 'scry'; n: number }
   | { kind: 'exhaustFromHand'; n: number }
@@ -154,6 +164,12 @@ export interface PotionDef {
   price?: number;
   target: 'enemy' | 'all' | 'self';
   effects: Effect[];
+  /**
+   * 用得出來的條件（起死回生丹：生命低於三成才准用）。
+   * 不填＝隨時可用。**引擎與畫面共用這一支**：引擎在 `usePotion` 擋、畫面拿它把格子變灰並寫原因，
+   * 兩邊各寫一套遲早會走鐘（罐頭鋪的「買不起」就踩過）。
+   */
+  usable?: { check: (hp: number, maxHp: number) => boolean; reason: string };
 }
 
 // ===== 魔物 =====
@@ -165,7 +181,10 @@ export type EnemyEffect =
   | { kind: 'block'; amount: number }
   | { kind: 'statusSelf'; name: StatusName; amount: number }
   | { kind: 'statusPlayer'; name: StatusName; amount: number }
-  | { kind: 'heal'; n: number }
+  // `percent`＝回**牠自己**最大生命的百分之幾（跟玩家那邊的 `Effect.heal` 同口徑）。
+  // 鏡貓學牌會把玩家的 heal 原樣搬過來（`mimic.ts`），那邊帶了 percent 這裡沒有的話，
+  // 學到的牌會回 0 血；而且展開語法塞進去的多餘屬性不吃型別檢查，tsc 不會擋（稽核 2026-09-11 中-1）
+  | { kind: 'heal'; n: number; percent?: number }
   | { kind: 'stealFish'; n: number }
   | { kind: 'discardRandomHand'; n: number }
   | { kind: 'summon'; enemyId: string; n: number; max?: number; noPour?: true }   // max＝同種活著的上限，補召不爆量；noPour＝滿了就不做事（不走「灌血給最弱那隻」的通則）
@@ -344,6 +363,12 @@ export type RunEffect =
   | { kind: 'removeCard' }
   | { kind: 'upgradeCard' }
   | { kind: 'relic'; pool: RelicPool }
+  /**
+   * 隨機交出一件身上的秘寶（換家的老鼠）。**起始秘寶不會被拿走**——那是開局就給的、
+   * 拿走等於平白削弱一段開場，而且玩家沒有選它的機會。
+   * 跟 `relic` 組合起來就是「交一件換兩件」，不必為那個事件另做一種效果。
+   */
+  | { kind: 'loseRelic' }
   | { kind: 'potions'; n: number }
   /** `bonusUpgrades`＝打贏後在獎勵畫面挑幾張牌升級（鏡子走廊用）。`encounterId` 若有 `_a<關數>` 的版本會自動換成該關的 */
   | { kind: 'fight'; encounterId: string; bonusFish: number; bonusUpgrades?: number }
@@ -555,6 +580,8 @@ export interface CombatState {
    * 改成掛旗子，由呼叫端（畫面／機器人）用跟按鈕一樣的流程收尾。
    */
   endTurnRequested: boolean;
+  /** 先手香：這一輪魔物不出手（`beginEnemyTurn` 看到就整輪跳過，見 Effect 的 `skipEnemyTurn`） */
+  skipEnemies?: boolean;
   stolenFish: number;       // 山賊偷走的，擊倒牠全部拿回
   fishDelta: number;        // 牌效果賺到的小魚乾
   /**

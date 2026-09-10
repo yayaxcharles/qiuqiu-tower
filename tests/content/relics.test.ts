@@ -20,9 +20,9 @@ describe('秘寶', () => {
 });
 
 describe('忍具', () => {
-  it('20 種、id 不重複、目標與效果一致', () => {
-    expect(potions.length).toBe(20);
-    expect(new Set(potions.map((p) => p.id)).size).toBe(20);
+  it('27 種、id 不重複、目標與效果一致', () => {
+    expect(potions.length).toBe(27);
+    expect(new Set(potions.map((p) => p.id)).size).toBe(27);
     for (const p of potions) {
       expect(potionById[p.id]).toBe(p);
       const hitsAll = p.effects.some((e) => 'target' in e && e.target === 'all');

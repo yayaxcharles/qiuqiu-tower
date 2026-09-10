@@ -605,6 +605,12 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
   gains?: RunGain[]): RunEffectOutcome {
   let outcome: RunEffectOutcome = null;
   const cardName = (id: string): string => cardById[id]?.name ?? id;
+  /**
+   * 這一次呼叫裡「已經交出去、不要再抽回來」的秘寶（換家的老鼠）。
+   * `rollRelic` 只避開身上現有的，交出去那一刻它就從 `run.relics` 消失了，
+   * 不另外記的話後面兩抽有機會原封不動換回同一件（稽核 2026-09-11 低-1）。
+   */
+  const excludeRelics: string[] = [];
   // 同一個選項裡有「打一場」：其他獎勵（秘寶、小魚乾、牌……）不能先發，要等打贏（使用者 2026-09-04）。
   // 旗標照常記（那是「你選了什麼」，不是獎勵）。
   const fightIdx = effects.findIndex((e) => e.kind === 'fight');
@@ -646,8 +652,51 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
           ? { needs: need, n: outcome.n + 1 } : { needs: need, n: 1 };
         break;
       }
+      case 'loseRelic': {
+        /**
+         * 隨機交出一件秘寶。**起始的不算**（開局就給的，玩家沒選過它）。
+         *
+         * `takeRelic` 做過的事要逐項還原，尤其是改最大生命的那幾件：鮪魚罐頭 +10 拿掉之後
+         * 上限要扣回去，而**現有血量只往下夾、不補血**——不然「拿走一件東西」反而變成回血。
+         * 上限扣到 1 以下會直接死人，所以夾在 1。
+         */
+        const pool = run.relics.filter((id) => relicById[id]?.pool !== '起始');
+        if (!pool.length) { notes?.push('身上沒有可以交出去的秘寶'); break; }
+        const id = runRng(run).pick(pool);
+        run.relics.splice(run.relics.indexOf(id), 1);
+        const d = relicById[id]?.hooks.maxHp ?? 0;
+        if (d) { run.maxHp = Math.max(1, run.maxHp - d); run.hp = Math.max(1, Math.min(run.hp, run.maxHp)); }
+        /**
+         * **忍具格也要跟著收**（稽核 2026-09-11 中-5）。忍具袋（常見池，+1 格）與
+         * 九命鈴（塔主池，+2 格）都可能被抽中，交出去之後 `potionCapacity` 就少了——
+         * 而狀態列與戰鬥畫面都只畫 `Math.max(cap, 3)` 格、拿 `run.potions[i]`，
+         * 索引超出的那幾支等於憑空消失（不是永久卡死，前面用掉會往前挪，但玩家看不懂）。
+         * 直接砍掉最後幾支並講明白，比讓它靜靜不見好。
+         */
+        const cap = potionCapacity(run);
+        if (run.potions.length > cap) {
+          // **掉的是最便宜的那幾支**，不是最後拿到的（複核 2026-09-11 低-3）：
+          // 砍陣列尾巴等於砍掉剛在罐頭鋪花 80 條小魚乾買的那支，而玩家沒有任何選擇餘地
+          const dropped: string[] = [];
+          while (run.potions.length > cap) {
+            const price = (pid: string): number => potions.find((x) => x.id === pid)?.price ?? 45;
+            let worst = 0;
+            for (let k = 1; k < run.potions.length; k++) if (price(run.potions[k]!) < price(run.potions[worst]!)) worst = k;
+            dropped.push(potions.find((x) => x.id === run.potions[worst])?.name ?? run.potions[worst]!);
+            run.potions.splice(worst, 1);
+          }
+          notes?.push(`忍具袋子小了，放不下的${dropped.join('、')}掉了出來`);
+        }
+        // **交出去的那件要排除在換回來的兩件之外**（稽核 2026-09-11 低-1）：
+        // 上面已經把它從 `run.relics` 拿掉，後面兩個 `relic` 的 `rollRelic` 就不再避開它，
+        // 約一成機率原封不動換回同一件；而 `takeRelic` 拿到加最大生命的秘寶還會順便補血，
+        // 交出去再換回來等於白賺一次回血。記在這裡，`relic` 那一支會把它一起排除。
+        excludeRelics.push(id);
+        notes?.push(`交出了「${relicById[id]?.name ?? id}」`);
+        break;
+      }
       case 'relic': {
-        const id = rollRelic(runRng(run), fx.pool, run.relics);
+        const id = rollRelic(runRng(run), fx.pool, [...run.relics, ...excludeRelics]);
         if (id) { takeRelic(run, id); gains?.push({ kind: '秘寶', id }); }
         else notes?.push('這一池的秘寶都拿過了，沒有新的可拿');   // 收齊整池才會踩到，但不能靜靜什麼都不給（2026-09-02 稽核 L-4）
         break;

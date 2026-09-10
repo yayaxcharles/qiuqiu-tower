@@ -211,9 +211,18 @@ registerScreen('map', (app, root) => {
       const hero = artUrl('icons', `icon/map_hero_${run.act >= 3 ? 'top' : run.act === 2 ? 'mid' : 'low'}`);
       if (!hero.startsWith('data:')) {
         const left = x - R - HERO_GAP - HERO_W;
+        // 左邊放不下就站右邊（見上面的說明）
+        const onRight = left < LABEL_RIGHT + 8;
+        /**
+         * **站右邊時要左右翻過來**（使用者 2026-09-11）。
+         * 三張立繪原圖都是面向右邊畫的，站在節點左邊時剛好看著節點；一旦改站右邊，
+         * 就變成背對著節點往畫面外看——「我站在這一格」的意思整個沒了。
+         * 翻轉走 `.map-hero.flip`，不用行內樣式：那個類別裡的浮動動畫也動 `translate`，
+         * 兩邊寫同一個屬性會打架（這專案的老坑）。
+         */
         inner.append(el('img', {
-          class: 'map-hero', src: hero, alt: '球球', draggable: 'false',
-          style: `left:${left < LABEL_RIGHT + 8 ? x + R + HERO_GAP : left}px;top:${y - 30}px`,
+          class: `map-hero${onRight ? ' flip' : ''}`, src: hero, alt: '球球', draggable: 'false',
+          style: `left:${onRight ? x + R + HERO_GAP : left}px;top:${y - 30}px`,
         }));
       }
     }

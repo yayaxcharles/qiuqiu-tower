@@ -378,6 +378,21 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
 }
 
+/**
+ * 這隻**現在打不打得到**——不是「還活著」而已。
+ *
+ * 有兩種活著卻完全吃不到傷害的狀態，`damageEnemy` 一進去就回 0：
+ * 蹲下調息（`invulnIn`，血條式關主的變身過場）與僕從護體（`guardedByAllies`，旁邊還有同伴）。
+ * 玩家自己指定目標時看得到不能打、不會浪費，**隨機挑目標的效果就得自己問這一句**
+ *（稽核 2026-09-11 中-2：貓爪雷三下全抽到調息中的關主＝ 65 條小魚乾買到 0 傷害，
+ * 而且那正是最想用它的場合）。`smartbot.ts` 的估算也共用這一支，判準只留一份。
+ */
+export function attackable(cs: CombatState, e: EnemyCombat): boolean {
+  if (e.dead || e.invulnIn > 0) return false;
+  if (enemyById[e.enemyId]?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) return false;
+  return true;
+}
+
 export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean; throughBlock?: boolean } = {}): { dealt: number; killed: boolean } {
   if (e.dead) return { dealt: 0, killed: false };
@@ -584,7 +599,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'block': gainBlock(cs, e, fx.amount); break;
       case 'statusSelf': addStatus(e, fx.name, fx.amount); break;
       case 'statusPlayer': addStatus(p, fx.name, fx.amount); break;
-      case 'heal': e.hp = Math.min(e.maxHp, e.hp + fx.n); break;
+      case 'heal': e.hp = Math.min(e.maxHp, e.hp + (fx.percent ? Math.round(e.maxHp * fx.percent / 100) : fx.n)); break;
       case 'stealFish':
         e.stolen += fx.n; cs.stolenFish += fx.n; cs.fishDelta -= fx.n;
         // 逃跑冷卻從**第一次**偷到算起（見 `ESCAPE_GAP`）：再偷第二次不會把時鐘重設，

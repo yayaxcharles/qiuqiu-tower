@@ -21,10 +21,15 @@ export function playCombat(cs: CombatState, rng: Rng, maxTurns: number, seed = '
       continue;
     }
     const enemies = aliveEnemies(cs);
-    if (cs.potions.length > 0 && rng.chance(0.3)) {
-      const pid = rng.pick(cs.potions);
+    // 有使用條件的（起死回生丹要血低於三成）現在用不出來是**正常的**，先濾掉再抽
+    const ready = cs.potions.filter((id) => {
+      const u = potionById[id]?.usable;
+      return !u || u.check(cs.player.hp, cs.player.maxHp);
+    });
+    if (ready.length > 0 && rng.chance(0.3)) {
+      const pid = rng.pick(ready);
       const def = potionById[pid]!;
-      // 用不出來就是引擎出事了（階段不對、有待選、忍具不在身上、目標無效），不吞掉
+      // 濾過之後還用不出來，就是引擎出事了（階段不對、有待選、忍具不在身上、目標無效），不吞掉
       if (!usePotion(cs, pid, def.target === 'enemy' ? rng.pick(enemies).uid : undefined)) {
         throw new Error(`種子 ${seed}：第 ${cs.turn} 回合用不了忍具 ${pid}（${cs.encounterId}）`);
       }

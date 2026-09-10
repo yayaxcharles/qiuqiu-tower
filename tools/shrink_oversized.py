@@ -108,6 +108,7 @@ def main() -> None:
     check_overrides()
     saved = 0
     n = 0
+    skipped = 0
     folders: list[tuple[str, tuple[int, int] | None]] = [*CAPS.items(), ("monsters", None), ("icons", None)]
     for folder, cap in folders:
         for f in sorted((ROOT / "public/assets" / folder).rglob("*.webp")):
@@ -124,20 +125,27 @@ def main() -> None:
                 continue
             before = f.stat().st_size
             im.thumbnail((mw, mh), Image.LANCZOS)
+            # **一律先壓進記憶體、比過大小才決定要不要寫回**（2026-09-11 修）。
+            # 這支重壓用 q74，`add_sprite.py` 存魔物卻是 q72——只超出上限一點點的圖，
+            # 少掉的那幾十個像素抵不過畫質調高一格，重壓完反而**更大**。
+            # 那批新防禦圖就這樣被寫胖了六張（鏡中貓 16 KB → 18 KB），整輪結算是「省下 -0.01 MB」。
+            # 判準改成「真的變小才寫」：沒省到就原檔不動，反正超出上限個位數像素本來就無所謂。
+            #（順帶：這樣連 `--dry` 都走同一條路，試跑印的數字跟實跑保證一致。）
+            buf = io.BytesIO()
+            im.save(buf, "WEBP", quality=QUALITY, method=6)
+            after = buf.getbuffer().nbytes
+            if after >= before:
+                print(f"  （跳過 {f.name}：重壓 {before // 1024} KB → {after // 1024} KB，沒省到）")
+                skipped += 1
+                continue
             if not dry:
-                im.save(f, "WEBP", quality=QUALITY, method=6)
-                after = f.stat().st_size
-            else:
-                # 試跑也要算得出省多少：壓進記憶體量大小，不寫回檔案
-                # （本來 dry 直接把 after 當成 before，最後一行永遠印「省下 0.00 MB」）
-                buf = io.BytesIO()
-                im.save(buf, "WEBP", quality=QUALITY, method=6)
-                after = buf.getbuffer().nbytes
+                f.write_bytes(buf.getvalue())
             print(f"  {f.relative_to(ROOT / 'public/assets')}　"
                   f"{before // 1024} KB → {after // 1024} KB　{im.size}")
             saved += before - after
             n += 1
-    print(f"{'（試跑）' if dry else ''}縮了 {n} 張，省下 {saved / 1048576:.2f} MB")
+    tail = f"，另有 {skipped} 張重壓後反而更大、原檔不動" if skipped else ""
+    print(f"{'（試跑）' if dry else ''}縮了 {n} 張，省下 {saved / 1048576:.2f} MB{tail}")
 
 
 if __name__ == "__main__":

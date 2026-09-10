@@ -188,6 +188,10 @@
   0%, 100% { translate: 0 0; }
   50% { translate: 0 -2px; }
 }
+/* 站在節點右邊時左右翻過來，讓球球永遠面向那一格（使用者 2026-09-11）。
+   用 `scale` 這個獨立屬性、不用 `transform`：呼吸動畫動的是 `translate`，
+   兩個是各自獨立的屬性，疊在一起不會互相蓋掉（寫成 `transform` 就會打架） */
+.map-hero.flip { scale: -1 1; }
 .map-node.choice {
   opacity: 1;
   cursor: pointer;
