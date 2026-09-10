@@ -18,8 +18,6 @@ const ICON: Record<MapNode['type'], string> = {
   罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
 };
 
-/** 每種節點圖示的三款（見 `nodeIcon`）。跟底圖的 `BG_VARIANTS` 同一套命名 */
-const ICON_VARIANTS = ['', '_b', '_c'] as const;
 
 /** 地圖上那隻球球的尺寸與跟節點的間隙（樣式在 map.css 的 `.map-hero`，兩邊要一致） */
 const HERO_W = 52;
@@ -163,18 +161,14 @@ registerScreen('map', (app, root) => {
       }
     }
     /**
-     * 同一種節點有三款圖示（2026-09-10 生了 14 張變體），**用「樓層＋車道」挑**。
+     * 一種節點一個圖示，**不做變體**。
      *
-     * 一關十五層會看到五六個戰鬥節點，全長同一個手裡劍，整張地圖像用複製貼上的。
-     * 不能用亂數：地圖每次重畫（打完一場回來）都會重跑這裡，亂數會讓同一格的圖示一直換臉。
-     * 只用樓層也不行——同一層並排的兩格是**最容易被看出來一模一樣**的那種，
-     * 而地圖是一整條捲軸，兩格就貼在一起。加上車道，並排的必定錯開。
-     * 變體沒生的退回原圖（塔主那格通常走不到這裡，牠用的是關主立繪）。
+     * 2026-09-10 曾經生了 14 張變體、照「樓層＋車道」輪著挑，想解「整張地圖像用複製貼上」；
+     * 使用者實玩後否決：「地圖圖案不行，反而更不清楚」。地圖節點只有 64 像素，
+     * 認的是輪廓與主色，同一種節點長得一模一樣正是它好認的原因——換了圖案就得重新辨認一次，
+     * 省下的重複感遠不如失去的辨識度。變體圖檔留在 `tools/art_inbox/`，要回頭再撿。
      */
-    const base = ICON[n.type];
-    const v = ICON_VARIANTS[Math.abs(n.floor + n.lane) % ICON_VARIANTS.length]!;
-    const url = artUrl('icons', `${base}${v}`);
-    return url.startsWith('data:') ? artUrl('icons', base) : url;
+    return artUrl('icons', ICON[n.type]);
   }
 
   // 可走的下一步：開局 currentNode 是 null，nextChoices 會回 1F 的三個節點
