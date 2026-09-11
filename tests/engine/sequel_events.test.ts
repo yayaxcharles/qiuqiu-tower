@@ -2,6 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { eventById, events } from '../../src/content/events';
 import { relicById } from '../../src/content/relics';
+import { applyEffects } from '../../src/engine/effects';
+import { startCombat } from '../../src/engine/combat';
 import { generateMap } from '../../src/engine/map';
 import { applyRunEffects, beginCombat, newRun, takeRelic, BOSS_PREFIXES } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -63,15 +65,44 @@ describe('關主隨機前綴', () => {
 });
 
 describe('代價秘寶', () => {
-  it('鐵砂衣：開戰扣 4 點但不會打死球球（血 3 進場剩 1），而且有紀錄（稽核 2026-09-04 高 1）', () => {
-    const run = newRun('vest'); takeRelic(run, 'iron_sand_vest'); run.hp = 3;
-    const cs = beginCombat(run, 'wood_dummy');
-    expect(cs.phase).toBe('player');
-    expect(cs.player.hp).toBe(1);
-    expect(cs.log.some((l) => l.includes('秘寶的代價'))).toBe(true);
-    const run2 = newRun('vest2'); takeRelic(run2, 'iron_sand_vest'); run2.hp = 1;
-    const cs2 = beginCombat(run2, 'wood_dummy');
+  /*
+   * 「秘寶的代價不會把球球打死」這道護欄（稽核 2026-09-04 高 1）。
+   *
+   * 2026-09-11 起**沒有任何秘寶在用開戰扣血**——鐵砂衣的那筆被拿掉了
+   *（使用者：「不該扣血，只有好處就好」）。但護欄要留著：`selfDamage` 這個效果
+   * 還在，下一件有代價的秘寶會再走同一條路。
+   * 所以測試從「用鐵砂衣走一遍」改成**直接驗效果本身**，不然這條會變成
+   * 「測一件不存在的東西」，哪天護欄被拿掉也沒人發現。
+   */
+  it('秘寶來源的自傷至少留 1 血，而且留一行紀錄（稽核 2026-09-04 高 1）', () => {
+    const cs = startCombat({ hp: 3, maxHp: 70, deck: [], relics: [], potions: [],
+      encounterId: 'wood_dummy', rng: new Rng(seedFromString('cost')) });
+    applyEffects(cs, [{ kind: 'selfDamage', amount: 4 }], { source: 'relic' });
+    expect(cs.player.hp, '扣不死').toBe(1);
+    expect(cs.phase, '也不會判成敗北').toBe('player');
+    expect(cs.log.some((l) => l.includes('秘寶的代價')), '代價要講清楚').toBe(true);
+
+    // 只剩 1 滴血時完全不扣（`amount <= 0` 就直接返回），也不該多印一行
+    const cs2 = startCombat({ hp: 1, maxHp: 70, deck: [], relics: [], potions: [],
+      encounterId: 'wood_dummy', rng: new Rng(seedFromString('cost2')) });
+    const before = cs2.log.length;
+    applyEffects(cs2, [{ kind: 'selfDamage', amount: 4 }], { source: 'relic' });
     expect(cs2.player.hp).toBe(1);
+    expect(cs2.log.length, '什麼都沒發生就不要印').toBe(before);
+  });
+
+  it('**牌**打出來的自傷照扣（護欄只保護秘寶的代價，不是萬用免死金牌）', () => {
+    const cs = startCombat({ hp: 3, maxHp: 70, deck: [], relics: [], potions: [],
+      encounterId: 'wood_dummy', rng: new Rng(seedFromString('cardcost')) });
+    applyEffects(cs, [{ kind: 'selfDamage', amount: 4 }], { source: 'card' });
+    expect(cs.player.hp, '鐵頭功那種自己打自己的，該死就是會死').toBe(0);
+  });
+
+  it('鐵砂衣只剩好處：留 6 點蜷縮，沒有任何代價', () => {
+    const vest = relicById['iron_sand_vest'];
+    expect(vest?.hooks.blockKeep).toBe(6);
+    expect(vest?.hooks.combatStart, '開戰不該再有任何代價').toBeUndefined();
+    expect(vest?.text).not.toContain('失去');
   });
   it('血契短刀：開戰 +3 爪力、最大生命 −12；貪吃錢袋：店價漲三成', () => {
     const run = newRun('costly');

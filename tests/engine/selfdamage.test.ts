@@ -55,11 +55,16 @@ describe('自傷先扣蜷縮', () => {
     }
   });
 
-  it('鐵砂衣的開場代價也走同一條，而且不會把球球打死', () => {
-    // 開戰第一拍蜷縮是 0，所以它的代價實質不變——但規則要一致
-    const iron = Object.values(relicById).find((r) => r.hooks.combatStart?.some((f) => f.kind === 'selfDamage'));
-    expect(iron, '應該有一件開場自傷的秘寶').toBeTruthy();
-    const fx = iron!.hooks.combatStart!.find((f) => f.kind === 'selfDamage')!;
+  /*
+   * 秘寶來源的自傷走同一條規則（先扣蜷縮、至少留 1 血）。
+   *
+   * 原本這條是拿**鐵砂衣**來跑的，2026-09-11 它的開戰扣血被拿掉了
+   *（使用者：「不該扣血，只有好處就好」），現在沒有任何秘寶在走這條路。
+   * 改成直接用效果本身驗——護欄還在，下一件有代價的秘寶會再用到，
+   * 而且這樣不會變成「測一件不存在的東西」。
+   */
+  it('秘寶來源的自傷也走同一條，而且不會把球球打死', () => {
+    const fx = { kind: 'selfDamage', amount: 4 } as const;
     const cs = fight();
     cs.player.block = 99;
     applyEffects(cs, [fx], { source: 'relic' });
@@ -69,5 +74,10 @@ describe('自傷先扣蜷縮', () => {
     cs2.player.hp = 2; cs2.player.block = 0;
     applyEffects(cs2, [fx], { source: 'relic' });
     expect(cs2.player.hp, '秘寶的代價至少留 1 血').toBeGreaterThanOrEqual(1);
+  });
+
+  it('目前沒有任何秘寶帶開戰扣血（鐵砂衣那筆拿掉了）', () => {
+    const costly = Object.values(relicById).filter((r) => r.hooks.combatStart?.some((f) => f.kind === 'selfDamage'));
+    expect(costly.map((r) => r.name), '哪天又加回來，上面那條要改回用真的秘寶跑').toEqual([]);
   });
 });
