@@ -25,7 +25,14 @@ function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean) {
 
 /** 回傳 true＝已暫停等待選牌 */
 export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Effect[]): boolean {
-  const p = cs.player;
+  /*
+   * **這一串效果是誰引發的**（連線版第一步 2026-09-11）。
+   *
+   * 以前寫死 `cs.player`，因為只有一位玩家。現在打牌、喝忍具的地方會把自己填進
+   * `ctx.self`，加防禦、抽牌、回血就記在正確的人身上。魔物的招式與還沒改完的
+   * 舊呼叫點沒填，退回第一位——單機兩者是同一個人，行為完全沒變。
+   */
+  const p = ctx.self ?? cs.player;
   switch (fx.kind) {
     case 'damage': {
       const times = fx.scaleWithCombo ? Math.min((ctx.combo ?? 0) + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
@@ -101,21 +108,21 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * 受影響的只有三張牌（鐵頭功 2、拼命 3、亡命 6）與鐵砂衣的開場 4 點。
        * 鐵砂衣那一下**打在開戰第一拍**，那時蜷縮還是 0（除了暖毯），所以它的代價實質不變。
        */
-      damagePlayer(cs, p, amount, { direct: true, throughBlock: true });
+      damagePlayer(cs, p, amount, { direct: true, throughBlock: true, victim: p });
       if (ctx.source === 'relic') log(cs, `秘寶的代價：失去 ${amount} 點生命`);
       return false;
     }
     case 'block': gainBlock(cs, p, fx.amount); return false;
-    case 'draw': drawCards(cs, fx.n); return false;
+    case 'draw': drawCards(cs, fx.n, p); return false;
     case 'drawIfTargetStatus': {
       const t = cs.enemies.find((e) => e.uid === ctx.targetUid);
-      if (t && getStatus(t, fx.name) > 0) drawCards(cs, fx.n);
+      if (t && getStatus(t, fx.name) > 0) drawCards(cs, fx.n, p);
       return false;
     }
     case 'drawNextTurn': p.drawNextTurn += fx.n; return false;
     case 'status': {
       if (fx.target === 'self') {
-        if (fx.name === '隱身') gainStealth(cs, fx.amount); else addStatus(p, fx.name, fx.amount);
+        if (fx.name === '隱身') gainStealth(cs, fx.amount, p); else addStatus(p, fx.name, fx.amount);
         // 自己給自己疊的減益，這回合結束先不衰減
         if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = (p.freshDebuffs[fx.name] ?? 0) + fx.amount;
       } else {
@@ -133,7 +140,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     // `percent`＝回最大生命的百分之幾（起死回生丹）。用最大生命當基準不是「缺的血」：
     // 缺得越多回越多會變成「越晚喝越賺」，那會逼玩家故意拖到快死
-    case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n); return false;
+    case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p); return false;
     case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
     case 'power':
       // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來

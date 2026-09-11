@@ -452,6 +452,14 @@ export interface RunState {
 export interface Unit { hp: number; maxHp: number; block: number; statuses: Partial<Record<StatusName, number>> }
 export interface PlayerCombat extends Unit {
   /**
+   * 座位編號，0 起算（連線版第一步 2026-09-11）。
+   *
+   * 單機永遠只有 0 號一個人，行為跟加這個欄位之前一模一樣。
+   * 之所以要編號而不是拿物件比對：畫面與紀錄要講「誰做了什麼」，
+   * 連線之後兩邊的記憶體物件不是同一個，能對起來的只有這個號碼。
+   */
+  seat: number;
+  /**
    * 甲（武士球球的防禦，2026-09-05）。跟蜷縮並列但性格相反：**回合開始不歸零**，被打會永久扣。
    * 受傷順序是 蜷縮 → 甲 → 生命——蜷縮回合末反正要消失，先用它擋；擋不完才啃甲。
    * 忍者球球整場都是 0，行為跟加這個欄位之前一模一樣。
@@ -532,6 +540,16 @@ export interface EnemyCombat extends Unit {
   split?: boolean;
 }
 export interface EffectCtx {
+  /**
+   * 這一串效果是**誰**引發的：打這張牌、喝這瓶忍具、觸發這件秘寶的那個人
+   * （連線版第一步 2026-09-11）。
+   *
+   * 加防禦、抽牌、回血、掛能力這些「作用在自己身上」的效果都要認人。
+   * 單機只有一位，填的一直是 `players[0]`，跟以前一模一樣。
+   * **沒填就退回 `cs.player`**——魔物的招式、還沒改完的舊呼叫點都走這條路，
+   * 單機兩者等值，所以過渡期不會有行為差異。
+   */
+  self?: PlayerCombat;
   targetUid?: number;
   cardUid?: number;
   cardId?: string;         // 打出的是哪張牌（能力牌掛牌子用）
@@ -556,7 +574,25 @@ export interface CombatState {
   /** 難度與遭遇給的血量倍率、出場爪力：召喚出來的也要套（審查 #9） */
   mods?: { hpMul: number; strength: number };
   rng: Rng;                 // 戰鬥不存檔，直接帶亂數物件
-  player: PlayerCombat;
+  /**
+   * 這場戰鬥裡的所有玩家，依座位排（連線版第一步 2026-09-11）。**單機就一位。**
+   *
+   * 為什麼先把一個人包成陣列：連線版要讓兩個人打同一場，而整個引擎有一百多處
+   * 寫死了「玩家＝那一個」。一次全改風險太大，所以先把容器換掉、行為完全不動，
+   * 用既有的六百多條測試證明沒改壞，之後才一處一處把「那一個」換成「指定的那位」。
+   */
+  players: PlayerCombat[];
+  /**
+   * 相容用的別名，**永遠等於 `players[0]`**。
+   *
+   * 這是唯讀的 getter（在 `startCombat` 裡用 `get player()` 定義），不是複製出來的欄位，
+   * 所以不會有「陣列換人了、這個別名還指著舊的」的走鐘問題——刻意選 getter 而不是
+   * 存一份參考，正是為了把這種最難查的錯誤從一開始就排除掉。
+   *
+   * 新程式碼請改用明確的對象：牌效果用 `ctx.self`，魔物出招用被指定的受害者。
+   * 剩下還在讀這個別名的地方，在連線版第二步會一批一批換掉。
+   */
+  readonly player: PlayerCombat;
   enemies: EnemyCombat[];
   relics: string[];
   potions: string[];        // 從整局複製進來，用掉就移除，戰後寫回

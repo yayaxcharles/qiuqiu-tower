@@ -6,7 +6,7 @@ import { applyEffects } from './effects';
 import { addStatus, computeAttack, computeBlock, getStatus, removeStatus } from './statuses';
 import { DEBUFFS } from './types';
 import { learnedMove, learnsPlayerCards } from './mimic';
-import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, Unit, StatusName } from './types';
+import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, PlayerCombat, Unit, StatusName } from './types';
 
 /** 沉睡中的魔物頭上顯示的意圖。每次都是同一份物件，畫面比對「這一拍出的是哪一招」才穩 */
 export const SLEEP_MOVE: EnemyMove = { intent: 'idle', label: '呼呼大睡', effects: [{ kind: 'nothing' }] };
@@ -96,28 +96,28 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
 
 /** 每回合第一次拿隱身時吃秘寶加成（紙袋的 stealthBonus），加成量由秘寶資料決定 */
 // 隱身**沒有上限**（使用者 2026-09-04 明示：要能無限疊，不能設上限；平衡靠「蜷縮先擋」的判定順序與看破）
-export function gainStealth(cs: CombatState, n: number): void {
+export function gainStealth(cs: CombatState, n: number, p: PlayerCombat = cs.player): void {
   let amt = n;
   // 加成的那幾件也要看得到在做事（稽核 2026-09-10 中-3）：這裡是它們唯一的「發動時刻」
   for (const id of cs.relics) {
     const h = relicById[id]?.hooks;
     if (!h) continue;
-    const first = !cs.player.firstStealthGiven && (h.stealthBonus ?? 0) > 0;
+    const first = !p.firstStealthGiven && (h.stealthBonus ?? 0) > 0;
     if (first || (h.stealthBonusEvery ?? 0) > 0) fireRelic(cs, id);
   }
-  if (!cs.player.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
+  if (!p.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
   amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
-  cs.player.firstStealthGiven = true;
-  addStatus(cs.player, '隱身', amt);
+  p.firstStealthGiven = true;
+  addStatus(p, '隱身', amt);
 }
 
-export function healPlayer(cs: CombatState, n: number): number {
-  const p = cs.player; const before = p.hp;
+export function healPlayer(cs: CombatState, n: number, p: PlayerCombat = cs.player): number {
+  const before = p.hp;
   p.hp = Math.min(p.maxHp, p.hp + n);
   return p.hp - before;
 }
 
-export function drawCards(cs: CombatState, n: number): CardInstance[] { return draw(cs.player, n, cs.rng); }
+export function drawCards(cs: CombatState, n: number, p: PlayerCombat = cs.player): CardInstance[] { return draw(p, n, cs.rng); }
 
 /**
  * 魔物塞牌給球球（黏液、眼冒金星）。
@@ -126,10 +126,10 @@ export function drawCards(cs: CombatState, n: number): CardInstance[] { return d
  * `draw`＝洗進抽牌堆的隨機位置（可能下一張就抽到，比較討厭）。
  * 位置只用 `cs.rng`，同種子才重現得出同一局。
  */
-export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n: number, to: 'discard' | 'draw'): void {
+export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n: number, to: 'discard' | 'draw',
+                          p: PlayerCombat = cs.player): void {
   const def = cardById[cardId];
   if (!def) throw new Error(`未知的牌：${cardId}`);
-  const p = cs.player;
   for (let i = 0; i < n; i++) {
     const card: CardInstance = { uid: cs.nextCardUid++, cardId, upgraded: false };
     if (to === 'discard') p.discardPile.push(card);
@@ -149,8 +149,7 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
  * 設計來剋「堆蜷縮龜縮」的，而甲是整場有限的資源、堆不起來，不需要再被剋一次，
  * 不然武士打師父那場沒得打。
  */
-function eatArmour(cs: CombatState, lose: number): number {
-  const p = cs.player;
+function eatArmour(cs: CombatState, p: PlayerCombat, lose: number): number {
   if (lose <= 0 || p.armour <= 0) return lose;
   const eaten = Math.min(p.armour, lose);
   p.armour -= eaten;
@@ -158,8 +157,17 @@ function eatArmour(cs: CombatState, lose: number): number {
   return lose - eaten;
 }
 
-export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts: { direct?: boolean; pierce?: boolean; throughBlock?: boolean } = {}): number {
-  const p = cs.player;
+export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
+                             opts: {
+                               direct?: boolean; pierce?: boolean; throughBlock?: boolean;
+                               /**
+                                * 打在**誰**身上（連線版第一步 2026-09-11）。不填就是第一位玩家，
+                                * 單機跟以前一模一樣。放在選項袋而不是參數位置，是因為這支有五十幾個
+                                * 呼叫點，硬插一個參數會把每一處都改動一遍、看不出哪一處是真的改了行為。
+                                */
+                               victim?: PlayerCombat;
+                             } = {}): number {
+  const p = opts.victim ?? cs.player;
   let lose: number;
   if (opts.direct) {
     lose = base;
@@ -168,7 +176,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
       const absorbed = Math.min(p.block, base); p.block -= absorbed; lose = base - absorbed;
       if (absorbed > 0) log(cs, `蜷縮擋下了 ${absorbed} 點`);
     }
-    lose = eatArmour(cs, lose);
+    lose = eatArmour(cs, p, lose);
   } else {
     if (p.immune) { log(cs, '球球躲在角落，什麼都沒看到'); return 0; }
     const dmg = computeAttack(base, attacker, p);
@@ -182,7 +190,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number, opts
     }
     p.block -= absorbed;
     lose = dmg - absorbed;
-    lose = eatArmour(cs, lose);
+    lose = eatArmour(cs, p, lose);
     // 擋下來要留紀錄：畫面靠這行飄「擋住 N」跟盾牌，不然整下被吃掉看起來像沒打到（使用者回報）
     if (absorbed > 0) log(cs, `蜷縮擋下了 ${absorbed} 點`);
     if (opts.pierce && dmg > 0) log(cs, '這一下穿過了蜷縮');
@@ -363,7 +371,9 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
   if (e.stolen > 0) { cs.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
-  if (!reviving) for (const pw of cs.player.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { source: 'power' });
+  // 擊倒的那位（連線版第二步要由 damageEnemy 一路帶下來「是誰打的」，現在只有一位）
+  const killer = cs.player;
+  if (!reviving) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
   // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
   if (!reviving) for (const rid of cs.relics) {
     const h = relicById[rid]?.hooks;

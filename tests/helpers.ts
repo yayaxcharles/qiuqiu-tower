@@ -8,8 +8,9 @@ export function inst(cardId: string, uid: number, upgraded = false): CardInstanc
   return { uid, cardId, upgraded };
 }
 
-export function blankPlayer(deckIds: string[] = []): PlayerCombat {
+export function blankPlayer(deckIds: string[] = [], seat = 0): PlayerCombat {
   return {
+    seat,
     hp: 70, maxHp: 70, block: 0, armour: 0, statuses: {},
     energy: 3, maxEnergy: 3,
     hand: [], drawPile: deckIds.map((id, i) => inst(id, i + 1)), discardPile: [], exhaustPile: [],
