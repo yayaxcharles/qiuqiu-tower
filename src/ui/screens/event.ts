@@ -5,7 +5,7 @@ import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
-import { allVoted, settleVotes } from '../../engine/vote';
+import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import type { CardDef, CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
@@ -144,6 +144,14 @@ registerScreen('event', (app, root, props) => {
    * 清的時機只有一個：**票結算完的那一刻**（下面設定的地方）。
    */
   let chosen = -1;   // 已經定案的選項（-1＝還在投票）
+  /*
+   * 「挑牌升級／移除」那一輪要用的文案與旗標。
+   * 掛在畫面層級是因為**套用的處理函式在 `take()` 裡**（兩台都跑得到），
+   * 而文案只有真的開過挑牌疊層的那一台才有。
+   */
+  let cardPickInfo: { up: boolean; resultText: string; gains: RunGain[];
+    gotShow: Showcase; noteLine: (extra?: string) => string | null } | null = null;
+  const iDown = !!coop && !!me(run, seat).down;   // 我倒下了：只能看，不能選
 
   /**
    * 事件的每一條路都收在這個劇場版面：插圖立在中上、結果一句話寫在對白框、按鈕排在框裡
@@ -213,15 +221,26 @@ registerScreen('event', (app, root, props) => {
     if (missed.length) window.setTimeout(() => askNext(0), 400);
   };
 
+  /**
+   * 第 `who` 位學到那一張。**一定要用他那一份清單去找**——效果一位跑一次、每次重抽，
+   * 兩個座位看到的三張牌本來就不一樣，拿自己這一份去找會找不到、他那張就靜靜落空。
+   */
+  function takeLearn(who: number, cardId: string, outcomes: RunEffectOutcome[],
+    resultText?: string, gains: readonly RunGain[] = []): void {
+    const o = outcomes[who];
+    const list = o && 'chooseCard' in o ? o.chooseCard : [];
+    const upId = o && 'chooseCard' in o ? o.upgradedCard : undefined;
+    const def = list.find((d) => d.id === cardId);
+    if (!def) return;
+    const up = def.id === upId;
+    const got = addCard(run, def.id, up, who);
+    if (resultText === undefined) return;   // 別人的：只套用、不演
+    finish(resultText, `學會了「${def.name}${up ? '＋' : ''}」`, gains, [{ kind: 'learn', card: got }]);
+  }
+
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
   function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = [], upgradedCard?: string,
     outcomes: RunEffectOutcome[] = []): void {
-    /** 第 `who` 位看到的那三張（跟我的不一樣，見 `take()` 的說明）。沒有就退回我這一份 */
-    const defsOf = (who: number): { defs: CardDef[]; up?: string } => {
-      const o = outcomes[who];
-      if (o && 'chooseCard' in o) return { defs: o.chooseCard, ...(o.upgradedCard ? { up: o.upgradedCard } : {}) };
-      return { defs, ...(upgradedCard ? { up: upgradedCard } : {}) };
-    };
     clearKeepBg(root);
     renderHud(app, root);
     /*
@@ -229,26 +248,24 @@ registerScreen('event', (app, root, props) => {
      * 而牌組是兩台機器都在模擬的，對面不知道我學了哪一張就會分岔。
      * `''` ＝一招都不要（空字串比 null 好傳，也不會跟任何牌的編號撞）。
      */
+    /*
+     * **這裡只負責「畫出來、把我挑的送出去」，套用是 `take()` 掛的那一支在做。**
+     *
+     * 為什麼不能掛在這裡（稽核第二輪 高-3）：倒下的人、或牌組裡沒有可以挑的牌的人，
+     * **根本不會走到這個函式**——於是他那台從來沒有註冊過處理函式，
+     * 同伴挑的那張牌在他那台永遠不會進牌組，兩邊的牌組與 `nextUid` 當場差一個。
+     * 掛在 `take()` 裡就沒有這個問題：那一支兩台都一定會跑到。
+     */
     const learn = (cardId: string): void => {
-      if (!coop) { takeLearn(seat, cardId); return; }
-      coop.onPick((kind) => {
-        if (kind !== 'evlearn') return;
-        const all = coop.picks('evlearn', run.players.length);
-        if (!allVoted(all, run.players.map((p) => !p.down))) return;
-        coop.clearPicks('evlearn');
-        all.forEach((v, i) => { if (v) takeLearn(i, v, i !== seat); });
-        if (!all[seat]) finish(resultText, '一招都沒挑', gains);
-      });
+      if (!coop) { takeLearn(seat, cardId, outcomes); return; }
+      /*
+       * 先重畫成「挑好了，等同伴挑完」再投票（理由同 `settleCards`：
+       * 我如果是後投的那一位，投下去就當場結算完了，再重畫會把結果蓋掉）。
+       */
       coop.pick('evlearn', cardId);
-    };
-    const takeLearn = (who: number, cardId: string, quiet = false): void => {
-      const mineList = defsOf(who);   // **一定要用他那一份清單去找**，不然他挑的那張會落空
-      const def = mineList.defs.find((d) => d.id === cardId);
-      if (!def) return;
-      const up = def.id === mineList.up;
-      const got = addCard(run, def.id, up, who);
-      if (quiet) return;
-      finish(resultText, `學會了「${def.name}${up ? '＋' : ''}」`, gains, [{ kind: 'learn', card: got }]);
+      if (!coop.picks('evlearn', run.players.length).every((v, i) => run.players[i]?.down || v !== null)) {
+        chooseCard(resultText, defs, gains, upgradedCard, outcomes);   // 票還沒齊：改成「等同伴挑完」（稽核 中-3）
+      }
     };
 
     const grid = el('div', { class: 'reward-cards' });
@@ -286,7 +303,15 @@ registerScreen('event', (app, root, props) => {
       const filter = up ? (c: CardInstance) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病' : () => true;
       // 一張都不合就直接跳過（疊層本身也擋得住鎖死，但沒得挑還開一個空視窗只是煩人）
       const usable = me(run, seat).deck.filter(filter).length;
-      if (usable === 0) { finish(resultText, noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除'), gains); return; }
+      if (usable === 0) {
+        /*
+         * **沒得挑也要投一張空票**（稽核第二輪 高-4）：不投的話同伴那邊
+         * `allVoted` 永遠湊不齊，他的疊層又是不能取消的，兩個人一起卡死只能重開。
+         */
+        if (coop) { cardPickInfo = { up, resultText, gains, gotShow, noteLine }; coop.pick('evcard', ''); }
+        finish(resultText, noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除'), gains);
+        return;
+      }
       // 要挑的張數可能比牌組裡合格的還多（例如只剩一張沒升級過的牌卻要升兩張），
       // 那就以實際挑得到的為準，不然確認鈕永遠按不下去、玩家被鎖在疊層裡
       const want = Math.min(outcome.n, usable);
@@ -318,23 +343,17 @@ registerScreen('event', (app, root, props) => {
           : undefined;
         finish(resultText, noteLine(note), gains, [...gotShow, ...show]);
       };
+      /*
+       * **只負責投票**，套用是 `take()` 掛的那一支在做（理由同 `learn`，見稽核第二輪 高-3）。
+       */
       const settleCards = (uids: readonly number[]): void => {
         if (!coop) { const r = applyPicks(seat, uids); finishPicks(r.names, r.show); return; }
-        coop.onPick((kind) => {
-          if (kind !== 'evcard') return;
-          const all = coop.picks('evcard', run.players.length);
-          if (!allVoted(all, run.players.map((p) => !p.down))) return;
-          coop.clearPicks('evcard');   // 結算完才清（收尾時清會把票清掉）
-          // 照座位順序套，兩台機器算出來的牌組才一樣
-          const mineOut = { names: [] as string[], show: [] as Showcase };
-          all.forEach((v, i) => {
-            if (v === null) return;
-            const list = v ? v.split(',').map(Number) : [];
-            const r = applyPicks(i, list);
-            if (i === seat) { mineOut.names = r.names; mineOut.show = r.show; }
-          });
-          finishPicks(mineOut.names, mineOut.show);
-        });
+        cardPickInfo = { up, resultText, gains, gotShow, noteLine };
+        /*
+         * **等待的畫面要先畫、再投票**：我如果是後投的那一位，`pick` 會當場把票湊齊、
+         * 處理函式立刻把結果畫出來——這時候再畫「等同伴挑完」就會把結果蓋掉。
+         */
+        panel(`${resultText}　挑好了，等同伴挑完。`, null, '', gains, resultArt);
         coop.pick('evcard', uids.join(','));
       };
       // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
@@ -400,6 +419,51 @@ registerScreen('event', (app, root, props) => {
     for (const i of seats) {
       outcomes[i] = applyRunEffects(run, c.outcome, i === seat ? notes : undefined, i === seat ? gains : undefined, i);
     }
+    /*
+     * **挑牌的處理函式掛在這裡，不掛在挑牌的畫面裡**（稽核第二輪 高-3）。
+     *
+     * 這一支兩台都一定會跑到；挑牌的畫面不是——倒下的人、或牌組裡沒有可挑的牌的人
+     * 根本走不到那裡，他那台就永遠沒有人在聽，同伴挑的牌在他那台不會進牌組。
+     */
+    if (coop) {
+      const alive = run.players.map((p) => !p.down);
+      coop.onPick((kind) => {
+        if (kind === 'evlearn') {
+          const all = onlyStanding(coop.picks('evlearn', run.players.length), alive);
+          if (!allVoted(all, alive)) return;
+          coop.clearPicks('evlearn');
+          // 照座位順序套，兩台算出來的牌組才一樣；只有自己那張要演出來
+          all.forEach((v, i) => { if (v) takeLearn(i, v, outcomes, i === seat ? c.result : undefined, gains); });
+          if (!all[seat]) finish(c.result, '一招都沒挑', gains);
+          return;
+        }
+        if (kind !== 'evcard') return;
+        const all = onlyStanding(coop.picks('evcard', run.players.length), alive);
+        if (!allVoted(all, alive)) return;
+        coop.clearPicks('evcard');
+        const info = cardPickInfo;
+        const mineOut = { names: [] as string[], show: [] as Showcase };
+        all.forEach((v, i) => {
+          if (v === null) return;
+          const list = v ? v.split(',').map(Number) : [];
+          const names: string[] = [];
+          for (const uid of list) {
+            const card = me(run, i).deck.find((x) => x.uid === uid);
+            if (!card) continue;
+            names.push((cardById[card.cardId]?.name ?? card.cardId) + (card.upgraded ? '＋' : ''));
+            const before = { ...card };
+            if (info?.up) upgradeCard(run, uid, i); else removeCard(run, uid, i);
+            if (i === seat) mineOut.show.push(info?.up ? { kind: 'upgrade', card } : { kind: 'remove', card: before });
+          }
+          if (i === seat) mineOut.names = names;
+        });
+        if (!info) return;   // 我這台沒開過挑牌疊層（倒下、或沒得挑）：套用完就好，不用再演一次
+        if (mineOut.names.length) play(info.up ? 'upgrade' : 'dodge');
+        const note = mineOut.names.length
+          ? `「${mineOut.names.join('」「')}」${info.up ? '升級了' : '被丟掉了'}` : undefined;
+        finish(info.resultText, info.noteLine(note), info.gains, [...info.gotShow, ...mineOut.show]);
+      });
+    }
     settle(outcomes[seat] ?? null, c.result, notes, gains, me(run, seat).deck.filter((x) => !had.has(x.uid)), outcomes);
   }
 
@@ -414,7 +478,8 @@ registerScreen('event', (app, root, props) => {
     // 誰投了這一項：兩個人才知道對方想選什麼（跟地圖上的小記號同一套）
     const who = votes.map((v, i) => (v === String(index) ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
     const btn = el('button', { class: 'btn' }, c.label + (poor ? '（小魚乾不夠）' : '') + (who.length ? `　← ${who.join('、')}` : ''));
-    if (poor || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
+    // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
+    if (poor || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
       if (cost > me(run, seat).fish) return;   // 保險：畫面畫完之後小魚乾又變少的話也不能透支
       play('click');
@@ -445,13 +510,15 @@ registerScreen('event', (app, root, props) => {
     ? [el('p', { class: 'event-note' }, '這個難度下：事件造成的傷害 ×1.5，賭運氣的成功率 ×0.7（選項上寫的是基本值）')]
     : [];
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
-  root.append(sceneView({ art: eventArt(ev.id), speaker: title, text: ev.text, extra, actions: choices, column: true }));
+  root.append(sceneView({ art: eventArt(ev.id), speaker: title,
+    text: iDown ? `${ev.text}（你倒下了，這次由同伴決定）` : ev.text, extra, actions: choices, column: true }));
 
   if (coop) {
     coop.onPick((kind) => {
       if (kind !== 'event' || chosen >= 0 || !ev) return;
-      const now = coop.picks('event', run.players.length);
-      if (!allVoted(now, run.players.map((p) => !p.down))) { app.show('event', props); return; }
+      const alive = run.players.map((p) => !p.down);
+      const now = onlyStanding(coop.picks('event', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
+      if (!allVoted(now, alive)) { app.show('event', props); return; }
       const pickStr = settleVotes(runRng(run), now);
       if (pickStr === null) return;
       chosen = Number(pickStr);

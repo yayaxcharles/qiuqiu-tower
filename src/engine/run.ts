@@ -130,7 +130,19 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
     if (rp.restBlock) { p.block += rp.restBlock; rp.restBlock = 0; }
   }
   // 第一位也一樣（他是 `startCombat` 建的，那支沒有「倒下」這個輸入）
-  if (run.players[0]?.down) { const first = cs.players[0] as PlayerCombat; first.down = true; first.hp = 0; }
+  if (run.players[0]?.down) {
+    /*
+     * 座位 0 是 `startCombat` 建的，那支已經跑完第一回合（發了五張牌、給滿飯糰、吃掉暖毯的蜷縮），
+     * 所以要把那些**還回去**——不然主機倒下時畫面上擺著五張點不動的牌與三顆飯糰，
+     * 點下去被引擎擋掉、毫無反應（稽核第二輪 中-1）。座位 1 以上是在發牌之前就 `continue`，沒這個問題。
+     */
+    const first = cs.players[0] as PlayerCombat;
+    first.down = true; first.hp = 0;
+    first.drawPile = [...first.hand, ...first.drawPile];
+    first.hand = [];
+    first.energy = 0;
+    first.block = 0;
+  }
   applyBossPrefix(run, cs);
   applyEncounterModifier(run, cs);
   return cs;
@@ -361,6 +373,7 @@ export function advanceAct(run: RunState): void {
   const heal = runMods(run).actHeal;
   // 每一位都回（連線版 2026-09-11）：只回第一位的話，第二位整局被硬扣掉兩次回復，後面撐不住
   for (const p of run.players) {
+    if (p.down) continue;   // 倒下的人不回：血條顯示滿的、狀態卻還是倒下，只會讓同伴誤判（稽核第二輪 中-2）
     p.hp = heal >= 1 ? p.maxHp : Math.min(p.maxHp, p.hp + Math.round((p.maxHp - p.hp) * heal));
   }
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1 });

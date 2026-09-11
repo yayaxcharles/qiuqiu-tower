@@ -7,7 +7,7 @@ import { closeCardReward, runRng, takeCardReward, upgradeCard } from '../../engi
 import { settleRelicPicks } from '../../engine/rewards';
 import type { CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
-import { allVoted } from '../../engine/vote';
+import { allVoted, onlyStanding } from '../../engine/vote';
 import { screenBg, tierBgKey } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
@@ -33,6 +33,8 @@ registerScreen('reward', (app, root, props) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
   const seat = app.seat;
+  // 倒下的人沒得挑（規則四）：他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的牌組
+  const iDown = !!app.coop && !!me(run, seat).down;
   // 戰利品與事件獎金分兩欄送過來（見 app.afterCombat）：CombatRewards 本身沒有 bonusFish 這一欄
   /*
    * `relicSettled`／`relicTaken` **記在戰利品物件上**，不是畫面的區域變數。
@@ -42,7 +44,7 @@ registerScreen('reward', (app, root, props) => {
    * 兩台機器當場分岔。戰利品物件是 `props`，重畫時原封不動傳回來，
    * 而且下一場戰鬥自然會換成新的一份，不必記得手動清。
    */
-  const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number; relicSettled?: boolean; relicTaken?: boolean; relicSeats?: number[]; upsDone?: boolean };
+  const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number; relicSettled?: boolean; relicTaken?: boolean; relicSeats?: number[]; upsDone?: boolean; upsAsking?: boolean; potionSwapped?: boolean };
   const bonus = r.bonusFish ?? 0;
   const ups = r.bonusUpgrades ?? 0;
   /*
@@ -56,7 +58,7 @@ registerScreen('reward', (app, root, props) => {
     /** 秘寶結算好了沒（結算會擲骰，只能跑一次，不然亂數就多走一步） */
     const settleRelics = (): void => {
       if (r.relicSettled || !offers.length) return;
-      const picks = coop.picks('relic', run.players.length);
+      const picks = onlyStanding(coop.picks('relic', run.players.length), alive());   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       if (!allVoted(picks, alive())) return;
       r.relicSettled = true;
       const got = settleRelicPicks(runRng(run), offers, picks);
@@ -66,7 +68,7 @@ registerScreen('reward', (app, root, props) => {
     /** 鏡子走廊那類「升 N 張牌」：兩邊都挑完才一起套上去 */
     const settleUps = (): void => {
       if (r.upsDone || ups <= 0) return;
-      const picks = coop.picks('rwup', run.players.length);
+      const picks = onlyStanding(coop.picks('rwup', run.players.length), alive());   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       if (!allVoted(picks, alive())) return;
       r.upsDone = true;
       coop.clearPicks('rwup');
@@ -74,7 +76,7 @@ registerScreen('reward', (app, root, props) => {
     };
     /** 牌、升級、秘寶都挑完（而且秘寶真的進了背包）才一起上樓 */
     const maybeGo = (): void => {
-      const cardPicks = coop.picks('card', run.players.length);
+      const cardPicks = onlyStanding(coop.picks('card', run.players.length), alive());   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       if (!allVoted(cardPicks, alive())) return;
       if (ups > 0 && !r.upsDone) return;
       if (offers.length && !r.relicTaken) return;
@@ -89,7 +91,14 @@ registerScreen('reward', (app, root, props) => {
       app.backToMap();
     };
     coop.onRunApplied((applied) => {
-      // 兩個人的秘寶都真的進背包了才算數（各自送各自那一件，所以要等兩則）
+      /*
+       * **換忍具不算在這裡面**（稽核第二輪 高-1）。
+       *
+       * 換忍具也走整局動作通道，所以會叫到這一支；而這一支對「秘寶還沒到齊」的反應是
+       * 整頁重畫——重畫之後「忍具帶滿了，收不下」那一列又長回來，三百五十毫秒後
+       * **再問一次要換哪一支**。玩家每回答一次就被換掉一支，只有按「不換」才停得下來。
+       */
+      if (applied.every((o) => o.a.t === 'swap')) { r.potionSwapped = true; return; }
       /*
        * **兩個人的秘寶都真的進背包了才算數**（一人送一則，所以要等兩則）。
        * 只看「有沒有任何一則」的話，第一則一到就放行，先按的那位會在自己的秘寶
@@ -106,7 +115,7 @@ registerScreen('reward', (app, root, props) => {
       if (kind === 'relic') { settleRelics(); app.show('reward', r); return; }
       if (kind === 'rwup') { settleUps(); maybeGo(); return; }
       if (kind !== 'card') return;
-      const picks = coop.picks('card', run.players.length);
+      const picks = onlyStanding(coop.picks('card', run.players.length), alive());
       if (!allVoted(picks, alive())) { app.show('reward', r); return; }
       maybeGo();
       if (!r.relicTaken && offers.length) app.show('reward', r);
@@ -163,12 +172,19 @@ registerScreen('reward', (app, root, props) => {
      * 這個畫面每挑一次就整個重畫（對方投了牌票、秘寶還沒進背包…），
      * 不擋的話那個**不能取消**的疊層會一次一次再彈出來。
      */
-    const upsPicked = r.upsDone || (app.coop ? app.coop.picks('rwup', run.players.length)[seat] !== null : false);
-    if (want > 0 && !upsPicked) showDeckPicker({
+    /*
+     * `upsPicked` 擋得住「挑完之後又彈一次」，擋不住「我還在挑的時候畫面重畫」——
+     * 同伴先挑了牌就會重畫，於是疊出第二個**不能取消**的疊層，要各關一次（稽核第二輪 中-4）。
+     * 所以另外記一個「疊層開著」的旗標（記在戰利品物件上，重畫不會清掉）。
+     */
+    const upsPicked = r.upsDone || r.upsAsking
+      || (app.coop ? app.coop.picks('rwup', run.players.length)[seat] !== null : false);
+    if (want > 0 && !upsPicked) { r.upsAsking = true; showDeckPicker({
       title: want > 1 ? `選 ${want} 張牌升級` : '選一張牌升級', previewUpgrade: true,
       cards: me(run, seat).deck, pickable: true, cancellable: false, filter: upFilter, pickCount: want,
-      onPick: (uid) => settleUpgrades(uid === null ? [] : [uid]), onPickMany: settleUpgrades,
-    });
+      onPick: (uid) => { r.upsAsking = false; settleUpgrades(uid === null ? [] : [uid]); },
+      onPickMany: (uids) => { r.upsAsking = false; settleUpgrades(uids); },
+    }); }
   }
   /**
    * 挑完要升級的牌。**兩個人時要等兩邊都挑完才動手**（跟事件那邊同一條理由）：
@@ -217,7 +233,7 @@ registerScreen('reward', (app, root, props) => {
         icon(d.art, d.name),
         el('span', { class: 'relic-offer-text' }, el('b', {}, d.name), el('em', {}, d.text)),
         who.length ? el('span', { class: 'relic-offer-who' }, who.join('、')) : '');
-      if (mine || r.relicSettled) b.setAttribute('disabled', 'disabled');
+      if (mine || r.relicSettled || iDown) b.setAttribute('disabled', 'disabled');
       else b.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
       box.append(b);
     }
@@ -229,7 +245,8 @@ registerScreen('reward', (app, root, props) => {
    * 忍具帶滿收不下——**一人一個背包，滿的人不一定是同一個**（連線版 2026-09-11）。
    * `potionMissedSeats` 記的是哪幾位收不下；全部人都收不下才會走 `potionMissed` 那條舊路。
    */
-  const missedId = r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null);
+  // 換過就不再問（不然每重畫一次就再彈一次換忍具的視窗）
+  const missedId = r.potionSwapped ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null));
   const missed = missedId ? potionById[missedId] : undefined;
   if (missed && missedId) {
     const line = el('span', { class: 'reward-line' }, el('b', {}, `忍具帶滿了，「${missed.name}」收不下`), el('em', {}, missed.text));
@@ -276,7 +293,7 @@ registerScreen('reward', (app, root, props) => {
   // 開出升級牌的那一格照升級版畫（名字帶＋、數字是升級後的）
   for (const c of r.cards) {
     cards.append(cardNode(c.id === r.upgradedCard ? { uid: -1, cardId: c.id, upgraded: true } : c,
-      waiting ? { disabled: true } : { onClick: () => done(c.id) }));
+      waiting || iDown ? { disabled: true } : { onClick: () => done(c.id) }));
   }
 
   // 標題依戰鬥種類換句話，打倒塔主不該跟打贏小老鼠共用同一句

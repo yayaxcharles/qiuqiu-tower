@@ -5,6 +5,10 @@ import { applyRunAction, canApplyRun, type RunCtx } from '../../src/net/runactio
 import { advanceAct, applyRunEffects, beginCombat, finishCombat, makeShop, newCoopRun, priceFor } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
 import type { RunState } from '../../src/engine/types';
+import { onlyStanding, settleVotes } from '../../src/engine/vote';
+import { Rng, seedFromString } from '../../src/engine/rng';
+
+const rng = (seed: string): Rng => new Rng(seedFromString(seed));
 
 /** 兩台機器各自跑同一顆種子，算出來一模一樣的整局（鎖步的前提） */
 function twoRuns(seed = 'shop'): [RunState, RunState] {
@@ -280,5 +284,55 @@ describe('稽核 2026-09-11 修掉的三個高優先', () => {
     advanceAct(run);
     expect(run.players[0]!.hp).toBeGreaterThan(20);
     expect(run.players[1]!.hp, '第二位也要回').toBeGreaterThan(20);
+  });
+});
+
+describe('稽核第二輪：倒下的人不能影響結算', () => {
+  it('倒下的那一票結算前要洗掉，結果才跟票到達的順序無關', () => {
+    /*
+     * 高-5：`allVoted` 跳過倒下的座位，所以站著的人一投完就立刻結算；
+     * 但結算用的是整個票面陣列，倒下那一票**照到達的時機**可能在裡面也可能不在。
+     * 兩台於是發出不一樣的東西（牌組、nextUid 差一個），下一格對帳就炸。
+     */
+    const standing = [true, false];
+    const 站著先到 = onlyStanding(['A', null], standing);
+    const 倒下的先到 = onlyStanding(['A', 'B'], standing);
+    expect(站著先到, '洗過之後兩種到達順序完全一樣').toEqual(倒下的先到);
+    expect(倒下的先到[1], '倒下那一票要被洗成 null').toBe(null);
+  });
+
+  it('選路線：倒下的人投的那一票不可以害兩邊擲骰', () => {
+    const standing = [true, false];
+    const votes = onlyStanding(['n1', 'n2'], standing);
+    // 洗過之後只剩一票，`settleVotes` 就不會擲骰（擲了兩邊的亂數會差一步）
+    const before = { ...rng('dice').state };
+    const got = settleVotes(rng('dice'), votes);
+    expect(got).toBe('n1');
+    const after = rng('dice');
+    settleVotes(after, votes);
+    expect(after.state, '沒擲骰＝亂數沒動').toEqual(before);
+  });
+
+  it('主機倒下進下一場：不發牌、不給飯糰（畫面上不會擺著點不動的牌）', () => {
+    const run = newCoopRun('host-down', 1);
+    run.players[0]!.down = true;
+    run.players[0]!.hp = 0;
+    const node = run.map.nodes.find((n) => n.floor === 1 && n.encounterId);
+    const cs = beginCombat(run, node!.encounterId as string);
+    const p0 = cs.players[0]!;
+    expect(p0.down).toBe(true);
+    expect(p0.hand.length, '倒下的主機不發牌').toBe(0);
+    expect(p0.energy, '也不給飯糰').toBe(0);
+    expect(p0.drawPile.length, '牌要還回抽牌堆，不是憑空消失').toBe(run.players[0]!.deck.length);
+  });
+
+  it('過關回血跳過倒下的人（不然血條會顯示假的滿血）', () => {
+    const run = newCoopRun('adv-down', 1);
+    run.players[0]!.hp = 20;
+    run.players[1]!.hp = 20;
+    run.players[1]!.down = true;
+    advanceAct(run);
+    expect(run.players[0]!.hp).toBeGreaterThan(20);
+    expect(run.players[1]!.hp, '倒下的人不回血').toBe(20);
   });
 });

@@ -101,6 +101,9 @@ export class App {
     const track = this.bgmFor(name);
     if (track) setBgm(track);
     hideTooltip();   // 提示框的錨點就要被清掉了，不先關掉會變成孤兒黏在畫面上
+    // 連線的畫面級回呼也要一起斷：不斷的話新畫面會叫到上一格留下來的處理函式
+    //（見 `CoopSession.clearScreenHooks`）。新畫面自己會在下面的 `r(...)` 裡重新掛
+    this.coop?.clearScreenHooks();
     for (const d of this.disposers.splice(0)) d();
     clear(this.screen);
     this.stage.dataset['screen'] = name;

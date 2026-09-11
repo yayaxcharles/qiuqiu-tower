@@ -3,7 +3,7 @@ import { dialogue, pick } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { openChest, openChestCoop, runRng } from '../../engine/run';
 import { settleRelicPicks } from '../../engine/rewards';
-import { allVoted } from '../../engine/vote';
+import { allVoted, onlyStanding } from '../../engine/vote';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
@@ -77,8 +77,9 @@ registerScreen('chest', (app, root) => {
     // 兩個人都挑好了就結算（擲骰在兩台各跑一次，用的是整局的亂數，結果一樣）
     coop.onPick((kind) => {
       if (kind !== 'relic' || settled || !run) return;
-      const picks = coop.picks('relic', run.players.length);
-      if (!allVoted(picks, run.players.map((p) => !p.down))) { if (openedCoop) revealCoop(); return; }
+      const alive = run.players.map((p) => !p.down);
+      const picks = onlyStanding(coop.picks('relic', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
+      if (!allVoted(picks, alive)) { if (openedCoop) revealCoop(); return; }
       settled = true;
       const got = settleRelicPicks(runRng(run), offers, picks);
       coop.clearPicks('relic');   // 結算完才清（收尾時清會把票清掉，見上面的說明）
@@ -238,7 +239,7 @@ registerScreen('chest', (app, root) => {
         el('b', {}, d.name),
         el('span', { class: 'small' }, d.text),
         who.length ? el('span', { class: 'chest-offer-who' }, who.join('、')) : '');
-      if (!myPick && !settled) slot.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
+      if (!myPick && !settled && !me(run, seat).down) slot.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
       else slot.setAttribute('disabled', 'disabled');
       row.append(slot);
     }

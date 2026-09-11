@@ -2,7 +2,8 @@ import { actWalkTransition } from '../acttransition';
 import { play } from '../audio';
 import { relicById } from '../../content/relics';
 import { ACT_NAMES, addCard, advanceAct, rollActCards, rollActRelics, takeRelic } from '../../engine/run';
-import { allVoted } from '../../engine/vote';
+import { allVoted, onlyStanding } from '../../engine/vote';
+import { me } from '../../engine/runplayer';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
@@ -59,6 +60,7 @@ registerScreen('actclear', (app, root, props) => {
    * 清的時機只有一個：**票結算完的那一刻**（下面設定的地方）。
    */
   let advanced = false;   // `advanceAct` 每台機器只能跑一次（它會生新地圖、推進亂數）
+  const iDown = !!coop && !!me(run, seat).down;   // 倒下的人沒得挑（規則四）
 
   const go = (): void => {
     if (advanced) return;
@@ -109,7 +111,7 @@ registerScreen('actclear', (app, root, props) => {
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('b', {}, d.name),
         el('em', {}, d.text));
-      if (!sent) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); render(); });
+      if (!sent && !iDown) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); render(); });
       relicRow.append(node);
     }
     // 稀有牌三選一：點了亮起、可換選；帶不帶都能出發
@@ -118,8 +120,8 @@ registerScreen('actclear', (app, root, props) => {
       cardRow.append(cardNode(c, {
         small: true,
         selected: pickedCard === c.id,
-        disabled: sent,
-        onClick: () => { if (!sent) { pickedCard = pickedCard === c.id ? null : c.id; play('click'); render(); } },
+        disabled: sent || iDown,
+        onClick: () => { if (!sent && !iDown) { pickedCard = pickedCard === c.id ? null : c.id; play('click'); render(); } },
       }));
     }
     const next = ACT_NAMES[run.act] ?? '塔頂';
@@ -161,8 +163,8 @@ registerScreen('actclear', (app, root, props) => {
     coop.onPick((kind) => {
       if ((kind !== 'actrelic' && kind !== 'actcard') || advanced || !run) return;
       const alive = run.players.map((p) => !p.down);
-      const rp = coop.picks('actrelic', run.players.length);
-      const cp = coop.picks('actcard', run.players.length);
+      const rp = onlyStanding(coop.picks('actrelic', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
+      const cp = onlyStanding(coop.picks('actcard', run.players.length), alive);
       if (!allVoted(rp, alive) || !allVoted(cp, alive)) { render(); return; }
       // 兩邊都挑完了：照座位順序各拿各的（順序固定，兩台機器算出來的牌組才一樣）
       coop.clearPicks('actrelic'); coop.clearPicks('actcard');   // 結算完才清

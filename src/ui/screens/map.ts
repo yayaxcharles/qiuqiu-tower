@@ -5,7 +5,8 @@ import { play } from '../audio';
 import { FLOORS, nextChoices } from '../../engine/map';
 import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
-import { allVoted, settleVotes } from '../../engine/vote';
+import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
+import { me } from '../../engine/runplayer';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl } from '../assets';
@@ -101,8 +102,9 @@ registerScreen('map', (app, root) => {
     const coop = app.coop;
     coop.onPick((kind) => {
       if (kind !== 'map') return;
-      const now = coop.picks('map', run.players.length);
-      if (!allVoted(now, run.players.map((p) => !p.down))) { app.show('map'); return; }
+      const alive = run.players.map((p) => !p.down);
+      const now = onlyStanding(coop.picks('map', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
+      if (!allVoted(now, alive)) { app.show('map'); return; }
       const pick = settleVotes(runRng(run), now);
       coop.clearPicks('map');
       if (pick) app.enterNode(pick); else app.show('map');
@@ -222,6 +224,7 @@ registerScreen('map', (app, root) => {
         play('step');
         // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
         if (!app.coop) { app.enterNode(n.id); return; }
+        if (me(run, app.seat).down) return;   // 倒下的人沒得選（規則四）；他的票結算時本來就會被洗掉
         if (votes[app.seat]) return;   // 投過了就不能改——改票會讓兩邊的票面對不上
         app.coop.pick('map', n.id);
       });

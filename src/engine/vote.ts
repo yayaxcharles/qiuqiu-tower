@@ -31,3 +31,21 @@ export function allVoted(votes: readonly (string | null)[], standing: readonly b
   }
   return any;
 }
+
+/**
+ * 把**倒下的人**那幾票洗掉（連線版 2026-09-11 第二輪稽核 高-5）。
+ *
+ * `allVoted` 本來就跳過倒下的座位，所以站著的人一投完就立刻結算——
+ * 可是結算用的是整個票面陣列，倒下那一票**照到達的時機**可能在裡面也可能不在：
+ * 站著那台先收到自己的票就結算（只有一票），倒下那台先收到自己的票、
+ * 等站著的票到了才結算（兩票都在）。於是兩台發出去的牌不一樣、`nextUid` 差一個，
+ * 下一格對帳就炸開；選路線更糟，票面不同會決定「要不要擲骰」。
+ *
+ * **結算前一律先洗一次**，結果就跟票到達的順序無關了。
+ * 這是真正擋得住競態的那一道；畫面把倒下的按鈕停用只是順手不讓他按。
+ */
+export function onlyStanding(
+  votes: readonly (string | null)[], standing: readonly boolean[],
+): (string | null)[] {
+  return votes.map((v, i) => (standing[i] ? v : null));
+}

@@ -91,6 +91,24 @@ export class CoopSession {
   /** 這一場戰鬥開打了。兩邊要餵同一個 `CombatState`（各自算出來的那一份） */
   attach(cs: CombatState): void { this.cs = cs; }
 
+  /**
+   * 換畫面時把**畫面級**的回呼清乾淨（`App.show()` 進來就叫一次）。
+   *
+   * 這三個都是單一插槽，本來靠「後註冊蓋掉前一個」運作——可是**不註冊的畫面就會失守**：
+   * 事件畫面從來沒註冊過 `onRunApplied`，所以它送出「換忍具」的那一刻，跑的是
+   * 上一格留下來的處理函式。實測會被丟回上一場的戰利品畫面，或當場被拉回地圖
+   *（稽核 2026-09-11 第二輪 高-2）。
+   *
+   * 不清 `onStartRun`：那是開局用的，跟畫面無關，而且清掉客戶端就永遠開不了局。
+   */
+  clearScreenHooks(): void {
+    this.applied = null;
+    this.runApplied = null;
+    this.picked = null;
+    this.before = null;
+    this.dropped = null;
+  }
+
   /** 這一局開始了。整局只有一份，設一次就不動 */
   useRun(run: RunState): void { this.runState = run; }
 
