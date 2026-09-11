@@ -44,10 +44,14 @@ export function showItemCompendium(): void {
     el('span', { class: 'comp-pool' }, `忍具（${potions.length}）`),
     el('span', { class: 'comp-note' }, '戰鬥獎勵、事件、罐頭鋪；戰鬥中點一下就用，一場最多帶三支（忍具袋、九命鈴可加）')));
   const plist = el('div', { class: 'item-grid' });
-  for (const p of potions) {
+  // 照價錢排，跟上面秘寶那幾區同一套（2026-09-11）。本來是照 `potions` 的陣列順序，
+  // 而新忍具一律往陣列尾端加——結果七支新的全擠在最下面像附錄，
+  // 而且同樣 40 條的麻繩與胡椒罐會被隔得老遠，玩家沒辦法比價
+  // 沒標價的照引擎的保底值 45（ 的 POTION_PRICE），跟下面那行顯示的數字同一套
+  for (const p of [...potions].sort((a, b) => (a.price ?? 45) - (b.price ?? 45))) {
     plist.append(el('div', { class: 'item-row' }, icon(p.art, p.name),
       el('div', { class: 'item-text' }, el('b', {}, p.name), el('em', {}, p.text)),
-      el('span', { class: 'item-price' }, `${p.price} 條`)));
+      el('span', { class: 'item-price' }, `${p.price ?? 45} 條`)));
   }
   body.append(plist);
 

@@ -29,7 +29,7 @@ const TIER_BY_ACT = ['low', 'mid', 'top'] as const;
  * 序幕那四張（`still_teach`／`still_corrupt`／`still_rush`／`still_depart`）不在這裡：
  * 那是開新局第一秒就播的，必須留在首載。
  */
-const SLIDES_BY_ACT = [
+export const SLIDES_BY_ACT = [
   ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb'],
   ['bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs'],
   ['bg/still_embrace', 'bg/still_home'],   // 打贏第三關＝結局
@@ -54,7 +54,15 @@ export function bgKeysForAct(act: number): string[] {
   // 第二、三關那兩扇 65 KB 是白背的——第一關的玩家一輩子看不到。
   // 「二三關減一關」的減法會自己把 act1 那扇留在首載、另外兩扇歸分關載入，不用另外列白名單。
   keys.push(`bg/door_act${i + 1}`);
-  for (const k of SLIDES_BY_ACT[i]!) keys.push(k);
+  /**
+   * **過關幻燈片不列進來了**（2026-09-11）。
+   *
+   * 原本算進該關的鍵，好讓第二、三關那幾張歸分關載入；但第一關那三張因此留在首載、
+   * 白佔 121 KB——玩家要打完整整十五層才看得到。
+   * 現在改成「推開關主門的那一刻才載」（`screens/bossdoor.ts` 呼叫 `warmSlides`）：
+   * 門會停在那裡等你點，載完綽綽有餘，而且一關只會遇到一次。
+   * 三關的幻燈片因此全部離開首載。
+   */
   /**
    * **事件插圖也照 `acts` 分關**（2026-09-11）。
    *
@@ -85,5 +93,13 @@ export function bgKeysForAct(act: number): string[] {
  */
 export function deferredBgKeys(): Set<string> {
   const first = new Set(bgKeysForAct(1));
-  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3)].filter((k) => !first.has(k)));
+  /**
+   * **三關的過關幻燈片全部延後**（2026-09-11）。
+   *
+   * 它們已經不在任何一關的 `bgKeysForAct` 裡（改由關主門那一刻載，見上面的說明），
+   * 所以那個「二三關減第一關」的減法抓不到它們——不特別加進來的話，
+   * 開場的 `preloadArt` 會把三關八張全部載好載滿，等於白改。
+   */
+  const slides = SLIDES_BY_ACT.flat();
+  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides].filter((k) => !first.has(k)));
 }

@@ -65,8 +65,12 @@ CATEGORIES: dict[str, tuple[str, int | None]] = {
     "total": ("首載總計", 9_700_000),
 }
 
-# 第一關用不到的魔物立繪與底圖（`docs/分關載入.json`：檔案相對路徑 → 最早出現的關數，
-# 由 tools/dump_monster_acts.test.ts 產生）。進第二三關才載（src/ui/preload.ts 的 preloadAct），所以不算首載。
+# 開場不載的圖（`docs/分關載入.json`：檔案相對路徑 → 最早出現的關數，
+# 由 tools/dump_monster_acts.test.ts 產生）。兩種都不算首載：
+#   **>= 2**：第一關用不到的魔物立繪與底圖，進第二三關才載（`src/ui/preload.ts` 的 `preloadAct`）。
+#   **0**：不跟關數綁的按需載入——今天只有過關幻燈片，推開關主門那一刻才抓
+#         （`screens/bossdoor.ts` 的 `warmSlides`）。第一關那三張也是這一類，
+#         寫成「第 1 關」會被下面的 >= 2 擋掉、白白算進首載（2026-09-11）。
 DEFERRED_FILE = ROOT / "docs" / "分關載入.json"
 
 
@@ -75,7 +79,7 @@ def load_deferred() -> set[str]:
     if not DEFERRED_FILE.exists():
         return set()
     data = json.loads(DEFERRED_FILE.read_text(encoding="utf-8"))
-    return {rel for rel, act in data.items() if int(act) >= 2}
+    return {rel for rel, act in data.items() if int(act) == 0 or int(act) >= 2}
 
 IMAGE_SUFFIXES = {".webp", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".avif"}
 

@@ -4,6 +4,7 @@ import { artUrl } from '../assets';
 import { battleBgKey, battleBgStyle, bossDoorKey } from '../screenbg';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+import { warmSlides } from '../preload';
 
 /**
  * 關主戰前的那扇門（使用者 2026-09-10：「睡覺補完後，加上打王前的過渡，
@@ -22,6 +23,9 @@ registerScreen('bossdoor', (app, root, props) => {
   const { encounterId } = props as { encounterId: string };
   if (!run || !encounterId) { app.show('map'); return; }
   renderHud(app, root);
+  // 打完這隻關主就會播過關幻燈片。趁門還關著先抓起來——那三張不再算進首載了（見 bgacts.ts），
+  // 而這裡是一關裡唯一「畫面停住、等玩家動作」的時刻，最適合塞預載
+  warmSlides(run.act);
 
   const door = artUrl('bg', bossDoorKey(run.act));
   /**

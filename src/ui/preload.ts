@@ -2,7 +2,7 @@ import { encounterById, encounters, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
 import { artUrl, hasMonsterPose, monsterUrl, warmed, type MonsterPose } from './assets';
-import { bgKeysForAct } from './bgacts';
+import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 
 /**
  * 魔物立繪的分關預載（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）。
@@ -113,6 +113,18 @@ export function preloadAct(act: number): Promise<void> {
   // 這裡雖然沒有時限（過關畫面停留幾十秒）不會出事，但兩支寫法不一致，照著抄就會再踩一次。
   const held = new Set(urlsFor(defs));
   return decodeAll([...new Set([...bg, ...held])], 4, (u) => held.has(u));
+}
+
+/**
+ * 這一關的過關幻燈片先抓起來（2026-09-11）。
+ *
+ * 由關主門呼叫：門停在那裡等玩家點，打完關主才會播這幾張，中間隔著一整場關主戰，來得及。
+ * 不留參照（`hold: false`）——那幾張只播一次，播完就該讓瀏覽器回收。
+ * 不 await：門不該為了預載等在那裡。
+ */
+export function warmSlides(act: number): void {
+  const i = Math.min(Math.max(act, 1), 3) - 1;
+  void decodeAll(SLIDES_BY_ACT[i]!.map((k) => artUrl('bg', k)), 3, false);
 }
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */

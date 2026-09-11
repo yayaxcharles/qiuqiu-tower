@@ -103,11 +103,23 @@ const POSE = {
   eat: 'hero/ninja_eat', guard: 'hero/ninja_guard',
   // 第二批（2026-09-08）：噎到待機、被纏住待機、能力牌凝神、抽牌翻卷軸
   choke: 'hero/ninja_choke', dizzy: 'hero/ninja_dizzy', focus: 'hero/ninja_focus', scroll: 'hero/ninja_scroll',
+  /**
+   * 招式再分家（2026-09-11，使用者指定「加開新家族——獅吼、太極、輕功」）。
+   *
+   * 前一批（2026-09-08）只分了攻擊牌，而 **36 張絕學裡有 21 張不是攻擊牌，全部共用同一張
+   * `ninja_skill`**——太極、推手、卸勁、輕功、踏雪無痕、移形換影打出來的動作一模一樣。
+   * 這三個家族各收一批性格相近的：吼（張嘴大吼、音波圈）、太極（圓轉化勁）、輕功（騰空點地）。
+   * **刻意不放進 `ATTACK_POSES`**：那個集合是多段攻擊的兩格輪換名單，而輪換的搭檔寫死是爪擊，
+   * 太極輪成撲抓會很怪。技能牌本來就進不了那個分支（它們的 `attack` 是 false），
+   * 所以這個決定實際上只影響會用到新家族的**攻擊牌**——今天只有獅吼功（打全體、單段）
+   * 與借力使力（單段），兩張都沒有多段可輪，不受影響。
+   */
+  roar: 'hero/ninja_roar', taiji: 'hero/ninja_taiji', qinggong: 'hero/ninja_qinggong',
 };
 type PoseKey = keyof typeof POSE;
 // 出招圖名單：多段攻擊的兩格輪換只在這些圖之間換，勝利／落敗／蜷縮／挨打不輪換
 const ATTACK_POSES = new Set<string>([POSE.attack, POSE.claw, POSE.kick, POSE.dash, POSE.punch, POSE.throw]);
-/** 攻擊牌 → 招式家族。沒列的用原本那張掌推（鐵砂掌、沾衣十八跌、借力使使力、獅吼功那幾張本來就是掌） */
+/** 攻擊牌 → 招式家族。沒列的用原本那張掌推（鐵砂掌那類本來就是掌） */
 const ATTACK_POSE: Readonly<Record<string, PoseKey>> = {
   sanjo: 'claw', dieda: 'claw', paozhao: 'claw', liandao: 'claw', roubao: 'claw', juye: 'claw', luoye: 'claw',
   ruying: 'claw', shengdong: 'claw', shunshou: 'claw', wozaizhe: 'claw', susu: 'claw', bunshin: 'claw',
@@ -115,6 +127,27 @@ const ATTACK_POSE: Readonly<Record<string, PoseKey>> = {
   huixuan: 'kick', lianhuan: 'kick', caiweiba: 'kick', dilie: 'kick',
   tietou: 'dash', wangming: 'dash', shunkan: 'dash', beici: 'dash',
   bengquan: 'punch', jiuweiquan: 'punch', shierlian: 'punch', qinna: 'punch', ehou: 'punch', zuiquan: 'punch', dianxue: 'punch',
+  // 2026-09-11 新家族：獅吼功是張嘴吼不是掌推；借力使力是「借對方的力」，跟太極同一路
+  //（它的效果本來就跟太極一樣是 `damageEqualBlock`）。
+  // **沾衣十八跌刻意不改**（稽核 2026-09-11 低-1）：它是 `damage 5 × times 3` 的多段攻擊，
+  // 而多段的兩格輪換只在 `ATTACK_POSES` 名單裡的圖之間換；改成 taiji 會讓它掉出名單、
+  // 三段打起來變成一張圖定住。招式家族對一點點，不值得拿掉一個本來就有的演出。
+  shihou: 'roar', jiedao: 'taiji',
+};
+
+/**
+ * **非攻擊牌**的招式家族（2026-09-11）。攻擊牌走上面那張表，這張管技能與能力牌。
+ *
+ * 沒列進來的照舊：能力牌凝神、會抽牌的翻卷軸、其餘施術。這裡只挑「動作明顯不一樣、
+ * 用同一張施術圖會很怪」的那幾張，不是每張都要分家——分太細等於沒分。
+ */
+const SKILL_POSE: Readonly<Record<string, PoseKey>> = {
+  // 吼：喊出去的那幾張
+  weihe: 'roar', chudashi: 'roar', youcike: 'roar', boming: 'roar',
+  // 太極：圓轉、化勁、把對方的力還回去
+  taiji: 'taiji', tuishou: 'taiji', jieli: 'taiji', yide: 'taiji', shuaiguo: 'taiji', fanzhua: 'taiji',
+  // 輕功：騰空、閃身、走人
+  qinggong: 'qinggong', taxue: 'qinggong', yixing: 'qinggong', zhanshu: 'qinggong', gaotui: 'qinggong', diaohu: 'qinggong',
 };
 /** 吃喝姿勢：非攻擊的回血牌；忍具裡真的是吃的那三支（卷軸、符咒照施術） */
 const EAT_CARDS: ReadonlySet<string> = new Set(['xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
@@ -126,6 +159,11 @@ function cardPose(def: CardDef, effects: readonly Effect[] = def.effects): { pos
   if (THROW_CARDS.has(def.id)) return { pose: posePick('throw', POSE.attack), attack };
   if (attack) { const fam = ATTACK_POSE[def.id]; return { pose: fam ? posePick(fam, POSE.attack) : POSE.attack, attack: true }; }
   if (EAT_CARDS.has(def.id)) return { pose: posePick('eat', posePick('skill', POSE.attack)), attack: false };
+  // 技能／能力牌的家族（太極、輕功、吼）排在能力牌與抽牌那兩條**前面**：
+  // 馬步、運功是能力牌但沒列進 SKILL_POSE，照樣走凝神；輕功會抽兩張牌，
+  // 排後面的話會被「會抽牌就翻卷軸」那條攔走、永遠輪不到輕功圖
+  const skillFam = SKILL_POSE[def.id];
+  if (skillFam) return { pose: posePick(skillFam, posePick('skill', POSE.attack)), attack: false };
   // 能力牌一律凝神（吸貓大法也是能力牌，打出當下不回血，不算吃）；會抽牌的技能牌翻卷軸；其餘施術
   if (def.type === '能力') return { pose: posePick('focus', posePick('skill', POSE.attack)), attack: false };
   if (effects.some((e) => e.kind === 'draw')) return { pose: posePick('scroll', posePick('skill', POSE.attack)), attack: false };   // 看實際效果：替身術＋、偷吃術＋升級才抽牌

@@ -81,7 +81,10 @@ def mon_cap(path: Path) -> tuple[int, int]:
         _SIZES = {}
         for size, art in re.findall(r"size: '(small|medium|large)'[^\n]*?art: 'codex/monster_([a-z0-9_]+)'", src):
             _SIZES[art] = size
-    mid = re.sub(r"_(idle|attack|hurt|block)$", "", path.stem)
+    # 姿勢名要跟 `add_sprite.py` 那份保持同步（2026-09-11 補 `down`）：
+    # 剝不掉姿勢後綴，`mid` 就對不到 enemies.ts 的體型，整批默默掉進「照 large 算」的退路，
+    # 小型魔物的倒地圖會用 405x490 的上限（該用 230x265），白白多背三倍半的像素
+    mid = re.sub(r"_(idle|attack|hurt|block|down)$", "", path.stem)
     if mid in MON_CAP_OVERRIDE:
         return MON_CAP_OVERRIDE[mid]
     size = _SIZES.get(mid)
@@ -95,7 +98,7 @@ def mon_cap(path: Path) -> tuple[int, int]:
 
 def check_overrides() -> None:
     """例外表的每個鍵至少要對到一個檔案。對不到就是寫錯名字了，出聲，不要靜靜跳過"""
-    stems = {re.sub(r"_(idle|attack|hurt|block)$", "", p.stem)
+    stems = {re.sub(r"_(idle|attack|hurt|block|down)$", "", p.stem)
              for p in (ROOT / "public/assets/monsters").glob("*.webp")}
     bad = [k for k in MON_CAP_OVERRIDE if k not in stems]
     if bad:

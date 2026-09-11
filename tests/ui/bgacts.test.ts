@@ -9,8 +9,8 @@ describe('底圖分關', () => {
   it('每關拿到自己的戰鬥背景三張、關主戰場一張、節點畫面（貓窩／罐頭鋪／紙箱各三款）', () => {
     expect(noEvents(bgKeysForAct(1))).toEqual([
       'bg/low', 'bg/low_b', 'bg/low_c', 'bg/boss1', 'bg/door_act1',
-      // 打完這一關才播的過關幻燈片：算進該關，二三關那幾張才歸得了分關載入
-      'bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb',
+      // 過關幻燈片**不在這裡**（2026-09-11）：改由推開關主門那一刻才抓（`screens/bossdoor.ts`），
+      // 三關八張全部離開首載，省 121 KB。門停在那裡等玩家點，載得完
       'bg/map_tall',
       'bg/screen_chest', 'bg/screen_chest_b', 'bg/screen_chest_c',
       'bg/screen_event',
@@ -60,13 +60,22 @@ describe('底圖分關', () => {
     for (const e of events) {
       if (!e.acts) expect(skip.has(`bg/event_${e.id}`), `${e.id} 每一關都遇得到，不能延後`).toBe(false);
     }
-    // ③ 二三關的過關幻燈片也要延後——原本靠總數斷言間接罩住，改成規則之後這半漏了（複核 低-2）
-    for (const k of ['bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs']) {
-      expect(skip.has(k), `第二關的幻燈片 ${k} 要延後`).toBe(true);
+    /*
+     * ③ **三關的過關幻燈片全部要延後**（2026-09-11 改）。
+     *
+     * 以前第一關那三張留在首載，理由是「打完第一關就要播、來不及延後」；
+     * 現在改由推開關主門那一刻抓（`screens/bossdoor.ts` 的 `warmSlides`）——
+     * 門會停著等玩家點，後面還隔著一整場關主戰，來得及，所以那三張也離開首載了。
+     * 它們不在任何一關的 `bgKeysForAct` 裡，靠 `deferredBgKeys` 另外併進來；
+     * 漏掉的話開場會把十二張全載回去、這一刀等於白改。
+     */
+    for (const k of ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb',
+      'bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs']) {
+      expect(skip.has(k), `過關幻燈片 ${k} 要延後`).toBe(true);
     }
-    // ④ 第一關的幻燈片打完第一關就要播，來不及延後
-    for (const k of ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb']) {
-      expect(skip.has(k), `第一關的幻燈片 ${k} 不能延後`).toBe(false);
+    // ④ 序幕那四張仍然要留在首載：那是開新局第一秒就播的，沒有任何門可以拿來墊
+    for (const k of ['bg/still_teach', 'bg/still_corrupt', 'bg/still_rush', 'bg/still_depart']) {
+      expect(skip.has(k), `序幕的 ${k} 不能延後`).toBe(false);
     }
   });
 

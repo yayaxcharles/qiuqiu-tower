@@ -48,6 +48,40 @@ export const potions: PotionDef[] = [
     effects: [{ kind: 'damageScatter', amount: 10, times: 3 }] },
   { id: 'bind_nail', name: '定身釘', text: '給全體魔物 1 層定身（每隻各有七成會中）。', art: 'codex/potion_bind_nail', price: 70, target: 'all',
     effects: [{ kind: 'status', name: '定身', amount: 1, target: 'all' }] },
+
+  /*
+   * 2026-09-11 第二批（使用者從 15 支的規劃裡挑了這 5 支）。
+   *
+   * **五支全是對單體的**，這是刻意的：原本 27 支裡有 19 支作用在自己身上、只有 4 支對單體，
+   * 忍具幾乎等於「自己變強」的另一個名字。這五支補的是「對付眼前這一隻」——
+   * 而且各自剋一種讓戰鬥卡住的狀況：搶防禦剋龜縮、破功剋越打越硬、催噎剋高血量、
+   * 亂石補便宜的爆發、以彼之道給堆蜷縮流一個出口。
+   *
+   * **五支用的效果引擎全部已經有**（`stealBlock`／`removeStatuses`／`doubleStatus`／
+   * `damageRandom`／`damageEqualBlock`），一種新效果都沒加——這批的風險主要在數值不在程式。
+   */
+  { id: 'steal_claw', name: '順手牽羊爪', text: '把目標的防禦全部搶過來，變成自己的蜷縮。', art: 'codex/potion_steal_claw', price: 55, target: 'enemy',
+    // 剋鱗甲、縮殼、不壞身那幾隻「怎麼打都打不穿」的：不是清掉牠的防禦，是搬到自己身上
+    effects: [{ kind: 'stealBlock' }] },
+  { id: 'break_art', name: '破功散', text: '拔掉目標身上的爪力、貓步、鱗甲與不壞身。', art: 'codex/potion_break_art', price: 60, target: 'enemy',
+    // 這幾個是會讓一場仗「永遠打不完」的狀態：爪力越滾越痛、鱗甲每回合長防禦、不壞身防禦根本不歸零。
+    // 貓步是稽核 2026-09-11 補的：鏡貓的「照著學」會把玩家的爪力與貓步一起抄走，
+    // 而貓步會讓牠疊防禦時多長——跟既有的「忍術·封口術」同一份名單（那張也是拔爪力＋貓步）
+    effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步', '鱗甲', '不壞身'] }] },
+  { id: 'double_back', name: '加倍奉還', text: '目標身上的噎到翻倍，再加 2 層。', art: 'codex/potion_double_back', price: 40, target: 'enemy',
+    /**
+     * **一定要帶 `add`**：`doubleStatus` 在目標身上 0 層時會印「催不動」什麼都不做
+     *（`effects.ts` 那條是為了讓玩家知道飯糰花去哪）。牌那樣寫沒問題——牌每場都能再打一次；
+     * 忍具是一次性的，花 40 條買到一行「催不動」太傷。加 2 層保底，有噎到才翻倍。
+     */
+    effects: [{ kind: 'doubleStatus', name: '噎到', add: 2 }] },
+  { id: 'rubble_bag', name: '亂石包', text: '對目標造成 6～22 點傷害（看運氣）。', art: 'codex/potion_rubble_bag', price: 35, target: 'enemy',
+    // 期望值 14 點、35 條，比鐵爪套（16 點、60 條）便宜但不穩。便宜那一格本來只有三支，這支補早期
+    effects: [{ kind: 'damageRandom', min: 6, max: 22 }] },
+  { id: 'your_way', name: '以彼之道', text: '造成等同你目前蜷縮的傷害。', art: 'codex/potion_your_way', price: 50, target: 'enemy',
+    // 跟「絕學·太極」「絕學·借力使力」同一路。堆蜷縮流一直缺一個把防禦換成傷害的出口，
+    // 而那兩張牌不一定抽得到——這支是買得到的版本
+    effects: [{ kind: 'damageEqualBlock' }] },
 ];
 
 export const potionById: Record<string, PotionDef> = Object.fromEntries(potions.map((p) => [p.id, p]));

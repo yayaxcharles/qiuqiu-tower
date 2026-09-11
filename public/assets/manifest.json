@@ -170,7 +170,10 @@
   "hero/ninja_lazy": "assets/sprites/hero/ninja_lazy.webp",
   "hero/ninja_puff": "assets/sprites/hero/ninja_puff.webp",
   "hero/ninja_stealth": "assets/sprites/hero/ninja_stealth.webp",
-  "hero/ninja_iron": "assets/sprites/hero/ninja_iron.webp"
+  "hero/ninja_iron": "assets/sprites/hero/ninja_iron.webp",
+  "hero/ninja_roar": "assets/sprites/hero/ninja_roar.webp",
+  "hero/ninja_taiji": "assets/sprites/hero/ninja_taiji.webp",
+  "hero/ninja_qinggong": "assets/sprites/hero/ninja_qinggong.webp"
  },
  "review": [],
  "monsters": {
@@ -962,7 +965,12 @@
   "codex/potion_claw_bolt": "assets/icons/potion_claw_bolt.webp",
   "codex/potion_bind_nail": "assets/icons/potion_bind_nail.webp",
   "codex/potion_first_incense": "assets/icons/potion_first_incense.webp",
-  "codex/potion_pick_back": "assets/icons/potion_pick_back.webp"
+  "codex/potion_pick_back": "assets/icons/potion_pick_back.webp",
+  "codex/potion_steal_claw": "assets/icons/potion_steal_claw.webp",
+  "codex/potion_break_art": "assets/icons/potion_break_art.webp",
+  "codex/potion_double_back": "assets/icons/potion_double_back.webp",
+  "codex/potion_rubble_bag": "assets/icons/potion_rubble_bag.webp",
+  "codex/potion_your_way": "assets/icons/potion_your_way.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",

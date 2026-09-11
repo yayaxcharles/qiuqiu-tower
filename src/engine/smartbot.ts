@@ -406,6 +406,44 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     }
     // 撿回來：棄牌堆有東西、手牌又空得差不多時才有意義
     if (kinds.includes('recoverFromDiscard') && p.discardPile.length > 0 && p.hand.length <= 2 && p.energy >= 1) return usePotion(cs, id);
+    /*
+     * 2026-09-11 第二批（五支對敵忍具）。同樣是為了 `tests/smart.report.test.ts` 那份平衡報告：
+     * 機器人不會用的忍具等於白白佔掉抽中率，勝率會被壓低而且看不出原因。
+     */
+    // 順手牽羊爪：目標防禦夠厚才划算（搶過來的同時也清掉牠的防禦，一來一回）
+    if (kinds.includes('stealBlock')) {
+      const fat = enemies.find((e) => e.block >= 10);
+      if (fat) return usePotion(cs, id, fat.uid);
+    }
+    // 破功散：拔爪力／鱗甲／不壞身。三者加起來夠多才用，拔一層不值 60 條
+    if (def.effects.some((f) => f.kind === 'removeStatuses')) {
+      const buffed = enemies.find((e) => getStatus(e, '爪力') + getStatus(e, '鱗甲') * 2 + getStatus(e, '不壞身') * 3 >= 5);
+      if (buffed) return usePotion(cs, id, buffed.uid);
+    }
+    // 加倍奉還：身上噎到越多翻倍越賺；沒有噎到也有保底 2 層，但留著等噎到流起來比較好
+    const dbl = def.effects.find((f) => f.kind === 'doubleStatus');
+    if (dbl?.kind === 'doubleStatus') {
+      const t = enemies.find((e) => getStatus(e, dbl.name) >= 3);
+      if (t) return usePotion(cs, id, t.uid);
+    }
+    // 亂石包：門檻用**期望值**，跟同檔 `damageTo` 估隨機傷害的口徑一致（稽核 2026-09-11 低-2）。
+    // 原本寫 `<= rnd.min`（6），只有「血＋防禦剛好五六點」才會用，等於補了等於沒補
+    const rnd = def.effects.find((f) => f.kind === 'damageRandom');
+    if (rnd?.kind === 'damageRandom') {
+      const avg = (rnd.min + rnd.max) / 2;
+      const victim = enemies.find((e) => e.hp + e.block <= avg && e.hp >= 5);
+      if (victim) return usePotion(cs, id, victim.uid);
+    }
+    /*
+     * 以彼之道：拿現有的蜷縮換傷害（用完蜷縮還在，不是消耗掉）。
+     * **只在打得死的時候用**（稽核 2026-09-11 中-1）：原本還有個 `?? enemies[0]` 的退路，
+     * 蜷縮一到 14 就對隨便一隻開一支 50 條的忍具，平衡報告會被這支的浪費污染——
+     * 正是這批補判斷想避免的事。旁邊那條 `dmg`（固定傷害）也是只在打得死時才用，口徑一致。
+     */
+    if (kinds.includes('damageEqualBlock') && p.block >= 14) {
+      const victim = enemies.find((e) => e.hp + e.block <= p.block);
+      if (victim) return usePotion(cs, id, victim.uid);
+    }
     // 攻擊型狀態忍具：關主戰開頭就用
     if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return usePotion(cs, id);
     if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '噎到'))) {

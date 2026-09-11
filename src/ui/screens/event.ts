@@ -4,7 +4,7 @@ import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
-import { addCard, applyRunEffects, removeCard, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
+import { addCard, applyRunEffects, removeCard, runMods, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
 import type { CardDef, CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { artUrl } from '../assets';
@@ -283,8 +283,29 @@ registerScreen('event', (app, root, props) => {
     });
     choices.push(btn);
   }
+  /**
+   * 難度 4 起的共用提示（2026-09-11）。
+   *
+   * `run.ts` 對事件效果有兩條看不見的修正：扣血 ×1.5（`unlucky`）、賭運氣的成功率 ×0.7。
+   * 選項上寫的是難度 1～3 的值，難度 4 以上照著按就會被坑（文案審閱 2026-09-11 列為高優先）。
+   *
+   * **寫成一行共用提示，不是塞進每個按鈕**：把兩組數字並列寫進標籤會讓最長的那顆變成 73 個字
+   *（實測「買一顆吃（花費 20 條…難度 1–3 50%／難度 4–5 35%…）」），而選項是一列一顆撐滿框的，
+   * 三個選項的事件會把對白框頂高到蓋住插圖 38 像素。一行提示講完同一件事，佔一行。
+   *
+   * 只在真的會受影響的事件出現（有扣血或有賭運氣），沒受影響的不要平白嚇人。
+   */
+  /**
+   * 只看最上層就夠，**不用遞迴進 `gamble` 的輸贏兩邊**（稽核 2026-09-11 提過，但那一條是多慮的）：
+   * 藏在 `gamble` 裡的扣血確實看不到，可是那個 `gamble` 本身就被 ×0.7 改過、
+   * 已經讓提示出現了，所以不會有「該提示卻沒提示」的情形。
+   */
+  const risky = ev.choices.some((c) => c.outcome.some((o) => o.kind === 'damage' || o.kind === 'gamble'));
+  const extra = runMods(run).unlucky && risky
+    ? [el('p', { class: 'event-note' }, '這個難度下：事件造成的傷害 ×1.5，賭運氣的成功率 ×0.7（選項上寫的是基本值）')]
+    : [];
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
-  root.append(sceneView({ art: eventArt(ev.id), speaker: title, text: ev.text, actions: choices, column: true }));
+  root.append(sceneView({ art: eventArt(ev.id), speaker: title, text: ev.text, extra, actions: choices, column: true }));
 
   // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走
   if (ev.id === FIXED_EVENT_FLOOR_5) app.playOnce('secretScroll', dialogue.secretScroll, () => { /* 看完就直接選 */ });

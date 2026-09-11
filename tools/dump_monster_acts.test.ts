@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
-import { bgKeysForAct } from '../src/ui/bgacts';
+import { SLIDES_BY_ACT, bgKeysForAct } from '../src/ui/bgacts';
 
 it('dump monster acts', () => {
   const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as { monsters: Record<string, Record<string, string>>; bg: Record<string, string> };
@@ -22,6 +22,14 @@ it('dump monster acts', () => {
   for (const [key, path] of Object.entries(manifest.bg)) {
     const act = bgAct.get(key);
     if (act !== undefined && act >= 2) out[path] = act;
+  }
+  // 過關幻燈片（2026-09-11 起改由關主門那一刻才載）：它們不在任何一關的 `bgKeysForAct` 裡，
+  // 上面那個迴圈抓不到。**三關的都算分關載入**——連第一關那三張也是，
+  // 因為要打完十五層、推開關主門才會開始抓（`screens/bossdoor.ts` 的 `warmSlides`）
+  // 值寫 **0**＝「不分關，開場一律不載」。寫關數的話第一關那三張會被 `check_size.py` 的
+  // 「第 2 關以後才算分關載入」擋在外面、照樣算進首載，這一刀就白改了
+  for (const group of SLIDES_BY_ACT) {
+    for (const key of group) { const path = manifest.bg[key]; if (path) out[path] = 0; }
   }
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');

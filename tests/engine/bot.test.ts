@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { playRun } from '../../src/engine/bot';
+import { playCombat, playRun } from '../../src/engine/bot';
+import { STARTER_DECK } from '../../src/content/cards';
+import { startCombat } from '../../src/engine/combat';
+import { Rng, seedFromString } from '../../src/engine/rng';
+import { inst } from '../helpers';
 
 describe('隨機試玩', () => {
   it('200 局不當、不卡死、每局都有結果', () => {
@@ -38,7 +42,29 @@ describe('隨機試玩', () => {
     // 2026-09-04：隱身改成蜷縮先擋（無上限）、殘影與幻影分身調整，錨值重錄
     // 2026-09-11 一批改動（忍具 20→27 支、事件 35→38 個、迴旋踢升級版改單段）：
     // 忍具池、事件池、牌效果三者都動了，罐頭鋪進貨與各種擲骰全部位移，錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 11, turns: 44, kills: 7, deckSize: 16 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 13, turns: 27, kills: 5, deckSize: 14 });
+    // 2026-09-11 第二批（忍具 27→32 支，五支對敵）：忍具池變大＝抽到的忍具不同＝戰局不同，錨值重錄
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 15, turns: 45, kills: 8, deckSize: 22 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 13, turns: 33, kills: 3, deckSize: 13 });
+  });
+
+  /**
+   * **一條不會因為加內容而位移的錨**（2026-09-11）。
+   *
+   * 上面那兩條每加一批東西就得重錄——十幾次了，看檔頭那串註解就知道。
+   * 重錄本身沒錯（池子變大，抽到的東西就是不一樣），但重錄完那兩條對「這批有沒有做歪」
+   * 等於零資訊量：改壞了也只要把數字換成新的實際輸出就會變綠（稽核 2026-09-11 點名過）。
+   *
+   * 這一條**不碰地圖、不碰獎勵、不碰忍具池**：固定一場遭遇、固定一副牌、身上不帶忍具與秘寶，
+   * 直接跑 `playCombat`。它只在「戰鬥引擎本身的行為變了」時才會紅——
+   * 加一百支忍具、加一千個事件都動不到它。
+   */
+  it('固定戰鬥的錨：不吃地圖、獎勵、忍具池，加內容也不會位移', () => {
+    const cs = startCombat({
+      hp: 80, maxHp: 80, deck: STARTER_DECK.map((id, i) => inst(id, i + 1)),
+      relics: [], potions: [], encounterId: 'rats3', rng: new Rng(seedFromString('anchor-fixed')),
+    });
+    playCombat(cs, new Rng(seedFromString('anchor-fixed-bot')), 60, 'anchor-fixed');
+    expect({ phase: cs.phase, turn: cs.turn, hp: cs.player.hp, kills: cs.kills })
+      .toEqual({ phase: 'won', turn: 10, hp: 54, kills: 3 });
   });
 });
