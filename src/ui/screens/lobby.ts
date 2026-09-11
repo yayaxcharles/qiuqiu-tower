@@ -149,13 +149,10 @@ registerScreen('lobby', (app, root) => {
   const heroPicker = (): HTMLElement => {
     const row = (label: string, i: 0 | 1): HTMLElement => el('div', { class: 'lobby-hero-row' },
       el('b', {}, label),
-      ...(['ninja', 'feifei'] as const).map((h) => {
-        const b = el('button', {
-          class: `btn small${coopHeroes[i] === h ? ' selected' : ''}`,
-          onclick: () => { coopHeroes[i] = h; render(); },
-        }, heroName({ hero: h }));
-        return b;
-      }));
+      ...(['ninja', 'feifei'] as const).map((h) => el('button', {
+        class: `btn small${coopHeroes[i] === h ? ' selected' : ''}`,
+        onclick: () => { coopHeroes[i] = h; render(); },
+      }, heroName({ hero: h }))));
     return el('div', { class: 'lobby-heroes' },
       el('p', { class: 'lobby-note' }, '開房的人挑角色（兩位都挑，加入的人照這個開）：'),
       row('開房的人', 0), row('加入的人', 1));

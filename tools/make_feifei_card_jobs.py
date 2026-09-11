@@ -73,10 +73,12 @@ CARDS: dict[str, tuple[str, str]] = {
     "cuidugai": ("DEEP VIOLET",
         "a fat violet droplet hangs off the tip of a needle that crosses the whole frame diagonally; "
         "thick violet fumes boil off it. She is small at the far lower-left, at arm's length from it."),
-    "cuihua": ("DEEP VIOLET with WHITE",
-        "a violet cloud DOUBLES: on the left one small violet swirl, on the right a huge violent violet "
-        "bloom twice the size, a bold white double-arrow between them. Her paw enters from the bottom "
-        "having just flicked a white powder into it."),
+    # 原本是「催化」（翻倍），跟共用的「絕學·催噎」撞牌所以砍掉重做成「散毒」（把毒分出去）
+    "sandu": ("DEEP VIOLET",
+        "one shadowy enemy shape on the LEFT is wreathed in a thick violet cloud, and that cloud is being "
+        "DRAGGED sideways across the frame in long violet streamers toward TWO other shadowy shapes on the "
+        "RIGHT, staining them violet as it arrives. Bold violet arrows follow the streamers so the direction "
+        "reads instantly. She is small at the bottom-left, one paw sweeping the cloud outward."),
     "zhenyu": ("DEEP VIOLET",
         "dozens of darts rain DOWNWARD across the entire frame from the top edge, each trailing a violet "
         "streak, filling the sky. She is a small figure at the bottom-left with one arm still raised."),

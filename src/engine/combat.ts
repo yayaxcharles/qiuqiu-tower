@@ -2,7 +2,7 @@ import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
-import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
+import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markPoisoner, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
 import { coopHpMul } from './coopscale';
 import { startRange, unitName } from './hero';
 import type { Hero } from './hero';
@@ -124,7 +124,8 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
   if (cs.turn > 1) p.firstStealthGiven = false;   // 第一回合不清：開戰的鈴鐺已經吃過紙袋的加成（審查 #14）
   const poison = getStatus(p, '中毒');
-  if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (cs.phase !== 'player') return; }
+  // `noPush`＝身上的中毒不推菲菲的距離（稽核 2026-09-12 中-6，理由在 `damagePlayer`）
+  if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p, noPush: true }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
   if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive, p); }
   const iron = getStatus(p, '鐵布衫');
@@ -146,7 +147,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
+    if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p, noPush: true }); }   // 壞毛病也是身上帶著的，不推距離
   }
 }
 
@@ -237,8 +238,20 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * 不然同一張牌會自己餵自己。打贏了就不用補。
    */
   if (st.def.type === '攻擊' && p.poisonOnAttack && cs.phase === 'player') {
-    const t = targetUid === undefined ? undefined : findEnemy(cs, targetUid);
-    if (t && !t.dead) { addStatus(t, '中毒', p.poisonOnAttack); log(cs, `針上的毒又滲了進去（${t.name}）`); }
+    /*
+     * **打全體的牌就發給全體**（稽核 2026-09-12 中-11）。
+     * 原本只看 `targetUid`，而撒針、針雨、全撒了這些 `target: 'all'` 的牌
+     * 根本不會傳目標編號進來，整段直接跳過——玩家打出針雨，那額外一層永遠不會出現。
+     */
+    const hit = st.def.target === 'all'
+      ? aliveEnemies(cs)
+      : [targetUid === undefined ? undefined : findEnemy(cs, targetUid)].filter((t) => !!t);
+    for (const t of hit) {
+      if (t.dead) continue;
+      addStatus(t, '中毒', p.poisonOnAttack);
+      markPoisoner(t, '中毒', p);
+      log(cs, `針上的毒又滲了進去（${t.name}）`);
+    }
   }
   // 打出攻擊牌之後的秘寶效果（逗貓棒、貓抓板）：牌效果算完才觸發，打贏了就不用
   if (st.def.type === '攻擊' && cs.phase === 'player') {
@@ -353,7 +366,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
 function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p }); }
+    if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p, noPush: true }); }   // 同上
   }
   if (cs.phase !== 'player') return;
   if (!p.attackedThisTurn) {

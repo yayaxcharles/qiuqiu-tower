@@ -60,7 +60,7 @@ describe('牌資料', () => {
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
         (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus' ||
         // 菲菲的三張（2026-09-12）：遠射／見血封喉／一針斃命都是指定一隻打
-        e.kind === 'damageByRange' || e.kind === 'damageByStatus' || e.kind === 'execByStatus');
+        e.kind === 'damageByRange' || e.kind === 'damageByStatus' || e.kind === 'execByStatus' || e.kind === 'spreadStatus');
       if (hitsAll) expect(c.target, c.name).toBe('all');
       else if (hitsOne) expect(c.target, c.name).toBe('enemy');
       else if (c.pool === '壞毛病') expect(c.target, c.name).toBe('none');

@@ -1,4 +1,4 @@
-import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log } from './actions';
+import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log, markPoisoner } from './actions';
 import { endTurn } from './combat';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
@@ -196,6 +196,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
           // 定身對魔物只有七成機會成功（使用者 2026-09-02：「定身太強」）；沒中就寫在紀錄、畫面飄「掙脫」
           if (fx.name === '定身' && !cs.rng.chance(0.7)) { log(cs, `${t.name}掙脫了定身`); continue; }
           addStatus(t, fx.name, fx.amount);
+          markPoisoner(t, fx.name, p);   // 毒死牠的時候要知道是誰下的（連線版，見 EnemyCombat.poisonedBy）
         }
       }
       return false;
@@ -243,6 +244,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         // 0 層：基礎版催不動（寫進紀錄，玩家才知道飯糰花去哪）；升級版的「再加 add 層」照加
         if (cur === 0 && !fx.add) { log(cs, `${t.name}身上沒有${fx.name}，催不動`); continue; }
         addStatus(t, fx.name, cur + (fx.add ?? 0));
+        markPoisoner(t, fx.name, p);
       }
       return false;
     }
@@ -342,9 +344,40 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       }
       return false;
     }
-    // 三個掛在人身上的長效旗標（餘毒、拒馬、千針萬毒）。走旗標不走 `power`，理由見 types.ts
-    case 'poisonBurst': p.poisonBurst = fx.full ? 'full' : 'split'; return false;
-    case 'rangeGuard': p.rangeGuard = { min: fx.min, amount: fx.amount }; return false;
+    case 'spreadStatus': {
+      // 散出去的毒算在下毒的人頭上（見 `EnemyCombat.poisonedBy`）
+      /*
+       * 散毒：把這一隻身上的毒**分**給其他還站著的，牠自己那份不動。
+       *
+       * 這張是為了「一排魔物」的場面做的——機器人實測她第二關（16～30F）陣亡 206、
+       * 球球只有 131，那一段正是多隻同框的地方。跟「餘毒」（要先毒死一隻）不同，
+       * 這張不用等誰倒下，代價是消耗。
+       */
+      for (const t of targetsOf(cs, ctx, false)) {
+        const n = getStatus(t, fx.name);
+        const others = cs.enemies.filter((o) => o !== t && !o.dead && !o.escaped);
+        if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (others.length === 0) { log(cs, '旁邊沒有別的魔物'); continue; }
+        const each = fx.half ? Math.floor(n / 2) : n;
+        if (each <= 0) continue;
+        log(cs, `${t.name}身上的${fx.name}散了開來`);
+        for (const o of others) { addStatus(o, fx.name, each); markPoisoner(o, fx.name, p); }
+      }
+      return false;
+    }
+    /*
+     * 三個掛在人身上的長效旗標（餘毒、拒馬、千針萬毒）。走旗標不走 `power`，理由見 types.ts。
+     *
+     * **一律取比較好的那一邊，不要直接覆寫**（稽核 2026-09-12 中-8）：
+     * 牌組裡同時有升級版與沒升級的時候，先打升級的、再打沒升的，會把自己降回去——
+     * 玩家只會覺得「我打了一張牌然後變弱了」，而紀錄框什麼都不會說。
+     */
+    case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; return false;
+    case 'rangeGuard': {
+      const cur = p.rangeGuard;
+      p.rangeGuard = { min: Math.min(cur?.min ?? fx.min, fx.min), amount: Math.max(cur?.amount ?? 0, fx.amount) };
+      return false;
+    }
     case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }

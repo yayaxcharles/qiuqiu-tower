@@ -106,6 +106,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'damageByStatus': return `造成等同目標${fx.name}層數的傷害`
       + (fx.consume ? `，然後把${fx.name}清掉` : '');
     case 'execByStatus': return `目標的${fx.name}層數比牠剩下的生命還多的話，直接打倒牠`;
+    case 'spreadStatus': return `把目標身上的${fx.name}分給其他魔物，${fx.half ? '各拿一半' : '每隻都拿一份'}`;
     case 'poisonBurst': return fx.full ? '中毒的魔物被打倒時，剩下的層數每一隻都拿一份'
       : '中毒的魔物被打倒時，把剩下的層數分給其他魔物';
     case 'rangeGuard': return `距離有 ${fx.min} 以上時，魔物的攻擊對你少 ${fx.amount} 點`;

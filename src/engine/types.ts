@@ -79,6 +79,11 @@ export type Effect =
    * `power` 的觸發時機不帶「死掉的是誰」，而屍爆非得知道那一隻身上剩幾層不可。
    */
   | { kind: 'poisonBurst'; full?: boolean }
+  /**
+   * 把目標身上的狀態**分給其他魔物**（散毒）。`half` ＝其他每隻各拿一半（無條件捨去），
+   * 沒填就是每隻都拿全額。目標自己身上的層數不動。
+   */
+  | { kind: 'spreadStatus'; name: StatusName; half?: boolean }
   /** 拒馬：距離 ≥ `min` 時，魔物的攻擊對你少 `amount` 點傷害（同樣是長效旗標） */
   | { kind: 'rangeGuard'; min: number; amount: number }
   /** 千針萬毒：之後每打出一張攻擊牌，就給那個目標額外 `n` 層中毒（長效旗標） */
@@ -660,6 +665,18 @@ export interface PlayerCombat extends Unit {
   fishDelta: number;
 }
 export interface EnemyCombat extends Unit {
+  /**
+   * **最後一個給牠下毒的是誰**（座位編號，連線版 2026-09-12）。
+   *
+   * 中毒結算沒有「出手的人」可以帶，`damageEnemy` 的 `by` 就一路空著，
+   * `killEnemy` 只好退回第一位玩家。單人時那就是本人、沒差；
+   * 連線時**菲菲坐 1 號位、毒死的魔物卻算在 0 號位頭上**——
+   * 她的「餘毒」（屍爆）完全不會發動，擊倒獎勵（銅錢劍、黑曜爪、被偷走的錢）
+   * 也全進同伴口袋（稽核 2026-09-12 高-2；後面那半是連線版原本就有的舊帳）。
+   *
+   * 進指紋，兩邊記的人不一樣會當場抓到。
+   */
+  poisonedBy?: number;
   uid: number;
   enemyId: string;
   name: string;

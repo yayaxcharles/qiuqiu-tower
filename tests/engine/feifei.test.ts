@@ -174,7 +174,7 @@ describe('菲菲：站得夠遠才打得出來 / 才會發生', () => {
     expect(chk.ok === false && chk.reason).toContain('距離');
     const far = fight(['feifei_cuidugai'], { range: 2 });
     expect(play(far, 'feifei_cuidugai')).toBe(true);
-    expect(getStatus(foe(far), '中毒')).toBe(6);
+    expect(getStatus(foe(far), '中毒')).toBe(4);   // 6→4（稽核 中-13 降過）
   });
 
   it('貼牆：距離 2 以上才多 3 點蜷縮', () => {
@@ -199,13 +199,34 @@ describe('菲菲：中毒', () => {
     expect(getStatus(e, '中毒')).toBe(0);
   });
 
-  it('催化把層數翻倍，而且**用完就沒了**（基礎版消耗）', () => {
-    const cs = fight(['feifei_cuihua']);
-    addStatus(foe(cs), '中毒', 6);
-    play(cs, 'feifei_cuihua');
-    expect(getStatus(foe(cs), '中毒')).toBe(12);
-    expect(cs.player.exhaustPile.some((c) => c.cardId === 'feifei_cuihua'), '基礎版要消耗').toBe(true);
-    expect(cardById['feifei_cuihua']!.upgrade.keywords, '升級版才不消耗').toEqual([]);
+  /*
+   * 散毒（原本是「催化」，跟共用的「絕學·催噎」撞牌所以砍掉重做——稽核 2026-09-12 中-13）。
+   * 這張解的是「一排魔物」的場面：機器人實測她第二關陣亡 206、球球只有 131。
+   */
+  it('散毒：把目標的毒分給其他每一隻，目標自己那份不動', () => {
+    const cs = fight(['feifei_sandu'], { encounterId: 'rats3' });
+    const [a, b, c] = cs.enemies as [typeof cs.enemies[0], typeof cs.enemies[0], typeof cs.enemies[0]];
+    addStatus(a, '中毒', 9);
+    playCard(cs, uidOf(cs, 'feifei_sandu'), a.uid);
+    expect(getStatus(a, '中毒'), '目標自己不動').toBe(9);
+    expect(getStatus(b, '中毒'), '基礎版各拿一半（9 的一半無條件捨去＝4）').toBe(4);
+    expect(getStatus(c, '中毒')).toBe(4);
+    expect(cs.player.exhaustPile.some((x) => x.cardId === 'feifei_sandu'), '消耗').toBe(true);
+  });
+
+  it('散毒升級版：每隻都拿全額；只剩一隻時什麼都不會發生', () => {
+    const up = fight([], { encounterId: 'rats3' });
+    up.player.hand = [inst('feifei_sandu', 1, true)];
+    const [a, b] = up.enemies as [typeof up.enemies[0], typeof up.enemies[0]];
+    addStatus(a, '中毒', 7);
+    playCard(up, 1, a.uid);
+    expect(getStatus(b, '中毒')).toBe(7);
+
+    const solo = fight(['feifei_sandu']);
+    addStatus(foe(solo), '中毒', 9);
+    play(solo, 'feifei_sandu');
+    expect(getStatus(foe(solo), '中毒'), '旁邊沒人，層數原樣').toBe(9);
+    expect(solo.log.some((l) => l.includes('旁邊沒有別的魔物'))).toBe(true);
   });
 
   it('見血封喉：打出等同層數的傷害，基礎版打完把毒清掉、升級版留著', () => {

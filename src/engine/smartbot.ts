@@ -177,6 +177,17 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       // 同一支函式的 damage／damageRamp／damageRandom 三個分支都乘了，只有這個漏掉，
       // 蓄力／秘笈在手時「絕學·借力使力」的價值被低估一半，機器人不會挑它、牌價值表也偏低
       swing(computeAttack(p.block * (doubled ? 2 : 1), p, e, { noStrength: true }));
+    } else if (fx.kind === 'damageByRange') {
+      // 菲菲的遠射那類：底傷＋距離每 1 點加幾點，照打出**當下**的距離算（跟引擎同一條式子）
+      swing(computeAttack((fx.amount + p.range * fx.per) * (doubled ? 2 : 1), p, e, { noStrength }));
+    } else if (fx.kind === 'damageByStatus') {
+      // 見血封喉：把毒一次引爆。引擎走 `direct`，蜷縮擋不住，所以這裡也要 ignoreBlock
+      swing(getStatus(e, fx.name), true);
+    } else if (fx.kind === 'execByStatus') {
+      // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
+      if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);
+    } else if (fx.kind === 'ifRange' && p.range >= fx.min) {
+      total += damageTo(cs, fx.effects, e, combo, doubled, plays, noStrength);
     }
   }
   return total;
@@ -203,7 +214,18 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   const plays = cs.cardPlays?.[c.uid] ?? 0;   // 分身術這場已打過幾次
   /** 粗估這一場還要打幾回合（長效旗標要乘它；跟 `power` 那條同一個算法） */
   const rest = Math.max(1, Math.min(8, Math.ceil(totalEnemyHp / 14)));
-  const hasDamage = st.effects.some((fx) => fx.kind === 'damage' || fx.kind === 'damageRamp' || fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock');
+  /*
+   * 這張牌會不會打人——**決定要不要進挑目標那一段**，而挑不到目標的指定牌會被
+   * `if (def.target === 'enemy' && !target) return null` 整張丟掉。
+   *
+   * 2026-09-12 補上菲菲那三種（遠射、見血封喉、一針斃命）：漏掉的話機器人
+   * **一輩子都打不出那三張**，而且完全不會報錯——量平衡時會安靜地少掉她三張主力。
+   * 加新的傷害種類記得回頭補這一行，跟 `damageTo` 是一對。
+   */
+  const DMG_KINDS: ReadonlySet<Effect['kind']> = new Set(
+    ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByRange', 'damageByStatus', 'execByStatus']);
+  const hasDamage = st.effects.some((fx) => DMG_KINDS.has(fx.kind)
+    || (fx.kind === 'ifRange' && fx.effects.some((e) => DMG_KINDS.has(e.kind))));
 
   if (hasDamage) {
     // 挑目標：能打死的優先（少一隻就少挨一份），否則打最矮的能打的那隻
@@ -373,6 +395,18 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
        * 三個長效旗標：機器人是**單人**在跑，估的是「這一場剩下的回合裡大概值多少」。
        * `rest` 跟 `power` 那條用同一個粗估法（還要打幾回合），口徑才一致。
        */
+      // 散毒：把目標的毒分給其他每一隻。估的是「其他那幾隻多出來的總傷害」——只剩一隻時等於 0
+      case 'spreadStatus': {
+        const t = target0 ?? enemies[0];
+        const n = t ? getStatus(t, fx.name) : 0;
+        const each = fx.half ? Math.floor(n / 2) : n;
+        const tri = (k: number): number => k * (k + 1) / 2;
+        value += enemies.filter((e) => e !== t).reduce((sum, e) => {
+          const cur = getStatus(e, fx.name);
+          return sum + Math.min(tri(cur + each) - tri(cur), e.hp);
+        }, 0) * 0.9;
+        break;
+      }
       case 'poisonBurst': value += enemies.length > 1 ? 16 : 4; break;   // 只剩一隻時屍爆沒有對象
       case 'rangeGuard': value += fx.amount * rest * (p.range >= fx.min ? 0.8 : 0.35); break;
       case 'poisonOnAttack': value += fx.n * rest * 1.5; break;

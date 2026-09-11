@@ -1888,7 +1888,7 @@ registerScreen('combat', (app, root, props) => {
      * 所以不能比對整句（換角色那天就會踩到——菲菲閃過去，畫面不演）。
      * 魔物閃過也是同一句型，用「開頭是不是魔物的名字」排掉。
      */
-    const dodged = fresh.some((l) => l.endsWith('閃過了') && !cs.enemies.some((e) => l.startsWith(e.name)));
+    const dodged = fresh.includes(`${heroName(my())}閃過了`);
     const hungry = cs.phase === 'player' && p.energy === 0 && hungryTurn !== cs.turn
       && p.hand.some((c) => cardStats(c).cost > 0);
     // 姿勢優先序：分出勝負 ＞ 挨打 ＞ 閃過 ＞ 蜷縮 ＞ 這張牌 ＞ 餓扁 ＞ 待機。先決定再畫，姿勢才看得到。

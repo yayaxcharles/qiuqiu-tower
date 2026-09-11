@@ -1,3 +1,4 @@
+import { lineFor } from '../content/dialogue';
 import type { DialogueLine } from '../content/dialogue';
 import { artUrl, heroArtUrl, localHero, monsterUrl } from './assets';
 import { el } from './dom';
@@ -38,6 +39,17 @@ function portraitOf(speaker: DialogueLine['speaker']): string | null {
 export interface SpeakerCast { name: string; portrait: string }
 
 export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: { 塔主?: SpeakerCast }): void {
+  /*
+   * **入口統一過一次「換角色的口氣」**（稽核 2026-09-12 中-10）。
+   *
+   * 塔主開場 16 句、換階段 11 句、倒下 7 句、上樓 10 句、秘笈 2 句……那批都寫死
+   * `speaker: '球球'`，而畫面會把臉換成菲菲、木牌也寫「菲菲」，然後她開口講「……喵！」。
+   * 玩她的人整趟最有戲的幾個場面，看到的都是球球在講話。
+   *
+   * 在這裡過一次最省事：球球那條路 `lineFor` 一個字都不動，所以他完全不受影響。
+   * 她專屬、真的重寫過的那幾段（序章、過關、落敗、結局）本來就沒有「喵」，過這一層也沒差。
+   */
+  lines = lines.map((l) => (l.speaker === '球球' ? { ...l, text: lineFor(localHero(), l.text) } : l));
   const layer = overlayRoot();
   if (!layer || lines.length === 0) { onDone(); return; }
   let i = 0;

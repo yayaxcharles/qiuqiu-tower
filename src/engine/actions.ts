@@ -169,6 +169,11 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
                                 * 呼叫點，硬插一個參數會把每一處都改動一遍、看不出哪一處是真的改了行為。
                                 */
                                victim?: PlayerCombat;
+                               /**
+                                * 這一下**不推距離**（菲菲專用）。中毒那類「身上帶著的」傷害要填 true——
+                                * 距離講的是「牠離你多遠」，跟自己身上有什麼是兩回事（稽核 2026-09-12 中-6）。
+                                */
+                               noPush?: boolean;
                              } = {}): number {
   const p = opts.victim ?? cs.player;
   if (p.down) return 0;   // 已經倒下的人不會再挨打（規則四）
@@ -223,10 +228,17 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
    * 菲菲的距離：**真的被扣到血才拉近**（2026-09-12）。
    *
    * 判準刻意放在這一行而不是函式開頭：蜷縮擋掉、隱身閃掉、護甲吃掉的那些，
-   * 距離都不該掉——那正是她「靠不被打到活著」的核心。自傷（`victim` 是自己）也算，
-   * 她慌了往前衝那批牌就是要付這個代價。其他職業 `range` 永遠是 0，減不下去。
+   * 距離都不該掉——那正是她「靠不被打到活著」的核心。
+   * 自傷（手滑、不要過來！）也算，她慌了往前衝那批牌就是要付這個代價。
+   *
+   * **但身上的中毒不算**（稽核 2026-09-12 中-6）：距離講的是「牠離你多遠」，
+   * 中毒是掛在自己身上的東西，兩回事。不擋的話「舔針」（自己 3 層中毒）的真實代價
+   * 是連掉三格距離、直接歸零——而距離上限本來就只有 3，牌面卻一個字都沒寫。
+   * 設計稿的代價排序是「距離歸零 ＞ 自己中毒」，讓中毒推距離等於把排序反過來。
+   *
+   * 其他職業 `range` 永遠是 0，這一段推不動。
    */
-  if (lose > 0 && p.range > 0) { p.range -= 1; log(cs, `被逼近了（距離 ${p.range}）`); }
+  if (lose > 0 && p.range > 0 && !opts.noPush) { p.range -= 1; log(cs, `被逼近了（距離 ${p.range}）`); }
   p.hp -= lose;
   // 已經打贏了，殘餘效果（自傷、壞毛病）不會把球球打死
   if (cs.phase === 'won') { p.hp = Math.max(1, p.hp); return lose; }
@@ -389,6 +401,16 @@ export function willRevive(cs: CombatState, e: EnemyCombat): boolean {
   return cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === rd.reviveGroup);
 }
 
+/**
+ * 記下「最後一個給牠下毒的是誰」。給中毒的每一個出口都要叫一次。
+ *
+ * 中毒結算沒有出手的人可以帶，不記的話毒死的魔物一律算在第一位玩家頭上——
+ * 連線時菲菲坐 1 號位就整個歪掉（見 `EnemyCombat.poisonedBy`）。
+ */
+export function markPoisoner(t: EnemyCombat, name: StatusName, by: PlayerCombat | undefined): void {
+  if (name === '中毒' && by) t.poisonedBy = by.seat;
+}
+
 function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
   e.dead = true;
   // 同生共死組的成員倒下就開始倒數「重生中」；沒有同組概念的魔物、或同伴已經都不在的維持 0
@@ -406,7 +428,11 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
    * 這件事在連線時差很多：擊倒獎勵（能力、秘寶、拿回被偷的錢）本來全部發給第一位，
    * 等於第二位打倒的魔物，好處進到對方口袋。
    */
-  const killer = by ?? (cs.player as PlayerCombat);
+  /*
+   * 擊倒的那位。`by` 沒帶（中毒結算那種沒有出手的人）就看**是誰下的毒**，
+   * 再退回第一位（單人時三者是同一個人，行為沒變）。
+   */
+  const killer = by ?? cs.players[e.poisonedBy ?? 0] ?? (cs.player as PlayerCombat);
   if (e.stolen > 0) { killer.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
   if (!reviving) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
@@ -424,7 +450,7 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
       const each = killer.poisonBurst === 'full' ? left : Math.floor(left / others.length);
       if (each > 0) {
         log(cs, `${e.name}身上的毒散了開來`);
-        for (const o of others) addStatus(o, '中毒', each);
+        for (const o of others) { addStatus(o, '中毒', each); markPoisoner(o, '中毒', killer); }
       }
     }
   }

@@ -15,6 +15,16 @@ import type { CardDef, RunPlayer } from './types';
 export type Hero = 'ninja' | 'samurai' | 'feifei';
 
 /**
+ * 合法的職業清單。**存檔驗證要用這一份，不要在別的檔案再手寫一次**。
+ *
+ * 2026-09-12 稽核抓到：`save.ts` 的 `usablePlayer` 寫死了 `'ninja' | 'samurai'`，
+ * 加了菲菲之後沒跟著改——選她開一局、關掉分頁，下次打開「續玩」是灰的，
+ * 而且**存檔是真的被刪掉**（驗不過 → `checkRun` 回 null → `loadRun` 呼叫 `clearSave()`），
+ * 回到標題就會發生。共用一份之後，加第四個角色不會再漏。
+ */
+export const HEROES: readonly Hero[] = ['ninja', 'samurai', 'feifei'];
+
+/**
  * 這一位的職業。沒寫＝忍者。
  *
  * 連線版之後職業是**每個人各自的**（規則一那一批的自然結果），所以收的是

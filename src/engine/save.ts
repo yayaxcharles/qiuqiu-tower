@@ -1,6 +1,7 @@
 import { encounterById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
+import { HEROES, type Hero } from './hero';
 import { relicById } from '../content/relics';
 import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
@@ -156,7 +157,7 @@ function usablePlayer(p: Partial<RunPlayer> | undefined): boolean {
   if (!p.relics.every((id) => relicById[id]) || !p.potions.every((id) => potionById[id])) return false;
   if (typeof p.hp !== 'number' || p.hp <= 0 || typeof p.maxHp !== 'number' || p.maxHp <= 0) return false;
   if (p.hp > p.maxHp) return false;
-  if (p.hero !== undefined && p.hero !== 'ninja' && p.hero !== 'samurai') return false;
+  if (p.hero !== undefined && !HEROES.includes(p.hero as Hero)) return false;   // 清單在 engine/hero.ts，不要在這裡再寫一次（稽核 2026-09-12 高-1）
   if (!finiteNum(p.removeCost) || !finiteNum(p.fish) || (p.fish as number) < 0) return false;
   // uid 撞號會讓「放生這一張」放掉別張（`deck.find` 只找得到第一個）
   if (new Set(p.deck.map((c) => c.uid)).size !== p.deck.length) return false;
