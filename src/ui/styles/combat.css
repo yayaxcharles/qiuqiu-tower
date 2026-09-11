@@ -1202,3 +1202,45 @@
   0%, 100% { scale: 1 1; rotate: -4deg; }
   50%      { scale: .9 1.06; rotate: 4deg; }
 }
+
+/*
+ * 兩個人一起打時的玩家格（連線版 2026-09-11）。
+ *
+ * 位置由 `playerLeft()` 算好、寫成行內樣式——**不能再寫死在這裡**，
+ * 因為一個人跟兩個人的排法不一樣（一個人回 30，跟改之前一模一樣）。
+ */
+.combat .unit.player { width: 240px; }
+/*
+ * 標出「哪一隻是我」。兩隻一模一樣的球球站在一起，沒有標記的話玩家會分不出來——
+ * 實際玩起來這是最容易搞混的地方。
+ *
+ * **標在名字上，不是標在腳下。** 第一版畫了一條腳下的亮線，實測整條被血條蓋住、
+ * 完全看不到（`.unit` 是由上往下排的，`bottom` 定位的偽元素會落在名字與血條後面）。
+ * 名字那一行本來就在視線上，直接把它點亮最穩。
+ */
+.combat .unit.player.mine .name {
+  color: var(--accent);
+  font-weight: 700;
+  text-shadow: 0 0 10px #00000088;
+}
+.combat .unit.player:not(.mine) .name { opacity: .78; }
+/* 舉手了就整格壓暗一點：一眼看得出「他在等我」 */
+.combat .unit.player.ready { filter: saturate(.65) brightness(.82); }
+.combat .unit.player.downed { filter: saturate(.25) brightness(.6); }
+.combat .ready-tag {
+  position: absolute;
+  left: 50%; top: -6px;
+  translate: -50% 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 15px;
+  white-space: nowrap;
+  background: #1b1713ee;
+  border: 1px solid #ffffff44;
+  /* 字色要寫死：這一格是深底，繼承下來的深色字在上面看不見（實測第一版整條讀不出來） */
+  color: #f3e6d2;
+  /* 立繪是 `filter: saturate(.65) brightness(.82)` 壓暗的，牌子是**說明**不該跟著暗，
+     所以把父層的濾鏡抵銷掉 */
+  filter: saturate(1.55) brightness(1.22);
+}
+.combat .ready-tag.down { background: #3a1414dd; border-color: #ff9b9b55; }

@@ -35,6 +35,20 @@ export function nextLineup(prev: readonly number[], aliveUids: readonly number[]
   return newcomer ? [...aliveUids] : [...prev];
 }
 
+/**
+ * 第 `seat` 位玩家站在哪（舞台座標，1280 寬）。
+ *
+ * **一個人時回 30**，跟改成兩個人之前寫死在 CSS 裡的值一模一樣——
+ * 單機的版面一個像素都不會動。
+ *
+ * 兩個人時往左挪一點、拉開間距：魔物是從 500 左右開始排（見 `enemyLeft`），
+ * 所以左邊這段大約有 500 像素可用，兩個 240 寬的格子剛好擺得下還留一點縫。
+ */
+export function playerLeft(seat: number, n: number): number {
+  if (n <= 1) return 30;
+  return seat === 0 ? 10 : 235;
+}
+
 export function enemyLeft(i: number, n: number): number {
   if (i < 0) return 780;
   const step = enemyStep(n);

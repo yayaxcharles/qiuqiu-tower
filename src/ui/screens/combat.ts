@@ -9,7 +9,7 @@ import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, pla
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import { DEBUFFS } from '../../engine/types';
-import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
+import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, PlayerCombat, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
 import { registerScreen } from '../app';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
@@ -22,7 +22,7 @@ import { showDeckPicker } from '../deckview';
 import { toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
-import { enemyLeft, nextLineup } from '../enemylayout';
+import { enemyLeft, nextLineup, playerLeft } from '../enemylayout';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
@@ -265,11 +265,56 @@ function has<K extends EnemyEffect['kind']>(kind: K) {
   return (f: EnemyEffect): f is Extract<EnemyEffect, { kind: K }> => f.kind === kind;
 }
 
+/**
+ * 同伴那一格的姿勢。
+ *
+ * **不跟自己那一格共用那套動畫邏輯**：`pose` 是整個畫面的一個變數，
+ * 由「我剛剛打了什麼牌、我剛剛挨了什麼打」一路推出來的，同伴的那些事件
+ * 是從連線來的，跟本機的動畫時序對不上。硬共用會讓兩邊的姿勢互相蓋掉。
+ * 所以同伴只看**現在的狀態**畫：倒下、縮著、或站著。
+ * 之後要替同伴做動畫，該做的是把連線收到的動作排成他自己的時序，不是共用這個變數。
+ */
+function matePose(p: PlayerCombat): string {
+  if (p.down) return POSE.lose;
+  if (p.block > 0 && hasSprite(POSE.curl)) return POSE.curl;
+  return POSE.idle;
+}
+
 registerScreen('combat', (app, root, props) => {
   if (!app.run || !app.cs) { app.show('map'); return; }   // 沒有戰鬥可打就退回地圖，不要留一片白
   // 收斂成不可為 null 的區域常數：型別窄化不會跟著進到下面那一堆內部函式裡
   const run: RunState = app.run;
   const cs: CombatState = app.cs;
+  /**
+   * **我是第幾位**（連線版 2026-09-11）。單機永遠是 0。
+   *
+   * 畫面上兩個人都看得到，但「手牌、飯糰、結束回合鈕」那一整套只屬於這一位——
+   * 另一位的手牌不該被我看到（那是他的資訊），他的按鈕也不該被我按到。
+   */
+  const mySeat = (props as { seat?: number } | null)?.seat ?? 0;
+  /**
+   * 畫一位玩家。兩個人時靠 `playerLeft` 排位、`data-seat` 認人。
+   *
+   * 自己那一格掛 `mine`，讓樣式標出來——兩隻一模一樣的球球站在一起，
+   * 沒有標記的話玩家會分不出哪隻是自己（實際玩起來這是最容易搞混的地方）。
+   */
+  const playerUnit = (q: PlayerCombat): HTMLElement => {
+    const mine = q.seat === mySeat;
+    const n = cs.players.length;
+    const node = el('div', {
+      class: `unit player${mine ? ' mine' : ''}${q.down ? ' downed' : ''}${q.ready && n > 1 ? ' ready' : ''}`,
+      'data-seat': String(q.seat),
+      style: `left:${playerLeft(q.seat, n)}px`,
+    },
+      spriteBox(artUrl('sprites', mine ? pose : matePose(q)), '球球'),
+      el('div', { class: 'name' }, n > 1 ? (mine ? '球球（你）' : '球球（同伴）') : '球球'),
+      hpBar('player', q.hp, q.maxHp),
+      statusRow(q, true));
+    // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
+    if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
+    else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
+    return node;
+  };
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
   const bonusUpgrades = (props as { bonusUpgrades?: number } | null)?.bonusUpgrades ?? 0;
   // 關主戰用專屬戰場（boss1/2/3 依關數）；圖還沒生好就照舊用該關色調。
@@ -1112,18 +1157,20 @@ registerScreen('combat', (app, root, props) => {
         || acting.has(e.uid) || old.classList.contains('attack') || old.classList.contains('hit');
       if (changed) old.replaceWith(enemyUnit(e, lineup.indexOf(e.uid), lineup.length));
     }
-    const pNode = field.querySelector<HTMLElement>('.unit.player');
+    const pNode = field.querySelector<HTMLElement>(`.unit.player[data-seat="${mySeat}"]`);
     if (!pNode) return false;
     const p = cs.player;
     const pChanged = before.hp !== p.hp || before.block !== p.block || before.buff !== sumStatus(p, GOOD_STATUS)
       || before.debuff !== sumStatus(p, BAD_STATUS) || before.stealth !== getStatus(p, '隱身')
       || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== artUrl('sprites', pose)
       || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack');
-    if (pChanged) pNode.replaceWith(el('div', { class: 'unit player' },
-      spriteBox(artUrl('sprites', pose), '球球'),
-      el('div', { class: 'name' }, '球球'),
-      hpBar('player', p.hp, p.maxHp),
-      statusRow(p, true)));
+    if (pChanged) pNode.replaceWith(playerUnit(p));
+    // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態
+    for (const q of cs.players) {
+      if (q.seat === mySeat) continue;
+      const node = field.querySelector<HTMLElement>(`.unit.player[data-seat="${q.seat}"]`);
+      if (node) node.replaceWith(playerUnit(q));
+    }
     box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     box.querySelector('.hud')?.remove();
     renderHud(app, box, cs.fishDelta);
@@ -1148,12 +1195,7 @@ registerScreen('combat', (app, root, props) => {
     // 選目標時鋪一層透明的接盤子：點空白處＝取消。魔物與手牌都疊在它上面，照樣點得到
     if (targeting) box.append(el('div', { class: 'target-catcher', onclick: () => { targeting = null; render(); } }));
 
-    const field = el('div', { class: 'field' },
-      el('div', { class: 'unit player' },
-        spriteBox(artUrl('sprites', pose), '球球'),
-        el('div', { class: 'name' }, '球球'),
-        hpBar('player', cs.player.hp, cs.player.maxHp),
-        statusRow(cs.player, true)));
+    const field = el('div', { class: 'field' }, ...cs.players.map((q) => playerUnit(q)));
     // 排位置只算**活著的**。倒下的魔物還留在 `cs.enemies` 裡（要放倒地動畫），
     // 但牠們不該再佔位子——之前是拿整個陣列來排，塔主召喚第二、第三批之後
     // 總數一路變大、新小怪的索引也一路往後，算出來的 left 直接超出舞台 1280
