@@ -5,6 +5,7 @@ import { Rng, seedFromString } from '../../src/engine/rng';
 import { beginCombat, finishCombat, newRun, potionCapacity, takeRelic } from '../../src/engine/run';
 import { smartCombat } from '../../src/engine/smartbot';
 import { endTurn } from '../../src/engine/combat';
+import { me } from '../../src/engine/runplayer';
 
 /**
  * 秘寶壓力測試（2026-09-02 使用者：「加了很多秘寶這容易壞，你自我測試」）：
@@ -15,9 +16,9 @@ import { endTurn } from '../../src/engine/combat';
 const ENCOUNTERS = ['cucumber', 'nekomata', 'ninja_boss', 'roomba_king', 'tower_master'];
 
 function checkState(run: ReturnType<typeof newRun>, csTurn: number, tag: string): void {
-  expect(run.hp, tag).toBeLessThanOrEqual(run.maxHp);
-  expect(run.hp, tag).toBeGreaterThanOrEqual(0);
-  expect(run.potions.length, tag).toBeLessThanOrEqual(potionCapacity(run));
+  expect(me(run).hp, tag).toBeLessThanOrEqual(me(run).maxHp);
+  expect(me(run).hp, tag).toBeGreaterThanOrEqual(0);
+  expect(me(run).potions.length, tag).toBeLessThanOrEqual(potionCapacity(run));
   expect(csTurn, tag).toBeLessThan(200);
 }
 
@@ -25,7 +26,7 @@ describe('秘寶壓力測試', () => {
   it('每件秘寶各自戴著打五場，不丟例外、狀態合理', () => {
     for (const r of relics) {
       const run = newRun(`stress-${r.id}`);
-      if (!run.relics.includes(r.id)) takeRelic(run, r.id);
+      if (!me(run).relics.includes(r.id)) takeRelic(run, r.id);
       for (const enc of ENCOUNTERS) {
         const cs = beginCombat(run, enc);
         cs.player.potions = ['whetstone', 'claw_oil'];
@@ -34,20 +35,20 @@ describe('秘寶壓力測試', () => {
         expect(cs.player.block, `${r.id} @ ${enc}`).toBeGreaterThanOrEqual(0);
         expect(cs.enemies.filter((e) => !e.dead).length, `${r.id} @ ${enc} 場上單位`).toBeLessThanOrEqual(5);
         if (cs.phase === 'won') { finishCombat(run, cs); checkState(run, cs.turn, `${r.id} @ ${enc}`); }
-        else { run.hp = run.maxHp; run.status = 'playing'; }   // 輸了就補血繼續測下一場
+        else { me(run).hp = me(run).maxHp; run.status = 'playing'; }   // 輸了就補血繼續測下一場
       }
     }
   });
   it('六十件全部一起戴著也打得完', () => {
     const run = newRun('stress-all');
-    for (const r of relics) if (!run.relics.includes(r.id)) takeRelic(run, r.id);
-    expect(run.relics.length).toBe(relics.length);
+    for (const r of relics) if (!me(run).relics.includes(r.id)) takeRelic(run, r.id);
+    expect(me(run).relics.length).toBe(relics.length);
     for (const enc of ENCOUNTERS) {
       const cs = beginCombat(run, enc);
       cs.player.potions = ['whetstone', 'claw_oil', 'rope'];
       smartCombat(cs, new Rng(seedFromString(`all:${enc}`)), 120, 'all');
       expect(cs.phase, enc).not.toBe('player');
-      if (cs.phase === 'won') { finishCombat(run, cs); checkState(run, cs.turn, enc); } else { run.hp = run.maxHp; run.status = 'playing'; }
+      if (cs.phase === 'won') { finishCombat(run, cs); checkState(run, cs.turn, enc); } else { me(run).hp = me(run).maxHp; run.status = 'playing'; }
     }
   });
 });

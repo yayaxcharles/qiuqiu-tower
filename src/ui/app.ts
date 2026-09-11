@@ -17,6 +17,7 @@ import { playDialogue, toast, bubbleAt } from './dialogue';
 import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
+import { me } from '../engine/runplayer';
 
 export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result';
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
@@ -301,7 +302,7 @@ export class App {
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         // 師父醒來的第一句依這一路的打法換（爪力／隱身／蜷縮流），難度 4 以上多一句旁白（使用者 2026-09-04）
-        const vic = victoryLinesFor(run.deck.map((c) => c.cardId), run.difficulty ?? 1);
+        const vic = victoryLinesFor(me(run).deck.map((c) => c.cardId), run.difficulty ?? 1);
         // 第一張圖（相擁）放到「撲進師父懷裡」那句為止，之後的（回家路、難度旁白）配第二張
         const cut = Math.max(1, vic.findIndex((l) => l.text.includes('撲進')) + 1);
         const endSlides = [

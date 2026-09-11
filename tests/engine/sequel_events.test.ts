@@ -6,6 +6,7 @@ import { generateMap } from '../../src/engine/map';
 import { applyRunEffects, beginCombat, newRun, takeRelic, BOSS_PREFIXES } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { getStatus } from '../../src/engine/statuses';
+import { me } from '../../src/engine/runplayer';
 
 describe('事件前後集', () => {
   it('後集要有前集旗標才排進地圖，而且只在二三關', () => {
@@ -33,7 +34,7 @@ describe('事件前後集', () => {
     const rescue = eventById['rescue']!;
     applyRunEffects(run, rescue.choices[1]!.outcome);
     expect(run.flags['rescue_took_fish']).toBe(true);
-    expect(run.fish).toBeGreaterThan(0);
+    expect(me(run).fish).toBeGreaterThan(0);
   });
 });
 
@@ -64,21 +65,21 @@ describe('關主隨機前綴', () => {
 
 describe('代價秘寶', () => {
   it('鐵砂衣：開戰扣 4 點但不會打死球球（血 3 進場剩 1），而且有紀錄（稽核 2026-09-04 高 1）', () => {
-    const run = newRun('vest'); takeRelic(run, 'iron_sand_vest'); run.hp = 3;
+    const run = newRun('vest'); takeRelic(run, 'iron_sand_vest'); me(run).hp = 3;
     const cs = beginCombat(run, 'wood_dummy');
     expect(cs.phase).toBe('player');
     expect(cs.player.hp).toBe(1);
     expect(cs.log.some((l) => l.includes('秘寶的代價'))).toBe(true);
-    const run2 = newRun('vest2'); takeRelic(run2, 'iron_sand_vest'); run2.hp = 1;
+    const run2 = newRun('vest2'); takeRelic(run2, 'iron_sand_vest'); me(run2).hp = 1;
     const cs2 = beginCombat(run2, 'wood_dummy');
     expect(cs2.player.hp).toBe(1);
   });
   it('血契短刀：開戰 +3 爪力、最大生命 −12；貪吃錢袋：店價漲三成', () => {
     const run = newRun('costly');
-    const hp0 = run.maxHp;
+    const hp0 = me(run).maxHp;
     takeRelic(run, 'blood_dagger');
-    expect(run.maxHp).toBe(hp0 - 12);
-    expect(run.hp).toBeLessThanOrEqual(run.maxHp);
+    expect(me(run).maxHp).toBe(hp0 - 12);
+    expect(me(run).hp).toBeLessThanOrEqual(me(run).maxHp);
     const cs = beginCombat(run, 'wood_dummy');
     expect(getStatus(cs.player, '爪力')).toBe(3);
     expect(relicById['glutton_purse']!.hooks.shopDiscount).toBe(1.3);

@@ -177,8 +177,10 @@ describe('舊存檔相容', () => {
     expect(m.get('qiuqiu-tower/run')).not.toContain('modifier');
     const back = loadRun();
     expect(back, '舊存檔不該被判定為壞檔清掉').not.toBeNull();
-    // 這一條才是重點：有人為了新欄位順手升版本，loadRun 會把玩家進行中的局整個清掉
-    expect(back!.version, '加可選欄位不可以升存檔版本').toBe(1);
+    // 這一條才是重點：有人為了新欄位順手升版本，loadRun 會把玩家進行中的局整個清掉。
+    // 2026-09-11 從 1 升到 2 是**真的動了結構**（每人一份的家當搬進 players，並附轉換），
+    // 不是「順手升」——加可選欄位照樣不准動這個數字
+    expect(back!.version, '加可選欄位不可以升存檔版本').toBe(2);
     expect(back!.map.nodes.every((n) => n.modifier === undefined)).toBe(true);
   });
 });

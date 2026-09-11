@@ -1,5 +1,5 @@
 import { cards } from '../content/cards';
-import type { CardDef, RunState } from './types';
+import type { CardDef, RunPlayer } from './types';
 
 /**
  * 職業（2026-09-05 拍板）。同一隻球球的兩種打法，不是兩個角色。
@@ -12,9 +12,14 @@ import type { CardDef, RunState } from './types';
  */
 export type Hero = 'ninja' | 'samurai';
 
-/** 這一局的職業。舊存檔沒有這一欄＝忍者（可選欄位，不升存檔版本）。 */
-export function heroOf(run: Pick<RunState, 'hero'>): Hero {
-  return run.hero ?? 'ninja';
+/**
+ * 這一位的職業。沒寫＝忍者。
+ *
+ * 連線版之後職業是**每個人各自的**（規則一那一批的自然結果），所以收的是
+ * 一位玩家而不是整局。兩個人各玩各的職業也就順便成立了。
+ */
+export function heroOf(p: Pick<RunPlayer, 'hero'>): Hero {
+  return p.hero ?? 'ninja';
 }
 
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */

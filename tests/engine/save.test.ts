@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { newRun, runRng } from '../../src/engine/run';
 import { clearSave, hasSave, loadBest, loadRun, recordBest, saveRun, setStore } from '../../src/engine/save';
-import type { RunState } from '../../src/engine/types';
+import type { RunState, CardInstance } from '../../src/engine/types';
+import { me } from '../../src/engine/runplayer';
 
 function memStore() {
   const m = new Map<string, string>();
@@ -22,7 +23,8 @@ describe('存檔', () => {
   it('沒存檔、版本不符、壞 JSON 都回 null', () => {
     expect(hasSave()).toBe(false);
     expect(loadRun()).toBeNull();
-    store.setItem('qiuqiu-tower/run', JSON.stringify({ ...newRun('v'), version: 2 }));
+    // 2026-09-11 存檔升到第 2 版（每人一份的家當搬進 players），所以壞版本改用 99
+    store.setItem('qiuqiu-tower/run', JSON.stringify({ ...newRun('v'), version: 99 }));
     expect(loadRun()).toBeNull(); expect(hasSave()).toBe(false);
     expect(store.raw.has('qiuqiu-tower/run')).toBe(false);   // 不只回 null，壞存檔要被清掉
     store.setItem('qiuqiu-tower/run', '{oops');
@@ -31,13 +33,13 @@ describe('存檔', () => {
   it('牌組裡有牌表認不得的牌 id：當作不相容，清掉回 null', () => {
     // 改過牌 id 之後留下來的舊存檔。以前這種檔載得進來，等到有人要把那張牌畫出來才爆
     const run = newRun('unknown-card');
-    run.deck[0] = { uid: 999, cardId: 'no_such_card', upgraded: false };
+    me(run).deck[0] = { uid: 999, cardId: 'no_such_card', upgraded: false };
     store.setItem('qiuqiu-tower/run', JSON.stringify(run));
     expect(loadRun()).toBeNull(); expect(hasSave()).toBe(false);
     expect(store.raw.has('qiuqiu-tower/run')).toBe(false);   // 不只回 null，壞存檔要被清掉
     // 牌物件本身壞掉（不是物件、少了 cardId）也一樣
     const broken: Partial<RunState> = newRun('broken-card');
-    broken.deck = [null as unknown as RunState['deck'][number]];
+    me(broken as RunState).deck = [null as unknown as CardInstance];
     store.setItem('qiuqiu-tower/run', JSON.stringify(broken));
     expect(loadRun()).toBeNull();
     expect(store.raw.has('qiuqiu-tower/run')).toBe(false);

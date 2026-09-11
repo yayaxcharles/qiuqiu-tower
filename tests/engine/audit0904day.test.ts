@@ -10,6 +10,7 @@ import { applyRunEffects, buyCard, buyPotion, buyRelic, makeShop, newRun, reshuf
 import { addStatus, getStatus } from '../../src/engine/statuses';
 import { enemyIdsForAct } from '../../src/ui/preload';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 function start(encounterId: string, seed = 's') {
   return startCombat({ hp: 76, maxHp: 76, deck: STARTER_DECK.map((id, i) => inst(id, i + 1)), relics: [], potions: [], encounterId, rng: new Rng(seedFromString(seed)) });
@@ -52,27 +53,27 @@ describe('稽核 2026-09-04 白天', () => {
   it('低 1（改）：整間店賣光才不收錢；只有牌賣光還是換得動秘寶與忍具', () => {
     // 2026-09-07 起重整連秘寶與忍具一起換（使用者：「怎麼秘寶跟忍具沒有變換」），
     // 所以「牌賣光」不再等於「沒東西可換」——那時候收錢是對的。
-    const a = newRun('l1'); a.fish = 9999;
+    const a = newRun('l1'); me(a).fish = 9999;
     const shopA = makeShop(a);
     for (let i = 0; i < shopA.cards.length; i++) buyCard(a, shopA, i);
     expect(reshuffleShop(a, shopA)).toBe(true);
 
-    const b = newRun('l1b'); b.fish = 9999;
+    const b = newRun('l1b'); me(b).fish = 9999;
     const shopB = makeShop(b);
     for (let i = 0; i < shopB.cards.length; i++) buyCard(b, shopB, i);
     for (let i = 0; i < shopB.relics.length; i++) buyRelic(b, shopB, i);
     for (let i = 0; i < shopB.potions.length; i++) buyPotion(b, shopB, i, 0);
     expect(shopB.cards.every((c) => c.sold) && shopB.relics.every((r) => r.sold) && shopB.potions.every((p) => p.sold)).toBe(true);
-    const fish = b.fish;
+    const fish = me(b).fish;
     expect(reshuffleShop(b, shopB)).toBe(false);
-    expect(b.fish).toBe(fish); expect(shopB.reshuffled).toBeFalsy();
+    expect(me(b).fish).toBe(fish); expect(shopB.reshuffled).toBeFalsy();
   });
   it('重整會把秘寶與忍具也換掉，賣掉的格子不動', () => {
     // 找一間「秘寶或忍具真的換掉了」的店：同一件秘寶被抽回來的機率不高但不是零，
     // 所以看的是「至少有一格變了」，不是「每格都變」
     let changed = false;
     for (let i = 0; i < 30 && !changed; i++) {
-      const run = newRun(`rs-${i}`); run.fish = 9999; run.act = 2;
+      const run = newRun(`rs-${i}`); me(run).fish = 9999; run.act = 2;
       const shop = makeShop(run);
       const soldRelic = shop.relics[0]?.id;
       buyRelic(run, shop, 0);   // 第一格賣掉：重整後這格要維持原樣
@@ -89,11 +90,11 @@ describe('稽核 2026-09-04 白天', () => {
   it('低 8：重整後買到標升級的那格就是升級牌', () => {
     let found = false;
     for (let i = 0; i < 80 && !found; i++) {
-      const run = newRun(`l8-${i}`); run.fish = 9999; run.act = 3;
+      const run = newRun(`l8-${i}`); me(run).fish = 9999; run.act = 3;
       const shop = makeShop(run); buyCard(run, shop, 0);
       reshuffleShop(run, shop);
       const k = shop.cards.findIndex((c) => c.upgraded && !c.sold);
-      if (k >= 0) { buyCard(run, shop, k); expect(run.deck[run.deck.length - 1]!.upgraded).toBe(true); found = true; }
+      if (k >= 0) { buyCard(run, shop, k); expect(me(run).deck[me(run).deck.length - 1]!.upgraded).toBe(true); found = true; }
     }
     expect(found).toBe(true);
   });
@@ -109,7 +110,7 @@ describe('稽核 2026-09-04 白天', () => {
   it('中 2 的守門：pendingAfterFight 打贏才發、輸了清掉（機器人走同一支）', () => {
     const run = newRun('m2');
     run.pendingAfterFight = [{ kind: 'fish', n: 70 }];
-    const fish = run.fish; resolvePendingAfterFight(run, true); expect(run.fish).toBe(fish + 70);
-    run.pendingAfterFight = [{ kind: 'fish', n: 70 }]; resolvePendingAfterFight(run, false); expect(run.fish).toBe(fish + 70);
+    const fish = me(run).fish; resolvePendingAfterFight(run, true); expect(me(run).fish).toBe(fish + 70);
+    run.pendingAfterFight = [{ kind: 'fish', n: 70 }]; resolvePendingAfterFight(run, false); expect(me(run).fish).toBe(fish + 70);
   });
 });

@@ -7,6 +7,7 @@ import { makeShop, napHeal, newRun, rest, takeRelic } from '../../src/engine/run
 import { getStatus } from '../../src/engine/statuses';
 import type { CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 /** 2026-09-02 秘寶擴充到 60 件時加的掛鉤，一種一個例子 */
 function start(relics: string[], encounterId = 'cucumber', potions: string[] = []): CombatState {
@@ -71,11 +72,11 @@ describe('秘寶新掛鉤', () => {
     expect(999 - e.hp).toBe(12);
   });
   it('貓草種子＋貓草：打盹回三成×2＋8；暖毯：下一場開戰 12 點蜷縮', () => {
-    const r = newRun('rest-hooks'); r.hp = 10;
+    const r = newRun('rest-hooks'); me(r).hp = 10;
     takeRelic(r, 'catgrass'); takeRelic(r, 'catgrass_seed'); takeRelic(r, 'warm_blanket');
     expect(napHeal(r)).toBe(Math.floor(76 * 0.3 * 2) + 8);
     rest(r, '打盹');
-    expect(r.restBlock).toBe(12);
+    expect(me(r).restBlock).toBe(12);
   });
   it('零錢罐：罐頭鋪八折；掌門印：獎勵四張牌', () => {
     const r = newRun('shop-hooks'); takeRelic(r, 'coin_jar');

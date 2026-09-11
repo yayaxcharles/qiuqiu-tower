@@ -14,6 +14,7 @@ import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { me } from '../../engine/runplayer';
 
 /** 圖示還沒生好時 artUrl 會回一張灰剪影；貨架每格都寫著名字，寧可不放圖也不要排一列灰影 */
 function icon(key: string, alt: string): Node | string {
@@ -96,7 +97,7 @@ registerScreen('shop', (app, root) => {
 
   function stall(key: string, name: string, text: string, price: number,
     sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number): HTMLElement {
-    const afford = run.fish >= price;
+    const afford = me(run).fish >= price;
     const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}` },
       saleTag(sold ? undefined : sale),
       icon(key, name),
@@ -120,7 +121,7 @@ registerScreen('shop', (app, root) => {
 
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
-      const buyable = !it.sold && run.fish >= it.price;
+      const buyable = !it.sold && me(run).fish >= it.price;
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         saleTag(it.sold ? undefined : it.sale),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); setMood('happy'); render(); } } }),   // 升級格照＋版畫
@@ -137,7 +138,7 @@ registerScreen('shop', (app, root) => {
       const d = relicById[it.id];
       if (!d) return;
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
-      const owned = run.relics.includes(it.id);
+      const owned = me(run).relics.includes(it.id);
       relics.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
         () => { if (buyRelic(run, shop, i)) { play('relic'); setMood('happy'); render(); } }, it.base, it.sale));
     });
@@ -146,8 +147,8 @@ registerScreen('shop', (app, root) => {
       const d = potionById[it.id];
       if (!d) return;
       // 帶滿了還是能買：先問要換掉哪一支，選了才付錢（2026-09-02）
-      const full = run.potions.length >= potionCapacity(run);
-      const poor = run.fish < it.price;
+      const full = me(run).potions.length >= potionCapacity(run);
+      const poor = me(run).fish < it.price;
       potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, it.price, it.sold, poor,
         () => {
           if (!full) { if (buyPotion(run, shop, i)) { play('buy'); setMood('happy'); render(); } return; }
@@ -157,11 +158,11 @@ registerScreen('shop', (app, root) => {
 
     // 放生：挑完先跳確認（使用者 2026-09-04：「選牌後沒有跳確定」），按「再看看」回牌堆重挑
     const pickRelease = (): void => showDeckPicker({
-      title: `放生一張牌（${run.removeCost} 條小魚乾）`, cards: run.deck, pickable: true, cancellable: true,
+      title: `放生一張牌（${me(run).removeCost} 條小魚乾）`, cards: me(run).deck, pickable: true, cancellable: true,
       onPick: (uid) => {
-        const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
+        const c = uid === null ? undefined : me(run).deck.find((x) => x.uid === uid);
         if (uid === null || !c) { render(); return; }
-        showRemoveConfirm(c, run.removeCost, (ok) => {
+        showRemoveConfirm(c, me(run).removeCost, (ok) => {
           if (!ok) { pickRelease(); return; }
           // 放生成功也要重畫：牌組少一張、小魚乾也扣了（本來靠 setMood 順便重畫，那條路已經拆掉）
           if (buyRemove(run, uid)) { play('upgrade'); setMood('happy'); }
@@ -172,15 +173,15 @@ registerScreen('shop', (app, root) => {
     const remove = el('button', {
       class: 'btn',
       onclick: () => pickRelease(),
-    }, `放生一張牌：${run.removeCost} 條小魚乾`);
-    if (run.fish < run.removeCost || run.deck.length === 0) remove.setAttribute('disabled', 'disabled');
+    }, `放生一張牌：${me(run).removeCost} 條小魚乾`);
+    if (me(run).fish < me(run).removeCost || me(run).deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
     const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); setMood('happy'); render(); } } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
     // 有沒有東西可換要看三區加總，不能只看牌格（稽核 2026-09-07 中 1）：
     // 牌全買光但秘寶或忍具還在架上時，引擎讓你換、按鈕卻是灰的，等於這次改動玩家碰不到
     const anyLeft = [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
-    if (shop.reshuffled || run.fish < RESHUFFLE_COST || !anyLeft) reshuffle.setAttribute('disabled', 'disabled');
+    if (shop.reshuffled || me(run).fish < RESHUFFLE_COST || !anyLeft) reshuffle.setAttribute('disabled', 'disabled');
 
     // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。

@@ -15,6 +15,7 @@ import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { showRelicList } from './reliclist';
 import { attachTextTooltip, attachTooltip, hideTooltip } from './tooltip';
+import { me } from '../engine/runplayer';
 
 /**
  * 上方狀態列：樓層、生命、小魚乾、秘寶、忍具、牌組、種子。
@@ -53,12 +54,12 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   const hud = el('div', { class: 'hud' });
   root.append(hud);
   if (!run) return hud;   // 沒有整局就掛個空殼，不要讓畫面整個掛掉
-  const fishNow = Math.max(0, run.fish + fishDelta);
+  const fishNow = Math.max(0, me(run).fish + fishDelta);
 
-  const pct = run.maxHp > 0 ? Math.max(0, Math.round((run.hp / run.maxHp) * 100)) : 0;
+  const pct = me(run).maxHp > 0 ? Math.max(0, Math.round((me(run).hp / me(run).maxHp) * 100)) : 0;
   const hp = el('div', { class: 'hud-hp' },
     el('div', { class: 'hud-hp-bar', style: `width:${pct}%` }),
-    el('span', {}, `${run.hp} / ${run.maxHp} 生命`));
+    el('span', {}, `${me(run).hp} / ${me(run).maxHp} 生命`));
 
   const fish = el('div', { class: 'hud-fish' },
     el('img', { src: artUrl('icons', 'icon/fish'), alt: '' }),
@@ -74,11 +75,11 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   const relics = el('div', { class: 'hud-relics' });
   // 同一局才比得出「新拿到的」；換一局（或第一次畫）就整份當成已知，不演
   const seenRelics = lastRelics && lastRelics.seed === run.seed ? lastRelics.ids : null;
-  lastRelics = { seed: run.seed, ids: new Set(run.relics) };
+  lastRelics = { seed: run.seed, ids: new Set(me(run).relics) };
   // 最多畫 8 件、最新的排前面，其餘收成「+N」（使用者 2026-09-06：秘寶沒有上限，十幾件會把狀態列擠爆）；
   // 點任何一件或「+N」開「本局秘寶」清單，一行一件看得完整
   const MAX_ICONS = 8;
-  const shown = [...run.relics].reverse().slice(0, MAX_ICONS);
+  const shown = [...me(run).relics].reverse().slice(0, MAX_ICONS);
   for (const id of shown) {
     const r = relicById[id];
     if (!r) continue;
@@ -96,7 +97,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   }
   // 收起來的那幾件發動時，改閃這顆「+N」（使用者 2026-09-10：「秘寶超過會堆疊起來，會不會 HUD 看不到？」）。
   // 秘寶沒有上限、只畫最新的 8 件，所以早期拿的（例如開局那條藍頭巾）滿 9 件之後就躲在這裡面了
-  if (run.relics.length > MAX_ICONS) relics.append(el('button', { class: 'btn small hud-relic-more', onclick: () => showRelicList(run) }, `+${run.relics.length - MAX_ICONS}`));
+  if (me(run).relics.length > MAX_ICONS) relics.append(el('button', { class: 'btn small hud-relic-more', onclick: () => showRelicList(run) }, `+${me(run).relics.length - MAX_ICONS}`));
   // 秘寶滿 8 格又帶九命鈴／忍具袋（忍具 5～6 格）時整列放不下：圖示與間距縮一級（.hud.crowded）
   if (shown.length + Math.max(potionCapacity(run), 3) >= 10) hud.classList.add('crowded');
 
@@ -106,7 +107,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   const cap = potionCapacity(run);
   for (let i = 0; i < Math.max(cap, 3); i++) {
     const locked = i >= cap;
-    const id = locked ? undefined : run.potions[i];
+    const id = locked ? undefined : me(run).potions[i];
     const p = id ? potionById[id] : undefined;
     const slot = el('div', { class: `hud-potion${p ? '' : locked ? ' locked' : ' empty'}` }, locked ? '🔒' : '');
     // 提示只掛在有東西或鎖住的格子上：空格掛了也只會跳出一個沒內容的框，反而讓人以為那格有東西。
@@ -120,9 +121,9 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   const deckBtn = el('button', {
     class: 'btn small',
     onclick: () => showDeckPicker({
-      title: `牌組（${run.deck.length} 張）`, cards: run.deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ },
+      title: `牌組（${me(run).deck.length} 張）`, cards: me(run).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ },
     }),
-  }, `牌組 ${run.deck.length}`);
+  }, `牌組 ${me(run).deck.length}`);
 
   /**
    * 音效開關。放在右上角、本局代碼旁邊——那裡是整場都在的位置，

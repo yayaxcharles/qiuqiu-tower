@@ -14,6 +14,7 @@ import { burst } from '../fx';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { me } from '../../engine/runplayer';
 
 /** 球球蜷在貓窩旁的立繪；圖還沒生好就不放 */
 function heroPortrait(): string | undefined {
@@ -26,7 +27,7 @@ registerScreen('rest', (app, root) => {
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   // 顯示用的回復量：貓草那類秘寶會加倍，而且不會超過缺的血
-  const heal = Math.min(run.maxHp - run.hp, napHeal(run));   // 算法跟引擎共用（貓草倍率＋貓草種子固定加成）
+  const heal = Math.min(me(run).maxHp - me(run).hp, napHeal(run));   // 算法跟引擎共用（貓草倍率＋貓草種子固定加成）
   const upgradable = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   let used = false;   // 一個貓窩只能做一件事
 
@@ -67,10 +68,10 @@ registerScreen('rest', (app, root) => {
      *  磨爪與全力準備共用這條，差在結算叫哪個 choice、結束那句話怎麼寫 */
     const pickCard = (choice: '磨爪' | '全力準備' = '磨爪'): void => {
       showDeckPicker({
-        title: `${choice}：選一張牌升級`, cards: run.deck, pickable: true, cancellable: true, filter: upgradable,
+        title: `${choice}：選一張牌升級`, cards: me(run).deck, pickable: true, cancellable: true, filter: upgradable,
         previewUpgrade: true,
         onPick: (uid) => {
-          const c = uid === null ? undefined : run.deck.find((x) => x.uid === uid);
+          const c = uid === null ? undefined : me(run).deck.find((x) => x.uid === uid);
           if (uid === null || !c || used) return;   // 按取消才真的回貓窩
           // 先讓玩家看到升級後長什麼樣再決定。按「再看看」就回到牌堆重挑，不算用掉這次機會。
           showUpgradeConfirm(c, (ok) => {
@@ -78,12 +79,12 @@ registerScreen('rest', (app, root) => {
             if (!ok) { pickCard(choice); return; }
             const name = cardById[c.cardId]?.name ?? c.cardId;
             used = true;
-            const fish = run.fish;
-            const hpBefore = run.hp;
+            const fish = me(run).fish;
+            const hpBefore = me(run).hp;
             rest(run, choice, uid);
             play('upgrade');
             const line = choice === '全力準備'
-              ? `「${name}」磨利了，變成「${name}＋」；${fish} 條小魚乾全吃了，回復 ${run.hp - hpBefore} 點生命。`
+              ? `「${name}」磨利了，變成「${name}＋」；${fish} 條小魚乾全吃了，回復 ${me(run).hp - hpBefore} 點生命。`
               : `「${name}」磨利了，變成「${name}＋」。`;
             afterAction(line, pick(dialogue.restSharpenLines), c);
           });
@@ -91,19 +92,19 @@ registerScreen('rest', (app, root) => {
       });
     };
     sharpen.addEventListener('click', () => { if (!used) pickCard(); });
-    if (!run.deck.some(upgradable)) sharpen.setAttribute('disabled', 'disabled');
+    if (!me(run).deck.some(upgradable)) sharpen.setAttribute('disabled', 'disabled');
 
     // 全力準備（44F、難度 4 起；玩家 2026-09-08 建議）：升級一張牌＋回一成血，再把全部小魚乾換成生命（÷10）、魚乾歸零。
     // 打盹照舊回滿，這個給「上樓前想升級又想多回一點」的人。血滿或魚乾不到 10 條時跟磨爪沒差，就不擺出來
     let prep: HTMLElement | null = null;
-    if (fullPrepAvailable(run) && run.fish >= 10 && run.hp < run.maxHp) {
+    if (fullPrepAvailable(run) && me(run).fish >= 10 && me(run).hp < me(run).maxHp) {
       const h = fullPrepHeal(run);
-      const gain = Math.min(h.total, run.maxHp - run.hp);
+      const gain = Math.min(h.total, me(run).maxHp - me(run).hp);
       prep = el('button', { class: 'btn two-line' },
         el('span', {}, '全力準備（升級一張牌）'),
-        el('span', { class: 'sub' }, `回 ${gain} 點：一成 ${h.tenth} ＋ ${run.fish} 條小魚乾換 ${h.fromFish}${gain < h.total ? '（回到滿）' : ''}，魚乾歸零`));
+        el('span', { class: 'sub' }, `回 ${gain} 點：一成 ${h.tenth} ＋ ${me(run).fish} 條小魚乾換 ${h.fromFish}${gain < h.total ? '（回到滿）' : ''}，魚乾歸零`));
       prep.addEventListener('click', () => { if (!used) pickCard('全力準備'); });
-      if (!run.deck.some(upgradable)) prep.setAttribute('disabled', 'disabled');
+      if (!me(run).deck.some(upgradable)) prep.setAttribute('disabled', 'disabled');
     }
 
     // 劇場版面：底圖就是貓窩本身，球球蜷在左邊，對白框裡直接放兩個選項

@@ -9,6 +9,7 @@ import { newRun } from '../../src/engine/run';
 import { loadRun, saveRun, setStore } from '../../src/engine/save';
 import type { CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 function fight(encounterId: string, relics: string[] = [], seed = 'a0905'): CombatState {
   return startCombat({
@@ -98,8 +99,8 @@ describe('存檔：地圖上的遭遇、事件與身上的秘寶、忍具 id 對
     saveRun(run); expect(loadRun()).toBeNull();
   });
   it('秘寶或忍具 id 不存在 → null', () => {
-    store(); const a = newRun('bad-relic'); a.relics.push('沒有這件秘寶'); saveRun(a); expect(loadRun()).toBeNull();
-    store(); const b = newRun('bad-potion'); b.potions.push('沒有這個忍具'); saveRun(b); expect(loadRun()).toBeNull();
+    store(); const a = newRun('bad-relic'); me(a).relics.push('沒有這件秘寶'); saveRun(a); expect(loadRun()).toBeNull();
+    store(); const b = newRun('bad-potion'); me(b).potions.push('沒有這個忍具'); saveRun(b); expect(loadRun()).toBeNull();
   });
   it('對照：正常的檔讀得起來', () => {
     store(); const run = newRun('ok'); saveRun(run); expect(loadRun()).not.toBeNull();

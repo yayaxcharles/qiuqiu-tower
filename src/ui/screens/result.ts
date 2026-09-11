@@ -10,6 +10,7 @@ import { el } from '../dom';
 import { seedTag } from '../hud';
 import { sceneView } from '../scene';
 import { attachTextTooltip } from '../tooltip';
+import { me } from '../../engine/runplayer';
 
 registerScreen('result', (app, root) => {
   // 進畫面就放對應的收尾音；這時候玩家一定已經點過東西，音訊環境是解鎖的
@@ -22,7 +23,7 @@ registerScreen('result', (app, root) => {
   clearSave();
 
   const relics = el('div', { class: 'result-relics' });
-  for (const id of run.relics) {
+  for (const id of me(run).relics) {
     const d = relicById[id];
     if (!d) continue;
     const url = artUrl('icons', d.art);
@@ -47,14 +48,14 @@ registerScreen('result', (app, root) => {
     text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : '球球倒下了。'),
     extra: [
       el('div', { class: 'result-stats' },
-        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${run.deck.length} 張`),
+        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${me(run).deck.length} 張`),
       el('div', { class: 'result-row' }, relics, seedTag(run.seed, true)),
       el('div', { class: 'result-best' }, `最佳成績：${best.floor}F${best.won ? `（通關，${best.turns} 回合）` : ''}`),
     ],
     actions: [
       el('button', {
         class: 'btn',
-        onclick: () => showDeckPicker({ title: `最終牌組（${run.deck.length} 張）`, cards: run.deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
+        onclick: () => showDeckPicker({ title: `最終牌組（${me(run).deck.length} 張）`, cards: me(run).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
       }, '看牌組'),
       el('button', { class: 'btn primary', onclick: () => { app.run = null; app.cs = null; app.show('title'); } }, '回到村子'),
     ],

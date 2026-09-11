@@ -4,6 +4,7 @@ import { artUrl } from './assets';
 import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
+import { me } from '../engine/runplayer';
 
 /**
  * 本局秘寶清單（使用者 2026-09-06 拍板）：狀態列只畫最近拿到的 8 件，其餘收成一顆「+N」；
@@ -22,7 +23,7 @@ export function showRelicList(run: RunState): void {
     unlockScreen();
     hideTooltip();
   };
-  const ids = [...run.relics].reverse();   // 最新的排最前面，跟狀態列的順序一致
+  const ids = [...me(run).relics].reverse();   // 最新的排最前面，跟狀態列的順序一致
   const list = el('div', { class: 'swap-list relic-list' });
   for (const id of ids) {
     const r = relicById[id];

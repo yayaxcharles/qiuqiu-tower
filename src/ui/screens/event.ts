@@ -17,6 +17,7 @@ import { el } from '../dom';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { me } from '../../engine/runplayer';
 
 /**
  * 結果畫面要秀出來的牌：學會的彈出來、升級的打鐵發金光、丟掉的化成煙散掉、被塞的壞毛病抖一下。
@@ -207,7 +208,7 @@ registerScreen('event', (app, root, props) => {
       const up = outcome.needs === 'upgradeCard';
       const filter = up ? (c: CardInstance) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病' : () => true;
       // 一張都不合就直接跳過（疊層本身也擋得住鎖死，但沒得挑還開一個空視窗只是煩人）
-      const usable = run.deck.filter(filter).length;
+      const usable = me(run).deck.filter(filter).length;
       if (usable === 0) { finish(resultText, noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除'), gains); return; }
       // 要挑的張數可能比牌組裡合格的還多（例如只剩一張沒升級過的牌卻要升兩張），
       // 那就以實際挑得到的為準，不然確認鈕永遠按不下去、玩家被鎖在疊層裡
@@ -218,7 +219,7 @@ registerScreen('event', (app, root, props) => {
         const names: string[] = [];
         const show: Showcase = [...gotShow];
         for (const uid of uids) {
-          const c = run.deck.find((x) => x.uid === uid);
+          const c = me(run).deck.find((x) => x.uid === uid);
           if (!c) continue;
           names.push(cardName(c));
           const before = { ...c };   // 丟掉的牌要用「丟掉前」的樣子秀
@@ -237,11 +238,11 @@ registerScreen('event', (app, root, props) => {
       const openPicker = (): void => showDeckPicker({
         title: want > 1 ? `選 ${want} 張牌${verb}` : `選一張牌${verb}`,
         previewUpgrade: up,   // 升級才需要看「變成什麼樣」；移除不用
-        cards: run.deck, pickable: true, cancellable: false, filter,
+        cards: me(run).deck, pickable: true, cancellable: false, filter,
         pickCount: want,
         onPick: (uid) => {
           if (uid === null) { settleCards([]); return; }
-          const c = run.deck.find((x) => x.uid === uid);
+          const c = me(run).deck.find((x) => x.uid === uid);
           // 升級一張時跟貓窩磨爪一樣先問「就磨這張／再看看」，按「再看看」回牌堆重挑
           //（使用者 2026-09-06：事件裡選好牌左鍵就直接升級了，其他地方都有這一步）
           if (up && c) { showUpgradeConfirm(c, (ok) => { if (ok) settleCards([uid]); else openPicker(); }); return; }
@@ -267,19 +268,19 @@ registerScreen('event', (app, root, props) => {
     const cost = c.costFish ?? 0;
     // 選項自己的文案就寫著要付多少（「付 30 小魚乾」「買一顆（20 小魚乾）」），這裡不要再補一次價錢；
     // 付不起才補一句話講清楚為什麼按不動。小魚乾由畫面扣，引擎的 applyRunEffects 不管 costFish。
-    const poor = cost > run.fish;
+    const poor = cost > me(run).fish;
     const btn = el('button', { class: 'btn' }, c.label + (poor ? '（小魚乾不夠）' : ''));
     if (poor) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
-      if (cost > run.fish) return;   // 保險：畫面畫完之後小魚乾又變少的話（目前不會發生）也不能透支
+      if (cost > me(run).fish) return;   // 保險：畫面畫完之後小魚乾又變少的話（目前不會發生）也不能透支
       play('click');
-      run.fish = Math.max(0, run.fish - cost);
+      me(run).fish = Math.max(0, me(run).fish - cost);
       resultArt = c.resultArt;
       const notes: string[] = [];
       const gains: RunGain[] = [];
-      const had = new Set(run.deck.map((x) => x.uid));
+      const had = new Set(me(run).deck.map((x) => x.uid));
       const outcome = applyRunEffects(run, c.outcome, notes, gains);
-      settle(outcome, c.result, notes, gains, run.deck.filter((x) => !had.has(x.uid)));
+      settle(outcome, c.result, notes, gains, me(run).deck.filter((x) => !had.has(x.uid)));
     });
     choices.push(btn);
   }

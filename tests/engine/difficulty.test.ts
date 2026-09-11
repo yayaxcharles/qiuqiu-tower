@@ -9,6 +9,7 @@ import { addPotion, advanceAct, applyRunEffects, makeShop, newRun } from '../../
 import { loadBestFor, recordBest, setStore, unlockedDifficulty } from '../../src/engine/save';
 import { getStatus } from '../../src/engine/statuses';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 /** 難度 1～5（2026-09-02）：每級累積，數字全在 content/difficulty.ts */
 describe('難度表', () => {
@@ -29,9 +30,9 @@ describe('難度表', () => {
   });
   it('開局：難度 4 多一張中計了、難度 5 最大生命 64、忍具格兩支', () => {
     const r1 = newRun('d1', 1), r4 = newRun('d4', 4), r5 = newRun('d5', 5);
-    expect(r1.deck.length).toBe(STARTER_DECK.length);
-    expect(r4.deck.filter((c) => c.cardId === 'zhongji').length).toBe(1);
-    expect(r5.maxHp).toBe(70); expect(r5.hp).toBe(70); expect(r5.difficulty).toBe(5);
+    expect(me(r1).deck.length).toBe(STARTER_DECK.length);
+    expect(me(r4).deck.filter((c) => c.cardId === 'zhongji').length).toBe(1);
+    expect(me(r5).maxHp).toBe(70); expect(me(r5).hp).toBe(70); expect(r5.difficulty).toBe(5);
     expect(addPotion(r4, 'whetstone')).toBe(true); expect(addPotion(r4, 'whetstone')).toBe(true);
     expect(addPotion(r4, 'whetstone')).toBe(false);   // 第三支塞不進去
     expect(addPotion(r1, 'whetstone') && addPotion(r1, 'whetstone') && addPotion(r1, 'whetstone')).toBe(true);
@@ -46,10 +47,10 @@ describe('難度表', () => {
   });
   it('過關回血：難度 3 只補回缺血的七成五', () => {
     const r = newRun('heal', 3);
-    r.hp = 30; r.maxHp = 70;
+    me(r).hp = 30; me(r).maxHp = 70;
     advanceAct(r);
-    expect(r.hp).toBe(60);
-    const r1 = newRun('heal1', 1); r1.hp = 30; advanceAct(r1); expect(r1.hp).toBe(76);
+    expect(me(r).hp).toBe(60);
+    const r1 = newRun('heal1', 1); me(r1).hp = 30; advanceAct(r1); expect(me(r1).hp).toBe(76);
   });
   it('罐頭鋪：難度 4 貴一成；壞事件掉血乘 1.5', () => {
     const r = newRun('shop', 4); const r1 = newRun('shop', 1);
@@ -58,7 +59,7 @@ describe('難度表', () => {
     for (const c of s.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * 1.1 * (c.sale ?? 1)));   // 特價格再乘折數（2026-09-04）
     for (const c of s1.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * (c.sale ?? 1)));
     applyRunEffects(r, [{ kind: 'damage', n: 10 }]); applyRunEffects(r1, [{ kind: 'damage', n: 10 }]);
-    expect(r.hp).toBe(76 - 15); expect(r1.hp).toBe(76 - 10);
+    expect(me(r).hp).toBe(76 - 15); expect(me(r1).hp).toBe(76 - 10);
   });
   it('地圖：難度 2 起大魔物節點更多（100 張圖平均）', () => {
     const count = (mul: number): number => {

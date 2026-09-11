@@ -10,6 +10,7 @@ import { endTurn } from '../../src/engine/combat';
 import { applyRunEffects, newRun, potionCapacity, takeRelic } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 function fight(encounterId: string, potions: string[], hp = 999, maxHp = 999) {
   return startCombat({
@@ -137,15 +138,15 @@ describe('換家的老鼠（loseRelic）', () => {
   it('交出去的是非起始秘寶，最大生命跟著扣回去、不會順便補血', () => {
     const run = newRun('lose1');
     takeRelic(run, 'tuna_can');   // 最大生命 +10 並補血
-    const maxBefore = run.maxHp;
-    run.hp = run.maxHp - 30;
-    const hpBefore = run.hp;
+    const maxBefore = me(run).maxHp;
+    me(run).hp = me(run).maxHp - 30;
+    const hpBefore = me(run).hp;
     const notes: string[] = [];
     applyRunEffects(run, [{ kind: 'loseRelic' }], notes);
-    expect(run.relics).not.toContain('tuna_can');
-    expect(run.relics, '起始秘寶留著').toContain('blue_headband');
-    expect(run.maxHp).toBe(maxBefore - 10);
-    expect(run.hp, '只往下夾、不補血').toBeLessThanOrEqual(hpBefore);
+    expect(me(run).relics).not.toContain('tuna_can');
+    expect(me(run).relics, '起始秘寶留著').toContain('blue_headband');
+    expect(me(run).maxHp).toBe(maxBefore - 10);
+    expect(me(run).hp, '只往下夾、不補血').toBeLessThanOrEqual(hpBefore);
     expect(notes.some((n) => n.includes('交出了'))).toBe(true);
   });
   it('身上只有起始秘寶時不會爆，會留一行說明', () => {
@@ -164,7 +165,7 @@ describe('換家的老鼠（loseRelic）', () => {
       const gone = notes.find((n) => n.startsWith('交出了'));
       if (!gone) continue;
       const name = gone.slice('交出了「'.length, -1);
-      const backAgain = run.relics.some((id) => relicById[id]?.name === name);
+      const backAgain = me(run).relics.some((id) => relicById[id]?.name === name);
       expect(backAgain, `種子 swap${i}：${name} 又換回來了`).toBe(false);
     }
   });
@@ -172,11 +173,11 @@ describe('換家的老鼠（loseRelic）', () => {
     const run = newRun('bag1');
     takeRelic(run, 'potion_bag');   // 忍具格 +1
     const cap = potionCapacity(run);
-    run.potions = Array.from({ length: cap }, () => 'milk');
+    me(run).potions = Array.from({ length: cap }, () => 'milk');
     const notes: string[] = [];
     applyRunEffects(run, [{ kind: 'loseRelic' }], notes);
-    expect(run.potions.length, '不能超過新的格數').toBeLessThanOrEqual(potionCapacity(run));
-    if (!run.relics.includes('potion_bag')) {
+    expect(me(run).potions.length, '不能超過新的格數').toBeLessThanOrEqual(potionCapacity(run));
+    if (!me(run).relics.includes('potion_bag')) {
       expect(notes.some((n) => n.includes('放不下')), '要告訴玩家掉了什麼').toBe(true);
     }
   });
@@ -188,22 +189,22 @@ describe('三個新事件的結果真的會生效', () => {
     expect(ev, '事件要存在').toBeTruthy();
     const grind = ev!.choices[0]!;
     const run = newRun('grind');
-    const before = run.maxHp;
+    const before = me(run).maxHp;
     // 只餵一半（挑出 maxHp 那項）等於沒驗到真正會壞的地方：`applyRunEffects` 的待辦累加器
     // 是「換一種 kind 就重算」，三個 removeCard 中間夾了別的就會只回 n: 1（複核 2026-09-11 低-6）
     const outcome = applyRunEffects(run, grind.outcome, []);
     expect(outcome, '三張要併成同一筆待辦').toEqual({ needs: 'removeCard', n: 3 });
-    expect(run.maxHp, '最大生命 −8 也要同時生效').toBe(before - 8);
+    expect(me(run).maxHp, '最大生命 −8 也要同時生效').toBe(before - 8);
   });
   it('速成的卷軸：兩張升級併成一筆待辦，而且真的塞一張**壞毛病**', () => {
     const ev = eventById['shortcut_scroll']!;
     const train = ev.choices[0]!;
     const run = newRun('scroll');
-    const before = run.deck.length;
+    const before = me(run).deck.length;
     const outcome = applyRunEffects(run, train.outcome, []);
     expect(outcome, '兩張升級要併成同一筆').toEqual({ needs: 'upgradeCard', n: 2 });
-    expect(run.deck.length, '真的多一張').toBe(before + 1);
-    const added = run.deck[run.deck.length - 1]!;
+    expect(me(run).deck.length, '真的多一張').toBe(before + 1);
+    const added = me(run).deck[me(run).deck.length - 1]!;
     expect(cardById[added.cardId]?.pool, '多的那張要是壞毛病，不是隨便一張牌').toBe('壞毛病');
   });
   it('三個事件都留得起「不做」那條路', () => {

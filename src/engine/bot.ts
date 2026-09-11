@@ -7,6 +7,7 @@ import { aliveEnemies } from './actions';
 import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import { potionById } from '../content/potions';
 import type { CombatState, RunState } from './types';
+import { me } from './runplayer';
 
 export interface BotStats { seed: string; won: boolean; floor: number; turns: number; kills: number; deckSize: number }
 
@@ -54,7 +55,7 @@ export function playCombat(cs: CombatState, rng: Rng, maxTurns: number, seed = '
 function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTurns: number, seed: string): void {
   if (!outcome) return;
   if ('needs' in outcome) {
-    const cands = run.deck.filter((c) => (outcome.needs === 'removeCard') || (!c.upgraded && cardById[c.cardId]?.pool !== '壞毛病'));
+    const cands = me(run).deck.filter((c) => (outcome.needs === 'removeCard') || (!c.upgraded && cardById[c.cardId]?.pool !== '壞毛病'));
     if (cands.length) { const c = rng.pick(cands); outcome.needs === 'removeCard' ? removeCard(run, c.uid) : upgradeCard(run, c.uid); }
   } else if ('chooseCard' in outcome) {
     if (outcome.chooseCard.length) { const id = rng.pick(outcome.chooseCard).id; addCard(run, id, outcome.upgradedCard === id); }
@@ -66,7 +67,7 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
     resolvePendingAfterFight(run, cs.phase === 'won');
     if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
     if (r) for (let i = 0; i < (outcome.fight.bonusUpgrades ?? 0); i++) {
-      const cands = run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病');
+      const cands = me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病');
       if (cands.length) upgradeCard(run, rng.pick(cands).uid);
     }
   }
@@ -100,25 +101,25 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {})
       }
       case '事件': {
         const ev = eventById[node.eventId!]!;
-        const options = ev.choices.filter((c) => (c.costFish ?? 0) <= run.fish);
+        const options = ev.choices.filter((c) => (c.costFish ?? 0) <= me(run).fish);
         const c = rng.pick(options.length ? options : ev.choices);
-        run.fish = Math.max(0, run.fish - (c.costFish ?? 0));   // 買不起也硬選的話，小魚乾扣到 0 為止，不會變負的
+        me(run).fish = Math.max(0, me(run).fish - (c.costFish ?? 0));   // 買不起也硬選的話，小魚乾扣到 0 為止，不會變負的
         handleOutcome(run, rng, applyRunEffects(run, c.outcome), maxTurns, seed);
         break;
       }
       case '罐頭鋪': {
         const shop = makeShop(run);
         for (let i = 0; i < shop.cards.length; i++) if (rng.chance(0.4)) buyCard(run, shop, i);
-        if (rng.chance(0.5) && run.deck.length > 0) buyRemove(run, rng.pick(run.deck).uid);
+        if (rng.chance(0.5) && me(run).deck.length > 0) buyRemove(run, rng.pick(me(run).deck).uid);
         break;
       }
       case '貓窩': {
-        const up = run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病');
-        if (run.hp < run.maxHp * 0.6 || up.length === 0) rest(run, '打盹'); else rest(run, '磨爪', rng.pick(up).uid);
+        const up = me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病');
+        if (me(run).hp < me(run).maxHp * 0.6 || up.length === 0) rest(run, '打盹'); else rest(run, '磨爪', rng.pick(up).uid);
         break;
       }
       case '紙箱': openChest(run); break;
     }
   }
-  return { seed, won: run.status === 'won', floor: run.floor, turns: run.stats.turns, kills: run.stats.kills, deckSize: run.deck.length };
+  return { seed, won: run.status === 'won', floor: run.floor, turns: run.stats.turns, kills: run.stats.kills, deckSize: me(run).deck.length };
 }

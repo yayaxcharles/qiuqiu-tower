@@ -8,6 +8,7 @@ import { loadRun, saveRun, setStore } from '../../src/engine/save';
 import { cardsForHero, heroOf } from '../../src/engine/hero';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { rollCardChoices } from '../../src/engine/rewards';
+import { me } from '../../src/engine/runplayer';
 
 describe('牌池分流', () => {
   it('沒標 hero 的牌兩個職業都拿得到', () => {
@@ -37,25 +38,22 @@ describe('牌池分流', () => {
 
 describe('這一局是哪個職業', () => {
   it('沒指定就是忍者', () => {
-    expect(heroOf(newRun('h1'))).toBe('ninja');
+    expect(heroOf(me(newRun('h1')))).toBe('ninja');
   });
 
   it('指定武士就是武士', () => {
     const run = newRun('h2', 1, 'samurai');
-    expect(heroOf(run)).toBe('samurai');
+    expect(heroOf(me(run))).toBe('samurai');
   });
 
-  it('舊存檔沒有 hero 這一欄，讀回來當忍者，而且不會被判成壞檔', () => {
+  it('沒指定職業就不寫 hero 這一欄，讀回來當忍者', () => {
     const m = new Map<string, string>();
     setStore({ getItem: (k) => m.get(k) ?? null, setItem: (k, v) => { m.set(k, v); }, removeItem: (k) => { m.delete(k); } });
-    const run = newRun('old');
-    delete (run as { hero?: string }).hero;
-    saveRun(run);
+    saveRun(newRun('old'));
     expect(m.get('qiuqiu-tower/run')).not.toContain('hero');
     const back = loadRun();
-    expect(back, '舊存檔不該被清掉').not.toBeNull();
-    expect(back!.version, '加可選欄位不可以升存檔版本').toBe(1);
-    expect(heroOf(back!)).toBe('ninja');
+    expect(back, '不該被判成壞檔').not.toBeNull();
+    expect(heroOf(me(back!))).toBe('ninja');
   });
 });
 

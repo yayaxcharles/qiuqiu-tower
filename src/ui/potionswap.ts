@@ -5,6 +5,7 @@ import { artUrl } from './assets';
 import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
+import { me } from '../engine/runplayer';
 
 /**
  * 忍具帶滿了、又拿到一支：問要換掉哪一支（使用者 2026-09-02：「滿的話新拿到的可以把舊的替換掉」）。
@@ -30,7 +31,7 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
     return url.startsWith('data:') ? '' : el('img', { src: url, alt });
   };
   const list = el('div', { class: 'swap-list' });
-  run.potions.forEach((id, i) => {
+  me(run).potions.forEach((id, i) => {
     const p = potionById[id];
     if (!p) return;
     list.append(el('button', { class: 'swap-item', onclick: () => dismiss(i) },

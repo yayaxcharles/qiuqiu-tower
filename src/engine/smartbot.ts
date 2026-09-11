@@ -15,6 +15,7 @@ import {
   finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, RunEffect, RunState, Unit } from './types';
+import { me } from './runplayer';
 
 /**
  * 會算傷害的機器人（2026-09-02）。
@@ -539,29 +540,29 @@ const TRACE = (globalThis as { process?: { env?: Record<string, string | undefin
 // ===== 整局 =====
 
 function deckJunk(run: RunState): CardInstance[] {
-  return run.deck.filter((c) => rating(c.cardId) <= 2).sort((a, b) => rating(a.cardId) - rating(b.cardId));
+  return me(run).deck.filter((c) => rating(c.cardId) <= 2).sort((a, b) => rating(a.cardId) - rating(b.cardId));
 }
 
 function pickCard(run: RunState, choices: { id: string }[]): string | null {
   let best: { id: string; v: number } | null = null;
-  const attacks = run.deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
-  const skills = run.deck.length - attacks;
+  const attacks = me(run).deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+  const skills = me(run).deck.length - attacks;
   for (const ch of choices) {
     const def = cardById[ch.id];
     if (!def) continue;
     let v = rating(ch.id);
     if (def.type === '攻擊' && attacks < skills) v += 1;
     if (def.type !== '攻擊' && skills < attacks - 2) v += 1;
-    if (run.deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
+    if (me(run).deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
     if (!best || v > best.v) best = { id: ch.id, v };
   }
   if (!best) return null;
-  const threshold = run.deck.length >= 22 ? 6 : run.deck.length >= 16 ? 5 : 4;
+  const threshold = me(run).deck.length >= 22 ? 6 : me(run).deck.length >= 16 ? 5 : 4;
   return best.v >= threshold ? best.id : null;
 }
 
 function bestUpgrade(run: RunState): CardInstance | undefined {
-  return run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病')
+  return me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病')
     .sort((a, b) => rating(b.cardId) - rating(a.cardId))[0];
 }
 
@@ -585,21 +586,21 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, seed:
 
 function fight(run: RunState, rng: Rng, encounterId: string | undefined, bonusFish: number, seed: string, stats: SmartStats): void {
   const cs = beginCombat(run, encounterId);
-  const hpIn = run.hp;
+  const hpIn = me(run).hp;
   smartCombat(cs, rng, 200, seed);
   const isBoss = encounterById[cs.encounterId]?.pool === '塔主';
   const r = finishCombat(run, cs, bonusFish);
-  stats.fights.push({ id: cs.encounterId, floor: run.floor, act: run.act, hpLost: hpIn - (r ? run.hp : 0), turns: cs.turn, won: !!r, str: cs.player.statuses['爪力'] ?? 0 });
-  if (isBoss) stats.bosses.push({ id: cs.encounterId, act: run.act, hpIn, maxHp: run.maxHp, won: !!r, turns: cs.turn });
+  stats.fights.push({ id: cs.encounterId, floor: run.floor, act: run.act, hpLost: hpIn - (r ? me(run).hp : 0), turns: cs.turn, won: !!r, str: cs.player.statuses['爪力'] ?? 0 });
+  if (isBoss) stats.bosses.push({ id: cs.encounterId, act: run.act, hpIn, maxHp: me(run).maxHp, won: !!r, turns: cs.turn });
   if (!r) { stats.diedTo = (cs.turn > 200 ? '僵局:' : '') + cs.encounterId; return; }
   if (r.cards.length) takeCardReward(run, r, pickCard(run, r.cards));
 }
 
 /** 事件選項值多少：血少時看重回血、避開掉血；壞毛病是大扣分 */
 function eventValue(run: RunState, effects: RunEffect[], costFish: number): number {
-  const hpPct = run.hp / run.maxHp;
+  const hpPct = me(run).hp / me(run).maxHp;
   let v = -costFish * 0.35;
-  if (costFish > run.fish) return -999;
+  if (costFish > me(run).fish) return -999;
   /*
    * **同一個選項裡連著砍好幾張、升好幾張的，第二張起要縮水**（稽核 2026-09-11 低-4）。
    *
@@ -611,23 +612,23 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
    */
   let removed = 0, upgraded = 0;
   const junk = deckJunk(run).length;
-  const upgradable = run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病').length;
+  const upgradable = me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病').length;
   for (const fx of effects) {
     switch (fx.kind) {
-      case 'heal': v += Math.min(fx.n, run.maxHp - run.hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
+      case 'heal': v += Math.min(fx.n, me(run).maxHp - me(run).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
       // 交出一件秘寶：本身是純損失，但它一定跟「換兩件」綁在一起，淨值由那兩件的 relic 估值補回來
       case 'loseRelic': v -= 14; break;
-      case 'healPercent': v += Math.min(run.maxHp * fx.p, run.maxHp - run.hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
+      case 'healPercent': v += Math.min(me(run).maxHp * fx.p, me(run).maxHp - me(run).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
       case 'damage': v -= fx.n * (hpPct < 0.4 ? 4 : hpPct < 0.6 ? 1.8 : 0.9); break;
       case 'fish': v += fx.n * 0.35; break;
-      case 'fishHalve': v -= run.fish * 0.5 * 0.35; break;
+      case 'fishHalve': v -= me(run).fish * 0.5 * 0.35; break;
       case 'maxHp': v += fx.n * 2.2; break;
       case 'addCard': v += cardById[fx.cardId]?.pool === '壞毛病' ? -28 : 6; break;
       case 'addRandomCard': v += fx.rarity === '罕見' ? 8 : fx.rarity === '稀有' ? 14 : 4; break;
       case 'removeCard': v += removed++ < junk ? 18 : 2; break;
       case 'upgradeCard': v += upgraded++ < upgradable ? 16 : 0; break;
       case 'relic': v += fx.pool === '大魔物' ? 34 : 24; break;
-      case 'potions': v += Math.min(fx.n, 3 - run.potions.length) * 7; break;
+      case 'potions': v += Math.min(fx.n, 3 - me(run).potions.length) * 7; break;
       case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;
       case 'chooseCard': v += fx.pool === '絕學' ? 14 : 9; break;
       case 'gamble': v += fx.p * eventValue(run, fx.win, 0) + (1 - fx.p) * eventValue(run, fx.lose, 0); break;
@@ -639,13 +640,13 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
 }
 
 function nodeScore(run: RunState, n: MapNode): number {
-  const hpPct = run.hp / run.maxHp;
+  const hpPct = me(run).hp / me(run).maxHp;
   switch (n.type) {
     case '貓窩': return hpPct < 0.55 ? 100 : bestUpgrade(run) ? 55 : 20;
-    case '罐頭鋪': return run.fish >= 120 ? 75 : run.fish >= 75 ? 45 : 15;
+    case '罐頭鋪': return me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15;
     case '事件': return 50;
     case '紙箱': return 90;
-    case '大魔物': return hpPct >= 0.7 && run.deck.some((c) => c.upgraded) ? 62 : 8;
+    case '大魔物': return hpPct >= 0.7 && me(run).deck.some((c) => c.upgraded) ? 62 : 8;
     case '戰鬥': return 42;
     case '塔主': return 1;
   }
@@ -678,7 +679,7 @@ export function smartRun(seed: string, difficulty = 1): SmartStats {
       case '事件': {
         const ev = eventById[node.eventId!]!;
         const choice = ev.choices.map((c) => ({ c, v: eventValue(run, c.outcome, c.costFish ?? 0) })).sort((a, b) => b.v - a.v)[0]!.c;
-        run.fish = Math.max(0, run.fish - (choice.costFish ?? 0));
+        me(run).fish = Math.max(0, me(run).fish - (choice.costFish ?? 0));
         handleOutcome(run, rng, applyRunEffects(run, choice.outcome), seed, stats);
         break;
       }
@@ -686,21 +687,21 @@ export function smartRun(seed: string, difficulty = 1): SmartStats {
         const shop = makeShop(run);
         // 先放生爛牌（留 60 條買東西），再看秘寶，再看牌
         const junk = deckJunk(run);
-        if (junk.length >= 3 && run.fish >= run.removeCost + 60) buyRemove(run, junk[0]!.uid);
+        if (junk.length >= 3 && me(run).fish >= me(run).removeCost + 60) buyRemove(run, junk[0]!.uid);
         const relicIdx = shop.relics.map((r, i) => ({ i, v: relicRating(r.id), p: r.price })).sort((a, b) => b.v - a.v)[0];
-        if (relicIdx && relicIdx.v >= 6 && run.fish >= relicIdx.p) buyRelic(run, shop, relicIdx.i);
+        if (relicIdx && relicIdx.v >= 6 && me(run).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.i);
         const cardIdx = shop.cards.map((c, i) => ({ i, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
-        if (cardIdx && cardIdx.v >= 7 && run.fish >= cardIdx.p && run.deck.length < 24) buyCard(run, shop, cardIdx.i);
+        if (cardIdx && cardIdx.v >= 7 && me(run).fish >= cardIdx.p && me(run).deck.length < 24) buyCard(run, shop, cardIdx.i);
         for (let i = 0; i < shop.potions.length; i++) {
           const it = shop.potions[i]!;
-          if (run.potions.length < 2 && run.fish >= it.price + 40) buyPotion(run, shop, i);
+          if (me(run).potions.length < 2 && me(run).fish >= it.price + 40) buyPotion(run, shop, i);
         }
         break;
       }
       case '貓窩': {
         const u = bestUpgrade(run);
         // 44F 打盹回滿：真人只要沒滿血都會睡，機器人比照（不然 60% 以上的血會去磨爪、量不到補給的效果）
-        if (run.hp < run.maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
+        if (me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
         break;
       }
       case '紙箱': openChest(run); break;
@@ -709,10 +710,10 @@ export function smartRun(seed: string, difficulty = 1): SmartStats {
   stats.won = run.status === 'won';
   stats.floor = run.floor;
   stats.act = run.act;
-  stats.deckSize = run.deck.length;
-  stats.upgraded = run.deck.filter((c) => c.upgraded).length;
-  stats.relics = run.relics.length;
-  stats.deckIds = run.deck.map((c) => c.cardId + (c.upgraded ? '+' : ''));
-  stats.relicIds = [...run.relics];
+  stats.deckSize = me(run).deck.length;
+  stats.upgraded = me(run).deck.filter((c) => c.upgraded).length;
+  stats.relics = me(run).relics.length;
+  stats.deckIds = me(run).deck.map((c) => c.cardId + (c.upgraded ? '+' : ''));
+  stats.relicIds = [...me(run).relics];
   return stats;
 }

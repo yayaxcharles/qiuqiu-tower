@@ -410,18 +410,47 @@ export interface MapNode {
 export interface GameMap { nodes: MapNode[]; start: string[] }
 
 // ===== 整局 =====
-export interface RunState {
-  version: 1;
-  /** 這一局的職業。舊存檔沒有這一欄＝忍者，所以是可選的、不必升 version（升了會清掉進行中的局） */
+/**
+ * 一位玩家在**整局**裡的家當（連線版規則一與規則五，使用者 2026-09-11：各帶各的）。
+ *
+ * 以前這幾欄直接掛在 `RunState` 上，因為只有一位玩家。兩個人一起玩之後，
+ * 血量、牌組、秘寶、忍具、小魚乾、移除價、保底都是**各一份**，所以整組搬進來。
+ *
+ * 刻意**不留**「指向第一位的別名」——`RunState` 會被存進瀏覽器，
+ * getter 存下去讀回來會變成一份獨立的死資料，之後兩邊各改各的就悄悄分岔了
+ * （`CombatState` 可以用別名，是因為它從頭到尾不存檔）。
+ */
+export interface RunPlayer {
+  /** 這一位的職業。沒寫＝忍者 */
   hero?: 'ninja' | 'samurai';
-  seed: string;
-  rng: RngState;
   hp: number;
   maxHp: number;
   fish: number;
   deck: CardInstance[];
   relics: string[];
   potions: string[];
+  /** 罐頭鋪移除一張牌的價錢，每移除一次就漲（各漲各的） */
+  removeCost: number;
+  /** 暖毯：打盹後下一場開戰帶的蜷縮，開戰用掉就歸零 */
+  restBlock?: number;
+  /**
+   * 稀有牌保底：連續幾次戰鬥獎勵沒開出稀有牌（每次 +1，開出就歸零）。
+   * 每一點讓下一次的稀有權重多 4——連續槓龜的手氣會自己回來。
+   */
+  rarePity?: number;
+  /**
+   * 倒下了（規則四）。倒下的人之後的戰鬥都只能觀戰，
+   * **直到有人在打盹點把他扶起來**（使用者 2026-09-11 追認）。
+   */
+  down?: boolean;
+}
+
+export interface RunState {
+  version: 2;
+  /** 這一局的玩家，依座位排。單機就一位；`players[0]` 永遠是自己 */
+  players: RunPlayer[];
+  seed: string;
+  rng: RngState;
   floor: number;
   map: GameMap;
   currentNode: string | null;
@@ -429,23 +458,15 @@ export interface RunState {
   trail: string[];
   nextUid: number;
   stats: { kills: number; turns: number; cardsPlayed: number };
-  removeCost: number;
   /** 第幾關（1＝塔下、2＝塔中、3＝塔頂）。舊存檔沒有這欄，載入時補成 1。 */
   act: number;
   /** 難度 1～5（見 content/difficulty.ts）。舊存檔沒有這欄，載入時補成 1。 */
   difficulty?: number;
   status: 'playing' | 'won' | 'lost';
-  /** 暖毯：打盹後下一場開戰帶的蜷縮，開戰用掉就歸零 */
-  restBlock?: number;
   /** 一次性旗標（看過哪段對話、觸發過哪個事件之類）；舊存檔沒有這欄，載入時補成 {} */
   flags: Record<string, boolean>;
   /** 事件選項「要打一場」附帶的獎勵：先記在這裡，打贏才發（輸了就清掉）——使用者 2026-09-04：秘寶不該還沒打就到手 */
   pendingAfterFight?: RunEffect[];
-  /**
-   * 稀有牌保底：連續幾次戰鬥獎勵沒開出稀有牌（每次 +1，開出就歸零）。
-   * 每一點讓下一次的稀有權重多 4——連續槓龜的手氣會自己回來。舊存檔沒有這欄，當 0。
-   */
-  rarePity?: number;
 }
 
 // ===== 戰鬥 =====

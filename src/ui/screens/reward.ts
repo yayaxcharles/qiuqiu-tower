@@ -14,6 +14,7 @@ import { showPotionSwap } from '../potionswap';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { me } from '../../engine/runplayer';
 
 /**
  * 圖示還沒生好時 `artUrl` 會回一張灰剪影 data URI。這裡每個項目旁邊都有名字與說明，
@@ -73,21 +74,21 @@ registerScreen('reward', (app, root, props) => {
   // 鏡子走廊：打贏鏡中球球的獎勵是挑牌升級。進畫面就開挑牌疊層（不能取消），挑完那一行改寫成升了哪幾張
   let upLine: HTMLElement | null = null;
   const upFilter = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
-  const want = Math.min(ups, run.deck.filter(upFilter).length);
+  const want = Math.min(ups, me(run).deck.filter(upFilter).length);
   if (ups > 0) {
     upLine = el('span', { class: 'reward-line' }, want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
     const line = upLine;
     items.append(el('div', { class: 'reward-item loot' }, line));
     if (want > 0) showDeckPicker({
       title: want > 1 ? `選 ${want} 張牌升級` : '選一張牌升級', previewUpgrade: true,
-      cards: run.deck, pickable: true, cancellable: false, filter: upFilter, pickCount: want,
+      cards: me(run).deck, pickable: true, cancellable: false, filter: upFilter, pickCount: want,
       onPick: (uid) => settleUpgrades(uid === null ? [] : [uid]), onPickMany: settleUpgrades,
     });
   }
   function settleUpgrades(uids: readonly number[]): void {
     const names: string[] = [];
     for (const uid of uids) {
-      const c = run!.deck.find((x) => x.uid === uid);
+      const c = me(run!).deck.find((x: CardInstance) => x.uid === uid);
       if (!c || !upgradeCard(run!, uid)) continue;
       names.push(`「${cardById[c.cardId]?.name ?? c.cardId}」`);
     }

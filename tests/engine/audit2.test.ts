@@ -7,6 +7,7 @@ import { loadRun, saveRun, setStore } from '../../src/engine/save';
 import { relics } from '../../src/content/relics';
 import type { CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 /** 2026-09-02 晚間稽核（獨立子代理）修掉的四條，各釘一個回歸 */
 function start(encounterId: string, mods?: { hpMul?: number; strength?: number }): CombatState {
@@ -44,14 +45,15 @@ describe('稽核修正（第二輪）', () => {
     const r = newRun('save-guard');
     saveRun(r);
     const key = [...mem.keys()].find((k) => k.includes('run'))!;
-    const raw = JSON.parse(mem.get(key)!) as Record<string, unknown>;
-    delete raw['potions'];
+    const raw = JSON.parse(mem.get(key)!) as { players: Record<string, unknown>[] };
+    // 忍具、秘寶那些 2026-09-11 搬進 players[0] 了（連線版規則一），戳的位置跟著搬
+    delete raw.players[0]!['potions'];
     mem.set(key, JSON.stringify(raw));
     expect(loadRun()).toBeNull();
   });
   it('L-4 秘寶池抽乾時要交代一句', () => {
     const r = newRun('relic-dry');
-    r.relics = relics.filter((x) => x.pool === '大魔物').map((x) => x.id);
+    me(r).relics = relics.filter((x) => x.pool === '大魔物').map((x) => x.id);
     const notes: string[] = []; const gains: RunGain[] = [];
     applyRunEffects(r, [{ kind: 'relic', pool: '大魔物' }], notes, gains);
     expect(gains).toEqual([]);
