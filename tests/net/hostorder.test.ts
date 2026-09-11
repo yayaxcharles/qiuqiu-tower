@@ -32,7 +32,8 @@ function twoPlayerCombat(seed: string): CombatState {
 
 /** 一台機器：自己的引擎＋自己的佇列 */
 function peer(seed: string): { cs: CombatState; q: ActionQueue } {
-  return { cs: twoPlayerCombat(seed), q: new ActionQueue() };
+  const cs = twoPlayerCombat(seed);
+  return { cs, q: new ActionQueue((a) => applyAction(cs, a)) };
 }
 
 describe('主機排序：號碼只有一份，兩邊照號碼套用', () => {
@@ -72,8 +73,8 @@ describe('主機排序：號碼只有一份，兩邊照號碼套用', () => {
     const [m1, m2] = killRace(a).m(new Sequencer());
     killRace(b);   // 讓 b 也是一擊斃命的血量
 
-    const qa = new ActionQueue();
-    qa.receive(a, m1); qa.receive(a, m2);
+    const qa = new ActionQueue((act) => applyAction(a, act));
+    qa.receive(m1); qa.receive(m2);
     // b 這邊**不照號碼**，照到達順序硬套（模擬「沒有主機排序」）
     applyAction(b, m2.a); applyAction(b, m1.a);
 
@@ -88,10 +89,10 @@ describe('主機排序：號碼只有一份，兩邊照號碼套用', () => {
     const [m1, m2] = killRace(client.cs).m(seq);
 
     // 主機那邊照 1、2 到；客戶端那邊**反過來**先收到 2
-    host.q.receive(host.cs, m1);
-    host.q.receive(host.cs, m2);
-    client.q.receive(client.cs, m2);
-    client.q.receive(client.cs, m1);
+    host.q.receive(m1);
+    host.q.receive(m2);
+    client.q.receive(m2);
+    client.q.receive(m1);
 
     expect(combatFingerprint(client.cs), '收到的順序相反也不影響').toBe(combatFingerprint(host.cs));
     expect(diffOf(syncCheckOf(host.cs), syncCheckOf(client.cs))).toBeNull();
@@ -105,12 +106,12 @@ describe('主機排序：號碼只有一份，兩邊照號碼套用', () => {
     const m2 = seq.assign({ t: 'ready', seat: 1, on: true });
 
     const before = combatFingerprint(p.cs);
-    const r = p.q.receive(p.cs, m2);
+    const r = p.q.receive(m2);
     expect(r.applied, '2 號先到，但 1 號還沒來：一個都不套').toEqual([]);
     expect(r.waitingFor, '等的是 1 號').toBe(1);
     expect(combatFingerprint(p.cs), '狀態動都沒動').toBe(before);
 
-    const r2 = p.q.receive(p.cs, m1);
+    const r2 = p.q.receive(m1);
     expect(r2.applied.map((x) => x.seq), '1 號到了就一口氣補上 1、2').toEqual([1, 2]);
     expect(p.q.waiting).toBe(0);
   });
@@ -120,9 +121,9 @@ describe('主機排序：號碼只有一份，兩邊照號碼套用', () => {
     const seq = new Sequencer();
     const card = seq.assign({ t: 'card', seat: 0, u: (p.cs.players[0] as PlayerCombat).hand[0]!.uid, g: p.cs.enemies[0]!.uid });
 
-    p.q.receive(p.cs, card);
+    p.q.receive(card);
     const fp = combatFingerprint(p.cs);
-    const again = p.q.receive(p.cs, card);
+    const again = p.q.receive(card);
 
     expect(again.applied, '第二次什麼都不做').toEqual([]);
     expect(combatFingerprint(p.cs), '不會多打一張牌').toBe(fp);
@@ -136,13 +137,13 @@ describe('主機排序：號碼只有一份，兩邊照號碼套用', () => {
     const bad = seq.assign({ t: 'card', seat: 0, u: (p.cs.players[1] as PlayerCombat).hand[0]!.uid, g: p.cs.enemies[0]!.uid });
     const good = seq.assign({ t: 'ready', seat: 1, on: true });
 
-    const r = p.q.receive(p.cs, bad);
+    const r = p.q.receive(bad);
     expect(r.failed?.seq, '卡在 1 號').toBe(1);
     expect(r.applied).toEqual([]);
     expect(p.q.applied, '號碼不往前推，才看得出來是卡在哪').toBe(0);
 
     // 後面的動作也不會偷跑
-    const r2 = p.q.receive(p.cs, good);
+    const r2 = p.q.receive(good);
     expect(r2.applied).toEqual([]);
   });
 
@@ -154,13 +155,13 @@ describe('主機排序：號碼只有一份，兩邊照號碼套用', () => {
     /** 主機替一個動作編號，然後廣播給兩邊（客戶端刻意晚一步、順序打亂） */
     const broadcast = (a: CoopAction): void => {
       const m = seq.assign(a);
-      host.q.receive(host.cs, m);
+      host.q.receive(m);
       pendingToClient.push(m);
     };
     const pendingToClient: SequencedAction[] = [];
     const flushToClient = (): void => {
       // 故意反過來送，證明順序真的無所謂
-      for (const m of pendingToClient.reverse()) client.q.receive(client.cs, m);
+      for (const m of pendingToClient.reverse()) client.q.receive(m);
       pendingToClient.length = 0;
     };
 

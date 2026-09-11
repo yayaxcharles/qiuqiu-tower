@@ -12,7 +12,7 @@ import { Rng, seedFromString } from './rng';
 import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic,
+  finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
@@ -605,7 +605,7 @@ function fight(run: RunState, rng: Rng, encounterId: string | undefined, bonusFi
   stats.fights.push({ id: cs.encounterId, floor: run.floor, act: run.act, hpLost: hpIn - (r ? me(run).hp : 0), turns: cs.turn, won: !!r, str: cs.player.statuses['爪力'] ?? 0 });
   if (isBoss) stats.bosses.push({ id: cs.encounterId, act: run.act, hpIn, maxHp: me(run).maxHp, won: !!r, turns: cs.turn });
   if (!r) { stats.diedTo = (cs.turn > 200 ? '僵局:' : '') + cs.encounterId; return; }
-  if (r.cards.length) takeCardReward(run, r, pickCard(run, r.cards));
+  if (r.cards.length) { takeCardReward(run, r, pickCard(run, r.cards)); closeCardReward(r); }
 }
 
 /** 事件選項值多少：血少時看重回血、避開掉血；壞毛病是大扣分 */

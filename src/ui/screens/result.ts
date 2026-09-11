@@ -17,13 +17,14 @@ registerScreen('result', (app, root) => {
   play(app.run?.status === 'won' ? 'victory' : 'defeat');
   const run = app.run;
   if (!run) { app.show('title'); return; }
+  const seat = app.seat;   // 結算畫面也是看**自己**的牌組與秘寶（連線版 2026-09-11）
   const won = run.status === 'won';
   // 先記成績再清存檔：這一局到此為止，「續玩」從結算之後就該是反灰的
   const best = recordBest(run);
   clearSave();
 
   const relics = el('div', { class: 'result-relics' });
-  for (const id of me(run).relics) {
+  for (const id of me(run, seat).relics) {
     const d = relicById[id];
     if (!d) continue;
     const url = artUrl('icons', d.art);
@@ -48,14 +49,14 @@ registerScreen('result', (app, root) => {
     text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : '球球倒下了。'),
     extra: [
       el('div', { class: 'result-stats' },
-        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${me(run).deck.length} 張`),
+        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${me(run, seat).deck.length} 張`),
       el('div', { class: 'result-row' }, relics, seedTag(run.seed, true)),
       el('div', { class: 'result-best' }, `最佳成績：${best.floor}F${best.won ? `（通關，${best.turns} 回合）` : ''}`),
     ],
     actions: [
       el('button', {
         class: 'btn',
-        onclick: () => showDeckPicker({ title: `最終牌組（${me(run).deck.length} 張）`, cards: me(run).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
+        onclick: () => showDeckPicker({ title: `最終牌組（${me(run, seat).deck.length} 張）`, cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
       }, '看牌組'),
       el('button', { class: 'btn primary', onclick: () => { app.run = null; app.cs = null; app.show('title'); } }, '回到村子'),
     ],

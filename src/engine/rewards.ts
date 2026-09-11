@@ -16,6 +16,16 @@ export interface CombatRewards {
   upgradedCard?: string;
   /** 這場魔物是自己散掉的、你一隻都沒打倒：沒有戰利品，獎勵畫面要講清楚為什麼（稽核 2026-09-10 高-1） */
   escaped?: boolean;
+  /**
+   * 兩個人時攤出來的秘寶（規則三：出兩件各挑一件）。單機不填，走上面的 `relic`。
+   *
+   * 為什麼不把單機也改成長度 1 的陣列：`relic` 那條路是「直接塞進背包」，
+   * 這條是「攤出來等兩個人挑」，兩件事的流程完全不同；合成一個欄位的話，
+   * 每個讀它的地方都要再問一次「現在是哪一種」。
+   */
+  relicOffers?: string[];
+  /** 忍具帶滿、收不下這一支的座位（一人一個背包，滿的人不一定是同一個） */
+  potionMissedSeats?: number[];
 }
 
 const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];
@@ -107,7 +117,15 @@ export function settleRelicPicks(rng: Rng, offered: readonly string[], picks: re
  * `opts.rareBonus`＝稀有保底權重。兩者都只影響牌，不影響小魚乾／忍具／秘寶。
  */
 export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string[], winGoldBonus: number,
-  late = false, opts: { exclude?: string[]; rareBonus?: number; extraChoices?: number; upgradeChance?: number; hero?: Hero } = {}): CombatRewards {
+  late = false, opts: { exclude?: string[]; rareBonus?: number; extraChoices?: number; upgradeChance?: number; hero?: Hero;
+    /**
+     * 兩個人各自已經有的秘寶。填了就改開 `ownedPerSeat.length` 件讓他們各挑一件（規則三）；
+     * 不填就是單機，照舊只開一件直接給。
+     *
+     * 一人時 `rollRelicChoices(…, 1)` 跟 `rollRelic` 抽出來一模一樣（同候選、同一次 `rng.pick`），
+     * 所以這個參數不影響單機的亂數走向——四個定錨測試就是在盯這件事。
+     */
+    ownedPerSeat?: readonly string[][] } = {}): CombatRewards {
   const ex = opts.exclude ?? [];
   const hero = opts.hero ?? 'ninja';   // 職業獨占牌的過濾（2026-09-05）
   const bonus = opts.rareBonus ?? 0;
@@ -120,7 +138,13 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
     const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero);
     const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus, undefined, hero);
     const cards = rng.shuffle([...jue, ...rest]);
-    return { kind, cards, fish: 35 + winGoldBonus, potion: rng.chance(0.5) ? rollPotion(rng) : null, relic: rollRelic(rng, '大魔物', owned), ...withUpgrade(cards) };
+    const potion = rng.chance(0.5) ? rollPotion(rng) : null;
+    const seats = opts.ownedPerSeat;
+    if (seats && seats.length > 1) {
+      const offers = rollRelicChoices(rng, '大魔物', seats, seats.length);
+      return { kind, cards, fish: 35 + winGoldBonus, potion, relic: null, relicOffers: offers, ...withUpgrade(cards) };
+    }
+    return { kind, cards, fish: 35 + winGoldBonus, potion, relic: rollRelic(rng, '大魔物', owned), ...withUpgrade(cards) };
   }
   // 小魚乾 10～20 → 15～25：原本一關打完約 90 條，罐頭鋪一張常見牌 50、
   // 等於整關只逛得起一次店，商店形同虛設

@@ -13,7 +13,8 @@ import { me } from '../engine/runplayer';
  * 疊層規矩同 confirm.ts：疊層貼上去之後才 lockScreen。
  * `onDone(index)`：換掉了第幾支；不換回 -1。呼叫端自己決定要不要真的換（罐頭鋪要先付錢）。
  */
-export function showPotionSwap(run: RunState, newId: string, onDone: (index: number) => void, opts: { apply?: boolean; progress?: string } = {}): void {
+export function showPotionSwap(run: RunState, newId: string, onDone: (index: number) => void, opts: { apply?: boolean; progress?: string; seat?: number } = {}): void {
+  const seat = opts.seat ?? 0;   // 換的是**我的**背包，不是第一位的（連線版 2026-09-11）
   const layer = overlayRoot();
   const def = potionById[newId];
   if (!layer || !def) { onDone(-1); return; }
@@ -23,7 +24,7 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
     overlay.remove();
     unlockScreen();
     hideTooltip();
-    if (index >= 0 && opts.apply !== false) replacePotion(run, index, newId);
+    if (index >= 0 && opts.apply !== false) replacePotion(run, index, newId, seat);
     onDone(index);
   };
   const icon = (art: string, alt: string): Node | string => {
@@ -31,7 +32,7 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
     return url.startsWith('data:') ? '' : el('img', { src: url, alt });
   };
   const list = el('div', { class: 'swap-list' });
-  me(run).potions.forEach((id, i) => {
+  me(run, seat).potions.forEach((id, i) => {
     const p = potionById[id];
     if (!p) return;
     list.append(el('button', { class: 'swap-item', onclick: () => dismiss(i) },

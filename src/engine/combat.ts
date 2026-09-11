@@ -39,7 +39,7 @@ export function startCombat(input: {
     hand: [], drawPile: input.rng.shuffle(input.deck), discardPile: [], exhaustPile: [],
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
     noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
-    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {},
+    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0,
   };
   const cs: CombatState = {
     rng: input.rng,
@@ -51,9 +51,11 @@ export function startCombat(input: {
     // 回傳同一個陣列物件，所以 `cs.potions.splice` 改得動真正的資料
     get relics(): string[] { return (this.players[0] as PlayerCombat).relics; },
     get potions(): string[] { return (this.players[0] as PlayerCombat).potions; },
+    get fishDelta(): number { return (this.players[0] as PlayerCombat).fishDelta; },
+    set fishDelta(v: number) { (this.players[0] as PlayerCombat).fishDelta = v; },
     enemies: [],
     turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId,
-    stolenFish: 0, fishDelta: 0, energyGain: 0, damageDealt: 0, relicFired: [], kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
+    stolenFish: 0, energyGain: 0, damageDealt: 0, relicFired: [], kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
   };

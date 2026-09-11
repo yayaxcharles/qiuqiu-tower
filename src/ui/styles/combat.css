@@ -505,6 +505,20 @@
   top: 560px;
   z-index: 3;
 }
+/*
+ * 連線版舉手之後多出來的兩顆，疊在「結束回合」的正下方。
+ * 它們是**次要**動作：小字、小鈕、不搶眼，不然玩家會以為要按它們才收得了回合。
+ */
+.combat .end-undo,
+.combat .end-force {
+  position: absolute;
+  right: 20px;
+  z-index: 3;
+  font-size: 12.5px;
+  padding: 5px 12px;
+}
+.combat .end-undo { top: 612px; }
+.combat .end-force { top: 654px; }
 .combat .log {
   position: absolute;
   left: 16px;

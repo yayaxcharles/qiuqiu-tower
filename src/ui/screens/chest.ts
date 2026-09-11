@@ -1,7 +1,9 @@
 import { play } from '../audio';
 import { dialogue, pick } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
-import { openChest } from '../../engine/run';
+import { openChest, openChestCoop, runRng } from '../../engine/run';
+import { settleRelicPicks } from '../../engine/rewards';
+import { allVoted } from '../../engine/vote';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
@@ -9,6 +11,7 @@ import { toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { me } from '../../engine/runplayer';
 
 /**
  * 紙箱節點。**兩段**（使用者 2026-09-10：「一開始先是還沒打開的紙箱，球球準備要打開牠，
@@ -23,6 +26,36 @@ registerScreen('chest', (app, root) => {
   root.append(screenBg(actVariantKey('bg/screen_chest', app.run?.act ?? 1, app.run?.floor)));
   const run = app.run;
   if (!run) { app.show('title'); return; }
+  const seat = app.seat;
+  const coop = app.coop;
+
+  /*
+   * 兩個人一起開箱（規則三，2026-09-11）：**開兩件出來各挑一件**，
+   * 撞件就擲一次骰決定誰拿到自己挑的那件，輸的人自動拿剩下那件——
+   * 沒有人會空手，跟大魔物的秘寶戰利品同一套規則。
+   *
+   * **抽在進畫面就抽，不等點擊**（單機是點了才抽，為了不劇透）。
+   * 因為抽選會推進整局的亂數：等點擊的話，兩台機器推進的時機不一樣，
+   * 一個人先點、另一個人還在看，之後的地圖與戰利品就整個位移了。
+   * 早抽不會劇透——連線版在兩個人都挑完之前，秘寶根本還沒進任何人的背包。
+   */
+  const offers: string[] = coop ? openChestCoop(run) : [];
+  let settled = false;   // 結算只能跑一次（它會擲骰，跑兩次亂數就多走一步）
+  /**
+   * 我自己把箱子打開了沒。
+   *
+   * 對方先挑好時我也會收到通知，但**在我還沒點開箱子之前不可以重畫成開箱後的樣子**——
+   * 那會把我的開箱動畫直接跳掉，變成「箱子自己開了」。
+   */
+  let openedCoop = false;
+  /*
+   * **選擇不可以在畫面收尾時清掉**（2026-09-11 實測的坑）。
+   *
+   * 這裡本來掛了一個 `clearPicks` 的收尾，想說離開這一格就清乾淨。可是「有人投票」
+   * 的當下要重畫畫面，而重畫＝`app.show()`＝**先跑收尾再重建**——於是每投一票就被
+   * 自己清掉一次，兩邊永遠湊不齊、畫面完全沒反應、主控台也不會叫。
+   * 清的時機只有一個：**票結算完的那一刻**（下面設定的地方）。
+   */
 
   /**
    * **開箱要等玩家點下去才算數**，不能在進畫面時就先開。
@@ -32,6 +65,36 @@ registerScreen('chest', (app, root) => {
    * 懸念直接被劇透。所以第一段只畫沒開的箱子與當時的狀態列，點下去才開。
    * 抽選用的是 `runRng`，晚一點抽不影響同種子的重現（中間沒有別人動過那個亂數）。
    */
+  /*
+   * **連線的回呼要在「兩段式」那個早退之前掛好。**
+   *
+   * 下面那段（還沒開的箱子）掛完畫面就 `return` 了，所以原本擺在函式尾巴的註冊
+   * 根本跑不到——票投出去了、對面也收到了，可是自己這邊沒有人在聽，畫面完全不動。
+   * 實測就是這樣：`picks()` 明明有值，按鈕卻沒變灰。
+   */
+  const doneSeats = new Set<number>();
+  if (coop) {
+    // 兩個人都挑好了就結算（擲骰在兩台各跑一次，用的是整局的亂數，結果一樣）
+    coop.onPick((kind) => {
+      if (kind !== 'relic' || settled || !run) return;
+      const picks = coop.picks('relic', run.players.length);
+      if (!allVoted(picks, run.players.map((p) => !p.down))) { if (openedCoop) revealCoop(); return; }
+      settled = true;
+      const got = settleRelicPicks(runRng(run), offers, picks);
+      coop.clearPicks('relic');   // 結算完才清（收尾時清會把票清掉，見上面的說明）
+      const mine = got[seat];
+      if (mine) coop.submitRun({ t: 'relic', seat, id: mine });
+      play('relic');
+      if (openedCoop) revealCoop();
+    });
+    coop.onRunApplied((applied) => {
+      for (const one of applied) if (one.a.t === 'done') doneSeats.add(one.a.seat);
+      // 兩個人都按了「繼續」才一起上樓
+      if (run.players.every((p, i) => p.down || doneSeats.has(i))) { app.backToMap(); return; }
+      if (openedCoop) revealCoop();
+    });
+  }
+
   const closed = artUrl('bg', 'bg/event_chest_closed');
   if (!closed.startsWith('data:')) {
     renderHud(app, root);
@@ -74,6 +137,7 @@ registerScreen('chest', (app, root) => {
   /** 第二段：箱子開了。這一段跟兩段式之前的畫面完全一樣 */
   function reveal(): void {
     if (!run) return;
+    if (coop) { openedCoop = true; revealCoop(); return; }
     clearKeepBg(root);   // 底圖那一層要留著，clear(root) 會把它一起清掉、畫面看起來像當掉
     // 常見秘寶全部拿過的話會回 null，那就是一個空紙箱（引擎不會硬塞別的池子給你）
     const id = openChest(run);
@@ -147,4 +211,54 @@ registerScreen('chest', (app, root) => {
       actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')],
     }));
   }
+
+  /**
+   * 兩個人的第二段：兩件秘寶排出來，各挑一件。
+   *
+   * 挑好就不能改（跟選路線同一條理由：改來改去會讓兩邊的票面對不上，
+   * 而且「等對方先選再改」會讓選擇變成沒有意義的儀式）。
+   */
+  function revealCoop(): void {
+    if (!run || !coop) return;
+    clearKeepBg(root);
+    renderHud(app, root);
+    const picks = coop.picks('relic', run.players.length);
+    const myPick = picks[seat] ?? null;
+    const taken = me(run, seat).relics;
+
+    const row = el('div', { class: 'chest-offer-row' });
+    for (const id of offers) {
+      const d = relicById[id];
+      if (!d) continue;
+      const url = artUrl('icons', d.art);
+      const who = picks.map((v, i) => (v === id ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
+      const got = taken.includes(id);
+      const slot = el('button', { class: `chest-offer${myPick === id ? ' picked' : ''}${got ? ' got' : ''}` },
+        url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
+        el('b', {}, d.name),
+        el('span', { class: 'small' }, d.text),
+        who.length ? el('span', { class: 'chest-offer-who' }, who.join('、')) : '');
+      if (!myPick && !settled) slot.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
+      else slot.setAttribute('disabled', 'disabled');
+      row.append(slot);
+    }
+
+    const art = el('div', { class: 'chest-scene chest-opened' },
+      (() => { const u = artUrl('bg', 'bg/event_chest_open'); return u.startsWith('data:') ? '' : el('img', { class: 'event-art', src: u, alt: '' }); })(),
+      row);
+
+    const waiting = !!myPick && !settled;
+    const go = el('button', { class: 'btn primary', onclick: () => { if (settled) coop.submitRun({ t: 'done', seat }); } }, settled ? '繼續' : waiting ? '等對方挑…' : '先挑一件');
+    if (!settled) go.setAttribute('disabled', 'disabled');
+    root.append(sceneView({
+      art,
+      speaker: '紙箱',
+      text: offers.length === 0 ? '紙箱是空的——塔裡的秘寶全被你搬光了。'
+        : settled ? '兩個人各拿了一件，走吧。'
+          : waiting ? '挑好了，等同伴挑完就一起分。'
+            : '箱子裡有兩件，一人一件——挑你要的那件。',
+      actions: [go],
+    }));
+  }
+
 });

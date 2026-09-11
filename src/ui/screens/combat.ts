@@ -5,7 +5,7 @@ import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
-import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
+import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import { DEBUFFS } from '../../engine/types';
@@ -318,10 +318,31 @@ registerScreen('combat', (app, root, props) => {
    * 座位不存在時退回第一位（單機、或畫面比引擎早一步的那一拍）。
    */
   const my = (): PlayerCombat => cs.players[mySeat] ?? cs.player;
+  /** 同伴的動作套用**之前**那一刻的快照，`settle` 拿它比對出要演什麼 */
+  let remoteBefore: Snap | null = null;
+  /*
+   * 同伴上一次動作是多久以前——「等太久了，替他收回合」那顆按鈕靠這個決定要不要亮。
+   *
+   * **只有畫面這一層看時間**（理由寫在 `engine/combat.ts` 的 `forceReady`）：
+   * 引擎裡一旦出現「現在幾點」，兩台機器的秒差就會讓鎖步悄悄分岔。
+   * 這裡量出來的只是「要不要亮一顆按鈕」，真正收回合是按下去才送出的一個明確動作。
+   *
+   * 換回合自動歸零：`mateIdleMs()` 每秒被問一次，順手比對回合數，
+   * 所以不必在收回合那條路上另外記得清一次（那種「另一個地方也要記得改」最容易漏）。
+   */
+  let mateActAt = Date.now();
+  let mateTurnSeen = -1;
+  function mateIdleMs(): number {
+    if (mateTurnSeen !== cs.turn) { mateTurnSeen = cs.turn; mateActAt = Date.now(); }
+    return Date.now() - mateActAt;
+  }
   /** 有連線時，把動作送出去；沒有就在本機做掉。回傳 false＝這個動作現在做不出來 */
   const sendOrDo = (a: CoopAction, local: () => boolean): boolean => {
     if (!session) return local();
-    return session.submit(a);
+    const ok = session.submit(a);
+    // 送出去了就先上鎖；主機是同步套用的，`onApplied` 會在這一行之前就把鎖解掉
+    if (ok) lockSend();
+    return ok;
   };
   /**
    * 畫一位玩家。兩個人時靠 `playerLeft` 排位、`data-seat` 認人。
@@ -471,7 +492,32 @@ registerScreen('combat', (app, root, props) => {
 
   /** 可以操作嗎：分出勝負、還在等玩家選牌、收牌動畫還在跑的時候，出牌／忍具／結束回合都不受理 */
   let enemyTurnRunning = false;   // 魔物正在一隻一隻出手：這段期間不收玩家的操作
-  function canAct(): boolean { return !ended && !collecting && !enemyTurnRunning && cs.phase === 'player' && !cs.pending; }
+  /*
+   * **送出去還沒繞回來的那一下**（連線版 2026-09-11）。
+   *
+   * 客戶端的動作要等主機編號才真的生效，這中間畫面上的狀態還是舊的——
+   * 於是「連點兩張牌」會用同一份舊狀態送出兩個動作，第二個到主機時
+   * 可能已經不合法（魔物被第一張打倒了、回合收掉了）。
+   * 主機那邊現在會回一則「沒算數」而不是判分岔，但玩家看到的是
+   * 「我明明點了，牌卻還在手上」。乾脆一次只讓一個動作在路上。
+   *
+   * 主機自己不受影響：它的動作是同步套用的，`onApplied` 在 `submit` 裡就回來了，
+   * 這個鎖等於沒上過。所以不用另外判斷是不是主機。
+   */
+  let inflight = false;
+  /** 保險絲：訊息掉了的話不能讓玩家永遠按不動（正常一個來回 0.1～0.2 秒） */
+  let inflightTimer = 0;
+  function lockSend(): void {
+    inflight = true;
+    window.clearTimeout(inflightTimer);
+    inflightTimer = window.setTimeout(() => { inflight = false; render(); }, 3000);
+  }
+  function unlockSend(): void {
+    inflight = false;
+    window.clearTimeout(inflightTimer);
+  }
+  app.disposers.push(() => window.clearTimeout(inflightTimer));
+  function canAct(): boolean { return !ended && !collecting && !enemyTurnRunning && !inflight && cs.phase === 'player' && !cs.pending; }
 
   // ===== 元件 =====
 
@@ -1204,7 +1250,7 @@ registerScreen('combat', (app, root, props) => {
     }
     box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     box.querySelector('.hud')?.remove();
-    renderHud(app, box, cs.fishDelta);
+    renderHud(app, box, my().fishDelta);
     const endBtn = box.querySelector<HTMLElement>('.end-turn');
     if (endBtn) { if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }
     paintFlashes(performance.now());   // 狀態列剛重建，還在演的秘寶要補回去（稽核 2026-09-10 複核 中-1）
@@ -1239,9 +1285,46 @@ registerScreen('combat', (app, root, props) => {
     cs.enemies.forEach((e) => field.append(enemyUnit(e, lineup.indexOf(e.uid), lineup.length)));
     box.append(field, sidePanel(), handRow());
 
-    const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() }, '結束回合');
+    /*
+     * 連線版：按下去只是**舉手**，所以舉手之後這顆要換一張臉（使用者 2026-09-11：
+     * 「兩個人都點下結束另一人會知道嗎」）。
+     *
+     * 原本只有頭上那張「已結束回合」的牌子，可是那張牌子掛在**立繪**上，
+     * 而按鈕在右下角——玩家的眼睛在按鈕這邊，按完看到的還是一顆亮著的「結束回合」，
+     * 只會再按一次。按鈕自己要講「我已經舉手了，在等對方」。
+     */
+    /*
+     * **自己倒下的時候，按鈕要講實話**（規則四：倒下的人繼續看同伴打）。
+     *
+     * 引擎本來就擋著（`setReady` 看到 `down` 直接回 false），可是畫面照樣擺一顆亮著的
+     * 「結束回合」——按下去毫無反應，玩家只會以為當掉了。跟貓窩那邊同一個道理。
+     */
+    const iDown = !!session && !!my().down;
+    const iReady = !!session && !!my().ready;
+    const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() },
+      iDown ? '倒下了…看同伴打' : iReady ? '等對方…' : '結束回合');
     // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 掛 `no-touch` 那段）
-    if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled');
+    if (!canAct() || dealDelay > 0 || iReady || iDown) endBtn.setAttribute('disabled', 'disabled');
+    if (iReady && !iDown) {
+      /*
+       * 舉手要收得回來。引擎本來就收 `ready: false`（`setReady` 的第三個參數），
+       * 缺的只是一個按得到的地方——不給的話「手滑按到」等於整個回合報銷，
+       * 而兩個人玩的時候那個回合連對方一起賠進去。
+       */
+      box.append(el('button', { class: 'btn end-undo', onclick: () => onUnready() }, '再想想'));
+      /*
+       * 對方走開了：等超過一分鐘就亮出來（使用者 2026-09-11：
+       * 「超過一分鐘沒動作，另一人可以強制收回合」）。
+       *
+       * **刻意不做成時間到自動收**：兩邊的計時器不會同時響，自動收就變成
+       * 一邊已經進魔物回合、另一邊還在等——那是最難查的一種分岔。按下去才送動作。
+       * 先放進畫面再用 hidden 藏起來，是為了讓每秒的檢查只要開關一個屬性，
+       * 不必整頁重畫（重畫會把正在演的動畫全部打斷）。
+       */
+      const force = el('button', { class: 'btn end-force', onclick: () => onForce() }, '替他收回合');
+      force.hidden = true;
+      box.append(force);
+    }
     // 紀錄只留四行：六行時最後兩行會壓到球球的頭（2026-09-02 截圖檢查）
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },
@@ -1250,7 +1333,7 @@ registerScreen('combat', (app, root, props) => {
       el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕')));
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
-    renderHud(app, box, cs.fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
+    renderHud(app, box, my().fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
     root.append(box);
     paintFlashes(performance.now());   // 同 patchField：整頁重畫也要把還在演的秘寶補回去（稽核 2026-09-10 複核 中-1）
     // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
@@ -1542,6 +1625,23 @@ registerScreen('combat', (app, root, props) => {
       collecting = false;
       runEnemyTurn();
     }, wait);
+  }
+
+  /** 收回舉手：我還想再打一張牌 */
+  function onUnready(): void {
+    if (!session || !my().ready || cs.phase !== 'player') return;
+    sendOrDo({ t: 'ready', seat: mySeat, on: false }, () => true);
+  }
+
+  /**
+   * 替走開的那位收回合。按得到的時候一定只剩他還沒舉手（按鈕的顯示條件就是這個），
+   * 所以送出去之後兩邊都舉手了，收回合走的是跟平常一模一樣的那條路。
+   */
+  function onForce(): void {
+    if (!session || cs.phase !== 'player') return;
+    const w = waitingFor(cs);
+    if (w.length !== 1 || w[0] === mySeat) return;
+    sendOrDo({ t: 'force', seat: mySeat, w: w[0] as number }, () => true);
   }
 
   /**
@@ -2015,16 +2115,32 @@ registerScreen('combat', (app, root, props) => {
       }
     }, hold);
 
-    if (cs.phase !== 'player' && !ended) {
-      ended = true;
-      if (cs.phase === 'won') toast(dialogue.battleWin[Math.floor(Math.random() * dialogue.battleWin.length)] ?? '', '球球');
-      // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
-      const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
-      if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
-      // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
-      window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, bossWon ? 2400 : 1300);
-    }
+    checkOver();
     syncPicker();
+  }
+
+  /**
+   * 分出勝負了就收場：吐一句槽、站一下，然後交棒給戰利品畫面。
+   *
+   * **獨立成一支，而且每個會改到狀態的路徑都要叫**（連線版 2026-09-11 修）。
+   * 原本這段埋在 `settle()` 裡面，而客戶端打出最後一張牌時根本走不到：
+   * 客戶端的 `act()` 只負責「把動作送出去」，狀態要等主機編號繞回來才真的變，
+   * 那時 `settle()` 早就跑完了（那一刻魔物還活著）。繞回來的路徑是 `onApplied`，
+   * 它對「自己的動作」只呼叫 `render()`——而 `render()` 沒有這一段。
+   * 實測：客戶端補上最後一刀，主機進了戰利品畫面，客戶端卡在一場打完的戰鬥裡，
+   * 手牌還在、結束回合是灰的，兩個人就這樣各自等對方。
+   *
+   * `ended` 擋著，所以重複呼叫沒有副作用。
+   */
+  function checkOver(): void {
+    if (cs.phase === 'player' || ended) return;
+    ended = true;
+    if (cs.phase === 'won') toast(dialogue.battleWin[Math.floor(Math.random() * dialogue.battleWin.length)] ?? '', '球球');
+    // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
+    const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
+    if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
+    // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
+    window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, bossWon ? 2400 : 1300);
   }
 
   /**
@@ -2135,11 +2251,60 @@ registerScreen('combat', (app, root, props) => {
    */
   if (session) {
     session.attach(cs);
+    /*
+     * 每秒問一次「同伴閒置多久了」，到了就把那顆按鈕亮出來。
+     *
+     * 只改一個 `hidden` 屬性、不重畫：這支在整場戰鬥都醒著，重畫會把
+     * 正在演的傷害數字與姿勢動畫全部打斷，一秒一次等於整場都在抖。
+     * 畫面被接手（換節點、離開戰鬥）就自己停掉，所以也掛進 `disposers`。
+     */
+    const tick = window.setInterval(() => {
+      if (app.cs !== cs) { window.clearInterval(tick); return; }
+      const force = root.querySelector<HTMLButtonElement>('.end-force');
+      if (!force) return;
+      const w = waitingFor(cs);
+      force.hidden = !(w.length === 1 && w[0] !== mySeat && mateIdleMs() >= IDLE_FORCE_MS);
+    }, 1000);
+    app.disposers.push(() => window.clearInterval(tick));
+    /*
+     * **同伴的動作也要演出來**，不能只是把數字換掉（使用者 2026-09-11：
+     * 「另外一人要看到自己做了哪些事情、怪物有哪些變化」）。
+     *
+     * 用的是既有的 `settle()`——那支本來就是「拿一份動作前的快照，比對現在，
+     * 把差出來的東西演成傷害數字、魔物後仰、狀態圖示跳動」。
+     * 自己出牌走的也是它，所以同伴的動作跟自己的動作看起來是同一套語言，
+     * 不會變成「我的牌有演出、他的牌只是數字跳」。
+     *
+     * 為什麼不另外寫一套：那等於把同一件事（狀態差 → 畫面表現）寫兩遍，
+     * 遲早會有一邊漏掉某種效果，而且漏掉的那一種只在連線時才看得出來。
+     *
+     * 快照要在**套用之前**拿——`ingest` 是同步的，所以這裡的 `before`
+     * 必須由 session 在套用前先存好（見下面的 `beforeApply`）。
+     */
+    session.beforeApply(() => { remoteBefore = snap(cs, my()); });
+    // 我那一下沒算數（主機已經來不及了）：把手放開，畫面重畫回真實的狀態
+    session.onDropped(() => { unlockSend(); if (app.cs === cs) render(); });
     session.onApplied((applied) => {
       if (!applied.length || app.cs !== cs) return;
-      // 遠端的動作沒有本機的動畫時序可用，先整頁重畫把狀態補上——
-      // 替同伴做動作演出是下一步，那要把收到的動作排成他自己的時序
-      render();
+      unlockSend();   // 有東西套進去了＝路上那一下回來了
+      const mine = applied.every((a) => 'seat' in a.a && a.a.seat === mySeat);
+      if (!mine) { mateActAt = Date.now(); mateTurnSeen = cs.turn; }   // 他動了，一分鐘重頭算
+      /*
+       * **主機自己的動作在這之前就演過了**（`submit` 是同步套用的，`act()` 裡的
+       * `settle` 已經比對過前後），所以只要重畫；其餘都要演。
+       *
+       * 客戶端自己的動作也算「要演」：它送出去的當下狀態沒有變，
+       * 真正改變是在這裡發生的——不演的話，客戶端出的牌只有數字會跳，
+       * 傷害數字、魔物後仰、姿勢全部沒有（而且分出勝負也不會被發現，見 `checkOver`）。
+       *
+       * `light` 只給**同伴的**動作：那不重排手牌（他的牌不在我手上，重排會讓我的手牌無故抖一下）；
+       * 自己的動作手牌真的少了一張，要照常重排。
+       */
+      const alreadyShown = mine && !!session.isHost;
+      if (!alreadyShown && remoteBefore) settle(remoteBefore, { light: !mine });
+      else render();
+      remoteBefore = null;
+      checkOver();   // 最後一刀是誰補的都一樣，分出勝負就要收場
       if (allReady(cs)) {
         session.endOfTurn();      // 收回合之前先對一次帳，分岔要在這裡就抓到
         sfx('turn_end');

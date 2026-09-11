@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { rollRelic, rollRelicChoices, settleRelicPicks } from '../../src/engine/rewards';
-import { REVIVE_RATIO, addCard, newRun, revivePartner } from '../../src/engine/run';
+import { REVIVE_RATIO, addCard, closeCardReward, newCoopRun, newRun, revivePartner, takeCardReward } from '../../src/engine/run';
+import { cardById } from '../../src/content/cards';
 import { STARTER_DECK } from '../../src/content/cards';
 import { me } from '../../src/engine/runplayer';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { relics } from '../../src/content/relics';
+import type { CombatRewards } from '../../src/engine/rewards';
 import type { RunPlayer } from '../../src/engine/types';
 
 /*
@@ -129,5 +131,66 @@ describe('牌號在整局裡不能撞（兩個人的牌組共用一個號碼池�
     expect(b.length, '二號真的拿到牌了').toBeGreaterThan(0);
     expect(a.filter((u) => b.includes(u)), '兩副牌不可以有同號的').toEqual([]);
     expect(new Set([...a, ...b]).size, '合起來也不能有重複').toBe(a.length + b.length);
+  });
+});
+
+describe('規則三後半：兩個人從同一份戰利品各挑一張牌', () => {
+  function twoPlayerRun2(): ReturnType<typeof newCoopRun> { return newCoopRun('reward2', 1); }
+
+  it('各拿各的：兩張不同的牌分別進兩副牌組', () => {
+    const run = twoPlayerRun2();
+    const a0 = me(run).deck.length; const a1 = run.players[1]!.deck.length;
+    const r: CombatRewards = { kind: '戰鬥', cards: [
+      { ...cardById['sanjo']! }, { ...cardById['tanding']! },
+    ], fish: 0, potion: null, relic: null };
+
+    takeCardReward(run, r, 'sanjo', 0);
+    takeCardReward(run, r, 'tanding', 1);
+    closeCardReward(r);
+
+    expect(me(run).deck.length).toBe(a0 + 1);
+    expect(run.players[1]!.deck.length).toBe(a1 + 1);
+    expect(me(run).deck.at(-1)?.cardId).toBe('sanjo');
+    expect(run.players[1]!.deck.at(-1)?.cardId).toBe('tanding');
+  });
+
+  it('**兩個人可以挑同一張**（那是一份清單，不是一疊實體牌）', () => {
+    const run = twoPlayerRun2();
+    const r: CombatRewards = { kind: '戰鬥', cards: [{ ...cardById['sanjo']! }], fish: 0, potion: null, relic: null };
+    takeCardReward(run, r, 'sanjo', 0);
+    takeCardReward(run, r, 'sanjo', 1);
+    closeCardReward(r);
+    expect(me(run).deck.at(-1)?.cardId).toBe('sanjo');
+    expect(run.players[1]!.deck.at(-1)?.cardId).toBe('sanjo');
+  });
+
+  it('**第一位挑完不會把戰利品清掉**（清掉的話第二位會靜靜落空）', () => {
+    const run = twoPlayerRun2();
+    const r: CombatRewards = { kind: '戰鬥', cards: [{ ...cardById['sanjo']! }, { ...cardById['tanding']! }], fish: 0, potion: null, relic: null };
+    takeCardReward(run, r, 'sanjo', 0);
+    expect(r.cards.length, '還沒關，第二位才挑得到').toBe(2);
+    closeCardReward(r);
+    expect(r.cards.length, '關掉之後就不能再挑了').toBe(0);
+  });
+
+  it('放棄（傳 null）不會拿到牌，也不影響另一位', () => {
+    const run = twoPlayerRun2();
+    const a0 = me(run).deck.length; const a1 = run.players[1]!.deck.length;
+    const r: CombatRewards = { kind: '戰鬥', cards: [{ ...cardById['sanjo']! }], fish: 0, potion: null, relic: null };
+    takeCardReward(run, r, null, 0);
+    takeCardReward(run, r, 'sanjo', 1);
+    closeCardReward(r);
+    expect(me(run).deck.length, '我放棄了').toBe(a0);
+    expect(run.players[1]!.deck.length, '他照拿').toBe(a1 + 1);
+  });
+
+  it('兩副牌組的牌號還是不撞（各拿各的也共用同一個號碼池）', () => {
+    const run = twoPlayerRun2();
+    const r: CombatRewards = { kind: '戰鬥', cards: [{ ...cardById['sanjo']! }], fish: 0, potion: null, relic: null };
+    takeCardReward(run, r, 'sanjo', 0);
+    takeCardReward(run, r, 'sanjo', 1);
+    closeCardReward(r);
+    const a = me(run).deck.map((c) => c.uid); const b = run.players[1]!.deck.map((c) => c.uid);
+    expect(a.filter((u) => b.includes(u))).toEqual([]);
   });
 });

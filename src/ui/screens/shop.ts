@@ -2,7 +2,8 @@ import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
-import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShop, potionCapacity, reshuffleShop, shopMulFor } from '../../engine/run';
+import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShop, potionCapacity, priceFor, reshuffleShop, shopMulFor } from '../../engine/run';
+import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
 import type { RunState } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -29,6 +30,38 @@ registerScreen('shop', (app, root) => {
   // 進貨只做一次：makeShop 會推進 run.rng，每次重畫都叫的話買一樣東西整個貨架就換一批
   const shop = makeShop(run);
   const line = dialogue.shopkeeper[Math.floor(Math.random() * dialogue.shopkeeper.length)] ?? '';
+
+  /*
+   * 兩個人一起逛（連線版 2026-09-11）。
+   *
+   * **貨架共用、錢包各自**：架上的東西只有一份，誰先買到就是誰的；
+   * 每個人付的錢照自己的折扣秘寶算（見 `priceFor`）。
+   *
+   * 所有會改到東西的動作都要走 `act()`——直接呼叫引擎的話只有自己這台會動，
+   * 對面的貨架還留著那一格，下一次對帳就分岔。
+   */
+  const seat = app.seat;
+  const coop = app.coop;
+  if (coop) {
+    coop.attachShop(shop);
+    // 離開這一格時一定要斷開，不然下一格收到一則遲到的買東西，會拿新畫面去套舊貨架
+    app.disposers.push(() => coop.attachShop(null));
+  }
+  /** 誰按了「離開」。兩個人都按了才真的上樓——先按的那位不該把還在逛的人拖走 */
+  const done = new Set<number>();
+  const allDone = (): boolean => run.players.every((p, i) => p.down || done.has(i));
+
+  /**
+   * 做一件會改到東西的事。單機直接做；連線送出去，等編號繞回來才真的生效。
+   *
+   * 回傳 false＝現在做不出來（錢不夠、被買走了）。連線時回 true 只代表「送出去了」，
+   * 真正的結果要看 `onRunApplied`——**所以呼叫端不可以在這裡就播音效**，
+   * 不然搶輸的那一位會聽到成交聲卻什麼都沒買到。
+   */
+  const act = (a: RunAction, local: () => boolean): boolean => {
+    if (!coop) return local();
+    return coop.submitRun(a);
+  };
 
   /**
    * 老闆站在對白框左邊講話（劇場版面）；立繪沒生好就只留對白。
@@ -88,7 +121,7 @@ registerScreen('shop', (app, root) => {
   function priceNode(price: number, sold: boolean, base?: number, sale?: number): HTMLElement {
     if (sold) return el('div', { class: 'price' }, '賣掉了');
     if (sale && base !== undefined) {
-      const orig = Math.round(base * shopMulFor(run));
+      const orig = Math.round(base * shopMulFor(run, seat));
       return el('div', { class: 'price sale' }, el('s', {}, String(orig)), el('b', {}, `${price} 條小魚乾`));
     }
     return el('div', { class: 'price' }, `${price} 條小魚乾`);
@@ -97,7 +130,7 @@ registerScreen('shop', (app, root) => {
 
   function stall(key: string, name: string, text: string, price: number,
     sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number): HTMLElement {
-    const afford = me(run).fish >= price;
+    const afford = me(run, seat).fish >= price;
     const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}` },
       saleTag(sold ? undefined : sale),
       icon(key, name),
@@ -115,17 +148,39 @@ registerScreen('shop', (app, root) => {
       el('div', { class: 'shelf-label' }, label), body);
   }
 
+  /**
+   * 成交了：播音效、老闆笑一下、重畫。
+   *
+   * 單機按下去就是成交；連線時這支要**等動作繞回來才叫**（見 `act` 的說明），
+   * 不然兩個人同時搶同一格，搶輸的那位會聽到成交聲、看到貨架沒變。
+   */
+  function bought(sound: 'buy' | 'relic' | 'upgrade'): void {
+    if (coop) return;   // 連線的統一由 onRunApplied 處理
+    play(sound); setMood('happy'); render();
+  }
+
+  /** 離開：單機直接走；連線要兩個人都按了才一起上樓 */
+  function leaveBtn(): HTMLElement {
+    if (!coop) return el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開');
+    const mine = done.has(seat);
+    const btn = el('button', { class: 'btn primary', onclick: () => { if (!mine) coop.submitRun({ t: 'done', seat }); } },
+      mine ? '等對方逛完…' : '逛好了');
+    if (mine) btn.setAttribute('disabled', 'disabled');
+    return btn;
+  }
+
   function render(): void {
     clearKeepBg(root);
     renderHud(app, root);
 
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
-      const buyable = !it.sold && me(run).fish >= it.price;
+      const price = priceFor(run, it, seat);
+      const buyable = !it.sold && me(run, seat).fish >= price;
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         saleTag(it.sold ? undefined : it.sale),
-        cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { if (buyCard(run, shop, i)) { play('buy'); setMood('happy'); render(); } } }),   // 升級格照＋版畫
-        priceNode(it.price, it.sold, it.base, it.sale));
+        cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { act({ t: 'buy', seat, k: 'card', i }, () => buyCard(run, shop, i, seat)) && bought('buy'); } }),   // 升級格照＋版畫
+        priceNode(price, it.sold, it.base, it.sale));
       // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
       if (!it.sold && !buyable) slot.addEventListener('click', () => setMood('no'));
       cards.append(slot);
@@ -138,34 +193,35 @@ registerScreen('shop', (app, root) => {
       const d = relicById[it.id];
       if (!d) return;
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
-      const owned = me(run).relics.includes(it.id);
-      relics.append(stall(d.art, d.name, d.text, it.price, it.sold || owned, false,
-        () => { if (buyRelic(run, shop, i)) { play('relic'); setMood('happy'); render(); } }, it.base, it.sale));
+      const owned = me(run, seat).relics.includes(it.id);
+      relics.append(stall(d.art, d.name, d.text, priceFor(run, it, seat), it.sold || owned, false,
+        () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
       const d = potionById[it.id];
       if (!d) return;
       // 帶滿了還是能買：先問要換掉哪一支，選了才付錢（2026-09-02）
-      const full = me(run).potions.length >= potionCapacity(run);
-      const poor = me(run).fish < it.price;
-      potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, it.price, it.sold, poor,
+      const full = me(run, seat).potions.length >= potionCapacity(run, seat);
+      const price = priceFor(run, it, seat);
+      const poor = me(run, seat).fish < price;
+      potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, price, it.sold, poor,
         () => {
-          if (!full) { if (buyPotion(run, shop, i)) { play('buy'); setMood('happy'); render(); } return; }
-          showPotionSwap(run, it.id, (idx) => { if (idx >= 0 && buyPotion(run, shop, i, idx)) { play('buy'); setMood('happy'); render(); } }, { apply: false });
+          if (!full) { act({ t: 'buy', seat, k: 'potion', i }, () => buyPotion(run, shop, i, undefined, seat)) && bought('buy'); return; }
+          showPotionSwap(run, it.id, (idx) => { if (idx >= 0) act({ t: 'buy', seat, k: 'potion', i, r: idx }, () => buyPotion(run, shop, i, idx, seat)) && bought('buy'); }, { apply: false, seat });
         }, it.base, it.sale));
     });
 
     // 放生：挑完先跳確認（使用者 2026-09-04：「選牌後沒有跳確定」），按「再看看」回牌堆重挑
     const pickRelease = (): void => showDeckPicker({
-      title: `放生一張牌（${me(run).removeCost} 條小魚乾）`, cards: me(run).deck, pickable: true, cancellable: true,
+      title: `放生一張牌（${me(run, seat).removeCost} 條小魚乾）`, cards: me(run, seat).deck, pickable: true, cancellable: true,
       onPick: (uid) => {
-        const c = uid === null ? undefined : me(run).deck.find((x) => x.uid === uid);
+        const c = uid === null ? undefined : me(run, seat).deck.find((x) => x.uid === uid);
         if (uid === null || !c) { render(); return; }
-        showRemoveConfirm(c, me(run).removeCost, (ok) => {
+        showRemoveConfirm(c, me(run, seat).removeCost, (ok) => {
           if (!ok) { pickRelease(); return; }
           // 放生成功也要重畫：牌組少一張、小魚乾也扣了（本來靠 setMood 順便重畫，那條路已經拆掉）
-          if (buyRemove(run, uid)) { play('upgrade'); setMood('happy'); }
+          if (act({ t: 'scrub', seat, u: uid }, () => buyRemove(run, uid, seat))) bought('upgrade');
           render();
         });
       },
@@ -173,15 +229,15 @@ registerScreen('shop', (app, root) => {
     const remove = el('button', {
       class: 'btn',
       onclick: () => pickRelease(),
-    }, `放生一張牌：${me(run).removeCost} 條小魚乾`);
-    if (me(run).fish < me(run).removeCost || me(run).deck.length === 0) remove.setAttribute('disabled', 'disabled');
+    }, `放生一張牌：${me(run, seat).removeCost} 條小魚乾`);
+    if (me(run, seat).fish < me(run, seat).removeCost || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
-    const reshuffle = el('button', { class: 'btn', onclick: () => { if (reshuffleShop(run, shop)) { play('buy'); setMood('happy'); render(); } } },
+    const reshuffle = el('button', { class: 'btn', onclick: () => { act({ t: 'shuffle', seat }, () => reshuffleShop(run, shop, seat)) && bought('buy'); } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
     // 有沒有東西可換要看三區加總，不能只看牌格（稽核 2026-09-07 中 1）：
     // 牌全買光但秘寶或忍具還在架上時，引擎讓你換、按鈕卻是灰的，等於這次改動玩家碰不到
     const anyLeft = [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
-    if (shop.reshuffled || me(run).fish < RESHUFFLE_COST || !anyLeft) reshuffle.setAttribute('disabled', 'disabled');
+    if (shop.reshuffled || me(run, seat).fish < RESHUFFLE_COST || !anyLeft) reshuffle.setAttribute('disabled', 'disabled');
 
     // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
@@ -193,8 +249,19 @@ registerScreen('shop', (app, root) => {
       portrait: keeperArt(),
       speaker: '橘貓老闆',
       text: line,
-      actions: [reshuffle, remove, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開')],
+      actions: [reshuffle, remove, leaveBtn()],
     }));
+  }
+
+  if (coop) {
+    coop.onRunApplied((applied) => {
+      for (const one of applied) {
+        if (one.a.t === 'done') done.add(one.a.seat);
+        else if (one.a.seat === seat) { play(one.a.t === 'buy' && one.a.k === 'relic' ? 'relic' : one.a.t === 'scrub' ? 'upgrade' : 'buy'); setMood('happy'); }
+      }
+      if (allDone()) { app.backToMap(); return; }
+      render();
+    });
   }
 
   render();

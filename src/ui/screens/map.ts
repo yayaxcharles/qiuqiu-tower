@@ -96,14 +96,15 @@ registerScreen('map', (app, root) => {
    * 票**不能改**：改票會讓兩邊的票面對不上（我看到你改了、你看到我還沒改），
    * 而且「我先投了看對方怎麼投再改」會讓投票變成沒有意義的儀式。
    */
-  const votes: (string | null)[] = app.coop ? app.coop.votes(run.players.length) : [];
+  const votes: (string | null)[] = app.coop ? app.coop.picks('map', run.players.length) : [];
   if (app.coop) {
     const coop = app.coop;
-    coop.onVote(() => {
-      const now = coop.votes(run.players.length);
+    coop.onPick((kind) => {
+      if (kind !== 'map') return;
+      const now = coop.picks('map', run.players.length);
       if (!allVoted(now, run.players.map((p) => !p.down))) { app.show('map'); return; }
       const pick = settleVotes(runRng(run), now);
-      coop.clearVotes();
+      coop.clearPicks('map');
       if (pick) app.enterNode(pick); else app.show('map');
     });
   }
@@ -222,7 +223,7 @@ registerScreen('map', (app, root) => {
         // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
         if (!app.coop) { app.enterNode(n.id); return; }
         if (votes[app.seat]) return;   // 投過了就不能改——改票會讓兩邊的票面對不上
-        app.coop.vote(n.id);
+        app.coop.pick('map', n.id);
       });
     }
     // 誰投了這一格：在格子上掛一個小記號，兩個人才知道對方想去哪

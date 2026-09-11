@@ -164,13 +164,42 @@ describe('分岔：抓到就停，不要繼續玩兩份不一樣的遊戲', () =
     expect(combatFingerprint(t.host.cs)).toBe(fp);
   });
 
-  it('對方送來一個這邊做不出來的動作＝已經對不上了，**不可以默默丟掉**', () => {
+  it('同一則請求到兩次：丟掉第二次，**不可以當成分岔**（重送、回聲都會這樣）', () => {
+    const t = table('dupreq');
+    const uid = firstCard(t.guest.cs, 1);
+    const foe = t.guest.cs.enemies[0]!.uid;
+    const before = combatFingerprint(t.host.cs);
+    // 同一則請求原封不動送兩次（`n` 一樣＝同一則）
+    const msg = { m: 'req' as const, n: 1, a: { t: 'card' as const, seat: 1, u: uid, g: foe } };
+    t.link.b.send(msg);
+    const after = combatFingerprint(t.host.cs);
+    t.link.b.send(msg);
+    expect(t.host.desync.length, '重複不是分岔').toBe(0);
+    expect(t.host.s.stopped).toBe(false);
+    expect(after, '第一次真的打出去了').not.toBe(before);
+    expect(combatFingerprint(t.host.cs), '第二次什麼都沒發生').toBe(after);
+  });
+
+  it('對方送來一個這邊做不出來的動作＝**來不及了**，丟掉但不停整場', () => {
+    /*
+     * 為什麼不當成分岔：客戶端的狀態慢一個來回，它很可能在魔物已經倒下之後
+     * 才送出一張牌——那在它那邊完全合法。實測光是連點兩張牌就會踩到。
+     * 真正的分岔靠指紋抓（下面那兩個測試），這裡只要不套用就好。
+     */
     const t = table('mismatch');
-    // 繞過 submit 的自我檢查，直接把一個非法請求塞進線裡（模擬對方那邊狀態不同）
-    t.link.b.send({ m: 'req', a: { t: 'card', seat: 1, u: 987654, g: t.host.cs.enemies[0]!.uid } });
-    expect(t.host.desync.length, '主機當場發現').toBe(1);
-    expect(t.host.desync[0]).toContain('做不出來');
-    expect(t.host.s.stopped).toBe(true);
+    const fp = combatFingerprint(t.host.cs);
+    t.link.b.send({ m: 'req', n: 1, a: { t: 'card', seat: 1, u: 987654, g: t.host.cs.enemies[0]!.uid } });
+    expect(t.host.desync, '不是分岔').toEqual([]);
+    expect(t.host.s.stopped, '不停整場').toBe(false);
+    expect(combatFingerprint(t.host.cs), '也絕對不可以真的套進去').toBe(fp);
+  });
+
+  it('被丟掉的那一則會回報給送的人（畫面要靠它把鎖放開）', () => {
+    const t = table('droptell');
+    let dropped = 0;
+    t.guest.s.onDropped(() => { dropped += 1; });
+    t.link.b.send({ m: 'req', n: 1, a: { t: 'card', seat: 1, u: 987654, g: t.host.cs.enemies[0]!.uid } });
+    expect(dropped, '客戶端收得到「沒算數」').toBe(1);
   });
 
   it('斷線會通知，而且之後不再收動作', () => {

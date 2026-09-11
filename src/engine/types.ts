@@ -589,6 +589,14 @@ export interface PlayerCombat extends Unit {
   lethalPrevented: boolean;
   /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */
   freshDebuffs: Partial<Record<StatusName, number>>;
+  /**
+   * 這一場**自己**賺到（或被偷走）的小魚乾，打完才併回整局的錢包。
+   *
+   * 一人一份（規則一「各帶各的」）：銅錢劍是誰的、順手牽羊是誰打的、
+   * 山賊偷的是誰的錢，都要記在那個人頭上。放在整場共用的話，
+   * 連線時第二位打倒山賊拿回來的錢會跑進第一位的口袋。
+   */
+  fishDelta: number;
 }
 export interface EnemyCombat extends Unit {
   uid: number;
@@ -716,7 +724,12 @@ export interface CombatState {
   /** 先手香：這一輪魔物不出手（`beginEnemyTurn` 看到就整輪跳過，見 Effect 的 `skipEnemyTurn`） */
   skipEnemies?: boolean;
   stolenFish: number;       // 山賊偷走的，擊倒牠全部拿回
-  fishDelta: number;        // 牌效果賺到的小魚乾
+  /**
+   * 相容用的別名，**永遠等於 `players[0].fishDelta`**（真正的值在人身上）。
+   * 跟 `player`／`relics`／`potions` 同一套理由：`CombatState` 從頭到尾不存檔，
+   * 所以別名不會像 `RunState` 那樣被寫進瀏覽器變成一份會走鐘的死資料。
+   */
+  fishDelta: number;
   /**
    * 整場**憑空多出來**的飯糰累計（追擊退回來的、秘寶補的都算）。
    * 畫面拿它跟自己的快照相減，就知道這一拍有沒有多出飯糰、多幾顆。

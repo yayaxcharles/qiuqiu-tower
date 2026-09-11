@@ -39,14 +39,39 @@ interface LobbyState {
  * 進地圖而不是直接跳戰鬥：整局流程（選路、戰鬥、獎勵、回地圖）都走同一套，
  * 路線由兩個人投票決定（見 `engine/vote.ts`）。
  */
+/**
+ * 連線出問題（分岔、斷線）就在畫面最上方壓一條橫幅。
+ *
+ * **一定要做成全域的**：原本只有戰鬥畫面接 `onTrouble`，而它把訊息寫進自己的閉包再重畫。
+ * 一旦離開戰鬥（獎勵、地圖、商店），那個閉包指向的節點早就被丟掉了——
+ * 於是連線斷掉的當下**畫面上什麼都不會發生**，玩家只看到「點什麼都沒反應」。
+ * 實測就是這樣：獎勵畫面點牌毫無動靜，主控台也一片乾淨。
+ *
+ * 掛在 `document.body` 而不是舞台裡：舞台每換一個畫面就被清空一次。
+ */
+function troubleBanner(why: string): void {
+  /*
+   * **第一則留著，後面的不覆蓋。**
+   *
+   * 分岔的處理順序是「先報原因、再關掉連線」，而關掉連線又會觸發一次通知
+   *（訊息是「自己關掉了」）。覆蓋的話，畫面上留下的永遠是那句沒有資訊量的
+   * 「自己關掉了」，真正的病根——第一則寫著的那句——就被蓋掉了。
+   * 實測就是這樣：兩邊都只看到「自己關掉了」，查不出是哪裡對不上。
+   */
+  if (document.querySelector('.net-trouble')) return;
+  const bar = el('div', { class: 'net-trouble' }, `連線出問題：${why}`);
+  document.body.append(bar);
+}
+
 function startCoop(app: App, tx: Transport, isHost: boolean): void {
   const seat = isHost ? 0 : 1;
-  const session = new CoopSession(tx, { isHost, seat });
+  const session = new CoopSession(tx, { isHost, seat, onDesync: troubleBanner, onClose: troubleBanner });
   app.coop = session;
   app.seat = seat;
   const begin = (seed: string, diff: number): void => {
     // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）
     app.run = newCoopRun(seed, diff);
+    session.useRun(app.run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
     app.show('map');
   };

@@ -202,7 +202,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
       const e = cs.enemies.find((x) => x === attacker);
       if (e) {
         log(cs, `反彈回敬了${e.name} ${thorns} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
-        damageEnemy(cs, e, thorns, { direct: true, throughBlock: true });
+        damageEnemy(cs, e, thorns, { direct: true, throughBlock: true, by: p });
       }
     }
   }
@@ -368,7 +368,7 @@ export function willRevive(cs: CombatState, e: EnemyCombat): boolean {
   return cs.enemies.some((o) => o !== e && !o.dead && enemyById[o.enemyId]?.reviveGroup === rd.reviveGroup);
 }
 
-function killEnemy(cs: CombatState, e: EnemyCombat): void {
+function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
   e.dead = true;
   // 同生共死組的成員倒下就開始倒數「重生中」；沒有同組概念的魔物、或同伴已經都不在的維持 0
   // （同伴都不在的不該再占召喚名額，稽核 2026-09-04 L-4）
@@ -378,10 +378,16 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   cs.kills += 1;
   const def = enemyById[e.enemyId]!;
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
-  if (e.stolen > 0) { cs.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
+  /*
+   * 擊倒的那位（連線版 2026-09-11 補齊）。`damageEnemy` 一路帶下來「是誰打的」，
+   * 沒帶的（中毒結算那種沒有出手的人）退回第一位——單機兩者是同一個人，行為沒變。
+   *
+   * 這件事在連線時差很多：擊倒獎勵（能力、秘寶、拿回被偷的錢）本來全部發給第一位，
+   * 等於第二位打倒的魔物，好處進到對方口袋。
+   */
+  const killer = by ?? (cs.player as PlayerCombat);
+  if (e.stolen > 0) { killer.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
-  // 擊倒的那位（連線版第二步要由 damageEnemy 一路帶下來「是誰打的」，現在只有一位）
-  const killer = cs.player;
   if (!reviving) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
   // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
   if (!reviving) for (const rid of killer.relics) {
@@ -392,7 +398,7 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
     if (heals || h.killStrength || h.killFish) fireRelic(cs, rid);
     if (h.killHeal) healPlayer(cs, h.killHeal, killer);
     if (h.killStrength) addStatus(killer, '爪力', h.killStrength);
-    if (h.killFish) cs.fishDelta += h.killFish;
+    if (h.killFish) killer.fishDelta += h.killFish;
   }
   if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
 }
@@ -413,7 +419,9 @@ export function attackable(cs: CombatState, e: EnemyCombat): boolean {
 }
 
 export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
-  opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean; throughBlock?: boolean } = {}): { dealt: number; killed: boolean } {
+  opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean; throughBlock?: boolean;
+    /** 這一下是誰打的。擊倒獎勵與拿回被偷的錢要發給他；沒填就算第一位（單機只有一位） */
+    by?: PlayerCombat } = {}): { dealt: number; killed: boolean } {
   if (e.dead) return { dealt: 0, killed: false };
   // 蹲下調息中（血條式變身的過場）：無敵，什麼傷害都不吃
   if (e.invulnIn > 0) {
@@ -504,7 +512,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       runEnemyEffects(cs, e, next.onEnter, false, pickVictim(cs));
       return { dealt: lose, killed: false };
     }
-    killEnemy(cs, e);
+    killEnemy(cs, e, opts.by);
     return { dealt: lose, killed: true };
   }
   const sp = enemyById[e.enemyId]?.splitInto;
@@ -651,7 +659,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'statusPlayer': addStatus(p, fx.name, fx.amount); break;
       case 'heal': e.hp = Math.min(e.maxHp, e.hp + (fx.percent ? Math.round(e.maxHp * fx.percent / 100) : fx.n)); break;
       case 'stealFish':
-        e.stolen += fx.n; cs.stolenFish += fx.n; cs.fishDelta -= fx.n;
+        e.stolen += fx.n; cs.stolenFish += fx.n; p.fishDelta -= fx.n;
         // 逃跑冷卻從**第一次**偷到算起（見 `ESCAPE_GAP`）：再偷第二次不會把時鐘重設，
         // 不然牠可以一直偷一直重設、永遠不跑，玩家也永遠追不回那筆錢
         e.stolenTurn ??= cs.turn;

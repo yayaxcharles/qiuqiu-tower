@@ -4,7 +4,7 @@ import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion } from '
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
-import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
+import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import { potionById } from '../content/potions';
 import type { CombatState, RunState } from './types';
 import { me } from './runplayer';
@@ -65,7 +65,7 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
     playCombat(cs, rng, maxTurns, seed);
     const r = finishCombat(run, cs, outcome.fight.bonusFish);
     resolvePendingAfterFight(run, cs.phase === 'won');
-    if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
+    if (r && r.cards.length) { takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null); closeCardReward(r); }
     if (r) for (let i = 0; i < (outcome.fight.bonusUpgrades ?? 0); i++) {
       const cands = me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病');
       if (cands.length) upgradeCard(run, rng.pick(cands).uid);
@@ -88,7 +88,7 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {})
         const cs = beginCombat(run);
         playCombat(cs, rng, maxTurns, seed);
         const r = finishCombat(run, cs);
-        if (r && r.cards.length) takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null);
+        if (r && r.cards.length) { takeCardReward(run, r, rng.chance(0.7) ? rng.pick(r.cards).id : null); closeCardReward(r); }
         // 打倒前兩關的關主：挑一件過關秘寶、進下一關（跟玩家在過關畫面做的事一樣）
         if (node.type === '塔主' && run.status === 'playing' && run.act < ACTS) {
           const picks = rollActRelics(run);

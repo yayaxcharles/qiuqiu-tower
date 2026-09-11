@@ -1,4 +1,4 @@
-import type { CombatState, StatusName, Unit } from '../engine/types';
+import type { CardInstance, CombatState, RunState, StatusName, Unit } from '../engine/types';
 
 /**
  * 戰鬥狀態的指紋——**鎖步連線最重要的一道保險**。
@@ -45,7 +45,7 @@ export function combatFingerprint(cs: CombatState): string {
     `t${cs.turn}`, cs.phase, cs.encounterId,
     // 亂數狀態：走岔一步當下看不出來，下一次抽牌才爆開
     `r${cs.rng.state.a},${cs.rng.state.b},${cs.rng.state.c},${cs.rng.state.d}`,
-    `k${cs.kills}`, `c${cs.cardsPlayed}`, `f${cs.fishDelta}`, `s${cs.stolenFish}`,
+    `k${cs.kills}`, `c${cs.cardsPlayed}`, `s${cs.stolenFish}`,
   ];
   for (const p of cs.players) {
     parts.push([
@@ -54,7 +54,7 @@ export function combatFingerprint(cs: CombatState): string {
       statusOf(p),
       `h[${pile(p.hand)}]`, `d[${pile(p.drawPile)}]`, `x[${pile(p.discardPile)}]`, `z[${pile(p.exhaustPile)}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
-      `pw${p.powers.length}`, `dn${p.doubleNext}`,
+      `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`,
     ].join('|'));
   }
   for (const e of cs.enemies) {
@@ -68,4 +68,31 @@ export function combatFingerprint(cs: CombatState): string {
     ].join('|'));
   }
   return fnv1a(parts.join('\n')).toString(16).padStart(8, '0');
+}
+
+/**
+ * 整局的指紋（連線版 2026-09-11）。
+ *
+ * 戰鬥有指紋、整局沒有——於是**離開戰鬥之後的分岔完全看不見**。
+ * 實測撞到的就是這個：兩個人在地圖上投完票，各自走進**不一樣的**節點，
+ * 一個打犰狳寶寶、一個打黃瓜怪，兩邊的畫面都正常、主控台乾淨，
+ * 要等下一次戰鬥對帳才炸開，而且錯誤訊息指向戰鬥，查不到病根其實在地圖那一格。
+ *
+ * **亂數狀態排在最前面**：它是最早出現差異的地方（多跑一次抽選、少跑一次都算），
+ * 血量與牌組那些要再過好幾步才看得出來。
+ */
+export function runFingerprint(run: RunState): string {
+  const parts: string[] = [
+    `r${run.rng.a},${run.rng.b},${run.rng.c},${run.rng.d}`,
+    `a${run.act}`, `f${run.floor}`, `n${run.currentNode ?? '-'}`, `u${run.nextUid}`,
+    run.status,
+  ];
+  for (const p of run.players) {
+    parts.push([
+      `hp${p.hp}/${p.maxHp}`, `$${p.fish}`, `rm${p.removeCost}`, p.down ? 'DOWN' : '',
+      `d[${p.deck.map((c: CardInstance) => `${c.uid}.${c.cardId}${c.upgraded ? '+' : ''}`).join(' ')}]`,
+      `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
+    ].join('|'));
+  }
+  return fnv1a(parts.join('||')).toString(16).padStart(8, '0');
 }

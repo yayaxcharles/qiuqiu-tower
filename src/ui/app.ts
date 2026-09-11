@@ -194,6 +194,17 @@ export class App {
     const run = this.run;
     if (!run) return;
     const node = chooseNode(run, nodeId);
+    /*
+     * 走進一格的當下對一次整局的帳（連線版 2026-09-11）。
+     *
+     * 戰鬥外本來完全沒有對帳點，所以地圖、商店、事件裡的分岔會拖到下一場戰鬥才炸開，
+     * 而那時的錯誤訊息指著戰鬥，真正的病根在好幾十秒之前的另一個畫面。
+     * 實測撞到的就是這種：兩個人投完票各自走進不一樣的節點，兩邊畫面都很正常。
+     *
+     * 擺在 `chooseNode` **之後**：那一支會把 `currentNode` 推到新的一格，
+     * 對的就是「我們是不是真的走到同一格」——這正是要盯的那件事。
+     */
+    this.coop?.syncRun(run, nodeId);
     // 這裡不存檔（見 save() 的註解）：節點結算完才存，重整就回到上一個結算過的節點重選。
     // 曾經在這裡插過一秒的走路過場（參考《Take Me To The Dungeon!!》），
     // 實際玩起來每一場都要等、很卡節奏，拆掉了；換場的感覺交給畫面淡入就好
@@ -313,7 +324,7 @@ export class App {
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         // 師父醒來的第一句依這一路的打法換（爪力／隱身／蜷縮流），難度 4 以上多一句旁白（使用者 2026-09-04）
-        const vic = victoryLinesFor(me(run).deck.map((c) => c.cardId), run.difficulty ?? 1);
+        const vic = victoryLinesFor(me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1);
         // 第一張圖（相擁）放到「撲進師父懷裡」那句為止，之後的（回家路、難度旁白）配第二張
         const cut = Math.max(1, vic.findIndex((l) => l.text.includes('撲進')) + 1);
         const endSlides = [

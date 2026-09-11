@@ -11,7 +11,7 @@ import { me } from '../engine/runplayer';
  * 點任何一件秘寶圖示或「+N」就開這個視窗，一行一件（圖、名字、說明），最新的排最前面，
  * 不用再一顆一顆滑上去看提示。疊層規矩同 potionswap.ts：貼上去之後才 lockScreen，關掉就 unlock。
  */
-export function showRelicList(run: RunState): void {
+export function showRelicList(run: RunState, seat = 0): void {
   const layer = overlayRoot();
   if (!layer) return;
   hideTooltip();
@@ -23,7 +23,7 @@ export function showRelicList(run: RunState): void {
     unlockScreen();
     hideTooltip();
   };
-  const ids = [...me(run).relics].reverse();   // 最新的排最前面，跟狀態列的順序一致
+  const ids = [...me(run, seat).relics].reverse();   // 最新的排最前面，跟狀態列的順序一致
   const list = el('div', { class: 'swap-list relic-list' });
   for (const id of ids) {
     const r = relicById[id];

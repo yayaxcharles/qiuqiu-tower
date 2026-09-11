@@ -52,7 +52,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         // 背刺：目標身上沒有任何減益，這一段就不打
         if (fx.ifTargetDebuffed && !DEBUFFS.some((d) => getStatus(t, d) > 0)) continue;
         for (let i = 0; i < times; i++) {
-          const r = damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion' });
+          const r = damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion', by: p });
           if (r.killed) { if (!t.reviveIn) ctx.killed = true; break; }   // 同生共死的「暫時倒下」不算擊倒，跟 killEnemy 不發擊倒能力同口徑（稽核 中-3）
         }
       }
@@ -63,7 +63,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const plays = ctx.cardUid !== undefined ? (cs.cardPlays?.[ctx.cardUid] ?? 0) : 0;
       const base = (fx.amount + fx.step * plays) * (ctx.doubleDamage ? 2 : 1);
       for (const t of targetsOf(cs, ctx, false)) {
-        const r = damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion' });
+        const r = damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion', by: p });
         if (r.killed) ctx.killed = true;
       }
       return false;
@@ -87,7 +87,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         const hittable = alive.filter((e) => attackable(cs, e));
         if (!hittable.length) { log(cs, '雷光劈了下去，卻沒有一隻打得到'); break; }
         const t = cs.rng.pick(hittable);
-        if (damageEnemy(cs, t, fx.amount * (ctx.doubleDamage ? 2 : 1), { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
+        if (damageEnemy(cs, t, fx.amount * (ctx.doubleDamage ? 2 : 1), { noStrength: ctx.source === 'potion', by: p }).killed) ctx.killed = true;
       }
       return false;
     }
@@ -100,7 +100,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const base = cs.rng.int(fx.min, fx.max) * (ctx.doubleDamage ? 2 : 1);
       // 忍具的傷害不吃爪力，跟 damage／damageRamp 同口徑（稽核 2026-09-10 低-4：只有這個分支漏寫，
       // 目前沒有隨機傷害的忍具所以還沒出事，但補上比較保險）
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
+      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion', by: p }).killed) ctx.killed = true;
       return false;
     }
     case 'selfDamage': {
@@ -206,7 +206,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     // `percent`＝回最大生命的百分之幾（起死回生丹）。用最大生命當基準不是「缺的血」：
     // 缺得越多回越多會變成「越晚喝越賺」，那會逼玩家故意拖到快死
     case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p); return false;
-    case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
+    case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
     case 'power':
       // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來
       p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}), ...(ctx.cardUpgraded ? { upgraded: true } : {}) });
@@ -227,7 +227,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 紀錄卻已經印了「秘笈：第一擊加倍」。一飯糰的蓄力或一件 190 條的秘寶就這樣被靜靜吃掉。
       //（「絕學·太極」也是這個分支，但它是技能牌、本來就吃不到加倍，不受影響）
       const base = p.block * (ctx.doubleDamage ? 2 : 1);
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: true }).killed) ctx.killed = true;
+      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: true, by: p }).killed) ctx.killed = true;
       return false;
     }
     case 'cleanse': {

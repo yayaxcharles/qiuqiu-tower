@@ -170,6 +170,30 @@
 /* 左邊那條粗邊依戰利品種類換色，一眼看得出這行是錢、是秘寶還是忍具 */
 .reward-item.loot { border-left-color: #c9a227; }
 .reward-item.relic { border-left-color: #7a3fae; }
+/* 連線版：秘寶兩件並排讓兩個人各挑一件（規則三）。
+   排在戰利品清單裡，所以整塊改成上下排（標題一行、兩件並排一行）。 */
+.reward-item.relic-offers { flex-direction: column; align-items: stretch; gap: 8px; border-left-color: #7a3fae; }
+.relic-offer-row { display: flex; gap: 12px; }
+.relic-offer {
+  flex: 1 1 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border: 2px solid #6b5a45;
+  border-radius: 10px;
+  background: #2a2118cc;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.relic-offer:hover:not([disabled]) { border-color: #ffd98a; background: #3a2c1ecc; }
+.relic-offer[disabled] { cursor: default; }
+.relic-offer.picked { border-color: #ffd98a; box-shadow: 0 0 10px #ffd98a55; }
+.relic-offer.got { border-color: #8fd27a; }
+.relic-offer img { width: 44px; height: 44px; object-fit: contain; flex: none; }
+.relic-offer-text { display: flex; flex-direction: column; gap: 2px; }
+.relic-offer-text em { font-style: normal; opacity: 0.85; font-size: 13px; }
+.relic-offer-who { margin-left: auto; color: #ffd98a; font-size: 13px; flex: none; }
 .reward-item.potion { border-left-color: #2e6db4; }
 /* 名稱一行、說明一行。本來全部擠成一句「秘寶「藍頭巾」：每場戰鬥…」，讀起來很長 */
 .reward-line { display: flex; flex-direction: column; gap: 1px; text-align: left; }
@@ -816,6 +840,35 @@
 }
 .chest-loot-line .loot-name { font-size: 24px; color: #ffe9b8; }
 .chest-loot-line .loot-text { font-size: 19px; color: #f0e6d2; }
+/* 連線版的紙箱：兩件秘寶並排在光柱前面，一人挑一件。
+   絕對定位掛在 `.chest-scene` 上，跟 `.chest-loot-line` 同一個理由——
+   那個框的尺寸就是插圖本身，塞進佔位子的節點會把框撐高。 */
+.chest-offer-row {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -46%);
+  display: flex; gap: 24px; justify-content: center;
+  z-index: 2;
+}
+.chest-offer {
+  width: 230px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 10px 14px;
+  border: 2px solid #7a6042;
+  border-radius: 12px;
+  background: #241c14e6;
+  color: #f4ead8;
+  cursor: pointer;
+  text-align: center;
+}
+.chest-offer:hover:not([disabled]) { border-color: #ffd98a; background: #33271ae6; }
+.chest-offer[disabled] { cursor: default; opacity: 0.9; }
+.chest-offer.picked { border-color: #ffd98a; box-shadow: 0 0 14px #ffd98a66; }
+.chest-offer.got { border-color: #8fd27a; }
+.chest-offer img { width: 92px; height: 92px; object-fit: contain; }
+.chest-offer b { font-size: 20px; color: #ffe9b8; }
+.chest-offer .small { font-size: 14px; line-height: 1.35; color: #e2d7c4; }
+.chest-offer-who { font-size: 14px; color: #ffd98a; }
 /* 秘寶圖上下直接寫字（不用木牌）：上面是效果那句話、下面是「秘寶」小標＋名字 */
 .loot-stack { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .loot-above { margin: 0; font-size: 21px; color: #f6efe3; text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3; letter-spacing: 1px; }
@@ -1380,4 +1433,17 @@
   border: 1px solid var(--accent);
   color: #f3e6d2;
   pointer-events: none;
+}
+
+/* 連線出問題的橫幅：壓在最上方，換畫面也不會被清掉（掛在 body 上，不在舞台裡） */
+.net-trouble {
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  z-index: 9999;
+  padding: 10px 16px;
+  background: #7a1f1f;
+  color: #ffe9e9;
+  font-size: 16px;
+  text-align: center;
+  box-shadow: 0 2px 10px #0008;
 }

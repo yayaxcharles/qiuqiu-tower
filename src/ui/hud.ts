@@ -54,12 +54,21 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   const hud = el('div', { class: 'hud' });
   root.append(hud);
   if (!run) return hud;   // 沒有整局就掛個空殼，不要讓畫面整個掛掉
-  const fishNow = Math.max(0, me(run).fish + fishDelta);
+  /*
+   * **狀態列畫的是「我」的家當，不是第一位的**（連線版 2026-09-11）。
+   *
+   * 以前寫死 `me(run)`＝座位 0，因為只有一個人。連線之後客戶端那一台看到的血量、
+   * 小魚乾、秘寶、忍具、牌組全部是主機的——而且點下去還真的翻得開主機的牌組。
+   * 跟戰鬥畫面那個 `cs.player` 的坑是同一個，只是這邊沒有「點了被擋掉」的提示，
+   * 所以更難發現：數字就只是靜靜地錯著。
+   */
+  const seat = app.seat;
+  const fishNow = Math.max(0, me(run, seat).fish + fishDelta);
 
-  const pct = me(run).maxHp > 0 ? Math.max(0, Math.round((me(run).hp / me(run).maxHp) * 100)) : 0;
+  const pct = me(run, seat).maxHp > 0 ? Math.max(0, Math.round((me(run, seat).hp / me(run, seat).maxHp) * 100)) : 0;
   const hp = el('div', { class: 'hud-hp' },
     el('div', { class: 'hud-hp-bar', style: `width:${pct}%` }),
-    el('span', {}, `${me(run).hp} / ${me(run).maxHp} 生命`));
+    el('span', {}, `${me(run, seat).hp} / ${me(run, seat).maxHp} 生命`));
 
   const fish = el('div', { class: 'hud-fish' },
     el('img', { src: artUrl('icons', 'icon/fish'), alt: '' }),
@@ -75,11 +84,11 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   const relics = el('div', { class: 'hud-relics' });
   // 同一局才比得出「新拿到的」；換一局（或第一次畫）就整份當成已知，不演
   const seenRelics = lastRelics && lastRelics.seed === run.seed ? lastRelics.ids : null;
-  lastRelics = { seed: run.seed, ids: new Set(me(run).relics) };
+  lastRelics = { seed: run.seed, ids: new Set(me(run, seat).relics) };
   // 最多畫 8 件、最新的排前面，其餘收成「+N」（使用者 2026-09-06：秘寶沒有上限，十幾件會把狀態列擠爆）；
   // 點任何一件或「+N」開「本局秘寶」清單，一行一件看得完整
   const MAX_ICONS = 8;
-  const shown = [...me(run).relics].reverse().slice(0, MAX_ICONS);
+  const shown = [...me(run, seat).relics].reverse().slice(0, MAX_ICONS);
   for (const id of shown) {
     const r = relicById[id];
     if (!r) continue;
@@ -92,22 +101,22 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
     attachTextTooltip(node, r.name, r.text);
-    node.addEventListener('click', () => showRelicList(run));
+    node.addEventListener('click', () => showRelicList(run, seat));
     relics.append(node);
   }
   // 收起來的那幾件發動時，改閃這顆「+N」（使用者 2026-09-10：「秘寶超過會堆疊起來，會不會 HUD 看不到？」）。
   // 秘寶沒有上限、只畫最新的 8 件，所以早期拿的（例如開局那條藍頭巾）滿 9 件之後就躲在這裡面了
-  if (me(run).relics.length > MAX_ICONS) relics.append(el('button', { class: 'btn small hud-relic-more', onclick: () => showRelicList(run) }, `+${me(run).relics.length - MAX_ICONS}`));
+  if (me(run, seat).relics.length > MAX_ICONS) relics.append(el('button', { class: 'btn small hud-relic-more', onclick: () => showRelicList(run, seat) }, `+${me(run, seat).relics.length - MAX_ICONS}`));
   // 秘寶滿 8 格又帶九命鈴／忍具袋（忍具 5～6 格）時整列放不下：圖示與間距縮一級（.hud.crowded）
-  if (shown.length + Math.max(potionCapacity(run), 3) >= 10) hud.classList.add('crowded');
+  if (shown.length + Math.max(potionCapacity(run, seat), 3) >= 10) hud.classList.add('crowded');
 
   const potions = el('div', { class: 'hud-potions' });
   // 格數隨難度與忍具袋變（見習～高手 3、宗師起 2、忍具袋 +1、九命鈴 +2）。畫面上至少畫 3 格：
   // 宗師起少掉的那一格畫成鎖住的格子而不是消失，格數才不會一局兩格一局三格（使用者 2026-09-06）
-  const cap = potionCapacity(run);
+  const cap = potionCapacity(run, seat);
   for (let i = 0; i < Math.max(cap, 3); i++) {
     const locked = i >= cap;
-    const id = locked ? undefined : me(run).potions[i];
+    const id = locked ? undefined : me(run, seat).potions[i];
     const p = id ? potionById[id] : undefined;
     const slot = el('div', { class: `hud-potion${p ? '' : locked ? ' locked' : ' empty'}` }, locked ? '🔒' : '');
     // 提示只掛在有東西或鎖住的格子上：空格掛了也只會跳出一個沒內容的框，反而讓人以為那格有東西。
@@ -121,9 +130,9 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   const deckBtn = el('button', {
     class: 'btn small',
     onclick: () => showDeckPicker({
-      title: `牌組（${me(run).deck.length} 張）`, cards: me(run).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ },
+      title: `牌組（${me(run, seat).deck.length} 張）`, cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ },
     }),
-  }, `牌組 ${me(run).deck.length}`);
+  }, `牌組 ${me(run, seat).deck.length}`);
 
   /**
    * 音效開關。放在右上角、本局代碼旁邊——那裡是整場都在的位置，

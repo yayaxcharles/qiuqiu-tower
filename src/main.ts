@@ -33,7 +33,17 @@ async function boot(): Promise<void> {
   const app = new App(root);
   // 開發模式把 app 掛到 window：瀏覽器主控台可以直接叫 __app.startFight('mirror_duel', false, 0, 2) 之類的來驗畫面，
   // 不用真的打到那個節點。正式版（GitHub Pages）不掛。
-  if ((import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV) (window as unknown as { __app?: App }).__app = app;
+  /*
+   * 網址加上 `?debug` 也掛（2026-09-11）。
+   *
+   * 連線版只有**打包過的版本**才連得起來（開發伺服器每次改檔就重新整理、
+   * 連線當場斷掉），所以連線的坑全部只在正式打包版現形，而那一版本來掛不上 `__app`——
+   * 等於最難查的那一半完全沒有工具。要自己在網址後面加 `?debug` 才會掛，
+   * 一般玩家碰不到。
+   */
+  const wantDebug = (import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV
+    || new URLSearchParams(location.search).has('debug');
+  if (wantDebug) (window as unknown as { __app?: App }).__app = app;
   app.show('title');
   // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
   // 不 await——預載完不完成都不影響能不能玩。
