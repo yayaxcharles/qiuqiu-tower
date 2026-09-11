@@ -285,31 +285,40 @@ export function takeCardReward(run: RunState, rewards: CombatRewards, cardId: st
   rewards.cards = [];
 }
 
-export function addCard(run: RunState, cardId: string, upgraded = false): CardInstance {
+/**
+ * 加一張牌進**某一位**的牌組。`seat` 不填就是自己。
+ *
+ * **牌號一律從整局共用的 `run.nextUid` 拿**，兩個人的牌絕不撞號。
+ * 撞號的後果很安靜：`canPlay` 是在那一位自己的手牌裡找 uid，撞號的話
+ * 「打對方的牌」會誤打成自己同號的那一張，引擎不報錯、畫面上那張牌憑空變成另一張；
+ * 連線版每個動作送的就是 uid，撞號等於兩台機器對「哪一張」的認知不同，直接分岔。
+ * （`tests/engine/coop.rewards.test.ts` 有一條在守這件事。）
+ */
+export function addCard(run: RunState, cardId: string, upgraded = false, seat = 0): CardInstance {
   if (!cardById[cardId]) throw new Error(`未知的牌：${cardId}`);
   const c: CardInstance = { uid: run.nextUid++, cardId, upgraded };
-  me(run).deck.push(c);
+  me(run, seat).deck.push(c);
   return c;
 }
-export function removeCard(run: RunState, uid: number): boolean {
-  const i = me(run).deck.findIndex((c) => c.uid === uid);
+export function removeCard(run: RunState, uid: number, seat = 0): boolean {
+  const i = me(run, seat).deck.findIndex((c) => c.uid === uid);
   if (i < 0) return false;
-  me(run).deck.splice(i, 1);
+  me(run, seat).deck.splice(i, 1);
   return true;
 }
-export function upgradeCard(run: RunState, uid: number): boolean {
-  const c = me(run).deck.find((x) => x.uid === uid);
+export function upgradeCard(run: RunState, uid: number, seat = 0): boolean {
+  const c = me(run, seat).deck.find((x) => x.uid === uid);
   if (!c || c.upgraded || cardById[c.cardId]?.pool === '壞毛病') return false;
   c.upgraded = true;
   return true;
 }
 
-export function takeRelic(run: RunState, relicId: string): boolean {
+export function takeRelic(run: RunState, relicId: string, seat = 0): boolean {
   const def = relicById[relicId];
-  if (!def || me(run).relics.includes(relicId)) return false;
-  me(run).relics.push(relicId);
+  if (!def || me(run, seat).relics.includes(relicId)) return false;
+  me(run, seat).relics.push(relicId);
   const d = def.hooks.maxHp ?? 0;
-  if (d) { me(run).maxHp += d; me(run).hp = Math.min(me(run).maxHp, Math.max(1, me(run).hp + Math.max(0, d))); }
+  if (d) { const p = me(run, seat); p.maxHp += d; p.hp = Math.min(p.maxHp, Math.max(1, p.hp + Math.max(0, d))); }
   return true;
 }
 

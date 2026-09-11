@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { rollRelic, rollRelicChoices, settleRelicPicks } from '../../src/engine/rewards';
-import { REVIVE_RATIO, newRun, revivePartner } from '../../src/engine/run';
+import { REVIVE_RATIO, addCard, newRun, revivePartner } from '../../src/engine/run';
+import { STARTER_DECK } from '../../src/content/cards';
 import { me } from '../../src/engine/runplayer';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { relics } from '../../src/content/relics';
@@ -103,5 +104,30 @@ describe('規則四後半：打盹扶起倒下的同伴', () => {
 
   it('沒有那個座位就回 false，不會丟例外', () => {
     expect(revivePartner(newRun('solo-revive', 1), 1)).toBe(false);
+  });
+});
+
+describe('牌號在整局裡不能撞（兩個人的牌組共用一個號碼池）', () => {
+  /*
+   * 為什麼要守這條：`canPlay` 是在**那一位自己的手牌**裡找 uid。兩個人的牌撞號的話，
+   * 「一號打二號的牌」會誤打成一號自己同號的那一張——引擎不會報錯，
+   * 畫面上那張牌就這樣憑空變成另一張。連線版每個動作送的就是 uid，
+   * 撞號等於兩台機器對「哪一張」的認知不同，直接分岔。
+   *
+   * 現在靠的是 `addCard` 一律用整局共用的 `run.nextUid++`。這條測試釘住那件事。
+   * （2026-09-11 寫鎖步測試時，自己的測試輔助就先踩到了這個坑。）
+   */
+  it('兩個人的牌組沒有任何共用的牌號', () => {
+    const run = newRun('uid', 1);
+    const mate: RunPlayer = { ...me(run), deck: [], relics: [], potions: [] };
+    run.players.push(mate);
+    // 替二號也發一副起手牌，走的是同一支 addCard
+    for (const id of STARTER_DECK) addCard(run, id, false, 1);
+
+    const a = me(run).deck.map((c) => c.uid);
+    const b = mate.deck.map((c) => c.uid);
+    expect(b.length, '二號真的拿到牌了').toBeGreaterThan(0);
+    expect(a.filter((u) => b.includes(u)), '兩副牌不可以有同號的').toEqual([]);
+    expect(new Set([...a, ...b]).size, '合起來也不能有重複').toBe(a.length + b.length);
   });
 });
