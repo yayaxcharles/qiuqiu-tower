@@ -34,30 +34,29 @@ interface LobbyState {
 }
 
 /**
- * 連上之後開一場兩個人的戰鬥。
+ * 連上之後開一局兩個人的。
  *
- * **地圖還沒做成兩個人投票**，所以這一版直接跳進一場固定的戰鬥——
- * 先讓兩個人真的能一起打一場，地圖與整局流程是下一步。
- * 固定遭遇也讓測試好對：兩邊看到的魔物一定一樣，不一樣就是分岔。
+ * 進地圖而不是直接跳戰鬥：整局流程（選路、戰鬥、獎勵、回地圖）都走同一套，
+ * 路線由兩個人投票決定（見 `engine/vote.ts`）。
  */
-const DEMO_ENCOUNTER = 'rats3';
-
 function startCoop(app: App, tx: Transport, isHost: boolean): void {
-  const session = new CoopSession(tx, { isHost, seat: isHost ? 0 : 1 });
-  const begin = (seed: string, diff: number, enc: string): void => {
+  const seat = isHost ? 0 : 1;
+  const session = new CoopSession(tx, { isHost, seat });
+  app.coop = session;
+  app.seat = seat;
+  const begin = (seed: string, diff: number): void => {
     // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）
-    const run = newCoopRun(seed, diff);
-    app.run = run;
-    app.cs = beginCombat(run, enc);
-    app.show('combat', { seat: isHost ? 0 : 1, session });
+    app.run = newCoopRun(seed, diff);
+    app.cs = null;
+    app.show('map');
   };
   if (isHost) {
     const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;
-    session.start(seed, 1, DEMO_ENCOUNTER);
-    begin(seed, 1, DEMO_ENCOUNTER);
+    session.start(seed, 1, '');
+    begin(seed, 1);
   } else {
     // 客戶端等主機宣布，收到才開——不能自己挑種子，那樣兩邊一定不一樣
-    session.onStartRun(begin);
+    session.onStartRun((seed, diff) => begin(seed, diff));
   }
 }
 
@@ -157,7 +156,7 @@ registerScreen('lobby', (app, root) => {
     if (st.step === 'connected') {
       box.append(
         el('p', { class: 'lobby-ok' }, '連上了！'),
-        el('p', { class: 'lobby-note' }, '正在開一場兩個人的戰鬥…'));
+        el('p', { class: 'lobby-note' }, '正在開一局兩個人的…'));
     }
 
     if (st.step === 'failed') {

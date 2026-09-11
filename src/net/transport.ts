@@ -14,6 +14,14 @@ export type NetMessage =
    * 同一顆種子在兩台機器上長出一模一樣的地圖、牌組、魔物）。
    */
   | { m: 'start'; seed: string; diff: number; enc: string }
+  /**
+   * 地圖上投一票：我想走這一格。
+   *
+   * **刻意不走 `CoopAction`**：那條路上的每個動作都要先過 `canApply(cs, …)`，
+   * 而地圖上根本沒有 `cs`。而且投票跟鎖步的號碼排序無關——每個座位只投一次，
+   * 誰先到都一樣（見 `engine/vote.ts` 的規則）。
+   */
+  | { m: 'vote'; seat: number; n: string }
   | { m: 'req'; a: CoopAction }
   | { m: 'act'; seq: number; a: CoopAction }
   | { m: 'sync'; turn: number; fp: string };

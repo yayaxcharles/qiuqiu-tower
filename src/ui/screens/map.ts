@@ -5,6 +5,8 @@ import { play } from '../audio';
 import { FLOORS, nextChoices } from '../../engine/map';
 import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
+import { allVoted, settleVotes } from '../../engine/vote';
+import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl } from '../assets';
 import { actVariantKey } from '../screenbg';
@@ -83,6 +85,28 @@ let lastFloor: { seed: string; floor: number } | null = null;
 registerScreen('map', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
+
+  /*
+   * 兩個人一起選路（連線版 2026-09-11）。
+   *
+   * 每個座位投一票，兩邊都投完就結算：**選一樣就走那一格，不一樣就擲一次骰**
+   *（規則與理由見 `engine/vote.ts`）。結算在兩台機器各自跑一次——
+   * 用的是整局的亂數，所以擲出來的結果一樣，不用把結果傳過去。
+   *
+   * 票**不能改**：改票會讓兩邊的票面對不上（我看到你改了、你看到我還沒改），
+   * 而且「我先投了看對方怎麼投再改」會讓投票變成沒有意義的儀式。
+   */
+  const votes: (string | null)[] = app.coop ? app.coop.votes(run.players.length) : [];
+  if (app.coop) {
+    const coop = app.coop;
+    coop.onVote(() => {
+      const now = coop.votes(run.players.length);
+      if (!allVoted(now, run.players.map((p) => !p.down))) { app.show('map'); return; }
+      const pick = settleVotes(runRng(run), now);
+      coop.clearVotes();
+      if (pick) app.enterNode(pick); else app.show('map');
+    });
+  }
 
   const centre = centreLane(run.map.nodes);
   const inner = el('div', { class: 'map-inner', style: `height:${INNER_H}px` });
@@ -192,7 +216,21 @@ registerScreen('map', (app, root) => {
     }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
     if (mod) { btn.append(el('span', { class: 'map-mod' }, mod.label)); attachTextTooltip(btn, mod.label, mod.desc); }
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
-    if (choices.has(n.id)) btn.addEventListener('click', () => { play('step'); app.enterNode(n.id); });
+    if (choices.has(n.id)) {
+      btn.addEventListener('click', () => {
+        play('step');
+        // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
+        if (!app.coop) { app.enterNode(n.id); return; }
+        if (votes[app.seat]) return;   // 投過了就不能改——改票會讓兩邊的票面對不上
+        app.coop.vote(n.id);
+      });
+    }
+    // 誰投了這一格：在格子上掛一個小記號，兩個人才知道對方想去哪
+    const voters = votes.map((v, i) => (v === n.id ? i : -1)).filter((i) => i >= 0);
+    if (voters.length) {
+      btn.append(el('span', { class: 'map-vote' },
+        voters.map((i) => (i === app.seat ? '你' : '同伴')).join('、')));
+    }
     inner.append(btn);
     /**
      * 球球本人站在現在這一格旁邊（2026-09-10，使用者：「球球在地圖上的位置也做」）。

@@ -104,6 +104,40 @@ export class CoopSession {
     this.tx.send({ m: 'sync', turn: c.turn, fp: c.fp });
   }
 
+  /*
+   * 路線投票。**票存在會話上，不是存在地圖畫面裡**——
+   * 畫面每重畫一次就是一個新的閉包，票存在那裡的話重畫就沒了
+   * （而重畫正是「有人投了票」的當下要做的事）。
+   */
+  private readonly ballot = new Map<number, string>();
+  /** 目前的票面：索引＝座位，`null`＝還沒投 */
+  votes(seats: number): (string | null)[] {
+    return Array.from({ length: seats }, (_, i) => this.ballot.get(i) ?? null);
+  }
+  /** 走到下一格之後要清乾淨，不然下一次選路會直接用上一輪的票 */
+  clearVotes(): void { this.ballot.clear(); }
+  /** 投一票：我想走地圖上的這一格。兩邊都投完才會真的移動（見 `engine/vote.ts`） */
+  vote(node: string): void {
+    if (this.dead || this.ballot.has(this.seat)) return;   // 投過就不能改
+    this.tx.send({ m: 'vote', seat: this.seat, n: node });
+    this.record(this.seat, node);   // 自己那一票也要進來，兩邊的票面才一樣
+  }
+  /**
+   * 票面**有變動**時通知。地圖畫面接這個去重畫與結算。
+   *
+   * **註冊的當下不補跑**（第一版補了，結果是無限迴圈）：處理函式會重畫地圖，
+   * 重畫又會重新註冊，補跑再觸發一次處理函式……沒有盡頭。
+   * 註冊前就到的票不會漏掉——畫面每次重畫都直接讀 `votes()` 的現況，
+   * 所以「顯示」與「通知」是兩件事，不需要靠補跑把它們兜起來。
+   */
+  onVote(fn: () => void): void { this.voted = fn; }
+  private record(seat: number, node: string): void {
+    if (this.ballot.has(seat)) return;   // 同一個人投兩次只算第一次
+    this.ballot.set(seat, node);
+    this.voted?.();
+  }
+  private voted: (() => void) | null = null;
+
   /** 主機用：宣布開局。兩邊各自用同一顆種子跑出同一局 */
   start(seed: string, diff: number, enc: string): void {
     if (this.dead || !this.isHost) return;
@@ -113,6 +147,7 @@ export class CoopSession {
   private handle(m: NetMessage): void {
     if (this.dead) return;
     // 開局訊息在 `attach` 之前就會到（那時還沒有戰鬥），所以要擺在 cs 的檢查之前
+    if (m.m === 'vote') { this.record(m.seat, m.n); return; }
     if (m.m === 'start') {
       if (this.isHost) return;
       this.hooks.onStart?.(m.seed, m.diff, m.enc);

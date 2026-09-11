@@ -7,6 +7,7 @@ import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
 import { enemyById, encounterById } from '../content/enemies';
 import { hasBossDoor } from './screenbg';
+import type { CoopSession } from '../net/session';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
@@ -32,6 +33,16 @@ export class App {
   stage: HTMLElement;
   /** 換畫面時要一起拆掉的東西（例如戰鬥畫面掛在 window 上的鍵盤監聽器） */
   disposers: Array<() => void> = [];
+  /**
+   * 連線用的會話（單機是 null）。
+   *
+   * **掛在 app 而不是傳給每個畫面**：整局裡會換好幾次畫面（地圖→戰鬥→獎勵→地圖），
+   * 每換一次都重新傳一份很容易漏掉一個，而漏掉的那個畫面就會靜靜變成單機——
+   * 自己動了、對面不知道，等到下一次對帳才發現分岔。
+   */
+  coop: CoopSession | null = null;
+  /** 我是第幾位（單機永遠 0） */
+  seat = 0;
   /** 畫面層：每次 show() 就整個清空重畫，畫面渲染函式拿到的 root 就是它 */
   screen: HTMLElement;
   /** 疊層：吐槽、對白、名詞提示、牌組視窗住這裡，換畫面時不會被清掉 */

@@ -294,7 +294,7 @@ registerScreen('combat', (app, root, props) => {
    * 畫面上兩個人都看得到，但「手牌、飯糰、結束回合鈕」那一整套只屬於這一位——
    * 另一位的手牌不該被我看到（那是他的資訊），他的按鈕也不該被我按到。
    */
-  const mySeat = (props as { seat?: number } | null)?.seat ?? 0;
+  const mySeat = (props as { seat?: number } | null)?.seat ?? app.seat;
   /**
    * 連線用的會話（單機是 null）。
    *
@@ -305,7 +305,7 @@ registerScreen('combat', (app, root, props) => {
    * 動畫不走這條：牌飛出去、姿勢變化都還是當場演，狀態等動作繞回來才套。
    * 主機那一圈是本機的（等於沒有延遲），客戶端要等一個來回（約 0.1～0.2 秒）。
    */
-  const session = (props as { session?: CoopSession } | null)?.session ?? null;
+  const session = (props as { session?: CoopSession } | null)?.session ?? app.coop;
   /**
    * **我這一位**。畫面上凡是「我的東西」都要走這支，不能用 `cs.player`。
    *

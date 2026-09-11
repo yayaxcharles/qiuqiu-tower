@@ -1361,3 +1361,23 @@
 .lobby-bad { font-size: 18px; color: #ff9b9b; margin: 0; max-width: 720px; text-align: center; line-height: 1.7; }
 .lobby-busy { font-size: 15px; opacity: .8; margin: 0; }
 .lobby-back { margin-top: auto; }
+
+/*
+ * 地圖上的投票記號（連線版 2026-09-11）：誰想走這一格。
+ *
+ * 掛在節點下方而不是蓋在圖示上——圖示本身要看得清楚（那是「這一格是什麼」），
+ * 記號只是附註。兩個人投同一格時會寫成「你、同伴」。
+ */
+.map-vote {
+  position: absolute;
+  left: 50%; top: 100%;
+  translate: -50% 2px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+  background: #1b1713ee;
+  border: 1px solid var(--accent);
+  color: #f3e6d2;
+  pointer-events: none;
+}
