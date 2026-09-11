@@ -336,3 +336,32 @@ describe('稽核第二輪：倒下的人不能影響結算', () => {
     expect(run.players[1]!.hp, '倒下的人不回血').toBe(20);
   });
 });
+
+describe('稽核第三輪：賭局的結果要算在賭的那個人身上', () => {
+  it('第二位賭贏的小魚乾不可以進第一位的包包', () => {
+    /*
+     * `gamble` 是遞迴呼叫 `applyRunEffects`，原本掉了第五個參數 `seat`，
+     * 於是座位 1 擲出來的結果一律套到座位 0 身上——兩台錯得一模一樣所以不會分岔，
+     * 但那是實打實的資料錯亂，而且畫面還會對受害者說「中了！」。
+     */
+    const run = newCoopRun('gamble', 1);
+    const before = run.players.map((p) => p.fish);
+    // 賭一定會中的（成功率 100%）：贏 50 條
+    const fx = [{ kind: 'gamble' as const, p: 100,
+      win: [{ kind: 'fish' as const, n: 50 }], lose: [] }];
+    applyRunEffects(run, fx, undefined, undefined, 1);
+    expect(run.players[0]!.fish, '第一位的錢不該動').toBe(before[0]);
+    expect(run.players[1]!.fish, '賭的人才拿得到').toBe((before[1] as number) + 50);
+  });
+
+  it('第二位賭輸塞的壞毛病不可以進第一位的牌組', () => {
+    const run = newCoopRun('gamble2', 1);
+    const n0 = run.players[0]!.deck.length;
+    const n1 = run.players[1]!.deck.length;
+    const fx = [{ kind: 'gamble' as const, p: 0,
+      win: [], lose: [{ kind: 'addCard' as const, cardId: 'shishou' }] }];
+    applyRunEffects(run, fx, undefined, undefined, 1);
+    expect(run.players[0]!.deck.length, '第一位的牌組不該多一張').toBe(n0);
+    expect(run.players[1]!.deck.length).toBe(n1 + 1);
+  });
+});

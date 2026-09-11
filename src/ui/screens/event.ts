@@ -285,16 +285,21 @@ registerScreen('event', (app, root, props) => {
 
     const grid = el('div', { class: 'reward-cards' });
     const mine = coop ? coop.picks('evlearn', run.players.length)[seat] : null;
+    // **空字串是「我選了都不要」，不是「還沒選」**——用 falsy 判斷會讓文案繼續寫著「選一招帶走」，
+    // 但牌其實已經點不動了（稽核第三輪 低-1）
+    const picked = mine !== null && mine !== undefined;
     for (const c of defs) {
       const up = c.id === upgradedCard;   // 開出升級版的那張：照＋版畫、學到就是升級牌（使用者 2026-09-04）
       grid.append(cardNode(up ? { uid: -1, cardId: c.id, upgraded: true } : c,
-        mine !== null && mine !== undefined ? { disabled: true } : { onClick: () => learn(c.id) }));
+        picked ? { disabled: true } : { onClick: () => learn(c.id) }));
     }
     root.append(sceneView({
       art: grid,
       speaker: title,
-      text: mine ? `${resultText}　挑好了，等同伴挑完。` : `${resultText}　選一招帶走。`,
-      actions: [el('button', { class: 'btn', onclick: () => learn('') }, '都不要')],
+      text: picked ? `${resultText}　挑好了，等同伴挑完。` : `${resultText}　選一招帶走。`,
+      actions: [picked
+        ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
+        : el('button', { class: 'btn', onclick: () => learn('') }, '都不要')],
     }));
   }
 
@@ -323,8 +328,18 @@ registerScreen('event', (app, root, props) => {
          * **沒得挑也要投一張空票**（稽核第二輪 高-4）：不投的話同伴那邊
          * `allVoted` 永遠湊不齊，他的疊層又是不能取消的，兩個人一起卡死只能重開。
          */
-        if (coop) { cardPickInfo = { up, resultText, gains, gotShow, noteLine }; coop.pick('evcard', ''); }
-        finish(resultText, noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除'), gains);
+        const why = noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除');
+        if (coop) {
+          /*
+           * **連線時這裡只畫等待、不跑 `finish`**：結算那一支之後還會再跑一次 `finish`，
+           * 而 `finish` 會排「忍具帶滿要不要換」的問話——跑兩次就問兩次（稽核第三輪的邊角）。
+           */
+          cardPickInfo = { up, resultText, gains, gotShow, noteLine };
+          panel(resultText, why, '', gains, resultArt);
+          coop.pick('evcard', '');
+          return;
+        }
+        finish(resultText, why, gains);
         return;
       }
       // 要挑的張數可能比牌組裡合格的還多（例如只剩一張沒升級過的牌卻要升兩張），

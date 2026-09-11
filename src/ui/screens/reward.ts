@@ -98,7 +98,13 @@ registerScreen('reward', (app, root, props) => {
        * 整頁重畫——重畫之後「忍具帶滿了，收不下」那一列又長回來，三百五十毫秒後
        * **再問一次要換哪一支**。玩家每回答一次就被換掉一支，只有按「不換」才停得下來。
        */
-      if (applied.every((o) => o.a.t === 'swap')) { r.potionSwapped = true; return; }
+      if (applied.every((o) => o.a.t === 'swap')) {
+        // **只有「我自己換的」才算**（稽核第三輪 中-1）：這一支對兩個座位的動作都會被叫到，
+        // 同伴換忍具也設成 true 的話，我那一列「帶滿了，收不下」會在下一次重畫時整條消失，
+        // 350 毫秒的計時器找不到那一行就放棄——我永遠沒被問過，那支忍具就這樣沒了。
+        if (applied.some((o) => o.a.t === 'swap' && o.a.seat === seat)) r.potionSwapped = true;
+        return;
+      }
       /*
        * **兩個人的秘寶都真的進背包了才算數**（一人送一則，所以要等兩則）。
        * 只看「有沒有任何一則」的話，第一則一到就放行，先按的那位會在自己的秘寶
@@ -164,7 +170,8 @@ registerScreen('reward', (app, root, props) => {
   const upFilter = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   const want = Math.min(ups, me(run, seat).deck.filter(upFilter).length);
   if (ups > 0) {
-    upLine = el('span', { class: 'reward-line' }, want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
+    upLine = el('span', { class: 'reward-line' }, iDown ? '你倒下了，這次的升級只有同伴學得到'
+      : want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
     const line = upLine;
     items.append(el('div', { class: 'reward-item loot' }, line));
     /*
@@ -179,7 +186,9 @@ registerScreen('reward', (app, root, props) => {
      */
     const upsPicked = r.upsDone || r.upsAsking
       || (app.coop ? app.coop.picks('rwup', run.players.length)[seat] !== null : false);
-    if (want > 0 && !upsPicked) { r.upsAsking = true; showDeckPicker({
+    // 倒下的人不挑（稽核第三輪 中-2）：他挑了也會被 `onlyStanding` 洗掉，
+    // 而那個疊層**不能取消、也不會被換畫面清掉**，他會被一個白挑的視窗擋在地圖前面
+    if (want > 0 && !upsPicked && !iDown) { r.upsAsking = true; showDeckPicker({
       title: want > 1 ? `選 ${want} 張牌升級` : '選一張牌升級', previewUpgrade: true,
       cards: me(run, seat).deck, pickable: true, cancellable: false, filter: upFilter, pickCount: want,
       onPick: (uid) => { r.upsAsking = false; settleUpgrades(uid === null ? [] : [uid]); },

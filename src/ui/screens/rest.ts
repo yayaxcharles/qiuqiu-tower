@@ -44,10 +44,16 @@ registerScreen('rest', (app, root) => {
   /** 倒下、等人扶的那一位（沒有就 -1） */
   const fallen = (): number => run.players.findIndex((p) => p.down);
 
-  // 顯示用的回復量：貓草那類秘寶會加倍，而且不會超過缺的血
-  const heal = Math.min(me(run, seat).maxHp - me(run, seat).hp, napHeal(run, seat));   // 算法跟引擎共用（貓草倍率＋貓草種子固定加成）
+  /**
+   * 顯示用的回復量：貓草那類秘寶會加倍，而且不會超過缺的血（算法跟引擎共用）。
+   *
+   * **每次重畫都要重算**：同伴把我扶起來之後血量變了，用進畫面那一刻（生命 0）算出來的
+   * 數字會偏高，按鈕上寫的回復量對不上實際回的（稽核第三輪 低-2）。
+   */
+  const healNow = (): number => Math.min(me(run, seat).maxHp - me(run, seat).hp, napHeal(run, seat));
   const upgradable = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   let used = false;   // 一個貓窩只能做一件事
+  let napped = 0;     // 打盹按下去那一刻算出來的回復量（動作繞回來才演得到）
 
   /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖 */
   function afterAction(text: string, line: string, card?: CardInstance): void {
@@ -76,10 +82,12 @@ registerScreen('rest', (app, root) => {
     clearKeepBg(root);
     renderHud(app, root);
     const finalRest = run.act >= 3 && run.floor === 44;   // 師父前一格：回滿（引擎 napHeal 同一條規則）
+    const heal = healNow();   // 每次重畫都重算：被扶起來之後血量變了，寫死的數字會對不上
     const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前好好睡一覺：回滿 ${heal} 點生命）` : `打盹（回復 ${heal} 點生命）`) : '打盹（生命已經滿了）');
     nap.addEventListener('click', () => {
       if (used) return;
-      if (!act({ t: 'rest', seat, c: '打盹' }, () => rest(run, '打盹', undefined, seat))) return;
+      napped = heal;   // 送出之前先記下來：連線要等動作繞回來才演，那時血已經回過了
+      if (!act({ t: 'rest', seat, c: '打盹' }, () => rest(run, '打盹', undefined, seat))) { napped = 0; return; }
       used = true;
       if (coop) return;   // 連線的等動作繞回來才演（見 onRunApplied）
       play('heal');
@@ -201,7 +209,7 @@ registerScreen('rest', (app, root) => {
         if (a.seat !== seat) continue;
         if (a.t === 'revive') { play('heal'); afterAction('球球把同伴拍醒了，牠搖搖晃晃地站起來。', pick(dialogue.restNapLines)); continue; }
         if (a.t !== 'rest') continue;
-        if (a.c === '打盹') { play('heal'); afterAction(`球球睡了一下，回復 ${heal} 點生命。`, pick(dialogue.restNapLines)); continue; }
+        if (a.c === '打盹') { play('heal'); afterAction(`球球睡了一下，回復 ${napped} 點生命。`, pick(dialogue.restNapLines)); continue; }
         play('upgrade');
         const pl = pendingLine;
         const line = pl && pl.choice === '全力準備'

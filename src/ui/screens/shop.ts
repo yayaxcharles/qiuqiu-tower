@@ -42,6 +42,12 @@ registerScreen('shop', (app, root) => {
    */
   const seat = app.seat;
   const coop = app.coop;
+  /*
+   * 我倒下了：引擎本來就擋著（`canApplyRun` 對倒下的人一律回 false），
+   * 可是畫面照樣把貨架、放生、重整貨架亮著——按下去毫無反應、沒有音效也沒有老闆搖頭，
+   * 玩家只會以為當掉了（稽核第三輪 中-3，跟戰鬥那邊已經修掉的是同一個症狀）。
+   */
+  const iDown = !!coop && !!me(run, seat).down;
   if (coop) {
     coop.attachShop(shop);
     // 離開這一格時一定要斷開，不然下一格收到一則遲到的買東西，會拿新畫面去套舊貨架
@@ -137,7 +143,7 @@ registerScreen('shop', (app, root) => {
       el('div', { class: 'shop-name' }, name),
       el('div', { class: 'small' }, text),
       priceNode(price, sold, base, sale));
-    if (!sold && !blocked && afford) node.addEventListener('click', buy);
+    if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
     else if (!sold) node.addEventListener('click', () => setMood('no'));   // 買不起：老闆搖頭，不再是死按鈕
     return node;
   }
@@ -176,7 +182,7 @@ registerScreen('shop', (app, root) => {
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
       const price = priceFor(run, it, seat);
-      const buyable = !it.sold && me(run, seat).fish >= price;
+      const buyable = !it.sold && !iDown && me(run, seat).fish >= price;
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         saleTag(it.sold ? undefined : it.sale),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { act({ t: 'buy', seat, k: 'card', i }, () => buyCard(run, shop, i, seat)) && bought('buy'); } }),   // 升級格照＋版畫
@@ -230,14 +236,14 @@ registerScreen('shop', (app, root) => {
       class: 'btn',
       onclick: () => pickRelease(),
     }, `放生一張牌：${me(run, seat).removeCost} 條小魚乾`);
-    if (me(run, seat).fish < me(run, seat).removeCost || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
+    if (iDown || me(run, seat).fish < me(run, seat).removeCost || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
     const reshuffle = el('button', { class: 'btn', onclick: () => { act({ t: 'shuffle', seat }, () => reshuffleShop(run, shop, seat)) && bought('buy'); } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
     // 有沒有東西可換要看三區加總，不能只看牌格（稽核 2026-09-07 中 1）：
     // 牌全買光但秘寶或忍具還在架上時，引擎讓你換、按鈕卻是灰的，等於這次改動玩家碰不到
     const anyLeft = [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
-    if (shop.reshuffled || me(run, seat).fish < RESHUFFLE_COST || !anyLeft) reshuffle.setAttribute('disabled', 'disabled');
+    if (iDown || shop.reshuffled || me(run, seat).fish < RESHUFFLE_COST || !anyLeft) reshuffle.setAttribute('disabled', 'disabled');
 
     // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
@@ -248,7 +254,7 @@ registerScreen('shop', (app, root) => {
       art: goods,
       portrait: keeperArt(),
       speaker: '橘貓老闆',
-      text: line,
+      text: iDown ? '球球倒在門口，只能看著同伴逛。' : line,
       actions: [reshuffle, remove, leaveBtn()],
     }));
   }

@@ -936,7 +936,10 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         // 贏的那邊如果是小魚乾，把數字寫進去（使用者 2026-09-03：掀碗後沒感受到贏還是輸）
         const prize = won ? fx.win.reduce((sum, e) => sum + (e.kind === 'fish' ? e.n : 0), 0) : 0;
         notes?.push(won ? (prize > 0 ? `中了！贏了 ${prize} 條小魚乾` : '中了！') : '沒中……');
-        const o = applyRunEffects(run, won ? fx.win : fx.lose, notes, gains); if (o) outcome = o;
+        // **座位一定要傳下去**（稽核第三輪 高-1）：不傳的話座位 1 賭贏的小魚乾與秘寶
+        // 全進座位 0 的包包、賭輸的壞毛病也塞進座位 0 的牌組，而他自己的畫面照樣寫著「中了！」。
+        // 兩台錯得一模一樣所以不會分岔，但那是實打實的資料錯亂。
+        const o = applyRunEffects(run, won ? fx.win : fx.lose, notes, gains, seat); if (o) outcome = o;
         break;
       }
       default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆

@@ -107,6 +107,13 @@ export class CoopSession {
     this.picked = null;
     this.before = null;
     this.dropped = null;
+    /*
+     * `trouble` 也要清（稽核第三輪 中-4）。戰鬥畫面掛的那一支會 `render()`，
+     * 而那支 `render()` 第一件事是把整頁清空——離開戰鬥之後如果對方斷線，
+     * 現在這一頁（地圖、罐頭鋪、事件…）會被**上一場戰鬥的靜止畫面**整個蓋掉。
+     * 全域的紅色橫幅走的是建構式的 `onDesync`／`onClose`，不靠這一支，所以清掉不影響回報。
+     */
+    this.trouble = null;
   }
 
   /** 這一局開始了。整局只有一份，設一次就不動 */
