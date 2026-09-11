@@ -132,9 +132,25 @@ registerScreen('event', (app, root, props) => {
     // 結果畫面預設沿用同一張插圖：選完之後畫面整個換掉的話，前後接不起來。
     // 但選項自己有 `resultArt` 時就換成那張——像貓薄荷「採一把」那種，
     // 有專屬的結果圖才看得出「我剛剛真的做了那件事」。
-    // 有牌要秀（學會／升級／丟掉）就把牌放在插圖的位置；只拿到秘寶忍具就放大圖示
+    /**
+     * **插圖當底、戰利品疊在上面**（2026-09-11）。
+     *
+     * 原本是三選一：有牌就放牌、有秘寶忍具就放圖示、都沒有才放插圖。
+     * 那表示**凡是有收穫的選項都看不到結果圖**——而「有收穫」正是最值得畫一張圖的時候。
+     * 實際數過：58 個配了結果圖的選項裡，22 個看得到、26 個永遠被戰利品擠掉、
+     * 10 個在挑完牌之後被蓋掉。
+     * 最有力的證據是這段註解自己舉的例子：貓薄荷「採一把」拿兩支忍具，
+     * 所以那張 `catnip_field_take` 從上線到現在**從來沒被玩家看見過**（稽核 2026-09-11 高-1）。
+     *
+     * 改成疊層：插圖鋪底，牌與圖示浮在它前面。兩者都看得到，版面高度不變
+     *（`.event-art-stack` 是 `position: relative`，疊上去的那層絕對定位、不佔空間）。
+     * 插圖沒生好時退回原本的行為，不會開天窗。
+     */
     const illo = ev ? eventArt(art ?? ev.id) : '';
-    const artNode = show.length ? showcaseNode(show) : gains.length ? (gainsNode(gains) || illo) : illo;
+    const loot = show.length ? showcaseNode(show) : gains.length ? gainsNode(gains) : '';
+    const artNode = loot && illo
+      ? el('div', { class: 'event-art-stack' }, illo, el('div', { class: 'event-art-loot' }, loot))
+      : (loot || illo);
     // 賭局要有結果的感覺（使用者 2026-09-03：「碗掀開了應該要有結果，直接小魚乾加減了，沒感受到贏還是輸」）：
     // 引擎記的「中了！／沒中……」不只寫成一行小字，還蓋一個大戳章＋音效
     const won = note?.includes('中了！') ?? false;

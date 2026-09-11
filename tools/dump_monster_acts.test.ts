@@ -31,6 +31,21 @@ it('dump monster acts', () => {
   for (const group of SLIDES_BY_ACT) {
     for (const key of group) { const path = manifest.bg[key]; if (path) out[path] = 0; }
   }
+  /*
+   * **事件插圖一律不算首載**（2026-09-11）。
+   *
+   * 它們是走到那個事件、畫面建出 `<img>` 的那一刻才抓的——`preload.ts` 的首載集合
+   * 只有介面、牌面、背景與第一關的魔物，從頭到尾沒碰過事件圖（grep event 是空的）。
+   * 所以把它們算進首載一直是**高估**，只是以前只有 38 張、看不太出來；
+   * 2026-09-11 補上 60 張「選完之後」的結果圖，一口氣多算了兩百多萬位元組，
+   * 預算表直接從 99% 跳到 131%，才把這件事翻出來。
+   *
+   * 值寫 0＝「不跟關數綁的按需載入」，跟過關幻燈片同一類。
+   */
+  for (const [key, path] of Object.entries(manifest.bg)) {
+    if (key.startsWith('bg/event_')) out[path] = 0;
+  }
+
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');
   const n = (a: number) => Object.values(sorted).filter((v) => v === a).length;

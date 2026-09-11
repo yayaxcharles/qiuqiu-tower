@@ -1262,3 +1262,24 @@
   text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3;
 }
 .boss-door .btn { min-width: 220px; }
+
+/*
+ * 事件結果：插圖鋪底、戰利品（學到的牌、拿到的秘寶忍具）疊在它前面（2026-09-11）。
+ *
+ * 以前是三選一，有收穫的選項一律看不到插圖——而那正是最值得畫一張結果圖的時候
+ *（稽核 2026-09-11 高-1：58 張裡 26 張永遠被擠掉）。
+ * 疊上去的那層絕對定位、不佔版面高度，所以對白框的位置一格都不會動。
+ */
+.event-art-stack { position: relative; display: inline-block; }
+.event-art-stack > img.event-art { display: block; }   /* 沒有行框就沒有基線縫（紙箱那邊的教訓） */
+.event-art-loot {
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  translate: -50% 0;
+  display: flex;
+  justify-content: center;
+  /* 底下墊一層柔光：戰利品壓在插圖上要看得清楚，但不能把插圖整個遮掉 */
+  filter: drop-shadow(0 6px 14px #000000cc);
+}
+.event-art-loot .showcase { margin: 0; }
