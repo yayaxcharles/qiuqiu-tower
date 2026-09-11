@@ -19,20 +19,28 @@ const VERSION = 'Q1';
  * `CompressionStream` 是瀏覽器內建的（Chrome 80+、Safari 16.4+、Firefox 113+），
  * 不用多載一個壓縮函式庫進來——首載預算本來就很緊。
  */
+/**
+ * 寫進壓縮流再讀出來。
+ *
+ * **寫入與關閉的 promise 一定要接住**：資料壞掉的時候（貼到一半的連線碼）
+ * 它們會拒絕，沒接住就變成「未處理的拒絕」——本機跑得過，CI 會直接把整包測試判失敗
+ * （2026-09-11 實際踩到，本機全綠、CI 紅）。
+ * 真正要讓呼叫端看到的錯誤來自**讀的那一側**，所以寫入這側吞掉就好。
+ */
+async function pump(stream: CompressionStream | DecompressionStream, data: Uint8Array<ArrayBuffer>): Promise<ArrayBuffer> {
+  const w = stream.writable.getWriter();
+  const fed = w.write(data).then(() => w.close()).catch(() => { /* 讀的那側會丟出真正的錯 */ });
+  const out = await new Response(stream.readable).arrayBuffer();
+  await fed;
+  return out;
+}
+
 async function deflate(s: string): Promise<Uint8Array<ArrayBuffer>> {
-  const cs = new CompressionStream('deflate-raw');
-  const w = cs.writable.getWriter();
-  void w.write(new TextEncoder().encode(s));
-  void w.close();
-  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+  return new Uint8Array(await pump(new CompressionStream('deflate-raw'), new TextEncoder().encode(s)));
 }
 
 async function inflate(b: Uint8Array<ArrayBuffer>): Promise<string> {
-  const ds = new DecompressionStream('deflate-raw');
-  const w = ds.writable.getWriter();
-  void w.write(b);
-  void w.close();
-  return new Response(ds.readable).text();
+  return new TextDecoder().decode(await pump(new DecompressionStream('deflate-raw'), b));
 }
 
 /** 位元組轉成網址安全的 Base64（去掉 `+/=`，貼到哪裡都不會被改掉） */
