@@ -4,7 +4,7 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
 import { coopHpMul } from './coopscale';
-import { startRange } from './hero';
+import { startRange, unitName } from './hero';
 import type { Hero } from './hero';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
@@ -214,7 +214,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   p.firstCardEver = true;
   const firstAttack = st.def.type === '攻擊' && !p.attackedThisTurn;
   if (st.def.type === '攻擊') p.attackedThisTurn = true;
-  log(cs, `球球打出「${st.name}」`);
+  log(cs, `${unitName(p)}打出「${st.name}」`);
   // 秘寶的第 N 張補抽排在牌效果之前：這張牌若要選牌，候選才不會被之後的補抽動到
   for (const rid of p.relics) {
     // 金爪套同時掛兩個第 N 張的掛鉤，分開叫會連印兩行「發動」（稽核 2026-09-10 中-2）
@@ -657,7 +657,7 @@ export function usePotion(cs: CombatState, potionId: string, targetUid?: number,
   if (def.usable && !def.usable.check(p.hp, p.maxHp)) return false;
   if (def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return false;
   p.potions.splice(i, 1);
-  log(cs, `球球用了「${def.name}」`);
+  log(cs, `${unitName(p)}用了「${def.name}」`);
   applyEffects(cs, def.effects, { self: p, targetUid, source: 'potion' });
   // 用忍具之後的秘寶效果（舊毛巾、貓薄荷煙斗、九命鈴）
   if (cs.phase === 'player') for (const rid of p.relics) { const h = relicById[rid]?.hooks.onPotionUse; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }

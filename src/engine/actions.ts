@@ -1,6 +1,7 @@
 import { cardById } from '../content/cards';
 import { enemyById } from '../content/enemies';
 import { relicById } from '../content/relics';
+import { unitName } from './hero';
 import { draw } from './deck';
 import { applyEffects } from './effects';
 import { addStatus, computeAttack, computeBlock, getStatus, removeStatus } from './statuses';
@@ -181,7 +182,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     }
     lose = eatArmour(cs, p, lose);
   } else {
-    if (p.immune) { log(cs, '球球躲在角落，什麼都沒看到'); return 0; }
+    if (p.immune) { log(cs, `${unitName(p)}躲在角落，什麼都沒看到`); return 0; }
     let dmg = computeAttack(base, attacker, p);
     /*
      * 拒馬（菲菲的稀有能力 2026-09-12）：站得夠遠時每一下少挨幾點。
@@ -201,7 +202,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     if (dmg - absorbed > 0 && getStatus(p, '隱身') > 0) {
       p.block -= absorbed;
       if (absorbed > 0) log(cs, `蜷縮擋下了 ${absorbed} 點`);
-      addStatus(p, '隱身', -1); log(cs, '球球閃過了'); return 0;
+      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); return 0;
     }
     p.block -= absorbed;
     lose = dmg - absorbed;
@@ -236,14 +237,14 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
       p.hp = 1; p.lethalPrevented = true;
       // 這條自己有專屬的紀錄句子（比「發動」講得清楚），所以只推清單、不再多印一行
       markRelic(cs, saverId);
-      log(cs, `${relicById[saverId]?.name ?? '秘寶'}替球球挨了這一下`);
+      log(cs, `${relicById[saverId]?.name ?? '秘寶'}替${unitName(p)}挨了這一下`);
     }
     else {
       p.hp = 0;
       p.down = true;
       // **每一位都倒下了**才算整場輸（規則四）。單機只有一位，跟以前同一件事
       if (cs.players.every((x) => x.down)) cs.phase = 'lost';
-      else log(cs, '球球倒下了，另一位還站著');
+      else log(cs, `${unitName(p)}倒下了，另一位還站著`);
     }
   }
   return lose;
@@ -765,7 +766,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'purgePlayer': {
         // 破功（師父專用）：爪力／貓步這類疊起來的成長被拍散一半。減益不動——只拆你蓋的塔
         const hitNames = halvePlayerStatuses(p, fx.names);
-        if (hitNames.length) log(cs, `${e.name}一掌拍散了球球的氣勁（${hitNames.join('、')}減半）`);
+        if (hitNames.length) log(cs, `${e.name}一掌拍散了${unitName(p)}的氣勁（${hitNames.join('、')}減半）`);
         break;
       }
       case 'copyPlayerStatus': {
@@ -780,7 +781,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         // 看破：先囤好的隱身／潛水拍掉一半（向下取整保留：3 剩 1、2 剩 1、1 剩 0）。
         // 原本是整個拍掉，使用者 2026-09-03：「太強了，拍掉一半就好，3 就拍掉剩 1」
         const hit = halvePlayerStatuses(p, fx.names);   // 跟破功同一支算法，只差紀錄句
-        if (hit.length) log(cs, `${e.name}看穿了球球的身法（${hit.join('、')}少了一半）`);
+        if (hit.length) log(cs, `${e.name}看穿了${unitName(p)}的身法（${hit.join('、')}少了一半）`);
         break;
       }
       case 'chargeNext': e.charged = true; break;

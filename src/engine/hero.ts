@@ -37,6 +37,17 @@ export function heroName(p: Pick<RunPlayer, 'hero'> | undefined): string {
 }
 
 /**
+ * 戰報裡該叫他什麼。
+ *
+ * 引擎本來整排寫死「球球」，換角色之後菲菲打牌會印成「球球打出『退開』」
+ *（2026-09-12 實機測到）。收在這裡是因為 `PlayerCombat` 拿不到 `RunPlayer`，
+ * 但兩邊的 `hero` 欄位長一樣。
+ */
+export function unitName(p: { hero?: Hero } | undefined): string {
+  return HERO_NAME[p?.hero ?? 'ninja'];
+}
+
+/**
  * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是後撤步（開場距離 +1）。
  */
 export function startRelicFor(hero: Hero): string {

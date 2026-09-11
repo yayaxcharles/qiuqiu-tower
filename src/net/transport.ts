@@ -14,7 +14,12 @@ export type NetMessage =
    * 傳的是種子不是整局狀態（那是鎖步的整個重點：引擎完全決定性，
    * 同一顆種子在兩台機器上長出一模一樣的地圖、牌組、魔物）。
    */
-  | { m: 'start'; seed: string; diff: number; enc: string }
+  /*
+   * `heroes`＝**每個座位各玩誰**（2026-09-12）。開房的人挑，兩邊照同一份開局，
+   * 起手牌與起始秘寶才算得出一樣的東西（那是鎖步的前提）。
+   * 沒帶這個欄位就是兩邊都球球（舊版本連上來時的樣子）。
+   */
+  | { m: 'start'; seed: string; diff: number; enc: string; heroes?: string[] }
   /**
    * 一次「大家各選一個」：地圖走哪一格、獎勵拿哪張牌、秘寶挑哪一件。
    * `k`＝這是在選什麼（`map`／`card`／`relic`），`v`＝選了什麼。

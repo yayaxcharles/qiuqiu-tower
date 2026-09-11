@@ -1480,3 +1480,9 @@
 .hero-kit-row b { color: #ffd98a; flex: 0 0 122px; }
 .hero-kit-row span { flex: 1; }
 .heroselect-buttons { display: flex; gap: 14px; }
+
+/* 開房畫面的選角兩排（2026-09-12）：開房的人替兩個座位都挑 */
+.lobby-heroes { margin: 10px 0 4px; }
+.lobby-hero-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+.lobby-hero-row b { flex: 0 0 88px; text-align: right; color: #ffd98a; }
+.lobby-hero-row .btn.selected { outline: 3px solid #ffd35c; box-shadow: 0 0 0 3px #ffd35c40; }

@@ -165,16 +165,28 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
  * 第二位的牌用 `addCard(run, id, false, 1)` 發：牌號從整局共用的 `run.nextUid` 拿，
  * 兩副牌絕不會撞號（撞號的後果見 `addCard` 的說明）。
  */
-export function newCoopRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): RunState {
+export function newCoopRun(seed: string, difficulty = 1, hero: Hero = 'ninja', hero2: Hero = hero): RunState {
   const run = newRun(seed, difficulty, hero);
   const first = me(run);
+  /*
+   * 第二位（2026-09-12 起可以是**另一個角色**）。
+   *
+   * 兩位同職業時走的還是老路（照第一位的牌組與秘寶複製一份）；不同職業時得各發各的，
+   * 因為起手牌與起始秘寶都跟角色綁在一起。發牌一律走 `addCard(..., 1)`：
+   * 牌號從整局共用的 `run.nextUid` 拿，兩副牌絕不會撞號（撞號的後果見 `addCard` 的說明）。
+   */
   run.players.push({
-    ...(first.hero ? { hero: first.hero } : {}),
+    ...(hero2 !== 'ninja' ? { hero: hero2 } : {}),
     hp: first.hp, maxHp: first.maxHp, fish: first.fish,
     deck: [], relics: [], potions: [], removeCost: first.removeCost,
   });
-  for (const c of first.deck) addCard(run, c.cardId, c.upgraded, 1);
-  for (const id of first.relics) takeRelic(run, id, 1);
+  if (hero2 === heroOf(first)) {
+    for (const c of first.deck) addCard(run, c.cardId, c.upgraded, 1);
+    for (const id of first.relics) takeRelic(run, id, 1);
+  } else {
+    for (const id of starterDeckFor(hero2)) addCard(run, (cardById[id]?.hero && cardById[id]!.hero !== hero2) ? 'tanding' : id, false, 1);
+    takeRelic(run, startRelicFor(hero2), 1);
+  }
   return run;
 }
 

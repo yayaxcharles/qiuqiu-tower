@@ -144,7 +144,13 @@ export class App {
     if (this.run && !this.run.flags['prologue']) {
       this.run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
       // 使用者自製的開頭影片先播（沒檔就直接略過），再接序章幻燈片
-      playVideo('opening', () => {
+      /*
+       * 使用者自製的開頭影片**只給球球**（2026-09-12 實測到）：那支片子從頭到尾是他，
+       * 換成菲菲卻照播，等於一開場就先看別人的故事，後面四張幻燈片再講她的，接不起來。
+       * 她要的是自己的片子，沒有就直接進幻燈片——寧可少一段，不要放錯的那一段。
+       */
+      const intro = (go: () => void): void => (hero === 'ninja' ? playVideo('opening', go) : go());
+      intro(() => {
         if (slidesReady(proSlides)) playSlides(proSlides, after);
         else playDialogue(pro, after);
       });

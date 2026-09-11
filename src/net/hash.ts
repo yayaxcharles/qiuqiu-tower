@@ -89,7 +89,7 @@ export function runFingerprint(run: RunState): string {
   ];
   for (const p of run.players) {
     parts.push([
-      `hp${p.hp}/${p.maxHp}`, `$${p.fish}`, `rm${p.removeCost}`, p.down ? 'DOWN' : '',
+      `h:${p.hero ?? 'ninja'}`, `hp${p.hp}/${p.maxHp}`, `$${p.fish}`, `rm${p.removeCost}`, p.down ? 'DOWN' : '',
       `d[${p.deck.map((c: CardInstance) => `${c.uid}.${c.cardId}${c.upgraded ? '+' : ''}`).join(' ')}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
     ].join('|'));

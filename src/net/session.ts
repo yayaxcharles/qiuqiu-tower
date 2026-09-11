@@ -19,7 +19,7 @@ import type { CombatState, RunState } from '../engine/types';
  */
 export interface SessionHooks {
   /** 主機宣布開局（客戶端收得到；主機自己不會收到自己的） */
-  onStart?: (seed: string, diff: number, enc: string) => void;
+  onStart?: (seed: string, diff: number, enc: string, heroes?: string[]) => void;
   /** 真的套進去了幾個動作（畫面拿它決定要演什麼） */
   onApplied?: (applied: SequencedAction[]) => void;
   /** **兩邊算出來不一樣了**。到這裡就該停下來告訴玩家，不要繼續玩兩份不一樣的遊戲 */
@@ -181,12 +181,12 @@ export class CoopSession {
    * **可能在註冊之前就到了**：連線一通主機就送，而客戶端要等 `ready` 那個承諾
    * 解出來才建得了會話。所以先到的那一則會被存起來，註冊的當下立刻補跑。
    */
-  onStartRun(fn: (seed: string, diff: number, enc: string) => void): void {
+  onStartRun(fn: (seed: string, diff: number, enc: string, heroes?: string[]) => void): void {
     this.startRun = fn;
-    if (this.pendingStart) { const s = this.pendingStart; this.pendingStart = null; fn(s.seed, s.diff, s.enc); }
+    if (this.pendingStart) { const s = this.pendingStart; this.pendingStart = null; fn(s.seed, s.diff, s.enc, s.heroes); }
   }
-  private startRun: ((seed: string, diff: number, enc: string) => void) | null = null;
-  private pendingStart: { seed: string; diff: number; enc: string } | null = null;
+  private startRun: ((seed: string, diff: number, enc: string, heroes?: string[]) => void) | null = null;
+  private pendingStart: { seed: string; diff: number; enc: string; heroes?: string[] } | null = null;
   /** 分岔或斷線。**這個一定要接**：不接的話兩個人會繼續玩兩份不一樣的遊戲 */
   onTrouble(fn: (why: string) => void): void { this.trouble = fn; }
 
@@ -331,9 +331,9 @@ export class CoopSession {
   private picked: ((kind: string) => void) | null = null;
 
   /** 主機用：宣布開局。兩邊各自用同一顆種子跑出同一局 */
-  start(seed: string, diff: number, enc: string): void {
+  start(seed: string, diff: number, enc: string, heroes?: string[]): void {
     if (this.dead || !this.isHost) return;
-    this.tx.send({ m: 'start', seed, diff, enc });
+    this.tx.send({ m: 'start', seed, diff, enc, ...(heroes ? { heroes } : {}) });
   }
 
   private handle(m: NetMessage): void {
@@ -350,9 +350,9 @@ export class CoopSession {
     }
     if (m.m === 'start') {
       if (this.isHost) return;
-      this.hooks.onStart?.(m.seed, m.diff, m.enc);
-      if (this.startRun) this.startRun(m.seed, m.diff, m.enc);
-      else this.pendingStart = { seed: m.seed, diff: m.diff, enc: m.enc };   // 還沒註冊就先存著
+      this.hooks.onStart?.(m.seed, m.diff, m.enc, m.heroes);
+      if (this.startRun) this.startRun(m.seed, m.diff, m.enc, m.heroes);
+      else this.pendingStart = { seed: m.seed, diff: m.diff, enc: m.enc, ...(m.heroes ? { heroes: m.heroes } : {}) };   // 還沒註冊就先存著
       return;
     }
     if (!this.cs) return;

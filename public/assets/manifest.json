@@ -1166,6 +1166,10 @@
   "bg/event_robin_feast_r1": "assets/bg/event_robin_feast_r1.webp",
   "bg/event_moving_rat_r0": "assets/bg/event_moving_rat_r0.webp",
   "bg/event_grindstone_r0": "assets/bg/event_grindstone_r0.webp",
-  "bg/event_shortcut_scroll_r0": "assets/bg/event_shortcut_scroll_r0.webp"
+  "bg/event_shortcut_scroll_r0": "assets/bg/event_shortcut_scroll_r0.webp",
+  "bg/feifei_still_teach": "assets/bg/feifei_still_teach.webp",
+  "bg/feifei_still_corrupt": "assets/bg/feifei_still_corrupt.webp",
+  "bg/feifei_still_wait": "assets/bg/feifei_still_wait.webp",
+  "bg/feifei_still_depart": "assets/bg/feifei_still_depart.webp"
  }
 }

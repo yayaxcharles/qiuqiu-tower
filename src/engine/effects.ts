@@ -2,6 +2,7 @@ import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEne
 import { endTurn } from './combat';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
+import { unitName } from './hero';
 import { DEBUFFS, RANGE_MAX, TURN_DECAY } from './types';
 import type { CardInstance, CombatState, Effect, EffectCtx, PlayerCombat } from './types';
 
@@ -175,7 +176,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'taunt': {
       p.taunt = true;
-      log(cs, cs.players.length > 1 ? '球球站到前面，這一輪魔物都衝著他來' : '球球擺出架式');
+      log(cs, cs.players.length > 1 ? `${unitName(p)}站到前面，這一輪魔物都衝著他來` : `${unitName(p)}擺出架式`);
       return false;
     }
     case 'draw': drawCards(cs, fx.n, p); return false;

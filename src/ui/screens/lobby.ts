@@ -5,6 +5,9 @@ import { CoopSession } from '../../net/session';
 import { beginCombat, newCoopRun } from '../../engine/run';
 import type { App } from '../app';
 import type { Transport } from '../../net/transport';
+import { setLocalHero } from '../assets';
+import { me } from '../../engine/runplayer';
+import { heroName, type Hero } from '../../engine/hero';
 
 /**
  * 開房畫面：兩台瀏覽器直連，**不經過任何伺服器**。
@@ -63,25 +66,39 @@ function troubleBanner(why: string): void {
   document.body.append(bar);
 }
 
+/*
+ * 兩個座位各玩誰（2026-09-12）。**開房的人替兩位都挑**。
+ *
+ * 不做成「各自挑自己的」是因為協定裡沒有「開局前再來回一趟」的機會：
+ * 連上的那一瞬間主機就得宣布種子與難度，客戶端照著開。要讓加入者自己挑，
+ * 得先加一輪「我挑好了」的訊息、主機收齊才宣布——那是另一件事，不是今晚的事。
+ * 難度本來就是主機決定的，角色跟著同一套規矩走，至少是一致的。
+ */
+const coopHeroes: [Hero, Hero] = ['ninja', 'ninja'];
+
 function startCoop(app: App, tx: Transport, isHost: boolean): void {
   const seat = isHost ? 0 : 1;
   const session = new CoopSession(tx, { isHost, seat, onDesync: troubleBanner, onClose: troubleBanner });
   app.coop = session;
   app.seat = seat;
-  const begin = (seed: string, diff: number): void => {
-    // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）
-    app.run = newCoopRun(seed, diff);
+  const begin = (seed: string, diff: number, heroes?: string[]): void => {
+    // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）。
+    // 角色也一樣：開房的人挑好兩位，跟種子一起宣布，兩邊算出來的起手牌才會一樣
+    const h = (i: number): Hero => (heroes?.[i] === 'feifei' ? 'feifei' : 'ninja');
+    app.run = newCoopRun(seed, diff, h(0), h(1));
+    setLocalHero(me(app.run, seat).hero);
     session.useRun(app.run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
     app.show('map');
   };
   if (isHost) {
     const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;
-    session.start(seed, 1, '');
-    begin(seed, 1);
+    const heroes = [coopHeroes[0], coopHeroes[1]];
+    session.start(seed, 1, '', heroes);
+    begin(seed, 1, heroes);
   } else {
     // 客戶端等主機宣布，收到才開——不能自己挑種子，那樣兩邊一定不一樣
-    session.onStartRun((seed, diff) => begin(seed, diff));
+    session.onStartRun((seed, diff, _enc, heroes) => begin(seed, diff, heroes));
   }
 }
 
@@ -128,6 +145,22 @@ registerScreen('lobby', (app, root) => {
     render();
   };
 
+  /** 選角那兩排（只有開房的人按得動；加入的人照主機宣布的開） */
+  const heroPicker = (): HTMLElement => {
+    const row = (label: string, i: 0 | 1): HTMLElement => el('div', { class: 'lobby-hero-row' },
+      el('b', {}, label),
+      ...(['ninja', 'feifei'] as const).map((h) => {
+        const b = el('button', {
+          class: `btn small${coopHeroes[i] === h ? ' selected' : ''}`,
+          onclick: () => { coopHeroes[i] = h; render(); },
+        }, heroName({ hero: h }));
+        return b;
+      }));
+    return el('div', { class: 'lobby-heroes' },
+      el('p', { class: 'lobby-note' }, '開房的人挑角色（兩位都挑，加入的人照這個開）：'),
+      row('開房的人', 0), row('加入的人', 1));
+  };
+
   const render = (): void => {
     clear(root);
     const box = el('div', { class: 'lobby' });
@@ -145,6 +178,7 @@ registerScreen('lobby', (app, root) => {
             },
           }, '我開房'),
           el('button', { class: 'btn', onclick: () => { st.step = 'joining'; render(); } }, '我要加入')),
+        heroPicker(),
         el('p', { class: 'lobby-note' },
           '兩台機器會直接連線，中間不經過任何伺服器，所以要互相貼一次代碼（用 LINE 傳就好）。'));
     }
