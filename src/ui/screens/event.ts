@@ -151,6 +151,17 @@ registerScreen('event', (app, root, props) => {
    */
   let cardPickInfo: { up: boolean; resultText: string; gains: RunGain[];
     gotShow: Showcase; noteLine: (extra?: string) => string | null } | null = null;
+  /**
+   * **還在等同伴挑牌**（挑一張來升級／丟掉、三選一學招）。
+   *
+   * 這段期間不可以讓人按「繼續」走掉：套用那幾張牌的處理函式是這個畫面掛上去的，
+   * 而 `App.show()` 換畫面時會把畫面級的連線回呼清乾淨——先走的那一位
+   * **就再也套不到同伴挑的那張牌**，兩邊的牌組與 `nextUid` 當場差一個，下一格對帳才炸。
+   *
+   * 最容易踩到的是「自己沒得挑」的人：倒下的、或牌組裡每張都升級過的，
+   * 他那台一進來就直接看到結果與「繼續」，一按就走。
+   */
+  let awaitingPicks = false;
   const iDown = !!coop && !!me(run, seat).down;   // 我倒下了：只能看，不能選
 
   /**
@@ -200,7 +211,11 @@ registerScreen('event', (app, root, props) => {
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
   const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void => {
-    panel(resultText, note, el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'), gains, resultArt, show);
+    panel(resultText, note,
+      awaitingPicks
+        ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
+        : el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'),
+      gains, resultArt, show);
     // 忍具帶滿收不下的（gains 裡標 missed）：結果畫好之後一支一支問要不要換掉舊的
     const missed = gains.filter((g) => g.kind === '忍具' && g.missed);
     const askNext = (i: number): void => {
@@ -425,26 +440,43 @@ registerScreen('event', (app, root, props) => {
      * 這一支兩台都一定會跑到；挑牌的畫面不是——倒下的人、或牌組裡沒有可挑的牌的人
      * 根本走不到那裡，他那台就永遠沒有人在聽，同伴挑的牌在他那台不會進牌組。
      */
+    const added = me(run, seat).deck.filter((x) => !had.has(x.uid));
+    /** 把結果畫面重畫一次（自己沒得挑的那一台，等同伴挑完之後要把「繼續」放出來） */
+    const showResult = (): void => { settle(outcomes[seat] ?? null, c.result, notes, gains, added, outcomes); };
     if (coop) {
       const alive = run.players.map((p) => !p.down);
+      // 只要**有人**要挑牌，這個畫面就先鎖住「繼續」（見 `awaitingPicks`）
+      awaitingPicks = outcomes.some((o) => !!o && ('needs' in o || 'chooseCard' in o));
       coop.onPick((kind) => {
         if (kind === 'evlearn') {
           const all = onlyStanding(coop.picks('evlearn', run.players.length), alive);
           if (!allVoted(all, alive)) return;
           coop.clearPicks('evlearn');
+          awaitingPicks = false;
           // 照座位順序套，兩台算出來的牌組才一樣；只有自己那張要演出來
           all.forEach((v, i) => { if (v) takeLearn(i, v, outcomes, i === seat ? c.result : undefined, gains); });
-          if (!all[seat]) finish(c.result, '一招都沒挑', gains);
+          if (all[seat] === '') finish(c.result, '一招都沒挑', gains);
+          else if (all[seat] === null) showResult();   // 我這台根本沒得挑：重畫一次把「繼續」放出來
           return;
         }
         if (kind !== 'evcard') return;
         const all = onlyStanding(coop.picks('evcard', run.players.length), alive);
         if (!allVoted(all, alive)) return;
         coop.clearPicks('evcard');
+        awaitingPicks = false;
         const info = cardPickInfo;
         const mineOut = { names: [] as string[], show: [] as Showcase };
         all.forEach((v, i) => {
           if (v === null) return;
+          /*
+           * **「這是升級還是移除」要從那一位自己的 `outcome` 拿，不可以從 `cardPickInfo` 拿**
+           *（稽核第三輪自己抓到的）。`cardPickInfo` 只有**真的開過挑牌疊層的那一台**才有；
+           * 沒開過的那一台（倒下的人、沒得挑的人）讀到 undefined，於是把該升級的牌
+           * 通通**丟掉**——實測倒下的那一台牌組直接從 10 張變 8 張，兩台當場不一樣。
+           * `outcomes[i]` 是引擎算出來的，兩台一模一樣。
+           */
+          const oi = outcomes[i];
+          const upI = !!oi && 'needs' in oi && oi.needs === 'upgradeCard';
           const list = v ? v.split(',').map(Number) : [];
           const names: string[] = [];
           for (const uid of list) {
@@ -452,19 +484,19 @@ registerScreen('event', (app, root, props) => {
             if (!card) continue;
             names.push((cardById[card.cardId]?.name ?? card.cardId) + (card.upgraded ? '＋' : ''));
             const before = { ...card };
-            if (info?.up) upgradeCard(run, uid, i); else removeCard(run, uid, i);
-            if (i === seat) mineOut.show.push(info?.up ? { kind: 'upgrade', card } : { kind: 'remove', card: before });
+            if (upI) upgradeCard(run, uid, i); else removeCard(run, uid, i);
+            if (i === seat) mineOut.show.push(upI ? { kind: 'upgrade', card } : { kind: 'remove', card: before });
           }
           if (i === seat) mineOut.names = names;
         });
-        if (!info) return;   // 我這台沒開過挑牌疊層（倒下、或沒得挑）：套用完就好，不用再演一次
+        if (!info) { showResult(); return; }   // 我這台沒開過挑牌疊層：套用完重畫一次，把「繼續」放出來
         if (mineOut.names.length) play(info.up ? 'upgrade' : 'dodge');
         const note = mineOut.names.length
           ? `「${mineOut.names.join('」「')}」${info.up ? '升級了' : '被丟掉了'}` : undefined;
         finish(info.resultText, info.noteLine(note), info.gains, [...info.gotShow, ...mineOut.show]);
       });
     }
-    settle(outcomes[seat] ?? null, c.result, notes, gains, me(run, seat).deck.filter((x) => !had.has(x.uid)), outcomes);
+    showResult();
   }
 
   renderHud(app, root);
