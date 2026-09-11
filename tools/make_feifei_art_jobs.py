@@ -143,7 +143,8 @@ def hero_jobs() -> dict[str, str]:
         jobs[fid] = (
             LOOK + " " + GEAR_LOOK +
             "\n\nPose: " + text + FRAMING.get(pose, FRAMING_DEFAULT) +
-            "\nKeep the exact same character design as the reference image - only the pose and expression "
+            "\nKeep the exact same character design AND the same right-facing three-quarter angle as the "
+            "reference image (both halves of it face right) - only the pose and expression "
             "differ. There is exactly ONE character in the picture: no second cat, nobody else.\n"
             "Draw everything SOLID and OPAQUE. Nothing else in the picture: no ground line, no shadow, no "
             "scenery, no text, no letters, no watermark, no border.\n"
