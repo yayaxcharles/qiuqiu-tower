@@ -118,19 +118,23 @@ describe('第二關菁英（兩個機制）', () => {
     expect(getStatus(e, '飛行'), '**不再補回滿層**：打掉一層就是少一層').toBe(5);
   });
 
-  it('醉拳狗・消散 6 ＋每回合成長：六個回合後自己散去，而且越拖越強', () => {
+  it('醉拳狗・**不會自己走掉**，只會越拖越強', () => {
+    /*
+     * 使用者 2026-09-11：「菁英怪應該是強力且打到底的，不該讓菁英怪逃跑」。
+     * 原本掛著 `fadeAfter: 6`，跟牠自己的 `strengthEveryNTurns: 1` 正好矛盾——
+     * 一邊說「越拖越強、快點解決我」，一邊又說「拖到第六回合我就自己走了」，
+     * 而且玩家打到一半牠跑掉、獎勵照發。消散那個機制留給一般怪（幻狐、怨靈武者）。
+     */
     const cs = start('drunk_dog');
     const e = cs.enemies[0]!;
     expect(e.maxHp).toBe(125);
-    expect(getStatus(e, '消散')).toBe(6);
-    endTurn(cs);
+    expect(getStatus(e, '消散'), '不該有消散').toBe(0);
+    cs.player.block = 999; endTurn(cs);
     expect(getStatus(e, '爪力'), '每回合 +1 爪力').toBe(1);
-    expect(getStatus(e, '消散')).toBe(5);
-    for (let i = 0; i < 5 && cs.phase === 'player'; i++) endTurn(cs);
-    expect(e.dead).toBe(true);
-    expect(e.escaped, '散掉走 escape 那條路').toBe(true);
-    expect(cs.kills, '散掉的不算打倒，戰利品也沒了').toBe(0);
-    expect(cs.log.some((l) => l.includes('散去了'))).toBe(true);
+    for (let i = 0; i < 9 && cs.phase === 'player'; i++) { cs.player.block = 999; endTurn(cs); }
+    expect(e.dead, '十回合了也還站著').toBe(false);
+    expect(e.escaped).toBeFalsy();
+    expect(getStatus(e, '爪力'), '越拖越強').toBeGreaterThanOrEqual(10);
   });
 });
 

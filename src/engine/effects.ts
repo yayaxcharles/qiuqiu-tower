@@ -89,7 +89,19 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 秘寶的代價（鐵砂衣開戰扣血）不能把球球直接打死，至少留 1 血，而且要留一行紀錄（稽核 2026-09-04 高 1）
       const amount = ctx.source === 'relic' ? Math.min(fx.amount, Math.max(0, p.hp - 1)) : fx.amount;
       if (amount <= 0) return false;
-      damagePlayer(cs, p, amount, { direct: true });
+      /**
+       * **先扣蜷縮，擋不完的才進血**（使用者 2026-09-11 回報：「用鐵頭功的時候我身上有蜷縮值
+       * 卻還是扣血了」）。
+       *
+       * 走的是 `throughBlock`——跟 2026-09-03 那次改反彈時使用者定下的原則同一條：
+       * 「被打到的人都應該優先扣蜷縮」。那次只改了反彈，自傷這條漏掉了。
+       * `direct` 仍然留著：自傷不套攻擊公式、不吃爪力翻肚、不觸發隱身閃避，
+       * 只是現在會先讓蜷縮吃掉。
+       *
+       * 受影響的只有三張牌（鐵頭功 2、拼命 3、亡命 6）與鐵砂衣的開場 4 點。
+       * 鐵砂衣那一下**打在開戰第一拍**，那時蜷縮還是 0（除了暖毯），所以它的代價實質不變。
+       */
+      damagePlayer(cs, p, amount, { direct: true, throughBlock: true });
       if (ctx.source === 'relic') log(cs, `秘寶的代價：失去 ${amount} 點生命`);
       return false;
     }

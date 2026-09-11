@@ -6199,7 +6199,6 @@
     2
    ],
    "passives": {
-    "fadeAfter": 6,
     "strengthEveryNTurns": 1
    },
    "moves": [

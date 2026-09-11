@@ -15,12 +15,24 @@ function combat(encounterId: string, deck = [inst('canshang', 1)]) {
 }
 
 describe('稽核 2026-09-10 的修正', () => {
-  it('高-1 消散：一隻都沒打倒就沒有戰利品', () => {
+  /*
+   * **獎勵規則 2026-09-11 換過一次**（使用者：「逃跑的怪不該有該隻怪的獎勵」）。
+   *
+   * 舊規則：自己散掉時只要打進兩成血（`FADE_REWARD_MIN`）就照常發獎，
+   * 而「逃走」（橘貓山賊）完全不受限制。那是為了照顧「認真打了六回合、
+   * 把 125 血的醉拳狗打到剩兩成、最後一回合牠散掉」的委屈案例。
+   * 新規則：**一隻都沒打倒就沒有戰利品**，散掉與逃走一視同仁。
+   * 那個委屈案例已經不存在——醉拳狗（唯一會散的大魔物）同一天拿掉了消散，
+   * 現在會散的只剩幻狐與怨靈武者兩隻一般怪，一般戰本來就不該打到散掉還沒打完。
+   * 這一組因此整個改寫，測試對象從醉拳狗換成幻狐。
+   */
+  it('自己散掉、一隻都沒打倒：沒有戰利品', () => {
     const run = newRun('fade', 1);
-    const cs = combat('drunk_dog', []);
+    const cs = combat('phantom_fox', []);
     for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
     expect(cs.phase).toBe('won');
     expect(cs.kills).toBe(0);
+    expect(cs.enemies.some((e) => e.faded)).toBe(true);
     const r = finishCombat(run, cs);
     expect(r?.escaped).toBe(true);
     expect(r?.relic).toBeNull();
@@ -28,69 +40,62 @@ describe('稽核 2026-09-10 的修正', () => {
     expect(r?.fish).toBe(0);
   });
 
-  it('散掉但打進兩成血：獎勵照發（不是「有沒有打倒」）', () => {
+  it('**打進去很多也一樣沒有**：門檻整個拿掉了，只看有沒有打倒', () => {
     const run = newRun('dealt', 1);
-    const cs = combat('drunk_dog', []);
+    const cs = combat('phantom_fox', []);
     const foe = cs.enemies[0]!;
-    damageEnemy(cs, foe, 26, { direct: true });   // 125 血打進 26 點＝ 20.8%，剛過門檻
+    damageEnemy(cs, foe, 60, { direct: true });   // 70~78 血打進 60 點，舊規則早就過門檻了
     for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
     expect(cs.kills).toBe(0);
     expect(cs.enemies.some((e) => e.faded)).toBe(true);
-    const r = finishCombat(run, cs);
-    expect(r?.escaped).toBeUndefined();          // 有真的在打，不算擺爛
-    expect(r?.cards.length).toBeGreaterThan(0);
-  });
-
-  it('中-2 門檻看累計傷害，牠回血不會把玩家的功勞洗掉', () => {
-    // 醉拳狗六回合灌兩次酒各回 10 點。看「終局缺幾成血」的話，打進 26 點只剩缺 6 點＝ 4.8%，
-    // 明明認真打了六回合卻拿不到東西；真正的門檻被回血抬到 36%（稽核 2026-09-10 中-2）
-    const run = newRun('heal', 1);
-    const cs = combat('drunk_dog', []);
-    const foe = cs.enemies[0]!;
-    damageEnemy(cs, foe, 26, { direct: true });
-    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
-    expect(cs.damageDealt).toBe(26);
-    expect(foe.maxHp - foe.hp).toBeLessThan(foe.maxHp * 0.2);   // 終局缺的血遠不到兩成（牠回血了）
-    expect(finishCombat(run, cs)?.escaped).toBeUndefined();     // 但獎勵照發
-  });
-
-  it('中-2 站著不動一樣沒有戰利品', () => {
-    const run = newRun('idle', 1);
-    const cs = combat('drunk_dog', []);
-    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
-    expect(cs.damageDealt).toBe(0);
     expect(finishCombat(run, cs)?.escaped).toBe(true);
   });
 
-  it('中-2 被防禦擋掉的不算「打進去」', () => {
-    const run = newRun('blocked', 1);
-    const cs = combat('drunk_dog', []);
-    const foe = cs.enemies[0]!;
-    foe.block = 999;
-    damageEnemy(cs, foe, 60);        // 全被擋下來，血條一點沒少
-    expect(cs.damageDealt).toBe(0);
-    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
-    expect(finishCombat(run, cs)?.escaped).toBe(true);
-  });
-
-  it('中-1 逃走招式不算「自己散掉」，獎勵照發', () => {
-    // 橘貓山賊第五回合帶著小魚乾逃走：那是正常打但差一口氣，不該連戰利品都沒有
+  it('**逃走跟散掉一視同仁**：橘貓山賊帶著小魚乾跑掉也沒有戰利品', () => {
+    // 舊規則刻意放行逃走（「那是正常打但差一口氣」），使用者 2026-09-11 改掉：
+    // 牠全身而退、還帶走你的小魚乾，再發獎說不過去
     const run = newRun('flee', 1);
     const cs = combat('orange_bandit', []);
     for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
     expect(cs.phase).toBe('won');
     expect(cs.kills).toBe(0);
     expect(cs.enemies.some((e) => e.escaped)).toBe(true);
-    expect(cs.enemies.some((e) => e.faded)).toBe(false);   // 逃走不是散掉
+    const r = finishCombat(run, cs);
+    expect(r?.escaped).toBe(true);
+    expect(r?.cards).toEqual([]);
+  });
+
+  it('打倒一隻就算數：兩隻裡跑掉一隻，戰利品照發', () => {
+    // 規則的判準是 `cs.kills === 0`，不是「有沒有人跑掉」——
+    // 清掉一隻就代表你真的打贏了一部分，不該連戰利品都沒有
+    const run = newRun('one', 1);
+    const cs = combat('panther_fox', []);
+    const fox = cs.enemies.find((e) => e.enemyId === 'phantom_fox')!;
+    const other = cs.enemies.find((e) => e.enemyId !== 'phantom_fox')!;
+    damageEnemy(cs, other, 9999, { direct: true });   // 把不會散的那隻打死
+    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
+    expect(cs.kills).toBeGreaterThan(0);
+    expect(fox.faded || fox.dead).toBe(true);
     const r = finishCombat(run, cs);
     expect(r?.escaped).toBeUndefined();
-    expect(r?.cards.length).toBeGreaterThan(0);   // 照樣有戰利品
+    expect(r?.cards.length).toBeGreaterThan(0);
+  });
+
+  it('**大魔物不會自己走掉**：醉拳狗拿掉了消散，只會越打越強', () => {
+    // 使用者 2026-09-11：「菁英怪應該是強力且打到底的，不該讓菁英怪逃跑」。
+    // 牠身上的 `strengthEveryNTurns: 1`（每回合 +1 爪力）跟消散本來就互相矛盾
+    const cs = combat('drunk_dog', []);
+    const foe = cs.enemies[0]!;
+    for (let i = 0; i < 12 && cs.phase === 'player'; i++) { cs.player.block = 999; endTurn(cs); }
+    expect(foe.faded, '打十二回合也不會自己散掉').toBeFalsy();
+    expect(foe.dead).toBe(false);
+    expect(getStatus(foe, '爪力'), '而且越拖越強').toBeGreaterThan(5);
   });
 
   it('高-1 事件獎金不會被早退吞掉', () => {
     const run = newRun('bonus', 1);
     const before = run.fish;
-    const cs = combat('drunk_dog', []);
+    const cs = combat('phantom_fox', []);   // 醉拳狗 2026-09-11 拿掉消散，改用還會散的幻狐
     for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
     const r = finishCombat(run, cs, 40);
     expect(r?.escaped).toBe(true);

@@ -973,7 +973,16 @@ export const enemies: EnemyDef[] = [
   // 消散 6＋每回合成長：六個回合內打不倒牠就散去，秘寶也跟著沒了。時間賽跑，而且牠越拖越強
   { id: 'drunk_dog', name: '醉拳狗', hp: [125, 125], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_drunk_dog',
     line: '（腳步東倒西歪，酒葫蘆卻拿得很穩）', lines: ['（打了個酒嗝，笑了一下）', '（晃了晃葫蘆，還有半瓶）'],
-    fadeAfter: 6, strengthEveryNTurns: 1,
+    /**
+     * **大魔物不會自己走掉**（使用者 2026-09-11：「菁英怪應該是強力且打到底的」）。
+     *
+     * 原本掛著 `fadeAfter: 6`，跟牠自己的 `strengthEveryNTurns: 1`（每回合 +1 爪力）
+     * 正好互相矛盾：一邊說「越拖越強、你得快點解決牠」，一邊又說「拖到第六回合我就自己走了」，
+     * 玩家打到一半牠跑掉、獎勵卻照發，怎麼看都很怪。
+     * 消散那個機制留給一般怪（幻狐、怨靈武者）——那是「路上遇到的鬼影，不理牠就散了」，
+     * 對大魔物節點不成立：那是你**選擇**走進去換一件保底秘寶的硬仗。
+     */
+    strengthEveryNTurns: 1,
     moves: [
       { intent: 'attack', label: '醉步', effects: [{ kind: 'damage', amount: 12, times: 2 }] },
       { intent: 'buff', label: '灌酒', effects: [{ kind: 'heal', n: 10 }, { kind: 'statusSelf', name: '爪力', amount: 2 }] },
