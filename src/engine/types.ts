@@ -22,6 +22,14 @@ export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', 
 /** 回合結束層數 −1 的狀態 */
 // 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
 // （魔物身上的定身不走這條——那邊是「出招時消耗」，在 endTurn 的攻擊判定裡處理）
+/**
+ * 距離的上限（菲菲專用）。
+ *
+ * 3 是平衡值不是技術值：「距離每 1 點多 N 點」的牌乘上去很快就失控，
+ * 而且退到第 4 格之後玩家就沒有「要不要再退一次」的取捨了。
+ */
+export const RANGE_MAX = 3;
+
 export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '定身'];
 
 export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack';
@@ -44,6 +52,37 @@ export type Effect =
   | { kind: 'damageEqualBlock' }
   | { kind: 'selfDamage'; amount: number }
   | { kind: 'block'; amount: number }
+  /*
+   * ===== 菲菲的「距離」（2026-09-12）=====
+   *
+   * 她的防禦不是第三種「擋」（那會變成加了毒的武士），是「別被打到」。
+   * 距離 0～3：退開 +1、真的被扣到血 −1、暗器的威力隨距離放大。
+   */
+  /** 距離加減。`n` 可以是負的；`to` 有填就是「直接設成這個值」（逃生索那種） */
+  | { kind: 'range'; n?: number; to?: number }
+  /** 傷害隨距離放大：`amount` 是底傷，`per` 是距離每 1 點多幾點 */
+  | { kind: 'damageByRange'; amount: number; per: number }
+  /** 站得夠遠才發生的效果（貼牆的「距離 ≥ 2 時再 +3 蜷縮」）。`min` 是門檻 */
+  | { kind: 'ifRange'; min: number; effects: Effect[] }
+  /**
+   * 傷害＝目標身上這個狀態的層數（見血封喉：把毒一次引爆）。
+   * `consume` ＝打完把層數清掉（基礎版會清，升級版不清）。
+   */
+  | { kind: 'damageByStatus'; name: StatusName; consume?: boolean }
+  /** 層數 ≥ 目標現在的生命就直接打倒（一針斃命） */
+  | { kind: 'execByStatus'; name: StatusName }
+  /**
+   * 屍爆（餘毒）：中毒的魔物被打倒時，把牠**剩下的層數**傳給其他還活著的。
+   * `full` ＝每一隻都拿全額（升級版），沒有就平分。
+   *
+   * 這是掛在人身上的長效旗標（像秘笈的 `firstAttackDouble`），不是 `power`——
+   * `power` 的觸發時機不帶「死掉的是誰」，而屍爆非得知道那一隻身上剩幾層不可。
+   */
+  | { kind: 'poisonBurst'; full?: boolean }
+  /** 拒馬：距離 ≥ `min` 時，魔物的攻擊對你少 `amount` 點傷害（同樣是長效旗標） */
+  | { kind: 'rangeGuard'; min: number; amount: number }
+  /** 千針萬毒：之後每打出一張攻擊牌，就給那個目標額外 `n` 層中毒（長效旗標） */
+  | { kind: 'poisonOnAttack'; n: number }
   /*
    * ===== 幫隊友的三招（連線版 2026-09-11）=====
    *
@@ -110,7 +149,7 @@ export interface CardDef {
   rarity: Rarity;
   pool: Pool;
   /** 職業獨占：沒寫＝兩個職業共用；'ninja' 的隱身潛水那批武士拿不到（見 engine/hero） */
-  hero?: 'ninja' | 'samurai';
+  hero?: 'ninja' | 'samurai' | 'feifei';
   target: TargetMode;
   effects: Effect[];
   keywords?: Keyword[];
@@ -125,6 +164,8 @@ export interface CardDef {
    * 不會出現在事件、獎勵與圖鑑的壞毛病清單裡。戰鬥本來就用牌組的副本，戰鬥結束自然消失。
    */
   combatOnly?: boolean;
+  /** 要求距離至少這麼遠才打得出來（菲菲的遠程牌；沒寫＝不限） */
+  needRange?: number;
   /** 牌面插圖還沒到齊：不進獎勵、罐頭鋪、事件、圖鑑；圖接入後由生圖腳本拿掉 */
   hidden?: true;
   /**
@@ -467,7 +508,7 @@ export interface GameMap { nodes: MapNode[]; start: string[] }
  */
 export interface RunPlayer {
   /** 這一位的職業。沒寫＝忍者 */
-  hero?: 'ninja' | 'samurai';
+  hero?: 'ninja' | 'samurai' | 'feifei';
   hp: number;
   maxHp: number;
   fish: number;
@@ -517,6 +558,13 @@ export interface RunState {
 // ===== 戰鬥 =====
 export interface Unit { hp: number; maxHp: number; block: number; statuses: Partial<Record<StatusName, number>> }
 export interface PlayerCombat extends Unit {
+  /**
+   * 這一位的職業。沒寫＝忍者。
+   *
+   * `RunPlayer` 上也有一份，這裡再放一次**不是重複**：戰鬥畫面拿得到的只有 `CombatState`，
+   * 而連線時同伴可能是另一個職業——立繪、招式圖、獨占牌全看這個欄位。
+   */
+  hero?: 'ninja' | 'samurai' | 'feifei';
   /**
    * 座位編號，0 起算（連線版第一步 2026-09-11）。
    *
@@ -587,6 +635,19 @@ export interface PlayerCombat extends Unit {
   firstStealthGiven: boolean;
   firstCardPlayed: boolean;
   lethalPrevented: boolean;
+  /**
+   * 距離（菲菲專用，0～3）。其他職業永遠是 0，畫面上也不顯示。
+   *
+   * 放在 `PlayerCombat` 而不是狀態列：它不是減益也不是增益，不吃「清除所有減益」、
+   * 不隨回合衰減，而且要參與指紋（連線兩邊必須一致）。
+   */
+  range: number;
+  /** 餘毒（屍爆）開著沒：`'split'` 平分、`'full'` 每隻都拿全額。見 `Effect` 的 `poisonBurst` */
+  poisonBurst?: 'split' | 'full';
+  /** 拒馬：距離 ≥ `min` 時魔物的攻擊少 `amount` 點 */
+  rangeGuard?: { min: number; amount: number };
+  /** 千針萬毒：每打出一張攻擊牌，額外給那個目標幾層中毒 */
+  poisonOnAttack?: number;
   /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */
   freshDebuffs: Partial<Record<StatusName, number>>;
   /**

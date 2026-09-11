@@ -1447,3 +1447,36 @@
   text-align: center;
   box-shadow: 0 2px 10px #0008;
 }
+
+/* ===== 選角畫面（2026-09-12，使用者：「開頭進地圖前可以選角色」）=====
+   排在「新的一局」與序章之間。兩張角色卡並排、選中的那張亮起來，
+   底下寫這一位的起手十張、起始秘寶與一張代表牌——那三樣才是玩家真正在選的東西。
+   整頁塞在 720 高裡：卡片 300 高、說明區固定 150，不會把按鈕擠出舞台。 */
+.heroselect {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  color: #f8f2e6; text-shadow: 0 2px 6px #000a;
+}
+.heroselect h2 { margin: 0; font-size: 30px; letter-spacing: 3px; }
+.hero-cards { display: flex; gap: 28px; }
+.hero-card {
+  width: 250px; padding: 10px 12px 12px; cursor: pointer;
+  background: #2a1a0dcc; border: 2px solid #ffd98a4d; border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  transition: transform 120ms ease-out, border-color 120ms ease-out;
+}
+.hero-card:hover { transform: translateY(-3px); border-color: #ffd98aa6; }
+.hero-card.selected { border-color: #ffd35c; box-shadow: 0 0 0 3px #ffd35c40, 0 6px 0 #0000005e; }
+.hero-portrait { position: relative; height: 210px; display: grid; place-items: end center; }
+.hero-portrait img { height: 210px; object-fit: contain; }
+/* 圖還沒生好時不要破圖，也不要灰剪影——就寫名字，那一格照樣看得懂 */
+.hero-portrait-missing { display: grid; place-items: center; height: 210px; width: 150px; font-size: 34px; color: #ffd98a; border: 2px dashed #ffd98a59; border-radius: 12px; }
+.hero-name { font-size: 26px; font-weight: bold; }
+.hero-tag { font-size: 15px; color: #ffd98a; letter-spacing: 1px; }
+.hero-detail { width: 780px; min-height: 132px; background: #2a1a0da8; border-radius: 14px; padding: 10px 18px; }
+.hero-blurb { margin: 0 0 6px; font-size: 16px; line-height: 1.55; }
+.hero-kit { display: flex; flex-direction: column; gap: 3px; font-size: 14px; line-height: 1.5; }
+.hero-kit-row { display: flex; gap: 10px; }
+.hero-kit-row b { color: #ffd98a; flex: 0 0 122px; }
+.hero-kit-row span { flex: 1; }
+.heroselect-buttons { display: flex; gap: 14px; }

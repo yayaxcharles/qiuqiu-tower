@@ -2,6 +2,13 @@ import type { RelicDef } from '../engine/types';
 
 export const relics: RelicDef[] = [
   { id: 'blue_headband', name: '藍頭巾', pool: '起始', text: '每場戰鬥第一回合多抽 1 張牌。', art: 'codex/relic_headband', price: 130, hooks: { firstTurnDraw: 1 } },
+  /*
+   * 菲菲的起始秘寶（2026-09-12）。開場距離 1 ＋ 這個 1 ＝ 2，
+   * 所以第一回合的「遠射」就是 3＋2x2＝7 點——第一秒就教會玩家「站得遠才打得痛」。
+   * 藍頭巾（球球的）是多抽一張，兩邊都在開局給一點甜頭，強度同級。
+   */
+  { id: 'backstep', name: '後撤步', pool: '起始', text: '每場戰鬥開始時距離 +1。', art: 'codex/relic_backstep', price: 130,
+    hooks: { combatStart: [{ kind: 'range', n: 1 }] } },
   { id: 'onigiri_bag', name: '飯糰袋', pool: '常見', text: '每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_onigiri_bag', price: 160, hooks: { firstTurnEnergy: 1 } },
   { id: 'tuna_can', name: '鮪魚罐頭', pool: '常見', text: '最大生命 +10。', art: 'codex/relic_tuna_can', price: 120, hooks: { maxHp: 10 } },
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回的血加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },

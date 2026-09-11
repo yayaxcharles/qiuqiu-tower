@@ -2,7 +2,7 @@ import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEne
 import { endTurn } from './combat';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
-import { DEBUFFS, TURN_DECAY } from './types';
+import { DEBUFFS, RANGE_MAX, TURN_DECAY } from './types';
 import type { CardInstance, CombatState, Effect, EffectCtx, PlayerCombat } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
@@ -284,6 +284,67 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const cands = p.discardPile.filter((c) => c.uid !== ctx.cardUid);
       return pause(cs, queue, ctx, { from: 'discard', purpose: 'recover', cards: cands, min: 1, max: 1 });
     }
+    /*
+     * ===== 菲菲的距離（2026-09-12）=====
+     * 夾在 0～3：上限是因為「站得遠打得痛」不能無限疊，下限 0 是「牠貼到臉上了」。
+     */
+    case 'range': {
+      const before = p.range;
+      p.range = Math.max(0, Math.min(RANGE_MAX, fx.to !== undefined ? fx.to : p.range + (fx.n ?? 0)));
+      /*
+       * **只有變近才印**。距離就寫在狀態列上，退開那一下玩家從牌面就看得到，
+       * 再印一行只是把紀錄框（看得到四行）洗掉——開場的秘寶本來要收成一行，
+       * 中間夾一行就會裂成兩行，魔物的開場台詞整個被擠掉（稽核 2026-09-10 中-4 的同型問題）。
+       * 被逼近是壞事、而且是**別人造成的**，那一行要留著。
+       */
+      if (p.range < before) log(cs, `被逼近了（距離 ${p.range}）`);
+      return false;
+    }
+    case 'damageByRange': {
+      // 底傷＋距離×每點加成。**照打出當下的距離算**，不是結算時——
+      // 同一張牌先退再丟跟先丟再退威力不同，那正是這個機制要給玩家的選擇
+      const amount = fx.amount + p.range * fx.per;
+      for (const t of targetsOf(cs, ctx, false)) {
+        if (damageEnemy(cs, t, amount, { noStrength: ctx.source === 'potion', by: p }).killed) ctx.killed = true;
+      }
+      return false;
+    }
+    case 'ifRange': {
+      // 站得夠遠才發生。把裡面那幾條**插回佇列最前面**（不是另外呼叫一次 applyEffects）——
+      // 這樣「要玩家挑牌」那種會暫停的效果照樣暫停得了，順序也跟寫在牌上一樣
+      if (p.range >= fx.min) queue.unshift(...fx.effects);
+      return false;
+    }
+    case 'damageByStatus': {
+      /*
+       * 把毒一次引爆（見血封喉）。
+       *
+       * 傷害用的是**打之前**的層數，而且刻意走 `direct: true`——毒本來就是無視蜷縮的，
+       * 引爆它還被蜷縮擋住講不通。基礎版打完把層數清掉（一次性的爆發），
+       * 升級版留著（毒繼續滾）——那才是那張牌真正值得升級的地方。
+       */
+      for (const t of targetsOf(cs, ctx, false)) {
+        const n = getStatus(t, fx.name);
+        if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (damageEnemy(cs, t, n, { direct: true, by: p }).killed) ctx.killed = true;
+        if (fx.consume) removeStatus(t, fx.name);
+      }
+      return false;
+    }
+    case 'execByStatus': {
+      // 毒撐得比牠的血還多就直接了結。**用現在的生命比，不是最大生命**
+      for (const t of targetsOf(cs, ctx, false)) {
+        const n = getStatus(t, fx.name);
+        if (n < t.hp) { log(cs, `${t.name}的${fx.name}還不夠（${n}／${t.hp}）`); continue; }
+        log(cs, `${t.name}的${fx.name}發作了`);
+        if (damageEnemy(cs, t, t.hp, { direct: true, by: p }).killed) ctx.killed = true;
+      }
+      return false;
+    }
+    // 三個掛在人身上的長效旗標（餘毒、拒馬、千針萬毒）。走旗標不走 `power`，理由見 types.ts
+    case 'poisonBurst': p.poisonBurst = fx.full ? 'full' : 'split'; return false;
+    case 'rangeGuard': p.rangeGuard = { min: fx.min, amount: fx.amount }; return false;
+    case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }

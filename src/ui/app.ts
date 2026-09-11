@@ -1,4 +1,4 @@
-import { victoryLinesFor, dialogue, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, dialogue, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
 import { preloadAct, warmEncounter } from './preload';
@@ -13,14 +13,15 @@ import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as eng
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, heroSpriteUrls, monsterUrl } from './assets';
+import { computeScale, heroSpriteUrls, monsterUrl, setLocalHero } from './assets';
+import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleAt } from './dialogue';
 import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
-export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby';
+export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby';
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
@@ -119,24 +120,33 @@ export class App {
     }
   }
 
-  newRun(seed?: string, difficulty = 1): void {
-    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty);
+  /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
+  newRun(seed?: string, difficulty = 1, hero: Hero = 'ninja'): void {
+    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero);
     this.cs = null;
+    // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
+    setLocalHero(hero);
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
-    // 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白
-    const proSlides = [
-      { img: 'bg/still_teach', lines: dialogue.prologue.slice(0, 1) },
-      { img: 'bg/still_corrupt', lines: dialogue.prologue.slice(1, 2) },
-      { img: 'bg/still_rush', lines: dialogue.prologue.slice(2, 3) },
-      { img: 'bg/still_depart', lines: dialogue.prologue.slice(3) },
-    ];
+    /*
+     * 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白。
+     *
+     * **每個角色各有一整套**（2026-09-12）：同一座塔，另一隻貓的理由——
+     * 球球是「我要把師父帶回家」，菲菲是「師父跟師兄都沒回來」。
+     * 圖也各生一套（`feifei_still_*`），只有這四張非換不可：其餘場景（塔、魔物、忍具）共用。
+     */
+    const pro = storyFor(hero).prologue;
+    // 第三張兩邊不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」
+    const stills = hero === 'feifei'
+      ? ['feifei_still_teach', 'feifei_still_corrupt', 'feifei_still_wait', 'feifei_still_depart']
+      : ['still_teach', 'still_corrupt', 'still_rush', 'still_depart'];
+    const proSlides = stills.map((k, i) => ({ img: `bg/${k}`, lines: pro.slice(i, i + 1) }));
     const after = (): void => { this.save(); this.show('map'); };
     if (this.run && !this.run.flags['prologue']) {
       this.run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
       // 使用者自製的開頭影片先播（沒檔就直接略過），再接序章幻燈片
       playVideo('opening', () => {
         if (slidesReady(proSlides)) playSlides(proSlides, after);
-        else playDialogue(dialogue.prologue, after);
+        else playDialogue(pro, after);
       });
     } else after();
   }
@@ -147,6 +157,7 @@ export class App {
     if (!run) return false;
     this.run = run;
     this.cs = null;
+    setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
     void preloadAct(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
@@ -320,7 +331,7 @@ export class App {
     // 同一局算出同一筆，recordBest 比較後保留舊的；clearSave 只是 removeItem。
     // 其餘存檔時機一律不動：進行中的一局仍然只有 backToMap() 會寫。
     if (run.status !== 'playing') { recordBest(run); clearSave(); }
-    if (!rewards) { playDialogue(dialogue.defeat, () => this.show('result')); return; }
+    if (!rewards) { playDialogue(storyFor(me(this.run!, this.seat).hero).defeat, () => this.show('result')); return; }
     if (rewards.kind === '塔主') {
       // 第三關的關主倒下才是通關；前兩關的關主打完走過場對白 → 過關畫面（回滿血、挑秘寶、進下一關）。
       // 過關那條路 status 還是 playing，存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫。
@@ -344,7 +355,8 @@ export class App {
       // 過關過場也走插圖幻燈片（使用者 2026-09-02：「開頭跟結尾的投影片過場很棒，希望每個關卡關主都有」）：
       // 三句台詞配三張圖——樓梯露出來、小魚乾只找回一半、爬上塔中／魔物化煙、師父的聲音、月光下的最後一段樓梯。
       // 圖還沒生好（舊快取）就退回純文字對白，跟序章同一套規矩。
-      const lines = run.act === 1 ? dialogue.actClear1 : dialogue.actClear2;
+      const story = storyFor(me(run, this.seat).hero);
+      const lines = run.act === 1 ? story.actClear1 : story.actClear2;
       const stills = run.act === 1
         ? ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb']
         : ['bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs'];

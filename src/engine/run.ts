@@ -1,8 +1,9 @@
-import { STARTER_DECK, cardById, cards } from '../content/cards';
+import { cardById, cards, starterDeckFor } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById, enemyById } from '../content/enemies';
-import { heroOf, pickable } from './hero';
+import { heroOf, pickable, startRange, startRelicFor } from './hero';
+import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -43,7 +44,7 @@ export function runRng(run: RunState): Rng {
 /** 這一局的難度旋鈕（舊存檔沒有 difficulty 就是 1） */
 export function runMods(run: RunState): DifficultyMods { return difficultyMods(run.difficulty ?? 1); }
 
-export function newRun(seed: string, difficulty = 1, hero: 'ninja' | 'samurai' = 'ninja'): RunState {
+export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): RunState {
   const rng = new Rng(seedFromString(seed));
   const level = clampDifficulty(difficulty);
   const mods = difficultyMods(level);
@@ -60,10 +61,15 @@ export function newRun(seed: string, difficulty = 1, hero: 'ninja' | 'samurai' =
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, status: 'playing',
     flags: {},
   };
-  // 起手牌照職業過濾：替身術是忍者獨占，武士先用一張坦定補位（武士自己的起手牌等 20 張武士牌做好再換）
-  for (const id of STARTER_DECK) addCard(run, (cardById[id]?.hero && cardById[id]!.hero !== hero) ? 'tanding' : id);
+  /*
+   * 起手牌照職業發（2026-09-12 起）：
+   * - 菲菲有**自己的一整套**（飛針、退開、遠射、淬毒），見 `FEIFEI_STARTER_DECK`
+   * - 武士還是用球球那份；替身術是忍者獨占，武士先用一張淡定補位
+   *  （武士自己的起手牌等他真的有專屬牌再說——他目前是「球球換打法」不是另一個角色）
+   */
+  for (const id of starterDeckFor(hero)) addCard(run, (cardById[id]?.hero && cardById[id]!.hero !== hero) ? 'tanding' : id);
   if (mods.startCurse) addCard(run, mods.startCurse);   // 難度 4 起：開局就背一張壞毛病
-  takeRelic(run, 'blue_headband');
+  takeRelic(run, startRelicFor(hero));
   return run;
 }
 
@@ -90,7 +96,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   const startBlock = me(run).restBlock ?? 0;
   me(run).restBlock = 0;   // 暖毯的蜷縮只帶一場
   const cs = startCombat({ hp: me(run).hp, maxHp: me(run).maxHp, deck: me(run).deck.map((c) => ({ ...c })), relics: me(run).relics, potions: me(run).potions, encounterId: enc, rng: runRng(run),
-    mods: { hpMul: m.hpMul, strength, startBlock },
+    mods: { hpMul: m.hpMul, strength, startBlock }, hero: heroOf(me(run)),
     // 幾個人決定魔物的血量倍率（只放大血量，傷害不動——見 `coopscale.ts`）
     players: run.players.length });
   /*
@@ -104,6 +110,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
    */
   for (const rp of run.players.slice(1)) {
     const p: PlayerCombat = {
+      ...(rp.hero ? { hero: rp.hero } : {}),
       seat: cs.players.length,
       relics: [...rp.relics], potions: [...rp.potions],
       hp: rp.hp, maxHp: rp.maxHp, block: 0, armour: 0, statuses: {},
@@ -112,6 +119,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
       retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
       noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
       firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0,
+      range: startRange(rp.hero),
     };
     cs.players.push(p);
     /*
@@ -157,7 +165,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
  * 第二位的牌用 `addCard(run, id, false, 1)` 發：牌號從整局共用的 `run.nextUid` 拿，
  * 兩副牌絕不會撞號（撞號的後果見 `addCard` 的說明）。
  */
-export function newCoopRun(seed: string, difficulty = 1, hero: 'ninja' | 'samurai' = 'ninja'): RunState {
+export function newCoopRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): RunState {
   const run = newRun(seed, difficulty, hero);
   const first = me(run);
   run.players.push({

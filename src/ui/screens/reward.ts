@@ -9,7 +9,7 @@ import type { CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { screenBg, tierBgKey } from '../screenbg';
-import { artUrl } from '../assets';
+import { artUrl, heroArtUrl } from '../assets';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
 import { showPotionSwap, swapPotion } from '../potionswap';
@@ -135,7 +135,7 @@ registerScreen('reward', (app, root, props) => {
   if (bossRelic && !(props as { tokenShown?: boolean }).tokenShown) {
     renderHud(app, root);
     const url = artUrl('icons', bossRelic.art);
-    const hero = artUrl('sprites', 'hero/ninja_win');
+    const hero = heroArtUrl(me(run, seat).hero, 'hero/ninja_win');
     const stack = el('div', { class: 'loot-stack' },
       el('p', { class: 'loot-above' }, bossRelic.text),
       !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: bossRelic.name }) : el('div', { class: 'chest-loot-missing' }),
@@ -326,7 +326,7 @@ registerScreen('reward', (app, root, props) => {
    * 而且吃東西本來就比較搭底下那句「收拾一下戰利品，繼續往上」。
    */
   const poseArt = (key: string): HTMLElement | '' => {
-    const url = artUrl('sprites', key);
+    const url = heroArtUrl(me(run, seat).hero, key);
     return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' });
   };
   const middle = r.escaped ? poseArt('hero/ninja_dizzy')

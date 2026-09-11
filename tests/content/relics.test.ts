@@ -3,11 +3,11 @@ import { potionById, potions } from '../../src/content/potions';
 import { relicById, relics } from '../../src/content/relics';
 
 describe('秘寶', () => {
-  it('35 件、池數正確、id 不重複', () => {
-    expect(relics.length).toBe(65);   // 60＝2026-09-02 擴充（36 → 60）；65＝2026-09-04 五件代價秘寶
+  it('66 件、池數正確、id 不重複', () => {
+    expect(relics.length).toBe(66);   // 60＝2026-09-02 擴充（36 → 60）；65＝2026-09-04 五件代價秘寶；66＝2026-09-12 菲菲的起始秘寶「後撤步」
     const n = (p: string) => relics.filter((r) => r.pool === p).length;
-    expect(n('起始')).toBe(1); expect(n('常見')).toBe(30); expect(n('大魔物')).toBe(24); expect(n('塔主')).toBe(10);   // 2026-09-04 代價秘寶：常見 +2、大魔物 +3
-    expect(new Set(relics.map((r) => r.id)).size).toBe(65);
+    expect(n('起始')).toBe(2);   // 藍頭巾（球球）＋後撤步（菲菲） expect(n('常見')).toBe(30); expect(n('大魔物')).toBe(24); expect(n('塔主')).toBe(10);   // 2026-09-04 代價秘寶：常見 +2、大魔物 +3
+    expect(new Set(relics.map((r) => r.id)).size).toBe(66);
     expect(relicById['blue_headband']?.hooks.firstTurnDraw).toBe(1);
   });
   it('每件至少一個掛鉤且有說明', () => {

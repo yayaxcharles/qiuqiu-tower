@@ -1,4 +1,4 @@
-import { artUrl } from './assets';
+import { artUrl, heroArtUrl, localHero } from './assets';
 import { play } from './audio';
 import { el } from './dom';
 import { tierBgKey } from './screenbg';
@@ -17,7 +17,7 @@ const FADE_MS = 400;
 
 export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then: () => void): void {
   const bgUrl = artUrl('bg', tierBgKey(Math.max(1, nextActFloor)));
-  const catUrl = artUrl('sprites', 'hero/ninja');
+  const catUrl = heroArtUrl(localHero(), 'hero/ninja');
   if (bgUrl.startsWith('data:') || catUrl.startsWith('data:')) { then(); return; }
 
   const overlay = el('div', { class: 'actwalk-overlay' },

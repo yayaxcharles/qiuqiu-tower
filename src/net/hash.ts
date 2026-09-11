@@ -54,7 +54,7 @@ export function combatFingerprint(cs: CombatState): string {
       statusOf(p),
       `h[${pile(p.hand)}]`, `d[${pile(p.drawPile)}]`, `x[${pile(p.discardPile)}]`, `z[${pile(p.exhaustPile)}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
-      `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`,
+      `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`, `rg${p.range}`,
     ].join('|'));
   }
   for (const e of cs.enemies) {

@@ -392,6 +392,122 @@ export const cards: readonly CardDef[] = [
   // 眼冒金星：2026-09-04 使用者改「走消耗」：0 費打出去就消耗掉，代價是抽到它等於少抽一張牌（原本是不可打出＋虛幻）
   { id: 'dazed_card', name: '眼冒金星', cost: 0, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/dazed_card',
     keywords: ['消耗'], effects: [], upgrade: {}, combatOnly: true },
+
+  /*
+   * ===== 菲菲的牌（26 張，2026-09-12）=====
+   *
+   * 她是**另一個角色**（球球的師妹，暹羅貓），不是球球換打法——設計稿在
+   * `docs/角色三_菲菲_設計稿.md`。核心是「中毒 ＋ 距離」：站得遠打得痛、被打到就被逼近。
+   *
+   * 三件事在改數值前一定要先記著：
+   *
+   * 1. **N 層中毒的總傷害是 N(N+1)/2**（每回合扣 1 層）。10 層＝55 點、20 層＝210 點。
+   *    所以「催化」那種翻倍牌在高層數時強得離譜，它的**消耗**關鍵字不能拿掉（升級版才不消耗）。
+   * 2. **純毒流前期很弱**（殺戮尖塔毒獵手的真相）。她的解法不是匕首，是把距離本身
+   *    變成早期輸出——「遠射」進起手牌，退開不再只是保命，而是準備開火。
+   * 3. 她的自傷牌**不是忍痛，是慌了**。說法一律寫「手滑、嚇到亂丟」，代價排序是
+   *    距離歸零 ＞ 自己中毒 ＞ 直接掉血，最後那種只有最大的幾張才用。
+   *
+   * `hidden`＝牌面圖還沒生，先不進任何池子（`pickable` 擋掉）。起手那四張**不吃這條**——
+   * 它們是直接按 id 發的，不經過抽牌池，所以圖還沒好也照樣開得了局。
+   */
+  // ---- 起手（4 張，共 10 張牌：飛針 x4、退開 x4、遠射 x1、淬毒 x1）----
+  { id: 'feifei_feizhen', name: '飛針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_feizhen', hidden: true,
+    effects: [{ kind: 'damage', amount: 3 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 4 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }] } },
+  { id: 'feifei_tuikai', name: '退開', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '起手', target: 'self', art: 'card/feifei_tuikai', hidden: true,
+    effects: [{ kind: 'block', amount: 4 }, { kind: 'range', n: 1 }],
+    upgrade: { effects: [{ kind: 'block', amount: 7 }, { kind: 'range', n: 1 }] } },
+  // 開局第一回合有起始秘寶「後撤步」把距離墊到 2，所以這張的第一發是 3＋2x2＝7 點
+  { id: 'feifei_yuanshe', name: '遠射', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_yuanshe', hidden: true,
+    effects: [{ kind: 'damageByRange', amount: 3, per: 2 }],
+    upgrade: { effects: [{ kind: 'damageByRange', amount: 5, per: 2 }] } },
+  { id: 'feifei_cuidu', name: '淬毒', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_cuidu', hidden: true,
+    effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 5, target: 'enemy' }] } },
+
+  // ---- 常見（8）----
+  { id: 'feifei_lianzhen', name: '連針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_lianzhen', hidden: true,
+    effects: [{ kind: 'damage', amount: 2, times: 2 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 2, times: 3 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }] } },
+  { id: 'feifei_sazhen', name: '撒針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_sazhen', hidden: true,
+    effects: [{ kind: 'damage', amount: 2, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }] } },
+  { id: 'feifei_lakai', name: '拉開', cost: 0, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_lakai', hidden: true,
+    effects: [{ kind: 'range', n: 1 }],
+    upgrade: { effects: [{ kind: 'range', n: 1 }, { kind: 'block', amount: 3 }] } },
+  { id: 'feifei_tieqiang', name: '貼牆', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_tieqiang', hidden: true,
+    effects: [{ kind: 'block', amount: 7 }, { kind: 'ifRange', min: 2, effects: [{ kind: 'block', amount: 3 }] }],
+    upgrade: { effects: [{ kind: 'block', amount: 9 }, { kind: 'ifRange', min: 2, effects: [{ kind: 'block', amount: 3 }] }] } },
+  { id: 'feifei_moyao', name: '抹藥', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_moyao', hidden: true,
+    effects: [{ kind: 'status', name: '中毒', amount: 4, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 5, target: 'enemy' }] } },
+  { id: 'feifei_tanlu', name: '探路', cost: 0, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_tanlu', hidden: true,
+    effects: [{ kind: 'draw', n: 1 }, { kind: 'range', n: 1 }],
+    upgrade: { effects: [{ kind: 'draw', n: 2 }, { kind: 'range', n: 1 }] } },
+  { id: 'feifei_suoshou', name: '縮手', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_suoshou', hidden: true,
+    effects: [{ kind: 'block', amount: 5 }, { kind: 'drawNextTurn', n: 1 }],
+    upgrade: { effects: [{ kind: 'block', amount: 7 }, { kind: 'drawNextTurn', n: 1 }] } },
+  // 自傷牌之一。說法是「手滑」不是「拚了」——她不勇敢，代價是慌張的證明（設計稿第五節）
+  { id: 'feifei_shouhua', name: '手滑', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_shouhua', hidden: true,
+    effects: [{ kind: 'damage', amount: 7 }, { kind: 'selfDamage', amount: 2 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'selfDamage', amount: 2 }] } },
+
+  // ---- 罕見（9）----
+  { id: 'feifei_cuidugai', name: '淬毒·改', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_cuidugai', hidden: true, needRange: 2,
+    effects: [{ kind: 'status', name: '中毒', amount: 6, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 8, target: 'enemy' }] } },
+  /*
+   * 催化。**消耗不能拿掉**（基礎版）：10 層翻成 20 層是從 55 點打到 210 點，
+   * 殺戮尖塔就是靠「用完就沒了」壓住它。升級版改成不消耗，那本身就是稀有等級的強度。
+   */
+  { id: 'feifei_cuihua', name: '催化', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_cuihua', hidden: true, keywords: ['消耗'],
+    effects: [{ kind: 'doubleStatus', name: '中毒' }],
+    upgrade: { keywords: [] } },
+  { id: 'feifei_zhenyu', name: '針雨', cost: 2, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_zhenyu', hidden: true,
+    effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 3, target: 'all' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 4, target: 'all' }] } },
+  { id: 'feifei_taoshengsuo', name: '逃生索', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_taoshengsuo', hidden: true,
+    effects: [{ kind: 'range', to: 3 }, { kind: 'block', amount: 6 }],
+    upgrade: { effects: [{ kind: 'range', to: 3 }, { kind: 'block', amount: 6 }, { kind: 'draw', n: 1 }] } },
+  { id: 'feifei_duwu', name: '毒霧', cost: 2, type: 能, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_duwu', hidden: true,
+    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] }],
+    upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '中毒', amount: 2, target: 'all' }] }] } },
+  // 會逃跑、會自己散掉的魔物（橘貓山賊、消散那批）對毒流特別難受——這張就是那個場面的解法
+  { id: 'feifei_jianxue', name: '見血封喉', cost: 1, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_jianxue', hidden: true, needRange: 2,
+    effects: [{ kind: 'damageByStatus', name: '中毒', consume: true }],
+    upgrade: { effects: [{ kind: 'damageByStatus', name: '中毒' }] } },
+  // 設計稿寫定身 2／3 層，實作收斂成 1／2：點穴手（罕見 2 費）才給 1 層，這張 1 費給 2 層會直接壓過它
+  { id: 'feifei_banxian', name: '絆線', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_banxian', hidden: true,
+    effects: [{ kind: 'status', name: '定身', amount: 1, target: 'enemy' }, { kind: 'range', n: 1 }],
+    upgrade: { effects: [{ kind: 'status', name: '定身', amount: 2, target: 'enemy' }, { kind: 'range', n: 1 }] } },
+  // 自傷牌之二：弄毒的人被自己的毒弄到。慢性的、要撐過去，比直接掉血更貼她
+  { id: 'feifei_tianzhen', name: '舔針', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_tianzhen', hidden: true, keywords: ['消耗'],
+    effects: [{ kind: 'status', name: '中毒', amount: 8, target: 'enemy' }, { kind: 'status', name: '中毒', amount: 3, target: 'self' }],
+    upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 10, target: 'enemy' }, { kind: 'status', name: '中毒', amount: 3, target: 'self' }] } },
+  // 自傷牌之三：代價是**距離歸零**——魔物貼到臉上，對她比掉血更可怕
+  { id: 'feifei_quansale', name: '全撒了', cost: 2, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_quansale', hidden: true,
+    effects: [{ kind: 'damage', amount: 12, target: 'all' }, { kind: 'status', name: '中毒', amount: 2, target: 'all' }, { kind: 'range', to: 0 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 15, target: 'all' }, { kind: 'status', name: '中毒', amount: 2, target: 'all' }, { kind: 'range', to: 0 }] } },
+
+  // ---- 稀有（5）----
+  { id: 'feifei_qianzhen', name: '千針萬毒', cost: 2, type: 能, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'self', art: 'card/feifei_qianzhen', hidden: true,
+    effects: [{ kind: 'poisonOnAttack', n: 1 }],
+    upgrade: { effects: [{ kind: 'poisonOnAttack', n: 2 }] } },
+  { id: 'feifei_juma', name: '拒馬', cost: 1, type: 能, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'self', art: 'card/feifei_juma', hidden: true,
+    effects: [{ kind: 'rangeGuard', min: 2, amount: 3 }],
+    upgrade: { effects: [{ kind: 'rangeGuard', min: 2, amount: 5 }] } },
+  // 餘毒＝毒獵手的屍爆。毒流打一排魔物**唯一**的解法，沒有它毒只能單點
+  { id: 'feifei_yudu', name: '餘毒', cost: 1, type: 能, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'self', art: 'card/feifei_yudu', hidden: true,
+    effects: [{ kind: 'poisonBurst' }],
+    upgrade: { effects: [{ kind: 'poisonBurst', full: true }] } },
+  { id: 'feifei_yizhen', name: '一針斃命', cost: 2, type: 攻, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'enemy', art: 'card/feifei_yizhen', hidden: true, keywords: ['消耗'],
+    effects: [{ kind: 'execByStatus', name: '中毒' }],
+    upgrade: { keywords: [] } },
+  // 最能代表她的一張：掉血買的不是傷害，是「離那個東西遠一點」
+  { id: 'feifei_buyaoguolai', name: '不要過來！', cost: 3, type: 攻, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'enemy', art: 'card/feifei_buyaoguolai', hidden: true,
+    effects: [{ kind: 'damage', amount: 25 }, { kind: 'selfDamage', amount: 8 }, { kind: 'range', n: 2 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 32 }, { kind: 'selfDamage', amount: 8 }, { kind: 'range', n: 2 }] } },
 ];
 
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));
@@ -400,3 +516,22 @@ export const STARTER_DECK: readonly string[] = [
   'sanjo', 'sanjo', 'sanjo', 'sanjo', 'sanjo',
   'tanding', 'tanding', 'tanding', 'tanding', 'kawarimi',
 ];
+
+/**
+ * 菲菲的起手十張（2026-09-12）。跟球球的 5 攻＋4 防＋1 忍術對照：
+ * 飛針 x4（傷害＋毒）、退開 x4（擋＋拉距離）、遠射 x1（隨距離放大）、淬毒 x1（純毒）。
+ *
+ * **遠射一定要在起手牌裡**：純毒流前期非常弱（殺戮尖塔毒獵手的真相），
+ * 她的早期傷害來源就是距離本身。配上起始秘寶「後撤步」，第一發是 3＋2x2＝7 點，
+ * 比球球的貓抓（6 點）還高一點——第一秒就教會玩家「站得遠才打得痛」。
+ */
+export const FEIFEI_STARTER_DECK: readonly string[] = [
+  'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen',
+  'feifei_tuikai', 'feifei_tuikai', 'feifei_tuikai', 'feifei_tuikai',
+  'feifei_yuanshe', 'feifei_cuidu',
+];
+
+/** 這個職業的起手十張。沒有專屬的就用球球那份（武士現在是這種情況） */
+export function starterDeckFor(hero: string | undefined): readonly string[] {
+  return hero === 'feifei' ? FEIFEI_STARTER_DECK : STARTER_DECK;
+}

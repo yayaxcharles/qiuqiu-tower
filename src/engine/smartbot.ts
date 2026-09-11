@@ -200,6 +200,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   let target: number | undefined;
   const combo = p.cardsPlayedThisTurn;
   const plays = cs.cardPlays?.[c.uid] ?? 0;   // 分身術這場已打過幾次
+  /** 粗估這一場還要打幾回合（長效旗標要乘它；跟 `power` 那條同一個算法） */
+  const rest = Math.max(1, Math.min(8, Math.ceil(totalEnemyHp / 14)));
   const hasDamage = st.effects.some((fx) => fx.kind === 'damage' || fx.kind === 'damageRamp' || fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock');
 
   if (hasDamage) {
@@ -225,7 +227,17 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
     // 全場快清光了就別留手
     if (totalEnemyHp <= 12) value += 3;
   }
+  /*
+   * 站得夠遠才發生的那幾條（`ifRange`）**先攤平**再估：用現在的距離判一次，
+   * 判過了就把裡面的效果當成本來就寫在牌上的。這跟引擎真的打出去時的判準一樣。
+   * 攤平比在 switch 裡遞迴省事——那個 switch 讀得到的區域變數有十幾個。
+   */
+  const flat: Effect[] = [];
   for (const fx of st.effects) {
+    if (fx.kind === 'ifRange') { if (p.range >= fx.min) flat.push(...fx.effects); }
+    else flat.push(fx);
+  }
+  for (const fx of flat) {
     switch (fx.kind) {
       case 'block': {
         const b = computeBlock(fx.amount, p);
@@ -326,6 +338,24 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'drawAlly': value += fx.n * 2.2; break;         // 一個人時退化成自己抽，跟 `draw` 同口徑
       case 'cleanseAlly': value += DEBUFFS.filter((d) => getStatus(p, d) > 0).length * 3; break;
       case 'energyAlly': value += fx.n * 4; break;         // 一顆飯糰約等於一張中等的牌
+      /*
+       * 菲菲的距離（2026-09-12）。退一格約等於半張防禦牌——它同時是保命（少挨一次打）
+       * 與輸出（暗器變重）。估太高機器人會一直退、退到上限之後那些牌就變成廢牌。
+       */
+      case 'range': value += (fx.to !== undefined ? Math.max(0, fx.to - p.range) : (fx.n ?? 0)) * 3; break;
+      case 'damageByRange': value += (fx.amount + p.range * fx.per) * 1.1; break;
+      // 上面已經攤平過了，走到這裡表示距離不夠——那就什麼都不會發生，估 0
+      case 'ifRange': break;
+      // 見血封喉／一針斃命：估的是「目標身上現在有幾層」，沒有目標就估 0
+      case 'damageByStatus': value += target0 ? getStatus(target0, fx.name) * (fx.consume ? 1 : 1.3) : 0; break;
+      case 'execByStatus': value += target0 && getStatus(target0, fx.name) >= target0.hp ? target0.hp + 8 : 0; break;
+      /*
+       * 三個長效旗標：機器人是**單人**在跑，估的是「這一場剩下的回合裡大概值多少」。
+       * `rest` 跟 `power` 那條用同一個粗估法（還要打幾回合），口徑才一致。
+       */
+      case 'poisonBurst': value += enemies.length > 1 ? 16 : 4; break;   // 只剩一隻時屍爆沒有對象
+      case 'rangeGuard': value += fx.amount * rest * (p.range >= fx.min ? 0.8 : 0.35); break;
+      case 'poisonOnAttack': value += fx.n * rest * 1.5; break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }

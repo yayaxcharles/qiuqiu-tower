@@ -1,5 +1,5 @@
 import type { DialogueLine } from '../content/dialogue';
-import { artUrl, monsterUrl } from './assets';
+import { artUrl, heroArtUrl, localHero, monsterUrl } from './assets';
 import { el } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
@@ -18,8 +18,17 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
  * 使用者的原話：「是旁白還是球球在講話，從對話框中看不出來，缺少故事感」。
  * 放上立繪之後，一眼就知道是誰在講，而旁白**沒有臉**，那個空缺本身就是訊號。
  */
+/*
+ * 劇本裡說話者寫的是「球球」（那是舊有的 86 段台詞）。換角色時**臉與木牌上的名字**
+ * 一起換掉（`localHero`），台詞本身由 `content/dialogue` 依角色挑。
+ */
+/** 劇本寫「球球」時，這一局實際上是誰在講話 */
+export function heroSpeaker(): string { return localHero() === 'feifei' ? '菲菲' : '球球'; }
+
 function portraitOf(speaker: DialogueLine['speaker']): string | null {
-  if (speaker === '球球') return artUrl('sprites', 'hero/ninja');
+  if (speaker === '球球') return heroArtUrl(localHero(), 'hero/ninja');
+  // 她的劇本自己寫「菲菲」，不走「球球」那條（兩隻在連線版會同框，名字不能混）
+  if (speaker === '菲菲') return heroArtUrl('feifei', 'hero/ninja');
   if (speaker === '塔主') return artUrl('sprites', 'boss/idle1');
   if (speaker === '黑貓忍者頭目') return monsterUrl('codex/monster_ninja_boss', 'idle');
   return null;   // 旁白沒有臉
@@ -47,7 +56,7 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     // 「塔主」有指定本人時換成本人：第一關打貓又婆婆，卻掛師父的臉跟「塔主」木牌，
     // 玩家會以為在跟師父講話（使用者實玩回報）
     const who = l.speaker === '塔主' ? cast?.['塔主'] : undefined;
-    speaker.textContent = l.speaker === '旁白' ? '' : (who?.name ?? l.speaker);
+    speaker.textContent = l.speaker === '旁白' ? '' : (who?.name ?? (l.speaker === '球球' ? heroSpeaker() : l.speaker));
     text.textContent = l.text;
     box.classList.toggle('narration', l.speaker === '旁白');
     // 換人講話才重設圖，同一個人連講好幾句時不要每句都重播進場動畫

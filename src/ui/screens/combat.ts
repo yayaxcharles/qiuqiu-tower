@@ -17,7 +17,10 @@ import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
-import { artUrl, hasMonsterPose, monsterUrl, hasSprite } from '../assets';
+import { heroName, heroOf } from '../../engine/hero';
+import { RANGE_MAX } from '../../engine/types';
+import type { Hero } from '../../engine/hero';
+import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
@@ -162,28 +165,36 @@ const SKILL_POSE: Readonly<Record<string, PoseKey>> = {
 /** 吃喝姿勢：非攻擊的回血牌；忍具裡真的是吃的那三支（卷軸、符咒照施術） */
 const EAT_CARDS: ReadonlySet<string> = new Set(['xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
 const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle']);
-const posePick = (k: PoseKey, fallback: string): string => (hasSprite(POSE[k]) ? POSE[k] : fallback);
-/** 出牌時球球擺什麼姿勢 */
-function cardPose(def: CardDef, effects: readonly Effect[] = def.effects): { pose: string; attack: boolean } {
+/*
+ * ===== 換角色（2026-09-12）=====
+ * `POSE` 的值一律是**球球版**的鍵，那是「姿勢的身分證」——畫面到處拿它做相等比較。
+ * 所以這張表不動，只在兩個出口翻譯：`hasHeroSprite`（她自己畫好了沒，嚴格、不走退路）
+ * 與 `heroArt`（鍵變成網址，寬鬆、找不到會退到她自己最接近的一張）。
+ */
+const posePick = (hero: Hero, k: PoseKey, fallback: string): string => (hasHeroSprite(hero, POSE[k]) ? POSE[k] : fallback);
+/** 這一位的立繪網址 */
+const heroArt = (q: Pick<PlayerCombat, 'hero'>, key: string): string => artUrl('sprites', heroSpriteKey(q.hero, key));
+/** 出牌時擺什麼姿勢 */
+function cardPose(hero: Hero, def: CardDef, effects: readonly Effect[] = def.effects): { pose: string; attack: boolean } {
   const attack = def.type === '攻擊';
-  if (THROW_CARDS.has(def.id)) return { pose: posePick('throw', POSE.attack), attack };
-  if (attack) { const fam = ATTACK_POSE[def.id]; return { pose: fam ? posePick(fam, POSE.attack) : POSE.attack, attack: true }; }
-  if (EAT_CARDS.has(def.id)) return { pose: posePick('eat', posePick('skill', POSE.attack)), attack: false };
+  if (THROW_CARDS.has(def.id)) return { pose: posePick(hero, 'throw', POSE.attack), attack };
+  if (attack) { const fam = ATTACK_POSE[def.id]; return { pose: fam ? posePick(hero, fam, POSE.attack) : POSE.attack, attack: true }; }
+  if (EAT_CARDS.has(def.id)) return { pose: posePick(hero, 'eat', posePick(hero, 'skill', POSE.attack)), attack: false };
   // 技能／能力牌的家族（太極、輕功、吼）排在能力牌與抽牌那兩條**前面**：
   // 馬步、運功是能力牌但沒列進 SKILL_POSE，照樣走凝神；輕功會抽兩張牌，
   // 排後面的話會被「會抽牌就翻卷軸」那條攔走、永遠輪不到輕功圖
   const skillFam = SKILL_POSE[def.id];
-  if (skillFam) return { pose: posePick(skillFam, posePick('skill', POSE.attack)), attack: false };
+  if (skillFam) return { pose: posePick(hero, skillFam, posePick(hero, 'skill', POSE.attack)), attack: false };
   // 能力牌一律凝神（吸貓大法也是能力牌，打出當下不回血，不算吃）；會抽牌的技能牌翻卷軸；其餘施術
-  if (def.type === '能力') return { pose: posePick('focus', posePick('skill', POSE.attack)), attack: false };
-  if (effects.some((e) => e.kind === 'draw')) return { pose: posePick('scroll', posePick('skill', POSE.attack)), attack: false };   // 看實際效果：替身術＋、偷吃術＋升級才抽牌
-  return { pose: posePick('skill', POSE.attack), attack: false };
+  if (def.type === '能力') return { pose: posePick(hero, 'focus', posePick(hero, 'skill', POSE.attack)), attack: false };
+  if (effects.some((e) => e.kind === 'draw')) return { pose: posePick(hero, 'scroll', posePick(hero, 'skill', POSE.attack)), attack: false };   // 看實際效果：替身術＋、偷吃術＋升級才抽牌
+  return { pose: posePick(hero, 'skill', POSE.attack), attack: false };
 }
 /** 用忍具時球球擺什麼姿勢：丟的擲、吃的吃、其餘施術（以前除了丟的都沒姿勢，站著不動） */
-function potionPose(id: string): { pose?: string; attack?: boolean } {
-  if (THROW_POTIONS.has(id)) return hasSprite(POSE.throw) ? { pose: POSE.throw, attack: true } : {};
-  if (EAT_POTIONS.has(id) && hasSprite(POSE.eat)) return { pose: POSE.eat };
-  return hasSprite(POSE.skill) ? { pose: POSE.skill } : {};
+function potionPose(hero: Hero, id: string): { pose?: string; attack?: boolean } {
+  if (THROW_POTIONS.has(id)) return hasHeroSprite(hero, POSE.throw) ? { pose: POSE.throw, attack: true } : {};
+  if (EAT_POTIONS.has(id) && hasHeroSprite(hero, POSE.eat)) return { pose: POSE.eat };
+  return hasHeroSprite(hero, POSE.skill) ? { pose: POSE.skill } : {};
 }
 /** 出手時該用擲手裡劍立繪的牌與忍具 */
 const THROW_CARDS: ReadonlySet<string> = new Set(['sashoujian']);
@@ -279,7 +290,7 @@ function has<K extends EnemyEffect['kind']>(kind: K) {
  */
 function matePose(p: PlayerCombat): string {
   if (p.down) return POSE.lose;
-  if (p.block > 0 && hasSprite(POSE.curl)) return POSE.curl;
+  if (p.block > 0 && hasHeroSprite(p.hero, POSE.curl)) return POSE.curl;
   return POSE.idle;
 }
 
@@ -365,8 +376,8 @@ registerScreen('combat', (app, root, props) => {
       'data-seat': String(q.seat),
       style: `left:${playerLeft(q.seat, n)}px`,
     },
-      spriteBox(artUrl('sprites', mine ? pose : matePose(q)), '球球'),
-      el('div', { class: 'name' }, n > 1 ? (mine ? '球球（你）' : '球球（同伴）') : '球球'),
+      spriteBox(heroArt(q, mine ? pose : matePose(q)), heroName(q)),
+      el('div', { class: 'name' }, n > 1 ? `${heroName(q)}（${mine ? '你' : '同伴'}）` : heroName(q)),
       hpBar('player', q.hp, q.maxHp),
       statusRow(q, true));
     // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
@@ -383,7 +394,7 @@ registerScreen('combat', (app, root, props) => {
   let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
-  const idlePose = (): string => idlePoseKey(my(), POSE, hasSprite);
+  const idlePose = (): string => idlePoseKey(my(), POSE, (k) => hasHeroSprite(my().hero, k));
   let pose = POSE.idle;
   /**
    * 這一拍出手的魔物（uid → 牠剛使出的招式）。跟球球的姿勢同一個節奏：`settle` 重算、
@@ -461,7 +472,8 @@ registerScreen('combat', (app, root, props) => {
     if (typeof im.decode === 'function') im.decode().catch(() => { /* 解不開就算了，畫面照常 */ });
   };
   const warmAll = (): void => {
-    for (const key of Object.values(POSE)) warm(artUrl('sprites', key));
+    // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
+    for (const q of cs.players) for (const key of Object.values(POSE)) warm(heroArt(q, key));
     for (const e of cs.enemies) {
       const def = enemyById[e.enemyId];
       if (!def) continue;
@@ -634,6 +646,16 @@ registerScreen('combat', (app, root, props) => {
    */
   function statusRow(u: Unit, mine = false, who = 'player'): HTMLElement {
     const row = el('div', { class: 'chips' });
+    /*
+     * 菲菲的距離（2026-09-12）。**永遠顯示，連 0 也顯示**——它是她的第二條血條，
+     * 不是一個偶爾出現的狀態。0 的時候玩家最需要看到它（那表示魔物貼在臉上、
+     * 暗器打不痛、要趕快退），做成「歸零就消失」等於在最要緊的時候把資訊藏起來。
+     * 其他角色的 `range` 永遠是 0，用職業判而不是用數值判，那一格才不會冒出來。
+     */
+    if ('range' in u && heroOf(u as PlayerCombat) === 'feifei') {
+      const r = (u as PlayerCombat).range;
+      row.append(chip('距離', null, '●'.repeat(r) + '○'.repeat(Math.max(0, RANGE_MAX - r)), r > 0 ? 'good' : 'bad'));
+    }
     if (u.block > 0) row.append(chip(mine ? '蜷縮' : '防禦', null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
       const key = `${who}|${name}`;
@@ -1246,7 +1268,7 @@ registerScreen('combat', (app, root, props) => {
     const p = my();
     const pChanged = before.hp !== p.hp || before.block !== p.block || before.buff !== sumStatus(p, GOOD_STATUS)
       || before.debuff !== sumStatus(p, BAD_STATUS) || before.stealth !== getStatus(p, '隱身')
-      || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== artUrl('sprites', pose)
+      || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== heroArt(p, pose)
       || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack');
     if (pChanged) pNode.replaceWith(playerUnit(p));
     // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態
@@ -1460,7 +1482,7 @@ registerScreen('combat', (app, root, props) => {
     targeting = null;
     if (!t || !canAct()) { render(); return; }
     if (t.kind === 'card') play(t.uid, enemyUid);
-    else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); }, potionPose(t.id));
+    else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); }, potionPose(heroOf(my()), t.id));
   }
 
   /**
@@ -1518,7 +1540,7 @@ registerScreen('combat', (app, root, props) => {
       const ok = sendOrDo({ t: 'card', seat: mySeat, u: uid, g: targetUid },
         () => playCard(cs, uid, targetUid, mySeat));
       if (!ok) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
-    }, cardPose(st.def, st.effects));
+    }, cardPose(heroOf(my()), st.def, st.effects));
     if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
@@ -1535,7 +1557,7 @@ registerScreen('combat', (app, root, props) => {
     hint = '';
     // 只有打魔物的忍具要選目標（手裡劍、麻繩）；全體與自己用的直接用掉
     if (def.target === 'enemy') { targeting = { kind: 'potion', id }; render(); return; }
-    act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); }, potionPose(id));
+    act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); }, potionPose(heroOf(my()), id));
   }
 
   /**
@@ -1869,14 +1891,14 @@ registerScreen('combat', (app, root, props) => {
     // 攻擊牌例外（交出來會奪走蜷縮），那種時候還是要看到出招的姿勢。
     const enemyActed = cs.enemies.some((e) => { const b = before.enemies.get(e.uid); return !!b && e.turnCount !== b.turnCount; });
     if (cs.phase === 'won') pose = POSE.win;
-    else if (cs.phase === 'lost') pose = posePick('down', POSE.lose);   // 圖沒生好就退回站著垂頭的落敗圖
+    else if (cs.phase === 'lost') pose = posePick(heroOf(my()), 'down', POSE.lose);   // 圖沒生好就退回站著垂頭的落敗圖
     // 自己出手那一拍（posePref 有值）牌的姿勢優先：鐵頭功、亡命這些自傷牌不然永遠看不到頭槌圖，
     // 自傷本身靠球球身上的紅閃與飄數字表現就夠了（2026-09-08）。魔物打過來的挨打照舊排最前面
     else if (hurt && !posePref) pose = POSE.hit;
     else if (dodged) pose = POSE.dodge;
     // 敵人打過來被蜷縮（或甲）整個擋掉：切抱胸格擋——這張早就畫好卻沒人用（2026-09-08）。
     // 只認「這一拍有魔物出手、血沒掉、紀錄有擋下」；自己回合疊蜷縮走下一條的 curl
-    else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了') || l.startsWith('甲擋下了')) && hasSprite(POSE.guard)) pose = POSE.guard;
+    else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了') || l.startsWith('甲擋下了')) && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
     else if (p.block > before.block && !opts.attack) pose = POSE.curl;
     else if (posePref) pose = posePref;
     else if (hungry) pose = POSE.hungry;
@@ -2007,9 +2029,9 @@ registerScreen('combat', (app, root, props) => {
     const mine = ++seq;
     if (opts.attack && stagedMax > 1 && ATTACK_POSES.has(pose)) {
       const alt = pose === POSE.claw ? POSE.attack : POSE.claw;
-      if (hasSprite(alt) && hasSprite(pose)) {
-        const first = artUrl('sprites', pose);
-        const second = artUrl('sprites', alt);
+      if (hasHeroSprite(my().hero, alt) && hasHeroSprite(my().hero, pose)) {
+        const first = heroArt(my(), pose);
+        const second = heroArt(my(), alt);
         for (let i = 1; i < stagedMax; i++) {
           window.setTimeout(() => {
             if (seq !== mine || app.cs !== cs) return;
@@ -2115,7 +2137,7 @@ registerScreen('combat', (app, root, props) => {
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
       // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。
       const cat = root.querySelector<HTMLImageElement>('.unit.player .sprite');
-      if (cat) cat.src = artUrl('sprites', pose);
+      if (cat) cat.src = heroArt(my(), pose);
       for (const e of cs.enemies) {
         const img = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
         if (img) img.src = enemySprite(e, enemyById[e.enemyId]);
@@ -2355,7 +2377,7 @@ registerScreen('combat', (app, root, props) => {
     ? cs.enemies.map((e) => enemyById[e.enemyId]).find((d) => d?.pool === '塔主')
     : undefined;
   if (bossDef) {
-    const heroUrl = artUrl('sprites', POSE.idle);
+    const heroUrl = heroArt(my(), POSE.idle);
     const bossUrl = bossDef.art === 'daxia' ? artUrl('sprites', BOSS_IDLE) : monsterUrl(bossDef.art, 'idle');
     if (!isFallback(heroUrl) && !isFallback(bossUrl)) {
       const ov = el('div', { class: 'vs-overlay' },

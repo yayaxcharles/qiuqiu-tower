@@ -49,7 +49,7 @@ registerScreen('title', (app, root) => {
   }
   refreshDiff();
   startBtn.addEventListener('click', () => {
-    if (!isShare()) { app.newRun(seed.value, level); return; }
+    if (!isShare()) { app.show('heroselect', { seed: seed.value, difficulty: level }); return; }
     // 解壓縮是非同步的：先鎖住按鈕，免得連點兩次載入兩份
     startBtn.setAttribute('disabled', 'disabled');
     startBtn.textContent = '載入中…';

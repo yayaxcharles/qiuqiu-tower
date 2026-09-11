@@ -8,7 +8,7 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
  * 後面再用逗號接「獲得 6 點蜷縮」會黏成一長串，看不出那 6 點是另一件事。
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
-const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn']);
+const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'range', 'ifRange', 'poisonBurst', 'rangeGuard', 'poisonOnAttack']);
 
 /** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
@@ -41,7 +41,8 @@ function namesAllFoes(fx: Effect | undefined): boolean {
 
 /** 這張牌有沒有動到魔物——有的話回復要寫成「你回復 N 生命」才分得清誰回血（規格 §6.1 以德服人） */
 const FOE_KINDS: ReadonlySet<Effect['kind']> = new Set(
-  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'stealBlock', 'removeStatuses', 'transferDebuffs']);
+  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByRange', 'damageByStatus', 'execByStatus',
+   'stealBlock', 'removeStatuses', 'transferDebuffs']);
 function touchesFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => FOE_KINDS.has(e.kind) || (e.kind === 'status' && e.target !== 'self'));
 }
@@ -51,7 +52,8 @@ function touchesFoes(effects: readonly Effect[]): boolean {
  * 鐵頭功、亡命是先打人再自傷，「也」對；拼命只有自傷（拿血換飯糰），
  * 寫「也」會害玩家回頭去找那個根本不存在的前一下。
  */
-const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock']);
+const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(
+  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByRange', 'damageByStatus', 'execByStatus']);
 function hurtsFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => HURT_KINDS.has(e.kind));
 }
@@ -93,6 +95,21 @@ function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
+    /*
+     * 菲菲的距離（2026-09-12）。措辭刻意不寫「後退」——距離是抽象的「牠離你多遠」，
+     * 有些牌是把魔物逼退（煙霧彈）、有些是自己退，寫死動作以後那些牌的文字會對不上圖。
+     */
+    case 'range': return fx.to !== undefined ? `距離直接變成 ${fx.to}`
+      : (fx.n ?? 0) >= 0 ? `距離 +${fx.n ?? 0}` : `距離 ${fx.n ?? 0}`;
+    case 'damageByRange': return `造成 ${fx.amount} 點傷害，距離每 1 點再多 ${fx.per} 點`;
+    case 'ifRange': return `距離有 ${fx.min} 以上的話，${fx.effects.map((e) => one(e, ctx)).join('，')}`;
+    case 'damageByStatus': return `造成等同目標${fx.name}層數的傷害`
+      + (fx.consume ? `，然後把${fx.name}清掉` : '');
+    case 'execByStatus': return `目標的${fx.name}層數比牠剩下的生命還多的話，直接打倒牠`;
+    case 'poisonBurst': return fx.full ? '中毒的魔物被打倒時，剩下的層數每一隻都拿一份'
+      : '中毒的魔物被打倒時，把剩下的層數分給其他魔物';
+    case 'rangeGuard': return `距離有 ${fx.min} 以上時，魔物的攻擊對你少 ${fx.amount} 點`;
+    case 'poisonOnAttack': return `之後每打出一張攻擊牌，再給那個目標 ${fx.n} 層中毒`;
     // 幫隊友的三招（連線版 2026-09-11）。措辭刻意寫成「兩個人一起玩才看得出差別」，
     // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉
     case 'blockAll': return `每個人各獲得 ${fx.amount} 點蜷縮`;
@@ -308,6 +325,7 @@ export function describeCard(def: CardDef, upgraded: boolean, plays = 0): string
   if (def.curse?.onTurnEnd) parts.push(`回合結束時還在手上的話，受 ${def.curse.onTurnEnd} 點傷害。`);
   if (def.curse?.onTurnStart) parts.push(`每回合開始時還在手上的話，受 ${def.curse.onTurnStart} 點傷害。`);
   if (def.curse?.onDraw) parts.push('抽到的時候會少 1 顆飯糰。');
+  if (def.needRange) parts.push(`距離要有 ${def.needRange} 才打得出來。`);
   if (keywords.includes('消耗')) parts.push('消耗。');
   if (keywords.includes('保留')) parts.push('保留。');
   if (keywords.includes('虛幻')) parts.push('回合結束還在手上就消失。');

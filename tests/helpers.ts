@@ -18,6 +18,6 @@ export function blankPlayer(deckIds: string[] = [], seat = 0): PlayerCombat {
     hand: [], drawPile: deckIds.map((id, i) => inst(id, seat * 1000 + i + 1)), discardPile: [], exhaustPile: [],
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
     noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
-    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0,
+    firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0, range: 0,
   };
 }

@@ -20,3 +20,7 @@ music/
 
 # 魔物挨打圖生圖用的參考圖，由 tools/build_art_queue.py 從遊戲內待機圖鋪白底產生，不進倉
 tools/ref/monster_refs/
+
+# 重生前改名留下的舊素材（`.previous-<日期>.png`）：一張 1MB 左右，只是我自己對照用的。
+# 規矩是「絕不先刪再重生」，所以這些檔會一直長出來——留在磁碟、不進版控
+*.previous-*.png

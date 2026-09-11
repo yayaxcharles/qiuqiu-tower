@@ -1,9 +1,20 @@
 import { STARTER_DECK, cardById } from './cards';
-export interface DialogueLine { speaker: '球球' | '塔主' | '旁白' | '黑貓忍者頭目'; text: string }
+export interface DialogueLine { speaker: '球球' | '菲菲' | '塔主' | '旁白' | '黑貓忍者頭目'; text: string }
 
 /** 球球台詞的句尾檢查：去掉結尾標點後最後一個字必須是「喵」 */
 export function qiuqiuLineOk(text: string): boolean {
   return /喵$/u.test(text.replace(/[！？。…～、,.!?]+$/u, ''));
+}
+
+/**
+ * 菲菲的台詞**刻意不加「喵」**（2026-09-12）。
+ *
+ * 球球的「喵」是他的招牌，跟著他三年了；她如果也講，兩隻在連線版同框時會分不出誰在說話。
+ * 她的口氣記號是另一種：**結巴、先道歉、話講一半**（「先……先退一點好了」「對、對不起！」）。
+ * 這一支守的就是「她不要學球球講話」——有喵就不對。
+ */
+export function feifeiLineOk(text: string): boolean {
+  return !/喵$/u.test(text.replace(/[！？。…～、,.!?]+$/u, ''));
 }
 
 export const dialogue = {
@@ -400,6 +411,59 @@ export const dialogue = {
   restSharpenLines: ['磨一磨爪子，等一下才好用喵。', '爪子有點鈍了喵。', '磨亮一點，師父會看喵。', '這張牌要更利喵。'],
   chestLines: ['紙箱！一定要鑽進去喵。', '有箱子！先進去再說喵。', '這箱子的大小剛剛好喵。', '裡面該不會有東西吧喵。', '箱子就是要鑽的喵。'],
 };
+
+
+/**
+ * ===== 菲菲的劇本（2026-09-12）=====
+ *
+ * 換角色就換整份故事——同一座塔，另一隻貓的理由。
+ * 球球是「我要把師父帶回家」；她的起點是**師兄也進去了、而且沒回來**。
+ * 那讓她的怕痛有了重量：她不是不怕，是怕到還是去了。
+ *
+ * 沒有寫進這裡的一律共用（魔物初見的吐槽、老闆的碎念、貓窩、紙箱）——
+ * 那些是「這座塔的事」，跟誰在爬無關；`storyFor` 只換真正屬於角色的那幾段。
+ */
+export const feifeiDialogue = {
+  prologue: <DialogueLine[]>[
+    { speaker: '旁白', text: '菲菲比球球晚三年入門。師父說過一句話：「打得到人，又不被打到，才叫功夫。」球球當耳邊風，她記了三年，還偷偷把針磨好收在竹筒裡。' },
+    { speaker: '旁白', text: '那天夜裡，魔塔在村外拔地而起。紫光落下來，師父渾身毛髮豎起、雙眼染紫，一言不發衝進塔頂。師兄抓起頭巾就追了上去。' },
+    { speaker: '菲菲', text: '……三天了。師父沒回來，師兄也沒回來。' },
+    { speaker: '菲菲', text: '我很怕痛。真的、真的很怕。可是……總不能三個都不回來吧。' },
+  ],
+  actClear1: <DialogueLine[]>[
+    { speaker: '旁白', text: '守關的魔物倒下，牆邊露出一道往上的樓梯。階梯上散著幾根被踩斷的針——不是她的。' },
+    { speaker: '菲菲', text: '這是師兄的頭巾線頭……他真的上去了。' },
+    { speaker: '旁白', text: '菲菲把竹筒收緊，貼著牆往上走。她沒有跑。' },
+  ],
+  actClear2: <DialogueLine[]>[
+    { speaker: '旁白', text: '魔物化成煙散去時，塔頂傳來一聲長喵——熟悉得讓她整條背脊涼掉。' },
+    { speaker: '菲菲', text: '那是師父的聲音……那師兄呢？師兄為什麼沒有回話？' },
+    { speaker: '旁白', text: '月光落在最後一段樓梯上。她深吸一口氣，把口罩拉了上來。' },
+  ],
+  defeat: <DialogueLine[]>[
+    { speaker: '旁白', text: '菲菲的竹筒空了。她背靠著牆滑坐下去，手還在抖。' },
+    { speaker: '菲菲', text: '說好……不打臉的……' },
+    { speaker: '旁白', text: '恍惚間有人把她背了起來。再睜眼時她躺在村裡，膝蓋上放著一把重新磨好的針。魔塔還站在那裡。' },
+  ],
+  victoryTeaser: '呼……沒被碰到。這樣才對。',
+};
+
+/**
+ * 這一位要看哪一份劇情。
+ *
+ * 只有真正屬於角色的那幾段會換（序章、兩段過關、落敗、通關那句）；
+ * 魔物初見、老闆、貓窩、紙箱那些是「這座塔的事」，兩邊共用。
+ */
+export function storyFor(hero: string | undefined): {
+  prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
+  defeat: DialogueLine[]; victoryTeaser: string;
+} {
+  if (hero === 'feifei') return feifeiDialogue;
+  return {
+    prologue: dialogue.prologue, actClear1: dialogue.actClear1, actClear2: dialogue.actClear2,
+    defeat: dialogue.defeat, victoryTeaser: dialogue.victoryTeaser,
+  };
+}
 
 /** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */
 export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random() * xs.length)] ?? xs[0]!; }

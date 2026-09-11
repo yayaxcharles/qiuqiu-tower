@@ -4,6 +4,8 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
 import { coopHpMul } from './coopscale';
+import { startRange } from './hero';
+import type { Hero } from './hero';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
@@ -28,10 +30,13 @@ export function startCombat(input: {
    * 因為魔物的血量在建立的那一刻就要決定。
    */
   players?: number;
+  /** 第一位的職業。沒填＝忍者（單機舊存檔就是這樣） */
+  hero?: Hero;
 }): CombatState {
   const enc = encounterById[input.encounterId];
   if (!enc) throw new Error(`未知的遭遇：${input.encounterId}`);
   const player: PlayerCombat = {
+    ...(input.hero ? { hero: input.hero } : {}),
     seat: 0,
     relics: [...input.relics], potions: [...input.potions],
     hp: input.hp, maxHp: input.maxHp, block: 0, armour: 0, statuses: {},
@@ -40,6 +45,7 @@ export function startCombat(input: {
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
     noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
     firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0,
+    range: startRange(input.hero),
   };
   const cs: CombatState = {
     rng: input.rng,
@@ -164,6 +170,9 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   if (!p.firstCardPlayed) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscount'));
   if (!p.firstCardEver) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscountCombat'));   // 破卷軸：整場只有第一張（審查 #7）
   if (cost > p.energy) return { ok: false, reason: '餓扁了' };
+  // 菲菲的遠程牌：站太近就丟不準（2026-09-12）。擋在飽足之後，是因為「餓扁了」比較常見，
+  // 兩個都不滿足時先講那個
+  if (st.def.needRange && p.range < st.def.needRange) return { ok: false, reason: `距離不夠（要 ${st.def.needRange}）` };
   if (st.def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return { ok: false, reason: '要選一隻魔物' };
   return { ok: true, cost };
 }
@@ -221,6 +230,16 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   // 這張牌這場打過幾次（分身術疊傷害用）：效果結算完才 +1，第一次打是 0 次
   cs.cardPlays = cs.cardPlays ?? {};
   cs.cardPlays[uid] = (cs.cardPlays[uid] ?? 0) + 1;
+  /*
+   * 千針萬毒（菲菲的稀有能力 2026-09-12）：每打出一張攻擊牌，額外給那個目標幾層中毒。
+   *
+   * 排在牌效果**之後**：這樣「見血封喉」引爆的是打之前的層數，不會把這一層也算進去——
+   * 不然同一張牌會自己餵自己。打贏了就不用補。
+   */
+  if (st.def.type === '攻擊' && p.poisonOnAttack && cs.phase === 'player') {
+    const t = targetUid === undefined ? undefined : findEnemy(cs, targetUid);
+    if (t && !t.dead) { addStatus(t, '中毒', p.poisonOnAttack); log(cs, `針上的毒又滲了進去（${t.name}）`); }
+  }
   // 打出攻擊牌之後的秘寶效果（逗貓棒、貓抓板）：牌效果算完才觸發，打贏了就不用
   if (st.def.type === '攻擊' && cs.phase === 'player') {
     for (const rid of p.relics) {

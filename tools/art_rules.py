@@ -52,6 +52,11 @@ STYLE = (
     "transparent gets erased by the chroma key and leaves a hole.)\n"
     "Style: thick black outlines, FLAT colours with only subtle soft shading - do NOT render it painterly, "
     "do NOT use heavy airbrushed shadows or a rendered-illustration look. Cute cartoon, not photorealistic.\n"
+    # 2026-09-12 菲菲第一批 14 張每張臉都比球球「厚」：參考圖那半張本來就有噴槍陰影。
+    # 通用的「平塗」不夠，臉是最顯眼的地方，要單獨再講一次。
+    "THE FACE ESPECIALLY: draw the face in FLAT blocks of colour with hard edges between them. Where two fur "
+    "colours meet that is a CLEAN EDGE, never a soft airbrushed fade and never a blurry gradient. No shaded "
+    "blob around the muzzle, no glow on the cheeks.\n"
     "Background must be a solid pure green (#00FF00), completely flat, for chroma keying.\n")
 
 FOES = (

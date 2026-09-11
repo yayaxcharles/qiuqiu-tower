@@ -3153,5 +3153,731 @@
   "effects": [],
   "text": "打出去什麼事都不會發生。消耗。",
   "up": "打出去什麼事都不會發生。消耗。"
+ },
+ {
+  "id": "feifei_feizhen",
+  "name": "飛針",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 3
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 1,
+    "target": "enemy"
+   }
+  ],
+  "text": "造成 3 點傷害，給目標 1 層中毒。",
+  "up": "造成 4 點傷害，給目標 2 層中毒。"
+ },
+ {
+  "id": "feifei_tuikai",
+  "name": "退開",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "range"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 4
+   },
+   {
+    "kind": "range",
+    "n": 1
+   }
+  ],
+  "text": "獲得 4 點蜷縮；距離 +1。",
+  "up": "獲得 7 點蜷縮；距離 +1。"
+ },
+ {
+  "id": "feifei_yuanshe",
+  "name": "遠射",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damageByRange"
+  ],
+  "effects": [
+   {
+    "kind": "damageByRange",
+    "amount": 3,
+    "per": 2
+   }
+  ],
+  "text": "造成 3 點傷害，距離每 1 點再多 2 點。",
+  "up": "造成 5 點傷害，距離每 1 點再多 2 點。"
+ },
+ {
+  "id": "feifei_cuidu",
+  "name": "淬毒",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 3,
+    "target": "enemy"
+   }
+  ],
+  "text": "給目標 3 層中毒。",
+  "up": "給目標 5 層中毒。"
+ },
+ {
+  "id": "feifei_lianzhen",
+  "name": "連針",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 2,
+    "times": 2
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 2,
+    "target": "enemy"
+   }
+  ],
+  "text": "造成 2 點傷害，連打 2 次，給目標 2 層中毒。",
+  "up": "造成 2 點傷害，連打 3 次，給目標 3 層中毒。"
+ },
+ {
+  "id": "feifei_sazhen",
+  "name": "撒針",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 2,
+    "target": "all"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 1,
+    "target": "all"
+   }
+  ],
+  "text": "對全體魔物造成 2 點傷害，再讓牠們獲得 1 層中毒。",
+  "up": "對全體魔物造成 3 點傷害，再讓牠們獲得 1 層中毒。"
+ },
+ {
+  "id": "feifei_lakai",
+  "name": "拉開",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "range"
+  ],
+  "effects": [
+   {
+    "kind": "range",
+    "n": 1
+   }
+  ],
+  "text": "距離 +1。",
+  "up": "距離 +1，獲得 3 點蜷縮。"
+ },
+ {
+  "id": "feifei_tieqiang",
+  "name": "貼牆",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "ifRange"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 7
+   },
+   {
+    "kind": "ifRange",
+    "min": 2,
+    "effects": [
+     {
+      "kind": "block",
+      "amount": 3
+     }
+    ]
+   }
+  ],
+  "text": "獲得 7 點蜷縮；距離有 2 以上的話，獲得 3 點蜷縮。",
+  "up": "獲得 9 點蜷縮；距離有 2 以上的話，獲得 3 點蜷縮。"
+ },
+ {
+  "id": "feifei_moyao",
+  "name": "抹藥",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 4,
+    "target": "enemy"
+   }
+  ],
+  "text": "給目標 4 層中毒。",
+  "up": "給目標 5 層中毒。"
+ },
+ {
+  "id": "feifei_tanlu",
+  "name": "探路",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "draw",
+   "range"
+  ],
+  "effects": [
+   {
+    "kind": "draw",
+    "n": 1
+   },
+   {
+    "kind": "range",
+    "n": 1
+   }
+  ],
+  "text": "抽 1 張牌；距離 +1。",
+  "up": "抽 2 張牌；距離 +1。"
+ },
+ {
+  "id": "feifei_suoshou",
+  "name": "縮手",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "drawNextTurn"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 5
+   },
+   {
+    "kind": "drawNextTurn",
+    "n": 1
+   }
+  ],
+  "text": "獲得 5 點蜷縮，下回合開始時多抽 1 張牌。",
+  "up": "獲得 7 點蜷縮，下回合開始時多抽 1 張牌。"
+ },
+ {
+  "id": "feifei_shouhua",
+  "name": "手滑",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "selfDamage"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 7
+   },
+   {
+    "kind": "selfDamage",
+    "amount": 2
+   }
+  ],
+  "text": "造成 7 點傷害，自己也受 2 點傷害。",
+  "up": "造成 10 點傷害，自己也受 2 點傷害。"
+ },
+ {
+  "id": "feifei_cuidugai",
+  "name": "淬毒·改",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 6,
+    "target": "enemy"
+   }
+  ],
+  "text": "給目標 6 層中毒。距離要有 2 才打得出來。",
+  "up": "給目標 8 層中毒。距離要有 2 才打得出來。"
+ },
+ {
+  "id": "feifei_cuihua",
+  "name": "催化",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "doubleStatus"
+  ],
+  "effects": [
+   {
+    "kind": "doubleStatus",
+    "name": "中毒"
+   }
+  ],
+  "text": "把目標身上的中毒翻倍（沒有就沒效果）。消耗。",
+  "up": "把目標身上的中毒翻倍（沒有就沒效果）。"
+ },
+ {
+  "id": "feifei_zhenyu",
+  "name": "針雨",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 3,
+    "target": "all"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 3,
+    "target": "all"
+   }
+  ],
+  "text": "對全體魔物造成 3 點傷害，再讓牠們獲得 3 層中毒。",
+  "up": "對全體魔物造成 3 點傷害，再讓牠們獲得 4 層中毒。"
+ },
+ {
+  "id": "feifei_taoshengsuo",
+  "name": "逃生索",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "range",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "range",
+    "to": 3
+   },
+   {
+    "kind": "block",
+    "amount": 6
+   }
+  ],
+  "text": "距離直接變成 3，獲得 6 點蜷縮。",
+  "up": "距離直接變成 3，獲得 6 點蜷縮，抽 1 張牌。"
+ },
+ {
+  "id": "feifei_duwu",
+  "name": "毒霧",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "power"
+  ],
+  "effects": [
+   {
+    "kind": "power",
+    "trigger": "turnStart",
+    "effects": [
+     {
+      "kind": "status",
+      "name": "中毒",
+      "amount": 1,
+      "target": "all"
+     }
+    ]
+   }
+  ],
+  "text": "每回合開始時全體魔物獲得 1 層中毒。",
+  "up": "每回合開始時全體魔物獲得 2 層中毒。"
+ },
+ {
+  "id": "feifei_jianxue",
+  "name": "見血封喉",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damageByStatus"
+  ],
+  "effects": [
+   {
+    "kind": "damageByStatus",
+    "name": "中毒",
+    "consume": true
+   }
+  ],
+  "text": "造成等同目標中毒層數的傷害，然後把中毒清掉。距離要有 2 才打得出來。",
+  "up": "造成等同目標中毒層數的傷害。距離要有 2 才打得出來。"
+ },
+ {
+  "id": "feifei_banxian",
+  "name": "絆線",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "status",
+   "range"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "定身",
+    "amount": 1,
+    "target": "enemy"
+   },
+   {
+    "kind": "range",
+    "n": 1
+   }
+  ],
+  "text": "給目標定身；距離 +1。",
+  "up": "給目標定身；距離 +1。"
+ },
+ {
+  "id": "feifei_tianzhen",
+  "name": "舔針",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "status",
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 8,
+    "target": "enemy"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 3,
+    "target": "self"
+   }
+  ],
+  "text": "給目標 8 層中毒，自己獲得 3 層中毒。消耗。",
+  "up": "給目標 10 層中毒，自己獲得 3 層中毒。消耗。"
+ },
+ {
+  "id": "feifei_quansale",
+  "name": "全撒了",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status",
+   "range"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 12,
+    "target": "all"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 2,
+    "target": "all"
+   },
+   {
+    "kind": "range",
+    "to": 0
+   }
+  ],
+  "text": "對全體魔物造成 12 點傷害，再讓牠們獲得 2 層中毒；距離直接變成 0。",
+  "up": "對全體魔物造成 15 點傷害，再讓牠們獲得 2 層中毒；距離直接變成 0。"
+ },
+ {
+  "id": "feifei_qianzhen",
+  "name": "千針萬毒",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "poisonOnAttack"
+  ],
+  "effects": [
+   {
+    "kind": "poisonOnAttack",
+    "n": 1
+   }
+  ],
+  "text": "之後每打出一張攻擊牌，再給那個目標 1 層中毒。",
+  "up": "之後每打出一張攻擊牌，再給那個目標 2 層中毒。"
+ },
+ {
+  "id": "feifei_juma",
+  "name": "拒馬",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "rangeGuard"
+  ],
+  "effects": [
+   {
+    "kind": "rangeGuard",
+    "min": 2,
+    "amount": 3
+   }
+  ],
+  "text": "距離有 2 以上時，魔物的攻擊對你少 3 點。",
+  "up": "距離有 2 以上時，魔物的攻擊對你少 5 點。"
+ },
+ {
+  "id": "feifei_yudu",
+  "name": "餘毒",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "poisonBurst"
+  ],
+  "effects": [
+   {
+    "kind": "poisonBurst"
+   }
+  ],
+  "text": "中毒的魔物被打倒時，把剩下的層數分給其他魔物。",
+  "up": "中毒的魔物被打倒時，剩下的層數每一隻都拿一份。"
+ },
+ {
+  "id": "feifei_yizhen",
+  "name": "一針斃命",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "execByStatus"
+  ],
+  "effects": [
+   {
+    "kind": "execByStatus",
+    "name": "中毒"
+   }
+  ],
+  "text": "目標的中毒層數比牠剩下的生命還多的話，直接打倒牠。消耗。",
+  "up": "目標的中毒層數比牠剩下的生命還多的話，直接打倒牠。"
+ },
+ {
+  "id": "feifei_buyaoguolai",
+  "name": "不要過來！",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 3,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "selfDamage",
+   "range"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 25
+   },
+   {
+    "kind": "selfDamage",
+    "amount": 8
+   },
+   {
+    "kind": "range",
+    "n": 2
+   }
+  ],
+  "text": "造成 25 點傷害，自己也受 8 點傷害；距離 +2。",
+  "up": "造成 32 點傷害，自己也受 8 點傷害；距離 +2。"
  }
 ]

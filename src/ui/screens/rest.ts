@@ -5,7 +5,7 @@ import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePar
 import type { RunAction } from '../../net/runaction';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl } from '../assets';
+import { artUrl, heroArtUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
@@ -17,9 +17,9 @@ import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
 
-/** 球球蜷在貓窩旁的立繪；圖還沒生好就不放 */
-function heroPortrait(): string | undefined {
-  const url = artUrl('sprites', 'hero/ninja_curl');
+/** 蜷在貓窩旁的立繪（畫的是這一位自己的角色）；圖還沒生好就不放 */
+function heroPortrait(hero: string | undefined): string | undefined {
+  const url = heroArtUrl(hero, 'hero/ninja_curl');
   return url.startsWith('data:') ? undefined : url;
 }
 
@@ -69,7 +69,7 @@ registerScreen('rest', (app, root) => {
       art = el('div', { class: 'showcase' }, host);
       window.setTimeout(() => burst(host, 'buff'), 60);
     }
-    root.append(sceneView({ art, portrait: heroPortrait(), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
+    root.append(sceneView({ art, portrait: heroPortrait(me(run, seat).hero), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
     toast(line, '球球');
     // 連線版：兩個人都做完才走，先做完的那位在這裡等（由 onRunApplied 接手）
     if (coop) { if (allDone()) window.setTimeout(() => app.backToMap(), card ? 1500 : 900); return; }
@@ -178,7 +178,7 @@ registerScreen('rest', (app, root) => {
      */
     if (me(run, seat).down) {
       root.append(sceneView({
-        portrait: heroPortrait(),
+        portrait: heroPortrait(me(run, seat).hero),
         speaker: '貓窩',
         text: '球球躺在貓窩旁邊動不了……得等同伴過來扶一把。',
         actions: [],
@@ -188,7 +188,7 @@ registerScreen('rest', (app, root) => {
 
     // 劇場版面：底圖就是貓窩本身，球球蜷在左邊，對白框裡直接放兩個選項
     root.append(sceneView({
-      portrait: heroPortrait(),
+      portrait: heroPortrait(me(run, seat).hero),
       speaker: '貓窩',
       text: coop ? '貓窩暖暖的，一人只能挑一件事做。' : '貓窩暖暖的，只能挑一件事做。',
       actions,

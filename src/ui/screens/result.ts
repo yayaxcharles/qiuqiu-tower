@@ -1,10 +1,10 @@
 import { play } from '../audio';
-import { dialogue } from '../../content/dialogue';
+import { dialogue, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { clearSave, recordBest } from '../../engine/save';
 import { registerScreen } from '../app';
 import { screenBg } from '../screenbg';
-import { artUrl } from '../assets';
+import { artUrl, heroArtUrl } from '../assets';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { seedTag } from '../hud';
@@ -38,8 +38,11 @@ registerScreen('result', (app, root) => {
     relics.append(node);
   }
 
-  const lastWords = won ? dialogue.victoryTeaser : (dialogue.defeat.find((l) => l.speaker === '球球')?.text ?? '');
-  const hero = artUrl('sprites', won ? 'hero/ninja_win' : 'hero/ninja_lose');
+  // 落敗那句挑「主角自己講的」——她的說話者是「菲菲」不是「球球」，寫死名字會挑不到
+  const story = storyFor(me(run, seat).hero);
+  const lastWords = won ? story.victoryTeaser
+    : (story.defeat.find((l) => l.speaker === '球球' || l.speaker === '菲菲')?.text ?? '');
+  const hero = heroArtUrl(me(run, seat).hero, won ? 'hero/ninja_win' : 'hero/ninja_lose');
 
   // 劇場版面：球球站在帶子左邊（贏的姿勢或倒下的姿勢），成績、秘寶、最佳成績寫在帶子裡
   root.append(screenBg(won ? 'bg/screen_result_win' : 'bg/screen_result_lose'));

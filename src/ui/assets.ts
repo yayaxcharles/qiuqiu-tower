@@ -48,6 +48,91 @@ export function heroSpriteUrls(): string[] {
     .map(([, v]) => `${BASE}${v}`);
 }
 
+/*
+ * ===== 換角色的立繪（2026-09-12）=====
+ *
+ * 立繪鍵長 `hero/<前綴>_<姿勢>`，全遊戲的姿勢名冊寫在 `combat.ts` 的 `POSE`，
+ * 值一律是**球球版**的鍵——那是「姿勢的身分證」，畫面到處拿它做相等比較
+ *（`pose === POSE.claw`、`ATTACK_POSES.has(pose)`）。所以換角色**不改那張表**，
+ * 只在「鍵要變成網址」與「這張圖有沒有」這兩個出口翻譯一次。
+ *
+ * 退路刻意**退回她自己**最接近的姿勢，不是退回球球的：
+ * 玩菲菲卻突然跳出一隻灰虎斑，比姿勢不精準難看得多。
+ */
+const HERO_PREFIX: Readonly<Record<string, string>> = { ninja: 'ninja', samurai: 'samurai', feifei: 'feifei' };
+
+/** 她沒生這張圖時，退到自己的哪一張。鍵與值都是**姿勢名**（不含 `hero/<前綴>_`） */
+const POSE_FALLBACK: Readonly<Record<string, string>> = {
+  // 攻擊家族全退回基本出招
+  claw: 'attack', kick: 'attack', dash: 'attack', punch: 'attack',
+  // 技能家族全退回施術
+  focus: 'skill', scroll: 'skill', roar: 'skill', taiji: 'skill', qinggong: 'skill', eat: 'skill',
+  // 狀態待機退回受傷／站姿（`idlePoseKey` 會先問 hasSprite，退到這裡就是「就用站姿」）
+  choke: 'hurt', dizzy: 'hurt', belly: 'hurt', lazy: 'hurt', puff: 'hurt', iron: 'idle',
+  // 擋下來的抱胸格擋退回蜷縮；倒在地上退回站著垂頭
+  guard: 'curl', down: 'lose',
+};
+
+/**
+ * 這位角色**自己**畫好的那一張（不走退路）；沒有就回 null。
+ *
+ * 站姿兩種寫法都認：球球的鍵是 `hero/ninja`（沒有後綴，最早那批留下來的），
+ * 後來的角色一律是 `hero/<前綴>_idle`。這裡兩個都查，生圖腳本就不必為了對齊改檔名。
+ */
+function ownPose(prefix: string, pose: string): string | null {
+  const names = pose === 'idle' ? [`hero/${prefix}`, `hero/${prefix}_idle`] : [`hero/${prefix}_${pose}`];
+  return names.find((k) => manifest.sprites[k] !== undefined) ?? null;
+}
+
+/** 從球球版的鍵取出姿勢名（`hero/ninja_claw` → `claw`、`hero/ninja` → `idle`） */
+function poseNameOf(key: string): string | null {
+  if (!key.startsWith('hero/ninja')) return null;
+  return key.slice('hero/ninja'.length).replace(/^_/, '') || 'idle';
+}
+
+/**
+ * 把球球版的立繪鍵換成這位角色的。她沒畫那一張就照 `POSE_FALLBACK` 退一步，
+ * 再沒有就回原本那個（球球的）——寧可畫錯角色也不要破圖。
+ */
+export function heroSpriteKey(hero: string | undefined, key: string): string {
+  const prefix = HERO_PREFIX[hero ?? 'ninja'] ?? 'ninja';
+  if (prefix === 'ninja') return key;
+  const pose = poseNameOf(key);
+  if (!pose) return key;
+  const fb = POSE_FALLBACK[pose];
+  return ownPose(prefix, pose) ?? (fb ? ownPose(prefix, fb) : null) ?? key;
+}
+
+/*
+ * ===== 本機這一位玩的是誰（2026-09-12）=====
+ *
+ * 單人畫面（對白疊層、過關走路轉場、標題）只演給本機這一位看，用一個模組層級的
+ * 變數最省事。**戰鬥畫面不能這樣讀**——那邊兩位同框，一律從 `PlayerCombat.hero` 取。
+ * 開新局與讀存檔時由 `app.ts` 設定。
+ */
+let localHeroId = 'ninja';
+export function setLocalHero(hero: string | undefined): void { localHeroId = hero ?? 'ninja'; }
+export function localHero(): string { return localHeroId; }
+
+/** 這位角色的立繪網址。鍵一律寫球球版的，換角色的翻譯交給 `heroSpriteKey` */
+export function heroArtUrl(hero: string | undefined, key: string): string {
+  return artUrl('sprites', heroSpriteKey(hero, key));
+}
+
+/**
+ * 這位角色**自己**畫好這張姿勢了沒——**嚴格版，不走退路**。
+ *
+ * 挑待機姿勢（`idlePoseKey`）與挑招式圖（`posePick`）問的是「這張圖存在嗎」，
+ * 用寬鬆版的話永遠是「在」（退路一定找得到東西），中毒待機就會挑到退路後的掛彩圖，
+ * 玩家看到的姿勢跟身上的狀態對不起來。
+ */
+export function hasHeroSprite(hero: string | undefined, key: string): boolean {
+  const prefix = HERO_PREFIX[hero ?? 'ninja'] ?? 'ninja';
+  if (prefix === 'ninja') return hasSprite(key);
+  const pose = poseNameOf(key);
+  return pose ? ownPose(prefix, pose) !== null : hasSprite(key);
+}
+
 /** 這張立繪生好了沒（階段專屬圖、球球狀態圖還沒落地時要退回一般圖，不能畫成灰剪影） */
 export function hasSprite(key: string): boolean { return manifest.sprites[key] !== undefined; }
 

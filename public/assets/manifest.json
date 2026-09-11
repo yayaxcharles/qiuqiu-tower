@@ -183,7 +183,21 @@
   "hero/ninja_roar": "assets/sprites/hero/ninja_roar.webp",
   "hero/ninja_taiji": "assets/sprites/hero/ninja_taiji.webp",
   "hero/ninja_qinggong": "assets/sprites/hero/ninja_qinggong.webp",
-  "hero/ninja_down": "assets/sprites/hero/ninja_down.webp"
+  "hero/ninja_down": "assets/sprites/hero/ninja_down.webp",
+  "hero/feifei_attack": "assets/sprites/hero/feifei_attack.webp",
+  "hero/feifei_throw": "assets/sprites/hero/feifei_throw.webp",
+  "hero/feifei_skill": "assets/sprites/hero/feifei_skill.webp",
+  "hero/feifei_guard": "assets/sprites/hero/feifei_guard.webp",
+  "hero/feifei_dodge": "assets/sprites/hero/feifei_dodge.webp",
+  "hero/feifei_hit": "assets/sprites/hero/feifei_hit.webp",
+  "hero/feifei_idle": "assets/sprites/hero/feifei_idle.webp",
+  "hero/feifei_curl": "assets/sprites/hero/feifei_curl.webp",
+  "hero/feifei_hurt": "assets/sprites/hero/feifei_hurt.webp",
+  "hero/feifei_win": "assets/sprites/hero/feifei_win.webp",
+  "hero/feifei_lose": "assets/sprites/hero/feifei_lose.webp",
+  "hero/feifei_hungry": "assets/sprites/hero/feifei_hungry.webp",
+  "hero/feifei_power": "assets/sprites/hero/feifei_power.webp",
+  "hero/feifei_stealth": "assets/sprites/hero/feifei_stealth.webp"
  },
  "review": [],
  "monsters": {

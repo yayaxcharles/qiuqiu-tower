@@ -182,7 +182,19 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     lose = eatArmour(cs, p, lose);
   } else {
     if (p.immune) { log(cs, '球球躲在角落，什麼都沒看到'); return 0; }
-    const dmg = computeAttack(base, attacker, p);
+    let dmg = computeAttack(base, attacker, p);
+    /*
+     * 拒馬（菲菲的稀有能力 2026-09-12）：站得夠遠時每一下少挨幾點。
+     *
+     * 排在蜷縮**之前**——它講的是「牠打不到你這麼深」，不是「你擋下來了」，
+     * 所以連帶讓蜷縮更耐用。減到 0 就是 0，不會變成回血。
+     */
+    const rg = p.rangeGuard;
+    if (rg && p.range >= rg.min && dmg > 0) {
+      const cut = Math.min(dmg, rg.amount);
+      dmg -= cut;
+      if (cut > 0) log(cs, `離得夠遠，這一下少了 ${cut} 點`);
+    }
     // 判定順序改成「蜷縮先擋，擋不完的那一下才用隱身閃」（使用者 2026-09-04：隱身判定在前、強度又比蜷縮高太多，玩家只拿隱身不拿蜷縮）。
     // 隱身只在「蜷縮擋完還有剩」時才消耗一層，整下落空；穿透招蜷縮擋不住，還是直接看隱身。
     const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
@@ -206,6 +218,14 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
       }
     }
   }
+  /*
+   * 菲菲的距離：**真的被扣到血才拉近**（2026-09-12）。
+   *
+   * 判準刻意放在這一行而不是函式開頭：蜷縮擋掉、隱身閃掉、護甲吃掉的那些，
+   * 距離都不該掉——那正是她「靠不被打到活著」的核心。自傷（`victim` 是自己）也算，
+   * 她慌了往前衝那批牌就是要付這個代價。其他職業 `range` 永遠是 0，減不下去。
+   */
+  if (lose > 0 && p.range > 0) { p.range -= 1; log(cs, `被逼近了（距離 ${p.range}）`); }
   p.hp -= lose;
   // 已經打贏了，殘餘效果（自傷、壞毛病）不會把球球打死
   if (cs.phase === 'won') { p.hp = Math.max(1, p.hp); return lose; }
@@ -389,6 +409,24 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
   if (e.stolen > 0) { killer.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
   if (!reviving) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
+  /*
+   * 餘毒（屍爆，菲菲的稀有能力 2026-09-12）：牠倒下時身上剩下的中毒，傳給還站著的。
+   *
+   * 排在擊倒獎勵之後、秘寶之前是刻意的：這一下可能再毒死下一隻，而那一隻的擊倒獎勵
+   * 得照樣發。`killEnemy` 是遞迴安全的（連鎖時每一層都會再跑一次這段）。
+   * **會復活的不算**——牠等一下就爬起來，毒也還在牠身上，傳出去等於毒了兩份。
+   */
+  if (!reviving && killer.poisonBurst) {
+    const left = getStatus(e, '中毒');
+    const others = cs.enemies.filter((o) => o !== e && !o.dead && !o.escaped);
+    if (left > 0 && others.length > 0) {
+      const each = killer.poisonBurst === 'full' ? left : Math.floor(left / others.length);
+      if (each > 0) {
+        log(cs, `${e.name}身上的毒散了開來`);
+        for (const o of others) addStatus(o, '中毒', each);
+      }
+    }
+  }
   // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
   if (!reviving) for (const rid of killer.relics) {
     const h = relicById[rid]?.hooks;
@@ -501,10 +539,23 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       e.maxHp = next.hpBar;
       e.block = 0;
       e.invulnIn = 1;
-      // 換血條時把身上的減益全部化掉，增益（爪力等）留著——尾王要越打越難（使用者 2026-09-03）
-      const purged = DEBUFFS.filter((name) => getStatus(e, name) > 0);
-      for (const name of purged) removeStatus(e, name);
-      if (purged.length) log(cs, `${e.name}調息之際把身上的${purged.join('、')}全化掉了`);
+      /*
+       * 換血條時把身上的減益化掉，增益（爪力等）留著——尾王要越打越難（使用者 2026-09-03）。
+       *
+       * **中毒只化掉一半，不是全清**（2026-09-12，做菲菲時改的）。
+       * 原本是全清，對她是硬傷：毒是她**唯一**的輸出模型，堆了三四回合的層數在換階段那一刻
+       * 歸零，等於整場白打；而其他角色只是少掉一個附帶效果，感覺不出來。
+       * 折半兩邊都保得住——「越打越難」還在（層數真的掉了一半），她也不會被整組廢掉。
+       * 算法沿用玩家身上的破功、看破（`Math.floor` 向下取整保留）。
+       */
+      const purged: string[] = [];
+      for (const name of DEBUFFS) {
+        const v = getStatus(e, name);
+        if (v <= 0) continue;
+        if (name === '中毒') { const keep = Math.floor(v / 2); removeStatus(e, name); if (keep > 0) addStatus(e, name, keep); purged.push(`一半的${name}`); }
+        else { removeStatus(e, name); purged.push(name); }
+      }
+      if (purged.length) log(cs, `${e.name}調息之際把身上的${purged.join('、')}化掉了`);
       e.moveIndex = -1;   // 起身後 advanceMove 會 +1，從新階段的第一招開始
       e.move = REST_MOVE;
       if (next.line) log(cs, `${e.name}：${next.line}`);

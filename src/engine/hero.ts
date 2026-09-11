@@ -7,10 +7,12 @@ import type { CardDef, RunPlayer } from './types';
  * - `ninja`：現況。靠隱身與潛水閃掉傷害，蜷縮每回合重新賺、回合末歸零＝流動防禦。
  * - `samurai`：穿重甲。沒有任何閃避手段，改用「甲」硬吃——甲不歸零、被打永久扣，
  *   整場就那些，得規劃著用（見 `PlayerCombat.armour` 與 `damagePlayer` 的受傷順序）。
+ * - `feifei`：**不是球球**，是球球的師妹、一隻暹羅貓（2026-09-12）。丟毒暗器，
+ *   防禦是「距離」不是「擋」——站得遠打得痛、被打到就被逼近（見 `PlayerCombat.range`）。
  *
  * 分流深度是**中分流**：大部分牌共用，各自有一批獨占牌（`CardDef.hero`）。
  */
-export type Hero = 'ninja' | 'samurai';
+export type Hero = 'ninja' | 'samurai' | 'feifei';
 
 /**
  * 這一位的職業。沒寫＝忍者。
@@ -20,6 +22,34 @@ export type Hero = 'ninja' | 'samurai';
  */
 export function heroOf(p: Pick<RunPlayer, 'hero'>): Hero {
   return p.hero ?? 'ninja';
+}
+
+/**
+ * 畫面上叫他什麼。
+ *
+ * 忍者與武士是**同一隻球球**的兩種打法，所以都叫「球球」；
+ * 菲菲是另一隻貓（球球的師妹），名字必須不一樣——不然連線時兩格都寫「球球」，
+ * 玩家根本分不出哪一格是誰。
+ */
+const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', samurai: '球球', feifei: '菲菲' };
+export function heroName(p: Pick<RunPlayer, 'hero'> | undefined): string {
+  return HERO_NAME[heroOf(p ?? {})];
+}
+
+/**
+ * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是後撤步（開場距離 +1）。
+ */
+export function startRelicFor(hero: Hero): string {
+  return hero === 'feifei' ? 'backstep' : 'blue_headband';
+}
+
+/**
+ * 開場的距離。只有菲菲有（設計稿：開場 1，起始秘寶「後撤步」再 +1 變成 2）。
+ *
+ * 其他職業永遠是 0，所以距離那一條在畫面上也不顯示、那些效果也推不動。
+ */
+export function startRange(hero: Hero | undefined): number {
+  return hero === 'feifei' ? 1 : 0;
 }
 
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */

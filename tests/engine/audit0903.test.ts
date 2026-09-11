@@ -76,7 +76,11 @@ describe('稽核 2026-09-03', () => {
     expect(e.block).toBe(2);
   });
 
-  it('師父換血條：身上的減益全部化掉，增益留著（使用者 2026-09-03）', () => {
+  /*
+   * 2026-09-12 改口徑：中毒**只化掉一半**，其餘減益照舊全清。
+   * 理由在 `checkPhase` 的註解裡——毒是菲菲唯一的輸出模型，全清等於整組廢掉。
+   */
+  it('師父換血條：減益化掉、中毒留一半、增益留著（使用者 2026-09-03；中毒折半 2026-09-12）', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
     addStatus(e, '翻肚', 2); addStatus(e, '中毒', 3); addStatus(e, '定身', 1); addStatus(e, '爪力', 4);
@@ -84,9 +88,9 @@ describe('稽核 2026-09-03', () => {
     damageEnemy(cs, e, 10, { direct: true });
     expect(e.phase).toBe(1);
     expect(getStatus(e, '翻肚')).toBe(0);
-    expect(getStatus(e, '中毒')).toBe(0);
+    expect(getStatus(e, '中毒'), '3 層折半向下取整＝1').toBe(1);
     expect(getStatus(e, '定身')).toBe(0);
     expect(getStatus(e, '爪力'), '增益要留著').toBe(4);
-    expect(cs.log.some((l) => l.includes('全化掉了'))).toBe(true);
+    expect(cs.log.some((l) => l.includes('化掉了'))).toBe(true);
   });
 });

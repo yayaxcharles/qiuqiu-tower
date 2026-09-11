@@ -6,7 +6,7 @@ import { allVoted, onlyStanding } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
-import { artUrl } from '../assets';
+import { artUrl, heroArtUrl } from '../assets';
 import { el } from '../dom';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
@@ -80,7 +80,7 @@ registerScreen('actclear', (app, root, props) => {
     clearKeepBg(root);
     renderHud(app, root);
     const url = artUrl('icons', def.art);
-    const hero = artUrl('sprites', 'hero/ninja_win');
+    const hero = heroArtUrl(me(run, seat).hero, 'hero/ninja_win');
     const next = ACT_NAMES[run.act] ?? '塔頂';
     const stack = el('div', { class: 'loot-stack' },
       el('p', { class: 'loot-above' }, def.text),
@@ -183,7 +183,7 @@ registerScreen('actclear', (app, root, props) => {
     clearKeepBg(root);
     renderHud(app, root);
     const url = artUrl('icons', bossRelic.art);
-    const hero = artUrl('sprites', 'hero/ninja_win');
+    const hero = heroArtUrl(me(run, seat).hero, 'hero/ninja_win');
     const stack = el('div', { class: 'loot-stack' },
       el('p', { class: 'loot-above' }, bossRelic.text),
       !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: bossRelic.name }) : el('div', { class: 'chest-loot-missing' }),
