@@ -86,8 +86,11 @@ export const relics: RelicDef[] = [
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }], maxHp: -12 } },
   { id: 'miasma_charm', name: '魔氣護符', pool: '大魔物', text: '每回合多 1 顆飯糰；每場戰鬥開始帶 2 層炸毛（獲得的蜷縮只剩 0.75 倍）。', art: 'codex/relic_miasma_charm', price: 240,
     hooks: { energyPerTurn: 1, combatStart: [{ kind: 'status', name: '炸毛', amount: 2, target: 'self' }] } },
-  { id: 'iron_sand_vest', name: '鐵砂衣', pool: '常見', text: '回合結束最多留 6 點蜷縮到下一回合；每場戰鬥開始失去 4 點生命。', art: 'codex/relic_iron_sand_vest', price: 140,
-    hooks: { blockKeep: 6, combatStart: [{ kind: 'selfDamage', amount: 4 }] } },
+  // 開戰扣 4 點生命拿掉了（使用者 2026-09-11：「不該扣血，只有好處就好，
+  // 目前的每回合留下 6 蜷縮也不太過分」）。留蜷縮本來就是慢熱型的加成——
+  // 前兩回合幾乎沒感覺，要堆起來才有用；再收一筆開場血當代價，對一件常見池的秘寶太重
+  { id: 'iron_sand_vest', name: '鐵砂衣', pool: '常見', text: '回合結束最多留 6 點蜷縮到下一回合。', art: 'codex/relic_iron_sand_vest', price: 140,
+    hooks: { blockKeep: 6 } },
   { id: 'glutton_purse', name: '貪吃錢袋', pool: '常見', text: '每場打贏多拿 25 條小魚乾；罐頭鋪的價格漲三成。', art: 'codex/relic_glutton_purse', price: 120,
     hooks: { winGold: 25, shopDiscount: 1.3 } },
   { id: 'black_cat_mask', name: '黑貓面具', pool: '大魔物', text: '每場戰鬥第一回合多 2 顆飯糰；開戰帶 1 層懶洋洋（造成的傷害只剩 0.75 倍）。', art: 'codex/relic_black_cat_mask', price: 230,

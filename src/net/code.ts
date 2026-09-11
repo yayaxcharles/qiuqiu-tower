@@ -78,8 +78,8 @@ export async function unpackSignal(code: string): Promise<{ kind: 'offer' | 'ans
   try {
     sdp = await inflate(codeToBytes(clean.slice(i + 1)));
   } catch {
-    throw new Error('連線碼壞掉了（可能貼到一半），請請對方重傳一次');
+    throw new Error('連線碼壞掉了（可能貼到一半），請對方重傳一次');
   }
-  if (!sdp.startsWith('v=')) throw new Error('連線碼的內容不對，請請對方重傳一次');
+  if (!sdp.startsWith('v=')) throw new Error('連線碼的內容不對，請對方重傳一次');
   return { kind: kind === 'O' ? 'offer' : 'answer', sdp };
 }

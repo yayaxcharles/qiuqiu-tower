@@ -104,7 +104,13 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'selfDamage': {
-      // 秘寶的代價（鐵砂衣開戰扣血）不能把球球直接打死，至少留 1 血，而且要留一行紀錄（稽核 2026-09-04 高 1）
+      /*
+       * 秘寶的代價不能把球球直接打死，至少留 1 血，而且要留一行紀錄（稽核 2026-09-04 高 1）。
+       *
+       * **2026-09-11 起沒有任何秘寶在走這條路**——鐵砂衣的開戰扣血被拿掉了
+       *（使用者：「不該扣血，只有好處就好」）。護欄留著：下一件有代價的秘寶會再用到，
+       * 而且 `tests/engine/sequel_events.test.ts` 改成直接驗這個效果，不再綁在鐵砂衣上。
+       */
       const amount = ctx.source === 'relic' ? Math.min(fx.amount, Math.max(0, p.hp - 1)) : fx.amount;
       if (amount <= 0) return false;
       /**

@@ -42,6 +42,27 @@ def despill_all(im: Image.Image) -> Image.Image:
     return im
 
 
+
+def green_left(im: Image.Image) -> float:
+    """去完背之後還有幾成的可見像素是綠的（百分比）。
+
+    判準跟 `key_out` 同一套（綠減去紅藍的最大值），門檻放寬到 60——
+    那個程度的綠人眼一看就知道是沒去乾淨，不是畫上去的綠色物件。
+    綠色的藥水瓶、草叢那種本來就該留著的，綠度多半在 60 以下。
+    """
+    px = im.convert("RGBA").load()
+    vis = green = 0
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = px[x, y]
+            if a <= 16:
+                continue
+            vis += 1
+            if g - max(r, b) > 60:
+                green += 1
+    return green / vis * 100 if vis else 0.0
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("names", nargs="*", help="event_<事件編號>.png")
@@ -68,6 +89,15 @@ def main() -> None:
                  else key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False))
         if args.strict:
             keyed = despill_all(keyed)
+        # 去背失敗要當場喊出來（2026-09-11）。預設的牌面門檻（232／248）對背景綠度
+        # 只有 23x 的圖會漏掉一大片，而且**完全不出聲**——照樣印成功、照樣寫進 manifest，
+        # 只有玩家看得到一片綠。量一下殘留，太多就自己改用嚴格門檻重做一次
+        if not args.strict and green_left(keyed) > 3.0:
+            print(f"  ⚠ {name} 去背沒乾淨（背景綠度偏低），改用嚴格門檻重做")
+            keyed = despill_all(key_out(Image.open(src), SOFT, HARD, CARD_BAND, crop=False))
+        left = green_left(keyed)
+        if left > 3.0:
+            print(f"  ⚠⚠ {name} 嚴格門檻也去不乾淨（還剩 {left:.1f}% 綠），請看一下這張圖")
         dst = OUT / "bg" / f"event_{eid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         keyed.resize((560, 420), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
