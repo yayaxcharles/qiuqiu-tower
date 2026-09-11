@@ -1,4 +1,4 @@
-import { STARTER_DECK, cardById } from './cards';
+import { FEIFEI_STARTER_DECK, STARTER_DECK, cardById } from './cards';
 export interface DialogueLine { speaker: '球球' | '菲菲' | '塔主' | '旁白' | '黑貓忍者頭目'; text: string }
 
 /** 球球台詞的句尾檢查：去掉結尾標點後最後一個字必須是「喵」 */
@@ -457,6 +457,27 @@ export const feifeiDialogue = {
   chestLines: ['箱子……裡面該不會有東西吧。', '我先用針戳戳看。', '有人在裡面的話請說一聲。', '站遠一點打開好了。', '希望是繃帶。'],
   restNapLines: ['睡一下下就好，一下下。', '這裡……應該安全吧。', '把針收好再睡。', '眼睛好澀。'],
   restSharpenLines: ['磨利一點，就不用丟第二次。', '針要夠尖，我才不用靠近。', '再上一層藥。', '師父說過，工具比膽子可靠。'],
+  /*
+   * 結局。跟球球那一套差在**她是來接兩個人回家的**——
+   * 球球的收尾是師徒重逢，她的收尾是「三個都回來了」，而且她還在發抖。
+   *
+   * 第二句一樣是師父醒來的第一句話，照她的打法換（`masterFirstWords`，共用那四句大俠貼圖標題）；
+   * 第三句是她自己的，**不寫成勝利宣言**——她從頭到尾沒有變勇敢，只是做完了。
+   */
+  victory: <DialogueLine[]>[
+    { speaker: '旁白', text: '最後一縷魔氣從師父身上散去，他眼中的紫光終於熄滅。塔頂的另一頭，一團灰色的東西動了一下——是師兄，還在喘。' },
+    { speaker: '塔主', text: '承讓。' },
+    { speaker: '菲菲', text: '……我、我沒有很厲害。我只是一直退，退到你們打不到我而已。' },
+    { speaker: '旁白', text: '師父把她拉過去，摸了摸她的頭。她愣了三秒，才開始掉眼淚——手裡的針到現在都還沒放下。' },
+    { speaker: '旁白', text: '下山的路上，師兄一直吵著要吃小魚乾，師父笑得很大聲。菲菲走在最後面，一根一根把針收回竹筒裡。三個都回來了。' },
+  ],
+  /** 她的個人化旁白（第三句之後插一句）。口徑跟球球那三句一樣，只是換成她的打法 */
+  victoryNarration: <Record<'strength' | 'stealth' | 'block', string>>{
+    strength: '師父看了看她那排空掉的竹筒，數了數——沒有一根是白丟的。',
+    stealth: '師父想起剛才那一路，她一次都沒讓人碰到。躲得好，也是功夫。',
+    block: '師父拍了拍她還在抖的肩膀——怕，然後還是站在這裡，那比不怕更難。',
+  },
+  hardModeEpilogue: '這一路她沒有一步是衝的。師父後來每次講起，都要多說一遍。',
   victoryTeaser: '呼……沒被碰到。這樣才對。',
 };
 
@@ -469,6 +490,8 @@ export const feifeiDialogue = {
 export function storyFor(hero: string | undefined): {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
   defeat: DialogueLine[]; victoryTeaser: string;
+  victory: DialogueLine[]; victoryNarration: Record<'strength' | 'stealth' | 'block', string>;
+  hardModeEpilogue: string;
   battleStart: string[]; battleWin: string[]; hungry: string[]; lowHp: string[];
   chestLines: string[]; restNapLines: string[]; restSharpenLines: string[];
 } {
@@ -476,6 +499,8 @@ export function storyFor(hero: string | undefined): {
   return {
     prologue: dialogue.prologue, actClear1: dialogue.actClear1, actClear2: dialogue.actClear2,
     defeat: dialogue.defeat, victoryTeaser: dialogue.victoryTeaser,
+    victory: dialogue.victory, victoryNarration: dialogue.masterFirstWordsNarration,
+    hardModeEpilogue: dialogue.hardModeEpilogue,
     battleStart: dialogue.battleStart, battleWin: dialogue.battleWin,
     hungry: dialogue.hungry, lowHp: dialogue.lowHp, chestLines: dialogue.chestLines,
     restNapLines: dialogue.restNapLines, restSharpenLines: dialogue.restSharpenLines,
@@ -507,7 +532,15 @@ export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random(
  */
 export function deckLeaning(deckIds: readonly string[]): 'strength' | 'stealth' | 'block' | 'plain' {
   const count = { strength: 0, stealth: 0, block: 0 };
-  const starter = new Set<string>(STARTER_DECK);
+  /*
+   * **兩位主角的起手牌都要排掉**（2026-09-12 補的）。
+   *
+   * 原本只排球球那十張。菲菲的起手有四張「退開」，每一張都給蜷縮——
+   * 不排掉的話她一開局就被判成蜷縮流，結局那句永遠是同一句，
+   * 而那正是這支函式的註解自己寫著要避免的事（「算進去每個人都是蜷縮流」）。
+   * 兩副牌的牌號不重疊，直接併成一個集合就好。
+   */
+  const starter = new Set<string>([...STARTER_DECK, ...FEIFEI_STARTER_DECK]);
   const picked = deckIds.filter((id) => !starter.has(id));
   for (const id of picked) {
     const def = cardById[id];
@@ -525,12 +558,15 @@ export function deckLeaning(deckIds: readonly string[]): 'strength' | 'stealth' 
 }
 
 /** 結局那五句：第二句（師父的第一句話）依牌組傾向在貼圖標題裡換；有傾向時多一句旁白講出個人化的評語；難度 4 以上再多一句旁白。 */
-export function victoryLinesFor(deckIds: readonly string[], difficulty: number): DialogueLine[] {
+export function victoryLinesFor(deckIds: readonly string[], difficulty: number, hero?: string): DialogueLine[] {
+  const story = storyFor(hero);
   const key = deckLeaning(deckIds);
-  const lines = dialogue.victory.map((l) => ({ ...l }));
+  const lines = story.victory.map((l) => ({ ...l }));
+  // 師父只講大俠貼圖標題（專案規矩，tests/content/dialogue.test.ts 守著），這四句兩位主角共用
   const second = lines[1];
   if (second && second.speaker === '塔主') second.text = dialogue.masterFirstWords[key];
-  if (key !== 'plain') lines.splice(2, 0, { speaker: '旁白', text: dialogue.masterFirstWordsNarration[key] });
-  if (difficulty >= 4) lines.push({ speaker: '旁白', text: dialogue.hardModeEpilogue });
+  // 個人化那一句插在**師父講完之後**（兩位主角的第二句都是師父，位置一樣，不用分兩種寫法）
+  if (key !== 'plain') lines.splice(2, 0, { speaker: '旁白', text: story.victoryNarration[key] });
+  if (difficulty >= 4) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
   return lines;
 }
