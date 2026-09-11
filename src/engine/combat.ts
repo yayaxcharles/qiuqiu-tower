@@ -2,7 +2,7 @@ import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
-import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markRelic, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
+import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
@@ -89,7 +89,7 @@ export function startPlayerTurn(cs: CombatState): void {
   cs.hits.length = 0;   // 分段演出只看這一拍新增的幾筆，上一回合的不用留著（稽核 2026-09-05 夜 低-1）
   // 每位玩家各開一次自己的回合（連線版第一步 2026-09-11）。單機就是跑一次，順序與結果完全沒變。
   // 中途被噎到打倒就整個停下來——後面的人不用再抽牌了
-  for (const p of cs.players) { startSeatTurn(cs, p); if (cs.phase !== 'player') return; }
+  for (const p of cs.players) { if (p.down) continue; startSeatTurn(cs, p); if (cs.phase !== 'player') return; }
 }
 
 /** 一位玩家的回合開始：狀態結算、補飽足、抽新手牌。整場只有一份的事情在 `startPlayerTurn` 做完了 */
@@ -130,6 +130,7 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   if (cs.pending) return { ok: false, reason: '先把牌選完' };
   const p = cs.players[seat];
   if (!p) return { ok: false, reason: '沒有這個座位' };
+  if (p.down) return { ok: false, reason: '已經倒下了' };
   const card = p.hand.find((c) => c.uid === uid);
   if (!card) return { ok: false, reason: '不在手牌' };
   const st = cardStats(card);
@@ -248,7 +249,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
   cs.endTurnRequested = false;   // 這個請求到這裡就兌現了
   // 每位玩家各收一次自己的回合（連線版第一步 2026-09-11）。單機跑一次，順序與結果完全沒變
-  for (const p of cs.players) { endSeatTurn(cs, p); if (cs.phase !== 'player') return false; }
+  for (const p of cs.players) { if (p.down) continue; endSeatTurn(cs, p); if (cs.phase !== 'player') return false; }
   return beginEnemyTurnRest(cs);
 }
 
@@ -458,8 +459,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       // 剛爬起來的這一拍不出手，頭上排好的那招留到下回合
     } else {
       // 蓄力由 runEnemyEffects 在第一次套加倍時自己用掉（不看意圖，見該函式註解）
-      // 挨打的那位（連線版第二步會由魔物的招式決定打誰，這裡就會變成真的有差別）
-      const victim = cs.player;
+      const victim = pickVictim(cs);   // 這一招隨機打一位還站著的（規則二）
       const hpBefore = victim.hp;
       if (e.move.learned) log(cs, `${e.name}照著打出「${e.move.label}」`);   // 照著學的（鏡中球球）：紀錄要寫是哪張牌
       runEnemyEffects(cs, e, e.move.effects, e.charged, victim);
@@ -553,7 +553,7 @@ export function usePotion(cs: CombatState, potionId: string, targetUid?: number,
   const def = potionById[potionId];
   if (i < 0 || !def) return false;
   const p = cs.players[seat];
-  if (!p) return false;
+  if (!p || p.down) return false;
   // 有使用條件的（起死回生丹：生命低於三成才准用）。畫面讀同一個 `usable` 把格子變灰並寫原因，見 `ui/screens/combat.ts` 的忍具列
   if (def.usable && !def.usable.check(p.hp, p.maxHp)) return false;
   if (def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return false;

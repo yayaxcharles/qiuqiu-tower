@@ -168,6 +168,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
                                victim?: PlayerCombat;
                              } = {}): number {
   const p = opts.victim ?? cs.player;
+  if (p.down) return 0;   // 已經倒下的人不會再挨打（規則四）
   let lose: number;
   if (opts.direct) {
     lose = base;
@@ -215,7 +216,13 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
       markRelic(cs, saverId);
       log(cs, `${relicById[saverId]?.name ?? '秘寶'}替球球挨了這一下`);
     }
-    else { p.hp = 0; cs.phase = 'lost'; }
+    else {
+      p.hp = 0;
+      p.down = true;
+      // **每一位都倒下了**才算整場輸（規則四）。單機只有一位，跟以前同一件事
+      if (cs.players.every((x) => x.down)) cs.phase = 'lost';
+      else log(cs, '球球倒下了，另一位還站著');
+    }
   }
   return lose;
 }
@@ -335,7 +342,7 @@ function checkPhase(cs: CombatState, e: EnemyCombat): void {
   // 用 onEnterMove 時 moveIndex 設 -1：那招做完 advanceMove 會 +1，新階段從第一招開始（稽核 2026-09-04 L-5）
   e.moveIndex = next.onEnterMove ? -1 : 0;
   if (next.line) log(cs, `${e.name}：${next.line}`);
-  runEnemyEffects(cs, e, next.onEnter, false);
+  runEnemyEffects(cs, e, next.onEnter, false, pickVictim(cs));
   if (next.onEnterMove) {
     // **排隊、不當場換掉頭上的預告**（使用者 2026-09-10：「第七回合牠是補血，結果又直接跑出兩條尾巴」）。
     // 這條大多在**玩家回合中途**觸發（打過血量門檻），當場改 `move` 等於預告說謊：
@@ -464,7 +471,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       removeStatus(e, '沉睡');
       log(cs, `${e.name}被打醒了`);
       const wake = enemyById[e.enemyId]?.onWake;
-      if (wake) runEnemyEffects(cs, e, wake, false);
+      if (wake) runEnemyEffects(cs, e, wake, false, pickVictim(cs));
       e.moveIndex = -1;   // 醒過來從招式表的第一招開始（advanceMove 會 +1）
       advanceMove(cs, e);
     }
@@ -492,7 +499,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
       e.move = REST_MOVE;
       if (next.line) log(cs, `${e.name}：${next.line}`);
       log(cs, `${e.name}蹲了下來調息，暫時打不進去`);
-      runEnemyEffects(cs, e, next.onEnter, false);
+      runEnemyEffects(cs, e, next.onEnter, false, pickVictim(cs));
       return { dealt: lose, killed: false };
     }
     killEnemy(cs, e);
@@ -576,6 +583,21 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   return e;
 }
 
+/**
+ * 魔物這一招要打誰：**在還站著的人裡面隨機挑一位**（規則二，使用者 2026-09-11）。
+ *
+ * 挑的單位是「一招」不是「一個效果」——同一招的傷害、減益、塞牌都落在同一個人身上，
+ * 不然玩家看不懂剛剛發生了什麼事。
+ *
+ * **只剩一位候選就完全不擲骰**：鎖步連線兩邊要擲出同一個結果，靠的是亂數呼叫順序
+ * 完全一致；單機若在這裡白擲一次，整局的抽牌順序會全部位移（那四條等號式的錨會當場紅）。
+ */
+export function pickVictim(cs: CombatState): PlayerCombat {
+  const standing = cs.players.filter((p) => !p.down);
+  if (standing.length <= 1) return standing[0] ?? (cs.player as PlayerCombat);
+  return cs.rng.pick(standing);
+}
+
 /** 包成函式再讀，免得 TypeScript 把 cs.phase 窄化後，看不見 damagePlayer 途中把戰鬥打成敗北 */
 function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
 
@@ -593,7 +615,7 @@ function halvePlayerStatuses(p: PlayerCombat, names: readonly StatusName[]): Sta
  * 單機跟以前一模一樣；連線版第二步只要在呼叫端挑好目標，整套減益、塞牌、破功就都會找對人。
  */
 export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyEffect[], charged: boolean,
-                                victim: PlayerCombat = cs.player): void {
+                                victim: PlayerCombat = pickVictim(cs)): void {
   // 蓄力只加倍**下一次**傷害：第一個吃到加倍的傷害效果就把蓄力用掉。原本是「攻擊意圖的招才清蓄力」，
   // 狸小弟的搗蛋／裝可愛是減益／防禦意圖卻帶傷害，一次蓄力連吃三招加倍、48 傷（全面體檢 2026-09-05 #3）
   let mult = charged;
