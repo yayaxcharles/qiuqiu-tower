@@ -351,6 +351,28 @@ export function fullPrepHeal(run: RunState): { tenth: number; fromFish: number; 
   const fromFish = Math.floor(me(run).fish / 10);
   return { tenth, fromFish, total: tenth + fromFish };
 }
+/**
+ * 倒下的同伴在打盹點爬起來時回多少血（使用者 2026-09-11：「打盹可以救回來」）。
+ *
+ * 三成：救得起來，但爬起來是虛的，下一場得靠隊友頂著——救人本身要有重量，
+ * 不然「倒下」這件事就沒有份量了。救的人也付出代價：他這一格不能打盹也不能磨爪。
+ */
+export const REVIVE_RATIO = 0.3;
+
+/**
+ * 打盹點扶起倒下的同伴（規則四的後半）。
+ *
+ * `seat`＝要扶誰。扶人的那一位**用掉了自己這一格的打盹機會**，這就是代價；
+ * 所以一個貓窩要嘛自己回血、要嘛救人，得商量。
+ */
+export function revivePartner(run: RunState, seat: number): boolean {
+  const p = run.players[seat];
+  if (!p || !p.down) return false;
+  p.down = false;
+  p.hp = Math.max(1, Math.floor(p.maxHp * REVIVE_RATIO));
+  return true;
+}
+
 export function rest(run: RunState, choice: '打盹' | '磨爪' | '全力準備', uid?: number): boolean {
   if (choice === '全力準備') {
     if (!fullPrepAvailable(run)) return false;

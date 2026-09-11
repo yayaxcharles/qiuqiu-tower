@@ -1,0 +1,107 @@
+import { describe, expect, it } from 'vitest';
+import { rollRelic, rollRelicChoices, settleRelicPicks } from '../../src/engine/rewards';
+import { REVIVE_RATIO, newRun, revivePartner } from '../../src/engine/run';
+import { me } from '../../src/engine/runplayer';
+import { Rng, seedFromString } from '../../src/engine/rng';
+import { relics } from '../../src/content/relics';
+import type { RunPlayer } from '../../src/engine/types';
+
+/*
+ * 規則三（獎勵分開給，秘寶出兩件各選一件）與規則四的後半（打盹扶起同伴），
+ * 使用者 2026-09-11 拍板。
+ */
+
+const rng = (s: string): Rng => new Rng(seedFromString(s));
+
+describe('規則三：秘寶出兩件，兩個人各挑一件', () => {
+  it('抽出來的兩件不重複，而且兩個人都還沒有', () => {
+    const mine = relics.filter((r) => r.pool === '常見').slice(0, 5).map((r) => r.id);
+    const theirs = relics.filter((r) => r.pool === '常見').slice(5, 9).map((r) => r.id);
+    const out = rollRelicChoices(rng('pair'), '常見', [mine, theirs], 2);
+
+    expect(out.length).toBe(2);
+    expect(out[0]).not.toBe(out[1]);
+    for (const id of out) {
+      expect(mine, '一號已經有的不該再開').not.toContain(id);
+      expect(theirs, '二號已經有的也不該再開').not.toContain(id);
+    }
+  });
+
+  it('抽一件時跟單機的 rollRelic 完全一樣（同候選、同一次擲骰）', () => {
+    const owned = ['blue_headband'];
+    expect(rollRelicChoices(rng('same'), '常見', [owned], 1)).toEqual([rollRelic(rng('same'), '常見', owned)]);
+  });
+
+  it('池子抽不滿就給幾件算幾件，不會丟例外', () => {
+    const all = relics.filter((r) => r.pool === '塔主').map((r) => r.id);
+    expect(rollRelicChoices(rng('dry'), '塔主', [all], 2)).toEqual([]);
+    const allButOne = all.slice(1);
+    expect(rollRelicChoices(rng('dry2'), '塔主', [allButOne], 2).length).toBe(1);
+  });
+
+  it('各挑各的就各拿各的，一次骰都不用擲', () => {
+    const r = rng('nofight');
+    const before = { ...r.state };
+    expect(settleRelicPicks(r, ['a', 'b'], ['a', 'b'])).toEqual(['a', 'b']);
+    expect(r.state, '沒撞件就不該動到亂數').toEqual(before);
+  });
+
+  it('挑同一件：隨機給一個，剩下那件給另一位——兩個人都拿得到', () => {
+    for (const seed of ['t1', 't2', 't3', 't4', 't5', 't6']) {
+      const got = settleRelicPicks(rng(seed), ['a', 'b'], ['a', 'a']);
+      expect(got.length).toBe(2);
+      expect(new Set(got), '一人一件，不會兩個人拿到同一件').toEqual(new Set(['a', 'b']));
+      expect(got.filter((x) => x === null), '沒有人空手').toEqual([]);
+    }
+  });
+
+  it('撞件的贏家兩邊都可能，不是永遠第一個', () => {
+    const winners = new Set<number>();
+    for (let i = 0; i < 40; i++) {
+      const got = settleRelicPicks(rng(`w${i}`), ['a', 'b'], ['a', 'a']);
+      winners.add(got[0] === 'a' ? 0 : 1);
+    }
+    expect(winners, '兩個座位都贏過').toEqual(new Set([0, 1]));
+  });
+
+  it('只有一個人挑（另一位倒下或不要）：他拿到自己挑的，另一位空手', () => {
+    expect(settleRelicPicks(rng('solo'), ['a', 'b'], ['a', null])).toEqual(['a', null]);
+    expect(settleRelicPicks(rng('solo2'), ['a', 'b'], [null, 'b'])).toEqual([null, 'b']);
+  });
+
+  it('挑了一個根本沒開出來的當作沒挑（被竄改的封包不該憑空變出秘寶）', () => {
+    expect(settleRelicPicks(rng('hack'), ['a', 'b'], ['zzz', 'b'])).toEqual([null, 'b']);
+  });
+});
+
+describe('規則四後半：打盹扶起倒下的同伴', () => {
+  function twoPlayerRun(): ReturnType<typeof newRun> {
+    const run = newRun('revive', 1);
+    const mate: RunPlayer = { ...me(run), deck: [...me(run).deck], relics: [...me(run).relics], potions: [] };
+    run.players.push(mate);
+    return run;
+  }
+
+  it('扶起來就不再是倒下狀態，血回到最大生命的三成', () => {
+    const run = twoPlayerRun();
+    const mate = run.players[1]!;
+    mate.down = true; mate.hp = 0;
+
+    expect(revivePartner(run, 1)).toBe(true);
+    expect(mate.down).toBeFalsy();
+    expect(mate.hp).toBe(Math.floor(mate.maxHp * REVIVE_RATIO));
+    expect(mate.hp, '爬起來是虛的，但不會是 0').toBeGreaterThan(0);
+  });
+
+  it('沒倒下的人扶不起來（也就不會被當成免費回血）', () => {
+    const run = twoPlayerRun();
+    const mate = run.players[1]!;
+    mate.hp = 5;
+    expect(revivePartner(run, 1), '他好好站著').toBe(false);
+    expect(mate.hp, '血量一點都不該動').toBe(5);
+  });
+
+  it('沒有那個座位就回 false，不會丟例外', () => {
+    expect(revivePartner(newRun('solo-revive', 1), 1)).toBe(false);
+  });
+});

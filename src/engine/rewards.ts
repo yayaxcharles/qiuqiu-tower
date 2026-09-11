@@ -62,6 +62,49 @@ export function rollRelic(rng: Rng, pool: RelicPool, owned: string[]): string | 
 export function rollPotion(rng: Rng): string { return rng.pick(potions).id; }
 
 /**
+ * 兩個人的秘寶獎勵：抽 `n` 件出來讓他們各挑一件（規則三，使用者 2026-09-11）。
+ *
+ * **只抽「兩個人都還沒有的」**。刻意不做成「各看各的清單」——那樣兩邊看到的東西
+ * 不一樣，就沒辦法「像選路線一樣兩個人各選一件」，畫面也沒法把兩人的選擇擺在一起。
+ * 六十件秘寶要兩個人同時收齊某一池才會抽不滿，真抽不滿就給幾件算幾件。
+ *
+ * 單機呼叫 `n = 1` 時行為跟 `rollRelic` 完全一樣（同樣的候選、同樣一次 `rng.pick`）。
+ */
+export function rollRelicChoices(rng: Rng, pool: RelicPool, ownedPerSeat: readonly string[][], n: number): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < n; i++) {
+    const cands = relics.filter((r) => r.pool === pool
+      && !out.includes(r.id)
+      && ownedPerSeat.every((owned) => !owned.includes(r.id)));
+    if (!cands.length) break;
+    out.push(rng.pick(cands).id);
+  }
+  return out;
+}
+
+/**
+ * 兩個人各挑一件，挑同一件怎麼辦（規則三，使用者 2026-09-11：
+ * 「都選同一個就隨機給一個人，剩下的秘寶就給另一位」）。
+ *
+ * `picks[seat]`＝那一位挑的秘寶 id，`null`＝沒挑（倒下、或就是不要）。
+ * 回傳每個座位真正拿到的。
+ *
+ * 撞件時**只擲一次骰**決定誰拿到自己挑的那件，輸的人自動拿剩下那件——
+ * 所以兩個人一定都拿得到東西，沒有人會因為手慢而空手。
+ */
+export function settleRelicPicks(rng: Rng, offered: readonly string[], picks: readonly (string | null)[]): (string | null)[] {
+  const valid = picks.map((p) => (p !== null && offered.includes(p) ? p : null));
+  const chosen = valid.filter((p): p is string => p !== null);
+  // 沒撞件（含只有一個人挑）就各拿各的，一次骰都不用擲
+  if (new Set(chosen).size === chosen.length) return [...valid];
+
+  const winner = rng.int(0, valid.length - 1);
+  const prize = valid[winner] as string;
+  const leftover = offered.find((id) => id !== prize) ?? null;
+  return valid.map((p, i) => (p === null ? null : i === winner ? prize : leftover));
+}
+
+/**
  * `opts.exclude`＝這次不要再開的牌（牌組裡已經有兩張的：第三張同名牌幾乎沒人要，開出來等於少一個選項）；
  * `opts.rareBonus`＝稀有保底權重。兩者都只影響牌，不影響小魚乾／忍具／秘寶。
  */
