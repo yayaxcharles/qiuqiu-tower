@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STARTER_DECK } from '../../src/content/cards';
-import { endTurn, playCard, resolveChoice, startCombat, usePotion } from '../../src/engine/combat';
+import { allReady, endTurn, playCard, resolveChoice, startCombat, usePotion } from '../../src/engine/combat';
 import { applyEffects } from '../../src/engine/effects';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { addStatus, getStatus } from '../../src/engine/statuses';
@@ -185,9 +185,9 @@ describe('其他效果', () => {
     cs.player.hp = 50;
     playCard(cs, toHand(cs, 'xianshuile'));
     // 2026-09-01 起效果只掛旗（畫面要走完整的收牌流程），回合由呼叫端收
-    expect(cs.player.hp).toBe(54); expect(cs.endTurnRequested).toBe(true);
+    expect(cs.player.hp).toBe(54); expect(allReady(cs), '牌替打牌的人舉了手').toBe(true);
     endTurn(cs);
-    expect(cs.turn).toBe(2); expect(cs.endTurnRequested).toBe(false);
+    expect(cs.turn).toBe(2); expect(allReady(cs), '收完回合手就放下了').toBe(false);
     cs.player.energy = 9;
     playCard(cs, toHand(cs, 'xuli'));
     const e = cs.enemies[0]!; e.block = 0; const hp = e.hp;

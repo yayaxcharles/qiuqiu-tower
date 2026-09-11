@@ -5,7 +5,7 @@ import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { aliveEnemies, attackable } from './actions';
-import { canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
+import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
@@ -530,7 +530,7 @@ export function smartCombat(cs: CombatState, rng: Rng, maxTurns = 200, seed = '?
     const pick = others.length ? others.sort((a, b) => b.value - a.value)[0]! : plans.filter((x) => x.value > 0.5).sort((a, b) => b.value - a.value)[0];
     if (!pick) { endTurn(cs); continue; }
     if (!playCard(cs, pick.uid, pick.target)) throw new Error(`種子 ${seed}：第 ${cs.turn} 回合打不出 ${pick.uid}（${cs.encounterId}）`);
-    if (cs.endTurnRequested) endTurn(cs);
+    if (allReady(cs)) endTurn(cs);
   }
   // 調平衡用：`SMART_TRACE=<encounterId>` 會把那場的完整戰鬥紀錄印出來（例：SMART_TRACE=tanuki_lord SMART_N=600 …）
   if (TRACE && cs.encounterId === TRACE) console.log(['[trace]', seed, cs.encounterId, cs.phase, `剩 ${cs.player.hp}`, ...cs.log].join('\n'));

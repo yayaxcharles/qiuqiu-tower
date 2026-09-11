@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { beginEnemyTurn, canPlay, finishEnemyTurn, startCombat, startPlayerTurn, usePotion } from '../../src/engine/combat';
+import { allReady, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, setReady, startCombat, startPlayerTurn, usePotion, waitingFor } from '../../src/engine/combat';
 import { damagePlayer, pickVictim, runEnemyEffects } from '../../src/engine/actions';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { getStatus } from '../../src/engine/statuses';
@@ -224,5 +224,83 @@ describe('規則一：秘寶與忍具各帶各的', () => {
     expect(p1.down).toBeFalsy();
     expect(p2.down, '二號沒帶就是倒了').toBe(true);
     expect(cs.phase, '還有一位站著，戰鬥繼續').toBe('player');
+  });
+});
+
+describe('回合結束：每個人各按各的，都按了才真的結束', () => {
+  it('一個人按了不會把對方的回合切掉', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs, ['sanjo', 'sanjo', 'sanjo', 'sanjo', 'sanjo', 'sanjo']);
+    p2.hand = [inst('sanjo', 51), inst('sanjo', 52)];
+
+    expect(setReady(cs, 0), '只有一個人舉手，還不能收').toBe(false);
+    expect(allReady(cs)).toBe(false);
+    expect(waitingFor(cs), '還在等二號').toEqual([1]);
+    expect(p2.hand.length, '二號的手牌動都沒動').toBe(2);
+    expect(cs.turn, '回合也沒往前走').toBe(1);
+    void p1;
+  });
+
+  it('兩個人都按了才收得了', () => {
+    const cs = combat();
+    addSecond(cs);
+    expect(setReady(cs, 0)).toBe(false);
+    expect(setReady(cs, 1), '最後一個人舉手，可以收了').toBe(true);
+    expect(waitingFor(cs)).toEqual([]);
+  });
+
+  it('**舉手不等於結算**：對方還沒舉手之前可以再按一次收回，手牌原封不動', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    addSecond(cs);
+    p1.hand = [inst('tanding', 61)];
+
+    setReady(cs, 0);
+    expect(canPlay(cs, 61, undefined, 0).ok, '舉手之後手牌鎖住').toBe(false);
+    expect(p1.hand.length, '但牌還在手上，沒被丟掉').toBe(1);
+
+    setReady(cs, 0, false);
+    expect(canPlay(cs, 61, undefined, 0).ok, '收回手就能繼續打').toBe(true);
+    expect(allReady(cs)).toBe(false);
+  });
+
+  it('倒下的人不算在裡面，不然一個人倒下就再也結不了回合', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p1.hp = 5; p1.block = 0; p2.hp = 50;
+    damagePlayer(cs, cs.enemies[0]!, 99, { victim: p1 });
+    expect(p1.down).toBe(true);
+
+    expect(setReady(cs, 1), '剩下的那位一舉手就收得了').toBe(true);
+    expect(waitingFor(cs), '倒下的人不在等待名單裡').toEqual([]);
+  });
+
+  it('收完回合手就放下了，下一回合重新算', () => {
+    const cs = combat();
+    addSecond(cs);
+    setReady(cs, 0); setReady(cs, 1);
+    beginEnemyTurn(cs);
+    expect(allReady(cs), '手全放下').toBe(false);
+    expect(cs.players.every((p) => !p.ready)).toBe(true);
+  });
+
+  it('撒手鐧那種「打完就結束回合」的牌，只替**打牌的人**舉手', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p2.hand = [inst('xianshuile', 71)]; p2.energy = 9; p2.hp = 50; p2.maxHp = 80;
+
+    expect(playCard(cs, 71, undefined, 1)).toBe(true);
+    expect(p2.ready, '二號自己舉手了').toBe(true);
+    expect(p1.ready, '一號沒被連坐').toBeFalsy();
+    expect(allReady(cs), '還在等一號').toBe(false);
+  });
+
+  it('單機一位玩家：按下去就是所有人都按了，跟以前一模一樣', () => {
+    const cs = combat();
+    expect(setReady(cs, 0)).toBe(true);
+    expect(allReady(cs)).toBe(true);
   });
 });

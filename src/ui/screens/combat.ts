@@ -5,7 +5,7 @@ import { dialogue, pick } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
-import { rampageTurnFor, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
+import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, resolveChoice, stepEnemyTurn, usePotion } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
 import { DEBUFFS } from '../../engine/types';
@@ -1358,8 +1358,8 @@ registerScreen('combat', (app, root, props) => {
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
     // 稍等 650 毫秒讓這張牌的傷害數字與姿勢先播完，不然出招跟收牌疊在同一拍。
-    if (cs.endTurnRequested) window.setTimeout(() => {
-      if (app.cs === cs && cs.endTurnRequested && cs.phase === 'player') onEndTurn();
+    if (allReady(cs)) window.setTimeout(() => {
+      if (app.cs === cs && allReady(cs) && cs.phase === 'player') onEndTurn();
     }, 650);
   }
 

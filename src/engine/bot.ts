@@ -1,6 +1,6 @@
 import { cardById } from '../content/cards';
 import { eventById } from '../content/events';
-import { canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
+import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
@@ -48,7 +48,7 @@ export function playCombat(cs: CombatState, rng: Rng, maxTurns: number, seed = '
     if (!playCard(cs, card.uid, target)) {
       throw new Error(`種子 ${seed}：第 ${cs.turn} 回合打不出 ${card.cardId}（${cs.encounterId}）`);
     }
-    if (cs.endTurnRequested) endTurn(cs);   // 撒手鐧、先睡了：效果只掛旗，回合由呼叫端收
+    if (allReady(cs)) endTurn(cs);   // 撒手鐧、先睡了：效果只替打牌的人舉手，回合由呼叫端收
   }
 }
 

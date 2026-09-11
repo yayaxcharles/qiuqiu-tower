@@ -43,7 +43,7 @@ export function startCombat(input: {
     get relics(): string[] { return (this.players[0] as PlayerCombat).relics; },
     get potions(): string[] { return (this.players[0] as PlayerCombat).potions; },
     enemies: [],
-    turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId, endTurnRequested: false,
+    turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId,
     stolenFish: 0, fishDelta: 0, energyGain: 0, damageDealt: 0, relicFired: [], kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
@@ -136,6 +136,7 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   const p = cs.players[seat];
   if (!p) return { ok: false, reason: '沒有這個座位' };
   if (p.down) return { ok: false, reason: '已經倒下了' };
+  if (p.ready) return { ok: false, reason: '已經結束回合了' };
   const card = p.hand.find((c) => c.uid === uid);
   if (!card) return { ok: false, reason: '不在手牌' };
   const st = cardStats(card);
@@ -233,6 +234,33 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
  * 結束回合＝敵方回合前半 → 魔物一隻一隻行動 → 收尾。三段拆開是給畫面逐隻演出用的
  * （使用者 2026-09-03：「怪物一次打完所有動作，看不出來誰動了」）；引擎、機器人、測試一律走這個包起來的版本，結果跟拆開前一模一樣。
  */
+/**
+ * 舉手／收回手：「我這回合不打了」。回傳 true＝所有人都舉手了，可以收回合。
+ *
+ * 呼叫端（畫面或連線層）拿到 true 才去叫 `endTurn`。這樣「誰決定回合結束」
+ * 這件事只有一個判準，畫面與連線層不會各寫一套然後走鐘。
+ */
+export function setReady(cs: CombatState, seat: number, ready = true): boolean {
+  const p = cs.players[seat];
+  if (!p || p.down || cs.phase !== 'player') return false;
+  p.ready = ready;
+  return allReady(cs);
+}
+
+/**
+ * 所有**還站著**的人都舉手了嗎。倒下的人不算——不然一個人倒下就再也結不了回合。
+ * 全倒的情況回 false：那時 `phase` 已經是敗北，輪不到收回合。
+ */
+export function allReady(cs: CombatState): boolean {
+  const standing = cs.players.filter((p) => !p.down);
+  return standing.length > 0 && standing.every((p) => p.ready);
+}
+
+/** 還在等誰（畫面拿它寫「等對方…」）。回傳座位編號 */
+export function waitingFor(cs: CombatState): number[] {
+  return cs.players.filter((p) => !p.down && !p.ready).map((p) => p.seat);
+}
+
 export function endTurn(cs: CombatState): void {
   if (!beginEnemyTurn(cs)) return;
   while (stepEnemyTurn(cs)) { /* 一隻一隻 */ }
@@ -252,7 +280,7 @@ export function rampageTurnFor(cs: CombatState): number {
 /** 敵方回合前半：詛咒發作、沒攻擊的鉤子、棄手牌、減益衰減、同伴復活、魔物防禦歸零，並排好這回合要行動的魔物。回 false＝這回合結束不了（不在玩家回合、還有牌要選、或球球被詛咒打倒） */
 export function beginEnemyTurn(cs: CombatState): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
-  cs.endTurnRequested = false;   // 這個請求到這裡就兌現了
+  for (const p of cs.players) p.ready = false;   // 舉的手到這裡就兌現了
   // 每位玩家各收一次自己的回合（連線版第一步 2026-09-11）。單機跑一次，順序與結果完全沒變
   for (const p of cs.players) { if (p.down) continue; endSeatTurn(cs, p); if (cs.phase !== 'player') return false; }
   return beginEnemyTurnRest(cs);
@@ -558,7 +586,7 @@ export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
 export function usePotion(cs: CombatState, potionId: string, targetUid?: number, seat = 0): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
   const p = cs.players[seat];
-  if (!p || p.down) return false;
+  if (!p || p.down || p.ready) return false;
   const i = p.potions.indexOf(potionId);   // 喝的是**自己**袋子裡的那瓶（規則一）
   const def = potionById[potionId];
   if (i < 0 || !def) return false;

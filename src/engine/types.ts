@@ -489,6 +489,16 @@ export interface PlayerCombat extends Unit {
    */
   down?: boolean;
   /**
+   * 「我這回合不打了」——按下結束回合就舉手（連線版 2026-09-11）。
+   *
+   * **舉手不等於結算。** 真正的收尾（丟手牌、減益衰減）等到所有還站著的人
+   * 都舉手才一起跑，所以對方還沒舉手之前可以再按一次收回，按錯不會毀掉一個回合。
+   * 舉手之後手牌鎖住打不出，但看得到對方還在動。
+   *
+   * 單機只有一位，舉手的下一拍就結算，跟以前按下去就結束一模一樣。
+   */
+  ready?: boolean;
+  /**
    * 這一位帶的秘寶與忍具（連線版規則一，使用者 2026-09-11：**各帶各的**）。
    *
    * 以前掛在整場（`CombatState`）上，因為只有一位玩家。現在搬到人身上，
@@ -652,12 +662,7 @@ export interface CombatState {
    *  畫面靠它把「5 點 ×3」拆成三下演，不用再從總掉血倒推（使用者 2026-09-05：連環踢看起來像一下扣 15） */
   hits: { uid: number; amount: number }[];
   encounterId: string;
-  /**
-   * 牌效果要求結束回合（撒手鐧、先睡了）。以前是效果裡直接呼叫 endTurn，
-   * 敵方回合被壓縮在同一次重畫裡閃過，玩家看起來像「打完馬上又輪到我」。
-   * 改成掛旗子，由呼叫端（畫面／機器人）用跟按鈕一樣的流程收尾。
-   */
-  endTurnRequested: boolean;
+
   /** 先手香：這一輪魔物不出手（`beginEnemyTurn` 看到就整輪跳過，見 Effect 的 `skipEnemyTurn`） */
   skipEnemies?: boolean;
   stolenFish: number;       // 山賊偷走的，擊倒牠全部拿回

@@ -151,7 +151,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'doubleNextAttack': p.doubleNext = 1; return false;
     // 掛旗不直呼：讓畫面走跟按「結束回合」一樣的完整流程（收牌→敵人動作→發牌），
     // 不然敵方回合擠在同一次重畫裡閃過，玩家以為敵人沒動（使用者實玩回報撒手鐧）
-    case 'endTurn': queue.length = 0; cs.endTurnRequested = true; return false;
+    case 'endTurn': queue.length = 0; p.ready = true; return false;   // 替**打這張牌的人**舉手，不是把整桌的回合切掉
     case 'stealBlock': {
       for (const t of targetsOf(cs, ctx, false)) { p.block += t.block; t.block = 0; }
       return false;
