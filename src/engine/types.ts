@@ -468,6 +468,15 @@ export interface PlayerCombat extends Unit {
    */
   down?: boolean;
   /**
+   * 這一位帶的秘寶與忍具（連線版規則一，使用者 2026-09-11：**各帶各的**）。
+   *
+   * 以前掛在整場（`CombatState`）上，因為只有一位玩家。現在搬到人身上，
+   * 每回合補飽足、折價、留蜷縮這些都各算各的。
+   * `cs.relics`／`cs.potions` 留成指向第一位的別名，整局層與畫面完全不用改。
+   */
+  relics: string[];
+  potions: string[];
+  /**
    * 甲（武士球球的防禦，2026-09-05）。跟蜷縮並列但性格相反：**回合開始不歸零**，被打會永久扣。
    * 受傷順序是 蜷縮 → 甲 → 生命——蜷縮回合末反正要消失，先用它擋；擋不完才啃甲。
    * 忍者球球整場都是 0，行為跟加這個欄位之前一模一樣。
@@ -602,8 +611,12 @@ export interface CombatState {
    */
   readonly player: PlayerCombat;
   enemies: EnemyCombat[];
-  relics: string[];
-  potions: string[];        // 從整局複製進來，用掉就移除，戰後寫回
+  /**
+   * 相容用的別名，**永遠等於 `players[0]` 的那兩份**（規則一之後真正的資料在人身上）。
+   * 回傳的是同一個陣列物件，所以 `cs.potions.splice` 照樣改得動真正的資料。
+   */
+  readonly relics: string[];
+  readonly potions: string[];        // 從整局複製進來，用掉就移除，戰後寫回
   turn: number;
   phase: 'player' | 'won' | 'lost';
   /** 敵方回合正在逐隻出招（endTurn 的迴圈裡）；召喚要靠它分「敵方回合召的」與「玩家回合中途冒出來的」 */

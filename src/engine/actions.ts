@@ -86,7 +86,8 @@ export function markRelic(cs: CombatState, id: string): void {
 
 export function aliveEnemies(cs: CombatState): EnemyCombat[] { return cs.enemies.filter((e) => !e.dead); }
 export function findEnemy(cs: CombatState, uid: number): EnemyCombat | undefined { return cs.enemies.find((e) => e.uid === uid && !e.dead); }
-export function hasRelic(cs: CombatState, id: string): boolean { return cs.relics.includes(id); }
+/** 這一位有沒有帶這件秘寶（規則一：各帶各的）。不指定就問第一位 */
+export function hasRelic(cs: CombatState, id: string, p: PlayerCombat = cs.player): boolean { return p.relics.includes(id); }
 
 export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   const v = computeBlock(base, u);
@@ -99,14 +100,14 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
 export function gainStealth(cs: CombatState, n: number, p: PlayerCombat = cs.player): void {
   let amt = n;
   // 加成的那幾件也要看得到在做事（稽核 2026-09-10 中-3）：這裡是它們唯一的「發動時刻」
-  for (const id of cs.relics) {
+  for (const id of p.relics) {
     const h = relicById[id]?.hooks;
     if (!h) continue;
     const first = !p.firstStealthGiven && (h.stealthBonus ?? 0) > 0;
     if (first || (h.stealthBonusEvery ?? 0) > 0) fireRelic(cs, id);
   }
-  if (!p.firstStealthGiven) amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
-  amt += cs.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
+  if (!p.firstStealthGiven) amt += p.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
+  amt += p.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
   p.firstStealthGiven = true;
   addStatus(p, '隱身', amt);
 }
@@ -209,7 +210,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
   if (cs.phase === 'won') { p.hp = Math.max(1, p.hp); return lose; }
   if (p.hp <= 0) {
     // 擋一次致命傷的秘寶由資料決定（最後一口氣的 preventLethal），不要把 id 寫死在引擎裡
-    const saverId = cs.relics.find((id) => relicById[id]?.hooks.preventLethal);
+    const saverId = p.relics.find((id) => relicById[id]?.hooks.preventLethal);
     if (saverId && !p.lethalPrevented) {
       p.hp = 1; p.lethalPrevented = true;
       // 這條自己有專屬的紀錄句子（比「發動」講得清楚），所以只推清單、不再多印一行
@@ -382,14 +383,14 @@ function killEnemy(cs: CombatState, e: EnemyCombat): void {
   const killer = cs.player;
   if (!reviving) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
   // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
-  if (!reviving) for (const rid of cs.relics) {
+  if (!reviving) for (const rid of killer.relics) {
     const h = relicById[rid]?.hooks;
     if (!h) continue;
     // 滿血時沙丁魚罐回 0 點：那一下什麼都沒發生，不該閃金光也不該佔一格紀錄（稽核 2026-09-10 低-9）
-    const heals = !!h.killHeal && cs.player.hp < cs.player.maxHp;
+    const heals = !!h.killHeal && killer.hp < killer.maxHp;
     if (heals || h.killStrength || h.killFish) fireRelic(cs, rid);
-    if (h.killHeal) healPlayer(cs, h.killHeal);
-    if (h.killStrength) addStatus(cs.player, '爪力', h.killStrength);
+    if (h.killHeal) healPlayer(cs, h.killHeal, killer);
+    if (h.killStrength) addStatus(killer, '爪力', h.killStrength);
     if (h.killFish) cs.fishDelta += h.killFish;
   }
   if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';

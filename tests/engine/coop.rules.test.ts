@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { beginEnemyTurn, canPlay, startCombat, startPlayerTurn } from '../../src/engine/combat';
+import { beginEnemyTurn, canPlay, finishEnemyTurn, startCombat, startPlayerTurn, usePotion } from '../../src/engine/combat';
 import { damagePlayer, pickVictim, runEnemyEffects } from '../../src/engine/actions';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { getStatus } from '../../src/engine/statuses';
+import { relics } from '../../src/content/relics';
 import type { CombatState, PlayerCombat } from '../../src/engine/types';
 import { blankPlayer, inst } from '../helpers';
 
@@ -154,5 +155,74 @@ describe('規則二：魔物一招隨機挑一位還站著的打', () => {
       expect(hurt.length, '只有一個人挨打').toBe(1);
       expect(debuffed, '挨打的跟中減益的是同一位').toEqual(hurt);
     }
+  });
+});
+
+describe('規則一：秘寶與忍具各帶各的', () => {
+  it('cs.relics / cs.potions 是指向第一位的別名，splice 改得動真正的資料', () => {
+    const cs = startCombat({
+      hp: 60, maxHp: 80, deck: [inst('tanding', 1)],
+      relics: ['nekomata_bell'], potions: ['whetstone', 'claw_oil'],
+      encounterId: 'wood_dummy', rng: new Rng(seedFromString('coop-relic')),
+    });
+    expect(cs.relics).toBe(cs.player.relics);
+    expect(cs.potions).toBe(cs.player.potions);
+    cs.potions.splice(0, 1);
+    expect(cs.player.potions, '別名上的 splice 動到的是真正的那一份').toEqual(['claw_oil']);
+  });
+
+  it('二號喝的是自己袋子裡的忍具，一號的袋子沒被動', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p1.potions = ['whetstone']; p2.potions = ['whetstone']; p2.hp = 50; p2.maxHp = 80;
+
+    expect(usePotion(cs, 'whetstone', undefined, 1), '二號喝得下去').toBe(true);
+    expect(p2.potions, '扣的是二號的').toEqual([]);
+    expect(p1.potions, '一號的還在').toEqual(['whetstone']);
+
+    // 二號袋子空了就喝不到，即使一號還有
+    expect(usePotion(cs, 'whetstone', undefined, 1), '二號沒了就是沒了，借不到一號的').toBe(false);
+  });
+
+  it('留蜷縮的守護符只保護帶著它的那一位', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    const guard = relics.find((r) => (r.hooks.blockKeep ?? 0) > 0);
+    expect(guard, '得有一件留蜷縮的秘寶才測得下去').toBeDefined();
+
+    p1.relics = [guard!.id]; p2.relics = [];
+    p1.block = 20; p2.block = 20;
+    p1.drawPile = [inst('sanjo', 21)]; p2.drawPile = [inst('sanjo', 22)];
+
+    finishEnemyTurn(cs);
+
+    expect(p1.block, '帶守護符的留下一些').toBeGreaterThan(0);
+    expect(p2.block, '沒帶的歸零').toBe(0);
+  });
+
+  it('開場秘寶只發動帶著它的那一位的', () => {
+    const cs = startCombat({
+      hp: 60, maxHp: 80, deck: [inst('tanding', 1)],
+      relics: [], potions: [],
+      encounterId: 'wood_dummy', rng: new Rng(seedFromString('coop-relic2')),
+    });
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    // 一號帶最後一口氣、二號沒帶：兩個人都被打到 0，只有一號被救起來
+    const saver = relics.find((r) => r.hooks.preventLethal);
+    expect(saver).toBeDefined();
+    p1.relics = [saver!.id]; p2.relics = [];
+    p1.hp = 5; p1.block = 0; p2.hp = 5; p2.block = 0;
+    const foe = cs.enemies[0]!;
+
+    damagePlayer(cs, foe, 99, { victim: p1 });
+    damagePlayer(cs, foe, 99, { victim: p2 });
+
+    expect(p1.hp, '一號被自己的秘寶救起來').toBe(1);
+    expect(p1.down).toBeFalsy();
+    expect(p2.down, '二號沒帶就是倒了').toBe(true);
+    expect(cs.phase, '還有一位站著，戰鬥繼續').toBe('player');
   });
 });

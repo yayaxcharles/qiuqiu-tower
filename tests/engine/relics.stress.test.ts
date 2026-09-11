@@ -28,7 +28,7 @@ describe('秘寶壓力測試', () => {
       if (!run.relics.includes(r.id)) takeRelic(run, r.id);
       for (const enc of ENCOUNTERS) {
         const cs = beginCombat(run, enc);
-        cs.potions = ['whetstone', 'claw_oil'];
+        cs.player.potions = ['whetstone', 'claw_oil'];
         smartCombat(cs, new Rng(seedFromString(`${r.id}:${enc}`)), 120, r.id);
         expect(cs.phase, `${r.id} @ ${enc}`).not.toBe('player');
         expect(cs.player.block, `${r.id} @ ${enc}`).toBeGreaterThanOrEqual(0);
@@ -44,7 +44,7 @@ describe('秘寶壓力測試', () => {
     expect(run.relics.length).toBe(relics.length);
     for (const enc of ENCOUNTERS) {
       const cs = beginCombat(run, enc);
-      cs.potions = ['whetstone', 'claw_oil', 'rope'];
+      cs.player.potions = ['whetstone', 'claw_oil', 'rope'];
       smartCombat(cs, new Rng(seedFromString(`all:${enc}`)), 120, 'all');
       expect(cs.phase, enc).not.toBe('player');
       if (cs.phase === 'won') { finishCombat(run, cs); checkState(run, cs.turn, enc); } else { run.hp = run.maxHp; run.status = 'playing'; }
