@@ -1,4 +1,4 @@
-import { victoryLinesFor, dialogue, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, dialogue, lineFor, pick, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { playVideo } from './video';
 import { preloadAct, warmEncounter } from './preload';
@@ -15,7 +15,7 @@ import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, monsterUrl, setLocalHero } from './assets';
 import type { Hero } from '../engine/hero';
-import { playDialogue, toast, bubbleAt } from './dialogue';
+import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
 import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
@@ -284,11 +284,12 @@ export class App {
           }, i * 420);
         });
       }, 500);
+      const mine = me(run, this.seat);
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
-        toast(dialogue.firstMeet[firstNew] ?? '', '球球');
+        toast(lineFor(mine.hero, dialogue.firstMeet[firstNew] ?? ''), heroSpeaker());
       } else {
-        toast(dialogue.battleStart[Math.floor(Math.random() * dialogue.battleStart.length)] ?? '', '球球');
+        toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }
       };
       void warmEncounter(encounterId, 1500, heroSpriteUrls()).then(proceed, proceed);
@@ -384,7 +385,7 @@ export class App {
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
-    const go = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, '球球'), 400 + i * 1400)); };
+    const go = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, heroSpeaker()), 400 + i * 1400)); };
     // 「上面那位不是你認識的那隻貓了」是黑貓忍者頭目的台詞，只在打倒他之後演；
     // 其他精英（掃地機器人王、三花貓武僧……）打完不該冒出黑貓頭目的臉講話（使用者 2026-09-02 回報）
     const beatNinjaBoss = (encounterById[cs.encounterId]?.enemies ?? []).includes('ninja_boss');

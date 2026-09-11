@@ -7,6 +7,8 @@ import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
+import { heroName, heroOf } from '../../engine/hero';
+import { lineFor } from '../../content/dialogue';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl } from '../assets';
@@ -263,7 +265,7 @@ registerScreen('map', (app, root) => {
          * 兩邊寫同一個屬性會打架（這專案的老坑）。
          */
         inner.append(el('img', {
-          class: `map-hero${onRight ? ' flip' : ''}`, src: hero, alt: '球球', draggable: 'false',
+          class: `map-hero${onRight ? ' flip' : ''}`, src: hero, alt: heroName(me(run, app.seat)), draggable: 'false',
           style: `left:${onRight ? x + R + HERO_GAP : left}px;top:${y - 30}px`,
         }));
       }
@@ -272,7 +274,7 @@ registerScreen('map', (app, root) => {
 
   root.append(scroll);
   // 第一次看到帶修飾詞的可選節點：球球講一句，玩家才知道那塊小牌子可以滑上去看（旗標記在 run.flags，跟其他一次性提示同一套）
-  if (run.map.nodes.some((n) => choices.has(n.id) && n.modifier)) app.playOnce('firstModifier', [{ speaker: '球球', text: '名字前面多了形容詞的怪不太一樣，滑上去看看是好事還是壞事喵！' }], () => {});
+  if (run.map.nodes.some((n) => choices.has(n.id) && n.modifier)) app.playOnce('firstModifier', [{ speaker: heroOf(me(run, app.seat)) === 'feifei' ? '菲菲' : '球球', text: lineFor(me(run, app.seat).hero, '名字前面多了形容詞的怪不太一樣，滑上去看看是好事還是壞事喵！') }], () => {});
 
   // 腳印沿著曲線鋪。要用 getPointAtLength 量位置與切線，路徑得先在文件裡才量得到，
   // 所以排在 append 之後。每隻腳印各自轉到那一點的切線方向，看起來才像沿著路走。

@@ -17,6 +17,7 @@ import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
+import { heroSpeaker } from '../dialogue';
 
 /**
  * 圖示還沒生好時 `artUrl` 會回一張灰剪影 data URI。這裡每個項目旁邊都有名字與說明，
@@ -143,7 +144,7 @@ registerScreen('reward', (app, root, props) => {
     root.append(sceneView({
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
-      speaker: '球球',
+      speaker: heroSpeaker(),
       text: `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`,
       actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); app.show('reward', { ...r, tokenShown: true }); } }, '收下')],
     }));

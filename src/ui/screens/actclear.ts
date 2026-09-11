@@ -4,6 +4,7 @@ import { relicById } from '../../content/relics';
 import { ACT_NAMES, addCard, advanceAct, rollActCards, rollActRelics, takeRelic } from '../../engine/run';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
+import { heroSpeaker } from '../dialogue';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { artUrl, heroArtUrl } from '../assets';
@@ -89,7 +90,7 @@ registerScreen('actclear', (app, root, props) => {
     root.append(sceneView({
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
-      speaker: '球球',
+      speaker: heroSpeaker(),
       text: `關主留下的東西……「${def.name}」到手了喵！`,
       actions: [el('button', { class: 'btn primary', onclick: go }, `帶著它上${next}`)],
     }));
@@ -138,7 +139,7 @@ registerScreen('actclear', (app, root, props) => {
       // 文案 2026-09-11 改（使用者）：「破關」像在講整個遊戲通關，但這只是過了一關；
       // 「通過」才是「爬過這一段、還要繼續往上」的意思
       speaker: `通過${ACT_NAMES[run.act - 1] ?? ''}`,
-      text: `球球歇了口氣，回復完體力，繼續往${NEXT_PLACE[run.act] ?? '塔頂'}前進。`,
+      text: `${heroSpeaker()}歇了口氣，回復完體力，繼續往${NEXT_PLACE[run.act] ?? '塔頂'}前進。`,
       actions: [el('button', {
         class: 'btn primary' + (mustPickRelic || sent ? ' disabled' : ''),
         ...(mustPickRelic || sent ? { disabled: 'true' } : {}),
@@ -191,7 +192,7 @@ registerScreen('actclear', (app, root, props) => {
     root.append(sceneView({
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
-      speaker: '球球',
+      speaker: heroSpeaker(),
       text: `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`,
       actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); render(); } }, '收下')],
     }));

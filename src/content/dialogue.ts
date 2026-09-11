@@ -445,6 +445,18 @@ export const feifeiDialogue = {
     { speaker: '菲菲', text: '說好……不打臉的……' },
     { speaker: '旁白', text: '恍惚間有人把她背了起來。再睜眼時她躺在村裡，膝蓋上放著一把重新磨好的針。魔塔還站在那裡。' },
   ],
+  /*
+   * 她**常聽到**的那幾組（每場戰鬥都會冒出來）自己寫一份。
+   * 球球是「衝上去抓」，她是「退開了丟」——同一個情境，完全不同的反應。
+   * 語氣記號是**結巴、先道歉、話講一半**，不是「喵」（見 `feifeiLineOk`）。
+   */
+  battleStart: ['先……先退一點好了。', '不要過來喔，我說真的。', '我、我只是路過。', '保持距離就好，大家都好。', '針還夠……應該夠。', '拜託不要看我。', '我站這邊就好。', '師兄的話一定已經衝上去了。'],
+  battleWin: ['呼……沒被碰到，這樣才對。', '對、對不起！', '我就說不要過來。', '早點倒下不就好了。', '手……手還在抖。', '下一個可以慢一點來嗎。', '這樣算贏了吧？', '我要坐一下。', '師父，我有照你說的做。', '好餓。'],
+  hungry: ['沒力氣了……手會抖。', '飯糰……沒了。', '肚子好餓，針都拿不穩。'],
+  lowHp: ['說好不打臉的——！', '我我我我要回家了……', '不要再過來了拜託……'],
+  chestLines: ['箱子……裡面該不會有東西吧。', '我先用針戳戳看。', '有人在裡面的話請說一聲。', '站遠一點打開好了。', '希望是繃帶。'],
+  restNapLines: ['睡一下下就好，一下下。', '這裡……應該安全吧。', '把針收好再睡。', '眼睛好澀。'],
+  restSharpenLines: ['磨利一點，就不用丟第二次。', '針要夠尖，我才不用靠近。', '再上一層藥。', '師父說過，工具比膽子可靠。'],
   victoryTeaser: '呼……沒被碰到。這樣才對。',
 };
 
@@ -457,12 +469,32 @@ export const feifeiDialogue = {
 export function storyFor(hero: string | undefined): {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
   defeat: DialogueLine[]; victoryTeaser: string;
+  battleStart: string[]; battleWin: string[]; hungry: string[]; lowHp: string[];
+  chestLines: string[]; restNapLines: string[]; restSharpenLines: string[];
 } {
   if (hero === 'feifei') return feifeiDialogue;
   return {
     prologue: dialogue.prologue, actClear1: dialogue.actClear1, actClear2: dialogue.actClear2,
     defeat: dialogue.defeat, victoryTeaser: dialogue.victoryTeaser,
+    battleStart: dialogue.battleStart, battleWin: dialogue.battleWin,
+    hungry: dialogue.hungry, lowHp: dialogue.lowHp, chestLines: dialogue.chestLines,
+    restNapLines: dialogue.restNapLines, restSharpenLines: dialogue.restSharpenLines,
   };
+}
+
+/**
+ * 每隻魔物的初見吐槽（`firstMeet`，五十幾句）**兩邊共用**，換角色時把句尾的「喵」拿掉。
+ *
+ * 那些句子講的是「這隻怪長怎樣、要注意什麼」——是塔的事，不是誰的事，
+ * 重寫五十句只會得到五十句差不多的話。「喵」是球球的招牌，拿掉就是她的語氣了：
+ * 「牠一直在刨地……我少耍花招，直接打就對了喵。」→「……直接打就對了。」唸起來照樣通順。
+ *
+ * 她**專屬的那幾組**（開打、打贏、餓、快死、紙箱、貓窩）沒走這條——
+ * 那些是每場都聽得到的，值得自己寫一份（見 `feifeiDialogue`）。
+ */
+export function lineFor(hero: string | undefined, text: string): string {
+  if (hero !== 'feifei') return text;
+  return text.replace(/喵(?=[！？。…～、,.!?]*$)/u, '');
 }
 
 /** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */

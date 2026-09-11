@@ -1,7 +1,7 @@
 import { potionCapacity } from '../../engine/run';
 import { cardById } from '../../content/cards';
 import { relicById } from '../../content/relics';
-import { dialogue, pick } from '../../content/dialogue';
+import { dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
@@ -24,7 +24,7 @@ import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterUrl, hasSp
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
-import { toast } from '../dialogue';
+import { heroSpeaker, toast } from '../dialogue';
 import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
 import { enemyLeft, nextLineup, playerLeft } from '../enemylayout';
@@ -1883,7 +1883,12 @@ registerScreen('combat', (app, root, props) => {
     energyRefund = Math.max(0, cs.energyGain - before.energyGain);
     const fresh = cs.log.slice(before.logLen);
     const hurt = p.hp < before.hp;
-    const dodged = fresh.some((l) => l.includes('球球閃過了'));
+    /*
+     * 「誰閃過了」：引擎那行現在寫的是**那一位的名字**（`unitName`），不是寫死的「球球」，
+     * 所以不能比對整句（換角色那天就會踩到——菲菲閃過去，畫面不演）。
+     * 魔物閃過也是同一句型，用「開頭是不是魔物的名字」排掉。
+     */
+    const dodged = fresh.some((l) => l.endsWith('閃過了') && !cs.enemies.some((e) => l.startsWith(e.name)));
     const hungry = cs.phase === 'player' && p.energy === 0 && hungryTurn !== cs.turn
       && p.hand.some((c) => cardStats(c).cost > 0);
     // 姿勢優先序：分出勝負 ＞ 挨打 ＞ 閃過 ＞ 蜷縮 ＞ 這張牌 ＞ 餓扁 ＞ 待機。先決定再畫，姿勢才看得到。
@@ -2048,12 +2053,12 @@ registerScreen('combat', (app, root, props) => {
     if (cat && acting.size > 0) {
       if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
       if (fresh.some((l) => l.includes('塞進你的'))) burst(cat, 'curse');
-      if (fresh.some((l) => l.includes('看穿了球球的身法') || l.includes('拍散') || l.includes('震散'))) burst(cat, 'strip');
+      if (fresh.some((l) => l.includes('的身法') || l.includes('拍散') || l.includes('震散'))) burst(cat, 'strip');
     }
     // 剛被召喚出來的：煙
     for (const e of cs.enemies) if (!before.enemies.has(e.uid) && !e.dead) { const n = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`); if (n) burst(n, 'smoke'); }
     // 伏兵是在敵方回合開頭冒出來的，那一拍還沒有人出手，所以不能放在上面那個「有人出招」的區塊裡（稽核 2026-09-04 高 3）
-    if (fresh.some((l) => l.startsWith('伏兵'))) toast('有伏兵跳出來了喵！', '球球');
+    if (fresh.some((l) => l.startsWith('伏兵'))) toast(lineFor(my().hero, '有伏兵跳出來了喵！'), heroSpeaker());
     if (cat) {
       // 回血也飄數字：打倒巨型飯糰回 10 只有綠光、看起來像沒回（使用者 2026-09-05）
       if (p.hp > before.hp) { cat.append(floatNum(`+${p.hp - before.hp}`, 'heal')); burst(cat, 'heal'); sfx('heal'); }
@@ -2108,8 +2113,8 @@ registerScreen('combat', (app, root, props) => {
       else if (opts.attack) cat.classList.add('attack');
     }
 
-    if (hungry) { hungryTurn = cs.turn; toast(pick(dialogue.hungry), '球球'); }
-    if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(pick(dialogue.lowHp), '球球'); }
+    if (hungry) { hungryTurn = cs.turn; toast(pick(storyFor(my().hero).hungry), heroSpeaker()); }
+    if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(pick(storyFor(my().hero).lowHp), heroSpeaker()); }
 
     // 姿勢停留時間：一般 650 毫秒看得清楚，但蜷縮例外——它是「縮成一顆球」的靜態姿勢，
     // 沒有前撲、沒有閃紅，650 毫秒閃一下根本來不及看到牠縮起來，拉到 1200。
@@ -2164,7 +2169,7 @@ registerScreen('combat', (app, root, props) => {
   function checkOver(): void {
     if (cs.phase === 'player' || ended) return;
     ended = true;
-    if (cs.phase === 'won') toast(dialogue.battleWin[Math.floor(Math.random() * dialogue.battleWin.length)] ?? '', '球球');
+    if (cs.phase === 'won') toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
     // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
     const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
     if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
@@ -2381,11 +2386,11 @@ registerScreen('combat', (app, root, props) => {
     const bossUrl = bossDef.art === 'daxia' ? artUrl('sprites', BOSS_IDLE) : monsterUrl(bossDef.art, 'idle');
     if (!isFallback(heroUrl) && !isFallback(bossUrl)) {
       const ov = el('div', { class: 'vs-overlay' },
-        el('img', { class: 'vs-left', src: heroUrl, alt: '球球' }),
+        el('img', { class: 'vs-left', src: heroUrl, alt: heroName(my()) }),
         el('div', { class: 'vs-mark' }, 'VS'),
         el('img', { class: 'vs-right', src: bossUrl, alt: bossDef.name }),
         el('div', { class: 'vs-banner' },
-          el('span', { class: 'vs-name' }, '球球'),
+          el('span', { class: 'vs-name' }, heroName(my())),
           // 名字用場上那隻的（可能已冠上「暴怒的」前綴），跟頭上的名牌一致
           el('span', { class: 'vs-boss' }, cs.enemies.find((u) => enemyById[u.enemyId]?.pool === '塔主')?.name ?? bossDef.name)));
       root.append(ov);

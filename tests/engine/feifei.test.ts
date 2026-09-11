@@ -315,6 +315,34 @@ describe('菲菲：三個長效旗標', () => {
   });
 });
 
+describe('菲菲：戰報用她的名字', () => {
+  /*
+   * 引擎的紀錄本來整排寫死「球球」（2026-09-12 實機測到「球球打出『退開』」）。
+   * 這一組同時守兩件事：名字換對了，而且**畫面比對紀錄的那幾行也跟著改了**——
+   * 那才是會安靜壞掉的地方（菲菲閃過去，閃避動畫不演）。
+   */
+  it('打牌、用忍具、閃過都寫她的名字', () => {
+    const cs = fight(['feifei_feizhen']);
+    play(cs, 'feifei_feizhen');
+    expect(cs.log.some((l) => l.startsWith('菲菲打出「飛針」'))).toBe(true);
+    expect(cs.log.some((l) => l.includes('球球')), '一行都不該有球球').toBe(false);
+
+    addStatus(cs.player, '隱身', 1);
+    damagePlayer(cs, foe(cs), 8);
+    expect(cs.log.some((l) => l === '菲菲閃過了')).toBe(true);
+  });
+
+  it('球球那邊照舊', () => {
+    const cs = startCombat({
+      hp: 70, maxHp: 70, deck: [inst('sanjo', 1)], relics: [], potions: [],
+      encounterId: 'wood_dummy', rng: new Rng(seedFromString('n2')),
+    });
+    cs.player.hand = [inst('sanjo', 1)]; cs.player.energy = 3;
+    playCard(cs, 1, cs.enemies[0]!.uid);
+    expect(cs.log.some((l) => l.startsWith('球球打出「貓抓」'))).toBe(true);
+  });
+});
+
 describe('菲菲：牌面文字讀得懂', () => {
   it('距離、隨距離放大、門檻、長效旗標都寫得出人話', () => {
     expect(describeCard(cardById['feifei_tuikai']!, false)).toContain('距離 +1');

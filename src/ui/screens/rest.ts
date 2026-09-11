@@ -1,6 +1,6 @@
 import { play } from '../audio';
 import { cardById } from '../../content/cards';
-import { dialogue, pick } from '../../content/dialogue';
+import { dialogue, pick, storyFor } from '../../content/dialogue';
 import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePartner } from '../../engine/run';
 import type { RunAction } from '../../net/runaction';
 import type { CardInstance, RunState } from '../../engine/types';
@@ -9,7 +9,7 @@ import { artUrl, heroArtUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
-import { toast } from '../dialogue';
+import { heroSpeaker, toast } from '../dialogue';
 import { el } from '../dom';
 import { burst } from '../fx';
 import { cardNode } from '../cardview';
@@ -70,7 +70,7 @@ registerScreen('rest', (app, root) => {
       window.setTimeout(() => burst(host, 'buff'), 60);
     }
     root.append(sceneView({ art, portrait: heroPortrait(me(run, seat).hero), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
-    toast(line, '球球');
+    toast(line, heroSpeaker());
     // 連線版：兩個人都做完才走，先做完的那位在這裡等（由 onRunApplied 接手）
     if (coop) { if (allDone()) window.setTimeout(() => app.backToMap(), card ? 1500 : 900); return; }
     window.setTimeout(() => app.backToMap(), card ? 1500 : 900);
@@ -91,7 +91,7 @@ registerScreen('rest', (app, root) => {
       used = true;
       if (coop) return;   // 連線的等動作繞回來才演（見 onRunApplied）
       play('heal');
-      afterAction(`球球睡了一下，回復 ${heal} 點生命。`, pick(dialogue.restNapLines));
+      afterAction(`${heroSpeaker()}睡了一下，回復 ${healNow()} 點生命。`, pick(storyFor(me(run, seat).hero).restNapLines));
     });
 
     const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌，順便回一成血）');

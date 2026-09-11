@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { dialogue, pick } from '../../content/dialogue';
+import { dialogue, pick, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { openChest, openChestCoop, runRng } from '../../engine/run';
 import { settleRelicPicks } from '../../engine/rewards';
@@ -7,7 +7,7 @@ import { allVoted, onlyStanding } from '../../engine/vote';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
-import { toast } from '../dialogue';
+import { heroSpeaker, toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
@@ -99,7 +99,7 @@ registerScreen('chest', (app, root) => {
   const closed = artUrl('bg', 'bg/event_chest_closed');
   if (!closed.startsWith('data:')) {
     renderHud(app, root);
-    toast(pick(dialogue.chestLines), '球球');
+    toast(pick(storyFor(me(run, app.seat).hero).chestLines), heroSpeaker());
     const box = el('img', { class: 'event-art chest-closed', src: closed, alt: '沒開過的紙箱' });
     const scene = el('div', { class: 'chest-scene chest-waiting' }, box);
     let opened = false;
@@ -208,7 +208,7 @@ registerScreen('chest', (app, root) => {
       speaker: '紙箱',
       // 空箱現在幾乎碰不到了：`openChest` 會從常見一路退到大魔物、塔主池，
       // 三池 64 件全部收齊才會真的空（使用者 2026-09-10：「紙箱節點是一定有寶物」）
-      text: def ? '球球把箱子翻了個底朝天，找到了——' : '紙箱是空的——塔裡的秘寶全被你搬光了，裡面只剩一堆碎紙。',
+      text: def ? `${heroSpeaker()}把箱子翻了個底朝天，找到了——` : '紙箱是空的——塔裡的秘寶全被你搬光了，裡面只剩一堆碎紙。',
       actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')],
     }));
   }
