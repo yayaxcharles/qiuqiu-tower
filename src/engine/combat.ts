@@ -124,29 +124,33 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   }
 }
 
-export function canPlay(cs: CombatState, uid: number, targetUid?: number): { ok: true; cost: number } | { ok: false; reason: string } {
+/** `seat`＝誰要打這張牌（連線版第一步 2026-09-11）。預設 0，單機與畫面完全不用改 */
+export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat = 0): { ok: true; cost: number } | { ok: false; reason: string } {
   if (cs.phase !== 'player') return { ok: false, reason: '戰鬥已結束' };
   if (cs.pending) return { ok: false, reason: '先把牌選完' };
-  const card = cs.player.hand.find((c) => c.uid === uid);
+  const p = cs.players[seat];
+  if (!p) return { ok: false, reason: '沒有這個座位' };
+  const card = p.hand.find((c) => c.uid === uid);
   if (!card) return { ok: false, reason: '不在手牌' };
   const st = cardStats(card);
   if (st.keywords.includes('不可打出')) return { ok: false, reason: '不可打出' };
-  if (st.def.type === '攻擊' && cs.player.noAttacks) return { ok: false, reason: '本回合不能再打攻擊牌' };
+  if (st.def.type === '攻擊' && p.noAttacks) return { ok: false, reason: '本回合不能再打攻擊牌' };
   // 球球被定身：這回合攻擊牌整排打不出（毛線球怪的「纏住」）。
   // 這一側漏了很久——引擎本來只實作魔物被定身那一半，玩家身上的定身完全沒作用
-  if (st.def.type === '攻擊' && getStatus(cs.player, '定身') > 0) return { ok: false, reason: '被纏住了，打不出攻擊牌' };
+  if (st.def.type === '攻擊' && getStatus(p, '定身') > 0) return { ok: false, reason: '被纏住了，打不出攻擊牌' };
   let cost = st.cost;
-  if (!cs.player.firstCardPlayed) cost = Math.max(0, cost - relicSum(cs.relics, 'firstCardDiscount'));
-  if (!cs.player.firstCardEver) cost = Math.max(0, cost - relicSum(cs.relics, 'firstCardDiscountCombat'));   // 破卷軸：整場只有第一張（審查 #7）
-  if (cost > cs.player.energy) return { ok: false, reason: '餓扁了' };
+  if (!p.firstCardPlayed) cost = Math.max(0, cost - relicSum(cs.relics, 'firstCardDiscount'));
+  if (!p.firstCardEver) cost = Math.max(0, cost - relicSum(cs.relics, 'firstCardDiscountCombat'));   // 破卷軸：整場只有第一張（審查 #7）
+  if (cost > p.energy) return { ok: false, reason: '餓扁了' };
   if (st.def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return { ok: false, reason: '要選一隻魔物' };
   return { ok: true, cost };
 }
 
-export function playCard(cs: CombatState, uid: number, targetUid?: number): boolean {
-  const chk = canPlay(cs, uid, targetUid);
+/** `seat`＝誰打這張牌（連線版第一步 2026-09-11）。連線層要送過去的就是「座位＋牌號＋目標」這三個數字 */
+export function playCard(cs: CombatState, uid: number, targetUid?: number, seat = 0): boolean {
+  const chk = canPlay(cs, uid, targetUid, seat);
   if (!chk.ok) return false;
-  const p = cs.player;
+  const p = cs.players[seat] as PlayerCombat;
   const card = p.hand.find((c) => c.uid === uid) as CardInstance;
   const st = cardStats(card);
   /**
@@ -526,7 +530,8 @@ export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
   const allowed = new Set(pd.cards.map((c) => c.uid));
   const uniq = [...new Set(chosenUids)];
   if (uniq.length < pd.min || uniq.length > pd.max || uniq.some((u) => !allowed.has(u))) return false;
-  const p = cs.player;
+  // 在等選牌的是誰，`pending` 自己記得（打那張牌時就寫進 ctx.self 了），不用再從外面傳座位進來
+  const p = pd.ctx.self ?? cs.player;
   for (const uid of uniq) {
     switch (pd.purpose) {
       case 'exhaust': moveCard(p, uid, 'exhaust'); break;
@@ -541,12 +546,14 @@ export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
   return true;
 }
 
-export function usePotion(cs: CombatState, potionId: string, targetUid?: number): boolean {
+/** `seat`＝誰喝這瓶忍具（連線版第一步 2026-09-11）。忍具袋目前是共用的，要不要各帶各的是第三步的規則決定 */
+export function usePotion(cs: CombatState, potionId: string, targetUid?: number, seat = 0): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
   const i = cs.potions.indexOf(potionId);
   const def = potionById[potionId];
   if (i < 0 || !def) return false;
-  const p = cs.player;   // 喝的那位（連線版第二步這裡會改成由座位決定）
+  const p = cs.players[seat];
+  if (!p) return false;
   // 有使用條件的（起死回生丹：生命低於三成才准用）。畫面讀同一個 `usable` 把格子變灰並寫原因，見 `ui/screens/combat.ts` 的忍具列
   if (def.usable && !def.usable.check(p.hp, p.maxHp)) return false;
   if (def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return false;

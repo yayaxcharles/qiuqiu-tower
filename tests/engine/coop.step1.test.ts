@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { beginEnemyTurn, startCombat, startPlayerTurn } from '../../src/engine/combat';
+import { beginEnemyTurn, canPlay, playCard, startCombat, startPlayerTurn } from '../../src/engine/combat';
 import { damagePlayer, drawCards, gainStealth, healPlayer, runEnemyEffects } from '../../src/engine/actions';
 import { applyEffects } from '../../src/engine/effects';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -182,5 +182,46 @@ describe('連線版第一步：回合流程對每一位玩家各跑一次', () =
     expect(getStatus(p2, '翻肚'), '減益也掛在二號身上').toBe(2);
     expect(p1.hp, '一號沒事').toBe(50);
     expect(getStatus(p1, '翻肚')).toBe(0);
+  });
+});
+
+describe('連線版第一步：打牌的入口認座位', () => {
+  it('二號座位打自己手上的防禦牌：費用扣二號的、防禦加二號的、一號完全沒動', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p1.block = 0; p1.energy = 3;
+    p2.hand = [inst('tanding', 777)]; p2.energy = 3; p2.block = 0;
+
+    expect(playCard(cs, 777, undefined, 1), '二號打得出來').toBe(true);
+
+    expect(p2.block, '防禦加在二號身上').toBe(5);
+    expect(p2.energy, '扣的是二號的飯糰').toBe(2);
+    expect(p2.discardPile.some((c) => c.uid === 777), '牌進二號的棄牌堆').toBe(true);
+    expect(p1.block, '一號沒拿到防禦').toBe(0);
+    expect(p1.energy, '一號的飯糰沒被扣').toBe(3);
+    expect(p1.hand.some((c) => c.uid === 777), '牌從來就不在一號手上').toBe(false);
+  });
+
+  it('打不是自己手上的牌會被擋下來', () => {
+    const cs = combat();
+    const p2 = addSecond(cs);
+    p2.hand = [inst('tanding', 777)]; p2.energy = 3;
+
+    // 一號手上是 uid 1 的淡定，二號手上是 uid 777。互相拿對方的牌都不行
+    expect(playCard(cs, 777, undefined, 0), '一號打不了二號的牌').toBe(false);
+    expect(playCard(cs, 1, undefined, 1), '二號也打不了一號的牌').toBe(false);
+    expect(canPlay(cs, 777, undefined, 9).ok, '沒有的座位直接擋掉').toBe(false);
+  });
+
+  it('餓扁了看的是那個座位自己的飯糰', () => {
+    const cs = combat();
+    const p2 = addSecond(cs);
+    p2.hand = [inst('tanding', 778)]; p2.energy = 0;
+    (cs.players[0] as PlayerCombat).energy = 9;   // 一號很飽，但借不到給二號
+
+    const r = canPlay(cs, 778, undefined, 1);
+    expect(r.ok).toBe(false);
+    expect(r.ok === false && r.reason).toBe('餓扁了');
   });
 });
