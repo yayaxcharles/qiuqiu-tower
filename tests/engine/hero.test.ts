@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { cards } from '../../src/content/cards';
 import { newRun } from '../../src/engine/run';
-import { loadRun, saveRun, setStore } from '../../src/engine/save';
+import { loadRun, saveRun, setStore, RUN_KEY } from '../../src/engine/save';
 import { cardsForHero, heroOf } from '../../src/engine/hero';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { rollCardChoices } from '../../src/engine/rewards';
@@ -50,7 +50,7 @@ describe('這一局是哪個職業', () => {
     const m = new Map<string, string>();
     setStore({ getItem: (k) => m.get(k) ?? null, setItem: (k, v) => { m.set(k, v); }, removeItem: (k) => { m.delete(k); } });
     saveRun(newRun('old'));
-    expect(m.get('qiuqiu-tower/run')).not.toContain('hero');
+    expect(m.get(RUN_KEY)).not.toContain('hero');
     const back = loadRun();
     expect(back, '不該被判成壞檔').not.toBeNull();
     expect(heroOf(me(back!))).toBe('ninja');

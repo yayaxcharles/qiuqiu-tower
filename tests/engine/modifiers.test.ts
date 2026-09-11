@@ -7,7 +7,7 @@ import { generateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { endTurn } from '../../src/engine/combat';
 import { beginCombat, finishCombat, newRun, takeRelic } from '../../src/engine/run';
-import { loadRun, saveRun, setStore } from '../../src/engine/save';
+import { loadRun, saveRun, setStore, RUN_KEY } from '../../src/engine/save';
 import { getStatus } from '../../src/engine/statuses';
 import type { CombatState } from '../../src/engine/types';
 
@@ -174,7 +174,7 @@ describe('舊存檔相容', () => {
     // 模擬修飾詞上線前存下來的檔：整張地圖都沒有這一欄
     for (const n of run.map.nodes) delete n.modifier;
     saveRun(run);
-    expect(m.get('qiuqiu-tower/run')).not.toContain('modifier');
+    expect(m.get(RUN_KEY)).not.toContain('modifier');
     const back = loadRun();
     expect(back, '舊存檔不該被判定為壞檔清掉').not.toBeNull();
     // 這一條才是重點：有人為了新欄位順手升版本，loadRun 會把玩家進行中的局整個清掉。

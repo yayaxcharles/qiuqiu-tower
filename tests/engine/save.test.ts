@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { newRun, runRng } from '../../src/engine/run';
-import { clearSave, hasSave, loadBest, loadRun, recordBest, saveRun, setStore } from '../../src/engine/save';
+import { clearSave, hasSave, loadBest, loadRun, recordBest, saveRun, setStore, RUN_KEY, BEST_KEY } from '../../src/engine/save';
 import type { RunState, CardInstance } from '../../src/engine/types';
 import { me } from '../../src/engine/runplayer';
 
@@ -24,40 +24,40 @@ describe('存檔', () => {
     expect(hasSave()).toBe(false);
     expect(loadRun()).toBeNull();
     // 2026-09-11 存檔升到第 2 版（每人一份的家當搬進 players），所以壞版本改用 99
-    store.setItem('qiuqiu-tower/run', JSON.stringify({ ...newRun('v'), version: 99 }));
+    store.setItem(RUN_KEY, JSON.stringify({ ...newRun('v'), version: 99 }));
     expect(loadRun()).toBeNull(); expect(hasSave()).toBe(false);
-    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);   // 不只回 null，壞存檔要被清掉
-    store.setItem('qiuqiu-tower/run', '{oops');
+    expect(store.raw.has(RUN_KEY)).toBe(false);   // 不只回 null，壞存檔要被清掉
+    store.setItem(RUN_KEY, '{oops');
     expect(loadRun()).toBeNull();
   });
   it('牌組裡有牌表認不得的牌 id：當作不相容，清掉回 null', () => {
     // 改過牌 id 之後留下來的舊存檔。以前這種檔載得進來，等到有人要把那張牌畫出來才爆
     const run = newRun('unknown-card');
     me(run).deck[0] = { uid: 999, cardId: 'no_such_card', upgraded: false };
-    store.setItem('qiuqiu-tower/run', JSON.stringify(run));
+    store.setItem(RUN_KEY, JSON.stringify(run));
     expect(loadRun()).toBeNull(); expect(hasSave()).toBe(false);
-    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);   // 不只回 null，壞存檔要被清掉
+    expect(store.raw.has(RUN_KEY)).toBe(false);   // 不只回 null，壞存檔要被清掉
     // 牌物件本身壞掉（不是物件、少了 cardId）也一樣
     const broken: Partial<RunState> = newRun('broken-card');
     me(broken as RunState).deck = [null as unknown as CardInstance];
-    store.setItem('qiuqiu-tower/run', JSON.stringify(broken));
+    store.setItem(RUN_KEY, JSON.stringify(broken));
     expect(loadRun()).toBeNull();
-    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);
+    expect(store.raw.has(RUN_KEY)).toBe(false);
   });
   it('地圖壞掉或站在不存在的節點上：當作不相容，清掉回 null', () => {
     // 動過地圖產生器（id 格式、樓層數）卻忘了升版本的舊存檔。以前這種檔載得進來，
     // 等到地圖畫面呼叫 nodeById 才丟「未知的節點」——那時畫面層已經清空了，舞台整個空白
     const gone: Partial<RunState> = newRun('node-gone');
     gone.currentNode = 'f9-l9';
-    store.setItem('qiuqiu-tower/run', JSON.stringify(gone));
+    store.setItem(RUN_KEY, JSON.stringify(gone));
     expect(loadRun()).toBeNull(); expect(hasSave()).toBe(false);
-    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);   // 不只回 null，壞存檔要被清掉
+    expect(store.raw.has(RUN_KEY)).toBe(false);   // 不只回 null，壞存檔要被清掉
     // 地圖本身缺 nodes 陣列（!run.map 擋不住這種）
     const noNodes: Partial<RunState> = newRun('no-nodes');
     noNodes.map = { start: [] } as unknown as RunState['map'];
-    store.setItem('qiuqiu-tower/run', JSON.stringify(noNodes));
+    store.setItem(RUN_KEY, JSON.stringify(noNodes));
     expect(loadRun()).toBeNull();
-    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);
+    expect(store.raw.has(RUN_KEY)).toBe(false);
     // 反過來：currentNode 是 null（開局還沒踏上第一個節點）與真的在地圖上的節點都要照收
     const fresh = newRun('node-ok');
     saveRun(fresh);
@@ -70,7 +70,7 @@ describe('存檔', () => {
   it('clearSave', () => {
     saveRun(newRun('c')); expect(hasSave()).toBe(true);
     clearSave(); expect(hasSave()).toBe(false);
-    expect(store.raw.has('qiuqiu-tower/run')).toBe(false);
+    expect(store.raw.has(RUN_KEY)).toBe(false);
   });
   it('最佳成績：通關優先，再比樓層，再比回合', () => {
     const a = newRun('a'); a.floor = 9; a.stats.turns = 50;
@@ -93,9 +93,9 @@ describe('存檔', () => {
     expect(loadBest()).toEqual(first);
   });
   it('最佳成績欄位壞掉就清掉回 null', () => {
-    store.setItem('qiuqiu-tower/best', '{"floor":"abc"}');
+    store.setItem(BEST_KEY, '{"floor":"abc"}');
     expect(loadBest()).toBeNull();
-    expect(store.raw.has('qiuqiu-tower/best')).toBe(false);
+    expect(store.raw.has(BEST_KEY)).toBe(false);
   });
   it('倉庫寫不進去（空間滿了）不會把遊戲弄掛', () => {
     setStore({ getItem: () => null, setItem: () => { throw new Error('倉庫滿了'); }, removeItem: () => {} });
@@ -123,7 +123,7 @@ describe('存檔', () => {
     expect(back).toEqual(run);
     const old: Partial<RunState> = newRun('old');
     delete old.flags;                                   // 模擬這次改版之前存下來的檔
-    store.setItem('qiuqiu-tower/run', JSON.stringify(old));
+    store.setItem(RUN_KEY, JSON.stringify(old));
     expect(loadRun()!.flags).toEqual({});
     expect(hasSave()).toBe(true);                       // 舊存檔不算壞掉，不該被清掉
   });

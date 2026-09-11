@@ -9,10 +9,25 @@ import type { CardInstance, RunPlayer, RunState } from './types';
 
 export interface KeyValueStore { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void }
 
-const RUN_KEY = 'qiuqiu-tower/run';
-const BEST_KEY = 'qiuqiu-tower/best';
-const UNLOCK_KEY = 'qiuqiu-tower/difficulty-unlocked';
-const SELECT_KEY = 'qiuqiu-tower/difficulty';
+/**
+ * 存檔的鍵前綴。**連線版刻意跟單機版分開**（2026-09-11）。
+ *
+ * 為什麼非分不可：瀏覽器的儲存是按**網域**分的，不是按路徑。
+ * `.../qiuqiu-tower/` 與 `.../qiuqiu-tower-coop/` 在同一個網域，**共用同一份儲存**。
+ * 連線版的存檔是第 2 版（每人一份的家當搬進 `players`），單機版的 `checkRun`
+ * 只認第 1 版——讀到第 2 版會判定為壞檔，然後 `loadRun` 會**把它清掉**。
+ * 也就是說：玩家打開一次連線版，回頭再開單機版，進行中的那一局就沒了。
+ *
+ * 所以兩邊各用各的鍵。要替換回去的那一天，把這裡改回 `qiuqiu-tower`，
+ * 玩家在連線版的進度就會接上（第 2 版的存檔本來就往下相容第 1 版）。
+ */
+const PREFIX = 'qiuqiu-tower-coop';
+
+/** 匯出給測試用：測試寫死字串的話，這裡一改就會默默測到不存在的鍵 */
+export const RUN_KEY = `${PREFIX}/run`;
+export const BEST_KEY = `${PREFIX}/best`;
+const UNLOCK_KEY = `${PREFIX}/difficulty-unlocked`;
+const SELECT_KEY = `${PREFIX}/difficulty`;
 
 function memoryStore(): KeyValueStore {
   const m = new Map<string, string>();

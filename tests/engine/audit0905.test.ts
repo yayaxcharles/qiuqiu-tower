@@ -6,7 +6,7 @@ import { damageEnemy, runEnemyEffects } from '../../src/engine/actions';
 import { endTurn, startCombat } from '../../src/engine/combat';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { newRun } from '../../src/engine/run';
-import { loadRun, saveRun, setStore } from '../../src/engine/save';
+import { loadRun, saveRun, setStore, RUN_KEY } from '../../src/engine/save';
 import type { CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
 import { me } from '../../src/engine/runplayer';
@@ -91,7 +91,7 @@ describe('存檔：地圖上的遭遇、事件與身上的秘寶、忍具 id 對
     run.map.nodes.find((n) => n.type === '戰鬥')!.encounterId = '沒有這場';
     saveRun(run);
     expect(loadRun()).toBeNull();
-    expect(m.has('qiuqiu-tower/run'), '不相容的檔要清掉').toBe(false);
+    expect(m.has(RUN_KEY), '不相容的檔要清掉').toBe(false);
   });
   it('事件 id 不存在 → null', () => {
     store(); const run = newRun('bad-ev');
