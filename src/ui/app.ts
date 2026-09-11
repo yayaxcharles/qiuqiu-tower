@@ -19,7 +19,7 @@ import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
-export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result';
+export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby';
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();

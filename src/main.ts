@@ -20,6 +20,7 @@ import './ui/screens/result';
 import './ui/screens/reward';
 import './ui/screens/shop';
 import './ui/screens/title';
+import './ui/screens/lobby';
 
 async function boot(): Promise<void> {
   await loadManifest();

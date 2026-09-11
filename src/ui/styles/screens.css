@@ -1314,3 +1314,50 @@
   filter: drop-shadow(0 6px 14px #000000cc);
 }
 .event-art-loot .showcase { margin: 0; }
+
+/*
+ * 開房畫面（連線版 2026-09-11）。
+ *
+ * 設計重點是**一次只露出一件事該做的**：連線對玩家是黑盒子，卡住時如果畫面只寫
+ * 「連線失敗」，他不會知道是自己貼錯、對方還沒貼、還是網路根本不通。
+ * 所以三個步驟各自獨立一塊，每一塊都帶一句「這一步在做什麼」。
+ */
+.lobby {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 80px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.lobby h1 { margin: 0 0 4px; font-size: 34px; letter-spacing: 2px; }
+.lobby-lead { margin: 0; font-size: 19px; }
+.lobby-note { margin: 0; font-size: 15px; opacity: .72; max-width: 720px; text-align: center; line-height: 1.7; }
+.lobby-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.lobby-field { width: min(760px, 100%); display: flex; flex-direction: column; gap: 6px; }
+.lobby-label { font-size: 17px; font-weight: 600; }
+.lobby-hint { font-size: 14px; opacity: .7; }
+/*
+ * 代碼框用等寬字：那一串是 A-Z a-z 0-9 - _ 混在一起，
+ * 比例字型下 l 跟 1、O 跟 0 分不出來，玩家肉眼核對時會誤判。
+ * `word-break: break-all` 是必要的——沒有空白的長字串預設不會換行，會把整塊撐爆。
+ */
+.lobby-code {
+  width: 100%;
+  box-sizing: border-box;
+  font: 13px/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  word-break: break-all;
+  resize: vertical;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ffffff33;
+  background: #00000044;
+  color: inherit;
+}
+.lobby-ok { font-size: 24px; font-weight: 700; color: #7fd6a0; margin: 0; }
+.lobby-bad { font-size: 18px; color: #ff9b9b; margin: 0; max-width: 720px; text-align: center; line-height: 1.7; }
+.lobby-busy { font-size: 15px; opacity: .8; margin: 0; }
+.lobby-back { margin-top: auto; }

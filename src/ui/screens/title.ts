@@ -92,7 +92,9 @@ registerScreen('title', (app, root) => {
       // 圖鑑放封面（使用者：秘寶、忍具不需要一直看，不放遊戲內）
       el('div', { class: 'title-books' },
         el('button', { class: 'btn small', onclick: () => showCompendium() }, '📖 卡牌圖鑑'),
-        el('button', { class: 'btn small', onclick: () => showItemCompendium() }, '🎒 秘寶與忍具圖鑑')),
+        el('button', { class: 'btn small', onclick: () => showItemCompendium() }, '🎒 秘寶與忍具圖鑑'),
+        // 連線版還在做，按鈕先放這裡（這個網址本來就是實驗版，不會影響單機的那一份）
+        el('button', { class: 'btn small', onclick: () => app.show('lobby') }, '🤝 兩個人一起玩')),
       diffText,
       bestLine,
       shareNote,
