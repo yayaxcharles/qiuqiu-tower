@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allReady, beginEnemyTurn, canPlay, finishEnemyTurn, playCard, setReady, startCombat, startPlayerTurn, usePotion, waitingFor } from '../../src/engine/combat';
+import { IDLE_FORCE_MS, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, forceReady, playCard, setReady, startCombat, startPlayerTurn, usePotion, waitingFor } from '../../src/engine/combat';
 import { damagePlayer, pickVictim, runEnemyEffects } from '../../src/engine/actions';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { getStatus } from '../../src/engine/statuses';
@@ -302,5 +302,52 @@ describe('回合結束：每個人各按各的，都按了才真的結束', () =
     const cs = combat();
     expect(setReady(cs, 0)).toBe(true);
     expect(allReady(cs)).toBe(true);
+  });
+});
+
+describe('強制收回合：對方走開了，另一人可以按（使用者 2026-09-11）', () => {
+  it('替走開的那位收回合，兩邊就都好了', () => {
+    const cs = combat();
+    const p2 = addSecond(cs);
+    setReady(cs, 0);
+    expect(allReady(cs), '還在等二號').toBe(false);
+
+    expect(forceReady(cs, 1), '替他收掉之後就可以收回合了').toBe(true);
+    expect(p2.ready).toBe(true);
+    expect(cs.log.some((l) => l.includes('等太久了')), '要留一行紀錄，他回來才看得懂').toBe(true);
+  });
+
+  it('對已經舉手的人按不會重複留紀錄', () => {
+    const cs = combat();
+    addSecond(cs);
+    setReady(cs, 1);
+    const before = cs.log.length;
+    expect(forceReady(cs, 1), '他本來就好了').toBe(false);   // 一號還沒舉手
+    expect(cs.log.length, '不該再印一次').toBe(before);
+  });
+
+  it('對倒下的人按沒有作用（他本來就不算在等待名單裡）', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p1.hp = 5; p1.block = 0; p2.hp = 50;
+    damagePlayer(cs, cs.enemies[0]!, 99, { victim: p1 });
+
+    const before = cs.log.length;
+    expect(forceReady(cs, 0), '只剩二號，他還沒舉手').toBe(false);
+    expect(cs.log.length).toBe(before);
+  });
+
+  it('**引擎不看時間**：閒置幾秒是畫面那一層的事，這裡只收一個明確的動作', () => {
+    // 這條守的是設計本身。引擎裡只要出現「現在幾點」，鎖步連線兩邊的秒差
+    // 就會讓結果分岔。時間到只是亮一顆按鈕，按下去才送動作過來。
+    // （引擎裡沒有時間相依這件事由 tools/engine_pure.test.ts 掃原始碼守著）
+    expect(IDLE_FORCE_MS, '畫面與連線層共用同一個門檻，不要各寫各的').toBe(60_000);
+    const cs = combat();
+    addSecond(cs);
+    const a = forceReady(cs, 1);
+    cs.players[1]!.ready = false;
+    const b = forceReady(cs, 1);
+    expect(b, '同樣的呼叫永遠得到同樣的結果，跟呼叫的時間點無關').toBe(a);
   });
 });

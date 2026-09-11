@@ -261,6 +261,35 @@ export function waitingFor(cs: CombatState): number[] {
   return cs.players.filter((p) => !p.down && !p.ready).map((p) => p.seat);
 }
 
+/**
+ * 對方要閒置多久，才亮出「強制收回合」那顆按鈕（使用者 2026-09-11：一分鐘）。
+ *
+ * 放在引擎這一側只是為了**讓畫面與連線層共用同一個數字**，引擎自己不會去看時間。
+ */
+export const IDLE_FORCE_MS = 60_000;
+
+/**
+ * 強制替**別人**收回合：對方走開了，總不能讓另一個人卡在那裡。
+ *
+ * **「過了幾秒」這件事刻意不放進引擎。** 引擎是完全決定性的（底下零時間相依），
+ * 鎖步連線靠的就是兩邊算出一模一樣的結果；只要引擎裡出現「現在幾點」，
+ * 兩台機器的秒差就會讓兩邊悄悄分岔，而那是最難查的一種錯。
+ *
+ * 所以計時在畫面那一層做，時間到只是**亮出一顆按鈕**；真的按下去才送一個
+ * 明確的動作過來，兩邊收到的是同一個動作，結果自然一致。
+ *
+ * 也正因如此，**不可以做成「時間到自動收」**——兩邊的計時器不會同時響。
+ * 使用者 2026-09-11 講的「另一人**可以**強制收回合」正是這個意思。
+ */
+export function forceReady(cs: CombatState, seat: number): boolean {
+  const p = cs.players[seat];
+  if (!p || p.down || p.ready || cs.phase !== 'player') return allReady(cs);
+  p.ready = true;
+  // 留一行紀錄：被強制收回合的人回來之後，得看得懂自己那個回合是怎麼沒的
+  log(cs, '等太久了，替走開的那位收了回合');
+  return allReady(cs);
+}
+
 export function endTurn(cs: CombatState): void {
   if (!beginEnemyTurn(cs)) return;
   while (stepEnemyTurn(cs)) { /* 一隻一隻 */ }
