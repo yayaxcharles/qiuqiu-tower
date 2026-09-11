@@ -109,7 +109,16 @@
   "card/maoqiudan": "assets/cards/card/maoqiudan.webp",
   "card/qianglafen": "assets/cards/card/qianglafen.webp",
   "card/tiebushan": "assets/cards/card/tiebushan.webp",
-  "card/zhuiji": "assets/cards/card/zhuiji.webp"
+  "card/zhuiji": "assets/cards/card/zhuiji.webp",
+  "card/bangnisheme": "assets/cards/card/bangnisheme.webp",
+  "card/fantuanfenni": "assets/cards/card/fantuanfenni.webp",
+  "card/fenyiban": "assets/cards/card/fenyiban.webp",
+  "card/jienicailiangbu": "assets/cards/card/jienicailiangbu.webp",
+  "card/ninaqudang": "assets/cards/card/ninaqudang.webp",
+  "card/nixianduo": "assets/cards/card/nixianduo.webp",
+  "card/niyechouyizhang": "assets/cards/card/niyechouyizhang.webp",
+  "card/wobangnipaidiao": "assets/cards/card/wobangnipaidiao.webp",
+  "card/wolaidang": "assets/cards/card/wolaidang.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",

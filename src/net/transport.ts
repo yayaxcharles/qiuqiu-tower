@@ -8,6 +8,12 @@ import type { CoopAction } from './action';
  * - `sync`：每回合結束的對帳單。
  */
 export type NetMessage =
+  /**
+   * 開局。主機挑好種子與難度之後送一次，兩邊**各自**用它跑 `newCoopRun`——
+   * 傳的是種子不是整局狀態（那是鎖步的整個重點：引擎完全決定性，
+   * 同一顆種子在兩台機器上長出一模一樣的地圖、牌組、魔物）。
+   */
+  | { m: 'start'; seed: string; diff: number; enc: string }
   | { m: 'req'; a: CoopAction }
   | { m: 'act'; seq: number; a: CoopAction }
   | { m: 'sync'; turn: number; fp: string };

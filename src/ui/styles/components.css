@@ -545,6 +545,21 @@
 .card.type-攻擊 { background-color: #fff4ee; background-image: var(--paper-attack); }
 .card.type-技能 { background-color: #eef5ff; background-image: var(--paper-skill); }
 .card.type-能力 { background-color: #f3eeff; background-image: var(--paper-power); }
+/*
+ * 連線牌：**白紙**（使用者 2026-09-11 指定）。
+ *
+ * 蓋在牌型的顏色之上，所以要排在那三條後面。底紋照樣用牌型那張——
+ * 換掉的只有紙的顏色，紋理保持一致，看起來才像同一套牌裡的一種特殊紙，
+ * 而不是另一個遊戲的牌。
+ * 白色在這三種暖／冷／紫的底色之間最跳，而且不會跟稀有度的邊框搶顏色。
+ */
+.card.coop { background-color: #ffffff; }
+/* 左上角一枚小記號：白色本身在小張的時候不夠明顯，補一個看得懂的標記 */
+.card.coop .card-type::after {
+  content: '· 雙人';
+  margin-left: 4px;
+  opacity: .75;
+}
 
 /* 小魚乾增減：數字蹦一下，旁邊飄一個 +N／−N。
    進帳是金色的往上飄，花掉是紅色的往下沉——不用看清楚數字也知道是進是出。 */

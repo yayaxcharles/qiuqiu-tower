@@ -10,7 +10,7 @@ import { startCombat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { rollCardChoices, rollPotion, rollRelic, rollRewards, type CombatRewards } from './rewards';
-import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, Rarity, RelicPool, RunEffect, RunState } from './types';
+import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, PlayerCombat, Rarity, RelicPool, RunEffect, RunState } from './types';
 import { me } from './runplayer';
 
 export const START_FISH = 50;
@@ -90,10 +90,59 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   const startBlock = me(run).restBlock ?? 0;
   me(run).restBlock = 0;   // 暖毯的蜷縮只帶一場
   const cs = startCombat({ hp: me(run).hp, maxHp: me(run).maxHp, deck: me(run).deck.map((c) => ({ ...c })), relics: me(run).relics, potions: me(run).potions, encounterId: enc, rng: runRng(run),
-    mods: { hpMul: m.hpMul, strength, startBlock } });
+    mods: { hpMul: m.hpMul, strength, startBlock },
+    // 幾個人決定魔物的血量倍率（只放大血量，傷害不動——見 `coopscale.ts`）
+    players: run.players.length });
+  /*
+   * 第二位之後的玩家（連線版 2026-09-11）。
+   *
+   * `startCombat` 只建得出第一位——它收的是一份平鋪的參數，而且魔物的血量在那一刻
+   * 就要算好，所以人數是先傳進去的、人本身後補。這裡把其餘的照同一套規格補上，
+   * 並且**替每一位各洗一次自己的牌堆**。
+   *
+   * 洗牌用的是同一顆 `cs.rng`，順序固定（座位 1、2…），所以兩台機器算出來一模一樣。
+   */
+  for (const rp of run.players.slice(1)) {
+    const p: PlayerCombat = {
+      seat: cs.players.length,
+      relics: [...rp.relics], potions: [...rp.potions],
+      hp: rp.hp, maxHp: rp.maxHp, block: 0, armour: 0, statuses: {},
+      energy: 0, maxEnergy: 3 + rp.relics.reduce((s, id) => s + (relicById[id]?.hooks.energyPerTurn ?? 0), 0),
+      hand: [], drawPile: cs.rng.shuffle(rp.deck.map((c) => ({ ...c }))), discardPile: [], exhaustPile: [],
+      retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
+      noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
+      firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {},
+    };
+    cs.players.push(p);
+    // 第一回合已經在 `startCombat` 裡跑過了（那時只有第一位），所以補進來的人要自己發一手牌
+    p.energy = p.maxEnergy;
+    p.hand = p.drawPile.splice(0, 5);
+  }
   applyBossPrefix(run, cs);
   applyEncounterModifier(run, cs);
   return cs;
+}
+
+/**
+ * 開一局兩個人的（連線版 2026-09-11）。
+ *
+ * 兩台機器**各自跑這一支**，餵同一顆種子與難度，算出來的整局狀態一模一樣——
+ * 這是鎖步的前提，不是傳過去的。
+ *
+ * 第二位的牌用 `addCard(run, id, false, 1)` 發：牌號從整局共用的 `run.nextUid` 拿，
+ * 兩副牌絕不會撞號（撞號的後果見 `addCard` 的說明）。
+ */
+export function newCoopRun(seed: string, difficulty = 1, hero: 'ninja' | 'samurai' = 'ninja'): RunState {
+  const run = newRun(seed, difficulty, hero);
+  const first = me(run);
+  run.players.push({
+    ...(first.hero ? { hero: first.hero } : {}),
+    hp: first.hp, maxHp: first.maxHp, fish: first.fish,
+    deck: [], relics: [], potions: [], removeCost: first.removeCost,
+  });
+  for (const c of first.deck) addCard(run, c.cardId, c.upgraded, 1);
+  for (const id of first.relics) takeRelic(run, id, 1);
+  return run;
 }
 
 /**

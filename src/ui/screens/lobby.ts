@@ -1,6 +1,9 @@
 import { registerScreen } from '../app';
 import { clear, el } from '../dom';
 import { hostRoom, joinRoom } from '../../net/rtc';
+import { CoopSession } from '../../net/session';
+import { beginCombat, newCoopRun } from '../../engine/run';
+import type { App } from '../app';
 import type { Transport } from '../../net/transport';
 
 /**
@@ -30,9 +33,33 @@ interface LobbyState {
   busy?: boolean;
 }
 
-/** 連上之後把線交給誰。先留成掛鉤，等兩人戰鬥畫面做好再接上去 */
-let onConnected: ((tx: Transport, isHost: boolean) => void) | null = null;
-export function setLobbyHandler(fn: (tx: Transport, isHost: boolean) => void): void { onConnected = fn; }
+/**
+ * 連上之後開一場兩個人的戰鬥。
+ *
+ * **地圖還沒做成兩個人投票**，所以這一版直接跳進一場固定的戰鬥——
+ * 先讓兩個人真的能一起打一場，地圖與整局流程是下一步。
+ * 固定遭遇也讓測試好對：兩邊看到的魔物一定一樣，不一樣就是分岔。
+ */
+const DEMO_ENCOUNTER = 'rats3';
+
+function startCoop(app: App, tx: Transport, isHost: boolean): void {
+  const session = new CoopSession(tx, { isHost, seat: isHost ? 0 : 1 });
+  const begin = (seed: string, diff: number, enc: string): void => {
+    // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）
+    const run = newCoopRun(seed, diff);
+    app.run = run;
+    app.cs = beginCombat(run, enc);
+    app.show('combat', { seat: isHost ? 0 : 1, session });
+  };
+  if (isHost) {
+    const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;
+    session.start(seed, 1, DEMO_ENCOUNTER);
+    begin(seed, 1, DEMO_ENCOUNTER);
+  } else {
+    // 客戶端等主機宣布，收到才開——不能自己挑種子，那樣兩邊一定不一樣
+    session.onStartRun(begin);
+  }
+}
 
 /** 把長長的碼塞進一個唯讀方框，附一顆「複製」——玩家要整串貼給對方，不能讓他自己框選 */
 function codeBox(label: string, code: string, hint: string): HTMLElement {
@@ -107,7 +134,7 @@ registerScreen('lobby', (app, root) => {
             st.busy = true; st.msg = '正在接上…'; render();
             st.accept(code).then((tx) => {
               st.step = 'connected'; st.busy = false; st.msg = undefined; render();
-              onConnected?.(tx, true);
+              startCoop(app, tx, true);
             }).catch(fail);
           }));
       }
@@ -119,7 +146,7 @@ registerScreen('lobby', (app, root) => {
         joinRoom(code).then((r) => {
           st.answer = r.answer; st.busy = false; st.msg = undefined; render();
           // 對方貼完我們的回應碼，通道就會自己開起來
-          r.ready.then((tx) => { st.step = 'connected'; render(); onConnected?.(tx, false); }).catch(fail);
+          r.ready.then((tx) => { st.step = 'connected'; render(); startCoop(app, tx, false); }).catch(fail);
         }).catch(fail);
       }));
       if (st.answer) {
@@ -130,7 +157,7 @@ registerScreen('lobby', (app, root) => {
     if (st.step === 'connected') {
       box.append(
         el('p', { class: 'lobby-ok' }, '連上了！'),
-        el('p', { class: 'lobby-note' }, '兩個人的戰鬥畫面還在做，先到這裡。'));
+        el('p', { class: 'lobby-note' }, '正在開一場兩個人的戰鬥…'));
     }
 
     if (st.step === 'failed') {

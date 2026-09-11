@@ -37,6 +37,10 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
 
   // 牌型決定底紋顏色、稀有度決定邊框（見 components.css）——兩件事各自一個類別
   const cls = ['card', `type-${def.type}`, `rarity-${def.rarity}`];
+  // 連線牌用**白色**底（使用者 2026-09-11 指定）。跟牌型分開是刻意的：
+  // 這批裡忍術與絕學都有，型別該顯示的還是顯示，只是紙的顏色換一種——
+  // 玩家一眼就分得出「這張要有同伴才有用」
+  if (def.coop) cls.push('coop');
   if (opts.small) cls.push('small');
   if (opts.selected) cls.push('selected');
   if (opts.disabled) cls.push('disabled');

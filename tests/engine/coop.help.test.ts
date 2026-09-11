@@ -9,7 +9,9 @@ import { cardById } from '../../src/content/cards';
 import { relics } from '../../src/content/relics';
 import { pickable } from '../../src/engine/hero';
 import { encounterById } from '../../src/content/enemies';
-import type { CombatState, PlayerCombat } from '../../src/engine/types';
+import { addCard, newRun, upgradeCard } from '../../src/engine/run';
+import { me } from '../../src/engine/runplayer';
+import type { CombatState, Effect, PlayerCombat } from '../../src/engine/types';
 import { blankPlayer, inst } from '../helpers';
 
 /*
@@ -224,13 +226,13 @@ describe('幫隊友的九張牌', () => {
     void p1;
   });
 
-  it('九張牌都掛 hidden 與 coop：圖沒生好不進池、單機也不進池', () => {
+  it('九張牌都標成連線牌，而且圖都到齊了（`hidden` 已經拿掉）', () => {
     const ids = ['fenyiban', 'ninaqudang', 'nixianduo', 'wolaidang', 'bangnisheme',
       'jienicailiangbu', 'niyechouyizhang', 'wobangnipaidiao', 'fantuanfenni'];
     for (const id of ids) {
       expect(cardById[id], id).toBeDefined();
-      expect(cardById[id]?.hidden, `${id} 還沒有圖`).toBe(true);
       expect(cardById[id]?.coop, `${id} 要標成連線牌`).toBe(true);
+      expect(cardById[id]?.hidden, `${id} 的圖已經生好了，不該再掛待圖旗標`).toBeUndefined();
     }
     expect(ids.length).toBe(9);
   });
@@ -251,5 +253,60 @@ describe('幫隊友的九張牌', () => {
     const cs = combat(1);
     applyEffects(cs, [{ kind: 'taunt' }], { self: cs.player, source: 'card' });
     expect(cs.log.some((l) => l.includes('架式')), '一個人時的紀錄不該說「魔物都衝著他來」').toBe(true);
+  });
+});
+
+describe('連線牌跟一般牌走完全同一套規則', () => {
+  const IDS = ['fenyiban', 'ninaqudang', 'nixianduo', 'wolaidang', 'bangnisheme',
+    'jienicailiangbu', 'niyechouyizhang', 'wobangnipaidiao', 'fantuanfenni'];
+
+  it('九張都升得了級，而且升級**真的有變**（不是抄一份一樣的）', () => {
+    for (const id of IDS) {
+      const def = cardById[id]!;
+      expect(def.upgrade, `${id} 要有升級`).toBeDefined();
+      const base = JSON.stringify(def.effects);
+      const up = JSON.stringify(def.upgrade.effects ?? def.effects);
+      const costChanged = def.upgrade.cost !== undefined && def.upgrade.cost !== def.cost;
+      expect(up !== base || costChanged, `${id} 的升級跟原版一模一樣，等於沒升`).toBe(true);
+    }
+  });
+
+  it('升級是往好的方向（量變大、或費用變低）', () => {
+    const total = (fx: readonly Effect[]): number =>
+      fx.reduce((s, f) => s + ((f as { amount?: number }).amount ?? (f as { n?: number }).n ?? 0), 0);
+    for (const id of IDS) {
+      const def = cardById[id]!;
+      const cheaper = (def.upgrade.cost ?? def.cost) < def.cost;
+      const bigger = total(def.upgrade.effects ?? def.effects) > total(def.effects);
+      const moreEffects = (def.upgrade.effects ?? def.effects).length > def.effects.length;
+      expect(cheaper || bigger || moreEffects, `${id} 升級之後沒有變好`).toBe(true);
+    }
+  });
+
+  it('在整局裡真的升得起來（走 upgradeCard 那條，跟一般牌同一支）', () => {
+    const run = newRun('coop-up', 1);
+    for (const id of IDS) {
+      const c = addCard(run, id);
+      expect(upgradeCard(run, c.uid), `${id} 應該升得了`).toBe(true);
+      expect(me(run).deck.find((x) => x.uid === c.uid)?.upgraded).toBe(true);
+    }
+  });
+
+  it('升級版打出來真的比較強：分你一半 5 → 8', () => {
+    const mk = (up: boolean): number => {
+      const cs = combat(1, [inst('fenyiban', 1, up)]);
+      const p2 = addSecond(cs);
+      (cs.players[0] as PlayerCombat).block = 0; p2.block = 0;
+      playCard(cs, 1);
+      return p2.block;
+    };
+    expect(mk(false)).toBe(5);
+    expect(mk(true)).toBe(8);
+  });
+
+  it('九張都標成白紙（畫面靠 `coop` 這個旗標換底色）', () => {
+    for (const id of IDS) expect(cardById[id]?.coop, id).toBe(true);
+    // 一般牌不該被誤標
+    expect(cardById['tanding']?.coop).toBeUndefined();
   });
 });

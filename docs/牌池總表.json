@@ -162,7 +162,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockAll"
@@ -185,7 +185,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockAlly"
@@ -208,7 +208,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "statusAlly"
@@ -232,7 +232,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "taunt",
@@ -259,7 +259,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "statusAlly"
@@ -283,7 +283,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "statusAlly"
@@ -307,7 +307,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "drawAlly"
@@ -330,7 +330,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "cleanseAlly"
@@ -355,7 +355,7 @@
   "keywords": [
    "消耗"
   ],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "energyAlly"

@@ -41,38 +41,38 @@ export const cards: readonly CardDef[] = [
    * 插圖還沒生，先掛 `hidden` 不進任何池——圖到齊再拿掉。
    */
   // ---- 給自己以外的人用的（防禦線）----
-  { id: 'fenyiban', name: '分你一半', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/fenyiban', hidden: true, coop: true,
+  { id: 'fenyiban', name: '分你一半', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/fenyiban', coop: true,
     effects: [{ kind: 'blockAll', amount: 5 }],
     upgrade: { effects: [{ kind: 'blockAll', amount: 8 }] } },
   // 整份給一個人，所以總量比「一人一半」多——集中防守的選項
-  { id: 'ninaqudang', name: '你拿去擋', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/ninaqudang', hidden: true, coop: true,
+  { id: 'ninaqudang', name: '你拿去擋', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/ninaqudang', coop: true,
     effects: [{ kind: 'blockAlly', amount: 12 }],
     upgrade: { effects: [{ kind: 'blockAlly', amount: 16 }] } },
   // 忍者獨占：這張給的是隱身，而武士整套機制裡根本沒有閃避（`hero.test.ts` 在守這條規則）。
   // 對方是不是忍者不影響——判準是「誰開得到這張牌」，不是「誰受得了這個效果」
-  { id: 'nixianduo', name: '你先躲', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'ninja', target: 'self', art: 'card/nixianduo', hidden: true, coop: true,
+  { id: 'nixianduo', name: '你先躲', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'ninja', target: 'self', art: 'card/nixianduo', coop: true,
     effects: [{ kind: 'statusAlly', name: '隱身', amount: 2 }],
     upgrade: { effects: [{ kind: 'statusAlly', name: '隱身', amount: 3 }] } },
-  { id: 'wolaidang', name: '我來擋', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/wolaidang', hidden: true, coop: true,
+  { id: 'wolaidang', name: '我來擋', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/wolaidang', coop: true,
     // 自己吃一輪全部的攻擊，所以要配一份蜷縮才擋得住——不然這張是純粹的自殺
     effects: [{ kind: 'taunt' }, { kind: 'block', amount: 10 }],
     upgrade: { effects: [{ kind: 'taunt' }, { kind: 'block', amount: 15 }] } },
   // ---- 幫對方變強的（進攻線）----
-  { id: 'bangnisheme', name: '幫你一把', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/bangnisheme', hidden: true, coop: true,
+  { id: 'bangnisheme', name: '幫你一把', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/bangnisheme', coop: true,
     effects: [{ kind: 'statusAlly', name: '爪力', amount: 2 }],
     upgrade: { effects: [{ kind: 'statusAlly', name: '爪力', amount: 3 }] } },
-  { id: 'jienicailiangbu', name: '借你踩兩步', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/jienicailiangbu', hidden: true, coop: true,
+  { id: 'jienicailiangbu', name: '借你踩兩步', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/jienicailiangbu', coop: true,
     effects: [{ kind: 'statusAlly', name: '貓步', amount: 2 }],
     upgrade: { effects: [{ kind: 'statusAlly', name: '貓步', amount: 3 }] } },
   // ---- 幫對方多做一點事的（節奏線）----
-  { id: 'niyechouyizhang', name: '你也抽一張', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/niyechouyizhang', hidden: true, coop: true,
+  { id: 'niyechouyizhang', name: '你也抽一張', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/niyechouyizhang', coop: true,
     effects: [{ kind: 'drawAlly', n: 1 }],
     upgrade: { effects: [{ kind: 'drawAlly', n: 2 }] } },
-  { id: 'wobangnipaidiao', name: '我幫你拍掉', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/wobangnipaidiao', hidden: true, coop: true,
+  { id: 'wobangnipaidiao', name: '我幫你拍掉', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/wobangnipaidiao', coop: true,
     effects: [{ kind: 'cleanseAlly' }],
     // 升級版順便幫自己也拍一次（`cleanse` 是清自己的）
     upgrade: { cost: 0, effects: [{ kind: 'cleanseAlly' }, { kind: 'cleanse' }] } },
-  { id: 'fantuanfenni', name: '飯糰分你', cost: 0, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/fantuanfenni', hidden: true, coop: true,
+  { id: 'fantuanfenni', name: '飯糰分你', cost: 0, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/fantuanfenni', coop: true,
     // 0 費給對方 1 顆飯糰＝把自己這回合的行動力整個借給他，兩個人湊一次大招用的
     keywords: ['消耗'],
     effects: [{ kind: 'energyAlly', n: 1 }],

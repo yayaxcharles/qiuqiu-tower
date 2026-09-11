@@ -15,6 +15,8 @@ import type { CombatState } from '../engine/types';
  *   等一個來回（約 100～200 毫秒），畫面靠「動畫先演、狀態等編號回來才套」蓋過去。
  */
 export interface SessionHooks {
+  /** 主機宣布開局（客戶端收得到；主機自己不會收到自己的） */
+  onStart?: (seed: string, diff: number, enc: string) => void;
   /** 真的套進去了幾個動作（畫面拿它決定要演什麼） */
   onApplied?: (applied: SequencedAction[]) => void;
   /** **兩邊算出來不一樣了**。到這裡就該停下來告訴玩家，不要繼續玩兩份不一樣的遊戲 */
@@ -41,11 +43,35 @@ export class CoopSession {
     this.hooks = opts;
     this.seq = opts.isHost ? new Sequencer() : null;
     tx.onMessage((m) => { this.handle(m); });
-    tx.onClose((w) => { this.dead = true; this.hooks.onClose?.(w); });
+    tx.onClose((w) => { this.dead = true; this.hooks.onClose?.(w); this.trouble?.(w); });
   }
 
   /** 這一場戰鬥開打了。兩邊要餵同一個 `CombatState`（各自算出來的那一份） */
   attach(cs: CombatState): void { this.cs = cs; }
+
+  /*
+   * 回呼可以**事後換**：會話在開房那一刻就建好了，那時戰鬥畫面還不存在；
+   * 而且每進一場新的戰鬥都要換一組（舊畫面的 render 指向已經被丟掉的節點）。
+   * 所以不能只在建構時收。
+   */
+  private applied: ((a: SequencedAction[]) => void) | null = null;
+  private trouble: ((why: string) => void) | null = null;
+  /** 有動作真的套進引擎了（畫面靠它決定要演什麼、要不要收回合） */
+  onApplied(fn: (a: SequencedAction[]) => void): void { this.applied = fn; }
+  /**
+   * 主機宣布開局（只有客戶端收得到）。
+   *
+   * **可能在註冊之前就到了**：連線一通主機就送，而客戶端要等 `ready` 那個承諾
+   * 解出來才建得了會話。所以先到的那一則會被存起來，註冊的當下立刻補跑。
+   */
+  onStartRun(fn: (seed: string, diff: number, enc: string) => void): void {
+    this.startRun = fn;
+    if (this.pendingStart) { const s = this.pendingStart; this.pendingStart = null; fn(s.seed, s.diff, s.enc); }
+  }
+  private startRun: ((seed: string, diff: number, enc: string) => void) | null = null;
+  private pendingStart: { seed: string; diff: number; enc: string } | null = null;
+  /** 分岔或斷線。**這個一定要接**：不接的話兩個人會繼續玩兩份不一樣的遊戲 */
+  onTrouble(fn: (why: string) => void): void { this.trouble = fn; }
 
   /** 已經停掉了（分岔或斷線）。停掉之後什麼都不再做 */
   get stopped(): boolean { return this.dead; }
@@ -78,8 +104,23 @@ export class CoopSession {
     this.tx.send({ m: 'sync', turn: c.turn, fp: c.fp });
   }
 
+  /** 主機用：宣布開局。兩邊各自用同一顆種子跑出同一局 */
+  start(seed: string, diff: number, enc: string): void {
+    if (this.dead || !this.isHost) return;
+    this.tx.send({ m: 'start', seed, diff, enc });
+  }
+
   private handle(m: NetMessage): void {
-    if (this.dead || !this.cs) return;
+    if (this.dead) return;
+    // 開局訊息在 `attach` 之前就會到（那時還沒有戰鬥），所以要擺在 cs 的檢查之前
+    if (m.m === 'start') {
+      if (this.isHost) return;
+      this.hooks.onStart?.(m.seed, m.diff, m.enc);
+      if (this.startRun) this.startRun(m.seed, m.diff, m.enc);
+      else this.pendingStart = { seed: m.seed, diff: m.diff, enc: m.enc };   // 還沒註冊就先存著
+      return;
+    }
+    if (!this.cs) return;
     switch (m.m) {
       case 'req':
         // 只有主機收得到請求：編號之後廣播，自己也照號碼套
@@ -110,7 +151,7 @@ export class CoopSession {
     if (!this.cs) return;
     if (broadcast) this.tx.send({ m: 'act', seq: sa.seq, a: sa.a });
     const r = this.queue.receive(this.cs, sa);
-    if (r.applied.length) this.hooks.onApplied?.(r.applied);
+    if (r.applied.length) { this.hooks.onApplied?.(r.applied); this.applied?.(r.applied); }
     if (r.failed) this.stop(`第 ${r.failed.seq} 號動作在這邊做不出來（${r.failed.a.t}）`);
   }
 
@@ -118,6 +159,7 @@ export class CoopSession {
     if (this.dead) return;
     this.dead = true;
     this.hooks.onDesync?.(why);
+    this.trouble?.(why);
     this.tx.close();
   }
 }
