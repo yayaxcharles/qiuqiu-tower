@@ -32,18 +32,25 @@ it('dump monster acts', () => {
     for (const key of group) { const path = manifest.bg[key]; if (path) out[path] = 0; }
   }
   /*
-   * **事件插圖一律不算首載**（2026-09-11）。
+   * **事件的「結果圖」不算首載**（2026-09-11）。只認 `_r<數字>` 結尾的，
+   * 判準寫緊一點是有原因的，見下面。
    *
-   * 它們是走到那個事件、畫面建出 `<img>` 的那一刻才抓的——`preload.ts` 的首載集合
-   * 只有介面、牌面、背景與第一關的魔物，從頭到尾沒碰過事件圖（grep event 是空的）。
-   * 所以把它們算進首載一直是**高估**，只是以前只有 38 張、看不太出來；
-   * 2026-09-11 補上 60 張「選完之後」的結果圖，一口氣多算了兩百多萬位元組，
-   * 預算表直接從 99% 跳到 131%，才把這件事翻出來。
+   * 結果圖是走到那個事件、玩家選了某個選項、畫面建出 `<img>` 的那一刻才抓的。
+   * 上面那個迴圈推進首載鍵集合的是 `bg/event_<事件 id>`（見 `bgacts.ts`），
+   * **不含** `_r` 的那一批，所以它們確實從頭到尾沒被開場碰過。
+   *
+   * ⚠️ 判準原本寫成 `key.startsWith('bg/event_')`，那是錯的（稽核 2026-09-11 高-5）。
+   * 事件的**基底插圖**開場是真的會下載的——`bgacts.ts` 把每個事件的
+   * `bg/event_<id>` 列進每一關的鍵集合，`assets.ts` 的 `preloadArt()` 又會把
+   * `manifest.bg` 整包載一遍、只跳過分關的那些；沒標 `acts` 的事件三關都在，
+   * 「二三關減第一關」會把它減成空的，於是不在跳過名單裡。
+   * 寬判準會把 34 張基底圖（0.92 MB，含紙箱那三張根本不是事件的圖）一起摳掉，
+   * 那就不是修正高估，是**美化數字**。
    *
    * 值寫 0＝「不跟關數綁的按需載入」，跟過關幻燈片同一類。
    */
   for (const [key, path] of Object.entries(manifest.bg)) {
-    if (key.startsWith('bg/event_')) out[path] = 0;
+    if (/_r\d+$/.test(key)) out[path] = 0;
   }
 
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
