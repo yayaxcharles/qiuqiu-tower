@@ -5,7 +5,14 @@ import { potionById, potions } from '../../src/content/potions';
 import { Rng, seedFromString } from '../../src/engine/rng';
 
 /** 2026-09-11 加的七支戰術型忍具（使用者指定） */
-const NEW = ['clone_oil', 'iron_salve', 'revive_pill', 'first_incense', 'pick_back', 'claw_bolt', 'bind_nail'];
+const NEW = [
+  // 2026-09-11 第一批（七支戰術型）
+  'clone_oil', 'iron_salve', 'revive_pill', 'first_incense', 'pick_back', 'claw_bolt', 'bind_nail',
+  // 第二批（五支對敵）
+  'steal_claw', 'break_art', 'double_back', 'rubble_bag', 'your_way',
+  // 第三批（三支剋制型）
+  'bird_glue', 'thorn_shears', 'armor_pick',
+];
 
 describe('新忍具', () => {
   it('七支都在，資料齊全', () => {

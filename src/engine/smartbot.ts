@@ -139,7 +139,13 @@ function incomingHitCount(cs: CombatState): number {
 }
 
 /** 這張牌打在這隻魔物身上大概能扣多少血（吃過爪力、翻肚、防禦、隱身） */
-function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: number, doubled: boolean, plays = 0): number {
+/**
+ * `noStrength`：**忍具的傷害不吃爪力**（`effects.ts` 的 `noStrength: ctx.source === 'potion'`）。
+ * 不傳的話估出來是「傷害＋爪力」，實際只有傷害——球球爪力 6、魔物血 18 防禦 20 時
+ * 會估成「18 打得死」而開掉一支 45 條的忍具，實際只進 12 點、魔物活著剩 6 血
+ *（稽核 2026-09-11 中-2）。牌的呼叫端不傳，維持原本行為。
+ */
+function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: number, doubled: boolean, plays = 0, noStrength = false): number {
   if (!attackable(cs, e)) return 0;
   if (getStatus(e, '隱身') > 0) return 0;
   let block = e.block;
@@ -158,12 +164,12 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
   for (const fx of effects) {
     if (fx.kind === 'damage') {
       const times = fx.scaleWithCombo ? Math.min(combo + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
-      for (let i = 0; i < times; i++) swing(computeAttack(fx.amount * (doubled ? 2 : 1), p, e), fx.ignoreBlock);
+      for (let i = 0; i < times; i++) swing(computeAttack(fx.amount * (doubled ? 2 : 1), p, e, { noStrength }), fx.ignoreBlock);
     } else if (fx.kind === 'damageRamp') {
       // 分身術：這場這張已打過幾次就加幾段（plays 由呼叫端查 cs.cardPlays）
-      swing(computeAttack((fx.amount + fx.step * plays) * (doubled ? 2 : 1), p, e));
+      swing(computeAttack((fx.amount + fx.step * plays) * (doubled ? 2 : 1), p, e, { noStrength }));
     } else if (fx.kind === 'damageRandom') {
-      swing(computeAttack(Math.round((fx.min + fx.max) / 2) * (doubled ? 2 : 1), p, e));
+      swing(computeAttack(Math.round((fx.min + fx.max) / 2) * (doubled ? 2 : 1), p, e, { noStrength }));
     } else if (fx.kind === 'damageEqualBlock') {
       // 這裡也要乘加倍，跟 `effects.ts` 同步（稽核 2026-09-10 中-3）：
       // 同一支函式的 damage／damageRamp／damageRandom 三個分支都乘了，只有這個漏掉，
@@ -361,7 +367,11 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     if (healAmt > 0 && p.hp <= p.maxHp * 0.4 && p.maxHp - p.hp >= healAmt) return usePotion(cs, id);
     if ((kinds.includes('block') || (kinds.includes('status') && def.effects.some((f) => f.kind === 'status' && f.name === '隱身')))
       && incoming >= 10 && p.hp - incoming <= p.maxHp * 0.35) return usePotion(cs, id);
-    const dmg = def.effects.find((f) => f.kind === 'damage');
+    // **無視防禦的不在這裡處理**（稽核 2026-09-11 中-1）：這條用 `hp + block <= total` 判斷，
+    // 對破甲錐來說 `block` 根本不該算進去，而且它沒扣飛行的砍半——
+    // 一隻飛著、血 8、防禦 3 的魔物會被這條接走（8+3 <= 12），實際只打進 6 點、45 條白燒。
+    // 那支交給下面用 `damageTo` 估的專屬分支。
+    const dmg = def.effects.find((f) => f.kind === 'damage' && !f.ignoreBlock);
     if (dmg && dmg.kind === 'damage') {
       const total = dmg.amount * (dmg.times ?? 1);
       const victim = enemies.find((e) => e.hp + e.block <= total && e.hp >= 6);
@@ -415,11 +425,6 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
       const fat = enemies.find((e) => e.block >= 10);
       if (fat) return usePotion(cs, id, fat.uid);
     }
-    // 破功散：拔爪力／鱗甲／不壞身。三者加起來夠多才用，拔一層不值 60 條
-    if (def.effects.some((f) => f.kind === 'removeStatuses')) {
-      const buffed = enemies.find((e) => getStatus(e, '爪力') + getStatus(e, '鱗甲') * 2 + getStatus(e, '不壞身') * 3 >= 5);
-      if (buffed) return usePotion(cs, id, buffed.uid);
-    }
     // 加倍奉還：身上噎到越多翻倍越賺；沒有噎到也有保底 2 層，但留著等噎到流起來比較好
     const dbl = def.effects.find((f) => f.kind === 'doubleStatus');
     if (dbl?.kind === 'doubleStatus') {
@@ -443,6 +448,60 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     if (kinds.includes('damageEqualBlock') && p.block >= 14) {
       const victim = enemies.find((e) => e.hp + e.block <= p.block);
       if (victim) return usePotion(cs, id, victim.uid);
+    }
+    /*
+     * 拔狀態的三支（破功散、剪刺鉗、黏鳥膠）**寫在同一個區塊、照 `names` 分流**。
+     *
+     * 分開寫過一次，出了兩個洞（稽核 2026-09-11 高-1、高-2）：
+     *   ① 破功散那條原本只判「是不是 `removeStatuses`」，而剪刺鉗也是——
+     *      場上隨便一隻魔物爪力堆到 5（一般戰第 10 回合起魔氣暴走每回合全體 +1，幾輪就到），
+     *      機器人就拿 40 條的剪刺鉗去拔牠身上根本沒有的反彈，白燒一支。
+     *   ② 黏鳥膠中途改用新效果 `ground`，而判斷還在找 `removeStatuses`，
+     *      整條變成永遠進不去的死碼——機器人抽到它就只是佔一格到戰鬥結束。
+     * 兩個洞壞的都不是玩家看得到的東西，是 `tests/smart.report.test.ts` 那份
+     * 專案唯一的平衡訊號；之後每次調平衡都會帶著看不見的偏差。
+     *
+     * 判準一律用「那個麻煩現在有多痛」，不是「有沒有出現」——出現就用會讓機器人在小怪身上
+     * 把 40~60 條的忍具燒光。
+     */
+    const strip = def.effects.find((f) => f.kind === 'removeStatuses');
+    if (strip?.kind === 'removeStatuses') {
+      const names = strip.names;
+      if (names.includes('爪力')) {
+        // 破功散：拔爪力／貓步／鱗甲／不壞身。加權後夠多才用，拔一兩層不值 60 條
+        //（加權式子沒算貓步：魔物身上的貓步只有鏡貓抄得到，權重併進爪力那一項就夠）
+        const buffed = enemies.find((e) => getStatus(e, '爪力') + getStatus(e, '鱗甲') * 2 + getStatus(e, '不壞身') * 3 >= 5);
+        if (buffed) return usePotion(cs, id, buffed.uid);
+      } else if (names.includes('飛行')) {
+        // 黏鳥膠：飛行 3 層以上才值得——1、2 層打兩下就自己掉了，而這支是一次性的
+        const flier = enemies.find((e) => getStatus(e, '飛行') >= 3);
+        if (flier) return usePotion(cs, id, flier.uid);
+      } else if (names.includes('反彈')) {
+        // 剪刺鉗：反彈 2 層以上才值得（1 層扎一下還能忍）
+        const thorny = enemies.find((e) => getStatus(e, '反彈') >= 2);
+        if (thorny) return usePotion(cs, id, thorny.uid);
+      } else {
+        /*
+         * **兜底**（稽核 2026-09-11 中-3）：以後加一支只拔鱗甲的忍具，
+         * 上面三條都接不到，它就會變成「機器人抽到就佔格子到戰鬥結束」——
+         * 這個區塊的註解裡親口記過的「洞②」原封不動再來一次。
+         * 退路很笨但不會是零：名單裡隨便一種層數夠多就用。
+         */
+        const any = enemies.find((e) => names.some((nm) => getStatus(e, nm) >= 3));
+        if (any) return usePotion(cs, id, any.uid);
+      }
+    }
+    /*
+     * 破甲錐：對手防禦厚到「一般攻擊打不穿」才划算，而且要真的打得死。
+     * **估傷用同檔的 `damageTo`**（稽核 2026-09-11 中-4）：自己拿 `pierce.amount` 比血量，
+     * 會漏掉飛行的砍半與虛化的「每下最多 1 點」——對一隻飛著、血 10、防禦 12 的魔物
+     * 算出「12 打得死」就開了 45 條的忍具，實際只進去 6 點。
+     * `hp >= 6` 是跟旁邊那條 `dmg` 同口徑：不要為了補一隻剩一滴血的怪花掉一支忍具。
+     */
+    const pierce = def.effects.find((f) => f.kind === 'damage' && f.ignoreBlock);
+    if (pierce?.kind === 'damage') {
+      const turtle = enemies.find((e) => e.block >= 12 && e.hp >= 6 && damageTo(cs, def.effects, e, 0, false, 0, true) >= e.hp);
+      if (turtle) return usePotion(cs, id, turtle.uid);
     }
     // 攻擊型狀態忍具：關主戰開頭就用
     if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return usePotion(cs, id);

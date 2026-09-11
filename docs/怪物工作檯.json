@@ -3368,7 +3368,7 @@
     2
    ],
    "passives": {
-    "flying": 2
+    "flying": 4
    },
    "moves": [
     {
@@ -3509,7 +3509,7 @@
     2
    ],
    "passives": {
-    "flying": 2,
+    "flying": 4,
     "curlUp": 10
    },
    "moves": [
@@ -3788,7 +3788,7 @@
    ],
    "passives": {
     "angerOnSkill": 1,
-    "flying": 3
+    "flying": 6
    },
    "moves": [
     {
@@ -5336,7 +5336,7 @@
    ],
    "passives": {
     "thorns": 1,
-    "flying": 4
+    "flying": 8
    },
    "moves": [
     {
@@ -6144,7 +6144,7 @@
     2
    ],
    "passives": {
-    "flying": 3
+    "flying": 6
    },
    "moves": [
     {
@@ -6647,7 +6647,7 @@
     2
    ],
    "passives": {
-    "flying": 2
+    "flying": 4
    },
    "moves": [
     {
@@ -6950,7 +6950,7 @@
     3
    ],
    "passives": {
-    "flying": 1,
+    "flying": 2,
     "splitInto": {
      "enemyId": "crow_small",
      "n": 2,
@@ -7007,7 +7007,7 @@
    "art": "codex/monster_crow_small",
    "acts": [],
    "passives": {
-    "flying": 1
+    "flying": 2
    },
    "moves": [
     {

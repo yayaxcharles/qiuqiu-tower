@@ -104,6 +104,14 @@ const POSE = {
   // 第二批（2026-09-08）：噎到待機、被纏住待機、能力牌凝神、抽牌翻卷軸
   choke: 'hero/ninja_choke', dizzy: 'hero/ninja_dizzy', focus: 'hero/ninja_focus', scroll: 'hero/ninja_scroll',
   /**
+   * 倒下（2026-09-11）：球球趴在地上、眼睛變叉、頭帶滑到一邊。
+   *
+   * 跟 26 隻大魔物與塔主的倒地圖同一套語彙——**牠們都有，球球自己反而沒有**，
+   * 而一局只會死一次、那是整局情緒最重的一刻，原本卻是最空的（血歸零就直接切結算清單）。
+   * `lose` 那張是站著垂頭的落敗圖，留給結算畫面用；這張是倒在戰場上的那一拍。
+   */
+  down: 'hero/ninja_down',
+  /**
    * 招式再分家（2026-09-11，使用者指定「加開新家族——獅吼、太極、輕功」）。
    *
    * 前一批（2026-09-08）只分了攻擊牌，而 **36 張絕學裡有 21 張不是攻擊牌，全部共用同一張
@@ -1663,7 +1671,7 @@ registerScreen('combat', (app, root, props) => {
     // 攻擊牌例外（交出來會奪走蜷縮），那種時候還是要看到出招的姿勢。
     const enemyActed = cs.enemies.some((e) => { const b = before.enemies.get(e.uid); return !!b && e.turnCount !== b.turnCount; });
     if (cs.phase === 'won') pose = POSE.win;
-    else if (cs.phase === 'lost') pose = POSE.lose;
+    else if (cs.phase === 'lost') pose = posePick('down', POSE.lose);   // 圖沒生好就退回站著垂頭的落敗圖
     // 自己出手那一拍（posePref 有值）牌的姿勢優先：鐵頭功、亡命這些自傷牌不然永遠看不到頭槌圖，
     // 自傷本身靠球球身上的紅閃與飄數字表現就夠了（2026-09-08）。魔物打過來的挨打照舊排最前面
     else if (hurt && !posePref) pose = POSE.hit;

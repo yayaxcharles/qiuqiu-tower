@@ -4,9 +4,11 @@
 import { describe, expect, it } from 'vitest';
 import { STARTER_DECK } from '../../src/content/cards';
 import { potionById } from '../../src/content/potions';
-import { startCombat, usePotion } from '../../src/engine/combat';
+import { endTurn, startCombat, usePotion } from '../../src/engine/combat';
+import { encounterById, enemyById } from '../../src/content/enemies';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { addStatus, getStatus } from '../../src/engine/statuses';
+import { DEBUFFS } from '../../src/engine/types';
 import { inst } from '../helpers';
 
 function fight(encounterId: string, potions: string[], hp = 999, maxHp = 999) {
@@ -66,6 +68,17 @@ describe('破功散（removeStatuses）', () => {
     expect(getStatus(e, '噎到'), '減益是好事，不該被拔').toBe(5);
     expect(getStatus(e, '翻肚')).toBe(2);
     expect(getStatus(e, '隱身'), '隱身不在名單上').toBe(1);
+  });
+  it('**每種最多拔 10 層**（使用者 2026-09-11 拍板的平衡上限）', () => {
+    // 現有那幾條測試用的層數是 6/4/3/2，全在 10 以下，加不加 `max` 結果一模一樣——
+    // 誰把上限刪掉或改成 5，整套測試照樣綠（稽核 2026-09-11 中-3）。這條專門釘它
+    const cs = fight('kappa', ['break_art']);
+    const e = cs.enemies[0]!;
+    addStatus(e, '爪力', 25); addStatus(e, '鱗甲', 14); addStatus(e, '不壞身', 10);
+    expect(usePotion(cs, 'break_art', e.uid)).toBe(true);
+    expect(getStatus(e, '爪力'), '25 − 10 = 15').toBe(15);
+    expect(getStatus(e, '鱗甲'), '14 − 10 = 4').toBe(4);
+    expect(getStatus(e, '不壞身'), '剛好 10 層＝拔光').toBe(0);
   });
   it('目標身上乾乾淨淨時也不會爆，而且**確實用得出去**', () => {
     // 只寫 not.toThrow 是不夠的：`usePotion` 靜靜回 false 也照樣不丟例外（稽核 2026-09-11 低-6）
@@ -133,5 +146,110 @@ describe('以彼之道（damageEqualBlock）', () => {
     const before = e.hp + e.block;
     expect(usePotion(cs, 'your_way', e.uid)).toBe(true);
     expect(before - (e.hp + e.block)).toBe(0);
+  });
+});
+
+/*
+ * 2026-09-11 第三批（使用者從新提案挑的「剋具體麻煩」三支）。
+ * 三支各剋一種以前完全沒解法的狀況，所以每一條都驗「那個麻煩真的被解掉了」，
+ * 不是只驗數字有沒有動。
+ */
+describe('黏鳥膠（打下飛行）', () => {
+  it('飛行歸零，而且**傷害立刻不再砍半**', () => {
+    const cs = fight('kappa', ['bird_glue', 'iron_paw']);
+    const e = cs.enemies[0]!;
+    addStatus(e, '飛行', 4);
+    // 先確認飛行真的在砍傷害：鐵爪套 16 點，飛著只會進去 8
+    const cs2 = fight('kappa', ['iron_paw']);
+    addStatus(cs2.enemies[0]!, '飛行', 4);
+    const b2 = cs2.enemies[0]!.hp + cs2.enemies[0]!.block;
+    usePotion(cs2, 'iron_paw', cs2.enemies[0]!.uid);
+    expect(b2 - (cs2.enemies[0]!.hp + cs2.enemies[0]!.block), '飛著只吃一半').toBe(8);
+
+    expect(usePotion(cs, 'bird_glue', e.uid)).toBe(true);
+    expect(getStatus(e, '飛行'), '四層要一次全掉').toBe(0);
+    const before = e.hp + e.block;
+    usePotion(cs, 'iron_paw', e.uid);
+    expect(before - (e.hp + e.block), '落地後吃滿 16').toBe(16);
+  });
+  it('**過了一個回合也飛不回去**——這才是「打下來」的意思', () => {
+    /*
+     * 這條是這支忍具真正的規格：清掉層數之後**過幾個回合都不會飛回去**。
+     *
+     * 一段來回值得留著：我第一版把飛行做成「魔物自己回合開始補回滿層」，
+     * 那時這支只擋一拍、跟「打下來」的名字對不上，得靠一個特例旗標才做得到永久；
+     * 使用者 2026-09-11 直接把規則改成「打下來就是打下來」，特例整個不用了，
+     * 這支也退回單純的 `removeStatuses`。**一致的規則讓道具變簡單**。
+     * 不論哪個版本，這條測試都是有效的——它推進回合、看的是玩家真正感受到的結果。
+     */
+    const enc = Object.values(encounterById).find((e) => e.enemies.some((id) => enemyById[id]?.flying));
+    expect(enc, '要有一場真的會飛的遭遇').toBeTruthy();
+    const cs = fight(enc!.id, ['bird_glue'], 999, 999);
+    const flier = cs.enemies.find((e) => enemyById[e.enemyId]?.flying)!;
+    expect(getStatus(flier, '飛行'), '開場就在飛').toBeGreaterThan(0);
+    expect(usePotion(cs, 'bird_glue', flier.uid)).toBe(true);
+    expect(getStatus(flier, '飛行')).toBe(0);
+    cs.player.block = 999; endTurn(cs);
+    expect(getStatus(flier, '飛行'), '過了一輪還是不能飛').toBe(0);
+    cs.player.block = 999; endTurn(cs);
+    expect(getStatus(flier, '飛行'), '過了兩輪還是不能飛').toBe(0);
+  });
+  it('本來就沒在飛也不會爆', () => {
+    const cs = fight('kappa', ['bird_glue']);
+    expect(usePotion(cs, 'bird_glue', cs.enemies[0]!.uid)).toBe(true);
+  });
+});
+
+describe('剪刺鉗（剪掉反彈）', () => {
+  it('反彈清掉後，打牠不再扣自己的血', () => {
+    const cs = fight('kappa', ['thorn_shears', 'shuriken'], 200, 200);
+    const e = cs.enemies[0]!;
+    addStatus(e, '反彈', 3);
+    // 先確認反彈真的在扎人
+    const cs2 = fight('kappa', ['shuriken'], 200, 200);
+    addStatus(cs2.enemies[0]!, '反彈', 3);
+    const hp2 = cs2.player.hp;
+    usePotion(cs2, 'shuriken', cs2.enemies[0]!.uid);
+    expect(cs2.player.hp, '沒剪之前打牠會被扎 3').toBe(hp2 - 3);
+
+    expect(usePotion(cs, 'thorn_shears', e.uid)).toBe(true);
+    expect(getStatus(e, '反彈')).toBe(0);
+    const hp = cs.player.hp;
+    usePotion(cs, 'shuriken', e.uid);
+    expect(cs.player.hp, '剪掉之後打牠不痛了').toBe(hp);
+  });
+  it('**反彈不算減益，所以溫牛奶那類清不掉它**——這支才有存在意義', () => {
+    /*
+     * 直接釘前提（稽核 2026-09-11 中-1）：原本只寫「喝溫牛奶、反彈還在」，
+     * 但 `cleanse` 的實作從頭到尾只掃玩家身上的 `DEBUFFS`、根本不碰魔物——
+     * 就算哪天真的把「反彈」加進 `DEBUFFS`，那條斷言照樣會綠，攔不住它想攔的那一天。
+     */
+    expect(DEBUFFS, '反彈一旦變成減益，這支忍具的定位就要重想').not.toContain('反彈');
+    // 保留原本的回歸測試：喝溫牛奶不會順手清掉魔物的刺
+    const cs = fight('kappa', ['milk']);
+    const e = cs.enemies[0]!;
+    addStatus(e, '反彈', 3);
+    usePotion(cs, 'milk');
+    expect(getStatus(e, '反彈')).toBe(3);
+  });
+});
+
+describe('破甲錐（無視防禦）', () => {
+  it('防禦再厚也照打 12 點進血', () => {
+    const cs = fight('kappa', ['armor_pick']);
+    const e = cs.enemies[0]!;
+    e.block = 40;
+    const hp = e.hp;
+    expect(usePotion(cs, 'armor_pick', e.uid)).toBe(true);
+    expect(e.hp, '12 點要真的進到血').toBe(hp - 12);
+    expect(e.block, '防禦一點都不該被扣').toBe(40);
+  });
+  it('**不吃爪力**（跟其他忍具同口徑）', () => {
+    const cs = fight('kappa', ['armor_pick']);
+    addStatus(cs.player, '爪力', 20);
+    const e = cs.enemies[0]!;
+    const hp = e.hp;
+    usePotion(cs, 'armor_pick', e.uid);
+    expect(e.hp, '爪力 20 也還是 12 點').toBe(hp - 12);
   });
 });

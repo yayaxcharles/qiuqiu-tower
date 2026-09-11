@@ -173,7 +173,8 @@
   "hero/ninja_iron": "assets/sprites/hero/ninja_iron.webp",
   "hero/ninja_roar": "assets/sprites/hero/ninja_roar.webp",
   "hero/ninja_taiji": "assets/sprites/hero/ninja_taiji.webp",
-  "hero/ninja_qinggong": "assets/sprites/hero/ninja_qinggong.webp"
+  "hero/ninja_qinggong": "assets/sprites/hero/ninja_qinggong.webp",
+  "hero/ninja_down": "assets/sprites/hero/ninja_down.webp"
  },
  "review": [],
  "monsters": {
@@ -970,7 +971,10 @@
   "codex/potion_break_art": "assets/icons/potion_break_art.webp",
   "codex/potion_double_back": "assets/icons/potion_double_back.webp",
   "codex/potion_rubble_bag": "assets/icons/potion_rubble_bag.webp",
-  "codex/potion_your_way": "assets/icons/potion_your_way.webp"
+  "codex/potion_your_way": "assets/icons/potion_your_way.webp",
+  "codex/potion_bird_glue": "assets/icons/potion_bird_glue.webp",
+  "codex/potion_thorn_shears": "assets/icons/potion_thorn_shears.webp",
+  "codex/potion_armor_pick": "assets/icons/potion_armor_pick.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",

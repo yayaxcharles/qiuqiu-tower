@@ -99,21 +99,23 @@ describe('第二關菁英（兩個機制）', () => {
     expect(e.block, '敵方回合不歸零，第二輪繼續往上疊').toBeGreaterThan(first);
   });
 
-  it('織影蜘蛛・飛行 3 ＋塞牌：打得到一半，吐絲往抽牌堆塞眼冒金星', () => {
+  it('織影蜘蛛・飛行 6 ＋塞牌：打得到一半，吐絲往抽牌堆塞眼冒金星', () => {
     const cs = start('shadow_spider');
     const e = cs.enemies[0]!;
+    // 2026-09-11 飛行改成一次性資源之後的補強：**只加層數不加血**
+    //（血也加的話飛行怪會變成「打很久但不痛」那種最無聊的組合，稽核 2026-09-11 中-4 量過回合數）
     expect(e.maxHp).toBe(110);
-    expect(getStatus(e, '飛行')).toBe(3);
+    expect(getStatus(e, '飛行')).toBe(6);
     const hp0 = e.hp;
     damageEnemy(cs, e, 9);
     expect(hp0 - e.hp, '在天上只打進一半').toBe(4);
-    expect(getStatus(e, '飛行')).toBe(2);
+    expect(getStatus(e, '飛行'), '打痛剝一層').toBe(5);
     // 第一招就是吐絲（塞一張眼冒金星進抽牌堆）
     expect(e.move.label).toBe('吐絲');
     expect(countOf(cs, 'dazed_card')).toBe(0);
     endTurn(cs);
     expect(countOf(cs, 'dazed_card'), '吐絲塞一張').toBe(1);
-    expect(getStatus(e, '飛行'), '牠的回合開始補回滿層').toBe(3);
+    expect(getStatus(e, '飛行'), '**不再補回滿層**：打掉一層就是少一層').toBe(5);
   });
 
   it('醉拳狗・消散 6 ＋每回合成長：六個回合後自己散去，而且越拖越強', () => {

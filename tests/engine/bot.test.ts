@@ -42,9 +42,11 @@ describe('隨機試玩', () => {
     // 2026-09-04：隱身改成蜷縮先擋（無上限）、殘影與幻影分身調整，錨值重錄
     // 2026-09-11 一批改動（忍具 20→27 支、事件 35→38 個、迴旋踢升級版改單段）：
     // 忍具池、事件池、牌效果三者都動了，罐頭鋪進貨與各種擲骰全部位移，錨值重錄
-    // 2026-09-11 第二批（忍具 27→32 支，五支對敵）：忍具池變大＝抽到的忍具不同＝戰局不同，錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 15, turns: 45, kills: 8, deckSize: 22 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 13, turns: 33, kills: 3, deckSize: 13 });
+    // 2026-09-11 第二批（忍具 27→32）、第三批（32→35，剋飛行／反彈／龜縮那三支）：
+    // 忍具池變大＝抽到的忍具不同＝戰局不同，錨值兩次都重錄。
+    // **下面那條固定戰鬥的錨兩次都沒動**，那才是真正在守引擎行為的那一條
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 15, turns: 48, kills: 6, deckSize: 19 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 15, turns: 30, kills: 5, deckSize: 15 });
   });
 
   /**
@@ -58,6 +60,21 @@ describe('隨機試玩', () => {
    * 直接跑 `playCombat`。它只在「戰鬥引擎本身的行為變了」時才會紅——
    * 加一百支忍具、加一千個事件都動不到它。
    */
+  /**
+   * 第二條固定錨：**遭遇裡有會飛的**（稽核 2026-09-11 中-5）。
+   * 上面那條用 `rats3`，三隻小老鼠一隻會飛的都沒有——飛行規則改成「打下來就不再補」
+   * 那麼大的一件事，它從頭到尾沒動過，所以「它沒紅」不代表引擎沒被改壞。
+   */
+  it('固定戰鬥的錨（會飛的那隻）：飛行規則一改就會紅', () => {
+    const cs = startCombat({
+      hp: 80, maxHp: 80, deck: STARTER_DECK.map((id, i) => inst(id, i + 1)),
+      relics: [], potions: [], encounterId: 'lantern_moth', rng: new Rng(seedFromString('anchor-fly')),
+    });
+    playCombat(cs, new Rng(seedFromString('anchor-fly-bot')), 60, 'anchor-fly');
+    expect({ phase: cs.phase, turn: cs.turn, hp: cs.player.hp, kills: cs.kills })
+      .toEqual({ phase: 'won', turn: 5, hp: 60, kills: 1 });
+  });
+
   it('固定戰鬥的錨：不吃地圖、獎勵、忍具池，加內容也不會位移', () => {
     const cs = startCombat({
       hp: 80, maxHp: 80, deck: STARTER_DECK.map((id, i) => inst(id, i + 1)),

@@ -42,22 +42,34 @@ describe('第二波魔物的機制', () => {
     expect(e.block, '第二次不會再縮').toBe(0);
   });
 
-  it('飛行：攻擊只吃一半、打痛剝一層，掉到 0 就打得到全額；牠的回合開始又飛起來', () => {
+  it('飛行：攻擊只吃一半、打痛剝一層，**打下來就不會再飛回去**', () => {
+    /*
+     * 2026-09-11 使用者拍板改規則：舊版是「牠的回合一開始補回滿層」，
+     * 等於你這輩子打牠都只進一半，而且跟畫面上牠確實摔在地上對不起來。
+     * 現在飛行是**一次性的資源**：打掉幾層就少幾層，清光就一直踩在地上。
+     * 補償是**飛行層數 ×2、血量不動**（第二、三關；第一關的燈蛾維持 3 層，
+     * 新手看到「飛行 6」的牌子只會莫名其妙）。血也加過一版，但稽核量出來
+     * 飛行怪會變成「打八到十回合卻只掉五點血」那種最無聊的組合，所以只留層數。
+     */
     const cs = start('lantern_moth');
     const e = cs.enemies[0]!;
-    expect(getStatus(e, '飛行')).toBe(3);
+    expect(getStatus(e, '飛行'), '第一關的燈蛾維持 3 層').toBe(3);
     const hp0 = e.hp;
     damageEnemy(cs, e, 9);
     expect(hp0 - e.hp, '9 點只打進 4 點').toBe(4);
     expect(getStatus(e, '飛行')).toBe(2);
-    damageEnemy(cs, e, 9);
-    damageEnemy(cs, e, 9);
+    e.hp = e.maxHp = 300;   // 把血墊高：不然打到後面牠先死了，下面兩條 endTurn 會變成空驗
+    damageEnemy(cs, e, 9); damageEnemy(cs, e, 9);
     expect(getStatus(e, '飛行'), '打三下就落地').toBe(0);
     const hp1 = e.hp;
     damageEnemy(cs, e, 9);
     expect(hp1 - e.hp, '落地之後全額').toBe(9);
+    cs.player.block = 999;
     endTurn(cs);
-    expect(getStatus(e, '飛行'), '牠的回合開始補回滿層').toBe(3);
+    expect(getStatus(e, '飛行'), '過了一輪也飛不回去').toBe(0);
+    cs.player.block = 999;
+    endTurn(cs);
+    expect(getStatus(e, '飛行'), '過了兩輪還是不會').toBe(0);
   });
 
   it('鱗甲：牠的回合結束長出等同層數的防禦，被打痛就剝落一層', () => {

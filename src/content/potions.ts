@@ -63,11 +63,13 @@ export const potions: PotionDef[] = [
   { id: 'steal_claw', name: '順手牽羊爪', text: '把目標的防禦全部搶過來，變成自己的蜷縮。', art: 'codex/potion_steal_claw', price: 55, target: 'enemy',
     // 剋鱗甲、縮殼、不壞身那幾隻「怎麼打都打不穿」的：不是清掉牠的防禦，是搬到自己身上
     effects: [{ kind: 'stealBlock' }] },
-  { id: 'break_art', name: '破功散', text: '拔掉目標身上的爪力、貓步、鱗甲與不壞身。', art: 'codex/potion_break_art', price: 60, target: 'enemy',
+  { id: 'break_art', name: '破功散', text: '拔掉目標身上的爪力、貓步、鱗甲與不壞身，每種最多 10 層。', art: 'codex/potion_break_art', price: 60, target: 'enemy',
     // 這幾個是會讓一場仗「永遠打不完」的狀態：爪力越滾越痛、鱗甲每回合長防禦、不壞身防禦根本不歸零。
     // 貓步是稽核 2026-09-11 補的：鏡貓的「照著學」會把玩家的爪力與貓步一起抄走，
     // 而貓步會讓牠疊防禦時多長——跟既有的「忍術·封口術」同一份名單（那張也是拔爪力＋貓步）
-    effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步', '鱗甲', '不壞身'] }] },
+    // **有上限 10 層**（使用者 2026-09-11 拍板）：全拔的話對著堆了一整場爪力的關主等於一支清場，
+    // 跟當年「忍術·封口術」被砍成 `max: 5` 是同一個理由。忍具一次性、60 條，上限放寬到 10
+    effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步', '鱗甲', '不壞身'], max: 10 }] },
   { id: 'double_back', name: '加倍奉還', text: '目標身上的噎到翻倍，再加 2 層。', art: 'codex/potion_double_back', price: 40, target: 'enemy',
     /**
      * **一定要帶 `add`**：`doubleStatus` 在目標身上 0 層時會印「催不動」什麼都不做
@@ -82,6 +84,45 @@ export const potions: PotionDef[] = [
     // 跟「絕學·太極」「絕學·借力使力」同一路。堆蜷縮流一直缺一個把防禦換成傷害的出口，
     // 而那兩張牌不一定抽得到——這支是買得到的版本
     effects: [{ kind: 'damageEqualBlock' }] },
+
+  /*
+   * 2026-09-11 第三批（使用者從新提案裡挑的「剋具體麻煩」三支）。
+   *
+   * 三支各剋一種**目前完全沒有解法**的狀況，都是查過魔物資料才訂的：
+   *   飛行 9 隻、反彈 9 隻（另有 7 處招式會自己再加，像刺蝟師傅的豎刺、貓又的運氣）、龜縮一堆。
+   * 三支用的效果引擎全部已經有，一種新效果都沒加。
+   */
+  { id: 'bird_glue', name: '黏鳥膠', text: '把目標從天上打下來，這場牠飛不回去。', art: 'codex/potion_bird_glue', price: 35, target: 'enemy',
+    /**
+     * 飛行＝**傷害砍半**（`actions.ts` 的 `Math.floor(dmg / 2)`），打中一下才掉一層。
+     * 月蛾后飛行 8、烏天狗與織影蜘蛛 6，要先白打六八下才落地——
+     * 九隻會飛的魔物，玩家目前一個直接的解法都沒有。
+     * 不設 `max`：那幾層本來就是「打就會掉」的東西，一次拉下來才是這支的賣點。
+     * 2026-09-11 使用者把飛行改成「打掉就不再補」之後，這支就等於「省下那幾下」——
+     * 不用特例旗標，單純清層數就達成「這場飛不回去」。
+     */
+    effects: [{ kind: 'removeStatuses', names: ['飛行'] }] },
+  { id: 'thorn_shears', name: '剪刺鉗', text: '剪掉目標身上的反彈。', art: 'codex/potion_thorn_shears', price: 40, target: 'enemy',
+    /**
+     * 反彈在魔物身上＝**你打牠、你自己扣血**（`actions.ts`）。九隻靜態帶著（鎧甲金龜 5、龍 3、
+     * 殘影 3、詛咒老住持 3、掛軸墨貓 2、白狐巫女 2、犰狳王 2、刺蝟師傅 2、月蛾后 1），
+     * 另有七處招式會自己再加。**剪掉之後牠要花一個回合才豎得回來**，那是正當的來回。
+     * 而反彈**不在 `DEBUFFS` 裡**，所以溫牛奶、返璞那些「清減益」的手段都碰不到它，
+     * 破功散拔的也是增益那四種——今天零解法，只能硬吃。
+     */
+    effects: [{ kind: 'removeStatuses', names: ['反彈'] }] },
+  { id: 'armor_pick', name: '破甲錐', text: '對目標造成 12 點傷害，無視防禦。', art: 'codex/potion_armor_pick', price: 45, target: 'enemy',
+    /**
+     * 剋龜縮，但跟「順手牽羊爪」是兩條路：那支是把防禦**搬到自己身上**（賺，但要先有得搶），
+     * 這支是**直接穿過去**（防禦再厚也照打，但拿不到好處）。
+     * 價位擺在手裡劍（8 點 30 條）與鐵爪套（16 點 60 條）中間：那兩支都是每點 3.75 條，
+     * 12 點照線性就是 45，無視防禦當附帶——它只在對手真的有防禦時才用得上、不是每場都賺。
+     *
+     * **注意它會吃反彈**（`ignoreBlock` 走的是一般攻擊路徑、不是直傷）：而「防禦厚」跟「身上有刺」
+     * 重疊度很高（鎧甲金龜 鱗甲 8＋反彈 5、龍 鱗甲 10＋反彈 3），最適合用它的場面會先扎自己一下。
+     * 這是既有規則的自然結果，不是這支的特例。
+     */
+    effects: [{ kind: 'damage', amount: 12, ignoreBlock: true }] },
 ];
 
 export const potionById: Record<string, PotionDef> = Object.fromEntries(potions.map((p) => [p.id, p]));

@@ -34,9 +34,9 @@ const NEEDS_TARGET = ['damageEqualBlock', 'damageRamp', 'damageRandom', 'doubleS
   'drawIfTargetStatus'] as const;
 
 describe('忍具', () => {
-  it('32 種、id 不重複、目標與效果一致', () => {
-    expect(potions.length).toBe(32);
-    expect(new Set(potions.map((p) => p.id)).size).toBe(32);
+  it('35 種、id 不重複、目標與效果一致', () => {
+    expect(potions.length).toBe(35);
+    expect(new Set(potions.map((p) => p.id)).size).toBe(35);
     for (const p of potions) {
       expect(potionById[p.id]).toBe(p);
       const hitsAll = p.effects.some((e) => 'target' in e && e.target === 'all');

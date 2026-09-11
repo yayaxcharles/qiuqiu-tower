@@ -26,6 +26,7 @@ const POSE_KEYS = [
   'hero/ninja_belly', 'hero/ninja_lazy', 'hero/ninja_puff', 'hero/ninja_stealth', 'hero/ninja_iron',
   // 2026-09-11 的三個招式家族
   'hero/ninja_roar', 'hero/ninja_taiji', 'hero/ninja_qinggong',
+  'hero/ninja_down',   // 2026-09-11：倒在戰場上那一拍（跟魔物的倒地圖同一套）
 ];
 
 /** 抓 `combat.ts` 裡某張對照表的所有牌 id */

@@ -370,8 +370,16 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     e.justRevived = false;
     if (!skipAct) e.turnCount += 1;
     const def = enemyById[e.enemyId];
-    // 飛行：牠自己的回合一開始就補回滿層——上一輪被你打下來，這一輪牠又飛起來了
-    if (def?.flying) { removeStatus(e, '飛行'); addStatus(e, '飛行', def.flying); }
+    /*
+     * **飛行打掉就是打掉，不再每回合補回滿層**（使用者 2026-09-11 拍板）。
+     *
+     * 舊規則是牠自己的回合一開始就補回 `def.flying` 層，等於「你這輩子打牠都只進一半」——
+     * 而打下來之後又飛回去，跟畫面上牠確實摔在地上也對不起來。
+     * 現在飛行是**一次性的資源**：你打掉幾層就少幾層，清光就一直踩在地上。
+     * 補償見 `enemies.ts`：飛行層數與血量一起調高，讓「把牠打下來」變成要投資的事。
+     *
+     * 這條改動順便讓「黏鳥膠」退回單純的 `removeStatuses`，不用特例旗標。
+     */
     // 虛化（2026-09-03 菁英擴充）：牠的每個回合開始切換一次，所以是虛一回合、實一回合。
     // 開戰帶著虛化（makeEnemy），所以玩家的第一回合打不動牠，第二回合才是輸出窗口
     if (def?.phasing) {

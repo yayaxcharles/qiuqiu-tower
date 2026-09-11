@@ -287,7 +287,7 @@ export interface EnemyDef {
   angerOnSkill?: number;
   /** 被打醒時跑的效果（配「沉睡」用；自然睡飽醒來不算——那不會生氣） */
   onWake?: EnemyEffect[];
-  /** 開戰帶飛行 N；每個牠的回合開始補回 N */
+  /** 開戰帶飛行 N；打掉就不再補回（2026-09-11 改；舊版是每個牠的回合開始補回 N） */
   flying?: number;
   /** 開戰帶鱗甲 N */
   plating?: number;

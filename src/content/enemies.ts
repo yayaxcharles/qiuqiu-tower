@@ -532,7 +532,7 @@ export const enemies: EnemyDef[] = [
 
   // --- 原塔頂魔物（中池）：血 48–80、單發 12–17，全帶一手拿手戲。2026-09-03 換池：月見兔、貓頭鷹夜哨、紙鶴式神降到塔中（數字退回加硬前），其餘留塔頂 ---
   { id: 'moon_rabbit', name: '月見兔', hp: [76, 84], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_moon_rabbit',
-    flying: 2,   // 跳來跳去，打到的只有一半；連打兩下才落地（2026-09-03 第三關補機制）
+    flying: 4,   // 跳來跳去，打到的只有一半；連打兩下才落地（2026-09-03 第三關補機制）
     line: '（杵聲不緊不慢）', lines: ['（搗麻糬的節奏突然停了）', '（看了你一眼，繼續搗）'], moves: [
       { intent: 'buff', label: '搗麻糬', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
       { intent: 'attack', label: '杵擊', effects: [{ kind: 'damage', amount: 17 }] },
@@ -548,7 +548,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '爪擊', effects: [{ kind: 'damage', amount: 15 }] },
     ] },
   { id: 'paper_crane', name: '紙鶴式神', hp: [58, 64], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_paper_crane',
-    flying: 2, curlUp: 10,   // 紙鶴會飛；第一次被打痛摺起來長 10 點防禦
+    flying: 4, curlUp: 10,   // 紙鶴會飛；第一次被打痛摺起來長 10 點防禦
     line: '（摺痕發著微光）', lines: ['（無聲地飄了過來）', '（翅膀薄得像刀）'], moves: [
       { intent: 'block', label: '摺翼', effects: [{ kind: 'block', amount: 10 }, { kind: 'statusSelf', name: '隱身', amount: 1 }] },
       { intent: 'attack', label: '紙刃', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
@@ -585,7 +585,7 @@ export const enemies: EnemyDef[] = [
   // --- 2026-09-02 補怪（塔頂）：單怪池只有 4 隻。三隻都是「拆你的塔」型，回應爪力後期堆太快的問題：
   // 烏天狗＝拍掉隱身潛水＋棄牌、白狐巫女＝祓除（爪力貓步砍半）、空鎧武者＝厚防（逼你帶破防）---
   { id: 'tengu', name: '烏天狗', hp: [72, 80], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_tengu', angerOnSkill: 1,   // 2026-09-03 第三關補機制：每打一張技能牌 +1 爪力
-    flying: 3,   // 天狗在天上飛：攻擊只打得到一半，打中三下才掉下來
+    flying: 6,   // 天狗在天上飛：攻擊只打得到一半，打中三下才掉下來
     line: '（鼻子哼了一聲，羽扇搧了搧）', lines: ['山下的貓，也敢上來？', '（羽扇一揮，風起了）'], moves: [
       { intent: 'attack', label: '羽扇颶風', effects: [{ kind: 'damage', amount: 9 }, { kind: 'discardRandomHand', n: 2 }] },
       { intent: 'attack', label: '天狗飛斬', effects: [{ kind: 'damage', amount: 20 }] },
@@ -821,7 +821,7 @@ export const enemies: EnemyDef[] = [
   // 飛行的塔頂版：四層，而且開場就往你抽牌堆塞兩張眼冒金星
   { id: 'moon_moth_queen', name: '月蛾后', hp: [66, 72], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_moon_moth_queen', thorns: 1,   // 2026-09-03 第三關補機制：碰到鱗粉會被刺（原 2，機器人每場掉 37 太痛）
     line: '（翅膀上的花紋像兩隻眼睛）', lines: ['（鱗粉在月光下發亮）', '（無聲地降了下來）'],
-    flying: 4,
+    flying: 8,
     moves: [
       { intent: 'debuff', label: '鱗粉', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 1, to: 'draw' }] },
       { intent: 'attack', label: '吸', effects: [{ kind: 'damage', amount: 6 }, { kind: 'heal', n: 6 }] },
@@ -964,7 +964,7 @@ export const enemies: EnemyDef[] = [
   // 飛行 3＋塞牌：吊在絲上打得到一半，還一直往你抽牌堆塞眼冒金星。多段小刀先把牠扯下來
   { id: 'shadow_spider', name: '織影蜘蛛', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_spider',
     line: '（八隻眼睛同時看過來，絲從天花板垂下）', lines: ['（絲網在暗處反光）', '（悄悄吊下來一點點）'],
-    flying: 3,
+    flying: 6,
     moves: [
       { intent: 'debuff', label: '吐絲', effects: [{ kind: 'giveCard', cardId: 'dazed_card', n: 1, to: 'draw' }] },
       { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 20 }] },
@@ -1040,7 +1040,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'buff', label: '護體', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }, { kind: 'block', amount: 10 }] },
     ] },
   { id: 'lantern_fish', name: '提燈鮟鱇', hp: [46, 50], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_lantern_fish',
-    flying: 2,   // 飄在半空：攻擊只打得到一半，打中兩下才掉下來
+    flying: 4,   // 飄在半空：攻擊只打得到一半，打中兩下才掉下來
     line: '（頭上的燈亮了一下）', lines: ['（張開一口細牙）', '（燈光晃啊晃）'], moves: [
       { intent: 'debuff', label: '燈光', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
       { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 13 }] },
@@ -1082,14 +1082,14 @@ export const enemies: EnemyDef[] = [
     ] },
   // ===== 2026-09-04 第三波（方案丙：塔頂 3 隻＋菁英 2 組） =====
   { id: 'miasma_crows', name: '魔氣鴉群', hp: [70, 76], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_miasma_crows',
-    flying: 1, splitInto: { enemyId: 'crow_small', n: 2, below: 0.5 },   // 半血散成兩群小鴉
+    flying: 2, splitInto: { enemyId: 'crow_small', n: 2, below: 0.5 },   // 半血散成兩群小鴉
     line: '（嘎——嘎——）', lines: ['（黑影遮住了火把）', '（幾十雙紅眼睛）'], moves: [
       { intent: 'attack', label: '啄擊', effects: [{ kind: 'damage', amount: 6, times: 3 }] },
       { intent: 'debuff', label: '遮天', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
       { intent: 'attack', label: '俯衝', effects: [{ kind: 'damage', amount: 18 }] },
     ] },
   { id: 'crow_small', name: '小鴉群', hp: [24, 26], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_crow_small',
-    flying: 1,
+    flying: 2,
     line: '（嘎）', lines: ['（撲翅）', '（繞著頭頂飛）'], moves: [
       { intent: 'attack', label: '啄', effects: [{ kind: 'damage', amount: 7 }] },
       { intent: 'debuff', label: '亂飛', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
