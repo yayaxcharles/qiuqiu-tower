@@ -13,8 +13,7 @@
    "pattern": "cycle",
    "art": "codex/monster_rat",
    "acts": [
-    1,
-    3
+    1
    ],
    "passives": {},
    "moves": [
@@ -4336,7 +4335,8 @@
    "acts": [],
    "passives": {
     "angerOnSkill": 1,
-    "strengthEveryNTurns": 3
+    "strengthEveryNTurns": 2,
+    "plating": 5
    },
    "moves": [
     {
@@ -4345,7 +4345,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 8,
+       "amount": 10,
        "times": 3
       }
      ]
@@ -4356,7 +4356,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 8,
+       "amount": 10,
        "times": 3
       }
      ]
@@ -4380,18 +4380,6 @@
         "隱身",
         "潛水"
        ]
-      }
-     ]
-    },
-    {
-     "intent": "summon",
-     "label": "喚小弟",
-     "effects": [
-      {
-       "kind": "summon",
-       "enemyId": "tanuki_kid",
-       "n": 1,
-       "max": 2
       }
      ]
     },
@@ -4424,7 +4412,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 8,
+       "amount": 9,
        "times": 3
       },
       {
@@ -4444,13 +4432,13 @@
       {
        "kind": "summon",
        "enemyId": "tanuki_kid",
-       "n": 1,
-       "max": 2
+       "n": 2,
+       "max": 3
       },
       {
        "kind": "statusSelf",
        "name": "爪力",
-       "amount": 2
+       "amount": 3
       }
      ],
      "moves": [
@@ -4460,7 +4448,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 9,
+         "amount": 10,
          "times": 3
         }
        ]
@@ -4494,7 +4482,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 32,
+         "amount": 36,
          "pierce": true
         }
        ]
@@ -5105,6 +5093,57 @@
    "note": ""
   },
   {
+   "id": "rat_guard",
+   "name": "鼠親兵",
+   "hp": [
+    26,
+    30
+   ],
+   "pool": "召喚",
+   "size": "small",
+   "pattern": "cycle",
+   "art": "codex/monster_rat",
+   "acts": [
+    3
+   ],
+   "passives": {},
+   "moves": [
+    {
+     "intent": "attack",
+     "label": "長槍突刺",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 9
+      }
+     ]
+    },
+    {
+     "intent": "block",
+     "label": "舉盾",
+     "effects": [
+      {
+       "kind": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "槍陣",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 6,
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "phases": [],
+   "note": ""
+  },
+  {
    "id": "rat_general",
    "name": "鼠大將",
    "hp": [
@@ -5150,6 +5189,22 @@
       {
        "kind": "damage",
        "amount": 18
+      }
+     ]
+    },
+    {
+     "intent": "attack",
+     "label": "全軍突擊",
+     "effects": [
+      {
+       "kind": "damage",
+       "amount": 8,
+       "times": 2
+      },
+      {
+       "kind": "statusAllies",
+       "name": "爪力",
+       "amount": 1
       }
      ]
     }
@@ -5231,7 +5286,6 @@
     3
    ],
    "passives": {
-    "fadeAfter": 4,
     "strengthEveryNTurns": 1
    },
    "moves": [
@@ -7049,8 +7103,7 @@
     3
    ],
    "passives": {
-    "thorns": 3,
-    "fadeAfter": 6
+    "thorns": 3
    },
    "moves": [
     {

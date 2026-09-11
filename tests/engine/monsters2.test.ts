@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
+import { enemies } from '../../src/content/enemies';
 import { damageEnemy } from '../../src/engine/actions';
 import { canPlay, endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -100,16 +101,21 @@ describe('第二波魔物的機制', () => {
     expect(cs.player.hp, '醒了就會打人').toBeLessThan(hp0);
   });
 
-  it('消散：時間到自己散去，不算打倒也不算逃走給的獎勵', () => {
-    const cs = start('phantom_fox');
-    const e = cs.enemies[0]!;
-    expect(getStatus(e, '消散')).toBe(4);
-    for (let i = 0; i < 4 && cs.phase === 'player'; i++) endTurn(cs);
-    expect(e.dead).toBe(true);
-    expect(e.escaped, '走 escape 那條路').toBe(true);
-    expect(cs.kills, '散掉的不算打倒').toBe(0);
-    expect(cs.phase).toBe('won');
-    expect(cs.log.some((l) => l.includes('散去了'))).toBe(true);
+  it('**現在沒有任何魔物會自己走掉**（使用者 2026-09-11：除了偷小魚乾的都別逃跑）', () => {
+    /*
+     * 消散（`fadeAfter`）這個機制還在引擎裡，但**沒有魔物在用**了：
+     * 醉拳狗（大魔物，「菁英要打到底」）、幻狐與怨靈武者（「其他的怪都別逃跑」）
+     * 三隻的 `fadeAfter` 都在 2026-09-11 拿掉。
+     * 共同的毛病是：三隻都同時掛著「越拖越強」，一邊叫你快點解決、一邊又說我要走了。
+     *
+     * 這條守的是那個決定。要重新啟用的話先想清楚：魔物走掉＝玩家沒有戰利品
+     *（`finishCombat` 的規則），那份挫折要換得到什麼。
+     */
+    expect(enemies.filter((e) => e.fadeAfter !== undefined).map((e) => e.name)).toEqual([]);
+    // 唯一還會離場的是偷完小魚乾的橘貓山賊——那有理由（牠帶著你的錢，見 `ESCAPE_GAP`）
+    const fleers = enemies.filter((e) => e.moves.some((m) => m.effects.some((f) => f.kind === 'escape')));
+    expect(fleers.map((e) => e.name)).toEqual(['橘貓山賊']);
+    expect(fleers[0]!.moves.some((m) => m.effects.some((f) => f.kind === 'stealFish')), '而且牠真的會偷').toBe(true);
   });
 
   it('分裂：半血裂成兩隻，每隻的血量等於本體剩下的血，本體不算打倒', () => {

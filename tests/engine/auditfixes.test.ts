@@ -26,13 +26,15 @@ describe('稽核 2026-09-10 的修正', () => {
    * 現在會散的只剩幻狐與怨靈武者兩隻一般怪，一般戰本來就不該打到散掉還沒打完。
    * 這一組因此整個改寫，測試對象從醉拳狗換成幻狐。
    */
-  it('自己散掉、一隻都沒打倒：沒有戰利品', () => {
-    const run = newRun('fade', 1);
-    const cs = combat('phantom_fox', []);
+  it('跑掉、一隻都沒打倒：沒有戰利品', () => {
+    // 2026-09-11 之後「會自己走掉」的只剩橘貓山賊（帶著偷到的小魚乾逃跑），
+    // 所以這一組從幻狐改用牠來驗——規則本身沒變：`cs.kills === 0` 就沒有戰利品
+    const run = newRun('flee', 1);
+    const cs = combat('orange_bandit', []);
     for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
     expect(cs.phase).toBe('won');
     expect(cs.kills).toBe(0);
-    expect(cs.enemies.some((e) => e.faded)).toBe(true);
+    expect(cs.enemies.some((e) => e.escaped)).toBe(true);
     const r = finishCombat(run, cs);
     expect(r?.escaped).toBe(true);
     expect(r?.relic).toBeNull();
@@ -42,40 +44,24 @@ describe('稽核 2026-09-10 的修正', () => {
 
   it('**打進去很多也一樣沒有**：門檻整個拿掉了，只看有沒有打倒', () => {
     const run = newRun('dealt', 1);
-    const cs = combat('phantom_fox', []);
-    const foe = cs.enemies[0]!;
-    damageEnemy(cs, foe, 60, { direct: true });   // 70~78 血打進 60 點，舊規則早就過門檻了
-    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
-    expect(cs.kills).toBe(0);
-    expect(cs.enemies.some((e) => e.faded)).toBe(true);
-    expect(finishCombat(run, cs)?.escaped).toBe(true);
-  });
-
-  it('**逃走跟散掉一視同仁**：橘貓山賊帶著小魚乾跑掉也沒有戰利品', () => {
-    // 舊規則刻意放行逃走（「那是正常打但差一口氣」），使用者 2026-09-11 改掉：
-    // 牠全身而退、還帶走你的小魚乾，再發獎說不過去
-    const run = newRun('flee', 1);
     const cs = combat('orange_bandit', []);
+    const foe = cs.enemies[0]!;
+    damageEnemy(cs, foe, foe.maxHp - 1, { direct: true });   // 打到剩 1 滴血，舊規則早就過門檻了
     for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
-    expect(cs.phase).toBe('won');
     expect(cs.kills).toBe(0);
     expect(cs.enemies.some((e) => e.escaped)).toBe(true);
-    const r = finishCombat(run, cs);
-    expect(r?.escaped).toBe(true);
-    expect(r?.cards).toEqual([]);
+    expect(finishCombat(run, cs)?.escaped).toBe(true);
   });
 
   it('打倒一隻就算數：兩隻裡跑掉一隻，戰利品照發', () => {
     // 規則的判準是 `cs.kills === 0`，不是「有沒有人跑掉」——
     // 清掉一隻就代表你真的打贏了一部分，不該連戰利品都沒有
     const run = newRun('one', 1);
-    const cs = combat('panther_fox', []);
-    const fox = cs.enemies.find((e) => e.enemyId === 'phantom_fox')!;
-    const other = cs.enemies.find((e) => e.enemyId !== 'phantom_fox')!;
-    damageEnemy(cs, other, 9999, { direct: true });   // 把不會散的那隻打死
+    const cs = combat('orange_bandit_pair', []);
+    expect(cs.enemies.length, '這一場要有兩隻').toBeGreaterThan(1);
+    damageEnemy(cs, cs.enemies[0]!, 9999, { direct: true });   // 先打死一隻
     for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
     expect(cs.kills).toBeGreaterThan(0);
-    expect(fox.faded || fox.dead).toBe(true);
     const r = finishCombat(run, cs);
     expect(r?.escaped).toBeUndefined();
     expect(r?.cards.length).toBeGreaterThan(0);
@@ -93,14 +79,22 @@ describe('稽核 2026-09-10 的修正', () => {
   });
 
   it('高-1 事件獎金不會被早退吞掉', () => {
-    const run = newRun('bonus', 1);
-    const before = run.fish;
-    const cs = combat('phantom_fox', []);   // 醉拳狗 2026-09-11 拿掉消散，改用還會散的幻狐
-    for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
-    const r = finishCombat(run, cs, 40);
-    expect(r?.escaped).toBe(true);
-    expect(r?.fish).toBe(0);            // 魔物身上沒有戰利品
-    expect(run.fish).toBe(before + 40); // 但事件答應的獎金照給
+    /*
+     * 2026-09-11 之後「沒打倒就沒戰利品」的唯一情境是橘貓山賊逃跑，
+     * 而牠會順手偷走小魚乾——直接比 `run.fish` 的絕對值會被那筆偷竊弄髒。
+     * 改成**跑兩次同一場、只差獎金**：差額就是獎金有沒有進帳，偷多少都不影響。
+     */
+    const play = (bonus: number): number => {
+      const run = newRun('bonus', 1);
+      const before = run.fish;
+      const cs = combat('orange_bandit', []);
+      for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
+      const r = finishCombat(run, cs, bonus);
+      expect(r?.escaped, '牠跑了，所以沒有戰利品').toBe(true);
+      expect(r?.fish, '魔物身上沒有戰利品').toBe(0);
+      return run.fish - before;
+    };
+    expect(play(40) - play(0), '事件答應的獎金照給，不被早退吞掉').toBe(40);
   });
 
   it('高-2 借力使力吃得到蓄力加倍', () => {

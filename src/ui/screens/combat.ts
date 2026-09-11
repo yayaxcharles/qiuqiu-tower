@@ -598,6 +598,12 @@ registerScreen('combat', (app, root, props) => {
     // 盾陣／號令這種給全體的：牌子上也要有數字（使用者 2026-09-03：「有格檔但沒看到格檔值」）
     else if (blkAll) text = `守 ${computeBlock(blkAll.amount, e)}（全體）`;
     else if (buffAll) text = `${INTENT_GLYPH[m.intent]} 全體 +${buffAll.amount} ${buffAll.name}`;
+    // 召喚要寫清楚**會來幾隻**（2026-09-11）：只寫「喚小弟」看不出是一隻還兩隻，
+    // 而那正是玩家要不要先清場、要不要囤防禦的判準
+    else {
+      const sum = m.effects.find(has('summon'));
+      if (sum) text = `${INTENT_GLYPH[m.intent]} ${m.label}${sum.n > 1 ? ` ${sum.n} 隻` : ''}`;
+    }
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）
     if (m.learned && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = `${m.label}｜${text}`;

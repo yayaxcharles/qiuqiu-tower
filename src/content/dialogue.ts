@@ -38,6 +38,7 @@ export const dialogue = {
     puffer_spirit: '越鼓越大顆……那個等一下一定會炸喵！',
     plated_beetle: '整身都是鐵殼，每回合還會自己長回來喵。',
     rat_general: '有隻老鼠在指揮！先打那隻帶頭的喵。',
+    rat_guard: '這幾隻有盾牌又有長槍，跟外面那些小老鼠不一樣喵。',
     curse_priest: '牠一直在唸咒，我的牌堆變得怪怪的喵。',
     phantom_fox: '牠半透明的……好像快要不見了喵。',
     red_oni: '這隻越打越氣，別再惹牠了喵。',

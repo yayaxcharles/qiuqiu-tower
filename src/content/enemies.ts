@@ -9,6 +9,23 @@ const NEKO_PREP: EnemyMove = { intent: 'special', label: '準備放尾巴', effe
 // 三花貓武僧的破式（2026-09-04 使用者：「加上幾回合會破我方隱身一半的機制」）：
 // 每三回合插一次，把球球囤好的隱身與潛水各砍一半（向下取整），順手一掌。
 // 走既有的 `purgePlayer`（減半）而不是 `stripPlayer`（整個拍掉），隱身流仍有得玩、只是不能無腦囤。
+/**
+ * 狸大人的召喚（2026-09-11 使用者：「招喚小兵時也沒有先提示，應該某個回合改成招小兵的提示，
+ * 另外只招一隻小兵太弱，改一次招兩隻」）。
+ *
+ * 跟貓又婆婆同一套：**先亮一回合預告，下一回合才真的叫人**。
+ * 牠原本是 `pattern: 'random'`，小弟會毫無預兆冒出來——玩家沒有機會先清場或先囤防禦，
+ * 那不是難度是意外。`chooseMove` 接手之後出招順序變成可讀的。
+ */
+/*
+ * 預告那一拍**不能是白送的回合**。第一版照貓又寫成 `nothing`，結果牠每五回合就免費站著讓你打，
+ * 平衡報告顯示玩家勝率反而從 57% 升到 62%——加了兩隻小弟也補不回來（2026-09-11 實測）。
+ * 改成「一邊吹哨子一邊灌酒」：架防禦、順手長爪力，預告照樣清楚（標籤直接寫叫人），
+ * 但你不會因為牠在準備就白賺一輪。
+ */
+const TANUKI_PREP: EnemyMove = { intent: 'special', label: '吹哨子叫人',
+  effects: [{ kind: 'block', amount: 14 }, { kind: 'statusSelf', name: '爪力', amount: 2 }] };
+const TANUKI_SUMMON: EnemyMove = { intent: 'summon', label: '喚小弟', effects: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 3 }] };
 const MONK_BREAK: EnemyMove = { intent: 'debuff', label: '破式', effects: [{ kind: 'purgePlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 10 }] };
 const PERSIAN_CALL: EnemyMove = { intent: 'summon', label: '喚僕從', effects: [{ kind: 'summon', enemyId: 'butler_cat', n: 1, max: 1, noPour: true }, { kind: 'summon', enemyId: 'maid_cat', n: 1, max: 1, noPour: true }] };   // noPour：僕從還站著就什麼都不做，不套「滿了灌血」通則（稽核 2026-09-04 中 5：會每十回合把僕從最大生命疊上去）
 
@@ -665,24 +682,55 @@ export const enemies: EnemyDef[] = [
       ],
     }] },
   // 狸大人：出招隨機的戲法師，會叫狸小弟上場
-  { id: 'tanuki_lord', name: '狸大人', hp: [225, 225], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord', angerOnSkill: 1, strengthEveryNTurns: 3,   // 第四輪：打技能牌會被牠嗆；第五輪：每回合 +1，拖 20 回合就是 +20（稽核 2026-09-03：這欄原本被前面的註解吃掉沒生效）
+  /*
+ * 2026-09-11 補強（使用者：「第二關 boss 狸大人有點太弱」）。
+ *
+ * 大樣本 600 局量下來，玩家對牠的勝率 55%，是第二關五個塔主裡第二好打的
+ *（奶牛貓 33%、詛咒老住持 42%、波斯大小姐 49%、龍貓 60%）。
+ * 而牠的招式傷害本來就是同關最高（36/30/27/24），血 225 也不低——**數值不是問題**。
+ *
+ * 跟打不過的那隻（奶牛貓）比，結構上少了兩件：
+ *   `plating`（每回合自己長防禦，你得一直打穿）與更快的 `strengthEveryNTurns`。
+ * 加血只會讓仗變長不變難（飛行怪那次的教訓），所以補的是**持續壓力**：
+ *   `strengthEveryNTurns` 3 → 2（跟奶牛貓同速）、`plating: 5`（比奶牛貓的 7 輕，
+ *   因為牠還有小弟這條線）。主題也對得上：醉拳師傅越喝越猛、身法越來越黏。
+ */
+{ id: 'tanuki_lord', name: '狸大人', hp: [225, 225], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord', angerOnSkill: 1, strengthEveryNTurns: 2, plating: 5,
     // 「戲法」（每打一張技能牌塞一張眼冒金星）拿掉：機器人 15% 勝率的病根，門檻與鼓壓調了都沒差（下一輪平衡 2026-09-05：15%→26%）
     line: '呵呵，來得正好。', lines: ['喝一杯再打？不喝？那打吧。', '（拍了拍肚皮，咚咚響）'], moves: [
-      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
-      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 8, times: 3 }] },
+      // 2026-09-11：8×3 → 10×3。使用者說牠太弱，而平衡報告顯示問題不在血或傷害的絕對值
+      //（牠本來就是第二關塔主傷害最高的），是**出手次數變少了**——預告與召喚各佔掉一拍，
+      // 五回合只剩三拍在攻擊。所以補在「真的出手那幾拍」上，不是加血（加血只會讓仗變長不變難）
+      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
+      { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
       { intent: 'block', label: '葉隱', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }, { kind: 'block', amount: 10 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破
-      { intent: 'summon', label: '喚小弟', effects: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 1, max: 2 }] },
       { intent: 'debuff', label: '肚皮鼓', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },
-      { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 8, times: 3 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 9, times: 3 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
     ],
+    /*
+     * 第 6 回合亮預告、第 7 回合叫兩隻，之後每七回合一輪；其餘照表輪著出。
+     *
+     * **週期從五拉到七**（2026-09-11）：預告與召喚各佔掉一拍，五回合一輪等於
+     * 每五拍只有三拍在攻擊——大樣本量出來玩家勝率 55%，是第二關塔主裡第二好打的，
+     * 而牠的傷害本來就是同關最高（36/30/27）。拉長週期讓牠多兩拍出手，
+     * 難度補在「真的打人的次數」上，不是加血（加血只會讓仗變長不變難）。
+     * 引擎另外還有 `SUMMON_GAP = 4` 的保險，兩邊都擋得住「連續叫人」。
+     */
+    chooseMove: (turn, moves) => {
+      if (turn % 7 === 0) return TANUKI_SUMMON;
+      if (turn % 7 === 6) return TANUKI_PREP;
+      return moves[turn % moves.length];
+    },
     phases: [{
       hpBelow: 130, line: '（葫蘆見底了）', pattern: 'random',
-      onEnter: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 1, max: 2 }, { kind: 'statusSelf', name: '爪力', amount: 2 }],   // 一次一隻（第二輪平衡 2026-09-06：兩隻蓄力小弟是機器人 21% 的病根）
+      // 2026-09-11：換階段就叫兩隻（使用者「只招一隻小兵太弱」）。
+      // 這裡不需要預告——換階段本身就是最大的預告，而且有專屬台詞與立繪變化
+      onEnter: [{ kind: 'summon', enemyId: 'tanuki_kid', n: 2, max: 3 }, { kind: 'statusSelf', name: '爪力', amount: 3 }],
       moves: [
-        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 9, times: 3 }] },
+        { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
         { intent: 'block', label: '葫蘆補酒', effects: [{ kind: 'block', amount: 12 }, { kind: 'heal', n: 6 }] },   // 原本兩招醉拳真髓，二階段四招三招是攻擊；改一招補酒給喘息窗（第二輪平衡 2026-09-06）
         { intent: 'buff', label: '大變身', effects: [{ kind: 'chargeNext' }] },
-        { intent: 'attack', label: '泰山鼓壓', effects: [{ kind: 'damage', amount: 32, pierce: true }] },
+        { intent: 'attack', label: '泰山鼓壓', effects: [{ kind: 'damage', amount: 36, pierce: true }] },
       ],
     }] },
   // 波斯大小姐：僕從護體——執事與女僕還站著她就不受傷，先清僕從才打得到本體
@@ -783,12 +831,33 @@ export const enemies: EnemyDef[] = [
       { intent: 'block', label: '磨甲', effects: [{ kind: 'block', amount: 10 }] },
     ] },
   // 全體強化型：自己不太打人，專門把兩隻小老鼠兵餵大。正解是先拆指揮官
+  /*
+ * 鼠大將的親兵（2026-09-11 使用者：「鼠大將有點太弱，感覺要增加牠帶的小兵的強度」）。
+ *
+ * 病根不在鼠大將自己，在**牠帶的兵**：牠站在塔頂的強池（同池 44～104 血、傷害 12～24），
+ * 帶的卻是第一關的「小老鼠兵」12～15 血、傷害 4（遭遇的 hpScale 1.2 與魔氣 6 加完也才
+ * 14～18 血、傷害 10）——一拍就清光，牠那兩招「號令」（全體 +3 爪力）與「盾陣」
+ *（全體 8 防禦）等於餵給空氣，整套「帶兵打仗」的機制空轉。
+ * 換成配得上這一關的親兵：血跟同池的小型怪看齊，而且**自己也會舉盾**——
+ * 大將的盾陣疊在牠們身上才有意義，你得先想辦法穿過去。
+ */
+{ id: 'rat_guard', name: '鼠親兵', hp: [26, 30], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_rat',
+    line: '（把長槍往地上一頓）', lines: ['（跟著大將的旗子走位）'],
+    moves: [
+      { intent: 'attack', label: '長槍突刺', effects: [{ kind: 'damage', amount: 9 }] },
+      { intent: 'block', label: '舉盾', effects: [{ kind: 'block', amount: 8 }] },
+      { intent: 'attack', label: '槍陣', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
+    ] },
+
   { id: 'rat_general', name: '鼠大將', hp: [60, 66], pool: '強', pattern: 'cycle', size: 'medium', art: 'codex/monster_rat_general', curlUp: 8,   // 2026-09-03 升塔頂：開場先縮殼 8
     line: '兒郎們，列陣！', lines: ['吱——全軍聽令！', '（把小旗子往前一揮）'],
     moves: [
       { intent: 'buff', label: '號令', effects: [{ kind: 'statusAllies', name: '爪力', amount: 3 }] },
       { intent: 'block', label: '盾陣', effects: [{ kind: 'blockAllies', amount: 8 }] },
       { intent: 'attack', label: '揮刀', effects: [{ kind: 'damage', amount: 18 }] },
+      // 親兵換強之後大將自己也該有一招收尾（2026-09-11）：原本三招裡兩招在餵兵，
+      // 只剩揮刀在打人，玩家擋過那一拍就整場沒有壓力
+      { intent: 'attack', label: '全軍突擊', effects: [{ kind: 'damage', amount: 8, times: 2 }, { kind: 'statusAllies', name: '爪力', amount: 1 }] },
     ] },
   // 詛咒：你每打一張技能牌，牠就往你的抽牌堆洗一張眼冒金星。閃避流、抽牌流最怕這隻
   { id: 'curse_priest', name: '詛咒神官', hp: [54, 60], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_curse_priest', angerOnSkill: 1,   // 2026-09-03 升塔頂：技能牌會激怒祂
@@ -804,7 +873,11 @@ export const enemies: EnemyDef[] = [
   // 消散：四個回合之後自己散掉，散掉就不算你打的。想拿戰利品就得搶時間
   { id: 'phantom_fox', name: '幻狐', hp: [70, 78], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_phantom_fox',
     line: '（身體半透明，尾巴數不清幾條）', lines: ['（一下在左邊，一下在右邊）', '（腳沒有踩在地上）'],
-    fadeAfter: 4, strengthEveryNTurns: 1,
+    // **不再自己散掉**（使用者 2026-09-11：「除了偷小魚乾的外，其他的怪都別逃跑」）。
+    // 原本 `fadeAfter: 4` 四回合就走人，跟牠自己的 `strengthEveryNTurns: 1`（越拖越強）
+    // 是同一種矛盾——跟醉拳狗那次一樣。現在整個遊戲只剩橘貓山賊會離場，
+    // 而牠是帶著偷到的小魚乾跑，那是有理由的（見 `ESCAPE_GAP`）。
+    strengthEveryNTurns: 1,
     moves: [
       { intent: 'attack', label: '撕', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
       { intent: 'attack', label: '狐火', effects: [{ kind: 'damage', amount: 12 }] },
@@ -1104,7 +1177,8 @@ export const enemies: EnemyDef[] = [
       { intent: 'debuff', label: '亂飛', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
     ] },
   { id: 'wraith_samurai', name: '怨靈武者', hp: [80, 86], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_wraith_samurai',
-    thorns: 3, fadeAfter: 6,   // 六回合內打不死就散去（沒戰利品）；碰牠會被反彈
+    thorns: 3,   // 碰牠會被反彈。原本還有 `fadeAfter: 6`（六回合打不死就散去），
+    // 2026-09-11 一併拿掉——使用者：「除了偷小魚乾的外，其他的怪都別逃跑」
     line: '（鎧甲裡沒有人）', lines: ['……回去。', '（刀鞘裡傳出低語）'], moves: [
       { intent: 'attack', label: '怨斬', effects: [{ kind: 'damage', amount: 16 }] },
       // 翻肚 1→2（稽核 2026-09-10 中-2）：玩家身上的減益在**魔物出手之前**就先減一層（combat.ts 的 freshDebuffs 那段），
@@ -1321,7 +1395,7 @@ export const encounters: EncounterDef[] = [
   { id: 'ink_cat', pool: '中', enemies: ['ink_cat'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'plated_beetle', pool: '中', enemies: ['plated_beetle'], hpScale: 1.6, strength: 8, acts: [3] },
   { id: 'curse_priest', pool: '中', enemies: ['curse_priest'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'rat_general', pool: '強', enemies: ['rat_general', 'rat', 'rat'], hpScale: 1.2, strength: 6, acts: [3] },
+  { id: 'rat_general', pool: '強', enemies: ['rat_general', 'rat_guard', 'rat_guard'], hpScale: 1.2, strength: 6, acts: [3] },
   { id: 'ink_panther', pool: '強', enemies: ['ink_cat', 'night_panther'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 32%、真人不覺得兇，維持魔氣 6
   { id: 'beetle_armor', pool: '強', enemies: ['plated_beetle', 'armor_ghost'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 33%、真人不覺得兇，維持魔氣 6
   { id: 'priest_fox', pool: '強', enemies: ['curse_priest', 'fox_miko'], hpScale: 1.0, strength: 6, acts: [3] },

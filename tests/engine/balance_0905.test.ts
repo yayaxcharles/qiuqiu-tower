@@ -152,11 +152,25 @@ describe('第二輪（2026-09-06 拍板）：波斯、狸大人、龍貓、暴�
     expect(butler.reviveIn, '倒了就倒了，不再爬起來').toBe(0);
   });
 
-  it('狸大人喚小弟一次一隻、二階段有一招補酒；龍貓逆鱗 3', () => {
+  it('狸大人喚小弟**一次兩隻、而且前一回合一定先亮預告**；二階段有一招補酒；龍貓逆鱗 3', () => {
+    /*
+     * 2026-09-11 使用者：「招喚小兵時也沒有先提示，應該某個回合改成招小兵的提示，
+     * 另外只招一隻小兵太弱，改一次招兩隻」。
+     * 牠原本是 `pattern: 'random'`，小弟會毫無預兆冒出來——那不是難度是意外。
+     * 現在跟貓又婆婆同一套：`chooseMove` 排成「第 4 回合預告、第 5 回合叫人」。
+     */
     const lord = enemyById['tanuki_lord']!;
-    const call = lord.moves.find((m) => m.label === '喚小弟')!;
-    expect(call.effects[0]).toMatchObject({ kind: 'summon', n: 1, max: 2 });
-    expect(lord.phases![0]!.onEnter![0]).toMatchObject({ kind: 'summon', n: 1, max: 2 });
+    expect(lord.chooseMove, '要有排程才保證得了預告在前').toBeTruthy();
+    // 把十五個回合的出招排出來，逐一驗「叫人的前一拍一定是預告」
+    const seq = Array.from({ length: 15 }, (_, i) => lord.chooseMove!(i + 1, lord.moves)!);
+    const summonAt = seq.map((m, i) => (m.effects.some((f) => f.kind === 'summon') ? i : -1)).filter((i) => i >= 0);
+    expect(summonAt.length, '十五回合裡至少叫兩次').toBeGreaterThanOrEqual(2);
+    for (const i of summonAt) {
+      expect(i, '第一拍就叫人＝沒有預告的空間').toBeGreaterThan(0);
+      expect(seq[i - 1]!.label, `第 ${i + 1} 回合叫人，前一拍要是預告`).toBe('吹哨子叫人');
+      expect(seq[i]!.effects[0]).toMatchObject({ kind: 'summon', n: 2 });
+    }
+    expect(lord.phases![0]!.onEnter![0]).toMatchObject({ kind: 'summon', n: 2, max: 3 });
     expect(lord.phases![0]!.moves.filter((m) => m.label === '醉拳真髓')).toHaveLength(1);
     const rest = lord.phases![0]!.moves.find((m) => m.label === '葫蘆補酒')!;
     expect(rest.intent).toBe('block');
