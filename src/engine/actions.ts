@@ -580,18 +580,25 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
 function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
 
 /** 把球球身上指定的狀態各減半（向下取整保留），回傳真的有動到的那幾個。破功與看破共用（原本兩份一字不差）。 */
-function halvePlayerStatuses(cs: CombatState, names: readonly StatusName[]): StatusName[] {
-  const hit = names.filter((n) => getStatus(cs.player, n) > 0);
-  for (const n of hit) { const cur = getStatus(cs.player, n); addStatus(cs.player, n, -(cur - Math.floor(cur / 2))); }
+function halvePlayerStatuses(p: PlayerCombat, names: readonly StatusName[]): StatusName[] {
+  const hit = names.filter((n) => getStatus(p, n) > 0);
+  for (const n of hit) { const cur = getStatus(p, n); addStatus(p, n, -(cur - Math.floor(cur / 2))); }
   return hit;
 }
 
-export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyEffect[], charged: boolean): void {
+/**
+ * 跑一隻魔物這一招的所有效果。
+ *
+ * `victim`＝這一招打在**誰**身上（連線版第一步 2026-09-11）。不傳就是第一位玩家，
+ * 單機跟以前一模一樣；連線版第二步只要在呼叫端挑好目標，整套減益、塞牌、破功就都會找對人。
+ */
+export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyEffect[], charged: boolean,
+                                victim: PlayerCombat = cs.player): void {
   // 蓄力只加倍**下一次**傷害：第一個吃到加倍的傷害效果就把蓄力用掉。原本是「攻擊意圖的招才清蓄力」，
   // 狸小弟的搗蛋／裝可愛是減益／防禦意圖卻帶傷害，一次蓄力連吃三招加倍、48 傷（全面體檢 2026-09-05 #3）
   let mult = charged;
   const useCharge = (): number => { if (!mult) return 1; mult = false; e.charged = false; return 2; };
-  const p = cs.player;
+  const p = victim;
   for (const fx of effects) {
     if (e.dead) return;        // 已經倒下（例如被反彈打死）就不再執行剩下的效果
     if (isLost(cs)) return;
@@ -600,12 +607,12 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         const base = fx.amount * useCharge();
         for (let i = 0; i < (fx.times ?? 1); i++) {
           if (e.dead) return;      // 被反彈打死，剩下的段數不能再打
-          damagePlayer(cs, e, base, { pierce: fx.pierce });
+          damagePlayer(cs, e, base, { pierce: fx.pierce, victim: p });
           if (isLost(cs)) return;
         }
         break;
       }
-      case 'damageRandom': damagePlayer(cs, e, cs.rng.int(fx.min, fx.max) * useCharge()); break;
+      case 'damageRandom': damagePlayer(cs, e, cs.rng.int(fx.min, fx.max) * useCharge(), { victim: p }); break;
       case 'block': gainBlock(cs, e, fx.amount); break;
       case 'statusSelf': addStatus(e, fx.name, fx.amount); break;
       case 'statusPlayer': addStatus(p, fx.name, fx.amount); break;
@@ -665,14 +672,14 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       }
       case 'purgePlayer': {
         // 破功（師父專用）：爪力／貓步這類疊起來的成長被拍散一半。減益不動——只拆你蓋的塔
-        const hitNames = halvePlayerStatuses(cs, fx.names);
+        const hitNames = halvePlayerStatuses(p, fx.names);
         if (hitNames.length) log(cs, `${e.name}一掌拍散了球球的氣勁（${hitNames.join('、')}減半）`);
         break;
       }
       case 'copyPlayerStatus': {
       for (const name of fx.names) {
         const mine = getStatus(e, name);
-        const yours = getStatus(cs.player, name);
+        const yours = getStatus(p, name);
         if (yours > mine) { addStatus(e, name, yours - mine); log(cs, `${e.name}照著學走了你的${name}`); }
       }
       break;
@@ -680,7 +687,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
     case 'stripPlayer': {
         // 看破：先囤好的隱身／潛水拍掉一半（向下取整保留：3 剩 1、2 剩 1、1 剩 0）。
         // 原本是整個拍掉，使用者 2026-09-03：「太強了，拍掉一半就好，3 就拍掉剩 1」
-        const hit = halvePlayerStatuses(cs, fx.names);   // 跟破功同一支算法，只差紀錄句
+        const hit = halvePlayerStatuses(p, fx.names);   // 跟破功同一支算法，只差紀錄句
         if (hit.length) log(cs, `${e.name}看穿了球球的身法（${hit.join('、')}少了一半）`);
         break;
       }
@@ -690,7 +697,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'selfDestruct': {
         // 自爆（河豚精）：先打人（吃蜷縮、隱身照閃），然後自己倒下——這一下**算打倒**，戰利品照發
         log(cs, `${e.name}炸開了`);
-        damagePlayer(cs, e, fx.amount * useCharge());
+        damagePlayer(cs, e, fx.amount * useCharge(), { victim: p });
         if (isLost(cs)) return;
         if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true });
         return;   // 自己都沒了，後面的效果不用跑
@@ -705,7 +712,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         log(cs, `${e.name}擺出盾陣，全體獲得 ${fx.amount} 點防禦`);
         break;
       }
-      case 'giveCard': giveCards(cs, e, fx.cardId, fx.n, fx.to); break;
+      case 'giveCard': giveCards(cs, e, fx.cardId, fx.n, fx.to, p); break;
       case 'nothing': break;
       default: { const _never: never = fx; void _never; break; }   // 漏接新的 EnemyEffect 種類會在型別檢查就爆
     }

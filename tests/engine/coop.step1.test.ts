@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { startCombat } from '../../src/engine/combat';
-import { damagePlayer, drawCards, gainStealth, healPlayer } from '../../src/engine/actions';
+import { beginEnemyTurn, startCombat, startPlayerTurn } from '../../src/engine/combat';
+import { damagePlayer, drawCards, gainStealth, healPlayer, runEnemyEffects } from '../../src/engine/actions';
 import { applyEffects } from '../../src/engine/effects';
 import { Rng, seedFromString } from '../../src/engine/rng';
-import { getStatus } from '../../src/engine/statuses';
+import { addStatus, getStatus } from '../../src/engine/statuses';
 import { cardById } from '../../src/content/cards';
 import type { CombatState, PlayerCombat } from '../../src/engine/types';
 import { blankPlayer, inst } from '../helpers';
@@ -127,5 +127,60 @@ describe('連線版第一步：玩家變陣列、效果認得出對象', () => {
     applyEffects(cs, [{ kind: 'block', amount: 7 }], { source: 'power' });
     expect(p1.block, '沒指定就是第一位').toBe(7);
     expect(p2.block).toBe(0);
+  });
+});
+
+describe('連線版第一步：回合流程對每一位玩家各跑一次', () => {
+  it('回合開始：兩個人各自抽自己的牌、各自補飽足', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs, Array.from({ length: 10 }, () => 'sanjo'));
+    p1.drawPile = Array.from({ length: 10 }, (_, i) => inst('sanjo', 900 + i));
+    p1.hand = []; p1.energy = 0; p2.energy = 0;
+
+    const before = cs.turn;
+    startPlayerTurn(cs);
+
+    expect(cs.turn, '回合數是整場一份的，不會因為兩個人就跳兩次').toBe(before + 1);
+    expect(p1.hand.length, '一號抽五張').toBe(5);
+    expect(p2.hand.length, '二號也抽五張，抽的是自己的牌堆').toBe(5);
+    expect(p1.energy).toBe(p1.maxEnergy);
+    expect(p2.energy).toBe(p2.maxEnergy);
+  });
+
+  it('回合結束：兩個人各自丟自己的手牌、各自衰減自己的減益', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs, []);
+    p1.hand = [inst('sanjo', 901)];
+    p2.hand = [inst('sanjo', 902), inst('sanjo', 903)];
+    addStatus(p1, '翻肚', 3);
+    addStatus(p2, '翻肚', 5);
+
+    beginEnemyTurn(cs);
+
+    expect(p1.hand.length, '一號的手牌丟掉了').toBe(0);
+    expect(p2.hand.length, '二號的手牌也丟掉了').toBe(0);
+    expect(p2.discardPile.length).toBe(2);
+    expect(getStatus(p1, '翻肚'), '各減各的').toBe(2);
+    expect(getStatus(p2, '翻肚')).toBe(4);
+  });
+
+  it('魔物的招式打得到指定的那一位，減益與塞牌都跟著找對人', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p1.hp = 50; p2.hp = 50;
+    const foe = cs.enemies[0]!;
+
+    runEnemyEffects(cs, foe, [
+      { kind: 'damage', amount: 6 },
+      { kind: 'statusPlayer', name: '翻肚', amount: 2 },
+    ], false, p2);
+
+    expect(p2.hp, '二號挨打').toBe(44);
+    expect(getStatus(p2, '翻肚'), '減益也掛在二號身上').toBe(2);
+    expect(p1.hp, '一號沒事').toBe(50);
+    expect(getStatus(p1, '翻肚')).toBe(0);
   });
 });

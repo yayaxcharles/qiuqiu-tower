@@ -85,17 +85,23 @@ export function startCombat(input: {
 
 export function startPlayerTurn(cs: CombatState): void {
   if (cs.phase !== 'player') return;
-  const p = cs.player;
   cs.turn += 1;
   cs.hits.length = 0;   // 分段演出只看這一拍新增的幾筆，上一回合的不用留著（稽核 2026-09-05 夜 低-1）
+  // 每位玩家各開一次自己的回合（連線版第一步 2026-09-11）。單機就是跑一次，順序與結果完全沒變。
+  // 中途被噎到打倒就整個停下來——後面的人不用再抽牌了
+  for (const p of cs.players) { startSeatTurn(cs, p); if (cs.phase !== 'player') return; }
+}
+
+/** 一位玩家的回合開始：狀態結算、補飽足、抽新手牌。整場只有一份的事情在 `startPlayerTurn` 做完了 */
+function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 蜷縮不在這裡清：回合結束、魔物打完才照守護符留量修剪（見 endTurn 尾端）——
   // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
   if (cs.turn > 1) p.firstStealthGiven = false;   // 第一回合不清：開戰的鈴鐺已經吃過紙袋的加成（審查 #14）
   const poison = getStatus(p, '噎到');
-  if (poison > 0) { addStatus(p, '噎到', -1); damagePlayer(cs, p, poison, { direct: true }); if (cs.phase !== 'player') return; }
+  if (poison > 0) { addStatus(p, '噎到', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
-  if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive); }
+  if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive, p); }
   const iron = getStatus(p, '鐵布衫');
   if (iron > 0) { removeStatus(p, '鐵布衫'); gainBlock(cs, p, iron); }   // 走 gainBlock：跟牌上其他蜷縮一樣吃貓步（稽核 低-1）
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnEnergy') : 0);
@@ -109,12 +115,12 @@ export function startPlayerTurn(cs: CombatState): void {
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(cs.relics, 'firstTurnDraw') : 0);
   if (cs.turn === 1) for (const rid of cs.relics) if ((relicById[rid]?.hooks.firstTurnDraw ?? 0) > 0) fireRelic(cs, rid);
   p.drawNextTurn = 0;
-  drawCards(cs, n);
+  drawCards(cs, n, p);
   // 每回合開始的秘寶效果（鐵砂袋、靈貓鈴）：排在抽牌之後，抽到的牌才算進這回合的手牌
   for (const rid of cs.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true }); }
+    if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
   }
 }
 
@@ -237,12 +243,18 @@ export function rampageTurnFor(cs: CombatState): number {
 export function beginEnemyTurn(cs: CombatState): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
   cs.endTurnRequested = false;   // 這個請求到這裡就兌現了
-  const p = cs.player;
+  // 每位玩家各收一次自己的回合（連線版第一步 2026-09-11）。單機跑一次，順序與結果完全沒變
+  for (const p of cs.players) { endSeatTurn(cs, p); if (cs.phase !== 'player') return false; }
+  return beginEnemyTurnRest(cs);
+}
+
+/** 一位玩家的回合結束：詛咒發作、沒出手的鉤子、丟手牌、減益衰減 */
+function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true }); }
+    if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p }); }
   }
-  if (cs.phase !== 'player') return false;
+  if (cs.phase !== 'player') return;
   if (!p.attackedThisTurn) {
     for (const rid of cs.relics) { const h = relicById[rid]?.hooks.turnEndNoAttack; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
     for (const pw of p.powers) if (pw.trigger === 'turnEndNoAttack') applyEffects(cs, pw.effects, { self: p, source: 'power' });
@@ -264,6 +276,10 @@ export function beginEnemyTurn(cs: CombatState): boolean {
     if (getStatus(p, name) > fresh) addStatus(p, name, -1);
     delete p.freshDebuffs[name];
   }
+}
+
+/** 敵方回合前半剩下的整場結算：同伴復活、魔物防禦歸零、魔氣暴走，並排好這回合要行動的魔物 */
+function beginEnemyTurnRest(cs: CombatState): boolean {
   // 「一起死才算數」：同組只要還有一隻活著，倒下的同伴就爬起來。
   //
   // 放在魔物行動之前：爬起來的當回合就會出手，玩家才感覺得到「沒清乾淨的代價」。
@@ -442,7 +458,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       const victim = cs.player;
       const hpBefore = victim.hp;
       if (e.move.learned) log(cs, `${e.name}照著打出「${e.move.label}」`);   // 照著學的（鏡中球球）：紀錄要寫是哪張牌
-      runEnemyEffects(cs, e, e.move.effects, e.charged);
+      runEnemyEffects(cs, e, e.move.effects, e.charged, victim);
       // 被打掉血的秘寶效果（毛線手套）：每回合最多一次
       if (victim.hp < hpBefore && cs.phase === 'player' && victim.hitRelicTurn !== cs.turn) {
         victim.hitRelicTurn = cs.turn;
@@ -495,8 +511,8 @@ export function finishEnemyTurn(cs: CombatState): void {
   // 留蜷縮到下一回合的那幾件：真的留下東西才算發動（稽核 2026-09-10 中-3）
   const keep = relicSum(cs.relics, 'blockKeep');
   // 球球已經倒下那一拍不演（稽核 2026-09-10 複核 低-5）：被穿透打死但身上還有蜷縮時會踩到
-  if (keep > 0 && cs.player.block > 0 && cs.phase === 'player') for (const rid of cs.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid);
-  cs.player.block = Math.min(cs.player.block, keep);
+  if (keep > 0 && cs.phase === 'player' && cs.players.some((p) => p.block > 0)) for (const rid of cs.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid);
+  for (const p of cs.players) p.block = Math.min(p.block, keep);
   if (cs.phase === 'player') startPlayerTurn(cs);
 }
 
