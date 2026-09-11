@@ -1,5 +1,6 @@
 import { potionById } from '../content/potions';
 import { replacePotion } from '../engine/run';
+import type { App } from './app';
 import type { RunState } from '../engine/types';
 import { artUrl } from './assets';
 import { el } from './dom';
@@ -49,4 +50,16 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(-1); });
   layer.append(overlay);
   lockScreen();
+}
+
+/**
+ * 換掉背包裡第 `i` 支忍具。**連線時一定要送出去**（2026-09-11 稽核 高-3）。
+ *
+ * `showPotionSwap` 預設會自己呼叫 `replacePotion`，那**只改自己這台**的整局狀態，
+ * 而忍具是整局指紋的一部分——下一格對帳就會判定整局對不上、整場停掉。
+ * 罐頭鋪那條本來就走 `submitRun`，漏掉的是戰利品與事件這兩條。
+ */
+export function swapPotion(app: App, run: RunState, seat: number, index: number, id: string): void {
+  if (app.coop) { app.coop.submitRun({ t: 'swap', seat, i: index, id }); return; }
+  replacePotion(run, index, id, seat);
 }

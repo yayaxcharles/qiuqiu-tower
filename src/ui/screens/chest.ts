@@ -248,8 +248,12 @@ registerScreen('chest', (app, root) => {
       row);
 
     const waiting = !!myPick && !settled;
-    const go = el('button', { class: 'btn primary', onclick: () => { if (settled) coop.submitRun({ t: 'done', seat }); } }, settled ? '繼續' : waiting ? '等對方挑…' : '先挑一件');
-    if (!settled) go.setAttribute('disabled', 'disabled');
+    // 按過「繼續」就停用並改字：不然玩家看不出自己按到了沒，只會一直點
+    //（罐頭鋪的「逛好了」本來就這樣做，紙箱漏了；稽核 2026-09-11 中-10）
+    const iSaidDone = doneSeats.has(seat);
+    const go = el('button', { class: 'btn primary', onclick: () => { if (settled && !iSaidDone) coop.submitRun({ t: 'done', seat }); } },
+      iSaidDone ? '等對方…' : settled ? '繼續' : waiting ? '等對方挑…' : '先挑一件');
+    if (!settled || iSaidDone) go.setAttribute('disabled', 'disabled');
     root.append(sceneView({
       art,
       speaker: '紙箱',

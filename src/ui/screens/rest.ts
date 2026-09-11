@@ -71,6 +71,9 @@ registerScreen('rest', (app, root) => {
   }
 
   function show(): void {
+    // 重畫前一定要先清（只留底圖）：`renderHud` 是直接 append，不先清會疊出第二條狀態列
+    // 與第二個對白框（稽核 2026-09-11 中-6：對方先做完時看得到）
+    clearKeepBg(root);
     renderHud(app, root);
     const finalRest = run.act >= 3 && run.floor === 44;   // 師父前一格：回滿（引擎 napHeal 同一條規則）
     const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前好好睡一覺：回滿 ${heal} 點生命）` : `打盹（回復 ${heal} 點生命）`) : '打盹（生命已經滿了）');
@@ -101,9 +104,19 @@ registerScreen('rest', (app, root) => {
             const name = cardById[c.cardId]?.name ?? c.cardId;
             const fish = me(run, seat).fish;
             const hpBefore = me(run, seat).hp;
-            if (!act({ t: 'rest', seat, c: choice, u: uid }, () => rest(run, choice, uid, seat))) return;
+            /*
+             * **要在 `act()` 之前存**（稽核 2026-09-11 中-7）。
+             * 主機的動作是同步套用的：`onRunApplied` 在 `act()` 裡面就被叫到了，
+             * 擺在後面的話那一刻這兩個還是 null，主機會看到「「」磨利了，變成「＋」」。
+             */
+            pendingCard = c;
+            pendingLine = { name, fish, hpBefore, choice };
+            if (!act({ t: 'rest', seat, c: choice, u: uid }, () => rest(run, choice, uid, seat))) {
+              pendingCard = null; pendingLine = null;   // 沒送出去就收回來，免得下一次用到舊的
+              return;
+            }
             used = true;
-            if (coop) { pendingCard = c; pendingLine = { name, fish, hpBefore, choice }; return; }
+            if (coop) return;
             play('upgrade');
             const line = choice === '全力準備'
               ? `「${name}」磨利了，變成「${name}＋」；${fish} 條小魚乾全吃了，回復 ${me(run, seat).hp - hpBefore} 點生命。`

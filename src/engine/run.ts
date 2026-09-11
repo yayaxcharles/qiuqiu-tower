@@ -241,6 +241,14 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
     rp.down = !!p.down;
     rp.fish = Math.max(0, rp.fish + p.fishDelta);
   }
+  /*
+   * **輸掉的那一場也把小魚乾併回去**——這是刻意的，跟舊版不同。
+   *
+   * 舊版是在下面那個 `lost` 早退之後才併，等於輸掉就不算。改成先併是因為
+   * 這個迴圈要一次把每個人的結果都寫回去（血量、忍具、小魚乾是同一件事），
+   * 拆成兩段只會讓「誰的哪一項在哪裡寫」更難追。
+   * 單機看不出差別：輸掉會 `clearSave()`，結算畫面與最佳成績都不讀小魚乾。
+   */
   // 輸掉的那一場也是打倒過魔物的，統計要照收，不然總擊倒數會少算
   run.stats.kills += cs.kills;
   if (cs.phase === 'lost') { me(run).hp = 0; run.status = 'lost'; return null; }
@@ -351,7 +359,10 @@ export function advanceAct(run: RunState): void {
   run.act += 1;
   // 過關回血：難度 3 起只補回缺血的七成五（殺戮尖塔進階 5 的做法）
   const heal = runMods(run).actHeal;
-  me(run).hp = heal >= 1 ? me(run).maxHp : Math.min(me(run).maxHp, me(run).hp + Math.round((me(run).maxHp - me(run).hp) * heal));
+  // 每一位都回（連線版 2026-09-11）：只回第一位的話，第二位整局被硬扣掉兩次回復，後面撐不住
+  for (const p of run.players) {
+    p.hp = heal >= 1 ? p.maxHp : Math.min(p.maxHp, p.hp + Math.round((p.maxHp - p.hp) * heal));
+  }
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1 });
   run.currentNode = null;
   run.trail = [];
@@ -850,7 +861,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
          * 索引超出的那幾支等於憑空消失（不是永久卡死，前面用掉會往前挪，但玩家看不懂）。
          * 直接砍掉最後幾支並講明白，比讓它靜靜不見好。
          */
-        const cap = potionCapacity(run);
+        const cap = potionCapacity(run, seat);
         if (me(run, seat).potions.length > cap) {
           // **掉的是最便宜的那幾支**，不是最後拿到的（複核 2026-09-11 低-3）：
           // 砍陣列尾巴等於砍掉剛在罐頭鋪花 80 條小魚乾買的那支，而玩家沒有任何選擇餘地

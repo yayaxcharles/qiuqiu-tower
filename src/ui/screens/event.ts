@@ -13,7 +13,7 @@ import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
-import { showPotionSwap } from '../potionswap';
+import { showPotionSwap, swapPotion } from '../potionswap';
 import { el } from '../dom';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
@@ -201,19 +201,27 @@ registerScreen('event', (app, root, props) => {
       if (!root.querySelector('.reward-item.missed')) return;   // 玩家已經離開這個畫面（2026-09-02 稽核 M-1）
       showPotionSwap(run, g.id, (idx) => {
         if (idx >= 0) {
+          swapPotion(app, run, seat, idx, g.id);   // 連線時要送出去，只改本機會分岔（稽核 高-3）
           play('relic'); root.querySelector('.hud')?.remove(); renderHud(app, root);   // 先拆舊的，不然疊兩條
           const row = root.querySelector(`.reward-item.missed[data-gain="${g.id}"]`);
           const d = potionById[g.id];
           if (row && d) { row.classList.remove('missed'); row.querySelector('b')!.textContent = `換成了「${d.name}」`; }
         }
         askNext(i + 1);
-      }, missed.length > 1 ? { progress: `第 ${i + 1}／${missed.length} 支`, seat } : { seat });
+      }, missed.length > 1 ? { progress: `第 ${i + 1}／${missed.length} 支`, seat, apply: false } : { seat, apply: false });
     };
     if (missed.length) window.setTimeout(() => askNext(0), 400);
   };
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
-  function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = [], upgradedCard?: string): void {
+  function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = [], upgradedCard?: string,
+    outcomes: RunEffectOutcome[] = []): void {
+    /** 第 `who` 位看到的那三張（跟我的不一樣，見 `take()` 的說明）。沒有就退回我這一份 */
+    const defsOf = (who: number): { defs: CardDef[]; up?: string } => {
+      const o = outcomes[who];
+      if (o && 'chooseCard' in o) return { defs: o.chooseCard, ...(o.upgradedCard ? { up: o.upgradedCard } : {}) };
+      return { defs, ...(upgradedCard ? { up: upgradedCard } : {}) };
+    };
     clearKeepBg(root);
     renderHud(app, root);
     /*
@@ -234,9 +242,10 @@ registerScreen('event', (app, root, props) => {
       coop.pick('evlearn', cardId);
     };
     const takeLearn = (who: number, cardId: string, quiet = false): void => {
-      const def = defs.find((d) => d.id === cardId);
+      const mineList = defsOf(who);   // **一定要用他那一份清單去找**，不然他挑的那張會落空
+      const def = mineList.defs.find((d) => d.id === cardId);
       if (!def) return;
-      const up = def.id === upgradedCard;
+      const up = def.id === mineList.up;
       const got = addCard(run, def.id, up, who);
       if (quiet) return;
       finish(resultText, `學會了「${def.name}${up ? '＋' : ''}」`, gains, [{ kind: 'learn', card: got }]);
@@ -264,7 +273,7 @@ registerScreen('event', (app, root, props) => {
    * `notes` 是引擎一路記下來的「實際發生了什麼」（賭飯糰中了哪一邊、忍具收不收得下、
    * 隨機撿到哪一張牌）。挑牌那條路自己還會再補一句，所以用 `noteLine` 接起來一起顯示。
    */
-  function settle(outcome: RunEffectOutcome, resultText: string, notes: string[], gains: RunGain[], added: CardInstance[] = []): void {
+  function settle(outcome: RunEffectOutcome, resultText: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
     const noteLine = (extra?: string): string | null => {
       const all = extra ? [...notes, extra] : notes;
       return all.length ? all.join('；') : null;
@@ -349,7 +358,7 @@ registerScreen('event', (app, root, props) => {
       openPicker();
       return;
     }
-    if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard, gains, outcome.upgradedCard); return; }
+    if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard, gains, outcome.upgradedCard, outcomes); return; }
     // 打一場：戰鬥畫面會把獎金一路帶到戰後結算，這裡不存檔（節點還沒結束）
     const f = outcome.fight;
     panel(resultText, noteLine(), el('button', { class: 'btn primary', onclick: () => {
@@ -378,12 +387,20 @@ registerScreen('event', (app, root, props) => {
     const seats = coop ? run.players.map((_, i) => i).filter((i) => !run.players[i]?.down) : [seat];
     for (const i of seats) me(run, i).fish = Math.max(0, me(run, i).fish - cost);
     // 效果一位一位跑，順序固定（座位由小到大），兩台機器抽出來的東西才一樣
-    let outcome: RunEffectOutcome = null;
+    /*
+     * **每個座位的結果都要留著**（稽核 2026-09-11 高-1）。
+     *
+     * 「三選一學招」那一支每跑一次就重抽一份清單（會推進整局的亂數），
+     * 所以座位 0 與座位 1 看到的三張牌**本來就不一樣**。
+     * 只留自己那一份的話，結算時拿本機的清單去找對方挑的那張會找不到，
+     * 他那張就靜靜落空——兩邊的牌組與 `nextUid` 當場差一個，下一格對帳就炸。
+     * 5F 的「師父留下的秘笈」是固定事件，每一局必遇，所以這條一定會踩到。
+     */
+    const outcomes: RunEffectOutcome[] = [];
     for (const i of seats) {
-      const o = applyRunEffects(run, c.outcome, i === seat ? notes : undefined, i === seat ? gains : undefined, i);
-      if (i === seat) outcome = o;
+      outcomes[i] = applyRunEffects(run, c.outcome, i === seat ? notes : undefined, i === seat ? gains : undefined, i);
     }
-    settle(outcome, c.result, notes, gains, me(run, seat).deck.filter((x) => !had.has(x.uid)));
+    settle(outcomes[seat] ?? null, c.result, notes, gains, me(run, seat).deck.filter((x) => !had.has(x.uid)), outcomes);
   }
 
   renderHud(app, root);

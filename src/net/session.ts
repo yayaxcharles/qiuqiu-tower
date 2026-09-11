@@ -208,7 +208,24 @@ export class CoopSession {
    */
   private readonly myMarks = new Map<string, string>();
   private readonly theirMarks = new Map<string, string>();
+  /** 我走過的格子、他走過的格子，各記一串（順序就是走法） */
+  private readonly myPath: string[] = [];
+  private readonly theirPath: string[] = [];
   private matchMark(key: string): void {
+    /*
+     * **先比「有沒有走進同一格」，再比那一格的狀態**（稽核 2026-09-11 中-9）。
+     *
+     * 只用鑰匙配對的話，真的走岔時兩邊各存各的、永遠湊不成一對，
+     * 於是一個字都不會報——而「走進不一樣的節點」正是這支對帳最想抓的那件事。
+     * 兩邊走過的格子順序必須一模一樣，所以同一個序位上的名字不同就是走岔了。
+     */
+    const n = Math.min(this.myPath.length, this.theirPath.length);
+    for (let i = 0; i < n; i++) {
+      if (this.myPath[i] !== this.theirPath[i]) {
+        this.stop(`走進了不一樣的格子（我第 ${i + 1} 步走「${this.myPath[i]}」、對方走「${this.theirPath[i]}」）`);
+        return;
+      }
+    }
     const a = this.myMarks.get(key);
     const b = this.theirMarks.get(key);
     if (a === undefined || b === undefined) return;
@@ -229,6 +246,7 @@ export class CoopSession {
     if (this.dead) return;
     const c = runCheckOf(run);
     this.myMarks.set(key, c.rfp ?? '');
+    this.myPath.push(key);
     this.tx.send({ m: 'sync', turn: c.turn, fp: c.fp, ...(c.rfp ? { rfp: c.rfp } : {}), k: key });
     this.matchMark(key);
   }
@@ -302,7 +320,7 @@ export class CoopSession {
     if (this.handleRun(m)) return;
     // 走格子的對帳也一樣沒有 cs。存起來等自己也走到那一格再比（見 `syncRun`）
     if (m.m === 'sync' && m.turn === -1) {
-      if (m.k && m.rfp) { this.theirMarks.set(m.k, m.rfp); this.matchMark(m.k); }
+      if (m.k && m.rfp) { this.theirMarks.set(m.k, m.rfp); this.theirPath.push(m.k); this.matchMark(m.k); }
       return;
     }
     if (m.m === 'start') {

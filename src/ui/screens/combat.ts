@@ -339,9 +339,16 @@ registerScreen('combat', (app, root, props) => {
   /** 有連線時，把動作送出去；沒有就在本機做掉。回傳 false＝這個動作現在做不出來 */
   const sendOrDo = (a: CoopAction, local: () => boolean): boolean => {
     if (!session) return local();
+    /*
+     * **只有客戶端要上鎖。**
+     *
+     * 主機的 `submit` 是同步套用的：`onApplied`（裡面會 `unlockSend()`）在這一行**之前**
+     * 就跑完了，之後才上鎖就再也沒有人解得開，只剩三秒的保險絲。
+     * 實測的結果是主機出一張牌要乾等三秒才出得了下一張，整場都這樣——等於主機沒辦法玩。
+     * （這正是「主機同步套用」那個坑的第二次現形。）
+     */
     const ok = session.submit(a);
-    // 送出去了就先上鎖；主機是同步套用的，`onApplied` 會在這一行之前就把鎖解掉
-    if (ok) lockSend();
+    if (ok && !session.isHost) lockSend();
     return ok;
   };
   /**

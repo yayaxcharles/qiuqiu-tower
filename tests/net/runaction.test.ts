@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CoopSession } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
 import { applyRunAction, canApplyRun, type RunCtx } from '../../src/net/runaction';
-import { beginCombat, finishCombat, makeShop, newCoopRun, priceFor } from '../../src/engine/run';
+import { advanceAct, applyRunEffects, beginCombat, finishCombat, makeShop, newCoopRun, priceFor } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
 import type { RunState } from '../../src/engine/types';
 
@@ -91,7 +91,7 @@ describe('整局動作也要照號碼排序', () => {
     const shop = makeShop(run);
     const p = me(run, 1);
     p.fish = 999;
-    p.potions = ['fish_jerky', 'fish_jerky', 'fish_jerky'];
+    p.potions = ['smoke_bomb', 'shuriken', 'onigiri'];
     const ctx: RunCtx = { run, shop };
     const full = p.potions.length >= 3;
     if (full) {
@@ -240,5 +240,45 @@ describe('倒下的人跨場也是倒著的', () => {
     expect(run.players[1]!.down, '打完還是倒著的').toBe(true);
     expect(run.players[1]!.hp).toBe(0);
     expect(run.players[0]!.down, '站著的那位不受影響').toBe(false);
+  });
+});
+
+describe('稽核 2026-09-11 修掉的三個高優先', () => {
+  it('換忍具是走通道的，而且換到正確的座位', () => {
+    const run = newCoopRun('swap', 1);
+    const p = me(run, 1);
+    p.potions = ['smoke_bomb', 'shuriken'];
+    const ctx: RunCtx = { run };
+    expect(canApplyRun(ctx, { t: 'swap', seat: 1, i: 0, id: 'onigiri' })).toBe(true);
+    expect(applyRunAction(ctx, { t: 'swap', seat: 1, i: 0, id: 'onigiri' })).toBe(true);
+    expect(p.potions[0]).toBe('onigiri');
+    expect(me(run, 0).potions, '不可以動到另一個人的背包').toEqual([]);
+    expect(canApplyRun(ctx, { t: 'swap', seat: 1, i: 5, id: 'onigiri' }), '沒有第 6 支').toBe(false);
+  });
+
+  it('事件的「三選一學招」：兩個座位開出來的清單本來就不一樣', () => {
+    /*
+     * 這是那個高優先問題的**前提**，不是 bug：效果一位跑一次，每跑一次就重抽，
+     * 所以兩份清單不同是正常的。畫面那邊因此**必須拿對方那一份去找他挑的那張**，
+     * 拿自己這一份找會找不到、他那張就靜靜落空，兩邊的牌組當場差一張。
+     */
+    const run = newCoopRun('teach', 1);
+    const fx = [{ kind: 'chooseCard' as const, pool: '絕學' as const, n: 3 }];
+    const a = applyRunEffects(run, fx, undefined, undefined, 0);
+    const b = applyRunEffects(run, fx, undefined, undefined, 1);
+    expect(a && 'chooseCard' in a).toBe(true);
+    expect(b && 'chooseCard' in b).toBe(true);
+    const ids = (o: typeof a): string[] => (o && 'chooseCard' in o ? o.chooseCard.map((c) => c.id) : []);
+    expect(ids(a).length).toBe(3);
+    expect(ids(b).length).toBe(3);
+    expect(ids(a).join(','), '兩份是分開抽的').not.toBe(ids(b).join(','));
+  });
+
+  it('過關回血是每個人都回，不是只回第一位', () => {
+    const run = newCoopRun('adv', 1);
+    for (const p of run.players) p.hp = 20;
+    advanceAct(run);
+    expect(run.players[0]!.hp).toBeGreaterThan(20);
+    expect(run.players[1]!.hp, '第二位也要回').toBeGreaterThan(20);
   });
 });

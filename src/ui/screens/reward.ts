@@ -12,7 +12,7 @@ import { screenBg, tierBgKey } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
 import { showDeckPicker } from '../deckview';
-import { showPotionSwap } from '../potionswap';
+import { showPotionSwap, swapPotion } from '../potionswap';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
@@ -158,7 +158,13 @@ registerScreen('reward', (app, root, props) => {
     upLine = el('span', { class: 'reward-line' }, want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
     const line = upLine;
     items.append(el('div', { class: 'reward-item loot' }, line));
-    if (want > 0) showDeckPicker({
+    /*
+     * **只在還沒挑過的時候彈**（稽核 2026-09-11 中-8）。
+     * 這個畫面每挑一次就整個重畫（對方投了牌票、秘寶還沒進背包…），
+     * 不擋的話那個**不能取消**的疊層會一次一次再彈出來。
+     */
+    const upsPicked = r.upsDone || (app.coop ? app.coop.picks('rwup', run.players.length)[seat] !== null : false);
+    if (want > 0 && !upsPicked) showDeckPicker({
       title: want > 1 ? `選 ${want} 張牌升級` : '選一張牌升級', previewUpgrade: true,
       cards: me(run, seat).deck, pickable: true, cancellable: false, filter: upFilter, pickCount: want,
       onPick: (uid) => settleUpgrades(uid === null ? [] : [uid]), onPickMany: settleUpgrades,
@@ -232,8 +238,11 @@ registerScreen('reward', (app, root, props) => {
     // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）
     window.setTimeout(() => { if (!line.isConnected) return; showPotionSwap(run, newId, (idx) => {
       // 狀態列要先拆掉舊的再畫：renderHud 只會往 root 再掛一條（實測疊成兩條）
-      if (idx >= 0) { play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text)); root.querySelector('.hud')?.remove(); renderHud(app, root); }
-    }, { seat }); }, 350);
+      if (idx < 0) return;
+      swapPotion(app, run, seat, idx, newId);   // 連線時要送出去，只改本機會分岔（稽核 高-3）
+      play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text));
+      root.querySelector('.hud')?.remove(); renderHud(app, root);
+    }, { seat, apply: false }); }, 350);
   }
   const potion = r.potion && !missedId ? potionById[r.potion] : undefined;
   if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),
@@ -261,6 +270,9 @@ registerScreen('reward', (app, root, props) => {
    */
   const myPick = app.coop ? app.coop.picks('card', run.players.length)[app.seat] : undefined;
   const waiting = myPick !== undefined && myPick !== null;
+  // 有秘寶可挑卻還沒挑：底下那顆鈕要擋著（見下面的說明）
+  const mustPickRelic = offers.length > 0 && !r.relicSettled
+    && (app.coop ? app.coop.picks('relic', run.players.length)[seat] : null) === null;
   // 開出升級牌的那一格照升級版畫（名字帶＋、數字是升級後的）
   for (const c of r.cards) {
     cards.append(cardNode(c.id === r.upgradedCard ? { uid: -1, cardId: c.id, upgraded: true } : c,
@@ -304,7 +316,16 @@ registerScreen('reward', (app, root, props) => {
     actions: [waiting
       // 已經挑完就只留一顆按不下去的鈕：兩個人得一起走，這裡不能讓任何一邊先跑
       ? el('button', { class: 'btn', disabled: 'disabled' }, '等對方…')
-      : el('button', { class: 'btn primary', onclick: () => done(null) },
-        !r.escaped && r.cards.length ? '放棄牌並跳過' : '繼續')],
+      /*
+       * **秘寶還沒挑就不放行**（稽核 2026-09-11 中-5）。
+       *
+       * 不擋的話，按下去會進到「等對方挑完」的畫面，而真正的卡點是他自己
+       * 還沒點那一排秘寶——畫面卻把他導向「等」，兩個人就一起停在這裡。
+       * 過關三選一那邊本來就有同樣的擋法（`mustPickRelic`）。
+       */
+      : mustPickRelic
+        ? el('button', { class: 'btn', disabled: 'disabled' }, '先挑一件秘寶')
+        : el('button', { class: 'btn primary', onclick: () => done(null) },
+          !r.escaped && r.cards.length ? '放棄牌並跳過' : '繼續')],
   }));
 });

@@ -1,5 +1,4 @@
 import { buyCard, buyPotion, buyRelic, buyRemove, priceFor, potionCapacity, replacePotion, reshuffleShop, rest, revivePartner, takeRelic, type ShopStock } from '../engine/run';
-import { me } from '../engine/runplayer';
 import type { RunState } from '../engine/types';
 
 /**
@@ -97,9 +96,4 @@ export function applyRunAction(ctx: RunCtx, a: RunAction): boolean {
     case 'shuffle': return !!shop && reshuffleShop(run, shop, a.seat);
     case 'rest': return rest(run, a.c, a.u, a.seat);
   }
-}
-
-/** 這一位的名字，寫紀錄用（畫面要講「同伴買走了那張」） */
-export function seatName(run: RunState, seat: number, mySeat: number): string {
-  return seat === mySeat ? '你' : me(run, seat) ? '同伴' : '？';
 }
