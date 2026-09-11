@@ -36,7 +36,7 @@ describe('球球的待機姿勢', () => {
 
   it('原本那四個沒被擠掉', () => {
     expect(idlePoseKey(hero({}, 30), POSES, ALL)).toBe('hurt');   // 三成血
-    expect(idlePoseKey(hero({ 噎到: 1 }), POSES, ALL)).toBe('choke');
+    expect(idlePoseKey(hero({ 中毒: 1 }), POSES, ALL)).toBe('choke');
     expect(idlePoseKey(hero({ 定身: 1 }), POSES, ALL)).toBe('dizzy');
     expect(idlePoseKey(hero({ 爪力: 5 }), POSES, ALL)).toBe('power');
   });
@@ -48,9 +48,9 @@ describe('球球的待機姿勢', () => {
 
   it('順序＝這一刻最該讓玩家知道的那件事，由痛到不痛', () => {
     // 快死了壓過一切
-    expect(idlePoseKey(hero({ 噎到: 3, 翻肚: 3, 爪力: 9 }, 20), POSES, ALL)).toBe('hurt');
-    // 會掉血的噎到壓過會鎖牌的定身
-    expect(idlePoseKey(hero({ 噎到: 1, 定身: 1 }), POSES, ALL)).toBe('choke');
+    expect(idlePoseKey(hero({ 中毒: 3, 翻肚: 3, 爪力: 9 }, 20), POSES, ALL)).toBe('hurt');
+    // 會掉血的中毒壓過會鎖牌的定身
+    expect(idlePoseKey(hero({ 中毒: 1, 定身: 1 }), POSES, ALL)).toBe('choke');
     // 定身壓過翻肚
     expect(idlePoseKey(hero({ 定身: 1, 翻肚: 3 }), POSES, ALL)).toBe('dizzy');
     // 翻肚（挨打 ×1.5）壓過只砍幾成的懶洋洋、炸毛
@@ -66,7 +66,7 @@ describe('球球的待機姿勢', () => {
     expect(idlePoseKey(hero({ 翻肚: 2 }), POSES, only('idle'))).toBe('idle');
     // 翻肚圖沒生、炸毛圖生了：退到炸毛那一條
     expect(idlePoseKey(hero({ 翻肚: 2, 炸毛: 2 }), POSES, only('idle', 'puff'))).toBe('puff');
-    // 低血圖沒生，但噎到圖生了：退到噎到
-    expect(idlePoseKey(hero({ 噎到: 1 }, 20), POSES, only('idle', 'choke'))).toBe('choke');
+    // 低血圖沒生，但中毒圖生了：退到中毒
+    expect(idlePoseKey(hero({ 中毒: 1 }, 20), POSES, only('idle', 'choke'))).toBe('choke');
   });
 });

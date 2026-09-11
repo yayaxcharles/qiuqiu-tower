@@ -107,7 +107,7 @@ export function startPlayerTurn(cs: CombatState): void {
   cs.turn += 1;
   cs.hits.length = 0;   // 分段演出只看這一拍新增的幾筆，上一回合的不用留著（稽核 2026-09-05 夜 低-1）
   // 每位玩家各開一次自己的回合（連線版第一步 2026-09-11）。單機就是跑一次，順序與結果完全沒變。
-  // 中途被噎到打倒就整個停下來——後面的人不用再抽牌了
+  // 中途被中毒打倒就整個停下來——後面的人不用再抽牌了
   for (const p of cs.players) { if (p.down) continue; startSeatTurn(cs, p); if (cs.phase !== 'player') return; }
 }
 
@@ -117,8 +117,8 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
   if (cs.turn > 1) p.firstStealthGiven = false;   // 第一回合不清：開戰的鈴鐺已經吃過紙袋的加成（審查 #14）
-  const poison = getStatus(p, '噎到');
-  if (poison > 0) { addStatus(p, '噎到', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (cs.phase !== 'player') return; }
+  const poison = getStatus(p, '中毒');
+  if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
   if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive, p); }
   const iron = getStatus(p, '鐵布衫');
@@ -381,7 +381,7 @@ function beginEnemyTurnRest(cs: CombatState): boolean {
     cs.kills = Math.max(0, cs.kills - 1);
     // 爬起來的這一拍不出手：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）。
     // 立刻排下一招，玩家回合就看得到新意圖；自檢時發現若只掛「剛爬起來」的閒置招，牠下一拍又會白白發呆一輪。
-    // 牠照樣進佇列跑 stepEnemyTurn（噎到、鱗甲、定身要正常結算），只靠 justRevived 跳過「出招」那一段（稽核 2026-09-04 M-1）
+    // 牠照樣進佇列跑 stepEnemyTurn（中毒、鱗甲、定身要正常結算），只靠 justRevived 跳過「出招」那一段（稽核 2026-09-04 M-1）
     advanceMove(cs, e);
     e.justRevived = true;
     log(cs, `${e.name}又爬起來了`);
@@ -425,7 +425,7 @@ function beginEnemyTurnRest(cs: CombatState): boolean {
    * 先手香（`skipEnemyTurn`）：這一輪整排魔物不出手。
    *
    * **佇列清空**，不是逐隻跳過——排空的話 `stepEnemyTurn` 一次都不會跑，
-   * 牠們的預告、鱗甲、噎到、定身層數全部原封不動留到下一輪，正是「這一輪沒發生」的語意。
+   * 牠們的預告、鱗甲、中毒、定身層數全部原封不動留到下一輪，正是「這一輪沒發生」的語意。
    * 旗標在這裡就清掉：只擋一輪，不會不小心連擋兩輪。
    * 上面那些（減益衰減、爬起來、防禦歸零、魔氣暴走）照跑——那些是回合換手的結算，不是魔物的行動。
    *
@@ -513,7 +513,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       if (parts.length) log(cs, `${e.name}震散了你 ${parts.join('、')}`);
     }
     if (def?.strengthEveryNTurns && !frozen && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
-    // 結算噎到：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架式不出手（審查 #18）
+    // 結算中毒：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架式不出手（審查 #18）
     const phaseBefore = e.phase;
     damageEnemy(cs, e, tickPoison(e), { direct: true });
     if (e.dead || cs.phase !== 'player') return true;

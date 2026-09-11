@@ -65,10 +65,10 @@ describe('審查修正', () => {
     expect(kittens.length).toBe(2);
     for (const k of kittens) { expect(k.maxHp).toBe(15); expect(getStatus(k, '爪力')).toBe(2); }
   });
-  it('#10 噎到打不穿僕從護體', () => {
+  it('#10 中毒打不穿僕從護體', () => {
     const cs = start([], 'persian_lady');
     const lady = cs.enemies.find((e) => e.enemyId === 'persian_lady')!;
-    addStatus(lady, '噎到', 5);
+    addStatus(lady, '中毒', 5);
     const hp = lady.hp; cs.player.block = 99;
     endTurn(cs);
     expect(lady.hp).toBe(hp);

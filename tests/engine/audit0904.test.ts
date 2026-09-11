@@ -63,11 +63,11 @@ describe('稽核 2026-09-04', () => {
     expect(describeCard(def, true)).not.toBe(describeCard(def, false));
   });
 
-  it('M-1 剛爬起來的那一拍：不出招，但噎到照扣、定身照遞減，回合數不算', () => {
+  it('M-1 剛爬起來的那一拍：不出招，但中毒照扣、定身照遞減，回合數不算', () => {
     // 波斯的僕從 2026-09-06 起不再同生共死，改用紙燈籠雙子（同組、倒下 2 回合後以 12 血爬起來）當樣本
     const cs = start('lantern_twins');
     const butler = cs.enemies.find((e) => e.enemyId === 'lantern_twin_a')!;
-    addStatus(butler, '噎到', 5); addStatus(butler, '定身', 2);
+    addStatus(butler, '中毒', 5); addStatus(butler, '定身', 2);
     damageEnemy(cs, butler, 999, { direct: true });
     expect(butler.dead).toBe(true); expect(butler.reviveIn).toBe(2);
     cs.player.block = 99; endTurn(cs);                    // 躺著：2 → 1
@@ -76,8 +76,8 @@ describe('稽核 2026-09-04', () => {
     cs.player.block = 99; endTurn(cs);                    // 爬起來（12 血），這一拍不出招但狀態要結算
     expect(butler.dead).toBe(false);
     expect(butler.turnCount, '爬起來那拍不算回合').toBe(tc);
-    expect(butler.hp, '噎到要扣').toBeLessThan(enemyById['lantern_twin_a']!.reviveHp!);
-    expect(getStatus(butler, '噎到')).toBe(4);
+    expect(butler.hp, '中毒要扣').toBeLessThan(enemyById['lantern_twin_a']!.reviveHp!);
+    expect(getStatus(butler, '中毒')).toBe(4);
     expect(getStatus(butler, '定身'), '定身在那一拍被消耗一層').toBe(1);
     expect(butler.move.intent, '頭上是真的招不是閒置').not.toBe('idle');
     expect(cs.player.hp, '牠沒出手（其餘傷害被 99 蜷縮擋掉）').toBe(hpBefore);

@@ -141,7 +141,7 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
 }
 
 /**
- * 魔物（或自傷）打球球。direct＝不看隱身、不看蜷縮、不套公式（自傷、噎到、壞毛病用）；
+ * 魔物（或自傷）打球球。direct＝不看隱身、不看蜷縮、不套公式（自傷、中毒、壞毛病用）；
  * pierce＝穿透：套公式、吃隱身與反彈，但**跳過蜷縮**（師父的穿心掌、亡命一擊）
  */
 /**
@@ -425,7 +425,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   if (e.dead) return { dealt: 0, killed: false };
   // 蹲下調息中（血條式變身的過場）：無敵，什麼傷害都不吃
   if (e.invulnIn > 0) {
-    // 每回合開頭固定會用 0 點的噎到結算走進來一次，那時沒人打他，別寫「毫髮無傷」——
+    // 每回合開頭固定會用 0 點的中毒結算走進來一次，那時沒人打他，別寫「毫髮無傷」——
     // 玩家看到這行會以為自己漏看了一次攻擊（使用者 2026-09-08）。真的有東西打過來才記
     if (base > 0) log(cs, `${e.name}正在調息，毫髮無傷`);
     return { dealt: 0, killed: false };
@@ -447,7 +447,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   } else {
     if (getStatus(e, '隱身') > 0) { addStatus(e, '隱身', -1); log(cs, `${e.name}閃過了`); return { dealt: 0, killed: false }; }
     dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
-    // 飛行：打得到的只有一半，**先減半再扣防禦**（燈蛾、月蛾后）。噎到那種直傷不吃這條
+    // 飛行：打得到的只有一半，**先減半再扣防禦**（燈蛾、月蛾后）。中毒那種直傷不吃這條
     if (getStatus(e, '飛行') > 0 && dmg > 0) { dmg = Math.floor(dmg / 2); log(cs, `${e.name}在天上，這一下只擦到一半`); }
     if (opts.ignoreBlock) lose = dmg;
     else {
@@ -461,7 +461,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     const th = getStatus(e, '反彈');
     if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true, throughBlock: true }); }
   }
-  // 虛化（虛無貓）：身體半透明，**每一段**傷害最多只扣 1 點血——攻擊、噎到、反彈一視同仁。
+  // 虛化（虛無貓）：身體半透明，**每一段**傷害最多只扣 1 點血——攻擊、中毒、反彈一視同仁。
   // 擺在扣血之前、防禦結算之後：防禦照原本的量擋掉，虛化只管「真的扣進血條的那幾點」
   if (getStatus(e, '虛化') > 0 && lose > 1) {
     log(cs, `${e.name}半透明的，這一下只碰到 1 點`);
@@ -472,7 +472,7 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   e.hp = Math.max(0, e.hp - lose);
   if (lose > 0) {
     // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。
-    // 飛行、鱗甲只被「攻擊」剝落（噎到那種直傷不算）；沉睡與縮殼是**任何**扣血都算
+    // 飛行、鱗甲只被「攻擊」剝落（中毒那種直傷不算）；沉睡與縮殼是**任何**扣血都算
     if (!opts.direct) {
       if (getStatus(e, '飛行') > 0) { addStatus(e, '飛行', -1); if (getStatus(e, '飛行') === 0) log(cs, `${e.name}被打了下來`); }
       if (getStatus(e, '鱗甲') > 0) { addStatus(e, '鱗甲', -1); log(cs, `${e.name}的鱗甲剝落了一層`); }

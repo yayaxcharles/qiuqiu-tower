@@ -256,7 +256,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         } else {
           const n = fx.target === 'all' ? enemies.length : 1;
           if (fx.name === '翻肚') value += 5 * n;
-          else if (fx.name === '噎到') value += fx.amount * (fx.amount + 1) / 2 * 0.9 * n;
+          else if (fx.name === '中毒') value += fx.amount * (fx.amount + 1) / 2 * 0.9 * n;
           else if (fx.name === '懶洋洋') value += Math.min(incoming, 12) * 0.25 * n + 2;
           else if (fx.name === '炸毛') value += 1.5 * n;
           else if (fx.name === '定身') {
@@ -300,7 +300,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         if (best > 0 && def.target === 'enemy' && !hasDamage) target = enemies.find((e) => getStatus(e, fx.name) === best)!.uid;
         break;
       }
-      case 'transferDebuffs': value += (getStatus(p, '噎到') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5; break;
+      case 'transferDebuffs': value += (getStatus(p, '中毒') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5; break;
       case 'removeStatuses': {
         const cap = fx.max ?? 99;
         value += (target !== undefined ? Math.min(cap, enemies.find((e) => e.uid === target)?.block ?? 0) * 0.8 + Math.min(cap, getStatus(enemies.find((e) => e.uid === target) ?? p, '爪力')) * 4 : 0);
@@ -393,7 +393,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     }
     if (kinds.includes('energy') && p.energy === 0 && p.hand.filter((c) => canPlay(cs, c.uid, enemies[0]?.uid).ok || cardStats(c).cost > 0).length >= 2
       && (incoming > p.block || enemies.some((e) => e.hp <= 15))) return usePotion(cs, id);
-    if (kinds.includes('cleanse') && getStatus(p, '噎到') >= 4) return usePotion(cs, id);
+    if (kinds.includes('cleanse') && getStatus(p, '中毒') >= 4) return usePotion(cs, id);
     /*
      * 2026-09-11 新增的那批忍具（稽核中-4）。原本 `maybePotion` 只認回血、防禦、隱身、傷害、
      * 飯糰、清減益與關主戰那兩種狀態，七支新忍具裡有五支它一輩子不會用——
@@ -438,7 +438,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
       const fat = enemies.find((e) => e.block >= 10);
       if (fat) return usePotion(cs, id, fat.uid);
     }
-    // 加倍奉還：身上噎到越多翻倍越賺；沒有噎到也有保底 2 層，但留著等噎到流起來比較好
+    // 加倍奉還：身上中毒越多翻倍越賺；沒有中毒也有保底 2 層，但留著等中毒流起來比較好
     const dbl = def.effects.find((f) => f.kind === 'doubleStatus');
     if (dbl?.kind === 'doubleStatus') {
       const t = enemies.find((e) => getStatus(e, dbl.name) >= 3);
@@ -518,7 +518,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     }
     // 攻擊型狀態忍具：關主戰開頭就用
     if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return usePotion(cs, id);
-    if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '噎到'))) {
+    if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '中毒'))) {
       const t = enemies[0];
       if (t && def.target === 'enemy') return usePotion(cs, id, t.uid);
       if (def.target === 'all') return usePotion(cs, id);

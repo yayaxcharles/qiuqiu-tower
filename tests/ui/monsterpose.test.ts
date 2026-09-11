@@ -17,7 +17,7 @@ describe('魔物選圖', () => {
     expect(monsterPose({ ...base, block: 14 })).toBe('block');
   });
 
-  it('出招優先於挨打：牠出招那一拍同時掉血（噎到、反彈）也要畫出招圖', () => {
+  it('出招優先於挨打：牠出招那一拍同時掉血（中毒、反彈）也要畫出招圖', () => {
     expect(monsterPose({ ...base, attacking: true, hurt: true })).toBe('attack');
   });
 

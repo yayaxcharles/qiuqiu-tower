@@ -12,7 +12,7 @@ export interface IdlePoses {
  * 待機時球球擺什麼姿勢。
  *
  * **順序＝「這一刻最該讓玩家知道的那件事」**，由痛到不痛：
- * 快死了 → 會掉血的噎到 → 攻擊牌全鎖的定身 → 挨打 ×1.5 的翻肚 → 隱身（只撐到下一次挨打）
+ * 快死了 → 會掉血的中毒 → 攻擊牌全鎖的定身 → 挨打 ×1.5 的翻肚 → 隱身（只撐到下一次挨打）
  * → 攻防被砍幾成的懶洋洋／炸毛 → 堆起來的爪力／貓步。
  *
  * 2026-09-10 補了翻肚、隱身、懶洋洋、炸毛、貓步高疊五張（使用者：「補足球球的動作跟狀態」）——
@@ -26,7 +26,7 @@ export function idlePoseKey(p: Unit, poses: IdlePoses, has: (key: string) => boo
   const st = (name: StatusName): number => getStatus(p, name);
   return (
     (p.hp <= Math.ceil(p.maxHp * 0.3) ? pick(poses.hurt) : null)
-    ?? (st('噎到') > 0 ? pick(poses.choke) : null)
+    ?? (st('中毒') > 0 ? pick(poses.choke) : null)
     ?? (st('定身') > 0 ? pick(poses.dizzy) : null)
     // 翻肚排在減益裡最前面：它是「挨打 ×1.5」，比攻防被砍幾成痛得多
     ?? (st('翻肚') > 0 ? pick(poses.belly) : null)

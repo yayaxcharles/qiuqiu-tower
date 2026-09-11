@@ -17,7 +17,7 @@ export const potions: PotionDef[] = [
   { id: 'claw_oil', name: '磨爪油', text: '這場戰鬥獲得 3 點爪力。', art: 'codex/potion_claw_oil', price: 50, target: 'self', effects: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }] },
   { id: 'cat_step', name: '貓步粉', text: '這場戰鬥獲得 3 點貓步。', art: 'codex/potion_cat_step', price: 50, target: 'self', effects: [{ kind: 'status', name: '貓步', amount: 3, target: 'self' }] },
   { id: 'needle_rain', name: '針雨', text: '對目標造成 4 點傷害，打 3 次。', art: 'codex/potion_needle_rain', price: 45, target: 'enemy', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
-  { id: 'pepper', name: '胡椒罐', text: '給全體魔物 3 層噎到。', art: 'codex/potion_pepper', price: 40, target: 'all', effects: [{ kind: 'status', name: '噎到', amount: 3, target: 'all' }] },
+  { id: 'pepper', name: '胡椒罐', text: '給全體魔物 3 層中毒。', art: 'codex/potion_pepper', price: 40, target: 'all', effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'all' }] },
   { id: 'mirror_shard', name: '鏡片', text: '獲得 5 點反彈。', art: 'codex/potion_mirror_shard', price: 40, target: 'self', effects: [{ kind: 'status', name: '反彈', amount: 5, target: 'self' }] },
   { id: 'nip_ball', name: '貓薄荷球', text: '給全體魔物 2 層懶洋洋與 2 層翻肚。', art: 'codex/potion_nip_ball', price: 50, target: 'all', effects: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }, { kind: 'status', name: '翻肚', amount: 2, target: 'all' }] },
   { id: 'dried_fish_bundle', name: '小魚乾串', text: '本回合多 2 顆飯糰。', art: 'codex/potion_dried_fish_bundle', price: 55, target: 'self', effects: [{ kind: 'energy', n: 2 }] },
@@ -70,13 +70,13 @@ export const potions: PotionDef[] = [
     // **有上限 10 層**（使用者 2026-09-11 拍板）：全拔的話對著堆了一整場爪力的關主等於一支清場，
     // 跟當年「忍術·封口術」被砍成 `max: 5` 是同一個理由。忍具一次性、60 條，上限放寬到 10
     effects: [{ kind: 'removeStatuses', names: ['爪力', '貓步', '鱗甲', '不壞身'], max: 10 }] },
-  { id: 'double_back', name: '加倍奉還', text: '目標身上的噎到翻倍，再加 2 層。', art: 'codex/potion_double_back', price: 40, target: 'enemy',
+  { id: 'double_back', name: '加倍奉還', text: '目標身上的中毒翻倍，再加 2 層。', art: 'codex/potion_double_back', price: 40, target: 'enemy',
     /**
      * **一定要帶 `add`**：`doubleStatus` 在目標身上 0 層時會印「催不動」什麼都不做
      *（`effects.ts` 那條是為了讓玩家知道飯糰花去哪）。牌那樣寫沒問題——牌每場都能再打一次；
-     * 忍具是一次性的，花 40 條買到一行「催不動」太傷。加 2 層保底，有噎到才翻倍。
+     * 忍具是一次性的，花 40 條買到一行「催不動」太傷。加 2 層保底，有中毒才翻倍。
      */
-    effects: [{ kind: 'doubleStatus', name: '噎到', add: 2 }] },
+    effects: [{ kind: 'doubleStatus', name: '中毒', add: 2 }] },
   { id: 'rubble_bag', name: '亂石包', text: '對目標造成 6～22 點傷害（看運氣）。', art: 'codex/potion_rubble_bag', price: 35, target: 'enemy',
     // 期望值 14 點、35 條，比鐵爪套（16 點、60 條）便宜但不穩。便宜那一格本來只有三支，這支補早期
     effects: [{ kind: 'damageRandom', min: 6, max: 22 }] },

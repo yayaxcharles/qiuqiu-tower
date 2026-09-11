@@ -62,10 +62,10 @@ describe('破功散（removeStatuses）', () => {
   it('只拔這三個，不誤傷別的狀態（減益要留著）', () => {
     const cs = fight('kappa', ['break_art']);
     const e = cs.enemies[0]!;
-    addStatus(e, '爪力', 4); addStatus(e, '噎到', 5); addStatus(e, '翻肚', 2); addStatus(e, '隱身', 1);
+    addStatus(e, '爪力', 4); addStatus(e, '中毒', 5); addStatus(e, '翻肚', 2); addStatus(e, '隱身', 1);
     usePotion(cs, 'break_art', e.uid);
     expect(getStatus(e, '爪力')).toBe(0);
-    expect(getStatus(e, '噎到'), '減益是好事，不該被拔').toBe(5);
+    expect(getStatus(e, '中毒'), '減益是好事，不該被拔').toBe(5);
     expect(getStatus(e, '翻肚')).toBe(2);
     expect(getStatus(e, '隱身'), '隱身不在名單上').toBe(1);
   });
@@ -89,21 +89,21 @@ describe('破功散（removeStatuses）', () => {
 });
 
 describe('加倍奉還（doubleStatus）', () => {
-  it('有噎到就翻倍，再加 2 層', () => {
+  it('有中毒就翻倍，再加 2 層', () => {
     const cs = fight('kappa', ['double_back']);
     const e = cs.enemies[0]!;
-    addStatus(e, '噎到', 5);
+    addStatus(e, '中毒', 5);
     expect(usePotion(cs, 'double_back', e.uid)).toBe(true);
-    expect(getStatus(e, '噎到'), '5 → 翻倍 10 再 +2').toBe(12);
+    expect(getStatus(e, '中毒'), '5 → 翻倍 10 再 +2').toBe(12);
   });
   it('**0 層時不會變成一行「催不動」**：保底給 2 層（2026-09-11 刻意加的 `add`）', () => {
     // 牌（絕學·催噎）沒有保底沒關係——牌每場都能再打一次；
     // 忍具是一次性的，花 40 條買到「什麼都沒發生」太傷
     const cs = fight('kappa', ['double_back']);
     const e = cs.enemies[0]!;
-    expect(getStatus(e, '噎到')).toBe(0);
+    expect(getStatus(e, '中毒')).toBe(0);
     expect(usePotion(cs, 'double_back', e.uid)).toBe(true);
-    expect(getStatus(e, '噎到')).toBe(2);
+    expect(getStatus(e, '中毒')).toBe(2);
     expect(cs.log.some((l) => l.includes('催不動')), '不該印催不動').toBe(false);
   });
 });

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""師妹（暹羅貓）的生圖工作檔——第三個角色，**不是球球換裝**。
+"""菲菲（暹羅貓）的生圖工作檔——第三個角色，**不是球球換裝**。
 
 使用者 2026-09-12 拍板：球球的師妹、大俠貓的女徒弟，暹羅貓。
 牌組特色是毒暗器＋距離（原本寫給狼的「堆毒」概念移到她身上，狼稿作廢）。
-名字未定（使用者要疊字），檔名一律用 `shimei_` 當前綴，定名之後只要改前綴不必重生。
+名字未定（使用者要疊字），檔名一律用 `feifei_` 當前綴，定名之後只要改前綴不必重生。
 
 **跟武士球球最大的不同：她是另一隻貓，不是同一隻換裝。**
 所以參考圖只能當「畫風與比例」的範本，不能當「要畫這隻」的範本——
@@ -11,15 +11,15 @@
 因此提示詞裡每一段都要明寫「這是**另一隻**貓，只照抄畫法與比例」。
 
 兩階段（跟武士那次一樣）：
-  1. `--looks`：先生四張定裝候選，人工挑一張 → 做成 `tools/ref/shimei_ref.png`
-  2. 預設：照核可的定裝生 14 張立繪，`--ref tools/ref/shimei_ref.png`
+  1. `--looks`：先生四張定裝候選，人工挑一張 → 做成 `tools/ref/feifei_ref.png`
+  2. 預設：照核可的定裝生 14 張立繪，`--ref tools/ref/feifei_ref.png`
 
 跑法：
-  python tools/make_shimei_art_jobs.py --looks
-  python tools/codex_gen.py tools/codex_jobs/shimei_looks.json --ref tools/ref/球球設定表.png
+  python tools/make_feifei_art_jobs.py --looks
+  python tools/codex_gen.py tools/codex_jobs/feifei_looks.json --ref tools/ref/球球設定表.png
   （挑好、合成參考圖之後）
-  python tools/make_shimei_art_jobs.py
-  python tools/codex_gen.py tools/codex_jobs/shimei_hero.json --ref tools/ref/shimei_ref.png
+  python tools/make_feifei_art_jobs.py
+  python tools/codex_gen.py tools/codex_jobs/feifei_hero.json --ref tools/ref/feifei_ref.png
 """
 import argparse
 import json
@@ -67,16 +67,16 @@ GEAR = gear_rule("the plum-purple jacket, the belt of bamboo needle-tubes and th
 def looks_jobs() -> dict[str, str]:
     """定裝候選：四個方向，挑一張當正本。"""
     variants = {
-        "shimei_look_a": (
+        "feifei_look_a": (
             "Pose: standing calmly in a ready stance, one paw resting on the bamboo tubes at her belt, "
             "a wary but polite look, ears up and alert."),
-        "shimei_look_b": (
+        "feifei_look_b": (
             "Pose: half-turned away and leaning back as if keeping her distance, holding a single slim dart "
             "up beside her face between two paws, one eye narrowed as she measures the throw."),
-        "shimei_look_c": (
+        "feifei_look_c": (
             "Pose: crouched low and small behind her own forearm, ears flattened, peeking out nervously - "
             "the pose of someone who really does not want to get hit."),
-        "shimei_look_d": (
+        "feifei_look_d": (
             "Pose: mid-throw, body twisted, one arm flung forward having just released a dart, the other arm "
             "out behind for balance, a determined little frown."),
     }
@@ -117,22 +117,29 @@ POSES = {
     'stealth': 'pulling the cloth mask up over her muzzle with one paw and shrinking behind it, only the blue eyes showing',
 }
 
-FRAMING_DEFAULT = ("\n\nFull body, FACING RIGHT (she looks and moves toward the right edge of the picture), feet at "
-                   "the very bottom edge of the picture, do not draw her floating. Fill the frame vertically.")
+# ★ 朝向要寫得很重（2026-09-12 第一批踩到）：只寫 "FACING RIGHT" 不夠——
+#   `attack` 那種有明確動作方向的會照做，`idle` 那種站著不動的會漂成正面、頭還轉到左邊。
+#   球球現有的立繪是「身體正面、臉轉向右」，所以真正要釘死的是**鼻子與視線指向右**。
+FACE_RIGHT = ("Her muzzle, nose and gaze all point toward the RIGHT edge of the picture - you should see the "
+              "right-hand side of her face and the line of her cheek. She never looks toward the left edge and "
+              "never looks straight out at the viewer. Her tail trails off to the LEFT behind her.")
+FRAMING_DEFAULT = ("\n\nFull body. " + FACE_RIGHT + " Feet at the very bottom edge of the picture, do not draw "
+                   "her floating. Fill the frame vertically.")
 FRAMING = {
     # 縮成一團沒有站姿也沒有明確朝向，硬套預設會跟姿勢打架（做姆斯時連掛三次）
     'curl': ("\n\nThe curled-up ball is the whole silhouette, resting on the ground, filling the frame, with her "
-             "head, limbs and tail tucked in. Do not draw her floating."),
+             "limbs and tail tucked in. Her face is tucked down but still angled toward the RIGHT edge, never "
+             "toward the left. Do not draw her floating."),
     # 坐在地上就沒有「腳貼底邊」可言
-    'lose': ("\n\nFull body seated on the ground, facing RIGHT, her seat and feet at the very bottom edge of the "
-             "picture, filling the frame. Do not draw her floating."),
+    'lose': ("\n\nFull body seated on the ground. " + FACE_RIGHT + " Her seat and feet at the very bottom edge of "
+             "the picture, filling the frame. Do not draw her floating."),
 }
 
 
 def hero_jobs() -> dict[str, str]:
     jobs = {}
     for pose, text in POSES.items():
-        fid = f'hero_shimei_{pose}.png'
+        fid = f'hero_feifei_{pose}.png'
         jobs[fid] = (
             LOOK + " " + GEAR_LOOK +
             "\n\nPose: " + text + FRAMING.get(pose, FRAMING_DEFAULT) +
@@ -151,9 +158,9 @@ def main() -> None:
     args = ap.parse_args()
 
     if args.looks:
-        jobs, name = looks_jobs(), 'shimei_looks.json'
+        jobs, name = looks_jobs(), 'feifei_looks.json'
     else:
-        jobs, name = hero_jobs(), 'shimei_hero.json'
+        jobs, name = hero_jobs(), 'feifei_hero.json'
     out = ROOT / 'tools' / 'codex_jobs' / name
     out.write_text(json.dumps(jobs, ensure_ascii=False, indent=1), encoding='utf-8')
     print(f'{len(jobs)} 張工作檔 → {out.relative_to(ROOT)}')

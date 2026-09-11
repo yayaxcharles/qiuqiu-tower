@@ -23,8 +23,8 @@ describe('鏡中球球照著學', () => {
   });
 
   it('給對手的狀態翻成 statusPlayer，升級版照升級後的數字', () => {
-    expect(learnCard(inst('tieshazhang', 1))).toEqual([{ kind: 'damage', amount: 7 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }]);
-    expect(learnCard(inst('tieshazhang', 1, true))).toEqual([{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '噎到', amount: 4 }]);
+    expect(learnCard(inst('tieshazhang', 1))).toEqual([{ kind: 'damage', amount: 7 }, { kind: 'statusPlayer', name: '中毒', amount: 3 }]);
+    expect(learnCard(inst('tieshazhang', 1, true))).toEqual([{ kind: 'damage', amount: 9 }, { kind: 'statusPlayer', name: '中毒', amount: 4 }]);
   });
 
   it('開戰第一動就是學來的牌：牌名當標籤、learned 記那張；球球的牌一張都沒少', () => {

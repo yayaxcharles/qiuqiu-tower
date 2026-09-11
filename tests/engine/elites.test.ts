@@ -194,7 +194,7 @@ describe('第三關菁英（強機制）', () => {
     for (const s of shards) expect(getStatus(s, '爪力')).toBe(10);   // 魔氣 6→8→10（2026-09-04）
   });
 
-  it('虛無貓・虛化：虛實交替、每一段最多扣 1 點、防禦照扣、噎到也只扣 1', () => {
+  it('虛無貓・虛化：虛實交替、每一段最多扣 1 點、防禦照扣、中毒也只扣 1', () => {
     const cs = start('void_cat');
     const e = cs.enemies[0]!;
     expect(e.maxHp).toBe(228);
@@ -231,13 +231,13 @@ describe('第三關菁英（強機制）', () => {
     damageEnemy(cs, e, 20, { direct: true });
     expect(hp - e.hp, '實體化就照實扣').toBe(20);
 
-    // 再過一個牠的回合又變回虛化；同一拍結算的噎到（直傷）也只扣 1
-    addStatus(e, '噎到', 9);
+    // 再過一個牠的回合又變回虛化；同一拍結算的中毒（直傷）也只扣 1
+    addStatus(e, '中毒', 9);
     hp = e.hp;
     endTurn(cs);
     expect(getStatus(e, '虛化'), '隔一回合虛一回合').toBe(1);
-    expect(hp - e.hp, '噎到 9 點也只扣 1').toBe(1);
-    expect(getStatus(e, '噎到'), '噎到照樣少一層').toBe(8);
+    expect(hp - e.hp, '中毒 9 點也只扣 1').toBe(1);
+    expect(getStatus(e, '中毒'), '中毒照樣少一層').toBe(8);
   });
 });
 

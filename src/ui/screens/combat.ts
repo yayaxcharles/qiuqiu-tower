@@ -36,7 +36,7 @@ import { attachTextTooltip, attachTooltip, hideTooltip } from '../tooltip';
 
 const STATUS_ICON: Record<StatusName, string> = {
   爪力: 'icon/status_claw', 貓步: 'icon/status_step', 翻肚: 'icon/status_belly',
-  懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 噎到: 'icon/status_choke',
+  懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 中毒: 'icon/status_choke',
   隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
   潛水: 'icon/status_stealth',
   鐵布衫: 'icon/status_iron',   // 不借鱗甲的鍵，免得兩邊撞到
@@ -50,7 +50,7 @@ const STATUS_ICON: Record<StatusName, string> = {
 };
 /** 狀態排列順序寫死，好的排前面，才不會每次重畫就換位置（物件鍵的順序不保證） */
 const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '不壞身', '縮殼', '飛行', '鱗甲', '虛化',
-  '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
+  '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒'];
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
  * 規格 §2 的名詞表根本沒有這個詞、牌面也刻意不講（見 `cardtext.ts` 的 `isDive`），
@@ -103,7 +103,7 @@ const POSE = {
   claw: 'hero/ninja_claw', kick: 'hero/ninja_kick', dash: 'hero/ninja_dash', punch: 'hero/ninja_punch',
   // 吃喝（回血的牌、飯糰那類忍具）；抱胸格擋（早就畫好，被蜷縮整個擋下時用）
   eat: 'hero/ninja_eat', guard: 'hero/ninja_guard',
-  // 第二批（2026-09-08）：噎到待機、被纏住待機、能力牌凝神、抽牌翻卷軸
+  // 第二批（2026-09-08）：中毒待機、被纏住待機、能力牌凝神、抽牌翻卷軸
   choke: 'hero/ninja_choke', dizzy: 'hero/ninja_dizzy', focus: 'hero/ninja_focus', scroll: 'hero/ninja_scroll',
   /**
    * 倒下（2026-09-11）：球球趴在地上、眼睛變叉、頭帶滑到一邊。
@@ -216,11 +216,11 @@ interface Acted { label: string; attacked: boolean; blocked: boolean; learned: L
 // 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲、虛化對魔物是好事（金光），
 // 沉睡、消散對牠是壞事（紫光）。球球身上永遠不會有這六個。
 const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '不壞身', '縮殼', '飛行', '鱗甲', '虛化'];
-const BAD_STATUS: readonly StatusName[] = ['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '噎到'];
+const BAD_STATUS: readonly StatusName[] = ['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒'];
 const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
   names.reduce((t, k) => t + getStatus(u, k), 0);
 /**
- * 這下掉血是不是噎到造成的？噎到每結算一次就自己少 1，拿「少了剛好一層」當判準最準，
+ * 這下掉血是不是中毒造成的？中毒每結算一次就自己少 1，拿「少了剛好一層」當判準最準，
  * 比翻紀錄字串可靠。認錯了也只是換一種光，不會壞掉。
  */
 const chokeTick = (now: number, was: number): boolean => was > 0 && now === was - 1;
@@ -246,10 +246,10 @@ function snap(cs: CombatState, me: PlayerCombat): Snap {
     energyGain: cs.energyGain, relicFiredLen: cs.relicFired.length,
     buff: sumStatus(me, GOOD_STATUS), debuff: sumStatus(me, BAD_STATUS),
     growth: getStatus(me, '爪力') + getStatus(me, '貓步'),
-    choke: getStatus(me, '噎到'), stealth: getStatus(me, '隱身'),
+    choke: getStatus(me, '中毒'), stealth: getStatus(me, '隱身'),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), learned: e.move.learned,
-      debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '噎到'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
+      debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '中毒'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
       label: e.move.label, turnCount: e.turnCount,
@@ -644,7 +644,7 @@ registerScreen('combat', (app, root, props) => {
       lastChips.set(key, v);
       const tone = GOOD_STATUS.includes(name) ? 'good' : BAD_STATUS.includes(name) ? 'bad' : '';
       // 虛化只有「有／沒有」兩種狀態，層數永遠是 1，寫個 1 出來反而讓人以為還能疊——照「無敵」那樣只寫名字
-      // 球球身上的減益（魔物放的翻肚、懶洋洋、炸毛、噎到）用名字寫出來、淺紅底，跟能力牌的牌子一樣看得懂
+      // 球球身上的減益（魔物放的翻肚、懶洋洋、炸毛、中毒）用名字寫出來、淺紅底，跟能力牌的牌子一樣看得懂
       //（使用者 2026-09-04：只有小圖示認不出是什麼、也看不出是壞的）
       const textOnly = mine && tone === 'bad';
       row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), tone, bump));
@@ -816,7 +816,7 @@ registerScreen('combat', (app, root, props) => {
       //（使用者 2026-09-08：「換階段調息時他還是站著」）。引擎的 invulnIn 就是「調息中」，直接看它
       if (e.invulnIn > 0) return artUrl('sprites', bossMovePose(e.phase, '蹲下調息') ?? bossIdle(e.phase));
       // 出招圖排在挨打圖前面，跟一般魔物同一個順序（稽核 2026-09-08 中 1）：他出招那一拍常常同時掉血——
-      // 回合開頭的噎到結算、球球的反彈都在同一步扣他的血——挨打圖若優先，噎到流打他每回合都是
+      // 回合開頭的中毒結算、球球的反彈都在同一步扣他的血——挨打圖若優先，中毒流打他每回合都是
       // 「挨打的表情往前撲」，招式圖全看不到
       if (act) return artUrl('sprites', bossMovePose(e.phase, act.label) ?? bossIdle(e.phase));
       // 挨打圖（2026-09-08）：一般魔物早就有，師父以前只有紅閃
@@ -1237,7 +1237,7 @@ registerScreen('combat', (app, root, props) => {
       const b = before.enemies.get(e.uid);
       const changed = !b || b.hp !== e.hp || b.block !== e.block || b.dead !== e.dead || b.phase !== e.phase || b.secluding !== (e.invulnIn > 0)
         || b.turnCount !== e.turnCount || b.label !== e.move.label || b.intent !== e.move.intent
-        || b.debuff !== sumStatus(e, BAD_STATUS) || b.stealth !== getStatus(e, '隱身') || b.choke !== getStatus(e, '噎到')
+        || b.debuff !== sumStatus(e, BAD_STATUS) || b.stealth !== getStatus(e, '隱身') || b.choke !== getStatus(e, '中毒')
         || acting.has(e.uid) || old.classList.contains('attack') || old.classList.contains('hit');
       if (changed) old.replaceWith(enemyUnit(e, lineup.indexOf(e.uid), lineup.length));
     }
@@ -1889,7 +1889,7 @@ registerScreen('combat', (app, root, props) => {
       if (b && e.hp < b.hp) hurtSet.add(e.uid);
       if (b && !b.dead && e.dead && cs.phase === 'won' && enemyById[e.enemyId]?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主') bossFallUids.add(e.uid);
       if (!b || e.dead || e.turnCount === b.turnCount || b.noAct) continue;
-      // 調息中的那一拍不算出手：噎到在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
+      // 調息中的那一拍不算出手：中毒在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, blocked: b.intent === 'block' && e.invulnIn === 0, learned: b.learned });
     }
@@ -1906,7 +1906,7 @@ registerScreen('combat', (app, root, props) => {
       if (!b || !node) continue;
       // 攻擊牌打出多段（連環踢 5×3）：照引擎記下來的每一段，一下一下演——原本只彈一個總數，
       // 玩家看到的是「直接扣 15」而不是三下（使用者 2026-09-05）。丟擲類忍具也帶 attack（針雨 4×3 一樣分段）；
-      // 單段、反彈、噎到那些照舊走下面
+      // 單段、反彈、中毒那些照舊走下面
       const staged = opts.attack ? cs.hits.slice(before.hitsLen).filter((h) => h.uid === e.uid).map((h) => h.amount) : [];
       if (e.hp < b.hp && staged.length > 1) { stageHits(node, staged); stagedMax = Math.max(stagedMax, staged.length); }
       else if (e.hp < b.hp) {
@@ -1914,7 +1914,7 @@ registerScreen('combat', (app, root, props) => {
         node.append(floatNum(`-${b.hp - e.hp}`));
         // 出攻擊牌打的放斬擊，其他來源（反彈、中毒、自傷）放撞擊火花：
         // 同樣是掉血，但「我砍的」跟「牠自己踩到的」該長得不一樣
-        const poisoned = chokeTick(getStatus(e, '噎到'), b.choke);
+        const poisoned = chokeTick(getStatus(e, '中毒'), b.choke);
         burst(node, poisoned ? 'poison' : opts.attack ? 'slash' : 'hit');
         // 音高照打掉的血量微調：連續打同一隻時，一模一樣的聲音聽起來像卡帶
         const heavy = b.hp - e.hp >= 12;
@@ -2068,7 +2068,7 @@ registerScreen('combat', (app, root, props) => {
         box?.classList.add('player-hurt');
         window.setTimeout(() => { box?.classList.remove('player-hurt'); }, 500);
         cat.append(floatNum(`-${before.hp - p.hp}`));
-        const pPoison = chokeTick(getStatus(p, '噎到'), before.choke);
+        const pPoison = chokeTick(getStatus(p, '中毒'), before.choke);
         burst(cat, pPoison ? 'poison' : 'hit');
         sfx(pPoison ? 'poison' : 'hurt');
         // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——

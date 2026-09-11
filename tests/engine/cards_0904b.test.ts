@@ -32,20 +32,20 @@ describe('2026-09-04 補牌的新機制', () => {
   it('催噎：基礎版對 0 層催不動（飯糰照扣）、4 層翻成 8；升級版 0 層加 2、4 層變 10', () => {
     let cs = start([['cuiye', false]]); toHand(cs, 100);
     playCard(cs, 100, cs.enemies[0]!.uid);
-    expect(foe(cs, '噎到')).toBe(0);
+    expect(foe(cs, '中毒')).toBe(0);
     expect(cs.player.energy).toBe(8);
 
-    cs = start([['cuiye', false]]); toHand(cs, 100); cs.enemies[0]!.statuses['噎到'] = 4;
+    cs = start([['cuiye', false]]); toHand(cs, 100); cs.enemies[0]!.statuses['中毒'] = 4;
     playCard(cs, 100, cs.enemies[0]!.uid);
-    expect(foe(cs, '噎到')).toBe(8);
+    expect(foe(cs, '中毒')).toBe(8);
 
     cs = start([['cuiye', true]]); toHand(cs, 100);
     playCard(cs, 100, cs.enemies[0]!.uid);
-    expect(foe(cs, '噎到')).toBe(2);
+    expect(foe(cs, '中毒')).toBe(2);
 
-    cs = start([['cuiye', true]]); toHand(cs, 100); cs.enemies[0]!.statuses['噎到'] = 4;
+    cs = start([['cuiye', true]]); toHand(cs, 100); cs.enemies[0]!.statuses['中毒'] = 4;
     playCard(cs, 100, cs.enemies[0]!.uid);
-    expect(foe(cs, '噎到')).toBe(10);
+    expect(foe(cs, '中毒')).toBe(10);
   });
 
   it('背刺：目標沒減益只打 6，有減益（懶洋洋）打 6＋6', () => {
@@ -72,18 +72,18 @@ describe('2026-09-04 補牌的新機制', () => {
 
   it('抖毛：清掉 1 種減益（翻肚優先）並抽 1 張；升級清 2 種', () => {
     let cs = start([['doumao', false]]); toHand(cs, 100);
-    cs.player.statuses['翻肚'] = 2; cs.player.statuses['噎到'] = 3;
+    cs.player.statuses['翻肚'] = 2; cs.player.statuses['中毒'] = 3;
     const hand = cs.player.hand.length;
     playCard(cs, 100);
     expect(me(cs, '翻肚')).toBe(0);
-    expect(me(cs, '噎到')).toBe(3);
+    expect(me(cs, '中毒')).toBe(3);
     expect(cs.player.hand.length, '打掉 1 張、抽回 1 張').toBe(hand);
 
     cs = start([['doumao', true]]); toHand(cs, 100);
-    cs.player.statuses['翻肚'] = 2; cs.player.statuses['噎到'] = 3;
+    cs.player.statuses['翻肚'] = 2; cs.player.statuses['中毒'] = 3;
     playCard(cs, 100);
     expect(me(cs, '翻肚')).toBe(0);
-    expect(me(cs, '噎到')).toBe(0);
+    expect(me(cs, '中毒')).toBe(0);
   });
 
   it('鐵布衫：當回合 8 蜷縮（吃貓步），下回合開始再拿 4（也吃貓步）', () => {
@@ -99,8 +99,8 @@ describe('2026-09-04 補牌的新機制', () => {
 
   it('牌面文字', () => {
     const t = (id: string, up = false) => describeCard(cardById[id]!, up);
-    expect(t('cuiye')).toBe('把目標身上的噎到翻倍（沒有就沒效果）。');
-    expect(t('cuiye', true)).toBe('把目標身上的噎到翻倍，再加 2 層。');
+    expect(t('cuiye')).toBe('把目標身上的中毒翻倍（沒有就沒效果）。');
+    expect(t('cuiye', true)).toBe('把目標身上的中毒翻倍，再加 2 層。');
     expect(t('zhuiji')).toBe('造成 10 點傷害；打倒牠就拿回 2 顆飯糰。');
     expect(t('beici')).toBe('造成 6 點傷害，目標身上有任何減益就再造成 6 點傷害。');
     expect(t('tiebushan')).toBe('獲得 8 點蜷縮，下回合開始時再獲得 4 點蜷縮。');

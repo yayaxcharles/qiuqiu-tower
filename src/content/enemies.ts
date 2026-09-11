@@ -118,7 +118,7 @@ export const enemies: EnemyDef[] = [
     line: '嘶——', lines: ['嘶嘶——', '（在草叢裡蠕動）'],
     moves: [
       { intent: 'attack', label: '咬', effects: [{ kind: 'damage', amount: 5 }] },
-      { intent: 'debuff', label: '吐', effects: [{ kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'debuff', label: '吐', effects: [{ kind: 'statusPlayer', name: '中毒', amount: 2 }] },
     ] },
 
   // ===== 強池 =====
@@ -185,7 +185,7 @@ export const enemies: EnemyDef[] = [
       return moves[turn % moves.length];
     },
     moves: [
-      { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 14 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },   // 12→14：換階段召喚改成先預告後，機器人勝率 48%→58%，補回（2026-09-04）
+      { intent: 'attack', label: '鬼火', effects: [{ kind: 'damage', amount: 14 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }] },   // 12→14：換階段召喚改成先預告後，機器人勝率 48%→58%，補回（2026-09-04）
       { intent: 'special', label: '吸魂', effects: [{ kind: 'heal', n: 7 }] },
       { intent: 'attack', label: '雙尾抽', effects: [{ kind: 'damage', amount: 9, times: 3 }] },   // 10×2→9×3（同上）
     ],
@@ -290,13 +290,13 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '滾', effects: [{ kind: 'damage', amount: 6 }] },
       { intent: 'block', label: '縮成球', effects: [{ kind: 'block', amount: 6 }] },
     ] },
-  // 純下毒的入門版：血少但一直疊噎到，教玩家認識「毒要趁早清」
+  // 純下毒的入門版：血少但一直疊中毒，教玩家認識「毒要趁早清」
   { id: 'soy_bottle', name: '打翻的醬油瓶', hp: [16, 20], pool: '弱', pattern: 'cycle', size: 'small', art: 'codex/monster_soy_bottle',
     line: '（咕嘟咕嘟地流出來）', lines: ['（地上一灘黑）', '（味道很鹹）'],
     moves: [
-      { intent: 'debuff', label: '滴', effects: [{ kind: 'statusPlayer', name: '噎到', amount: 2 }] },
-      { intent: 'attack', label: '潑', effects: [{ kind: 'damage', amount: 4 }, { kind: 'statusPlayer', name: '噎到', amount: 1 }] },
-      { intent: 'debuff', label: '滴', effects: [{ kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'debuff', label: '滴', effects: [{ kind: 'statusPlayer', name: '中毒', amount: 2 }] },
+      { intent: 'attack', label: '潑', effects: [{ kind: 'damage', amount: 4 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }] },
+      { intent: 'debuff', label: '滴', effects: [{ kind: 'statusPlayer', name: '中毒', amount: 2 }] },
     ] },
   // 蓄力的入門版：躲兩回合再來一記重的，教玩家看意圖決定要擋還是要打
   { id: 'box_lurker', name: '紙箱怪', hp: [28, 32], pool: '弱', pattern: 'cycle', size: 'medium', art: 'codex/monster_box_lurker',
@@ -483,13 +483,13 @@ export const enemies: EnemyDef[] = [
   { id: 'shamisen_cat', name: '三味線貓', hp: [52, 58], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_shamisen_cat',
     line: '（調了調弦）', lines: ['（撥了一聲弦）', '聽完再走。'], moves: [
       { intent: 'debuff', label: '走音', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }, { kind: 'damage', amount: 6 }] },
-      { intent: 'attack', label: '高音', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'attack', label: '高音', effects: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '中毒', amount: 3 }] },
       { intent: 'attack', label: '亂彈', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
       { intent: 'block', label: '調弦', effects: [{ kind: 'block', amount: 8 }, { kind: 'heal', n: 4 }] },
     ] },
   { id: 'lantern_ghost', name: '燈籠妖', hp: [56, 62], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_lantern_ghost',
     line: '（火光晃了一下）', lines: ['（舌頭伸得老長）', '（燈裡的火噗一聲變大）'], moves: [
-      { intent: 'attack', label: '舔火', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'attack', label: '舔火', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '中毒', amount: 3 }] },
       { intent: 'attack', label: '吐火', effects: [{ kind: 'damage', amount: 13 }] },
       { intent: 'block', label: '燈芯補油', effects: [{ kind: 'block', amount: 6 }, { kind: 'heal', n: 8 }] },
       { intent: 'attack', label: '撲上來', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
@@ -524,7 +524,7 @@ export const enemies: EnemyDef[] = [
     ] },
 
   // --- 2026-09-02 補怪（塔中）：單怪池只有 7 隻，連續兩場常常同一隻（使用者回報）。
-  // 每隻帶一個既有塔中怪沒有的路數：唐傘＝閃避＋連段、河童＝回血＋搶小魚乾、豆腐小僧＝噎到（毒）---
+  // 每隻帶一個既有塔中怪沒有的路數：唐傘＝閃避＋連段、河童＝回血＋搶小魚乾、豆腐小僧＝中毒（毒）---
   { id: 'kasa_obake', name: '唐傘小僧', hp: [52, 58], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_kasa_obake',
     line: '（單腳跳了兩下，舌頭甩來甩去）', lines: ['（傘骨喀啦喀啦）', '（單腳站著，居然很穩）'], moves: [
       { intent: 'block', label: '撐傘', effects: [{ kind: 'block', amount: 8 }, { kind: 'statusSelf', name: '隱身', amount: 1 }] },
@@ -541,10 +541,10 @@ export const enemies: EnemyDef[] = [
     ] },
   { id: 'tofu_boy', name: '豆腐小僧', hp: [40, 46], pool: '中', pattern: 'random', size: 'small', art: 'codex/monster_tofu_boy',
     line: '請、請吃豆腐……', lines: ['不、不吃也沒關係……', '（把托盤舉得高高的）'], moves: [
-      { intent: 'debuff', label: '請吃豆腐', effects: [{ kind: 'statusPlayer', name: '噎到', amount: 4 }] },
+      { intent: 'debuff', label: '請吃豆腐', effects: [{ kind: 'statusPlayer', name: '中毒', amount: 4 }] },
       { intent: 'attack', label: '豆腐砸', effects: [{ kind: 'damage', amount: 12 }] },
-      { intent: 'block', label: '躲進斗笠', effects: [{ kind: 'block', amount: 12 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
-      { intent: 'attack', label: '撒黴豆腐', effects: [{ kind: 'damage', amount: 7 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
+      { intent: 'block', label: '躲進斗笠', effects: [{ kind: 'block', amount: 12 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }] },
+      { intent: 'attack', label: '撒黴豆腐', effects: [{ kind: 'damage', amount: 7 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
     ] },
 
   // --- 原塔頂魔物（中池）：血 48–80、單發 12–17，全帶一手拿手戲。2026-09-03 換池：月見兔、貓頭鷹夜哨、紙鶴式神降到塔中（數字退回加硬前），其餘留塔頂 ---
@@ -575,7 +575,7 @@ export const enemies: EnemyDef[] = [
   { id: 'miasma_blob', name: '魔氣凝塊', hp: [84, 94], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_miasma_blob',
     plating: 4, angerOnSkill: 1,   // 魔氣每回合凝回一層防禦；打技能牌會激怒牠
     line: '（隱約有一張貓臉）', lines: ['（咕嚕咕嚕地冒泡）', '（那張臉在笑）'], moves: [
-      { intent: 'attack', label: '侵蝕', effects: [{ kind: 'damage', amount: 11 }, { kind: 'statusPlayer', name: '噎到', amount: 3 }] },
+      { intent: 'attack', label: '侵蝕', effects: [{ kind: 'damage', amount: 11 }, { kind: 'statusPlayer', name: '中毒', amount: 3 }] },
       { intent: 'buff', label: '膨脹', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }, { kind: 'block', amount: 8 }] },
       { intent: 'attack', label: '魔氣浪', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
       { intent: 'special', label: '凝聚再生', effects: [{ kind: 'heal', n: 12 }] },
@@ -615,7 +615,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'debuff', label: '祓除', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
       { intent: 'attack', label: '狐火', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'block', label: '結界', effects: [{ kind: 'block', amount: 14 }] },
-      { intent: 'attack', label: '狐火纏身', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'attack', label: '狐火纏身', effects: [{ kind: 'damage', amount: 10 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }] },
     ] },
   { id: 'armor_ghost', name: '空鎧武者', hp: [88, 96], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_armor_ghost',
     plating: 6, curlUp: 8,   // 空鎧：每回合長甲、第一次被打痛先縮一次
@@ -647,7 +647,7 @@ export const enemies: EnemyDef[] = [
     line: '（一邊嚼一邊看你）', lines: ['嚼嚼……你是誰？', '（打了個飽嗝）'], moves: [
       { intent: 'attack', label: '肚皮壓', effects: [{ kind: 'damage', amount: 18 }] },
       { intent: 'special', label: '打呵欠', effects: [{ kind: 'heal', n: 8 }, { kind: 'block', amount: 8 }] },
-      { intent: 'attack', label: '丟魚骨頭', effects: [{ kind: 'damage', amount: 6, times: 2 }, { kind: 'statusPlayer', name: '噎到', amount: 1 }] },
+      { intent: 'attack', label: '丟魚骨頭', effects: [{ kind: 'damage', amount: 6, times: 2 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }] },
       { intent: 'attack', label: '滾來滾去', effects: [{ kind: 'damage', amount: 10, times: 2 }] },
     ],
     phases: [{
@@ -705,7 +705,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] },
       { intent: 'block', label: '葉隱', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }, { kind: 'block', amount: 10 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },   // 2026-09-03 第六輪：看破
       { intent: 'debuff', label: '肚皮鼓', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }] },
-      { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 9, times: 3 }, { kind: 'statusPlayer', name: '噎到', amount: 2 }] },
+      { intent: 'attack', label: '酒氣', effects: [{ kind: 'damage', amount: 9, times: 3 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }] },
     ],
     /*
      * 第 6 回合亮預告、第 7 回合叫兩隻，之後每七回合一輪；其餘照表輪著出。
@@ -1153,7 +1153,7 @@ export const enemies: EnemyDef[] = [
   { id: 'lantern_twin_a', name: '紙燈籠雙子・甲', hp: [30, 32], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_lantern_twin',
     reviveGroup: 'twins', reviveHp: 12,
     line: '（火苗晃了一下）', lines: ['（另一盞也亮了）', '（紙面透出橘光）'], moves: [
-      { intent: 'attack', label: '火苗', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '噎到', amount: 1 }] },
+      { intent: 'attack', label: '火苗', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }] },
       { intent: 'debuff', label: '照亮', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
     ] },
   { id: 'lantern_twin_b', name: '紙燈籠雙子・乙', hp: [30, 32], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_lantern_twin',

@@ -166,8 +166,8 @@ export const cards: readonly CardDef[] = [
 
   // ===== 絕學（18） =====
   { id: 'tieshazhang', name: '絕學·鐵砂掌', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/tieshazhang',
-    effects: [{ kind: 'damage', amount: 7 }, { kind: 'status', name: '噎到', amount: 3, target: 'enemy' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 9 }, { kind: 'status', name: '噎到', amount: 4, target: 'enemy' }] } },
+    effects: [{ kind: 'damage', amount: 7 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 9 }, { kind: 'status', name: '中毒', amount: 4, target: 'enemy' }] } },
   { id: 'qinna', name: '絕學·擒拿手', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/qinna',
     effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '炸毛', amount: 2, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'status', name: '炸毛', amount: 3, target: 'enemy' }] } },
@@ -218,7 +218,7 @@ export const cards: readonly CardDef[] = [
   { id: 'neili', name: '內力不足', cost: 0, type: 技, rarity: '常見', pool: '壞毛病', target: 'none', art: 'card/neili', keywords: ['不可打出'], effects: [], upgrade: {}, curse: { onDraw: 'loseEnergy' } },
 
   // ===== 2026-08-30 新增 20 張 =====
-  // 補的是「機制上的空缺」，不是再多幾張打人牌：噎到、反彈、飯糰、隱身收尾原本各只有一兩張撐著，
+  // 補的是「機制上的空缺」，不是再多幾張打人牌：中毒、反彈、飯糰、隱身收尾原本各只有一兩張撐著，
   // 牌組很難圍繞它們成形。稀有牌也從 4 張補到 7 張——那是每一局最期待的東西。
   { id: 'roubao', name: '肉球連擊', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/roubao',
     effects: [{ kind: 'damage', amount: 4, times: 2 }], upgrade: { effects: [{ kind: 'damage', amount: 5, times: 2 }] } },
@@ -249,8 +249,8 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 11 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
   { id: 'caiweiba', name: '忍術·踩尾巴', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/caiweiba',
-    effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '噎到', amount: 2, target: 'enemy' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '噎到', amount: 3, target: 'enemy' }] } },   // 2026-09-04 升級傷害 6→8（原本沒漲）
+    effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }] } },   // 2026-09-04 升級傷害 6→8（原本沒漲）
   { id: 'diaohu', name: '忍術·調虎離山', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/diaohu',
     effects: [{ kind: 'status', name: '懶洋洋', amount: 1, target: 'all' }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }, { kind: 'draw', n: 1 }] } },
@@ -335,7 +335,7 @@ export const cards: readonly CardDef[] = [
   { id: 'dilie', name: '忍術·地裂陣', cost: 3, type: 攻, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/dilie',
     effects: [{ kind: 'damage', amount: 14, target: 'all' }, { kind: 'block', amount: 8 }],
     upgrade: { effects: [{ kind: 'damage', amount: 18, target: 'all' }, { kind: 'block', amount: 10 }] } },
-  // 2026-09-04 牌池體檢補牌（使用者拍板：忍術攻擊 4、絕學常見 3、解減益 1、噎到流 4；hidden：牌面到齊後由 art_cards_0904b.sh 拿掉）
+  // 2026-09-04 牌池體檢補牌（使用者拍板：忍術攻擊 4、絕學常見 3、解減益 1、中毒流 4；hidden：牌面到齊後由 art_cards_0904b.sh 拿掉）
   { id: 'huixuan', name: '忍術·迴旋踢', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/huixuan',
     effects: [{ kind: 'damage', amount: 7 }, { kind: 'block', amount: 3 }],
     // 升級版 2026-09-11 改回單段（使用者）：7×3 是 21 點，跟一費常見牌的量級差太多，
@@ -354,11 +354,11 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'cleanse', max: 1 }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'cleanse', max: 2 }, { kind: 'draw', n: 1 }] } },
   { id: 'maoqiudan', name: '忍術·毛球彈', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/maoqiudan',
-    effects: [{ kind: 'damage', amount: 4 }, { kind: 'status', name: '噎到', amount: 3, target: 'enemy' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '噎到', amount: 4, target: 'enemy' }] } },
+    effects: [{ kind: 'damage', amount: 4 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '中毒', amount: 4, target: 'enemy' }] } },
   { id: 'qianglafen', name: '忍術·嗆辣粉', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/qianglafen',
-    effects: [{ kind: 'status', name: '噎到', amount: 3, target: 'all' }],
-    upgrade: { effects: [{ kind: 'status', name: '噎到', amount: 4, target: 'all' }] } },
+    effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'all' }],
+    upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 4, target: 'all' }] } },
   { id: 'bengquan', name: '絕學·崩拳', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/bengquan',
     effects: [{ kind: 'damage', amount: 12 }],
     upgrade: { effects: [{ kind: 'damage', amount: 16 }] } },
@@ -369,11 +369,11 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'block', amount: 5 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'block', amount: 8 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
   { id: 'cuiye', name: '絕學·催噎', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/cuiye',
-    effects: [{ kind: 'doubleStatus', name: '噎到' }],
-    upgrade: { effects: [{ kind: 'doubleStatus', name: '噎到', add: 2 }] } },
+    effects: [{ kind: 'doubleStatus', name: '中毒' }],
+    upgrade: { effects: [{ kind: 'doubleStatus', name: '中毒', add: 2 }] } },
   { id: 'ehou', name: '絕學·扼喉', cost: 2, type: 攻, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/ehou',
-    effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '噎到', amount: 4, target: 'enemy' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'status', name: '噎到', amount: 5, target: 'enemy' }] } },
+    effects: [{ kind: 'damage', amount: 8 }, { kind: 'status', name: '中毒', amount: 4, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'status', name: '中毒', amount: 5, target: 'enemy' }] } },
   { id: 'huxin', name: '絕學·護心', cost: 1, type: 能, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/huxin',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 5 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 8 }] }] } },
