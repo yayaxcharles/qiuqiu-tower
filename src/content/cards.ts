@@ -412,9 +412,17 @@ export const cards: readonly CardDef[] = [
    * 它們是直接按 id 發的，不經過抽牌池，所以圖還沒好也照樣開得了局。
    */
   // ---- 起手（4 張，共 10 張牌：飛針 x4、退開 x4、遠射 x1、淬毒 x1）----
+  /*
+   * 飛針。設計稿寫 3 傷＋1 毒，**實測太弱**（2026-09-12 用聰明機器人各跑 200 局）：
+   * 那個數字下她第一關內陣亡 144／200，球球是 113，而且一局都沒通關。
+   * 改成 4 傷＋2 毒之後是 105／200、平均 22.11F——跟球球（113、22.75F）差在誤差裡。
+   *
+   * **再往上就會反過來**：連淬毒一起加到 5 層的那一版變成 70／200、24.68F，
+   * 她比球球還強。四傷兩毒是量出來的落點，不是猜的。
+   */
   { id: 'feifei_feizhen', name: '飛針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_feizhen', hidden: true,
-    effects: [{ kind: 'damage', amount: 3 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }],
-    upgrade: { effects: [{ kind: 'damage', amount: 4 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }] } },
+    effects: [{ kind: 'damage', amount: 4 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }] } },
   { id: 'feifei_tuikai', name: '退開', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '起手', target: 'self', art: 'card/feifei_tuikai', hidden: true,
     effects: [{ kind: 'block', amount: 4 }, { kind: 'range', n: 1 }],
     upgrade: { effects: [{ kind: 'block', amount: 7 }, { kind: 'range', n: 1 }] } },

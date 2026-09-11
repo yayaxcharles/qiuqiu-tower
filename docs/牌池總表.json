@@ -3172,17 +3172,17 @@
   "effects": [
    {
     "kind": "damage",
-    "amount": 3
+    "amount": 4
    },
    {
     "kind": "status",
     "name": "中毒",
-    "amount": 1,
+    "amount": 2,
     "target": "enemy"
    }
   ],
-  "text": "造成 3 點傷害，給目標 1 層中毒。",
-  "up": "造成 4 點傷害，給目標 2 層中毒。"
+  "text": "造成 4 點傷害，給目標 2 層中毒。",
+  "up": "造成 6 點傷害，給目標 3 層中毒。"
  },
  {
   "id": "feifei_tuikai",

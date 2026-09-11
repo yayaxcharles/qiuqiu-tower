@@ -1,4 +1,5 @@
 import { DEBUFFS, TURN_DECAY } from './types';
+import type { Hero } from './hero';
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
@@ -268,7 +269,26 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         } else {
           const n = fx.target === 'all' ? enemies.length : 1;
           if (fx.name === '翻肚') value += 5 * n;
-          else if (fx.name === '中毒') value += fx.amount * (fx.amount + 1) / 2 * 0.9 * n;
+          /*
+           * 中毒**會疊**，所以估的要是「這幾層多打出多少」，不是「這幾層自己打多少」。
+           *
+           * N 層的總傷害是 N(N+1)/2。原本寫 `amount*(amount+1)/2`，等於假設牠身上本來是乾淨的：
+           * 對著已經 10 層的再加 3 層，實際是 91−55＝**36 點**，原本卻只估成 6 點。
+           * 差六倍，而機器人就是照這個數字挑牌——堆毒流在牠手上永遠疊不起來
+           *（2026-09-12 量菲菲時抓到：她 15F 陣亡 216／300，球球只有 161）。
+           * 另外**打超過牠的血就是浪費**，估值夾在牠現在的生命。
+           */
+          else if (fx.name === '中毒') {
+            const tri = (k: number): number => k * (k + 1) / 2;
+            const marginal = (e: EnemyCombat): number => {
+              const cur = getStatus(e, '中毒');
+              return Math.min(tri(cur + fx.amount) - tri(cur), e.hp);
+            };
+            const hit = fx.target === 'all' ? enemies
+              : [target !== undefined ? enemies.find((e) => e.uid === target) : undefined, target0, enemies[0]].find((e) => !!e);
+            const list = Array.isArray(hit) ? hit : hit ? [hit] : [];
+            value += list.reduce((sum, e) => sum + marginal(e), 0) * 0.9;
+          }
           else if (fx.name === '懶洋洋') value += Math.min(incoming, 12) * 0.25 * n + 2;
           else if (fx.name === '炸毛') value += 1.5 * n;
           else if (fx.name === '定身') {
@@ -694,8 +714,8 @@ function nodeScore(run: RunState, n: MapNode): number {
   }
 }
 
-export function smartRun(seed: string, difficulty = 1): SmartStats {
-  const run = newRun(seed, difficulty);
+export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): SmartStats {
+  const run = newRun(seed, difficulty, hero);   // `hero`＝拿聰明機器人量另一個角色的平衡（2026-09-12 加的）
   const rng = new Rng(seedFromString('smart:' + seed));
   const stats: SmartStats = { seed, won: false, floor: 0, act: 1, deckSize: 0, deckIds: [], relicIds: [], upgraded: 0, relics: 0, diedTo: null, bosses: [], fights: [] };
   let guard = 0;

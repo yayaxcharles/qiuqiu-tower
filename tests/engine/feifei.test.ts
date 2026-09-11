@@ -299,9 +299,9 @@ describe('菲菲：三個長效旗標', () => {
     playCard(cs, uidOf(cs, 'feifei_qianzhen'));
     expect(cs.player.poisonOnAttack).toBe(1);
     play(cs, 'feifei_feizhen');
-    expect(getStatus(foe(cs), '中毒'), '飛針本身 1 層 ＋ 千針萬毒 1 層').toBe(2);
+    expect(getStatus(foe(cs), '中毒'), '飛針本身 2 層 ＋ 千針萬毒 1 層').toBe(3);
     play(cs, 'feifei_moyao');
-    expect(getStatus(foe(cs), '中毒'), '抹藥是技能牌，只有它自己的 4 層').toBe(6);
+    expect(getStatus(foe(cs), '中毒'), '抹藥是技能牌，只有它自己的 4 層').toBe(7);
   });
 
   it('千針萬毒補的那一層**不會被同一張見血封喉吃到**（不然它會自己餵自己）', () => {

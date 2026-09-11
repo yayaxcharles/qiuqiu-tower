@@ -1,4 +1,5 @@
 import { cardById } from '../content/cards';
+import type { Hero } from './hero';
 import { eventById } from '../content/events';
 import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
 import { nextChoices } from './map';
@@ -73,11 +74,11 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
   }
 }
 
-export function playRun(seed: string, opts: { maxTurnsPerCombat?: number } = {}): BotStats {
+export function playRun(seed: string, opts: { maxTurnsPerCombat?: number; hero?: Hero } = {}): BotStats {
   // 上限 300：亂打會把牌組用「告退」耗到只剩沒有輸出的牌，再靠隱身跟魔物僵持，
   // 一萬七百局實測最長的一場是 134 回合（scan-4485 的巨型飯糰），留兩倍餘裕；真的卡死仍會被抓到
   const maxTurns = opts.maxTurnsPerCombat ?? 300;
-  const run = newRun(seed);
+  const run = newRun(seed, 1, opts.hero ?? 'ninja');   // `hero`＝拿機器人量另一個角色的平衡（2026-09-12 加的）
   const rng = new Rng(seedFromString('bot:' + seed));
   let guard = 0;
   while (run.status === 'playing') {
