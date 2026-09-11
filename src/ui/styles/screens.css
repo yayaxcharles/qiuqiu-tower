@@ -687,8 +687,17 @@
   display: flex; align-items: flex-end; justify-content: center;
 }
 /* 直接放的（事件）與包在 `.chest-scene` 裡的（紙箱，秘寶要疊上去所以多一層定位框）都算 */
+/*
+ * 事件插圖的尺寸。**三條選擇器缺一不可**（稽核 2026-09-11 高-2）：
+ * 插圖 2026-09-11 起可能被包進 `.event-art-stack`（戰利品要疊在它上面），
+ * 只寫直接子元素的話那一層就不命中，插圖會掉回 `screens.css` 上面那條通用的
+ * `width: 350px; height: 196px`——線性尺寸少 27%、面積少 47%、連陰影都不見，
+ * 而且同一個事件「有收穫」與「沒效果」兩張圖會一大一小，一眼就看得出來。
+ * 60 張結果圖裡有 36 張會走到疊層那條路，也就是多數情況。
+ */
 .scene-art > img.event-art,
-.scene-art > .chest-scene > img.event-art { width: auto; height: 360px; max-width: 700px; margin: 0; filter: drop-shadow(0 10px 18px #000000a6); }
+.scene-art > .chest-scene > img.event-art,
+.scene-art > .event-art-stack > img.event-art { width: auto; height: 360px; max-width: 700px; margin: 0; filter: drop-shadow(0 10px 18px #000000a6); }
 .scene-art .reward-cards { margin: 8px 0 0; }
 .scene-portrait {
   position: absolute; left: 34px; bottom: 150px; height: 330px; width: auto; max-width: 300px;
@@ -867,7 +876,11 @@
 .fx-host > img { display: block; }
 .showcase-icon { height: 150px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: showcase-pop .55s cubic-bezier(.2, .9, .3, 1.2) both, loot-float 2.6s ease-in-out .6s infinite; }
 /* 中上方那塊放的是牌（大俠傳功的三張、秀牌區）時往下移到那塊空間的正中：貼著上緣太偏上（使用者回報） */
-.scene-art:has(.reward-cards), .scene-art:has(.showcase) { top: 50%; transform: translate(-50%, -78%); }
+.scene-art:has(.reward-cards), /* **只認直接子元素**（稽核 2026-09-11 中-1）：戰利品 2026-09-11 起可能被包進
+   `.event-art-stack`，用後代比對的話「有插圖也有戰利品」時也會命中，
+   `.scene-art` 被往下搬三十幾像素，`scene.ts` 的 `fitArt` 那個寫死的 `ART_TOP = 18`
+   就量錯了——文案再長一點就會出現「字被圖蓋住、沒有任何錯誤訊息」 */
+.scene-art:has(> .showcase) { top: 50%; transform: translate(-50%, -78%); }
 
 /* ===== 過關畫面的秘寶方塊與排版（劇場版面） ===== */
 .scene-picks { display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -1262,3 +1275,42 @@
   text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3;
 }
 .boss-door .btn { min-width: 220px; }
+
+/*
+ * 事件結果：插圖鋪底、戰利品（學到的牌、拿到的秘寶忍具）疊在它前面（2026-09-11）。
+ *
+ * 以前是三選一，有收穫的選項一律看不到插圖——而那正是最值得畫一張結果圖的時候
+ *（稽核 2026-09-11 高-1：58 張裡 26 張永遠被擠掉）。
+ * 疊上去的那層絕對定位、不佔版面高度，所以對白框的位置一格都不會動。
+ */
+.event-art-stack { position: relative; display: inline-block; }
+.event-art-stack > img.event-art { display: block; }   /* 沒有行框就沒有基線縫（紙箱那邊的教訓） */
+/*
+ * 戰利品疊在插圖下緣。
+ *
+ * **寬度一定要寫死，而且要寫成「插圖之外」的寬度**（稽核 2026-09-11 高-1）。
+ *
+ * 兩個坑疊在一起：
+ * ① 絕對定位只寫 `left`、沒有 `right` 也沒有 `width` 時，可用寬度是「容器寬減掉 left」
+ *    ＝只有一半。第一版就是這樣，那一層只有一百多像素。
+ * ② 就算補上 `right: 0`，容器是 `.event-art-stack`、寬度跟著插圖走（480），
+ *    **還是不夠**：兩支忍具是兩個 `max-width: 360` 的直欄加 34 的間隔＝最多 754。
+ *
+ * 塞不下的下場：牌會各被壓到七十幾寬（`.card` 自己 `overflow: hidden`，
+ * 彈性最小寬度變 0），牌面文字直接被裁掉；忍具則換行疊成上下兩排、頂端跑出舞台。
+ *
+ * 所以給它 1080——那正是改成疊層之前、戰利品直接掛在 `.scene-art` 底下時的可用寬度
+ *（見下面 `.showcase.icons` 那條「父層只有 1080」的註解）。溢出插圖是刻意的。
+ */
+.event-art-loot {
+  position: absolute;
+  left: 50%;
+  width: 1080px;
+  translate: -50% 0;
+  bottom: -18px;
+  display: flex;
+  justify-content: center;
+  /* 底下墊一層柔光：戰利品壓在插圖上要看得清楚，但不能把插圖整個遮掉 */
+  filter: drop-shadow(0 6px 14px #000000cc);
+}
+.event-art-loot .showcase { margin: 0; }
