@@ -595,6 +595,15 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
  */
 export function pickVictim(cs: CombatState): PlayerCombat {
   const standing = cs.players.filter((p) => !p.down);
+  /*
+   * 有人喊「我來擋」就全部打他（連線版 2026-09-11）。
+   *
+   * **擺在擲骰之前**：不然「這一輪都打我」會變成「這一輪有一半機率打我」。
+   * 兩個人同時喊的話照座位順序取第一個——不擲骰，因為擲了也只是把
+   * 「兩個人都想擋」這件事變成隨機，玩家看不出道理。
+   */
+  const taunt = standing.find((p) => p.taunt);
+  if (taunt) return taunt;
   if (standing.length <= 1) return standing[0] ?? (cs.player as PlayerCombat);
   return cs.rng.pick(standing);
 }

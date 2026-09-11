@@ -22,7 +22,7 @@ describe('牌池分流', () => {
 
   it('標了 hero 的牌只有那個職業拿得到', () => {
     const ninjaOnly = cards.filter((c) => c.hero === 'ninja');
-    expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占').toBe(10);
+    expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占（10 張）＋連線牌「你先躲」）').toBe(11);
     for (const c of ninjaOnly) {
       expect(cardsForHero('ninja').includes(c), c.name).toBe(true);
       expect(cardsForHero('samurai').includes(c), `武士不該拿到 ${c.name}`).toBe(false);

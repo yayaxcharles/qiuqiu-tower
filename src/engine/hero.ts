@@ -26,3 +26,22 @@ export function heroOf(p: Pick<RunPlayer, 'hero'>): Hero {
 export function cardsForHero(hero: Hero): CardDef[] {
   return cards.filter((c) => !c.hero || c.hero === hero);
 }
+
+/**
+ * 這張牌**現在這一局**開得到嗎——獎勵、罐頭鋪、事件全部問這一支。
+ *
+ * 抽成一支共用的判準是刻意的：同一條規則散在四個地方各寫一次，
+ * 遲早會有人只改了三個（這一批的稽核就抓到過同型的問題）。
+ *
+ * 三道關卡：
+ * - `combatOnly`：魔物塞牌用的雜牌（黏液、眼冒金星），任何池子都不進
+ * - `hidden`：插圖還沒生好，圖到齊由生圖腳本拿掉旗標
+ * - `hero`：職業獨占。不濾的話武士會開出隱身牌，但他整套機制裡根本沒有隱身
+ * - `coop`：連線專用牌，**只有兩個人以上的局才進池**（使用者 2026-09-11 指定）
+ */
+export function pickable(c: CardDef, hero: Hero, players = 1): boolean {
+  if (c.combatOnly || c.hidden) return false;
+  if (c.hero && c.hero !== hero) return false;
+  if (c.coop && players < 2) return false;
+  return true;
+}

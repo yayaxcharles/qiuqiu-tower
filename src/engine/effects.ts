@@ -3,7 +3,7 @@ import { endTurn } from './combat';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
 import { DEBUFFS, TURN_DECAY } from './types';
-import type { CardInstance, CombatState, Effect, EffectCtx } from './types';
+import type { CardInstance, CombatState, Effect, EffectCtx, PlayerCombat } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
 export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx): void {
@@ -21,6 +21,17 @@ function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean) {
   if (all) return aliveEnemies(cs);
   const t = ctx.targetUid === undefined ? undefined : findEnemy(cs, ctx.targetUid);
   return t ? [t] : [];
+}
+
+/**
+ * 這張牌要幫的「同伴」是誰。
+ *
+ * 一個人玩、或同伴已經倒下時**回自己**——連線牌可能從事件或別人分享的局面碼
+ * 流進單機的牌組，那時候不能變成一張完全沒作用的廢牌。
+ * 倒下的人也不該收禮：加在他身上等於白打一張。
+ */
+function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
+  return cs.players.find((q) => q !== me && !q.down) ?? me;
 }
 
 /** 回傳 true＝已暫停等待選牌 */
@@ -113,6 +124,54 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'block': gainBlock(cs, p, fx.amount); return false;
+    case 'blockAll': {
+      // **每一位都要照自己的貓步算**，所以一個一個走 `gainBlock`，不是算一次再發下去
+      for (const q of cs.players) if (!q.down) gainBlock(cs, q, fx.amount);
+      if (cs.players.length > 1) log(cs, '蜷縮分了對方一半');
+      return false;
+    }
+    case 'statusAlly': {
+      const mate = ally(cs, p);
+      // 隱身走 `gainStealth`：那支會吃**收禮那一方**的秘寶加成（紙袋、影披風），
+      // 直接 `addStatus` 的話等於偷偷少給（稽核自檢 2026-09-11）
+      if (fx.name === '隱身') gainStealth(cs, fx.amount, mate); else addStatus(mate, fx.name, fx.amount);
+      if (mate !== p) log(cs, `幫對方加了 ${fx.amount} 層${fx.name}`);
+      return false;
+    }
+    case 'blockAlly': {
+      const mate = ally(cs, p);
+      // 照**收禮那一方**自己的貓步算：送出去的是「幫他擋一下」，不是把自己的護甲搬過去
+      gainBlock(cs, mate, fx.amount);
+      if (mate !== p) log(cs, `幫對方擋了 ${fx.amount} 點`);
+      return false;
+    }
+    case 'drawAlly': {
+      const mate = ally(cs, p);
+      drawCards(cs, fx.n, mate);
+      if (mate !== p) log(cs, `對方多抽了 ${fx.n} 張`);
+      return false;
+    }
+    case 'cleanseAlly': {
+      const mate = ally(cs, p);
+      const hit = DEBUFFS.filter((d) => getStatus(mate, d) > 0);
+      for (const d of hit) removeStatus(mate, d);
+      log(cs, hit.length
+        ? (mate === p ? `甩掉了${hit.join('、')}` : `幫對方拍掉了${hit.join('、')}`)
+        : '身上很乾淨，沒什麼好拍的');
+      return false;
+    }
+    case 'energyAlly': {
+      const mate = ally(cs, p);
+      mate.energy += fx.n;
+      cs.energyGain += fx.n;   // 畫面靠這個數字知道飯糰是「多出來的」不是自己省下的
+      if (mate !== p) log(cs, `飯糰分了對方 ${fx.n} 顆`);
+      return false;
+    }
+    case 'taunt': {
+      p.taunt = true;
+      log(cs, cs.players.length > 1 ? '球球站到前面，這一輪魔物都衝著他來' : '球球擺出架式');
+      return false;
+    }
     case 'draw': drawCards(cs, fx.n, p); return false;
     case 'drawIfTargetStatus': {
       const t = cs.enemies.find((e) => e.uid === ctx.targetUid);

@@ -154,6 +154,222 @@
   "up": "造成 10 點傷害；打倒牠就多拿 25 條小魚乾。"
  },
  {
+  "id": "fenyiban",
+  "name": "分你一半",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "blockAll"
+  ],
+  "effects": [
+   {
+    "kind": "blockAll",
+    "amount": 5
+   }
+  ],
+  "text": "每個人各獲得 5 點蜷縮。",
+  "up": "每個人各獲得 8 點蜷縮。"
+ },
+ {
+  "id": "ninaqudang",
+  "name": "你拿去擋",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "blockAlly"
+  ],
+  "effects": [
+   {
+    "kind": "blockAlly",
+    "amount": 12
+   }
+  ],
+  "text": "同伴獲得 12 點蜷縮（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 16 點蜷縮（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "nixianduo",
+  "name": "你先躲",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "statusAlly"
+  ],
+  "effects": [
+   {
+    "kind": "statusAlly",
+    "name": "隱身",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 2 層隱身（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 3 層隱身（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "wolaidang",
+  "name": "我來擋",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "taunt",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "taunt"
+   },
+   {
+    "kind": "block",
+    "amount": 10
+   }
+  ],
+  "text": "這一輪魔物的攻擊全部衝著你來，獲得 10 點蜷縮。",
+  "up": "這一輪魔物的攻擊全部衝著你來，獲得 15 點蜷縮。"
+ },
+ {
+  "id": "bangnisheme",
+  "name": "幫你一把",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "statusAlly"
+  ],
+  "effects": [
+   {
+    "kind": "statusAlly",
+    "name": "爪力",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 2 點爪力（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 3 點爪力（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "jienicailiangbu",
+  "name": "借你踩兩步",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "statusAlly"
+  ],
+  "effects": [
+   {
+    "kind": "statusAlly",
+    "name": "貓步",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 2 點貓步（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 3 點貓步（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "niyechouyizhang",
+  "name": "你也抽一張",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "drawAlly"
+  ],
+  "effects": [
+   {
+    "kind": "drawAlly",
+    "n": 1
+   }
+  ],
+  "text": "同伴抽 1 張牌（自己一個人時算在自己身上）。",
+  "up": "同伴抽 2 張牌（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "wobangnipaidiao",
+  "name": "我幫你拍掉",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "cleanseAlly"
+  ],
+  "effects": [
+   {
+    "kind": "cleanseAlly"
+   }
+  ],
+  "upCost": 0,
+  "text": "清掉同伴身上所有減益（自己一個人時清自己的）。",
+  "up": "清掉同伴身上所有減益（自己一個人時清自己的），清掉自己身上所有的減益。"
+ },
+ {
+  "id": "fantuanfenni",
+  "name": "飯糰分你",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "energyAlly"
+  ],
+  "effects": [
+   {
+    "kind": "energyAlly",
+    "n": 1
+   }
+  ],
+  "text": "同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）。消耗。",
+  "up": "同伴這回合多 2 顆飯糰（自己一個人時算在自己身上）。消耗。"
+ },
+ {
   "id": "wozaizhe",
   "name": "我在這",
   "pool": "忍術",

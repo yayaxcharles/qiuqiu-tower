@@ -1,4 +1,5 @@
 import { cards } from '../content/cards';
+import { pickable } from './hero';
 import type { Hero } from './hero';
 import { potions } from '../content/potions';
 import { relics } from '../content/relics';
@@ -36,15 +37,12 @@ function rollRarity(rng: Rng, available: Set<Rarity>, late = false, rareBonus = 
   return table[table.length - 1]![0];
 }
 
-export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0, odds?: readonly [Rarity, number][], hero: Hero = 'ninja'): CardDef[] {
+export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0, odds?: readonly [Rarity, number][], hero: Hero = 'ninja', players = 1): CardDef[] {
   const out: CardDef[] = [];
   const taken = new Set(exclude);
   for (let i = 0; i < n; i++) {
-    // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不進任何獎勵池
-    // 職業獨占（2026-09-05）：沒標 hero 的共用，標了的只有那個職業開得到——
-    // 不濾的話武士會開出隱身牌，但他整套機制裡根本沒有隱身
-    const remaining = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden
-      && (!c.hero || c.hero === hero) && !taken.has(c.id));
+    // 能不能開出來一律問 `pickable`（雜牌、待圖、職業、連線牌四道關卡都在那裡）
+    const remaining = cards.filter((c) => c.pool === pool && pickable(c, hero, players) && !taken.has(c.id));
     if (remaining.length === 0) break;
     const rar = rollRarity(rng, new Set(remaining.map((c) => c.rarity)), late, rareBonus, odds);
     const pick = rng.pick(remaining.filter((c) => c.rarity === rar));

@@ -3,6 +3,7 @@ import { encounterById, enemyById } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
+import { coopHpMul } from './coopscale';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
@@ -19,6 +20,14 @@ export function startCombat(input: {
   hp: number; maxHp: number; deck: CardInstance[]; relics: string[]; potions: string[]; encounterId: string; rng: Rng;
   /** 難度旋鈕（見 content/difficulty.ts）：血量倍率乘在遭遇的 hpScale 上、爪力加在遭遇的魔氣上 */
   mods?: { hpMul?: number; strength?: number; startBlock?: number };
+  /**
+   * 這一場有幾個人（連線版 2026-09-11）。不填＝1，單機完全不受影響。
+   *
+   * 只影響**魔物的血量**（見 `coopscale.ts`），傷害一點都不動——抄的是二代的規則。
+   * 第二位玩家的資料由呼叫端在開戰後放進 `cs.players`；這裡只需要知道人數，
+   * 因為魔物的血量在建立的那一刻就要決定。
+   */
+  players?: number;
 }): CombatState {
   const enc = encounterById[input.encounterId];
   if (!enc) throw new Error(`未知的遭遇：${input.encounterId}`);
@@ -48,10 +57,13 @@ export function startCombat(input: {
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
   };
-  enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1))));
+  // 兩個人一起打時魔物血量放大（只放大血量，傷害不動——見 `coopscale.ts`）。
+  // 一個人時 `coopHpMul` 一定回 1，所以單機的數字一個位元都沒變
+  const hpMul = (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1) * coopHpMul(enc.pool, input.players ?? 1);
+  enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, hpMul)));
   const strength = (enc.strength ?? 0) + (input.mods?.strength ?? 0);   // 魔氣（見 EncounterDef.strength）＋難度
   if (strength) for (const e of cs.enemies) addStatus(e, '爪力', strength);
-  cs.mods = { hpMul: (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1), strength };   // 召喚出來的也照這組套（審查 #9；含遭遇的 hpScale，2026-09-02 稽核 L-2）
+  cs.mods = { hpMul, strength };   // 召喚出來的也照這組套（審查 #9；含遭遇的 hpScale，2026-09-02 稽核 L-2）
   if (player.relics.some((id) => relicById[id]?.hooks.firstAttackDouble)) player.firstAttackDouble = true;   // 秘笈
   for (const e of cs.enemies) {
     // 開場台詞從 line 與 lines 裡挑一句。不用戰鬥亂數（會動到整場的抽牌順序、機器人錨值），
@@ -116,6 +128,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { self: p, source: 'power' });
   p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0;
+  p.taunt = false;   // 「我來擋」只保護一輪（連線版 2026-09-11）
   p.firstCardPlayed = false; p.doubleNext = 0;   // 蓄力只撐到回合結束；秘笈的第一擊加倍走自己的旗標（審查 #8）
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnDraw') : 0);
   if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnDraw ?? 0) > 0) fireRelic(cs, rid);

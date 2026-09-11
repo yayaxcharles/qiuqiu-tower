@@ -2,15 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 3、忍術 61、絕學 36（含 14 張待圖 hidden）、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 3、忍術 67、絕學 39（含待圖 hidden）、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     expect(count('起手')).toBe(3);
-    expect(count('忍術')).toBe(61);
-    expect(count('絕學')).toBe(36);
+    // 忍術 61→67、絕學 36→39：2026-09-11 的九張連線牌（`coop: true`，只有雙人局才進池）。
+    // 九張都掛 `hidden`，圖到齊才會進獎勵與罐頭鋪
+    expect(count('忍術')).toBe(67);
+    expect(count('絕學')).toBe(39);
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(110);
+    expect(cards.length).toBe(119);
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);

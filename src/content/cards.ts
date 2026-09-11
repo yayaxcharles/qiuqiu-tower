@@ -23,6 +23,60 @@ export const cards: readonly CardDef[] = [
   { id: 'shunshou', name: '忍術·順手牽羊', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/shunshou',
     effects: [{ kind: 'damage', amount: 7 }, { kind: 'gold', n: 15, onKill: true }],
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'gold', n: 25, onKill: true }] } },
+  /*
+   * ===== 九張連線牌（2026-09-11）=====
+   *
+   * 起點是《殺戮尖塔 2》的連線專用牌（Rally／Coordinate／Intercept），
+   * 使用者要求擴充成一整套：幫對方隱身、幫對方擋、給對方爪力與貓步。
+   * 分三條線——**防禦**（分你一半、你拿去擋、你先躲、我來擋）、
+   * **進攻**（幫你一把、借你踩兩步）、**節奏**（你也抽一張、我幫你拍掉、飯糰分你）。
+   *
+   * 名字照這個遊戲既有的口語路線走（我在這、交出來、先睡了），不取武功名——
+   * 它們是**跟同伴講的話**，用招式名反而隔了一層。
+   *
+   * `coop: true`＝**只有兩個人以上的局才會進獎勵與罐頭鋪的池子**（使用者指定）。
+   * 效果本身仍保留「一個人時退化成作用在自己身上」，因為牌可能從事件、
+   * 或別人分享的局面碼流進單機的牌組，那時候不能變成廢牌。
+   *
+   * 插圖還沒生，先掛 `hidden` 不進任何池——圖到齊再拿掉。
+   */
+  // ---- 給自己以外的人用的（防禦線）----
+  { id: 'fenyiban', name: '分你一半', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/fenyiban', hidden: true, coop: true,
+    effects: [{ kind: 'blockAll', amount: 5 }],
+    upgrade: { effects: [{ kind: 'blockAll', amount: 8 }] } },
+  // 整份給一個人，所以總量比「一人一半」多——集中防守的選項
+  { id: 'ninaqudang', name: '你拿去擋', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/ninaqudang', hidden: true, coop: true,
+    effects: [{ kind: 'blockAlly', amount: 12 }],
+    upgrade: { effects: [{ kind: 'blockAlly', amount: 16 }] } },
+  // 忍者獨占：這張給的是隱身，而武士整套機制裡根本沒有閃避（`hero.test.ts` 在守這條規則）。
+  // 對方是不是忍者不影響——判準是「誰開得到這張牌」，不是「誰受得了這個效果」
+  { id: 'nixianduo', name: '你先躲', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'ninja', target: 'self', art: 'card/nixianduo', hidden: true, coop: true,
+    effects: [{ kind: 'statusAlly', name: '隱身', amount: 2 }],
+    upgrade: { effects: [{ kind: 'statusAlly', name: '隱身', amount: 3 }] } },
+  { id: 'wolaidang', name: '我來擋', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/wolaidang', hidden: true, coop: true,
+    // 自己吃一輪全部的攻擊，所以要配一份蜷縮才擋得住——不然這張是純粹的自殺
+    effects: [{ kind: 'taunt' }, { kind: 'block', amount: 10 }],
+    upgrade: { effects: [{ kind: 'taunt' }, { kind: 'block', amount: 15 }] } },
+  // ---- 幫對方變強的（進攻線）----
+  { id: 'bangnisheme', name: '幫你一把', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/bangnisheme', hidden: true, coop: true,
+    effects: [{ kind: 'statusAlly', name: '爪力', amount: 2 }],
+    upgrade: { effects: [{ kind: 'statusAlly', name: '爪力', amount: 3 }] } },
+  { id: 'jienicailiangbu', name: '借你踩兩步', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/jienicailiangbu', hidden: true, coop: true,
+    effects: [{ kind: 'statusAlly', name: '貓步', amount: 2 }],
+    upgrade: { effects: [{ kind: 'statusAlly', name: '貓步', amount: 3 }] } },
+  // ---- 幫對方多做一點事的（節奏線）----
+  { id: 'niyechouyizhang', name: '你也抽一張', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/niyechouyizhang', hidden: true, coop: true,
+    effects: [{ kind: 'drawAlly', n: 1 }],
+    upgrade: { effects: [{ kind: 'drawAlly', n: 2 }] } },
+  { id: 'wobangnipaidiao', name: '我幫你拍掉', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/wobangnipaidiao', hidden: true, coop: true,
+    effects: [{ kind: 'cleanseAlly' }],
+    // 升級版順便幫自己也拍一次（`cleanse` 是清自己的）
+    upgrade: { cost: 0, effects: [{ kind: 'cleanseAlly' }, { kind: 'cleanse' }] } },
+  { id: 'fantuanfenni', name: '飯糰分你', cost: 0, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/fantuanfenni', hidden: true, coop: true,
+    // 0 費給對方 1 顆飯糰＝把自己這回合的行動力整個借給他，兩個人湊一次大招用的
+    keywords: ['消耗'],
+    effects: [{ kind: 'energyAlly', n: 1 }],
+    upgrade: { effects: [{ kind: 'energyAlly', n: 2 }] } },
   { id: 'wozaizhe', name: '我在這', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/wozaizhe',
     effects: [{ kind: 'damage', amount: 7 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }] } },

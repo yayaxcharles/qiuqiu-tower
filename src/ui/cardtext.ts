@@ -93,6 +93,15 @@ function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
+    // 幫隊友的三招（連線版 2026-09-11）。措辭刻意寫成「兩個人一起玩才看得出差別」，
+    // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉
+    case 'blockAll': return `每個人各獲得 ${fx.amount} 點蜷縮`;
+    case 'statusAlly': return `同伴獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '層'}${fx.name}（自己一個人時算在自己身上）`;
+    case 'taunt': return '這一輪魔物的攻擊全部衝著你來';
+    case 'blockAlly': return `同伴獲得 ${fx.amount} 點蜷縮（自己一個人時算在自己身上）`;
+    case 'drawAlly': return `同伴抽 ${fx.n} 張牌（自己一個人時算在自己身上）`;
+    case 'cleanseAlly': return '清掉同伴身上所有減益（自己一個人時清自己的）';
+    case 'energyAlly': return `同伴這回合多 ${fx.n} 顆飯糰（自己一個人時算在自己身上）`;
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
       if (fx.ifTargetDebuffed) return `目標身上有任何減益就再造成 ${fx.amount} 點傷害`;
