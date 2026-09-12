@@ -51,3 +51,32 @@ describe('過關與結局的插圖', () => {
     }
   });
 });
+
+/**
+ * 事件插圖也要能依角色（2026-09-12）。
+ *
+ * 76 張事件／畫面插圖裡有 54 張把球球畫進去了。這邊的退路跟結局那八張不同：
+ * **沒生好就退回球球那張**，不是整個不放——54 張要生好幾個小時，
+ * 中間放他的圖比整批事件都沒有插圖好。生一張就換一張。
+ */
+describe('事件插圖依角色', () => {
+  it('她有自己那張時就用她的，沒有就退回球球的', async () => {
+    const { _setManifestForTest, eventArtKey, setLocalHero } = await import('../src/ui/assets');
+    _setManifestForTest({
+      cards: {}, sprites: {}, monsters: {}, icons: {}, review: [],
+      bg: { 'bg/event_daxia_teach': 'a.webp', 'bg/event_feifei_daxia_teach': 'b.webp', 'bg/event_old_well': 'c.webp' },
+    });
+    setLocalHero('feifei');
+    expect(eventArtKey('daxia_teach')).toBe('bg/event_feifei_daxia_teach');
+    expect(eventArtKey('old_well'), '沒有她的就該退回球球那張').toBe('bg/event_old_well');
+    setLocalHero('ninja');
+    expect(eventArtKey('daxia_teach'), '球球看到的還是原本那張').toBe('bg/event_daxia_teach');
+    setLocalHero('ninja');
+  });
+
+  it('她的兩個專屬事件的結果圖都在', () => {
+    for (const k of ['feifei_trace_r0', 'feifei_trace_r1', 'feifei_brew_r0', 'feifei_brew_r1']) {
+      expect(manifest.bg[`bg/event_${k}`], `${k} 不見了`).toBeTruthy();
+    }
+  });
+});

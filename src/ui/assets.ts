@@ -142,6 +142,24 @@ export function cardArtKey(baseKey: string): string {
   return manifest.cards[mine] !== undefined ? mine : baseKey;
 }
 
+/**
+ * 事件插圖的鍵。做法跟 `cardArtKey` 一模一樣：有她的就用她的，沒有就退回原本那張。
+ *
+ * 為什麼需要這個（2026-09-12）：76 張事件／畫面插圖裡有 54 張**把球球畫進去了**
+ *（大俠傳功那張他就趴在秘笈上）。玩菲菲時讀到的故事是她的，圖卻是他，
+ * 跟結局那八張同一類問題（見 `app.ts` 的 `stillKey`）。
+ *
+ * 差別在退路：結局那邊沒圖就整段退回純對白（`slidesReady`），這邊**退回球球那張**。
+ * 理由是事件插圖本來就有「還沒生好就不放」的處理，而 54 張要生好幾個小時——
+ * 中間這段時間放他的圖，比整批事件都沒有插圖好。生一張就換一張。
+ */
+export function eventArtKey(id: string): string {
+  const base = `bg/event_${id}`;
+  if (localHeroId === 'ninja') return base;
+  const mine = `bg/event_${localHeroId}_${id}`;
+  return manifest.bg[mine] !== undefined ? mine : base;
+}
+
 /** 這位角色的立繪網址。鍵一律寫球球版的，換角色的翻譯交給 `heroSpriteKey` */
 export function heroArtUrl(hero: string | undefined, key: string): string {
   return artUrl('sprites', heroSpriteKey(hero, key));

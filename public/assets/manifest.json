@@ -171,7 +171,8 @@
   "card/feifei_xianshuile": "assets/cards/card/feifei_xianshuile.webp",
   "card/feifei_gaotui": "assets/cards/card/feifei_gaotui.webp",
   "card/feifei_meikandao": "assets/cards/card/feifei_meikandao.webp",
-  "card/feifei_fantan": "assets/cards/card/feifei_fantan.webp"
+  "card/feifei_fantan": "assets/cards/card/feifei_fantan.webp",
+  "card/feifei_renwuwancheng": "assets/cards/card/feifei_renwuwancheng.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",

@@ -8,7 +8,7 @@ import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, typ
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import type { CardDef, CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl } from '../assets';
+import { artUrl, eventArtKey } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showUpgradeConfirm } from '../confirm';
@@ -83,7 +83,8 @@ function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
  * 每個事件配一張自己的插圖；還沒生好的就不放（`artUrl` 會回灰剪影，那比沒有更糟）。
  */
 function eventArt(id: string): HTMLElement | string {
-  const url = artUrl('bg', `bg/event_${id}`);
+  // 鍵走 `eventArtKey`：有菲菲自己的那張就用她的，沒有就退回球球那張（見那支的說明）
+  const url = artUrl('bg', eventArtKey(id));
   return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' });
 }
 
