@@ -463,6 +463,13 @@ export interface EventChoice {
 }
 export interface EventDef {
   id: string; title: string; text: string; choices: EventChoice[]; fixedFloor?: number;
+  /**
+   * 職業獨占（2026-09-12）：沒寫＝兩邊都會遇到，寫了就只有那個職業的局會排進地圖。
+   *
+   * 用在「這個事件只有對這個角色才有意義」的那幾個——菲菲的「師兄的痕跡」
+   * 是她在追球球留下的東西，球球自己遇到會很怪。
+   */
+  hero?: 'ninja' | 'samurai' | 'feifei';
   /** 前後集（2026-09-04）：要有這個本局旗標才會排進地圖（旗標由前集選項的 `flag` 效果設）；`acts` 限定只在哪幾關出現 */
   requiresFlag?: string;
   acts?: number[];

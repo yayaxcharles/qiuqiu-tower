@@ -63,7 +63,12 @@ const HERO_PREFIX: Readonly<Record<string, string>> = { ninja: 'ninja', samurai:
 
 /** 她沒生這張圖時，退到自己的哪一張。鍵與值都是**姿勢名**（不含 `hero/<前綴>_`） */
 const POSE_FALLBACK: Readonly<Record<string, string>> = {
-  // 攻擊家族全退回基本出招
+  /*
+   * 攻擊家族退回基本出招。**這只是退路**——她 2026-09-12 補了自己的四張
+   *（`hasHeroSprite` 查得到就直接用她的，根本走不到這裡）。
+   * 球球那四張是爪擊／踢技／衝撞／拳，她的是丟針的四種變化：
+   * 單發精準、一次三根、由上往下砸、貼身彈指。
+   */
   claw: 'attack', kick: 'attack', dash: 'attack', punch: 'attack',
   // 技能家族全退回施術
   focus: 'skill', scroll: 'skill', roar: 'skill', taiji: 'skill', qinggong: 'skill', eat: 'skill',
@@ -100,7 +105,14 @@ export function heroSpriteKey(hero: string | undefined, key: string): string {
   const pose = poseNameOf(key);
   if (!pose) return key;
   const fb = POSE_FALLBACK[pose];
-  return ownPose(prefix, pose) ?? (fb ? ownPose(prefix, fb) : null) ?? key;
+  /*
+   * 三層退路：她的那一張 → 她的替代姿勢 → **她的站姿**。
+   *
+   * 最後那一層是後來補的（測試抓到的）：同時缺姿勢與它的替代時，本來會掉回球球那張，
+   * 玩菲菲卻冒出一隻灰虎斑。站姿每個角色都一定有，退到那裡至少人是對的——
+   * 姿勢不精準遠比認錯角色好。真的連站姿都沒有（新角色剛開工）才回原鍵。
+   */
+  return ownPose(prefix, pose) ?? (fb ? ownPose(prefix, fb) : null) ?? ownPose(prefix, 'idle') ?? key;
 }
 
 /*

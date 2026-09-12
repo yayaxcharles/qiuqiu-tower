@@ -3,6 +3,37 @@ import type { EventDef } from '../engine/types';
 export const FIXED_EVENT_FLOOR_5 = 'daxia_teach';
 
 export const events: EventDef[] = [
+  /*
+   * ===== 菲菲的專屬事件（2026-09-12）=====
+   *
+   * 判準是「這件事只有對她才成立」：
+   *   - 師兄的痕跡：她在追球球留下的東西。球球自己遇到會很怪。
+   *   - 調藥：她整套是毒，替一張攻擊牌永久加毒對別人沒有意義。
+   * 其餘 36 個共用事件不鎖職業，只在顯示時換名字與口氣（見 `eventTextFor`）。
+   */
+  { id: 'feifei_trace', title: '師兄的痕跡', hero: 'feifei', acts: [1, 2],
+    text: '轉角的牆上卡著一根被踩彎的針，旁邊掉著一小截深藍色的線頭。菲菲蹲下去看了很久——針是她的，線是師兄頭巾上的。他走過這裡，而且走得很急。',
+    choices: [
+      { label: '把針收起來（回復 12 點生命、獲得 20 條小魚乾）',
+        outcome: [{ kind: 'heal', n: 12 }, { kind: 'fish', n: 20 }],
+        result: '菲菲把針一根根拔下來，重新磨過收好，順手把地上散落的乾糧也收進袋子。菲菲：「那個……浪費就不好了。他一定又沒撿。」', resultArt: 'feifei_trace_r0' },
+      { label: '照著痕跡追上去（下一場戰鬥的魔物更強，但小魚乾加倍）',
+        outcome: [{ kind: 'flag', name: 'feifei_chasing' }, { kind: 'damage', n: 5 }, { kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }, { kind: 'fish', n: 60 }],
+        result: '菲菲沿著線頭一路小跑，撞翻了兩個木箱，膝蓋也擦破了皮。盡頭沒有師兄，只有他丟下的一卷東西。菲菲：「跑得這麼快……你到底在急什麼啦。」', resultArt: 'feifei_trace_r1' },
+    ] },
+  { id: 'feifei_brew', title: '調藥', hero: 'feifei',
+    text: '牆角長著一叢沒見過的草，葉背泛著紫。菲菲折了一段，湊近聞了聞，整張臉皺起來——是對的味道。',
+    choices: [
+      { label: '熬一鍋（升級至多 1 張牌）',
+        outcome: [{ kind: 'upgradeCard' }],
+        result: '菲菲把草搗成糊，一根一根替針補上新的一層。手上沾到一點，麻了半天。菲菲：「薄薄的就好……薄薄的就好。」', resultArt: 'feifei_brew_r0' },
+      { label: '直接嚼一口試毒性（失去 8 點生命、獲得 1 張稀有牌）',
+        outcome: [{ kind: 'damage', n: 8 }, { kind: 'addRandomCard', pool: '絕學', rarity: '稀有' }],
+        result: '菲菲咬了一小口，立刻蹲下去乾嘔，眼淚都出來了。緩過來之後，她在本子上記下了份量。菲菲：「知道……知道有多毒了。下次不用試了。」', resultArt: 'feifei_brew_r1' },
+      { label: '不要碰（無效果）',
+        outcome: [],
+        result: '菲菲把草放回原處，退開兩步。菲菲：「那個……不認識的東西，還是不要亂碰比較好。」' },
+    ] },
   { id: 'daxia_teach', title: '師父留下的秘笈', fixedFloor: 5,
     text: '樓梯間落著一本秘笈，封面被貓爪抓得起毛。球球翻到扉頁，一眼認出師父的字跡；再往後翻，正好有三招絕學。',
     choices: [

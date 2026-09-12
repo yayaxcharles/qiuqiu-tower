@@ -644,6 +644,21 @@ export function storyFor(hero: string | undefined): {
  * 塔主開場、換階段、倒下、上樓那批共 49 句，目前仍寫死 `speaker: '球球'`，
  * 由 `playDialogue` 的入口統一過一次，她才不會開口講「喵」。
  */
+/**
+ * 事件文案換角色：**敘述裡的名字換掉、引號裡句尾的「喵」拿掉**。
+ *
+ * 38 個事件的文案裡「球球」出現 197 次。她玩的時候會讀到
+ * 「球球把受傷的村貓救到安全的角落」，整個出戲。
+ *
+ * 做成機械替換而不是重寫 38 份：那些文案講的是**這座塔發生的事**，
+ * 換個主角照樣成立（「菲菲把受傷的村貓救到安全的角落」唸起來一樣通）。
+ * 真正需要重寫的是**專屬事件**（`EventDef.hero`），那幾個才有她才成立的內容。
+ */
+export function eventTextFor(hero: string | undefined, text: string): string {
+  if (hero !== 'feifei') return text;
+  return lineFor(hero, text.replace(/球球/g, '菲菲'));
+}
+
 export function lineFor(hero: string | undefined, text: string): string {
   if (hero !== 'feifei') return text;
   return text.replace(/喵(?=[！？。…～、,.!?]*$)/u, '');

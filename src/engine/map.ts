@@ -130,6 +130,15 @@ export interface MapOpts {
   flags?: Record<string, boolean>;
   /** 難度 1～5：見習（1）不抽遭遇修飾詞（使用者 2026-09-05：新手版面要乾淨）。沒給＝1 */
   difficulty?: number;
+  /**
+   * 這一局是誰在爬（2026-09-12）：職業獨占的事件只排給那個職業。
+   *
+   * **連線局請傳 `null`**：職業獨占的事件是寫給單人故事的。
+   * 菲菲的「師兄的痕跡」講的是「師兄不見了、我沿著痕跡追」——
+   * 連線時球球就站在她旁邊，那個故事整個不成立。
+   * 傳 `null` 就一律不排職業獨占的事件，兩邊都只會遇到共用的那 38 個。
+   */
+  hero?: string | null;
 }
 
 export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
@@ -292,6 +301,11 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   // 事件前後集（2026-09-04）：後集要有前集留下的旗標、且在指定的關才排進來；這一關的選擇要到下一關的地圖才看得到結果
   const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined
     && (!e.acts || e.acts.includes(act))
+    /*
+     * 職業獨占（2026-09-12）：菲菲的「師兄的痕跡」是她在追球球留下的東西，球球自己遇到會很怪。
+     * `hero` 傳 null（連線局）時整批不排——那些故事在兩個人一起爬的時候不成立。
+     */
+    && (!e.hero || (opts.hero !== null && e.hero === (opts.hero ?? 'ninja')))
     && (!e.requiresFlag || opts.flags?.[e.requiresFlag])).map((e) => e.id));
   let eventIdx = 0;
   // 遭遇也排成洗好的佇列、一池一條：整關抽完一輪才會重複（本來每格獨立亂抽，塔頂強池只有三組，

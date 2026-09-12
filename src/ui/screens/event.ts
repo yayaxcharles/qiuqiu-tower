@@ -1,6 +1,6 @@
 import { play } from '../audio';
 import { cardById } from '../../content/cards';
-import { dialogue } from '../../content/dialogue';
+import { dialogue, eventTextFor } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
@@ -310,7 +310,12 @@ registerScreen('event', (app, root, props) => {
    * `notes` 是引擎一路記下來的「實際發生了什麼」（賭飯糰中了哪一邊、忍具收不收得下、
    * 隨機撿到哪一張牌）。挑牌那條路自己還會再補一句，所以用 `noteLine` 接起來一起顯示。
    */
-  function settle(outcome: RunEffectOutcome, resultText: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
+  /** 事件文案換成這一位的（敘述裡的名字、引號裡句尾的「喵」）。球球那邊一個字不動 */
+  const evText = (t: string): string => eventTextFor(me(run, seat).hero, t);
+
+  function settle(outcome: RunEffectOutcome, rawResult: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
+    // 換角色的文案在**入口**過一次，比每個呼叫點各包一次不容易漏（這支有六個呼叫點）
+    const resultText = evText(rawResult);
     const noteLine = (extra?: string): string | null => {
       const all = extra ? [...notes, extra] : notes;
       return all.length ? all.join('；') : null;
@@ -524,7 +529,7 @@ registerScreen('event', (app, root, props) => {
     const poor = cost > me(run, seat).fish;
     // 誰投了這一項：兩個人才知道對方想選什麼（跟地圖上的小記號同一套）
     const who = votes.map((v, i) => (v === String(index) ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
-    const btn = el('button', { class: 'btn' }, c.label + (poor ? '（小魚乾不夠）' : '') + (who.length ? `　← ${who.join('、')}` : ''));
+    const btn = el('button', { class: 'btn' }, evText(c.label) + (poor ? '（小魚乾不夠）' : '') + (who.length ? `　← ${who.join('、')}` : ''));
     // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
     if (poor || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
@@ -558,7 +563,7 @@ registerScreen('event', (app, root, props) => {
     : [];
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
   root.append(sceneView({ art: eventArt(ev.id), speaker: title,
-    text: iDown ? `${ev.text}（你倒下了，這次由同伴決定）` : ev.text, extra, actions: choices, column: true }));
+    text: iDown ? `${evText(ev.text)}（你倒下了，這次由同伴決定）` : evText(ev.text), extra, actions: choices, column: true }));
 
   if (coop) {
     coop.onPick((kind) => {

@@ -44,7 +44,12 @@ export function runRng(run: RunState): Rng {
 /** 這一局的難度旋鈕（舊存檔沒有 difficulty 就是 1） */
 export function runMods(run: RunState): DifficultyMods { return difficultyMods(run.difficulty ?? 1); }
 
-export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): RunState {
+/**
+ * `players`＝這一局幾個人（2026-09-12）。**只影響第一關地圖排不排職業獨占的事件**，
+ * 而地圖在建立的那一刻就生好了，所以得先傳進來——`newCoopRun` 是「先開單人局再補第二位」，
+ * 等補完再改就來不及（改了還會動到亂數狀態，同一顆種子生不出同一張地圖）。
+ */
+export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja', players = 1): RunState {
   const rng = new Rng(seedFromString(seed));
   const level = clampDifficulty(difficulty);
   const mods = difficultyMods(level);
@@ -57,7 +62,7 @@ export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): RunS
       deck: [], relics: [], potions: [], removeCost: 75,
     }],
     floor: 0,
-    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul, flags: {}, difficulty: level }), currentNode: null, trail: [],
+    map: generateMap(rng, { act: 1, bossIds: bossPoolForAct(1), eliteMul: mods.eliteMul, flags: {}, difficulty: level, hero: players > 1 ? null : hero }), currentNode: null, trail: [],
     nextUid: 1, stats: { kills: 0, turns: 0, cardsPlayed: 0 }, status: 'playing',
     flags: {},
   };
@@ -165,7 +170,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
  * 兩副牌絕不會撞號（撞號的後果見 `addCard` 的說明）。
  */
 export function newCoopRun(seed: string, difficulty = 1, hero: Hero = 'ninja', hero2: Hero = hero): RunState {
-  const run = newRun(seed, difficulty, hero);
+  const run = newRun(seed, difficulty, hero, 2);
   const first = me(run);
   /*
    * 第二位（2026-09-12 起可以是**另一個角色**）。
@@ -395,7 +400,8 @@ export function advanceAct(run: RunState): void {
     if (p.down) continue;   // 倒下的人不回：血條顯示滿的、狀態卻還是倒下，只會讓同伴誤判（稽核第二輪 中-2）
     p.hp = heal >= 1 ? p.maxHp : Math.min(p.maxHp, p.hp + Math.round((p.maxHp - p.hp) * heal));
   }
-  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1 });
+  // 連線局（兩位以上）傳 null＝不排職業獨占的事件，理由見 `MapOpts.hero`
+  run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1, hero: run.players.length > 1 ? null : heroOf(me(run)) });
   run.currentNode = null;
   run.trail = [];
   run.floor = (run.act - 1) * FLOORS;
