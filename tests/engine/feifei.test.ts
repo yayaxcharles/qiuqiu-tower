@@ -86,24 +86,38 @@ describe('菲菲：中毒', () => {
    * 散毒（原本是「催化」，跟共用的「絕學·催噎」撞牌所以砍掉重做——稽核 2026-09-12 中-13）。
    * 這張解的是「一排魔物」的場面：機器人實測她第二關陣亡 206、球球只有 131。
    */
-  it('散毒：把目標的毒分給其他每一隻，目標自己那份不動', () => {
+  /*
+   * 2026-09-12 使用者：**分一半太弱，改成整份複製**。
+   * 場上三隻、這隻身上 40 層，用完三隻都是 40 層。
+   */
+  it('散毒：把目標的毒**原封不動**複製給其他每一隻，目標自己那份也不動', () => {
     const cs = fight(['feifei_sandu'], { encounterId: 'rats3' });
     const [a, b, c] = cs.enemies as [typeof cs.enemies[0], typeof cs.enemies[0], typeof cs.enemies[0]];
     addStatus(a, '中毒', 9);
     playCard(cs, uidOf(cs, 'feifei_sandu'), a.uid);
     expect(getStatus(a, '中毒'), '目標自己不動').toBe(9);
-    expect(getStatus(b, '中毒'), '基礎版各拿一半（9 的一半無條件捨去＝4）').toBe(4);
-    expect(getStatus(c, '中毒')).toBe(4);
-    expect(cs.player.exhaustPile.some((x) => x.cardId === 'feifei_sandu'), '消耗').toBe(true);
+    expect(getStatus(b, '中毒'), '不打折，整份複製').toBe(9);
+    expect(getStatus(c, '中毒')).toBe(9);
+    expect(cs.player.exhaustPile.some((x) => x.cardId === 'feifei_sandu'), '基礎版消耗').toBe(true);
   });
 
-  it('散毒升級版：每隻都拿全額；只剩一隻時什麼都不會發生', () => {
+  it('層數很高也照樣整份複製（使用者舉的例子：40 層三隻都 40）', () => {
+    const cs = fight(['feifei_sandu'], { encounterId: 'rats3' });
+    const [a, b, c] = cs.enemies as [typeof cs.enemies[0], typeof cs.enemies[0], typeof cs.enemies[0]];
+    addStatus(a, '中毒', 40);
+    playCard(cs, uidOf(cs, 'feifei_sandu'), a.uid);
+    expect([getStatus(a, '中毒'), getStatus(b, '中毒'), getStatus(c, '中毒')]).toEqual([40, 40, 40]);
+  });
+
+  it('散毒升級版：不消耗（可以再用一次）；只剩一隻時什麼都不會發生', () => {
     const up = fight([], { encounterId: 'rats3' });
     up.player.hand = [inst('feifei_sandu', 1, true)];
     const [a, b] = up.enemies as [typeof up.enemies[0], typeof up.enemies[0]];
     addStatus(a, '中毒', 7);
     playCard(up, 1, a.uid);
-    expect(getStatus(b, '中毒')).toBe(7);
+    expect(getStatus(b, '中毒'), '升級版一樣整份複製').toBe(7);
+    expect(up.player.exhaustPile.some((x) => x.cardId === 'feifei_sandu'), '升級版不消耗').toBe(false);
+    expect(up.player.discardPile.some((x) => x.cardId === 'feifei_sandu'), '進棄牌堆才能再洗回來').toBe(true);
 
     const solo = fight(['feifei_sandu']);
     addStatus(foe(solo), '中毒', 9);
@@ -257,7 +271,7 @@ describe('菲菲：牌面文字讀得懂', () => {
     expect(describeCard(cardById['feifei_feizhen']!, false)).toContain('點蜷縮');
     expect(describeCard(cardById['feifei_cuidu']!, false)).toContain('4 層中毒');
     expect(describeCard(cardById['feifei_juma']!, false)).toContain('每次獲得蜷縮都多 2 點');
-    expect(describeCard(cardById['feifei_sandu']!, false)).toContain('分給其他魔物');
+    expect(describeCard(cardById['feifei_sandu']!, false)).toContain('原封不動複製給其他每一隻');
     expect(describeCard(cardById['feifei_yudu']!, false)).toContain('分給其他魔物');
     expect(describeCard(cardById['feifei_yizhen']!, false)).toContain('直接打倒牠');
   });
