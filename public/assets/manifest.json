@@ -169,7 +169,8 @@
   "card/feifei_fengkou": "assets/cards/card/feifei_fengkou.webp",
   "card/feifei_touchi": "assets/cards/card/feifei_touchi.webp",
   "card/feifei_xianshuile": "assets/cards/card/feifei_xianshuile.webp",
-  "card/feifei_gaotui": "assets/cards/card/feifei_gaotui.webp"
+  "card/feifei_gaotui": "assets/cards/card/feifei_gaotui.webp",
+  "card/feifei_meikandao": "assets/cards/card/feifei_meikandao.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
