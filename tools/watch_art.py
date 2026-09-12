@@ -26,7 +26,9 @@ OUT = ROOT / "public" / "assets" / "cards" / "card"
 LOG = ROOT / "tools" / "watch_art.log"
 
 PERIOD = 90
-MAX_HOURS = 8
+# 12 小時：2026-09-12 踩到——原本設 8 小時，但整批牌面要跑到 00:45，
+# 看門狗 22:24 就收工，最後兩個半小時的圖沒人接。**壽命要比那批生圖長**。
+MAX_HOURS = 12
 
 
 def say(msg: str) -> None:
