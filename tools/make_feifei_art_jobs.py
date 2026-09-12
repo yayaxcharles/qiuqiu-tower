@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from art_rules import FOES, STYLE, gear_rule
+from art_rules import FEIFEI_FACE_RIGHT, FOES, STYLE, feifei_look, gear_rule
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,13 +37,10 @@ ROOT = Path(__file__).resolve().parents[1]
 # 暹羅的重點色（深色臉、耳、四肢、尾巴＋奶白身）是**跟球球拉開距離的主要手段**：
 # 球球是整隻淺灰虎斑，兩隻在連線版會同框，剪影與配色一定要一眼分得出來。
 # 藍眼睛是第二個辨識點（球球是深色圓眼）。
-LOOK = (
-    "She is a chibi SIAMESE cat: creamy off-white body fur with dark seal-brown POINTS - a dark brown mask "
-    "covering her muzzle and around the eyes, dark brown ears, dark brown paws and a dark brown tail. "
-    "Bright blue almond eyes with glossy white highlights. Slim build with a narrow face and LARGE pointed "
-    "ears, noticeably more slender and taller-eared than a round grey tabby. Small pink blush strokes on both "
-    "cheeks. Head about as big as the whole body, short stubby limbs, no neck."
-)
+# ★ 2026-09-12 晚：這一段本來寫「明顯比圓灰虎斑更瘦、耳朵更高」，那是後來整批瘦成成貓、
+#   耳朵大到搶掉剪影的病根（`art_rules.py` 第六個雷）。外觀改成**只在 art_rules 定義一份**，
+#   這裡直接用那一份，不要再抄。
+LOOK = feifei_look()
 
 # 她是「暗器手」：滿身家當。球球是赤手空拳，這是第三個辨識點。
 GEAR_LOOK = (

@@ -25,6 +25,20 @@
   「連角度也要跟參考圖一樣」——只說「角色設計一樣」模型只會抄長相。
   辨識訊號：同一張連兩次都是同一種錯（不是隨機的錯），八成是參考圖在教它，不是提示詞不夠重。
 
+★ 第五個雷（2026-09-12 給菲菲加馬尾時踩的）：**「加一個配件」要講的是它在畫面上佔哪個位置，
+  不是它叫什麼名字。** 第一輪寫「在頭頂後方紮一條短馬尾」，生出來確實有一撮頭髮在後腦，
+  但正面完全看不到——使用者的原話：「頭髮沒有涵蓋前面，而且都太後面了看不太出來」。
+  同一個詞（馬尾）在模型腦裡可以是「只有後面那一撮」，也可以是「瀏海＋紮起來＋尾巴」。
+  **改法：拆成看得到的幾塊各講一次**，並且點名「這一塊在臉的前面，從這個角度看得到；
+  沒有它整撮頭髮等於不存在」。配件是為了剪影才加的，看不到就沒有意義。
+
+★ 第六個雷（同一天，同一隻）：**「跟另一個角色分開」的敘述會一路漂移，要配一句「但不可以變成什麼」。**
+  菲菲的提示詞為了跟球球（圓胖灰虎斑）區隔，寫了「明顯比他瘦長、耳朵更高」。
+  一開始還好，但後續批次把「頭跟身體差不多大、四肢短短的、沒有脖子」那句漏掉之後，
+  只剩「瘦長」這個方向，就一路瘦下去——使用者的原話：「原本比較小隻可愛，你變得比較成人」。
+  **改法：區隔只寫「哪一個特徵不同」（窄鼻樑、大尖耳），比例那幾句每一批都要完整重貼，
+  而且要寫反向護欄（「畫得像成貓就是錯的」）。** 只給方向不給邊界，二十張之後一定跑掉。
+
 ★ 第三個雷：綠幕上任何綠色或半透明的東西，去背後都會變成破洞。光是禁「不要寫綠色」不夠——
   沒指定顏色時模型會自己挑到綠色（86 張牌裡 22 張寫「發光」、12 張寫「霧氣煙塵」都中招）。
 """
@@ -58,6 +72,67 @@ STYLE = (
     "colours meet that is a CLEAN EDGE, never a soft airbrushed fade and never a blurry gradient. No shaded "
     "blob around the muzzle, no glow on the cheeks.\n"
     "Background must be a solid pure green (#00FF00), completely flat, for chroma keying.\n")
+
+# ---------------------------------------------------------------------------
+# 菲菲的外觀：**只在這裡定義一次**
+# ---------------------------------------------------------------------------
+# 2026-09-12 的教訓（第六個雷）：同一段外觀敘述本來抄在三個生圖腳本裡
+#（立繪、牌面、劇情圖），其中一份漏掉「頭跟身體差不多大、四肢短短的」那句，
+# 那一批就整個瘦掉、變成成貓。抄三份＝遲早有一份會漏。
+# 要改她的長相**只改這裡**，三個腳本 import 過去。
+
+FEIFEI_BODY = (
+    "She is a chibi SIAMESE cat girl: creamy off-white body fur with a dark seal-brown mask over her "
+    "muzzle and around the eyes, dark brown ears, paws and tail, bright BLUE almond eyes with glossy "
+    "white highlights, small pink blush strokes on both cheeks. She wears a plum-purple short kimono "
+    "jacket with the sleeves tied back by cords, a black sash, dark leggings, a wide belt with a row of "
+    "small bamboo needle-tubes, and a dark cloth collar/mask around her neck.\n")
+
+# ★ 這一段每一批都要完整貼上，而且**要有反向護欄**。只寫「比球球瘦」會一路瘦下去。
+FEIFEI_PROPORTION = (
+    "**PROPORTIONS - as important as the colours.** She is a SMALL, ROUND, CUTE KITTEN mascot: her HEAD "
+    "is BIG and ROUND, roughly as large as her whole body; her LEGS are SHORT and STUBBY; her body is "
+    "SHORT and SQUAT; she has NO NECK; her paws are small and rounded. "
+    "Do NOT make her slim, do NOT give her long legs, do NOT draw adult or realistic cat anatomy, "
+    "do NOT stretch her body or make her tall. **If she looks like a grown-up cat, it is wrong** - she "
+    "should look small, chubby and cute.\n"
+    "**HER EARS: pointed and triangular like a Siamese, but NOT oversized.** Each ear is at most about "
+    "one third the height of her head, and clearly shorter than her face. Do NOT draw ears that are as "
+    "tall as her head or that dominate her silhouette - that looks wrong on a small round kitten.\n"
+    "**HER FACE: round but NOT WIDE.** Her head is round from the front, but her cheeks must not bulge "
+    "out sideways and her muzzle stays narrow and neat. Keep the head no wider than it is tall. "
+    "Do NOT puff her cheeks out past the line of her ears - a face that spreads sideways reads as fat "
+    "and breaks the proportions, even when the body is right.\n"
+    "So: small and chubby in the BODY and LIMBS, but the FACE stays a tidy round shape with a narrow "
+    "muzzle. Those two are not the same thing.\n"
+    "Her narrow muzzle and the ear SHAPE (triangular, not rounded) are the only features that differ "
+    "from a round grey tabby; everything else is short and round.\n")
+
+# ★ 配件要講「在畫面上佔哪一塊」，不是講它叫什麼（第五個雷）
+FEIFEI_HAIR = (
+    "**HER HAIR.** A tuft of dark seal-brown hair grows on top of her head, in three parts that must ALL "
+    "be visible:\n"
+    "  (1) a FRINGE lying forward over her FOREHEAD, between and in front of her ears, its ragged tips "
+    "coming down toward her eyebrows - this part is on the FRONT of her head and must be clearly visible "
+    "from this angle; without it the hair reads as nothing at all;\n"
+    "  (2) the hair gathered and tied behind the fringe, with a PLUM-PURPLE ribbon BOW at the tie, on the "
+    "near side of her head;\n"
+    "  (3) a short spiky PONYTAIL sticking up and back from the tie.\n"
+    "Drawn as solid flat shapes with thick black outlines, not wispy strands. The hair is attached to her "
+    "head and moves with it - never detached, never doubled, never swapped to the other side. If a pose "
+    "hides part of it, it is simply hidden; do not relocate it.\n")
+
+# 她大部分時間面向右（跟球球一致）。`idle` 那種站著不動的最容易漂成正面，所以釘死鼻子與視線
+FEIFEI_FACE_RIGHT = (
+    "Her muzzle, nose and gaze all point toward the RIGHT edge of the picture - you should see the "
+    "right-hand side of her face and the line of her cheek. She never looks toward the left edge and "
+    "never looks straight out at the viewer. Her tail trails off to the LEFT behind her.\n")
+
+
+def feifei_look() -> str:
+    """菲菲的完整外觀敘述。每一批生圖都用這一支，不要自己抄一份。"""
+    return FEIFEI_BODY + "\n" + FEIFEI_PROPORTION + "\n" + FEIFEI_HAIR
+
 
 FOES = (
     "If any enemy appears, it is a small grey rat or a small orange tabby bandit cat - NEVER another copy of "

@@ -287,7 +287,7 @@ export class App {
       const mine = me(run, this.seat);
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
-        toast(lineFor(mine.hero, dialogue.firstMeet[firstNew] ?? ''), heroSpeaker());
+        toast(storyFor(mine.hero).firstMeet[firstNew] ?? '', heroSpeaker());
       } else {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }

@@ -75,15 +75,26 @@ describe('關主的故事線', () => {
     }
   });
 
-  it('共用的魔物吐槽換給她時句尾的喵會拿掉，球球那邊原樣不動', () => {
-    for (const [, text] of Object.entries(dialogue.firstMeet)) {
-      expect(lineFor('ninja', text), '球球那邊一個字都不該動').toBe(text);
-      const hers = lineFor('feifei', text);
-      expect(feifeiLineOk(hers), `拿掉之後還有喵：${hers}`).toBe(true);
-      expect(hers.length).toBeGreaterThan(0);
+  /*
+   * 魔物的初見吐槽 2026-09-12 分家了：本來共用球球那份、只拿掉句尾的「喵」，
+   * 使用者否決（「不建議只把句尾的喵拿掉」），改成她自己一份 111 句。
+   */
+  it('每隻魔物她都有自己的一句，一句都不能漏、一句都不能有喵', () => {
+    const his = Object.keys(dialogue.firstMeet);
+    const hers = storyFor('feifei').firstMeet;
+    expect(Object.keys(hers).length, '兩邊要一樣多').toBe(his.length);
+    for (const id of his) {
+      const t = hers[id];
+      expect(t, `${id} 沒有她的版本`).toBeTruthy();
+      expect(feifeiLineOk(t!), `${id} 句尾有喵：${t}`).toBe(true);
+      expect(t, `${id} 跟球球那句一模一樣`).not.toBe(dialogue.firstMeet[id]);
     }
-    expect(lineFor('feifei', '牠一直在刨地……我少耍花招，直接打就對了喵。'))
-      .toBe('牠一直在刨地……我少耍花招，直接打就對了。');
+    expect(storyFor('ninja').firstMeet, '球球那邊原樣不動').toBe(dialogue.firstMeet);
+  });
+
+  it('`lineFor` 還在服役：塔主那批共用台詞靠它換口氣', () => {
+    expect(lineFor('ninja', '領教了，師父喵。'), '球球那邊一個字都不該動').toBe('領教了，師父喵。');
+    expect(lineFor('feifei', '領教了，師父喵。')).toBe('領教了，師父。');
     // 句子中間的喵不該被動到（只有句尾那個是語尾助詞）
     expect(lineFor('feifei', '牠喵了一聲就衝過來了。')).toBe('牠喵了一聲就衝過來了。');
   });
