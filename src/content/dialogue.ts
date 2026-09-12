@@ -1,5 +1,17 @@
 import { FEIFEI_STARTER_DECK, STARTER_DECK, cardById } from './cards';
-export interface DialogueLine { speaker: '球球' | '菲菲' | '塔主' | '旁白' | '黑貓忍者頭目'; text: string }
+export interface DialogueLine {
+  speaker: '球球' | '菲菲' | '塔主' | '旁白' | '黑貓忍者頭目';
+  text: string;
+  /**
+   * 通關幻燈片的切點：**這一句演完就換第二張圖**（2026-09-12 稽核 中-1）。
+   *
+   * 原本是拿內文比對——`vic.findIndex((l) => l.text.includes('撲進'))`。「撲進」只出現在
+   * 球球的結局台詞裡，菲菲那六句沒有這兩個字，`findIndex` 回 −1、切點被夾成 1，
+   * 於是「師父把她拉過去，摸了摸她的頭」這句真正的相擁畫面，被配到第二張「回家路」的圖上。
+   * 跟紀錄字串那個雷同一類：**字串是給人看的，不是給程式比對的**。
+   */
+  slideBreak?: true;
+}
 
 /** 球球台詞的句尾檢查：去掉結尾標點後最後一個字必須是「喵」 */
 export function qiuqiuLineOk(text: string): boolean {
@@ -489,7 +501,7 @@ export const dialogue = {
     { speaker: '旁白', text: '最後一縷魔氣從師父身上散去，他眼中的紫光終於熄滅。' },
     { speaker: '塔主', text: '承讓。' },
     { speaker: '球球', text: '領教了，師父喵。' },
-    { speaker: '旁白', text: '球球再也忍不住，撲進師父懷裡。師父緊緊抱住他，師徒倆又哭又笑，誰也捨不得先放手。' },
+    { speaker: '旁白', text: '球球再也忍不住，撲進師父懷裡。師父緊緊抱住他，師徒倆又哭又笑，誰也捨不得先放手。', slideBreak: true },
     { speaker: '旁白', text: '夕陽把一大一小的影子拉得長長的。球球和師父並肩走回村子，今晚終於可以安心地一起吃小魚乾了。' },
   ],
   /**
@@ -582,7 +594,7 @@ export const feifeiDialogue = {
     { speaker: '塔主', text: '承讓。' },
     { speaker: '菲菲', text: '……我、我沒有很厲害。我只是先讓你們中毒，再一直丟、一直退……等你們自己撐不住而已。' },
     { speaker: '菲菲', text: '而且……我有先提醒你們不要過來喔。' },
-    { speaker: '旁白', text: '師父把她拉過去，摸了摸她的頭。她愣了三秒，才開始掉眼淚——手裡還緊緊捏著最後一根沒丟出去的針。' },
+    { speaker: '旁白', text: '師父把她拉過去，摸了摸她的頭。她愣了三秒，才開始掉眼淚——手裡還緊緊捏著最後一根沒丟出去的針。', slideBreak: true },
     { speaker: '旁白', text: '下山的路上，球球一路吵著要吃小魚乾，師父笑得很大聲。菲菲走在最後面，一根一根把能撿回來的針收進竹筒裡。三個都回來了。' },
   ],
   /** 她的個人化旁白（師父講完之後插一句）。口徑跟球球那三句一樣，只是換成她的打法 */

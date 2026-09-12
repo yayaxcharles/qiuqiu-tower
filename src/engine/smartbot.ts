@@ -247,7 +247,11 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   for (const fx of st.effects) {
     switch (fx.kind) {
       case 'block': {
-        const b = computeBlock(fx.amount, p);
+        // 拒馬（`blockBonus`）要一起算：引擎是 `computeBlock(base + blockBonus, u)`
+        //（見 `actions.ts` 的 `gainBlock`）。漏掉的話，拿到拒馬之後**每一張**防禦牌、
+        // 每一張自帶蜷縮的攻擊牌都被低估 2～3 點，機器人會傾向不打它們，
+        // 而這支是量平衡用的尺，於是拒馬流的數字整個偏低（2026-09-12 稽核 中-3）
+        const b = computeBlock(fx.amount + (p.blockBonus ?? 0), p);
         const useful = Math.min(b, incoming);
         value += useful * (lowHp ? 3 : danger ? 1.6 : 1.1) + (b - useful) * 0.12;
         break;
@@ -357,10 +361,10 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
        * 「一個人玩的時候值多少」——那正是它們退化後的價值，估高了會讓機器人
        * 在單機測試裡優先打連線牌，平衡數字就歪了。
        */
-      case 'blockAll': value += fx.amount * 0.9; break;   // 一個人時就等於一般的蜷縮，稍微打折（沒有同伴可分）
+      case 'blockAll': value += (fx.amount + (p.blockBonus ?? 0)) * 0.9; break;   // 一個人時就等於一般的蜷縮，稍微打折（沒有同伴可分）；拒馬同樣要算
       case 'statusAlly': value += fx.amount * 1.5; break; // 一個人時退化成掛自己身上，當一般的加狀態估
       case 'taunt': break;                                // 一個人時**完全沒作用**（本來就只會打你），估 0 是對的
-      case 'blockAlly': value += fx.amount * 0.9; break;   // 一個人時退化成給自己，當一般蜷縮估（稍打折：沒有同伴可分擔）
+      case 'blockAlly': value += (fx.amount + (p.blockBonus ?? 0)) * 0.9; break;   // 一個人時退化成給自己，當一般蜷縮估（稍打折：沒有同伴可分擔）；拒馬同樣要算
       case 'drawAlly': value += fx.n * 2.2; break;         // 一個人時退化成自己抽，跟 `draw` 同口徑
       case 'cleanseAlly': value += DEBUFFS.filter((d) => getStatus(p, d) > 0).length * 3; break;
       case 'energyAlly': value += fx.n * 4; break;         // 一顆飯糰約等於一張中等的牌

@@ -18,6 +18,9 @@ import { startRelicFor, type Hero } from '../../engine/hero';
  */
 interface Pick { hero: Hero; name: string; tag: string; blurb: string; pose: string }
 
+/** 選角畫面右邊整張畫出來的「代表牌」。**牌號要真的存在**，見 `refresh` 裡的說明 */
+export const KEY_CARD: Readonly<Record<string, string>> = { ninja: 'sanjo', feifei: 'feifei_feizhen' };
+
 const PICKS: Pick[] = [
   {
     hero: 'ninja', name: '球球', tag: '近身 ・ 閃避',
@@ -26,9 +29,10 @@ const PICKS: Pick[] = [
     pose: 'hero/ninja',
   },
   {
-    hero: 'feifei', name: '菲菲', tag: '毒暗器 ・ 距離',
-    blurb: '球球的師妹，怕痛怕到誇張。丟毒針，靠「距離」活著——站得遠打得痛，'
-      + '真的被打到就會被逼近一格。毒要滾起來才有威力，前幾回合先退開就好。',
+    hero: 'feifei', name: '菲菲', tag: '毒 ・ 攻擊帶蜷縮',
+    blurb: '球球的師妹，怕痛怕到誇張。丟毒針，而且出手的同時就擋好了——'
+      + '她的攻擊牌大多自帶蜷縮，不用在打與擋之間二選一。'
+      + '毒要疊起來才有威力，前幾回合先撐著，讓對方自己倒。',
     pose: 'hero/ninja',   // 立繪鍵一律寫球球版的，`heroArtUrl` 會換成她自己的（見 assets.ts）
   },
 ];
@@ -50,8 +54,15 @@ registerScreen('heroselect', (app, root, props) => {
   const refresh = (): void => {
     const p = PICKS.find((x) => x.hero === chosen) as Pick;
     const relic = relicById[startRelicFor(chosen)];
-    // 起手牌裡最能代表這位角色的那一張，整張畫出來給玩家看（球球是貓抓，菲菲是遠射）
-    const keyCard = cardById[chosen === 'feifei' ? 'feifei_yuanshe' : 'sanjo'];
+    /*
+     * 起手牌裡最能代表這位角色的那一張，整張畫出來給玩家看（球球是貓抓，菲菲是飛針）。
+     *
+     * 這裡查不到牌號時後面是 `keyCard ? … : ''`——**整列靜靜消失，不報錯也不會讓測試變紅**。
+     * 2026-09-12 就這樣壞過：原本指著「遠射」，那張牌隨著距離機制一起刪掉了，
+     * 於是選菲菲時看不到代表牌、選球球時看得到，只有人眼抓得出來。
+     * `heroselect.test.ts` 現在盯著這兩個牌號真的存在。
+     */
+    const keyCard = cardById[KEY_CARD[chosen] ?? 'sanjo'];
     detail.replaceChildren(
       el('p', { class: 'hero-blurb' }, p.blurb),
       el('div', { class: 'hero-kit' },

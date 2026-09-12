@@ -346,8 +346,10 @@ export class App {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         // 師父醒來的第一句依這一路的打法換（爪力／隱身／蜷縮流），難度 4 以上多一句旁白（使用者 2026-09-04）
         const vic = victoryLinesFor(me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1, me(run, this.seat).hero);
-        // 第一張圖（相擁）放到「撲進師父懷裡」那句為止，之後的（回家路、難度旁白）配第二張
-        const cut = Math.max(1, vic.findIndex((l) => l.text.includes('撲進')) + 1);
+        // 第一張圖（相擁）放到標了 `slideBreak` 的那句為止，之後的（回家路、難度旁白）配第二張。
+        // **不要改回比對內文**：原本寫 `includes('撲進')`，菲菲的結局沒那兩個字，
+        // 切點被夾成 1，她的相擁那句就配到「回家路」的圖上（2026-09-12 稽核 中-1）
+        const cut = Math.max(1, vic.findIndex((l) => l.slideBreak) + 1);
         const endSlides = [
           { img: 'bg/still_embrace', lines: vic.slice(0, cut) },
           { img: 'bg/still_home', lines: vic.slice(cut) },

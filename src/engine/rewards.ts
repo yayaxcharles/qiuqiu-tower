@@ -64,10 +64,11 @@ export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string
 
 /**
   * `heroes`＝這一局有哪些職業（連線就傳兩位）。職業獨占的秘寶只給對得上的那一位，
-  * 沒傳就當忍者（單機舊呼叫端不用改）。理由見 `RelicDef.hero`。
+  * 沒傳就當忍者（單機舊呼叫端不用改）。理由見 `RelicDef.notFor`。
   */
-export function relicOk(r: { hero?: string }, heroes: readonly string[]): boolean {
-  return !r.hero || heroes.includes(r.hero);
+export function relicOk(r: { notFor?: readonly string[] }, heroes: readonly string[]): boolean {
+  // 這一局**有人用得到**就留著：連線混搭時球球在場，紙袋照樣該出現（菲菲挑就是了）
+  return !r.notFor?.length || heroes.some((h) => !r.notFor!.includes(h));
 }
 
 export function rollRelic(rng: Rng, pool: RelicPool, owned: string[], heroes: readonly string[] = ['ninja']): string | null {
@@ -136,7 +137,7 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
      * 所以這個參數不影響單機的亂數走向——四個定錨測試就是在盯這件事。
      */
     ownedPerSeat?: readonly string[][];
-    /** 這一局有哪些職業（連線兩位）。濾掉「對這一局沒人用得到」的秘寶，見 `RelicDef.hero` */
+    /** 這一局有哪些職業（連線兩位）。濾掉「對這一局沒人用得到」的秘寶，見 `RelicDef.notFor` */
     heroes?: readonly string[] } = {}): CombatRewards {
   const ex = opts.exclude ?? [];
   const hero = opts.hero ?? 'ninja';   // 職業獨占牌的過濾（2026-09-05）
