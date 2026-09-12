@@ -251,7 +251,13 @@
   "hero/feifei_lose": "assets/sprites/hero/feifei_lose.webp",
   "hero/feifei_hungry": "assets/sprites/hero/feifei_hungry.webp",
   "hero/feifei_power": "assets/sprites/hero/feifei_power.webp",
-  "hero/feifei_stealth": "assets/sprites/hero/feifei_stealth.webp"
+  "hero/feifei_stealth": "assets/sprites/hero/feifei_stealth.webp",
+  "hero/feifei_down": "assets/sprites/hero/feifei_down.webp",
+  "hero/feifei_choke": "assets/sprites/hero/feifei_choke.webp",
+  "hero/feifei_claw": "assets/sprites/hero/feifei_claw.webp",
+  "hero/feifei_kick": "assets/sprites/hero/feifei_kick.webp",
+  "hero/feifei_dash": "assets/sprites/hero/feifei_dash.webp",
+  "hero/feifei_punch": "assets/sprites/hero/feifei_punch.webp"
  },
  "review": [],
  "monsters": {
@@ -1052,7 +1058,10 @@
   "codex/potion_bird_glue": "assets/icons/potion_bird_glue.webp",
   "codex/potion_thorn_shears": "assets/icons/potion_thorn_shears.webp",
   "codex/potion_armor_pick": "assets/icons/potion_armor_pick.webp",
-  "codex/relic_backstep": "assets/icons/relic_backstep.webp"
+  "codex/relic_backstep": "assets/icons/relic_backstep.webp",
+  "icon/map_hero_feifei_low": "assets/icons/map_hero_feifei_low.webp",
+  "icon/map_hero_feifei_mid": "assets/icons/map_hero_feifei_mid.webp",
+  "icon/map_hero_feifei_top": "assets/icons/map_hero_feifei_top.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
