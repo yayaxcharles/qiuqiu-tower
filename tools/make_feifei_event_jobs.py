@@ -28,14 +28,23 @@ from art_rules import feifei_look  # noqa: E402
 
 JOBS = ROOT / "tools" / "codex_jobs"
 OUT = JOBS / "feifei_events.json"
+REF = "tools/ref/feifei_ref.png"   # 每一筆都自己帶，不靠命令列的 --ref
 
-# 球球的外觀段。**有兩種格式**（不同時期產的工單），兩種都要認：
-#   舊：整段把他的毛色裝束寫出來
-#   新：只寫「照附的參考圖畫」，靠 `--ref` 帶圖進去
-# 兩種都整段換掉，不是逐詞替換
+# 球球的外觀段。**有三種格式**（不同時期產的工單），三種都要認。
+# 漏認一種的後果不是報錯，是**那一批默默不轉**：第一版只認第一種，少掉 26 張；
+# 第二版加了第二種，還是少掉 77 張（結果圖 `_r0`／`_r1` 整類都是第三種），
+# 是使用者玩到紙箱看見球球才發現的。
+#   一：整段把他的毛色裝束寫出來，結尾「long ringed tail.」＋換行
+#   二：只寫「照附的參考圖畫」，靠 `--ref` 帶圖進去
+#   三：同樣寫毛色裝束但**接在同一行**、結尾是「not a different cat.」
+# 三種都整段換掉，不是逐詞替換。
+#
+# 加新格式時**一定要重跑 `檢查漏網.py` 式的比對**（見 `main` 最後印出來的數字）：
+# 「工單裡提到球球的張數」要等於「轉出來的張數」，差多少就是漏認多少。
 NINJA_BLOCK = re.compile(
     r"The grey tabby cat ninja hero, when present, looks like this:.*?long ringed tail\.\n"
-    r"|THE CAT: whenever the grey tabby cat ninja appears.*?stretch its body out\.\n",
+    r"|THE CAT: whenever the grey tabby cat ninja appears.*?stretch its body out\.\n"
+    r"|The grey tabby cat ninja hero is EXACTLY the character in the attached reference image:.*?not a different cat\.\s*",
     re.S)
 
 FEIFEI_BLOCK = (
@@ -91,6 +100,21 @@ def convert(text: str, fid: str) -> str:
     return out.replace(f"Save the image as {fid}", f"Save the image as {rename(fid)}")
 
 
+def prompt_of(v: object) -> str:
+    """工單的值有兩種：**字串**（就是提示詞）或 **{prompt, ref} 物件**。
+
+    第一版寫成「不是字串就跳過」，於是 77 張物件格式的工單（結果圖 `_r0`／`_r1` 整類、
+    紙箱那三張）**連看都沒看**就被丟掉——使用者玩到紙箱看見球球才發現。
+    這是漏最多的一次，比少認一種提示詞格式還嚴重。
+    """
+    if isinstance(v, str):
+        return v
+    if isinstance(v, dict):
+        pv = v.get("prompt")
+        return pv if isinstance(pv, str) else ""
+    return ""
+
+
 def main() -> None:
     src: dict[str, str] = {}
     for f in sorted(JOBS.glob("*.json")):
@@ -103,21 +127,21 @@ def main() -> None:
         if not isinstance(d, dict):
             continue
         for k, v in d.items():
-            if not isinstance(v, str) or not k.startswith("event_"):
+            if not k.startswith("event_") or k.startswith("event_feifei_"):
                 continue
-            if k.startswith("event_feifei_"):
-                continue
-            if not NINJA_BLOCK.search(v):
+            t = prompt_of(v)
+            if not t or not NINJA_BLOCK.search(t):
                 continue                               # 圖裡本來就沒有他，不用生
-            src[k] = v                                 # 同名後蓋前：_v2 那種修正版會贏
+            src[k] = t                                 # 同名後蓋前：_v2 那種修正版會贏
 
-    jobs = {rename(k): convert(v, k) for k, v in src.items()}
+    # 一律附她的參考圖（物件格式原本各自帶球球的參考圖，那張不能留）
+    jobs = {rename(k): {"prompt": convert(v, k), "ref": REF} for k, v in src.items()}
 
     def outside(v: str) -> str:
         return v.replace(FEIFEI_BLOCK, "")
 
-    bad = {k: LEFTOVER.findall(outside(v))[:3] for k, v in jobs.items() if LEFTOVER.search(outside(v))}
-    review = sorted(k for k, v in jobs.items() if REVIEW.search(outside(v)))
+    bad = {k: LEFTOVER.findall(outside(v['prompt']))[:3] for k, v in jobs.items() if LEFTOVER.search(outside(v['prompt']))}
+    review = sorted(k for k, v in jobs.items() if REVIEW.search(outside(v['prompt'])))
     if bad:
         print("轉換後還有球球的字眼，沒有寫出檔案：")
         for k, hits in list(bad.items())[:10]:
@@ -130,6 +154,31 @@ def main() -> None:
         print(f"這 {len(review)} 張的場景裡還有「頭巾／忍者裝」，看一眼是不是別的角色的：")
         for k in review:
             print(f"  {k}")
+    # **自檢：有沒有整批默默漏認**（兩次都栽在這裡，所以寫成程式不靠眼睛）。
+    # 「工單裡提到球球的事件圖」應該等於「轉出來的張數」，差多少就是 NINJA_BLOCK 少認幾種格式。
+    loose = re.compile(r"grey tabby|gray tabby|Qiuqiu|ninja cat|cat ninja|grey ninja", re.I)
+    should = set()
+    for f in sorted(JOBS.glob("*.json")):
+        if f.name.startswith("feifei_"):
+            continue
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(d, dict):
+            continue
+        for k, v in d.items():
+            t = prompt_of(v)
+            if t and k.startswith("event_") and not k.startswith("event_feifei_") and loose.search(t):
+                should.add(k)
+    gap = sorted(should - set(src))
+    if gap:
+        print(f"!! 有 {len(gap)} 張提到球球卻沒被轉到——NINJA_BLOCK 少認一種格式：")
+        for k in gap[:12]:
+            print(f"   {k}")
+        raise SystemExit(1)
+    print(f"自檢過關：工單裡提到球球的 {len(should)} 張，全部都轉到了")
+
     print("跑法：python tools/codex_gen.py tools/codex_jobs/feifei_events.json "
           "--ref tools/ref/feifei_ref.png")
 

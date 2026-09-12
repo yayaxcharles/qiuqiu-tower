@@ -87,3 +87,33 @@ describe('塔主那批台詞的她版', () => {
     expect(dialogue.bossIntroGeneric.some((l) => l.speaker === '球球' && l.text.endsWith('喵。'))).toBe(true);
   });
 });
+
+/**
+ * 她的牌名不可以留著球球的身體動作（2026-09-12 使用者回報「絕學·催噎」之後補的）。
+ *
+ * 她是丟針的，不用爪、不出拳、不踢、不用掌拍、也不會靠近去踩對方的尾巴。
+ * 共用牌只有效果共用，名字要各叫各的（`FEIFEI_CARD_NAME`）。
+ * 這條掃**整個共用牌池**，以後新增共用牌時若名字帶身體動作就會紅，提醒回來補一筆。
+ */
+describe('她的牌名不帶球球的身體動作', () => {
+  it('掃整個共用牌池', async () => {
+    const { cards, cardNameFor } = await import('../../src/content/cards');
+    /*
+     * 抓的是**她的**動作，不是畫面上出現的身體部位。
+     * 「釘尾巴」是釘**對方的**尾巴、用針釘的，那是她的打法，不該被抓；
+     * 「踩尾巴」才是球球的動作。所以列的是動作詞（踩、抓、揮…）不是部位詞。
+     * 「噎」是吐毛球那一路，算球球的。「睡」「餓」跟身體動作無關，不算。
+     */
+    const BODY = /爪|拳|踢|掌|頭功|咬|撲|肘|膝|肉球|噎|踩/;
+    const bad = cards
+      .filter((c) => !c.hero)                       // 職業獨占的她本來就拿不到
+      .filter((c) => BODY.test(cardNameFor(c, 'feifei')))
+      .map((c) => `${c.id}：${cardNameFor(c, 'feifei')}`);
+    expect(bad, `這幾張她看到的名字還帶著球球的動作：\n  ${bad.join('\n  ')}`).toEqual([]);
+  });
+
+  it('球球看到的名字一個字都沒改', async () => {
+    const { cards, cardNameFor } = await import('../../src/content/cards');
+    for (const c of cards) expect(cardNameFor(c, 'ninja')).toBe(c.name);
+  });
+});

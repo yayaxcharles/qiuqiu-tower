@@ -343,6 +343,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
      */
     case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; return false;
     case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; return false;
+    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; return false;
     case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }

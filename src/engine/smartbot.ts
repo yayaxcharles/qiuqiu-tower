@@ -390,6 +390,12 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'poisonBurst': value += enemies.length > 1 ? 16 : 4; break;   // 只剩一隻時屍爆沒有對象
       // 拒馬：之後每次獲得蜷縮都多幾點。粗估這一場還會再擋幾次（每回合約一次）
       case 'blockBonus': value += fx.n * rest * 0.9; break;
+      /*
+       * 影子分身：之後每回合的第一張牌等於打兩次。粗估＝「剩幾回合 × 一張好牌的價值」。
+       * 一張好牌抓 12 點當量（這副牌的攻擊牌大多 6～16），跟 `blockBonus` 同一套折算法。
+       * **估太準沒有意義**——重點是它不能被當成零分，不然機器人永遠不打，量出來的平衡會偏低。
+       */
+      case 'echoFirst': value += rest * 12 * 0.9; break;
       case 'poisonOnAttack': value += fx.n * rest * 1.5; break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }

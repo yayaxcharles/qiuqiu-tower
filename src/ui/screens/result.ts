@@ -61,7 +61,11 @@ registerScreen('result', (app, root) => {
         class: 'btn',
         onclick: () => showDeckPicker({ title: `最終牌組（${me(run, seat).deck.length} 張）`, cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
       }, '看牌組'),
-      el('button', { class: 'btn primary', onclick: () => { app.run = null; app.cs = null; app.show('title'); } }, '回到村子'),
+      el('button', { class: 'btn primary', onclick: () => {
+        // 連線也要在這裡斷乾淨，不然回標題再開單機會整局點不動（稽核 高-1）
+        app.leaveCoop();
+        app.run = null; app.cs = null; app.show('title');
+      } }, '回到村子'),
     ],
   }));
 });

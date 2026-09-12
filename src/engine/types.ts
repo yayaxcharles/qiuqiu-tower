@@ -55,6 +55,12 @@ export type Effect =
   /** 拒馬：之後每次獲得蜷縮都額外多 `n` 點（長效旗標，放大她「攻擊帶蜷縮」的路數） */
   | { kind: 'blockBonus'; n: number }
   /**
+   * 影子分身（2026-09-12 使用者指定）：**這場戰鬥裡，每回合打出的第一張牌會再打一次**。
+   *
+   * 只作用在非能力牌上——不然把這張當回合第一張打出去，它會當場複製自己。
+   */
+  | { kind: 'echoFirst' }
+  /**
    * 傷害＝目標身上這個狀態的層數（見血封喉：把毒一次引爆）。
    * `consume` ＝打完把層數清掉（基礎版會清，升級版不清）。
    */
@@ -656,6 +662,8 @@ export interface PlayerCombat extends Unit {
   poisonBurst?: 'split' | 'full';
   /** 拒馬：之後每次獲得蜷縮都額外多幾點 */
   blockBonus?: number;
+  /** 影子分身：這場戰鬥每回合的第一張牌會再打一次（見 `Effect` 的 `echoFirst`） */
+  echoFirst?: number;
   /** 千針萬毒：每打出一張攻擊牌，額外給那個目標幾層中毒 */
   poisonOnAttack?: number;
   /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */

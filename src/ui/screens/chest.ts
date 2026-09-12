@@ -6,7 +6,7 @@ import { settleRelicPicks } from '../../engine/rewards';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
-import { artUrl } from '../assets';
+import { artUrl, eventArtKey } from '../assets';
 import { heroSpeaker, toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
@@ -96,7 +96,8 @@ registerScreen('chest', (app, root) => {
     });
   }
 
-  const closed = artUrl('bg', 'bg/event_chest_closed');
+  // 鍵走 `eventArtKey`：紙箱這三張也有球球入鏡，她要看她自己那張（使用者 2026-09-12 回報）
+  const closed = artUrl('bg', eventArtKey('chest_closed'));
   if (!closed.startsWith('data:')) {
     renderHud(app, root);
     toast(pick(storyFor(me(run, app.seat).hero).chestLines), heroSpeaker());
@@ -161,8 +162,7 @@ registerScreen('chest', (app, root) => {
      * 秘寶圖示疊在插圖那道金光裡（生圖時就要求光柱中央留空給它站），名字與效果收進對白框。
      * 插圖沒生好就退回舊版面（圖示大圖＋上下兩行字），不會開天窗。
      */
-    const artUrlKey = def ? 'bg/event_chest_open' : 'bg/event_chest_empty';
-    const sceneArt = artUrl('bg', artUrlKey);
+    const sceneArt = artUrl('bg', eventArtKey(def ? 'chest_open' : 'chest_empty'));
     const hasScene = !sceneArt.startsWith('data:');
 
     let art: Node | string;

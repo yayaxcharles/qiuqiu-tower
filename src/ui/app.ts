@@ -142,6 +142,8 @@ export class App {
 
   /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
   newRun(seed?: string, difficulty = 1, hero: Hero = 'ninja'): void {
+    // 「新的一局」一定是單機，**先把上一場連線的殘留清掉**（見 `leaveCoop`）
+    this.leaveCoop();
     this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero);
     this.cs = null;
     // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
@@ -179,6 +181,7 @@ export class App {
 
   /** `from` 給了就用它接著打（貼進來的局面碼走這條），沒給就讀瀏覽器裡的存檔 */
   continueRun(from?: RunState): boolean {
+    this.leaveCoop();   // 續玩讀的是單機存檔，同理（見 `leaveCoop`）
     const run = from ?? loadRun();
     if (!run) return false;
     this.run = run;
@@ -208,7 +211,33 @@ export class App {
    * currentNode 推到新節點、但那個節點的內容還沒消化，重整回來就會整個跳過它（白吃一場戰鬥
    * 或一個紙箱）。不存反而自洽：run.rng 沒被推進，重進去的罐頭鋪存貨、紙箱秘寶都一模一樣。
    */
-  save(): void { if (this.run && this.run.status === 'playing') saveRun(this.run); }
+  /*
+   * **連線局一個字都不寫進存檔**（2026-09-12 稽核 高-2）。
+   *
+   * 存檔鍵是按建置分的（見 `save.ts`），但**同一份建置裡單機與連線共用同一把鑰匙**。
+   * 原本 `save()` 不看 `coop`，於是連線的每一格結算都把兩人局寫進單機那一格：
+   * 你單機打到 30F 存著、跟朋友連一場，回來按「續玩」載到的是兩人局——
+   * 驗證還過得了（`checkRun` 只要求至少一位），魔物血量照兩人放大 1.5 倍，
+   * 第二位站在場上不會動還會被打。收尾時又會把成績記進單機的最佳成績、
+   * 並且 `clearSave()` 把單機存檔直接刪掉。
+   *
+   * 連線本來就沒有「續玩」（斷線就重開），所以直接不存最乾淨。
+   */
+  save(): void {
+    if (this.coop) return;
+    if (this.run && this.run.status === 'playing') saveRun(this.run);
+  }
+
+  /**
+   * 離開連線：把 `coop` 與 `seat` 清回單機的樣子（2026-09-12 稽核 高-1）。
+   *
+   * 全專案每個畫面都拿 `app.coop` 當「現在是不是連線」的唯一判準，而原本
+   * **沒有任何一行把它設回 null**。連線打完一局→回標題→新的一局（單機），
+   * `app.coop` 還指著那個已經斷掉的會話：地圖上點任何一格走的是 `coop.pick()`，
+   * 而那支第一行就 `if (this.dead) return false`——畫面一動也不動，只能重新整理。
+   * 當過座位 1 的更慘，`me(run, 1)` 會丟「這一局沒有第 1 個座位」。
+   */
+  leaveCoop(): void { this.coop = null; this.seat = 0; }
 
   /**
    * 節點結算完的收尾：存檔再回地圖。事件、罐頭鋪、貓窩、紙箱、戰鬥的獎勵挑完牌都走這裡，
@@ -357,7 +386,9 @@ export class App {
     // 結算畫面那兩行留著（它要拿回傳值排版），變成無害的第二次呼叫：
     // 同一局算出同一筆，recordBest 比較後保留舊的；clearSave 只是 removeItem。
     // 其餘存檔時機一律不動：進行中的一局仍然只有 backToMap() 會寫。
-    if (run.status !== 'playing') { recordBest(run); clearSave(); }
+    // **連線局不記成績、也不准刪單機的存檔**（2026-09-12 稽核 高-2）：
+    // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
+    if (run.status !== 'playing' && !this.coop) { recordBest(run); clearSave(); }
     if (!rewards) { playDialogue(storyFor(me(this.run!, this.seat).hero).defeat, () => this.show('result')); return; }
     if (rewards.kind === '塔主') {
       // 第三關的關主倒下才是通關；前兩關的關主打完走過場對白 → 過關畫面（回滿血、挑秘寶、進下一關）。

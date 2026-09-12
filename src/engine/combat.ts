@@ -224,6 +224,20 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     if (gave) { p.energy += e!.energy; cs.energyGain += e!.energy; }
   }
   applyEffects(cs, st.effects, ctx);
+  /*
+   * 影子分身（2026-09-12 使用者指定）：這場戰鬥裡**每回合打出的第一張牌會再打一次**。
+   *
+   * 排在效果結算之後、再跑一次同一份效果。三個限制：
+   *   - 只認**這回合的第一張**（`cardsPlayedThisTurn === 1`，上面剛 +1 過）
+   *   - **能力牌不複製**：不然把影子分身本身當第一張打出去，它會當場複製自己
+   *   - 打完了（`phase !== 'player'`）就不補，跟千針萬毒同一個判斷
+   *
+   * 鎖步沒問題：兩台跑的是同一支、同一份效果、同一顆亂數，多消耗的次數也一樣。
+   */
+  if (p.echoFirst && p.cardsPlayedThisTurn === 1 && st.def.type !== '能力' && cs.phase === 'player') {
+    log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次`);
+    applyEffects(cs, st.effects, { ...ctx, combo: p.cardsPlayedThisTurn });
+  }
   // 這張牌這場打過幾次（分身術疊傷害用）：效果結算完才 +1，第一次打是 0 次
   cs.cardPlays = cs.cardPlays ?? {};
   cs.cardPlays[uid] = (cs.cardPlays[uid] ?? 0) + 1;

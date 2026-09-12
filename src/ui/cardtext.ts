@@ -8,7 +8,7 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
  * 後面再用逗號接「獲得 6 點蜷縮」會黏成一長串，看不出那 6 點是另一件事。
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
-const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack']);
+const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst']);
 
 /** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
@@ -102,6 +102,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'poisonBurst': return fx.full ? '中毒的魔物被打倒時，剩下的層數每一隻都拿一份'
       : '中毒的魔物被打倒時，把剩下的層數分給其他魔物';
     case 'blockBonus': return `之後每次獲得蜷縮都多 ${fx.n} 點`;
+    case 'echoFirst': return '之後每回合打出的第一張牌，會再打一次';
     case 'poisonOnAttack': return `之後每打出一張攻擊牌，再給那個目標 ${fx.n} 層中毒`;
     // 幫隊友的三招（連線版 2026-09-11）。措辭刻意寫成「兩個人一起玩才看得出差別」，
     // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉

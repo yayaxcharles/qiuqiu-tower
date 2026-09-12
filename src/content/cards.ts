@@ -266,9 +266,15 @@ export const cards: readonly CardDef[] = [
   { id: 'wanhua', name: '忍術·萬花筒', cost: 2, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/wanhua',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'draw', n: 1 }] }],
     upgrade: { cost: 1 } },
-  { id: 'yingzi', name: '影子分身', cost: 2, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/yingzi',
-    effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'draw', n: 1 }, { kind: 'status', name: '爪力', amount: 1, target: 'self' }] }],
-    upgrade: { effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'draw', n: 1 }, { kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'heal', n: 3 }] }] } },
+  /*
+   * 影子分身（2026-09-12 使用者改版）：原本是「打倒一隻就抽一張＋1 爪力」，
+   * 那是跟著擊殺走的效果，對慢慢毒死人的打法幾乎不發動。
+   * 改成**每回合打出的第一張牌會再打一次**，2 費 → 3 費。
+   * 升級版少 1 費（3→2），不是加別的效果——這張本來就強，再疊會失控。
+   */
+  { id: 'yingzi', name: '影子分身', cost: 3, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/yingzi',
+    effects: [{ kind: 'echoFirst' }],
+    upgrade: { cost: 2, effects: [{ kind: 'echoFirst' }] } },
   { id: 'tuishou', name: '絕學·推手', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/tuishou',
     effects: [{ kind: 'block', amount: 6 }, { kind: 'status', name: '懶洋洋', amount: 1, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'block', amount: 9 }, { kind: 'status', name: '懶洋洋', amount: 1, target: 'enemy' }] } },
@@ -547,6 +553,13 @@ export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
   huixuan: '迴旋撒針',         // 忍術·迴旋踢
   lianhuan: '連環針',          // 忍術·連環踢
   roubao: '指尖連彈',          // 肉球連擊（本來就沒有前綴）
+  // ---- 講的是球球讓對手噎住（吐毛球那一路），一隻下毒的貓不會這樣打（使用者 2026-09-12）----
+  cuiye: '絕學·毒發',          // 絕學·催噎（把目標身上的中毒翻倍＝毒一次發作出來）
+  // ---- 掃出來的另外三張，同樣是球球的身體動作（2026-09-12）----
+  tieshazhang: '絕學·毒砂',    // 絕學·鐵砂掌（7 傷＋3 毒：他用掌拍，她撒一把帶毒的砂）
+  zuiquan: '絕學·亂針',        // 絕學·醉拳（傷害 4～14 亂跳：他是醉了打不準，她是一把針撒出去看運氣）
+  caiweiba: '釘尾巴',          // 忍術·踩尾巴（6 傷＋2 毒：他用踩的，她怕痛不靠近，用針釘住）
+  jienicailiangbu: '借你兩步',  // 借你踩兩步（連線牌，給同伴貓步：他讓人踩著他，她只是把身法讓給你）
 };
 
 /**

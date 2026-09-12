@@ -2151,35 +2151,23 @@
   "name": "影子分身",
   "pool": "忍術",
   "rarity": "稀有",
-  "cost": 2,
+  "cost": 3,
   "type": "能力",
   "target": "self",
   "keywords": [],
   "hidden": false,
   "combatOnly": false,
   "kinds": [
-   "power"
+   "echoFirst"
   ],
   "effects": [
    {
-    "kind": "power",
-    "trigger": "onKill",
-    "effects": [
-     {
-      "kind": "draw",
-      "n": 1
-     },
-     {
-      "kind": "status",
-      "name": "爪力",
-      "amount": 1,
-      "target": "self"
-     }
-    ]
+    "kind": "echoFirst"
    }
   ],
-  "text": "每打倒一隻魔物就抽 1 張牌，獲得 1 點爪力。",
-  "up": "每打倒一隻魔物就抽 1 張牌，獲得 1 點爪力，回復 3 點生命。"
+  "upCost": 2,
+  "text": "之後每回合打出的第一張牌，會再打一次。",
+  "up": "之後每回合打出的第一張牌，會再打一次。"
  },
  {
   "id": "tuishou",
