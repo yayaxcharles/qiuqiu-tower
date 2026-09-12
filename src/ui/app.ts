@@ -27,6 +27,26 @@ type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 const screens = new Map<ScreenName, Renderer>();
 export function registerScreen(name: ScreenName, render: Renderer): void { screens.set(name, render); }
 
+/*
+ * 過關與結局的插圖要**依角色**（2026-09-12）。
+ *
+ * 這幾張圖裡球球都是主角（相擁那張他就在正中央），所以不能兩個人共用。
+ * 沒生好她的那一份時回她的鍵就好——`slidesReady` 查不到會讓整段退回純對白，
+ * 那正是要的行為：**寧可少一段幻燈片，不要放別人的故事**。
+ */
+function stillKey(hero: string | undefined, name: string): string {
+  return hero === 'feifei' ? `bg/feifei_${name}` : `bg/${name}`;
+}
+function endStills(hero: string | undefined): string[] {
+  return ['still_embrace', 'still_home'].map((n) => stillKey(hero, n));
+}
+function actStills(hero: string | undefined, act: number): string[] {
+  const names = act === 1
+    ? ['still_act1_stairs', 'still_act1_fish', 'still_act1_climb']
+    : ['still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs'];
+  return names.map((n) => stillKey(hero, n));
+}
+
 export class App {
   run: RunState | null = null;
   cs: CombatState | null = null;
@@ -350,10 +370,17 @@ export class App {
         // **不要改回比對內文**：原本寫 `includes('撲進')`，菲菲的結局沒那兩個字，
         // 切點被夾成 1，她的相擁那句就配到「回家路」的圖上（2026-09-12 稽核 中-1）
         const cut = Math.max(1, vic.findIndex((l) => l.slideBreak) + 1);
-        const endSlides = [
-          { img: 'bg/still_embrace', lines: vic.slice(0, cut) },
-          { img: 'bg/still_home', lines: vic.slice(cut) },
-        ];
+        /*
+         * 圖也要依角色（2026-09-12）。原本無條件用球球那兩張，而**球球就在畫面正中央**——
+         * 玩菲菲時文字寫「師父把她拉過去，摸了摸她的頭」，畫面卻是球球撲進師父懷裡。
+         * 那比沒有圖還糟。
+         *
+         * 她的圖還沒生好時 `slidesReady` 會是 false，整段退回純對白——**那是對的退路**，
+         * 寧可少一段幻燈片，不要放別人的故事（跟開頭影片同一個判斷，見上面）。
+         */
+        const endSlides = endStills(me(run, this.seat).hero).map((img, i) => ({
+          img, lines: i === 0 ? vic.slice(0, cut) : vic.slice(cut),
+        }));
         // 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片
         playVideo('ending', () => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
@@ -366,9 +393,9 @@ export class App {
       // 圖還沒生好（舊快取）就退回純文字對白，跟序章同一套規矩。
       const story = storyFor(me(run, this.seat).hero);
       const lines = run.act === 1 ? story.actClear1 : story.actClear2;
-      const stills = run.act === 1
-        ? ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb']
-        : ['bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs'];
+      // 圖依角色（2026-09-12，理由同結局那段）：球球在這六張裡都是主角，
+      // 而她的過關台詞講的是別的事（撿到師兄踩彎的針、把口罩拉上來），配他的圖整個對不起來
+      const stills = actStills(me(run, this.seat).hero, run.act);
       const actSlides = stills.map((img, i) => ({ img, lines: lines.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
       // 關主留下的信物（塔主令牌）帶進過關畫面先亮一次（使用者 2026-09-03：獲得令牌一直沒看到呈現）
       const bossRelic = rewards.relic;

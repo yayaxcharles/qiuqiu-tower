@@ -1,0 +1,53 @@
+import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+
+/**
+ * 過關與結局的插圖不可以混到別人（2026-09-12）。
+ *
+ * 這幾張圖裡**球球是主角**——相擁那張他就在正中央被師父抱著。原本程式無條件用他那一套，
+ * 玩菲菲時文字寫「師父把她拉過去，摸了摸她的頭」，畫面卻是球球撲進師父懷裡；
+ * 過關那三張也一樣（她的台詞講的是撿到師兄踩彎的針、把口罩拉上來）。
+ *
+ * 兩條：
+ *   1. `app.ts` 不可以再出現寫死的 `bg/still_embrace` 那類鍵——一律走 `stillKey`。
+ *   2. 進度追蹤：她那八張生好了幾張。**沒生好不是錯**（`slidesReady` 會讓整段退回純對白，
+ *      那是對的退路），但生好之後被刪掉是錯，所以用下限釘著。
+ */
+const app = readFileSync('src/ui/app.ts', 'utf-8');
+const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as {
+  bg: Record<string, string>;
+};
+
+const NAMES = [
+  'still_embrace', 'still_home',
+  'still_act1_stairs', 'still_act1_fish', 'still_act1_climb',
+  'still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs',
+];
+
+/** 她那八張目前生好幾張。生圖補進來就往上調，**只准往上**（2026-09-12 15:10 是 0） */
+const FLOOR = 0;
+
+describe('過關與結局的插圖', () => {
+  it('app.ts 裡沒有寫死的球球版鍵', () => {
+    const hard = NAMES.filter((n) => app.includes(`'bg/${n}'`));
+    expect(hard, `這幾個鍵還寫死在 app.ts：${hard.join('、')}——要走 stillKey`).toEqual([]);
+  });
+
+  it('球球那八張都在（她的退路就是這一套的存在）', () => {
+    const missing = NAMES.filter((n) => !manifest.bg[`bg/${n}`]);
+    expect(missing, `球球的圖不見了：${missing.join('、')}`).toEqual([]);
+  });
+
+  it(`她那八張生好的張數不少於 ${FLOOR}`, () => {
+    const hers = NAMES.filter((n) => manifest.bg[`bg/feifei_${n}`]);
+    // eslint-disable-next-line no-console
+    console.log(`  她的過關與結局插圖 ${hers.length}/8${hers.length < 8 ? `　還缺：${NAMES.filter((n) => !manifest.bg[`bg/feifei_${n}`]).join('、')}` : ''}`);
+    expect(hers.length, '倒退了——是不是有圖被刪掉或改名？').toBeGreaterThanOrEqual(FLOOR);
+  });
+
+  it('她的序章四張已經有了（那批先做的，拿來對照上面的做法）', () => {
+    for (const n of ['teach', 'corrupt', 'wait', 'depart']) {
+      expect(manifest.bg[`bg/feifei_still_${n}`], `序章 ${n} 不見了`).toBeTruthy();
+    }
+  });
+});
