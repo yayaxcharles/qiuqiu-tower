@@ -11,7 +11,7 @@ import { heroName, heroOf } from '../../engine/hero';
 import { lineFor } from '../../content/dialogue';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
-import { artUrl, monsterUrl } from '../assets';
+import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { renderHud } from '../hud';
@@ -252,7 +252,8 @@ registerScreen('map', (app, root) => {
      *（`.map-hero` 的層級又比節點高）。所以左邊放不下就改站右邊。
      */
     if (n.id === run.currentNode) {
-      const hero = artUrl('icons', `icon/map_hero_${run.act >= 3 ? 'top' : run.act === 2 ? 'mid' : 'low'}`);
+      // 鍵走 `mapHeroKey`：有菲菲自己那顆就用她的，沒有就退回球球（見那支的說明）
+      const hero = artUrl('icons', mapHeroKey(run.act));
       if (!hero.startsWith('data:')) {
         const left = x - R - HERO_GAP - HERO_W;
         // 左邊放不下就站右邊（見上面的說明）

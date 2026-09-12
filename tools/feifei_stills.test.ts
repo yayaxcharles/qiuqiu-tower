@@ -80,3 +80,35 @@ describe('事件插圖依角色', () => {
     }
   });
 });
+
+/**
+ * 地圖上「你在這」那顆頭像（2026-09-12）。
+ *
+ * 這顆最該分家：**每次看地圖都看得到**，而且它代表的就是「我」。
+ * 玩菲菲卻在地圖上看到球球，比事件插圖裡混到他還怪。
+ */
+describe('地圖上的頭像', () => {
+  it('依關數挑，而且有她的就用她的', async () => {
+    const { _setManifestForTest, mapHeroKey, setLocalHero } = await import('../src/ui/assets');
+    _setManifestForTest({
+      cards: {}, sprites: {}, monsters: {}, bg: {}, review: [],
+      icons: {
+        'icon/map_hero_low': 'a', 'icon/map_hero_mid': 'b', 'icon/map_hero_top': 'c',
+        'icon/map_hero_feifei_low': 'd',
+      },
+    });
+    setLocalHero('ninja');
+    expect(mapHeroKey(1)).toBe('icon/map_hero_low');
+    expect(mapHeroKey(2)).toBe('icon/map_hero_mid');
+    expect(mapHeroKey(3)).toBe('icon/map_hero_top');
+    setLocalHero('feifei');
+    expect(mapHeroKey(1), '有她的就該用她的').toBe('icon/map_hero_feifei_low');
+    expect(mapHeroKey(2), '沒有她的就該退回球球那顆').toBe('icon/map_hero_mid');
+    setLocalHero('ninja');
+  });
+
+  it('map.ts 沒有寫死的頭像鍵', () => {
+    const map = readFileSync('src/ui/screens/map.ts', 'utf-8');
+    expect(map.includes('icon/map_hero_$'), 'map.ts 還在自己組鍵，要走 mapHeroKey').toBe(false);
+  });
+});

@@ -160,6 +160,21 @@ export function eventArtKey(id: string): string {
   return manifest.bg[mine] !== undefined ? mine : base;
 }
 
+/**
+ * 地圖上「你在這」那顆頭像的鍵。做法同 `cardArtKey`／`eventArtKey`。
+ *
+ * 這顆最該分家：**每次看地圖都看得到**，而且它代表的就是「我」。
+ * 玩菲菲卻在地圖上看到球球，比事件插圖裡混到他還怪（2026-09-12）。
+ * 沒生好她那三顆之前退回他的——地圖上沒有頭像會不知道自己走到哪，那更糟。
+ */
+export function mapHeroKey(act: number): string {
+  const tier = act >= 3 ? 'top' : act === 2 ? 'mid' : 'low';
+  const base = `icon/map_hero_${tier}`;
+  if (localHeroId === 'ninja') return base;
+  const mine = `icon/map_hero_${localHeroId}_${tier}`;
+  return manifest.icons[mine] !== undefined ? mine : base;
+}
+
 /** 這位角色的立繪網址。鍵一律寫球球版的，換角色的翻譯交給 `heroSpriteKey` */
 export function heroArtUrl(hero: string | undefined, key: string): string {
   return artUrl('sprites', heroSpriteKey(hero, key));
