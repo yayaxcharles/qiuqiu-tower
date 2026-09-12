@@ -18,8 +18,11 @@
 """
 import json
 import pathlib
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from art_rules import feifei_look  # noqa: E402
 OUT = ROOT / "tools" / "codex_jobs"
 
 # 牌號（去掉 feifei_ 前綴）→（主色, 畫什麼）
@@ -33,10 +36,6 @@ CARDS: dict[str, tuple[str, str]] = {
         "she springs backwards off one foot with both forearms raised, pale-blue motion streaks fanning "
         "out in front of her and a curled pale-blue shield-glow wrapping her shoulders. Big backward "
         "arrow of light behind her showing she is MOVING AWAY from the viewer's right."),
-    "yuanshe": ("BRIGHT AMBER",
-        "a long amber sight-line runs the whole width of the picture: she is small and braced at the far "
-        "LEFT edge with one arm extended, and the dart is already most of the way across, growing bigger "
-        "and brighter as it goes. The empty distance between her and the far side IS the subject."),
     "cuidu": ("DEEP VIOLET",
         "she holds a single long needle upright in both paws and breathes on it; a thick deep-violet "
         "droplet runs down the needle and a violet vapour curl rises from it. Her eyes are lowered in "
@@ -132,15 +131,11 @@ CARDS: dict[str, tuple[str, str]] = {
 
 BODY = """A cartoon illustration for a card game, landscape composition.
 
-THE CHARACTER: the slender chibi SIAMESE cat girl from the attached reference sheet - creamy off-white body
-fur with a dark seal-brown mask over her muzzle and around the eyes, dark brown ears, paws and tail, bright
-BLUE almond eyes with glossy highlights, a narrow face and LARGE pointed ears, small pink blush strokes on
-her cheeks. She wears a PLUM-PURPLE short kimono jacket with the sleeves tied back, dark leggings, a wide
-belt with a row of small bamboo needle-tubes across the small of her back, and a cloth mask hanging loose
-around her neck.
-COPY THE REFERENCE EXACTLY - same fur colours, same jacket, same blue eyes, same chibi proportions (head
-about as big as the body, short stubby limbs, no neck), same thick black outlines and flat colouring.
-She is NOT a grey tabby, she does NOT wear a headband. There is exactly ONE cat in the picture.
+THE CHARACTER:
+{look}
+COPY THE REFERENCE EXACTLY - same fur colours, same jacket, same blue eyes, same hair with the fringe,
+bow and ponytail, same chibi proportions, same thick black outlines and flat colouring.
+She is NOT a grey tabby and she does NOT wear a headband. There is exactly ONE cat in the picture.
 Draw her big enough that her face reads clearly when the picture is shrunk to 150 pixels wide.
 
 WHAT IS HAPPENING - follow this exactly:
@@ -167,7 +162,7 @@ Output 1024x820 PNG. Save the image as card_feifei_{cid}.png in the current dire
 
 
 def main() -> None:
-    jobs = {f"card_feifei_{cid}.png": BODY.format(doing=doing, colour=colour, cid=cid)
+    jobs = {f"card_feifei_{cid}.png": BODY.format(look=feifei_look(), doing=doing, colour=colour, cid=cid)
             for cid, (colour, doing) in CARDS.items()}
     out = OUT / "feifei_cards.json"
     out.write_text(json.dumps(jobs, ensure_ascii=False, indent=1), encoding="utf-8")

@@ -16,23 +16,27 @@
 """
 import json
 import pathlib
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from art_rules import feifei_look  # noqa: E402
+
 OUT = ROOT / "tools" / "codex_jobs"
 
-# 參考圖裡有四個角色，每一張都要講清楚誰是誰——不講的話模型會把菲菲畫成球球換色
+# 參考圖裡有四個角色，每一張都要講清楚誰是誰——不講的話模型會把菲菲畫成球球換色。
+# 她的外觀來自 `art_rules.feifei_look()`（全專案只定義一份，見那個檔案的第六個雷）。
 CAST = (
     "The attached reference sheet has FOUR characters, left to right:\n"
     "  (1) a small chibi GREY TABBY cat ninja with a navy headband and navy outfit - this is the BROTHER "
     "STUDENT (Qiuqiu). He is NOT the main character of these pictures.\n"
     "  (2) a tall calm straw-hat kung-fu cat in a cream robe with a black belt - the MASTER, normal form.\n"
     "  (3) the same master CORRUPTED - bristling fur, spiral violet eyes, violet miasma smoking off him.\n"
-    "  (4) a slender chibi SIAMESE cat girl: creamy off-white body with dark seal-brown mask, ears, paws "
-    "and tail, bright BLUE almond eyes, large pointed ears, a PLUM-PURPLE short kimono jacket with "
-    "tied-back sleeves, dark leggings, a belt of small bamboo needle-tubes at the small of her back, and "
-    "a cloth mask hanging loose around her neck. **SHE is the main character of every picture below.**\n"
+    "  (4) the SIAMESE cat girl - **SHE is the main character of every picture below.**\n"
+    + feifei_look() +
     "Draw each character exactly as the reference shows them. Never give the Siamese girl grey tabby fur, "
-    "a navy headband, or the brother's round body - she is a different cat, slimmer, with a narrow face.\n"
+    "a navy headband, or the brother's round body - she is a different cat with a narrower face, and she "
+    "has the fringe, bow and ponytail described above.\n"
 )
 
 TAIL = (

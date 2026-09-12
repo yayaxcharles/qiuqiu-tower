@@ -117,9 +117,7 @@ POSES = {
 # ★ 朝向要寫得很重（2026-09-12 第一批踩到）：只寫 "FACING RIGHT" 不夠——
 #   `attack` 那種有明確動作方向的會照做，`idle` 那種站著不動的會漂成正面、頭還轉到左邊。
 #   球球現有的立繪是「身體正面、臉轉向右」，所以真正要釘死的是**鼻子與視線指向右**。
-FACE_RIGHT = ("Her muzzle, nose and gaze all point toward the RIGHT edge of the picture - you should see the "
-              "right-hand side of her face and the line of her cheek. She never looks toward the left edge and "
-              "never looks straight out at the viewer. Her tail trails off to the LEFT behind her.")
+FACE_RIGHT = FEIFEI_FACE_RIGHT.rstrip()
 FRAMING_DEFAULT = ("\n\nFull body. " + FACE_RIGHT + " Feet at the very bottom edge of the picture, do not draw "
                    "her floating. Fill the frame vertically.")
 FRAMING = {
@@ -138,7 +136,7 @@ def hero_jobs() -> dict[str, str]:
     for pose, text in POSES.items():
         fid = f'hero_feifei_{pose}.png'
         jobs[fid] = (
-            LOOK + " " + GEAR_LOOK +
+            LOOK +
             "\n\nPose: " + text + FRAMING.get(pose, FRAMING_DEFAULT) +
             "\nKeep the exact same character design AND the same right-facing three-quarter angle as the "
             "reference image (both halves of it face right) - only the pose and expression "
