@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
-import { sharpenVerb } from '../../src/engine/hero';
+import { sharpenVerb } from '../src/engine/hero';
 
 /**
  * 畫面上不可以再有寫死的球球用語。
@@ -10,6 +10,9 @@ import { sharpenVerb } from '../../src/engine/hero';
  * 只有玩菲菲的人讀到會出戲。掃原始碼是唯一抓得到的方法。
  *
  * 2026-09-12 第一次跑就抓到四處「喵」與一處「磨爪之後」。
+ *
+ * 放在 `tools/` 是因為 tsconfig 的 include 不含 tools，用 `node:fs` 的測試只能放這裡
+ *（跟 `event_result_art.test.ts` 同一個理由）。
  */
 
 /**

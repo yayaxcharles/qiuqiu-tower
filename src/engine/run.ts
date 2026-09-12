@@ -78,6 +78,16 @@ export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja', playe
   return run;
 }
 
+/**
+ * 這一局有哪些職業（連線就是兩位）。抽秘寶時用來濾掉「對這一局的人完全沒用」的那幾件。
+ *
+ * 連線時**只要有一位用得到就留著**：影披風對球球有用、對菲菲沒用，
+ * 但兩個人一起玩時球球拿得到，所以照樣該出現在選項裡。
+ */
+export function heroesIn(run: RunState): string[] {
+  return run.players.map((p) => p.hero ?? 'ninja');
+}
+
 export function currentNode(run: RunState): MapNode | null {
   return run.currentNode ? nodeById(run.map, run.currentNode) : null;
 }
@@ -351,7 +361,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    * 開的時候看的是第一位的秘寶、牌組與稀有保底——一份共用的戰利品總得有個基準，
    * 而且兩台機器都用同一個基準才算得出同一份。兩位的差異體現在「各挑各的」那一步。
    */
-  const r = rollRewards(runRng(run), kind, me(run).relics, winGold, late, { exclude, rareBonus: (me(run).rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(me(run)),
+  const r = rollRewards(runRng(run), kind, me(run).relics, winGold, late, { exclude, rareBonus: (me(run).rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(me(run)), heroes: heroesIn(run),
     ...(run.players.length > 1 ? { ownedPerSeat: run.players.map((p) => p.relics) } : {}) });
   if (r.cards.length) me(run).rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (me(run).rarePity ?? 0) + 1;
   // 肥美／餓扁改固定加減（下一輪平衡 2026-09-05）：倍率對 15～25 條的戰利品只有 ±10～20 條，換的卻是 ±25% 血，秤不平；
@@ -426,7 +436,8 @@ export function rollActRelics(run: RunState, n = 3): string[] {
   const out: string[] = [];
   for (let i = 0; i < n; i++) {
     // 過關三選一抽塔主池（圖鑑也這樣寫）；塔主池抽完了才退回大魔物池——以前一直抽大魔物池，塔主池九件永遠拿不到（審查 #2）
-    const id = rollRelic(rng, '塔主', [...me(run).relics, ...out]) ?? rollRelic(rng, '大魔物', [...me(run).relics, ...out]);
+    const hs = heroesIn(run);
+    const id = rollRelic(rng, '塔主', [...me(run).relics, ...out], hs) ?? rollRelic(rng, '大魔物', [...me(run).relics, ...out], hs);
     if (id) out.push(id);
   }
   return out;
@@ -588,7 +599,7 @@ const CHEST_POOLS: RelicPool[] = ['常見', '大魔物', '塔主'];
 export function openChest(run: RunState, seat = 0): string | null {
   const rng = runRng(run);
   for (const pool of CHEST_POOLS) {
-    const id = rollRelic(rng, pool, me(run, seat).relics);
+    const id = rollRelic(rng, pool, me(run, seat).relics, heroesIn(run));
     if (id) { takeRelic(run, id, seat); return id; }
   }
   return null;
@@ -604,7 +615,7 @@ export function openChestCoop(run: RunState): string[] {
   const rng = runRng(run);
   const ownedPerSeat = run.players.map((p) => p.relics);
   for (const pool of CHEST_POOLS) {
-    const got = rollRelicChoices(rng, pool, ownedPerSeat, run.players.length);
+    const got = rollRelicChoices(rng, pool, ownedPerSeat, run.players.length, heroesIn(run));
     if (got.length) return got;
   }
   return [];

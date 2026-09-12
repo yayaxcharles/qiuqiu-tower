@@ -62,8 +62,16 @@ export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string
   return out;
 }
 
-export function rollRelic(rng: Rng, pool: RelicPool, owned: string[]): string | null {
-  const cands = relics.filter((r) => r.pool === pool && !owned.includes(r.id));
+/**
+  * `heroes`＝這一局有哪些職業（連線就傳兩位）。職業獨占的秘寶只給對得上的那一位，
+  * 沒傳就當忍者（單機舊呼叫端不用改）。理由見 `RelicDef.hero`。
+  */
+export function relicOk(r: { hero?: string }, heroes: readonly string[]): boolean {
+  return !r.hero || heroes.includes(r.hero);
+}
+
+export function rollRelic(rng: Rng, pool: RelicPool, owned: string[], heroes: readonly string[] = ['ninja']): string | null {
+  const cands = relics.filter((r) => r.pool === pool && !owned.includes(r.id) && relicOk(r, heroes));
   return cands.length ? rng.pick(cands).id : null;
 }
 
@@ -78,11 +86,13 @@ export function rollPotion(rng: Rng): string { return rng.pick(potions).id; }
  *
  * 單機呼叫 `n = 1` 時行為跟 `rollRelic` 完全一樣（同樣的候選、同樣一次 `rng.pick`）。
  */
-export function rollRelicChoices(rng: Rng, pool: RelicPool, ownedPerSeat: readonly string[][], n: number): string[] {
+export function rollRelicChoices(rng: Rng, pool: RelicPool, ownedPerSeat: readonly string[][], n: number,
+                                 heroes: readonly string[] = ['ninja']): string[] {
   const out: string[] = [];
   for (let i = 0; i < n; i++) {
     const cands = relics.filter((r) => r.pool === pool
       && !out.includes(r.id)
+      && relicOk(r, heroes)
       && ownedPerSeat.every((owned) => !owned.includes(r.id)));
     if (!cands.length) break;
     out.push(rng.pick(cands).id);
@@ -125,7 +135,9 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
      * 一人時 `rollRelicChoices(…, 1)` 跟 `rollRelic` 抽出來一模一樣（同候選、同一次 `rng.pick`），
      * 所以這個參數不影響單機的亂數走向——四個定錨測試就是在盯這件事。
      */
-    ownedPerSeat?: readonly string[][] } = {}): CombatRewards {
+    ownedPerSeat?: readonly string[][];
+    /** 這一局有哪些職業（連線兩位）。濾掉「對這一局沒人用得到」的秘寶，見 `RelicDef.hero` */
+    heroes?: readonly string[] } = {}): CombatRewards {
   const ex = opts.exclude ?? [];
   const hero = opts.hero ?? 'ninja';   // 職業獨占牌的過濾（2026-09-05）
   const bonus = opts.rareBonus ?? 0;
@@ -141,10 +153,10 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
     const potion = rng.chance(0.5) ? rollPotion(rng) : null;
     const seats = opts.ownedPerSeat;
     if (seats && seats.length > 1) {
-      const offers = rollRelicChoices(rng, '大魔物', seats, seats.length);
+      const offers = rollRelicChoices(rng, '大魔物', seats, seats.length, opts.heroes ?? [hero]);
       return { kind, cards, fish: 35 + winGoldBonus, potion, relic: null, relicOffers: offers, ...withUpgrade(cards) };
     }
-    return { kind, cards, fish: 35 + winGoldBonus, potion, relic: rollRelic(rng, '大魔物', owned), ...withUpgrade(cards) };
+    return { kind, cards, fish: 35 + winGoldBonus, potion, relic: rollRelic(rng, '大魔物', owned, opts.heroes ?? [hero]), ...withUpgrade(cards) };
   }
   // 小魚乾 10～20 → 15～25：原本一關打完約 90 條，罐頭鋪一張常見牌 50、
   // 等於整關只逛得起一次店，商店形同虛設
