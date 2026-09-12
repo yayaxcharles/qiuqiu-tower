@@ -26,7 +26,36 @@ function walk(dir: string): string[] {
   return out;
 }
 
-const files = walk('src/ui').map((p) => ({ p, src: readFileSync(p, 'utf-8') }));
+/*
+ * **要掃 `src/engine` 與 `src/content`，不只 `src/ui`**（2026-09-13 稽核 低-1）。
+ * 第一版只掃畫面層，於是 `engine/run.ts` 的「撿到了「絕學·醉拳」」漏網——
+ * 玩菲菲撿到那張，提示寫球球的名字、牌組裡卻是「絕學·亂針」。
+ * 引擎內部拿 `def.name` 當**資料**用的地方（不是要顯示給玩家）列在 `ENGINE_OK` 白名單。
+ */
+const load = (ps: string[]) => ps.map((p) => ({ p, src: readFileSync(p, 'utf-8') }));
+/** 牌名那條要掃到引擎：`engine/run.ts` 的「撿到了…」就是在那裡漏的 */
+const files = load([...walk('src/ui'), ...walk('src/engine'), ...walk('src/content')]);
+/**
+ * 「喵」與「磨爪」那兩條**只掃畫面層**：`src/content` 裡是球球自己的台詞與牌名，
+ * 本來就該有喵、本來就叫磨爪石，掃進去只會一直誤報。
+ */
+const uiFiles = load(walk('src/ui'));
+
+/**
+ * 這些 `def.name` **不是牌名**，所以不必過 `cardNameFor`：
+ * 秘寶、忍具、魔物都是道具或角色，兩邊共用同一個名字（見 `potion_hero.test.ts` 的判準）。
+ * 白名單是**逐條列內容**不是逐檔案——整個檔案放行的話，同一支裡新加的牌名就漏掉了。
+ */
+const NOT_A_CARD = [
+  'RELIC_LOG',            // 秘寶發動的紀錄
+  '忍具帶滿了',            // 換忍具的確認框
+  '關主留下的東西',        // 塔主信物（秘寶）
+  '想召喚',               // 魔物召喚
+  "用了「",               // 用忍具
+  'cardStats(c).name',    // mimic 查不到牌時的退路
+];
+/** 引擎內部拿名字當資料用（排序、比對、匯出），不是顯示給玩家 */
+const ENGINE_OK = /deck\.ts|content[\/]cards\.ts|smartbot\.ts|\.name === |localeCompare/;
 
 /**
  * 把註解拿掉再掃：說明文字裡本來就會提到這些寫法。
@@ -38,9 +67,9 @@ function strip(src: string): string {
     .replace(/\/\/.*$/gm, '');
 }
 
-function scan(re: RegExp, allow?: RegExp): string[] {
+function scan(re: RegExp, allow?: RegExp, set = files): string[] {
   const bad: string[] = [];
-  for (const { p, src } of files) {
+  for (const { p, src } of set) {
     strip(src).split('\n').forEach((l, i) => {
       if (re.test(l) && !(allow && allow.test(l))) bad.push(`${p}:${i + 1}  ${l.trim().slice(0, 100)}`);
     });
@@ -51,7 +80,8 @@ function scan(re: RegExp, allow?: RegExp): string[] {
 describe('換角色沒換乾淨的暗病', () => {
   it('畫面層不可以直接拿牌表的 name（要過 cardNameFor）', () => {
     // `cardById[...]`.name` 與 `cardStats(...).name` 是兩個直接來源
-    const bad = scan(/cardById\[[^\]]*\]\??\.name|cardStats\([^)]*\)\.name/, /cardNameFor/);
+    const bad = scan(/cardById\[[^\]]*\]\??\.name|cardStats\([^)]*\)\.name|def\.name\}/, /cardNameFor/)
+      .filter((l) => !ENGINE_OK.test(l) && !NOT_A_CARD.some((w) => l.includes(w)));
     expect(bad, `這幾行的牌名沒過 cardNameFor：\n${bad.join('\n')}`).toEqual([]);
   });
 
@@ -66,12 +96,12 @@ describe('換角色沒換乾淨的暗病', () => {
   });
 
   it('「喵」不可以寫死在畫面上（要過 lineFor）', () => {
-    const bad = scan(/喵/, /lineFor|speaker:\s*'球球'|\.speaker ===|=== '球球'|feifeiLineOk|qiuqiuLineOk/);
+    const bad = scan(/喵/, /lineFor|speaker:\s*'球球'|\.speaker ===|=== '球球'|feifeiLineOk|qiuqiuLineOk/, uiFiles);
     expect(bad, `這幾行的「喵」沒過 lineFor：\n${bad.join('\n')}`).toEqual([]);
   });
 
   it('「磨爪」不可以寫死（她磨的是針）', () => {
-    const bad = scan(/磨爪(?!石|油)/, /sharpenVerb|'磨爪'/);
+    const bad = scan(/磨爪(?!石|油)/, /sharpenVerb|'磨爪'/, uiFiles);
     expect(bad, `這幾行寫死了磨爪：\n${bad.join('\n')}`).toEqual([]);
   });
 });

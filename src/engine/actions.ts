@@ -1,4 +1,4 @@
-import { cardById } from '../content/cards';
+import { cardById, cardNameFor } from '../content/cards';
 import { enemyById } from '../content/enemies';
 import { relicById } from '../content/relics';
 import { unitName } from './hero';
@@ -146,7 +146,8 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
     if (to === 'discard') p.discardPile.push(card);
     else p.drawPile.splice(cs.rng.int(0, p.drawPile.length), 0, card);
   }
-  log(cs, `${from.name}把 ${n} 張「${def.name}」塞進你的${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
+  // 牌名要過 `cardNameFor`（稽核 2026-09-13 低-1）：塞進來的是牌，菲菲看到的名字不同
+  log(cs, `${from.name}把 ${n} 張「${cardNameFor(def, p.hero)}」塞進你的${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
 }
 
 /**

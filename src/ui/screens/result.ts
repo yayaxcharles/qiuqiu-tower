@@ -19,9 +19,22 @@ registerScreen('result', (app, root) => {
   if (!run) { app.show('title'); return; }
   const seat = app.seat;   // 結算畫面也是看**自己**的牌組與秘寶（連線版 2026-09-11）
   const won = run.status === 'won';
-  // 先記成績再清存檔：這一局到此為止，「續玩」從結算之後就該是反灰的
-  const best = recordBest(run);
-  clearSave();
+  /*
+   * 先記成績再清存檔：這一局到此為止，「續玩」從結算之後就該是反灰的。
+   *
+   * **連線局一個字都不准碰**（2026-09-13 第二輪稽核 高-1）。`app.ts` 那邊 2026-09-12
+   * 已經加過 `!this.coop`，但**這裡自己也叫了一次**，而且沒擋——於是它從
+   * 「無害的第二次呼叫」變成**唯一的那一次**：連線打完一局走到這個畫面，
+   * 你單機打到 30F 的存檔就被 `clearSave()` 刪掉了，兩人局的樓層還會寫進單機最佳成績、
+   * 通關甚至順手解鎖下一個難度。完全沒有提示，回標題才發現「續玩」按不動。
+   *
+   * 教訓：**同一件事有兩個呼叫點時，擋一個等於沒擋**。當時那句「留著當無害的第二次」
+   * 在加上守門條件的那一刻就不成立了。
+   */
+  const best = app.coop
+    ? { floor: run.floor, won, turns: run.stats.turns, date: '' }   // 只是要拿來排版，不寫進儲存
+    : recordBest(run);
+  if (!app.coop) clearSave();
 
   const relics = el('div', { class: 'result-relics' });
   for (const id of me(run, seat).relics) {

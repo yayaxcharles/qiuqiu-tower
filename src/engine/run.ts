@@ -1,4 +1,4 @@
-import { cardById, cards, starterDeckFor } from '../content/cards';
+import { cardById, cardNameFor, cards, starterDeckFor } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById, enemyById } from '../content/enemies';
@@ -842,7 +842,14 @@ export type RunGain = { kind: '秘寶' | '忍具'; id: string; missed?: boolean 
 export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: string[],
   gains?: RunGain[], seat = 0): RunEffectOutcome {
   let outcome: RunEffectOutcome = null;
-  const cardName = (id: string): string => cardById[id]?.name ?? id;
+  /**
+   * 牌名。**要收 hero**：菲菲看到的是她那套名字（`cardNameFor`）。
+   * 現在餵進來的只有壞毛病牌（兩邊同名），但同型的雷已經在 `addRandomCard` 那裡出過一次。
+   */
+  const cardName = (id: string, hero?: string): string => {
+    const d = cardById[id];
+    return d ? cardNameFor(d, hero) : id;
+  };
   /**
    * 這一次呼叫裡「已經交出去、不要再抽回來」的秘寶（換家的老鼠）。
    * `rollRelic` 只避開身上現有的，交出去那一刻它就從 `run.relics` 消失了，
@@ -873,13 +880,15 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         addCard(run, fx.cardId, false, seat);
         // 壞毛病是被塞進來的，講法要跟「學會了」分開，玩家才知道自己是賺到還是中招
         notes?.push(cardById[fx.cardId]?.pool === '壞毛病'
-          ? `牌組被塞了一張「${cardName(fx.cardId)}」`
-          : `學會了「${cardName(fx.cardId)}」`);
+          ? `牌組被塞了一張「${cardName(fx.cardId, heroOf(me(run, seat)))}」`
+          : `學會了「${cardName(fx.cardId, heroOf(me(run, seat)))}」`);
         break;
       case 'addRandomCard': {
         // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）只有魔物塞得進來，事件不能抽到
         const pool = cards.filter((c) => c.pool === fx.pool && pickable(c, heroOf(me(run, seat)), run.players.length) && (!fx.rarity || c.rarity === fx.rarity));
-        if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id, false, seat); notes?.push(`撿到了「${def.name}」`); }
+        // 牌名要過 `cardNameFor`（2026-09-13 稽核 低-1）：玩菲菲撿到醉拳，提示寫「絕學·醉拳」、
+        // 牌組裡那張卻叫「絕學·亂針」。`hero_text_scan` 只掃 `src/ui`，掃不到引擎這一側
+        if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id, false, seat); notes?.push(`撿到了「${cardNameFor(def, heroOf(me(run, seat)))}」`); }
         break;
       }
       // 同一種連寫幾次就累加張數；換成另一種就重算（目前沒有事件混用，但規矩要成立）

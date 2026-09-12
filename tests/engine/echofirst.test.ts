@@ -88,3 +88,34 @@ describe('影子分身', () => {
     expect(p.block, '2 點蜷縮 ×2').toBe(4);
   });
 });
+
+/**
+ * 2026-09-13 第二輪稽核抓到的兩個「算錯而且不出聲」。
+ */
+describe('影子分身的兩個邊角', () => {
+  it('要選牌的牌不吃影分身（不然只問一次、只抽一份，紀錄卻說打了兩次）', () => {
+    const { cs, p } = setup('ninja');
+    p.hand.length = 0;
+    playCard(cs, toHand(cs, 'yingzi', 900));
+    p.cardsPlayedThisTurn = 0;
+    toHand(cs, 'sanjo', 902);                     // 手上要有東西可消耗，不然告退不會停下來問
+    toHand(cs, 'tanding', 903);
+    const before = p.drawPile.length;
+    playCard(cs, toHand(cs, 'gaotui', 901));      // 告退：消耗手上一張 → 抽一張，會開挑牌疊層
+    expect(cs.pending, '應該停下來等玩家挑').toBeTruthy();
+    expect(cs.log.some((l) => l.includes('又打了一次')), '不該印「又打了一次」').toBe(false);
+    expect(p.drawPile.length, '抽牌堆不該被動兩次').toBe(before);
+  });
+
+  it('蓄力的加倍不會被影分身吃兩次（6 傷不該打成 24）', () => {
+    const { cs, p } = setup('ninja');
+    const e = cs.enemies[0]!;
+    p.hand.length = 0;
+    playCard(cs, toHand(cs, 'yingzi', 900));
+    p.cardsPlayedThisTurn = 0;
+    p.doubleNext = 1;                              // 蓄力：下一張攻擊牌傷害加倍
+    const hp0 = e.hp;
+    playCard(cs, toHand(cs, 'sanjo', 901), e.uid); // 貓抓 6
+    expect(hp0 - e.hp, '加倍一次(12) × 打兩次 = 18，不是 24').toBe(18);
+  });
+});

@@ -167,9 +167,18 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
     diffBadge(run),
     hp, fish, relics, potions, deckBtn, compBtn,
-    // 每個畫面都給分享鈕（使用者 2026-09-07：「戰鬥中也能隨手按一下比較方便」）。
-    // 戰鬥中按是安全的——分享的是上一個存檔點（見 seedTag 裡的說明），不是還沒打完的這一格
-    seedTag(run.seed, false, run), music, vol, sound);
+    /*
+     * 每個畫面都給分享鈕（使用者 2026-09-07：「戰鬥中也能隨手按一下比較方便」）。
+     * 戰鬥中按是安全的——分享的是上一個存檔點（見 seedTag 裡的說明），不是還沒打完的這一格。
+     *
+     * **連線時只分享地圖種子，不分享局面**（2026-09-13 稽核 中-3）：局面碼是從
+     * `loadRun()` 拿的，而連線局現在一個字都不存（見 `App.save`），
+     * 於是按下去複製到的是**你上一次單機存檔**——樓層、牌組、秘寶全是另一局的。
+     * 沒有單機存檔的人更糟，會退回分享當下的兩人局，對方貼進去就是「兩人局被當單機載入」
+     * 那個災情（魔物血量按兩人放大、第二位站著不動還會被打）。
+     * 連線本來就不支援續玩，分享局面在這裡沒有能成立的語意。
+     */
+    seedTag(run.seed, false, app.coop ? undefined : run), music, vol, sound);
   return hud;
 }
 

@@ -44,10 +44,29 @@ describe('連線狀態不可以外溢到單機', () => {
     expect(m![1], 'save() 沒擋連線——兩人局會蓋掉單機存檔').toMatch(/if \(this\.coop\) return/);
   });
 
-  it('記成績與刪存檔也擋掉連線', () => {
-    const line = app.split('\n').find((l) => l.includes('recordBest(run)'));
-    expect(line, '找不到 recordBest').toBeTruthy();
-    expect(line!, 'recordBest／clearSave 沒擋連線——連線局會把單機存檔刪掉').toContain('!this.coop');
+  /*
+   * **`recordBest` 與 `clearSave` 有兩個呼叫點，兩個都要擋**（2026-09-13 第二輪稽核 高-1）。
+   *
+   * 第一輪只擋了 `app.ts`，而 `result.ts` 自己也叫了一次——那一行從「無害的第二次呼叫」
+   * 變成**唯一的那一次**：連線打完一局走到結算畫面，你單機打到 30F 的存檔就被刪了。
+   * 第一版的測試只讀 `app.ts` 這一個字串，漏洞就在測試視野外。
+   *
+   * 所以這條改成掃**每一個呼叫點**：出現幾次就要有幾處守門。
+   */
+  it('記成績與刪存檔：每一個呼叫點都擋掉連線', () => {
+    const sources: [string, string][] = [['src/ui/app.ts', app], ['src/ui/screens/result.ts', result]];
+    const bad: string[] = [];
+    for (const [name, src] of sources) {
+      const lines = src.split('\n');
+      lines.forEach((l, i) => {
+        if (!/recordBest\(|clearSave\(/.test(l)) return;
+        if (/^\s*(import|\*|\/\/)/.test(l)) return;                 // 匯入與註解不算
+        // 守門條件可能寫在上一兩行（三元運算子換行寫），所以看一小段範圍不是單行
+        const near = lines.slice(Math.max(0, i - 2), i + 1).join(' ');
+        if (!/coop/.test(near)) bad.push(`${name}:${i + 1}  ${l.trim().slice(0, 70)}`);
+      });
+    }
+    expect(bad, `這幾個呼叫點沒擋連線：\n${bad.join('\n')}`).toEqual([]);
   });
 });
 

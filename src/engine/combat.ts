@@ -145,7 +145,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
+    if (cu?.onTurnStart) { log(cs, `「${curseName(c.cardId, p.hero)}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
   }
 }
 
@@ -174,6 +174,12 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
 }
 
 /** `seat`＝誰打這張牌（連線版第一步 2026-09-11）。連線層要送過去的就是「座位＋牌號＋目標」這三個數字 */
+/** 壞毛病牌的名字（發作時印在紀錄上）。要過 `cardNameFor`——菲菲看到的名字不同 */
+function curseName(id: string, hero: string | undefined): string {
+  const d = cardById[id];
+  return d ? cardNameFor(d, hero) : id;
+}
+
 export function playCard(cs: CombatState, uid: number, targetUid?: number, seat = 0): boolean {
   const chk = canPlay(cs, uid, targetUid, seat);
   if (!chk.ok) return false;
@@ -234,9 +240,23 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    *
    * 鎖步沒問題：兩台跑的是同一支、同一份效果、同一顆亂數，多消耗的次數也一樣。
    */
-  if (p.echoFirst && p.cardsPlayedThisTurn === 1 && st.def.type !== '能力' && cs.phase === 'player') {
+  /*
+   * 兩個條件是 2026-09-13 稽核補的，兩個都會**算錯而且不出聲**：
+   *
+   * `!cs.pending`：碰到要玩家選牌的效果（告退、讀心術、拖字訣、隔空取物、移形換影），
+   * `applyEffects` 會把剩下的效果收進 `cs.pending` 就返回。馬上再跑一次，第二次的
+   * `pause()` 會把第一次的 `cs.pending` **整個蓋掉**——玩家只被問一次、只抽到一份，
+   * 影子分身等於沒生效，可是紀錄已經印了「又打了一次」。移形換影更慘：
+   * 抽牌跑兩次、棄牌只跑一次，變成玩家賺。這五張就不吃影分身，紀錄也不會說謊。
+   *
+   * `doubleDamage: false`：蓄力與秘笈的加倍是**用掉就清掉**的（上面 `p.doubleNext = 0`、
+   * `p.firstAttackDouble = false`），程式自己的模型是「只該用在這一次」。
+   * 原本 `{ ...ctx }` 把它一起複製過去，6 點的貓抓會打出 24 點（兩倍再兩倍）。
+   */
+  if (p.echoFirst && p.cardsPlayedThisTurn === 1 && st.def.type !== '能力'
+      && cs.phase === 'player' && !cs.pending) {
     log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次`);
-    applyEffects(cs, st.effects, { ...ctx, combo: p.cardsPlayedThisTurn });
+    applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
   }
   // 這張牌這場打過幾次（分身術疊傷害用）：效果結算完才 +1，第一次打是 0 次
   cs.cardPlays = cs.cardPlays ?? {};
@@ -376,7 +396,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
 function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p }); }
+    if (cu?.onTurnEnd) { log(cs, `「${curseName(c.cardId, p.hero)}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p }); }
   }
   if (cs.phase !== 'player') return;
   if (!p.attackedThisTurn) {
