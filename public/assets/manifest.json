@@ -164,7 +164,8 @@
   "card/feifei_youcike": "assets/cards/card/feifei_youcike.webp",
   "card/feifei_zhanshu": "assets/cards/card/feifei_zhanshu.webp",
   "card/feifei_shuaiguo": "assets/cards/card/feifei_shuaiguo.webp",
-  "card/feifei_dingshen": "assets/cards/card/feifei_dingshen.webp"
+  "card/feifei_dingshen": "assets/cards/card/feifei_dingshen.webp",
+  "card/feifei_cuimian": "assets/cards/card/feifei_cuimian.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
