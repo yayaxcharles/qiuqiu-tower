@@ -228,7 +228,8 @@
   "card/feifei_jingzhi": "assets/cards/card/feifei_jingzhi.webp",
   "card/feifei_luanwu": "assets/cards/card/feifei_luanwu.webp",
   "card/feifei_dilie": "assets/cards/card/feifei_dilie.webp",
-  "card/feifei_huixuan": "assets/cards/card/feifei_huixuan.webp"
+  "card/feifei_huixuan": "assets/cards/card/feifei_huixuan.webp",
+  "card/feifei_lianhuan": "assets/cards/card/feifei_lianhuan.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
@@ -1344,6 +1345,10 @@
   "bg/event_feifei_toll_again_fought": "assets/bg/event_feifei_toll_again_fought.webp",
   "bg/event_feifei_toll_again_paid": "assets/bg/event_feifei_toll_again_paid.webp",
   "bg/event_feifei_training_hall": "assets/bg/event_feifei_training_hall.webp",
-  "bg/event_feifei_weapon_rack": "assets/bg/event_feifei_weapon_rack.webp"
+  "bg/event_feifei_weapon_rack": "assets/bg/event_feifei_weapon_rack.webp",
+  "bg/event_feifei_pouch_r0": "assets/bg/event_feifei_pouch_r0.webp",
+  "bg/event_feifei_pouch_r1": "assets/bg/event_feifei_pouch_r1.webp",
+  "bg/event_feifei_signal_r0": "assets/bg/event_feifei_signal_r0.webp",
+  "bg/event_feifei_signal_r1": "assets/bg/event_feifei_signal_r1.webp"
  }
 }
