@@ -90,7 +90,13 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     overlay.remove();
     unlockScreen();
     hideTooltip();
-    if (many > 1) opts.onPickMany?.(uid === null ? [] : chosen);
+    /*
+     * `onPickMany` 沒給就**退回叫 `onPick`**（2026-09-12 稽核 低-3）。
+     * 原本寫 `opts.onPickMany?.(…)`：漏給的話疊層關掉、呼叫端的回呼永遠不叫、畫面不動，
+     * 跟秘笈那個 bug **完全同型**（可省略的參數＋靜靜走進不該走的分支）。
+     * 目前兩個 `pickCount > 1` 的呼叫端都有給，但護欄要擺著。
+     */
+    if (many > 1 && opts.onPickMany) opts.onPickMany(uid === null ? [] : chosen);
     else opts.onPick(uid);
   };
   const layout = deckPickerLayout(opts);

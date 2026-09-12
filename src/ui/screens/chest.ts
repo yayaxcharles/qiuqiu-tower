@@ -40,7 +40,14 @@ registerScreen('chest', (app, root) => {
    * 早抽不會劇透——連線版在兩個人都挑完之前，秘寶根本還沒進任何人的背包。
    */
   const offers: string[] = coop ? openChestCoop(run) : [];
-  let settled = false;   // 結算只能跑一次（它會擲骰，跑兩次亂數就多走一步）
+  /*
+   * 結算只能跑一次（它會擲骰，跑兩次亂數就多走一步）。
+   *
+   * **開不出任何秘寶時直接當作結算完**（2026-09-12 稽核 低-2）：`offers.length === 0`
+   * 就沒有人會投票，`settled` 永遠是 false、「繼續」永遠停用寫著「先挑一件」，
+   * 可是對白已經寫著「紙箱是空的」。要三池 64 件全收齊才碰得到，但卡住就是卡死。
+   */
+  let settled = offers.length === 0;
   /**
    * 我自己把箱子打開了沒。
    *

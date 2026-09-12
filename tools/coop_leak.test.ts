@@ -50,3 +50,43 @@ describe('連線狀態不可以外溢到單機', () => {
     expect(line!, 'recordBest／clearSave 沒擋連線——連線局會把單機存檔刪掉').toContain('!this.coop');
   });
 });
+
+/**
+ * 2026-09-12 稽核的中低風險四條。全部是**靜音**的：不丟例外、畫面照樣有東西，
+ * 玩家看到的是「按鈕按不動」或「提示寫的是別人的事」。
+ */
+describe('連線的四個靜音卡死點', () => {
+  const reward = readFileSync('src/ui/screens/reward.ts', 'utf-8');
+  const chest = readFileSync('src/ui/screens/chest.ts', 'utf-8');
+  const deckview = readFileSync('src/ui/deckview.ts', 'utf-8');
+  const event = readFileSync('src/ui/screens/event.ts', 'utf-8');
+
+  it('戰利品：分不到秘寶的座位也要算完成（不然兩個人一起卡死）', () => {
+    expect(reward, '沒有 markRelicSeat').toContain('markRelicSeat');
+    expect(reward, '沒有把分不到的座位記成完成')
+      .toMatch(/run\.players\.forEach\(\(_, i\) => \{ if \(!got\[i\]\) markRelicSeat\(i\)/);
+  });
+
+  it('紙箱：開不出秘寶時直接當結算完（不然繼續永遠按不下去）', () => {
+    expect(chest, 'settled 沒處理空紙箱').toContain('let settled = offers.length === 0');
+  });
+
+  it('挑牌疊層：沒給 onPickMany 就退回 onPick（不然疊層關掉、呼叫端永遠不叫）', () => {
+    expect(deckview, '還在用 onPickMany?.() 的靜默寫法')
+      .toContain('if (many > 1 && opts.onPickMany)');
+  });
+
+  it('連線的秘笈結果文案要過 evText（不然玩菲菲會留著球球與喵）', () => {
+    const i = event.indexOf("kind === 'evlearn'");
+    expect(i, '找不到 evlearn 的處理').toBeGreaterThan(0);
+    const body = event.slice(i, i + 900);
+    expect(body, 'takeLearn 收到的是原文不是 evText').toContain('evText(c.result)');
+  });
+
+  it('打贏附帶的獎勵提示認的是「我」不是座位 0', () => {
+    const run = readFileSync('src/engine/run.ts', 'utf-8');
+    expect(run, 'resolvePendingAfterFight 還在寫死 i === 0').not.toMatch(/i === 0 \? notes : undefined/);
+    expect(run, '沒有 forSeat 參數').toContain('forSeat = 0');
+    expect(app, 'app.ts 沒把 seat 傳進去').toContain('afterGains, this.seat)');
+  });
+});

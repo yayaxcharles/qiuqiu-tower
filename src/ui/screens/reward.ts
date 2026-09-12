@@ -57,6 +57,14 @@ registerScreen('reward', (app, root, props) => {
   if (app.coop) {
     const coop = app.coop;
     const alive = (): boolean[] => run.players.map((p) => !p.down);
+    /**
+     * 把某個座位記成「秘寶這件事他做完了」。
+     * 記在戰利品物件上不是區域變數：畫面每挑一次就重畫，區域變數會被清掉。
+     */
+    const markRelicSeat = (i: number): void => {
+      const s2 = new Set(r.relicSeats ?? []); s2.add(i); r.relicSeats = [...s2];
+      if (run.players.every((p, k) => p.down || s2.has(k))) r.relicTaken = true;
+    };
     /** 秘寶結算好了沒（結算會擲骰，只能跑一次，不然亂數就多走一步） */
     const settleRelics = (): void => {
       if (r.relicSettled || !offers.length) return;
@@ -64,8 +72,21 @@ registerScreen('reward', (app, root, props) => {
       if (!allVoted(picks, alive())) return;
       r.relicSettled = true;
       const got = settleRelicPicks(runRng(run), offers, picks);
+      /*
+       * **分不到的座位也要算完成**（2026-09-12 稽核 中-1）。
+       *
+       * 下面那一行只有「我有拿到」才送 `{t:'relic'}`，而 `maybeGo` 要等**每個站著的人**
+       * 都送過一則才放行。開得出的秘寶比人少時（大魔物池被收到只剩一件，兩個人搶同一件），
+       * 輸的那位 `got[i]` 是 null → 他不送 → 兩個人一起卡在戰利品畫面，
+       * 牌挑完了、底下的鈕停用寫著「等對方…」，只能兩邊重開。
+       *
+       * 不用補送一則空動作：`got` 是兩台各自用同一顆亂數算出來的，**結果一模一樣**，
+       * 所以兩邊都可以直接在本機把那個座位記成完成，不會分岔。
+       */
+      run.players.forEach((_, i) => { if (!got[i]) markRelicSeat(i); });
       const id = got[seat];
       if (id) { play('relic'); coop.submitRun({ t: 'relic', seat, id }); }
+      else if (r.relicTaken) maybeGo();   // 全部都分不到（理論上不會發生）也要放行
     };
     /** 鏡子走廊那類「升 N 張牌」：兩邊都挑完才一起套上去 */
     const settleUps = (): void => {
@@ -113,10 +134,7 @@ registerScreen('reward', (app, root, props) => {
        * 還沒入袋前就被帶回地圖——狀態最後會對得上（動作照樣會套用），但畫面上
        * 那件秘寶等於沒出現過。
        */
-      const got = new Set(r.relicSeats ?? []);   // 記在戰利品物件上：畫面每挑一次就重畫，區域變數會被清掉
-      for (const o of applied) if (o.a.t === 'relic') got.add(o.a.seat);
-      r.relicSeats = [...got];
-      if (run.players.every((p, i) => p.down || got.has(i))) r.relicTaken = true;
+      for (const o of applied) if (o.a.t === 'relic') markRelicSeat(o.a.seat);
       if (r.relicTaken) maybeGo(); else app.show('reward', r);
     });
     coop.onPick((kind) => {

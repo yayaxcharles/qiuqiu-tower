@@ -221,7 +221,10 @@
   "card/feifei_jiedao": "assets/cards/card/feifei_jiedao.webp",
   "card/feifei_wangming": "assets/cards/card/feifei_wangming.webp",
   "card/feifei_wufeng": "assets/cards/card/feifei_wufeng.webp",
-  "card/feifei_tiexin": "assets/cards/card/feifei_tiexin.webp"
+  "card/feifei_tiexin": "assets/cards/card/feifei_tiexin.webp",
+  "card/feifei_sanhua": "assets/cards/card/feifei_sanhua.webp",
+  "card/feifei_fanpu": "assets/cards/card/feifei_fanpu.webp",
+  "card/feifei_shierlian": "assets/cards/card/feifei_shierlian.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",

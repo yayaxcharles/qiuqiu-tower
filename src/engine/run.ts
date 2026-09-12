@@ -989,7 +989,15 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
  * 事件「要打一場」附帶的獎勵：打贏才發、輸了清掉。戰鬥收尾（app.afterCombat）在算完戰利品後叫一次；
  * 回傳的 notes／gains 給畫面跳提示用。
  */
-export function resolvePendingAfterFight(run: RunState, won: boolean, notes?: string[], gains?: RunGain[]): void {
+export function resolvePendingAfterFight(run: RunState, won: boolean, notes?: string[], gains?: RunGain[],
+  /**
+   * 提示要寫給**哪一位**看（2026-09-12 稽核 中-2）。
+   *
+   * 原本寫死 `i === 0`。單人剛好對得上，連線就不是：座位 1 看到的提示寫的是座位 0 拿到什麼。
+   * 座位 0 倒下那場更明顯——`standing` 把他濾掉，`i === 0` 一次都不成立，
+   * 兩個人都看不到任何提示，事件答應的秘寶靜靜入袋。
+   */
+  forSeat = 0): void {
   const list = run.pendingAfterFight;
   run.pendingAfterFight = undefined;
   if (!list || !won) return;
@@ -1002,6 +1010,6 @@ export function resolvePendingAfterFight(run: RunState, won: boolean, notes?: st
    */
   for (const p of standing(run)) {
     const i = run.players.indexOf(p);
-    applyRunEffects(run, list, i === 0 ? notes : undefined, i === 0 ? gains : undefined, i);
+    applyRunEffects(run, list, i === forSeat ? notes : undefined, i === forSeat ? gains : undefined, i);
   }
 }

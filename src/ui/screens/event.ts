@@ -503,8 +503,10 @@ registerScreen('event', (app, root, props) => {
           coop.clearPicks('evlearn');
           awaitingPicks = false;
           // 照座位順序套，兩台算出來的牌組才一樣；只有自己那張要演出來
-          all.forEach((v, i) => { if (v) takeLearn(i, v, outcomes, i === seat ? c.result : null, gains); });
-          if (all[seat] === '') finish(c.result, '一招都沒挑', gains);
+          // 文案要過 `evText`（換角色的名字與句尾的喵）——單人那條在 `settle` 進門就過了，
+          // 連線這條直接拿原文，玩菲菲時會留著「球球」跟「喵」（稽核 2026-09-12 低-1）
+          all.forEach((v, i) => { if (v) takeLearn(i, v, outcomes, i === seat ? evText(c.result) : null, gains); });
+          if (all[seat] === '') finish(evText(c.result), '一招都沒挑', gains);
           else if (all[seat] === null) showResult();   // 我這台根本沒得挑：重畫一次把「繼續」放出來
           return;
         }

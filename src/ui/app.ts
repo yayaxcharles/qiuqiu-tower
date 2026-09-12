@@ -371,7 +371,7 @@ export class App {
     this.cs = null;
     // 事件「要打一場」附帶的獎勵：打贏才發、輸了清掉（使用者 2026-09-04：秘寶不該還沒打就到手）
     const afterNotes: string[] = []; const afterGains: RunGain[] = [];
-    resolvePendingAfterFight(run, cs.phase === 'won', afterNotes, afterGains);
+    resolvePendingAfterFight(run, cs.phase === 'won', afterNotes, afterGains, this.seat);
     const afterToasts = [
       ...afterGains.map((g) => g.kind === '秘寶' ? `打贏了，拿到秘寶「${relicById[g.id]?.name ?? g.id}」` : g.missed ? `打贏了，可是忍具帶滿了，「${potionById[g.id]?.name ?? g.id}」收不下` : `打贏了，拿到忍具「${potionById[g.id]?.name ?? g.id}」`),
       ...afterNotes.map((n) => `打贏了，${n}`),
