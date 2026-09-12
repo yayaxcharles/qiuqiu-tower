@@ -49,9 +49,17 @@ def corner_green(p: Path) -> int:
     return min(vals)
 
 
+# 生圖偶爾會多吐中間檔（2026-09-12 踩到 `card_feifei_tuishou_chromakey.png`），
+# 看門狗照收就會在清單裡多一個對不到任何牌的條目，`cards.test.ts` 才會抓到。
+# 這幾個後綴一律不收。
+SKIP = ("_chromakey", "_raw", "_tmp", "_preview", "_step1", "_step2")
+
+
 def pending() -> list[Path]:
     return [p for p in sorted(RAW.glob("card_feifei_*.png"))
-            if not (OUT / (p.stem[5:] + ".webp")).exists()]
+            if not p.stem.endswith(SKIP)
+            and ".previous-" not in p.stem
+            and not (OUT / (p.stem[5:] + ".webp")).exists()]
 
 
 def main() -> int:

@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { cardById } from '../../content/cards';
+import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue, pick, storyFor } from '../../content/dialogue';
 import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePartner } from '../../engine/run';
 import type { RunAction } from '../../net/runaction';
@@ -113,7 +113,8 @@ registerScreen('rest', (app, root) => {
           showUpgradeConfirm(c, (ok) => {
             if (used) return;
             if (!ok) { pickCard(choice); return; }
-            const name = cardById[c.cardId]?.name ?? c.cardId;
+            const nd = cardById[c.cardId];
+            const name = nd ? cardNameFor(nd, me(run, seat).hero) : c.cardId;
             const fish = me(run, seat).fish;
             const hpBefore = me(run, seat).hp;
             /*

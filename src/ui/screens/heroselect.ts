@@ -1,6 +1,6 @@
 import { registerScreen } from '../app';
 import { artUrl, heroArtUrl } from '../assets';
-import { cardById, starterDeckFor } from '../../content/cards';
+import { cardById, cardNameFor, starterDeckFor } from '../../content/cards';
 import { relicById } from '../../content/relics';
 import { describeCard } from '../cardtext';
 import { el } from '../dom';
@@ -45,7 +45,10 @@ registerScreen('heroselect', (app, root, props) => {
   const deckLine = (hero: Hero): string => {
     const seen = new Map<string, number>();
     for (const id of starterDeckFor(hero)) seen.set(id, (seen.get(id) ?? 0) + 1);
-    return [...seen].map(([id, n]) => `${cardById[id]?.name ?? id}${n > 1 ? ` x${n}` : ''}`).join('、');
+    return [...seen].map(([id, n]) => {
+      const d = cardById[id];
+      return `${d ? cardNameFor(d, hero) : id}${n > 1 ? ` x${n}` : ''}`;
+    }).join('、');
   };
 
   const detail = el('div', { class: 'hero-detail' });

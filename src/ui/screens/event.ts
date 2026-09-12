@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { cardById } from '../../content/cards';
+import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue, eventTextFor } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
@@ -108,8 +108,10 @@ function gainRows(gains: readonly RunGain[]): HTMLElement | string {
   return box;
 }
 
-function cardName(c: CardInstance): string {
-  return (cardById[c.cardId]?.name ?? c.cardId) + (c.upgraded ? '＋' : '');
+/** 牌名。**要收 hero**：菲菲看到的是她那套名字（`cardNameFor`），拿原名會跟牌面對不起來 */
+function cardName(c: CardInstance, hero: string | undefined): string {
+  const d = cardById[c.cardId];
+  return (d ? cardNameFor(d, hero) : c.cardId) + (c.upgraded ? '＋' : '');
 }
 
 registerScreen('event', (app, root, props) => {
@@ -242,7 +244,15 @@ registerScreen('event', (app, root, props) => {
    * 兩個座位看到的三張牌本來就不一樣，拿自己這一份去找會找不到、他那張就靜靜落空。
    */
   function takeLearn(who: number, cardId: string, outcomes: RunEffectOutcome[],
-    resultText?: string, gains: readonly RunGain[] = []): void {
+    /**
+     * 演出用的結果文案，**`null` ＝只套用不演**（連線時同伴挑的那張走這條）。
+     *
+     * 這個參數 2026-09-12 從「可省略」改成**必填**：原本單人那條漏傳，
+     * 於是走進「只套用不演」的分支——牌進了牌組、畫面卻永遠不動，
+     * 玩家看起來像當掉，實際上可以一直點一直加牌。改成必填之後，
+     * 漏傳會在型別檢查就被擋下來，不會再靜靜跑錯分支。
+     */
+    resultText: string | null, gains: readonly RunGain[] = []): void {
     const o = outcomes[who];
     const list = o && 'chooseCard' in o ? o.chooseCard : [];
     const upId = o && 'chooseCard' in o ? o.upgradedCard : undefined;
@@ -250,8 +260,11 @@ registerScreen('event', (app, root, props) => {
     if (!def) return;
     const up = def.id === upId;
     const got = addCard(run, def.id, up, who);
-    if (resultText === undefined) return;   // 別人的：只套用、不演
-    finish(resultText, `學會了「${def.name}${up ? '＋' : ''}」`, gains, [{ kind: 'learn', card: got }]);
+    if (resultText === null) return;   // 別人的：只套用、不演（見上面對這個參數的說明）
+    // 牌名要過 `cardNameFor`（2026-09-12 使用者實測抓到）：牌面畫的是「絕學·絆索」，
+    // 這一行卻寫「學會了「絕學·擒拿手」」——同一張牌兩個名字。看的是**學到的那一位**
+    finish(resultText, `學會了「${cardNameFor(def, me(run, who).hero)}${up ? '＋' : ''}」`,
+      gains, [{ kind: 'learn', card: got }]);
   }
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
@@ -273,7 +286,22 @@ registerScreen('event', (app, root, props) => {
      * 掛在 `take()` 裡就沒有這個問題：那一支兩台都一定會跑到。
      */
     const learn = (cardId: string): void => {
-      if (!coop) { takeLearn(seat, cardId, outcomes); return; }
+      if (!coop) {
+        /*
+         * **單人也要把 `resultText` 傳進去**（2026-09-12 使用者實測抓到）。
+         *
+         * 原本寫 `takeLearn(seat, cardId, outcomes)`——少了第四個參數。`takeLearn` 裡有一行
+         * 「`resultText === undefined` 就 return」，那是給連線用的（套用同伴挑的牌但不演出），
+         * 單人卻也走進去了。後果是**牌真的進了牌組、畫面卻永遠不動**：
+         * 玩家看起來像當掉，實際上可以一直點一直加牌，等於無限複製。
+         * 空字串（都不要）更慘——`find` 找不到就 return，連牌都沒加、畫面也不動，完全卡死。
+         *
+         * 連線那條走 `coop.onPick` 的回呼，那裡本來就有傳 `c.result` 與處理空字串，所以沒事。
+         */
+        if (cardId === '') { finish(resultText, '一招都沒挑', gains); return; }
+        takeLearn(seat, cardId, outcomes, resultText, gains);
+        return;
+      }
       /*
        * 先重畫成「挑好了，等同伴挑完」再投票（理由同 `settleCards`：
        * 我如果是後投的那一位，投下去就當場結算完了，再重畫會把結果蓋掉）。
@@ -365,7 +393,7 @@ registerScreen('event', (app, root, props) => {
         for (const uid of uids) {
           const c = me(run, who).deck.find((x) => x.uid === uid);
           if (!c) continue;
-          names.push(cardName(c));
+          names.push(cardName(c, me(run, who).hero));
           const before = { ...c };   // 丟掉的牌要用「丟掉前」的樣子秀
           if (up) upgradeCard(run, uid, who); else removeCard(run, uid, who);
           if (who === seat) show.push(up ? { kind: 'upgrade', card: c } : { kind: 'remove', card: before });
@@ -475,7 +503,7 @@ registerScreen('event', (app, root, props) => {
           coop.clearPicks('evlearn');
           awaitingPicks = false;
           // 照座位順序套，兩台算出來的牌組才一樣；只有自己那張要演出來
-          all.forEach((v, i) => { if (v) takeLearn(i, v, outcomes, i === seat ? c.result : undefined, gains); });
+          all.forEach((v, i) => { if (v) takeLearn(i, v, outcomes, i === seat ? c.result : null, gains); });
           if (all[seat] === '') finish(c.result, '一招都沒挑', gains);
           else if (all[seat] === null) showResult();   // 我這台根本沒得挑：重畫一次把「繼續」放出來
           return;
@@ -503,7 +531,7 @@ registerScreen('event', (app, root, props) => {
           for (const uid of list) {
             const card = me(run, i).deck.find((x) => x.uid === uid);
             if (!card) continue;
-            names.push((cardById[card.cardId]?.name ?? card.cardId) + (card.upgraded ? '＋' : ''));
+            names.push(cardName(card, me(run, i).hero));
             const before = { ...card };
             if (upI) upgradeCard(run, uid, i); else removeCard(run, uid, i);
             if (i === seat) mineOut.show.push(upI ? { kind: 'upgrade', card } : { kind: 'remove', card: before });

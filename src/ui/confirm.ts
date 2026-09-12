@@ -1,4 +1,4 @@
-import { cardById } from '../content/cards';
+import { cardById, cardNameFor } from '../content/cards';
 import { sharpenVerb } from '../engine/hero';
 import { localHero } from './assets';
 import type { CardInstance } from '../engine/types';
@@ -45,7 +45,7 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
       cardNode({ ...card, upgraded: true })));
 
   overlay.append(el('div', { class: 'modal' },
-    el('h2', { class: 'modal-title' }, `要把「${def.name}」磨利嗎？`),
+    el('h2', { class: 'modal-title' }, `要把「${cardNameFor(def, localHero())}」磨利嗎？`),
     pair,
     el('div', { class: 'modal-foot' },
       el('button', { class: 'btn', onclick: () => dismiss(false) }, '再看看'),
@@ -79,7 +79,7 @@ export function showRemoveConfirm(card: CardInstance, cost: number, onDone: (ok:
   const dismiss = (ok: boolean): void => { if (done) return; done = true; overlay.remove(); unlockScreen(); hideTooltip(); onDone(ok); };
   const shown = cardNode(card);
   overlay.append(el('div', { class: 'modal' },
-    el('h2', { class: 'modal-title' }, `要放生「${def.name}${card.upgraded ? '＋' : ''}」嗎？`),
+    el('h2', { class: 'modal-title' }, `要放生「${cardNameFor(def, localHero())}${card.upgraded ? '＋' : ''}」嗎？`),
     el('div', { class: 'confirm-pair' }, el('div', { class: 'confirm-side' }, el('div', { class: 'confirm-label' }, `花 ${cost} 條小魚乾，這張牌從牌組裡永遠拿掉`), shown)),
     el('div', { class: 'modal-foot' },
       el('button', { class: 'btn', onclick: () => dismiss(false) }, '再看看'),

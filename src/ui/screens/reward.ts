@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { cardById } from '../../content/cards';
+import { cardById, cardNameFor } from '../../content/cards';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
@@ -211,7 +211,8 @@ registerScreen('reward', (app, root, props) => {
     for (const uid of uids) {
       const c = me(run!, who).deck.find((x: CardInstance) => x.uid === uid);
       if (!c || !upgradeCard(run!, uid, who)) continue;
-      names.push(`「${cardById[c.cardId]?.name ?? c.cardId}」`);
+      const nd = cardById[c.cardId];
+      names.push(`「${nd ? cardNameFor(nd, me(run!, who).hero) : c.cardId}」`);
     }
     if (who !== seat) return;
     if (names.length) { play('upgrade'); if (upLine) upLine.textContent = `${names.join('')}升級了`; }   // 直接改存起來的那一行，不找 last-child（後面還會掛忍具列——審查 #12）

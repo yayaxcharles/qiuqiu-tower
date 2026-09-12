@@ -794,8 +794,16 @@ export const FEIFEI_BOSS_LINES: Readonly<Record<string, string>> = {
 
 export function lineFor(hero: string | undefined, text: string): string {
   if (hero !== 'feifei') return text;
-  // 有重寫過的整句換掉；沒有的照舊只拿掉句尾的「喵」
-  return FEIFEI_BOSS_LINES[text] ?? text.replace(/喵(?=[！？。…～、,.!?]*$)/u, '');
+  /*
+   * 有重寫過的整句換掉；沒有的照舊只拿掉句尾的「喵」。
+   *
+   * 收尾的**引號也要算在「句尾」裡**（2026-09-12 使用者實測抓到）：
+   * 事件文案長「菲菲：「…再決定學哪招喵。」」，喵後面接的是 `。」`，
+   * 原本的字元集只有標點沒有 `」`，整句就不匹配、喵照樣印出來。
+   * 全形與半形的收尾引號都收進來。
+   */
+  return FEIFEI_BOSS_LINES[text]
+    ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, '');
 }
 
 /** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */

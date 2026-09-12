@@ -1,5 +1,5 @@
 import { potionCapacity } from '../../engine/run';
-import { cardById } from '../../content/cards';
+import { cardById, cardNameFor } from '../../content/cards';
 import { relicById } from '../../content/relics';
 import { dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
@@ -173,6 +173,11 @@ const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dr
 const posePick = (hero: Hero, k: PoseKey, fallback: string): string => (hasHeroSprite(hero, POSE[k]) ? POSE[k] : fallback);
 /** 這一位的立繪網址 */
 const heroArt = (q: Pick<PlayerCombat, 'hero'>, key: string): string => artUrl('sprites', heroSpriteKey(q.hero, key));
+/** 這一位看到的牌名（她的牌名跟球球分家，見 `cardNameFor`）。查不到牌就回牌號 */
+const nameFor = (hero: string | undefined, id: string): string => {
+  const d = cardById[id];
+  return d ? cardNameFor(d, hero) : id;
+};
 /** 出牌時擺什麼姿勢 */
 function cardPose(hero: Hero, def: CardDef, effects: readonly Effect[] = def.effects): { pose: string; attack: boolean } {
   const attack = def.type === '攻擊';
@@ -672,10 +677,10 @@ registerScreen('combat', (app, root, props) => {
         const def = cardById[cardId!];
         if (!def) continue;
         const upgraded = up === '1';
-        const name = def.name.replace(/^忍術·/, '') + (upgraded ? '＋' : '');
+        const name = cardNameFor(def, my().hero).replace(/^忍術·/, '') + (upgraded ? '＋' : '');
         const node = el('div', { class: 'chip good power' }, el('b', {}, name));
         if (n > 1) node.append(el('span', {}, String(n)));
-        attachTextTooltip(node, `${def.name}${upgraded ? '＋' : ''}（能力，這場戰鬥持續生效）`, describeCard(def, upgraded));
+        attachTextTooltip(node, `${cardNameFor(def, my().hero)}${upgraded ? '＋' : ''}（能力，這場戰鬥持續生效）`, describeCard(def, upgraded));
         row.append(node);
       }
     }
@@ -803,7 +808,7 @@ registerScreen('combat', (app, root, props) => {
         case 'selfDestruct': parts.push(`自爆：造成 ${computeAttack(fx.amount * x, e, my())} 點傷害，然後牠自己也倒下`); break;
         case 'statusAllies': parts.push(`全體魔物獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '點'}${fx.name}`); break;
         case 'blockAllies': parts.push(`全體魔物獲得 ${fx.amount} 點防禦`); break;
-        case 'giveCard': parts.push(`把 ${fx.n} 張「${cardById[fx.cardId]?.name ?? fx.cardId}」塞進你的${fx.to === 'discard' ? '棄牌堆' : '抽牌堆'}`); break;
+        case 'giveCard': parts.push(`把 ${fx.n} 張「${nameFor(my().hero, fx.cardId)}」塞進你的${fx.to === 'discard' ? '棄牌堆' : '抽牌堆'}`); break;
         case 'nothing': parts.push('發呆，什麼都不做'); break;
         // 漏接新的 EnemyEffect 種類會在型別檢查就爆——魔物做得到的事，提示框一定要講得出來
         default: { const _never: never = fx; void _never; break; }
@@ -1007,7 +1012,9 @@ registerScreen('combat', (app, root, props) => {
       // 這一行同時是「牌堆在哪」的座標：新發的牌就是從這裡飛出來的（見 dealFrom）
       // 三個牌堆都點得開（使用者 2026-09-03：「戰鬥中我看不到我的抽牌堆跟棄牌堆」）：
       // 抽牌堆照名字排序，不洩漏真正的順序；棄牌堆、消耗堆照丟進去的順序
-      pileBtn('pile-draw', `抽牌 ${p.drawPile.length}`, '抽牌堆', () => [...p.drawPile].sort((x, y) => (cardById[x.cardId]?.name ?? '').localeCompare(cardById[y.cardId]?.name ?? '', 'zh-Hant'))),
+      // 排序用的名字也要過 `cardNameFor`：不然菲菲看到的排列跟她看到的牌名對不起來
+      pileBtn('pile-draw', `抽牌 ${p.drawPile.length}`, '抽牌堆',
+        () => [...p.drawPile].sort((x, y) => nameFor(p.hero, x.cardId).localeCompare(nameFor(p.hero, y.cardId), 'zh-Hant'))),
       pileBtn('pile-discard', `棄牌 ${p.discardPile.length}`, '棄牌堆', () => p.discardPile),
       pileBtn('pile-exhaust', `消耗 ${p.exhaustPile.length}`, '消耗堆', () => p.exhaustPile),
       combo);
