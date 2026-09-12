@@ -469,14 +469,13 @@ export const cards: readonly CardDef[] = [
    * 改成解她量出來最弱的地方：第二關那種「一排魔物」的場面。
    * 跟「餘毒」（屍爆，要先毒死一隻）不同，這張不用等誰倒下，代價是消耗。
    *
-   * **2026-09-12 使用者：分一半太弱，改成整份複製。** 場上三隻、這隻身上 40 層，
-   * 用完三隻都是 40 層。這才對得起「消耗」那個代價——分一半的話疊到 40 層也才各拿 20，
-   * 而她疊到 40 層本來就要好幾回合。升級版改成**不消耗**（可以再用一次），
-   * 不是加層數：層數已經是整份複製了，再加只會讓它更沒有上限。
+   * 2026-09-12 一度改成「基礎版就整份複製」，**當天就還原**：使用者自己玩到升級版，
+   * 發現「升級才整份擴散」本來就是這張的成長曲線，基礎版分一半是合理的代價。
+   * 留著這段是因為同一個誤判很容易再犯——**看起來弱的基礎版，要先看升級版給了什麼**。
    */
   { id: 'feifei_sandu', name: '散毒', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_sandu', keywords: ['消耗'],
-    effects: [{ kind: 'spreadStatus', name: '中毒' }],
-    upgrade: { keywords: [] } },
+    effects: [{ kind: 'spreadStatus', name: '中毒', half: true }],
+    upgrade: { effects: [{ kind: 'spreadStatus', name: '中毒' }] } },
   { id: 'feifei_zhenyu', name: '針雨', cost: 2, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_zhenyu',
     effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 3, target: 'all' }, { kind: 'block', amount: 5 }],
     upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 4, target: 'all' }, { kind: 'block', amount: 7 }] } },
