@@ -16,6 +16,7 @@ import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
+import { sharpenVerb } from '../../engine/hero';
 
 /** 蜷在貓窩旁的立繪（畫的是這一位自己的角色）；圖還沒生好就不放 */
 function heroPortrait(hero: string | undefined): string | undefined {
@@ -96,13 +97,14 @@ registerScreen('rest', (app, root) => {
       afterAction(`${heroSpeaker()}睡了一下，回復 ${heal} 點生命。`, pick(storyFor(me(run, seat).hero).restNapLines));
     });
 
-    const sharpen = el('button', { class: 'btn' }, '磨爪（升級一張牌，順便回一成血）');
+    const verb = sharpenVerb(me(run, seat).hero);   // 她磨的是針，不是爪子
+    const sharpen = el('button', { class: 'btn' }, `${verb}（升級一張牌，順便回一成血）`);
     // rest(run, '磨爪') 沒有 uid 會回 false，所以一定要先挑牌再叫
     /** 開牌堆挑一張。「再看看」要回到這裡重挑，不是退回貓窩再選一次打盹／磨爪（使用者 2026-09-02 回報）。
      *  磨爪與全力準備共用這條，差在結算叫哪個 choice、結束那句話怎麼寫 */
     const pickCard = (choice: '磨爪' | '全力準備' = '磨爪'): void => {
       showDeckPicker({
-        title: `${choice}：選一張牌升級`, cards: me(run, seat).deck, pickable: true, cancellable: true, filter: upgradable,
+        title: `${choice === '磨爪' ? verb : choice}：選一張牌升級`, cards: me(run, seat).deck, pickable: true, cancellable: true, filter: upgradable,
         previewUpgrade: true,
         onPick: (uid) => {
           const c = uid === null ? undefined : me(run, seat).deck.find((x) => x.uid === uid);
@@ -162,7 +164,7 @@ registerScreen('rest', (app, root) => {
       const back = Math.max(1, Math.floor((run.players[hurt]?.maxHp ?? 0) * REVIVE_RATIO));
       const lift = el('button', { class: 'btn two-line' },
         el('span', {}, '扶起同伴'),
-        el('span', { class: 'sub' }, `他回 ${back} 點生命站起來；你這一格就不能睡也不能磨爪了`));
+        el('span', { class: 'sub' }, `他回 ${back} 點生命站起來；你這一格就不能睡也不能${sharpenVerb(me(run, seat).hero)}了`));
       lift.addEventListener('click', () => {
         if (used) return;
         if (!act({ t: 'revive', seat, w: hurt }, () => revivePartner(run, hurt))) return;

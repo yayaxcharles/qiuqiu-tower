@@ -64,6 +64,17 @@ export function startRelicFor(hero: Hero): string {
   return hero === 'feifei' ? 'backstep' : 'blue_headband';
 }
 
+/**
+ * 貓窩裡那個動作叫什麼（2026-09-12）。
+ *
+ * `'磨爪'` 是**引擎用的值**（`rest(run, '磨爪', uid)`、存檔、連線動作），不能改；
+ * 這一支只換**畫面上寫的字**——她磨的是針不是爪子，按鈕寫「磨爪」跟她的台詞
+ *「磨利一點，扎得淺也能把藥送進去」對不起來。
+ */
+export function sharpenVerb(hero: Hero | undefined): string {
+  return hero === 'feifei' ? '磨針' : '磨爪';
+}
+
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */
 export function cardsForHero(hero: Hero): CardDef[] {
   return cards.filter((c) => !c.hero || c.hero === hero);

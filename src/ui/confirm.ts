@@ -1,4 +1,6 @@
 import { cardById } from '../content/cards';
+import { sharpenVerb } from '../engine/hero';
+import { localHero } from './assets';
 import type { CardInstance } from '../engine/types';
 import { cardNode } from './cardview';
 import { el } from './dom';
@@ -39,7 +41,7 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
       cardNode({ ...card, upgraded: false })),
     el('div', { class: 'confirm-arrow' }, '→'),
     el('div', { class: 'confirm-side after' },
-      el('div', { class: 'confirm-label' }, '磨爪之後'),
+      el('div', { class: 'confirm-label' }, `${sharpenVerb(localHero() as never)}之後`),
       cardNode({ ...card, upgraded: true })));
 
   overlay.append(el('div', { class: 'modal' },

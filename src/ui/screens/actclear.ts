@@ -5,6 +5,7 @@ import { ACT_NAMES, addCard, advanceAct, rollActCards, rollActRelics, takeRelic 
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
 import { heroSpeaker } from '../dialogue';
+import { lineFor } from '../../content/dialogue';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { artUrl, heroArtUrl } from '../assets';
@@ -91,7 +92,7 @@ registerScreen('actclear', (app, root, props) => {
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
       speaker: heroSpeaker(),
-      text: `關主留下的東西……「${def.name}」到手了喵！`,
+      text: lineFor(me(run, seat).hero, `關主留下的東西……「${def.name}」到手了喵！`),
       actions: [el('button', { class: 'btn primary', onclick: go }, `帶著它上${next}`)],
     }));
   };
@@ -193,7 +194,7 @@ registerScreen('actclear', (app, root, props) => {
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
       speaker: heroSpeaker(),
-      text: `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`,
+      text: lineFor(me(run, seat).hero, `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`),
       actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); render(); } }, '收下')],
     }));
     return;
