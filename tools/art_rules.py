@@ -39,6 +39,14 @@
   **改法：區隔只寫「哪一個特徵不同」（窄鼻樑、大尖耳），比例那幾句每一批都要完整重貼，
   而且要寫反向護欄（「畫得像成貓就是錯的」）。** 只給方向不給邊界，二十張之後一定跑掉。
 
+★ 第七個雷（2026-09-13，使用者玩到才發現）：**規則只寫「要有什麼」，沒寫「不可以變成什麼」。**
+菲菲的頭髮規則把瀏海、蝴蝶結、馬尾三部分都描述清楚了，但整整十幾張圖還是塌成
+「一頂咖啡色的鍋蓋、馬尾看不見、蝴蝶結縮到針孔大」——因為模型照著「頭上有一撮深棕色毛髮」
+畫出來的最省力解，就是把整顆頭塗成棕色。**描述性的規則會被最省力的解法繞過去，
+一定要配一段「這樣畫就是錯的」**（同一個道理第六個雷已經講過一次，換個地方又踩）。
+現在補了四條：不可以是鍋蓋頭／不可以是一坨看不出三部分的棕色／蝴蝶結要有兩個環且跟耳朵一樣寬／
+不可以是披肩長髮。另外馬尾要求「跟頭的輪廓之間看得到背景」——那是最好檢查的一條。
+
 ★ 第三個雷：綠幕上任何綠色或半透明的東西，去背後都會變成破洞。光是禁「不要寫綠色」不夠——
   沒指定顏色時模型會自己挑到綠色（86 張牌裡 22 張寫「發光」、12 張寫「霧氣煙塵」都中招）。
 """
@@ -120,10 +128,21 @@ FEIFEI_HAIR = (
     "from this angle; without it the hair reads as nothing at all;\n"
     "  (2) the hair gathered and tied behind the fringe, with a PLUM-PURPLE ribbon BOW at the tie, on the "
     "near side of her head;\n"
-    "  (3) a short spiky PONYTAIL sticking up and back from the tie.\n"
+    "  (3) a short spiky PONYTAIL sticking up and back from the tie, **clearly separated from the outline "
+    "of her head** - background must be visible in the gap between the ponytail and her skull, so that it "
+    "reads as a tail of hair and not as more head.\n"
     "Drawn as solid flat shapes with thick black outlines, not wispy strands. The hair is attached to her "
     "head and moves with it - never detached, never doubled, never swapped to the other side. If a pose "
-    "hides part of it, it is simply hidden; do not relocate it.\n")
+    "hides part of it, it is simply hidden; do not relocate it.\n"
+    "**WHAT THE HAIR MUST NOT BECOME** (this is the part that keeps going wrong, so check it):\n"
+    "  - NOT a bowl cut, helmet or mop of hair covering the whole top and sides of her skull. The hair is "
+    "a fringe plus a tied ponytail, NOT a wig. Her ears rise out of bare head, not out of hair.\n"
+    "  - NOT a shapeless brown lump. If you cannot point at the fringe, the bow and the ponytail as three "
+    "separate things, it is wrong.\n"
+    "  - The BOW is never optional and never decoration-sized: draw it as a proper ribbon bow with two "
+    "loops and a knot, roughly as wide as one of her ears, sitting on TOP of her head between the ears. "
+    "A missing or pea-sized bow is the single most common mistake on this character.\n"
+    "  - NOT long flowing hair down her back or over her shoulders.\n")
 
 # 她大部分時間面向右（跟球球一致）。`idle` 那種站著不動的最容易漂成正面，所以釘死鼻子與視線
 FEIFEI_FACE_RIGHT = (

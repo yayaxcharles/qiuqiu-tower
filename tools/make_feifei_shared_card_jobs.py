@@ -89,6 +89,27 @@ def collect() -> dict[str, str]:
     return got
 
 
+# ---------------------------------------------------------------------------
+# 逐張修正：轉換出來之後再補一刀
+# ---------------------------------------------------------------------------
+# **一定要寫在這裡，不要直接改產生出來的 JSON**——那個檔案每次重跑就整個蓋掉，
+# 2026-09-12 手改「縮一團」之後隔天重跑就被洗掉了。
+SCENE_FIX: dict[str, tuple[str, str]] = {
+    # 縮一團：原本只寫「毛毯堆成圓頂」，模型把她整個埋進一坨繩子裡，貓完全看不見
+    #（球球那張寫的是「棉被裹成繭、貓佔畫面 40%」，一眼看得懂）。
+    "suoyituan": (
+        "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in WARM TAUPE: "
+        "a thick taupe woollen blanket bunched into a dome",
+        "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in DEEP PLUM PURPLE: a thick "
+        "quilted blanket, rumpled and puffy, wrapped up and over her into a cocoon. **It is a blanket, "
+        "not a ball of yarn or rope** - draw smooth quilted panels with stitched seams, never coiled "
+        "strands.\n"
+        "   **HER HEAD AND FACE MUST BE FULLY VISIBLE**, poking out of the top of the cocoon with her "
+        "eyes shut tight and her ponytail and bow showing. If the blanket covers her face the picture "
+        "is wrong - a viewer must be able to tell at a glance that there is a cat curled up in there"),
+}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0, help="只產前 N 張（試水溫用）")
@@ -106,7 +127,13 @@ def main() -> None:
         if cid not in prompts:
             missing.append(cid)
             continue
-        jobs[f"card_feifei_{cid}.png"] = convert(prompts[cid], cid)
+        t = convert(prompts[cid], cid)
+        fix = SCENE_FIX.get(cid)
+        if fix:
+            if fix[0] not in t:
+                raise SystemExit(f"SCENE_FIX['{cid}'] 對不上原文了，來源提示詞改過——先看一眼再更新")
+            t = t.replace(fix[0], fix[1], 1)
+        jobs[f"card_feifei_{cid}.png"] = t
     if args.limit:
         jobs = dict(list(jobs.items())[:args.limit])
 
