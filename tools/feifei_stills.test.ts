@@ -24,8 +24,8 @@ const NAMES = [
   'still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs',
 ];
 
-/** 她那八張目前生好幾張。生圖補進來就往上調，**只准往上**（2026-09-12 15:10 是 0） */
-const FLOOR = 0;
+/** 她那八張目前生好幾張。生圖補進來就往上調，**只准往上**（2026-09-12 15:40 起是 8＝全到齊） */
+const FLOOR = 8;
 
 describe('過關與結局的插圖', () => {
   it('app.ts 裡沒有寫死的球球版鍵', () => {

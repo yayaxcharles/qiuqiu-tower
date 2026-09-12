@@ -1229,6 +1229,14 @@
   "bg/event_feifei_trace_r0": "assets/bg/event_feifei_trace_r0.webp",
   "bg/event_feifei_trace_r1": "assets/bg/event_feifei_trace_r1.webp",
   "bg/event_feifei_brew_r0": "assets/bg/event_feifei_brew_r0.webp",
-  "bg/event_feifei_brew_r1": "assets/bg/event_feifei_brew_r1.webp"
+  "bg/event_feifei_brew_r1": "assets/bg/event_feifei_brew_r1.webp",
+  "bg/feifei_still_act1_climb": "assets/bg/feifei_still_act1_climb.webp",
+  "bg/feifei_still_act1_fish": "assets/bg/feifei_still_act1_fish.webp",
+  "bg/feifei_still_act1_stairs": "assets/bg/feifei_still_act1_stairs.webp",
+  "bg/feifei_still_act2_moonstairs": "assets/bg/feifei_still_act2_moonstairs.webp",
+  "bg/feifei_still_act2_smoke": "assets/bg/feifei_still_act2_smoke.webp",
+  "bg/feifei_still_act2_voice": "assets/bg/feifei_still_act2_voice.webp",
+  "bg/feifei_still_embrace": "assets/bg/feifei_still_embrace.webp",
+  "bg/feifei_still_home": "assets/bg/feifei_still_home.webp"
  }
 }
