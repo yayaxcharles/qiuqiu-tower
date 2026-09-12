@@ -20,6 +20,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_art_inbox import INBOX, MANIFEST, OUT  # noqa: E402
 from chroma_key import CARD_BAND, CARD_HARD, CARD_SOFT, HARD, SOFT, key_out  # noqa: E402
+from manifest_io import merge  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "tools" / "codex_raw"
@@ -80,8 +81,9 @@ def main() -> None:
     names = args.names
     if not names:
         sys.exit(__doc__)
-    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    manifest.setdefault("bg", {})
+    # manifest 不在這裡讀：去背一輪要跑好幾分鐘，那段時間看門狗也在改同一份檔
+    #（見 tools/manifest_io.py）。先把要加的條目收在手上，最後上鎖一次寫完。
+    added: dict[str, str] = {}
     for name in names:
         if not name.startswith("event_") or not name.endswith(".png"):
             print(f"檔名要是 event_<事件編號>.png：{name}，略過")
@@ -108,12 +110,11 @@ def main() -> None:
         dst = OUT / "bg" / f"event_{eid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         keyed.resize((560, 420), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
-        manifest["bg"][f"bg/event_{eid}"] = dst.relative_to(OUT.parent).as_posix()
+        added[f"bg/event_{eid}"] = dst.relative_to(OUT.parent).as_posix()
         if src != INBOX / name:
             shutil.copy2(src, INBOX / name)
         print(f"事件插圖 event_{eid}.webp {dst.stat().st_size // 1024} KB")
-    MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
-    print("manifest.json 已併入")
+    print(f"manifest.json 已併入 {merge('bg', added)} 筆")
 
 
 if __name__ == "__main__":

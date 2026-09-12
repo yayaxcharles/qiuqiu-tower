@@ -47,6 +47,31 @@
 現在補了四條：不可以是鍋蓋頭／不可以是一坨看不出三部分的棕色／蝴蝶結要有兩個環且跟耳朵一樣寬／
 不可以是披肩長髮。另外馬尾要求「跟頭的輪廓之間看得到背景」——那是最好檢查的一條。
 
+★ 第八個雷（2026-09-13 總覽稽核）：**一張一張看不會發現，要把整批拼成一張大圖才看得出來。**
+她的 210 張圖全部拼成分批的大圖之後，只有 5 張壞掉——但那 5 張是**新的兩種壞法**，
+兩種都是既有規則沒有反面的地方：
+  1. **變成獸耳人**（`card_feifei_xuli`、`event_feifei_toll_again_paid`）：暹羅貓的深棕面罩不見了，
+     臉變成一張人類女孩的臉再插兩隻貓耳。規則只說「臉上有深棕色面罩」，沒說「不可以是人臉」。
+  2. **膨脹成球**（`event_feifei_signal_r1`）：規則寫「矮短圓、小肥貓」，模型就一路胖下去——
+     跟第六個雷寫的「比球球瘦會一路瘦下去」是同一件事，只是方向相反，這次是自己的形容詞害的。
+兩條反向護欄都補進 `FEIFEI_BODY` 與 `FEIFEI_PROPORTION` 了。
+**流程上的教訓：每一批生完要做總覽拼圖，不要等使用者玩到。**拼圖腳本一次看 20～30 張，
+標上檔名，壞的一眼就跳出來；同時也抓到 3 個沒人引用的比稿中途檔混進 `manifest.json`
+（`tools/manifest_hygiene.test.ts` 現在擋著）。
+
+★ 第九個雷（2026-09-13 同一天，稽核代理抓的）：**自檢只 print 不中止＝等於沒有自檢。**
+`make_feifei_event_jobs.py` 的自檢從一開始就在喊「有 61 張提到球球卻沒被轉到」，
+喊了好幾天沒人處理——因為那行印在一長串輸出的中間，而且**喊的理由是錯的**
+（說「NINJA_BLOCK 少認一種格式」，真相是結果圖那類根本沒有外觀敘述、不歸那支管）。
+使用者玩到「迷路的小黑貓」選完看見球球，才知道整整 60 張沒轉。
+三條連帶的規矩：
+  1. 自檢要嘛 `SystemExit`，要嘛就別寫——留一條「永遠紅的檢查」比沒有檢查更糟，
+     因為下一個人會學會忽略它。
+  2. 自檢的**訊息要說對原因**。說錯原因會把人帶去修錯的地方。
+  3. **重生前一定要先把舊稿改名留底**：`codex_gen.py` 看到輸出檔已存在就跳過，
+     所以「重生 5 張走鐘圖」那一批原本會整批空轉，而且印的是
+     「結束：完成 0、失敗 0、已存在跳過 5」、離開碼 0——看起來像成功。
+
 ★ 第三個雷：綠幕上任何綠色或半透明的東西，去背後都會變成破洞。光是禁「不要寫綠色」不夠——
   沒指定顏色時模型會自己挑到綠色（86 張牌裡 22 張寫「發光」、12 張寫「霧氣煙塵」都中招）。
 """
@@ -89,12 +114,43 @@ STYLE = (
 # 那一批就整個瘦掉、變成成貓。抄三份＝遲早有一份會漏。
 # 要改她的長相**只改這裡**，三個腳本 import 過去。
 
+# ★ 這兩條單獨命名，因為**結果圖那批只貼這兩條、不貼整包長相**（2026-09-13）。
+# 結果圖的做法是附上該事件她自己的插圖、叫模型「照著重畫、只改正在發生的事」，
+# 再貼一整段長相敘述會跟「照附圖重畫」打架（記憶 `reference_mus_art_pipeline`
+# 的「規則寫太死會跟姿勢敘述打架」）。但參考圖擋不住這兩種走鐘，所以這兩條要貼。
+FEIFEI_NOT_HUMAN = (
+    "**SHE IS A CAT, NOT A GIRL WITH CAT EARS.** Her whole head is a cat's head: a furry muzzle with a "
+    "small pink nose and whisker dots, whiskers, and the dark seal-brown Siamese face markings covering "
+    "that muzzle and wrapping around both eyes - those markings are what make her readable, so they are "
+    "never faded out or left off. Do NOT draw a human or anime girl's face with a flat skin-coloured "
+    "cheek, a human nose, a human chin or human lips and then add cat ears on top. Do NOT give her "
+    "human hands or human feet; she has rounded paws. If you cannot see the brown face markings and the "
+    "muzzle, it is the wrong character.\n")
+
+# 「矮短圓」是她的正面敘述，模型照著畫最省力的解就是一路胖下去（第六個雷的反方向）。
+# **判準要寫看得見的東西**：四肢分不分得出來。原本寫「還是要看得出腰」被稽核打回——
+# 在一顆頭那麼大的軀幹上要畫出腰，模型只能把身體拉長，那正好觸發「一路瘦下去」。
+FEIFEI_NOT_FAT = (
+    "**AND SHE MUST NOT INFLATE.** 'Chubby' means a short squat kitten, NOT a ball. You must still be "
+    "able to point at two separate arms and two separate legs with a clear gap of background between "
+    "them and her body - limbs sunk into a round mass is wrong. Do NOT balloon her torso wider than her "
+    "head and do NOT give her a sagging belly. **If she looks like a fat cat instead of a small kitten, "
+    "it is wrong** - she is light on her feet, that is her whole fighting style.\n")
+
+"""★ `mask` 這個字在她身上**只能指脖子那塊布**（2026-09-13 稽核 中-11）。
+
+臉上那片深棕色一律寫 `face markings`／`points`。兩個都叫 mask 的話，模型會把臉上那片
+畫成一塊布口罩、或把脖子那塊布畫成臉上的斑——而她的招牌動作正好是「把口罩拉上來」，
+混掉會很明顯。
+"""
 FEIFEI_BODY = (
-    "She is a chibi SIAMESE cat girl: creamy off-white body fur with a dark seal-brown mask over her "
-    "muzzle and around the eyes, dark brown ears, paws and tail, bright BLUE almond eyes with glossy "
-    "white highlights, small pink blush strokes on both cheeks. She wears a plum-purple short kimono "
-    "jacket with the sleeves tied back by cords, a black sash, dark leggings, a wide belt with a row of "
-    "small bamboo needle-tubes, and a dark cloth collar/mask around her neck.\n")
+    "She is a chibi SIAMESE cat girl: creamy off-white body fur with dark seal-brown SIAMESE FACE "
+    "MARKINGS over her muzzle and around the eyes, dark brown ears, paws and tail, bright BLUE almond "
+    "eyes with glossy white highlights, small pink blush strokes on both cheeks. She wears a plum-purple "
+    "short kimono jacket with the sleeves tied back by cords, a black sash, dark leggings, a wide belt "
+    "with a row of small bamboo needle-tubes, and a dark cloth collar/face-covering around her neck "
+    "(that cloth is the only 'mask' she wears - it sits at her throat, never on her face markings).\n"
+    + FEIFEI_NOT_HUMAN)
 
 # ★ 這一段每一批都要完整貼上，而且**要有反向護欄**。只寫「比球球瘦」會一路瘦下去。
 FEIFEI_PROPORTION = (
@@ -116,6 +172,7 @@ FEIFEI_PROPORTION = (
     "and breaks the proportions, even when the body is right.\n"
     "So: small and chubby in the BODY and LIMBS, but the FACE stays a tidy round shape with a narrow "
     "muzzle. Those two are not the same thing.\n"
+    + FEIFEI_NOT_FAT +
     "Her narrow muzzle and the ear SHAPE (triangular, not rounded) are the only features that differ "
     "from a round grey tabby; everything else is short and round.\n")
 

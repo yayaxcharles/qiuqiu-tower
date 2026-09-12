@@ -229,7 +229,27 @@
   "card/feifei_luanwu": "assets/cards/card/feifei_luanwu.webp",
   "card/feifei_dilie": "assets/cards/card/feifei_dilie.webp",
   "card/feifei_huixuan": "assets/cards/card/feifei_huixuan.webp",
-  "card/feifei_lianhuan": "assets/cards/card/feifei_lianhuan.webp"
+  "card/feifei_lianhuan": "assets/cards/card/feifei_lianhuan.webp",
+  "card/feifei_zhuiji": "assets/cards/card/feifei_zhuiji.webp",
+  "card/feifei_doumao": "assets/cards/card/feifei_doumao.webp",
+  "card/feifei_maoqiudan": "assets/cards/card/feifei_maoqiudan.webp",
+  "card/feifei_qianglafen": "assets/cards/card/feifei_qianglafen.webp",
+  "card/feifei_tiebushan": "assets/cards/card/feifei_tiebushan.webp",
+  "card/feifei_jieli": "assets/cards/card/feifei_jieli.webp",
+  "card/feifei_cuiye": "assets/cards/card/feifei_cuiye.webp",
+  "card/feifei_ehou": "assets/cards/card/feifei_ehou.webp",
+  "card/feifei_huxin": "assets/cards/card/feifei_huxin.webp",
+  "card/feifei_jiuweiquan": "assets/cards/card/feifei_jiuweiquan.webp",
+  "card/feifei_fenyiban": "assets/cards/card/feifei_fenyiban.webp",
+  "card/feifei_ninaqudang": "assets/cards/card/feifei_ninaqudang.webp",
+  "card/feifei_wolaidang": "assets/cards/card/feifei_wolaidang.webp",
+  "card/feifei_bangnisheme": "assets/cards/card/feifei_bangnisheme.webp",
+  "card/feifei_jienicailiangbu": "assets/cards/card/feifei_jienicailiangbu.webp",
+  "card/feifei_niyechouyizhang": "assets/cards/card/feifei_niyechouyizhang.webp",
+  "card/feifei_wobangnipaidiao": "assets/cards/card/feifei_wobangnipaidiao.webp",
+  "card/feifei_fantuanfenni": "assets/cards/card/feifei_fantuanfenni.webp",
+  "card/feifei_slime_card": "assets/cards/card/feifei_slime_card.webp",
+  "card/feifei_dazed_card": "assets/cards/card/feifei_dazed_card.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
@@ -1310,7 +1330,6 @@
   "bg/event_feifei_catnip_field": "assets/bg/event_feifei_catnip_field.webp",
   "bg/event_feifei_crying_wall": "assets/bg/event_feifei_crying_wall.webp",
   "bg/event_feifei_daxia_teach": "assets/bg/event_feifei_daxia_teach.webp",
-  "bg/event_feifei_daxia_teach_v2": "assets/bg/event_feifei_daxia_teach_v2.webp",
   "bg/event_feifei_fish_pond": "assets/bg/event_feifei_fish_pond.webp",
   "bg/event_feifei_gambling_rats": "assets/bg/event_feifei_gambling_rats.webp",
   "bg/event_feifei_greedy_merchant": "assets/bg/event_feifei_greedy_merchant.webp",
@@ -1337,9 +1356,7 @@
   "bg/event_feifei_shortcut_scroll": "assets/bg/event_feifei_shortcut_scroll.webp",
   "bg/event_feifei_sleeping_guard": "assets/bg/event_feifei_sleeping_guard.webp",
   "bg/event_feifei_sparring_cat": "assets/bg/event_feifei_sparring_cat.webp",
-  "bg/event_feifei_sparring_cat_v2": "assets/bg/event_feifei_sparring_cat_v2.webp",
   "bg/event_feifei_stuck_kitten": "assets/bg/event_feifei_stuck_kitten.webp",
-  "bg/event_feifei_stuck_kitten_v2": "assets/bg/event_feifei_stuck_kitten_v2.webp",
   "bg/event_feifei_sunbath": "assets/bg/event_feifei_sunbath.webp",
   "bg/event_feifei_toll": "assets/bg/event_feifei_toll.webp",
   "bg/event_feifei_toll_again_fought": "assets/bg/event_feifei_toll_again_fought.webp",
@@ -1349,6 +1366,8 @@
   "bg/event_feifei_pouch_r0": "assets/bg/event_feifei_pouch_r0.webp",
   "bg/event_feifei_pouch_r1": "assets/bg/event_feifei_pouch_r1.webp",
   "bg/event_feifei_signal_r0": "assets/bg/event_feifei_signal_r0.webp",
-  "bg/event_feifei_signal_r1": "assets/bg/event_feifei_signal_r1.webp"
+  "bg/event_feifei_signal_r1": "assets/bg/event_feifei_signal_r1.webp",
+  "bg/event_feifei_chest_empty": "assets/bg/event_feifei_chest_empty.webp",
+  "bg/event_feifei_chest_open": "assets/bg/event_feifei_chest_open.webp"
  }
 }

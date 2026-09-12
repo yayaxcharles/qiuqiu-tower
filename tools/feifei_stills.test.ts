@@ -87,6 +87,26 @@ describe('事件插圖依角色', () => {
       expect(manifest.bg[`bg/event_${k}`], `${k} 不見了`).toBeTruthy();
     }
   });
+
+  /*
+   * **還在退回球球那張的有幾張**（2026-09-13 總覽稽核）。
+   *
+   * 上面那條只數「她有幾張」，數字一路往上看起來很順利——但它答不出
+   * **「球球有、她沒有」還剩幾張**，而那才是玩家會看到球球的地方。
+   * 實際數出來是 61 張，整整一類（選完選項的結果圖）從頭到尾沒被轉過，
+   * 使用者玩「迷路的小黑貓」選完看到球球就是這個。
+   *
+   * 所以這條數的是**缺口**，而且只准往下。生一張就往下調一次。
+   */
+  it('退回球球的事件圖只准變少', () => {
+    const bg = Object.keys(manifest.bg);
+    const his = bg.filter((k) => k.startsWith('bg/event_') && !k.includes('_feifei_'));
+    const gap = his.filter((k) => !manifest.bg[k.replace('bg/event_', 'bg/event_feifei_')]);
+    // eslint-disable-next-line no-console
+    console.log(`  事件插圖 ${his.length - gap.length}/${his.length}，還退回球球的 ${gap.length} 張`);
+    expect(gap.length, `缺口變大了，是不是有圖被刪掉或改名？還缺：\n${gap.slice(0, 10).join('\n')}`)
+      .toBeLessThanOrEqual(61);
+  });
 });
 
 /**

@@ -26,6 +26,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from chroma_key import CARD_BAND, CARD_HARD, CARD_SOFT, key_out  # noqa: E402
+from manifest_io import merge  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "tools" / "codex_raw"
@@ -67,7 +68,9 @@ def main() -> None:
     target = Image.open(base_path).size
     print(f"基準 {args.baseline}：畫布 {target[0]}x{target[1]}（新牌一律填滿這個框）")
 
-    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    # manifest 不在這裡讀：讀了之後要跑好幾分鐘的去背才寫回去，
+    # 那段時間另一個行程也在改同一份檔（見 tools/manifest_io.py）。
+    added: dict[str, str] = {}
     done = 0
     for name in args.files:
         src = RAW / name
@@ -82,13 +85,13 @@ def main() -> None:
         dst = OUT / "cards" / "card" / f"{cid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         canvas.save(dst, "WEBP", quality=78, method=6)
-        manifest.setdefault("cards", {})[f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
+        added[f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
         if not (INBOX / src.name).exists():
             shutil.copy2(src, INBOX / src.name)
         print(f"牌面 card/{cid}.webp {dst.stat().st_size // 1024} KB")
         done += 1
 
-    MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+    merge("cards", added)
     print(f"共 {done} 張，manifest.json 已併入")
 
 

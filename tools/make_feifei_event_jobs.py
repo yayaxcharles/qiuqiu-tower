@@ -171,13 +171,37 @@ def main() -> None:
             t = prompt_of(v)
             if t and k.startswith("event_") and not k.startswith("event_feifei_") and loose.search(t):
                 should.add(k)
-    gap = sorted(should - set(src))
+    # **結果圖那一整類不歸這支管**（2026-09-13）。它們沒有外觀敘述、靠附原插圖當參考，
+    # 所以 `NINJA_BLOCK` 一張都認不出來——那不是「少認一種格式」，是另一種工單。
+    # 交給 `make_feifei_result_art_jobs.py`，這裡把它已經涵蓋的扣掉再比。
+    #
+    # 為什麼要扣：這條自檢本來就一直在喊「有 61 張沒轉到」，喊了好幾天沒人處理，
+    # 因為訊息混在一長串輸出裡、而且**喊的是錯的原因**（說少認格式，其實是別支的事）。
+    # 一條永遠紅的檢查等於沒有檢查。
+    # **口徑是「manifest 裡有沒有她的圖」，不是「有沒有開工單」**（2026-09-13 稽核 中-8）。
+    # 看工單的話有兩個壞處：一是工單開了圖沒生出來照樣算過關；
+    # 二是等圖都生完、重跑那支產生器時它會因為「已經有圖、跳過」而輸出空的工單檔，
+    # 這條又會紅起來喊「61 張沒轉到」——正是這次要修掉的毛病復發。
+    # 看 manifest 兩個方向都對，而且跟 `tools/feifei_stills.test.ts` 同一個口徑。
+    mf = json.loads((ROOT / "public" / "assets" / "manifest.json").read_text(encoding="utf-8"))
+    covered = {f"event_{k[len('bg/event_feifei_'):]}.png"
+               for k in mf["bg"] if k.startswith("bg/event_feifei_")}
+    # 還沒生出來、但工單已經開好的也算（不然這條在生圖那幾小時會一直紅）
+    rp = JOBS / "feifei_result_art.json"
+    if rp.exists():
+        for k in json.loads(rp.read_text(encoding="utf-8")):
+            covered.add("event_" + k[len("event_feifei_"):])
+    # 遊戲裡查不到的舊工單名字（`catnip_field_take` 用的 resultArt 早就改成 `catnip_field_r1`）
+    DEAD = {"event_catnip_field_take.png"}
+
+    gap = sorted(should - set(src) - covered - DEAD)
     if gap:
         print(f"!! 有 {len(gap)} 張提到球球卻沒被轉到——NINJA_BLOCK 少認一種格式：")
         for k in gap[:12]:
             print(f"   {k}")
         raise SystemExit(1)
-    print(f"自檢過關：工單裡提到球球的 {len(should)} 張，全部都轉到了")
+    print(f"自檢過關：工單裡提到球球的 {len(should)} 張，"
+          f"這支轉了 {len(src)} 張、結果圖那支涵蓋 {len(covered)} 張、死名字 {len(DEAD)} 張")
 
     print("跑法：python tools/codex_gen.py tools/codex_jobs/feifei_events.json "
           "--ref tools/ref/feifei_ref.png")
