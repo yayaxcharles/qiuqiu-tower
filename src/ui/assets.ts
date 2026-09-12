@@ -114,6 +114,22 @@ let localHeroId = 'ninja';
 export function setLocalHero(hero: string | undefined): void { localHeroId = hero ?? 'ninja'; }
 export function localHero(): string { return localHeroId; }
 
+/**
+ * 這張牌要用誰的圖（2026-09-12，使用者：「牌全部分家」）。
+ *
+ * **牌的數字只定義一份**（`content/cards.ts`），分家的只有圖：菲菲在玩時，
+ * 有 `card/feifei_<牌號>` 就用她的，沒有就退回原本那張。
+ *
+ * 走 `localHero()` 而不是把職業一路傳進 `cardNode`（那支有九個呼叫點）：
+ * 畫面上的牌永遠是**本機這一位自己的**——手牌、牌組一覽、獎勵、罐頭鋪、圖鑑都是。
+ * 連線時看不到同伴的手牌，所以不會有「兩個人的牌同框」的情況。
+ */
+export function cardArtKey(baseKey: string): string {
+  if (localHeroId === 'ninja') return baseKey;
+  const mine = baseKey.replace(/^card\//, `card/${localHeroId}_`);
+  return manifest.cards[mine] !== undefined ? mine : baseKey;
+}
+
 /** 這位角色的立繪網址。鍵一律寫球球版的，換角色的翻譯交給 `heroSpriteKey` */
 export function heroArtUrl(hero: string | undefined, key: string): string {
   return artUrl('sprites', heroSpriteKey(hero, key));

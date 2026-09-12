@@ -1,6 +1,6 @@
 import { cardStats } from '../engine/deck';
 import type { CardDef, CardInstance } from '../engine/types';
-import { artUrl } from './assets';
+import { artUrl, cardArtKey } from './assets';
 import { describeCard, upgradedChangedChars } from './cardtext';
 import { el } from './dom';
 import { markupKeywords } from './tooltip';
@@ -56,7 +56,7 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
 
   const node = el('div', { class: cls.join(' ') },
     el('div', { class: costDown ? 'card-cost cost-down' : 'card-cost' }, String(cost)),
-    el('img', { class: 'card-art', src: artUrl('cards', def.art), alt: def.name, draggable: 'false' }),
+    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art)), alt: def.name, draggable: 'false' }),
     el('div', { class: 'card-name' }, def.name + (upgraded ? '＋' : '')),
     el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),
     el('div', { class: 'card-type' }, def.type));

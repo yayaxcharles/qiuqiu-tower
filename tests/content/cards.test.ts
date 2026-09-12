@@ -89,6 +89,17 @@ describe('牌資料', () => {
     const { Rng, seedFromString } = await import('../../src/engine/rng');
     const manifest = (await import('../../public/assets/manifest.json')).default as { cards: Record<string, string> };
     for (const c of cards) expect(!!manifest.cards[c.art], c.name + '：有圖=' + !!manifest.cards[c.art] + '、hidden=' + !!c.hidden).toBe(!c.hidden);
+    /*
+     * 菲菲版的共用牌面（2026-09-12「牌全部分家」）：`card/feifei_<牌號>` 是**選配**——
+     * 有就用她的、沒有就退回球球那張（`assets.cardArtKey`）。所以這裡只驗「不能有孤兒」：
+     * 每一個 feifei_ 前綴的圖都要對得到一張真的牌，不然就是生錯檔名、永遠不會被用到。
+     */
+    for (const key of Object.keys(manifest.cards)) {
+      const m = /^card\/feifei_(.+)$/.exec(key);
+      if (!m) continue;
+      const id = m[1]!;
+      expect(cardById[id] ?? cardById[`feifei_${id}`], `${key} 對不到任何一張牌`).toBeTruthy();
+    }
     for (let seed = 0; seed < 300; seed++) {
       for (const pool of ['忍術', '絕學'] as const) {
         for (const c of rollCardChoices(new Rng(seedFromString('hidden-' + seed)), pool, 6, [], true, 0)) expect(c.hidden).toBeUndefined();
