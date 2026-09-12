@@ -51,7 +51,9 @@ function scan(hit: RegExp, skip: RegExp): string[] {
 describe('畫面文案不可以寫死球球的用語', () => {
   it('顯示用的字串裡不可以有沒過 lineFor 的「喵」', () => {
     // 過了 `lineFor`、拿來比對說話者、或是句尾檢查函式的都可以
-    const bad = scan(/喵/, /lineFor|speaker|=== '球球'|feifeiLineOk|qiuqiuLineOk/);
+    // `speaker` 收緊成「真的在標球球說話」：原本只要那一行出現 speaker 這個字就整行放行，
+    // 像 `sceneView({ speaker: heroSpeaker(), text: '……喵！' })` 寫成一行就會被漏掉（稽核 低-3）
+    const bad = scan(/喵/, /lineFor|speaker:\s*'球球'|\.speaker ===|=== '球球'|feifeiLineOk|qiuqiuLineOk/);
     expect(bad, `這幾行的「喵」沒過 lineFor：\n${bad.join('\n')}`).toEqual([]);
   });
 

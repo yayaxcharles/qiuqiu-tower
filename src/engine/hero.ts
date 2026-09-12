@@ -8,7 +8,8 @@ import type { CardDef, RunPlayer } from './types';
  * - `samurai`：穿重甲。沒有任何閃避手段，改用「甲」硬吃——甲不歸零、被打永久扣，
  *   整場就那些，得規劃著用（見 `PlayerCombat.armour` 與 `damagePlayer` 的受傷順序）。
  * - `feifei`：**不是球球**，是球球的師妹、一隻暹羅貓（2026-09-12）。丟毒暗器，
- *   防禦是「距離」不是「擋」——站得遠打得痛、被打到就被逼近（見 `PlayerCombat.range`）。
+ *   路數是**毒＋攻擊自帶蜷縮**：她的攻擊牌大多同時給幾點擋，不用在打與擋之間二選一，
+ *   傷害低但毒會滾（原本設計過一套「距離」機制，2026-09-12 整個拆掉了）。
  *
  * 分流深度是**中分流**：大部分牌共用，各自有一批獨占牌（`CardDef.hero`）。
  */
@@ -58,7 +59,7 @@ export function unitName(p: { hero?: Hero } | undefined): string {
 }
 
 /**
- * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是後撤步（開場距離 +1）。
+ * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是後撤步（每場開打先有 5 點蜷縮）。
  */
 export function startRelicFor(hero: Hero): string {
   return hero === 'feifei' ? 'backstep' : 'blue_headband';
@@ -71,7 +72,7 @@ export function startRelicFor(hero: Hero): string {
  * 這一支只換**畫面上寫的字**——她磨的是針不是爪子，按鈕寫「磨爪」跟她的台詞
  *「磨利一點，扎得淺也能把藥送進去」對不起來。
  */
-export function sharpenVerb(hero: Hero | undefined): string {
+export function sharpenVerb(hero: string | undefined): string {
   return hero === 'feifei' ? '磨針' : '磨爪';
 }
 

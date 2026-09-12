@@ -14,6 +14,7 @@
  * 一張牌至少要翻出一個效果才算數。抽牌用戰鬥亂數（cs.rng），同一個局面碼永遠抽到同一張。
  */
 import { encounterById, enemyById } from '../content/enemies';
+import { cardById, cardNameFor } from '../content/cards';
 import { cardStats } from './deck';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, Intent, StatusName } from './types';
 import { DEBUFFS } from './types';
@@ -86,6 +87,18 @@ export function learnedMove(cs: CombatState): EnemyMove | undefined {
   const intent: Intent = effects.some((f) => f.kind === 'damage') ? 'attack'
     : effects.some((f) => f.kind === 'block') ? 'block'
       : effects.some((f) => f.kind === 'statusPlayer') ? 'debuff' : 'buff';
-  // 牌名用「、」串：升級牌的名字結尾就是「＋」，用「＋」串會變成「淡定＋＋貓抓＋」（稽核 2026-09-08 中-1）
-  return { intent, label: picks.map((c) => cardStats(c).name).join('、'), effects, learned: picks.map((c) => ({ cardId: c.cardId, upgraded: c.upgraded })) };
+  /*
+   * 牌名用「、」串：升級牌的名字結尾就是「＋」，用「＋」串會變成「淡定＋＋貓抓＋」（稽核 2026-09-08 中-1）。
+   *
+   * 名字要過 `cardNameFor`（稽核 2026-09-12 低-1）：菲菲手上的牌面寫「絕學·連珠針」，
+   * 紀錄卻寫「絕學·貓爪抓」，同一張牌兩個名字。鏡子學的是**被照的那一位**的牌組，
+   * 所以看的是 `p.hero`，不是本機這一位。
+   */
+  const nameOf = (c: CardInstance): string => {
+    const def = cardById[c.cardId];
+    if (!def) return cardStats(c).name;
+    // 升級的「＋」照 `cardStats` 的規矩自己補（那支是 `def.name + '＋'`）
+    return cardNameFor(def, cs.player.hero) + (c.upgraded ? '＋' : '');
+  };
+  return { intent, label: picks.map(nameOf).join('、'), effects, learned: picks.map((c) => ({ cardId: c.cardId, upgraded: c.upgraded })) };
 }
