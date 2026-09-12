@@ -519,6 +519,48 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damage', amount: 32 }, { kind: 'selfDamage', amount: 8 }, { kind: 'block', amount: 12 }] } },
 ];
 
+/**
+ * 共用牌在**菲菲**手上叫什麼（2026-09-12，使用者指定）。
+ *
+ * 跟牌面圖同一個道理：**數字、效果一個字都不動**，只有名字換一份。
+ * 有些牌名是照球球的打法取的（亮出爪子、鐵頭功），一隻丟針的貓打出來會很怪。
+ *
+ * 判準：**這個名字有沒有指到球球特有的身體動作？**（爪、拳、踢、頭槌、擒拿）
+ * 有就換，沒有就沿用原名——多數牌名（瞬間移動、催眠術、蓄力）跟身體無關，
+ * 換了反而讓兩個角色講不同的話做同一件事，圖鑑也難對照。
+ *
+ * 前綴的規矩（使用者 2026-09-12）：**「絕學」留著、「忍術」兩字拿掉**。
+ * 絕學是師門傳下來的功夫，她也學；忍術是球球那一路的身法，她走的是暗器。
+ * 這一條也套用在**沒有改名**的忍術牌上——見下面的 `cardNameFor`，
+ * 不然她手上會同時出現「拋針」跟「忍術·瞬間移動」，看起來像漏改。
+ */
+export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
+  // ---- 使用者直接指定的兩張 ----
+  liangzhua: '磨利飛針',       // 亮出爪子（技能牌：獲得爪力。她磨的是針，不是爪子）
+  tietou: '全力甩出',          // 絕學·鐵頭功（高傷＋自傷，改成「使盡全力甩出去」）
+  // ---- 指到球球身體動作的（爪、拳、踢、擒拿），一隻丟針的貓打出來會很怪 ----
+  dieda: '絕學·連珠針',        // 絕學·貓爪抓
+  bengquan: '絕學·貫針',       // 絕學·崩拳
+  jiuweiquan: '絕學·九尾針',   // 絕學·九尾拳
+  qinna: '絕學·絆索',          // 絕學·擒拿手
+  paozhao: '拋針',             // 忍術·拋爪
+  huixuan: '迴旋撒針',         // 忍術·迴旋踢
+  lianhuan: '連環針',          // 忍術·連環踢
+  roubao: '指尖連彈',          // 肉球連擊（本來就沒有前綴）
+};
+
+/**
+ * 這張牌在這一位手上叫什麼。
+ *
+ * 順序：專屬名字 →（菲菲）拿掉「忍術·」前綴 → 原名。
+ * 拿掉前綴做成通則而不是逐張列，是因為忍術牌有四十幾張，逐張列遲早會漏一張，
+ * 而漏掉的那一張看起來就像 bug。
+ */
+export function cardNameFor(def: CardDef, hero: string | undefined): string {
+  if (hero !== 'feifei') return def.name;
+  return FEIFEI_CARD_NAME[def.id] ?? def.name.replace(/^忍術·/, '');
+}
+
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));
 
 export const STARTER_DECK: readonly string[] = [

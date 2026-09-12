@@ -1,4 +1,4 @@
-import { cardById } from '../content/cards';
+import { cardById, cardNameFor } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -210,7 +210,8 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   p.firstCardEver = true;
   const firstAttack = st.def.type === '攻擊' && !p.attackedThisTurn;
   if (st.def.type === '攻擊') p.attackedThisTurn = true;
-  log(cs, `${unitName(p)}打出「${st.name}」`);
+  // 牌名也跟著角色換（`cardNameFor`）：升級的「＋」接在後面，跟 `cardStats` 同一套
+  log(cs, `${unitName(p)}打出「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」`);
   // 秘寶的第 N 張補抽排在牌效果之前：這張牌若要選牌，候選才不會被之後的補抽動到
   for (const rid of p.relics) {
     // 金爪套同時掛兩個第 N 張的掛鉤，分開叫會連印兩行「發動」（稽核 2026-09-10 中-2）
