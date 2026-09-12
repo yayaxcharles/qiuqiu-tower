@@ -74,6 +74,14 @@ describe('事件插圖依角色', () => {
     setLocalHero('ninja');
   });
 
+  /** 她的事件圖生好幾張。只准往上（2026-09-12 20:20 是 46） */
+  it('事件圖張數不准倒退', () => {
+    const hers = Object.keys(manifest.bg).filter((k) => k.startsWith('bg/event_feifei_'));
+    // eslint-disable-next-line no-console
+    console.log(`  她的事件插圖 ${hers.length} 張`);
+    expect(hers.length, '倒退了——是不是有圖被刪掉或改名？').toBeGreaterThanOrEqual(46);
+  });
+
   it('她的兩個專屬事件的結果圖都在', () => {
     for (const k of ['feifei_trace_r0', 'feifei_trace_r1', 'feifei_brew_r0', 'feifei_brew_r1']) {
       expect(manifest.bg[`bg/event_${k}`], `${k} 不見了`).toBeTruthy();

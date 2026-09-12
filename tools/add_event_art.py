@@ -70,6 +70,12 @@ def main() -> None:
                     help="用比較嚴的去背門檻（150/220，不是牌面那套 232/248）並整張去綠邊。"
                          "畫面裡本來就沒有綠色、又有大片亮黃或亮色光的圖用這個，"
                          "不然黃綠交界會留一圈螢光綠")
+    # 2026-09-12：這個生圖模型吐出來的綠幕**不是每張都純綠**（量過 237～255 都有）。
+    # 低於預設的 `CARD_HARD=248` 那幾張會被當成「接近綠」只去綠邊，背景整片留著沒挖掉。
+    # `--strict` 的 150/220 又太嚴，畫面裡本來就有綠色的（貓薄荷、池水）會被挖出洞。
+    # 所以另外開一組可調的，用法跟 `add_card_art.py` 一致：`--soft 190 --hard 230`
+    ap.add_argument("--soft", type=int, help="低於這個綠度完全保留；不填用牌面那套 232")
+    ap.add_argument("--hard", type=int, help="高於這個綠度完全挖掉；不填用牌面那套 248")
     args = ap.parse_args()
     names = args.names
     if not names:
@@ -85,8 +91,9 @@ def main() -> None:
             print(f"找不到 {name}（codex_raw 與 art_inbox 都沒有），略過")
             continue
         eid = Path(name).stem[len("event_"):]
-        keyed = (key_out(Image.open(src), SOFT, HARD, CARD_BAND, crop=False) if args.strict
-                 else key_out(Image.open(src), CARD_SOFT, CARD_HARD, CARD_BAND, crop=False))
+        soft = args.soft if args.soft is not None else (SOFT if args.strict else CARD_SOFT)
+        hard = args.hard if args.hard is not None else (HARD if args.strict else CARD_HARD)
+        keyed = key_out(Image.open(src), soft, hard, CARD_BAND, crop=False)
         if args.strict:
             keyed = despill_all(keyed)
         # 去背失敗要當場喊出來（2026-09-11）。預設的牌面門檻（232／248）對背景綠度
