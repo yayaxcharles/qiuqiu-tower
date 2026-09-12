@@ -1032,7 +1032,8 @@
   "codex/potion_your_way": "assets/icons/potion_your_way.webp",
   "codex/potion_bird_glue": "assets/icons/potion_bird_glue.webp",
   "codex/potion_thorn_shears": "assets/icons/potion_thorn_shears.webp",
-  "codex/potion_armor_pick": "assets/icons/potion_armor_pick.webp"
+  "codex/potion_armor_pick": "assets/icons/potion_armor_pick.webp",
+  "codex/relic_backstep": "assets/icons/relic_backstep.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",
@@ -1205,6 +1206,10 @@
   "bg/feifei_still_teach": "assets/bg/feifei_still_teach.webp",
   "bg/feifei_still_corrupt": "assets/bg/feifei_still_corrupt.webp",
   "bg/feifei_still_wait": "assets/bg/feifei_still_wait.webp",
-  "bg/feifei_still_depart": "assets/bg/feifei_still_depart.webp"
+  "bg/feifei_still_depart": "assets/bg/feifei_still_depart.webp",
+  "bg/event_feifei_trace_r0": "assets/bg/event_feifei_trace_r0.webp",
+  "bg/event_feifei_trace_r1": "assets/bg/event_feifei_trace_r1.webp",
+  "bg/event_feifei_brew_r0": "assets/bg/event_feifei_brew_r0.webp",
+  "bg/event_feifei_brew_r1": "assets/bg/event_feifei_brew_r1.webp"
  }
 }
