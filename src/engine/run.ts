@@ -707,7 +707,7 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
   // 牌格本來就是整排排除（見上面傳給 rollShopCards 的第四個參數），兩邊一致。
   const taken = [...me(run).relics, ...shop.relics.map((r) => r.id)];
   for (const slot of openRelics) {
-    const id = rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken);
+    const id = rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken, heroesIn(run));
     if (!id) continue;   // 池子抽乾就維持原樣，不留空格
     taken.push(id);
     const prev = shop.relics[slot]!;
@@ -738,10 +738,11 @@ export function makeShop(run: RunState): ShopStock {
   // 第二關起貨架放六張牌（使用者 2026-09-04：新招區還有空間）；第一關五張
   const cardDefs = rollShopCards(run, rng, shopCardCount(run), []);
   const relicIds: string[] = [];
-  for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...me(run).relics, ...relicIds]); if (id) relicIds.push(id); }
+  // 罐頭鋪的貨也要濾職業獨占的秘寶（2026-09-12 實戰樣本抓到：菲菲在店裡買到了紙袋）
+  for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...me(run).relics, ...relicIds], heroesIn(run)); if (id) relicIds.push(id); }
   // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）
   let treasure: string | null = null;
-  if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...me(run).relics, ...relicIds]); if (treasure) relicIds.push(treasure); }
+  if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...me(run).relics, ...relicIds], heroesIn(run)); if (treasure) relicIds.push(treasure); }
   // 升級牌：依關數機率把架上（第一關五張、第二關起六張）的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
   const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
   const shop: ShopStock = {
@@ -933,7 +934,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         break;
       }
       case 'relic': {
-        const id = rollRelic(runRng(run), fx.pool, [...me(run, seat).relics, ...excludeRelics]);
+        const id = rollRelic(runRng(run), fx.pool, [...me(run, seat).relics, ...excludeRelics], heroesIn(run));
         if (id) { takeRelic(run, id, seat); gains?.push({ kind: '秘寶', id }); }
         else notes?.push('這一池的秘寶都拿過了，沒有新的可拿');   // 收齊整池才會踩到，但不能靜靜什麼都不給（2026-09-02 稽核 L-4）
         break;

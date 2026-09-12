@@ -153,7 +153,16 @@
   "card/feifei_shunkan": "assets/cards/card/feifei_shunkan.webp",
   "card/feifei_shunshou": "assets/cards/card/feifei_shunshou.webp",
   "card/feifei_susu": "assets/cards/card/feifei_susu.webp",
-  "card/feifei_wozaizhe": "assets/cards/card/feifei_wozaizhe.webp"
+  "card/feifei_wozaizhe": "assets/cards/card/feifei_wozaizhe.webp",
+  "card/feifei_bunshin": "assets/cards/card/feifei_bunshin.webp",
+  "card/feifei_chudashi": "assets/cards/card/feifei_chudashi.webp",
+  "card/feifei_dingshang": "assets/cards/card/feifei_dingshang.webp",
+  "card/feifei_duxin": "assets/cards/card/feifei_duxin.webp",
+  "card/feifei_qianliyan": "assets/cards/card/feifei_qianliyan.webp",
+  "card/feifei_shunfenger": "assets/cards/card/feifei_shunfenger.webp",
+  "card/feifei_tuozi": "assets/cards/card/feifei_tuozi.webp",
+  "card/feifei_youcike": "assets/cards/card/feifei_youcike.webp",
+  "card/feifei_zhanshu": "assets/cards/card/feifei_zhanshu.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
