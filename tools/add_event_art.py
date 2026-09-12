@@ -44,6 +44,30 @@ def despill_all(im: Image.Image) -> Image.Image:
 
 
 
+def corner_haze(im: Image.Image) -> bool:
+    """四個角落有沒有「不是全透明、也不是不透明」的灰膜。
+
+    角落一定是背景，去乾淨的話 alpha 應該是 0。**不可以只看「不等於 0」**——
+    有些圖的構圖本來就會頂到邊（`signal_r1` 右邊那片鐵板就是），那種角落是
+    完全不透明的 255，屬於正常。灰膜的特徵是**卡在中間**：大約 30～190。
+
+    兩個條件都要成立才算，各自擋掉一種誤判：
+      - 四個角至少兩個卡在中間 → 擋掉「主體剛好頂到某一角」
+      - 全圖有超過 15% 的像素是半透明 → 擋掉「角落剛好落在物件邊緣的抗鋸齒上」
+        （`door_act1` 就是這樣：兩個角是 247，但全圖半透明比例是 0%）
+    真的有灰膜的那幾張，半透明比例量出來都在 49%～70%，跟 0% 差得很遠。
+    """
+    rgba = im.convert("RGBA")
+    px = rgba.load()
+    w, h = rgba.size
+    mid = sum(1 for x, y in ((2, 2), (w - 3, 2), (2, h - 3), (w - 3, h - 3))
+              if 0 < px[x, y][3] < 200)
+    if mid < 2:
+        return False
+    a = rgba.getchannel("A").get_flattened_data()
+    part = sum(1 for v in a if 8 <= v < 248)
+    return part / (w * h) > 0.15
+
 def green_left(im: Image.Image) -> float:
     """去完背之後還有幾成的可見像素是綠的（百分比）。
 
@@ -101,12 +125,21 @@ def main() -> None:
         # 去背失敗要當場喊出來（2026-09-11）。預設的牌面門檻（232／248）對背景綠度
         # 只有 23x 的圖會漏掉一大片，而且**完全不出聲**——照樣印成功、照樣寫進 manifest，
         # 只有玩家看得到一片綠。量一下殘留，太多就自己改用嚴格門檻重做一次
-        if not args.strict and green_left(keyed) > 3.0:
-            print(f"  ⚠ {name} 去背沒乾淨（背景綠度偏低），改用嚴格門檻重做")
-            keyed = despill_all(key_out(Image.open(src), SOFT, HARD, CARD_BAND, crop=False))
+        #
+        # **還有第二種去背失敗，殘綠量不出來**（2026-09-13）：背景的綠**不夠純**
+        # （量到 242～248，低於預設的硬門檻 248），於是那些像素拿到的是**半透明**
+        # 而不是全透明——綠被扣掉了所以 `green_left` 看起來很漂亮，但整張背景
+        # 蒙上一層灰膜，遊戲裡就是插圖後面多一個淡淡的方塊。
+        # 判準用「四個角落的 alpha」：角落一定是背景，全透明才算過。
+        if not args.strict and (green_left(keyed) > 3.0 or corner_haze(keyed)):
+            why = "背景綠度偏低" if green_left(keyed) > 3.0 else "背景變成半透明的灰膜"
+            print(f"  ⚠ {name} 去背沒乾淨（{why}），改用寬門檻重做")
+            keyed = despill_all(key_out(Image.open(src), 190, 230, CARD_BAND, crop=False))
         left = green_left(keyed)
         if left > 3.0:
-            print(f"  ⚠⚠ {name} 嚴格門檻也去不乾淨（還剩 {left:.1f}% 綠），請看一下這張圖")
+            print(f"  ⚠⚠ {name} 寬門檻也去不乾淨（還剩 {left:.1f}% 綠），請看一下這張圖")
+        if corner_haze(keyed):
+            print(f"  ⚠⚠ {name} 背景還是半透明的（角落 alpha 不是 0），請看一下這張圖")
         dst = OUT / "bg" / f"event_{eid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         keyed.resize((560, 420), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
