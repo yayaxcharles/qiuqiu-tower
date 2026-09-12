@@ -413,8 +413,8 @@ export const cards: readonly CardDef[] = [
    */
   // ---- 起手（3 種、共 10 張）。對照球球的貓抓 ×5＋淡定 ×4＋替身術 ×1 ----
   { id: 'feifei_feizhen', name: '飛針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_feizhen',
-    effects: [{ kind: 'damage', amount: 4 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }, { kind: 'block', amount: 2 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'block', amount: 3 }] } },
+    effects: [{ kind: 'damage', amount: 3 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }, { kind: 'block', amount: 2 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 5 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'block', amount: 3 }] } },
   // 她的「淡定」。數值刻意完全一樣——使用者要的就是「功能一樣、圖跟名字是她自己的」
   { id: 'feifei_tuikai', name: '退開', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '起手', target: 'self', art: 'card/feifei_tuikai',
     effects: [{ kind: 'block', amount: 5 }],
@@ -572,9 +572,16 @@ export const STARTER_DECK: readonly string[] = [
  * 菲菲的起手十張（2026-09-12 晚改版）。**形狀跟球球一模一樣**：
  * 飛針 x5（他的貓抓）、退開 x4（他的淡定）、淬毒 x1（他的替身術那一格）。
  *
- * 差別全在內容：他的貓抓是 6 點純傷害，她的飛針是 **4 傷＋1 層毒＋2 點蜷縮**——
+ * 差別全在內容：他的貓抓是 6 點純傷害，她的飛針是 **3 傷＋1 層毒＋2 點蜷縮**——
  * 單看當下比較弱，但毒會滾、而且她出手的同時就擋好了。
  * 那正是她的識別：**攻擊同時是防禦**，球球得在打與擋之間二選一。
+ *
+ * 飛針為什麼是 3 傷不是 4 傷（2026-09-12 量過才改）：**4 傷的話那 2 點蜷縮等於白送**。
+ * 毒會遞減（N 層總共打 N(N+1)/2），算四回合下來：她 3 費全丟飛針是
+ * 直傷 48 ＋ 毒 24 ＝ 72，球球三張貓抓也是 72——傷害一模一樣，她卻多拿 24 點蜷縮。
+ * 改成 3 傷之後六百局對照：到三關 105 對 93、通關 12 對 14，跟球球對齊了
+ * （難度 3、5 也一樣）。她仍然明顯比較耐打（到二關 六成 對 四成），
+ * 那是「怕痛所以先擋好」的設定本身，不是數值失衡。
  */
 export const FEIFEI_STARTER_DECK: readonly string[] = [
   'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen',
