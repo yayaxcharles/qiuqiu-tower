@@ -9,7 +9,7 @@
 每段都是一次走鐘的機會，而場景本身根本沒有要改的理由。所以這支只做三件事：
   1. 把球球的外觀段整段換成 `art_rules.feifei_look()`
   2. 把場景敘述裡指涉主角的詞換成她
-  3. 輸出檔名加 `feifei_` 前綴（對上 `assets.ts` 的 `eventArtKey`）
+  3. 輸出檔名改成 `event_feifei_<編號>`（**前綴的位置有講究**，見 `rename`）
 
 **跑完一定要驗**：這支自己會檢查輸出裡還有沒有殘留的球球字眼，有就整批不寫出來。
 
@@ -75,12 +75,20 @@ LEFTOVER = re.compile(r"grey tabby|gray tabby|Qiuqiu", re.I)
 REVIEW = re.compile(r"ninja headband|navy headband|ninja outfit", re.I)
 
 
+def rename(fid: str) -> str:
+    """`event_toll.png` → `event_feifei_toll.png`（理由見 `convert`）。"""
+    return "event_feifei_" + fid[len("event_"):]
+
+
 def convert(text: str, fid: str) -> str:
     out = NINJA_BLOCK.sub(FEIFEI_BLOCK, text)
     for a, b in ACTOR:
         out = out.replace(a, b)
     # 存檔指令裡的檔名也要換
-    return out.replace(f"Save the image as {fid}", f"Save the image as feifei_{fid}")
+    # 檔名是 `event_feifei_<編號>` **不是** `feifei_event_<編號>`：
+    # `add_event_art.py` 砍掉開頭的 `event_` 當事件編號，再組成 `bg/event_<編號>`，
+    # 而畫面那邊 `eventArtKey` 找的正是 `bg/event_feifei_<編號>`。前綴擺錯位置就對不上。
+    return out.replace(f"Save the image as {fid}", f"Save the image as {rename(fid)}")
 
 
 def main() -> None:
@@ -103,7 +111,7 @@ def main() -> None:
                 continue                               # 圖裡本來就沒有他，不用生
             src[k] = v                                 # 同名後蓋前：_v2 那種修正版會贏
 
-    jobs = {f"feifei_{k}": convert(v, k) for k, v in src.items()}
+    jobs = {rename(k): convert(v, k) for k, v in src.items()}
 
     def outside(v: str) -> str:
         return v.replace(FEIFEI_BLOCK, "")
