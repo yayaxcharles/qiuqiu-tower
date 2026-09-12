@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { FEIFEI_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 7、忍術 84、絕學 44（含待圖 hidden）、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 6、忍術 84、絕學 44、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
-    // 起手 3→7：2026-09-12 菲菲的四種起手牌（飛針、退開、遠射、淬毒）
-    expect(count('起手')).toBe(7);
+    // 起手 3→6：2026-09-12 菲菲的三種起手牌（飛針、退開、淬毒）
+    expect(count('起手')).toBe(6);
     // 忍術 61→67：2026-09-11 的九張連線牌（`coop: true`，只有雙人局才進池）；
     // 67→84、絕學 39→44：2026-09-12 菲菲的 22 張專屬牌（`hero: 'feifei'`）。
     // 兩批都掛 `hidden`，圖到齊才會進獎勵與罐頭鋪
@@ -14,7 +14,7 @@ describe('牌資料', () => {
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(145);
+    expect(cards.length).toBe(144);
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -60,7 +60,7 @@ describe('牌資料', () => {
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
         (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus' ||
         // 菲菲的三張（2026-09-12）：遠射／見血封喉／一針斃命都是指定一隻打
-        e.kind === 'damageByRange' || e.kind === 'damageByStatus' || e.kind === 'execByStatus' || e.kind === 'spreadStatus');
+        e.kind === 'damageByStatus' || e.kind === 'execByStatus' || e.kind === 'spreadStatus');
       if (hitsAll) expect(c.target, c.name).toBe('all');
       else if (hitsOne) expect(c.target, c.name).toBe('enemy');
       else if (c.pool === '壞毛病') expect(c.target, c.name).toBe('none');
@@ -73,6 +73,9 @@ describe('牌資料', () => {
   });
   it('起手牌組 10 張', () => {
     expect(FEIFEI_STARTER_DECK.length, '菲菲也是十張').toBe(10);
+    // 形狀跟球球一樣：5 攻＋4 防＋1 招牌技
+    expect(FEIFEI_STARTER_DECK.filter((id) => id === 'feifei_feizhen').length).toBe(5);
+    expect(FEIFEI_STARTER_DECK.filter((id) => id === 'feifei_tuikai').length).toBe(4);
     for (const id of FEIFEI_STARTER_DECK) expect(cardById[id]?.pool, id).toBe('起手');
     expect(STARTER_DECK).toEqual([
       'sanjo', 'sanjo', 'sanjo', 'sanjo', 'sanjo',

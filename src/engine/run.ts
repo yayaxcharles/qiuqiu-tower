@@ -2,7 +2,7 @@ import { cardById, cards, starterDeckFor } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById, enemyById } from '../content/enemies';
-import { heroOf, pickable, startRange, startRelicFor } from './hero';
+import { heroOf, pickable, startRelicFor } from './hero';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
@@ -119,7 +119,6 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
       retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
       noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
       firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0,
-      range: startRange(rp.hero),
     };
     cs.players.push(p);
     /*

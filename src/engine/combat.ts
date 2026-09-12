@@ -4,7 +4,7 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markPoisoner, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
 import { coopHpMul } from './coopscale';
-import { startRange, unitName } from './hero';
+import { unitName } from './hero';
 import type { Hero } from './hero';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
@@ -45,7 +45,6 @@ export function startCombat(input: {
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
     noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
     firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0,
-    range: startRange(input.hero),
   };
   const cs: CombatState = {
     rng: input.rng,
@@ -124,8 +123,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
   if (cs.turn > 1) p.firstStealthGiven = false;   // 第一回合不清：開戰的鈴鐺已經吃過紙袋的加成（審查 #14）
   const poison = getStatus(p, '中毒');
-  // `noPush`＝身上的中毒不推菲菲的距離（稽核 2026-09-12 中-6，理由在 `damagePlayer`）
-  if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p, noPush: true }); if (cs.phase !== 'player') return; }
+  if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
   if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive, p); }
   const iron = getStatus(p, '鐵布衫');
@@ -147,7 +145,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p, noPush: true }); }   // 壞毛病也是身上帶著的，不推距離
+    if (cu?.onTurnStart) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
   }
 }
 
@@ -171,9 +169,6 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   if (!p.firstCardPlayed) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscount'));
   if (!p.firstCardEver) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscountCombat'));   // 破卷軸：整場只有第一張（審查 #7）
   if (cost > p.energy) return { ok: false, reason: '餓扁了' };
-  // 菲菲的遠程牌：站太近就丟不準（2026-09-12）。擋在飽足之後，是因為「餓扁了」比較常見，
-  // 兩個都不滿足時先講那個
-  if (st.def.needRange && p.range < st.def.needRange) return { ok: false, reason: `距離不夠（要 ${st.def.needRange}）` };
   if (st.def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return { ok: false, reason: '要選一隻魔物' };
   return { ok: true, cost };
 }
@@ -366,7 +361,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
 function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p, noPush: true }); }   // 同上
+    if (cu?.onTurnEnd) { log(cs, `「${cardById[c.cardId]?.name}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p }); }
   }
   if (cs.phase !== 'player') return;
   if (!p.attackedThisTurn) {

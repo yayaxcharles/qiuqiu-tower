@@ -64,15 +64,6 @@ export function startRelicFor(hero: Hero): string {
   return hero === 'feifei' ? 'backstep' : 'blue_headband';
 }
 
-/**
- * 開場的距離。只有菲菲有（設計稿：開場 1，起始秘寶「後撤步」再 +1 變成 2）。
- *
- * 其他職業永遠是 0，所以距離那一條在畫面上也不顯示、那些效果也推不動。
- */
-export function startRange(hero: Hero | undefined): number {
-  return hero === 'feifei' ? 1 : 0;
-}
-
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */
 export function cardsForHero(hero: Hero): CardDef[] {
   return cards.filter((c) => !c.hero || c.hero === hero);

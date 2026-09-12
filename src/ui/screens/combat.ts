@@ -18,7 +18,6 @@ import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { heroName, heroOf } from '../../engine/hero';
-import { RANGE_MAX } from '../../engine/types';
 import type { Hero } from '../../engine/hero';
 import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
@@ -646,16 +645,6 @@ registerScreen('combat', (app, root, props) => {
    */
   function statusRow(u: Unit, mine = false, who = 'player'): HTMLElement {
     const row = el('div', { class: 'chips' });
-    /*
-     * 菲菲的距離（2026-09-12）。**永遠顯示，連 0 也顯示**——它是她的第二條血條，
-     * 不是一個偶爾出現的狀態。0 的時候玩家最需要看到它（那表示魔物貼在臉上、
-     * 暗器打不痛、要趕快退），做成「歸零就消失」等於在最要緊的時候把資訊藏起來。
-     * 其他角色的 `range` 永遠是 0，用職業判而不是用數值判，那一格才不會冒出來。
-     */
-    if ('range' in u && heroOf(u as PlayerCombat) === 'feifei') {
-      const r = (u as PlayerCombat).range;
-      row.append(chip('距離', null, '●'.repeat(r) + '○'.repeat(Math.max(0, RANGE_MAX - r)), r > 0 ? 'good' : 'bad'));
-    }
     if (u.block > 0) row.append(chip(mine ? '蜷縮' : '防禦', null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
       const key = `${who}|${name}`;

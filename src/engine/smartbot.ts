@@ -177,17 +177,12 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       // 同一支函式的 damage／damageRamp／damageRandom 三個分支都乘了，只有這個漏掉，
       // 蓄力／秘笈在手時「絕學·借力使力」的價值被低估一半，機器人不會挑它、牌價值表也偏低
       swing(computeAttack(p.block * (doubled ? 2 : 1), p, e, { noStrength: true }));
-    } else if (fx.kind === 'damageByRange') {
-      // 菲菲的遠射那類：底傷＋距離每 1 點加幾點，照打出**當下**的距離算（跟引擎同一條式子）
-      swing(computeAttack((fx.amount + p.range * fx.per) * (doubled ? 2 : 1), p, e, { noStrength }));
     } else if (fx.kind === 'damageByStatus') {
       // 見血封喉：把毒一次引爆。引擎走 `direct`，蜷縮擋不住，所以這裡也要 ignoreBlock
       swing(getStatus(e, fx.name), true);
     } else if (fx.kind === 'execByStatus') {
       // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
       if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);
-    } else if (fx.kind === 'ifRange' && p.range >= fx.min) {
-      total += damageTo(cs, fx.effects, e, combo, doubled, plays, noStrength);
     }
   }
   return total;
@@ -223,9 +218,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
    * 加新的傷害種類記得回頭補這一行，跟 `damageTo` 是一對。
    */
   const DMG_KINDS: ReadonlySet<Effect['kind']> = new Set(
-    ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByRange', 'damageByStatus', 'execByStatus']);
-  const hasDamage = st.effects.some((fx) => DMG_KINDS.has(fx.kind)
-    || (fx.kind === 'ifRange' && fx.effects.some((e) => DMG_KINDS.has(e.kind))));
+    ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus']);
+  const hasDamage = st.effects.some((fx) => DMG_KINDS.has(fx.kind));
 
   if (hasDamage) {
     // 挑目標：能打死的優先（少一隻就少挨一份），否則打最矮的能打的那隻
@@ -250,17 +244,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
     // 全場快清光了就別留手
     if (totalEnemyHp <= 12) value += 3;
   }
-  /*
-   * 站得夠遠才發生的那幾條（`ifRange`）**先攤平**再估：用現在的距離判一次，
-   * 判過了就把裡面的效果當成本來就寫在牌上的。這跟引擎真的打出去時的判準一樣。
-   * 攤平比在 switch 裡遞迴省事——那個 switch 讀得到的區域變數有十幾個。
-   */
-  const flat: Effect[] = [];
   for (const fx of st.effects) {
-    if (fx.kind === 'ifRange') { if (p.range >= fx.min) flat.push(...fx.effects); }
-    else flat.push(fx);
-  }
-  for (const fx of flat) {
     switch (fx.kind) {
       case 'block': {
         const b = computeBlock(fx.amount, p);
@@ -380,14 +364,6 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'drawAlly': value += fx.n * 2.2; break;         // 一個人時退化成自己抽，跟 `draw` 同口徑
       case 'cleanseAlly': value += DEBUFFS.filter((d) => getStatus(p, d) > 0).length * 3; break;
       case 'energyAlly': value += fx.n * 4; break;         // 一顆飯糰約等於一張中等的牌
-      /*
-       * 菲菲的距離（2026-09-12）。退一格約等於半張防禦牌——它同時是保命（少挨一次打）
-       * 與輸出（暗器變重）。估太高機器人會一直退、退到上限之後那些牌就變成廢牌。
-       */
-      case 'range': value += (fx.to !== undefined ? Math.max(0, fx.to - p.range) : (fx.n ?? 0)) * 3; break;
-      case 'damageByRange': value += (fx.amount + p.range * fx.per) * 1.1; break;
-      // 上面已經攤平過了，走到這裡表示距離不夠——那就什麼都不會發生，估 0
-      case 'ifRange': break;
       // 見血封喉／一針斃命：估的是「目標身上現在有幾層」，沒有目標就估 0
       case 'damageByStatus': value += target0 ? getStatus(target0, fx.name) * (fx.consume ? 1 : 1.3) : 0; break;
       case 'execByStatus': value += target0 && getStatus(target0, fx.name) >= target0.hp ? target0.hp + 8 : 0; break;
@@ -408,7 +384,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         break;
       }
       case 'poisonBurst': value += enemies.length > 1 ? 16 : 4; break;   // 只剩一隻時屍爆沒有對象
-      case 'rangeGuard': value += fx.amount * rest * (p.range >= fx.min ? 0.8 : 0.35); break;
+      // 拒馬：之後每次獲得蜷縮都多幾點。粗估這一場還會再擋幾次（每回合約一次）
+      case 'blockBonus': value += fx.n * rest * 0.9; break;
       case 'poisonOnAttack': value += fx.n * rest * 1.5; break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }

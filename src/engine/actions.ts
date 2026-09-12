@@ -92,7 +92,15 @@ export function findEnemy(cs: CombatState, uid: number): EnemyCombat | undefined
 export function hasRelic(cs: CombatState, id: string, p: PlayerCombat = cs.player): boolean { return p.relics.includes(id); }
 
 export function gainBlock(cs: CombatState, u: Unit, base: number): number {
-  const v = computeBlock(base, u);
+  /*
+   * 拒馬（菲菲的稀有能力）：之後**每次**獲得蜷縮都多幾點。
+   *
+   * 加在 `computeBlock` 之前，所以貓步那類百分比加成會連這幾點一起乘——
+   * 兩個都是「我這次擋得更多」，先加後乘讀起來也順（跟爪力加在傷害上是同一個順序）。
+   * 只有玩家有這個旗標，魔物走的是同一支但 `blockBonus` 永遠是 undefined。
+   */
+  const bonus = (u as { blockBonus?: number }).blockBonus ?? 0;
+  const v = computeBlock(base + bonus, u);
   u.block += v;
   return v;
 }
@@ -169,11 +177,6 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
                                 * 呼叫點，硬插一個參數會把每一處都改動一遍、看不出哪一處是真的改了行為。
                                 */
                                victim?: PlayerCombat;
-                               /**
-                                * 這一下**不推距離**（菲菲專用）。中毒那類「身上帶著的」傷害要填 true——
-                                * 距離講的是「牠離你多遠」，跟自己身上有什麼是兩回事（稽核 2026-09-12 中-6）。
-                                */
-                               noPush?: boolean;
                              } = {}): number {
   const p = opts.victim ?? cs.player;
   if (p.down) return 0;   // 已經倒下的人不會再挨打（規則四）
@@ -188,19 +191,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     lose = eatArmour(cs, p, lose);
   } else {
     if (p.immune) { log(cs, `${unitName(p)}躲在角落，什麼都沒看到`); return 0; }
-    let dmg = computeAttack(base, attacker, p);
-    /*
-     * 拒馬（菲菲的稀有能力 2026-09-12）：站得夠遠時每一下少挨幾點。
-     *
-     * 排在蜷縮**之前**——它講的是「牠打不到你這麼深」，不是「你擋下來了」，
-     * 所以連帶讓蜷縮更耐用。減到 0 就是 0，不會變成回血。
-     */
-    const rg = p.rangeGuard;
-    if (rg && p.range >= rg.min && dmg > 0) {
-      const cut = Math.min(dmg, rg.amount);
-      dmg -= cut;
-      if (cut > 0) log(cs, `離得夠遠，這一下少了 ${cut} 點`);
-    }
+    const dmg = computeAttack(base, attacker, p);
     // 判定順序改成「蜷縮先擋，擋不完的那一下才用隱身閃」（使用者 2026-09-04：隱身判定在前、強度又比蜷縮高太多，玩家只拿隱身不拿蜷縮）。
     // 隱身只在「蜷縮擋完還有剩」時才消耗一層，整下落空；穿透招蜷縮擋不住，還是直接看隱身。
     const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
@@ -224,21 +215,6 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
       }
     }
   }
-  /*
-   * 菲菲的距離：**真的被扣到血才拉近**（2026-09-12）。
-   *
-   * 判準刻意放在這一行而不是函式開頭：蜷縮擋掉、隱身閃掉、護甲吃掉的那些，
-   * 距離都不該掉——那正是她「靠不被打到活著」的核心。
-   * 自傷（手滑、不要過來！）也算，她慌了往前衝那批牌就是要付這個代價。
-   *
-   * **但身上的中毒不算**（稽核 2026-09-12 中-6）：距離講的是「牠離你多遠」，
-   * 中毒是掛在自己身上的東西，兩回事。不擋的話「舔針」（自己 3 層中毒）的真實代價
-   * 是連掉三格距離、直接歸零——而距離上限本來就只有 3，牌面卻一個字都沒寫。
-   * 設計稿的代價排序是「距離歸零 ＞ 自己中毒」，讓中毒推距離等於把排序反過來。
-   *
-   * 其他職業 `range` 永遠是 0，這一段推不動。
-   */
-  if (lose > 0 && p.range > 0 && !opts.noPush) { p.range -= 1; log(cs, `被逼近了（距離 ${p.range}）`); }
   p.hp -= lose;
   // 已經打贏了，殘餘效果（自傷、壞毛病）不會把球球打死
   if (cs.phase === 'won') { p.hp = Math.max(1, p.hp); return lose; }

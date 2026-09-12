@@ -54,9 +54,9 @@ export function combatFingerprint(cs: CombatState): string {
       statusOf(p),
       `h[${pile(p.hand)}]`, `d[${pile(p.drawPile)}]`, `x[${pile(p.discardPile)}]`, `z[${pile(p.exhaustPile)}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
-      `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`, `rg${p.range}`,
+      `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`,
       // 菲菲的三個長效旗標：整場都在、會影響之後每一次結算，不進指紋的話分岔會晚一拍才抓到
-      `pb${p.poisonBurst ?? ''}`, `rgd${p.rangeGuard?.min ?? 0}/${p.rangeGuard?.amount ?? 0}`, `poa${p.poisonOnAttack ?? 0}`,
+      `pb${p.poisonBurst ?? ''}`, `bb${p.blockBonus ?? 0}`, `poa${p.poisonOnAttack ?? 0}`,
     ].join('|'));
   }
   for (const e of cs.enemies) {
