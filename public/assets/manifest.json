@@ -211,7 +211,8 @@
   "card/feifei_tuishou": "assets/cards/card/feifei_tuishou.webp",
   "card/feifei_dieda": "assets/cards/card/feifei_dieda.webp",
   "card/feifei_shibadie": "assets/cards/card/feifei_shibadie.webp",
-  "card/feifei_hujin": "assets/cards/card/feifei_hujin.webp"
+  "card/feifei_hujin": "assets/cards/card/feifei_hujin.webp",
+  "card/feifei_boming": "assets/cards/card/feifei_boming.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
@@ -1327,6 +1328,7 @@
   "bg/event_feifei_toll_again_fought": "assets/bg/event_feifei_toll_again_fought.webp",
   "bg/event_feifei_toll_again_paid": "assets/bg/event_feifei_toll_again_paid.webp",
   "bg/event_feifei_training_hall": "assets/bg/event_feifei_training_hall.webp",
-  "bg/event_feifei_weapon_rack": "assets/bg/event_feifei_weapon_rack.webp"
+  "bg/event_feifei_weapon_rack": "assets/bg/event_feifei_weapon_rack.webp",
+  "bg/event_feifei_daxia_teach.previous-20260912": "assets/bg/event_feifei_daxia_teach.previous-20260912.webp"
  }
 }
