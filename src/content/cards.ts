@@ -191,9 +191,17 @@ export const cards: readonly CardDef[] = [
    */
   { id: 'xianbangniliuzhe', name: '先幫你留著', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self',
     art: 'card/xianbangniliuzhe', coop: true, hidden: true,
-    // 同伴那 6 點排到**下一輪開始、舊蜷縮清掉之後**才發，不然給了就被歸零
-    effects: [{ kind: 'block', amount: 6 }, { kind: 'blockAllyNextRound', amount: 6 }],
-    upgrade: { effects: [{ kind: 'block', amount: 6 }, { kind: 'blockAlly', amount: 4 }, { kind: 'blockAllyNextRound', amount: 6 }] } },
+    /*
+     * **2026-09-13 使用者要求：不要跨回合。** 原本是「同伴下一輪開始才拿到 6 點」，
+     * 那種「這一輪做的事下一輪才生效」很難算。改成當場就給。
+     *
+     * 給的量刻意做成**不平均**（自己 4、同伴 8），才不會跟既有那兩張撞：
+     *   分你一半＝每人各 5（平均分）　你拿去擋＝同伴 12、自己 0（全給對方）
+     *   這一張＝中間那個點，自己留一點、大部分給對方。
+     * 總量 12 點跟你拿去擋一樣，差別在怎麼分。
+     */
+    effects: [{ kind: 'block', amount: 4 }, { kind: 'blockAlly', amount: 8 }],
+    upgrade: { effects: [{ kind: 'block', amount: 6 }, { kind: 'blockAlly', amount: 10 }] } },
   { id: 'nimangwobuwei', name: '你忙我補位', cost: 1, type: 能, rarity: '稀有', pool: '絕學', target: 'self',
     art: 'card/nimangwobuwei', coop: true, hidden: true,
     effects: [{ kind: 'watchAllyPlay', cardType: '技能' }],
@@ -201,12 +209,15 @@ export const cards: readonly CardDef[] = [
   { id: 'fantuanliuyikou', name: '飯糰留一口', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self',
     art: 'card/fantuanliuyikou', coop: true, hidden: true,
     /*
-     * **已知的設計問題，使用者 2026-09-13 明示先照原樣做**：沒用完的飯糰本來
-     * 回合結束就會消失，所以「扣 1 顆」不是真的代價，這張等於每輪白給同伴 1 顆。
-     * 實玩之後要調的話，兩個方向：改成「這輪至少剩 2 顆才觸發」，或改成扣自己下一輪的。
+     * **2026-09-13 使用者要求：不要跨回合。** 原本是「這一輪結束扣自己 1 顆、
+     * 同伴下一輪才拿到」，改成「每一輪開始時同伴直接多 1 顆」——
+     * 值在同伴自己的回合開始那一刻當場算出來，不必記著上一輪排了什麼。
+     *
+     * 順帶解掉一個假代價：原本那個「扣 1 顆」其實不是代價（沒用完的飯糰本來就會消失）。
+     * 現在它單純就是「每輪給同伴 1 顆」，強度看得出來、也好調。
      */
-    effects: [{ kind: 'saveEnergyForAlly' }],
-    upgrade: { effects: [{ kind: 'saveEnergyForAlly', draw: true }] } },
+    effects: [{ kind: 'energyForAllyEachRound' }],
+    upgrade: { effects: [{ kind: 'energyForAllyEachRound', draw: true }] } },
   { id: 'youwozaiqianmian', name: '有我在前面', cost: 1, type: 能, rarity: '稀有', pool: '絕學', hero: 'ninja', target: 'self',
     art: 'card/youwozaiqianmian', coop: true, hidden: true,
     effects: [{ kind: 'watchSelfPlay', cardType: '攻擊' }],

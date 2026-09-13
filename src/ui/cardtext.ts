@@ -126,13 +126,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'drawAllyIfTargetStatus': return `目標在出牌前已經${fx.anyDebuff ? '有任何減益' : `有${fx.name}`}的話，`
       + `同伴抽 ${fx.n} 張牌（自己一個人時算自己的）`;
     case 'transferDebuffsFromAlly': return '把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的）';
-    case 'blockAllyNextRound': return `同伴在下一輪開始時獲得 ${fx.amount} 點蜷縮（自己一個人時算自己的）`;
     case 'watchAllyPlay': return `之後每一輪，同伴第一次打出${fx.cardType === 'any' ? '牌' : '技能牌'}時，自己抽 1 張`;
     case 'watchSelfPlay': return `之後每一輪，自己第一次打出${fx.cardType === 'any' ? '牌' : '攻擊牌'}時，同伴獲得 6 點蜷縮`;
     case 'watchPoisonHit': return `之後每一輪一次，${fx.who === 'both' ? '任一方' : '同伴'}的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮`;
     case 'poisonAllyNextAttack': return `同伴本輪下一張${fx.anyDamage ? '造成傷害的牌' : '攻擊牌'}，`
       + `對每隻被打到的魔物各施加 ${fx.amount} 層中毒（自己一個人時算自己的）`;
-    case 'saveEnergyForAlly': return `之後每一輪結束時，自己還有飯糰就留 1 顆，讓同伴下一輪多 1 顆`
+    case 'energyForAllyEachRound': return `之後每一輪開始時，同伴多 1 顆飯糰`
       + `${fx.draw ? '、並多抽 1 張' : ''}`;
     // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
     case 'ifSelfStatus': return `自己身上有${fx.name}的話，${fx.then.map((e) => one(e, ctx)).join('，')}`

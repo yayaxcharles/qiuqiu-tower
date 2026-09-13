@@ -262,13 +262,6 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     // ---- C 批（2026-09-13）。這幾個只是**設旗標**，真正做事的在 combat.ts ----
-    case 'blockAllyNextRound': {
-      const mate = ally(cs, p);
-      mate.nextRoundBlock = (mate.nextRoundBlock ?? 0) + fx.amount;
-      log(cs, mate === p ? `替下一輪留了 ${fx.amount} 點蜷縮` : `替對方下一輪留了 ${fx.amount} 點蜷縮`);
-      markPassive(p, ctx);
-      return false;
-    }
     case 'watchAllyPlay': p.watchAllyPlay = fx.cardType; markPassive(p, ctx); return false;
     case 'watchSelfPlay': p.watchSelfPlay = fx.cardType; markPassive(p, ctx); return false;
     case 'watchPoisonHit': p.watchPoisonHit = fx.who; markPassive(p, ctx); return false;
@@ -278,8 +271,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       log(cs, mate === p ? '針上補了藥' : '幫對方的針補了藥');
       return false;
     }
-    case 'saveEnergyForAlly':
-      p.saveEnergyForAlly = fx.draw ? 'draw' : 'plain';
+    case 'energyForAllyEachRound':
+      p.energyForAllyEachRound = fx.draw ? 'draw' : 'plain';
       markPassive(p, ctx);
       return false;
     case 'transferDebuffsFromAlly': {

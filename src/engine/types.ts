@@ -153,8 +153,6 @@ export type Effect =
    * ===== 連線支援牌 C 批的六個效果（2026-09-13）=====
    * 共同點：**排到下一輪才發**，或**每輪監聽一次**。狀態欄位見 `PlayerCombat`。
    */
-  /** 先幫你留著：同伴**下一輪開始**時獲得蜷縮（等舊蜷縮清掉之後才發）。一個人時排給自己 */
-  | { kind: 'blockAllyNextRound'; amount: number }
   /** 你忙我補位：之後每輪，同伴第一次打出指定類型的牌並結算完，自己抽 1 張 */
   | { kind: 'watchAllyPlay'; cardType: '技能' | 'any' }
   /** 有我在前面：之後每輪，自己第一次打出指定類型的牌並結算完，同伴獲得 6 點蜷縮 */
@@ -163,8 +161,8 @@ export type Effect =
   | { kind: 'watchPoisonHit'; who: 'ally' | 'both' }
   /** 別碰針尖喔：同伴下一張真的打到人的牌，對每隻被打到的魔物各上毒。一個人時掛自己身上 */
   | { kind: 'poisonAllyNextAttack'; amount: number; anyDamage?: true }
-  /** 飯糰留一口：之後每輪結束，自己還剩飯糰就扣 1 顆，讓同伴下一輪多 1 顆（升級再多抽 1 張） */
-  | { kind: 'saveEnergyForAlly'; draw?: true }
+  /** 飯糰留一口：之後**每一輪開始**時，同伴多 1 顆飯糰（升級再多抽 1 張） */
+  | { kind: 'energyForAllyEachRound'; draw?: true }
   /**
    * 看自己身上有沒有某個狀態，決定跑哪一組效果（2026-09-13 連線支援牌「跟著我躲好」）。
    *
@@ -724,10 +722,6 @@ export interface PlayerCombat extends Unit {
    * 兩類：**排到下一輪才發**的東西，以及**每輪監聽一次**的旗標。
    * 全部存在玩家身上，鎖步兩台各自算出同一份（沒有任何隨機、也沒讀時間）。
    */
-  /** 先幫你留著：下一輪開始時給的蜷縮。**在舊蜷縮清掉之後才發**，不然給了就被歸零 */
-  nextRoundBlock?: number;
-  /** 飯糰留一口：下一輪開始時多給的飯糰。排在 `p.energy` 設好之後才加 */
-  nextRoundEnergy?: number;
   /**
    * 你忙我補位：看**同伴**打牌，每輪第一次符合就抽 1 張。
    * `'技能'`＝只認技能牌（基礎版）、`'any'`＝任何牌（升級版）。
@@ -751,13 +745,16 @@ export interface PlayerCombat extends Unit {
    */
   poisonNextAttack?: { amount: number; anyDamage?: true };
   /**
-   * 飯糰留一口：每輪結束時，自己還剩飯糰就扣 1 顆，讓同伴下一輪多 1 顆。
-   * `'draw'`＝同伴下一輪還多抽 1 張（升級版）。
+   * 飯糰留一口：之後**每一輪開始**時，同伴多 1 顆飯糰。`'draw'`＝再多抽 1 張（升級版）。
    *
-   * **使用者已知並接受**（2026-09-13）：沒用完的飯糰本來回合結束就會消失，
-   * 所以「扣 1 顆」實際上不是代價，這張等於每輪白給同伴 1 顆。先照交辦單做，實玩再看。
+   * **2026-09-13 使用者要求改掉跨回合的寫法**：原本是「這一輪結束扣自己 1 顆、
+   * 同伴下一輪才拿到」，那種「這一輪做的事下一輪才生效」很難算。
+   * 改成在**同伴自己的回合開始當下**直接讀「有沒有人掛著這個能力」再給——
+   * 值是當場算出來的，不用記著上一輪排了什麼。
+   *
+   * 順帶解掉一個假代價：原本「扣 1 顆」其實不是代價（沒用完的飯糰本來就會消失）。
    */
-  saveEnergyForAlly?: 'plain' | 'draw';
+  energyForAllyEachRound?: 'plain' | 'draw';
   noAttacks: boolean;
   immune: boolean;
   attackedThisTurn: boolean;

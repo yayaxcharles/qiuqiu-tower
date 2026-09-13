@@ -79,31 +79,37 @@ describe('C 批六張：規格對得上交辦單', () => {
   });
 });
 
-describe('先幫你留著：下一輪才發，而且發得到', () => {
-  it('這一輪自己 6 點；同伴這一輪沒有，下一輪才有', () => {
+/*
+ * 2026-09-13 使用者要求把跨回合的寫法改掉（「不要拖到下回合，會不好計算」）。
+ * 這張改成**當場就給**，而且刻意分得不平均，才不會跟既有那兩張撞：
+ *   分你一半＝每人各 5　你拿去擋＝同伴 12 自己 0　這一張＝自己 4、同伴 8
+ */
+describe('先幫你留著：當場就給，分得不平均', () => {
+  it('自己 4、同伴 8，都是這一輪就拿到', () => {
     const { cs, me, mate } = combat();
     play(cs, me, 'xianbangniliuzhe');
-    expect(me.block, '自己立刻 6 點').toBe(6);
-    expect(mate.block, '同伴這一輪還沒有').toBe(0);
-    nextRound(cs);
-    expect(mate.block, '下一輪開始才給——而且要在舊蜷縮清掉之後給，不然會被歸零').toBe(6);
+    expect(me.block, '自己 4 點').toBe(4);
+    expect(mate.block, '同伴 8 點，不用等下一輪').toBe(8);
   });
 
-  it('升級版：同伴現在也拿 4，下一輪再拿 6', () => {
+  it('升級版：自己 6、同伴 10', () => {
     const { cs, me, mate } = combat();
     play(cs, me, 'xianbangniliuzhe', undefined, true);
-    expect(mate.block, '現在 4 點').toBe(4);
-    nextRound(cs);
-    expect(mate.block, '下一輪 6 點').toBe(6);
+    expect(me.block).toBe(6);
+    expect(mate.block).toBe(10);
   });
 
-  it('只發一次，不會每輪都給', () => {
+  it('不會拖到下一輪才發（跨回合的寫法已經拿掉）', () => {
     const { cs, me, mate } = combat();
     play(cs, me, 'xianbangniliuzhe');
     nextRound(cs);
-    expect(mate.block).toBe(6);
-    nextRound(cs);
-    expect(mate.block, '再下一輪不該又冒出來').toBe(0);
+    expect(mate.block, '下一輪不該又冒出一份').toBe(0);
+  });
+
+  it('一個人：兩份都算在自己身上', () => {
+    const { cs, me } = combat(false);
+    play(cs, me, 'xianbangniliuzhe');
+    expect(me.block, '4 ＋ 8').toBe(12);
   });
 });
 
@@ -244,33 +250,43 @@ describe('我有先備好：攻擊打中原本就中毒的魔物', () => {
   });
 });
 
-describe('飯糰留一口：留一顆給同伴的下一輪', () => {
-  it('回合結束還有飯糰 → 扣 1、同伴下一輪多 1', () => {
+/*
+ * 2026-09-13 使用者要求改掉跨回合的寫法。現在是「**每一輪開始**時同伴多 1 顆」——
+ * 值在同伴自己的回合開始那一刻當場讀「有沒有人掛著這個能力」算出來，
+ * 不必記著上一輪排了什麼。順帶解掉原本那個假代價（沒用完的飯糰本來就會消失）。
+ */
+describe('飯糰留一口：每一輪開始給同伴一顆', () => {
+  it('每一輪都給，不是只給一次', () => {
     const { cs, me, mate } = combat();
     play(cs, me, 'fantuanliuyikou');
-    me.energy = 3;
     const base = mate.maxEnergy;
     nextRound(cs);
-    expect(mate.energy, '同伴下一輪多 1 顆').toBe(base + 1);
+    expect(mate.energy, '第一輪 +1').toBe(base + 1);
+    nextRound(cs);
+    expect(mate.energy, '第二輪也要 +1').toBe(base + 1);
   });
 
-  it('飯糰用完就不發動', () => {
+  it('不看自己剩多少飯糰（已經不是「留下來的那顆」了）', () => {
     const { cs, me, mate } = combat();
     play(cs, me, 'fantuanliuyikou');
     me.energy = 0;
     const base = mate.maxEnergy;
     nextRound(cs);
-    expect(mate.energy, '自己沒剩就不該給').toBe(base);
+    expect(mate.energy, '自己用完了照樣給').toBe(base + 1);
   });
 
-  it('升級版：同伴下一輪還多抽 1 張', () => {
+  it('升級版：同伴每輪還多抽 1 張', () => {
     const { cs, me, mate } = combat();
     play(cs, me, 'fantuanliuyikou', undefined, true);
-    me.energy = 3;
-    // 比「有沒有多抽一張」用 `drawNextTurn` 判最穩：直接數抽牌堆會被洗牌與手牌上限干擾
-    expect(mate.drawNextTurn, '升級版要替同伴排一張').toBe(0);
     nextRound(cs);
-    expect(mate.drawNextTurn, '發完就歸零').toBe(0);
     expect(mate.hand.length, '基本 5 張 ＋ 多的 1 張').toBe(6);
+  });
+
+  it('一個人：找不到同伴，什麼都不發生', () => {
+    const { cs, me } = combat(false);
+    play(cs, me, 'fantuanliuyikou');
+    const base = me.maxEnergy;
+    nextRound(cs);
+    expect(me.energy, '不該給自己').toBe(base);
   });
 });

@@ -731,20 +731,20 @@
   "combatOnly": false,
   "kinds": [
    "block",
-   "blockAllyNextRound"
+   "blockAlly"
   ],
   "effects": [
    {
     "kind": "block",
-    "amount": 6
+    "amount": 4
    },
    {
-    "kind": "blockAllyNextRound",
-    "amount": 6
+    "kind": "blockAlly",
+    "amount": 8
    }
   ],
-  "text": "獲得 6 點蜷縮，同伴在下一輪開始時獲得 6 點蜷縮（自己一個人時算自己的）。",
-  "up": "獲得 6 點蜷縮，同伴獲得 4 點蜷縮（自己一個人時算在自己身上），同伴在下一輪開始時獲得 6 點蜷縮（自己一個人時算自己的）。"
+  "text": "獲得 4 點蜷縮，同伴獲得 8 點蜷縮（自己一個人時算在自己身上）。",
+  "up": "獲得 6 點蜷縮，同伴獲得 10 點蜷縮（自己一個人時算在自己身上）。"
  },
  {
   "id": "nimangwobuwei",
@@ -781,15 +781,15 @@
   "hidden": true,
   "combatOnly": false,
   "kinds": [
-   "saveEnergyForAlly"
+   "energyForAllyEachRound"
   ],
   "effects": [
    {
-    "kind": "saveEnergyForAlly"
+    "kind": "energyForAllyEachRound"
    }
   ],
-  "text": "之後每一輪結束時，自己還有飯糰就留 1 顆，讓同伴下一輪多 1 顆。",
-  "up": "之後每一輪結束時，自己還有飯糰就留 1 顆，讓同伴下一輪多 1 顆、並多抽 1 張。"
+  "text": "之後每一輪開始時，同伴多 1 顆飯糰。",
+  "up": "之後每一輪開始時，同伴多 1 顆飯糰、並多抽 1 張。"
  },
  {
   "id": "youwozaiqianmian",

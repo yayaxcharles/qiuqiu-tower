@@ -196,14 +196,19 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   if (iron > 0) { removeStatus(p, '鐵布衫'); gainBlock(cs, p, iron); }   // 走 gainBlock：跟牌上其他蜷縮一樣吃貓步（稽核 低-1）
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnEnergy') : 0);
   /*
-   * 連線支援牌排到這一輪的東西（2026-09-13）。**位置有講究**：
-   *   - 飯糰要排在上面那行**之後**，不然剛給就被回滿蓋掉
-   *   - 蜷縮要排在「舊蜷縮清掉」**之後**。舊蜷縮不是在這裡清的，是上一輪
-   *     `endTurn` 尾端照守護符留量修剪的（見那邊的註解），所以這裡已經是清乾淨的狀態
-   * 兩個都是給完就歸零，不會累積到再下一輪。
+   * 飯糰留一口（2026-09-13）：**當場讀**有沒有同伴掛著這個能力，不是去領上一輪排好的東西。
+   *
+   * 使用者要求把跨回合的寫法改掉：「這一輪做的事下一輪才生效」很難算。
+   * 現在值是在**你自己的回合開始那一刻**從場上的狀態算出來的，
+   * 不必記著上一輪誰排了什麼，兩台鎖步也少一份要同步的暫存。
+   * 排在 `p.energy = p.maxEnergy` 之後，不然剛給就被回滿蓋掉。
    */
-  if (p.nextRoundEnergy) { p.energy += p.nextRoundEnergy; cs.energyGain += p.nextRoundEnergy; p.nextRoundEnergy = 0; }
-  if (p.nextRoundBlock) { gainBlock(cs, p, p.nextRoundBlock); log(cs, `上一輪留下來的 ${p.nextRoundBlock} 點蜷縮到了`); p.nextRoundBlock = 0; }
+  for (const o of cs.players) {
+    if (o === p || o.down || !o.energyForAllyEachRound) continue;
+    p.energy += 1; cs.energyGain += 1;
+    if (o.energyForAllyEachRound === 'draw') p.drawNextTurn += 1;
+    log(cs, `${unitName(o)}留的那口飯糰，${unitName(p)}拿到了`);
+  }
   // 每輪監聽的次數重置。**只在這裡清**——不能因為對方出牌、按結束、撤回或畫面重繪就重置
   p.firedAllyPlay = undefined; p.firedSelfPlay = undefined; p.firedPoisonHit = undefined;
   p.poisonNextAttack = undefined;   // 待觸發的附毒不跨輪
@@ -497,24 +502,6 @@ function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   if (!p.attackedThisTurn) {
     for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnEndNoAttack; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
     for (const pw of p.powers) if (pw.trigger === 'turnEndNoAttack') applyEffects(cs, pw.effects, { self: p, source: 'power' });
-  }
-  /*
-   * 飯糰留一口（連線支援牌 2026-09-13）：自己還剩飯糰就扣 1 顆，讓同伴下一輪多 1 顆。
-   *
-   * 排在**這個人的回合結束**，不是「兩個人都按了結束」——這支本來就是一位一位跑的，
-   * 而「同一份預留只發放一次」靠的是它掛在自己身上、一輪只跑一次自己的 `endTurn`。
-   *
-   * **已知的設計問題**（使用者 2026-09-13 明示接受）：沒用完的飯糰本來就會消失，
-   * 所以這個「扣」不是真的代價，等於每輪白給同伴 1 顆。先照交辦單做，實玩再調。
-   */
-  if (p.saveEnergyForAlly && p.energy >= 1) {
-    const mate = cs.players.find((o) => o !== p && !o.down);
-    if (mate) {
-      p.energy -= 1;
-      mate.nextRoundEnergy = (mate.nextRoundEnergy ?? 0) + 1;
-      if (p.saveEnergyForAlly === 'draw') mate.drawNextTurn += 1;
-      log(cs, `${unitName(p)}留了一口飯糰給${unitName(mate)}`);
-    }
   }
   // 只限本回合的能力到這裡就過期。放在「沒出攻擊牌」的結算之後：
   // 那一段也會觸發能力，先讓它算完再清，不然本回合最後一次會少算。

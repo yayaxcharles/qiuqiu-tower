@@ -429,12 +429,11 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
        *   - 附毒與延後蜷縮單人時退化成給自己，照它給的量估
        *   - 飯糰留一口單人時**完全不發動**（找不到同伴），所以是 0
        */
-      case 'blockAllyNextRound': value += fx.amount * 0.8; break;   // 晚一輪才拿到，打個折
       case 'watchAllyPlay': value += rest * 3 * 0.9; break;         // 每輪抽 1 張
       case 'watchSelfPlay': value += rest * 6 * 0.9; break;         // 每輪 6 點蜷縮
       case 'watchPoisonHit': value += rest * 4 * 0.7; break;        // 每輪 4 點，但要湊中毒的條件
       case 'poisonAllyNextAttack': value += fx.amount * 2; break;   // 2 層毒≒3 點傷害，再給點餘裕
-      case 'saveEnergyForAlly': break;                              // 單人時完全不發動
+      case 'energyForAllyEachRound': break;                         // 單人時完全不發動
       case 'transferDebuffsFromAlly':
         // 單人時等同 `transferDebuffs`，照它的係數
         value += (getStatus(p, '中毒') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5;
