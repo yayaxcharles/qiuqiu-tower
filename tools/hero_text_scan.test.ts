@@ -34,12 +34,21 @@ function walk(dir: string): string[] {
  */
 const load = (ps: string[]) => ps.map((p) => ({ p, src: readFileSync(p, 'utf-8') }));
 /** 牌名那條要掃到引擎：`engine/run.ts` 的「撿到了…」就是在那裡漏的 */
-const files = load([...walk('src/ui'), ...walk('src/engine'), ...walk('src/content')]);
+/**
+ * **除錯畫面不掃**（2026-09-14）。
+ *
+ * `src/ui/screens/debug.ts` 是給作者自己逐一檢查素材用的工具畫面，
+ * 它的頁籤與說明**本來就要寫出**「磨爪」「喵」這些詞（它就是在展示這些東西的差異），
+ * 不是講給玩家聽的角色台詞。掃進去只會一直誤報。
+ */
+// 只比檔名：Windows 的路徑分隔是反斜線，寫成 'screens/debug.ts' 會對不上
+const DEBUG_SCREEN = 'debug.ts';
+const files = load([...walk('src/ui').filter((f) => !f.endsWith(DEBUG_SCREEN)), ...walk('src/engine'), ...walk('src/content')]);
 /**
  * 「喵」與「磨爪」那兩條**只掃畫面層**：`src/content` 裡是球球自己的台詞與牌名，
  * 本來就該有喵、本來就叫磨爪石，掃進去只會一直誤報。
  */
-const uiFiles = load(walk('src/ui'));
+const uiFiles = load(walk('src/ui').filter((f) => !f.endsWith(DEBUG_SCREEN)));
 
 /**
  * 這些 `def.name` **不是牌名**，所以不必過 `cardNameFor`：
