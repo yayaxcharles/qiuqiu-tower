@@ -1492,3 +1492,53 @@
 .lobby-hero-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
 .lobby-hero-row b { flex: 0 0 88px; text-align: right; color: #ffd98a; }
 .lobby-hero-row .btn.selected { outline: 3px solid #ffd35c; box-shadow: 0 0 0 3px #ffd35c40; }
+
+/* ===== 除錯模式（2026-09-14 使用者要求，標題畫面輸入 mimi36985 進入）=====
+   把事件文字與插圖、牌面、台詞、立繪一次攤開檢查，可以切球球／菲菲對照。
+   刻意做成整片可捲的清單而不是一頁一頁翻：要找的就是「哪一張不對」，
+   一次看得到越多越快。 */
+.debug-screen {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  background: #16131a; color: #efe6d6; font-size: 13px;
+}
+.debug-screen .dbg-bar {
+  display: flex; align-items: center; gap: 8px; flex: none;
+  padding: 8px 12px; border-bottom: 1px solid #ffffff22; background: #1f1a26;
+}
+.debug-screen .dbg-title { font-weight: 900; color: #ffd35c; margin-right: 6px; }
+.debug-screen .dbg-sep { opacity: .4; }
+.debug-screen .dbg-tab.on { background: #ffd35c; color: #2b2013; border-color: #ffd35c; font-weight: 800; }
+.debug-screen .dbg-close { margin-left: auto; }
+.debug-screen .dbg-body { flex: 1; overflow-y: auto; padding: 12px 16px 40px; }
+.debug-screen .dbg-note { opacity: .75; margin: 0 0 10px; }
+.debug-screen h3 { margin: 18px 0 8px; color: #ffd35c; font-size: 15px; }
+.debug-screen .dbg-tag {
+  margin-left: 8px; padding: 1px 7px; border-radius: 10px; font-size: 11px;
+  background: #ffffff1a; color: #cbbfae; font-weight: normal;
+}
+.debug-screen .dbg-warn { color: #ff8a8a; margin-left: 8px; font-weight: 700; }
+.debug-screen .dbg-event { border-top: 1px solid #ffffff1a; padding-top: 6px; }
+.debug-screen .dbg-choice { margin: 6px 0 6px 18px; padding-left: 10px; border-left: 2px solid #ffffff1a; }
+.debug-screen .dbg-row { display: flex; gap: 12px; align-items: flex-start; }
+.debug-screen .dbg-text { flex: 1; min-width: 0; }
+.debug-screen .dbg-text p { margin: 2px 0; line-height: 1.6; }
+/* 插圖：固定寬度好對齊，缺圖畫成紅框，一眼看得出來是「沒有」不是「沒載到」 */
+.debug-screen .dbg-shot { flex: none; width: 260px; }
+.debug-screen .dbg-shot img { width: 100%; border-radius: 6px; display: block; background: #0c0a10; }
+.debug-screen .dbg-missing {
+  width: 100%; aspect-ratio: 4 / 3; border: 2px dashed #ff6b6b; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; color: #ff8a8a;
+}
+.debug-screen .dbg-noart { width: 260px; opacity: .45; }
+.debug-screen .dbg-cap { margin-top: 2px; opacity: .8; }
+.debug-screen code { font-size: 11px; color: #9fd0ff; word-break: break-all; }
+.debug-screen .dbg-cards { display: flex; flex-wrap: wrap; gap: 14px; }
+.debug-screen .dbg-pair { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 260px; }
+.debug-screen .dbg-pair > div:first-child,
+.debug-screen .dbg-pair > div:nth-child(2) { display: inline-block; }
+.debug-screen .dbg-poses { display: flex; flex-wrap: wrap; gap: 12px; }
+.debug-screen .dbg-poses .dbg-shot { width: 150px; }
+/* 退回別人那張的用灰底標出來：那代表這位角色**沒有**自己的那個姿勢 */
+.debug-screen .dbg-fallback img { filter: grayscale(.65); outline: 2px solid #8a7a55; }
+.debug-screen .dbg-lines { margin-bottom: 10px; }
+.debug-screen .dbg-line { padding: 3px 0; border-bottom: 1px solid #ffffff0f; line-height: 1.6; }

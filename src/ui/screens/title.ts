@@ -48,7 +48,15 @@ registerScreen('title', (app, root) => {
     diffBtns.push(b);
   }
   refreshDiff();
+  /**
+   * 除錯模式的暗號（2026-09-14 使用者指定）。在這個欄位打  再按開始，
+   * 就進到除錯畫面——把事件文字與插圖、牌面、台詞、立繪一次攤開，可以切角色對照。
+   *
+   * 刻意藏在既有欄位裡、不做成按鈕：那是給使用者自己檢查用的，不是遊戲的一部分。
+   */
+  const DEBUG_CODE = 'mimi36985';
   startBtn.addEventListener('click', () => {
+    if (seed.value.trim().toLowerCase() === DEBUG_CODE) { app.show('debug'); return; }
     if (!isShare()) { app.show('heroselect', { seed: seed.value, difficulty: level }); return; }
     // 解壓縮是非同步的：先鎖住按鈕，免得連點兩次載入兩份
     startBtn.setAttribute('disabled', 'disabled');

@@ -22,6 +22,8 @@ import './ui/screens/shop';
 import './ui/screens/title';
 import './ui/screens/heroselect';
 import './ui/screens/lobby';
+// 除錯模式（標題畫面輸入 mimi36985 進去）：把事件／牌／台詞／立繪一次攤開檢查，見那支的檔頭
+import './ui/screens/debug';
 
 async function boot(): Promise<void> {
   await loadManifest();
