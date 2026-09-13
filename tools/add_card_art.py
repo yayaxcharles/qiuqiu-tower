@@ -25,6 +25,7 @@ from pathlib import Path
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from add_event_art import despill_all  # noqa: E402
 from chroma_key import CARD_BAND, CARD_HARD, CARD_SOFT, key_out  # noqa: E402
 from manifest_io import merge  # noqa: E402
 
@@ -60,6 +61,10 @@ def main() -> None:
     # 所以門檻要能逐批調。她的牌面刻意一點綠都沒有（毒畫成紫或芥末黃），放低很安全。
     ap.add_argument("--soft", type=int, default=CARD_SOFT, help=f"綠度 ≤ 這個值＝完全不透明（預設 {CARD_SOFT}）")
     ap.add_argument("--hard", type=int, default=CARD_HARD, help=f"綠度 ≥ 這個值＝完全透明（預設 {CARD_HARD}）")
+    # 2026-09-14：柔光特效（亮黃拳影、飯糰的光、毛球外圈）沒畫外框，黃光暈進綠幕的那一圈
+    # 去綠邊只掃得到貼著透明區的 3 像素，掃不到的留成螢光綠。整張壓綠跟 add_event_art.py
+    # 的 --strict 同一支；**只給畫面裡本來就沒有綠色東西的牌用**，有草藥、翠玉的會被壓成土色
+    ap.add_argument("--despill", action="store_true", help="整張把綠壓掉（畫面裡沒有綠色物件的牌才用）")
     args = ap.parse_args()
 
     base_path = OUT / "cards" / "card" / f"{args.baseline}.webp"
@@ -81,6 +86,8 @@ def main() -> None:
             continue
         cid = src.stem[len("card_"):] if src.stem.startswith("card_") else src.stem
         keyed = key_out(Image.open(src), args.soft, args.hard, CARD_BAND)
+        if args.despill:
+            keyed = despill_all(keyed)
         canvas = cover(keyed, target)
         dst = OUT / "cards" / "card" / f"{cid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
