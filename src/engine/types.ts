@@ -24,7 +24,19 @@ export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', 
 // （魔物身上的定身不走這條——那邊是「出招時消耗」，在 endTurn 的攻擊判定裡處理）
 export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '定身'];
 
-export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack';
+/**
+ * `passive` 是**只為了讓它出現在狀態列**的觸發點（2026-09-13 使用者回報）。
+ *
+ * 影子分身、千針萬毒、見血封喉、鐵布衫這四張把效果存成角色身上的旗標
+ *（`echoFirst`／`poisonOnAttack`／`poisonBurst`／`blockBonus`），不是 `kind: 'power'`，
+ * 所以 `p.powers` 收不到它們——狀態列那排「生效中的能力牌」就完全看不到，
+ * 玩家打完之後身上沒有任何東西告訴他這張牌還在。
+ *
+ * 掛成 `passive` 之後，`statusRow` 照樣認得（它只看 `cardId`），而
+ * `turnStart`／`turnEndNoAttack` 那兩個迴圈是按觸發點篩的，`passive` 永遠不會被跑到，
+ * 所以效果不會多跑一次。`effects` 一律留空，真正的效果在旗標那邊。
+ */
+export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack' | 'passive';
 
 export type Effect =
   | { kind: 'damage'; amount: number; times?: number; ignoreBlock?: boolean; scaleWithCombo?: boolean; comboCap?: number; target?: 'enemy' | 'all'; ifTargetDebuffed?: boolean }

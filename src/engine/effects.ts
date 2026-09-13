@@ -36,6 +36,29 @@ function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
 }
 
 /** 回傳 true＝已暫停等待選牌 */
+/**
+ * 把「效果存在角色旗標上」的那幾張能力牌掛進 `p.powers`，**只為了讓它出現在狀態列**
+ *（2026-09-13 使用者回報：「我身上下方也沒有出現影子分身的圖示」）。
+ *
+ * 影子分身、千針萬毒、見血封喉、鐵布衫走的是 `echoFirst`／`poisonOnAttack`／
+ * `poisonBurst`／`blockBonus` 這幾個旗標，不是 `kind: 'power'`，所以
+ * `p.powers` 一直是空的——打完之後身上沒有任何東西告訴玩家這張牌還在生效。
+ * 這跟使用者 2026-09-03 提過的「爪力的確有加，但我不知道是哪張牌的效果」是同一件事。
+ *
+ * `trigger: 'passive'` 不在任何觸發迴圈的篩選裡，所以掛上去不會讓效果多跑一次；
+ * `effects` 留空，真正的效果在旗標那邊。同一張打第二次就疊數字（`statusRow` 自己數）。
+ *
+ * **不是牌打出來的就不掛**（秘寶、魔物給的）：沒有 `cardId` 的話狀態列查不到牌，
+ * 掛上去只會是一個沒有名字的空牌子。
+ */
+function markPassive(p: PlayerCombat, ctx: EffectCtx): void {
+  if (!ctx.cardId) return;
+  p.powers.push({
+    trigger: 'passive', effects: [],
+    cardId: ctx.cardId, ...(ctx.cardUpgraded ? { upgraded: true } : {}),
+  });
+}
+
 export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Effect[]): boolean {
   /*
    * **這一串效果是誰引發的**（連線版第一步 2026-09-11）。
@@ -341,10 +364,10 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
      * 牌組裡同時有升級版與沒升級的時候，先打升級的、再打沒升的，會把自己降回去——
      * 玩家只會覺得「我打了一張牌然後變弱了」，而紀錄框什麼都不會說。
      */
-    case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; return false;
-    case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; return false;
-    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; return false;
-    case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; return false;
+    case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; markPassive(p, ctx); return false;
+    case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; markPassive(p, ctx); return false;
+    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx); return false;
+    case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; markPassive(p, ctx); return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }
