@@ -136,9 +136,11 @@ export function localHero(): string { return localHeroId; }
  * 畫面上的牌永遠是**本機這一位自己的**——手牌、牌組一覽、獎勵、罐頭鋪、圖鑑都是。
  * 連線時看不到同伴的手牌，所以不會有「兩個人的牌同框」的情況。
  */
-export function cardArtKey(baseKey: string): string {
-  if (localHeroId === 'ninja') return baseKey;
-  const mine = baseKey.replace(/^card\//, `card/${localHeroId}_`);
+export function cardArtKey(baseKey: string, hero?: string): string {
+  // `hero` 只有卡牌圖鑑會填（那裡可以在標題畫面切角色看），其餘一律用這一局的那位
+  const who = hero ?? localHeroId;
+  if (who === 'ninja') return baseKey;
+  const mine = baseKey.replace(/^card\//, `card/${who}_`);
   return manifest.cards[mine] !== undefined ? mine : baseKey;
 }
 

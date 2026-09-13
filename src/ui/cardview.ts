@@ -15,6 +15,14 @@ export interface CardViewOpts {
   disabled?: boolean;
   /** 分身術這場已經打過幾次（`cs.cardPlays`）：牌面要印這次實際打幾點 */
   plays?: number;
+  /**
+   * 用**誰**的圖與牌名畫（不填＝這一局玩的那位）。
+   *
+   * 只有卡牌圖鑑在用：從標題畫面開圖鑑時還沒開局，`localHero()` 一律回球球，
+   * 於是整本圖鑑都是他的圖——而那正是最需要「開局前先看看這角色有什麼牌」的時候
+   *（2026-09-13 使用者從標題畫面開，看到雙人牌全是球球的圖）。
+   */
+  hero?: string;
 }
 
 /** 畫一張牌：費用、圖、名字、規則文字（名詞會自動變成可提示的）、牌型 */
@@ -57,8 +65,8 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
 
   const node = el('div', { class: cls.join(' ') },
     el('div', { class: costDown ? 'card-cost cost-down' : 'card-cost' }, String(cost)),
-    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art)), alt: def.name, draggable: 'false' }),
-    el('div', { class: 'card-name' }, cardNameFor(def, localHero()) + (upgraded ? '＋' : '')),
+    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero)), alt: def.name, draggable: 'false' }),
+    el('div', { class: 'card-name' }, cardNameFor(def, opts.hero ?? localHero()) + (upgraded ? '＋' : '')),
     el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),
     el('div', { class: 'card-type' }, def.type));
 
