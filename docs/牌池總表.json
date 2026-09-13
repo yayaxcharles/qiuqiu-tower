@@ -4122,16 +4122,15 @@
   "effects": [
    {
     "kind": "damageByStatus",
-    "name": "中毒",
-    "consume": true
+    "name": "中毒"
    },
    {
     "kind": "block",
     "amount": 3
    }
   ],
-  "text": "造成等同目標中毒層數的傷害，然後把中毒清掉，獲得 3 點蜷縮。",
-  "up": "造成等同目標中毒層數的傷害，獲得 3 點蜷縮。"
+  "text": "造成等同目標中毒層數的傷害，獲得 3 點蜷縮。",
+  "up": "造成等同目標中毒層數2 倍的傷害，獲得 3 點蜷縮。"
  },
  {
   "id": "feifei_banxian",

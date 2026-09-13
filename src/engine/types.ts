@@ -73,10 +73,14 @@ export type Effect =
    */
   | { kind: 'echoFirst' }
   /**
-   * 傷害＝目標身上這個狀態的層數（見血封喉：把毒一次引爆）。
-   * `consume` ＝打完把層數清掉（基礎版會清，升級版不清）。
+   * 造成「目標身上這個狀態的層數」的傷害（見血封喉：把毒一次引爆）。`mul` 是倍率（不填＝1 倍）。
+   *
+   * `consume`（打完把層數清掉）**現在沒有牌在用**，留著給以後：2026-09-14 使用者
+   * 看了見血封喉的基礎版之後拿掉的——清毒等於把 N(N+1)/2 的未來傷害換成 N，
+   * 毒疊到 8 層時是拿 36 換 8，而且升級版只是「不清毒」，等於升級只在解除懲罰、
+   * 基礎版在任何情況下都不會比升級版好。
    */
-  | { kind: 'damageByStatus'; name: StatusName; consume?: boolean }
+  | { kind: 'damageByStatus'; name: StatusName; consume?: boolean; mul?: number }
   /** 層數 ≥ 目標現在的生命就直接打倒（一針斃命） */
   | { kind: 'execByStatus'; name: StatusName }
   /**

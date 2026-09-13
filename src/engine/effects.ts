@@ -452,13 +452,18 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * 把毒一次引爆（見血封喉）。
        *
        * 傷害用的是**打之前**的層數，而且刻意走 `direct: true`——毒本來就是無視蜷縮的，
-       * 引爆它還被蜷縮擋住講不通。基礎版打完把層數清掉（一次性的爆發），
-       * 升級版留著（毒繼續滾）——那才是那張牌真正值得升級的地方。
+       * 引爆它還被蜷縮擋住講不通。
+       *
+       * **基礎版不再清毒**（2026-09-14 使用者裁定）。原本基礎版打完把層數清掉，
+       * 升級版留著；問題是清毒等於把 N(N+1)/2 的未來傷害換成 N——毒疊到 8 層是拿 36 換 8，
+       * 而且升級只是「不清毒」，所以基礎版在任何情況下都不會比升級版好，
+       * 升級變成純粹解除懲罰。現在基礎版就是不清，升級版改成**傷害翻倍**。
        */
+      const mul = fx.mul ?? 1;
       for (const t of targetsOf(cs, ctx, false)) {
         const n = getStatus(t, fx.name);
         if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
-        if (damageEnemy(cs, t, n, { direct: true, by: p }).killed) ctx.killed = true;
+        if (damageEnemy(cs, t, n * mul, { direct: true, by: p }).killed) ctx.killed = true;
         if (fx.consume) removeStatus(t, fx.name);
       }
       return false;

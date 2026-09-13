@@ -116,21 +116,29 @@ describe('菲菲：中毒', () => {
     expect(solo.log.some((l) => l.includes('旁邊沒有別的魔物'))).toBe(true);
   });
 
-  it('見血封喉：打出等同層數的傷害，基礎版打完把毒清掉、升級版留著', () => {
+  /*
+   * **基礎版不清毒、升級版傷害翻倍**（2026-09-14 使用者裁定）。
+   *
+   * 舊版是基礎版打完清毒、升級版留著。使用者玩到之後說「清掉毒不太合理或有點太弱」——
+   * 清毒等於把 N(N+1)/2 的未來傷害換成 N（毒疊到 8 層是拿 36 換 8），
+   * 而且升級只是「不清毒」，所以基礎版在任何情況下都不會比升級版好，
+   * 升級變成純粹解除懲罰、不是加東西。
+   */
+  it('見血封喉：基礎版打等同層數且不清毒，升級版打兩倍', () => {
     const base = fight(['feifei_jianxue']);
     addStatus(foe(base), '中毒', 9);
     const bh = foe(base).hp;
     play(base, 'feifei_jianxue');
     expect(bh - foe(base).hp).toBe(9);
-    expect(getStatus(foe(base), '中毒'), '基礎版清掉').toBe(0);
+    expect(getStatus(foe(base), '中毒'), '基礎版也不該清毒').toBe(9);
 
     const up = fight([]);
     up.player.hand = [inst('feifei_jianxue', 1, true)];
     addStatus(foe(up), '中毒', 9);
     const uh = foe(up).hp;
     playCard(up, 1, foe(up).uid);
-    expect(uh - foe(up).hp).toBe(9);
-    expect(getStatus(foe(up), '中毒'), '升級版留著').toBe(9);
+    expect(uh - foe(up).hp, '升級版兩倍').toBe(18);
+    expect(getStatus(foe(up), '中毒'), '升級版一樣留著').toBe(9);
   });
 
   it('見血封喉**無視蜷縮**（引爆毒還被擋住講不通）', () => {
@@ -224,7 +232,9 @@ describe('菲菲：三個長效旗標', () => {
     const before = foe(cs).hp;
     play(cs, 'feifei_jianxue');
     expect(before - foe(cs).hp, '引爆的是打之前的 5 層').toBe(5);
-    expect(getStatus(foe(cs), '中毒'), '清掉之後才補上千針萬毒那 1 層').toBe(1);
+    // 基礎版 2026-09-14 起不清毒，所以是原本的 5 層再加千針萬毒補的 1 層。
+    // 這條盯的重點沒變：**補上的那一層不算進這次的傷害**（不然它會自己餵自己）
+    expect(getStatus(foe(cs), '中毒'), '原本 5 層 ＋ 千針萬毒補的 1 層').toBe(6);
   });
 });
 

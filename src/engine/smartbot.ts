@@ -178,8 +178,9 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       // 蓄力／秘笈在手時「絕學·借力使力」的價值被低估一半，機器人不會挑它、牌價值表也偏低
       swing(computeAttack(p.block * (doubled ? 2 : 1), p, e, { noStrength: true }));
     } else if (fx.kind === 'damageByStatus') {
-      // 見血封喉：把毒一次引爆。引擎走 `direct`，蜷縮擋不住，所以這裡也要 ignoreBlock
-      swing(getStatus(e, fx.name), true);
+      // 見血封喉：把毒一次引爆。引擎走 `direct`，蜷縮擋不住，所以這裡也要 ignoreBlock。
+      // 倍率要算進去（升級版兩倍），不然機器人會低估那張牌、永遠不挑它
+      swing(getStatus(e, fx.name) * (fx.mul ?? 1), true);
     } else if (fx.kind === 'execByStatus') {
       // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
       if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);
@@ -369,7 +370,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'cleanseAlly': value += DEBUFFS.filter((d) => getStatus(p, d) > 0).length * 3; break;
       case 'energyAlly': value += fx.n * 4; break;         // 一顆飯糰約等於一張中等的牌
       // 見血封喉／一針斃命：估的是「目標身上現在有幾層」，沒有目標就估 0
-      case 'damageByStatus': value += target0 ? getStatus(target0, fx.name) * (fx.consume ? 1 : 1.3) : 0; break;
+      // 不清毒的話毒會繼續滾，同樣層數更有價值（1.3）；倍率照乘
+      case 'damageByStatus': value += target0 ? getStatus(target0, fx.name) * (fx.mul ?? 1) * (fx.consume ? 1 : 1.3) : 0; break;
       case 'execByStatus': value += target0 && getStatus(target0, fx.name) >= target0.hp ? target0.hp + 8 : 0; break;
       /*
        * 三個長效旗標：機器人是**單人**在跑，估的是「這一場剩下的回合裡大概值多少」。

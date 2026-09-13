@@ -647,8 +647,8 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '中毒', amount: 2, target: 'all' }] }] } },
   // 會逃跑、會自己散掉的魔物（橘貓山賊、消散那批）對毒流特別難受——這張就是那個場面的解法
   { id: 'feifei_jianxue', name: '見血封喉', cost: 1, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_jianxue',
-    effects: [{ kind: 'damageByStatus', name: '中毒', consume: true }, { kind: 'block', amount: 3 }],
-    upgrade: { effects: [{ kind: 'damageByStatus', name: '中毒' }, { kind: 'block', amount: 3 }] } },
+    effects: [{ kind: 'damageByStatus', name: '中毒' }, { kind: 'block', amount: 3 }],
+    upgrade: { effects: [{ kind: 'damageByStatus', name: '中毒', mul: 2 }, { kind: 'block', amount: 3 }] } },
   // 設計稿寫定身 2／3 層，實作收斂成 1／2：點穴手（罕見 2 費）才給 1 層，這張 1 費給 2 層會直接壓過它
   { id: 'feifei_banxian', name: '絆線', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_banxian',
     effects: [{ kind: 'status', name: '定身', amount: 1, target: 'enemy' }, { kind: 'block', amount: 4 }],
