@@ -412,8 +412,17 @@ export class App {
         const endSlides = endStills(me(run, this.seat).hero).map((img, i) => ({
           img, lines: i === 0 ? vic.slice(0, cut) : vic.slice(cut),
         }));
-        // 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片
-        playVideo('ending', () => {
+        /*
+         * 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片。
+         *
+         * **只有球球有片子**（2026-09-14 使用者：「菲菲打完師傅後還是出現球球的動畫，
+         * 菲菲過關的話動畫得先移除，等以後做好再補上」）。
+         * 那支片子從頭到尾是他的故事，玩菲菲打完師父卻放他的過場，比沒有過場更糟。
+         * 跟開場影片同一個判斷（見上面的 `intro`）——那邊早就擋了，這邊漏掉。
+         * 以後生了她的片子，把這條改成照角色挑檔名就好。
+         */
+        const endVideo = (go: () => void): void => ((me(run, this.seat).hero ?? 'ninja') === 'ninja' ? playVideo('ending', go) : go());
+        endVideo(() => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
           else playDialogue(vic, () => this.show('result'));
         });
