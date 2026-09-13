@@ -102,7 +102,8 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       ? `造成目標${fx.name}層數${({ 2: '兩', 3: '三', 4: '四' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍的傷害`
       : `造成等同目標${fx.name}層數的傷害`)
       + (fx.consume ? `，然後把${fx.name}清掉` : '');
-    case 'execByStatus': return `目標的${fx.name}層數比牠剩下的生命還多的話，直接打倒牠`;
+    // 「不少於」跟引擎一致（`effects.ts` 是層數 ≥ 生命就打倒）：原本寫「比…還多」，剛好相等時牌面說不行、實際會成功（夜間稽核 低-7）
+    case 'execByStatus': return `目標的${fx.name}層數不少於牠剩下的生命的話，直接打倒牠`;
     case 'spreadStatus': return fx.half
       ? `把目標身上的${fx.name}分給其他魔物，各拿一半`
       : `把目標身上的${fx.name}原封不動複製給其他每一隻魔物`;

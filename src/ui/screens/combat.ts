@@ -1,7 +1,7 @@
 import { potionCapacity } from '../../engine/run';
 import { cardById, cardNameFor } from '../../content/cards';
 import { relicById } from '../../content/relics';
-import { dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
+import { castLineFor, dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
@@ -2275,7 +2275,8 @@ registerScreen('combat', (app, root, props) => {
      * 她那一份早就寫好了（`FEIFEI_BOSS_LINES`），但只有走 `playDialogue` 的才會換，
      * 這裡走 `toast`，於是玩菲菲換階段時會冒出「球球：……喵！」。單機也中。
      */
-    const text = (l: { speaker: string; text: string }): string => (l.speaker === '球球' ? lineFor(my().hero, l.text) : l.text);
+    // 塔主講到主角的也要換（波斯大小姐「收拾他」，夜間稽核 中-3）
+    const text = (l: { speaker: string; text: string }): string => (l.speaker === '球球' ? lineFor(my().hero, l.text) : castLineFor(my().hero, l.text));
     // 潤飾版有三句的組（狸大人）：整串照 1.4 秒一句輪播，跟原本兩句的節奏一致
     lines.forEach((l, i) => {
       if (i === 0) { toast(text(l), name(l.speaker)); return; }

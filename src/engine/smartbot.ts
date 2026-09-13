@@ -180,7 +180,8 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
     } else if (fx.kind === 'damageByStatus') {
       // 見血封喉：把毒一次引爆。引擎走 `direct`，蜷縮擋不住，所以這裡也要 ignoreBlock。
       // 倍率要算進去（升級版兩倍），不然機器人會低估那張牌、永遠不挑它
-      swing(getStatus(e, fx.name) * (fx.mul ?? 1), true);
+      // 加倍也要乘，跟 `effects.ts` 同步（夜間稽核 高-1）
+      swing(getStatus(e, fx.name) * (fx.mul ?? 1) * (doubled ? 2 : 1), true);
     } else if (fx.kind === 'execByStatus') {
       // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
       if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);

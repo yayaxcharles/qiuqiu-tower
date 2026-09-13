@@ -62,9 +62,11 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
   const plays = opts.plays ?? 0;
   const changed = upgraded ? upgradedChangedChars(def, plays) : undefined;
   const costDown = upgraded && (def.upgrade.cost ?? def.cost) < def.cost;
+  // 升級反而變貴的也要標（見血封喉＋ 3→4，夜間稽核 低-7）：只標變便宜的話，貓窩預覽時看不出來，升完才發現一般回合打不出來
+  const costUp = upgraded && (def.upgrade.cost ?? def.cost) > def.cost;
 
   const node = el('div', { class: cls.join(' ') },
-    el('div', { class: costDown ? 'card-cost cost-down' : 'card-cost' }, String(cost)),
+    el('div', { class: costDown ? 'card-cost cost-down' : costUp ? 'card-cost cost-up' : 'card-cost' }, String(cost)),
     el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero)), alt: def.name, draggable: 'false' }),
     el('div', { class: 'card-name' }, cardNameFor(def, opts.hero ?? localHero()) + (upgraded ? '＋' : '')),
     el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),

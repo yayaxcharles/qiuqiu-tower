@@ -51,12 +51,14 @@ function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
  * **不是牌打出來的就不掛**（秘寶、魔物給的）：沒有 `cardId` 的話狀態列查不到牌，
  * 掛上去只會是一個沒有名字的空牌子。
  */
-function markPassive(p: PlayerCombat, ctx: EffectCtx): void {
+function markPassive(p: PlayerCombat, ctx: EffectCtx, stacks = false): void {
   if (!ctx.cardId) return;
   // **同一張牌不要疊出兩個牌子**（2026-09-13 稽核 低-2）：被影子分身當本回合第一張
   // 複製時會推兩筆，狀態列就寫「你忙我補位 2」，玩家以為每輪抽 2 張——
   // 而這幾個效果是直接指派不是累加，實際只有一份。
-  if (p.powers.some((pw) => pw.trigger === 'passive' && pw.cardId === ctx.cardId
+  // **累加型的例外**（`stacks`，2026-09-14 夜間稽核 中-12）：拒馬、千針萬毒、影子分身打第二張是真的疊上去，
+  // 去重把它們也擋掉的話，狀態列只寫一張的量，玩家看到的加成比實際少一半
+  if (!stacks && p.powers.some((pw) => pw.trigger === 'passive' && pw.cardId === ctx.cardId
       && !!pw.upgraded === !!ctx.cardUpgraded)) return;
   p.powers.push({
     trigger: 'passive', effects: [],
@@ -459,7 +461,12 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * 而且升級只是「不清毒」，所以基礎版在任何情況下都不會比升級版好，
        * 升級變成純粹解除懲罰。現在基礎版就是不清，升級版改成**傷害翻倍**。
        */
-      const mul = fx.mul ?? 1;
+      /*
+       * **也要吃加倍**（2026-09-14 夜間稽核 高-1）：它是攻擊牌，出牌那一刻秘笈、蓄力、分身油、趁現在出手的
+       * 加倍旗標就被用掉了（`combat.ts` 的 `doubleDamage`），這裡不乘等於白白吃掉——紀錄框還印「秘笈：第一擊加倍」。
+       * 跟 2026-09-10 借力使力漏接是同一個洞，這是後來加的第五個傷害分支。
+       */
+      const mul = (fx.mul ?? 1) * (ctx.doubleDamage ? 2 : 1);
       for (const t of targetsOf(cs, ctx, false)) {
         const n = getStatus(t, fx.name);
         if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
@@ -507,9 +514,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
      * 玩家只會覺得「我打了一張牌然後變弱了」，而紀錄框什麼都不會說。
      */
     case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; markPassive(p, ctx); return false;
-    case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; markPassive(p, ctx); return false;
-    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx); return false;
-    case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; markPassive(p, ctx); return false;
+    case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
+    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx, true); return false;
+    case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }

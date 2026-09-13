@@ -1,4 +1,4 @@
-import { lineFor } from '../content/dialogue';
+import { castLineFor, lineFor } from '../content/dialogue';
 import type { DialogueLine } from '../content/dialogue';
 import { artUrl, heroArtUrl, localHero, monsterUrl } from './assets';
 import { el } from './dom';
@@ -49,7 +49,8 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
    * 在這裡過一次最省事：球球那條路 `lineFor` 一個字都不動，所以他完全不受影響。
    * 她專屬、真的重寫過的那幾段（序章、過關、落敗、結局）本來就沒有「喵」，過這一層也沒差。
    */
-  lines = lines.map((l) => (l.speaker === '球球' ? { ...l, text: lineFor(localHero(), l.text) } : l));
+  // 塔主與旁白講到主角的那幾句也要換（「小兄弟」「看了球球一眼」，夜間稽核 中-3）
+  lines = lines.map((l) => ({ ...l, text: l.speaker === '球球' ? lineFor(localHero(), l.text) : castLineFor(localHero(), l.text) }));
   const layer = overlayRoot();
   if (!layer || lines.length === 0) { onDone(); return; }
   let i = 0;
