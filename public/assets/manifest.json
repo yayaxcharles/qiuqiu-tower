@@ -1464,6 +1464,10 @@
   "bg/event_feifei_toll_again_paid_r1": "assets/bg/event_feifei_toll_again_paid_r1.webp",
   "bg/event_feifei_training_hall_r0": "assets/bg/event_feifei_training_hall_r0.webp",
   "bg/event_feifei_weapon_rack_r0": "assets/bg/event_feifei_weapon_rack_r0.webp",
-  "bg/event_feifei_chest_closed": "assets/bg/event_feifei_chest_closed.webp"
+  "bg/event_feifei_chest_closed": "assets/bg/event_feifei_chest_closed.webp",
+  "bg/event_feifei_trace": "assets/bg/event_feifei_trace.webp",
+  "bg/event_feifei_brew": "assets/bg/event_feifei_brew.webp",
+  "bg/event_feifei_pouch": "assets/bg/event_feifei_pouch.webp",
+  "bg/event_feifei_signal": "assets/bg/event_feifei_signal.webp"
  }
 }
