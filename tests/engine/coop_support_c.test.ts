@@ -282,11 +282,73 @@ describe('飯糰留一口：每一輪開始給同伴一顆', () => {
     expect(mate.hand.length, '基本 5 張 ＋ 多的 1 張').toBe(6);
   });
 
-  it('一個人：找不到同伴，什麼都不發生', () => {
+  /*
+   * **這條原本把錯的行為釘死了**（2026-09-13 稽核 高-1）：第一版寫「一個人時什麼都不發生」，
+   * 那不是設計，是漏了退路——玩家花 1 顆飯糰打一張罕見能力牌，整場什麼都沒發生。
+   * 交辦單 §7 明寫「單人時『同伴』改為自己」。
+   */
+  it('一個人：退回給自己', () => {
     const { cs, me } = combat(false);
     play(cs, me, 'fantuanliuyikou');
     const base = me.maxEnergy;
     nextRound(cs);
-    expect(me.energy, '不該給自己').toBe(base);
+    expect(me.energy, '一個人時自己拿').toBe(base + 1);
+  });
+});
+
+/*
+ * 稽核（2026-09-13）點名這四種情境一條測試都沒有，而抓到的 bug 正好全落在這幾格。
+ */
+describe('稽核補的四種情境', () => {
+  it('升級版「不限類型」遇到能力牌也要算（原本整類能力牌被排除）', () => {
+    const { cs, me, mate } = combat();
+    me.drawPile = [inst('tanding', 400)];
+    play(cs, me, 'nimangwobuwei', undefined, true);   // 升級＝any
+    const h0 = me.hand.length;
+    play(cs, mate, 'mabu');                            // 馬步是能力牌
+    expect(me.hand.length - h0, '同伴打能力牌也該算').toBe(1);
+  });
+
+  it('基礎版「我有先備好」只認攻擊牌，技能傷害不算', () => {
+    const { cs, me, mate } = combat();
+    const e = cs.enemies[0]!;
+    play(cs, me, 'woyouxianbeihao');
+    addStatus(e, '中毒', 3);
+    e.block = 5;                                       // 交出來會把防禦搶過來再打
+    me.block = 0; mate.block = 0;
+    play(cs, mate, 'jiaochulai', e.uid);               // 技能牌但會造成直接傷害
+    expect(me.block, '基礎版只認攻擊牌').toBe(0);
+  });
+
+  it('附毒把目標打死時，不印紀錄也不吃掉待觸發的附毒', () => {
+    const { cs, me, mate } = combat();
+    const e = cs.enemies[0]!;
+    e.hp = 1;
+    play(cs, me, 'biepengzhenjian');
+    const n0 = cs.log.length;
+    play(cs, mate, 'sanjo', e.uid);
+    expect(e.dead, '該被打死').toBe(true);
+    expect(cs.log.slice(n0).some((l) => l.includes('針上的藥')), '一隻都沒上到就不該說上了').toBe(false);
+    expect(mate.poisonNextAttack, '沒用到就要留著').toBeTruthy();
+  });
+
+  it('同伴倒下時，三張能力牌退回作用在自己身上', () => {
+    const { cs, me, mate } = combat();
+    const e = cs.enemies[0]!;
+    me.drawPile = [inst('tanding', 410), inst('tanding', 411)];
+    play(cs, me, 'nimangwobuwei');
+    play(cs, me, 'woyouxianbeihao');
+    mate.down = true;                                  // 同伴倒下
+    addStatus(e, '中毒', 3);
+    me.block = 0;
+    // 你忙我補位的基礎版只認**技能牌**，所以這裡要打技能牌
+    const h0 = me.hand.length;
+    play(cs, me, 'tanding');
+    expect(me.hand.length - h0, '沒有同伴就看自己出牌，抽回 1 張').toBe(1);
+    expect(cs.log.some((l) => l.includes('接上了自己的節奏')), '要有退回自己的紀錄').toBe(true);
+    // 我有先備好：沒有同伴時自己出手也算，而且自己那份是 8 點（交辦單 §7）
+    me.block = 0;
+    play(cs, me, 'sanjo', e.uid);
+    expect(me.block, '沒有同伴時自己拿 8 點').toBe(8);
   });
 });

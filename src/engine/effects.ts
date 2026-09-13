@@ -53,10 +53,32 @@ function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
  */
 function markPassive(p: PlayerCombat, ctx: EffectCtx): void {
   if (!ctx.cardId) return;
+  // **同一張牌不要疊出兩個牌子**（2026-09-13 稽核 低-2）：被影子分身當本回合第一張
+  // 複製時會推兩筆，狀態列就寫「你忙我補位 2」，玩家以為每輪抽 2 張——
+  // 而這幾個效果是直接指派不是累加，實際只有一份。
+  if (p.powers.some((pw) => pw.trigger === 'passive' && pw.cardId === ctx.cardId
+      && !!pw.upgraded === !!ctx.cardUpgraded)) return;
   p.powers.push({
     trigger: 'passive', effects: [],
     cardId: ctx.cardId, ...(ctx.cardUpgraded ? { upgraded: true } : {}),
   });
+}
+
+/**
+ * 把這張牌累積下來、要落在**自己**身上的蜷縮一次發掉。
+ *
+ * 為什麼要累積：`gainBlock` 每次呼叫都先加一份拒馬再過貓步，同一張牌分兩次給自己
+ * 就會把加成吃兩遍（2026-09-13 稽核 中-6）。只在「後面沒有別的自我蜷縮」時才發，
+ * 所以「先幫你留著」單人版的 4＋8 會合成一次 12 點再算加成。
+ */
+function flushSelfBlock(cs: CombatState, p: PlayerCombat, ctx: EffectCtx, queue: Effect[]): void {
+  const more = queue.some((e) => e.kind === 'block'
+    || (e.kind === 'blockAlly' && ally(cs, p) === p)
+    || (e.kind === 'blockAll'));
+  if (more) return;                                  // 後面還有，等最後那一條再一起發
+  const n = ctx.selfBlockPool ?? 0;
+  if (n > 0) gainBlock(cs, p, n);
+  ctx.selfBlockPool = 0;
 }
 
 export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Effect[]): boolean {
@@ -153,7 +175,13 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (ctx.source === 'relic') log(cs, `秘寶的代價：失去 ${amount} 點生命`);
       return false;
     }
-    case 'block': gainBlock(cs, p, fx.amount); return false;
+    case 'block': {
+      // 同一張牌裡如果還有會落在自己身上的 `blockAlly`（一個人時），兩份要併成一次算
+      // ——分兩次的話貓步與拒馬會被套兩遍（2026-09-13 稽核 中-6）
+      ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount;
+      flushSelfBlock(cs, p, ctx, queue);
+      return false;
+    }
     case 'blockAll': {
       // **每一位都要照自己的貓步算**，所以一個一個走 `gainBlock`，不是算一次再發下去
       for (const q of cs.players) if (!q.down) gainBlock(cs, q, fx.amount);
@@ -170,9 +198,18 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'blockAlly': {
       const mate = ally(cs, p);
-      // 照**收禮那一方**自己的貓步算：送出去的是「幫他擋一下」，不是把自己的護甲搬過去
+      /*
+       * 照**收禮那一方**自己的貓步算：送出去的是「幫他擋一下」，不是把自己的護甲搬過去。
+       *
+       * **一個人時要跟同一張牌的其他蜷縮合併成一次**（2026-09-13 稽核 中-6）：
+       * `gainBlock` 每次都先加一份拒馬（blockBonus）再過貓步，分兩次呼叫就吃兩次。
+       * 實測貓步 3 時「先幫你留著」單人會拿到 18 點，交辦單要的是 15。
+       * 玩家不會發現，只會覺得這張牌莫名好用。
+       * 所以單人時先把量記在 `pendingSelfBlock`，由這張牌最後一次 `block`／`blockAlly` 一起發。
+       */
+      if (mate === p) { ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount; flushSelfBlock(cs, p, ctx, queue); return false; }
       gainBlock(cs, mate, fx.amount);
-      if (mate !== p) log(cs, `幫對方擋了 ${fx.amount} 點`);
+      log(cs, `幫對方擋了 ${fx.amount} 點`);
       return false;
     }
     case 'drawAlly': {

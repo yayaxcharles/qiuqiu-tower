@@ -423,17 +423,16 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         break;
       }
       /*
-       * C 批六個。機器人跑的是**單人**對照，而這六張的價值幾乎全在「有同伴」上：
-       *   - 三個監聽（你忙我補位、有我在前面、我有先備好）單人時看的是自己出牌，
-       *     每輪各值一次抽牌或一份蜷縮，用 `rest`（剩幾回合）折算，跟 `blockBonus` 同一套
-       *   - 附毒與延後蜷縮單人時退化成給自己，照它給的量估
-       *   - 飯糰留一口單人時**完全不發動**（找不到同伴），所以是 0
+       * C 批六個。機器人跑的是**單人**對照。
+       * 2026-09-13 稽核之後這幾張單人時都有退路了（改成監聽自己、發給自己），
+       * 所以估值一律照「作用在自己身上」算，每輪各值一次抽牌或一份蜷縮，
+       * 用 `rest`（剩幾回合）折算，跟 `blockBonus` 同一套。
        */
       case 'watchAllyPlay': value += rest * 3 * 0.9; break;         // 每輪抽 1 張
       case 'watchSelfPlay': value += rest * 6 * 0.9; break;         // 每輪 6 點蜷縮
       case 'watchPoisonHit': value += rest * 4 * 0.7; break;        // 每輪 4 點，但要湊中毒的條件
       case 'poisonAllyNextAttack': value += fx.amount * 2; break;   // 2 層毒≒3 點傷害，再給點餘裕
-      case 'energyForAllyEachRound': break;                         // 單人時完全不發動
+      case 'energyForAllyEachRound': value += rest * 3 * 0.9; break;  // 每輪 1 顆飯糰
       case 'transferDebuffsFromAlly':
         // 單人時等同 `transferDebuffs`，照它的係數
         value += (getStatus(p, '中毒') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5;

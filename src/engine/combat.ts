@@ -135,52 +135,112 @@ export function startPlayerTurn(cs: CombatState): void {
  * **鎖步安全**：沒有隨機、沒讀時間，兩台跑同一份順序會算出同一個結果。
  */
 function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
-  hitsBefore: number, poisonBefore: ReadonlyMap<number, number>): void {
-  if (type === '能力') return;                       // 能力牌自己不觸發任何監聽
-  const mine = cs.hits.slice(hitsBefore);
-  const damaged = mine.filter((h) => h.amount > 0);  // 真的扣到血的那幾隻
+  hitsBefore: number, poisonBefore: ReadonlyMap<number, number>,
+  had: ReadonlyMap<PlayerCombat, WatchSnapshot>): void {
+  // 打完了就不補（跟千針萬毒、逗貓棒、詛咒魔物同一個判斷）。
+  // 少了這道，打贏的那一下同伴照樣抽一張、照樣吃掉本輪的觸發機會，
+  // 而那次抽牌會動到 `cs.rng`（那份就是 `run.rng`），等於白推了戰後獎勵的骰子。
+  if (cs.phase !== 'player') return;
+  const damaged = cs.hits.slice(hitsBefore).filter((h) => h.amount > 0);  // 真的扣到血的那幾隻
 
-  // 別碰針尖喔：附毒。每隻**只加一次**，多段攻擊不會疊三份（交辦單明定）
+  /*
+   * 別碰針尖喔：附毒。每隻**只加一次**，多段攻擊不會疊三份（交辦單明定）。
+   *
+   * 兩件事跟第一版不同（2026-09-13 稽核）：
+   *   - **一隻都沒上到就不要印紀錄、也不要清旗標**。一擊把唯一的目標打死時
+   *     `!e.dead` 讓迴圈整個空轉，原本卻照樣印「針上的藥沾到了」並把待觸發的附毒吃掉——
+   *     玩家看到紀錄說毒上了、屍體上沒有毒，那張罕見牌就這樣白打一張。
+   *   - **要記「誰下的毒」**。`killEnemy` 用 `poisonedBy` 決定擊倒獎勵歸誰，
+   *     不記的話一律算在 0 號座位頭上：菲菲坐 1 號時，她備的藥毒死的魔物好處全歸對方。
+   *     記的是**出手的那位**，跟 `poisonOnAttack` 同口徑。
+   */
   const pn = p.poisonNextAttack;
   if (pn && damaged.length > 0 && (type === '攻擊' || pn.anyDamage)) {
+    let applied = 0;
     for (const uid of new Set(damaged.map((h) => h.uid))) {
       const e = cs.enemies.find((x) => x.uid === uid);
-      if (e && !e.dead) addStatus(e, '中毒', pn.amount);
+      if (e && !e.dead) { addStatus(e, '中毒', pn.amount); markPoisoner(e, '中毒', p); applied += 1; }
     }
-    log(cs, `針上的藥沾到了，多上了 ${pn.amount} 層中毒`);
-    p.poisonNextAttack = undefined;                  // 用掉就清
+    if (applied > 0) {
+      log(cs, `針上的藥沾到了，多上了 ${pn.amount} 層中毒`);
+      p.poisonNextAttack = undefined;                // 真的上到才算用掉
+    }
   }
 
   for (const w of cs.players) {
     if (w.down) continue;
-    // 你忙我補位：看的是**同伴**（不是自己）打牌
-    if (w !== p && w.watchAllyPlay && !w.firedAllyPlay
-        && (w.watchAllyPlay === 'any' || type === w.watchAllyPlay)) {
+    const snap = had.get(w);
+    if (!snap) continue;
+    /*
+     * **`w === p` 也要算**（2026-09-13 稽核 高-1）。
+     *
+     * 第一版寫 `w !== p`，於是單人局、或雙人局裡同伴倒下之後，這三張稀有能力牌
+     * 完全不作用：花了飯糰、狀態列多一個牌子、整場什麼都沒發生，連紀錄都沒有一行。
+     * 交辦單 §7 明寫「單人時『同伴』改為自己；能力改監聽自己的出牌」，
+     * 而 `ally()` 的退路只保護「當場作用」那類效果，這三個監聽沒被蓋到。
+     *
+     * 判準改成 `solo`：**場上有沒有另一位還站著的**。有就照原本的規則（看同伴／給同伴），
+     * 沒有就退回自己。
+     */
+    const mate = cs.players.find((o) => o !== w && !o.down);
+    const solo = mate === undefined;
+
+    /*
+     * **用快照判斷「這張牌打之前就掛著」**（2026-09-13 稽核 中-1）。
+     *
+     * 第一版靠 `if (type === '能力') return;` 擋「能力牌自己觸發自己」，
+     * 卻把**整類**能力牌一起排除了——升級版牌面寫「不限類型」，同伴打馬步、運功、
+     * 千針萬毒那 19 張能力牌卻一次都不會觸發。跟影子分身那次是同一型的錯。
+     * 改看快照之後，自觸發自然被擋掉（打出來的當下快照裡還沒有它），能力牌也不必整類排除。
+     */
+    if (!solo && snap.allyPlay && !w.firedAllyPlay && w !== p
+        && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
       w.firedAllyPlay = true;
       drawCards(cs, 1, w);
       log(cs, `${unitName(w)}接上了節奏，多抽一張`);
     }
-    // 有我在前面：看的是**自己**打牌，好處給同伴
-    if (w === p && w.watchSelfPlay && !w.firedSelfPlay
-        && (w.watchSelfPlay === 'any' || type === w.watchSelfPlay)) {
-      w.firedSelfPlay = true;
-      const mate = cs.players.find((o) => o !== w && !o.down) ?? w;
-      gainBlock(cs, mate, 6);
-      log(cs, mate === w ? '擋在前面，自己也穩住了' : `${unitName(w)}擋在前面，${unitName(mate)}少挨了 6 點`);
+    if (solo && snap.allyPlay && !w.firedAllyPlay && w === p
+        && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
+      w.firedAllyPlay = true;                        // 一個人時改成監聽自己
+      drawCards(cs, 1, w);
+      log(cs, '接上了自己的節奏，多抽一張');
     }
-    // 我有先備好：攻擊真的扣到「打之前就中毒」的魔物。基礎版只認同伴出手
-    if (w.watchPoisonHit && !w.firedPoisonHit && (w.watchPoisonHit === 'both' || w !== p)) {
-      const ok = damaged.some((h) => {
-        const e = cs.enemies.find((x) => x.uid === h.uid);
-        return e !== undefined && (poisonBefore.get(h.uid) ?? 0) > 0;
-      });
-      if (ok) {
-        w.firedPoisonHit = true;
-        for (const q of cs.players) if (!q.down) gainBlock(cs, q, 4);
-        log(cs, '藥先備好了，兩個人都穩住');
-      }
+
+    // 有我在前面：看的是**自己**打牌，好處給同伴；一個人時給自己
+    if (w === p && snap.selfPlay && !w.firedSelfPlay
+        && (snap.selfPlay === 'any' || type === snap.selfPlay)) {
+      w.firedSelfPlay = true;
+      const to = mate ?? w;
+      gainBlock(cs, to, 6);
+      log(cs, to === w ? '擋在前面，自己也穩住了' : `${unitName(w)}擋在前面，${unitName(to)}少挨了 6 點`);
+    }
+
+    /*
+     * 我有先備好：攻擊真的扣到「打之前就中毒」的魔物。
+     *   - 基礎版**只認攻擊牌**（2026-09-13 稽核 中-2）：第一版完全沒看牌型，
+     *     同伴打「交出來」「絕學·太極」這種會造成直接傷害的技能牌也會發，
+     *     等於升級版講的那個差別根本不存在。
+     *   - 基礎版只認同伴出手；一個人時退回「自己出手也算」，不然整張沒用。
+     *   - 升級版不限出手的人、技能傷害也算，但**每輪仍合計一次**。
+     */
+    const byOk = snap.poisonHit === 'both' || solo || w !== p;
+    const typeOk = snap.poisonHit === 'both' || type === '攻擊';
+    if (snap.poisonHit && !w.firedPoisonHit && byOk && typeOk
+        && damaged.some((h) => (poisonBefore.get(h.uid) ?? 0) > 0)) {
+      w.firedPoisonHit = true;
+      // 升級版（或一個人時）自己那份加倍——交辦單 §7：「第 20 張觸發後：自己獲得 8 蜷縮」
+      if (solo) gainBlock(cs, w, 8);
+      else for (const q of cs.players) if (!q.down) gainBlock(cs, q, 4);
+      log(cs, solo ? '藥先備好了，穩住了' : '藥先備好了，兩個人都穩住');
     }
   }
+}
+
+/** 打這張牌**之前**三個監聽各自掛著什麼。用快照判斷才擋得掉「能力牌自己觸發自己」 */
+interface WatchSnapshot {
+  allyPlay: PlayerCombat['watchAllyPlay'];
+  selfPlay: PlayerCombat['watchSelfPlay'];
+  poisonHit: PlayerCombat['watchPoisonHit'];
 }
 
 function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
@@ -203,11 +263,19 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
    * 不必記著上一輪誰排了什麼，兩台鎖步也少一份要同步的暫存。
    * 排在 `p.energy = p.maxEnergy` 之後，不然剛給就被回滿蓋掉。
    */
+  /*
+   * **一個人時要退回給自己**（2026-09-13 稽核 高-1）。第一版寫 `o === p` 就跳過，
+   * 於是單人局、或雙人局裡同伴倒下之後，這張罕見能力牌完全不作用：
+   * 花了飯糰、狀態列多一個牌子、整場什麼都沒發生。
+   * 交辦單 §7 明寫「單人時『同伴』改為自己」。
+   */
+  const hasMate = cs.players.some((o) => o !== p && !o.down);
   for (const o of cs.players) {
-    if (o === p || o.down || !o.energyForAllyEachRound) continue;
+    if (o.down || !o.energyForAllyEachRound) continue;
+    if (hasMate ? o === p : o !== p) continue;       // 有同伴＝別人給我；沒同伴＝自己給自己
     p.energy += 1; cs.energyGain += 1;
     if (o.energyForAllyEachRound === 'draw') p.drawNextTurn += 1;
-    log(cs, `${unitName(o)}留的那口飯糰，${unitName(p)}拿到了`);
+    log(cs, o === p ? '自己留的那口飯糰，現在吃了' : `${unitName(o)}留的那口飯糰，${unitName(p)}拿到了`);
   }
   // 每輪監聽的次數重置。**只在這裡清**——不能因為對方出牌、按結束、撤回或畫面重繪就重置
   p.firedAllyPlay = undefined; p.firedSelfPlay = undefined; p.firedPoisonHit = undefined;
@@ -321,8 +389,12 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    */
   const hitsBefore = cs.hits.length;
   const poisonBefore = new Map(cs.enemies.map((e) => [e.uid, getStatus(e, '中毒')]));
+  // 三個監聽**打之前**各自掛著什麼。用快照判斷才擋得掉「能力牌自己觸發自己」，
+  // 又不必把整類能力牌排除（2026-09-13 稽核 中-1）
+  const watchHad = new Map(cs.players.map((q) => [q, {
+    allyPlay: q.watchAllyPlay, selfPlay: q.watchSelfPlay, poisonHit: q.watchPoisonHit,
+  }]));
   applyEffects(cs, st.effects, ctx);
-  coopWatchers(cs, p, st.def.type, hitsBefore, poisonBefore);
   /*
    * 影子分身（2026-09-12 使用者指定）：這場戰鬥裡**每回合打出的第一張牌會再打一次**。
    *
@@ -358,6 +430,16 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次`);
     applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
   }
+  /*
+   * **監聽排在影子分身重播之後**（2026-09-13 稽核 中-4）。
+   *
+   * 排在前面的話，重播那一次打出來的血監聽看不到：魔物防禦 6、貓抓 6 點，
+   * 第一次剛好被擋光（`cs.hits` 那筆是 0）、重播那次才見血——玩家看到魔物掉血，
+   * 但別碰針尖喔的毒沒上、我有先備好的蜷縮也沒發。
+   * `hitsBefore` 本來就從打牌前起算，所以兩次的傷害會一起被涵蓋；
+   * 每隻只上一次毒靠 `new Set` 去重，重複發動靠 `fired*` 旗標，都還擋得住。
+   */
+  coopWatchers(cs, p, st.def.type, hitsBefore, poisonBefore, watchHad);
   // 這張牌這場打過幾次（分身術疊傷害用）：效果結算完才 +1，第一次打是 0 次
   cs.cardPlays = cs.cardPlays ?? {};
   cs.cardPlays[uid] = (cs.cardPlays[uid] ?? 0) + 1;

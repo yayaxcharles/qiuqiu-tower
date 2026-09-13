@@ -35,10 +35,16 @@ const two = (): ReturnType<typeof combat> => combat(true);
 const one = (): ReturnType<typeof combat> => combat(false);
 
 let uid = 7000;
+/**
+ * `playCard` 吃的是**座位號**不是玩家物件（2026-09-13 稽核 低-5）。
+ * 忘了帶就永遠當成 0 號在打——現在每一處剛好都是 0 號所以沒出事，
+ * 但只要有人補一條讓同伴出牌的測試，`canPlay` 會回「不在手牌」、`playCard` 回 false，
+ * 斷言變成「什麼都沒變」而測試照樣綠。
+ */
 function play(cs: CombatState, who: PlayerCombat, id: string, target?: number, up = false): void {
   const u = uid++;
   who.hand.push({ uid: u, cardId: id, upgraded: up });
-  playCard(cs, u, target);
+  playCard(cs, u, target, cs.players.indexOf(who));
 }
 
 describe('B 批六張：規格對得上交辦單', () => {

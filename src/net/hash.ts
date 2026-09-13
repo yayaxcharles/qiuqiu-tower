@@ -57,6 +57,12 @@ export function combatFingerprint(cs: CombatState): string {
       `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`,
       // 菲菲的三個長效旗標：整場都在、會影響之後每一次結算，不進指紋的話分岔會晚一拍才抓到
       `pb${p.poisonBurst ?? ''}`, `bb${p.blockBonus ?? 0}`, `ef${p.echoFirst ?? 0}`, `poa${p.poisonOnAttack ?? 0}`,
+      // 連線支援牌 C 批的四個跨回合旗標（2026-09-13 稽核 低-4）。
+      // 沒有它們真分岔還是會被蜷縮或手牌抓到，只是**晚一拍、而且訊息指錯地方**——
+      // 分岔點會被算在後面某個無關的效果上，查起來會繞遠路。
+      // `watch*` 與 `energyForAllyEachRound` 靠 `pw` 的張數間接蓋到，這裡補的是沒蓋到的四個。
+      `pna${p.poisonNextAttack ? `${p.poisonNextAttack.amount}${p.poisonNextAttack.anyDamage ? 'a' : ''}` : ''}`,
+      `fap${p.firedAllyPlay ? 1 : 0}`, `fsp${p.firedSelfPlay ? 1 : 0}`, `fph${p.firedPoisonHit ? 1 : 0}`,
     ].join('|'));
   }
   for (const e of cs.enemies) {

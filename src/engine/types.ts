@@ -851,6 +851,14 @@ export interface EffectCtx {
    * 單機兩者等值，所以過渡期不會有行為差異。
    */
   self?: PlayerCombat;
+  /**
+   * 這張牌累積下來、要落在**自己**身上的蜷縮（2026-09-13 稽核 中-6）。
+   *
+   * `gainBlock` 每次呼叫都先加一份拒馬再過貓步，所以同一張牌分兩次給自己
+   * 會把加成吃兩遍（實測貓步 3 時「先幫你留著」單人拿 18 點，應該是 15）。
+   * 先累積、由最後一條自我蜷縮一次發掉，見 `flushSelfBlock`。
+   */
+  selfBlockPool?: number;
   targetUid?: number;
   cardUid?: number;
   cardId?: string;         // 打出的是哪張牌（能力牌掛牌子用）
