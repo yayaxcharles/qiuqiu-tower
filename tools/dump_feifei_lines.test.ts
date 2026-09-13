@@ -1,6 +1,6 @@
 import { it } from 'vitest';
 import { writeFileSync } from 'node:fs';
-import { dialogue, eventTextFor, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES } from '../src/content/dialogue';
+import { dialogue, eventTextFor, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES, FEIFEI_EVENT_LINES } from '../src/content/dialogue';
 import { events } from '../src/content/events';
 import { enemyById } from '../src/content/enemies';
 
@@ -101,19 +101,26 @@ it('dump', () => {
   p('這一批在原始碼裡寫的是球球的句子，玩菲菲時由 `lineFor` 換掉——');
   p('在 `FEIFEI_BOSS_LINES` 名單裡的整句換成她的，不在名單裡的只拿掉句尾的「喵」。');
   p('');
-  const bossGroups: [string, unknown][] = [
-    ['秘笈（5F）', dialogue.secretScroll],
-    ['打完第一隻精英', dialogue.afterFirstElite],
-    ['關主前的貓窩', dialogue.restBeforeBossByAct],
-    ['關主開場', dialogue.bossIntroById],
-    ['關主開場（通用）', dialogue.bossIntroGeneric],
-    ['關主被打倒', dialogue.bossDefeatById],
-    ['關主第二階段', dialogue.bossPhase2ById],
-    ['關主第二階段（通用）', dialogue.bossPhase2Generic],
-    ['關主第三階段', dialogue.bossPhase3ById],
-    ['關主第三階段（通用）', dialogue.bossPhase3Generic],
-    ['師父的第一句話', dialogue.masterFirstWords],
-    ['罐頭鋪老闆', dialogue.shopkeeper],
+  /*
+   * 第三欄＝**沒有標 `speaker` 的純字串是誰講的**。
+   *
+   * 少了這一欄會誤標（第一版就誤標了 14 句）：`masterFirstWords` 是**師父**說的
+   *（「難逢敵手。」），`shopkeeper` 是**罐頭鋪老闆**說的，兩組都是沒有 speaker 的
+   * 字串陣列，當成球球的話就會整批印「⚠️球球的句子」——可是那本來就不該是她的字。
+   */
+  const bossGroups: [string, unknown, string][] = [
+    ['秘笈（5F）', dialogue.secretScroll, '球球'],
+    ['打完第一隻精英', dialogue.afterFirstElite, '球球'],
+    ['關主前的貓窩', dialogue.restBeforeBossByAct, '球球'],
+    ['關主開場', dialogue.bossIntroById, '球球'],
+    ['關主開場（通用）', dialogue.bossIntroGeneric, '球球'],
+    ['關主被打倒', dialogue.bossDefeatById, '球球'],
+    ['關主第二階段', dialogue.bossPhase2ById, '球球'],
+    ['關主第二階段（通用）', dialogue.bossPhase2Generic, '球球'],
+    ['關主第三階段', dialogue.bossPhase3ById, '球球'],
+    ['關主第三階段（通用）', dialogue.bossPhase3Generic, '球球'],
+    ['師父的第一句話', dialogue.masterFirstWords, '師父'],
+    ['罐頭鋪老闆', dialogue.shopkeeper, '老闆'],
   ];
   const walk = (v: unknown, into: (line: { speaker?: string; text?: string } | string) => void): void => {
     if (typeof v === 'string') { into(v); return; }
@@ -124,14 +131,14 @@ it('dump', () => {
       for (const x of Object.values(v as Record<string, unknown>)) walk(x, into);
     }
   };
-  for (const [name, group] of bossGroups) {
+  for (const [name, group, bare] of bossGroups) {
     const rows: string[] = [];
     walk(group, (l) => {
       const raw = typeof l === 'string' ? l : (l.text ?? '');
-      const who = typeof l === 'string' ? '' : (l.speaker ?? '');
+      const who = typeof l === 'string' ? bare : (l.speaker ?? bare);
       if (!raw) return;
-      // 只有球球那邊的句子才會被換；旁白與魔物的台詞原樣顯示
-      if (who && who !== '球球') { rows.push(`- **${who}**：${raw}`); return; }
+      // 只有球球那邊的句子才會被換；旁白、魔物、師父、老闆的台詞原樣顯示
+      if (who !== '球球') { rows.push(`- **${who}**：${raw}`); return; }
       const shown = lineFor('feifei', raw);
       rows.push(`- ${shown}${tag(FEIFEI_BOSS_LINES[raw] !== undefined)}`);
     });
@@ -145,19 +152,26 @@ it('dump', () => {
   // ---- 六、事件 ----
   p('## 六、事件（38 個共用 ＋ 她的專屬）');
   p('');
-  p('**共用事件的文字沒有替她重寫過**：只把敘述裡的「球球」換成「菲菲」、引號裡句尾的「喵」拿掉，');
-  p('所以引號裡講話的口氣仍然是球球的。她的專屬事件（標「她專屬」的）才是照她寫的。');
+  p('**敘述句是機械替換**（「球球」換成「菲菲」），那部分換個主角照樣通順。');
+  p('**引號裡她講的話**在 2026-09-13 由使用者逐句改寫過 82 句；剩下標 ⚠️ 的那幾句是他看過決定維持原樣的。');
   p('');
   for (const e of events) {
     if (e.hero && e.hero !== 'feifei') continue;
     const mine = e.hero === 'feifei';
     p(`### ${e.title}${mine ? '（她專屬）' : ''}`);
     p('');
-    p(`> ${eventTextFor('feifei', e.text)}`);
+    const evSaid = /球球：「(.+?)」/su.exec(e.text);
+    const evOk = mine || !evSaid || FEIFEI_EVENT_LINES[evSaid[1]!] !== undefined;
+    p(`> ${eventTextFor('feifei', e.text)}${evOk ? '' : '　⚠️球球的句子'}`);
     p('');
     for (const c of e.choices) {
       p(`- **選項**：${c.label}`);
-      if (c.result) p(`  - 結果：${eventTextFor('feifei', c.result)}${mine ? '' : '　⚠️球球的句子'}`);
+      if (!c.result) continue;
+      // 標記看的是**她講的那一句有沒有她自己的版本**，不是看整個事件是不是她專屬的。
+      // 照事件標的話，82 句改寫進去之後整批還是印「球球的句子」——文件自己說謊。
+      const said = /球球：「(.+?)」/su.exec(c.result);
+      const rewritten = mine || !said || FEIFEI_EVENT_LINES[said[1]!] !== undefined;
+      p(`  - 結果：${eventTextFor('feifei', c.result)}${rewritten ? '' : '　⚠️球球的句子'}`);
     }
     p('');
   }
