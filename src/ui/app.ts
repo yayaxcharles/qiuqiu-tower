@@ -130,6 +130,15 @@ export class App {
     this.stage.dataset['screen'] = name;
     // 也標上關數：同一個畫面在不同關換底圖時（貓窩的蒲團位置各關不同），樣式表用它換版面
     this.stage.dataset['act'] = String(this.run?.act ?? 1);
+    /*
+     * 再標上**這一局玩的是誰**（2026-09-14）。
+     *
+     * 貓窩畫面裡角色坐哪是按關數寫死的 CSS，而**兩隻的立繪大小不一樣**：
+     * 球球的蜷縮是小小一團，菲菲整個大一圈。同一個座標，他剛好坐進籃子、
+     * 她會滿出來坐到地板上（使用者 2026-09-14 實機看到「她位置完全不對」）。
+     * 有了這個屬性，樣式表就能只調她那一條，不動到本來就對的球球。
+     */
+    this.stage.dataset['hero'] = this.run ? (me(this.run, this.seat).hero ?? 'ninja') : 'ninja';
     r(this, this.screen, props);
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
