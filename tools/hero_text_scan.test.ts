@@ -47,7 +47,8 @@ const uiFiles = load(walk('src/ui'));
  * 白名單是**逐條列內容**不是逐檔案——整個檔案放行的話，同一支裡新加的牌名就漏掉了。
  */
 const NOT_A_CARD = [
-  'RELIC_LOG',            // 秘寶發動的紀錄
+  'RELIC_LOG',            // 秘寶發動的紀錄（常數本身）
+  '${head}',              // 同上，2026-09-13 起行首改成算出來的（要寫「是誰的秘寶」）
   '忍具帶滿了',            // 換忍具的確認框
   '關主留下的東西',        // 塔主信物（秘寶）
   '想召喚',               // 魔物召喚
@@ -103,5 +104,31 @@ describe('換角色沒換乾淨的暗病', () => {
   it('「磨爪」不可以寫死（她磨的是針）', () => {
     const bad = scan(/磨爪(?!石|油)/, /sharpenVerb|'磨爪'/, uiFiles);
     expect(bad, `這幾行寫死了磨爪：\n${bad.join('\n')}`).toEqual([]);
+  });
+
+  /*
+   * 第四條：**代名詞也要跟著角色走**（2026-09-13 稽核 低-8）。
+   *
+   * 連線的兩句話寫死了「他」——「替他收回合」與扶人那格的「他回 N 點生命站起來」，
+   * 對面坐菲菲時就是性別錯字，而同一個畫面上她的名字就寫在旁邊。
+   * 修好了但沒有東西擋下一次：我把三處全改回寫死的「他」，一千多條測試照樣全綠。
+   *
+   * 白名單放三種：
+   *   - `dialogue.ts`／`events.ts`／`content/` 的劇情台詞（本來就該寫死，那是別人在講話）
+   *   - `title.ts` 的局面碼說明（泛指「給你碼的那個人」，不是場上的角色）
+   *   - `heroselect.ts` 菲菲自己的介紹文（本來就是「她」）
+   * 判準只抓**顯示字串裡的裸代名詞**，註解已經被 `strip` 拿掉了。
+   */
+  it('「他／她」不可以寫死（場上的角色要過 heroPronoun）', () => {
+    // **路徑分隔字元在 Windows 是反斜線**：`join()` 吐的是 `src\content\events.ts`，
+    // 正規式寫 `content[/]` 一個都對不上，整份白名單等於沒放行（第一版就是這樣紅的）
+    const STORY = ['src/content/', 'src/ui/dialogue.ts', 'src/ui/screens/title.ts', 'src/ui/screens/story',
+      'src/engine/hero.ts'];   // heroPronoun 自己就住在這裡
+    const bad = scan(/['"`][^'"`]*[他她][^'"`]*['"`]/, /heroPronoun|其他|他們|她們/, files)
+      .filter((l) => !STORY.some((d) => l.replace(/\\/g, '/').includes(d)))
+      // 菲菲自己的介紹文與角色設定文字：講的就是她本人，不是「場上那一位」
+      // 選角畫面的角色介紹是**多行字串相接**，續行長 ` + '…'`，所以要連續行一起放行
+      .filter((l) => !/hero-blurb|blurb:|tag:|^\S+:\d+\s+\+ '/.test(l));
+    expect(bad, `這幾行寫死了代名詞，該用 heroPronoun：\n${bad.join('\n')}`).toEqual([]);
   });
 });

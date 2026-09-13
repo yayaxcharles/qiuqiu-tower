@@ -49,6 +49,8 @@ export function startCombat(input: {
   const cs: CombatState = {
     rng: input.rng,
     players: [player],
+    // 開場那一拍第二位還沒 push 進來，戰報要知道「這場預計幾個人」才寫得對（見 types.ts 的說明）
+    seatCount: input.players ?? 1,
     // `player` 是**算出來的別名**不是存起來的欄位：永遠回傳陣列裡的第一位。
     // 連線版之後就算陣列被換過，這個別名也不可能指到舊物件（見 CombatState 的說明）
     get player(): PlayerCombat { return this.players[0] as PlayerCombat; },
@@ -93,7 +95,7 @@ export function startCombat(input: {
    */
   for (const rid of player.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;
-    if (hooks) { fireRelic(cs, rid); applyEffects(cs, hooks, { self: player, source: 'relic' }); }
+    if (hooks) { fireRelic(cs, rid, player); applyEffects(cs, hooks, { self: player, source: 'relic' }); }
   }
   // 暖毯：打盹後帶進來的蜷縮（run.ts 的 rest 記、beginCombat 帶進來）
   if (input.mods?.startBlock) {
@@ -254,27 +256,35 @@ interface WatchSnapshot {
  *（魔物身上沒有毒、紀錄也沒說發動）；球球當加入方時第一回合少抽一張。
  * 完全靜音——畫面正常，只是數字比該有的少。單機與開房那一位都沒事，所以測試也照樣綠。
  *
- * **這裡的順序要跟 `startCombat` 的結尾一模一樣**：
- * 「每場戰鬥開始」的秘寶 → 秘笈 → 暖毯的蜷縮 → 回合開始。
+ * **這裡的順序照抄 `startCombat` 的結尾**：秘笈 → 「每場戰鬥開始」的秘寶 →
+ * 暖毯的蜷縮 → 回合開始（`startCombat` 是 74 行立秘笈旗標、94 行跑 `combatStart`、
+ * 99 行加暖毯，最後 `startPlayerTurn`）。順序照抄是為了以後誰改一邊就一定會發現另一邊，
+ * 不是因為這幾步之間真的有依賴——掛 `combatStart` 的十六件沒有一件會造成傷害，
+ * 所以秘笈的旗標先立後立結果都一樣（2026-09-13 稽核 低-2 指出我原本的註解把順序寫反了）。
+ *
  * 2026-09-13 第三輪稽核抓到的第二半：上面只補了「每回合開始」那組，
- * 掛 `combatStart` 的十七件（斗笠、鐵項圈、龜甲、爪鞘、無聲鈴、墨玉、塔頂之月…）
+ * 掛 `combatStart` 的十六件（斗笠、鐵項圈、龜甲、爪鞘、無聲鈴、墨玉、塔頂之月…）
  * 與秘笈的「第一張攻擊牌打兩倍」還是整場不發動。
  * 花 190 條買來的東西在加入方身上完全沒效果，而且一樣不會報錯。
  *
- * `startBlock`＝暖毯在貓窩蓋的那份蜷縮。**要在回合開始之前加**，
- * 跟座位 0 同一個位置：回合開始那一拍會先結算中毒，蜷縮晚一步加就擋不到。
+ * `startBlock`＝暖毯在貓窩蓋的那份蜷縮，擺在回合開始之前**純粹是為了跟座位 0 對齊**。
+ *（原本這裡寫「不然回合開始結算中毒時擋不到」——那是錯的，中毒走 `direct` 本來就穿透蜷縮。
+ * 理由錯了但做法是對的，2026-09-13 稽核 低-3。）
  */
 export function startJoinedSeat(cs: CombatState, p: PlayerCombat, startBlock = 0): void {
+  if (p.relics.some((id) => relicById[id]?.hooks.firstAttackDouble)) p.firstAttackDouble = true;   // 秘笈
   for (const rid of p.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;
-    if (hooks) { fireRelic(cs, rid); applyEffects(cs, hooks, { self: p, source: 'relic' }); }
+    if (hooks) { fireRelic(cs, rid, p); applyEffects(cs, hooks, { self: p, source: 'relic' }); }
   }
-  if (p.relics.some((id) => relicById[id]?.hooks.firstAttackDouble)) p.firstAttackDouble = true;   // 秘笈
   if (startBlock) {
     p.block += startBlock;
     const wid = p.relics.find((id) => (relicById[id]?.hooks.restNextFightBlock ?? 0) > 0);
     if (wid) markRelic(cs, wid);
-    log(cs, `暖毯還熱著，先有 ${startBlock} 點蜷縮`);
+    // 兩個人都蓋了毯子時會有兩行一模一樣的句子，所以要寫是誰的（稽核 2026-09-13 低-6）
+    log(cs, cs.players.length > 1
+      ? `${unitName(p)}的暖毯還熱著，先有 ${startBlock} 點蜷縮`
+      : `暖毯還熱著，先有 ${startBlock} 點蜷縮`);
   }
   startSeatTurn(cs, p);
 }
@@ -318,18 +328,18 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   p.poisonNextAttack = undefined;   // 待觸發的附毒不跨輪
   // 只在第一回合給的那幾件（稽核 2026-09-10 中-3）：第一回合就是它們唯一的發動時刻，
   // 不記的話玩家看到的只是「這回合飯糰比較多」，不知道是誰給的
-  if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnEnergy ?? 0) > 0) fireRelic(cs, rid);
+  if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnEnergy ?? 0) > 0) fireRelic(cs, rid, p);
   // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { self: p, source: 'power' });
   p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0;
   p.taunt = false;   // 「我來擋」只保護一輪（連線版 2026-09-11）
   p.firstCardPlayed = false; p.doubleNext = 0;   // 蓄力只撐到回合結束；秘笈的第一擊加倍走自己的旗標（審查 #8）
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnDraw') : 0);
-  if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnDraw ?? 0) > 0) fireRelic(cs, rid);
+  if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnDraw ?? 0) > 0) fireRelic(cs, rid, p);
   p.drawNextTurn = 0;
   drawCards(cs, n, p);
   // 每回合開始的秘寶效果（鐵砂袋、靈貓鈴）：排在抽牌之後，抽到的牌才算進這回合的手牌
-  for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
+  for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) { fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' }); } }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
     if (cu?.onTurnStart) { log(cs, `「${curseName(c.cardId, p.hero)}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
@@ -381,8 +391,8 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * 條件跟 `canPlay` 算折價的那兩行對齊——旗標要到下面幾行才會被設成 true，所以這裡讀得到原值。
    */
   if (chk.cost < st.cost) {
-    if (!p.firstCardPlayed) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstCardDiscount ?? 0) > 0) fireRelic(cs, rid);
-    if (!p.firstCardEver) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstCardDiscountCombat ?? 0) > 0) fireRelic(cs, rid);
+    if (!p.firstCardPlayed) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstCardDiscount ?? 0) > 0) fireRelic(cs, rid, p);
+    if (!p.firstCardEver) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstCardDiscountCombat ?? 0) > 0) fireRelic(cs, rid, p);
   }
   p.energy -= chk.cost;
   p.hand.splice(p.hand.indexOf(card), 1);
@@ -412,7 +422,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     const e = relicById[rid]?.hooks.energyOnNthCard;
     const drew = !!h && p.cardsPlayedThisTurn === h.n;
     const gave = !!e && p.cardsPlayedThisTurn === e.n;
-    if (drew || gave) fireRelic(cs, rid);
+    if (drew || gave) fireRelic(cs, rid, p);
     if (drew) drawCards(cs, h!.draw);
     if (gave) { p.energy += e!.energy; cs.energyGain += e!.energy; }
   }
@@ -506,7 +516,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     for (const rid of p.relics) {
       const h = relicById[rid]?.hooks.onAttackPlayed;
       if (!h || (h.firstEachTurn && !firstAttack) || (h.chance !== undefined && !cs.rng.chance(h.chance))) continue;
-      fireRelic(cs, rid);
+      fireRelic(cs, rid, p);
       applyEffects(cs, h.effects, { self: p, source: 'relic' });
     }
   }
@@ -618,7 +628,7 @@ function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   }
   if (cs.phase !== 'player') return;
   if (!p.attackedThisTurn) {
-    for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnEndNoAttack; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
+    for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnEndNoAttack; if (h) { fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' }); } }
     for (const pw of p.powers) if (pw.trigger === 'turnEndNoAttack') applyEffects(cs, pw.effects, { self: p, source: 'power' });
   }
   // 只限本回合的能力到這裡就過期。放在「沒出攻擊牌」的結算之後：
@@ -823,7 +833,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       // 被打掉血的秘寶效果（毛線手套）：每回合最多一次
       if (victim.hp < hpBefore && cs.phase === 'player' && victim.hitRelicTurn !== cs.turn) {
         victim.hitRelicTurn = cs.turn;
-        for (const rid of victim.relics) { const h = relicById[rid]?.hooks.onHit; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: victim, source: 'relic' }); } }
+        for (const rid of victim.relics) { const h = relicById[rid]?.hooks.onHit; if (h) { fireRelic(cs, rid, victim); applyEffects(cs, h, { self: victim, source: 'relic' }); } }
       }
     }
     decayTurnStatuses(e, ['定身']);   // 魔物的定身在出招那一拍消耗，這裡不再多扣一次（審查 #5）
@@ -874,7 +884,7 @@ export function finishEnemyTurn(cs: CombatState): void {
   for (const p of cs.players) {
     const keep = relicSum(p.relics, 'blockKeep');
     // 球球已經倒下那一拍不演（稽核 2026-09-10 複核 低-5）：被穿透打死但身上還有蜷縮時會踩到
-    if (keep > 0 && cs.phase === 'player' && p.block > 0) for (const rid of p.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid);
+    if (keep > 0 && cs.phase === 'player' && p.block > 0) for (const rid of p.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid, p);
     p.block = Math.min(p.block, keep);
   }
   if (cs.phase === 'player') startPlayerTurn(cs);
@@ -921,6 +931,6 @@ export function usePotion(cs: CombatState, potionId: string, targetUid?: number,
   log(cs, `${unitName(p)}用了「${def.name}」`);
   applyEffects(cs, def.effects, { self: p, targetUid, source: 'potion' });
   // 用忍具之後的秘寶效果（舊毛巾、貓薄荷煙斗、九命鈴）
-  if (cs.phase === 'player') for (const rid of p.relics) { const h = relicById[rid]?.hooks.onPotionUse; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
+  if (cs.phase === 'player') for (const rid of p.relics) { const h = relicById[rid]?.hooks.onPotionUse; if (h) { fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' }); } }
   return true;
 }

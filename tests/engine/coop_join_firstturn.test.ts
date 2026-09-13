@@ -101,4 +101,44 @@ describe('加入的那一位的開場秘寶', () => {
     expect(cs.players[0]!.block, '開房那位本來就該有').toBeGreaterThanOrEqual(10);
     expect(cs.players[1]!.block, '加入方沒買，不該憑空多出蜷縮').toBe(0);
   });
+
+  /*
+   * **戰報不可以把兩個人的秘寶折進同一行**（2026-09-13 稽核 中-3）。
+   *
+   * `fireRelic` 有一條「上一行也是發動就接在後面」的折行規則（省紀錄框的四行空間）。
+   * 加入方的 `combatStart` 補上之後，那條規則就把兩個人的秘寶黏成一行：
+   * 實測開場是「秘寶發動：藍頭巾、鐵砂袋、斗笠…等 4 件」，
+   * 其中斗笠與鐵項圈是**同伴的**，我身上根本沒有。玩家看了會以為自己有斗笠。
+   */
+  it('兩個人的秘寶不會黏成一行，而且寫得出是誰的', () => {
+    const cs = fight((run) => { takeRelic(run, 'sand_bag', 0); takeRelic(run, 'straw_hat', 1); }, 'cs-log');
+    const relicLines = cs.log.filter((l) => l.includes('秘寶發動：'));
+    expect(relicLines.length, '兩個人各自一行，不該只有一行').toBeGreaterThanOrEqual(2);
+    expect(relicLines.some((l) => l.includes('斗笠')), '斗笠那一行要找得到').toBe(true);
+    /*
+     * **每一行都要寫是誰的，座位 0 也一樣。**
+     *
+     * 座位 0 那一行是 `startCombat` 印的，而那一拍第二位還沒 push 進 `cs.players`——
+     * 只看 `players.length` 的話會印成一邊有名字一邊沒有（2026-09-13 實機看到的：
+     *「秘寶發動：藍頭巾」配「菲菲的秘寶發動：毒針袋」）。靠 `cs.seatCount` 才對得起來。
+     */
+    for (const l of relicLines) {
+      expect(l.startsWith('秘寶發動：'), `這一行沒寫是誰的：${l}`).toBe(false);
+    }
+    expect(relicLines.some((l) => l.includes('鐵砂袋') && l.includes('斗笠')),
+      '鐵砂袋（0 號）跟斗笠（1 號）被折進同一行了').toBe(false);
+  });
+
+  /** 一個人玩的時候行首一字不差，折行也照舊 */
+  it('單機的紀錄一字不差', () => {
+    const run = newCoopRun('cs-solo-log', 1, 'ninja', 'ninja');
+    run.players.length = 1;                          // 砍成一個人
+    takeRelic(run, 'sand_bag', 0);
+    const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+    run.currentNode = node.id;
+    const cs = beginCombat(run);
+    const relicLines = cs.log.filter((l) => l.includes('秘寶發動：'));
+    expect(relicLines.length, '單機該有秘寶發動的紀錄').toBeGreaterThan(0);
+    for (const l of relicLines) expect(l.startsWith('秘寶發動：'), `單機不該寫名字：${l}`).toBe(true);
+  });
 });

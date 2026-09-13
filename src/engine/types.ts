@@ -892,6 +892,17 @@ export interface CombatState {
    */
   players: PlayerCombat[];
   /**
+   * 這一場**預計**有幾個人（連線 2、單機 1）。
+   *
+   * 為什麼不直接數 `players.length`：`startCombat` 只建得出第一位，其餘是
+   * `beginCombat` 之後才 `push` 進來的。開場那一拍 `players.length` 還是 1，
+   * 於是 2026-09-13 實測看到戰報寫成一邊有名字一邊沒有——
+   *「秘寶發動：藍頭巾」（座位 0，那時只有一個人）配
+   *「菲菲的秘寶發動：毒針袋」（座位 1，那時已經兩個人了）。
+   * 魔物血量倍率本來就是靠傳進來的人數算的，這個欄位就是把同一個數字留下來。
+   */
+  seatCount?: number;
+  /**
    * 相容用的別名，**永遠等於 `players[0]`**。
    *
    * 這是唯讀的 getter（在 `startCombat` 裡用 `get player()` 定義），不是複製出來的欄位，

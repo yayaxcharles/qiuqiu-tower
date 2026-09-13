@@ -1798,6 +1798,15 @@ registerScreen('combat', (app, root, props) => {
     const live = new Set<HTMLElement>();
     for (const f of flashing) {
       const def = relicById[f.id];
+      /*
+       * **同伴的秘寶不要演在我的狀態列上**（2026-09-13 稽核 低-5）。
+       *
+       * `cs.relicFired` 是整場共用的，加入方的 `combatStart` 補上之後，裡面就多了
+       * 同伴那十幾件。我身上沒有的那幾件查不到格子，就會退回下面的「+N」——
+       * 於是我帶滿九件（有「+N」那顆）時，同伴的斗笠、鐵項圈會在我的「+N」上浮出名牌，
+       * 看起來像我身上有那些東西。八件以內是靜靜跳過，所以平常看不出來。
+       */
+      if (!my().relics.includes(f.id)) continue;
       // 滿八件之後其餘收成一顆「+N」，找不到自己的格子就閃那顆（使用者 2026-09-10：
       // 「秘寶現在上面超過會堆疊起來，會不會 HUD 看不到？」）
       const slot = hud.querySelector<HTMLElement>(`.hud-relic[data-relic="${f.id}"]`) ?? more;

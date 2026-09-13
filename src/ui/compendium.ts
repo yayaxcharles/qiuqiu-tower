@@ -29,9 +29,17 @@ export function showCompendium(): void {
   const render = (): void => {
     grid.replaceChildren();
     for (const pool of POOL_ORDER) {
-      // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不列進圖鑑：那不是「牌組會有的牌」，
-      // 是魔物臨時塞進來、打完就沒的東西
-      const group = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden);
+      /*
+       * `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不列進圖鑑：那不是「牌組會有的牌」，
+       * 是魔物臨時塞進來、打完就沒的東西。
+       *
+       * **連線牌抽出來另外擺一區**（2026-09-13 稽核 低-7）：`hidden` 拿掉之後，
+       * 那 28 張跟著混進忍術與絕學，一個人玩的玩家會看到一堆他永遠抽不到的牌，
+       * 而且池子的說明「一般戰鬥獎勵、罐頭鋪常見貨」對它們是假的。
+       * 不是藏起來——圖鑑本來就是「全部看得到」的地方——是**擺到自己那一區**，
+       * 順便讓「什麼時候才抽得到」寫在標題上。
+       */
+      const group = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden && !c.coop);
       if (!group.length) continue;
       grid.append(el('div', { class: 'comp-section' },
         el('span', { class: 'comp-pool' }, `${pool}（${group.length}）`),
@@ -40,6 +48,18 @@ export function showCompendium(): void {
       // 同池內照稀有度排：常見→罕見→稀有，找牌時比較有秩序
       const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
       for (const def of [...group].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
+        row.append(cardNode(def, { small: true, upgraded }));
+      grid.append(row);
+    }
+    // 連線牌自己一區，擺在最後（見上面 `group` 那段的說明）
+    const coop = cards.filter((c) => c.coop && !c.combatOnly && !c.hidden);
+    if (coop.length) {
+      grid.append(el('div', { class: 'comp-section' },
+        el('span', { class: 'comp-pool' }, `雙人（${coop.length}）`),
+        el('span', { class: 'comp-note' }, '兩個人一起爬塔才會出現在獎勵與罐頭鋪')));
+      const row = el('div', { class: 'comp-grid' });
+      const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
+      for (const def of [...coop].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
         row.append(cardNode(def, { small: true, upgraded }));
       grid.append(row);
     }

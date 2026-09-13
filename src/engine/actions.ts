@@ -44,13 +44,41 @@ const RELIC_LOG = '秘寶發動：';
  * 而且不必替不同掛鉤訂不同規則——中間只要插進任何別的紀錄（鐵砂衣的自傷、魔物出招），
  * 下一件就會自己另起一行，順序讀起來仍然是對的。
  */
-export function fireRelic(cs: CombatState, id: string): void {
+/**
+ * 這一件是誰的（兩個人時才寫出來）。
+ *
+ * 2026-09-13 稽核 中-3：上面那條「連著發動的併成一行」在連線時把**兩個人的**秘寶
+ * 折進同一行——實測開場是「秘寶發動：藍頭巾、鐵砂袋、斗笠…等 4 件」，
+ * 其中斗笠與鐵項圈是同伴的，我身上根本沒有。玩家看了會以為自己有斗笠。
+ *
+ * 開場那一拍最明顯，但**每回合開始也一樣**（`startSeatTurn` 照座位順序一個一個跑，
+ * 中間沒有別的紀錄插進去，所以兩個人的每回合秘寶照樣黏成一行）。
+ *
+ * 修法是把名字寫進行首。折行比對的是同一個算出來的開頭，所以換人就自然斷行，
+ * **一個人玩時 `owner` 為 undefined／只有一位，開頭跟以前一字不差**。
+ */
+function relicHead(cs: CombatState, owner?: PlayerCombat): string {
+  const seats = cs.seatCount ?? cs.players.length;
+  if (!owner || seats <= 1) return RELIC_LOG;
+  /*
+   * **座位號也要寫**，不能只寫名字：兩個人可以挑同一個角色（球球配球球是預設），
+   * 那時兩行的開頭一模一樣，折行規則照樣把兩個人的秘寶黏成一行，等於沒修。
+   *
+   * 為什麼不「只有同角色時才加」：座位 0 那一行是 `startCombat` 印的，
+   * 那一拍第二位還沒 push 進 `cs.players`，當場**問不出來對方是誰**。
+   * 一律加，兩個座位的寫法才會一致（實機看過不一致的樣子，很怪）。
+   */
+  return `${unitName(owner)}（${owner.seat + 1} 號）的${RELIC_LOG}`;
+}
+
+export function fireRelic(cs: CombatState, id: string, owner?: PlayerCombat): void {
   const def = relicById[id];
   if (!def) return;
   cs.relicFired.push(id);
+  const head = relicHead(cs, owner);
   const last = cs.log[cs.log.length - 1];
-  if (last === undefined || !last.startsWith(RELIC_LOG)) { log(cs, `${RELIC_LOG}${def.name}`); return; }
-  const body = last.slice(RELIC_LOG.length);
+  if (last === undefined || !last.startsWith(head)) { log(cs, `${head}${def.name}`); return; }
+  const body = last.slice(head.length);
   /**
    * 同一件在同一行裡不重複寫（稽核 2026-09-10 複核 中-2）。
    * 資料表裡有四種組合會讓同一件在同一拍叫兩次以上：紙鶴書籤同掛第一回合多抽與多吃、
@@ -60,7 +88,7 @@ export function fireRelic(cs: CombatState, id: string): void {
   const folded = /^(.+)…等 (\d+) 件$/.exec(body);
   if (folded) {
     if (folded[1]!.split('、').includes(def.name)) return;
-    cs.log[cs.log.length - 1] = `${RELIC_LOG}${folded[1]}…等 ${Number(folded[2]) + 1} 件`;
+    cs.log[cs.log.length - 1] = `${head}${folded[1]}…等 ${Number(folded[2]) + 1} 件`;
     return;
   }
   const names = body.split('、');
@@ -71,8 +99,8 @@ export function fireRelic(cs: CombatState, id: string): void {
    * 開場帶八件會發動的秘寶時那一筆會自己折成三四行，魔物的開場台詞照樣被擠出框外。
    */
   cs.log[cs.log.length - 1] = names.length >= 3
-    ? `${RELIC_LOG}${names.join('、')}…等 ${names.length + 1} 件`
-    : `${RELIC_LOG}${names.join('、')}、${def.name}`;
+    ? `${head}${names.join('、')}…等 ${names.length + 1} 件`
+    : `${head}${names.join('、')}、${def.name}`;
 }
 
 /**
@@ -114,7 +142,7 @@ export function gainStealth(cs: CombatState, n: number, p: PlayerCombat = cs.pla
     const h = relicById[id]?.hooks;
     if (!h) continue;
     const first = !p.firstStealthGiven && (h.stealthBonus ?? 0) > 0;
-    if (first || (h.stealthBonusEvery ?? 0) > 0) fireRelic(cs, id);
+    if (first || (h.stealthBonusEvery ?? 0) > 0) fireRelic(cs, id, p);
   }
   if (!p.firstStealthGiven) amt += p.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonus ?? 0), 0);
   amt += p.relics.reduce((s, id) => s + (relicById[id]?.hooks.stealthBonusEvery ?? 0), 0);   // 影披風：每次都加（審查 #6）
@@ -437,7 +465,7 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
     if (!h) continue;
     // 滿血時沙丁魚罐回 0 點：那一下什麼都沒發生，不該閃金光也不該佔一格紀錄（稽核 2026-09-10 低-9）
     const heals = !!h.killHeal && killer.hp < killer.maxHp;
-    if (heals || h.killStrength || h.killFish) fireRelic(cs, rid);
+    if (heals || h.killStrength || h.killFish) fireRelic(cs, rid, killer);
     if (h.killHeal) healPlayer(cs, h.killHeal, killer);
     if (h.killStrength) addStatus(killer, '爪力', h.killStrength);
     if (h.killFish) killer.fishDelta += h.killFish;
