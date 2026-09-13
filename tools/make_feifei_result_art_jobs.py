@@ -28,6 +28,7 @@
 """
 import json
 import re
+import pathlib
 import sys
 from pathlib import Path
 
@@ -188,8 +189,28 @@ def main() -> None:
     # 會讓它永遠重生不了（2026-09-13 moon_window 與 toll_again_paid 就是這樣）。
     redo: set[str] = set()
     if "--redo" in sys.argv:
-        redo = set(sys.argv[sys.argv.index("--redo") + 1:])
+        redo = {a for a in sys.argv[sys.argv.index("--redo") + 1:] if not a.startswith("--")}
+        # 打錯字要當場喊（2026-09-13 稽核 低-1）：比對不到的鍵會靜靜被忽略，
+        # 印「0 張、跳過 60 張」，然後你拿一個空工單去跑生圖，看起來像成功。
+        if not redo:
+            raise SystemExit("!! --redo 後面要接鍵名，例如：--redo moon_window_r0 moon_window_r1")
+        unknown = redo - set(text)
+        if unknown:
+            ok = '、'.join(sorted(text)[:5])
+            raise SystemExit(f"!! 這幾個鍵在遊戲裡查不到：{'、'.join(sorted(unknown))}"
+                             f"　可用的長這樣：{ok}…")
         print(f"指定重做：{'、'.join(sorted(redo))}")
+        # **原稿還在的話，生圖會「已存在跳過」＝整批空轉、離開碼 0**
+        #（2026-09-13 稽核 高-2；這正是 art_rules.py 第九個雷的復發）。
+        # 這裡自己改名留底，讓這個旗標自足，不要靠人記得。
+        from datetime import date
+        stamp = date.today().strftime("%Y%m%d")
+        for key in sorted(redo):
+            raw = ROOT / "tools" / "codex_raw" / f"event_feifei_{key}.png"
+            if raw.exists():
+                bak = raw.with_name(f"{raw.stem}.previous-{stamp}.png")
+                raw.rename(bak)
+                print(f"  原稿留底：{bak.name}")
 
     jobs: dict[str, dict] = {}
     skipped: list[str] = []
@@ -228,21 +249,36 @@ def main() -> None:
     # 那條恆真、一次都擋不到東西（2026-09-13 稽核 中-7）。真正要擋的是另一件事：
     # `her_ref()` 只要檔案在就用快取，所以**場景圖換過、ref 沒跟著換**的時候，
     # 續集會照著舊場景畫。症狀是玩家看到選項前後的畫面對不上（人物換了衣服、場景換了顏色）。
-    stale: list[str] = []
-    for k, v in jobs.items():
-        eid = re.sub(r"^event_feifei_|_r[01]\.png$|\.png$", "", k)
-        eid = "chest_open" if k == "event_feifei_chest_closed.png" else eid
+    #
+    # **要連 `skipped` 一起檢查，不是只檢查這次要生的**（2026-09-13 稽核 高-3）。
+    # 第一版只跑 `jobs`，而圖都生完之後 `jobs` 是空的——這條迴圈跑零次、永遠綠。
+    # 那等於「你得先知道答案，它才告訴你答案」：`moon_window` 的續集抄到了
+    # 那圈綠光暈，是人眼在拼圖上看出來的，不是這條檢查說的。
+    # 現在跑**全部的鍵**：要生的擋下來不寫檔，已經有圖的印出來叫人用 `--redo` 重生。
+    def ref_of(key: str) -> tuple[str, pathlib.Path | None]:
+        eid = "chest_open" if key == "chest_closed" else re.sub(r"_r[01]$", "", key)
+        r = REFDIR / f"{eid}.png"
+        return eid, (r if r.exists() else None)
+
+    stale_now, stale_done = [], []
+    for key in want + (["chest_closed"] if "event_feifei_chest_closed.png" in jobs else []):
+        eid, ref = ref_of(key)
         scene = manifest["bg"].get(f"bg/event_feifei_{eid}")
-        if not scene:
-            stale.append(f"{k}：查不到場景圖 bg/event_feifei_{eid}")
-            continue
-        if (ROOT / "public" / scene).stat().st_mtime > (ROOT / v["ref"]).stat().st_mtime:
-            stale.append(f"{k}：場景圖比參考圖新，參考圖是舊的（刪掉 {v['ref']} 重跑）")
-    if stale:
+        if not scene or ref is None:
+            continue                                   # 場景圖或參考圖還沒有，不是過期
+        if (ROOT / "public" / scene).stat().st_mtime > ref.stat().st_mtime:
+            (stale_now if f"event_feifei_{key}.png" in jobs else stale_done).append(key)
+    if stale_now:
         print("參考圖對不上現行的場景圖，沒有寫出檔案：")
-        for s in stale[:10]:
-            print(f"  {s}")
+        for k in stale_now[:10]:
+            print(f"  {k}：場景圖比參考圖新（刪掉 tools/ref/event_refs_feifei/{ref_of(k)[0]}.png 重跑）")
         raise SystemExit(1)
+    if stale_done:
+        print(f"!! 這 {len(stale_done)} 張續集是照著**後來被修掉的**場景圖畫的，圖本身可能沒事，"
+              "但構圖或長相會跟現在的場景對不上：")
+        for k in stale_done[:10]:
+            print(f"   {k}")
+        print(f"   要重生：python tools/make_feifei_result_art_jobs.py --redo {' '.join(stale_done[:10])}")
 
     OUT.write_text(json.dumps(jobs, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"{len(jobs)} 張 → {OUT.relative_to(ROOT)}")

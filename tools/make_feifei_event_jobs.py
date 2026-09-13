@@ -122,8 +122,12 @@ def main() -> None:
             continue                                   # 她自己的那幾批不轉
         try:
             d = json.loads(f.read_text(encoding="utf-8"))
-        except Exception:
-            continue
+        except Exception as e:
+            # **壞掉的工單不可以靜靜跳過**（2026-09-13 稽核 中-8）。
+            # 存成帶 BOM 或多一個逗號，這個檔就同時從「要轉的」與「自檢該喊的」兩邊消失，
+            # 自檢因此照樣印過關——而少轉的那批要等使用者玩到才會發現。
+            raise SystemExit(f"!! 工單 {f.name} 解析不了：{e}"
+                             "　（常見原因：存成 UTF-8 with BOM、或 JSON 多一個逗號）")
         if not isinstance(d, dict):
             continue
         for k, v in d.items():
@@ -163,8 +167,12 @@ def main() -> None:
             continue
         try:
             d = json.loads(f.read_text(encoding="utf-8"))
-        except Exception:
-            continue
+        except Exception as e:
+            # **壞掉的工單不可以靜靜跳過**（2026-09-13 稽核 中-8）。
+            # 存成帶 BOM 或多一個逗號，這個檔就同時從「要轉的」與「自檢該喊的」兩邊消失，
+            # 自檢因此照樣印過關——而少轉的那批要等使用者玩到才會發現。
+            raise SystemExit(f"!! 工單 {f.name} 解析不了：{e}"
+                             "　（常見原因：存成 UTF-8 with BOM、或 JSON 多一個逗號）")
         if not isinstance(d, dict):
             continue
         for k, v in d.items():

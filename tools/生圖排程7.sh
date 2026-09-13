@@ -31,10 +31,21 @@ L=/c/Users/yayax/AppData/Local/Temp
 pending() {
   python - "$1" <<'PY' | tr -d '\r'
 import json, pathlib, sys
+sys.path.insert(0, 'tools')
+from manifest_io import read_for_scan          # 寫的人正在覆寫時會自己重試，不會整輪空轉
 raw = pathlib.Path('tools/codex_raw')
-m = json.loads(pathlib.Path('public/assets/manifest.json').read_text(encoding='utf-8'))
-out = [k for k in json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
-       if (raw / k).exists() and '.previous-' not in k and 'bg/' + k[:-4] not in m['bg']]
+m = read_for_scan()
+out = []
+for k in json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')):
+    src = raw / k
+    if not src.exists() or '.previous-' in k:
+        continue
+    dst = pathlib.Path('public') / m['bg'].get('bg/' + k[:-4], '')
+    # **判準是「原稿比成品新」不是「還沒進倉」**（2026-09-13 稽核 高-1）。
+    # 「重生」這件事的定義就是「鍵已經在 manifest 裡、但圖是壞的」，
+    # 用「還沒進倉」當條件的話重生批次永遠收不到，腳本還會印「已經收乾淨了」。
+    if 'bg/' + k[:-4] not in m['bg'] or not dst.exists() or src.stat().st_mtime > dst.stat().st_mtime:
+        out.append(k)
 sys.stdout.write('\n'.join(out))
 PY
 }
@@ -76,9 +87,14 @@ while kill -0 $GEN 2>/dev/null; do
   sleep 900
   files=$(pending tools/codex_jobs/feifei_result_art.json)
   if [ -n "$files" ]; then
-    python tools/add_event_art.py $files >> $L/feifei_result_integrate.log 2>&1 \
-      && echo "$(date +%H:%M) 收了 $(echo "$files" | wc -l) 張" \
-      || echo "$(date +%H:%M) !! 進倉失敗"
+    # 印的是 `add_event_art.py` 自己報的「已併入 N 筆」，**不是待收清單的長度**
+    #（2026-09-13 稽核 中-4）：逐檔跳過不影響清單長度，`\r` 那個雷就是被這個假數字
+    # 藏了五個半小時。它現在有圖沒進倉就會離開碼非 0，所以失敗也看得到。
+    if python tools/add_event_art.py $files >> $L/feifei_result_integrate.log 2>&1; then
+      echo "$(date +%H:%M) $(grep -c '^事件插圖' $L/feifei_result_integrate.log) 張（累計）"
+    else
+      echo "$(date +%H:%M) !! 有圖沒進倉，看 $L/feifei_result_integrate.log"
+    fi
   fi
 done
 wait $GEN 2>/dev/null || true

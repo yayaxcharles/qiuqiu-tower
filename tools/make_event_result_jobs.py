@@ -29,6 +29,7 @@ make_event_result_jobs.py — 建「事件結果圖」的生圖工單（不生�
 """
 import json
 import re
+import sys
 from pathlib import Path
 
 from PIL import Image
@@ -89,6 +90,22 @@ def main() -> None:
     manifest = json.loads((ROOT / "public" / "assets" / "manifest.json").read_text(encoding="utf-8"))
     REFDIR.mkdir(parents=True, exist_ok=True)
 
+    # `--redo <鍵>...`：已經有圖也照樣重開工單（2026-09-13）。
+    #
+    # 需要它的情境：圖**畫得沒問題，是進倉時壞的**。這批 7 張的背景去背只去一半、
+    # 變成半透明的灰膜（見 `tools/check_haze.py` 的說明），而原稿 PNG 早就不在
+    # `codex_raw`／`art_inbox` 了，所以沒辦法只重新去背，只能連圖一起重生。
+    # 預設的「已經有圖就跳過」在這種情況下等於把路封死。
+    #
+    # **提示詞是從 `events.ts` 重新長出來的**，不是從舊工單撈——舊工單早就被
+    # 後面幾批覆蓋掉了。只要 `resultArt` 的鍵沒改過，長出來的就跟當初同一份。
+    redo: set[str] = set()
+    if "--redo" in sys.argv:
+        redo = set(sys.argv[sys.argv.index("--redo") + 1:])
+        if not redo:
+            raise SystemExit("!! --redo 後面要接鍵名，例如：--redo weapon_rack_r1 training_hall_r0")
+        print(f"指定重做：{'、'.join(sorted(redo))}")
+
     starts = [m.start() for m in re.finditer(r"\n  \{ id: '[a-z0-9_]+', title: '", src)] + [len(src)]
     jobs: dict[str, dict] = {}
     skipped: list[str] = []
@@ -103,8 +120,8 @@ def main() -> None:
             key = m.group(1)
             if key != f"{eid}_r{j}":
                 raise SystemExit(f"命名對不上：{key} 應該是 {eid}_r{j}")
-            # 已經有圖的跳過（重跑這支不會重生）
-            if f"bg/event_{key}" in manifest["bg"]:
+            # 已經有圖的跳過（重跑這支不會重生），除非 --redo 點名
+            if key not in redo and f"bg/event_{key}" in manifest["bg"]:
                 skipped.append(key)
                 continue
             # 參考圖：該事件的原插圖鋪白底
@@ -124,7 +141,7 @@ def main() -> None:
                 "ref": str(ref.relative_to(ROOT)).replace("\\", "/"),
             }
 
-    out = JOBS / "event_result_art.json"
+    out = JOBS / ("event_result_redo_haze.json" if redo else "event_result_art.json")
     out.write_text(json.dumps(jobs, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"{out.name}: {len(jobs)} 張（已有圖跳過 {len(skipped)}：{'、'.join(skipped) or '無'}）")
     print(f"  其中 {len(MOVES_ON & {k[6:-4] for k in jobs})} 張用「可以換地方」的寬鬆版")

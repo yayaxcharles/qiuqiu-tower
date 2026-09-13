@@ -52,16 +52,23 @@ def corner_haze(im: Image.Image) -> bool:
     完全不透明的 255，屬於正常。灰膜的特徵是**卡在中間**：大約 30～190。
 
     兩個條件都要成立才算，各自擋掉一種誤判：
-      - 四個角至少兩個卡在中間 → 擋掉「主體剛好頂到某一角」
+      - 四個角至少兩個卡在中間（1～247）→ 擋掉「主體剛好頂到某一角」（那種是 0 或 255）
       - 全圖有超過 15% 的像素是半透明 → 擋掉「角落剛好落在物件邊緣的抗鋸齒上」
-        （`door_act1` 就是這樣：兩個角是 247，但全圖半透明比例是 0%）
-    真的有灰膜的那幾張，半透明比例量出來都在 49%～70%，跟 0% 差得很遠。
+        （`door_act1` 就是這樣：兩個角是 247，但全圖半透明比例只有 0.49%）
+    真的有灰膜的那幾張，半透明比例量出來都在 49%～70%，跟 5% 以下差得很遠。
+
+    **上界是 248 不是 200**（2026-09-13 稽核 中-1）。算式是
+    `alpha = 255 × (1 − (綠度 − 232) / 16)`，所以角落 alpha 落在 200～247 ⇔ 原稿背景
+    綠度 232.5～235.5——那是**最淡、但也最顯眼**的一種灰膜（背景 78%～97% 不透明，
+    等於插圖後面一塊灰板），卡在 200 的上界正好把它放掉。
+    全量過 289 張：角落 alpha 只有 0（814 個角）、≥248（309 個）、1～199（31 個）、
+    200～247（2 個，都是 `door_act1`）四種，放寬到 248 新增誤殺 0 張。
     """
     rgba = im.convert("RGBA")
     px = rgba.load()
     w, h = rgba.size
     mid = sum(1 for x, y in ((2, 2), (w - 3, 2), (2, h - 3), (w - 3, h - 3))
-              if 0 < px[x, y][3] < 200)
+              if 0 < px[x, y][3] < 248)
     if mid < 2:
         return False
     a = rgba.getchannel("A").get_flattened_data()
@@ -108,6 +115,7 @@ def main() -> None:
     # manifest 不在這裡讀：去背一輪要跑好幾分鐘，那段時間看門狗也在改同一份檔
     #（見 tools/manifest_io.py）。先把要加的條目收在手上，最後上鎖一次寫完。
     added: dict[str, str] = {}
+    failed: list[str] = []
     for name in names:
         if not name.startswith("event_") or not name.endswith(".png"):
             print(f"檔名要是 event_<事件編號>.png：{name}，略過")
@@ -131,15 +139,28 @@ def main() -> None:
         # 而不是全透明——綠被扣掉了所以 `green_left` 看起來很漂亮，但整張背景
         # 蒙上一層灰膜，遊戲裡就是插圖後面多一個淡淡的方塊。
         # 判準用「四個角落的 alpha」：角落一定是背景，全透明才算過。
-        if not args.strict and (green_left(keyed) > 3.0 or corner_haze(keyed)):
+        # **手動指定門檻時不要自動蓋掉**（2026-09-13 稽核 中-3）：`check_haze.py` 會叫人
+        # 用 `--soft 190 --hard 230`；如果那樣還不行、想改用比較溫和的一組去保護畫面裡
+        # 本來就有的綠色物件，自動重做會靜靜把它換回 190/230，把綠色主體挖出洞。
+        manual = args.soft is not None or args.hard is not None
+        if not args.strict and not manual and (green_left(keyed) > 3.0 or corner_haze(keyed)):
             why = "背景綠度偏低" if green_left(keyed) > 3.0 else "背景變成半透明的灰膜"
             print(f"  ⚠ {name} 去背沒乾淨（{why}），改用寬門檻重做")
             keyed = despill_all(key_out(Image.open(src), 190, 230, CARD_BAND, crop=False))
         left = green_left(keyed)
-        if left > 3.0:
-            print(f"  ⚠⚠ {name} 寬門檻也去不乾淨（還剩 {left:.1f}% 綠），請看一下這張圖")
-        if corner_haze(keyed):
-            print(f"  ⚠⚠ {name} 背景還是半透明的（角落 alpha 不是 0），請看一下這張圖")
+        haze = corner_haze(keyed)
+        #
+        # **救不回來就不要存檔**（2026-09-13 稽核 中-2）。原本這裡只印警告然後照樣存、
+        # 照樣併進 manifest——而排程把這支的輸出導進 log，畫面上只看得到「收了 N 張」。
+        # 更糟的是 `pending()` 只列「還沒進倉的」，壞圖一旦寫進 manifest 就**永遠不會被重收**。
+        # 那 7 張灰膜就是這樣活了好幾天的。
+        # 不存檔的話原稿還在 `codex_raw`，下一輪照樣撿得到，人也會在結尾看到離開碼非 0。
+        if left > 3.0 or haze:
+            why = f"還剩 {left:.1f}% 綠" if left > 3.0 else "背景是半透明的灰膜"
+            print(f"  ⚠⚠ {name} 去背救不回來（{why}），**沒有存檔**。"
+                  f"手動試試看：python tools/add_event_art.py --strict {name}")
+            failed.append(name)
+            continue
         dst = OUT / "bg" / f"event_{eid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         keyed.resize((560, 420), Image.LANCZOS).save(dst, "WEBP", quality=84, method=6)
@@ -147,7 +168,13 @@ def main() -> None:
         if src != INBOX / name:
             shutil.copy2(src, INBOX / name)
         print(f"事件插圖 event_{eid}.webp {dst.stat().st_size // 1024} KB")
+    # 印的是**真的併進去幾筆**，不是「要求收幾張」（2026-09-13 稽核 中-4）。
+    # 排程的「收了 N 張」數的是待收清單長度，逐檔跳過完全不影響那個數字——
+    # `\r` 那個雷能藏五個半小時就是因為這個假數字。
     print(f"manifest.json 已併入 {merge('bg', added)} 筆")
+    if failed:
+        print(f"!! {len(failed)} 張去背失敗、沒有進倉：{'、'.join(failed)}")
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

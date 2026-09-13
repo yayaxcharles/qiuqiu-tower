@@ -58,6 +58,26 @@ def _release() -> None:
         pass
 
 
+def read_for_scan(retries: int = 20, wait: float = 0.05) -> dict:
+    """生圖期間要讀 manifest 就用這支，不要直接 `json.loads`。
+
+    寫的那邊是「清空再寫」，中間有幾毫秒檔案是空的或半套的。撞進去的話
+    `json.loads` 會丟 `JSONDecodeError`——而呼叫端多半只是讓那一輪什麼都不做、
+    什麼都不印（殼沒開 `set -e`），**畫面上完全看不出來**。重試一次就過了。
+
+    為什麼不改用「先寫暫存檔再改名」：Windows 上只要有人開著這個檔在讀，
+    改名就會被擋（見 `merge` 裡的說明）。修在讀這一邊才是對的。
+    """
+    last: Exception | None = None
+    for _ in range(retries):
+        try:
+            return json.loads(MANIFEST.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as e:    # 正在被覆寫
+            last = e
+            time.sleep(wait)
+    raise SystemExit(f"!! manifest.json 讀了 {retries} 次都是壞的：{last}")
+
+
 def merge(section: str, entries: dict[str, str]) -> int:
     """把 `entries` 併進 manifest 的 `section`，回傳併了幾筆。
 
@@ -69,6 +89,22 @@ def merge(section: str, entries: dict[str, str]) -> int:
     try:
         data = json.loads(MANIFEST.read_text(encoding="utf-8"))
         data.setdefault(section, {}).update(entries)
+        #
+        # **先寫暫存檔再換過去**（2026-09-13 稽核 中-5）。`write_text` 是「先清空再寫」，
+        # 中間那一瞬間檔案是空的。拿鎖的只有寫的人，**讀的人不拿鎖**——生圖那幾小時
+        # 排程每 15 分鐘要讀一次 manifest 決定哪些還沒進倉，撞進那個空窗就是
+        # `JSONDecodeError`：那一輪什麼都不收、也什麼都不印（殼沒開 `set -e`），
+        # 畫面上完全看不出來。`os.replace` 在 Windows 與 POSIX 都是不可分割的，
+        # 讀的人永遠看到完整的舊檔或完整的新檔。
+        #
+        # **「先寫暫存檔再 `os.replace`」這招在 Windows 上行不通**（2026-09-13 實測）。
+        # Windows 的檔案共用語意是：只要有人開著這個檔在讀，改名就會
+        # `PermissionError: [WinError 5] 存取被拒`。實測三個讀取者每 5 毫秒讀一次，
+        # 重試 40 次（2 秒）還是十次有七次失敗——等於把「偶爾讀到半套」
+        # 換成「常常寫不進去」，後者嚴重得多（那一批圖等於白生）。
+        #
+        # 所以寫的這邊維持單純覆寫，**讓讀的人自己重試**（見 `read_for_scan`）。
+        # 空窗只有幾毫秒，重試一次就過。
         MANIFEST.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     finally:
         _release()

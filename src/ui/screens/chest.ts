@@ -252,7 +252,10 @@ registerScreen('chest', (app, root) => {
     }
 
     const art = el('div', { class: 'chest-scene chest-opened' },
-      (() => { const u = artUrl('bg', 'bg/event_chest_open'); return u.startsWith('data:') ? '' : el('img', { class: 'event-art', src: u, alt: '' }); })(),
+      // 這裡也要走 `eventArtKey`（2026-09-13 稽核 高-4）。單人那兩條路徑早就走了，
+      // 只有**連線分岔**還寫死球球的鍵——玩菲菲連線打到紙箱，分寶物那一頁的插圖是球球在開箱。
+      // 同一件事有兩個呼叫點時，擋一個等於沒擋；這次是三個，漏了第三個。
+      (() => { const u = artUrl('bg', eventArtKey('chest_open')); return u.startsWith('data:') ? '' : el('img', { class: 'event-art', src: u, alt: '' }); })(),
       row);
 
     const waiting = !!myPick && !settled;
