@@ -1097,8 +1097,8 @@
    "id": "iron_claw",
    "name": "鐵爪機關貓",
    "hp": [
-    140,
-    140
+    113,
+    113
    ],
    "pool": "塔主",
    "size": "large",
@@ -1198,9 +1198,8 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 6,
-         "times": 3,
-         "pierce": true
+         "amount": 4,
+         "times": 3
         }
        ]
       }

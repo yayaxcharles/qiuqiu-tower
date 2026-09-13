@@ -217,22 +217,7 @@ export const enemies: EnemyDef[] = [
   // 段數砍一級、發條 +3→+2、自動成長改每 3 回合、血 140→120。多段穿蜷縮的性格保留。
   // 2026-09-01 二刀（機器人探測 0/60 勝）：血 105、自動成長改每 4 回合、絞刃 3×3、全開 4×4、收爪 12。
   // 之後幾輪加硬到 125；下一輪平衡 2026-09-05 五隻關主血 −10% → 113（機器人 47%→57%，是五隻裡最軟的，下輪順手看）。
-  /*
-   * 2026-09-14 使用者實打回報「15F BOSS 機器狗太弱了」。量出來確實偏：
-   * 400 局機器人（難度 3）菲菲對牠勝率 79%——是她打過最弱的關主，
-   * 第二名的貓又婆婆才 68%；球球那邊卻是 35%，第一關最難的一隻。
-   *
-   * 病根是**牠的傷害全是小碎段**（4×3、3×3、4×5），而菲菲每張攻擊牌都自帶蜷縮，
-   * 碎段正好被蜷縮整個吃掉；球球靠隱身，一層只擋一下，碎段對他反而難受。
-   * 血量也是第一關關主裡最低的（貓又 158、橘皮 149、蛙大名 135、犰狳王 135）。
-   *
-   * 所以不是無腦加血（那會把球球的 35% 壓更低），改兩處：
-   *   ・血 113 → 140，跟同關的其他關主同一檔
-   *   ・第二階段的「全開」改成**穿透**：外殼整個彈開、刀從縫裡出來，蜷縮擋不住。
-   *     穿透擋不住但**隱身閃得掉**，所以吃虧的是堆蜷縮那一路（她），
-   *     堆隱身那一路（他）有解——剛好把兩邊的差距往中間收。
-   */
-  { id: 'iron_claw', name: '鐵爪機關貓', hp: [140, 140], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
+  { id: 'iron_claw', name: '鐵爪機關貓', hp: [113, 113], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
     strengthEveryNTurns: 3,   // 機關越轉越快（2026-09-03 關主加硬）
     line: '（齒輪轉了一圈）', lines: ['（發出喀噠喀噠的聲音）', '（眼睛亮起紅光）'],
     moves: [
@@ -247,7 +232,7 @@ export const enemies: EnemyDef[] = [
       moves: [
         { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 5 }] },
         { intent: 'debuff', label: '卡住', effects: [{ kind: 'discardRandomHand', n: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 3 }] },
-        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 6, times: 3, pierce: true }] },   // 穿透（2026-09-14，見上面的說明）
+        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
       ],
     }] },
   // 第三關的最終戰。他是師父：招式全是玩家牌組裡絕學的放大版，「同門過招」一看就懂。
