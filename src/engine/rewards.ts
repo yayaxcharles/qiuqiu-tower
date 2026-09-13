@@ -26,6 +26,21 @@ export interface CombatRewards {
   relicOffers?: string[];
   /** 忍具帶滿、收不下這一支的座位（一人一個背包，滿的人不一定是同一個） */
   potionMissedSeats?: number[];
+  /**
+   * **兩個人時每個人各一份三選一**（2026-09-13 使用者要求：「雙人各自獲得牌的話
+   * 要能各自選擇拿到自己的牌」）。`cardsPerSeat[i]` 是第 i 位看到的那三張。
+   *
+   * 為什麼非做不可：原本整場只抽一份，而且是照**0 號座位的角色**抽的
+   *（`heroOf(me(run))` 沒帶座位）。混搭連線時球球坐 0 號、菲菲坐 1 號，
+   * 菲菲看到的永遠是球球的牌池——**她自己那 25 張專屬牌在連線裡一張都抽不到**，
+   * 而且她還會拿到球球專屬的隱身牌。這件事完全靜音：畫面正常、牌也真的進了她的牌組。
+   *
+   * 單機不填（走上面的 `cards`），理由跟 `relicOffers` 一樣：兩條流程不同，
+   * 合成一個欄位的話每個讀它的地方都要再問一次「現在是哪一種」。
+   */
+  cardsPerSeat?: CardDef[][];
+  /** 跟 `cardsPerSeat` 成對：第 i 位那三張裡哪一張是升級版（沒有就是 undefined） */
+  upgradedPerSeat?: (string | undefined)[];
 }
 
 const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];

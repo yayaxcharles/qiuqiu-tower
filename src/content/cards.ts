@@ -125,7 +125,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energyAlly', n: 1 }, { kind: 'noAttacksThisTurn' }],
     upgrade: { effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energyAlly', n: 1 }] } },
   { id: 'genzhewoduohao', name: '跟著我躲好', cost: 0, type: 技, rarity: '罕見', pool: '忍術', hero: 'ninja', target: 'self',
-    art: 'card/genzhewoduohao', coop: true, hidden: true, keywords: ['消耗'],
+    art: 'card/genzhewoduohao', coop: true, keywords: ['消耗'],
     /*
      * 球球專屬。看**自己**有沒有隱身決定給哪一邊——`ifSelfStatus` 讀的是這張牌
      * 開始結算前的層數，所以不會自己給自己隱身再拿來判斷。
@@ -219,16 +219,16 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'energyForAllyEachRound' }],
     upgrade: { effects: [{ kind: 'energyForAllyEachRound', draw: true }] } },
   { id: 'youwozaiqianmian', name: '有我在前面', cost: 1, type: 能, rarity: '稀有', pool: '絕學', hero: 'ninja', target: 'self',
-    art: 'card/youwozaiqianmian', coop: true, hidden: true,
+    art: 'card/youwozaiqianmian', coop: true,
     effects: [{ kind: 'watchSelfPlay', cardType: '攻擊' }],
     upgrade: { effects: [{ kind: 'watchSelfPlay', cardType: 'any' }] } },
   { id: 'biepengzhenjian', name: '別碰針尖喔', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'feifei', target: 'self',
-    art: 'card/biepengzhenjian', coop: true, hidden: true,
+    art: 'card/biepengzhenjian', coop: true,
     // 附毒**每隻只加一次**：多段攻擊連打三下也只有 2 層（交辦單明定）
     effects: [{ kind: 'blockAlly', amount: 4 }, { kind: 'poisonAllyNextAttack', amount: 2 }],
     upgrade: { effects: [{ kind: 'blockAlly', amount: 4 }, { kind: 'poisonAllyNextAttack', amount: 2, anyDamage: true }] } },
   { id: 'woyouxianbeihao', name: '我有先備好', cost: 2, type: 能, rarity: '稀有', pool: '絕學', hero: 'feifei', target: 'self',
-    art: 'card/woyouxianbeihao', coop: true, hidden: true,
+    art: 'card/woyouxianbeihao', coop: true,
     /*
      * 「命中」＝**真的扣到血**（使用者 2026-09-13 裁定）。被蜷縮全擋掉、打 0 點都不算。
      * 判準用 `cs.hits`——那份只記真的扣到的量。

@@ -320,9 +320,16 @@ registerScreen('reward', (app, root, props) => {
   // 有秘寶可挑卻還沒挑：底下那顆鈕要擋著（見下面的說明）
   const mustPickRelic = offers.length > 0 && !r.relicSettled
     && (app.coop ? app.coop.picks('relic', run.players.length)[seat] : null) === null;
+  /*
+   * **兩個人時各看各的那三張**（2026-09-13 使用者要求：「雙人各自獲得牌的話
+   * 要能各自選擇拿到自己的牌」）。原本整場只抽一份、而且是照 0 號座位的角色抽的，
+   * 混搭連線時菲菲看到的永遠是球球的牌池。
+   */
+  const myCards = r.cardsPerSeat?.[seat] ?? r.cards;
+  const myUpgraded = r.cardsPerSeat ? r.upgradedPerSeat?.[seat] : r.upgradedCard;
   // 開出升級牌的那一格照升級版畫（名字帶＋、數字是升級後的）
-  for (const c of r.cards) {
-    cards.append(cardNode(c.id === r.upgradedCard ? { uid: -1, cardId: c.id, upgraded: true } : c,
+  for (const c of myCards) {
+    cards.append(cardNode(c.id === myUpgraded ? { uid: -1, cardId: c.id, upgraded: true } : c,
       waiting || iDown ? { disabled: true } : { onClick: () => done(c.id) }));
   }
 
@@ -351,14 +358,14 @@ registerScreen('reward', (app, root, props) => {
     return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' });
   };
   const middle = r.escaped ? poseArt('hero/ninja_dizzy')
-    : r.cards.length ? cards
+    : myCards.length ? cards
       : poseArt('hero/ninja_eat');
   root.append(sceneView({
     art: middle,
     speaker: r.escaped ? '牠散掉了' : title,
     text: r.escaped ? '一團煙散在空氣裡，什麼都沒剩下。走吧。'
       : waiting ? '挑好了，等對方挑完就一起上樓。'
-      : r.cards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
+      : myCards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
     extra: [items],
     actions: [waiting
       // 已經挑完就只留一顆按不下去的鈕：兩個人得一起走，這裡不能讓任何一邊先跑
@@ -373,6 +380,6 @@ registerScreen('reward', (app, root, props) => {
       : mustPickRelic
         ? el('button', { class: 'btn', disabled: 'disabled' }, '先挑一件秘寶')
         : el('button', { class: 'btn primary', onclick: () => done(null) },
-          !r.escaped && r.cards.length ? '放棄牌並跳過' : '繼續')],
+          !r.escaped && myCards.length ? '放棄牌並跳過' : '繼續')],
   }));
 });

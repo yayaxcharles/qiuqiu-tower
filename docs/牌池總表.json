@@ -533,7 +533,7 @@
   "keywords": [
    "消耗"
   ],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "ifSelfStatus"
@@ -800,7 +800,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "watchSelfPlay"
@@ -823,7 +823,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockAlly",
@@ -851,7 +851,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "watchPoisonHit"

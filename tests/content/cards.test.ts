@@ -93,7 +93,26 @@ describe('牌資料', () => {
     const { rollCardChoices } = await import('../../src/engine/rewards');
     const { Rng, seedFromString } = await import('../../src/engine/rng');
     const manifest = (await import('../../public/assets/manifest.json')).default as { cards: Record<string, string> };
-    for (const c of cards) expect(!!manifest.cards[c.art], c.name + '：有圖=' + !!manifest.cards[c.art] + '、hidden=' + !!c.hidden).toBe(!c.hidden);
+    /*
+     * **「有圖」的判準要看「每一個拿得到這張牌的角色都有圖」**（2026-09-13）。
+     *
+     * 原本只看 `manifest.cards[c.art]`（球球那張）。連線牌兩個角色都拿得到，
+     * 球球那張先生好、她那張還在跑的時候，這條就會逼人提早拿掉 `hidden`——
+     * 一拿掉，菲菲在獎勵畫面就會看到**球球的圖**。
+     * 那正是使用者這一整天回報最多次的那類問題（紙箱、事件圖、迷路的小黑貓），
+     * 只是這次會從牌面再發生一遍。
+     */
+    const artReady = (c: typeof cards[number]): boolean => {
+      if (!manifest.cards[c.art]) return false;
+      // 綁角色的牌，`c.art` 就是那位自己的圖
+      if (c.hero === 'feifei' || c.hero === 'ninja') return true;
+      // 起手牌是照職業發固定清單的，她永遠拿不到球球那四張（貓抓、淡定…），不需要她的版本
+      if (c.pool === '起手') return true;
+      return !!manifest.cards[c.art.replace('card/', 'card/feifei_')];
+    };
+    for (const c of cards) {
+      expect(artReady(c), `${c.name}：兩個角色的圖都齊了=${artReady(c)}、hidden=${!!c.hidden}`).toBe(!c.hidden);
+    }
     /*
      * 菲菲版的共用牌面（2026-09-12「牌全部分家」）：`card/feifei_<牌號>` 是**選配**——
      * 有就用她的、沒有就退回球球那張（`assets.cardArtKey`）。所以這裡只驗「不能有孤兒」：

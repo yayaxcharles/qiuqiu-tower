@@ -243,6 +243,21 @@ interface WatchSnapshot {
   poisonHit: PlayerCombat['watchPoisonHit'];
 }
 
+/**
+ * **中途加入這一場的人，第一回合要跑跟別人一樣的開場**（2026-09-13 實測抓到）。
+ *
+ * `beginCombat` 幫加入的那一位手動發了五張牌、給滿飯糰，卻**漏掉秘寶那一段**——
+ * 每回合開始的掛鉤（毒針袋、鐵砂袋、靈貓鈴）與第一回合限定的掛鉤
+ *（藍頭巾多抽一張、飯糰袋多一顆）在他身上一次都不會跑。
+ *
+ * 玩家看到的是：菲菲當加入方時，她的起始秘寶毒針袋第一回合完全沒作用
+ *（魔物身上沒有毒、紀錄也沒說發動）；球球當加入方時第一回合少抽一張。
+ * 完全靜音——畫面正常，只是數字比該有的少。單機與開房那一位都沒事，所以測試也照樣綠。
+ */
+export function startJoinedSeat(cs: CombatState, p: PlayerCombat): void {
+  startSeatTurn(cs, p);
+}
+
 function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 蜷縮不在這裡清：回合結束、魔物打完才照守護符留量修剪（見 endTurn 尾端）——
   // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）

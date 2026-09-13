@@ -7,7 +7,7 @@ import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
-import { startCombat } from './combat';
+import { startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { rollCardChoices, rollPotion, rollRelic, rollRelicChoices, rollRewards, type CombatRewards } from './rewards';
@@ -145,9 +145,15 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
      * 這裡先發下去只是留一手用不到的牌在記憶體裡。
      */
     if (rp.down) { p.down = true; p.hp = 0; continue; }
-    // 第一回合已經在 `startCombat` 裡跑過了（那時只有第一位），所以補進來的人要自己發一手牌
-    p.energy = p.maxEnergy;
-    p.hand = p.drawPile.splice(0, 5);
+    /*
+     * 第一回合已經在 `startCombat` 裡跑過了（那時只有第一位），所以補進來的人要自己跑一次。
+     *
+     * **一定要走 `startJoinedSeat` 不要自己手動發牌**（2026-09-13 實測抓到）：
+     * 原本這裡只寫 `energy = maxEnergy` 加 `splice(0, 5)`，漏掉了秘寶的
+     * 「每回合開始」與「第一回合限定」兩組掛鉤——菲菲當加入方時毒針袋第一回合
+     * 完全沒作用，球球當加入方時第一回合少抽一張。畫面正常、測試也綠。
+     */
+    startJoinedSeat(cs, p);
     // 暖毯的蜷縮也是各帶各的：他自己在打盹點蓋了毯子，這一場就該帶進來（然後一樣只帶一場）
     if (rp.restBlock) { p.block += rp.restBlock; rp.restBlock = 0; }
   }
@@ -363,6 +369,36 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    */
   const r = rollRewards(runRng(run), kind, me(run).relics, winGold, late, { exclude, rareBonus: (me(run).rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(me(run)), heroes: heroesIn(run),
     ...(run.players.length > 1 ? { ownedPerSeat: run.players.map((p) => p.relics) } : {}) });
+  /*
+   * **兩個人時每個人再各抽一份三選一**（2026-09-13 使用者要求）。
+   *
+   * 上面那一份是照 0 號座位的角色抽的。混搭連線時（球球 0 號、菲菲 1 號）
+   * 菲菲看到的永遠是球球的牌池——她自己那 25 張專屬牌一張都抽不到，
+   * 反而會拿到球球專屬的隱身牌。完全靜音：畫面正常、牌也真的進了她的牌組。
+   *
+   * 做法是**照座位順序各抽一次**，用的是同一顆 `runRng(run)`。
+   * 順序固定，所以兩台各自跑這一段會得到同一份——鎖步不會分岔。
+   * 0 號那一份直接沿用上面抽好的，不重抽（不然同一顆亂數會被多消耗一輪，
+   * 之後每一次抽牌都跟單機對不上，`smartRun` 的種子對照就沒得比了）。
+   */
+  if (run.players.length > 1 && r.cards.length) {
+    const per: CardDef[][] = [r.cards];
+    const upPer: (string | undefined)[] = [r.upgradedCard];
+    for (let i = 1; i < run.players.length; i++) {
+      const mine = rollRewards(runRng(run), kind, run.players[i]!.relics, winGold, late, {
+        exclude, rareBonus: (run.players[i]!.rarePity ?? 0) * 4, extraChoices, upgradeChance,
+        hero: heroOf(me(run, i)), heroes: heroesIn(run),
+      });
+      per.push(mine.cards);
+      upPer.push(mine.upgradedCard);
+      // 稀有保底各算各的：他看到的那三張有沒有稀有，跟 0 號看到什麼無關
+      if (mine.cards.length) {
+        run.players[i]!.rarePity = mine.cards.some((c) => c.rarity === '稀有') ? 0 : (run.players[i]!.rarePity ?? 0) + 1;
+      }
+    }
+    r.cardsPerSeat = per;
+    r.upgradedPerSeat = upPer;
+  }
   if (r.cards.length) me(run).rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (me(run).rarePity ?? 0) + 1;
   // 肥美／餓扁改固定加減（下一輪平衡 2026-09-05）：倍率對 15～25 條的戰利品只有 ±10～20 條，換的卻是 ±25% 血，秤不平；
   // 固定值也不會再碰到「把秘寶答應的加成一起砍掉」那個坑（稽核 2026-09-04 夜 M-2）：下限就是秘寶答應的那份（稽核 2026-09-05 夜 2 低-1）
@@ -451,13 +487,25 @@ export function rollActRelics(run: RunState, n = 3): string[] {
  * 會被判成「這張不在戰利品裡」而靜靜落空。清空改由呼叫端在全部挑完之後做。
  */
 export function takeCardReward(run: RunState, rewards: CombatRewards, cardId: string | null, seat = 0): void {
-  if (cardId && rewards.cards.some((c) => c.id === cardId)) {
-    addCard(run, cardId, rewards.upgradedCard === cardId, seat);   // 開出來的升級牌拿到就是升級版
+  /*
+   * **驗的是「這一位看到的那三張」**（2026-09-13）：兩個人時每個人各有一份
+   * （`cardsPerSeat`，見那個欄位的說明），驗錯份的話 A 可以挑走 B 的牌。
+   * 沒有 `cardsPerSeat` 就是單機，退回共用的那份。
+   */
+  const mine = rewards.cardsPerSeat?.[seat] ?? rewards.cards;
+  const up = rewards.cardsPerSeat ? rewards.upgradedPerSeat?.[seat] : rewards.upgradedCard;
+  if (cardId && mine.some((c) => c.id === cardId)) {
+    addCard(run, cardId, up === cardId, seat);   // 開出來的升級牌拿到就是升級版
   }
 }
 
 /** 這一份戰利品處理完了（牌不再能挑）。單機挑完一張就叫，兩個人要等兩邊都挑完 */
-export function closeCardReward(rewards: CombatRewards): void { rewards.cards = []; }
+export function closeCardReward(rewards: CombatRewards): void {
+  rewards.cards = [];
+  // 一人一份的那幾份也要清，不然重畫時畫面還以為有牌可挑（`r.cards.length` 是 0 但
+  // `cardsPerSeat[seat]` 還有三張，兩個判斷會打架）
+  if (rewards.cardsPerSeat) rewards.cardsPerSeat = rewards.cardsPerSeat.map(() => []);
+}
 
 /**
  * 加一張牌進**某一位**的牌組。`seat` 不填就是自己。

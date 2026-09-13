@@ -53,6 +53,7 @@ registerScreen('heroselect', (app, root, props) => {
 
   const detail = el('div', { class: 'hero-detail' });
   const cards = el('div', { class: 'hero-cards' });
+  const goBtn = el('button', { class: 'btn primary', onclick: () => app.newRun(seed, difficulty ?? 1, chosen) });
 
   const refresh = (): void => {
     const p = PICKS.find((x) => x.hero === chosen) as Pick;
@@ -77,6 +78,7 @@ registerScreen('heroselect', (app, root, props) => {
     for (const node of cards.children) {
       node.classList.toggle('selected', node.getAttribute('data-hero') === chosen);
     }
+    goBtn.textContent = `就${chosen === 'feifei' ? '她' : '他'}了，出發`;
   };
 
   for (const p of PICKS) {
@@ -100,7 +102,9 @@ registerScreen('heroselect', (app, root, props) => {
     cards,
     detail,
     el('div', { class: 'heroselect-buttons' },
-      el('button', { class: 'btn primary', onclick: () => app.newRun(seed, difficulty ?? 1, chosen) }, '就他了，出發'),
+      // 選菲菲時要寫「她」（2026-09-13 實機看到的）。**文字要在 `refresh` 裡更新**——
+      // 只在建立時算一次的話，挑了她之後按鈕還是指著他
+      goBtn,
       el('button', { class: 'btn', onclick: () => app.show('title') }, '再想想'))));
   // 封面那張圖只在標題畫面用，這裡不放：兩隻角色並排時再擺一張大圖會搶掉焦點
   void artUrl;
