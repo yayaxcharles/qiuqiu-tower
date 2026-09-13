@@ -750,7 +750,7 @@ registerScreen('combat', (app, root, props) => {
     if (getStatus(e, '沉睡') > 0) text = '呼呼大睡';   // 睡著的什麼都不做（2026-09-02 第二波）
     else if (getStatus(e, '定身') > 0) text = '被定住了';   // 定身擋整個動作（2026-09-02）
     else if (boom) text = `攻 ${computeAttack(boom.amount * x, e, my())}（爆）`;
-    else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, my())}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿）' : ''}`).join('＋')}`;
+    else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, my())}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿透）' : ''}`).join('＋')}`;
     else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, my())}～${computeAttack(rnd.max * x, e, my())}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
     // 盾陣／號令這種給全體的：牌子上也要有數字（使用者 2026-09-03：「有格檔但沒看到格檔值」）
@@ -775,7 +775,20 @@ registerScreen('combat', (app, root, props) => {
     const before = lastIntent.get(e.uid);
     const flip = before !== undefined && before !== text;
     lastIntent.set(e.uid, text);
-    const node = el('div', { class: `intent i-${m.intent}${flip ? ' changed' : ''}` }, text);
+    const node = el('div', { class: `intent i-${m.intent}${flip ? ' changed' : ''}` });
+    /*
+     * **「穿透」要標出來**（2026-09-14 使用者以為虛無貓有 bug：「她的攻擊都會無視我的蜷縮」）。
+     *
+     * 那不是 bug——虛無貓的「吞噬」資料裡就寫著 `pierce`，而且滑上去的說明也講了
+     *「穿透：蜷縮擋不住，隱身閃得掉」。問題是**打架的時候沒人會去滑**，
+     * 而牌子上原本只縮寫成「（穿）」，跟旁邊的數字同一個顏色同一個大小，一眼看過去就漏掉了。
+     * 玩家照常疊蜷縮，然後一次吃滿 44 點，當然覺得是 bug。
+     * 改成寫全「（穿透）」（也才對得上詞彙表的條目），再標紅。
+     */
+    for (const part of text.split(/(（穿透）)/)) {
+      if (!part) continue;
+      node.append(part === '（穿透）' ? el('span', { class: 'pierce' }, part) : part);
+    }
     // 牌子上只寫得下「攻 4」這種短標籤，滑上去才講得完牠這一下實際會做什麼
     attachTextTooltip(node, m.label, describeMove(e));
     return node;
