@@ -138,7 +138,14 @@ FEIFEI_NOT_HUMAN = (
     "never faded out or left off. Do NOT draw a human or anime girl's face with a flat skin-coloured "
     "cheek, a human nose, a human chin or human lips and then add cat ears on top. Do NOT give her "
     "human hands or human feet; she has rounded paws. If you cannot see the brown face markings and the "
-    "muzzle, it is the wrong character.\n")
+    "muzzle, it is the wrong character.\n"
+    # 2026-09-13 自檢抓到：`sunbath_r0`／`r1` 兩張的眼睛畫成棕色。規則寫了「bright BLUE」，
+    # 但沒有反面——而暹羅貓的臉是深棕色的，模型很容易把眼睛跟著調成同一個色系。
+    # 這是第七個雷同一個道理的第三次：描述性的規則會被最省力的解法繞過去。
+    "**HER EYES ARE BLUE. ALWAYS.** Bright sky-blue irises with a glossy white highlight - the single "
+    "brightest, most saturated thing on her face. Do NOT draw brown, amber, gold, green or dark eyes on "
+    "her; the dark seal-brown fur around her eyes makes brown irises disappear into the face and she "
+    "stops being recognisable. If her eyes are not clearly BLUE, it is the wrong character.\n")
 
 # 「矮短圓」是她的正面敘述，模型照著畫最省力的解就是一路胖下去（第六個雷的反方向）。
 # **判準要寫看得見的東西**：四肢分不分得出來。原本寫「還是要看得出腰」被稽核打回——

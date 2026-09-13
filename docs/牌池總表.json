@@ -370,6 +370,197 @@
   "up": "同伴這回合多 2 顆飯糰（自己一個人時算在自己身上）。消耗。"
  },
  {
+  "id": "bangnidianyixia",
+  "name": "幫你墊一下",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "blockAlly"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 6
+   },
+   {
+    "kind": "blockAlly",
+    "amount": 4
+   }
+  ],
+  "text": "造成 6 點傷害，同伴獲得 4 點蜷縮（自己一個人時算在自己身上）。",
+  "up": "造成 6 點傷害，同伴獲得 4 點蜷縮（自己一個人時算在自己身上），獲得 4 點蜷縮。"
+ },
+ {
+  "id": "shoujiewoyixia",
+  "name": "手借我一下",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "healAlly"
+  ],
+  "effects": [
+   {
+    "kind": "healAlly",
+    "n": 8
+   }
+  ],
+  "text": "同伴回復 8 點生命（自己一個人時回自己的）。消耗。",
+  "up": "清掉同伴身上所有減益（自己一個人時清自己的），同伴回復 8 點生命（自己一個人時回自己的）。消耗。"
+ },
+ {
+  "id": "huannieduochoudian",
+  "name": "換你多抽點",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "discardFromHand",
+   "block",
+   "drawAlly"
+  ],
+  "effects": [
+   {
+    "kind": "discardFromHand",
+    "n": 1
+   },
+   {
+    "kind": "block",
+    "amount": 4
+   },
+   {
+    "kind": "drawAlly",
+    "n": 2
+   }
+  ],
+  "text": "丟掉 1 張牌，獲得 4 點蜷縮，同伴抽 2 張牌（自己一個人時算在自己身上）。消耗。",
+  "up": "消耗手牌裡的 1 張牌，獲得 4 點蜷縮，同伴抽 2 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "wobangnishouwei",
+  "name": "我幫你收尾",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "energyAlly"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 9
+   },
+   {
+    "kind": "energyAlly",
+    "n": 1,
+    "onKill": true
+   }
+  ],
+  "text": "造成 9 點傷害，同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）。消耗。",
+  "up": "造成 9 點傷害，同伴這回合多 1 顆飯糰（自己一個人時算在自己身上），同伴抽 1 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "huannimangyixia",
+  "name": "換你忙一下",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "drawAlly",
+   "energyAlly",
+   "noAttacksThisTurn"
+  ],
+  "effects": [
+   {
+    "kind": "drawAlly",
+    "n": 2
+   },
+   {
+    "kind": "energyAlly",
+    "n": 1
+   },
+   {
+    "kind": "noAttacksThisTurn"
+   }
+  ],
+  "text": "同伴抽 2 張牌（自己一個人時算在自己身上），同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）；這回合不能再打攻擊牌。消耗。",
+  "up": "同伴抽 2 張牌（自己一個人時算在自己身上），同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "genzhewoduohao",
+  "name": "跟著我躲好",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "ifSelfStatus"
+  ],
+  "effects": [
+   {
+    "kind": "ifSelfStatus",
+    "name": "隱身",
+    "then": [
+     {
+      "kind": "statusAlly",
+      "name": "隱身",
+      "amount": 1
+     }
+    ],
+    "otherwise": [
+     {
+      "kind": "blockAlly",
+      "amount": 8
+     }
+    ]
+   }
+  ],
+  "text": "自己身上有隱身的話，同伴獲得 1 層隱身（自己一個人時算在自己身上）；否則同伴獲得 8 點蜷縮（自己一個人時算在自己身上）。消耗。",
+  "up": "自己身上有隱身的話，同伴獲得 1 層隱身（自己一個人時算在自己身上）；否則同伴獲得 8 點蜷縮（自己一個人時算在自己身上），同伴抽 1 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
   "id": "wozaizhe",
   "name": "我在這",
   "pool": "忍術",

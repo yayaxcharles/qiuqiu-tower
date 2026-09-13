@@ -114,6 +114,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'blockAlly': return `同伴獲得 ${fx.amount} 點蜷縮（自己一個人時算在自己身上）`;
     case 'drawAlly': return `同伴抽 ${fx.n} 張牌（自己一個人時算在自己身上）`;
     case 'cleanseAlly': return '清掉同伴身上所有減益（自己一個人時清自己的）';
+    // 連線支援牌（2026-09-13）。措辭跟上面幾張一致：寫「同伴」並補一句單人時怎麼算，
+    // 不然單機抽到會以為牌壞掉
+    case 'healAlly': return `同伴回復 ${fx.n} 點生命（自己一個人時回自己的）`;
+    // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
+    case 'ifSelfStatus': return `自己身上有${fx.name}的話，${fx.then.map((e) => one(e, ctx)).join('，')}`
+      + `；否則${fx.otherwise.map((e) => one(e, ctx)).join('，')}`;
     case 'energyAlly': return `同伴這回合多 ${fx.n} 顆飯糰（自己一個人時算在自己身上）`;
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）

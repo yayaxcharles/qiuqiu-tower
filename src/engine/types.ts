@@ -115,8 +115,20 @@ export type Effect =
   | { kind: 'drawAlly'; n: number }
   /** 我幫你拍掉：清掉**同伴**身上的減益。一個人時退化成清自己的 */
   | { kind: 'cleanseAlly' }
-  /** 飯糰分你：**同伴**這回合多幾顆飯糰。一個人時退化成給自己 */
-  | { kind: 'energyAlly'; n: number }
+  /**
+   * 飯糰分你：**同伴**這回合多幾顆飯糰。一個人時退化成給自己。
+   * `onKill`＝只有這張牌**直接打倒**目標時才給（我幫你收尾）；跟 `energy` 的同名旗標同一個判斷。
+   */
+  | { kind: 'energyAlly'; n: number; onKill?: boolean }
+  /** 手借我一下：替**同伴**回血。一個人時退化成回自己的（2026-09-13 連線支援牌） */
+  | { kind: 'healAlly'; n: number }
+  /**
+   * 看自己身上有沒有某個狀態，決定跑哪一組效果（2026-09-13 連線支援牌「跟著我躲好」）。
+   *
+   * 判斷用的是**這張牌開始結算前**的層數——不然同一張牌先給自己上狀態、再用它做判斷，
+   * 玩家看不出到底以哪個為準。
+   */
+  | { kind: 'ifSelfStatus'; name: StatusName; then: Effect[]; otherwise: Effect[] }
   /**
    * 我來擋：這一輪魔物的攻擊**全部打我**。
    *

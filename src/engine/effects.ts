@@ -191,10 +191,27 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'energyAlly': {
+      // `onKill`＝只有這張牌直接打倒目標才給（我幫你收尾）。判斷跟 `energy` 同一個旗標，
+      // 所以「毒在之後才毒死牠」不算——那時候這張牌早就結算完了。
+      if (fx.onKill && !ctx.killed) return false;
       const mate = ally(cs, p);
       mate.energy += fx.n;
       cs.energyGain += fx.n;   // 畫面靠這個數字知道飯糰是「多出來的」不是自己省下的
       if (mate !== p) log(cs, `飯糰分了對方 ${fx.n} 顆`);
+      return false;
+    }
+    case 'healAlly': {
+      const mate = ally(cs, p);
+      healPlayer(cs, fx.n, mate);
+      if (mate !== p) log(cs, `幫對方回了 ${fx.n} 點`);
+      return false;
+    }
+    case 'ifSelfStatus': {
+      // 看的是**這張牌開始結算前**的層數。`applyOne` 是照順序跑的，所以同一張牌
+      // 先上狀態再判斷會拿到「上完之後」的值——那會讓「跟著我躲好」自己給自己隱身
+      // 再判斷「我有隱身」，永遠走同一條分支。所以掛這個效果的牌，前面不要放同名的上狀態。
+      const branch = getStatus(p, fx.name) > 0 ? fx.then : fx.otherwise;
+      queue.unshift(...branch);
       return false;
     }
     case 'taunt': {

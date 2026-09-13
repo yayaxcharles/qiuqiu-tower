@@ -26,7 +26,13 @@ _setManifestForTest(manifest);
 const FLOOR = 46;
 
 describe('菲菲的牌面圖', () => {
-  const hers = cards.filter((c) => !c.hero || c.hero === 'feifei');
+  /*
+   * **`hidden` 的牌不算**（2026-09-13）：那是「牌面圖還沒生，先不進任何池子」的暫存旗標，
+   * 玩家根本抽不到，所以它沒有圖是正確狀態，不是破圖。
+   * 不排掉的話，每次新加一批待圖的牌這條就會紅，而紅的原因跟她無關——
+   * 下一個人會學會忽略它（`art_rules.py` 第九個雷）。
+   */
+  const hers = cards.filter((c) => (!c.hero || c.hero === 'feifei') && !c.hidden);
 
   it('她看得到的每一張都解得出圖', () => {
     setLocalHero('feifei');

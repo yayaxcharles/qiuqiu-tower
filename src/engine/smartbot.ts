@@ -397,6 +397,28 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
        */
       case 'echoFirst': value += rest * 12 * 0.9; break;
       case 'poisonOnAttack': value += fx.n * rest * 1.5; break;
+      // 連線支援牌（2026-09-13）。機器人跑的是**單人**對照，所以這兩個都照
+      // 「退化成作用在自己身上」估——那正是單人時真正會發生的事。
+      case 'healAlly': value += fx.n * 0.8; break;          // 跟 `heal` 同一個係數
+      case 'ifSelfStatus': {
+        /*
+         * 兩條分支都粗估一次、取**比較小**的那個。
+         *
+         * 為什麼不遞迴呼叫這支：整個估值是一個很長的 switch 寫在迴圈裡，沒有可重入的函式，
+         * 為了一張牌把它拆開重構不划算。這裡只把分支裡的數字加總——
+         * 那些效果（蜷縮、隱身、抽牌）的量級本來就差不多，估值只是用來
+         * 決定「值不值得打」，不需要準。
+         *
+         * 取小的那邊是因為**高估比低估糟**：高估會讓機器人為了賭一個分支浪費飯糰，
+         * 量出來的平衡就偏高，而平衡數字是拿來做決策的。
+         */
+        const crude = (es: typeof fx.then): number => es.reduce((s, e) => {
+          const n = (e as { amount?: number; n?: number }).amount ?? (e as { n?: number }).n ?? 0;
+          return s + n;
+        }, 0);
+        value += Math.min(crude(fx.then), crude(fx.otherwise)) * 0.9;
+        break;
+      }
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }

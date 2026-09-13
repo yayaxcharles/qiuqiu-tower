@@ -77,6 +77,66 @@ export const cards: readonly CardDef[] = [
     keywords: ['消耗'],
     effects: [{ kind: 'energyAlly', n: 1 }],
     upgrade: { effects: [{ kind: 'energyAlly', n: 2 }] } },
+  /*
+   * ===== 連線支援牌第二批（2026-09-13，交辦單 `docs/連線支援牌20張_實作交辦單_2026-09-13.md`）=====
+   *
+   * 20 張分三批做，這是**第一批六張**——全部是既有積木拼出來的，沒有跨玩家的新機制，
+   * 所以可以先上線讓人玩到。另外兩批（同伴版的既有效果 3 張、真的要新機制的 11 張）
+   * 在後面的提交。
+   *
+   * `hidden: true`＝牌面圖還沒生，先不進任何池子。圖到齊再拿掉（跟她那 26 張同一套做法）。
+   * **這一條很重要**：沒有它的話，玩家會在獎勵畫面看到一張灰底沒圖的牌。
+   *
+   * 售價照既有稀有度走（常見 50、罕見 75、稀有 150），沒有另設一套。
+   */
+  { id: 'bangnidianyixia', name: '幫你墊一下', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy',
+    art: 'card/bangnidianyixia', coop: true, hidden: true,
+    effects: [{ kind: 'damage', amount: 6 }, { kind: 'blockAlly', amount: 4 }],
+    // 升級是「自己也擋 4」不是「打更痛」：這張的定位是一邊清怪一邊護人，加傷會把它推成純攻擊牌
+    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'blockAlly', amount: 4 }, { kind: 'block', amount: 4 }] } },
+  { id: 'shoujiewoyixia', name: '手借我一下', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self',
+    art: 'card/shoujiewoyixia', coop: true, hidden: true, keywords: ['消耗'],
+    effects: [{ kind: 'healAlly', n: 8 }],
+    /*
+     * 交辦單寫升級是「先清除同伴**自選的 1 種**減益」。這裡實作成「清掉全部」——
+     * 「自選一種」要為同伴開一個選單，而選單是跨玩家的鎖步流程（跟第 5、6 張同一類），
+     * 那是第三批的工作。清全部比清一種強，但這張是罕見、又消耗、又只回 8 點，
+     * 撐得住。**這是有意識的偏離，不是漏做**——第三批做選單時可以回來改。
+     */
+    upgrade: { effects: [{ kind: 'cleanseAlly' }, { kind: 'healAlly', n: 8 }] } },
+  { id: 'huannieduochoudian', name: '換你多抽點', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self',
+    art: 'card/huannieduochoudian', coop: true, hidden: true, keywords: ['消耗'],
+    effects: [{ kind: 'discardFromHand', n: 1 }, { kind: 'block', amount: 4 }, { kind: 'drawAlly', n: 2 }],
+    /*
+     * 交辦單寫升級是「**可以選擇**把那張手牌消耗掉，取代棄掉」。實作成「一律消耗」——
+     * 「棄或消耗二選一」要多一層模式選擇的介面，而消耗嚴格優於棄牌
+     *（唯一的差別是棄牌堆洗回來時會再遇到那張，而你會想消耗的正是壞毛病），
+     * 所以那個選擇實際上沒有取捨。**有意識的偏離**，理由記在這裡。
+     */
+    upgrade: { effects: [{ kind: 'exhaustFromHand', n: 1 }, { kind: 'block', amount: 4 }, { kind: 'drawAlly', n: 2 }] } },
+  { id: 'wobangnishouwei', name: '我幫你收尾', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy',
+    art: 'card/wobangnishouwei', coop: true, hidden: true, keywords: ['消耗'],
+    // `onKill` 只認**這張牌直接打倒**：之後毒死的不算，那時候這張早就結算完了
+    effects: [{ kind: 'damage', amount: 9 }, { kind: 'energyAlly', n: 1, onKill: true }],
+    upgrade: { effects: [{ kind: 'damage', amount: 9 }, { kind: 'energyAlly', n: 1, onKill: true }, { kind: 'drawAlly', n: 1 }] } },
+  { id: 'huannimangyixia', name: '換你忙一下', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'self',
+    art: 'card/huannimangyixia', coop: true, hidden: true, keywords: ['消耗'],
+    // 「自己本輪不能再打攻擊牌」只鎖出牌者（`noAttacksThisTurn` 本來就只作用在 `p`），同伴照打
+    effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energyAlly', n: 1 }, { kind: 'noAttacksThisTurn' }],
+    upgrade: { effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energyAlly', n: 1 }] } },
+  { id: 'genzhewoduohao', name: '跟著我躲好', cost: 0, type: 技, rarity: '罕見', pool: '忍術', hero: 'ninja', target: 'self',
+    art: 'card/genzhewoduohao', coop: true, hidden: true, keywords: ['消耗'],
+    /*
+     * 球球專屬。看**自己**有沒有隱身決定給哪一邊——`ifSelfStatus` 讀的是這張牌
+     * 開始結算前的層數，所以不會自己給自己隱身再拿來判斷。
+     * 基礎版不是兩者都給（交辦單特別強調過）。
+     */
+    effects: [{ kind: 'ifSelfStatus', name: '隱身',
+      then: [{ kind: 'statusAlly', name: '隱身', amount: 1 }],
+      otherwise: [{ kind: 'blockAlly', amount: 8 }] }],
+    upgrade: { effects: [{ kind: 'ifSelfStatus', name: '隱身',
+      then: [{ kind: 'statusAlly', name: '隱身', amount: 1 }],
+      otherwise: [{ kind: 'blockAlly', amount: 8 }] }, { kind: 'drawAlly', n: 1 }] } },
   { id: 'wozaizhe', name: '我在這', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/wozaizhe',
     effects: [{ kind: 'damage', amount: 7 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }] } },
