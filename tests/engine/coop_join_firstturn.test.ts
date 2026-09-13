@@ -56,3 +56,49 @@ describe('加入的那一位的第一回合', () => {
     for (const p of cs.players) expect(p.energy, '每個人第一回合都該是滿的').toBe(p.maxEnergy);
   });
 });
+
+/*
+ * **「每場戰鬥開始」那組也要跑**（2026-09-13 第三輪稽核 高-2）。
+ *
+ * 上面那批只補了「每回合開始」的掛鉤，掛 `combatStart` 的十七件秘寶
+ *（斗笠、鐵項圈、龜甲、爪鞘、無聲鈴、墨玉、塔頂之月…）與秘笈的
+ * 「第一次攻擊傷害加倍」在加入的那一位身上還是整場不發動。
+ * 花 190 條買的東西一次都沒作用，而且照樣不報錯、測試照樣綠。
+ */
+describe('加入的那一位的開場秘寶', () => {
+  const fight = (setup: (run: ReturnType<typeof newCoopRun>) => void, seed: string) => {
+    const run = newCoopRun(seed, 1, 'ninja', 'ninja');
+    setup(run);
+    const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+    run.currentNode = node.id;
+    return beginCombat(run);
+  };
+
+  it('斗笠：加入方開戰要有 4 點蜷縮', () => {
+    const cs = fight((run) => takeRelic(run, 'straw_hat', 1), 'cs-hat');
+    expect(cs.players[1]!.block, '加入方的斗笠沒發動').toBeGreaterThanOrEqual(4);
+  });
+
+  it('鐵項圈：加入方開戰要有 10 點蜷縮', () => {
+    const cs = fight((run) => takeRelic(run, 'iron_collar', 1), 'cs-collar');
+    expect(cs.players[1]!.block, '加入方的鐵項圈沒發動').toBeGreaterThanOrEqual(10);
+  });
+
+  it('墨玉：加入方帶的話，全體魔物開戰就掛 2 層懶洋洋', () => {
+    const cs = fight((run) => takeRelic(run, 'ink_jade', 1), 'cs-jade');
+    for (const e of cs.enemies) {
+      expect(getStatus(e, '懶洋洋'), '加入方的墨玉沒發動').toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('秘笈：加入方的第一次攻擊加倍旗標要立起來', () => {
+    const cs = fight((run) => takeRelic(run, 'scroll', 1), 'cs-scroll');
+    expect(cs.players[1]!.firstAttackDouble, '加入方的秘笈沒掛上').toBe(true);
+  });
+
+  it('開房那位帶的不會誤跑到加入方身上', () => {
+    const cs = fight((run) => takeRelic(run, 'iron_collar', 0), 'cs-owner');
+    expect(cs.players[0]!.block, '開房那位本來就該有').toBeGreaterThanOrEqual(10);
+    expect(cs.players[1]!.block, '加入方沒買，不該憑空多出蜷縮').toBe(0);
+  });
+});

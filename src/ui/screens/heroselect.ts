@@ -5,7 +5,7 @@ import { relicById } from '../../content/relics';
 import { describeCard } from '../cardtext';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
-import { startRelicFor, type Hero } from '../../engine/hero';
+import { heroPronoun, startRelicFor, type Hero } from '../../engine/hero';
 
 /**
  * 選角色（2026-09-12，使用者：「開頭進地圖前可以選角色」）。
@@ -78,7 +78,7 @@ registerScreen('heroselect', (app, root, props) => {
     for (const node of cards.children) {
       node.classList.toggle('selected', node.getAttribute('data-hero') === chosen);
     }
-    goBtn.textContent = `就${chosen === 'feifei' ? '她' : '他'}了，出發`;
+    goBtn.textContent = `就${heroPronoun({ hero: chosen })}了，出發`;
   };
 
   for (const p of PICKS) {

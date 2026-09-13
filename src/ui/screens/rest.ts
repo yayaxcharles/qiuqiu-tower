@@ -16,7 +16,7 @@ import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
-import { sharpenVerb } from '../../engine/hero';
+import { heroPronoun, sharpenVerb } from '../../engine/hero';
 
 /** 蜷在貓窩旁的立繪（畫的是這一位自己的角色）；圖還沒生好就不放 */
 function heroPortrait(hero: string | undefined): string | undefined {
@@ -165,7 +165,8 @@ registerScreen('rest', (app, root) => {
       const back = Math.max(1, Math.floor((run.players[hurt]?.maxHp ?? 0) * REVIVE_RATIO));
       const lift = el('button', { class: 'btn two-line' },
         el('span', {}, '扶起同伴'),
-        el('span', { class: 'sub' }, `他回 ${back} 點生命站起來；你這一格就不能睡也不能${sharpenVerb(me(run, seat).hero)}了`));
+        // 倒下的是菲菲就要寫「她」（2026-09-13 稽核 中-3）
+        el('span', { class: 'sub' }, `${heroPronoun(run.players[hurt])}回 ${back} 點生命站起來；你這一格就不能睡也不能${sharpenVerb(me(run, seat).hero)}了`));
       lift.addEventListener('click', () => {
         if (used) return;
         if (!act({ t: 'revive', seat, w: hurt }, () => revivePartner(run, hurt))) return;

@@ -37,22 +37,42 @@ from add_event_art import corner_haze  # noqa: E402
 # 真的有修不了的，寧可讓它一直紅著。
 
 
+# 掃哪幾櫃，以及那一櫃要用哪一支重做。
+#
+# **牌面是 2026-09-13 才補進來的**：這支原本只掃事件插圖，於是
+# `card/feifei_fantuanliuyikou` 那張四角 alpha 165～187 的黑膜整批進了倉，
+# 一直到我把牌排成聯絡表用眼睛看才發現。牌跟事件圖走的是同一支去背、
+# 同一組門檻，會犯的錯當然也一樣——只掃一櫃等於自己蒙住半邊眼睛。
+SHELVES = [
+    (Path("public") / "assets" / "bg", "add_event_art.py"),
+    (Path("public") / "assets" / "cards", "add_card_art.py"),
+]
+
+
 def main() -> None:
     needle = sys.argv[1] if len(sys.argv) > 1 else ""
-    bad = []
-    for p in sorted((ROOT / "public" / "assets" / "bg").glob("*.webp")):
-        if needle and needle not in p.name:
-            continue
-        if corner_haze(Image.open(p)):
-            bad.append(p.name)
+    bad: list[tuple[str, str]] = []
+    scanned = 0
+    for rel, tool in SHELVES:
+        # 牌面分成 `card/` 與角色分家的子資料夾，所以要往下遞迴（`rglob` 不是 `glob`）
+        for p in sorted((ROOT / rel).rglob("*.webp")):
+            if needle and needle not in p.name:
+                continue
+            scanned += 1
+            if corner_haze(Image.open(p)):
+                # 重做時餵的是**原稿的檔名**（`codex_raw`／`art_inbox` 裡那個），
+                # 牌面原稿一律多一層 `card_` 前綴，倉裡的 webp 沒有——
+                # 這行以前直接印倉裡的名字，照著貼會說「找不到檔案」
+                raw = f"card_{p.stem}" if tool == "add_card_art.py" else p.stem
+                bad.append((raw, tool))
 
     if bad:
         print(f"!! 灰膜 {len(bad)} 張，進倉時重做一次：")
-        for b in bad:
-            print(f"   python tools/add_event_art.py --soft 190 --hard 230 {b[:-5]}.png")
-            print(f"   （還是不行就改用 --strict，那是給「主體本身有大片亮色光」的圖用的）")
+        for stem, tool in bad:
+            print(f"   python tools/{tool} --soft 190 --hard 230 {stem}.png")
+            print("   （還是不行就改用 --strict，那是給「主體本身有大片亮色光」的圖用的）")
         raise SystemExit(1)
-    print(f"沒有灰膜{'（只掃了含 ' + needle + ' 的）' if needle else ''}")
+    print(f"掃了 {scanned} 張，沒有灰膜{'（只掃了含 ' + needle + ' 的）' if needle else ''}")
 
 
 if __name__ == "__main__":

@@ -378,7 +378,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage",
@@ -408,7 +408,7 @@
   "keywords": [
    "消耗"
   ],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "healAlly"
@@ -433,7 +433,7 @@
   "keywords": [
    "消耗"
   ],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "discardFromHand",
@@ -468,7 +468,7 @@
   "keywords": [
    "消耗"
   ],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage",
@@ -499,7 +499,7 @@
   "keywords": [
    "消耗"
   ],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "drawAlly",
@@ -569,7 +569,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockFromAllyBlock"
@@ -596,7 +596,7 @@
   "keywords": [
    "消耗"
   ],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "energyTransfer",
@@ -624,7 +624,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "drawAllyIfTargetStatus",
@@ -653,7 +653,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageFromAllyStrength"
@@ -677,7 +677,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block",
@@ -705,7 +705,7 @@
   "type": "技能",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "transferDebuffsFromAlly"
@@ -727,7 +727,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block",
@@ -755,7 +755,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "watchAllyPlay"
@@ -778,7 +778,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "energyForAllyEachRound"

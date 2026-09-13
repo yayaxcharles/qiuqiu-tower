@@ -90,12 +90,12 @@ export const cards: readonly CardDef[] = [
    * 售價照既有稀有度走（常見 50、罕見 75、稀有 150），沒有另設一套。
    */
   { id: 'bangnidianyixia', name: '幫你墊一下', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy',
-    art: 'card/bangnidianyixia', coop: true, hidden: true,
+    art: 'card/bangnidianyixia', coop: true,
     effects: [{ kind: 'damage', amount: 6 }, { kind: 'blockAlly', amount: 4 }],
     // 升級是「自己也擋 4」不是「打更痛」：這張的定位是一邊清怪一邊護人，加傷會把它推成純攻擊牌
     upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'blockAlly', amount: 4 }, { kind: 'block', amount: 4 }] } },
   { id: 'shoujiewoyixia', name: '手借我一下', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self',
-    art: 'card/shoujiewoyixia', coop: true, hidden: true, keywords: ['消耗'],
+    art: 'card/shoujiewoyixia', coop: true, keywords: ['消耗'],
     effects: [{ kind: 'healAlly', n: 8 }],
     /*
      * 交辦單寫升級是「先清除同伴**自選的 1 種**減益」。這裡實作成「清掉全部」——
@@ -105,7 +105,7 @@ export const cards: readonly CardDef[] = [
      */
     upgrade: { effects: [{ kind: 'cleanseAlly' }, { kind: 'healAlly', n: 8 }] } },
   { id: 'huannieduochoudian', name: '換你多抽點', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self',
-    art: 'card/huannieduochoudian', coop: true, hidden: true, keywords: ['消耗'],
+    art: 'card/huannieduochoudian', coop: true, keywords: ['消耗'],
     effects: [{ kind: 'discardFromHand', n: 1 }, { kind: 'block', amount: 4 }, { kind: 'drawAlly', n: 2 }],
     /*
      * 交辦單寫升級是「**可以選擇**把那張手牌消耗掉，取代棄掉」。實作成「一律消耗」——
@@ -115,12 +115,12 @@ export const cards: readonly CardDef[] = [
      */
     upgrade: { effects: [{ kind: 'exhaustFromHand', n: 1 }, { kind: 'block', amount: 4 }, { kind: 'drawAlly', n: 2 }] } },
   { id: 'wobangnishouwei', name: '我幫你收尾', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy',
-    art: 'card/wobangnishouwei', coop: true, hidden: true, keywords: ['消耗'],
+    art: 'card/wobangnishouwei', coop: true, keywords: ['消耗'],
     // `onKill` 只認**這張牌直接打倒**：之後毒死的不算，那時候這張早就結算完了
     effects: [{ kind: 'damage', amount: 9 }, { kind: 'energyAlly', n: 1, onKill: true }],
     upgrade: { effects: [{ kind: 'damage', amount: 9 }, { kind: 'energyAlly', n: 1, onKill: true }, { kind: 'drawAlly', n: 1 }] } },
   { id: 'huannimangyixia', name: '換你忙一下', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'self',
-    art: 'card/huannimangyixia', coop: true, hidden: true, keywords: ['消耗'],
+    art: 'card/huannimangyixia', coop: true, keywords: ['消耗'],
     // 「自己本輪不能再打攻擊牌」只鎖出牌者（`noAttacksThisTurn` 本來就只作用在 `p`），同伴照打
     effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energyAlly', n: 1 }, { kind: 'noAttacksThisTurn' }],
     upgrade: { effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energyAlly', n: 1 }] } },
@@ -144,17 +144,17 @@ export const cards: readonly CardDef[] = [
    * `PendingChoice` 目前沒有「誰來回答」的概念，那是新的基礎建設。
    */
   { id: 'kaoniyixia', name: '靠你一下', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self',
-    art: 'card/kaoniyixia', coop: true, hidden: true,
+    art: 'card/kaoniyixia', coop: true,
     // 讀的是**結算前**同伴的蜷縮，所以自己這 5 點不會被算進加成（交辦單點名要核對的）
     effects: [{ kind: 'blockFromAllyBlock', amount: 5, cap: 8, half: true }],
     upgrade: { effects: [{ kind: 'blockFromAllyBlock', amount: 5, cap: 8 }] } },
   { id: 'zhexienixianchi', name: '這些你先吃', cost: 0, type: 技, rarity: '罕見', pool: '忍術', target: 'self',
-    art: 'card/zhexienixianchi', coop: true, hidden: true, keywords: ['消耗'],
+    art: 'card/zhexienixianchi', coop: true, keywords: ['消耗'],
     // 飯糰守恆：自己少多少對方才多多少。一個人時不轉（不然等於憑空多出來）
     effects: [{ kind: 'energyTransfer', n: 2 }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'energyTransfer', n: 2 }, { kind: 'draw', n: 1 }, { kind: 'drawAlly', n: 1 }] } },
   { id: 'zhaonishuodeda', name: '照你說的打', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy',
-    art: 'card/zhaonishuodeda', coop: true, hidden: true,
+    art: 'card/zhaonishuodeda', coop: true,
     /*
      * **抽牌那條排在傷害前面**，因為它看的是「打之前」目標身上有沒有毒。
      * 排到後面的話，這張自己造成的減益會被算進條件裡——改順序前先看這句。
@@ -162,17 +162,17 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'drawAllyIfTargetStatus', name: '中毒', n: 1 }, { kind: 'damage', amount: 6 }],
     upgrade: { effects: [{ kind: 'drawAllyIfTargetStatus', anyDebuff: true, n: 1 }, { kind: 'damage', amount: 6 }] } },
   { id: 'jienideliqi', name: '借你的力氣', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy',
-    art: 'card/jienideliqi', coop: true, hidden: true,
+    art: 'card/jienideliqi', coop: true,
     // 出牌者自己的爪力照一般規則另外算；同伴的爪力只是多一段有上限的固定值
     effects: [{ kind: 'damageFromAllyStrength', amount: 6, cap: 8 }],
     upgrade: { effects: [{ kind: 'damageFromAllyStrength', amount: 6, cap: 8, ignoreBlock: true }] } },
   { id: 'chenxianzaichushou', name: '趁現在出手', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self',
-    art: 'card/chenxianzaichushou', coop: true, hidden: true,
+    art: 'card/chenxianzaichushou', coop: true,
     // 沿用「絕學·蓄力」的加倍旗標（`doubleNext`），所以兩種加倍同時存在也不會變四倍
     effects: [{ kind: 'block', amount: 4 }, { kind: 'doubleNextAttackAlly' }],
     upgrade: { cost: 0, effects: [{ kind: 'block', amount: 4 }, { kind: 'doubleNextAttackAlly' }] } },
   { id: 'biezhanzaishenshang', name: '別沾在身上', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy',
-    art: 'card/biezhanzaishenshang', coop: true, hidden: true,
+    art: 'card/biezhanzaishenshang', coop: true,
     /*
      * 交辦單寫「同伴**自選 1 種**減益」。實作成**整份移過去**——理由跟「甩鍋術」一致：
      * 那張（自己版）本來就是移全部，同一個動作在這裡改成只移一種，玩家會覺得莫名其妙。
@@ -190,7 +190,7 @@ export const cards: readonly CardDef[] = [
    * 撤回結束或畫面重繪就重置（交辦單明定，也是最容易寫錯的地方）。
    */
   { id: 'xianbangniliuzhe', name: '先幫你留著', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self',
-    art: 'card/xianbangniliuzhe', coop: true, hidden: true,
+    art: 'card/xianbangniliuzhe', coop: true,
     /*
      * **2026-09-13 使用者要求：不要跨回合。** 原本是「同伴下一輪開始才拿到 6 點」，
      * 那種「這一輪做的事下一輪才生效」很難算。改成當場就給。
@@ -203,11 +203,11 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'block', amount: 4 }, { kind: 'blockAlly', amount: 8 }],
     upgrade: { effects: [{ kind: 'block', amount: 6 }, { kind: 'blockAlly', amount: 10 }] } },
   { id: 'nimangwobuwei', name: '你忙我補位', cost: 1, type: 能, rarity: '稀有', pool: '絕學', target: 'self',
-    art: 'card/nimangwobuwei', coop: true, hidden: true,
+    art: 'card/nimangwobuwei', coop: true,
     effects: [{ kind: 'watchAllyPlay', cardType: '技能' }],
     upgrade: { effects: [{ kind: 'watchAllyPlay', cardType: 'any' }] } },
   { id: 'fantuanliuyikou', name: '飯糰留一口', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self',
-    art: 'card/fantuanliuyikou', coop: true, hidden: true,
+    art: 'card/fantuanliuyikou', coop: true,
     /*
      * **2026-09-13 使用者要求：不要跨回合。** 原本是「這一輪結束扣自己 1 顆、
      * 同伴下一輪才拿到」，改成「每一輪開始時同伴直接多 1 顆」——

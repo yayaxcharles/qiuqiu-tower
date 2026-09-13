@@ -253,8 +253,29 @@ interface WatchSnapshot {
  * 玩家看到的是：菲菲當加入方時，她的起始秘寶毒針袋第一回合完全沒作用
  *（魔物身上沒有毒、紀錄也沒說發動）；球球當加入方時第一回合少抽一張。
  * 完全靜音——畫面正常，只是數字比該有的少。單機與開房那一位都沒事，所以測試也照樣綠。
+ *
+ * **這裡的順序要跟 `startCombat` 的結尾一模一樣**：
+ * 「每場戰鬥開始」的秘寶 → 秘笈 → 暖毯的蜷縮 → 回合開始。
+ * 2026-09-13 第三輪稽核抓到的第二半：上面只補了「每回合開始」那組，
+ * 掛 `combatStart` 的十七件（斗笠、鐵項圈、龜甲、爪鞘、無聲鈴、墨玉、塔頂之月…）
+ * 與秘笈的「第一張攻擊牌打兩倍」還是整場不發動。
+ * 花 190 條買來的東西在加入方身上完全沒效果，而且一樣不會報錯。
+ *
+ * `startBlock`＝暖毯在貓窩蓋的那份蜷縮。**要在回合開始之前加**，
+ * 跟座位 0 同一個位置：回合開始那一拍會先結算中毒，蜷縮晚一步加就擋不到。
  */
-export function startJoinedSeat(cs: CombatState, p: PlayerCombat): void {
+export function startJoinedSeat(cs: CombatState, p: PlayerCombat, startBlock = 0): void {
+  for (const rid of p.relics) {
+    const hooks = relicById[rid]?.hooks.combatStart;
+    if (hooks) { fireRelic(cs, rid); applyEffects(cs, hooks, { self: p, source: 'relic' }); }
+  }
+  if (p.relics.some((id) => relicById[id]?.hooks.firstAttackDouble)) p.firstAttackDouble = true;   // 秘笈
+  if (startBlock) {
+    p.block += startBlock;
+    const wid = p.relics.find((id) => (relicById[id]?.hooks.restNextFightBlock ?? 0) > 0);
+    if (wid) markRelic(cs, wid);
+    log(cs, `暖毯還熱著，先有 ${startBlock} 點蜷縮`);
+  }
   startSeatTurn(cs, p);
 }
 

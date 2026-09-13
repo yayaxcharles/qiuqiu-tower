@@ -59,6 +59,20 @@ export function unitName(p: { hero?: Hero } | undefined): string {
 }
 
 /**
+ * 畫面上該用「他」還是「她」（2026-09-13 第三輪稽核 中-3）。
+ *
+ * 連線的兩句話寫死了「他」：「替他收回合」與扶人那格的「他回 N 點生命站起來」。
+ * 對面坐的是菲菲時就成了性別錯字——同一個畫面上她的名字還寫著「菲菲」。
+ * 選角畫面本來就在按鈕上做過這件事，只是當時寫在那一行裡沒收成共用的。
+ *
+ * 收在 `hero.ts` 的理由跟 `unitName` 一樣：`PlayerCombat` 拿不到 `RunPlayer`，
+ * 但兩邊的 `hero` 欄位長一樣，這支兩種都吃得下。
+ */
+export function heroPronoun(p: { hero?: Hero } | undefined): string {
+  return (p?.hero ?? 'ninja') === 'feifei' ? '她' : '他';
+}
+
+/**
  * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每回合開始給所有魔物 1 層中毒）。
  */
 export function startRelicFor(hero: Hero): string {

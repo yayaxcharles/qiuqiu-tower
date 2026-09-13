@@ -16,8 +16,12 @@
 import argparse
 import json
 import pathlib
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+# 「不要畫成一塊方形色板」只在 art_rules 定義一份，見那邊的第十一個雷
+from art_rules import NO_PANEL  # noqa: E402
 OUT = ROOT / "tools" / "codex_jobs"
 
 # 牌號 → (主色, 兩隻貓在做什麼)
@@ -120,7 +124,7 @@ Draw everything SOLID and OPAQUE - flat filled colour. Nothing may be transparen
 Nothing else in the picture: no ground, no shadow, no text, no letters, no numbers, no watermark, no border.
 Style: thick black outlines, flat colors with subtle soft gradients, cute cartoon look, not photorealistic.
 Background must be a solid pure green (#00FF00), completely flat, for chroma keying.
-Output 1024x820 PNG. Save the image as card_{card_id}.png in the current directory and report the path."""
+{NO_PANEL}Output 1024x820 PNG. Save the image as card_{card_id}.png in the current directory and report the path."""
 
 
 def main() -> None:

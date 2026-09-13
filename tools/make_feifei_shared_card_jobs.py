@@ -27,7 +27,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from art_rules import feifei_look  # noqa: E402
+from art_rules import NO_PANEL, feifei_look  # noqa: E402
 
 OUT = ROOT / "tools" / "codex_jobs"
 
@@ -67,6 +67,11 @@ def convert(prompt: str, cid: str) -> str:
     # 保險：萬一某張的措辭不一樣、上面兩塊沒換到，就在結尾補一段（寧可重複也不要生成球球）
     if "SIAMESE" not in p.upper():
         p += "\n\nIMPORTANT - THE CHARACTER IS NOT A GREY TABBY:\n" + feifei_look()
+    # 「不要畫成一塊方形色板」（2026-09-13 第十一個雷：鐵砂掌的沙塵被畫成一塊土色長方形）。
+    # 這支是**回收**別的工作檔的提示詞，那些檔多半還是舊版，所以在這裡補。
+    # 只在缺的時候補：來源已經有就不必再貼一次。
+    if "never as a block with straight edges" not in p:
+        p = p.replace("Output 1024x820 PNG.", NO_PANEL + "Output 1024x820 PNG.", 1)
     return p
 
 

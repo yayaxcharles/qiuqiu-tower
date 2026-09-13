@@ -153,9 +153,20 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
      */
     ownedPerSeat?: readonly string[][];
     /** 這一局有哪些職業（連線兩位）。濾掉「對這一局沒人用得到」的秘寶，見 `RelicDef.notFor` */
-    heroes?: readonly string[] } = {}): CombatRewards {
+    heroes?: readonly string[];
+    /**
+     * 這一局幾個人。**連線牌（`CardDef.coop`）只有填 2 以上才抽得到**，
+     * 見 `pickable` 第三道關卡。
+     *
+     * 2026-09-13 稽核抓到的：這個參數以前根本不存在，`rollCardChoices` 就吃自己的預設值 1，
+     * 於是連線局打完的三選一、過關三選一、罐頭鋪整排——27 張連線牌一張都開不出來。
+     * 完全靜音：畫面正常、牌也照常三選一，只是那些牌永遠不在池子裡。
+     * 單機傳 1（或不傳）時行為與修改前一模一樣，`pickable` 那一關直接放行。
+     */
+    players?: number } = {}): CombatRewards {
   const ex = opts.exclude ?? [];
   const hero = opts.hero ?? 'ninja';   // 職業獨占牌的過濾（2026-09-05）
+  const players = opts.players ?? 1;   // 連線牌的過濾（2026-09-13）
   const bonus = opts.rareBonus ?? 0;
   const extra = opts.extraChoices ?? 0;   // 掌門印：牌多幾張可選
   if (kind === '塔主') return { kind, cards: [], fish: 100 + winGoldBonus, potion: null, relic: owned.includes('tower_token') ? null : 'tower_token' };
@@ -163,8 +174,8 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
   const withUpgrade = (cards: CardDef[]): { upgradedCard?: string } =>
     cards.length && (opts.upgradeChance ?? 0) > 0 && rng.chance(opts.upgradeChance ?? 0) ? { upgradedCard: rng.pick(cards).id } : {};
   if (kind === '大魔物') {
-    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero);
-    const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus, undefined, hero);
+    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero, players);
+    const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus, undefined, hero, players);
     const cards = rng.shuffle([...jue, ...rest]);
     const potion = rng.chance(0.5) ? rollPotion(rng) : null;
     const seats = opts.ownedPerSeat;
@@ -176,11 +187,11 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
   }
   // 小魚乾 10～20 → 15～25：原本一關打完約 90 條，罐頭鋪一張常見牌 50、
   // 等於整關只逛得起一次店，商店形同虛設
-  let picks = rollCardChoices(rng, '忍術', 3 + extra, ex, late, bonus, undefined, hero);
+  let picks = rollCardChoices(rng, '忍術', 3 + extra, ex, late, bonus, undefined, hero, players);
   // 後期（8F 起、第二關起）四分之一的戰利品把一張忍術換成絕學：
   // 絕學原本只有精英、關主、事件、商店拿得到，一般戰鬥打四十場看到的永遠是忍術池那三十幾張
   if (late && rng.chance(0.25)) {
-    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero);
+    const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero, players);
     if (jue.length) picks = rng.shuffle([...picks.slice(0, 2 + extra), ...jue]);
   }
   return { kind, cards: picks, fish: rng.int(15, 25) + winGoldBonus, potion: rng.chance(0.4) ? rollPotion(rng) : null, relic: null, ...withUpgrade(picks) };

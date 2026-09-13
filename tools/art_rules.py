@@ -85,6 +85,19 @@
 （另外兩個在記憶池：`reference_bash_tool_backslash_collapse`、
 `reference_wait_for_process_windows`）。
 
+★ 第十一個雷（2026-09-13，連線牌 36 張整批看完之後）：**大片煙霧會被畫成一塊方形色板。**
+`card_genzhewoduohao` 的紫煙、`card_feifei_tieshazhang` 的沙塵都是四邊筆直的長方形貼在綠幕上，
+去背當然去不掉，牌面上就多一個突兀的紫色／土色方塊。模型把「一大片煙」理解成
+「一張背景圖」而不是「主體的一部分」，所以只有帶大片特效的那幾張中招。
+`STYLE` 裡補了一段：綠色要蓋到邊、除了圖的外框不准有任何直線、煙塵要畫成飄在綠幕上的
+不規則自由形狀而且不能碰到邊。
+
+★ 第十二個雷（同一天）：**`check_haze.py` 只掃事件插圖那一櫃，牌面完全沒在掃。**
+牌跟事件圖走同一支去背、同一組門檻，會犯的錯當然一樣；一補上牌面那櫃，
+當場多抓到三張已經在線上的灰膜牌（`feifei_fantuanliuyikou`、`bangnisheme`、`feifei_tieshazhang`）。
+教訓不是「再多掃一櫃」，是**檢查的涵蓋範圍要跟產出的涵蓋範圍一起長**——
+新開一種素材就要問一次「既有的檢查掃得到它嗎」。
+
 ★ 第三個雷：綠幕上任何綠色或半透明的東西，去背後都會變成破洞。光是禁「不要寫綠色」不夠——
   沒指定顏色時模型會自己挑到綠色（86 張牌裡 22 張寫「發光」、12 張寫「霧氣煙塵」都中招）。
 """
@@ -105,6 +118,25 @@ def gear_rule(items: str) -> str:
         "His gaze points the way his head is turned.\n")
 
 
+# ---------------------------------------------------------------------------
+# 「不要畫成一塊方形色板」（2026-09-13，第十一個雷）
+# ---------------------------------------------------------------------------
+# `card_genzhewoduohao`（紫煙）與 `card_feifei_tieshazhang`（沙塵）兩張的特效都被畫成
+# 一塊**四邊筆直的方形色板**貼在綠幕上，去背當然去不掉——牌面上就多一個突兀的紫色／土色方塊。
+# 整批只有帶大片煙霧的那幾張中招：模型把「一大片煙」當成「一張背景圖」而不是主體的一部分。
+#
+# **措辭只針對色板，不碰「畫滿版面」**：牌面的提示詞本來就要求貓要撐到四個邊
+#（`make_coop_card_jobs.py`），寫成「什麼都不准碰到邊」會跟那句打架——
+# 這正是姆斯產線那條教訓「規則寫太死會跟姿勢敘述打架」。
+#
+# 單獨命名是因為**牌面的提示詞沒有用 `STYLE`**，它自己抄了一份樣式敘述。
+# 這一條要兩邊都貼得到，所以拆出來給兩邊 import，不再多一份抄本。
+NO_PANEL = (
+    "The green background must stay pure green everywhere it shows. Do NOT paint a rectangular picture, "
+    "panel, card, frame, inset or coloured backdrop on top of the green. Smoke, dust, clouds, mist and "
+    "energy are part of the subject: draw them as free shapes with irregular wispy outlines, never as a "
+    "block with straight edges or square corners.\n")
+
 STYLE = (
     "Any glow, aura, sheen, sparkle, magical light, mist, smoke, steam, breath, dust cloud, shockwave or water "
     "in this picture must be WARM GOLDEN AMBER, CREAMY WHITE or WARM GREY - never green, never greenish - and "
@@ -117,7 +149,8 @@ STYLE = (
     "THE FACE ESPECIALLY: draw the face in FLAT blocks of colour with hard edges between them. Where two fur "
     "colours meet that is a CLEAN EDGE, never a soft airbrushed fade and never a blurry gradient. No shaded "
     "blob around the muzzle, no glow on the cheeks.\n"
-    "Background must be a solid pure green (#00FF00), completely flat, for chroma keying.\n")
+    "Background must be a solid pure green (#00FF00), completely flat, for chroma keying.\n"
+    + NO_PANEL)
 
 # ---------------------------------------------------------------------------
 # 菲菲的外觀：**只在這裡定義一次**

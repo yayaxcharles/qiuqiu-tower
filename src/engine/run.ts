@@ -153,9 +153,10 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
      * 「每回合開始」與「第一回合限定」兩組掛鉤——菲菲當加入方時毒針袋第一回合
      * 完全沒作用，球球當加入方時第一回合少抽一張。畫面正常、測試也綠。
      */
-    startJoinedSeat(cs, p);
-    // 暖毯的蜷縮也是各帶各的：他自己在打盹點蓋了毯子，這一場就該帶進來（然後一樣只帶一場）
-    if (rp.restBlock) { p.block += rp.restBlock; rp.restBlock = 0; }
+    // 暖毯的蜷縮也是各帶各的：他自己在打盹點蓋了毯子，這一場就該帶進來（然後一樣只帶一場）。
+    // 交給 `startJoinedSeat` 加，位置才跟座位 0 一樣（在回合開始之前）
+    startJoinedSeat(cs, p, rp.restBlock ?? 0);
+    rp.restBlock = 0;
   }
   // 第一位也一樣（他是 `startCombat` 建的，那支沒有「倒下」這個輸入）
   if (run.players[0]?.down) {
@@ -352,14 +353,27 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
   const winGold = me(run).relics.reduce((s, id) => s + (relicById[id]?.hooks.winGold ?? 0), 0);
   // 「後期」＝第一關的 8F 起、或第二關以後：獎勵抽好一點的牌
   const late = run.act >= 2 || run.floor >= 8;
-  // 牌組裡已經有兩張的不再開（第三張同名牌等於少一個選項）；稀有保底見 RunState.rarePity
-  const counts = new Map<string, number>();
-  for (const c of me(run).deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
-  const exclude = [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
   // 遭遇修飾詞掛在戰利品上的兩條：中了魔氣的多挑一張牌、肥美的／餓扁了的改小魚乾（見 content/modifiers）
   const mod = nodeModifier(run, cs.encounterId);
-  const extraChoices = me(run).relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0)
-    + (mod?.extraCard ? 1 : 0);   // 掌門印：牌多一張可選
+  /*
+   * 牌組裡已經有兩張的不再開（第三張同名牌等於少一個選項）；稀有保底見 RunState.rarePity。
+   *
+   * **各算各的**（2026-09-13 第三輪稽核 中-1／中-2）：原本這兩個值只看 0 號座位，
+   * 於是加入的那一位那份三選一，是照 0 號的牌組去排除、照 0 號的掌門印去多給一張——
+   * 她自己疊了三張同名牌照樣再開第四張，而她自己買的掌門印一次都沒算到。
+   * 一樣是靜音的：三選一照樣有牌，只是排除的名單與張數對不上她。
+   */
+  const excludeFor = (seat: number): string[] => {
+    const counts = new Map<string, number>();
+    for (const c of me(run, seat).deck) counts.set(c.cardId, (counts.get(c.cardId) ?? 0) + 1);
+    return [...counts.entries()].filter(([, n]) => n >= 2).map(([id]) => id);
+  };
+  // 掌門印：牌多一張可選。遭遇修飾詞那一張是整場共通的，所以兩個人都加得到
+  const extraChoicesFor = (seat: number): number =>
+    me(run, seat).relics.reduce((s, id) => s + (relicById[id]?.hooks.rewardChoices ?? 0), 0)
+    + (mod?.extraCard ? 1 : 0);
+  const exclude = excludeFor(0);
+  const extraChoices = extraChoicesFor(0);
   const upgradeChance = upgradeChanceFor(run);   // 戰鬥獎勵開出升級牌的機率（數字見 upgradeChanceFor）
   /*
    * 戰利品**開一份、兩個人共用**（牌照使用者規則三各挑一張，見 `takeCardReward`）。
@@ -367,7 +381,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    * 開的時候看的是第一位的秘寶、牌組與稀有保底——一份共用的戰利品總得有個基準，
    * 而且兩台機器都用同一個基準才算得出同一份。兩位的差異體現在「各挑各的」那一步。
    */
-  const r = rollRewards(runRng(run), kind, me(run).relics, winGold, late, { exclude, rareBonus: (me(run).rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(me(run)), heroes: heroesIn(run),
+  const r = rollRewards(runRng(run), kind, me(run).relics, winGold, late, { exclude, rareBonus: (me(run).rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(me(run)), heroes: heroesIn(run), players: run.players.length,
     ...(run.players.length > 1 ? { ownedPerSeat: run.players.map((p) => p.relics) } : {}) });
   /*
    * **兩個人時每個人再各抽一份三選一**（2026-09-13 使用者要求）。
@@ -386,8 +400,9 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
     const upPer: (string | undefined)[] = [r.upgradedCard];
     for (let i = 1; i < run.players.length; i++) {
       const mine = rollRewards(runRng(run), kind, run.players[i]!.relics, winGold, late, {
-        exclude, rareBonus: (run.players[i]!.rarePity ?? 0) * 4, extraChoices, upgradeChance,
-        hero: heroOf(me(run, i)), heroes: heroesIn(run),
+        exclude: excludeFor(i), rareBonus: (run.players[i]!.rarePity ?? 0) * 4,
+        extraChoices: extraChoicesFor(i), upgradeChance,
+        hero: heroOf(me(run, i)), heroes: heroesIn(run), players: run.players.length,
       });
       per.push(mine.cards);
       upPer.push(mine.upgradedCard);
@@ -461,8 +476,8 @@ export function advanceAct(run: RunState): void {
 export function rollActCards(run: RunState): CardDef[] {
   const rng = runRng(run);
   const h = heroOf(me(run));
-  const jue = rollCardChoices(rng, '絕學', 1, [], true, 0, undefined, h);
-  const ren = rollCardChoices(rng, '忍術', 2, jue.map((c) => c.id), true, 0, undefined, h);
+  const jue = rollCardChoices(rng, '絕學', 1, [], true, 0, undefined, h, run.players.length);
+  const ren = rollCardChoices(rng, '忍術', 2, jue.map((c) => c.id), true, 0, undefined, h, run.players.length);
   return rng.shuffle([...jue, ...ren]);
 }
 
@@ -705,7 +720,7 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): C
   const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
     : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
   const jueN = n > 0 && rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
-  const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds, heroOf(me(run))), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds, heroOf(me(run)))];
+  const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds, heroOf(me(run)), run.players.length), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds, heroOf(me(run)), run.players.length)];
   const wantRare = Math.min(n, run.act >= 3 ? 2 : run.act === 2 ? 1 : 0);
   const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
   for (const i of order) {
@@ -1016,7 +1031,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       }
       case 'chooseCard': {
         const rng = runRng(run);
-        const picks = rollCardChoices(rng, fx.pool, fx.n, [], false, 0, undefined, heroOf(me(run, seat)));
+        const picks = rollCardChoices(rng, fx.pool, fx.n, [], false, 0, undefined, heroOf(me(run, seat)), run.players.length);
         const up = picks.length && rng.chance(upgradeChanceFor(run)) ? rng.pick(picks).id : undefined;
         outcome = { chooseCard: picks, ...(up ? { upgradedCard: up } : {}) };
         break;

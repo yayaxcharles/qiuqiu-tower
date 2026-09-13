@@ -17,7 +17,7 @@ import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
-import { heroName, heroOf } from '../../engine/hero';
+import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
 import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
@@ -333,6 +333,19 @@ registerScreen('combat', (app, root, props) => {
    * 座位不存在時退回第一位（單機、或畫面比引擎早一步的那一拍）。
    */
   const my = (): PlayerCombat => cs.players[mySeat] ?? cs.player;
+  /**
+   * **我那一格的選擇器**（2026-09-13 開兩個分頁玩出來的）。
+   *
+   * 動畫那幾段本來寫 `root.querySelector('.unit.player …')`——沒帶座位，
+   * `querySelector` 拿的永遠是**畫面上第一格**，也就是 0 號座位。
+   * 然後那幾行又往裡面寫 `heroArt(my(), …)`，等於**把我的立繪蓋到同伴身上**。
+   *
+   * 玩家看到的：球球開房、菲菲加入時，菲菲那台畫面上兩隻都是菲菲，
+   * 只有名牌還寫著「球球（同伴）」。球球那台完全正常——因為他就是 0 號，
+   * 第一格剛好是他自己。所以一個人玩不會出事、開房那位也不會出事，
+   * **只有加入的那一位看得到**，而且不報錯、不破圖，測試也照樣綠。
+   */
+  const MINE = `.unit.player[data-seat="${mySeat}"]`;
   /** 同伴的動作套用**之前**那一刻的快照，`settle` 拿它比對出要演什麼 */
   let remoteBefore: Snap | null = null;
   /*
@@ -1259,7 +1272,7 @@ registerScreen('combat', (app, root, props) => {
         || acting.has(e.uid) || old.classList.contains('attack') || old.classList.contains('hit');
       if (changed) old.replaceWith(enemyUnit(e, lineup.indexOf(e.uid), lineup.length));
     }
-    const pNode = field.querySelector<HTMLElement>(`.unit.player[data-seat="${mySeat}"]`);
+    const pNode = field.querySelector<HTMLElement>(MINE);
     if (!pNode) return false;
     const p = my();
     const pChanged = before.hp !== p.hp || before.block !== p.block || before.buff !== sumStatus(p, GOOD_STATUS)
@@ -1346,7 +1359,9 @@ registerScreen('combat', (app, root, props) => {
        * 先放進畫面再用 hidden 藏起來，是為了讓每秒的檢查只要開關一個屬性，
        * 不必整頁重畫（重畫會把正在演的動畫全部打斷）。
        */
-      const force = el('button', { class: 'btn end-force', onclick: () => onForce() }, '替他收回合');
+      // 對面坐的是菲菲就要寫「她」（2026-09-13 稽核 中-3）：同一個畫面上她的名字就在旁邊
+      const mate = cs.players.find((q) => q !== my());
+      const force = el('button', { class: 'btn end-force', onclick: () => onForce() }, `替${heroPronoun(mate)}收回合`);
       force.hidden = true;
       box.append(force);
     }
@@ -1426,7 +1441,7 @@ registerScreen('combat', (app, root, props) => {
     };
 
     // 起點：選中的那張牌的上緣中央；忍具沒有選中樣式，退回球球身上
-    const src = box.querySelector('.card.selected') ?? box.querySelector('.unit.player .sprite');
+    const src = box.querySelector('.card.selected') ?? box.querySelector(`${MINE} .sprite`);
     const from = src ? centreOf(src, 0.08) : { x: 640, y: 620 };
 
     const draw = (to: { x: number; y: number }, snapped: boolean): void => {
@@ -1498,7 +1513,7 @@ registerScreen('combat', (app, root, props) => {
     const k = stage.width > 0 ? 1280 / stage.width : 1;
     const r = from.getBoundingClientRect();
     const dest = targetUid === undefined
-      ? root.querySelector('.unit.player .sprite')
+      ? root.querySelector(`${MINE} .sprite`)
       : root.querySelector(`.unit.enemy[data-uid="${targetUid}"] .sprite`);
     const dr = dest?.getBoundingClientRect();
 
@@ -2036,15 +2051,15 @@ registerScreen('combat', (app, root, props) => {
         for (let i = 1; i < stagedMax; i++) {
           window.setTimeout(() => {
             if (seq !== mine || app.cs !== cs) return;
-            const img = root.querySelector<HTMLImageElement>('.unit.player .sprite');
+            const img = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
             if (img) img.src = i % 2 ? second : first;
           }, i * 150);
         }
       }
     }
     // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
-    if (p.block > before.block) root.querySelector('.unit.player .chip.block')?.classList.add('gain');
-    const cat = root.querySelector<HTMLElement>('.unit.player');
+    if (p.block > before.block) root.querySelector(`${MINE} .chip.block`)?.classList.add('gain');
+    const cat = root.querySelector<HTMLElement>(MINE);
     // 魔物對球球做的事也要在球球身上看得到：被塞牌／被減益／被看破
     if (cat && acting.size > 0) {
       if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
@@ -2137,7 +2152,7 @@ registerScreen('combat', (app, root, props) => {
       // **就地換圖，不要 render()**：這一拍畫面沒有任何資料變動，只是姿勢收回待機。
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
       // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。
-      const cat = root.querySelector<HTMLImageElement>('.unit.player .sprite');
+      const cat = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
       if (cat) cat.src = heroArt(my(), pose);
       for (const e of cs.enemies) {
         const img = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
