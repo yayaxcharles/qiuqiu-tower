@@ -1,4 +1,4 @@
-import { buyCard, buyPotion, buyRelic, buyRemove, priceFor, potionCapacity, replacePotion, reshuffleShop, rest, revivePartner, takeRelic, type ShopStock } from '../engine/run';
+import { buyCard, buyPotion, buyRelic, buyRemove, notMyCard, priceFor, potionCapacity, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, takeRelic, type ShopStock } from '../engine/run';
 import type { RunState } from '../engine/types';
 
 /**
@@ -61,6 +61,8 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
       const it = a.k === 'card' ? shop.cards[a.i] : a.k === 'relic' ? shop.relics[a.i] : shop.potions[a.i];
       if (!it || it.sold || p.fish < priceFor(run, it, a.seat)) return false;
       if (a.k === 'relic') return !p.relics.includes((it as { id: string }).id);
+      // 共用貨架上同伴的專屬招式買不下去（`buyCard` 擋著；這裡不先擋的話會發號碼、套用失敗、整場斷線）
+      if (a.k === 'card' && notMyCard(run, shop.cards[a.i]!.def, a.seat)) return false;
       // 忍具帶滿一定要指定換掉哪一支，不然錢會扣了東西沒進背包
       if (a.k === 'potion' && p.potions.length >= potionCapacity(run, a.seat)) {
         return a.r !== undefined && a.r >= 0 && a.r < p.potions.length;
@@ -68,7 +70,14 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
       return true;
     }
     case 'scrub': return !!shop && p.deck.some((c) => c.uid === a.u) && p.fish >= p.removeCost;
-    case 'shuffle': return !!shop && !shop.reshuffled;
+    /*
+     * 條件要跟 `reshuffleShop` 自己的判斷**一模一樣**（2026-09-14 連線稽核 高-17）。
+     * 原本只看「重整過了沒」：先買一張、動作還沒繞回來又按重整（畫面上錢還夠），
+     * 或同伴剛好買走架上最後一件——主機照樣發號碼，兩台套用都失敗，整場斷線。
+     * 做不出來的就該在這裡擋下、不發號碼（搶標那條路本來就是這樣設計的）。
+     */
+    case 'shuffle': return !!shop && !shop.reshuffled && p.fish >= RESHUFFLE_COST
+      && [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
     case 'rest': return a.c === '磨爪' || a.c === '全力準備' ? a.u !== undefined : true;
   }
 }

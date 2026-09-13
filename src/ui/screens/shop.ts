@@ -2,7 +2,8 @@ import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
-import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShop, potionCapacity, priceFor, reshuffleShop, shopMulFor } from '../../engine/run';
+import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShop, notMyCard, potionCapacity, priceFor, reshuffleShop, shopMulFor } from '../../engine/run';
+import { heroSpeaker } from '../dialogue';
 import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
 import type { RunState } from '../../engine/types';
@@ -124,8 +125,8 @@ registerScreen('shop', (app, root) => {
    * 就變淡、點不動，但價錢照樣寫著——「賣掉了」與「買不起」是兩件事，不要混成同一個樣子。
    */
   /** 價錢牌：特價的把原價劃掉、特價紅字放大（使用者 2026-09-04：「要明顯」） */
-  function priceNode(price: number, sold: boolean, base?: number, sale?: number): HTMLElement {
-    if (sold) return el('div', { class: 'price' }, '賣掉了');
+  function priceNode(price: number, sold: boolean, base?: number, sale?: number, soldText = '賣掉了'): HTMLElement {
+    if (sold) return el('div', { class: 'price' }, soldText);
     if (sale && base !== undefined) {
       const orig = Math.round(base * shopMulFor(run, seat));
       return el('div', { class: 'price sale' }, el('s', {}, String(orig)), el('b', {}, `${price} 條小魚乾`));
@@ -135,14 +136,14 @@ registerScreen('shop', (app, root) => {
   const saleTag = (sale?: number): HTMLElement | '' => (sale ? el('div', { class: 'sale-tag' }, `特價 ${Math.round(sale * 10)} 折`) : '');
 
   function stall(key: string, name: string, text: string, price: number,
-    sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number): HTMLElement {
+    sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number, soldText?: string): HTMLElement {
     const afford = me(run, seat).fish >= price;
     const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}` },
       saleTag(sold ? undefined : sale),
       icon(key, name),
       el('div', { class: 'shop-name' }, name),
       el('div', { class: 'small' }, text),
-      priceNode(price, sold, base, sale));
+      priceNode(price, sold, base, sale, soldText));
     if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
     else if (!sold) node.addEventListener('click', () => setMood('no'));   // 買不起：老闆搖頭，不再是死按鈕
     return node;
@@ -182,11 +183,13 @@ registerScreen('shop', (app, root) => {
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
       const price = priceFor(run, it, seat);
-      const buyable = !it.sold && !iDown && me(run, seat).fish >= price;
+      // 共用貨架上會同時擺兩個角色的牌（連線稽核 高-8）：同伴的專屬招式寫清楚，不要只是變淡
+      const theirs = notMyCard(run, it.def, seat);
+      const buyable = !it.sold && !iDown && !theirs && me(run, seat).fish >= price;
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         saleTag(it.sold ? undefined : it.sale),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { act({ t: 'buy', seat, k: 'card', i }, () => buyCard(run, shop, i, seat)) && bought('buy'); } }),   // 升級格照＋版畫
-        priceNode(price, it.sold, it.base, it.sale));
+        theirs && !it.sold ? el('div', { class: 'price' }, '同伴的招式') : priceNode(price, it.sold, it.base, it.sale));
       // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
       if (!it.sold && !buyable) slot.addEventListener('click', () => setMood('no'));
       cards.append(slot);
@@ -200,8 +203,10 @@ registerScreen('shop', (app, root) => {
       if (!d) return;
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = me(run, seat).relics.includes(it.id);
+      // 自己已經有、架上卻還沒賣掉的，寫「你已經有了」：寫「賣掉了」的話同伴明明還買得到（連線稽核 高-8）
       relics.append(stall(d.art, d.name, d.text, priceFor(run, it, seat), it.sold || owned, false,
-        () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale));
+        () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale,
+        !it.sold && owned ? '你已經有了' : undefined));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -254,7 +259,7 @@ registerScreen('shop', (app, root) => {
       art: goods,
       portrait: keeperArt(),
       speaker: '橘貓老闆',
-      text: iDown ? '球球倒在門口，只能看著同伴逛。' : line,
+      text: iDown ? `${heroSpeaker()}倒在門口，只能看著同伴逛。` : line,   // 倒下的可能是菲菲（連線稽核 中-5）
       actions: [reshuffle, remove, leaveBtn()],
     }));
   }

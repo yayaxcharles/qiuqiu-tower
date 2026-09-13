@@ -425,7 +425,6 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
   e.reviveIn = reviving ? (enemyById[e.enemyId]?.reviveDelay ?? 2) : 0;
   cs.kills += 1;
   const def = enemyById[e.enemyId]!;
-  if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer);
   /*
    * 擊倒的那位（連線版 2026-09-11 補齊）。`damageEnemy` 一路帶下來「是誰打的」，
    * 沒帶的（中毒結算那種沒有出手的人）退回第一位——單機兩者是同一個人，行為沒變。
@@ -438,6 +437,13 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
    * 再退回第一位（單人時三者是同一個人，行為沒變）。
    */
   const killer = by ?? cs.players[e.poisonedBy ?? 0] ?? (cs.player as PlayerCombat);
+  /*
+   * 打倒飯糰怪回的血給**打倒牠的那一位**（連線稽核 高-16）。原本寫死 `cs.player`：
+   * 座位 1 打倒的飯糰，血回到座位 0 身上。擊倒者已經倒下（中毒結算時毒死魔物的那位
+   * 自己也倒了）就給還站著的人，倒下的人不會因為吃到飯糰就爬起來。
+   * 單機三者是同一個人；挪到這裡也不改變單機的結算順序（中間只有算擊倒者這一行）。
+   */
+  if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer, killer.down ? (cs.players.find((q) => !q.down) ?? killer) : killer);
   if (e.stolen > 0) { killer.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
   if (!reviving) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
@@ -516,7 +522,10 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     }
   } else {
     if (getStatus(e, '隱身') > 0) { addStatus(e, '隱身', -1); log(cs, `${e.name}閃過了`); return { dealt: 0, killed: false }; }
-    dmg = computeAttack(base, cs.player, e, { noStrength: opts.noStrength });
+    // 爪力、懶洋洋看的是**出手的那一位**（2026-09-14 連線稽核 高-1）。原本寫死 `cs.player`，
+    // 座位 1 打出去的每一下都吃座位 0 的爪力——自己堆的完全不算，同伴的倒是白送。
+    // 沒帶 `by` 的只有中毒結算與反彈那種直傷，走不到這一行
+    dmg = computeAttack(base, opts.by ?? cs.player, e, { noStrength: opts.noStrength });
     // 飛行：打得到的只有一半，**先減半再扣防禦**（燈蛾、月蛾后）。中毒那種直傷不吃這條
     if (getStatus(e, '飛行') > 0 && dmg > 0) { dmg = Math.floor(dmg / 2); log(cs, `${e.name}在天上，這一下只擦到一半`); }
     if (opts.ignoreBlock) lose = dmg;
@@ -529,7 +538,8 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
   // 跟球球側同一條規則：真的有傷害才刺——蜷縮 0 時打「等同蜷縮」、被飛行減半到 0 都不該掉血（全面體檢 2026-09-05）
   if (!opts.direct && dmg > 0) {
     const th = getStatus(e, '反彈');
-    if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true, throughBlock: true }); }
+    // 刺的是**打牠的那一位**（連線稽核 高-2）：不帶 `victim` 會刺到座位 0，座位 0 倒下之後乾脆不刺
+    if (th > 0) { log(cs, `${e.name}的刺反彈了 ${th} 點`); damagePlayer(cs, e, th, { direct: true, throughBlock: true, victim: opts.by }); }
   }
   // 虛化（虛無貓）：身體半透明，**每一段**傷害最多只扣 1 點血——攻擊、中毒、反彈一視同仁。
   // 擺在扣血之前、防禦結算之後：防禦照原本的量擋掉，虛化只管「真的扣進血條的那幾點」

@@ -295,7 +295,9 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
   if (cs.turn > 1) p.firstStealthGiven = false;   // 第一回合不清：開戰的鈴鐺已經吃過紙袋的加成（審查 #14）
   const poison = getStatus(p, '中毒');
-  if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (cs.phase !== 'player') return; }
+  // 被毒倒的這一位回合就到此為止（連線稽核 低-1）：原本只有整場輸了才停，兩個人時一位倒下
+  // 照樣抽 5 張、拿飯糰、秘寶照發（毒針袋還會記在一個躺著的人頭上）。單機倒下＝整場輸，行為不變
+  if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (p.down || cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
   if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive, p); }
   const iron = getStatus(p, '鐵布衫');
@@ -423,7 +425,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     const drew = !!h && p.cardsPlayedThisTurn === h.n;
     const gave = !!e && p.cardsPlayedThisTurn === e.n;
     if (drew || gave) fireRelic(cs, rid, p);
-    if (drew) drawCards(cs, h!.draw);
+    if (drew) drawCards(cs, h!.draw, p);   // 抽進**打牌那位**的手裡（連線稽核 高-13：原本抽進座位 0）
     if (gave) { p.energy += e!.energy; cs.energyGain += e!.energy; }
   }
   /*
@@ -526,7 +528,8 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   if (st.def.type === '技能' && !st.def.combatOnly && cs.phase === 'player') {
     for (const e of aliveEnemies(cs)) {
       const d = enemyById[e.enemyId];
-      if (d?.hexOnSkill) giveCards(cs, e, d.hexOnSkill.cardId, d.hexOnSkill.n, 'draw');
+      // 爛牌塞進**打技能牌那位**的牌堆（連線稽核 高-14：原本塞進座位 0 的）
+      if (d?.hexOnSkill) giveCards(cs, e, d.hexOnSkill.cardId, d.hexOnSkill.n, 'draw', p);
       // 憤怒每回合最多觸發一次（跟毛線手套 onHit 的 hitRelicTurn 同一套）：三隻第二關關主主招都是三段，
       // 每張技能牌都 +1／+2 會讓「先擋再打」的牌組被判死刑（全面體檢 2026-09-05；下一輪平衡拍板）
       if (d?.angerOnSkill && e.angerTurn !== cs.turn) { e.angerTurn = cs.turn; addStatus(e, '爪力', d.angerOnSkill); log(cs, `${e.name}被激怒了`); }
@@ -794,13 +797,21 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     const ph = def?.phases?.[e.phase - 1];
     if (ph?.strengthPerTurn && !frozen) addStatus(e, '爪力', ph.strengthPerTurn);
     // 師父二、三階段：每回合先把你堆的爪力、貓步震掉幾點（見 EnemyPhase.drainPlayerPerTurn）
+    /*
+     * **每一位站著的人各震一次**（連線稽核 高-15）。原本只震 `cs.player`：座位 1 可以在
+     * 師父第三條血面前無限疊爪力，座位 0 倒下之後照樣去震一個躺著的人。
+     * 單機只有一位、紀錄照舊寫「震散了你」；兩個人時寫名字，不然兩行一模一樣分不出是誰。
+     */
     if (ph?.drainPlayerPerTurn && !frozen) {
-      const parts: string[] = [];
-      for (const [name, n] of Object.entries(ph.drainPlayerPerTurn) as [StatusName, number][]) {
-        const cut = Math.min(n, getStatus(cs.player, name));
-        if (cut > 0) { addStatus(cs.player, name, -cut); parts.push(`${cut} 點${name}`); }
+      for (const q of cs.players) {
+        if (q.down) continue;
+        const parts: string[] = [];
+        for (const [name, n] of Object.entries(ph.drainPlayerPerTurn) as [StatusName, number][]) {
+          const cut = Math.min(n, getStatus(q, name));
+          if (cut > 0) { addStatus(q, name, -cut); parts.push(`${cut} 點${name}`); }
+        }
+        if (parts.length) log(cs, `${e.name}震散了${cs.players.length > 1 ? unitName(q) : '你'} ${parts.join('、')}`);
       }
-      if (parts.length) log(cs, `${e.name}震散了你 ${parts.join('、')}`);
     }
     if (def?.strengthEveryNTurns && !frozen && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
     // 結算中毒：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架式不出手（審查 #18）

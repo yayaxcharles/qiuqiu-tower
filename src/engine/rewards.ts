@@ -41,6 +41,14 @@ export interface CombatRewards {
   cardsPerSeat?: CardDef[][];
   /** 跟 `cardsPerSeat` 成對：第 i 位那三張裡哪一張是升級版（沒有就是 undefined） */
   upgradedPerSeat?: (string | undefined)[];
+  /**
+   * **兩個人時每個人實際拿到幾條小魚乾**（2026-09-14 連線稽核 高-12）。
+   *
+   * `fish` 是照 0 號座位的秘寶（小魚乾罐、幸運錢幣、貪吃錢袋）加成算的；原本兩個人都照那個數字發，
+   * 於是加成放在 1 號身上完全沒用、放在 0 號身上兩個人一起拿。現在戰利品的底數共用，
+   * 加成各算各的。單機不填（走 `fish`），理由跟 `cardsPerSeat` 一樣。
+   */
+  fishPerSeat?: number[];
 }
 
 const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];
@@ -62,12 +70,17 @@ function rollRarity(rng: Rng, available: Set<Rarity>, late = false, rareBonus = 
   return table[table.length - 1]![0];
 }
 
-export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0, odds?: readonly [Rarity, number][], hero: Hero = 'ninja', players = 1): CardDef[] {
+/**
+ * `hero` 可以給一串（2026-09-14 連線稽核 高-8）：**共用的貨架**（罐頭鋪）要擺「這一局有人用得到」的牌，
+ * 跟秘寶的 `relicOk` 同一條規則。單機只給一位，濾出來的清單跟以前一模一樣，亂數走向不變。
+ */
+export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string[] = [], late = false, rareBonus = 0, odds?: readonly [Rarity, number][], hero: Hero | readonly Hero[] = 'ninja', players = 1): CardDef[] {
   const out: CardDef[] = [];
   const taken = new Set(exclude);
+  const heroes: readonly Hero[] = typeof hero === 'string' ? [hero] : hero;
   for (let i = 0; i < n; i++) {
     // 能不能開出來一律問 `pickable`（雜牌、待圖、職業、連線牌四道關卡都在那裡）
-    const remaining = cards.filter((c) => c.pool === pool && pickable(c, hero, players) && !taken.has(c.id));
+    const remaining = cards.filter((c) => c.pool === pool && heroes.some((h) => pickable(c, h, players)) && !taken.has(c.id));
     if (remaining.length === 0) break;
     const rar = rollRarity(rng, new Set(remaining.map((c) => c.rarity)), late, rareBonus, odds);
     const pick = rng.pick(remaining.filter((c) => c.rarity === rar));

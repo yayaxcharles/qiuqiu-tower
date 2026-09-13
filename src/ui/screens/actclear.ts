@@ -1,7 +1,7 @@
 import { actWalkTransition } from '../acttransition';
 import { play } from '../audio';
 import { relicById } from '../../content/relics';
-import { ACT_NAMES, addCard, advanceAct, rollActCards, rollActRelics, takeRelic } from '../../engine/run';
+import { ACT_NAMES, addCard, advanceAct, rollActCards, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../engine/run';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
 import { heroSpeaker } from '../dialogue';
@@ -36,7 +36,9 @@ registerScreen('actclear', (app, root, props) => {
   if (!run) { app.show('title'); return; }
   void preloadAct(run.act + 1);   // 一進過關畫面就開始抓下一關的魔物立繪（玩家看幻燈片、挑秘寶的這幾十秒剛好用，稽核 2026-09-04 低 21）
   const picks = rollActRelics(run);
-  const cardPicks = rollActCards(run);
+  // 連線時每一位各一份牌（連線稽核 高-9）：兩台都照座位順序抽完全部，各拿自己那一份畫。
+  // 單機走原本那一支，亂數走向不變
+  const cardPicks = app.coop ? (rollActCardsPerSeat(run)[app.seat] ?? []) : rollActCards(run);
   let pickedCard: string | null = null;   // 只擲一次、只挑一張；重畫不重擲
   let pickedRelic: string | null = null;
   play('victory');

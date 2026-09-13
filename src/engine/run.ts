@@ -426,7 +426,16 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    * 是一個人的 1.5 倍卻要養兩副牌組、兩個背包；對半分等於兩個人都比單機窮一半，
    * 商店與移除牌整局都逛不起。倒下的人不分（他這一場沒在打）。
    */
-  for (const rp of standing(run)) rp.fish += r.fish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去（bonusFish 在上面早退之前就加過了）
+  /*
+   * 秘寶的小魚乾加成**各算各的**（連線稽核 高-12）：`r.fish` 裡含的是 0 號座位的加成，
+   * 先扣回底數、再加上每一位自己的。底數不會是負的（肥美／餓扁那行的下限就是 0 號的加成）。
+   * 單機只有 0 號：扣掉又加回同一個數，跟原本一模一樣。
+   */
+  if (run.players.length > 1) {
+    const baseFish = r.fish - winGold;
+    r.fishPerSeat = run.players.map((p) => baseFish + p.relics.reduce((s, id) => s + (relicById[id]?.hooks.winGold ?? 0), 0));
+  }
+  for (const rp of standing(run)) rp.fish += r.fishPerSeat?.[run.players.indexOf(rp)] ?? r.fish;   // 獎金另計：r.fish 維持規格 §5.4 的戰利品數字，不把事件獎金摻進去（bonusFish 在上面早退之前就加過了）
   /*
    * 秘寶：單機直接給；兩個人時攤在獎勵畫面上各挑一件（`relicOffers`，規則三）。
    *
@@ -473,12 +482,25 @@ export function advanceAct(run: RunState): void {
  * 打倒關主原本一張牌都不給，牌組跨關幾乎只靠一般戰鬥的常見池長大，
  * 中後期永遠差一口氣——這是「牌組養不起來」的另一個病根。
  */
-export function rollActCards(run: RunState): CardDef[] {
+export function rollActCards(run: RunState, seat = 0): CardDef[] {
   const rng = runRng(run);
-  const h = heroOf(me(run));
+  const h = heroOf(me(run, seat));
   const jue = rollCardChoices(rng, '絕學', 1, [], true, 0, undefined, h, run.players.length);
   const ren = rollCardChoices(rng, '忍術', 2, jue.map((c) => c.id), true, 0, undefined, h, run.players.length);
   return rng.shuffle([...jue, ...ren]);
+}
+
+/**
+ * **兩個人時每一位各一份**過關三選一（2026-09-14 連線稽核 高-9）。
+ *
+ * 原本只開一份、照 0 號座位的角色開：球球坐 0 號時，菲菲過關看到的永遠是球球的牌池
+ *（300 局裡她的專屬牌 0 張、球球專屬 79 張）——跟 9/13 修好的戰鬥三選一同一型，這條當時沒一起修。
+ *
+ * **照座位順序每一位都抽**，兩台機器各自跑這一支消耗的亂數次數一樣，鎖步不會分岔；
+ * 各台只拿自己那一份出來畫。0 號那一份跟單機的 `rollActCards(run)` 是同一次抽取。
+ */
+export function rollActCardsPerSeat(run: RunState): CardDef[][] {
+  return run.players.map((_, i) => rollActCards(run, i));
 }
 
 /** 過關獎勵：大魔物級秘寶三選一。池子抽乾了就有幾件算幾件（有可能一件都不剩）。 */
@@ -488,7 +510,14 @@ export function rollActRelics(run: RunState, n = 3): string[] {
   for (let i = 0; i < n; i++) {
     // 過關三選一抽塔主池（圖鑑也這樣寫）；塔主池抽完了才退回大魔物池——以前一直抽大魔物池，塔主池九件永遠拿不到（審查 #2）
     const hs = heroesIn(run);
-    const id = rollRelic(rng, '塔主', [...me(run).relics, ...out], hs) ?? rollRelic(rng, '大魔物', [...me(run).relics, ...out], hs);
+    /*
+     * 排除**每一位**已經有的（2026-09-14 連線稽核 高-10）。兩個人從同一份清單各挑一件，
+     * 原本只避開 0 號身上的：第二關過關時 1 號第一關挑的那件照樣可能出現（300 局裡 39%），
+     * 他挑下去 `takeRelic` 回 false、什麼都沒拿到，畫面卻照演「到手了」。
+     * 單機只有 0 號，排除清單跟以前一樣。
+     */
+    const owned = run.players.flatMap((p) => p.relics);
+    const id = rollRelic(rng, '塔主', [...owned, ...out], hs) ?? rollRelic(rng, '大魔物', [...owned, ...out], hs);
     if (id) out.push(id);
   }
   return out;
@@ -720,14 +749,21 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): C
   const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
     : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
   const jueN = n > 0 && rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
-  const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds, heroOf(me(run)), run.players.length), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds, heroOf(me(run)), run.players.length)];
+  /*
+   * **貨架是兩個人共用的，所以擺「這一局有人用得到」的牌**（2026-09-14 連線稽核 高-8）。
+   * 原本只看 0 號座位的角色：球球開房、菲菲加入時，300 間店開出來菲菲專屬 0 張、
+   * 球球專屬 154 張——她逛一整局買得到隱身牌，自己的毒牌一張都看不到。
+   * 別人專屬的牌買不下去（`buyCard` 擋、畫面標「同伴的招式」）。單機只有一位，清單不變。
+   */
+  const hs = heroesIn(run) as Hero[];
+  const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds, hs, run.players.length), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds, hs, run.players.length)];
   const wantRare = Math.min(n, run.act >= 3 ? 2 : run.act === 2 ? 1 : 0);
   const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
   for (const i of order) {
     if (cardDefs.filter((c) => c.rarity === '稀有').length >= wantRare) break;
     const cur = cardDefs[i]!;
     if (cur.rarity === '稀有') continue;
-    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && pickable(c, heroOf(me(run)), run.players.length) && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
+    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && hs.some((h) => pickable(c, h, run.players.length)) && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
     if (pool.length) cardDefs[i] = rng.pick(pool);
   }
   return cardDefs;
@@ -849,8 +885,12 @@ function pay(run: RunState, price: number, seat = 0): boolean {
   p.fish -= price;
   return true;
 }
+/** 這張牌是**別人的**專屬招式嗎（共用貨架上會同時擺兩個角色的牌，見 `rollShopCards`） */
+export function notMyCard(run: RunState, def: CardDef, seat = 0): boolean {
+  return !!def.hero && def.hero !== heroOf(me(run, seat));
+}
 export function buyCard(run: RunState, shop: ShopStock, i: number, seat = 0): boolean {
-  const it = shop.cards[i]; if (!it || it.sold || !pay(run, priceFor(run, it, seat), seat)) return false;
+  const it = shop.cards[i]; if (!it || it.sold || notMyCard(run, it.def, seat) || !pay(run, priceFor(run, it, seat), seat)) return false;
   it.sold = true; addCard(run, it.def.id, !!it.upgraded, seat); return true;   // 標成升級版的那格買到就是升級牌
 }
 export function buyRelic(run: RunState, shop: ShopStock, i: number, seat = 0): boolean {
