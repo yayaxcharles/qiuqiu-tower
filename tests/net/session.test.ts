@@ -147,8 +147,10 @@ describe('分岔：抓到就停，不要繼續玩兩份不一樣的遊戲', () =
     const t = table('bad');
     t.guest.cs.players[0]!.hp -= 1;   // 硬把一邊弄歪（模擬真的算出不同結果）
 
+    // 兩邊各自在收回合那一刻記一張單子，湊成一對才比（2026-09-14 高-5：不拿收到當下的狀態比）
     t.host.s.endOfTurn();
-    expect(t.guest.desync.length, '客戶端收到對帳單就發現了').toBe(1);
+    t.guest.s.endOfTurn();
+    expect(t.guest.desync.length, '客戶端記下自己那張、湊成一對就發現了').toBe(1);
     expect(t.guest.desync[0]).toContain('戰況對不上');
     expect(t.guest.s.stopped).toBe(true);
     expect(t.host.s.stopped, '它關掉連線，主機也跟著停').toBe(true);
@@ -158,6 +160,7 @@ describe('分岔：抓到就停，不要繼續玩兩份不一樣的遊戲', () =
     const t = table('bad2');
     t.guest.cs.players[0]!.hp -= 1;
     t.host.s.endOfTurn();
+    t.guest.s.endOfTurn();
 
     const fp = combatFingerprint(t.host.cs);
     expect(t.host.s.submit({ t: 'ready', seat: 0, on: true }), '停掉就不收動作了').toBe(false);

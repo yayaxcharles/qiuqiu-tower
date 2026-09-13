@@ -4,9 +4,12 @@ import { applyRunAction, canApplyRun } from './runaction';
 import type { RunAction, RunCtx } from './runaction';
 import type { ShopStock } from '../engine/run';
 import { ActionQueue, Sequencer, diffOf, runCheckOf, syncCheckOf } from './lockstep';
-import type { SequencedAction } from './lockstep';
+import type { SequencedAction, SyncCheck } from './lockstep';
 import type { NetMessage, Transport } from './transport';
 import type { CombatState, RunState } from '../engine/types';
+
+/** 戰鬥那一條的動作訊息（客戶端的請求、主機編號過的動作）：這兩種要照場次排隊 */
+type FightMsg = Extract<NetMessage, { m: 'req' | 'act' }>;
 
 /**
  * 一場連線對戰的會話：把傳輸層、號碼機、動作佇列黏起來。
@@ -38,6 +41,34 @@ export class CoopSession {
   private readonly seq: Sequencer | null;
   private cs: CombatState | null = null;
   private dead = false;
+  /*
+   * **第幾場戰鬥**（2026-09-14 夜間稽核 高-6）。每 `attach` 一場新的就加一。
+   *
+   * 兩台各數各的，但進出戰鬥的次序一模一樣（地圖是一起走的），數出來就一樣。
+   * `lastCs` 是為了同一場重掛不要多數一次。
+   */
+  private fight = 0;
+  private lastCs: CombatState | null = null;
+  /**
+   * 畫面正在演「收牌→魔物一隻一隻出手→發新手牌」（見 `hold`）。
+   * 這段期間引擎還沒走到下一回合，同伴下一回合的牌套不進去。
+   */
+  private held = false;
+  /**
+   * **還輪不到的戰鬥訊息**，照到達順序排（高-6、高-7）。
+   *
+   * 原本收到就套：這一場還沒進場（對白還在點、門還沒開）就套進上一場、或因為沒有戰鬥直接丟掉；
+   * 魔物回合還在演就套進演到一半的狀態。兩種都是「這邊做不出來」→ 整場斷線。
+   * 改成先排隊，進場了、演完了再照順序一口氣套。
+   */
+  private readonly backlog: FightMsg[] = [];
+  private draining = false;
+  /*
+   * 戰鬥的對帳單，**兩邊各存各的、湊成一對才比**（高-5，跟走格子的 `myMarks` 同一招）。
+   * 鍵＝`第幾場:第幾回合`。
+   */
+  private readonly myChecks = new Map<string, SyncCheck>();
+  private readonly theirChecks = new Map<string, SyncCheck>();
 
   /*
    * 整局那一半（商店、打盹、紙箱）自己的號碼機與佇列。
@@ -88,8 +119,37 @@ export class CoopSession {
     tx.onClose((w) => { this.dead = true; this.hooks.onClose?.(w); this.trouble?.(w); });
   }
 
-  /** 這一場戰鬥開打了。兩邊要餵同一個 `CombatState`（各自算出來的那一份） */
-  attach(cs: CombatState): void { this.cs = cs; }
+  /**
+   * 這一場戰鬥開打了（兩邊要餵同一個 `CombatState`，各自算出來的那一份）；`null`＝這一場分出勝負了。
+   *
+   * **畫面要把回呼都掛好之後才叫**：進場前先到的動作是在這一刻才套下去的，
+   * 那時沒人在聽的話，「兩個人都舉手了」就沒有人收回合。
+   *
+   * **分出勝負就要餵 `null`**：之後才到的、屬於這一場的請求一律當成來不及丟掉，
+   * 不可以留著等下一場套（牌號每場都從牌組複製，下一場手上很可能真的有同一個號碼）。
+   */
+  attach(cs: CombatState | null): void {
+    if (cs && cs !== this.lastCs) { this.fight += 1; this.lastCs = cs; this.held = false; }
+    this.cs = cs;
+    this.drain();
+  }
+
+  /**
+   * 畫面開始演收牌與魔物回合了：戰鬥動作先排隊、不套，也不收新的（2026-09-14 夜間稽核 高-7）。
+   *
+   * 兩台演完的時間不一樣（手牌張數、背景分頁的計時器被節流、慢的手機），
+   * 快的那台先發到新手牌就出牌，慢的那台還停在魔物回合中間、新手牌還沒抽，
+   * 那張牌套不進去 → `第 N 號動作在這邊做不出來`。主機這邊也一樣：演到一半收到請求，
+   * 拿演到一半的狀態去判，會把合法的牌當成來不及丟掉。
+   *
+   * 要在「最後一個人舉手」那一刻**同步**叫（`onApplied` 裡），不能晚一拍。演完一定要 `release()`。
+   */
+  hold(): void { this.held = true; }
+  /** 演完了：把排隊的動作照順序套下去 */
+  release(): void {
+    this.held = false;
+    this.drain();
+  }
 
   /**
    * 換畫面時把**畫面級**的回呼清乾淨（`App.show()` 進來就叫一次）。
@@ -201,26 +261,50 @@ export class CoopSession {
    * 那代表畫面跟引擎已經對不上，在送出的那一刻就該發現。
    */
   submit(a: CoopAction): boolean {
-    if (this.dead || !this.cs) return false;
+    if (this.dead || !this.cs || this.held) return false;   // 魔物回合演出中不收（見 `hold`）
     if (a.seat !== this.seat && a.t !== 'force') return false;   // 只能替自己做決定（強制收回合除外）
     if (!canApply(this.cs, a)) return false;
     if (this.isHost) {
       const sa = (this.seq as Sequencer).assign(a);
-      this.tx.send({ m: 'act', seq: sa.seq, a });
+      this.tx.send({ m: 'act', seq: sa.seq, a, f: this.fight });
       this.ingest(sa);   // 主機自己也走佇列：套用順序＝廣播順序
     } else {
       this.sentReq += 1;
-      this.tx.send({ m: 'req', n: this.sentReq, a });   // 客戶端只是請求，等主機編號繞回來才生效
+      this.tx.send({ m: 'req', n: this.sentReq, a, f: this.fight });   // 客戶端只是請求，等主機編號繞回來才生效
     }
     return true;
   }
 
-  /** 每回合結束時呼叫：把自己的對帳單送過去（順便帶上整局的指紋） */
+  /**
+   * 最後一個人舉手的那一刻呼叫：記下這一刻的對帳單、送一份給對方（順便帶上整局的指紋）。
+   *
+   * **比的是兩邊各自記下的那一份，不是收到當下的狀態**（2026-09-14 夜間稽核 高-5）。
+   * 原本收到對帳單就拿「現在」去比，可是手上沒牌的那台不必等收牌動畫，
+   * 當場就開演魔物回合、把手牌丟掉了——對方的單子晚一拍到，一定對不上。
+   * 倒下的人手上永遠沒牌，所以有人倒下之後第一次收回合必定整場斷線。
+   *
+   * 先比再送：比出分岔就停在這裡，不要再把單子送出去。
+   */
   endOfTurn(): void {
     if (this.dead || !this.cs) return;
     const c = syncCheckOf(this.cs);
     const rfp = this.rctx ? runCheckOf(this.rctx.run).rfp : undefined;
-    this.tx.send({ m: 'sync', turn: c.turn, fp: c.fp, ...(rfp ? { rfp } : {}) });
+    const key = `${this.fight}:${c.turn}`;
+    this.myChecks.set(key, { ...c, ...(rfp ? { rfp } : {}) });
+    this.matchTurn(key);
+    if (this.dead) return;
+    this.tx.send({ m: 'sync', turn: c.turn, fp: c.fp, ...(rfp ? { rfp } : {}), f: this.fight });
+  }
+
+  /** 同一場、同一回合的兩張對帳單都到了才比；比過就丟 */
+  private matchTurn(key: string): void {
+    const a = this.myChecks.get(key);
+    const b = this.theirChecks.get(key);
+    if (!a || !b) return;
+    this.myChecks.delete(key);
+    this.theirChecks.delete(key);
+    const why = diffOf(a, b);
+    if (why) this.stop(why);
   }
 
   /*
@@ -348,6 +432,13 @@ export class CoopSession {
       if (m.k && m.rfp) { this.theirMarks.set(m.k, m.rfp); this.theirPath.push(m.k); this.matchMark(m.k); }
       return;
     }
+    // 戰鬥的對帳同理：存起來，等自己那一張也記下了再比（見 `endOfTurn`）。不看現在的 cs
+    if (m.m === 'sync') {
+      const key = `${m.f ?? this.fight}:${m.turn}`;
+      this.theirChecks.set(key, { turn: m.turn, fp: m.fp, ...(m.rfp ? { rfp: m.rfp } : {}) });
+      this.matchTurn(key);
+      return;
+    }
     if (m.m === 'start') {
       if (this.isHost) return;
       this.hooks.onStart?.(m.seed, m.diff, m.enc, m.heroes);
@@ -355,43 +446,88 @@ export class CoopSession {
       else this.pendingStart = { seed: m.seed, diff: m.diff, enc: m.enc, ...(m.heroes ? { heroes: m.heroes } : {}) };   // 還沒註冊就先存著
       return;
     }
-    if (!this.cs) return;
     switch (m.m) {
       case 'req':
         // 只有主機收得到請求：編號之後廣播，自己也照號碼套
         if (!this.isHost || !this.seq) return;
         if (!this.fresh(this.seenReq, m.a.seat, m.n)) return;   // 同一則到兩次：丟掉，不是分岔
-        if (!canApply(this.cs, m.a)) {
-          /*
-           * **這是「來不及」，不是分岔。**
-           *
-           * 客戶端的狀態比主機慢一個來回，所以它很可能在魔物已經倒下、
-           * 或回合已經收掉之後才送出一張牌——送的當下在它那邊完全合法。
-           * 第一版把這個當成分岔整場停掉，實測光是連點兩張牌就會踩到。
-           *
-           * 真正的分岔靠**指紋**抓（每回合、每走一格各對一次），那個才可靠；
-           * 這裡只要不編號、回一則「沒算數」讓對方把手放開就好。
-           * 主控台留一行，不然這種丟掉會完全無聲。
-           */
-          console.error(`對方那一下來不及了，沒算數（${m.a.t}）`);
-          this.tx.send({ m: 'drop', n: m.n });
-          return;
-        }
-        this.ingest(this.seq.assign(m.a), true);
+        this.backlog.push(m);
+        this.drain();
         return;
       case 'act':
         // 客戶端收主機編號過的動作。主機自己不會收到（自己的走 submit）
         if (this.isHost) return;
-        this.ingest({ seq: m.seq, a: m.a });
+        this.backlog.push(m);
+        this.drain();
         return;
-      case 'sync': {
-        const mine = syncCheckOf(this.cs);
-        const rfp = this.rctx ? runCheckOf(this.rctx.run).rfp : undefined;
-        const why = diffOf({ ...mine, ...(rfp ? { rfp } : {}) }, { turn: m.turn, fp: m.fp, ...(m.rfp ? { rfp: m.rfp } : {}) });
-        if (why) this.stop(why);
-        return;
-      }
     }
+  }
+
+  /**
+   * 把排隊的戰鬥訊息照順序處理掉，**處理到第一個還輪不到的就停**（後面的一定也輪不到：場次只增不減）。
+   *
+   * 三種情況：
+   * - 屬於**已經打完的**那一場（場次比現在舊、或就是現在這場但已經 `attach(null)`）→ 丟掉
+   * - 屬於**還沒進場的**那一場、或畫面正在演魔物回合（`hold`）→ 留著
+   * - 其他 → 現在處理
+   *
+   * 處理的過程會回呼畫面，畫面可能當場 `hold()`、`attach(null)` 或 `release()`，
+   * 所以每一則都重新判斷；`draining` 擋掉重入（`release` 在迴圈裡被叫到時，外圈會接著跑）。
+   */
+  private drain(): void {
+    if (this.draining) return;
+    this.draining = true;
+    try {
+      while (!this.dead && this.backlog.length) {
+        const m = this.backlog[0] as FightMsg;
+        const f = m.f ?? this.fight;
+        const over = f < this.fight || (f === this.fight && !this.cs && this.lastCs !== null);
+        if (!over && (f > this.fight || !this.cs || this.held)) break;
+        this.backlog.shift();
+        if (over) this.stale(m);
+        else this.take(m);
+      }
+    } finally {
+      this.draining = false;
+    }
+  }
+
+  /** 輪到了：請求就編號（做不出來回「沒算數」），編號過的動作就照號碼套 */
+  private take(m: FightMsg): void {
+    if (m.m === 'act') { this.ingest({ seq: m.seq, a: m.a }); return; }
+    if (!canApply(this.cs as CombatState, m.a)) {
+      /*
+       * **這是「來不及」，不是分岔。**
+       *
+       * 客戶端的狀態比主機慢一個來回，所以它很可能在魔物已經倒下、
+       * 或回合已經收掉之後才送出一張牌——送的當下在它那邊完全合法。
+       * 第一版把這個當成分岔整場停掉，實測光是連點兩張牌就會踩到。
+       *
+       * 真正的分岔靠**指紋**抓（每回合、每走一格各對一次），那個才可靠；
+       * 這裡只要不編號、回一則「沒算數」讓對方把手放開就好。
+       * 主控台留一行，不然這種丟掉會完全無聲。
+       */
+      console.error(`對方那一下來不及了，沒算數（${m.a.t}）`);
+      this.tx.send({ m: 'drop', n: m.n });
+      return;
+    }
+    this.ingest((this.seq as Sequencer).assign(m.a), true);
+  }
+
+  /**
+   * 屬於已經打完那一場的訊息。
+   *
+   * 請求＝來不及（最後一刀落下的同時對方又點了一張牌），回「沒算數」就好。
+   * 編號過的動作就不一樣了：主機在分出勝負之後不會再發這一場的號碼，收到代表兩邊對「哪一刀分出勝負」
+   * 的看法不同，而且這一號不套、佇列就永遠卡在這裡——只能停。
+   */
+  private stale(m: FightMsg): void {
+    if (m.m === 'req') {
+      console.error(`對方那一下屬於已經打完的那一場，沒算數（${m.a.t}）`);
+      this.tx.send({ m: 'drop', n: m.n });
+      return;
+    }
+    this.stop(`第 ${m.seq} 號動作屬於已經打完的那一場（${m.a.t}）`);
   }
 
   /** 整局那一條的收信。跟戰鬥那條規矩一樣，只是對象不同 */
@@ -430,7 +566,7 @@ export class CoopSession {
   /** 把一個編號過的動作丟進佇列，並把結果回報給畫面 */
   private ingest(sa: SequencedAction, broadcast = false): void {
     if (!this.cs) return;
-    if (broadcast) this.tx.send({ m: 'act', seq: sa.seq, a: sa.a });
+    if (broadcast) this.tx.send({ m: 'act', seq: sa.seq, a: sa.a, f: this.fight });
     this.before?.();   // 套用前先讓畫面存一份快照（見 `beforeApply`）
     const r = this.queue.receive(sa);
     if (r.applied.length) { this.hooks.onApplied?.(r.applied); this.applied?.(r.applied); }

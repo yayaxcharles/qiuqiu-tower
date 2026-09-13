@@ -586,6 +586,24 @@
   font-size: 16px;
 }
 
+/* 連線：同伴正在挑牌（稽核 2026-09-14 高-4）。只是告知，不擋畫面、不吃滑鼠；
+   掛在疊層（不在 .combat 裡），位置跟「這張打不出來」那行字同一個高度 */
+#stage[data-screen="combat"] .pick-wait {
+  position: absolute;
+  left: 50%; top: 370px;
+  translate: -50% 0;
+  z-index: 52;
+  pointer-events: none;
+  padding: 5px 16px;
+  border-radius: 10px;
+  font-size: 17px;
+  white-space: nowrap;
+  background: linear-gradient(#2c1d12e6, #140c07f2);
+  color: #ffd98a;
+  border: 1.5px solid #ffd98a8c;
+  text-shadow: 0 1px 2px #000000cc;
+}
+
 /*
  * 戰鬥中的生命與忍具以戰鬥狀態（cs）為準，整局狀態（run）要等這場打完才寫回，
  * 所以狀態列那兩格在戰鬥中一定是舊值——藏起來，改由球球腳下的生命條與左下的忍具格顯示。

@@ -214,6 +214,22 @@ registerScreen('reward', (app, root, props) => {
       onPick: (uid) => { r.upsAsking = false; settleUpgrades(uid === null ? [] : [uid]); },
       onPickMany: (uids) => { r.upsAsking = false; settleUpgrades(uids); },
     }); }
+    /*
+     * **沒得升也要投一張空票**（2026-09-14 連線稽核 高-18）。牌組全升級過（或只剩壞毛病）的那一位
+     * 不會開疊層、也就永遠不投 `rwup`，而同伴那邊的「繼續」要等票齊——兩個人一起卡死在戰利品畫面。
+     * 事件畫面遇過同一型、早就補了空票（`event.ts` 的 `usable === 0`），這裡當時沒補。
+     */
+    else if (want === 0 && !upsPicked && !iDown && app.coop) {
+      /*
+       * **排到畫完之後才投**：`pick` 會同步叫到上面掛的 `onPick`，票一齊就 `backToMap()`——
+       * 在畫面畫到一半的時候換畫面，後面那幾行會把東西接到已經換成地圖的舞台上。
+       * 換畫面之前沒投出去就撤掉（不然一張遲到的空票會留到下一個戰利品畫面）。
+       */
+      r.upsAsking = true;
+      const coopNow = app.coop;
+      const t = window.setTimeout(() => { r.upsAsking = false; coopNow.pick('rwup', ''); }, 0);
+      app.disposers.push(() => { window.clearTimeout(t); r.upsAsking = false; });
+    }
   }
   /**
    * 挑完要升級的牌。**兩個人時要等兩邊都挑完才動手**（跟事件那邊同一條理由）：

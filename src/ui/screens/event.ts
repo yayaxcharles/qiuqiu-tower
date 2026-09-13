@@ -490,8 +490,16 @@ registerScreen('event', (app, root, props) => {
      * 根本走不到那裡，他那台就永遠沒有人在聽，同伴挑的牌在他那台不會進牌組。
      */
     const added = me(run, seat).deck.filter((x) => !had.has(x.uid));
+    /*
+     * **倒下的人沒有自己的結果，但同伴要打的那一場他也得進去**（2026-09-14 夜間稽核 高-11）。
+     *
+     * 效果只替站著的人跑，所以倒下那台的 `outcomes[seat]` 是空的，原本就走「繼續」回地圖；
+     * 站著那台走「開打」進戰鬥——兩台一個在地圖、一個在戰鬥，下一個動作就斷線。
+     * 戰鬥本來就是兩個人一起的（倒下的人在場上觀戰，規則四），所以照站著那位的那一場進去。
+     */
+    const fightOf = coop && !outcomes[seat] ? outcomes.find((o) => !!o && 'fight' in o) ?? null : null;
     /** 把結果畫面重畫一次（自己沒得挑的那一台，等同伴挑完之後要把「繼續」放出來） */
-    const showResult = (): void => { settle(outcomes[seat] ?? null, c.result, notes, gains, added, outcomes); };
+    const showResult = (): void => { settle(outcomes[seat] ?? fightOf, c.result, notes, gains, added, outcomes); };
     if (coop) {
       const alive = run.players.map((p) => !p.down);
       // 只要**有人**要挑牌，這個畫面就先鎖住「繼續」（見 `awaitingPicks`）

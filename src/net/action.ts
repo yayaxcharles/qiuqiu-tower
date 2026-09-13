@@ -1,4 +1,4 @@
-import { canPlay, forceReady, playCard, resolveChoice, setReady, usePotion } from '../engine/combat';
+import { canPlay, canResolveChoice, canUsePotion, forceReady, playCard, resolveChoice, setReady, usePotion } from '../engine/combat';
 import type { CombatState } from '../engine/types';
 
 /**
@@ -39,10 +39,22 @@ export function applyAction(cs: CombatState, a: CoopAction): boolean {
   switch (a.t) {
     case 'card': return playCard(cs, a.u, a.g, a.seat);
     case 'potion': return usePotion(cs, a.id, a.g, a.seat);
-    case 'choose': return resolveChoice(cs, a.u);
+    // 只有**在等選牌的那一位**選得了（稽核 2026-09-14 高-4）：兩台都會跳視窗，同伴那台按下去不可以算數
+    case 'choose': return chooserOf(cs) === a.seat && resolveChoice(cs, a.u);
     case 'ready': { setReady(cs, a.seat, a.on); return true; }
     case 'force': { forceReady(cs, a.w); return true; }
   }
+}
+
+/**
+ * 現在在等**誰**選牌（沒有待選就回 -1）。
+ *
+ * 引擎自己記得是誰打出那張牌（`pending.ctx.self`）；沒記的退回第一位，跟 `resolveChoice` 一致。
+ * 畫面也拿它決定「跳選牌視窗」還是「等同伴選牌」。
+ */
+export function chooserOf(cs: CombatState): number {
+  const pd = cs.pending;
+  return pd ? (pd.ctx.self ?? cs.player).seat : -1;
 }
 
 /**
@@ -56,8 +68,8 @@ export function canApply(cs: CombatState, a: CoopAction): boolean {
   if (cs.phase !== 'player') return false;
   switch (a.t) {
     case 'card': return canPlay(cs, a.u, a.g, a.seat).ok;
-    case 'potion': return !cs.pending && !!cs.players[a.seat] && !cs.players[a.seat]!.down && !cs.players[a.seat]!.ready;
-    case 'choose': return cs.pending !== null;
+    case 'potion': return canUsePotion(cs, a.id, a.g, a.seat);
+    case 'choose': return chooserOf(cs) === a.seat && canResolveChoice(cs, a.u);
     case 'ready': return !!cs.players[a.seat] && !cs.players[a.seat]!.down;
     case 'force': return !!cs.players[a.w] && !cs.players[a.w]!.down && !cs.players[a.w]!.ready;
   }

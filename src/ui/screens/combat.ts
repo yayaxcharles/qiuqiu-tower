@@ -12,6 +12,7 @@ import { DEBUFFS } from '../../engine/types';
 import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, PlayerCombat, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
 import { registerScreen } from '../app';
 import type { CoopSession } from '../../net/session';
+import { chooserOf } from '../../net/action';
 import type { CoopAction } from '../../net/action';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
@@ -456,6 +457,12 @@ registerScreen('combat', (app, root, props) => {
   let lowHpTold = false;
   let ended = false;
   let picker: HTMLElement | null = null;
+  /** `picker` 是替哪一個待選開的（連線時同一格可能從「等同伴挑牌」換成輪到我） */
+  let pickerFor: CombatState['pending'] = null;
+  /** 我選好、已經送出去的那一個待選（客戶端要等繞回來，這段期間不重開視窗，稽核 2026-09-14 高-4） */
+  let chooseSent: CombatState['pending'] = null;
+  // 換畫面時把疊層上的視窗或「等同伴挑牌」收掉：疊層不隨畫面清空，斷線回標題時會留在標題上
+  app.disposers.push(() => { picker?.remove(); picker = null; });
   let seq = 0;   // 每次結算 +1，讓過期的計時器認出自己已經不是最新的一次
   const lastHpPct = new Map<string, number>();   // 生命條上一次畫到哪，重畫後才滑得動
   /**
@@ -1012,10 +1019,11 @@ registerScreen('combat', (app, root, props) => {
 
     const potions = el('div', { class: 'potions' });
     // 格數隨難度與忍具袋變；跟狀態列同一套：至少畫 3 格，宗師起少掉的那格畫成鎖住（稽核 2026-09-06 介面 中-2）
-    const cap = potionCapacity(run);
+    // 格數與內容都是**我這一位**的（稽核 2026-09-14 高-3）：原本讀 `cs.potions`＝座位 0，客戶端看到、點到的都是主機的忍具
+    const cap = potionCapacity(run, mySeat);
     for (let i = 0; i < Math.max(cap, 3); i++) {
       const locked = i >= cap;
-      const id = locked ? undefined : cs.potions[i];
+      const id = locked ? undefined : p.potions[i];
       const def = id ? potionById[id] : undefined;
       const slot = el('div', { class: `potion${def ? '' : locked ? ' locked' : ' empty'}` }, locked ? '🔒' : '');
       if (locked) attachTextTooltip(slot, '這一格鎖住了', '宗師以上只能帶兩支忍具；拿到忍具袋或九命鈴會多出格子。');
@@ -1515,7 +1523,18 @@ registerScreen('combat', (app, root, props) => {
     targeting = null;
     if (!t || !canAct()) { render(); return; }
     if (t.kind === 'card') play(t.uid, enemyUid);
-    else act(() => { if (!usePotion(cs, t.id, enemyUid)) console.error(`usePotion 失敗：${t.id}`); }, potionPose(heroOf(my()), t.id));
+    else drinkPotion(t.id, enemyUid);
+  }
+
+  /**
+   * 用一瓶忍具。**連線時要走會話**（稽核 2026-09-14 高-3）：原本直接呼叫引擎、也沒帶座位，
+   * 於是只有自己這台生效（對面不知道，回合結束對帳必定對不上），客戶端還會喝掉主機袋子裡的那瓶。
+   */
+  function drinkPotion(id: string, enemyUid: number | undefined): void {
+    act(() => {
+      const ok = sendOrDo({ t: 'potion', seat: mySeat, id, g: enemyUid }, () => usePotion(cs, id, enemyUid, mySeat));
+      if (!ok) console.error(`usePotion 失敗：${id}`);
+    }, potionPose(heroOf(my()), id));
   }
 
   /**
@@ -1590,7 +1609,7 @@ registerScreen('combat', (app, root, props) => {
     hint = '';
     // 只有打魔物的忍具要選目標（手裡劍、麻繩）；全體與自己用的直接用掉
     if (def.target === 'enemy') { targeting = { kind: 'potion', id }; render(); return; }
-    act(() => { if (!usePotion(cs, id)) console.error(`usePotion 失敗：${id}`); }, potionPose(heroOf(my()), id));
+    drinkPotion(id, undefined);
   }
 
   /**
@@ -1732,7 +1751,8 @@ registerScreen('combat', (app, root, props) => {
 
   function runEnemyTurn(): void {
     const before = snap(cs, my());
-    if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); return; }
+    // 連線：收回合那一刻會話被 `hold()` 住了，演完（或根本沒得演）都要放開，同伴下一回合的牌才套得進來（稽核 2026-09-14 高-7）
+    if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); session?.release(); return; }
     // 旗標要在 settle 之前設：預告加了延遲之後，settle 畫出來的「結束回合」鈕會亮著閃 0.32 秒
     // （點了仍被 canAct 擋住，但看起來像可以點）——稽核 2026-09-04 夜 L-2
     enemyTurnRunning = true;
@@ -1746,6 +1766,7 @@ registerScreen('combat', (app, root, props) => {
         finishEnemyTurn(cs);
         enemyTurnRunning = false;
         settle(b, { deal: true });
+        session?.release();
         return;
       }
       // 這一步有沒有東西可看：有魔物真的動了（回合數推進）或紀錄多了行
@@ -2211,6 +2232,8 @@ registerScreen('combat', (app, root, props) => {
   function checkOver(): void {
     if (cs.phase === 'player' || ended) return;
     ended = true;
+    // 連線：這一場打完了。之後才到的這一場的請求一律當成來不及，不可以留到下一場套（見 `CoopSession.attach`）
+    session?.attach(null);
     if (cs.phase === 'won') toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
     // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
     const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
@@ -2264,11 +2287,26 @@ registerScreen('combat', (app, root, props) => {
 
   /** `cs.pending` 一出現就開視窗、一消失就收；視窗掛在疊層，重畫畫面不會把它掃掉 */
   function syncPicker(): void {
-    if (!cs.pending) { picker?.remove(); picker = null; return; }
-    if (picker) return;
+    if (!cs.pending) { picker?.remove(); picker = null; pickerFor = null; chooseSent = null; return; }
     const pd = cs.pending;
+    if (picker && pickerFor === pd) return;
+    // 換了一個待選（接連的第二次選牌、或「等同伴」換成輪到我）：舊的那個先收掉再照現在的畫
+    picker?.remove(); picker = null; pickerFor = null;
+    if (chooseSent === pd) return;   // 選好送出去了、還沒繞回來：不要再跳一次
     const layer = overlayRoot();
     if (!layer) return;
+    pickerFor = pd;
+    /*
+     * **選牌的是同伴就不開視窗**（稽核 2026-09-14 高-4）。出牌動作有走連線，所以兩台的 `cs.pending`
+     * 都會被設起來：原本兩台都跳視窗，我這台攤開的是**他的手牌**，兩人各按各的、各自在本機結算就分岔。
+     * 我這台只掛一行字，不擋畫面也不吃滑鼠；他選完、動作繞回來 `pending` 清掉，這行字跟著收。
+     */
+    if (chooserOf(cs) !== mySeat) {
+      const mate = cs.players[chooserOf(cs)];
+      picker = el('div', { class: 'pick-wait' }, `${mate ? heroName(mate) : '同伴'}正在挑牌，等一下`);
+      layer.append(picker);
+      return;
+    }
     const chosen: number[] = [];
     const okBtn = el('button', { class: 'btn primary' }, '確定');
     const count = el('div', { class: 'pick-count' });
@@ -2295,8 +2333,11 @@ registerScreen('combat', (app, root, props) => {
     }
     okBtn.addEventListener('click', () => {
       const before = snap(cs, my());
-      if (!resolveChoice(cs, [...chosen])) { console.error(`resolveChoice 失敗：${pd.purpose} ${chosen.join(',')}`); return; }
-      picker?.remove(); picker = null;
+      const u = [...chosen];
+      // 連線要走會話（高-4）；客戶端要等主機編號繞回來才真的選定，這段期間 `chooseSent` 擋住視窗重開
+      if (!sendOrDo({ t: 'choose', seat: mySeat, u }, () => resolveChoice(cs, u))) { console.error(`resolveChoice 失敗：${pd.purpose} ${chosen.join(',')}`); return; }
+      if (cs.pending === pd) chooseSent = pd;
+      picker?.remove(); picker = null; pickerFor = null;
       hideTooltip();
       settle(before);   // 選完之後這張牌剩下的效果才會跑，所以照樣要結算一次
     });
@@ -2332,7 +2373,7 @@ registerScreen('combat', (app, root, props) => {
    *（那正是鎖步的整個前提）。傳結果反而會多一份可能對不上的東西。
    */
   if (session) {
-    session.attach(cs);
+    // `session.attach(cs)` 刻意放在這支的最後面（稽核 2026-09-14 高-6）：理由見檔尾那一行
     /*
      * 每秒問一次「同伴閒置多久了」，到了就把那顆按鈕亮出來。
      *
@@ -2365,7 +2406,8 @@ registerScreen('combat', (app, root, props) => {
      */
     session.beforeApply(() => { remoteBefore = snap(cs, my()); });
     // 我那一下沒算數（主機已經來不及了）：把手放開，畫面重畫回真實的狀態
-    session.onDropped(() => { unlockSend(); if (app.cs === cs) render(); });
+    // 選牌那一下沒算數的話，視窗要能再開（見 `chooseSent`）
+    session.onDropped(() => { unlockSend(); chooseSent = null; if (app.cs === cs) { render(); syncPicker(); } });
     session.onApplied((applied) => {
       if (!applied.length || app.cs !== cs) return;
       unlockSend();   // 有東西套進去了＝路上那一下回來了
@@ -2389,6 +2431,8 @@ registerScreen('combat', (app, root, props) => {
       checkOver();   // 最後一刀是誰補的都一樣，分出勝負就要收場
       if (allReady(cs)) {
         session.endOfTurn();      // 收回合之前先對一次帳，分岔要在這裡就抓到
+        // 從這一刻到新手牌發下來，同伴的動作一律先排隊（高-7）；`runEnemyTurn` 演完放開
+        session.hold();
         sfx('turn_end');
         const wait = collectHand();
         if (wait <= 0) { runEnemyTurn(); return; }
@@ -2454,4 +2498,13 @@ registerScreen('combat', (app, root, props) => {
     }
   }
   if (!vsShown) openingFlash();
+  /*
+   * **最後才掛上會話**（2026-09-14 夜間稽核 高-6）。
+   *
+   * 兩台進場的時間差好幾秒（對白、關主門、事件的「開打」各點各的，一般戰也要等圖解碼），
+   * 先進場的那台已經出過牌了。那些動作在會話裡排著隊，`attach` 的這一刻才一口氣套下去——
+   * 所以回呼要先全部掛好、第一次畫面也要先畫好，不然套下去沒人演，
+   * 「兩個人都舉手了」也沒有人收回合。
+   */
+  session?.attach(cs);
 });

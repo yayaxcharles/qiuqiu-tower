@@ -905,12 +905,22 @@ export function combatResult(cs: CombatState): { hp: number; fishDelta: number; 
   return { hp: cs.player.hp, fishDelta: cs.fishDelta, kills: cs.kills, potions: [...cs.potions] };
 }
 
-export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
+/**
+ * 這樣選合不合規矩：張數在範圍內、挑的都是給出來的那幾張。
+ * 連線層送出前先問它（2026-09-14 夜間稽核 高-4），跟 `resolveChoice` 用同一套判準，不另寫一份。
+ */
+export function canResolveChoice(cs: CombatState, chosenUids: number[]): boolean {
   const pd = cs.pending;
   if (!pd) return false;
   const allowed = new Set(pd.cards.map((c) => c.uid));
   const uniq = [...new Set(chosenUids)];
-  if (uniq.length < pd.min || uniq.length > pd.max || uniq.some((u) => !allowed.has(u))) return false;
+  return uniq.length >= pd.min && uniq.length <= pd.max && uniq.every((u) => allowed.has(u));
+}
+
+export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
+  const pd = cs.pending;
+  if (!pd || !canResolveChoice(cs, chosenUids)) return false;
+  const uniq = [...new Set(chosenUids)];
   // 在等選牌的是誰，`pending` 自己記得（打那張牌時就寫進 ctx.self 了），不用再從外面傳座位進來
   const p = pd.ctx.self ?? cs.player;
   for (const uid of uniq) {
@@ -927,18 +937,29 @@ export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
   return true;
 }
 
-/** `seat`＝誰喝這瓶忍具。忍具各帶各的（規則一），所以找的是那一位自己袋子裡的 */
-export function usePotion(cs: CombatState, potionId: string, targetUid?: number, seat = 0): boolean {
+/**
+ * 這瓶忍具現在喝得下去嗎。連線層送出前先問它（2026-09-14 夜間稽核 高-3）：
+ * 原本連線那邊只看「有沒有在選牌、有沒有倒下」，袋子裡沒這瓶、目標已經倒了也放行，
+ * 主機發了號碼才在套用時被拒絕，那就不是「來不及」而是整場停掉。
+ */
+export function canUsePotion(cs: CombatState, potionId: string, targetUid?: number, seat = 0): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
   const p = cs.players[seat];
   if (!p || p.down || p.ready) return false;
-  const i = p.potions.indexOf(potionId);   // 喝的是**自己**袋子裡的那瓶（規則一）
   const def = potionById[potionId];
-  if (i < 0 || !def) return false;
+  if (!p.potions.includes(potionId) || !def) return false;   // 喝的是**自己**袋子裡的那瓶（規則一）
   // 有使用條件的（起死回生丹：生命低於三成才准用）。畫面讀同一個 `usable` 把格子變灰並寫原因，見 `ui/screens/combat.ts` 的忍具列
   if (def.usable && !def.usable.check(p.hp, p.maxHp)) return false;
   if (def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return false;
-  p.potions.splice(i, 1);
+  return true;
+}
+
+/** `seat`＝誰喝這瓶忍具。忍具各帶各的（規則一），所以找的是那一位自己袋子裡的 */
+export function usePotion(cs: CombatState, potionId: string, targetUid?: number, seat = 0): boolean {
+  if (!canUsePotion(cs, potionId, targetUid, seat)) return false;
+  const p = cs.players[seat]!;
+  const def = potionById[potionId]!;
+  p.potions.splice(p.potions.indexOf(potionId), 1);
   log(cs, `${unitName(p)}用了「${def.name}」`);
   applyEffects(cs, def.effects, { self: p, targetUid, source: 'potion' });
   // 用忍具之後的秘寶效果（舊毛巾、貓薄荷煙斗、九命鈴）
