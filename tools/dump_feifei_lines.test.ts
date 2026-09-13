@@ -1,0 +1,168 @@
+import { it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { dialogue, eventTextFor, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES } from '../src/content/dialogue';
+import { events } from '../src/content/events';
+import { enemyById } from '../src/content/enemies';
+
+/*
+ * 把**菲菲實際會看到的每一句話**倒成一份 MD 給人審（2026-09-13 使用者要求）。
+ *
+ * 重點不是「有哪些句子」，是**哪些句子是她自己的字、哪些只是球球的句子機械轉過來的**。
+ * 後者唸起來就是球球的口氣配她的名字——使用者實測抓到的
+ *「價錢讓我心疼，藥倒是有下本。」就是這樣來的（那本來是球球在賣藥三花貓那個事件講的）。
+ *
+ * 判準寫死在 `own()`：跟球球那份不一樣、或球球那份根本沒有，就算她自己的。
+ * 走 `lineFor` 只被拿掉句尾「喵」的，一律標成「球球的句子」。
+ */
+const MD = 'docs/菲菲_全部台詞_檢查用.md';
+
+/** 這一句是不是「她自己的字」：跟球球的原句不同就是 */
+const own = (mine: string, his?: string): boolean => his === undefined || mine !== his;
+
+const tag = (isOwn: boolean): string => (isOwn ? '' : '　⚠️球球的句子');
+
+it('dump', () => {
+  const out: string[] = [];
+  const p = (s = '') => out.push(s);
+
+  p('# 菲菲・全部台詞（檢查用）');
+  p('');
+  p('這份是**遊戲裡實際會顯示給玩家看的字**，不是原始碼。由 `tools/dump_feifei_lines.test.ts` 產生，改完程式重跑就會更新。');
+  p('');
+  p('標著 ⚠️ 的是**球球的句子機械轉過來的**：只把「球球」換成「菲菲」、句尾的「喵」拿掉，口氣還是球球的。');
+  p('沒有標記的是她自己寫過一份的。');
+  p('');
+
+  const story = storyFor('feifei');
+
+  // ---- 一、序章 ----
+  p('## 一、序章');
+  p('');
+  for (const l of story.prologue) p(`- **${l.speaker}**：${l.text}`);
+  p('');
+
+  // ---- 二、口頭禪 ----
+  p('## 二、口頭禪（隨機挑一句）');
+  p('');
+  const chat: [string, readonly string[], readonly string[]][] = [
+    ['開打時', story.battleStart, dialogue.battleStart],
+    ['打贏時', story.battleWin, dialogue.battleWin],
+    ['飢餓（沒飯糰）', story.hungry, dialogue.hungry],
+    ['血剩很少', story.lowHp, dialogue.lowHp],
+    ['開紙箱', story.chestLines, dialogue.chestLines],
+    ['貓窩・睡覺', story.restNapLines, dialogue.restNapLines],
+    ['貓窩・磨針', story.restSharpenLines, dialogue.restSharpenLines],
+  ];
+  for (const [name, mine, his] of chat) {
+    p(`### ${name}（${mine.length} 句）`);
+    p('');
+    for (const s of mine) p(`- ${s}${tag(own(s, his.includes(s) ? s : undefined))}`);
+    p('');
+  }
+
+  // ---- 三、過關與結局 ----
+  p('## 三、過關、落敗、結局');
+  p('');
+  const beats: [string, readonly { speaker: string; text: string }[]][] = [
+    ['第一關打完', story.actClear1],
+    ['第二關打完', story.actClear2],
+    ['輸了', story.defeat],
+    ['通關', story.victory],
+  ];
+  for (const [name, lines] of beats) {
+    p(`### ${name}`);
+    p('');
+    for (const l of lines) p(`- **${l.speaker}**：${l.text}`);
+    p('');
+  }
+  p('### 通關旁白（依牌組傾向擇一）');
+  p('');
+  for (const [k, v] of Object.entries(story.victoryNarration)) p(`- **${k}**：${v}`);
+  p('');
+  p(`### 高難度後日談\n\n- ${story.hardModeEpilogue}`);
+  p('');
+  p(`### 打完第一關的預告\n\n- ${story.victoryTeaser}`);
+  p('');
+
+  // ---- 四、魔物初遇 ----
+  p('## 四、第一次看到每種魔物');
+  p('');
+  const fm = story.firstMeet;
+  const hisFm = dialogue.firstMeet as Record<string, string>;
+  for (const [id, line] of Object.entries(fm)) {
+    const name = enemyById[id]?.name ?? id;
+    p(`- **${name}**：${line}${tag(own(line, hisFm[id]))}`);
+  }
+  p('');
+
+  // ---- 五、關主與上樓那批 ----
+  p('## 五、關主、換階段、上樓（走 `lineFor`）');
+  p('');
+  p('這一批在原始碼裡寫的是球球的句子，玩菲菲時由 `lineFor` 換掉——');
+  p('在 `FEIFEI_BOSS_LINES` 名單裡的整句換成她的，不在名單裡的只拿掉句尾的「喵」。');
+  p('');
+  const bossGroups: [string, unknown][] = [
+    ['秘笈（5F）', dialogue.secretScroll],
+    ['打完第一隻精英', dialogue.afterFirstElite],
+    ['關主前的貓窩', dialogue.restBeforeBossByAct],
+    ['關主開場', dialogue.bossIntroById],
+    ['關主開場（通用）', dialogue.bossIntroGeneric],
+    ['關主被打倒', dialogue.bossDefeatById],
+    ['關主第二階段', dialogue.bossPhase2ById],
+    ['關主第二階段（通用）', dialogue.bossPhase2Generic],
+    ['關主第三階段', dialogue.bossPhase3ById],
+    ['關主第三階段（通用）', dialogue.bossPhase3Generic],
+    ['師父的第一句話', dialogue.masterFirstWords],
+    ['罐頭鋪老闆', dialogue.shopkeeper],
+  ];
+  const walk = (v: unknown, into: (line: { speaker?: string; text?: string } | string) => void): void => {
+    if (typeof v === 'string') { into(v); return; }
+    if (Array.isArray(v)) { for (const x of v) walk(x, into); return; }
+    if (v && typeof v === 'object') {
+      const o = v as { speaker?: string; text?: string };
+      if (typeof o.text === 'string') { into(o); return; }
+      for (const x of Object.values(v as Record<string, unknown>)) walk(x, into);
+    }
+  };
+  for (const [name, group] of bossGroups) {
+    const rows: string[] = [];
+    walk(group, (l) => {
+      const raw = typeof l === 'string' ? l : (l.text ?? '');
+      const who = typeof l === 'string' ? '' : (l.speaker ?? '');
+      if (!raw) return;
+      // 只有球球那邊的句子才會被換；旁白與魔物的台詞原樣顯示
+      if (who && who !== '球球') { rows.push(`- **${who}**：${raw}`); return; }
+      const shown = lineFor('feifei', raw);
+      rows.push(`- ${shown}${tag(FEIFEI_BOSS_LINES[raw] !== undefined)}`);
+    });
+    if (!rows.length) continue;
+    p(`### ${name}`);
+    p('');
+    for (const r of rows) p(r);
+    p('');
+  }
+
+  // ---- 六、事件 ----
+  p('## 六、事件（38 個共用 ＋ 她的專屬）');
+  p('');
+  p('**共用事件的文字沒有替她重寫過**：只把敘述裡的「球球」換成「菲菲」、引號裡句尾的「喵」拿掉，');
+  p('所以引號裡講話的口氣仍然是球球的。她的專屬事件（標「她專屬」的）才是照她寫的。');
+  p('');
+  for (const e of events) {
+    if (e.hero && e.hero !== 'feifei') continue;
+    const mine = e.hero === 'feifei';
+    p(`### ${e.title}${mine ? '（她專屬）' : ''}`);
+    p('');
+    p(`> ${eventTextFor('feifei', e.text)}`);
+    p('');
+    for (const c of e.choices) {
+      p(`- **選項**：${c.label}`);
+      if (c.result) p(`  - 結果：${eventTextFor('feifei', c.result)}${mine ? '' : '　⚠️球球的句子'}`);
+    }
+    p('');
+  }
+
+  writeFileSync(MD, out.join('\n'), 'utf-8');
+  // eslint-disable-next-line no-console
+  console.log(`寫好了：${MD}（${out.length} 行）`);
+});
