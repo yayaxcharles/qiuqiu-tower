@@ -16,9 +16,9 @@ describe('連線牌', () => {
    * 新的六張帶著 `hidden`＝牌面圖還沒生，**先不進任何池子**，所以
    * 「兩個人抽得到」那條只對已經有圖的生效——這是刻意的退路，不是壞掉。
    */
-  it('十五張、都可以升級、單機一律抽不到', () => {
+  it('二十一張、都可以升級、單機一律抽不到', () => {
     const coop = cards.filter((c) => c.coop);
-    expect(coop.length).toBe(15);
+    expect(coop.length).toBe(21);   // 9 原有 ＋ A 批 6 ＋ B 批 6
     for (const c of coop) {
       expect(c.upgrade, `${c.name} 要有升級效果`).toBeTruthy();
       expect(pickable(c, c.hero ?? 'ninja', 1), `${c.name} 單機不該抽得到`).toBe(false);
@@ -42,6 +42,6 @@ describe('連線牌', () => {
     const waiting = cards.filter((c) => c.coop && c.hidden).map((c) => c.name);
     // eslint-disable-next-line no-console
     console.log(`  連線牌還在等圖的 ${waiting.length} 張：${waiting.join('、') || '無'}`);
-    expect(waiting.length, '等圖的變多了？新加牌記得排生圖').toBeLessThanOrEqual(6);
+    expect(waiting.length, '等圖的變多了？新加牌記得排生圖').toBeLessThanOrEqual(12);
   });
 });

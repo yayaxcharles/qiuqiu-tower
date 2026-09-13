@@ -561,6 +561,164 @@
   "up": "自己身上有隱身的話，同伴獲得 1 層隱身（自己一個人時算在自己身上）；否則同伴獲得 8 點蜷縮（自己一個人時算在自己身上），同伴抽 1 張牌（自己一個人時算在自己身上）。消耗。"
  },
  {
+  "id": "kaoniyixia",
+  "name": "靠你一下",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "blockFromAllyBlock"
+  ],
+  "effects": [
+   {
+    "kind": "blockFromAllyBlock",
+    "amount": 5,
+    "cap": 8,
+    "half": true
+   }
+  ],
+  "text": "獲得 5 點蜷縮，再照同伴現有的蜷縮一半多拿（最多 8 點，同伴不會變少；自己一個人時讀自己的）。",
+  "up": "獲得 5 點蜷縮，再照同伴現有的蜷縮多拿（最多 8 點，同伴不會變少；自己一個人時讀自己的）。"
+ },
+ {
+  "id": "zhexienixianchi",
+  "name": "這些你先吃",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "energyTransfer",
+   "draw"
+  ],
+  "effects": [
+   {
+    "kind": "energyTransfer",
+    "n": 2
+   },
+   {
+    "kind": "draw",
+    "n": 1
+   }
+  ],
+  "text": "把自己最多 2 顆剩下的飯糰交給同伴（自己一個人時不轉），抽 1 張牌。消耗。",
+  "up": "把自己最多 2 顆剩下的飯糰交給同伴（自己一個人時不轉），抽 1 張牌，同伴抽 1 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "zhaonishuodeda",
+  "name": "照你說的打",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "drawAllyIfTargetStatus",
+   "damage"
+  ],
+  "effects": [
+   {
+    "kind": "drawAllyIfTargetStatus",
+    "name": "中毒",
+    "n": 1
+   },
+   {
+    "kind": "damage",
+    "amount": 6
+   }
+  ],
+  "text": "目標在出牌前已經有中毒的話，同伴抽 1 張牌（自己一個人時算自己的），造成 6 點傷害。",
+  "up": "目標在出牌前已經有任何減益的話，同伴抽 1 張牌（自己一個人時算自己的），造成 6 點傷害。"
+ },
+ {
+  "id": "jienideliqi",
+  "name": "借你的力氣",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damageFromAllyStrength"
+  ],
+  "effects": [
+   {
+    "kind": "damageFromAllyStrength",
+    "amount": 6,
+    "cap": 8
+   }
+  ],
+  "text": "造成 6 傷害，同伴每有 1 點爪力再加 1 點（最多 8 點；自己一個人時讀自己的）。",
+  "up": "造成 6 傷害，同伴每有 1 點爪力再加 1 點（最多 8 點；自己一個人時讀自己的）。無視防禦。"
+ },
+ {
+  "id": "chenxianzaichushou",
+  "name": "趁現在出手",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "doubleNextAttackAlly"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 4
+   },
+   {
+    "kind": "doubleNextAttackAlly"
+   }
+  ],
+  "upCost": 0,
+  "text": "獲得 4 點蜷縮，同伴本輪的下一張攻擊牌傷害加倍（自己一個人時算自己的）。",
+  "up": "獲得 4 點蜷縮，同伴本輪的下一張攻擊牌傷害加倍（自己一個人時算自己的）。"
+ },
+ {
+  "id": "biezhanzaishenshang",
+  "name": "別沾在身上",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "transferDebuffsFromAlly"
+  ],
+  "effects": [
+   {
+    "kind": "transferDebuffsFromAlly"
+   }
+  ],
+  "text": "把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的）。",
+  "up": "把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的），每個人各獲得 4 點蜷縮。"
+ },
+ {
   "id": "wozaizhe",
   "name": "我在這",
   "pool": "忍術",

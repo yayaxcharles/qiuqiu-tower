@@ -117,6 +117,15 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     // 連線支援牌（2026-09-13）。措辭跟上面幾張一致：寫「同伴」並補一句單人時怎麼算，
     // 不然單機抽到會以為牌壞掉
     case 'healAlly': return `同伴回復 ${fx.n} 點生命（自己一個人時回自己的）`;
+    case 'blockFromAllyBlock': return `獲得 ${fx.amount} 點蜷縮，再照同伴現有的蜷縮`
+      + `${fx.half ? '一半' : ''}多拿（最多 ${fx.cap} 點，同伴不會變少；自己一個人時讀自己的）`;
+    case 'damageFromAllyStrength': return `造成 ${fx.amount} 傷害，同伴每有 1 點爪力再加 1 點`
+      + `（最多 ${fx.cap} 點；自己一個人時讀自己的）${fx.ignoreBlock ? '。無視防禦' : ''}`;
+    case 'energyTransfer': return `把自己最多 ${fx.n} 顆剩下的飯糰交給同伴（自己一個人時不轉）`;
+    case 'doubleNextAttackAlly': return '同伴本輪的下一張攻擊牌傷害加倍（自己一個人時算自己的）';
+    case 'drawAllyIfTargetStatus': return `目標在出牌前已經${fx.anyDebuff ? '有任何減益' : `有${fx.name}`}的話，`
+      + `同伴抽 ${fx.n} 張牌（自己一個人時算自己的）`;
+    case 'transferDebuffsFromAlly': return '把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的）';
     // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
     case 'ifSelfStatus': return `自己身上有${fx.name}的話，${fx.then.map((e) => one(e, ctx)).join('，')}`
       + `；否則${fx.otherwise.map((e) => one(e, ctx)).join('，')}`;

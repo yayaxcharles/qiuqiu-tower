@@ -9,12 +9,12 @@ describe('牌資料', () => {
     // 忍術 61→67：2026-09-11 的九張連線牌（`coop: true`，只有雙人局才進池）；
     // 67→84、絕學 39→44：2026-09-12 菲菲的 22 張專屬牌（`hero: 'feifei'`）。
     // 兩批都掛 `hidden`，圖到齊才會進獎勵與罐頭鋪
-    expect(count('忍術')).toBe(88);   // 2026-09-13 連線支援牌 A 批 +4（另外 2 張進絕學）
-    expect(count('絕學')).toBe(46);
+    expect(count('忍術')).toBe(92);   // 2026-09-13 連線支援牌 A 批 +4（另外 2 張進絕學）
+    expect(count('絕學')).toBe(48);
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(150);   // 2026-09-13 連線支援牌 A 批 +6
+    expect(cards.length).toBe(156);   // 2026-09-13 連線支援牌 A 批 +6
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -60,7 +60,12 @@ describe('牌資料', () => {
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
         (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus' ||
         // 菲菲的三張（2026-09-12）：遠射／見血封喉／一針斃命都是指定一隻打
-        e.kind === 'damageByStatus' || e.kind === 'execByStatus' || e.kind === 'spreadStatus');
+        e.kind === 'damageByStatus' || e.kind === 'execByStatus' || e.kind === 'spreadStatus' ||
+        // 連線支援牌 B 批（2026-09-13）：這兩個也是「指定一隻」——
+        // `damageFromAllyStrength` 的傷害是排進佇列的，效果表上看不到 `damage`，
+        // 所以要在這裡點名，不然它會被判成 self（這條測試就是這樣抓到的）
+        e.kind === 'damageFromAllyStrength' || e.kind === 'transferDebuffsFromAlly' ||
+        e.kind === 'drawAllyIfTargetStatus');
       if (hitsAll) expect(c.target, c.name).toBe('all');
       else if (hitsOne) expect(c.target, c.name).toBe('enemy');
       else if (c.pool === '壞毛病') expect(c.target, c.name).toBe('none');

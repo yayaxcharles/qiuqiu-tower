@@ -122,6 +122,33 @@ export type Effect =
   | { kind: 'energyAlly'; n: number; onKill?: boolean }
   /** 手借我一下：替**同伴**回血。一個人時退化成回自己的（2026-09-13 連線支援牌） */
   | { kind: 'healAlly'; n: number }
+  /*
+   * ===== 連線支援牌 B 批的六個效果（2026-09-13）=====
+   * 共同點：**只讀／只寫兩位玩家的狀態，不開任何選單**。要開選單的那兩張
+   *（這張交給你、幫你撿回來）留在後面——`PendingChoice` 目前沒有「誰來回答」的概念。
+   */
+  /**
+   * 靠你一下：自己拿 `amount` 點蜷縮，再**照同伴現有的蜷縮**多拿一些（有上限）。
+   * `half`＝只算一半（無條件捨去）。**同伴不會少**——這是「靠過去」不是「搬過來」。
+   * 讀的是這張牌**結算前**的值，所以 `amount` 那 5 點不會被自己算進去。
+   */
+  | { kind: 'blockFromAllyBlock'; amount: number; cap: number; half?: true }
+  /**
+   * 借你的力氣：造成 `amount` 傷害，再**照同伴的爪力**多打一些（有上限）。
+   * 出牌者自己的爪力照一般規則另外算，不會被這個取代。
+   */
+  | { kind: 'damageFromAllyStrength'; amount: number; cap: number; ignoreBlock?: true }
+  /**
+   * 這些你先吃：把自己**最多 n 顆**剩餘飯糰轉給同伴。自己少多少同伴才多多少，
+   * 不會憑空生出來。一個人時什麼都不轉（但牌的其他效果照跑）。
+   */
+  | { kind: 'energyTransfer'; n: number }
+  /** 趁現在出手：**同伴**本輪的下一張攻擊牌傷害加倍。一個人時退化成自己 */
+  | { kind: 'doubleNextAttackAlly' }
+  /** 照你說的打：目標**打之前**就有這個狀態的話，讓同伴抽牌。`anyDebuff`＝任何減益都算 */
+  | { kind: 'drawAllyIfTargetStatus'; name?: StatusName; anyDebuff?: true; n: number }
+  /** 別沾在身上：把**同伴**身上的減益整份移到目標魔物身上（移轉不是複製）。一個人時移自己的 */
+  | { kind: 'transferDebuffsFromAlly' }
   /**
    * 看自己身上有沒有某個狀態，決定跑哪一組效果（2026-09-13 連線支援牌「跟著我躲好」）。
    *

@@ -400,6 +400,32 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       // 連線支援牌（2026-09-13）。機器人跑的是**單人**對照，所以這兩個都照
       // 「退化成作用在自己身上」估——那正是單人時真正會發生的事。
       case 'healAlly': value += fx.n * 0.8; break;          // 跟 `heal` 同一個係數
+      // B 批六個。機器人跑的是**單人**對照，所以一律照「退化成自己」估：
+      //   - 讀同伴的值 → 讀自己的（`blockFromAllyBlock`、`damageFromAllyStrength`）
+      //   - 轉飯糰給同伴 → 單人時什麼都不發生，估 0 才對
+      case 'blockFromAllyBlock':
+        value += (fx.amount + Math.min(fx.half ? Math.floor(p.block / 2) : p.block, fx.cap)) * 1.0;
+        break;
+      case 'damageFromAllyStrength':
+        value += (fx.amount + Math.min(getStatus(p, '爪力'), fx.cap)) * 1.1;
+        break;
+      case 'energyTransfer': break;                         // 單人時不轉，真的是 0
+      case 'doubleNextAttackAlly':
+        // 跟 `doubleNextAttack` 同一套：手上還有別的攻擊牌才有價值
+        value += p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === '攻擊') ? 6 : 0;
+        break;
+      case 'drawAllyIfTargetStatus': {
+        const t = target !== undefined ? enemies.find((e) => e.uid === target) : undefined;
+        const hit = !t ? false
+          : fx.anyDebuff ? (DEBUFFS as readonly string[]).some((d) => getStatus(t, d as never) > 0)
+            : fx.name !== undefined && getStatus(t, fx.name) > 0;
+        value += hit ? fx.n * 3 : 0;
+        break;
+      }
+      case 'transferDebuffsFromAlly':
+        // 單人時等同 `transferDebuffs`，照它的係數
+        value += (getStatus(p, '中毒') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5;
+        break;
       case 'ifSelfStatus': {
         /*
          * 兩條分支都粗估一次、取**比較小**的那個。

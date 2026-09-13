@@ -137,6 +137,50 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'ifSelfStatus', name: '隱身',
       then: [{ kind: 'statusAlly', name: '隱身', amount: 1 }],
       otherwise: [{ kind: 'blockAlly', amount: 8 }] }, { kind: 'drawAlly', n: 1 }] } },
+  /*
+   * ---- 連線支援牌 B 批六張（2026-09-13）----
+   * 共同點：**只讀／只寫兩位玩家的狀態，不開任何選單**。
+   * 交辦單裡要開選單的那兩張（這張交給你、幫你撿回來）留在最後一批——
+   * `PendingChoice` 目前沒有「誰來回答」的概念，那是新的基礎建設。
+   */
+  { id: 'kaoniyixia', name: '靠你一下', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self',
+    art: 'card/kaoniyixia', coop: true, hidden: true,
+    // 讀的是**結算前**同伴的蜷縮，所以自己這 5 點不會被算進加成（交辦單點名要核對的）
+    effects: [{ kind: 'blockFromAllyBlock', amount: 5, cap: 8, half: true }],
+    upgrade: { effects: [{ kind: 'blockFromAllyBlock', amount: 5, cap: 8 }] } },
+  { id: 'zhexienixianchi', name: '這些你先吃', cost: 0, type: 技, rarity: '罕見', pool: '忍術', target: 'self',
+    art: 'card/zhexienixianchi', coop: true, hidden: true, keywords: ['消耗'],
+    // 飯糰守恆：自己少多少對方才多多少。一個人時不轉（不然等於憑空多出來）
+    effects: [{ kind: 'energyTransfer', n: 2 }, { kind: 'draw', n: 1 }],
+    upgrade: { effects: [{ kind: 'energyTransfer', n: 2 }, { kind: 'draw', n: 1 }, { kind: 'drawAlly', n: 1 }] } },
+  { id: 'zhaonishuodeda', name: '照你說的打', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy',
+    art: 'card/zhaonishuodeda', coop: true, hidden: true,
+    /*
+     * **抽牌那條排在傷害前面**，因為它看的是「打之前」目標身上有沒有毒。
+     * 排到後面的話，這張自己造成的減益會被算進條件裡——改順序前先看這句。
+     */
+    effects: [{ kind: 'drawAllyIfTargetStatus', name: '中毒', n: 1 }, { kind: 'damage', amount: 6 }],
+    upgrade: { effects: [{ kind: 'drawAllyIfTargetStatus', anyDebuff: true, n: 1 }, { kind: 'damage', amount: 6 }] } },
+  { id: 'jienideliqi', name: '借你的力氣', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy',
+    art: 'card/jienideliqi', coop: true, hidden: true,
+    // 出牌者自己的爪力照一般規則另外算；同伴的爪力只是多一段有上限的固定值
+    effects: [{ kind: 'damageFromAllyStrength', amount: 6, cap: 8 }],
+    upgrade: { effects: [{ kind: 'damageFromAllyStrength', amount: 6, cap: 8, ignoreBlock: true }] } },
+  { id: 'chenxianzaichushou', name: '趁現在出手', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self',
+    art: 'card/chenxianzaichushou', coop: true, hidden: true,
+    // 沿用「絕學·蓄力」的加倍旗標（`doubleNext`），所以兩種加倍同時存在也不會變四倍
+    effects: [{ kind: 'block', amount: 4 }, { kind: 'doubleNextAttackAlly' }],
+    upgrade: { cost: 0, effects: [{ kind: 'block', amount: 4 }, { kind: 'doubleNextAttackAlly' }] } },
+  { id: 'biezhanzaishenshang', name: '別沾在身上', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy',
+    art: 'card/biezhanzaishenshang', coop: true, hidden: true,
+    /*
+     * 交辦單寫「同伴**自選 1 種**減益」。實作成**整份移過去**——理由跟「甩鍋術」一致：
+     * 那張（自己版）本來就是移全部，同一個動作在這裡改成只移一種，玩家會覺得莫名其妙。
+     * 而且「選一種」要開選單，這張又不是選牌而是選狀態，`PendingChoice` 撐不起來。
+     * **有意識的偏離**，理由記在這裡。
+     */
+    effects: [{ kind: 'transferDebuffsFromAlly' }],
+    upgrade: { effects: [{ kind: 'transferDebuffsFromAlly' }, { kind: 'blockAll', amount: 4 }] } },
   { id: 'wozaizhe', name: '我在這', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/wozaizhe',
     effects: [{ kind: 'damage', amount: 7 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }] } },

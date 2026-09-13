@@ -206,6 +206,75 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (mate !== p) log(cs, `幫對方回了 ${fx.n} 點`);
       return false;
     }
+    case 'blockFromAllyBlock': {
+      /*
+       * **先把同伴的蜷縮讀起來再給自己**（順序很要緊）。
+       * 一個人玩的時候 `ally()` 回的是自己，先給再讀的話這張牌剛給的 5 點會被算進加成，
+       * 變成「越打越多」——交辦單特別把這條寫成必須核對的項目。
+       */
+      const mate = ally(cs, p);
+      const theirs = mate.block;
+      const raw = fx.half ? Math.floor(theirs / 2) : theirs;
+      const extra = Math.min(raw, fx.cap);
+      // 兩份合起來一次給：分兩次的話貓步會被套兩次（交辦單的單人替代那條）
+      gainBlock(cs, p, fx.amount + extra);
+      if (extra > 0) log(cs, mate === p ? `靠著原本的架式多擋了 ${extra} 點` : `靠對方的架式多擋了 ${extra} 點`);
+      return false;
+    }
+    case 'damageFromAllyStrength': {
+      const mate = ally(cs, p);
+      const extra = Math.min(getStatus(mate, '爪力'), fx.cap);
+      // 走一般的 `damage`：出牌者自己的爪力、加倍、防禦都照原本的規則算，
+      // 同伴的爪力只是**另外加一段固定值**，不是換一套算法
+      queue.unshift({ kind: 'damage', amount: fx.amount + extra, ...(fx.ignoreBlock ? { ignoreBlock: true } : {}) });
+      if (extra > 0) log(cs, mate === p ? `借自己的力氣多打了 ${extra} 點` : `借對方的力氣多打了 ${extra} 點`);
+      return false;
+    }
+    case 'energyTransfer': {
+      const mate = ally(cs, p);
+      if (mate === p) return false;                     // 一個人時什麼都不轉（不能自己轉給自己憑空變多）
+      const give = Math.min(fx.n, p.energy);            // 自己少多少，對方才多多少
+      if (give <= 0) { log(cs, '飯糰已經用完了，沒得分'); return false; }
+      p.energy -= give;
+      mate.energy += give;
+      log(cs, `把 ${give} 顆飯糰推給了對方`);
+      return false;
+    }
+    case 'doubleNextAttackAlly': {
+      const mate = ally(cs, p);
+      mate.doubleNext = 1;
+      log(cs, mate === p ? '下一擊加倍' : '對方的下一擊加倍');
+      return false;
+    }
+    case 'drawAllyIfTargetStatus': {
+      const t = cs.enemies.find((e) => e.uid === ctx.targetUid);
+      // **看的是打之前的狀態**：這張牌自己附上去的毒不算（交辦單明定）。
+      // `applyOne` 照順序跑，所以只要這個效果排在 `damage` 與上毒之前就成立——
+      // 牌資料裡它排第一個，改順序前先想一下這句。
+      const hit = !t ? false
+        : fx.anyDebuff ? DEBUFFS.some((d) => getStatus(t, d) > 0)
+          : fx.name !== undefined && getStatus(t, fx.name) > 0;
+      if (hit) {
+        const mate = ally(cs, p);
+        drawCards(cs, fx.n, mate);
+        log(cs, mate === p ? `多抽了 ${fx.n} 張` : `對方多抽了 ${fx.n} 張`);
+      }
+      return false;
+    }
+    case 'transferDebuffsFromAlly': {
+      const mate = ally(cs, p);
+      let moved = 0;
+      for (const t of targetsOf(cs, ctx, false)) {
+        for (const name of DEBUFFS) {
+          const v = getStatus(mate, name);
+          if (v > 0) { removeStatus(mate, name); addStatus(t, name, v); moved += v; }
+        }
+      }
+      log(cs, moved > 0
+        ? (mate === p ? `把身上的麻煩全丟回去了` : `把對方身上的麻煩全丟回去了`)
+        : '身上很乾淨，沒什麼好丟的');
+      return false;
+    }
     case 'ifSelfStatus': {
       // 看的是**這張牌開始結算前**的層數。`applyOne` 是照順序跑的，所以同一張牌
       // 先上狀態再判斷會拿到「上完之後」的值——那會讓「跟著我躲好」自己給自己隱身
