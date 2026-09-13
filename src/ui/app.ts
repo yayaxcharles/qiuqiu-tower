@@ -90,7 +90,10 @@ export class App {
     window.addEventListener('orientationchange', () => window.setTimeout(fit, 80));
     fit();
     // 除錯模式的臨時局按 Esc 回除錯頁（見 `sandbox`）。只掛這一次、看旗標，不會殘留到正式的一局
-    window.addEventListener('keydown', (ev) => { if (this.sandbox && ev.key === 'Escape') this.exitSandbox(); });
+    // 疊層開著（牌組、移除牌、對白）時先讓 Esc 關疊層：直接換畫面的話疊層留在除錯頁上、畫面還被鎖住（夜間審查 低-7）
+    window.addEventListener('keydown', (ev) => {
+      if (this.sandbox && ev.key === 'Escape' && !this.overlay.querySelector('.modal-overlay, .dialogue-overlay')) this.exitSandbox();
+    });
   }
 
   /** 從除錯模式的臨時局回到除錯頁：臨時局整個丟掉，不存、不留 */
@@ -128,7 +131,7 @@ export class App {
     hideTooltip();   // 提示框的錨點就要被清掉了，不先關掉會變成孤兒黏在畫面上
     // 連線的畫面級回呼也要一起斷：不斷的話新畫面會叫到上一格留下來的處理函式
     //（見 `CoopSession.clearScreenHooks`）。新畫面自己會在下面的 `r(...)` 裡重新掛
-    this.coop?.clearScreenHooks();
+    this.coop?.clearScreenHooks(name);
     for (const d of this.disposers.splice(0)) d();
     clear(this.screen);
     this.stage.dataset['screen'] = name;

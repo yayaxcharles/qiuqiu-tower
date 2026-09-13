@@ -55,8 +55,16 @@ describe('戰鬥畫面：進場、收回合、分出勝負的時機', () => {
     expect(combat.slice(i, i + 400)).toContain('session?.attach(null)');
   });
 
+  it('還有人在選牌就先不收回合，免得同一回合記兩張對帳單（審查 中-1）', () => {
+    expect(combat).toContain('if (allReady(cs) && !cs.pending) {');
+  });
+
+  it('舉手等對方時忍具格不掛「可點」（審查 低-5）', () => {
+    expect(combat).toMatch(/canAct\(\) && ready && !p\.ready\) \{ slot\.classList\.add\('usable'\)/);
+  });
+
   it('最後一個人舉手的那一刻 hold，魔物回合演完 release（高-7）', () => {
-    const i = combat.indexOf('if (allReady(cs)) {\n        session.endOfTurn();');
+    const i = combat.indexOf('if (allReady(cs) && !cs.pending) {\n        session.endOfTurn();');
     expect(i, '找不到收回合那一段').toBeGreaterThan(0);
     expect(combat.slice(i, i + 400)).toContain('session.hold();');
     const run = combat.indexOf('function runEnemyTurn(): void {');

@@ -74,7 +74,9 @@ registerScreen('rest', (app, root) => {
     toast(line, heroSpeaker());
     // 連線版：兩個人都做完才走，先做完的那位在這裡等（由 onRunApplied 接手）
     if (coop) { if (allDone()) window.setTimeout(() => app.backToMap(), card ? 1500 : 900); return; }
-    window.setTimeout(() => app.backToMap(), card ? 1500 : 900);
+    // 換畫面就撤掉（夜間審查 低-7）：除錯模式在這 0.9 秒內按 Esc 回除錯頁，計時器照樣響會把人踢回標題
+    const back = window.setTimeout(() => app.backToMap(), card ? 1500 : 900);
+    app.disposers.push(() => window.clearTimeout(back));
   }
 
   function show(): void {

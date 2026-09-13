@@ -178,6 +178,71 @@ describe('高-7：魔物回合演出中，同伴下一回合的動作先排隊',
   });
 });
 
+describe('審查 低-3：上一回合送出、演出期間才輪到的請求不算', () => {
+  it('客戶端按「替他收回合」的同一刻主機自己結束回合：那一則不可以把主機的新回合直接收掉', () => {
+    const t = table('stale-turn');
+    expect(t.guest.s.submit({ t: 'ready', seat: 1, on: true })).toBe(true);   // 客戶端先舉手在等
+    t.link.hold = true;
+    expect(t.guest.s.submit({ t: 'force', seat: 1, w: 0 })).toBe(true);        // 等太久按了「替他收回合」（還在路上）
+    expect(t.host.s.submit({ t: 'ready', seat: 0, on: true })).toBe(true);     // 同一刻主機自己按了結束回合
+    t.host.s.endOfTurn(); t.host.s.hold();
+    endTurn(t.host.cs); t.host.s.release();
+    const newTurn = t.host.cs.turn;
+    t.link.hold = false;
+    t.link.flush();
+    expect(t.host.cs.turn).toBe(newTurn);
+    expect(t.host.cs.players[0]!.ready, '原本：新回合一開始主機就被收回合').toBe(false);
+    expect(t.guest.dropped, '回一則「沒算數」').toBe(1);
+    expect(t.host.desync).toEqual([]);
+  });
+});
+
+describe('審查 範圍外：晚到的畫面要補跑票（倒下那台晚一步進地圖會永遠卡住）', () => {
+  const tick = (): Promise<void> => new Promise((r) => { setTimeout(r, 0); });
+
+  it('同伴的票在我進畫面之前就到了：掛上處理函式的下一拍補跑一次', async () => {
+    const t = table('replay');
+    t.host.s.pick('map', 'n5');   // 站著的那位先投；倒下那台還停在事件結果頁，沒人在聽
+    const seen: string[] = [];
+    t.guest.s.clearScreenHooks('map');
+    t.guest.s.onPick((k) => { seen.push(k); });
+    expect(seen, '註冊的當下不跑（畫面還沒畫完）').toEqual([]);
+    await tick();
+    expect(seen, '原本：之後再也不會有票進來，永遠不結算').toEqual(['map']);
+  });
+
+  it('處理函式每次都重畫、重新註冊：同一個畫面只補一次，不會無限迴圈', async () => {
+    const t = table('replay-loop');
+    t.host.s.pick('map', 'n5');
+    let calls = 0;
+    const register = (): void => {
+      t.guest.s.clearScreenHooks('map');
+      t.guest.s.onPick(() => { calls += 1; register(); });
+    };
+    register();
+    for (let i = 0; i < 5; i++) await tick();
+    expect(calls).toBe(1);
+  });
+
+  it('換到別的畫面才重新補；結算清掉票之後不再補', async () => {
+    const t = table('replay-screen');
+    t.host.s.pick('map', 'n5');
+    const seen: string[] = [];
+    t.guest.s.clearScreenHooks('event');
+    t.guest.s.onPick((k) => { seen.push(`event:${k}`); });   // 事件結果頁收到會忽略
+    await tick();
+    t.guest.s.clearScreenHooks('map');
+    t.guest.s.onPick((k) => { seen.push(`map:${k}`); });     // 地圖畫面出來要再補給它
+    await tick();
+    expect(seen).toEqual(['event:map', 'map:map']);
+    t.guest.s.clearPicks('map');
+    t.guest.s.clearScreenHooks('event');
+    t.guest.s.onPick((k) => { seen.push(`again:${k}`); });
+    await tick();
+    expect(seen.length, '票清掉了就沒東西可補').toBe(2);
+  });
+});
+
 describe('高-3：戰鬥中的忍具走連線，而且是自己袋子裡的那瓶', () => {
   it('客戶端喝的是座位 1 的那瓶，兩台一起生效，主機的袋子不動', () => {
     const t = table('potion', {

@@ -161,7 +161,13 @@ export class CoopSession {
    *
    * 不清 `onStartRun`：那是開局用的，跟畫面無關，而且清掉客戶端就永遠開不了局。
    */
-  clearScreenHooks(): void {
+  clearScreenHooks(screen?: string): void {
+    /*
+     * 換到**別的**畫面時，之前補跑過的票可以再補一次（見 `onPick`）：
+     * 事件結果頁收到同伴走地圖的票會忽略，那一票得等地圖畫面出來再補給它。
+     * 同一個畫面重畫（`app.show('map')` 自己叫自己）不清，補跑才不會一直循環。
+     */
+    if (screen !== this.lastScreen) { this.replayed.clear(); this.lastScreen = screen; }
     this.applied = null;
     this.runApplied = null;
     this.picked = null;
@@ -270,7 +276,8 @@ export class CoopSession {
       this.ingest(sa);   // 主機自己也走佇列：套用順序＝廣播順序
     } else {
       this.sentReq += 1;
-      this.tx.send({ m: 'req', n: this.sentReq, a, f: this.fight });   // 客戶端只是請求，等主機編號繞回來才生效
+      // 帶上場次與回合：到得太晚、已經換場或換回合的，主機當成來不及丟掉（見 `take`）
+      this.tx.send({ m: 'req', n: this.sentReq, a, f: this.fight, turn: this.cs.turn });   // 客戶端只是請求，等主機編號繞回來才生效
     }
     return true;
   }
@@ -381,7 +388,7 @@ export class CoopSession {
     return Array.from({ length: seats }, (_, i) => b.get(i) ?? null);
   }
   /** 這一輪結束就清乾淨，不然下一次會直接沿用上一輪的選擇 */
-  clearPicks(kind: string): void { this.ballots.delete(kind); }
+  clearPicks(kind: string): void { this.ballots.delete(kind); this.replayed.delete(kind); }
   /**
    * 我選了。兩邊都選完才會真的生效（規則見 `engine/vote.ts`）。
    *
@@ -405,7 +412,37 @@ export class CoopSession {
    * 註冊前就到的選擇不會漏掉——畫面每次重畫都直接讀 `picks()` 的現況，
    * 所以「顯示」與「通知」是兩件事，不需要靠補跑把它們兜起來。
    */
-  onPick(fn: (kind: string) => void): void { this.picked = fn; }
+  onPick(fn: (kind: string) => void): void {
+    this.picked = fn;
+    /*
+     * **晚到的畫面要補跑一次**（2026-09-14 夜間審查）。
+     *
+     * 票只在「收到的那一刻」通知畫面。倒下的人自己不投票，所以他那台如果**晚一步**才進這個畫面
+     *（還停在事件結果頁沒按「繼續」、分頁放在背景計時器被節流），同伴的票早就到了、
+     * 被上一個畫面忽略掉，之後再也不會有票進來觸發結算——他那台永遠停在地圖上。
+     * 他是主機的話，同伴下一場出的每一張牌都在他這邊排隊，整局卡死。
+     *
+     * 補跑排到下一拍（註冊時畫面還沒畫完），而且**同一種選擇、同樣的票數只補一次**：
+     * 處理函式常常會重畫畫面、重畫又會重新註冊，沒有這一條就是無限迴圈（第一版踩過，見上面）。
+     */
+    if (this.replayTimer === null) this.replayTimer = setTimeout(() => { this.replay(); }, 0);
+  }
+  /** 每一種選擇上一次補跑時有幾票；票數沒變就不再補 */
+  private readonly replayed = new Map<string, number>();
+  private replayTimer: ReturnType<typeof setTimeout> | null = null;
+  private replay(): void {
+    this.replayTimer = null;
+    // 每一輪都重新查：處理函式可能當場結算、清掉票，或換掉畫面
+    for (const kind of [...this.ballots.keys()]) {
+      const box = this.ballots.get(kind);
+      if (this.dead || !this.picked) return;
+      if (!box || !box.size || (this.replayed.get(kind) ?? 0) >= box.size) continue;
+      this.replayed.set(kind, box.size);
+      this.picked(kind);
+    }
+  }
+  /** 上一次換到的是哪個畫面：**換了畫面**才重新允許補跑（同一個畫面重畫不算，不然又是無限迴圈） */
+  private lastScreen: string | undefined;
   private record(kind: string, seat: number, value: string): void {
     const b = this.box(kind);
     if (b.has(seat)) return;   // 同一個人選兩次只算第一次
@@ -495,6 +532,16 @@ export class CoopSession {
   /** 輪到了：請求就編號（做不出來回「沒算數」），編號過的動作就照號碼套 */
   private take(m: FightMsg): void {
     if (m.m === 'act') { this.ingest({ seq: m.seq, a: m.a }); return; }
+    /*
+     * **上一回合送出、演出期間才輪到的請求不算**（夜間審查 低-3）。
+     * 主機按結束回合的同一刻，客戶端按了「替他收回合」：那一則在魔物回合演出時排隊，
+     * 演完才套下去，主機新回合一開始就被收回合。出牌也一樣——上一手的牌號可能又被抽回手上。
+     */
+    if (m.turn !== undefined && m.turn !== (this.cs as CombatState).turn) {
+      console.error(`對方那一下是上一回合的，沒算數（${m.a.t}）`);
+      this.tx.send({ m: 'drop', n: m.n });
+      return;
+    }
     if (!canApply(this.cs as CombatState, m.a)) {
       /*
        * **這是「來不及」，不是分岔。**

@@ -46,7 +46,8 @@ export type NetMessage =
    * 帶上場次就分得開：比現在舊的丟掉、比現在新的先存著等進場（見 `CoopSession.drain`）。
    * 沒帶＝當成現在這一場（測試手寫的訊息）。
    */
-  | { m: 'req'; n: number; a: CoopAction; f?: number }
+  /* `turn`＝送出時是第幾回合（夜間審查 低-3）：換了回合才輪到的請求也當成來不及 */
+  | { m: 'req'; n: number; a: CoopAction; f?: number; turn?: number }
   /**
    * 主機回：**你那一則請求沒算數**（`n`＝請求的流水號）。
    *

@@ -1043,7 +1043,8 @@ registerScreen('combat', (app, root, props) => {
         attachTextTooltip(slot, def.name, ready ? def.text : `${def.text}
 （${def.usable!.reason}）`);
         if (!ready) slot.classList.add('not-ready');
-        if (canAct() && ready) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }
+        // 連線舉手等對方時不能用（引擎擋著）：不掛「可點」，免得點下去沒反應（夜間審查 低-5）
+        if (canAct() && ready && !p.ready) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }
       }
       potions.append(slot);
     }
@@ -1691,7 +1692,8 @@ registerScreen('combat', (app, root, props) => {
      */
     if (session) {
       sendOrDo({ t: 'ready', seat: mySeat, on: true }, () => true);
-      render();
+      // 主機是最後一個舉手的：上面那一行已經同步開始收牌，這時整頁重畫會把飛到一半的手牌打回原位
+      if (!collecting && !enemyTurnRunning) render();
       return;
     }
     if (wasTargeting) render();
@@ -1710,7 +1712,7 @@ registerScreen('combat', (app, root, props) => {
 
   /** 收回舉手：我還想再打一張牌 */
   function onUnready(): void {
-    if (!session || !my().ready || cs.phase !== 'player') return;
+    if (!session || !my().ready || cs.phase !== 'player' || collecting || enemyTurnRunning) return;
     sendOrDo({ t: 'ready', seat: mySeat, on: false }, () => true);
   }
 
@@ -2430,10 +2432,17 @@ registerScreen('combat', (app, root, props) => {
       else render();
       remoteBefore = null;
       checkOver();   // 最後一刀是誰補的都一樣，分出勝負就要收場
-      if (allReady(cs)) {
+      /*
+       * **還有人在選牌就先不收**（夜間審查 中-1）：舉手齊了但 `pending` 還在時，引擎的 `beginEnemyTurn`
+       * 會回 false、舉手旗標也不清，等選完那一下再進來一次——原本兩次都記對帳單，
+       * 第二張蓋掉還沒配到對的第一張，兩台狀態一樣也判成分岔。
+       */
+      if (allReady(cs) && !cs.pending) {
         session.endOfTurn();      // 收回合之前先對一次帳，分岔要在這裡就抓到
         // 從這一刻到新手牌發下來，同伴的動作一律先排隊（高-7）；`runEnemyTurn` 演完放開
         session.hold();
+        // 「再想想」這時候按了也送不出去（會話已經暫停），先反灰（夜間審查 低-4）
+        root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
         sfx('turn_end');
         const wait = collectHand();
         if (wait <= 0) { runEnemyTurn(); return; }

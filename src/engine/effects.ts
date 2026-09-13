@@ -56,7 +56,7 @@ function markPassive(p: PlayerCombat, ctx: EffectCtx, stacks = false): void {
   // **同一張牌不要疊出兩個牌子**（2026-09-13 稽核 低-2）：被影子分身當本回合第一張
   // 複製時會推兩筆，狀態列就寫「你忙我補位 2」，玩家以為每輪抽 2 張——
   // 而這幾個效果是直接指派不是累加，實際只有一份。
-  // **累加型的例外**（`stacks`，2026-09-14 夜間稽核 中-12）：拒馬、千針萬毒、影子分身打第二張是真的疊上去，
+  // **累加型的例外**（`stacks`，2026-09-14 夜間稽核 中-12）：拒馬、千針萬毒打第二張是真的疊上去，
   // 去重把它們也擋掉的話，狀態列只寫一張的量，玩家看到的加成比實際少一半
   if (!stacks && p.powers.some((pw) => pw.trigger === 'passive' && pw.cardId === ctx.cardId
       && !!pw.upgraded === !!ctx.cardUpgraded)) return;
@@ -515,7 +515,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
      */
     case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; markPassive(p, ctx); return false;
     case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
-    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx, true); return false;
+    // 影子分身**不疊**：`combat.ts` 只看有沒有，打兩張第一張牌也只重播一次，牌子寫 2 會騙人（夜間審查 中-2）
+    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx); return false;
     case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
