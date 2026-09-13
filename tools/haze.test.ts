@@ -21,13 +21,21 @@ import { execFileSync } from 'node:child_process';
  * 連續六次推上去都是這樣，而我每次只看 `git push` 成功就說「上線了」，
  * 線上其實一直停在凌晨那一版。
  *
- * 所以這裡要連 Pillow 一起試。**裝不起來就是跳過，不是判紅**——
+ * 所以這裡要連套件一起試。**裝不起來就是跳過，不是判紅**——
  * 「這台機器跑不了這個檢查」跟「圖有問題」是兩件事，混在一起會擋掉部署。
+ *
+ * **而且不要自己列依賴清單**：第一次修的時候我只補了 `import PIL`，
+ * 結果 CI 換成缺 numpy 又紅一次——真正的鏈是
+ * `check_haze` → `add_event_art` → `build_art_inbox` → numpy。
+ * 猜依賴猜不完，所以這裡直接跑**腳本自己那一行匯入**，
+ * 以後那幾支再多拉什麼套件進來，這個探測也會自動跟著對。
  */
+const PROBE = "import sys; sys.path.insert(0, 'tools'); import add_event_art";
+
 function python(): string | null {
   for (const cmd of ['python', 'python3', 'py']) {
     try {
-      execFileSync(cmd, ['-c', 'import PIL'], { stdio: 'pipe' });
+      execFileSync(cmd, ['-c', PROBE], { stdio: 'pipe' });
       return cmd;
     } catch { /* 試下一個 */ }
   }
