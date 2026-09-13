@@ -1,4 +1,6 @@
 import { cards } from '../../content/cards';
+import { newRun as engineNewRun } from '../../engine/run';
+import { actVariantKey } from '../screenbg';
 import { events } from '../../content/events';
 import { enemyById } from '../../content/enemies';
 import { eventTextFor, storyFor, dialogue, lineFor, FEIFEI_EVENT_LINES, FEIFEI_BOSS_LINES } from '../../content/dialogue';
@@ -23,7 +25,7 @@ import { el } from '../dom';
  */
 
 /** 目前在看哪一頁 */
-type Tab = '事件' | '牌' | '台詞' | '立繪';
+type Tab = '事件' | '牌' | '台詞' | '立繪' | '劇情' | '場景';
 
 const POSES = [
   ['hero/ninja', '站著'], ['hero/ninja_attack', '出招'], ['hero/ninja_claw', '貓抓'],
@@ -163,12 +165,95 @@ registerScreen('debug', (app, root) => {
     body.append(grid);
   }
 
+  // ---- 劇情投影片：序章四張、過關各三張、結局兩張，圖旁邊就是那一張配的台詞 ----
+  function renderStory(): void {
+    body.append(el('p', { class: 'dbg-note' },
+      '每一張旁邊就是它在遊戲裡配的台詞——**圖跟字對不對得上**要一起看才判斷得出來。'));
+    const k = (n: string): string => (hero === 'feifei' ? `bg/feifei_${n}` : `bg/${n}`);
+    const s = storyFor(hero);
+    const group = (title: string, keys: string[], lines: string[]): void => {
+      body.append(el('h3', {}, title));
+      const row = el('div', { class: 'dbg-poses' });
+      keys.forEach((key, i) => {
+        row.append(el('div', { class: 'dbg-slide' },
+          shot(key, `第 ${i + 1} 張`),
+          el('div', { class: 'dbg-text' }, lines[i] ?? el('span', { class: 'dbg-cap' }, '（這張沒有對應的台詞）'))));
+      });
+      body.append(row);
+    };
+    // 序章第三張兩邊不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」
+    const proKeys = hero === 'feifei'
+      ? ['bg/feifei_still_teach', 'bg/feifei_still_corrupt', 'bg/feifei_still_wait', 'bg/feifei_still_depart']
+      : ['bg/still_teach', 'bg/still_corrupt', 'bg/still_rush', 'bg/still_depart'];
+    group('序章（四張）', proKeys, s.prologue.map((l) => `${l.speaker}：${l.text}`));
+    group('第一關打完（三張）',
+      ['still_act1_stairs', 'still_act1_fish', 'still_act1_climb'].map(k),
+      s.actClear1.map((l) => `${l.speaker}：${l.text}`));
+    group('第二關打完（三張）',
+      ['still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs'].map(k),
+      s.actClear2.map((l) => `${l.speaker}：${l.text}`));
+    group('結局（兩張）', ['still_embrace', 'still_home'].map(k),
+      s.victory.map((l) => `${l.speaker}：${l.text}`));
+  }
+
+  // ---- 場景：所有非事件的底圖，外加「直接跳到那個畫面」的按鈕 ----
+  function renderScenes(): void {
+    body.append(el('p', { class: 'dbg-note' },
+      '上面那排會**真的開那個畫面**（角色會站上去），看完按 Esc 回這裡。底下是純底圖。'));
+    /*
+     * 跳進真正的畫面：用一局**臨時的**局（不存檔、不碰現有進度），
+     * 只為了讓那幾個畫面有東西可畫。角色坐得對不對只有這樣才看得出來——
+     * 光看底圖看不出立繪擺在哪（2026-09-14 貓窩那件就是這樣來回三次）。
+     */
+    const jump = (screen: 'rest' | 'chest' | 'shop' | 'result', act: number, label: string): HTMLElement =>
+      el('button', { class: 'btn small', onclick: () => {
+        const run = engineNewRun('debug', 1, hero === 'feifei' ? 'feifei' : 'ninja');
+        run.act = act;
+        run.flags['prologue'] = true;          // 別播序章
+        app.run = run;
+        const back = (ev: KeyboardEvent): void => {
+          if (ev.key !== 'Escape') return;
+          window.removeEventListener('keydown', back);
+          app.run = null;
+          app.show('debug');
+        };
+        window.addEventListener('keydown', back);
+        app.show(screen);
+      } }, label);
+
+    const bar1 = el('div', { class: 'dbg-jump' }, el('b', {}, '跳進畫面：'));
+    for (const a of [1, 2, 3]) bar1.append(jump('rest', a, `貓窩 第${a}關`));
+    for (const a of [1, 2, 3]) bar1.append(jump('chest', a, `紙箱 第${a}關`));
+    for (const a of [1, 2, 3]) bar1.append(jump('shop', a, `罐頭鋪 第${a}關`));
+    body.append(bar1);
+
+    const sec = (title: string, keys: string[]): void => {
+      body.append(el('h3', {}, title));
+      const row = el('div', { class: 'dbg-poses' });
+      for (const key of keys) row.append(shot(key, key.replace('bg/', '')));
+      body.append(row);
+    };
+    const acts = [1, 2, 3];
+    sec('貓窩（各關與變體）', acts.flatMap((a) => ['', '_b', '_c'].map((v) => actVariantKey('bg/screen_rest', a) + v)));
+    sec('紙箱', acts.flatMap((a) => ['', '_b', '_c'].map((v) => actVariantKey('bg/screen_chest', a) + v)));
+    sec('罐頭鋪', acts.flatMap((a) => ['', '_b', '_c'].map((v) => actVariantKey('bg/screen_shop', a) + v)));
+    sec('事件畫面的底', acts.map((a) => actVariantKey('bg/screen_event', a)));
+    sec('戰場', ['bg/low', 'bg/low_b', 'bg/low_c', 'bg/mid', 'bg/mid_b', 'bg/mid_c', 'bg/top', 'bg/top_b', 'bg/top_c']);
+    sec('關主戰場', ['bg/boss1', 'bg/boss2', 'bg/boss3']);
+    sec('關主門', ['bg/door_act1', 'bg/door_act2', 'bg/door_act3']);
+    sec('地圖', ['bg/map_tall', 'bg/map_tall_mid', 'bg/map_tall_top']);
+    sec('標題與結算', ['bg/screen_title', 'bg/screen_result_win', 'bg/screen_result_lose']);
+    sec('牌背紙', ['bg/card_paper_attack', 'bg/card_paper_skill', 'bg/card_paper_power']);
+  }
+
   const render = (): void => {
     setLocalHero(hero);            // 牌面、事件插圖都靠它決定要拿誰的圖
     body.replaceChildren();
     if (tab === '事件') renderEvents();
     else if (tab === '牌') renderCards();
     else if (tab === '台詞') renderLines();
+    else if (tab === '劇情') renderStory();
+    else if (tab === '場景') renderScenes();
     else renderPoses();
     body.scrollTop = 0;
   };
@@ -188,7 +273,7 @@ registerScreen('debug', (app, root) => {
   const refresh = (): void => {
     bar.replaceChildren(
       el('span', { class: 'dbg-title' }, '除錯模式'),
-      tabBtn('事件'), tabBtn('牌'), tabBtn('台詞'), tabBtn('立繪'),
+      tabBtn('事件'), tabBtn('牌'), tabBtn('台詞'), tabBtn('立繪'), tabBtn('劇情'), tabBtn('場景'),
       el('span', { class: 'dbg-sep' }, '｜'),
       heroBtn('ninja', '球球'), heroBtn('feifei', '菲菲'),
       el('button', {

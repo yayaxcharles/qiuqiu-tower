@@ -1542,3 +1542,16 @@
 .debug-screen .dbg-fallback img { filter: grayscale(.65); outline: 2px solid #8a7a55; }
 .debug-screen .dbg-lines { margin-bottom: 10px; }
 .debug-screen .dbg-line { padding: 3px 0; border-bottom: 1px solid #ffffff0f; line-height: 1.6; }
+
+/* 除錯模式**只有這裡**可以選字、複製（2026-09-14 使用者：「希望能讓我能右鍵複製文字
+   我才能快速貼過來給你，只有這邊可以喔，其他時候都不能複製」）。
+   `#stage` 整層是 `user-select: none`，這裡把它蓋回來；游標也換成文字游標，
+   讓人一眼知道這裡選得起來。圖片不放行（拖圖沒意義，還會誤觸拖曳）。 */
+.debug-screen, .debug-screen * { user-select: text; -webkit-user-select: text; }
+.debug-screen img { user-select: none; -webkit-user-select: none; }
+.debug-screen .dbg-text, .debug-screen .dbg-line, .debug-screen code { cursor: text; }
+/* 劇情頁：一張圖配它的台詞，直式排 */
+.debug-screen .dbg-slide { width: 300px; }
+.debug-screen .dbg-slide .dbg-shot { width: 300px; }
+.debug-screen .dbg-slide .dbg-text { margin-top: 4px; line-height: 1.6; }
+.debug-screen .dbg-jump { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
