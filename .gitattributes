@@ -1,0 +1,4 @@
+# 推送閘門與部署腳本是給 sh 跑的：這台機器 core.autocrlf=true，
+# 不釘換行的話在別的工作目錄取出來會變成 CRLF，sh 每一行都會多吃一個 \r 然後整支壞掉
+tools/prepush_gate.sh text eol=lf
+tools/deploy.sh text eol=lf
