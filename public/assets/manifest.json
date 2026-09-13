@@ -370,7 +370,18 @@
   "hero/feifei_claw": "assets/sprites/hero/feifei_claw.webp",
   "hero/feifei_kick": "assets/sprites/hero/feifei_kick.webp",
   "hero/feifei_dash": "assets/sprites/hero/feifei_dash.webp",
-  "hero/feifei_punch": "assets/sprites/hero/feifei_punch.webp"
+  "hero/feifei_punch": "assets/sprites/hero/feifei_punch.webp",
+  "hero/feifei_belly": "assets/sprites/hero/feifei_belly.webp",
+  "hero/feifei_lazy": "assets/sprites/hero/feifei_lazy.webp",
+  "hero/feifei_puff": "assets/sprites/hero/feifei_puff.webp",
+  "hero/feifei_iron": "assets/sprites/hero/feifei_iron.webp",
+  "hero/feifei_dizzy": "assets/sprites/hero/feifei_dizzy.webp",
+  "hero/feifei_eat": "assets/sprites/hero/feifei_eat.webp",
+  "hero/feifei_focus": "assets/sprites/hero/feifei_focus.webp",
+  "hero/feifei_scroll": "assets/sprites/hero/feifei_scroll.webp",
+  "hero/feifei_roar": "assets/sprites/hero/feifei_roar.webp",
+  "hero/feifei_taiji": "assets/sprites/hero/feifei_taiji.webp",
+  "hero/feifei_qinggong": "assets/sprites/hero/feifei_qinggong.webp"
  },
  "review": [],
  "monsters": {
