@@ -97,6 +97,8 @@ describe('事件插圖依角色', () => {
    * 使用者玩「迷路的小黑貓」選完看到球球就是這個。
    *
    * 所以這條數的是**缺口**，而且只准往下。生一張就往下調一次。
+   * 2026-09-13 09:20 起是 **0**——她的每一張事件圖都有自己的版本了，
+   * 這條從此變成「不准有人退回去」的鎖。
    */
   it('退回球球的事件圖只准變少', () => {
     const bg = Object.keys(manifest.bg);
@@ -105,7 +107,7 @@ describe('事件插圖依角色', () => {
     // eslint-disable-next-line no-console
     console.log(`  事件插圖 ${his.length - gap.length}/${his.length}，還退回球球的 ${gap.length} 張`);
     expect(gap.length, `缺口變大了，是不是有圖被刪掉或改名？還缺：\n${gap.slice(0, 10).join('\n')}`)
-      .toBeLessThanOrEqual(61);
+      .toBeLessThanOrEqual(0);
   });
 });
 

@@ -182,10 +182,19 @@ def main() -> None:
             if re.search(r"_r[01]$|_take$", key) and key not in text and key not in dead:
                 dead.append(key)
 
+    # `--redo <鍵>...`：已經有圖也照樣重開工單。
+    # 用在「續集是照著一張後來被修掉的場景圖畫的」——參考圖過期，圖本身沒壞，
+    # 所以上面那條「場景圖比參考圖新」的檢查抓得到，但預設的「已經有圖就跳過」
+    # 會讓它永遠重生不了（2026-09-13 moon_window 與 toll_again_paid 就是這樣）。
+    redo: set[str] = set()
+    if "--redo" in sys.argv:
+        redo = set(sys.argv[sys.argv.index("--redo") + 1:])
+        print(f"指定重做：{'、'.join(sorted(redo))}")
+
     jobs: dict[str, dict] = {}
     skipped: list[str] = []
     for key in want:
-        if f"bg/event_feifei_{key}" in manifest["bg"]:
+        if key not in redo and f"bg/event_feifei_{key}" in manifest["bg"]:
             skipped.append(key)            # 已經有她的圖，重跑不重生
             continue
         eid = re.sub(r"_r[01]$", "", key)

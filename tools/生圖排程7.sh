@@ -17,14 +17,25 @@ set -u
 cd /f/ClaudeWork/qiuqiu-coop
 L=/c/Users/yayax/AppData/Local/Temp
 
-# 依工單的鍵，列出 codex_raw 裡真的存在的那些（留底檔不算）
+# 依工單的鍵，列出 codex_raw 裡真的存在、而且還沒進倉的那些（留底檔不算）。
+#
+# **不可以用 `print()`**（2026-09-13 踩到）：Windows 上的 Python 會把每行結尾寫成
+# `\r\n`，殼的命令替換只吃掉最後的換行、`\r` 會留在每個檔名屁股後面，
+# 於是 `add_event_art.py` 的 `name.endswith(".png")` 全部不成立，
+# 整批印「檔名要是 event_<事件編號>.png，略過」——只有最後一個檔會成功。
+# 症狀很難看出來：印的是「收了 60 張」，實際上只進去 1 張。
+# 所以這裡用 `sys.stdout.write` 自己接 `\n`，並且在殼這邊再 `tr -d '\r'` 一次。
+#
+# 順便加「還沒進倉的才列」：原本每一輪都把整批重新去背一次，
+# 60 張 1024x768 純 Python 逐像素跑，是後來系統記憶體吃緊的主因。
 pending() {
-  python - "$1" <<'PY'
+  python - "$1" <<'PY' | tr -d '\r'
 import json, pathlib, sys
 raw = pathlib.Path('tools/codex_raw')
-for k in json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')):
-    if (raw / k).exists() and '.previous-' not in k:
-        print(k)
+m = json.loads(pathlib.Path('public/assets/manifest.json').read_text(encoding='utf-8'))
+out = [k for k in json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+       if (raw / k).exists() and '.previous-' not in k and 'bg/' + k[:-4] not in m['bg']]
+sys.stdout.write('\n'.join(out))
 PY
 }
 
