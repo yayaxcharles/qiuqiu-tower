@@ -11,10 +11,23 @@ import { execFileSync } from 'node:child_process';
  * 它掃的是**圖的像素**，所以找不到 python 就跳過（別台機器、CI 上可能沒有）——
  * 跳過不算通過，訊息會說清楚。
  */
+/**
+ * 找一支**跑得動 `check_haze.py`** 的 python。
+ *
+ * **`--version` 過了不代表跑得動**（2026-09-13 這條讓線上停更了一整天）：
+ * GitHub Actions 的 ubuntu-latest 有 python3，但**沒有 Pillow**。
+ * 第一版只問 `--version`，於是 CI 上腳本一 import 就當掉、離開碼非 0，
+ * 被這支測試當成「抓到灰膜」判紅 → `npm test` 紅 → 部署整個不跑。
+ * 連續六次推上去都是這樣，而我每次只看 `git push` 成功就說「上線了」，
+ * 線上其實一直停在凌晨那一版。
+ *
+ * 所以這裡要連 Pillow 一起試。**裝不起來就是跳過，不是判紅**——
+ * 「這台機器跑不了這個檢查」跟「圖有問題」是兩件事，混在一起會擋掉部署。
+ */
 function python(): string | null {
   for (const cmd of ['python', 'python3', 'py']) {
     try {
-      execFileSync(cmd, ['--version'], { stdio: 'pipe' });
+      execFileSync(cmd, ['-c', 'import PIL'], { stdio: 'pipe' });
       return cmd;
     } catch { /* 試下一個 */ }
   }
@@ -35,11 +48,12 @@ describe('事件插圖沒有半透明的灰膜', () => {
       failed = true;
     }
     expect(failed, `check_haze.py 抓到新的灰膜：\n${out}`).toBe(false);
-  });
+    // 掃的是 574 張圖的像素，冷開機要六七秒；預設 5 秒會逾時判紅（同上，也會擋掉部署）
+  }, 120_000);
 
-  it.runIf(!py)('這台機器沒有 python，這條沒跑', () => {
+  it.runIf(!py)('這台機器沒有 python 或沒裝 Pillow，這條沒跑', () => {
     // eslint-disable-next-line no-console
-    console.log('  ⚠ 找不到 python，灰膜檢查跳過了——要自己跑 python tools/check_haze.py');
+    console.log('  ⚠ 跑不了灰膜檢查（缺 python 或 Pillow），跳過了——要自己跑 python tools/check_haze.py');
     expect(true).toBe(true);
   });
 });
