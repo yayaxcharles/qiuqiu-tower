@@ -4,7 +4,7 @@ import { relicById } from '../../src/content/relics';
 import { damageEnemy, damagePlayer } from '../../src/engine/actions';
 import { canPlay, endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { heroName, pickable, startRelicFor } from '../../src/engine/hero';
-import { newRun } from '../../src/engine/run';
+import { beginCombat, newRun } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { addStatus, getStatus } from '../../src/engine/statuses';
 import { describeCard } from '../../src/ui/cardtext';
@@ -44,7 +44,7 @@ describe('菲菲：她是誰', () => {
     expect(cs.player.block - before, '飛針打完自己也擋 2').toBe(2);
     expect(getStatus(foe(cs), '中毒'), '順便下 1 層毒').toBe(1);
   });
-  it('起手十張是她自己的那一套，起始秘寶是後撤步', () => {
+  it('起手十張是她自己的那一套，起始秘寶是毒針袋', () => {
     expect(FEIFEI_STARTER_DECK.length).toBe(10);
     expect(starterDeckFor('feifei')).toBe(FEIFEI_STARTER_DECK);
     expect(starterDeckFor('ninja')).not.toBe(FEIFEI_STARTER_DECK);
@@ -278,7 +278,29 @@ describe('菲菲：牌面文字讀得懂', () => {
     }
   });
 
-  it('後撤步的說明跟它真的做的事對得上', () => {
-    expect(relicById['backstep']!.text).toContain('5 點蜷縮');
+  /*
+   * 起始秘寶 2026-09-13 依使用者改版：「後撤步（開場 5 點蜷縮）」→
+   * 「毒針袋（每回合開始給所有魔物 1 層中毒）」。理由是前者任何角色拿到都一樣好用，
+   * 跟她是誰無關；每回合灑毒才是她的路數。
+   *
+   * 這條盯的是**說明與實際效果對得上**——秘寶的文案是手寫的，改了掛鉤忘了改字
+   * 是這個專案犯過的錯，而且玩家只會覺得「秘寶沒用」。
+   */
+  it('毒針袋的說明跟它真的做的事對得上', () => {
+    const r = relicById['backstep']!;
+    expect(r.text, '說明沒提到中毒').toContain('中毒');
+    expect(r.text, '說明沒提到每回合').toContain('每回合');
+    const fx = r.hooks.turnStart ?? [];
+    expect(fx, '不是掛在每回合開始').toEqual([{ kind: 'status', name: '中毒', amount: 1, target: 'all' }]);
+    expect(r.hooks.combatStart, '舊的開場蜷縮沒拿掉').toBeUndefined();
+  });
+
+  it('毒針袋真的每回合都給所有魔物上毒', () => {
+    const run = newRun('relic-poison', 1, 'feifei');
+    const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
+    run.currentNode = node.id;
+    const cs = beginCombat(run);
+    // 開打就是第一回合，掛鉤跑過一次
+    for (const e of cs.enemies) expect(getStatus(e, '中毒'), '第一回合沒上毒').toBeGreaterThanOrEqual(1);
   });
 });

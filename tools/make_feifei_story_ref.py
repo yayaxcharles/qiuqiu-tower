@@ -30,7 +30,7 @@ REF = ROOT / "tools" / "ref"
 OUT = REF / "feifei_story_ref.png"
 
 # 舊合參表裡「菲菲那一格」從這個 x 開始（2000 寬的座標，量出來的）
-FEIFEI_PANEL_X = 1600
+FEIFEI_PANEL_X = 1540
 # 設定表上兩隻的綠幕底色
 GREEN = (0, 255, 0)
 
@@ -55,7 +55,7 @@ def main() -> None:
     w, h = sheet.size
     left = sheet.crop((0, 0, w // 2, h))                        # 站姿
     right = sheet.crop((w // 2, 0, w, h))                       # 出招
-    head = sheet.crop((int(w * 0.10), int(h * 0.04), int(w * 0.36), int(h * 0.46)))
+    head = sheet.crop((int(w * 0.06), int(h * 0.02), int(w * 0.42), int(h * 0.52)))
 
     BOT_H = 460
     def fit(im: Image.Image) -> Image.Image:

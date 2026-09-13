@@ -59,7 +59,7 @@ export function unitName(p: { hero?: Hero } | undefined): string {
 }
 
 /**
- * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是後撤步（每場開打先有 5 點蜷縮）。
+ * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每回合開始給所有魔物 1 層中毒）。
  */
 export function startRelicFor(hero: Hero): string {
   return hero === 'feifei' ? 'backstep' : 'blue_headband';

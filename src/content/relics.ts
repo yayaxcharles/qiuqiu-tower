@@ -3,11 +3,20 @@ import type { RelicDef } from '../engine/types';
 export const relics: RelicDef[] = [
   { id: 'blue_headband', name: '藍頭巾', pool: '起始', text: '每場戰鬥第一回合多抽 1 張牌。', art: 'codex/relic_headband', price: 130, hooks: { firstTurnDraw: 1 } },
   /*
-   * 菲菲的起始秘寶（2026-09-12）。她的路數是「丟完就退」，所以開場就先站好。
-   * 藍頭巾（球球的）是第一回合多抽一張，兩邊都在開局給一點甜頭，強度同級。
+   * 菲菲的起始秘寶。**2026-09-13 使用者改版**：原本是「每場戰鬥開始時 5 點蜷縮」，
+   * 改成「每回合開始時給所有魔物 1 層中毒」。
+   *
+   * 使用者的理由是「增加她的特性」——開場 5 點蜷縮任何角色拿到都一樣好用，
+   * 跟她是誰無關；每回合灑毒才是她。
+   *
+   * 順帶解掉一個量出來的問題：她的難度曲線是**前期太簡單、第二關開始死**
+   *（活過 20F 六成 vs 球球四成，通關率只有球球一半），病根是毒要疊很多層才痛，
+   * 而前期戰鬥太短、疊不起來。每回合自動 +1 層等於讓毒早一點開始滾。
+   * N 層中毒的總傷害是 N(N+1)/2，所以這 1 層在長戰鬥裡的價值遠大於短戰鬥——
+   * 正好補在她弱的那一段。**改完要跑 `smartRun` 對照**（見專案記憶）。
    */
-  { id: 'backstep', name: '後撤步', pool: '起始', text: '每場戰鬥開始時獲得 5 點蜷縮。', art: 'codex/relic_backstep', price: 130,
-    hooks: { combatStart: [{ kind: 'block', amount: 5 }] } },
+  { id: 'backstep', name: '毒針袋', pool: '起始', text: '每回合開始時，給所有魔物 1 層中毒。', art: 'codex/relic_backstep', price: 130,
+    hooks: { turnStart: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] } },
   { id: 'onigiri_bag', name: '飯糰袋', pool: '常見', text: '每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_onigiri_bag', price: 160, hooks: { firstTurnEnergy: 1 } },
   { id: 'tuna_can', name: '鮪魚罐頭', pool: '常見', text: '最大生命 +10。', art: 'codex/relic_tuna_can', price: 120, hooks: { maxHp: 10 } },
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回的血加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },

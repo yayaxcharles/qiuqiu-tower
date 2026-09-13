@@ -82,9 +82,13 @@ describe('影子分身', () => {
     p.cardsPlayedThisTurn = 0;
     p.block = 0;
     const hp0 = e.hp;
+    // **量的是「這張牌加了多少」不是絕對值**（2026-09-13）：她的起始秘寶「毒針袋」
+    // 每回合開始就會先給全體 1 層毒，寫死絕對值的話，只要秘寶一改這條就會紅，
+    // 而紅的原因跟影子分身無關——看的人會往錯的方向修。
+    const poison0 = e.statuses['中毒'] ?? 0;
     playCard(cs, toHand(cs, 'feifei_feizhen', 901), e.uid);
     expect(hp0 - e.hp, '3 傷 ×2').toBe(6);
-    expect(e.statuses['中毒'] ?? 0, '1 層毒 ×2').toBe(2);
+    expect((e.statuses['中毒'] ?? 0) - poison0, '1 層毒 ×2').toBe(2);
     expect(p.block, '2 點蜷縮 ×2').toBe(4);
   });
 });
