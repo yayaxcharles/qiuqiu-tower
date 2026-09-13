@@ -21,7 +21,13 @@ const own = (mine: string, his?: string): boolean => his === undefined || mine !
 
 const tag = (isOwn: boolean): string => (isOwn ? '' : '　⚠️球球的句子');
 
-it('dump', () => {
+/*
+ * **只有帶 `DUMP_FEIFEI=1` 才重寫**（2026-09-14 夜間稽核 低-8）。
+ * 原本是一般測試，每跑一次全部測試（含推送閘門、線上部署）就把這份 MD 整份重寫——
+ * 這份是給人逐句審、在上面做記號的，人改到一半跑一次測試就被蓋掉。
+ * 要重新匯出：`DUMP_FEIFEI=1 npx vitest run tools/dump_feifei_lines.test.ts`
+ */
+it.skipIf(!process.env['DUMP_FEIFEI'])('dump', () => {
   const out: string[] = [];
   const p = (s = '') => out.push(s);
 

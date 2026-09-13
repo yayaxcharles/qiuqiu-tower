@@ -41,14 +41,15 @@ const load = (ps: string[]) => ps.map((p) => ({ p, src: readFileSync(p, 'utf-8')
  * 它的頁籤與說明**本來就要寫出**「磨爪」「喵」這些詞（它就是在展示這些東西的差異），
  * 不是講給玩家聽的角色台詞。掃進去只會一直誤報。
  */
-// 只比檔名：Windows 的路徑分隔是反斜線，寫成 'screens/debug.ts' 會對不上
-const DEBUG_SCREEN = 'debug.ts';
-const files = load([...walk('src/ui').filter((f) => !f.endsWith(DEBUG_SCREEN)), ...walk('src/engine'), ...walk('src/content')]);
+// 比**完整的相對路徑**（夜間稽核 低-13）：原本只比檔名 `debug.ts`，以後任何檔名結尾是 debug.ts 的畫面都會被靜靜排除。
+// Windows 的路徑分隔是反斜線，先換成斜線再比
+const isDebugScreen = (f: string): boolean => f.split('\\').join('/').endsWith('src/ui/screens/debug.ts');
+const files = load([...walk('src/ui').filter((f) => !isDebugScreen(f)), ...walk('src/engine'), ...walk('src/content')]);
 /**
  * 「喵」與「磨爪」那兩條**只掃畫面層**：`src/content` 裡是球球自己的台詞與牌名，
  * 本來就該有喵、本來就叫磨爪石，掃進去只會一直誤報。
  */
-const uiFiles = load(walk('src/ui').filter((f) => !f.endsWith(DEBUG_SCREEN)));
+const uiFiles = load(walk('src/ui').filter((f) => !isDebugScreen(f)));
 
 /**
  * 這些 `def.name` **不是牌名**，所以不必過 `cardNameFor`：

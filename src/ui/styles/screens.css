@@ -1533,9 +1533,12 @@
 .debug-screen .dbg-cap { margin-top: 2px; opacity: .8; }
 .debug-screen code { font-size: 11px; color: #9fd0ff; word-break: break-all; }
 .debug-screen .dbg-cards { display: flex; flex-wrap: wrap; gap: 14px; }
+/*
+ * 牌本身的 `display` 一個字都不准蓋（稽核 中-6）：原本這裡把兩張牌改成 inline-block，
+ * 權重壓過 `.card { display: flex }`，牌圖靠左、牌型標籤離開底部、長規則字被切掉、`fitCardText` 也不縮字——
+ * 這頁就是拿來逐張檢查牌面的，看到的版面必須跟遊戲裡一樣。
+ */
 .debug-screen .dbg-pair { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 260px; }
-.debug-screen .dbg-pair > div:first-child,
-.debug-screen .dbg-pair > div:nth-child(2) { display: inline-block; }
 .debug-screen .dbg-poses { display: flex; flex-wrap: wrap; gap: 12px; }
 .debug-screen .dbg-poses .dbg-shot { width: 150px; }
 /* 退回別人那張的用灰底標出來：那代表這位角色**沒有**自己的那個姿勢 */

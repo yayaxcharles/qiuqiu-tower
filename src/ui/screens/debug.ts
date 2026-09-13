@@ -1,4 +1,5 @@
-import { cards } from '../../content/cards';
+import { cards, inHeroCollection, starterDeckFor } from '../../content/cards';
+import { actClearSlides, endingSlides, prologueSlides } from '../storyslides';
 import { newRun as engineNewRun } from '../../engine/run';
 import { actVariantKey } from '../screenbg';
 import { events } from '../../content/events';
@@ -37,9 +38,16 @@ const POSES = [
   ['hero/ninja_dash', '衝'], ['hero/ninja_guard', '格擋'], ['hero/ninja_choke', '被掐'],
 ] as const;
 
+/**
+ * 進除錯模式**之前**是誰（離開時要還原）。放在模組外層、只記第一次（稽核 低-2）：
+ * 跳進畫面再按 Esc 回來會重進這一頁，那時 `localHero()` 已經被頁上的切換鈕改掉了，
+ * 每次進來都重記的話原值就丟了。
+ */
+let heroBeforeDebug: string | null = null;
+
 registerScreen('debug', (app, root) => {
-  const before = localHero();               // 離開時要還原（見檔頭：只讀不寫）
-  let hero: string = before;
+  heroBeforeDebug ??= localHero();
+  let hero: string = localHero();
   let tab: Tab = '事件';
 
   const body = el('div', { class: 'dbg-body' });
@@ -94,7 +102,8 @@ registerScreen('debug', (app, root) => {
 
   // ---- 牌：整副牌的牌面（照這位角色的圖與牌名） ----
   function renderCards(): void {
-    const mine = cards.filter((c) => !c.combatOnly && !c.hidden && (!c.hero || c.hero === hero));
+    // 判準跟圖鑑同一支（稽核 中-2）：起手區照起手十張認，貓抓、淡定才不會算進菲菲拿得到的牌
+    const mine = cards.filter((c) => !c.combatOnly && !c.hidden && inHeroCollection(c, hero));
     body.append(el('p', { class: 'dbg-note' }, `${mine.length} 張（這位角色拿得到的）。左邊基礎、右邊升級版。`));
     const grid = el('div', { class: 'dbg-cards' });
     const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
@@ -168,32 +177,29 @@ registerScreen('debug', (app, root) => {
   // ---- 劇情投影片：序章四張、過關各三張、結局兩張，圖旁邊就是那一張配的台詞 ----
   function renderStory(): void {
     body.append(el('p', { class: 'dbg-note' },
-      '每一張旁邊就是它在遊戲裡配的台詞——**圖跟字對不對得上**要一起看才判斷得出來。'));
-    const k = (n: string): string => (hero === 'feifei' ? `bg/feifei_${n}` : `bg/${n}`);
-    const s = storyFor(hero);
-    const group = (title: string, keys: string[], lines: string[]): void => {
+      '每一張旁邊就是它在遊戲裡配的台詞——**圖跟字對不對得上**要一起看才判斷得出來。'
+      + '切法跟遊戲裡是同一支（storyslides.ts），一張圖配幾句就列幾句。'));
+    /*
+     * **切法不自己寫，叫遊戲用的那一支**（稽核 中-5）。原本這裡一張圖只配一句，
+     * 結局第二張配成「塔主：承讓。」、第一張只列一句（遊戲裡是四到六句），照這頁檢查會被誤導。
+     */
+    const group = (title: string, slides: { img: string; lines: { speaker: string; text: string }[] }[]): void => {
       body.append(el('h3', {}, title));
       const row = el('div', { class: 'dbg-poses' });
-      keys.forEach((key, i) => {
+      slides.forEach((sl, i) => {
         row.append(el('div', { class: 'dbg-slide' },
-          shot(key, `第 ${i + 1} 張`),
-          el('div', { class: 'dbg-text' }, lines[i] ?? el('span', { class: 'dbg-cap' }, '（這張沒有對應的台詞）'))));
+          shot(sl.img, `第 ${i + 1} 張`),
+          el('div', { class: 'dbg-text' }, ...(sl.lines.length
+            ? sl.lines.map((l) => el('p', {}, `${l.speaker}：${l.text}`))
+            : [el('span', { class: 'dbg-cap' }, '（這張沒有對應的台詞）')]))));
       });
       body.append(row);
     };
-    // 序章第三張兩邊不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」
-    const proKeys = hero === 'feifei'
-      ? ['bg/feifei_still_teach', 'bg/feifei_still_corrupt', 'bg/feifei_still_wait', 'bg/feifei_still_depart']
-      : ['bg/still_teach', 'bg/still_corrupt', 'bg/still_rush', 'bg/still_depart'];
-    group('序章（四張）', proKeys, s.prologue.map((l) => `${l.speaker}：${l.text}`));
-    group('第一關打完（三張）',
-      ['still_act1_stairs', 'still_act1_fish', 'still_act1_climb'].map(k),
-      s.actClear1.map((l) => `${l.speaker}：${l.text}`));
-    group('第二關打完（三張）',
-      ['still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs'].map(k),
-      s.actClear2.map((l) => `${l.speaker}：${l.text}`));
-    group('結局（兩張）', ['still_embrace', 'still_home'].map(k),
-      s.victory.map((l) => `${l.speaker}：${l.text}`));
+    group('序章（四張）', prologueSlides(hero));
+    group('第一關打完（三張）', actClearSlides(hero, 1));
+    group('第二關打完（三張）', actClearSlides(hero, 2));
+    // 結局第一句依打法換、難度 4 起多一句旁白：這裡列起手牌組、難度 1 的那一版
+    group('結局（兩張，起手牌組・難度 1 的版本）', endingSlides(hero, [...starterDeckFor(hero)], 1));
   }
 
   // ---- 場景：所有非事件的底圖，外加「直接跳到那個畫面」的按鈕 ----
@@ -205,19 +211,20 @@ registerScreen('debug', (app, root) => {
      * 只為了讓那幾個畫面有東西可畫。角色坐得對不對只有這樣才看得出來——
      * 光看底圖看不出立繪擺在哪（2026-09-14 貓窩那件就是這樣來回三次）。
      */
+    /*
+     * **臨時局一定要標成沙盒**（2026-09-14 夜間稽核 高-1）：那三個畫面收尾都走 `backToMap()`，
+     * 原本會照常存檔、把玩家真正的續玩存檔蓋成這一局。沙盒時不存檔、收尾與 Esc 都回這一頁
+     *（見 `App.sandbox`）。先 `leaveCoop`：剛從連線大廳退出來的話座位可能還是 1，
+     * 單人的臨時局沒有座位 1，換畫面時會丟例外。
+     */
     const jump = (screen: 'rest' | 'chest' | 'shop' | 'result', act: number, label: string): HTMLElement =>
       el('button', { class: 'btn small', onclick: () => {
         const run = engineNewRun('debug', 1, hero === 'feifei' ? 'feifei' : 'ninja');
         run.act = act;
         run.flags['prologue'] = true;          // 別播序章
+        app.leaveCoop();
+        app.sandbox = true;
         app.run = run;
-        const back = (ev: KeyboardEvent): void => {
-          if (ev.key !== 'Escape') return;
-          window.removeEventListener('keydown', back);
-          app.run = null;
-          app.show('debug');
-        };
-        window.addEventListener('keydown', back);
         app.show(screen);
       } }, label);
 
@@ -278,7 +285,7 @@ registerScreen('debug', (app, root) => {
       heroBtn('ninja', '球球'), heroBtn('feifei', '菲菲'),
       el('button', {
         class: 'btn small dbg-close',
-        onclick: () => { setLocalHero(before); app.show('title'); },
+        onclick: () => { setLocalHero(heroBeforeDebug ?? 'ninja'); heroBeforeDebug = null; app.show('title'); },
       }, '✕ 回標題'));
     render();
   };

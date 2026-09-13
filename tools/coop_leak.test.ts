@@ -41,7 +41,8 @@ describe('連線狀態不可以外溢到單機', () => {
   it('save() 連線時直接不存', () => {
     const m = /  save\(\): void \{([\s\S]*?)\n  \}/.exec(app);
     expect(m, '找不到 save()').toBeTruthy();
-    expect(m![1], 'save() 沒擋連線——兩人局會蓋掉單機存檔').toMatch(/if \(this\.coop\) return/);
+    // 2026-09-14 同一行多擋了除錯模式的臨時局（`this.coop || this.sandbox`），所以允許後面接其他條件
+    expect(m![1], 'save() 沒擋連線——兩人局會蓋掉單機存檔').toMatch(/if \(this\.coop(?: \|\| [^)]+)?\) return/);
   });
 
   /*

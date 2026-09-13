@@ -1,0 +1,59 @@
+import { storyFor, victoryLinesFor } from '../content/dialogue';
+import type { Slide } from './slides';
+
+/*
+ * 劇情幻燈片「哪張圖配哪幾句」**只算一次**（2026-09-14 夜間稽核 中-5）。
+ *
+ * 原本切法寫在 `app.ts` 裡，除錯模式的「劇情」頁自己又抄了一份「一張圖配一句」——
+ * 抄錯了：結局第二張配成「塔主：承讓。」、第一張只列一句（遊戲裡是四到六句）、
+ * 菲菲第二關第三張少一句。頁首寫「圖旁邊就是它在遊戲裡配的台詞」，照著檢查反而被誤導。
+ * 現在遊戲與除錯頁都叫這三支，看到的就是同一份。
+ */
+
+/**
+ * 過關與結局的插圖要**依角色**（2026-09-12）。這幾張圖裡球球都是主角（相擁那張他就在正中央），
+ * 沒生好她的那一份時回她的鍵就好——`slidesReady` 查不到會讓整段退回純對白，
+ * 那正是要的行為：寧可少一段幻燈片，不要放別人的故事。
+ */
+function stillKey(hero: string | undefined, name: string): string {
+  return hero === 'feifei' ? `bg/feifei_${name}` : `bg/${name}`;
+}
+
+/**
+ * 序章：四張圖。**最後一張吃掉剩下的所有句子**。
+ *
+ * 球球的序章有五句、圖只有四張。2026-09-12 改成兩個角色共用寫法時每張都寫成 `slice(i, i + 1)`，
+ * 第五句「我要把師父帶回家，也要把村裡的小魚乾全部拿回來喵。」從那天起再也沒演過
+ *（稽核 範圍外-2）。改回舊的做法：最後一張 `slice(3)`。
+ */
+export function prologueSlides(hero: string | undefined): Slide[] {
+  const pro = storyFor(hero).prologue;
+  // 第三張兩邊不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」
+  const stills = hero === 'feifei'
+    ? ['feifei_still_teach', 'feifei_still_corrupt', 'feifei_still_wait', 'feifei_still_depart']
+    : ['still_teach', 'still_corrupt', 'still_rush', 'still_depart'];
+  return stills.map((k, i) => ({ img: `bg/${k}`, lines: pro.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
+}
+
+/** 過關：三句台詞配三張圖，最後一張吃掉剩下的（她第二關比圖多一句） */
+export function actClearSlides(hero: string | undefined, act: number): Slide[] {
+  const story = storyFor(hero);
+  const lines = act === 1 ? story.actClear1 : story.actClear2;
+  const names = act === 1
+    ? ['still_act1_stairs', 'still_act1_fish', 'still_act1_climb']
+    : ['still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs'];
+  return names.map((n, i) => ({ img: stillKey(hero, n), lines: lines.slice(i, i === names.length - 1 ? undefined : i + 1) }));
+}
+
+/**
+ * 結局：兩張圖。第一張（相擁）放到標了 `slideBreak` 的那句為止，之後的（回家路、難度旁白）配第二張。
+ * **不要改回比對內文**：原本寫 `includes('撲進')`，菲菲的結局沒那兩個字，
+ * 切點被夾成 1，她的相擁那句就配到「回家路」的圖上（2026-09-12 稽核 中-1）。
+ */
+export function endingSlides(hero: string | undefined, deckIds: string[], difficulty: number): Slide[] {
+  const vic = victoryLinesFor(deckIds, difficulty, hero);
+  const cut = Math.max(1, vic.findIndex((l) => l.slideBreak) + 1);
+  return ['still_embrace', 'still_home'].map((n, i) => ({
+    img: stillKey(hero, n), lines: i === 0 ? vic.slice(0, cut) : vic.slice(cut),
+  }));
+}

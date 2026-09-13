@@ -1,4 +1,4 @@
-import { cards } from '../content/cards';
+import { cards, inHeroCollection } from '../content/cards';
 import { el } from './dom';
 import { cardNode } from './cardview';
 import { localHero } from './assets';
@@ -36,8 +36,8 @@ export function showCompendium(): void {
   let who: string = localHero();
   const grid = el('div', { class: 'comp-body' });
 
-  /** 這一位拿得到的牌：沒標 `hero` 的是共用，標了的只有那位拿得到 */
-  const forWho = (c: { hero?: string }): boolean => !c.hero || c.hero === who;
+  /** 這一位拿得到的牌（判準見 `inHeroCollection`：起手區照起手十張認，其餘看 `hero` 標記） */
+  const forWho = (c: Parameters<typeof inHeroCollection>[0]): boolean => inHeroCollection(c, who);
 
   const render = (): void => {
     grid.replaceChildren();

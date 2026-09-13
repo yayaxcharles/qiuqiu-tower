@@ -95,8 +95,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
-    // 倍率寫成「兩倍」不是「×2」：牌面其他地方都用中文，突然冒一個乘號很跳（2026-09-14）
-    case 'damageByStatus': return `造成等同目標${fx.name}層數${(fx.mul ?? 1) > 1 ? `${fx.mul} 倍` : ''}的傷害`
+    // 倍率寫成「兩倍」不是「×2」：牌面其他地方都用中文，突然冒一個乘號很跳（2026-09-14）。
+    // 原本註解這樣寫、程式卻印成「層數2 倍」（數字、少空格、「等同…的 2 倍」語意打架，夜間稽核 中-3），
+    // 改成照使用者給的原句：「造成中毒層數兩倍的傷害」
+    case 'damageByStatus': return ((fx.mul ?? 1) > 1
+      ? `造成目標${fx.name}層數${({ 2: '兩', 3: '三', 4: '四' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍的傷害`
+      : `造成等同目標${fx.name}層數的傷害`)
       + (fx.consume ? `，然後把${fx.name}清掉` : '');
     case 'execByStatus': return `目標的${fx.name}層數比牠剩下的生命還多的話，直接打倒牠`;
     case 'spreadStatus': return fx.half

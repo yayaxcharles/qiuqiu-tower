@@ -773,3 +773,14 @@ export const FEIFEI_STARTER_DECK: readonly string[] = [
 export function starterDeckFor(hero: string | undefined): readonly string[] {
   return hero === 'feifei' ? FEIFEI_STARTER_DECK : STARTER_DECK;
 }
+
+/**
+ * 圖鑑與除錯頁「這一位拿得到的牌」（2026-09-14 夜間稽核 中-2）。
+ *
+ * 沒標 `hero` 的是共用、標了的只有那位拿得到——**起手區例外，照起手十張的清單認**：
+ * 貓抓、淡定沒標 `hero`，照一般規則會算成共用，切到菲菲時起手區就混進兩張球球畫像的牌，
+ * 而她一輩子拿不到。兩個畫面各寫一份判準的話遲早又走鐘，所以放在這裡。
+ */
+export function inHeroCollection(c: Pick<CardDef, 'id' | 'pool' | 'hero'>, hero: string | undefined): boolean {
+  return c.pool === '起手' ? starterDeckFor(hero).includes(c.id) : !c.hero || c.hero === (hero ?? 'ninja');
+}

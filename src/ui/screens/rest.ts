@@ -134,7 +134,8 @@ registerScreen('rest', (app, root) => {
             const line = choice === '全力準備'
               ? `「${name}」磨利了，變成「${name}＋」；${fish} 條小魚乾全吃了，回復 ${me(run, seat).hp - hpBefore} 點生命。`
               : `「${name}」磨利了，變成「${name}＋」。`;
-            afterAction(line, pick(dialogue.restSharpenLines), c);
+            // 吐槽要用這一位自己的那份（夜間稽核 範圍外-1）：原本是球球的「爪子有點鈍了喵。」，菲菲磨針也這樣講
+            afterAction(line, pick(storyFor(me(run, seat).hero).restSharpenLines), c);
           });
         },
       });
@@ -213,15 +214,17 @@ registerScreen('rest', (app, root) => {
         const a = one.a;
         if (a.t === 'rest' || a.t === 'revive') done.add(a.seat);
         if (a.seat !== seat) continue;
-        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，牠搖搖晃晃地站起來。`, pick(dialogue.restNapLines)); continue; }
+        // 連線這三條原本都拿球球那份吐槽、拍醒的同伴一律寫「牠」（連線稽核 中-4）：改成照座位的角色
+        const mine = storyFor(me(run, seat).hero);
+        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(mine.restNapLines)); continue; }
         if (a.t !== 'rest') continue;
-        if (a.c === '打盹') { play('heal'); afterAction(`${heroSpeaker()}睡了一下，回復 ${napped} 點生命。`, pick(dialogue.restNapLines)); continue; }
+        if (a.c === '打盹') { play('heal'); afterAction(`${heroSpeaker()}睡了一下，回復 ${napped} 點生命。`, pick(mine.restNapLines)); continue; }
         play('upgrade');
         const pl = pendingLine;
         const line = pl && pl.choice === '全力準備'
           ? `「${pl.name}」磨利了，變成「${pl.name}＋」；${pl.fish} 條小魚乾全吃了，回復 ${me(run, seat).hp - pl.hpBefore} 點生命。`
           : `「${pl?.name ?? ''}」磨利了，變成「${pl?.name ?? ''}＋」。`;
-        afterAction(line, pick(dialogue.restSharpenLines), pendingCard ?? undefined);
+        afterAction(line, pick(mine.restSharpenLines), pendingCard ?? undefined);
       }
       /*
        * **不能用 `used` 判斷要不要重畫**（實測撞到的坑）：主機的動作是同步套用的，

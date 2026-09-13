@@ -294,8 +294,13 @@ function has<K extends EnemyEffect['kind']>(kind: K) {
  */
 function matePose(p: PlayerCombat): string {
   if (p.down) return POSE.lose;
-  if (p.block > 0 && hasHeroSprite(p.hero, POSE.curl)) return POSE.curl;
-  return POSE.idle;
+  /*
+   * 站著時用**跟自己那格一樣的待機判斷**（2026-09-14 夜間實機）：原本「有蜷縮就縮成一團」，
+   * 而菲菲的攻擊牌每張都附蜷縮——兩個分頁對打時，球球那台看到的她整個回合都縮成一顆大球，
+   * 她自己那台看到的卻是站著、頭上掛「蜷縮 2」。同一個人兩台畫面長得不一樣，
+   * 而且同伴身上的中毒、定身、爪力堆高那些待機姿勢一個都看不到。蜷縮的量本來就寫在牌子上。
+   */
+  return idlePoseKey(p, POSE, (k) => hasHeroSprite(p.hero, k));
 }
 
 registerScreen('combat', (app, root, props) => {
@@ -395,8 +400,10 @@ registerScreen('combat', (app, root, props) => {
     },
       spriteBox(heroArt(q, mine ? pose : matePose(q)), heroName(q)),
       el('div', { class: 'name' }, n > 1 ? `${heroName(q)}（${mine ? '你' : '同伴'}）` : heroName(q)),
-      hpBar('player', q.hp, q.maxHp),
-      statusRow(q, true));
+      // 動畫記憶的鍵要帶座位（連線稽核 中-1）：兩位共用 'player' 的話，每次整頁重畫兩條血條都從
+      // 對方的比例滑到自己的，低的那條每次拖一條「剛掉血」的殘影，狀態牌子也每次彈一下。單機只有座位 0
+      hpBar(`p${q.seat}`, q.hp, q.maxHp),
+      statusRow(q, true, `p${q.seat}`));
     // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
     if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
     else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
@@ -690,10 +697,12 @@ registerScreen('combat', (app, root, props) => {
         const def = cardById[cardId!];
         if (!def) continue;
         const upgraded = up === '1';
-        const name = cardNameFor(def, my().hero).replace(/^忍術·/, '') + (upgraded ? '＋' : '');
+        // 牌名照**這排的主人**的角色（連線稽核 中-6）：原本用 `my()`，同伴那格的能力牌照本機角色命名
+        const owner = (u as PlayerCombat).hero;
+        const name = cardNameFor(def, owner).replace(/^忍術·/, '') + (upgraded ? '＋' : '');
         const node = el('div', { class: 'chip good power' }, el('b', {}, name));
         if (n > 1) node.append(el('span', {}, String(n)));
-        attachTextTooltip(node, `${cardNameFor(def, my().hero)}${upgraded ? '＋' : ''}（能力，這場戰鬥持續生效）`, describeCard(def, upgraded));
+        attachTextTooltip(node, `${cardNameFor(def, owner)}${upgraded ? '＋' : ''}（能力，這場戰鬥持續生效）`, describeCard(def, upgraded));
         row.append(node);
       }
     }
@@ -2237,11 +2246,17 @@ registerScreen('combat', (app, root, props) => {
       : (dialogue.bossPhase2ById[bossId] ?? dialogue.bossPhase2Generic);
     // 「塔主」木牌只留給師父本人；其他關主的吐槽掛自己的名字（貓又婆婆等）
     const name = (sp: string): string =>
-      sp === '塔主' && bossId !== 'tower_master' ? (enemyById[bossId]?.name ?? sp) : sp;
+      sp === '塔主' && bossId !== 'tower_master' ? (enemyById[bossId]?.name ?? sp) : sp === '球球' ? heroSpeaker() : sp;
+    /*
+     * 原始碼裡寫的是球球的句子，玩菲菲時要過 `lineFor` 換成她那一版（連線稽核 中-3）。
+     * 她那一份早就寫好了（`FEIFEI_BOSS_LINES`），但只有走 `playDialogue` 的才會換，
+     * 這裡走 `toast`，於是玩菲菲換階段時會冒出「球球：……喵！」。單機也中。
+     */
+    const text = (l: { speaker: string; text: string }): string => (l.speaker === '球球' ? lineFor(my().hero, l.text) : l.text);
     // 潤飾版有三句的組（狸大人）：整串照 1.4 秒一句輪播，跟原本兩句的節奏一致
     lines.forEach((l, i) => {
-      if (i === 0) { toast(l.text, name(l.speaker)); return; }
-      window.setTimeout(() => { if (app.cs === cs) toast(l.text, name(l.speaker)); }, 1400 * i);
+      if (i === 0) { toast(text(l), name(l.speaker)); return; }
+      window.setTimeout(() => { if (app.cs === cs) toast(text(l), name(l.speaker)); }, 1400 * i);
     });
   }
 

@@ -24,7 +24,12 @@ function spoken(text: string): string | null {
   return m ? m[1]! : null;
 }
 
-it('dump', () => {
+/*
+ * **只有帶 `DUMP_FEIFEI=1` 才重寫**（2026-09-14 夜間稽核 低-8）。這份檔頭叫人「直接在『改成』那一行填」，
+ * 原本卻是一般測試：每跑一次全部測試（含推送閘門、線上部署）就整份重寫，人填到一半就被蓋掉。
+ * 要重新匯出：`DUMP_FEIFEI=1 npx vitest run tools/dump_feifei_events.test.ts`
+ */
+it.skipIf(!process.env['DUMP_FEIFEI'])('dump', () => {
   const out: string[] = [];
   const p = (s = '') => out.push(s);
   let n = 0;

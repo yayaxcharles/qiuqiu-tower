@@ -30,8 +30,9 @@ function stripComments(src: string): string {
  * 它的頁籤與說明**本來就要寫出**「磨爪」「喵」這些詞（它就是在展示這些東西的差異），
  * 不是講給玩家聽的角色台詞。掃進去只會一直誤報。
  */
-// 只比檔名：Windows 的路徑分隔是反斜線，寫成 'screens/debug.ts' 會對不上
-const DEBUG_SCREEN = 'debug.ts';
+// 比**完整的相對路徑**（夜間稽核 低-13）：原本只比檔名 `debug.ts`，以後任何檔名結尾是 debug.ts 的畫面都會被靜靜排除。
+// Windows 的路徑分隔是反斜線，先換成斜線再比
+const isDebugScreen = (f: string): boolean => f.split('\\').join('/').endsWith('src/ui/screens/debug.ts');
 function uiFiles(): string[] {
   const out: string[] = [];
   const walk = (dir: string): void => {
@@ -42,7 +43,7 @@ function uiFiles(): string[] {
     }
   };
   walk('src/ui');
-  return out.filter((f) => !f.endsWith(DEBUG_SCREEN));
+  return out.filter((f) => !isDebugScreen(f));
 }
 
 /** 掃每一行有問題的程式碼（註解已去掉），回傳「檔案:行號  內容」 */
