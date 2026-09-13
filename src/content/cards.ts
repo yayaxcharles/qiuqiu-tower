@@ -181,6 +181,50 @@ export const cards: readonly CardDef[] = [
      */
     effects: [{ kind: 'transferDebuffsFromAlly' }],
     upgrade: { effects: [{ kind: 'transferDebuffsFromAlly' }, { kind: 'blockAll', amount: 4 }] } },
+  /*
+   * ---- 連線支援牌 C 批六張（2026-09-13）----
+   * 共同點：**排到下一輪才發**，或**每輪監聽一次**。掛鉤都在 `combat.ts`
+   *（`coopWatchers` 與 `startSeatTurn`／`endTurn` 的那幾段）。
+   *
+   * 每輪的次數重置**只在自己的回合開始做**——不能因為對方出牌、按結束、
+   * 撤回結束或畫面重繪就重置（交辦單明定，也是最容易寫錯的地方）。
+   */
+  { id: 'xianbangniliuzhe', name: '先幫你留著', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self',
+    art: 'card/xianbangniliuzhe', coop: true, hidden: true,
+    // 同伴那 6 點排到**下一輪開始、舊蜷縮清掉之後**才發，不然給了就被歸零
+    effects: [{ kind: 'block', amount: 6 }, { kind: 'blockAllyNextRound', amount: 6 }],
+    upgrade: { effects: [{ kind: 'block', amount: 6 }, { kind: 'blockAlly', amount: 4 }, { kind: 'blockAllyNextRound', amount: 6 }] } },
+  { id: 'nimangwobuwei', name: '你忙我補位', cost: 1, type: 能, rarity: '稀有', pool: '絕學', target: 'self',
+    art: 'card/nimangwobuwei', coop: true, hidden: true,
+    effects: [{ kind: 'watchAllyPlay', cardType: '技能' }],
+    upgrade: { effects: [{ kind: 'watchAllyPlay', cardType: 'any' }] } },
+  { id: 'fantuanliuyikou', name: '飯糰留一口', cost: 1, type: 能, rarity: '罕見', pool: '忍術', target: 'self',
+    art: 'card/fantuanliuyikou', coop: true, hidden: true,
+    /*
+     * **已知的設計問題，使用者 2026-09-13 明示先照原樣做**：沒用完的飯糰本來
+     * 回合結束就會消失，所以「扣 1 顆」不是真的代價，這張等於每輪白給同伴 1 顆。
+     * 實玩之後要調的話，兩個方向：改成「這輪至少剩 2 顆才觸發」，或改成扣自己下一輪的。
+     */
+    effects: [{ kind: 'saveEnergyForAlly' }],
+    upgrade: { effects: [{ kind: 'saveEnergyForAlly', draw: true }] } },
+  { id: 'youwozaiqianmian', name: '有我在前面', cost: 1, type: 能, rarity: '稀有', pool: '絕學', hero: 'ninja', target: 'self',
+    art: 'card/youwozaiqianmian', coop: true, hidden: true,
+    effects: [{ kind: 'watchSelfPlay', cardType: '攻擊' }],
+    upgrade: { effects: [{ kind: 'watchSelfPlay', cardType: 'any' }] } },
+  { id: 'biepengzhenjian', name: '別碰針尖喔', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'feifei', target: 'self',
+    art: 'card/biepengzhenjian', coop: true, hidden: true,
+    // 附毒**每隻只加一次**：多段攻擊連打三下也只有 2 層（交辦單明定）
+    effects: [{ kind: 'blockAlly', amount: 4 }, { kind: 'poisonAllyNextAttack', amount: 2 }],
+    upgrade: { effects: [{ kind: 'blockAlly', amount: 4 }, { kind: 'poisonAllyNextAttack', amount: 2, anyDamage: true }] } },
+  { id: 'woyouxianbeihao', name: '我有先備好', cost: 2, type: 能, rarity: '稀有', pool: '絕學', hero: 'feifei', target: 'self',
+    art: 'card/woyouxianbeihao', coop: true, hidden: true,
+    /*
+     * 「命中」＝**真的扣到血**（使用者 2026-09-13 裁定）。被蜷縮全擋掉、打 0 點都不算。
+     * 判準用 `cs.hits`——那份只記真的扣到的量。
+     * 升級版是「**任一方**觸發」但每輪仍**合計一次**，不是兩人各一次。
+     */
+    effects: [{ kind: 'watchPoisonHit', who: 'ally' }],
+    upgrade: { effects: [{ kind: 'watchPoisonHit', who: 'both' }] } },
   { id: 'wozaizhe', name: '我在這', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/wozaizhe',
     effects: [{ kind: 'damage', amount: 7 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }] } },

@@ -149,6 +149,22 @@ export type Effect =
   | { kind: 'drawAllyIfTargetStatus'; name?: StatusName; anyDebuff?: true; n: number }
   /** 別沾在身上：把**同伴**身上的減益整份移到目標魔物身上（移轉不是複製）。一個人時移自己的 */
   | { kind: 'transferDebuffsFromAlly' }
+  /*
+   * ===== 連線支援牌 C 批的六個效果（2026-09-13）=====
+   * 共同點：**排到下一輪才發**，或**每輪監聽一次**。狀態欄位見 `PlayerCombat`。
+   */
+  /** 先幫你留著：同伴**下一輪開始**時獲得蜷縮（等舊蜷縮清掉之後才發）。一個人時排給自己 */
+  | { kind: 'blockAllyNextRound'; amount: number }
+  /** 你忙我補位：之後每輪，同伴第一次打出指定類型的牌並結算完，自己抽 1 張 */
+  | { kind: 'watchAllyPlay'; cardType: '技能' | 'any' }
+  /** 有我在前面：之後每輪，自己第一次打出指定類型的牌並結算完，同伴獲得 6 點蜷縮 */
+  | { kind: 'watchSelfPlay'; cardType: '攻擊' | 'any' }
+  /** 我有先備好：之後每輪一次，攻擊**真的扣到**打之前就中毒的魔物時，雙方各 4 點蜷縮 */
+  | { kind: 'watchPoisonHit'; who: 'ally' | 'both' }
+  /** 別碰針尖喔：同伴下一張真的打到人的牌，對每隻被打到的魔物各上毒。一個人時掛自己身上 */
+  | { kind: 'poisonAllyNextAttack'; amount: number; anyDamage?: true }
+  /** 飯糰留一口：之後每輪結束，自己還剩飯糰就扣 1 顆，讓同伴下一輪多 1 顆（升級再多抽 1 張） */
+  | { kind: 'saveEnergyForAlly'; draw?: true }
   /**
    * 看自己身上有沒有某個狀態，決定跑哪一組效果（2026-09-13 連線支援牌「跟著我躲好」）。
    *
@@ -702,6 +718,46 @@ export interface PlayerCombat extends Unit {
   powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string; upgraded?: boolean }[];
   doubleNext: number;
   drawNextTurn: number;
+  /*
+   * ===== 連線支援牌 C 批的狀態（2026-09-13）=====
+   *
+   * 兩類：**排到下一輪才發**的東西，以及**每輪監聽一次**的旗標。
+   * 全部存在玩家身上，鎖步兩台各自算出同一份（沒有任何隨機、也沒讀時間）。
+   */
+  /** 先幫你留著：下一輪開始時給的蜷縮。**在舊蜷縮清掉之後才發**，不然給了就被歸零 */
+  nextRoundBlock?: number;
+  /** 飯糰留一口：下一輪開始時多給的飯糰。排在 `p.energy` 設好之後才加 */
+  nextRoundEnergy?: number;
+  /**
+   * 你忙我補位：看**同伴**打牌，每輪第一次符合就抽 1 張。
+   * `'技能'`＝只認技能牌（基礎版）、`'any'`＝任何牌（升級版）。
+   */
+  watchAllyPlay?: '技能' | 'any';
+  /** 有我在前面：看**自己**打牌，每輪第一次符合就給同伴 6 點蜷縮。球球專屬 */
+  watchSelfPlay?: '攻擊' | 'any';
+  /**
+   * 我有先備好：看攻擊**真的扣到**已中毒魔物的血，每輪第一次就雙方各 4 點蜷縮。
+   * `'ally'`＝只認同伴出手（基礎版）、`'both'`＝誰出手都算（升級版）。
+   * 「命中」的判準是**真的扣到血**（使用者 2026-09-13 裁定）：被蜷縮全擋掉不算。
+   */
+  watchPoisonHit?: 'ally' | 'both';
+  /** 這一輪那三個監聽各自發動過了沒。每輪開始清掉 */
+  firedAllyPlay?: true;
+  firedSelfPlay?: true;
+  firedPoisonHit?: true;
+  /**
+   * 別碰針尖喔：這個人的下一張「真的打到人」的牌，對每隻被打到的魔物各上幾層毒。
+   * `anyDamage`＝技能造成的直接傷害也算（升級版）。用掉就清掉，本輪沒用到也清掉。
+   */
+  poisonNextAttack?: { amount: number; anyDamage?: true };
+  /**
+   * 飯糰留一口：每輪結束時，自己還剩飯糰就扣 1 顆，讓同伴下一輪多 1 顆。
+   * `'draw'`＝同伴下一輪還多抽 1 張（升級版）。
+   *
+   * **使用者已知並接受**（2026-09-13）：沒用完的飯糰本來回合結束就會消失，
+   * 所以「扣 1 顆」實際上不是代價，這張等於每輪白給同伴 1 顆。先照交辦單做，實玩再看。
+   */
+  saveEnergyForAlly?: 'plain' | 'draw';
   noAttacks: boolean;
   immune: boolean;
   attackedThisTurn: boolean;

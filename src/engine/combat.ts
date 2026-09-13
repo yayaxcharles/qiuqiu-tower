@@ -117,6 +117,72 @@ export function startPlayerTurn(cs: CombatState): void {
 }
 
 /** 一位玩家的回合開始：狀態結算、補飽足、抽新手牌。整場只有一份的事情在 `startPlayerTurn` 做完了 */
+/**
+ * 連線支援牌 C 批的三個監聽（2026-09-13）。打完一張牌、效果結算完才叫。
+ *
+ * 三件事：
+ *   1. **你忙我補位**：同伴打了符合的牌 → 監聽的那個人抽 1 張
+ *   2. **有我在前面**：自己打了符合的牌 → 同伴拿 6 點蜷縮
+ *   3. **我有先備好**：攻擊**真的扣到**已中毒魔物的血 → 雙方各 4 點蜷縮
+ *   4. **別碰針尖喔**：這張牌真的打到人的話，對每隻被打到的魔物各上毒
+ *
+ * 每輪各只發動一次（`firedXxx`），而且**不由那張能力牌自己的施放觸發**——
+ * 能力牌打出來的當下 `applyEffects` 才剛把旗標設好，所以這裡一律跳過能力牌。
+ *
+ * 「命中」的判準是**真的扣到血**（使用者 2026-09-13 裁定）：被蜷縮全擋掉不算。
+ * 判準用 `cs.hits`——那份只記真的扣到的量，被擋成 0 的也會留一筆但 amount 是 0。
+ *
+ * **鎖步安全**：沒有隨機、沒讀時間，兩台跑同一份順序會算出同一個結果。
+ */
+function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
+  hitsBefore: number, poisonBefore: ReadonlyMap<number, number>): void {
+  if (type === '能力') return;                       // 能力牌自己不觸發任何監聽
+  const mine = cs.hits.slice(hitsBefore);
+  const damaged = mine.filter((h) => h.amount > 0);  // 真的扣到血的那幾隻
+
+  // 別碰針尖喔：附毒。每隻**只加一次**，多段攻擊不會疊三份（交辦單明定）
+  const pn = p.poisonNextAttack;
+  if (pn && damaged.length > 0 && (type === '攻擊' || pn.anyDamage)) {
+    for (const uid of new Set(damaged.map((h) => h.uid))) {
+      const e = cs.enemies.find((x) => x.uid === uid);
+      if (e && !e.dead) addStatus(e, '中毒', pn.amount);
+    }
+    log(cs, `針上的藥沾到了，多上了 ${pn.amount} 層中毒`);
+    p.poisonNextAttack = undefined;                  // 用掉就清
+  }
+
+  for (const w of cs.players) {
+    if (w.down) continue;
+    // 你忙我補位：看的是**同伴**（不是自己）打牌
+    if (w !== p && w.watchAllyPlay && !w.firedAllyPlay
+        && (w.watchAllyPlay === 'any' || type === w.watchAllyPlay)) {
+      w.firedAllyPlay = true;
+      drawCards(cs, 1, w);
+      log(cs, `${unitName(w)}接上了節奏，多抽一張`);
+    }
+    // 有我在前面：看的是**自己**打牌，好處給同伴
+    if (w === p && w.watchSelfPlay && !w.firedSelfPlay
+        && (w.watchSelfPlay === 'any' || type === w.watchSelfPlay)) {
+      w.firedSelfPlay = true;
+      const mate = cs.players.find((o) => o !== w && !o.down) ?? w;
+      gainBlock(cs, mate, 6);
+      log(cs, mate === w ? '擋在前面，自己也穩住了' : `${unitName(w)}擋在前面，${unitName(mate)}少挨了 6 點`);
+    }
+    // 我有先備好：攻擊真的扣到「打之前就中毒」的魔物。基礎版只認同伴出手
+    if (w.watchPoisonHit && !w.firedPoisonHit && (w.watchPoisonHit === 'both' || w !== p)) {
+      const ok = damaged.some((h) => {
+        const e = cs.enemies.find((x) => x.uid === h.uid);
+        return e !== undefined && (poisonBefore.get(h.uid) ?? 0) > 0;
+      });
+      if (ok) {
+        w.firedPoisonHit = true;
+        for (const q of cs.players) if (!q.down) gainBlock(cs, q, 4);
+        log(cs, '藥先備好了，兩個人都穩住');
+      }
+    }
+  }
+}
+
 function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 蜷縮不在這裡清：回合結束、魔物打完才照守護符留量修剪（見 endTurn 尾端）——
   // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）
@@ -129,6 +195,18 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   const iron = getStatus(p, '鐵布衫');
   if (iron > 0) { removeStatus(p, '鐵布衫'); gainBlock(cs, p, iron); }   // 走 gainBlock：跟牌上其他蜷縮一樣吃貓步（稽核 低-1）
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnEnergy') : 0);
+  /*
+   * 連線支援牌排到這一輪的東西（2026-09-13）。**位置有講究**：
+   *   - 飯糰要排在上面那行**之後**，不然剛給就被回滿蓋掉
+   *   - 蜷縮要排在「舊蜷縮清掉」**之後**。舊蜷縮不是在這裡清的，是上一輪
+   *     `endTurn` 尾端照守護符留量修剪的（見那邊的註解），所以這裡已經是清乾淨的狀態
+   * 兩個都是給完就歸零，不會累積到再下一輪。
+   */
+  if (p.nextRoundEnergy) { p.energy += p.nextRoundEnergy; cs.energyGain += p.nextRoundEnergy; p.nextRoundEnergy = 0; }
+  if (p.nextRoundBlock) { gainBlock(cs, p, p.nextRoundBlock); log(cs, `上一輪留下來的 ${p.nextRoundBlock} 點蜷縮到了`); p.nextRoundBlock = 0; }
+  // 每輪監聽的次數重置。**只在這裡清**——不能因為對方出牌、按結束、撤回或畫面重繪就重置
+  p.firedAllyPlay = undefined; p.firedSelfPlay = undefined; p.firedPoisonHit = undefined;
+  p.poisonNextAttack = undefined;   // 待觸發的附毒不跨輪
   // 只在第一回合給的那幾件（稽核 2026-09-10 中-3）：第一回合就是它們唯一的發動時刻，
   // 不記的話玩家看到的只是「這回合飯糰比較多」，不知道是誰給的
   if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnEnergy ?? 0) > 0) fireRelic(cs, rid);
@@ -229,7 +307,17 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     if (drew) drawCards(cs, h!.draw);
     if (gave) { p.energy += e!.energy; cs.energyGain += e!.energy; }
   }
+  /*
+   * 連線支援牌 C 批要兩份「打之前」的快照（2026-09-13）：
+   *   - `hitsBefore`：這張牌造成的傷害要從這裡往後數，才知道有沒有真的扣到血
+   *   - `poisonBefore`：「命中已中毒的魔物」看的是**打之前**就有毒，
+   *     不然這張牌自己附的毒會讓條件自己成立
+   * 兩份都當參數傳下去，**不放模組層級**——那會跨戰鬥外洩、也會弄壞鎖步。
+   */
+  const hitsBefore = cs.hits.length;
+  const poisonBefore = new Map(cs.enemies.map((e) => [e.uid, getStatus(e, '中毒')]));
   applyEffects(cs, st.effects, ctx);
+  coopWatchers(cs, p, st.def.type, hitsBefore, poisonBefore);
   /*
    * 影子分身（2026-09-12 使用者指定）：這場戰鬥裡**每回合打出的第一張牌會再打一次**。
    *
@@ -409,6 +497,24 @@ function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   if (!p.attackedThisTurn) {
     for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnEndNoAttack; if (h) { fireRelic(cs, rid); applyEffects(cs, h, { self: p, source: 'relic' }); } }
     for (const pw of p.powers) if (pw.trigger === 'turnEndNoAttack') applyEffects(cs, pw.effects, { self: p, source: 'power' });
+  }
+  /*
+   * 飯糰留一口（連線支援牌 2026-09-13）：自己還剩飯糰就扣 1 顆，讓同伴下一輪多 1 顆。
+   *
+   * 排在**這個人的回合結束**，不是「兩個人都按了結束」——這支本來就是一位一位跑的，
+   * 而「同一份預留只發放一次」靠的是它掛在自己身上、一輪只跑一次自己的 `endTurn`。
+   *
+   * **已知的設計問題**（使用者 2026-09-13 明示接受）：沒用完的飯糰本來就會消失，
+   * 所以這個「扣」不是真的代價，等於每輪白給同伴 1 顆。先照交辦單做，實玩再調。
+   */
+  if (p.saveEnergyForAlly && p.energy >= 1) {
+    const mate = cs.players.find((o) => o !== p && !o.down);
+    if (mate) {
+      p.energy -= 1;
+      mate.nextRoundEnergy = (mate.nextRoundEnergy ?? 0) + 1;
+      if (p.saveEnergyForAlly === 'draw') mate.drawNextTurn += 1;
+      log(cs, `${unitName(p)}留了一口飯糰給${unitName(mate)}`);
+    }
   }
   // 只限本回合的能力到這裡就過期。放在「沒出攻擊牌」的結算之後：
   // 那一段也會觸發能力，先讓它算完再清，不然本回合最後一次會少算。

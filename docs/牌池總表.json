@@ -719,6 +719,153 @@
   "up": "把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的），每個人各獲得 4 點蜷縮。"
  },
  {
+  "id": "xianbangniliuzhe",
+  "name": "先幫你留著",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "blockAllyNextRound"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 6
+   },
+   {
+    "kind": "blockAllyNextRound",
+    "amount": 6
+   }
+  ],
+  "text": "獲得 6 點蜷縮，同伴在下一輪開始時獲得 6 點蜷縮（自己一個人時算自己的）。",
+  "up": "獲得 6 點蜷縮，同伴獲得 4 點蜷縮（自己一個人時算在自己身上），同伴在下一輪開始時獲得 6 點蜷縮（自己一個人時算自己的）。"
+ },
+ {
+  "id": "nimangwobuwei",
+  "name": "你忙我補位",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "watchAllyPlay"
+  ],
+  "effects": [
+   {
+    "kind": "watchAllyPlay",
+    "cardType": "技能"
+   }
+  ],
+  "text": "之後每一輪，同伴第一次打出技能牌時，自己抽 1 張。",
+  "up": "之後每一輪，同伴第一次打出牌時，自己抽 1 張。"
+ },
+ {
+  "id": "fantuanliuyikou",
+  "name": "飯糰留一口",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "saveEnergyForAlly"
+  ],
+  "effects": [
+   {
+    "kind": "saveEnergyForAlly"
+   }
+  ],
+  "text": "之後每一輪結束時，自己還有飯糰就留 1 顆，讓同伴下一輪多 1 顆。",
+  "up": "之後每一輪結束時，自己還有飯糰就留 1 顆，讓同伴下一輪多 1 顆、並多抽 1 張。"
+ },
+ {
+  "id": "youwozaiqianmian",
+  "name": "有我在前面",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "watchSelfPlay"
+  ],
+  "effects": [
+   {
+    "kind": "watchSelfPlay",
+    "cardType": "攻擊"
+   }
+  ],
+  "text": "之後每一輪，自己第一次打出攻擊牌時，同伴獲得 6 點蜷縮。",
+  "up": "之後每一輪，自己第一次打出牌時，同伴獲得 6 點蜷縮。"
+ },
+ {
+  "id": "biepengzhenjian",
+  "name": "別碰針尖喔",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "blockAlly",
+   "poisonAllyNextAttack"
+  ],
+  "effects": [
+   {
+    "kind": "blockAlly",
+    "amount": 4
+   },
+   {
+    "kind": "poisonAllyNextAttack",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 4 點蜷縮（自己一個人時算在自己身上），同伴本輪下一張攻擊牌，對每隻被打到的魔物各施加 2 層中毒（自己一個人時算自己的）。",
+  "up": "同伴獲得 4 點蜷縮（自己一個人時算在自己身上），同伴本輪下一張造成傷害的牌，對每隻被打到的魔物各施加 2 層中毒（自己一個人時算自己的）。"
+ },
+ {
+  "id": "woyouxianbeihao",
+  "name": "我有先備好",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "watchPoisonHit"
+  ],
+  "effects": [
+   {
+    "kind": "watchPoisonHit",
+    "who": "ally"
+   }
+  ],
+  "text": "之後每一輪一次，同伴的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮。",
+  "up": "之後每一輪一次，任一方的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮。"
+ },
+ {
   "id": "wozaizhe",
   "name": "我在這",
   "pool": "忍術",
