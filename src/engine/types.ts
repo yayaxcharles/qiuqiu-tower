@@ -186,7 +186,8 @@ export type Effect =
   | { kind: 'draw'; n: number }
   | { kind: 'drawIfTargetStatus'; name: StatusName; n: number }
   | { kind: 'drawNextTurn'; n: number }
-  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all' }
+  /** `step`＝成長牌（菲菲的分身術，2026-09-14）：這場戰鬥裡同一張牌之前每打出一次，這次就多 step 層（跟 damageRamp 同一套次數） */
+  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all'; step?: number }
   /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5） */
   | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number }
   /** 催噎：目標身上這個狀態翻倍（沒有就沒事），再加 add 層 */

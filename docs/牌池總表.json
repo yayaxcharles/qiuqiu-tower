@@ -844,7 +844,7 @@
  },
  {
   "id": "woyouxianbeihao",
-  "name": "我有先備好",
+  "name": "一起準備好",
   "pool": "絕學",
   "rarity": "稀有",
   "cost": 2,
@@ -969,6 +969,33 @@
   "upCost": 2,
   "text": "造成 3 點傷害，這場戰鬥中這張牌每打出一次，傷害就再加 3 點。",
   "up": "造成 5 點傷害，這場戰鬥中這張牌每打出一次，傷害就再加 5 點。"
+ },
+ {
+  "id": "feifei_fenshen",
+  "name": "分身術",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 2,
+    "target": "enemy",
+    "step": 2
+   }
+  ],
+  "upCost": 2,
+  "text": "造成 2 點中毒層數，這場戰鬥中這張牌每打出一次，中毒層數就再加 2 點。",
+  "up": "造成 3 點中毒層數，這場戰鬥中這張牌每打出一次，中毒層數就再加 3 點。"
  },
  {
   "id": "ruying",
@@ -1635,7 +1662,7 @@
  },
  {
   "id": "renwuwancheng",
-  "name": "忍術·吸貓大法",
+  "name": "忍術·回復卷軸",
   "pool": "忍術",
   "rarity": "稀有",
   "cost": 1,
@@ -2103,7 +2130,7 @@
  },
  {
   "id": "mabu",
-  "name": "絕學·馬步",
+  "name": "絕學·貓步",
   "pool": "絕學",
   "rarity": "罕見",
   "cost": 1,
@@ -3795,7 +3822,7 @@
  },
  {
   "id": "feifei_lakai",
-  "name": "拉開",
+  "name": "後退閃躲",
   "pool": "忍術",
   "rarity": "常見",
   "cost": 0,
@@ -4165,7 +4192,7 @@
  },
  {
   "id": "feifei_tianzhen",
-  "name": "舔針",
+  "name": "強力塗毒",
   "pool": "忍術",
   "rarity": "罕見",
   "cost": 1,

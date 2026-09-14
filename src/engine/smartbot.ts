@@ -58,7 +58,7 @@ const RATING: Record<string, number> = {
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,
   zhanshu: 4, tuozi: 3, roubao: 5, liangzhua: 6, suoyituan: 5, weihe: 5, paozhao: 3, tianmao: 4,
   // 忍術 罕見
-  bunshin: 7, ruying: 7, shuaiguo: 3, dingshen: 6, cuimian: 5, fengkou: 4, qianshui: 5, touchi: 5, xianshuile: 2,
+  bunshin: 7, feifei_fenshen: 6, ruying: 7, shuaiguo: 3, dingshen: 6, cuimian: 5, fengkou: 4, qianshui: 5, touchi: 5, xianshuile: 2,
   gaotui: 4, jiejie: 7, fantan: 5, luoye: 5, canying: 4, caiweiba: 6, diaohu: 5, sashoujian: 5, jiuming: 5, fanzhua: 4,
   // 忍術 稀有
   meikandao: 6, renwuwancheng: 4, fengyin: 8, wanhua: 8, yingzi: 6, huanying: 8, wufeng: 4, sanhua: 8, jingzhi: 6,
@@ -292,9 +292,10 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
            */
           else if (fx.name === '中毒') {
             const tri = (k: number): number => k * (k + 1) / 2;
+            const amt = fx.amount + (fx.step ?? 0) * plays;   // 菲菲的分身術：這場打過幾次就多幾段
             const marginal = (e: EnemyCombat): number => {
               const cur = getStatus(e, '中毒');
-              return Math.min(tri(cur + fx.amount) - tri(cur), e.hp);
+              return Math.min(tri(cur + amt) - tri(cur), e.hp);
             };
             const hit = fx.target === 'all' ? enemies
               : [target !== undefined ? enemies.find((e) => e.uid === target) : undefined, target0, enemies[0]].find((e) => !!e);

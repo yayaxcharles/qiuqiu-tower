@@ -228,7 +228,7 @@ export const cards: readonly CardDef[] = [
     // 附毒**每隻只加一次**：多段攻擊連打三下也只有 2 層（交辦單明定）
     effects: [{ kind: 'blockAlly', amount: 4 }, { kind: 'poisonAllyNextAttack', amount: 2 }],
     upgrade: { effects: [{ kind: 'blockAlly', amount: 4 }, { kind: 'poisonAllyNextAttack', amount: 2, anyDamage: true }] } },
-  { id: 'woyouxianbeihao', name: '我有先備好', cost: 2, type: 能, rarity: '稀有', pool: '絕學', hero: 'feifei', target: 'self',
+  { id: 'woyouxianbeihao', name: '一起準備好', cost: 2, type: 能, rarity: '稀有', pool: '絕學', hero: 'feifei', target: 'self',
     art: 'card/woyouxianbeihao', coop: true,
     /*
      * 「命中」＝**真的扣到血**（使用者 2026-09-13 裁定）。被蜷縮全擋掉、打 0 點都不算。
@@ -244,10 +244,20 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 5 }], upgrade: { effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 7 }] } },
   { id: 'susu', name: '速速退散', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'all', art: 'card/susu',
     effects: [{ kind: 'damage', amount: 9, target: 'all' }], upgrade: { effects: [{ kind: 'damage', amount: 12, target: 'all' }] } },
-  { id: 'bunshin', name: '忍術·分身術', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/bunshin',
+  // 2026-09-14 起球球專屬：菲菲的分身術改成疊毒（下一張），兩位各拿自己那張
+  { id: 'bunshin', name: '忍術·分身術', cost: 1, type: 攻, rarity: '罕見', hero: 'ninja', pool: '忍術', target: 'enemy', art: 'card/bunshin',
     // 2026-09-03 使用者改效果：3 點起、這場每打出一次就 +3（只限這場）；升級 5／+5 但 2 費
     effects: [{ kind: 'damageRamp', amount: 3, step: 3 }],
     upgrade: { cost: 2, effects: [{ kind: 'damageRamp', amount: 5, step: 5 }] } },
+  /*
+   * 菲菲的分身術（使用者 2026-09-14）：「造成 2 點中毒層數，這場戰鬥中這張牌每打出一次，中毒層數就再加 2 點」，
+   * 升級 3／+3。**效果以外全部照球球那張**（攻擊、1 費、升級 2 費、罕見），使用者只改了效果。
+   * 圖是她原本那張分身術，檔案從 `feifei_bunshin` 改名過來（插圖鍵要等於牌號，`cards.test.ts` 盯著）。
+   * 次數跟球球那張同一份（`cs.cardPlays`，同一張牌打完才 +1）。
+   */
+  { id: 'feifei_fenshen', name: '分身術', cost: 1, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_fenshen',
+    effects: [{ kind: 'status', name: '中毒', amount: 2, target: 'enemy', step: 2 }],
+    upgrade: { cost: 2, effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'enemy', step: 3 }] } },
   { id: 'ruying', name: '如影隨形', cost: 2, type: 攻, rarity: '罕見', hero: 'ninja', pool: '忍術', target: 'enemy', art: 'card/ruying',
     effects: [{ kind: 'damage', amount: 5, times: 2 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 7, times: 2 }, { kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
@@ -314,7 +324,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'block', amount: 6 }],
     upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }, { kind: 'block', amount: 8 }] } },
   // 2026-09-04 起基礎版也整場有效（每殺回 3），磨爪只加量（回 6）
-  { id: 'renwuwancheng', name: '忍術·吸貓大法', cost: 1, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/renwuwancheng',
+  { id: 'renwuwancheng', name: '忍術·回復卷軸', cost: 1, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/renwuwancheng',
     effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 3 }] }],   // 2026-09-04 未升級也整場有效（原本只撐一回合、回 4）
     upgrade: { effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'heal', n: 6 }] }] } },
   { id: 'fengyin', name: '封印解除', cost: 3, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/fengyin',
@@ -343,7 +353,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }], upgrade: { keywords: [] } },
   { id: 'xuli', name: '絕學·蓄力', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/xuli',
     effects: [{ kind: 'doubleNextAttack' }], upgrade: { cost: 0 } },
-  { id: 'tietou', name: '絕學·鐵頭功', cost: 2, type: 攻, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/tietou',
+  { id: 'tietou', name: '絕學·鐵頭功', cost: 2, type: 攻, rarity: '罕見', hero: 'ninja', pool: '絕學', target: 'enemy', art: 'card/tietou',
     effects: [{ kind: 'damage', amount: 16 }, { kind: 'selfDamage', amount: 2 }],
     upgrade: { effects: [{ kind: 'damage', amount: 20 }, { kind: 'selfDamage', amount: 2 }] } },
   { id: 'shihou', name: '絕學·獅吼功', cost: 2, type: 攻, rarity: '罕見', pool: '絕學', target: 'all', art: 'card/shihou',
@@ -362,7 +372,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'heal', n: 10 }], upgrade: { effects: [{ kind: 'heal', n: 14 }] } },
   { id: 'taiji', name: '絕學·太極', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/taiji',
     effects: [{ kind: 'damageEqualBlock' }], upgrade: { cost: 0 } },
-  { id: 'mabu', name: '絕學·馬步', cost: 1, type: 能, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/mabu',
+  { id: 'mabu', name: '絕學·貓步', cost: 1, type: 能, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/mabu',
     effects: [{ kind: 'status', name: '貓步', amount: 2, target: 'self' }], upgrade: { effects: [{ kind: 'status', name: '貓步', amount: 3, target: 'self' }] } },
   { id: 'yungong', name: '絕學·運功', cost: 1, type: 能, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/yungong',
     effects: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }], upgrade: { effects: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }] } },
@@ -441,7 +451,7 @@ export const cards: readonly CardDef[] = [
   { id: 'dieda', name: '絕學·貓爪抓', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/dieda',
     effects: [{ kind: 'damage', amount: 6 }, { kind: 'heal', n: 3 }],
     upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'heal', n: 5 }] } },
-  { id: 'shibadie', name: '絕學·沾衣十八跌', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/shibadie',
+  { id: 'shibadie', name: '絕學·沾衣十八跌', cost: 2, type: 攻, rarity: '常見', hero: 'ninja', pool: '絕學', target: 'enemy', art: 'card/shibadie',
     effects: [{ kind: 'damage', amount: 5, times: 3 }], upgrade: { effects: [{ kind: 'damage', amount: 6, times: 3 }] } },
   { id: 'hujin', name: '絕學·護金', cost: 2, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/hujin',
     effects: [{ kind: 'block', amount: 10 }, { kind: 'status', name: '反彈', amount: 2, target: 'self' }],
@@ -498,7 +508,7 @@ export const cards: readonly CardDef[] = [
   { id: 'luanwu', name: '忍術·手裏劍亂舞', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/luanwu',
     effects: [{ kind: 'damage', amount: 5, target: 'all', times: 2 }],
     upgrade: { effects: [{ kind: 'damage', amount: 7, target: 'all', times: 2 }] } },
-  { id: 'dilie', name: '忍術·地裂陣', cost: 3, type: 攻, rarity: '稀有', pool: '忍術', target: 'all', art: 'card/dilie',
+  { id: 'dilie', name: '忍術·地裂陣', cost: 3, type: 攻, rarity: '稀有', hero: 'ninja', pool: '忍術', target: 'all', art: 'card/dilie',
     effects: [{ kind: 'damage', amount: 14, target: 'all' }, { kind: 'block', amount: 8 }],
     upgrade: { effects: [{ kind: 'damage', amount: 18, target: 'all' }, { kind: 'block', amount: 10 }] } },
   // 2026-09-04 牌池體檢補牌（使用者拍板：忍術攻擊 4、絕學常見 3、解減益 1、中毒流 4；hidden：牌面到齊後由 art_cards_0904b.sh 拿掉）
@@ -597,7 +607,7 @@ export const cards: readonly CardDef[] = [
   { id: 'feifei_sazhen', name: '撒針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_sazhen',
     effects: [{ kind: 'damage', amount: 2, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'block', amount: 3 }],
     upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'block', amount: 4 }] } },
-  { id: 'feifei_lakai', name: '拉開', cost: 0, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_lakai',
+  { id: 'feifei_lakai', name: '後退閃躲', cost: 0, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_lakai',
     effects: [{ kind: 'block', amount: 4 }],
     upgrade: { effects: [{ kind: 'block', amount: 6 }] } },
   { id: 'feifei_tieqiang', name: '貼牆', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_tieqiang',
@@ -657,7 +667,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'status', name: '定身', amount: 1, target: 'enemy' }, { kind: 'block', amount: 4 }],
     upgrade: { effects: [{ kind: 'status', name: '定身', amount: 2, target: 'enemy' }, { kind: 'block', amount: 4 }] } },
   // 自傷牌之二：弄毒的人被自己的毒弄到。慢性的、要撐過去，比直接掉血更貼她
-  { id: 'feifei_tianzhen', name: '舔針', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_tianzhen', keywords: ['消耗'],
+  { id: 'feifei_tianzhen', name: '強力塗毒', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_tianzhen', keywords: ['消耗'],
     effects: [{ kind: 'status', name: '中毒', amount: 10, target: 'enemy' }, { kind: 'status', name: '中毒', amount: 3, target: 'self' }],
     upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 13, target: 'enemy' }, { kind: 'status', name: '中毒', amount: 3, target: 'self' }] } },
   // 自傷牌之三：全部丟出去，手上就沒東西擋了——這張**刻意不給蜷縮**，那就是它的代價
@@ -708,9 +718,8 @@ export const cards: readonly CardDef[] = [
  * 不然她手上會同時出現「拋針」跟「忍術·瞬間移動」，看起來像漏改。
  */
 export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
-  // ---- 使用者直接指定的兩張 ----
+  // ---- 使用者直接指定的（原本還有鐵頭功「全力甩出」，2026-09-14 起她拿不到那張，名字一起拿掉）----
   liangzhua: '磨利飛針',       // 亮出爪子（技能牌：獲得爪力。她磨的是針，不是爪子）
-  tietou: '全力甩出',          // 絕學·鐵頭功（高傷＋自傷，改成「使盡全力甩出去」）
   // ---- 指到球球身體動作的（爪、拳、踢、擒拿），一隻丟針的貓打出來會很怪 ----
   dieda: '絕學·連珠針',        // 絕學·貓爪抓
   bengquan: '絕學·貫針',       // 絕學·崩拳
@@ -727,6 +736,11 @@ export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
   zuiquan: '絕學·亂針',        // 絕學·醉拳（傷害 4～14 亂跳：他是醉了打不準，她是一把針撒出去看運氣）
   caiweiba: '釘尾巴',          // 忍術·踩尾巴（6 傷＋2 毒：他用踩的，她怕痛不靠近，用針釘住）
   jienicailiangbu: '借你兩步',  // 借你踩兩步（連線牌，給同伴貓步：他讓人踩著他，她只是把身法讓給你）
+  // ---- 使用者 2026-09-14 逐張看過之後指定的 ----
+  zhaonishuodeda: '抽牌讓你打',   // 照你說的打（目標中毒就讓同伴抽 1 張、再打 6）
+  xianbangniliuzhe: '我們一起擋', // 先幫你留著（自己 4、同伴 8 點蜷縮）。使用者打的是「檔」，照牌的意思用「擋」
+  wozaizhe: '大聲吼叫',          // 我在這
+  hujin: '絕學·貓布袋',          // 絕學·護金
 };
 
 /**

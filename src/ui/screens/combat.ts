@@ -135,7 +135,7 @@ const ATTACK_POSES = new Set<string>([POSE.attack, POSE.claw, POSE.kick, POSE.da
 /** 攻擊牌 → 招式家族。沒列的用原本那張掌推（鐵砂掌那類本來就是掌） */
 const ATTACK_POSE: Readonly<Record<string, PoseKey>> = {
   sanjo: 'claw', dieda: 'claw', paozhao: 'claw', liandao: 'claw', roubao: 'claw', juye: 'claw', luoye: 'claw',
-  ruying: 'claw', shengdong: 'claw', shunshou: 'claw', wozaizhe: 'claw', susu: 'claw', bunshin: 'claw',
+  ruying: 'claw', shengdong: 'claw', shunshou: 'claw', wozaizhe: 'claw', susu: 'claw', bunshin: 'claw', feifei_fenshen: 'claw',
   canying: 'claw', maoqiudan: 'claw', luanwu: 'claw', zhuiji: 'claw',
   huixuan: 'kick', lianhuan: 'kick', caiweiba: 'kick', dilie: 'kick',
   tietou: 'dash', wangming: 'dash', shunkan: 'dash', beici: 'dash',

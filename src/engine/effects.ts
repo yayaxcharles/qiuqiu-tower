@@ -349,15 +349,18 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'drawNextTurn': p.drawNextTurn += fx.n; return false;
     case 'status': {
+      // 成長牌（菲菲的分身術）：跟 damageRamp 同一份次數，打完才 +1，第一次打是 0 次
+      const plays = fx.step && ctx.cardUid !== undefined ? (cs.cardPlays?.[ctx.cardUid] ?? 0) : 0;
+      const amount = fx.amount + (fx.step ?? 0) * plays;
       if (fx.target === 'self') {
-        if (fx.name === '隱身') gainStealth(cs, fx.amount, p); else addStatus(p, fx.name, fx.amount);
+        if (fx.name === '隱身') gainStealth(cs, amount, p); else addStatus(p, fx.name, amount);
         // 自己給自己疊的減益，這回合結束先不衰減
-        if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = (p.freshDebuffs[fx.name] ?? 0) + fx.amount;
+        if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = (p.freshDebuffs[fx.name] ?? 0) + amount;
       } else {
         for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
           // 定身對魔物只有七成機會成功（使用者 2026-09-02：「定身太強」）；沒中就寫在紀錄、畫面飄「掙脫」
           if (fx.name === '定身' && !cs.rng.chance(0.7)) { log(cs, `${t.name}掙脫了定身`); continue; }
-          addStatus(t, fx.name, fx.amount);
+          addStatus(t, fx.name, amount);
           markPoisoner(t, fx.name, p);   // 毒死牠的時候要知道是誰下的（連線版，見 EnemyCombat.poisonedBy）
         }
       }

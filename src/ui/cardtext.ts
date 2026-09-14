@@ -173,6 +173,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'drawIfTargetStatus': return `目標身上有${fx.name}就抽 ${fx.n} 張牌`;
     case 'drawNextTurn': return `下回合開始時多抽 ${fx.n} 張牌`;
     case 'status': {
+      // 成長牌（菲菲的分身術）：字照使用者 2026-09-14 給的原句；疊過就印當下的層數，後面補原本幾點（跟 damageRamp 同規矩）
+      if (fx.step) {
+        const plays = ctx.plays ?? 0;
+        const grew = plays > 0 ? `（原本 ${fx.amount} 點）` : '';
+        return `造成 ${fx.amount + fx.step * plays} 點${fx.name}層數${grew}，這場戰鬥中這張牌每打出一次，${fx.name}層數就再加 ${fx.step} 點`;
+      }
       if (isDive(fx)) return `下回合開始時再獲得 ${fx.amount} 層隱身`;
       if (fx.name === '鐵布衫') return `下回合開始時再獲得 ${fx.amount} 點蜷縮`;
       const oneShot = ONE_SHOT.has(fx.name);
@@ -244,7 +250,8 @@ const diffCache = new Map<string, UpgradeDiff>();
 
 /** 這張牌的文字會不會隨「這場打過幾次」變（只有分身術這種成長牌會）——決定快取要不要把次數算進去 */
 function textVariesWithPlays(def: CardDef): boolean {
-  const has = (fx: readonly Effect[] | undefined): boolean => (fx ?? []).some((e) => e.kind === 'damageRamp');
+  const has = (fx: readonly Effect[] | undefined): boolean =>
+    (fx ?? []).some((e) => e.kind === 'damageRamp' || (e.kind === 'status' && !!e.step));
   return has(def.effects) || has(def.upgrade.effects);
 }
 

@@ -62,7 +62,7 @@ describe('C 批六張：規格對得上交辦單', () => {
     ['fantuanliuyikou', '飯糰留一口', 1, '能力', '罕見'],
     ['youwozaiqianmian', '有我在前面', 1, '能力', '稀有'],
     ['biepengzhenjian', '別碰針尖喔', 1, '技能', '罕見'],
-    ['woyouxianbeihao', '我有先備好', 2, '能力', '稀有'],
+    ['woyouxianbeihao', '一起準備好', 2, '能力', '稀有'],   // 2026-09-14 使用者改名（原「我有先備好」）
   ];
   for (const [id, name, cost, type, rarity] of SPEC) {
     it(`${name}：費用、類型、稀有度、連線旗標`, () => {

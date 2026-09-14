@@ -7,7 +7,12 @@ describe('菲菲的牌名', () => {
   it('她看到的是新名字，球球看到的是原名', () => {
     expect(cardNameFor(cardById['liangzhua']!, 'feifei')).toBe('磨利飛針');
     expect(cardNameFor(cardById['liangzhua']!, 'ninja')).toBe('亮出爪子');
-    expect(cardNameFor(cardById['tietou']!, 'feifei')).toBe('全力甩出');
+    // 2026-09-14 使用者逐張指定的四張共用牌
+    expect(cardNameFor(cardById['zhaonishuodeda']!, 'feifei')).toBe('抽牌讓你打');
+    expect(cardNameFor(cardById['xianbangniliuzhe']!, 'feifei')).toBe('我們一起擋');
+    expect(cardNameFor(cardById['wozaizhe']!, 'feifei')).toBe('大聲吼叫');
+    expect(cardNameFor(cardById['hujin']!, 'feifei')).toBe('絕學·貓布袋');
+    expect(cardNameFor(cardById['hujin']!, 'ninja'), '球球那邊不動').toBe('絕學·護金');
     expect(cardNameFor(cardById['dieda']!, 'feifei'), '絕學兩字留著').toBe('絕學·連珠針');
   });
 

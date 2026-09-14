@@ -16,11 +16,11 @@ export const events: EventDef[] = [
     choices: [
       { label: '把針收起來（回復 12 點生命、獲得 20 條小魚乾）',
         outcome: [{ kind: 'heal', n: 12 }, { kind: 'fish', n: 20 }],
-        result: '菲菲把針一根根拔下來，重新磨過收好，順手把地上散落的乾糧也收進袋子。菲菲：「那個……浪費就不好了。他一定又沒撿。」', resultArt: 'feifei_trace_r0' },
+        result: '菲菲把針一根根拔下來，重新磨過收好，順手把地上散落的乾糧也收進袋子。菲菲：「那個……浪費就不好了。」', resultArt: 'feifei_trace_r0' },
       // 標籤照實際效果寫（使用者 2026-09-14 裁定改標籤）：原本寫「下一場魔物更強、小魚乾加倍」，那套玩法從來沒做，旗標也沒人讀
       { label: '照著痕跡追上去（最多失去 5 點生命；隨機獲得 1 張罕見忍術牌、獲得 60 條小魚乾）',
         outcome: [{ kind: 'flag', name: 'feifei_chasing' }, { kind: 'damage', n: 5 }, { kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }, { kind: 'fish', n: 60 }],
-        result: '菲菲沿著線頭一路小跑，撞翻了兩個木箱，膝蓋也擦破了皮。盡頭沒有師兄，只有他丟下的一卷東西。菲菲：「跑得這麼快……你到底在急什麼啦。」', resultArt: 'feifei_trace_r1' },
+        result: '菲菲沿著線頭一路小跑，撞翻了兩個木箱，膝蓋也擦破了皮。盡頭沒有師兄，只有他留下的一卷東西。菲菲：「走得這麼急……情況不樂觀。」', resultArt: 'feifei_trace_r1' },
     ] },
   { id: 'feifei_brew', title: '調藥', hero: 'feifei',
     text: '牆角長著一叢沒見過的草，葉背泛著紫。菲菲折了一段，湊近聞了聞，整張臉皺起來——是對的味道。',
@@ -55,10 +55,10 @@ export const events: EventDef[] = [
     choices: [
       { label: '用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'addCard', cardId: 'shibai' }],
-        result: '她將飛針卡進齒輪，等敲擊停了才取出小魚乾，拔針時卻發現針身已經彎得不能用了。菲菲：「不是師兄……他聽到我喊痛會停的。」她把報廢的針包好，沒有留在地上。', resultArt: 'feifei_signal_r0' },
-      { label: '墊著袖子撐開機關（獲得 45 條小魚乾，失去 10 點生命）',
+        result: '她將飛針卡進齒輪，等敲擊停了才取出小魚乾，拔針時卻發現針身已經彎得不能用了。菲菲：「不是師兄……」她把小魚乾包好，並且帶走。', resultArt: 'feifei_signal_r0' },
+      { label: '墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'damage', n: 10 }],
-        result: '她用袖子包住手，慢慢撐開機關，還是被鐵片邊緣刮傷。菲菲：「那個……我有墊袖子，怎麼還會痛。」她拿出小魚乾，低著頭替手止血，不再回應牆後的聲音。', resultArt: 'feifei_signal_r1' },
+        result: '她用袖子的布包住手，慢慢撐開機關，還是被鐵片邊緣刮傷。菲菲：「那個……我有墊著布，怎麼還會痛。」她拿出小魚乾，低著頭替手止血，不再回應牆後的聲音。', resultArt: 'feifei_signal_r1' },
     ] },
   { id: 'daxia_teach', title: '師父留下的秘笈', fixedFloor: 5,
     text: '樓梯間落著一本秘笈，封面被貓爪抓得起毛。球球翻到扉頁，一眼認出師父的字跡；再往後翻，正好有三招絕學。',
@@ -87,7 +87,7 @@ export const events: EventDef[] = [
       { label: '收下小魚乾（獲得 40 條小魚乾）', outcome: [{ kind: 'flag', name: 'rescue_took_fish' }, { kind: 'fish', n: 40 }], result: '球球收好小魚乾，再確認了一次村貓的繃帶。村貓朝牠揮揮爪，示意牠放心趕路。球球：「謝啦，先在這裡歇著，別急著亂跑喵。」', resultArt: 'rescue_r1' },
     ] },
   { id: 'blocked', title: '此路不通',
-    text: '樓梯被一座垃圾山堵住，頂上插著一塊新牌子：「此路不通。」一卷忍術卷軸露在破木板底下；旁邊的小走廊似乎還繞得過去。',
+    text: '樓梯被一座垃圾山堵住，頂上插著一塊新牌子，感覺就是有人故意擋住的，隱約看見一卷忍術卷軸露在一個破木板底下；旁邊的小走道似乎還是繞得過去。',
     choices: [
       { label: '翻過垃圾山（最多失去 6 點生命；隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'damage', n: 6 }, { kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }], result: '球球取出卷軸，卻踩滑了腳，一路滾到垃圾山另一側。牠揉著撞痛的肩膀，展開卷軸。球球：「招式拿到了，落地那招還得再練喵。」', resultArt: 'blocked_r0' },
       { label: '從旁邊繞過去（無效果）', outcome: [], result: '球球沿著小走廊繞回樓梯，總算避開那堆破木板。球球：「路都堵成這樣了，還真用不著特別寫牌子喵。」' },
@@ -108,7 +108,7 @@ export const events: EventDef[] = [
     text: '陽光從窗縫灑進來，在地板上留下一塊暖暖的光斑，大小剛好夠球球蜷成一團。',
     choices: [
       { label: '曬著太陽打盹（回復 12 點生命）', outcome: [{ kind: 'heal', n: 12 }], result: '球球睡得翻出肚皮，醒來時還捨不得收爪。球球：「太陽都沒走，我再躺一下也沒關係喵。」', resultArt: 'sunbath_r0' },
-      { label: '躺著整理招式（移除 1 張牌）', outcome: [{ kind: 'removeCard' }], result: '球球把最近學過的招式想了一遍，琢磨哪些還用得上。球球：「招式不用全帶著，腦袋也該曬曬太陽喵。」', resultArt: 'sunbath_r1' },
+      { label: '曬著太陽整理招式（移除 1 張牌）', outcome: [{ kind: 'removeCard' }], result: '球球把最近學過的招式想了一遍，琢磨哪些還用得上。球球：「招式不用全帶著，腦袋也該曬曬太陽喵。」', resultArt: 'sunbath_r1' },
     ] },
   { id: 'rat_stall', title: '可疑的飯糰攤',
     text: '一隻老鼠推著攤車叫賣，飯糰上還留著牙印。「特價！20 條小魚乾一顆，吃了包你有感覺！」牠說完，悄悄把咬過的一面轉向背後。',
@@ -161,14 +161,14 @@ export const events: EventDef[] = [
     ] },
 
   { id: 'lost_scroll', title: '掉在地上的卷軸',
-    text: '一卷沒署名的卷軸掉在階梯上，潦草的字旁畫著三段忍術圖解。轉角的舊書攤掛著木牌：「收購秘笈，破舊也收。」',
+    text: '一卷沒署名的卷軸掉在階梯上，潦草的字旁畫著三段忍術圖解。旁邊有個轉角的舊書攤，攤主表示：「收購秘笈，破舊的也收。」',
     choices: [
       { label: '挑一段照著練（從 3 張忍術牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '忍術', n: 3 }], result: '球球把卷軸攤開，逐一比對三段圖解的手勢。球球：「字可以潦草，手勢可不能比錯喵。」', resultArt: 'lost_scroll_r0' },
       { label: '賣給舊書攤（獲得 40 條小魚乾）', outcome: [{ kind: 'fish', n: 40 }], result: '攤主翻了翻卷軸，付給球球 40 條小魚乾。球球：「今天先讓肚子有著落，功夫下次再學喵。」', resultArt: 'lost_scroll_r1' },
     ] },
 
   { id: 'noisy_kitchen', title: '很吵的廚房',
-    text: '樓梯轉角的廚房傳來一陣鏗鏘聲，爐上的湯鍋咕嚕作響，蒸氣把鍋蓋頂得直跳。灶邊貼著「趕路的，自己盛一碗」，旁邊還放著一盒供人取用的備用忍具。',
+    text: '樓梯轉角的廚房傳來一陣鏗鏘聲，爐上的湯鍋咕嚕作響，蒸氣把鍋蓋頂得直跳。灶邊貼著「我吃不完但得先走了，想吃自己盛一碗」，旁邊還放著一盒供人取用的備用忍具。',
     choices: [
       { label: '盛一碗熱湯（回復相當於生命上限 50% 的生命）', outcome: [{ kind: 'healPercent', p: 0.5 }], result: '球球把熱湯吹涼，連湯帶料吃下肚，疲累的身體舒緩了些。球球：「鍋子吵歸吵，湯倒是很認真喵。」', resultArt: 'noisy_kitchen_r0' },
       { label: '取用備用忍具（隨機獲得 2 個忍具）', outcome: [{ kind: 'potions', n: 2 }], result: '球球在備用品盒前查看兩個忍具，照盒邊的圖示研究用法。球球：「這間廚房連出門打架都替客人想好了喵。」', resultArt: 'noisy_kitchen_r1' },
@@ -355,7 +355,7 @@ export const events: EventDef[] = [
       { label: '不交換（無效果）', outcome: [], result: '老鼠把包袱重新綁好，吃力地往肩上甩。球球按了按自己的行囊。球球：「我的東西，還是自己背著安心喵。」' },
     ] },
 
-  { id: 'grindstone', title: '磨到只剩一把刀', acts: [2, 3],
+  { id: 'grindstone', title: '磨利我的刀', acts: [2, 3],
     text: '老磨刀石旁刻著一套捨招法，開頭寫著：「招多不如招熟。」最後另有一行小字：強行斷去熟悉的運氣路數，會折損體力根基。球球：「前面寫得像勸告，後面才是在算代價喵。」',
     choices: [
       // 一次砍三張是這個遊戲裡最大的一刀「瘦牌組」。代價放在最大生命而不是當下的血：

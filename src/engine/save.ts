@@ -189,6 +189,8 @@ export function checkRun(input: Partial<RunState>): RunState | null {
   if (typeof run.act !== 'number' || run.act < 1) run.act = 1;
   // 舊存檔沒有 difficulty（難度制之前存的）：當難度 1
   if (typeof run.difficulty !== 'number') run.difficulty = 1;
+  // 菲菲的分身術 2026-09-14 分成她自己那張（疊毒）：之前存的局裡她手上那張還是球球的疊傷害版，換成她的
+  for (const p of run.players) if (p.hero === 'feifei') for (const c of p.deck) if (c.cardId === 'bunshin') c.cardId = 'feifei_fenshen';
   // 局面碼是手改得動的（就是壓縮過的存檔），把 status 改成 lost、hp 改成 0 也能通過上面每一條，
   // 然後被寫進收方的存檔，之後每次「續玩」都是頂著 0 血在地圖上亂走（稽核 2026-09-07 低 3）。
   // 正常玩法產不出這種檔——陣亡與通關當下畫面已經被結算疊層接管，不會存到這個狀態
