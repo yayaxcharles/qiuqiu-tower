@@ -99,10 +99,14 @@ def collect() -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # **一定要寫在這裡，不要直接改產生出來的 JSON**——那個檔案每次重跑就整個蓋掉，
 # 2026-09-12 手改「縮一團」之後隔天重跑就被洗掉了。
-SCENE_FIX: dict[str, tuple[str, str]] = {
+#
+# 每張是一串 (原文, 新文) 對，每一對在轉換後的提示詞裡要剛好出現一次。
+# 換動作的牌**「1. THE BIG OBJECT」和「What the cat is doing」兩行都要換**——只換第一行，
+# 第二行還寫著球球的舊動作（拳、擠、踩），兩行打架，模型照舊畫（2026-09-14 九尾針、毒發、釘尾巴三張就是這樣走鐘）。
+SCENE_FIX: dict[str, list[tuple[str, str]]] = {
     # 縮一團：原本只寫「毛毯堆成圓頂」，模型把她整個埋進一坨繩子裡，貓完全看不見
     #（球球那張寫的是「棉被裹成繭、貓佔畫面 40%」，一眼看得懂）。
-    "suoyituan": (
+    "suoyituan": [(
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in WARM TAUPE: "
         "a thick taupe woollen blanket bunched into a dome",
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in DEEP PLUM PURPLE: a thick "
@@ -111,7 +115,7 @@ SCENE_FIX: dict[str, tuple[str, str]] = {
         "strands.\n"
         "   **HER HEAD AND FACE MUST BE FULLY VISIBLE**, poking out of the top of the cocoon with her "
         "eyes shut tight and her ponytail and bow showing. If the blanket covers her face the picture "
-        "is wrong - a viewer must be able to tell at a glance that there is a cat curled up in there"),
+        "is wrong - a viewer must be able to tell at a glance that there is a cat curled up in there")],
 
     # ---- 改了名字就要改動作（2026-09-13 使用者回報「連環針卻在用腳踢」）----
     #
@@ -122,29 +126,77 @@ SCENE_FIX: dict[str, tuple[str, str]] = {
     # **怎麼找出來的**：比對牌名表裡「原名有動作字（踢／拳／掌／爪…）、新名沒有」的那幾張，
     # 9 張裡有 3 張圖真的還在演舊動作。判準寫在下面的 `action_renamed()`，
     # 以後再改名字會自己喊。
-    "lianhuan": (
+    "lianhuan": [(
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in VIVID ORANGE: three "
         "overlapping crescent-shaped kick arcs stacked in a fan, each with motion streaks",
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in VIVID ORANGE: a rapid VOLLEY "
         "OF SLIM DARTS - six or seven bamboo-tubed needles flying in a tight fan, each trailing a long "
         "orange motion streak behind it, the nearest ones big and sharp. **She is THROWING, not "
         "kicking**: her throwing paw is snapped forward and open, her feet stay planted on the ground. "
-        "Do not draw kick arcs, crescents or legs in the air"),
-    "zuiquan": (
+        "Do not draw kick arcs, crescents or legs in the air")],
+    "zuiquan": [(
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in WINE RED: a fat wine-red "
         "gourd flask tipped over, with a thick wobbly splash coming out",
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in WINE RED: a WILD SCATTER OF "
         "NEEDLES flung out all at once - a dozen slim darts sprayed in every direction at messy, uneven "
         "angles, some tumbling end over end, wine-red motion streaks behind them. It should read as "
-        "'a fistful thrown without aiming', not a neat volley. **No wine gourd, no flask, no liquid**"),
-    "tieshazhang": (
+        "'a fistful thrown without aiming', not a neat volley. **No wine gourd, no flask, no liquid**")],
+    "tieshazhang": [(
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in SANDY OCHRE AND IRON GREY: a "
         "flat grey handprint slammed down, with a wide fan of ochre sand grains blasting out from under it",
         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in SANDY OCHRE AND SICKLY GREEN: "
         "a wide billowing CLOUD OF POISONED SAND thrown from her paw - a broad fan of ochre grains with "
         "sickly green vapour curling through it, spreading out and away from her. She has just flung it "
         "underarm, paw open and low. **No handprint, no palm strike, no slammed hand shape** - it is "
-        "sand she threw, not a hand that hit"),
+        "sand she threw, not a hand that hit")],
+
+    # ---- 2026-09-14 稽核代理逐張看圖抓到的三張（原本只寫在 make_feifei_fix_0914.py，重跑這支會生回舊的錯）----
+    #
+    # `action_renamed()` 沒喊到這三張：九尾拳→九尾針、踩尾巴→釘尾巴的新名字都還留著「尾」字，
+    # 被當成動作沒換；催噎→毒發則原名根本不含動作字。所以改名字之後**還是要人眼對一次圖**。
+    "jiuweiquan": [
+        ("1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in NINE-TAIL AMBER: nine amber fists "
+         "arranged in an arc all punching the same way",
+         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in WARM AMBER: NINE long slim steel "
+         "NEEDLES arranged in an arc, all flying the same way, each trailing a long solid amber motion streak "
+         "behind it, the nearest ones big and sharp. **They are NEEDLES, not fists** - thin shafts with sharp "
+         "points and a small bamboo-wrapped grip. Do not draw fists, knuckles, punches or paw prints anywhere"),
+        ("   What the cat is doing: at the centre of the arc throwing the real punch, the other eight echoing it",
+         "   What the cat is doing: at the centre of the arc, her throwing paw snapped forward and open, having "
+         "just flung all nine needles at once; her feet stay planted. She is THROWING, not punching"),
+    ],
+    # 毒一律深紫（make_feifei_card_jobs.py 的慣例）。原稿主色寫的是 SICKLY YELLOW-GREEN，整行換掉
+    "cuiye": [
+        ("1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in SICKLY YELLOW-GREEN: a giant bulging "
+         "throat-shaped blob with two large hairballs stuck inside it, swollen to double size, with sweat drops",
+         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in DEEP VIOLET: POISON ERUPTING all at "
+         "once - a big lumpy cloud of fat, SOLID, opaque violet bubbles boiling up out of one needle stuck in "
+         "the middle of it, the bubbles swelling to TWICE their size as they rise and bursting into violet "
+         "splashes at the rim, drawn with thick black outlines. It is poison flaring up and nothing else: "
+         "**no throat shape, no swollen blob with things stuck inside it, no hairballs, no sweat drops**"),
+        ("   What the cat is doing: pressing both paws hard on the blob and squeezing so it swells even bigger, "
+         "with a mischievous grin",
+         "   What the cat is doing: she has just flicked that needle into it and is leaning back AWAY from the "
+         "eruption, her throwing paw still stretched out toward it (the edge of the bubbles may overlap that "
+         "paw), ears back and eyes wide - she keeps her distance from poison. She does not hug, squeeze or "
+         "press anything"),
+    ],
+    # 模板要求「貓跟大物件要重疊、互動」，跟「腳不碰尾巴」會打架——所以明講這張的互動是那根針
+    "caiweiba": [
+        ("1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in HOT CORAL: one huge coral-coloured "
+         "tail being stamped flat under a paw, kinked hard at the point of impact",
+         "1. THE BIG OBJECT - fills roughly 50% of the picture, rendered in HOT CORAL: one huge coral-coloured "
+         "MONSTER tail (not hers - her own tail stays dark brown) sweeping across the picture, its end PINNED "
+         "down by one long steel needle driven straight through it, the tail kinked hard and bristling at the "
+         "pin, a few beads of violet poison at the wound"),
+        ("   What the cat is doing: standing with one hind paw planted firmly on the tail, looking down at it "
+         "with a flat unimpressed face",
+         "   What the cat is doing: standing well back from the tail with both feet planted, her throwing paw "
+         "still stretched out toward the pin, a short motion streak running from that paw to the needle, a "
+         "flat unimpressed face. **Her feet do NOT touch the tail** - she does not stand on it, step on it or "
+         "stamp on it; keep a clear gap of background between her feet and the tail. On this card the thrown "
+         "needle is how she interacts with the object"),
+    ],
 }
 
 
@@ -186,11 +238,11 @@ def main() -> None:
             missing.append(cid)
             continue
         t = convert(prompts[cid], cid)
-        fix = SCENE_FIX.get(cid)
-        if fix:
-            if fix[0] not in t:
-                raise SystemExit(f"SCENE_FIX['{cid}'] 對不上原文了，來源提示詞改過——先看一眼再更新")
-            t = t.replace(fix[0], fix[1], 1)
+        for old, new in SCENE_FIX.get(cid, []):
+            if t.count(old) != 1:
+                raise SystemExit(f"SCENE_FIX['{cid}'] 對不上原文了（出現 {t.count(old)} 次，應該剛好 1 次），"
+                                 f"來源提示詞改過——先看一眼再更新")
+            t = t.replace(old, new, 1)
         jobs[f"card_feifei_{cid}.png"] = t
     if args.limit:
         jobs = dict(list(jobs.items())[:args.limit])

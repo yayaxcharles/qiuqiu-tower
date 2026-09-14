@@ -51,8 +51,9 @@ export interface SmartStats {
 
 // ===== 牌的靜態評分（挑獎勵、商店、升級、放生用）。10 最想要、0 不要 =====
 const RATING: Record<string, number> = {
-  // 起手
-  sanjo: 2, tanding: 2, kawarimi: 3,
+  // 起手（菲菲的三張照球球的對應牌評：飛針＝貓抓、退開＝淡定、淬毒＝替身術。
+  // 沒列的話會照稀有度預設 4，她的起手牌就永遠不算廢牌、一輩子不會被放生，牌組會比球球多帶三張基本牌）
+  sanjo: 2, tanding: 2, kawarimi: 3, feifei_feizhen: 2, feifei_tuikai: 2, feifei_cuidu: 3,
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,
@@ -371,10 +372,9 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'drawAlly': value += fx.n * 2.2; break;         // 一個人時退化成自己抽，跟 `draw` 同口徑
       case 'cleanseAlly': value += DEBUFFS.filter((d) => getStatus(p, d) > 0).length * 3; break;
       case 'energyAlly': value += fx.n * 4; break;         // 一顆飯糰約等於一張中等的牌
-      // 見血封喉／一針斃命：估的是「目標身上現在有幾層」，沒有目標就估 0
-      // 不清毒的話毒會繼續滾，同樣層數更有價值（1.3）；倍率照乘
-      case 'damageByStatus': value += target0 ? getStatus(target0, fx.name) * (fx.mul ?? 1) * (fx.consume ? 1 : 1.3) : 0; break;
-      case 'execByStatus': value += target0 && getStatus(target0, fx.name) >= target0.hp ? target0.hp + 8 : 0; break;
+      // 見血封喉／一針斃命：跟一般傷害一樣，在 switch 之前的傷害估算區（`damageTo`）已經算過、也挑好了目標，
+      // 這裡不重複計。原本這裡又加一次「目標身上幾層」，這兩張被高估一倍（夜間稽核留的「見血封喉估值算兩次」）
+      case 'damageByStatus': case 'execByStatus': break;
       /*
        * 三個長效旗標：機器人是**單人**在跑，估的是「這一場剩下的回合裡大概值多少」。
        * `rest` 跟 `power` 那條用同一個粗估法（還要打幾回合），口徑才一致。
