@@ -36,7 +36,7 @@ OUT = ROOT / "public" / "assets"
 MANIFEST = OUT / "manifest.json"
 
 
-def cover(im: Image.Image, size: tuple[int, int]) -> Image.Image:
+def cover(im: Image.Image, size: tuple[int, int], top_anchor: bool = False) -> Image.Image:
     """**填滿**目標框（多出來的裁掉），不是「塞進去留白」。
 
     牌面那個窗格是固定大小的，現有 119 張全部是滿版；留白的那張並排時會小一圈、
@@ -48,7 +48,8 @@ def cover(im: Image.Image, size: tuple[int, int]) -> Image.Image:
     k = max(size[0] / im.width, size[1] / im.height)
     im = im.resize((max(size[0], round(im.width * k)), max(size[1], round(im.height * k))), Image.LANCZOS)
     left = (im.width - size[0]) // 2
-    top = (im.height - size[1]) // 2
+    # 直立的全身像置中裁會切掉頭頂（2026-09-14 菲菲鐵布衫：蝴蝶結整個不見），`--top` 改成頭頂貼上緣、裁腳
+    top = 0 if top_anchor else (im.height - size[1]) // 2
     return im.crop((left, top, left + size[0], top + size[1]))
 
 
@@ -65,6 +66,7 @@ def main() -> None:
     # 去綠邊只掃得到貼著透明區的 3 像素，掃不到的留成螢光綠。整張壓綠跟 add_event_art.py
     # 的 --strict 同一支；**只給畫面裡本來就沒有綠色東西的牌用**，有草藥、翠玉的會被壓成土色
     ap.add_argument("--despill", action="store_true", help="整張把綠壓掉（畫面裡沒有綠色物件的牌才用）")
+    ap.add_argument("--top", action="store_true", help="裁切時頭頂貼齊上緣（直立全身像用，免得頭頂被裁掉）")
     args = ap.parse_args()
 
     base_path = OUT / "cards" / "card" / f"{args.baseline}.webp"
@@ -88,12 +90,15 @@ def main() -> None:
         keyed = key_out(Image.open(src), args.soft, args.hard, CARD_BAND)
         if args.despill:
             keyed = despill_all(keyed)
-        canvas = cover(keyed, target)
+        canvas = cover(keyed, target, top_anchor=args.top)
         dst = OUT / "cards" / "card" / f"{cid}.webp"
         dst.parent.mkdir(parents=True, exist_ok=True)
         canvas.save(dst, "WEBP", quality=78, method=6)
         added[f"card/{cid}"] = dst.relative_to(OUT.parent).as_posix()
-        if not (INBOX / src.name).exists():
+        # 收件匣那份**每次都換**（2026-09-14，跟 add_event_art.py 同一條）：原本「已經有就不複製」，
+        # 重生過的牌收件匣留的還是舊稿，哪天整批重跑 build_art_inbox.py 就把舊圖生回來。
+        # 舊稿不會丟：重生前 codex_raw 裡的原稿已經改名成 .previous-*（art_rules 第九個雷）
+        if src != INBOX / src.name:
             shutil.copy2(src, INBOX / src.name)
         print(f"牌面 card/{cid}.webp {dst.stat().st_size // 1024} KB")
         done += 1
