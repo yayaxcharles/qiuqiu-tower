@@ -87,7 +87,8 @@ it.skipIf(!process.env['DUMP_FEIFEI'])('dump', () => {
   p('');
   p(`### 高難度後日談\n\n- ${story.hardModeEpilogue}`);
   p('');
-  p(`### 打完第一關的預告\n\n- ${story.victoryTeaser}`);
+  // 這句是**全破之後**結算畫面的最後一句（result.ts），不是打完第一關——標題寫錯過，結果照錯的位置寫了台詞
+  p(`### 通關結算畫面的最後一句（全破之後）\n\n- ${story.victoryTeaser}`);
   p('');
 
   // ---- 四、魔物初遇 ----

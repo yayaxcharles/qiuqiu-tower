@@ -17,7 +17,8 @@ export const events: EventDef[] = [
       { label: '把針收起來（回復 12 點生命、獲得 20 條小魚乾）',
         outcome: [{ kind: 'heal', n: 12 }, { kind: 'fish', n: 20 }],
         result: '菲菲把針一根根拔下來，重新磨過收好，順手把地上散落的乾糧也收進袋子。菲菲：「那個……浪費就不好了。他一定又沒撿。」', resultArt: 'feifei_trace_r0' },
-      { label: '照著痕跡追上去（下一場戰鬥的魔物更強，但小魚乾加倍）',
+      // 標籤照實際效果寫（使用者 2026-09-14 裁定改標籤）：原本寫「下一場魔物更強、小魚乾加倍」，那套玩法從來沒做，旗標也沒人讀
+      { label: '照著痕跡追上去（最多失去 5 點生命；隨機獲得 1 張罕見忍術牌、獲得 60 條小魚乾）',
         outcome: [{ kind: 'flag', name: 'feifei_chasing' }, { kind: 'damage', n: 5 }, { kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }, { kind: 'fish', n: 60 }],
         result: '菲菲沿著線頭一路小跑，撞翻了兩個木箱，膝蓋也擦破了皮。盡頭沒有師兄，只有他丟下的一卷東西。菲菲：「跑得這麼快……你到底在急什麼啦。」', resultArt: 'feifei_trace_r1' },
     ] },
