@@ -3860,7 +3860,7 @@
   "name": "後退閃躲",
   "pool": "忍術",
   "rarity": "常見",
-  "cost": 0,
+  "cost": 1,
   "type": "技能",
   "target": "self",
   "keywords": [],
