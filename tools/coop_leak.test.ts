@@ -84,7 +84,7 @@ describe('連線的四個靜音卡死點', () => {
   it('戰利品：分不到秘寶的座位也要算完成（不然兩個人一起卡死）', () => {
     expect(reward, '沒有 markRelicSeat').toContain('markRelicSeat');
     expect(reward, '沒有把分不到的座位記成完成')
-      .toMatch(/run\.players\.forEach\(\(_, i\) => \{ if \(!got\[i\]\) markRelicSeat\(i\)/);
+      .toMatch(/run\.players\.forEach\(\(p, i\) => \{ const id = got\[i\]; if \(!id \|\| p\.down \|\| p\.relics\.includes\(id\)\) markRelicSeat\(i\)/);   // 2026-09-15 審查 高-2：倒下、本來就有那件的也算完成
   });
 
   it('紙箱：開不出秘寶時直接當結算完（不然繼續永遠按不下去）', () => {

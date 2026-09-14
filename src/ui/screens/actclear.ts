@@ -64,6 +64,10 @@ registerScreen('actclear', (app, root, props) => {
    * 清的時機只有一個：**票結算完的那一刻**（下面設定的地方）。
    */
   let advanced = false;   // `advanceAct` 每台機器只能跑一次（它會生新地圖、推進亂數）
+  /** 「關主的信物」那一頁還亮著：同伴的票補跑進來時不要 `render()` 把它洗掉（審查 中-1） */
+  let revealing = false;
+  /** 兩邊都挑完、已經結算：之後任何遲到的票都不准再重畫回三選一 */
+  let settled = false;
   const iDown = !!coop && !!me(run, seat).down;   // 倒下的人沒得挑（規則四）
 
   const go = (): void => {
@@ -165,11 +169,12 @@ registerScreen('actclear', (app, root, props) => {
    */
   if (coop) {
     coop.onPick((kind) => {
-      if ((kind !== 'actrelic' && kind !== 'actcard') || advanced || !run) return;
+      if ((kind !== 'actrelic' && kind !== 'actcard') || advanced || settled || !run) return;
       const alive = run.players.map((p) => !p.down);
       const rp = onlyStanding(coop.picks('actrelic', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       const cp = onlyStanding(coop.picks('actcard', run.players.length), alive);
-      if (!allVoted(rp, alive) || !allVoted(cp, alive)) { render(); return; }
+      if (!allVoted(rp, alive) || !allVoted(cp, alive)) { if (!revealing) render(); return; }
+      settled = true;
       // 兩邊都挑完了：照座位順序各拿各的（順序固定，兩台機器算出來的牌組才一樣）
       coop.clearPicks('actrelic'); coop.clearPicks('actcard');   // 結算完才清
       cp.forEach((id, i) => { if (id) addCard(run, id, false, i); });
@@ -184,6 +189,7 @@ registerScreen('actclear', (app, root, props) => {
   const bossRelicId = (props as { bossRelic?: string | null } | undefined)?.bossRelic ?? null;
   const bossRelic = bossRelicId ? relicById[bossRelicId] : undefined;
   if (bossRelic) {
+    revealing = true;
     clearKeepBg(root);
     renderHud(app, root);
     const url = artUrl('icons', bossRelic.art);
@@ -197,7 +203,7 @@ registerScreen('actclear', (app, root, props) => {
       portrait: hero.startsWith('data:') ? undefined : hero,
       speaker: heroSpeaker(),
       text: lineFor(me(run, seat).hero, `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`),
-      actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); render(); } }, '收下')],
+      actions: [el('button', { class: 'btn primary', onclick: () => { revealing = false; play('relic'); render(); } }, '收下')],
     }));
     return;
   }

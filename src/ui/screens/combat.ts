@@ -254,12 +254,14 @@ interface Snap {
   enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
   logLen: number;
   hitsLen: number;
+  handN: number;   // 手牌張數與飯糰：同伴讓我抽牌／分飯糰時，只換立繪那條路碰不到手牌與側欄，要退回整頁重畫
+  energy: number;
   relicFiredLen: number;   // 這一拍哪幾件秘寶動了：跟 `cs.relicFired` 相減就知道（見 `flashRelics`）
 }
 /** `me`＝**這台機器的那一位**（座位 0 或 1）。快照是拿來比「我這邊變了什麼」的，不能固定看第一位 */
 function snap(cs: CombatState, me: PlayerCombat): Snap {
   return {
-    hp: me.hp, block: me.block, logLen: cs.log.length, hitsLen: cs.hits.length,
+    hp: me.hp, block: me.block, logLen: cs.log.length, hitsLen: cs.hits.length, handN: me.hand.length, energy: me.energy,
     energyGain: cs.energyGain, relicFiredLen: cs.relicFired.length,
     buff: sumStatus(me, GOOD_STATUS), debuff: sumStatus(me, BAD_STATUS),
     growth: getStatus(me, '爪力') + getStatus(me, '貓步'),
@@ -613,7 +615,8 @@ registerScreen('combat', (app, root, props) => {
     window.clearTimeout(inflightTimer);
   }
   app.disposers.push(() => window.clearTimeout(inflightTimer));
-  function canAct(): boolean { return !ended && !collecting && !enemyTurnRunning && !inflight && cs.phase === 'player' && !cs.pending; }
+  // 連線停了（分岔、斷線）就什麼都不能按：不然點牌會飛出去再彈回來，還把畫面裡那行紅字洗掉（審查 中-3）
+  function canAct(): boolean { return !ended && !collecting && !enemyTurnRunning && !inflight && cs.phase === 'player' && !cs.pending && !session?.stopped; }
 
   // ===== 元件 =====
 
@@ -1342,6 +1345,7 @@ registerScreen('combat', (app, root, props) => {
     const box = root.querySelector<HTMLElement>('.combat');
     const field = box?.querySelector<HTMLElement>('.field');
     if (!box || !field) return false;
+    if (before.handN !== my().hand.length || before.energy !== my().energy) return false;   // 手牌或飯糰變了（同伴的「你也抽一張」「飯糰分你」）：退回整頁重畫（審查 中-1）
     if (cs.enemies.some((e) => !e.dead && !lineup.includes(e.uid))) return false;
     for (const e of cs.enemies) {
       const old = field.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
@@ -1371,7 +1375,7 @@ registerScreen('combat', (app, root, props) => {
     box.querySelector('.hud')?.remove();
     renderHud(app, box, my().fishDelta);
     const endBtn = box.querySelector<HTMLElement>('.end-turn');
-    if (endBtn) { if (!canAct() || dealDelay > 0) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }
+    if (endBtn) { if (!canAct() || dealDelay > 0 || my().ready || my().down) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }   // 舉手了／倒下了照整頁重畫的判準留灰（審查 中-2）
     paintFlashes(performance.now());   // 狀態列剛重建，還在演的秘寶要補回去（稽核 2026-09-10 複核 中-1）
     return true;
   }
@@ -2495,6 +2499,7 @@ registerScreen('combat', (app, root, props) => {
       else render();
       remoteBefore = null;
       checkOver();   // 最後一刀是誰補的都一樣，分出勝負就要收場
+      if (app.cs === cs) syncPicker();   // 主機自己的動作走 render 不走 settle，選牌視窗要在這裡跟上（審查 中-5）
       /*
        * **還有人在選牌就先不收**（夜間審查 中-1）：舉手齊了但 `pending` 還在時，引擎的 `beginEnemyTurn`
        * 會回 false、舉手旗標也不清，等選完那一下再進來一次——原本兩次都記對帳單，

@@ -172,6 +172,7 @@ export class CoopSession {
      * 同一個畫面重畫（`app.show('map')` 自己叫自己）不清，補跑才不會一直循環。
      */
     if (screen !== this.lastScreen) { this.replayed.clear(); this.lastScreen = screen; }
+    if (screen === 'map') this.unhandledRun.length = 0;   // 回到地圖＝上一格收乾淨了，沒接的動作不會再有人要
     this.applied = null;
     this.runApplied = null;
     this.picked = null;
@@ -220,8 +221,20 @@ export class CoopSession {
   }
 
   /** 有整局動作真的套進去了（畫面靠它重畫、判斷兩個人好了沒） */
-  onRunApplied(fn: (a: SequencedAction<RunAction>[]) => void): void { this.runApplied = fn; }
+  /**
+   * 沒人接的整局動作先存著，畫面掛上就補給它（審查 中-2）。
+   *
+   * 走格子投票後投的那位是同步結算、當場進店；先投的要等票繞回來。這個空檔裡同伴按「逛好了」／「打盹」，
+   * 動作照樣套進引擎（不會分岔），但畫面那份「誰做完了」是區域變數，錯過就永遠補不回來——
+   * 我這台按下「逛好了」變成灰的「等對方逛完…」，同伴早就上樓了，兩個人互等到天亮。
+   * 補跑排到下一拍（註冊時畫面還沒畫完）；進地圖時清掉（那時不可能還有沒接的）。
+   */
+  onRunApplied(fn: (a: SequencedAction<RunAction>[]) => void): void {
+    this.runApplied = fn;
+    if (this.unhandledRun.length) setTimeout(() => { const pend = this.unhandledRun.splice(0); if (pend.length && this.runApplied === fn && !this.dead) fn(pend); }, 0);
+  }
   private runApplied: ((a: SequencedAction<RunAction>[]) => void) | null = null;
+  private readonly unhandledRun: SequencedAction<RunAction>[] = [];
 
   /*
    * 回呼可以**事後換**：會話在開房那一刻就建好了，那時戰鬥畫面還不存在；
@@ -474,7 +487,9 @@ export class CoopSession {
     if (this.dead) return;
     // 開局訊息在 `attach` 之前就會到（那時還沒有戰鬥），所以要擺在 cs 的檢查之前
     if (m.m === 'pick') { this.record(m.k, m.seat, m.v); return; }
-    if (m.m === 'drop') { this.dropped?.(); return; }   // 我那一則沒算數：把手放開（見 `onDropped`）
+    // 我那一則沒算數：把手放開（見 `onDropped`）。**只認最新那一則**：更早那則的 drop 遲到（保險絲跳掉之後又送了新的），
+    // 不能拿它解鎖、更不能把剛送出的選牌當成沒算數而把視窗彈回來（審查 中-4）
+    if (m.m === 'drop') { if (m.n >= this.sentReq) this.dropped?.(); return; }
     if (m.m === 'hint') { if (m.seat !== this.seat) this.hinted?.(m.seat, m.u); return; }   // 純提示，不碰狀態
     // 整局那一條不需要戰鬥狀態，所以要擺在 cs 的檢查之前（商店、打盹點本來就沒有 cs）
     if (this.handleRun(m)) return;
@@ -620,7 +635,7 @@ export class CoopSession {
   private ingestRun(sa: SequencedAction<RunAction>, broadcast = false): void {
     if (broadcast) this.tx.send({ m: 'ract', seq: sa.seq, a: sa.a });
     const r = this.runQueue.receive(sa);
-    if (r.applied.length) this.runApplied?.(r.applied);
+    if (r.applied.length) { if (this.runApplied) this.runApplied(r.applied); else this.unhandledRun.push(...r.applied); }
     if (r.failed) this.stop(`第 ${r.failed.seq} 號整局動作在這邊做不出來（${r.failed.a.t}）`);
   }
 
