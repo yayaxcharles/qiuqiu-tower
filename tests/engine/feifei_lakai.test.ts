@@ -12,7 +12,7 @@ import { describeCard } from '../../src/ui/cardtext';
  *
  * 起因：第三關的穿透（地藏石偶、虛無貓、面具舞者，加上七隻關主與塔主）蜷縮擋不住，
  * 只有隱身、定身、整回合免傷接得住；她整套防禦原本全是蜷縮，碰到穿透等於零防禦。
- * 這是她唯一的閃避：0 費、常見，球球的隱身牌她照樣拿不到，所以不會像忍者那樣整副疊隱身。
+ * 這是她唯一的閃避：1 費（一開始 0 費，使用者說拿隱身 0 費不合理）、常見，球球的隱身牌她照樣拿不到，所以不會像忍者那樣整副疊隱身。
  * 順帶：紙袋、影披風對她有用了，鎖拿掉（tests/content/feifei_relic.test.ts）。
  */
 function setup() {
@@ -25,9 +25,10 @@ function setup() {
 }
 
 describe('後退閃躲：她跟師兄學來的閃避', () => {
-  it('0 費、基本版 1 層隱身、升級版 2 層', () => {
+  it('1 費（使用者：0 費拿隱身不合理）、基本版 1 層隱身、升級版 2 層', () => {
     const d = cardById['feifei_lakai']!;
-    expect(d.cost).toBe(0);
+    expect(d.cost).toBe(1);
+    expect(d.upgrade.cost, '升級版不降費，只多 1 層').toBeUndefined();
     expect(d.effects).toEqual([{ kind: 'status', name: '隱身', amount: 1, target: 'self' }]);
     expect(d.upgrade.effects).toEqual([{ kind: 'status', name: '隱身', amount: 2, target: 'self' }]);
   });
