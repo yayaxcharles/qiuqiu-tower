@@ -37,7 +37,11 @@ export default defineConfig({
    * 這一次打包的編號（2026-09-14）。連線碼開頭會夾著它：開房的人拿到新版、加入的人還開著舊分頁時，
    * 兩台跑的引擎不同，連上之後走第一格就對帳失敗。貼碼的當下比對它，直接請兩邊重新整理。見 `src/net/code.ts`。
    */
-  define: { __BUILD_TAG__: JSON.stringify(BUILD_TAG) },
+  define: {
+    __BUILD_TAG__: JSON.stringify(BUILD_TAG),
+    // 房號中繼的網址（`src/net/ws.ts`）：平常用寫死的正式站，本機要對著自己跑的 `wrangler dev` 測時用環境變數蓋掉
+    __RELAY_URL__: JSON.stringify(process.env['RELAY_URL'] ?? ''),
+  },
   build: {
     target: 'es2022',
     rollupOptions: {

@@ -38,6 +38,8 @@ jobs:
       - run: npm test
       # build 這條本身就是 tsc --noEmit && vite build，型別錯了會在這裡擋下來
       - run: npm run build
+      # 中繼（worker/）不在根 tsconfig 與 vite 的範圍裡，另外查型別：型別檔在現場產生、不進版控（審查 中-5）
+      - run: cd worker && npx wrangler types && npx tsc --noEmit -p tsconfig.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

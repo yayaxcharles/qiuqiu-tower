@@ -1,0 +1,15 @@
+# 爪破魔塔連線版的中繼伺服器（2026-09-14 深夜）：兩台瀏覽器都主動連到 Cloudflare，由它轉送遊戲訊息。
+# 為什麼：原本兩台直連（WebRTC，只用 STUN），碰到手機網路或對稱式 NAT 就「連不上對方」，使用者跟朋友試了很多次都失敗。
+# 部署：cd worker && npx wrangler deploy（要先 npx wrangler login 一次）。免費方案：每天十萬次請求，朋友之間玩綽綽有餘。
+name = "qiuqiu-relay"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+# 免費方案只能用 SQLite 版的 Durable Object；這裡其實不存任何東西，狀態就是「現在連著的兩條 WebSocket」
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

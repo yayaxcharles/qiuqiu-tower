@@ -1,6 +1,7 @@
 import { registerScreen } from '../app';
 import { clear, el } from '../dom';
-import { hostRoom, joinRoom } from '../../net/rtc';
+import { hostRoom as hostDirect, joinRoom as joinDirect } from '../../net/rtc';
+import { hostRoom as hostRelay, joinRoom as joinRelay } from '../../net/ws';
 import { CoopSession } from '../../net/session';
 import { beginCombat, newCoopRun } from '../../engine/run';
 import type { App } from '../app';
@@ -29,6 +30,12 @@ type Step = 'pick' | 'hosting' | 'joining' | 'connected' | 'failed';
 
 interface LobbyState {
   step: Step;
+  /** 房號中繼（預設，`net/ws.ts`）或貼碼直連（備用，中繼掛了才用，`net/rtc.ts`） */
+  mode: 'relay' | 'direct';
+  /** 主機：我的房號 */
+  room?: string;
+  /** 還在等的那條連線怎麼收掉（離開畫面時叫；連上之後清掉，不然進地圖會把遊戲連線一起關了） */
+  cancel?: () => void;
   /** 主機：我的邀請碼 */
   invite?: string;
   /** 加入者：我的回應碼 */
@@ -143,9 +150,18 @@ function pasteBox(label: string, hint: string, btnText: string, onGo: (code: str
 }
 
 registerScreen('lobby', (app, root) => {
-  const st: LobbyState = { step: 'pick' };
+  const st: LobbyState = { step: 'pick', mode: 'relay' };
+  /*
+   * 離開這個畫面就把還在等的連線收掉、之後的回呼全部作廢（審查 高-1）。
+   * 不收的話「回標題」之後那條連線還在等：十分鐘逾時會回頭把玩家當下的畫面清掉蓋成失敗框；
+   * 朋友這時才輸入舊房號，甚至會 `startCoop` 把單機進行中的那一局蓋掉。
+   * `app.show` 換畫面時會叫 `disposers`——**連上之後進地圖也會叫**，所以成功那一刻要先把 `st.cancel` 清掉。
+   */
+  let left = false;
+  app.disposers.push(() => { left = true; st.cancel?.(); st.cancel = undefined; });
 
   const fail = (e: unknown): void => {
+    if (left) return;   // 已經離開大廳，別回頭改別人的畫面
     st.step = 'failed';
     st.busy = false;
     // 連線的例外訊息多半是英文的原始錯誤，玩家看不懂。`rtc.ts` 與 `code.ts`
@@ -192,24 +208,49 @@ registerScreen('lobby', (app, root) => {
     box.append(el('h1', {}, '兩個人一起爬塔'));
 
     if (st.step === 'pick') {
+      const relay = st.mode === 'relay';
       box.append(
         el('p', { class: 'lobby-lead' }, '一個人開房、一個人加入。開房的人先按下面那顆。'),
         el('div', { class: 'lobby-row' },
           el('button', {
             class: 'btn primary',
             onclick: () => {
-              st.step = 'hosting'; st.busy = true; st.msg = '正在問路由器「我的對外位置是什麼」，最多五秒…'; render();
-              hostRoom().then((r) => { st.invite = r.invite; st.accept = r.accept; st.busy = false; st.msg = undefined; render(); }).catch(fail);
+              if (relay) {
+                // 房號中繼（2026-09-14 深夜）：兩台都連到 Cloudflare 上的中繼，手機網路也連得上
+                st.step = 'hosting'; st.busy = true; st.msg = '正在跟中繼伺服器要房號…'; render();
+                hostRelay().then((r) => {
+                  if (left) { r.cancel(); return; }
+                  st.room = r.code; st.cancel = r.cancel; st.busy = true; st.msg = '等對方輸入房號…（對方連上就會自動開局）'; render();
+                  r.ready.then((tx) => {
+                    if (left) { tx.close(); return; }
+                    st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
+                    startCoop(app, tx, true);
+                  }).catch(fail);
+                }).catch(fail);
+              } else {
+                st.step = 'hosting'; st.busy = true; st.msg = '正在問路由器「我的對外位置是什麼」，最多五秒…'; render();
+                hostDirect().then((r) => { if (left) { r.cancel(); return; } st.invite = r.invite; st.accept = r.accept; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render(); }).catch(fail);
+              }
             },
           }, '我開房'),
           el('button', { class: 'btn', onclick: () => { st.step = 'joining'; render(); } }, '我要加入')),
         heroPicker(),
         diffPicker(),
-        el('p', { class: 'lobby-note' },
-          '兩台機器會直接連線，中間不經過任何伺服器，所以要互相貼一次代碼（用 LINE 傳就好）。'));
+        el('p', { class: 'lobby-note' }, relay
+          ? '兩台都連到中繼伺服器、由它轉送，手機網路也能玩。開房的人會拿到六位數房號，用 LINE 講給對方就好。'
+          : '備用方式：兩台機器直接連線、不經過伺服器，要互相貼一次代碼。手機網路多半連不上，中繼壞掉時才用。'),
+        el('button', { class: 'btn small', onclick: () => { st.mode = relay ? 'direct' : 'relay'; render(); } },
+          relay ? '中繼連不上？改用貼碼直連（備用）' : '改回用房號連（推薦）'));
     }
 
-    if (st.step === 'hosting') {
+    if (st.step === 'hosting' && st.mode === 'relay') {
+      box.append(el('div', { class: 'lobby-field' },
+        el('div', { class: 'lobby-label' }, '把這個房號告訴對方'),
+        el('div', { class: 'lobby-room' }, st.room ?? '……'),
+        el('div', { class: 'lobby-hint' }, '對方在「我要加入」那裡輸入這六位數，連上就自動開局')));
+    }
+
+    if (st.step === 'hosting' && st.mode === 'direct') {
       if (st.invite) {
         box.append(
           codeBox('① 把這串邀請碼傳給對方', st.invite, '整串複製，不要只複製看得到的那一段'),
@@ -217,20 +258,44 @@ registerScreen('lobby', (app, root) => {
             if (!st.accept) return;
             st.busy = true; st.msg = '正在接上…'; render();
             st.accept(code).then((tx) => {
-              st.step = 'connected'; st.busy = false; st.msg = undefined; render();
+              if (left) { tx.close(); return; }
+              st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
               startCoop(app, tx, true);
             }).catch(fail);
           }));
       }
     }
 
-    if (st.step === 'joining') {
+    if (st.step === 'joining' && st.mode === 'relay') {
+      const input = el('input', { class: 'lobby-room-input', type: 'text', inputmode: 'numeric', maxlength: '6', placeholder: '六位數房號' }) as HTMLInputElement;
+      const go = el('button', { class: 'btn primary', ...(st.busy ? { disabled: 'disabled' } : {}) }, '加入');
+      go.addEventListener('click', () => {
+        if (st.busy) return;
+        const code = input.value;   // 先讀值再重畫：`render()` 會把這顆 input 整個換掉（審查 低-11）
+        st.busy = true; st.msg = '正在連中繼伺服器…'; render();
+        const j = joinRelay(code);
+        st.cancel = j.cancel;
+        j.ready.then((tx) => {
+          if (left) { tx.close(); return; }
+          st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
+          startCoop(app, tx, false);
+        }).catch(fail);
+      });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go.click(); });   // 手機數字鍵盤的送出鍵
+      box.append(el('div', { class: 'lobby-field' },
+        el('div', { class: 'lobby-label' }, '輸入對方給你的房號'),
+        input,
+        el('div', { class: 'lobby-row' }, go, el('span', { class: 'lobby-hint' }, '按下去就連上，對方那邊會自動開局'))));
+    }
+
+    if (st.step === 'joining' && st.mode === 'direct') {
       box.append(pasteBox('① 貼上對方給你的邀請碼', '按下去會產生你的回應碼', '產生回應碼', (code) => {
         st.busy = true; st.msg = '正在讀邀請碼、問自己的對外位置，最多五秒…'; render();
-        joinRoom(code).then((r) => {
-          st.answer = r.answer; st.busy = false; st.msg = undefined; render();
+        joinDirect(code).then((r) => {
+          if (left) { r.cancel(); return; }
+          st.answer = r.answer; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render();
           // 對方貼完我們的回應碼，通道就會自己開起來
-          r.ready.then((tx) => { st.step = 'connected'; render(); startCoop(app, tx, false); }).catch(fail);
+          r.ready.then((tx) => { if (left) { tx.close(); return; } st.cancel = undefined; st.step = 'connected'; render(); startCoop(app, tx, false); }).catch(fail);
         }).catch(fail);
       }));
       if (st.answer) {
@@ -247,7 +312,7 @@ registerScreen('lobby', (app, root) => {
     if (st.step === 'failed') {
       box.append(
         el('p', { class: 'lobby-bad' }, st.msg ?? '連不起來'),
-        el('button', { class: 'btn', onclick: () => { st.step = 'pick'; st.msg = undefined; st.invite = undefined; st.answer = undefined; render(); } }, '重來一次'));
+        el('button', { class: 'btn', onclick: () => { st.step = 'pick'; st.msg = undefined; st.invite = undefined; st.answer = undefined; st.room = undefined; render(); } }, '重來一次'));
     }
 
     if (st.busy && st.msg) box.append(el('p', { class: 'lobby-busy' }, st.msg));
