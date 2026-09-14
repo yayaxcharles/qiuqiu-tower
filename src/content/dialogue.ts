@@ -511,9 +511,11 @@ export const dialogue = {
    */
   // 師父只講大俠貼圖標題（專案規矩，tests/content/dialogue.test.ts 守著）：換句也只能在標題裡挑，
   // 個人化的那一句改由旁白講（稽核 2026-09-04 中 5）
-  masterFirstWords: <Record<'strength' | 'stealth' | 'block' | 'plain', string>>{
+  masterFirstWords: <Record<DeckLeaning, string>>{
     strength: '難逢敵手。',
     stealth: '深藏不露。',
+    // 菲菲的毒流（她沒有隱身牌，第二派換成毒，使用者 2026-09-14 裁定）：師父那句沿用「深藏不露」
+    poison: '深藏不露。',
     block: '在下不才。',
     plain: '承讓。',
   },
@@ -599,9 +601,14 @@ export const feifeiDialogue = {
     { speaker: '旁白', text: '下山的路上，球球一路吵著要吃小魚乾，師父笑得很大聲。菲菲走在最後面，一根一根把能撿回來的針收進竹筒裡。三個都回來了。' },
   ],
   /** 她的個人化旁白（師父講完之後插一句）。口徑跟球球那三句一樣，只是換成她的打法 */
-  victoryNarration: <Record<'strength' | 'stealth' | 'block', string>>{
+  /*
+   * **她沒有隱身流，換成毒流**（使用者 2026-09-14 裁定）。
+   * 她拿得到的牌裡沒有一張給自己隱身，原本那句「躲得好，也是功夫」永遠不會出現；
+   * 毒是她的招牌，這句接序章師父教她的那句「力氣小，就別跟人比力氣」。
+   */
+  victoryNarration: <Partial<Record<Exclude<DeckLeaning, 'plain'>, string>>>{
     strength: '師父看了看她那排空掉的竹筒，數了數——沒有一根是白丟的。',
-    stealth: '師父想起剛才那一路，她一次都沒讓人碰到。躲得好，也是功夫。',
+    poison: '師父聞到她竹筒裡的藥味，笑了——當年叫她別跟人比力氣，她真的找到了不用力氣的贏法。',
     block: '師父拍了拍她還在抖的肩膀——怕，然後還是站在這裡，那比不怕更難。',
   },
   hardModeEpilogue: '她一路都沒跟誰硬碰硬。師父後來每次講起這一戰，都會補一句：「最小隻的那個，反而最知道什麼叫打架。」',
@@ -635,7 +642,7 @@ export const feifeiDialogue = {
 export function storyFor(hero: string | undefined): {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
   defeat: DialogueLine[]; victoryTeaser: string;
-  victory: DialogueLine[]; victoryNarration: Record<'strength' | 'stealth' | 'block', string>;
+  victory: DialogueLine[]; victoryNarration: Partial<Record<Exclude<DeckLeaning, 'plain'>, string>>;
   hardModeEpilogue: string;
   battleStart: string[]; battleWin: string[]; hungry: string[]; lowHp: string[];
   chestLines: string[]; restNapLines: string[]; restSharpenLines: string[];
@@ -1057,8 +1064,17 @@ export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random(
  * 牌組傾向：只看這一路**自己拿的牌**（起始那十張不算——它們本來就偏蜷縮，算進去每個人都是蜷縮流），
  * 而且只算「對球球自己」的效果（給敵人拆爪力的封口術不算爪力流）；某一派要至少 4 張、佔拿到的牌四分之一以上、領先第二名兩張以上才算。
  */
-export function deckLeaning(deckIds: readonly string[]): 'strength' | 'stealth' | 'block' | 'plain' {
-  const count = { strength: 0, stealth: 0, block: 0 };
+/** 結局依牌組傾向換的那幾句用哪一派。`poison` 只有菲菲會判到，`stealth` 只有球球會判到 */
+export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'block' | 'plain';
+
+export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLeaning {
+  /*
+   * **第二派看角色**（使用者 2026-09-14 裁定）：球球數「給自己隱身」的牌，菲菲數「下毒」的牌。
+   * 她拿得到的牌裡給自己隱身的是 0 張，照球球的算法她永遠判不到那一派。
+   * 計數物件的鍵順序刻意跟原本一樣（爪力、第二派、蜷縮），球球算出來跟改之前一模一樣。
+   */
+  const alt: 'stealth' | 'poison' = hero === 'feifei' ? 'poison' : 'stealth';
+  const count = { strength: 0, alt: 0, block: 0 };
   /*
    * **兩位主角的起手牌都要排掉**（2026-09-12 補的）。
    *
@@ -1074,11 +1090,15 @@ export function deckLeaning(deckIds: readonly string[]): 'strength' | 'stealth' 
     if (!def) continue;
     const fx = [...def.effects, ...(def.upgrade?.effects ?? [])];
     const selfStatus = (name: string) => fx.some((e) => e.kind === 'status' && e.target === 'self' && e.name === name);
+    // 下毒：對魔物上中毒、引爆或散開中毒、攻擊附毒、餘毒。給自己上的毒（舔針那一半）不算
+    const poisons = fx.some((e) => ('name' in e && e.name === '中毒' && !('target' in e && e.target === 'self'))
+      || e.kind === 'poisonOnAttack' || e.kind === 'poisonBurst' || e.kind === 'poisonAllyNextAttack');
     if (selfStatus('爪力')) count.strength += 1;
-    if (selfStatus('隱身') || selfStatus('潛水')) count.stealth += 1;
+    if (alt === 'stealth' ? selfStatus('隱身') || selfStatus('潛水') : poisons) count.alt += 1;
     if (fx.some((e) => e.kind === 'block')) count.block += 1;
   }
-  const sorted = (Object.entries(count) as ['strength' | 'stealth' | 'block', number][]).sort((a, b) => b[1] - a[1]);
+  const sorted = ([['strength', count.strength], [alt, count.alt], ['block', count.block]] as [Exclude<DeckLeaning, 'plain'>, number][])
+    .sort((a, b) => b[1] - a[1]);
   const [top, second] = [sorted[0]!, sorted[1]!];
   if (picked.length === 0 || top[1] < 4 || top[1] < Math.ceil(picked.length / 4) || top[1] - second[1] < 2) return 'plain';
   return top[0];
@@ -1087,13 +1107,14 @@ export function deckLeaning(deckIds: readonly string[]): 'strength' | 'stealth' 
 /** 結局那五句：第二句（師父的第一句話）依牌組傾向在貼圖標題裡換；有傾向時多一句旁白講出個人化的評語；難度 4 以上再多一句旁白。 */
 export function victoryLinesFor(deckIds: readonly string[], difficulty: number, hero?: string): DialogueLine[] {
   const story = storyFor(hero);
-  const key = deckLeaning(deckIds);
+  const key = deckLeaning(deckIds, hero);
   const lines = story.victory.map((l) => ({ ...l }));
   // 師父只講大俠貼圖標題（專案規矩，tests/content/dialogue.test.ts 守著），這四句兩位主角共用
   const second = lines[1];
   if (second && second.speaker === '塔主') second.text = dialogue.masterFirstWords[key];
   // 個人化那一句插在**師父講完之後**（兩位主角的第二句都是師父，位置一樣，不用分兩種寫法）
-  if (key !== 'plain') lines.splice(2, 0, { speaker: '旁白', text: story.victoryNarration[key] });
+  const narration = key === 'plain' ? undefined : story.victoryNarration[key];
+  if (narration) lines.splice(2, 0, { speaker: '旁白', text: narration });
   if (difficulty >= 4) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
   return lines;
 }

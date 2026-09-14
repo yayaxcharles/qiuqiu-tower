@@ -107,11 +107,32 @@ describe('關主的故事線', () => {
     // 起手的「退開」也給蜷縮，但那是起手牌、不算她這一路挑的（見 deckLeaning）
     expect(deckLeaning([...FEIFEI_STARTER_DECK]), '她的起手牌組也不該被判成任何一派').toBe('plain');
     const blockDeck = [...FEIFEI_STARTER_DECK, ...Array<string>(8).fill('feifei_tieqiang')];
-    expect(deckLeaning(blockDeck)).toBe('block');
+    expect(deckLeaning(blockDeck, 'feifei')).toBe('block');
     const lean = victoryLinesFor(blockDeck, 5, 'feifei');
     expect(lean.length).toBe(base + 2);          // 個人化旁白 ＋ 難度 4 以上那句
     expect(lean[2]!.speaker).toBe('旁白');
     expect(lean[lean.length - 1]!.text).toBe(feifeiDialogue.hardModeEpilogue);
     expect(lean[lean.length - 1]!.text).not.toBe(dialogue.hardModeEpilogue);
+  });
+
+  /*
+   * 使用者 2026-09-14 裁定：她沒有隱身流，第二派換成毒流。
+   * 她拿得到的牌裡給自己隱身的是 0 張，照球球的算法那句旁白永遠不會出現。
+   */
+  it('她的第二派是毒流：下毒的牌拿得多，結局那句旁白講毒；師父沿用「深藏不露」', () => {
+    const poisonDeck = [...FEIFEI_STARTER_DECK, 'feifei_qianzhen', 'feifei_qianzhen', 'feifei_yudu', 'feifei_yudu', 'feifei_tianzhen', 'feifei_tianzhen', 'feifei_yizhen'];
+    expect(deckLeaning(poisonDeck, 'feifei')).toBe('poison');
+    const lines = victoryLinesFor(poisonDeck, 1, 'feifei');
+    expect(lines[1]!.text).toBe(dialogue.masterFirstWords.poison);
+    expect(lines[2]!.text).toBe(feifeiDialogue.victoryNarration.poison);
+    expect(feifeiDialogue.victoryNarration.stealth, '她那份不再有隱身流那句').toBeUndefined();
+  });
+
+  it('球球照舊：隱身牌多還是隱身流，毒不算一派', () => {
+    const stealthDeck = [...STARTER_DECK, ...Array<string>(6).fill('yinshen')];
+    expect(deckLeaning(stealthDeck)).toBe('stealth');
+    expect(deckLeaning(stealthDeck, 'ninja')).toBe('stealth');
+    const poisonDeck = [...STARTER_DECK, 'feifei_qianzhen', 'feifei_qianzhen', 'feifei_yudu', 'feifei_yudu', 'feifei_tianzhen', 'feifei_tianzhen'];
+    expect(deckLeaning(poisonDeck, 'ninja'), '球球不會被判成毒流').not.toBe('poison');
   });
 });

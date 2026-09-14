@@ -83,7 +83,9 @@ it.skipIf(!process.env['DUMP_FEIFEI'])('dump', () => {
   }
   p('### 通關旁白（依牌組傾向擇一）');
   p('');
-  for (const [k, v] of Object.entries(story.victoryNarration)) p(`- **${k}**：${v}`);
+  // 派別寫中文：這份是給使用者逐句檢查的，鍵名（strength、poison…）他看不懂
+  const LEANING: Record<string, string> = { strength: '爪力流', stealth: '隱身流', poison: '毒流', block: '蜷縮流' };
+  for (const [k, v] of Object.entries(story.victoryNarration)) p(`- **${LEANING[k] ?? k}**：${v}`);
   p('');
   p(`### 高難度後日談\n\n- ${story.hardModeEpilogue}`);
   p('');
