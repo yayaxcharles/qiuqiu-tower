@@ -417,8 +417,8 @@ registerScreen('combat', (app, root, props) => {
     else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
     // 同伴剛打出的牌：縮小、半透明掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15：「完全不知道隊友做了什麼」）
     // 同伴點選還沒打的那張（虛線、更淡、標「考慮中」）優先於他上一張打出的
-    const hint = mine ? undefined : mateHint.get(q.seat);
-    const hintCard = hint && hint.turn === cs.turn ? q.hand.find((c) => c.uid === hint.uid) : undefined;
+    const considering = mine ? undefined : mateHint.get(q.seat);
+    const hintCard = considering === undefined ? undefined : q.hand.find((c) => c.uid === considering);
     const mp = mine ? undefined : matePlay.get(q.seat);
     if (hintCard) {
       node.append(el('div', { class: 'mate-play hint' }, cardNode(hintCard, { small: true, hero: heroOf(q) }), el('div', { class: 'hint-tag' }, '考慮中')));
@@ -444,13 +444,25 @@ registerScreen('combat', (app, root, props) => {
    * 技能牌點下去就打出去了，由打出的那張（`matePlay`）來顯示。同一個值不重送。
    */
   let hintSent: number | null = null;
+  let hintTimer: ReturnType<typeof setTimeout> | null = null;
   const setTargeting = (t: Targeting): void => {
     targeting = t;
-    const u = t?.kind === 'card' ? t.uid : null;
-    if (session && u !== hintSent) { hintSent = u; session.hint(u); }
+    if (!session) return;
+    // 合併 120 毫秒內的變化只送最後一個值：狂點同一張牌不會變成每秒二十則（中繼免費額度是全帳號共用的；審查 中-3）
+    if (hintTimer !== null) clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => {
+      hintTimer = null;
+      const u = targeting?.kind === 'card' ? targeting.uid : null;
+      if (u !== hintSent) { hintSent = u; session.hint(u); }
+    }, 120);
   };
-  /** 同伴現在點選著哪張（他手上的牌在我這台也同步著，直接拿來畫）；打出、取消、換回合就沒了 */
-  const mateHint = new Map<number, { uid: number; turn: number }>();
+  app.disposers.push(() => { if (hintTimer !== null) clearTimeout(hintTimer); });
+  /**
+   * 同伴現在點選著哪張（他手上的牌在我這台也同步著，直接拿來畫）。
+   * 不用回合號蓋章（審查 中-1）：兩台回合推進的時間不同，蓋錯就整回合看不到；改成「那張還在他手上才畫」——
+   * 打出、棄掉、換回合牌離開手牌就自然消失，取消或打出時對方也會送 null。
+   */
+  const mateHint = new Map<number, number>();
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
   const idlePose = (): string => idlePoseKey(my(), POSE, (k) => hasHeroSprite(my().hero, k));
@@ -2452,7 +2464,7 @@ registerScreen('combat', (app, root, props) => {
     // 同伴點選了哪張：只重畫他那一格，不動整頁（跟 patchField 對同伴那格的做法一樣）
     session.onHint((seat, u) => {
       if (app.cs !== cs) return;
-      if (u === null) mateHint.delete(seat); else mateHint.set(seat, { uid: u, turn: cs.turn });
+      if (u === null) mateHint.delete(seat); else mateHint.set(seat, u);
       const q = cs.players[seat];
       const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
       if (q && node) node.replaceWith(playerUnit(q));
@@ -2466,7 +2478,7 @@ registerScreen('combat', (app, root, props) => {
       for (const mp of found) matePlay.set(mp.seat, { card: mp.card, turn: mp.turn });
       // 同一批裡先抽再打的那張快照裡沒有：與其掛著上一張騙人，不如不掛（審查 低-1）
       for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat && !found.some((m) => m.seat === a.seat)) matePlay.delete(a.seat);
-      for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat) mateHint.delete(a.seat);   // 打出來了，「考慮中」就撤
+      for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat && mateHint.get(a.seat) === a.u) mateHint.delete(a.seat);   // 打出的正是考慮中那張才撤（審查 中-2：打別張時他那邊還選著）
       /*
        * **主機自己的動作在這之前就演過了**（`submit` 是同步套用的，`act()` 裡的
        * `settle` 已經比對過前後），所以只要重畫；其餘都要演。

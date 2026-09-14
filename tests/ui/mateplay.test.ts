@@ -31,7 +31,7 @@ describe('同伴打出的牌', () => {
   });
 
   it('「考慮中」：換瞄準一律走 setTargeting（會順便送提示）、收到提示只重畫同伴那格、打出就撤', () => {
-    expect(SRC).not.toMatch(/\n\s*targeting = (?!t;)/);   // 除了 setTargeting 自己那一行，不准直接賦值
+    expect(SRC).not.toMatch(/(?<![\w.])targeting = (?!t;)/);   // 除了 setTargeting 自己那一行，不准直接賦值（行內的 `{ targeting = null; }` 也抓）
     expect(SRC).toMatch(/session\.onHint\(\(seat, u\) =>/);
     expect(SRC).toMatch(/class: 'mate-play hint'/);
     expect(SRC).toMatch(/mateHint\.delete\(a\.seat\)/);
