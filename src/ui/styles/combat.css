@@ -1282,6 +1282,7 @@
 .combat .ready-tag {
   position: absolute;
   left: 50%; top: -6px;
+  z-index: 7;   /* 要壓在同伴頭上那張半透明的牌上面：「對方在等你」一定要看得見（審查 中-5） */
   translate: -50% 0;
   padding: 3px 10px;
   border-radius: 999px;
@@ -1296,3 +1297,21 @@
   filter: saturate(1.55) brightness(1.22);
 }
 .combat .ready-tag.down { background: #3a1414dd; border-color: #ff9b9b55; }
+
+/* 同伴剛打出的牌（使用者 2026-09-15：「完全不知道隊友做了什麼」）：縮小、半透明掛在他頭上，
+   下一張打出來就換掉、換回合消失。不吃滑鼠，不擋意圖牌與「已結束回合」的牌子（那個貼在頭頂，這個再往上疊） */
+.combat .unit.player .mate-play {
+  position: absolute;
+  left: 50%; top: -24px;   /* 疊在頭頂那一帶：掛到框外會頂進狀態列、被蓋掉（實測） */
+  translate: -50% 0;
+  transform: scale(.6);
+  transform-origin: center top;
+  opacity: .65;
+  pointer-events: none;
+  z-index: 6;
+}
+.combat .unit.player .mate-play.in { animation: mate-play-in .22s ease-out; }   /* 只有新的一張才淡入 */
+@keyframes mate-play-in {
+  from { opacity: 0; translate: -50% 12px; }
+  to { opacity: .65; translate: -50% 0; }
+}
