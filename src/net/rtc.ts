@@ -38,7 +38,8 @@ function wrap(ch: RTCDataChannel, pc: RTCPeerConnection): Transport {
   let onMsg: ((m: NetMessage) => void) | null = null;
   let onClose: ((w: string) => void) | null = null;
   let closed = false;
-  const die = (why: string): void => { if (!closed) { closed = true; onClose?.(why); } };
+  // 死了就把底下的連線也關掉（總稽核 B 低-1）：不關的話 `RTCPeerConnection` 一直留著，大廳按「重來一次」會再開一個
+  const die = (why: string): void => { if (!closed) { closed = true; onClose?.(why); try { pc.close(); } catch { /* 已經關了 */ } } };
 
   ch.addEventListener('message', (e) => {
     try {
@@ -61,14 +62,48 @@ function wrap(ch: RTCDataChannel, pc: RTCPeerConnection): Transport {
   };
 }
 
-/** 通道開好之前先等一下（`open` 事件），不然第一則訊息會掉 */
-function whenOpen(ch: RTCDataChannel): Promise<void> {
-  if (ch.readyState === 'open') return Promise.resolve();
+/**
+ * 等通道開好（`open` 事件），不然第一則訊息會掉。
+ *
+ * **連不上也要有人知道**（總稽核 B 高-1）：原本只有通道丟 `error` 才會拒絕，而 ICE 談判失敗
+ * （兩邊的網路連不起來）根本不會走到通道那一層——`accept()` 的承諾永遠沒有結果，
+ * 大廳就永遠停在「正在接上…」，紅色橫幅也不出現，玩家只能自己猜該回標題。
+ * 所以這裡同時盯三件事：通道開了（成功）、連線狀態變成 failed／closed（失敗）、等太久（失敗）。
+ * `ch` 可以是還沒拿到的通道（加入的那一方要等 `datachannel` 事件），所以收 Promise。
+ */
+export function untilOpen(pc: RTCPeerConnection, ch: RTCDataChannel | Promise<RTCDataChannel>, timeoutMs: number, slowMsg: string): Promise<RTCDataChannel> {
   return new Promise((resolve, reject) => {
-    ch.addEventListener('open', () => { resolve(); }, { once: true });
-    ch.addEventListener('error', () => { reject(new Error('通道開不起來')); }, { once: true });
+    let done = false;
+    const finish = (fn: () => void): void => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      pc.removeEventListener('connectionstatechange', onState);
+      fn();
+    };
+    const onState = (): void => {
+      if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+        finish(() => reject(new Error('連不上對方（兩邊的網路接不起來）。兩邊都重新整理頁面，再重新開房一次')));
+      }
+    };
+    const timer = setTimeout(() => finish(() => reject(new Error(slowMsg))), timeoutMs);
+    pc.addEventListener('connectionstatechange', onState);
+    onState();   // 進來的時候可能已經失敗了
+    Promise.resolve(ch).then((c) => {
+      if (c.readyState === 'open') { finish(() => resolve(c)); return; }
+      c.addEventListener('open', () => finish(() => resolve(c)), { once: true });
+      c.addEventListener('error', () => finish(() => reject(new Error('通道開不起來'))), { once: true });
+    }, (e: unknown) => finish(() => reject(e instanceof Error ? e : new Error(String(e)))));
   });
 }
+
+/**
+ * 主機貼完回應碼之後，兩邊的位置都齊了，正常幾秒內就通；20 秒還沒通就是連不起來。
+ * 加入的那一方不一樣：回應碼要先用 LINE 傳回去、對方再貼，這段人手的時間沒有上限，
+ * 所以只給一個「久到不合理」的上限，真正靠的是連線狀態變 failed。
+ */
+const HOST_TIMEOUT_MS = 20_000;
+const JOIN_TIMEOUT_MS = 5 * 60_000;
 
 /** 主機：開房 → 拿到邀請碼 → 收到回應碼之後就連上了 */
 export async function hostRoom(): Promise<{ invite: string; accept: (answerCode: string) => Promise<Transport> }> {
@@ -85,7 +120,12 @@ export async function hostRoom(): Promise<{ invite: string; accept: (answerCode:
       const { kind, sdp } = await unpackSignal(answerCode);
       if (kind !== 'answer') throw new Error('這是一張邀請碼，不是回應碼——要貼的是對方傳回來的那一串');
       await pc.setRemoteDescription({ type: 'answer', sdp });
-      await whenOpen(ch);
+      try {
+        await untilOpen(pc, ch, HOST_TIMEOUT_MS, '等了 20 秒都沒接上。兩邊都重新整理頁面，再重新開房一次');
+      } catch (e) {
+        pc.close();   // 沒接上就放掉，不留一條半開的連線
+        throw e;
+      }
       return wrap(ch, pc);
     },
   };
@@ -103,6 +143,7 @@ export async function joinRoom(inviteCode: string): Promise<{ answer: string; re
   await pc.setLocalDescription(await pc.createAnswer());
   await waitForIce(pc);
   const answer = await packSignal('answer', pc.localDescription?.sdp ?? '');
-  const ready = got.then(async (ch) => { await whenOpen(ch); return wrap(ch, pc); });
+  const ready = untilOpen(pc, got, JOIN_TIMEOUT_MS, '等了五分鐘對方都沒貼回應碼。兩邊都重新整理頁面，再重新開房一次')
+    .then((ch) => wrap(ch, pc), (e: unknown) => { pc.close(); throw e; });
   return { answer, ready };
 }

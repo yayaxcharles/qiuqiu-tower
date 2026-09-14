@@ -2,7 +2,7 @@ import { victoryLinesFor, dialogue, lineFor, pick, storyFor, type DialogueLine }
 import { playSlides, slidesReady } from './slides';
 import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
 import { playVideo } from './video';
-import { preloadAct, warmEncounter } from './preload';
+import { preloadAct, preloadHeroArt, warmEncounter } from './preload';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
@@ -165,6 +165,7 @@ export class App {
     this.cs = null;
     // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
     setLocalHero(hero);
+    void preloadHeroArt([hero]);   // 這一位專屬的圖開場沒載，現在補（總稽核 F 中-1）
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     /*
      * 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白。
@@ -203,6 +204,7 @@ export class App {
     this.run = run;
     this.cs = null;
     setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
+    void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
     void preloadAct(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
@@ -253,7 +255,12 @@ export class App {
    * 而那支第一行就 `if (this.dead) return false`——畫面一動也不動，只能重新整理。
    * 當過座位 1 的更慘，`me(run, 1)` 會丟「這一局沒有第 1 個座位」。
    */
-  leaveCoop(): void { this.coop = null; this.seat = 0; }
+  leaveCoop(): void {
+    this.coop = null; this.seat = 0;
+    // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
+    // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
+    document.querySelectorAll('.net-trouble').forEach((n) => n.remove());
+  }
 
   /**
    * 節點結算完的收尾：存檔再回地圖。事件、罐頭鋪、貓窩、紙箱、戰鬥的獎勵挑完牌都走這裡，
@@ -358,7 +365,7 @@ export class App {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }
       };
-      void warmEncounter(encounterId, 1500, heroSpriteUrls()).then(proceed, proceed);
+      void warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero))).then(proceed, proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。

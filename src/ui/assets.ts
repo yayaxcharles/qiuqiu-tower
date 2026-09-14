@@ -1,4 +1,8 @@
 import { deferredBgKeys } from './bgacts';
+import { cards } from '../content/cards';
+
+/** 只有兩個人一起玩才拿得到的牌（`coop: true`）的牌面鍵：單機一輩子用不到，開場不載，進大廳才補 */
+const COOP_ONLY_ART: ReadonlySet<string> = new Set(cards.filter((c) => c.coop).map((c) => c.art));
 
 export interface Manifest {
   cards: Record<string, string>;
@@ -39,13 +43,62 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
 const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/idle', 'hero/armed']);
-export function heroSpriteUrls(): string[] {
+/**
+ * 這個鍵是哪一位角色專屬的；`null`＝共用或球球的。
+ *
+ * 菲菲的素材鍵都帶 `feifei`（`hero/feifei_*`、`card/feifei_*`、`bg/event_feifei_*`、`bg/feifei_still_*`、
+ * `icon/map_hero_feifei_*`），球球的沒有前綴——那是 main 時代留下來的命名，正好讓「只玩球球的人
+ * 開場下載的東西」跟併入她之前一模一樣（總稽核 F 中-1：原本她的 300 多張圖全部算進每個人的首載）。
+ */
+export function heroOfKey(key: string): string | null {
+  const m = /(?:^|[/_])(feifei|samurai)(?:_|$)/.exec(key);
+  return m ? m[1]! : null;
+}
+
+/** 這一局登場的角色（單機一位、連線兩位）的戰鬥姿勢圖；沒登場的那位不暖，免得跟魔物立繪搶下載（總稽核 F 中-3） */
+export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja']): string[] {
+  const want = new Set(heroes.map((h) => h ?? 'ninja'));
   // 排掉戰鬥裡永遠用不到的三張（稽核 2026-09-10 低-2）：`cover` 只有標題畫面用，
   // `idle`／`armed` 是舊素材、`combat.ts` 的註解自己寫「目前沒排到位置，留著備用」。
   // 三張共 89 KB，佔這批暖圖的一成一，卻只是擋在魔物前面。
   return Object.entries(manifest.sprites)
-    .filter(([k]) => k.startsWith('hero/') && !HERO_NOT_IN_COMBAT.has(k))
+    .filter(([k]) => k.startsWith('hero/') && !HERO_NOT_IN_COMBAT.has(k) && want.has(heroOfKey(k) ?? 'ninja'))
     .map(([, v]) => `${BASE}${v}`);
+}
+
+/**
+ * 選好角色之後才補載的那一位（連線是兩位）專屬的圖。球球沒有專屬鍵，所以他什麼都不用補。
+ * 結果圖（`_r<n>`）與二三關才會遇到的事件底圖照 `preloadArt` 同一套規矩跳過。
+ */
+/** 雙人專屬牌的牌面（球球版與菲菲版都算，兩位在連線裡都可能拿到） */
+export function coopArtUrls(): string[] {
+  return Object.entries(manifest.cards)
+    .filter(([k]) => COOP_ONLY_ART.has(k) || COOP_ONLY_ART.has(k.replace(/^card\/(?:feifei|samurai)_/, 'card/')))
+    .map(([, v]) => `${BASE}${v}`);
+}
+
+/** 這個鍵是不是雙人專屬牌的牌面（給分關載入的清單用） */
+export function isCoopOnlyArt(key: string): boolean {
+  return COOP_ONLY_ART.has(key) || COOP_ONLY_ART.has(key.replace(/^card\/(?:feifei|samurai)_/, 'card/'));
+}
+
+export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
+  const want = new Set(heroes.map((h) => h ?? 'ninja'));
+  const skip = deferredBgKeys();
+  const urls: string[] = [];
+  for (const g of ['sprites', 'icons', 'cards', 'bg'] as const) {
+    for (const [key, v] of Object.entries(manifest[g])) {
+      const who = heroOfKey(key);
+      if (!who || !want.has(who)) continue;
+      if (g === 'bg') {
+        if (/_r\d+$/.test(key) || /\/[a-z]+_still_/.test(key)) continue;   // 結果圖與幻燈片本來就是點到才載
+        if (skip.has(key) || skip.has(key.replace(`_${who}_`, '_'))) continue;   // 事件底圖照共用那張的關數分流
+      }
+      if (typeof v === 'string') urls.push(`${BASE}${v}`);
+      else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
+    }
+  }
+  return urls;
 }
 
 /*
@@ -251,6 +304,10 @@ export async function preloadArt(): Promise<void> {
     if (!group || Array.isArray(group)) continue;
     for (const [key, v] of Object.entries(group)) {
       if (g === 'bg' && skip.has(key)) continue;
+      // 角色專屬的（菲菲那 300 多張）開場不載：這時還不知道玩家要選誰，選好由 `preloadHeroArt` 補
+      if (heroOfKey(key)) continue;
+      // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
+      if (g === 'cards' && COOP_ONLY_ART.has(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
       else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
     }

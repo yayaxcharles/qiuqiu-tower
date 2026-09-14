@@ -268,7 +268,8 @@ registerScreen('shop', (app, root) => {
     coop.onRunApplied((applied) => {
       for (const one of applied) {
         if (one.a.t === 'done') done.add(one.a.seat);
-        else if (one.a.seat === seat) { play(one.a.t === 'buy' && one.a.k === 'relic' ? 'relic' : one.a.t === 'scrub' ? 'upgrade' : 'buy'); setMood('happy'); }
+        // 換忍具（`swap`，由 potionswap 送出）不是買東西，不播買賣聲（總稽核 B 低-5）
+        else if (one.a.seat === seat && one.a.t !== 'swap') { play(one.a.t === 'buy' && one.a.k === 'relic' ? 'relic' : one.a.t === 'scrub' ? 'upgrade' : 'buy'); setMood('happy'); }
       }
       if (allDone()) { app.backToMap(); return; }
       render();

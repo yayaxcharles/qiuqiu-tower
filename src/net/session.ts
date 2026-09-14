@@ -130,6 +130,10 @@ export class CoopSession {
    */
   attach(cs: CombatState | null): void {
     if (cs && cs !== this.lastCs) { this.fight += 1; this.lastCs = cs; this.held = false; }
+    // 這一場結束（`attach(null)`）也把暫停放掉（總稽核 B 中-3）：魔物回合演到一半有人倒下、
+    // 畫面被 `afterCombat` 接手時，`runEnemyTurn` 跑不到尾巴的 `release()`，會話會一直停在 held；
+    // 原本靠下一場 `attach(cs)` 順便復原，那是別支的副作用，不可靠
+    if (!cs) this.held = false;
     this.cs = cs;
     this.drain();
   }

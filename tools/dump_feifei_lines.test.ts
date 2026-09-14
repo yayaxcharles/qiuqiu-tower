@@ -1,6 +1,6 @@
 import { it } from 'vitest';
 import { writeFileSync } from 'node:fs';
-import { dialogue, eventTextFor, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES, FEIFEI_EVENT_LINES } from '../src/content/dialogue';
+import { castLineFor, dialogue, eventTextFor, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES, FEIFEI_EVENT_LINES } from '../src/content/dialogue';
 import { events } from '../src/content/events';
 import { enemyById } from '../src/content/enemies';
 
@@ -146,8 +146,9 @@ it.skipIf(!process.env['DUMP_FEIFEI'])('dump', () => {
       const raw = typeof l === 'string' ? l : (l.text ?? '');
       const who = typeof l === 'string' ? bare : (l.speaker ?? bare);
       if (!raw) return;
-      // 只有球球那邊的句子才會被換；旁白、魔物、師父、老闆的台詞原樣顯示
-      if (who !== '球球') { rows.push(`- **${who}**：${raw}`); return; }
+      // 球球那邊的句子走 `lineFor`；塔主、旁白那批走畫面真正用的 `castLineFor`（總稽核 C 低-7：
+      // 原本原樣印出，文件看起來像還沒改，其實遊戲早就換成「小姑娘」「收拾她」了）
+      if (who !== '球球') { rows.push(`- **${who}**：${castLineFor('feifei', raw)}`); return; }
       const shown = lineFor('feifei', raw);
       rows.push(`- ${shown}${tag(FEIFEI_BOSS_LINES[raw] !== undefined)}`);
     });

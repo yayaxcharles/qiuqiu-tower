@@ -1,7 +1,7 @@
 import { encounterById, encounters, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, hasMonsterPose, monsterUrl, warmed, type MonsterPose } from './assets';
+import { artUrl, coopArtUrls, hasMonsterPose, heroArtUrls, localHero, monsterUrl, warmed, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 
 /**
@@ -124,7 +124,23 @@ export function preloadAct(act: number): Promise<void> {
  */
 export function warmSlides(act: number): void {
   const i = Math.min(Math.max(act, 1), 3) - 1;
-  void decodeAll(SLIDES_BY_ACT[i]!.map((k) => artUrl('bg', k)), 3, false);
+  // 幻燈片照角色換前綴（跟 `storyslides.ts` 的 `stillKey` 同一條）：菲菲的是 `bg/feifei_still_*`
+  const mine = (k: string): string => (localHero() === 'feifei' ? k.replace('bg/still_', 'bg/feifei_still_') : k);
+  void decodeAll(SLIDES_BY_ACT[i]!.map((k) => artUrl('bg', mine(k))), 3, false);
+}
+
+/**
+ * 選好角色之後補載這一位（連線是兩位）專屬的圖（總稽核 F 中-1）。
+ * 開場的 `preloadArt` 不載任何角色專屬的鍵——那時還不知道玩家要選誰；
+ * 球球沒有專屬鍵，他的東西本來就在開場那批裡，所以只玩球球的人下載量跟以前一樣。
+ */
+export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise<void> {
+  return decodeAll(heroArtUrls(heroes), 6, false);
+}
+
+/** 進大廳才補雙人專屬牌的牌面（開場不載，見 `preloadArt`） */
+export function preloadCoopArt(): Promise<void> {
+  return decodeAll(coopArtUrls(), 6, false);
 }
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */

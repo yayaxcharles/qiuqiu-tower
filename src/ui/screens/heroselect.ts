@@ -73,7 +73,7 @@ registerScreen('heroselect', (app, root, props) => {
         el('div', { class: 'hero-kit-row' }, el('b', {}, '起手十張'), el('span', {}, deckLine(chosen))),
         el('div', { class: 'hero-kit-row' }, el('b', {}, '起始秘寶'),
           el('span', {}, relic ? `${relic.name}：${relic.text}` : '—')),
-        keyCard ? el('div', { class: 'hero-kit-row' }, el('b', {}, `代表牌「${keyCard.name}」`),
+        keyCard ? el('div', { class: 'hero-kit-row' }, el('b', {}, `代表牌「${cardNameFor(keyCard, chosen)}」`),   // 牌名一律過 cardNameFor（總稽核 C 低-6）
           el('span', {}, describeCard(keyCard, false))) : ''));
     for (const node of cards.children) {
       node.classList.toggle('selected', node.getAttribute('data-hero') === chosen);

@@ -49,6 +49,17 @@ describe('菲菲的牌面圖', () => {
     expect(own.length, '倒退了——是不是有圖被刪掉或改名？').toBeGreaterThanOrEqual(FLOOR);
   });
 
+  /*
+   * 她拿不到的牌（`hero: 'ninja'`）不該留她的專屬圖（總稽核 2026-09-14 E2 低-3）：
+   * 鐵頭功、地裂陣、沾衣十八跌 9/14 收回球球專屬之後，五張 `card/feifei_*` 變成玩家永遠看不到的死素材，
+   * 照樣進倉、照樣被下載。牌收回去的時候圖要跟著清。
+   */
+  it('她拿不到的牌沒有留她的專屬圖', () => {
+    const notHers = new Set(cards.filter((c) => c.hero && c.hero !== 'feifei').map((c) => c.art.replace(/^card\//, '')));
+    const orphans = Object.keys(manifest.cards).filter((k) => k.startsWith('card/feifei_') && notHers.has(k.slice('card/feifei_'.length)));
+    expect(orphans, '這幾張的牌她拿不到，圖該從 manifest 與 public 清掉').toEqual([]);
+  });
+
   it('球球看到的還是原本那張', () => {
     setLocalHero('ninja');
     for (const c of cards.slice(0, 40)) expect(cardArtKey(c.art)).toBe(c.art);

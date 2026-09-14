@@ -11,6 +11,7 @@ import { seedTag } from '../hud';
 import { sceneView } from '../scene';
 import { attachTextTooltip } from '../tooltip';
 import { me } from '../../engine/runplayer';
+import { heroName } from '../../engine/hero';
 
 registerScreen('result', (app, root) => {
   // 進畫面就放對應的收尾音；這時候玩家一定已經點過東西，音訊環境是解鎖的
@@ -62,7 +63,7 @@ registerScreen('result', (app, root) => {
   root.append(sceneView({
     portrait: hero.startsWith('data:') ? undefined : hero,
     speaker: won ? '通關' : '任務失敗',
-    text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : '球球倒下了。'),
+    text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : `${heroName(me(run, seat))}倒下了。`),   // 備援也要照角色（總稽核 C 低-5）
     extra: [
       el('div', { class: 'result-stats' },
         `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${me(run, seat).deck.length} 張`),

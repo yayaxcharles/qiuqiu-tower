@@ -50,6 +50,13 @@ registerScreen('reward', (app, root, props) => {
   const bonus = r.bonusFish ?? 0;
   const ups = r.bonusUpgrades ?? 0;
   /*
+   * 兩個人的秘寶（規則三，使用者 2026-09-11：「秘寶則是出現 2 個，跟選路線一樣讓兩個人選，
+   * 都選同一個就隨機給一個人，剩下的秘寶就給另一位」）。
+   * 宣告在連線回呼之前（總稽核 B 低-3）：回呼裡的 `settleRelics` 讀它，宣告擺在後面、
+   * 信物那段早退又跑到的話，回呼一被叫就是暫時性死區的 ReferenceError。
+   */
+  const offers = r.relicOffers ?? [];
+  /*
    * **連線的回呼要掛在下面那個早退之前**（紙箱與過關畫面踩過同一個坑）。
    * 信物那一段掛完畫面就 `return`，註冊擺在後面就跑不到，
    * 那期間對方挑好了自己這邊完全不會動。
@@ -256,13 +263,9 @@ registerScreen('reward', (app, root, props) => {
     el('span', { class: 'reward-line' },
       el('b', {}, `獲得秘寶「${relic.name}」`), el('em', {}, relic.text))));
   /*
-   * 兩個人的秘寶（規則三，使用者 2026-09-11：「秘寶則是出現 2 個，跟選路線一樣讓兩個人選，
-   * 都選同一個就隨機給一個人，剩下的秘寶就給另一位」）。
-   *
-   * 排在戰利品清單裡而不是另開一頁：它跟小魚乾、忍具是同一批東西，
-   * 分兩頁會讓「這一場拿到什麼」被切成兩半。
+   * 兩個人的秘寶排在戰利品清單裡而不是另開一頁：它跟小魚乾、忍具是同一批東西，
+   * 分兩頁會讓「這一場拿到什麼」被切成兩半。（`offers` 宣告在上面，連線回呼之前）
    */
-  const offers = r.relicOffers ?? [];
   if (offers.length && app.coop) {
     const coop = app.coop;
     const picks = coop.picks('relic', run.players.length);

@@ -6,6 +6,7 @@ import { beginCombat, newCoopRun } from '../../engine/run';
 import type { App } from '../app';
 import type { Transport } from '../../net/transport';
 import { setLocalHero } from '../assets';
+import { preloadCoopArt, preloadHeroArt } from '../preload';
 import { me } from '../../engine/runplayer';
 import { heroName, type Hero } from '../../engine/hero';
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
@@ -89,6 +90,8 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
     const h = (i: number): Hero => (heroes?.[i] === 'feifei' ? 'feifei' : 'ninja');
     app.run = newCoopRun(seed, diff, h(0), h(1));
     setLocalHero(me(app.run, seat).hero);
+    void preloadHeroArt(app.run.players.map((p) => p.hero));   // 兩位的專屬圖開場都沒載（同伴的立繪戰鬥裡看得到）
+    void preloadCoopArt();   // 雙人專屬牌的牌面也是進大廳才補
     session.useRun(app.run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
     app.show('map');

@@ -1,0 +1,116 @@
+{
+ "fresh": {
+  "ok": true,
+  "version": 2,
+  "act": 1,
+  "floor": 0,
+  "node": null,
+  "difficulty": 2,
+  "players": 1,
+  "hp": "76/76",
+  "fish": 50,
+  "deck": 10,
+  "relics": [
+   "blue_headband"
+  ],
+  "potions": [],
+  "trail": 0,
+  "flags": [],
+  "v1": {
+   "hp": 76,
+   "fish": 50,
+   "deck": 10,
+   "relics": [
+    "blue_headband"
+   ],
+   "potions": []
+  }
+ },
+ "mid": {
+  "ok": true,
+  "version": 2,
+  "act": 1,
+  "floor": 1,
+  "node": "f1-l0",
+  "difficulty": 3,
+  "players": 1,
+  "hp": "41/76",
+  "fish": 123,
+  "deck": 12,
+  "relics": [
+   "blue_headband"
+  ],
+  "potions": [
+   "smoke_bomb"
+  ],
+  "trail": 1,
+  "flags": [],
+  "v1": {
+   "hp": 41,
+   "fish": 123,
+   "deck": 12,
+   "relics": [
+    "blue_headband"
+   ],
+   "potions": [
+    "smoke_bomb"
+   ]
+  }
+ },
+ "act2": {
+  "ok": true,
+  "version": 2,
+  "act": 2,
+  "floor": 15,
+  "node": null,
+  "difficulty": 1,
+  "players": 1,
+  "hp": "76/76",
+  "fish": 50,
+  "deck": 10,
+  "relics": [
+   "blue_headband"
+  ],
+  "potions": [],
+  "trail": 0,
+  "flags": [],
+  "v1": {
+   "hp": 76,
+   "fish": 50,
+   "deck": 10,
+   "relics": [
+    "blue_headband"
+   ],
+   "potions": []
+  }
+ },
+ "samurai": {
+  "ok": true,
+  "version": 2,
+  "act": 1,
+  "floor": 0,
+  "node": null,
+  "difficulty": 1,
+  "players": 1,
+  "hero": "samurai",
+  "hp": "76/76",
+  "fish": 50,
+  "deck": 10,
+  "relics": [
+   "blue_headband"
+  ],
+  "potions": [],
+  "trail": 0,
+  "flags": [],
+  "v1": {
+   "hp": 76,
+   "fish": 50,
+   "deck": 10,
+   "hero": "samurai",
+   "relics": [
+    "blue_headband"
+   ],
+   "potions": []
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "d1": {
+  "won": 18,
+  "act2": 155,
+  "act3": 68,
+  "avgFloor": 24.64,
+  "avgDeck": 21.69,
+  "died": {
+   "orange_king": 31,
+   "nekomata": 29,
+   "frog_daimyo": 20,
+   "armadillo_king": 20,
+   "iron_claw": 19,
+   "hex_abbot": 16,
+   "dragon_cat": 11,
+   "tower_master": 11,
+   "persian_lady": 11,
+   "tanuki_lord": 10,
+   "cowcat_boss": 9,
+   "vacuum_claw": 6
+  },
+  "bosses": {
+   "iron_claw": "39/58",
+   "nekomata": "23/52",
+   "tanuki_lord": "11/21",
+   "frog_daimyo": "36/56",
+   "hex_abbot": "13/29",
+   "orange_king": "33/64",
+   "armadillo_king": "24/44",
+   "dragon_cat": "26/37",
+   "tower_master": "18/29",
+   "persian_lady": "10/21",
+   "cowcat_boss": "8/17"
+  },
+  "first10": [
+   "L15:iron_claw",
+   "L13:vacuum_claw",
+   "L15:nekomata",
+   "L30:tanuki_lord",
+   "L15:frog_daimyo",
+   "L30:hex_abbot",
+   "L15:iron_claw",
+   "L12:ninja_can",
+   "L30:tanuki_lord",
+   "L30:hex_abbot"
+  ]
+ },
+ "d3": {
+  "won": 8,
+  "act2": 90,
+  "act3": 35,
+  "avgFloor": 18.99,
+  "avgDeck": 19.08,
+  "died": {
+   "frog_daimyo": 33,
+   "nekomata": 28,
+   "iron_claw": 26,
+   "armadillo_king": 23,
+   "orange_king": 22,
+   "white_duelist": 11,
+   "wild_boar": 11,
+   "vacuum_claw": 9,
+   "persian_lady": 8,
+   "black_ninja_duo": 8,
+   "cowcat_boss": 6,
+   "tower_master": 6
+  },
+  "bosses": {
+   "orange_king": "16/38",
+   "cowcat_boss": "8/14",
+   "frog_daimyo": "17/50",
+   "armadillo_king": "22/45",
+   "iron_claw": "22/48",
+   "nekomata": "13/41",
+   "tanuki_lord": "4/10",
+   "persian_lady": "6/14",
+   "tower_master": "8/14",
+   "dragon_cat": "8/13",
+   "hex_abbot": "9/14"
+  },
+  "first10": [
+   "L30:cowcat_boss",
+   "L15:frog_daimyo",
+   "L15:armadillo_king",
+   "L42:tengu_priest",
+   "L15:armadillo_king",
+   "L37:white_duelist_a3",
+   "L15:iron_claw",
+   "L15:armadillo_king",
+   "L15:nekomata",
+   "L15:armadillo_king"
+  ]
+ }
+}

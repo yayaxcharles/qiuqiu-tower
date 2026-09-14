@@ -75,8 +75,9 @@ registerScreen('rest', (app, root) => {
     }
     root.append(sceneView({ art, portrait: heroPortrait(me(run, seat).hero), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
     toast(line, heroSpeaker());
-    // 連線版：兩個人都做完才走，先做完的那位在這裡等（由 onRunApplied 接手）
-    if (coop) { if (allDone()) window.setTimeout(() => app.backToMap(), card ? 1500 : 900); return; }
+    // 連線版：兩個人都做完才走，先做完的那位在這裡等。**回地圖一律由 onRunApplied 那一邊排**（總稽核 B 中-2）：
+    // 主機的動作是同步套用的，這支本來就是從 onRunApplied 裡被叫到的，這裡再排一次就是兩個計時器、地圖畫兩次
+    if (coop) return;
     // 換畫面就撤掉（夜間審查 低-7）：除錯模式在這 0.9 秒內按 Esc 回除錯頁，計時器照樣響會把人踢回標題
     const back = window.setTimeout(() => app.backToMap(), card ? 1500 : 900);
     app.disposers.push(() => window.clearTimeout(back));
@@ -237,8 +238,14 @@ registerScreen('rest', (app, root) => {
        * 那一刻 `used` 還是 false，於是又 `show()` 一次，畫面上疊出兩份狀態列與兩份對白框。
        * 改看「這一批裡有沒有我做的事」，那是當下就確定的事實。
        */
-      if (didMine) { if (allDone()) window.setTimeout(() => app.backToMap(), 700); return; }
-      if (allDone()) { window.setTimeout(() => app.backToMap(), 700); return; }
+      // 兩個人都做完就回地圖；跟單機那條一樣換畫面就撤掉（總稽核 B 中-2）。
+      // 磨過牌的多停一下（900／1500 毫秒），讓那張牌的特效先播完，跟單機同一個節奏
+      if (allDone()) {
+        const back = window.setTimeout(() => app.backToMap(), didMine ? 900 : 700);
+        app.disposers.push(() => window.clearTimeout(back));
+        return;
+      }
+      if (didMine) return;
       show();   // 還沒做的那位：對方扶了誰、按鈕要跟著變
     });
   }

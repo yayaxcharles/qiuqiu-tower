@@ -50,4 +50,19 @@ describe('引擎純不純（連線版的地基）', () => {
   it('這條測試本身有在看東西（掃到的檔案數要合理）', () => {
     expect(engineFiles().length, '路徑寫錯會掃到空目錄然後永遠綠').toBeGreaterThan(10);
   });
+
+  /*
+   * 連線層裡「兩台各算一次、答案要一樣」的那幾支也不准有亂數與時間（總稽核 2026-09-14 A 低-4）。
+   * `rtc.ts`（等 ICE 用計時器）、`code.ts`（壓縮）、`session.ts`（補跑用下一拍）是傳輸與排程，
+   * 本來就不參與算答案，不在此列。
+   */
+  it('連線層算答案的那幾支也沒有亂數與時間', () => {
+    const NET_DIR = join(__dirname, '../src/net');
+    const bad: string[] = [];
+    for (const f of ['hash.ts', 'lockstep.ts', 'action.ts', 'runaction.ts']) {
+      const code = readFileSync(join(NET_DIR, f), 'utf-8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+      for (const pat of ['Math.random', 'Date.now', 'new Date', 'performance.now']) if (code.includes(pat)) bad.push(`${f}：${pat}`);
+    }
+    expect(bad).toEqual([]);
+  });
 });

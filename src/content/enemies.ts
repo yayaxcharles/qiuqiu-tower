@@ -87,7 +87,7 @@ export const enemies: EnemyDef[] = [
   // 招式走堂堂正正的劍客路線：起手亮劍（蓄力）、正面重斬，跟忍者的隱身流分開。
   // 2026-09-04 使用者：「白貓超弱、血少攻低技能爛」→ 血量與招式全面加重，並帶一個陪練的同伴
   { id: 'white_duelist', name: '切磋的白貓', hp: [66, 72], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_white_duelist',
-    line: '打一場。全力來。', lines: ['點到為止？不，全力。', '讓我看看你的爪子。'],
+    line: '打一場。全力來。', lines: ['點到為止？不，全力。', '讓我看看你有幾分本事。'],   // 原本「讓我看看你的爪子」，菲菲不亮爪（總稽核 C 中-3）；開場台詞進的是戰報，沒過 castLineFor，改成兩位都通的
     moves: [
       { intent: 'special', label: '亮劍', effects: [{ kind: 'chargeNext' }] },
       { intent: 'attack', label: '正面斬', effects: [{ kind: 'damage', amount: 13 }] },
