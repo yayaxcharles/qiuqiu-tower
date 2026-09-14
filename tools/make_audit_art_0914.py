@@ -11,6 +11,7 @@
 | c | card_mabu、card_feifei_mabu | 「絕學·貓步」還是馬步蹲姿（牌 9/14 改名時圖沒跟著換） | 大物件與動作兩行都換成輕快的貓步 |
 | c | card_feifei_fanzhua | 「反彈」畫成揮舞爪刃（她只用針） | 換成周身針刺、來拳被彈開 |
 | d | 8 隻魔物的 `_attack` | 攻擊姿勢跟自己的待機判若兩物（帽子、配色、機身全變） | 附待機圖當參考、明講「同一隻、只有姿勢不同」 |
+| e | d 批的老鼠、貓草蟲、傀儡師 | 畫成橫向撲出，進倉後比待機矮 12～16%，遊戲裡一出招就變小（使用者深夜回報） | 提示詞明講「至少跟參考圖一樣高、直立出招」；`add_sprite.py` 矮過九成會擋 |
 
 魔物那批的根因跟防禦姿勢那批（`build_block_queue.py`）一樣：沒附參考圖，每張長相都自己長。
 這裡照它的做法：待機圖鋪白底存到 `tools/ref/monster_refs/<id>.png` 當參考，提示詞寫「跟參考圖同一隻」。
@@ -22,6 +23,8 @@
   python tools/make_audit_art_0914.py b && …
   python tools/make_audit_art_0914.py c && … → add_card_art.py（feifei_mabu 用 --top，直立全身像）
   python tools/make_audit_art_0914.py d && … → add_sprite.py --group monsters monster_<id>_attack.png …
+  python tools/make_audit_art_0914.py e && python tools/codex_gen.py tools/codex_jobs/audit_art_0914_e.json
+    → add_sprite.py --group monsters monster_rat_attack.png monster_catgrass_bug_attack.png monster_puppeteer_attack.png（矮過九成會被擋）
 舊原稿一律先改名 `.previous-20260914c.png`（codex_gen 看到檔案在就跳過、還印成功）。
 """
 import json
@@ -179,18 +182,49 @@ elif batch == 'c':
         t = swap(t, 'Output 1024x820 PNG.', NO_PANEL + 'Output 1024x820 PNG.', fid)
     jobs[fid] = {'prompt': t, 'ref': FF_SHEET}
 
-elif batch == 'd':
+elif batch in ('d', 'e'):
     MONSTER_REFS.mkdir(parents=True, exist_ok=True)
-    ATTACKS = {
-        'catgrass_bug': 'lunging forward with its jaws wide open to BITE, body stretched toward the left, its leaf-blades raised',
-        'hibernating_bear': 'rearing up and swinging one huge paw down in a heavy SLAP, mouth open in a roar, its hat and scarf flying back',
-        'rat': 'springing forward to GNAW, front teeth bared, little paws thrust out, its paper hat still on its head',
-        'roomba_king': 'charging forward with its spinning brushes whirling into a blur, crown tilted, eyes fierce',
-        'stone_lion': 'rearing back on its hind legs and slamming one heavy stone forepaw down toward the left, mouth open in a roar, a few stone chips flying',
-        'tadpole': 'lunging forward to BITE with its mouth open and its tail whipping up behind it, its little hat still on',
-        'vacuum': 'ramming forward nozzle-first with a burst of motion lines, its hose swung up like a blade',
-        'puppeteer': 'thrusting a long needle forward with one hand while the other hand jerks the puppet strings taut, robe swirling',
-    }
+    if batch == 'd':
+        ATTACKS = {
+            'catgrass_bug': 'lunging forward with its jaws wide open to BITE, body stretched toward the left, its leaf-blades raised',
+            'hibernating_bear': 'rearing up and swinging one huge paw down in a heavy SLAP, mouth open in a roar, its hat and scarf flying back',
+            'rat': 'springing forward to GNAW, front teeth bared, little paws thrust out, its paper hat still on its head',
+            'roomba_king': 'charging forward with its spinning brushes whirling into a blur, crown tilted, eyes fierce',
+            'stone_lion': 'rearing back on its hind legs and slamming one heavy stone forepaw down toward the left, mouth open in a roar, a few stone chips flying',
+            'tadpole': 'lunging forward to BITE with its mouth open and its tail whipping up behind it, its little hat still on',
+            'vacuum': 'ramming forward nozzle-first with a burst of motion lines, its hose swung up like a blade',
+            'puppeteer': 'thrusting a long needle forward with one hand while the other hand jerks the puppet strings taut, robe swirling',
+        }
+        HEIGHT = 'Fill the frame vertically.\n'
+        KEEP = ('Keep the same overall orientation and proportions as the reference: if the creature lies down, sprawls, or '
+                'is wider than it is tall in the reference, keep it exactly that way - do NOT stand it up and do NOT make it '
+                'shorter. ')
+    else:
+        # e（2026-09-14 深夜，使用者：「有些怪物攻擊時的動作變得比待機小」）：d 批這三張畫成**橫向撲出**
+        #（老鼠伏低刺矛、貓草蟲趴平張口、傀儡師針伸長），主體比寬還高不了，add_sprite 塞進待機的畫布
+        # 只能整隻縮小——遊戲裡一出招就矮一截（老鼠 84%、傀儡師 86%、貓草蟲 88%）。
+        # 修法在**姿勢**：出招改成直立、後仰、抬高，提示詞明講「至少跟參考圖一樣高」。
+        # 其他五隻（熊、掃地機、石獅、蝌蚪、吸塵器）都在 97%～101%，不動。
+        ATTACKS = {
+            'rat': 'rearing up TALL on its hind legs to its full height, body upright and stretched upward, both little '
+                   'paws thrusting its wooden spear forward at the enemy, front teeth bared, its paper hat still on its '
+                   'head; the figure is clearly taller than it is wide',
+            'catgrass_bug': 'rearing the front third of its grassy body UP high, jaws wide open to BITE, the rest of its '
+                            'body still stretched along the ground exactly as long as in the reference; it must stand as '
+                            'tall as the reference or taller, never flatter',
+            'puppeteer': 'standing TALL and upright at full height, one hand raised high above its head yanking the puppet '
+                         'strings taut, the other hand thrusting a long needle forward at chest height, robe swirling; the '
+                         'wooden puppet dangles beside it; the figure is clearly taller than it is wide',
+        }
+        HEIGHT = ('Fill the frame from the very top to the very bottom: the creature must be AT LEAST AS TALL as in the '
+                  'reference image, with its head at the same height or higher and its body the same size. Show the attack '
+                  'with an upright, rearing or stepping pose - NOT by stretching the body sideways, leaning far forward or '
+                  'crouching lower. A wide, flat pose gets shrunk to fit in the game and the monster looks smaller the '
+                  'moment it attacks; that is wrong.\n')
+        # d 批那句「比高還寬的就照樣趴著、不要立起來」跟上面打架（審查 中-1）：e 批只保留體型，姿勢要立起來
+        KEEP = ("Keep the creature's body size and proportions as in the reference (a creature that is wider than it is "
+                'tall stays that shape), but show the attack by rearing up or standing tall - never lower or flatter than '
+                'the reference. ')
     for mid, desc in ATTACKS.items():
         idle = ROOT / 'public' / 'assets' / 'monsters' / f'{mid}_idle.webp'
         if not idle.exists():
@@ -210,10 +244,8 @@ elif batch == 'd':
             f'Pose: ATTACKING - {desc}. The attack must read at a glance (strong forward motion, a few short solid '
             'motion lines), but keep the design identical to the reference.\n\n'
             'It stands on the ground with its feet at the very bottom edge of the picture - do not draw it floating. '
-            'Full body, facing LEFT. Fill the frame vertically.\n'
-            'Keep the same overall orientation and proportions as the reference: if the creature lies down, sprawls, or '
-            'is wider than it is tall in the reference, keep it exactly that way - do NOT stand it up and do NOT make it '
-            'shorter. Only ONE creature in the picture.\n'
+            'Full body, facing LEFT. ' + HEIGHT + KEEP +
+            'Only ONE creature in the picture.\n'
             'Draw everything SOLID and OPAQUE - flat filled colour with soft shading. Nothing transparent or see-through.\n'
             'Nothing else in the picture: no ground line, no shadow, no scenery, no text, no letters, no watermark, no border.\n'
             'Style: thick black outlines, flat colors with subtle soft gradients, cute cartoon look, not photorealistic.\n'
@@ -221,7 +253,7 @@ elif batch == 'd':
             f'Output 1024x1024 PNG. Save the image as {fid} in the current directory and report the path.'),
             'ref': ref.relative_to(ROOT).as_posix()}
 else:
-    raise SystemExit('要指定批次：a（事件開場與結果）、b（村貓回禮結果，等 a 進倉）、c（牌面）、d（魔物攻擊）')
+    raise SystemExit('要指定批次：a（事件開場與結果）、b（村貓回禮結果，等 a 進倉）、c（牌面）、d（魔物攻擊）、e（d 批畫矮的三張重生）')
 
 # ======================= 自檢：一律 SystemExit =======================
 for fid, job in jobs.items():

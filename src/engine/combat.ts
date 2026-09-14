@@ -475,8 +475,20 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   if (p.echoFirst && p.cardsPlayedThisTurn === 1
       && !st.effects.some((e) => e.kind === 'echoFirst')
       && cs.phase === 'player' && !cs.pending) {
-    log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次`);
-    applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
+    /*
+     * **可以疊**（使用者 2026-09-14 深夜裁定）：掛幾張就多打幾次，兩張＝第一張牌打三次。
+     * 原本這裡只看「有沒有」、永遠只重播一次，第二張等於白花 3 費，狀態列也只寫一層。
+     * 每重播一次都再看一次 phase 與 pending：第一次重播就把最後一隻打倒的話，後面不能再打。
+     */
+    const times = p.echoFirst;   // 先存起來：上限不能是活的，哪天有效果在重播中加到 echoFirst 就會跑不完（審查 低-2）
+    let i = 0;
+    for (; i < times && cs.phase === 'player' && !cs.pending; i++) {
+      log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次${times > 1 ? `（${i + 1}／${times}）` : ''}`);
+      applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
+    }
+    // 重播途中開了選牌選單（告退、拖字訣、讀心術在手牌空著時原打不問、重播才問）就停在這裡，
+    // 剩下的不補跑——但要說出來，不然紀錄印了 1／2 之後永遠等不到 2／2（審查 低-1）
+    if (i < times && cs.pending) log(cs, `影子分身：這張牌要選牌，剩下 ${times - i} 次不再重播`);
   }
   /*
    * **監聽排在影子分身重播之後**（2026-09-13 稽核 中-4）。

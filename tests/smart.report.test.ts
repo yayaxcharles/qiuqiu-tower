@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { smartRun, type SmartStats } from '../src/engine/smartbot';
+import { HEROES, type Hero } from '../src/engine/hero';
 
 /**
  * 會算傷害的機器人的平衡報告。
@@ -14,6 +15,9 @@ const N = Number(env['SMART_N'] ?? 12);
 const DIFF = Number(env['SMART_DIFF'] ?? 1);
 /** 換一批種子驗證同樣的數字站不站得住：`SMART_SEED=smartB`（預設 smart） */
 const SEED = env['SMART_SEED'] ?? 'smart';
+/** 量哪個角色：`SMART_HERO=feifei`（預設 ninja＝球球）。跟球球對照時兩邊用同一組種子 */
+const HERO = (env['SMART_HERO'] ?? 'ninja') as Hero;
+if (!HEROES.includes(HERO)) throw new Error(`SMART_HERO=${HERO} 不是角色（${HEROES.join('／')}）`);
 
 function report(rs: SmartStats[]): string[] {
   const n = rs.length;
@@ -60,9 +64,9 @@ function report(rs: SmartStats[]): string[] {
 }
 
 describe('會算傷害的機器人', () => {
-  it(`${N} 局統計（難度 ${DIFF}）`, () => {
+  it(`${N} 局統計（難度 ${DIFF}、${HERO}）`, () => {
     const rs: SmartStats[] = [];
-    for (let i = 0; i < N; i++) rs.push(smartRun(`${SEED}-${i}`, DIFF));
+    for (let i = 0; i < N; i++) rs.push(smartRun(`${SEED}-${i}`, DIFF, HERO));
     console.log(report(rs).join('\n'));
     expect(rs.length).toBe(N);
   }, 600_000);

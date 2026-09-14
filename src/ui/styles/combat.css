@@ -644,6 +644,20 @@
   transition: translate 320ms cubic-bezier(.3, .8, .4, 1), opacity 320ms ease-out;
 }
 
+/*
+ * 虛化的魔物本體半透明（使用者 2026-09-14 深夜：「第三層有虛化的怪物不明顯，要讓玩家知道它們只會扣一滴血」）。
+ * 只動 `opacity`，不用 filter：受擊的紅閃（`.unit.hit .sprite`）是用 filter 寫的，這條選擇器更長會把它蓋掉。
+ * 淡進去有 0.3 秒過渡；類別拿掉（實體化）時規則整個消失、立繪**立刻**變回實心——那一拍就是輸出窗口，要看得到。
+ */
+.combat .unit.enemy.phased .sprite {
+  opacity: .42;
+  transition: opacity 300ms ease-out;
+}
+.combat .unit.enemy.phased .ground-shadow {
+  opacity: .3;
+  transition: opacity 300ms ease-out;
+}
+
 /* ===== 動畫 ===== */
 /* 挨重擊時整個戰場震一下（只在 .combat 上，舞台身上有 scale 不能碰） */
 .combat.shaken { animation: screen-shake .3s ease-out; }

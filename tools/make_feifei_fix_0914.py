@@ -399,6 +399,9 @@ def main() -> None:
         key = f"card_feifei_{cid}.png"
         t = job("feifei_shared_cards.json", key)["prompt"]
         for old, new in fixes:
+            # 2026-09-14 晚已回寫進 make_feifei_shared_card_jobs.SCENE_FIX：來源工單重跑出來就是修好的，直接放行
+            if old not in t and new in t:
+                continue
             t = swap(t, old, new, key)
         jobs[key] = {"prompt": t, "ref": SHEET_REF}
 

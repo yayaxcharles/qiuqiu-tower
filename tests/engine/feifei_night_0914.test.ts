@@ -48,10 +48,13 @@ describe('中-12：累加型的能力牌打第二張，狀態列要數得出兩�
     expect(passives('feifei_juma')).toBe(2);
     expect(passives('feifei_qianzhen')).toBe(2);
   });
-  it('效果只有一份的打兩張還是一個：你忙我補位（指派型）、影子分身（引擎只看有沒有，第一張牌只重播一次）', () => {
+  it('效果只有一份的打兩張還是一個：你忙我補位（指派型）', () => {
     expect(passives('nimangwobuwei')).toBe(1);
-    // 審查抓到：第一版把影子分身也當成累加型，牌子寫 2、實際效果跟一張一樣
-    expect(passives('feifei_yingzi')).toBe(1);
+  });
+
+  it('影子分身改成可以疊（使用者 2026-09-14 深夜裁定）：牌子寫 2，引擎也真的重播兩次（見 echofirst.test.ts）', () => {
+    // 夜間審查那版把它當成「只有一份」去重成一筆；現在 combat.ts 照計數重播，兩張＝第一張牌打三次，牌子寫 2 才是真的
+    expect(passives('feifei_yingzi')).toBe(2);
   });
 });
 
