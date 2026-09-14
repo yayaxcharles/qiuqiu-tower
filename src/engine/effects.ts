@@ -186,7 +186,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'blockAll': {
       // **每一位都要照自己的貓步算**，所以一個一個走 `gainBlock`，不是算一次再發下去
-      for (const q of cs.players) if (!q.down) gainBlock(cs, q, fx.amount);
+      for (const q of cs.players) if (!q.down && q !== p) gainBlock(cs, q, fx.amount);
+      // 自己那份併進池子一起發：`flushSelfBlock` 看到後面有 blockAll 會把前面的 block 先留著，
+      // 這裡不進池子的話那份就永遠發不出去（審查 2026-09-15 引擎 低-9；今天沒有牌這樣排，先把洞補上）
+      ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount;
+      flushSelfBlock(cs, p, ctx, queue);
       if (cs.players.length > 1) log(cs, '蜷縮分了對方一半');
       return false;
     }

@@ -136,7 +136,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       + '（自己一個人時改成看自己出牌）';
     case 'watchSelfPlay': return `之後每一輪，自己第一次打出${fx.cardType === 'any' ? '牌' : '攻擊牌'}時，同伴獲得 6 點蜷縮`
       + '（自己一個人時算在自己身上）';
-    case 'watchPoisonHit': return `之後每一輪一次，${fx.who === 'both' ? '任一方' : '同伴'}的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮`
+    case 'watchPoisonHit': return `之後每一輪一次，${fx.who === 'both' ? '任一方打中' : '同伴的攻擊打中'}原本就中毒的魔物時，兩個人各獲得 4 點蜷縮`   // 升級版技能傷害也算，所以不寫「攻擊」（審查 2026-09-15 引擎 低-7）
       + '（自己一個人時自己出手也算，獲得 8 點）';
     case 'poisonAllyNextAttack': return `同伴本輪下一張${fx.anyDamage ? '造成傷害的牌' : '攻擊牌'}，`
       + `對每隻被打到的魔物各施加 ${fx.amount} 層中毒（自己一個人時算自己的）`;
