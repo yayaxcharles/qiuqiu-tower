@@ -1050,7 +1050,13 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         break;
       }
       case 'relic': {
-        const id = rollRelic(runRng(run), fx.pool, [...me(run, seat).relics, ...excludeRelics], heroesIn(run));
+        /*
+         * **直接塞給這一位的，只看這一位的角色**（使用者 2026-09-14：雙人混搭時不要給菲菲紙袋、影披風）。
+         * 原本用 `heroesIn(run)`（同伴是球球就放行），她那一位就可能從事件拿到對她幾乎沒用的隱身放大器。
+         * 兩人一起挑的清單（過關三選一、兩人的紙箱、罐頭鋪）照舊誰用得到都留——那些她自己看得到、可以不挑。
+         * 單機與同角色雙人時兩種寫法的候選一模一樣，亂數走向不變。
+         */
+        const id = rollRelic(runRng(run), fx.pool, [...me(run, seat).relics, ...excludeRelics], [heroOf(me(run, seat))]);
         if (id) { takeRelic(run, id, seat); gains?.push({ kind: '秘寶', id }); }
         else notes?.push('這一池的秘寶都拿過了，沒有新的可拿');   // 收齊整池才會踩到，但不能靜靜什麼都不給（2026-09-02 稽核 L-4）
         break;
