@@ -19,10 +19,15 @@ export interface KeyValueStore { getItem(k: string): string | null; setItem(k: s
  * 只認第 1 版——讀到第 2 版會判定為壞檔，然後 `loadRun` 會**把它清掉**。
  * 也就是說：玩家打開一次連線版，回頭再開單機版，進行中的那一局就沒了。
  *
- * 所以兩邊各用各的鍵。要替換回去的那一天，把這裡改回 `qiuqiu-tower`，
- * 玩家在連線版的進度就會接上（第 2 版的存檔本來就往下相容第 1 版）。
+ * 所以兩邊各用各的鍵。
+ *
+ * **前綴照網址路徑自動決定**（2026-09-14 併回前，使用者裁定「各自保住存檔」）：同一份程式碼
+ * 部署到 `/qiuqiu-tower/` 就讀寫 `qiuqiu-tower/*`（老玩家的進度、最佳成績、選過的難度全部接上），
+ * 部署到 `/qiuqiu-tower-coop/` 就讀寫 `qiuqiu-tower-coop/*`。網址路徑由 `vite.config.ts` 照部署的倉庫決定。
+ * 測試與本機開發拿不到路徑（`/`）時退回單機版的前綴。
  */
-const PREFIX = 'qiuqiu-tower-coop';
+const BASE_PATH = ((import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '').replace(/^\/+|\/+$/g, '');
+const PREFIX = BASE_PATH || 'qiuqiu-tower';
 
 /** 匯出給測試用：測試寫死字串的話，這裡一改就會默默測到不存在的鍵 */
 export const RUN_KEY = `${PREFIX}/run`;
@@ -191,6 +196,8 @@ export function checkRun(input: Partial<RunState>): RunState | null {
   if (typeof run.difficulty !== 'number') run.difficulty = 1;
   // 菲菲的分身術 2026-09-14 分成她自己那張（疊毒）：之前存的局裡她手上那張還是球球的疊傷害版，換成她的
   for (const p of run.players) if (p.hero === 'feifei') for (const c of p.deck) if (c.cardId === 'bunshin') c.cardId = 'feifei_fenshen';
+  // 影子分身同理（2026-09-14 併回前裁定：球球維持單機版原本那張，她留 9/12 的改版）：她手上的換成她那張
+  for (const p of run.players) if (p.hero === 'feifei') for (const c of p.deck) if (c.cardId === 'yingzi') c.cardId = 'feifei_yingzi';
   // 局面碼是手改得動的（就是壓縮過的存檔），把 status 改成 lost、hp 改成 0 也能通過上面每一條，
   // 然後被寫進收方的存檔，之後每次「續玩」都是頂著 0 血在地圖上亂走（稽核 2026-09-07 低 3）。
   // 正常玩法產不出這種檔——陣亡與通關當下畫面已經被結算疊層接管，不會存到這個狀態

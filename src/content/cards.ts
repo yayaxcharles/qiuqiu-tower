@@ -442,7 +442,21 @@ export const cards: readonly CardDef[] = [
    * 改成**每回合打出的第一張牌會再打一次**，2 費 → 3 費。
    * 升級版少 1 費（3→2），不是加別的效果——這張本來就強，再疊會失控。
    */
-  { id: 'yingzi', name: '影子分身', cost: 3, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/yingzi',
+  /*
+   * 球球的影子分身**維持單機版原本那張**（使用者 2026-09-14 併回前裁定：「球球的影子分身不用改」）：
+   * 2 費，打倒一隻就抽一張＋1 爪力。9/12 那次改版是為了她（跟著擊殺走的效果對慢慢毒死人的打法幾乎不發動），
+   * 所以分成兩張：他的照舊、她的是下面那張 `feifei_yingzi`（每回合第一張牌再打一次）。
+   */
+  { id: 'yingzi', name: '影子分身', cost: 2, type: 能, rarity: '稀有', hero: 'ninja', pool: '忍術', target: 'self', art: 'card/yingzi',
+    effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'draw', n: 1 }, { kind: 'status', name: '爪力', amount: 1, target: 'self' }] }],
+    upgrade: { effects: [{ kind: 'power', trigger: 'onKill', effects: [{ kind: 'draw', n: 1 }, { kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'heal', n: 3 }] }] } },
+  /*
+   * 菲菲的影子分身（2026-09-12 使用者改版，原本兩位共用這個版本）：**每回合打出的第一張牌會再打一次**，3 費；
+   * 升級版少 1 費（3→2），不是加別的效果——這張本來就強，再疊會失控。
+   * 引擎的 `echoFirst`：只認該回合第一張、能力牌不複製（不然它會當場複製自己）、打完了就不補。
+   */
+  // 定義上叫「忍術·影子分身」只是為了跟球球那張的名字不撞（`cards.test.ts` 盯著名字不重複）；她手上照規則拿掉前綴，看到的還是「影子分身」
+  { id: 'feifei_yingzi', name: '忍術·影子分身', cost: 3, type: 能, rarity: '稀有', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_yingzi',
     effects: [{ kind: 'echoFirst' }],
     upgrade: { cost: 2, effects: [{ kind: 'echoFirst' }] } },
   { id: 'tuishou', name: '絕學·推手', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/tuishou',

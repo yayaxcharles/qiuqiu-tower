@@ -9,6 +9,11 @@ import { defineConfig } from 'vite';
  */
 declare const process: { env: Record<string, string | undefined> };
 const BUILD_TAG = (process.env['GITHUB_SHA'] ?? process.env['BUILD_TAG'] ?? Date.now().toString(36)).slice(0, 10).toLowerCase();
+// 傳的是倉庫名不是路徑：Git Bash 會把「/qiuqiu-tower/」這種看起來像路徑的環境變數換成 Windows 路徑
+//（實測變成 /Program Files/Git/qiuqiu-tower/），推送閘門在 Git Bash 裡跑，所以不能帶斜線
+const SITE_NAME = process.env['SITE_NAME']
+  ?? (/\/qiuqiu-tower-coop$/.test(process.env['GITHUB_REPOSITORY'] ?? '') ? 'qiuqiu-tower-coop' : 'qiuqiu-tower');
+const SITE_BASE = `/${SITE_NAME.replace(/^\/+|\/+$/g, '')}/`;
 
 export default defineConfig({
   /**
@@ -22,9 +27,12 @@ export default defineConfig({
    * 兩個網址同網域＝共用同一份儲存。存檔的隔離是靠 `save.ts` 裡另一組鍵前綴
    * 做的（見那邊的說明），不是靠這一行。
    *
-   * 確認連線版可以之後要替換回去時，這一行改回 `/qiuqiu-tower/` 就好。
+   * **照部署的倉庫自動決定**（2026-09-14 併回前，使用者裁定「各自保住存檔」）：一份程式碼、兩個網站。
+   * 雲端 Actions 帶 `GITHUB_REPOSITORY`（`yayaxcharles/qiuqiu-tower-coop` 或 `yayaxcharles/qiuqiu-tower`）；
+   * 推送閘門照要推的遠端帶 `SITE_NAME`（跟雲端打出同一份主程式，`deploy.sh` 第三步才對得上）；
+   * 本機隨手打包兩個都沒有，退回單機版的路徑。存檔前綴也跟著這條路徑走（`src/engine/save.ts`）。
    */
-  base: '/qiuqiu-tower-coop/',
+  base: SITE_BASE,
   /*
    * 這一次打包的編號（2026-09-14）。連線碼開頭會夾著它：開房的人拿到新版、加入的人還開著舊分頁時，
    * 兩台跑的引擎不同，連上之後走第一格就對帳失敗。貼碼的當下比對它，直接請兩邊重新整理。見 `src/net/code.ts`。

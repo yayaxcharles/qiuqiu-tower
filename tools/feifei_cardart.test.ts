@@ -56,7 +56,8 @@ describe('菲菲的牌面圖', () => {
    */
   it('她拿不到的牌沒有留她的專屬圖', () => {
     const notHers = new Set(cards.filter((c) => c.hero && c.hero !== 'feifei').map((c) => c.art.replace(/^card\//, '')));
-    const orphans = Object.keys(manifest.cards).filter((k) => k.startsWith('card/feifei_') && notHers.has(k.slice('card/feifei_'.length)));
+    const usedDirectly = new Set(cards.map((c) => c.art));   // 她自己那張影子分身直接用 `card/feifei_yingzi`，不算孤兒
+    const orphans = Object.keys(manifest.cards).filter((k) => k.startsWith('card/feifei_') && notHers.has(k.slice('card/feifei_'.length)) && !usedDirectly.has(k));
     expect(orphans, '這幾張的牌她拿不到，圖該從 manifest 與 public 清掉').toEqual([]);
   });
 

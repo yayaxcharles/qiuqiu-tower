@@ -76,7 +76,14 @@ fi
 grep -E "Test Files |Tests " "$log"
 # 打包編號用這一筆提交（雲端的 Actions 用 GITHUB_SHA，是同一個值）：兩邊打出來的主程式才會一模一樣，
 # `tools/deploy.sh` 第三步比對檔名才有意義（2026-09-14 用時間當編號，第三步必定對不上）
-if ! BUILD_TAG="$sha" npm run build >> "$log" 2>&1; then
+# 網址路徑照要推的遠端帶（`vite.config.ts` 的 `SITE_NAME`）：連線版倉庫是 qiuqiu-tower-coop、單機版是 qiuqiu-tower。
+# 雲端照 GITHUB_REPOSITORY 決定同一個值，兩邊主程式才會一模一樣。
+# 傳倉庫名不傳路徑：Git Bash 會把「/qiuqiu-tower/」這種環境變數換成 Windows 路徑（實測變 /Program Files/Git/…）
+case "$remote" in
+  coopdeploy) site_name=qiuqiu-tower-coop ;;
+  *) site_name=qiuqiu-tower ;;
+esac
+if ! BUILD_TAG="$sha" SITE_NAME="$site_name" npm run build >> "$log" 2>&1; then
   echo "[推送閘門] ✗ 打包失敗（型別或 vite），這次不推："
   grep -E "error|Error" "$log" | head -20
   echo "（完整輸出：$(cygpath -w "$log")）"

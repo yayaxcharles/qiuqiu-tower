@@ -61,7 +61,7 @@ const RATING: Record<string, number> = {
   bunshin: 7, feifei_fenshen: 6, ruying: 7, shuaiguo: 3, dingshen: 6, cuimian: 5, fengkou: 4, qianshui: 5, touchi: 5, xianshuile: 2,
   gaotui: 4, jiejie: 7, fantan: 5, luoye: 5, canying: 4, caiweiba: 6, diaohu: 5, sashoujian: 5, jiuming: 5, fanzhua: 4,
   // 忍術 稀有
-  meikandao: 6, renwuwancheng: 4, fengyin: 8, wanhua: 8, yingzi: 6, huanying: 8, wufeng: 4, sanhua: 8, jingzhi: 6,
+  meikandao: 6, renwuwancheng: 4, fengyin: 8, wanhua: 8, yingzi: 6, feifei_yingzi: 6, huanying: 8, wufeng: 4, sanhua: 8, jingzhi: 6,
   // 絕學
   tieshazhang: 7, qinna: 6, juye: 5, jinzhong: 8, qinggong: 4, taxue: 5, xuli: 5, tietou: 7, shihou: 7, dianxue: 7,
   zuiquan: 5, yixing: 5, gekong: 4, guixi: 5, taiji: 4, mabu: 7, yungong: 8, yide: 6, tuishou: 5, dieda: 5, shibadie: 6,

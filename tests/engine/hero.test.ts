@@ -23,7 +23,8 @@ describe('牌池分流', () => {
   it('標了 hero 的牌只有那個職業拿得到', () => {
     const ninjaOnly = cards.filter((c) => c.hero === 'ninja');
     // 13→17（2026-09-14 使用者）：菲菲力氣小，地裂陣、沾衣十八跌、鐵頭功不給她；分身術她有自己那張疊毒的
-    expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占（10 張）＋連線牌「你先躲」「跟著我躲好」「有我在前面」＋地裂陣、沾衣十八跌、鐵頭功、分身術').toBe(17);
+    // 17→18（同日併回前裁定）：影子分身球球維持原版、她留 9/12 改版，分成兩張
+    expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占（10 張）＋連線牌「你先躲」「跟著我躲好」「有我在前面」＋地裂陣、沾衣十八跌、鐵頭功、分身術、影子分身').toBe(18);
     for (const c of ninjaOnly) {
       expect(cardsForHero('ninja').includes(c), c.name).toBe(true);
       expect(cardsForHero('samurai').includes(c), `武士不該拿到 ${c.name}`).toBe(false);

@@ -65,7 +65,7 @@ describe('影子分身與能力牌', () => {
     const { cs, p } = setup();
     p.echoFirst = 1;                       // 已經有一層
     p.cardsPlayedThisTurn = 0;
-    play(cs, 'yingzi');
+    play(cs, 'feifei_yingzi');
     expect(p.echoFirst, '影分身複製了自己——那條例外被拿掉了').toBe(2);
   });
 });
@@ -80,7 +80,7 @@ describe('影子分身與能力牌', () => {
  */
 describe('旗標型能力牌要進 powers（狀態列才畫得出來）', () => {
   const CASES: [string, string][] = [
-    ['yingzi', '影子分身'], ['feifei_qianzhen', '千針萬毒'],
+    ['feifei_yingzi', '影子分身'], ['feifei_qianzhen', '千針萬毒'],
     ['feifei_yudu', '餘毒'], ['feifei_juma', '拒馬'],
   ];
 

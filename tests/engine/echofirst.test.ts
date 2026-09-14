@@ -27,7 +27,7 @@ function toHand(cs: ReturnType<typeof beginCombat>, id: string, uid: number): nu
 
 describe('影子分身', () => {
   it('牌本身是 3 費、升級版 2 費', () => {
-    const d = cardById['yingzi']!;
+    const d = cardById['feifei_yingzi']!;
     expect(d.cost).toBe(3);
     expect(d.upgrade.cost).toBe(2);
     expect(d.effects).toEqual([{ kind: 'echoFirst' }]);
@@ -37,7 +37,7 @@ describe('影子分身', () => {
     const { cs, p } = setup('ninja');
     const e = cs.enemies[0]!;
     p.hand.length = 0;
-    playCard(cs, toHand(cs, 'yingzi', 900));           // 能力牌本身不算「第一張」
+    playCard(cs, toHand(cs, 'feifei_yingzi', 900));           // 能力牌本身不算「第一張」
     const before = e.hp;
     p.cardsPlayedThisTurn = 0;                          // 當成新回合
     playCard(cs, toHand(cs, 'sanjo', 901), e.uid);      // 貓抓 6 傷
@@ -48,7 +48,7 @@ describe('影子分身', () => {
     const { cs, p } = setup('ninja');
     const e = cs.enemies[0]!;
     p.hand.length = 0;
-    playCard(cs, toHand(cs, 'yingzi', 900));
+    playCard(cs, toHand(cs, 'feifei_yingzi', 900));
     p.cardsPlayedThisTurn = 0;
     playCard(cs, toHand(cs, 'sanjo', 901), e.uid);      // 第一張：兩次
     const mid = e.hp;
@@ -60,7 +60,7 @@ describe('影子分身', () => {
     const { cs, p } = setup('ninja');
     p.hand.length = 0;
     p.cardsPlayedThisTurn = 0;
-    playCard(cs, toHand(cs, 'yingzi', 900));
+    playCard(cs, toHand(cs, 'feifei_yingzi', 900));
     expect(p.echoFirst, '打一次應該只掛一層').toBe(1);
   });
 
@@ -78,7 +78,7 @@ describe('影子分身', () => {
     const { cs, p } = setup('feifei');
     const e = cs.enemies[0]!;
     p.hand.length = 0;
-    playCard(cs, toHand(cs, 'yingzi', 900));
+    playCard(cs, toHand(cs, 'feifei_yingzi', 900));
     p.cardsPlayedThisTurn = 0;
     p.block = 0;
     const hp0 = e.hp;
@@ -100,7 +100,7 @@ describe('影子分身的兩個邊角', () => {
   it('要選牌的牌不吃影分身（不然只問一次、只抽一份，紀錄卻說打了兩次）', () => {
     const { cs, p } = setup('ninja');
     p.hand.length = 0;
-    playCard(cs, toHand(cs, 'yingzi', 900));
+    playCard(cs, toHand(cs, 'feifei_yingzi', 900));
     p.cardsPlayedThisTurn = 0;
     toHand(cs, 'sanjo', 902);                     // 手上要有東西可消耗，不然告退不會停下來問
     toHand(cs, 'tanding', 903);
@@ -115,7 +115,7 @@ describe('影子分身的兩個邊角', () => {
     const { cs, p } = setup('ninja');
     const e = cs.enemies[0]!;
     p.hand.length = 0;
-    playCard(cs, toHand(cs, 'yingzi', 900));
+    playCard(cs, toHand(cs, 'feifei_yingzi', 900));
     p.cardsPlayedThisTurn = 0;
     p.doubleNext = 1;                              // 蓄力：下一張攻擊牌傷害加倍
     const hp0 = e.hp;

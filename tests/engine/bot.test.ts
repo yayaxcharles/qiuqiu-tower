@@ -46,7 +46,8 @@ describe('隨機試玩', () => {
     // 忍具池變大＝抽到的忍具不同＝戰局不同，錨值兩次都重錄。
     // **下面那條固定戰鬥的錨兩次都沒動**，那才是真正在守引擎行為的那一條
     // 2026-09-12：影子分身改成「每回合第一張牌再打一次」（使用者指定），出牌流程多一段，錨值重錄
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 15, turns: 68, kills: 11, deckSize: 18 });
+    // 2026-09-14 併回前裁定「球球的影子分身不用改」，錨值回到 main 原本的數字（48／6／19），逐字相同
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 15, turns: 48, kills: 6, deckSize: 19 });
     expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 15, turns: 30, kills: 5, deckSize: 15 });
   });
 
