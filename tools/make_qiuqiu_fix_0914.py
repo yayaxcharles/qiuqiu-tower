@@ -70,8 +70,46 @@ elif batch == 'b':
         if not (ROOT / ref).exists() or (ROOT / ref).stat().st_mtime < opening.stat().st_mtime:
             raise SystemExit(f'{ref} 還是舊的：先把新的 event_{eid} 進倉、刪掉這張參考圖再重建（見 make_event_result_jobs.py）')
         jobs[fid] = {'prompt': patched(prompt_of(res[fid]), FACE, fid), 'ref': ref}
+elif batch == 'c':
+    # 江湖救急開場圖：村貓伸出去的手臂底下卡著一小塊深綠色（去背去不掉，原稿已經不在）。使用者 2026-09-14「生」。
+    # **附目前這張本身重畫、只拿掉那塊**：兩張結果圖（rescue_r0、今天剛重生的 rescue_r1）是照這張畫的，換構圖就對不上。
+    # 參考圖 event_refs/rescue.png 就是這張開場圖鋪白底；生完進倉後要照新圖重建（續集的長相全靠它）
+    fid = 'event_rescue.png'
+    ref = 'tools/ref/event_refs/rescue.png'
+    opening = ROOT / 'public' / 'assets' / 'bg' / 'event_rescue.webp'
+    if (ROOT / ref).stat().st_mtime < opening.stat().st_mtime:
+        raise SystemExit(f'{ref} 比開場圖舊：它應該就是目前這張開場圖鋪白底，先重建再生')
+    jobs[fid] = {'prompt': (
+        "A single scene illustration for a story event in a cute cartoon roguelike card game, landscape composition.\n\n"
+        "**THIS IS A CORRECTED REDRAW OF THE ATTACHED PICTURE.** Redraw the attached picture as closely as you can - the "
+        "SAME injured village cat lying on its side with its bandaged leg, the SAME ninja cat, the SAME pouch of dried "
+        "fish and the SAME bottle of herbal medicine, with the SAME poses, colours, sizes and layout. Change ONLY the one "
+        "mistake described below.\n\n"
+        "Scene: an injured village cat lying on its side with a bandaged leg, weakly pushing forward two things - a small "
+        "pouch of dried fish and a bottle of herbal medicine - for the grey ninja cat to choose from\n\n"
+        "**THE ONE THING TO FIX:** in the attached picture a small dark green blotch with two grey spots is stuck in the "
+        "gap UNDER the village cat's outstretched front leg, between its chest and the fish pouch. It is a drawing "
+        "mistake, not an object in the story. Remove it completely: that gap is plain flat background, and where the "
+        "village cat's body is, it is simply its own fur. Nothing dark or shaded fills that gap. The medicine bottle "
+        "and its leaf stay exactly as they are in the attached picture.\n"
+        "THE INJURED VILLAGE CAT has exactly TWO front paws and TWO back legs - four limbs in total, the bandaged leg is "
+        "one of them. No extra paw anywhere.\n"
+        "THE NINJA CAT stays exactly as in the attached picture: his eyes are simple round solid BLACK dots with one "
+        "small white highlight each - never yellow, golden or coloured irises - with the navy headband and its two "
+        "trailing tails and the navy ninja outfit.\n\n"
+        "Tell the story in one readable picture: clear staging, strong silhouettes, expressive faces, only what the\n"
+        "scene needs. It will be shown about 420 pixels wide, so no fine detail that disappears when shrunk.\n"
+        "Style: thick black outlines, flat colors with subtle soft gradients, cute cartoon storybook look,\n"
+        "not photorealistic. Warm torch-lit tower interior lighting unless the scene says otherwise.\n"
+        "No text, no letters, no numbers, no watermark, no user interface, no border.\n"
+        "Background must be a solid pure green (#00FF00), completely flat, for chroma keying - draw only the\n"
+        "characters and the few props the scene needs, standing on nothing. Anything else that is green or dark "
+        "green gets erased by the chroma key and leaves a hole or a blotch, so do not paint any green shadow or "
+        "green shape between the characters.\n"
+        "Output 1024x768 PNG. Save the image as event_rescue.png in the current directory and report the path."),
+        'ref': ref}
 else:
-    raise SystemExit('要指定批次：a（開場圖＋村貓）或 b（結果圖）')
+    raise SystemExit('要指定批次：a（開場圖＋村貓）、b（結果圖）或 c（江湖救急開場圖拿掉那塊綠）')
 
 for fid, job in jobs.items():
     if not (ROOT / job['ref']).exists():
