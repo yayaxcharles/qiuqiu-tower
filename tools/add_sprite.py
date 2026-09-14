@@ -79,6 +79,8 @@ def main() -> None:
                     help="monsters＝每隻照自己的 <id>_idle.webp 貼，輸出 public/assets/monsters/<id>_<pose>.webp")
     ap.add_argument("--check", action="store_true", help="只量不寫：每張在遊戲框裡畫多高、帶綠與半透明像素，對照基準")
     ap.add_argument("--baseline", default=None, help="同組的一張現成 webp 檔名（不含副檔名），畫布照它；預設 boss=idle1、hero=ninja_attack、shop=keeper")
+    ap.add_argument("--allow-shorter", action="store_true",
+                    help="魔物的 attack／block 主體矮過待機一成本來會停（遊戲裡看起來變小），確定要這樣才加")
     ap.add_argument("--refit", action="store_true",
                     help="來源改成同組現成的 webp（已去背），把主體高度縮放到跟基準圖一樣、貼回基準畫布。"
                          "球球的待機批畫布 1005×1037、出招批 640×625，同一個框裡貓會差兩成（使用者 2026-09-08：忽大忽小），用這個把站姿全部對齊")
@@ -150,6 +152,15 @@ def main() -> None:
             k = min(max_w / im.width, max_h / im.height)
             im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
             print(f"  {raw_name} 比畫布大，等比縮到 {im.size}")
+        # 出招／防禦圖在遊戲裡會比待機矮多少（2026-09-14 深夜，使用者：「有些怪物攻擊時的動作變得比待機小」）。
+        # 畫布高度跟待機一樣、寬度最多放到框的比例，所以 contain 的縮放率兩張相同，
+        # 「主體高 ÷ 待機主體高」就是玩家看到的比例。姿勢畫成橫向撲出（老鼠伏低刺矛、傀儡師針伸長）
+        # 主體比寬還高不了，上面那一步只能整隻縮小——矮過一成就停下來，不要靜靜進倉。
+        if group == "monsters" and pose in ("attack", "block") and im.height < base_h * 0.9 and not args.allow_shorter:
+            raise SystemExit(
+                f"!! {raw_name}：這張 {pose} 在遊戲裡只有待機的 {im.height / base_h:.0%} 高（主體 {im.height} 對 {base_h}）——"
+                "多半是姿勢畫得比高還寬，塞進框裡整隻被縮小。重生成直立的姿勢（提示詞寫「至少跟參考圖一樣高」，"
+                "見 make_audit_art_0914.py 的 e 批）；確定就是要矮的話加 --allow-shorter")
         canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
         canvas.paste(im, ((cw - im.width) // 2, ch - bottom_pad - im.height), im)
         if group == "monsters":
