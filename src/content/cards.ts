@@ -109,14 +109,14 @@ export const cards: readonly CardDef[] = [
    * 幫同伴回血的兩張（2026-09-15，使用者睡前交辦：「做個兩張幫另一個人回血的卡牌，名稱效果你想」）。
    * 「手借我一下」是消耗、罕見、附清減益；這兩張補上「常見、可重複用」與「兩個人一起回」兩種定位。
    * `healAlly` 單人時退化成回自己（效果本身就這樣寫），所以局面碼流進單機也不會變廢牌。
-   * 圖生好之前掛 `hidden`（`cards.test.ts` 會逼人拿掉）。
+   * 圖生好之前掛 `hidden`（`cards.test.ts` 會逼人拿掉）；2026-09-15 凌晨四張圖到齊，旗標已拿掉。
    */
   { id: 'yuganjijiu', name: '魚乾急救', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self',
-    art: 'card/yuganjijiu', coop: true, hidden: true,
+    art: 'card/yuganjijiu', coop: true,
     effects: [{ kind: 'healAlly', n: 6 }],
     upgrade: { effects: [{ kind: 'healAlly', n: 9 }] } },
   { id: 'yiqichuankou', name: '一起喘口氣', cost: 2, type: 技, rarity: '罕見', pool: '絕學', target: 'self',
-    art: 'card/yiqichuankou', coop: true, hidden: true,
+    art: 'card/yiqichuankou', coop: true,
     // 自己那句排前面：「回復 5 點生命，同伴回復 9 點生命」；反過來第二句會被讀成同伴再回 5（審查 2026-09-15 低-2）
     effects: [{ kind: 'heal', n: 5 }, { kind: 'healAlly', n: 9 }],
     upgrade: { effects: [{ kind: 'heal', n: 7 }, { kind: 'healAlly', n: 12 }] } },
