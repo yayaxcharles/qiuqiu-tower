@@ -15,16 +15,28 @@ export type TargetMode = 'enemy' | 'all' | 'self' | 'none';
  * 所以刻意不放進 `TURN_DECAY`——通用的「回合結束 −1」不管它們。
  */
 export type StatusName =
-  | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '噎到' | '隱身' | '定身' | '反彈' | '潛水'
+  | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '中毒' | '隱身' | '定身' | '反彈' | '潛水'
   | '縮殼' | '飛行' | '鱗甲' | '沉睡' | '消散' | '虛化' | '不壞身'
   | '鐵布衫';   // 2026-09-04：下回合開始換成等量蜷縮（跟潛水→隱身同型）
-export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '噎到', '定身'];   // 溫牛奶、返璞「清掉所有減益」含定身（審查 #16）
+export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '中毒', '定身'];   // 溫牛奶、返璞「清掉所有減益」含定身（審查 #16）
 /** 回合結束層數 −1 的狀態 */
 // 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
 // （魔物身上的定身不走這條——那邊是「出招時消耗」，在 endTurn 的攻擊判定裡處理）
 export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '定身'];
 
-export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack';
+/**
+ * `passive` 是**只為了讓它出現在狀態列**的觸發點（2026-09-13 使用者回報）。
+ *
+ * 影子分身、千針萬毒、見血封喉、鐵布衫這四張把效果存成角色身上的旗標
+ *（`echoFirst`／`poisonOnAttack`／`poisonBurst`／`blockBonus`），不是 `kind: 'power'`，
+ * 所以 `p.powers` 收不到它們——狀態列那排「生效中的能力牌」就完全看不到，
+ * 玩家打完之後身上沒有任何東西告訴他這張牌還在。
+ *
+ * 掛成 `passive` 之後，`statusRow` 照樣認得（它只看 `cardId`），而
+ * `turnStart`／`turnEndNoAttack` 那兩個迴圈是按觸發點篩的，`passive` 永遠不會被跑到，
+ * 所以效果不會多跑一次。`effects` 一律留空，真正的效果在旗標那邊。
+ */
+export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack' | 'passive';
 
 export type Effect =
   | { kind: 'damage'; amount: number; times?: number; ignoreBlock?: boolean; scaleWithCombo?: boolean; comboCap?: number; target?: 'enemy' | 'all'; ifTargetDebuffed?: boolean }
@@ -44,11 +56,138 @@ export type Effect =
   | { kind: 'damageEqualBlock' }
   | { kind: 'selfDamage'; amount: number }
   | { kind: 'block'; amount: number }
+  /*
+   * ===== 菲菲：毒 ＋ 攻擊自帶蜷縮（2026-09-12 晚改版）=====
+   *
+   * 本來給她做了第三種資源「距離」，使用者看過之後拍板砍掉：
+   * 「不要用距離了」「名稱還是保持用蜷縮就好」「爪力跟蜷縮還是一樣」「這樣比較統一」。
+   * 她的識別改成**毒的累積 ＋ 攻擊牌自己帶蜷縮**（丟完就退，退就是蜷縮），
+   * 用的是全遊戲同一套狀態，玩家不必再學一條規則。
+   */
+  /** 拒馬：之後每次獲得蜷縮都額外多 `n` 點（長效旗標，放大她「攻擊帶蜷縮」的路數） */
+  | { kind: 'blockBonus'; n: number }
+  /**
+   * 影子分身（2026-09-12 使用者指定）：**這場戰鬥裡，每回合打出的第一張牌會再打一次**。
+   *
+   * 只作用在非能力牌上——不然把這張當回合第一張打出去，它會當場複製自己。
+   */
+  | { kind: 'echoFirst' }
+  /**
+   * 造成「目標身上這個狀態的層數」的傷害（見血封喉：把毒一次引爆）。`mul` 是倍率（不填＝1 倍）。
+   *
+   * `consume`（打完把層數清掉）**現在沒有牌在用**，留著給以後：2026-09-14 使用者
+   * 看了見血封喉的基礎版之後拿掉的——清毒等於把 N(N+1)/2 的未來傷害換成 N，
+   * 毒疊到 8 層時是拿 36 換 8，而且升級版只是「不清毒」，等於升級只在解除懲罰、
+   * 基礎版在任何情況下都不會比升級版好。
+   */
+  | { kind: 'damageByStatus'; name: StatusName; consume?: boolean; mul?: number }
+  /** 層數 ≥ 目標現在的生命就直接打倒（一針斃命） */
+  | { kind: 'execByStatus'; name: StatusName }
+  /**
+   * 屍爆（餘毒）：中毒的魔物被打倒時，把牠**剩下的層數**傳給其他還活著的。
+   * `full` ＝每一隻都拿全額（升級版），沒有就平分。
+   *
+   * 這是掛在人身上的長效旗標（像秘笈的 `firstAttackDouble`），不是 `power`——
+   * `power` 的觸發時機不帶「死掉的是誰」，而屍爆非得知道那一隻身上剩幾層不可。
+   */
+  | { kind: 'poisonBurst'; full?: boolean }
+  /**
+   * 把目標身上的狀態**分給其他魔物**（散毒）。`half` ＝其他每隻各拿一半（無條件捨去），
+   * 沒填就是每隻都拿全額。目標自己身上的層數不動。
+   */
+  | { kind: 'spreadStatus'; name: StatusName; half?: boolean }
+  /** 千針萬毒：之後每打出一張攻擊牌，就給那個目標額外 `n` 層中毒（長效旗標） */
+  | { kind: 'poisonOnAttack'; n: number }
+  /*
+   * ===== 幫隊友的三招（連線版 2026-09-11）=====
+   *
+   * 抄二代的四張連線專用牌裡做得出來的三張（Rally／Coordinate／Intercept；
+   * 第四張 Tag Team 是「你的攻擊由隊友再打一次」，要重播別人的出牌，先不做）。
+   *
+   * **一個人玩的時候它們不會消失，而是退化成只作用在自己身上**——
+   * 不做成「單機不出現」是刻意的：那會讓牌池隨人數改變，
+   * 同一顆種子在單機與雙人開出來的東西就不一樣，鎖步的種子對照就沒得比了。
+   * 退化的規則寫在各自的效果裡。
+   */
+  /** 分你一半：**每一位**（含自己）各獲得 amount 點蜷縮。一個人時就只有自己拿到 */
+  | { kind: 'blockAll'; amount: number }
+  /** 幫你一把：給**同伴**掛一個狀態（隱身會走 `gainStealth`，吃收禮那一方的秘寶加成）。一個人時退化成掛在自己身上 */
+  | { kind: 'statusAlly'; name: StatusName; amount: number }
+  /** 你拿去擋：把蜷縮**整份給同伴**（照他自己的貓步算）。一個人時退化成給自己 */
+  | { kind: 'blockAlly'; amount: number }
+  /** 你也抽一張：**同伴**抽牌。一個人時退化成自己抽 */
+  | { kind: 'drawAlly'; n: number }
+  /** 我幫你拍掉：清掉**同伴**身上的減益。一個人時退化成清自己的 */
+  | { kind: 'cleanseAlly' }
+  /**
+   * 飯糰分你：**同伴**這回合多幾顆飯糰。一個人時退化成給自己。
+   * `onKill`＝只有這張牌**直接打倒**目標時才給（我幫你收尾）；跟 `energy` 的同名旗標同一個判斷。
+   */
+  | { kind: 'energyAlly'; n: number; onKill?: boolean }
+  /** 手借我一下：替**同伴**回血。一個人時退化成回自己的（2026-09-13 連線支援牌） */
+  | { kind: 'healAlly'; n: number }
+  /*
+   * ===== 連線支援牌 B 批的六個效果（2026-09-13）=====
+   * 共同點：**只讀／只寫兩位玩家的狀態，不開任何選單**。要開選單的那兩張
+   *（這張交給你、幫你撿回來）留在後面——`PendingChoice` 目前沒有「誰來回答」的概念。
+   */
+  /**
+   * 靠你一下：自己拿 `amount` 點蜷縮，再**照同伴現有的蜷縮**多拿一些（有上限）。
+   * `half`＝只算一半（無條件捨去）。**同伴不會少**——這是「靠過去」不是「搬過來」。
+   * 讀的是這張牌**結算前**的值，所以 `amount` 那 5 點不會被自己算進去。
+   */
+  | { kind: 'blockFromAllyBlock'; amount: number; cap: number; half?: true }
+  /**
+   * 借你的力氣：造成 `amount` 傷害，再**照同伴的爪力**多打一些（有上限）。
+   * 出牌者自己的爪力照一般規則另外算，不會被這個取代。
+   */
+  | { kind: 'damageFromAllyStrength'; amount: number; cap: number; ignoreBlock?: true }
+  /**
+   * 這些你先吃：把自己**最多 n 顆**剩餘飯糰轉給同伴。自己少多少同伴才多多少，
+   * 不會憑空生出來。一個人時什麼都不轉（但牌的其他效果照跑）。
+   */
+  | { kind: 'energyTransfer'; n: number }
+  /** 趁現在出手：**同伴**本輪的下一張攻擊牌傷害加倍。一個人時退化成自己 */
+  | { kind: 'doubleNextAttackAlly' }
+  /** 照你說的打：目標**打之前**就有這個狀態的話，讓同伴抽牌。`anyDebuff`＝任何減益都算 */
+  | { kind: 'drawAllyIfTargetStatus'; name?: StatusName; anyDebuff?: true; n: number }
+  /** 別沾在身上：把**同伴**身上的減益整份移到目標魔物身上（移轉不是複製）。一個人時移自己的 */
+  | { kind: 'transferDebuffsFromAlly' }
+  /*
+   * ===== 連線支援牌 C 批的六個效果（2026-09-13）=====
+   * 共同點：**排到下一輪才發**，或**每輪監聽一次**。狀態欄位見 `PlayerCombat`。
+   */
+  /** 你忙我補位：之後每輪，同伴第一次打出指定類型的牌並結算完，自己抽 1 張 */
+  | { kind: 'watchAllyPlay'; cardType: '技能' | 'any' }
+  /** 有我在前面：之後每輪，自己第一次打出指定類型的牌並結算完，同伴獲得 6 點蜷縮 */
+  | { kind: 'watchSelfPlay'; cardType: '攻擊' | 'any' }
+  /** 我有先備好：之後每輪一次，攻擊**真的扣到**打之前就中毒的魔物時，雙方各 4 點蜷縮 */
+  | { kind: 'watchPoisonHit'; who: 'ally' | 'both' }
+  /** 別碰針尖喔：同伴下一張真的打到人的牌，對每隻被打到的魔物各上毒。一個人時掛自己身上 */
+  | { kind: 'poisonAllyNextAttack'; amount: number; anyDamage?: true }
+  /** 飯糰留一口：之後**每一輪開始**時，同伴多 1 顆飯糰（升級再多抽 1 張） */
+  | { kind: 'energyForAllyEachRound'; draw?: true }
+  /**
+   * 看自己身上有沒有某個狀態，決定跑哪一組效果（2026-09-13 連線支援牌「跟著我躲好」）。
+   *
+   * 判斷用的是**這張牌開始結算前**的層數——不然同一張牌先給自己上狀態、再用它做判斷，
+   * 玩家看不出到底以哪個為準。
+   */
+  | { kind: 'ifSelfStatus'; name: StatusName; then: Effect[]; otherwise: Effect[] }
+  /**
+   * 我來擋：這一輪魔物的攻擊**全部打我**。
+   *
+   * 規則二本來是「一招隨機挑一位還站著的打」，這張把隨機關掉、全部導向自己。
+   * 一個人時等於什麼都沒做（本來就只會打你），所以牌面會少一半價值——
+   * 這是可接受的：連線專用牌在單機本來就不該是好牌。
+   */
+  | { kind: 'taunt' }
   | { kind: 'stealBlock' }
   | { kind: 'draw'; n: number }
   | { kind: 'drawIfTargetStatus'; name: StatusName; n: number }
   | { kind: 'drawNextTurn'; n: number }
-  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all' }
+  /** `step`＝成長牌（菲菲的分身術，2026-09-14）：這場戰鬥裡同一張牌之前每打出一次，這次就多 step 層（跟 damageRamp 同一套次數） */
+  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all'; step?: number }
   /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5） */
   | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number }
   /** 催噎：目標身上這個狀態翻倍（沒有就沒事），再加 add 層 */
@@ -79,7 +218,7 @@ export interface CardDef {
   rarity: Rarity;
   pool: Pool;
   /** 職業獨占：沒寫＝兩個職業共用；'ninja' 的隱身潛水那批武士拿不到（見 engine/hero） */
-  hero?: 'ninja' | 'samurai';
+  hero?: 'ninja' | 'samurai' | 'feifei';
   target: TargetMode;
   effects: Effect[];
   keywords?: Keyword[];
@@ -96,6 +235,20 @@ export interface CardDef {
   combatOnly?: boolean;
   /** 牌面插圖還沒到齊：不進獎勵、罐頭鋪、事件、圖鑑；圖接入後由生圖腳本拿掉 */
   hidden?: true;
+  /**
+   * 連線專用牌：**只有兩個人以上的局才會進獎勵與罐頭鋪的池子**
+   *（使用者 2026-09-11 指定）。
+   *
+   * 一開始我把它們做成「單機也抽得到、只是退化成作用在自己身上」，理由是
+   * 「牌池隨人數改變的話，同一顆種子在單機與雙人開出來的東西就不一樣」——
+   * **那個顧慮是想錯的**：鎖步要求的是「同一局的兩台機器算出一樣的結果」，
+   * 而兩邊都知道人數，池子自然一樣，不可能分岔。單機跟雙人本來就是兩種局，
+   * 種子沒有互相對照的必要。
+   *
+   * 效果本身仍然保留「一個人時退化」的行為，因為牌可能從事件、
+   * 或是從別人分享的局面碼流進單機的牌組裡，那時候不能變成一張廢牌。
+   */
+  coop?: true;
 }
 
 export interface CardInstance { uid: number; cardId: string; upgraded: boolean }
@@ -108,6 +261,25 @@ export interface RelicDef {
   pool: RelicPool;
   text: string;
   art: string;
+  /**
+   * **這幾位抽不到這一件**（2026-09-12；沒寫＝誰都抽得到）。
+   *
+   * 原本寫成 `hero`（「只有這個職業抽得到」），兩個毛病：
+   *   1. 標 `hero: 'ninja'` 會**連武士一起排掉**，他同種子的秘寶結果就跟改動前不一樣了。
+   *      這個專案的規矩是「新角色不可以壓到既有的局」，那樣就破功了。
+   *   2. 當時寫的理由是「對她是完全的廢物」，**這句話不成立**。紙袋與影披風放大的是
+   *      「獲得隱身」，取得隱身的 11 張牌確實整套是忍者獨占的，但**牌不是唯一的來源**：
+   *      鈴鐺（開場 1 層）、無聲鈴（開場 2 層）、風鈴（沒攻擊就 2 層）、煙霧彈（忍具 2 層）
+   *      四件她都拿得到，而 `gainStealth` 對誰都一樣吃這兩件的加成。
+   *
+   * 所以現在的理由改成**平衡取捨**，不再假裝是零效果：她的隱身來源只有那幾件秘寶／忍具，
+   * 一場撞得到一次就不錯了，放大器的期望值低到當成三選一裡的一個選項是虧的——
+   * 影披風還是塔主三選一，抽到等於少一個選項。
+   *
+   * **只給隱身的那幾件不鎖**（鈴鐺、無聲鈴、風鈴）：那些自己就會生隱身，
+   * 而且她沒有別的閃避手段，對她反而珍貴。
+   */
+  notFor?: readonly ('ninja' | 'samurai' | 'feifei')[];
   /** 罐頭鋪售價。不填＝150。強弱要有價差（使用者指定），數字標在各件定義上 */
   price?: number;
   hooks: {
@@ -301,7 +473,7 @@ export interface EnemyDef {
   // ===== 2026-09-03 菁英擴充（docs/菁英擴充_設計稿.md）=====
   /**
    * 虛化：開戰就帶「虛化」，之後**每個牠的回合開始切換一次**（有→拿掉、沒有→掛上），
-   * 所以是虛一回合、實一回合。虛化中每一段傷害最多只扣 1 點血（攻擊、噎到、反彈都一樣），
+   * 所以是虛一回合、實一回合。虛化中每一段傷害最多只扣 1 點血（攻擊、中毒、反彈都一樣），
    * 防禦照原本的量擋掉。切換寫在 combat.ts 的魔物迴圈、扣血上限寫在 actions.ts 的 damageEnemy。
    */
   phasing?: true;
@@ -386,6 +558,13 @@ export interface EventChoice {
 }
 export interface EventDef {
   id: string; title: string; text: string; choices: EventChoice[]; fixedFloor?: number;
+  /**
+   * 職業獨占（2026-09-12）：沒寫＝兩邊都會遇到，寫了就只有那個職業的局會排進地圖。
+   *
+   * 用在「這個事件只有對這個角色才有意義」的那幾個——菲菲的「師兄的痕跡」
+   * 是她在追球球留下的東西，球球自己遇到會很怪。
+   */
+  hero?: 'ninja' | 'samurai' | 'feifei';
   /** 前後集（2026-09-04）：要有這個本局旗標才會排進地圖（旗標由前集選項的 `flag` 效果設）；`acts` 限定只在哪幾關出現 */
   requiresFlag?: string;
   acts?: number[];
@@ -410,18 +589,47 @@ export interface MapNode {
 export interface GameMap { nodes: MapNode[]; start: string[] }
 
 // ===== 整局 =====
-export interface RunState {
-  version: 1;
-  /** 這一局的職業。舊存檔沒有這一欄＝忍者，所以是可選的、不必升 version（升了會清掉進行中的局） */
-  hero?: 'ninja' | 'samurai';
-  seed: string;
-  rng: RngState;
+/**
+ * 一位玩家在**整局**裡的家當（連線版規則一與規則五，使用者 2026-09-11：各帶各的）。
+ *
+ * 以前這幾欄直接掛在 `RunState` 上，因為只有一位玩家。兩個人一起玩之後，
+ * 血量、牌組、秘寶、忍具、小魚乾、移除價、保底都是**各一份**，所以整組搬進來。
+ *
+ * 刻意**不留**「指向第一位的別名」——`RunState` 會被存進瀏覽器，
+ * getter 存下去讀回來會變成一份獨立的死資料，之後兩邊各改各的就悄悄分岔了
+ * （`CombatState` 可以用別名，是因為它從頭到尾不存檔）。
+ */
+export interface RunPlayer {
+  /** 這一位的職業。沒寫＝忍者 */
+  hero?: 'ninja' | 'samurai' | 'feifei';
   hp: number;
   maxHp: number;
   fish: number;
   deck: CardInstance[];
   relics: string[];
   potions: string[];
+  /** 罐頭鋪移除一張牌的價錢，每移除一次就漲（各漲各的） */
+  removeCost: number;
+  /** 暖毯：打盹後下一場開戰帶的蜷縮，開戰用掉就歸零 */
+  restBlock?: number;
+  /**
+   * 稀有牌保底：連續幾次戰鬥獎勵沒開出稀有牌（每次 +1，開出就歸零）。
+   * 每一點讓下一次的稀有權重多 4——連續槓龜的手氣會自己回來。
+   */
+  rarePity?: number;
+  /**
+   * 倒下了（規則四）。倒下的人之後的戰鬥都只能觀戰，
+   * **直到有人在打盹點把他扶起來**（使用者 2026-09-11 追認）。
+   */
+  down?: boolean;
+}
+
+export interface RunState {
+  version: 2;
+  /** 這一局的玩家，依座位排。單機就一位；`players[0]` 永遠是自己 */
+  players: RunPlayer[];
+  seed: string;
+  rng: RngState;
   floor: number;
   map: GameMap;
   currentNode: string | null;
@@ -429,28 +637,67 @@ export interface RunState {
   trail: string[];
   nextUid: number;
   stats: { kills: number; turns: number; cardsPlayed: number };
-  removeCost: number;
   /** 第幾關（1＝塔下、2＝塔中、3＝塔頂）。舊存檔沒有這欄，載入時補成 1。 */
   act: number;
   /** 難度 1～5（見 content/difficulty.ts）。舊存檔沒有這欄，載入時補成 1。 */
   difficulty?: number;
   status: 'playing' | 'won' | 'lost';
-  /** 暖毯：打盹後下一場開戰帶的蜷縮，開戰用掉就歸零 */
-  restBlock?: number;
   /** 一次性旗標（看過哪段對話、觸發過哪個事件之類）；舊存檔沒有這欄，載入時補成 {} */
   flags: Record<string, boolean>;
   /** 事件選項「要打一場」附帶的獎勵：先記在這裡，打贏才發（輸了就清掉）——使用者 2026-09-04：秘寶不該還沒打就到手 */
   pendingAfterFight?: RunEffect[];
-  /**
-   * 稀有牌保底：連續幾次戰鬥獎勵沒開出稀有牌（每次 +1，開出就歸零）。
-   * 每一點讓下一次的稀有權重多 4——連續槓龜的手氣會自己回來。舊存檔沒有這欄，當 0。
-   */
-  rarePity?: number;
 }
 
 // ===== 戰鬥 =====
 export interface Unit { hp: number; maxHp: number; block: number; statuses: Partial<Record<StatusName, number>> }
 export interface PlayerCombat extends Unit {
+  /**
+   * 這一位的職業。沒寫＝忍者。
+   *
+   * `RunPlayer` 上也有一份，這裡再放一次**不是重複**：戰鬥畫面拿得到的只有 `CombatState`，
+   * 而連線時同伴可能是另一個職業——立繪、招式圖、獨占牌全看這個欄位。
+   */
+  hero?: 'ninja' | 'samurai' | 'feifei';
+  /**
+   * 座位編號，0 起算（連線版第一步 2026-09-11）。
+   *
+   * 單機永遠只有 0 號一個人，行為跟加這個欄位之前一模一樣。
+   * 之所以要編號而不是拿物件比對：畫面與紀錄要講「誰做了什麼」，
+   * 連線之後兩邊的記憶體物件不是同一個，能對起來的只有這個號碼。
+   */
+  seat: number;
+  /**
+   * 已經倒下（連線版規則四，使用者 2026-09-11 拍板）。
+   *
+   * 倒下的人**不抽牌、不出手、也不會再被魔物打到**，但留在畫面上觀戰。
+   * 整場的敗北（`cs.phase = 'lost'`）改成「**每一位都倒下了**」才成立。
+   * 單機只有一位，兩者是同一件事，行為跟加這個欄位之前一模一樣。
+   */
+  down?: boolean;
+  /**
+   * 「我這回合不打了」——按下結束回合就舉手（連線版 2026-09-11）。
+   *
+   * **舉手不等於結算。** 真正的收尾（丟手牌、減益衰減）等到所有還站著的人
+   * 都舉手才一起跑，所以對方還沒舉手之前可以再按一次收回，按錯不會毀掉一個回合。
+   * 舉手之後手牌鎖住打不出，但看得到對方還在動。
+   *
+   * 單機只有一位，舉手的下一拍就結算，跟以前按下去就結束一模一樣。
+   */
+  ready?: boolean;
+  /**
+   * 這一輪魔物全部打我（「我來擋」那張牌，連線版 2026-09-11）。
+   * 回合開始清掉——它只保護**一輪**，不是掛著就永遠有效。
+   */
+  taunt?: boolean;
+  /**
+   * 這一位帶的秘寶與忍具（連線版規則一，使用者 2026-09-11：**各帶各的**）。
+   *
+   * 以前掛在整場（`CombatState`）上，因為只有一位玩家。現在搬到人身上，
+   * 每回合補飽足、折價、留蜷縮這些都各算各的。
+   * `cs.relics`／`cs.potions` 留成指向第一位的別名，整局層與畫面完全不用改。
+   */
+  relics: string[];
+  potions: string[];
   /**
    * 甲（武士球球的防禦，2026-09-05）。跟蜷縮並列但性格相反：**回合開始不歸零**，被打會永久扣。
    * 受傷順序是 蜷縮 → 甲 → 生命——蜷縮回合末反正要消失，先用它擋；擋不完才啃甲。
@@ -474,6 +721,45 @@ export interface PlayerCombat extends Unit {
   powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string; upgraded?: boolean }[];
   doubleNext: number;
   drawNextTurn: number;
+  /*
+   * ===== 連線支援牌 C 批的狀態（2026-09-13）=====
+   *
+   * 兩類：**排到下一輪才發**的東西，以及**每輪監聽一次**的旗標。
+   * 全部存在玩家身上，鎖步兩台各自算出同一份（沒有任何隨機、也沒讀時間）。
+   */
+  /**
+   * 你忙我補位：看**同伴**打牌，每輪第一次符合就抽 1 張。
+   * `'技能'`＝只認技能牌（基礎版）、`'any'`＝任何牌（升級版）。
+   */
+  watchAllyPlay?: '技能' | 'any';
+  /** 有我在前面：看**自己**打牌，每輪第一次符合就給同伴 6 點蜷縮。球球專屬 */
+  watchSelfPlay?: '攻擊' | 'any';
+  /**
+   * 我有先備好：看攻擊**真的扣到**已中毒魔物的血，每輪第一次就雙方各 4 點蜷縮。
+   * `'ally'`＝只認同伴出手（基礎版）、`'both'`＝誰出手都算（升級版）。
+   * 「命中」的判準是**真的扣到血**（使用者 2026-09-13 裁定）：被蜷縮全擋掉不算。
+   */
+  watchPoisonHit?: 'ally' | 'both';
+  /** 這一輪那三個監聽各自發動過了沒。每輪開始清掉 */
+  firedAllyPlay?: true;
+  firedSelfPlay?: true;
+  firedPoisonHit?: true;
+  /**
+   * 別碰針尖喔：這個人的下一張「真的打到人」的牌，對每隻被打到的魔物各上幾層毒。
+   * `anyDamage`＝技能造成的直接傷害也算（升級版）。用掉就清掉，本輪沒用到也清掉。
+   */
+  poisonNextAttack?: { amount: number; anyDamage?: true };
+  /**
+   * 飯糰留一口：之後**每一輪開始**時，同伴多 1 顆飯糰。`'draw'`＝再多抽 1 張（升級版）。
+   *
+   * **2026-09-13 使用者要求改掉跨回合的寫法**：原本是「這一輪結束扣自己 1 顆、
+   * 同伴下一輪才拿到」，那種「這一輪做的事下一輪才生效」很難算。
+   * 改成在**同伴自己的回合開始當下**直接讀「有沒有人掛著這個能力」再給——
+   * 值是當場算出來的，不用記著上一輪排了什麼。
+   *
+   * 順帶解掉一個假代價：原本「扣 1 顆」其實不是代價（沒用完的飯糰本來就會消失）。
+   */
+  energyForAllyEachRound?: 'plain' | 'draw';
   noAttacks: boolean;
   immune: boolean;
   attackedThisTurn: boolean;
@@ -481,10 +767,38 @@ export interface PlayerCombat extends Unit {
   firstStealthGiven: boolean;
   firstCardPlayed: boolean;
   lethalPrevented: boolean;
+  /** 餘毒（屍爆）開著沒：`'split'` 平分、`'full'` 每隻都拿全額。見 `Effect` 的 `poisonBurst` */
+  poisonBurst?: 'split' | 'full';
+  /** 拒馬：之後每次獲得蜷縮都額外多幾點 */
+  blockBonus?: number;
+  /** 影子分身：這場戰鬥每回合的第一張牌會再打一次（見 `Effect` 的 `echoFirst`） */
+  echoFirst?: number;
+  /** 千針萬毒：每打出一張攻擊牌，額外給那個目標幾層中毒 */
+  poisonOnAttack?: number;
   /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */
   freshDebuffs: Partial<Record<StatusName, number>>;
+  /**
+   * 這一場**自己**賺到（或被偷走）的小魚乾，打完才併回整局的錢包。
+   *
+   * 一人一份（規則一「各帶各的」）：銅錢劍是誰的、順手牽羊是誰打的、
+   * 山賊偷的是誰的錢，都要記在那個人頭上。放在整場共用的話，
+   * 連線時第二位打倒山賊拿回來的錢會跑進第一位的口袋。
+   */
+  fishDelta: number;
 }
 export interface EnemyCombat extends Unit {
+  /**
+   * **最後一個給牠下毒的是誰**（座位編號，連線版 2026-09-12）。
+   *
+   * 中毒結算沒有「出手的人」可以帶，`damageEnemy` 的 `by` 就一路空著，
+   * `killEnemy` 只好退回第一位玩家。單人時那就是本人、沒差；
+   * 連線時**菲菲坐 1 號位、毒死的魔物卻算在 0 號位頭上**——
+   * 她的「餘毒」（屍爆）完全不會發動，擊倒獎勵（銅錢劍、黑曜爪、被偷走的錢）
+   * 也全進同伴口袋（稽核 2026-09-12 高-2；後面那半是連線版原本就有的舊帳）。
+   *
+   * 進指紋，兩邊記的人不一樣會當場抓到。
+   */
+  poisonedBy?: number;
   uid: number;
   enemyId: string;
   name: string;
@@ -532,6 +846,24 @@ export interface EnemyCombat extends Unit {
   split?: boolean;
 }
 export interface EffectCtx {
+  /**
+   * 這一串效果是**誰**引發的：打這張牌、喝這瓶忍具、觸發這件秘寶的那個人
+   * （連線版第一步 2026-09-11）。
+   *
+   * 加防禦、抽牌、回血、掛能力這些「作用在自己身上」的效果都要認人。
+   * 單機只有一位，填的一直是 `players[0]`，跟以前一模一樣。
+   * **沒填就退回 `cs.player`**——魔物的招式、還沒改完的舊呼叫點都走這條路，
+   * 單機兩者等值，所以過渡期不會有行為差異。
+   */
+  self?: PlayerCombat;
+  /**
+   * 這張牌累積下來、要落在**自己**身上的蜷縮（2026-09-13 稽核 中-6）。
+   *
+   * `gainBlock` 每次呼叫都先加一份拒馬再過貓步，所以同一張牌分兩次給自己
+   * 會把加成吃兩遍（實測貓步 3 時「先幫你留著」單人拿 18 點，應該是 15）。
+   * 先累積、由最後一條自我蜷縮一次發掉，見 `flushSelfBlock`。
+   */
+  selfBlockPool?: number;
   targetUid?: number;
   cardUid?: number;
   cardId?: string;         // 打出的是哪張牌（能力牌掛牌子用）
@@ -556,10 +888,43 @@ export interface CombatState {
   /** 難度與遭遇給的血量倍率、出場爪力：召喚出來的也要套（審查 #9） */
   mods?: { hpMul: number; strength: number };
   rng: Rng;                 // 戰鬥不存檔，直接帶亂數物件
-  player: PlayerCombat;
+  /**
+   * 這場戰鬥裡的所有玩家，依座位排（連線版第一步 2026-09-11）。**單機就一位。**
+   *
+   * 為什麼先把一個人包成陣列：連線版要讓兩個人打同一場，而整個引擎有一百多處
+   * 寫死了「玩家＝那一個」。一次全改風險太大，所以先把容器換掉、行為完全不動，
+   * 用既有的六百多條測試證明沒改壞，之後才一處一處把「那一個」換成「指定的那位」。
+   */
+  players: PlayerCombat[];
+  /**
+   * 這一場**預計**有幾個人（連線 2、單機 1）。
+   *
+   * 為什麼不直接數 `players.length`：`startCombat` 只建得出第一位，其餘是
+   * `beginCombat` 之後才 `push` 進來的。開場那一拍 `players.length` 還是 1，
+   * 於是 2026-09-13 實測看到戰報寫成一邊有名字一邊沒有——
+   *「秘寶發動：藍頭巾」（座位 0，那時只有一個人）配
+   *「菲菲的秘寶發動：毒針袋」（座位 1，那時已經兩個人了）。
+   * 魔物血量倍率本來就是靠傳進來的人數算的，這個欄位就是把同一個數字留下來。
+   */
+  seatCount?: number;
+  /**
+   * 相容用的別名，**永遠等於 `players[0]`**。
+   *
+   * 這是唯讀的 getter（在 `startCombat` 裡用 `get player()` 定義），不是複製出來的欄位，
+   * 所以不會有「陣列換人了、這個別名還指著舊的」的走鐘問題——刻意選 getter 而不是
+   * 存一份參考，正是為了把這種最難查的錯誤從一開始就排除掉。
+   *
+   * 新程式碼請改用明確的對象：牌效果用 `ctx.self`，魔物出招用被指定的受害者。
+   * 剩下還在讀這個別名的地方，在連線版第二步會一批一批換掉。
+   */
+  readonly player: PlayerCombat;
   enemies: EnemyCombat[];
-  relics: string[];
-  potions: string[];        // 從整局複製進來，用掉就移除，戰後寫回
+  /**
+   * 相容用的別名，**永遠等於 `players[0]` 的那兩份**（規則一之後真正的資料在人身上）。
+   * 回傳的是同一個陣列物件，所以 `cs.potions.splice` 照樣改得動真正的資料。
+   */
+  readonly relics: string[];
+  readonly potions: string[];        // 從整局複製進來，用掉就移除，戰後寫回
   turn: number;
   phase: 'player' | 'won' | 'lost';
   /** 敵方回合正在逐隻出招（endTurn 的迴圈裡）；召喚要靠它分「敵方回合召的」與「玩家回合中途冒出來的」 */
@@ -574,16 +939,16 @@ export interface CombatState {
    *  畫面靠它把「5 點 ×3」拆成三下演，不用再從總掉血倒推（使用者 2026-09-05：連環踢看起來像一下扣 15） */
   hits: { uid: number; amount: number }[];
   encounterId: string;
-  /**
-   * 牌效果要求結束回合（撒手鐧、先睡了）。以前是效果裡直接呼叫 endTurn，
-   * 敵方回合被壓縮在同一次重畫裡閃過，玩家看起來像「打完馬上又輪到我」。
-   * 改成掛旗子，由呼叫端（畫面／機器人）用跟按鈕一樣的流程收尾。
-   */
-  endTurnRequested: boolean;
+
   /** 先手香：這一輪魔物不出手（`beginEnemyTurn` 看到就整輪跳過，見 Effect 的 `skipEnemyTurn`） */
   skipEnemies?: boolean;
   stolenFish: number;       // 山賊偷走的，擊倒牠全部拿回
-  fishDelta: number;        // 牌效果賺到的小魚乾
+  /**
+   * 相容用的別名，**永遠等於 `players[0].fishDelta`**（真正的值在人身上）。
+   * 跟 `player`／`relics`／`potions` 同一套理由：`CombatState` 從頭到尾不存檔，
+   * 所以別名不會像 `RunState` 那樣被寫進瀏覽器變成一份會走鐘的死資料。
+   */
+  fishDelta: number;
   /**
    * 整場**憑空多出來**的飯糰累計（追擊退回來的、秘寶補的都算）。
    * 畫面拿它跟自己的快照相減，就知道這一拍有沒有多出飯糰、多幾顆。

@@ -584,7 +584,7 @@
      "effects": [
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       }
      ]
@@ -947,7 +947,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       }
      ]
@@ -1584,7 +1584,7 @@
      "effects": [
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       }
      ]
@@ -1599,7 +1599,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 1
       }
      ]
@@ -1610,7 +1610,7 @@
      "effects": [
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       }
      ]
@@ -2762,7 +2762,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 3
       }
      ]
@@ -2822,7 +2822,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 3
       }
      ]
@@ -3298,7 +3298,7 @@
      "effects": [
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 4
       }
      ]
@@ -3323,7 +3323,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       }
      ]
@@ -3338,7 +3338,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       },
       {
@@ -3596,7 +3596,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 3
       }
      ]
@@ -3921,7 +3921,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       }
      ]
@@ -4103,7 +4103,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 1
       }
      ]
@@ -4417,7 +4417,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 2
       }
      ]
@@ -6925,7 +6925,7 @@
       },
       {
        "kind": "statusPlayer",
-       "name": "噎到",
+       "name": "中毒",
        "amount": 1
       }
      ]

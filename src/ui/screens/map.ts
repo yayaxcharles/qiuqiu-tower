@@ -5,8 +5,13 @@ import { play } from '../audio';
 import { FLOORS, nextChoices } from '../../engine/map';
 import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
+import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
+import { me } from '../../engine/runplayer';
+import { heroName, heroOf } from '../../engine/hero';
+import { lineFor } from '../../content/dialogue';
+import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
-import { artUrl, monsterUrl } from '../assets';
+import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { renderHud } from '../hud';
@@ -21,7 +26,11 @@ const ICON: Record<MapNode['type'], string> = {
 
 /** 地圖上那隻球球的尺寸與跟節點的間隙（樣式在 map.css 的 `.map-hero`，兩邊要一致） */
 const HERO_W = 52;
-const HERO_GAP = 8;
+/**
+ * 貓跟格子之間留多少（看的是**看得見的那一邊**，不是 `<img>` 方框的邊）。
+ * 2026-09-13 使用者：「14F 菲菲應該要再往左邊一點」——從 8 加到 14。
+ */
+const HERO_GAP = 14;
 /** 樓層數字牌子的右緣（map.css 的 `.map-floor-label`：left 214、寬 66）。球球不能壓到它 */
 const LABEL_RIGHT = 280;
 
@@ -31,6 +40,14 @@ const VIEW_H = 664;
 const SPACING = 108;               // 樓層間距。放得開才不會擠成一團
 const PAD = 96;                    // 內容上下的留白，最上與最下那層不會貼著邊
 const R = 32;                      // 節點半徑（直徑 64）
+/**
+ * 「我在這」那圈橘光往外撐多少（map.css 的 `.map-node.current::before`：`inset: -9px` ＋ 3px 邊框）。
+ *
+ * **算間隙時一定要加上它**（2026-09-13 使用者：「很不準確」）。
+ * 原本只算節點半徑 32，可是現在站的這一格永遠戴著這圈光，
+ * 所以那隻貓實際上是貼著光圈站的——兩位角色、每一層都一樣。
+ */
+const RING = 12;
 const INNER_H = PAD * 2 + (FLOORS - 1) * SPACING;
 
 /** 1F 在最底、15F 在最頂：往上捲＝往上爬。樓層標籤用這個「名目高度」，節點會再各自偏一點 */
@@ -52,16 +69,30 @@ const JITTER_X = 14;
 const JITTER_Y = 9;
 
 /**
- * 節點座標。五條車道（引擎的 LANES），中間那條是 2，所以車道 2 落在畫面正中央；
- * 匯合層（8／14／15）的唯一一格 lane 就是 2，同一條公式算下來就在正中間，不用特判。
+ * 節點座標。五條車道（引擎的 LANES），中間那條是 2。
+ * 匯合層（8／14／15）的唯一一格 lane 就是 2，同一條公式算下來就在同一條線上，不用特判。
  * 每個節點再依種子各自偏一點，免得路線排成整齊的直行、看起來像表格。
  */
 const LANE_STEP = 150;
+/**
+ * 車道 2 的中心。**不是畫面正中央的 640**（2026-09-13 使用者回報
+ *「29F 菲菲應該在左邊 但她跑去右邊」）。
+ *
+ * 樓層數字牌佔掉畫面左邊 214～280，所以真正能用的是 280～1280，中心在 780；
+ * 原本寫 640 等於整張圖偏左，最左那條車道的節點落在 340、左緣才 308，
+ * 跟數字牌之間只剩 28 像素——**塞不下站在旁邊的那隻貓**，於是「我在這」只好翻到右邊。
+ * 右邊本來空著 300 像素沒用。
+ *
+ * 往右挪 80 之後最左那格到 420，扣掉光圈與間隙還站得下（最壞的抖動也有 11 像素餘裕）；
+ * 最右那格加上半徑與光圈是 1078，離畫面邊還有 202。沒有整個推到 780 是因為那樣
+ * 右邊四條車道會擠到邊，看起來反而歪。
+ */
+const LANE_CENTRE_X = 720;
 
 function pos(n: MapNode, seed: string, centre: number): { x: number; y: number } {
   const jx = (hash01(`${seed}|${n.id}|x`) - 0.5) * 2 * JITTER_X;
   const jy = (hash01(`${seed}|${n.id}|y`) - 0.5) * 2 * JITTER_Y;
-  return { x: 640 + (n.lane - centre) * LANE_STEP + jx, y: floorY(n.floor) + jy };
+  return { x: LANE_CENTRE_X + (n.lane - centre) * LANE_STEP + jx, y: floorY(n.floor) + jy };
 }
 
 /**
@@ -83,6 +114,30 @@ let lastFloor: { seed: string; floor: number } | null = null;
 registerScreen('map', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
+
+  /*
+   * 兩個人一起選路（連線版 2026-09-11）。
+   *
+   * 每個座位投一票，兩邊都投完就結算：**選一樣就走那一格，不一樣就擲一次骰**
+   *（規則與理由見 `engine/vote.ts`）。結算在兩台機器各自跑一次——
+   * 用的是整局的亂數，所以擲出來的結果一樣，不用把結果傳過去。
+   *
+   * 票**不能改**：改票會讓兩邊的票面對不上（我看到你改了、你看到我還沒改），
+   * 而且「我先投了看對方怎麼投再改」會讓投票變成沒有意義的儀式。
+   */
+  const votes: (string | null)[] = app.coop ? app.coop.picks('map', run.players.length) : [];
+  if (app.coop) {
+    const coop = app.coop;
+    coop.onPick((kind) => {
+      if (kind !== 'map') return;
+      const alive = run.players.map((p) => !p.down);
+      const now = onlyStanding(coop.picks('map', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
+      if (!allVoted(now, alive)) { app.show('map'); return; }
+      const pick = settleVotes(runRng(run), now);
+      coop.clearPicks('map');
+      if (pick) app.enterNode(pick); else app.show('map');
+    });
+  }
 
   const centre = centreLane(run.map.nodes);
   const inner = el('div', { class: 'map-inner', style: `height:${INNER_H}px` });
@@ -192,7 +247,22 @@ registerScreen('map', (app, root) => {
     }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
     if (mod) { btn.append(el('span', { class: 'map-mod' }, mod.label)); attachTextTooltip(btn, mod.label, mod.desc); }
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
-    if (choices.has(n.id)) btn.addEventListener('click', () => { play('step'); app.enterNode(n.id); });
+    if (choices.has(n.id)) {
+      btn.addEventListener('click', () => {
+        play('step');
+        // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
+        if (!app.coop) { app.enterNode(n.id); return; }
+        if (me(run, app.seat).down) return;   // 倒下的人沒得選（規則四）；他的票結算時本來就會被洗掉
+        if (votes[app.seat]) return;   // 投過了就不能改——改票會讓兩邊的票面對不上
+        app.coop.pick('map', n.id);
+      });
+    }
+    // 誰投了這一格：在格子上掛一個小記號，兩個人才知道對方想去哪
+    const voters = votes.map((v, i) => (v === n.id ? i : -1)).filter((i) => i >= 0);
+    if (voters.length) {
+      btn.append(el('span', { class: 'map-vote' },
+        voters.map((i) => (i === app.seat ? '你' : '同伴')).join('、')));
+    }
     inner.append(btn);
     /**
      * 球球本人站在現在這一格旁邊（2026-09-10，使用者：「球球在地圖上的位置也做」）。
@@ -208,29 +278,59 @@ registerScreen('map', (app, root) => {
      *（`.map-hero` 的層級又比節點高）。所以左邊放不下就改站右邊。
      */
     if (n.id === run.currentNode) {
-      const hero = artUrl('icons', `icon/map_hero_${run.act >= 3 ? 'top' : run.act === 2 ? 'mid' : 'low'}`);
+      // 鍵走 `mapHeroKey`：有菲菲自己那顆就用她的，沒有就退回球球（見那支的說明）
+      const hero = artUrl('icons', mapHeroKey(run.act));
       if (!hero.startsWith('data:')) {
-        const left = x - R - HERO_GAP - HERO_W;
-        // 左邊放不下就站右邊（見上面的說明）
-        const onRight = left < LABEL_RIGHT + 8;
         /**
-         * **站右邊時要左右翻過來**（使用者 2026-09-11）。
-         * 三張立繪原圖都是面向右邊畫的，站在節點左邊時剛好看著節點；一旦改站右邊，
-         * 就變成背對著節點往畫面外看——「我站在這一格」的意思整個沒了。
-         * 翻轉走 `.map-hero.flip`，不用行內樣式：那個類別裡的浮動動畫也動 `translate`，
-         * 兩邊寫同一個屬性會打架（這專案的老坑）。
+         * **間隙算的是「看得見的那一邊」，不是 `<img>` 方框的邊**
+         *（2026-09-13 使用者：「很不準確」）。
+         *
+         * 方框是 52×52，圖用 `object-fit: contain` 塞進去；兩位畫的比例不一樣
+         *（球球的身體佔畫布 79%、菲菲 86%），所以方框裡**左右各留下一截透明邊**，
+         * 而且兩位留的寬度不同。照方框的邊算，球球離格子 13 像素、菲菲只有 11.5，
+         * 同一個常數畫出來兩隻的距離就是不一樣——「對不準」的真正來源。
+         *
+         * 這裡等圖載好之後量它的原始長寬算出透明邊，再把方框往回推，
+         * 讓**看得見的邊緣**離格子剛好 `HERO_GAP`。以後換新圖也會自己對齊。
          */
-        inner.append(el('img', {
-          class: `map-hero${onRight ? ' flip' : ''}`, src: hero, alt: '球球', draggable: 'false',
-          style: `left:${onRight ? x + R + HERO_GAP : left}px;top:${y - 30}px`,
-        }));
+        const img = el('img', {
+          class: 'map-hero', src: hero, alt: heroName(me(run, app.seat)), draggable: 'false',
+          style: `left:${x - R - RING - HERO_GAP - HERO_W}px;top:${y - 30}px`,
+        }) as HTMLImageElement;
+        const place = (): void => {
+          // 高度是限制邊（兩位的圖都是滿高的），所以畫出來的寬＝52 × 長寬比
+          const drawn = img.naturalHeight > 0
+            ? Math.min(HERO_W, HERO_W * img.naturalWidth / img.naturalHeight)
+            : HERO_W;
+          const pad = (HERO_W - drawn) / 2;                 // contain 置中留下的透明邊
+          const left = x - R - RING - HERO_GAP - HERO_W + pad;   // 看得見的右緣剛好離光圈 HERO_GAP
+          /*
+           * 左邊放不下就站右邊。比的是**看得見的左緣**（`left + pad`），不是方框的左緣——
+           * 照方框比會把那一截透明邊也算成「擋到樓層數字」，於是最左那條車道
+           * 明明還有空間也被判定放不下（使用者看到的就是 29F 她跑到右邊去）。
+           */
+          const onRight = left + pad < LABEL_RIGHT + 8;
+          /**
+           * **站右邊時要左右翻過來**（使用者 2026-09-11）。
+           * 三張立繪原圖都是面向右邊畫的，站在節點左邊時剛好看著節點；一旦改站右邊，
+           * 就變成背對著節點往畫面外看——「我站在這一格」的意思整個沒了。
+           * 翻轉走 `.map-hero.flip`，不用行內樣式：那個類別裡的浮動動畫也動 `translate`，
+           * 兩邊寫同一個屬性會打架（這專案的老坑）。
+           */
+          img.classList.toggle('flip', onRight);
+          img.style.left = `${onRight ? x + R + RING + HERO_GAP - pad : left}px`;
+        };
+        // 圖多半已經在快取裡（開場就預載過），沒有的話等載好再量一次
+        if (img.complete && img.naturalHeight > 0) place();
+        else img.addEventListener('load', place, { once: true });
+        inner.append(img);
       }
     }
   }
 
   root.append(scroll);
   // 第一次看到帶修飾詞的可選節點：球球講一句，玩家才知道那塊小牌子可以滑上去看（旗標記在 run.flags，跟其他一次性提示同一套）
-  if (run.map.nodes.some((n) => choices.has(n.id) && n.modifier)) app.playOnce('firstModifier', [{ speaker: '球球', text: '名字前面多了形容詞的怪不太一樣，滑上去看看是好事還是壞事喵！' }], () => {});
+  if (run.map.nodes.some((n) => choices.has(n.id) && n.modifier)) app.playOnce('firstModifier', [{ speaker: '球球', text: '名字前面多了形容詞的怪不太一樣，滑上去看看是好事還是壞事喵！' }], () => {});   // 說話者寫「球球」就好：`playDialogue` 的入口會照這一局的角色換臉、換名字、換口氣
 
   // 腳印沿著曲線鋪。要用 getPointAtLength 量位置與切線，路徑得先在文件裡才量得到，
   // 所以排在 append 之後。每隻腳印各自轉到那一點的切線方向，看起來才像沿著路走。

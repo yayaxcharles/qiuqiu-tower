@@ -1,10 +1,12 @@
 import { potionById } from '../content/potions';
 import { replacePotion } from '../engine/run';
+import type { App } from './app';
 import type { RunState } from '../engine/types';
 import { artUrl } from './assets';
 import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
+import { me } from '../engine/runplayer';
 
 /**
  * 忍具帶滿了、又拿到一支：問要換掉哪一支（使用者 2026-09-02：「滿的話新拿到的可以把舊的替換掉」）。
@@ -12,7 +14,8 @@ import { hideTooltip } from './tooltip';
  * 疊層規矩同 confirm.ts：疊層貼上去之後才 lockScreen。
  * `onDone(index)`：換掉了第幾支；不換回 -1。呼叫端自己決定要不要真的換（罐頭鋪要先付錢）。
  */
-export function showPotionSwap(run: RunState, newId: string, onDone: (index: number) => void, opts: { apply?: boolean; progress?: string } = {}): void {
+export function showPotionSwap(run: RunState, newId: string, onDone: (index: number) => void, opts: { apply?: boolean; progress?: string; seat?: number } = {}): void {
+  const seat = opts.seat ?? 0;   // 換的是**我的**背包，不是第一位的（連線版 2026-09-11）
   const layer = overlayRoot();
   const def = potionById[newId];
   if (!layer || !def) { onDone(-1); return; }
@@ -22,7 +25,7 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
     overlay.remove();
     unlockScreen();
     hideTooltip();
-    if (index >= 0 && opts.apply !== false) replacePotion(run, index, newId);
+    if (index >= 0 && opts.apply !== false) replacePotion(run, index, newId, seat);
     onDone(index);
   };
   const icon = (art: string, alt: string): Node | string => {
@@ -30,7 +33,7 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
     return url.startsWith('data:') ? '' : el('img', { src: url, alt });
   };
   const list = el('div', { class: 'swap-list' });
-  run.potions.forEach((id, i) => {
+  me(run, seat).potions.forEach((id, i) => {
     const p = potionById[id];
     if (!p) return;
     list.append(el('button', { class: 'swap-item', onclick: () => dismiss(i) },
@@ -47,4 +50,16 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(-1); });
   layer.append(overlay);
   lockScreen();
+}
+
+/**
+ * 換掉背包裡第 `i` 支忍具。**連線時一定要送出去**（2026-09-11 稽核 高-3）。
+ *
+ * `showPotionSwap` 預設會自己呼叫 `replacePotion`，那**只改自己這台**的整局狀態，
+ * 而忍具是整局指紋的一部分——下一格對帳就會判定整局對不上、整場停掉。
+ * 罐頭鋪那條本來就走 `submitRun`，漏掉的是戰利品與事件這兩條。
+ */
+export function swapPotion(app: App, run: RunState, seat: number, index: number, id: string): void {
+  if (app.coop) { app.coop.submitRun({ t: 'swap', seat, i: index, id }); return; }
+  replacePotion(run, index, id, seat);
 }

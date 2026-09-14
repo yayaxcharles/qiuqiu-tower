@@ -2,6 +2,21 @@ import type { RelicDef } from '../engine/types';
 
 export const relics: RelicDef[] = [
   { id: 'blue_headband', name: '藍頭巾', pool: '起始', text: '每場戰鬥第一回合多抽 1 張牌。', art: 'codex/relic_headband', price: 130, hooks: { firstTurnDraw: 1 } },
+  /*
+   * 菲菲的起始秘寶。**2026-09-13 使用者改版**：原本是「每場戰鬥開始時 5 點蜷縮」，
+   * 改成「每回合開始時給所有魔物 1 層中毒」。
+   *
+   * 使用者的理由是「增加她的特性」——開場 5 點蜷縮任何角色拿到都一樣好用，
+   * 跟她是誰無關；每回合灑毒才是她。
+   *
+   * 順帶解掉一個量出來的問題：她的難度曲線是**前期太簡單、第二關開始死**
+   *（活過 20F 六成 vs 球球四成，通關率只有球球一半），病根是毒要疊很多層才痛，
+   * 而前期戰鬥太短、疊不起來。每回合自動 +1 層等於讓毒早一點開始滾。
+   * N 層中毒的總傷害是 N(N+1)/2，所以這 1 層在長戰鬥裡的價值遠大於短戰鬥——
+   * 正好補在她弱的那一段。**改完要跑 `smartRun` 對照**（見專案記憶）。
+   */
+  { id: 'backstep', name: '毒針袋', pool: '起始', text: '每回合開始時，給所有魔物 1 層中毒。', art: 'codex/relic_backstep', price: 130,
+    hooks: { turnStart: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] } },
   { id: 'onigiri_bag', name: '飯糰袋', pool: '常見', text: '每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_onigiri_bag', price: 160, hooks: { firstTurnEnergy: 1 } },
   { id: 'tuna_can', name: '鮪魚罐頭', pool: '常見', text: '最大生命 +10。', art: 'codex/relic_tuna_can', price: 120, hooks: { maxHp: 10 } },
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回的血加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },
@@ -16,7 +31,7 @@ export const relics: RelicDef[] = [
   { id: 'yarn_ball', name: '毛線球', pool: '大魔物', text: '每回合第一張打出的牌費用 −1（最低 0）。', art: 'codex/relic_yarn_ball', price: 210, hooks: { firstCardDiscount: 1 } },
   { id: 'cat_teaser', name: '逗貓棒', pool: '大魔物', text: '每打出一張攻擊牌，有兩成機會抽 1 張牌。', art: 'codex/relic_cat_teaser', price: 190, hooks: { onAttackPlayed: { chance: 0.2, effects: [{ kind: 'draw', n: 1 }] } } },
   { id: 'scroll', name: '秘笈', pool: '大魔物', text: '每場戰鬥第一次攻擊傷害加倍。', art: 'codex/relic_scroll', price: 190, hooks: { firstAttackDouble: true } },
-  { id: 'paper_bag', name: '紙袋', pool: '大魔物', text: '每回合第一次獲得隱身時多 1 層。', art: 'codex/relic_paper_bag', price: 180, hooks: { stealthBonus: 1 } },
+  { id: 'paper_bag', name: '紙袋', pool: '大魔物', notFor: ['feifei'], text: '每回合第一次獲得隱身時多 1 層。', art: 'codex/relic_paper_bag', price: 180, hooks: { stealthBonus: 1 } },
   { id: 'bronze_mirror', name: '銅鏡', pool: '大魔物', text: '每場戰鬥開始時獲得 2 點反彈。', art: 'codex/relic_bronze_mirror', price: 170,
     hooks: { combatStart: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] } },
   // 2026-09-10 拿掉「最大生命 −10」：這件是打倒關主的信物，一局只拿得到一次、也沒得選，
@@ -49,7 +64,7 @@ export const relics: RelicDef[] = [
   { id: 'nine_tails', name: '九尾墜', pool: '大魔物', text: '每回合多 1 顆飯糰。', art: 'codex/relic_nine_tails', price: 240, hooks: { energyPerTurn: 1 } },
 
   // --- 塔主：打贏塔主才有，直接改變玩法 ---
-  { id: 'shadow_cloak', name: '影披風', pool: '塔主', text: '每次獲得隱身時多 1 層。', art: 'codex/relic_shadow_cloak', price: 220, hooks: { stealthBonusEvery: 1 } },
+  { id: 'shadow_cloak', name: '影披風', pool: '塔主', notFor: ['feifei'], text: '每次獲得隱身時多 1 層。', art: 'codex/relic_shadow_cloak', price: 220, hooks: { stealthBonusEvery: 1 } },
   { id: 'last_breath', name: '最後一口氣', pool: '塔主', text: '每場戰鬥第一次會被打倒時，留下 1 點生命。', art: 'codex/relic_last_breath', price: 230, hooks: { preventLethal: true } },
   { id: 'master_belt', name: '掌門腰帶', pool: '塔主', text: '最大生命 +25。', art: 'codex/relic_master_belt', price: 230, hooks: { maxHp: 25 } },
   { id: 'golden_bowl', name: '金飯碗', pool: '塔主', text: '每場戰鬥第一回合多 2 顆飯糰。', art: 'codex/relic_golden_bowl', price: 240, hooks: { firstTurnEnergy: 2 } },

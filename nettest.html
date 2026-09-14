@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <title>連線測試｜爪破魔塔</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0; padding: 16px;
+      font: 15px/1.7 system-ui, "Noto Sans TC", sans-serif;
+      max-width: 720px; margin-inline: auto;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .sub { color: #888; margin: 0 0 20px; font-size: 13px; }
+    fieldset { border: 1px solid #8884; border-radius: 8px; padding: 12px 14px; margin: 0 0 16px; }
+    legend { font-weight: 600; padding: 0 6px; }
+    button { font: inherit; padding: 8px 16px; border-radius: 6px; border: 1px solid #8886; cursor: pointer; background: #8881; }
+    button:disabled { opacity: .4; cursor: default; }
+    textarea { width: 100%; box-sizing: border-box; font: 12px/1.4 ui-monospace, monospace; min-height: 72px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    #log { white-space: pre-wrap; font: 12px/1.6 ui-monospace, monospace; background: #8881; padding: 10px; border-radius: 6px; min-height: 120px; }
+    .ok { color: #2a8; font-weight: 600; }
+    .bad { color: #d44; font-weight: 600; }
+    .hint { font-size: 13px; color: #888; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+  <h1>連線測試</h1>
+  <p class="sub">這一頁只做一件事：確認兩台機器的瀏覽器連不連得起來。不含任何遊戲內容。</p>
+
+  <fieldset>
+    <legend>一、我當主機</legend>
+    <div class="row"><button id="host">開房，產生邀請碼</button></div>
+    <textarea id="invite" readonly placeholder="按上面那顆，邀請碼會出現在這裡（要等幾秒蒐集網路位置）"></textarea>
+    <p class="hint">把整串複製給對方。對方貼完會給你一串回應碼，貼進下面這格。</p>
+    <textarea id="answerIn" placeholder="貼上對方傳回來的回應碼"></textarea>
+    <div class="row"><button id="accept" disabled>連上</button></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>二、我是加入的人</legend>
+    <textarea id="inviteIn" placeholder="貼上對方給的邀請碼"></textarea>
+    <div class="row"><button id="join">產生回應碼</button></div>
+    <textarea id="answer" readonly placeholder="回應碼會出現在這裡，整串傳回去給對方"></textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend>三、連上之後</legend>
+    <div class="row">
+      <button id="ping" disabled>送一則訊息</button>
+      <button id="flood" disabled>連送 50 則（測順序與掉包）</button>
+    </div>
+  </fieldset>
+
+  <div id="log">還沒開始。</div>
+
+  <script type="module" src="/src/net/nettest.ts"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import { cardStats } from '../engine/deck';
 import type { CardDef, CardInstance } from '../engine/types';
-import { artUrl } from './assets';
+import { artUrl, cardArtKey, localHero } from './assets';
+import { cardNameFor } from '../content/cards';
 import { describeCard, upgradedChangedChars } from './cardtext';
 import { el } from './dom';
 import { markupKeywords } from './tooltip';
@@ -14,6 +15,14 @@ export interface CardViewOpts {
   disabled?: boolean;
   /** 分身術這場已經打過幾次（`cs.cardPlays`）：牌面要印這次實際打幾點 */
   plays?: number;
+  /**
+   * 用**誰**的圖與牌名畫（不填＝這一局玩的那位）。
+   *
+   * 只有卡牌圖鑑在用：從標題畫面開圖鑑時還沒開局，`localHero()` 一律回球球，
+   * 於是整本圖鑑都是他的圖——而那正是最需要「開局前先看看這角色有什麼牌」的時候
+   *（2026-09-13 使用者從標題畫面開，看到雙人牌全是球球的圖）。
+   */
+  hero?: string;
 }
 
 /** 畫一張牌：費用、圖、名字、規則文字（名詞會自動變成可提示的）、牌型 */
@@ -37,6 +46,10 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
 
   // 牌型決定底紋顏色、稀有度決定邊框（見 components.css）——兩件事各自一個類別
   const cls = ['card', `type-${def.type}`, `rarity-${def.rarity}`];
+  // 連線牌用**白色**底（使用者 2026-09-11 指定）。跟牌型分開是刻意的：
+  // 這批裡忍術與絕學都有，型別該顯示的還是顯示，只是紙的顏色換一種——
+  // 玩家一眼就分得出「這張要有同伴才有用」
+  if (def.coop) cls.push('coop');
   if (opts.small) cls.push('small');
   if (opts.selected) cls.push('selected');
   if (opts.disabled) cls.push('disabled');
@@ -49,11 +62,13 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
   const plays = opts.plays ?? 0;
   const changed = upgraded ? upgradedChangedChars(def, plays) : undefined;
   const costDown = upgraded && (def.upgrade.cost ?? def.cost) < def.cost;
+  // 升級反而變貴的也要標（見血封喉＋ 3→4，夜間稽核 低-7）：只標變便宜的話，貓窩預覽時看不出來，升完才發現一般回合打不出來
+  const costUp = upgraded && (def.upgrade.cost ?? def.cost) > def.cost;
 
   const node = el('div', { class: cls.join(' ') },
-    el('div', { class: costDown ? 'card-cost cost-down' : 'card-cost' }, String(cost)),
-    el('img', { class: 'card-art', src: artUrl('cards', def.art), alt: def.name, draggable: 'false' }),
-    el('div', { class: 'card-name' }, def.name + (upgraded ? '＋' : '')),
+    el('div', { class: costDown ? 'card-cost cost-down' : costUp ? 'card-cost cost-up' : 'card-cost' }, String(cost)),
+    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero)), alt: def.name, draggable: 'false' }),
+    el('div', { class: 'card-name' }, cardNameFor(def, opts.hero ?? localHero()) + (upgraded ? '＋' : '')),
     el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),
     el('div', { class: 'card-type' }, def.type));
 

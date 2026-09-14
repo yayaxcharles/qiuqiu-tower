@@ -5,7 +5,7 @@
  * 哪些牌翻得成魔物的一招：
  * - 打擊 → damage（無視蜷縮的翻成穿透）；蜷縮 → block；回血 → heal
  * - 給自己的狀態只收爪力、貓步、隱身（魔物身上這三個引擎本來就會算，舊版「照著學」抄的也是前兩個）
- * - 給對手的狀態翻成 statusPlayer（翻肚、懶洋洋、炸毛、噎到、定身）
+ * - 給對手的狀態翻成 statusPlayer（翻肚、懶洋洋、炸毛、中毒、定身）
  * - 抽牌、飯糰、看牌、留牌、消耗、棄牌、清減益這類「操作手牌」的效果他學不來，直接略過（那張牌其餘效果照翻）
  * - 「這回合不能攻擊」這種只綁自己的限制也略過（戰術撤退的 9 點蜷縮照學）
  * - 有條件的加成（背刺「目標有減益才多打」）不學那一段，只學無條件的部分
@@ -14,6 +14,7 @@
  * 一張牌至少要翻出一個效果才算數。抽牌用戰鬥亂數（cs.rng），同一個局面碼永遠抽到同一張。
  */
 import { encounterById, enemyById } from '../content/enemies';
+import { cardById, cardNameFor } from '../content/cards';
 import { cardStats } from './deck';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, Intent, StatusName } from './types';
 import { DEBUFFS } from './types';
@@ -46,6 +47,9 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
       // 漏掉就變成學了一張回 0 血的牌。今天沒有這種牌，是埋著的
       case 'heal': out.push({ kind: 'heal', n: fx.n, ...(fx.percent ? { percent: fx.percent } : {}) }); break;
       case 'status':
+        // 成長牌（她的分身術）整張不學，跟球球的分身術（damageRamp 不在 SKIP）同一個結果：
+        // 魔物沒有「這張打過幾次」可以記，照學只會學到永遠不長的基礎值（2026-09-14 推前審查 中-1）
+        if (fx.step) return null;
         if (fx.target === 'self') { if (SELF_OK.includes(fx.name)) out.push({ kind: 'statusSelf', name: fx.name, amount: fx.amount }); }
         else if (DEBUFFS.includes(fx.name)) out.push({ kind: 'statusPlayer', name: fx.name, amount: fx.amount });
         break;
@@ -86,6 +90,18 @@ export function learnedMove(cs: CombatState): EnemyMove | undefined {
   const intent: Intent = effects.some((f) => f.kind === 'damage') ? 'attack'
     : effects.some((f) => f.kind === 'block') ? 'block'
       : effects.some((f) => f.kind === 'statusPlayer') ? 'debuff' : 'buff';
-  // 牌名用「、」串：升級牌的名字結尾就是「＋」，用「＋」串會變成「淡定＋＋貓抓＋」（稽核 2026-09-08 中-1）
-  return { intent, label: picks.map((c) => cardStats(c).name).join('、'), effects, learned: picks.map((c) => ({ cardId: c.cardId, upgraded: c.upgraded })) };
+  /*
+   * 牌名用「、」串：升級牌的名字結尾就是「＋」，用「＋」串會變成「淡定＋＋貓抓＋」（稽核 2026-09-08 中-1）。
+   *
+   * 名字要過 `cardNameFor`（稽核 2026-09-12 低-1）：菲菲手上的牌面寫「絕學·連珠針」，
+   * 紀錄卻寫「絕學·貓爪抓」，同一張牌兩個名字。鏡子學的是**被照的那一位**的牌組，
+   * 所以看的是 `p.hero`，不是本機這一位。
+   */
+  const nameOf = (c: CardInstance): string => {
+    const def = cardById[c.cardId];
+    if (!def) return cardStats(c).name;
+    // 升級的「＋」照 `cardStats` 的規矩自己補（那支是 `def.name + '＋'`）
+    return cardNameFor(def, cs.player.hero) + (c.upgraded ? '＋' : '');
+  };
+  return { intent, label: picks.map(nameOf).join('、'), effects, learned: picks.map((c) => ({ cardId: c.cardId, upgraded: c.upgraded })) };
 }

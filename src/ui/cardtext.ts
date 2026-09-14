@@ -8,7 +8,7 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
  * 後面再用逗號接「獲得 6 點蜷縮」會黏成一長串，看不出那 6 點是另一件事。
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
-const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn']);
+const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst']);
 
 /** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
@@ -16,10 +16,10 @@ const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
 /**
  * 各狀態的量詞。少了量詞的「獲得 1 隱身」「給目標 2 翻肚」唸起來不像中文，
  * 加上「層／點」才是一句話。分法照規格 §2 的名詞表：
- * 撐幾回合的算層（隱身、翻肚、懶洋洋、炸毛、噎到），數值型的算點（爪力、貓步、反彈）。
+ * 撐幾回合的算層（隱身、翻肚、懶洋洋、炸毛、中毒），數值型的算點（爪力、貓步、反彈）。
  */
 export const STATUS_UNIT: Readonly<Record<string, string>> = {
-  隱身: '層', 翻肚: '層', 懶洋洋: '層', 炸毛: '層', 噎到: '層',
+  隱身: '層', 翻肚: '層', 懶洋洋: '層', 炸毛: '層', 中毒: '層',
   爪力: '點', 貓步: '點', 反彈: '點',
 };
 
@@ -41,7 +41,8 @@ function namesAllFoes(fx: Effect | undefined): boolean {
 
 /** 這張牌有沒有動到魔物——有的話回復要寫成「你回復 N 生命」才分得清誰回血（規格 §6.1 以德服人） */
 const FOE_KINDS: ReadonlySet<Effect['kind']> = new Set(
-  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'stealBlock', 'removeStatuses', 'transferDebuffs']);
+  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
+   'stealBlock', 'removeStatuses', 'transferDebuffs']);
 function touchesFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => FOE_KINDS.has(e.kind) || (e.kind === 'status' && e.target !== 'self'));
 }
@@ -51,7 +52,8 @@ function touchesFoes(effects: readonly Effect[]): boolean {
  * 鐵頭功、亡命是先打人再自傷，「也」對；拼命只有自傷（拿血換飯糰），
  * 寫「也」會害玩家回頭去找那個根本不存在的前一下。
  */
-const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock']);
+const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(
+  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus']);
 function hurtsFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => HURT_KINDS.has(e.kind));
 }
@@ -93,6 +95,57 @@ function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
+    // 倍率寫成「兩倍」不是「×2」：牌面其他地方都用中文，突然冒一個乘號很跳（2026-09-14）。
+    // 原本註解這樣寫、程式卻印成「層數2 倍」（數字、少空格、「等同…的 2 倍」語意打架，夜間稽核 中-3），
+    // 改成照使用者給的原句：「造成中毒層數兩倍的傷害」
+    case 'damageByStatus': return ((fx.mul ?? 1) > 1
+      ? `造成目標${fx.name}層數${({ 2: '兩', 3: '三', 4: '四' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍的傷害`
+      : `造成等同目標${fx.name}層數的傷害`)
+      + (fx.consume ? `，然後把${fx.name}清掉` : '');
+    // 「不少於」跟引擎一致（`effects.ts` 是層數 ≥ 生命就打倒）：原本寫「比…還多」，剛好相等時牌面說不行、實際會成功（夜間稽核 低-7）
+    case 'execByStatus': return `目標的${fx.name}層數不少於牠剩下的生命的話，直接打倒牠`;
+    case 'spreadStatus': return fx.half
+      ? `把目標身上的${fx.name}分給其他魔物，各拿一半`
+      : `把目標身上的${fx.name}原封不動複製給其他每一隻魔物`;
+    case 'poisonBurst': return fx.full ? '中毒的魔物被打倒時，剩下的層數每一隻都拿一份'
+      : '中毒的魔物被打倒時，把剩下的層數分給其他魔物';
+    case 'blockBonus': return `之後每次獲得蜷縮都多 ${fx.n} 點`;
+    case 'echoFirst': return '之後每回合打出的第一張牌，會再打一次';
+    case 'poisonOnAttack': return `之後每打出一張攻擊牌，再給那個目標 ${fx.n} 層中毒`;
+    // 幫隊友的三招（連線版 2026-09-11）。措辭刻意寫成「兩個人一起玩才看得出差別」，
+    // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉
+    case 'blockAll': return `每個人各獲得 ${fx.amount} 點蜷縮`;
+    case 'statusAlly': return `同伴獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '層'}${fx.name}（自己一個人時算在自己身上）`;
+    case 'taunt': return '這一輪魔物的攻擊全部衝著你來';
+    case 'blockAlly': return `同伴獲得 ${fx.amount} 點蜷縮（自己一個人時算在自己身上）`;
+    case 'drawAlly': return `同伴抽 ${fx.n} 張牌（自己一個人時算在自己身上）`;
+    case 'cleanseAlly': return '清掉同伴身上所有減益（自己一個人時清自己的）';
+    // 連線支援牌（2026-09-13）。措辭跟上面幾張一致：寫「同伴」並補一句單人時怎麼算，
+    // 不然單機抽到會以為牌壞掉
+    case 'healAlly': return `同伴回復 ${fx.n} 點生命（自己一個人時回自己的）`;
+    case 'blockFromAllyBlock': return `獲得 ${fx.amount} 點蜷縮，再照同伴現有的蜷縮`
+      + `${fx.half ? '一半' : ''}多拿（最多 ${fx.cap} 點，同伴不會變少；自己一個人時讀自己的）`;
+    case 'damageFromAllyStrength': return `造成 ${fx.amount} 傷害，同伴每有 1 點爪力再加 1 點`
+      + `（最多 ${fx.cap} 點；自己一個人時讀自己的）${fx.ignoreBlock ? '。無視防禦' : ''}`;
+    case 'energyTransfer': return `把自己最多 ${fx.n} 顆剩下的飯糰交給同伴（自己一個人時不轉）`;
+    case 'doubleNextAttackAlly': return '同伴本輪的下一張攻擊牌傷害加倍（自己一個人時算自己的）';
+    case 'drawAllyIfTargetStatus': return `目標在出牌前已經${fx.anyDebuff ? '有任何減益' : `有${fx.name}`}的話，`
+      + `同伴抽 ${fx.n} 張牌（自己一個人時算自己的）`;
+    case 'transferDebuffsFromAlly': return '把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的）';
+    case 'watchAllyPlay': return `之後每一輪，同伴第一次打出${fx.cardType === 'any' ? '牌' : '技能牌'}時，自己抽 1 張`
+      + '（自己一個人時改成看自己出牌）';
+    case 'watchSelfPlay': return `之後每一輪，自己第一次打出${fx.cardType === 'any' ? '牌' : '攻擊牌'}時，同伴獲得 6 點蜷縮`
+      + '（自己一個人時算在自己身上）';
+    case 'watchPoisonHit': return `之後每一輪一次，${fx.who === 'both' ? '任一方' : '同伴'}的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮`
+      + '（自己一個人時自己出手也算，獲得 8 點）';
+    case 'poisonAllyNextAttack': return `同伴本輪下一張${fx.anyDamage ? '造成傷害的牌' : '攻擊牌'}，`
+      + `對每隻被打到的魔物各施加 ${fx.amount} 層中毒（自己一個人時算自己的）`;
+    case 'energyForAllyEachRound': return `之後每一輪開始時，同伴多 1 顆飯糰`
+      + `${fx.draw ? '、並多抽 1 張' : ''}（自己一個人時算在自己身上）`;
+    // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
+    case 'ifSelfStatus': return `自己身上有${fx.name}的話，${fx.then.map((e) => one(e, ctx)).join('，')}`
+      + `；否則${fx.otherwise.map((e) => one(e, ctx)).join('，')}`;
+    case 'energyAlly': return `同伴這回合多 ${fx.n} 顆飯糰（自己一個人時算在自己身上）`;
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
       if (fx.ifTargetDebuffed) return `目標身上有任何減益就再造成 ${fx.amount} 點傷害`;
@@ -120,6 +173,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'drawIfTargetStatus': return `目標身上有${fx.name}就抽 ${fx.n} 張牌`;
     case 'drawNextTurn': return `下回合開始時多抽 ${fx.n} 張牌`;
     case 'status': {
+      // 成長牌（菲菲的分身術）：字照使用者 2026-09-14 給的原句；疊過就印當下的層數，後面補原本幾點（跟 damageRamp 同規矩）
+      if (fx.step) {
+        const plays = ctx.plays ?? 0;
+        const grew = plays > 0 ? `（原本 ${fx.amount} 點）` : '';
+        return `造成 ${fx.amount + fx.step * plays} 點${fx.name}層數${grew}，這場戰鬥中這張牌每打出一次，${fx.name}層數就再加 ${fx.step} 點`;
+      }
       if (isDive(fx)) return `下回合開始時再獲得 ${fx.amount} 層隱身`;
       if (fx.name === '鐵布衫') return `下回合開始時再獲得 ${fx.amount} 點蜷縮`;
       const oneShot = ONE_SHOT.has(fx.name);
@@ -191,7 +250,8 @@ const diffCache = new Map<string, UpgradeDiff>();
 
 /** 這張牌的文字會不會隨「這場打過幾次」變（只有分身術這種成長牌會）——決定快取要不要把次數算進去 */
 function textVariesWithPlays(def: CardDef): boolean {
-  const has = (fx: readonly Effect[] | undefined): boolean => (fx ?? []).some((e) => e.kind === 'damageRamp');
+  const has = (fx: readonly Effect[] | undefined): boolean =>
+    (fx ?? []).some((e) => e.kind === 'damageRamp' || (e.kind === 'status' && !!e.step));
   return has(def.effects) || has(def.upgrade.effects);
 }
 

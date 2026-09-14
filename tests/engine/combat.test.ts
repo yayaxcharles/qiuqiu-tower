@@ -237,9 +237,9 @@ describe('魔物回合', () => {
     for (let i = 0; i < 3; i++) endTurn(d);
     expect(getStatus(d.enemies[0]!, '爪力')).toBe(1);
   });
-  it('噎到在魔物回合開始扣血、能殺死魔物', () => {
+  it('中毒在魔物回合開始扣血、能殺死魔物', () => {
     const cs = start('rats2');
-    const e = cs.enemies[0]!; e.hp = 2; addStatus(e, '噎到', 3);
+    const e = cs.enemies[0]!; e.hp = 2; addStatus(e, '中毒', 3);
     endTurn(cs);
     expect(e.dead).toBe(true);
     expect(cs.kills).toBe(1);
@@ -286,10 +286,10 @@ describe('魔物回合', () => {
     expect(getStatus(cs.player, '爪力')).toBe(3);
     expect(getStatus(cs.player, '貓步')).toBe(2);
   });
-  it('噎到把塔主第一條血毒完，一樣蹲下換條不算死', () => {
+  it('中毒把塔主第一條血毒完，一樣蹲下換條不算死', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
-    e.hp = 3; addStatus(e, '噎到', 3);
+    e.hp = 3; addStatus(e, '中毒', 3);
     endTurn(cs);
     expect(e.dead).toBe(false);
     expect(e.phase).toBe(1);

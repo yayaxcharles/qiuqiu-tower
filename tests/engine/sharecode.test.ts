@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SHARE_PREFIX, decodeRun, encodeRun, shareSupported } from '../../src/engine/sharecode';
 import { newRun } from '../../src/engine/run';
 import { loadRun, saveRun, setStore } from '../../src/engine/save';
+import { me } from '../../src/engine/runplayer';
 
 /**
  * 局面碼（使用者 2026-09-07：「讓三個人用同一種牌組跟秘寶打王看看」）。
@@ -16,19 +17,19 @@ describe('局面碼', () => {
 
   it('壓得出來也還原得回去，內容一模一樣', async () => {
     const run = newRun('share-test', 3);
-    run.hp = 42;
-    run.fish = 777;
+    me(run).hp = 42;
+    me(run).fish = 777;
     const code = await encodeRun(run);
     expect(code).toBeTruthy();
     expect(code!.startsWith(SHARE_PREFIX)).toBe(true);
     const res = await decodeRun(code!);
     expect(res.ok).toBe(true);
     if (!res.ok) return;
-    expect(res.run.hp).toBe(42);
-    expect(res.run.fish).toBe(777);
+    expect(me(res.run).hp).toBe(42);
+    expect(me(res.run).fish).toBe(777);
     expect(res.run.difficulty).toBe(3);
     expect(res.run.seed).toBe('share-test');
-    expect(res.run.deck.map((c) => c.cardId)).toEqual(run.deck.map((c) => c.cardId));
+    expect(me(res.run).deck.map((c) => c.cardId)).toEqual(me(run).deck.map((c) => c.cardId));
     expect(res.run.map.nodes.length).toBe(run.map.nodes.length);
   });
 
@@ -53,7 +54,7 @@ describe('局面碼', () => {
 
   it('內容對不上牌表的碼要擋下來', async () => {
     const run = newRun('share-bad-card', 1);
-    run.deck[0]!.cardId = '這張牌不存在';
+    me(run).deck[0]!.cardId = '這張牌不存在';
     const code = await encodeRun(run);
     const res = await decodeRun(code!);
     expect(res.ok).toBe(false);

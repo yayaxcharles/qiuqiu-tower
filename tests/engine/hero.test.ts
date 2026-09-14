@@ -4,10 +4,11 @@ import { describe, expect, it } from 'vitest';
 
 import { cards } from '../../src/content/cards';
 import { newRun } from '../../src/engine/run';
-import { loadRun, saveRun, setStore } from '../../src/engine/save';
+import { loadRun, saveRun, setStore, RUN_KEY } from '../../src/engine/save';
 import { cardsForHero, heroOf } from '../../src/engine/hero';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { rollCardChoices } from '../../src/engine/rewards';
+import { me } from '../../src/engine/runplayer';
 
 describe('牌池分流', () => {
   it('沒標 hero 的牌兩個職業都拿得到', () => {
@@ -21,7 +22,9 @@ describe('牌池分流', () => {
 
   it('標了 hero 的牌只有那個職業拿得到', () => {
     const ninjaOnly = cards.filter((c) => c.hero === 'ninja');
-    expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占').toBe(10);
+    // 13→17（2026-09-14 使用者）：菲菲力氣小，地裂陣、沾衣十八跌、鐵頭功不給她；分身術她有自己那張疊毒的
+    // 17→18（同日併回前裁定）：影子分身球球維持原版、她留 9/12 改版，分成兩張
+    expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占（10 張）＋連線牌「你先躲」「跟著我躲好」「有我在前面」＋地裂陣、沾衣十八跌、鐵頭功、分身術、影子分身').toBe(18);
     for (const c of ninjaOnly) {
       expect(cardsForHero('ninja').includes(c), c.name).toBe(true);
       expect(cardsForHero('samurai').includes(c), `武士不該拿到 ${c.name}`).toBe(false);
@@ -37,25 +40,22 @@ describe('牌池分流', () => {
 
 describe('這一局是哪個職業', () => {
   it('沒指定就是忍者', () => {
-    expect(heroOf(newRun('h1'))).toBe('ninja');
+    expect(heroOf(me(newRun('h1')))).toBe('ninja');
   });
 
   it('指定武士就是武士', () => {
     const run = newRun('h2', 1, 'samurai');
-    expect(heroOf(run)).toBe('samurai');
+    expect(heroOf(me(run))).toBe('samurai');
   });
 
-  it('舊存檔沒有 hero 這一欄，讀回來當忍者，而且不會被判成壞檔', () => {
+  it('沒指定職業就不寫 hero 這一欄，讀回來當忍者', () => {
     const m = new Map<string, string>();
     setStore({ getItem: (k) => m.get(k) ?? null, setItem: (k, v) => { m.set(k, v); }, removeItem: (k) => { m.delete(k); } });
-    const run = newRun('old');
-    delete (run as { hero?: string }).hero;
-    saveRun(run);
-    expect(m.get('qiuqiu-tower/run')).not.toContain('hero');
+    saveRun(newRun('old'));
+    expect(m.get(RUN_KEY)).not.toContain('hero');
     const back = loadRun();
-    expect(back, '舊存檔不該被清掉').not.toBeNull();
-    expect(back!.version, '加可選欄位不可以升存檔版本').toBe(1);
-    expect(heroOf(back!)).toBe('ninja');
+    expect(back, '不該被判成壞檔').not.toBeNull();
+    expect(heroOf(me(back!))).toBe('ninja');
   });
 });
 

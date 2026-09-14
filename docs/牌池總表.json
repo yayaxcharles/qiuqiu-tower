@@ -154,6 +154,718 @@
   "up": "造成 10 點傷害；打倒牠就多拿 25 條小魚乾。"
  },
  {
+  "id": "fenyiban",
+  "name": "分你一半",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "blockAll"
+  ],
+  "effects": [
+   {
+    "kind": "blockAll",
+    "amount": 5
+   }
+  ],
+  "text": "每個人各獲得 5 點蜷縮。",
+  "up": "每個人各獲得 8 點蜷縮。"
+ },
+ {
+  "id": "ninaqudang",
+  "name": "你拿去擋",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "blockAlly"
+  ],
+  "effects": [
+   {
+    "kind": "blockAlly",
+    "amount": 12
+   }
+  ],
+  "text": "同伴獲得 12 點蜷縮（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 16 點蜷縮（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "nixianduo",
+  "name": "你先躲",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "statusAlly"
+  ],
+  "effects": [
+   {
+    "kind": "statusAlly",
+    "name": "隱身",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 2 層隱身（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 3 層隱身（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "wolaidang",
+  "name": "我來擋",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "taunt",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "taunt"
+   },
+   {
+    "kind": "block",
+    "amount": 10
+   }
+  ],
+  "text": "這一輪魔物的攻擊全部衝著你來，獲得 10 點蜷縮。",
+  "up": "這一輪魔物的攻擊全部衝著你來，獲得 15 點蜷縮。"
+ },
+ {
+  "id": "bangnisheme",
+  "name": "幫你一把",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "statusAlly"
+  ],
+  "effects": [
+   {
+    "kind": "statusAlly",
+    "name": "爪力",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 2 點爪力（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 3 點爪力（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "jienicailiangbu",
+  "name": "借你踩兩步",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "statusAlly"
+  ],
+  "effects": [
+   {
+    "kind": "statusAlly",
+    "name": "貓步",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 2 點貓步（自己一個人時算在自己身上）。",
+  "up": "同伴獲得 3 點貓步（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "niyechouyizhang",
+  "name": "你也抽一張",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "drawAlly"
+  ],
+  "effects": [
+   {
+    "kind": "drawAlly",
+    "n": 1
+   }
+  ],
+  "text": "同伴抽 1 張牌（自己一個人時算在自己身上）。",
+  "up": "同伴抽 2 張牌（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "wobangnipaidiao",
+  "name": "我幫你拍掉",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "cleanseAlly"
+  ],
+  "effects": [
+   {
+    "kind": "cleanseAlly"
+   }
+  ],
+  "upCost": 0,
+  "text": "清掉同伴身上所有減益（自己一個人時清自己的）。",
+  "up": "清掉同伴身上所有減益（自己一個人時清自己的），清掉自己身上所有的減益。"
+ },
+ {
+  "id": "fantuanfenni",
+  "name": "飯糰分你",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "energyAlly"
+  ],
+  "effects": [
+   {
+    "kind": "energyAlly",
+    "n": 1
+   }
+  ],
+  "text": "同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）。消耗。",
+  "up": "同伴這回合多 2 顆飯糰（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "bangnidianyixia",
+  "name": "幫你墊一下",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "blockAlly"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 6
+   },
+   {
+    "kind": "blockAlly",
+    "amount": 4
+   }
+  ],
+  "text": "造成 6 點傷害，同伴獲得 4 點蜷縮（自己一個人時算在自己身上）。",
+  "up": "造成 6 點傷害，同伴獲得 4 點蜷縮（自己一個人時算在自己身上），獲得 4 點蜷縮。"
+ },
+ {
+  "id": "shoujiewoyixia",
+  "name": "手借我一下",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "healAlly"
+  ],
+  "effects": [
+   {
+    "kind": "healAlly",
+    "n": 8
+   }
+  ],
+  "text": "同伴回復 8 點生命（自己一個人時回自己的）。消耗。",
+  "up": "清掉同伴身上所有減益（自己一個人時清自己的），同伴回復 8 點生命（自己一個人時回自己的）。消耗。"
+ },
+ {
+  "id": "huannieduochoudian",
+  "name": "換你多抽點",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "discardFromHand",
+   "block",
+   "drawAlly"
+  ],
+  "effects": [
+   {
+    "kind": "discardFromHand",
+    "n": 1
+   },
+   {
+    "kind": "block",
+    "amount": 4
+   },
+   {
+    "kind": "drawAlly",
+    "n": 2
+   }
+  ],
+  "text": "丟掉 1 張牌，獲得 4 點蜷縮，同伴抽 2 張牌（自己一個人時算在自己身上）。消耗。",
+  "up": "消耗手牌裡的 1 張牌，獲得 4 點蜷縮，同伴抽 2 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "wobangnishouwei",
+  "name": "我幫你收尾",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "energyAlly"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 9
+   },
+   {
+    "kind": "energyAlly",
+    "n": 1,
+    "onKill": true
+   }
+  ],
+  "text": "造成 9 點傷害，同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）。消耗。",
+  "up": "造成 9 點傷害，同伴這回合多 1 顆飯糰（自己一個人時算在自己身上），同伴抽 1 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "huannimangyixia",
+  "name": "換你忙一下",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "drawAlly",
+   "energyAlly",
+   "noAttacksThisTurn"
+  ],
+  "effects": [
+   {
+    "kind": "drawAlly",
+    "n": 2
+   },
+   {
+    "kind": "energyAlly",
+    "n": 1
+   },
+   {
+    "kind": "noAttacksThisTurn"
+   }
+  ],
+  "text": "同伴抽 2 張牌（自己一個人時算在自己身上），同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）；這回合不能再打攻擊牌。消耗。",
+  "up": "同伴抽 2 張牌（自己一個人時算在自己身上），同伴這回合多 1 顆飯糰（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "genzhewoduohao",
+  "name": "跟著我躲好",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "ifSelfStatus"
+  ],
+  "effects": [
+   {
+    "kind": "ifSelfStatus",
+    "name": "隱身",
+    "then": [
+     {
+      "kind": "statusAlly",
+      "name": "隱身",
+      "amount": 1
+     }
+    ],
+    "otherwise": [
+     {
+      "kind": "blockAlly",
+      "amount": 8
+     }
+    ]
+   }
+  ],
+  "text": "自己身上有隱身的話，同伴獲得 1 層隱身（自己一個人時算在自己身上）；否則同伴獲得 8 點蜷縮（自己一個人時算在自己身上）。消耗。",
+  "up": "自己身上有隱身的話，同伴獲得 1 層隱身（自己一個人時算在自己身上）；否則同伴獲得 8 點蜷縮（自己一個人時算在自己身上），同伴抽 1 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "kaoniyixia",
+  "name": "靠你一下",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "blockFromAllyBlock"
+  ],
+  "effects": [
+   {
+    "kind": "blockFromAllyBlock",
+    "amount": 5,
+    "cap": 8,
+    "half": true
+   }
+  ],
+  "text": "獲得 5 點蜷縮，再照同伴現有的蜷縮一半多拿（最多 8 點，同伴不會變少；自己一個人時讀自己的）。",
+  "up": "獲得 5 點蜷縮，再照同伴現有的蜷縮多拿（最多 8 點，同伴不會變少；自己一個人時讀自己的）。"
+ },
+ {
+  "id": "zhexienixianchi",
+  "name": "這些你先吃",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "energyTransfer",
+   "draw"
+  ],
+  "effects": [
+   {
+    "kind": "energyTransfer",
+    "n": 2
+   },
+   {
+    "kind": "draw",
+    "n": 1
+   }
+  ],
+  "text": "把自己最多 2 顆剩下的飯糰交給同伴（自己一個人時不轉），抽 1 張牌。消耗。",
+  "up": "把自己最多 2 顆剩下的飯糰交給同伴（自己一個人時不轉），抽 1 張牌，同伴抽 1 張牌（自己一個人時算在自己身上）。消耗。"
+ },
+ {
+  "id": "zhaonishuodeda",
+  "name": "照你說的打",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "drawAllyIfTargetStatus",
+   "damage"
+  ],
+  "effects": [
+   {
+    "kind": "drawAllyIfTargetStatus",
+    "name": "中毒",
+    "n": 1
+   },
+   {
+    "kind": "damage",
+    "amount": 6
+   }
+  ],
+  "text": "目標在出牌前已經有中毒的話，同伴抽 1 張牌（自己一個人時算自己的），造成 6 點傷害。",
+  "up": "目標在出牌前已經有任何減益的話，同伴抽 1 張牌（自己一個人時算自己的），造成 6 點傷害。"
+ },
+ {
+  "id": "jienideliqi",
+  "name": "借你的力氣",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageFromAllyStrength"
+  ],
+  "effects": [
+   {
+    "kind": "damageFromAllyStrength",
+    "amount": 6,
+    "cap": 8
+   }
+  ],
+  "text": "造成 6 傷害，同伴每有 1 點爪力再加 1 點（最多 8 點；自己一個人時讀自己的）。",
+  "up": "造成 6 傷害，同伴每有 1 點爪力再加 1 點（最多 8 點；自己一個人時讀自己的）。無視防禦。"
+ },
+ {
+  "id": "chenxianzaichushou",
+  "name": "趁現在出手",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "doubleNextAttackAlly"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 4
+   },
+   {
+    "kind": "doubleNextAttackAlly"
+   }
+  ],
+  "upCost": 0,
+  "text": "獲得 4 點蜷縮，同伴本輪的下一張攻擊牌傷害加倍（自己一個人時算自己的）。",
+  "up": "獲得 4 點蜷縮，同伴本輪的下一張攻擊牌傷害加倍（自己一個人時算自己的）。"
+ },
+ {
+  "id": "biezhanzaishenshang",
+  "name": "別沾在身上",
+  "pool": "絕學",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "transferDebuffsFromAlly"
+  ],
+  "effects": [
+   {
+    "kind": "transferDebuffsFromAlly"
+   }
+  ],
+  "text": "把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的）。",
+  "up": "把同伴身上所有減益移到目標魔物身上（自己一個人時移自己的），每個人各獲得 4 點蜷縮。"
+ },
+ {
+  "id": "xianbangniliuzhe",
+  "name": "先幫你留著",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "blockAlly"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 4
+   },
+   {
+    "kind": "blockAlly",
+    "amount": 8
+   }
+  ],
+  "text": "獲得 4 點蜷縮，同伴獲得 8 點蜷縮（自己一個人時算在自己身上）。",
+  "up": "獲得 6 點蜷縮，同伴獲得 10 點蜷縮（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "nimangwobuwei",
+  "name": "你忙我補位",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "watchAllyPlay"
+  ],
+  "effects": [
+   {
+    "kind": "watchAllyPlay",
+    "cardType": "技能"
+   }
+  ],
+  "text": "之後每一輪，同伴第一次打出技能牌時，自己抽 1 張（自己一個人時改成看自己出牌）。",
+  "up": "之後每一輪，同伴第一次打出牌時，自己抽 1 張（自己一個人時改成看自己出牌）。"
+ },
+ {
+  "id": "fantuanliuyikou",
+  "name": "飯糰留一口",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "energyForAllyEachRound"
+  ],
+  "effects": [
+   {
+    "kind": "energyForAllyEachRound"
+   }
+  ],
+  "text": "之後每一輪開始時，同伴多 1 顆飯糰（自己一個人時算在自己身上）。",
+  "up": "之後每一輪開始時，同伴多 1 顆飯糰、並多抽 1 張（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "youwozaiqianmian",
+  "name": "有我在前面",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "watchSelfPlay"
+  ],
+  "effects": [
+   {
+    "kind": "watchSelfPlay",
+    "cardType": "攻擊"
+   }
+  ],
+  "text": "之後每一輪，自己第一次打出攻擊牌時，同伴獲得 6 點蜷縮（自己一個人時算在自己身上）。",
+  "up": "之後每一輪，自己第一次打出牌時，同伴獲得 6 點蜷縮（自己一個人時算在自己身上）。"
+ },
+ {
+  "id": "biepengzhenjian",
+  "name": "別碰針尖喔",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "blockAlly",
+   "poisonAllyNextAttack"
+  ],
+  "effects": [
+   {
+    "kind": "blockAlly",
+    "amount": 4
+   },
+   {
+    "kind": "poisonAllyNextAttack",
+    "amount": 2
+   }
+  ],
+  "text": "同伴獲得 4 點蜷縮（自己一個人時算在自己身上），同伴本輪下一張攻擊牌，對每隻被打到的魔物各施加 2 層中毒（自己一個人時算自己的）。",
+  "up": "同伴獲得 4 點蜷縮（自己一個人時算在自己身上），同伴本輪下一張造成傷害的牌，對每隻被打到的魔物各施加 2 層中毒（自己一個人時算自己的）。"
+ },
+ {
+  "id": "woyouxianbeihao",
+  "name": "一起準備好",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "watchPoisonHit"
+  ],
+  "effects": [
+   {
+    "kind": "watchPoisonHit",
+    "who": "ally"
+   }
+  ],
+  "text": "之後每一輪一次，同伴的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮（自己一個人時自己出手也算，獲得 8 點）。",
+  "up": "之後每一輪一次，任一方的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮（自己一個人時自己出手也算，獲得 8 點）。"
+ },
+ {
   "id": "wozaizhe",
   "name": "我在這",
   "pool": "忍術",
@@ -257,6 +969,33 @@
   "upCost": 2,
   "text": "造成 3 點傷害，這場戰鬥中這張牌每打出一次，傷害就再加 3 點。",
   "up": "造成 5 點傷害，這場戰鬥中這張牌每打出一次，傷害就再加 5 點。"
+ },
+ {
+  "id": "feifei_fenshen",
+  "name": "分身術",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 2,
+    "target": "enemy",
+    "step": 2
+   }
+  ],
+  "upCost": 2,
+  "text": "造成 2 點中毒層數，這場戰鬥中這張牌每打出一次，中毒層數就再加 2 點。",
+  "up": "造成 3 點中毒層數，這場戰鬥中這張牌每打出一次，中毒層數就再加 3 點。"
  },
  {
   "id": "ruying",
@@ -634,8 +1373,8 @@
    }
   ],
   "upCost": 0,
-  "text": "把你身上的翻肚、懶洋洋、炸毛、噎到、定身全部丟到目標身上。",
-  "up": "把你身上的翻肚、懶洋洋、炸毛、噎到、定身全部丟到目標身上。"
+  "text": "把你身上的翻肚、懶洋洋、炸毛、中毒、定身全部丟到目標身上。",
+  "up": "把你身上的翻肚、懶洋洋、炸毛、中毒、定身全部丟到目標身上。"
  },
  {
   "id": "dingshen",
@@ -923,7 +1662,7 @@
  },
  {
   "id": "renwuwancheng",
-  "name": "忍術·吸貓大法",
+  "name": "忍術·回復卷軸",
   "pool": "忍術",
   "rarity": "稀有",
   "cost": 1,
@@ -1009,13 +1748,13 @@
    },
    {
     "kind": "status",
-    "name": "噎到",
+    "name": "中毒",
     "amount": 3,
     "target": "enemy"
    }
   ],
-  "text": "造成 7 點傷害，給目標 3 層噎到。",
-  "up": "造成 9 點傷害，給目標 4 層噎到。"
+  "text": "造成 7 點傷害，給目標 3 層中毒。",
+  "up": "造成 9 點傷害，給目標 4 層中毒。"
  },
  {
   "id": "qinna",
@@ -1391,7 +2130,7 @@
  },
  {
   "id": "mabu",
-  "name": "絕學·馬步",
+  "name": "絕學·貓步",
   "pool": "絕學",
   "rarity": "罕見",
   "cost": 1,
@@ -1780,13 +2519,13 @@
    },
    {
     "kind": "status",
-    "name": "噎到",
+    "name": "中毒",
     "amount": 2,
     "target": "enemy"
    }
   ],
-  "text": "造成 6 點傷害，給目標 2 層噎到。",
-  "up": "造成 8 點傷害，給目標 3 層噎到。"
+  "text": "造成 6 點傷害，給目標 2 層中毒。",
+  "up": "造成 8 點傷害，給目標 3 層中毒。"
  },
  {
   "id": "diaohu",
@@ -1935,35 +2674,23 @@
   "name": "影子分身",
   "pool": "忍術",
   "rarity": "稀有",
-  "cost": 2,
+  "cost": 3,
   "type": "能力",
   "target": "self",
   "keywords": [],
   "hidden": false,
   "combatOnly": false,
   "kinds": [
-   "power"
+   "echoFirst"
   ],
   "effects": [
    {
-    "kind": "power",
-    "trigger": "onKill",
-    "effects": [
-     {
-      "kind": "draw",
-      "n": 1
-     },
-     {
-      "kind": "status",
-      "name": "爪力",
-      "amount": 1,
-      "target": "self"
-     }
-    ]
+    "kind": "echoFirst"
    }
   ],
-  "text": "每打倒一隻魔物就抽 1 張牌，獲得 1 點爪力。",
-  "up": "每打倒一隻魔物就抽 1 張牌，獲得 1 點爪力，回復 3 點生命。"
+  "upCost": 2,
+  "text": "之後每回合打出的第一張牌，會再打一次。",
+  "up": "之後每回合打出的第一張牌，會再打一次。"
  },
  {
   "id": "tuishou",
@@ -2674,13 +3401,13 @@
    },
    {
     "kind": "status",
-    "name": "噎到",
+    "name": "中毒",
     "amount": 3,
     "target": "enemy"
    }
   ],
-  "text": "造成 4 點傷害，給目標 3 層噎到。",
-  "up": "造成 6 點傷害，給目標 4 層噎到。"
+  "text": "造成 4 點傷害，給目標 3 層中毒。",
+  "up": "造成 6 點傷害，給目標 4 層中毒。"
  },
  {
   "id": "qianglafen",
@@ -2699,13 +3426,13 @@
   "effects": [
    {
     "kind": "status",
-    "name": "噎到",
+    "name": "中毒",
     "amount": 3,
     "target": "all"
    }
   ],
-  "text": "全體魔物獲得 3 層噎到。",
-  "up": "全體魔物獲得 4 層噎到。"
+  "text": "全體魔物獲得 3 層中毒。",
+  "up": "全體魔物獲得 4 層中毒。"
  },
  {
   "id": "bengquan",
@@ -2807,11 +3534,11 @@
   "effects": [
    {
     "kind": "doubleStatus",
-    "name": "噎到"
+    "name": "中毒"
    }
   ],
-  "text": "把目標身上的噎到翻倍（沒有就沒效果）。",
-  "up": "把目標身上的噎到翻倍，再加 2 層。"
+  "text": "把目標身上的中毒翻倍（沒有就沒效果）。",
+  "up": "把目標身上的中毒翻倍，再加 2 層。"
  },
  {
   "id": "ehou",
@@ -2835,13 +3562,13 @@
    },
    {
     "kind": "status",
-    "name": "噎到",
+    "name": "中毒",
     "amount": 4,
     "target": "enemy"
    }
   ],
-  "text": "造成 8 點傷害，給目標 4 層噎到。",
-  "up": "造成 10 點傷害，給目標 5 層噎到。"
+  "text": "造成 8 點傷害，給目標 4 層中毒。",
+  "up": "造成 10 點傷害，給目標 5 層中毒。"
  },
  {
   "id": "huxin",
@@ -2937,5 +3664,728 @@
   "effects": [],
   "text": "打出去什麼事都不會發生。消耗。",
   "up": "打出去什麼事都不會發生。消耗。"
+ },
+ {
+  "id": "feifei_feizhen",
+  "name": "飛針",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 3
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 1,
+    "target": "enemy"
+   },
+   {
+    "kind": "block",
+    "amount": 2
+   }
+  ],
+  "text": "造成 3 點傷害，給目標 1 層中毒，獲得 2 點蜷縮。",
+  "up": "造成 5 點傷害，給目標 2 層中毒，獲得 3 點蜷縮。"
+ },
+ {
+  "id": "feifei_tuikai",
+  "name": "退開",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 5
+   }
+  ],
+  "text": "獲得 5 點蜷縮。",
+  "up": "獲得 8 點蜷縮。"
+ },
+ {
+  "id": "feifei_cuidu",
+  "name": "淬毒",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 4,
+    "target": "enemy"
+   }
+  ],
+  "text": "給目標 4 層中毒。",
+  "up": "給目標 6 層中毒。"
+ },
+ {
+  "id": "feifei_lianzhen",
+  "name": "連針",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 2,
+    "times": 2
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 2,
+    "target": "enemy"
+   },
+   {
+    "kind": "block",
+    "amount": 2
+   }
+  ],
+  "text": "造成 2 點傷害，連打 2 次，給目標 2 層中毒，獲得 2 點蜷縮。",
+  "up": "造成 2 點傷害，連打 3 次，給目標 3 層中毒，獲得 3 點蜷縮。"
+ },
+ {
+  "id": "feifei_sazhen",
+  "name": "撒針",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 2,
+    "target": "all"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 1,
+    "target": "all"
+   },
+   {
+    "kind": "block",
+    "amount": 3
+   }
+  ],
+  "text": "對全體魔物造成 2 點傷害，再讓牠們獲得 1 層中毒，獲得 3 點蜷縮。",
+  "up": "對全體魔物造成 3 點傷害，再讓牠們獲得 1 層中毒，獲得 4 點蜷縮。"
+ },
+ {
+  "id": "feifei_lakai",
+  "name": "後退閃躲",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 4
+   }
+  ],
+  "text": "獲得 4 點蜷縮。",
+  "up": "獲得 6 點蜷縮。"
+ },
+ {
+  "id": "feifei_tieqiang",
+  "name": "貼牆",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 9
+   }
+  ],
+  "text": "獲得 9 點蜷縮。",
+  "up": "獲得 12 點蜷縮。"
+ },
+ {
+  "id": "feifei_moyao",
+  "name": "抹藥",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 5,
+    "target": "enemy"
+   }
+  ],
+  "text": "給目標 5 層中毒。",
+  "up": "給目標 7 層中毒。"
+ },
+ {
+  "id": "feifei_tanlu",
+  "name": "探路",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "draw",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "draw",
+    "n": 1
+   },
+   {
+    "kind": "block",
+    "amount": 2
+   }
+  ],
+  "text": "抽 1 張牌，獲得 2 點蜷縮。",
+  "up": "抽 2 張牌，獲得 2 點蜷縮。"
+ },
+ {
+  "id": "feifei_suoshou",
+  "name": "縮手",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "drawNextTurn"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 5
+   },
+   {
+    "kind": "drawNextTurn",
+    "n": 1
+   }
+  ],
+  "text": "獲得 5 點蜷縮，下回合開始時多抽 1 張牌。",
+  "up": "獲得 7 點蜷縮，下回合開始時多抽 1 張牌。"
+ },
+ {
+  "id": "feifei_shouhua",
+  "name": "手滑",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "selfDamage",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 9
+   },
+   {
+    "kind": "selfDamage",
+    "amount": 2
+   },
+   {
+    "kind": "block",
+    "amount": 2
+   }
+  ],
+  "text": "造成 9 點傷害，自己也受 2 點傷害，獲得 2 點蜷縮。",
+  "up": "造成 13 點傷害，自己也受 2 點傷害，獲得 3 點蜷縮。"
+ },
+ {
+  "id": "feifei_cuidugai",
+  "name": "淬毒·改",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "status",
+   "selfDamage"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 7,
+    "target": "enemy"
+   },
+   {
+    "kind": "selfDamage",
+    "amount": 2
+   }
+  ],
+  "text": "給目標 7 層中毒，自己受 2 點傷害。",
+  "up": "給目標 9 層中毒，自己受 2 點傷害。"
+ },
+ {
+  "id": "feifei_sandu",
+  "name": "散毒",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "spreadStatus"
+  ],
+  "effects": [
+   {
+    "kind": "spreadStatus",
+    "name": "中毒",
+    "half": true
+   }
+  ],
+  "text": "把目標身上的中毒分給其他魔物，各拿一半。消耗。",
+  "up": "把目標身上的中毒原封不動複製給其他每一隻魔物。消耗。"
+ },
+ {
+  "id": "feifei_zhenyu",
+  "name": "針雨",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 3,
+    "target": "all"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 3,
+    "target": "all"
+   },
+   {
+    "kind": "block",
+    "amount": 5
+   }
+  ],
+  "text": "對全體魔物造成 3 點傷害，再讓牠們獲得 3 層中毒，獲得 5 點蜷縮。",
+  "up": "對全體魔物造成 3 點傷害，再讓牠們獲得 4 層中毒，獲得 7 點蜷縮。"
+ },
+ {
+  "id": "feifei_taoshengsuo",
+  "name": "逃生索",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "draw"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 12
+   },
+   {
+    "kind": "draw",
+    "n": 1
+   }
+  ],
+  "text": "獲得 12 點蜷縮，抽 1 張牌。",
+  "up": "獲得 15 點蜷縮，抽 1 張牌。"
+ },
+ {
+  "id": "feifei_duwu",
+  "name": "毒霧",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "power"
+  ],
+  "effects": [
+   {
+    "kind": "power",
+    "trigger": "turnStart",
+    "effects": [
+     {
+      "kind": "status",
+      "name": "中毒",
+      "amount": 1,
+      "target": "all"
+     }
+    ]
+   }
+  ],
+  "text": "每回合開始時全體魔物獲得 1 層中毒。",
+  "up": "每回合開始時全體魔物獲得 2 層中毒。"
+ },
+ {
+  "id": "feifei_jianxue",
+  "name": "見血封喉",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 3,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageByStatus",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "damageByStatus",
+    "name": "中毒"
+   },
+   {
+    "kind": "block",
+    "amount": 3
+   }
+  ],
+  "upCost": 4,
+  "text": "造成等同目標中毒層數的傷害，獲得 3 點蜷縮。",
+  "up": "造成目標中毒層數兩倍的傷害，獲得 3 點蜷縮。"
+ },
+ {
+  "id": "feifei_banxian",
+  "name": "絆線",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "status",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "定身",
+    "amount": 1,
+    "target": "enemy"
+   },
+   {
+    "kind": "block",
+    "amount": 4
+   }
+  ],
+  "text": "給目標定身，獲得 4 點蜷縮。",
+  "up": "給目標定身，獲得 4 點蜷縮。"
+ },
+ {
+  "id": "feifei_tianzhen",
+  "name": "強力塗毒",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "status",
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 10,
+    "target": "enemy"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 3,
+    "target": "self"
+   }
+  ],
+  "text": "給目標 10 層中毒，自己獲得 3 層中毒。消耗。",
+  "up": "給目標 13 層中毒，自己獲得 3 層中毒。消耗。"
+ },
+ {
+  "id": "feifei_quansale",
+  "name": "全撒了",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "status",
+   "status"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 12,
+    "target": "all"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 2,
+    "target": "all"
+   },
+   {
+    "kind": "status",
+    "name": "中毒",
+    "amount": 2,
+    "target": "self"
+   }
+  ],
+  "text": "對全體魔物造成 12 點傷害，再讓牠們獲得 2 層中毒，自己獲得 2 層中毒。",
+  "up": "對全體魔物造成 15 點傷害，再讓牠們獲得 3 層中毒，自己獲得 2 層中毒。"
+ },
+ {
+  "id": "feifei_qianzhen",
+  "name": "千針萬毒",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "poisonOnAttack"
+  ],
+  "effects": [
+   {
+    "kind": "poisonOnAttack",
+    "n": 1
+   }
+  ],
+  "text": "之後每打出一張攻擊牌，再給那個目標 1 層中毒。",
+  "up": "之後每打出一張攻擊牌，再給那個目標 2 層中毒。"
+ },
+ {
+  "id": "feifei_juma",
+  "name": "拒馬",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "blockBonus"
+  ],
+  "effects": [
+   {
+    "kind": "blockBonus",
+    "n": 2
+   }
+  ],
+  "text": "之後每次獲得蜷縮都多 2 點。",
+  "up": "之後每次獲得蜷縮都多 3 點。"
+ },
+ {
+  "id": "feifei_yudu",
+  "name": "餘毒",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "poisonBurst"
+  ],
+  "effects": [
+   {
+    "kind": "poisonBurst"
+   }
+  ],
+  "text": "中毒的魔物被打倒時，把剩下的層數分給其他魔物。",
+  "up": "中毒的魔物被打倒時，剩下的層數每一隻都拿一份。"
+ },
+ {
+  "id": "feifei_yizhen",
+  "name": "一針斃命",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "execByStatus"
+  ],
+  "effects": [
+   {
+    "kind": "execByStatus",
+    "name": "中毒"
+   }
+  ],
+  "text": "目標的中毒層數不少於牠剩下的生命的話，直接打倒牠。消耗。",
+  "up": "目標的中毒層數不少於牠剩下的生命的話，直接打倒牠。"
+ },
+ {
+  "id": "feifei_buyaoguolai",
+  "name": "不要過來！",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "selfDamage",
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 25
+   },
+   {
+    "kind": "selfDamage",
+    "amount": 8
+   },
+   {
+    "kind": "block",
+    "amount": 12
+   }
+  ],
+  "text": "造成 25 點傷害，自己也受 8 點傷害，獲得 12 點蜷縮。",
+  "up": "造成 32 點傷害，自己也受 8 點傷害，獲得 12 點蜷縮。"
  }
 ]

@@ -1,28 +1,44 @@
 import { play } from '../audio';
-import { dialogue } from '../../content/dialogue';
+import { dialogue, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { clearSave, recordBest } from '../../engine/save';
 import { registerScreen } from '../app';
 import { screenBg } from '../screenbg';
-import { artUrl } from '../assets';
+import { artUrl, heroArtUrl } from '../assets';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { seedTag } from '../hud';
 import { sceneView } from '../scene';
 import { attachTextTooltip } from '../tooltip';
+import { me } from '../../engine/runplayer';
+import { heroName } from '../../engine/hero';
 
 registerScreen('result', (app, root) => {
   // 進畫面就放對應的收尾音；這時候玩家一定已經點過東西，音訊環境是解鎖的
   play(app.run?.status === 'won' ? 'victory' : 'defeat');
   const run = app.run;
   if (!run) { app.show('title'); return; }
+  const seat = app.seat;   // 結算畫面也是看**自己**的牌組與秘寶（連線版 2026-09-11）
   const won = run.status === 'won';
-  // 先記成績再清存檔：這一局到此為止，「續玩」從結算之後就該是反灰的
-  const best = recordBest(run);
-  clearSave();
+  /*
+   * 先記成績再清存檔：這一局到此為止，「續玩」從結算之後就該是反灰的。
+   *
+   * **連線局一個字都不准碰**（2026-09-13 第二輪稽核 高-1）。`app.ts` 那邊 2026-09-12
+   * 已經加過 `!this.coop`，但**這裡自己也叫了一次**，而且沒擋——於是它從
+   * 「無害的第二次呼叫」變成**唯一的那一次**：連線打完一局走到這個畫面，
+   * 你單機打到 30F 的存檔就被 `clearSave()` 刪掉了，兩人局的樓層還會寫進單機最佳成績、
+   * 通關甚至順手解鎖下一個難度。完全沒有提示，回標題才發現「續玩」按不動。
+   *
+   * 教訓：**同一件事有兩個呼叫點時，擋一個等於沒擋**。當時那句「留著當無害的第二次」
+   * 在加上守門條件的那一刻就不成立了。
+   */
+  const best = app.coop
+    ? { floor: run.floor, won, turns: run.stats.turns, date: '' }   // 只是要拿來排版，不寫進儲存
+    : recordBest(run);
+  if (!app.coop) clearSave();
 
   const relics = el('div', { class: 'result-relics' });
-  for (const id of run.relics) {
+  for (const id of me(run, seat).relics) {
     const d = relicById[id];
     if (!d) continue;
     const url = artUrl('icons', d.art);
@@ -36,27 +52,34 @@ registerScreen('result', (app, root) => {
     relics.append(node);
   }
 
-  const lastWords = won ? dialogue.victoryTeaser : (dialogue.defeat.find((l) => l.speaker === '球球')?.text ?? '');
-  const hero = artUrl('sprites', won ? 'hero/ninja_win' : 'hero/ninja_lose');
+  // 落敗那句挑「主角自己講的」——她的說話者是「菲菲」不是「球球」，寫死名字會挑不到
+  const story = storyFor(me(run, seat).hero);
+  const lastWords = won ? story.victoryTeaser
+    : (story.defeat.find((l) => l.speaker === '球球' || l.speaker === '菲菲')?.text ?? '');
+  const hero = heroArtUrl(me(run, seat).hero, won ? 'hero/ninja_win' : 'hero/ninja_lose');
 
   // 劇場版面：球球站在帶子左邊（贏的姿勢或倒下的姿勢），成績、秘寶、最佳成績寫在帶子裡
   root.append(screenBg(won ? 'bg/screen_result_win' : 'bg/screen_result_lose'));
   root.append(sceneView({
     portrait: hero.startsWith('data:') ? undefined : hero,
     speaker: won ? '通關' : '任務失敗',
-    text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : '球球倒下了。'),
+    text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : `${heroName(me(run, seat))}倒下了。`),   // 備援也要照角色（總稽核 C 低-5）
     extra: [
       el('div', { class: 'result-stats' },
-        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${run.deck.length} 張`),
+        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${me(run, seat).deck.length} 張`),
       el('div', { class: 'result-row' }, relics, seedTag(run.seed, true)),
       el('div', { class: 'result-best' }, `最佳成績：${best.floor}F${best.won ? `（通關，${best.turns} 回合）` : ''}`),
     ],
     actions: [
       el('button', {
         class: 'btn',
-        onclick: () => showDeckPicker({ title: `最終牌組（${run.deck.length} 張）`, cards: run.deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
+        onclick: () => showDeckPicker({ title: `最終牌組（${me(run, seat).deck.length} 張）`, cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
       }, '看牌組'),
-      el('button', { class: 'btn primary', onclick: () => { app.run = null; app.cs = null; app.show('title'); } }, '回到村子'),
+      el('button', { class: 'btn primary', onclick: () => {
+        // 連線也要在這裡斷乾淨，不然回標題再開單機會整局點不動（稽核 高-1）
+        app.leaveCoop();
+        app.run = null; app.cs = null; app.show('title');
+      } }, '回到村子'),
     ],
   }));
 });

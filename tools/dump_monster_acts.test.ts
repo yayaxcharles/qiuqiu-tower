@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
 import { SLIDES_BY_ACT, bgKeysForAct } from '../src/ui/bgacts';
+import { heroOfKey, isCoopOnlyArt } from '../src/ui/assets';
 
 it('dump monster acts', () => {
   const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as { monsters: Record<string, Record<string, string>>; bg: Record<string, string> };
@@ -51,6 +52,14 @@ it('dump monster acts', () => {
    */
   for (const [key, path] of Object.entries(manifest.bg)) {
     if (/_r\d+$/.test(key)) out[path] = 0;
+  }
+  // 角色專屬的圖（目前只有菲菲）開場不載、選好角色才補（`preloadHeroArt`），跟幻燈片一樣歸 0（總稽核 F 中-1）
+  const groups = manifest as unknown as Record<string, Record<string, string | Record<string, string>>>;
+  for (const g of ['sprites', 'icons', 'cards', 'bg']) {
+    for (const [key, v] of Object.entries(groups[g] ?? {})) {
+      if (!heroOfKey(key) && !(g === 'cards' && isCoopOnlyArt(key))) continue;   // 雙人專屬牌也是進大廳才補
+      for (const path of typeof v === 'string' ? [v] : Object.values(v)) out[path] = 0;
+    }
   }
 
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));

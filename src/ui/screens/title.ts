@@ -48,8 +48,16 @@ registerScreen('title', (app, root) => {
     diffBtns.push(b);
   }
   refreshDiff();
+  /**
+   * 除錯模式的暗號（2026-09-14 使用者指定）。在這個欄位打  再按開始，
+   * 就進到除錯畫面——把事件文字與插圖、牌面、台詞、立繪一次攤開，可以切角色對照。
+   *
+   * 刻意藏在既有欄位裡、不做成按鈕：那是給使用者自己檢查用的，不是遊戲的一部分。
+   */
+  const DEBUG_CODE = 'mimi36985';
   startBtn.addEventListener('click', () => {
-    if (!isShare()) { app.newRun(seed.value, level); return; }
+    if (seed.value.trim().toLowerCase() === DEBUG_CODE) { app.show('debug'); return; }
+    if (!isShare()) { app.show('heroselect', { seed: seed.value, difficulty: level }); return; }
     // 解壓縮是非同步的：先鎖住按鈕，免得連點兩次載入兩份
     startBtn.setAttribute('disabled', 'disabled');
     startBtn.textContent = '載入中…';
@@ -92,7 +100,9 @@ registerScreen('title', (app, root) => {
       // 圖鑑放封面（使用者：秘寶、忍具不需要一直看，不放遊戲內）
       el('div', { class: 'title-books' },
         el('button', { class: 'btn small', onclick: () => showCompendium() }, '📖 卡牌圖鑑'),
-        el('button', { class: 'btn small', onclick: () => showItemCompendium() }, '🎒 秘寶與忍具圖鑑')),
+        el('button', { class: 'btn small', onclick: () => showItemCompendium() }, '🎒 秘寶與忍具圖鑑'),
+        // 連線版還在做，按鈕先放這裡（這個網址本來就是實驗版，不會影響單機的那一份）
+        el('button', { class: 'btn small', onclick: () => app.show('lobby') }, '🤝 兩個人一起玩')),
       diffText,
       bestLine,
       shareNote,

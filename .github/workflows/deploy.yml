@@ -30,6 +30,11 @@ jobs:
           cache: npm
       # 用 ci 不用 install：完全照 package-lock.json 裝，版本不會偷偷漂掉
       - run: npm ci
+      # `tools/haze.test.ts` 要靠 Pillow 讀圖的像素才驗得了去背有沒有留灰膜。
+      # 不裝的話那條會自己跳過（不會判紅，2026-09-13 修過了），但等於這個檢查在線上根本沒跑——
+      # 而它擋的正是「圖進倉了、畫面正常、測試全綠，只有背景多一塊灰斑」那種靜音失效。
+      # 依賴鏈是 check_haze → add_event_art → build_art_inbox，所以 numpy 也要
+      - run: python3 -m pip install --quiet pillow numpy
       - run: npm test
       # build 這條本身就是 tsc --noEmit && vite build，型別錯了會在這裡擋下來
       - run: npm run build

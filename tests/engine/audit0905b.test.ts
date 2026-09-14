@@ -11,6 +11,7 @@ import { applyRunEffects, beginCombat, finishCombat, newRun } from '../../src/en
 import { addStatus, getStatus } from '../../src/engine/statuses';
 import { DEBUFFS } from '../../src/engine/types';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 describe('名詞表與牌面文字要跟引擎規則同步', () => {
   it('「減益」列出的種類＝引擎 DEBUFFS（五種，含定身）', () => {
@@ -38,19 +39,19 @@ describe('職業過濾要蓋到起手牌、罐頭鋪補位、事件撿牌', () =
   const ninjaOnly = (id: string) => cardById[id]?.hero === 'ninja';
   it('武士的起手牌沒有忍者獨占牌，而且還是 10 張', () => {
     const run = newRun('sam-start', 1, 'samurai');
-    expect(run.deck.some((c) => ninjaOnly(c.cardId))).toBe(false);
-    expect(run.deck).toHaveLength(10);
+    expect(me(run).deck.some((c) => ninjaOnly(c.cardId))).toBe(false);
+    expect(me(run).deck).toHaveLength(10);
   });
   it('忍者的起手牌照舊含替身術', () => {
-    expect(newRun('nin-start').deck.some((c) => c.cardId === 'kawarimi')).toBe(true);
+    expect(me(newRun('nin-start')).deck.some((c) => c.cardId === 'kawarimi')).toBe(true);
   });
   it('事件「撿到一張牌」對武士不會撿到忍者獨占牌', () => {
     let seen = 0;
     for (let i = 0; i < 200; i++) {
       const run = newRun(`pick${i}`, 1, 'samurai');
-      const before = run.deck.length;
+      const before = me(run).deck.length;
       applyRunEffects(run, [{ kind: 'addRandomCard', pool: '忍術' }]);
-      const added = run.deck.slice(before);
+      const added = me(run).deck.slice(before);
       seen += added.length;
       for (const c of added) expect(ninjaOnly(c.cardId), `撿到了 ${c.cardId}`).toBe(false);
     }

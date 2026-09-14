@@ -1,18 +1,39 @@
 import { encounterById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
+import { HEROES, type Hero } from './hero';
 import { relicById } from '../content/relics';
 import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
 import { ACTS } from './run';
-import type { RunState } from './types';
+import type { CardInstance, RunPlayer, RunState } from './types';
 
 export interface KeyValueStore { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void }
 
-const RUN_KEY = 'qiuqiu-tower/run';
-const BEST_KEY = 'qiuqiu-tower/best';
-const UNLOCK_KEY = 'qiuqiu-tower/difficulty-unlocked';
-const SELECT_KEY = 'qiuqiu-tower/difficulty';
+/**
+ * 存檔的鍵前綴。**連線版刻意跟單機版分開**（2026-09-11）。
+ *
+ * 為什麼非分不可：瀏覽器的儲存是按**網域**分的，不是按路徑。
+ * `.../qiuqiu-tower/` 與 `.../qiuqiu-tower-coop/` 在同一個網域，**共用同一份儲存**。
+ * 連線版的存檔是第 2 版（每人一份的家當搬進 `players`），單機版的 `checkRun`
+ * 只認第 1 版——讀到第 2 版會判定為壞檔，然後 `loadRun` 會**把它清掉**。
+ * 也就是說：玩家打開一次連線版，回頭再開單機版，進行中的那一局就沒了。
+ *
+ * 所以兩邊各用各的鍵。
+ *
+ * **前綴照網址路徑自動決定**（2026-09-14 併回前，使用者裁定「各自保住存檔」）：同一份程式碼
+ * 部署到 `/qiuqiu-tower/` 就讀寫 `qiuqiu-tower/*`（老玩家的進度、最佳成績、選過的難度全部接上），
+ * 部署到 `/qiuqiu-tower-coop/` 就讀寫 `qiuqiu-tower-coop/*`。網址路徑由 `vite.config.ts` 照部署的倉庫決定。
+ * 測試與本機開發拿不到路徑（`/`）時退回單機版的前綴。
+ */
+const BASE_PATH = ((import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '').replace(/^\/+|\/+$/g, '');
+const PREFIX = BASE_PATH || 'qiuqiu-tower';
+
+/** 匯出給測試用：測試寫死字串的話，這裡一改就會默默測到不存在的鍵 */
+export const RUN_KEY = `${PREFIX}/run`;
+export const BEST_KEY = `${PREFIX}/best`;
+const UNLOCK_KEY = `${PREFIX}/difficulty-unlocked`;
+const SELECT_KEY = `${PREFIX}/difficulty`;
 
 function memoryStore(): KeyValueStore {
   const m = new Map<string, string>();
@@ -102,18 +123,69 @@ function usableMap(map: unknown, currentNode: unknown): boolean {
  * 但別人給的碼壞掉時只該拒收，不該把接收者自己的存檔清掉——原本的寫法是驗到一半就 `clearSave()`，
  * 直接拿去驗別人的碼會誤刪自己的進度。要不要清存檔由呼叫端決定。
  */
-export function checkRun(run: Partial<RunState>): RunState | null {
-  if (run.version !== 1 || !Array.isArray(run.deck) || !run.map || !run.rng) return null;
-  // 牌組裡有牌表認不得的牌（或是壞掉的牌物件）就跟版本不符一樣處理：當作不相容
-  if (!run.deck.every(knownCard)) return null;
+/** 第 1 版的存檔長相：每人一份的家當直接攤在最上層（那時只有一位玩家） */
+type RunV1 = Omit<RunState, 'version' | 'players'> & {
+  version: 1;
+  hero?: 'ninja' | 'samurai';
+  hp: number; maxHp: number; fish: number;
+  deck: CardInstance[]; relics: string[]; potions: string[];
+  removeCost: number; restBlock?: number; rarePity?: number;
+};
+
+/**
+ * 第 1 版轉第 2 版：把攤在最上層的那幾欄搬進 `players[0]`。
+ *
+ * 本來就是同一份資料，只是換了位置，所以舊存檔轉完照樣續玩、不會掉東西。
+ * 沒有「轉不過去」的情況——真的壞掉的欄位由後面的驗證擋。
+ */
+function migrateV1(old: Partial<RunV1>): Partial<RunState> {
+  const { hero, hp, maxHp, fish, deck, relics, potions, removeCost, restBlock, rarePity, ...rest } = old;
+  return {
+    ...(rest as Partial<RunState>),
+    version: 2,
+    players: [{
+      ...(hero ? { hero } : {}),
+      hp: hp as number, maxHp: maxHp as number, fish: fish as number,
+      deck: deck as CardInstance[], relics: relics as string[], potions: potions as string[],
+      removeCost: removeCost as number,
+      ...(restBlock === undefined ? {} : { restBlock }),
+      ...(rarePity === undefined ? {} : { rarePity }),
+    }],
+  };
+}
+
+/** 一位玩家的家當驗得過嗎。壞掉的下場寫在 `checkRun` 的註解裡，兩個人各驗各的 */
+function usablePlayer(p: Partial<RunPlayer> | undefined): boolean {
+  if (!p || typeof p !== 'object') return false;
+  if (!Array.isArray(p.deck) || !p.deck.every(knownCard)) return false;
+  if (!Array.isArray(p.potions) || !Array.isArray(p.relics)) return false;
+  if (!p.relics.every((id) => relicById[id]) || !p.potions.every((id) => potionById[id])) return false;
+  if (typeof p.hp !== 'number' || p.hp <= 0 || typeof p.maxHp !== 'number' || p.maxHp <= 0) return false;
+  if (p.hp > p.maxHp) return false;
+  if (p.hero !== undefined && !HEROES.includes(p.hero as Hero)) return false;   // 清單在 engine/hero.ts，不要在這裡再寫一次（稽核 2026-09-12 高-1）
+  if (!finiteNum(p.removeCost) || !finiteNum(p.fish) || (p.fish as number) < 0) return false;
+  // uid 撞號會讓「放生這一張」放掉別張（`deck.find` 只找得到第一個）
+  if (new Set(p.deck.map((c) => c.uid)).size !== p.deck.length) return false;
+  return true;
+}
+
+function finiteNum(v: unknown): boolean { return typeof v === 'number' && Number.isFinite(v); }
+
+export function checkRun(input: Partial<RunState>): RunState | null {
+  // 第 1 版（每人一份的家當攤在最上層）先搬進 players[0]，之後一律照第 2 版驗
+  const ver = (input as { version?: unknown }).version;
+  const run: Partial<RunState> = ver === 1 ? migrateV1(input as unknown as Partial<RunV1>) : input;
+  if (run.version !== 2 || !run.map || !run.rng) return null;
+  if (!Array.isArray(run.players) || run.players.length < 1) return null;
+  // 每一位的家當各驗各的：兩個人一起玩的時候，壞掉的可能是任何一位
+  if (!run.players.every((p) => usablePlayer(p))) return null;
   // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
   if (!usableMap(run.map, run.currentNode)) return null;
-  // 忍具、秘寶、統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
-  if (!Array.isArray(run.potions) || !Array.isArray(run.relics) || !run.stats || typeof run.stats !== 'object') return null;
+  // 統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
+  if (!run.stats || typeof run.stats !== 'object') return null;
   // 遭遇、事件、秘寶、忍具的 id 對不上（內容改名、拆併之後帶舊檔）也當不相容。原本只驗牌：
   // 遭遇 id 對不上要到開戰才丟「未知的遭遇」，例外從點擊事件冒出來，地圖點不動、沒任何訊息（全面體檢 2026-09-05 #4）
   if (!run.map.nodes.every((n) => (!n.encounterId || encounterById[n.encounterId]) && (!n.eventId || eventById[n.eventId]))) return null;
-  if (!run.relics.every((id) => relicById[id]) || !run.potions.every((id) => potionById[id])) return null;
   // 舊存檔沒有 flags：補一個空的就好，不必升版本
   if (!run.flags || typeof run.flags !== 'object') run.flags = {};
   // 舊存檔沒有 trail（足跡紀錄之前存的）：從現在站的格子開始記，之前走過的路照暗
@@ -122,28 +194,27 @@ export function checkRun(run: Partial<RunState>): RunState | null {
   if (typeof run.act !== 'number' || run.act < 1) run.act = 1;
   // 舊存檔沒有 difficulty（難度制之前存的）：當難度 1
   if (typeof run.difficulty !== 'number') run.difficulty = 1;
+  // 菲菲的分身術 2026-09-14 分成她自己那張（疊毒）：之前存的局裡她手上那張還是球球的疊傷害版，換成她的
+  for (const p of run.players) if (p.hero === 'feifei') for (const c of p.deck) if (c.cardId === 'bunshin') c.cardId = 'feifei_fenshen';
+  // 影子分身同理（2026-09-14 併回前裁定：球球維持單機版原本那張，她留 9/12 的改版）：她手上的換成她那張
+  for (const p of run.players) if (p.hero === 'feifei') for (const c of p.deck) if (c.cardId === 'yingzi') c.cardId = 'feifei_yingzi';
   // 局面碼是手改得動的（就是壓縮過的存檔），把 status 改成 lost、hp 改成 0 也能通過上面每一條，
   // 然後被寫進收方的存檔，之後每次「續玩」都是頂著 0 血在地圖上亂走（稽核 2026-09-07 低 3）。
   // 正常玩法產不出這種檔——陣亡與通關當下畫面已經被結算疊層接管，不會存到這個狀態
   if (run.status !== 'playing') return null;
-  if (typeof run.hp !== 'number' || run.hp <= 0 || typeof run.maxHp !== 'number' || run.maxHp <= 0) return null;
-  if (run.hero !== undefined && run.hero !== 'ninja' && run.hero !== 'samurai') return null;
   /**
    * 幾個「放行之後靜靜壞給你看」的欄位（稽核 2026-09-10 低-2、低-3）。實測放行的下場：
-   * - `removeCost` 不見 → `pay(run, undefined)` 的比較永遠成立 → **放生變免費、`run.fish` 變 NaN**，之後整局的小魚乾都是 NaN
+   * - `removeCost` 不見 → `pay(run, undefined)` 的比較永遠成立 → **放生變免費、小魚乾變 NaN**，之後整局都是 NaN
    * - `trail` 是字串 → `run.trail.push` 丟 TypeError
    * - `act = 9` → `finishCombat` 的 `run.act >= ACTS` 成立，打贏任何一個關主就直接判通關
    * - `rng` 的四個欄位型別壞掉 → `>>> 0` 全變 0 → 那一局的商店、獎勵、魔物血量全部退化成「永遠第一個」，玩家看不出哪裡怪
+   * （每人一份的那幾欄搬到 `usablePlayer` 裡驗了，這裡只剩整局共用的）
    */
-  const finite = (v: unknown): boolean => typeof v === 'number' && Number.isFinite(v);
-  if (!finite(run.removeCost) || !finite(run.nextUid) || !finite(run.fish) || run.fish! < 0) return null;
+  if (!finiteNum(run.nextUid)) return null;
   if (!Array.isArray(run.trail)) return null;
   if (run.act > ACTS) return null;
-  if (run.hp > run.maxHp) return null;
   const rs = run.rng as unknown as Record<string, unknown>;
-  if (!['a', 'b', 'c', 'd'].every((k) => finite(rs[k]))) return null;
-  // uid 撞號會讓「放生這一張」放掉別張（`deck.find` 只找得到第一個）
-  if (new Set(run.deck.map((c) => c.uid)).size !== run.deck.length) return null;
+  if (!['a', 'b', 'c', 'd'].every((k) => finiteNum(rs[k]))) return null;
   return run as RunState;
 }
 

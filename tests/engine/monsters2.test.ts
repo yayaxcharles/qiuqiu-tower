@@ -8,6 +8,7 @@ import { applyRunEffects, newRun } from '../../src/engine/run';
 import { getStatus } from '../../src/engine/statuses';
 import type { CardInstance, CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 /**
  * 第二波魔物（2026-09-02，docs/怪物擴充_第二波_設計稿.md）的機制回歸。
@@ -233,7 +234,7 @@ describe('第二波魔物的機制', () => {
   it('戰鬥雜牌只有魔物塞得進來：事件抽壞毛病抽不到', () => {
     const run = newRun('junk-pool');
     for (let i = 0; i < 60; i++) applyRunEffects(run, [{ kind: 'addRandomCard', pool: '壞毛病' }]);
-    expect(run.deck.some((c) => cardById[c.cardId]?.pool === '壞毛病')).toBe(true);
-    expect(run.deck.every((c) => !cardById[c.cardId]?.combatOnly)).toBe(true);
+    expect(me(run).deck.some((c) => cardById[c.cardId]?.pool === '壞毛病')).toBe(true);
+    expect(me(run).deck.every((c) => !cardById[c.cardId]?.combatOnly)).toBe(true);
   });
 });

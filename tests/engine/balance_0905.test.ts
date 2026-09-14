@@ -10,6 +10,7 @@ import { BOSS_PREFIXES, beginCombat, napHeal, newRun, rest } from '../../src/eng
 import { getStatus } from '../../src/engine/statuses';
 import type { CombatState, EnemyCombat } from '../../src/engine/types';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 /**
  * 2026-09-05 使用者拍板的「下一輪」平衡（數據在 docs/審查報告/平衡下一輪_2026-09-05.md）：
@@ -208,13 +209,13 @@ describe('師父前的補給與第二條血（2026-09-06 拍板）', () => {
   });
   it('44F 的貓窩打盹回滿；其他樓層照舊三成', () => {
     const run = newRun('final-rest', 1);
-    run.act = 3; run.floor = 44; run.hp = 20;
-    expect(napHeal(run)).toBe(run.maxHp);
+    run.act = 3; run.floor = 44; me(run).hp = 20;
+    expect(napHeal(run)).toBe(me(run).maxHp);
     rest(run, '打盹');
-    expect(run.hp).toBe(run.maxHp);
-    run.floor = 43; run.hp = 20;
-    expect(napHeal(run)).toBe(Math.floor(run.maxHp * 0.3));
-    run.act = 1; run.floor = 14; run.hp = 20;
-    expect(napHeal(run), '第一關 14F 不回滿').toBe(Math.floor(run.maxHp * 0.3));
+    expect(me(run).hp).toBe(me(run).maxHp);
+    run.floor = 43; me(run).hp = 20;
+    expect(napHeal(run)).toBe(Math.floor(me(run).maxHp * 0.3));
+    run.act = 1; run.floor = 14; me(run).hp = 20;
+    expect(napHeal(run), '第一關 14F 不回滿').toBe(Math.floor(me(run).maxHp * 0.3));
   });
 });

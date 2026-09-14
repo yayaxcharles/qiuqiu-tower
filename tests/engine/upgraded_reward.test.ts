@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { rollRewards } from '../../src/engine/rewards';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { newRun, takeCardReward } from '../../src/engine/run';
+import { me } from '../../src/engine/runplayer';
 
 describe('獎勵開出升級牌', () => {
   it('機率照關數：10%／20%／40%（0 就完全不出），而且升級的那張一定在三張裡', () => {
@@ -25,8 +26,8 @@ describe('獎勵開出升級牌', () => {
     const up = r.upgradedCard!; expect(up).toBeTruthy();
     const other = r.cards.find((c) => c.id !== up)!.id;
     takeCardReward(run, { ...r, cards: [...r.cards] }, up);
-    expect(run.deck[run.deck.length - 1]!.upgraded).toBe(true);
+    expect(me(run).deck[me(run).deck.length - 1]!.upgraded).toBe(true);
     takeCardReward(run, { ...r, cards: [...r.cards] }, other);
-    expect(run.deck[run.deck.length - 1]!.upgraded).toBe(false);
+    expect(me(run).deck[me(run).deck.length - 1]!.upgraded).toBe(false);
   });
 });

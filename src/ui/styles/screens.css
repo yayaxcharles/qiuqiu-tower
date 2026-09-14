@@ -170,6 +170,30 @@
 /* 左邊那條粗邊依戰利品種類換色，一眼看得出這行是錢、是秘寶還是忍具 */
 .reward-item.loot { border-left-color: #c9a227; }
 .reward-item.relic { border-left-color: #7a3fae; }
+/* 連線版：秘寶兩件並排讓兩個人各挑一件（規則三）。
+   排在戰利品清單裡，所以整塊改成上下排（標題一行、兩件並排一行）。 */
+.reward-item.relic-offers { flex-direction: column; align-items: stretch; gap: 8px; border-left-color: #7a3fae; }
+.relic-offer-row { display: flex; gap: 12px; }
+.relic-offer {
+  flex: 1 1 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border: 2px solid #6b5a45;
+  border-radius: 10px;
+  background: #2a2118cc;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.relic-offer:hover:not([disabled]) { border-color: #ffd98a; background: #3a2c1ecc; }
+.relic-offer[disabled] { cursor: default; }
+.relic-offer.picked { border-color: #ffd98a; box-shadow: 0 0 10px #ffd98a55; }
+.relic-offer.got { border-color: #8fd27a; }
+.relic-offer img { width: 44px; height: 44px; object-fit: contain; flex: none; }
+.relic-offer-text { display: flex; flex-direction: column; gap: 2px; }
+.relic-offer-text em { font-style: normal; opacity: 0.85; font-size: 13px; }
+.relic-offer-who { margin-left: auto; color: #ffd98a; font-size: 13px; flex: none; }
 .reward-item.potion { border-left-color: #2e6db4; }
 /* 名稱一行、說明一行。本來全部擠成一句「秘寶「藍頭巾」：每場戰鬥…」，讀起來很長 */
 .reward-line { display: flex; flex-direction: column; gap: 1px; text-align: left; }
@@ -816,6 +840,35 @@
 }
 .chest-loot-line .loot-name { font-size: 24px; color: #ffe9b8; }
 .chest-loot-line .loot-text { font-size: 19px; color: #f0e6d2; }
+/* 連線版的紙箱：兩件秘寶並排在光柱前面，一人挑一件。
+   絕對定位掛在 `.chest-scene` 上，跟 `.chest-loot-line` 同一個理由——
+   那個框的尺寸就是插圖本身，塞進佔位子的節點會把框撐高。 */
+.chest-offer-row {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -46%);
+  display: flex; gap: 24px; justify-content: center;
+  z-index: 2;
+}
+.chest-offer {
+  width: 230px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 10px 14px;
+  border: 2px solid #7a6042;
+  border-radius: 12px;
+  background: #241c14e6;
+  color: #f4ead8;
+  cursor: pointer;
+  text-align: center;
+}
+.chest-offer:hover:not([disabled]) { border-color: #ffd98a; background: #33271ae6; }
+.chest-offer[disabled] { cursor: default; opacity: 0.9; }
+.chest-offer.picked { border-color: #ffd98a; box-shadow: 0 0 14px #ffd98a66; }
+.chest-offer.got { border-color: #8fd27a; }
+.chest-offer img { width: 92px; height: 92px; object-fit: contain; }
+.chest-offer b { font-size: 20px; color: #ffe9b8; }
+.chest-offer .small { font-size: 14px; line-height: 1.35; color: #e2d7c4; }
+.chest-offer-who { font-size: 14px; color: #ffd98a; }
 /* 秘寶圖上下直接寫字（不用木牌）：上面是效果那句話、下面是「秘寶」小標＋名字 */
 .loot-stack { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .loot-above { margin: 0; font-size: 21px; color: #f6efe3; text-shadow: 0 2px 6px #000000e6, 0 0 14px #000000b3; letter-spacing: 1px; }
@@ -1076,6 +1129,34 @@
 #stage[data-screen="rest"][data-act="3"] .scene-portrait { left: 2px; bottom: 178px; }
 /* 塔中（第二關）的蒲團畫在右下 x 790～1090、y 545～690：球球挪到右邊坐進去，底邊抬到按鈕列上方（按鈕頂端約 y 599） */
 #stage[data-screen="rest"][data-act="2"] .scene-portrait { left: 790px; bottom: 95px; }
+/* 菲菲在第二關要坐**左邊那個籃子**（2026-09-14 使用者：「她位置完全不對」「右邊沒有籃子」）。
+   兩隻的立繪大小不一樣——球球的蜷縮是小小一團，她整個大一圈；同一個座標他剛好坐進去，
+   她會滿出來坐到地板上、還壓到右邊那疊摺好的棉被。
+   左邊籃子的舞台座標約 x 69～327、y 473～595，籃子中心 x ≈ 198；她的立繪寬約 313 →
+   left = 198 − 313/2 ≈ 42。**只改她這一條**，球球那條原封不動（他本來就是對的）。 */
+#stage[data-screen="rest"][data-act="2"][data-hero="feifei"] .scene-portrait { left: 42px; bottom: 110px; }
+/*
+ * **球球的三關重新對位**（2026-09-14 使用者：「第一關再更左邊一點、第二關跑去右邊了（窩在左邊）、第三關偏右一點點」）。
+ * 貓窩的底圖後來重生過，窩全部改到左下角，上面那幾條還是舊底圖量的座標。這次逐張量了九張底圖：
+ *   第一關三張的窩中心 x ≈ 185～200、第二關 190～205、第三關原版那張 ≈ 228、另外兩張（_b、_c）≈ 150。
+ * 立繪框 300 寬、圖靠下置中，貓的中心＝left＋150，所以 left ≈ 窩中心 − 150。
+ * 第二關那三張窩的高低差最多（窩底 575～640）：原版那張（`screen_rest_mid`）要另外抬高，不然他坐到窩前面的地板上。
+ * 第三關左右差 75 像素，一個座標顧不到三張：_b、_c 沿用上面的 left 2（本來就對準），原版那張（`screen_rest_top`）另外往右挪。
+ * 除錯頁「跳進畫面」開的是第 0 層，看到的永遠是原版那張——使用者說「偏右一點點」看的就是它。
+ * **只改球球**（`data-hero="ninja"`）：菲菲照舊用上面那幾條，她的部分使用者之後再看。
+ */
+#stage[data-screen="rest"][data-act="1"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 150px; }
+#stage[data-screen="rest"][data-act="2"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 100px; }
+#stage[data-screen="rest"][data-act="2"][data-hero="ninja"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
+#stage[data-screen="rest"][data-act="3"][data-hero="ninja"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+/*
+ * **菲菲的三關**（2026-09-14 下午使用者：「第一關往左、第二關位置對但往上一點、第三關往右一點」）。
+ * 她的立繪框跟球球同一個，貓的中心一樣是 left＋150，所以左右照球球那幾條的窩中心算；
+ * 高低另外量過（她蜷起來比球球大一圈）。第二關整體抬高：_b、_c 寫在她原本那條（95→110），原版那張窩比較高、另外 135。
+ */
+#stage[data-screen="rest"][data-act="1"][data-hero="feifei"] .scene-portrait { left: 42px; }
+#stage[data-screen="rest"][data-act="2"][data-hero="feifei"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 135px; }
+#stage[data-screen="rest"][data-act="3"][data-hero="feifei"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 
 /* ===== 2026-09-02 使用者：「按鈕樣式你都改成這樣吧」——全部按鈕統一深色玻璃＋金邊（含標題、疊層、結束回合、狀態列小鈕）。
    難度鈕保留自己的顏色（.diff-btn.dN 在後面蓋掉底色）。 ===== */
@@ -1314,3 +1395,188 @@
   filter: drop-shadow(0 6px 14px #000000cc);
 }
 .event-art-loot .showcase { margin: 0; }
+
+/*
+ * 開房畫面（連線版 2026-09-11）。
+ *
+ * 設計重點是**一次只露出一件事該做的**：連線對玩家是黑盒子，卡住時如果畫面只寫
+ * 「連線失敗」，他不會知道是自己貼錯、對方還沒貼、還是網路根本不通。
+ * 所以三個步驟各自獨立一塊，每一塊都帶一句「這一步在做什麼」。
+ */
+.lobby {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 80px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.lobby h1 { margin: 0 0 4px; font-size: 34px; letter-spacing: 2px; }
+.lobby-lead { margin: 0; font-size: 19px; }
+.lobby-note { margin: 0; font-size: 15px; opacity: .72; max-width: 720px; text-align: center; line-height: 1.7; }
+.lobby-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.lobby-field { width: min(760px, 100%); display: flex; flex-direction: column; gap: 6px; }
+.lobby-label { font-size: 17px; font-weight: 600; }
+.lobby-hint { font-size: 14px; opacity: .7; }
+/*
+ * 代碼框用等寬字：那一串是 A-Z a-z 0-9 - _ 混在一起，
+ * 比例字型下 l 跟 1、O 跟 0 分不出來，玩家肉眼核對時會誤判。
+ * `word-break: break-all` 是必要的——沒有空白的長字串預設不會換行，會把整塊撐爆。
+ */
+.lobby-code {
+  width: 100%;
+  box-sizing: border-box;
+  font: 13px/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  word-break: break-all;
+  resize: vertical;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ffffff33;
+  background: #00000044;
+  color: inherit;
+}
+.lobby-ok { font-size: 24px; font-weight: 700; color: #7fd6a0; margin: 0; }
+.lobby-bad { font-size: 18px; color: #ff9b9b; margin: 0; max-width: 720px; text-align: center; line-height: 1.7; }
+.lobby-busy { font-size: 15px; opacity: .8; margin: 0; }
+.lobby-back { margin-top: auto; }
+
+/*
+ * 地圖上的投票記號（連線版 2026-09-11）：誰想走這一格。
+ *
+ * 掛在節點下方而不是蓋在圖示上——圖示本身要看得清楚（那是「這一格是什麼」），
+ * 記號只是附註。兩個人投同一格時會寫成「你、同伴」。
+ */
+.map-vote {
+  position: absolute;
+  left: 50%; top: 100%;
+  translate: -50% 2px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+  background: #1b1713ee;
+  border: 1px solid var(--accent);
+  color: #f3e6d2;
+  pointer-events: none;
+}
+
+/* 連線出問題的橫幅：壓在最上方，換畫面也不會被清掉（掛在 body 上，不在舞台裡） */
+.net-trouble {
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  z-index: 9999;
+  padding: 10px 16px;
+  background: #7a1f1f;
+  color: #ffe9e9;
+  font-size: 16px;
+  text-align: center;
+  box-shadow: 0 2px 10px #0008;
+}
+
+/* ===== 選角畫面（2026-09-12，使用者：「開頭進地圖前可以選角色」）=====
+   排在「新的一局」與序章之間。兩張角色卡並排、選中的那張亮起來，
+   底下寫這一位的起手十張、起始秘寶與一張代表牌——那三樣才是玩家真正在選的東西。
+   整頁塞在 720 高裡：卡片 300 高、說明區固定 150，不會把按鈕擠出舞台。 */
+.heroselect {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  color: #f8f2e6; text-shadow: 0 2px 6px #000a;
+}
+.heroselect h2 { margin: 0; font-size: 30px; letter-spacing: 3px; }
+.hero-cards { display: flex; gap: 28px; }
+.hero-card {
+  width: 250px; padding: 10px 12px 12px; cursor: pointer;
+  background: #2a1a0dcc; border: 2px solid #ffd98a4d; border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  transition: transform 120ms ease-out, border-color 120ms ease-out;
+}
+.hero-card:hover { transform: translateY(-3px); border-color: #ffd98aa6; }
+.hero-card.selected { border-color: #ffd35c; box-shadow: 0 0 0 3px #ffd35c40, 0 6px 0 #0000005e; }
+.hero-portrait { position: relative; height: 210px; display: grid; place-items: end center; }
+.hero-portrait img { height: 210px; object-fit: contain; }
+/* 圖還沒生好時不要破圖，也不要灰剪影——就寫名字，那一格照樣看得懂 */
+.hero-portrait-missing { display: grid; place-items: center; height: 210px; width: 150px; font-size: 34px; color: #ffd98a; border: 2px dashed #ffd98a59; border-radius: 12px; }
+.hero-name { font-size: 26px; font-weight: bold; }
+.hero-tag { font-size: 15px; color: #ffd98a; letter-spacing: 1px; }
+.hero-detail { width: 780px; min-height: 132px; background: #2a1a0da8; border-radius: 14px; padding: 10px 18px; }
+.hero-blurb { margin: 0 0 6px; font-size: 16px; line-height: 1.55; }
+.hero-kit { display: flex; flex-direction: column; gap: 3px; font-size: 14px; line-height: 1.5; }
+.hero-kit-row { display: flex; gap: 10px; }
+.hero-kit-row b { color: #ffd98a; flex: 0 0 122px; }
+.hero-kit-row span { flex: 1; }
+.heroselect-buttons { display: flex; gap: 14px; }
+
+/* 開房畫面的選角兩排（2026-09-12）：開房的人替兩個座位都挑 */
+.lobby-heroes { margin: 10px 0 4px; }
+.lobby-hero-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+.lobby-hero-row b { flex: 0 0 88px; text-align: right; color: #ffd98a; }
+.lobby-hero-row .btn.selected { outline: 3px solid #ffd35c; box-shadow: 0 0 0 3px #ffd35c40; }
+
+/* ===== 除錯模式（2026-09-14 使用者要求，標題畫面輸入 mimi36985 進入）=====
+   把事件文字與插圖、牌面、台詞、立繪一次攤開檢查，可以切球球／菲菲對照。
+   刻意做成整片可捲的清單而不是一頁一頁翻：要找的就是「哪一張不對」，
+   一次看得到越多越快。 */
+.debug-screen {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  background: #16131a; color: #efe6d6; font-size: 13px;
+}
+.debug-screen .dbg-bar {
+  display: flex; align-items: center; gap: 8px; flex: none;
+  padding: 8px 12px; border-bottom: 1px solid #ffffff22; background: #1f1a26;
+}
+.debug-screen .dbg-title { font-weight: 900; color: #ffd35c; margin-right: 6px; }
+.debug-screen .dbg-sep { opacity: .4; }
+.debug-screen .dbg-tab.on { background: #ffd35c; color: #2b2013; border-color: #ffd35c; font-weight: 800; }
+.debug-screen .dbg-close { margin-left: auto; }
+.debug-screen .dbg-body { flex: 1; overflow-y: auto; padding: 12px 16px 40px; }
+.debug-screen .dbg-note { opacity: .75; margin: 0 0 10px; }
+.debug-screen h3 { margin: 18px 0 8px; color: #ffd35c; font-size: 15px; }
+.debug-screen .dbg-tag {
+  margin-left: 8px; padding: 1px 7px; border-radius: 10px; font-size: 11px;
+  background: #ffffff1a; color: #cbbfae; font-weight: normal;
+}
+.debug-screen .dbg-warn { color: #ff8a8a; margin-left: 8px; font-weight: 700; }
+.debug-screen .dbg-event { border-top: 1px solid #ffffff1a; padding-top: 6px; }
+.debug-screen .dbg-choice { margin: 6px 0 6px 18px; padding-left: 10px; border-left: 2px solid #ffffff1a; }
+.debug-screen .dbg-row { display: flex; gap: 12px; align-items: flex-start; }
+.debug-screen .dbg-text { flex: 1; min-width: 0; }
+.debug-screen .dbg-text p { margin: 2px 0; line-height: 1.6; }
+/* 插圖：固定寬度好對齊，缺圖畫成紅框，一眼看得出來是「沒有」不是「沒載到」 */
+.debug-screen .dbg-shot { flex: none; width: 260px; }
+.debug-screen .dbg-shot img { width: 100%; border-radius: 6px; display: block; background: #0c0a10; }
+.debug-screen .dbg-missing {
+  width: 100%; aspect-ratio: 4 / 3; border: 2px dashed #ff6b6b; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; color: #ff8a8a;
+}
+.debug-screen .dbg-noart { width: 260px; opacity: .45; }
+.debug-screen .dbg-cap { margin-top: 2px; opacity: .8; }
+.debug-screen code { font-size: 11px; color: #9fd0ff; word-break: break-all; }
+.debug-screen .dbg-cards { display: flex; flex-wrap: wrap; gap: 14px; }
+/*
+ * 牌本身的 `display` 一個字都不准蓋（稽核 中-6）：原本這裡把兩張牌改成 inline-block，
+ * 權重壓過 `.card { display: flex }`，牌圖靠左、牌型標籤離開底部、長規則字被切掉、`fitCardText` 也不縮字——
+ * 這頁就是拿來逐張檢查牌面的，看到的版面必須跟遊戲裡一樣。
+ */
+.debug-screen .dbg-pair { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 260px; }
+.debug-screen .dbg-poses { display: flex; flex-wrap: wrap; gap: 12px; }
+.debug-screen .dbg-poses .dbg-shot { width: 150px; }
+/* 退回別人那張的用灰底標出來：那代表這位角色**沒有**自己的那個姿勢 */
+.debug-screen .dbg-fallback img { filter: grayscale(.65); outline: 2px solid #8a7a55; }
+.debug-screen .dbg-lines { margin-bottom: 10px; }
+.debug-screen .dbg-line { padding: 3px 0; border-bottom: 1px solid #ffffff0f; line-height: 1.6; }
+
+/* 除錯模式**只有這裡**可以選字、複製（2026-09-14 使用者：「希望能讓我能右鍵複製文字
+   我才能快速貼過來給你，只有這邊可以喔，其他時候都不能複製」）。
+   `#stage` 整層是 `user-select: none`，這裡把它蓋回來；游標也換成文字游標，
+   讓人一眼知道這裡選得起來。圖片不放行（拖圖沒意義，還會誤觸拖曳）。 */
+.debug-screen, .debug-screen * { user-select: text; -webkit-user-select: text; }
+.debug-screen img { user-select: none; -webkit-user-select: none; }
+.debug-screen .dbg-text, .debug-screen .dbg-line, .debug-screen code { cursor: text; }
+/* 劇情頁：一張圖配它的台詞，直式排 */
+.debug-screen .dbg-slide { width: 300px; }
+.debug-screen .dbg-slide .dbg-shot { width: 300px; }
+.debug-screen .dbg-slide .dbg-text { margin-top: 4px; line-height: 1.6; }
+.debug-screen .dbg-jump { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }

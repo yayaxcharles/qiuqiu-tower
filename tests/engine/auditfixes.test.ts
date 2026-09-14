@@ -7,6 +7,7 @@ import { Rng, seedFromString } from '../../src/engine/rng';
 import { addStatus, getStatus } from '../../src/engine/statuses';
 import { relics } from '../../src/content/relics';
 import { inst } from '../helpers';
+import { me } from '../../src/engine/runplayer';
 
 function combat(encounterId: string, deck = [inst('canshang', 1)]) {
   const cs = startCombat({ hp: 999, maxHp: 999, deck, relics: [], potions: [], encounterId, rng: new Rng(seedFromString('fix')) });
@@ -86,13 +87,13 @@ describe('稽核 2026-09-10 的修正', () => {
      */
     const play = (bonus: number): number => {
       const run = newRun('bonus', 1);
-      const before = run.fish;
+      const before = me(run).fish;
       const cs = combat('orange_bandit', []);
       for (let i = 0; i < 12 && cs.phase === 'player'; i++) endTurn(cs);
       const r = finishCombat(run, cs, bonus);
       expect(r?.escaped, '牠跑了，所以沒有戰利品').toBe(true);
       expect(r?.fish, '魔物身上沒有戰利品').toBe(0);
-      return run.fish - before;
+      return me(run).fish - before;
     };
     expect(play(40) - play(0), '事件答應的獎金照給，不被早退吞掉').toBe(40);
   });
@@ -138,7 +139,7 @@ describe('稽核 2026-09-10 的修正', () => {
   it('紙箱一定給秘寶：常見池收光就往上退', () => {
     const run = newRun('chest', 1);
     // 先把常見池全部塞進背包，再開箱
-    run.relics = relics.filter((r) => r.pool === '常見').map((r) => r.id);
+    me(run).relics = relics.filter((r) => r.pool === '常見').map((r) => r.id);
     const got = openChest(run);
     expect(got).not.toBeNull();
     expect(relics.find((r) => r.id === got)?.pool).not.toBe('常見');
@@ -162,7 +163,7 @@ describe('稽核 2026-09-10 的修正', () => {
     const emptyNodes = good(); emptyNodes.map.nodes = [];
     expect(checkRun(emptyNodes)).toBeNull();
 
-    const noCost = good(); delete (noCost as { removeCost?: unknown }).removeCost;
+    const noCost = good(); delete (me(noCost) as { removeCost?: unknown }).removeCost;
     expect(checkRun(noCost)).toBeNull();
 
     const badTrail = good(); (badTrail as { trail: unknown }).trail = 'x';
@@ -171,13 +172,13 @@ describe('稽核 2026-09-10 的修正', () => {
     const badAct = good(); badAct.act = 9;
     expect(checkRun(badAct)).toBeNull();
 
-    const overHeal = good(); overHeal.hp = overHeal.maxHp + 50;
+    const overHeal = good(); me(overHeal).hp = me(overHeal).maxHp + 50;
     expect(checkRun(overHeal)).toBeNull();
 
     const badRng = good(); (badRng.rng as unknown as Record<string, unknown>)['a'] = 'x';
     expect(checkRun(badRng)).toBeNull();
 
-    const dupUid = good(); dupUid.deck = [dupUid.deck[0]!, { ...dupUid.deck[0]! }];
+    const dupUid = good(); me(dupUid).deck = [me(dupUid).deck[0]!, { ...me(dupUid).deck[0]! }];
     expect(checkRun(dupUid)).toBeNull();
   });
 });

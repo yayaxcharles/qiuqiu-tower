@@ -2,10 +2,11 @@
 import { describe, expect, it } from 'vitest';
 import { eventById } from '../../src/content/events';
 import { applyRunEffects, buyCard, buyRelic, makeShop, newRun, repriceShop, takeRelic, upgradeChanceFor } from '../../src/engine/run';
+import { me } from '../../src/engine/runplayer';
 
 describe('零錢罐', () => {
   it('在店裡買到零錢罐，其餘商品當下就變八折', () => {
-    const run = newRun('jar'); run.fish = 999;
+    const run = newRun('jar'); me(run).fish = 999;
     const shop = makeShop(run);
     shop.relics[0] = { id: 'coin_jar', base: 120, price: 120, sold: false };
     const before = shop.cards.map((c) => c.price);
@@ -30,13 +31,13 @@ describe('升級牌也在罐頭鋪與事件選牌出現', () => {
       for (let i = 0; i < 800; i++) { const run = newRun(`su${act}-${i}`); run.act = act; expect(upgradeChanceFor(run)).toBe(p); if (makeShop(run).cards.some((c) => c.upgraded)) n++; }
       expect(n / 800, `第 ${act} 關`).toBeGreaterThan(p - 0.04); expect(n / 800, `第 ${act} 關`).toBeLessThan(p + 0.04);
     }
-    const run = newRun('buy-up'); run.fish = 9999; run.act = 3;
+    const run = newRun('buy-up'); me(run).fish = 9999; run.act = 3;
     let shop = makeShop(run); let tries = 0;
     while (!shop.cards.some((c) => c.upgraded) && tries++ < 50) shop = makeShop(run);
     const i = shop.cards.findIndex((c) => c.upgraded);
     expect(i).toBeGreaterThanOrEqual(0);
     expect(buyCard(run, shop, i)).toBe(true);
-    expect(run.deck[run.deck.length - 1]!.upgraded).toBe(true);
+    expect(me(run).deck[me(run).deck.length - 1]!.upgraded).toBe(true);
   });
   it('事件三選一（大俠傳功）在第三關約四成有一張升級版', () => {
     const ev = eventById['daxia_teach']!;

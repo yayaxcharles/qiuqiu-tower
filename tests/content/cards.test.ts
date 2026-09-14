@@ -1,16 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { STARTER_DECK, cardById, cards } from '../../src/content/cards';
+import { FEIFEI_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 3、忍術 61、絕學 36（含 14 張待圖 hidden）、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 6、忍術 84、絕學 44、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
-    expect(count('起手')).toBe(3);
-    expect(count('忍術')).toBe(61);
-    expect(count('絕學')).toBe(36);
+    // 起手 3→6：2026-09-12 菲菲的三種起手牌（飛針、退開、淬毒）
+    expect(count('起手')).toBe(6);
+    // 忍術 61→67：2026-09-11 的九張連線牌（`coop: true`，只有雙人局才進池）；
+    // 67→84、絕學 39→44：2026-09-12 菲菲的 22 張專屬牌（`hero: 'feifei'`）。
+    // 兩批都掛 `hidden`，圖到齊才會進獎勵與罐頭鋪
+    // 95→96：2026-09-14 菲菲的分身術分成她自己那張（疊毒，`feifei_fenshen`）
+    // 96→97：2026-09-14 影子分身分成球球（原版）與菲菲（9/12 改版 `feifei_yingzi`）兩張
+    expect(count('忍術')).toBe(97);   // 連線支援牌 A＋B＋C 共 18 張，其中 12 張進忍術   
+    expect(count('絕學')).toBe(51);
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(110);
+    expect(cards.length).toBe(164);   // 2026-09-13 連線支援牌 A＋B＋C 共 +18；2026-09-14 菲菲的分身術 +1、影子分身分家 +1
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -54,7 +60,14 @@ describe('牌資料', () => {
       const hitsOne = c.effects.some((e) =>
         (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageRamp' || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
-        (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus');
+        (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus' ||
+        // 菲菲的三張（2026-09-12）：遠射／見血封喉／一針斃命都是指定一隻打
+        e.kind === 'damageByStatus' || e.kind === 'execByStatus' || e.kind === 'spreadStatus' ||
+        // 連線支援牌 B 批（2026-09-13）：這兩個也是「指定一隻」——
+        // `damageFromAllyStrength` 的傷害是排進佇列的，效果表上看不到 `damage`，
+        // 所以要在這裡點名，不然它會被判成 self（這條測試就是這樣抓到的）
+        e.kind === 'damageFromAllyStrength' || e.kind === 'transferDebuffsFromAlly' ||
+        e.kind === 'drawAllyIfTargetStatus');
       if (hitsAll) expect(c.target, c.name).toBe('all');
       else if (hitsOne) expect(c.target, c.name).toBe('enemy');
       else if (c.pool === '壞毛病') expect(c.target, c.name).toBe('none');
@@ -66,6 +79,11 @@ describe('牌資料', () => {
       if (e.kind === 'damage' && e.scaleWithCombo) expect(e.comboCap, c.name).toBeGreaterThan(0);
   });
   it('起手牌組 10 張', () => {
+    expect(FEIFEI_STARTER_DECK.length, '菲菲也是十張').toBe(10);
+    // 形狀跟球球一樣：5 攻＋4 防＋1 招牌技
+    expect(FEIFEI_STARTER_DECK.filter((id) => id === 'feifei_feizhen').length).toBe(5);
+    expect(FEIFEI_STARTER_DECK.filter((id) => id === 'feifei_tuikai').length).toBe(4);
+    for (const id of FEIFEI_STARTER_DECK) expect(cardById[id]?.pool, id).toBe('起手');
     expect(STARTER_DECK).toEqual([
       'sanjo', 'sanjo', 'sanjo', 'sanjo', 'sanjo',
       'tanding', 'tanding', 'tanding', 'tanding', 'kawarimi',
@@ -77,7 +95,37 @@ describe('牌資料', () => {
     const { rollCardChoices } = await import('../../src/engine/rewards');
     const { Rng, seedFromString } = await import('../../src/engine/rng');
     const manifest = (await import('../../public/assets/manifest.json')).default as { cards: Record<string, string> };
-    for (const c of cards) expect(!!manifest.cards[c.art], c.name + '：有圖=' + !!manifest.cards[c.art] + '、hidden=' + !!c.hidden).toBe(!c.hidden);
+    /*
+     * **「有圖」的判準要看「每一個拿得到這張牌的角色都有圖」**（2026-09-13）。
+     *
+     * 原本只看 `manifest.cards[c.art]`（球球那張）。連線牌兩個角色都拿得到，
+     * 球球那張先生好、她那張還在跑的時候，這條就會逼人提早拿掉 `hidden`——
+     * 一拿掉，菲菲在獎勵畫面就會看到**球球的圖**。
+     * 那正是使用者這一整天回報最多次的那類問題（紙箱、事件圖、迷路的小黑貓），
+     * 只是這次會從牌面再發生一遍。
+     */
+    const artReady = (c: typeof cards[number]): boolean => {
+      if (!manifest.cards[c.art]) return false;
+      // 綁角色的牌，`c.art` 就是那位自己的圖
+      if (c.hero === 'feifei' || c.hero === 'ninja') return true;
+      // 起手牌是照職業發固定清單的，她永遠拿不到球球那四張（貓抓、淡定…），不需要她的版本
+      if (c.pool === '起手') return true;
+      return !!manifest.cards[c.art.replace('card/', 'card/feifei_')];
+    };
+    for (const c of cards) {
+      expect(artReady(c), `${c.name}：兩個角色的圖都齊了=${artReady(c)}、hidden=${!!c.hidden}`).toBe(!c.hidden);
+    }
+    /*
+     * 菲菲版的共用牌面（2026-09-12「牌全部分家」）：`card/feifei_<牌號>` 是**選配**——
+     * 有就用她的、沒有就退回球球那張（`assets.cardArtKey`）。所以這裡只驗「不能有孤兒」：
+     * 每一個 feifei_ 前綴的圖都要對得到一張真的牌，不然就是生錯檔名、永遠不會被用到。
+     */
+    for (const key of Object.keys(manifest.cards)) {
+      const m = /^card\/feifei_(.+)$/.exec(key);
+      if (!m) continue;
+      const id = m[1]!;
+      expect(cardById[id] ?? cardById[`feifei_${id}`], `${key} 對不到任何一張牌`).toBeTruthy();
+    }
     for (let seed = 0; seed < 300; seed++) {
       for (const pool of ['忍術', '絕學'] as const) {
         for (const c of rollCardChoices(new Rng(seedFromString('hidden-' + seed)), pool, 6, [], true, 0)) expect(c.hidden).toBeUndefined();

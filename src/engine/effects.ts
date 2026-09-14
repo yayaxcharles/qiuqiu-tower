@@ -1,9 +1,10 @@
-import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log } from './actions';
+import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log, markPoisoner } from './actions';
 import { endTurn } from './combat';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
+import { heroPronoun, unitName } from './hero';
 import { DEBUFFS, TURN_DECAY } from './types';
-import type { CardInstance, CombatState, Effect, EffectCtx } from './types';
+import type { CardInstance, CombatState, Effect, EffectCtx, PlayerCombat } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
 export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx): void {
@@ -23,9 +24,74 @@ function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean) {
   return t ? [t] : [];
 }
 
+/**
+ * 這張牌要幫的「同伴」是誰。
+ *
+ * 一個人玩、或同伴已經倒下時**回自己**——連線牌可能從事件或別人分享的局面碼
+ * 流進單機的牌組，那時候不能變成一張完全沒作用的廢牌。
+ * 倒下的人也不該收禮：加在他身上等於白打一張。
+ */
+function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
+  return cs.players.find((q) => q !== me && !q.down) ?? me;
+}
+
 /** 回傳 true＝已暫停等待選牌 */
+/**
+ * 把「效果存在角色旗標上」的那幾張能力牌掛進 `p.powers`，**只為了讓它出現在狀態列**
+ *（2026-09-13 使用者回報：「我身上下方也沒有出現影子分身的圖示」）。
+ *
+ * 影子分身、千針萬毒、見血封喉、鐵布衫走的是 `echoFirst`／`poisonOnAttack`／
+ * `poisonBurst`／`blockBonus` 這幾個旗標，不是 `kind: 'power'`，所以
+ * `p.powers` 一直是空的——打完之後身上沒有任何東西告訴玩家這張牌還在生效。
+ * 這跟使用者 2026-09-03 提過的「爪力的確有加，但我不知道是哪張牌的效果」是同一件事。
+ *
+ * `trigger: 'passive'` 不在任何觸發迴圈的篩選裡，所以掛上去不會讓效果多跑一次；
+ * `effects` 留空，真正的效果在旗標那邊。同一張打第二次就疊數字（`statusRow` 自己數）。
+ *
+ * **不是牌打出來的就不掛**（秘寶、魔物給的）：沒有 `cardId` 的話狀態列查不到牌，
+ * 掛上去只會是一個沒有名字的空牌子。
+ */
+function markPassive(p: PlayerCombat, ctx: EffectCtx, stacks = false): void {
+  if (!ctx.cardId) return;
+  // **同一張牌不要疊出兩個牌子**（2026-09-13 稽核 低-2）：被影子分身當本回合第一張
+  // 複製時會推兩筆，狀態列就寫「你忙我補位 2」，玩家以為每輪抽 2 張——
+  // 而這幾個效果是直接指派不是累加，實際只有一份。
+  // **累加型的例外**（`stacks`，2026-09-14 夜間稽核 中-12）：拒馬、千針萬毒打第二張是真的疊上去，
+  // 去重把它們也擋掉的話，狀態列只寫一張的量，玩家看到的加成比實際少一半
+  if (!stacks && p.powers.some((pw) => pw.trigger === 'passive' && pw.cardId === ctx.cardId
+      && !!pw.upgraded === !!ctx.cardUpgraded)) return;
+  p.powers.push({
+    trigger: 'passive', effects: [],
+    cardId: ctx.cardId, ...(ctx.cardUpgraded ? { upgraded: true } : {}),
+  });
+}
+
+/**
+ * 把這張牌累積下來、要落在**自己**身上的蜷縮一次發掉。
+ *
+ * 為什麼要累積：`gainBlock` 每次呼叫都先加一份拒馬再過貓步，同一張牌分兩次給自己
+ * 就會把加成吃兩遍（2026-09-13 稽核 中-6）。只在「後面沒有別的自我蜷縮」時才發，
+ * 所以「先幫你留著」單人版的 4＋8 會合成一次 12 點再算加成。
+ */
+function flushSelfBlock(cs: CombatState, p: PlayerCombat, ctx: EffectCtx, queue: Effect[]): void {
+  const more = queue.some((e) => e.kind === 'block'
+    || (e.kind === 'blockAlly' && ally(cs, p) === p)
+    || (e.kind === 'blockAll'));
+  if (more) return;                                  // 後面還有，等最後那一條再一起發
+  const n = ctx.selfBlockPool ?? 0;
+  if (n > 0) gainBlock(cs, p, n);
+  ctx.selfBlockPool = 0;
+}
+
 export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Effect[]): boolean {
-  const p = cs.player;
+  /*
+   * **這一串效果是誰引發的**（連線版第一步 2026-09-11）。
+   *
+   * 以前寫死 `cs.player`，因為只有一位玩家。現在打牌、喝忍具的地方會把自己填進
+   * `ctx.self`，加防禦、抽牌、回血就記在正確的人身上。魔物的招式與還沒改完的
+   * 舊呼叫點沒填，退回第一位——單機兩者是同一個人，行為完全沒變。
+   */
+  const p = ctx.self ?? cs.player;
   switch (fx.kind) {
     case 'damage': {
       const times = fx.scaleWithCombo ? Math.min((ctx.combo ?? 0) + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
@@ -34,7 +100,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         // 背刺：目標身上沒有任何減益，這一段就不打
         if (fx.ifTargetDebuffed && !DEBUFFS.some((d) => getStatus(t, d) > 0)) continue;
         for (let i = 0; i < times; i++) {
-          const r = damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion' });
+          const r = damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion', by: p });
           if (r.killed) { if (!t.reviveIn) ctx.killed = true; break; }   // 同生共死的「暫時倒下」不算擊倒，跟 killEnemy 不發擊倒能力同口徑（稽核 中-3）
         }
       }
@@ -45,7 +111,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const plays = ctx.cardUid !== undefined ? (cs.cardPlays?.[ctx.cardUid] ?? 0) : 0;
       const base = (fx.amount + fx.step * plays) * (ctx.doubleDamage ? 2 : 1);
       for (const t of targetsOf(cs, ctx, false)) {
-        const r = damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion' });
+        const r = damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion', by: p });
         if (r.killed) ctx.killed = true;
       }
       return false;
@@ -69,7 +135,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         const hittable = alive.filter((e) => attackable(cs, e));
         if (!hittable.length) { log(cs, '雷光劈了下去，卻沒有一隻打得到'); break; }
         const t = cs.rng.pick(hittable);
-        if (damageEnemy(cs, t, fx.amount * (ctx.doubleDamage ? 2 : 1), { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
+        if (damageEnemy(cs, t, fx.amount * (ctx.doubleDamage ? 2 : 1), { noStrength: ctx.source === 'potion', by: p }).killed) ctx.killed = true;
       }
       return false;
     }
@@ -82,7 +148,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const base = cs.rng.int(fx.min, fx.max) * (ctx.doubleDamage ? 2 : 1);
       // 忍具的傷害不吃爪力，跟 damage／damageRamp 同口徑（稽核 2026-09-10 低-4：只有這個分支漏寫，
       // 目前沒有隨機傷害的忍具所以還沒出事，但補上比較保險）
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
+      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion', by: p }).killed) ctx.killed = true;
       return false;
     }
     case 'selfDamage': {
@@ -107,28 +173,195 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * 受影響的只有三張牌（鐵頭功 2、拼命 3、亡命 6）與鐵砂衣的開場 4 點。
        * 鐵砂衣那一下**打在開戰第一拍**，那時蜷縮還是 0（除了暖毯），所以它的代價實質不變。
        */
-      damagePlayer(cs, p, amount, { direct: true, throughBlock: true });
+      damagePlayer(cs, p, amount, { direct: true, throughBlock: true, victim: p });
       if (ctx.source === 'relic') log(cs, `秘寶的代價：失去 ${amount} 點生命`);
       return false;
     }
-    case 'block': gainBlock(cs, p, fx.amount); return false;
-    case 'draw': drawCards(cs, fx.n); return false;
+    case 'block': {
+      // 同一張牌裡如果還有會落在自己身上的 `blockAlly`（一個人時），兩份要併成一次算
+      // ——分兩次的話貓步與拒馬會被套兩遍（2026-09-13 稽核 中-6）
+      ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount;
+      flushSelfBlock(cs, p, ctx, queue);
+      return false;
+    }
+    case 'blockAll': {
+      // **每一位都要照自己的貓步算**，所以一個一個走 `gainBlock`，不是算一次再發下去
+      for (const q of cs.players) if (!q.down) gainBlock(cs, q, fx.amount);
+      if (cs.players.length > 1) log(cs, '蜷縮分了對方一半');
+      return false;
+    }
+    case 'statusAlly': {
+      const mate = ally(cs, p);
+      // 隱身走 `gainStealth`：那支會吃**收禮那一方**的秘寶加成（紙袋、影披風），
+      // 直接 `addStatus` 的話等於偷偷少給（稽核自檢 2026-09-11）
+      if (fx.name === '隱身') gainStealth(cs, fx.amount, mate); else addStatus(mate, fx.name, fx.amount);
+      if (mate !== p) log(cs, `幫對方加了 ${fx.amount} 層${fx.name}`);
+      return false;
+    }
+    case 'blockAlly': {
+      const mate = ally(cs, p);
+      /*
+       * 照**收禮那一方**自己的貓步算：送出去的是「幫他擋一下」，不是把自己的護甲搬過去。
+       *
+       * **一個人時要跟同一張牌的其他蜷縮合併成一次**（2026-09-13 稽核 中-6）：
+       * `gainBlock` 每次都先加一份拒馬（blockBonus）再過貓步，分兩次呼叫就吃兩次。
+       * 實測貓步 3 時「先幫你留著」單人會拿到 18 點，交辦單要的是 15。
+       * 玩家不會發現，只會覺得這張牌莫名好用。
+       * 所以單人時先把量記在 `pendingSelfBlock`，由這張牌最後一次 `block`／`blockAlly` 一起發。
+       */
+      if (mate === p) { ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount; flushSelfBlock(cs, p, ctx, queue); return false; }
+      gainBlock(cs, mate, fx.amount);
+      log(cs, `幫對方擋了 ${fx.amount} 點`);
+      return false;
+    }
+    case 'drawAlly': {
+      const mate = ally(cs, p);
+      drawCards(cs, fx.n, mate);
+      if (mate !== p) log(cs, `對方多抽了 ${fx.n} 張`);
+      return false;
+    }
+    case 'cleanseAlly': {
+      const mate = ally(cs, p);
+      const hit = DEBUFFS.filter((d) => getStatus(mate, d) > 0);
+      for (const d of hit) removeStatus(mate, d);
+      log(cs, hit.length
+        ? (mate === p ? `甩掉了${hit.join('、')}` : `幫對方拍掉了${hit.join('、')}`)
+        : '身上很乾淨，沒什麼好拍的');
+      return false;
+    }
+    case 'energyAlly': {
+      // `onKill`＝只有這張牌直接打倒目標才給（我幫你收尾）。判斷跟 `energy` 同一個旗標，
+      // 所以「毒在之後才毒死牠」不算——那時候這張牌早就結算完了。
+      if (fx.onKill && !ctx.killed) return false;
+      const mate = ally(cs, p);
+      mate.energy += fx.n;
+      cs.energyGain += fx.n;   // 畫面靠這個數字知道飯糰是「多出來的」不是自己省下的
+      if (mate !== p) log(cs, `飯糰分了對方 ${fx.n} 顆`);
+      return false;
+    }
+    case 'healAlly': {
+      const mate = ally(cs, p);
+      healPlayer(cs, fx.n, mate);
+      if (mate !== p) log(cs, `幫對方回了 ${fx.n} 點`);
+      return false;
+    }
+    case 'blockFromAllyBlock': {
+      /*
+       * **先把同伴的蜷縮讀起來再給自己**（順序很要緊）。
+       * 一個人玩的時候 `ally()` 回的是自己，先給再讀的話這張牌剛給的 5 點會被算進加成，
+       * 變成「越打越多」——交辦單特別把這條寫成必須核對的項目。
+       */
+      const mate = ally(cs, p);
+      const theirs = mate.block;
+      const raw = fx.half ? Math.floor(theirs / 2) : theirs;
+      const extra = Math.min(raw, fx.cap);
+      // 兩份合起來一次給：分兩次的話貓步會被套兩次（交辦單的單人替代那條）
+      gainBlock(cs, p, fx.amount + extra);
+      if (extra > 0) log(cs, mate === p ? `靠著原本的架式多擋了 ${extra} 點` : `靠對方的架式多擋了 ${extra} 點`);
+      return false;
+    }
+    case 'damageFromAllyStrength': {
+      const mate = ally(cs, p);
+      const extra = Math.min(getStatus(mate, '爪力'), fx.cap);
+      // 走一般的 `damage`：出牌者自己的爪力、加倍、防禦都照原本的規則算，
+      // 同伴的爪力只是**另外加一段固定值**，不是換一套算法
+      queue.unshift({ kind: 'damage', amount: fx.amount + extra, ...(fx.ignoreBlock ? { ignoreBlock: true } : {}) });
+      if (extra > 0) log(cs, mate === p ? `借自己的力氣多打了 ${extra} 點` : `借對方的力氣多打了 ${extra} 點`);
+      return false;
+    }
+    case 'energyTransfer': {
+      const mate = ally(cs, p);
+      if (mate === p) return false;                     // 一個人時什麼都不轉（不能自己轉給自己憑空變多）
+      const give = Math.min(fx.n, p.energy);            // 自己少多少，對方才多多少
+      if (give <= 0) { log(cs, '飯糰已經用完了，沒得分'); return false; }
+      p.energy -= give;
+      mate.energy += give;
+      log(cs, `把 ${give} 顆飯糰推給了對方`);
+      return false;
+    }
+    case 'doubleNextAttackAlly': {
+      const mate = ally(cs, p);
+      mate.doubleNext = 1;
+      log(cs, mate === p ? '下一擊加倍' : '對方的下一擊加倍');
+      return false;
+    }
+    case 'drawAllyIfTargetStatus': {
+      const t = cs.enemies.find((e) => e.uid === ctx.targetUid);
+      // **看的是打之前的狀態**：這張牌自己附上去的毒不算（交辦單明定）。
+      // `applyOne` 照順序跑，所以只要這個效果排在 `damage` 與上毒之前就成立——
+      // 牌資料裡它排第一個，改順序前先想一下這句。
+      const hit = !t ? false
+        : fx.anyDebuff ? DEBUFFS.some((d) => getStatus(t, d) > 0)
+          : fx.name !== undefined && getStatus(t, fx.name) > 0;
+      if (hit) {
+        const mate = ally(cs, p);
+        drawCards(cs, fx.n, mate);
+        log(cs, mate === p ? `多抽了 ${fx.n} 張` : `對方多抽了 ${fx.n} 張`);
+      }
+      return false;
+    }
+    // ---- C 批（2026-09-13）。這幾個只是**設旗標**，真正做事的在 combat.ts ----
+    case 'watchAllyPlay': p.watchAllyPlay = fx.cardType; markPassive(p, ctx); return false;
+    case 'watchSelfPlay': p.watchSelfPlay = fx.cardType; markPassive(p, ctx); return false;
+    case 'watchPoisonHit': p.watchPoisonHit = fx.who; markPassive(p, ctx); return false;
+    case 'poisonAllyNextAttack': {
+      const mate = ally(cs, p);
+      mate.poisonNextAttack = { amount: fx.amount, ...(fx.anyDamage ? { anyDamage: true as const } : {}) };
+      log(cs, mate === p ? '針上補了藥' : '幫對方的針補了藥');
+      return false;
+    }
+    case 'energyForAllyEachRound':
+      p.energyForAllyEachRound = fx.draw ? 'draw' : 'plain';
+      markPassive(p, ctx);
+      return false;
+    case 'transferDebuffsFromAlly': {
+      const mate = ally(cs, p);
+      let moved = 0;
+      for (const t of targetsOf(cs, ctx, false)) {
+        for (const name of DEBUFFS) {
+          const v = getStatus(mate, name);
+          if (v > 0) { removeStatus(mate, name); addStatus(t, name, v); moved += v; }
+        }
+      }
+      log(cs, moved > 0
+        ? (mate === p ? `把身上的麻煩全丟回去了` : `把對方身上的麻煩全丟回去了`)
+        : '身上很乾淨，沒什麼好丟的');
+      return false;
+    }
+    case 'ifSelfStatus': {
+      // 看的是**這張牌開始結算前**的層數。`applyOne` 是照順序跑的，所以同一張牌
+      // 先上狀態再判斷會拿到「上完之後」的值——那會讓「跟著我躲好」自己給自己隱身
+      // 再判斷「我有隱身」，永遠走同一條分支。所以掛這個效果的牌，前面不要放同名的上狀態。
+      const branch = getStatus(p, fx.name) > 0 ? fx.then : fx.otherwise;
+      queue.unshift(...branch);
+      return false;
+    }
+    case 'taunt': {
+      p.taunt = true;
+      log(cs, cs.players.length > 1 ? `${unitName(p)}站到前面，這一輪魔物都衝著${heroPronoun(p)}來` : `${unitName(p)}擺出架式`);
+      return false;
+    }
+    case 'draw': drawCards(cs, fx.n, p); return false;
     case 'drawIfTargetStatus': {
       const t = cs.enemies.find((e) => e.uid === ctx.targetUid);
-      if (t && getStatus(t, fx.name) > 0) drawCards(cs, fx.n);
+      if (t && getStatus(t, fx.name) > 0) drawCards(cs, fx.n, p);
       return false;
     }
     case 'drawNextTurn': p.drawNextTurn += fx.n; return false;
     case 'status': {
+      // 成長牌（菲菲的分身術）：跟 damageRamp 同一份次數，打完才 +1，第一次打是 0 次
+      const plays = fx.step && ctx.cardUid !== undefined ? (cs.cardPlays?.[ctx.cardUid] ?? 0) : 0;
+      const amount = fx.amount + (fx.step ?? 0) * plays;
       if (fx.target === 'self') {
-        if (fx.name === '隱身') gainStealth(cs, fx.amount); else addStatus(p, fx.name, fx.amount);
+        if (fx.name === '隱身') gainStealth(cs, amount, p); else addStatus(p, fx.name, amount);
         // 自己給自己疊的減益，這回合結束先不衰減
-        if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = (p.freshDebuffs[fx.name] ?? 0) + fx.amount;
+        if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = (p.freshDebuffs[fx.name] ?? 0) + amount;
       } else {
         for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
           // 定身對魔物只有七成機會成功（使用者 2026-09-02：「定身太強」）；沒中就寫在紀錄、畫面飄「掙脫」
           if (fx.name === '定身' && !cs.rng.chance(0.7)) { log(cs, `${t.name}掙脫了定身`); continue; }
-          addStatus(t, fx.name, fx.amount);
+          addStatus(t, fx.name, amount);
+          markPoisoner(t, fx.name, p);   // 毒死牠的時候要知道是誰下的（連線版，見 EnemyCombat.poisonedBy）
         }
       }
       return false;
@@ -139,8 +372,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     // `percent`＝回最大生命的百分之幾（起死回生丹）。用最大生命當基準不是「缺的血」：
     // 缺得越多回越多會變成「越晚喝越賺」，那會逼玩家故意拖到快死
-    case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n); return false;
-    case 'gold': if (!fx.onKill || ctx.killed) { cs.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
+    case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p); return false;
+    case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
     case 'power':
       // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來
       p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}), ...(ctx.cardUpgraded ? { upgraded: true } : {}) });
@@ -150,7 +383,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'doubleNextAttack': p.doubleNext = 1; return false;
     // 掛旗不直呼：讓畫面走跟按「結束回合」一樣的完整流程（收牌→敵人動作→發牌），
     // 不然敵方回合擠在同一次重畫裡閃過，玩家以為敵人沒動（使用者實玩回報撒手鐧）
-    case 'endTurn': queue.length = 0; cs.endTurnRequested = true; return false;
+    case 'endTurn': queue.length = 0; p.ready = true; return false;   // 替**打這張牌的人**舉手，不是把整桌的回合切掉
     case 'stealBlock': {
       for (const t of targetsOf(cs, ctx, false)) { p.block += t.block; t.block = 0; }
       return false;
@@ -161,7 +394,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 紀錄卻已經印了「秘笈：第一擊加倍」。一飯糰的蓄力或一件 190 條的秘寶就這樣被靜靜吃掉。
       //（「絕學·太極」也是這個分支，但它是技能牌、本來就吃不到加倍，不受影響）
       const base = p.block * (ctx.doubleDamage ? 2 : 1);
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: true }).killed) ctx.killed = true;
+      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: true, by: p }).killed) ctx.killed = true;
       return false;
     }
     case 'cleanse': {
@@ -176,6 +409,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         // 0 層：基礎版催不動（寫進紀錄，玩家才知道飯糰花去哪）；升級版的「再加 add 層」照加
         if (cur === 0 && !fx.add) { log(cs, `${t.name}身上沒有${fx.name}，催不動`); continue; }
         addStatus(t, fx.name, cur + (fx.add ?? 0));
+        markPoisoner(t, fx.name, p);
       }
       return false;
     }
@@ -218,6 +452,75 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const cands = p.discardPile.filter((c) => c.uid !== ctx.cardUid);
       return pause(cs, queue, ctx, { from: 'discard', purpose: 'recover', cards: cands, min: 1, max: 1 });
     }
+    case 'damageByStatus': {
+      /*
+       * 把毒一次引爆（見血封喉）。
+       *
+       * 傷害用的是**打之前**的層數，而且刻意走 `direct: true`——毒本來就是無視蜷縮的，
+       * 引爆它還被蜷縮擋住講不通。
+       *
+       * **基礎版不再清毒**（2026-09-14 使用者裁定）。原本基礎版打完把層數清掉，
+       * 升級版留著；問題是清毒等於把 N(N+1)/2 的未來傷害換成 N——毒疊到 8 層是拿 36 換 8，
+       * 而且升級只是「不清毒」，所以基礎版在任何情況下都不會比升級版好，
+       * 升級變成純粹解除懲罰。現在基礎版就是不清，升級版改成**傷害翻倍**。
+       */
+      /*
+       * **也要吃加倍**（2026-09-14 夜間稽核 高-1）：它是攻擊牌，出牌那一刻秘笈、蓄力、分身油、趁現在出手的
+       * 加倍旗標就被用掉了（`combat.ts` 的 `doubleDamage`），這裡不乘等於白白吃掉——紀錄框還印「秘笈：第一擊加倍」。
+       * 跟 2026-09-10 借力使力漏接是同一個洞，這是後來加的第五個傷害分支。
+       */
+      const mul = (fx.mul ?? 1) * (ctx.doubleDamage ? 2 : 1);
+      for (const t of targetsOf(cs, ctx, false)) {
+        const n = getStatus(t, fx.name);
+        if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (damageEnemy(cs, t, n * mul, { direct: true, by: p }).killed) ctx.killed = true;
+        if (fx.consume) removeStatus(t, fx.name);
+      }
+      return false;
+    }
+    case 'execByStatus': {
+      // 毒撐得比牠的血還多就直接了結。**用現在的生命比，不是最大生命**
+      for (const t of targetsOf(cs, ctx, false)) {
+        const n = getStatus(t, fx.name);
+        if (n < t.hp) { log(cs, `${t.name}的${fx.name}還不夠（${n}／${t.hp}）`); continue; }
+        log(cs, `${t.name}的${fx.name}發作了`);
+        if (damageEnemy(cs, t, t.hp, { direct: true, by: p }).killed) ctx.killed = true;
+      }
+      return false;
+    }
+    case 'spreadStatus': {
+      // 散出去的毒算在下毒的人頭上（見 `EnemyCombat.poisonedBy`）
+      /*
+       * 散毒：把這一隻身上的毒**分**給其他還站著的，牠自己那份不動。
+       *
+       * 這張是為了「一排魔物」的場面做的——機器人實測她第二關（16～30F）陣亡 206、
+       * 球球只有 131，那一段正是多隻同框的地方。跟「餘毒」（要先毒死一隻）不同，
+       * 這張不用等誰倒下，代價是消耗。
+       */
+      for (const t of targetsOf(cs, ctx, false)) {
+        const n = getStatus(t, fx.name);
+        const others = cs.enemies.filter((o) => o !== t && !o.dead && !o.escaped);
+        if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (others.length === 0) { log(cs, '旁邊沒有別的魔物'); continue; }
+        const each = fx.half ? Math.floor(n / 2) : n;
+        if (each <= 0) continue;
+        log(cs, `${t.name}身上的${fx.name}散了開來`);
+        for (const o of others) { addStatus(o, fx.name, each); markPoisoner(o, fx.name, p); }
+      }
+      return false;
+    }
+    /*
+     * 三個掛在人身上的長效旗標（餘毒、拒馬、千針萬毒）。走旗標不走 `power`，理由見 types.ts。
+     *
+     * **一律取比較好的那一邊，不要直接覆寫**（稽核 2026-09-12 中-8）：
+     * 牌組裡同時有升級版與沒升級的時候，先打升級的、再打沒升的，會把自己降回去——
+     * 玩家只會覺得「我打了一張牌然後變弱了」，而紀錄框什麼都不會說。
+     */
+    case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; markPassive(p, ctx); return false;
+    case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
+    // 影子分身**不疊**：`combat.ts` 只看有沒有，打兩張第一張牌也只重播一次，牌子寫 2 會騙人（夜間審查 中-2）
+    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx); return false;
+    case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }

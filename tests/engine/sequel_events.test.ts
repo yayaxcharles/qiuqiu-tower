@@ -1,6 +1,7 @@
 // 事件前後集、關主前綴、代價秘寶（2026-09-04）
 import { describe, expect, it } from 'vitest';
 import { eventById, events } from '../../src/content/events';
+import { me } from '../../src/engine/runplayer';
 import { relicById } from '../../src/content/relics';
 import { applyEffects } from '../../src/engine/effects';
 import { startCombat } from '../../src/engine/combat';
@@ -35,7 +36,7 @@ describe('事件前後集', () => {
     const rescue = eventById['rescue']!;
     applyRunEffects(run, rescue.choices[1]!.outcome);
     expect(run.flags['rescue_took_fish']).toBe(true);
-    expect(run.fish).toBeGreaterThan(0);
+    expect(me(run).fish).toBeGreaterThan(0);
   });
 });
 
@@ -106,10 +107,10 @@ describe('代價秘寶', () => {
   });
   it('血契短刀：開戰 +3 爪力、最大生命 −12；貪吃錢袋：店價漲三成', () => {
     const run = newRun('costly');
-    const hp0 = run.maxHp;
+    const hp0 = me(run).maxHp;
     takeRelic(run, 'blood_dagger');
-    expect(run.maxHp).toBe(hp0 - 12);
-    expect(run.hp).toBeLessThanOrEqual(run.maxHp);
+    expect(me(run).maxHp).toBe(hp0 - 12);
+    expect(me(run).hp).toBeLessThanOrEqual(me(run).maxHp);
     const cs = beginCombat(run, 'wood_dummy');
     expect(getStatus(cs.player, '爪力')).toBe(3);
     expect(relicById['glutton_purse']!.hooks.shopDiscount).toBe(1.3);

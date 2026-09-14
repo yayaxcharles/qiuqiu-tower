@@ -420,6 +420,13 @@
   /* 代幣本體那圈是琥珀色內陰影，不一起換的話綠球底緣會留一道土黃（稽核 2026-09-07 低-2） */
   box-shadow: inset 0 -2px 3px #0d5c3999, 0 2px 0 #00000040;
 }
+/* 升級反而變貴的那張（見血封喉＋）：代幣換成紅的，跟變便宜的綠色成對（2026-09-14 夜間稽核 低-7） */
+.card-cost.cost-up {
+  color: #fff4f1;
+  background: radial-gradient(circle at 38% 30%, #ff9c8a, #d6452e 55%, #962816);
+  text-shadow: 0 1px 2px #00000073;
+  box-shadow: inset 0 -2px 3px #5c140a99, 0 2px 0 #00000040;
+}
 /*
  * 挑牌視窗裡「已經選好的牌」。原本沿用共用的黃描邊，但牌框本身就是金色系，兩個糊在一起，
  * 升級兩張牌的時候根本看不出自己選了哪張（使用者 2026-09-07：「黃色光太不清楚，應該用紅色框」）。
@@ -545,6 +552,21 @@
 .card.type-攻擊 { background-color: #fff4ee; background-image: var(--paper-attack); }
 .card.type-技能 { background-color: #eef5ff; background-image: var(--paper-skill); }
 .card.type-能力 { background-color: #f3eeff; background-image: var(--paper-power); }
+/*
+ * 連線牌：**白紙**（使用者 2026-09-11 指定）。
+ *
+ * 蓋在牌型的顏色之上，所以要排在那三條後面。底紋照樣用牌型那張——
+ * 換掉的只有紙的顏色，紋理保持一致，看起來才像同一套牌裡的一種特殊紙，
+ * 而不是另一個遊戲的牌。
+ * 白色在這三種暖／冷／紫的底色之間最跳，而且不會跟稀有度的邊框搶顏色。
+ */
+.card.coop { background-color: #ffffff; }
+/* 左上角一枚小記號：白色本身在小張的時候不夠明顯，補一個看得懂的標記 */
+.card.coop .card-type::after {
+  content: '· 雙人';
+  margin-left: 4px;
+  opacity: .75;
+}
 
 /* 小魚乾增減：數字蹦一下，旁邊飄一個 +N／−N。
    進帳是金色的往上飄，花掉是紅色的往下沉——不用看清楚數字也知道是進是出。 */
@@ -660,6 +682,11 @@
 .compendium .comp-upg {
   display: flex; align-items: center; gap: 6px;
   color: #f3e9d2; font-size: 14px; cursor: pointer; user-select: none;
+}
+/* 看誰的牌：兩顆鈕，目前在看的那顆亮著（`.on`） */
+.compendium .comp-heroes { display: flex; gap: 6px; }
+.compendium .comp-hero.on {
+  background: #ffd35c; color: #2b2013; border-color: #ffd35c; font-weight: 800;
 }
 .compendium .comp-close { margin-left: auto; }
 .compendium .comp-body { flex: 1; overflow-y: auto; padding: 12px 18px 18px; }

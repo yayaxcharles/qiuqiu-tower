@@ -1,6 +1,7 @@
-import { cards } from '../content/cards';
+import { cards, inHeroCollection } from '../content/cards';
 import { el } from './dom';
 import { cardNode } from './cardview';
+import { localHero } from './assets';
 import { overlayRoot } from './overlay';
 
 /**
@@ -24,14 +25,34 @@ export function showCompendium(): void {
   if (!layer || layer.querySelector('.compendium')) return;   // 已經開著就不疊第二層
 
   let upgraded = false;
+  /**
+   * 用誰的圖與牌名看。**開局中就開在你正在玩的那位**，從標題畫面開就從球球開始，
+   * 兩邊都可以按上面的鈕切。
+   *
+   * 為什麼要這顆鈕（2026-09-13 使用者回報「雙人的卡牌都沒有菲菲喔?圖片全是球球的」）：
+   * 標題畫面還沒開局，`localHero()` 一律回球球，於是整本圖鑑都是他的圖——
+   * 而「開局前先看看這角色有什麼牌」正是圖鑑最常被打開的時候。
+   */
+  let who: string = localHero();
   const grid = el('div', { class: 'comp-body' });
+
+  /** 這一位拿得到的牌（判準見 `inHeroCollection`：起手區照起手十張認，其餘看 `hero` 標記） */
+  const forWho = (c: Parameters<typeof inHeroCollection>[0]): boolean => inHeroCollection(c, who);
 
   const render = (): void => {
     grid.replaceChildren();
     for (const pool of POOL_ORDER) {
-      // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不列進圖鑑：那不是「牌組會有的牌」，
-      // 是魔物臨時塞進來、打完就沒的東西
-      const group = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden);
+      /*
+       * `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）不列進圖鑑：那不是「牌組會有的牌」，
+       * 是魔物臨時塞進來、打完就沒的東西。
+       *
+       * **連線牌抽出來另外擺一區**（2026-09-13 稽核 低-7）：`hidden` 拿掉之後，
+       * 那 28 張跟著混進忍術與絕學，一個人玩的玩家會看到一堆他永遠抽不到的牌，
+       * 而且池子的說明「一般戰鬥獎勵、罐頭鋪常見貨」對它們是假的。
+       * 不是藏起來——圖鑑本來就是「全部看得到」的地方——是**擺到自己那一區**，
+       * 順便讓「什麼時候才抽得到」寫在標題上。
+       */
+      const group = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden && !c.coop && forWho(c));
       if (!group.length) continue;
       grid.append(el('div', { class: 'comp-section' },
         el('span', { class: 'comp-pool' }, `${pool}（${group.length}）`),
@@ -40,17 +61,44 @@ export function showCompendium(): void {
       // 同池內照稀有度排：常見→罕見→稀有，找牌時比較有秩序
       const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
       for (const def of [...group].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
-        row.append(cardNode(def, { small: true, upgraded }));
+        row.append(cardNode(def, { small: true, upgraded, hero: who }));
+      grid.append(row);
+    }
+    // 連線牌自己一區，擺在最後（見上面 `group` 那段的說明）
+    const coop = cards.filter((c) => c.coop && !c.combatOnly && !c.hidden && forWho(c));
+    if (coop.length) {
+      grid.append(el('div', { class: 'comp-section' },
+        el('span', { class: 'comp-pool' }, `雙人（${coop.length}）`),
+        el('span', { class: 'comp-note' }, '兩個人一起爬塔才會出現在獎勵與罐頭鋪')));
+      const row = el('div', { class: 'comp-grid' });
+      const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
+      for (const def of [...coop].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
+        row.append(cardNode(def, { small: true, upgraded, hero: who }));
       grid.append(row);
     }
   };
 
   const check = el('input', { type: 'checkbox', id: 'comp-upg' }) as HTMLInputElement;
   check.addEventListener('change', () => { upgraded = check.checked; render(); });
+
+  // 看誰的牌。**兩顆鈕不是下拉選單**：只有兩位，一眼看得出現在在看誰，也少一次點擊
+  const heroBtns = (['ninja', 'feifei'] as const).map((h) => {
+    const b = el('button', { class: 'btn small comp-hero' }, h === 'feifei' ? '菲菲' : '球球');
+    b.addEventListener('click', () => {
+      if (who === h) return;
+      who = h;
+      for (const o of heroBtns) o.classList.toggle('on', o === b);
+      render();
+    });
+    if (who === h) b.classList.add('on');
+    return b;
+  });
+
   const close = el('button', { class: 'btn small comp-close' }, '✕ 關閉');
   const box = el('div', { class: 'compendium' },
     el('div', { class: 'comp-head' },
       el('span', { class: 'comp-title' }, '卡牌圖鑑'),
+      el('span', { class: 'comp-heroes' }, ...heroBtns),
       el('label', { class: 'comp-upg', for: 'comp-upg' }, check, '顯示升級版（＋）'),
       close),
     grid);

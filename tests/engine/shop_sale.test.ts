@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { relicById } from '../../src/content/relics';
 import { RESHUFFLE_COST, SALE_RATES, buyCard, makeShop, newRun, repriceShop, reshuffleShop, takeRelic } from '../../src/engine/run';
+import { me } from '../../src/engine/runplayer';
 
 describe('特價', () => {
   it('每間店剛好一件特價，折數只會是 7／5／4／3 折，比例接近 45／30／15／10；特價 = 原價 × 折數', () => {
@@ -29,14 +30,14 @@ describe('特價', () => {
 
 describe('重整貨架', () => {
   it('75 條、每店一次；賣掉的格子維持原牌、沒賣的換成不重複的新牌；特價折數留在原格子', () => {
-    const run = newRun('reshuffle'); run.fish = 999;
+    const run = newRun('reshuffle'); me(run).fish = 999;
     const shop = makeShop(run);
     const before = shop.cards.map((c) => c.def.id);
     expect(buyCard(run, shop, 1)).toBe(true); expect(buyCard(run, shop, 3)).toBe(true);
-    const fish = run.fish;
+    const fish = me(run).fish;
     const saleSlot = shop.cards.findIndex((c) => c.sale && !c.sold);
     expect(reshuffleShop(run, shop)).toBe(true);
-    expect(fish - run.fish).toBe(RESHUFFLE_COST);
+    expect(fish - me(run).fish).toBe(RESHUFFLE_COST);
     expect(shop.cards[1]!.def.id).toBe(before[1]); expect(shop.cards[1]!.sold).toBe(true);
     expect(shop.cards[3]!.def.id).toBe(before[3]); expect(shop.cards[3]!.sold).toBe(true);
     for (const i of [0, 2, 4]) { expect(shop.cards[i]!.sold).toBe(false); expect(before.includes(shop.cards[i]!.def.id), `第 ${i} 格要換新牌`).toBe(false); }
@@ -45,7 +46,7 @@ describe('重整貨架', () => {
     expect(reshuffleShop(run, shop), '只能一次').toBe(false);
   });
   it('錢不夠不能重整', () => {
-    const run = newRun('poor'); run.fish = 50;
+    const run = newRun('poor'); me(run).fish = 50;
     const shop = makeShop(run);
     expect(reshuffleShop(run, shop)).toBe(false);
     expect(shop.reshuffled).toBeFalsy();

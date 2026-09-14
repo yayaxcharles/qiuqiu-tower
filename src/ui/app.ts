@@ -1,28 +1,33 @@
-import { victoryLinesFor, dialogue, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, dialogue, lineFor, pick, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
+import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
 import { playVideo } from './video';
-import { preloadAct, warmEncounter } from './preload';
+import { preloadAct, preloadHeroArt, warmEncounter } from './preload';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
 import { enemyById, encounterById } from '../content/enemies';
 import { hasBossDoor } from './screenbg';
+import type { CoopSession } from '../net/session';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, heroSpriteUrls, monsterUrl } from './assets';
-import { playDialogue, toast, bubbleAt } from './dialogue';
+import { computeScale, heroSpriteUrls, monsterUrl, setLocalHero } from './assets';
+import type { Hero } from '../engine/hero';
+import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
 import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
+import { me } from '../engine/runplayer';
 
-export type ScreenName = 'title' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result';
+export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug';
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
 export function registerScreen(name: ScreenName, render: Renderer): void { screens.set(name, render); }
+
 
 export class App {
   run: RunState | null = null;
@@ -31,6 +36,28 @@ export class App {
   stage: HTMLElement;
   /** 換畫面時要一起拆掉的東西（例如戰鬥畫面掛在 window 上的鍵盤監聽器） */
   disposers: Array<() => void> = [];
+  /**
+   * 連線用的會話（單機是 null）。
+   *
+   * **掛在 app 而不是傳給每個畫面**：整局裡會換好幾次畫面（地圖→戰鬥→獎勵→地圖），
+   * 每換一次都重新傳一份很容易漏掉一個，而漏掉的那個畫面就會靜靜變成單機——
+   * 自己動了、對面不知道，等到下一次對帳才發現分岔。
+   */
+  coop: CoopSession | null = null;
+  /** 我是第幾位（單機永遠 0） */
+  seat = 0;
+  /**
+   * 現在這一局是除錯模式「跳進畫面」開的**臨時局**（2026-09-14 夜間稽核 高-1）。
+   *
+   * 跳進貓窩／紙箱／罐頭鋪之後照畫面按「打盹」「繼續」「離開」，那三個畫面收尾都走 `backToMap()`，
+   * 而它第一件事是 `save()`——臨時局（種子 `debug`、0F、難度 1）就把玩家真正的續玩存檔蓋掉了。
+   * 探針實測：23F 的菲菲存檔讀回來變成 0F 的 debug 局。存檔只有一格，沒有備份。
+   *
+   * 有這個旗標時：不存檔、`backToMap()` 改成回除錯頁、Esc 也回除錯頁。
+   * Esc 監聽掛在 App 上只掛一次、每次看旗標——原本掛在 window 上等按 Esc 才自己拆，
+   * 走別的路離開就永遠留著，之後玩真正的一局按 Esc 關圖鑑會被踢回除錯畫面。
+   */
+  sandbox = false;
   /** 畫面層：每次 show() 就整個清空重畫，畫面渲染函式拿到的 root 就是它 */
   screen: HTMLElement;
   /** 疊層：吐槽、對白、名詞提示、牌組視窗住這裡，換畫面時不會被清掉 */
@@ -62,6 +89,19 @@ export class App {
     window.visualViewport?.addEventListener('resize', fit);
     window.addEventListener('orientationchange', () => window.setTimeout(fit, 80));
     fit();
+    // 除錯模式的臨時局按 Esc 回除錯頁（見 `sandbox`）。只掛這一次、看旗標，不會殘留到正式的一局
+    // 疊層開著（牌組、移除牌、對白）時先讓 Esc 關疊層：直接換畫面的話疊層留在除錯頁上、畫面還被鎖住（夜間審查 低-7）
+    window.addEventListener('keydown', (ev) => {
+      if (this.sandbox && ev.key === 'Escape' && !this.overlay.querySelector('.modal-overlay, .dialogue-overlay')) this.exitSandbox();
+    });
+  }
+
+  /** 從除錯模式的臨時局回到除錯頁：臨時局整個丟掉，不存、不留 */
+  exitSandbox(): void {
+    this.sandbox = false;
+    this.run = null;
+    this.cs = null;
+    this.show('debug');
   }
 
   /**
@@ -89,11 +129,23 @@ export class App {
     const track = this.bgmFor(name);
     if (track) setBgm(track);
     hideTooltip();   // 提示框的錨點就要被清掉了，不先關掉會變成孤兒黏在畫面上
+    // 連線的畫面級回呼也要一起斷：不斷的話新畫面會叫到上一格留下來的處理函式
+    //（見 `CoopSession.clearScreenHooks`）。新畫面自己會在下面的 `r(...)` 裡重新掛
+    this.coop?.clearScreenHooks(name);
     for (const d of this.disposers.splice(0)) d();
     clear(this.screen);
     this.stage.dataset['screen'] = name;
     // 也標上關數：同一個畫面在不同關換底圖時（貓窩的蒲團位置各關不同），樣式表用它換版面
     this.stage.dataset['act'] = String(this.run?.act ?? 1);
+    /*
+     * 再標上**這一局玩的是誰**（2026-09-14）。
+     *
+     * 貓窩畫面裡角色坐哪是按關數寫死的 CSS，而**兩隻的立繪大小不一樣**：
+     * 球球的蜷縮是小小一團，菲菲整個大一圈。同一個座標，他剛好坐進籃子、
+     * 她會滿出來坐到地板上（使用者 2026-09-14 實機看到「她位置完全不對」）。
+     * 有了這個屬性，樣式表就能只調她那一條，不動到本來就對的球球。
+     */
+    this.stage.dataset['hero'] = this.run ? (me(this.run, this.seat).hero ?? 'ninja') : 'ninja';
     r(this, this.screen, props);
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
@@ -104,34 +156,55 @@ export class App {
     }
   }
 
-  newRun(seed?: string, difficulty = 1): void {
-    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty);
+  /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
+  newRun(seed?: string, difficulty = 1, hero: Hero = 'ninja'): void {
+    // 「新的一局」一定是單機，**先把上一場連線的殘留清掉**（見 `leaveCoop`）
+    this.leaveCoop();
+    this.sandbox = false;
+    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero);
     this.cs = null;
+    // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
+    setLocalHero(hero);
+    void preloadHeroArt([hero]);   // 這一位專屬的圖開場沒載，現在補（總稽核 F 中-1）
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
-    // 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白
-    const proSlides = [
-      { img: 'bg/still_teach', lines: dialogue.prologue.slice(0, 1) },
-      { img: 'bg/still_corrupt', lines: dialogue.prologue.slice(1, 2) },
-      { img: 'bg/still_rush', lines: dialogue.prologue.slice(2, 3) },
-      { img: 'bg/still_depart', lines: dialogue.prologue.slice(3) },
-    ];
+    /*
+     * 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白。
+     *
+     * **每個角色各有一整套**（2026-09-12）：同一座塔，另一隻貓的理由——
+     * 球球是「我要把師父帶回家」，菲菲是「師父跟師兄都沒回來」。
+     * 圖也各生一套（`feifei_still_*`），只有這四張非換不可：其餘場景（塔、魔物、忍具）共用。
+     */
+    const pro = storyFor(hero).prologue;
+    const proSlides = prologueSlides(hero);   // 圖配哪幾句見 storyslides.ts（除錯頁也叫同一支）
     const after = (): void => { this.save(); this.show('map'); };
     if (this.run && !this.run.flags['prologue']) {
       this.run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
       // 使用者自製的開頭影片先播（沒檔就直接略過），再接序章幻燈片
-      playVideo('opening', () => {
+      /*
+       * 使用者自製的開頭影片**只給球球**（2026-09-12 實測到）：那支片子從頭到尾是他，
+       * 換成菲菲卻照播，等於一開場就先看別人的故事，後面四張幻燈片再講她的，接不起來。
+       * 她要的是自己的片子，沒有就直接進幻燈片——寧可少一段，不要放錯的那一段。
+       */
+      // 沒片子的那一位要自己切曲（稽核 中-1）：換成第一關曲原本是影片收尾（`video.ts` 的 `end()`）順手做的，
+      // 跳過影片就沒人切，她的序章整段配著標題畫面的輕鬆曲
+      const intro = (go: () => void): void => (hero === 'ninja' ? playVideo('opening', go) : (setBgm('act1'), go()));
+      intro(() => {
         if (slidesReady(proSlides)) playSlides(proSlides, after);
-        else playDialogue(dialogue.prologue, after);
+        else playDialogue(pro, after);
       });
     } else after();
   }
 
   /** `from` 給了就用它接著打（貼進來的局面碼走這條），沒給就讀瀏覽器裡的存檔 */
   continueRun(from?: RunState): boolean {
+    this.leaveCoop();   // 續玩讀的是單機存檔，同理（見 `leaveCoop`）
+    this.sandbox = false;
     const run = from ?? loadRun();
     if (!run) return false;
     this.run = run;
     this.cs = null;
+    setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
+    void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
     void preloadAct(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
@@ -156,7 +229,38 @@ export class App {
    * currentNode 推到新節點、但那個節點的內容還沒消化，重整回來就會整個跳過它（白吃一場戰鬥
    * 或一個紙箱）。不存反而自洽：run.rng 沒被推進，重進去的罐頭鋪存貨、紙箱秘寶都一模一樣。
    */
-  save(): void { if (this.run && this.run.status === 'playing') saveRun(this.run); }
+  /*
+   * **連線局一個字都不寫進存檔**（2026-09-12 稽核 高-2）。
+   *
+   * 存檔鍵是按建置分的（見 `save.ts`），但**同一份建置裡單機與連線共用同一把鑰匙**。
+   * 原本 `save()` 不看 `coop`，於是連線的每一格結算都把兩人局寫進單機那一格：
+   * 你單機打到 30F 存著、跟朋友連一場，回來按「續玩」載到的是兩人局——
+   * 驗證還過得了（`checkRun` 只要求至少一位），魔物血量照兩人放大 1.5 倍，
+   * 第二位站在場上不會動還會被打。收尾時又會把成績記進單機的最佳成績、
+   * 並且 `clearSave()` 把單機存檔直接刪掉。
+   *
+   * 連線本來就沒有「續玩」（斷線就重開），所以直接不存最乾淨。
+   */
+  save(): void {
+    if (this.coop || this.sandbox) return;   // 除錯的臨時局也一個字都不寫（見 `sandbox`）
+    if (this.run && this.run.status === 'playing') saveRun(this.run);
+  }
+
+  /**
+   * 離開連線：把 `coop` 與 `seat` 清回單機的樣子（2026-09-12 稽核 高-1）。
+   *
+   * 全專案每個畫面都拿 `app.coop` 當「現在是不是連線」的唯一判準，而原本
+   * **沒有任何一行把它設回 null**。連線打完一局→回標題→新的一局（單機），
+   * `app.coop` 還指著那個已經斷掉的會話：地圖上點任何一格走的是 `coop.pick()`，
+   * 而那支第一行就 `if (this.dead) return false`——畫面一動也不動，只能重新整理。
+   * 當過座位 1 的更慘，`me(run, 1)` 會丟「這一局沒有第 1 個座位」。
+   */
+  leaveCoop(): void {
+    this.coop = null; this.seat = 0;
+    // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
+    // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
+    document.querySelectorAll('.net-trouble').forEach((n) => n.remove());
+  }
 
   /**
    * 節點結算完的收尾：存檔再回地圖。事件、罐頭鋪、貓窩、紙箱、戰鬥的獎勵挑完牌都走這裡，
@@ -164,6 +268,7 @@ export class App {
    * 就是靠這一次存檔帶走。
    */
   backToMap(): void {
+    if (this.sandbox) { this.exitSandbox(); return; }   // 除錯臨時局收尾回除錯頁，不存檔（見 `sandbox`）
     this.save(); this.show('map');
   }
 
@@ -182,6 +287,17 @@ export class App {
     const run = this.run;
     if (!run) return;
     const node = chooseNode(run, nodeId);
+    /*
+     * 走進一格的當下對一次整局的帳（連線版 2026-09-11）。
+     *
+     * 戰鬥外本來完全沒有對帳點，所以地圖、商店、事件裡的分岔會拖到下一場戰鬥才炸開，
+     * 而那時的錯誤訊息指著戰鬥，真正的病根在好幾十秒之前的另一個畫面。
+     * 實測撞到的就是這種：兩個人投完票各自走進不一樣的節點，兩邊畫面都很正常。
+     *
+     * 擺在 `chooseNode` **之後**：那一支會把 `currentNode` 推到新的一格，
+     * 對的就是「我們是不是真的走到同一格」——這正是要盯的那件事。
+     */
+    this.coop?.syncRun(run, nodeId);
     // 這裡不存檔（見 save() 的註解）：節點結算完才存，重整就回到上一個結算過的節點重選。
     // 曾經在這裡插過一秒的走路過場（參考《Take Me To The Dungeon!!》），
     // 實際玩起來每一場都要等、很卡節奏，拆掉了；換場的感覺交給畫面淡入就好
@@ -241,14 +357,15 @@ export class App {
           }, i * 420);
         });
       }, 500);
+      const mine = me(run, this.seat);
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
-        toast(dialogue.firstMeet[firstNew] ?? '', '球球');
+        toast(storyFor(mine.hero).firstMeet[firstNew] ?? '', heroSpeaker());
       } else {
-        toast(dialogue.battleStart[Math.floor(Math.random() * dialogue.battleStart.length)] ?? '', '球球');
+        toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }
       };
-      void warmEncounter(encounterId, 1500, heroSpriteUrls()).then(proceed, proceed);
+      void warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero))).then(proceed, proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。
@@ -278,7 +395,7 @@ export class App {
     this.cs = null;
     // 事件「要打一場」附帶的獎勵：打贏才發、輸了清掉（使用者 2026-09-04：秘寶不該還沒打就到手）
     const afterNotes: string[] = []; const afterGains: RunGain[] = [];
-    resolvePendingAfterFight(run, cs.phase === 'won', afterNotes, afterGains);
+    resolvePendingAfterFight(run, cs.phase === 'won', afterNotes, afterGains, this.seat);
     const afterToasts = [
       ...afterGains.map((g) => g.kind === '秘寶' ? `打贏了，拿到秘寶「${relicById[g.id]?.name ?? g.id}」` : g.missed ? `打贏了，可是忍具帶滿了，「${potionById[g.id]?.name ?? g.id}」收不下` : `打贏了，拿到忍具「${potionById[g.id]?.name ?? g.id}」`),
       ...afterNotes.map((n) => `打贏了，${n}`),
@@ -293,23 +410,32 @@ export class App {
     // 結算畫面那兩行留著（它要拿回傳值排版），變成無害的第二次呼叫：
     // 同一局算出同一筆，recordBest 比較後保留舊的；clearSave 只是 removeItem。
     // 其餘存檔時機一律不動：進行中的一局仍然只有 backToMap() 會寫。
-    if (run.status !== 'playing') { recordBest(run); clearSave(); }
-    if (!rewards) { playDialogue(dialogue.defeat, () => this.show('result')); return; }
+    // **連線局不記成績、也不准刪單機的存檔**（2026-09-12 稽核 高-2）：
+    // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
+    if (run.status !== 'playing' && !this.coop) { recordBest(run); clearSave(); }
+    if (!rewards) { playDialogue(storyFor(me(this.run!, this.seat).hero).defeat, () => this.show('result')); return; }
     if (rewards.kind === '塔主') {
       // 第三關的關主倒下才是通關；前兩關的關主打完走過場對白 → 過關畫面（回滿血、挑秘寶、進下一關）。
       // 過關那條路 status 還是 playing，存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫。
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
-        // 師父醒來的第一句依這一路的打法換（爪力／隱身／蜷縮流），難度 4 以上多一句旁白（使用者 2026-09-04）
-        const vic = victoryLinesFor(run.deck.map((c) => c.cardId), run.difficulty ?? 1);
-        // 第一張圖（相擁）放到「撲進師父懷裡」那句為止，之後的（回家路、難度旁白）配第二張
-        const cut = Math.max(1, vic.findIndex((l) => l.text.includes('撲進')) + 1);
-        const endSlides = [
-          { img: 'bg/still_embrace', lines: vic.slice(0, cut) },
-          { img: 'bg/still_home', lines: vic.slice(cut) },
-        ];
-        // 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片
-        playVideo('ending', () => {
+        // 師父醒來的第一句依這一路的打法換（爪力／隱身或毒／蜷縮流，第二派看角色），難度 4 以上多一句旁白（使用者 2026-09-04）
+        const vic = victoryLinesFor(me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1, me(run, this.seat).hero);
+        // 圖依角色、切點看 `slideBreak`：理由都寫在 storyslides.ts（除錯頁也叫同一支）
+        const endSlides = endingSlides(me(run, this.seat).hero, me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1);
+        /*
+         * 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片。
+         *
+         * **只有球球有片子**（2026-09-14 使用者：「菲菲打完師傅後還是出現球球的動畫，
+         * 菲菲過關的話動畫得先移除，等以後做好再補上」）。
+         * 那支片子從頭到尾是他的故事，玩菲菲打完師父卻放他的過場，比沒有過場更糟。
+         * 跟開場影片同一個判斷（見上面的 `intro`）——那邊早就擋了，這邊漏掉。
+         * 以後生了她的片子，把這條改成照角色挑檔名就好。
+         */
+        // 沒片子時自己切到結局曲（稽核 中-1）：原本靠影片收尾切，9/14 拿掉她的影片之後，
+        // 整段結局幻燈片一直配著最終戰的戰鬥曲，點完進結算畫面才換
+        const endVideo = (go: () => void): void => ((me(run, this.seat).hero ?? 'ninja') === 'ninja' ? playVideo('ending', go) : (setBgm('ending'), go()));
+        endVideo(() => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
           else playDialogue(vic, () => this.show('result'));
         });
@@ -318,11 +444,10 @@ export class App {
       // 過關過場也走插圖幻燈片（使用者 2026-09-02：「開頭跟結尾的投影片過場很棒，希望每個關卡關主都有」）：
       // 三句台詞配三張圖——樓梯露出來、小魚乾只找回一半、爬上塔中／魔物化煙、師父的聲音、月光下的最後一段樓梯。
       // 圖還沒生好（舊快取）就退回純文字對白，跟序章同一套規矩。
-      const lines = run.act === 1 ? dialogue.actClear1 : dialogue.actClear2;
-      const stills = run.act === 1
-        ? ['bg/still_act1_stairs', 'bg/still_act1_fish', 'bg/still_act1_climb']
-        : ['bg/still_act2_smoke', 'bg/still_act2_voice', 'bg/still_act2_moonstairs'];
-      const actSlides = stills.map((img, i) => ({ img, lines: lines.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
+      const story = storyFor(me(run, this.seat).hero);
+      const lines = run.act === 1 ? story.actClear1 : story.actClear2;
+      // 圖依角色（2026-09-12）：球球在這六張裡都是主角，而她的過關台詞講的是別的事，配他的圖整個對不起來
+      const actSlides = actClearSlides(me(run, this.seat).hero, run.act);
       // 關主留下的信物（塔主令牌）帶進過關畫面先亮一次（使用者 2026-09-03：獲得令牌一直沒看到呈現）
       const bossRelic = rewards.relic;
       const toSlides = (): void => {
@@ -340,7 +465,7 @@ export class App {
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
-    const go = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, '球球'), 400 + i * 1400)); };
+    const go = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, heroSpeaker()), 400 + i * 1400)); };
     // 「上面那位不是你認識的那隻貓了」是黑貓忍者頭目的台詞，只在打倒他之後演；
     // 其他精英（掃地機器人王、三花貓武僧……）打完不該冒出黑貓頭目的臉講話（使用者 2026-09-02 回報）
     const beatNinjaBoss = (encounterById[cs.encounterId]?.enemies ?? []).includes('ninja_boss');

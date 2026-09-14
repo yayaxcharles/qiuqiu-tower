@@ -1,20 +1,22 @@
 import { DEBUFFS, TURN_DECAY } from './types';
+import type { Hero } from './hero';
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { aliveEnemies, attackable } from './actions';
-import { canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
+import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, takeRelic,
+  finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, RunEffect, RunState, Unit } from './types';
+import { me } from './runplayer';
 
 /**
  * 會算傷害的機器人（2026-09-02）。
@@ -56,10 +58,10 @@ const RATING: Record<string, number> = {
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,
   zhanshu: 4, tuozi: 3, roubao: 5, liangzhua: 6, suoyituan: 5, weihe: 5, paozhao: 3, tianmao: 4,
   // 忍術 罕見
-  bunshin: 7, ruying: 7, shuaiguo: 3, dingshen: 6, cuimian: 5, fengkou: 4, qianshui: 5, touchi: 5, xianshuile: 2,
+  bunshin: 7, feifei_fenshen: 6, ruying: 7, shuaiguo: 3, dingshen: 6, cuimian: 5, fengkou: 4, qianshui: 5, touchi: 5, xianshuile: 2,
   gaotui: 4, jiejie: 7, fantan: 5, luoye: 5, canying: 4, caiweiba: 6, diaohu: 5, sashoujian: 5, jiuming: 5, fanzhua: 4,
   // 忍術 稀有
-  meikandao: 6, renwuwancheng: 4, fengyin: 8, wanhua: 8, yingzi: 6, huanying: 8, wufeng: 4, sanhua: 8, jingzhi: 6,
+  meikandao: 6, renwuwancheng: 4, fengyin: 8, wanhua: 8, yingzi: 6, feifei_yingzi: 6, huanying: 8, wufeng: 4, sanhua: 8, jingzhi: 6,
   // 絕學
   tieshazhang: 7, qinna: 6, juye: 5, jinzhong: 8, qinggong: 4, taxue: 5, xuli: 5, tietou: 7, shihou: 7, dianxue: 7,
   zuiquan: 5, yixing: 5, gekong: 4, guixi: 5, taiji: 4, mabu: 7, yungong: 8, yide: 6, tuishou: 5, dieda: 5, shibadie: 6,
@@ -175,6 +177,14 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       // 同一支函式的 damage／damageRamp／damageRandom 三個分支都乘了，只有這個漏掉，
       // 蓄力／秘笈在手時「絕學·借力使力」的價值被低估一半，機器人不會挑它、牌價值表也偏低
       swing(computeAttack(p.block * (doubled ? 2 : 1), p, e, { noStrength: true }));
+    } else if (fx.kind === 'damageByStatus') {
+      // 見血封喉：把毒一次引爆。引擎走 `direct`，蜷縮擋不住，所以這裡也要 ignoreBlock。
+      // 倍率要算進去（升級版兩倍），不然機器人會低估那張牌、永遠不挑它
+      // 加倍也要乘，跟 `effects.ts` 同步（夜間稽核 高-1）
+      swing(getStatus(e, fx.name) * (fx.mul ?? 1) * (doubled ? 2 : 1), true);
+    } else if (fx.kind === 'execByStatus') {
+      // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
+      if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);
     }
   }
   return total;
@@ -199,7 +209,19 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   let target: number | undefined;
   const combo = p.cardsPlayedThisTurn;
   const plays = cs.cardPlays?.[c.uid] ?? 0;   // 分身術這場已打過幾次
-  const hasDamage = st.effects.some((fx) => fx.kind === 'damage' || fx.kind === 'damageRamp' || fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock');
+  /** 粗估這一場還要打幾回合（長效旗標要乘它；跟 `power` 那條同一個算法） */
+  const rest = Math.max(1, Math.min(8, Math.ceil(totalEnemyHp / 14)));
+  /*
+   * 這張牌會不會打人——**決定要不要進挑目標那一段**，而挑不到目標的指定牌會被
+   * `if (def.target === 'enemy' && !target) return null` 整張丟掉。
+   *
+   * 2026-09-12 補上菲菲那三種（遠射、見血封喉、一針斃命）：漏掉的話機器人
+   * **一輩子都打不出那三張**，而且完全不會報錯——量平衡時會安靜地少掉她三張主力。
+   * 加新的傷害種類記得回頭補這一行，跟 `damageTo` 是一對。
+   */
+  const DMG_KINDS: ReadonlySet<Effect['kind']> = new Set(
+    ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus']);
+  const hasDamage = st.effects.some((fx) => DMG_KINDS.has(fx.kind));
 
   if (hasDamage) {
     // 挑目標：能打死的優先（少一隻就少挨一份），否則打最矮的能打的那隻
@@ -227,7 +249,11 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   for (const fx of st.effects) {
     switch (fx.kind) {
       case 'block': {
-        const b = computeBlock(fx.amount, p);
+        // 拒馬（`blockBonus`）要一起算：引擎是 `computeBlock(base + blockBonus, u)`
+        //（見 `actions.ts` 的 `gainBlock`）。漏掉的話，拿到拒馬之後**每一張**防禦牌、
+        // 每一張自帶蜷縮的攻擊牌都被低估 2～3 點，機器人會傾向不打它們，
+        // 而這支是量平衡用的尺，於是拒馬流的數字整個偏低（2026-09-12 稽核 中-3）
+        const b = computeBlock(fx.amount + (p.blockBonus ?? 0), p);
         const useful = Math.min(b, incoming);
         value += useful * (lowHp ? 3 : danger ? 1.6 : 1.1) + (b - useful) * 0.12;
         break;
@@ -255,7 +281,27 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         } else {
           const n = fx.target === 'all' ? enemies.length : 1;
           if (fx.name === '翻肚') value += 5 * n;
-          else if (fx.name === '噎到') value += fx.amount * (fx.amount + 1) / 2 * 0.9 * n;
+          /*
+           * 中毒**會疊**，所以估的要是「這幾層多打出多少」，不是「這幾層自己打多少」。
+           *
+           * N 層的總傷害是 N(N+1)/2。原本寫 `amount*(amount+1)/2`，等於假設牠身上本來是乾淨的：
+           * 對著已經 10 層的再加 3 層，實際是 91−55＝**36 點**，原本卻只估成 6 點。
+           * 差六倍，而機器人就是照這個數字挑牌——堆毒流在牠手上永遠疊不起來
+           *（2026-09-12 量菲菲時抓到：她 15F 陣亡 216／300，球球只有 161）。
+           * 另外**打超過牠的血就是浪費**，估值夾在牠現在的生命。
+           */
+          else if (fx.name === '中毒') {
+            const tri = (k: number): number => k * (k + 1) / 2;
+            const amt = fx.amount + (fx.step ?? 0) * plays;   // 菲菲的分身術：這場打過幾次就多幾段
+            const marginal = (e: EnemyCombat): number => {
+              const cur = getStatus(e, '中毒');
+              return Math.min(tri(cur + amt) - tri(cur), e.hp);
+            };
+            const hit = fx.target === 'all' ? enemies
+              : [target !== undefined ? enemies.find((e) => e.uid === target) : undefined, target0, enemies[0]].find((e) => !!e);
+            const list = Array.isArray(hit) ? hit : hit ? [hit] : [];
+            value += list.reduce((sum, e) => sum + marginal(e), 0) * 0.9;
+          }
           else if (fx.name === '懶洋洋') value += Math.min(incoming, 12) * 0.25 * n + 2;
           else if (fx.name === '炸毛') value += 1.5 * n;
           else if (fx.name === '定身') {
@@ -299,7 +345,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         if (best > 0 && def.target === 'enemy' && !hasDamage) target = enemies.find((e) => getStatus(e, fx.name) === best)!.uid;
         break;
       }
-      case 'transferDebuffs': value += (getStatus(p, '噎到') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5; break;
+      case 'transferDebuffs': value += (getStatus(p, '中毒') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5; break;
       case 'removeStatuses': {
         const cap = fx.max ?? 99;
         value += (target !== undefined ? Math.min(cap, enemies.find((e) => e.uid === target)?.block ?? 0) * 0.8 + Math.min(cap, getStatus(enemies.find((e) => e.uid === target) ?? p, '爪力')) * 4 : 0);
@@ -313,6 +359,107 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'damage': case 'damageEqualBlock': case 'damageRamp': case 'damageRandom': break;   // 傷害在 switch 之前的傷害估算區另算，這裡不重複計
       case 'damageScatter': value += fx.amount * fx.times * 0.8; break;   // 打散：單隻場面等於集中火力，多隻場面會浪費一點，打八折
       case 'skipEnemyTurn': value += 12; break;                          // 整輪不挨打，價值約等於一次大防禦
+      /*
+       * 幫隊友的三招（連線版 2026-09-11）。機器人是**單人**在跑，所以這裡估的是
+       * 「一個人玩的時候值多少」——那正是它們退化後的價值，估高了會讓機器人
+       * 在單機測試裡優先打連線牌，平衡數字就歪了。
+       */
+      case 'blockAll': value += (fx.amount + (p.blockBonus ?? 0)) * 0.9; break;   // 一個人時就等於一般的蜷縮，稍微打折（沒有同伴可分）；拒馬同樣要算
+      case 'statusAlly': value += fx.amount * 1.5; break; // 一個人時退化成掛自己身上，當一般的加狀態估
+      case 'taunt': break;                                // 一個人時**完全沒作用**（本來就只會打你），估 0 是對的
+      case 'blockAlly': value += (fx.amount + (p.blockBonus ?? 0)) * 0.9; break;   // 一個人時退化成給自己，當一般蜷縮估（稍打折：沒有同伴可分擔）；拒馬同樣要算
+      case 'drawAlly': value += fx.n * 2.2; break;         // 一個人時退化成自己抽，跟 `draw` 同口徑
+      case 'cleanseAlly': value += DEBUFFS.filter((d) => getStatus(p, d) > 0).length * 3; break;
+      case 'energyAlly': value += fx.n * 4; break;         // 一顆飯糰約等於一張中等的牌
+      // 見血封喉／一針斃命：估的是「目標身上現在有幾層」，沒有目標就估 0
+      // 不清毒的話毒會繼續滾，同樣層數更有價值（1.3）；倍率照乘
+      case 'damageByStatus': value += target0 ? getStatus(target0, fx.name) * (fx.mul ?? 1) * (fx.consume ? 1 : 1.3) : 0; break;
+      case 'execByStatus': value += target0 && getStatus(target0, fx.name) >= target0.hp ? target0.hp + 8 : 0; break;
+      /*
+       * 三個長效旗標：機器人是**單人**在跑，估的是「這一場剩下的回合裡大概值多少」。
+       * `rest` 跟 `power` 那條用同一個粗估法（還要打幾回合），口徑才一致。
+       */
+      // 散毒：把目標的毒分給其他每一隻。估的是「其他那幾隻多出來的總傷害」——只剩一隻時等於 0
+      case 'spreadStatus': {
+        const t = target0 ?? enemies[0];
+        const n = t ? getStatus(t, fx.name) : 0;
+        const each = fx.half ? Math.floor(n / 2) : n;
+        const tri = (k: number): number => k * (k + 1) / 2;
+        value += enemies.filter((e) => e !== t).reduce((sum, e) => {
+          const cur = getStatus(e, fx.name);
+          return sum + Math.min(tri(cur + each) - tri(cur), e.hp);
+        }, 0) * 0.9;
+        break;
+      }
+      case 'poisonBurst': value += enemies.length > 1 ? 16 : 4; break;   // 只剩一隻時屍爆沒有對象
+      // 拒馬：之後每次獲得蜷縮都多幾點。粗估這一場還會再擋幾次（每回合約一次）
+      case 'blockBonus': value += fx.n * rest * 0.9; break;
+      /*
+       * 影子分身：之後每回合的第一張牌等於打兩次。粗估＝「剩幾回合 × 一張好牌的價值」。
+       * 一張好牌抓 12 點當量（這副牌的攻擊牌大多 6～16），跟 `blockBonus` 同一套折算法。
+       * **估太準沒有意義**——重點是它不能被當成零分，不然機器人永遠不打，量出來的平衡會偏低。
+       */
+      case 'echoFirst': value += rest * 12 * 0.9; break;
+      case 'poisonOnAttack': value += fx.n * rest * 1.5; break;
+      // 連線支援牌（2026-09-13）。機器人跑的是**單人**對照，所以這兩個都照
+      // 「退化成作用在自己身上」估——那正是單人時真正會發生的事。
+      case 'healAlly': value += fx.n * 0.8; break;          // 跟 `heal` 同一個係數
+      // B 批六個。機器人跑的是**單人**對照，所以一律照「退化成自己」估：
+      //   - 讀同伴的值 → 讀自己的（`blockFromAllyBlock`、`damageFromAllyStrength`）
+      //   - 轉飯糰給同伴 → 單人時什麼都不發生，估 0 才對
+      case 'blockFromAllyBlock':
+        value += (fx.amount + Math.min(fx.half ? Math.floor(p.block / 2) : p.block, fx.cap)) * 1.0;
+        break;
+      case 'damageFromAllyStrength':
+        value += (fx.amount + Math.min(getStatus(p, '爪力'), fx.cap)) * 1.1;
+        break;
+      case 'energyTransfer': break;                         // 單人時不轉，真的是 0
+      case 'doubleNextAttackAlly':
+        // 跟 `doubleNextAttack` 同一套：手上還有別的攻擊牌才有價值
+        value += p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === '攻擊') ? 6 : 0;
+        break;
+      case 'drawAllyIfTargetStatus': {
+        const t = target !== undefined ? enemies.find((e) => e.uid === target) : undefined;
+        const hit = !t ? false
+          : fx.anyDebuff ? (DEBUFFS as readonly string[]).some((d) => getStatus(t, d as never) > 0)
+            : fx.name !== undefined && getStatus(t, fx.name) > 0;
+        value += hit ? fx.n * 3 : 0;
+        break;
+      }
+      /*
+       * C 批六個。機器人跑的是**單人**對照。
+       * 2026-09-13 稽核之後這幾張單人時都有退路了（改成監聽自己、發給自己），
+       * 所以估值一律照「作用在自己身上」算，每輪各值一次抽牌或一份蜷縮，
+       * 用 `rest`（剩幾回合）折算，跟 `blockBonus` 同一套。
+       */
+      case 'watchAllyPlay': value += rest * 3 * 0.9; break;         // 每輪抽 1 張
+      case 'watchSelfPlay': value += rest * 6 * 0.9; break;         // 每輪 6 點蜷縮
+      case 'watchPoisonHit': value += rest * 4 * 0.7; break;        // 每輪 4 點，但要湊中毒的條件
+      case 'poisonAllyNextAttack': value += fx.amount * 2; break;   // 2 層毒≒3 點傷害，再給點餘裕
+      case 'energyForAllyEachRound': value += rest * 3 * 0.9; break;  // 每輪 1 顆飯糰
+      case 'transferDebuffsFromAlly':
+        // 單人時等同 `transferDebuffs`，照它的係數
+        value += (getStatus(p, '中毒') + getStatus(p, '翻肚') * 2 + getStatus(p, '懶洋洋')) * 1.5;
+        break;
+      case 'ifSelfStatus': {
+        /*
+         * 兩條分支都粗估一次、取**比較小**的那個。
+         *
+         * 為什麼不遞迴呼叫這支：整個估值是一個很長的 switch 寫在迴圈裡，沒有可重入的函式，
+         * 為了一張牌把它拆開重構不划算。這裡只把分支裡的數字加總——
+         * 那些效果（蜷縮、隱身、抽牌）的量級本來就差不多，估值只是用來
+         * 決定「值不值得打」，不需要準。
+         *
+         * 取小的那邊是因為**高估比低估糟**：高估會讓機器人為了賭一個分支浪費飯糰，
+         * 量出來的平衡就偏高，而平衡數字是拿來做決策的。
+         */
+        const crude = (es: typeof fx.then): number => es.reduce((s, e) => {
+          const n = (e as { amount?: number; n?: number }).amount ?? (e as { n?: number }).n ?? 0;
+          return s + n;
+        }, 0);
+        value += Math.min(crude(fx.then), crude(fx.otherwise)) * 0.9;
+        break;
+      }
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }
@@ -380,7 +527,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     }
     if (kinds.includes('energy') && p.energy === 0 && p.hand.filter((c) => canPlay(cs, c.uid, enemies[0]?.uid).ok || cardStats(c).cost > 0).length >= 2
       && (incoming > p.block || enemies.some((e) => e.hp <= 15))) return usePotion(cs, id);
-    if (kinds.includes('cleanse') && getStatus(p, '噎到') >= 4) return usePotion(cs, id);
+    if (kinds.includes('cleanse') && getStatus(p, '中毒') >= 4) return usePotion(cs, id);
     /*
      * 2026-09-11 新增的那批忍具（稽核中-4）。原本 `maybePotion` 只認回血、防禦、隱身、傷害、
      * 飯糰、清減益與關主戰那兩種狀態，七支新忍具裡有五支它一輩子不會用——
@@ -425,7 +572,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
       const fat = enemies.find((e) => e.block >= 10);
       if (fat) return usePotion(cs, id, fat.uid);
     }
-    // 加倍奉還：身上噎到越多翻倍越賺；沒有噎到也有保底 2 層，但留著等噎到流起來比較好
+    // 加倍奉還：身上中毒越多翻倍越賺；沒有中毒也有保底 2 層，但留著等中毒流起來比較好
     const dbl = def.effects.find((f) => f.kind === 'doubleStatus');
     if (dbl?.kind === 'doubleStatus') {
       const t = enemies.find((e) => getStatus(e, dbl.name) >= 3);
@@ -505,7 +652,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     }
     // 攻擊型狀態忍具：關主戰開頭就用
     if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return usePotion(cs, id);
-    if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '噎到'))) {
+    if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '中毒'))) {
       const t = enemies[0];
       if (t && def.target === 'enemy') return usePotion(cs, id, t.uid);
       if (def.target === 'all') return usePotion(cs, id);
@@ -529,7 +676,7 @@ export function smartCombat(cs: CombatState, rng: Rng, maxTurns = 200, seed = '?
     const pick = others.length ? others.sort((a, b) => b.value - a.value)[0]! : plans.filter((x) => x.value > 0.5).sort((a, b) => b.value - a.value)[0];
     if (!pick) { endTurn(cs); continue; }
     if (!playCard(cs, pick.uid, pick.target)) throw new Error(`種子 ${seed}：第 ${cs.turn} 回合打不出 ${pick.uid}（${cs.encounterId}）`);
-    if (cs.endTurnRequested) endTurn(cs);
+    if (allReady(cs)) endTurn(cs);
   }
   // 調平衡用：`SMART_TRACE=<encounterId>` 會把那場的完整戰鬥紀錄印出來（例：SMART_TRACE=tanuki_lord SMART_N=600 …）
   if (TRACE && cs.encounterId === TRACE) console.log(['[trace]', seed, cs.encounterId, cs.phase, `剩 ${cs.player.hp}`, ...cs.log].join('\n'));
@@ -539,29 +686,29 @@ const TRACE = (globalThis as { process?: { env?: Record<string, string | undefin
 // ===== 整局 =====
 
 function deckJunk(run: RunState): CardInstance[] {
-  return run.deck.filter((c) => rating(c.cardId) <= 2).sort((a, b) => rating(a.cardId) - rating(b.cardId));
+  return me(run).deck.filter((c) => rating(c.cardId) <= 2).sort((a, b) => rating(a.cardId) - rating(b.cardId));
 }
 
 function pickCard(run: RunState, choices: { id: string }[]): string | null {
   let best: { id: string; v: number } | null = null;
-  const attacks = run.deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
-  const skills = run.deck.length - attacks;
+  const attacks = me(run).deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+  const skills = me(run).deck.length - attacks;
   for (const ch of choices) {
     const def = cardById[ch.id];
     if (!def) continue;
     let v = rating(ch.id);
     if (def.type === '攻擊' && attacks < skills) v += 1;
     if (def.type !== '攻擊' && skills < attacks - 2) v += 1;
-    if (run.deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
+    if (me(run).deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
     if (!best || v > best.v) best = { id: ch.id, v };
   }
   if (!best) return null;
-  const threshold = run.deck.length >= 22 ? 6 : run.deck.length >= 16 ? 5 : 4;
+  const threshold = me(run).deck.length >= 22 ? 6 : me(run).deck.length >= 16 ? 5 : 4;
   return best.v >= threshold ? best.id : null;
 }
 
 function bestUpgrade(run: RunState): CardInstance | undefined {
-  return run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病')
+  return me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病')
     .sort((a, b) => rating(b.cardId) - rating(a.cardId))[0];
 }
 
@@ -585,21 +732,21 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, seed:
 
 function fight(run: RunState, rng: Rng, encounterId: string | undefined, bonusFish: number, seed: string, stats: SmartStats): void {
   const cs = beginCombat(run, encounterId);
-  const hpIn = run.hp;
+  const hpIn = me(run).hp;
   smartCombat(cs, rng, 200, seed);
   const isBoss = encounterById[cs.encounterId]?.pool === '塔主';
   const r = finishCombat(run, cs, bonusFish);
-  stats.fights.push({ id: cs.encounterId, floor: run.floor, act: run.act, hpLost: hpIn - (r ? run.hp : 0), turns: cs.turn, won: !!r, str: cs.player.statuses['爪力'] ?? 0 });
-  if (isBoss) stats.bosses.push({ id: cs.encounterId, act: run.act, hpIn, maxHp: run.maxHp, won: !!r, turns: cs.turn });
+  stats.fights.push({ id: cs.encounterId, floor: run.floor, act: run.act, hpLost: hpIn - (r ? me(run).hp : 0), turns: cs.turn, won: !!r, str: cs.player.statuses['爪力'] ?? 0 });
+  if (isBoss) stats.bosses.push({ id: cs.encounterId, act: run.act, hpIn, maxHp: me(run).maxHp, won: !!r, turns: cs.turn });
   if (!r) { stats.diedTo = (cs.turn > 200 ? '僵局:' : '') + cs.encounterId; return; }
-  if (r.cards.length) takeCardReward(run, r, pickCard(run, r.cards));
+  if (r.cards.length) { takeCardReward(run, r, pickCard(run, r.cards)); closeCardReward(r); }
 }
 
 /** 事件選項值多少：血少時看重回血、避開掉血；壞毛病是大扣分 */
 function eventValue(run: RunState, effects: RunEffect[], costFish: number): number {
-  const hpPct = run.hp / run.maxHp;
+  const hpPct = me(run).hp / me(run).maxHp;
   let v = -costFish * 0.35;
-  if (costFish > run.fish) return -999;
+  if (costFish > me(run).fish) return -999;
   /*
    * **同一個選項裡連著砍好幾張、升好幾張的，第二張起要縮水**（稽核 2026-09-11 低-4）。
    *
@@ -611,23 +758,23 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
    */
   let removed = 0, upgraded = 0;
   const junk = deckJunk(run).length;
-  const upgradable = run.deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病').length;
+  const upgradable = me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病').length;
   for (const fx of effects) {
     switch (fx.kind) {
-      case 'heal': v += Math.min(fx.n, run.maxHp - run.hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
+      case 'heal': v += Math.min(fx.n, me(run).maxHp - me(run).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
       // 交出一件秘寶：本身是純損失，但它一定跟「換兩件」綁在一起，淨值由那兩件的 relic 估值補回來
       case 'loseRelic': v -= 14; break;
-      case 'healPercent': v += Math.min(run.maxHp * fx.p, run.maxHp - run.hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
+      case 'healPercent': v += Math.min(me(run).maxHp * fx.p, me(run).maxHp - me(run).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
       case 'damage': v -= fx.n * (hpPct < 0.4 ? 4 : hpPct < 0.6 ? 1.8 : 0.9); break;
       case 'fish': v += fx.n * 0.35; break;
-      case 'fishHalve': v -= run.fish * 0.5 * 0.35; break;
+      case 'fishHalve': v -= me(run).fish * 0.5 * 0.35; break;
       case 'maxHp': v += fx.n * 2.2; break;
       case 'addCard': v += cardById[fx.cardId]?.pool === '壞毛病' ? -28 : 6; break;
       case 'addRandomCard': v += fx.rarity === '罕見' ? 8 : fx.rarity === '稀有' ? 14 : 4; break;
       case 'removeCard': v += removed++ < junk ? 18 : 2; break;
       case 'upgradeCard': v += upgraded++ < upgradable ? 16 : 0; break;
       case 'relic': v += fx.pool === '大魔物' ? 34 : 24; break;
-      case 'potions': v += Math.min(fx.n, 3 - run.potions.length) * 7; break;
+      case 'potions': v += Math.min(fx.n, 3 - me(run).potions.length) * 7; break;
       case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;
       case 'chooseCard': v += fx.pool === '絕學' ? 14 : 9; break;
       case 'gamble': v += fx.p * eventValue(run, fx.win, 0) + (1 - fx.p) * eventValue(run, fx.lose, 0); break;
@@ -639,20 +786,20 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
 }
 
 function nodeScore(run: RunState, n: MapNode): number {
-  const hpPct = run.hp / run.maxHp;
+  const hpPct = me(run).hp / me(run).maxHp;
   switch (n.type) {
     case '貓窩': return hpPct < 0.55 ? 100 : bestUpgrade(run) ? 55 : 20;
-    case '罐頭鋪': return run.fish >= 120 ? 75 : run.fish >= 75 ? 45 : 15;
+    case '罐頭鋪': return me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15;
     case '事件': return 50;
     case '紙箱': return 90;
-    case '大魔物': return hpPct >= 0.7 && run.deck.some((c) => c.upgraded) ? 62 : 8;
+    case '大魔物': return hpPct >= 0.7 && me(run).deck.some((c) => c.upgraded) ? 62 : 8;
     case '戰鬥': return 42;
     case '塔主': return 1;
   }
 }
 
-export function smartRun(seed: string, difficulty = 1): SmartStats {
-  const run = newRun(seed, difficulty);
+export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): SmartStats {
+  const run = newRun(seed, difficulty, hero);   // `hero`＝拿聰明機器人量另一個角色的平衡（2026-09-12 加的）
   const rng = new Rng(seedFromString('smart:' + seed));
   const stats: SmartStats = { seed, won: false, floor: 0, act: 1, deckSize: 0, deckIds: [], relicIds: [], upgraded: 0, relics: 0, diedTo: null, bosses: [], fights: [] };
   let guard = 0;
@@ -678,7 +825,7 @@ export function smartRun(seed: string, difficulty = 1): SmartStats {
       case '事件': {
         const ev = eventById[node.eventId!]!;
         const choice = ev.choices.map((c) => ({ c, v: eventValue(run, c.outcome, c.costFish ?? 0) })).sort((a, b) => b.v - a.v)[0]!.c;
-        run.fish = Math.max(0, run.fish - (choice.costFish ?? 0));
+        me(run).fish = Math.max(0, me(run).fish - (choice.costFish ?? 0));
         handleOutcome(run, rng, applyRunEffects(run, choice.outcome), seed, stats);
         break;
       }
@@ -686,21 +833,21 @@ export function smartRun(seed: string, difficulty = 1): SmartStats {
         const shop = makeShop(run);
         // 先放生爛牌（留 60 條買東西），再看秘寶，再看牌
         const junk = deckJunk(run);
-        if (junk.length >= 3 && run.fish >= run.removeCost + 60) buyRemove(run, junk[0]!.uid);
+        if (junk.length >= 3 && me(run).fish >= me(run).removeCost + 60) buyRemove(run, junk[0]!.uid);
         const relicIdx = shop.relics.map((r, i) => ({ i, v: relicRating(r.id), p: r.price })).sort((a, b) => b.v - a.v)[0];
-        if (relicIdx && relicIdx.v >= 6 && run.fish >= relicIdx.p) buyRelic(run, shop, relicIdx.i);
+        if (relicIdx && relicIdx.v >= 6 && me(run).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.i);
         const cardIdx = shop.cards.map((c, i) => ({ i, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
-        if (cardIdx && cardIdx.v >= 7 && run.fish >= cardIdx.p && run.deck.length < 24) buyCard(run, shop, cardIdx.i);
+        if (cardIdx && cardIdx.v >= 7 && me(run).fish >= cardIdx.p && me(run).deck.length < 24) buyCard(run, shop, cardIdx.i);
         for (let i = 0; i < shop.potions.length; i++) {
           const it = shop.potions[i]!;
-          if (run.potions.length < 2 && run.fish >= it.price + 40) buyPotion(run, shop, i);
+          if (me(run).potions.length < 2 && me(run).fish >= it.price + 40) buyPotion(run, shop, i);
         }
         break;
       }
       case '貓窩': {
         const u = bestUpgrade(run);
         // 44F 打盹回滿：真人只要沒滿血都會睡，機器人比照（不然 60% 以上的血會去磨爪、量不到補給的效果）
-        if (run.hp < run.maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
+        if (me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
         break;
       }
       case '紙箱': openChest(run); break;
@@ -709,10 +856,10 @@ export function smartRun(seed: string, difficulty = 1): SmartStats {
   stats.won = run.status === 'won';
   stats.floor = run.floor;
   stats.act = run.act;
-  stats.deckSize = run.deck.length;
-  stats.upgraded = run.deck.filter((c) => c.upgraded).length;
-  stats.relics = run.relics.length;
-  stats.deckIds = run.deck.map((c) => c.cardId + (c.upgraded ? '+' : ''));
-  stats.relicIds = [...run.relics];
+  stats.deckSize = me(run).deck.length;
+  stats.upgraded = me(run).deck.filter((c) => c.upgraded).length;
+  stats.relics = me(run).relics.length;
+  stats.deckIds = me(run).deck.map((c) => c.cardId + (c.upgraded ? '+' : ''));
+  stats.relicIds = [...me(run).relics];
   return stats;
 }

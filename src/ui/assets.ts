@@ -1,4 +1,8 @@
 import { deferredBgKeys } from './bgacts';
+import { cards } from '../content/cards';
+
+/** 只有兩個人一起玩才拿得到的牌（`coop: true`）的牌面鍵：單機一輩子用不到，開場不載，進大廳才補 */
+const COOP_ONLY_ART: ReadonlySet<string> = new Set(cards.filter((c) => c.coop).map((c) => c.art));
 
 export interface Manifest {
   cards: Record<string, string>;
@@ -39,13 +43,210 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
 const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/idle', 'hero/armed']);
-export function heroSpriteUrls(): string[] {
+/**
+ * 這個鍵是哪一位角色專屬的；`null`＝共用或球球的。
+ *
+ * 菲菲的素材鍵都帶 `feifei`（`hero/feifei_*`、`card/feifei_*`、`bg/event_feifei_*`、`bg/feifei_still_*`、
+ * `icon/map_hero_feifei_*`），球球的沒有前綴——那是 main 時代留下來的命名，正好讓「只玩球球的人
+ * 開場下載的東西」跟併入她之前一模一樣（總稽核 F 中-1：原本她的 300 多張圖全部算進每個人的首載）。
+ */
+export function heroOfKey(key: string): string | null {
+  const m = /(?:^|[/_])(feifei|samurai)(?:_|$)/.exec(key);
+  return m ? m[1]! : null;
+}
+
+/** 這一局登場的角色（單機一位、連線兩位）的戰鬥姿勢圖；沒登場的那位不暖，免得跟魔物立繪搶下載（總稽核 F 中-3） */
+export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja']): string[] {
+  const want = new Set(heroes.map((h) => h ?? 'ninja'));
   // 排掉戰鬥裡永遠用不到的三張（稽核 2026-09-10 低-2）：`cover` 只有標題畫面用，
   // `idle`／`armed` 是舊素材、`combat.ts` 的註解自己寫「目前沒排到位置，留著備用」。
   // 三張共 89 KB，佔這批暖圖的一成一，卻只是擋在魔物前面。
   return Object.entries(manifest.sprites)
-    .filter(([k]) => k.startsWith('hero/') && !HERO_NOT_IN_COMBAT.has(k))
+    .filter(([k]) => k.startsWith('hero/') && !HERO_NOT_IN_COMBAT.has(k) && want.has(heroOfKey(k) ?? 'ninja'))
     .map(([, v]) => `${BASE}${v}`);
+}
+
+/**
+ * 選好角色之後才補載的那一位（連線是兩位）專屬的圖。球球沒有專屬鍵，所以他什麼都不用補。
+ * 結果圖（`_r<n>`）與二三關才會遇到的事件底圖照 `preloadArt` 同一套規矩跳過。
+ */
+/** 雙人專屬牌的牌面（球球版與菲菲版都算，兩位在連線裡都可能拿到） */
+export function coopArtUrls(): string[] {
+  return Object.entries(manifest.cards)
+    .filter(([k]) => COOP_ONLY_ART.has(k) || COOP_ONLY_ART.has(k.replace(/^card\/(?:feifei|samurai)_/, 'card/')))
+    .map(([, v]) => `${BASE}${v}`);
+}
+
+/** 這個鍵是不是雙人專屬牌的牌面（給分關載入的清單用） */
+export function isCoopOnlyArt(key: string): boolean {
+  return COOP_ONLY_ART.has(key) || COOP_ONLY_ART.has(key.replace(/^card\/(?:feifei|samurai)_/, 'card/'));
+}
+
+export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
+  const want = new Set(heroes.map((h) => h ?? 'ninja'));
+  const skip = deferredBgKeys();
+  const urls: string[] = [];
+  for (const g of ['sprites', 'icons', 'cards', 'bg'] as const) {
+    for (const [key, v] of Object.entries(manifest[g])) {
+      const who = heroOfKey(key);
+      if (!who || !want.has(who)) continue;
+      if (g === 'bg') {
+        if (/_r\d+$/.test(key) || /\/[a-z]+_still_/.test(key)) continue;   // 結果圖與幻燈片本來就是點到才載
+        if (skip.has(key) || skip.has(key.replace(`_${who}_`, '_'))) continue;   // 事件底圖照共用那張的關數分流
+      }
+      if (typeof v === 'string') urls.push(`${BASE}${v}`);
+      else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
+    }
+  }
+  return urls;
+}
+
+/*
+ * ===== 換角色的立繪（2026-09-12）=====
+ *
+ * 立繪鍵長 `hero/<前綴>_<姿勢>`，全遊戲的姿勢名冊寫在 `combat.ts` 的 `POSE`，
+ * 值一律是**球球版**的鍵——那是「姿勢的身分證」，畫面到處拿它做相等比較
+ *（`pose === POSE.claw`、`ATTACK_POSES.has(pose)`）。所以換角色**不改那張表**，
+ * 只在「鍵要變成網址」與「這張圖有沒有」這兩個出口翻譯一次。
+ *
+ * 退路刻意**退回她自己**最接近的姿勢，不是退回球球的：
+ * 玩菲菲卻突然跳出一隻灰虎斑，比姿勢不精準難看得多。
+ */
+const HERO_PREFIX: Readonly<Record<string, string>> = { ninja: 'ninja', samurai: 'samurai', feifei: 'feifei' };
+
+/** 她沒生這張圖時，退到自己的哪一張。鍵與值都是**姿勢名**（不含 `hero/<前綴>_`） */
+const POSE_FALLBACK: Readonly<Record<string, string>> = {
+  /*
+   * 攻擊家族退回基本出招。**這只是退路**——她 2026-09-12 補了自己的四張
+   *（`hasHeroSprite` 查得到就直接用她的，根本走不到這裡）。
+   * 球球那四張是爪擊／踢技／衝撞／拳，她的是丟針的四種變化：
+   * 單發精準、一次三根、由上往下砸、貼身彈指。
+   */
+  claw: 'attack', kick: 'attack', dash: 'attack', punch: 'attack',
+  // 技能家族全退回施術
+  focus: 'skill', scroll: 'skill', roar: 'skill', taiji: 'skill', qinggong: 'skill', eat: 'skill',
+  // 狀態待機退回受傷／站姿（`idlePoseKey` 會先問 hasSprite，退到這裡就是「就用站姿」）
+  choke: 'hurt', dizzy: 'hurt', belly: 'hurt', lazy: 'hurt', puff: 'hurt', iron: 'idle',
+  // 擋下來的抱胸格擋退回蜷縮；倒在地上退回站著垂頭
+  guard: 'curl', down: 'lose',
+};
+
+/**
+ * 這位角色**自己**畫好的那一張（不走退路）；沒有就回 null。
+ *
+ * 站姿兩種寫法都認：球球的鍵是 `hero/ninja`（沒有後綴，最早那批留下來的），
+ * 後來的角色一律是 `hero/<前綴>_idle`。這裡兩個都查，生圖腳本就不必為了對齊改檔名。
+ */
+function ownPose(prefix: string, pose: string): string | null {
+  const names = pose === 'idle' ? [`hero/${prefix}`, `hero/${prefix}_idle`] : [`hero/${prefix}_${pose}`];
+  return names.find((k) => manifest.sprites[k] !== undefined) ?? null;
+}
+
+/** 從球球版的鍵取出姿勢名（`hero/ninja_claw` → `claw`、`hero/ninja` → `idle`） */
+function poseNameOf(key: string): string | null {
+  if (!key.startsWith('hero/ninja')) return null;
+  return key.slice('hero/ninja'.length).replace(/^_/, '') || 'idle';
+}
+
+/**
+ * 把球球版的立繪鍵換成這位角色的。她沒畫那一張就照 `POSE_FALLBACK` 退一步，
+ * 再沒有就回原本那個（球球的）——寧可畫錯角色也不要破圖。
+ */
+export function heroSpriteKey(hero: string | undefined, key: string): string {
+  const prefix = HERO_PREFIX[hero ?? 'ninja'] ?? 'ninja';
+  if (prefix === 'ninja') return key;
+  const pose = poseNameOf(key);
+  if (!pose) return key;
+  const fb = POSE_FALLBACK[pose];
+  /*
+   * 三層退路：她的那一張 → 她的替代姿勢 → **她的站姿**。
+   *
+   * 最後那一層是後來補的（測試抓到的）：同時缺姿勢與它的替代時，本來會掉回球球那張，
+   * 玩菲菲卻冒出一隻灰虎斑。站姿每個角色都一定有，退到那裡至少人是對的——
+   * 姿勢不精準遠比認錯角色好。真的連站姿都沒有（新角色剛開工）才回原鍵。
+   */
+  return ownPose(prefix, pose) ?? (fb ? ownPose(prefix, fb) : null) ?? ownPose(prefix, 'idle') ?? key;
+}
+
+/*
+ * ===== 本機這一位玩的是誰（2026-09-12）=====
+ *
+ * 單人畫面（對白疊層、過關走路轉場、標題）只演給本機這一位看，用一個模組層級的
+ * 變數最省事。**戰鬥畫面不能這樣讀**——那邊兩位同框，一律從 `PlayerCombat.hero` 取。
+ * 開新局與讀存檔時由 `app.ts` 設定。
+ */
+let localHeroId = 'ninja';
+export function setLocalHero(hero: string | undefined): void { localHeroId = hero ?? 'ninja'; }
+export function localHero(): string { return localHeroId; }
+
+/**
+ * 這張牌要用誰的圖（2026-09-12，使用者：「牌全部分家」）。
+ *
+ * **牌的數字只定義一份**（`content/cards.ts`），分家的只有圖：菲菲在玩時，
+ * 有 `card/feifei_<牌號>` 就用她的，沒有就退回原本那張。
+ *
+ * 走 `localHero()` 而不是把職業一路傳進 `cardNode`（那支有九個呼叫點）：
+ * 畫面上的牌永遠是**本機這一位自己的**——手牌、牌組一覽、獎勵、罐頭鋪、圖鑑都是。
+ * 連線時看不到同伴的手牌，所以不會有「兩個人的牌同框」的情況。
+ */
+export function cardArtKey(baseKey: string, hero?: string): string {
+  // `hero` 只有卡牌圖鑑會填（那裡可以在標題畫面切角色看），其餘一律用這一局的那位
+  const who = hero ?? localHeroId;
+  if (who === 'ninja') return baseKey;
+  const mine = baseKey.replace(/^card\//, `card/${who}_`);
+  return manifest.cards[mine] !== undefined ? mine : baseKey;
+}
+
+/**
+ * 事件插圖的鍵。做法跟 `cardArtKey` 一模一樣：有她的就用她的，沒有就退回原本那張。
+ *
+ * 為什麼需要這個（2026-09-12）：76 張事件／畫面插圖裡有 54 張**把球球畫進去了**
+ *（大俠傳功那張他就趴在秘笈上）。玩菲菲時讀到的故事是她的，圖卻是他，
+ * 跟結局那八張同一類問題（見 `app.ts` 的 `stillKey`）。
+ *
+ * 差別在退路：結局那邊沒圖就整段退回純對白（`slidesReady`），這邊**退回球球那張**。
+ * 理由是事件插圖本來就有「還沒生好就不放」的處理，而 54 張要生好幾個小時——
+ * 中間這段時間放他的圖，比整批事件都沒有插圖好。生一張就換一張。
+ */
+export function eventArtKey(id: string): string {
+  const base = `bg/event_${id}`;
+  if (localHeroId === 'ninja') return base;
+  const mine = `bg/event_${localHeroId}_${id}`;
+  return manifest.bg[mine] !== undefined ? mine : base;
+}
+
+/**
+ * 地圖上「你在這」那顆頭像的鍵。做法同 `cardArtKey`／`eventArtKey`。
+ *
+ * 這顆最該分家：**每次看地圖都看得到**，而且它代表的就是「我」。
+ * 玩菲菲卻在地圖上看到球球，比事件插圖裡混到他還怪（2026-09-12）。
+ * 沒生好她那三顆之前退回他的——地圖上沒有頭像會不知道自己走到哪，那更糟。
+ */
+export function mapHeroKey(act: number): string {
+  const tier = act >= 3 ? 'top' : act === 2 ? 'mid' : 'low';
+  const base = `icon/map_hero_${tier}`;
+  if (localHeroId === 'ninja') return base;
+  const mine = `icon/map_hero_${localHeroId}_${tier}`;
+  return manifest.icons[mine] !== undefined ? mine : base;
+}
+
+/** 這位角色的立繪網址。鍵一律寫球球版的，換角色的翻譯交給 `heroSpriteKey` */
+export function heroArtUrl(hero: string | undefined, key: string): string {
+  return artUrl('sprites', heroSpriteKey(hero, key));
+}
+
+/**
+ * 這位角色**自己**畫好這張姿勢了沒——**嚴格版，不走退路**。
+ *
+ * 挑待機姿勢（`idlePoseKey`）與挑招式圖（`posePick`）問的是「這張圖存在嗎」，
+ * 用寬鬆版的話永遠是「在」（退路一定找得到東西），中毒待機就會挑到退路後的掛彩圖，
+ * 玩家看到的姿勢跟身上的狀態對不起來。
+ */
+export function hasHeroSprite(hero: string | undefined, key: string): boolean {
+  const prefix = HERO_PREFIX[hero ?? 'ninja'] ?? 'ninja';
+  if (prefix === 'ninja') return hasSprite(key);
+  const pose = poseNameOf(key);
+  return pose ? ownPose(prefix, pose) !== null : hasSprite(key);
 }
 
 /** 這張立繪生好了沒（階段專屬圖、球球狀態圖還沒落地時要退回一般圖，不能畫成灰剪影） */
@@ -103,6 +304,10 @@ export async function preloadArt(): Promise<void> {
     if (!group || Array.isArray(group)) continue;
     for (const [key, v] of Object.entries(group)) {
       if (g === 'bg' && skip.has(key)) continue;
+      // 角色專屬的（菲菲那 300 多張）開場不載：這時還不知道玩家要選誰，選好由 `preloadHeroArt` 補
+      if (heroOfKey(key)) continue;
+      // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
+      if (g === 'cards' && COOP_ONLY_ART.has(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
       else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
     }
