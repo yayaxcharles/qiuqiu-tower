@@ -280,7 +280,11 @@
   "card/feifei_fantuanliuyikou": "assets/cards/card/feifei_fantuanliuyikou.webp",
   "card/feifei_biepengzhenjian": "assets/cards/card/feifei_biepengzhenjian.webp",
   "card/feifei_woyouxianbeihao": "assets/cards/card/feifei_woyouxianbeihao.webp",
-  "card/shoujiewoyixia": "assets/cards/card/shoujiewoyixia.webp"
+  "card/shoujiewoyixia": "assets/cards/card/shoujiewoyixia.webp",
+  "card/yuganjijiu": "assets/cards/card/yuganjijiu.webp",
+  "card/yiqichuankou": "assets/cards/card/yiqichuankou.webp",
+  "card/feifei_yuganjijiu": "assets/cards/card/feifei_yuganjijiu.webp",
+  "card/feifei_yiqichuankou": "assets/cards/card/feifei_yiqichuankou.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
