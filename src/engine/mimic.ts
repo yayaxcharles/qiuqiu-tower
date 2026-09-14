@@ -47,6 +47,9 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
       // 漏掉就變成學了一張回 0 血的牌。今天沒有這種牌，是埋著的
       case 'heal': out.push({ kind: 'heal', n: fx.n, ...(fx.percent ? { percent: fx.percent } : {}) }); break;
       case 'status':
+        // 成長牌（她的分身術）整張不學，跟球球的分身術（damageRamp 不在 SKIP）同一個結果：
+        // 魔物沒有「這張打過幾次」可以記，照學只會學到永遠不長的基礎值（2026-09-14 推前審查 中-1）
+        if (fx.step) return null;
         if (fx.target === 'self') { if (SELF_OK.includes(fx.name)) out.push({ kind: 'statusSelf', name: fx.name, amount: fx.amount }); }
         else if (DEBUFFS.includes(fx.name)) out.push({ kind: 'statusPlayer', name: fx.name, amount: fx.amount });
         break;

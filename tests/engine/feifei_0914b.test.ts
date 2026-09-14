@@ -4,6 +4,7 @@ import { eventTextFor } from '../../src/content/dialogue';
 import { eventById } from '../../src/content/events';
 import { playCard, startCombat } from '../../src/engine/combat';
 import { pickable } from '../../src/engine/hero';
+import { learnCard } from '../../src/engine/mimic';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { addCard, newRun } from '../../src/engine/run';
 import { checkRun } from '../../src/engine/save';
@@ -68,6 +69,12 @@ describe('菲菲的分身術：疊毒（22）', () => {
     expect([mine.type, mine.cost, mine.upgrade.cost, mine.rarity, mine.pool])
       .toEqual([his.type, his.cost, his.upgrade.cost, his.rarity, his.pool]);
     expect(mine.art).toBe('card/feifei_fenshen');
+  });
+
+  it('鏡子走廊的假師兄學不會（跟球球的分身術一樣：魔物記不了打過幾次）', () => {
+    expect(learnCard(inst('bunshin', 1)), '球球那張本來就學不會').toBeNull();
+    expect(learnCard(inst('feifei_fenshen', 2))).toBeNull();
+    expect(learnCard(inst('feifei_tianzhen', 3)), '不長的毒牌照學').not.toBeNull();
   });
 
   it('之前存的局：她手上的分身術換成她那張，球球的不動', () => {
