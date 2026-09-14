@@ -1311,6 +1311,13 @@
   z-index: 6;
 }
 .combat .unit.player .mate-play.in { animation: mate-play-in .22s ease-out; }   /* 只有新的一張才淡入 */
+/* 同伴點選還沒打的那張（使用者 2026-09-15：像 Spire 2 那樣看得到隊友想打哪張）：更淡、虛線框、標「考慮中」 */
+.combat .unit.player .mate-play.hint { opacity: .45; }
+.combat .unit.player .mate-play.hint .card { outline: 3px dashed #ffd97a; outline-offset: 3px; }
+.combat .unit.player .mate-play .hint-tag {
+  position: absolute; left: 50%; top: -6px; translate: -50% -100%;
+  font-size: 24px; font-weight: 700; color: #ffd97a; text-shadow: 0 1px 2px #000, 0 0 6px #000; white-space: nowrap;
+}
 @keyframes mate-play-in {
   from { opacity: 0; translate: -50% 12px; }
   to { opacity: .65; translate: -50% 0; }

@@ -416,8 +416,13 @@ registerScreen('combat', (app, root, props) => {
     if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
     else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
     // 同伴剛打出的牌：縮小、半透明掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15：「完全不知道隊友做了什麼」）
+    // 同伴點選還沒打的那張（虛線、更淡、標「考慮中」）優先於他上一張打出的
+    const considering = mine ? undefined : mateHint.get(q.seat);
+    const hintCard = considering === undefined ? undefined : q.hand.find((c) => c.uid === considering);
     const mp = mine ? undefined : matePlay.get(q.seat);
-    if (mp && mp.turn === cs.turn) {
+    if (hintCard) {
+      node.append(el('div', { class: 'mate-play hint' }, cardNode(hintCard, { small: true, hero: heroOf(q) }), el('div', { class: 'hint-tag' }, '考慮中')));
+    } else if (mp && mp.turn === cs.turn) {
       const fresh = matePlayShown.get(q.seat) !== mp.card.uid;   // 新的一張才播淡入；重畫同一張不動
       matePlayShown.set(q.seat, mp.card.uid);
       // 牌名與圖照**同伴**的角色：忍者那位的 hero 欄位刻意不寫，直接傳 q.hero 會退成本機角色（審查 中-3）
@@ -431,7 +436,33 @@ registerScreen('combat', (app, root, props) => {
   // 算法搬到 `screenbg.ts` 的 `battleBgKey` 給關主門共用（稽核 2026-09-10 中-2，順便修掉少 `bg/` 前綴那個老 bug）
   const bgKey = battleBgKey(run.act, run.floor, encounterById[cs.encounterId]?.pool === '塔主');
 
-  let targeting: { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null = null;
+  type Targeting = { kind: 'card'; uid: number } | { kind: 'potion'; id: string } | null;
+  let targeting: Targeting = null;
+  /**
+   * 換瞄準狀態一律走這裡：連線時順便告訴同伴「我點了哪張」（純提示、不進鎖步；使用者 2026-09-15：
+   * 像 Spire 2 那樣看得到隊友想打哪張）。只有要瞄準的攻擊牌才有「點了還沒打」這個狀態，
+   * 技能牌點下去就打出去了，由打出的那張（`matePlay`）來顯示。同一個值不重送。
+   */
+  let hintSent: number | null = null;
+  let hintTimer: ReturnType<typeof setTimeout> | null = null;
+  const setTargeting = (t: Targeting): void => {
+    targeting = t;
+    if (!session) return;
+    // 合併 120 毫秒內的變化只送最後一個值：狂點同一張牌不會變成每秒二十則（中繼免費額度是全帳號共用的；審查 中-3）
+    if (hintTimer !== null) clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => {
+      hintTimer = null;
+      const u = targeting?.kind === 'card' ? targeting.uid : null;
+      if (u !== hintSent) { hintSent = u; session.hint(u); }
+    }, 120);
+  };
+  app.disposers.push(() => { if (hintTimer !== null) clearTimeout(hintTimer); });
+  /**
+   * 同伴現在點選著哪張（他手上的牌在我這台也同步著，直接拿來畫）。
+   * 不用回合號蓋章（審查 中-1）：兩台回合推進的時間不同，蓋錯就整回合看不到；改成「那張還在他手上才畫」——
+   * 打出、棄掉、換回合牌離開手牌就自然消失，取消或打出時對方也會送 null。
+   */
+  const mateHint = new Map<number, number>();
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
   const idlePose = (): string => idlePoseKey(my(), POSE, (k) => hasHeroSprite(my().hero, k));
@@ -1358,7 +1389,7 @@ registerScreen('combat', (app, root, props) => {
     // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。三層各自飄，樣式在 combat.css。
     box.append(bg, el('div', { class: 'motes' }, el('i'), el('i'), el('i')));
     // 選目標時鋪一層透明的接盤子：點空白處＝取消。魔物與手牌都疊在它上面，照樣點得到
-    if (targeting) box.append(el('div', { class: 'target-catcher', onclick: () => { targeting = null; render(); } }));
+    if (targeting) box.append(el('div', { class: 'target-catcher', onclick: () => { setTargeting(null); render(); } }));
 
     const field = el('div', { class: 'field' }, ...cs.players.map((q) => playerUnit(q)));
     // 排位置只算**活著的**。倒下的魔物還留在 `cs.enemies` 裡（要放倒地動畫），
@@ -1529,9 +1560,9 @@ registerScreen('combat', (app, root, props) => {
       const alive = aliveEnemies(cs);
       // 場上只剩一隻的時候，連點兩下就直接打牠——反正也沒別的可以選，
       // 還要移到魔物身上再點一次很囉嗦。兩隻以上照舊：要自己挑目標。
-      if (already && alive.length === 1) { targeting = null; play(uid, alive[0]!.uid); return; }
+      if (already && alive.length === 1) { setTargeting(null); play(uid, alive[0]!.uid); return; }
       // 再點一次同一張＝取消；點另一張＝改選那一張
-      targeting = already ? null : { kind: 'card', uid };
+      setTargeting(already ? null : { kind: 'card', uid });
       render();
       return;
     }
@@ -1540,7 +1571,7 @@ registerScreen('combat', (app, root, props) => {
 
   function pickTarget(enemyUid: number): void {
     const t = targeting;
-    targeting = null;
+    setTargeting(null);
     if (!t || !canAct()) { render(); return; }
     if (t.kind === 'card') play(t.uid, enemyUid);
     else drinkPotion(t.id, enemyUid);
@@ -1628,7 +1659,7 @@ registerScreen('combat', (app, root, props) => {
     if (!def) return;
     hint = '';
     // 只有打魔物的忍具要選目標（手裡劍、麻繩）；全體與自己用的直接用掉
-    if (def.target === 'enemy') { targeting = { kind: 'potion', id }; render(); return; }
+    if (def.target === 'enemy') { setTargeting({ kind: 'potion', id }); render(); return; }
     drinkPotion(id, undefined);
   }
 
@@ -1690,7 +1721,7 @@ registerScreen('combat', (app, root, props) => {
     // 選著目標的時候按結束回合：先重畫一次把指引箭頭與選起來的那張牌收掉，再開始收牌。
     // 收牌那段刻意不重畫，箭頭留著就會指著一張已經飛走的牌。
     const wasTargeting = targeting !== null;
-    targeting = null;
+    setTargeting(null);
     // **「這張打不出來」的提示要在換回合時清掉**（使用者 2026-09-10：「都換回合了、3 飯糰都出來了，
     // 畫面上還卡死『餓扁了』」）。`hint` 本來只在 `act()`（出牌、用忍具）開頭清，
     // 結束回合這條路沒清——所以飯糰空了點一張牌之後，那行紅字會一路掛到你下一次出牌為止。
@@ -2376,14 +2407,14 @@ registerScreen('combat', (app, root, props) => {
   // Esc 取消選目標。這場戰鬥換人（app.cs 變了）時聽眾自己退場，免得一直堆著
   const onKey = (ev: KeyboardEvent): void => {
     if (app.cs !== cs) { window.removeEventListener('keydown', onKey); return; }
-    if (ev.key === 'Escape' && targeting) { targeting = null; render(); }
+    if (ev.key === 'Escape' && targeting) { setTargeting(null); render(); }
   };
   window.addEventListener('keydown', onKey);
   app.disposers.push(() => window.removeEventListener('keydown', onKey));   // 換畫面就拆，不用等下一次按鍵（2026-09-02 稽核 L-8）
   // 右鍵也能取消選目標（使用者 2026-09-06：有人建議，跟 Esc、點空白處同一件事）。只在選目標中才攔，平常右鍵照開瀏覽器選單
   const onContext = (ev: MouseEvent): void => {
     if (app.cs !== cs) { window.removeEventListener('contextmenu', onContext); return; }
-    if (targeting) { ev.preventDefault(); targeting = null; render(); }
+    if (targeting) { ev.preventDefault(); setTargeting(null); render(); }
   };
   window.addEventListener('contextmenu', onContext);
   app.disposers.push(() => window.removeEventListener('contextmenu', onContext));
@@ -2430,6 +2461,14 @@ registerScreen('combat', (app, root, props) => {
     // 我那一下沒算數（主機已經來不及了）：把手放開，畫面重畫回真實的狀態
     // 選牌那一下沒算數的話，視窗要能再開（見 `chooseSent`）
     session.onDropped(() => { unlockSend(); chooseSent = null; if (app.cs === cs) { render(); syncPicker(); } });
+    // 同伴點選了哪張：只重畫他那一格，不動整頁（跟 patchField 對同伴那格的做法一樣）
+    session.onHint((seat, u) => {
+      if (app.cs !== cs) return;
+      if (u === null) mateHint.delete(seat); else mateHint.set(seat, u);
+      const q = cs.players[seat];
+      const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
+      if (q && node) node.replaceWith(playerUnit(q));
+    });
     session.onApplied((applied) => {
       if (!applied.length || app.cs !== cs) return;
       unlockSend();   // 有東西套進去了＝路上那一下回來了
@@ -2439,6 +2478,7 @@ registerScreen('combat', (app, root, props) => {
       for (const mp of found) matePlay.set(mp.seat, { card: mp.card, turn: mp.turn });
       // 同一批裡先抽再打的那張快照裡沒有：與其掛著上一張騙人，不如不掛（審查 低-1）
       for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat && !found.some((m) => m.seat === a.seat)) matePlay.delete(a.seat);
+      for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat && mateHint.get(a.seat) === a.u) mateHint.delete(a.seat);   // 打出的正是考慮中那張才撤（審查 中-2：打別張時他那邊還選著）
       /*
        * **主機自己的動作在這之前就演過了**（`submit` 是同步套用的，`act()` 裡的
        * `settle` 已經比對過前後），所以只要重畫；其餘都要演。

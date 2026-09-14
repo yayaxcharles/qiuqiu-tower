@@ -74,7 +74,12 @@ export type NetMessage =
    * 戰鬥的對帳（`turn` ≥ 0）同一個道理，靠 `f`（第幾場）＋`turn` 配對（稽核 2026-09-14 高-5）：
    * 手上沒牌的那台收回合是**當場**開演魔物回合的，對帳單晚到的那一邊拿現在的狀態去比一定對不上。
    */
-  | { m: 'sync'; turn: number; fp: string; rfp?: string; k?: string; f?: number };
+  | { m: 'sync'; turn: number; fp: string; rfp?: string; k?: string; f?: number }
+  /**
+   * 純提示（2026-09-15，使用者：像 Spire 2 那樣看得到隊友想打哪張）：我點選了哪張牌（進入瞄準），
+   * 取消或打出就送 `u: null`。**不進鎖步、不進對帳**，掉了也無所謂；畫面只拿它畫「考慮中」。
+   */
+  | { m: 'hint'; seat: number; u: number | null };
 
 /**
  * 傳輸層的介面。**刻意抽成介面**，因為真正的實作（WebRTC）在測試環境跑不起來，
