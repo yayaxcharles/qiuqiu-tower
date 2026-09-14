@@ -518,8 +518,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
      */
     case 'poisonBurst': if (fx.full || !p.poisonBurst) p.poisonBurst = fx.full ? 'full' : 'split'; markPassive(p, ctx); return false;
     case 'blockBonus': p.blockBonus = (p.blockBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
-    // 影子分身**不疊**：`combat.ts` 只看有沒有，打兩張第一張牌也只重播一次，牌子寫 2 會騙人（夜間審查 中-2）
-    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx); return false;
+    // 影子分身**可以疊**（使用者 2026-09-14 深夜裁定）：`combat.ts` 照這個計數重播，兩張＝第一張牌打三次，
+    // 牌子也要寫 2（`stacks`）。原本不疊、去重成一筆，是夜間審查 中-2 的決定，已被推翻
+    case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx, true); return false;
     case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }

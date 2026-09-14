@@ -123,3 +123,45 @@ describe('影子分身的兩個邊角', () => {
     expect(hp0 - e.hp, '加倍一次(12) × 打兩次 = 18，不是 24').toBe(18);
   });
 });
+
+describe('影子分身可以疊（使用者 2026-09-14 深夜裁定：兩張＝第一張牌打三次、牌子顯示 2）', () => {
+  function two(upgradedSecond: boolean) {
+    const { cs, p } = setup('feifei');
+    const e = cs.enemies[0]!;
+    e.hp = 100; e.maxHp = 100;
+    p.hand.length = 0;
+    playCard(cs, toHand(cs, 'feifei_yingzi', 900));
+    cs.players[0]!.hand.push({ uid: 901, cardId: 'feifei_yingzi', upgraded: upgradedSecond });
+    playCard(cs, 901);
+    return { cs, p, e };
+  }
+
+  it('兩張影子分身：第一張牌打三次，第二張以後還是一次', () => {
+    const { cs, p, e } = two(false);
+    expect(p.echoFirst).toBe(2);
+    p.cardsPlayedThisTurn = 0;
+    const before = e.hp;
+    playCard(cs, toHand(cs, 'sanjo', 902), e.uid);      // 貓抓 6 傷
+    expect(before - e.hp, '兩層＝第一張打三次＝18 點').toBe(18);
+    const mid = e.hp;
+    playCard(cs, toHand(cs, 'sanjo', 903), e.uid);
+    expect(mid - e.hp, '第二張以後只打一次').toBe(6);
+  });
+
+  it('狀態列的牌子要有兩筆（畫面會寫 2）', () => {
+    const { p } = two(false);
+    const mine = p.powers.filter((pw) => pw.trigger === 'passive' && pw.cardId === 'feifei_yingzi');
+    expect(mine.length, '原本同一張牌去重成一筆，玩家以為第二張白打').toBe(2);
+  });
+
+  it('基本版加升級版也是兩層：打三次、牌子各一筆', () => {
+    const { cs, p, e } = two(true);
+    p.cardsPlayedThisTurn = 0;
+    const before = e.hp;
+    playCard(cs, toHand(cs, 'sanjo', 902), e.uid);
+    expect(before - e.hp).toBe(18);
+    const mine = p.powers.filter((pw) => pw.trigger === 'passive' && pw.cardId === 'feifei_yingzi');
+    expect(mine.length).toBe(2);
+    expect(mine.filter((pw) => pw.upgraded).length).toBe(1);
+  });
+});

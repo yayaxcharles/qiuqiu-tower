@@ -475,8 +475,15 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   if (p.echoFirst && p.cardsPlayedThisTurn === 1
       && !st.effects.some((e) => e.kind === 'echoFirst')
       && cs.phase === 'player' && !cs.pending) {
-    log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次`);
-    applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
+    /*
+     * **可以疊**（使用者 2026-09-14 深夜裁定）：掛幾張就多打幾次，兩張＝第一張牌打三次。
+     * 原本這裡只看「有沒有」、永遠只重播一次，第二張等於白花 3 費，狀態列也只寫一層。
+     * 每重播一次都再看一次 phase 與 pending：第一次重播就把最後一隻打倒的話，後面不能再打。
+     */
+    for (let i = 0; i < p.echoFirst && cs.phase === 'player' && !cs.pending; i++) {
+      log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次${p.echoFirst > 1 ? `（${i + 1}／${p.echoFirst}）` : ''}`);
+      applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
+    }
   }
   /*
    * **監聽排在影子分身重播之後**（2026-09-13 稽核 中-4）。
