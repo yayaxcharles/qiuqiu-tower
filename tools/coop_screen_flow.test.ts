@@ -73,6 +73,17 @@ describe('戰鬥畫面：進場、收回合、分出勝負的時機', () => {
   });
 });
 
+describe('連線大廳：難度照開房的人選的開（使用者 2026-09-14）', () => {
+  it('不再寫死難度 1；宣布開局與自己開局用同一個選好的難度', () => {
+    const lobby = code('src/ui/screens/lobby.ts');
+    expect(lobby, '原本兩行都寫死 1').not.toMatch(/session\.start\(seed, 1,|begin\(seed, 1,/);
+    expect(lobby).toContain('const diff = selectedDifficulty();');
+    expect(lobby).toContain('session.start(seed, diff,');
+    expect(lobby).toContain('begin(seed, diff,');
+    expect(lobby, '大廳要擺得出難度按鈕').toContain('diffPicker()');
+  });
+});
+
 describe('戰利品畫面：沒得升級也要投空票（高-18）', () => {
   it('鏡子走廊打贏、牌組裡沒有可以升級的牌：投一張空的 rwup，不然同伴的「繼續」永遠等不到', () => {
     const reward = code('src/ui/screens/reward.ts');

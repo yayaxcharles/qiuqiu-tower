@@ -206,6 +206,10 @@ export function newCoopRun(seed: string, difficulty = 1, hero: Hero = 'ninja', h
     for (const id of first.relics) takeRelic(run, id, 1);
   } else {
     for (const id of starterDeckFor(hero2)) addCard(run, (cardById[id]?.hero && cardById[id]!.hero !== hero2) ? 'tanding' : id, false, 1);
+    // 難度 4 起的開局壞毛病第二位也要背（2026-09-14）：同角色那條是整副照抄所以有，混搭這條原本漏了——
+    // 以前連線難度寫死 1 走不到，現在大廳可以選難度就會踩到。順序跟單機一樣：起手牌、壞毛病、起始秘寶
+    const curse = runMods(run).startCurse;
+    if (curse) addCard(run, curse, false, 1);
     takeRelic(run, startRelicFor(hero2), 1);
   }
   return run;

@@ -8,6 +8,8 @@ import type { Transport } from '../../net/transport';
 import { setLocalHero } from '../assets';
 import { me } from '../../engine/runplayer';
 import { heroName, type Hero } from '../../engine/hero';
+import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
+import { selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
 
 /**
  * 開房畫面：兩台瀏覽器直連，**不經過任何伺服器**。
@@ -94,8 +96,13 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
   if (isHost) {
     const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;
     const heroes = [coopHeroes[0], coopHeroes[1]];
-    session.start(seed, 1, '', heroes);
-    begin(seed, 1, heroes);
+    /*
+     * **難度照開房的人選的開**（使用者 2026-09-14：原本寫死 1，標題畫面選的難度不生效）。
+     * 跟標題畫面共用同一個設定，大廳裡改了標題畫面也跟著變；協定本來就帶難度，客戶端照宣布的開。
+     */
+    const diff = selectedDifficulty();
+    session.start(seed, diff, '', heroes);
+    begin(seed, diff, heroes);
   } else {
     // 客戶端等主機宣布，收到才開——不能自己挑種子，那樣兩邊一定不一樣
     session.onStartRun((seed, diff, _enc, heroes) => begin(seed, diff, heroes));
@@ -154,8 +161,26 @@ registerScreen('lobby', (app, root) => {
         onclick: () => { coopHeroes[i] = h; render(); },
       }, heroName({ hero: h }))));
     return el('div', { class: 'lobby-heroes' },
-      el('p', { class: 'lobby-note' }, '開房的人挑角色（兩位都挑，加入的人照這個開）：'),
+      el('p', { class: 'lobby-note' }, '開房的人挑兩位的角色和難度，加入的人照這個開：'),
       row('開房的人', 0), row('加入的人', 1));
+  };
+
+  /** 難度（跟標題畫面同一個設定；只有開房的人選的算數） */
+  const diffPicker = (): HTMLElement => {
+    const level = selectedDifficulty();
+    const unlocked = unlockedDifficulty();
+    const btns = Array.from({ length: MAX_DIFFICULTY }, (_, k) => {
+      const i = k + 1;
+      const locked = i > unlocked;
+      return el('button', {
+        class: `btn small diff-btn d${i}${i === level ? ' selected' : ''}${locked ? ' locked' : ''}`,
+        ...(locked ? { disabled: 'disabled' } : {}),
+        onclick: () => { setSelectedDifficulty(i); render(); },
+      }, locked ? `🔒 ${i}` : `${i} ${DIFFICULTY_NAMES[i - 1]}`);
+    });
+    return el('div', { class: 'lobby-heroes' },
+      el('div', { class: 'lobby-hero-row' }, el('b', {}, '難度'), ...btns),
+      el('p', { class: 'lobby-note' }, `${DIFFICULTY_NAMES[level - 1]}：${DIFFICULTY_TEXT[level - 1]}${level > 1 ? '（含前面各級）' : ''}`));
   };
 
   const render = (): void => {
@@ -176,6 +201,7 @@ registerScreen('lobby', (app, root) => {
           }, '我開房'),
           el('button', { class: 'btn', onclick: () => { st.step = 'joining'; render(); } }, '我要加入')),
         heroPicker(),
+        diffPicker(),
         el('p', { class: 'lobby-note' },
           '兩台機器會直接連線，中間不經過任何伺服器，所以要互相貼一次代碼（用 LINE 傳就好）。'));
     }
