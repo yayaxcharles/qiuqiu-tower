@@ -23,6 +23,7 @@ import type { Hero } from '../../engine/hero';
 import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
+import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
 import { heroSpeaker, toast } from '../dialogue';
 import { clear, el } from '../dom';
@@ -354,6 +355,10 @@ registerScreen('combat', (app, root, props) => {
   const MINE = `.unit.player[data-seat="${mySeat}"]`;
   /** 同伴的動作套用**之前**那一刻的快照，`settle` 拿它比對出要演什麼 */
   let remoteBefore: Snap | null = null;
+  /** 套用前每一位的手牌（同伴剛打出哪一張要靠這份回頭找，見 `mateplay.ts`） */
+  let handsBefore: CardInstance[][] = [];
+  /** 同伴這回合最後打出的那張：掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15） */
+  const matePlay = new Map<number, { card: CardInstance; turn: number }>();
   /*
    * 同伴上一次動作是多久以前——「等太久了，替他收回合」那顆按鈕靠這個決定要不要亮。
    *
@@ -408,6 +413,9 @@ registerScreen('combat', (app, root, props) => {
     // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
     if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
     else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
+    // 同伴剛打出的牌：縮小、半透明掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15：「完全不知道隊友做了什麼」）
+    const mp = mine ? undefined : matePlay.get(q.seat);
+    if (mp && mp.turn === cs.turn) node.append(el('div', { class: 'mate-play' }, cardNode(mp.card, { small: true, hero: q.hero })));
     return node;
   };
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
@@ -2411,7 +2419,7 @@ registerScreen('combat', (app, root, props) => {
      * 快照要在**套用之前**拿——`ingest` 是同步的，所以這裡的 `before`
      * 必須由 session 在套用前先存好（見下面的 `beforeApply`）。
      */
-    session.beforeApply(() => { remoteBefore = snap(cs, my()); });
+    session.beforeApply(() => { remoteBefore = snap(cs, my()); handsBefore = cs.players.map((p) => p.hand.slice()); });
     // 我那一下沒算數（主機已經來不及了）：把手放開，畫面重畫回真實的狀態
     // 選牌那一下沒算數的話，視窗要能再開（見 `chooseSent`）
     session.onDropped(() => { unlockSend(); chooseSent = null; if (app.cs === cs) { render(); syncPicker(); } });
@@ -2420,6 +2428,7 @@ registerScreen('combat', (app, root, props) => {
       unlockSend();   // 有東西套進去了＝路上那一下回來了
       const mine = applied.every((a) => 'seat' in a.a && a.a.seat === mySeat);
       if (!mine) { mateActAt = Date.now(); mateTurnSeen = cs.turn; }   // 他動了，一分鐘重頭算
+      for (const mp of matePlays(applied, mySeat, handsBefore, cs.turn)) matePlay.set(mp.seat, { card: mp.card, turn: mp.turn });
       /*
        * **主機自己的動作在這之前就演過了**（`submit` 是同步套用的，`act()` 裡的
        * `settle` 已經比對過前後），所以只要重畫；其餘都要演。
