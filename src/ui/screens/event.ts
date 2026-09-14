@@ -258,7 +258,8 @@ registerScreen('event', (app, root, props) => {
     const upId = o && 'chooseCard' in o ? o.upgradedCard : undefined;
     const def = list.find((d) => d.id === cardId);
     if (!def) {
-      // 對得上的清單裡找不到那張：別人的就靜靜略過（兩邊清單本來就不同，見 take）；
+      // 那一位的清單裡找不到他挑的那張＝兩台算出來的清單不一樣，已經分岔（同一個座位的清單兩台本該一樣；
+      // 不同座位的清單本來就不同，見 take）。別人的只記錯誤、下一格對帳會抓到；
       // **自己的絕不能靜靜 return**——那會讓畫面停在「等同伴挑完」永遠不動（使用者 2026-09-15 實測）
       console.error(`事件學招：座位 ${who} 挑的「${cardId}」不在那個座位的清單裡`);
       if (resultText !== null) finish(resultText, '這一招沒學到（兩邊的清單對不上）', gains);
@@ -318,7 +319,8 @@ registerScreen('event', (app, root, props) => {
        * `waiting: true`＝畫成已挑好，因為這時候票箱裡還沒有我的票。
        */
       chooseCard(resultText, defs, gains, upgradedCard, outcomes, true);
-      coop.pick('evlearn', cardId);
+      // 沒送出去（連線已經停了）就畫回可以點的樣子，別停在等待畫面（審查 低-1）；紅色橫幅會說明為什麼
+      if (!coop.pick('evlearn', cardId)) chooseCard(resultText, defs, gains, upgradedCard, outcomes);
     };
 
     const grid = el('div', { class: 'reward-cards' });
