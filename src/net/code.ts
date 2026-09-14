@@ -22,7 +22,7 @@ const VERSION = 'Q1';
  * 編號由 `vite.config.ts` 的 `define` 填（開發伺服器、測試也有，同一次啟動就同一個）；沒填就不比。
  */
 declare const __BUILD_TAG__: string;
-const BUILD: string = typeof __BUILD_TAG__ === 'string' ? __BUILD_TAG__ : '';
+export const BUILD: string = typeof __BUILD_TAG__ === 'string' ? __BUILD_TAG__ : '';   // 房號中繼（`ws.ts`）也拿它比版本
 
 /**
  * 用 Base64（網址安全版）＋原生的壓縮把 SDP 變短。

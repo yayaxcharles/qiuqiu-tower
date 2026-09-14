@@ -25,3 +25,7 @@ tools/ref/monster_refs/
 # 規矩是「絕不先刪再重生」，所以這些檔會一直長出來——留在磁碟、不進版控
 *.previous-*.png
 tools/codex_raw_old/
+
+# Cloudflare Worker（worker/）：wrangler 的暫存與產生的型別檔（npx wrangler types 重產）
+worker/.wrangler/
+worker/worker-configuration.d.ts
