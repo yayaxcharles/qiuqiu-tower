@@ -74,7 +74,9 @@ if ! npx vitest run > "$log" 2>&1; then
   exit 1
 fi
 grep -E "Test Files |Tests " "$log"
-if ! npm run build >> "$log" 2>&1; then
+# 打包編號用這一筆提交（雲端的 Actions 用 GITHUB_SHA，是同一個值）：兩邊打出來的主程式才會一模一樣，
+# `tools/deploy.sh` 第三步比對檔名才有意義（2026-09-14 用時間當編號，第三步必定對不上）
+if ! BUILD_TAG="$sha" npm run build >> "$log" 2>&1; then
   echo "[推送閘門] ✗ 打包失敗（型別或 vite），這次不推："
   grep -E "error|Error" "$log" | head -20
   echo "（完整輸出：$(cygpath -w "$log")）"

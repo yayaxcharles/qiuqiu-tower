@@ -1,5 +1,15 @@
 import { defineConfig } from 'vite';
 
+/*
+ * 打包編號（見 `src/net/code.ts`）。**要跟著提交走，不能用當下的時間**：
+ * `tools/deploy.sh` 靠「推送閘門在本機打出來的主程式檔名跟雲端打出來的一樣」確認線上換版了；
+ * 用時間的話兩邊的內容不同、檔名一定對不上（2026-09-14 實際踩到，部署第三步報錯）。
+ * 雲端的 Actions 自帶 GITHUB_SHA；推送閘門自己帶 BUILD_TAG（同一筆提交）；本機隨手打包兩個都沒有，才退回時間。
+ * 這個專案的 tsconfig 沒有 node 的型別，所以只在這裡宣告用得到的那一小塊。
+ */
+declare const process: { env: Record<string, string | undefined> };
+const BUILD_TAG = (process.env['GITHUB_SHA'] ?? process.env['BUILD_TAG'] ?? Date.now().toString(36)).slice(0, 10).toLowerCase();
+
 export default defineConfig({
   /**
    * **連線版放在另一個網址**（使用者 2026-09-11：「連線版畢竟改動非常大，我怕把原本的
@@ -19,7 +29,7 @@ export default defineConfig({
    * 這一次打包的編號（2026-09-14）。連線碼開頭會夾著它：開房的人拿到新版、加入的人還開著舊分頁時，
    * 兩台跑的引擎不同，連上之後走第一格就對帳失敗。貼碼的當下比對它，直接請兩邊重新整理。見 `src/net/code.ts`。
    */
-  define: { __BUILD_TAG__: JSON.stringify(Date.now().toString(36)) },
+  define: { __BUILD_TAG__: JSON.stringify(BUILD_TAG) },
   build: {
     target: 'es2022',
     rollupOptions: {
