@@ -359,6 +359,8 @@ registerScreen('combat', (app, root, props) => {
   let handsBefore: CardInstance[][] = [];
   /** 同伴這回合最後打出的那張：掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15） */
   const matePlay = new Map<number, { card: CardInstance; turn: number }>();
+  /** 上次畫出來的是哪張（uid）：同一張重畫不重播淡入動畫，不然魔物回合每段演出都閃一次（審查 中-4） */
+  const matePlayShown = new Map<number, number>();
   /*
    * 同伴上一次動作是多久以前——「等太久了，替他收回合」那顆按鈕靠這個決定要不要亮。
    *
@@ -415,7 +417,12 @@ registerScreen('combat', (app, root, props) => {
     else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
     // 同伴剛打出的牌：縮小、半透明掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15：「完全不知道隊友做了什麼」）
     const mp = mine ? undefined : matePlay.get(q.seat);
-    if (mp && mp.turn === cs.turn) node.append(el('div', { class: 'mate-play' }, cardNode(mp.card, { small: true, hero: q.hero })));
+    if (mp && mp.turn === cs.turn) {
+      const fresh = matePlayShown.get(q.seat) !== mp.card.uid;   // 新的一張才播淡入；重畫同一張不動
+      matePlayShown.set(q.seat, mp.card.uid);
+      // 牌名與圖照**同伴**的角色：忍者那位的 hero 欄位刻意不寫，直接傳 q.hero 會退成本機角色（審查 中-3）
+      node.append(el('div', { class: `mate-play${fresh ? ' in' : ''}` }, cardNode(mp.card, { small: true, hero: heroOf(q) })));
+    }
     return node;
   };
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
@@ -2428,7 +2435,10 @@ registerScreen('combat', (app, root, props) => {
       unlockSend();   // 有東西套進去了＝路上那一下回來了
       const mine = applied.every((a) => 'seat' in a.a && a.a.seat === mySeat);
       if (!mine) { mateActAt = Date.now(); mateTurnSeen = cs.turn; }   // 他動了，一分鐘重頭算
-      for (const mp of matePlays(applied, mySeat, handsBefore, cs.turn)) matePlay.set(mp.seat, { card: mp.card, turn: mp.turn });
+      const found = matePlays(applied, mySeat, handsBefore, cs.turn);
+      for (const mp of found) matePlay.set(mp.seat, { card: mp.card, turn: mp.turn });
+      // 同一批裡先抽再打的那張快照裡沒有：與其掛著上一張騙人，不如不掛（審查 低-1）
+      for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat && !found.some((m) => m.seat === a.seat)) matePlay.delete(a.seat);
       /*
        * **主機自己的動作在這之前就演過了**（`submit` 是同步套用的，`act()` 裡的
        * `settle` 已經比對過前後），所以只要重畫；其餘都要演。

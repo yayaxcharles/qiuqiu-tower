@@ -1282,6 +1282,7 @@
 .combat .ready-tag {
   position: absolute;
   left: 50%; top: -6px;
+  z-index: 7;   /* 要壓在同伴頭上那張半透明的牌上面：「對方在等你」一定要看得見（審查 中-5） */
   translate: -50% 0;
   padding: 3px 10px;
   border-radius: 999px;
@@ -1308,8 +1309,8 @@
   opacity: .65;
   pointer-events: none;
   z-index: 6;
-  animation: mate-play-in .22s ease-out;
 }
+.combat .unit.player .mate-play.in { animation: mate-play-in .22s ease-out; }   /* 只有新的一張才淡入 */
 @keyframes mate-play-in {
   from { opacity: 0; translate: -50% 12px; }
   to { opacity: .65; translate: -50% 0; }

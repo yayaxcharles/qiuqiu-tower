@@ -26,7 +26,7 @@ describe('同伴打出的牌', () => {
   it('戰鬥畫面：套用前抄手牌、套用後掛牌、只掛同伴那一格', () => {
     expect(SRC).toMatch(/handsBefore = cs\.players\.map\(\(p\) => p\.hand\.slice\(\)\)/);
     expect(SRC).toMatch(/matePlays\(applied, mySeat, handsBefore/);
-    expect(SRC).toMatch(/class: 'mate-play'/);
+    expect(SRC).toMatch(/class: `mate-play\$\{fresh \? ' in' : ''\}`/);   // 新的一張才播淡入（審查 中-4）
     expect(SRC).toMatch(/const mp = mine \? undefined : matePlay\.get\(q\.seat\)/);
   });
 });
