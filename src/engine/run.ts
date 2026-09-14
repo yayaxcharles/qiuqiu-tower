@@ -122,8 +122,12 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
 function enterEvent(run: RunState, n: MapNode): void {
   const pending = events.find((e) => run.flags[`sequel:${e.id}`] && !run.flags[`event:${e.id}`]
     && (!e.acts || e.acts.includes(run.act)));
-  // 這一格本來就是（另一個）後集就不換：兩個後集都要看得到
-  if (pending && pending.id !== n.eventId && !eventById[n.eventId!]?.requiresFlag) {
+  // 這一格本來就是（另一個）**還沒遇過的**後集就不換：兩個後集都要看得到。
+  // 遇過的不算（審查 2026-09-14 中-1）：沒遇過的事件不夠排時，地圖會拿遇過的墊檔（見 `map.ts`），
+  // 墊到的剛好是後集的話，原本會擋住真正該出的那個，玩家反而再遇一次舊的
+  const cur = n.eventId!;
+  const freshSequel = !!eventById[cur]?.requiresFlag && !run.flags[`event:${cur}`];
+  if (pending && pending.id !== cur && !freshSequel) {
     const other = run.map.nodes.find((x) => x !== n && x.type === '事件' && x.eventId === pending.id);
     if (other) other.eventId = n.eventId;
     n.eventId = pending.id;

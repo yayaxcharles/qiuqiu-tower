@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { advanceAct, chooseNode, newCoopRun, newRun } from '../../src/engine/run';
 import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
+import { runFingerprint } from '../../src/net/hash';
+import { CoopSession } from '../../src/net/session';
+import { LoopbackPair } from '../../src/net/transport';
 import type { MapNode, RunState } from '../../src/engine/types';
 
 /*
@@ -118,6 +121,29 @@ describe('後集：前集做過，下一關第一次走進事件格就遇到', (
     expect(f5.eventId).toBe(FIXED_EVENT_FLOOR_5);
   });
 
+  it('這一格墊的是「遇過的後集」時照樣換（審查 中-1：原本只要是後集就不換，真正該出的那個被擋掉）', () => {
+    const run = newRun('sequel-filler', 1, 'ninja');
+    run.flags['toll_paid'] = true;
+    advanceAct(run);
+    const first = eventNodes(run)[0]!;
+    // 沒遇過的事件不夠排時，地圖會拿遇過的墊檔；墊到的剛好是第一關遇過的後集
+    first.eventId = 'robin_feast';
+    run.flags['event:robin_feast'] = true;
+    walkTo(run, first.id);
+    expect(first.eventId).toBe('toll_again_paid');
+  });
+
+  it('這一格是「還沒遇過的後集」就不換，兩個後集都留著', () => {
+    const run = newRun('sequel-both', 1, 'ninja');
+    run.flags['toll_paid'] = true;
+    advanceAct(run);
+    const first = eventNodes(run)[0]!;
+    first.eventId = 'robin_feast';
+    walkTo(run, first.id);
+    expect(first.eventId).toBe('robin_feast');
+    expect(run.flags['event:toll_again_paid'], '山賊再現留到下一個事件格').toBeUndefined();
+  });
+
   it('連線兩台照同一套規則換：同一顆種子、同一條路，兩台換出來一模一樣', () => {
     const mk = (): RunState => {
       const r = newCoopRun('sequel-coop', 1, 'ninja', 'feifei');
@@ -129,6 +155,61 @@ describe('後集：前集做過，下一關第一次走進事件格就遇到', (
     const x = mk(); const y = mk();
     expect(x.map.nodes.map((n) => n.eventId ?? '')).toEqual(y.map.nodes.map((n) => n.eventId ?? ''));
     expect(eventNodes(x)[0]!.eventId).toBe('rescue_return_fish');
+    expect(runFingerprint(x), '走格子的對帳對得上').toBe(runFingerprint(y));
+  });
+
+  it('走真的連線會話：兩台一格一格走進會換成後集的事件格，每一步都對帳，不會誤報斷線；旗標不同當場抓到', () => {
+    const play = (extraFlagOnGuest: boolean): { bad: string[]; events: string[] } => {
+      const mk = (): RunState => {
+        const r = newCoopRun('coop-sequel-sync', 1, 'ninja', 'feifei');
+        r.flags['toll_paid'] = true;
+        advanceAct(r);
+        return r;
+      };
+      const a = mk(); const b = mk();
+      if (extraFlagOnGuest) b.flags['event:blocked'] = true;
+      const pair = new LoopbackPair();
+      const bad: string[] = [];
+      const host = new CoopSession(pair.a, { isHost: true, seat: 0, onDesync: (w) => bad.push(w) });
+      const guest = new CoopSession(pair.b, { isHost: false, seat: 1, onDesync: (w) => bad.push(w) });
+      host.useRun(a); guest.useRun(b);
+      // 跟畫面一樣：先 chooseNode 再 syncRun（`app.ts` 走格子那段）
+      const target = eventNodes(a)[0]!.id;
+      const probe = newCoopRun('coop-sequel-sync', 1, 'ninja', 'feifei');
+      probe.flags['toll_paid'] = true;
+      advanceAct(probe);
+      walkTo(probe, target);
+      for (const id of probe.trail) {
+        chooseNode(a, id); host.syncRun(a, id);
+        chooseNode(b, id); guest.syncRun(b, id);
+      }
+      return { bad, events: [eventNodes(a)[0]!.eventId!, eventNodes(b)[0]!.eventId!] };
+    };
+    const ok = play(false);
+    expect(ok.bad, '同一套規則換出來的，每一步都對得上').toEqual([]);
+    expect(ok.events).toEqual(['toll_again_paid', 'toll_again_paid']);
+    const diverged = play(true);
+    expect(diverged.bad.length, '一台多一個「遇過」的旗標，第一步就發現').toBe(1);
+    expect(diverged.bad[0]).toContain('整局的狀態對不上');
+  });
+
+  it('整局指紋有算事件（審查 中-2）：兩台旗標或排的事件不一樣要對得出來；畫面寫的旗標不算', () => {
+    const mk = (): RunState => {
+      const r = newCoopRun('fp-events', 1, 'ninja', 'feifei');
+      r.flags['rescue_took_fish'] = true;
+      advanceAct(r);
+      return r;
+    };
+    const base = runFingerprint(mk());
+    const seenEvent = mk(); seenEvent.flags['event:blocked'] = true;
+    expect(runFingerprint(seenEvent), '一台多記了遇過的事件').not.toBe(base);
+    const noSequel = mk(); delete noSequel.flags['sequel:rescue_return_fish'];
+    expect(runFingerprint(noSequel), '一台少了後集').not.toBe(base);
+    const swapped = mk(); const [a, b] = eventNodes(swapped);
+    [a!.eventId, b!.eventId] = [b!.eventId, a!.eventId];
+    expect(runFingerprint(swapped), '兩台地圖排的事件不同').not.toBe(base);
+    const uiOnly = mk(); uiOnly.flags['prologue'] = true; uiOnly.flags['seen:rat'] = true;
+    expect(runFingerprint(uiOnly), '序章、看過的魔物是畫面寫的，不能讓它誤報斷線').toBe(base);
   });
 });
 

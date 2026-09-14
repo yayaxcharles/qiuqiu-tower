@@ -97,6 +97,14 @@ export function runFingerprint(run: RunState): string {
     `lv${run.difficulty ?? 1}`,
     `a${run.act}`, `f${run.floor}`, `n${run.currentNode ?? '-'}`, `u${run.nextUid}`,
     run.status,
+    /*
+     * 事件怎麼排也要比（審查 2026-09-14 中-2）：走進事件格會照旗標換成後集、遇過的不再排，
+     * 兩台旗標不一樣的話會各自看到不同的事件，卻要到下一場戰鬥才可能炸開。
+     * **只收引擎自己寫的 `event:`／`sequel:`**，加上地圖每一格排的事件——
+     * 序章、看過哪隻魔物那些是畫面寫的旗標，兩台寫的時機本來就可能不同，收進來會誤報斷線。
+     */
+    `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:'))).sort().join(',')}]`,
+    `m[${run.map.nodes.map((n) => n.eventId ?? '').join(',')}]`,
   ];
   for (const p of run.players) {
     parts.push([
