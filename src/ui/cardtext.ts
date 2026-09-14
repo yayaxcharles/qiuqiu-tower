@@ -362,5 +362,6 @@ export function describeCard(def: CardDef, upgraded: boolean, plays = 0): string
   if (keywords.includes('消耗')) parts.push('消耗。');
   if (keywords.includes('保留')) parts.push('保留。');
   if (keywords.includes('虛幻')) parts.push('回合結束還在手上就消失。');
+  if (def.note) parts.push(def.note);   // 來歷放最後：規則講完才講故事
   return parts.join('');
 }

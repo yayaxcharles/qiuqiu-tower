@@ -621,9 +621,17 @@ export const cards: readonly CardDef[] = [
   { id: 'feifei_sazhen', name: '撒針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_sazhen',
     effects: [{ kind: 'damage', amount: 2, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'block', amount: 3 }],
     upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'block', amount: 4 }] } },
+  /*
+   * 後退閃躲＝**獲得隱身**（使用者 2026-09-14 深夜裁定：「後退閃躲就是獲得隱身」，跟師兄學來的招式）。
+   * 原本是 0 費 4 點蜷縮。第三關的穿透（地藏石偶、虛無貓、面具舞者，加上七隻關主與塔主）蜷縮擋不住，
+   * 只有隱身、定身、整回合免傷接得住；她整套防禦全是蜷縮，碰到穿透等於零防禦，第三關很難過。
+   * 這是她唯一的閃避，球球的隱身牌她照樣拿不到，所以不會像忍者那樣整副疊隱身。
+   * 紙袋、影披風的鎖也因此拿掉（`relics.ts`）。
+   */
   { id: 'feifei_lakai', name: '後退閃躲', cost: 0, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_lakai',
-    effects: [{ kind: 'block', amount: 4 }],
-    upgrade: { effects: [{ kind: 'block', amount: 6 }] } },
+    note: '跟師兄學來的招式。',
+    effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }],
+    upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }] } },
   { id: 'feifei_tieqiang', name: '貼牆', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_tieqiang',
     effects: [{ kind: 'block', amount: 9 }],
     upgrade: { effects: [{ kind: 'block', amount: 12 }] } },
