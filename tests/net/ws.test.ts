@@ -92,17 +92,29 @@ describe('開房', () => {
     expect(why).toBe('對方離開了');
   });
 
-  it('連上之後每 25 秒送一次 ping；關掉就不送了', async () => {
+  it('連上中繼就每 25 秒送一次 ping（開房等人那段也要送，不然三分鐘就被當殭屍踢掉）；關掉就不送了', async () => {
     const f = factory();
     const p = hostRoom({ ws: f.ws, rng: seq(0.5) });
     await Promise.resolve(); hosting(f.made[0]!);
-    const r = await p; opened(f.made[0]!);
-    const tx = await r.ready;
+    const r = await p;
     await vi.advanceTimersByTimeAsync(PING_MS * 2 + 10);
-    expect(f.made[0]!.sent.filter((s) => s === 'ping').length).toBe(2);
+    expect(f.made[0]!.sent.filter((s) => s === 'ping').length, '對方還沒加入也要送').toBe(2);
+    opened(f.made[0]!);
+    const tx = await r.ready;
+    await vi.advanceTimersByTimeAsync(PING_MS + 10);
+    expect(f.made[0]!.sent.filter((s) => s === 'ping').length).toBe(3);
     tx.close();
     await vi.advanceTimersByTimeAsync(PING_MS * 2);
-    expect(f.made[0]!.sent.filter((s) => s === 'ping').length).toBe(2);
+    expect(f.made[0]!.sent.filter((s) => s === 'ping').length).toBe(3);
+  });
+
+  it('cancel 之後也不再送 ping', async () => {
+    const f = factory();
+    const p = hostRoom({ ws: f.ws, rng: seq(0.5) });
+    await Promise.resolve(); hosting(f.made[0]!);
+    (await p).cancel();
+    await vi.advanceTimersByTimeAsync(PING_MS * 2);
+    expect(f.made[0]!.sent.filter((s) => s === 'ping').length).toBe(0);
   });
 
   it('房號撞到別人正在用的（4409）：換一個再開', async () => {

@@ -63,7 +63,7 @@ function sep(prev: Effect, next: Effect): string {
   if (isDive(next)) return '；';
   // 連續兩條都打全體魔物：主詞只講一次，第二條用頓號接在後面（規格 §6.1 催眠術）
   if (namesAllFoes(prev) && namesAllFoes(next) && next.kind === 'status' && prev.kind === 'status') return '、';
-  if ((next.kind === 'gold' || next.kind === 'energy') && next.onKill) return '；';
+  if ((next.kind === 'gold' || next.kind === 'energy' || next.kind === 'energyAlly') && next.onKill) return '；';
   return CLAUSE_AFTER.has(prev.kind) || CLAUSE_BEFORE.has(next.kind) ? '；' : '，';
 }
 
@@ -116,7 +116,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉
     case 'blockAll': return `每個人各獲得 ${fx.amount} 點蜷縮`;
     case 'statusAlly': return `同伴獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '層'}${fx.name}（自己一個人時算在自己身上）`;
-    case 'taunt': return '這一輪魔物的攻擊全部衝著你來';
+    case 'taunt': return '這一輪魔物全部衝著你來（攻擊、偷小魚乾、減益都算）';
     case 'blockAlly': return `同伴獲得 ${fx.amount} 點蜷縮（自己一個人時算在自己身上）`;
     case 'drawAlly': return `同伴抽 ${fx.n} 張牌（自己一個人時算在自己身上）`;
     case 'cleanseAlly': return '清掉同伴身上所有減益（自己一個人時清自己的）';
@@ -125,7 +125,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'healAlly': return `同伴回復 ${fx.n} 點生命（自己一個人時回自己的）`;
     case 'blockFromAllyBlock': return `獲得 ${fx.amount} 點蜷縮，再照同伴現有的蜷縮`
       + `${fx.half ? '一半' : ''}多拿（最多 ${fx.cap} 點，同伴不會變少；自己一個人時讀自己的）`;
-    case 'damageFromAllyStrength': return `造成 ${fx.amount} 傷害，同伴每有 1 點爪力再加 1 點`
+    case 'damageFromAllyStrength': return `造成 ${fx.amount} 點傷害，同伴每有 1 點爪力再加 1 點`
       + `（最多 ${fx.cap} 點；自己一個人時讀自己的）${fx.ignoreBlock ? '。無視防禦' : ''}`;
     case 'energyTransfer': return `把自己最多 ${fx.n} 顆剩下的飯糰交給同伴（自己一個人時不轉）`;
     case 'doubleNextAttackAlly': return '同伴本輪的下一張攻擊牌傷害加倍（自己一個人時算自己的）';
@@ -145,7 +145,9 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
     case 'ifSelfStatus': return `自己身上有${fx.name}的話，${fx.then.map((e) => one(e, ctx)).join('，')}`
       + `；否則${fx.otherwise.map((e) => one(e, ctx)).join('，')}`;
-    case 'energyAlly': return `同伴這回合多 ${fx.n} 顆飯糰（自己一個人時算在自己身上）`;
+    case 'energyAlly': return fx.onKill
+      ? `打倒牠，同伴就這回合多 ${fx.n} 顆飯糰（自己一個人時算在自己身上）`   // 審查 2026-09-15 高-1：原本沒寫條件，9 點打不死玩家以為牌壞了
+      : `同伴這回合多 ${fx.n} 顆飯糰（自己一個人時算在自己身上）`;
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
       if (fx.ifTargetDebuffed) return `目標身上有任何減益就再造成 ${fx.amount} 點傷害`;

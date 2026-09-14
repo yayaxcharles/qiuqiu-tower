@@ -177,7 +177,7 @@ def main() -> None:
             stem = stem[len(group) + 1:]
         dst = out_dir / f"{stem}.webp"
         canvas.save(dst, "WEBP", quality=82, method=6)
-        manifest["sprites"][f"{group}/{stem}"] = dst.relative_to(ROOT / "public").as_posix()
+        manifest.setdefault("sprites", {})[f"{group}/{stem}"] = dst.relative_to(ROOT / "public").as_posix()
         print(f"立繪 {group}/{stem}.webp {dst.stat().st_size // 1024} KB（畫布 {cw}x{ch}、底邊留 {bottom_pad}，跟 {baseline.stem} 對齊）")
     if args.check:
         return

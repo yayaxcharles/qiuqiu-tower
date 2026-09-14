@@ -874,7 +874,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         log(cs, `${e.name}炸開了`);
         const boom = fx.amount * useCharge();
         for (const t of targets) { damagePlayer(cs, e, boom, { victim: t }); if (isLost(cs)) return; }
-        if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true });
+        if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true, by: p });   // 擊倒算被炸的那位（審查 2026-09-15 低-10）
         return;   // 自己都沒了，後面的效果不用跑
       }
       case 'statusAllies': {

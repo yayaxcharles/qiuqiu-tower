@@ -35,7 +35,7 @@ registerScreen('result', (app, root) => {
   const best = app.coop
     ? { floor: run.floor, won, turns: run.stats.turns, date: '' }   // 只是要拿來排版，不寫進儲存
     : recordBest(run);
-  if (!app.coop) clearSave();
+  if (!app.coop && !app.sandbox) clearSave();   // 除錯模式的臨時局不能刪掉真正的存檔（審查 2026-09-15 低-3）
 
   const relics = el('div', { class: 'result-relics' });
   for (const id of me(run, seat).relics) {

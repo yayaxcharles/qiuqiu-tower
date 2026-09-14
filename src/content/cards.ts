@@ -117,8 +117,9 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'healAlly', n: 9 }] } },
   { id: 'yiqichuankou', name: '一起喘口氣', cost: 2, type: 技, rarity: '罕見', pool: '絕學', target: 'self',
     art: 'card/yiqichuankou', coop: true, hidden: true,
-    effects: [{ kind: 'healAlly', n: 9 }, { kind: 'heal', n: 5 }],
-    upgrade: { effects: [{ kind: 'healAlly', n: 12 }, { kind: 'heal', n: 7 }] } },
+    // 自己那句排前面：「回復 5 點生命，同伴回復 9 點生命」；反過來第二句會被讀成同伴再回 5（審查 2026-09-15 低-2）
+    effects: [{ kind: 'heal', n: 5 }, { kind: 'healAlly', n: 9 }],
+    upgrade: { effects: [{ kind: 'heal', n: 7 }, { kind: 'healAlly', n: 12 }] } },
   { id: 'huannieduochoudian', name: '換你多抽點', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self',
     art: 'card/huannieduochoudian', coop: true, keywords: ['消耗'],
     effects: [{ kind: 'discardFromHand', n: 1 }, { kind: 'block', amount: 4 }, { kind: 'drawAlly', n: 2 }],

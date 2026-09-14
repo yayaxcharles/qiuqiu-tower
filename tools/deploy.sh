@@ -24,6 +24,12 @@ esac
 
 sha=$(git rev-parse "$src") || exit 1
 short=$(git rev-parse --short "$sha")
+# 中繼（worker/）不是雲端 Actions 部署的：這次要推的東西動到它就先 `wrangler deploy`（審查 2026-09-15 中-2：
+# 不然這支會印「上線了」，線上中繼卻還是舊的）。只在推連線版時做，單機版跟中繼無關
+if [ "$remote" = "coopdeploy" ] && [ -n "$(git diff --name-only "$remote/main..$src" -- worker/ 2>/dev/null)" ]; then
+  echo "== 0/3 這次動到 worker/，先部署中繼"
+  (cd worker && npx wrangler deploy) || { echo "✗ 中繼部署失敗，網頁先不推"; exit 1; }
+fi
 echo "== 1/3 推 $src（$short）到 $remote 的 main"
 git push "$remote" "$src:main" || { echo "✗ 推送沒成功（被閘門擋下，或網路問題）"; exit 1; }
 

@@ -25,13 +25,26 @@ export interface Env { ROOM: DurableObjectNamespace<Room> }
 
 const ROOM_PATH = /^\/room\/([0-9]{6})$/;
 
+/**
+ * 哪些網頁可以連（審查 高-2）：中繼網址寫死在打包出去的網頁裡，任何人抓得到；只放行自己的兩個站。
+ * 瀏覽器開 WebSocket 一定帶 Origin；沒帶的是腳本（本機 e2e、curl），放行給自己測試用——腳本靠下面的訊息速率擋。
+ */
+const ORIGINS = ['https://yayaxcharles.github.io'];
+const originOk = (o: string | null): boolean => !o || ORIGINS.includes(o) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
-    const url = new URL(req.url);
-    const m = ROOM_PATH.exec(url.pathname);
-    if (!m) return new Response('qiuqiu relay：這裡只轉送遊戲訊息，沒有網頁。', { status: 404 });
-    if (req.headers.get('Upgrade')?.toLowerCase() !== 'websocket') return new Response('要用 WebSocket 連', { status: 426 });
-    return env.ROOM.get(env.ROOM.idFromName(m[1]!)).fetch(req);
+    try {
+      const url = new URL(req.url);
+      const m = ROOM_PATH.exec(url.pathname);
+      if (!m) return new Response('qiuqiu relay：這裡只轉送遊戲訊息，沒有網頁。', { status: 404 });
+      if (req.headers.get('Upgrade')?.toLowerCase() !== 'websocket') return new Response('要用 WebSocket 連', { status: 426 });
+      if (!originOk(req.headers.get('Origin'))) return new Response('這個網頁不能連這個中繼', { status: 403 });
+      return await env.ROOM.get(env.ROOM.idFromName(m[1]!)).fetch(req);
+    } catch (e) {
+      // 沒接住的話瀏覽器只看到 1006、沒有原因（審查 高-3）
+      return new Response(`中繼出了狀況：${e instanceof Error ? e.message : String(e)}`, { status: 503 });
+    }
   },
 } satisfies ExportedHandler<Env>;
 
@@ -39,12 +52,18 @@ type Role = 'host' | 'join';
 interface Attach { role: Role; build: string; at: number }
 
 /** 拒絕的關閉代碼（4000 起是應用程式自訂的區段）。瀏覽器端（`src/net/ws.ts`）照 `reason` 顯示、照代碼判斷撞號要不要重抽 */
-export const CLOSE = { taken: 4409, noRoom: 4404, full: 4403, version: 4400, peerLeft: 4000, zombie: 4001 } as const;
+export const CLOSE = { taken: 4409, noRoom: 4404, full: 4403, version: 4400, peerLeft: 4000, zombie: 4001, flood: 4429 } as const;
 /** 沒 ping 多久當死了（瀏覽器每 25 秒一次；背景分頁會被瀏覽器拉長到約一分鐘一次） */
 const ZOMBIE_MS = 150_000;
 const SWEEP_MS = 60_000;
 /** 遊戲訊息一則幾百位元組，超過這個一定不是遊戲在講話 */
 const MAX_MSG = 16_384;
+/**
+ * 每條連線每秒最多幾則（審查 高-2／中-3）：一場正常對局每秒不到 5 則（出牌、對帳、考慮中提示已合併），
+ * 超過就是壞掉或惡意。免費額度是全帳號共用的，一條連線灌一分鐘就能讓當天所有人玩不了。
+ * 計數放記憶體：物件睡著會歸零，沒關係——醒來那一秒重新數，惡意的一秒內就會再超。
+ */
+const MAX_PER_SEC = 40;
 
 /** WebSocket 的 reason 上限 123 位元組；中文一字 3 位元組，40 字剛好在線內 */
 const reason = (s: string): string => (s.length > 40 ? s.slice(0, 40) : s);
@@ -76,6 +95,10 @@ export class Room extends DurableObject<Env> {
     const pair = new WebSocketPair();
     const client = pair[0]!;
     const server = pair[1]!;
+    if (!refuse && role === 'join') {
+      // 開房的那條正在關（背景分頁、換網路）時 send 會丟例外；當他已經走了，照「沒人開房」拒絕（審查 高-3）
+      try { hosts[0]!.send(ctl('open')); } catch { refuse = { code: CLOSE.noRoom, why: '找不到這個房號：對方剛離開了，請對方重新開房' }; }
+    }
     if (refuse) {
       server.accept();
       server.close(refuse.code, reason(refuse.why));
@@ -83,14 +106,21 @@ export class Room extends DurableObject<Env> {
     }
     this.ctx.acceptWebSocket(server, [role]);
     server.serializeAttachment({ role, build, at: Date.now() } satisfies Attach);
-    if (role === 'host') {
-      server.send(ctl('hosting'));
-    } else {
-      hosts[0]!.send(ctl('open'));
-      server.send(ctl('open'));
-    }
-    if ((await this.ctx.storage.getAlarm()) === null) await this.ctx.storage.setAlarm(Date.now() + SWEEP_MS);
+    try { server.send(ctl(role === 'host' ? 'hosting' : 'open')); } catch { /* 對方那一瞬間就走了，close 事件會收尾 */ }
+    try {
+      if ((await this.ctx.storage.getAlarm()) === null) await this.ctx.storage.setAlarm(Date.now() + SWEEP_MS);
+    } catch { /* 排不到鬧鐘只是少了殭屍清掃，連線本身照常 */ }
     return new Response(null, { status: 101, webSocket: client });
+  }
+
+  /** 每條連線這一秒送了幾則（記憶體，睡著歸零） */
+  private readonly rate = new Map<WebSocket, { sec: number; n: number }>();
+  private tooFast(ws: WebSocket): boolean {
+    const sec = Math.floor(Date.now() / 1000);
+    const r = this.rate.get(ws);
+    if (!r || r.sec !== sec) { this.rate.set(ws, { sec, n: 1 }); return false; }
+    r.n += 1;
+    return r.n > MAX_PER_SEC;
   }
 
   private attach(ws: WebSocket): Attach | null {
@@ -105,6 +135,7 @@ export class Room extends DurableObject<Env> {
 
   override webSocketMessage(ws: WebSocket, msg: string | ArrayBuffer): void {
     if (typeof msg !== 'string' || msg.length > MAX_MSG) return;   // 遊戲只傳 JSON 文字
+    if (this.tooFast(ws)) { this.bye(ws, CLOSE.flood, '訊息太多，被中繼踢掉了'); return; }
     try { this.other(ws)?.send(msg); } catch { /* 對方正在關，沒送到的那一則對方也不需要了 */ }
   }
 
@@ -128,6 +159,8 @@ export class Room extends DurableObject<Env> {
       try { other.send(ctl('closed')); } catch { /* 對方也走了 */ }
       try { other.close(code, reason(why)); } catch { /* 已經關了 */ }
     }
-    try { ws.close(); } catch { /* 已經關了 */ }
+    // 自己這條也帶原因關（審查 高-1 的另一半：原本不帶原因，被當殭屍踢掉時畫面只會說「連不上中繼伺服器」）
+    try { ws.close(code === CLOSE.peerLeft ? 1000 : code, code === CLOSE.peerLeft ? '' : reason(why)); } catch { /* 已經關了 */ }
+    this.rate.delete(ws);
   }
 }
