@@ -36,7 +36,8 @@ describe('連線碼', () => {
 
   it('壓完只剩下貼到哪裡都不會壞的字元', async () => {
     const code = await packSignal('answer', SDP);
-    expect(code).toMatch(/^Q1A:[A-Za-z0-9_-]+$/);
+    // 開頭是格式版本＋邀請或回應＋打包編號（只有小寫英數，見 `code.ts` 的 BUILD）
+    expect(code).toMatch(/^Q1A[0-9a-z]*:[A-Za-z0-9_-]+$/);
     expect(code.length, '要真的有壓縮到，不能比原文還長').toBeLessThan(SDP.length);
   });
 
@@ -59,9 +60,24 @@ describe('連線碼', () => {
     await expect(unpackSignal(code.slice(0, code.length - 20)), '貼到一半').rejects.toThrow(/壞掉|內容不對/);
   });
 
+  /*
+   * 兩邊開的是**不同次打包的網頁**（2026-09-14 審查 低-4）：開房的人剛重新整理、加入的人還開著舊分頁。
+   * 碼的格式一樣解得開，連上之後走第一格就對帳失敗——要在貼碼的當下擋下來，講清楚要重新整理。
+   */
+  it('打包編號不一樣（有一邊是舊分頁）：貼碼的當下就擋，請兩邊重新整理', async () => {
+    const theirs = await packSignal('offer', SDP, 'aaa111');
+    await expect(unpackSignal(theirs, 'bbb222')).rejects.toThrow('重新整理');
+    // 這次改版之前的舊頁面產生的碼沒有編號，一樣算不同版
+    const old = `Q1O:${theirs.split(':')[1]}`;
+    await expect(unpackSignal(old, 'bbb222')).rejects.toThrow('重新整理');
+    // 同一次打包就照常解得開
+    expect((await unpackSignal(theirs, 'aaa111')).sdp).toBe(SDP);
+  });
+
   it('錯誤訊息不可以是原始的例外文字（玩家看不懂 InvalidCharacterError）', async () => {
+    const head = (await packSignal('offer', SDP)).split(':')[0]!;
     try {
-      await unpackSignal('Q1O:!!!!not-base64!!!!');
+      await unpackSignal(`${head}:!!!!not-base64!!!!`);
       expect.unreachable('應該要丟錯');
     } catch (e) {
       const msg = (e as Error).message;

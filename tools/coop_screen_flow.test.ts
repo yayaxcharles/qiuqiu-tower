@@ -82,6 +82,15 @@ describe('連線大廳：難度照開房的人選的開（使用者 2026-09-14�
     expect(lobby).toContain('begin(seed, diff,');
     expect(lobby, '大廳要擺得出難度按鈕').toContain('diffPicker()');
   });
+
+  it('只有開房的那一台讀本機的難度設定；加入的那台只用開局訊息裡的難度（審查 低-5）', () => {
+    const lobby = code('src/ui/screens/lobby.ts');
+    const i = lobby.indexOf('function startCoop(');
+    const body = lobby.slice(i, lobby.indexOf('\n}\n', i));
+    expect(body.match(/selectedDifficulty\(\)/g)?.length, '讀設定的地方只能有主機那一行').toBe(1);
+    expect(body.indexOf('selectedDifficulty()'), '那一行要在主機那一支裡').toBeGreaterThan(body.indexOf('if (isHost) {'));
+    expect(body, '客戶端照宣布的難度開').toMatch(/onStartRun\(\(seed, diff, _enc, heroes\) => begin\(seed, diff, heroes\)\)/);
+  });
 });
 
 describe('戰利品畫面：沒得升級也要投空票（高-18）', () => {

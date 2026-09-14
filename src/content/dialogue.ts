@@ -677,8 +677,7 @@ export function storyFor(hero: string | undefined): {
  *「只拿掉喵」的舊行為，不報錯**。所以 `tests/content/feifei_event_lines.test.ts`
  * 盯著每一個鍵都還真的存在於 `events.ts`，對不上就變紅。
  *
- * 88 句裡收了 82 句；另外 6 句使用者看過決定維持原樣（那幾句本來就沒有球球的口氣，
- * 像「慢慢走，牠們就在那邊喵。」拿掉喵之後她講也通），照舊走 `lineFor`。
+ * 88 句全部有她的版本：當初收 82 句、留 6 句維持原樣，2026-09-14 使用者說「可以先做」補齊了。
  *
  * 她跟球球的差別，整批讀下來是這樣：球球是嘴硬、愛算帳、先衝再說；
  * 她是**先道歉、先退開、先確認自己有沒有受傷**，而且常常話講一半。
@@ -867,24 +866,6 @@ export const FEIFEI_EVENT_LINES: Readonly<Record<string, string>> = {
 };
 
 /**
- * 事件文案換角色：**敘述句換名字，她開口講的話換成她自己的版本**。
- *
- * 38 個事件的文案裡「球球」出現 197 次。她玩的時候會讀到
- * 「球球把受傷的村貓救到安全的角落」，整個出戲。
- *
- * **敘述句**做機械替換就好：那些講的是這座塔發生的事，換個主角照樣成立
- *（「菲菲把受傷的村貓救到安全的角落」唸起來一樣通）。
- *
- * **引號裡她講的話不行**（2026-09-13 使用者實測抓到）。原本這裡只拿掉句尾的「喵」，
- * 於是她會講出「價錢讓我心疼，藥倒是有下本。」——那是球球在賣藥三花貓那個事件的台詞，
- * 嘴硬又愛算計，跟她完全不是同一個人。使用者的原話：「我覺得好奇怪」。
- * 那 88 句交給使用者逐句改寫，回來的 82 句收在 `FEIFEI_EVENT_LINES`
- *（留空的 6 句是他看過決定維持原樣的，照舊只拿掉「喵」）。
- *
- * 順序：**先換句子再換名字**。反過來的話 `球球：「…」` 已經變成 `菲菲：「…」`，
- * 對照表的鍵（球球的原句）就對不上了。
- */
-/**
  * 共用事件裡**整句換掉**的幾句（使用者 2026-09-14）。
  *
  * 一般的共用事件只換引號裡的台詞、把名字換成菲菲；可是鏡子走廊照這樣換，
@@ -900,16 +881,34 @@ export const FEIFEI_EVENT_TEXT: Readonly<Record<string, string>> = {
   '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
     '跟鏡中的假師兄過招（進入戰鬥，勝利後可升級至多 2 張牌）',
   '鏡中的身影踏出鏡面，照著球球的動作抬起前爪。球球也壓低身子，準備接招。球球：「連我準備出哪一爪都知道，這場可不好混喵。」':
-    // 引號裡沿用使用者改寫過的那兩句（`FEIFEI_EVENT_LINES`），只換敘述
-    '黑影踏出鏡面，抬爪的角度跟師兄一模一樣，出手的卻是菲菲自己的招式——這不是師兄。菲菲握緊飛針，往後退了半步。菲菲：「那個……你連我發抖都學，能不能不要靠過來？」',
+    // 引號裡沿用使用者改寫過的那兩句（`FEIFEI_EVENT_LINES`），只換敘述。
+    // 不寫「學的是誰的招式」：鏡中球球抄的是座位 0 的牌組，連線時她坐 1 號就是抄師兄的（審查 低-1）
+    '黑影踏出鏡面，抬爪的角度跟師兄一模一樣，一出手卻全是照著學來的招式——這不是師兄。菲菲握緊飛針，往後退了半步。菲菲：「那個……你連我發抖都學，能不能不要靠過來？」',
   '球球把目光固定在走廊盡頭，快步走出鏡子的包圍。球球：「先找到師父，再處理這麼多個我喵。」':
     '菲菲低著頭，不去看鏡子裡那個假的師兄，貼著另一側的牆快步走出走廊。菲菲：「我還要找師父跟師兄……先出去，別看鏡子了。」',
 };
 
+/**
+ * 事件文案換角色：**敘述句換名字，她開口講的話換成她自己的版本**。
+ *
+ * 38 個事件的文案裡「球球」出現 197 次。她玩的時候會讀到
+ * 「球球把受傷的村貓救到安全的角落」，整個出戲。
+ *
+ * **敘述句**做機械替換就好：那些講的是這座塔發生的事，換個主角照樣成立
+ *（「菲菲把受傷的村貓救到安全的角落」唸起來一樣通）。
+ *
+ * **引號裡她講的話不行**（2026-09-13 使用者實測抓到）。原本這裡只拿掉句尾的「喵」，
+ * 於是她會講出「價錢讓我心疼，藥倒是有下本。」——那是球球在賣藥三花貓那個事件的台詞，
+ * 嘴硬又愛算計，跟她完全不是同一個人。使用者的原話：「我覺得好奇怪」。
+ * 那 88 句交給使用者逐句改寫，收在 `FEIFEI_EVENT_LINES`（當時留的 6 句 2026-09-14 補齊了）。
+ *
+ * 順序：**整句替換先查**（`FEIFEI_EVENT_TEXT`），查不到才**先換句子再換名字**。
+ * 反過來的話 `球球：「…」` 已經變成 `菲菲：「…」`，對照表的鍵（球球的原句）就對不上了。
+ */
 export function eventTextFor(hero: string | undefined, text: string): string {
   if (hero !== 'feifei') return text;
-  const whole = FEIFEI_EVENT_TEXT[text];
-  if (whole !== undefined) return whole;
+  const override = FEIFEI_EVENT_TEXT[text];
+  if (override !== undefined) return override;
   const swapped = text.replace(/球球：「(.+?)」/su, (whole, inner: string) => {
     const mine = FEIFEI_EVENT_LINES[inner];
     return mine === undefined ? whole : `球球：「${mine}」`;
@@ -1075,14 +1074,14 @@ export function castLineFor(hero: string | undefined, text: string): string {
 /** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */
 export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random() * xs.length)] ?? xs[0]!; }
 
-/** 結局那五句：第二句（師父的第一句話）依牌組傾向換；難度 4 以上多一句旁白。牌組看牌面文字裡出現最多的關鍵字。 */
-/**
- * 牌組傾向：只看這一路**自己拿的牌**（起始那十張不算——它們本來就偏蜷縮，算進去每個人都是蜷縮流），
- * 而且只算「對球球自己」的效果（給敵人拆爪力的封口術不算爪力流）；某一派要至少 4 張、佔拿到的牌四分之一以上、領先第二名兩張以上才算。
- */
 /** 結局依牌組傾向換的那幾句用哪一派。`poison` 只有菲菲會判到，`stealth` 只有球球會判到 */
 export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'block' | 'plain';
 
+/**
+ * 牌組傾向：只看這一路**自己拿的牌**（起始那十張不算——它們本來就偏蜷縮，算進去每個人都是蜷縮流）。
+ * 爪力、隱身只算「給自己」的效果（給敵人拆爪力的封口術不算爪力流）；毒流算的是對魔物下毒。
+ * 某一派要至少 4 張、佔拿到的牌四分之一以上、領先第二名兩張以上才算。
+ */
 export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLeaning {
   /*
    * **第二派看角色**（使用者 2026-09-14 裁定）：球球數「給自己隱身」的牌，菲菲數「下毒」的牌。
@@ -1106,9 +1105,14 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
     if (!def) continue;
     const fx = [...def.effects, ...(def.upgrade?.effects ?? [])];
     const selfStatus = (name: string) => fx.some((e) => e.kind === 'status' && e.target === 'self' && e.name === name);
-    // 下毒：對魔物上中毒、引爆或散開中毒、攻擊附毒、餘毒。給自己上的毒（舔針那一半）不算
-    const poisons = fx.some((e) => ('name' in e && e.name === '中毒' && !('target' in e && e.target === 'self'))
-      || e.kind === 'poisonOnAttack' || e.kind === 'poisonBurst' || e.kind === 'poisonAllyNextAttack');
+    /*
+     * 下毒：對魔物上中毒、引爆或散開中毒、攻擊附毒、餘毒、同伴毒中才發動的那張。給自己上的毒（舔針那一半）不算。
+     * **能力牌的毒包在 `power` 裡**（毒霧：每回合開始給全體上毒），只在她這條攤開一起數——
+     * 球球那條不攤，攤開會改到他原本的判定（審查 中-1）。
+     */
+    const flat = alt === 'poison' ? fx.flatMap((e) => (e.kind === 'power' ? [e, ...e.effects] : [e])) : fx;
+    const poisons = flat.some((e) => ('name' in e && e.name === '中毒' && !('target' in e && e.target === 'self'))
+      || e.kind === 'poisonOnAttack' || e.kind === 'poisonBurst' || e.kind === 'poisonAllyNextAttack' || e.kind === 'watchPoisonHit');
     if (selfStatus('爪力')) count.strength += 1;
     if (alt === 'stealth' ? selfStatus('隱身') || selfStatus('潛水') : poisons) count.alt += 1;
     if (fx.some((e) => e.kind === 'block')) count.block += 1;

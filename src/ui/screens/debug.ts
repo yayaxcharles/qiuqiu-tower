@@ -92,7 +92,8 @@ registerScreen('debug', (app, root) => {
           el('div', { class: 'dbg-row' },
             artKey ? shot(artKey, '結果圖') : el('div', { class: 'dbg-shot dbg-noart' }, el('div', { class: 'dbg-cap' }, '這個選項沒有結果圖')),
             el('div', { class: 'dbg-text' },
-              el('b', {}, `選項：${c.label}`),
+              // 選項也要過 `eventTextFor`：鏡子走廊的選項會換字，照原文印會跟遊戲裡看到的不一樣（審查 中-2）
+              el('b', {}, `選項：${eventTextFor(hero, c.label)}`),
               el('p', {}, eventTextFor(hero, c.result)),
               said(c.result) ? '' : el('span', { class: 'dbg-warn' }, '⚠️ 球球的句子')))));
       }

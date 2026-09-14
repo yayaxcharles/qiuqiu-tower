@@ -93,6 +93,8 @@ export function combatFingerprint(cs: CombatState): string {
 export function runFingerprint(run: RunState): string {
   const parts: string[] = [
     `r${run.rng.a},${run.rng.b},${run.rng.c},${run.rng.d}`,
+    // 難度也要比（審查 低-3）：兩台難度不同時，要在走第一格就發現，不是等到魔物血量對不上
+    `lv${run.difficulty ?? 1}`,
     `a${run.act}`, `f${run.floor}`, `n${run.currentNode ?? '-'}`, `u${run.nextUid}`,
     run.status,
   ];

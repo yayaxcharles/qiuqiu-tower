@@ -15,6 +15,11 @@ export default defineConfig({
    * 確認連線版可以之後要替換回去時，這一行改回 `/qiuqiu-tower/` 就好。
    */
   base: '/qiuqiu-tower-coop/',
+  /*
+   * 這一次打包的編號（2026-09-14）。連線碼開頭會夾著它：開房的人拿到新版、加入的人還開著舊分頁時，
+   * 兩台跑的引擎不同，連上之後走第一格就對帳失敗。貼碼的當下比對它，直接請兩邊重新整理。見 `src/net/code.ts`。
+   */
+  define: { __BUILD_TAG__: JSON.stringify(Date.now().toString(36)) },
   build: {
     target: 'es2022',
     rollupOptions: {

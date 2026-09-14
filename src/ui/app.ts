@@ -412,7 +412,7 @@ export class App {
       // 過關那條路 status 還是 playing，存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫。
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
-        // 師父醒來的第一句依這一路的打法換（爪力／隱身／蜷縮流），難度 4 以上多一句旁白（使用者 2026-09-04）
+        // 師父醒來的第一句依這一路的打法換（爪力／隱身或毒／蜷縮流，第二派看角色），難度 4 以上多一句旁白（使用者 2026-09-04）
         const vic = victoryLinesFor(me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1, me(run, this.seat).hero);
         // 圖依角色、切點看 `slideBreak`：理由都寫在 storyslides.ts（除錯頁也叫同一支）
         const endSlides = endingSlides(me(run, this.seat).hero, me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1);
