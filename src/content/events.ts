@@ -99,7 +99,7 @@ export const events: EventDef[] = [
       { label: '打坐休息（回復 10 點生命）', outcome: [{ kind: 'heal', n: 10 }], result: '球球盤腿坐好，沒多久就歪著頭睡著了。醒來時，繃緊的身體放鬆不少。球球：「姿勢不重要，有休息到就好喵。」', resultArt: 'seclusion_r1' },
     ] },
   { id: 'hidden_box', title: '深藏不露',
-    text: '牆縫裡卡著一個小箱子，上面貼著紙條：「別拿。」那個歪歪斜斜的「別」字，很像師父寫的。',
+    text: '牆縫裡卡著一個小箱子，上面貼著一張紙條，意味不明，很像師父會做的事。',
     choices: [
       { label: '打開箱子（隨機獲得 1 件常見秘寶、牌組加入 1 張壞毛病「中計了」）', outcome: [{ kind: 'relic', pool: '常見' }, { kind: 'addCard', cardId: 'zhongji' }], result: '球球才拿起秘寶，一隻彈簧拳頭就從箱蓋彈出，擦著鼻尖停住。牠被嚇得縮了爪，連伸手都開始猶豫。球球：「這麼幼稚的機關，八成又是師父喵。」', resultArt: 'hidden_box_r0' },
       { label: '不碰箱子（無效果）', outcome: [], result: '球球盯著箱子看了三秒，硬是把爪子收回來。球球：「今天先讓師父少笑我一次喵。」' },
@@ -148,7 +148,7 @@ export const events: EventDef[] = [
     text: '一隻白貓抱著手臂擋住樓梯，身旁還有穿著黑衣的師弟。「陪我們練一場。贏了，另外給你 60 條小魚乾。」球球想從旁邊走，白貓也跟著橫跨一步，硬是不肯讓路。',
     choices: [
       { label: '接下挑戰（打一場，勝利後額外獲得 60 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'white_duelist', bonusFish: 60 }], result: '白貓退開半步擺好架式，身旁的師弟也跟著抬起爪子。球球把魚乾袋往身後一收。球球：「說是切磋，你們倒是很會挑人數喵。」' },
-      { label: '硬從旁邊擠過去（最多失去 8 點生命）', outcome: [{ kind: 'damage', n: 8 }], result: '球球側身往前擠，白貓卻故意撞來，撞得牠肩膀一陣發麻。牠忍著痛鑽過空隙，頭也不回地上樓。球球：「想比武就直說，撞肩膀算什麼本事喵。」', resultArt: 'sparring_cat_r1' },
+      { label: '硬從旁邊擠過去（最多失去 8 點生命）', outcome: [{ kind: 'damage', n: 8 }], result: '球球側身往前衝向樓梯，白貓卻故意撞來，撞得牠肩膀一陣發麻。牠忍著痛鑽過空隙，頭也不回地上樓。球球：「人多算什麼本事喵。」', resultArt: 'sparring_cat_r1' },
     ] },
 
   { id: 'cat_tower', title: '好高的貓抓柱',

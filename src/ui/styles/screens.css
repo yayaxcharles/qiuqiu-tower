@@ -1135,6 +1135,20 @@
    左邊籃子的舞台座標約 x 69～327、y 473～595，籃子中心 x ≈ 198；她的立繪寬約 313 →
    left = 198 − 313/2 ≈ 42。**只改她這一條**，球球那條原封不動（他本來就是對的）。 */
 #stage[data-screen="rest"][data-act="2"][data-hero="feifei"] .scene-portrait { left: 42px; bottom: 95px; }
+/*
+ * **球球的三關重新對位**（2026-09-14 使用者：「第一關再更左邊一點、第二關跑去右邊了（窩在左邊）、第三關偏右一點點」）。
+ * 貓窩的底圖後來重生過，窩全部改到左下角，上面那幾條還是舊底圖量的座標。這次逐張量了九張底圖：
+ *   第一關三張的窩中心 x ≈ 185～200、第二關 190～205、第三關原版那張 ≈ 228、另外兩張（_b、_c）≈ 150。
+ * 立繪框 300 寬、圖靠下置中，貓的中心＝left＋150，所以 left ≈ 窩中心 − 150。
+ * 第二關那三張窩的高低差最多（窩底 575～640）：原版那張（`screen_rest_mid`）要另外抬高，不然他坐到窩前面的地板上。
+ * 第三關左右差 75 像素，一個座標顧不到三張：_b、_c 沿用上面的 left 2（本來就對準），原版那張（`screen_rest_top`）另外往右挪。
+ * 除錯頁「跳進畫面」開的是第 0 層，看到的永遠是原版那張——使用者說「偏右一點點」看的就是它。
+ * **只改球球**（`data-hero="ninja"`）：菲菲照舊用上面那幾條，她的部分使用者之後再看。
+ */
+#stage[data-screen="rest"][data-act="1"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 150px; }
+#stage[data-screen="rest"][data-act="2"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 100px; }
+#stage[data-screen="rest"][data-act="2"][data-hero="ninja"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
+#stage[data-screen="rest"][data-act="3"][data-hero="ninja"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 
 /* ===== 2026-09-02 使用者：「按鈕樣式你都改成這樣吧」——全部按鈕統一深色玻璃＋金邊（含標題、疊層、結束回合、狀態列小鈕）。
    難度鈕保留自己的顏色（.diff-btn.dN 在後面蓋掉底色）。 ===== */

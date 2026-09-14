@@ -25,7 +25,10 @@ function heroPortrait(hero: string | undefined): string | undefined {
 }
 
 registerScreen('rest', (app, root) => {
-  root.append(screenBg(actVariantKey('bg/screen_rest', app.run?.act ?? 1, app.run?.floor)));
+  const bgKey = actVariantKey('bg/screen_rest', app.run?.act ?? 1, app.run?.floor);
+  root.append(screenBg(bgKey));
+  // 同一關的三張底圖，窩的高低不一樣（第二關那三張差到 65 像素）：標在舞台上，樣式表照底圖微調立繪位置
+  app.stage.dataset['restbg'] = bgKey.slice(bgKey.lastIndexOf('/') + 1);
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   /*

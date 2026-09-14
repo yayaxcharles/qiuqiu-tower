@@ -2,6 +2,7 @@ import { cardById, cardNameFor, cards, starterDeckFor } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById, enemyById } from '../content/enemies';
+import { FIXED_EVENT_FLOOR_5, eventById, events } from '../content/events';
 import { heroOf, pickable, startRelicFor } from './hero';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
@@ -99,7 +100,35 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
   run.trail.push(n.id);   // 足跡：地圖上「走過的路亮起來」靠這條
   // 顯示用的樓層是**跨關累計**的（第二關從 16F 起跳），地圖節點自己的 floor 仍是關內 1～15
   run.floor = (run.act - 1) * FLOORS + n.floor;
+  if (n.type === '事件' && n.eventId && n.eventId !== FIXED_EVENT_FLOOR_5) enterEvent(run, n);
   return n;
+}
+
+/**
+ * 走進事件格的那一刻：**後集優先**、並記下「這一局遇過這個事件」（使用者 2026-09-14）。
+ *
+ * 後集原本只是「下一關的地圖才排得進來」，還要剛好排在走的那條路上——模擬 3000 局，
+ * 做過前集的人一局只有 0.1%～1% 遇得到後集，等於沒有。改成：前集留下的旗標在換關時標成
+ * `sequel:<事件>`（見 `advanceAct`），之後第一次走進事件格就換成那個後集。
+ * 地圖上事件格本來就不顯示是哪個事件，換掉不會跟畫面對不上。
+ * 地圖上別格如果本來就排了這個後集，跟那格互換，免得等一下又遇到一次。
+ *
+ * 記下的 `event:<事件>` 給下一關生地圖時排掉（見 `map.ts`），同一局不會重複遇到。
+ * 固定在 5F 的「師父留下的秘笈」不在這條規則裡（每一關都固定在那一格）。
+ *
+ * 在 `chooseNode` 裡做，所以連線兩台、機器人都走同一條；只看整局狀態，兩台換出來一模一樣。
+ * 走進去還沒結算就重新整理的話，存檔是進格子之前的（節點結算完才存），重進時會算出一樣的結果。
+ */
+function enterEvent(run: RunState, n: MapNode): void {
+  const pending = events.find((e) => run.flags[`sequel:${e.id}`] && !run.flags[`event:${e.id}`]
+    && (!e.acts || e.acts.includes(run.act)));
+  // 這一格本來就是（另一個）後集就不換：兩個後集都要看得到
+  if (pending && pending.id !== n.eventId && !eventById[n.eventId!]?.requiresFlag) {
+    const other = run.map.nodes.find((x) => x !== n && x.type === '事件' && x.eventId === pending.id);
+    if (other) other.eventId = n.eventId;
+    n.eventId = pending.id;
+  }
+  run.flags[`event:${n.eventId}`] = true;
 }
 
 export function beginCombat(run: RunState, encounterId?: string): CombatState {
@@ -473,6 +502,13 @@ export function advanceAct(run: RunState): void {
   for (const p of run.players) {
     if (p.down) continue;   // 倒下的人不回：血條顯示滿的、狀態卻還是倒下，只會讓同伴誤判（稽核第二輪 中-2）
     p.hp = heal >= 1 ? p.maxHp : Math.min(p.maxHp, p.hp + Math.round((p.maxHp - p.hp) * heal));
+  }
+  /*
+   * 前集留下的旗標，**換到下一關才算數**：這一關的選擇到下一關才看得到結果（原本的設計），
+   * 標成 `sequel:<後集>` 之後，這一關第一次走進事件格就會換成它（見 `enterEvent`）。
+   */
+  for (const e of events) {
+    if (e.requiresFlag && run.flags[e.requiresFlag] && (!e.acts || e.acts.includes(run.act))) run.flags[`sequel:${e.id}`] = true;
   }
   // 連線局（兩位以上）傳 null＝不排職業獨占的事件，理由見 `MapOpts.hero`
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1, hero: run.players.length > 1 ? null : heroOf(me(run)) });

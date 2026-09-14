@@ -299,14 +299,24 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   for (const id of byFloor[1]!.map((x) => x.id)) walk(byId.get(id)!, []);
   // 內容：遭遇與事件
   // 事件前後集（2026-09-04）：後集要有前集留下的旗標、且在指定的關才排進來；這一關的選擇要到下一關的地圖才看得到結果
-  const eventQueue = rng.shuffle(events.filter((e) => e.fixedFloor === undefined
+  const eligible = events.filter((e) => e.fixedFloor === undefined
     && (!e.acts || e.acts.includes(act))
     /*
      * 職業獨占（2026-09-12）：菲菲的「師兄的痕跡」是她在追球球留下的東西，球球自己遇到會很怪。
      * `hero` 傳 null（連線局）時整批不排——那些故事在兩個人一起爬的時候不成立。
      */
     && (!e.hero || (opts.hero !== null && e.hero === (opts.hero ?? 'ninja')))
-    && (!e.requiresFlag || opts.flags?.[e.requiresFlag])).map((e) => e.id));
+    && (!e.requiresFlag || opts.flags?.[e.requiresFlag])).map((e) => e.id);
+  /*
+   * **這一局前面關卡遇過的不再排**（使用者 2026-09-14）：原本每一關各自洗牌，一局平均重複遇到 0.45 次。
+   * 遇過的記在 `event:<事件>`（`run.ts` 的 `enterEvent`）。沒遇過的不夠填滿這張地圖的事件格時，
+   * 才把遇過的接在後面，免得同一張地圖裡自己重複。第一關還沒遇過任何事件，洗牌跟以前一模一樣。
+   */
+  const fresh = eligible.filter((id) => !opts.flags?.[`event:${id}`]);
+  const slots = nodes.filter((n) => n.type === '事件' && n.floor !== 5).length;
+  const eventQueue = fresh.length >= slots
+    ? rng.shuffle(fresh)
+    : [...rng.shuffle(fresh), ...rng.shuffle(eligible.filter((id) => !fresh.includes(id)))];
   let eventIdx = 0;
   // 遭遇也排成洗好的佇列、一池一條：整關抽完一輪才會重複（本來每格獨立亂抽，塔頂強池只有三組，
   // 九場架平均每組遇三次；使用者：「怎麼一直遇到重複的」）。佇列用完就重洗再來一輪。
