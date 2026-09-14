@@ -2724,8 +2724,8 @@
    }
   ],
   "upCost": 2,
-  "text": "之後每回合打出的第一張牌，會再打一次。",
-  "up": "之後每回合打出的第一張牌，會再打一次。"
+  "text": "之後每回合打出的第一張牌，會再打一次（可以疊：多掛一張就多打一次）。",
+  "up": "之後每回合打出的第一張牌，會再打一次（可以疊：多掛一張就多打一次）。"
  },
  {
   "id": "tuishou",
@@ -3867,16 +3867,18 @@
   "hidden": false,
   "combatOnly": false,
   "kinds": [
-   "block"
+   "status"
   ],
   "effects": [
    {
-    "kind": "block",
-    "amount": 4
+    "kind": "status",
+    "name": "隱身",
+    "amount": 1,
+    "target": "self"
    }
   ],
-  "text": "獲得 4 點蜷縮。",
-  "up": "獲得 6 點蜷縮。"
+  "text": "獲得 1 層隱身。跟師兄學來的招式。",
+  "up": "獲得 2 層隱身。跟師兄學來的招式。"
  },
  {
   "id": "feifei_tieqiang",

@@ -514,7 +514,7 @@ export const dialogue = {
   masterFirstWords: <Record<DeckLeaning, string>>{
     strength: '難逢敵手。',
     stealth: '深藏不露。',
-    // 菲菲的毒流（她沒有隱身牌，第二派換成毒，使用者 2026-09-14 裁定）：師父那句沿用「深藏不露」
+    // 菲菲的毒流（使用者 2026-09-14 裁定：她的第二派就是毒。同日深夜「後退閃躲」已改成獲得隱身，裁定不變、別改回 stealth）：師父那句沿用「深藏不露」
     poison: '深藏不露。',
     block: '在下不才。',
     plain: '承讓。',
@@ -603,7 +603,9 @@ export const feifeiDialogue = {
   /** 她的個人化旁白（師父講完之後插一句）。口徑跟球球那三句一樣，只是換成她的打法 */
   /*
    * **她沒有隱身流，換成毒流**（使用者 2026-09-14 裁定）。
-   * 她拿得到的牌裡沒有一張給自己隱身，原本那句「躲得好，也是功夫」永遠不會出現；
+   * 當初的理由是她沒有給自己隱身的牌；2026-09-14 深夜「後退閃躲」改成獲得隱身之後這個理由過期了，
+   * 但**裁定不變**：她的第二派就是毒。這個表沒有 `stealth` 鍵——若把 `deckLeaning` 的第二派改回 stealth，
+   * 這句旁白會靜靜消失（師父那句兩派都是「深藏不露」，看不出來）；
    * 毒是她的招牌，這句接序章師父教她的那句「力氣小，就別跟人比力氣」。
    */
   victoryNarration: <Partial<Record<Exclude<DeckLeaning, 'plain'>, string>>>{
@@ -1092,7 +1094,8 @@ export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'block' | 'plain';
 export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLeaning {
   /*
    * **第二派看角色**（使用者 2026-09-14 裁定）：球球數「給自己隱身」的牌，菲菲數「下毒」的牌。
-   * 她拿得到的牌裡給自己隱身的是 0 張，照球球的算法她永遠判不到那一派。
+   * 裁定本身站得住（毒是她的招牌），不靠「她沒有隱身牌」這個理由——2026-09-14 深夜「後退閃躲」已經給隱身了；
+   * `feifeiDialogue.victoryNarration` 沒有 stealth 鍵，別把第二派改回去。
    * 計數物件的鍵順序刻意跟原本一樣（爪力、第二派、蜷縮），球球算出來跟改之前一模一樣。
    */
   const alt: 'stealth' | 'poison' = hero === 'feifei' ? 'poison' : 'stealth';
