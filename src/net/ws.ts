@@ -76,14 +76,25 @@ function untilRelay(ws: WebSocket, want: RelayState, waitMs: number, slowMsg: st
   });
 }
 
-function wrap(ws: WebSocket): Transport {
+/**
+ * 心跳：**連上中繼就開始送**，不是等對方加入才送（審查 高-1）。開房的人等朋友輸入房號那幾分鐘一則都不送的話，
+ * 中繼的鬧鐘第三次掃（約三分鐘）就把他當殭屍踢掉，而且關掉時沒有原因，畫面只會說「連不上中繼伺服器」。
+ * 沒開好之前送不出去沒關係（`readyState` 不是 OPEN 就跳過）；關掉就停。
+ */
+function keepAlive(ws: WebSocket): () => void {
+  const ping = setInterval(() => { if (ws.readyState === WebSocket.OPEN) ws.send('ping'); }, PING_MS);
+  const stop = (): void => { clearInterval(ping); };
+  ws.addEventListener('close', stop);
+  return stop;
+}
+
+function wrap(ws: WebSocket, stopPing: () => void): Transport {
   let onMsg: ((m: NetMessage) => void) | null = null;
   let onClose: ((w: string) => void) | null = null;
   // 監聽器掛上之前就到的遊戲訊息先收著（跟 `session.ts` 的 pendingStart 同一招）：不然只要呼叫端多一個 await，開局訊息就無聲消失
   const pending: NetMessage[] = [];
   let closed = false;
-  const ping = setInterval(() => { if (ws.readyState === WebSocket.OPEN) ws.send('ping'); }, PING_MS);
-  const die = (why: string): void => { if (!closed) { closed = true; clearInterval(ping); onClose?.(why); try { ws.close(); } catch { /* 已經關了 */ } } };
+  const die = (why: string): void => { if (!closed) { closed = true; stopPing(); onClose?.(why); try { ws.close(); } catch { /* 已經關了 */ } } };
   ws.addEventListener('message', (e) => {
     const raw = String((e as MessageEvent).data);
     if (raw === 'pong') return;   // 心跳的回聲
@@ -113,6 +124,7 @@ export async function hostRoom(opts: { ws?: WsFactory; rng?: () => number } = {}
   for (let i = 0; i < CODE_TRIES; i++) {
     const code = makeCode(opts.rng);
     const ws = mk(wsUrl(code, 'host'));
+    const stopPing = keepAlive(ws);
     const hosting = untilRelay(ws, 'hosting', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話。檢查網路之後再試一次');
     const opened = untilRelay(ws, 'open', HOST_WAIT_MS, '等了十分鐘對方都沒加入。回標題重新開房一次');
     opened.catch(() => { /* 撞號重抽時這條也會被拒絕；有人接 `ready` 才需要看 */ });
@@ -122,7 +134,7 @@ export async function hostRoom(opts: { ws?: WsFactory; rng?: () => number } = {}
       if ((e as { code?: number }).code === CODE_TAKEN) continue;
       throw e;
     }
-    return { code, ready: opened.then(() => wrap(ws)), cancel: () => { try { ws.close(); } catch { /* 已經關了 */ } } };
+    return { code, ready: opened.then(() => wrap(ws, stopPing)), cancel: () => { stopPing(); try { ws.close(); } catch { /* 已經關了 */ } } };
   }
   throw new Error('連續抽到別人正在用的房號，再開一次');
 }
@@ -132,6 +144,7 @@ export function joinRoom(code: string, opts: { ws?: WsFactory } = {}): Joining {
   const clean = code.replace(/\D/g, '');
   if (clean.length !== 6) return { ready: Promise.reject(new Error('房號是六位數字，請再看一次對方給的房號')), cancel: () => {} };
   const ws = (opts.ws ?? realWs)(wsUrl(clean, 'join'));
-  const ready = untilRelay(ws, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話。檢查網路之後再試一次').then(() => wrap(ws));
-  return { ready, cancel: () => { try { ws.close(); } catch { /* 已經關了 */ } } };
+  const stopPing = keepAlive(ws);
+  const ready = untilRelay(ws, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話。檢查網路之後再試一次').then(() => wrap(ws, stopPing));
+  return { ready, cancel: () => { stopPing(); try { ws.close(); } catch { /* 已經關了 */ } } };
 }

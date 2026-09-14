@@ -827,6 +827,16 @@ registerScreen('combat', (app, root, props) => {
       const sum = m.effects.find(has('summon'));
       if (sum) text = `${INTENT_GLYPH[m.intent]} ${m.label}${sum.n > 1 ? ` ${sum.n} 隻` : ''}`;
     }
+    // 傷害那一行不能把同一招的其他事吃掉（審查 2026-09-15 中-1／中-2／低-8）：黑貓頭目的「分身」是 8 傷＋召 2 隻、
+    // 河童的「拽走小魚乾」是 7 傷＋偷 20、「頂皿蓄水」是守 10＋回 10——牌子只寫「攻 8」「守 10」玩家會誤判
+    if (getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0) {
+      const sum = m.effects.find(has('summon'));
+      if (sum && !text.includes('隻')) text += `＋召 ${sum.n} 隻`;
+      const steal = m.effects.find(has('stealFish'));
+      if (steal) text += `＋偷 ${steal.n}`;
+      const heal = m.effects.find(has('heal'));
+      if (heal && (hits.length || rnd || blk)) text += `＋回 ${heal.percent ? Math.round(e.maxHp * heal.percent / 100) : heal.n}`;
+    }
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）
     if (m.learned && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = `${m.label}｜${text}`;
@@ -2483,6 +2493,7 @@ registerScreen('combat', (app, root, props) => {
       // 同一批裡先抽再打的那張快照裡沒有：與其掛著上一張騙人，不如不掛（審查 低-1）
       for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat && !found.some((m) => m.seat === a.seat)) matePlay.delete(a.seat);
       for (const { a } of applied) if (a.t === 'card' && a.seat !== mySeat && mateHint.get(a.seat) === a.u) mateHint.delete(a.seat);   // 打出的正是考慮中那張才撤（審查 中-2：打別張時他那邊還選著）
+      if (applied.some(({ a }) => a.t === 'force' && a.w === mySeat)) setTargeting(null);   // 被同伴強制收回合：我點著的牌撤掉、也告訴他（審查 低-2）
       /*
        * **主機自己的動作在這之前就演過了**（`submit` 是同步套用的，`act()` 裡的
        * `settle` 已經比對過前後），所以只要重畫；其餘都要演。
@@ -2524,6 +2535,7 @@ registerScreen('combat', (app, root, props) => {
     });
     session.onTrouble((why) => {
       // 分岔或斷線：**當場停下來講清楚**，不要讓兩個人繼續玩兩份不一樣的遊戲
+      mateHint.clear(); matePlay.clear();   // 同伴頭上的牌撤掉，不然像他還在動（審查 低-1）
       hint = why;
       render();
     });

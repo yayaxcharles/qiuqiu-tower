@@ -105,6 +105,21 @@ export const cards: readonly CardDef[] = [
      * 撐得住。**這是有意識的偏離，不是漏做**——第三批做選單時可以回來改。
      */
     upgrade: { effects: [{ kind: 'cleanseAlly' }, { kind: 'healAlly', n: 8 }] } },
+  /*
+   * 幫同伴回血的兩張（2026-09-15，使用者睡前交辦：「做個兩張幫另一個人回血的卡牌，名稱效果你想」）。
+   * 「手借我一下」是消耗、罕見、附清減益；這兩張補上「常見、可重複用」與「兩個人一起回」兩種定位。
+   * `healAlly` 單人時退化成回自己（效果本身就這樣寫），所以局面碼流進單機也不會變廢牌。
+   * 圖生好之前掛 `hidden`（`cards.test.ts` 會逼人拿掉）。
+   */
+  { id: 'yuganjijiu', name: '魚乾急救', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self',
+    art: 'card/yuganjijiu', coop: true, hidden: true,
+    effects: [{ kind: 'healAlly', n: 6 }],
+    upgrade: { effects: [{ kind: 'healAlly', n: 9 }] } },
+  { id: 'yiqichuankou', name: '一起喘口氣', cost: 2, type: 技, rarity: '罕見', pool: '絕學', target: 'self',
+    art: 'card/yiqichuankou', coop: true, hidden: true,
+    // 自己那句排前面：「回復 5 點生命，同伴回復 9 點生命」；反過來第二句會被讀成同伴再回 5（審查 2026-09-15 低-2）
+    effects: [{ kind: 'heal', n: 5 }, { kind: 'healAlly', n: 9 }],
+    upgrade: { effects: [{ kind: 'heal', n: 7 }, { kind: 'healAlly', n: 12 }] } },
   { id: 'huannieduochoudian', name: '換你多抽點', cost: 0, type: 技, rarity: '常見', pool: '忍術', target: 'self',
     art: 'card/huannieduochoudian', coop: true, keywords: ['消耗'],
     effects: [{ kind: 'discardFromHand', n: 1 }, { kind: 'block', amount: 4 }, { kind: 'drawAlly', n: 2 }],
@@ -742,6 +757,7 @@ export const cards: readonly CardDef[] = [
 export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
   // ---- 使用者直接指定的（原本還有鐵頭功「全力甩出」，2026-09-14 起她拿不到那張，名字一起拿掉）----
   liangzhua: '磨利飛針',       // 亮出爪子（技能牌：獲得爪力。她磨的是針，不是爪子）
+  yuganjijiu: '藥草急救',      // 魚乾急救（連線牌：幫同伴回血。她隨身帶的是藥草不是小魚乾，2026-09-15）
   // ---- 指到球球身體動作的（爪、拳、踢、擒拿），一隻丟針的貓打出來會很怪 ----
   dieda: '絕學·連珠針',        // 絕學·貓爪抓
   bengquan: '絕學·貫針',       // 絕學·崩拳

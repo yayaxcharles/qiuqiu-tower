@@ -92,7 +92,7 @@ export function untilOpen(pc: RTCPeerConnection, ch: RTCDataChannel | Promise<RT
     Promise.resolve(ch).then((c) => {
       if (c.readyState === 'open') { finish(() => resolve(c)); return; }
       c.addEventListener('open', () => finish(() => resolve(c)), { once: true });
-      c.addEventListener('error', () => finish(() => reject(new Error('通道開不起來'))), { once: true });
+      c.addEventListener('error', () => finish(() => reject(new Error('通道開不起來。兩邊都重新整理頁面，再重新開房一次'))), { once: true });
     }, (e: unknown) => finish(() => reject(e instanceof Error ? e : new Error(String(e)))));
   });
 }

@@ -41,10 +41,21 @@ const gotJ = [], gotH = [];
 join.addEventListener('message', (e) => { const v = j(e); if (!v) return; if (v.m === 'sync') gotJ.push(v.turn); });
 host.addEventListener('message', (e) => { const v = j(e); if (!v) return; if (v.m === 'sync') gotH.push(v.turn); });
 const t1 = Date.now();
-for (let i = 1; i <= 200; i++) { host.send(JSON.stringify({ m: 'sync', turn: i, fp: 'h' })); join.send(JSON.stringify({ m: 'sync', turn: i, fp: 'j' })); }
+// 中繼每條連線每秒最多 40 則（超過會被 4429 踢掉），所以分批送：每 100 毫秒 3 則
+for (let i = 1; i <= 200; i++) { host.send(JSON.stringify({ m: 'sync', turn: i, fp: 'h' })); join.send(JSON.stringify({ m: 'sync', turn: i, fp: 'j' })); if (i % 3 === 0) await wait(100); }
 for (let i = 0; i < 100 && (gotJ.length < 200 || gotH.length < 200); i++) await wait(100);
 const ordered = (a) => a.length === 200 && a.every((v, i) => v === i + 1);
 check(ordered(gotJ) && ordered(gotH), `來回各 200 則，${Date.now() - t1} 毫秒內全到、順序正確（收到 ${gotJ.length}／${gotH.length}）`);
+
+// 灌爆：一秒內丟 200 則要被中繼踢掉（4429），另一邊收到 relay closed
+{
+  const flooder = new WebSocket(url('host').replace(code, String((Number(code) + 1) % 1000000).padStart(6, '0')));
+  await new Promise((r) => flooder.addEventListener('open', r));
+  const kicked = closedWith(flooder);
+  for (let i = 0; i < 200; i++) flooder.send('{"m":"sync","turn":1,"fp":"x"}');
+  const r = await Promise.race([kicked, wait(5000).then(() => 'timeout')]);
+  check(String(r).startsWith('4429'), `一秒 200 則 → 被踢（${r}）`);
+}
 
 // 一邊走了
 const hostClosed = closedWith(host);

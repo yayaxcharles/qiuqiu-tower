@@ -90,6 +90,13 @@ if ! BUILD_TAG="$sha" SITE_NAME="$site_name" npm run build >> "$log" 2>&1; then
   exit 1
 fi
 
+# 中繼（worker/）不在 vite 與根 tsconfig 的範圍裡，跟雲端一樣另外查型別（審查 2026-09-15 中-1：CI 有、閘門沒有＝閘門綠、雲端紅）
+if ! (cd worker && npx wrangler types >> "$log" 2>&1 && npx tsc --noEmit -p tsconfig.json >> "$log" 2>&1); then
+  echo "[推送閘門] ✗ 中繼（worker/）型別檢查沒過，這次不推："
+  grep -E "error|Error" "$log" | tail -20
+  exit 1
+fi
+
 # 記下這一筆打出來的主程式檔名，`tools/deploy.sh` 部署完拿去跟線上比
 main_js=$(ls dist/assets/ | grep -E '^main-.*\.js$' | head -1)
 echo "$sha $main_js" > "$common/qiuqiu_gate_last"

@@ -703,6 +703,26 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
  * **只剩一位候選就完全不擲骰**：鎖步連線兩邊要擲出同一個結果，靠的是亂數呼叫順序
  * 完全一致；單機若在這裡白擲一次，整局的抽牌順序會全部位移（那四條等號式的錨會當場紅）。
  */
+/**
+ * **一招打兩個人**（使用者 2026-09-15 建議：「理論上是玩家兩隻都會被打」）。
+ *
+ * 原本規則二是「一招隨機挑一位還站著的打」——玩家看到的是「怪物有時只打一隻」，加上紀錄沒寫名字，
+ * 連「蜷縮明明不夠卻擋住了」都以為是判定壞了（其實擋的是同伴那一下）。
+ * 改成：傷害、減益、吹散手牌、破功、看破、塞牌對**每個站著的玩家各來一次**，各自用自己的蜷縮擋；
+ * 有人喊「我來擋」就只打他（這張牌因此真的能護人）；偷小魚乾照舊只偷 `victim` 那一位（偷兩份等於倍增）。
+ * 單機完全沒差。要改回隨機一位，把這個常數關掉就好（`pickVictim` 留著給偷魚與規則二的舊路）。
+ */
+export const ENEMY_HITS_EVERYONE = true;
+
+/** 這一招要落在誰身上：全部站著的人；有人喊「我來擋」就只有他；關掉常數就是隨機挑的那一位 */
+export function enemyTargets(cs: CombatState, victim: PlayerCombat): PlayerCombat[] {
+  if (!ENEMY_HITS_EVERYONE) return [victim];
+  const standing = cs.players.filter((p) => !p.down);
+  const taunt = standing.find((p) => p.taunt);
+  if (taunt) return [taunt];
+  return standing.length ? standing : [victim];
+}
+
 export function pickVictim(cs: CombatState): PlayerCombat {
   const standing = cs.players.filter((p) => !p.down);
   /*
@@ -741,23 +761,30 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
   let mult = charged;
   const useCharge = (): number => { if (!mult) return 1; mult = false; e.charged = false; return 2; };
   const p = victim;
+  const targets = enemyTargets(cs, victim);   // 打人的效果對每一位各來一次；只偷一位的（偷魚）用 `p`
   for (const fx of effects) {
     if (e.dead) return;        // 已經倒下（例如被反彈打死）就不再執行剩下的效果
     if (isLost(cs)) return;
     switch (fx.kind) {
       case 'damage': {
-        const base = fx.amount * useCharge();
-        for (let i = 0; i < (fx.times ?? 1); i++) {
-          if (e.dead) return;      // 被反彈打死，剩下的段數不能再打
-          damagePlayer(cs, e, base, { pierce: fx.pierce, victim: p });
-          if (isLost(cs)) return;
+        const base = fx.amount * useCharge();   // 蓄力只算一次，兩個人吃到的是同一個加倍後的數字
+        for (const t of targets) {
+          for (let i = 0; i < (fx.times ?? 1); i++) {
+            if (e.dead) return;      // 被反彈打死，剩下的段數不能再打
+            damagePlayer(cs, e, base, { pierce: fx.pierce, victim: t });
+            if (isLost(cs)) return;
+          }
         }
         break;
       }
-      case 'damageRandom': damagePlayer(cs, e, cs.rng.int(fx.min, fx.max) * useCharge(), { victim: p }); break;
+      case 'damageRandom': {
+        const amt = cs.rng.int(fx.min, fx.max) * useCharge();   // 擲一次，兩個人同一個數
+        for (const t of targets) { if (e.dead) return; damagePlayer(cs, e, amt, { victim: t }); if (isLost(cs)) return; }
+        break;
+      }
       case 'block': gainBlock(cs, e, fx.amount); break;
       case 'statusSelf': addStatus(e, fx.name, fx.amount); break;
-      case 'statusPlayer': addStatus(p, fx.name, fx.amount); break;
+      case 'statusPlayer': for (const t of targets) addStatus(t, fx.name, fx.amount); break;
       case 'heal': e.hp = Math.min(e.maxHp, e.hp + (fx.percent ? Math.round(e.maxHp * fx.percent / 100) : fx.n)); break;
       case 'stealFish':
         e.stolen += fx.n; cs.stolenFish += fx.n; p.fishDelta -= fx.n;
@@ -769,9 +796,11 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'discardRandomHand': {
         // 魔物出手時你的手牌早就在回合結束時全棄掉了，「隨機丟手牌」實際上什麼都沒發生
         // （使用者 2026-09-02：「完全沒看到效果」）。改成真正有感的版本：下回合少抽幾張，最少還是抽得到 1 張。
-        const cut = Math.min(fx.n, Math.max(0, 5 + p.drawNextTurn - 1));
-        p.drawNextTurn -= cut;
-        log(cs, `${e.name}把你的牌吹散了，下回合少抽 ${cut} 張`);
+        for (const t of targets) {
+          const cut = Math.min(fx.n, Math.max(0, 5 + t.drawNextTurn - 1));
+          t.drawNextTurn -= cut;
+          log(cs, `${e.name}把${cs.players.length > 1 ? unitName(t) + '的' : '你的'}牌吹散了，下回合少抽 ${cut} 張`);
+        }
         break;
       }
       case 'summon': {
@@ -814,8 +843,10 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       }
       case 'purgePlayer': {
         // 破功（師父專用）：爪力／貓步這類疊起來的成長被拍散一半。減益不動——只拆你蓋的塔
-        const hitNames = halvePlayerStatuses(p, fx.names);
-        if (hitNames.length) log(cs, `${e.name}一掌拍散了${unitName(p)}的氣勁（${hitNames.join('、')}減半）`);
+        for (const t of targets) {
+          const hitNames = halvePlayerStatuses(t, fx.names);
+          if (hitNames.length) log(cs, `${e.name}一掌拍散了${unitName(t)}的氣勁（${hitNames.join('、')}減半）`);
+        }
         break;
       }
       case 'copyPlayerStatus': {
@@ -829,8 +860,10 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
     case 'stripPlayer': {
         // 看破：先囤好的隱身／潛水拍掉一半（向下取整保留：3 剩 1、2 剩 1、1 剩 0）。
         // 原本是整個拍掉，使用者 2026-09-03：「太強了，拍掉一半就好，3 就拍掉剩 1」
-        const hit = halvePlayerStatuses(p, fx.names);   // 跟破功同一支算法，只差紀錄句
-        if (hit.length) log(cs, `${e.name}看穿了${unitName(p)}的身法（${hit.join('、')}少了一半）`);
+        for (const t of targets) {
+          const hit = halvePlayerStatuses(t, fx.names);   // 跟破功同一支算法，只差紀錄句
+          if (hit.length) log(cs, `${e.name}看穿了${unitName(t)}的身法（${hit.join('、')}少了一半）`);
+        }
         break;
       }
       case 'chargeNext': e.charged = true; break;
@@ -839,9 +872,9 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'selfDestruct': {
         // 自爆（河豚精）：先打人（吃蜷縮、隱身照閃），然後自己倒下——這一下**算打倒**，戰利品照發
         log(cs, `${e.name}炸開了`);
-        damagePlayer(cs, e, fx.amount * useCharge(), { victim: p });
-        if (isLost(cs)) return;
-        if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true });
+        const boom = fx.amount * useCharge();
+        for (const t of targets) { damagePlayer(cs, e, boom, { victim: t }); if (isLost(cs)) return; }
+        if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true, by: p });   // 擊倒算被炸的那位（審查 2026-09-15 低-10）
         return;   // 自己都沒了，後面的效果不用跑
       }
       case 'statusAllies': {
@@ -854,7 +887,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         log(cs, `${e.name}擺出盾陣，全體獲得 ${fx.amount} 點防禦`);
         break;
       }
-      case 'giveCard': giveCards(cs, e, fx.cardId, fx.n, fx.to, p); break;
+      case 'giveCard': for (const t of targets) giveCards(cs, e, fx.cardId, fx.n, fx.to, t); break;   // 塞牌兩個人各吃一份
       case 'nothing': break;
       default: { const _never: never = fx; void _never; break; }   // 漏接新的 EnemyEffect 種類會在型別檢查就爆
     }
