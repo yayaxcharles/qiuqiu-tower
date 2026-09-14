@@ -849,14 +849,17 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       // 剛爬起來的這一拍不出手，頭上排好的那招留到下回合
     } else {
       // 蓄力由 runEnemyEffects 在第一次套加倍時自己用掉（不看意圖，見該函式註解）
-      const victim = pickVictim(cs);   // 這一招隨機打一位還站著的（規則二）
-      const hpBefore = victim.hp;
+      // 傷害與減益對每個站著的人各來一次（`ENEMY_HITS_EVERYONE`，使用者 2026-09-15）；`victim` 只給偷小魚乾那類單人效果
+      const victim = pickVictim(cs);
+      const hpBefore = new Map(cs.players.map((q) => [q, q.hp] as const));
       if (e.move.learned) log(cs, `${e.name}照著打出「${e.move.label}」`);   // 照著學的（鏡中球球）：紀錄要寫是哪張牌
       runEnemyEffects(cs, e, e.move.effects, e.charged, victim);
-      // 被打掉血的秘寶效果（毛線手套）：每回合最多一次
-      if (victim.hp < hpBefore && cs.phase === 'player' && victim.hitRelicTurn !== cs.turn) {
-        victim.hitRelicTurn = cs.turn;
-        for (const rid of victim.relics) { const h = relicById[rid]?.hooks.onHit; if (h) { fireRelic(cs, rid, victim); applyEffects(cs, h, { self: victim, source: 'relic' }); } }
+      // 被打掉血的秘寶效果（毛線手套）：每個人每回合最多一次
+      for (const q of cs.players) {
+        if (q.hp < (hpBefore.get(q) ?? q.hp) && cs.phase === 'player' && q.hitRelicTurn !== cs.turn) {
+          q.hitRelicTurn = cs.turn;
+          for (const rid of q.relics) { const h = relicById[rid]?.hooks.onHit; if (h) { fireRelic(cs, rid, q); applyEffects(cs, h, { self: q, source: 'relic' }); } }
+        }
       }
     }
     decayTurnStatuses(e, ['定身']);   // 魔物的定身在出招那一拍消耗，這裡不再多扣一次（審查 #5）

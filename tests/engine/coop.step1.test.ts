@@ -178,10 +178,12 @@ describe('連線版第一步：回合流程對每一位玩家各跑一次', () =
       { kind: 'statusPlayer', name: '翻肚', amount: 2 },
     ], false, p2);
 
+    // 2026-09-15 使用者建議「同時打兩人」（`ENEMY_HITS_EVERYONE`）：指定的那一位只給偷魚那類單人效果用，
+    // 傷害與減益兩個站著的人都吃（規則細節在 coop.rules.test.ts）
     expect(p2.hp, '二號挨打').toBe(44);
     expect(getStatus(p2, '翻肚'), '減益也掛在二號身上').toBe(2);
-    expect(p1.hp, '一號沒事').toBe(50);
-    expect(getStatus(p1, '翻肚')).toBe(0);
+    expect(p1.hp, '一號也挨打').toBe(44);
+    expect(getStatus(p1, '翻肚')).toBe(2);
   });
 });
 

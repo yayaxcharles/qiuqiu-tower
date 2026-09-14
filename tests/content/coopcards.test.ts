@@ -18,7 +18,7 @@ describe('連線牌', () => {
    */
   it('二十七張、都可以升級、單機一律抽不到', () => {
     const coop = cards.filter((c) => c.coop);
-    expect(coop.length).toBe(27);   // 9 原有 ＋ A 批 6 ＋ B 批 6 ＋ C 批 6
+    expect(coop.length).toBe(29);   // 9 原有 ＋ A 批 6 ＋ B 批 6 ＋ C 批 6 ＋ 2026-09-15 回血兩張
     for (const c of coop) {
       expect(c.upgrade, `${c.name} 要有升級效果`).toBeTruthy();
       expect(pickable(c, c.hero ?? 'ninja', 1), `${c.name} 單機不該抽得到`).toBe(false);

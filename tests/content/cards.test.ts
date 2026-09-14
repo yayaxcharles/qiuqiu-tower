@@ -11,12 +11,13 @@ describe('牌資料', () => {
     // 兩批都掛 `hidden`，圖到齊才會進獎勵與罐頭鋪
     // 95→96：2026-09-14 菲菲的分身術分成她自己那張（疊毒，`feifei_fenshen`）
     // 96→97：2026-09-14 影子分身分成球球（原版）與菲菲（9/12 改版 `feifei_yingzi`）兩張
-    expect(count('忍術')).toBe(97);   // 連線支援牌 A＋B＋C 共 18 張，其中 12 張進忍術   
-    expect(count('絕學')).toBe(51);
+    // 97→98、51→52：2026-09-15 幫同伴回血的兩張連線牌（魚乾急救進忍術、一起喘口氣進絕學）
+    expect(count('忍術')).toBe(98);   // 連線支援牌 A＋B＋C 共 18 張，其中 12 張進忍術
+    expect(count('絕學')).toBe(52);
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(164);   // 2026-09-13 連線支援牌 A＋B＋C 共 +18；2026-09-14 菲菲的分身術 +1、影子分身分家 +1
+    expect(cards.length).toBe(166);   // 2026-09-13 連線支援牌 A＋B＋C 共 +18；2026-09-14 菲菲的分身術 +1、影子分身分家 +1；2026-09-15 回血連線牌 +2
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);

@@ -135,26 +135,68 @@ describe('規則二：魔物一招隨機挑一位還站著的打', () => {
     for (let i = 0; i < 30; i++) expect(pickVictim(cs)).toBe(p2);
   });
 
-  it('挑的單位是「一招」不是「一個效果」：同一招的傷害與減益落在同一個人身上', () => {
+  /*
+   * 2026-09-15 使用者建議「同時打兩人」：傷害與減益對每個站著的人各來一次（`ENEMY_HITS_EVERYONE`），
+   * 各自用自己的蜷縮擋；「我來擋」就只打他；偷小魚乾只偷一位。`pickVictim` 的隨機性留給偷魚那條路。
+   */
+  it('一招打兩個人：傷害與減益兩位都吃，各自用自己的蜷縮擋', () => {
     const cs = combat();
     const p1 = cs.players[0] as PlayerCombat;
     const p2 = addSecond(cs);
-    p1.hp = 50; p2.hp = 50;
+    p1.hp = 50; p2.hp = 50; p1.block = 4; p2.block = 0;
+    p1.statuses = {}; p2.statuses = {};
     const foe = cs.enemies[0]!;
+    runEnemyEffects(cs, foe, [
+      { kind: 'damage', amount: 6 },
+      { kind: 'statusPlayer', name: '翻肚', amount: 2 },
+    ], false);
+    expect(p1.hp, '一號有 4 點蜷縮，只掉 2').toBe(48);
+    expect(p2.hp, '二號沒蜷縮，整下 6 點').toBe(44);
+    expect(getStatus(p1, '翻肚')).toBe(2);
+    expect(getStatus(p2, '翻肚')).toBe(2);
+  });
 
-    // 不指定對象，讓它自己挑；挑中誰不重要，重要的是**兩個效果落在同一個人身上**
-    for (let i = 0; i < 20; i++) {
-      p1.hp = 50; p2.hp = 50;
-      p1.statuses = {}; p2.statuses = {};
-      runEnemyEffects(cs, foe, [
-        { kind: 'damage', amount: 6 },
-        { kind: 'statusPlayer', name: '翻肚', amount: 2 },
-      ], false);
-      const hurt = [p1, p2].filter((p) => p.hp < 50);
-      const debuffed = [p1, p2].filter((p) => getStatus(p, '翻肚') > 0);
-      expect(hurt.length, '只有一個人挨打').toBe(1);
-      expect(debuffed, '挨打的跟中減益的是同一位').toEqual(hurt);
-    }
+  it('蓄力只加倍一次：兩個人吃到的是同一個加倍後的數字，蓄力在第一個效果就用掉', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p1.hp = 50; p2.hp = 50; p1.block = 0; p2.block = 0;
+    const foe = cs.enemies[0]!;
+    foe.charged = true;
+    runEnemyEffects(cs, foe, [{ kind: 'damage', amount: 5 }, { kind: 'damage', amount: 3 }], true);
+    expect(p1.hp).toBe(50 - 10 - 3);
+    expect(p2.hp).toBe(50 - 10 - 3);
+    expect(foe.charged).toBe(false);
+  });
+
+  it('有人喊「我來擋」就只打他；倒下的人不會被打', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const p2 = addSecond(cs);
+    p1.hp = 50; p2.hp = 50; p1.block = 0; p2.block = 0;
+    const foe = cs.enemies[0]!;
+    p2.taunt = true;
+    runEnemyEffects(cs, foe, [{ kind: 'damage', amount: 6 }], false);
+    expect(p1.hp, '喊擋的是二號，一號一下都沒挨').toBe(50);
+    expect(p2.hp).toBe(44);
+    p2.taunt = false; p1.down = true;
+    runEnemyEffects(cs, foe, [{ kind: 'damage', amount: 6 }], false);
+    expect(p1.hp, '倒下的人不挨打').toBe(50);
+    expect(p2.hp).toBe(38);
+  });
+
+  it('偷小魚乾只偷一位（偷兩份等於倍增）；單機完全不受影響', () => {
+    const cs = combat();
+    const p1 = cs.players[0] as PlayerCombat;
+    const foe = cs.enemies[0]!;
+    p1.hp = 50; p1.block = 0;
+    runEnemyEffects(cs, foe, [{ kind: 'damage', amount: 6 }, { kind: 'statusPlayer', name: '翻肚', amount: 1 }], false);
+    expect(p1.hp).toBe(44);
+    expect(getStatus(p1, '翻肚')).toBe(1);
+    const p2 = addSecond(cs);
+    p1.fishDelta = 0; p2.fishDelta = 0;
+    runEnemyEffects(cs, foe, [{ kind: 'stealFish', n: 10 }], false, p2);
+    expect(p1.fishDelta + p2.fishDelta, '只被偷了一份').toBe(-10);
   });
 });
 
