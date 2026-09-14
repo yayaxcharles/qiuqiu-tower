@@ -34,6 +34,8 @@ interface LobbyState {
   mode: 'relay' | 'direct';
   /** 主機：我的房號 */
   room?: string;
+  /** 還在等的那條連線怎麼收掉（離開畫面時叫；連上之後清掉，不然進地圖會把遊戲連線一起關了） */
+  cancel?: () => void;
   /** 主機：我的邀請碼 */
   invite?: string;
   /** 加入者：我的回應碼 */
@@ -149,8 +151,17 @@ function pasteBox(label: string, hint: string, btnText: string, onGo: (code: str
 
 registerScreen('lobby', (app, root) => {
   const st: LobbyState = { step: 'pick', mode: 'relay' };
+  /*
+   * 離開這個畫面就把還在等的連線收掉、之後的回呼全部作廢（審查 高-1）。
+   * 不收的話「回標題」之後那條連線還在等：十分鐘逾時會回頭把玩家當下的畫面清掉蓋成失敗框；
+   * 朋友這時才輸入舊房號，甚至會 `startCoop` 把單機進行中的那一局蓋掉。
+   * `app.show` 換畫面時會叫 `disposers`——**連上之後進地圖也會叫**，所以成功那一刻要先把 `st.cancel` 清掉。
+   */
+  let left = false;
+  app.disposers.push(() => { left = true; st.cancel?.(); st.cancel = undefined; });
 
   const fail = (e: unknown): void => {
+    if (left) return;   // 已經離開大廳，別回頭改別人的畫面
     st.step = 'failed';
     st.busy = false;
     // 連線的例外訊息多半是英文的原始錯誤，玩家看不懂。`rtc.ts` 與 `code.ts`
@@ -208,12 +219,17 @@ registerScreen('lobby', (app, root) => {
                 // 房號中繼（2026-09-14 深夜）：兩台都連到 Cloudflare 上的中繼，手機網路也連得上
                 st.step = 'hosting'; st.busy = true; st.msg = '正在跟中繼伺服器要房號…'; render();
                 hostRelay().then((r) => {
-                  st.room = r.code; st.busy = true; st.msg = '等對方輸入房號…（對方連上就會自動開局）'; render();
-                  r.ready.then((tx) => { st.step = 'connected'; st.busy = false; st.msg = undefined; render(); startCoop(app, tx, true); }).catch(fail);
+                  if (left) { r.cancel(); return; }
+                  st.room = r.code; st.cancel = r.cancel; st.busy = true; st.msg = '等對方輸入房號…（對方連上就會自動開局）'; render();
+                  r.ready.then((tx) => {
+                    if (left) { tx.close(); return; }
+                    st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
+                    startCoop(app, tx, true);
+                  }).catch(fail);
                 }).catch(fail);
               } else {
                 st.step = 'hosting'; st.busy = true; st.msg = '正在問路由器「我的對外位置是什麼」，最多五秒…'; render();
-                hostDirect().then((r) => { st.invite = r.invite; st.accept = r.accept; st.busy = false; st.msg = undefined; render(); }).catch(fail);
+                hostDirect().then((r) => { if (left) { r.cancel(); return; } st.invite = r.invite; st.accept = r.accept; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render(); }).catch(fail);
               }
             },
           }, '我開房'),
@@ -242,7 +258,8 @@ registerScreen('lobby', (app, root) => {
             if (!st.accept) return;
             st.busy = true; st.msg = '正在接上…'; render();
             st.accept(code).then((tx) => {
-              st.step = 'connected'; st.busy = false; st.msg = undefined; render();
+              if (left) { tx.close(); return; }
+              st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
               startCoop(app, tx, true);
             }).catch(fail);
           }));
@@ -251,11 +268,20 @@ registerScreen('lobby', (app, root) => {
 
     if (st.step === 'joining' && st.mode === 'relay') {
       const input = el('input', { class: 'lobby-room-input', type: 'text', inputmode: 'numeric', maxlength: '6', placeholder: '六位數房號' }) as HTMLInputElement;
-      const go = el('button', { class: 'btn primary' }, '加入');
+      const go = el('button', { class: 'btn primary', ...(st.busy ? { disabled: 'disabled' } : {}) }, '加入');
       go.addEventListener('click', () => {
+        if (st.busy) return;
+        const code = input.value;   // 先讀值再重畫：`render()` 會把這顆 input 整個換掉（審查 低-11）
         st.busy = true; st.msg = '正在連中繼伺服器…'; render();
-        joinRelay(input.value).then((tx) => { st.step = 'connected'; st.busy = false; st.msg = undefined; render(); startCoop(app, tx, false); }).catch(fail);
+        const j = joinRelay(code);
+        st.cancel = j.cancel;
+        j.ready.then((tx) => {
+          if (left) { tx.close(); return; }
+          st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
+          startCoop(app, tx, false);
+        }).catch(fail);
       });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go.click(); });   // 手機數字鍵盤的送出鍵
       box.append(el('div', { class: 'lobby-field' },
         el('div', { class: 'lobby-label' }, '輸入對方給你的房號'),
         input,
@@ -266,9 +292,10 @@ registerScreen('lobby', (app, root) => {
       box.append(pasteBox('① 貼上對方給你的邀請碼', '按下去會產生你的回應碼', '產生回應碼', (code) => {
         st.busy = true; st.msg = '正在讀邀請碼、問自己的對外位置，最多五秒…'; render();
         joinDirect(code).then((r) => {
-          st.answer = r.answer; st.busy = false; st.msg = undefined; render();
+          if (left) { r.cancel(); return; }
+          st.answer = r.answer; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render();
           // 對方貼完我們的回應碼，通道就會自己開起來
-          r.ready.then((tx) => { st.step = 'connected'; render(); startCoop(app, tx, false); }).catch(fail);
+          r.ready.then((tx) => { if (left) { tx.close(); return; } st.cancel = undefined; st.step = 'connected'; render(); startCoop(app, tx, false); }).catch(fail);
         }).catch(fail);
       }));
       if (st.answer) {

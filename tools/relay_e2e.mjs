@@ -6,9 +6,11 @@ const base = (process.argv[2] ?? 'https://qiuqiu-relay.qiuqiu-tower.workers.dev'
 const code = String(Math.floor(Math.random() * 1e6)).padStart(6, '0');
 const url = (role, build = 'e2e') => `${base}/room/${code}?role=${role}&build=${build}`;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+/** 心跳回聲 pong 不是 JSON，解不開就當沒看到 */
+const j = (e) => { try { return JSON.parse(e.data); } catch { return null; } };
 const open = (ws) => new Promise((res, rej) => {
   const t = setTimeout(() => rej(new Error('15 秒沒收到 relay open')), 15000);
-  ws.addEventListener('message', (e) => { const v = JSON.parse(e.data); if (v.m === 'relay' && v.s === 'open') { clearTimeout(t); res(); } });
+  ws.addEventListener('message', (e) => { const v = j(e); if (!v) return; if (v.m === 'relay' && v.s === 'open') { clearTimeout(t); res(); } });
   ws.addEventListener('close', (e) => { clearTimeout(t); rej(new Error(`被關掉 ${e.code} ${e.reason}`)); });
 });
 const closedWith = (ws) => new Promise((res) => ws.addEventListener('close', (e) => res(`${e.code} ${e.reason}`)));
@@ -20,7 +22,10 @@ const check = (ok, msg) => { console.log(`${ok ? '✓' : '✗'} ${msg}`); if (!o
 
 const t0 = Date.now();
 const host = new WebSocket(url('host'));
-await new Promise((r) => host.addEventListener('open', r));   // 開房的人先連上（真的玩也是先開房、再把房號給對方）
+const hosted = await new Promise((res, rej) => { host.addEventListener('message', (e) => { const v = j(e); if (!v) return; if (v.m === 'relay' && v.s === 'hosting') res(Date.now() - t0); }); host.addEventListener('close', (e) => rej(new Error(`開房被關掉 ${e.code} ${e.reason}`))); });
+check(true, `開房 ${hosted} 毫秒後收到 hosting`);
+// 心跳：送 ping 要收到 pong（中繼自動回，不吵醒房間）
+{ const pong = new Promise((res) => host.addEventListener('message', (e) => { if (e.data === 'pong') res(true); }, { once: true })); host.send('ping'); check(await Promise.race([pong, wait(3000).then(() => false)]), 'ping → pong'); }
 // 拒絕二：版本不同（要在真的加入之前測，不然會先被「房間滿了」擋掉）
 { const w = new WebSocket(url('join', 'other')); const r = await closedWith(w); check(r.startsWith('4400'), `版本不同 → ${r.slice(0, 40)}…`); }
 const join = new WebSocket(url('join'));
@@ -33,8 +38,8 @@ check(true, `開房＋加入 ${Date.now() - t0} 毫秒後兩邊都收到 relay o
 
 // 來回 200 則，順序要對
 const gotJ = [], gotH = [];
-join.addEventListener('message', (e) => { const v = JSON.parse(e.data); if (v.m === 'sync') gotJ.push(v.turn); });
-host.addEventListener('message', (e) => { const v = JSON.parse(e.data); if (v.m === 'sync') gotH.push(v.turn); });
+join.addEventListener('message', (e) => { const v = j(e); if (!v) return; if (v.m === 'sync') gotJ.push(v.turn); });
+host.addEventListener('message', (e) => { const v = j(e); if (!v) return; if (v.m === 'sync') gotH.push(v.turn); });
 const t1 = Date.now();
 for (let i = 1; i <= 200; i++) { host.send(JSON.stringify({ m: 'sync', turn: i, fp: 'h' })); join.send(JSON.stringify({ m: 'sync', turn: i, fp: 'j' })); }
 for (let i = 0; i < 100 && (gotJ.length < 200 || gotH.length < 200); i++) await wait(100);
@@ -44,7 +49,7 @@ check(ordered(gotJ) && ordered(gotH), `來回各 200 則，${Date.now() - t1} �
 // 一邊走了
 const hostClosed = closedWith(host);
 let sawClosed = false;
-host.addEventListener('message', (e) => { const v = JSON.parse(e.data); if (v.m === 'relay' && v.s === 'closed') sawClosed = true; });
+host.addEventListener('message', (e) => { const v = j(e); if (!v) return; if (v.m === 'relay' && v.s === 'closed') sawClosed = true; });
 join.close();
 const r = await hostClosed;
 check(sawClosed && r.startsWith('4000'), `加入的人關掉 → 開房的人收到 relay closed 並被關掉（${r}）`);

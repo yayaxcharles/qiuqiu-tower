@@ -106,7 +106,7 @@ const HOST_TIMEOUT_MS = 20_000;
 const JOIN_TIMEOUT_MS = 5 * 60_000;
 
 /** 主機：開房 → 拿到邀請碼 → 收到回應碼之後就連上了 */
-export async function hostRoom(): Promise<{ invite: string; accept: (answerCode: string) => Promise<Transport> }> {
+export async function hostRoom(): Promise<{ invite: string; accept: (answerCode: string) => Promise<Transport>; cancel: () => void }> {
   const pc = new RTCPeerConnection({ iceServers: ICE });
   // `ordered: true`＝通道自己保證順序。就算這樣，動作照樣要照號碼套用——
   // 主機廣播給自己是本機、給對方要走網路，兩條路的時間本來就不一樣
@@ -116,6 +116,7 @@ export async function hostRoom(): Promise<{ invite: string; accept: (answerCode:
   const invite = await packSignal('offer', pc.localDescription?.sdp ?? '');
   return {
     invite,
+    cancel: () => { pc.close(); },   // 大廳「回標題」用：不關的話這條連線會一直等對方貼回應碼（審查 高-1）
     accept: async (answerCode: string): Promise<Transport> => {
       const { kind, sdp } = await unpackSignal(answerCode);
       if (kind !== 'answer') throw new Error('這是一張邀請碼，不是回應碼——要貼的是對方傳回來的那一串');
@@ -132,7 +133,7 @@ export async function hostRoom(): Promise<{ invite: string; accept: (answerCode:
 }
 
 /** 加入：貼邀請碼 → 拿到回應碼傳回去 → 對方貼上就連上了 */
-export async function joinRoom(inviteCode: string): Promise<{ answer: string; ready: Promise<Transport> }> {
+export async function joinRoom(inviteCode: string): Promise<{ answer: string; ready: Promise<Transport>; cancel: () => void }> {
   const { kind, sdp } = await unpackSignal(inviteCode);
   if (kind !== 'offer') throw new Error('這是一張回應碼，不是邀請碼——要貼的是對方開房時給的那一串');
   const pc = new RTCPeerConnection({ iceServers: ICE });
@@ -145,5 +146,5 @@ export async function joinRoom(inviteCode: string): Promise<{ answer: string; re
   const answer = await packSignal('answer', pc.localDescription?.sdp ?? '');
   const ready = untilOpen(pc, got, JOIN_TIMEOUT_MS, '等了五分鐘對方都沒貼回應碼。兩邊都重新整理頁面，再重新開房一次')
     .then((ch) => wrap(ch, pc), (e: unknown) => { pc.close(); throw e; });
-  return { answer, ready };
+  return { answer, ready, cancel: () => { pc.close(); } };
 }
