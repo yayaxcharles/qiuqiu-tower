@@ -257,7 +257,13 @@ registerScreen('event', (app, root, props) => {
     const list = o && 'chooseCard' in o ? o.chooseCard : [];
     const upId = o && 'chooseCard' in o ? o.upgradedCard : undefined;
     const def = list.find((d) => d.id === cardId);
-    if (!def) return;
+    if (!def) {
+      // 對得上的清單裡找不到那張：別人的就靜靜略過（兩邊清單本來就不同，見 take）；
+      // **自己的絕不能靜靜 return**——那會讓畫面停在「等同伴挑完」永遠不動（使用者 2026-09-15 實測）
+      console.error(`事件學招：座位 ${who} 挑的「${cardId}」不在那個座位的清單裡`);
+      if (resultText !== null) finish(resultText, '這一招沒學到（兩邊的清單對不上）', gains);
+      return;
+    }
     const up = def.id === upId;
     const got = addCard(run, def.id, up, who);
     if (resultText === null) return;   // 別人的：只套用、不演（見上面對這個參數的說明）
@@ -269,7 +275,7 @@ registerScreen('event', (app, root, props) => {
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
   function chooseCard(resultText: string, defs: CardDef[], gains: readonly RunGain[] = [], upgradedCard?: string,
-    outcomes: RunEffectOutcome[] = []): void {
+    outcomes: RunEffectOutcome[] = [], waiting = false): void {
     clearKeepBg(root);
     renderHud(app, root);
     /*
@@ -303,20 +309,23 @@ registerScreen('event', (app, root, props) => {
         return;
       }
       /*
-       * 先重畫成「挑好了，等同伴挑完」再投票（理由同 `settleCards`：
-       * 我如果是後投的那一位，投下去就當場結算完了，再重畫會把結果蓋掉）。
+       * **先畫「挑好了，等同伴挑完」，再投票**（理由同 `settleCards`）。
+       *
+       * 原本反過來：先 `pick`、再看票箱決定要不要畫等待畫面。我如果是**後投的那一位**，`pick` 會當場把票湊齊、
+       * 處理函式立刻結算並畫出結果、把票箱清空——接著回到這裡一看票箱是空的，就把結果蓋回「選一招帶走」，
+       * 玩家再點一次，那一票永遠等不到對方，畫面停在「等同伴挑完」（使用者 2026-09-15 跟朋友實測：
+       * 開房的人先點所以沒事，加入的人每次都卡住）。
+       * `waiting: true`＝畫成已挑好，因為這時候票箱裡還沒有我的票。
        */
+      chooseCard(resultText, defs, gains, upgradedCard, outcomes, true);
       coop.pick('evlearn', cardId);
-      if (!coop.picks('evlearn', run.players.length).every((v, i) => run.players[i]?.down || v !== null)) {
-        chooseCard(resultText, defs, gains, upgradedCard, outcomes);   // 票還沒齊：改成「等同伴挑完」（稽核 中-3）
-      }
     };
 
     const grid = el('div', { class: 'reward-cards' });
     const mine = coop ? coop.picks('evlearn', run.players.length)[seat] : null;
     // **空字串是「我選了都不要」，不是「還沒選」**——用 falsy 判斷會讓文案繼續寫著「選一招帶走」，
     // 但牌其實已經點不動了（稽核第三輪 低-1）
-    const picked = mine !== null && mine !== undefined;
+    const picked = waiting || (mine !== null && mine !== undefined);
     for (const c of defs) {
       const up = c.id === upgradedCard;   // 開出升級版的那張：照＋版畫、學到就是升級牌（使用者 2026-09-04）
       grid.append(cardNode(up ? { uid: -1, cardId: c.id, upgraded: true } : c,
