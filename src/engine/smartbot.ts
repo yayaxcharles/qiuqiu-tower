@@ -372,9 +372,11 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'drawAlly': value += fx.n * 2.2; break;         // 一個人時退化成自己抽，跟 `draw` 同口徑
       case 'cleanseAlly': value += DEBUFFS.filter((d) => getStatus(p, d) > 0).length * 3; break;
       case 'energyAlly': value += fx.n * 4; break;         // 一顆飯糰約等於一張中等的牌
-      // 見血封喉／一針斃命：跟一般傷害一樣，在 switch 之前的傷害估算區（`damageTo`）已經算過、也挑好了目標，
-      // 這裡不重複計。原本這裡又加一次「目標身上幾層」，這兩張被高估一倍（夜間稽核留的「見血封喉估值算兩次」）
-      case 'damageByStatus': case 'execByStatus': break;
+      // 見血封喉／一針斃命：傷害本身在 switch 之前的傷害估算區（`damageTo`）已經算過、也挑好了目標，這裡不重複計
+      //（原本又加一次「目標身上幾層」，這兩張被高估一倍多——夜間稽核留的「見血封喉估值算兩次」）。
+      // 只留原本那個語意：不清毒的話毒會繼續滾，同樣層數比一次性的傷害多值三成
+      case 'damageByStatus': if (target0 && !fx.consume) value += getStatus(target0, fx.name) * (fx.mul ?? 1) * 0.3; break;
+      case 'execByStatus': break;
       /*
        * 三個長效旗標：機器人是**單人**在跑，估的是「這一場剩下的回合裡大概值多少」。
        * `rest` 跟 `power` 那條用同一個粗估法（還要打幾回合），口徑才一致。

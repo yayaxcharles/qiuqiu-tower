@@ -87,6 +87,7 @@ def main() -> None:
     args = ap.parse_args()
     group = args.group
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    too_short: list[str] = []   # 矮過待機一成、沒進倉的那幾張；其他張照常進倉、manifest 照常寫，最後才停
     for raw_name in args.names:
         # 每張各自決定基準：boss／hero 用 --baseline，monsters 用該怪自己的 idle
         if group == "monsters":
@@ -157,10 +158,12 @@ def main() -> None:
         # 「主體高 ÷ 待機主體高」就是玩家看到的比例。姿勢畫成橫向撲出（老鼠伏低刺矛、傀儡師針伸長）
         # 主體比寬還高不了，上面那一步只能整隻縮小——矮過一成就停下來，不要靜靜進倉。
         if group == "monsters" and pose in ("attack", "block") and im.height < base_h * 0.9 and not args.allow_shorter:
-            raise SystemExit(
+            # 不在這裡直接退出：同一行帶多張時，前面幾張的 webp 已經存了，manifest 要等迴圈結束才寫（審查 低-3）
+            too_short.append(
                 f"!! {raw_name}：這張 {pose} 在遊戲裡只有待機的 {im.height / base_h:.0%} 高（主體 {im.height} 對 {base_h}）——"
                 "多半是姿勢畫得比高還寬，塞進框裡整隻被縮小。重生成直立的姿勢（提示詞寫「至少跟參考圖一樣高」，"
                 "見 make_audit_art_0914.py 的 e 批）；確定就是要矮的話加 --allow-shorter")
+            continue
         canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
         canvas.paste(im, ((cw - im.width) // 2, ch - bottom_pad - im.height), im)
         if group == "monsters":
@@ -180,6 +183,8 @@ def main() -> None:
         return
     MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print("manifest.json 已併入")
+    if too_short:
+        raise SystemExit("以下這幾張**沒進倉**（其他張已進倉、manifest 已寫）：\n" + "\n".join(too_short))
 
 
 if __name__ == "__main__":

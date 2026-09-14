@@ -11,6 +11,7 @@
 | c | card_mabu、card_feifei_mabu | 「絕學·貓步」還是馬步蹲姿（牌 9/14 改名時圖沒跟著換） | 大物件與動作兩行都換成輕快的貓步 |
 | c | card_feifei_fanzhua | 「反彈」畫成揮舞爪刃（她只用針） | 換成周身針刺、來拳被彈開 |
 | d | 8 隻魔物的 `_attack` | 攻擊姿勢跟自己的待機判若兩物（帽子、配色、機身全變） | 附待機圖當參考、明講「同一隻、只有姿勢不同」 |
+| e | d 批的老鼠、貓草蟲、傀儡師 | 畫成橫向撲出，進倉後比待機矮 12～16%，遊戲裡一出招就變小（使用者深夜回報） | 提示詞明講「至少跟參考圖一樣高、直立出招」；`add_sprite.py` 矮過九成會擋 |
 
 魔物那批的根因跟防禦姿勢那批（`build_block_queue.py`）一樣：沒附參考圖，每張長相都自己長。
 這裡照它的做法：待機圖鋪白底存到 `tools/ref/monster_refs/<id>.png` 當參考，提示詞寫「跟參考圖同一隻」。
@@ -22,6 +23,8 @@
   python tools/make_audit_art_0914.py b && …
   python tools/make_audit_art_0914.py c && … → add_card_art.py（feifei_mabu 用 --top，直立全身像）
   python tools/make_audit_art_0914.py d && … → add_sprite.py --group monsters monster_<id>_attack.png …
+  python tools/make_audit_art_0914.py e && python tools/codex_gen.py tools/codex_jobs/audit_art_0914_e.json
+    → add_sprite.py --group monsters monster_rat_attack.png monster_catgrass_bug_attack.png monster_puppeteer_attack.png（矮過九成會被擋）
 舊原稿一律先改名 `.previous-20260914c.png`（codex_gen 看到檔案在就跳過、還印成功）。
 """
 import json
@@ -193,6 +196,9 @@ elif batch in ('d', 'e'):
             'puppeteer': 'thrusting a long needle forward with one hand while the other hand jerks the puppet strings taut, robe swirling',
         }
         HEIGHT = 'Fill the frame vertically.\n'
+        KEEP = ('Keep the same overall orientation and proportions as the reference: if the creature lies down, sprawls, or '
+                'is wider than it is tall in the reference, keep it exactly that way - do NOT stand it up and do NOT make it '
+                'shorter. ')
     else:
         # e（2026-09-14 深夜，使用者：「有些怪物攻擊時的動作變得比待機小」）：d 批這三張畫成**橫向撲出**
         #（老鼠伏低刺矛、貓草蟲趴平張口、傀儡師針伸長），主體比寬還高不了，add_sprite 塞進待機的畫布
@@ -215,6 +221,10 @@ elif batch in ('d', 'e'):
                   'with an upright, rearing or stepping pose - NOT by stretching the body sideways, leaning far forward or '
                   'crouching lower. A wide, flat pose gets shrunk to fit in the game and the monster looks smaller the '
                   'moment it attacks; that is wrong.\n')
+        # d 批那句「比高還寬的就照樣趴著、不要立起來」跟上面打架（審查 中-1）：e 批只保留體型，姿勢要立起來
+        KEEP = ("Keep the creature's body size and proportions as in the reference (a creature that is wider than it is "
+                'tall stays that shape), but show the attack by rearing up or standing tall - never lower or flatter than '
+                'the reference. ')
     for mid, desc in ATTACKS.items():
         idle = ROOT / 'public' / 'assets' / 'monsters' / f'{mid}_idle.webp'
         if not idle.exists():
@@ -234,10 +244,8 @@ elif batch in ('d', 'e'):
             f'Pose: ATTACKING - {desc}. The attack must read at a glance (strong forward motion, a few short solid '
             'motion lines), but keep the design identical to the reference.\n\n'
             'It stands on the ground with its feet at the very bottom edge of the picture - do not draw it floating. '
-            'Full body, facing LEFT. ' + HEIGHT +
-            'Keep the same overall orientation and proportions as the reference: if the creature lies down, sprawls, or '
-            'is wider than it is tall in the reference, keep it exactly that way - do NOT stand it up and do NOT make it '
-            'shorter. Only ONE creature in the picture.\n'
+            'Full body, facing LEFT. ' + HEIGHT + KEEP +
+            'Only ONE creature in the picture.\n'
             'Draw everything SOLID and OPAQUE - flat filled colour with soft shading. Nothing transparent or see-through.\n'
             'Nothing else in the picture: no ground line, no shadow, no scenery, no text, no letters, no watermark, no border.\n'
             'Style: thick black outlines, flat colors with subtle soft gradients, cute cartoon look, not photorealistic.\n'
