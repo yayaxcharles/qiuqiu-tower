@@ -177,6 +177,7 @@ export class CoopSession {
     this.picked = null;
     this.before = null;
     this.dropped = null;
+    this.hinted = null;
     /*
      * `trouble` 也要清（稽核第三輪 中-4）。戰鬥畫面掛的那一支會 `render()`，
      * 而那支 `render()` 第一件事是把整頁清空——離開戰鬥之後如果對方斷線，
@@ -237,6 +238,14 @@ export class CoopSession {
    */
   onDropped(fn: () => void): void { this.dropped = fn; }
   private dropped: (() => void) | null = null;
+  /** 同伴點選了哪張牌（`u: null`＝取消或打出了）。純提示，畫面拿來畫「考慮中」；換畫面會被清掉 */
+  onHint(fn: (seat: number, u: number | null) => void): void { this.hinted = fn; }
+  private hinted: ((seat: number, u: number | null) => void) | null = null;
+  /** 我點選了哪張牌，告訴同伴（不進鎖步、不進對帳）。連線停了就不送 */
+  hint(u: number | null): void {
+    if (this.dead) return;
+    this.tx.send({ m: 'hint', seat: this.seat, u });
+  }
   /**
    * **套用之前**那一刻。畫面用它存一份快照，套用完才有東西可以比對出「變了什麼」。
    *
@@ -466,6 +475,7 @@ export class CoopSession {
     // 開局訊息在 `attach` 之前就會到（那時還沒有戰鬥），所以要擺在 cs 的檢查之前
     if (m.m === 'pick') { this.record(m.k, m.seat, m.v); return; }
     if (m.m === 'drop') { this.dropped?.(); return; }   // 我那一則沒算數：把手放開（見 `onDropped`）
+    if (m.m === 'hint') { if (m.seat !== this.seat) this.hinted?.(m.seat, m.u); return; }   // 純提示，不碰狀態
     // 整局那一條不需要戰鬥狀態，所以要擺在 cs 的檢查之前（商店、打盹點本來就沒有 cs）
     if (this.handleRun(m)) return;
     // 走格子的對帳也一樣沒有 cs。存起來等自己也走到那一格再比（見 `syncRun`）
