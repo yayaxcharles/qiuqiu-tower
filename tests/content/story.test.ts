@@ -117,7 +117,8 @@ describe('關主的故事線', () => {
 
   /*
    * 使用者 2026-09-14 裁定：她沒有隱身流，第二派換成毒流。
-   * 她拿得到的牌裡給自己隱身的是 0 張，照球球的算法那句旁白永遠不會出現。
+   * 裁定不靠「她沒有隱身牌」撐（2026-09-14 深夜「後退閃躲」已改成獲得隱身）：她的第二派就是毒，
+   * 而 `victoryNarration` 沒有 stealth 鍵，改回去那句旁白會靜靜消失。
    */
   it('她的第二派是毒流：下毒的牌拿得多，結局那句旁白講毒；師父沿用「深藏不露」', () => {
     const poisonDeck = [...FEIFEI_STARTER_DECK, 'feifei_qianzhen', 'feifei_qianzhen', 'feifei_yudu', 'feifei_yudu', 'feifei_tianzhen', 'feifei_tianzhen', 'feifei_yizhen'];

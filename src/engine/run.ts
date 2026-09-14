@@ -418,6 +418,8 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    * 開的時候看的是第一位的秘寶、牌組與稀有保底——一份共用的戰利品總得有個基準，
    * 而且兩台機器都用同一個基準才算得出同一份。兩位的差異體現在「各挑各的」那一步。
    */
+  // `heroes`／`hero` 是秘寶職業鎖（`RelicDef.notFor`）用的；2026-09-14 深夜起沒有任何秘寶上鎖，這幾條路目前沒有測試守得到，
+  // 哪天再鎖秘寶，先從 2e326a6／9f0ea98 把五個入口的濾網測試撿回來
   const r = rollRewards(runRng(run), kind, me(run).relics, winGold, late, { exclude, rareBonus: (me(run).rarePity ?? 0) * 4, extraChoices, upgradeChance, hero: heroOf(me(run)), heroes: heroesIn(run), players: run.players.length,
     ...(run.players.length > 1 ? { ownedPerSeat: run.players.map((p) => p.relics) } : {}) });
   /*
