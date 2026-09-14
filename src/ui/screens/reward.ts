@@ -64,6 +64,10 @@ registerScreen('reward', (app, root, props) => {
   if (app.coop) {
     const coop = app.coop;
     const alive = (): boolean[] => run.players.map((p) => !p.down);
+    // 已經離開這一頁（回地圖了）就不要再 `app.show('reward')` 把地圖蓋回去（審查 高-1：主機先挑牌再挑秘寶時，
+    // `settleRelics` 裡的 `submitRun` 同步套用→`maybeGo`→回地圖，回到呼叫端又重畫一次戰利品頁，還多投一張洗不掉的空票）
+    let left = false;
+    app.disposers.push(() => { left = true; });
     /**
      * 把某個座位記成「秘寶這件事他做完了」。
      * 記在戰利品物件上不是區域變數：畫面每挑一次就重畫，區域變數會被清掉。
@@ -90,10 +94,15 @@ registerScreen('reward', (app, root, props) => {
        * 不用補送一則空動作：`got` 是兩台各自用同一顆亂數算出來的，**結果一模一樣**，
        * 所以兩邊都可以直接在本機把那個座位記成完成，不會分岔。
        */
-      run.players.forEach((_, i) => { if (!got[i]) markRelicSeat(i); });
+      // 分不到、已經倒下、本來就有那件的座位都直接記成完成（審查 高-2：`{t:'relic'}` 對「已經有那件」會被主機
+      // 靜靜拒絕、永遠等不到套用，旗標湊不齊兩台一起卡在這頁）。`got` 與秘寶清單兩台一樣，本機記不會分岔
+      run.players.forEach((p, i) => { const id = got[i]; if (!id || p.down || p.relics.includes(id)) markRelicSeat(i); });
       const id = got[seat];
-      if (id) { play('relic'); coop.submitRun({ t: 'relic', seat, id }); }
-      else if (r.relicTaken) maybeGo();   // 全部都分不到（理論上不會發生）也要放行
+      if (id && !me(run, seat).relics.includes(id)) {
+        play('relic');
+        if (!coop.submitRun({ t: 'relic', seat, id })) markRelicSeat(seat);   // 沒送出去（連線停了）也別讓自己卡住
+      }
+      if (r.relicTaken && !left) maybeGo();   // 全部都不用等（分不到、都有了）也要放行
     };
     /** 鏡子走廊那類「升 N 張牌」：兩邊都挑完才一起套上去 */
     const settleUps = (): void => {
@@ -121,6 +130,7 @@ registerScreen('reward', (app, root, props) => {
       app.backToMap();
     };
     coop.onRunApplied((applied) => {
+      if (left) return;
       /*
        * **換忍具不算在這裡面**（稽核第二輪 高-1）。
        *
@@ -142,16 +152,17 @@ registerScreen('reward', (app, root, props) => {
        * 那件秘寶等於沒出現過。
        */
       for (const o of applied) if (o.a.t === 'relic') markRelicSeat(o.a.seat);
-      if (r.relicTaken) maybeGo(); else app.show('reward', r);
+      if (r.relicTaken) maybeGo(); else if (!left) app.show('reward', r);
     });
     coop.onPick((kind) => {
-      if (kind === 'relic') { settleRelics(); app.show('reward', r); return; }
+      if (left) return;
+      if (kind === 'relic') { settleRelics(); if (!left) app.show('reward', r); return; }
       if (kind === 'rwup') { settleUps(); maybeGo(); return; }
       if (kind !== 'card') return;
       const picks = onlyStanding(coop.picks('card', run.players.length), alive());
       if (!allVoted(picks, alive())) { app.show('reward', r); return; }
       maybeGo();
-      if (!r.relicTaken && offers.length) app.show('reward', r);
+      if (!r.relicTaken && offers.length && !left) app.show('reward', r);
     });
   }
 

@@ -205,6 +205,17 @@ describe('分岔：抓到就停，不要繼續玩兩份不一樣的遊戲', () =
     expect(dropped, '客戶端收得到「沒算數」').toBe(1);
   });
 
+  it('更早那一則遲到的「沒算數」不算數（審查 2026-09-15 中-4：不能拿它解鎖、把剛送出的選牌彈回來）', () => {
+    const t = table('dropstale');
+    let dropped = 0;
+    t.guest.s.onDropped(() => { dropped += 1; });
+    expect(t.guest.s.submit({ t: 'ready', seat: 1, on: true })).toBe(true);   // 真的送過一則（流水號 1）
+    t.link.a.send({ m: 'drop', n: 0 });   // 主機對更早那一則的「沒算數」現在才到
+    expect(dropped, '舊的 drop 要忽略').toBe(0);
+    t.link.a.send({ m: 'drop', n: 1 });
+    expect(dropped, '最新那一則的 drop 才算').toBe(1);
+  });
+
   it('斷線會通知，而且之後不再收動作', () => {
     const link = new LoopbackPair();
     const cs = twoPlayerCombat('close');

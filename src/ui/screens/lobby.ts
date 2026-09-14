@@ -62,7 +62,7 @@ interface LobbyState {
  *
  * 掛在 `document.body` 而不是舞台裡：舞台每換一個畫面就被清空一次。
  */
-function troubleBanner(why: string): void {
+function troubleBanner(app: App, why: string): void {
   /*
    * **第一則留著，後面的不覆蓋。**
    *
@@ -72,7 +72,9 @@ function troubleBanner(why: string): void {
    * 實測就是這樣：兩邊都只看到「自己關掉了」，查不出是哪裡對不上。
    */
   if (document.querySelector('.net-trouble')) return;
-  const bar = el('div', { class: 'net-trouble' }, `連線出問題：${why}`);
+  // 戰鬥畫面沒有別的出口：斷線之後要能回標題（審查 中-3）
+  const bar = el('div', { class: 'net-trouble' }, `連線出問題：${why}`,
+    el('button', { class: 'btn small', onclick: () => { app.leaveCoop(); app.show('title'); } }, '回標題'));
   document.body.append(bar);
 }
 
@@ -88,7 +90,7 @@ const coopHeroes: [Hero, Hero] = ['ninja', 'ninja'];
 
 function startCoop(app: App, tx: Transport, isHost: boolean): void {
   const seat = isHost ? 0 : 1;
-  const session = new CoopSession(tx, { isHost, seat, onDesync: troubleBanner, onClose: troubleBanner });
+  const session = new CoopSession(tx, { isHost, seat, onDesync: (w) => troubleBanner(app, w), onClose: (w) => troubleBanner(app, w) });
   app.coop = session;
   app.seat = seat;
   const begin = (seed: string, diff: number, heroes?: string[]): void => {
