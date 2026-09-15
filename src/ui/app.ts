@@ -1,7 +1,7 @@
 import { victoryLinesFor, dialogue, lineFor, pick, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
-import { playVideo } from './video';
+import { playVideo, type VideoName } from './video';
 import { preloadAct, preloadHeroArt, warmEncounter } from './preload';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -28,6 +28,9 @@ type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 const screens = new Map<ScreenName, Renderer>();
 export function registerScreen(name: ScreenName, render: Renderer): void { screens.set(name, render); }
 
+
+/** 開頭影片照角色挑（`public/video/<檔名>.mp4`）；沒列的角色（鐵爪機關貓）沒有片子，直接進幻燈片 */
+const OPENING_CLIP: Partial<Record<Hero, VideoName>> = { ninja: 'opening', feifei: 'opening_feifei' };
 
 export class App {
   run: RunState | null = null;
@@ -179,15 +182,16 @@ export class App {
     const after = (): void => { this.save(); this.show('map'); };
     if (this.run && !this.run.flags['prologue']) {
       this.run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
-      // 使用者自製的開頭影片先播（沒檔就直接略過），再接序章幻燈片
+      // 開頭影片先播（照角色挑檔名，沒檔就直接略過），再接序章幻燈片
       /*
-       * 使用者自製的開頭影片**只給球球**（2026-09-12 實測到）：那支片子從頭到尾是他，
+       * 每個角色只能看自己的片子（2026-09-12 實測到）：球球那支從頭到尾是他，
        * 換成菲菲卻照播，等於一開場就先看別人的故事，後面四張幻燈片再講她的，接不起來。
-       * 她要的是自己的片子，沒有就直接進幻燈片——寧可少一段，不要放錯的那一段。
+       * 沒片子的角色直接進幻燈片——寧可少一段，不要放錯的那一段。
        */
-      // 沒片子的那一位要自己切曲（稽核 中-1）：換成第一關曲原本是影片收尾（`video.ts` 的 `end()`）順手做的，
-      // 跳過影片就沒人切，她的序章整段配著標題畫面的輕鬆曲
-      const intro = (go: () => void): void => (hero === 'ninja' ? playVideo('opening', go) : (setBgm('act1'), go()));
+      // 沒片子的角色要自己切曲（稽核 中-1）：換成第一關曲原本是影片收尾（`video.ts` 的 `end()`）順手做的，
+      // 跳過影片就沒人切，序章整段會配著標題畫面的輕鬆曲
+      const clip = OPENING_CLIP[hero];
+      const intro = (go: () => void): void => (clip ? playVideo(clip, go) : (setBgm('act1'), go()));
       intro(() => {
         if (slidesReady(proSlides)) playSlides(proSlides, after);
         else playDialogue(pro, after);
