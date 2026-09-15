@@ -1,3 +1,4 @@
+import { sfxFor } from './sfxhero';
 import { BASE } from './assets';
 
 /**
@@ -17,16 +18,23 @@ export type Sfx =
   | 'claw' | 'hit' | 'hit_heavy' | 'hurt' | 'block' | 'blocked' | 'enemy_down'
   | 'dodge' | 'thorns' | 'poison' | 'stealth' | 'buff' | 'debuff' | 'heal'
   | 'draw' | 'click' | 'turn_end' | 'turn_start' | 'fish' | 'buy' | 'potion'
-  | 'upgrade' | 'relic' | 'victory' | 'defeat' | 'step';
+  | 'upgrade' | 'relic' | 'victory' | 'defeat' | 'step'
+  // 角色專屬版本（`sfxhero.ts` 決定什麼時候用它們）
+  | 'hurt_feifei' | 'victory_feifei';
 
 /** 每個音效的相對音量。合成出來的響度不一，這裡拉平，不要在合成端硬調峰值。 */
 const GAIN: Partial<Record<Sfx, number>> = {
   claw: 0.7, hit: 0.65, hit_heavy: 0.8, hurt: 0.7, blocked: 0.5, thorns: 0.45,
   draw: 0.35, click: 0.4, step: 0.3, turn_end: 0.5, turn_start: 0.5,
   fish: 0.45, buy: 0.5, victory: 0.7, defeat: 0.7,
+  hurt_feifei: 0.7, victory_feifei: 0.7,
 };
 
 const STORE_KEY = 'qiuqiu.sound';
+
+/** 這一局本機玩的是誰：受傷、勝利那類貓叫照角色換檔（`app.ts` 跟 `setLocalHero` 一起設） */
+let sfxHero = 'ninja';
+export function setSfxHero(hero: string | undefined): void { sfxHero = hero ?? 'ninja'; }
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -114,6 +122,7 @@ export function unlockOnFirstGesture(): void {
  */
 export function play(name: Sfx, rate = 1): void {
   if (!enabled || !ctx || !master) return;
+  name = sfxFor(name, sfxHero);   // 角色專屬版本（菲菲的貓叫）
   const buf = buffers.get(name);
   if (!buf) { void load(name); return; }        // 第一次用到才載，這一下就沒聲音，之後都有
   const src = ctx.createBufferSource();

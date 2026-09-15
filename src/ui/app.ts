@@ -15,6 +15,7 @@ import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, monsterUrl, setLocalHero } from './assets';
+import { setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
 import { clear, el } from './dom';
@@ -170,6 +171,7 @@ export class App {
     this.cs = null;
     // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
     setLocalHero(hero);
+    setSfxHero(hero);   // 貓叫也照角色換（菲菲的受傷、勝利）
     void preloadHeroArt([hero]);   // 這一位專屬的圖開場沒載，現在補（總稽核 F 中-1）
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     /*
@@ -210,6 +212,7 @@ export class App {
     this.run = run;
     this.cs = null;
     setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
+    setSfxHero(me(run, this.seat).hero);
     void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
     void preloadAct(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
