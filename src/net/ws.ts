@@ -1,5 +1,5 @@
 import { BUILD } from './code';
-import type { NetMessage, Transport } from './transport';
+import type { LinkStatus, NetMessage, Transport } from './transport';
 
 /**
  * 房號連線：兩台瀏覽器都連到 Cloudflare 上的中繼（`worker/`），由它轉送訊息。
@@ -11,7 +11,16 @@ import type { NetMessage, Transport } from './transport';
  *
  * 流程：開房的人連上、中繼回一句 `hosting`（房登記好了）才把六位數房號秀出來 → 用 LINE 講給對方 → 對方輸入 →
  * 中繼把兩邊接起來，各送一句 `open`。版本檢查在中繼做（連進去時帶打包編號），對不上加入的那一位會被帶原因關掉。
- * 關閉代碼跟 `worker/src/index.ts` 的 `CLOSE` 對照：4409 撞號（要重抽）、4404 沒人開房、4403 滿了、4400 版本、4000 對方離開、4001 對方沒回應。
+ * 關閉代碼跟 `worker/src/index.ts` 的 `CLOSE` 對照：4409 撞號（要重抽）、4404 沒人開房、4403 滿了、4400 版本、
+ * 4000 對方離開、4001 太久沒回應（可以接回）、4410 房間已經關了（接不回去）、4429 訊息太多。
+ *
+ * **中途斷線接回**（使用者 2026-09-15）：線路斷了（1006 那種，不是被拒絕）就自動用同一個房號、同一個身分接回，
+ * 最多試 `GRACE_MS`。接回要**一則不多、一則不少**（鎖步對重複與漏掉都很脆弱），做法是兩邊都數：
+ *   - 我數「收到對方幾則」（`recv`），接回時告訴中繼 `got=recv`，它把我漏掉的補給我、再說 `open`；
+ *   - 中繼數「收到我幾則」，`open` 裡附上，我把它沒收到的那幾則從 `history` 補送回去。
+ * 斷線期間送的訊息也只是進 `history` 排隊，接回一起送（補送完才算接回，期間送的照樣排在後面，順序不亂）。
+ * 遊戲那層（`session.ts`）完全不用知道斷過線，只透過 `onStatus` 收到 away／back（自己）、peerAway／peerBack（對方）
+ * 去畫橫幅、暫停操作。關分頁、重新整理會先跟中繼說一句 `bye`（`pagehide`），對方立刻知道、不用等。
  *
  * 跟 `rtc.ts` 一樣刻意寫得薄：鎖步、對帳、號碼都在 `session.ts`，這裡只負責把字串送過去。
  */
@@ -24,12 +33,20 @@ export function relayUrl(): string {
   return (env || DEFAULT_RELAY).replace(/\/+$/, '');
 }
 
-/** 中繼自己講的話（不是遊戲訊息） */
-type RelayState = 'hosting' | 'open' | 'closed';
-interface RelayCtl { m: 'relay'; s: RelayState }
+/** 中繼自己講的話（不是遊戲訊息）。`open` 在接回時附 `got`＝它收到我幾則；`closed` 附 `why`＝為什麼結束 */
+type RelayState = 'hosting' | 'open' | 'closed' | 'away' | 'back';
+interface RelayCtl { m: 'relay'; s: RelayState; got?: number; why?: string }
 const isCtl = (x: unknown): x is RelayCtl => !!x && typeof x === 'object' && (x as { m?: unknown }).m === 'relay';
 /** 撞號的關閉代碼（`worker/src/index.ts` 的 `CLOSE.taken`）：開房的人換一個房號再試 */
 const CODE_TAKEN = 4409;
+/** 「我真的走了」（跟 `worker/src/index.ts` 的 `BYE` 一字不差）：對方立刻收到 closed，不用等 */
+export const BYE = '{"m":"relay","s":"bye"}';
+/**
+ * 這些關閉代碼是「線路斷了」不是「被拒絕」，要接回：1006 沒有關閉訊框（網路斷）、1005 沒帶代碼（邊緣節點或代理關的）、
+ * 1001／1011～1013 伺服器那邊重啟或出錯、4001 被中繼當殭屍踢掉（我的 ping 沒送到，多半也是網路）。
+ * 其餘（4000 對方走了、4410 房間關了、4400 版本…）不再試。中繼自己關的一律帶代碼，所以 1005 不會是它。
+ */
+const RESUMABLE = new Set([1001, 1005, 1006, 1011, 1012, 1013, 4001]);
 
 /** 六位數房號。用數字不用字母：口頭講、LINE 打都不會搞混 0／O、1／l */
 export function makeCode(rng: () => number = Math.random): string {
@@ -44,29 +61,39 @@ const realWs: WsFactory = (url) => new WebSocket(url);
 export const HOST_WAIT_MS = 10 * 60_000;
 /** 連中繼、等它回話：一兩秒內會回，15 秒沒回就是網路不通（行動網路慢也夠） */
 export const JOIN_WAIT_MS = 15_000;
-/** 心跳：中繼超過 150 秒沒收到就當這邊死了（背景分頁的計時器會被拉長到約一分鐘一次，還在線內） */
+/** 心跳：中繼超過 90 秒沒收到就當這邊斷了（背景分頁的計時器會被拉長到約一分鐘一次，漏一次還在線內） */
 export const PING_MS = 25_000;
+/** 斷線之後最多花多久接回（跟中繼的 `GRACE_MS` 一樣）；超過就當這一局散了 */
+export const GRACE_MS = 120_000;
+/** 自己送過的最近幾則留著（接回時補送中繼沒收到的那幾則）；斷線期間的操作也在這裡排隊 */
+export const HISTORY = 256;
+/** 重連的間隔：馬上、1 秒、2 秒、4 秒、之後每 8 秒 */
+const RETRY_MS = [0, 1000, 2000, 4000, 8000];
+/** 補送給中繼的速度：每秒超過 25 則會被踢，一次送 20 則、隔一秒再送 */
+const RESEND_BATCH = 20;
 /** 房號撞到別人正在用的（4409）就換一個再試，最多幾次 */
 const CODE_TRIES = 3;
 
-function wsUrl(code: string, role: 'host' | 'join'): string {
+function wsUrl(code: string, role: 'host' | 'join', resumeGot?: number): string {
   const base = relayUrl().replace(/^http/, 'ws');
-  return `${base}/room/${code}?role=${role}&build=${encodeURIComponent(BUILD)}`;
+  return `${base}/room/${code}?role=${role}&build=${encodeURIComponent(BUILD)}${resumeGot === undefined ? '' : `&resume=1&got=${resumeGot}`}`;
 }
 
+const sleep = (ms: number): Promise<void> => new Promise((r) => { setTimeout(r, ms); });
+
 /**
- * 等中繼講某一句話。三種結果：講了（成功）、連線被關掉（照中繼給的原因失敗）、等太久（失敗）。
+ * 等中繼講某一句話。三種結果：講了（成功，回那一句）、連線被關掉（照中繼給的原因失敗，帶關閉代碼）、等太久（失敗）。
  * 中繼拒絕的時候是「先接受、再帶原因關掉」，所以原因在 `close` 事件的 `reason` 裡；
  * 連中繼都連不上（伺服器沒開、網路不通）的話 `reason` 是空的，換成講人話的那句。
  */
-function untilRelay(ws: WebSocket, want: RelayState, waitMs: number, slowMsg: string): Promise<void> {
+function untilRelay(ws: WebSocket, want: RelayState, waitMs: number, slowMsg: string): Promise<RelayCtl> {
   return new Promise((resolve, reject) => {
     let done = false;
     const finish = (f: () => void): void => { if (!done) { done = true; clearTimeout(timer); f(); } };
     ws.addEventListener('message', (e) => {
       let v: unknown;
       try { v = JSON.parse(String((e as MessageEvent).data)); } catch { return; }
-      if (isCtl(v) && v.s === want) finish(resolve);
+      if (isCtl(v) && v.s === want) finish(() => resolve(v));
     });
     ws.addEventListener('close', (e) => {
       const ev = e as CloseEvent;
@@ -78,7 +105,7 @@ function untilRelay(ws: WebSocket, want: RelayState, waitMs: number, slowMsg: st
 
 /**
  * 心跳：**連上中繼就開始送**，不是等對方加入才送（審查 高-1）。開房的人等朋友輸入房號那幾分鐘一則都不送的話，
- * 中繼的鬧鐘第三次掃（約三分鐘）就把他當殭屍踢掉，而且關掉時沒有原因，畫面只會說「連不上中繼伺服器」。
+ * 中繼的鬧鐘就把他當殭屍踢掉，而且關掉時沒有原因，畫面只會說「連不上中繼伺服器」。
  * 沒開好之前送不出去沒關係（`readyState` 不是 OPEN 就跳過）；關掉就停。
  */
 function keepAlive(ws: WebSocket): () => void {
@@ -88,27 +115,123 @@ function keepAlive(ws: WebSocket): () => void {
   return stop;
 }
 
-function wrap(ws: WebSocket, stopPing: () => void): Transport {
+/** 接回要用的東西：同一個房號、同一個身分、同一個開 socket 的辦法 */
+interface Link { code: string; role: 'host' | 'join'; mk: WsFactory }
+
+function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
+  let ws = first;
+  let stopPing = stopPing0;
   let onMsg: ((m: NetMessage) => void) | null = null;
   let onClose: ((w: string) => void) | null = null;
+  let onStatus: ((s: LinkStatus) => void) | null = null;
   // 監聽器掛上之前就到的遊戲訊息先收著（跟 `session.ts` 的 pendingStart 同一招）：不然只要呼叫端多一個 await，開局訊息就無聲消失
   const pending: NetMessage[] = [];
-  let closed = false;
-  const die = (why: string): void => { if (!closed) { closed = true; stopPing(); onClose?.(why); try { ws.close(); } catch { /* 已經關了 */ } } };
-  ws.addEventListener('message', (e) => {
-    const raw = String((e as MessageEvent).data);
+  let closed = false;   // 真的結束了：自己關、對方走了、被拒絕、接不回去
+  let away = false;     // 線路斷了、正在接回（含補送中）；期間送的只進 history 排隊
+  let gen = 0;          // 第幾次接回：補送到一半又斷了，舊的那一輪不可以再宣布「接回來了」
+  let sent = 0;         // 自己送出去第幾則（斷線期間排隊的也算）
+  const history: { i: number; s: string }[] = [];
+  let recv = 0;         // 收到對方幾則遊戲訊息（中繼的話與 pong 不算）——接回時告訴中繼從第幾則補
+  let attempting: WebSocket | null = null;   // 接回途中正在試的那一條（中繼補來的舊訊息會先到它上面）
+  /** 關分頁、重新整理：先跟中繼說一聲，對方立刻知道我走了（審查 中-1）。手機切走不一定觸發，那就走斷線那條路 */
+  const onHide = (): void => { if (!closed && !away && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } } };
+  if (typeof window !== 'undefined') window.addEventListener('pagehide', onHide);
+  const die = (why: string): void => {
+    if (closed) return;
+    closed = true;
+    stopPing();
+    if (typeof window !== 'undefined') window.removeEventListener('pagehide', onHide);
+    onClose?.(why);
+    try { ws.close(); } catch { /* 已經關了 */ }
+  };
+  /** 收到一則：pong 丟掉、中繼的話（closed／away／back）轉成事件、遊戲訊息數一則交給遊戲 */
+  const deliver = (sock: WebSocket, raw: string): void => {
+    if (sock !== ws && sock !== attempting) return;   // 早就換掉的那一條（保險；瀏覽器在 close 之後本來就不會再給 message）
     if (raw === 'pong') return;   // 心跳的回聲
     let v: unknown;
     try { v = JSON.parse(raw); } catch { die('收到看不懂的訊息，可能兩邊不是同一版'); return; }
-    if (isCtl(v)) { if (v.s === 'closed') die('對方離開了'); return; }   // 中繼的話不交給遊戲
+    if (isCtl(v)) {
+      if (v.s === 'closed') die(v.why ?? '對方離開了');
+      else if (v.s === 'away') onStatus?.('peerAway');
+      else if (v.s === 'back') onStatus?.('peerBack');
+      return;   // hosting／open 由等待的那一支接；中繼的話不交給遊戲
+    }
+    recv += 1;
     if (onMsg) onMsg(v as NetMessage); else pending.push(v as NetMessage);
-  });
-  ws.addEventListener('close', (e) => { die((e as CloseEvent).reason || '連線結束了'); });
+  };
+  const listen = (sock: WebSocket): void => {
+    sock.addEventListener('message', (e) => { deliver(sock, String((e as MessageEvent).data)); });
+    sock.addEventListener('close', (e) => {
+      if (sock !== ws || closed) return;   // 接回途中試的那幾條、或早就結束了：不理
+      stopPing();
+      const ev = e as CloseEvent;
+      if (RESUMABLE.has(ev.code)) void reconnect(); else die(ev.reason || '連線結束了');
+    });
+  };
+  listen(first);
+
+  /**
+   * 把中繼沒收到的那幾則補送回去（第 got+1 則起），分批：一次 20 則、隔一秒再送，不然會被當灌爆踢掉。
+   * 補送期間新送的也排在 history 後面，這裡會一併送完（審查 低-6：不能讓新訊息插隊）。回 false＝途中又斷了或結束了
+   */
+  const resend = async (got: number, sock: WebSocket, g: number): Promise<boolean> => {
+    let cursor = got;
+    for (;;) {
+      if (g !== gen || closed) return false;
+      const todo = history.filter((h) => h.i > cursor).slice(0, RESEND_BATCH);
+      if (!todo.length) return true;
+      for (const h of todo) sock.send(h.s);
+      cursor = todo[todo.length - 1]!.i;
+      if (history.some((h) => h.i > cursor)) await sleep(1000);
+    }
+  };
+  const reconnect = async (): Promise<void> => {
+    const g = ++gen;
+    away = true;
+    onStatus?.('away');
+    const t0 = Date.now();
+    for (let attempt = 0; !closed && g === gen; attempt++) {
+      const wait = RETRY_MS[Math.min(attempt, RETRY_MS.length - 1)] as number;
+      if (wait) await sleep(wait);
+      if (closed || g !== gen) return;
+      if (Date.now() - t0 > GRACE_MS) { die('重新連線失敗：兩分鐘內接不回去。兩邊回標題重新開房'); return; }
+      const sock = link.mk(wsUrl(link.code, link.role, recv));
+      const ping = keepAlive(sock);
+      attempting = sock;
+      listen(sock);   // 中繼補來的舊訊息會在 open 之前到，一開始就要有人收
+      try {
+        const open = await untilRelay(sock, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話');
+        ws = sock; stopPing = ping; attempting = null;
+        // 補送完才算接回：期間送的照樣排隊、順序不亂
+        if (!(await resend(open.got ?? sent, sock, g))) return;
+        away = false;
+        onStatus?.('back');
+        return;
+      } catch (e) {
+        ping();
+        if (attempting === sock) attempting = null;
+        const code = (e as { code?: number }).code;
+        // 被中繼拒絕（房間已經關了、版本不同、房號被別人用了…）：不用再試。連不上（1006、逾時）：照間隔再試
+        if (code !== undefined && !RESUMABLE.has(code)) { die((e as Error).message); return; }
+      }
+    }
+  };
   return {
-    send: (m) => { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(m)); },
+    send: (m) => {
+      const s = JSON.stringify(m);
+      sent += 1;
+      history.push({ i: sent, s });
+      if (history.length > HISTORY) history.shift();
+      if (!away && ws.readyState === WebSocket.OPEN) ws.send(s);
+    },
     onMessage: (fn) => { onMsg = fn; for (const m of pending.splice(0)) fn(m); },
     onClose: (fn) => { onClose = fn; },
-    close: () => { die('自己關掉了'); },
+    onStatus: (fn) => { onStatus = fn; },
+    close: () => {
+      // 自己走了就先跟中繼講一聲：對方立刻收到 closed，不用等
+      if (!closed && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } }
+      die('自己關掉了');
+    },
   };
 }
 
@@ -134,7 +257,7 @@ export async function hostRoom(opts: { ws?: WsFactory; rng?: () => number } = {}
       if ((e as { code?: number }).code === CODE_TAKEN) continue;
       throw e;
     }
-    return { code, ready: opened.then(() => wrap(ws, stopPing)), cancel: () => { stopPing(); try { ws.close(); } catch { /* 已經關了 */ } } };
+    return { code, ready: opened.then(() => wrap(ws, { code, role: 'host', mk }, stopPing)), cancel: () => { stopPing(); try { ws.close(); } catch { /* 已經關了 */ } } };
   }
   throw new Error('連續抽到別人正在用的房號，再開一次');
 }
@@ -143,8 +266,9 @@ export async function hostRoom(opts: { ws?: WsFactory; rng?: () => number } = {}
 export function joinRoom(code: string, opts: { ws?: WsFactory } = {}): Joining {
   const clean = code.replace(/\D/g, '');
   if (clean.length !== 6) return { ready: Promise.reject(new Error('房號是六位數字，請再看一次對方給的房號')), cancel: () => {} };
-  const ws = (opts.ws ?? realWs)(wsUrl(clean, 'join'));
+  const mk = opts.ws ?? realWs;
+  const ws = mk(wsUrl(clean, 'join'));
   const stopPing = keepAlive(ws);
-  const ready = untilRelay(ws, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話。檢查網路之後再試一次').then(() => wrap(ws, stopPing));
+  const ready = untilRelay(ws, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話。檢查網路之後再試一次').then(() => wrap(ws, { code: clean, role: 'join', mk }, stopPing));
   return { ready, cancel: () => { stopPing(); try { ws.close(); } catch { /* 已經關了 */ } } };
 }

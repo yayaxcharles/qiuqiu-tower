@@ -9,7 +9,7 @@ compatibility_date = "2026-09-01"
 name = "ROOM"
 class_name = "Room"
 
-# 免費方案只能用 SQLite 版的 Durable Object；這裡其實不存任何東西，狀態就是「現在連著的兩條 WebSocket」
+# 免費方案只能用 SQLite 版的 Durable Object。2026-09-15 起 storage 存每一邊收／轉了幾則與最近 200 則原文（中途斷線接回用），房間結束就清空
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Room"]

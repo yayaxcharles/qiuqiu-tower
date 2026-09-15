@@ -5,7 +5,7 @@ import { hostRoom as hostRelay, joinRoom as joinRelay } from '../../net/ws';
 import { CoopSession } from '../../net/session';
 import { beginCombat, newCoopRun } from '../../engine/run';
 import type { App } from '../app';
-import type { Transport } from '../../net/transport';
+import type { LinkStatus, Transport } from '../../net/transport';
 import { setLocalHero } from '../assets';
 import { preloadCoopArt, preloadHeroArt } from '../preload';
 import { me } from '../../engine/runplayer';
@@ -72,10 +72,22 @@ function troubleBanner(app: App, why: string): void {
    * 實測就是這樣：兩邊都只看到「自己關掉了」，查不出是哪裡對不上。
    */
   if (document.querySelector('.net-trouble')) return;
+  document.querySelectorAll('.net-link').forEach((n) => n.remove());   // 接回放棄了：琥珀色那條撕掉，只留紅的（審查 2026-09-15 低-5）
   // 戰鬥畫面沒有別的出口：斷線之後要能回標題（審查 中-3）
   const bar = el('div', { class: 'net-trouble' }, `連線出問題：${why}`,
     el('button', { class: 'btn small', onclick: () => { app.leaveCoop(); app.show('title'); } }, '回標題'));
   document.body.append(bar);
+}
+
+/**
+ * 線路暫時斷了的琥珀色橫幅（2026-09-15 中途斷線接回）。跟紅色那條不同：這條**會自己撕掉**——
+ * 接回來（back）或對方回來（peerBack）就拿掉。斷線期間傳輸層自己在接、自己在補，畫面只要讓玩家知道「等一下」。
+ */
+function linkBanner(_app: App, s: LinkStatus): void {
+  document.querySelectorAll('.net-link').forEach((n) => n.remove());
+  if (s === 'back' || s === 'peerBack') return;
+  document.body.append(el('div', { class: 'net-link' },
+    s === 'away' ? '連線中斷，正在重新連線…（會等幾分鐘，接回來就繼續）' : '對方斷線了，等對方回來…（會等幾分鐘）'));
 }
 
 /*
@@ -90,7 +102,7 @@ const coopHeroes: [Hero, Hero] = ['ninja', 'ninja'];
 
 function startCoop(app: App, tx: Transport, isHost: boolean): void {
   const seat = isHost ? 0 : 1;
-  const session = new CoopSession(tx, { isHost, seat, onDesync: (w) => troubleBanner(app, w), onClose: (w) => troubleBanner(app, w) });
+  const session = new CoopSession(tx, { isHost, seat, onDesync: (w) => troubleBanner(app, w), onClose: (w) => troubleBanner(app, w), onLink: (s) => linkBanner(app, s) });
   app.coop = session;
   app.seat = seat;
   const begin = (seed: string, diff: number, heroes?: string[]): void => {
