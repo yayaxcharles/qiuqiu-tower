@@ -102,8 +102,9 @@ export const relics: RelicDef[] = [
    * 問題在池子只有 9 件、一局過關要抽兩次三選一，兩次就看過池子的三分之二。
    * 這 9 件全部用**既有掛鉤**（不動引擎），強度對齊塔主級（起手就有感、價 220～240）；圖示鍵 `codex/relic_<id>`，圖另生。
    */
-  { id: 'master_hat', name: '師父的斗笠', pool: '塔主', text: '每場戰鬥開始時獲得 14 點蜷縮。', art: 'codex/relic_master_hat', price: 230,
-    hooks: { combatStart: [{ kind: 'block', amount: 14 }] } },
+  // 2026-09-16 使用者：「開場給 14 有點弱」→ 改成每回合 8（鐵砂袋每回合 3 的塔主版）
+  { id: 'master_hat', name: '師父的斗笠', pool: '塔主', text: '每回合開始時獲得 8 點蜷縮。', art: 'codex/relic_master_hat', price: 240,
+    hooks: { turnStart: [{ kind: 'block', amount: 8 }] } },
   { id: 'iron_palm_wraps', name: '鐵砂掌套', pool: '塔主', text: '每回合第一次打出攻擊牌時獲得 1 點爪力。', art: 'codex/relic_iron_palm_wraps', price: 240,
     hooks: { onAttackPlayed: { effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }], firstEachTurn: true } } },
   { id: 'master_teacup', name: '塔主的茶碗', pool: '塔主', text: '每回合開始時回復 2 點生命。', art: 'codex/relic_master_teacup', price: 240,
