@@ -34,7 +34,9 @@ registerScreen('actclear', (app, root, props) => {
   root.append(screenBg('bg/screen_result_win'));
   const run = app.run;
   if (!run) { app.show('title'); return; }
-  void preloadAct(run.act + 1);   // 一進過關畫面就開始抓下一關的魔物立繪（玩家看幻燈片、挑秘寶的這幾十秒剛好用，稽核 2026-09-04 低 21）
+  // 一進過關畫面就開始抓下一關的魔物立繪（玩家看幻燈片、挑秘寶的這幾十秒剛好用，稽核 2026-09-04 低 21）；
+  // 鏡中變裝看座位 0 的角色，跟戰鬥裡實際換裝同一個判準（總稽核 2026-09-16 甲 低-4）
+  void preloadAct(run.act + 1, run.players[0]?.hero);
   const picks = rollActRelics(run);
   // 連線時每一位各一份牌（連線稽核 高-9）：兩台都照座位順序抽完全部，各拿自己那一份畫。
   // 單機走原本那一支，亂數走向不變

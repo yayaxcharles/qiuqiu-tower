@@ -7,7 +7,8 @@ import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
 import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
-import { computeAttack, computeBlock, getStatus } from '../../engine/statuses';
+import { computeBlock, getStatus } from '../../engine/statuses';
+import { previewEnemyHits } from '../../engine/intentpreview';
 import { DEBUFFS } from '../../engine/types';
 import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, PlayerCombat, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -508,6 +509,7 @@ registerScreen('combat', (app, root, props) => {
     try { window.localStorage.setItem('qiuqiu.tutorial', 'done'); } catch { /* 存不了就每局都教 */ }
   }
   let hungryTurn = -1;
+  let hungryTold = false;
   let lowHpTold = false;
   let ended = false;
   let picker: HTMLElement | null = null;
@@ -820,7 +822,11 @@ registerScreen('combat', (app, root, props) => {
   /** 魔物頭上的意圖：攻擊直接算進爪力／懶洋洋／翻肚與蓄力，玩家看到的就是真的會挨幾下 */
   function intentChip(e: EnemyCombat): HTMLElement {
     const m = e.move;
-    const x = e.charged ? 2 : 1;
+    // 數字照引擎出招的順序預演（總稽核 2026-09-16 乙 中-1）：蓄力只加倍第一下、同一招前面給你的毒／翻肚與給自己的爪力先算進去、
+    // 身上沒那個狀態就是撲空（0）。原本各自拿「現在的狀態」算，鏡貓一招學兩張時牌子寫 5、實際打 12
+    const pv = previewEnemyHits(e, m.effects, my());
+    const dmgOf = (fx: EnemyEffect): number => pv.find((h) => h.fx === fx)?.dmg ?? 0;
+    const maxOf = (fx: EnemyEffect): number => pv.find((h) => h.fx === fx)?.dmgMax ?? 0;
     const hits = m.effects.filter(has('damage'));
     const rnd = m.effects.find(has('damageRandom'));
     // 照你身上的毒打（鏡中球球學來的見血封喉那類）：牌子上要寫**算完的數字**，
@@ -833,10 +839,10 @@ registerScreen('combat', (app, root, props) => {
     let text = `${INTENT_GLYPH[m.intent]} ${m.label}`;
     if (getStatus(e, '沉睡') > 0) text = '呼呼大睡';   // 睡著的什麼都不做（2026-09-02 第二波）
     else if (getStatus(e, '定身') > 0) text = '被定住了';   // 定身擋整個動作（2026-09-02）
-    else if (boom) text = `攻 ${computeAttack(boom.amount * x, e, my())}（爆）`;
-    else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, my())}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿透）' : ''}`).join('＋')}`;
-    else if (byStatus.length) text = `攻 ${byStatus.map((d) => computeAttack(getStatus(my(), d.name) * (d.mul ?? 1) * x, e, my())).join('＋')}（照你的${byStatus[0]!.name}）`;
-    else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, my())}～${computeAttack(rnd.max * x, e, my())}`;
+    else if (boom) text = `攻 ${dmgOf(boom)}（爆）`;
+    else if (hits.length) text = `攻 ${hits.map((d) => `${dmgOf(d)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿透）' : ''}`).join('＋')}`;
+    else if (byStatus.length) text = `攻 ${byStatus.map(dmgOf).join('＋')}（照你的${byStatus[0]!.name}）`;
+    else if (rnd) text = `攻 ${dmgOf(rnd)}～${maxOf(rnd)}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
     // 盾陣／號令這種給全體的：牌子上也要有數字（使用者 2026-09-03：「有格檔但沒看到格檔值」）
     else if (blkAll) text = `守 ${computeBlock(blkAll.amount, e)}（全體）`;
@@ -858,7 +864,7 @@ registerScreen('combat', (app, root, props) => {
       if (heal && (hits.length || rnd || blk)) text += `＋回 ${heal.percent ? Math.round(e.maxHp * heal.percent / 100) : heal.n}`;
       // 照著學一動兩張時（二三關），普攻那張會把「照你的毒打」那張蓋掉——兩段都要寫出來
       if (byStatus.length && (hits.length || rnd)) {
-        text += `＋${byStatus.map((d) => computeAttack(getStatus(my(), d.name) * (d.mul ?? 1) * x, e, my())).join('＋')}（照你的${byStatus[0]!.name}）`;
+        text += `＋${byStatus.map(dmgOf).join('＋')}（照你的${byStatus[0]!.name}）`;
       }
       // 只有「照層數打」＋守（鏡貓學到見血封喉）：主分支只寫了攻，守要補上（推前審查 2026-09-15 中-1）
       if (byStatus.length && blk && !hits.length && !rnd) text += `＋守 ${computeBlock(blk.amount, e)}`;
@@ -903,23 +909,28 @@ registerScreen('combat', (app, root, props) => {
     const m = e.move;
     if (getStatus(e, '沉睡') > 0) return `睡著了，這回合什麼都不會做。再睡 ${getStatus(e, '沉睡')} 回合；打痛牠會提早醒，而且醒來會很生氣。`;
     if (getStatus(e, '定身') > 0) return '被定住了，這回合什麼都做不了。';
-    const x = e.charged ? 2 : 1;
+    // 數字跟牌子同一份預演（`previewEnemyHits`，總稽核 2026-09-16 乙 中-1）
+    const pv = previewEnemyHits(e, m.effects, my());
+    const hitOf = (f: EnemyEffect) => pv.find((h) => h.fx === f);
     const parts: string[] = [];
     for (const fx of m.effects) {
       switch (fx.kind) {
         case 'damage': {
-          const n = computeAttack(fx.amount * x, e, my());
+          const n = hitOf(fx)?.dmg ?? 0;
           parts.push(((fx.times ?? 1) > 1 ? `造成 ${n} 點傷害，連打 ${fx.times} 次` : `造成 ${n} 點傷害`) + (fx.pierce ? '（穿透：蜷縮擋不住，隱身閃得掉）' : ''));
           break;
         }
         case 'damageRandom':
-          parts.push(`造成 ${computeAttack(fx.min * x, e, my())}～${computeAttack(fx.max * x, e, my())} 點傷害`);
+          parts.push(`造成 ${hitOf(fx)?.dmg ?? 0}～${hitOf(fx)?.dmgMax ?? 0} 點傷害`);
           break;
         case 'damageByPlayerStatus': {
-          // 數字是**算完的**（層數 × 倍率再吃爪力／懶洋洋／翻肚與蓄力），跟牌子上那個一樣
-          const n = getStatus(my(), fx.name);
-          parts.push(`照你身上的${fx.name}層數打：現在 ${n} 層${(fx.mul ?? 1) > 1 ? ` × ${fx.mul} 倍` : ''}＝造成 ${computeAttack(n * (fx.mul ?? 1) * x, e, my())} 點傷害`
-            + (fx.consume ? `，打完把你的${fx.name}清掉` : ''));
+          // 數字是**算完的**（出手那一刻的層數 × 倍率再吃爪力／懶洋洋／翻肚與蓄力；同一招前面先給你的毒也算進去），跟牌子上那個一樣
+          const h = hitOf(fx);
+          const n = h?.stacks ?? 0;
+          parts.push(n > 0
+            ? `照你身上的${fx.name}層數打：出手時 ${n} 層${(fx.mul ?? 1) > 1 ? ` × ${fx.mul} 倍` : ''}＝造成 ${h?.dmg ?? 0} 點傷害`
+              + (fx.consume ? `，打完把你的${fx.name}清掉` : '')
+            : `照你身上的${fx.name}層數打：你身上沒有${fx.name}，打你這一下會撲空`);
           break;
         }
         case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點防禦`); break;
@@ -939,7 +950,7 @@ registerScreen('combat', (app, root, props) => {
         case 'discardRandomHand': parts.push(`讓你下回合少抽 ${fx.n} 張牌`); break;
         case 'escape': parts.push('逃走'); break;
         // ---- 2026-09-02 第二波魔物的四個新效果 ----
-        case 'selfDestruct': parts.push(`自爆：造成 ${computeAttack(fx.amount * x, e, my())} 點傷害，然後牠自己也倒下`); break;
+        case 'selfDestruct': parts.push(`自爆：造成 ${hitOf(fx)?.dmg ?? 0} 點傷害，然後牠自己也倒下`); break;
         case 'statusAllies': parts.push(`全體魔物獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '點'}${fx.name}`); break;
         case 'blockAllies': parts.push(`全體魔物獲得 ${fx.amount} 點防禦`); break;
         case 'giveCard': parts.push(`把 ${fx.n} 張「${nameFor(my().hero, fx.cardId)}」塞進你的${fx.to === 'discard' ? '棄牌堆' : '抽牌堆'}`); break;
@@ -2291,7 +2302,8 @@ registerScreen('combat', (app, root, props) => {
       else if (opts.attack) cat.classList.add('attack');
     }
 
-    if (hungry) { hungryTurn = cs.turn; toast(pick(storyFor(my().hero).hungry), heroSpeaker()); }
+    // 姿勢每回合照舊換；吐槽一場只講一次（總稽核 2026-09-16 丙 中-7：飯糰幾乎每回合都會用完，原本每回合冒一句）
+    if (hungry) { hungryTurn = cs.turn; if (!hungryTold) { hungryTold = true; toast(pick(storyFor(my().hero).hungry), heroSpeaker()); } }
     if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(pick(storyFor(my().hero).lowHp), heroSpeaker()); }
 
     // 姿勢停留時間：一般 650 毫秒看得清楚，但蜷縮例外——它是「縮成一顆球」的靜態姿勢，
@@ -2349,9 +2361,11 @@ registerScreen('combat', (app, root, props) => {
     ended = true;
     // 連線：這一場打完了。之後才到的這一場的請求一律當成來不及，不可以留到下一場套（見 `CoopSession.attach`）
     session?.attach(null);
-    if (cs.phase === 'won') toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
     // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
     const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
+    // 一般的打贏吐槽只給一般戰鬥：關主打完接的是收場對白，最終戰更是剛救回師父——
+    // 抽到「這下知道厲害了喵」「有沒有掉小魚乾喵？」會整個出戲（總稽核 2026-09-16 丙 中-2）
+    if (cs.phase === 'won' && !bossWon) toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
     if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
     // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
     window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, bossWon ? 2400 : 1300);

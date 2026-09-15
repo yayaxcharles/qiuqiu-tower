@@ -14,7 +14,7 @@ import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
-import { toast } from '../dialogue';
+import { notice } from '../dialogue';
 import { renderHud } from '../hud';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -136,7 +136,10 @@ registerScreen('map', (app, root) => {
       if (!allVoted(now, alive)) { app.show('map', {}, { quiet: true }); return; }
       const pick = settleVotes(runRng(run), now);
       // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一格（使用者 2026-09-15：「要知道隨機到哪個」）
-      if (pick && new Set(now.filter((v) => v !== null)).size > 1) toast(`兩人選的路不一樣，擲骰選了「${nodeById(run.map, pick).type}」`);
+      // 只寫格子種類答不出「骰到哪一個」（總稽核 2026-09-16 甲 低-2：同一步兩個選項 44% 是同種格子，第一步 100%）
+      if (pick && new Set(now.filter((v) => v !== null)).size > 1) {
+        notice(`兩人選的路不一樣，擲骰選了${now[app.seat] === pick ? '你' : '同伴'}選的那一格（${nodeById(run.map, pick).type}）`);
+      }
       coop.clearPicks('map');
       if (pick) app.enterNode(pick); else app.show('map');
     });

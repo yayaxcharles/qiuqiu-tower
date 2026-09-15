@@ -352,6 +352,18 @@ img { -webkit-user-drag: none; }
   transition: opacity .4s;
 }
 .toast.out { opacity: 0; }
+/* 系統公告（`notice`，2026-09-16）：投票與撞件的結果。不是角色在講話，所以不用吐槽泡泡的樣子——
+   固定在畫面正上方、壓在對白層（50）上面，戰鬥畫面的 `.toast` 泡泡樣式也套不到它 */
+.notice {
+  position: absolute; left: 50%; top: 14px; transform: translateX(-50%);
+  /* 寬度照內容、最寬 920：只寫 max-width 的話 left:50% 讓自動寬度卡在右半邊，33 字就換行還留孤字（實機複驗 2026-09-16 低-2） */
+  width: max-content; max-width: 920px; padding: 7px 20px; border-radius: 12px;
+  background: #2b2118eb; color: #fff4d8; border: 2px solid #d9a441;
+  font-size: 18px; line-height: 1.45; text-align: center;
+  z-index: 60; pointer-events: none; transition: opacity .4s;
+  animation: toast-in .28s cubic-bezier(.2, .9, .3, 1.15);
+}
+.notice.out { opacity: 0; }
 .toast { animation: toast-in .28s cubic-bezier(.2, .9, .3, 1.15); }
 @keyframes toast-in {
   from { opacity: 0; transform: translate(-50%, -14px); }

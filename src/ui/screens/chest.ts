@@ -7,7 +7,7 @@ import { allVoted, onlyStanding } from '../../engine/vote';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { artUrl, eventArtKey } from '../assets';
-import { heroSpeaker, toast } from '../dialogue';
+import { heroSpeaker, notice, toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
@@ -89,7 +89,7 @@ registerScreen('chest', (app, root) => {
       if (!allVoted(picks, alive)) { if (openedCoop) revealCoop(); return; }
       settled = true;
       const got = settleRelicPicks(runRng(run), offers, picks);
-      toast(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
+      notice(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
       coop.clearPicks('relic');   // 結算完才清（收尾時清會把票清掉，見上面的說明）
       const mine = got[seat];
       if (mine) coop.submitRun({ t: 'relic', seat, id: mine });

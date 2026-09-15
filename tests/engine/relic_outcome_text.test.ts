@@ -29,4 +29,13 @@ describe('撞件結算的公告', () => {
     expect(relicOutcomeText([a], [a, a], [a, null], 0)).not.toContain('同伴');
     expect(relicOutcomeText([a], [null, null], [null, null], 0)).toBe('');
   });
+
+  it('撞件輸了又沒有第二件：輸的那台要講「你沒分到」，贏的那台不講（總稽核 2026-09-16 甲 低-5）', () => {
+    const loser = relicOutcomeText([a], [a, a], [a, null], 1);
+    expect(loser).toContain(`同伴拿到「${na}」`);
+    expect(loser.endsWith('你沒分到')).toBe(true);
+    expect(relicOutcomeText([a], [a, a], [a, null], 0)).not.toContain('沒分到');
+    // 倒下的人沒挑（票是 null）：不是「沒分到」
+    expect(relicOutcomeText([a], [a, null], [a, null], 1)).not.toContain('沒分到');
+  });
 });

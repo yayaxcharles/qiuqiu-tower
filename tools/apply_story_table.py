@@ -7,10 +7,10 @@
 
 規則（表由 `tools/dump_story_table.test.ts` 產生，旁邊的 `.keys.json` 記每個編號怎麼寫回；這支只看 MD 的「編號」與最後一欄「改寫」）：
   - 改寫欄空白、或跟原文一樣 → 跳過。
-  - literal：在該檔找到 '原文' 字串常值換成 '改寫'。菲菲的句子要剛好出現 1 次；**球球的句子在 dialogue.ts 全部出現處一起換**
-    （他的原句是菲菲對照表 FEIFEI_BOSS_LINES／FEIFEI_EVENT_TEXT 的鍵）。球球在 events.ts 的句子改了之後，
+  - literal：在該檔找到 '原文' 字串常值換成 '改寫'。**當成句子的只准剛好 1 處**（2026-09-16 起，兩個角色都一樣）；
+    當成對照表鍵（'原句':）的那幾處一起換——球球的原句是菲菲對照表 FEIFEI_BOSS_LINES／FEIFEI_EVENT_TEXT 的鍵。球球在 events.ts 的句子改了之後，
     dialogue.ts 裡拿整句當鍵的（FEIFEI_EVENT_TEXT）與拿引號裡那句當鍵的（FEIFEI_EVENT_LINES）也一起換鍵。
-  - map-add：原本沒有她的版本，把 `'鍵': '改寫',` 加進對照表最後。
+  - map-add：原本沒有她的版本，把 `'鍵': '改寫',` 加進對照表最後（找配對的收尾大括號，跳過字串與註解；**不認得正規表達式常值**，表裡別放）。
   - blurb：選角小傳（`blurb: '…' + '…',`）整個運算式換成一個常值。
   - 球球講的話句尾要有「喵」：沒有的列出來、不寫（跟程式的 qiuqiuLineOk 同一條規矩）。
   - 寫完自己跑不了測試，記得 `npx vitest run tests/content` 與 `npx tsc --noEmit -p .`。
@@ -19,6 +19,10 @@ import json
 import pathlib
 import re
 import sys
+
+# 主控台是 cp950 時印中文會整支崩在寫檔之前（倉庫記憶：看似跑過、其實沒更新）；這台剛好是 UTF-8 所以沒炸，工作機沒驗過
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SPOKEN = re.compile(r"(?:球球|菲菲)：「(.+?)」", re.S)
@@ -37,6 +41,38 @@ def meow_ok(text: str) -> bool:
     said = SPOKEN.findall(text)
     parts = said if said else [text]
     return all(re.search(r"喵$", re.sub(r"[！？。…～、,.!?]+$", "", p)) for p in parts)
+
+
+def table_close(src: str, open_brace: int) -> int:
+    """從對照表的 `{` 往後找配對的 `}`，跳過字串與註解（總稽核 2026-09-16 戊 M2：
+    原本找「第一個單獨成行的 }」，表尾前的說明註解裡有一行 } 就會把新句插進註解、還回報成功）。找不到回 -1。"""
+    depth = 0
+    i = open_brace
+    n = len(src)
+    while i < n:
+        c = src[i]
+        if c in "'\"`":
+            q = c
+            i += 1
+            while i < n and src[i] != q:
+                i += 2 if src[i] == "\\" else 1
+        elif src.startswith("//", i):
+            i = src.find("\n", i)
+            if i < 0:
+                return -1
+        elif src.startswith("/*", i):
+            i = src.find("*/", i)
+            if i < 0:
+                return -1
+            i += 1
+        elif c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return -1
 
 
 def parse_md(md: pathlib.Path) -> dict[str, str]:
@@ -97,8 +133,12 @@ def main() -> int:
         if kind == "literal":
             old = ts_lit(old_text)
             n = src.count(old)
-            if n == 0 or (hero == "feifei" and n != 1):
-                problems.append(f"{rid}: 原文在 {rel} 出現 {n} 次（要剛好 1 次），沒改：{old_text[:40]}…")
+            # 當成對照表鍵（'原句':）的那幾處可以有很多個，那是菲菲的版本要跟著換鍵；**當成值的只准剛好一處**——
+            # 原本球球整檔全部取代不設防，某句剛好跟別處無關的字串一樣就會被靜靜一起改掉（總稽核 2026-09-16 戊 H1）
+            as_key = src.count(old + ":")
+            as_value = n - as_key
+            if as_value != 1:
+                problems.append(f"{rid}: 原文在 {rel} 當成句子出現 {as_value} 次（要剛好 1 次；另有 {as_key} 處是對照表的鍵），沒改：{old_text[:40]}…")
                 continue
             src = src.replace(old, ts_lit(new))
             files[rel] = src
@@ -113,17 +153,19 @@ def main() -> int:
                     files["src/content/dialogue.ts"] = d2
         elif kind == "map-add":
             m = r["map"]
-            head = re.search(rf"(export const {m}\b[^\n]*=\s*\{{|\n\s*{m}:\s*\{{)", src)
+            # 容許型別斷言：`firstMeetFeifei: <Record<string, string>>{`（總稽核 2026-09-16 戊 M1：原本這張表永遠找不到）
+            head = re.search(rf"(export const {m}\b[^\n]*=\s*\{{|\n\s*{m}:\s*(?:<[^{{\n]*>\s*)?\{{)", src)
             if not head:
                 problems.append(f"{rid}: 在 {rel} 找不到對照表 {m}")
                 continue
-            close = re.compile(r"\n(\s*)\}", re.M).search(src, head.end())
-            if not close:
+            close_at = table_close(src, head.end() - 1)
+            if close_at < 0:
                 problems.append(f"{rid}: 對照表 {m} 找不到結尾")
                 continue
-            indent = close.group(1) + "  "
-            entry = f"\n{indent}{ts_lit(r['key'])}: {ts_lit(new)},"
-            src = src[: close.start()] + entry + src[close.start():]
+            line_start = src.rfind("\n", 0, close_at) + 1
+            indent = re.match(r"[ \t]*", src[line_start:close_at]).group(0) + "  "
+            entry = f"{indent}{ts_lit(r['key'])}: {ts_lit(new)},\n"
+            src = src[:line_start] + entry + src[line_start:]
             files[rel] = src
         elif kind == "blurb":
             pat = re.compile(rf"(hero: '{hero}'[\s\S]*?blurb: )((?:'(?:[^'\\]|\\.)*'\s*\+?\s*)+),")

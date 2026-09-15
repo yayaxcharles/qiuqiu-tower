@@ -3,7 +3,7 @@ import { actClearSlides, endingSlides, prologueSlides } from '../storyslides';
 import { newRun as engineNewRun } from '../../engine/run';
 import { actVariantKey } from '../screenbg';
 import { events } from '../../content/events';
-import { enemyById } from '../../content/enemies';
+import { enemyNameFor } from '../../content/enemies';
 import { eventTextFor, storyFor, dialogue, lineFor, FEIFEI_EVENT_LINES, FEIFEI_BOSS_LINES } from '../../content/dialogue';
 import { registerScreen } from '../app';
 import { artUrl, eventArtKey, hasHeroSprite, heroArtUrl, setLocalHero, localHero } from '../assets';
@@ -138,7 +138,7 @@ registerScreen('debug', (app, root) => {
     sec('第二關打完', s.actClear2.map((l) => `${l.speaker}：${l.text}`));
     sec('輸了', s.defeat.map((l) => `${l.speaker}：${l.text}`));
     sec('通關', s.victory.map((l) => `${l.speaker}：${l.text}`));
-    sec('第一次看到每種魔物', Object.entries(s.firstMeet).map(([id, t]) => `${enemyById[id]?.name ?? id}：${t}`));
+    sec('第一次看到每種魔物', Object.entries(s.firstMeet).map(([id, t]) => `${enemyNameFor(id, hero)}：${t}`));
     // 關主那批在原始碼裡寫的是球球的句子，玩菲菲時由 `lineFor` 換掉
     const bossRows: HTMLElement[] = [];
     const walk = (v: unknown): void => {

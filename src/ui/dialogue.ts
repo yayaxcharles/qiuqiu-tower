@@ -141,13 +141,39 @@ export function bubbleAt(text: string, speaker: string, headX: number, headY: nu
   setTimeout(() => t.remove(), 3800);
 }
 
+/**
+ * 系統公告（投票擲骰、秘寶撞件的結果）：畫面正上方一條，壓在對白層上面，兩秒半後淡掉。
+ *
+ * 不借 `toast`（總稽核 2026-09-16 甲 低-3）：戰鬥畫面把 `.toast` 畫成主角頭上的對話泡泡，
+ * 地圖投票完緊接著進戰鬥，就變成角色在講「擲骰選了戰鬥」，還把角色真正的開場白擠到下一格；
+ * 進貓窩獨白、5F 秘笈時又被對白層（層級 50）蓋住。
+ */
+export function notice(text: string): void {
+  if (!text) return;
+  const layer = overlayRoot();
+  if (!layer) return;
+  const t = el('div', { class: 'notice' }, text);
+  layer.append(t);
+  const stay = Math.min(4200, Math.max(2600, [...text].length * 90));   // 照字數留，最短 2.6 秒（推前審查 2026-09-16 低-5）
+  setTimeout(() => t.classList.add('out'), stay);
+  setTimeout(() => t.remove(), stay + 500);
+}
+
 /** 戰鬥吐槽小氣泡，兩秒後自己淡掉 */
 export function toast(text: string, speaker = ''): void {
   if (!text) return;
   const layer = overlayRoot();
   if (!layer) return;
   const t = el('div', { class: 'toast' }, speaker ? el('b', {}, `${speaker}：`) : '', text);
+  // 畫面上最多同時兩句（樣式表只排得出兩格，`.toast ~ .toast`）：第三句進來就先收掉最舊的那句（魔物頭上的 `bubbleAt` 自己會避讓，不算在內）。
+  // 長句留得比較久之後，關主換階段三句連播會第二、三句擠同一格疊在一起（實機複驗 2026-09-16 低-1）
+  const showing = [...layer.querySelectorAll<HTMLElement>('.toast:not(.out):not(.bubble-at)')];
+  // 戰鬥畫面排得出兩格（留一句舊的）；其他畫面只有一個位置，新的一來舊的就收（實機複驗 低-3：戰利品頁連著幾則疊在同一點）
+  const keep = layer.closest('[data-screen="combat"]') ? 1 : 0;
+  for (const old of showing.slice(0, Math.max(0, showing.length - keep))) { old.classList.add('out'); setTimeout(() => old.remove(), 500); }
   layer.append(t);
-  setTimeout(() => t.classList.add('out'), 1800);
-  setTimeout(() => t.remove(), 2300);
+  // 照字數多留一會兒：16 字以內照舊 1.8 秒，最長留到 3.2 秒（總稽核 2026-09-16 丙 中-6：改寫後 20 字以上的有 38 句，1.8 秒讀不完）
+  const stay = Math.min(3200, Math.max(1800, [...text].length * 110));
+  setTimeout(() => t.classList.add('out'), stay);
+  setTimeout(() => t.remove(), stay + 500);
 }

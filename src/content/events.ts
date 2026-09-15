@@ -108,7 +108,7 @@ export const events: EventDef[] = [
     text: '陽光從窗縫灑進來，在地板上留下一塊暖暖的光斑，大小剛好夠球球蜷成一團。',
     choices: [
       { label: '曬著太陽打盹（回復 12 點生命）', outcome: [{ kind: 'heal', n: 12 }], result: '球球躺在陽光下，睡得四腳朝天。醒來伸個懶腰，渾身都暖了。球球：「好舒服，連背都不痠了喵。」', resultArt: 'sunbath_r0' },
-      { label: '曬著太陽整理招式（移除 1 張牌）', outcome: [{ kind: 'removeCard' }], result: '球球坐在陽光下，回想自己最近學過的招式，把幾招不順手的挑了出來。球球：「這招老是出錯，就先不練了喵。」', resultArt: 'sunbath_r1' },
+      { label: '曬著太陽整理招式（移除 1 張牌）', outcome: [{ kind: 'removeCard' }], result: '球球坐在陽光下，回想自己最近學過的招式，把最不順手的那一招挑了出來。球球：「這招老是出錯，就先不練了喵。」', resultArt: 'sunbath_r1' },
     ] },
   { id: 'rat_stall', title: '可疑的飯糰攤',
     text: '一隻老鼠推著攤車叫賣，飯糰上還留著牙印。「特價！20 條小魚乾一顆，吃了包你有感覺！」牠說完，悄悄把咬過的一面轉向背後。',
@@ -317,7 +317,7 @@ export const events: EventDef[] = [
   { id: 'toll_again_fought', title: '山賊帶朋友來了', acts: [2, 3], requiresFlag: 'toll_fought',
     text: '那隻橘貓山賊又站在轉角，這回帶了一群拿木棒的幫手。「上次是我大意！今天我們人多！」牠往前一步，身後的幫手卻一起往後縮。',
     choices: [
-      { label: '再打一場（勝利後額外獲得 70 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'orange_bandit_pair', bonusFish: 70 }], result: '山賊們舉起木棒，一起往前逼近。球球伸出爪子，盯住最前面那隻。球球：「上次還沒打夠，這次又來喵？」' },
+      { label: '再打一場（勝利後額外獲得 70 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'orange_bandit_pair', bonusFish: 70 }], result: '山賊們舉起木棒，一起往前逼近。球球擺好架勢，盯住最前面那隻。球球：「上次還沒打夠，這次又來喵？」' },
       { label: '支付 45 條小魚乾息事寧人', costFish: 45, outcome: [], result: '球球交出小魚乾。山賊們蹲到路邊分錢，吵著誰該多拿一條。牠趁機走了過去。球球：「你們分吧，別再攔我喵。」', resultArt: 'toll_again_fought_r1' },
     ] },
   { id: 'rescue_return_herb', title: '村貓的回禮', acts: [2, 3], requiresFlag: 'rescue_took_herb',
