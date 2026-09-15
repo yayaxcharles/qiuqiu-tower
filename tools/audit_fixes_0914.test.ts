@@ -31,7 +31,8 @@ describe('總稽核 2026-09-14 的畫面層修正', () => {
   });
 
   it('F 中-1：開場預載跳過角色專屬的鍵，三個入口選好角色都補載', () => {
-    expect(readFileSync('src/ui/assets.ts', 'utf-8')).toContain('if (heroOfKey(key)) continue;');
+    // 2026-09-16 總稽核戊 M3：首頁就出現的菲菲參上封面（TITLE_ART）是例外，其餘角色專屬的鍵照舊跳過
+    expect(readFileSync('src/ui/assets.ts', 'utf-8')).toContain('if (heroOfKey(key) && !TITLE_ART.has(key)) continue;');
     expect(readFileSync('src/ui/app.ts', 'utf-8')).toContain('preloadHeroArt([hero])');
     expect(readFileSync('src/ui/app.ts', 'utf-8')).toContain('preloadHeroArt(run.players.map((p) => p.hero))');
     expect(readFileSync('src/ui/screens/lobby.ts', 'utf-8')).toContain('preloadHeroArt(app.run.players.map((p) => p.hero))');
