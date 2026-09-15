@@ -4,7 +4,7 @@ import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
 import { closeCardReward, runRng, takeCardReward, upgradeCard } from '../../engine/run';
-import { settleRelicPicks } from '../../engine/rewards';
+import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import type { CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
 import { allVoted, onlyStanding } from '../../engine/vote';
@@ -17,7 +17,7 @@ import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
-import { heroSpeaker } from '../dialogue';
+import { heroSpeaker, toast } from '../dialogue';
 import { lineFor } from '../../content/dialogue';
 
 /**
@@ -46,7 +46,7 @@ registerScreen('reward', (app, root, props) => {
    * 兩台機器當場分岔。戰利品物件是 `props`，重畫時原封不動傳回來，
    * 而且下一場戰鬥自然會換成新的一份，不必記得手動清。
    */
-  const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number; relicSettled?: boolean; relicTaken?: boolean; relicSeats?: number[]; upsDone?: boolean; upsAsking?: boolean; potionSwapped?: boolean };
+  const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number; relicSettled?: boolean; relicTaken?: boolean; relicSeats?: number[]; upsDone?: boolean; upsAsking?: boolean; potionSwapped?: boolean; potionDeclined?: boolean };
   const bonus = r.bonusFish ?? 0;
   const ups = r.bonusUpgrades ?? 0;
   /*
@@ -83,6 +83,7 @@ registerScreen('reward', (app, root, props) => {
       if (!allVoted(picks, alive())) return;
       r.relicSettled = true;
       const got = settleRelicPicks(runRng(run), offers, picks);
+      toast(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
       /*
        * **分不到的座位也要算完成**（2026-09-12 稽核 中-1）。
        *
@@ -152,17 +153,17 @@ registerScreen('reward', (app, root, props) => {
        * 那件秘寶等於沒出現過。
        */
       for (const o of applied) if (o.a.t === 'relic') markRelicSeat(o.a.seat);
-      if (r.relicTaken) maybeGo(); else if (!left) app.show('reward', r);
+      if (r.relicTaken) maybeGo(); else if (!left) app.show('reward', r, { quiet: true });
     });
     coop.onPick((kind) => {
       if (left) return;
-      if (kind === 'relic') { settleRelics(); if (!left) app.show('reward', r); return; }
+      if (kind === 'relic') { settleRelics(); if (!left) app.show('reward', r, { quiet: true }); return; }
       if (kind === 'rwup') { settleUps(); maybeGo(); return; }
       if (kind !== 'card') return;
       const picks = onlyStanding(coop.picks('card', run.players.length), alive());
-      if (!allVoted(picks, alive())) { app.show('reward', r); return; }
+      if (!allVoted(picks, alive())) { app.show('reward', r, { quiet: true }); return; }
       maybeGo();
-      if (!r.relicTaken && offers.length && !left) app.show('reward', r);
+      if (!r.relicTaken && offers.length && !left) app.show('reward', r, { quiet: true });
     });
   }
 
@@ -312,10 +313,14 @@ registerScreen('reward', (app, root, props) => {
     const line = el('span', { class: 'reward-line' }, el('b', {}, `忍具帶滿了，「${missed.name}」收不下`), el('em', {}, missed.text));
     items.append(el('div', { class: 'reward-item potion' }, icon(missed.art, missed.name), line));
     const newId = missedId;
+    // 按「不換」也要記在 r 上：連線時同伴一選牌整頁就重畫，不記的話每重畫一次就再問一次
+    //（使用者 2026-09-15：「按我不要之後又會跳出來」）
+    const giveUp = (): void => { r.potionDeclined = true; line.replaceChildren(el('b', {}, `沒有換，「${missed.name}」放棄了`), el('em', {}, missed.text)); };
     // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）
-    window.setTimeout(() => { if (!line.isConnected) return; showPotionSwap(run, newId, (idx) => {
+    if (r.potionDeclined) giveUp();
+    else window.setTimeout(() => { if (!line.isConnected) return; showPotionSwap(run, newId, (idx) => {
       // 狀態列要先拆掉舊的再畫：renderHud 只會往 root 再掛一條（實測疊成兩條）
-      if (idx < 0) return;
+      if (idx < 0) { giveUp(); return; }
       swapPotion(app, run, seat, idx, newId);   // 連線時要送出去，只改本機會分岔（稽核 高-3）
       play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text));
       root.querySelector('.hud')?.remove(); renderHud(app, root);

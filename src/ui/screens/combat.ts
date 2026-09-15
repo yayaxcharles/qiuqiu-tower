@@ -747,6 +747,15 @@ registerScreen('combat', (app, root, props) => {
       const textOnly = mine && tone === 'bad';
       row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), tone, bump));
     }
+    // 「別碰針尖喔」補在針上的毒（`poisonNextAttack`，下一擊命中多給幾層中毒、只到本回合）。
+    // 它不是狀態名也沒走 `markPassive`，原本自己那排、同伴那排都沒畫（使用者 2026-09-15：「隊友的下方沒出現這個 BUFF」）。
+    // 直接照資料畫：用掉或回合結束資料一清，牌子就跟著掉
+    const pna = (u as Partial<PlayerCombat>).poisonNextAttack;
+    if (pna) {
+      const node = el('div', { class: 'chip good power' }, el('b', {}, '針上有毒'), el('span', {}, String(pna.amount)));
+      attachTextTooltip(node, '針上有毒（只到本回合）', `下一次攻擊命中時多給 ${pna.amount} 層中毒${pna.anyDamage ? '（任何造成傷害的招都算）' : ''}，用掉或回合結束就沒了`);
+      row.append(node);
+    }
     // 球球身上生效中的能力牌（封印解除、結界……）：一張一個牌子，疊了幾張寫數字，滑上去看那張牌的效果
     // （使用者 2026-09-03：「爪力的確有加，但我不知道是哪張牌的效果」）
     const powers = mine ? (u as Partial<CombatState['player']>).powers ?? [] : [];

@@ -126,7 +126,7 @@ export class App {
     }
   }
 
-  show(name: ScreenName, props: unknown = {}): void {
+  show(name: ScreenName, props: unknown = {}, opts: { quiet?: boolean } = {}): void {
     const r = screens.get(name);
     if (!r) throw new Error(`畫面尚未登記：${name}`);
     const track = this.bgmFor(name);
@@ -153,7 +153,9 @@ export class App {
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
     // 所以出一張牌不會整個畫面閃一次。
-    if (typeof this.screen.animate === 'function') {
+    // `quiet`：同一頁只因為同伴投了一票而重畫（連線版的獎勵、事件、地圖），不再淡入一次——
+    // 不然每投一票整頁閃一下（使用者 2026-09-15：「每次選完牌另一個玩家畫面都會閃一下」）
+    if (!opts.quiet && typeof this.screen.animate === 'function') {
       this.screen.animate([{ opacity: 0, transform: 'scale(.988)' }, { opacity: 1, transform: 'none' }],
         { duration: 220, easing: 'ease-out' });
     }
