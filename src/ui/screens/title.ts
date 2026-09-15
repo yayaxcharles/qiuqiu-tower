@@ -90,7 +90,7 @@ registerScreen('title', (app, root) => {
         // 菲菲站在他旁邊（使用者 2026-09-15：「菲菲的角色也跟球球一樣出現在首頁，在球球旁邊」）。
         // 她的「參上」貼圖（`hero/feifei_cover`，生圖中）進倉後就跟他同款同大小；還沒有就先用勝利姿勢的立繪，矮一截、靠右
         hasSprite('hero/feifei_cover')
-          ? el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/feifei_cover'), alt: '菲菲參上' })
+          ? el('img', { class: 'title-cat title-cat-second', src: artUrl('sprites', 'hero/feifei_cover'), alt: '菲菲參上' })
           : el('img', { class: 'title-cat title-cat-feifei', src: artUrl('sprites', 'hero/feifei_win'), alt: '菲菲' })),
       // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名。
       // 副標「－ 球球參上 －」2026-09-15 拿掉（使用者：第三個角色進來之後首頁不該只掛他的名字）
