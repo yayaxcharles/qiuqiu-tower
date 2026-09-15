@@ -24,7 +24,7 @@ export const KEY_CARD: Readonly<Record<string, string>> = { ninja: 'sanjo', feif
 const PICKS: Pick[] = [
   {
     hero: 'ninja', name: '球球', tag: '近身 ・ 閃避',
-    blurb: '大俠貓的徒弟，綁著藍頭巾，總搶著先出爪。師父失蹤，他就追進魔塔；嘴上惦記著小魚乾，其實最想聽見的，還是師父叫他回家吃飯。',
+    blurb: '大俠貓的徒弟，綁著藍頭巾。膽子大，做事急，看見紙箱就想鑽。師父被魔氣控制後，他追進魔塔，要把師父和被搶走的小魚乾都帶回來。',
     pose: 'hero/ninja',
   },
   {
