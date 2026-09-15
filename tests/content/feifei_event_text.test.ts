@@ -6,16 +6,21 @@ import { eventById, events } from '../../src/content/events';
  * 使用者 2026-09-14 早上裁定的四件事，照「改回去要紅」寫。
  */
 
-describe('鏡子走廊：對菲菲來說，鏡子裡是長得像師兄的假貨', () => {
+/*
+ * 2026-09-14 使用者裁定「鏡子裡是長得像師兄的假貨」；**2026-09-15 改回「鏡中的自己」**——
+ * 使用者決定做影菲菲（鏡貓照被抄那位換外觀、也學她的毒針牌），假師兄的框架不成立了。
+ */
+describe('鏡子走廊：對菲菲來說，鏡子裡是鏡中的自己（影菲菲）', () => {
   const ev = eventById['mirror_hall']!;
   const all = [ev.text, ...ev.choices.flatMap((c) => [c.label, c.result])];
 
-  it('她看到的敘述、選項、結果都在講假的師兄，不是「鏡中的自己」', () => {
+  it('她看到的敘述、選項、結果都在講鏡中的自己，不再是假師兄', () => {
     const hers = all.map((t) => eventTextFor('feifei', t));
-    expect(hers.join('\n')).not.toMatch(/鏡中的菲菲|鏡中的自己|這麼多個我/);
-    expect(eventTextFor('feifei', ev.text)).toContain('師兄');
-    expect(eventTextFor('feifei', ev.choices[0]!.label)).toContain('假師兄');
+    expect(hers.join('\n')).not.toMatch(/假師兄|跟師兄一模一樣|這不是師兄/);
+    expect(eventTextFor('feifei', ev.text)).toContain('鏡子裡那個菲菲');
+    expect(eventTextFor('feifei', ev.choices[0]!.label)).toContain('鏡中的自己');
     expect(hers.join('\n'), '她的句子不帶喵').not.toContain('喵');
+    expect(hers.join('\n'), '球球的名字不能留在她的版本裡').not.toContain('球球');
   });
 
   it('球球那邊一個字都不動', () => {
@@ -27,10 +32,10 @@ describe('鏡子走廊：對菲菲來說，鏡子裡是長得像師兄的假貨'
     for (const k of Object.keys(FEIFEI_EVENT_TEXT)) expect(originals.has(k), k).toBe(true);
   });
 
-  it('影球球的初見台詞也對齊：是假的師兄，不是「那是……我？」', () => {
-    const line = storyFor('feifei').firstMeet['shadow_cat'] ?? '';
-    expect(line).toContain('師兄');
-    expect(line).not.toContain('那是……我');
+  it('塔頂的影球球（shadow_cat）還是師兄的影子；鏡子走廊那隻對她是鏡中的自己', () => {
+    const fm = storyFor('feifei').firstMeet;
+    expect(fm['shadow_cat'] ?? '').toContain('師兄');
+    expect(fm['mirror_qiuqiu'] ?? '').not.toContain('師兄');
   });
 });
 
