@@ -1084,7 +1084,16 @@ export function castLineFor(hero: string | undefined, text: string): string {
 }
 
 /** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */
-export function pick<T>(xs: readonly T[]): T { return xs[Math.floor(Math.random() * xs.length)] ?? xs[0]!; }
+export function pick<T>(xs: readonly T[]): T {
+  // 同一組不連抽同一句（2026-09-15 改寫稿附的提醒）：記住每組上一次抽到哪一句，再抽到就往後挪一格。只在演出層，不動玩法亂數
+  if (xs.length <= 1) return xs[0]!;
+  let i = Math.floor(Math.random() * xs.length);
+  const last = lastPick.get(xs);
+  if (i === last) i = (i + 1) % xs.length;
+  lastPick.set(xs, i);
+  return xs[i]!;
+}
+const lastPick = new WeakMap<readonly unknown[], number>();
 
 /** 結局依牌組傾向換的那幾句用哪一派。`poison` 只有菲菲會判到，`stealth` 只有球球會判到 */
 export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'block' | 'plain';
