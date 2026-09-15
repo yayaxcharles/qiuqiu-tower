@@ -109,7 +109,9 @@ export function unlockOnFirstGesture(): void {
     }
     void ctx.resume();
     // 常用的先載，其餘等用到再載。開場就把 26 個一起抓會跟素材搶頻寬。
-    for (const n of ['click', 'draw', 'claw', 'hit', 'block', 'hurt', 'turn_end', 'turn_start'] as Sfx[]) {
+    // 菲菲的受傷叫聲也先載（各 9 KB）：這一刻還不知道玩家要選誰，原本只載球球那顆，
+    // 玩菲菲時第一次被打才去抓、那一下沒聲音（總稽核 2026-09-16 丁 低-1）
+    for (const n of ['click', 'draw', 'claw', 'hit', 'block', 'hurt', 'hurt_feifei', 'turn_end', 'turn_start'] as Sfx[]) {
       void load(n);
     }
   };

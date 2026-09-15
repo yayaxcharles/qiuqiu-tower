@@ -116,7 +116,7 @@ const Dusk: React.FC = () => {
       <Sprite src="feifei_throw" x={330} foot={610} height={240} />
       {needle(20)}
       {needle(56)}
-      <Sub zh="力氣小，就別跟人比力氣。" en="Small? Then never fight strength with strength." from={14} to={dur - 2} />
+      <Sub zh="先練準。力氣不夠的地方，就想別的辦法。" en="Aim first. Where strength falls short, find another way." from={14} to={dur - 2} />
       <AbsoluteFill style={{ background: "#000", opacity: black }} />
     </>
   );
@@ -172,8 +172,8 @@ const Night: React.FC = () => {
         filter: "blur(6px)",
       }} />
       {f >= 110 && <Sprite src="ninja_dash" x={qx} foot={qFoot} height={qH} opacity={qO} />}
-      <Sub zh="那天夜裡，魔塔在村外拔地而起，魔氣找上了師父。" en="That night the tower rose outside the village, and its miasma came for the master." from={12} to={92} />
-      <Sub zh="球球抓起頭巾就追了上去。" en="Qiuqiu grabbed his headband and ran after him." from={106} to={dur - 2} />
+      <Sub zh="那天夜裡，魔塔在村外拔地而起，紫光照上了師父的臉。" en="That night the tower rose outside the village, and its purple light fell on the master." from={12} to={92} />
+      <Sub zh="球球抓起頭巾追了出去，連菲菲喊他都沒聽見。" en="Qiuqiu grabbed his headband and ran after him, deaf to Feifei's call." from={106} to={dur - 2} />
     </>
   );
 };
@@ -218,7 +218,7 @@ const Gate: React.FC = () => {
     <>
       <Bg src="low" zoom={[1, 1.04]} dur={dur} />
       <Sprite src="feifei_stealth" x={x} foot={650 + bob} height={260} />
-      <Sub zh="我真的很怕痛。可是，只剩我能去找他們了。" en="I really hate getting hurt. But I'm the only one left who can go find them." from={14} to={dur - 2} />
+      <Sub zh="我還是很怕受傷。可是他們要是也在等人幫忙呢？……我得去。" en="I'm still scared of getting hurt. But what if they're waiting for help? ...I have to go." from={14} to={dur - 2} />
     </>
   );
 };
