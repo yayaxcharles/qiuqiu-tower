@@ -563,9 +563,14 @@ export function rollActRelics(run: RunState, n = 3): string[] {
      * 單機只有 0 號，排除清單跟以前一樣。
      */
     const owned = run.players.flatMap((p) => p.relics);
-    const id = rollRelic(rng, '塔主', [...owned, ...out], hs) ?? rollRelic(rng, '大魔物', [...owned, ...out], hs);
+    // **同一局開過的不再開**（2026-09-15）：第二關過關那次不要再看到第一關開過、沒選的那幾件——
+    // 使用者實測「很容易看到同幾件」。記在 `run.flags`（`relic_seen:<id>`）：兩台照同一份 run 算，不會分岔；舊存檔沒有這些旗標＝什麼都沒開過
+    const seen = Object.keys(run.flags).filter((k) => k.startsWith('relic_seen:')).map((k) => k.slice('relic_seen:'.length));
+    const skip = [...owned, ...out, ...seen];
+    const id = rollRelic(rng, '塔主', skip, hs) ?? rollRelic(rng, '大魔物', skip, hs);
     if (id) out.push(id);
   }
+  for (const id of out) run.flags[`relic_seen:${id}`] = true;
   return out;
 }
 
