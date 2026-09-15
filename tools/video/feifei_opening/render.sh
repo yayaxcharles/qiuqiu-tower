@@ -17,4 +17,5 @@ cp "$GAME/public/bgm/act1.mp3" "$RV/public/qiuqiu/bgm/"
 
 cd "$RV"
 npx remotion render src/qiuqiu/entry.tsx FeifeiOpening "$OUT" --codec h264 --crf 28 --audio-codec aac --audio-bitrate 128k
-ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate -of default=nw=1 "$OUT"
+# 最後這行只是印規格給人看；沒裝 ffprobe 也不該讓已經算好的片子被當成失敗（審查 低-1）
+ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate -of default=nw=1 "$OUT" || true
