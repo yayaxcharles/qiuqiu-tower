@@ -473,8 +473,9 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
       }
     }
   }
-  // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）
-  if (!reviving) for (const rid of killer.relics) {
+  // 打倒魔物的秘寶效果（沙丁魚罐回血、黑曜爪爪力、銅錢劍小魚乾）。
+  // 擊倒者已經倒下（下的毒在他倒下後才毒死魔物）就不發動：虎爪原本讓躺著的人血從 0 變 3（總稽核 2026-09-16 乙 低-5）
+  if (!reviving && !killer.down) for (const rid of killer.relics) {
     const h = relicById[rid]?.hooks;
     if (!h) continue;
     // 滿血時沙丁魚罐回 0 點：那一下什麼都沒發生，不該閃金光也不該佔一格紀錄（稽核 2026-09-10 低-9）

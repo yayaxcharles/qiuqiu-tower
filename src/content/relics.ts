@@ -105,7 +105,7 @@ export const relics: RelicDef[] = [
   // 2026-09-16 使用者：「開場給 14 有點弱」→ 改成每回合 8（鐵砂袋每回合 3 的塔主版）
   { id: 'master_hat', name: '師父的斗笠', pool: '塔主', text: '每回合開始時獲得 8 點蜷縮。', art: 'codex/relic_master_hat', price: 240,
     hooks: { turnStart: [{ kind: 'block', amount: 8 }] } },
-  { id: 'iron_palm_wraps', name: '鐵砂掌套', pool: '塔主', text: '每回合第一次打出攻擊牌時獲得 1 點爪力。', art: 'codex/relic_iron_palm_wraps', price: 240,
+  { id: 'iron_palm_wraps', name: '鐵砂掌套', pool: '塔主', text: '每回合第一次打出攻擊牌後獲得 1 點爪力（那一張吃不到）。', art: 'codex/relic_iron_palm_wraps', price: 240,
     hooks: { onAttackPlayed: { effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }], firstEachTurn: true } } },
   { id: 'master_teacup', name: '塔主的茶碗', pool: '塔主', text: '每回合開始時回復 2 點生命。', art: 'codex/relic_master_teacup', price: 240,
     hooks: { turnStart: [{ kind: 'heal', n: 2 }] } },
@@ -117,9 +117,9 @@ export const relics: RelicDef[] = [
     hooks: { winGold: 30 } },
   { id: 'tiger_claws', name: '虎爪', pool: '塔主', text: '每打倒一隻魔物獲得 1 點爪力、回復 3 點生命。', art: 'codex/relic_tiger_claws', price: 240,
     hooks: { killStrength: 1, killHeal: 3 } },
-  { id: 'iron_shirt', name: '鐵布衫', pool: '塔主', text: '回合結束時最多保留 10 點蜷縮到下一回合。', art: 'codex/relic_iron_shirt', price: 230,
+  { id: 'iron_shirt', name: '護心短褂', pool: '塔主', text: '回合結束時最多保留 10 點蜷縮到下一回合（跟守護符、鐵砂衣的保留量相加）。', art: 'codex/relic_iron_shirt', price: 230,
     hooks: { blockKeep: 10 } },
-  { id: 'moon_mirror', name: '月光鏡', pool: '塔主', text: '回合結束時沒有攻擊的話，獲得 2 點爪力與 8 點蜷縮。', art: 'codex/relic_moon_mirror', price: 230,
+  { id: 'moon_mirror', name: '月光鏡', pool: '塔主', text: '回合結束時如果這回合沒打過攻擊牌，獲得 2 點爪力與 8 點蜷縮。', art: 'codex/relic_moon_mirror', price: 230,
     hooks: { turnEndNoAttack: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }, { kind: 'block', amount: 8 }] } },
   // ===== 代價秘寶（2026-09-04，使用者：「很強但有代價的，玩家會猶豫，選擇才有趣」）。圖示還沒生，先顯示文字牌 =====
   { id: 'blood_dagger', name: '血契短刀', pool: '大魔物', text: '每場戰鬥開始獲得 3 點爪力；拿到時最大生命 −12。', art: 'codex/relic_blood_dagger', price: 210,

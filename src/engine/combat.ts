@@ -343,7 +343,13 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   p.drawNextTurn = 0;
   drawCards(cs, n, p);
   // 每回合開始的秘寶效果（鐵砂袋、靈貓鈴）：排在抽牌之後，抽到的牌才算進這回合的手牌
-  for (const rid of p.relics) { const h = relicById[rid]?.hooks.turnStart; if (h) { fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' }); } }
+  for (const rid of p.relics) {
+    const h = relicById[rid]?.hooks.turnStart;
+    if (!h) continue;
+    // 只回血的（塔主的茶碗）滿血時那一下什麼都沒發生，不閃金光、不佔紀錄——跟沙丁魚罐同一條規矩（總稽核 2026-09-16 乙 低-6）
+    if (h.every((fx) => fx.kind === 'heal') && p.hp >= p.maxHp) continue;
+    fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' });
+  }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
     if (cu?.onTurnStart) { log(cs, `「${curseName(c.cardId, p.hero)}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
@@ -912,7 +918,7 @@ export function finishEnemyTurn(cs: CombatState): void {
   for (const p of cs.players) {
     const keep = relicSum(p.relics, 'blockKeep');
     // 球球已經倒下那一拍不演（稽核 2026-09-10 複核 低-5）：被穿透打死但身上還有蜷縮時會踩到
-    if (keep > 0 && cs.phase === 'player' && p.block > 0) for (const rid of p.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid, p);
+    if (keep > 0 && cs.phase === 'player' && p.block > 0 && !p.down) for (const rid of p.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid, p);
     p.block = Math.min(p.block, keep);
   }
   if (cs.phase === 'player') startPlayerTurn(cs);

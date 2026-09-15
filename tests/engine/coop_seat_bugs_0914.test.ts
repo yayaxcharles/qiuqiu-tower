@@ -157,6 +157,8 @@ describe('整局裡寫死座位 0 的那幾處', () => {
       const run = newCoopRun(`seat-actrelic-${i}`, 1, 'ninja', 'feifei');
       const first = rollActRelics(run);
       for (const id of first) takeRelic(run, id, 1);   // 座位 1 第一關把三件都拿走（最壞情況）
+      // 清掉「開過的不再開」的記號（2026-09-15 起）：不清的話那條規則會代替這條擋掉，排除名單退化成只看座位 0 也照樣綠（總稽核 2026-09-16 乙 低-1）
+      for (const k of Object.keys(run.flags)) if (k.startsWith('relic_seen:')) delete run.flags[k];
       if (rollActRelics(run).some((id) => run.players[1]!.relics.includes(id))) hit += 1;
     }
     expect(hit, '第二次過關開出了座位 1 已經有的秘寶').toBe(0);
