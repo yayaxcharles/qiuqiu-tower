@@ -860,6 +860,8 @@ registerScreen('combat', (app, root, props) => {
       if (byStatus.length && (hits.length || rnd)) {
         text += `＋${byStatus.map((d) => computeAttack(getStatus(my(), d.name) * (d.mul ?? 1) * x, e, my())).join('＋')}（照你的${byStatus[0]!.name}）`;
       }
+      // 只有「照層數打」＋守（鏡貓學到見血封喉）：主分支只寫了攻，守要補上（推前審查 2026-09-15 中-1）
+      if (byStatus.length && blk && !hits.length && !rnd) text += `＋守 ${computeBlock(blk.amount, e)}`;
     }
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）

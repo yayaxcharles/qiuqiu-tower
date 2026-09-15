@@ -7,6 +7,7 @@ import { enemyById } from '../../content/enemies';
 import { eventTextFor, storyFor, dialogue, lineFor, FEIFEI_EVENT_LINES, FEIFEI_BOSS_LINES } from '../../content/dialogue';
 import { registerScreen } from '../app';
 import { artUrl, eventArtKey, hasHeroSprite, heroArtUrl, setLocalHero, localHero } from '../assets';
+import { setSfxHero } from '../audio';
 import { cardNode } from '../cardview';
 import { el } from '../dom';
 
@@ -256,6 +257,7 @@ registerScreen('debug', (app, root) => {
 
   const render = (): void => {
     setLocalHero(hero);            // 牌面、事件插圖都靠它決定要拿誰的圖
+    setSfxHero(hero);
     body.replaceChildren();
     if (tab === '事件') renderEvents();
     else if (tab === '牌') renderCards();
@@ -286,7 +288,7 @@ registerScreen('debug', (app, root) => {
       heroBtn('ninja', '球球'), heroBtn('feifei', '菲菲'),
       el('button', {
         class: 'btn small dbg-close',
-        onclick: () => { setLocalHero(heroBeforeDebug ?? 'ninja'); heroBeforeDebug = null; app.show('title'); },
+        onclick: () => { setLocalHero(heroBeforeDebug ?? 'ninja'); setSfxHero(heroBeforeDebug ?? 'ninja'); heroBeforeDebug = null; app.show('title'); },
       }, '✕ 回標題'));
     render();
   };

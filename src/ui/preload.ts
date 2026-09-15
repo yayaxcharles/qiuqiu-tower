@@ -52,13 +52,14 @@ export function monsterArtKeysForAct(act: number): string[] {
   return [...keys];
 }
 
-function urlsFor(defs: EnemyDef[]): string[] {
+/** `skinHero`＝決定魔物變裝的角色（鏡中菲菲看的是**座位 0**，連線時不一定是本機這位；推前審查 2026-09-15 低-1） */
+function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero()): string[] {
   const urls: string[] = [];
   for (const def of defs) {
     if (def.art === 'daxia') continue;   // 師父的立繪組在 sprites 裡，首載本來就有
     // 有變裝的（玩菲菲時的鏡中球球＝影菲菲）要暖**變裝那組**，不然真正會出現在畫面上的那五張沒人先抓。
     // 圖還沒進倉時 `enemyArtFor` 回的鍵在清單裡查不到，`assets.ts` 會退回原本那組，等於沒差
-    const art = enemyArtFor(def.id, localHero());
+    const art = enemyArtFor(def.id, skinHero);
     for (const pose of POSES) if (hasMonsterPose(art, pose)) urls.push(monsterUrl(art, pose));
   }
   return [...new Set(urls)];
@@ -107,14 +108,14 @@ async function decodeAll(urls: string[], concurrency = 4,
  * 第一關一輩子看不到。改成跟魔物同一個時機補——過關畫面停留的那幾十秒足夠抓完。
  * 底圖排在魔物前面：一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點。
  */
-export function preloadAct(act: number): Promise<void> {
+export function preloadAct(act: number, skinHero: string | undefined = localHero()): Promise<void> {
   const defs = [...enemyIdsForAct(act)].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d);
   const bg = bgKeysForAct(act).map((k) => artUrl('bg', k));
   // 底圖排前面（一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點），但**不留參照**。
   // 跟 `warmEncounter` 一樣送**同一批**，不要 `.then()` 串成兩段（稽核 2026-09-10 低-9）：
   // 串起來的話底圖最後一張解完之前魔物一張都不會開始下載，而 `bgKeysForAct` 從 9 個鍵長到 15 個，
   // 這裡雖然沒有時限（過關畫面停留幾十秒）不會出事，但兩支寫法不一致，照著抄就會再踩一次。
-  const held = new Set(urlsFor(defs));
+  const held = new Set(urlsFor(defs, skinHero));
   return decodeAll([...new Set([...bg, ...held])], 4, (u) => held.has(u));
 }
 
@@ -147,7 +148,8 @@ export function preloadCoopArt(): Promise<void> {
 }
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */
-export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: readonly string[] = []): Promise<void> {
+export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: readonly string[] = [],
+  skinHero: string | undefined = localHero()): Promise<void> {
   const enc = encounterById[encounterId];
   if (!enc) return Promise.resolve();
   const ids = new Set<string>();
@@ -175,7 +177,7 @@ export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: 
   // `hold` 逐張決定：魔物那批照 2026-09-04 低 14 的規矩留參照；球球那 27 張解成點陣圖約 33 MB，
   // 戰鬥畫面掛上時 `combat.ts` 的 `warmAll()` 自己會再暖一次並留自己那份（每場一份、跟著閉包回收），
   // 這裡不必再永久壓一份。
-  const monsters = urlsFor(defs);
+  const monsters = urlsFor(defs, skinHero);
   const held = new Set(monsters);
   const work = decodeAll([...new Set([...monsters, ...heroPoses])], 6, (u) => held.has(u));
   let timer: ReturnType<typeof setTimeout> | undefined;

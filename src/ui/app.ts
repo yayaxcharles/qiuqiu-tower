@@ -214,7 +214,7 @@ export class App {
     setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
     setSfxHero(me(run, this.seat).hero);
     void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
-    void preloadAct(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
+    void preloadAct(run.act, run.players[0]?.hero);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
     const node = currentNode(run);
@@ -382,7 +382,7 @@ export class App {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }
       };
-      void warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero))).then(proceed, proceed);
+      void warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero)), run.players[0]?.hero).then(proceed, proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。
