@@ -16,8 +16,8 @@ describe('鏡子走廊：對菲菲來說，鏡子裡是鏡中的自己（影菲�
 
   it('她看到的敘述、選項、結果都在講鏡中的自己，不再是假師兄', () => {
     const hers = all.map((t) => eventTextFor('feifei', t));
-    expect(hers.join('\n')).not.toMatch(/假師兄|跟師兄一模一樣|這不是師兄/);
-    expect(eventTextFor('feifei', ev.text)).toContain('鏡子裡那個菲菲');
+    expect(hers.join('\n')).not.toMatch(/師兄/);   // 鏡子裡是她自己，不是師兄（文案由 GPT 改寫，這裡只釘規矩不釘句子）
+    expect(eventTextFor('feifei', ev.text)).toMatch(/倒影|鏡/);
     expect(eventTextFor('feifei', ev.choices[0]!.label)).toContain('鏡中的自己');
     expect(hers.join('\n'), '她的句子不帶喵').not.toContain('喵');
     expect(hers.join('\n'), '球球的名字不能留在她的版本裡').not.toContain('球球');

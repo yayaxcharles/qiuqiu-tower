@@ -77,13 +77,18 @@ describe('共用事件台詞的她版', () => {
     }
   });
 
-  /** 使用者實測抓到的那一句，單獨釘住 */
-  it('賣藥的三花貓：她不會講「藥倒是有下本」', () => {
+  /**
+   * 使用者實測抓到的那一句，單獨釘住。2026-09-15 兩個角色的台詞都由 GPT 整批改寫過，
+   * 球球那句不再有「下本」兩個字，所以改成釘規矩：補身藥那個選項，她講的必須是她自己的版本、不是他的句子換名字
+   */
+  it('賣藥的三花貓：補身藥那句她講的是自己的版本', () => {
     const ev = events.find((e) => e.id === 'medicine_cat')!;
-    const buy = ev.choices.find((c) => c.result?.includes('有下本'))!;
+    const buy = ev.choices.find((c) => c.costFish === 60)!;
+    const his = /球球：「(.+?)」/su.exec(buy.result!)![1]!;
     const shown = eventTextFor('feifei', buy.result!);
-    expect(shown, '還是球球的那句').not.toContain('下本');
     expect(shown).toContain('菲菲：「');
+    expect(shown, '還是球球的那句換名字').not.toContain(his);
+    expect(shown).not.toContain('球球');
   });
 
   it('敘述句照樣換名字（這一半本來就對，別改壞）', () => {
