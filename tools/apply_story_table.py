@@ -7,10 +7,10 @@
 
 規則（表由 `tools/dump_story_table.test.ts` 產生，旁邊的 `.keys.json` 記每個編號怎麼寫回；這支只看 MD 的「編號」與最後一欄「改寫」）：
   - 改寫欄空白、或跟原文一樣 → 跳過。
-  - literal：在該檔找到 '原文' 字串常值換成 '改寫'。菲菲的句子要剛好出現 1 次；**球球的句子在 dialogue.ts 全部出現處一起換**
-    （他的原句是菲菲對照表 FEIFEI_BOSS_LINES／FEIFEI_EVENT_TEXT 的鍵）。球球在 events.ts 的句子改了之後，
+  - literal：在該檔找到 '原文' 字串常值換成 '改寫'。**當成句子的只准剛好 1 處**（2026-09-16 起，兩個角色都一樣）；
+    當成對照表鍵（'原句':）的那幾處一起換——球球的原句是菲菲對照表 FEIFEI_BOSS_LINES／FEIFEI_EVENT_TEXT 的鍵。球球在 events.ts 的句子改了之後，
     dialogue.ts 裡拿整句當鍵的（FEIFEI_EVENT_TEXT）與拿引號裡那句當鍵的（FEIFEI_EVENT_LINES）也一起換鍵。
-  - map-add：原本沒有她的版本，把 `'鍵': '改寫',` 加進對照表最後。
+  - map-add：原本沒有她的版本，把 `'鍵': '改寫',` 加進對照表最後（找配對的收尾大括號，跳過字串與註解；**不認得正規表達式常值**，表裡別放）。
   - blurb：選角小傳（`blurb: '…' + '…',`）整個運算式換成一個常值。
   - 球球講的話句尾要有「喵」：沒有的列出來、不寫（跟程式的 qiuqiuLineOk 同一條規矩）。
   - 寫完自己跑不了測試，記得 `npx vitest run tests/content` 與 `npx tsc --noEmit -p .`。

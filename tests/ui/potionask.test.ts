@@ -38,6 +38,11 @@ describe('換忍具問到哪一步', () => {
     expect(REWARD).toMatch(/swapPotion\(app, run, seat, idx, newId\) \? 'swapped' : undefined/);
   });
 
+  it('戰利品頁：倒下的人不問換忍具、主機換完照現在的畫面重畫狀態列（推前審查 2026-09-16 中-1／低-1）', () => {
+    expect(REWARD).toContain('const missedId = iDown ? null :');
+    expect(REWARD).toContain("if (r.potionAsk === 'swapped' && (!app.coop || app.coop.isHost))");
+  });
+
   it('戰利品頁：收到換忍具動作只重畫狀態列，不去改問到哪一步', () => {
     const start = REWARD.indexOf("applied.every((o) => o.a.t === 'swap')");
     expect(start).toBeGreaterThan(-1);
@@ -62,6 +67,12 @@ describe('系統公告', () => {
       expect(src, `${f}.ts 的結果公告`).toMatch(/notice\((relicOutcomeText|`兩人選)/);
       expect(src, `${f}.ts 不該再用 toast 講投票結果`).not.toMatch(/toast\((relicOutcomeText|`兩人選)/);
     }
+  });
+
+  it('公告寬度照內容（只寫 max-width 會卡在半個畫面、33 字就換行）；吐槽泡泡戰鬥留兩句、其他畫面留一句（實機複驗 2026-09-16）', () => {
+    expect(/\.notice\s*\{[^}]*width:\s*max-content/.test(base)).toBe(true);
+    const dlg = readFileSync('src/ui/dialogue.ts', 'utf-8');
+    expect(dlg).toContain("const keep = layer.closest('[data-screen=\"combat\"]') ? 1 : 0;");
   });
 
   it('公告壓在對白層上面，戰鬥與其他畫面的泡泡樣式套不到它', () => {

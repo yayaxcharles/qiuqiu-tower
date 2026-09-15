@@ -201,7 +201,7 @@ registerScreen('reward', (app, root, props) => {
           el('span', { class: 'reward-line' }, '魔物自己散去了——一隻都沒打倒，牠們身上沒有留下任何東西。')))
     : el('div', { class: 'reward-items' },
         el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
-          el('span', { class: 'reward-line' }, `獲得 ${r.fishPerSeat?.[seat] ?? r.fish} 條小魚乾`)));
+          el('span', { class: 'reward-line' }, iDown ? '你倒下了，這場的小魚乾沒有分到。' : `獲得 ${r.fishPerSeat?.[seat] ?? r.fish} 條小魚乾`)));
   // 修飾詞的歸因：小魚乾為什麼多了／少了、為什麼多一張牌可挑，畫面上要講得出來（體檢 2026-09-05）
   if (r.modifier) items.append(el('div', { class: 'reward-item loot' }, el('span', { class: 'reward-line' }, `這場是「${r.modifier.label}」：${r.modifier.desc}`)));
   // 獎金另起一行：r.fish 是規格 §5.4 的戰利品，兩個數字不併成一個，玩家才看得出獎金有沒有拿到
@@ -316,7 +316,8 @@ registerScreen('reward', (app, root, props) => {
    * - 「換了」當場記，不等自己那則動作繞回來：客戶端要等主機編號，這段空檔一重畫就再問一次。
    * 怎麼問、怎麼畫的判斷在 `potionask.ts`（純函式，有測試釘著）。
    */
-  const missedId = r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null);
+  // 倒下的人沒分到這支、背包也沒滿：原本 `potionMissed`（站著的人全收不下）連他一起問，按「換」被引擎擋下又回到沒問過，同伴一動就再彈（推前審查 2026-09-16 中-1）
+  const missedId = iDown ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null));
   const missed = missedId ? potionById[missedId] : undefined;
   if (missed && missedId) {
     const label = (): Node[] => [el('b', {}, missedPotionLabel(r.potionAsk, missed.name)), el('em', {}, missed.text)];
@@ -335,11 +336,12 @@ registerScreen('reward', (app, root, props) => {
         // 答的時候畫面可能已經重畫過好幾次，`line` 是舊的那個——改現在畫面上那一列
         root.querySelector('[data-missed-potion]')?.replaceChildren(...label());
         // 單機當場就換好了，狀態列跟著畫；連線等動作繞回來再畫（見上面 `onRunApplied`）。先拆舊的，不然疊兩條
-        if (r.potionAsk === 'swapped' && !app.coop) { root.querySelector('.hud')?.remove(); renderHud(app, root); }
+        // 主機當場就套用了——這時畫面可能已經換成地圖（同伴挑完就被帶走），`onRunApplied` 那支已經不在，照現在的畫面重畫（推前審查 2026-09-16 低-1）
+        if (r.potionAsk === 'swapped' && (!app.coop || app.coop.isHost)) { root.querySelector('.hud')?.remove(); renderHud(app, root); }
       }, { seat, apply: false });
     }, 350);
   }
-  const potion = r.potion && !missedId ? potionById[r.potion] : undefined;
+  const potion = r.potion && !missedId && !iDown ? potionById[r.potion] : undefined;
   if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),
     el('span', { class: 'reward-line' },
       el('b', {}, `獲得忍具「${potion.name}」`), el('em', {}, potion.text))));

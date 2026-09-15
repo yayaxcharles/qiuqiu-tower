@@ -44,18 +44,18 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  */
 const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/feifei_cover', 'hero/idle', 'hero/armed']);
 /**
+ * 帶角色名、卻在**選角之前**就會出現的圖：首頁兩張「參上」並排（2026-09-15）。
+ * 開場預載不能因為鍵名帶 `feifei` 就跳過，戰鬥暖圖也不用它（總稽核 2026-09-16 戊 M3）。
+ */
+export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover']);
+
+/**
  * 這個鍵是哪一位角色專屬的；`null`＝共用或球球的。
  *
  * 菲菲的素材鍵都帶 `feifei`（`hero/feifei_*`、`card/feifei_*`、`bg/event_feifei_*`、`bg/feifei_still_*`、
  * `icon/map_hero_feifei_*`），球球的沒有前綴——那是 main 時代留下來的命名，正好讓「只玩球球的人
  * 開場下載的東西」跟併入她之前一模一樣（總稽核 F 中-1：原本她的 300 多張圖全部算進每個人的首載）。
  */
-/**
- * 帶角色名、卻在**選角之前**就會出現的圖：首頁兩張「參上」並排（2026-09-15）。
- * 開場預載不能因為鍵名帶 `feifei` 就跳過，戰鬥暖圖也不用它（總稽核 2026-09-16 戊 M3）。
- */
-export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover']);
-
 export function heroOfKey(key: string): string | null {
   const m = /(?:^|[/_])(feifei|samurai)(?:_|$)/.exec(key);
   return m ? m[1]! : null;

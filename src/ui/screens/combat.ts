@@ -930,7 +930,7 @@ registerScreen('combat', (app, root, props) => {
           parts.push(n > 0
             ? `照你身上的${fx.name}層數打：出手時 ${n} 層${(fx.mul ?? 1) > 1 ? ` × ${fx.mul} 倍` : ''}＝造成 ${h?.dmg ?? 0} 點傷害`
               + (fx.consume ? `，打完把你的${fx.name}清掉` : '')
-            : `照你身上的${fx.name}層數打：你身上沒有${fx.name}，這一下會撲空`);
+            : `照你身上的${fx.name}層數打：你身上沒有${fx.name}，打你這一下會撲空`);
           break;
         }
         case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點防禦`); break;

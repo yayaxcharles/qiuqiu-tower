@@ -454,7 +454,8 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer, killer.down ? (cs.players.find((q) => !q.down) ?? killer) : killer);
   if (e.stolen > 0) { killer.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
-  if (!reviving) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
+  // 擊倒者已經倒下就不發（跟下面的秘寶同一條，推前審查 2026-09-16 低-2：回復卷軸讓躺著的人血從 0 變 3）
+  if (!reviving && !killer.down) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
   /*
    * 餘毒（屍爆，菲菲的稀有能力 2026-09-12）：牠倒下時身上剩下的中毒，傳給還站著的。
    *

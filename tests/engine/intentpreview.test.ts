@@ -91,6 +91,16 @@ describe('新塔主秘寶的邊角（總稽核 2026-09-16 乙 低-5／低-6）',
     expect(cs.relicFired).not.toContain('tiger_claws');
   });
 
+  it('擊倒者已經倒下：「打倒時」的能力也不發（推前審查 2026-09-16 低-2）', () => {
+    const cs = coop('onkill-down');
+    const p1 = cs.players[1]!;
+    p1.powers.push({ trigger: 'onKill', effects: [{ kind: 'heal', n: 3 }] });
+    p1.down = true; p1.hp = 0;
+    const e = cs.enemies[0]!;
+    damageEnemy(cs, e, e.hp, { direct: true, by: p1 });
+    expect(p1.hp).toBe(0);
+  });
+
   it('塔主的茶碗：滿血不發動（不閃、不佔紀錄），掉血了才回 2', () => {
     const cs = table('teacup');
     cs.player.relics.push('master_teacup');
