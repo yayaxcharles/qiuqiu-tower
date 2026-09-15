@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { beginCombat, buyCard, finishCombat, makeShop, newCoopRun, notMyCard, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../src/engine/run';
+import { beginCombat, finishCombat, makeShop, makeShops, newCoopRun, notMyCard, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../src/engine/run';
 import { beginEnemyTurn, playCard, startPlayerTurn, stepEnemyTurn } from '../../src/engine/combat';
 import { damageEnemy } from '../../src/engine/actions';
 import { addStatus, getStatus } from '../../src/engine/statuses';
 import { enemies } from '../../src/content/enemies';
 import { cardById } from '../../src/content/cards';
-import { canApplyRun } from '../../src/net/runaction';
+import { applyRunAction, canApplyRun } from '../../src/net/runaction';
 import type { CombatState, PlayerCombat, RunState } from '../../src/engine/types';
 
 /*
@@ -162,35 +162,35 @@ describe('整局裡寫死座位 0 的那幾處', () => {
     expect(hit, '第二次過關開出了座位 1 已經有的秘寶').toBe(0);
   });
 
-  it('高-8：共用貨架擺兩個角色的牌，別人的專屬招式買不下去', () => {
-    let herCards = 0; let hisCards = 0; let blocked = 0;
+  it('高-8 → 各逛各的（使用者 2026-09-15）：每個座位一份貨架、只擺自己用得到的牌，買賣只動自己那份', () => {
+    let herCards = 0; let hisCards = 0;
     for (let i = 0; i < 80; i++) {
       const run = newCoopRun(`seat-shop-${i}`, 1, 'ninja', 'feifei');
       run.players[0]!.fish = 9999; run.players[1]!.fish = 9999;
-      const shop = makeShop(run);
-      shop.cards.forEach((it, k) => {
-        if (it.def.hero === 'feifei') {
-          herCards += 1;
-          expect(notMyCard(run, it.def, 0)).toBe(true);
-          expect(canApplyRun({ run, shop }, { t: 'buy', seat: 0, k: 'card', i: k }), '球球可以送出買她專屬牌的動作').toBe(false);
-          if (!buyCard(run, shop, k, 0)) blocked += 1;
-        }
-        if (it.def.hero === 'ninja') hisCards += 1;
-      });
+      const shops = makeShops(run);
+      expect(shops.length, '兩個人就兩份').toBe(2);
+      for (const it of shops[0]!.cards) { expect(notMyCard(run, it.def, 0), `球球的貨架擺了 ${it.def.name}`).toBe(false); if (it.def.hero === 'ninja') hisCards += 1; }
+      for (const it of shops[1]!.cards) { expect(notMyCard(run, it.def, 1), `菲菲的貨架擺了 ${it.def.name}`).toBe(false); if (it.def.hero === 'feifei') herCards += 1; }
+      // 各買各的：球球買自己貨架第 0 格，菲菲那份一格都不動；同一格菲菲照樣買得到自己的
+      expect(canApplyRun({ run, shops }, { t: 'buy', seat: 0, k: 'card', i: 0 })).toBe(true);
+      expect(applyRunAction({ run, shops }, { t: 'buy', seat: 0, k: 'card', i: 0 })).toBe(true);
+      expect(shops[0]!.cards[0]!.sold).toBe(true);
+      expect(shops[1]!.cards.some((it) => it.sold), '菲菲的貨架被球球買走了一格').toBe(false);
+      expect(canApplyRun({ run, shops }, { t: 'buy', seat: 1, k: 'card', i: 0 })).toBe(true);
     }
-    expect(herCards, '菲菲坐 1 號，罐頭鋪一張她的專屬牌都沒擺').toBeGreaterThan(0);
+    expect(herCards, '菲菲的貨架 80 間店一張她的專屬牌都沒擺').toBeGreaterThan(0);
     expect(hisCards).toBeGreaterThan(0);
-    expect(blocked, '球球買下了菲菲的專屬牌').toBe(herCards);
   });
 
   it('高-17：重整貨架錢不夠或架上全賣光，連送都不該送', () => {
     const run = newCoopRun('seat-shuffle', 1, 'ninja', 'feifei');
-    const shop = makeShop(run);
+    const shops = makeShops(run);
+    const shop = shops[1]!;
     run.players[1]!.fish = 10;
-    expect(canApplyRun({ run, shop }, { t: 'shuffle', seat: 1 }), '錢不夠還發號碼').toBe(false);
+    expect(canApplyRun({ run, shops }, { t: 'shuffle', seat: 1 }), '錢不夠還發號碼').toBe(false);
     run.players[1]!.fish = 999;
-    expect(canApplyRun({ run, shop }, { t: 'shuffle', seat: 1 })).toBe(true);
+    expect(canApplyRun({ run, shops }, { t: 'shuffle', seat: 1 })).toBe(true);
     for (const it of [...shop.cards, ...shop.relics, ...shop.potions]) it.sold = true;
-    expect(canApplyRun({ run, shop }, { t: 'shuffle', seat: 1 }), '架上沒東西可換還發號碼').toBe(false);
+    expect(canApplyRun({ run, shops }, { t: 'shuffle', seat: 1 }), '架上沒東西可換還發號碼').toBe(false);
   });
 });

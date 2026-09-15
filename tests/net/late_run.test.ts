@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CoopSession } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
-import { makeShop, newCoopRun } from '../../src/engine/run';
+import { makeShops, newCoopRun } from '../../src/engine/run';
 
 /*
  * 2026-09-15 兩個審查代理抓到的「靜音卡死」：
@@ -14,8 +14,8 @@ function shopPair() {
   const link = new LoopbackPair();
   const host = new CoopSession(link.a, { isHost: true, seat: 0 });
   const guest = new CoopSession(link.b, { isHost: false, seat: 1 });
-  host.useRun(a); host.attachShop(makeShop(a));
-  guest.useRun(b); guest.attachShop(makeShop(b));
+  host.useRun(a); host.attachShop(makeShops(a));
+  guest.useRun(b); guest.attachShop(makeShops(b));
   return { host, guest, link };
 }
 

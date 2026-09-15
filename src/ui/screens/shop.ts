@@ -2,7 +2,7 @@ import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
-import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShop, notMyCard, potionCapacity, priceFor, reshuffleShop, shopMulFor } from '../../engine/run';
+import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, notMyCard, potionCapacity, priceFor, reshuffleShop, shopMulFor, type ShopStock } from '../../engine/run';
 import { heroSpeaker } from '../dialogue';
 import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
@@ -24,24 +24,27 @@ function icon(key: string, alt: string): Node | string {
   return url.startsWith('data:') ? '' : el('img', { src: url, alt });
 }
 
-registerScreen('shop', (app, root) => {
+registerScreen('shop', (app, root, props) => {
   root.append(screenBg(actVariantKey('bg/screen_shop', app.run?.act ?? 1, app.run?.floor)));
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
-  // 進貨只做一次：makeShop 會推進 run.rng，每次重畫都叫的話買一樣東西整個貨架就換一批
-  const shop = makeShop(run);
+  // 貨架在走進這一格時就抽好了（`enterNode`），這裡只接過來；除錯模式直接跳進來才自己抽。
+  // 進貨只做一次：makeShops 會推進 run.rng，每次重畫都叫的話買一樣東西整個貨架就換一批
+  const shops = (props as { shops?: ShopStock[] } | null)?.shops ?? makeShops(run);
   const line = dialogue.shopkeeper[Math.floor(Math.random() * dialogue.shopkeeper.length)] ?? '';
 
   /*
-   * 兩個人一起逛（連線版 2026-09-11）。
+   * 兩個人一起逛，**各逛各的**（使用者 2026-09-15：「不如各逛各的？跟戰鬥完選牌一樣」）。
    *
-   * **貨架共用、錢包各自**：架上的東西只有一份，誰先買到就是誰的；
-   * 每個人付的錢照自己的折扣秘寶算（見 `priceFor`）。
+   * 每個座位一份貨架（`makeShops`，照座位順序連抽，兩台抽出來一樣），畫面只畫自己那份；
+   * 買賣、放生、重整貨架都只動自己的貨架與錢包，每個人付的錢照自己的折扣秘寶算（見 `priceFor`）。
+   * 「離開」還是要兩個人都按才上樓。之前（2026-09-11 版）是共用一份、誰先買到就是誰的。
    *
    * 所有會改到東西的動作都要走 `act()`——直接呼叫引擎的話只有自己這台會動，
-   * 對面的貨架還留著那一格，下一次對帳就分岔。
+   * 對面的錢與牌組還是舊的，下一次對帳就分岔。
    */
   const seat = app.seat;
+  const shop = shops[seat] ?? shops[0]!;   // 單機只有一份
   const coop = app.coop;
   /*
    * 我倒下了：引擎本來就擋著（`canApplyRun` 對倒下的人一律回 false），
@@ -50,7 +53,7 @@ registerScreen('shop', (app, root) => {
    */
   const iDown = !!coop && !!me(run, seat).down;
   if (coop) {
-    coop.attachShop(shop);
+    coop.attachShop(shops);   // `enterNode` 已經掛過；除錯或重畫進來再掛一次也沒差
     // 離開這一格時一定要斷開，不然下一格收到一則遲到的買東西，會拿新畫面去套舊貨架
     app.disposers.push(() => coop.attachShop(null));
   }
@@ -67,6 +70,7 @@ registerScreen('shop', (app, root) => {
    */
   const act = (a: RunAction, local: () => boolean): boolean => {
     if (!coop) return local();
+    if (coop.suspended) { setMood('no'); return false; }   // 自己的線路斷了、正在接回：按了也要等接回才生效，先搖頭免得玩家重按（審查 2026-09-15 低-7）
     return coop.submitRun(a);
   };
 
@@ -183,7 +187,7 @@ registerScreen('shop', (app, root) => {
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
       const price = priceFor(run, it, seat);
-      // 共用貨架上會同時擺兩個角色的牌（連線稽核 高-8）：同伴的專屬招式寫清楚，不要只是變淡
+      // 貨架照自己的角色抽，同伴的專屬招式不會擺上來；這道保險留著，萬一擺上來也寫清楚、不要只是變淡
       const theirs = notMyCard(run, it.def, seat);
       const buyable = !it.sold && !iDown && !theirs && me(run, seat).fish >= price;
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },

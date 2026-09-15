@@ -5,7 +5,7 @@ import type { RunAction, RunCtx } from './runaction';
 import type { ShopStock } from '../engine/run';
 import { ActionQueue, Sequencer, diffOf, runCheckOf, syncCheckOf } from './lockstep';
 import type { SequencedAction, SyncCheck } from './lockstep';
-import type { NetMessage, Transport } from './transport';
+import type { LinkStatus, NetMessage, Transport } from './transport';
 import type { CombatState, RunState } from '../engine/types';
 
 /** 戰鬥那一條的動作訊息（客戶端的請求、主機編號過的動作）：這兩種要照場次排隊 */
@@ -29,6 +29,8 @@ export interface SessionHooks {
   onDesync?: (why: string) => void;
   /** 連線斷了 */
   onClose?: (why: string) => void;
+  /** 線路暫時斷了／接回來了（自己或對方）：大廳拿它掛琥珀色橫幅（`lobby.ts` 的 `linkBanner`） */
+  onLink?: (s: LinkStatus) => void;
 }
 
 export class CoopSession {
@@ -93,7 +95,20 @@ export class CoopSession {
     seen.set(seat, n);
     return true;
   }
-  private readonly runQueue = new ActionQueue<RunAction>((a) => (this.rctx ? applyRunAction(this.rctx, a) : false));
+  private readonly runQueue = new ActionQueue<RunAction>((a) => this.applyRun(a));
+  /**
+   * 罐頭鋪的動作比貨架早到（審查 2026-09-15 高-2）：同伴先進店買東西，我還沒走到那一格——
+   * 一個人倒下時很常見：站著的那位一票就定案、當場進店；倒下的還停在上一頁沒按「繼續」，
+   * 他的票要等我回到地圖補跑才結算、才 `attachShop`。這段空檔裡買賣到了，以前直接判「做不出來」→ 整場停。
+   * 現在先留著、`attachShop` 時照順序補套；主機收到 `rreq` 也一樣先發號碼（對方那台已經照自己的貨架驗過）。
+   */
+  private readonly earlyShop: RunAction[] = [];
+  private static isShopAction(a: RunAction): boolean { return a.t === 'buy' || a.t === 'scrub' || a.t === 'shuffle'; }
+  private applyRun(a: RunAction): boolean {
+    if (!this.rctx) return false;
+    if (!this.shops && CoopSession.isShopAction(a)) { this.earlyShop.push(a); return true; }
+    return applyRunAction(this.rctx, a);
+  }
   /**
    * 整局狀態。**開局設一次就不動**——它從頭到尾只有一份。
    *
@@ -102,10 +117,10 @@ export class CoopSession {
    * 等於白做（實測：兩邊走進不同節點，對帳完全沒有反應）。
    */
   private runState: RunState | null = null;
-  /** 現在這一格的貨架（只有罐頭鋪有）。這個才是一格一格換的 */
-  private shop: ShopStock | null = null;
+  /** 現在這一格的貨架（只有罐頭鋪有；每個座位一份，各逛各的）。這個才是一格一格換的 */
+  private shops: ShopStock[] | null = null;
   private get rctx(): RunCtx | null {
-    return this.runState ? { run: this.runState, shop: this.shop ?? undefined } : null;
+    return this.runState ? { run: this.runState, shops: this.shops ?? undefined } : null;
   }
 
   constructor(tx: Transport, opts: { isHost: boolean; seat: number } & SessionHooks) {
@@ -116,8 +131,33 @@ export class CoopSession {
     this.seq = opts.isHost ? new Sequencer() : null;
     this.runSeq = opts.isHost ? new Sequencer<RunAction>() : null;
     tx.onMessage((m) => { this.handle(m); });
-    tx.onClose((w) => { this.dead = true; this.hooks.onClose?.(w); this.trouble?.(w); });
+    // 自己主動關的（`leave`／`stop`）不再往上報：那不是出問題，報了會多一條「連線出問題：自己關掉了」的橫幅
+    tx.onClose((w) => { if (this.dead) return; this.dead = true; this.hooks.onClose?.(w); this.trouble?.(w); });
+    // 中途斷線接回（2026-09-15）：傳輸層自己接、自己補，這裡只記「現在能不能操作」並轉給畫面
+    tx.onStatus?.((s) => {
+      if (s === 'away') this.suspendedFlag = true;
+      else if (s === 'back') this.suspendedFlag = false;
+      this.hooks.onLink?.(s);
+      this.linkHook?.(s);
+    });
   }
+
+  /**
+   * 自己的線路斷了、正在接回：期間戰鬥畫面不收操作（`canAct` 看這個）。
+   * 對方斷了**不算**：自己這邊還是可以出牌，動作會排隊、他回來就補到他那邊。
+   */
+  private suspendedFlag = false;
+  get suspended(): boolean { return this.suspendedFlag; }
+
+  /** 自己離開（回標題、開單機局）：跟中繼說一聲、關掉線路，對方立刻看到「對方離開了」（審查 2026-09-15 中-1） */
+  leave(): void {
+    if (this.dead) return;
+    this.dead = true;
+    this.tx.close();
+  }
+  private linkHook: ((s: LinkStatus) => void) | null = null;
+  /** 畫面掛的線路狀態回呼（換畫面會清；全域橫幅走建構式的 `onLink`） */
+  onLink(fn: (s: LinkStatus) => void): void { this.linkHook = fn; }
 
   /**
    * 這一場戰鬥開打了（兩邊要餵同一個 `CombatState`，各自算出來的那一份）；`null`＝這一場分出勝負了。
@@ -172,7 +212,14 @@ export class CoopSession {
      * 同一個畫面重畫（`app.show('map')` 自己叫自己）不清，補跑才不會一直循環。
      */
     if (screen !== this.lastScreen) { this.replayed.clear(); this.lastScreen = screen; }
-    if (screen === 'map') this.unhandledRun.length = 0;   // 回到地圖＝上一格收乾淨了，沒接的動作不會再有人要
+    if (screen === 'map') {
+      // 回到地圖＝上一格收乾淨了，沒接的動作不會再有人要——**除了上一次走進格子之後才投的票帶來的那些**
+      //（審查 2026-09-15 高-2 的另一半）：同伴一票定案、進店、按了「逛好了」，我這時才從上一頁回到地圖，
+      // 那一則要留給下一格的畫面，清掉的話我按「逛好了」會永遠等他
+      const keep = this.unhandledRun.filter((x) => x.e > this.enteredEpoch);
+      this.unhandledRun.length = 0;
+      this.unhandledRun.push(...keep);
+    }
     this.applied = null;
     this.runApplied = null;
     this.picked = null;
@@ -186,18 +233,29 @@ export class CoopSession {
      * 全域的紅色橫幅走的是建構式的 `onDesync`／`onClose`，不靠這一支，所以清掉不影響回報。
      */
     this.trouble = null;
+    this.linkHook = null;
   }
 
   /** 這一局開始了。整局只有一份，設一次就不動 */
   useRun(run: RunState): void { this.runState = run; }
 
   /**
-   * 現在這一格的貨架（沒有商店就餵 `null`）。
+   * 現在這一格的貨架（每個座位一份；沒有商店就餵 `null`）。走進罐頭鋪那一格時 `enterNode` 就先掛上，
+   * 畫面還沒開同伴的買賣就到也接得住（審查 2026-09-15 投票 低-3）。
    *
    * **離開罐頭鋪一定要餵 `null`**：不餵的話，下一格收到一個上一格的遲到買賣，
    * 會拿現在的畫面去套上一格的貨架，那是最難查的一種分岔。
    */
-  attachShop(shop: ShopStock | null): void { this.shop = shop; }
+  attachShop(shops: ShopStock[] | null): void {
+    this.shops = shops;
+    // 比貨架早到的買賣現在補套（見 `earlyShop`）。做不出來＝兩邊真的對不上，照樣停
+    if (!shops || !this.earlyShop.length) return;
+    const ctx = this.rctx;
+    if (!ctx) return;
+    for (const a of this.earlyShop.splice(0)) {
+      if (!applyRunAction(ctx, a)) { this.stop(`比貨架早到的整局動作在這邊做不出來（${a.t}）`); return; }
+    }
+  }
 
   /**
    * 我要做一個整局動作（買東西、打盹、扶人）。回傳 false＝現在做不出來，連送都不該送。
@@ -231,10 +289,15 @@ export class CoopSession {
    */
   onRunApplied(fn: (a: SequencedAction<RunAction>[]) => void): void {
     this.runApplied = fn;
-    if (this.unhandledRun.length) setTimeout(() => { const pend = this.unhandledRun.splice(0); if (pend.length && this.runApplied === fn && !this.dead) fn(pend); }, 0);
+    if (this.unhandledRun.length) setTimeout(() => { const pend = this.unhandledRun.splice(0).map((x) => x.a); if (pend.length && this.runApplied === fn && !this.dead) fn(pend); }, 0);
   }
   private runApplied: ((a: SequencedAction<RunAction>[]) => void) | null = null;
-  private readonly unhandledRun: SequencedAction<RunAction>[] = [];
+  /** 沒人接的整局動作，附「到的時候已經有幾張走格子的票」（`e`），回到地圖時靠它分辨是上一格的還是下一格的 */
+  private readonly unhandledRun: { e: number; a: SequencedAction<RunAction> }[] = [];
+  /** 走格子的票到目前為止幾張（自己與同伴都算） */
+  private mapEpoch = 0;
+  /** 上一次走進格子（`syncRun`）時的 `mapEpoch` */
+  private enteredEpoch = 0;
 
   /*
    * 回呼可以**事後換**：會話在開房那一刻就建好了，那時戰鬥畫面還不存在；
@@ -386,6 +449,7 @@ export class CoopSession {
    */
   syncRun(run: RunState, key: string): void {
     if (this.dead) return;
+    this.enteredEpoch = this.mapEpoch;   // 走進這一格了：之後回到地圖時，這之前到的沒人接的動作都是這一格以前的
     const c = runCheckOf(run);
     this.myMarks.set(key, c.rfp ?? '');
     this.myPath.push(key);
@@ -473,6 +537,7 @@ export class CoopSession {
     const b = this.box(kind);
     if (b.has(seat)) return;   // 同一個人選兩次只算第一次
     b.set(seat, value);
+    if (kind === 'map') this.mapEpoch += 1;
     this.picked?.(kind);
   }
   private picked: ((kind: string) => void) | null = null;
@@ -620,7 +685,8 @@ export class CoopSession {
        * 沒發號碼就等於什麼都沒發生，兩邊的狀態照樣一致；
        * 請求的人下一次重畫就會看到那格寫著「賣掉了」。
        */
-      if (!canApplyRun(this.rctx, m.a)) return true;
+      // 我還沒走進罐頭鋪、貨架還沒掛：買賣先發號碼、留著等貨架（見 `earlyShop`），不能靜靜丟掉
+      if (!(this.shops === null && CoopSession.isShopAction(m.a)) && !canApplyRun(this.rctx, m.a)) return true;
       this.ingestRun(this.runSeq.assign(m.a), true);
       return true;
     }
@@ -635,7 +701,7 @@ export class CoopSession {
   private ingestRun(sa: SequencedAction<RunAction>, broadcast = false): void {
     if (broadcast) this.tx.send({ m: 'ract', seq: sa.seq, a: sa.a });
     const r = this.runQueue.receive(sa);
-    if (r.applied.length) { if (this.runApplied) this.runApplied(r.applied); else this.unhandledRun.push(...r.applied); }
+    if (r.applied.length) { if (this.runApplied) this.runApplied(r.applied); else this.unhandledRun.push(...r.applied.map((a) => ({ e: this.mapEpoch, a }))); }
     if (r.failed) this.stop(`第 ${r.failed.seq} 號整局動作在這邊做不出來（${r.failed.a.t}）`);
   }
 

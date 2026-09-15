@@ -10,7 +10,7 @@ import { enemyById, encounterById } from '../content/enemies';
 import { hasBossDoor } from './screenbg';
 import type { CoopSession } from '../net/session';
 import { nodeById } from '../engine/map';
-import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, newRun as engineNewRun } from '../engine/run';
+import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeShops, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
@@ -256,10 +256,11 @@ export class App {
    * 當過座位 1 的更慘，`me(run, 1)` 會丟「這一局沒有第 1 個座位」。
    */
   leaveCoop(): void {
+    this.coop?.leave();   // 跟中繼說一聲、關掉線路，對方立刻看到「對方離開了」；不關的話舊線還在跑心跳、對方永遠等不到（審查 2026-09-15 中-1）
     this.coop = null; this.seat = 0;
     // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
     // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
-    document.querySelectorAll('.net-trouble').forEach((n) => n.remove());
+    document.querySelectorAll('.net-trouble, .net-link').forEach((n) => n.remove());
   }
 
   /**
@@ -310,7 +311,14 @@ export class App {
         else this.startFight(node.encounterId, node.type === '塔主');
         break;
       case '事件': this.show('event', { eventId: node.eventId }); break;
-      case '罐頭鋪': this.show('shop'); break;
+      case '罐頭鋪': {
+        // 各逛各的（使用者 2026-09-15）：貨架在走進來的當下就抽好、先掛到會話上，再開畫面。
+        // 同伴比我早一步進店買東西，那一則到的時候貨架已經在了（審查 2026-09-15 投票 低-3）
+        const shops = makeShops(run);
+        this.coop?.attachShop(shops);
+        this.show('shop', { shops });
+        break;
+      }
       case '貓窩': this.show('rest'); break;
       case '紙箱': this.show('chest'); break;
     }

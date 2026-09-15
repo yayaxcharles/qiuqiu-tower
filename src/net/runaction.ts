@@ -5,7 +5,7 @@ import type { RunState } from '../engine/types';
  * 戰鬥**以外**的動作——商店、打盹、紙箱那些（連線版 2026-09-11）。
  *
  * 為什麼也要編號排序，明明不是在打架：因為那些地方一樣有**共用的東西**。
- * 罐頭鋪的貨架只有一份，兩個人同時點同一格，誰買到？重整貨架會動到整局的亂數，
+ * 罐頭鋪的貨架雖然每人一份（各逛各的），買賣還是動到錢與牌組；重整貨架會動到整局的亂數，
  * 兩邊跑的次數與順序不一樣，之後所有的地圖、戰利品、商店全部位移。
  * 跟戰鬥同一套答案：主機發號碼，兩邊照號碼套用（見 `lockstep.ts`）。
  *
@@ -37,15 +37,17 @@ export type RunAction =
   | { t: 'done'; seat: number };
 
 /**
- * 套用的對象。`shop` 只有在罐頭鋪那一格才有——**用可選欄位而不是另開一條通道**，
+ * 套用的對象。`shops` 只有在罐頭鋪那一格才有——**用可選欄位而不是另開一條通道**，
  * 是因為「在沒有商店的地方收到買東西的動作」本身就是要抓的錯（代表兩邊的畫面對不上），
- * 有欄位才問得出這句話。
+ * 有欄位才問得出這句話。每個座位一份貨架（各逛各的，使用者 2026-09-15），動作只動自己那份。
  */
-export interface RunCtx { run: RunState; shop?: ShopStock | undefined }
+export interface RunCtx { run: RunState; shops?: ShopStock[] | undefined }
+const shopOf = (ctx: RunCtx, seat: number): ShopStock | undefined => ctx.shops?.[seat];
 
 /** 這個動作現在做得出來嗎。判準一律問引擎，這裡不另外寫一套規則 */
 export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
-  const { run, shop } = ctx;
+  const { run } = ctx;
+  const shop = shopOf(ctx, a.seat);
   const p = run.players[a.seat];
   if (!p) return false;
   switch (a.t) {
@@ -61,7 +63,7 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
       const it = a.k === 'card' ? shop.cards[a.i] : a.k === 'relic' ? shop.relics[a.i] : shop.potions[a.i];
       if (!it || it.sold || p.fish < priceFor(run, it, a.seat)) return false;
       if (a.k === 'relic') return !p.relics.includes((it as { id: string }).id);
-      // 共用貨架上同伴的專屬招式買不下去（`buyCard` 擋著；這裡不先擋的話會發號碼、套用失敗、整場斷線）
+      // 別人的專屬招式買不下去（貨架照自己的角色抽、不會擺上來；`buyCard` 擋著，這裡不先擋的話會發號碼、套用失敗、整場斷線）
       if (a.k === 'card' && notMyCard(run, shop.cards[a.i]!.def, a.seat)) return false;
       // 忍具帶滿一定要指定換掉哪一支，不然錢會扣了東西沒進背包
       if (a.k === 'potion' && p.potions.length >= potionCapacity(run, a.seat)) {
@@ -89,7 +91,8 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
  * 回傳 false＝引擎拒絕了，代表兩邊已經對不上，呼叫端要當場停下來報錯。
  */
 export function applyRunAction(ctx: RunCtx, a: RunAction): boolean {
-  const { run, shop } = ctx;
+  const { run } = ctx;
+  const shop = shopOf(ctx, a.seat);
   switch (a.t) {
     case 'done': return true;   // 誰好了由畫面自己記（見各畫面的 `done` 處理）
     case 'revive': return revivePartner(run, a.w);

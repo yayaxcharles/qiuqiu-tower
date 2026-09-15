@@ -785,23 +785,22 @@ export function shopMulFor(run: RunState, seat = 0): number {
 }
 
 /** 依現在的倍率把還沒賣掉的東西重新標價（買到會改價格的秘寶時叫——使用者 2026-09-04：買了零錢罐商品沒跟著變） */
-export function repriceShop(run: RunState, shop: ShopStock): void {
-  const mul = shopMulFor(run);
+export function repriceShop(run: RunState, shop: ShopStock, seat = 0): void {
+  const mul = shopMulFor(run, seat);
   for (const it of [...shop.cards, ...shop.relics, ...shop.potions]) if (!it.sold) it.price = priceOf(it.base, mul, it.sale);
 }
 
 /** 罐頭鋪的牌：依關數的稀有度配額抽 n 張（排除 `exclude`），並套稀有保底 */
-function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[]): CardDef[] {
+function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[], seat = 0): CardDef[] {
   const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
     : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
   const jueN = n > 0 && rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
   /*
-   * **貨架是兩個人共用的，所以擺「這一局有人用得到」的牌**（2026-09-14 連線稽核 高-8）。
-   * 原本只看 0 號座位的角色：球球開房、菲菲加入時，300 間店開出來菲菲專屬 0 張、
-   * 球球專屬 154 張——她逛一整局買得到隱身牌，自己的毒牌一張都看不到。
-   * 別人專屬的牌買不下去（`buyCard` 擋、畫面標「同伴的招式」）。單機只有一位，清單不變。
+   * **貨架每個座位一份、照這一位的角色抽**（使用者 2026-09-15：「不如各逛各的？跟戰鬥完選牌一樣」）。
+   * 之前是兩個人共用一份、擺「這一局有人用得到」的牌（2026-09-14 連線稽核 高-8），同伴的專屬招式
+   * 買不下去、格子寫「同伴的招式」。現在別人的專屬牌根本不會擺上來。單機只有一位，清單不變。
    */
-  const hs = heroesIn(run) as Hero[];
+  const hs: Hero[] = [heroOf(me(run, seat))];
   const cardDefs = [...rollCardChoices(rng, '忍術', n - jueN, exclude, false, 0, odds, hs, run.players.length), ...rollCardChoices(rng, '絕學', jueN, exclude, false, 0, odds, hs, run.players.length)];
   const wantRare = Math.min(n, run.act >= 3 ? 2 : run.act === 2 ? 1 : 0);
   const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
@@ -836,9 +835,9 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
   if (shop.reshuffled || !total || !pay(run, RESHUFFLE_COST, seat)) return false;   // 沒有空格可換就不收錢（稽核 2026-09-04 低 1）
   shop.reshuffled = true;
   const rng = runRng(run);
-  const mul = shopMulFor(run);
+  const mul = shopMulFor(run, seat);
 
-  const fresh = rollShopCards(run, rng, openCards.length, shop.cards.map((c) => c.def.id));
+  const fresh = rollShopCards(run, rng, openCards.length, shop.cards.map((c) => c.def.id), seat);
   const upIdx = fresh.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, fresh.length - 1) : -1;
   openCards.forEach((slot, k) => {
     const def = fresh[k]; if (!def) return;
@@ -850,9 +849,9 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
   // 只排除賣掉的話，同一格有機會原封不動抽回同一件（常見池扣掉身上的約剩二十來件，
   // 三格合計一成多的機率至少一格看起來沒變），又變成使用者抱怨的「怎麼沒變換」（稽核 2026-09-07 低 1）。
   // 牌格本來就是整排排除（見上面傳給 rollShopCards 的第四個參數），兩邊一致。
-  const taken = [...me(run).relics, ...shop.relics.map((r) => r.id)];
+  const taken = [...me(run, seat).relics, ...shop.relics.map((r) => r.id)];
   for (const slot of openRelics) {
-    const id = rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken, heroesIn(run));
+    const id = rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken, [heroOf(me(run, seat))]);
     if (!id) continue;   // 池子抽乾就維持原樣，不留空格
     taken.push(id);
     const prev = shop.relics[slot]!;
@@ -876,18 +875,26 @@ export function upgradeChanceFor(run: RunState): number {
   return run.act >= 3 ? 0.4 : run.act === 2 ? 0.25 : 0.2;
 }
 
-export function makeShop(run: RunState): ShopStock {
-  const shopMul = shopMulFor(run);
+/**
+ * 各逛各的（使用者 2026-09-15）：每個座位一份貨架，照座位順序連抽。兩台都抽全部，亂數走一樣的路，對帳不會分岔。
+ * 單機就是一份，跟以前一樣。
+ */
+export function makeShops(run: RunState): ShopStock[] {
+  return run.players.map((_, seat) => makeShop(run, seat));
+}
+
+export function makeShop(run: RunState, seat = 0): ShopStock {
+  const shopMul = shopMulFor(run, seat);
   const rng = runRng(run);
   // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03）、絕學低機率一張、稀有保底（稽核 2026-09-04 M-4）——全部在 rollShopCards 裡
   // 第二關起貨架放六張牌（使用者 2026-09-04：新招區還有空間）；第一關五張
-  const cardDefs = rollShopCards(run, rng, shopCardCount(run), []);
+  const cardDefs = rollShopCards(run, rng, shopCardCount(run), [], seat);
   const relicIds: string[] = [];
   // 罐頭鋪的貨也要濾職業獨占的秘寶（2026-09-12 實戰樣本抓到：菲菲在店裡買到了紙袋）
-  for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...me(run).relics, ...relicIds], heroesIn(run)); if (id) relicIds.push(id); }
+  for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]); if (id) relicIds.push(id); }
   // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）
   let treasure: string | null = null;
-  if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...me(run).relics, ...relicIds], heroesIn(run)); if (treasure) relicIds.push(treasure); }
+  if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]); if (treasure) relicIds.push(treasure); }
   // 升級牌：依關數機率把架上（第一關五張、第二關起六張）的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
   const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
   const shop: ShopStock = {
@@ -914,7 +921,7 @@ export function makeShop(run: RunState): ShopStock {
 /**
  * 這一位要付多少（連線版 2026-09-11）。
  *
- * **貨架是共用的、折扣是各自的**：零錢罐、貪吃錢袋那類改價的秘寶掛在人身上，
+ * **貨架各一份、折扣也是各自的**：零錢罐、貪吃錢袋那類改價的秘寶掛在人身上，
  * 一個人買到不該讓另一個人也跟著便宜。所以標價只存「未打折的定價」與特價折數，
  * 真正的售價每次照買的人重算。
  *
@@ -931,7 +938,7 @@ function pay(run: RunState, price: number, seat = 0): boolean {
   p.fish -= price;
   return true;
 }
-/** 這張牌是**別人的**專屬招式嗎（共用貨架上會同時擺兩個角色的牌，見 `rollShopCards`） */
+/** 這張牌是**別人的**專屬招式嗎（貨架照自己的角色抽、不會擺上來；這裡是最後一道保險） */
 export function notMyCard(run: RunState, def: CardDef, seat = 0): boolean {
   return !!def.hero && def.hero !== heroOf(me(run, seat));
 }
@@ -942,7 +949,7 @@ export function buyCard(run: RunState, shop: ShopStock, i: number, seat = 0): bo
 export function buyRelic(run: RunState, shop: ShopStock, i: number, seat = 0): boolean {
   const it = shop.relics[i]; if (!it || it.sold || me(run, seat).relics.includes(it.id) || !pay(run, priceFor(run, it, seat), seat)) return false;
   it.sold = true; takeRelic(run, it.id, seat);
-  repriceShop(run, shop);   // 零錢罐、貪吃錢袋這類改價的秘寶買到當下整間店重標（使用者 2026-09-04）
+  repriceShop(run, shop, seat);   // 零錢罐、貪吃錢袋這類改價的秘寶買到當下整間店重標（使用者 2026-09-04）
   return true;
 }
 /** `replaceIndex`＝帶滿時要換掉哪一支；帶滿又沒指定就不賣（錢也不扣） */

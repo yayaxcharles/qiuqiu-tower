@@ -229,3 +229,42 @@ describe('分岔：抓到就停，不要繼續玩兩份不一樣的遊戲', () =
     expect(s.submit({ t: 'ready', seat: 0, on: true })).toBe(false);
   });
 });
+
+describe('線路暫時斷了（2026-09-15 中途斷線接回）', () => {
+  it('away 期間 suspended；back 解除；全域與畫面的回呼都收到，換畫面清掉畫面那支', () => {
+    let status: ((s: import('../../src/net/transport').LinkStatus) => void) | null = null;
+    const tx: import('../../src/net/transport').Transport = {
+      send: () => {}, onMessage: () => {}, onClose: () => {}, close: () => {},
+      onStatus: (fn) => { status = fn; },
+    };
+    const global: string[] = []; const screen: string[] = [];
+    const s = new CoopSession(tx, { isHost: true, seat: 0, onLink: (x) => global.push(x) });
+    s.onLink((x) => screen.push(x));
+    expect(s.suspended).toBe(false);
+    status!('away');
+    expect(s.suspended, '自己斷線中不收操作').toBe(true);
+    status!('peerAway');
+    expect(s.suspended, '對方斷線不影響自己').toBe(true);
+    status!('back');
+    expect(s.suspended).toBe(false);
+    expect(global).toEqual(['away', 'peerAway', 'back']);
+    expect(screen).toEqual(['away', 'peerAway', 'back']);
+    s.clearScreenHooks('map');
+    status!('peerBack');
+    expect(global).toEqual(['away', 'peerAway', 'back', 'peerBack']);
+    expect(screen, '換畫面之後畫面那支不再收到').toEqual(['away', 'peerAway', 'back']);
+    expect(s.stopped, '暫停不是停局').toBe(false);
+  });
+});
+
+describe('自己離開（審查 2026-09-15 中-1）', () => {
+  it('leave：關掉線路、標成停了，但不往上報 onClose（那不是出問題）', () => {
+    const link = new LoopbackPair();
+    const closed: string[] = [];
+    const s = new CoopSession(link.a, { isHost: true, seat: 0, onClose: (w) => closed.push(w) });
+    s.leave();
+    expect(s.stopped).toBe(true);
+    expect(closed).toEqual([]);
+    expect(s.submitRun({ t: 'done', seat: 0 }), '離開之後什麼都不送').toBe(false);
+  });
+});

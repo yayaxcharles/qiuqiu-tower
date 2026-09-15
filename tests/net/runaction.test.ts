@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CoopSession } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
 import { applyRunAction, canApplyRun, type RunCtx } from '../../src/net/runaction';
-import { advanceAct, applyRunEffects, beginCombat, finishCombat, makeShop, newCoopRun, priceFor } from '../../src/engine/run';
+import { advanceAct, applyRunEffects, beginCombat, finishCombat, makeShop, makeShops, newCoopRun, priceFor } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
 import type { RunState } from '../../src/engine/types';
 import { onlyStanding, settleVotes } from '../../src/engine/vote';
@@ -25,24 +25,24 @@ function runPrint(run: RunState): string {
 }
 
 describe('整局動作也要照號碼排序', () => {
-  it('兩台機器餵同一顆種子，開出來的商店一模一樣', () => {
+  it('兩台機器餵同一顆種子，開出來的商店一模一樣（兩個座位各一份，兩份都一樣）', () => {
     const [a, b] = twoRuns();
-    expect(JSON.stringify(makeShop(a))).toBe(JSON.stringify(makeShop(b)));
+    expect(JSON.stringify(makeShops(a))).toBe(JSON.stringify(makeShops(b)));
+    expect(makeShops(newCoopRun('shop', 1)).length, '兩個人就兩份貨架').toBe(2);
   });
 
-  it('兩個人同時點同一格，只有一個人買得到，而且兩邊都同意是誰', () => {
+  it('各逛各的：兩個人同時買「自己貨架」的第 0 格，兩個人都買到，兩邊算出來一樣', () => {
     const [a, b] = twoRuns();
-    const shopA = makeShop(a);
-    const shopB = makeShop(b);
-    // 兩個人都買得起第一張牌
-    const price = priceFor(a, shopA.cards[0]!, 0);
-    for (const r of [a, b]) for (const p of r.players) p.fish = price + 5;
+    const shopsA = makeShops(a);
+    const shopsB = makeShops(b);
+    // 兩個人都買得起自己那份的第一張牌
+    for (const r of [a, b]) for (const p of r.players) p.fish = 999;
 
     const pair = new LoopbackPair();
     const host = new CoopSession(pair.a, { isHost: true, seat: 0 });
     const guest = new CoopSession(pair.b, { isHost: false, seat: 1 });
-    host.useRun(a); host.attachShop(shopA);
-    guest.useRun(b); guest.attachShop(shopB);
+    host.useRun(a); host.attachShop(shopsA);
+    guest.useRun(b); guest.attachShop(shopsB);
 
     // 兩邊同時按下去（客戶端的是請求，主機的立刻編號）
     pair.hold = true;
@@ -53,23 +53,27 @@ describe('整局動作也要照號碼排序', () => {
 
     expect(runPrint(a), '兩台算出來的整局必須一模一樣').toBe(runPrint(b));
     const got = a.players.filter((p) => p.deck.length > 10).length;
-    expect(got, '同一格只賣得掉一次').toBe(1);
-    expect(shopA.cards[0]!.sold).toBe(true);
+    expect(got, '各買各的，兩個人都買到').toBe(2);
+    expect(shopsA[0]!.cards[0]!.sold, '球球那份第 0 格賣掉了').toBe(true);
+    expect(shopsA[1]!.cards[0]!.sold, '菲菲那份第 0 格也賣掉了').toBe(true);
+    expect(shopsB[0]!.cards[0]!.sold && shopsB[1]!.cards[0]!.sold, '客戶端那台兩份也一樣').toBe(true);
+    // 同一個人不能買第二次（格子已經賣掉）
+    expect(host.submitRun({ t: 'buy', seat: 0, k: 'card', i: 0 }), '賣掉的格子連送都不送').toBe(false);
   });
 
   it('封包倒過來到，結果照樣一樣（照號碼套用，不照到達順序）', () => {
     const mk = (): { run: RunState; ctx: RunCtx } => {
       const run = newCoopRun('order', 1);
-      const shop = makeShop(run);
+      const shops = makeShops(run);
       for (const p of run.players) p.fish = 999;
-      return { run, ctx: { run, shop } };
+      return { run, ctx: { run, shops } };
     };
     const x = mk(); const y = mk();
     const pair = new LoopbackPair();
     const host = new CoopSession(pair.a, { isHost: true, seat: 0 });
     const guest = new CoopSession(pair.b, { isHost: false, seat: 1 });
-    host.useRun(x.run); host.attachShop(x.ctx.shop ?? null);
-    guest.useRun(y.run); guest.attachShop(y.ctx.shop ?? null);
+    host.useRun(x.run); host.attachShop(x.ctx.shops ?? null);
+    guest.useRun(y.run); guest.attachShop(y.ctx.shops ?? null);
 
     pair.hold = true;
     guest.submitRun({ t: 'buy', seat: 1, k: 'card', i: 1 });
@@ -84,19 +88,19 @@ describe('整局動作也要照號碼排序', () => {
 
   it('錢不夠就連送都不送', () => {
     const run = newCoopRun('poor', 1);
-    const shop = makeShop(run);
+    const shops = makeShops(run);
     run.players[1]!.fish = 0;
-    const ctx: RunCtx = { run, shop };
+    const ctx: RunCtx = { run, shops };
     expect(canApplyRun(ctx, { t: 'buy', seat: 1, k: 'card', i: 0 })).toBe(false);
   });
 
   it('忍具帶滿又沒說要換哪一支：不賣，錢也不扣', () => {
     const run = newCoopRun('full', 1);
-    const shop = makeShop(run);
+    const shops = makeShops(run);
     const p = me(run, 1);
     p.fish = 999;
     p.potions = ['smoke_bomb', 'shuriken', 'onigiri'];
-    const ctx: RunCtx = { run, shop };
+    const ctx: RunCtx = { run, shops };
     const full = p.potions.length >= 3;
     if (full) {
       expect(canApplyRun(ctx, { t: 'buy', seat: 1, k: 'potion', i: 0 })).toBe(false);
@@ -106,9 +110,9 @@ describe('整局動作也要照號碼排序', () => {
 
   it('倒下的人不逛街也不打盹，但可以說「我好了」', () => {
     const run = newCoopRun('down', 1);
-    const shop = makeShop(run);
+    const shops = makeShops(run);
     run.players[1]!.down = true;
-    const ctx: RunCtx = { run, shop };
+    const ctx: RunCtx = { run, shops };
     expect(canApplyRun(ctx, { t: 'buy', seat: 1, k: 'card', i: 0 })).toBe(false);
     expect(canApplyRun(ctx, { t: 'rest', seat: 1, c: '打盹' })).toBe(false);
     expect(canApplyRun(ctx, { t: 'done', seat: 1 })).toBe(true);
@@ -177,14 +181,14 @@ describe('整局的對帳：走格子時就抓得到分岔', () => {
 
   it('買了東西之後兩邊還是對得上（買賣有走同一條通道）', () => {
     const [a, b] = twoRuns('buysync');
-    const shopA = makeShop(a); const shopB = makeShop(b);
+    const shopsA = makeShops(a); const shopsB = makeShops(b);
     for (const r of [a, b]) for (const p of r.players) p.fish = 999;
     const pair = new LoopbackPair();
     const bad: string[] = [];
     const host = new CoopSession(pair.a, { isHost: true, seat: 0, onDesync: (w) => bad.push(w) });
     const guest = new CoopSession(pair.b, { isHost: false, seat: 1, onDesync: (w) => bad.push(w) });
-    host.useRun(a); host.attachShop(shopA);
-    guest.useRun(b); guest.attachShop(shopB);
+    host.useRun(a); host.attachShop(shopsA);
+    guest.useRun(b); guest.attachShop(shopsB);
 
     guest.submitRun({ t: 'buy', seat: 1, k: 'card', i: 0 });
     host.submitRun({ t: 'buy', seat: 0, k: 'card', i: 1 });

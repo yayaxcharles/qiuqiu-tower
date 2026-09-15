@@ -442,21 +442,27 @@ registerScreen('combat', (app, root, props) => {
   let targeting: Targeting = null;
   /**
    * 換瞄準狀態一律走這裡：連線時順便告訴同伴「我點了哪張」（純提示、不進鎖步；使用者 2026-09-15：
-   * 像 Spire 2 那樣看得到隊友想打哪張）。只有要瞄準的攻擊牌才有「點了還沒打」這個狀態，
-   * 技能牌點下去就打出去了，由打出的那張（`matePlay`）來顯示。同一個值不重送。
+   * 像 Spire 2 那樣看得到隊友想打哪張）。點選：只有要瞄準的攻擊牌才有「點了還沒打」這個狀態，
+   * 技能牌點下去就打出去了，由打出的那張（`matePlay`）來顯示。拖曳：拖起來那一刻就送、放開就撤
+   *（使用者 2026-09-15：用拖的也要看得到）。同一個值不重送。
    */
   let hintSent: number | null = null;
   let hintTimer: ReturnType<typeof setTimeout> | null = null;
-  const setTargeting = (t: Targeting): void => {
-    targeting = t;
+  /** 現在想讓同伴看到的那張（點選瞄準中的、或正拖著的）；null＝沒有 */
+  let hintWanted: number | null = null;
+  const scheduleHint = (u: number | null): void => {
+    hintWanted = u;
     if (!session) return;
     // 合併 120 毫秒內的變化只送最後一個值：狂點同一張牌不會變成每秒二十則（中繼免費額度是全帳號共用的；審查 中-3）
     if (hintTimer !== null) clearTimeout(hintTimer);
     hintTimer = setTimeout(() => {
       hintTimer = null;
-      const u = targeting?.kind === 'card' ? targeting.uid : null;
-      if (u !== hintSent) { hintSent = u; session.hint(u); }
+      if (hintWanted !== hintSent) { hintSent = hintWanted; session.hint(hintWanted); }
     }, 120);
+  };
+  const setTargeting = (t: Targeting): void => {
+    targeting = t;
+    scheduleHint(t?.kind === 'card' ? t.uid : null);
   };
   app.disposers.push(() => { if (hintTimer !== null) clearTimeout(hintTimer); });
   /**
@@ -616,7 +622,7 @@ registerScreen('combat', (app, root, props) => {
   }
   app.disposers.push(() => window.clearTimeout(inflightTimer));
   // 連線停了（分岔、斷線）就什麼都不能按：不然點牌會飛出去再彈回來，還把畫面裡那行紅字洗掉（審查 中-3）
-  function canAct(): boolean { return !ended && !collecting && !enemyTurnRunning && !inflight && cs.phase === 'player' && !cs.pending && !session?.stopped; }
+  function canAct(): boolean { return !ended && !collecting && !enemyTurnRunning && !inflight && cs.phase === 'player' && !cs.pending && !session?.stopped && !session?.suspended; }
 
   // ===== 元件 =====
 
@@ -1270,8 +1276,10 @@ registerScreen('combat', (app, root, props) => {
             // 這張牌早就發過了，標記拿掉；晃動的進度先記著，放開再接回去，連那點跳動都省掉
             idleAt = idleTimeOf(node);
             node.classList.remove('dealt');
+            scheduleHint(c.uid);   // 拖著的牌同伴也看得到「考慮中」（使用者 2026-09-15）
           },
           onEnd: () => {
+            scheduleHint(targeting?.kind === 'card' ? targeting.uid : null);   // 放開（打出或退回）就恢復成點選的狀態
             // 動畫要等 class 撤掉、瀏覽器重新建立之後才接得回去，所以排到下一個畫格
             const back = idleAt;
             idleAt = null;
@@ -1290,7 +1298,7 @@ registerScreen('combat', (app, root, props) => {
           // 點擊那兩條路都先過 canAct()，拖曳這條原本沒有——撒手鐧那類牌打完到自動結束回合之間
           // 有 650 毫秒的空窗，在那時候抓起另一張牌拖到魔物回合再放開，就會繞過那道關
           //（目前靠手牌已被清空撿到安全，但那是巧合）。稽核 2026-09-07 低 3
-          onPlay: (targetUid) => { if (canAct()) play(c.uid, targetUid); },
+          onPlay: (targetUid) => { if (canAct()) { setTargeting(null); play(c.uid, targetUid); } },   // 拖出去打的正是點選中的那張：箭頭、攔截層一起撤（審查 2026-09-15 低-3）
           // 退回不需要重畫：reset() 已經把行內位移與層級清乾淨，牌自己會彈回扇形位置。
           // 重畫反而會在魔物演出中途砍斷動畫與飄字（同上，低 3 的後半）
         });
@@ -2538,6 +2546,11 @@ registerScreen('combat', (app, root, props) => {
       mateHint.clear(); matePlay.clear();   // 同伴頭上的牌撤掉，不然像他還在動（審查 低-1）
       hint = why;
       render();
+    });
+    // 自己的線路斷了／接回來了：手牌與按鈕跟著 `canAct()` 變灰、變回來（橫幅由大廳掛）。魔物演出中不重畫，演完 settle 會補
+    session.onLink((s) => {
+      if (app.cs !== cs || (s !== 'away' && s !== 'back')) return;
+      if (!collecting && !enemyTurnRunning) render();
     });
   }
 

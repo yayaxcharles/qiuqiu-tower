@@ -90,10 +90,18 @@ export interface Transport {
   send(msg: NetMessage): void;
   /** 收到訊息時呼叫。同一時間只會有一個 */
   onMessage(fn: (msg: NetMessage) => void): void;
-  /** 連線斷了 */
+  /** 連線斷了（真的結束：對方走了、被拒絕、接不回去） */
   onClose(fn: (why: string) => void): void;
+  /** 線路暫時斷了／接回來了（只有房號中繼那條路會有；直連與測試用的對接沒有） */
+  onStatus?(fn: (s: LinkStatus) => void): void;
   close(): void;
 }
+
+/**
+ * 線路狀態（2026-09-15 中途斷線接回）：自己斷了正在接回（期間畫面要暫停操作）、自己接回來了、對方斷了（等他回來）、對方回來了。
+ * 接回是傳輸層自己做的、一則不多一則不少（見 `ws.ts`），會話那層只拿它畫橫幅。
+ */
+export type LinkStatus = 'away' | 'back' | 'peerAway' | 'peerBack';
 
 /**
  * 測試用的對接傳輸：兩端直接互相塞訊息，中間可以插隊、複製、延遲。
