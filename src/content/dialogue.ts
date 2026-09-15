@@ -547,6 +547,8 @@ export const dialogue = {
   ],
   shopkeeper: ['賒帳？貓沒有在賒帳的。', '不買不要摸。', '小魚乾要數清楚，我不找零。', '這批貨是塔裡撿的，別問。', '看一看沒關係，弄壞要賠。', '今天心情好，不加價。', '樓上很危險，多帶點東西。', '賣完就沒了，塔裡沒有第二家。', '你這隻貓看起來還撐得住嘛。', '放生的牌我不收，丟了就是丟了。'],
   restNapLines: ['睡醒了，尾巴還不肯離開墊子喵。', '這墊子能帶走嗎喵？', '哈啊，這覺睡夠了喵。', '眼睛終於睜開了喵。'],
+  /** 貓窩救起同伴時說的（2026-09-15，原本借睡醒那組，扶人的一方會說出自己剛睡飽的話） */
+  reviveLines: ['醒了就好喵。', '嚇死我了，還以為你不起來了喵。', '站穩，等一下換你保護我喵。'],
   restSharpenLines: ['爪尖磨亮了，這下伸出去才像樣喵。', '試試，利多了喵。', '這下拿去給師父看也不丟臉喵。', '這招練順手了喵。'],
   chestLines: ['紙箱！一定要鑽進去喵。', '這箱子，一看就有好東西喵。', '這箱子的大小剛剛好喵。', '先伸一隻爪探探喵。', '誰都別跟我搶箱子喵。'],
 };
@@ -627,6 +629,7 @@ export const feifeiDialogue = {
   lowHp: ['不要碰傷口！', '不行，我還不能倒……', '血止不住，怎麼辦……', '繃帶快不夠了。', '握緊，還不能鬆手。', '家裡還有人等我回去。'],
   chestLines: ['箱蓋下面沒夾東西吧？', '我敲一下，你別突然跳出來。', '空的嗎？我掀開囉。', '這邊開，才不會夾尾巴。', '有乾淨繃帶就好了。', '這個紙箱有人要嗎？', '家裡也有個這樣的紙箱。', '師兄倒是很會找地方睡。'],
   restNapLines: ['唔……還以為回到家了。', '外面還是很安靜。', '毒針都在，沒壓著。', '眼睛舒服多了，剛才好澀。', '被子好暖，捨不得掀開。', '夢還沒做完，就醒了。', '尾巴睡麻了……讓我伸一下。'],
+  reviveLines: ['太好了……你還在。', '先坐一下，我扶著你。', '嚇到我了。別再倒下去了。'],
   restSharpenLines: ['這根的毛邊總算磨掉了。', '這樣拿，出手就不會卡住。', '針尖沾好藥，握的地方也擦乾淨了。', '磨好了，心裡踏實些。', '彎的挑出來了，這些都能用。', '這個角度，終於對了。', '針尖朝外，收好了。'],
   /*
    * 全破之後結算畫面的最後一句（使用者 2026-09-14：「收尾的確不好，改一下」）。
@@ -648,7 +651,7 @@ export function storyFor(hero: string | undefined): {
   victory: DialogueLine[]; victoryNarration: Partial<Record<Exclude<DeckLeaning, 'plain'>, string>>;
   hardModeEpilogue: string;
   battleStart: string[]; battleWin: string[]; hungry: string[]; lowHp: string[];
-  chestLines: string[]; restNapLines: string[]; restSharpenLines: string[];
+  chestLines: string[]; restNapLines: string[]; restSharpenLines: string[]; reviveLines: string[];
   firstMeet: Record<string, string>;
 } {
   if (hero === 'feifei') return { ...feifeiDialogue, firstMeet: dialogue.firstMeetFeifei };
@@ -659,7 +662,7 @@ export function storyFor(hero: string | undefined): {
     hardModeEpilogue: dialogue.hardModeEpilogue,
     battleStart: dialogue.battleStart, battleWin: dialogue.battleWin,
     hungry: dialogue.hungry, lowHp: dialogue.lowHp, chestLines: dialogue.chestLines,
-    restNapLines: dialogue.restNapLines, restSharpenLines: dialogue.restSharpenLines,
+    restNapLines: dialogue.restNapLines, restSharpenLines: dialogue.restSharpenLines, reviveLines: dialogue.reviveLines,
     firstMeet: dialogue.firstMeet,
   };
 }

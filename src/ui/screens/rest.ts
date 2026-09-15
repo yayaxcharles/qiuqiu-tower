@@ -24,12 +24,6 @@ function heroPortrait(hero: string | undefined): string | undefined {
   return url.startsWith('data:') ? undefined : url;
 }
 
-/** 貓窩救起同伴時說的（依救人的那位）；鐵爪機關貓沒有自己的就用球球那組 */
-const REVIVE_LINES: Readonly<Record<string, readonly string[]>> = {
-  ninja: ['醒了就好喵。', '嚇死我了，還以為你不起來了喵。', '站穩，等一下換你保護我喵。'],
-  feifei: ['太好了……你還在。', '先坐一下，我扶著你。', '嚇到我了。別再倒下去了。'],
-};
-
 registerScreen('rest', (app, root) => {
   const bgKey = actVariantKey('bg/screen_rest', app.run?.act ?? 1, app.run?.floor);
   root.append(screenBg(bgKey));
@@ -228,8 +222,8 @@ registerScreen('rest', (app, root) => {
         if (a.seat !== seat) continue;
         // 連線這三條原本都拿球球那份吐槽、拍醒的同伴一律寫「牠」（連線稽核 中-4）：改成照座位的角色
         const mine = storyFor(me(run, seat).hero);
-        // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話
-        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(REVIVE_LINES[me(run, seat).hero ?? 'ninja'] ?? REVIVE_LINES['ninja']!)); continue; }
+        // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
+        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines)); continue; }
         if (a.t !== 'rest') continue;
         if (a.c === '打盹') { play('heal'); afterAction(`${heroSpeaker()}睡了一下，回復 ${napped} 點生命。`, pick(mine.restNapLines)); continue; }
         play('upgrade');
