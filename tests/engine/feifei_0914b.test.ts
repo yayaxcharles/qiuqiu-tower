@@ -116,11 +116,15 @@ describe('牌的歸屬（27）與牌名', () => {
 describe('事件文字', () => {
   const choice = (id: string, i: number) => eventById[id]!.choices[i]!;
   it('師兄的痕跡、牆後的暗號（1、2）', () => {
-    expect(choice('feifei_trace', 0).result).toBe('菲菲把針一根根拔下來，重新磨過收好，順手把地上散落的乾糧也收進袋子。菲菲：「那個……浪費就不好了。」');
-    expect(choice('feifei_trace', 1).result).toBe('菲菲沿著線頭一路小跑，撞翻了兩個木箱，膝蓋也擦破了皮。盡頭沒有師兄，只有他留下的一卷東西。菲菲：「走得這麼急……情況不樂觀。」');
-    expect(choice('feifei_signal', 0).result).toBe('她將飛針卡進齒輪，等敲擊停了才取出小魚乾，拔針時卻發現針身已經彎得不能用了。菲菲：「不是師兄……」她把小魚乾包好，並且帶走。');
+    expect(choice('feifei_trace', 0).result).toMatch(/菲菲：「.+」/su);   // 文案 2026-09-15 由 GPT 整批改寫，只釘規矩不釘句子
+    expect(choice('feifei_trace', 0).result).not.toContain('喵');
+    expect(choice('feifei_trace', 1).result).toMatch(/菲菲：「.+」/su);   // 文案 2026-09-15 由 GPT 整批改寫，只釘規矩不釘句子
+    expect(choice('feifei_trace', 1).result).not.toContain('喵');
+    expect(choice('feifei_signal', 0).result).toMatch(/菲菲：「.+」/su);   // 文案 2026-09-15 由 GPT 整批改寫，只釘規矩不釘句子
+    expect(choice('feifei_signal', 0).result).not.toContain('喵');
     expect(choice('feifei_signal', 1).label).toBe('墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）');
-    expect(choice('feifei_signal', 1).result).toBe('她用袖子的布包住手，慢慢撐開機關，還是被鐵片邊緣刮傷。菲菲：「那個……我有墊著布，怎麼還會痛。」她拿出小魚乾，低著頭替手止血，不再回應牆後的聲音。');
+    expect(choice('feifei_signal', 1).result).toMatch(/菲菲：「.+」/su);   // 文案 2026-09-15 由 GPT 整批改寫，只釘規矩不釘句子
+    expect(choice('feifei_signal', 1).result).not.toContain('喵');
   });
 
   it('共用事件的敘述、選項、標題（3、5、8、9、15），她看到的就是這幾句', () => {
@@ -134,6 +138,6 @@ describe('事件文字', () => {
   it('深藏不露（4）：紙條改成意味不明之後，她那句不再說「上面寫了別拿」', () => {
     const r = eventTextFor('feifei', choice('hidden_box', 1).result);
     expect(r).not.toContain('別拿');
-    expect(r).toContain('師父');
+    expect(r).toContain('菲菲：「');   // 2026-09-15 改寫後不一定提到師父，改釘她有開口
   });
 });

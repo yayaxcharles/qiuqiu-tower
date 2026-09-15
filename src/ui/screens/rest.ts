@@ -222,7 +222,8 @@ registerScreen('rest', (app, root) => {
         if (a.seat !== seat) continue;
         // 連線這三條原本都拿球球那份吐槽、拍醒的同伴一律寫「牠」（連線稽核 中-4）：改成照座位的角色
         const mine = storyFor(me(run, seat).hero);
-        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(mine.restNapLines)); continue; }
+        // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
+        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines)); continue; }
         if (a.t !== 'rest') continue;
         if (a.c === '打盹') { play('heal'); afterAction(`${heroSpeaker()}睡了一下，回復 ${napped} 點生命。`, pick(mine.restNapLines)); continue; }
         play('upgrade');
