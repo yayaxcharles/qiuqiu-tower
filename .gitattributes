@@ -2,3 +2,5 @@
 # 不釘換行的話在別的工作目錄取出來會變成 CRLF，sh 每一行都會多吃一個 \r 然後整支壞掉
 tools/prepush_gate.sh text eol=lf
 tools/deploy.sh text eol=lf
+# 其餘 sh（影片算繪 render.sh、生圖排程*.sh）同一個理由（總稽核 2026-09-16 戊：新 clone 取出來是 100% CRLF）
+*.sh text eol=lf

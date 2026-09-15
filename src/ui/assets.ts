@@ -42,7 +42,7 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  *（使用者 2026-09-10 在剛部署完、整包圖都要重抓的那一次遇到）。
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
-const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/idle', 'hero/armed']);
+const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/feifei_cover', 'hero/idle', 'hero/armed']);
 /**
  * 這個鍵是哪一位角色專屬的；`null`＝共用或球球的。
  *
@@ -50,6 +50,12 @@ const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/idle', 'hero/armed']);
  * `icon/map_hero_feifei_*`），球球的沒有前綴——那是 main 時代留下來的命名，正好讓「只玩球球的人
  * 開場下載的東西」跟併入她之前一模一樣（總稽核 F 中-1：原本她的 300 多張圖全部算進每個人的首載）。
  */
+/**
+ * 帶角色名、卻在**選角之前**就會出現的圖：首頁兩張「參上」並排（2026-09-15）。
+ * 開場預載不能因為鍵名帶 `feifei` 就跳過，戰鬥暖圖也不用它（總稽核 2026-09-16 戊 M3）。
+ */
+export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover']);
+
 export function heroOfKey(key: string): string | null {
   const m = /(?:^|[/_])(feifei|samurai)(?:_|$)/.exec(key);
   return m ? m[1]! : null;
@@ -321,7 +327,7 @@ export async function preloadArt(): Promise<void> {
     for (const [key, v] of Object.entries(group)) {
       if (g === 'bg' && skip.has(key)) continue;
       // 角色專屬的（菲菲那 300 多張）開場不載：這時還不知道玩家要選誰，選好由 `preloadHeroArt` 補
-      if (heroOfKey(key)) continue;
+      if (heroOfKey(key) && !TITLE_ART.has(key)) continue;
       // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
       if (g === 'cards' && COOP_ONLY_ART.has(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
