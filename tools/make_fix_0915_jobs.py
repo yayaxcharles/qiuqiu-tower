@@ -837,6 +837,23 @@ elif batch in ('e1', 'e2'):
         t = swap(t, 'Save the image as monster_shadow_cat_down.png', f'Save the image as {fid}', fid)
         jobs[fid] = {'prompt': t, 'ref': ref}
 
+elif batch == 'i':
+    # --- 貓頭鷹受傷、防禦（2026-09-15 傍晚，使用者：「有問題你都重生」）：舊圖是沒有角的頭盔、顏色也偏淺，
+    #     跟新的待機／攻擊（有兩支角、紫圍巾）判若兩隻。附**新的待機圖**當參考，提示詞把角與圍巾寫死。
+    #     防禦圖原本是 build_block_queue.py 現場組的（沒有留工單），這裡照它的 BLOCK_POSE／BLOCK_TAIL 再組一次 ----
+    from build_block_queue import BLOCK_POSE, BLOCK_TAIL  # noqa: E402
+    ref = white_ref(PUB / 'assets' / 'monsters' / 'owl_sentry_idle.webp', MONSTER_REFS / 'owl_sentry_idle.png')
+    same = ('The creature: exactly the monster shown in the reference image. It wears the SAME small iron helmet '
+            'with TWO curved horns and the SAME dark purple scarf as the reference, with the same brown feather '
+            'colours and markings and the same huge golden eyes. Before finishing, compare with the reference: '
+            'if the horns, the scarf or the feather colours are missing or changed, it is wrong.')
+    hurt = load('monster_hurt_rest.json')
+    fid = 'monster_owl_sentry_hurt.png'
+    t = swap(prompt_of(hurt[fid]), 'The creature: exactly the monster shown in the reference image.', same, fid)
+    jobs[fid] = {'prompt': t, 'ref': ref}
+    fid = 'monster_owl_sentry_block.png'
+    jobs[fid] = {'prompt': same + BLOCK_POSE + BLOCK_TAIL.format(name=fid), 'ref': ref}
+
 else:
     raise SystemExit(
         '要指定批次：\n'
