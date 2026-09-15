@@ -1,4 +1,4 @@
-import { encounterById, encounters, enemyById } from '../content/enemies';
+import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
 import { artUrl, coopArtUrls, hasMonsterPose, heroArtUrls, localHero, monsterUrl, warmed, type MonsterPose } from './assets';
@@ -56,7 +56,10 @@ function urlsFor(defs: EnemyDef[]): string[] {
   const urls: string[] = [];
   for (const def of defs) {
     if (def.art === 'daxia') continue;   // 師父的立繪組在 sprites 裡，首載本來就有
-    for (const pose of POSES) if (hasMonsterPose(def.art, pose)) urls.push(monsterUrl(def.art, pose));
+    // 有變裝的（玩菲菲時的鏡中球球＝影菲菲）要暖**變裝那組**，不然真正會出現在畫面上的那五張沒人先抓。
+    // 圖還沒進倉時 `enemyArtFor` 回的鍵在清單裡查不到，`assets.ts` 會退回原本那組，等於沒差
+    const art = enemyArtFor(def.id, localHero());
+    for (const pose of POSES) if (hasMonsterPose(art, pose)) urls.push(monsterUrl(art, pose));
   }
   return [...new Set(urls)];
 }

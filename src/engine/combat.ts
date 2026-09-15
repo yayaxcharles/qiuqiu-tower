@@ -1,5 +1,5 @@
 import { cardById, cardNameFor } from '../content/cards';
-import { encounterById, enemyById } from '../content/enemies';
+import { encounterById, enemyById, enemySkin } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markPoisoner, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
@@ -78,7 +78,9 @@ export function startCombat(input: {
     // 開場台詞從 line 與 lines 裡挑一句。不用戰鬥亂數（會動到整場的抽牌順序、機器人錨值），
     // 用亂數種子的目前狀態加編號做一個穩定的選法：同一局同一場永遠同一句，不同局會不同
     const def = enemyById[e.enemyId];
-    const pool = [def?.line ?? '', ...(def?.lines ?? [])].filter((l) => l.length > 0);
+    // 有變裝的（玩菲菲時的鏡中球球）講變裝那份開場白，不然「那是我的影子」會從一隻暹羅貓嘴裡冒出來
+    const skin = enemySkin(e.enemyId, player.hero);
+    const pool = [skin?.line ?? def?.line ?? '', ...(skin?.lines ?? def?.lines ?? [])].filter((l) => l.length > 0);
     const st = (cs.rng as unknown as { state?: unknown }).state;
     const seed = typeof st === 'number' ? st : (typeof st === 'object' && st !== null ? Object.values(st as Record<string, unknown>).reduce<number>((a, v) => a + (typeof v === 'number' ? v : 0), 0) : 0);
     e.line = pool.length ? pool[Math.abs(Math.floor(seed) + e.uid * 7) % pool.length] : def?.line;

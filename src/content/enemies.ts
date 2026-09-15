@@ -1470,3 +1470,51 @@ export function showsTelegraph(enemyId: string): boolean {
   const pool = enemyById[enemyId]?.pool;
   return pool === '塔主' || pool === '大魔物';
 }
+
+/*
+ * ===== 鏡子照的是誰，就長誰的樣子（2026-09-15）=====
+ *
+ * 鏡中球球抄的是**座位 0** 的牌組（`mimic.ts` 的 `learnPool` 看的就是 `cs.player`）。
+ * 玩菲菲時牠一邊打她的針、一邊頂著一隻灰虎斑的臉，名字還叫「鏡中球球」——對不起來。
+ *
+ * **做成變裝不是做成新的一隻魔物**，理由有三個，都是實際會撞到的：
+ * 一、`mirror_qiuqiu` 這個 id **進鎖步指紋**（`net/hash.ts` 的 `combatFingerprint` 收 `e.enemyId`）。
+ *     變裝不動 id，兩台算出來的東西一個位元都沒差；換 id 雖然兩台也會選到同一隻
+ *    （依據是座位 0 的角色，不是本機這一位），但那是多一條要靠人記得的規矩。
+ * 二、新增一隻魔物就要在 `dialogue.ts` 補**兩份**初見吐槽（球球版與菲菲版），
+ *     `tests/content/dialogue.test.ts` 與 `story.test.ts` 兩邊都釘著「每種魔物都有、兩邊一樣多」。
+ *     變裝走的還是 `mirror_qiuqiu` 這個 id，那兩份不必動。
+ * 三、圖鑑、預載、遭遇數量那些計數測試都不必動。
+ *
+ * 換掉的只有**名字、立繪鍵、開場白**三件事。數值、招式、學牌規則一概不動。
+ */
+export interface EnemySkin { name: string; art: string; line: string; lines: string[] }
+
+const MIRROR_FEIFEI: EnemySkin = {
+  name: '鏡中菲菲',
+  // 這組立繪美術正在生（shadow_feifei_{idle,attack,hurt,block,down}）。
+  // 還沒進倉時 `ui/assets.ts` 會自動退回影球球那組，不會出現破圖或灰剪影
+  art: 'codex/monster_shadow_feifei',
+  // 她是暹羅貓、怕痛、講話會遲疑但不加「喵」；鏡子裡的那個講同樣的話，只是一點都不抖
+  line: '（鏡子裡的她先站直了，針尖朝著你，一點都沒抖）',
+  lines: [
+    '那個……不要過來喔。（聲音是她的，語氣不是）',
+    '（她照著你的動作抬手，比你快了半拍）',
+    '你也怕痛吧。……我不怕了。',
+  ],
+};
+
+/** 這隻魔物在**鏡子照的那一位**面前長什麼樣；沒有變裝就回 undefined */
+export function enemySkin(enemyId: string, hero: string | undefined): EnemySkin | undefined {
+  return enemyId === 'mirror_qiuqiu' && hero === 'feifei' ? MIRROR_FEIFEI : undefined;
+}
+
+/** 戰場上顯示的名字（含紀錄）。沒有變裝就是魔物表上的名字 */
+export function enemyNameFor(enemyId: string, hero: string | undefined): string {
+  return enemySkin(enemyId, hero)?.name ?? enemyById[enemyId]?.name ?? enemyId;
+}
+
+/** 立繪鍵。沒有變裝就是魔物表上的 `art` */
+export function enemyArtFor(enemyId: string, hero: string | undefined): string {
+  return enemySkin(enemyId, hero)?.art ?? enemyById[enemyId]?.art ?? '';
+}

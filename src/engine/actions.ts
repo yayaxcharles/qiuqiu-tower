@@ -1,5 +1,5 @@
 import { cardById, cardNameFor } from '../content/cards';
-import { enemyById } from '../content/enemies';
+import { enemyById, enemyNameFor } from '../content/enemies';
 import { relicById } from '../content/relics';
 import { unitName } from './hero';
 import { draw } from './deck';
@@ -672,7 +672,9 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
   }
   const move = def.pattern === 'cycle' ? (def.moves[moveIndex] as EnemyMove) : cs.rng.pick(def.moves);
   const e: EnemyCombat = {
-    uid: cs.nextEnemyUid++, enemyId, name: def.name, hp, maxHp: hp, block: 0, statuses: {},
+    // 名字要照**鏡子照的那一位**（座位 0）算：玩菲菲時鏡中球球叫「鏡中菲菲」，見 content/enemies.ts 的變裝表。
+    // 兩台算的都是座位 0 的角色，所以連線不會分岔；名字本來就不進鎖步指紋
+    uid: cs.nextEnemyUid++, enemyId, name: enemyNameFor(enemyId, cs.player.hero), hp, maxHp: hp, block: 0, statuses: {},
     moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0, invulnIn: 0,
     move: def.chooseMove?.(1, def.moves) ?? move, dead: false, escaped: false, stolen: 0,
   };
@@ -780,6 +782,19 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'damageRandom': {
         const amt = cs.rng.int(fx.min, fx.max) * useCharge();   // 擲一次，兩個人同一個數
         for (const t of targets) { if (e.dead) return; damagePlayer(cs, e, amt, { victim: t }); if (isLost(cs)) return; }
+        break;
+      }
+      case 'damageByPlayerStatus': {
+        // 蓄力只算一次（跟 `damage` 同一個規矩），層數**各人各算**：兩個人身上的毒本來就不一樣多
+        const mul = (fx.mul ?? 1) * useCharge();
+        for (const t of targets) {
+          if (e.dead) return;
+          const n = getStatus(t, fx.name);
+          if (n <= 0) { log(cs, `${e.name}撲了個空（${unitName(t)}身上沒有${fx.name}）`); continue; }
+          damagePlayer(cs, e, n * mul, { victim: t });   // 不帶 pierce：蜷縮擋得住、隱身閃得掉
+          if (fx.consume) removeStatus(t, fx.name);
+          if (isLost(cs)) return;
+        }
         break;
       }
       case 'block': gainBlock(cs, e, fx.amount); break;

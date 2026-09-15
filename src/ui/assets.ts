@@ -253,9 +253,25 @@ export function hasHeroSprite(hero: string | undefined, key: string): boolean {
 export function hasSprite(key: string): boolean { return manifest.sprites[key] !== undefined; }
 
 export type MonsterPose = 'idle' | 'attack' | 'hurt' | 'block' | 'down';
-export function hasMonsterPose(artKey: string, pose: MonsterPose): boolean { return manifest.monsters[artKey]?.[pose] !== undefined; }
+/**
+ * 立繪還沒進倉時退回哪一組（2026-09-15）。
+ *
+ * 影菲菲（鏡中球球照到菲菲時的變裝，見 `content/enemies.ts`）的五張姿勢美術正在生。
+ * 沒有這一條的話，清單裡查不到鍵就會回那張灰剪影——一隻沒有五官的灰團在鏡子走廊裡打你，
+ * 比暫時借用影球球的立繪難看得多。圖進倉之後這條自動失效（有鍵就不會走替身）。
+ */
+const MONSTER_ART_FALLBACK: Readonly<Record<string, string>> = {
+  'codex/monster_shadow_feifei': 'codex/monster_shadow_cat',
+};
+
+/** 清單裡沒有這個鍵就換成替身鍵（連替身都沒有就照原鍵，最後由 `monsterUrl` 退成剪影） */
+function monsterKey(artKey: string): string {
+  return manifest.monsters[artKey] ? artKey : (MONSTER_ART_FALLBACK[artKey] ?? artKey);
+}
+
+export function hasMonsterPose(artKey: string, pose: MonsterPose): boolean { return manifest.monsters[monsterKey(artKey)]?.[pose] !== undefined; }
 export function monsterUrl(artKey: string, pose: MonsterPose): string {
-  const m = manifest.monsters[artKey];
+  const m = manifest.monsters[monsterKey(artKey)];
   const rel = m?.[pose] ?? m?.idle;
   return rel ? `${BASE}${rel}` : SILHOUETTE;
 }

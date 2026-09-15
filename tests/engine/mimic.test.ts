@@ -12,14 +12,20 @@ const pileCount = (cs: ReturnType<typeof fight>): number =>
   cs.player.drawPile.length + cs.player.hand.length + cs.player.discardPile.length + cs.player.exhaustPile.length;
 
 describe('鏡中球球照著學', () => {
-  it('翻譯：打擊→damage、蜷縮→block、抽牌那半略過；只會抽牌／能力／自傷／結束回合的整張不收', () => {
+  it('翻譯：打擊→damage、蜷縮→block、抽牌那半略過；只會抽牌／純能力／結束回合的整張不收', () => {
     expect(learnCard(inst('sanjo', 1))).toEqual([{ kind: 'damage', amount: 6 }]);
     expect(learnCard(inst('tanding', 1))).toEqual([{ kind: 'block', amount: 5 }]);
     expect(learnCard(inst('luoye', 1))).toEqual([{ kind: 'damage', amount: 4 }]);
     expect(learnCard(inst('qianliyan', 1))).toBeNull();
-    expect(learnCard(inst('jiejie', 1))).toBeNull();
-    expect(learnCard(inst('tietou', 1))).toBeNull();
+    expect(learnCard(inst('jiejie', 1))).toBeNull();   // 結界：能力段只給自己蜷縮，不學（2026-09-15 起能力段只學掛在對手身上的減益）
     expect(learnCard(inst('sashoujian', 1))).toBeNull();
+    /*
+     * 鐵頭功：**2026-09-15 起學得會**。原本因為「自傷翻不成」整張不收，
+     * 那一批把自傷改成略過（使用者：鏡貓不自傷，見 `mimic.ts` 檔頭），
+     * 為的是讓菲菲的手滑、不要過來！、淬毒·改學得會；球球這兩張自傷牌跟著變學得會是同一條規則的結果。
+     * 這一行從 `toBeNull()` 改過來，是刻意的行為變更，不是把測試改綠。
+     */
+    expect(learnCard(inst('tietou', 1))).toEqual([{ kind: 'damage', amount: 16 }]);
   });
 
   it('給對手的狀態翻成 statusPlayer，升級版照升級後的數字', () => {

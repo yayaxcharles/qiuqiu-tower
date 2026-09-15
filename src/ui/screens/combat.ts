@@ -2,7 +2,7 @@ import { potionCapacity } from '../../engine/run';
 import { cardById, cardNameFor } from '../../content/cards';
 import { relicById } from '../../content/relics';
 import { castLineFor, dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
-import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
+import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, enemyArtFor, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
 import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
@@ -565,11 +565,12 @@ registerScreen('combat', (app, root, props) => {
       if (def.art === 'daxia') {
         for (const key of [...Object.values(BOSS_ART), ...BOSS_HURT_ART, ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) warm(artUrl('sprites', key));
       } else {
-        warm(monsterUrl(def.art, 'idle')); warm(monsterUrl(def.art, 'attack'));
-        if (hasMonsterPose(def.art, 'hurt')) warm(monsterUrl(def.art, 'hurt'));
-        if (hasMonsterPose(def.art, 'block')) warm(monsterUrl(def.art, 'block'));
+        const art = artOfEnemy(e);
+        warm(monsterUrl(art, 'idle')); warm(monsterUrl(art, 'attack'));
+        if (hasMonsterPose(art, 'hurt')) warm(monsterUrl(art, 'hurt'));
+        if (hasMonsterPose(art, 'block')) warm(monsterUrl(art, 'block'));
         // 倒地圖（大魔物與塔主才有）：打死那一刻才現抓的話，牠會先變空白再冒出來
-        if (hasMonsterPose(def.art, 'down')) warm(monsterUrl(def.art, 'down'));
+        if (hasMonsterPose(art, 'down')) warm(monsterUrl(art, 'down'));
       }
     }
   };
@@ -822,6 +823,9 @@ registerScreen('combat', (app, root, props) => {
     const x = e.charged ? 2 : 1;
     const hits = m.effects.filter(has('damage'));
     const rnd = m.effects.find(has('damageRandom'));
+    // 照你身上的毒打（鏡中球球學來的見血封喉那類）：牌子上要寫**算完的數字**，
+    // 不然玩家看到「攻 ?」不知道該先解毒還是先疊蜷縮
+    const byStatus = m.effects.filter(has('damageByPlayerStatus'));
     const blk = m.effects.find(has('block'));
     const blkAll = m.effects.find(has('blockAllies'));
     const buffAll = m.effects.find(has('statusAllies'));
@@ -831,6 +835,7 @@ registerScreen('combat', (app, root, props) => {
     else if (getStatus(e, '定身') > 0) text = '被定住了';   // 定身擋整個動作（2026-09-02）
     else if (boom) text = `攻 ${computeAttack(boom.amount * x, e, my())}（爆）`;
     else if (hits.length) text = `攻 ${hits.map((d) => `${computeAttack(d.amount * x, e, my())}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿透）' : ''}`).join('＋')}`;
+    else if (byStatus.length) text = `攻 ${byStatus.map((d) => computeAttack(getStatus(my(), d.name) * (d.mul ?? 1) * x, e, my())).join('＋')}（照你的${byStatus[0]!.name}）`;
     else if (rnd) text = `攻 ${computeAttack(rnd.min * x, e, my())}～${computeAttack(rnd.max * x, e, my())}`;
     else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
     // 盾陣／號令這種給全體的：牌子上也要有數字（使用者 2026-09-03：「有格檔但沒看到格檔值」）
@@ -851,6 +856,10 @@ registerScreen('combat', (app, root, props) => {
       if (steal) text += `＋偷 ${steal.n}`;
       const heal = m.effects.find(has('heal'));
       if (heal && (hits.length || rnd || blk)) text += `＋回 ${heal.percent ? Math.round(e.maxHp * heal.percent / 100) : heal.n}`;
+      // 照著學一動兩張時（二三關），普攻那張會把「照你的毒打」那張蓋掉——兩段都要寫出來
+      if (byStatus.length && (hits.length || rnd)) {
+        text += `＋${byStatus.map((d) => computeAttack(getStatus(my(), d.name) * (d.mul ?? 1) * x, e, my())).join('＋')}（照你的${byStatus[0]!.name}）`;
+      }
     }
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）
@@ -904,6 +913,13 @@ registerScreen('combat', (app, root, props) => {
         case 'damageRandom':
           parts.push(`造成 ${computeAttack(fx.min * x, e, my())}～${computeAttack(fx.max * x, e, my())} 點傷害`);
           break;
+        case 'damageByPlayerStatus': {
+          // 數字是**算完的**（層數 × 倍率再吃爪力／懶洋洋／翻肚與蓄力），跟牌子上那個一樣
+          const n = getStatus(my(), fx.name);
+          parts.push(`照你身上的${fx.name}層數打：現在 ${n} 層${(fx.mul ?? 1) > 1 ? ` × ${fx.mul} 倍` : ''}＝造成 ${computeAttack(n * (fx.mul ?? 1) * x, e, my())} 點傷害`
+            + (fx.consume ? `，打完把你的${fx.name}清掉` : ''));
+          break;
+        }
         case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點防禦`); break;
         case 'statusPlayer':
           // 定身沒有量詞（「給你 1 定身」讀不通）：直接講後果
@@ -957,8 +973,9 @@ registerScreen('combat', (app, root, props) => {
       return artUrl('sprites', bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');
+    const art = artOfEnemy(e);
     // 順序（出招 → 挨打 → 防禦 → 待機）與理由都在 `monsterpose.ts`，那邊有測試釘著
-    return monsterUrl(def.art, monsterPose({
+    return monsterUrl(art, monsterPose({
       attacking: !!act?.attacked, hurt: hurtSet.has(e.uid), dead: e.dead, block: e.block,
       /**
        * 這一拍的防禦是不是**被動長出來的**（稽核 2026-09-10 中-1 的修正）。
@@ -969,9 +986,17 @@ registerScreen('combat', (app, root, props) => {
        * 改成看**這一拍出的是不是防禦招**：牠真的擋了就畫，只是被動長的就不畫。
        */
       passiveBlock: !acting.get(e.uid)?.blocked && (getStatus(e, '鱗甲') > 0 || getStatus(e, '不壞身') > 0),
-      has: (pose) => hasMonsterPose(def.art, pose),
+      has: (pose) => hasMonsterPose(art, pose),
     }));
   }
+
+  /**
+   * 這隻魔物要用哪一組立繪。**鏡子照的是誰就長誰的樣子**（2026-09-15）：
+   * 玩菲菲時，鏡中球球那隻換成影菲菲那組（名字與開場白在引擎那邊換，見 `content/enemies.ts`）。
+   * 看的是座位 0 的角色（鏡子抄的就是那一位的牌組），不是本機這一位。
+   * 圖還沒進倉時 `assets.ts` 會自動退回影球球那組。
+   */
+  function artOfEnemy(e: EnemyCombat): string { return enemyArtFor(e.enemyId, cs.player.hero); }
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
     const def = enemyById[e.enemyId];
@@ -994,7 +1019,7 @@ registerScreen('combat', (app, root, props) => {
        * `boss-fall` 原本是「站著往前傾倒」（往下 46 像素、轉 −16 度），
        * 套在一張已經趴著的圖上會變成屍體躺在地上打轉。見 combat.css。
        */
-      if (def && hasMonsterPose(def.art, 'down')) cls.push('downed');
+      if (def && hasMonsterPose(artOfEnemy(e), 'down')) cls.push('downed');
     }
     /**
      * 重生中的殘影也掛 `downed`（稽核 2026-09-11 低-1）：`monsterPose` 只看 `dead`，
@@ -1003,7 +1028,7 @@ registerScreen('combat', (app, root, props) => {
      * **只掛類別、不掛 `dead`**：`dissolve-down` 要 `.downed.dead` 才觸發，殘影不該被溶掉。
      * 這是真的會遇到的畫面——鬼將（大魔物，有倒地圖）帶 `reviveGroup`，小鬼還活著時牠會爬起來。
      */
-    if (reviving && def && hasMonsterPose(def.art, 'down')) cls.push('downed');
+    if (reviving && def && hasMonsterPose(artOfEnemy(e), 'down')) cls.push('downed');
     if (reviving) cls.push('reviving');
     // 師父換了條血，整隻套上該階段的光暈（走火入魔紅、真面目紫），跟立繪一起讓人一眼看出換階段了
     // 師父本人（art 'daxia'）掛 master：框開得比球球大（使用者 2026-09-02：「師傅體型比球球小」），換血條再放大
@@ -1056,8 +1081,13 @@ registerScreen('combat', (app, root, props) => {
     const learned = acting.get(e.uid)?.learned;
     if (learned?.length) {
       const cardsEl = el('div', { class: 'learned' });
-      // 用牌的實例畫（帶升級旗標），亮出來的才是他真的打的那個版本（稽核 2026-09-08 中-2）
-      for (const c of learned) if (cardById[c.cardId]) cardsEl.append(cardNode({ uid: 0, cardId: c.cardId, upgraded: c.upgraded }, { small: true }));
+      /*
+       * 用牌的實例畫（帶升級旗標），亮出來的才是他真的打的那個版本（稽核 2026-09-08 中-2）。
+       * 圖與牌名用**鏡子照的那一位**（座位 0）的版本（2026-09-15，跟牌子上那行標籤同一條規矩）：
+       * 連線時我是球球、對面是菲菲的話，鏡子抄的是她的牌，牌子上寫「絕學·連珠針」，
+       * 亮出來的牌面卻會是球球的畫與「絕學·貓爪抓」——同一張牌兩個名字，正是 2026-09-12 修過的那個毛病。
+       */
+      for (const c of learned) if (cardById[c.cardId]) cardsEl.append(cardNode({ uid: 0, cardId: c.cardId, upgraded: c.upgraded }, { small: true, ...(cs.player.hero ? { hero: cs.player.hero } : {}) }));
       node.querySelector('.sprite-box')?.append(cardsEl);
     }
     if (targeting && !e.dead) node.addEventListener('click', () => pickTarget(e.uid));
