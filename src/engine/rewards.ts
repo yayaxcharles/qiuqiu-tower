@@ -153,7 +153,10 @@ export function relicOutcomeText(offered: readonly string[], picks: readonly (st
   const clashed = new Set(chosen).size < chosen.length;
   const parts = got.map((id, i) => (id ? `${who(i)}拿到「${name(id)}」` : null)).filter((s): s is string => s !== null);
   if (!parts.length) return '';
-  return (clashed ? `兩人都想要「${name(chosen[0] ?? null)}」，擲骰決定：` : '') + parts.join('、');
+  // 我有挑、結果空手（池子只剩一件、骰輸了）：只寫「同伴拿到」會讓人以為自己的還沒到（總稽核 2026-09-16 甲 低-5）
+  const mine = picks[seat];
+  const lost = mine !== null && mine !== undefined && offered.includes(mine) && !got[seat];
+  return (clashed ? `兩人都想要「${name(chosen[0] ?? null)}」，擲骰決定：` : '') + parts.join('、') + (lost ? '，你沒分到' : '');
 }
 
 export function settleRelicPicks(rng: Rng, offered: readonly string[], picks: readonly (string | null)[]): (string | null)[] {

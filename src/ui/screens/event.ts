@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue, eventTextFor } from '../../content/dialogue';
-import { toast } from '../dialogue';
+import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
@@ -632,7 +632,9 @@ registerScreen('event', (app, root, props) => {
       if (pickStr === null) return;
       chosen = Number(pickStr);
       // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一個選項（使用者 2026-09-15：「要知道隨機到哪個事件」）
-      if (new Set(now.filter((v) => v !== null)).size > 1) toast(`兩人選的不一樣，擲骰選了「${evText(ev.choices[chosen]?.label ?? '')}」`);
+      if (new Set(now.filter((v) => v !== null)).size > 1) {
+        notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${evText(ev.choices[chosen]?.label ?? '')}」`);
+      }
       coop.clearPicks('event');
       take(chosen);
     });

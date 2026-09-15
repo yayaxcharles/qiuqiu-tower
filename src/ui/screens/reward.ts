@@ -17,7 +17,8 @@ import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
-import { heroSpeaker, toast } from '../dialogue';
+import { heroSpeaker, notice } from '../dialogue';
+import { missedPotionLabel, shouldAskPotion, type PotionAsk } from '../potionask';
 import { lineFor } from '../../content/dialogue';
 
 /**
@@ -46,7 +47,7 @@ registerScreen('reward', (app, root, props) => {
    * 兩台機器當場分岔。戰利品物件是 `props`，重畫時原封不動傳回來，
    * 而且下一場戰鬥自然會換成新的一份，不必記得手動清。
    */
-  const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number; relicSettled?: boolean; relicTaken?: boolean; relicSeats?: number[]; upsDone?: boolean; upsAsking?: boolean; potionSwapped?: boolean; potionDeclined?: boolean };
+  const r = props as CombatRewards & { bonusFish?: number; bonusUpgrades?: number; relicSettled?: boolean; relicTaken?: boolean; relicSeats?: number[]; upsDone?: boolean; upsAsking?: boolean; potionAsk?: PotionAsk };
   const bonus = r.bonusFish ?? 0;
   const ups = r.bonusUpgrades ?? 0;
   /*
@@ -83,7 +84,7 @@ registerScreen('reward', (app, root, props) => {
       if (!allVoted(picks, alive())) return;
       r.relicSettled = true;
       const got = settleRelicPicks(runRng(run), offers, picks);
-      toast(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
+      notice(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
       /*
        * **分不到的座位也要算完成**（2026-09-12 稽核 中-1）。
        *
@@ -140,10 +141,12 @@ registerScreen('reward', (app, root, props) => {
        * **再問一次要換哪一支**。玩家每回答一次就被換掉一支，只有按「不換」才停得下來。
        */
       if (applied.every((o) => o.a.t === 'swap')) {
-        // **只有「我自己換的」才算**（稽核第三輪 中-1）：這一支對兩個座位的動作都會被叫到，
-        // 同伴換忍具也設成 true 的話，我那一列「帶滿了，收不下」會在下一次重畫時整條消失，
-        // 350 毫秒的計時器找不到那一行就放棄——我永遠沒被問過，那支忍具就這樣沒了。
-        if (applied.some((o) => o.a.t === 'swap' && o.a.seat === seat)) r.potionSwapped = true;
+        /*
+         * 自己的換忍具繞回來了：狀態列換成新的（客戶端送出當下還沒套用，當場畫的是舊的——總稽核 2026-09-16 甲 低-1）。
+         * **不再從這裡推「這頁換過了」**（甲 中-2）：上一格事件頁遲到的換忍具也會走到這裡，
+         * 被當成這一頁的回答，收不下的那支就完全不問了。回答一律記在 `r.potionAsk`（見下面忍具那段）。
+         */
+        if (applied.some((o) => o.a.t === 'swap' && o.a.seat === seat)) { root.querySelector('.hud')?.remove(); renderHud(app, root); }
         return;
       }
       /*
@@ -306,25 +309,35 @@ registerScreen('reward', (app, root, props) => {
    * 忍具帶滿收不下——**一人一個背包，滿的人不一定是同一個**（連線版 2026-09-11）。
    * `potionMissedSeats` 記的是哪幾位收不下；全部人都收不下才會走 `potionMissed` 那條舊路。
    */
-  // 換過就不再問（不然每重畫一次就再彈一次換忍具的視窗）
-  const missedId = r.potionSwapped ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null));
+  /*
+   * 問到哪一步記在戰利品物件上（`r.potionAsk`），重畫也記得（總稽核 2026-09-16 甲 高-1／中-1／中-2）：
+   * - 視窗開著就是 'asking'：連線時同伴一動作整頁就重畫，不記的話每重畫一次就再疊一個視窗，
+   *   按掉上面那個底下還有一個（使用者 2026-09-15 回報的「按我不要之後又會跳出來」其實多半是這種）；兩個都按「換」就少掉兩支舊的。
+   * - 「換了」當場記，不等自己那則動作繞回來：客戶端要等主機編號，這段空檔一重畫就再問一次。
+   * 怎麼問、怎麼畫的判斷在 `potionask.ts`（純函式，有測試釘著）。
+   */
+  const missedId = r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null);
   const missed = missedId ? potionById[missedId] : undefined;
   if (missed && missedId) {
-    const line = el('span', { class: 'reward-line' }, el('b', {}, `忍具帶滿了，「${missed.name}」收不下`), el('em', {}, missed.text));
+    const label = (): Node[] => [el('b', {}, missedPotionLabel(r.potionAsk, missed.name)), el('em', {}, missed.text)];
+    const line = el('span', { class: 'reward-line', 'data-missed-potion': missedId }, ...label());
     items.append(el('div', { class: 'reward-item potion' }, icon(missed.art, missed.name), line));
     const newId = missedId;
-    // 按「不換」也要記在 r 上：連線時同伴一選牌整頁就重畫，不記的話每重畫一次就再問一次
-    //（使用者 2026-09-15：「按我不要之後又會跳出來」）
-    const giveUp = (): void => { r.potionDeclined = true; line.replaceChildren(el('b', {}, `沒有換，「${missed.name}」放棄了`), el('em', {}, missed.text)); };
-    // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）
-    if (r.potionDeclined) giveUp();
-    else window.setTimeout(() => { if (!line.isConnected) return; showPotionSwap(run, newId, (idx) => {
-      // 狀態列要先拆掉舊的再畫：renderHud 只會往 root 再掛一條（實測疊成兩條）
-      if (idx < 0) { giveUp(); return; }
-      swapPotion(app, run, seat, idx, newId);   // 連線時要送出去，只改本機會分岔（稽核 高-3）
-      play('relic'); line.replaceChildren(el('b', {}, `換成了「${missed.name}」`), el('em', {}, missed.text));
-      root.querySelector('.hud')?.remove(); renderHud(app, root);
-    }, { seat, apply: false }); }, 350);
+    // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）；
+    // 計時器到的時候再看一次記號：這 350 毫秒裡重畫過，那一次的計時器可能已經先開了視窗
+    if (shouldAskPotion(r.potionAsk)) window.setTimeout(() => {
+      if (!line.isConnected || !shouldAskPotion(r.potionAsk)) return;
+      r.potionAsk = 'asking';
+      showPotionSwap(run, newId, (idx) => {
+        // 換不成（連線停了）就回到沒問過，下一次重畫再問；換了要送出去，只改本機會分岔（稽核 高-3）
+        r.potionAsk = idx < 0 ? 'declined' : swapPotion(app, run, seat, idx, newId) ? 'swapped' : undefined;
+        if (r.potionAsk === 'swapped') play('relic');
+        // 答的時候畫面可能已經重畫過好幾次，`line` 是舊的那個——改現在畫面上那一列
+        root.querySelector('[data-missed-potion]')?.replaceChildren(...label());
+        // 單機當場就換好了，狀態列跟著畫；連線等動作繞回來再畫（見上面 `onRunApplied`）。先拆舊的，不然疊兩條
+        if (r.potionAsk === 'swapped' && !app.coop) { root.querySelector('.hud')?.remove(); renderHud(app, root); }
+      }, { seat, apply: false });
+    }, 350);
   }
   const potion = r.potion && !missedId ? potionById[r.potion] : undefined;
   if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),

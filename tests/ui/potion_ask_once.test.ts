@@ -8,14 +8,13 @@ import RUN from '../../src/engine/run.ts?raw';
  *「按我不要之後又會跳出來，A 玩家選東西、B 玩家就會又跳一隻選忍具」）。
  *
  * 病根：獎勵／事件畫面是純函式，同伴一投票整頁重跑；「問過了」只有記在資料上才活得過重畫——
- * 獎勵頁記在 `r.potionDeclined`，事件頁記在 `RunGain.asked`。
+ * 獎勵頁記在 `r.potionAsk`（2026-09-16 總稽核改成完整的「正在問／換了／不換」，規矩在 `potionask.test.ts`），事件頁記在 `RunGain.asked`。
  * 這裡讀原始碼盯規矩（真的架 `<video>`／疊層環境成本太高，同 hero_video.test 的理由）。
  */
 describe('忍具「不換」只問一次', () => {
-  it('獎勵頁：按不換要寫 potionDeclined，重畫時看到它就不再排問話', () => {
-    expect(REWARD).toMatch(/if \(idx < 0\) \{ giveUp\(\); return; \}/);
-    expect(REWARD).toMatch(/r\.potionDeclined = true/);
-    expect(REWARD).toMatch(/if \(r\.potionDeclined\) giveUp\(\);\s*\n\s*else window\.setTimeout/);
+  it('獎勵頁：按不換記 declined，重畫時看到答過就不再排問話', () => {
+    expect(REWARD).toMatch(/r\.potionAsk = idx < 0 \? 'declined'/);
+    expect(REWARD).toMatch(/if \(shouldAskPotion\(r\.potionAsk\)\) window\.setTimeout/);
   });
 
   it('事件頁：問過的（asked）不再進待問清單，回答時要寫回 gain', () => {

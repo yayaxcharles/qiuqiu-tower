@@ -59,7 +59,9 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
  * 而忍具是整局指紋的一部分——下一格對帳就會判定整局對不上、整場停掉。
  * 罐頭鋪那條本來就走 `submitRun`，漏掉的是戰利品與事件這兩條。
  */
-export function swapPotion(app: App, run: RunState, seat: number, index: number, id: string): void {
-  if (app.coop) { app.coop.submitRun({ t: 'swap', seat, i: index, id }); return; }
+/** 回傳有沒有真的換出去（連線時＝有沒有送出去；連線停了會是 false，呼叫端別把它記成「換好了」） */
+export function swapPotion(app: App, run: RunState, seat: number, index: number, id: string): boolean {
+  if (app.coop) return app.coop.submitRun({ t: 'swap', seat, i: index, id });
   replacePotion(run, index, id, seat);
+  return true;
 }

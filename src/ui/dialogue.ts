@@ -141,6 +141,23 @@ export function bubbleAt(text: string, speaker: string, headX: number, headY: nu
   setTimeout(() => t.remove(), 3800);
 }
 
+/**
+ * 系統公告（投票擲骰、秘寶撞件的結果）：畫面正上方一條，壓在對白層上面，兩秒半後淡掉。
+ *
+ * 不借 `toast`（總稽核 2026-09-16 甲 低-3）：戰鬥畫面把 `.toast` 畫成主角頭上的對話泡泡，
+ * 地圖投票完緊接著進戰鬥，就變成角色在講「擲骰選了戰鬥」，還把角色真正的開場白擠到下一格；
+ * 進貓窩獨白、5F 秘笈時又被對白層（層級 50）蓋住。
+ */
+export function notice(text: string): void {
+  if (!text) return;
+  const layer = overlayRoot();
+  if (!layer) return;
+  const t = el('div', { class: 'notice' }, text);
+  layer.append(t);
+  setTimeout(() => t.classList.add('out'), 2600);
+  setTimeout(() => t.remove(), 3100);
+}
+
 /** 戰鬥吐槽小氣泡，兩秒後自己淡掉 */
 export function toast(text: string, speaker = ''): void {
   if (!text) return;
