@@ -68,10 +68,12 @@ describe('倒地圖', () => {
     // 大魔物與塔主一局只遇得到幾隻，那一下才換得起。
     // 哪天真的要幫小怪補，改這條測試的同時要先想清楚節奏，不是順手加圖。
     const big = new Set(bigOnes());
+    // 變裝立繪（不是魔物 id）照它替換的那一組算：影菲菲是鏡貓玩菲菲時的皮，底圖是影球球（大魔物）那一組（2026-09-15）
+    const SKIN_OF: Record<string, string> = { shadow_feifei: 'shadow_cat' };
     const withDown = Object.entries(manifest.monsters)
       .filter(([, poses]) => poses.down)
       .map(([key]) => key.replace('codex/monster_', ''));
-    const extra = withDown.filter((a) => !big.has(a));
+    const extra = withDown.filter((a) => !big.has(SKIN_OF[a] ?? a));
     expect(extra, `這幾隻不是大魔物／塔主卻有倒地圖：${extra.join('、')}`).toEqual([]);
   });
 
