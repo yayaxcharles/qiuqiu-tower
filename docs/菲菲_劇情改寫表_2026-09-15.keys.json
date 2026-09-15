@@ -5,7 +5,8 @@
   "who": "旁白",
   "text": "菲菲比球球晚三年入門。師父教球球的是怎麼把人打倒，教她的卻是另一句：「力氣小，就別跟人比力氣。讓他碰不到你，照樣能贏。」這句話，她記得比誰都牢。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "P-02",
@@ -13,7 +14,8 @@
   "who": "旁白",
   "text": "那天夜裡，魔塔在村外拔地而起。紫光落下來，大俠貓渾身毛髮豎起、雙眼染紫，一言不發衝進塔頂。球球抓起頭巾就追了上去。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "P-03",
@@ -21,7 +23,8 @@
   "who": "菲菲",
   "text": "……三天了。師父沒回來，師兄也沒回來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "P-04",
@@ -29,7 +32,8 @@
   "who": "菲菲",
   "text": "那個……我真的很怕痛。可是再等下去，好像就只剩我能去找他們了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "A1-01",
@@ -37,7 +41,8 @@
   "who": "旁白",
   "text": "守關的魔物倒下，牆邊露出一道往上的樓梯。地上散著幾根被踩彎的針——不是她的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "A1-02",
@@ -45,7 +50,8 @@
   "who": "菲菲",
   "text": "這是師兄的頭巾線頭……他真的上去了。等等，他到底一路撞了多少東西啊……",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "A1-03",
@@ -53,7 +59,8 @@
   "who": "旁白",
   "text": "菲菲低頭補了一層藥，將飛針一根根插回竹筒，才貼著牆往上走。她沒有跑；手抖的時候，跑也丟不準。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "A2-01",
@@ -61,7 +68,8 @@
   "who": "旁白",
   "text": "魔物化成煙散去時，塔頂傳來一聲長喵——熟悉得讓她整條背脊都僵住了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "A2-02",
@@ -69,7 +77,8 @@
   "who": "菲菲",
   "text": "那是師父的聲音……那師兄呢？師兄為什麼沒有回話？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "A2-03",
@@ -77,7 +86,8 @@
   "who": "旁白",
   "text": "月光落在最後一段樓梯上。她深吸一口氣，把口罩拉了上來，又摸了摸竹筒裡剩下的針。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "A2-04",
@@ -85,7 +95,8 @@
   "who": "菲菲",
   "text": "毒還夠……針也夠。那個……應該，夠吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "D-01",
@@ -93,7 +104,8 @@
   "who": "旁白",
   "text": "菲菲的竹筒空了。最後一根飛針落在幾步外，她背靠著牆滑坐下去，手還在發抖。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "D-02",
@@ -101,7 +113,8 @@
   "who": "菲菲",
   "text": "說好……不要靠近我的……",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "D-03",
@@ -109,7 +122,8 @@
   "who": "旁白",
   "text": "恍惚間，有人把她背了起來。再睜眼時，她已經躺在村裡，膝蓋上放著一把重新磨好的針，旁邊還擺著一小瓶新調的藥。魔塔依然站在那裡。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "D-04",
@@ -117,7 +131,8 @@
   "who": "菲菲",
   "text": "……下次我要多塗一層。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "V-01",
@@ -125,7 +140,8 @@
   "who": "旁白",
   "text": "最後一縷魔氣從師父身上散去，他眼中的紫光終於熄滅。塔頂的另一頭，一團灰色的東西動了一下——是球球，還在喘。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "V-02",
@@ -133,7 +149,8 @@
   "who": "塔主",
   "text": "承讓。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "V-03",
@@ -141,7 +158,8 @@
   "who": "菲菲",
   "text": "……我、我沒有很厲害。我只是先讓你們中毒，再一直丟、一直退……等你們自己撐不住而已。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "V-04",
@@ -149,7 +167,8 @@
   "who": "菲菲",
   "text": "而且……我有先提醒你們不要過來喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "V-05",
@@ -157,7 +176,8 @@
   "who": "旁白",
   "text": "師父把她拉過去，摸了摸她的頭。她愣了三秒，才開始掉眼淚——手裡還緊緊捏著最後一根沒丟出去的針。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "V-06",
@@ -165,7 +185,8 @@
   "who": "旁白",
   "text": "下山的路上，球球一路吵著要吃小魚乾，師父笑得很大聲。菲菲走在最後面，一根一根把能撿回來的針收進竹筒裡。三個都回來了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "VN-01",
@@ -173,7 +194,8 @@
   "who": "旁白",
   "text": "師父看了看她那排空掉的竹筒，數了數——沒有一根是白丟的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "VN-02",
@@ -181,7 +203,8 @@
   "who": "旁白",
   "text": "師父聞到她竹筒裡的藥味，笑了——當年叫她別跟人比力氣，她真的找到了不用力氣的贏法。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "VN-03",
@@ -189,7 +212,8 @@
   "who": "旁白",
   "text": "師父拍了拍她還在抖的肩膀——怕，然後還是站在這裡，那比不怕更難。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "VN-04",
@@ -197,7 +221,8 @@
   "who": "旁白",
   "text": "她一路都沒跟誰硬碰硬。師父後來每次講起這一戰，都會補一句：「最小隻的那個，反而最知道什麼叫打架。」",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "VN-05",
@@ -205,7 +230,8 @@
   "who": "菲菲",
   "text": "最後一根針也收好了……師父、師兄，等等我。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-01",
@@ -213,7 +239,8 @@
   "who": "菲菲",
   "text": "那個……先別過來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-02",
@@ -221,7 +248,8 @@
   "who": "菲菲",
   "text": "那個……針上有藥，別碰。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-03",
@@ -229,7 +257,8 @@
   "who": "菲菲",
   "text": "不要追我，我會跌倒啦。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-04",
@@ -237,7 +266,8 @@
   "who": "菲菲",
   "text": "先擦擦手……不要滑掉。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-05",
@@ -245,7 +275,8 @@
   "who": "菲菲",
   "text": "針還夠，藥也還夠。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-06",
@@ -253,7 +284,8 @@
   "who": "菲菲",
   "text": "可以別打臉嗎……拜託。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-07",
@@ -261,7 +293,8 @@
   "who": "菲菲",
   "text": "我不跟你比力氣。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-08",
@@ -269,7 +302,8 @@
   "who": "菲菲",
   "text": "師兄……你都不怕痛的嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-09",
@@ -277,7 +311,8 @@
   "who": "菲菲",
   "text": "那個……我可以從旁邊過嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-10",
@@ -285,7 +320,8 @@
   "who": "菲菲",
   "text": "你動作慢一點，我看不清楚。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-11",
@@ -293,7 +329,8 @@
   "who": "菲菲",
   "text": "那個……先讓我把袖子綁好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-12",
@@ -301,7 +338,8 @@
   "who": "菲菲",
   "text": "我只是想把人接回家。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-13",
@@ -309,7 +347,8 @@
   "who": "菲菲",
   "text": "師父說要站穩……腳別抖。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BS-14",
@@ -317,7 +356,8 @@
   "who": "菲菲",
   "text": "出口在哪……先記起來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-01",
@@ -325,7 +365,8 @@
   "who": "菲菲",
   "text": "……倒了？真的倒了？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-02",
@@ -333,7 +374,8 @@
   "who": "菲菲",
   "text": "我有先提醒你喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-03",
@@ -341,7 +383,8 @@
   "who": "菲菲",
   "text": "那個……我有沒有刺到自己？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-04",
@@ -349,7 +392,8 @@
   "who": "菲菲",
   "text": "呼……可以把肩膀放下來了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-05",
@@ -357,7 +401,8 @@
   "who": "菲菲",
   "text": "手、手還在抖。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-06",
@@ -365,7 +410,8 @@
   "who": "菲菲",
   "text": "……剛才真的嚇到我了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-07",
@@ -373,7 +419,8 @@
   "who": "菲菲",
   "text": "這樣算我贏吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-08",
@@ -381,7 +428,8 @@
   "who": "菲菲",
   "text": "我要坐一下……腿軟了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-09",
@@ -389,7 +437,8 @@
   "who": "菲菲",
   "text": "師父，我沒有硬碰喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-10",
@@ -397,7 +446,8 @@
   "who": "菲菲",
   "text": "好餓……緊張也很累的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-11",
@@ -405,7 +455,8 @@
   "who": "菲菲",
   "text": "那個……剛才叫太大聲了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-12",
@@ -413,7 +464,8 @@
   "who": "菲菲",
   "text": "先別揉眼睛……手要洗。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-13",
@@ -421,7 +473,8 @@
   "who": "菲菲",
   "text": "師兄，我走得慢，你再等我。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-14",
@@ -429,7 +482,8 @@
   "who": "菲菲",
   "text": "那個……針袋有沒有破啊？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-15",
@@ -437,7 +491,8 @@
   "who": "菲菲",
   "text": "回去的路……我有記對吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BW-16",
@@ -445,7 +500,8 @@
   "who": "菲菲",
   "text": "剛才咬到舌頭了……好痛。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "HU-01",
@@ -453,7 +509,8 @@
   "who": "菲菲",
   "text": "沒力氣了……針會丟歪。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "HU-02",
@@ -461,7 +518,8 @@
   "who": "菲菲",
   "text": "飯糰……沒有了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "HU-03",
@@ -469,7 +527,8 @@
   "who": "菲菲",
   "text": "肚子好餓，連藥味都聞起來像湯。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "HU-04",
@@ -477,7 +536,8 @@
   "who": "菲菲",
   "text": "那個……剛剛是肚子叫。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "HU-05",
@@ -485,7 +545,8 @@
   "who": "菲菲",
   "text": "那個……先別提吃的，我會哭。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "HU-06",
@@ -493,7 +554,8 @@
   "who": "菲菲",
   "text": "師兄，回去幫我留點飯。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "LH-01",
@@ -501,7 +563,8 @@
   "who": "菲菲",
   "text": "不要過來——我真的會痛！",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "LH-02",
@@ -509,7 +572,8 @@
   "who": "菲菲",
   "text": "我我我真的要回家了……",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "LH-03",
@@ -517,7 +581,8 @@
   "who": "菲菲",
   "text": "那個……先讓我把血止住。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "LH-04",
@@ -525,7 +590,8 @@
   "who": "菲菲",
   "text": "那個……繃帶要綁哪邊？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "LH-05",
@@ -533,7 +599,8 @@
   "who": "菲菲",
   "text": "手不要鬆……針先握好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "LH-06",
@@ -541,7 +608,8 @@
   "who": "菲菲",
   "text": "師父、師兄……我還在這裡。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-01",
@@ -549,7 +617,8 @@
   "who": "菲菲",
   "text": "那個……箱蓋會夾手嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-02",
@@ -557,7 +626,8 @@
   "who": "菲菲",
   "text": "我先用針戳一下，不算弄壞吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-03",
@@ -565,7 +635,8 @@
   "who": "菲菲",
   "text": "有人在裡面嗎？我的針有毒。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-04",
@@ -573,7 +644,8 @@
   "who": "菲菲",
   "text": "站遠一點再開好了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-05",
@@ -581,7 +653,8 @@
   "who": "菲菲",
   "text": "希望是繃帶……軟一點的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-06",
@@ -589,7 +662,8 @@
   "who": "菲菲",
   "text": "那個……不是我的，也能拿嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-07",
@@ -597,7 +671,8 @@
   "who": "菲菲",
   "text": "紙箱的味道……有點想家了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CH-08",
@@ -605,7 +680,8 @@
   "who": "菲菲",
   "text": "師兄應該不會睡在這裡吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RN-01",
@@ -613,7 +689,8 @@
   "who": "菲菲",
   "text": "睡一下下就好……一下下。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RN-02",
@@ -621,7 +698,8 @@
   "who": "菲菲",
   "text": "那個……門口沒有動靜吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RN-03",
@@ -629,7 +707,8 @@
   "who": "菲菲",
   "text": "毒針先收好……不要壓到。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RN-04",
@@ -637,7 +716,8 @@
   "who": "菲菲",
   "text": "眼睛好澀……今天丟太多針了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RN-05",
@@ -645,7 +725,8 @@
   "who": "菲菲",
   "text": "那個……被子能蓋到耳朵嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RN-06",
@@ -653,7 +734,8 @@
   "who": "菲菲",
   "text": "師父、師兄……夢裡見也好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RN-07",
@@ -661,63 +743,71 @@
   "who": "菲菲",
   "text": "尾巴也要收進來，才不會冷。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RS-01",
-  "where": "貓窩・磨針（隨機一句）",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
   "text": "磨利一點……不用刺那麼深。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RS-02",
-  "where": "貓窩・磨針（隨機一句）",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
   "text": "我力氣小，所以針一定要準。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RS-03",
-  "where": "貓窩・磨針（隨機一句）",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
   "text": "再上一層藥……薄薄的就好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RS-04",
-  "where": "貓窩・磨針（隨機一句）",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
   "text": "師父說，準備好就不用逞強。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RS-05",
-  "where": "貓窩・磨針（隨機一句）",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
   "text": "那個……彎掉的不能用了吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RS-06",
-  "where": "貓窩・磨針（隨機一句）",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
   "text": "那個……先別叫我，我會抖。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "RS-07",
-  "where": "貓窩・磨針（隨機一句）",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
   "text": "針尖別朝著自己……轉過來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-01",
@@ -725,7 +815,8 @@
   "who": "菲菲",
   "text": "架勢好正式……那個，我可以不要跟你正面來嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-02",
@@ -733,7 +824,8 @@
   "who": "菲菲",
   "text": "牠一直在刨地……那我不要靠近。等牠停一下，再往手上補兩針。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-03",
@@ -741,7 +833,8 @@
   "who": "菲菲",
   "text": "紙做的？可是滿身是刺——我丟就好，絕對不伸手。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-04",
@@ -749,7 +842,8 @@
   "who": "菲菲",
   "text": "鼓越敲越快……下一下一定很重，我先退到丟得到的最遠處。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-05",
@@ -757,7 +851,8 @@
   "who": "菲菲",
   "text": "整隻都是鐵的。針扎不進去的話……那就找關節，毒總會滲進去。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-06",
@@ -765,7 +860,8 @@
   "who": "菲菲",
   "text": "牠吊在半空中，還一直往我牌堆吐絲。先把牠弄下來再說。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-07",
@@ -773,7 +869,8 @@
   "who": "菲菲",
   "text": "牠快散掉了——毒來不及發作。這隻要用快的，不能等。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-08",
@@ -781,7 +878,8 @@
   "who": "菲菲",
   "text": "後面那隻在下命令。先毒帶頭的，小鬼自己會亂。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-09",
@@ -789,7 +887,8 @@
   "who": "菲菲",
   "text": "倒了又爬起來……那我把毒平均分給三隻好了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-10",
@@ -797,7 +896,8 @@
   "who": "菲菲",
   "text": "鏡子裡好多個我……那個，牠們也會中毒嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-11",
@@ -805,7 +905,8 @@
   "who": "菲菲",
   "text": "碎片也會動，而且變兩隻了。毒要重新算。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-12",
@@ -813,7 +914,8 @@
   "who": "菲菲",
   "text": "牠半透明的時候針會穿過去。等實體了再下手。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-13",
@@ -821,7 +923,8 @@
   "who": "菲菲",
   "text": "團子……看起來好好吃。不對，牠在動！那個，我先退一步。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-14",
@@ -829,7 +932,8 @@
   "who": "菲菲",
   "text": "打一隻變兩隻？那毒是不是也會分一半……應該不會吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-15",
@@ -837,7 +941,8 @@
   "who": "菲菲",
   "text": "一被打就縮起來。殼上沒用，得等牠伸頭。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-16",
@@ -845,7 +950,8 @@
   "who": "菲菲",
   "text": "在天上飛的丟不準。先想辦法讓牠落地。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-17",
@@ -853,7 +959,8 @@
   "who": "菲菲",
   "text": "牠在睡……那個，我小聲一點。針也輕輕丟。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-18",
@@ -861,7 +968,8 @@
   "who": "菲菲",
   "text": "越鼓越大顆……那個等一下會炸吧？我離遠一點。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-19",
@@ -869,7 +977,8 @@
   "who": "菲菲",
   "text": "鐵殼每回合自己長回來。那就別打殼，往縫裡送。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-20",
@@ -877,7 +986,8 @@
   "who": "菲菲",
   "text": "有隻在指揮。先毒那隻，剩下的就散了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-21",
@@ -885,7 +995,8 @@
   "who": "菲菲",
   "text": "有盾有槍，跟外面那些不一樣……不要正面。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-22",
@@ -893,7 +1004,8 @@
   "who": "菲菲",
   "text": "牠在唸咒，我的牌堆變得怪怪的。要快點讓牠閉嘴。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-23",
@@ -901,7 +1013,8 @@
   "who": "菲菲",
   "text": "牠快不見了……毒還沒發作就跑掉就虧大了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-24",
@@ -909,7 +1022,8 @@
   "who": "菲菲",
   "text": "越打越氣……那我不要惹牠，靜靜等毒。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-25",
@@ -917,7 +1031,8 @@
   "who": "菲菲",
   "text": "好大一隻蛾。鱗粉別噴到我臉上——我戴口罩了，應該。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-26",
@@ -925,7 +1040,8 @@
   "who": "菲菲",
   "text": "石頭做的地藏，那一掌下來我會死。絕對不能被碰到。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-27",
@@ -933,7 +1049,8 @@
   "who": "菲菲",
   "text": "青蛙也當大名了……塔裡什麼都有。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-28",
@@ -941,7 +1058,8 @@
   "who": "菲菲",
   "text": "小蝌蚪也來湊熱鬧。牠們毒得起來嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-29",
@@ -949,7 +1067,8 @@
   "who": "菲菲",
   "text": "好大一顆球……那個，這殼要怎麼開？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-30",
@@ -957,7 +1076,8 @@
   "who": "菲菲",
   "text": "牠在睡，身上還有鱗片……鱗片下面總有縫吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-31",
@@ -965,7 +1085,8 @@
   "who": "菲菲",
   "text": "老住持唸的不是經，是詛咒。那我也回敬一針。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-32",
@@ -973,7 +1094,8 @@
   "who": "菲菲",
   "text": "狗？塔裡怎麼會有狗——牠跑很快，我得先退。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-33",
@@ -981,7 +1103,8 @@
   "who": "菲菲",
   "text": "琴聲不太對勁。摀住耳朵……可是摀住就丟不準了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-34",
@@ -989,7 +1112,8 @@
   "who": "菲菲",
   "text": "燈籠會吐舌頭。那個，我不想看。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-35",
@@ -997,7 +1121,8 @@
   "who": "菲菲",
   "text": "叮叮叮的好吵……手會抖，針會歪。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-36",
@@ -1005,7 +1130,8 @@
   "who": "菲菲",
   "text": "小狸貓裝什麼大人。不過小的通常比較快，小心。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-37",
@@ -1013,7 +1139,8 @@
   "who": "菲菲",
   "text": "一隻鞋？另一隻呢……會不會從後面過來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-38",
@@ -1021,7 +1148,8 @@
   "who": "菲菲",
   "text": "從畫裡爬出來的，墨還在滴。毒跟墨會不會混在一起。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-39",
@@ -1029,7 +1157,8 @@
   "who": "菲菲",
   "text": "搗麻糬的兔子……那個杵一下就能把我打扁。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-40",
@@ -1037,7 +1166,8 @@
   "who": "菲菲",
   "text": "牠的頭轉了一圈。背後也看得到的話，我要躲哪裡？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-41",
@@ -1045,7 +1175,8 @@
   "who": "菲菲",
   "text": "紙摺的也想擋我？——好利！那個，我道歉。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-42",
@@ -1053,7 +1184,8 @@
   "who": "菲菲",
   "text": "那團黑黑的……裡面有臉。毒對牠有用嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-43",
@@ -1061,7 +1193,8 @@
   "who": "菲菲",
   "text": "好大的貓……前輩，那個，失敬了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-44",
@@ -1069,7 +1202,8 @@
   "who": "菲菲",
   "text": "一隻腳的傘還會吐舌頭。我真的不想靠近。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-45",
@@ -1077,7 +1211,8 @@
   "who": "菲菲",
   "text": "河童。牠盯著我的小魚乾……不對，先盯著牠的手。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-46",
@@ -1085,7 +1220,8 @@
   "who": "菲菲",
   "text": "請我吃豆腐？……有股霉味，那個，我不吃。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-47",
@@ -1093,7 +1229,8 @@
   "who": "菲菲",
   "text": "烏鴉穿和尚衣……那把扇子會把我吹回去。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-48",
@@ -1101,7 +1238,8 @@
   "who": "菲菲",
   "text": "白狐狸在唸咒，我毛都豎起來了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-49",
@@ -1109,7 +1247,8 @@
   "who": "菲菲",
   "text": "盔甲裡面沒有貓……那我要往哪裡下針？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-50",
@@ -1117,7 +1256,8 @@
   "who": "菲菲",
   "text": "那個頭巾……師兄？不對，師兄的眼睛不會發紫光。你是假的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-51",
@@ -1125,7 +1265,8 @@
   "who": "菲菲",
   "text": "那是……我？不對，我才不會那樣笑。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-52",
@@ -1133,7 +1274,8 @@
   "who": "菲菲",
   "text": "還有一隻！兩隻我丟不過來的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-53",
@@ -1141,7 +1283,8 @@
   "who": "菲菲",
   "text": "好圓……不對，牠是關主。我要多疊幾層。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-54",
@@ -1149,7 +1292,8 @@
   "who": "菲菲",
   "text": "黑白毛的大塊頭。這種一拳就能把我打飛，絕對不要被碰到。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-55",
@@ -1157,7 +1301,8 @@
   "who": "菲菲",
   "text": "狸貓老大，酒味好重……那個，酒會不會把毒沖淡。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-56",
@@ -1165,7 +1310,8 @@
   "who": "菲菲",
   "text": "毛好澎的大小姐，後面還跟著僕人。要先處理哪一個？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-57",
@@ -1173,7 +1319,8 @@
   "who": "菲菲",
   "text": "執事貓擋在前面。那個，請讓一下……不讓的話我就下針了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-58",
@@ -1181,7 +1328,8 @@
   "who": "菲菲",
   "text": "女僕貓也要上？我不太想跟她打。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-59",
@@ -1189,7 +1337,8 @@
   "who": "菲菲",
   "text": "偷小魚乾的就是你們。那個，我要丟囉。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-60",
@@ -1197,7 +1346,8 @@
   "who": "菲菲",
   "text": "那顆會自己滾……滾過來的話我來不及退。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-61",
@@ -1205,7 +1355,8 @@
   "who": "菲菲",
   "text": "倒了就算了，還會動是怎樣。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-62",
@@ -1213,7 +1364,8 @@
   "who": "菲菲",
   "text": "箱子裡有東西……那個，我也想進去躲。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-63",
@@ -1221,7 +1373,8 @@
   "who": "菲菲",
   "text": "全身都是刺。我丟針，牠也丟刺，這樣算公平嗎。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-64",
@@ -1229,7 +1382,8 @@
   "who": "菲菲",
   "text": "罐頭怎麼一直滿回來……毒也一直被沖掉嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-65",
@@ -1237,7 +1391,8 @@
   "who": "菲菲",
   "text": "五隻爪子。我有一整筒的針，應該還是我比較多。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-66",
@@ -1245,7 +1400,8 @@
   "who": "菲菲",
   "text": "睡成這樣……真好。那個，我不吵你，但針還是要丟。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-67",
@@ -1253,7 +1409,8 @@
   "who": "菲菲",
   "text": "那是我的小魚乾。還我。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-68",
@@ -1261,7 +1418,8 @@
   "who": "菲菲",
   "text": "怎麼又跑出一隻……針要省著用。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-69",
@@ -1269,7 +1427,8 @@
   "who": "菲菲",
   "text": "牠學我。那牠也會學著往後退嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-70",
@@ -1277,7 +1436,8 @@
   "who": "菲菲",
   "text": "掃把成精……那個，節肢的縫最好下針。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-71",
@@ -1285,7 +1445,8 @@
   "who": "菲菲",
   "text": "這是石頭吧。石頭也會中毒嗎……試試看。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-72",
@@ -1293,7 +1454,8 @@
   "who": "菲菲",
   "text": "聞起來有點想睡……不行，會丟歪。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-73",
@@ -1301,7 +1463,8 @@
   "who": "菲菲",
   "text": "那個，我不是灰塵，請不要吸我。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-74",
@@ -1309,7 +1472,8 @@
   "who": "菲菲",
   "text": "小的也來了。一根針大概就夠。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-75",
@@ -1317,7 +1481,8 @@
   "who": "菲菲",
   "text": "這位很不好惹……我先觀察兩回合。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-76",
@@ -1325,7 +1490,8 @@
   "who": "菲菲",
   "text": "打倒一隻，牠又站起來了。毒要留著，不能浪費。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-77",
@@ -1333,7 +1499,8 @@
   "who": "菲菲",
   "text": "要一起倒才算……那我得三隻都下毒。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-78",
@@ -1341,7 +1508,8 @@
   "who": "菲菲",
   "text": "這隻都不動，反而最可怕。牠在等我靠近。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-79",
@@ -1349,7 +1517,8 @@
   "who": "菲菲",
   "text": "它越打越硬……那個，我可以不要打它嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-80",
@@ -1357,7 +1526,8 @@
   "who": "菲菲",
   "text": "婆婆……您的尾巴有幾條？我怕針不夠。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-81",
@@ -1365,7 +1535,8 @@
   "who": "菲菲",
   "text": "尾巴自己會動！那要分開算層數嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-82",
@@ -1373,7 +1544,8 @@
   "who": "菲菲",
   "text": "這隻是機器做的？機器不會中毒吧……糟糕。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-83",
@@ -1381,7 +1553,8 @@
   "who": "菲菲",
   "text": "這根本就是黃瓜……可是黃瓜為什麼在追我！",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-84",
@@ -1389,7 +1562,8 @@
   "who": "菲菲",
   "text": "會動的飯糰。那個，下了毒之後就不能吃了吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-85",
@@ -1397,7 +1571,8 @@
   "who": "菲菲",
   "text": "師父叫我打的那根木頭……它自己站起來了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-86",
@@ -1405,7 +1580,8 @@
   "who": "菲菲",
   "text": "羊怎麼會在塔裡。牠看起來不想打架，那我也……還是先丟一根好了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-87",
@@ -1413,7 +1589,8 @@
   "who": "菲菲",
   "text": "吸塵器！那個，我真的最怕這個。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-88",
@@ -1421,7 +1598,8 @@
   "who": "菲菲",
   "text": "同行？可是我不認識你。而且我的針有毒喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-89",
@@ -1429,7 +1607,8 @@
   "who": "菲菲",
   "text": "小魚乾是我的。不給。真的不給。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-90",
@@ -1437,7 +1616,8 @@
   "who": "菲菲",
   "text": "那個，請不要吐我——我才剛換衣服。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-91",
@@ -1445,7 +1625,8 @@
   "who": "菲菲",
   "text": "稻草人會講話。稻草……應該很吃得下針。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-92",
@@ -1453,7 +1634,8 @@
   "who": "菲菲",
   "text": "兩個一起上？那個，可以排隊嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-93",
@@ -1461,7 +1643,8 @@
   "who": "菲菲",
   "text": "更大根的黃瓜……真的假的。那要疊幾層才夠。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-94",
@@ -1469,7 +1652,8 @@
   "who": "菲菲",
   "text": "你說的「上面那位」，是我師父。請讓開。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-95",
@@ -1477,7 +1661,8 @@
   "who": "菲菲",
   "text": "這麼大顆……毒要滲到中間大概要很久。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-96",
@@ -1485,7 +1670,8 @@
   "who": "菲菲",
   "text": "小黑貓也要打我？那個，你還這麼小。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-97",
@@ -1493,7 +1679,8 @@
   "who": "菲菲",
   "text": "師父。那個……我來帶你回家了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-98",
@@ -1501,7 +1688,8 @@
   "who": "菲菲",
   "text": "好冷，鼻子要凍掉了。手凍僵就丟不準，要快。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-99",
@@ -1509,7 +1697,8 @@
   "who": "菲菲",
   "text": "招財貓招的是我的小魚乾吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-100",
@@ -1517,7 +1706,8 @@
   "who": "菲菲",
   "text": "燈亮著就會想看過去……不行，我要盯的是牙齒。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-101",
@@ -1525,7 +1715,8 @@
   "who": "菲菲",
   "text": "躲在後面拉線的最討厭了。那個，我也是躲在後面的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-102",
@@ -1533,7 +1724,8 @@
   "who": "菲菲",
   "text": "木頭做的也會打人。木頭應該不怕毒……那就多丟幾根。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-103",
@@ -1541,7 +1733,8 @@
   "who": "菲菲",
   "text": "越喝越壯。那我得在牠喝完之前把毒疊夠。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-104",
@@ -1549,7 +1742,8 @@
   "who": "菲菲",
   "text": "一盞熄了另一盞會再點回來。要一起處理。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-105",
@@ -1557,7 +1751,8 @@
   "who": "菲菲",
   "text": "兩邊都要吹熄才算數……那毒也得分兩份。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-106",
@@ -1565,7 +1760,8 @@
   "who": "菲菲",
   "text": "一大群！那個，我的針不夠分。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-107",
@@ -1573,7 +1769,8 @@
   "who": "菲菲",
   "text": "散開了還會咬人。先退，再慢慢清。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-108",
@@ -1581,7 +1778,8 @@
   "who": "菲菲",
   "text": "鎧甲裡沒有人。六回合內牠就會消失——毒來不及，得快。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-109",
@@ -1589,7 +1787,8 @@
   "who": "菲菲",
   "text": "兩個頭，兩倍口水。那個，離我遠一點。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-110",
@@ -1597,7 +1796,8 @@
   "who": "菲菲",
   "text": "石頭做的也擋在路上……那我就一直丟，總會有縫。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FM-111",
@@ -1605,7 +1805,8 @@
   "who": "菲菲",
   "text": "面具一換招式就換。我得先看牠換成哪一張。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-01",
@@ -1613,7 +1814,8 @@
   "who": "菲菲",
   "text": "這是師父的字……我認得。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-02",
@@ -1621,7 +1823,8 @@
   "who": "菲菲",
   "text": "他把絕學留在這裡……是要留給師兄，還是留給我？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-03",
@@ -1629,7 +1832,8 @@
   "who": "菲菲",
   "text": "那個……那我更得上去看看了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-04",
@@ -1637,7 +1841,8 @@
   "who": "菲菲",
   "text": "明天要面對的，是這一層最強的那一個。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-05",
@@ -1645,7 +1850,8 @@
   "who": "菲菲",
   "text": "打不贏就上不去……那個，我得先把藥調好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-06",
@@ -1653,7 +1859,8 @@
   "who": "菲菲",
   "text": "今晚先睡飽。針磨利一點，藥多上一層。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-07",
@@ -1661,7 +1868,8 @@
   "who": "菲菲",
   "text": "越往上走，魔氣就越重……喉嚨好緊。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-08",
@@ -1669,7 +1877,8 @@
   "who": "菲菲",
   "text": "剛才塔頂傳來的聲音……那一定是師父。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-09",
@@ -1677,7 +1886,8 @@
   "who": "菲菲",
   "text": "只差最後一段路了。師父、師兄，你們再等一下。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-10",
@@ -1685,7 +1895,8 @@
   "who": "菲菲",
   "text": "明天一上樓，就會見到師父了……我手又開始抖了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-11",
@@ -1693,7 +1904,8 @@
   "who": "菲菲",
   "text": "以前我連針都握不穩，師父一次都沒有笑過我。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-12",
@@ -1701,7 +1913,8 @@
   "who": "菲菲",
   "text": "他只說了一句：力氣小，就別跟人比力氣。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-13",
@@ -1709,7 +1922,8 @@
   "who": "菲菲",
   "text": "明天……換我帶他們兩個回家。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-14",
@@ -1717,7 +1931,8 @@
   "who": "菲菲",
   "text": "師父！是我，是菲菲……你看清楚一點，拜託。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-15",
@@ -1725,7 +1940,8 @@
   "who": "菲菲",
   "text": "那個……我打不醒你。可是我可以一直丟、一直等，等到你願意聽我說話。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-16",
@@ -1733,7 +1949,8 @@
   "who": "菲菲",
   "text": "婆婆，對不起……可是師父跟師兄都還在上面。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-17",
@@ -1741,7 +1958,8 @@
   "who": "菲菲",
   "text": "這個光……跟師父眼睛裡的一樣。是這座塔在操縱它。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-18",
@@ -1749,7 +1967,8 @@
   "who": "菲菲",
   "text": "機關不會累，也不會躲……那個，可是它也不會退。我退就好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-19",
@@ -1757,7 +1976,8 @@
   "who": "菲菲",
   "text": "村裡的小魚乾……是你搬走的嗎？那個，你跟上面那隻紫眼睛的，是一夥的嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-20",
@@ -1765,7 +1985,8 @@
   "who": "菲菲",
   "text": "不行的。小魚乾要還給村裡，師父跟師兄我也要帶回去。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-21",
@@ -1773,7 +1994,8 @@
   "who": "菲菲",
   "text": "二、二當家……那大當家是誰？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-22",
@@ -1781,7 +2003,8 @@
   "who": "菲菲",
   "text": "我不是來比武的……我也打不贏你。那個，可以讓一下嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-23",
@@ -1789,7 +2012,8 @@
   "who": "菲菲",
   "text": "師父說過，狸貓遞過來的酒不能喝。這句我記得很牢。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-24",
@@ -1797,7 +2021,8 @@
   "who": "菲菲",
   "text": "我知道我很髒……可是都走到這裡了，我還是要上去。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-25",
@@ -1805,7 +2030,8 @@
   "who": "菲菲",
   "text": "我不是來撒野的……我只是想借過。那個，拜託。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-26",
@@ -1813,7 +2039,8 @@
   "who": "菲菲",
   "text": "牠看起來不像壞人……可是牠擋在路上。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-27",
@@ -1821,7 +2048,8 @@
   "who": "菲菲",
   "text": "這種殼我敲不開的。可是……針只要找到一條縫就夠了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-28",
@@ -1829,7 +2057,8 @@
   "who": "菲菲",
   "text": "牠睡得好熟……那個，對不起。我只有這幾下的時間。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-29",
@@ -1837,7 +2066,8 @@
   "who": "菲菲",
   "text": "我沒有殺誰……我只是來接師父跟師兄回家的。老住持，讓一下。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-30",
@@ -1845,7 +2075,8 @@
   "who": "菲菲",
   "text": "那個……我有先提醒你喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-31",
@@ -1853,7 +2084,8 @@
   "who": "菲菲",
   "text": "婆婆……我會把他們兩個都帶回來的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-32",
@@ -1861,7 +2093,8 @@
   "who": "菲菲",
   "text": "操縱它的東西……在塔頂。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-33",
@@ -1869,7 +2102,8 @@
   "who": "菲菲",
   "text": "早、早說嘛……",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-34",
@@ -1877,7 +2111,8 @@
   "who": "菲菲",
   "text": "……對不起。也謝謝你。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-35",
@@ -1885,7 +2120,8 @@
   "who": "菲菲",
   "text": "他以前……連罰我蹲馬步，都會偷偷讓我早一點起來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-36",
@@ -1893,7 +2129,8 @@
   "who": "菲菲",
   "text": "……那你好好睡。對不起吵醒你了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-37",
@@ -1901,7 +2138,8 @@
   "who": "菲菲",
   "text": "他最掛念的……應該是師兄。可是師兄也還沒下來，所以只剩我了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-38",
@@ -1909,7 +2147,8 @@
   "who": "菲菲",
   "text": "師父！你聽得見的對不對……再撐一下，拜託。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-39",
@@ -1917,7 +2156,8 @@
   "who": "菲菲",
   "text": "婆婆生氣了……那個，我先退兩步。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-40",
@@ -1925,7 +2165,8 @@
   "who": "菲菲",
   "text": "爪子燒紅了……那個絕對不能被夾到。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-41",
@@ -1933,7 +2174,8 @@
   "who": "菲菲",
   "text": "他整隻捲起來了……好、好大一顆。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-42",
@@ -1941,7 +2183,8 @@
   "who": "菲菲",
   "text": "剛才那樣才算一半……那個，我的藥還夠嗎。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-43",
@@ -1949,7 +2192,8 @@
   "who": "菲菲",
   "text": "變出這麼多隻……哪一隻才是真的啊？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-44",
@@ -1957,7 +2201,8 @@
   "who": "菲菲",
   "text": "妳躲在他們後面……那個，那我只好先讓他們中毒了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-45",
@@ -1965,7 +2210,8 @@
   "who": "菲菲",
   "text": "游出來這麼多隻……毒會散開的，應該、應該可以。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-46",
@@ -1973,7 +2219,8 @@
   "who": "菲菲",
   "text": "長出鱗甲了……針扎不進去的話，毒也送不進去。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-47",
@@ -1981,7 +2228,8 @@
   "who": "菲菲",
   "text": "牠醒了……鱗片全張開了。那個，我真的不該吵醒牠的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-48",
@@ -1989,7 +2237,8 @@
   "who": "菲菲",
   "text": "牠變強了……那個，我先退開一點。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-49",
@@ -1997,7 +2246,8 @@
   "who": "菲菲",
   "text": "師父到現在都還沒認真……那個，那我也把最後一層藥上了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BOSS-50",
@@ -2005,7 +2255,8 @@
   "who": "菲菲",
   "text": "還沒完嗎……針還剩幾根來著。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-01",
@@ -2013,7 +2264,8 @@
   "who": "菲菲",
   "text": "這是師父的字……我慢慢看，免得學錯。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-02",
@@ -2021,7 +2273,8 @@
   "who": "菲菲",
   "text": "等找到師父，再請他教我好了……我怕自己練錯。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-03",
@@ -2029,7 +2282,8 @@
   "who": "菲菲",
   "text": "那個……小魚乾給你了，可以讓我過去嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-04",
@@ -2037,7 +2291,8 @@
   "who": "菲菲",
   "text": "不要過來……我的針有毒，我有先提醒你喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-05",
@@ -2045,7 +2300,8 @@
   "who": "菲菲",
   "text": "你們先吃……謝謝你們幫我包紮，現在沒那麼痛了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-06",
@@ -2053,7 +2309,8 @@
   "who": "菲菲",
   "text": "對不起……這些我還得留著在路上吃。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-07",
@@ -2061,7 +2318,8 @@
   "who": "菲菲",
   "text": "好苦……可是傷口沒那麼痛了，謝謝你。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-08",
@@ -2069,7 +2327,8 @@
   "who": "菲菲",
   "text": "那個……繃帶別弄鬆了，走路也慢一點喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-09",
@@ -2077,7 +2336,8 @@
   "who": "菲菲",
   "text": "肩膀好痛……卷軸等一下再看。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-10",
@@ -2085,7 +2345,8 @@
   "who": "菲菲",
   "text": "還好旁邊能繞過去，不用爬那堆木板。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-11",
@@ -2093,7 +2354,8 @@
   "who": "菲菲",
   "text": "手先放穩……這個角度，我再試試看。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-12",
@@ -2101,7 +2363,8 @@
   "who": "菲菲",
   "text": "那個……我是不是坐著睡著了？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-13",
@@ -2109,7 +2372,8 @@
   "who": "菲菲",
   "text": "差一點就打到鼻子了……我不敢再伸手了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-14",
@@ -2117,7 +2381,8 @@
   "who": "菲菲",
   "text": "那個……看起來很像師父的把戲，我還是不要碰好了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-15",
@@ -2125,7 +2390,8 @@
   "who": "菲菲",
   "text": "好暖……可是還得趕路，再躺一下下就好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-16",
@@ -2133,7 +2399,8 @@
   "who": "菲菲",
   "text": "那個……這招我用不順，先放下好了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-17",
@@ -2141,7 +2408,8 @@
   "who": "菲菲",
   "text": "那個……吃下去應該不會有事吧？你怎麼不說話？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-18",
@@ -2149,7 +2417,8 @@
   "who": "菲菲",
   "text": "這個有人咬過了……我不買，謝謝。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-19",
@@ -2157,7 +2426,8 @@
   "who": "菲菲",
   "text": "回去記得把頭巾綁好喔，不然又看不到路了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-20",
@@ -2165,7 +2435,8 @@
   "who": "菲菲",
   "text": "那個……轉角那邊就是了。路上別再跑太快喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-21",
@@ -2173,7 +2444,8 @@
   "who": "菲菲",
   "text": "那個……請讓我找到師父跟師兄，兩個都要平安。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-22",
@@ -2181,7 +2453,8 @@
   "who": "菲菲",
   "text": "動作慢一點……這樣才看得出哪裡不對。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-23",
@@ -2189,7 +2462,8 @@
   "who": "菲菲",
   "text": "小魚乾還是留著吃……我自己去找他們。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-24",
@@ -2197,7 +2471,8 @@
   "who": "菲菲",
   "text": "我幫你放穩一點……這樣就不會倒了吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-25",
@@ -2205,7 +2480,8 @@
   "who": "菲菲",
   "text": "胸口怎麼涼涼的……對不起，我不該拿的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-26",
@@ -2213,7 +2489,8 @@
   "who": "菲菲",
   "text": "那個……說好是練習，不要打太痛喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-27",
@@ -2221,7 +2498,8 @@
   "who": "菲菲",
   "text": "好痛……我只是想過去，別再撞我了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-28",
@@ -2229,7 +2507,8 @@
   "who": "菲菲",
   "text": "拿到了……可是手磨破了，我不想再爬了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-29",
@@ -2237,7 +2516,8 @@
   "who": "菲菲",
   "text": "照這個順序出手……真的比較順耶。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-30",
@@ -2245,7 +2525,8 @@
   "who": "菲菲",
   "text": "那個……我先照圖慢慢練，免得比錯手勢。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-31",
@@ -2253,7 +2534,8 @@
   "who": "菲菲",
   "text": "小魚乾先收好……路上就有東西吃了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-32",
@@ -2261,7 +2543,8 @@
   "who": "菲菲",
   "text": "肚子暖暖的……總算有力氣繼續走了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-33",
@@ -2269,7 +2552,8 @@
   "who": "菲菲",
   "text": "那個……用法有畫在旁邊，還好不用亂試。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-34",
@@ -2277,7 +2561,8 @@
   "who": "菲菲",
   "text": "那個……碗我擺好了。留給下一個肚子餓的吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-35",
@@ -2285,7 +2570,8 @@
   "who": "菲菲",
   "text": "那個……你連我發抖都學，能不能不要靠過來？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-36",
@@ -2293,7 +2579,8 @@
   "who": "菲菲",
   "text": "我還要找師父跟師兄……先出去，別看鏡子了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-37",
@@ -2301,7 +2588,8 @@
   "who": "菲菲",
   "text": "對不起……我把手收回來，你不要追我好不好？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-38",
@@ -2309,7 +2597,8 @@
   "who": "菲菲",
   "text": "呼……慢慢走就好，剛才差點忘了呼吸。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-39",
@@ -2317,7 +2606,8 @@
   "who": "菲菲",
   "text": "那個……可以先教我怎麼用嗎？我怕弄傷自己。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-40",
@@ -2325,7 +2615,8 @@
   "who": "菲菲",
   "text": "好貴……不過喝完真的比較有力氣了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-41",
@@ -2333,7 +2624,8 @@
   "who": "菲菲",
   "text": "我先不買了……小魚乾還得留著買吃的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-42",
@@ -2341,7 +2633,8 @@
   "who": "菲菲",
   "text": "那個……有沒有哪裡痛？下次別再硬鑽了喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-43",
@@ -2349,7 +2642,8 @@
   "who": "菲菲",
   "text": "原來要先轉肩膀，不是硬擠……那個，我記住了，不用自己去卡一次。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-44",
@@ -2357,7 +2651,8 @@
   "who": "菲菲",
   "text": "那個……我只玩這次，心跳得好快。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-45",
@@ -2365,7 +2660,8 @@
   "who": "菲菲",
   "text": "對不起，我不該掀桌……你們不要一起過來！",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-46",
@@ -2373,7 +2669,8 @@
   "who": "菲菲",
   "text": "我不敢賭……這些還得留著趕路用。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-47",
@@ -2381,7 +2678,8 @@
   "who": "菲菲",
   "text": "肩膀磨破了……我得先找地方包起來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-48",
@@ -2389,7 +2687,8 @@
   "who": "菲菲",
   "text": "拿到了……手也沒被夾到，還好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-49",
@@ -2397,7 +2696,8 @@
   "who": "菲菲",
   "text": "你說話好像師父……我有慢下來，這樣對嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-50",
@@ -2405,7 +2705,8 @@
   "who": "菲菲",
   "text": "有些招我用起來太勉強……先不練了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-51",
@@ -2413,7 +2714,8 @@
   "who": "菲菲",
   "text": "身體是鬆了……可是心跳怎麼還這麼快？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-52",
@@ -2421,7 +2723,8 @@
   "who": "菲菲",
   "text": "忍具先收好……這個味道會讓我一直分心。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-53",
@@ -2429,7 +2732,8 @@
   "who": "菲菲",
   "text": "那個……不能再聞了，我還得去找師父跟師兄。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-54",
@@ -2437,7 +2741,8 @@
   "who": "菲菲",
   "text": "這些兵器好重……我先照圖練動作就好。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-55",
@@ -2445,7 +2750,8 @@
   "who": "菲菲",
   "text": "那個……搬的時候小心，生鏽的地方別刮到手。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-56",
@@ -2453,7 +2759,8 @@
   "who": "菲菲",
   "text": "我會小心的。師父跟師兄都還沒回家，我得去找。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-57",
@@ -2461,7 +2768,8 @@
   "who": "菲菲",
   "text": "那個……我有聽見，可是先讓我把血止住。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-58",
@@ -2469,7 +2777,8 @@
   "who": "菲菲",
   "text": "那個……剛剛那個黑影好大，我先退開一點。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-59",
@@ -2477,7 +2786,8 @@
   "who": "菲菲",
   "text": "吃飽比較不會手抖……好了，該繼續走了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-60",
@@ -2485,7 +2795,8 @@
   "who": "菲菲",
   "text": "對不起！別再打了，我這就走！",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-61",
@@ -2493,7 +2804,8 @@
   "who": "菲菲",
   "text": "不抓了……我離池邊遠一點好了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-62",
@@ -2501,7 +2813,8 @@
   "who": "菲菲",
   "text": "這裡沒有人……那個木樁應該不會動吧？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-63",
@@ -2509,7 +2822,8 @@
   "who": "菲菲",
   "text": "先站穩再轉身……這樣就不容易跌倒了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-64",
@@ -2517,7 +2831,8 @@
   "who": "菲菲",
   "text": "那個……你真的會動喔？先讓我退開一下！",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-65",
@@ -2525,7 +2840,8 @@
   "who": "菲菲",
   "text": "月光剛好照著碗……是要我放點吃的嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-66",
@@ -2533,7 +2849,8 @@
   "who": "菲菲",
   "text": "那個……你慢慢吃，我沒有要跟你搶。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-67",
@@ -2541,7 +2858,8 @@
   "who": "菲菲",
   "text": "師父、師兄……你們那邊也看得到月亮嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-68",
@@ -2549,7 +2867,8 @@
   "who": "菲菲",
   "text": "那個……這樣就付清了吧？我沒有要再買別的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-69",
@@ -2557,7 +2876,8 @@
   "who": "菲菲",
   "text": "我怎麼反而更沒力氣了……這會好嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-70",
@@ -2565,7 +2885,8 @@
   "who": "菲菲",
   "text": "還會讓人沒力氣喔……那我先不要了，謝謝。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-71",
@@ -2573,7 +2894,8 @@
   "who": "菲菲",
   "text": "你娘好多了就好……也替我跟她說聲謝謝。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-72",
@@ -2581,7 +2903,8 @@
   "who": "菲菲",
   "text": "你教的呼吸方法，我記住了。魚乾留給你娘吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-73",
@@ -2589,7 +2912,8 @@
   "who": "菲菲",
   "text": "怎麼又來了……你們不要一起靠過來啦！",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-74",
@@ -2597,7 +2921,8 @@
   "who": "菲菲",
   "text": "小魚乾給你們了……我先走，別跟過來喔。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-75",
@@ -2605,7 +2930,8 @@
   "who": "菲菲",
   "text": "看到你傷好了，我就放心了……謝謝你還記得我。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-76",
@@ -2613,7 +2939,8 @@
   "who": "菲菲",
   "text": "原來是這裡停太久……我再試一次，你幫我看看。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-77",
@@ -2621,7 +2948,8 @@
   "who": "菲菲",
   "text": "傷口不痛了……謝謝你。帶太多招也丟不準，我來整理一下。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-78",
@@ -2629,7 +2957,8 @@
   "who": "菲菲",
   "text": "對、對不起……我知道牠還在等人幫忙。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-79",
@@ -2637,7 +2966,8 @@
   "who": "菲菲",
   "text": "吃得好飽……我都忘了，吃飯可以不用那麼緊張。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-80",
@@ -2645,7 +2975,8 @@
   "who": "菲菲",
   "text": "那個……連忍具都分開包好了。謝謝你們，我會小心帶上去。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-81",
@@ -2653,7 +2984,8 @@
   "who": "菲菲",
   "text": "換走的那件……我還有點捨不得。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-82",
@@ -2661,7 +2993,8 @@
   "who": "菲菲",
   "text": "這些我都用習慣了……先不換，謝謝。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-83",
@@ -2669,7 +3002,8 @@
   "who": "菲菲",
   "text": "那個……這上面寫會傷身體，我有點不敢練。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-84",
@@ -2677,7 +3011,8 @@
   "who": "菲菲",
   "text": "身體好虛……這次好像不是休息一下就會好的。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-85",
@@ -2685,7 +3020,8 @@
   "who": "菲菲",
   "text": "我還要找師父跟師兄……先別把自己練傷了。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-86",
@@ -2693,7 +3029,8 @@
   "who": "菲菲",
   "text": "那個……『後果自負』是會痛的意思嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-87",
@@ -2701,7 +3038,8 @@
   "who": "菲菲",
   "text": "招式是練好了……可是我不太舒服，這就是後果嗎？",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "EV-88",
@@ -2709,7 +3047,8 @@
   "who": "菲菲",
   "text": "後果都沒寫清楚……我不敢拿自己試。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "ET-01",
@@ -2717,7 +3056,8 @@
   "who": "旁白／菲菲",
   "text": "菲菲把魚乾袋護在身後，抽出一根針。山賊舉起木棒，朝轉角張望，像在等誰接應。菲菲：「不要過來……我的針有毒，我有先提醒你喔。」",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "ET-02",
@@ -2725,7 +3065,8 @@
   "who": "旁白／菲菲",
   "text": "村貓們輪流添湯，菲菲終於放慢吃飯的速度，一口一口把碗裡的湯喝完。菲菲：「吃得好飽……我都忘了，吃飯可以不用那麼緊張。」",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "ET-03",
@@ -2733,7 +3074,8 @@
   "who": "旁白／菲菲",
   "text": "走廊兩側排滿鏡子，無數個菲菲同時抬起頭。其中一面慢了半拍——鏡子裡那個菲菲沒有跟著眨眼，反而先握緊了針，擺出迎戰的架勢。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "ET-04",
@@ -2741,7 +3083,8 @@
   "who": "旁白／菲菲",
   "text": "跟鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "ET-05",
@@ -2749,7 +3092,8 @@
   "who": "旁白／菲菲",
   "text": "鏡中的菲菲踏出鏡面，連握針的手勢都跟她一模一樣，只有眼神冷得不像她。菲菲往後退了半步，把針換到另一隻手。菲菲：「那個……你連我發抖都學，能不能不要靠過來？」",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "ET-06",
@@ -2757,111 +3101,125 @@
   "who": "旁白／菲菲",
   "text": "菲菲低著頭，不去看鏡子裡那些跟自己一樣的臉，貼著另一側的牆快步走出走廊。菲菲：「我還要找師父跟師兄……先出去，別看鏡子了。」",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-01",
-  "where": "她的專屬事件「師兄的痕跡」開頭",
+  "where": "專屬事件「師兄的痕跡」開頭",
   "who": "旁白／菲菲",
   "text": "轉角的牆上卡著一根被踩彎的針，旁邊掉著一小截深藍色的線頭。菲菲蹲下去看了很久——針是她的，線是師兄頭巾上的。他走過這裡，而且走得很急。",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-02",
-  "where": "她的專屬事件「師兄的痕跡」選「把針收起來（回復 12 點生命、獲得 20 條小魚乾）」的結果",
+  "where": "專屬事件「師兄的痕跡」選「把針收起來（回復 12 點生命、獲得 20 條小魚乾）」的結果",
   "who": "旁白／菲菲",
   "text": "菲菲把針一根根拔下來，重新磨過收好，順手把地上散落的乾糧也收進袋子。菲菲：「那個……浪費就不好了。」",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-03",
-  "where": "她的專屬事件「師兄的痕跡」選「照著痕跡追上去（最多失去 5 點生命；隨機獲得 1 張罕見忍術牌、獲得 60 條小魚乾）」的結果",
+  "where": "專屬事件「師兄的痕跡」選「照著痕跡追上去（最多失去 5 點生命；隨機獲得 1 張罕見忍術牌、獲得 60 條小魚乾）」的結果",
   "who": "旁白／菲菲",
   "text": "菲菲沿著線頭一路小跑，撞翻了兩個木箱，膝蓋也擦破了皮。盡頭沒有師兄，只有他留下的一卷東西。菲菲：「走得這麼急……情況不樂觀。」",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-04",
-  "where": "她的專屬事件「調藥」開頭",
+  "where": "專屬事件「調藥」開頭",
   "who": "旁白／菲菲",
   "text": "牆角長著一叢沒見過的草，葉背泛著紫。菲菲折了一段，湊近聞了聞，整張臉皺起來——是對的味道。",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-05",
-  "where": "她的專屬事件「調藥」選「熬一鍋（升級至多 1 張牌）」的結果",
+  "where": "專屬事件「調藥」選「熬一鍋（升級至多 1 張牌）」的結果",
   "who": "旁白／菲菲",
   "text": "菲菲把草搗成糊，一根一根替針補上新的一層。手上沾到一點，麻了半天。菲菲：「薄薄的就好……薄薄的就好。」",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-06",
-  "where": "她的專屬事件「調藥」選「直接嚼一口試毒性（失去 8 點生命、獲得 1 張稀有牌）」的結果",
+  "where": "專屬事件「調藥」選「直接嚼一口試毒性（失去 8 點生命、獲得 1 張稀有牌）」的結果",
   "who": "旁白／菲菲",
   "text": "菲菲咬了一小口，立刻蹲下去乾嘔，眼淚都出來了。緩過來之後，她在本子上記下了份量。菲菲：「知道……知道有多毒了。下次不用試了。」",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-07",
-  "where": "她的專屬事件「調藥」選「不要碰（無效果）」的結果",
+  "where": "專屬事件「調藥」選「不要碰（無效果）」的結果",
   "who": "旁白／菲菲",
   "text": "菲菲把草放回原處，退開兩步。菲菲：「那個……不認識的東西，還是不要亂碰比較好。」",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-08",
-  "where": "她的專屬事件「破掉的針袋」開頭",
+  "where": "專屬事件「破掉的針袋」開頭",
   "who": "旁白／菲菲",
   "text": "菲菲在舊櫃裡找到一條乾淨布條，正想拿來替手換藥，針袋卻勾在櫃角上裂了開來。帶藥的針尖從破口露出，她連忙鬆手，只敢拎著袋口。布條比了比——補了袋子，就不夠替傷口換藥了。",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-09",
-  "where": "她的專屬事件「破掉的針袋」選「布條拿來補針袋（獲得 1 張罕見的忍術牌）」的結果",
+  "where": "專屬事件「破掉的針袋」選「布條拿來補針袋（獲得 1 張罕見的忍術牌）」的結果",
   "who": "旁白／菲菲",
   "text": "她把布條纏住破口，確認針尖不再露出，才將針袋放回腰邊。菲菲：「那個……我只是還能忍，沒有說不痛喔。」",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-10",
-  "where": "她的專屬事件「破掉的針袋」選「布條拿來包紮（回復 18 點生命）」的結果",
+  "where": "專屬事件「破掉的針袋」選「布條拿來包紮（回復 18 點生命）」的結果",
   "who": "旁白／菲菲",
   "text": "她用布條重新包紮傷口，又挑掉會從破口伸出的毒針，才敢把針袋收回去。菲菲：「我知道很浪費……可是我不想再被刺到。」傷口舒服了些，能安心帶走的毒針卻少了。",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-11",
-  "where": "她的專屬事件「牆後的暗號」開頭",
+  "where": "專屬事件「牆後的暗號」開頭",
   "who": "旁白／菲菲",
   "text": "牆後響起她和師兄練功時約好的求援暗號，連她怕痛時亂掉的節奏都一樣。菲菲喊了聲停，敲擊卻沒有停下；她貼著門縫看，裡面只有轉動的齒輪。機關底下壓著一袋小魚乾，伸手拿就會碰到夾合的鐵片。",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-12",
-  "where": "她的專屬事件「牆後的暗號」選「用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）」的結果",
+  "where": "專屬事件「牆後的暗號」選「用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）」的結果",
   "who": "旁白／菲菲",
   "text": "她將飛針卡進齒輪，等敲擊停了才取出小魚乾，拔針時卻發現針身已經彎得不能用了。菲菲：「不是師兄……」她把小魚乾包好，並且帶走。",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "FE-13",
-  "where": "她的專屬事件「牆後的暗號」選「墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）」的結果",
+  "where": "專屬事件「牆後的暗號」選「墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）」的結果",
   "who": "旁白／菲菲",
   "text": "她用袖子的布包住手，慢慢撐開機關，還是被鐵片邊緣刮傷。菲菲：「那個……我有墊著布，怎麼還會痛。」她拿出小魚乾，低著頭替手止血，不再回應牆後的聲音。",
   "file": "src/content/events.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CAST-01",
@@ -2869,7 +3227,8 @@
   "who": "旁白",
   "text": "呵呵，小姑娘，何必急著動手？先陪老夫喝一杯吧。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CAST-02",
@@ -2877,7 +3236,8 @@
   "who": "旁白",
   "text": "上面那位喝的不是酒，是魔氣。喝了就想不起自己是誰。小姑娘，你上去可要記得叫醒他。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CAST-03",
@@ -2885,7 +3245,8 @@
   "who": "旁白",
   "text": "巨大的殼緩緩鬆開。牠看了菲菲一眼，慢慢挪到牆邊，把路讓了出來。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CAST-04",
@@ -2893,7 +3254,8 @@
   "who": "旁白",
   "text": "龍貓睜開一隻眼睛，看了菲菲一會，又慢慢閉上。牠只是想繼續睡。",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "CAST-05",
@@ -2901,14 +3263,16 @@
   "who": "旁白",
   "text": "你們還站著做什麼？快替本小姐收拾她！",
   "file": "src/content/dialogue.ts",
-  "kind": "literal"
+  "kind": "literal",
+  "hero": "feifei"
  },
  {
   "id": "BLURB-01",
   "where": "選角畫面的小傳",
   "who": "旁白",
-  "text": "球球的師妹，怕痛怕到誇張。丟毒針，而且出手的同時就擋好了——",
+  "text": "球球的師妹，怕痛怕到誇張。丟毒針，而且出手的同時就擋好了——她的攻擊牌大多自帶蜷縮，不用在打與擋之間二選一。毒要疊起來才有威力，前幾回合先撐著，讓對方自己倒。",
   "file": "src/ui/screens/heroselect.ts",
-  "kind": "literal"
+  "kind": "blurb",
+  "hero": "feifei"
  }
 ]
