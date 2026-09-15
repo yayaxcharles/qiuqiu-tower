@@ -4,7 +4,8 @@ import { el } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 
 /**
- * 全螢幕過場影片（使用者自製的開頭／結尾，`public/video/<名字>.mp4`，720p 各一兩 MB）。
+ * 全螢幕過場影片（開頭／結尾，`public/video/<名字>.mp4`，720p 各一兩 MB；球球的兩支是使用者自製，
+ * 菲菲的開頭是 2026-09-15 用 Remotion 拿遊戲立繪拼的，原始檔在 `tools/video/feifei_opening/`）。
  *
  * 規矩：**有就播、沒有就當作沒這回事**——檔案不在（404）、瀏覽器擋自動播放、解碼失敗、
  * 八秒內還沒開始播，全部直接走 onDone，劇情照原本的幻燈片走。點「跳過」隨時可收。
@@ -14,7 +15,9 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
  * 烤進檔案裡最穩。播的時候把背景音樂停住免得兩首疊在一起，播完再把背景音樂切到同一首，銜接不會斷。
  * 鎖畫面規矩跟對白疊層一樣（見 dialogue.ts）。
  */
-export function playVideo(name: 'opening' | 'ending', onDone: () => void): void {
+export type VideoName = 'opening' | 'opening_feifei' | 'ending';
+
+export function playVideo(name: VideoName, onDone: () => void): void {
   const layer = overlayRoot();
   if (!layer) { onDone(); return; }
   // 不標 muted、但檔案裡留一條靜音音軌：Chrome 把「靜音或沒聲音」的影片當省電對象，分頁一到背景就直接暫停
@@ -33,7 +36,7 @@ export function playVideo(name: 'opening' | 'ending', onDone: () => void): void 
     v.removeAttribute('src');
     box.remove();
     unlockScreen();
-    setBgm(name === 'opening' ? 'act1' : 'ending');   // 接影片裡那一首，下一幕本來就是它
+    setBgm(name === 'ending' ? 'ending' : 'act1');   // 接影片裡那一首，下一幕本來就是它
     onDone();
   };
   v.addEventListener('ended', end);
