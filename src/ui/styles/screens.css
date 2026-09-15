@@ -1064,6 +1064,7 @@
 .title-best { font-size: 18px; }
 .title-screen { gap: 11px; }
 .title-cat-box .title-cat { height: 290px; }
+.title-cat-box .title-cat-feifei { height: 190px; }
 .title-screen h1 { margin: 0; }
 .title-sub { margin: 0; }
 .title-note, .title-credit { text-align: center; }   /* 釘在底部後要自己置中（絕對定位不吃 flex 的置中） */

@@ -119,6 +119,9 @@ function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce
     else if (fx.kind === 'damageRandom') hits.push({ dmg: computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, player), pierce: false });
     // 自爆那一下照樣要擋（河豚精的 28 點是整場最痛的單發之一）
     else if (fx.kind === 'selfDestruct') hits.push({ dmg: computeAttack(fx.amount * x, e, player), pierce: false });
+    // 照你身上的毒打（鏡中球球學菲菲的見血封喉，2026-09-15）：不估的話機器人會低估這一拍、少擋——
+    // 毒流的層數常常比魔物的普攻還痛，而平衡報告就是靠這支量的
+    else if (fx.kind === 'damageByPlayerStatus') hits.push({ dmg: computeAttack(getStatus(player, fx.name) * (fx.mul ?? 1) * x, e, player), pierce: false });
   }
   return hits;
 }

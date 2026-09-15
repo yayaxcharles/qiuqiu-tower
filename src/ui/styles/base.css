@@ -110,7 +110,9 @@ img { -webkit-user-drag: none; }
   z-index: 1;
   color: #f8f2e6;
 }
-.title-cat-box { position: relative; }
+.title-cat-box { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 0; }
+/* 菲菲站在球球旁邊（2026-09-15）：比「參上」貼圖矮一截、往左靠一點跟他擠在同一塊地上 */
+.title-cat-box .title-cat-feifei { height: 210px; margin-left: -28px; margin-bottom: 14px; animation-delay: -1.2s; }
 .title-cat-box .ground-shadow {
   position: absolute;
   left: 50%;

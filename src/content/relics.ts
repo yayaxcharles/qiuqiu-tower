@@ -96,6 +96,30 @@ export const relics: RelicDef[] = [
   { id: 'nine_bell', name: '九命鈴', pool: '塔主', text: '忍具可以多帶兩支；每次使用忍具後回復 3 點生命。', art: 'codex/relic_nine_bell', price: 230, hooks: { potionSlots: 2, onPotionUse: [{ kind: 'heal', n: 3 }] } },
   { id: 'gold_claws', name: '金爪套', pool: '塔主', text: '每回合打出第 3 張牌時抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_gold_claws', price: 240, hooks: { drawOnNthCard: { n: 3, draw: 1 }, energyOnNthCard: { n: 3, energy: 1 } } },
   { id: 'master_seal', name: '掌門印', pool: '塔主', text: '戰鬥獎勵的牌多一張可選。', art: 'codex/relic_master_seal', price: 230, hooks: { rewardChoices: 1 } },
+  /*
+   * ---- 2026-09-15 塔主池加到 19 件（含令牌）----
+   * 使用者實測：「打完王的秘寶很容易看到掌門印、金爪套、塔頂之月」。查過抽法是公平的（均勻亂數、每局種子不同），
+   * 問題在池子只有 9 件、一局過關要抽兩次三選一，兩次就看過池子的三分之二。
+   * 這 9 件全部用**既有掛鉤**（不動引擎），強度對齊塔主級（起手就有感、價 220～240）；圖示鍵 `codex/relic_<id>`，圖另生。
+   */
+  { id: 'master_hat', name: '師父的斗笠', pool: '塔主', text: '每場戰鬥開始時獲得 14 點蜷縮。', art: 'codex/relic_master_hat', price: 230,
+    hooks: { combatStart: [{ kind: 'block', amount: 14 }] } },
+  { id: 'iron_palm_wraps', name: '鐵砂掌套', pool: '塔主', text: '每回合第一次打出攻擊牌時獲得 1 點爪力。', art: 'codex/relic_iron_palm_wraps', price: 240,
+    hooks: { onAttackPlayed: { effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }], firstEachTurn: true } } },
+  { id: 'master_teacup', name: '塔主的茶碗', pool: '塔主', text: '每回合開始時回復 2 點生命。', art: 'codex/relic_master_teacup', price: 240,
+    hooks: { turnStart: [{ kind: 'heal', n: 2 }] } },
+  { id: 'jade_pendant', name: '傳功玉佩', pool: '塔主', text: '每場戰鬥第一回合多抽 2 張牌、多 1 顆飯糰。', art: 'codex/relic_jade_pendant', price: 240,
+    hooks: { firstTurnDraw: 2, firstTurnEnergy: 1 } },
+  { id: 'master_gourd', name: '塔主的酒葫蘆', pool: '塔主', text: '每次使用忍具後獲得 2 點爪力與 6 點蜷縮。', art: 'codex/relic_master_gourd', price: 230,
+    hooks: { onPotionUse: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }, { kind: 'block', amount: 6 }] } },
+  { id: 'lucky_cat', name: '招財貓', pool: '塔主', text: '每打贏一場戰鬥多拿 30 條小魚乾。', art: 'codex/relic_lucky_cat', price: 220,
+    hooks: { winGold: 30 } },
+  { id: 'tiger_claws', name: '虎爪', pool: '塔主', text: '每打倒一隻魔物獲得 1 點爪力、回復 3 點生命。', art: 'codex/relic_tiger_claws', price: 240,
+    hooks: { killStrength: 1, killHeal: 3 } },
+  { id: 'iron_shirt', name: '鐵布衫', pool: '塔主', text: '回合結束時最多保留 10 點蜷縮到下一回合。', art: 'codex/relic_iron_shirt', price: 230,
+    hooks: { blockKeep: 10 } },
+  { id: 'moon_mirror', name: '月光鏡', pool: '塔主', text: '回合結束時沒有攻擊的話，獲得 2 點爪力與 8 點蜷縮。', art: 'codex/relic_moon_mirror', price: 230,
+    hooks: { turnEndNoAttack: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }, { kind: 'block', amount: 8 }] } },
   // ===== 代價秘寶（2026-09-04，使用者：「很強但有代價的，玩家會猶豫，選擇才有趣」）。圖示還沒生，先顯示文字牌 =====
   { id: 'blood_dagger', name: '血契短刀', pool: '大魔物', text: '每場戰鬥開始獲得 3 點爪力；拿到時最大生命 −12。', art: 'codex/relic_blood_dagger', price: 210,
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }], maxHp: -12 } },

@@ -15,6 +15,7 @@ import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, monsterUrl, setLocalHero } from './assets';
+import { setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
 import { clear, el } from './dom';
@@ -126,7 +127,7 @@ export class App {
     }
   }
 
-  show(name: ScreenName, props: unknown = {}): void {
+  show(name: ScreenName, props: unknown = {}, opts: { quiet?: boolean } = {}): void {
     const r = screens.get(name);
     if (!r) throw new Error(`畫面尚未登記：${name}`);
     const track = this.bgmFor(name);
@@ -153,7 +154,9 @@ export class App {
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
     // 所以出一張牌不會整個畫面閃一次。
-    if (typeof this.screen.animate === 'function') {
+    // `quiet`：同一頁只因為同伴投了一票而重畫（連線版的獎勵、事件、地圖），不再淡入一次——
+    // 不然每投一票整頁閃一下（使用者 2026-09-15：「每次選完牌另一個玩家畫面都會閃一下」）
+    if (!opts.quiet && typeof this.screen.animate === 'function') {
       this.screen.animate([{ opacity: 0, transform: 'scale(.988)' }, { opacity: 1, transform: 'none' }],
         { duration: 220, easing: 'ease-out' });
     }
@@ -168,6 +171,7 @@ export class App {
     this.cs = null;
     // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
     setLocalHero(hero);
+    setSfxHero(hero);   // 貓叫也照角色換（菲菲的受傷、勝利）
     void preloadHeroArt([hero]);   // 這一位專屬的圖開場沒載，現在補（總稽核 F 中-1）
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     /*
@@ -208,8 +212,9 @@ export class App {
     this.run = run;
     this.cs = null;
     setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
+    setSfxHero(me(run, this.seat).hero);
     void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
-    void preloadAct(run.act);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
+    void preloadAct(run.act, run.players[0]?.hero);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
     const node = currentNode(run);
@@ -377,7 +382,7 @@ export class App {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }
       };
-      void warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero))).then(proceed, proceed);
+      void warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero)), run.players[0]?.hero).then(proceed, proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。

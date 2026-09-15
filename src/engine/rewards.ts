@@ -1,3 +1,4 @@
+import { relicById } from '../content/relics';
 import { cards } from '../content/cards';
 import { pickable } from './hero';
 import type { Hero } from './hero';
@@ -139,6 +140,22 @@ export function rollRelicChoices(rng: Rng, pool: RelicPool, ownedPerSeat: readon
  * 撞件時**只擲一次骰**決定誰拿到自己挑的那件，輸的人自動拿剩下那件——
  * 所以兩個人一定都拿得到東西，沒有人會因為手慢而空手。
  */
+/**
+ * 撞件結算完的一句話（連線版）：誰拿到什麼、是不是擲骰決定的。
+ * 使用者 2026-09-15：「雙人選擇的時候要知道最後誰拿到什麼」——原本只靠秘寶列的底色自己推。
+ * `seat`＝我是第幾位；其他人一律叫「同伴」（現在最多兩個人）。
+ */
+export function relicOutcomeText(offered: readonly string[], picks: readonly (string | null)[],
+  got: readonly (string | null)[], seat: number): string {
+  const name = (id: string | null): string => (id ? (relicById[id]?.name ?? id) : '');
+  const who = (i: number): string => (i === seat ? '你' : '同伴');
+  const chosen = picks.filter((p): p is string => p !== null && offered.includes(p));
+  const clashed = new Set(chosen).size < chosen.length;
+  const parts = got.map((id, i) => (id ? `${who(i)}拿到「${name(id)}」` : null)).filter((s): s is string => s !== null);
+  if (!parts.length) return '';
+  return (clashed ? `兩人都想要「${name(chosen[0] ?? null)}」，擲骰決定：` : '') + parts.join('、');
+}
+
 export function settleRelicPicks(rng: Rng, offered: readonly string[], picks: readonly (string | null)[]): (string | null)[] {
   const valid = picks.map((p) => (p !== null && offered.includes(p) ? p : null));
   const chosen = valid.filter((p): p is string => p !== null);

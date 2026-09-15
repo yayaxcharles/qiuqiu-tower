@@ -6,12 +6,28 @@
  * - 打擊 → damage（無視蜷縮的翻成穿透）；蜷縮 → block；回血 → heal
  * - 給自己的狀態只收爪力、貓步、隱身（魔物身上這三個引擎本來就會算，舊版「照著學」抄的也是前兩個）
  * - 給對手的狀態翻成 statusPlayer（翻肚、懶洋洋、炸毛、中毒、定身）
+ * - 以中毒層數為傷害（菲菲的見血封喉）→ damageByPlayerStatus，照**你**身上的層數打；
+ *   一針斃命（層數夠就秒殺）也翻成同一個、1 倍不清毒——鏡子不能一針把玩家秒掉（2026-09-15）
  * - 抽牌、飯糰、看牌、留牌、消耗、棄牌、清減益這類「操作手牌」的效果他學不來，直接略過（那張牌其餘效果照翻）
  * - 「這回合不能攻擊」這種只綁自己的限制也略過（戰術撤退的 9 點蜷縮照學）
+ * - **自傷略過**（2026-09-15）：鏡貓不會為了打你先砍自己一刀。所以手滑、不要過來！、淬毒·改
+ *   這三張她的自傷牌現在學得會了（球球的鐵頭功、亡命也跟著學得會，見下面那條紀錄）
+ * - 只對魔物群有意義的（散毒＝把毒分給其他魔物）略過；只有兩個人才成立的（幫隊友擋、給隊友附毒、
+ *   看隊友有沒有打中）也略過——鏡子只有一隻，沒有隊友
  * - 有條件的加成（背刺「目標有減益才多打」）不學那一段，只學無條件的部分
- * - 其他（能力效果、自傷、以蜷縮為傷害、偷防禦、結束回合……）翻不成，整張牌不進他的池子；
- *   能力牌本身不是一律排除——馬步、運功這種只加爪力／貓步的照收（跟舊版照著學抄的東西一樣）
+ * - **能力段（power）只學「掛在對手身上的減益」那一部分**：毒霧＝每回合給你 1 層中毒，
+ *   鏡貓學到的就是「給你 1 層中毒」，出招時現掛一次，讀起來對得上牌名。給自己的成長
+ *  （結界的每回合 3 點蜷縮、鐵心的每回合 +1 爪力、回復卷軸的打倒回血）**不學**：魔物沒有
+ *   「每回合自動觸發」這回事，抄成一次性的既弱又跟牌名對不起來。長效旗標（影子分身、千針萬毒、
+ *   拒馬、餘毒）同理，整段略過——那幾張因此翻出零效果、回 null、不進池子，這是要的結果。
+ * - 其他（以蜷縮為傷害、偷防禦、結束回合……）翻不成，整張牌不進他的池子
  * 一張牌至少要翻出一個效果才算數。抽牌用戰鬥亂數（cs.rng），同一個局面碼永遠抽到同一張。
+ *
+ * **2026-09-15 這批的副作用（球球那邊也會變）**：自傷進略過清單之後，`tietou`（鐵頭功）與
+ * `wangming`（亡命）從「整張學不會」變成「學得會、只學傷害那一段」；`blockAlly` 進略過清單之後，
+ * 雙人支援牌「幫你墊一下」「先幫你留著」也學得會了；能力段的規則讓升級版鐵心／封印解除
+ * 那半段先給自己的爪力貓步學得會。這是使用者指定的規則（鏡貓不自傷、能力段略過）的直接結果，
+ * 不是順手改的；固定戰鬥與整局的錨值測試都沒有位移。
  */
 import { encounterById, enemyById } from '../content/enemies';
 import { cardById, cardNameFor } from '../content/cards';
@@ -25,6 +41,11 @@ const SKIP: ReadonlySet<string> = new Set([
   'draw', 'drawIfTargetStatus', 'drawNextTurn', 'energy', 'gold', 'scry',
   'exhaustFromHand', 'retainFromHand', 'discardFromHand', 'recoverFromDiscard', 'cleanse', 'removeStatuses',
   'noAttacksThisTurn',
+  // ---- 2026-09-15 菲菲那批（理由見檔頭）----
+  'selfDamage',                                    // 鏡貓不自傷
+  'spreadStatus',                                  // 散毒：把毒分給「其他魔物」，鏡子這邊沒有其他魔物
+  'blockAlly', 'poisonAllyNextAttack', 'watchPoisonHit',   // 連線專用：鏡子只有一隻，沒有隊友
+  'echoFirst', 'poisonOnAttack', 'blockBonus', 'poisonBurst',   // 長效旗標：魔物身上沒有這些引擎
 ]);
 
 /** 這張牌翻成魔物的效果；翻不成回 null */
@@ -52,6 +73,30 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
         if (fx.step) return null;
         if (fx.target === 'self') { if (SELF_OK.includes(fx.name)) out.push({ kind: 'statusSelf', name: fx.name, amount: fx.amount }); }
         else if (DEBUFFS.includes(fx.name)) out.push({ kind: 'statusPlayer', name: fx.name, amount: fx.amount });
+        break;
+      /*
+       * 能力段：只把「掛在對手身上的減益」那一部分拆出來當一次性的招（毒霧＝每回合給你 1 層中毒
+       * → 學到「給你 1 層中毒」）。給自己的成長不學，理由在檔頭。
+       * 內層的判準跟上面的 `status` 同一套，故意不遞迴整支 `learnCard`——
+       * 能力裡再包一層傷害或抽牌時，那不是「一次性做得到的事」。
+       */
+      case 'power':
+        for (const inner of fx.effects) {
+          if (inner.kind !== 'status' || inner.target === 'self') continue;
+          if (DEBUFFS.includes(inner.name)) out.push({ kind: 'statusPlayer', name: inner.name, amount: inner.amount });
+        }
+        break;
+      // 見血封喉：照目標身上的毒打。鏡子照回來就是照**你**身上的毒打（2026-09-15）
+      case 'damageByStatus':
+        out.push({ kind: 'damageByPlayerStatus', name: fx.name, ...(fx.mul !== undefined ? { mul: fx.mul } : {}), ...(fx.consume ? { consume: true } : {}) });
+        break;
+      /*
+       * 一針斃命也翻成同一個，**1 倍、不清毒**（使用者 2026-09-15 指定）：
+       * 原效果是「層數 ≥ 目標剩下的生命就直接打倒」，照搬等於鏡貓可以一針把玩家秒掉，
+       * 而玩家沒有「還剩幾層就會死」以外的應對。照層數打就好。
+       */
+      case 'execByStatus':
+        out.push({ kind: 'damageByPlayerStatus', name: fx.name });
         break;
       default:
         if (!SKIP.has(fx.kind)) return null;
@@ -87,7 +132,7 @@ export function learnedMove(cs: CombatState): EnemyMove | undefined {
     rest.splice(rest.indexOf(c), 1);
   }
   const effects = picks.flatMap((c) => learnCard(c) ?? []);
-  const intent: Intent = effects.some((f) => f.kind === 'damage') ? 'attack'
+  const intent: Intent = effects.some((f) => f.kind === 'damage' || f.kind === 'damageByPlayerStatus') ? 'attack'
     : effects.some((f) => f.kind === 'block') ? 'block'
       : effects.some((f) => f.kind === 'statusPlayer') ? 'debuff' : 'buff';
   /*

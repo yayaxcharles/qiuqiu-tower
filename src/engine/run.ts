@@ -563,9 +563,14 @@ export function rollActRelics(run: RunState, n = 3): string[] {
      * 單機只有 0 號，排除清單跟以前一樣。
      */
     const owned = run.players.flatMap((p) => p.relics);
-    const id = rollRelic(rng, '塔主', [...owned, ...out], hs) ?? rollRelic(rng, '大魔物', [...owned, ...out], hs);
+    // **同一局開過的不再開**（2026-09-15）：第二關過關那次不要再看到第一關開過、沒選的那幾件——
+    // 使用者實測「很容易看到同幾件」。記在 `run.flags`（`relic_seen:<id>`）：兩台照同一份 run 算，不會分岔；舊存檔沒有這些旗標＝什麼都沒開過
+    const seen = Object.keys(run.flags).filter((k) => k.startsWith('relic_seen:')).map((k) => k.slice('relic_seen:'.length));
+    const skip = [...owned, ...out, ...seen];
+    const id = rollRelic(rng, '塔主', skip, hs) ?? rollRelic(rng, '大魔物', skip, hs);
     if (id) out.push(id);
   }
+  for (const id of out) run.flags[`relic_seen:${id}`] = true;
   return out;
 }
 
@@ -992,8 +997,12 @@ export type RunEffectOutcome =
  * 玩家看不到那是什麼、有什麼用——使用者的原話：「圖片跟功能這邊沒顯示出來會不知道拿到了甚麼」。
  * 所以另外收一份結構化的清單，畫面拿它排出圖示＋名稱＋效果，跟戰利品畫面同一種列。
  */
-/** `missed`＝忍具帶滿收不下（畫面會問要不要換掉一支舊的） */
-export type RunGain = { kind: '秘寶' | '忍具'; id: string; missed?: boolean };
+/**
+ * `missed`＝忍具帶滿收不下（畫面會問要不要換掉一支舊的）；`asked`＝問過了、玩家怎麼答的。
+ * 要記在資料上：畫面整頁重畫時（連線版同伴一選牌就重畫）只認得資料，不記的話每重畫一次就再問一次
+ *（使用者 2026-09-15：「按我不要之後又會跳出來」）。
+ */
+export type RunGain = { kind: '秘寶' | '忍具'; id: string; missed?: boolean; asked?: 'swapped' | 'declined' };
 
 export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: string[],
   gains?: RunGain[], seat = 0): RunEffectOutcome {

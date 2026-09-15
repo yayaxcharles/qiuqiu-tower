@@ -1,6 +1,7 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue, eventTextFor } from '../../content/dialogue';
+import { toast } from '../dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
@@ -99,11 +100,13 @@ function gainRows(gains: readonly RunGain[]): HTMLElement | string {
     const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
     if (!d) continue;
     const url = artUrl('icons', d.art);
-    // 帶滿收不下的忍具要寫清楚（不然看起來像拿到了）；換掉舊的之後由 finish 的回呼改成「換成了」
-    box.append(el('div', { class: `reward-item ${g.kind === '秘寶' ? 'relic' : 'potion'}${g.missed ? ' missed' : ''}`, 'data-gain': g.id },
+    // 帶滿收不下的忍具要寫清楚（不然看起來像拿到了）；問過之後照 `asked` 畫（換成了／放棄了），重畫也不會變回「收不下」
+    const label = g.asked === 'swapped' ? `換成了「${d.name}」`
+      : g.asked === 'declined' ? `沒有換，「${d.name}」放棄了`
+      : g.missed ? `忍具帶滿了，「${d.name}」收不下` : `拿到${g.kind}「${d.name}」`;
+    box.append(el('div', { class: `reward-item ${g.kind === '秘寶' ? 'relic' : 'potion'}${g.missed && !g.asked ? ' missed' : ''}`, 'data-gain': g.id },
       url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
-      el('span', { class: 'reward-line' },
-        el('b', {}, g.missed ? `忍具帶滿了，「${d.name}」收不下` : `拿到${g.kind}「${d.name}」`), el('em', {}, d.text))));
+      el('span', { class: 'reward-line' }, el('b', {}, label), el('em', {}, d.text))));
   }
   return box;
 }
@@ -219,19 +222,23 @@ registerScreen('event', (app, root, props) => {
         ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
         : el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'),
       gains, resultArt, show);
-    // 忍具帶滿收不下的（gains 裡標 missed）：結果畫好之後一支一支問要不要換掉舊的
-    const missed = gains.filter((g) => g.kind === '忍具' && g.missed);
+    // 忍具帶滿收不下的（gains 裡標 missed）：結果畫好之後一支一支問要不要換掉舊的。
+    // **問過的不再問**（`asked`）：`finish` 會被叫不只一次（連線結算、學牌結果），不記就每次都再彈一次
+    const missed = gains.filter((g) => g.kind === '忍具' && g.missed && !g.asked);
     const askNext = (i: number): void => {
       const g = missed[i];
       if (!g) return;
       if (!root.querySelector('.reward-item.missed')) return;   // 玩家已經離開這個畫面（2026-09-02 稽核 M-1）
       showPotionSwap(run, g.id, (idx) => {
+        g.asked = idx >= 0 ? 'swapped' : 'declined';
+        const row = root.querySelector(`.reward-item.missed[data-gain="${g.id}"]`);
+        const d = potionById[g.id];
         if (idx >= 0) {
           swapPotion(app, run, seat, idx, g.id);   // 連線時要送出去，只改本機會分岔（稽核 高-3）
           play('relic'); root.querySelector('.hud')?.remove(); renderHud(app, root);   // 先拆舊的，不然疊兩條
-          const row = root.querySelector(`.reward-item.missed[data-gain="${g.id}"]`);
-          const d = potionById[g.id];
           if (row && d) { row.classList.remove('missed'); row.querySelector('b')!.textContent = `換成了「${d.name}」`; }
+        } else if (row && d) {
+          row.classList.remove('missed'); row.querySelector('b')!.textContent = `沒有換，「${d.name}」放棄了`;
         }
         askNext(i + 1);
       }, missed.length > 1 ? { progress: `第 ${i + 1}／${missed.length} 支`, seat, apply: false } : { seat, apply: false });
@@ -620,10 +627,12 @@ registerScreen('event', (app, root, props) => {
       if (kind !== 'event' || chosen >= 0 || !ev) return;
       const alive = run.players.map((p) => !p.down);
       const now = onlyStanding(coop.picks('event', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
-      if (!allVoted(now, alive)) { app.show('event', props); return; }
+      if (!allVoted(now, alive)) { app.show('event', props, { quiet: true }); return; }
       const pickStr = settleVotes(runRng(run), now);
       if (pickStr === null) return;
       chosen = Number(pickStr);
+      // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一個選項（使用者 2026-09-15：「要知道隨機到哪個事件」）
+      if (new Set(now.filter((v) => v !== null)).size > 1) toast(`兩人選的不一樣，擲骰選了「${evText(ev.choices[chosen]?.label ?? '')}」`);
       coop.clearPicks('event');
       take(chosen);
     });

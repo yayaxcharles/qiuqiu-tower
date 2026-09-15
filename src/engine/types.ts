@@ -359,6 +359,18 @@ export type EnemyEffect =
   /** `pierce`＝穿透：無視蜷縮直接扣血（隱身照樣閃得掉、反彈照樣回敬）。師父的穿心掌、亡命一擊用 */
   | { kind: 'damage'; amount: number; times?: number; pierce?: true }
   | { kind: 'damageRandom'; min: number; max: number }
+  /**
+   * 照**挨打的那一位身上**那個狀態的層數打（2026-09-15）。鏡中球球學菲菲的見血封喉／一針斃命
+   * 就翻成這個：她拿別人的毒當傷害，鏡子照回來就是拿**你的**毒當傷害。
+   *
+   * `mul`＝倍率（不填＝1 倍）、`consume`＝打完把那些層數清掉（今天沒有牌在用，跟玩家那邊的
+   * `damageByStatus` 一樣先留著）。**走跟 `damage` 完全一樣的結算路徑**：吃蜷縮、隱身閃得掉、
+   * 反彈照回；一招打兩個人時**各算各的層數**（不是誰的層數高就打誰）。
+   *
+   * 刻意不跟玩家那邊一樣走 `direct`（無視蜷縮）：那邊的理由是「毒本來就無視蜷縮，引爆它還被擋住講不通」，
+   * 但魔物這邊是**玩家在挨打**——一招穿透又照層數放大，中毒流會在鏡子走廊被一發帶走。
+   */
+  | { kind: 'damageByPlayerStatus'; name: StatusName; mul?: number; consume?: boolean }
   | { kind: 'block'; amount: number }
   | { kind: 'statusSelf'; name: StatusName; amount: number }
   | { kind: 'statusPlayer'; name: StatusName; amount: number }

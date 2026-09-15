@@ -2,7 +2,7 @@ import { attachDragScroll } from '../dragscroll';
 import { attachTextTooltip } from '../tooltip';
 import { modifierById } from '../../content/modifiers';
 import { play } from '../audio';
-import { FLOORS, nextChoices } from '../../engine/map';
+import { FLOORS, nextChoices, nodeById } from '../../engine/map';
 import type { MapNode } from '../../engine/types';
 import { registerScreen } from '../app';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
@@ -14,6 +14,7 @@ import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
+import { toast } from '../dialogue';
 import { renderHud } from '../hud';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -132,8 +133,10 @@ registerScreen('map', (app, root) => {
       if (kind !== 'map') return;
       const alive = run.players.map((p) => !p.down);
       const now = onlyStanding(coop.picks('map', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
-      if (!allVoted(now, alive)) { app.show('map'); return; }
+      if (!allVoted(now, alive)) { app.show('map', {}, { quiet: true }); return; }
       const pick = settleVotes(runRng(run), now);
+      // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一格（使用者 2026-09-15：「要知道隨機到哪個」）
+      if (pick && new Set(now.filter((v) => v !== null)).size > 1) toast(`兩人選的路不一樣，擲骰選了「${nodeById(run.map, pick).type}」`);
       coop.clearPicks('map');
       if (pick) app.enterNode(pick); else app.show('map');
     });

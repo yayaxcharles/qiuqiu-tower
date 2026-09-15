@@ -86,11 +86,13 @@ registerScreen('title', (app, root) => {
       el('div', { class: 'title-cat-box' },
         el('div', { class: 'ground-shadow' }),
         // 封面主圖用 LINE 貼圖的「參上」那張（使用者指定）：爆炸背景＋題字，比乾站著的立繪有氣勢
-        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' })),
-      // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名，球球退到副標——
-      // 他還是主角，但招牌要像作品名，不是一句口語
+        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' }),
+        // 菲菲站在他旁邊（使用者 2026-09-15：「菲菲的角色也跟球球一樣出現在首頁，在球球旁邊」）——
+        // 她沒有「參上」貼圖，先用勝利姿勢的立繪，矮一截、靠右
+        el('img', { class: 'title-cat title-cat-feifei', src: artUrl('sprites', 'hero/feifei_win'), alt: '菲菲' })),
+      // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名。
+      // 副標「－ 球球參上 －」2026-09-15 拿掉（使用者：第三個角色進來之後首頁不該只掛他的名字）
       el('h1', {}, '爪破魔塔'),
-      el('div', { class: 'title-sub' }, '－ 球球參上 －'),
       el('div', { class: 'title-buttons' },
         startBtn,
         // 沒存檔時才加 disabled：這個屬性只要存在就會生效，給空字串也一樣
