@@ -165,6 +165,8 @@ export function toast(text: string, speaker = ''): void {
   if (!layer) return;
   const t = el('div', { class: 'toast' }, speaker ? el('b', {}, `${speaker}：`) : '', text);
   layer.append(t);
-  setTimeout(() => t.classList.add('out'), 1800);
-  setTimeout(() => t.remove(), 2300);
+  // 照字數多留一會兒：16 字以內照舊 1.8 秒，最長留到 3.2 秒（總稽核 2026-09-16 丙 中-6：改寫後 20 字以上的有 38 句，1.8 秒讀不完）
+  const stay = Math.min(3200, Math.max(1800, [...text].length * 110));
+  setTimeout(() => t.classList.add('out'), stay);
+  setTimeout(() => t.remove(), stay + 500);
 }

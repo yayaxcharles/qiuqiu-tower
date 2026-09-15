@@ -509,6 +509,7 @@ registerScreen('combat', (app, root, props) => {
     try { window.localStorage.setItem('qiuqiu.tutorial', 'done'); } catch { /* 存不了就每局都教 */ }
   }
   let hungryTurn = -1;
+  let hungryTold = false;
   let lowHpTold = false;
   let ended = false;
   let picker: HTMLElement | null = null;
@@ -2301,7 +2302,8 @@ registerScreen('combat', (app, root, props) => {
       else if (opts.attack) cat.classList.add('attack');
     }
 
-    if (hungry) { hungryTurn = cs.turn; toast(pick(storyFor(my().hero).hungry), heroSpeaker()); }
+    // 姿勢每回合照舊換；吐槽一場只講一次（總稽核 2026-09-16 丙 中-7：飯糰幾乎每回合都會用完，原本每回合冒一句）
+    if (hungry) { hungryTurn = cs.turn; if (!hungryTold) { hungryTold = true; toast(pick(storyFor(my().hero).hungry), heroSpeaker()); } }
     if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(pick(storyFor(my().hero).lowHp), heroSpeaker()); }
 
     // 姿勢停留時間：一般 650 毫秒看得清楚，但蜷縮例外——它是「縮成一顆球」的靜態姿勢，
@@ -2359,9 +2361,11 @@ registerScreen('combat', (app, root, props) => {
     ended = true;
     // 連線：這一場打完了。之後才到的這一場的請求一律當成來不及，不可以留到下一場套（見 `CoopSession.attach`）
     session?.attach(null);
-    if (cs.phase === 'won') toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
     // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
     const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
+    // 一般的打贏吐槽只給一般戰鬥：關主打完接的是收場對白，最終戰更是剛救回師父——
+    // 抽到「這下知道厲害了喵」「有沒有掉小魚乾喵？」會整個出戲（總稽核 2026-09-16 丙 中-2）
+    if (cs.phase === 'won' && !bossWon) toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
     if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
     // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
     window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, bossWon ? 2400 : 1300);
