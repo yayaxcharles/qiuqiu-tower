@@ -105,7 +105,7 @@ export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover']);
  * 開場下載的東西」跟併入她之前一模一樣（總稽核 F 中-1：原本她的 300 多張圖全部算進每個人的首載）。
  */
 export function heroOfKey(key: string): string | null {
-  const m = /(?:^|[/_])(feifei|samurai)(?:_|$)/.exec(key);
+  const m = /(?:^|[/_])(feifei|samurai|dangdang)(?:_|$)/.exec(key);
   return m ? m[1]! : null;
 }
 
@@ -127,13 +127,13 @@ export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja
 /** 雙人專屬牌的牌面（球球版與菲菲版都算，兩位在連線裡都可能拿到） */
 export function coopArtUrls(): string[] {
   return Object.entries(manifest.cards)
-    .filter(([k]) => COOP_ONLY_ART.has(k) || COOP_ONLY_ART.has(k.replace(/^card\/(?:feifei|samurai)_/, 'card/')))
+    .filter(([k]) => COOP_ONLY_ART.has(k) || COOP_ONLY_ART.has(k.replace(/^card\/(?:feifei|samurai|dangdang)_/, 'card/')))
     .map(([, v]) => `${BASE}${v}`);
 }
 
 /** 這個鍵是不是雙人專屬牌的牌面（給分關載入的清單用） */
 export function isCoopOnlyArt(key: string): boolean {
-  return COOP_ONLY_ART.has(key) || COOP_ONLY_ART.has(key.replace(/^card\/(?:feifei|samurai)_/, 'card/'));
+  return COOP_ONLY_ART.has(key) || COOP_ONLY_ART.has(key.replace(/^card\/(?:feifei|samurai|dangdang)_/, 'card/'));
 }
 
 export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
@@ -166,7 +166,7 @@ export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
  * 退路刻意**退回她自己**最接近的姿勢，不是退回球球的：
  * 玩菲菲卻突然跳出一隻灰虎斑，比姿勢不精準難看得多。
  */
-const HERO_PREFIX: Readonly<Record<string, string>> = { ninja: 'ninja', samurai: 'samurai', feifei: 'feifei' };
+const HERO_PREFIX: Readonly<Record<string, string>> = { ninja: 'ninja', samurai: 'samurai', feifei: 'feifei', dangdang: 'dangdang' };
 
 /** 她沒生這張圖時，退到自己的哪一張。鍵與值都是**姿勢名**（不含 `hero/<前綴>_`） */
 const POSE_FALLBACK: Readonly<Record<string, string>> = {

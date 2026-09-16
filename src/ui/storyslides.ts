@@ -16,7 +16,9 @@ import type { Slide } from './slides';
  * 那正是要的行為：寧可少一段幻燈片，不要放別人的故事。
  */
 function stillKey(hero: string | undefined, name: string): string {
-  return hero === 'feifei' ? `bg/feifei_${name}` : `bg/${name}`;
+  if (hero === 'feifei') return `bg/feifei_${name}`;
+  if (hero === 'dangdang') return `bg/dangdang_${name}`;
+  return `bg/${name}`;
 }
 
 /**
@@ -28,10 +30,29 @@ function stillKey(hero: string | undefined, name: string): string {
  */
 export function prologueSlides(hero: string | undefined): Slide[] {
   const pro = storyFor(hero).prologue;
-  // 第三張兩邊不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」
+  // 第三張各家不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」，
+  // 噹噹是「第三天，菲菲背著行囊來到門口」
   const stills = hero === 'feifei'
     ? ['feifei_still_teach', 'feifei_still_corrupt', 'feifei_still_wait', 'feifei_still_depart']
-    : ['still_teach', 'still_corrupt', 'still_rush', 'still_depart'];
+    : hero === 'dangdang'
+      ? ['dangdang_still_shop', 'dangdang_still_gate', 'dangdang_still_send', 'dangdang_still_depart']
+      : ['still_teach', 'still_corrupt', 'still_rush', 'still_depart'];
+  /*
+   * **標了切點就照切點分**（2026-09-17 為噹噹加的）。
+   *
+   * 原本一律「一張圖配一句、最後一張吃掉剩下的」。球球五句、菲菲四句，那樣剛好；
+   * 噹噹的序章有十八句（他那一夜先守村口、第三天才上塔），照舊切法會變成
+   * 前三張各一句、第十五句全部擠在最後一張。
+   * 球球與菲菲的序章沒有標任何切點，走的還是原本那一條，一個字都沒動。
+   */
+  if (pro.some((l) => l.slideBreak)) {
+    const groups: typeof pro[] = [[]];
+    for (const l of pro) {
+      groups[groups.length - 1]!.push(l);
+      if (l.slideBreak && groups.length < stills.length) groups.push([]);
+    }
+    return stills.map((k, i) => ({ img: `bg/${k}`, lines: groups[i] ?? [] }));
+  }
   return stills.map((k, i) => ({ img: `bg/${k}`, lines: pro.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
 }
 

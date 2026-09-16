@@ -24,12 +24,17 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
  * 一起換掉（`localHero`），台詞本身由 `content/dialogue` 依角色挑。
  */
 /** 劇本寫「球球」時，這一局實際上是誰在講話 */
-export function heroSpeaker(): string { return localHero() === 'feifei' ? '菲菲' : '球球'; }
+export function heroSpeaker(): string {
+  const h = localHero();
+  return h === 'feifei' ? '菲菲' : h === 'dangdang' ? '噹噹' : '球球';
+}
 
 function portraitOf(speaker: DialogueLine['speaker']): string | null {
   if (speaker === '球球') return heroArtUrl(localHero(), 'hero/ninja');
   // 她的劇本自己寫「菲菲」，不走「球球」那條（兩隻在連線版會同框，名字不能混）
   if (speaker === '菲菲') return heroArtUrl('feifei', 'hero/ninja');
+  // 他的劇本自己寫「噹噹」，理由跟她一樣：三隻在連線版會同框，名字不能混
+  if (speaker === '噹噹') return heroArtUrl('dangdang', 'hero/ninja');
   if (speaker === '塔主') return artUrl('sprites', 'boss/idle1');
   if (speaker === '黑貓忍者頭目') return monsterUrl('codex/monster_ninja_boss', 'idle');
   return null;   // 旁白沒有臉
