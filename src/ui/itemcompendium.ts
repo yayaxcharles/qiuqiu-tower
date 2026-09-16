@@ -42,7 +42,7 @@ export function showItemCompendium(): void {
   }
   body.append(el('div', { class: 'comp-section' },
     el('span', { class: 'comp-pool' }, `忍具（${potions.length}）`),
-    el('span', { class: 'comp-note' }, '戰鬥獎勵、事件、罐頭鋪；戰鬥中點一下就用，一場最多帶三支（忍具袋、九命鈴可加）')));
+    el('span', { class: 'comp-note' }, '戰鬥獎勵、事件、罐頭鋪；戰鬥中點一下就用，一場最多帶三支（難度 4 以上只有兩支；忍具袋、九命鈴可加）')));
   const plist = el('div', { class: 'item-grid' });
   // 照價錢排，跟上面秘寶那幾區同一套（2026-09-11）。本來是照 `potions` 的陣列順序，
   // 而新忍具一律往陣列尾端加——結果七支新的全擠在最下面像附錄，
