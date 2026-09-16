@@ -64,6 +64,14 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
         break;
       }
       case 'block': out.push({ kind: 'block', amount: fx.amount }); break;
+      /*
+       * 「目標原本就中毒才給蜷縮」照學成無條件的蜷縮（2026-09-16）。
+       *
+       * 魔物沒有「打牌那一刻的快照」可以記——牠的招式是預先算好掛在頭上的，
+       * 條件式的蜷縮做不出來。照學成無條件是**對玩家比較兇**的那一邊，
+       * 比整張不學好（整張不學會讓她的起手牌在鏡子戰裡憑空消失）。
+       */
+      case 'blockIfPoisoned': out.push({ kind: 'block', amount: fx.amount }); break;
       // `percent` 要一起帶（稽核 2026-09-11 低-3）：帶 percent 的效果 `n` 是 0，
       // 漏掉就變成學了一張回 0 血的牌。今天沒有這種牌，是埋著的
       case 'heal': out.push({ kind: 'heal', n: fx.n, ...(fx.percent ? { percent: fx.percent } : {}) }); break;

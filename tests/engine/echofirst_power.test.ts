@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
 import { beginCombat, newRun } from '../../src/engine/run';
-import { playCard } from '../../src/engine/combat';
+import { endTurn, playCard } from '../../src/engine/combat';
 import { getStatus } from '../../src/engine/statuses';
 import { describeCard } from '../../src/ui/cardtext';
 
@@ -95,6 +95,28 @@ describe('影子分身碰到能力牌', () => {
     p.echoUsed = false;
     play(cs, 'feifei_yingzi');
     expect(p.echoFirst, '影分身複製了自己').toBe(2);
+  });
+
+  /**
+   * 端對端：`echoUsed` 每回合真的有歸零（推前審查 2026-09-16 低-5）。
+   * 上面那幾條都是手動把旗標設回 false，所以 `combat.ts` 的 `startSeatTurn` 那一行
+   * 被誰刪掉都不會紅——這條走真的結束回合。
+   */
+  it('下一回合的重播會回來（旗標每回合歸零）', () => {
+    const { cs, p } = setup('ninja');
+    p.echoFirst = 1;
+    p.block = 0;
+    play(cs, 'tanding');                   // 第一張非能力牌：打兩次
+    const 兩次 = p.block;
+    expect(p.echoUsed, '這回合的重播該用掉了').toBe(true);
+    endTurn(cs);
+    while (cs.phase !== 'player') endTurn(cs);
+    const me = cs.players[0]!;
+    me.energy = 99;
+    me.hand.length = 0;
+    me.block = 0;
+    play(cs, 'tanding');
+    expect(me.block, '下一回合第一張又該打兩次').toBe(兩次);
   });
 
   it('牌面有把例外寫出來（09-13 抱怨的就是牌面沒提）', () => {

@@ -277,6 +277,25 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         value += useful * (lowHp ? 3 : danger ? 1.6 : 1.1) + (b - useful) * 0.12;
         break;
       }
+      case 'blockIfPoisoned': {
+        /*
+         * 跟 `block` 同一條算式，但**目標原本沒中毒就一點都拿不到**
+         * （2026-09-16：她的攻擊牌不再無條件送蜷縮）。
+         *
+         * 打全體的牌沒有指定目標，跟引擎同一個規矩：看場上最高的那一層。
+         * 這裡照實算而不是打個折，因為這支是量平衡用的尺——估錯的話
+         * 「先下毒再打」這個新的出牌順序就量不出來。
+         */
+        const t = target === undefined ? undefined : enemies.find((e) => e.uid === target);
+        const poisoned = t ? getStatus(t, '中毒')
+          : Math.max(0, ...enemies.filter((e) => attackable(cs, e)).map((e) => getStatus(e, '中毒')));
+        if (poisoned > 0) {
+          const b2 = computeBlock(fx.amount + (p.blockBonus ?? 0), p);
+          const useful2 = Math.min(b2, incoming);
+          value += useful2 * (lowHp ? 3 : danger ? 1.6 : 1.1) + (b2 - useful2) * 0.12;
+        }
+        break;
+      }
       case 'status':
         if (fx.target === 'self') {
           if (fx.name === '隱身') {

@@ -409,6 +409,18 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   const toExhaust = st.keywords.includes('消耗') || st.def.type === '能力';
   (toExhaust ? p.exhaustPile : p.discardPile).push(card);
   const ctx: EffectCtx = { self: p, targetUid, cardUid: uid, cardId: st.def.id, cardUpgraded: card.upgraded, cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn };
+  /*
+   * 目標**原本**有幾層毒：`blockIfPoisoned` 讀它。
+   *
+   * **一定要在跑效果之前記**——飛針、連針、撒針自己也會上毒，
+   * 照效果順序檢查的話條件永遠成立，等於沒改。
+   * 打全體的牌（撒針）沒有指定目標，就看場上有沒有任何一隻原本就中毒。
+   */
+  {
+    const t = targetUid === undefined ? undefined : cs.enemies.find((e) => e.uid === targetUid);
+    ctx.targetPoisonBefore = t ? getStatus(t, '中毒')
+      : Math.max(0, ...cs.enemies.filter((e) => !e.dead).map((e) => getStatus(e, '中毒')));
+  }
   if (st.def.type === '攻擊' && p.doubleNext > 0) { ctx.doubleDamage = true; p.doubleNext = 0; }
   // 秘笈自己有專屬紀錄句，只推清單讓畫面閃（稽核 2026-09-10 中-3）
   if (st.def.type === '攻擊' && p.firstAttackDouble) {

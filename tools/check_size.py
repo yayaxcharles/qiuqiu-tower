@@ -55,6 +55,8 @@
 """
 from __future__ import annotations
 
+import json
+
 import sys
 from pathlib import Path
 
@@ -95,10 +97,16 @@ HASH_MAP_FILE = ROOT / ".vite" / "asset-hashes.json"
 
 
 def load_unhash() -> dict[str, str]:
-    """帶雜湊的相對路徑 → 原始相對路徑。沒有這張表（還沒打包過、或用舊版打的）就回空的。"""
-    import json
+    """帶雜湊的相對路徑 → 原始相對路徑。
+
+    **沒有這張表就直接停下來**（推前審查 2026-09-16 中-4）：表不在的時候每一筆都查不到，
+    702 張分關載入的圖會全部被算進「圖片」，印出一個假的嚴重超標。那是靜音失準——
+    數字看起來像真的，人會照著它去壓圖。表在 `.vite/`（不進版控），`npm run build` 會生。
+    """
     if not HASH_MAP_FILE.exists():
-        return {}
+        print(f"找不到 {HASH_MAP_FILE}。這張表是 npm run build 生的，"
+              "沒有它就分不出哪些圖是分關載入的，量出來會假超標。請先跑 npm run build。")
+        raise SystemExit(2)
     data = json.loads(HASH_MAP_FILE.read_text(encoding="utf-8"))
     return {hashed: orig for orig, hashed in data.items()}
 

@@ -11,10 +11,17 @@ const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHa
 const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst']);
 
 /** 效果落在同伴身上的那幾種：一個人玩的時候會算回自己身上（句尾統一補一句） */
+/** 效果可能包在 `ifSelfStatus` 的 `then`／`otherwise` 裡，要一路往下看（推前審查 高-2） */
+function hasAlly(fx: Effect): boolean {
+  if (ALLY_KINDS.has(fx.kind)) return true;
+  if (fx.kind === 'ifSelfStatus') return [...fx.then, ...fx.otherwise].some((f) => f && hasAlly(f));
+  return false;
+}
+
 const ALLY_KINDS = new Set<Effect['kind']>([
   'statusAlly', 'blockAlly', 'drawAlly', 'drawAllyIfTargetStatus', 'cleanseAlly', 'healAlly',
   'blockFromAllyBlock', 'damageFromAllyStrength', 'doubleNextAttackAlly', 'transferDebuffsFromAlly',
-  'energyAlly', 'energyForAllyEachRound', 'poisonAllyNextAttack',
+  'energyAlly', 'energyForAllyEachRound', 'poisonAllyNextAttack', 'watchSelfPlay',
   // `watchAllyPlay` 與 `energyTransfer` 不在這裡：它們一個人玩時是**另一種行為**
   //（改成看自己出牌／根本不轉），不是「算在自己身上」，各自的句子裡有交代
 ]);
@@ -125,6 +132,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'poisonOnAttack': return `之後每打出一張攻擊牌，再給那個目標 ${fx.n} 層中毒`;
     // 幫隊友的三招（連線版 2026-09-11）。措辭刻意寫成「兩個人一起玩才看得出差別」，
     // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉
+    case 'blockIfPoisoned': return `目標原本就中毒的話，獲得 ${fx.amount} 點蜷縮`;
     case 'blockAll': return `每個人各獲得 ${fx.amount} 點蜷縮`;
     case 'statusAlly': return `同伴獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '層'}${fx.name}`;
     case 'taunt': return '這一輪魔物全部衝著你來（攻擊、偷小魚乾、減益都算）';
@@ -138,15 +146,16 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       + `${fx.half ? '一半' : ''}多拿（最多 ${fx.cap} 點，同伴不會變少）`;
     case 'damageFromAllyStrength': return `造成 ${fx.amount} 點傷害，同伴每有 1 點爪力再加 1 點`
       + `（最多 ${fx.cap} 點）${fx.ignoreBlock ? '，無視防禦' : ''}`;
-    case 'energyTransfer': return `把自己最多 ${fx.n} 顆剩下的飯糰交給同伴（自己一個人時不轉）`;
+    // 句尾那句總結說「同伴就是你自己」，這一項卻是一個人玩時整個不發生，
+    // 所以括號要寫成「這一項不會發生」才不會跟總結打架（推前審查 2026-09-16 高-3）
+    case 'energyTransfer': return `把自己最多 ${fx.n} 顆剩下的飯糰交給同伴（這一項一個人玩時不會發生）`;
     case 'doubleNextAttackAlly': return '同伴本輪的下一張攻擊牌傷害加倍';
     case 'drawAllyIfTargetStatus': return `目標在出牌前已經${fx.anyDebuff ? '有任何減益' : `有${fx.name}`}的話，`
       + `同伴抽 ${fx.n} 張牌`;
     case 'transferDebuffsFromAlly': return '把同伴身上所有減益移到目標魔物身上';
     case 'watchAllyPlay': return `之後每一輪，同伴第一次打出${fx.cardType === 'any' ? '牌' : '技能牌'}時，自己抽 1 張`
       + '（自己一個人時改成看自己出牌）';
-    case 'watchSelfPlay': return `之後每一輪，自己第一次打出${fx.cardType === 'any' ? '牌' : '攻擊牌'}時，同伴獲得 6 點蜷縮`
-      + '';
+    case 'watchSelfPlay': return `之後每一輪，自己第一次打出${fx.cardType === 'any' ? '牌' : '攻擊牌'}時，同伴獲得 6 點蜷縮`;
     case 'watchPoisonHit': return `之後每一輪一次，${fx.who === 'both' ? '任一方打中' : '同伴的攻擊打中'}原本就中毒的魔物時，兩個人各獲得 4 點蜷縮`   // 升級版技能傷害也算，所以不寫「攻擊」（審查 2026-09-15 引擎 低-7）
       + '（自己一個人時自己出手也算，獲得 8 點）';
     case 'poisonAllyNextAttack': return `同伴本輪下一張${fx.anyDamage ? '造成傷害的牌' : '攻擊牌'}，`
@@ -374,9 +383,12 @@ export function describeCard(def: CardDef, upgraded: boolean, plays = 0): string
      * 原本每個連線效果各自帶一個括號，一張牌最多重複四次——最長那張 88 個字，
      * 而 `cardview.ts` 的設計基準是 42 字（超過就自動縮字級，88 字會縮到最小、讀不下去）。
      * 這句話是整張牌共用的規矩，不是某一個效果的細節，所以搬到句尾講一次。
-     * `energyTransfer` 不在這裡：它一個人玩時是**不轉**，不是「算在自己身上」，講法不一樣。
+     * `energyTransfer`、`watchAllyPlay`、`watchPoisonHit` 不在名單裡：它們一個人玩時是
+     * **另一種行為**（不發生／改成看自己出牌／自己出手也算），各自的句子裡有交代。
+     * 句子本身也壓短了：舊括號 14 字、第一版總結 18 字，一張牌只有一個連線效果時反而變長
+     *（推前審查 2026-09-16 中-1 量到超過 42 字的從 23 條變 24 條）。現在是 14 字。
      */
-    if (effects.some((f) => f && ALLY_KINDS.has(f.kind))) parts.push('一個人玩時，這裡的「同伴」就是你自己。');
+    if (effects.some((f) => f && hasAlly(f))) parts.push('一個人玩時「同伴」＝你自己。');
   }
   if (def.curse?.onTurnEnd) parts.push(`回合結束時還在手上的話，受 ${def.curse.onTurnEnd} 點傷害。`);
   if (def.curse?.onTurnStart) parts.push(`每回合開始時還在手上的話，受 ${def.curse.onTurnStart} 點傷害。`);

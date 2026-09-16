@@ -37,12 +37,22 @@ const play = (cs: CombatState, id: string): boolean =>
   playCard(cs, uidOf(cs, id), cs.enemies[0]?.uid);
 
 describe('菲菲：她是誰', () => {
-  it('起手十張是她自己的那一套，而且**攻擊牌自帶蜷縮**', () => {
-    const cs = fight(['feifei_feizhen']);
+  /**
+   * 2026-09-16 使用者裁定：她的攻擊牌**不再無條件送蜷縮**，要**目標原本就中毒**才給。
+   *
+   * 原本十張專屬攻擊牌有七張自帶蜷縮（球球六張只有一張），她從不用在打與擋之間選。
+   * 現在要先下毒、再打才有防禦——毒變成她的防禦來源，而且這句話寫在牌面上。
+   * 「原本」是重點：飛針自己也上毒，所以第一下永遠拿不到蜷縮。
+   */
+  it('起手的飛針：第一下沒毒就沒有蜷縮，第二下才有', () => {
+    const cs = fight(['feifei_feizhen', 'feifei_feizhen']);
     const before = cs.player.block;
     play(cs, 'feifei_feizhen');
-    expect(cs.player.block - before, '飛針打完自己也擋 2').toBe(2);
-    expect(getStatus(foe(cs), '中毒'), '順便下 1 層毒').toBe(1);
+    expect(cs.player.block - before, '目標原本沒毒，第一下不該給蜷縮').toBe(0);
+    const mid = cs.player.block;
+    play(cs, 'feifei_feizhen');
+    expect(cs.player.block - mid, '這下目標身上已經有毒了，該給 2').toBe(2);
+    expect(getStatus(foe(cs), '中毒'), '兩張飛針各下 1 層毒').toBe(2);
   });
   it('起手十張是她自己的那一套，起始秘寶是毒針袋', () => {
     expect(FEIFEI_STARTER_DECK.length).toBe(10);
@@ -196,13 +206,16 @@ describe('菲菲：三個長效旗標', () => {
    * 她的攻擊牌本來就自帶蜷縮，所以「打一張＝擋更多」。
    */
   it('拒馬：之後每次獲得蜷縮都多 2 點，攻擊牌自帶的那份也算', () => {
-    const cs = fight(['feifei_juma', 'feifei_tuikai', 'feifei_feizhen']);
+    const cs = fight(['feifei_juma', 'feifei_tuikai', 'feifei_feizhen', 'feifei_feizhen']);
     playCard(cs, uidOf(cs, 'feifei_juma'));
     expect(cs.player.blockBonus).toBe(2);
     play(cs, 'feifei_tuikai');
     expect(cs.player.block, '退開 5 ＋ 2').toBe(7);
+    // 飛針的蜷縮現在要目標原本就中毒才給（2026-09-16），所以先打一張把毒上上去
     play(cs, 'feifei_feizhen');
-    expect(cs.player.block, '再加上飛針自帶的 2 ＋ 2').toBe(11);
+    expect(cs.player.block, '第一下目標沒毒，蜷縮不變').toBe(7);
+    play(cs, 'feifei_feizhen');
+    expect(cs.player.block, '第二下才給，飛針自帶的 2 ＋ 拒馬 2').toBe(11);
   });
 
   it('拒馬疊兩張會累加（升級版跟基礎版一起帶也不會互相蓋掉）', () => {
