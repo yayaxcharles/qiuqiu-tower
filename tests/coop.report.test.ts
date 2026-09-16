@@ -44,7 +44,7 @@ const normalHp = (v: number): Partial<Record<EnemyPool, number>> =>
 
 /** 要試算的調法。`base`＝現況，其餘每一個只動一件事，才看得出是哪一項造成的 */
 const SCENARIOS: { key: string; label: string; t: CoopTuning }[] = [
-  { key: 'base', label: '現況（一般 1.5／大魔物 1.65／塔主 1.75）', t: {} },
+  { key: 'base', label: '現況（一般 2.2／大魔物 2.4／塔主 2.6）', t: {} },
   { key: 'hp18', label: '一般怪 1.5 → 1.8', t: { hpMul: normalHp(1.8) } },
   { key: 'hp20', label: '一般怪 1.5 → 2.0', t: { hpMul: normalHp(2.0) } },
   { key: 'boss20', label: '塔主 1.75 → 2.0', t: { hpMul: { '塔主': 2.0 } } },
@@ -64,6 +64,12 @@ const SCENARIOS: { key: string; label: string; t: CoopTuning }[] = [
   { key: 'rec2', label: '一般 1.8 ＋ 塔主 2.0 ＋ 塔主每 4 回合多出手', t: { hpMul: { ...normalHp(1.8), '塔主': 2.0 }, bossExtraEvery: 4 } },
   // **建議值**（2026-09-16 量完之後挑的）：旅途照一般怪 1.8 補回被兩個人攤掉的消耗，
   // 王的血不動、改成每 4 回合多出手一次——王最吃虧的是「出手數 1 對 2」，血量對牠幾乎沒用（見報告）
+  // 《殺戮尖塔 2》官方 wiki 查到的真實倍率（兩人）：第一關 ×2.2、第二三關 ×2.4、第三關王 ×2.6。
+  // 我們的表寫著「抄的是殺戮尖塔 2」，實際數字卻只有 1.5／1.65／1.75，差了三分之一。
+  { key: 'sts2', label: '照殺戮尖塔 2 的真數字：一般 2.2、大魔物 2.4、塔主 2.6',
+    t: { hpMul: { '弱': 2.2, '中': 2.2, '強': 2.2, '召喚': 2.2, '大魔物': 2.4, '塔主': 2.6 } } },
+  { key: 'sts2x4', label: '殺戮尖塔 2 的數字 ＋ 塔主每 4 回合多出手',
+    t: { hpMul: { '弱': 2.2, '中': 2.2, '強': 2.2, '召喚': 2.2, '大魔物': 2.4, '塔主': 2.6 }, bossExtraEvery: 4 } },
   { key: 'hp18x4', label: '建議：一般 1.8 ＋ 塔主每 4 回合多出手（血量不動）', t: { hpMul: normalHp(1.8), bossExtraEvery: 4 } },
 ];
 const WANT = (env['COOP_SCEN'] ?? 'base').split(',').map((s) => s.trim()).filter(Boolean);
@@ -238,13 +244,13 @@ describe('兩個人一起打的平衡報告', () => {
     const base = beginCombat(run, 'rats3');
     const before = base.enemies.map((e) => e.maxHp);
     const pool = encounterById['rats3']!.pool;
-    expect(coopHpMul(pool, 2), '這條測的是一般怪那一格').toBe(1.5);
+    expect(coopHpMul(pool, 2), '這條測的是一般怪那一格').toBe(2.2);
 
     const run2 = newCoopRun('tune-check', 1);
     const tuned = beginCombat(run2, 'rats3');
-    applyTuning(tuned, 2, { hpMul: { [pool]: 3.0 } });
+    applyTuning(tuned, 2, { hpMul: { [pool]: 4.4 } });
     tuned.enemies.forEach((e, i) => {
-      // 1.5 → 3.0 就是兩倍（四捨五入允許一點誤差）
+      // 2.2 → 4.4 就是兩倍（四捨五入允許一點誤差）
       expect(e.maxHp / (before[i] ?? 1), `第 ${i} 隻`).toBeCloseTo(2, 1);
     });
     // 之後召喚出來的小弟也要跟著放大，不然放大只影響開場那幾隻
