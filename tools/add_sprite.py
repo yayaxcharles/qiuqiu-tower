@@ -98,7 +98,15 @@ def main() -> None:
                 continue
             mid, pose = m.group(1), m.group(2)
             out_dir = ROOT / "public" / "assets" / "monsters"
-            baseline = out_dir / f"{mid}_idle.webp"
+            # 換階段的立繪（`<原鍵>_p2`／`_p3`，見 `src/ui/assets.ts` 的 `monsterPhaseKey`）：
+            # 畫布與框比例一律照**變身前那隻**的待機圖算。這一條是必要的——
+            #   1. `hex_abbot_p2_idle.webp` 第一次進倉時還不存在，拿自己當基準會直接略過；
+            #   2. 就算第二張起找得到自己，兩個階段各算各的畫布，血打到門檻換圖那一刻
+            #      這隻會忽大忽小、腳還會離地。同一隻的所有階段共用一個畫布，換臉才不會跳。
+            #   3. `box_aspect` 是去 `enemies.ts` 查 size 的，`hex_abbot_p2` 查不到會退成 medium，
+            #      large 的關主框比例就錯了。
+            base_mid = re.sub(r"_p\d+$", "", mid)
+            baseline = out_dir / f"{base_mid}_idle.webp"
         else:
             out_dir = ROOT / "public" / "assets" / "sprites" / group
             _DEFAULT_BASE = {"boss": "idle1", "hero": "ninja_attack", "shop": "keeper"}
@@ -113,7 +121,7 @@ def main() -> None:
             # 待機畫布多半貼著待機姿勢裁得很窄，挨打姿勢張手後傾比較寬，塞進窄框只能整隻縮小（老鼠 320→204，
             # 稻草人 560→315）。畫布放寬到遊戲框的長寬比（高度不動）：遊戲用 object-fit: contain 把圖貼進固定框，
             # 寬到框的比例為止都不會讓畫出來的高度變小，超過才會。框的尺寸見 combat.css 的 .unit.size-*
-            cw = max(cw, round(ch * box_aspect(mid)))
+            cw = max(cw, round(ch * box_aspect(base_mid)))
             # 倒地圖（`down`）是橫躺的、寬遠大於高，走的仍是這一條。真正的不變量是**畫布高度**
             # 不變（待機畫布特別窄的像 ninja_boss 341→402，寬度會被上面那行放寬到框比例，
             # 跟牠自己的 hurt／block 一致）：高度一樣 → contain 的縮放率一樣 → 腳印不變。
@@ -170,7 +178,7 @@ def main() -> None:
             dst = out_dir / f"{mid}_{pose}.webp"
             canvas.save(dst, "WEBP", quality=72, method=6)   # 跟 build_art_inbox 的魔物品質一致
             manifest.setdefault("monsters", {}).setdefault(f"codex/monster_{mid}", {})[pose] = dst.relative_to(ROOT / "public").as_posix()
-            print(f"魔物 {mid}/{pose}.webp {dst.stat().st_size // 1024} KB（畫布 {cw}x{ch}，跟 {mid}_idle 對齊）")
+            print(f"魔物 {mid}/{pose}.webp {dst.stat().st_size // 1024} KB（畫布 {cw}x{ch}，跟 {base_mid}_idle 對齊）")
             continue
         stem = Path(raw_name).stem
         if stem.startswith(f"{group}_"):

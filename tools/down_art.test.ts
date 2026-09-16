@@ -72,9 +72,39 @@ describe('倒地圖', () => {
     const SKIN_OF: Record<string, string> = { shadow_feifei: 'shadow_cat' };
     const withDown = Object.entries(manifest.monsters)
       .filter(([, poses]) => poses.down)
-      .map(([key]) => key.replace('codex/monster_', ''));
+      // 換階段的立繪（`<原鍵>_p2`／`_p3`，見 `assets.ts` 的 `monsterPhaseKey`）照**變身前那隻**算：
+      // 關主都是在最後一個階段倒的，所以倒地圖本來就該畫成變身後的樣子（2026-09-16）
+      .map(([key]) => key.replace('codex/monster_', '').replace(/_p\d+$/, ''));
     const extra = withDown.filter((a) => !big.has(SKIN_OF[a] ?? a));
     expect(extra, `這幾隻不是大魔物／塔主卻有倒地圖：${extra.join('、')}`).toEqual([]);
+  });
+
+  /*
+   * 換階段的那幾組（2026-09-16）：畫布必須跟**變身前**的待機圖一樣高。
+   *
+   * 這是換臉不跳的唯一條件——`object-fit: contain` 只看畫布，兩張高度一樣縮放率才一樣。
+   * 血打到門檻換圖那一刻整隻忽大忽小、腳離地，玩家一眼就看得出來，
+   * 而程式面完全不會報錯（`monsterPhaseKey` 查得到鍵就用）。
+   * `add_sprite.py` 的 `base_mid` 那一段就是為了守住這條。
+   */
+  it('換階段的立繪跟變身前共用同一個畫布高度', () => {
+    let checked = 0;
+    for (const [key, poses] of Object.entries(manifest.monsters)) {
+      const m = /^codex\/monster_(.+)_p\d+$/.exec(key);
+      if (!m) continue;
+      const base = manifest.monsters[`codex/monster_${m[1]}`];
+      expect(base, `${key} 找不到變身前那組 codex/monster_${m[1]}`).toBeTruthy();
+      for (const [pose, path] of Object.entries(poses)) {
+        expect(webpSize(`public/${path}`).h,
+          `${key}/${pose}：畫布高度跟變身前的待機圖不一樣，換階段那一刻會跳一下`)
+          .toBe(webpSize(`public/${base!.idle!}`).h);
+        checked++;
+      }
+    }
+    // 還沒生階段圖時這條會空跑，那是預期的（第一批生完就有 30 張）；有鍵就一定要比到
+    expect(checked).toBe(Object.entries(manifest.monsters)
+      .filter(([k]) => /_p\d+$/.test(k))
+      .reduce((n, [, p]) => n + Object.keys(p).length, 0));
   });
 
   it('倒地圖的畫布**高度**跟待機圖一樣：這才是撐住版面的不變量', () => {
