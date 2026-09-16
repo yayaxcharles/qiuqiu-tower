@@ -645,6 +645,111 @@ export const feifeiDialogue = {
  * 只有真正屬於角色的那幾段會換（序章、兩段過關、落敗、通關那句）；
  * 魔物初見、老闆、貓窩、紙箱那些是「這座塔的事」，兩邊共用。
  */
+
+/* ===== 連線混搭：同伴是另一個角色時要換掉的句子（使用者 2026-09-16 裁定「做」） ===== */
+
+/**
+ * 兩張表都是**顯示出來的那一句** → 混搭版：
+ * - `partner`：同伴是另一個角色。個人主線裡「同伴不在身邊」的句子要改（她的結局還在說「師兄連個消息都沒有」，
+ *   可是師兄整趟就站在她旁邊；他的結局寫「師徒倆走回村子」，師妹也在隊上）。
+ * - `mirror`：鏡子走廊那隻**照座位 0 的角色變裝**（`enemies.ts` 的 `enemySkin`）。坐 1 號又跟 0 號不同角色時，
+ *   讀到的是「鏡中的自己」、打的卻是同伴的鏡像。她這份就是 2026-09-14 寫過的「假師兄」版，他那份照樣式新寫一份。
+ *
+ * 單機與同角色雙人完全走不到這裡（`setCoopStory` 沒設或 `partner` 跟自己一樣）。
+ */
+export interface CoopStoryCtx {
+  /** 同伴的角色（跟自己一樣就當作沒有同伴） */
+  partner?: string;
+  /** 鏡子走廊那隻照誰（座位 0 的角色） */
+  mirror?: string;
+}
+
+let coopStory: CoopStoryCtx = {};
+
+/** 開局、續玩、連線大廳都要設；單機傳 `null`（`app.ts` 的 `syncStory`） */
+export function setCoopStory(ctx: CoopStoryCtx | null): void { coopStory = ctx ?? {}; }
+
+const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  feifei: {
+    '是師兄的頭巾。他以前也老是勾破……回去又得替他補了。':
+      '師兄，你的頭巾又勾破了……回去我再幫你補。',
+    '是師父……他怎麼會痛成這樣？師兄，你到底在哪裡？':
+      '是師父……他怎麼會痛成這樣？師兄，你也聽見了吧？',
+    '師父，這又不是切磋……您剛才連我都不認得了。師兄也是，連個消息都沒有。':
+      '師父，這又不是切磋……您剛才連我都不認得了。我跟師兄喊了您一路呢。',
+    '還沒……找到他們……': '還沒……把師父帶回來……',
+    '恍惚間，有人將她背離了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父和球球仍沒有回來。':
+      '恍惚間，有人將她背離了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父仍沒有回來。',
+    '婆婆，我也想回去。可是家裡少了兩個人，我不能就這樣走。':
+      '婆婆，我也想回去。可是師父還在上面，我不能就這樣走。',
+    '師父、師兄……你們那邊也看得到月亮嗎？':
+      '師父……您那邊也看得到月亮嗎？',
+  },
+  ninja: {
+    '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。':
+      '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父和師妹就在旁邊聽。走到家門口時，球球才發現自己餓壞了。',
+    '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。':
+      '回村以後，球球常向村裡的小貓講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下，師妹在旁邊補上他漏講的那幾段。',
+  },
+};
+
+/** 鏡子走廊：鏡中那隻照座位 0 變裝，跟自己不同角色時讀到的是同伴的鏡像。鍵是**球球那份原句** */
+const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  feifei: {
+    '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
+      '走廊兩側排滿鏡子。菲菲停步，其中一面慢了半拍——鏡子裡站著的不是她，是一個綁著頭巾的黑影，身形跟師兄一模一樣。那個「師兄」沒有笑，先擺出了迎戰的架勢。',
+    '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
+      '跟鏡中的假師兄過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+    '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
+      '黑影踏出鏡面，抬爪的角度跟師兄一模一樣，一出手卻全是照著學來的招式——這不是師兄。菲菲握緊飛針，往後退了半步。菲菲：「那個……你連我發抖都學，能不能不要靠過來？」',
+    '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
+      '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那個假的沒有跟上吧？」',
+  },
+  ninja: {
+    '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
+      '走廊兩側排滿鏡子，無數個球球同時抬起頭。只有一面裡站的不是他——是個紮著蝴蝶結的黑影，身形跟師妹一模一樣，手裡還捏著針。',
+    '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
+      '跟鏡中的假師妹過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+    '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
+      '黑影踏出鏡面，抬手的角度跟師妹一模一樣，針尖卻對著他。球球壓低身子，把師妹擋在身後。球球：「假的就是假的，動作再像也沒用喵。」',
+    '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
+      '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「別看了，那不是師妹喵。」',
+  },
+};
+
+/** 混搭時把整份故事的句子換過一遍；不換就原樣回（陣列參照不動，既有測試照舊） */
+function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[]; defeat: DialogueLine[];
+  victory: DialogueLine[]; victoryNarration: Partial<Record<string, string>>; hardModeEpilogue: string; victoryTeaser: string }>(hero: string | undefined, s: T): T {
+  if (!mixedOn(hero)) return s;
+  const ls = (xs: DialogueLine[]): DialogueLine[] => xs.map((l) => ({ ...l, text: mixedLine(hero, l.text) }));
+  return {
+    ...s,
+    prologue: ls(s.prologue), actClear1: ls(s.actClear1), actClear2: ls(s.actClear2), defeat: ls(s.defeat), victory: ls(s.victory),
+    victoryNarration: Object.fromEntries(Object.entries(s.victoryNarration).map(([k, v]) => [k, mixedLine(hero, v as string)])),
+    hardModeEpilogue: mixedLine(hero, s.hardModeEpilogue), victoryTeaser: mixedLine(hero, s.victoryTeaser),
+  };
+}
+
+/** 混搭時換句子；沒設連線情境、或同伴跟自己同角色就原樣回 */
+function mixedLine(hero: string | undefined, text: string): string {
+  const h = hero ?? 'ninja';
+  if (!coopStory.partner || coopStory.partner === h) return text;
+  return MIXED_LINES[h]?.[text] ?? text;
+}
+
+/** 這一局要不要換（`storyFor` 靠它決定要不要重建陣列，不換就維持原本的參照，既有測試照舊） */
+function mixedOn(hero: string | undefined): boolean {
+  const h = hero ?? 'ninja';
+  return !!coopStory.partner && coopStory.partner !== h && !!MIXED_LINES[h];
+}
+
+/** 鏡中那隻照的是同伴（座位 0 跟我不同角色）：事件整句換成「假的同伴」版 */
+function mirrorEventText(hero: string | undefined, original: string): string | undefined {
+  const h = hero ?? 'ninja';
+  if (!coopStory.mirror || coopStory.mirror === h) return undefined;
+  return MIRROR_EVENT_TEXT[h]?.[original];
+}
+
 export function storyFor(hero: string | undefined): {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
   defeat: DialogueLine[]; victoryTeaser: string;
@@ -654,8 +759,8 @@ export function storyFor(hero: string | undefined): {
   chestLines: string[]; restNapLines: string[]; restSharpenLines: string[]; reviveLines: string[];
   firstMeet: Record<string, string>;
 } {
-  if (hero === 'feifei') return { ...feifeiDialogue, firstMeet: dialogue.firstMeetFeifei };
-  return {
+  if (hero === 'feifei') return withMixed(hero, { ...feifeiDialogue, firstMeet: dialogue.firstMeetFeifei });
+  return withMixed(hero, {
     prologue: dialogue.prologue, actClear1: dialogue.actClear1, actClear2: dialogue.actClear2,
     defeat: dialogue.defeat, victoryTeaser: dialogue.victoryTeaser,
     victory: dialogue.victory, victoryNarration: dialogue.masterFirstWordsNarration,
@@ -664,7 +769,7 @@ export function storyFor(hero: string | undefined): {
     hungry: dialogue.hungry, lowHp: dialogue.lowHp, chestLines: dialogue.chestLines,
     restNapLines: dialogue.restNapLines, restSharpenLines: dialogue.restSharpenLines, reviveLines: dialogue.reviveLines,
     firstMeet: dialogue.firstMeet,
-  };
+  });
 }
 
 /**
@@ -920,15 +1025,57 @@ export const FEIFEI_EVENT_TEXT: Readonly<Record<string, string>> = {
  * 順序：**整句替換先查**（`FEIFEI_EVENT_TEXT`），查不到才**先換句子再換名字**。
  * 反過來的話 `球球：「…」` 已經變成 `菲菲：「…」`，對照表的鍵（球球的原句）就對不上了。
  */
+
+/**
+ * 事件旁白裡**指她**的「牠」換成「她」（使用者 2026-09-16 裁定「統一用她」）。
+ *
+ * 不能整段把「牠」都換掉：同一句裡常常還有別的貓（村貓、老鼠、母貓、灰貓、山賊、關主），
+ * 那些照舊用「牠」。所以逐句挑出主角那幾處，換的是**片語**不是整段——
+ * 整段抄一份會跟球球那邊各改各的，日後改一邊就靜靜分岔。
+ * 每個片語在 `events.ts` 都必須剛好出現一次（`tests/content/feifei_ta.test.ts` 盯著）。
+ */
+export const FEIFEI_TA: Readonly<Record<string, string>> = {
+  '牠坐起來揉揉肩膀': '她坐起來揉揉肩膀',
+  '差點打中牠的鼻子。牠嚇得往後縮': '差點打中她的鼻子。她嚇得往後縮',
+  '一直不肯看牠': '一直不肯看她',
+  '揮爪向牠道謝': '揮爪向她道謝',
+  '牠深吸一口氣，胸口也舒展了': '她深吸一口氣，胸口也舒展了',
+  '鑽進牠的胸口。牠急忙停下': '鑽進她的胸口。她急忙停下',
+  '撞得牠肩膀發麻。牠忍痛鑽過空隙': '撞得她肩膀發麻。她忍痛鑽過空隙',
+  '牠試著讓呼吸配合步伐': '她試著讓呼吸配合步伐',
+  '牠把空碗還給三花貓': '她把空碗還給三花貓',
+  '三花貓見牠不買': '三花貓見她不買',
+  '牠立刻湊上前看': '她立刻湊上前看',
+  '拿起木棍把牠圍住': '拿起木棍把她圍住',
+  '牠忍著痛走進去': '她忍著痛走進去',
+  '開始教牠護身吐納的方法': '開始教她護身吐納的方法',
+  '牠的呼吸比先前深了': '她的呼吸比先前深了',
+  '還在勸牠別上樓': '還在勸她別上樓',
+  '牠連忙縮手': '她連忙縮手',
+  '牠也有力氣繼續走': '她也有力氣繼續走',
+  '把牠打倒在地。牠爬起來': '把她打倒在地。她爬起來',
+  '輕輕蹭過牠的胸口': '輕輕蹭過她的胸口',
+  '沒再攔牠': '沒再攔她',
+  '牠趁機走了過去': '她趁機走了過去',
+  '牠甩甩爪子': '她甩甩爪子',
+};
+
 export function eventTextFor(hero: string | undefined, text: string): string {
+  // 鏡子走廊那隻照座位 0 變裝：坐 1 號又跟 0 號不同角色時，讀到的要是「假的同伴」版（2026-09-16）
+  const fake = mirrorEventText(hero, text);
+  if (fake !== undefined) return fake;
   if (hero !== 'feifei') return text;
   const override = FEIFEI_EVENT_TEXT[text];
-  if (override !== undefined) return override;
+  if (override !== undefined) return mixedLine(hero, override);
   const swapped = text.replace(/球球：「(.+?)」/su, (whole, inner: string) => {
     const mine = FEIFEI_EVENT_LINES[inner];
-    return mine === undefined ? whole : `球球：「${mine}」`;
+    // 引號裡那句也要過混搭（月亮窗那句「師父、師兄……你們那邊」，師兄就坐在旁邊——2026-09-16）
+    return mine === undefined ? whole : `球球：「${mixedLine(hero, mine)}」`;
   });
-  return lineFor(hero, swapped.replace(/球球/g, '菲菲'));
+  let out = lineFor(hero, swapped.replace(/球球/g, '菲菲'));
+  // 指她的「牠」換成「她」（其他貓的照舊）
+  for (const [他, 她] of Object.entries(FEIFEI_TA)) if (out.includes(他)) out = out.replace(他, 她);
+  return out;
 }
 
 /**
@@ -1062,8 +1209,9 @@ export function lineFor(hero: string | undefined, text: string): string {
    * 原本的字元集只有標點沒有 `」`，整句就不匹配、喵照樣印出來。
    * 全形與半形的收尾引號都收進來。
    */
-  return FEIFEI_BOSS_LINES[text]
-    ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, '');
+  // 混搭時再換一手（貓又婆婆那句「家裡少了兩個人」，同伴就在旁邊——2026-09-16）
+  return mixedLine(hero, FEIFEI_BOSS_LINES[text]
+    ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, ''));
 }
 
 /**
