@@ -12,7 +12,8 @@ describe('菲菲的牌名', () => {
     expect(cardNameFor(cardById['xianbangniliuzhe']!, 'feifei')).toBe('我們一起擋');
     expect(cardNameFor(cardById['wozaizhe']!, 'feifei')).toBe('大聲吼叫');
     expect(cardNameFor(cardById['hujin']!, 'feifei')).toBe('絕學·貓布袋');
-    expect(cardNameFor(cardById['hujin']!, 'ninja'), '球球那邊不動').toBe('絕學·護金');
+    // 2026-09-16 撞名改名：絕學·護金 → 絕學·龜背功（跟絕學·護心只差一個字，兩張都是共用的防禦向絕學）
+    expect(cardNameFor(cardById['hujin']!, 'ninja'), '球球那邊不動').toBe('絕學·龜背功');
     expect(cardNameFor(cardById['dieda']!, 'feifei'), '絕學兩字留著').toBe('絕學·連珠針');
   });
 
