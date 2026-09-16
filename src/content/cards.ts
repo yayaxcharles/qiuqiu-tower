@@ -270,7 +270,7 @@ export const cards: readonly CardDef[] = [
    * 圖是她原本那張分身術，檔案從 `feifei_bunshin` 改名過來（插圖鍵要等於牌號，`cards.test.ts` 盯著）。
    * 次數跟球球那張同一份（`cs.cardPlays`，同一張牌打完才 +1）。
    */
-  { id: 'feifei_fenshen', name: '分身術', cost: 1, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_fenshen',
+  { id: 'feifei_fenshen', name: '毒分身', cost: 1, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_fenshen',
     effects: [{ kind: 'status', name: '中毒', amount: 2, target: 'enemy', step: 2 }],
     upgrade: { cost: 2, effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'enemy', step: 3 }] } },
   { id: 'ruying', name: '如影隨形', cost: 2, type: 攻, rarity: '罕見', hero: 'ninja', pool: '忍術', target: 'enemy', art: 'card/ruying',
@@ -445,7 +445,7 @@ export const cards: readonly CardDef[] = [
   { id: 'jiuming', name: '忍術·九命怪貓', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/jiuming',
     keywords: ['消耗'], effects: [{ kind: 'heal', n: 8 }, { kind: 'block', amount: 4 }],
     upgrade: { effects: [{ kind: 'heal', n: 12 }, { kind: 'block', amount: 6 }] } },
-  { id: 'fanzhua', name: '忍術·反彈', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fanzhua',
+  { id: 'fanzhua', name: '忍術·刺蝟身', cost: 1, type: 技, rarity: '罕見', pool: '忍術', target: 'self', art: 'card/fanzhua',
     effects: [{ kind: 'status', name: '反彈', amount: 4, target: 'self' }],
     upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 6, target: 'self' }] } },
   { id: 'wanhua', name: '忍術·萬花筒', cost: 2, type: 能, rarity: '稀有', pool: '忍術', target: 'self', art: 'card/wanhua',
@@ -471,7 +471,7 @@ export const cards: readonly CardDef[] = [
    * 引擎的 `echoFirst`：只認該回合第一張、能力牌不複製（不然它會當場複製自己）、打完了就不補。
    */
   // 定義上叫「忍術·影子分身」只是為了跟球球那張的名字不撞（`cards.test.ts` 盯著名字不重複）；她手上照規則拿掉前綴，看到的還是「影子分身」
-  { id: 'feifei_yingzi', name: '忍術·影子分身', cost: 3, type: 能, rarity: '稀有', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_yingzi',
+  { id: 'feifei_yingzi', name: '忍術·殘影分身', cost: 3, type: 能, rarity: '稀有', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_yingzi',
     effects: [{ kind: 'echoFirst' }],
     upgrade: { cost: 2, effects: [{ kind: 'echoFirst' }] } },
   { id: 'tuishou', name: '絕學·推手', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/tuishou',
@@ -482,7 +482,7 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'heal', n: 5 }] } },
   { id: 'shibadie', name: '絕學·沾衣十八跌', cost: 2, type: 攻, rarity: '常見', hero: 'ninja', pool: '絕學', target: 'enemy', art: 'card/shibadie',
     effects: [{ kind: 'damage', amount: 5, times: 3 }], upgrade: { effects: [{ kind: 'damage', amount: 6, times: 3 }] } },
-  { id: 'hujin', name: '絕學·護金', cost: 2, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/hujin',
+  { id: 'hujin', name: '絕學·龜背功', cost: 2, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/hujin',
     effects: [{ kind: 'block', amount: 10 }, { kind: 'status', name: '反彈', amount: 2, target: 'self' }],
     upgrade: { effects: [{ kind: 'block', amount: 14 }, { kind: 'status', name: '反彈', amount: 3, target: 'self' }] } },
   { id: 'boming', name: '絕學·拼命', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'self', art: 'card/boming',

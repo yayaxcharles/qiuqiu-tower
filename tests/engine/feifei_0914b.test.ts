@@ -60,7 +60,8 @@ describe('菲菲的分身術：疊毒（22）', () => {
     expect(describeCard(d, false)).toBe('造成 2 點中毒層數，這場戰鬥中這張牌每打出一次，中毒層數就再加 2 點。');
     expect(describeCard(d, true)).toBe('造成 3 點中毒層數，這場戰鬥中這張牌每打出一次，中毒層數就再加 3 點。');
     expect(describeCard(d, false, 2)).toBe('造成 6 點中毒層數（原本 2 點），這場戰鬥中這張牌每打出一次，中毒層數就再加 2 點。');
-    expect(cardNameFor(d, 'feifei')).toBe('分身術');
+    // 2026-09-16 撞名改名：她的「分身術」跟球球「忍術·分身術」在她眼裡同名（混搭連線會並排）
+    expect(cardNameFor(d, 'feifei')).toBe('毒分身');
   });
 
   it('效果以外照球球那張：攻擊、1 費、升級 2 費、罕見；圖是她自己那張', () => {
