@@ -11,6 +11,11 @@ export interface Manifest {
   icons: Record<string, string>;
   bg: Record<string, string>;
   review: string[];
+  /**
+   * 不走上面那些分類的靜態檔：`原始相對路徑 → 帶雜湊的相對路徑`（見 `fileUrl`）。
+   * 打包時由 `tools/vite-asset-hash.ts` 產生；開發伺服器沒有這一欄。
+   */
+  files?: Record<string, string>;
 }
 
 let manifest: Manifest = { cards: {}, sprites: {}, monsters: {}, icons: {}, bg: {}, review: [] };
@@ -21,15 +26,53 @@ export const BASE = (import.meta as unknown as { env?: { BASE_URL?: string } }).
 const SILHOUETTE = 'data:image/svg+xml;utf8,' + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="55" r="35" fill="#555"/><circle cx="30" cy="25" r="12" fill="#555"/><circle cx="70" cy="25" r="12" fill="#555"/></svg>');
 
+/*
+ * 這一份網頁是哪一次打包的（`vite.config.ts` 的 `define` 填，跟 `net/code.ts` 是同一個值）。
+ * 不從那邊匯入是因為那支是連線專用、被切到另一個分塊，拉進來會把它整個併回首載的主程式。
+ */
+declare const __BUILD_TAG__: string;
+const BUILD = typeof __BUILD_TAG__ === 'string' ? __BUILD_TAG__ : '';
+
 export async function loadManifest(): Promise<void> {
   // 清單讀不到就整組退回剪影，不能讓遊戲開不起來
   try {
-    const res = await fetch(`${BASE}assets/manifest.json`);
+    /*
+     * **網址後面要夾這一次打包的編號**（2026-09-16）。
+     *
+     * 素材檔名帶了內容雜湊碼之後（`tools/vite-asset-hash.ts`），所有圖的網址都寫在這份清單裡，
+     * 清單就成了唯一的入口——它自己不能加雜湊，不然沒人找得到它。
+     * 問題是 GitHub Pages 對**每個**檔案都回十分鐘的快取，清單也不例外：
+     * 剛部署完，玩家按重新整理，瀏覽器會重抓 `index.html`（重新整理本來就會回頭問一次），
+     * 於是拿到新的主程式；但清單是子資源、十分鐘還沒到，直接吃快取裡的**舊清單**，
+     * 新程式照舊清單去要舊網址——換過的那幾張圖還是舊的，整件事等於白做。
+     *
+     * 夾上打包編號之後，新的主程式問的是一個從來沒被快取過的網址，一定拿到跟它同一版的清單，
+     * 清單裡的圖又個個帶雜湊、也一定沒被快取過。**換過的圖當場就是新的。**
+     *
+     * 檔名沒有動（還是 `manifest.json`），所以「入口不加雜湊」那條規矩沒破：
+     * 這只是叫瀏覽器每出一版就重新問一次，不是給它一個新檔名。
+     */
+    const res = await fetch(`${BASE}assets/manifest.json${BUILD ? `?v=${BUILD}` : ''}`);
     if (res.ok) manifest = { ...manifest, ...(await res.json() as Partial<Manifest>) };
   } catch { /* 離線或檔案不在，忽略 */ }
 }
 
 export function _setManifestForTest(m: Manifest): void { manifest = m; }
+
+/**
+ * 照**原始相對路徑**取一個靜態檔的網址（音效、背景音樂、過場影片）。
+ *
+ * 這三類跟圖不一樣：它們不在清單的分類裡，程式是照名字現組路徑的
+ *（`assets/sfx/claw.mp3`、`bgm/act1.mp3`、`video/opening.mp4`）。
+ * 打包版的檔名帶了內容雜湊碼（`tools/vite-asset-hash.ts`），所以要先查一次對照表。
+ *
+ * **查不到就照原路徑走**：開發伺服器直接吃 `public/`，那邊的檔名本來就沒有雜湊，
+ * 這樣一條程式碼兩邊都對。清單還沒載好時也是走這條——原路徑在打包版會 404，
+ * 但這三支呼叫點（音效、音樂、影片）全都在 `main.ts` 等完 `loadManifest()` 之後才會動。
+ */
+export function fileUrl(rel: string): string {
+  return `${BASE}${manifest.files?.[rel] ?? rel}`;
+}
 
 export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string): string {
   const rel = manifest[group][key];

@@ -614,7 +614,7 @@ export function forceReady(cs: CombatState, seat: number): boolean {
   if (!p || p.down || p.ready || cs.phase !== 'player') return allReady(cs);
   p.ready = true;
   // 留一行紀錄：被強制收回合的人回來之後，得看得懂自己那個回合是怎麼沒的
-  log(cs, '等太久了，替走開的那位收了回合');
+  log(cs, '等太久了，同伴幫你把這回合結束掉了');
   return allReady(cs);
 }
 

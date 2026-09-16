@@ -75,8 +75,17 @@ function troubleBanner(app: App, why: string): void {
   if (document.querySelector('.net-trouble')) return;
   document.querySelectorAll('.net-link').forEach((n) => n.remove());   // 接回放棄了：琥珀色那條撕掉，只留紅的（審查 2026-09-15 低-5）
   // 戰鬥畫面沒有別的出口：斷線之後要能回標題（審查 中-3）
-  const bar = el('div', { class: 'net-trouble' }, `連線出問題：${why}`,
+  // 原因裡常常夾著只有寫程式的人看得懂的東西：英文動作代號（card／buy／swap）與八碼指紋。
+  // 玩家看到「第 7 回合的戰況對不上（3a7f2b01 / 9c14ef22）」只會以為是自己弄壞的，
+  // 而且整句話沒告訴他現在該做什麼（介面稽核 2026-09-16 高-2）。
+  // 所以畫面上只留人話＋下一步，純英數的括號拿掉；完整原因留在主控台與滑鼠提示裡，回報時照樣查得到。
+  const plain = why.replace(/（[\x20-\x7E\s/]+）/g, '');   // 括號裡全是英數符號＝技術細節，拿掉
+  // eslint-disable-next-line no-console
+  console.error('[連線] 停下來了：', why);
+  const bar = el('div', { class: 'net-trouble' },
+    `連線出問題：${plain}　這一局沒辦法繼續，兩個人都按「回標題」重開一局就好，存檔不會壞。`,
     el('button', { class: 'btn small', onclick: () => { app.leaveCoop(); app.show('title'); } }, '回標題'));
+  bar.title = why;
   document.body.append(bar);
 }
 
@@ -197,7 +206,7 @@ registerScreen('lobby', (app, root) => {
         onclick: () => { coopHeroes[i] = h; render(); },
       }, heroName({ hero: h }))));
     return el('div', { class: 'lobby-heroes' },
-      el('p', { class: 'lobby-note' }, '開房的人挑兩位的角色和難度，加入的人照這個開：'),
+      el('p', { class: 'lobby-note' }, '這兩排只有開房的人選的算數。要加入別人的房，角色和難度都由對方決定：'),
       row('開房的人', 0), row('加入的人', 1));
   };
 

@@ -1,5 +1,5 @@
 import { sfxFor } from './sfxhero';
-import { BASE } from './assets';
+import { fileUrl } from './assets';
 
 /**
  * 音效。
@@ -73,7 +73,7 @@ async function load(name: Sfx): Promise<void> {
   if (!ctx || buffers.has(name) || pending.has(name)) return;
   pending.add(name);
   try {
-    const res = await fetch(`${BASE}assets/sfx/${name}.mp3`);
+    const res = await fetch(fileUrl(`assets/sfx/${name}.mp3`));
     if (!res.ok) return;                       // 檔案沒生好就當作這個音效不存在，不要吵
     buffers.set(name, await ctx.decodeAudioData(await res.arrayBuffer()));
   } catch {

@@ -1,4 +1,4 @@
-import { BASE } from './assets';
+import { fileUrl } from './assets';
 
 /**
  * 背景音樂。跟音效（`audio.ts`）分開的三個理由：
@@ -89,7 +89,7 @@ function startPlaying(name: BgmName): void {
   if (!enabled || !unlocked) return;
   const swap = (): void => {
     stopNow();
-    const a = new Audio(`${BASE}bgm/${name}.mp3`);
+    const a = new Audio(fileUrl(`bgm/${name}.mp3`));
     a.loop = true;
     a.volume = 0;
     el = a;
