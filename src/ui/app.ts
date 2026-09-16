@@ -1,4 +1,4 @@
-import { victoryLinesFor, dialogue, lineFor, pick, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, dialogue, firstMeetLine, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
@@ -172,6 +172,7 @@ export class App {
     // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
     setLocalHero(hero);
     setSfxHero(hero);   // 貓叫也照角色換（菲菲的受傷、勝利）
+    this.syncStory();
     void preloadHeroArt([hero]);   // 這一位專屬的圖開場沒載，現在補（總稽核 F 中-1）
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     /*
@@ -203,6 +204,18 @@ export class App {
     } else after();
   }
 
+  /**
+   * 這一局的敘事情境（使用者 2026-09-16 裁定「做」）：同伴是誰、鏡子走廊那隻照誰（座位 0）。
+   * 個人主線有幾句是「同伴不在身邊」才成立的（她的結局說師兄連個消息都沒有），混搭時要換掉。
+   * 單機與同角色雙人設了也等於沒設（`setCoopStory` 裡比對過）。開局、續玩、連線大廳三個入口都要叫。
+   */
+  syncStory(run: RunState = this.run as RunState): void {
+    if (!run) { setCoopStory(null); return; }
+    const mineHero = me(run, this.seat).hero ?? 'ninja';
+    const partner = run.players.find((p, i) => i !== this.seat && (p.hero ?? 'ninja') !== mineHero)?.hero;
+    setCoopStory({ ...(partner ? { partner } : {}), mirror: run.players[0]?.hero ?? 'ninja' });
+  }
+
   /** `from` 給了就用它接著打（貼進來的局面碼走這條），沒給就讀瀏覽器裡的存檔 */
   continueRun(from?: RunState): boolean {
     this.leaveCoop();   // 續玩讀的是單機存檔，同理（見 `leaveCoop`）
@@ -213,6 +226,7 @@ export class App {
     this.cs = null;
     setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
     setSfxHero(me(run, this.seat).hero);
+    this.syncStory(run);
     void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
     void preloadAct(run.act, run.players[0]?.hero);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
@@ -267,6 +281,7 @@ export class App {
   leaveCoop(): void {
     this.coop?.leave();   // 跟中繼說一聲、關掉線路，對方立刻看到「對方離開了」；不關的話舊線還在跑心跳、對方永遠等不到（審查 2026-09-15 中-1）
     this.coop = null; this.seat = 0;
+    setCoopStory(null);   // 敘事情境是模組層級的，離開連線就清掉（推前審查 低-2）
     // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
     // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
     document.querySelectorAll('.net-trouble, .net-link').forEach((n) => n.remove());
@@ -377,7 +392,7 @@ export class App {
       const mine = me(run, this.seat);
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
-        toast(storyFor(mine.hero).firstMeet[firstNew] ?? '', heroSpeaker());
+        toast(firstMeetLine(mine.hero, firstNew), heroSpeaker());
       } else {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }

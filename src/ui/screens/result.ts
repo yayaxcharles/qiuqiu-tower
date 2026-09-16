@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { dialogue, storyFor } from '../../content/dialogue';
+import { defeatLastWord, dialogue, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { clearSave, recordBest } from '../../engine/save';
 import { registerScreen } from '../app';
@@ -52,10 +52,9 @@ registerScreen('result', (app, root) => {
     relics.append(node);
   }
 
-  // 落敗那句挑「主角自己講的」——她的說話者是「菲菲」不是「球球」，寫死名字會挑不到
+  // 落敗那句挑「主角自己講的最後一句」（見 `defeatLastWord`：挑第一句會倒回倒下當下）
   const story = storyFor(me(run, seat).hero);
-  const lastWords = won ? story.victoryTeaser
-    : (story.defeat.find((l) => l.speaker === '球球' || l.speaker === '菲菲')?.text ?? '');
+  const lastWords = won ? story.victoryTeaser : defeatLastWord(me(run, seat).hero);
   const hero = heroArtUrl(me(run, seat).hero, won ? 'hero/ninja_win' : 'hero/ninja_lose');
 
   // 劇場版面：球球站在帶子左邊（贏的姿勢或倒下的姿勢），成績、秘寶、最佳成績寫在帶子裡

@@ -1,0 +1,3278 @@
+[
+ {
+  "id": "P-01",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "旁白",
+  "text": "菲菲比球球晚三年入門。球球第一次練功就搶著出招，她卻被木樁打得縮回了手。師父沒有笑她，只把靶子搬近些：「先練準。力氣不夠的地方，就想別的辦法。」",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "P-02",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "旁白",
+  "text": "那天夜裡，魔塔在村外拔地而起。紫光照上大俠貓的臉，他忽然雙眼發紫，衝向塔頂。球球抓起頭巾追了出去，連菲菲喊他都沒聽見。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "P-03",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "菲菲",
+  "text": "……三天了。師父沒回來，師兄也沒回來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "P-04",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "菲菲",
+  "text": "我還是很怕受傷。可是他們要是也在等人幫忙呢？……我得去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "A1-01",
+  "where": "第一關打完",
+  "who": "旁白",
+  "text": "守關的魔物倒下，通往上層的樓梯露了出來。菲菲蹲下來撿回射出去的針，有幾根已經彎了。樓梯扶手上，還掛著一縷深藍色的線。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "A1-02",
+  "where": "第一關打完",
+  "who": "菲菲",
+  "text": "是師兄的頭巾。他以前也老是勾破……回去又得替他補了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "A1-03",
+  "where": "第一關打完",
+  "who": "旁白",
+  "text": "菲菲把線頭收進貼身的口袋，在台階上坐下，替剩下的針一根根重新抹藥。抹完了，她才循著爪痕往上走。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "A2-01",
+  "where": "第二關打完",
+  "who": "旁白",
+  "text": "守關的傢伙倒在揚起的煙塵裡，塔頂又傳來低吼。那是師父的聲音，卻痛苦得讓菲菲幾乎認不出來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "A2-02",
+  "where": "第二關打完",
+  "who": "菲菲",
+  "text": "是師父……他怎麼會痛成這樣？師兄，你到底在哪裡？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "A2-03",
+  "where": "第二關打完",
+  "who": "旁白",
+  "text": "菲菲朝上喊了一聲，只有回音落回樓梯。她拉好口罩，手扶著冰冷的牆，踏上最後一段路。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "A2-04",
+  "where": "第二關打完",
+  "who": "菲菲",
+  "text": "我聽見了，師父。我正在上去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "D-01",
+  "where": "輸了（倒下）",
+  "who": "旁白",
+  "text": "菲菲伸手去摸竹筒，膝蓋卻再也撐不住。她沿著牆滑坐下去，想喊人，喉嚨裡只擠得出一點氣音。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "D-02",
+  "where": "輸了（倒下）",
+  "who": "菲菲",
+  "text": "還沒……找到他們……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "D-03",
+  "where": "輸了（倒下）",
+  "who": "旁白",
+  "text": "恍惚間，有人將她背離了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父和球球仍沒有回來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "D-04",
+  "where": "輸了（倒下）",
+  "who": "菲菲",
+  "text": "傷口好了，我就回去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "V-01",
+  "where": "通關（打贏師父）",
+  "who": "旁白",
+  "text": "最後一縷魔氣散去，師父眼中的紫光熄滅了。塔頂另一端，球球靠著牆抬起頭。菲菲看看師父，又看看師兄，握針的手終於垂了下來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "V-02",
+  "where": "通關（打贏師父）",
+  "who": "塔主",
+  "text": "承讓。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "V-03",
+  "where": "通關（打贏師父）",
+  "who": "菲菲",
+  "text": "師父，這又不是切磋……您剛才連我都不認得了。師兄也是，連個消息都沒有。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "V-04",
+  "where": "通關（打贏師父）",
+  "who": "菲菲",
+  "text": "我還以為，找不到你們了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "V-05",
+  "where": "通關（打贏師父）",
+  "who": "旁白",
+  "text": "師父伸手把菲菲攬進懷裡，她這才發現自己還攥著一根針。她愣愣地抬頭看著師父，忍了一路的眼淚，這時才掉了下來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "V-06",
+  "where": "通關（打贏師父）",
+  "who": "旁白",
+  "text": "回村的路上，師父舉著小魚乾逗球球，球球跳著去搶。菲菲落在後頭，彎腰撿起一根掉在路上的針，才小跑步追上去。這一次，三個人一起回家。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "VN-01",
+  "where": "通關旁白（依牌組傾向：爪力流）",
+  "who": "旁白",
+  "text": "師父碰了碰她的手。那隻爪比從前有力，卻還攥著竹筒，不知道該往哪裡放。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "VN-02",
+  "where": "通關旁白（依牌組傾向：毒流）",
+  "who": "旁白",
+  "text": "師父認出了她針上的藥味，神情終於柔和下來。菲菲卻只盯著他的眼睛，確認紫光沒有再亮起。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "VN-03",
+  "where": "通關旁白（依牌組傾向：蜷縮流）",
+  "who": "旁白",
+  "text": "師父認得她縮起肩膀的樣子。他將手放低，讓她看清掌心裡沒有東西，才朝她走近。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "VN-04",
+  "where": "高難度後日談",
+  "who": "旁白",
+  "text": "後來練功，師父仍會替她把靶子搬近。她有時留著，有時自己挪遠一點；害怕的事還在，能做到的事也多了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "VN-05",
+  "where": "全破後結算畫面的最後一句",
+  "who": "菲菲",
+  "text": "師父、師兄，明天也一起吃早飯吧。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-01",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "那個……借過一下。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-02",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "針上有毒，別碰。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-03",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "別追了，前面沒路啦！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-04",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "袖口綁緊，免得礙手。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-05",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "竹筒扣好了，可以。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-06",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "可以別打臉嗎……拜託。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-07",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "我不跟你比力氣。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-08",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "師兄碰上你，會怎麼辦呢？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-09",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "你一定要守在這裡嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-10",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "看牠的手，別只顧著怕。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-11",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "等一下，衣服勾住了！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-12",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "我只是想把人接回家。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-13",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "師父教過這個，我記得。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BS-14",
+  "where": "開打時（隨機一句）",
+  "who": "菲菲",
+  "text": "出口在後面，記住了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-01",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "不動了……結束了吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-02",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "我有先提醒你喔。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-03",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "袖子沒破，還好。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-04",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "呼，終於能喘口氣。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-05",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "針差點拿不住。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-06",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "剛才那一下好險。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-07",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "咦，真的過去了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-08",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "借我坐一下，腿軟。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-09",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "這次沒忘記護住自己。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-10",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "原來一直緊張也會餓。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-11",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "沒人聽見我尖叫吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-12",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "手上有藥，不能揉眼睛。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-13",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "把東西收齊，再走。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-14",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "針袋還在，沒弄丟。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-15",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "門口就是來時的路。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BW-16",
+  "where": "打贏時（隨機一句）",
+  "who": "菲菲",
+  "text": "舌頭咬到了，嗚。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "HU-01",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "菲菲",
+  "text": "餓得使不上力了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "HU-02",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "菲菲",
+  "text": "飯糰……沒有了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "HU-03",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "菲菲",
+  "text": "現在給我白飯也好，真的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "HU-04",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "菲菲",
+  "text": "那個……剛才是肚子叫。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "HU-05",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "菲菲",
+  "text": "先別講吃的，我受不了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "HU-06",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "菲菲",
+  "text": "回家我要先盛一大碗。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "LH-01",
+  "where": "血剩很少（隨機一句）",
+  "who": "菲菲",
+  "text": "不要碰傷口！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "LH-02",
+  "where": "血剩很少（隨機一句）",
+  "who": "菲菲",
+  "text": "不行，我還不能倒……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "LH-03",
+  "where": "血剩很少（隨機一句）",
+  "who": "菲菲",
+  "text": "血止不住，怎麼辦……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "LH-04",
+  "where": "血剩很少（隨機一句）",
+  "who": "菲菲",
+  "text": "繃帶快不夠了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "LH-05",
+  "where": "血剩很少（隨機一句）",
+  "who": "菲菲",
+  "text": "握緊，還不能鬆手。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "LH-06",
+  "where": "血剩很少（隨機一句）",
+  "who": "菲菲",
+  "text": "家裡還有人等我回去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-01",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "箱蓋下面沒夾東西吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-02",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "我敲一下，你別突然跳出來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-03",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "空的嗎？我掀開囉。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-04",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "這邊開，才不會夾尾巴。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-05",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "有乾淨繃帶就好了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-06",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "這個紙箱有人要嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-07",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "家裡也有個這樣的紙箱。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CH-08",
+  "where": "開紙箱（隨機一句）",
+  "who": "菲菲",
+  "text": "師兄倒是很會找地方睡。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RN-01",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "菲菲",
+  "text": "唔……還以為回到家了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RN-02",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "菲菲",
+  "text": "外面還是很安靜。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RN-03",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "菲菲",
+  "text": "毒針都在，沒壓著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RN-04",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "菲菲",
+  "text": "眼睛舒服多了，剛才好澀。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RN-05",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "菲菲",
+  "text": "被子好暖，捨不得掀開。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RN-06",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "菲菲",
+  "text": "夢還沒做完，就醒了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RN-07",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "菲菲",
+  "text": "尾巴睡麻了……讓我伸一下。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RS-01",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "菲菲",
+  "text": "這根的毛邊總算磨掉了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RS-02",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "菲菲",
+  "text": "這樣拿，出手就不會卡住。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RS-03",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "菲菲",
+  "text": "針尖沾好藥，握的地方也擦乾淨了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RS-04",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "菲菲",
+  "text": "磨好了，心裡踏實些。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RS-05",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "菲菲",
+  "text": "彎的挑出來了，這些都能用。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RS-06",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "菲菲",
+  "text": "這個角度，終於對了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "RS-07",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "菲菲",
+  "text": "針尖朝外，收好了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-01",
+  "where": "第一次遇到「切磋的白貓」",
+  "who": "菲菲",
+  "text": "你都擺好架勢了……看來不是問路就能過去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-02",
+  "where": "第一次遇到「山豬頭目」",
+  "who": "菲菲",
+  "text": "牠刨地刨得好用力，鼻子還朝著我。這是要衝過來嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-03",
+  "where": "第一次遇到「紙老虎」",
+  "who": "菲菲",
+  "text": "遠看像紙做的，近看全是尖角。被劃到可不是鬧著玩的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-04",
+  "where": "第一次遇到「太鼓狸」",
+  "who": "菲菲",
+  "text": "鼓聲越來越急了。我連自己的心跳都聽不見。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-05",
+  "where": "第一次遇到「鐵羅漢」",
+  "who": "菲菲",
+  "text": "鐵皮底下還有關節在動。原來不是一整塊鐵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-06",
+  "where": "第一次遇到「織影蜘蛛」",
+  "who": "菲菲",
+  "text": "絲都纏到手上了！這樣叫我怎麼拿針。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-07",
+  "where": "第一次遇到「醉拳狗」",
+  "who": "菲菲",
+  "text": "站都站不穩，怎麼還能出拳？不能跟著牠的腳步晃。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-08",
+  "where": "第一次遇到「鬼將」",
+  "who": "菲菲",
+  "text": "小鬼都在等牠點頭……原來是牠叫你們攔我的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-09",
+  "where": "第一次遇到「小鬼」",
+  "who": "菲菲",
+  "text": "這幾隻一直互相看，不能只盯住一隻。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-10",
+  "where": "第一次遇到「鏡仙」",
+  "who": "菲菲",
+  "text": "鏡子裡全是我的臉，我都快分不清出口了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-11",
+  "where": "第一次遇到「鏡影」",
+  "who": "菲菲",
+  "text": "碎成這樣還會動？我不要踩到那些碎片。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-12",
+  "where": "第一次遇到「虛無貓」",
+  "who": "菲菲",
+  "text": "剛剛還看得見，現在又只剩影子。牠究竟站在哪裡？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-13",
+  "where": "第一次遇到「團子史萊姆」",
+  "who": "菲菲",
+  "text": "我差點以為是點心。牠剛才是不是看了我一眼？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-14",
+  "where": "第一次遇到「小團子」",
+  "who": "菲菲",
+  "text": "又分開了！大的小的都別往鞋子裡鑽。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-15",
+  "where": "第一次遇到「犰狳寶寶」",
+  "who": "菲菲",
+  "text": "縮得只剩一個殼。你害怕，我也害怕呀。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-16",
+  "where": "第一次遇到「燈蛾」",
+  "who": "菲菲",
+  "text": "翅膀一直晃，我得看清牠停在哪裡。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-17",
+  "where": "第一次遇到「冬眠熊」",
+  "who": "菲菲",
+  "text": "睡得這麼沉，連我走過來都沒發現。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-18",
+  "where": "第一次遇到「河豚精」",
+  "who": "菲菲",
+  "text": "肚子還在鼓……不好，得找個能遮住的地方。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-19",
+  "where": "第一次遇到「鎧甲獨角仙」",
+  "who": "菲菲",
+  "text": "殼一層疊一層，連腳都快藏進去了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-20",
+  "where": "第一次遇到「鼠大將」",
+  "who": "菲菲",
+  "text": "那隻一抬手，其他的就圍上來了。原來聽牠的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-21",
+  "where": "第一次遇到「鼠親兵」",
+  "who": "菲菲",
+  "text": "長槍後面還有盾，這條路堵得真緊。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-22",
+  "where": "第一次遇到「詛咒神官」",
+  "who": "菲菲",
+  "text": "牠一開口，我就想不起剛才要用哪招。別再念了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-23",
+  "where": "第一次遇到「幻狐」",
+  "who": "菲菲",
+  "text": "影子在變淡。牠是想逃，還是想繞到我後面？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-24",
+  "where": "第一次遇到「赤鬼武夫」",
+  "who": "菲菲",
+  "text": "牠越瞪越兇。我連針都還沒拿出來呢。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-25",
+  "where": "第一次遇到「月蛾后」",
+  "who": "菲菲",
+  "text": "鱗粉飄過來了……還好口罩帶著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-26",
+  "where": "第一次遇到「地藏石偶」",
+  "who": "菲菲",
+  "text": "那隻手掌比我的頭還大。光看就覺得痛。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-27",
+  "where": "第一次遇到「蛙大名」",
+  "who": "菲菲",
+  "text": "連池子旁邊都有人守，不能繞嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-28",
+  "where": "第一次遇到「蝌蚪兵」",
+  "who": "菲菲",
+  "text": "池水裡那些黑點，原來都是兵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-29",
+  "where": "第一次遇到「犰狳王」",
+  "who": "菲菲",
+  "text": "把頭縮進去了……這是在拒絕我嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-30",
+  "where": "第一次遇到「沉睡的龍貓」",
+  "who": "菲菲",
+  "text": "牠一呼吸，鱗片就跟著動。原來真的有這麼大的貓。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-31",
+  "where": "第一次遇到「詛咒老住持」",
+  "who": "菲菲",
+  "text": "老住持，您這是在念經，還是在咒我？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-32",
+  "where": "第一次遇到「柴犬浪人」",
+  "who": "菲菲",
+  "text": "牠按住刀柄了。我才剛走過來，還沒說話呢。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-33",
+  "where": "第一次遇到「三味線貓」",
+  "who": "菲菲",
+  "text": "曲子明明很好聽，背上卻一直發冷。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-34",
+  "where": "第一次遇到「燈籠妖」",
+  "who": "菲菲",
+  "text": "舌頭收回去啦，我看見了！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-35",
+  "where": "第一次遇到「風鈴精」",
+  "who": "菲菲",
+  "text": "聲音四面都有，到底是哪一個在響？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-36",
+  "where": "第一次遇到「狸小弟」",
+  "who": "菲菲",
+  "text": "你也替那位大人跑腿？這裡可不是玩耍的地方。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-37",
+  "where": "第一次遇到「木屐怪」",
+  "who": "菲菲",
+  "text": "一隻鞋？另一隻呢……會不會從後面過來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-38",
+  "where": "第一次遇到「掛軸墨貓」",
+  "who": "菲菲",
+  "text": "牠才從畫裡出來，就把地上滴得到處都是墨。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-39",
+  "where": "第一次遇到「月見兔」",
+  "who": "菲菲",
+  "text": "那是搗麻糬的杵吧？拜託別拿來搗我。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-40",
+  "where": "第一次遇到「貓頭鷹夜哨」",
+  "who": "菲菲",
+  "text": "我繞到哪，牠就看到哪。連背後都躲不了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-41",
+  "where": "第一次遇到「紙鶴式神」",
+  "who": "菲菲",
+  "text": "紙邊這麼利……剛才差點就用手去接了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-42",
+  "where": "第一次遇到「魔氣凝塊」",
+  "who": "菲菲",
+  "text": "那團霧一直朝這裡聚。裡面的臉，我不認得。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-43",
+  "where": "第一次遇到「夜行黑豹」",
+  "who": "菲菲",
+  "text": "剛才暗處那雙眼睛，原來離我這麼近。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-44",
+  "where": "第一次遇到「唐傘小僧」",
+  "who": "菲菲",
+  "text": "傘底下伸出一隻腳……我今天到底看到了什麼。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-45",
+  "where": "第一次遇到「河童」",
+  "who": "菲菲",
+  "text": "你看的是袋子吧？裡面的小魚乾我還要留著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-46",
+  "where": "第一次遇到「豆腐小僧」",
+  "who": "菲菲",
+  "text": "謝謝，可是這塊豆腐的味道不太對。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-47",
+  "where": "第一次遇到「烏天狗」",
+  "who": "菲菲",
+  "text": "扇子一動，我連站都站不住了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-48",
+  "where": "第一次遇到「白狐巫女」",
+  "who": "菲菲",
+  "text": "白狐狸在唸咒，我毛都豎起來了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-49",
+  "where": "第一次遇到「空鎧武者」",
+  "who": "菲菲",
+  "text": "裡面是空的……到底是誰在讓這副盔甲動？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-50",
+  "where": "第一次遇到「影球球」",
+  "who": "菲菲",
+  "text": "師兄？……不對。那雙紫眼睛，跟那天晚上的師父一樣。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-51",
+  "where": "第一次遇到「鏡中球球」",
+  "who": "菲菲",
+  "text": "那張臉明明是我，怎麼會自己笑起來？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-52",
+  "where": "第一次遇到「陪練的黑貓」",
+  "who": "菲菲",
+  "text": "你也要陪練？我沒答應一次兩個啊。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-53",
+  "where": "第一次遇到「橘皮大王」",
+  "who": "菲菲",
+  "text": "小魚乾堆得比牠還高……村裡卻都沒得吃。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-54",
+  "where": "第一次遇到「奶牛貓二當家」",
+  "who": "菲菲",
+  "text": "肩膀比門還寬。這一拳過來，我可接不住。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-55",
+  "where": "第一次遇到「狸大人」",
+  "who": "菲菲",
+  "text": "還沒走近就聞到酒味。師父說的果然沒錯。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-56",
+  "where": "第一次遇到「波斯大小姐」",
+  "who": "菲菲",
+  "text": "她一抬下巴，後面就有人替她擋著。連話都不用說。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-57",
+  "where": "第一次遇到「執事貓」",
+  "who": "菲菲",
+  "text": "您把路擋得這麼緊，是誰叫您來的？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-58",
+  "where": "第一次遇到「女僕貓」",
+  "who": "菲菲",
+  "text": "妳也得聽她的話，不能放我走嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-59",
+  "where": "第一次遇到「小老鼠兵」",
+  "who": "菲菲",
+  "text": "那些小魚乾是從村裡拿來的吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-60",
+  "where": "第一次遇到「毛線球怪」",
+  "who": "菲菲",
+  "text": "別滾到我腳邊，會絆倒的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-61",
+  "where": "第一次遇到「打翻的醬油瓶」",
+  "who": "菲菲",
+  "text": "衣服沾上這個，怎麼洗啊。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-62",
+  "where": "第一次遇到「紙箱怪」",
+  "who": "菲菲",
+  "text": "裡面還有東西！我剛才差點坐下去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-63",
+  "where": "第一次遇到「刺蝟師傅」",
+  "who": "菲菲",
+  "text": "師傅，您的刺掉了一地……我都不敢踩。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-64",
+  "where": "第一次遇到「貓罐頭精」",
+  "who": "菲菲",
+  "text": "罐頭裡又滿起來了。這裡面的東西吃不完嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-65",
+  "where": "第一次遇到「五爪貓」",
+  "who": "菲菲",
+  "text": "五隻爪子一起伸過來，我該看哪一隻？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-66",
+  "where": "第一次遇到「打盹的虎斑」",
+  "who": "菲菲",
+  "text": "耳朵還在動……你其實沒睡著，對吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-67",
+  "where": "第一次遇到「花栗鼠」",
+  "who": "菲菲",
+  "text": "那是我的小魚乾。還我。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-68",
+  "where": "第一次遇到「小花栗鼠」",
+  "who": "菲菲",
+  "text": "這隻也在盯我的袋子。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-69",
+  "where": "第一次遇到「鏡子貓」",
+  "who": "菲菲",
+  "text": "我歪頭，牠也歪頭。別連出招都照學呀。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-70",
+  "where": "第一次遇到「掃把蜈蚣」",
+  "who": "菲菲",
+  "text": "原來那不是掃把毛，是腳！難怪會往這邊爬。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-71",
+  "where": "第一次遇到「石獅子」",
+  "who": "菲菲",
+  "text": "村口那對石獅子，不會也這樣動吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-72",
+  "where": "第一次遇到「貓薄荷幻影」",
+  "who": "菲菲",
+  "text": "好熟悉的味道，可是聞久了頭好暈。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-73",
+  "where": "第一次遇到「掃地機器人王」",
+  "who": "菲菲",
+  "text": "地上那個會轉的東西，怎麼衝著我來了？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-74",
+  "where": "第一次遇到「小掃把」",
+  "who": "菲菲",
+  "text": "連掃把都來幫忙了？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-75",
+  "where": "第一次遇到「三花貓武僧」",
+  "who": "菲菲",
+  "text": "站了這麼久，連衣角都沒晃一下。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-76",
+  "where": "第一次遇到「影子小貓·壹」",
+  "who": "菲菲",
+  "text": "牠貼著地面過來，我差點把腳伸進去了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-77",
+  "where": "第一次遇到「影子小貓·貳」",
+  "who": "菲菲",
+  "text": "旁邊兩隻也在動。不能只顧著眼前這一隻。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-78",
+  "where": "第一次遇到「影子小貓·參」",
+  "who": "菲菲",
+  "text": "牠一聲不響地守著我後面，反而最讓人不安。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-79",
+  "where": "第一次遇到「練功樁」",
+  "who": "菲菲",
+  "text": "怎麼和家裡那根不一樣，連碰都碰不動。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-80",
+  "where": "第一次遇到「貓又婆婆」",
+  "who": "菲菲",
+  "text": "婆婆，尾巴借我讓一點，我怕踩著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-81",
+  "where": "第一次遇到「貓又的尾巴」",
+  "who": "菲菲",
+  "text": "尾巴過來了，婆婆卻沒動！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-82",
+  "where": "第一次遇到「鐵爪機關貓」",
+  "who": "菲菲",
+  "text": "齒輪聲好刺耳。這麼多鐵爪，都是它在控制？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-83",
+  "where": "第一次遇到「黃瓜怪」",
+  "who": "菲菲",
+  "text": "這根本就是黃瓜……可是黃瓜為什麼在追我！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-84",
+  "where": "第一次遇到「飯糰怪」",
+  "who": "菲菲",
+  "text": "都長出臉了……再餓也不能當飯糰吃。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-85",
+  "where": "第一次遇到「木樁人」",
+  "who": "菲菲",
+  "text": "原來這裡的木樁會自己找人練。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-86",
+  "where": "第一次遇到「迷途山羊」",
+  "who": "菲菲",
+  "text": "你也迷路了嗎？……別低頭，角正對著我呢。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-87",
+  "where": "第一次遇到「吸塵器」",
+  "who": "菲菲",
+  "text": "關掉！拜託把那個聲音關掉！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-88",
+  "where": "第一次遇到「黑貓忍者」",
+  "who": "菲菲",
+  "text": "你也用飛針？那我們都別站得太近。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-89",
+  "where": "第一次遇到「橘貓山賊」",
+  "who": "菲菲",
+  "text": "我還要靠這袋小魚乾走下去，不能給你。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-90",
+  "where": "第一次遇到「貓草蟲」",
+  "who": "菲菲",
+  "text": "嘴裡鼓起來了。等等，別吐！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-91",
+  "where": "第一次遇到「稻草人守衛」",
+  "who": "菲菲",
+  "text": "明明只有一肚子稻草，聲音卻這麼大。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-92",
+  "where": "第一次遇到「黑貓忍者（老手）」",
+  "who": "菲菲",
+  "text": "剛看見在前面，現在又到旁邊了。好快。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-93",
+  "where": "第一次遇到「大黃瓜怪」",
+  "who": "菲菲",
+  "text": "這根黃瓜大得快頂到屋頂了，還往這裡拱。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-94",
+  "where": "第一次遇到「黑貓忍者頭目」",
+  "who": "菲菲",
+  "text": "其他黑貓都聽你的吧？我想問塔頂那個人。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-95",
+  "where": "第一次遇到「巨型飯糰」",
+  "who": "菲菲",
+  "text": "這顆要是滾過來，整條走廊都塞住了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-96",
+  "where": "第一次遇到「小黑貓」",
+  "who": "菲菲",
+  "text": "你還這麼小，也被叫來守路嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-97",
+  "where": "第一次遇到「走火入魔的大俠貓」",
+  "who": "菲菲",
+  "text": "師父……真的是您。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-98",
+  "where": "第一次遇到「雪女貓」",
+  "who": "菲菲",
+  "text": "指尖都凍麻了。針還握得住，不能弄丟。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-99",
+  "where": "第一次遇到「招財貓」",
+  "who": "菲菲",
+  "text": "招的是財，還是我的魚乾袋？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-100",
+  "where": "第一次遇到「提燈鮟鱇」",
+  "who": "菲菲",
+  "text": "那盞燈底下有牙齒。差點就只顧著看亮光了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-101",
+  "where": "第一次遇到「傀儡師」",
+  "who": "菲菲",
+  "text": "牠藏在後面，手上全是線。這些傀儡都由牠拉著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-102",
+  "where": "第一次遇到「傀儡」",
+  "who": "菲菲",
+  "text": "腳沒有落地，卻一步步往前……是上面的線在拉。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-103",
+  "where": "第一次遇到「酒吞小鬼」",
+  "who": "菲菲",
+  "text": "還在喝？酒都灑到下巴了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-104",
+  "where": "第一次遇到「紙燈籠雙子・甲」",
+  "who": "菲菲",
+  "text": "兩盞燈互相照著，影子反而看不清。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-105",
+  "where": "第一次遇到「紙燈籠雙子・乙」",
+  "who": "菲菲",
+  "text": "別轉了，我快分不清哪一盞是哪一盞。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-106",
+  "where": "第一次遇到「魔氣鴉群」",
+  "who": "菲菲",
+  "text": "翅膀把路全擋住了！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-107",
+  "where": "第一次遇到「小鴉群」",
+  "who": "菲菲",
+  "text": "飛散了，別鑽到頭髮裡！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-108",
+  "where": "第一次遇到「怨靈武者」",
+  "who": "菲菲",
+  "text": "鎧甲正在變淡……裡面沒有誰能回答我。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-109",
+  "where": "第一次遇到「雙頭魔犬」",
+  "who": "菲菲",
+  "text": "一個頭盯袋子，一個頭盯我。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-110",
+  "where": "第一次遇到「塔頂守護石像」",
+  "who": "菲菲",
+  "text": "樓梯就在後面……偏偏是這尊石像守著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FM-111",
+  "where": "第一次遇到「面具舞者」",
+  "who": "菲菲",
+  "text": "剛才還在笑，換張面具連動作都變了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-01",
+  "where": "秘笈（5F）",
+  "who": "菲菲",
+  "text": "是師父親手寫的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-02",
+  "where": "秘笈（5F）",
+  "who": "菲菲",
+  "text": "怎麼會留在這裡？他出門時總會帶著的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-03",
+  "where": "打完第一隻精英",
+  "who": "菲菲",
+  "text": "那他現在更需要有人去找他。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-04",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "明天要過關主守的門，光想就睡不著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-05",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "藥分好了，針也檢查過了。還漏了什麼嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-06",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "再翻一次只會更清醒……把竹筒放好，睡吧。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-07",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "魔氣這麼重，連呼吸都覺得嗆。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-08",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "剛才那一聲像師父，可我從沒聽他叫得那麼痛。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-09",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "得先過眼前這一關，才走得到他那裡。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-10",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "明天就要見到師父了。我想過好多次，卻不知道見了他該先說什麼。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-11",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "師父第一次教我握針，還特地把尖端轉開，怕我扎到自己。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-12",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "他總記得我怕痛。現在，還會記得嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-13",
+  "where": "關主前的貓窩",
+  "who": "菲菲",
+  "text": "等見了面，我要先叫他一聲。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-14",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "師父，我是菲菲！我站在這裡，您看看我！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-15",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "退隱也得有地方回去呀。師父，我要帶您離開這裡，您別再推開我了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-16",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "婆婆，我也想回去。可是家裡少了兩個人，我不能就這樣走。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-17",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "這道紫光，跟師父那晚眼裡的一樣。這裡的魔物，都受了魔氣影響。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-18",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "爪子這麼密……得看準空隙，別把自己逼到牆角。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-19",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "你這裡堆的小魚乾，是村裡丟的那些嗎？你也聽塔頂那個人的話？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-20",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "既然你怕他，為什麼還攔我？那些小魚乾，村裡也還有人等著吃。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-21",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "你說的二當家，是替誰守這裡？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-22",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "那不是他的本意。他以前從不會叫人這樣守著路。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-23",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "我不喝，謝謝。師父特別交代過，不能碰您的酒。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-24",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "我會擦乾淨腳再走。塔頂還有人等我，請別攔我。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-25",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "我只從池邊過，不碰您的東西。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-26",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "殼上這麼多舊傷……牠也遇過那天的魔氣嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-27",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "我不想碰那些傷口……能讓我從旁邊過嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-28",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "整條樓梯都被牠壓住了……叫醒牠，一定會生氣吧。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-29",
+  "where": "關主開場",
+  "who": "菲菲",
+  "text": "我沒想要誰死。可是師父困在上面，我也不能放著他不管。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-30",
+  "where": "關主開場（通用）",
+  "who": "菲菲",
+  "text": "可我還沒找到要找的人。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-31",
+  "where": "關主被打倒",
+  "who": "菲菲",
+  "text": "還有救……我記住了，不在這裡耽擱。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-32",
+  "where": "關主被打倒",
+  "who": "菲菲",
+  "text": "紫光會散，師父也能醒吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-33",
+  "where": "關主被打倒",
+  "who": "菲菲",
+  "text": "別再搶了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-34",
+  "where": "關主被打倒",
+  "who": "菲菲",
+  "text": "謝謝你讓路。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-35",
+  "where": "關主被打倒",
+  "who": "菲菲",
+  "text": "他以前連罰我蹲馬步都捨不得……您說的，好像是另一個人。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-36",
+  "where": "關主被打倒",
+  "who": "菲菲",
+  "text": "我走了，這次不吵你。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-37",
+  "where": "關主被打倒",
+  "who": "菲菲",
+  "text": "他連我怕什麼都記得……不會把我全忘了的。我得親口叫叫他。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-38",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "師父，聽我的聲音。我是您教過握針的那個小徒弟。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-39",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "婆婆剛才還在讓我……這下不能大意。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-40",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "爪子都燒紅了，隔這麼遠還覺得燙。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-41",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "樓梯就這麼寬，你捲成球我要躲哪裡！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-42",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "還有另一套爪法……看清楚，不能照剛才的接。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-43",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "變出這麼多隻……哪一隻才是真的啊？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-44",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "我沒有要找你們算帳，別替她擋在前面。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-45",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "水面都被擠滿了……這麼多，我得顧著兩邊。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-46",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "老住持也長出鱗甲了……這還是他原本的樣子嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-47",
+  "where": "關主第二階段",
+  "who": "菲菲",
+  "text": "是我把您吵醒的。可是路就這一條，我得過去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-48",
+  "where": "關主第二階段（通用）",
+  "who": "菲菲",
+  "text": "呼吸穩住。牠的動作跟剛才不同了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-49",
+  "where": "關主第三階段",
+  "who": "菲菲",
+  "text": "師父，這套招式我認得。您教我的時候，從來不肯真的打下來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BOSS-50",
+  "where": "關主第三階段（通用）",
+  "who": "菲菲",
+  "text": "還有魔氣……不能在這裡鬆手。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-01",
+  "where": "事件「師父留下的秘笈」選「研讀秘笈（從 3 張絕學牌中選擇 1 張）」的結果",
+  "who": "菲菲",
+  "text": "是這招。我總在這裡卡住，原來手要這樣收。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-02",
+  "where": "事件「師父留下的秘笈」選「放回原位（無效果）」的結果",
+  "who": "菲菲",
+  "text": "這幾招還看不懂。等見了面，再請師父教我。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-03",
+  "where": "事件「留下買路財」選「付 30 條小魚乾買路」的結果",
+  "who": "菲菲",
+  "text": "數好了吧？那我過去了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-04",
+  "where": "事件「留下買路財」選「打一場（勝利後額外獲得 40 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "我不想傷你。把木棒放下，讓我過去。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-05",
+  "where": "事件「分糧救急」選「分出目前一半的小魚乾（回復 15 點生命、移除 1 張牌）」的結果",
+  "who": "菲菲",
+  "text": "謝謝，繃帶這樣就不勒了。你們也別餓著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-06",
+  "where": "事件「分糧救急」選「繼續趕路（無效果）」的結果",
+  "who": "菲菲",
+  "text": "我不知道還要走多久，這袋得留著……對不起。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-07",
+  "where": "事件「江湖救急」選「收下貓草藥（回復 20 點生命）」的結果",
+  "who": "菲菲",
+  "text": "原來你也喝這麼苦的藥。我還以為只有師父會開。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-08",
+  "where": "事件「江湖救急」選「收下小魚乾（獲得 40 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "繃帶沒鬆。我走了，你也早點回村裡。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-09",
+  "where": "事件「此路不通」選「翻過垃圾山（最多失去 6 點生命；隨機獲得 1 張罕見忍術牌）」的結果",
+  "who": "菲菲",
+  "text": "肩膀好痛，卷軸倒是一點都沒破。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-10",
+  "where": "事件「此路不通」選「從旁邊繞過去（無效果）」的結果",
+  "who": "菲菲",
+  "text": "這裡通得過！幸好沒有硬往上爬。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-11",
+  "where": "事件「閉關」選「對著爪痕練招（升級至多 1 張牌）」的結果",
+  "who": "菲菲",
+  "text": "角度改成這樣，手就不會卡在這裡了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-12",
+  "where": "事件「閉關」選「打坐休息（回復 10 點生命）」的結果",
+  "who": "菲菲",
+  "text": "真的睡著了……還好沒人看見。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-13",
+  "where": "事件「深藏不露」選「打開箱子（隨機獲得 1 件常見秘寶、牌組加入 1 張壞毛病「中計了」）」的結果",
+  "who": "菲菲",
+  "text": "差點打到鼻子！師父，這不會又是您放的吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-14",
+  "where": "事件「深藏不露」選「不碰箱子（無效果）」的結果",
+  "who": "菲菲",
+  "text": "這種紙條最讓人想伸手……不能上當。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-15",
+  "where": "事件「曬太陽」選「曬著太陽打盹（回復 12 點生命）」的結果",
+  "who": "菲菲",
+  "text": "光斑都挪到旁邊了，我居然睡了這麼久。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-16",
+  "where": "事件「曬太陽」選「曬著太陽整理招式（移除 1 張牌）」的結果",
+  "who": "菲菲",
+  "text": "不用把每招都留著。這一招，我現在用不上。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-17",
+  "where": "事件「可疑的飯糰攤」選「買一顆吃（花費 20 條小魚乾；50% 機率生命上限與當前生命各 +5，否則牌組加入 1 張壞毛病「失手了」）」的結果",
+  "who": "菲菲",
+  "text": "別躲著我呀，這飯糰裡到底放了什麼？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-18",
+  "where": "事件「可疑的飯糰攤」選「不買（無效果）」的結果",
+  "who": "菲菲",
+  "text": "這個有人咬過了……我不買，謝謝。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-19",
+  "where": "事件「迷路的小黑貓」選「送牠到轉角的集合處（隨機獲得 2 個忍具）」的結果",
+  "who": "菲菲",
+  "text": "找到同伴了就好。下次頭巾滑下來，先掀開看看。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-20",
+  "where": "事件「迷路的小黑貓」選「指出集合處，讓牠自己回去（獲得 15 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "聽，那邊還在叫你。別讓他們找急了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-21",
+  "where": "事件「古井」選「投入 30 條小魚乾許願（50% 機率隨機獲得 1 件常見秘寶，否則無獎勵；小魚乾不退還）」的結果",
+  "who": "菲菲",
+  "text": "我不求別的，讓師父和師兄平安就好。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-22",
+  "where": "事件「古井」選「對著倒影練招（升級至多 1 張牌）」的結果",
+  "who": "菲菲",
+  "text": "原來我出手時肩膀會歪，難怪總覺得不順。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-23",
+  "where": "事件「古井」選「離開古井（無效果）」的結果",
+  "who": "菲菲",
+  "text": "願望我自己記著。小魚乾留在路上用。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-24",
+  "where": "事件「倒了的神龕」選「扶正神龕、安放神像（生命上限與當前生命各 +6）」的結果",
+  "who": "菲菲",
+  "text": "這樣應該坐穩了。剛才那一下，是你在謝我嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-25",
+  "where": "事件「倒了的神龕」選「拿走供品（獲得 45 條小魚乾、牌組加入 1 張壞毛病「走火入魔」）」的結果",
+  "who": "菲菲",
+  "text": "這股冷氣是……我拿了你的東西，你生氣了？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-26",
+  "where": "事件「硬要切磋的白貓」選「接下挑戰（打一場，勝利後額外獲得 60 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "說好是切磋，別把人打傷了。你師弟也要上嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-27",
+  "where": "事件「硬要切磋的白貓」選「硬從旁邊擠過去（最多失去 8 點生命）」的結果",
+  "who": "菲菲",
+  "text": "肩膀都撞麻了。我說借過，又沒說要跟你練。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-28",
+  "where": "事件「好高的貓抓柱」選「爬到頂端取物（最多失去 10 點生命，隨機獲得 1 件常見秘寶）」的結果",
+  "who": "菲菲",
+  "text": "手都磨紅了……早知道先墊塊布再爬。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-29",
+  "where": "事件「好高的貓抓柱」選「照著底部爪痕練習（隨機獲得 1 張罕見絕學牌）」的結果",
+  "who": "菲菲",
+  "text": "這幾道爪痕連起來，剛好是一整招。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-30",
+  "where": "事件「掉在地上的卷軸」選「挑一段照著練（從 3 張忍術牌中選擇 1 張）」的結果",
+  "who": "菲菲",
+  "text": "還好手勢畫得清楚，換個方向就差很多。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-31",
+  "where": "事件「掉在地上的卷軸」選「賣給舊書攤（獲得 40 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "有這些小魚乾，下一頓就不用發愁了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-32",
+  "where": "事件「很吵的廚房」選「盛一碗熱湯（回復相當於生命上限 50% 的生命）」的結果",
+  "who": "菲菲",
+  "text": "連湯裡的料都燉軟了。真想坐久一點。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-33",
+  "where": "事件「很吵的廚房」選「取用備用忍具（隨機獲得 2 個忍具）」的結果",
+  "who": "菲菲",
+  "text": "還附了用法……是怕後來的人不會用吧。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-34",
+  "where": "事件「很吵的廚房」選「不取用，繼續走（無效果）」的結果",
+  "who": "菲菲",
+  "text": "碗放回去了。留給下一個經過的人吧。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-35",
+  "where": "事件「鏡子走廊」選「與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）」的結果",
+  "who": "菲菲",
+  "text": "我換手，你也換……到底怎樣才跟不上？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-36",
+  "where": "事件「鏡子走廊」選「盯著出口快步走過（無效果）」的結果",
+  "who": "菲菲",
+  "text": "出來了……那些影子沒有跟上吧？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-37",
+  "where": "事件「睡著的守衛」選「伸爪偷錢袋（進入戰鬥，勝利後額外獲得 70 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "是我不對。錢袋還在，你別追過來！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-38",
+  "where": "事件「睡著的守衛」選「調勻氣息，悄悄通過（生命上限與當前生命各 +4）」的結果",
+  "who": "菲菲",
+  "text": "腳步跟著呼吸，真的能不出聲。記住這種感覺。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-39",
+  "where": "事件「賣藥的三花貓」選「購買混裝忍具（支付 25 條小魚乾，隨機獲得 2 個忍具）」的結果",
+  "who": "菲菲",
+  "text": "這兩個我沒用過，用的時候有什麼要留意的？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-40",
+  "where": "事件「賣藥的三花貓」選「購買祖傳補身藥（支付 60 條小魚乾，生命上限與當前生命各 +12）」的結果",
+  "who": "菲菲",
+  "text": "好貴……不過喝完真的比較有力氣了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-41",
+  "where": "事件「賣藥的三花貓」選「不買（無效果）」的結果",
+  "who": "菲菲",
+  "text": "價錢我記下了，等口糧夠了再說。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-42",
+  "where": "事件「卡住的小貓」選「上前協助救出小貓（獲得 20 條小魚乾，回復 15 點生命）」的結果",
+  "who": "菲菲",
+  "text": "出來了就好。別哭，你媽媽在這裡。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-43",
+  "where": "事件「卡住的小貓」選「觀察牠縮身脫困的動作（隨機獲得 1 張罕見忍術牌）」的結果",
+  "who": "菲菲",
+  "text": "原來要先轉肩膀，再把身子收過來。這動作也能拿來練。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-44",
+  "where": "事件「賭博的老鼠」選「下注 50 條小魚乾（70% 機率領取 130 條，淨賺 80 條；否則輸掉本錢）」的結果",
+  "who": "菲菲",
+  "text": "我不押下一把了，心跳得太厲害。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-45",
+  "where": "事件「賭博的老鼠」選「掀桌挑戰（進入戰鬥，勝利後額外獲得 80 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "糟了，把他們全惹急了……木棍先放下！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-46",
+  "where": "事件「賭博的老鼠」選「不賭（無效果）」的結果",
+  "who": "菲菲",
+  "text": "我連還要吃幾頓都不知道，不能拿這些來押。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-47",
+  "where": "事件「很重的門」選「硬推石門，進去取寶（最多失去 14 點生命，隨機獲得 1 件大魔物秘寶）」的結果",
+  "who": "菲菲",
+  "text": "秘寶拿到了，肩膀卻連衣服都不能碰。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-48",
+  "where": "事件「很重的門」選「從門縫伸爪取物（獲得 35 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "還好手伸得進去，肩膀過去就卡住了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-49",
+  "where": "事件「師父的影子」選「聽完指點，練習調息（升級一張牌，生命上限與當前生命各 +5）」的結果",
+  "who": "菲菲",
+  "text": "您連糾正我的口氣都像他。我能再聽一遍嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-50",
+  "where": "事件「師父的影子」選「有所領悟，捨去不合適的兩張牌（移除 2 張牌）」的結果",
+  "who": "菲菲",
+  "text": "這兩招留著也用不好。不勉強，反而接得上了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-51",
+  "where": "事件「一整片貓薄荷」選「進去打滾（回復相當於生命上限 50% 的生命，加入 1 張壞毛病牌「走火入魔」）」的結果",
+  "who": "菲菲",
+  "text": "背不痠了，心口卻亂跳。那層紫霧，果然有問題。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-52",
+  "where": "事件「一整片貓薄荷」選「採一把嫩葉交換（隨機獲得 2 個忍具）」的結果",
+  "who": "菲菲",
+  "text": "忍具收好了，手上卻還是那股香味。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-53",
+  "where": "事件「一整片貓薄荷」選「避開葉叢，快步通過（無效果）」的結果",
+  "who": "菲菲",
+  "text": "差點又想回頭了。把鼻子遮住，走到門外再說。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-54",
+  "where": "事件「兵器架」選「挑一幅演招圖練習（從 3 張絕學牌中選擇 1 張）」的結果",
+  "who": "菲菲",
+  "text": "武器太重，帶不走。出手的方式倒能記下來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-55",
+  "where": "事件「兵器架」選「把整批舊兵器交給回收商（獲得 55 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "鏽成這樣也收？那請您把尖的那頭包好。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-56",
+  "where": "事件「會哭的牆」選「耐心安慰，聽完它的叮囑（生命上限與當前生命各 +8）」的結果",
+  "who": "菲菲",
+  "text": "我知道您是在擔心。您教的護身法，我會記著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-57",
+  "where": "事件「會哭的牆」選「敲開牆腳的藏物磚（隨機獲得 1 件常見秘寶；失去最多 12 點生命）」的結果",
+  "who": "菲菲",
+  "text": "您別擔心，我還醒著。只是碎石劃到了手。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-58",
+  "where": "事件「養魚的池子」開頭",
+  "who": "菲菲",
+  "text": "水底下那個……可不是這些小魚。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-59",
+  "where": "事件「養魚的池子」選「抓一條吃（回復 18 點生命）」的結果",
+  "who": "菲菲",
+  "text": "吃一條就夠了。我可不想再驚動水底那個。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-60",
+  "where": "事件「養魚的池子」選「搬走池邊的小魚乾（獲得 65 條小魚乾；失去最多 10 點生命）」的結果",
+  "who": "菲菲",
+  "text": "原來那籃是你的！別打了，我走！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-61",
+  "where": "事件「養魚的池子」選「看看就好（無效果）」的結果",
+  "who": "菲菲",
+  "text": "我把手收回來了，水底那位別生氣。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-62",
+  "where": "事件「空的練功房」開頭",
+  "who": "菲菲",
+  "text": "地板都磨出了腳印，以前一定有人天天在這裡練。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-63",
+  "where": "事件「空的練功房」選「沿著足跡練步法（自選升級至多 2 張牌）」的結果",
+  "who": "菲菲",
+  "text": "這一步是為了轉身，難怪不能直接往前。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-64",
+  "where": "事件「空的練功房」選「打開櫃子（進入戰鬥；勝利後隨機獲得 1 件大魔物秘寶，另得 30 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "你是守櫃子的？難怪剛才一聲不響。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-65",
+  "where": "事件「看得到月亮的窗」開頭",
+  "who": "菲菲",
+  "text": "這隻小貓刻得真像，只是碗裡空空的。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-66",
+  "where": "事件「看得到月亮的窗」選「放下 20 條小魚乾（生命上限與當前生命各 +10）」的結果",
+  "who": "菲菲",
+  "text": "你還會蹭人呀……是不是在這裡等很久了？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-67",
+  "where": "事件「看得到月亮的窗」選「坐著看月亮（回復 14 點生命）」的結果",
+  "who": "菲菲",
+  "text": "師父、師兄……你們那邊也看得到月亮嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-68",
+  "where": "事件「很貪心的商人」選「買下組合（支付 80 條小魚乾；隨機獲得 1 件大魔物秘寶、隨機獲得 1 個忍具）」的結果",
+  "who": "菲菲",
+  "text": "東西齊了。您別再拿新的出來，我真的買不起。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-69",
+  "where": "事件「很貪心的商人」選「接受灌功試驗（牌組加入 1 張壞毛病「內力不足」；隨機獲得 1 件大魔物秘寶）」的結果",
+  "who": "菲菲",
+  "text": "東西是拿到了，氣卻接不上……這代價也太大了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-70",
+  "where": "事件「很貪心的商人」選「不做生意（無效果）」的結果",
+  "who": "菲菲",
+  "text": "拿了秘寶卻使不上力，我還怎麼走下去？不試了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-71",
+  "where": "事件「山賊再現」選「收下回禮（獲得 60 條小魚乾，隨機獲得 1 個忍具）」的結果",
+  "who": "菲菲",
+  "text": "你娘好多了就好……也替我跟她說聲謝謝。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-72",
+  "where": "事件「山賊再現」選「請牠把回禮留給母親（生命上限與當前生命各 +5）」的結果",
+  "who": "菲菲",
+  "text": "呼吸順多了，謝謝。回去替我問候你娘。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-73",
+  "where": "事件「山賊帶朋友來了」選「再打一場（勝利後額外獲得 70 條小魚乾）」的結果",
+  "who": "菲菲",
+  "text": "看到你的木棒，我就知道又走不成了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-74",
+  "where": "事件「山賊帶朋友來了」選「支付 45 條小魚乾息事寧人」的結果",
+  "who": "菲菲",
+  "text": "你們分吧，我要趁現在走。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-75",
+  "where": "事件「村貓的回禮」選「收下回禮（隨機獲得 1 件常見秘寶）」的結果",
+  "who": "菲菲",
+  "text": "我一直惦記著你的腳。這下看到你走路，總算放心了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-76",
+  "where": "事件「村貓的回禮」選「請牠幫忙練招（自選升級至多 1 張牌）」的結果",
+  "who": "菲菲",
+  "text": "這裡不用停，直接接過去……對，就是這樣。謝謝你。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-77",
+  "where": "事件「欠村貓的那一份」選「分給牠 40 條小魚乾（回復 25 點生命，自選移除 1 張牌）」的結果",
+  "who": "菲菲",
+  "text": "上次收了你的口糧，這回換你吃。藥我也收到了，謝謝。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-78",
+  "where": "事件「欠村貓的那一份」選「低頭趕路（牌組加入 1 張壞毛病「眼冒金星」）」的結果",
+  "who": "菲菲",
+  "text": "牠還朝我笑，我卻連頭都不敢抬……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-79",
+  "where": "事件「村貓的謝宴」選「坐下吃頓飽的（生命回復至上限）」的結果",
+  "who": "菲菲",
+  "text": "你們都在，還有熱湯喝……我好久沒這樣吃飯了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-80",
+  "where": "事件「村貓的謝宴」選「收下路上的補給（獲得 50 條小魚乾，隨機獲得 1 個忍具）」的結果",
+  "who": "菲菲",
+  "text": "連忍具都包好了。等我回來，再陪你們吃一頓。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-81",
+  "where": "事件「換家的老鼠」選「交換秘寶（隨機交出 1 件非起始秘寶；隨機獲得 2 件常見秘寶）」的結果",
+  "who": "菲菲",
+  "text": "真的換走了啊……好，要替我收好。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-82",
+  "where": "事件「換家的老鼠」選「不交換（無效果）」的結果",
+  "who": "菲菲",
+  "text": "背得動，還是留著。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-83",
+  "where": "事件「磨利我的刀」開頭",
+  "who": "菲菲",
+  "text": "連身體都會練壞……這法子真的值得嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-84",
+  "where": "事件「磨利我的刀」選「依照捨招法修行（自選移除 3 張牌；本次登塔生命上限 −8）」的結果",
+  "who": "菲菲",
+  "text": "胸口一直發虛，連站著都累。這下得省著力氣走了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-85",
+  "where": "事件「磨利我的刀」選「不修行（無效果）」的結果",
+  "who": "菲菲",
+  "text": "學了反而撐不住，還是算了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-86",
+  "where": "事件「速成的卷軸」開頭",
+  "who": "菲菲",
+  "text": "『後果自負』……哪種後果？怎麼不寫清楚。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-87",
+  "where": "事件「速成的卷軸」選「照著練（自選升級至多 2 張牌；牌組加入 1 張隨機壞毛病牌）」的結果",
+  "who": "菲菲",
+  "text": "收手的時候不對勁……剛才那招，真的能這樣練嗎？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "EV-88",
+  "where": "事件「速成的卷軸」選「不練（無效果）」的結果",
+  "who": "菲菲",
+  "text": "連墨都還沒乾，我可不敢照著亂練。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "ET-01",
+  "where": "共用事件整句（敘述＋她的話，整句都可改）",
+  "who": "旁白／菲菲",
+  "text": "菲菲將魚乾袋護在身後，從竹筒抽出一根針。山賊舉起木棒，頻頻朝轉角張望，像在等人接應。菲菲：「我不想傷你。把木棒放下，讓我過去。」",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "ET-02",
+  "where": "共用事件整句（敘述＋她的話，整句都可改）",
+  "who": "旁白／菲菲",
+  "text": "村貓們輪流替她添湯。菲菲吃飽了，仍捧著碗坐在大家中間，聽牠們聊路上的事。菲菲：「你們都在，還有熱湯喝……我好久沒這樣吃飯了。」",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "ET-03",
+  "where": "共用事件整句（敘述＋她的話，整句都可改）",
+  "who": "旁白／菲菲",
+  "text": "走廊兩側排滿鏡子。菲菲停步，其中一個倒影卻沒有停下。它朝她笑了笑，抬起握針的手；其餘的倒影，也一個個轉向了她。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "ET-04",
+  "where": "共用事件整句（敘述＋她的話，整句都可改）",
+  "who": "旁白／菲菲",
+  "text": "跟鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "ET-05",
+  "where": "共用事件整句（敘述＋她的話，整句都可改）",
+  "who": "旁白／菲菲",
+  "text": "鏡中的菲菲踏出鏡面，握針的手勢與她完全相同。她試著將針交到另一隻手，對方立即照做，眼睛卻始終盯著她。菲菲：「我換手，你也換……到底怎樣才跟不上？」",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "ET-06",
+  "where": "共用事件整句（敘述＋她的話，整句都可改）",
+  "who": "旁白／菲菲",
+  "text": "菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那些影子沒有跟上吧？」",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-01",
+  "where": "專屬事件「師兄的痕跡」開頭",
+  "who": "旁白／菲菲",
+  "text": "牆縫裡卡著幾根針，有的已經彎了。地上散著小魚乾，旁邊還掛著深藍色的線頭。菲菲認出那是師兄頭巾的布料。他走過這裡，連東西掉了都沒發現。",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-02",
+  "where": "專屬事件「師兄的痕跡」選「把針收起來（回復 12 點生命、獲得 20 條小魚乾）」的結果",
+  "who": "旁白／菲菲",
+  "text": "菲菲把針和線頭包起來，坐下吃了些小魚乾，再將剩下的乾糧裝進袋子。菲菲：「又掉東西……回去得替他縫牢一點。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-03",
+  "where": "專屬事件「師兄的痕跡」選「照著痕跡追上去（最多失去 5 點生命；隨機獲得 1 張罕見忍術牌、獲得 60 條小魚乾）」的結果",
+  "who": "旁白／菲菲",
+  "text": "菲菲追著痕跡跑過轉角，被木箱絆得擦破膝蓋。盡頭只留著一卷忍術和一袋小魚乾。菲菲：「還是沒追上……至少他往這邊走，沒有找錯。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-04",
+  "where": "專屬事件「調藥」開頭",
+  "who": "旁白／菲菲",
+  "text": "菲菲在牆角發現一叢葉背泛紫的草。揉開的氣味很像常用的藥材，卻濃烈得多。她翻了翻隨身的本子，沒有找到完全相同的記錄。",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-05",
+  "where": "專屬事件「調藥」選「熬一鍋（升級至多 1 張牌）」的結果",
+  "who": "旁白／菲菲",
+  "text": "她把草葉搗碎，加水熬成濃汁，隔著布替針尖上藥。菲菲：「比平常那批濃，份量得減些。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-06",
+  "where": "專屬事件「調藥」選「直接嚼一口試毒性（失去 8 點生命、獲得 1 張稀有牌）」的結果",
+  "who": "旁白／菲菲",
+  "text": "她猶豫了好一會，仍咬下一點草葉。苦澀伴著刺痛湧上來，她彎下身乾嘔，眼淚直掉。等能握筆，才把反應記進本子。菲菲：「記下來了……不要再試第二次。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-07",
+  "where": "專屬事件「調藥」選「不要碰（無效果）」的結果",
+  "who": "旁白／菲菲",
+  "text": "菲菲把折下的草葉放回牆邊，擦掉指尖的汁。菲菲：「聞著像，也不能當成一樣的用。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-08",
+  "where": "專屬事件「破掉的針袋」開頭",
+  "who": "旁白／菲菲",
+  "text": "菲菲在舊櫃裡找到一條乾淨布條，正好能換掉手上滲血的繃帶。轉身時，針袋卻被櫃角勾破，毒針從破口探了出來。她趕緊拎住袋口。布條只有這一截，包了傷口，就不夠補袋子。",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-09",
+  "where": "專屬事件「破掉的針袋」選「布條拿來補針袋（獲得 1 張罕見的忍術牌）」的結果",
+  "who": "旁白／菲菲",
+  "text": "她用布條封住破口，試了幾次取針的角度，才把袋子繫回腰邊。菲菲：「至少不會再扎到手。這個傷口，得等下一站再處理。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-10",
+  "where": "專屬事件「破掉的針袋」選「布條拿來包紮（回復 18 點生命）」的結果",
+  "who": "旁白／菲菲",
+  "text": "她用乾淨布條包好傷口，把破針袋另放在不會碰到手的地方。取針時得繞開破口，她便多檢查了一遍。菲菲：「手不痛，才拿得穩。袋子等找到布再補。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-11",
+  "where": "專屬事件「牆後的暗號」開頭",
+  "who": "旁白／菲菲",
+  "text": "牆後響起熟悉的求援節奏，是她和師兄練功時用的暗號。菲菲敲出回應，裡頭卻只重複同一段聲音。她從門縫望進去，才看見轉動的齒輪。夾合的鐵片下壓著一袋小魚乾，想拿就得把手伸進去。",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-12",
+  "where": "專屬事件「牆後的暗號」選「用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）」的結果",
+  "who": "旁白／菲菲",
+  "text": "她用飛針卡住齒輪，取出小魚乾。拔回的針已被壓彎，熟悉的求援節拍卻仍在腦中反覆響著。菲菲：「明明知道不是他，還是忍不住聽。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "FE-13",
+  "where": "專屬事件「牆後的暗號」選「墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）」的結果",
+  "who": "旁白／菲菲",
+  "text": "她墊著袖布撐開機關，鐵片仍劃破了手。菲菲：「把手抽出來，別卡在裡面……」取出小魚乾後，她在牆邊按住傷口。那聲音再響，她也沒有回頭。",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CAST-01",
+  "where": "旁白／別人提到她（不是她講的）",
+  "who": "旁白",
+  "text": "呵呵，小姑娘，坐下喘口氣。酒都倒好了，何必急著走呢？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CAST-02",
+  "where": "旁白／別人提到她（不是她講的）",
+  "who": "旁白",
+  "text": "他已經快忘了自己是誰。小姑娘，到了上面，好好叫叫他；也許他還記得你的聲音。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CAST-03",
+  "where": "旁白／別人提到她（不是她講的）",
+  "who": "旁白",
+  "text": "巨大的殼鬆開一道縫。牠看了看菲菲，慢慢挪到牆邊，把路讓了出來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CAST-04",
+  "where": "旁白／別人提到她（不是她講的）",
+  "who": "旁白",
+  "text": "龍貓睜開一隻眼，看了看菲菲，便將頭埋回身側。牠已經不想打，只惦記著睡覺。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "CAST-05",
+  "where": "旁白／別人提到她（不是她講的）",
+  "who": "旁白",
+  "text": "你們還站著做什麼？快替本小姐收拾她！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "feifei"
+ },
+ {
+  "id": "BLURB-01",
+  "where": "選角畫面的小傳",
+  "who": "旁白",
+  "text": "怕痛的暹羅貓，球球的師妹。進塔只為找回師父與師兄。攻擊牌多半自帶蜷縮，能邊打邊擋；毒針累積中毒，逐步消耗對手。",
+  "file": "src/ui/screens/heroselect.ts",
+  "kind": "blurb",
+  "hero": "feifei"
+ }
+]

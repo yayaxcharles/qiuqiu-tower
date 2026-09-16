@@ -17,8 +17,11 @@ it.skipIf(!process.env['DUMP_STORY'])('dump story tables', () => {
   for (const hero of ['feifei', 'ninja'] as const) {
     const me = hero === 'feifei' ? '菲菲' : '球球';
     const rows = buildRows(hero);
-    const md = `docs/${me}_劇情改寫表_2026-09-15.md`;
-    writeTable(hero, rows, md, `docs/${me}_劇情改寫表_2026-09-15.keys.json`);
+    // 第二輪起換一個日期，舊表是 GPT 那一輪的底稿，不能蓋掉：
+    //   DUMP_STORY=1 STORY_DATE=2026-09-16 npx vitest run tools/dump_story_table.test.ts
+    const date = process.env['STORY_DATE'] ?? '2026-09-15';
+    const md = `docs/${me}_劇情改寫表_${date}.md`;
+    writeTable(hero, rows, md, `docs/${me}_劇情改寫表_${date}.keys.json`);
     // eslint-disable-next-line no-console
     console.log(`寫好了：${md}（${rows.length} 句）`);
   }

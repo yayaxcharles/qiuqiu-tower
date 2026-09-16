@@ -1,0 +1,2889 @@
+[
+ {
+  "id": "P-01",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "旁白",
+  "text": "球球是大俠貓的徒弟。每次練習蜷縮，他總是縮到一半就倒向一邊。師父便扶他坐好，重新示範，讓他跟著做。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "P-02",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "旁白",
+  "text": "那天夜裡，村外突然出現一座魔塔。塔頂亮起紫光，一縷魔氣飄進村裡，鑽入師父體內。師父痛苦地跪倒，渾身的毛都豎了起來，眼睛也變成了紫色。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "P-03",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "旁白",
+  "text": "師父忽然起身，朝魔塔跑去。球球抓起藍頭巾追了出去，沒聽見師妹在身後叫他。等他跑到塔下，又看見幾隻魔物扛著村裡的小魚乾，正往塔裡搬。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "P-04",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "球球",
+  "text": "師父，你等等我喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "P-05",
+  "where": "序章（開場影片後的四張幻燈片）",
+  "who": "球球",
+  "text": "我要把師父帶回家，也要把村裡的小魚乾拿回來喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "A1-01",
+  "where": "第一關打完",
+  "who": "旁白",
+  "text": "關主倒下後，球球在牆邊找到了樓梯。階梯上散著幾條小魚乾，樓上也傳來一陣魚乾的香味。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "A1-02",
+  "where": "第一關打完",
+  "who": "球球",
+  "text": "味道這麼重，上面肯定還有小魚乾喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "A1-03",
+  "where": "第一關打完",
+  "who": "旁白",
+  "text": "球球跑上樓梯，頭巾勾到扶手，留下一縷藍線。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "A2-01",
+  "where": "第二關打完",
+  "who": "旁白",
+  "text": "塔頂又傳來師父的吼聲。球球停下腳步，這次的聲音聽起來更痛苦了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "A2-02",
+  "where": "第二關打完",
+  "who": "球球",
+  "text": "師父，我在這裡喵！你聽得到嗎喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "A2-03",
+  "where": "第二關打完",
+  "who": "旁白",
+  "text": "球球喊了幾聲，都沒有回應。他抬頭望著上方的樓梯，重新綁好頭巾，繼續往上走。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "D-01",
+  "where": "輸了（倒下）",
+  "who": "旁白",
+  "text": "球球再也站不住，倒在地上。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "D-02",
+  "where": "輸了（倒下）",
+  "who": "球球",
+  "text": "我還……不能倒下喵……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "D-03",
+  "where": "輸了（倒下）",
+  "who": "旁白",
+  "text": "迷迷糊糊間，球球感覺有人背起了自己。醒來時，他已經躺在村裡。身上的傷包紮好了，窗外卻還看得見魔塔的紫光。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "V-01",
+  "where": "通關（打贏師父）",
+  "who": "旁白",
+  "text": "師父身上的魔氣散了，眼睛也恢復了原來的顏色。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "V-02",
+  "where": "通關（打贏師父）",
+  "who": "塔主",
+  "text": "承讓。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "V-03",
+  "where": "通關（打贏師父）",
+  "who": "球球",
+  "text": "師父，你終於醒了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "V-04",
+  "where": "通關（打贏師父）",
+  "who": "旁白",
+  "text": "師父把球球抱進懷裡。球球哭得說不出話，師父輕拍他的背，等他哭完，才替他擦掉眼淚。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "V-05",
+  "where": "通關（打贏師父）",
+  "who": "旁白",
+  "text": "師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "VN-01",
+  "where": "通關旁白（依牌組傾向：爪力流）",
+  "who": "旁白",
+  "text": "師父看了看手臂上被抓破的地方，又看向球球，笑著點點頭。球球收起爪子，等著師父走過來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "VN-02",
+  "where": "通關旁白（依牌組傾向：隱身流）",
+  "who": "旁白",
+  "text": "師父走過來，球球往旁邊一閃。看見師父伸手要抱他，他才停下來。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "VN-03",
+  "where": "通關旁白（依牌組傾向：蜷縮流）",
+  "who": "旁白",
+  "text": "球球還縮著身子。師父蹲下來拍了拍他的背，他才抬起頭，鬆開護住腦袋的雙爪。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "VN-04",
+  "where": "高難度後日談",
+  "who": "旁白",
+  "text": "回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "VN-05",
+  "where": "全破後結算畫面的最後一句",
+  "who": "球球",
+  "text": "師父，明天也陪我練功喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-01",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "球球來了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-02",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "看招喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-03",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "不要擋路喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-04",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "讓開，我趕時間喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-05",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "我先上了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-06",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "誰怕誰喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-07",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "要打就快點喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BS-08",
+  "where": "開打時（隨機一句）",
+  "who": "球球",
+  "text": "想攔我，先打贏我喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-01",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "總算打完了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-02",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "這下知道厲害了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-03",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "有沒有掉小魚乾喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-04",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "走了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-05",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "呼，歇一口氣喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-06",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "功夫沒白練喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-07",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "頭巾綁好，走了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-08",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "毛都亂了，先理一下喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-09",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "師父應該會誇我吧喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BW-10",
+  "where": "打贏時（隨機一句）",
+  "who": "球球",
+  "text": "打完更餓了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "HU-01",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "球球",
+  "text": "餓得沒力氣了喵……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "HU-02",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "球球",
+  "text": "飯糰吃完了喵……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "HU-03",
+  "where": "飢餓、沒飯糰（隨機一句）",
+  "who": "球球",
+  "text": "好想吃東西喵……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "LH-01",
+  "where": "血剩很少（隨機一句）",
+  "who": "球球",
+  "text": "好痛喵……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "LH-02",
+  "where": "血剩很少（隨機一句）",
+  "who": "球球",
+  "text": "還能再打喵……",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "LH-03",
+  "where": "血剩很少（隨機一句）",
+  "who": "球球",
+  "text": "先別過來，讓我站穩喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "CH-01",
+  "where": "開紙箱（隨機一句）",
+  "who": "球球",
+  "text": "紙箱耶，打開看看喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "CH-02",
+  "where": "開紙箱（隨機一句）",
+  "who": "球球",
+  "text": "裡面裝了什麼喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "CH-03",
+  "where": "開紙箱（隨機一句）",
+  "who": "球球",
+  "text": "這個大小，我剛好鑽得進去喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "CH-04",
+  "where": "開紙箱（隨機一句）",
+  "who": "球球",
+  "text": "不會又藏著機關吧喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "CH-05",
+  "where": "開紙箱（隨機一句）",
+  "who": "球球",
+  "text": "先打開，再鑽進去喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RN-01",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "球球",
+  "text": "睡得好舒服，還想再躺一下喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RN-02",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "球球",
+  "text": "這墊子真好睡喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RN-03",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "球球",
+  "text": "睡飽了，出發喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RN-04",
+  "where": "貓窩・睡覺（隨機一句）",
+  "who": "球球",
+  "text": "哈啊……起床喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RS-01",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "球球",
+  "text": "爪子磨利了，試起來順手多了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RS-02",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "球球",
+  "text": "這下夠利了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RS-03",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "球球",
+  "text": "練好了，下次給師父看看喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "RS-04",
+  "where": "貓窩・磨爪／磨針（隨機一句）",
+  "who": "球球",
+  "text": "這招熟練多了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-01",
+  "where": "第一次遇到「切磋的白貓」",
+  "who": "球球",
+  "text": "架式擺好了，那我出招了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-02",
+  "where": "第一次遇到「山豬頭目」",
+  "who": "球球",
+  "text": "牠一直在刨地，看來要衝過來了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-03",
+  "where": "第一次遇到「紙老虎」",
+  "who": "球球",
+  "text": "紙做的也能長刺，不能亂抓喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-04",
+  "where": "第一次遇到「太鼓狸」",
+  "who": "球球",
+  "text": "這鼓聲越敲越快，聽得我好緊張喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-05",
+  "where": "第一次遇到「鐵羅漢」",
+  "who": "球球",
+  "text": "整隻都是鐵的，我的爪子抓得動嗎喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-06",
+  "where": "第一次遇到「織影蜘蛛」",
+  "who": "球球",
+  "text": "蜘蛛絲纏過來了，得把爪子抽開喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-07",
+  "where": "第一次遇到「醉拳狗」",
+  "who": "球球",
+  "text": "都醉成這樣了，還能打拳喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-08",
+  "where": "第一次遇到「鬼將」",
+  "who": "球球",
+  "text": "牠一叫，小鬼就全跑出來了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-09",
+  "where": "第一次遇到「小鬼」",
+  "who": "球球",
+  "text": "別躲在後面，有本事過來喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-10",
+  "where": "第一次遇到「鏡仙」",
+  "who": "球球",
+  "text": "這麼多面鏡子，我都快看暈了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-11",
+  "where": "第一次遇到「鏡影」",
+  "who": "球球",
+  "text": "碎片還會動，別往我這邊飛喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-12",
+  "where": "第一次遇到「虛無貓」",
+  "who": "球球",
+  "text": "半透明的身體，伸爪過去會不會穿過去喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-13",
+  "where": "第一次遇到「團子史萊姆」",
+  "who": "球球",
+  "text": "這團子在動，不能吃喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-14",
+  "where": "第一次遇到「小團子」",
+  "who": "球球",
+  "text": "怎麼分成兩隻了喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-15",
+  "where": "第一次遇到「犰狳寶寶」",
+  "who": "球球",
+  "text": "一下就縮進殼裡，連頭都不露喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-16",
+  "where": "第一次遇到「燈蛾」",
+  "who": "球球",
+  "text": "飛這麼高，我怎麼抓得到喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-17",
+  "where": "第一次遇到「冬眠熊」",
+  "who": "球球",
+  "text": "熊睡在路中間，得把牠叫醒喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-18",
+  "where": "第一次遇到「河豚精」",
+  "who": "球球",
+  "text": "越鼓越大，站遠一點比較好喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-19",
+  "where": "第一次遇到「鎧甲獨角仙」",
+  "who": "球球",
+  "text": "這殼看起來就很硬，爪子別抓斷了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-20",
+  "where": "第一次遇到「鼠大將」",
+  "who": "球球",
+  "text": "後面那隻在指揮，先找牠算帳喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-21",
+  "where": "第一次遇到「鼠親兵」",
+  "who": "球球",
+  "text": "還拿著盾牌和長槍，這幾隻不好對付喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-22",
+  "where": "第一次遇到「詛咒神官」",
+  "who": "球球",
+  "text": "又在唸咒，肯定沒好事喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-23",
+  "where": "第一次遇到「幻狐」",
+  "who": "球球",
+  "text": "牠的身體好透明，差點沒看見喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-24",
+  "where": "第一次遇到「赤鬼武夫」",
+  "who": "球球",
+  "text": "臉都氣紅了，真兇喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-25",
+  "where": "第一次遇到「月蛾后」",
+  "who": "球球",
+  "text": "鱗粉飛過來了，別吸進鼻子喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-26",
+  "where": "第一次遇到「地藏石偶」",
+  "who": "球球",
+  "text": "這麼大一隻石頭手，不能硬接喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-27",
+  "where": "第一次遇到「蛙大名」",
+  "who": "球球",
+  "text": "連青蛙都有自己的兵了喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-28",
+  "where": "第一次遇到「蝌蚪兵」",
+  "who": "球球",
+  "text": "蝌蚪也拿得動武器喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-29",
+  "where": "第一次遇到「犰狳王」",
+  "who": "球球",
+  "text": "縮成這麼大一顆，連路都堵住了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-30",
+  "where": "第一次遇到「沉睡的龍貓」",
+  "who": "球球",
+  "text": "身上有鱗片，鼻子還冒煙，這是龍喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-31",
+  "where": "第一次遇到「詛咒老住持」",
+  "who": "球球",
+  "text": "老住持的眼睛也變紫了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-32",
+  "where": "第一次遇到「柴犬浪人」",
+  "who": "球球",
+  "text": "這隻狗會用刀喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-33",
+  "where": "第一次遇到「三味線貓」",
+  "who": "球球",
+  "text": "琴聲怎麼這麼刺耳，耳朵都痛了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-34",
+  "where": "第一次遇到「燈籠妖」",
+  "who": "球球",
+  "text": "燈籠裡怎麼伸出舌頭了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-35",
+  "where": "第一次遇到「風鈴精」",
+  "who": "球球",
+  "text": "叮得我頭都痛了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-36",
+  "where": "第一次遇到「狸小弟」",
+  "who": "球球",
+  "text": "小狸貓也要打架喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-37",
+  "where": "第一次遇到「木屐怪」",
+  "who": "球球",
+  "text": "只有一隻木屐，誰穿的喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-38",
+  "where": "第一次遇到「掛軸墨貓」",
+  "who": "球球",
+  "text": "牠從畫裡跑出來了，身上還在滴墨喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-39",
+  "where": "第一次遇到「月見兔」",
+  "who": "球球",
+  "text": "兔子手上那把槌子，比我頭還大喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-40",
+  "where": "第一次遇到「貓頭鷹夜哨」",
+  "who": "球球",
+  "text": "頭轉到後面去了，還看得見我喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-41",
+  "where": "第一次遇到「紙鶴式神」",
+  "who": "球球",
+  "text": "紙鶴的翅膀這麼利，要小心喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-42",
+  "where": "第一次遇到「魔氣凝塊」",
+  "who": "球球",
+  "text": "那團魔氣裡，好像有張臉喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-43",
+  "where": "第一次遇到「夜行黑豹」",
+  "who": "球球",
+  "text": "黑成這樣，剛才還以為是影子喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-44",
+  "where": "第一次遇到「唐傘小僧」",
+  "who": "球球",
+  "text": "傘自己跳過來了，底下還有腳喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-45",
+  "where": "第一次遇到「河童」",
+  "who": "球球",
+  "text": "河童的頭上真的有個盤子喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-46",
+  "where": "第一次遇到「豆腐小僧」",
+  "who": "球球",
+  "text": "這豆腐有股怪味，我不吃喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-47",
+  "where": "第一次遇到「烏天狗」",
+  "who": "球球",
+  "text": "扇一下風就這麼大，頭巾都快掉了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-48",
+  "where": "第一次遇到「白狐巫女」",
+  "who": "球球",
+  "text": "白狐狸手裡拿著符，不知道要做什麼喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-49",
+  "where": "第一次遇到「空鎧武者」",
+  "who": "球球",
+  "text": "盔甲裡空空的，那雙眼睛是哪來的喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-50",
+  "where": "第一次遇到「影球球」",
+  "who": "球球",
+  "text": "這影子怎麼長得跟我一樣喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-51",
+  "where": "第一次遇到「鏡中球球」",
+  "who": "球球",
+  "text": "鏡子裡的我，怎麼自己跑出來了喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-52",
+  "where": "第一次遇到「陪練的黑貓」",
+  "who": "球球",
+  "text": "黑貓也來了，你們要兩個一起打喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-53",
+  "where": "第一次遇到「橘皮大王」",
+  "who": "球球",
+  "text": "吃得這麼胖，難怪還想搶小魚乾喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-54",
+  "where": "第一次遇到「奶牛貓二當家」",
+  "who": "球球",
+  "text": "這傢伙站起來，比我高好多喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-55",
+  "where": "第一次遇到「狸大人」",
+  "who": "球球",
+  "text": "好重的酒味，鼻子受不了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-56",
+  "where": "第一次遇到「波斯大小姐」",
+  "who": "球球",
+  "text": "後面還跟著僕人，難怪這麼神氣喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-57",
+  "where": "第一次遇到「執事貓」",
+  "who": "球球",
+  "text": "這執事把路擋住了，得先過他這關喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-58",
+  "where": "第一次遇到「女僕貓」",
+  "who": "球球",
+  "text": "怎麼連女僕也要打喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-59",
+  "where": "第一次遇到「小老鼠兵」",
+  "who": "球球",
+  "text": "偷小魚乾的就是你們喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-60",
+  "where": "第一次遇到「毛線球怪」",
+  "who": "球球",
+  "text": "毛線球自己滾過來了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-61",
+  "where": "第一次遇到「打翻的醬油瓶」",
+  "who": "球球",
+  "text": "醬油流得滿地都是，小心滑倒喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-62",
+  "where": "第一次遇到「紙箱怪」",
+  "who": "球球",
+  "text": "紙箱裡長了牙，差點就鑽進去了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-63",
+  "where": "第一次遇到「刺蝟師傅」",
+  "who": "球球",
+  "text": "渾身都是刺，爪子要往哪放喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-64",
+  "where": "第一次遇到「貓罐頭精」",
+  "who": "球球",
+  "text": "罐頭怎麼還會自己補滿喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-65",
+  "where": "第一次遇到「五爪貓」",
+  "who": "球球",
+  "text": "爪子好多，別全伸過來喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-66",
+  "where": "第一次遇到「打盹的虎斑」",
+  "who": "球球",
+  "text": "這隻虎斑睡得真熟喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-67",
+  "where": "第一次遇到「花栗鼠」",
+  "who": "球球",
+  "text": "別偷我的小魚乾喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-68",
+  "where": "第一次遇到「小花栗鼠」",
+  "who": "球球",
+  "text": "又來一隻搶吃的喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-69",
+  "where": "第一次遇到「鏡子貓」",
+  "who": "球球",
+  "text": "我動一下，牠也跟著動喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-70",
+  "where": "第一次遇到「掃把蜈蚣」",
+  "who": "球球",
+  "text": "掃把下面全是腳喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-71",
+  "where": "第一次遇到「石獅子」",
+  "who": "球球",
+  "text": "石獅子真的走下來了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-72",
+  "where": "第一次遇到「貓薄荷幻影」",
+  "who": "球球",
+  "text": "這味道聞得我暈暈的喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-73",
+  "where": "第一次遇到「掃地機器人王」",
+  "who": "球球",
+  "text": "我不是灰塵喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-74",
+  "where": "第一次遇到「小掃把」",
+  "who": "球球",
+  "text": "別掃我的腳喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-75",
+  "where": "第一次遇到「三花貓武僧」",
+  "who": "球球",
+  "text": "這位師傅的架式好穩喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-76",
+  "where": "第一次遇到「影子小貓·壹」",
+  "who": "球球",
+  "text": "這幾隻看起來一模一樣喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-77",
+  "where": "第一次遇到「影子小貓·貳」",
+  "who": "球球",
+  "text": "三隻全圍過來了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-78",
+  "where": "第一次遇到「影子小貓·參」",
+  "who": "球球",
+  "text": "牠一直盯著我，都不動喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-79",
+  "where": "第一次遇到「練功樁」",
+  "who": "球球",
+  "text": "這木樁比家裡的粗喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-80",
+  "where": "第一次遇到「貓又婆婆」",
+  "who": "球球",
+  "text": "婆婆怎麼有這麼多條尾巴喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-81",
+  "where": "第一次遇到「貓又的尾巴」",
+  "who": "球球",
+  "text": "尾巴追過來了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-82",
+  "where": "第一次遇到「鐵爪機關貓」",
+  "who": "球球",
+  "text": "鐵爪張開了，得躲遠一點喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-83",
+  "where": "第一次遇到「黃瓜怪」",
+  "who": "球球",
+  "text": "黃瓜怎麼自己站起來了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-84",
+  "where": "第一次遇到「飯糰怪」",
+  "who": "球球",
+  "text": "飯糰也會追著我跑喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-85",
+  "where": "第一次遇到「木樁人」",
+  "who": "球球",
+  "text": "跟練功用的木樁一樣，怎麼還會自己走喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-86",
+  "where": "第一次遇到「迷途山羊」",
+  "who": "球球",
+  "text": "羊也跑進塔裡了喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-87",
+  "where": "第一次遇到「吸塵器」",
+  "who": "球球",
+  "text": "吸塵器又開了，好吵喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-88",
+  "where": "第一次遇到「黑貓忍者」",
+  "who": "球球",
+  "text": "忍者也替這座塔守門喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-89",
+  "where": "第一次遇到「橘貓山賊」",
+  "who": "球球",
+  "text": "想搶就試試看喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-90",
+  "where": "第一次遇到「貓草蟲」",
+  "who": "球球",
+  "text": "別朝我吐喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-91",
+  "where": "第一次遇到「稻草人守衛」",
+  "who": "球球",
+  "text": "稻草人拿著武器，還真的在守門喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-92",
+  "where": "第一次遇到「黑貓忍者（老手）」",
+  "who": "球球",
+  "text": "這隻出手好快喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-93",
+  "where": "第一次遇到「大黃瓜怪」",
+  "who": "球球",
+  "text": "這根黃瓜也太大了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-94",
+  "where": "第一次遇到「黑貓忍者頭目」",
+  "who": "球球",
+  "text": "你就是這群忍者的頭目喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-95",
+  "where": "第一次遇到「巨型飯糰」",
+  "who": "球球",
+  "text": "這麼大的飯糰，得吃多久喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-96",
+  "where": "第一次遇到「小黑貓」",
+  "who": "球球",
+  "text": "小黑貓也要攔我喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-97",
+  "where": "第一次遇到「走火入魔的大俠貓」",
+  "who": "球球",
+  "text": "師父，我來找你了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-98",
+  "where": "第一次遇到「雪女貓」",
+  "who": "球球",
+  "text": "好冷，鼻子都凍僵了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-99",
+  "where": "第一次遇到「招財貓」",
+  "who": "球球",
+  "text": "別招了，小魚乾不會給你的喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-100",
+  "where": "第一次遇到「提燈鮟鱇」",
+  "who": "球球",
+  "text": "燈後面那張嘴好大，差點沒注意喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-101",
+  "where": "第一次遇到「傀儡師」",
+  "who": "球球",
+  "text": "後面有隻貓在拉線，是牠讓傀儡動的喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-102",
+  "where": "第一次遇到「傀儡」",
+  "who": "球球",
+  "text": "木頭手還會揮拳喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-103",
+  "where": "第一次遇到「酒吞小鬼」",
+  "who": "球球",
+  "text": "還在喝，你到底帶了多少酒喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-104",
+  "where": "第一次遇到「紙燈籠雙子・甲」",
+  "who": "球球",
+  "text": "一盞亮，另一盞也跟著亮了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-105",
+  "where": "第一次遇到「紙燈籠雙子・乙」",
+  "who": "球球",
+  "text": "兩盞都得弄熄喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-106",
+  "where": "第一次遇到「魔氣鴉群」",
+  "who": "球球",
+  "text": "烏鴉太多了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-107",
+  "where": "第一次遇到「小鴉群」",
+  "who": "球球",
+  "text": "散開了還在追我喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-108",
+  "where": "第一次遇到「怨靈武者」",
+  "who": "球球",
+  "text": "盔甲裡明明沒人，聲音從哪裡來的喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-109",
+  "where": "第一次遇到「雙頭魔犬」",
+  "who": "球球",
+  "text": "兩張嘴，別一起咬喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-110",
+  "where": "第一次遇到「塔頂守護石像」",
+  "who": "球球",
+  "text": "連石像都來擋路，要怎麼過去喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "FM-111",
+  "where": "第一次遇到「面具舞者」",
+  "who": "球球",
+  "text": "面具一換，招式就跟著變了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-01",
+  "where": "秘笈（5F）",
+  "who": "球球",
+  "text": "這是師父寫的喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-02",
+  "where": "秘笈（5F）",
+  "who": "球球",
+  "text": "他把秘笈帶在身邊，怎麼會掉在這裡喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-03",
+  "where": "打完第一隻精英",
+  "who": "球球",
+  "text": "我還是得去找他喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-04",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "明天打贏關主，就能到上面找師父了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-05",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "這裡正好能休息，先吃點東西，再把爪子磨好喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-06",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "準備好了，今晚早點睡喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-07",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "越往上走，這股魔氣就越嗆喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-08",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "剛才好像是師父的聲音，他是不是很痛喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-09",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "得趕快過這一關，才能上去找他喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-10",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "明天就要見到師父了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-11",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "以前蜷縮練不好，都是師父在旁邊扶著我喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-12",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "明天見了面，他還認得我嗎喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-13",
+  "where": "關主前的貓窩",
+  "who": "球球",
+  "text": "這次一定要把他帶回家喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-14",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "師父，是我，球球喵！你看清楚喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-15",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "退隱也要回家喵！你看著我，我是你徒弟喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-16",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "婆婆，我得去救師父，再危險也要上去喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-17",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "胸口那道紫光，跟師父眼裡的一樣喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-18",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "它一直攔著路，看來非拆掉不可喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-19",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "村裡的小魚乾是你搶的喵？你跟上面那隻大貓是一夥的喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-20",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "既然不是一夥的，就別攔我，小魚乾也得還來喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-21",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "二當家，那大當家是誰喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-22",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "那是我師父，我得上去看看他到底怎麼了喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-23",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "我不喝，師父交代過，狸貓遞的酒不能碰喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-24",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "我只是從這裡經過，要去的是塔頂喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-25",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "借過一下，我要從那邊的樓梯上去喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-26",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "殼上都是傷……牠看起來也不好受喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-27",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "能不能讓我過去喵？我真的得上樓喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-28",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "樓梯都被牠壓住了，不叫醒就過不去喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-29",
+  "where": "關主開場",
+  "who": "球球",
+  "text": "我沒殺誰，是來接師父回家的，請你讓開喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-30",
+  "where": "關主開場（通用）",
+  "who": "球球",
+  "text": "我還沒打算回去喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-31",
+  "where": "關主被打倒",
+  "who": "球球",
+  "text": "他還有救就好，謝謝婆婆喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-32",
+  "where": "關主被打倒",
+  "who": "球球",
+  "text": "師父身上的魔氣，也能散掉喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-33",
+  "where": "關主被打倒",
+  "who": "球球",
+  "text": "早說嘛喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-34",
+  "where": "關主被打倒",
+  "who": "球球",
+  "text": "謝謝你讓路，剛才對不起喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-35",
+  "where": "關主被打倒",
+  "who": "球球",
+  "text": "我認識的師父，不會隨便傷人喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-36",
+  "where": "關主被打倒",
+  "who": "球球",
+  "text": "那我走了，你繼續睡喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-37",
+  "where": "關主被打倒",
+  "who": "球球",
+  "text": "好，我去叫他喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-38",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "師父，聽我說話喵！你還記得球球嗎喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-39",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "原來婆婆剛才還留了一手喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-40",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "爪子燒紅了，被碰到可不得了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-41",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "這麼大一顆，滾過來可躲不掉喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-42",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "原來還有一套爪法，真難纏喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-43",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "變出這麼多隻，哪隻才是真的喵？",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-44",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "自己躲在後面，倒叫別人來打喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-45",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "又叫來這麼多小兵，得先處理牠們喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-46",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "身上長出鱗甲了，這魔氣還在變強喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-47",
+  "where": "關主第二階段",
+  "who": "球球",
+  "text": "這下全醒了，我得找地方躲喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-48",
+  "where": "關主第二階段（通用）",
+  "who": "球球",
+  "text": "看來還沒打完喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-49",
+  "where": "關主第三階段",
+  "who": "球球",
+  "text": "師父，你都受傷了，別再打了喵！",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "BOSS-50",
+  "where": "關主第三階段（通用）",
+  "who": "球球",
+  "text": "還有力氣，我就繼續打喵。",
+  "file": "src/content/dialogue.ts",
+  "kind": "literal",
+  "hero": "ninja"
+ },
+ {
+  "id": "EV-01",
+  "where": "事件「師父留下的秘笈」選「研讀秘笈（從 3 張絕學牌中選擇 1 張）」的結果",
+  "who": "旁白／球球",
+  "text": "球球攤開秘笈，仔細看上面的三幅圖。球球：「字有點難認，先看圖好了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "字有點難認，先看圖好了喵。"
+ },
+ {
+  "id": "EV-02",
+  "where": "事件「師父留下的秘笈」選「放回原位（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球合上秘笈，放回樓梯邊。球球：「這招看不懂，等找到師父再問他喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這招看不懂，等找到師父再問他喵。"
+ },
+ {
+  "id": "EV-03",
+  "where": "事件「留下買路財」選「付 30 條小魚乾買路」的結果",
+  "who": "旁白／球球",
+  "text": "山賊把小魚乾數了三遍，才讓出路來。球球：「數好了就讓開，我還要趕路喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "數好了就讓開，我還要趕路喵。"
+ },
+ {
+  "id": "EV-04",
+  "where": "事件「留下買路財」選「打一場（勝利後額外獲得 40 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "球球收緊魚乾袋，伸出爪子。山賊舉起木棒，又朝轉角看了一眼。球球：「還在等幫手喵？我可不等喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "還在等幫手喵？我可不等喵。"
+ },
+ {
+  "id": "EV-05",
+  "where": "事件「分糧救急」選「分出目前一半的小魚乾（回復 15 點生命、移除 1 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "村貓收下小魚乾，替球球清理傷口。休息時，球球也把最近學的招式想了一遍，準備捨去不合用的。球球：「你先吃吧，我在這裡坐一會兒喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "你先吃吧，我在這裡坐一會兒喵。"
+ },
+ {
+  "id": "EV-06",
+  "where": "事件「分糧救急」選「繼續趕路（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球抱緊魚乾袋，低頭從村貓身旁走過。球球：「對不起，這些還得留著路上吃喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "對不起，這些還得留著路上吃喵。"
+ },
+ {
+  "id": "EV-07",
+  "where": "事件「江湖救急」選「收下貓草藥（回復 20 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "貓草藥一入口，球球就苦得皺起了臉。喝完後，傷口總算沒那麼痛了。球球：「好苦，能給我喝點水嗎喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "好苦，能給我喝點水嗎喵？"
+ },
+ {
+  "id": "EV-08",
+  "where": "事件「江湖救急」選「收下小魚乾（獲得 40 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "球球收好小魚乾，替村貓檢查了一次繃帶，才起身道別。球球：「傷還沒好，先別亂跑喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "傷還沒好，先別亂跑喵。"
+ },
+ {
+  "id": "EV-09",
+  "where": "事件「此路不通」選「翻過垃圾山（最多失去 6 點生命；隨機獲得 1 張罕見忍術牌）」的結果",
+  "who": "旁白／球球",
+  "text": "球球抓住卷軸，腳下卻一滑，滾到了垃圾山另一邊。牠坐起來揉揉肩膀，卷軸還好好地抱在懷裡。球球：「痛死了，早知道就踩穩再拿喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "痛死了，早知道就踩穩再拿喵。"
+ },
+ {
+  "id": "EV-10",
+  "where": "事件「此路不通」選「從旁邊繞過去（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球沿著旁邊的小走廊繞過垃圾山，回到樓梯前。球球：「這邊明明能走，差點白爬一趟喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這邊明明能走，差點白爬一趟喵。"
+ },
+ {
+  "id": "EV-11",
+  "where": "事件「閉關」選「對著爪痕練招（升級至多 1 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "球球照著牆上的爪痕練了幾次，發現自己出手的角度可以再改一點。球球：「原來要往這邊，我再試試喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "原來要往這邊，我再試試喵。"
+ },
+ {
+  "id": "EV-12",
+  "where": "事件「閉關」選「打坐休息（回復 10 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球盤腿坐下，沒多久就睡著了。醒來時，肩膀和背都舒服了些。球球：「睡了多久喵？該出發了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "睡了多久喵？該出發了喵。"
+ },
+ {
+  "id": "EV-13",
+  "where": "事件「深藏不露」選「打開箱子（隨機獲得 1 件常見秘寶、牌組加入 1 張壞毛病「中計了」）」的結果",
+  "who": "旁白／球球",
+  "text": "球球剛拿起秘寶，箱蓋裡就彈出一隻拳頭，差點打中牠的鼻子。牠嚇得往後縮，再伸爪時還有些猶豫。球球：「誰放的機關，差點打到我喵！」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "誰放的機關，差點打到我喵！"
+ },
+ {
+  "id": "EV-14",
+  "where": "事件「深藏不露」選「不碰箱子（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球繞著箱子看了一圈，最後還是沒碰它。球球：「這張紙條怪怪的，別開好了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這張紙條怪怪的，別開好了喵。"
+ },
+ {
+  "id": "EV-15",
+  "where": "事件「曬太陽」選「曬著太陽打盹（回復 12 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球躺在陽光下，睡得四腳朝天。醒來伸個懶腰，渾身都暖了。球球：「好舒服，連背都不痠了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "好舒服，連背都不痠了喵。"
+ },
+ {
+  "id": "EV-16",
+  "where": "事件「曬太陽」選「曬著太陽整理招式（移除 1 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "球球坐在陽光下，回想自己最近學過的招式，把最不順手的那一招挑了出來。球球：「這招老是出錯，就先不練了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這招老是出錯，就先不練了喵。"
+ },
+ {
+  "id": "EV-17",
+  "where": "事件「可疑的飯糰攤」選「買一顆吃（花費 20 條小魚乾；50% 機率生命上限與當前生命各 +5，否則牌組加入 1 張壞毛病「失手了」）」的結果",
+  "who": "旁白／球球",
+  "text": "球球付了錢，把飯糰吃下去。老鼠低頭收拾攤子，一直不肯看牠。球球：「飯糰都吃了，你怎麼還躲著我喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "飯糰都吃了，你怎麼還躲著我喵？"
+ },
+ {
+  "id": "EV-18",
+  "where": "事件「可疑的飯糰攤」選「不買（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球指著飯糰上的牙印。老鼠連忙把它翻過來，卻已經來不及了。球球：「咬過的還拿出來賣，我才不買喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "咬過的還拿出來賣，我才不買喵。"
+ },
+ {
+  "id": "EV-19",
+  "where": "事件「迷路的小黑貓」選「送牠到轉角的集合處（隨機獲得 2 個忍具）」的結果",
+  "who": "旁白／球球",
+  "text": "球球把小黑貓送回同伴身邊。小黑貓拿出兩個忍具，塞進球球手裡，揮爪向牠道謝。球球：「下次跟緊一點，別再走丟了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "下次跟緊一點，別再走丟了喵。"
+ },
+ {
+  "id": "EV-20",
+  "where": "事件「迷路的小黑貓」選「指出集合處，讓牠自己回去（獲得 15 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "小黑貓聽見同伴在轉角呼喚，留下 15 條小魚乾作為謝禮，跑了過去。球球：「對，就是那邊，看著路喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "對，就是那邊，看著路喵。"
+ },
+ {
+  "id": "EV-21",
+  "where": "事件「古井」選「投入 30 條小魚乾許願（50% 機率隨機獲得 1 件常見秘寶，否則無獎勵；小魚乾不退還）」的結果",
+  "who": "旁白／球球",
+  "text": "小魚乾落進井裡，水面泛起漣漪。球球趴在井邊，往下望了好一會兒。球球：「希望這趟能順利找到師父喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "希望這趟能順利找到師父喵。"
+ },
+ {
+  "id": "EV-22",
+  "where": "事件「古井」選「對著倒影練招（升級至多 1 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "水面平靜後，球球對著倒影練習，仔細看自己抬爪、轉身的樣子。球球：「右肩抬太高了，這樣難怪打不準喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "右肩抬太高了，這樣難怪打不準喵。"
+ },
+ {
+  "id": "EV-23",
+  "where": "事件「古井」選「離開古井（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球看了一眼井底，把小魚乾收回袋裡，轉身離開。球球：「還是留著買吃的好了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "還是留著買吃的好了喵。"
+ },
+ {
+  "id": "EV-24",
+  "where": "事件「倒了的神龕」選「扶正神龕、安放神像（生命上限與當前生命各 +6）」的結果",
+  "who": "旁白／球球",
+  "text": "球球扶起神龕，把兩截神像拼好。神像亮了起來，暖意從爪尖傳到身上，牠深吸一口氣，胸口也舒展了。球球：「這是在謝我喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這是在謝我喵？"
+ },
+ {
+  "id": "EV-25",
+  "where": "事件「倒了的神龕」選「拿走供品（獲得 45 條小魚乾、牌組加入 1 張壞毛病「走火入魔」）」的結果",
+  "who": "旁白／球球",
+  "text": "球球抱起供品就走，神像卻冒出一縷冷氣，鑽進牠的胸口。牠急忙停下，呼吸已經亂了。球球：「怎麼回事，胸口好冷喵！」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "怎麼回事，胸口好冷喵！"
+ },
+ {
+  "id": "EV-26",
+  "where": "事件「硬要切磋的白貓」選「接下挑戰（打一場，勝利後額外獲得 60 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "白貓擺好架式，旁邊的黑貓也抬起爪子。球球把魚乾袋收好，站到兩隻貓面前。球球：「兩個一起打，你們也好意思喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "兩個一起打，你們也好意思喵？"
+ },
+ {
+  "id": "EV-27",
+  "where": "事件「硬要切磋的白貓」選「硬從旁邊擠過去（最多失去 8 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球從旁邊往樓梯擠，白貓卻撞了過來，撞得牠肩膀發麻。牠忍痛鑽過空隙，快步上樓。球球：「不陪你打，就故意撞我喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "不陪你打，就故意撞我喵？"
+ },
+ {
+  "id": "EV-28",
+  "where": "事件「好高的貓抓柱」選「爬到頂端取物（最多失去 10 點生命，隨機獲得 1 件常見秘寶）」的結果",
+  "who": "旁白／球球",
+  "text": "球球爬到貓抓柱頂端，取下裝著秘寶的小包。爬下來才看見，前腿被麻繩磨破了好幾處。球球：「拿到了，可是爪子好痛喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "拿到了，可是爪子好痛喵。"
+ },
+ {
+  "id": "EV-29",
+  "where": "事件「好高的貓抓柱」選「照著底部爪痕練習（隨機獲得 1 張罕見絕學牌）」的結果",
+  "who": "旁白／球球",
+  "text": "球球照著底部的爪痕練習，從抬爪到收勢，總算把這一招學了下來。球球：「原來爪痕是照順序留的喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "原來爪痕是照順序留的喵。"
+ },
+ {
+  "id": "EV-30",
+  "where": "事件「掉在地上的卷軸」選「挑一段照著練（從 3 張忍術牌中選擇 1 張）」的結果",
+  "who": "旁白／球球",
+  "text": "球球把卷軸攤在地上，比對三段圖解，伸爪跟著試了幾個手勢。球球：「先挑一招學，別一次弄混了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "先挑一招學，別一次弄混了喵。"
+ },
+ {
+  "id": "EV-31",
+  "where": "事件「掉在地上的卷軸」選「賣給舊書攤（獲得 40 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "舊書攤的攤主翻了翻卷軸，付給球球 40 條小魚乾。球球收好錢，聞了聞袋子。球球：「夠買頓飯了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "夠買頓飯了喵。"
+ },
+ {
+  "id": "EV-32",
+  "where": "事件「很吵的廚房」選「盛一碗熱湯（回復相當於生命上限 50% 的生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球吹涼熱湯，連湯帶料吃得乾乾淨淨。肚子暖起來，身上的痠痛也減輕了。球球：「這湯真好喝喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這湯真好喝喵。"
+ },
+ {
+  "id": "EV-33",
+  "where": "事件「很吵的廚房」選「取用備用忍具（隨機獲得 2 個忍具）」的結果",
+  "who": "旁白／球球",
+  "text": "球球從備用品盒裡取出兩個忍具，照著盒邊的圖示確認用法。球球：「原來是給路過的人用的，我收下了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "原來是給路過的人用的，我收下了喵。"
+ },
+ {
+  "id": "EV-34",
+  "where": "事件「很吵的廚房」選「不取用，繼續走（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球擺好碰歪的碗，從走廊離開廚房。球球：「留給後面的人吧喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "留給後面的人吧喵。"
+ },
+ {
+  "id": "EV-35",
+  "where": "事件「鏡子走廊」選「與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "連這也要學，那就來打一場喵。"
+ },
+ {
+  "id": "EV-36",
+  "where": "事件「鏡子走廊」選「盯著出口快步走過（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這地方真怪，別待了喵。"
+ },
+ {
+  "id": "EV-37",
+  "where": "事件「睡著的守衛」選「伸爪偷錢袋（進入戰鬥，勝利後額外獲得 70 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "爪尖才碰到錢袋，大橘貓就睜開眼睛，擋住去路。球球連忙縮手，往後退了一步。球球：「醒得也太快了喵！」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "醒得也太快了喵！"
+ },
+ {
+  "id": "EV-38",
+  "where": "事件「睡著的守衛」選「調勻氣息，悄悄通過（生命上限與當前生命各 +4）」的結果",
+  "who": "旁白／球球",
+  "text": "球球輕輕呼吸，踩穩每一步，悄悄走過守衛身旁。牠試著讓呼吸配合步伐，越走越順。球球：「原來這樣走路，不用一直憋著氣喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "原來這樣走路，不用一直憋著氣喵。"
+ },
+ {
+  "id": "EV-39",
+  "where": "事件「賣藥的三花貓」選「購買混裝忍具（支付 25 條小魚乾，隨機獲得 2 個忍具）」的結果",
+  "who": "旁白／球球",
+  "text": "三花貓收下小魚乾，從箱裡拿出兩個忍具。球球接過來，把標記看清楚才收進行囊。球球：「這兩個怎麼用，你說清楚一點喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這兩個怎麼用，你說清楚一點喵。"
+ },
+ {
+  "id": "EV-40",
+  "where": "事件「賣藥的三花貓」選「購買祖傳補身藥（支付 60 條小魚乾，生命上限與當前生命各 +12）」的結果",
+  "who": "旁白／球球",
+  "text": "球球喝下補身藥，沒多久身上就暖了，抬爪也比先前有力。牠把空碗還給三花貓。球球：「真的有用，就是賣得太貴了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "真的有用，就是賣得太貴了喵。"
+ },
+ {
+  "id": "EV-41",
+  "where": "事件「賣藥的三花貓」選「不買（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球看完價目牌，搖搖頭。三花貓見牠不買，也收起了量匙。球球：「太貴了，我再去別家看看喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "太貴了，我再去別家看看喵。"
+ },
+ {
+  "id": "EV-42",
+  "where": "事件「卡住的小貓」選「上前協助救出小貓（獲得 20 條小魚乾，回復 15 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球扶住小貓，和母貓一起把牠帶出欄杆。母貓拿傷藥替球球處理舊傷，又送上 20 條小魚乾。球球：「下次別往那麼窄的地方鑽了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "下次別往那麼窄的地方鑽了喵。"
+ },
+ {
+  "id": "EV-43",
+  "where": "事件「卡住的小貓」選「觀察牠縮身脫困的動作（隨機獲得 1 張罕見忍術牌）」的結果",
+  "who": "旁白／球球",
+  "text": "母貓教小貓轉過肩膀，讓牠從欄杆間退了出來。球球看得仔細，也跟著練習轉身，學會了一招忍術。球球：「先轉肩膀，身子就過得去了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "先轉肩膀，身子就過得去了喵。"
+ },
+ {
+  "id": "EV-44",
+  "where": "事件「賭博的老鼠」選「下注 50 條小魚乾（70% 機率領取 130 條，淨賺 80 條；否則輸掉本錢）」的結果",
+  "who": "旁白／球球",
+  "text": "球球放下本錢，緊盯著老鼠手裡的碗。碗一掀開，牠立刻湊上前看。球球：「結果出來了，該算清楚了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "結果出來了，該算清楚了喵。"
+ },
+ {
+  "id": "EV-45",
+  "where": "事件「賭博的老鼠」選「掀桌挑戰（進入戰鬥，勝利後額外獲得 80 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "球球掀翻矮桌，老鼠們跳開，拿起木棍把牠圍住。球球：「好啊，這次不賭，直接打喵！」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "好啊，這次不賭，直接打喵！"
+ },
+ {
+  "id": "EV-46",
+  "where": "事件「賭博的老鼠」選「不賭（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球把碗推回桌上，收緊魚乾袋，離開了賭桌。球球：「不賭了，輸了就沒飯吃喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "不賭了，輸了就沒飯吃喵。"
+ },
+ {
+  "id": "EV-47",
+  "where": "事件「很重的門」選「硬推石門，進去取寶（最多失去 14 點生命，隨機獲得 1 件大魔物秘寶）」的結果",
+  "who": "旁白／球球",
+  "text": "球球用肩膀頂開石門，肩上被磨掉一片毛。牠忍著痛走進去，從寶箱裡拿出秘寶。球球：「這門也太重了，肩膀好痛喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這門也太重了，肩膀好痛喵。"
+ },
+ {
+  "id": "EV-48",
+  "where": "事件「很重的門」選「從門縫伸爪取物（獲得 35 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "球球把爪子伸進門縫，勾住籃子，一點一點拉到面前，取出裡面的 35 條小魚乾。球球：「拿到了，不用推門了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "拿到了，不用推門了喵。"
+ },
+ {
+  "id": "EV-49",
+  "where": "事件「師父的影子」選「聽完指點，練習調息（升級一張牌，生命上限與當前生命各 +5）」的結果",
+  "who": "旁白／球球",
+  "text": "球球照著指點，先把呼吸調整好，再重新練了一次招式。這回出手穩了，胸口也不再那麼緊。球球：「師父以前也這樣教我喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "師父以前也這樣教我喵。"
+ },
+ {
+  "id": "EV-50",
+  "where": "事件「師父的影子」選「有所領悟，捨去不合適的兩張牌（移除 2 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "球球試了試那套動作，找出兩招怎麼練都不順的，決定不再用它們。球球：「這兩招不適合我，換別的練喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這兩招不適合我，換別的練喵。"
+ },
+ {
+  "id": "EV-51",
+  "where": "事件「一整片貓薄荷」選「進去打滾（回復相當於生命上限 50% 的生命，加入 1 張壞毛病牌「走火入魔」）」的結果",
+  "who": "旁白／球球",
+  "text": "球球在貓薄荷裡滾了幾圈，身上的痠痛減輕了，卻也吸進葉間的異氣。起身後，胸口仍然跳得很快。球球：「又沒在跑，心怎麼跳得這麼快喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "又沒在跑，心怎麼跳得這麼快喵？"
+ },
+ {
+  "id": "EV-52",
+  "where": "事件「一整片貓薄荷」選「採一把嫩葉交換（隨機獲得 2 個忍具）」的結果",
+  "who": "旁白／球球",
+  "text": "球球摘好一把嫩葉，交給看園的老貓，換回兩個忍具。球球：「葉子都在這裡，謝謝你的忍具喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "葉子都在這裡，謝謝你的忍具喵。"
+ },
+ {
+  "id": "EV-53",
+  "where": "事件「一整片貓薄荷」選「避開葉叢，快步通過（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球捂著鼻子，避開葉叢，從旁邊的小路穿了過去。球球：「再聞下去，我也想躺下來滾了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "再聞下去，我也想躺下來滾了喵。"
+ },
+ {
+  "id": "EV-54",
+  "where": "事件「兵器架」選「挑一幅演招圖練習（從 3 張絕學牌中選擇 1 張）」的結果",
+  "who": "旁白／球球",
+  "text": "球球看著牆上的三幅演招圖，拿起兵器試了試重量，再比對圖裡的動作。球球：「這個拿得動，先試它的招式喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這個拿得動，先試它的招式喵。"
+ },
+ {
+  "id": "EV-55",
+  "where": "事件「兵器架」選「把整批舊兵器交給回收商（獲得 55 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "老鼠把舊兵器搬上推車，付給球球 55 條小魚乾。球球點過數目，把小魚乾收好。球球：「這些鏽掉的也能賣，太好了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這些鏽掉的也能賣，太好了喵。"
+ },
+ {
+  "id": "EV-56",
+  "where": "事件「會哭的牆」選「耐心安慰，聽完它的叮囑（生命上限與當前生命各 +8）」的結果",
+  "who": "旁白／球球",
+  "text": "球球在牆前蹲下，說自己要去找師父。牆裡的聲音不再哭泣，開始教牠護身吐納的方法。練了幾遍，牠的呼吸比先前深了。球球：「我記住了，謝謝你教我喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "我記住了，謝謝你教我喵。"
+ },
+ {
+  "id": "EV-57",
+  "where": "事件「會哭的牆」選「敲開牆腳的藏物磚（隨機獲得 1 件常見秘寶；失去最多 12 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球敲開牆腳的磚，拿出裝著秘寶的布包，卻被碎石割傷了爪子。牆裡的聲音還在勸牠別上樓。球球：「我知道上面危險，可是師父還沒回來喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "我知道上面危險，可是師父還沒回來喵。"
+ },
+ {
+  "id": "EV-58",
+  "where": "事件「養魚的池子」開頭",
+  "who": "旁白／球球",
+  "text": "池裡游著幾條胖魚，旁邊放著一籃小魚乾。球球剛伸出爪子，水底就閃過一道巨大的黑影。牠連忙縮手。球球：「底下那隻是什麼，好大喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "底下那隻是什麼，好大喵。"
+ },
+ {
+  "id": "EV-59",
+  "where": "事件「養魚的池子」選「抓一條吃（回復 18 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球抓了一條魚，到離水邊遠一點的地方吃完。肚子吃飽了，牠也有力氣繼續走。球球：「好吃，可是那隻大的還在，別抓了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "好吃，可是那隻大的還在，別抓了喵。"
+ },
+ {
+  "id": "EV-60",
+  "where": "事件「養魚的池子」選「搬走池邊的小魚乾（獲得 65 條小魚乾；失去最多 10 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球抱起魚乾籃，一條粗大的尾巴突然從池裡掃出來，把牠打倒在地。牠爬起來，抱著籃子往外跑。球球：「好痛，我這就走喵！」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "好痛，我這就走喵！"
+ },
+ {
+  "id": "EV-61",
+  "where": "事件「養魚的池子」選「看看就好（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球蹲在池邊看魚，等牠們游過去，就站起來離開。球球：「今天先放過你們喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "今天先放過你們喵。"
+ },
+ {
+  "id": "EV-62",
+  "where": "事件「空的練功房」開頭",
+  "who": "旁白／球球",
+  "text": "練功房裡沒有貓，地板上留著交錯的足跡。牆邊站著木樁人，後面的櫃門開了一道縫。球球：「這裡好像有人練過功喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這裡好像有人練過功喵。"
+ },
+ {
+  "id": "EV-63",
+  "where": "事件「空的練功房」選「沿著足跡練步法（自選升級至多 2 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "球球循著足跡練習進退，試著在轉身後接上熟悉的招式。練過幾次，動作總算順了。球球：「從這邊轉過去，就不會卡住了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "從這邊轉過去，就不會卡住了喵。"
+ },
+ {
+  "id": "EV-64",
+  "where": "事件「空的練功房」選「打開櫃子（進入戰鬥；勝利後隨機獲得 1 件大魔物秘寶，另得 30 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "球球打開櫃門，看見裡面有件秘寶，還沒伸手，木樁人就擋在前面。球球：「原來你在守這個喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "原來你在守這個喵。"
+ },
+ {
+  "id": "EV-65",
+  "where": "事件「看得到月亮的窗」開頭",
+  "who": "旁白／球球",
+  "text": "月光照進圓窗，落在窗台的空碗裡。碗底刻著一隻蜷睡的小貓，旁邊還能坐下一隻貓。球球：「有人在這裡餵貓喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "有人在這裡餵貓喵？"
+ },
+ {
+  "id": "EV-66",
+  "where": "事件「看得到月亮的窗」選「放下 20 條小魚乾（生命上限與當前生命各 +10）」的結果",
+  "who": "旁白／球球",
+  "text": "球球把小魚乾放進碗裡。一隻發著微光的小貓從碗底浮出來，輕輕蹭過牠的胸口。胸口暖了，呼吸也更順了。球球：「碗是你的喵？那這些給你吃喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "碗是你的喵？那這些給你吃喵。"
+ },
+ {
+  "id": "EV-67",
+  "where": "事件「看得到月亮的窗」選「坐著看月亮（回復 14 點生命）」的結果",
+  "who": "旁白／球球",
+  "text": "球球坐在窗邊看月亮，歇了一會兒，肩膀和爪子都沒那麼痠了。球球：「家裡這時候，應該也看得見月亮喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "家裡這時候，應該也看得見月亮喵。"
+ },
+ {
+  "id": "EV-68",
+  "where": "事件「很貪心的商人」選「買下組合（支付 80 條小魚乾；隨機獲得 1 件大魔物秘寶、隨機獲得 1 個忍具）」的結果",
+  "who": "旁白／球球",
+  "text": "灰貓收下小魚乾，把秘寶和忍具交給球球。球球一樣樣看過，才放進行囊。球球：「花了這麼多，可別賣壞東西給我喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "花了這麼多，可別賣壞東西給我喵。"
+ },
+ {
+  "id": "EV-69",
+  "where": "事件「很貪心的商人」選「接受灌功試驗（牌組加入 1 張壞毛病「內力不足」；隨機獲得 1 件大魔物秘寶）」的結果",
+  "who": "旁白／球球",
+  "text": "灰貓收功，把約好的秘寶交給球球。球球照那套方法試招，胸口卻一陣不順，連動作都接不上。球球：「不對，剛才明明還好好的喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "不對，剛才明明還好好的喵。"
+ },
+ {
+  "id": "EV-70",
+  "where": "事件「很貪心的商人」選「不做生意（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球看完布角下的小字，搖頭走開。灰貓收起布包，沒再攔牠。球球：「會留下毛病的功夫，我可不練喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "會留下毛病的功夫，我可不練喵。"
+ },
+ {
+  "id": "EV-71",
+  "where": "事件「山賊再現」選「收下回禮（獲得 60 條小魚乾，隨機獲得 1 個忍具）」的結果",
+  "who": "旁白／球球",
+  "text": "山賊把小魚乾和忍具包好，交到球球手裡。球球打開聞了聞。球球：「你娘曬的魚真香，替我謝謝她喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "你娘曬的魚真香，替我謝謝她喵。"
+ },
+ {
+  "id": "EV-72",
+  "where": "事件「山賊再現」選「請牠把回禮留給母親（生命上限與當前生命各 +5）」的結果",
+  "who": "旁白／球球",
+  "text": "山賊把回禮收好，改把自己母親傳下的調息法教給球球。球球跟著練了幾遍，呼吸更穩，也不容易喘了。球球：「這招很有用，我學會了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這招很有用，我學會了喵。"
+ },
+ {
+  "id": "EV-73",
+  "where": "事件「山賊帶朋友來了」選「再打一場（勝利後額外獲得 70 條小魚乾）」的結果",
+  "who": "旁白／球球",
+  "text": "山賊們舉起木棒，一起往前逼近。球球擺好架勢，盯住最前面那隻。球球：「上次還沒打夠，這次又來喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "上次還沒打夠，這次又來喵？"
+ },
+ {
+  "id": "EV-74",
+  "where": "事件「山賊帶朋友來了」選「支付 45 條小魚乾息事寧人」的結果",
+  "who": "旁白／球球",
+  "text": "球球交出小魚乾。山賊們蹲到路邊分錢，吵著誰該多拿一條。牠趁機走了過去。球球：「你們分吧，別再攔我喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "你們分吧，別再攔我喵。"
+ },
+ {
+  "id": "EV-75",
+  "where": "事件「村貓的回禮」選「收下回禮（隨機獲得 1 件常見秘寶）」的結果",
+  "who": "旁白／球球",
+  "text": "村貓把秘寶仔細包好，交給球球，還替牠壓平了布包的邊角。球球：「謝謝，我會好好保管喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "謝謝，我會好好保管喵。"
+ },
+ {
+  "id": "EV-76",
+  "where": "事件「村貓的回禮」選「請牠幫忙練招（自選升級至多 1 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "村貓看了球球的動作，指出牠抬爪的角度不對，接招時也多停了一下。「磨刀要看角度，出手也一樣。」球球照著調整，再練了一次。球球：「順多了，再幫我看看喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "順多了，再幫我看看喵。"
+ },
+ {
+  "id": "EV-77",
+  "where": "事件「欠村貓的那一份」選「分給牠 40 條小魚乾（回復 25 點生命，自選移除 1 張牌）」的結果",
+  "who": "旁白／球球",
+  "text": "村貓收下小魚乾，拿出傷藥替球球包紮。休息時，球球回想自己常用的招式，準備捨去其中不合用的。球球：「這次你先吃飽，我也在這裡歇一下喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "這次你先吃飽，我也在這裡歇一下喵。"
+ },
+ {
+  "id": "EV-78",
+  "where": "事件「欠村貓的那一份」選「低頭趕路（牌組加入 1 張壞毛病「眼冒金星」）」的結果",
+  "who": "旁白／球球",
+  "text": "球球低頭走開，腦中卻一直浮現村貓挨餓的樣子。牠越想越恍神，眼前的階梯都晃了起來，只好扶住牆。球球：「牠還餓著，我卻就這樣走了喵……」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "牠還餓著，我卻就這樣走了喵……"
+ },
+ {
+  "id": "EV-79",
+  "where": "事件「村貓的謝宴」選「坐下吃頓飽的（生命回復至上限）」的結果",
+  "who": "旁白／球球",
+  "text": "村貓們端來熱湯和飯菜，球球一碗接一碗地吃，身上的疲倦也減輕了。等肚子吃飽，牠才放下碗。球球：「真好吃，謝謝你們請我喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "真好吃，謝謝你們請我喵。"
+ },
+ {
+  "id": "EV-80",
+  "where": "事件「村貓的謝宴」選「收下路上的補給（獲得 50 條小魚乾，隨機獲得 1 個忍具）」的結果",
+  "who": "旁白／球球",
+  "text": "村貓們送來小魚乾和一個忍具，仔細分開包好，交給球球帶在路上。球球：「夠吃一陣子了，謝謝你們喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "夠吃一陣子了，謝謝你們喵。"
+ },
+ {
+  "id": "EV-81",
+  "where": "事件「換家的老鼠」選「交換秘寶（隨機交出 1 件非起始秘寶；隨機獲得 2 件常見秘寶）」的結果",
+  "who": "旁白／球球",
+  "text": "老鼠拿走一件秘寶，再依約交給球球兩件。球球看了看換回來的東西，收進行囊。球球：「說好不挑的，就換這兩件吧喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "說好不挑的，就換這兩件吧喵。"
+ },
+ {
+  "id": "EV-82",
+  "where": "事件「換家的老鼠」選「不交換（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球搖搖頭，老鼠便把包袱綁回去。球球也整理好行囊，準備繼續走。球球：「我帶的都還用得上，不換了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "我帶的都還用得上，不換了喵。"
+ },
+ {
+  "id": "EV-83",
+  "where": "事件「磨利我的刀」開頭",
+  "who": "旁白／球球",
+  "text": "磨刀石旁刻著一套捨招法，開頭寫著：「招多不如招熟。」下面另有一行提醒：強行改掉熟練的招式，會傷及身體根基。球球：「練這個會傷身，得想清楚喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "練這個會傷身，得想清楚喵。"
+ },
+ {
+  "id": "EV-84",
+  "where": "事件「磨利我的刀」選「依照捨招法修行（自選移除 3 張牌；本次登塔生命上限 −8）」的結果",
+  "who": "旁白／球球",
+  "text": "球球照著捨招法練習，準備放下幾招不需要的招式。練完胸悶氣短，坐下休息也一直緩不過來。球球：「呼，這次真的練過頭了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "呼，這次真的練過頭了喵。"
+ },
+ {
+  "id": "EV-85",
+  "where": "事件「磨利我的刀」選「不修行（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球讀完最後一行，把爪子收回來，沒有照著練。球球：「還沒決定放棄哪幾招，先算了喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "還沒決定放棄哪幾招，先算了喵。"
+ },
+ {
+  "id": "EV-86",
+  "where": "事件「速成的卷軸」開頭",
+  "who": "旁白／球球",
+  "text": "牆上掛著一卷卷軸，墨跡還沒乾。大字寫著：「一練就會！」下面卻註明：「後果自負。」球球：「練了會怎樣，怎麼不寫清楚喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "練了會怎樣，怎麼不寫清楚喵？"
+ },
+ {
+  "id": "EV-87",
+  "where": "事件「速成的卷軸」選「照著練（自選升級至多 2 張牌；牌組加入 1 張隨機壞毛病牌）」的結果",
+  "who": "旁白／球球",
+  "text": "球球照卷軸上的訣竅，試著改進自己熟悉的招式。前幾下還算順利，收勢時卻發現不對勁。球球：「怎麼會這樣，是哪裡練錯了喵？」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "怎麼會這樣，是哪裡練錯了喵？"
+ },
+ {
+  "id": "EV-88",
+  "where": "事件「速成的卷軸」選「不練（無效果）」的結果",
+  "who": "旁白／球球",
+  "text": "球球鬆開紙角，爪子沾了一點墨。牠甩甩爪子，轉身離開。球球：「來路不明的功夫，還是別亂練喵。」",
+  "file": "src/content/events.ts",
+  "kind": "literal",
+  "hero": "ninja",
+  "inner": "來路不明的功夫，還是別亂練喵。"
+ },
+ {
+  "id": "BLURB-01",
+  "where": "選角畫面的小傳",
+  "who": "旁白",
+  "text": "大俠貓的徒弟，綁著藍頭巾。膽子大，做事急，看見紙箱就想鑽。師父被魔氣控制後，他追進魔塔，要把師父和被搶走的小魚乾都帶回來。",
+  "file": "src/ui/screens/heroselect.ts",
+  "kind": "blurb",
+  "hero": "ninja"
+ }
+]
