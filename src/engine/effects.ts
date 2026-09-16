@@ -379,6 +379,20 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p); return false;
     case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, `撿到 ${fx.n} 條小魚乾`); } return false;
     case 'power':
+      /*
+       * 影子分身的重播**不再掛一份能力**（2026-09-16 使用者回報「後期影子分身＋封印解除，蜷縮超高」）。
+       *
+       * 重播的本意是「這張牌的效果再發生一次」，跟蓄力那條加倍是同一種一次性的事。
+       * 但能力牌掛的是**整場每回合都會跑的東西**，多掛一份就等於永久多一台成長機器：
+       * 實測封印解除（每回合 +1 爪力 +1 貓步）掛兩張影子分身之後變成每回合 +3／+3，
+       * 第 14 回合貓步 33、一張金鐘罩擋 150 點（沒有影子分身時是貓步 13、擋 30）。
+       * 一張 3 費牌換來五倍，那不是「再打一次」該有的量。
+       *
+       * 擋的只有這一類：馬步、運功那種當場給爪力貓步的是 `kind: 'status'`，
+       * 照樣重播（使用者 2026-09-13 明示「牌面沒寫例外就不要有例外」）；
+       * 升級版封印解除、鐵心當場先給的那幾點也照樣重播，那是一次性的。
+       */
+      if (ctx.noPowers) { log(cs, '影子分身：能力已經掛著了，不會再多掛一份'); return false; }
       // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來
       p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}), ...(ctx.cardUpgraded ? { upgraded: true } : {}) });
       return false;

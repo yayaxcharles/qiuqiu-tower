@@ -893,6 +893,13 @@ export interface EffectCtx {
   source?: 'card' | 'potion' | 'relic' | 'power';
   combo?: number;          // 這張牌之前本回合已打出的牌數
   doubleDamage?: boolean;  // 蓄力：這張攻擊牌的傷害加倍
+  /**
+   * 這一遍是影子分身的**重播**，不要再掛一份「能力」（`kind: 'power'`）。
+   *
+   * 跟 `doubleDamage: false` 同一個道理：重播是「這張牌的效果再發生一次」，
+   * 不是「這張能力永久多掛一份」。詳見 `combat.ts` 重播那一段的說明。
+   */
+  noPowers?: boolean;
   killed?: boolean;        // 這張牌的傷害有沒有擊倒魔物（順手牽羊用）
 }
 export interface PendingChoice {

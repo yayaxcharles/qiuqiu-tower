@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
 import { beginCombat, newRun } from '../../src/engine/run';
-import { playCard } from '../../src/engine/combat';
+import { endTurn, playCard } from '../../src/engine/combat';
 import { getStatus } from '../../src/engine/statuses';
 
 /**
@@ -29,9 +29,9 @@ function setup(hero: 'ninja' | 'feifei' = 'feifei') {
 
 let uid = 5000;
 /** 把一張牌直接塞到手上再打，繞開抽牌的隨機 */
-function play(cs: ReturnType<typeof beginCombat>, id: string, target?: number): void {
+function play(cs: ReturnType<typeof beginCombat>, id: string, target?: number, upgraded = false): void {
   const u = uid++;
-  cs.players[0]!.hand.push({ uid: u, cardId: id, upgraded: false });
+  cs.players[0]!.hand.push({ uid: u, cardId: id, upgraded });
   playCard(cs, u, target);
 }
 
@@ -67,6 +67,48 @@ describe('影子分身與能力牌', () => {
     p.cardsPlayedThisTurn = 0;
     play(cs, 'feifei_yingzi');
     expect(p.echoFirst, '影分身複製了自己——那條例外被拿掉了').toBe(2);
+  });
+});
+
+/**
+ * 重播**不會多掛一份能力**（2026-09-16 使用者回報：「後期影子分身＋封印解除，蜷縮超高」）。
+ *
+ * 舊行為：封印解除（每回合 +1 爪力 +1 貓步）當回合第一張打出去，掛幾張影子分身就多掛幾份
+ * 成長引擎——兩張＝每回合 +3／+3。量到的曲線是第 14 回合貓步 33、一張金鐘罩擋 150 點
+ *（同樣打法沒有影子分身時是貓步 13、擋 30）。一張 3 費牌換五倍，不是「再打一次」該有的量。
+ *
+ * 現在的規矩：重播照樣跑這張牌**一次性**的效果（升級版當場給的那幾點、馬步那種當場的貓步），
+ * 但整場每回合會跑的那種「能力」（`kind: 'power'`）只掛一份。
+ * 這條會反向變紅：把 `combat.ts` 的 `noPowers: true` 拿掉，下面兩條就會失敗。
+ */
+describe('影子分身重播不會多掛一份能力', () => {
+  it('掛兩層影分身時，封印解除的每回合成長只掛一份', () => {
+    const { cs, p } = setup();
+    p.echoFirst = 2;                       // 兩張影子分身
+    p.cardsPlayedThisTurn = 0;
+    play(cs, 'fengyin');
+    const grow = p.powers.filter((pw) => pw.cardId === 'fengyin' && pw.trigger === 'turnStart');
+    expect(grow.length, '重播多掛了成長引擎——後期貓步會滾到不合理').toBe(1);
+  });
+
+  it('玩家看到的：下一回合開始只長 1 點貓步、1 點爪力', () => {
+    const { cs, p } = setup();
+    p.maxHp = 999; p.hp = 999;             // 撐得過一次敵方回合，不然量不到下一回合的開頭
+    p.echoFirst = 2;
+    p.cardsPlayedThisTurn = 0;
+    play(cs, 'fengyin');
+    endTurn(cs);                           // 走完敵方回合，回到自己回合的開頭
+    expect(getStatus(p, '貓步'), '一回合長超過 1 點＝成長引擎被重播多掛了').toBe(1);
+    expect(getStatus(p, '爪力')).toBe(1);
+  });
+
+  it('升級版當場先給的那幾點照樣重播（一次性的不受影響）', () => {
+    const { cs, p } = setup();
+    p.echoFirst = 1;
+    p.cardsPlayedThisTurn = 0;
+    play(cs, 'fengyin', undefined, true);  // 升級版：當場 +2 爪力 +2 貓步，外加每回合 +1／+1
+    expect(getStatus(p, '貓步'), '一次性的那幾點應該打兩次＝4').toBe(4);
+    expect(p.powers.filter((pw) => pw.cardId === 'fengyin' && pw.trigger === 'turnStart').length).toBe(1);
   });
 });
 

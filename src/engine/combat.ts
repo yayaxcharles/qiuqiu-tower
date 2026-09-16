@@ -479,6 +479,12 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * `doubleDamage: false`：蓄力與秘笈的加倍是**用掉就清掉**的（上面 `p.doubleNext = 0`、
    * `p.firstAttackDouble = false`），程式自己的模型是「只該用在這一次」。
    * 原本 `{ ...ctx }` 把它一起複製過去，6 點的貓抓會打出 24 點（兩倍再兩倍）。
+   *
+   * `noPowers: true`：**重播不會再掛一份能力**（2026-09-16 使用者回報「後期影子分身＋
+   * 封印解除，蜷縮超高」）。跟上面那條同一個道理——重播是一次性的事，能力牌掛的卻是
+   * 整場每回合都會跑的東西。原本封印解除當第一張打出去，掛兩張影子分身就變成每回合
+   * +3 爪力 +3 貓步，第 14 回合貓步 33、一張金鐘罩擋 150 點（沒有影子分身時是 13 與 30）。
+   * 細節與其他受影響的能力牌見 `effects.ts` 的 `case 'power'`。
    */
   if (p.echoFirst && p.cardsPlayedThisTurn === 1
       && !st.effects.some((e) => e.kind === 'echoFirst')
@@ -492,7 +498,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     let i = 0;
     for (; i < times && cs.phase === 'player' && !cs.pending; i++) {
       log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次${times > 1 ? `（${i + 1}／${times}）` : ''}`);
-      applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
+      applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, noPowers: true, combo: p.cardsPlayedThisTurn });
     }
     // 重播途中開了選牌選單（告退、拖字訣、讀心術在手牌空著時原打不問、重播才問）就停在這裡，
     // 剩下的不補跑——但要說出來，不然紀錄印了 1／2 之後永遠等不到 2／2（審查 低-1）
