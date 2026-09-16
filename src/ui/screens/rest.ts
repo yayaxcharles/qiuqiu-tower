@@ -90,7 +90,7 @@ registerScreen('rest', (app, root) => {
     renderHud(app, root);
     const finalRest = run.act >= 3 && run.floor === 44;   // 師父前一格：回滿（引擎 napHeal 同一條規則）
     const heal = healNow();   // 每次重畫都重算：被扶起來之後血量變了，寫死的數字會對不上
-    const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前好好睡一覺：回滿 ${heal} 點生命）` : `打盹（回復 ${heal} 點生命）`) : '打盹（生命已經滿了）');
+    const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前睡飽：回復 ${heal} 點生命，補到全滿）` : `打盹（回復 ${heal} 點生命）`) : '打盹（生命已經滿了）');
     nap.addEventListener('click', () => {
       if (used) return;
       napped = heal;   // 送出之前先記下來：連線要等動作繞回來才演，那時血已經回過了
@@ -157,7 +157,7 @@ registerScreen('rest', (app, root) => {
       const gain = Math.min(h.total, me(run, seat).maxHp - me(run, seat).hp);
       prep = el('button', { class: 'btn two-line' },
         el('span', {}, '全力準備（升級一張牌）'),
-        el('span', { class: 'sub' }, `回 ${gain} 點：一成 ${h.tenth} ＋ ${me(run, seat).fish} 條小魚乾換 ${h.fromFish}${gain < h.total ? '（回到滿）' : ''}，魚乾歸零`));
+        el('span', { class: 'sub' }, `回 ${gain} 點生命：一成是 ${h.tenth} 點，${me(run, seat).fish} 條小魚乾再換 ${h.fromFish} 點${gain < h.total ? '（會回到滿）' : ''}；小魚乾會全部花光`));
       prep.addEventListener('click', () => { if (!used) pickCard('全力準備'); });
       if (!me(run, seat).deck.some(upgradable)) prep.setAttribute('disabled', 'disabled');
     }

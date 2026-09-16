@@ -10,7 +10,8 @@
     "skipLibCheck": true,
     "noEmit": true,
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "types": []
   },
-  "include": ["src", "tests", "scripts", "vite.config.ts"]
+  "include": ["src", "tests", "scripts", "vite.config.ts", "tools/node-build.d.ts", "tools/vite-asset-hash.ts"]
 }

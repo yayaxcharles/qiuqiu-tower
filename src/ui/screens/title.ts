@@ -21,7 +21,10 @@ registerScreen('title', (app, root) => {
   const isShare = (): boolean => seed.value.trim().startsWith(SHARE_PREFIX);
   const refreshShare = (): void => {
     const share = isShare();
-    startBtn.textContent = share ? '載入這個局面' : '新的一局';
+    // 這顆是全遊戲最不可逆的一顆（打到 30F 的存檔一按就沒了），代價要寫在鈕上，
+    // 不能只放在旁邊那行小字（介面稽核 2026-09-16 高-5）
+    startBtn.textContent = !share ? '新的一局'
+      : hasSave() ? '載入這個局面（會蓋掉存檔）' : '載入這個局面';
     shareNote.textContent = !share ? ''
       : hasSave() ? '⚠ 這是別人的局面碼，載入會蓋掉你現在的續玩進度。'
         : '別人的局面碼：會從他當時的位置接著打（牌組、秘寶、血量都是他的）。';

@@ -808,7 +808,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         // 逃跑冷卻從**第一次**偷到算起（見 `ESCAPE_GAP`）：再偷第二次不會把時鐘重設，
         // 不然牠可以一直偷一直重設、永遠不跑，玩家也永遠追不回那筆錢
         e.stolenTurn ??= cs.turn;
-        log(cs, `${e.name}偷走了 ${fx.n} 小魚乾`);
+        log(cs, `${e.name}偷走了 ${fx.n} 條小魚乾`);
         break;
       case 'discardRandomHand': {
         // 魔物出手時你的手牌早就在回合結束時全棄掉了，「隨機丟手牌」實際上什麼都沒發生

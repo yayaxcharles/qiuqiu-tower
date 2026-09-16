@@ -137,7 +137,7 @@ registerScreen('actclear', (app, root, props) => {
     const next = ACT_NAMES[run.act] ?? '塔頂';
     // 有秘寶可挑卻沒挑就不放行：原本按鈕文字只看有沒有選牌，一件塔主池秘寶按下去就無聲消失（體檢 2026-09-05）
     const mustPickRelic = picks.length > 0 && !pickedRelic;
-    const goLabel = sent ? '等對方挑完…' : mustPickRelic ? '先挑一件秘寶' : pickedCard ? `帶著新招上${next}` : `出發，上${next}`;
+    const goLabel = sent ? '等同伴挑完…' : mustPickRelic ? '先挑一件秘寶' : pickedCard ? `帶著新招上${next}` : `出發，上${next}`;
     // 劇場版面：秘寶一排、牌一排立在畫面中央；說明與出發鈕在底下的帶子裡
     root.append(sceneView({
       art: el('div', { class: 'scene-picks' },

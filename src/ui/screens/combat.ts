@@ -1516,7 +1516,7 @@ registerScreen('combat', (app, root, props) => {
        */
       // 對面坐的是菲菲就要寫「她」（2026-09-13 稽核 中-3）：同一個畫面上她的名字就在旁邊
       const mate = cs.players.find((q) => q !== my());
-      const force = el('button', { class: 'btn end-force', onclick: () => onForce() }, `替${heroPronoun(mate)}收回合`);
+      const force = el('button', { class: 'btn end-force', onclick: () => onForce() }, `替${heroPronoun(mate)}結束這回合`);
       force.hidden = true;
       box.append(force);
     }

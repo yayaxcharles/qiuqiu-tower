@@ -371,7 +371,7 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   if (st.def.type === '攻擊' && p.noAttacks) return { ok: false, reason: '本回合不能再打攻擊牌' };
   // 球球被定身：這回合攻擊牌整排打不出（毛線球怪的「纏住」）。
   // 這一側漏了很久——引擎本來只實作魔物被定身那一半，玩家身上的定身完全沒作用
-  if (st.def.type === '攻擊' && getStatus(p, '定身') > 0) return { ok: false, reason: '被纏住了，打不出攻擊牌' };
+  if (st.def.type === '攻擊' && getStatus(p, '定身') > 0) return { ok: false, reason: '被定住了，這回合打不出攻擊牌' };
   let cost = st.cost;
   if (!p.firstCardPlayed) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscount'));
   if (!p.firstCardEver) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscountCombat'));   // 破卷軸：整場只有第一張（審查 #7）
@@ -496,7 +496,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     }
     // 重播途中開了選牌選單（告退、拖字訣、讀心術在手牌空著時原打不問、重播才問）就停在這裡，
     // 剩下的不補跑——但要說出來，不然紀錄印了 1／2 之後永遠等不到 2／2（審查 低-1）
-    if (i < times && cs.pending) log(cs, `影子分身：這張牌要選牌，剩下 ${times - i} 次不再重播`);
+    if (i < times && cs.pending) log(cs, `影子分身：這張牌要挑牌，剩下的 ${times - i} 次就不再打了`);
   }
   /*
    * **監聽排在影子分身重播之後**（2026-09-13 稽核 中-4）。
@@ -614,7 +614,7 @@ export function forceReady(cs: CombatState, seat: number): boolean {
   if (!p || p.down || p.ready || cs.phase !== 'player') return allReady(cs);
   p.ready = true;
   // 留一行紀錄：被強制收回合的人回來之後，得看得懂自己那個回合是怎麼沒的
-  log(cs, '等太久了，替走開的那位收了回合');
+  log(cs, '等太久了，同伴幫你把這回合結束掉了');
   return allReady(cs);
 }
 

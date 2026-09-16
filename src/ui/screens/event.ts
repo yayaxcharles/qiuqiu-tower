@@ -343,7 +343,7 @@ registerScreen('event', (app, root, props) => {
     root.append(sceneView({
       art: grid,
       speaker: title,
-      text: picked ? `${resultText}　挑好了，等同伴挑完。` : `${resultText}　選一招帶走。`,
+      text: picked ? `${resultText}　挑好了，等同伴挑完。` : `${resultText}　選一張牌帶走。`,
       actions: [picked
         ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
         : el('button', { class: 'btn', onclick: () => learn('') }, '都不要')],
@@ -616,7 +616,7 @@ registerScreen('event', (app, root, props) => {
    */
   const risky = ev.choices.some((c) => c.outcome.some((o) => o.kind === 'damage' || o.kind === 'gamble'));
   const extra = runMods(run).unlucky && risky
-    ? [el('p', { class: 'event-note' }, '這個難度下：事件造成的傷害 ×1.5，賭運氣的成功率 ×0.7（選項上寫的是基本值）')]
+    ? [el('p', { class: 'event-note' }, '這個難度下，事件會更兇：掉血多一半，賭運氣只剩七成機會中（選項上寫的是一般難度的數字）')]
     : [];
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
   root.append(sceneView({ art: eventArt(ev.id), speaker: title,

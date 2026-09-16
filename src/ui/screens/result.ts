@@ -78,7 +78,7 @@ registerScreen('result', (app, root) => {
         // 連線也要在這裡斷乾淨，不然回標題再開單機會整局點不動（稽核 高-1）
         app.leaveCoop();
         app.run = null; app.cs = null; app.show('title');
-      } }, '回到村子'),
+      } }, '回標題'),
     ],
   }));
 });

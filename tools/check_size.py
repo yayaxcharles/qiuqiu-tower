@@ -87,6 +87,22 @@ def load_deferred() -> set[str]:
     data = json.loads(DEFERRED_FILE.read_text(encoding="utf-8"))
     return {rel for rel, act in data.items() if int(act) == 0 or int(act) >= 2}
 
+# 打包時素材檔名會加上內容雜湊碼（`tools/vite-asset-hash.ts`），`dist/` 裡的
+# `assets/bg/boss2-Ab3xY9z1.webp` 對應的原始路徑是 `assets/bg/boss2.webp`。
+# 上面那份分關載入清單是照**原始路徑**寫的，不對回去的話 880 張二三關的圖會全部被
+# 當成首載、這支檢查必定超標。外掛每次打包都會重寫這張對照表。
+HASH_MAP_FILE = ROOT / ".vite" / "asset-hashes.json"
+
+
+def load_unhash() -> dict[str, str]:
+    """帶雜湊的相對路徑 → 原始相對路徑。沒有這張表（還沒打包過、或用舊版打的）就回空的。"""
+    import json
+    if not HASH_MAP_FILE.exists():
+        return {}
+    data = json.loads(HASH_MAP_FILE.read_text(encoding="utf-8"))
+    return {hashed: orig for orig, hashed in data.items()}
+
+
 IMAGE_SUFFIXES = {".webp", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".avif"}
 
 
@@ -113,12 +129,14 @@ def scan(dist: Path) -> tuple[dict[str, int], dict[str, int], list[tuple[int, Pa
     counts = {k: 0 for k in CATEGORIES}
     files: list[tuple[int, Path]] = []
     deferred = load_deferred()
+    unhash = load_unhash()
     for p in dist.rglob("*"):
         if not p.is_file():
             continue
         n = p.stat().st_size
         kind = classify(p)
-        if kind == "img" and p.relative_to(dist).as_posix() in deferred:
+        rel = p.relative_to(dist).as_posix()
+        if kind == "img" and unhash.get(rel, rel) in deferred:
             kind = "deferred"
         sizes[kind] += n
         counts[kind] += 1

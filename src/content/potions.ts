@@ -6,7 +6,7 @@ export const potions: PotionDef[] = [
   { id: 'onigiri', name: '飯糰', text: '本回合多 1 顆飯糰。', art: 'codex/potion_onigiri', price: 30, target: 'self', effects: [{ kind: 'energy', n: 1 }] },
   { id: 'catgrass_tea', name: '貓草茶', text: '回復 10 點生命。', art: 'codex/potion_catgrass_tea', price: 40, target: 'self', effects: [{ kind: 'heal', n: 10 }] },
   { id: 'firecracker', name: '鞭炮', text: '對全體魔物造成 6 點傷害。', art: 'codex/potion_firecracker', price: 40, target: 'all', effects: [{ kind: 'damage', amount: 6, target: 'all' }] },
-  { id: 'rope', name: '麻繩', text: '給目標定身。', art: 'codex/potion_rope', price: 40, target: 'enemy', effects: [{ kind: 'status', name: '定身', amount: 1, target: 'enemy' }] },
+  { id: 'rope', name: '麻繩', text: '給目標定身（七成會中）。', art: 'codex/potion_rope', price: 40, target: 'enemy', effects: [{ kind: 'status', name: '定身', amount: 1, target: 'enemy' }] },
   { id: 'tuna', name: '鮪魚', text: '抽 3 張牌。', art: 'codex/potion_tuna', price: 50, target: 'self', effects: [{ kind: 'draw', n: 3 }] },
   { id: 'whetstone', name: '磨爪石', text: '這場戰鬥獲得 1 點爪力。', art: 'codex/potion_whetstone', price: 30, target: 'self', effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] },
 // ===== 2026-08-31 補 12 個。本來只有 8 個，一局就用掉五到十個，等於每局都在用同一批 =====

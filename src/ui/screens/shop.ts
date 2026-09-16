@@ -175,7 +175,7 @@ registerScreen('shop', (app, root, props) => {
     if (!coop) return el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開');
     const mine = done.has(seat);
     const btn = el('button', { class: 'btn primary', onclick: () => { if (!mine) coop.submitRun({ t: 'done', seat }); } },
-      mine ? '等對方逛完…' : '逛好了');
+      mine ? '等同伴逛完…' : '逛好了');
     if (mine) btn.setAttribute('disabled', 'disabled');
     return btn;
   }
@@ -193,7 +193,7 @@ registerScreen('shop', (app, root, props) => {
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         saleTag(it.sold ? undefined : it.sale),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { act({ t: 'buy', seat, k: 'card', i }, () => buyCard(run, shop, i, seat)) && bought('buy'); } }),   // 升級格照＋版畫
-        theirs && !it.sold ? el('div', { class: 'price' }, '同伴的招式') : priceNode(price, it.sold, it.base, it.sale));
+        theirs && !it.sold ? el('div', { class: 'price' }, '同伴的牌') : priceNode(price, it.sold, it.base, it.sale));
       // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
       if (!it.sold && !buyable) slot.addEventListener('click', () => setMood('no'));
       cards.append(slot);
@@ -257,7 +257,7 @@ registerScreen('shop', (app, root, props) => {
     // 劇場版面：貨架站在中上方（新招一排、秘寶與忍具一排），老闆站在對白框左邊講話，
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
     const goods = el('div', { class: 'scene-goods' },
-      shelf('新招', cards, `shelf-cards${shop.cards.length >= 6 ? ' six' : ''}`),
+      shelf('新牌', cards, `shelf-cards${shop.cards.length >= 6 ? ' six' : ''}`),
       el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));   // 珍品架多一格時六格並排，格子縮一點
     root.append(sceneView({
       art: goods,
