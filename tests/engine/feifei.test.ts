@@ -301,16 +301,20 @@ describe('菲菲：牌面文字讀得懂', () => {
     expect(r.text, '說明沒提到中毒').toContain('中毒');
     expect(r.text, '說明沒提到每回合').toContain('每回合');
     const fx = r.hooks.turnStart ?? [];
-    expect(fx, '不是掛在每回合開始').toEqual([{ kind: 'status', name: '中毒', amount: 1, target: 'all' }]);
+    expect(r.text, '說明沒說是最前面那一隻').toContain('最前面');
+    // 2026-09-16 使用者裁定調弱：全體 → 最前面那一隻（她到第二關 83%、球球 43%，差太多）
+    expect(fx, '不是掛在每回合開始').toEqual([{ kind: 'status', name: '中毒', amount: 1, target: 'front' }]);
     expect(r.hooks.combatStart, '舊的開場蜷縮沒拿掉').toBeUndefined();
   });
 
-  it('毒針袋真的每回合都給所有魔物上毒', () => {
+  it('毒針袋每回合只給最前面那一隻上毒', () => {
     const run = newRun('relic-poison', 1, 'feifei');
     const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
     run.currentNode = node.id;
     const cs = beginCombat(run);
     // 開打就是第一回合，掛鉤跑過一次
-    for (const e of cs.enemies) expect(getStatus(e, '中毒'), '第一回合沒上毒').toBeGreaterThanOrEqual(1);
+    expect(getStatus(cs.enemies[0]!, '中毒'), '最前面那一隻第一回合沒上毒').toBeGreaterThanOrEqual(1);
+    // 後面那幾隻不該被波及（這就是這次調弱的重點）
+    for (const e of cs.enemies.slice(1)) expect(getStatus(e, '中毒'), `${e.name} 不該被上毒`).toBe(0);
   });
 });

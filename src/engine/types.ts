@@ -187,7 +187,11 @@ export type Effect =
   | { kind: 'drawIfTargetStatus'; name: StatusName; n: number }
   | { kind: 'drawNextTurn'; n: number }
   /** `step`＝成長牌（菲菲的分身術，2026-09-14）：這場戰鬥裡同一張牌之前每打出一次，這次就多 step 層（跟 damageRamp 同一套次數） */
-  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all'; step?: number }
+  /**
+   * `front`＝**場上最前面那一隻活著的魔物**（2026-09-16 使用者裁定，毒針袋用）。
+   * 跟 `all` 的差別在多隻場面：`all` 是每一隻都上，`front` 只上第一隻。
+   */
+  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all' | 'front'; step?: number }
   /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5） */
   | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number }
   /** 催噎：目標身上這個狀態翻倍（沒有就沒事），再加 add 層 */
@@ -792,8 +796,10 @@ export interface PlayerCombat extends Unit {
   poisonBurst?: 'split' | 'full';
   /** 拒馬：之後每次獲得蜷縮都額外多幾點 */
   blockBonus?: number;
-  /** 影子分身：這場戰鬥每回合的第一張牌會再打一次（見 `Effect` 的 `echoFirst`） */
+  /** 影子分身：這場戰鬥每回合第一張**不是能力牌**的牌會再打一次（見 `Effect` 的 `echoFirst`） */
   echoFirst?: number;
+  /** 這回合的重播用掉了沒。能力牌會被跳過、不算用掉，所以不能只看打了第幾張 */
+  echoUsed?: boolean;
   /** 千針萬毒：每打出一張攻擊牌，額外給那個目標幾層中毒 */
   poisonOnAttack?: number;
   /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */
@@ -893,13 +899,6 @@ export interface EffectCtx {
   source?: 'card' | 'potion' | 'relic' | 'power';
   combo?: number;          // 這張牌之前本回合已打出的牌數
   doubleDamage?: boolean;  // 蓄力：這張攻擊牌的傷害加倍
-  /**
-   * 這一遍是影子分身的**重播**，不要再掛一份「能力」（`kind: 'power'`）。
-   *
-   * 跟 `doubleDamage: false` 同一個道理：重播是「這張牌的效果再發生一次」，
-   * 不是「這張能力永久多掛一份」。詳見 `combat.ts` 重播那一段的說明。
-   */
-  noPowers?: boolean;
   killed?: boolean;        // 這張牌的傷害有沒有擊倒魔物（順手牽羊用）
 }
 export interface PendingChoice {
