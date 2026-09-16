@@ -21,7 +21,7 @@ import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
-import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterUrl, hasSprite } from '../assets';
+import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterPhaseKey, monsterUrl, hasSprite } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
@@ -1009,7 +1009,10 @@ registerScreen('combat', (app, root, props) => {
    * 看的是座位 0 的角色（鏡子抄的就是那一位的牌組），不是本機這一位。
    * 圖還沒進倉時 `assets.ts` 會自動退回影球球那組。
    */
-  function artOfEnemy(e: EnemyCombat): string { return enemyArtFor(e.enemyId, cs.player.hero); }
+  /** 這一隻現在該用哪組立繪：先照角色變裝（鏡中球球），再照牠打到第幾階段（見 `monsterPhaseKey`） */
+  function artOfEnemy(e: EnemyCombat): string {
+    return monsterPhaseKey(enemyArtFor(e.enemyId, cs.player.hero), e.phase ?? 0);
+  }
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
     const def = enemyById[e.enemyId];
