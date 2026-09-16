@@ -335,7 +335,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnEnergy ?? 0) > 0) fireRelic(cs, rid, p);
   // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { self: p, source: 'power' });
-  p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0;
+  p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0; p.echoUsed = false;
   p.taunt = false;   // 「我來擋」只保護一輪（連線版 2026-09-11）
   p.firstCardPlayed = false; p.doubleNext = 0;   // 蓄力只撐到回合結束；秘笈的第一擊加倍走自己的旗標（審查 #8）
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnDraw') : 0);
@@ -479,8 +479,16 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * `doubleDamage: false`：蓄力與秘笈的加倍是**用掉就清掉**的（上面 `p.doubleNext = 0`、
    * `p.firstAttackDouble = false`），程式自己的模型是「只該用在這一次」。
    * 原本 `{ ...ctx }` 把它一起複製過去，6 點的貓抓會打出 24 點（兩倍再兩倍）。
+   *
+   * **能力牌整張不重播**（2026-09-16 使用者裁定）：這一段本來是「照樣重播、但不多掛
+   * 一份能力」，問題是那條規則在畫面上看不出來、玩家會忘記。改成能力牌直接跳過，
+   * **這回合的重播留給下一張牌**（`p.echoUsed` 這時還沒立起來），所以打能力牌也不算浪費。
+   *
+   * 為什麼非擋不可：封印解除每回合 +1 爪力 +1 貓步，被重播就等於再掛一台成長機器。
+   * 掛兩張影子分身之後變成每回合 +3／+3，第 14 回合貓步 33、一張金鐘罩擋 150 點
+   * （沒有影子分身時是 13 與 30）。一張 3 費牌換五倍，不是「再打一次」該有的量。
    */
-  if (p.echoFirst && p.cardsPlayedThisTurn === 1
+  if (p.echoFirst && !p.echoUsed && st.def.type !== '能力'
       && !st.effects.some((e) => e.kind === 'echoFirst')
       && cs.phase === 'player' && !cs.pending) {
     /*
@@ -488,6 +496,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
      * 原本這裡只看「有沒有」、永遠只重播一次，第二張等於白花 3 費，狀態列也只寫一層。
      * 每重播一次都再看一次 phase 與 pending：第一次重播就把最後一隻打倒的話，後面不能再打。
      */
+    p.echoUsed = true;           // 這回合用掉了；能力牌不會走到這裡，所以打能力牌不算浪費
     const times = p.echoFirst;   // 先存起來：上限不能是活的，哪天有效果在重播中加到 echoFirst 就會跑不完（審查 低-2）
     let i = 0;
     for (; i < times && cs.phase === 'player' && !cs.pending; i++) {

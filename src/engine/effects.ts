@@ -18,7 +18,9 @@ export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx)
   }
 }
 
-function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean) {
+function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean, front = false) {
+  // 最前面那一隻活著的（毒針袋）。不擲骰、不看指定目標，所以兩台連線算出來一定一樣
+  if (front) { const f = aliveEnemies(cs)[0]; return f ? [f] : []; }
   if (all) return aliveEnemies(cs);
   const t = ctx.targetUid === undefined ? undefined : findEnemy(cs, ctx.targetUid);
   return t ? [t] : [];
@@ -361,7 +363,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         // 自己給自己疊的減益，這回合結束先不衰減
         if (TURN_DECAY.includes(fx.name)) p.freshDebuffs[fx.name] = (p.freshDebuffs[fx.name] ?? 0) + amount;
       } else {
-        for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
+        for (const t of targetsOf(cs, ctx, fx.target === 'all', fx.target === 'front')) {
           // 定身對魔物只有七成機會成功（使用者 2026-09-02：「定身太強」）；沒中就寫在紀錄、畫面飄「掙脫」
           if (fx.name === '定身' && !cs.rng.chance(0.7)) { log(cs, `${t.name}掙脫了定身`); continue; }
           addStatus(t, fx.name, amount);

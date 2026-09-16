@@ -15,7 +15,7 @@ import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
   finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
-import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, RunEffect, RunState, Unit } from './types';
+import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
 
 /**
@@ -68,7 +68,7 @@ const RATING: Record<string, number> = {
   zuiquan: 5, yixing: 5, gekong: 4, guixi: 5, taiji: 4, mabu: 7, yungong: 8, yide: 6, tuishou: 5, dieda: 5, shibadie: 6,
   hujin: 6, boming: 6, liandao: 8, jiedao: 6, wangming: 7, tiexin: 9, fanpu: 5, shierlian: 7, huxin: 8, jiuweiquan: 8,
 };
-function rating(cardId: string): number {
+export function rating(cardId: string): number {
   const def = cardById[cardId];
   if (!def) return 0;
   if (def.pool === '壞毛病') return -10;
@@ -82,13 +82,17 @@ const RELIC_RATING: Record<string, number> = {
   worn_scroll: 6, lucky_coin: 5, warm_blanket: 5, iron_collar: 8, claw_sheath: 9, ghost_bell: 8,
   counting_beads: 7, still_water: 4, nine_tails: 10, shadow_cloak: 6, last_breath: 6, master_belt: 8, golden_bowl: 8,
 };
-const relicRating = (id: string): number => RELIC_RATING[id] ?? 5;
+export const relicRating = (id: string): number => RELIC_RATING[id] ?? 5;
 
 // ===== 戰鬥 =====
 
-/** 玩家在「回合結束的減益衰減跑完之後」的樣子。只用來估傷害，不動真的狀態 */
-function decayedDefender(cs: CombatState): Unit {
-  const p = cs.player;
+/**
+ * 玩家在「回合結束的減益衰減跑完之後」的樣子。只用來估傷害，不動真的狀態。
+ *
+ * 收的是**哪一位**（2026-09-16 量雙人時加的參數）：兩個人一起打時每個座位身上的
+ * 翻肚層數不一樣，估錯人等於估錯這一拍會挨多少。不傳就是座位 0，單機完全沒變。
+ */
+function decayedDefender(p: PlayerCombat): Unit {
   const statuses = { ...p.statuses };
   for (const name of TURN_DECAY) {
     const fresh = p.freshDebuffs[name] ?? 0;
@@ -98,12 +102,12 @@ function decayedDefender(cs: CombatState): Unit {
   return { hp: p.hp, maxHp: p.maxHp, block: p.block, statuses };
 }
 
-/** 這隻魔物這一拍會打出來的每一下（已算爪力、蓄力、你的翻肚），沒攻擊就是空陣列 */
-function incomingHits(cs: CombatState, e: EnemyCombat): number[] {
-  return incomingHitList(cs, e).map((h) => h.dmg);
+/** 這隻魔物這一拍會打出來的每一下（已算爪力、蓄力、你的翻肚），沒攻擊就是空陣列。`who`＝算在誰身上 */
+function incomingHits(cs: CombatState, e: EnemyCombat, who: PlayerCombat = cs.player): number[] {
+  return incomingHitList(cs, e, who).map((h) => h.dmg);
 }
 /** 同上，但帶著「這一下穿不穿蜷縮」 */
-function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce: boolean }[] {
+function incomingHitList(cs: CombatState, e: EnemyCombat, who: PlayerCombat = cs.player): { dmg: number; pierce: boolean }[] {
   if (e.dead) return [];
   const m = e.move;
   if (!willAct(e)) return [];   // 定身擋整個動作、沉睡什麼都不做——跟引擎與畫面同一支判準
@@ -112,7 +116,7 @@ function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce
   // 引擎在魔物出手之前就先把玩家的減益減一層（`endTurn` 裡那段），所以身上剛好 1 層翻肚時
   // 魔物實際打過來是不吃加成的，機器人卻按 1.5 倍估、於是多擋少打。這只影響平衡報告的數字，
   // 但平衡就是靠這支量的。自己這回合疊上去的那幾層不衰減，判準跟引擎那邊一致。
-  const player = decayedDefender(cs);
+  const player = decayedDefender(who);
   const hits: { dmg: number; pierce: boolean }[] = [];
   for (const fx of m.effects) {
     if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * x, e, player), pierce: !!fx.pierce });
@@ -126,11 +130,16 @@ function incomingHitList(cs: CombatState, e: EnemyCombat): { dmg: number; pierce
   return hits;
 }
 
-/** 這回合還會吃到多少：照引擎的順序模擬——每一下先由蜷縮擋，擋不完的那一下才耗一層隱身閃掉；穿透不看蜷縮（2026-09-04 判定順序改了） */
-function expectedIncoming(cs: CombatState): number {
-  const p = cs.player;
+/**
+ * 這回合還會吃到多少：照引擎的順序模擬——每一下先由蜷縮擋，擋不完的那一下才耗一層隱身閃掉；穿透不看蜷縮（2026-09-04 判定順序改了）。
+ *
+ * `who`＝算誰的（2026-09-16）。兩個人一起打時**一招打全部站著的人、每個人各吃完整一份**
+ *（`actions.ts` 的 `ENEMY_HITS_EVERYONE`），所以每一位都照整份清單算，差別只在各自的蜷縮與隱身。
+ */
+function expectedIncoming(cs: CombatState, who: PlayerCombat = cs.player): number {
+  const p = who;
   if (p.immune) return 0;
-  const all = aliveEnemies(cs).flatMap((e) => incomingHitList(cs, e));
+  const all = aliveEnemies(cs).flatMap((e) => incomingHitList(cs, e, who));
   let block = p.block; let stealth = getStatus(p, '隱身'); let taken = 0;
   for (const h of all) {
     const absorbed = h.pierce ? 0 : Math.min(block, h.dmg);
@@ -151,12 +160,13 @@ function incomingHitCount(cs: CombatState): number {
  * 會估成「18 打得死」而開掉一支 45 條的忍具，實際只進 12 點、魔物活著剩 6 血
  *（稽核 2026-09-11 中-2）。牌的呼叫端不傳，維持原本行為。
  */
-function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: number, doubled: boolean, plays = 0, noStrength = false): number {
+function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: number, doubled: boolean, plays = 0, noStrength = false,
+                  who: PlayerCombat = cs.player): number {
   if (!attackable(cs, e)) return 0;
   if (getStatus(e, '隱身') > 0) return 0;
   let block = e.block;
   let total = 0;
-  const p = cs.player;
+  const p = who;   // 出手的是哪一位（2026-09-16 量雙人時加的；不傳就是座位 0，單機一個位元都沒變）
   // 飛行（燈蛾、月蛾后）：每一下先減半，扣到血就掉一層，掉到 0 之後才打得到全額
   let flying = getStatus(e, '飛行');
   // 虛化（虛無貓，2026-09-03）：每一段最多只扣 1 點血。防禦照原本的量扣掉，只有進血條的那幾點被壓成 1
@@ -196,14 +206,19 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
 
 interface Plan { uid: number; target?: number; value: number; cost: number; endsTurn: boolean }
 
-/** 幫每一張打得出的牌估一個「現在打出去值多少」 */
-function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: number): Plan | null {
-  const p = cs.player;
+/**
+ * 幫每一張打得出的牌估一個「現在打出去值多少」。
+ *
+ * `seat`＝現在輪到誰在挑牌（2026-09-16 量雙人時加的）。不傳就是座位 0，單機那條路一個字都沒動；
+ * 連線量測時兩個座位各叫一次，估的是各自的手牌、飯糰、蜷縮與身上的狀態。
+ */
+function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: number, seat = 0): Plan | null {
+  const p = (cs.players[seat] ?? cs.player) as PlayerCombat;
   const st = cardStats(c);
   const def = st.def;
   const enemies = aliveEnemies(cs);
   const target0 = def.target === 'enemy' ? enemies.find((e) => attackable(cs, e)) ?? enemies[0] : undefined;
-  const chk = canPlay(cs, c.uid, target0?.uid);
+  const chk = canPlay(cs, c.uid, target0?.uid, seat);
   if (!chk.ok) return null;
   const lowHp = p.hp - incoming <= 0;          // 不擋就死
   const danger = p.hp - incoming < p.maxHp * 0.35;
@@ -232,10 +247,10 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
     let best: { e: EnemyCombat; v: number } | null = null;
     for (const e of enemies) {
       if (!attackable(cs, e)) continue;
-      const dmg = damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays);
+      const dmg = damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays, false, p);
       // 牠有隱身：這一下會落空，但不打掉那層永遠打不到牠——便宜的攻擊牌照樣值得丟
       let v = dmg > 0 ? dmg : getStatus(e, '隱身') > 0 ? 3 / Math.max(1, st.cost) : 0;
-      if (dmg >= e.hp) v += 8 + incomingHits(cs, e).reduce((s, h) => s + h, 0);   // 收頭：牠這回合的傷害也一起省掉
+      if (dmg >= e.hp) v += 8 + incomingHits(cs, e, p).reduce((s, h) => s + h, 0);   // 收頭：牠這回合的傷害也一起省掉
       else v += e.hp < 20 ? 2 : 0;
       // 牠身上有反彈：每打一下就被刺一下（2026-09-02 反彈才真的生效），多段牌撞上去很痛
       const hits = st.effects.reduce((n, fx) => n + (fx.kind === 'damage' ? (fx.times ?? 1) : fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock' || fx.kind === 'damageRamp' ? 1 : 0), 0);
@@ -243,8 +258,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       if (!best || v > best.v) best = { e, v };
     }
     if (def.target === 'all') {
-      value += enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays), 0);
-      if (best) value += best.v - damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, plays);
+      value += enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays, false, p), 0);
+      if (best) value += best.v - damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, plays, false, p);
     } else if (best) { value += best.v; target = best.e.uid; }
     if (def.target === 'enemy' && !target) return null;
     // 全場快清光了就別留手
@@ -268,7 +283,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
             // 隱身排在蜷縮後面：照引擎順序把蜷縮一路吃掉，留下「擋不完的那幾下」（穿透不看蜷縮），由大到小估前幾層閃掉的價值（八成）（稽核 2026-09-04 低 7）
             let pool = p.block;
             const passing: number[] = [];
-            for (const h of enemies.flatMap((e) => incomingHitList(cs, e))) {
+            for (const h of enemies.flatMap((e) => incomingHitList(cs, e, p))) {
               const ab = h.pierce ? 0 : Math.min(pool, h.dmg); pool -= ab;
               if (h.dmg - ab > 0) passing.push(h.dmg - ab);
             }
@@ -309,8 +324,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
           else if (fx.name === '懶洋洋') value += Math.min(incoming, 12) * 0.25 * n + 2;
           else if (fx.name === '炸毛') value += 1.5 * n;
           else if (fx.name === '定身') {
-            const stunned = target !== undefined ? enemies.find((e) => e.uid === target) : enemies.slice().sort((a, b) => incomingHits(cs, b).reduce((s, h) => s + h, 0) - incomingHits(cs, a).reduce((s, h) => s + h, 0))[0];
-            const saved = stunned ? incomingHits(cs, stunned).reduce((s, h) => s + h, 0) : 0;
+            const stunned = target !== undefined ? enemies.find((e) => e.uid === target) : enemies.slice().sort((a, b) => incomingHits(cs, b, p).reduce((s, h) => s + h, 0) - incomingHits(cs, a, p).reduce((s, h) => s + h, 0))[0];
+            const saved = stunned ? incomingHits(cs, stunned, p).reduce((s, h) => s + h, 0) : 0;
             value += saved * (lowHp ? 3 : 1.2) + 3;
             if (stunned && def.target === 'enemy' && !hasDamage) target = stunned.uid;
           }
@@ -500,11 +515,14 @@ function pickPending(cs: CombatState, rng: Rng): void {
   }
 }
 
-function maybePotion(cs: CombatState, incoming: number): boolean {
-  const p = cs.player;
+/** `seat`＝誰要喝（2026-09-16 量雙人時加的）。不傳就是座位 0，`p.potions` 跟 `cs.potions` 是同一個陣列，單機完全沒變 */
+function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
+  const p = (cs.players[seat] ?? cs.player) as PlayerCombat;
+  /** 喝自己袋子裡的那一瓶（忍具各帶各的，見 `usePotion` 的 seat） */
+  const drink = (potionId: string, targetUid?: number): boolean => usePotion(cs, potionId, targetUid, seat);
   const enemies = aliveEnemies(cs).filter((e) => attackable(cs, e));
   const boss = cs.enemies.some((e) => enemyById[e.enemyId]?.pool === '塔主');
-  for (const id of [...cs.potions]) {
+  for (const id of [...p.potions]) {
     const def = potionById[id];
     if (!def) continue;
     // 有使用條件的（起死回生丹要血低於三成）現在用不出來就跳過（稽核 2026-09-11 中-3）。
@@ -516,9 +534,9 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     const heal = def.effects.find((f) => f.kind === 'heal');
     // `percent` 是回最大生命的百分之幾，`n` 這時是 0——照 `n` 判會讓「缺的血夠不夠回」恆為真
     const healAmt = heal?.kind === 'heal' ? (heal.percent ? Math.round(p.maxHp * heal.percent / 100) : heal.n) : 0;
-    if (healAmt > 0 && p.hp <= p.maxHp * 0.4 && p.maxHp - p.hp >= healAmt) return usePotion(cs, id);
+    if (healAmt > 0 && p.hp <= p.maxHp * 0.4 && p.maxHp - p.hp >= healAmt) return drink(id);
     if ((kinds.includes('block') || (kinds.includes('status') && def.effects.some((f) => f.kind === 'status' && f.name === '隱身')))
-      && incoming >= 10 && p.hp - incoming <= p.maxHp * 0.35) return usePotion(cs, id);
+      && incoming >= 10 && p.hp - incoming <= p.maxHp * 0.35) return drink(id);
     // **無視防禦的不在這裡處理**（稽核 2026-09-11 中-1）：這條用 `hp + block <= total` 判斷，
     // 對破甲錐來說 `block` 根本不該算進去，而且它沒扣飛行的砍半——
     // 一隻飛著、血 8、防禦 3 的魔物會被這條接走（8+3 <= 12），實際只打進 6 點、45 條白燒。
@@ -527,12 +545,12 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     if (dmg && dmg.kind === 'damage') {
       const total = dmg.amount * (dmg.times ?? 1);
       const victim = enemies.find((e) => e.hp + e.block <= total && e.hp >= 6);
-      if (victim && dmg.target !== 'all') return usePotion(cs, id, victim.uid);
-      if (dmg.target === 'all' && enemies.length >= 2 && enemies.some((e) => e.hp <= total)) return usePotion(cs, id);
+      if (victim && dmg.target !== 'all') return drink(id, victim.uid);
+      if (dmg.target === 'all' && enemies.length >= 2 && enemies.some((e) => e.hp <= total)) return drink(id);
     }
-    if (kinds.includes('energy') && p.energy === 0 && p.hand.filter((c) => canPlay(cs, c.uid, enemies[0]?.uid).ok || cardStats(c).cost > 0).length >= 2
-      && (incoming > p.block || enemies.some((e) => e.hp <= 15))) return usePotion(cs, id);
-    if (kinds.includes('cleanse') && getStatus(p, '中毒') >= 4) return usePotion(cs, id);
+    if (kinds.includes('energy') && p.energy === 0 && p.hand.filter((c) => canPlay(cs, c.uid, enemies[0]?.uid, seat).ok || cardStats(c).cost > 0).length >= 2
+      && (incoming > p.block || enemies.some((e) => e.hp <= 15))) return drink(id);
+    if (kinds.includes('cleanse') && getStatus(p, '中毒') >= 4) return drink(id);
     /*
      * 2026-09-11 新增的那批忍具（稽核中-4）。原本 `maybePotion` 只認回血、防禦、隱身、傷害、
      * 飯糰、清減益與關主戰那兩種狀態，七支新忍具裡有五支它一輩子不會用——
@@ -543,8 +561,8 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     const scatter = def.effects.find((f) => f.kind === 'damageScatter');
     if (scatter?.kind === 'damageScatter') {
       const total = scatter.amount * scatter.times;
-      if (enemies.length === 1 && enemies[0]!.hp + enemies[0]!.block <= total) return usePotion(cs, id);
-      if (enemies.length >= 2 && enemies.every((e) => e.hp <= scatter.amount)) return usePotion(cs, id);
+      if (enemies.length === 1 && enemies[0]!.hp + enemies[0]!.block <= total) return drink(id);
+      if (enemies.length >= 2 && enemies.every((e) => e.hp <= scatter.amount)) return drink(id);
     }
     /*
      * 下面幾條各自帶一個「已經生效就別再燒」的守衛（複核 2026-09-11 中-1）。
@@ -553,21 +571,21 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
      * 帶兩支同款就在同一輪連燒兩支——分身油最慘，`doubleNext = 1` 是**指派**不是累加，第二支全白費。
      */
     // 先手香：整輪不挨打。挨的量夠大才捨得用，跟防禦、隱身那條同一個門檻
-    if (kinds.includes('skipEnemyTurn') && !cs.skipEnemies && incoming >= 12 && p.hp - (incoming - p.block) <= p.maxHp * 0.45) return usePotion(cs, id);
+    if (kinds.includes('skipEnemyTurn') && !cs.skipEnemies && incoming >= 12 && p.hp - (incoming - p.block) <= p.maxHp * 0.45) return drink(id);
     // 鐵布衫膏：這回合免疫，用在會被打很痛的那一輪（比先手香更該留到大場面）
-    if (kinds.includes('immuneThisTurn') && !p.immune && incoming >= 15 && p.hp - (incoming - p.block) <= p.maxHp * 0.4) return usePotion(cs, id);
+    if (kinds.includes('immuneThisTurn') && !p.immune && incoming >= 15 && p.hp - (incoming - p.block) <= p.maxHp * 0.4) return drink(id);
     // 分身油：下一擊加倍，關主戰蓄力那一拍最有價值；手上得真的有攻擊牌打得出去
     if (kinds.includes('doubleNextAttack') && boss && p.doubleNext === 0 && p.energy >= 1
-      && p.hand.some((c) => cardById[c.cardId]?.type === '攻擊' && cardStats(c).effects.some((f) => f.kind === 'damage' && f.amount >= 10))) return usePotion(cs, id);
+      && p.hand.some((c) => cardById[c.cardId]?.type === '攻擊' && cardStats(c).effects.some((f) => f.kind === 'damage' && f.amount >= 10))) return drink(id);
     // 定身釘：只有七成會中，所以留到「下一拍會被打很痛」時用
     if (def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && f.name === '定身')
       && incoming >= 12 && p.hp - (incoming - p.block) <= p.maxHp * 0.45) {
       const t = enemies[0];
-      if (t && def.target === 'enemy') return usePotion(cs, id, t.uid);
-      if (def.target === 'all') return usePotion(cs, id);
+      if (t && def.target === 'enemy') return drink(id, t.uid);
+      if (def.target === 'all') return drink(id);
     }
     // 撿回來：棄牌堆有東西、手牌又空得差不多時才有意義
-    if (kinds.includes('recoverFromDiscard') && p.discardPile.length > 0 && p.hand.length <= 2 && p.energy >= 1) return usePotion(cs, id);
+    if (kinds.includes('recoverFromDiscard') && p.discardPile.length > 0 && p.hand.length <= 2 && p.energy >= 1) return drink(id);
     /*
      * 2026-09-11 第二批（五支對敵忍具）。同樣是為了 `tests/smart.report.test.ts` 那份平衡報告：
      * 機器人不會用的忍具等於白白佔掉抽中率，勝率會被壓低而且看不出原因。
@@ -575,13 +593,13 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     // 順手牽羊爪：目標防禦夠厚才划算（搶過來的同時也清掉牠的防禦，一來一回）
     if (kinds.includes('stealBlock')) {
       const fat = enemies.find((e) => e.block >= 10);
-      if (fat) return usePotion(cs, id, fat.uid);
+      if (fat) return drink(id, fat.uid);
     }
     // 加倍奉還：身上中毒越多翻倍越賺；沒有中毒也有保底 2 層，但留著等中毒流起來比較好
     const dbl = def.effects.find((f) => f.kind === 'doubleStatus');
     if (dbl?.kind === 'doubleStatus') {
       const t = enemies.find((e) => getStatus(e, dbl.name) >= 3);
-      if (t) return usePotion(cs, id, t.uid);
+      if (t) return drink(id, t.uid);
     }
     // 亂石包：門檻用**期望值**，跟同檔 `damageTo` 估隨機傷害的口徑一致（稽核 2026-09-11 低-2）。
     // 原本寫 `<= rnd.min`（6），只有「血＋防禦剛好五六點」才會用，等於補了等於沒補
@@ -589,7 +607,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
     if (rnd?.kind === 'damageRandom') {
       const avg = (rnd.min + rnd.max) / 2;
       const victim = enemies.find((e) => e.hp + e.block <= avg && e.hp >= 5);
-      if (victim) return usePotion(cs, id, victim.uid);
+      if (victim) return drink(id, victim.uid);
     }
     /*
      * 以彼之道：拿現有的蜷縮換傷害（用完蜷縮還在，不是消耗掉）。
@@ -599,7 +617,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
      */
     if (kinds.includes('damageEqualBlock') && p.block >= 14) {
       const victim = enemies.find((e) => e.hp + e.block <= p.block);
-      if (victim) return usePotion(cs, id, victim.uid);
+      if (victim) return drink(id, victim.uid);
     }
     /*
      * 拔狀態的三支（破功散、剪刺鉗、黏鳥膠）**寫在同一個區塊、照 `names` 分流**。
@@ -623,15 +641,15 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
         // 破功散：拔爪力／貓步／鱗甲／不壞身。加權後夠多才用，拔一兩層不值 60 條
         //（加權式子沒算貓步：魔物身上的貓步只有鏡貓抄得到，權重併進爪力那一項就夠）
         const buffed = enemies.find((e) => getStatus(e, '爪力') + getStatus(e, '鱗甲') * 2 + getStatus(e, '不壞身') * 3 >= 5);
-        if (buffed) return usePotion(cs, id, buffed.uid);
+        if (buffed) return drink(id, buffed.uid);
       } else if (names.includes('飛行')) {
         // 黏鳥膠：飛行 3 層以上才值得——1、2 層打兩下就自己掉了，而這支是一次性的
         const flier = enemies.find((e) => getStatus(e, '飛行') >= 3);
-        if (flier) return usePotion(cs, id, flier.uid);
+        if (flier) return drink(id, flier.uid);
       } else if (names.includes('反彈')) {
         // 剪刺鉗：反彈 2 層以上才值得（1 層扎一下還能忍）
         const thorny = enemies.find((e) => getStatus(e, '反彈') >= 2);
-        if (thorny) return usePotion(cs, id, thorny.uid);
+        if (thorny) return drink(id, thorny.uid);
       } else {
         /*
          * **兜底**（稽核 2026-09-11 中-3）：以後加一支只拔鱗甲的忍具，
@@ -640,7 +658,7 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
          * 退路很笨但不會是零：名單裡隨便一種層數夠多就用。
          */
         const any = enemies.find((e) => names.some((nm) => getStatus(e, nm) >= 3));
-        if (any) return usePotion(cs, id, any.uid);
+        if (any) return drink(id, any.uid);
       }
     }
     /*
@@ -652,18 +670,55 @@ function maybePotion(cs: CombatState, incoming: number): boolean {
      */
     const pierce = def.effects.find((f) => f.kind === 'damage' && f.ignoreBlock);
     if (pierce?.kind === 'damage') {
-      const turtle = enemies.find((e) => e.block >= 12 && e.hp >= 6 && damageTo(cs, def.effects, e, 0, false, 0, true) >= e.hp);
-      if (turtle) return usePotion(cs, id, turtle.uid);
+      const turtle = enemies.find((e) => e.block >= 12 && e.hp >= 6 && damageTo(cs, def.effects, e, 0, false, 0, true, p) >= e.hp);
+      if (turtle) return drink(id, turtle.uid);
     }
     // 攻擊型狀態忍具：關主戰開頭就用
-    if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return usePotion(cs, id);
+    if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return drink(id);
     if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '中毒'))) {
       const t = enemies[0];
-      if (t && def.target === 'enemy') return usePotion(cs, id, t.uid);
-      if (def.target === 'all') return usePotion(cs, id);
+      if (t && def.target === 'enemy') return drink(id, t.uid);
+      if (def.target === 'all') return drink(id);
     }
   }
   return false;
+}
+
+/**
+ * 有牌等著選就替他選掉，回 true。`smartCombat` 裡那一行的對外版本（2026-09-16）：
+ * 雙人時兩個人都舉手了才收回合，而 `beginEnemyTurn` 遇到還沒選完的牌會拒收——
+ * 沒有這支的話，選牌的那位剛好先舉手就會卡死。
+ */
+export function smartPending(cs: CombatState, rng: Rng): boolean {
+  if (!cs.pending) return false;
+  pickPending(cs, rng);
+  return true;
+}
+
+/**
+ * **一位玩家的下一個動作**（2026-09-16 為了量雙人平衡加的；`tests/coop.report.test.ts` 用）。
+ *
+ * 判斷邏輯跟 `smartCombat` 裡那一段**一模一樣**——選牌、喝忍具、挑目標全走同一批函式，
+ * 只是多帶一個「現在是誰在動」。單機那條路（`smartCombat`）一個字都沒動，錨值不會跑掉。
+ *
+ * 回 `true`＝剛做了一件事，呼叫端再叫一次；回 `false`＝這位這回合沒別的好打了，
+ * 該由呼叫端替他舉手（`setReady`）。**這支自己不收回合**：兩個人要等雙方都舉手才收。
+ */
+export function smartSeatAct(cs: CombatState, rng: Rng, seat: number): boolean {
+  const p = cs.players[seat];
+  if (!p || p.down || p.ready || cs.phase !== 'player') return false;
+  if (cs.pending) { pickPending(cs, rng); return true; }   // 在等選牌的是誰，`pending` 自己記得
+  const incoming = expectedIncoming(cs, p);
+  if (maybePotion(cs, incoming, seat)) return true;
+  const hits = incomingHitCount(cs);
+  const plans = p.hand.map((c) => evaluate(cs, c, incoming, hits, seat)).filter((x): x is Plan => x !== null);
+  if (plans.length === 0) return false;
+  // 結束回合的牌（撒手鐧、先睡了）只在沒有別的值得打的時候才打——跟 `smartCombat` 同一條
+  const others = plans.filter((x) => !x.endsTurn && x.value > 0.5);
+  const pick = others.length ? others.sort((a, b) => b.value - a.value)[0]! : plans.filter((x) => x.value > 0.5).sort((a, b) => b.value - a.value)[0];
+  if (!pick) return false;
+  if (!playCard(cs, pick.uid, pick.target, seat)) throw new Error(`第 ${seat} 位在第 ${cs.turn} 回合打不出 ${pick.uid}（${cs.encounterId}）`);
+  return true;
 }
 
 export function smartCombat(cs: CombatState, rng: Rng, maxTurns = 200, seed = '?'): void {
@@ -690,30 +745,31 @@ const TRACE = (globalThis as { process?: { env?: Record<string, string | undefin
 
 // ===== 整局 =====
 
-function deckJunk(run: RunState): CardInstance[] {
-  return me(run).deck.filter((c) => rating(c.cardId) <= 2).sort((a, b) => rating(a.cardId) - rating(b.cardId));
+/** `seat` 不填就是自己（2026-09-16 加的參數，量雙人時第二位要挑自己的牌組） */
+export function deckJunk(run: RunState, seat = 0): CardInstance[] {
+  return me(run, seat).deck.filter((c) => rating(c.cardId) <= 2).sort((a, b) => rating(a.cardId) - rating(b.cardId));
 }
 
-function pickCard(run: RunState, choices: { id: string }[]): string | null {
+export function pickCard(run: RunState, choices: { id: string }[], seat = 0): string | null {
   let best: { id: string; v: number } | null = null;
-  const attacks = me(run).deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
-  const skills = me(run).deck.length - attacks;
+  const attacks = me(run, seat).deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+  const skills = me(run, seat).deck.length - attacks;
   for (const ch of choices) {
     const def = cardById[ch.id];
     if (!def) continue;
     let v = rating(ch.id);
     if (def.type === '攻擊' && attacks < skills) v += 1;
     if (def.type !== '攻擊' && skills < attacks - 2) v += 1;
-    if (me(run).deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
+    if (me(run, seat).deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
     if (!best || v > best.v) best = { id: ch.id, v };
   }
   if (!best) return null;
-  const threshold = me(run).deck.length >= 22 ? 6 : me(run).deck.length >= 16 ? 5 : 4;
+  const threshold = me(run, seat).deck.length >= 22 ? 6 : me(run, seat).deck.length >= 16 ? 5 : 4;
   return best.v >= threshold ? best.id : null;
 }
 
-function bestUpgrade(run: RunState): CardInstance | undefined {
-  return me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病')
+export function bestUpgrade(run: RunState, seat = 0): CardInstance | undefined {
+  return me(run, seat).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病')
     .sort((a, b) => rating(b.cardId) - rating(a.cardId))[0];
 }
 
@@ -748,10 +804,10 @@ function fight(run: RunState, rng: Rng, encounterId: string | undefined, bonusFi
 }
 
 /** 事件選項值多少：血少時看重回血、避開掉血；壞毛病是大扣分 */
-function eventValue(run: RunState, effects: RunEffect[], costFish: number): number {
-  const hpPct = me(run).hp / me(run).maxHp;
+export function eventValue(run: RunState, effects: RunEffect[], costFish: number, seat = 0): number {
+  const hpPct = me(run, seat).hp / me(run, seat).maxHp;
   let v = -costFish * 0.35;
-  if (costFish > me(run).fish) return -999;
+  if (costFish > me(run, seat).fish) return -999;
   /*
    * **同一個選項裡連著砍好幾張、升好幾張的，第二張起要縮水**（稽核 2026-09-11 低-4）。
    *
@@ -762,27 +818,27 @@ function eventValue(run: RunState, effects: RunEffect[], costFish: number): numb
    * 升級也一樣——沒得升就是 0。
    */
   let removed = 0, upgraded = 0;
-  const junk = deckJunk(run).length;
-  const upgradable = me(run).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病').length;
+  const junk = deckJunk(run, seat).length;
+  const upgradable = me(run, seat).deck.filter((c) => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病').length;
   for (const fx of effects) {
     switch (fx.kind) {
-      case 'heal': v += Math.min(fx.n, me(run).maxHp - me(run).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
+      case 'heal': v += Math.min(fx.n, me(run, seat).maxHp - me(run, seat).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
       // 交出一件秘寶：本身是純損失，但它一定跟「換兩件」綁在一起，淨值由那兩件的 relic 估值補回來
       case 'loseRelic': v -= 14; break;
-      case 'healPercent': v += Math.min(me(run).maxHp * fx.p, me(run).maxHp - me(run).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
+      case 'healPercent': v += Math.min(me(run, seat).maxHp * fx.p, me(run, seat).maxHp - me(run, seat).hp) * (hpPct < 0.5 ? 1.4 : 0.6); break;
       case 'damage': v -= fx.n * (hpPct < 0.4 ? 4 : hpPct < 0.6 ? 1.8 : 0.9); break;
       case 'fish': v += fx.n * 0.35; break;
-      case 'fishHalve': v -= me(run).fish * 0.5 * 0.35; break;
+      case 'fishHalve': v -= me(run, seat).fish * 0.5 * 0.35; break;
       case 'maxHp': v += fx.n * 2.2; break;
       case 'addCard': v += cardById[fx.cardId]?.pool === '壞毛病' ? -28 : 6; break;
       case 'addRandomCard': v += fx.rarity === '罕見' ? 8 : fx.rarity === '稀有' ? 14 : 4; break;
       case 'removeCard': v += removed++ < junk ? 18 : 2; break;
       case 'upgradeCard': v += upgraded++ < upgradable ? 16 : 0; break;
       case 'relic': v += fx.pool === '大魔物' ? 34 : 24; break;
-      case 'potions': v += Math.min(fx.n, 3 - me(run).potions.length) * 7; break;
+      case 'potions': v += Math.min(fx.n, 3 - me(run, seat).potions.length) * 7; break;
       case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;
       case 'chooseCard': v += fx.pool === '絕學' ? 14 : 9; break;
-      case 'gamble': v += fx.p * eventValue(run, fx.win, 0) + (1 - fx.p) * eventValue(run, fx.lose, 0); break;
+      case 'gamble': v += fx.p * eventValue(run, fx.win, 0, seat) + (1 - fx.p) * eventValue(run, fx.lose, 0, seat); break;
       case 'flag': break;   // 旗標只影響後集事件會不會出現，對機器人的當下估值沒有意義
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
