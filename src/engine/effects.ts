@@ -261,7 +261,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const extra = Math.min(raw, fx.cap);
       // 兩份合起來一次給：分兩次的話貓步會被套兩次（交辦單的單人替代那條）
       gainBlock(cs, p, fx.amount + extra);
-      if (extra > 0) log(cs, mate === p ? `靠著原本的架式多擋了 ${extra} 點` : `靠對方的架式多擋了 ${extra} 點`);
+      if (extra > 0) log(cs, mate === p ? `靠著原本的架勢多擋了 ${extra} 點` : `靠對方的架勢多擋了 ${extra} 點`);
       return false;
     }
     case 'damageFromAllyStrength': {
@@ -342,7 +342,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'taunt': {
       p.taunt = true;
-      log(cs, cs.players.length > 1 ? `${unitName(p)}站到前面，這一輪魔物都衝著${heroPronoun(p)}來` : `${unitName(p)}擺出架式`);
+      log(cs, cs.players.length > 1 ? `${unitName(p)}站到前面，這一輪魔物都衝著${heroPronoun(p)}來` : `${unitName(p)}擺出架勢`);
       return false;
     }
     case 'draw': drawCards(cs, fx.n, p); return false;

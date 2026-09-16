@@ -591,7 +591,7 @@ export const enemies: EnemyDef[] = [
 
   // --- 影球球（第三關鏡像精英）：招式全是玩家起手牌的影子版 ---
   { id: 'shadow_cat', name: '影球球', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
-    line: '（跟你擺出一樣的架式）', lines: ['（跟你同時歪了歪頭）', '（連呼吸的節奏都一樣）'], moves: [
+    line: '（跟你擺出一樣的架勢）', lines: ['（跟你同時歪了歪頭）', '（連呼吸的節奏都一樣）'], moves: [
       { intent: 'attack', label: '影爪抓', effects: [{ kind: 'damage', amount: 16 }] },
       { intent: 'block', label: '影蜷縮', effects: [{ kind: 'block', amount: 16 }] },
       { intent: 'buff', label: '影分身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }] },
@@ -865,7 +865,7 @@ export const enemies: EnemyDef[] = [
     hexOnSkill: { cardId: 'dazed_card', n: 1 },
     moves: [
       { intent: 'attack', label: '咒印', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
-      { intent: 'debuff', label: '念咒', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
+      { intent: 'debuff', label: '唸咒', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
       { intent: 'attack', label: '咒杖', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
     ] },
 
@@ -1498,7 +1498,7 @@ const MIRROR_FEIFEI: EnemySkin = {
   // 她是暹羅貓、怕痛、講話會遲疑但不加「喵」；鏡子裡的那個講同樣的話，只是一點都不抖
   line: '（鏡子裡的她先站直了，針尖朝著你，一點都沒抖）',
   lines: [
-    '那個……不要過來喔。（聲音是她的，語氣不是）',
+    '我有先提醒你喔。（她說得跟背書一樣平）',
     '（她照著你的動作抬手，比你快了半拍）',
     '你也怕痛吧。……我不怕了。',
   ],

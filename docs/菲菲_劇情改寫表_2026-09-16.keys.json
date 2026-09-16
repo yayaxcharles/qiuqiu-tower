@@ -3,7 +3,7 @@
   "id": "P-01",
   "where": "序章（開場影片後的四張幻燈片）",
   "who": "旁白",
-  "text": "菲菲比球球晚三年入門。球球第一次練功就搶著出招，她卻被木樁打得縮回了手。師父沒有笑她，只把靶子搬近些：「先練準。力氣不夠的地方，就想別的辦法。」",
+  "text": "菲菲比球球晚三年入門。她怕扎到手，師父便把針排在蓆子上，舉起爪子示範握法：「捏住這裡，別碰針尖。力氣小，就別跟人比力氣。」球球在後頭睡得正熟。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -75,7 +75,7 @@
   "id": "A2-02",
   "where": "第二關打完",
   "who": "菲菲",
-  "text": "是師父……他怎麼會痛成這樣？師兄，你到底在哪裡？",
+  "text": "師父，您再撐一下……師兄，你到底在哪裡？",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -174,7 +174,7 @@
   "id": "V-05",
   "where": "通關（打贏師父）",
   "who": "旁白",
-  "text": "師父伸手把菲菲攬進懷裡，她這才發現自己還攥著一根針。她愣愣地抬頭看著師父，忍了一路的眼淚，這時才掉了下來。",
+  "text": "師父伸手把菲菲攬進懷裡。她握著那根針，愣愣地張著眼睛，忍了一路的眼淚就要掉下來。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -273,7 +273,7 @@
   "id": "BS-05",
   "where": "開打時（隨機一句）",
   "who": "菲菲",
-  "text": "竹筒扣好了，可以。",
+  "text": "再靠近，我就丟針了。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -471,7 +471,7 @@
   "id": "BW-13",
   "where": "打贏時（隨機一句）",
   "who": "菲菲",
-  "text": "把東西收齊，再走。",
+  "text": "你別再爬起來了，拜託。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -606,7 +606,7 @@
   "id": "LH-06",
   "where": "血剩很少（隨機一句）",
   "who": "菲菲",
-  "text": "家裡還有人等我回去。",
+  "text": "我還得帶他們回家……",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -705,7 +705,7 @@
   "id": "RN-03",
   "where": "貓窩・睡覺（隨機一句）",
   "who": "菲菲",
-  "text": "毒針都在，沒壓著。",
+  "text": "好久沒睡得這麼沉了。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -804,7 +804,7 @@
   "id": "RS-07",
   "where": "貓窩・磨爪／磨針（隨機一句）",
   "who": "菲菲",
-  "text": "針尖朝外，收好了。",
+  "text": "下次手別抖就好了。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1002,7 +1002,7 @@
   "id": "FM-22",
   "where": "第一次遇到「詛咒神官」",
   "who": "菲菲",
-  "text": "牠一開口，我就想不起剛才要用哪招。別再念了。",
+  "text": "別再唸了，我想不起招式了。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1083,7 +1083,7 @@
   "id": "FM-31",
   "where": "第一次遇到「詛咒老住持」",
   "who": "菲菲",
-  "text": "老住持，您這是在念經，還是在咒我？",
+  "text": "您在唸經，還是在咒我？",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1236,7 +1236,7 @@
   "id": "FM-48",
   "where": "第一次遇到「白狐巫女」",
   "who": "菲菲",
-  "text": "白狐狸在唸咒，我毛都豎起來了。",
+  "text": "牠一唸咒，我的毛就豎起來。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1299,7 +1299,7 @@
   "id": "FM-55",
   "where": "第一次遇到「狸大人」",
   "who": "菲菲",
-  "text": "還沒走近就聞到酒味。師父說的果然沒錯。",
+  "text": "您別靠這麼近，酒味好重。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1650,7 +1650,7 @@
   "id": "FM-94",
   "where": "第一次遇到「黑貓忍者頭目」",
   "who": "菲菲",
-  "text": "其他黑貓都聽你的吧？我想問塔頂那個人。",
+  "text": "我師父在塔頂，你見過他嗎？",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1677,7 +1677,7 @@
   "id": "FM-97",
   "where": "第一次遇到「走火入魔的大俠貓」",
   "who": "菲菲",
-  "text": "師父……真的是您。",
+  "text": "師父，這樣會打傷我的！",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1938,7 +1938,7 @@
   "id": "BOSS-15",
   "where": "關主開場",
   "who": "菲菲",
-  "text": "退隱也得有地方回去呀。師父，我要帶您離開這裡，您別再推開我了。",
+  "text": "退隱也可以回家呀。師父，我是來接您的，跟我回去好不好？",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -1974,7 +1974,7 @@
   "id": "BOSS-19",
   "where": "關主開場",
   "who": "菲菲",
-  "text": "你這裡堆的小魚乾，是村裡丟的那些嗎？你也聽塔頂那個人的話？",
+  "text": "這些是村裡丟的小魚乾嗎？你跟我師父是一夥的？",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -2028,7 +2028,7 @@
   "id": "BOSS-25",
   "where": "關主開場",
   "who": "菲菲",
-  "text": "我只從池邊過，不碰您的東西。",
+  "text": "借過，我只走池邊，不碰您的東西。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -2766,7 +2766,7 @@
   "id": "EV-57",
   "where": "事件「會哭的牆」選「敲開牆腳的藏物磚（隨機獲得 1 件常見秘寶；失去最多 12 點生命）」的結果",
   "who": "菲菲",
-  "text": "您別擔心，我還醒著。只是碎石劃到了手。",
+  "text": "我知道上面危險，可師父和師兄都還沒回來。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -2946,7 +2946,7 @@
   "id": "EV-77",
   "where": "事件「欠村貓的那一份」選「分給牠 40 條小魚乾（回復 25 點生命，自選移除 1 張牌）」的結果",
   "who": "菲菲",
-  "text": "上次收了你的口糧，這回換你吃。藥我也收到了，謝謝。",
+  "text": "上次收了你的口糧，這回換我請你。別再餓著自己了。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -3108,7 +3108,7 @@
   "id": "FE-01",
   "where": "專屬事件「師兄的痕跡」開頭",
   "who": "旁白／菲菲",
-  "text": "牆縫裡卡著幾根針，有的已經彎了。地上散著小魚乾，旁邊還掛著深藍色的線頭。菲菲認出那是師兄頭巾的布料。他走過這裡，連東西掉了都沒發現。",
+  "text": "牆縫裡卡著幾根針，使的是師父教的那套手法，有的已經彎了。她走近查看，發現地上散著小魚乾，旁邊還掛著深藍色的線頭。那是師兄頭巾上的線。他也走過這裡。",
   "file": "src/content/events.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -3117,7 +3117,7 @@
   "id": "FE-02",
   "where": "專屬事件「師兄的痕跡」選「把針收起來（回復 12 點生命、獲得 20 條小魚乾）」的結果",
   "who": "旁白／菲菲",
-  "text": "菲菲把針和線頭包起來，坐下吃了些小魚乾，再將剩下的乾糧裝進袋子。菲菲：「又掉東西……回去得替他縫牢一點。」",
+  "text": "菲菲把牆上的針一根根拔下，連同線頭收好。她吃了些小魚乾，再把剩下的裝進袋子。菲菲：「師兄的頭巾又破了。等找到他，再替他補。」",
   "file": "src/content/events.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -3144,7 +3144,7 @@
   "id": "FE-05",
   "where": "專屬事件「調藥」選「熬一鍋（升級至多 1 張牌）」的結果",
   "who": "旁白／菲菲",
-  "text": "她把草葉搗碎，加水熬成濃汁，隔著布替針尖上藥。菲菲：「比平常那批濃，份量得減些。」",
+  "text": "她把草葉搗碎，加水熬成濃汁，隔著布替針尖上藥。菲菲：「比平常那批濃，分量得減些。」",
   "file": "src/content/events.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -3207,7 +3207,7 @@
   "id": "FE-12",
   "where": "專屬事件「牆後的暗號」選「用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）」的結果",
   "who": "旁白／菲菲",
-  "text": "她用飛針卡住齒輪，取出小魚乾。拔回的針已被壓彎，熟悉的求援節拍卻仍在腦中反覆響著。菲菲：「明明知道不是他，還是忍不住聽。」",
+  "text": "她用飛針卡住齒輪，取出小魚乾。針還卡在鐵齒間，已經壓彎了。她抱著袋子站著沒動，眼皮一陣一陣地重——這一下耗掉的力氣比想像中多。菲菲：「先歇一下……就一下下。」",
   "file": "src/content/events.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -3234,7 +3234,7 @@
   "id": "CAST-02",
   "where": "旁白／別人提到她（不是她講的）",
   "who": "旁白",
-  "text": "他已經快忘了自己是誰。小姑娘，到了上面，好好叫叫他；也許他還記得你的聲音。",
+  "text": "上面那位已經快忘了自己是誰。小姑娘，到了上面，好好叫叫他；也許他還記得你的聲音。",
   "file": "src/content/dialogue.ts",
   "kind": "literal",
   "hero": "feifei"
@@ -3270,7 +3270,7 @@
   "id": "BLURB-01",
   "where": "選角畫面的小傳",
   "who": "旁白",
-  "text": "怕痛的暹羅貓，球球的師妹。進塔只為找回師父與師兄。攻擊牌多半自帶蜷縮，能邊打邊擋；毒針累積中毒，逐步消耗對手。",
+  "text": "球球的師妹，一隻怕痛的暹羅貓。平時替師兄補頭巾，跟師父學使針。師父被魔氣控制，師兄也追進塔裡，三天都沒有消息。她帶上針和藥，進塔找人。",
   "file": "src/ui/screens/heroselect.ts",
   "kind": "blurb",
   "hero": "feifei"
