@@ -277,7 +277,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
     void encodeRun(shared).then((code) => {
       if (code) { copy(code); return; }
       // 壓不動（太舊的瀏覽器）就退回分享種子，並且講清楚差別，不要默默給一串意思不同的東西
-      node.textContent = '改複製地圖代碼';
+      node.textContent = '太長了，改給你本局代碼';
       window.setTimeout(() => copy(seed), 900);
     });
   });

@@ -30,7 +30,7 @@ export function showItemCompendium(): void {
     const group = relics.filter((r) => r.pool === pool);
     if (!group.length) continue;
     body.append(el('div', { class: 'comp-section' },
-      el('span', { class: 'comp-pool' }, `秘寶・${pool}（${group.length}）`),
+      el('span', { class: 'comp-pool' }, `秘寶‧${pool}（${group.length}）`),
       el('span', { class: 'comp-note' }, POOL_NOTE[pool] ?? '')));
     const list = el('div', { class: 'item-grid' });
     for (const r of [...group].sort((a, b) => (a.price ?? 150) - (b.price ?? 150))) {

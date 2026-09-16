@@ -264,7 +264,7 @@ registerScreen('chest', (app, root) => {
     //（罐頭鋪的「逛好了」本來就這樣做，紙箱漏了；稽核 2026-09-11 中-10）
     const iSaidDone = doneSeats.has(seat);
     const go = el('button', { class: 'btn primary', onclick: () => { if (settled && !iSaidDone) coop.submitRun({ t: 'done', seat }); } },
-      iSaidDone ? '等對方…' : settled ? '繼續' : waiting ? '等對方挑…' : '先挑一件');
+      iSaidDone ? '等對方…' : settled ? '繼續' : waiting ? '等同伴挑…' : '先挑一件');
     if (!settled || iSaidDone) go.setAttribute('disabled', 'disabled');
     root.append(sceneView({
       art,
@@ -272,7 +272,7 @@ registerScreen('chest', (app, root) => {
       text: offers.length === 0 ? '紙箱是空的——塔裡的秘寶全被你搬光了。'
         : settled ? '兩個人各拿了一件，走吧。'
           : waiting ? '挑好了，等同伴挑完就一起分。'
-            : '箱子裡有兩件，一人一件——挑你要的那件。',
+            : offers.length > 1 ? '箱子裡有兩件，一人一件——挑你要的那件。' : '只開出一件，兩個人搶——擲骰決定給誰。',
       actions: [go],
     }));
   }

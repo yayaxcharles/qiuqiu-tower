@@ -201,7 +201,7 @@ registerScreen('reward', (app, root, props) => {
           el('span', { class: 'reward-line' }, '魔物自己散去了——一隻都沒打倒，牠們身上沒有留下任何東西。')))
     : el('div', { class: 'reward-items' },
         el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
-          el('span', { class: 'reward-line' }, iDown ? '你倒下了，這場的小魚乾沒有分到。' : `獲得 ${r.fishPerSeat?.[seat] ?? r.fish} 條小魚乾`)));
+          el('span', { class: 'reward-line' }, iDown ? '你倒下了，這場的小魚乾沒有分到。' : `這場撿到 ${r.fishPerSeat?.[seat] ?? r.fish} 條小魚乾`)));
   // 修飾詞的歸因：小魚乾為什麼多了／少了、為什麼多一張牌可挑，畫面上要講得出來（體檢 2026-09-05）
   if (r.modifier) items.append(el('div', { class: 'reward-item loot' }, el('span', { class: 'reward-line' }, `這場是「${r.modifier.label}」：${r.modifier.desc}`)));
   // 獎金另起一行：r.fish 是規格 §5.4 的戰利品，兩個數字不併成一個，玩家才看得出獎金有沒有拿到
@@ -286,7 +286,7 @@ registerScreen('reward', (app, root, props) => {
     const picks = coop.picks('relic', run.players.length);
     const mine = picks[seat] ?? null;
     const row = el('div', { class: 'reward-item relic-offers' });
-    row.append(el('span', { class: 'reward-line' }, el('b', {}, '秘寶有兩件，一人挑一件')));
+    row.append(el('span', { class: 'reward-line' }, el('b', {}, offers.length > 1 ? '秘寶有兩件，一人挑一件' : '只開出一件，兩個人搶——擲骰決定給誰')));
     const box = el('div', { class: 'relic-offer-row' });
     for (const id of offers) {
       const d = relicById[id];
@@ -414,7 +414,7 @@ registerScreen('reward', (app, root, props) => {
     art: middle,
     speaker: r.escaped ? '牠散掉了' : title,
     text: r.escaped ? '一團煙散在空氣裡，什麼都沒剩下。走吧。'
-      : waiting ? '挑好了，等對方挑完就一起上樓。'
+      : waiting ? '挑好了，等同伴挑完就一起上樓。'
       : myCards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
     extra: [items],
     actions: [waiting

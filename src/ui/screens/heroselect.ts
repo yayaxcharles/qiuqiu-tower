@@ -23,12 +23,12 @@ export const KEY_CARD: Readonly<Record<string, string>> = { ninja: 'sanjo', feif
 
 const PICKS: Pick[] = [
   {
-    hero: 'ninja', name: '球球', tag: '近身 ・ 閃避',
+    hero: 'ninja', name: '球球', tag: '近身‧閃避',
     blurb: '大俠貓的徒弟，綁著藍頭巾。膽子大，做事急，看見紙箱就想鑽。師父被魔氣控制後，他追進魔塔，要把師父和被搶走的小魚乾都帶回來。',
     pose: 'hero/ninja',
   },
   {
-    hero: 'feifei', name: '菲菲', tag: '毒 ・ 攻擊帶蜷縮',
+    hero: 'feifei', name: '菲菲', tag: '毒‧攻擊帶蜷縮',
     blurb: '球球的師妹，一隻怕痛的暹羅貓。平時替師兄補頭巾，跟師父學使針。師父被魔氣控制，師兄也追進塔裡，三天都沒有消息。她帶上針和藥，進塔找人。',
     pose: 'hero/ninja',   // 立繪鍵一律寫球球版的，`heroArtUrl` 會換成她自己的（見 assets.ts）
   },

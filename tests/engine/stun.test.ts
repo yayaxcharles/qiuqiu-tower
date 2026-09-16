@@ -25,7 +25,7 @@ describe('球球被定身', () => {
     if (atk) {
       const chk = canPlay(cs, atk.uid, cs.enemies[0]!.uid);
       expect(chk.ok).toBe(false);
-      if (!chk.ok) expect(chk.reason).toContain('纏住');
+      if (!chk.ok) expect(chk.reason).toContain('定住');
     }
     if (skl) expect(canPlay(cs, skl.uid).ok).toBe(true);
     expect(atk || skl, '起手至少要抽到一張貓抓或淡定').toBeTruthy();

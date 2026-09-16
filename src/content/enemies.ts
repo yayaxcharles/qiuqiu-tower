@@ -97,7 +97,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 白貓的陪練同伴（借黑貓忍者的立繪；牠是真的黑貓，不是拿黑貓冒充白貓）
   { id: 'sparring_partner', name: '陪練的黑貓', hp: [34, 38], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_black_ninja',
-    line: '（站在白貓旁邊，抱著手）', lines: ['師姐說全力，那就全力。', '（把手裏劍在指間轉了一圈）'],
+    line: '（站在白貓旁邊，抱著手）', lines: ['師姐說全力，那就全力。', '（把手裡劍在指間轉了一圈）'],
     moves: [
       { intent: 'attack', label: '飛鏢', effects: [{ kind: 'damage', amount: 7 }] },
       { intent: 'debuff', label: '撒沙', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
@@ -130,7 +130,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'buff', label: '蓄力', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
     ] },
   { id: 'black_ninja_elite', name: '黑貓忍者（老手）', hp: [36, 40], pool: '強', pattern: 'cycle', size: 'medium', art: 'codex/monster_black_ninja',
-    line: '兩個打一個，不算欺負。', lines: ['菜鳥，回去。', '我們兩個，你先挑一個。'],
+    line: '我們不講單挑那一套。', lines: ['菜鳥，回去。', '想過去，先過我們這關。'],
     moves: [
       { intent: 'buff', label: '隱身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }] },
       { intent: 'attack', label: '二連斬', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
@@ -178,7 +178,7 @@ export const enemies: EnemyDef[] = [
   // 尾巴 8 血、**不再復活**——原本的無限復活把輸出全吃掉（機器人探測 0/60 的病根）；上限四條由 NEKO_SUMMON 的 max 決定。
   { id: 'nekomata', name: '貓又婆婆', hp: [158, 158], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_nekomata', strengthEveryNTurns: 2,   // 2026-09-03 第三輪
     plating: 4,   // 老貓皮：每回合長防禦（2026-09-03 關主加硬 7；下一輪平衡 2026-09-05 削回 4、血 175→158：機器人 35%→44%）
-    line: '孩子，你走得太上面了。', lines: ['孩子，回頭還來得及。', '上面的路，婆婆不放行。'],
+    line: '孩子，你爬得太高了。', lines: ['婆婆的尾巴，你數得完嗎？', '來吧，別怪婆婆沒提醒。'],
     chooseMove: (turn, moves) => {
       if (turn === 1 || turn % 5 === 0) return NEKO_SUMMON;
       if (turn % 5 === 4) return NEKO_PREP;
@@ -247,7 +247,7 @@ export const enemies: EnemyDef[] = [
   // 第三條血除了氣沉丹田都是大傷害配清狀態，每回合震散 2 點爪力、2 點貓步——爪力、貓步堆不到無限。
   // 三階段各有自己的立繪（BOSS_MOVE_ART_PHASE），畫面另外套紅／紫光暈。
   { id: 'tower_master', name: '走火入魔的大俠貓', hp: [120, 120], pool: '塔主', pattern: 'cycle', size: 'large', art: 'daxia',
-    line: '難逢敵手。',
+    line: '來也。', lines: ['重出江湖。'],
     moves: [
       { intent: 'attack', label: '鐵頭功', effects: [{ kind: 'damage', amount: 16 }, { kind: 'block', amount: 8 }] },
       { intent: 'attack', label: '拆招', effects: [{ kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 8, times: 2 }, { kind: 'block', amount: 6 }] },
@@ -380,7 +380,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // **普通怪也會變身**：血過半就從純防守翻臉成暴走，`phases` 本來只有塔主在用
   { id: 'stone_lion', name: '石獅子', hp: [62, 66], pool: '強', pattern: 'cycle', size: 'large', art: 'codex/monster_stone_lion',
-    line: '（一動也不動）', lines: ['（眼睛是石頭的）', '（沉重的一步）'],
+    line: '（一動也不動）', lines: ['（眼睛是石頭的）', '（石爪往前挪了半步）'],
     moves: [
       { intent: 'block', label: '鎮守', effects: [{ kind: 'block', amount: 14 }] },
       { intent: 'attack', label: '石掌', effects: [{ kind: 'damage', amount: 9 }] },
@@ -408,7 +408,7 @@ export const enemies: EnemyDef[] = [
   // 倒下的那隻下個回合就會爬起來（回到 8 血）。要在同一回合內把三隻一起清光。
   // 血量刻意壓低（22～26），因為真正的難點是「湊出一回合三殺」，不是耐打。
   { id: 'shadow_kitten_a', name: '影子小貓·壹', hp: [22, 26], pool: '強', pattern: 'cycle', size: 'small', art: 'codex/monster_shadow_kitten',
-    line: '（三個影子連在一起——只要還有一個站著，倒下的就會爬回來）', lines: ['（影子拉長了）', '（跟另外兩個對看了一眼）'], reviveGroup: 'shadow', reviveHp: 8, reviveDelay: 2,
+    line: '（三個影子疊在一起，分不出哪個是哪個）', lines: ['（影子拉長了）', '（跟另外兩個對看了一眼）'], reviveGroup: 'shadow', reviveHp: 8, reviveDelay: 2,
     moves: [
       { intent: 'attack', label: '影抓', effects: [{ kind: 'damage', amount: 7 }] },
       { intent: 'buff', label: '交疊', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
@@ -533,7 +533,7 @@ export const enemies: EnemyDef[] = [
       { intent: 'attack', label: '舌頭一舔', effects: [{ kind: 'damage', amount: 6 }, { kind: 'statusPlayer', name: '炸毛', amount: 2 }] },
     ] },
   { id: 'kappa', name: '河童', hp: [66, 74], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_kappa',
-    line: '（頭頂的水晃了晃，盯著你的小魚乾）', lines: ['（用力擦了擦頭頂的盤子）', '小魚乾……交出來……'], moves: [
+    line: '（頭頂的水晃了晃，盯著你的小魚乾）', lines: ['（護著頭頂那盤水，往前挪了一步）', '小魚乾……交出來……'], moves: [
       { intent: 'attack', label: '相撲推', effects: [{ kind: 'damage', amount: 13 }] },
       { intent: 'special', label: '頂皿蓄水', effects: [{ kind: 'block', amount: 10 }, { kind: 'heal', n: 10 }] },
       { intent: 'attack', label: '拽走小魚乾', effects: [{ kind: 'damage', amount: 7 }, { kind: 'stealFish', n: 20 }] },
@@ -591,7 +591,7 @@ export const enemies: EnemyDef[] = [
 
   // --- 影球球（第三關鏡像精英）：招式全是玩家起手牌的影子版 ---
   { id: 'shadow_cat', name: '影球球', hp: [110, 110], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_shadow_cat',
-    line: '（跟你擺出一樣的架勢）', lines: ['（跟你同時歪了歪頭）', '（連呼吸的節奏都一樣）'], moves: [
+    line: '（一隻灰虎斑的影子，從地上站了起來）', lines: ['（頭巾的結，打在跟他一樣的那一邊）', '（那雙眼睛是紫的）'], moves: [
       { intent: 'attack', label: '影爪抓', effects: [{ kind: 'damage', amount: 16 }] },
       { intent: 'block', label: '影蜷縮', effects: [{ kind: 'block', amount: 16 }] },
       { intent: 'buff', label: '影分身', effects: [{ kind: 'statusSelf', name: '隱身', amount: 1 }] },
@@ -603,7 +603,7 @@ export const enemies: EnemyDef[] = [
   // 烏天狗＝拍掉隱身潛水＋棄牌、白狐巫女＝祓除（爪力貓步砍半）、空鎧武者＝厚防（逼你帶破防）---
   { id: 'tengu', name: '烏天狗', hp: [72, 80], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_tengu', angerOnSkill: 1,   // 2026-09-03 第三關補機制：每打一張技能牌 +1 爪力
     flying: 6,   // 天狗在天上飛：攻擊只打得到一半，打中三下才掉下來
-    line: '（鼻子哼了一聲，羽扇搧了搧）', lines: ['山下的貓，也敢上來？', '（羽扇一揮，風起了）'], moves: [
+    line: '（鼻子哼了一聲，羽扇搧了搧）', lines: ['塔底下爬上來的貓，也敢站在這裡？', '（羽扇一揮，風起了）'], moves: [
       { intent: 'attack', label: '羽扇颶風', effects: [{ kind: 'damage', amount: 9 }, { kind: 'discardRandomHand', n: 2 }] },
       { intent: 'attack', label: '天狗飛斬', effects: [{ kind: 'damage', amount: 20 }] },
       { intent: 'buff', label: '乘風', effects: [{ kind: 'block', amount: 12 }, { kind: 'statusSelf', name: '爪力', amount: 1 }] },
@@ -611,7 +611,7 @@ export const enemies: EnemyDef[] = [
     ] },
   { id: 'fox_miko', name: '白狐巫女', hp: [64, 70], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_fox_miko', thorns: 2,   // 結界刺人：整場固定 2（原本掛在結界招上每輪 +3 會疊到 9，稽核 2026-09-03）
     hexOnSkill: { cardId: 'dazed_card', n: 1 },   // 符咒：你每打一張技能牌就被貼一張眼冒金星
-    line: '（御幣一揮，狐火飄了過來）', lines: ['（御幣一搖，狐火亮了）', '不潔之物，退下。'], moves: [
+    line: '（御幣一揮，狐火飄了過來）', lines: ['（腳邊的狐火排成一圈，圍住了你）', '不潔之物，退下。'], moves: [
       { intent: 'debuff', label: '祓除', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'statusPlayer', name: '懶洋洋', amount: 1 }] },
       { intent: 'attack', label: '狐火', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
       { intent: 'block', label: '結界', effects: [{ kind: 'block', amount: 14 }] },
@@ -644,7 +644,7 @@ export const enemies: EnemyDef[] = [
   // --- 新關主：橘皮大王（第一關第三選，強度對齊二刀後的 105 級距）---
   { id: 'orange_king', name: '橘皮大王', hp: [149, 149], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_orange_king',
     curlUp: 15, strengthEveryNTurns: 2,   // 一顆球：第一次被打痛整顆縮起來長 15 點防禦
-    line: '（一邊嚼一邊看你）', lines: ['嚼嚼……你是誰？', '（打了個飽嗝）'], moves: [
+    line: '（一邊嚼一邊看你）', lines: ['嚼嚼……還敢站在這裡？', '（打了個飽嗝）'], moves: [
       { intent: 'attack', label: '肚皮壓', effects: [{ kind: 'damage', amount: 18 }] },
       { intent: 'special', label: '打呵欠', effects: [{ kind: 'heal', n: 8 }, { kind: 'block', amount: 8 }] },
       { intent: 'attack', label: '丟魚骨頭', effects: [{ kind: 'damage', amount: 6, times: 2 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }] },
@@ -697,7 +697,7 @@ export const enemies: EnemyDef[] = [
  */
 { id: 'tanuki_lord', name: '狸大人', hp: [225, 225], pool: '塔主', pattern: 'random', size: 'large', art: 'codex/monster_tanuki_lord', angerOnSkill: 1, strengthEveryNTurns: 2, plating: 5,
     // 「戲法」（每打一張技能牌塞一張眼冒金星）拿掉：機器人 15% 勝率的病根，門檻與鼓壓調了都沒差（下一輪平衡 2026-09-05：15%→26%）
-    line: '呵呵，來得正好。', lines: ['喝一杯再打？不喝？那打吧。', '（拍了拍肚皮，咚咚響）'], moves: [
+    line: '呵呵，急什麼。', lines: ['不喝就算了，老夫自己喝。', '（拍了拍肚皮，咚咚響）'], moves: [
       // 2026-09-11：8×3 → 10×3。使用者說牠太弱，而平衡報告顯示問題不在血或傷害的絕對值
       //（牠本來就是第二關塔主傷害最高的），是**出手次數變少了**——預告與召喚各佔掉一拍，
       // 五回合只剩三拍在攻擊。所以補在「真的出手那幾拍」上，不是加血（加血只會讓仗變長不變難）
@@ -735,7 +735,7 @@ export const enemies: EnemyDef[] = [
     }] },
   // 波斯大小姐：僕從護體——執事與女僕還站著她就不受傷，先清僕從才打得到本體
   { id: 'persian_lady', name: '波斯大小姐', hp: [220, 220], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_persian_lady', strengthEveryNTurns: 3,   // 2026-09-03 第五輪每回合 +1；第二輪平衡 2026-09-06 放慢成每 3 回合（機器人 17%，是第二關最低）
-    line: '哼。', lines: ['髒東西，不要靠近本小姐。', '（用扇子遮住鼻子）'], guardedByAllies: true,
+    line: '哼。', lines: ['你們，別讓他碰到本小姐。', '（用扇子遮住鼻子）'], guardedByAllies: true,
     chooseMove: (turn) => (turn % 10 === 9 ? PERSIAN_CALL : undefined),   // 其餘回合照表輪招
     moves: [
       { intent: 'buff', label: '擺架子', effects: [{ kind: 'statusSelf', name: '爪力', amount: 3 }, { kind: 'block', amount: 10 }] },
@@ -842,7 +842,7 @@ export const enemies: EnemyDef[] = [
  * 大將的盾陣疊在牠們身上才有意義，你得先想辦法穿過去。
  */
 { id: 'rat_guard', name: '鼠親兵', hp: [26, 30], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_rat',
-    line: '（把長槍往地上一頓）', lines: ['（跟著大將的旗子走位）'],
+    line: '（把長槍往地上一頓）', lines: ['（跟著大將的旗子走位）', '（盾牌一頂，槍尖從縫裡伸出來）'],
     moves: [
       { intent: 'attack', label: '長槍突刺', effects: [{ kind: 'damage', amount: 9 }] },
       { intent: 'block', label: '舉盾', effects: [{ kind: 'block', amount: 8 }] },
@@ -884,7 +884,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 憤怒：你每打一張技能牌牠就 +1 爪力。純技能過渡的打法在這隻面前會被反過來咬
   { id: 'red_oni', name: '赤鬼武夫', hp: [90, 100], pool: '強', pattern: 'cycle', size: 'large', art: 'codex/monster_red_oni', strengthEveryNTurns: 2,   // 2026-09-03 第三關補機制
-    line: '（把鐵棒往地上一頓）', lines: ['吼——！', '（獠牙外露，鼻息噴得很重）'],
+    line: '（獠牙一咬，鐵棒往肩上一扛）', lines: ['吼——！', '（獠牙外露，鼻息噴得很重）'],
     angerOnSkill: 1,
     moves: [
       { intent: 'attack', label: '鐵棒', effects: [{ kind: 'damage', amount: 16 }] },
@@ -902,7 +902,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 鱗甲的塔頂版：八層厚甲配 20 起跳的重手。多段牌剝甲、大招牌收頭
   { id: 'jizo_golem', name: '地藏石偶', hp: [96, 104], pool: '強', pattern: 'cycle', size: 'large', art: 'codex/monster_jizo_golem', strengthEveryNTurns: 2,   // 2026-09-03 第三關補機制
-    line: '（石頭做的臉，笑得很慈祥）', lines: ['（腳底磨出一道石粉）', '（合十的手緩緩張開）'],
+    line: '（石頭做的臉，笑得很慈祥）', lines: ['（腳底磨出一道石粉）', '（掌心朝上，攤了開來）'],
     plating: 8,
     moves: [
       { intent: 'attack', label: '石掌', effects: [{ kind: 'damage', amount: 24, pierce: true }] },
@@ -914,7 +914,7 @@ export const enemies: EnemyDef[] = [
   // 蛙大名：半血叫兩隻蝌蚪兵出來，然後改走「全體疊防禦」的拖延流
   { id: 'frog_daimyo', name: '蛙大名', hp: [135, 135], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_frog_daimyo',
     plating: 2, strengthEveryNTurns: 3, reviveGroup: 'pond', neverRevive: true,   // 鱗甲 4→2、成長 2→3 回合、血 150→135（下一輪平衡 2026-09-05：機器人 34%→45%）   // 蛙皮每回合長甲；蝌蚪兵跟牠同組，牠還在小兵就會爬起來；牠自己倒了就倒了（稽核 2026-09-03）。（歷史：2026-09-03 晚曾因同生共死改躺兩回合、機器人勝率飆到 68% 而把成長從 3 回合改成 2 回合；2026-09-05 已改回 3）
-    line: '（呱了一聲，扇子一開）', lines: ['何方妖貓，膽敢闖本大名的池子？', '（鼓起腮幫子，呱——）'],
+    line: '（呱了一聲，扇子一開）', lines: ['呱——本大名說到做到。', '（鼓起腮幫子，呱——）'],
     moves: [
       { intent: 'attack', label: '舌捲', effects: [{ kind: 'damage', amount: 6, times: 3 }] },   // 15→6×3：單發機器人全躲掉，多段才打得進（2026-09-03 晚）
       { intent: 'debuff', label: '蛙鳴', effects: [{ kind: 'giveCard', cardId: 'slime_card', n: 2, to: 'discard' }] },
@@ -1083,7 +1083,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 分裂＋詛咒：打到半血裂成兩隻鏡影（血＝裂開時剩下的），而且你每打一張技能牌就被塞一張眼冒金星
   { id: 'mirror_sage', name: '鏡仙', hp: [180, 180], pool: '大魔物', pattern: 'cycle', size: 'large', art: 'codex/monster_mirror_sage',
-    line: '（鏡面裡有無數個你，每一個都在動）', lines: ['（鏡子轉了半圈，映出你的背影）', '（鏡中的你先開口了）'],
+    line: '（鏡面裡有無數個你，每一個都在動）', lines: ['（鏡子轉了半圈，映出你的背影）', '（鏡中的你，嘴形跟你對不上）'],
     splitInto: { enemyId: 'mirror_shard', n: 2, below: 0.5 },
     hexOnSkill: { cardId: 'dazed_card', n: 1 },
     moves: [
@@ -1152,7 +1152,7 @@ export const enemies: EnemyDef[] = [
   // 紙燈籠雙子：一對同生共死（另一盞還亮著就會重新點起來）；兩隻共用一張立繪
   { id: 'lantern_twin_a', name: '紙燈籠雙子・甲', hp: [30, 32], pool: '中', pattern: 'cycle', size: 'small', art: 'codex/monster_lantern_twin',
     reviveGroup: 'twins', reviveHp: 12,
-    line: '（火苗晃了一下）', lines: ['（另一盞也亮了）', '（紙面透出橘光）'], moves: [
+    line: '（紙皮裡的那點火，抖了抖）', lines: ['（另一盞也亮了）', '（紙面透出橘光）'], moves: [
       { intent: 'attack', label: '火苗', effects: [{ kind: 'damage', amount: 8 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }] },
       { intent: 'debuff', label: '照亮', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 1 }] },
     ] },
@@ -1179,7 +1179,7 @@ export const enemies: EnemyDef[] = [
   { id: 'wraith_samurai', name: '怨靈武者', hp: [80, 86], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_wraith_samurai',
     thorns: 3,   // 碰牠會被反彈。原本還有 `fadeAfter: 6`（六回合打不死就散去），
     // 2026-09-11 一併拿掉——使用者：「除了偷小魚乾的外，其他的怪都別逃跑」
-    line: '（鎧甲裡沒有人）', lines: ['……回去。', '（刀鞘裡傳出低語）'], moves: [
+    line: '（刀還握著，握刀的手卻看得見後面的牆）', lines: ['……回去。', '（走過的地方留著一層淡淡的殘影）'], moves: [
       { intent: 'attack', label: '怨斬', effects: [{ kind: 'damage', amount: 16 }] },
       // 翻肚 1→2（稽核 2026-09-10 中-2）：玩家身上的減益在**魔物出手之前**就先減一層（combat.ts 的 freshDebuffs 那段），
       // 所以給 1 層的翻肚到牠下一次出手前就歸零、等於整個效果作廢。給 2 層的其他七招都正常，只有這招與波斯大小姐的尖叫中招。

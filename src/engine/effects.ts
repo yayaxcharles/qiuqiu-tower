@@ -377,7 +377,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     // `percent`＝回最大生命的百分之幾（起死回生丹）。用最大生命當基準不是「缺的血」：
     // 缺得越多回越多會變成「越晚喝越賺」，那會逼玩家故意拖到快死
     case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p); return false;
-    case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, `＋${fx.n} 小魚乾`); } return false;
+    case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, `撿到 ${fx.n} 條小魚乾`); } return false;
     case 'power':
       // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來
       p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}), ...(ctx.cardUpgraded ? { upgraded: true } : {}) });

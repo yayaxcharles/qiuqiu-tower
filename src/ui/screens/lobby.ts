@@ -243,7 +243,7 @@ registerScreen('lobby', (app, root) => {
             onclick: () => {
               if (relay) {
                 // 房號中繼（2026-09-14 深夜）：兩台都連到 Cloudflare 上的中繼，手機網路也連得上
-                st.step = 'hosting'; st.busy = true; st.msg = '正在跟中繼伺服器要房號…'; render();
+                st.step = 'hosting'; st.busy = true; st.msg = '正在拿房號…'; render();
                 hostRelay().then((r) => {
                   if (left) { r.cancel(); return; }
                   st.room = r.code; st.cancel = r.cancel; st.busy = true; st.msg = '等對方輸入房號…（對方連上就會自動開局）'; render();
@@ -254,7 +254,7 @@ registerScreen('lobby', (app, root) => {
                   }).catch(fail);
                 }).catch(fail);
               } else {
-                st.step = 'hosting'; st.busy = true; st.msg = '正在問路由器「我的對外位置是什麼」，最多五秒…'; render();
+                st.step = 'hosting'; st.busy = true; st.msg = '正在看你這台在網路上的位置，最多五秒…'; render();
                 hostDirect().then((r) => { if (left) { r.cancel(); return; } st.invite = r.invite; st.accept = r.accept; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render(); }).catch(fail);
               }
             },
@@ -298,7 +298,7 @@ registerScreen('lobby', (app, root) => {
       go.addEventListener('click', () => {
         if (st.busy) return;
         const code = input.value;   // 先讀值再重畫：`render()` 會把這顆 input 整個換掉（審查 低-11）
-        st.busy = true; st.msg = '正在連中繼伺服器…'; render();
+        st.busy = true; st.msg = '正在連上去…'; render();
         const j = joinRelay(code);
         st.cancel = j.cancel;
         j.ready.then((tx) => {
@@ -316,7 +316,7 @@ registerScreen('lobby', (app, root) => {
 
     if (st.step === 'joining' && st.mode === 'direct') {
       box.append(pasteBox('① 貼上對方給你的邀請碼', '按下去會產生你的回應碼', '產生回應碼', (code) => {
-        st.busy = true; st.msg = '正在讀邀請碼、問自己的對外位置，最多五秒…'; render();
+        st.busy = true; st.msg = '正在讀邀請碼、看你這台的位置，最多五秒…'; render();
         joinDirect(code).then((r) => {
           if (left) { r.cancel(); return; }
           st.answer = r.answer; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render();
