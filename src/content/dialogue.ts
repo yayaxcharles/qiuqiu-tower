@@ -1010,8 +1010,26 @@ const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, Readonl
 /** 混搭時把整份故事的句子換過一遍；不換就原樣回（陣列參照不動，既有測試照舊） */
 function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[]; defeat: DialogueLine[];
   victory: DialogueLine[]; victoryNarration: Partial<Record<string, string>>; hardModeEpilogue: string; victoryTeaser: string }>(hero: string | undefined, s: T): T {
-  if (!mixedOn(hero)) return s;
+  const key = pairKey(hero);
+  const scenes = key === null ? undefined : MIXED_SCENES[key];
+  if (!mixedOn(hero) && !scenes) return s;
   const ls = (xs: DialogueLine[]): DialogueLine[] => xs.map((l) => ({ ...l, text: mixedLine(hero, l.text) }));
+  /*
+   * 有整段場景就**整段換掉**，不再逐句過 `mixedLine`——那張表是替單人劇本寫的，
+   * 套到已經是連線版的句子上只會白跑一趟（也查不到東西）。
+   */
+  if (scenes) {
+    return {
+      ...s,
+      prologue: scenes.prologue.map((l) => ({ ...l })),
+      actClear1: scenes.actClear1.map((l) => ({ ...l })),
+      actClear2: scenes.actClear2.map((l) => ({ ...l })),
+      victory: scenes.victory.map((l) => ({ ...l })),
+      defeat: scenes.defeat.map((l) => ({ ...l })),
+      victoryNarration: {},   // 打法插句是寫給單人結局的，連線場景自己收尾
+      hardModeEpilogue: mixedLine(hero, s.hardModeEpilogue), victoryTeaser: mixedLine(hero, s.victoryTeaser),
+    };
+  }
   return {
     ...s,
     prologue: ls(s.prologue), actClear1: ls(s.actClear1), actClear2: ls(s.actClear2), defeat: ls(s.defeat), victory: ls(s.victory),
@@ -1021,6 +1039,154 @@ function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine
 }
 
 /** 混搭時換句子；沒設連線情境、或同伴跟自己同角色就原樣回 */
+
+/**
+ * ===== 連線的兩套完整路線（2026-09-17）=====
+ *
+ * `MIXED_LINES` 是「把我的某幾句換掉」，這一張不一樣：稿子把連線寫成
+ * **兩個人共用的一整段場景**（兩位都有台詞、互相接話），所以整段替換。
+ *
+ * 鍵是**排序過的兩個角色**（`ninja+dangdang`），不是「我是誰」——
+ * 同一局的兩台機器要演同一段戲，不能各演各的。
+ *
+ * 沒有這一組搭檔的場景就照舊：各自播各自的單人劇本、再過 `MIXED_LINES` 換那幾句。
+ * 球球＋菲菲目前就是那樣（他們的連線劇情還沒寫成整段場景）。
+ *
+ * **插圖**：這幾段沒有自己的幻燈片圖，`slidesReady` 查不到就整段退回純對白
+ *（`storyslides.ts` 本來就是這個規矩）。寧可少一段幻燈片，不要放錯別人的故事。
+ */
+const MIXED_SCENES: Readonly<Record<string, {
+  prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
+  victory: DialogueLine[]; defeat: DialogueLine[];
+}>> = {
+  'dangdang+ninja': {
+    prologue: [
+      { speaker: '旁白', text: '村口的門剛關上，噹噹就看見球球往魔塔跑。兩隻村貓接過門閂，催他跟去看看。' },
+      { speaker: '旁白', text: '守門的村貓說：「我們守著。別讓他一個人進去！」' },
+      { speaker: '旁白', text: '菲菲抱著藥箱從屋裡出來。門旁還坐著幾隻受傷的村貓，她回頭看了一眼，又叫住噹噹。' },
+      { speaker: '菲菲', text: '我先替他們包紮。你找到師兄，請他別自己亂闖。' },
+      { speaker: '噹噹', text: '好。你在村裡等我們。', slideBreak: true },
+      { speaker: '旁白', text: '噹噹追到塔下，球球正蹲在台階前，重新綁住跑鬆的頭巾。' },
+      { speaker: '球球', text: '師父就在上面，你也看見他了喵？' },
+      { speaker: '噹噹', text: '看見了。門口也有他撞斷的木頭。' },
+      { speaker: '球球', text: '他平常不會這樣，一定是那股紫色的東西喵！' },
+      { speaker: '噹噹', text: '那就上去找他。你腳邊那塊磚鬆了，跨過來。' },
+    ],
+    actClear1: [
+      { speaker: '旁白', text: '球球在樓梯旁找到村裡的糧箱，抱起來晃了晃。箱底掉出幾條碎魚乾。' },
+      { speaker: '球球', text: '連一箱都不剩，牠們到底吃了多少喵！' },
+      { speaker: '噹噹', text: '先放牆邊。回來才有路搬。' },
+      { speaker: '旁白', text: '球球放下箱子，轉身上樓，頭巾卻勾住了扶手。噹噹伸手解開布角。' },
+      { speaker: '噹噹', text: '別扯，會破。好了，走吧。' },
+    ],
+    actClear2: [
+      { speaker: '旁白', text: '塔頂傳來低吼。球球立刻跑到樓梯口，扶著牆往上喊。' },
+      { speaker: '球球', text: '師父！我們上來了喵！' },
+      { speaker: '旁白', text: '上面沒有回話，只有一陣拖動石塊的聲音。' },
+      { speaker: '球球', text: '他剛才是不是很痛喵？' },
+      { speaker: '噹噹', text: '我也聽見了。走，去看看。' },
+      { speaker: '旁白', text: '門後的大俠貓猛然轉身。球球伸出的手停住了——那雙眼睛仍泛著紫光。' },
+      { speaker: '球球', text: '師父，是我喵。' },
+      { speaker: '旁白', text: '大俠貓抬掌，噹噹側身擋到球球前面。球球退開一步，也擺好了架勢。' },
+      { speaker: '噹噹', text: '他要出手了！' },
+      { speaker: '球球', text: '我看到了。噹噹，右邊留給我喵。' },
+    ],
+    /*
+     * 塔頂門外那一段接在第二關之後（單人版沒有這一格，是這兩條路線才有的）。
+     * 目前沒有「打塔主之前插一段」的鉤子，所以併進 `actClear2` 的尾巴——
+     * 時序上就是「走上最後一段階梯」之後、推開門之前，接得起來。
+     */
+    victory: [
+      { speaker: '旁白', text: '紫光散去，大俠貓看著眼前的球球，放下了手。' },
+      { speaker: '塔主', text: '承讓。' },
+      { speaker: '球球', text: '你終於認得我了喵。' },
+      { speaker: '旁白', text: '大俠貓蹲下來，把球球抱進懷裡。噹噹卸下護臂，坐在門檻上等。' },
+      { speaker: '球球', text: '噹噹，你的手在抖喵。' },
+      { speaker: '噹噹', text: '用力太久了。幫我拿一下工具袋。' },
+      { speaker: '旁白', text: '球球接過袋子。大俠貓替噹噹揉了揉手臂，三人歇過氣，才帶著找回的小魚乾下樓。', slideBreak: true },
+      { speaker: '旁白', text: '村口的燈還亮著。菲菲看見三人，提著藥箱跑出來。' },
+      { speaker: '菲菲', text: '師父！師兄！……噹噹，你也把手伸出來。' },
+      { speaker: '球球', text: '先看他，他替我擋了好幾下喵。' },
+      { speaker: '噹噹', text: '都要看。先坐下，別光顧著說。' },
+      { speaker: '旁白', text: '菲菲讓兩人坐在門邊，大俠貓去端了水。球球把工具袋放回噹噹腳邊，這回沒有急著站起來。' },
+    ],
+    defeat: [
+      { speaker: '旁白', text: '噹噹抓住球球的手，想把他拉起來，自己卻也跪倒在地。兩人眼前漸漸暗了。' },
+      { speaker: '旁白', text: '醒來時，兩人已躺在村裡。菲菲坐在床邊，正在收起換下來的繃帶。' },
+      { speaker: '球球', text: '師父回來了沒有喵？' },
+      { speaker: '菲菲', text: '還沒有。有人把你們送到村口，就走了。' },
+      { speaker: '噹噹', text: '球球，先別下床。你看，連鞋都還沒穿好。' },
+    ],
+  },
+  'dangdang+feifei': {
+    prologue: [
+      { speaker: '旁白', text: '第三天，菲菲背著行囊走到村口。噹噹剛把新門閂裝好，正將錘子交給來換班的村貓。' },
+      { speaker: '菲菲', text: '你也要去塔裡？' },
+      { speaker: '噹噹', text: '球球三天沒回來了。我去找他。' },
+      { speaker: '菲菲', text: '那我們一起。我還帶了師父的藥。', slideBreak: true },
+      { speaker: '旁白', text: '菲菲扣緊竹筒。噹噹看了一眼扣環，伸出手，她便把竹筒遞過去。' },
+      { speaker: '噹噹', text: '我上次修的這個，還會鬆嗎？' },
+      { speaker: '菲菲', text: '不會。現在要用力才打得開。' },
+      { speaker: '旁白', text: '噹噹把扣環稍微調鬆，試了兩次，還給菲菲。兩人走過缺了一塊木板的橋，來到塔門前。' },
+      { speaker: '菲菲', text: '先說好，走散了就在樓梯口等。' },
+      { speaker: '噹噹', text: '好。你在後面叫我，我會停。' },
+    ],
+    actClear1: [
+      { speaker: '旁白', text: '兩人在糧箱後找到樓梯。菲菲停在扶手旁，小心取下一縷藍線。' },
+      { speaker: '菲菲', text: '是師兄的頭巾。這裡還勾著一點。' },
+      { speaker: '噹噹', text: '他往上走了。扶手有毛刺，別碰。' },
+      { speaker: '旁白', text: '噹噹移開階梯上的空箱。菲菲收起藍線，跟著他往上走。' },
+    ],
+    actClear2: [
+      { speaker: '旁白', text: '塔頂傳來吼聲。菲菲扶住樓梯邊的牆，抬起頭。' },
+      { speaker: '菲菲', text: '是師父。他的聲音怎麼變成這樣……' },
+      { speaker: '噹噹', text: '大俠貓！球球！聽得見嗎？' },
+      { speaker: '旁白', text: '過了一會兒，上方傳來一聲模糊的回喊，隨即被撞擊聲蓋過。兩人一起跑上最後一段階梯。' },
+      { speaker: '旁白', text: '球球坐在門後，額頭擦破了，正在試著撐起身子。看見兩人，他先愣住，接著伸手指向屋裡。' },
+      { speaker: '球球', text: '師妹，小心！師父誰都不認得了喵！' },
+      { speaker: '菲菲', text: '師兄，你先把頭低下來。我幫你擦一下。' },
+      { speaker: '旁白', text: '噹噹擋在門內，菲菲替球球壓住傷口，把乾布交到他手裡，才走到噹噹身旁。' },
+      { speaker: '噹噹', text: '球球，門外還有魔物嗎？' },
+      { speaker: '球球', text: '沒有，我剛看過了。你們小心他的掌喵。' },
+      { speaker: '菲菲', text: '噹噹，我好了。' },
+    ],
+    /*
+     * 塔頂門外那一段接在第二關之後（單人版沒有這一格，是這兩條路線才有的）。
+     * 目前沒有「打塔主之前插一段」的鉤子，所以併進 `actClear2` 的尾巴——
+     * 時序上就是「走上最後一段階梯」之後、推開門之前，接得起來。
+     */
+    victory: [
+      { speaker: '旁白', text: '大俠貓眼裡的紫光退去。菲菲喊了一聲「師父」，他循著聲音，看向她。' },
+      { speaker: '塔主', text: '承讓。' },
+      { speaker: '菲菲', text: '您認得我了，對不對？' },
+      { speaker: '旁白', text: '大俠貓點頭，伸手輕碰她的頭頂。球球扶著門框走過來，菲菲趕緊去扶他。' },
+      { speaker: '球球', text: '我找了你好久喵。', slideBreak: true },
+      { speaker: '旁白', text: '大俠貓把兩個徒弟拉到身邊。噹噹靠著牆，把卡住的護臂扣帶往外抽。' },
+      { speaker: '噹噹', text: '菲菲，借我一下剪刀。這條解不開了。' },
+      { speaker: '菲菲', text: '別拉，會磨到傷口。我來剪。' },
+      { speaker: '球球', text: '你這對護臂還修得好嗎喵？' },
+      { speaker: '噹噹', text: '修得好。回去你幫我拉風箱。' },
+      { speaker: '旁白', text: '菲菲剪開扣帶，大俠貓接住掉下來的銅護臂。四人歇了一會兒，帶著能搬走的小魚乾，一起下樓。' },
+      { speaker: '旁白', text: '村貓打開門，把熱湯送到他們手裡。噹噹這才想起自己還沒吃飯，把工具袋一放，端起碗喝了起來。' },
+    ],
+    defeat: [
+      { speaker: '旁白', text: '菲菲伸手扶住噹噹，兩人卻一起跌坐下去。頭頂的燈晃了幾下，便看不清了。' },
+      { speaker: '旁白', text: '醒來時，噹噹先看見床邊的藥箱。菲菲睡在另一張床上，手臂已經包好。村貓端水進來，說有人把他們送到了門口。' },
+      { speaker: '噹噹', text: '她醒過嗎？' },
+      { speaker: '旁白', text: '守門的村貓說：「醒過，問了球球的消息，又睡了。」' },
+      { speaker: '旁白', text: '噹噹往窗外看。塔頂的紫光還亮著，他把手放回被上，等菲菲醒來。' },
+    ],
+  },
+};
+
+/** 這一局兩位的搭檔鍵（排序過，兩台機器算出來一樣）。一個人玩、或兩位同角色時回 null */
+function pairKey(hero: string | undefined): string | null {
+  const h = hero ?? 'ninja';
+  const p = coopStory.partner;
+  if (!p || p === h) return null;
+  return [h, p].sort().join('+');
+}
+
 function mixedLine(hero: string | undefined, text: string): string {
   const h = hero ?? 'ninja';
   if (!coopStory.partner || coopStory.partner === h) return text;

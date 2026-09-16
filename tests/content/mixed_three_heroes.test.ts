@@ -26,13 +26,37 @@ describe('三隻貓的連線敘事不會叫錯人', () => {
   });
 
   it('沒寫改口的那一句照舊，不會被別組的蓋掉', () => {
-    // 她跟噹噹一起時「師兄，你到底在哪裡？」要維持原樣——師兄這一局真的不在場，那句問得合理；
-    // 跟球球一起才換成「你也聽見了吧」
+    // 球球＋菲菲這一組**沒有整段場景**，走的還是「換掉某幾句」那條路。
+    // 她跟球球一起時，第二關那句換成「你也聽見了吧」（師兄就在旁邊）
     const orig = '師父，您再撐一下……師兄，你到底在哪裡？';
-    setCoopStory({ partner: 'dangdang', mirror: 'feifei' });
-    expect(storyFor('feifei').actClear2.map((l) => l.text)).toContain(orig);
+    setCoopStory(null);
+    expect(storyFor('feifei').actClear2.map((l) => l.text), '一個人玩時是原句').toContain(orig);
     setCoopStory({ partner: 'ninja', mirror: 'feifei' });
     expect(storyFor('feifei').actClear2.map((l) => l.text)).not.toContain(orig);
+  });
+
+  it('有整段場景的搭檔，兩個人看到的是同一段戲', () => {
+    /*
+     * 稿子把噹噹的連線寫成**兩個人共用的一整段場景**（兩位都有台詞、互相接話），
+     * 不是「把我的某幾句換掉」。所以這一組的兩台機器要演同一段。
+     */
+    setCoopStory({ partner: 'dangdang', mirror: 'ninja' });
+    const asNinja = storyFor('ninja').prologue.map((l) => l.text);
+    setCoopStory({ partner: 'ninja', mirror: 'ninja' });
+    const asDangdang = storyFor('dangdang').prologue.map((l) => l.text);
+    expect(asNinja, '兩邊演的不是同一段').toEqual(asDangdang);
+    expect(asNinja.join(''), '這一組的序章應該是「村口的門剛關上」那一段').toContain('球球往魔塔跑');
+    // 兩位都有台詞才叫共用場景
+    setCoopStory({ partner: 'dangdang', mirror: 'ninja' });
+    const who = new Set(storyFor('ninja').prologue.map((l) => l.speaker));
+    expect(who.has('球球') && who.has('噹噹'), '共用場景裡兩位都要開口').toBe(true);
+  });
+
+  it('沒有整段場景的搭檔照舊走單人劇本', () => {
+    setCoopStory(null);
+    const solo = storyFor('ninja').prologue.map((l) => l.text);
+    setCoopStory({ partner: 'feifei', mirror: 'ninja' });
+    expect(storyFor('ninja').prologue.map((l) => l.text), '球球＋菲菲還沒寫整段場景').toEqual(solo);
   });
 
   it('鏡子照的是誰，第一次看到牠就講誰', () => {
