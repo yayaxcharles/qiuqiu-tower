@@ -19,36 +19,47 @@ describe('噹噹的專屬事件', () => {
     for (const e of his) expect(e.choices.length, e.title).toBe(3);
   });
 
-  it('插圖還沒生好，所以一張地圖都不會排到（連他自己的也不會）', () => {
-    for (const e of his) expect(e.artPending, `${e.title} 沒掛待圖旗標`).toBe(true);
-    const seen = new Set<string>();
-    for (const hero of ['ninja', 'feifei', 'dangdang']) {
-      for (let i = 0; i < 40; i++) {
+  it('圖生完了，所以他自己的地圖排得到，別人的排不到', () => {
+    // 2026-09-17 早上圖生完、`artPending` 拿掉了。這條從「都排不到」翻成
+    // 「只有他排得到」——職業獨占那道關卡還在，別人照樣看不到
+    for (const e of his) expect(e.artPending, `${e.title} 還掛著待圖旗標？圖已經生完了`).toBeUndefined();
+    const idsOn = (hero: string): Set<string> => {
+      const seen = new Set<string>();
+      for (let i = 0; i < 60; i++) {
         for (const act of [1, 2, 3]) {
           const m = generateMap(new Rng(seedFromString(`dd-ev-${hero}-${i}`)),
             { act, bossIds: ['nekomata'], flags: {}, hero });
           for (const n of m.nodes) if (n.eventId) seen.add(n.eventId);
         }
       }
+      return seen;
+    };
+    const mine = idsOn('dangdang');
+    expect(his.some((e) => mine.has(e.id)), '六十張地圖裡一次都沒排到他的事件').toBe(true);
+    for (const hero of ['ninja', 'feifei']) {
+      const theirs = idsOn(hero);
+      for (const e of his) expect(theirs.has(e.id), `${e.title} 排進 ${hero} 的地圖了`).toBe(false);
     }
-    for (const e of his) expect(seen.has(e.id), `${e.title} 排進地圖了，圖還沒生`).toBe(false);
-    expect(seen.size, '整批事件一個都沒排到？那這條測試失效了').toBeGreaterThan(10);
   });
 
-  it('待圖旗標真的擋得住：拿掉旗標就排得到', () => {
-    // 反向檢查——不然哪天閘門失效（例如 `map.ts` 那一行被刪掉），上一條會照樣綠
+  it('待圖那道閘門本身還活著（拿一篇臨時掛上去驗）', () => {
+    /*
+     * 閘門是 2026-09-17 為了「稿子一次寫完、圖排在後面幾批」加的。
+     * 他的四篇現在圖都有了，所以改成臨時掛一篇上去驗——
+     * 哪天 `map.ts` 那一行被刪掉，這條會紅。
+     */
     const one = his[0]!;
-    const patched = { ...one, artPending: undefined };
     const idx = events.indexOf(one);
-    events[idx] = patched;
+    events[idx] = { ...one, artPending: true };
     try {
       const seen = new Set<string>();
       for (let i = 0; i < 60; i++) {
-        const m = generateMap(new Rng(seedFromString(`dd-on-${i}`)),
+        const m = generateMap(new Rng(seedFromString(`dd-gate-${i}`)),
           { act: 1, bossIds: ['nekomata'], flags: {}, hero: 'dangdang' });
         for (const n of m.nodes) if (n.eventId) seen.add(n.eventId);
       }
-      expect(seen.has(one.id), '拿掉待圖旗標之後還是排不到，閘門以外還有東西擋著').toBe(true);
+      expect(seen.has(one.id), '掛了待圖旗標還是排得到＝閘門失效了').toBe(false);
+      expect(seen.size, '整批事件一個都沒排到？那這條測試失效了').toBeGreaterThan(10);
     } finally {
       events[idx] = one;
     }
