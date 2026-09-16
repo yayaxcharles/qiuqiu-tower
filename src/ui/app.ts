@@ -1,4 +1,4 @@
-import { victoryLinesFor, dialogue, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, dialogue, firstMeetLine, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
@@ -281,6 +281,7 @@ export class App {
   leaveCoop(): void {
     this.coop?.leave();   // 跟中繼說一聲、關掉線路，對方立刻看到「對方離開了」；不關的話舊線還在跑心跳、對方永遠等不到（審查 2026-09-15 中-1）
     this.coop = null; this.seat = 0;
+    setCoopStory(null);   // 敘事情境是模組層級的，離開連線就清掉（推前審查 低-2）
     // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
     // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
     document.querySelectorAll('.net-trouble, .net-link').forEach((n) => n.remove());
@@ -391,7 +392,7 @@ export class App {
       const mine = me(run, this.seat);
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
-        toast(storyFor(mine.hero).firstMeet[firstNew] ?? '', heroSpeaker());
+        toast(firstMeetLine(mine.hero, firstNew), heroSpeaker());
       } else {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }

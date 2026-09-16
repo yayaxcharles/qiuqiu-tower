@@ -743,6 +743,27 @@ function mixedOn(hero: string | undefined): boolean {
   return !!coopStory.partner && coopStory.partner !== h && !!MIXED_LINES[h];
 }
 
+/**
+ * 鏡子走廊那隻的**初見吐槽**（戰鬥一開場跳的泡泡）。
+ *
+ * 事件文字換了、這一句沒換的話，她會對著鏡中球球說「那張臉明明是我」（推前審查 中-1）。
+ * 不能改成拿座位 0 的角色去查整張 `firstMeet`——那會讓另外一百多隻魔物的吐槽全變成同伴的口氣。
+ */
+const MIXED_FIRST_MEET: Readonly<Record<string, string>> = {
+  feifei: '那是師兄的臉……可是師兄不會這樣笑。',
+  ninja: '鏡子裡站的是師妹，怎麼衝著我笑喵？',
+};
+
+/** 鏡中那隻照的是同伴時，牠的初見吐槽（`app.ts` 跳泡泡前過一手）；其餘魔物一律回 `undefined` */
+export function firstMeetLine(hero: string | undefined, enemyId: string): string {
+  const h = hero ?? 'ninja';
+  if (enemyId === 'mirror_qiuqiu' && coopStory.mirror && coopStory.mirror !== h) {
+    const mixed = MIXED_FIRST_MEET[h];
+    if (mixed !== undefined) return mixed;
+  }
+  return storyFor(h).firstMeet[enemyId] ?? '';
+}
+
 /** 鏡中那隻照的是同伴（座位 0 跟我不同角色）：事件整句換成「假的同伴」版 */
 function mirrorEventText(hero: string | undefined, original: string): string | undefined {
   const h = hero ?? 'ninja';
@@ -1058,6 +1079,9 @@ export const FEIFEI_TA: Readonly<Record<string, string>> = {
   '沒再攔牠': '沒再攔她',
   '牠趁機走了過去': '她趁機走了過去',
   '牠甩甩爪子': '她甩甩爪子',
+  '還替牠壓平了布包的邊角': '還替她壓平了布包的邊角',
+  '指出牠抬爪的角度不對': '指出她抬爪的角度不對',
+  '牠越想越恍神': '她越想越恍神',
 };
 
 export function eventTextFor(hero: string | undefined, text: string): string {

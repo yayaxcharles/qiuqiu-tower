@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
-  FEIFEI_TA, dialogue, eventTextFor, feifeiDialogue, lineFor, setCoopStory, storyFor,
+  FEIFEI_TA, dialogue, eventTextFor, feifeiDialogue, firstMeetLine, lineFor, setCoopStory, storyFor,
 } from '../../src/content/dialogue';
 import { events, eventById } from '../../src/content/events';
 
@@ -79,5 +79,50 @@ describe('指她的「牠」換成「她」', () => {
     // 「替牠包好傷口」的牠是受傷的村貓，不是她；這種不能跟著改
     expect(eventTextFor('feifei', eventById['rescue']!.text)).toContain('替牠包好傷口');
     expect(eventTextFor('feifei', eventById['gambling_rats']!.text)).toContain('牠們連忙招手');
+  });
+
+  /**
+   * 反向防呆（推前審查 中-2：原本漏了三處）。上面那條只查「表裡的鍵不見了」，
+   * 查不到「還有沒有別的牠指她」。這條把**還留著「牠」的事件**整份凍起來：
+   * 以後新增或改寫事件，只要冒出新的一個就會紅，寫的人得自己判斷那隻是不是她。
+   */
+  it('她那邊還留著幾個「牠」，一個一個凍起來（多一個少一個都要人看過）', () => {
+    const n: Record<string, number> = {};
+    for (const e of events) {
+      if (e.hero) continue;
+      for (const t of [e.text, ...e.choices.map((c) => c.result ?? '')]) {
+        const c = eventTextFor('feifei', t).split('牠').length - 1;
+        if (c > 0) n[e.id] = (n[e.id] ?? 0) + c;
+      }
+    }
+    // 這些「牠」指的都是別的貓（村貓、老鼠、母貓、小貓、山賊、池裡的魚）。
+    // 數字變了就是有事件改動：多一個要確認不是指她，少一個要確認不是把別的貓也改掉了。
+    expect(Object.fromEntries(Object.entries(n).sort())).toEqual({
+      fish_pond: 1, gambling_rats: 1, greedy_merchant: 1, lost_kitten: 2, moving_rat: 1,
+      rat_stall: 1, rescue: 1, rescue_return_fish: 3, rescue_return_herb: 1, robin: 1,
+      robin_feast: 1, sleeping_guard: 1, stuck_kitten: 5, toll: 2, toll_again_fought: 1,
+      toll_again_paid: 2,
+    });
+  });
+});
+
+describe('鏡子走廊的初見吐槽', () => {
+  it('混搭時講的是同伴的鏡像，不是「我自己」', () => {
+    setCoopStory({ partner: 'ninja', mirror: 'ninja' });
+    expect(firstMeetLine('feifei', 'mirror_qiuqiu'), '畫面上是鏡中球球').not.toContain('明明是我');
+    expect(firstMeetLine('feifei', 'mirror_qiuqiu')).toContain('師兄');
+    setCoopStory({ partner: 'feifei', mirror: 'feifei' });
+    expect(firstMeetLine('ninja', 'mirror_qiuqiu')).toContain('師妹');
+    expect(firstMeetLine('ninja', 'mirror_qiuqiu'), '他每一句都要有喵').toContain('喵');
+  });
+
+  it('單機、同角色雙人、以及其他魔物照舊', () => {
+    setCoopStory(null);
+    expect(firstMeetLine('feifei', 'mirror_qiuqiu')).toBe(storyFor('feifei').firstMeet['mirror_qiuqiu']);
+    expect(firstMeetLine('ninja', 'mirror_qiuqiu')).toBe(storyFor('ninja').firstMeet['mirror_qiuqiu']);
+    setCoopStory({ partner: 'ninja', mirror: 'ninja' });
+    // 鏡中照的是同伴，可是別隻魔物一個字都不能換成同伴的口氣
+    expect(firstMeetLine('feifei', 'orange_king')).toBe(storyFor('feifei').firstMeet['orange_king']);
+    expect(firstMeetLine('feifei', '沒有這隻')).toBe('');
   });
 });
