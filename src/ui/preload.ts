@@ -1,7 +1,7 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, coopArtUrls, hasMonsterPose, heroArtUrls, localHero, monsterUrl, warmed, type MonsterPose } from './assets';
+import { artUrl, coopArtUrls, hasMonsterPose, monsterPhaseKey, heroArtUrls, localHero, monsterUrl, warmed, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 
 /**
@@ -61,6 +61,16 @@ function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero()): 
     // 圖還沒進倉時 `enemyArtFor` 回的鍵在清單裡查不到，`assets.ts` 會退回原本那組，等於沒差
     const art = enemyArtFor(def.id, skinHero);
     for (const pose of POSES) if (hasMonsterPose(art, pose)) urls.push(monsterUrl(art, pose));
+    /*
+     * 換階段之後那組也要先抓（2026-09-16）。不抓的話血打到門檻那一刻要現載，
+     * 玩家看到的是「變身那一拍先閃一下白」——換階段本來就是這場仗最該看清楚的一刻。
+     * 還沒生的階段圖 `monsterPhaseKey` 會退回前一階段，這裡就自然收不到新網址，不會多抓。
+     */
+    for (let phase = 1; phase <= (def.phases?.length ?? 0); phase += 1) {
+      const pk = monsterPhaseKey(art, phase);
+      if (pk === art) continue;
+      for (const pose of POSES) if (hasMonsterPose(pk, pose)) urls.push(monsterUrl(pk, pose));
+    }
   }
   return [...new Set(urls)];
 }

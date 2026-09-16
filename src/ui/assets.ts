@@ -323,6 +323,24 @@ function monsterKey(artKey: string): string {
   return manifest.monsters[artKey] ? artKey : (MONSTER_ART_FALLBACK[artKey] ?? artKey);
 }
 
+/**
+ * 換階段之後那一隻的立繪鍵（2026-09-16 使用者實測：「打老住持，菲菲說牠長出鱗甲，
+ * 可是牠長得一模一樣」）。
+ *
+ * 規則：第二階段是原鍵加 `_p2`、第三階段 `_p3`。**查不到就往前退一階**，
+ * 最後退回原鍵——所以還沒生的階段圖不會變成灰剪影，只會維持變身前那張臉。
+ * 這條讓「先生一批、之後再補」成立（師父那套 `bossIdle` 早就是同一個做法）。
+ *
+ * 第一階段（`phase` 0）直接回原鍵，不做任何查表——**沒有階段的魔物一個位元都不受影響**。
+ */
+export function monsterPhaseKey(artKey: string, phase: number): string {
+  for (let p = Math.floor(phase); p >= 1; p -= 1) {
+    const k = `${artKey}_p${p + 1}`;
+    if (manifest.monsters[k]) return k;
+  }
+  return artKey;
+}
+
 export function hasMonsterPose(artKey: string, pose: MonsterPose): boolean { return manifest.monsters[monsterKey(artKey)]?.[pose] !== undefined; }
 export function monsterUrl(artKey: string, pose: MonsterPose): string {
   const m = manifest.monsters[monsterKey(artKey)];
