@@ -252,7 +252,7 @@ describe('幫隊友的九張牌', () => {
   it('牌面說明講的是做得到的事（單機也抽得到，不能寫「給隊友」就跑掉）', () => {
     const cs = combat(1);
     applyEffects(cs, [{ kind: 'taunt' }], { self: cs.player, source: 'card' });
-    expect(cs.log.some((l) => l.includes('架式')), '一個人時的紀錄不該說「魔物都衝著他來」').toBe(true);
+    expect(cs.log.some((l) => l.includes('架勢')), '一個人時的紀錄不該說「魔物都衝著他來」').toBe(true);
   });
 });
 

@@ -5247,7 +5247,7 @@
     },
     {
      "intent": "debuff",
-     "label": "念咒",
+     "label": "唸咒",
      "effects": [
       {
        "kind": "statusPlayer",

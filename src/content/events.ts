@@ -12,7 +12,7 @@ export const events: EventDef[] = [
    * 其餘 36 個共用事件不鎖職業，只在顯示時換名字與口氣（見 `eventTextFor`）。
    */
   { id: 'feifei_trace', title: '師兄的痕跡', hero: 'feifei', acts: [1, 2],
-    text: '牆縫裡還卡著幾根菲菲射出的針，有的已經彎了。她走近查看，發現地上散著小魚乾，旁邊還掛著深藍色的線頭。那是師兄頭巾上的線。他也走過這裡。',
+    text: '牆縫裡卡著幾根針，使的是師父教的那套手法，有的已經彎了。她走近查看，發現地上散著小魚乾，旁邊還掛著深藍色的線頭。那是師兄頭巾上的線。他也走過這裡。',
     choices: [
       { label: '把針收起來（回復 12 點生命、獲得 20 條小魚乾）',
         outcome: [{ kind: 'heal', n: 12 }, { kind: 'fish', n: 20 }],
@@ -55,13 +55,13 @@ export const events: EventDef[] = [
     choices: [
       { label: '用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'addCard', cardId: 'shibai' }],
-        result: '她用飛針卡住齒輪，取出小魚乾。拔回的針已經壓彎，她抱著袋子打了個大呵欠——這一下耗掉的力氣比想像中多。菲菲：「先歇一下……就一下下。」', resultArt: 'feifei_signal_r0' },
+        result: '她用飛針卡住齒輪，取出小魚乾。針還卡在鐵齒間，已經壓彎了。她抱著袋子站著沒動，眼皮一陣一陣地重——這一下耗掉的力氣比想像中多。菲菲：「先歇一下……就一下下。」', resultArt: 'feifei_signal_r0' },
       { label: '墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'damage', n: 10 }],
         result: '她墊著袖布撐開機關，鐵片仍劃破了手。菲菲：「把手抽出來，別卡在裡面……」取出小魚乾後，她在牆邊按住傷口。那聲音再響，她也沒有回頭。', resultArt: 'feifei_signal_r1' },
     ] },
   { id: 'daxia_teach', title: '師父留下的秘笈', fixedFloor: 5,
-    text: '樓梯間的秘笈封面已經起毛。球球往後翻，找到三招絕學的圖解。',
+    text: '樓梯間又落著一本秘笈，封面已經起毛。球球翻開來，往後找了幾頁。',
     choices: [
       { label: '研讀秘笈（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }], result: '球球攤開秘笈，仔細看上面的三幅圖。球球：「字有點難認，先看圖好了喵。」', resultArt: 'daxia_teach_r0' },
       { label: '放回原位（無效果）', outcome: [], result: '球球合上秘笈，放回樓梯邊。球球：「這招看不懂，等找到師父再問他喵。」' },

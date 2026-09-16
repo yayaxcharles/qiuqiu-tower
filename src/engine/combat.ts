@@ -834,11 +834,11 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       }
     }
     if (def?.strengthEveryNTurns && !frozen && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
-    // 結算中毒：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架式不出手（審查 #18）
+    // 結算中毒：扣血走 damageEnemy（調息無敵、僕從護體才擋得到——審查 #10）；毒到換階段就這回合先擺架勢不出手（審查 #18）
     const phaseBefore = e.phase;
     damageEnemy(cs, e, tickPoison(e), { direct: true });
     if (e.dead || cs.phase !== 'player') return true;
-    if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架式`); decayTurnStatuses(e, ['定身']); return true; }
+    if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架勢`); decayTurnStatuses(e, ['定身']); return true; }
     // 出招途中換階段的偵測：被球球的反彈打過門檻（checkPhase 排好 onEnterMove）或血條式蹲下調息，
     // 尾端就不能再 advanceMove 把那招蓋掉（稽核 2026-09-04 H-1，反彈流打貓又時尾巴永遠放不出來的病根）
     const phaseAtAct = e.phase;

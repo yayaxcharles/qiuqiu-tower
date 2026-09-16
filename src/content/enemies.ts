@@ -865,7 +865,7 @@ export const enemies: EnemyDef[] = [
     hexOnSkill: { cardId: 'dazed_card', n: 1 },
     moves: [
       { intent: 'attack', label: '咒印', effects: [{ kind: 'damage', amount: 5, times: 2 }] },
-      { intent: 'debuff', label: '念咒', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
+      { intent: 'debuff', label: '唸咒', effects: [{ kind: 'statusPlayer', name: '懶洋洋', amount: 2 }] },
       { intent: 'attack', label: '咒杖', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
     ] },
 
@@ -1498,7 +1498,7 @@ const MIRROR_FEIFEI: EnemySkin = {
   // 她是暹羅貓、怕痛、講話會遲疑但不加「喵」；鏡子裡的那個講同樣的話，只是一點都不抖
   line: '（鏡子裡的她先站直了，針尖朝著你，一點都沒抖）',
   lines: [
-    '我有先提醒你喔。（語氣平穩，握針的手一點也不抖）',
+    '我有先提醒你喔。（她說得跟背書一樣平）',
     '（她照著你的動作抬手，比你快了半拍）',
     '你也怕痛吧。……我不怕了。',
   ],
