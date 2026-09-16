@@ -87,8 +87,8 @@ describe('牌資料', () => {
   it('起手牌組 10 張', () => {
     expect(FEIFEI_STARTER_DECK.length, '菲菲也是十張').toBe(10);
     expect(DANGDANG_STARTER_DECK.length, '噹噹也是十張').toBe(10);
-    expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dd_zhengquan').length).toBe(5);
-    expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dd_jiapan').length).toBe(4);
+    expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dangdang_zhengquan').length).toBe(5);
+    expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dangdang_jiapan').length).toBe(4);
     for (const id of DANGDANG_STARTER_DECK) expect(cardById[id]?.pool, id).toBe('起手');
     // 形狀跟球球一樣：5 攻＋4 防＋1 招牌技
     expect(FEIFEI_STARTER_DECK.filter((id) => id === 'feifei_feizhen').length).toBe(5);

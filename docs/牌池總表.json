@@ -4477,7 +4477,7 @@
   "up": "造成 32 點傷害，自己也受 8 點傷害，獲得 12 點蜷縮。"
  },
  {
-  "id": "dd_zhengquan",
+  "id": "dangdang_zhengquan",
   "name": "正拳",
   "pool": "起手",
   "rarity": "常見",
@@ -4485,7 +4485,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage"
@@ -4500,7 +4500,7 @@
   "up": "造成 7 點傷害。"
  },
  {
-  "id": "dd_jiapan",
+  "id": "dangdang_jiapan",
   "name": "架盤",
   "pool": "起手",
   "rarity": "常見",
@@ -4508,7 +4508,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block"
@@ -4523,7 +4523,7 @@
   "up": "獲得 8 點蜷縮。"
  },
  {
-  "id": "dd_huijing",
+  "id": "dangdang_huijing",
   "name": "回敬",
   "pool": "起手",
   "rarity": "常見",
@@ -4531,7 +4531,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "status"
@@ -4548,7 +4548,7 @@
   "up": "獲得 5 點反彈。"
  },
  {
-  "id": "dd_xieli",
+  "id": "dangdang_xieli",
   "name": "卸力掌",
   "pool": "忍術",
   "rarity": "常見",
@@ -4556,7 +4556,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageSpendBlock"
@@ -4571,7 +4571,7 @@
   "up": "最多卸掉 8 點蜷縮，造成等量傷害。"
  },
  {
-  "id": "dd_huben",
+  "id": "dangdang_huben",
   "name": "護臂格擋",
   "pool": "忍術",
   "rarity": "常見",
@@ -4579,7 +4579,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block",
@@ -4602,11 +4602,11 @@
     "otherwise": []
    }
   ],
-  "text": "獲得 7 點蜷縮，自己身上有反彈的話，獲得 4 點蜷縮；否則。",
-  "up": "獲得 10 點蜷縮，自己身上有反彈的話，獲得 5 點蜷縮；否則。"
+  "text": "獲得 7 點蜷縮，自己身上有反彈的話，獲得 4 點蜷縮。",
+  "up": "獲得 10 點蜷縮，自己身上有反彈的話，獲得 5 點蜷縮。"
  },
  {
-  "id": "dd_yingpeng",
+  "id": "dangdang_yingpeng",
   "name": "硬碰硬",
   "pool": "忍術",
   "rarity": "常見",
@@ -4614,7 +4614,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage",
@@ -4642,7 +4642,7 @@
   "up": "造成 6 點傷害；身上有蜷縮的話，再獲得 3 點反彈。"
  },
  {
-  "id": "dd_tiesha",
+  "id": "dangdang_tiesha",
   "name": "鐵砂護腕",
   "pool": "忍術",
   "rarity": "常見",
@@ -4650,7 +4650,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block"
@@ -4665,7 +4665,7 @@
   "up": "獲得 5 點蜷縮。"
  },
  {
-  "id": "dd_tiaoxin",
+  "id": "dangdang_tiaoxin",
   "name": "挑釁",
   "pool": "忍術",
   "rarity": "常見",
@@ -4673,7 +4673,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "status",
@@ -4695,7 +4695,7 @@
   "up": "獲得 3 點反彈，抽 1 張牌。"
  },
  {
-  "id": "dd_fanshou",
+  "id": "dangdang_fanshou",
   "name": "反手一記",
   "pool": "忍術",
   "rarity": "常見",
@@ -4703,7 +4703,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage"
@@ -4719,7 +4719,7 @@
   "up": "造成 3 點傷害，連打 3 次。"
  },
  {
-  "id": "dd_wenzhu",
+  "id": "dangdang_wenzhu",
   "name": "穩住",
   "pool": "忍術",
   "rarity": "常見",
@@ -4727,7 +4727,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block",
@@ -4747,7 +4747,7 @@
   "up": "獲得 6 點蜷縮；這回合結束時最多保留 6 點蜷縮。"
  },
  {
-  "id": "dd_jieli",
+  "id": "dangdang_jieli",
   "name": "借力",
   "pool": "忍術",
   "rarity": "常見",
@@ -4755,7 +4755,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "healSpendBlock"
@@ -4770,7 +4770,7 @@
   "up": "最多卸掉 9 點蜷縮，回復等量生命。"
  },
  {
-  "id": "dd_bengshan",
+  "id": "dangdang_bengshan",
   "name": "崩山掌",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4778,7 +4778,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageSpendBlock"
@@ -4793,7 +4793,7 @@
   "up": "最多卸掉 16 點蜷縮，造成等量傷害。"
  },
  {
-  "id": "dd_huili",
+  "id": "dangdang_huili",
   "name": "迴力鏢",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4801,7 +4801,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "status"
@@ -4818,7 +4818,7 @@
   "up": "獲得 6 點反彈。"
  },
  {
-  "id": "dd_jiahou",
+  "id": "dangdang_jiahou",
   "name": "護臂加厚",
   "pool": "忍術",
   "rarity": "稀有",
@@ -4826,7 +4826,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockBonus"
@@ -4841,7 +4841,7 @@
   "up": "之後每次獲得蜷縮都多 3 點。"
  },
  {
-  "id": "dd_yibi",
+  "id": "dangdang_yibi",
   "name": "原樣奉還",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4849,7 +4849,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageByOwnStatus"
@@ -4865,7 +4865,7 @@
   "up": "造成你反彈點數三倍的傷害。"
  },
  {
-  "id": "dd_zhendang",
+  "id": "dangdang_zhendang",
   "name": "震盪波",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4873,7 +4873,7 @@
   "type": "攻擊",
   "target": "all",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageSpendBlock"
@@ -4889,7 +4889,7 @@
   "up": "最多卸掉 10 點蜷縮，對全體魔物造成等量傷害。"
  },
  {
-  "id": "dd_jianzhao",
+  "id": "dangdang_jianzhao",
   "name": "見招拆招",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4897,7 +4897,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block",
@@ -4925,7 +4925,7 @@
   "up": "獲得 8 點蜷縮；有魔物這回合要攻擊的話，再獲得 4 點反彈。"
  },
  {
-  "id": "dd_xiejia",
+  "id": "dangdang_xiejia",
   "name": "卸甲",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4933,7 +4933,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block",
@@ -4953,7 +4953,7 @@
   "up": "獲得 10 點蜷縮，抽 1 張牌。"
  },
  {
-  "id": "dd_yingkang",
+  "id": "dangdang_yingkang",
   "name": "硬扛",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4961,7 +4961,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "block",
@@ -4981,7 +4981,7 @@
   "up": "獲得 20 點蜷縮；這回合結束時最多保留 12 點蜷縮。"
  },
  {
-  "id": "dd_lianhuan",
+  "id": "dangdang_lianhuan",
   "name": "連環撞",
   "pool": "忍術",
   "rarity": "罕見",
@@ -4989,7 +4989,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damage",
@@ -5015,7 +5015,7 @@
   "up": "造成 8 點傷害；蜷縮大於 10 的話，再造成 8 點傷害。"
  },
  {
-  "id": "dd_huxin",
+  "id": "dangdang_huxin",
   "name": "站樁",
   "pool": "忍術",
   "rarity": "罕見",
@@ -5023,7 +5023,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "power"
@@ -5046,7 +5046,7 @@
   "up": "每回合開始時獲得 3 點反彈。"
  },
  {
-  "id": "dd_jieshi",
+  "id": "dangdang_jieshi",
   "name": "借勢",
   "pool": "忍術",
   "rarity": "罕見",
@@ -5054,7 +5054,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockFromThorns"
@@ -5068,7 +5068,7 @@
   "up": "把你的反彈點數加到蜷縮上（反彈不會因此減少），抽 1 張牌。"
  },
  {
-  "id": "dd_tongqiang",
+  "id": "dangdang_tongqiang",
   "name": "銅牆鐵壁",
   "pool": "忍術",
   "rarity": "稀有",
@@ -5076,7 +5076,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "halfSpendBlock"
@@ -5091,7 +5091,7 @@
   "up": "之後卸掉蜷縮的牌只卸一半（不滿一點算一點，連卸光那種也是），打出去的力道不變。"
  },
  {
-  "id": "dd_tieshan",
+  "id": "dangdang_tieshan",
   "name": "絕學·鐵山靠",
   "pool": "絕學",
   "rarity": "稀有",
@@ -5099,7 +5099,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageSpendBlock"
@@ -5116,7 +5116,7 @@
   "up": "卸掉身上的蜷縮，造成等量傷害，無視防禦。"
  },
  {
-  "id": "dd_hubigong",
+  "id": "dangdang_hubigong",
   "name": "絕學·護臂功",
   "pool": "絕學",
   "rarity": "稀有",
@@ -5124,7 +5124,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "power"
@@ -5151,7 +5151,7 @@
   "up": "每回合開始時獲得 5 點蜷縮，獲得 3 點反彈。"
  },
  {
-  "id": "dd_huima",
+  "id": "dangdang_huima",
   "name": "絕學·回馬掌",
   "pool": "絕學",
   "rarity": "稀有",
@@ -5159,7 +5159,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageEqualBlock",
@@ -5178,7 +5178,7 @@
   "up": "造成的傷害等於你現在的蜷縮，而且蜷縮不會因此減少；這回合不能再打攻擊牌。"
  },
  {
-  "id": "dd_qianjin",
+  "id": "dangdang_qianjin",
   "name": "絕學·千斤墜",
   "pool": "絕學",
   "rarity": "稀有",
@@ -5186,7 +5186,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockWhenAttacked"
@@ -5201,7 +5201,7 @@
   "up": "之後每次被魔物攻擊（擋下來也算），獲得 4 點蜷縮。"
  },
  {
-  "id": "dd_yishang",
+  "id": "dangdang_yishang",
   "name": "絕學·以傷還傷",
   "pool": "絕學",
   "rarity": "稀有",
@@ -5209,7 +5209,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "thornsBonus"
@@ -5224,7 +5224,7 @@
   "up": "之後反彈回敬時多打 6 點。"
  },
  {
-  "id": "dd_sheshen",
+  "id": "dangdang_sheshen",
   "name": "絕學·捨身撞",
   "pool": "絕學",
   "rarity": "稀有",
@@ -5232,7 +5232,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageSpendBlock",

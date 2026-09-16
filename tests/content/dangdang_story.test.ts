@@ -58,12 +58,12 @@ describe('噹噹的劇本', () => {
   });
 
   it('結局：反彈流、蜷縮流、沒有明顯傾向各有各的旁白', () => {
-    const thorns = ['dd_huijing', 'dd_huili', 'dd_tiaoxin', 'dd_huxin', 'dd_qianjin'];
+    const thorns = ['dangdang_huijing', 'dangdang_huili', 'dangdang_tiaoxin', 'dangdang_huxin', 'dangdang_qianjin'];
     expect(deckLeaning(thorns, 'dangdang')).toBe('thorns');
-    const blocky = ['dd_huben', 'dd_yingkang', 'dd_xiejia', 'dd_tiesha', 'dd_jiapan'];
+    const blocky = ['dangdang_huben', 'dangdang_yingkang', 'dangdang_xiejia', 'dangdang_tiesha', 'dangdang_jiapan'];
     expect(deckLeaning(blocky, 'dangdang')).toBe('block');
     // 起手那十張不算：整副只有起手牌的話不該被判成蜷縮流
-    expect(deckLeaning(['dd_zhengquan', 'dd_jiapan', 'dd_jiapan'], 'dangdang')).toBe('plain');
+    expect(deckLeaning(['dangdang_zhengquan', 'dangdang_jiapan', 'dangdang_jiapan'], 'dangdang')).toBe('plain');
 
     const texts = (ids: string[]) => victoryLinesFor(ids, 1, 'dangdang').map((l) => l.text);
     expect(texts(thorns)).toContain(dangdangDialogue.victoryNarration.thorns);

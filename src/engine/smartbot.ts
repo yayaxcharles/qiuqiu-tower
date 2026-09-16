@@ -55,7 +55,7 @@ const RATING: Record<string, number> = {
   // 沒列的話會照稀有度預設 4，她的起手牌就永遠不算廢牌、一輩子不會被放生，牌組會比球球多帶三張基本牌）
   sanjo: 2, tanding: 2, kawarimi: 3, feifei_feizhen: 2, feifei_tuikai: 2, feifei_cuidu: 3,
   // 噹噹的三張同理：正拳＝貓抓、架盤＝淡定、回敬＝替身術那一格
-  dd_zhengquan: 2, dd_jiapan: 2, dd_huijing: 3,
+  dangdang_zhengquan: 2, dangdang_jiapan: 2, dangdang_huijing: 3,
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,

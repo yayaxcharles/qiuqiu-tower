@@ -210,8 +210,17 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'energyForAllyEachRound': return `之後每一輪開始時，同伴多 1 顆飯糰`
       + `${fx.draw ? '、並多抽 1 張' : ''}`;
     // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
-    case 'ifSelfStatus': return `自己身上有${fx.name}的話，${fx.then.map((e) => one(e, ctx)).join('，')}`
-      + `；否則${fx.otherwise.map((e) => one(e, ctx)).join('，')}`;
+    /*
+     * **另一邊是空的就不要接「否則」**（2026-09-17 抓到）。
+     * 這條原本一律接「；否則」加上另一組的內容，而噹噹的護臂格擋沒有另一組，
+     * 印出來變成「……獲得 4 點蜷縮；**否則。**」——一句沒講完的話。
+     * 全牌池只有那一張中招，因為在那之前每一張用這個效果的牌兩邊都有東西。
+     */
+    case 'ifSelfStatus': {
+      const then = fx.then.map((e) => one(e, ctx)).join('，');
+      const other = fx.otherwise.map((e) => one(e, ctx)).join('，');
+      return `自己身上有${fx.name}的話，${then}` + (other ? `；否則${other}` : '');
+    }
     case 'energyAlly': return fx.onKill
       ? `打倒牠，同伴就這回合多 ${fx.n} 顆飯糰`   // 審查 2026-09-15 高-1：原本沒寫條件，9 點打不死玩家以為牌壞了
       : `同伴這回合多 ${fx.n} 顆飯糰`;
