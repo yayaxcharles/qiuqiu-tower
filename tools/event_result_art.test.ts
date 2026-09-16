@@ -19,6 +19,9 @@ describe('事件結果圖', () => {
     const missingKey: string[] = [];
     const missingFile: string[] = [];
     for (const ev of events) {
+      // 插圖還沒生好的整篇跳過（2026-09-17）：那幾篇也不會排進任何人的地圖（`map.ts` 同一道閘門），
+      // 所以玩家看不到破圖。圖生好、旗標拿掉之後，這裡就自然開始盯著它們
+      if (ev.artPending) continue;
       for (const c of ev.choices) {
         if (!c.resultArt) continue;
         const path = manifest.bg[`bg/event_${c.resultArt}`];
