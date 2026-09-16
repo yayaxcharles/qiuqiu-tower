@@ -1297,6 +1297,24 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
   return top[0];
 }
 
+/**
+ * 落敗結算畫面上那句「遺言」：挑落敗段落裡**主角自己講的最後一句**。
+ *
+ * 本來挑第一句（`find`），可是落敗那一段的最後一張是「醒來已經在村裡、傷口換了新繃帶」——
+ * 結算畫面接在那之後，卻還顯示倒下當下的「還沒……找到他們……」，時間倒回去了（總稽核 丙 低-18）。
+ * 球球那邊只有一句主角台詞，換不換都一樣；她多了一句「傷口好了，我就回去。」，正好接得上。
+ *
+ * 說話者不能寫死「球球」——她的說話者是「菲菲」。
+ */
+export function defeatLastWord(hero: string | undefined): string {
+  const lines = storyFor(hero).defeat;
+  for (let i = lines.length - 1; i >= 0; i -= 1) {
+    const l = lines[i];
+    if (l && (l.speaker === '球球' || l.speaker === '菲菲')) return l.text;
+  }
+  return '';
+}
+
 /** 結局那五句：第二句（師父的第一句話）依牌組傾向在貼圖標題裡換；有傾向時多一句旁白講出個人化的評語；難度 4 以上再多一句旁白。 */
 export function victoryLinesFor(deckIds: readonly string[], difficulty: number, hero?: string): DialogueLine[] {
   const story = storyFor(hero);
