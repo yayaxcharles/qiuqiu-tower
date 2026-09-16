@@ -68,7 +68,7 @@ function listFiles(root: string, sub = ''): string[] {
  * 這一條是這支外掛能不能用的前提：要是每次打包所有圖都變成新網址，
  * 每次部署等於叫全部玩家重抓 30 MB，比不加還糟。
  */
-function hashOf(buf: Buffer): string {
+function hashOf(buf: Uint8Array): string {
   return createHash('sha256').update(buf).digest('base64url').slice(0, 8);
 }
 
