@@ -470,7 +470,7 @@ export const cards: readonly CardDef[] = [
    * 升級版少 1 費（3→2），不是加別的效果——這張本來就強，再疊會失控。
    * 引擎的 `echoFirst`：只認該回合第一張、能力牌不複製（不然它會當場複製自己）、打完了就不補。
    */
-  // 定義上叫「忍術·影子分身」只是為了跟球球那張的名字不撞（`cards.test.ts` 盯著名字不重複）；她手上照規則拿掉前綴，看到的還是「影子分身」
+  // 定義上叫「忍術·殘影分身」只是為了跟球球那張「影子分身」不撞（`cards.test.ts` 盯著名字不重複）；她手上照規則拿掉前綴，看到的還是「影子分身」
   { id: 'feifei_yingzi', name: '忍術·殘影分身', cost: 3, type: 能, rarity: '稀有', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_yingzi',
     effects: [{ kind: 'echoFirst' }],
     upgrade: { cost: 2, effects: [{ kind: 'echoFirst' }] } },
@@ -618,8 +618,8 @@ export const cards: readonly CardDef[] = [
    */
   // ---- 起手（3 種、共 10 張）。對照球球的貓抓 ×5＋淡定 ×4＋替身術 ×1 ----
   { id: 'feifei_feizhen', name: '飛針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_feizhen',
-    effects: [{ kind: 'damage', amount: 3 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }, { kind: 'block', amount: 2 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 5 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'block', amount: 3 }] } },
+    effects: [{ kind: 'damage', amount: 3 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 2 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 5 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 3 }] } },
   // 她的「淡定」。數值刻意完全一樣——使用者要的就是「功能一樣、圖跟名字是她自己的」
   { id: 'feifei_tuikai', name: '退開', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '起手', target: 'self', art: 'card/feifei_tuikai',
     effects: [{ kind: 'block', amount: 5 }],
@@ -631,11 +631,11 @@ export const cards: readonly CardDef[] = [
 
   // ---- 常見（8）----
   { id: 'feifei_lianzhen', name: '連針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_lianzhen',
-    effects: [{ kind: 'damage', amount: 2, times: 2 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'block', amount: 2 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 2, times: 3 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }, { kind: 'block', amount: 3 }] } },
+    effects: [{ kind: 'damage', amount: 2, times: 2 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 2 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 2, times: 3 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 3 }] } },
   { id: 'feifei_sazhen', name: '撒針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_sazhen',
-    effects: [{ kind: 'damage', amount: 2, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'block', amount: 3 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'block', amount: 4 }] } },
+    effects: [{ kind: 'damage', amount: 2, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'blockIfPoisoned', amount: 3 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'blockIfPoisoned', amount: 4 }] } },
   /*
    * 後退閃躲＝**獲得隱身**（使用者 2026-09-14 深夜裁定：「後退閃躲就是獲得隱身」，跟師兄學來的招式）。
    * 原本是 0 費 4 點蜷縮；改隱身後 0 費不合理，使用者同夜再裁定改成 1 費（升級版仍 1 費 2 層）。第三關的穿透（地藏石偶、虛無貓、面具舞者，加上七隻關主與塔主）蜷縮擋不住，
@@ -661,8 +661,8 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'block', amount: 7 }, { kind: 'drawNextTurn', n: 1 }] } },
   // 自傷牌之一。說法是「手滑」不是「拚了」——她不勇敢，代價是慌張的證明（設計稿第五節）
   { id: 'feifei_shouhua', name: '手滑', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_shouhua',
-    effects: [{ kind: 'damage', amount: 9 }, { kind: 'selfDamage', amount: 2 }, { kind: 'block', amount: 2 }],
-    upgrade: { effects: [{ kind: 'damage', amount: 13 }, { kind: 'selfDamage', amount: 2 }, { kind: 'block', amount: 3 }] } },
+    effects: [{ kind: 'damage', amount: 9 }, { kind: 'selfDamage', amount: 2 }, { kind: 'blockIfPoisoned', amount: 2 }],
+    upgrade: { effects: [{ kind: 'damage', amount: 13 }, { kind: 'selfDamage', amount: 2 }, { kind: 'blockIfPoisoned', amount: 3 }] } },
 
   // ---- 罕見（9）----
   { id: 'feifei_cuidugai', name: '淬毒·改', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_cuidugai',
@@ -781,7 +781,7 @@ export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
   zhaonishuodeda: '抽牌讓你打',   // 照你說的打（目標中毒就讓同伴抽 1 張、再打 6）
   xianbangniliuzhe: '我們一起擋', // 先幫你留著（自己 4、同伴 8 點蜷縮）。使用者打的是「檔」，照牌的意思用「擋」
   wozaizhe: '大聲吼叫',          // 我在這
-  hujin: '絕學·貓布袋',          // 絕學·護金
+  hujin: '絕學·貓布袋',   // 球球那張現在叫「絕學·龜背功」          // 絕學·護金
 };
 
 /**

@@ -54,7 +54,12 @@ export async function loadManifest(): Promise<void> {
      */
     const res = await fetch(`${BASE}assets/manifest.json${BUILD ? `?v=${BUILD}` : ''}`);
     if (res.ok) manifest = { ...manifest, ...(await res.json() as Partial<Manifest>) };
-  } catch { /* 離線或檔案不在，忽略 */ }
+  } catch (e) {
+    // 加了素材雜湊之後，清單掛掉不只影響圖——聲音、音樂、影片的檔名也都在清單裡，
+    // 會整組 404（推前審查 2026-09-16 中-5）。線上有人回報沒聲音時要查得到
+    // eslint-disable-next-line no-console
+    console.warn('[素材] 清單載不到，圖會退回剪影、聲音與影片會失效：', e);
+  }
 }
 
 export function _setManifestForTest(m: Manifest): void { manifest = m; }

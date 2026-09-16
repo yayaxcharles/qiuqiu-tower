@@ -56,6 +56,18 @@ export type Effect =
   | { kind: 'damageEqualBlock' }
   | { kind: 'selfDamage'; amount: number }
   | { kind: 'block'; amount: number }
+  /**
+   * **目標原本就中毒**才給的蜷縮（2026-09-16 使用者裁定）。
+   *
+   * 菲菲十張專屬攻擊牌有七張自帶蜷縮，球球六張只有一張——她從來不用在打與擋之間選。
+   * 改成要先下毒、再打才有防禦：毒變成她的防禦來源，識別度不但沒少還更集中，
+   * 而且這句話寫得進牌面，不是看不見的規則。
+   *
+   * 「**原本**」是重點：飛針、連針、撒針自己也上毒，照效果順序檢查的話條件永遠成立。
+   * 讀的是 `ctx.targetPoisonBefore`——`combat.ts` 在跑效果之前記下來的快照。
+   * 打全體的牌沒有指定目標，那個快照存的是場上最高的那一層。
+   */
+  | { kind: 'blockIfPoisoned'; amount: number }
   /*
    * ===== 菲菲：毒 ＋ 攻擊自帶蜷縮（2026-09-12 晚改版）=====
    *
@@ -187,11 +199,7 @@ export type Effect =
   | { kind: 'drawIfTargetStatus'; name: StatusName; n: number }
   | { kind: 'drawNextTurn'; n: number }
   /** `step`＝成長牌（菲菲的分身術，2026-09-14）：這場戰鬥裡同一張牌之前每打出一次，這次就多 step 層（跟 damageRamp 同一套次數） */
-  /**
-   * `front`＝**場上最前面那一隻活著的魔物**（2026-09-16 使用者裁定，毒針袋用）。
-   * 跟 `all` 的差別在多隻場面：`all` 是每一隻都上，`front` 只上第一隻。
-   */
-  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all' | 'front'; step?: number }
+  | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all'; step?: number }
   /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5） */
   | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number }
   /** 催噎：目標身上這個狀態翻倍（沒有就沒事），再加 add 層 */
@@ -892,6 +900,8 @@ export interface EffectCtx {
    */
   selfBlockPool?: number;
   targetUid?: number;
+  /** 打這張牌的那一刻，目標身上有幾層中毒（`blockIfPoisoned` 讀它，見那條效果的說明） */
+  targetPoisonBefore?: number;
   cardUid?: number;
   cardId?: string;         // 打出的是哪張牌（能力牌掛牌子用）
   cardUpgraded?: boolean;  // 那張牌升級了沒（牌子的說明要念對版本，稽核 2026-09-04 H-2）
