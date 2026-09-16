@@ -46,6 +46,10 @@ from add_event_art import corner_haze  # noqa: E402
 SHELVES = [
     (Path("public") / "assets" / "bg", "add_event_art.py"),
     (Path("public") / "assets" / "cards", "add_card_art.py"),
+    # 立繪那一櫃是 2026-09-17 補的：掃的範圍本來只有底圖與牌面，
+    # 而那一天一口氣進了 32 張新立繪，整櫃 127 張從來沒被這支掃過。
+    # 這正是 `art_rules.py` 第十二條寫的「檢查範圍要跟產出範圍一起長」。
+    (Path("public") / "assets" / "sprites", "add_sprite.py"),
 ]
 
 

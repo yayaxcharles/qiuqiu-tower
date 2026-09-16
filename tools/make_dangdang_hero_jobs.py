@@ -135,9 +135,13 @@ POSES: dict[str, str] = {
     'punch': ('throwing a short rising uppercut: the near paw swings up from his waist with the bracer turned '
               'inward, the elbow tucked against his ribs, the other paw guarding his chin, knees springing him '
               'upward, eyes narrowed. A small solid warm-golden impact burst sits right on that bracer'),
-    'claw': ('sweeping the near forearm across in front of him to knock a blow aside, the outer rim of the '
-             'bracer leading the sweep, his shoulders turning with it, the other paw held ready at his chest. '
-             'One short solid cream-white arc follows the rim of the bracer'),
+    # 第一版把他畫成站著、護臂停在臉前，跟 `guard` 太像（2026-09-17 看圖後改）。
+    # 改成球球那張爪擊同一個語彙：**低架式撲進去、手臂已經掃過去了**，看得出是攻擊不是防守。
+    'claw': ('lunging forward to the RIGHT in a low stance, front knee bent and back leg driving, sweeping '
+             'the near forearm down and across in front of his chest so the outer rim of the bracer leads and '
+             'finishes low and forward at hip height, shoulders turned into the sweep, muzzle following it, '
+             'the other paw pulled back beside his hip. One long solid cream-white arc traces the path the '
+             'bracer has just taken'),
     'kick': ('snapping a short straight kick forward to the RIGHT, the cloth-wrapped foot going out at waist '
              'height, body upright over the standing leg, both paws kept up in a guard in front of his chest '
              'for balance. One thin solid cream-white arc follows the foot'),
@@ -173,9 +177,14 @@ POSES: dict[str, str] = {
     'hit': ('knocked back a step, head snapping backward, his eyes squeezed shut the same way as each other, '
             'mouth open in a yelp, both arms flung up with one bracer still half-raised where it did not get '
             'there in time. Three small solid warm-golden stars pop beside his head'),
-    'hurt': ('battered but still on his feet: hunched forward and breathing hard, a small cloth bandage stuck '
-             'on his cheek, a big sweat drop beside his head, the shoulder of the jacket torn, one paw braced '
-             'on his knee, eyes tired but not giving up'),
+    # 第一版整張畫風跑掉了（2026-09-17 看圖後改）：「battered／breathing hard」那種字眼把模型帶去
+    # 畫寫實的髒污與毛流，線變細、平塗變成噴槍，尾巴還長出白毛。內容照舊，**加一句釘住畫法**。
+    'hurt': ('low on health but still standing: hunched forward with his shoulders dropped and his knees '
+             'bent, one paw braced on his knee, a small cloth bandage stuck on his cheek, a big sweat drop '
+             'beside his head, a tear in the shoulder of the jacket, his eye tired and half-lidded, mouth a '
+             'small unhappy line. His fur, his clothes and his bracers are drawn exactly as cleanly as in the '
+             'reference - the same thick black outlines, the same flat colours, the same solid black tail. No '
+             'scruffy fur strokes, no dirt, no texture, no extra shading'),
     'down': ('collapsed and lying on his side on the ground, both eyes drawn as little crosses (this pose is '
              'the one exception to the amber-eye rule), mouth open, one bracered arm stretched limply forward '
              'along the ground, the other folded under him, the end of the sash come loose and trailing'),
@@ -239,11 +248,15 @@ POSES: dict[str, str] = {
 
 # 做不到預設取景的那幾張，各給自己的（`art_rules.py` 檔頭：規則跟姿勢打架就給例外）
 FRAMING: dict[str, str] = {
-    # 縮成一團沒有站姿、也沒有「腳貼底邊」可言
-    'curl': ("\n\nThe curled-up ball is the whole silhouette, resting on the very bottom edge of the picture "
-             "and filling the frame, with his limbs and tail tucked in. It is roughly as wide as it is tall. "
-             "His face is tucked down but still angled toward the RIGHT edge, never toward the left. Do not "
-             "draw him floating."),
+    # 縮成一團沒有站姿、也沒有「腳貼底邊」可言。
+    # ★ 第一版寫「填滿畫面」，球縮出來 536 高，跟他站著的 538 一樣大（2026-09-17 進倉量到）——
+    #   而球球與菲菲的球都是 452，只有站姿的八成四。同一個框裡用 contain 貼，
+    #   等於「他蜷起來反而比別人大一號」，蜷縮又正好是他的招牌。改成明寫「要變小」。
+    'curl': ("\n\nThe curled-up ball is the whole silhouette, resting on the very bottom edge of the picture, "
+             "roughly as wide as it is tall, with his limbs and tail tucked in. **He has made himself SMALL**: "
+             "the ball is only about two thirds as tall as he is when standing, so there is clearly empty "
+             "background above it and some on each side. His face is tucked down but still angled toward the "
+             "RIGHT edge, never toward the left. Do not draw him floating."),
     # 橫躺：寬遠大於高是對的，這張不套「比高窄」
     'down': ("\n\nFull body lying on the ground, his body filling the frame horizontally and resting on the "
              "very bottom edge. His head is at the RIGHT side and his face is angled toward the RIGHT edge, "
