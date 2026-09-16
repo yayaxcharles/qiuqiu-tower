@@ -299,22 +299,19 @@ describe('菲菲：牌面文字讀得懂', () => {
   it('毒針袋的說明跟它真的做的事對得上', () => {
     const r = relicById['backstep']!;
     expect(r.text, '說明沒提到中毒').toContain('中毒');
-    expect(r.text, '說明沒提到每回合').toContain('每回合');
-    const fx = r.hooks.turnStart ?? [];
-    expect(r.text, '說明沒說是最前面那一隻').toContain('最前面');
-    // 2026-09-16 使用者裁定調弱：全體 → 最前面那一隻（她到第二關 83%、球球 43%，差太多）
-    expect(fx, '不是掛在每回合開始').toEqual([{ kind: 'status', name: '中毒', amount: 1, target: 'front' }]);
-    expect(r.hooks.combatStart, '舊的開場蜷縮沒拿掉').toBeUndefined();
+    expect(r.text, '說明沒說是每場戰鬥開始').toContain('每場戰鬥開始');
+    // 2026-09-16 使用者裁定調弱（分兩步）：先是全體→最前面那一隻，量到只從 83% 掉到 80%
+    // ——因為關主全部只有一隻怪，那一刀砍在沒有肉的地方。改成**開場給一次三層、之後不再給**。
+    expect(r.hooks.turnStart, '不該再每回合給').toBeUndefined();
+    expect(r.hooks.combatStart ?? []).toEqual([{ kind: 'status', name: '中毒', amount: 3, target: 'all' }]);
   });
 
-  it('毒針袋每回合只給最前面那一隻上毒', () => {
+  it('毒針袋開場給三層，之後不再長', () => {
     const run = newRun('relic-poison', 1, 'feifei');
     const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
     run.currentNode = node.id;
     const cs = beginCombat(run);
     // 開打就是第一回合，掛鉤跑過一次
-    expect(getStatus(cs.enemies[0]!, '中毒'), '最前面那一隻第一回合沒上毒').toBeGreaterThanOrEqual(1);
-    // 後面那幾隻不該被波及（這就是這次調弱的重點）
-    for (const e of cs.enemies.slice(1)) expect(getStatus(e, '中毒'), `${e.name} 不該被上毒`).toBe(0);
+    for (const e of cs.enemies) expect(getStatus(e, '中毒'), `${e.name} 開場沒上毒`).toBe(3);
   });
 });

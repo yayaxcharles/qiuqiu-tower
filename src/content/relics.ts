@@ -15,8 +15,8 @@ export const relics: RelicDef[] = [
    * N 層中毒的總傷害是 N(N+1)/2，所以這 1 層在長戰鬥裡的價值遠大於短戰鬥——
    * 正好補在她弱的那一段。**改完要跑 `smartRun` 對照**（見專案記憶）。
    */
-  { id: 'backstep', name: '毒針袋', pool: '起始', text: '每回合開始時給最前面的魔物 1 層中毒（你倒下就停）。', art: 'codex/relic_backstep', price: 130,
-    hooks: { turnStart: [{ kind: 'status', name: '中毒', amount: 1, target: 'front' }] } },
+  { id: 'backstep', name: '毒針袋', pool: '起始', text: '每場戰鬥開始時給全體魔物 3 層中毒。', art: 'codex/relic_backstep', price: 130,
+    hooks: { combatStart: [{ kind: 'status', name: '中毒', amount: 3, target: 'all' }] } },
   { id: 'onigiri_bag', name: '飯糰袋', pool: '常見', text: '每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_onigiri_bag', price: 160, hooks: { firstTurnEnergy: 1 } },
   { id: 'tuna_can', name: '鮪魚罐頭', pool: '常見', text: '最大生命 +10。', art: 'codex/relic_tuna_can', price: 120, hooks: { maxHp: 10 } },
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回復的生命加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },
