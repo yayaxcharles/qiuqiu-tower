@@ -17,6 +17,15 @@ export const relics: RelicDef[] = [
    */
   { id: 'backstep', name: '毒針袋', pool: '起始', text: '每場戰鬥開始時給全體魔物 3 層中毒。', art: 'codex/relic_backstep', price: 130,
     hooks: { combatStart: [{ kind: 'status', name: '中毒', amount: 3, target: 'all' }] } },
+  /*
+   * 噹噹的起始秘寶（2026-09-17）。對照：球球＝藍頭巾（第一回合多抽一張）、菲菲＝毒針袋（開場全體 3 層毒）。
+   *
+   * 為什麼是「蜷縮 4 ＋ 反彈 2」而不是純蜷縮：他的蜷縮**會被自己的牌吃掉**，
+   * 純給蜷縮等於只是多一發卸力掌。那 2 點反彈是**不會被消耗**的那一半，
+   * 開場就讓兩條路（卸力打人／硬扛回敬）都動得起來，第一回合不會只能乾架著。
+   */
+  { id: 'copper_bracer', name: '銅護臂', pool: '起始', text: '每場戰鬥開始時獲得 4 點蜷縮與 2 點反彈。', art: 'codex/relic_copper_bracer', price: 130,
+    hooks: { combatStart: [{ kind: 'block', amount: 4 }, { kind: 'status', name: '反彈', amount: 2, target: 'self' }] } },
   { id: 'onigiri_bag', name: '飯糰袋', pool: '常見', text: '每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_onigiri_bag', price: 160, hooks: { firstTurnEnergy: 1 } },
   { id: 'tuna_can', name: '鮪魚罐頭', pool: '常見', text: '最大生命 +10。', art: 'codex/relic_tuna_can', price: 120, hooks: { maxHp: 10 } },
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回復的生命加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },

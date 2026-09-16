@@ -169,6 +169,8 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
   const p = who;   // 出手的是哪一位（2026-09-16 量雙人時加的；不傳就是座位 0，單機一個位元都沒變）
   // 飛行（燈蛾、月蛾后）：每一下先減半，扣到血就掉一層，掉到 0 之後才打得到全額
   let flying = getStatus(e, '飛行');
+  // 同一張牌裡前面的效果已經卸掉多少蜷縮（噹噹的消耗牌，2026-09-17）
+  let spent = 0;
   // 虛化（虛無貓，2026-09-03）：每一段最多只扣 1 點血。防禦照原本的量扣掉，只有進血條的那幾點被壓成 1
   const phasing = getStatus(e, '虛化') > 0;
   const swing = (raw: number, ignoreBlock = false): void => {
@@ -199,6 +201,30 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
     } else if (fx.kind === 'execByStatus') {
       // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
       if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);
+    } else if (fx.kind === 'damageSpendBlock') {
+      /*
+       * 噹噹：卸掉蜷縮打出去。**照實模擬「吃多少打多少」**，不要假設蜷縮夠——
+       * 這支是量平衡用的尺，把卸力掌當成固定 6 點的話，會量不出他真正的難處
+       *（蜷縮不夠時這些牌就是廢牌，而那正是這一套設計的取捨所在）。
+       *
+       * `spent` 只用來模擬「同一張牌裡先卸掉的那些，後面的牌就沒得卸了」。
+       */
+      const pool = Math.max(0, p.block - spent);
+      const want = fx.all ? pool : (fx.max ?? 0);
+      const hit = Math.min(want, p.halfSpendBlock ? pool * 2 : pool);
+      spent += p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
+      swing(computeAttack(Math.floor(hit * (fx.mul ?? 1)) * (doubled ? 2 : 1), p, e, { noStrength: true }), fx.ignoreBlock);
+    } else if (fx.kind === 'damageByOwnStatus') {
+      // 以彼之道：照**自己**的反彈打。反彈是自己身上的，跟目標無關，所以每一隻的估值都一樣
+      swing(computeAttack(getStatus(p, fx.name) * (fx.mul ?? 1) * (doubled ? 2 : 1), p, e, { noStrength: true }));
+    } else if (fx.kind === 'ifBlock') {
+      // 條件成立才算：門檻沒到就整條不發生，估成一定會發生的話連環撞會被高估一倍
+      if (p.block >= fx.min) for (const sub of fx.then) total += damageTo(cs, [sub], e, combo, doubled, plays, noStrength, p);
+    } else if (fx.kind === 'ifEnemyIntent') {
+      // `then` 裡目前只有加反彈，打不到人；留這一支是為了以後塞攻擊進去時不會靜默漏算
+      if (cs.enemies.some((x) => !x.dead && x.move.intent === fx.intent)) {
+        for (const sub of fx.then) total += damageTo(cs, [sub], e, combo, doubled, plays, noStrength, p);
+      }
     }
   }
   return total;
@@ -253,7 +279,9 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       if (dmg >= e.hp) v += 8 + incomingHits(cs, e, p).reduce((s, h) => s + h, 0);   // 收頭：牠這回合的傷害也一起省掉
       else v += e.hp < 20 ? 2 : 0;
       // 牠身上有反彈：每打一下就被刺一下（2026-09-02 反彈才真的生效），多段牌撞上去很痛
-      const hits = st.effects.reduce((n, fx) => n + (fx.kind === 'damage' ? (fx.times ?? 1) : fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock' || fx.kind === 'damageRamp' ? 1 : 0), 0);
+      const hits = st.effects.reduce((n, fx) => n + (fx.kind === 'damage' ? (fx.times ?? 1)
+        : fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock' || fx.kind === 'damageRamp'
+          || fx.kind === 'damageSpendBlock' || fx.kind === 'damageByOwnStatus' ? 1 : 0), 0);
       if (getStatus(e, '反彈') > 0 && dmg < e.hp) v -= getStatus(e, '反彈') * hits * (lowHp ? 4 : 1.5);
       if (!best || v > best.v) best = { e, v };
     }
@@ -499,6 +527,40 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         value += Math.min(crude(fx.then), crude(fx.otherwise)) * 0.9;
         break;
       }
+      /*
+       * ===== 噹噹的十個（2026-09-17）=====
+       * 傷害那幾種（`damageSpendBlock`、`damageByOwnStatus`）在 switch 之前的傷害估算區
+       * 已經算過了，這裡跟 `damage` 一樣不重複計。
+       */
+      case 'damageSpendBlock': case 'damageByOwnStatus': break;
+      case 'healSpendBlock': {
+        // 卸蜷縮換血：擋不到的那幾點蜷縮本來就要歸零，換成血是淨賺；擋得到的就是換掉一次防禦
+        const spend = Math.min(fx.max, p.halfSpendBlock ? p.block * 2 : p.block);
+        const waste = Math.max(0, p.block - incoming);
+        value += Math.min(spend, waste) * (lowHp ? 1.4 : 0.8) + Math.max(0, spend - waste) * 0.2;
+        break;
+      }
+      // 借勢：把反彈墊到身前。反彈不減少，所以這是純賺，照 `block` 的係數估
+      case 'blockFromThorns': {
+        const b = computeBlock(getStatus(p, '反彈') + (p.blockBonus ?? 0), p);
+        const useful = Math.min(b, incoming);
+        value += useful * (lowHp ? 3 : danger ? 1.6 : 1.1) + (b - useful) * 0.12;
+        break;
+      }
+      // 穩住：把本來要歸零的蜷縮留到下一回合，所以值的是「**擋不到的那幾點**」
+      case 'keepBlock': value += Math.min(fx.n, Math.max(0, p.block - incoming)) * 0.7; break;
+      case 'ifBlock': break;        // 條件分支的價值在傷害估算區算過；`then` 裡的加狀態量級太小，不另計
+      case 'ifEnemyIntent': break;  // 同上
+      /*
+       * 三個長效旗標，跟拒馬、影子分身同一套折算法：粗估這一場還剩幾回合（`rest`）。
+       * **重點是不能估成 0**，不然機器人永遠不打它們，量出來的平衡就偏低。
+       */
+      // 銅牆鐵壁：之後每張消耗牌等於多打一半。抓每回合卸一次、每次 8 點當量
+      case 'halfSpendBlock': value += rest * 4 * 0.9; break;
+      // 千斤墜：每挨一招拿幾點蜷縮。一回合大約挨一招
+      case 'blockWhenAttacked': value += fx.n * rest * 0.9; break;
+      // 以傷還傷：**身上要先有反彈才算數**。沒有反彈的話這張是純廢牌，估 0 是對的
+      case 'thornsBonus': value += getStatus(p, '反彈') > 0 ? fx.n * rest * 0.9 : 0; break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }

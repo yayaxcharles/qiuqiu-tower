@@ -937,10 +937,12 @@ export function finishEnemyTurn(cs: CombatState): void {
   // 留蜷縮到下一回合的那幾件：真的留下東西才算發動（稽核 2026-09-10 中-3）
   // 每人照**自己**帶的守護符算（規則一）
   for (const p of cs.players) {
-    const keep = relicSum(p.relics, 'blockKeep');
+    // 穩住（噹噹）跟守護符那類秘寶**相加**，但只撐這一回合，下面用完就清掉
+    const keep = relicSum(p.relics, 'blockKeep') + (p.blockKeepThisTurn ?? 0);
     // 球球已經倒下那一拍不演（稽核 2026-09-10 複核 低-5）：被穿透打死但身上還有蜷縮時會踩到
     if (keep > 0 && cs.phase === 'player' && p.block > 0 && !p.down) for (const rid of p.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid, p);
     p.block = Math.min(p.block, keep);
+    p.blockKeepThisTurn = 0;
   }
   if (cs.phase === 'player') startPlayerTurn(cs);
 }

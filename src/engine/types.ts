@@ -54,6 +54,46 @@ export type Effect =
    */
   | { kind: 'skipEnemyTurn' }
   | { kind: 'damageEqualBlock' }
+  /**
+   * ===== 噹噹：蜷縮是彈藥（2026-09-17 使用者裁定「出招消耗蜷縮」）=====
+   *
+   * 原本的提案是「按蜷縮值出招、不消耗」，那樣疊蜷縮同時就是疊傷害，
+   * 他永遠不用在打與擋之間選——跟菲菲「攻擊牌幾乎每張都附帶蜷縮」是同一個毛病。
+   * 改成消耗之後，蜷縮變成資源：這回合花掉就擋不住下一輪。
+   *
+   * `max` 是這張牌**最多**吃掉幾點；蜷縮不夠就吃多少算多少（打得比較小，不是打不出來）。
+   * `all` 為真＝吃光全部（鐵山靠、捨身撞），`mul` 是傷害倍率（捨身撞是 2）。
+   */
+  | { kind: 'damageSpendBlock'; max?: number; all?: boolean; mul?: number; target?: 'enemy' | 'all'; ignoreBlock?: true }
+  /** 消耗最多 `max` 點蜷縮，回復等量生命（噹噹的借力） */
+  | { kind: 'healSpendBlock'; max: number }
+  /** 把現在的反彈值加到蜷縮上，**反彈不減少**（噹噹的借勢） */
+  | { kind: 'blockFromThorns' }
+  /**
+   * 造成「**自己**身上這個狀態的層數」乘上 `mul` 的傷害（噹噹的以彼之道）。
+   *
+   * 跟 `damageByStatus` 差一個字但看的是相反的人：那一支讀**目標**身上的毒，
+   * 這一支讀**自己**身上的反彈。共用一支加個旗標的話，兩種牌的牌面文字
+   * 得從同一個分支長出來，`cardtext.ts` 那邊反而更難讀。
+   */
+  | { kind: 'damageByOwnStatus'; name: StatusName; mul?: number }
+  /** 身上的蜷縮到 `min` 點才跑 `then`（噹噹的硬碰硬、連環撞）。看的是**這一刻**的值，不是牌打完的值 */
+  | { kind: 'ifBlock'; min: number; then: Effect[] }
+  /**
+   * 場上**還活著的魔物**有誰這回合要出這種招，才跑 `then`（噹噹的見招拆招）。
+   *
+   * 讀的是已經翻開給玩家看的意圖（`e.move.intent`），不是偷看下一回合——
+   * 牌面寫「魔物這回合要攻擊的話」，玩家自己看得到那個圖示，判斷得出來划不划算。
+   */
+  | { kind: 'ifEnemyIntent'; intent: Intent; then: Effect[] }
+  /** 這回合結束最多留 `n` 點蜷縮（噹噹的穩住）。跟守護符那類秘寶**相加**，但只有這一回合 */
+  | { kind: 'keepBlock'; n: number }
+  /** 銅牆鐵壁：之後消耗蜷縮的牌只吃一半（無條件進位）。長效旗標 */
+  | { kind: 'halfSpendBlock' }
+  /** 千斤墜：之後每次被魔物攻擊（真的打到），獲得 `n` 點蜷縮。長效旗標 */
+  | { kind: 'blockWhenAttacked'; n: number }
+  /** 以傷還傷：之後反彈回敬時額外多打 `n` 點。長效旗標 */
+  | { kind: 'thornsBonus'; n: number }
   | { kind: 'selfDamage'; amount: number }
   | { kind: 'block'; amount: number }
   /**
@@ -230,7 +270,7 @@ export interface CardDef {
   rarity: Rarity;
   pool: Pool;
   /** 職業獨占：沒寫＝兩個職業共用；'ninja' 的隱身潛水那批武士拿不到（見 engine/hero） */
-  hero?: 'ninja' | 'samurai' | 'feifei';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
   target: TargetMode;
   effects: Effect[];
   keywords?: Keyword[];
@@ -300,7 +340,7 @@ export interface RelicDef {
    * **2026-09-14 深夜：兩件的鎖都拿掉了。** 使用者把「後退閃躲」改成獲得隱身（跟師兄學來的招式），
    * 紙袋、影披風對她有用了。機制留著，目前沒有任何秘寶在用。
    */
-  notFor?: readonly ('ninja' | 'samurai' | 'feifei')[];
+  notFor?: readonly ('ninja' | 'samurai' | 'feifei' | 'dangdang')[];
   /** 罐頭鋪售價。不填＝150。強弱要有價差（使用者指定），數字標在各件定義上 */
   price?: number;
   hooks: {
@@ -597,7 +637,7 @@ export interface EventDef {
    * 用在「這個事件只有對這個角色才有意義」的那幾個——菲菲的「師兄的痕跡」
    * 是她在追球球留下的東西，球球自己遇到會很怪。
    */
-  hero?: 'ninja' | 'samurai' | 'feifei';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
   /** 前後集（2026-09-04）：要有這個本局旗標才會排進地圖（旗標由前集選項的 `flag` 效果設）；`acts` 限定只在哪幾關出現 */
   requiresFlag?: string;
   acts?: number[];
@@ -634,7 +674,7 @@ export interface GameMap { nodes: MapNode[]; start: string[] }
  */
 export interface RunPlayer {
   /** 這一位的職業。沒寫＝忍者 */
-  hero?: 'ninja' | 'samurai' | 'feifei';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
   hp: number;
   maxHp: number;
   fish: number;
@@ -690,7 +730,7 @@ export interface PlayerCombat extends Unit {
    * `RunPlayer` 上也有一份，這裡再放一次**不是重複**：戰鬥畫面拿得到的只有 `CombatState`，
    * 而連線時同伴可能是另一個職業——立繪、招式圖、獨占牌全看這個欄位。
    */
-  hero?: 'ninja' | 'samurai' | 'feifei';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
   /**
    * 座位編號，0 起算（連線版第一步 2026-09-11）。
    *
@@ -810,6 +850,19 @@ export interface PlayerCombat extends Unit {
   echoUsed?: boolean;
   /** 千針萬毒：每打出一張攻擊牌，額外給那個目標幾層中毒 */
   poisonOnAttack?: number;
+  /*
+   * ===== 噹噹的四個長效旗標（2026-09-17）=====
+   * 跟拒馬、影子分身同一個形狀：不是 `kind: 'power'`，因為它們要在
+   * 受傷、反彈、回合收尾這些**引擎自己的時機**插話，而 `power` 只有四個觸發點。
+   */
+  /** 銅牆鐵壁：消耗蜷縮的牌只吃一半（無條件進位） */
+  halfSpendBlock?: boolean;
+  /** 千斤墜：每次被魔物攻擊到就拿幾點蜷縮 */
+  blockWhenAttacked?: number;
+  /** 以傷還傷：反彈回敬時額外多打幾點 */
+  thornsBonus?: number;
+  /** 穩住：這一回合結束多留幾點蜷縮。回合開始清掉 */
+  blockKeepThisTurn?: number;
   /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */
   freshDebuffs: Partial<Record<StatusName, number>>;
   /**

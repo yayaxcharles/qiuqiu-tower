@@ -10,10 +10,14 @@ import type { CardDef, RunPlayer } from './types';
  * - `feifei`：**不是球球**，是球球的師妹、一隻暹羅貓（2026-09-12）。丟毒暗器，
  *   路數是**毒＋攻擊自帶蜷縮**：她的攻擊牌大多同時給幾點擋，不用在打與擋之間二選一，
  *   傷害低但毒會滾（原本設計過一套「距離」機制，2026-09-12 整個拆掉了）。
+ * - `dangdang`：**第三隻貓**（2026-09-17），黑白賓士、球球的師弟，走硬碰硬的護衛路數。
+ *   路數是**蜷縮當彈藥**：蜷縮既是防禦也是攻擊的本錢，出招會把它消耗掉，
+ *   所以每一張牌都在問「現在要打還是要留」；另一條路是反彈——不被消耗，挨打才回敬。
+ *   刻意跟菲菲相反：她攻擊自帶蜷縮、不用選，他非選不可（見 `Effect` 的 `damageSpendBlock`）。
  *
  * 分流深度是**中分流**：大部分牌共用，各自有一批獨占牌（`CardDef.hero`）。
  */
-export type Hero = 'ninja' | 'samurai' | 'feifei';
+export type Hero = 'ninja' | 'samurai' | 'feifei' | 'dangdang';
 
 /**
  * 合法的職業清單。**存檔驗證要用這一份，不要在別的檔案再手寫一次**。
@@ -23,7 +27,7 @@ export type Hero = 'ninja' | 'samurai' | 'feifei';
  * 而且**存檔是真的被刪掉**（驗不過 → `checkRun` 回 null → `loadRun` 呼叫 `clearSave()`），
  * 回到標題就會發生。共用一份之後，加第四個角色不會再漏。
  */
-export const HEROES: readonly Hero[] = ['ninja', 'samurai', 'feifei'];
+export const HEROES: readonly Hero[] = ['ninja', 'samurai', 'feifei', 'dangdang'];
 
 /**
  * 這一位的職業。沒寫＝忍者。
@@ -42,7 +46,7 @@ export function heroOf(p: Pick<RunPlayer, 'hero'>): Hero {
  * 菲菲是另一隻貓（球球的師妹），名字必須不一樣——不然連線時兩格都寫「球球」，
  * 玩家根本分不出哪一格是誰。
  */
-const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', samurai: '球球', feifei: '菲菲' };
+const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', samurai: '球球', feifei: '菲菲', dangdang: '噹噹' };
 export function heroName(p: Pick<RunPlayer, 'hero'> | undefined): string {
   return HERO_NAME[heroOf(p ?? {})];
 }
@@ -76,7 +80,9 @@ export function heroPronoun(p: { hero?: Hero } | undefined): string {
  * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每回合開始給所有魔物 1 層中毒）。
  */
 export function startRelicFor(hero: Hero): string {
-  return hero === 'feifei' ? 'backstep' : 'blue_headband';
+  if (hero === 'feifei') return 'backstep';
+  if (hero === 'dangdang') return 'copper_bracer';
+  return 'blue_headband';
 }
 
 /**

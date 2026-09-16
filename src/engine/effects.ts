@@ -533,6 +533,65 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     // 牌子也要寫 2（`stacks`）。原本不疊、去重成一筆，是夜間審查 中-2 的決定，已被推翻
     case 'echoFirst': p.echoFirst = (p.echoFirst ?? 0) + 1; markPassive(p, ctx, true); return false;
     case 'poisonOnAttack': p.poisonOnAttack = (p.poisonOnAttack ?? 0) + fx.n; markPassive(p, ctx, true); return false;
+    /*
+     * ===== 噹噹：蜷縮是彈藥（2026-09-17）=====
+     *
+     * 消耗那一份**先扣再打**。傷害途中魔物的刺會回敬（`damageEnemy` 裡的反彈），
+     * 先打再扣的話，被回敬打倒的那一刻蜷縮還掛在身上，紀錄框與存檔會對不起來。
+     *
+     * 蜷縮不夠不是打不出來，是**吃多少打多少**——牌卡在手上比打得小還糟。
+     */
+    case 'damageSpendBlock': {
+      const want = fx.all ? p.block : (fx.max ?? 0);
+      // 銅牆鐵壁只減**吃掉的量**，不減打出去的量：先算要打幾點，再算實際扣幾點
+      const hit = Math.min(want, p.halfSpendBlock ? p.block * 2 : p.block);
+      const spent = p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
+      p.block -= spent;
+      if (spent > 0) log(cs, `${unitName(p)}卸掉 ${spent} 點蜷縮打了出去`);
+      const base = Math.floor(hit * (fx.mul ?? 1)) * (ctx.doubleDamage ? 2 : 1);
+      if (base <= 0) return false;
+      for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
+        if (damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: true, by: p }).killed) ctx.killed = true;
+      }
+      return false;
+    }
+    case 'healSpendBlock': {
+      const hit = Math.min(fx.max, p.halfSpendBlock ? p.block * 2 : p.block);
+      const spent = p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
+      if (hit <= 0) return false;
+      p.block -= spent;
+      healPlayer(cs, hit, p);
+      return false;
+    }
+    case 'blockFromThorns': {
+      // 反彈**不減少**：這張是「把回敬的力道也墊到身前」，不是把反彈換掉
+      const n = getStatus(p, '反彈');
+      if (n <= 0) return false;
+      ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + n;
+      flushSelfBlock(cs, p, ctx, queue);
+      return false;
+    }
+    case 'damageByOwnStatus': {
+      const base = getStatus(p, fx.name) * (fx.mul ?? 1) * (ctx.doubleDamage ? 2 : 1);
+      if (base <= 0) return false;
+      for (const t of targetsOf(cs, ctx, false)) {
+        if (damageEnemy(cs, t, base, { noStrength: true, by: p }).killed) ctx.killed = true;
+      }
+      return false;
+    }
+    case 'ifBlock': {
+      if (p.block >= fx.min) queue.unshift(...fx.then);
+      return false;
+    }
+    case 'ifEnemyIntent': {
+      if (aliveEnemies(cs).some((e) => e.move.intent === fx.intent)) queue.unshift(...fx.then);
+      return false;
+    }
+    // 跟守護符那類秘寶**相加**（`finishEnemyTurn` 讀這個欄位），但只撐這一回合
+    case 'keepBlock': p.blockKeepThisTurn = Math.max(p.blockKeepThisTurn ?? 0, fx.n); return false;
+    case 'halfSpendBlock': p.halfSpendBlock = true; markPassive(p, ctx); return false;
+    case 'blockWhenAttacked': p.blockWhenAttacked = (p.blockWhenAttacked ?? 0) + fx.n; markPassive(p, ctx, true); return false;
+    case 'thornsBonus': p.thornsBonus = (p.thornsBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }

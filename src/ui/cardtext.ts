@@ -8,7 +8,8 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
  * 後面再用逗號接「獲得 6 點蜷縮」會黏成一長串，看不出那 6 點是另一件事。
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
-const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst']);
+const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst',
+  'halfSpendBlock', 'blockWhenAttacked', 'thornsBonus', 'keepBlock', 'ifBlock', 'ifEnemyIntent']);
 
 /** 效果落在同伴身上的那幾種：一個人玩的時候會算回自己身上（句尾統一補一句） */
 /** 效果可能包在 `ifSelfStatus` 的 `then`／`otherwise` 裡，要一路往下看（推前審查 高-2） */
@@ -25,6 +26,16 @@ const ALLY_KINDS = new Set<Effect['kind']>([
   // `watchAllyPlay` 與 `energyTransfer` 不在這裡：它們一個人玩時是**另一種行為**
   //（改成看自己出牌／根本不轉），不是「算在自己身上」，各自的句子裡有交代
 ]);
+
+/**
+ * 魔物這回合要做什麼，寫成玩家看得懂的一句話（噹噹的見招拆招）。
+ * 用的字跟戰鬥畫面那排意圖圖示的說明一致，不然牌面講一套、圖示講另一套。
+ */
+const INTENT_TEXT: Readonly<Record<string, string>> = {
+  attack: '魔物這回合要攻擊', block: '魔物這回合要防禦', buff: '魔物這回合要強化自己',
+  debuff: '魔物這回合要對你下手', summon: '魔物這回合要叫幫手', special: '魔物這回合要出怪招',
+  idle: '魔物這回合按兵不動',
+};
 
 /** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
@@ -58,6 +69,7 @@ function namesAllFoes(fx: Effect | undefined): boolean {
 /** 這張牌有沒有動到魔物——有的話回復要寫成「你回復 N 生命」才分得清誰回血（規格 §6.1 以德服人） */
 const FOE_KINDS: ReadonlySet<Effect['kind']> = new Set(
   ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
+   'damageSpendBlock', 'damageByOwnStatus',
    'stealBlock', 'removeStatuses', 'transferDebuffs']);
 function touchesFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => FOE_KINDS.has(e.kind) || (e.kind === 'status' && e.target !== 'self'));
@@ -69,7 +81,8 @@ function touchesFoes(effects: readonly Effect[]): boolean {
  * 寫「也」會害玩家回頭去找那個根本不存在的前一下。
  */
 const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(
-  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus']);
+  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
+   'damageSpendBlock', 'damageByOwnStatus']);
 function hurtsFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => HURT_KINDS.has(e.kind));
 }
@@ -109,6 +122,31 @@ interface Ctx {
  */
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
+    /*
+     * ===== 噹噹（2026-09-17）=====
+     *
+     * 措辭統一寫「**卸掉**蜷縮」而不是「消耗」：「消耗」在這個遊戲已經是關鍵字
+     *（打完就不見的那種牌），同一個詞當兩件事用，提示框會兩條都跳出來。
+     */
+    case 'damageSpendBlock': {
+      const hit = fx.target === 'all' ? '對全體魔物造成等量傷害' : '造成等量傷害';
+      const mul = (fx.mul ?? 1) > 1 ? `的${({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍` : '';
+      const head = fx.all ? `卸掉全部的蜷縮，${hit}${mul}` : `最多卸掉 ${fx.max ?? 0} 點蜷縮，${hit}${mul}`;
+      return head + (fx.ignoreBlock ? '，無視防禦' : '');
+    }
+    case 'healSpendBlock': return `最多卸掉 ${fx.max} 點蜷縮，回復等量生命`;
+    case 'blockFromThorns': return '把你的反彈點數加到蜷縮上（反彈不會因此減少）';
+    case 'damageByOwnStatus': return (fx.mul ?? 1) > 1
+      ? `造成你${fx.name}點數${({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍的傷害`
+      : `造成等同你${fx.name}點數的傷害`;
+    // 「身上有蜷縮」比「蜷縮不少於 1 點」好唸，只有門檻 1 這樣寫
+    case 'ifBlock': return `${fx.min <= 1 ? '身上有蜷縮的話' : `蜷縮大於 ${fx.min - 1} 的話`}，`
+      + fx.then.map((e) => one(e, ctx)).join('，');
+    case 'ifEnemyIntent': return `${INTENT_TEXT[fx.intent]}的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+    case 'keepBlock': return `這回合結束時最多保留 ${fx.n} 點蜷縮`;
+    case 'halfSpendBlock': return '之後卸掉蜷縮的牌只卸一半（不滿一點算一點），打出去的力道不變';
+    case 'blockWhenAttacked': return `之後每次被魔物打到，獲得 ${fx.n} 點蜷縮`;
+    case 'thornsBonus': return `之後反彈回敬時，額外多打 ${fx.n} 點`;
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
     // 倍率寫成「兩倍」不是「×2」：牌面其他地方都用中文，突然冒一個乘號很跳（2026-09-14）。

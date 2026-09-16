@@ -247,9 +247,21 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     if (dmg > 0 && thorns > 0 && attacker !== p) {
       const e = cs.enemies.find((x) => x === attacker);
       if (e) {
-        log(cs, `反彈回敬了${e.name} ${thorns} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
-        damageEnemy(cs, e, thorns, { direct: true, throughBlock: true, by: p });
+        // 以傷還傷（噹噹）只在**真的回敬出去**的時候加，掛著但沒反彈層數不會憑空打人
+        const back = thorns + (p.thornsBonus ?? 0);
+        log(cs, `反彈回敬了${e.name} ${back} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
+        damageEnemy(cs, e, back, { direct: true, throughBlock: true, by: p });
       }
+    }
+    /*
+     * 千斤墜（噹噹 2026-09-17）：挨魔物的攻擊就蹲得更穩。
+     *
+     * 判準是「**這一招是攻擊、而且輪到你挨**」，不是「有沒有扣到血」——
+     * 蜷縮擋滿也照樣觸發，不然這張牌在它最該發揮的局面（擋得住）反而不動。
+     * 自傷與中毒走 `direct` 那一條，根本到不了這裡。
+     */
+    if (p.blockWhenAttacked && cs.enemies.some((x) => x === attacker)) {
+      gainBlock(cs, p, p.blockWhenAttacked);
     }
   }
   p.hp -= lose;

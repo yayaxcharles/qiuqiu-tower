@@ -737,6 +737,113 @@ export const cards: readonly CardDef[] = [
   { id: 'feifei_buyaoguolai', name: '不要過來！', cost: 2, type: 攻, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'enemy', art: 'card/feifei_buyaoguolai',
     effects: [{ kind: 'damage', amount: 25 }, { kind: 'selfDamage', amount: 8 }, { kind: 'block', amount: 12 }],
     upgrade: { effects: [{ kind: 'damage', amount: 32 }, { kind: 'selfDamage', amount: 8 }, { kind: 'block', amount: 12 }] } },
+
+  /*
+   * ===== 噹噹的 29 張（2026-09-17）=====
+   *
+   * 他的識別是**蜷縮當彈藥**：蜷縮既是防禦也是攻擊的本錢，出招會把它吃掉。
+   * 所以他每一張牌都在問同一句話——「現在要打，還是要留著擋」。
+   * 這是刻意跟菲菲相反：她的攻擊牌自帶蜷縮、從來不用選（2026-09-16 使用者說那樣不好）。
+   *
+   * 另一條路是**反彈**：不被消耗、挨打才回敬，所以「卸力打人」跟「硬扛回敬」互相排擠，
+   * 同一副牌組塞不下兩條。
+   *
+   * 起手的正拳**不吃蜷縮**是保命設計：第一回合蜷縮是 0，全部吃蜷縮的話牌組會卡死。
+   *
+   * 全部掛 `hidden`——牌面圖還在跑（A 批立繪先，B 批 29 張牌面跟著），圖到齊才進獎勵與罐頭鋪。
+   */
+  // ----- 起手三種 -----
+  { id: 'dd_zhengquan', name: '正拳', cost: 1, type: 攻, rarity: '常見', pool: '起手', hero: 'dangdang', target: 'enemy', art: 'card/dd_zhengquan', hidden: true,
+    effects: [{ kind: 'damage', amount: 5 }], upgrade: { effects: [{ kind: 'damage', amount: 7 }] } },
+  { id: 'dd_jiapan', name: '架盤', cost: 1, type: 技, rarity: '常見', pool: '起手', hero: 'dangdang', target: 'self', art: 'card/dd_jiapan', hidden: true,
+    effects: [{ kind: 'block', amount: 5 }], upgrade: { effects: [{ kind: 'block', amount: 8 }] } },
+  { id: 'dd_huijing', name: '回敬', cost: 1, type: 技, rarity: '常見', pool: '起手', hero: 'dangdang', target: 'self', art: 'card/dd_huijing', hidden: true,
+    effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }],
+    upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 5, target: 'self' }] } },
+
+  // ----- 忍術・常見 8 張：先讓玩家學會「蜷縮是彈藥」，數值都小 -----
+  { id: 'dd_xieli', name: '卸力掌', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_xieli', hidden: true,
+    effects: [{ kind: 'damageSpendBlock', max: 6 }], upgrade: { effects: [{ kind: 'damageSpendBlock', max: 8 }] } },
+  { id: 'dd_huben', name: '護臂格擋', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_huben', hidden: true,
+    effects: [{ kind: 'block', amount: 6 }], upgrade: { effects: [{ kind: 'block', amount: 9 }] } },
+  { id: 'dd_yingpeng', name: '硬碰硬', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_yingpeng', hidden: true,
+    effects: [{ kind: 'damage', amount: 4 }, { kind: 'ifBlock', min: 1, then: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] }],
+    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'ifBlock', min: 1, then: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }] }] } },
+  { id: 'dd_tiesha', name: '鐵砂護腕', cost: 0, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_tiesha', hidden: true,
+    effects: [{ kind: 'block', amount: 3 }], upgrade: { effects: [{ kind: 'block', amount: 5 }] } },
+  { id: 'dd_tiaoxin', name: '挑釁', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_tiaoxin', hidden: true,
+    effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'draw', n: 1 }],
+    upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }, { kind: 'draw', n: 1 }] } },
+  { id: 'dd_fanshou', name: '反手一記', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_fanshou', hidden: true,
+    effects: [{ kind: 'damage', amount: 3, times: 2 }], upgrade: { effects: [{ kind: 'damage', amount: 3, times: 3 }] } },
+  { id: 'dd_wenzhu', name: '穩住', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_wenzhu', hidden: true,
+    effects: [{ kind: 'block', amount: 4 }, { kind: 'keepBlock', n: 4 }],
+    upgrade: { effects: [{ kind: 'block', amount: 6 }, { kind: 'keepBlock', n: 6 }] } },
+  { id: 'dd_jieli', name: '借力', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_jieli', hidden: true,
+    effects: [{ kind: 'healSpendBlock', max: 6 }], upgrade: { effects: [{ kind: 'healSpendBlock', max: 9 }] } },
+
+  // ----- 忍術・罕見 11 張：開始出現真正的取捨 -----
+  { id: 'dd_bengshan', name: '崩山掌', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_bengshan', hidden: true,
+    effects: [{ kind: 'damageSpendBlock', max: 12 }], upgrade: { effects: [{ kind: 'damageSpendBlock', max: 16 }] } },
+  { id: 'dd_huili', name: '迴力鏢', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_huili', hidden: true,
+    effects: [{ kind: 'status', name: '反彈', amount: 4, target: 'self' }],
+    upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 6, target: 'self' }] } },
+  { id: 'dd_jiahou', name: '護臂加厚', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_jiahou', hidden: true,
+    effects: [{ kind: 'blockBonus', n: 2 }], upgrade: { effects: [{ kind: 'blockBonus', n: 3 }] } },
+  // 名字本來照設計稿寫「以彼之道」，但忍具已經有一支同名（`your_way`）——
+  // 同名不同物正是 2026-09-16 剛清掉的那一類問題，所以改成「原樣奉還」
+  { id: 'dd_yibi', name: '原樣奉還', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_yibi', hidden: true,
+    effects: [{ kind: 'damageByOwnStatus', name: '反彈', mul: 2 }],
+    upgrade: { effects: [{ kind: 'damageByOwnStatus', name: '反彈', mul: 3 }] } },
+  { id: 'dd_zhendang', name: '震盪波', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'all', art: 'card/dd_zhendang', hidden: true,
+    effects: [{ kind: 'damageSpendBlock', max: 8, target: 'all' }],
+    upgrade: { effects: [{ kind: 'damageSpendBlock', max: 10, target: 'all' }] } },
+  { id: 'dd_jianzhao', name: '見招拆招', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_jianzhao', hidden: true,
+    effects: [{ kind: 'block', amount: 6 }, { kind: 'ifEnemyIntent', intent: 'attack', then: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }] }],
+    upgrade: { effects: [{ kind: 'block', amount: 8 }, { kind: 'ifEnemyIntent', intent: 'attack', then: [{ kind: 'status', name: '反彈', amount: 4, target: 'self' }] }] } },
+  { id: 'dd_xiejia', name: '卸甲', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_xiejia', hidden: true,
+    effects: [{ kind: 'block', amount: 8 }, { kind: 'draw', n: 1 }],
+    upgrade: { effects: [{ kind: 'block', amount: 10 }, { kind: 'draw', n: 1 }] } },
+  { id: 'dd_yingkang', name: '硬扛', cost: 2, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_yingkang', hidden: true,
+    effects: [{ kind: 'block', amount: 15 }], upgrade: { effects: [{ kind: 'block', amount: 20 }] } },
+  { id: 'dd_lianhuan', name: '連環撞', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_lianhuan', hidden: true,
+    // 門檻寫 11 不是 10：牌面說「大於 10」，寫 10 會變成「10 也算」，玩家會覺得牌面在騙人
+    effects: [{ kind: 'damage', amount: 6 }, { kind: 'ifBlock', min: 11, then: [{ kind: 'damage', amount: 6 }] }],
+    upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'ifBlock', min: 11, then: [{ kind: 'damage', amount: 8 }] }] } },
+  { id: 'dd_huxin', name: '護心鏡', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_huxin', hidden: true,
+    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] }],
+    upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }] }] } },
+  { id: 'dd_jieshi', name: '借勢', cost: 0, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_jieshi', hidden: true,
+    effects: [{ kind: 'blockFromThorns' }], upgrade: { effects: [{ kind: 'blockFromThorns' }, { kind: 'draw', n: 1 }] } },
+
+  // ----- 忍術・稀有 1 張：整套的核心報酬 -----
+  /*
+   * 銅牆鐵壁：拿到之後「打人」跟「擋住」不再互斥——這是整條路線的目標，
+   * 所以代價下得重（3 費、而且要撐到抽得到）。升級只降費，不加效果。
+   */
+  { id: 'dd_tongqiang', name: '銅牆鐵壁', cost: 3, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_tongqiang', hidden: true,
+    effects: [{ kind: 'halfSpendBlock' }], upgrade: { cost: 2 } },
+
+  // ----- 絕學・稀有 6 張 -----
+  { id: 'dd_tieshan', name: '絕學·鐵山靠', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'enemy', art: 'card/dd_tieshan', hidden: true,
+    effects: [{ kind: 'damageSpendBlock', all: true, ignoreBlock: true }], upgrade: { cost: 1 } },
+  { id: 'dd_hubigong', name: '絕學·護臂功', cost: 1, type: 能, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'self', art: 'card/dd_hubigong', hidden: true,
+    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 5 }] }],
+    upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 7 }] }] } },
+  /*
+   * 回馬掌刻意保留「**不消耗**」那個手感（原規格就是這樣打的），
+   * 代價改成「這回合不能再打攻擊牌」——爽度留著，取捨補回來。
+   */
+  { id: 'dd_huima', name: '絕學·回馬掌', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'enemy', art: 'card/dd_huima', hidden: true,
+    effects: [{ kind: 'damageEqualBlock' }, { kind: 'noAttacksThisTurn' }], upgrade: { cost: 1 } },
+  { id: 'dd_qianjin', name: '絕學·千斤墜', cost: 2, type: 能, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'self', art: 'card/dd_qianjin', hidden: true,
+    effects: [{ kind: 'blockWhenAttacked', n: 3 }], upgrade: { effects: [{ kind: 'blockWhenAttacked', n: 4 }] } },
+  { id: 'dd_yishang', name: '絕學·以傷還傷', cost: 2, type: 能, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'self', art: 'card/dd_yishang', hidden: true,
+    effects: [{ kind: 'thornsBonus', n: 4 }], upgrade: { effects: [{ kind: 'thornsBonus', n: 6 }] } },
+  { id: 'dd_sheshen', name: '絕學·捨身撞', cost: 3, type: 攻, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'enemy', art: 'card/dd_sheshen', hidden: true,
+    effects: [{ kind: 'damageSpendBlock', all: true, mul: 2 }, { kind: 'selfDamage', amount: 10 }],
+    upgrade: { effects: [{ kind: 'damageSpendBlock', all: true, mul: 2 }, { kind: 'selfDamage', amount: 6 }] } },
+
 ];
 
 /**
@@ -824,9 +931,24 @@ export const FEIFEI_STARTER_DECK: readonly string[] = [
   'feifei_cuidu',
 ];
 
+/**
+ * 噹噹的起手十張（2026-09-17）。形狀跟另外兩位一樣：基本攻擊 ×5、基本防禦 ×4、招牌技 ×1。
+ *
+ * 正拳 5 點比貓抓（6 點）低一點，架盤 5 點跟淡定一樣——他的起手刻意**平淡**：
+ * 真正的路數（卸力掌、崩山掌那些吃蜷縮的）要靠後面抽到才成形，
+ * 起手十張的任務只是「撐到那時候」。回敬那一張是他的識別，開場就先掛 3 點反彈。
+ */
+export const DANGDANG_STARTER_DECK: readonly string[] = [
+  'dd_zhengquan', 'dd_zhengquan', 'dd_zhengquan', 'dd_zhengquan', 'dd_zhengquan',
+  'dd_jiapan', 'dd_jiapan', 'dd_jiapan', 'dd_jiapan',
+  'dd_huijing',
+];
+
 /** 這個職業的起手十張。沒有專屬的就用球球那份（武士現在是這種情況） */
 export function starterDeckFor(hero: string | undefined): readonly string[] {
-  return hero === 'feifei' ? FEIFEI_STARTER_DECK : STARTER_DECK;
+  if (hero === 'feifei') return FEIFEI_STARTER_DECK;
+  if (hero === 'dangdang') return DANGDANG_STARTER_DECK;
+  return STARTER_DECK;
 }
 
 /**
