@@ -1033,52 +1033,72 @@
   "codex/monster_tanuki_lord_p2": {
    "idle": "assets/monsters/tanuki_lord_p2_idle.webp",
    "attack": "assets/monsters/tanuki_lord_p2_attack.webp",
-   "down": "assets/monsters/tanuki_lord_p2_down.webp"
+   "down": "assets/monsters/tanuki_lord_p2_down.webp",
+   "hurt": "assets/monsters/tanuki_lord_p2_hurt.webp",
+   "block": "assets/monsters/tanuki_lord_p2_block.webp"
   },
   "codex/monster_nekomata_p2": {
    "idle": "assets/monsters/nekomata_p2_idle.webp",
    "attack": "assets/monsters/nekomata_p2_attack.webp",
-   "down": "assets/monsters/nekomata_p2_down.webp"
+   "down": "assets/monsters/nekomata_p2_down.webp",
+   "hurt": "assets/monsters/nekomata_p2_hurt.webp",
+   "block": "assets/monsters/nekomata_p2_block.webp"
   },
   "codex/monster_persian_lady_p2": {
    "idle": "assets/monsters/persian_lady_p2_idle.webp",
    "attack": "assets/monsters/persian_lady_p2_attack.webp",
-   "down": "assets/monsters/persian_lady_p2_down.webp"
+   "down": "assets/monsters/persian_lady_p2_down.webp",
+   "hurt": "assets/monsters/persian_lady_p2_hurt.webp",
+   "block": "assets/monsters/persian_lady_p2_block.webp"
   },
   "codex/monster_iron_claw_p2": {
    "idle": "assets/monsters/iron_claw_p2_idle.webp",
    "attack": "assets/monsters/iron_claw_p2_attack.webp",
-   "down": "assets/monsters/iron_claw_p2_down.webp"
+   "down": "assets/monsters/iron_claw_p2_down.webp",
+   "hurt": "assets/monsters/iron_claw_p2_hurt.webp",
+   "block": "assets/monsters/iron_claw_p2_block.webp"
   },
   "codex/monster_orange_king_p2": {
    "attack": "assets/monsters/orange_king_p2_attack.webp",
    "down": "assets/monsters/orange_king_p2_down.webp",
-   "idle": "assets/monsters/orange_king_p2_idle.webp"
+   "idle": "assets/monsters/orange_king_p2_idle.webp",
+   "hurt": "assets/monsters/orange_king_p2_hurt.webp",
+   "block": "assets/monsters/orange_king_p2_block.webp"
   },
   "codex/monster_dragon_cat_p2": {
    "idle": "assets/monsters/dragon_cat_p2_idle.webp",
    "attack": "assets/monsters/dragon_cat_p2_attack.webp",
-   "down": "assets/monsters/dragon_cat_p2_down.webp"
+   "down": "assets/monsters/dragon_cat_p2_down.webp",
+   "hurt": "assets/monsters/dragon_cat_p2_hurt.webp",
+   "block": "assets/monsters/dragon_cat_p2_block.webp"
   },
   "codex/monster_frog_daimyo_p2": {
    "idle": "assets/monsters/frog_daimyo_p2_idle.webp",
    "attack": "assets/monsters/frog_daimyo_p2_attack.webp",
-   "down": "assets/monsters/frog_daimyo_p2_down.webp"
+   "down": "assets/monsters/frog_daimyo_p2_down.webp",
+   "hurt": "assets/monsters/frog_daimyo_p2_hurt.webp",
+   "block": "assets/monsters/frog_daimyo_p2_block.webp"
   },
   "codex/monster_hex_abbot_p2": {
    "idle": "assets/monsters/hex_abbot_p2_idle.webp",
    "attack": "assets/monsters/hex_abbot_p2_attack.webp",
-   "down": "assets/monsters/hex_abbot_p2_down.webp"
+   "down": "assets/monsters/hex_abbot_p2_down.webp",
+   "hurt": "assets/monsters/hex_abbot_p2_hurt.webp",
+   "block": "assets/monsters/hex_abbot_p2_block.webp"
   },
   "codex/monster_cowcat_boss_p2": {
    "idle": "assets/monsters/cowcat_boss_p2_idle.webp",
    "attack": "assets/monsters/cowcat_boss_p2_attack.webp",
-   "down": "assets/monsters/cowcat_boss_p2_down.webp"
+   "down": "assets/monsters/cowcat_boss_p2_down.webp",
+   "hurt": "assets/monsters/cowcat_boss_p2_hurt.webp",
+   "block": "assets/monsters/cowcat_boss_p2_block.webp"
   },
   "codex/monster_calico_monk_p2": {
    "idle": "assets/monsters/calico_monk_p2_idle.webp",
    "attack": "assets/monsters/calico_monk_p2_attack.webp",
-   "down": "assets/monsters/calico_monk_p2_down.webp"
+   "down": "assets/monsters/calico_monk_p2_down.webp",
+   "hurt": "assets/monsters/calico_monk_p2_hurt.webp",
+   "block": "assets/monsters/calico_monk_p2_block.webp"
   }
  },
  "icons": {

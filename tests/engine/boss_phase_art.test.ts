@@ -29,7 +29,7 @@ describe('關主換階段換臉', () => {
     expect(boss.phase, '血打到門檻了，階段沒跟著加').toBe(1);
   });
 
-  it('有階段的關主，第二階段那三張圖都在清單裡', () => {
+  it('有階段的關主，第二階段五張姿勢都在清單裡', () => {
     const missing: string[] = [];
     for (const def of enemies) {
       if (def.pool !== '塔主' && def.pool !== '大魔物') continue;
@@ -38,7 +38,8 @@ describe('關主換階段換臉', () => {
       const key = `${def.art}_p2`;
       const set = M.monsters[key];
       if (!set) { missing.push(`${def.name}：清單裡沒有 ${key}`); continue; }
-      for (const pose of ['idle', 'attack', 'down']) {
+      // 2026-09-16 第二批補齊挨打與防禦，五張全到
+      for (const pose of ['idle', 'attack', 'hurt', 'block', 'down']) {
         if (!set[pose]) missing.push(`${def.name} 的 ${key} 少了 ${pose}`);
       }
     }

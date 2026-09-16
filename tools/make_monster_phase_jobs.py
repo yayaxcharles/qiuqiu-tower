@@ -45,6 +45,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from art_rules import NO_PANEL  # noqa: E402
+from build_block_queue import BLOCK_POSE  # noqa: E402
 from build_down_queue import DOWN_POSE, DOWN_TAIL  # noqa: E402
 
 JOBS = ROOT / 'tools' / 'codex_jobs'
@@ -106,7 +107,7 @@ FRAME = (
     + UPRIGHT + TIGHT_FX +
     "Readable at small size: bold silhouette, strong shapes, a clear cartoon face.\n"
     "ANATOMY RULE: count the limbs before finishing - the same number as the reference, no extra arms, "
-    "legs, heads or tails except where the change above explicitly adds them.\n")
+    "legs, heads or tails except where the description above explicitly calls for them.\n")
 
 TAIL = (
     "\nDraw everything SOLID and OPAQUE - flat filled colour with soft shading. Nothing transparent or "
@@ -454,6 +455,214 @@ def build() -> None:
     sys.stdout.write(f'已經有原稿、這次不生的 {len(done)} 張（要重生就先把原稿改名留底）\n')
 
 
+# ===========================================================================
+# 第二批（2026-09-16 晚）：挨打與防禦，10 組 × 2 張 ＝ 20 張
+# ===========================================================================
+# 跟第一批最大的差別有兩個，兩個都會靜靜出錯，所以寫在最前面：
+#
+# 1. **參考圖要用第二階段的待機圖**（`public/assets/monsters/<id>_p2_idle.webp`），不是第一階段那張。
+#    這是「續集的續集」：拿第一階段當參考，生出來的挨打圖會是**沒有變身特徵的原版**，
+#    而且因為姿勢對、長相也對，一張一張看很容易看不出來——要把五張姿勢排在一起才會發現
+#    「怎麼只有這兩張沒有鱗片」。
+#
+# 2. **變身特徵一張都不能掉。** 挨打（縮著、閉眼）與防禦（抱頭、蜷起來）這兩個姿勢天生會把
+#    身上的東西藏起來，模型最省力的畫法就是回到原版那隻。所以每隻要有一份
+#    **看得見的特徵清單**（`KEEP`），逐條寫死。
+#    注意這跟第一批倒下圖那個雷（`DOWN_OVERRIDE` 舉例害牠長出不該有的刺）**方向相反**但同一個道理：
+#    列舉會被照單全收，所以列舉的內容一定要是**這一隻自己的**東西，不能是通用的形容詞。
+#
+# 為什麼不重用第一批的 `change`：那幾段是拿第一階段當參考寫的，句子裡有
+#「In the reference he is slumped on the floor eating」這種話，換了參考圖之後會**跟新參考圖打架**。
+# 所以另外寫一份現在式、不提參考圖的清單。
+KEEP: dict[str, str] = {
+    'nekomata':
+        "  - FOUR or FIVE long grey tails with forked tips, raised up behind her shoulders and head (not two).\n"
+        "  - A blue-white ghost flame burning on the tip of every one of those tails.\n"
+        "  - Both of her eyes are blue-white flames instead of normal pupils.\n"
+        "  - Her patched plum kimono, her ochre sash, her white top-knot with the hairpin and the little dangling "
+        "ornament, and her gnarled wooden walking stick with the purple binding, bead and tassel.\n",
+    'iron_claw':
+        "  - Its dark metal armour plates are SPRUNG OPEN - hinged apart like opened panels, still attached along "
+        "one edge and sticking out from its chest, shoulders, haunches and back.\n"
+        "  - The machinery inside shows through those openings: rows of long curved steel claws and blades, "
+        "exposed spinning brass gears, springs and pistons.\n"
+        "  - A hot orange furnace light glowing out of the opened chest cavity.\n"
+        "  - Its single glowing orange eye, its jagged metal muzzle, its brass wind-up key, its segmented tail.\n",
+    'orange_king':
+        "  - He is STANDING on his two hind legs at full height - the only parts of him touching the ground are "
+        "his two hind feet. Never sitting, never slumped on the floor.\n"
+        "  - His skin is a knobbly pitted orange-peel rind, dotted all over.\n"
+        "  - Short thick blunt ORANGE SPIKES with darker tips covering his shoulders, arms, back, belly and tail.\n"
+        "  - His small gold crown, his red cape, the round red jewel at his throat, his orange tabby stripes. "
+        "He holds no food - both front paws are bare.\n",
+    'frog_daimyo':
+        "  - Both cheek pouches INFLATED to bursting - two enormous round balloons either side of his jaw, each "
+        "about as wide as his head.\n"
+        "  - Several small dark TADPOLES (fat black comma shapes with round white eyes and wriggling tails) "
+        "riding on his shoulders and clinging up his back.\n"
+        "  - His swollen body straining the red-and-gold daimyo robe, the round gold chrysanthemum crest on his "
+        "chest, the gold rope belt with its tassels, the navy patterned underrobe, and his folding fan.\n",
+    'cowcat_boss':
+        "  - Every hair STANDING ON END: the black patches and the white patches alike bristled out into spiky "
+        "tufts, so his whole outline is spiked like a bottle brush - shoulders, forearms, chest, cheeks and tail.\n"
+        "  - NO wooden staff anywhere: he dropped it. His bare fists are what he fights with now.\n"
+        "  - Eyes glowing hot amber, warm white steam rising off his shoulders.\n"
+        "  - His cow-patch black-and-white markings in the same places, his black sash skirt with the brown rope "
+        "belt and tassel, and the brown wraps on his forearms.\n",
+    'tanuki_lord':
+        "  - His straw hat is OFF his head, hanging behind his neck on its cord, so his whole face shows.\n"
+        "  - His eyes are WIDE OPEN and fierce (never the happy closed crescents), and his muzzle and cheeks are "
+        "flushed bright red.\n"
+        "  - The sake gourd is EMPTY: tipped over and hanging loose with the stopper out.\n"
+        "  - The small muted olive-and-brown leaf sitting on his forehead.\n"
+        "  - His blue-grey vest shrugged off his shoulders and tied around his waist beside the red rope sash, "
+        "and his ringed bushy tail.\n",
+    'persian_lady':
+        "  - All her long white fur EXPLODED outward into a frizzy electrified halo - ruff, tail and every tuft "
+        "standing on end and twice its normal size, never smooth or groomed.\n"
+        "  - Her folding fan is NOT in her paw: it lies snapped open on the ground by her feet.\n"
+        "  - Her jewelled tiara sitting crooked on her head, her matching jewelled earring, and the gold collar "
+        "with the ruby and turquoise stones.\n"
+        "  - Her crimson-and-gold robe pulled askew off one shoulder, and her claws out of her front paws.\n",
+    'dragon_cat':
+        "  - It is AWAKE and reared UP - the front half of the long serpent body lifted and arched, head held "
+        "high, the rest of the body coiled beneath it as a base. Never lying curled up asleep.\n"
+        "  - Both eyes WIDE OPEN and blazing gold with slit pupils, never closed, and no sleep bubble anywhere.\n"
+        "  - Its golden mane and the fur along its spine bristled up into a spiked crest, its golden antlers held "
+        "high, hot amber flame and warm white smoke at its nostrils.\n"
+        "  - Its teal overlapping scales, the pale gold belly bands, the golden tail plume, the pale gold swirl "
+        "marking on its forehead.\n",
+    'hex_abbot':
+        "  - Overlapping dark slate-grey, almost-black reptile SCALES with a cold blue-violet sheen covering both "
+        "forearms and the backs of both paws, climbing up his neck out of the robe collar, and spread across one "
+        "side of his face around the eye and cheekbone.\n"
+        "  - A ridge of small pointed scale spines running up the back of his neck.\n"
+        "  - His eyes OPEN and glowing dull red - never closed and serene.\n"
+        "  - His long white beard and moustache, his black-and-gold kasaya robe with the gold lotus panel, his "
+        "wooden prayer beads and the brown gourd.\n",
+    'calico_monk':
+        "  - His orange kasaya robe pulled right DOWN off both shoulders and bunched and knotted around his "
+        "waist, leaving his whole upper body bare - a broad muscular calico chest and thick shoulders.\n"
+        "  - Both eyes WIDE OPEN, round and fierce with hot amber irises and lowered brows - never gently closed, "
+        "and his paws are never pressed together in prayer.\n"
+        "  - The big wooden prayer beads round his neck, his orange, black and white calico patches, and a faint "
+        "warm golden shimmer outlining his skin.\n",
+}
+
+# ★ 挨打的姿勢照 `make_wave3_monster_jobs.py`／`make_hurt_jobs.py` 那套（全遊戲的挨打圖都這樣畫）。
+#   「眼睛用力閉緊或睜大」兩種都給，是因為好幾隻的變身特徵就寫在眼睛上（老住持的紅眼、龍貓的金眼、
+#   貓又的鬼火眼）——只准閉緊的話會跟特徵清單打架，那正是 `art_rules.py` 第一個雷。
+HURT_POSE = (
+    "\n\nPose: THE MOMENT IT GETS HIT - recoiling backwards (to the RIGHT, since it faces left), body tilted "
+    "back and twisted away from the blow, head snapped back, mouth open in an 'ouch'. Its eyes may be screwed "
+    "up in pain or blown wide in shock, whichever suits its face - but if the description above says its eyes "
+    "glow or burn, they still glow or burn while it winces. Two or three small impact stars near the head, "
+    "drawn small and solid in warm white or amber, right up against it. "
+    "It is still on its feet and still in the fight - this is a flinch, not a collapse.\n")
+
+# ★ 防禦的姿勢照 `build_block_queue.py`（那批 45 張人眼驗過），但要補一句化解高度衝突：
+#   原文寫「壓低、縮成一團」，跟取景要求的「至少跟參考圖一樣高」直接打架，而
+#   `add_sprite.py` 對 `block` 有「矮過待機一成就不給進倉」的硬擋——不化解的話會整批卡住。
+BLOCK_HEIGHT = (
+    "It braces by pulling itself in and setting its weight, NOT by shrinking: it still fills the frame from "
+    "top to bottom and stays exactly as tall as the creature in the attached picture. A squashed-down guard "
+    "gets rejected.\n")
+
+
+def phase_ref(mid: str, phase: int = 2) -> str:
+    """把**第二階段那張現行待機圖**鋪白底存成參考圖（挨打與防禦是續集的續集，拿第一階段會掉特徵）。
+
+    直接讀 `public/assets/monsters/` 裡進倉的那張，不讀 `tools/codex_raw` 的原稿——
+    進倉的那張才是玩家真的會看到的，不會有「原稿比進倉的舊」這種歧義
+    （記憶 `reference_mus_art_pipeline`：參考圖過期就會抄到壞版本）。
+    """
+    src = MONS / f'{mid}_p{phase}_idle.webp'
+    if not src.exists():
+        raise SystemExit(f'!! {src} 不在——第一批的第二階段待機圖還沒進倉，挨打／防禦不能開工')
+    REFDIR.mkdir(parents=True, exist_ok=True)
+    im = Image.open(src).convert('RGBA')
+    bg = Image.new('RGBA', im.size, (255, 255, 255, 255))
+    bg.paste(im, (0, 0), im)
+    out = REFDIR / f'{mid}_p{phase}_idle.png'
+    bg.convert('RGB').save(out)
+    if out.stat().st_mtime < src.stat().st_mtime:
+        raise SystemExit(f'!! 參考圖 {out} 還是比 {src} 舊')
+    return out.relative_to(ROOT).as_posix()
+
+
+def build2() -> None:
+    """第二批：10 組的挨打與防禦，各兩條線（c／d）。"""
+    all_jobs: dict[str, dict[str, dict[str, str]]] = {'c': {}, 'd': {}}
+    for lane, specs in (('c', SPECS[:5]), ('d', SPECS[5:])):
+        for mid, phase, who, _change, _attack in specs:
+            keep = KEEP.get(mid)
+            if not keep:
+                raise SystemExit(f'!! {mid} 沒有 KEEP 清單，挨打／防禦會掉變身特徵')
+            ref = phase_ref(mid, phase)
+            key = f'{mid}_p{phase}'
+            head = (
+                "A single cartoon monster for a cute game set in a cat ninja tower (Japanese yokai flavour), "
+                f"full body, facing left.\n\nThe creature: {who}, part-way through a boss fight.\n\n"
+                "**THE ATTACHED PICTURE ALREADY SHOWS IT IN ITS TRANSFORMED SECOND FORM - that is the creature "
+                "you are drawing.** Copy it exactly: same species, same face, same colours and markings, same "
+                "clothing and accessories, same build, same proportions, same art style, still facing LEFT. "
+                "Only the POSE and the expression are different. Do NOT redesign it and do NOT draw a second "
+                "creature.\n\n"
+                "**EVERY ONE OF THESE TRANSFORMED FEATURES MUST STILL BE VISIBLE IN YOUR PICTURE:**\n" + keep +
+                "**Quietly dropping any of them is the one way this picture fails** - it would turn back into "
+                "the creature it was BEFORE it transformed, and the game already has that picture. This pose "
+                "hides things easily, so check the list once more before you finish.\n")
+            for pose, body in (('hurt', HURT_POSE), ('block', '\n\n' + BLOCK_POSE.strip() + '.\n' + BLOCK_HEIGHT)):
+                fid = f'monster_{key}_{pose}.png'
+                all_jobs[lane][fid] = {'prompt': head + body + FRAME + TAIL.format(name=fid), 'ref': ref}
+
+    # ======================= 自檢：一律 SystemExit =======================
+    seen: set[str] = set()
+    for lane, jobs in all_jobs.items():
+        for fid, job in jobs.items():
+            if fid in seen:
+                raise SystemExit(f'{fid} 在兩條線裡都排了')
+            seen.add(fid)
+            if not (ROOT / job['ref']).exists():
+                raise SystemExit(f'{fid} 的參考圖不在：{job["ref"]}')
+            # 這一批最會靜靜出錯的地方：參考圖拿成第一階段那張
+            if '_p2_idle.png' not in job['ref']:
+                raise SystemExit(f'{fid} 的參考圖不是第二階段的待機圖（{job["ref"]}），變身特徵會整個掉光')
+            if job['prompt'].count('Save the image as') != 1 or f'Save the image as {fid}' not in job['prompt']:
+                raise SystemExit(f'{fid}：存檔指令的檔名對不上或有兩句')
+            if '#00FF00' not in job['prompt']:
+                raise SystemExit(f'{fid}：少了綠幕那一句，去背會失敗')
+            if 'TRANSFORMED SECOND FORM' not in job['prompt']:
+                raise SystemExit(f'{fid}：少了「附圖已經是第二階段」那段')
+            if 'MUST STILL BE VISIBLE' not in job['prompt']:
+                raise SystemExit(f'{fid}：少了變身特徵清單，這兩個姿勢會退回原版那隻')
+            for need, why in (('TALLER THAN IT IS WIDE', '整張圖要直的'), ('KEEP EVERY EFFECT TIGHT', '特效貼著身體')):
+                if need not in job['prompt']:
+                    raise SystemExit(f'{fid}：少了「{why}」那段')
+            if fid.endswith('_block.png') and 'A squashed-down guard gets rejected' not in job['prompt']:
+                raise SystemExit(f'{fid}：防禦少了「不准壓矮」那句，會被 add_sprite 的 --allow-shorter 擋下')
+    # 坑 5：特徵清單裡不可以出現綠色或半透明的東西
+    for mid, keep in KEEP.items():
+        for bad in ('green', 'translucent', 'transparent', 'see-through'):
+            if bad in keep.lower():
+                raise SystemExit(f'{mid} 的 KEEP 清單裡有「{bad}」，去背後會在牠身上破一個洞（坑 5）')
+    if len(seen) != 20:
+        raise SystemExit(f'!! 應該是 20 張（10 組 × 2 張），實際 {len(seen)}')
+
+    done = {fid for jobs in all_jobs.values() for fid in jobs if (RAW / fid).exists()}
+    for lane in all_jobs:
+        all_jobs[lane] = {k: v for k, v in all_jobs[lane].items() if k not in done}
+
+    JOBS.mkdir(parents=True, exist_ok=True)
+    for lane, jobs in all_jobs.items():
+        out = JOBS / f'monster_phase_{lane}.json'
+        out.write_text(json.dumps(jobs, ensure_ascii=False, indent=1), encoding='utf-8')
+        sys.stdout.write(f'{out.name}：要生 {len(jobs)} 張\n')
+        for fid, job in jobs.items():
+            sys.stdout.write(f'  {fid}  <- {job["ref"]}\n')
+    sys.stdout.write(f'已經有原稿、這次不生的 {len(done)} 張（要重生就先把原稿改名留底）\n')
+
+
 def sheet() -> None:
     """聯絡表：每隻的第一階段與第二階段**並排**（生圖三大教訓之一，整批拼成大圖才看得出走鐘）。
 
@@ -474,10 +683,28 @@ def sheet() -> None:
     review_sheet.build(pairs, out_dir / '變身前後.jpg', cols=4)
     review_sheet.build([MONS / f'{m}_p2_attack.webp' for m in mids], out_dir / '出招.jpg', cols=4)
     review_sheet.build([MONS / f'{m}_p2_down.webp' for m in mids], out_dir / '倒下.jpg', cols=4)
+    # 第二批：挨打與防禦。判準是「變身特徵有沒有掉」，所以**跟第二階段待機圖並排**看，
+    # 不是自己十張排一排——掉了特徵的那張跟旁邊一比就跳出來了
+    for pose, title in (('hurt', '挨打'), ('block', '防禦')):
+        if not all((MONS / f'{m}_p2_{pose}.webp').exists() for m in mids):
+            sys.stdout.write(f'（{title} 還沒生齊，跳過）\n')
+            continue
+        rows: list[Path] = []
+        for mid in mids:
+            rows += [MONS / f'{mid}_p2_idle.webp', MONS / f'{mid}_p2_{pose}.webp']
+        review_sheet.build(rows, out_dir / f'{title}.jpg', cols=4)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == 'sheet':
+    arg = sys.argv[1] if len(sys.argv) > 1 else ''
+    if arg == 'sheet':
         sheet()
-    else:
+    elif arg == 'hurtblock':
+        build2()
+    elif arg in ('', 'idle'):
         build()
+    else:
+        raise SystemExit('用法：python tools/make_monster_phase_jobs.py [idle|hurtblock|sheet]\n'
+                         '  idle       第一批：待機、出招、倒下（30 張，工作檔 a／b）\n'
+                         '  hurtblock  第二批：挨打、防禦（20 張，工作檔 c／d，參考圖用第二階段的待機圖）\n'
+                         '  sheet      重出聯絡表到 docs/審查報告/圖_2026-09-16/')
