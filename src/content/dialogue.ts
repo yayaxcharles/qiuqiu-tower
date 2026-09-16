@@ -1187,6 +1187,69 @@ function pairKey(hero: string | undefined): string | null {
   return [h, p].sort().join('+');
 }
 
+
+/**
+ * 搭檔一起打大俠貓時的整組接話（2026-09-17）。
+ *
+ * 跟 `MIXED_SCENES` 同一個道理：兩位互相接話，所以整組替換，**不逐句換口氣**——
+ * 這裡的「球球：……喵」就是球球本人在講，不是「我」講的話。
+ * 呼叫端拿到非 null 就要照字面播，不要再過 `lineFor`／`heroSpeaker`
+ *（過了的話球球那句會被改成我的口氣、木牌還會寫我的名字）。
+ *
+ * 用了這一組就不重播單人版的那幾句（稿子交代「一次階段變換只播放一組」）。
+ */
+const COOP_BOSS_LINES: Readonly<Record<string, Readonly<Record<'intro' | 'phase2' | 'phase3', DialogueLine[]>>>> = {
+  'dangdang+ninja': {
+    intro: [
+      { speaker: '塔主', text: '難逢敵手。' },
+      { speaker: '球球', text: '師父，看清楚！我跟噹噹都在這裡喵！' },
+      { speaker: '塔主', text: '退隱江湖。' },
+      { speaker: '噹噹', text: '要回去，門就在後面。您先把手放下。' },
+    ],
+    phase2: [
+      { speaker: '塔主', text: '走火入魔。' },
+      { speaker: '噹噹', text: '球球，往旁邊站！' },
+      { speaker: '球球', text: '我沒事。師父，你聽得見嗎喵？' },
+    ],
+    phase3: [
+      { speaker: '塔主', text: '深藏不露。' },
+      { speaker: '球球', text: '他手上都是傷，不能再拖了喵！' },
+      { speaker: '噹噹', text: '好。我從這邊上。' },
+    ],
+  },
+  'dangdang+feifei': {
+    intro: [
+      { speaker: '塔主', text: '難逢敵手。' },
+      { speaker: '菲菲', text: '師父，我和噹噹來接您。師兄也在門邊。' },
+      { speaker: '塔主', text: '退隱江湖。' },
+      { speaker: '噹噹', text: '村裡的門修好了。您跟我們回去看看。' },
+    ],
+    phase2: [
+      { speaker: '塔主', text: '走火入魔。' },
+      { speaker: '菲菲', text: '又是這種眼神……他沒聽進去。' },
+      { speaker: '噹噹', text: '先顧好自己。他要過來了。' },
+    ],
+    phase3: [
+      { speaker: '塔主', text: '深藏不露。' },
+      { speaker: '噹噹', text: '大俠貓，您的手在流血！' },
+      { speaker: '菲菲', text: '師父，求您停下來！' },
+    ],
+  },
+};
+
+/**
+ * 這一場的關主對白有沒有「這一組搭檔專屬」的版本。**只有大俠貓有**，
+ * 其餘關主連線時照舊用共用那份（稿子：「單人、兩種搭檔路線皆可使用一般關主對話」）。
+ *
+ * 回 null＝照舊。回陣列＝**照字面播**，呼叫端不要再換口氣或換名牌。
+ */
+export function coopBossLines(bossId: string, stage: 'intro' | 'phase2' | 'phase3',
+                              hero: string | undefined): DialogueLine[] | null {
+  if (bossId !== 'tower_master') return null;
+  const key = pairKey(hero);
+  return (key === null ? undefined : COOP_BOSS_LINES[key]?.[stage]) ?? null;
+}
+
 function mixedLine(hero: string | undefined, text: string): string {
   const h = hero ?? 'ninja';
   if (!coopStory.partner || coopStory.partner === h) return text;

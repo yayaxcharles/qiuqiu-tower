@@ -1,7 +1,7 @@
 import { potionCapacity } from '../../engine/run';
 import { cardById, cardNameFor } from '../../content/cards';
 import { relicById } from '../../content/relics';
-import { castLineFor, dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
+import { castLineFor, coopBossLines, dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, enemyArtFor, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
@@ -2396,19 +2396,25 @@ registerScreen('combat', (app, root, props) => {
   }
 
   function bossPhaseTalk(bossId: string, phase: number): void {
-    const lines = phase >= 2
+    /*
+     * 搭檔專屬的整組接話（2026-09-17）：拿得到就**照字面播**，
+     * 底下那兩支換口氣、換名牌的就整個跳過——連線時「球球：……喵」是球球本人在講。
+     */
+    const coop = coopBossLines(bossId, phase >= 2 ? 'phase3' : 'phase2', my().hero);
+    const lines = coop ?? (phase >= 2
       ? (dialogue.bossPhase3ById[bossId] ?? dialogue.bossPhase3Generic)
-      : (dialogue.bossPhase2ById[bossId] ?? dialogue.bossPhase2Generic);
+      : (dialogue.bossPhase2ById[bossId] ?? dialogue.bossPhase2Generic));
     // 「塔主」木牌只留給師父本人；其他關主的吐槽掛自己的名字（貓又婆婆等）
     const name = (sp: string): string =>
-      sp === '塔主' && bossId !== 'tower_master' ? (enemyById[bossId]?.name ?? sp) : sp === '球球' ? heroSpeaker() : sp;
+      sp === '塔主' && bossId !== 'tower_master' ? (enemyById[bossId]?.name ?? sp) : sp === '球球' && !coop ? heroSpeaker() : sp;
     /*
      * 原始碼裡寫的是球球的句子，玩菲菲時要過 `lineFor` 換成她那一版（連線稽核 中-3）。
      * 她那一份早就寫好了（`FEIFEI_BOSS_LINES`），但只有走 `playDialogue` 的才會換，
      * 這裡走 `toast`，於是玩菲菲換階段時會冒出「球球：……喵！」。單機也中。
      */
     // 塔主講到主角的也要換（波斯大小姐「收拾他」，夜間稽核 中-3）
-    const text = (l: { speaker: string; text: string }): string => (l.speaker === '球球' ? lineFor(my().hero, l.text) : castLineFor(my().hero, l.text));
+    const text = (l: { speaker: string; text: string }): string => (coop ? l.text
+      : l.speaker === '球球' ? lineFor(my().hero, l.text) : castLineFor(my().hero, l.text));
     // 潤飾版有三句的組（狸大人）：整串照 1.4 秒一句輪播，跟原本兩句的節奏一致
     lines.forEach((l, i) => {
       if (i === 0) { toast(text(l), name(l.speaker)); return; }

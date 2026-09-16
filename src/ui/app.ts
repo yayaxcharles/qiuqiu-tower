@@ -1,4 +1,4 @@
-import { victoryLinesFor, dialogue, firstMeetLine, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
@@ -14,7 +14,7 @@ import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeShops, ne
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, heroSpriteUrls, monsterUrl, setLocalHero } from './assets';
+import { computeScale, heroSpriteUrls, localHero, monsterUrl, setLocalHero } from './assets';
 import { setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
@@ -408,7 +408,14 @@ export class App {
       const cast = bd && bossId !== 'tower_master'
         ? { 塔主: { name: bd.name, portrait: monsterUrl(bd.art, 'idle') } }
         : undefined;   // 師父維持「塔主」木牌與大俠貓立繪
-      playDialogue(dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go, cast);
+      /*
+       * 搭檔專屬的整組接話（2026-09-17）：兩位互相接話，所以**照字面播**。
+       * `playDialogue` 的入口會把說話者是「球球」的句子過一次 `lineFor`——
+       * 那是為了「劇本寫球球、實際是誰在玩」而做的，但這裡的球球就是球球本人。
+       * 所以先把說話者換成旁白以外都不動的形式：這一組本來就已經是最終文字。
+       */
+      const coop = coopBossLines(bossId, 'intro', localHero());
+      playDialogue(coop ?? dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go, cast, coop !== null);
     } else go();
   }
 

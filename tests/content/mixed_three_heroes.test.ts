@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { dialogue, eventTextFor, firstMeetLine, setCoopStory, storyFor } from '../../src/content/dialogue';
+import { coopBossLines, dialogue, eventTextFor, firstMeetLine, setCoopStory, storyFor } from '../../src/content/dialogue';
 import { events } from '../../src/content/events';
 
 /**
@@ -86,5 +86,49 @@ describe('三隻貓的連線敘事不會叫錯人', () => {
     }
     expect(storyFor('ninja').hardModeEpilogue).toBe(dialogue.hardModeEpilogue);
     expect(firstMeetLine('ninja', 'mirror_qiuqiu')).toBe(storyFor('ninja').firstMeet['mirror_qiuqiu']);
+  });
+});
+
+/**
+ * 搭檔一起打大俠貓時的整組接話（稿子 DD-CB-01～20）。
+ *
+ * 這一組**不能再過換口氣那一層**：連線時「球球：……喵」是球球本人在講，
+ * 不是「我」講的話。過了的話他那句會被改成我的口氣、木牌還會寫我的名字。
+ */
+describe('搭檔一起打大俠貓', () => {
+  it('只有大俠貓有專屬接話，其他關主照舊', () => {
+    setCoopStory({ partner: 'dangdang', mirror: 'ninja' });
+    expect(coopBossLines('tower_master', 'intro', 'ninja')).toBeTruthy();
+    expect(coopBossLines('nekomata', 'intro', 'ninja'), '貓又婆婆不該有專屬版').toBeNull();
+  });
+
+  it('一個人玩、或沒寫過的搭檔，一律回 null（照舊走共用那份）', () => {
+    setCoopStory(null);
+    expect(coopBossLines('tower_master', 'intro', 'ninja')).toBeNull();
+    setCoopStory({ partner: 'feifei', mirror: 'ninja' });
+    expect(coopBossLines('tower_master', 'intro', 'ninja'), '球球＋菲菲還沒寫').toBeNull();
+    setCoopStory({ partner: 'ninja', mirror: 'ninja' });
+    expect(coopBossLines('tower_master', 'intro', 'ninja'), '兩位同角色不算搭檔').toBeNull();
+  });
+
+  it('兩位都有台詞，而且兩台機器拿到同一組', () => {
+    for (const stage of ['intro', 'phase2', 'phase3'] as const) {
+      setCoopStory({ partner: 'dangdang', mirror: 'ninja' });
+      const a = coopBossLines('tower_master', stage, 'ninja')!;
+      setCoopStory({ partner: 'ninja', mirror: 'ninja' });
+      const b = coopBossLines('tower_master', stage, 'dangdang')!;
+      expect(a.map((l) => l.text), `${stage} 兩邊拿到的不一樣`).toEqual(b.map((l) => l.text));
+      const who = new Set(a.map((l) => l.speaker));
+      expect(who.has('噹噹'), `${stage} 噹噹沒開口`).toBe(true);
+    }
+  });
+
+  it('球球那幾句原封不動留著「喵」——那是他本人在講', () => {
+    setCoopStory({ partner: 'dangdang', mirror: 'ninja' });
+    const all = (['intro', 'phase2', 'phase3'] as const)
+      .flatMap((st) => coopBossLines('tower_master', st, 'ninja')!)
+      .filter((l) => l.speaker === '球球');
+    expect(all.length).toBeGreaterThan(2);
+    expect(all.every((l) => l.text.includes('喵')), '球球的句子被拿掉喵了').toBe(true);
   });
 });

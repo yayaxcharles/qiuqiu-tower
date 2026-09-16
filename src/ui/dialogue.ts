@@ -43,7 +43,13 @@ function portraitOf(speaker: DialogueLine['speaker']): string | null {
 /** 「塔主」這個說話者實際上是誰：關主開場時傳進來，木牌與立繪都換成該關關主本人 */
 export interface SpeakerCast { name: string; portrait: string }
 
-export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: { 塔主?: SpeakerCast }): void {
+export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: { 塔主?: SpeakerCast },
+                             /**
+                              * 這一組**已經是最終文字**，不要再換口氣（2026-09-17 搭檔關主接話）。
+                              * 連線時「球球：……喵」就是球球本人在講，過 `lineFor` 會被改成我的口氣、
+                              * 木牌還會寫成我的名字。
+                              */
+                             literal = false): void {
   /*
    * **入口統一過一次「換角色的口氣」**（稽核 2026-09-12 中-10）。
    *
@@ -55,7 +61,7 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
    * 她專屬、真的重寫過的那幾段（序章、過關、落敗、結局）本來就沒有「喵」，過這一層也沒差。
    */
   // 塔主與旁白講到主角的那幾句也要換（「小兄弟」「看了球球一眼」，夜間稽核 中-3）
-  lines = lines.map((l) => ({ ...l, text: l.speaker === '球球' ? lineFor(localHero(), l.text) : castLineFor(localHero(), l.text) }));
+  if (!literal) lines = lines.map((l) => ({ ...l, text: l.speaker === '球球' ? lineFor(localHero(), l.text) : castLineFor(localHero(), l.text) }));
   const layer = overlayRoot();
   if (!layer || lines.length === 0) { onDone(); return; }
   let i = 0;
@@ -74,7 +80,7 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     // 「塔主」有指定本人時換成本人：第一關打貓又婆婆，卻掛師父的臉跟「塔主」木牌，
     // 玩家會以為在跟師父講話（使用者實玩回報）
     const who = l.speaker === '塔主' ? cast?.['塔主'] : undefined;
-    speaker.textContent = l.speaker === '旁白' ? '' : (who?.name ?? (l.speaker === '球球' ? heroSpeaker() : l.speaker));
+    speaker.textContent = l.speaker === '旁白' ? '' : (who?.name ?? (l.speaker === '球球' && !literal ? heroSpeaker() : l.speaker));
     text.textContent = l.text;
     box.classList.toggle('narration', l.speaker === '旁白');
     // 換人講話才重設圖，同一個人連講好幾句時不要每句都重播進場動畫
