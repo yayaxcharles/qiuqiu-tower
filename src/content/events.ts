@@ -12,11 +12,11 @@ export const events: EventDef[] = [
    * 其餘 36 個共用事件不鎖職業，只在顯示時換名字與口氣（見 `eventTextFor`）。
    */
   { id: 'feifei_trace', title: '師兄的痕跡', hero: 'feifei', acts: [1, 2],
-    text: '牆縫裡卡著幾根針，有的已經彎了。地上散著小魚乾，旁邊還掛著深藍色的線頭。菲菲認出那是師兄頭巾的布料。他走過這裡，連東西掉了都沒發現。',
+    text: '牆縫裡還卡著幾根菲菲射出的針，有的已經彎了。她走近查看，發現地上散著小魚乾，旁邊還掛著深藍色的線頭。那是師兄頭巾上的線。他也走過這裡。',
     choices: [
       { label: '把針收起來（回復 12 點生命、獲得 20 條小魚乾）',
         outcome: [{ kind: 'heal', n: 12 }, { kind: 'fish', n: 20 }],
-        result: '菲菲把針和線頭包起來，坐下吃了些小魚乾，再將剩下的乾糧裝進袋子。菲菲：「又掉東西……回去得替他縫牢一點。」', resultArt: 'feifei_trace_r0' },
+        result: '菲菲把牆上的針一根根拔下，連同線頭收好。她吃了些小魚乾，再把剩下的裝進袋子。菲菲：「師兄的頭巾又破了。等找到他，再替他補。」', resultArt: 'feifei_trace_r0' },
       // 標籤照實際效果寫（使用者 2026-09-14 裁定改標籤）：原本寫「下一場魔物更強、小魚乾加倍」，那套玩法從來沒做，旗標也沒人讀
       { label: '照著痕跡追上去（最多失去 5 點生命；隨機獲得 1 張罕見忍術牌、獲得 60 條小魚乾）',
         outcome: [{ kind: 'flag', name: 'feifei_chasing' }, { kind: 'damage', n: 5 }, { kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }, { kind: 'fish', n: 60 }],
@@ -27,7 +27,7 @@ export const events: EventDef[] = [
     choices: [
       { label: '熬一鍋（升級至多 1 張牌）',
         outcome: [{ kind: 'upgradeCard' }],
-        result: '她把草葉搗碎，加水熬成濃汁，隔著布替針尖上藥。菲菲：「比平常那批濃，份量得減些。」', resultArt: 'feifei_brew_r0' },
+        result: '她把草葉搗碎，加水熬成濃汁，隔著布替針尖上藥。菲菲：「比平常那批濃，分量得減些。」', resultArt: 'feifei_brew_r0' },
       { label: '直接嚼一口試毒性（失去 8 點生命、獲得 1 張稀有牌）',
         outcome: [{ kind: 'damage', n: 8 }, { kind: 'addRandomCard', pool: '絕學', rarity: '稀有' }],
         result: '她猶豫了好一會，仍咬下一點草葉。苦澀伴著刺痛湧上來，她彎下身乾嘔，眼淚直掉。等能握筆，才把反應記進本子。菲菲：「記下來了……不要再試第二次。」', resultArt: 'feifei_brew_r1' },
@@ -55,13 +55,13 @@ export const events: EventDef[] = [
     choices: [
       { label: '用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'addCard', cardId: 'shibai' }],
-        result: '她用飛針卡住齒輪，取出小魚乾。拔回的針已被壓彎，熟悉的求援節拍卻仍在腦中反覆響著。菲菲：「明明知道不是他，還是忍不住聽。」', resultArt: 'feifei_signal_r0' },
+        result: '她用飛針卡住齒輪，取出小魚乾。拔回的針已經壓彎，她抱著袋子打了個大呵欠——這一下耗掉的力氣比想像中多。菲菲：「先歇一下……就一下下。」', resultArt: 'feifei_signal_r0' },
       { label: '墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'damage', n: 10 }],
         result: '她墊著袖布撐開機關，鐵片仍劃破了手。菲菲：「把手抽出來，別卡在裡面……」取出小魚乾後，她在牆邊按住傷口。那聲音再響，她也沒有回頭。', resultArt: 'feifei_signal_r1' },
     ] },
   { id: 'daxia_teach', title: '師父留下的秘笈', fixedFloor: 5,
-    text: '樓梯間落著一本秘笈，封面被貓爪抓得起毛。球球翻到扉頁，一眼認出師父的字跡；再往後翻，正好有三招絕學。',
+    text: '樓梯間的秘笈封面已經起毛。球球往後翻，找到三招絕學的圖解。',
     choices: [
       { label: '研讀秘笈（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }], result: '球球攤開秘笈，仔細看上面的三幅圖。球球：「字有點難認，先看圖好了喵。」', resultArt: 'daxia_teach_r0' },
       { label: '放回原位（無效果）', outcome: [], result: '球球合上秘笈，放回樓梯邊。球球：「這招看不懂，等找到師父再問他喵。」' },
@@ -83,7 +83,7 @@ export const events: EventDef[] = [
   { id: 'rescue', title: '江湖救急',
     text: '球球把受傷的村貓救到安全的角落，替牠包好傷口。村貓緩過氣，拿出一包小魚乾和一罐備用的貓草藥：「謝謝你救了我。這兩樣請挑一樣，讓我表個心意。」',
     choices: [
-      { label: '收下貓草藥（回復 20 點生命）', outcome: [{ kind: 'flag', name: 'rescue_took_herb' }, { kind: 'heal', n: 20 }], result: '貓草藥一入口，球球就苦得皺起了臉。喝完後，傷口總算沒那麼痛了。球球：「好苦，能給我喝點水嗎喵？」', resultArt: 'rescue_r0' },
+      { label: '收下貓草藥（回復 20 點生命）', outcome: [{ kind: 'flag', name: 'rescue_took_herb' }, { kind: 'heal', n: 20 }], result: '貓草藥一入口，球球就苦得皺起了臉。喝完後，傷口總算沒那麼痛了。球球：「好苦，快給我一口水喵！」', resultArt: 'rescue_r0' },
       { label: '收下小魚乾（獲得 40 條小魚乾）', outcome: [{ kind: 'flag', name: 'rescue_took_fish' }, { kind: 'fish', n: 40 }], result: '球球收好小魚乾，替村貓檢查了一次繃帶，才起身道別。球球：「傷還沒好，先別亂跑喵。」', resultArt: 'rescue_r1' },
     ] },
   { id: 'blocked', title: '此路不通',
@@ -147,7 +147,7 @@ export const events: EventDef[] = [
   { id: 'sparring_cat', title: '硬要切磋的白貓',
     text: '一隻白貓抱著手臂擋住樓梯，身旁還有穿著黑衣的師弟。「陪我們練一場。贏了，另外給你 60 條小魚乾。」球球想從旁邊走，白貓也跟著橫跨一步，硬是不肯讓路。',
     choices: [
-      { label: '接下挑戰（打一場，勝利後額外獲得 60 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'white_duelist', bonusFish: 60 }], result: '白貓擺好架式，旁邊的黑貓也抬起爪子。球球把魚乾袋收好，站到兩隻貓面前。球球：「兩個一起打，你們也好意思喵？」' },
+      { label: '接下挑戰（打一場，勝利後額外獲得 60 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'white_duelist', bonusFish: 60 }], result: '白貓擺好架勢，旁邊的黑貓也抬起爪子。球球把魚乾袋收好，站到兩隻貓面前。球球：「兩個一起打，你們也好意思喵？」' },
       { label: '硬從旁邊擠過去（最多失去 8 點生命）', outcome: [{ kind: 'damage', n: 8 }], result: '球球從旁邊往樓梯擠，白貓卻撞了過來，撞得牠肩膀發麻。牠忍痛鑽過空隙，快步上樓。球球：「不陪你打，就故意撞我喵？」', resultArt: 'sparring_cat_r1' },
     ] },
 
@@ -198,7 +198,7 @@ export const events: EventDef[] = [
     choices: [
       { label: '購買混裝忍具（支付 25 條小魚乾，隨機獲得 2 個忍具）', costFish: 25, outcome: [{ kind: 'potions', n: 2 }], result: '三花貓收下小魚乾，從箱裡拿出兩個忍具。球球接過來，把標記看清楚才收進行囊。球球：「這兩個怎麼用，你說清楚一點喵。」', resultArt: 'medicine_cat_r0' },   // 文案照使用者 2026-09-06（結果句也講「忍具」，不再講「瓶子」）
       { label: '購買祖傳補身藥（支付 60 條小魚乾，生命上限與當前生命各 +12）', costFish: 60, outcome: [{ kind: 'maxHp', n: 12 }], result: '球球喝下補身藥，沒多久身上就暖了，抬爪也比先前有力。牠把空碗還給三花貓。球球：「真的有用，就是賣得太貴了喵。」', resultArt: 'medicine_cat_r1' },
-      { label: '不買（無效果）', outcome: [], result: '球球看完價目牌，搖搖頭。三花貓見牠不買，也收起了量匙。球球：「太貴了，我再去別家看看喵。」' },
+      { label: '不買（無效果）', outcome: [], result: '球球看完價目牌，搖搖頭。三花貓見牠不買，也收起了量匙。球球：「太貴了，這次先不買喵。」' },
     ] },
 
   { id: 'stuck_kitten', title: '卡住的小貓',
@@ -329,7 +329,7 @@ export const events: EventDef[] = [
   { id: 'rescue_return_fish', title: '欠村貓的那一份', acts: [2, 3], requiresFlag: 'rescue_took_fish',
     text: '球球在牆邊認出上次救過的村貓。牠的傷已經好了，肚子卻餓得咕嚕叫。「後來存糧又被搶了，找了半天，只剩這罐藥。」牠看見球球，仍努力擠出一個笑。',
     choices: [
-      { label: '分給牠 40 條小魚乾（回復 25 點生命，自選移除 1 張牌）', costFish: 40, outcome: [{ kind: 'heal', n: 25 }, { kind: 'removeCard' }], result: '村貓收下小魚乾，拿出傷藥替球球包紮。休息時，球球回想自己常用的招式，準備捨去其中不合用的。球球：「這次你先吃飽，我也在這裡歇一下喵。」', resultArt: 'rescue_return_fish_r0' },
+      { label: '分給牠 40 條小魚乾（回復 25 點生命，自選移除 1 張牌）', costFish: 40, outcome: [{ kind: 'heal', n: 25 }, { kind: 'removeCard' }], result: '球球把小魚乾放到村貓面前。球球：「上次收了你的口糧，這次換我請你吃喵。」村貓收下後，拿出傷藥替牠包紮。球球趁著休息，回想有哪些招式用不順，準備捨去其中一招。', resultArt: 'rescue_return_fish_r0' },
       { label: '低頭趕路（牌組加入 1 張壞毛病「眼冒金星」）', outcome: [{ kind: 'addCard', cardId: 'dazed_card' }], result: '球球低頭走開，腦中卻一直浮現村貓挨餓的樣子。牠越想越恍神，眼前的階梯都晃了起來，只好扶住牆。球球：「牠還餓著，我卻就這樣走了喵……」', resultArt: 'rescue_return_fish_r1' },
     ] },
   { id: 'robin_feast', title: '村貓的謝宴', acts: [2, 3], requiresFlag: 'robin_shared',
