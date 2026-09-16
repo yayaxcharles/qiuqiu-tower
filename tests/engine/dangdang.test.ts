@@ -203,7 +203,8 @@ describe('噹噹：條件與收尾', () => {
 describe('噹噹：牌面文字唸得通', () => {
   it('消耗類的牌面寫「卸掉」，而且說得出卸幾點', () => {
     expect(describeCard(cardById['dd_xieli']!, false)).toContain('最多卸掉 6 點蜷縮');
-    expect(describeCard(cardById['dd_tieshan']!, false)).toContain('卸掉全部的蜷縮');
+    // 「身上的」不寫「全部」：帶著銅牆鐵壁時只卸一半，寫「全部」跟實際對不上（審查 2026-09-17 低-1）
+    expect(describeCard(cardById['dd_tieshan']!, false)).toContain('卸掉身上的蜷縮');
     expect(describeCard(cardById['dd_tieshan']!, false)).toContain('無視防禦');
     expect(describeCard(cardById['dd_sheshen']!, false)).toContain('兩倍');
     expect(describeCard(cardById['dd_jieshi']!, false)).toContain('反彈不會因此減少');

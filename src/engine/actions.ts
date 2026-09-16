@@ -261,6 +261,9 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
      * 自傷與中毒走 `direct` 那一條，根本到不了這裡。
      */
     if (p.blockWhenAttacked && cs.enemies.some((x) => x === attacker)) {
+      // 要留紀錄：`gainBlock` 自己不寫，不寫的話蜷縮會在挨打途中莫名往上跳
+      //（這個專案被回報過好幾次同型的事：反彈要飄字、擋住要飄字）
+      log(cs, `${unitName(p)}蹲得更穩，多了 ${p.blockWhenAttacked} 點蜷縮`);
       gainBlock(cs, p, p.blockWhenAttacked);
     }
   }

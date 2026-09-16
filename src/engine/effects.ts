@@ -76,7 +76,10 @@ function markPassive(p: PlayerCombat, ctx: EffectCtx, stacks = false): void {
 function flushSelfBlock(cs: CombatState, p: PlayerCombat, ctx: EffectCtx, queue: Effect[]): void {
   const more = queue.some((e) => e.kind === 'block'
     || (e.kind === 'blockAlly' && ally(cs, p) === p)
-    || (e.kind === 'blockAll'));
+    || (e.kind === 'blockAll')
+    // 借勢（噹噹）也是落在自己身上的一份。今天沒有牌把它排在 `block` 後面，
+    // 但漏了的話以後有人這樣寫，貓步跟拒馬就會被吃兩遍（2026-09-13 中-6 修過的同一個坑）
+    || (e.kind === 'blockFromThorns'));
   if (more) return;                                  // 後面還有，等最後那一條再一起發
   const n = ctx.selfBlockPool ?? 0;
   if (n > 0) gainBlock(cs, p, n);

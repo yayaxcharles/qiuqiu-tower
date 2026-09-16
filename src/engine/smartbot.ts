@@ -54,6 +54,8 @@ const RATING: Record<string, number> = {
   // 起手（菲菲的三張照球球的對應牌評：飛針＝貓抓、退開＝淡定、淬毒＝替身術。
   // 沒列的話會照稀有度預設 4，她的起手牌就永遠不算廢牌、一輩子不會被放生，牌組會比球球多帶三張基本牌）
   sanjo: 2, tanding: 2, kawarimi: 3, feifei_feizhen: 2, feifei_tuikai: 2, feifei_cuidu: 3,
+  // 噹噹的三張同理：正拳＝貓抓、架盤＝淡定、回敬＝替身術那一格
+  dd_zhengquan: 2, dd_jiapan: 2, dd_huijing: 3,
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,
@@ -265,7 +267,11 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
    * 加新的傷害種類記得回頭補這一行，跟 `damageTo` 是一對。
    */
   const DMG_KINDS: ReadonlySet<Effect['kind']> = new Set(
-    ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus']);
+    ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
+     // 2026-09-17 噹噹的兩種。漏掉的時候他六張主力牌（卸力掌、崩山掌、震盪波、鐵山靠、
+     // 原樣奉還、捨身撞）的分數只剩負的出牌成本，永遠過不了 0.5 的門檻——
+     // 第一次量出來的平衡數字就是這樣來的，而且一聲都沒響
+     'damageSpendBlock', 'damageByOwnStatus']);
   const hasDamage = st.effects.some((fx) => DMG_KINDS.has(fx.kind));
 
   if (hasDamage) {
@@ -532,7 +538,26 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
        * 傷害那幾種（`damageSpendBlock`、`damageByOwnStatus`）在 switch 之前的傷害估算區
        * 已經算過了，這裡跟 `damage` 一樣不重複計。
        */
-      case 'damageSpendBlock': case 'damageByOwnStatus': break;
+      /*
+       * 傷害本身在 switch 之前的傷害估算區算過了，這裡只補**代價**：
+       * 卸出去的那幾點蜷縮本來擋得住這一輪的攻擊，不扣的話機器人會
+       * 「有蜷縮就全部拿去打」——那正好是這個角色最不該亂做的事，
+       * 量出來的難度會偏樂觀（審查 2026-09-17 低-11）。
+       */
+      case 'damageSpendBlock': {
+        const want = fx.all ? p.block : (fx.max ?? 0);
+        const hit = Math.min(want, p.halfSpendBlock ? p.block * 2 : p.block);
+        const spent = p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
+        /*
+         * 扣的是「**本來擋得住、卸出去就擋不住**的那幾點」，不是卸掉的總量。
+         * 蜷縮 10、這一輪只會挨 8 的時候，卸掉 6 其實只少擋 4——
+         * 照總量扣的話，機器人連多出來的那幾點都捨不得拿去打（審查 2026-09-17 低-11 的修正版）。
+         */
+        const useful = (b: number): number => Math.min(b, incoming);
+        value -= (useful(p.block) - useful(p.block - spent)) * (lowHp ? 3 : danger ? 1.6 : 1.1);
+        break;
+      }
+      case 'damageByOwnStatus': break;   // 反彈不會被消耗，沒有代價
       case 'healSpendBlock': {
         // 卸蜷縮換血：擋不到的那幾點蜷縮本來就要歸零，換成血是淨賺；擋得到的就是換掉一次防禦
         const spend = Math.min(fx.max, p.halfSpendBlock ? p.block * 2 : p.block);
@@ -548,7 +573,12 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         break;
       }
       // 穩住：把本來要歸零的蜷縮留到下一回合，所以值的是「**擋不到的那幾點**」
-      case 'keepBlock': value += Math.min(fx.n, Math.max(0, p.block - incoming)) * 0.7; break;
+      // 同一張牌前面那條 `block` 還沒結算，所以要把它一起算進來（審查 2026-09-17 低-10）
+      case 'keepBlock': {
+        const soon = p.block + st.effects.reduce((n, e) => n + (e.kind === 'block' ? e.amount : 0), 0);
+        value += Math.min(fx.n, Math.max(0, soon - incoming)) * 0.7;
+        break;
+      }
       case 'ifBlock': break;        // 條件分支的價值在傷害估算區算過；`then` 裡的加狀態量級太小，不另計
       case 'ifEnemyIntent': break;  // 同上
       /*
@@ -557,8 +587,18 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
        */
       // 銅牆鐵壁：之後每張消耗牌等於多打一半。抓每回合卸一次、每次 8 點當量
       case 'halfSpendBlock': value += rest * 4 * 0.9; break;
-      // 千斤墜：每挨一招拿幾點蜷縮。一回合大約挨一招
-      case 'blockWhenAttacked': value += fx.n * rest * 0.9; break;
+      /*
+       * 千斤墜：每**挨一下**拿幾點蜷縮，而魔物的多段攻擊是一段算一下
+       *（狂風連掌 10×7、十二連環 7×6）。原本抓「一回合挨一招」，
+       * 對上連段的關主低估好幾倍（審查 2026-09-17 中-2）。
+       * 改成照這一輪**真的會挨幾下**算，場上是誰就看誰。
+       */
+      case 'blockWhenAttacked': {
+        const hitsPerTurn = Math.max(1, enemies.reduce((n, e) => n + (e.move.intent === 'attack'
+          ? e.move.effects.reduce((k, x) => k + (x.kind === 'damage' ? (x.times ?? 1) : 0), 0) : 0), 0));
+        value += fx.n * rest * hitsPerTurn * 0.9;
+        break;
+      }
       // 以傷還傷：**身上要先有反彈才算數**。沒有反彈的話這張是純廢牌，估 0 是對的
       case 'thornsBonus': value += getStatus(p, '反彈') > 0 ? fx.n * rest * 0.9 : 0; break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）

@@ -32,10 +32,16 @@ const ALLY_KINDS = new Set<Effect['kind']>([
  * 用的字跟戰鬥畫面那排意圖圖示的說明一致，不然牌面講一套、圖示講另一套。
  */
 const INTENT_TEXT: Readonly<Record<string, string>> = {
-  attack: '魔物這回合要攻擊', block: '魔物這回合要防禦', buff: '魔物這回合要強化自己',
-  debuff: '魔物這回合要對你下手', summon: '魔物這回合要叫幫手', special: '魔物這回合要出怪招',
-  idle: '魔物這回合按兵不動',
+  // 引擎是「**任何一隻**符合就算」，所以寫「有魔物」不寫「魔物」（審查 2026-09-17 低-6）
+  attack: '有魔物這回合要攻擊', block: '有魔物這回合要防禦', buff: '有魔物這回合要強化自己',
+  debuff: '有魔物這回合要對你下手', summon: '有魔物這回合要叫幫手', special: '有魔物這回合要出怪招',
+  idle: '魔物這回合都按兵不動',
 };
+
+/** 條件句裡的「再」：「造成 6 點傷害；蜷縮大於 10 的話，**再**造成 6 點傷害」 */
+function again(s: string): string {
+  return /^(造成|獲得|抽|回復)/.test(s) ? `再${s}` : s;
+}
 
 /** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
@@ -129,10 +135,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
      *（打完就不見的那種牌），同一個詞當兩件事用，提示框會兩條都跳出來。
      */
     case 'damageSpendBlock': {
-      const hit = fx.target === 'all' ? '對全體魔物造成等量傷害' : '造成等量傷害';
-      const mul = (fx.mul ?? 1) > 1 ? `的${({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍` : '';
-      const head = fx.all ? `卸掉全部的蜷縮，${hit}${mul}` : `最多卸掉 ${fx.max ?? 0} 點蜷縮，${hit}${mul}`;
-      return head + (fx.ignoreBlock ? '，無視防禦' : '');
+      // 「卸掉身上的蜷縮」不寫「全部」：帶著銅牆鐵壁時只卸一半，寫「全部」跟實際對不上
+      const spend = fx.all ? '卸掉身上的蜷縮' : `最多卸掉 ${fx.max ?? 0} 點蜷縮`;
+      const n = ({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `;
+      const hit = (fx.mul ?? 1) > 1 ? `造成卸掉點數${n}倍的傷害` : '造成等量傷害';
+      const who = fx.target === 'all' ? hit.replace('造成', '對全體魔物造成') : hit;
+      return `${spend}，${who}` + (fx.ignoreBlock ? '，無視防禦' : '');
     }
     case 'healSpendBlock': return `最多卸掉 ${fx.max} 點蜷縮，回復等量生命`;
     case 'blockFromThorns': return '把你的反彈點數加到蜷縮上（反彈不會因此減少）';
@@ -140,13 +148,14 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       ? `造成你${fx.name}點數${({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍的傷害`
       : `造成等同你${fx.name}點數的傷害`;
     // 「身上有蜷縮」比「蜷縮不少於 1 點」好唸，只有門檻 1 這樣寫
+    // 條件成立才跑的那幾條接在前一句後面，動詞前補個「再」才不會唸成重複兩次
     case 'ifBlock': return `${fx.min <= 1 ? '身上有蜷縮的話' : `蜷縮大於 ${fx.min - 1} 的話`}，`
-      + fx.then.map((e) => one(e, ctx)).join('，');
-    case 'ifEnemyIntent': return `${INTENT_TEXT[fx.intent]}的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+      + fx.then.map((e) => again(one(e, ctx))).join('，');
+    case 'ifEnemyIntent': return `${INTENT_TEXT[fx.intent]}的話，` + fx.then.map((e) => again(one(e, ctx))).join('，');
     case 'keepBlock': return `這回合結束時最多保留 ${fx.n} 點蜷縮`;
-    case 'halfSpendBlock': return '之後卸掉蜷縮的牌只卸一半（不滿一點算一點），打出去的力道不變';
-    case 'blockWhenAttacked': return `之後每次被魔物打到，獲得 ${fx.n} 點蜷縮`;
-    case 'thornsBonus': return `之後反彈回敬時，額外多打 ${fx.n} 點`;
+    case 'halfSpendBlock': return '之後卸掉蜷縮的牌只卸一半（不滿一點算一點，連卸光那種也是），打出去的力道不變';
+    case 'blockWhenAttacked': return `之後每次被魔物攻擊（擋下來也算），獲得 ${fx.n} 點蜷縮`;
+    case 'thornsBonus': return `之後反彈回敬時多打 ${fx.n} 點`;
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
     // 倍率寫成「兩倍」不是「×2」：牌面其他地方都用中文，突然冒一個乘號很跳（2026-09-14）。

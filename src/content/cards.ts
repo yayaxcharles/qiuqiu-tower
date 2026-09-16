@@ -764,8 +764,14 @@ export const cards: readonly CardDef[] = [
   // ----- 忍術・常見 8 張：先讓玩家學會「蜷縮是彈藥」，數值都小 -----
   { id: 'dd_xieli', name: '卸力掌', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_xieli', hidden: true,
     effects: [{ kind: 'damageSpendBlock', max: 6 }], upgrade: { effects: [{ kind: 'damageSpendBlock', max: 8 }] } },
+  /*
+   * 6 點對上共用的變身術（1 費常見 10 點）是嚴格比較差，等於白做（審查 2026-09-17 中-4）。
+   * 不把數字加大——那只是變成第二張變身術。改成跟他的另一條路綁在一起：
+   * 身上有反彈才擋得更穩，而反彈是別的角色拿不到的東西。
+   */
   { id: 'dd_huben', name: '護臂格擋', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_huben', hidden: true,
-    effects: [{ kind: 'block', amount: 6 }], upgrade: { effects: [{ kind: 'block', amount: 9 }] } },
+    effects: [{ kind: 'block', amount: 7 }, { kind: 'ifSelfStatus', name: '反彈', then: [{ kind: 'block', amount: 4 }], otherwise: [] }],
+    upgrade: { effects: [{ kind: 'block', amount: 10 }, { kind: 'ifSelfStatus', name: '反彈', then: [{ kind: 'block', amount: 5 }], otherwise: [] }] } },
   { id: 'dd_yingpeng', name: '硬碰硬', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_yingpeng', hidden: true,
     effects: [{ kind: 'damage', amount: 4 }, { kind: 'ifBlock', min: 1, then: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] }],
     upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'ifBlock', min: 1, then: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }] }] } },
@@ -788,7 +794,9 @@ export const cards: readonly CardDef[] = [
   { id: 'dd_huili', name: '迴力鏢', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_huili', hidden: true,
     effects: [{ kind: 'status', name: '反彈', amount: 4, target: 'self' }],
     upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 6, target: 'self' }] } },
-  { id: 'dd_jiahou', name: '護臂加厚', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_jiahou', hidden: true,
+  // 跟菲菲的拒馬是同一張（同效果、同費用），她那張是稀有，這張跟著改成稀有；
+  // 配上千斤墜「每一段攻擊都給」，他這張實際上還更強（審查 2026-09-17 中-4）
+  { id: 'dd_jiahou', name: '護臂加厚', cost: 1, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_jiahou', hidden: true,
     effects: [{ kind: 'blockBonus', n: 2 }], upgrade: { effects: [{ kind: 'blockBonus', n: 3 }] } },
   // 名字本來照設計稿寫「以彼之道」，但忍具已經有一支同名（`your_way`）——
   // 同名不同物正是 2026-09-16 剛清掉的那一類問題，所以改成「原樣奉還」
@@ -804,13 +812,21 @@ export const cards: readonly CardDef[] = [
   { id: 'dd_xiejia', name: '卸甲', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_xiejia', hidden: true,
     effects: [{ kind: 'block', amount: 8 }, { kind: 'draw', n: 1 }],
     upgrade: { effects: [{ kind: 'block', amount: 10 }, { kind: 'draw', n: 1 }] } },
+  /*
+   * 原本是純 15 點，被共用的金鐘罩（2 費**常見** 17 點）壓死（審查 2026-09-17 中-4）。
+   * 改成「擋得住，而且留得下來」——留下來的那幾點下一輪可以拿去卸，
+   * 這正是他整套最缺的一環：蜷縮打出去之後，下一輪就裸著。
+   */
   { id: 'dd_yingkang', name: '硬扛', cost: 2, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_yingkang', hidden: true,
-    effects: [{ kind: 'block', amount: 15 }], upgrade: { effects: [{ kind: 'block', amount: 20 }] } },
+    effects: [{ kind: 'block', amount: 15 }, { kind: 'keepBlock', n: 8 }],
+    upgrade: { effects: [{ kind: 'block', amount: 20 }, { kind: 'keepBlock', n: 12 }] } },
   { id: 'dd_lianhuan', name: '連環撞', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dd_lianhuan', hidden: true,
     // 門檻寫 11 不是 10：牌面說「大於 10」，寫 10 會變成「10 也算」，玩家會覺得牌面在騙人
     effects: [{ kind: 'damage', amount: 6 }, { kind: 'ifBlock', min: 11, then: [{ kind: 'damage', amount: 6 }] }],
     upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'ifBlock', min: 11, then: [{ kind: 'damage', amount: 8 }] }] } },
-  { id: 'dd_huxin', name: '護心鏡', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_huxin', hidden: true,
+  // 「護心鏡」跟共用的「絕學·護心」只差一個字，兩張又都是 1 費能力、都在回合開始觸發，
+  // 戰鬥紀錄上分不出來。改名「站樁」：站定不動、挨了打就頂回去（審查 2026-09-17 中-3）
+  { id: 'dd_huxin', name: '站樁', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_huxin', hidden: true,
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }] }] } },
   { id: 'dd_jieshi', name: '借勢', cost: 0, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dd_jieshi', hidden: true,
@@ -827,9 +843,14 @@ export const cards: readonly CardDef[] = [
   // ----- 絕學・稀有 6 張 -----
   { id: 'dd_tieshan', name: '絕學·鐵山靠', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'enemy', art: 'card/dd_tieshan', hidden: true,
     effects: [{ kind: 'damageSpendBlock', all: true, ignoreBlock: true }], upgrade: { cost: 1 } },
+  /*
+   * 原本是「每回合開始 5 點蜷縮」——那跟共用的絕學·護心一字不差，而且升級還比它差
+   *（審查 2026-09-17 中-3）。同一副牌裡兩張都開得到，自己那張比較爛。
+   * 改成兩邊各給一點：蜷縮是擋，反彈是回敬，這才是他兩條路的樣子。
+   */
   { id: 'dd_hubigong', name: '絕學·護臂功', cost: 1, type: 能, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'self', art: 'card/dd_hubigong', hidden: true,
-    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 5 }] }],
-    upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 7 }] }] } },
+    effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 4 }, { kind: 'status', name: '反彈', amount: 2, target: 'self' }] }],
+    upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'block', amount: 5 }, { kind: 'status', name: '反彈', amount: 3, target: 'self' }] }] } },
   /*
    * 回馬掌刻意保留「**不消耗**」那個手感（原規格就是這樣打的），
    * 代價改成「這回合不能再打攻擊牌」——爽度留著，取捨補回來。
