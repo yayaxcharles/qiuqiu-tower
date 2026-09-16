@@ -911,8 +911,19 @@ let coopStory: CoopStoryCtx = {};
 /** 開局、續玩、連線大廳都要設；單機傳 `null`（`app.ts` 的 `syncStory`） */
 export function setCoopStory(ctx: CoopStoryCtx | null): void { coopStory = ctx ?? {}; }
 
-const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+/*
+ * ===== 混搭連線時要改口的句子（2026-09-11，2026-09-17 加一層）=====
+ *
+ * 外層是**我是誰**，第二層是**對方是誰**，最裡面才是「原句 → 換成這句」。
+ *
+ * 第二層是加第三隻貓時補的。原本只有兩層，因為那時候只有兩個角色可以配——
+ * 「對方」不必寫也只可能是另外那一位。加了噹噹之後那個假設就不成立了：
+ * 球球跟噹噹一起爬時，會讀到「身形跟師妹一模一樣」這種指名道姓的句子，
+ * 而師妹根本不在場。這種錯不會報錯、測試也照樣綠，只有玩家看得出來。
+ */
+const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
   feifei: {
+    ninja: {
     '是師兄的頭巾。他以前也老是勾破……回去又得替他補了。':
       '師兄，你的頭巾又勾破了……回去我再幫你補。',
     '師父，您再撐一下……師兄，你到底在哪裡？':
@@ -926,18 +937,52 @@ const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, string>>>> = 
       '婆婆，我也想回去。可是師父還在上面，我不能就這樣走。',
     '師父、師兄……你們那邊也看得到月亮嗎？':
       '師父……您那邊也看得到月亮嗎？',
+    },
+    /*
+     * 她跟噹噹一起爬。她的原句幾乎每一句都在找「師父跟師兄」兩個人，
+     * 而這一局師兄仍然下落不明——所以多半不用改口，只有指名的那幾句要調。
+     */
+    dangdang: {
+      '是師兄的頭巾。他以前也老是勾破……回去又得替他補了。':
+        '是師兄的頭巾。噹噹，你看——他真的走過這裡。',
+      '我還以為，找不到你們了。':
+        '我還以為，找不到你們了……噹噹，謝謝你陪我上來。',
+    },
   },
   ninja: {
+    feifei: {
     '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。':
       '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父和師妹就在旁邊聽。走到家門口時，球球才發現自己餓壞了。',
     '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。':
-      '回村以後，球球常向村裡的小貓講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下，師妹在旁邊補上他漏講的那幾段。',
+        '回村以後，球球常向村裡的小貓講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下，師妹在旁邊補上他漏講的那幾段。',
+    },
+    // 他跟噹噹一起爬：結局那兩段原本寫「師徒倆」與「向師妹講」，這一局旁邊站的是噹噹
+    dangdang: {
+      '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。':
+        '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父跟噹噹就在旁邊聽。走到村口時，噹噹先去看那扇門，球球才發現自己餓壞了。',
+      '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。':
+        '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下；噹噹在旁邊修門，偶爾補一句「那次你退了三步」。',
+    },
+  },
+  /*
+   * 噹噹自己的劇本本來就沒有把同伴寫死（他上塔是為了「把人帶回去」，不是師徒情），
+   * 所以要改口的地方少。這裡先放兩句最明顯的，其餘等真人玩過再補。
+   */
+  dangdang: {
+    ninja: {
+      '球球，菲菲，我來了。': '球球，我來了。菲菲還在裡面。',
+    },
+    feifei: {
+      '球球，菲菲，我來了。': '菲菲，我跟上了。球球還在裡面。',
+    },
   },
 };
 
 /** 鏡子走廊：鏡中那隻照座位 0 變裝，跟自己不同角色時讀到的是同伴的鏡像。鍵是**球球那份原句** */
-const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+/** 鏡子走廊的文案。外層是**我是誰**，第二層是**鏡子照的是誰**（理由同 `MIXED_LINES`） */
+const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
   feifei: {
+    ninja: {
     '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
       '走廊兩側排滿鏡子。菲菲停步，其中一面慢了半拍——鏡子裡站著的不是她，是一個綁著頭巾的黑影，身形跟師兄一模一樣。那個「師兄」沒有笑，先擺出了迎戰的架勢。',
     '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
@@ -945,9 +990,11 @@ const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, string>
     '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
       '黑影踏出鏡面，抬爪的角度跟師兄一模一樣，一出手卻全是照著學來的招式——這不是師兄。菲菲握緊飛針，往後退了半步。菲菲：「那個……你連我發抖都學，能不能不要靠過來？」',
     '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
-      '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那個假的沒有跟上吧？」',
+        '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那個假的沒有跟上吧？」',
+    },
   },
   ninja: {
+    feifei: {
     '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
       '走廊兩側排滿鏡子，無數個球球同時抬起頭。只有一面裡站的不是他——是個紮著蝴蝶結的黑影，身形跟師妹一模一樣，手裡還捏著針。',
     '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
@@ -955,7 +1002,8 @@ const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, string>
     '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
       '黑影踏出鏡面，抬手的角度跟師妹一模一樣，針尖卻對著他。球球壓低身子，把師妹擋在身後。球球：「假的就是假的，動作再像也沒用喵。」',
     '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
-      '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「別看了，那不是師妹喵。」',
+        '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「別看了，那不是師妹喵。」',
+    },
   },
 };
 
@@ -976,13 +1024,13 @@ function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine
 function mixedLine(hero: string | undefined, text: string): string {
   const h = hero ?? 'ninja';
   if (!coopStory.partner || coopStory.partner === h) return text;
-  return MIXED_LINES[h]?.[text] ?? text;
+  return MIXED_LINES[h]?.[coopStory.partner]?.[text] ?? text;
 }
 
 /** 這一局要不要換（`storyFor` 靠它決定要不要重建陣列，不換就維持原本的參照，既有測試照舊） */
 function mixedOn(hero: string | undefined): boolean {
   const h = hero ?? 'ninja';
-  return !!coopStory.partner && coopStory.partner !== h && !!MIXED_LINES[h];
+  return !!coopStory.partner && coopStory.partner !== h && !!MIXED_LINES[h]?.[coopStory.partner];
 }
 
 /**
@@ -991,16 +1039,28 @@ function mixedOn(hero: string | undefined): boolean {
  * 事件文字換了、這一句沒換的話，她會對著鏡中球球說「那張臉明明是我」（推前審查 中-1）。
  * 不能改成拿座位 0 的角色去查整張 `firstMeet`——那會讓另外一百多隻魔物的吐槽全變成同伴的口氣。
  */
-const MIXED_FIRST_MEET: Readonly<Record<string, string>> = {
-  feifei: '那是師兄的臉……可是師兄不會這樣笑。',
-  ninja: '鏡子裡站的是師妹，怎麼衝著我笑喵？',
+/**
+ * 鏡中那隻照的是**同伴**時，第一次看到牠講的話。
+ * 外層是我是誰、第二層是鏡子照的是誰（理由同 `MIXED_LINES`）。
+ *
+ * 查不到就退回自己那 111 句裡的 `mirror_qiuqiu`——那句講的是「鏡子裡的我」，
+ * 跟畫面上站的不是同一隻，但**至少不會叫錯人**，比指名道姓講錯好。
+ */
+const MIXED_FIRST_MEET: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  feifei: { ninja: '那是師兄的臉……可是師兄不會這樣笑。' },
+  ninja: { feifei: '鏡子裡站的是師妹，怎麼衝著我笑喵？' },
+  // 稿子 DD-MIR-02／03：只有對應的真人隊友真的在場時才用（這張表本來就只在混搭時查）
+  dangdang: {
+    ninja: '頭巾也一樣……球球，你別跟牠站在一起。',
+    feifei: '菲菲在我旁邊。你這個假的，別再往前了。',
+  },
 };
 
 /** 鏡中那隻照的是同伴時，牠的初見吐槽（`app.ts` 跳泡泡前過一手）；其餘魔物一律回 `undefined` */
 export function firstMeetLine(hero: string | undefined, enemyId: string): string {
   const h = hero ?? 'ninja';
   if (enemyId === 'mirror_qiuqiu' && coopStory.mirror && coopStory.mirror !== h) {
-    const mixed = MIXED_FIRST_MEET[h];
+    const mixed = MIXED_FIRST_MEET[h]?.[coopStory.mirror];
     if (mixed !== undefined) return mixed;
   }
   return storyFor(h).firstMeet[enemyId] ?? '';
@@ -1010,7 +1070,7 @@ export function firstMeetLine(hero: string | undefined, enemyId: string): string
 function mirrorEventText(hero: string | undefined, original: string): string | undefined {
   const h = hero ?? 'ninja';
   if (!coopStory.mirror || coopStory.mirror === h) return undefined;
-  return MIRROR_EVENT_TEXT[h]?.[original];
+  return MIRROR_EVENT_TEXT[h]?.[coopStory.mirror]?.[original];
 }
 
 export function storyFor(hero: string | undefined): {
