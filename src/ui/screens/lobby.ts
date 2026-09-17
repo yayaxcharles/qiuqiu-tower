@@ -129,7 +129,13 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
     void preloadCoopArt();   // 雙人專屬牌的牌面也是進大廳才補
     session.useRun(app.run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
-    app.show('map');
+    /*
+     * 連線也要演序章（2026-09-17 使用者指出「從頭到尾不會播」）。
+     * 這裡本來直接 `show('map')`，所以那兩段替搭檔寫的序章一直躺著沒人看得到。
+     * **不播開頭影片**：那支三十秒、一個人看另一個人乾等，而且兩位的影片還不一樣；
+     * 幻燈片可以自己點過去，影片不行。
+     */
+    app.playPrologue(me(app.run, seat).hero ?? 'ninja', () => app.show('map'), { video: false });
   };
   if (isHost) {
     const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;

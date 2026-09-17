@@ -182,26 +182,42 @@ export class App {
      * 球球是「我要把師父帶回家」，菲菲是「師父跟師兄都沒回來」。
      * 圖也各生一套（`feifei_still_*`），只有這四張非換不可：其餘場景（塔、魔物、忍具）共用。
      */
+    this.playPrologue(hero, () => { this.save(); this.show('map'); });
+  }
+
+  /**
+   * 序章：開頭影片（只有單人播）＋四張幻燈片，圖沒到就退回純對白。
+   *
+   * **抽成一支是為了讓連線也演得到**（2026-09-17 使用者：「連線的序章從頭到尾不會播」）。
+   * 大廳的 `begin()` 本來直接 `show('map')`，那兩段新寫的連線序章等於躺著。
+   *
+   * 連線刻意**不播開頭影片**（`video: false`）：那支三十秒，一個人在看、另一個人乾等，
+   * 而且兩個人的影片還不一樣。幻燈片可以自己點過去，影片不行。
+   *
+   * 這段純粹是演出，不動任何玩法狀態，兩台各演各的不會讓鎖步分岔
+   *（局面完全由種子決定，`newCoopRun` 兩邊算出來一樣）。
+   */
+  playPrologue(hero: Hero, after: () => void, opts: { video?: boolean } = {}): void {
+    const run = this.run;
+    if (!run || run.flags['prologue']) { after(); return; }
+    run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
     const pro = storyFor(hero).prologue;
     const proSlides = prologueSlides(hero);   // 圖配哪幾句見 storyslides.ts（除錯頁也叫同一支）
-    const after = (): void => { this.save(); this.show('map'); };
-    if (this.run && !this.run.flags['prologue']) {
-      this.run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
-      // 開頭影片先播（照角色挑檔名，沒檔就直接略過），再接序章幻燈片
-      /*
-       * 每個角色只能看自己的片子（2026-09-12 實測到）：球球那支從頭到尾是他，
-       * 換成菲菲卻照播，等於一開場就先看別人的故事，後面四張幻燈片再講她的，接不起來。
-       * 沒片子的角色直接進幻燈片——寧可少一段，不要放錯的那一段。
-       */
-      // 沒片子的角色要自己切曲（稽核 中-1）：換成第一關曲原本是影片收尾（`video.ts` 的 `end()`）順手做的，
-      // 跳過影片就沒人切，序章整段會配著標題畫面的輕鬆曲
-      const clip = OPENING_CLIP[hero];
-      const intro = (go: () => void): void => (clip ? playVideo(clip, go) : (setBgm('act1'), go()));
-      intro(() => {
-        if (slidesReady(proSlides)) playSlides(proSlides, after);
-        else playDialogue(pro, after, undefined, hasCoopScene(hero));
-      });
-    } else after();
+    const play = (): void => {
+      if (slidesReady(proSlides)) playSlides(proSlides, after);
+      else playDialogue(pro, after, undefined, hasCoopScene(hero));
+    };
+    /*
+     * 每個角色只能看自己的片子（2026-09-12 實測到）：球球那支從頭到尾是他，
+     * 換成菲菲卻照播，等於一開場就先看別人的故事，後面四張幻燈片再講她的，接不起來。
+     * 沒片子的角色直接進幻燈片——寧可少一段，不要放錯的那一段。
+     *
+     * 沒片子的要自己切曲（稽核 中-1）：換成第一關曲原本是影片收尾（`video.ts` 的 `end()`）
+     * 順手做的，跳過影片就沒人切，序章整段會配著標題畫面的輕鬆曲。
+     */
+    const clip = opts.video === false ? undefined : OPENING_CLIP[hero];
+    if (clip) playVideo(clip, play);
+    else { setBgm('act1'); play(); }
   }
 
   /**

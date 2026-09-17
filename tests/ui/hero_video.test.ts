@@ -22,8 +22,13 @@ describe('過場影片要看角色', () => {
       if (!/playVideo\(/.test(line)) return;
       if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;          // 註解不算
       if (/import .*playVideo/.test(line)) return;          // 匯入那一行不算
-      // 開頭：檔名從對照表查出來、查不到就不播（同一行要看得到 `clip ?`）
+      /*
+       * 開頭：檔名從對照表查出來、查不到就不播。同一行要看得到那個判斷——
+       * 三元式與 `if` 兩種寫法都收（2026-09-17 把序章抽成 `playPrologue` 時改成 `if`，
+       * 守的是同一件事：`clip` 是 `OPENING_CLIP[hero]` 查來的，查不到就不會走到這裡）。
+       */
       if (/clip \? playVideo\(clip,/.test(line)) return;
+      if (/if \(clip\) playVideo\(clip,/.test(line)) return;
       // 結尾：仍寫成只給球球的三元式
       if (/=== 'ninja'/.test(line)) return;
       bad.push(`${i + 1}: ${line.trim().slice(0, 110)}`);
