@@ -18,6 +18,10 @@
 
 ⚠️ 撞名：三張共用牌永遠拿不到他自己的圖（這支刻意不生）
 -------------------------------------------------------
+**（已解，下面留著當教訓）** 他那三張專屬牌後來改了牌號（`dangdang_zhanzhuang` 站樁、
+`dangdang_jieliqi` 借力…），`shared_ids()` 判撞名看的是「牌號還在不在」，所以三張現在都會進清單。
+連環踢跟著 G 批生了；卸勁、護心兩張 2026-09-17 晚上才補（`--only jieli huxin`）。
+
 `cardArtKey()` 的規則是「`card/X` → `card/dangdang_X`，有就用」。
 **他的 29 張專屬牌的牌號本身就是 `dangdang_*` 開頭**（`dangdang_huxin` 站樁、
 `dangdang_lianhuan` 連環撞、`dangdang_jieli` 借力），插圖鍵剛好等於
@@ -346,6 +350,21 @@ SCENE_FIX: dict[str, list[tuple[str, str]]] = {
         "braced low, having just frozen it solid; one puff of CREAMY WHITE breath leaves his mouth, drawn "
         "as a solid flat shape with a THICK BLACK OUTLINE - that breath is never green and never "
         "see-through")],
+    # 卸勁：球球那版是翡翠綠的太極漩渦，畫在綠幕上會被挖掉。這張是「蜷縮＋翻肚」，
+    # 換成他牌面裡代表蜷縮的淡冰藍（B 批的顏色語彙）。
+    "jieli": [(
+        "rendered in JADE GREEN: a large swirling yin-yang shaped vortex of green energy with two curved "
+        "arrows showing force being turned aside",
+        "rendered in PALE ICE BLUE: a large swirling yin-yang shaped vortex of solid pale ice-blue energy "
+        "with two curved arrows showing force being turned aside, every swirl a flat filled shape with a "
+        "thick black outline")],
+    # 護心：原文「尾巴蓋住鼻子」會把臉遮掉，跟下面「縮成一團」是同一個雷；
+    # 縮起來時兩個護臂也最容易被畫丟，一起寫死。
+    "huxin": [(
+        "What the cat is doing: curled up inside the shield shape, tail over its nose, safe",
+        "What the cat is doing: curled up snug inside the shield shape, safe, his tail wrapped round his "
+        "feet. **HIS FACE MUST BE FULLY VISIBLE** with his eyes calmly closed - the tail does not cover it. "
+        "His two forearms are folded in front of his chest so BOTH bronze bracers show")],
     # 「縮成一團」：球球那版的原文是「完全縮進毯子裡，只露出耳朵跟尾巴尖」，
     # 模型照做的結果就是**一坨看不出裡面有貓的棕色**（第一次生出來只看得到兩隻耳朵、
     # 一截尾巴、兩個護臂）。菲菲那批踩過一模一樣的雷、也是靠「臉一定要露出來」修好的

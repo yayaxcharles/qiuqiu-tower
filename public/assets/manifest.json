@@ -430,7 +430,9 @@
   "card/dangdang_jielidali": "assets/cards/card/dangdang_jielidali.webp",
   "card/dangdang_fanzhen": "assets/cards/card/dangdang_fanzhen.webp",
   "card/dangdang_shunshi": "assets/cards/card/dangdang_shunshi.webp",
-  "card/dangdang_yishenzuodun": "assets/cards/card/dangdang_yishenzuodun.webp"
+  "card/dangdang_yishenzuodun": "assets/cards/card/dangdang_yishenzuodun.webp",
+  "card/dangdang_jieli": "assets/cards/card/dangdang_jieli.webp",
+  "card/dangdang_huxin": "assets/cards/card/dangdang_huxin.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",

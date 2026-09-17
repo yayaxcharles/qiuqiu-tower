@@ -40,6 +40,12 @@
   python tools/make_dangdang_hero_jobs.py           # 產工作檔
   python tools/codex_gen.py tools/codex_jobs/dangdang_hero.json --ref tools/ref/dangdang_ref.png
 
+  進倉：python tools/add_sprite.py --group hero hero_dangdang_<姿勢>.png
+  ★ 這四張要加 `--scale`，不然整隻比站姿大一圈（使用者 2026-09-17：「蜷縮動作的時候變超大隻」）：
+    curl 0.70、belly 0.78、lose 0.80、stealth 0.84。
+    病根是 `add_sprite.py` 把每張主體塞滿框：站姿比高窄、被高度卡住；縮成球、仰躺、坐地、蹲低
+    接近正方形，塞滿之後頭身整整大一圈（蜷縮的身體面積是站姿的兩倍）。數字是跟站姿並排比頭的大小定的。
+
   只重生幾張：python tools/make_dangdang_hero_jobs.py --only idle guard --redo
   （`--redo` 會把舊稿改名留底。不加的話 `codex_gen.py` 看到檔案已存在就跳過、整張空轉，
     而且印的是「已存在跳過」、離開碼 0，看起來像成功——`art_rules.py` 第九個雷。）
