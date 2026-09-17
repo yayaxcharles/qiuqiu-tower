@@ -316,10 +316,6 @@ export type MonsterPose = 'idle' | 'attack' | 'hurt' | 'block' | 'down';
  */
 const MONSTER_ART_FALLBACK: Readonly<Record<string, string>> = {
   'codex/monster_shadow_feifei': 'codex/monster_shadow_cat',
-  // 鏡中噹噹（2026-09-17）。**這一行跟 `enemies.ts` 的 `MIRROR_DANGDANG` 是一組的，
-  // 少了它就是灰剪影**——`monsterKey` 查不到鍵、又沒有替身，`monsterUrl` 直接回剪影圖。
-  // 先寫變裝是為了名字（不寫他打的那隻會叫「鏡中球球」），圖還在排隊，所以退路一定要同時補。
-  'codex/monster_shadow_dangdang': 'codex/monster_shadow_cat',
 };
 
 /** 清單裡沒有這個鍵就換成替身鍵（連替身都沒有就照原鍵，最後由 `monsterUrl` 退成剪影） */
