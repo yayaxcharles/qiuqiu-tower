@@ -136,8 +136,11 @@ export const relics: RelicDef[] = [
     hooks: { killStrength: 1, killHeal: 3 } },
   { id: 'iron_shirt', name: '軟甲背心', pool: '塔主', text: '回合結束時最多保留 10 點蜷縮（可跟同類秘寶相加）。', art: 'codex/relic_iron_shirt', price: 230,
     hooks: { blockKeep: 10 } },
-  { id: 'moon_mirror', name: '望月禪坐', pool: '塔主', text: '回合結束時如果這回合沒打過攻擊牌，獲得 2 點爪力與 8 點蜷縮。', art: 'codex/relic_moon_mirror', price: 230,
-    hooks: { turnEndNoAttack: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }, { kind: 'block', amount: 8 }] } },
+  // 2026-09-17 使用者裁定：蜷縮那 8 點拿掉，只留爪力。原本「不打就給 8 點蜷縮」等於
+  // 鼓勵整回合不出手，跟這個遊戲要的節奏相反；只給爪力的話，你還是得選「這回合忍住」，
+  // 但忍的報酬是下一回合打得更痛，不是原地變硬
+  { id: 'moon_mirror', name: '望月禪坐', pool: '塔主', text: '回合結束時如果這回合沒打過攻擊牌，獲得 2 點爪力。', art: 'codex/relic_moon_mirror', price: 230,
+    hooks: { turnEndNoAttack: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }] } },
   // ===== 代價秘寶（2026-09-04，使用者：「很強但有代價的，玩家會猶豫，選擇才有趣」）。圖示還沒生，先顯示文字牌 =====
   { id: 'blood_dagger', name: '血契短刀', pool: '大魔物', text: '每場戰鬥開始獲得 3 點爪力；拿到時最大生命 −12。', art: 'codex/relic_blood_dagger', price: 210,
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }], maxHp: -12 } },

@@ -185,7 +185,6 @@
   "card/feifei_yixing": "assets/cards/card/feifei_yixing.webp",
   "card/feifei_gekong": "assets/cards/card/feifei_gekong.webp",
   "card/feifei_guixi": "assets/cards/card/feifei_guixi.webp",
-  "card/feifei_taiji": "assets/cards/card/feifei_taiji.webp",
   "card/feifei_mabu": "assets/cards/card/feifei_mabu.webp",
   "card/feifei_yungong": "assets/cards/card/feifei_yungong.webp",
   "card/feifei_yide": "assets/cards/card/feifei_yide.webp",
@@ -427,7 +426,11 @@
   "card/dangdang_zhuiji": "assets/cards/card/dangdang_zhuiji.webp",
   "card/dangdang_zouhuo": "assets/cards/card/dangdang_zouhuo.webp",
   "card/dangdang_jieliqi": "assets/cards/card/dangdang_jieliqi.webp",
-  "card/dangdang_zhanzhuang": "assets/cards/card/dangdang_zhanzhuang.webp"
+  "card/dangdang_zhanzhuang": "assets/cards/card/dangdang_zhanzhuang.webp",
+  "card/dangdang_jielidali": "assets/cards/card/dangdang_jielidali.webp",
+  "card/dangdang_fanzhen": "assets/cards/card/dangdang_fanzhen.webp",
+  "card/dangdang_shunshi": "assets/cards/card/dangdang_shunshi.webp",
+  "card/dangdang_yishenzuodun": "assets/cards/card/dangdang_yishenzuodun.webp"
  },
  "sprites": {
   "hero/armed": "assets/sprites/hero/armed.webp",
@@ -1446,7 +1449,10 @@
   "codex/relic_lucky_cat": "assets/icons/relic_lucky_cat.webp",
   "codex/relic_tiger_claws": "assets/icons/relic_tiger_claws.webp",
   "codex/relic_iron_shirt": "assets/icons/relic_iron_shirt.webp",
-  "codex/relic_moon_mirror": "assets/icons/relic_moon_mirror.webp"
+  "codex/relic_moon_mirror": "assets/icons/relic_moon_mirror.webp",
+  "icon/map_hero_dangdang_low": "assets/icons/map_hero_dangdang_low.webp",
+  "icon/map_hero_dangdang_mid": "assets/icons/map_hero_dangdang_mid.webp",
+  "icon/map_hero_dangdang_top": "assets/icons/map_hero_dangdang_top.webp"
  },
  "bg": {
   "bg/low": "assets/bg/low.webp",

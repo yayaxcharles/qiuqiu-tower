@@ -10,6 +10,10 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
 const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst',
   'halfSpendBlock', 'blockWhenAttacked', 'thornsBonus', 'keepBlock', 'ifBlock', 'ifEnemyIntent',
+  // `ifSelfStatus`（2026-09-17 稽核 中-1）：在噹噹之前，用這種效果的牌兩邊都有內容，
+  // 「；否則」自己就把句子切開了；護臂格擋的 `otherwise` 是空的，切點跟著不見，
+  // 就變成「獲得 7 點蜷縮，自己身上有反彈的話，獲得 4 點蜷縮。」兩個逗號串成一句
+  'ifSelfStatus',
   'blockOnThorns', 'thornsFromSpend', 'blockToThorns']);
 
 /** 效果落在同伴身上的那幾種：一個人玩的時候會算回自己身上（句尾統一補一句） */
@@ -36,7 +40,7 @@ const INTENT_TEXT: Readonly<Record<string, string>> = {
   // 引擎是「**任何一隻**符合就算」，所以寫「有魔物」不寫「魔物」（審查 2026-09-17 低-6）
   attack: '有魔物這回合要攻擊', block: '有魔物這回合要防禦', buff: '有魔物這回合要強化自己',
   debuff: '有魔物這回合要對你下手', summon: '有魔物這回合要叫幫手', special: '有魔物這回合要出怪招',
-  idle: '魔物這回合都按兵不動',
+  idle: '有魔物這回合按兵不動',   // 引擎是 `some`（任何一隻符合就算），不能寫「都」（稽核 2026-09-17 低-3）
 };
 
 /** 條件句裡的「再」：「造成 6 點傷害；蜷縮大於 10 的話，**再**造成 6 點傷害」 */

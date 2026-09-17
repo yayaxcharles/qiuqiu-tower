@@ -257,7 +257,9 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }] } },
   { id: 'jiaochulai', name: '交出來', cost: 2, type: 技, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/jiaochulai',
     effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 5 }], upgrade: { effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 7 }] } },
-  { id: 'susu', name: '速速退散', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'all', art: 'card/susu',
+  // 2026-09-17 使用者裁定：**2 費 → 3 費**。理由同崩拳——噹噹的「震盪波」是 2 費罕見、
+  // 全體最多 8（升 10）且要吃蜷縮，這張 2 費常見全體 9（升 12）又不吃任何代價，整個壓過去
+  { id: 'susu', name: '速速退散', cost: 3, type: 攻, rarity: '常見', pool: '忍術', target: 'all', art: 'card/susu',
     effects: [{ kind: 'damage', amount: 9, target: 'all' }], upgrade: { effects: [{ kind: 'damage', amount: 12, target: 'all' }] } },
   // 2026-09-14 起球球專屬：菲菲的分身術改成疊毒（下一張），兩位各拿自己那張
   { id: 'bunshin', name: '忍術·分身術', cost: 1, type: 攻, rarity: '罕見', hero: 'ninja', pool: '忍術', target: 'enemy', art: 'card/bunshin',
@@ -385,7 +387,16 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'recoverFromDiscard' }], upgrade: { cost: 0 } },
   { id: 'guixi', name: '絕學·龜息術', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/guixi', keywords: ['消耗'],
     effects: [{ kind: 'heal', n: 10 }], upgrade: { effects: [{ kind: 'heal', n: 14 }] } },
-  { id: 'taiji', name: '絕學·太極', cost: 1, type: 技, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/taiji',
+  /*
+   * 太極＝**造成等同你當下蜷縮的傷害**。2026-09-17 使用者裁定：**改成噹噹專屬**，
+   * 球球與菲菲都不給——「不然太強」。
+   *
+   * 為什麼只有他拿著剛好：他整副牌就是在堆蜷縮又把蜷縮打出去（`damageSpendBlock`），
+   * 這張是他那條路線的延伸，而且他打出去之後蜷縮就沒了、得重新堆。
+   * 另外兩位堆蜷縮沒有代價（菲菲攻擊自帶蜷縮、球球有一整排純防禦牌），
+   * 等於零風險把防禦轉成傷害，這才是太強的原因。
+   */
+  { id: 'taiji', name: '絕學·太極', cost: 1, type: 技, rarity: '罕見', hero: 'dangdang', pool: '絕學', target: 'enemy', art: 'card/taiji',
     effects: [{ kind: 'damageEqualBlock' }], upgrade: { cost: 0 } },
   { id: 'mabu', name: '絕學·貓步', cost: 1, type: 能, rarity: '罕見', pool: '絕學', target: 'self', art: 'card/mabu',
     effects: [{ kind: 'status', name: '貓步', amount: 2, target: 'self' }], upgrade: { effects: [{ kind: 'status', name: '貓步', amount: 3, target: 'self' }] } },
@@ -405,7 +416,10 @@ export const cards: readonly CardDef[] = [
   // ===== 2026-08-30 新增 20 張 =====
   // 補的是「機制上的空缺」，不是再多幾張打人牌：中毒、反彈、飯糰、隱身收尾原本各只有一兩張撐著，
   // 牌組很難圍繞它們成形。稀有牌也從 4 張補到 7 張——那是每一局最期待的東西。
-  { id: 'roubao', name: '肉球連擊', cost: 1, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/roubao',
+  // 2026-09-17 使用者裁定：**1 費 → 2 費**。它 1 費打 4×2＝8，同時壓過噹噹的兩張 1 費常見：
+  // 卸力掌（最多 6、吃蜷縮）與反手一記（3×2＝6）。**多段還會多吃一次爪力**，差距比帳面更大。
+  // 沒有動它的傷害：這張是分段攻擊的代表牌，數字一改會連帶影響中毒流與反彈流的算法
+  { id: 'roubao', name: '肉球連擊', cost: 2, type: 攻, rarity: '常見', pool: '忍術', target: 'enemy', art: 'card/roubao',
     effects: [{ kind: 'damage', amount: 4, times: 2 }], upgrade: { effects: [{ kind: 'damage', amount: 5, times: 2 }] } },
   { id: 'luoye', name: '忍術·落葉', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', target: 'enemy', art: 'card/luoye',
     effects: [{ kind: 'damage', amount: 4 }, { kind: 'draw', n: 1 }],
@@ -504,7 +518,14 @@ export const cards: readonly CardDef[] = [
     // 2026-09-04 整體隱身太強：3／4 層→2／3 層（抽牌不動）
     effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }, { kind: 'draw', n: 2 }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 3, target: 'self' }, { kind: 'draw', n: 3 }] } },
-  { id: 'jiedao', name: '絕學·借力使力', cost: 1, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiedao',
+  /*
+   * 借力使力跟太極是同一個核心效果（`damageEqualBlock`），而且它還多送蜷縮。
+   * 2026-09-17 使用者裁定：**太極收歸噹噹專屬，這張三個角色都留著，但費用 1 → 3。**
+   * 兩張一起處理的理由是，只擋太極的話另外兩位照樣有這張，等於沒擋到；
+   * 但這張是既有牌、球球與菲菲的牌組裡已經在用，整張拿掉會動到現有玩法，
+   * 所以改成「留著但變貴」——要用還是可以用，只是得空出一整回合的費用來換。
+   */
+  { id: 'jiedao', name: '絕學·借力使力', cost: 3, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/jiedao',
     effects: [{ kind: 'damageEqualBlock' }, { kind: 'block', amount: 6 }],
     upgrade: { effects: [{ kind: 'damageEqualBlock' }, { kind: 'block', amount: 10 }] } },
   { id: 'wangming', name: '絕學·亡命', cost: 0, type: 攻, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/wangming', keywords: ['消耗'],
@@ -564,7 +585,13 @@ export const cards: readonly CardDef[] = [
   { id: 'qianglafen', name: '忍術·嗆辣粉', cost: 2, type: 技, rarity: '罕見', pool: '忍術', target: 'all', art: 'card/qianglafen',
     effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'all' }],
     upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 4, target: 'all' }] } },
-  { id: 'bengquan', name: '絕學·崩拳', cost: 2, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/bengquan',
+  /*
+   * 2026-09-17 使用者裁定：**2 費 → 3 費**。
+   * 原本它 2 費常見打 12（升 16），跟噹噹的識別牌「崩山掌」（2 費**罕見**、最多 12、升 16）
+   * 數字一模一樣——可是崩山掌要**吃掉蜷縮**當彈藥、而且引擎給它 `noStrength`（爪力一點都不加），
+   * 崩拳兩樣都沒有。代價比較大、稀有度還比較高，玩家沒有理由選他的牌。漲價把差距補回來。
+   */
+  { id: 'bengquan', name: '絕學·崩拳', cost: 3, type: 攻, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/bengquan',
     effects: [{ kind: 'damage', amount: 12 }],
     upgrade: { effects: [{ kind: 'damage', amount: 16 }] } },
   { id: 'tiebushan', name: '絕學·鐵布衫', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'self', art: 'card/tiebushan',
@@ -573,7 +600,14 @@ export const cards: readonly CardDef[] = [
   { id: 'jieli', name: '絕學·卸勁', cost: 1, type: 技, rarity: '常見', pool: '絕學', target: 'enemy', art: 'card/jieli',
     effects: [{ kind: 'block', amount: 5 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'block', amount: 8 }, { kind: 'status', name: '翻肚', amount: 1, target: 'enemy' }] } },
-  { id: 'cuiye', name: '絕學·催噎', cost: 1, type: 技, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/cuiye',
+  /*
+   * 2026-09-17 使用者裁定：**1 費 → 3 費**（他是照菲菲那邊看到的名字講的：「絕學·毒發」）。
+   * 這是**共用牌**，只是菲菲版改名叫毒發（見下面的 `FEIFEI_CARD_NAME`），
+   * 所以球球與噹噹的「絕學·催噎」也一起變 3 費——牌只有一份費用，沒辦法只漲她那邊。
+   * 會這樣訂是因為這張對下毒的角色特別誇張：把目標身上的中毒直接翻倍，
+   * 她整套又都在疊毒，1 費等於一張牌收頭。
+   */
+  { id: 'cuiye', name: '絕學·催噎', cost: 3, type: 技, rarity: '稀有', pool: '絕學', target: 'enemy', art: 'card/cuiye',
     effects: [{ kind: 'doubleStatus', name: '中毒' }],
     upgrade: { effects: [{ kind: 'doubleStatus', name: '中毒', add: 2 }] } },
   { id: 'ehou', name: '絕學·扼喉', cost: 2, type: 攻, rarity: '罕見', pool: '絕學', target: 'enemy', art: 'card/ehou',
@@ -638,12 +672,13 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'blockIfPoisoned', amount: 4 }] } },
   /*
    * 後退閃躲＝**獲得隱身**（使用者 2026-09-14 深夜裁定：「後退閃躲就是獲得隱身」，跟師兄學來的招式）。
-   * 原本是 0 費 4 點蜷縮；改隱身後 0 費不合理，使用者同夜再裁定改成 1 費（升級版仍 1 費 2 層）。第三關的穿透（地藏石偶、虛無貓、面具舞者，加上七隻關主與塔主）蜷縮擋不住，
+   * 原本是 0 費 4 點蜷縮；改隱身後 0 費不合理，使用者同夜再裁定改成 1 費（升級版仍 1 費 2 層）。
+   * **2026-09-17 使用者再裁定改成 2 費**（升級版沒有另外指定費用，跟著變 2 費、照舊給 2 層）。第三關的穿透（地藏石偶、虛無貓、面具舞者，加上七隻關主與塔主）蜷縮擋不住，
    * 只有隱身、定身、整回合免傷接得住；她整套防禦全是蜷縮，碰到穿透等於零防禦，第三關很難過。
    * 這是她唯一的閃避，球球的隱身牌她照樣拿不到，所以不會像忍者那樣整副疊隱身。
    * 紙袋、影披風的鎖也因此拿掉（`relics.ts`）。
    */
-  { id: 'feifei_lakai', name: '後退閃躲', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_lakai',
+  { id: 'feifei_lakai', name: '後退閃躲', cost: 2, type: 技, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'self', art: 'card/feifei_lakai',
     note: '跟師兄學來的招式。',
     effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }],
     upgrade: { effects: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }] } },
@@ -832,12 +867,12 @@ export const cards: readonly CardDef[] = [
    * 而且是**換掉**三張重疊的（連環撞跟卸力掌功能重疊、迴力鏢跟起手的回敬同型、
    * 卸甲跟護臂格擋重疊），不是往罕見那一格再塞。
    */
-  { id: 'dangdang_jielidali', name: '借力打力', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_jielidali', hidden: true,
+  { id: 'dangdang_jielidali', name: '借力打力', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_jielidali',
     effects: [{ kind: 'damageSpendBlock', max: 6, plusOwnStatus: '反彈' }],
     upgrade: { effects: [{ kind: 'damageSpendBlock', max: 8, plusOwnStatus: '反彈' }] } },
-  { id: 'dangdang_shunshi', name: '順勢', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_shunshi', hidden: true,
+  { id: 'dangdang_shunshi', name: '順勢', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_shunshi',
     effects: [{ kind: 'blockOnThorns', n: 2 }], upgrade: { effects: [{ kind: 'blockOnThorns', n: 3 }] } },
-  { id: 'dangdang_fanzhen', name: '反震', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_fanzhen', hidden: true,
+  { id: 'dangdang_fanzhen', name: '反震', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_fanzhen',
     effects: [{ kind: 'blockToThorns', per: 2, gain: 1 }],
     upgrade: { effects: [{ kind: 'blockToThorns', per: 2, gain: 2 }] } },
   /*
@@ -845,7 +880,7 @@ export const cards: readonly CardDef[] = [
    * 打一發崩山掌卸 12 點，同時拿 6 點反彈，下一輪挨打就痛回去。
    * 他的忍術稀有本來只有兩張（護臂加厚、銅牆鐵壁），這張補那一格。
    */
-  { id: 'dangdang_yishenzuodun', name: '以身作盾', cost: 2, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_yishenzuodun', hidden: true,
+  { id: 'dangdang_yishenzuodun', name: '以身作盾', cost: 2, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_yishenzuodun',
     effects: [{ kind: 'thornsFromSpend' }], upgrade: { effects: [{ kind: 'thornsFromSpend', full: true }] } },
   // ----- 忍術・稀有 1 張：整套的核心報酬 -----
   /*

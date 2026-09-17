@@ -1,4 +1,4 @@
-import { storyFor, victoryLinesFor } from '../content/dialogue';
+import { hasCoopScene, storyFor, victoryLinesFor } from '../content/dialogue';
 import type { Slide } from './slides';
 
 /*
@@ -66,7 +66,18 @@ export function prologueSlides(hero: string | undefined): Slide[] {
 }
 
 /** 過關：三句台詞配三張圖，最後一張吃掉剩下的（她第二關比圖多一句） */
+/*
+ * 連線的共用場景（`MIXED_SCENES`）**沒有自己的幻燈片圖**，所以整段退回純對白
+ *（2026-09-17 稽核 中-3）。
+ *
+ * 不擋的話會這樣：這兩支走的是 `stillKey(hero, …)`，回的是**單人版**的鍵，
+ * 而那些圖全都在倉裡，於是 `slidesReady` 回 true，兩隻貓的對話就被鋪到
+ * 「一隻貓自己站在那裡」的圖上——第一關過關詞寫「球球在樓梯旁找到糧箱，抱起來晃了晃」，
+ * 圖裡根本沒有球球。`stillKey` 的檔頭訂過規矩：**寧可少一段幻燈片，不要放別人的故事。**
+ * 序章那邊早就這樣擋了，過關與結局漏掉，這裡補上。
+ */
 export function actClearSlides(hero: string | undefined, act: number): Slide[] {
+  if (hasCoopScene(hero)) return [];
   const story = storyFor(hero);
   const lines = act === 1 ? story.actClear1 : story.actClear2;
   const names = act === 1
@@ -80,7 +91,18 @@ export function actClearSlides(hero: string | undefined, act: number): Slide[] {
  * **不要改回比對內文**：原本寫 `includes('撲進')`，菲菲的結局沒那兩個字，
  * 切點被夾成 1，她的相擁那句就配到「回家路」的圖上（2026-09-12 稽核 中-1）。
  */
+/*
+ * 連線的共用場景（`MIXED_SCENES`）**沒有自己的幻燈片圖**，所以整段退回純對白
+ *（2026-09-17 稽核 中-3）。
+ *
+ * 不擋的話會這樣：這兩支走的是 `stillKey(hero, …)`，回的是**單人版**的鍵，
+ * 而那些圖全都在倉裡，於是 `slidesReady` 回 true，兩隻貓的對話就被鋪到
+ * 「一隻貓自己站在那裡」的圖上——第一關過關詞寫「球球在樓梯旁找到糧箱，抱起來晃了晃」，
+ * 圖裡根本沒有球球。`stillKey` 的檔頭訂過規矩：**寧可少一段幻燈片，不要放別人的故事。**
+ * 序章那邊早就這樣擋了，過關與結局漏掉，這裡補上。
+ */
 export function endingSlides(hero: string | undefined, deckIds: string[], difficulty: number): Slide[] {
+  if (hasCoopScene(hero)) return [];
   const vic = victoryLinesFor(deckIds, difficulty, hero);
   const cut = Math.max(1, vic.findIndex((l) => l.slideBreak) + 1);
   return ['still_embrace', 'still_home'].map((n, i) => ({

@@ -47,7 +47,10 @@ describe('隨機試玩', () => {
     // **下面那條固定戰鬥的錨兩次都沒動**，那才是真正在守引擎行為的那一條
     // 2026-09-12：影子分身改成「每回合第一張牌再打一次」（使用者指定），出牌流程多一段，錨值重錄
     // 2026-09-14 併回前裁定「球球的影子分身不用改」，錨值回到 main 原本的數字（48／6／19），逐字相同
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 15, turns: 48, kills: 6, deckSize: 19 });
+    // 2026-09-17 使用者一批費用裁定（後退閃躲 1→2、催噎 1→3、借力使力 1→3、崩拳 2→3、
+    // 速速退散 2→3、肉球連擊 1→2，太極收歸噹噹專屬）：機器人每一回合能打的牌都變了，
+    // 整條戰局往後位移，錨值重錄。**下面那條固定戰鬥的錨照樣沒動**，引擎行為沒變
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 12, turns: 60, kills: 8, deckSize: 17 });
     expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 15, turns: 30, kills: 5, deckSize: 15 });
   });
 

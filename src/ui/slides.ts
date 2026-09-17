@@ -19,8 +19,16 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
  */
 export interface Slide { img: string; lines: DialogueLine[]; box?: 'top' | 'bottom' }
 
+/**
+ * 這組幻燈片的圖都到齊了嗎——**空陣列算「沒到齊」**（2026-09-17 稽核 中-4）。
+ *
+ * 少了 `length > 0` 那一半的後果很安靜：`[].every(...)` 永遠是 `true`，
+ * 於是「回空陣列就退回純對白」那條退路實際上變成 `playSlides([])` → `flat.length === 0`
+ * → 直接 `onDone()`，**整段劇情一個字都不播**。
+ * 好幾處的註解都寫著「回空陣列就會退回純對白」，那句話要成立就靠這一行。
+ */
 export function slidesReady(slides: Slide[]): boolean {
-  return slides.every((s) => !artUrl('bg', s.img).startsWith('data:'));
+  return slides.length > 0 && slides.every((s) => !artUrl('bg', s.img).startsWith('data:'));
 }
 
 export function playSlides(slides: Slide[], onDone: () => void): void {

@@ -977,7 +977,7 @@
   "name": "速速退散",
   "pool": "忍術",
   "rarity": "常見",
-  "cost": 2,
+  "cost": 3,
   "type": "攻擊",
   "target": "all",
   "keywords": [],
@@ -2336,7 +2336,7 @@
   "name": "肉球連擊",
   "pool": "忍術",
   "rarity": "常見",
-  "cost": 1,
+  "cost": 2,
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
@@ -3052,7 +3052,7 @@
   "name": "絕學·借力使力",
   "pool": "絕學",
   "rarity": "稀有",
-  "cost": 1,
+  "cost": 3,
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
@@ -3525,7 +3525,7 @@
   "name": "絕學·崩拳",
   "pool": "絕學",
   "rarity": "常見",
-  "cost": 2,
+  "cost": 3,
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
@@ -3608,7 +3608,7 @@
   "name": "絕學·催噎",
   "pool": "絕學",
   "rarity": "稀有",
-  "cost": 1,
+  "cost": 3,
   "type": "技能",
   "target": "enemy",
   "keywords": [],
@@ -3911,7 +3911,7 @@
   "name": "後退閃躲",
   "pool": "忍術",
   "rarity": "常見",
-  "cost": 1,
+  "cost": 2,
   "type": "技能",
   "target": "self",
   "keywords": [],
@@ -4602,8 +4602,8 @@
     "otherwise": []
    }
   ],
-  "text": "獲得 7 點蜷縮，自己身上有反彈的話，獲得 4 點蜷縮。",
-  "up": "獲得 10 點蜷縮，自己身上有反彈的話，獲得 5 點蜷縮。"
+  "text": "獲得 7 點蜷縮；自己身上有反彈的話，獲得 4 點蜷縮。",
+  "up": "獲得 10 點蜷縮；自己身上有反彈的話，獲得 5 點蜷縮。"
  },
  {
   "id": "dangdang_yingpeng",
@@ -4989,7 +4989,7 @@
   "type": "攻擊",
   "target": "enemy",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "damageSpendBlock"
@@ -5013,7 +5013,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockOnThorns"
@@ -5036,7 +5036,7 @@
   "type": "技能",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "blockToThorns"
@@ -5060,7 +5060,7 @@
   "type": "能力",
   "target": "self",
   "keywords": [],
-  "hidden": true,
+  "hidden": false,
   "combatOnly": false,
   "kinds": [
    "thornsFromSpend"

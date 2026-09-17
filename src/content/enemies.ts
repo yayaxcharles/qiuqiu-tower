@@ -1506,9 +1506,36 @@ const MIRROR_FEIFEI: EnemySkin = {
   ],
 };
 
-/** 這隻魔物在**鏡子照的那一位**面前長什麼樣；沒有變裝就回 undefined */
+const MIRROR_DANGDANG: EnemySkin = {
+  name: '鏡中噹噹',
+  // 立繪還沒生（shadow_dangdang_{idle,attack,hurt,block,down}）。菲菲當初也是先寫這一格、
+  // 圖後來才補——`ui/assets.ts` 查不到鍵會自動退回影球球那組，不會破圖也不會變灰剪影。
+  // 先寫進來的理由是**名字**：不寫的話他打的那隻會叫「鏡中球球」，可是他的事件文字
+  // 講的是自己的倒影，名字與文字當場打架（稽核 2026-09-17 中-7／高-3）。
+  art: 'codex/monster_shadow_dangdang',
+  // 他是賓士貓、話少、用護臂擋；鏡子裡那個照做，只是先動手
+  line: '（鏡子裡的他把護臂抬到同樣的高度，卻先踏了一步）',
+  lines: [
+    '你要站到什麼時候？',
+    '（他跟著沉下肩膀，角度一模一樣）',
+    '擋得住就換你出手了。',
+  ],
+};
+
+/*
+ * 這隻魔物在**鏡子照的那一位**面前長什麼樣；沒有變裝就回 undefined。
+ *
+ * 2026-09-17 稽核 中-7：原本寫成 `hero === 'feifei' ? MIRROR_FEIFEI : undefined` 的二選一，
+ * 第三個角色一進來就走錯分支——這是「寫死只有兩個角色」的第六次。改成查表之後，
+ * 第四隻貓進來只要在表裡加一格，不用再回來改判斷式。
+ */
+const MIRROR_SKINS: Readonly<Record<string, EnemySkin>> = {
+  feifei: MIRROR_FEIFEI,
+  dangdang: MIRROR_DANGDANG,
+};
+
 export function enemySkin(enemyId: string, hero: string | undefined): EnemySkin | undefined {
-  return enemyId === 'mirror_qiuqiu' && hero === 'feifei' ? MIRROR_FEIFEI : undefined;
+  return enemyId === 'mirror_qiuqiu' && hero ? MIRROR_SKINS[hero] : undefined;
 }
 
 /** 戰場上顯示的名字（含紀錄）。沒有變裝就是魔物表上的名字 */

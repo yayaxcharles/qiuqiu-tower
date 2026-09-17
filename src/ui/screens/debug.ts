@@ -81,7 +81,7 @@ registerScreen('debug', (app, root) => {
         return !m || ownEvent || hero !== 'feifei' || FEIFEI_EVENT_LINES[m[1]!] !== undefined;
       };
       const box = el('div', { class: 'dbg-event' },
-        el('h3', {}, e.title, e.hero ? el('span', { class: 'dbg-tag' }, `${e.hero === 'feifei' ? '菲菲' : '球球'}專屬`) : '',
+        el('h3', {}, e.title, e.hero ? el('span', { class: 'dbg-tag' }, `${heroName({ hero: e.hero })}專屬`) : '',
           e.fixedFloor ? el('span', { class: 'dbg-tag' }, `固定 ${e.fixedFloor}F`) : ''),
         el('div', { class: 'dbg-row' },
           shot(eventArtKey(e.id), '事件插圖'),

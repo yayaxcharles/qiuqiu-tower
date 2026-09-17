@@ -228,7 +228,9 @@ describe('噹噹：牌面文字唸得通', () => {
 
   it('每一張都印得出文字，沒有空白的牌面', () => {
     const his = Object.values(cardById).filter((x) => x.hero === 'dangdang');
-    expect(his.length, '他的專屬牌是 30 張').toBe(30);
+    // 30 張專屬牌，再加一張 2026-09-17 從共用池收歸他專屬的絕學太極
+    //（使用者：球球與菲菲拿到太強）。他堆蜷縮有代價，另外兩位沒有，所以只有他拿著剛好
+    expect(his.length, '他的專屬牌 30 張＋絕學太極').toBe(31);
     for (const c of his) {
       expect(describeCard(c, false).length, c.name).toBeGreaterThan(3);
       expect(describeCard(c, true).length, `${c.name}（升級）`).toBeGreaterThan(3);

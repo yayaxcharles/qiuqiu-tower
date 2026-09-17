@@ -400,6 +400,13 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
           if (sub.kind === 'block') per += sub.amount * 0.9;
           else if (sub.kind === 'status' && sub.name === '爪力') per += sub.amount * 3.5;
           else if (sub.kind === 'status' && sub.name === '貓步') per += sub.amount * 2.5;
+          // 反彈（2026-09-17 稽核 高-1）：漏這一行的後果是**整張牌估成負分、機器人一輩子不打**。
+          // 站樁（`cards.ts` 的 `dangdang_zhanzhuang`）整張只有「每回合開始給反彈 2」，
+          // per 算出來是 0 → `value - cost*0.6 = -0.6` → 打不過 `value > 0.5` 的門檻。
+          // 更糟的是 `rating()` 沒列它、照罕見給預設分，所以牌照樣被挑進牌組、然後整場躺在手上。
+          // 口徑照 `case 'status'` 那邊對自己上反彈的寫法（同一支檔案上面幾行），不要另創一套。
+          // 這是「加第三個角色才冒出來」的同型錯誤第五次：清單型的判斷只認得舊角色用得到的種類。
+          else if (sub.kind === 'status' && sub.name === '反彈') per += sub.amount * Math.min(hits, 4) * 0.8;
           else if (sub.kind === 'draw') per += sub.n * 2.5;
           else if (sub.kind === 'heal') per += sub.n * 0.6;
         }
@@ -616,13 +623,16 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         break;
       }
       /*
-       * 反震：換的是**這一回合結束時本來要歸零的那些**，所以估的是
-       *「打完這張之後身上還會剩多少蜷縮」——擋不到的那部分本來就是浪費掉的，
-       * 換成反彈是純賺；擋得到的那部分換掉就少擋一點，不另外扣（它還在，回合末才走）。
+       * 反震：換的是**魔物打完之後還剩下的**那幾點（結算點在魔物回合末，見 `combat.ts`）。
+       *
+       * 2026-09-17 稽核 中-1：原本拿整個 `soon` 去估，把「這一輪會被拿去擋掉」的那幾點
+       * 也算成換得到反彈，等於高估。被拿去擋的那部分會消失、換不到東西——
+       * 口徑要跟正上方的 `keepBlock`（穩住）一致，兩張牌值的是同一份東西：
+       * **擋完還剩下的**。原本的註解把這件事講反了。
        */
       case 'blockToThorns': {
         const soon = p.block + st.effects.reduce((n, e) => n + (e.kind === 'block' ? e.amount : 0), 0);
-        value += Math.floor(soon / fx.per) * fx.gain * 1.2;
+        value += Math.floor(Math.max(0, soon - incoming) / fx.per) * fx.gain * 1.2;
         break;
       }
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）

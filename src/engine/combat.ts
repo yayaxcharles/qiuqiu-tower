@@ -947,7 +947,15 @@ export function finishEnemyTurn(cs: CombatState): void {
      */
     const conv = p.blockToThornsThisTurn;
     if (conv && p.block > 0 && !p.down) {
-      const got = Math.floor(p.block / conv.per) * conv.gain;
+      /*
+       * **只換「真的會被丟掉的那份」**（2026-09-17 稽核 中-2）。
+       * 原本拿整個 `p.block` 去換，可是守護符（`blockKeep`）留下來的那幾點**不會被丟掉**——
+       * 它們下一行就被 `Math.min(p.block, keep)` 留著了。整個拿去換等於同一份蜷縮
+       * 既留著、又變成反彈，吃兩份，而且守護符越多吃得越兇。
+       * 扣掉 `keep` 之後，上面那句「存的就是那份要被丟掉的」才真的成立。
+       */
+      const doomed = Math.max(0, p.block - keep);
+      const got = Math.floor(doomed / conv.per) * conv.gain;
       if (got > 0) { addStatus(p, '反彈', got); log(cs, `${unitName(p)}把擋下來的力道存成 ${got} 點反彈`); }
     }
     p.blockToThornsThisTurn = undefined;
