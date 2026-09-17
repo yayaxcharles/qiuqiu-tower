@@ -183,7 +183,7 @@ describe('噹噹：條件與收尾', () => {
     const { cs, p } = setup();
     p.hp = p.maxHp - 20;
     p.block = 8;
-    play(cs, 'dangdang_jieli');
+    play(cs, 'dangdang_jieliqi');
     expect(p.block, '卸掉 6 點').toBe(2);
     expect(p.hp, '回 6 點').toBe(p.maxHp - 14);
   });

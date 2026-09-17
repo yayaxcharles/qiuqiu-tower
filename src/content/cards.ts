@@ -787,7 +787,7 @@ export const cards: readonly CardDef[] = [
   { id: 'dangdang_wenzhu', name: '穩住', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_wenzhu',
     effects: [{ kind: 'block', amount: 4 }, { kind: 'keepBlock', n: 4 }],
     upgrade: { effects: [{ kind: 'block', amount: 6 }, { kind: 'keepBlock', n: 6 }] } },
-  { id: 'dangdang_jieli', name: '借力', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_jieli',
+  { id: 'dangdang_jieliqi', name: '借力', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_jieliqi',
     effects: [{ kind: 'healSpendBlock', max: 6 }], upgrade: { effects: [{ kind: 'healSpendBlock', max: 9 }] } },
 
   // ----- 忍術・罕見 11 張：開始出現真正的取捨 -----
@@ -818,7 +818,7 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'block', amount: 20 }, { kind: 'keepBlock', n: 12 }] } },
   // 「護心鏡」跟共用的「絕學·護心」只差一個字，兩張又都是 1 費能力、都在回合開始觸發，
   // 戰鬥紀錄上分不出來。改名「站樁」：站定不動、挨了打就頂回去（審查 2026-09-17 中-3）
-  { id: 'dangdang_huxin', name: '站樁', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_huxin',
+  { id: 'dangdang_zhanzhuang', name: '站樁', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_zhanzhuang',
     effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'turnStart', effects: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }] }] } },
   { id: 'dangdang_jieshi', name: '借勢', cost: 0, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_jieshi',

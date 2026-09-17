@@ -169,7 +169,7 @@ CARDS: dict[str, tuple[str, str]] = {
     # 在綠幕上等於自殺。病根有兩個：(1) 提示詞寫「藍變成玫瑰紅」＝要它畫一段漸層，
     # 模型就從藍經過青綠走到粉；(2)「回血」這個題材的預設畫法本來就是綠色的。
     # 改法：只給一個顏色、不要轉場、而且每一塊都要有黑外框。
-    "dangdang_jieli": ("ROSE CRIMSON",
+    "dangdang_jieliqi": ("ROSE CRIMSON",
         "he cups both paws together in front of his chest and a big ROSE-CRIMSON healing light sits in "
         "them: three fat solid rose-crimson HEART shapes rise out of his paws and drift up past his "
         "shoulder, each heart drawn as a flat filled shape with a THICK BLACK OUTLINE. His eyes are closed "
@@ -231,7 +231,7 @@ CARDS: dict[str, tuple[str, str]] = {
         "solid warm-golden impact bursts sit one behind the other along that line - a smaller one nearer "
         "him and a much bigger one further right. Three short straight solid golden speed lines trail "
         "close behind his back. He is low and charging, head tucked in."),
-    "dangdang_huxin": ("HOT ORANGE-RED",
+    "dangdang_zhanzhuang": ("HOT ORANGE-RED",
         "he holds a rooted standing-post stance and does not move at all: feet planted just outside his "
         "shoulders, knees sunk, both bracered forearms rounded into a circle held in front of his chest as "
         "if hugging a big invisible jar, back straight, eyes half-closed and steady. A dense collar of "

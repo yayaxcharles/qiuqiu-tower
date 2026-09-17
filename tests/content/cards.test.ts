@@ -171,3 +171,34 @@ describe('升級要看得出來', () => {
     expect(describeCard(c, true)).toBe('給目標 2 層定身，獲得 4 點蜷縮。');
   });
 });
+
+/**
+ * 專屬牌號不可以撞到「共用牌的他版」換算出來的鍵（2026-09-17）。
+ *
+ * `assets.ts` 的 `cardArtKey()` 把共用牌換成某位角色的版本時，查的是
+ * `card/<角色>_<共用牌號>`。所以只要有一張專屬牌剛好叫 `<角色>_<某張共用牌的牌號>`，
+ * 那位角色抽到那張共用牌時，看到的就是自己專屬牌的圖。
+ *
+ * 實際踩過：噹噹的「借力」叫 `dangdang_jieli`，而共用牌「絕學·卸勁」的牌號就是 `jieli`；
+ * 「站樁」對上「絕學·護心」同理。病根是那天把他的牌號從 `dd_` 改成 `dangdang_`
+ *（為了讓 `heroOfKey` 認得出來、不要掉進首載），解決了首載卻撞進共用牌的命名空間。
+ * 菲菲沒踩到只是運氣——她的專屬牌號本來就帶前綴，而共用牌裡沒有同名的。
+ */
+describe('專屬牌號不可以撞到共用牌的他版', () => {
+  it('掃每一位角色', async () => {
+    const { HEROES } = await import('../../src/engine/hero');
+    const shared = cards.filter((c) => !c.hero);
+    const bad: string[] = [];
+    for (const hero of HEROES) {
+      const his = new Set(cards.filter((c) => c.hero === hero).map((c) => c.id));
+      for (const c of shared) {
+        const key = `${hero}_${c.id}`;
+        if (his.has(key)) {
+          const mine = cards.find((x) => x.id === key)!;
+          bad.push(`${hero}：共用「${c.name}」會查 card/${key}，那是他自己的「${mine.name}」`);
+        }
+      }
+    }
+    expect(bad, `這幾張會顯示錯誤的牌面圖：\n  ${bad.join('\n  ')}`).toEqual([]);
+  });
+});

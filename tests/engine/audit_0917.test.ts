@@ -61,7 +61,7 @@ describe('中-3：借力不要在滿血時白卸蜷縮', () => {
     p.hp = p.maxHp;
     p.block = 8;
     const n = cs.log.length;
-    play(cs, 'dangdang_jieli');
+    play(cs, 'dangdang_jieliqi');
     expect(p.block, '滿血還卸掉蜷縮＝白丟').toBe(8);
     expect(cs.log.slice(n).join(''), '畫面要交代為什麼沒事發生').toContain('滿');
   });
@@ -70,7 +70,7 @@ describe('中-3：借力不要在滿血時白卸蜷縮', () => {
     const { cs, p } = setup();
     p.hp = p.maxHp - 2;
     p.block = 8;
-    play(cs, 'dangdang_jieli');
+    play(cs, 'dangdang_jieliqi');
     expect(p.block, '卸 2 點就好，不要卸滿 6').toBe(6);
     expect(p.hp).toBe(p.maxHp);
   });

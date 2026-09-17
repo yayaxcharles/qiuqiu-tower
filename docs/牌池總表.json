@@ -4747,7 +4747,7 @@
   "up": "獲得 6 點蜷縮；這回合結束時最多保留 6 點蜷縮。"
  },
  {
-  "id": "dangdang_jieli",
+  "id": "dangdang_jieliqi",
   "name": "借力",
   "pool": "忍術",
   "rarity": "常見",
@@ -4928,7 +4928,7 @@
   "up": "獲得 20 點蜷縮；這回合結束時最多保留 12 點蜷縮。"
  },
  {
-  "id": "dangdang_huxin",
+  "id": "dangdang_zhanzhuang",
   "name": "站樁",
   "pool": "忍術",
   "rarity": "罕見",
