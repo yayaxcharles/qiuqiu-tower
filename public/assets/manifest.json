@@ -1277,6 +1277,13 @@
    "down": "assets/monsters/calico_monk_p2_down.webp",
    "hurt": "assets/monsters/calico_monk_p2_hurt.webp",
    "block": "assets/monsters/calico_monk_p2_block.webp"
+  },
+  "codex/monster_shadow_dangdang": {
+   "idle": "assets/monsters/shadow_dangdang_idle.webp",
+   "attack": "assets/monsters/shadow_dangdang_attack.webp",
+   "hurt": "assets/monsters/shadow_dangdang_hurt.webp",
+   "block": "assets/monsters/shadow_dangdang_block.webp",
+   "down": "assets/monsters/shadow_dangdang_down.webp"
   }
  },
  "icons": {

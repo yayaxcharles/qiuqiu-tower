@@ -50,6 +50,11 @@ SHELVES = [
     # 而那一天一口氣進了 32 張新立繪，整櫃 127 張從來沒被這支掃過。
     # 這正是 `art_rules.py` 第十二條寫的「檢查範圍要跟產出範圍一起長」。
     (Path("public") / "assets" / "sprites", "add_sprite.py"),
+    # 魔物那一櫃是 2026-09-17 晚補的，理由跟上面那條一模一樣：魔物立繪走的是
+    # `add_sprite.py --group monsters`，跟角色立繪同一支去背、同一組門檻，
+    # 會犯的錯當然一樣，卻整整 490 張從來沒被掃過。補的當下全部乾淨（灰膜 0 張），
+    # 所以這不是為了抓現有的問題，是為了下一批新魔物進來時擋得到。
+    (Path("public") / "assets" / "monsters", "add_sprite.py --group monsters"),
 ]
 
 
