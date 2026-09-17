@@ -90,12 +90,12 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  *（使用者 2026-09-10 在剛部署完、整包圖都要重抓的那一次遇到）。
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
-const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/feifei_cover', 'hero/idle', 'hero/armed']);
+const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/idle', 'hero/armed']);
 /**
  * 帶角色名、卻在**選角之前**就會出現的圖：首頁兩張「參上」並排（2026-09-15）。
  * 開場預載不能因為鍵名帶 `feifei` 就跳過，戰鬥暖圖也不用它（總稽核 2026-09-16 戊 M3）。
  */
-export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover']);
+export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover', 'hero/dangdang_cover']);
 
 /**
  * 這個鍵是哪一位角色專屬的；`null`＝共用或球球的。

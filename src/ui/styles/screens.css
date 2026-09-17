@@ -1064,6 +1064,7 @@
 .title-best { font-size: 18px; }
 .title-screen { gap: 11px; }
 .title-cat-box .title-cat { height: 290px; }
+.title-cat-box.three .title-cat { height: 248px; }
 .title-cat-box .title-cat-feifei { height: 190px; }
 .title-screen h1 { margin: 0; }
 .title-sub { margin: 0; }

@@ -3,6 +3,7 @@ import { el } from './dom';
 import { cardNode } from './cardview';
 import { localHero } from './assets';
 import { overlayRoot } from './overlay';
+import { heroName } from '../engine/hero';
 
 /**
  * 卡牌圖鑑：整個牌庫一覽（依牌池分區），右上角勾「顯示升級版」整頁切成＋版數值。
@@ -82,8 +83,8 @@ export function showCompendium(): void {
   check.addEventListener('change', () => { upgraded = check.checked; render(); });
 
   // 看誰的牌。**兩顆鈕不是下拉選單**：只有兩位，一眼看得出現在在看誰，也少一次點擊
-  const heroBtns = (['ninja', 'feifei'] as const).map((h) => {
-    const b = el('button', { class: 'btn small comp-hero' }, h === 'feifei' ? '菲菲' : '球球');
+  const heroBtns = (['ninja', 'feifei', 'dangdang'] as const).map((h) => {
+    const b = el('button', { class: 'btn small comp-hero' }, heroName({ hero: h }));
     b.addEventListener('click', () => {
       if (who === h) return;
       who = h;

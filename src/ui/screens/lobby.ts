@@ -10,7 +10,7 @@ import { setLocalHero } from '../assets';
 import { setSfxHero } from '../audio';
 import { preloadCoopArt, preloadHeroArt } from '../preload';
 import { me } from '../../engine/runplayer';
-import { heroName, type Hero } from '../../engine/hero';
+import { HEROES, heroName, type Hero } from '../../engine/hero';
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
 import { selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
 
@@ -118,7 +118,9 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
   const begin = (seed: string, diff: number, heroes?: string[]): void => {
     // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）。
     // 角色也一樣：開房的人挑好兩位，跟種子一起宣布，兩邊算出來的起手牌才會一樣
-    const h = (i: number): Hero => (heroes?.[i] === 'feifei' ? 'feifei' : 'ninja');
+    // 主機宣布的字串**照清單認**，不要一個一個 if——第三隻貓進來時這一行漏改，
+    // 加入的人會安靜地變成球球（2026-09-17）
+    const h = (i: number): Hero => (HEROES.includes(heroes?.[i] as Hero) ? heroes![i] as Hero : 'ninja');
     app.run = newCoopRun(seed, diff, h(0), h(1));
     setLocalHero(me(app.run, seat).hero);
     setSfxHero(me(app.run, seat).hero);   // 貓叫也照本機角色換（推前審查 高-1：只設了圖沒設聲）
@@ -201,7 +203,7 @@ registerScreen('lobby', (app, root) => {
   const heroPicker = (): HTMLElement => {
     const row = (label: string, i: 0 | 1): HTMLElement => el('div', { class: 'lobby-hero-row' },
       el('b', {}, label),
-      ...(['ninja', 'feifei'] as const).map((h) => el('button', {
+      ...(['ninja', 'feifei', 'dangdang'] as const).map((h) => el('button', {
         class: `btn small${coopHeroes[i] === h ? ' selected' : ''}`,
         onclick: () => { coopHeroes[i] = h; render(); },
       }, heroName({ hero: h }))));

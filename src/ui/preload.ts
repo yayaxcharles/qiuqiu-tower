@@ -138,8 +138,10 @@ export function preloadAct(act: number, skinHero: string | undefined = localHero
  */
 export function warmSlides(act: number): void {
   const i = Math.min(Math.max(act, 1), 3) - 1;
-  // 幻燈片照角色換前綴（跟 `storyslides.ts` 的 `stillKey` 同一條）：菲菲的是 `bg/feifei_still_*`
-  const mine = (k: string): string => (localHero() === 'feifei' ? k.replace('bg/still_', 'bg/feifei_still_') : k);
+  // 幻燈片照角色換前綴（跟 `storyslides.ts` 的 `stillKey` 同一條）：
+  // 菲菲的是 `bg/feifei_still_*`、噹噹的是 `bg/dangdang_still_*`；球球沒有前綴
+  const h = localHero();
+  const mine = (k: string): string => (h === 'ninja' ? k : k.replace('bg/still_', `bg/${h}_still_`));
   void decodeAll(SLIDES_BY_ACT[i]!.map((k) => artUrl('bg', mine(k))), 3, false);
 }
 
