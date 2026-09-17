@@ -83,12 +83,18 @@ FIX: dict[str, str] = {
         "against his chest in ONE paw. His OTHER foreleg is the hurt one: he holds it slightly away "
         "from his body, and a short raw graze shows on it where the rope scraped him. Both arms and "
         "both bracers are plain to see and both join his shoulders properly.\n"),
+    # 這張我第一次寫錯了指示（舊圖也錯，我照抄了）：句子講的是**看爪痕學招**，
+    # 跟爬柱子拿小包無關。小包是 `_r0` 那張的事。
     "cat_tower_r1": ARMS + (
-        "He is part way up the tall scratching post, climbing down a step at a time with the bundle. "
-        "**Both forepaws grip the post** - each one wrapped round the wood from its own arm, the "
-        "bracer on each forearm just behind the paw. No third limb, no loose bracer floating beside "
-        "him. Draw the swipe marks on the post as marks cut into the wood, not as white streaks "
-        "flying loose in the air around him.\n"),
+        "**THE STAGING IS WRONG TOO - HE IS NOT CLIMBING AND HE IS NOT CARRYING ANYTHING.** The "
+        "sentence says he reads the CLAW MARKS scratched down the post from the bottom one upward, "
+        "tries each move in turn, and finally strings them together. So: he stands on the ground at "
+        "the foot of the tall scratching post, side-on to us, feet planted in a low stance, copying "
+        "one of the marks - one forearm driven forward at chest height, the other pulled back beside "
+        "his ribs, head turned up toward the post to check himself against it. **No bundle, no bag, "
+        "nothing in his paws, and no part of him off the ground.** Down the post run several sets of "
+        "CLAW MARKS at different heights, cut into the wood as grooves - not white streaks flying "
+        "loose in the air around him.\n"),
     "training_hall_r0": ARMS + (
         "He is mid-stance on the practice floor, working through a turn: knees bent, weight low, one "
         "foot forward on the painted pawprint trail. One forearm is driven forward at chest height "
@@ -202,9 +208,11 @@ FIX: dict[str, str] = {
 
 WAVE1 = ["daxia_teach", "broken_shrine", "lost_scroll", "noisy_kitchen", "sleeping_guard",
          "stuck_kitten", "robin_r0", "blocked_r0", "sparring_cat_r1", "cat_tower_r0",
-         "cat_tower_r1", "training_hall_r0"]
+         "training_hall_r0"]
 WAVE2 = ["daxia_teach_r0", "broken_shrine_r0", "lost_scroll_r0", "noisy_kitchen_r0",
-         "noisy_kitchen_r1"]
+         "noisy_kitchen_r1",
+         # 第一波生出來的手是對的，但構圖是我寫錯的（見上面那則註解），所以第二波再來一次
+         "cat_tower_r1"]
 
 
 def find_job(fid: str) -> dict:
