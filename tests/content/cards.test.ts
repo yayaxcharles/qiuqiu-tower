@@ -14,12 +14,13 @@ describe('牌資料', () => {
     // 96→97：2026-09-14 影子分身分成球球（原版）與菲菲（9/12 改版 `feifei_yingzi`）兩張
     // 97→98、51→52：2026-09-15 幫同伴回血的兩張連線牌（魚乾急救進忍術、一起喘口氣進絕學）
     // 98→118：2026-09-17 噹噹的 20 張忍術（常見 8、罕見 11、稀有 1）
-    expect(count('忍術')).toBe(118);   // 連線支援牌 A＋B＋C 共 18 張，其中 12 張進忍術
+    // 118→119：2026-09-17 橋接牌四張換掉三張（連環撞、迴力鏢、卸甲）
+    expect(count('忍術')).toBe(119);   // 連線支援牌 A＋B＋C 共 18 張，其中 12 張進忍術
     expect(count('絕學')).toBe(58);   // 52→58：2026-09-17 噹噹的 6 張絕學
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(195);   // 2026-09-17 噹噹的 29 張（起手 3、忍術 20、絕學 6）
+    expect(cards.length).toBe(196);   // 2026-09-17 噹噹的 29 張（起手 3、忍術 20、絕學 6）
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -141,5 +142,32 @@ describe('牌資料', () => {
         for (const c of rollCardChoices(new Rng(seedFromString('hidden-' + seed)), pool, 6, [], true, 0)) expect(c.hidden).toBeUndefined();
       }
     }
+  });
+});
+
+/**
+ * 升級之後玩家要看得出差別（2026-09-17）。
+ *
+ * 菲菲的絆線升級是定身 1 層→2 層，可是「定身」被列進 `ONE_SHOT`（牌面不寫層數），
+ * 於是升級前後印出來一模一樣——磨了一張牌回來，完全看不出多了什麼。
+ * 規格 §6.1 那句「定身術、點穴手都只寫『給目標定身』」是對**只給 1 層**的牌講的。
+ */
+describe('升級要看得出來', () => {
+  it('沒有一張牌升級之後牌面跟費用都沒變', async () => {
+    const { describeCard } = await import('../../src/ui/cardtext');
+    const same = cards
+      .filter((c) => c.pool !== '壞毛病')
+      .filter((c) => describeCard(c, false) === describeCard(c, true)
+        && (c.upgrade.cost === undefined || c.upgrade.cost === c.cost))
+      .map((c) => `${c.name}｜${describeCard(c, false)}`);
+    expect(same, `這幾張升級之後玩家看不出差別：\n  ${same.join('\n  ')}`).toEqual([]);
+  });
+
+  it('絆線升級之後牌面真的寫出兩層', async () => {
+    const { describeCard } = await import('../../src/ui/cardtext');
+    const c = cardById['feifei_banxian']!;
+    expect(describeCard(c, false), '只給 1 層時照舊不寫層數').toBe('給目標定身，獲得 4 點蜷縮。');
+    // 措辭照全遊戲一致的「N 層<狀態>」（跟「給目標 2 層翻肚」同一個形狀）
+    expect(describeCard(c, true)).toBe('給目標 2 層定身，獲得 4 點蜷縮。');
   });
 });

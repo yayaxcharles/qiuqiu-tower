@@ -60,6 +60,9 @@ export function combatFingerprint(cs: CombatState): string {
       // 噹噹的四個（2026-09-17）：`pw` 只數張數，數不出千斤墜疊到幾點
       `hs${p.halfSpendBlock ? 1 : 0}`, `bwa${p.blockWhenAttacked ?? 0}`,
       `tb${p.thornsBonus ?? 0}`, `bk${p.blockKeepThisTurn ?? 0}`,
+      // 橋接牌那三個（2026-09-17）
+      `bot${p.blockOnThorns ?? 0}`, `tfs${p.thornsFromSpend ?? ''}`,
+      `b2t${p.blockToThornsThisTurn ? `${p.blockToThornsThisTurn.per}/${p.blockToThornsThisTurn.gain}` : ''}`,
       // 連線支援牌 C 批的四個跨回合旗標（2026-09-13 稽核 低-4）。
       // 沒有它們真分岔還是會被蜷縮或手牌抓到，只是**晚一拍、而且訊息指錯地方**——
       // 分岔點會被算在後面某個無關的效果上，查起來會繞遠路。

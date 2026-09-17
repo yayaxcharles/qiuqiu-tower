@@ -941,6 +941,16 @@ export function finishEnemyTurn(cs: CombatState): void {
     const keep = relicSum(p.relics, 'blockKeep') + (p.blockKeepThisTurn ?? 0);
     // 球球已經倒下那一拍不演（稽核 2026-09-10 複核 低-5）：被穿透打死但身上還有蜷縮時會踩到
     if (keep > 0 && cs.phase === 'player' && p.block > 0 && !p.down) for (const rid of p.relics) if ((relicById[rid]?.hooks.blockKeep ?? 0) > 0) fireRelic(cs, rid, p);
+    /*
+     * 反震（噹噹 2026-09-17）：擺在修剪**之前**——蜷縮回合末本來就歸零，
+     * 這張存的就是那份要被丟掉的。修剪之後才算的話永遠只剩守護符留下來的那幾點。
+     */
+    const conv = p.blockToThornsThisTurn;
+    if (conv && p.block > 0 && !p.down) {
+      const got = Math.floor(p.block / conv.per) * conv.gain;
+      if (got > 0) { addStatus(p, '反彈', got); log(cs, `${unitName(p)}把擋下來的力道存成 ${got} 點反彈`); }
+    }
+    p.blockToThornsThisTurn = undefined;
     p.block = Math.min(p.block, keep);
     p.blockKeepThisTurn = 0;
   }

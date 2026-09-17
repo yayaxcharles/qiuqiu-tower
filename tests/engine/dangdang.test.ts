@@ -167,18 +167,16 @@ describe('噹噹：條件與收尾', () => {
     expect(getStatus(p, '反彈')).toBe(2);
   });
 
-  it('連環撞：蜷縮要大於 10 才補第二下', () => {
+  it('硬碰硬：身上有蜷縮才給反彈（`ifBlock` 的門檻）', () => {
+    // 原本這條驗的是連環撞（門檻 11），2026-09-17 那張被橋接牌換掉了；
+    // `ifBlock` 這個效果還在用（硬碰硬），所以改成驗它
     const { cs, p } = setup();
     const e = cs.enemies[0]!;
-    e.block = 0;
-    p.block = 10;
-    let hp0 = e.hp;
-    play(cs, 'dangdang_lianhuan', e.uid);
-    expect(hp0 - e.hp, '剛好 10 不算').toBe(6);
-    p.block = 11;
-    hp0 = e.hp;
-    play(cs, 'dangdang_lianhuan', e.uid);
-    expect(hp0 - e.hp, '11 點才補第二下').toBe(12);
+    play(cs, 'dangdang_yingpeng', e.uid);
+    expect(getStatus(p, '反彈'), '蜷縮 0，條件不成立').toBe(0);
+    p.block = 1;
+    play(cs, 'dangdang_yingpeng', e.uid);
+    expect(getStatus(p, '反彈')).toBe(2);
   });
 
   it('借力：卸蜷縮換血，蜷縮真的少掉', () => {
@@ -230,10 +228,101 @@ describe('噹噹：牌面文字唸得通', () => {
 
   it('每一張都印得出文字，沒有空白的牌面', () => {
     const his = Object.values(cardById).filter((x) => x.hero === 'dangdang');
-    expect(his.length, '他的專屬牌是 29 張').toBe(29);
+    expect(his.length, '他的專屬牌是 30 張').toBe(30);
     for (const c of his) {
       expect(describeCard(c, false).length, c.name).toBeGreaterThan(3);
       expect(describeCard(c, true).length, `${c.name}（升級）`).toBeGreaterThan(3);
     }
+  });
+});
+
+/**
+ * 兩條路互相加分的四張（2026-09-17 使用者拍板）。
+ *
+ * 他本來的卸力流（卸蜷縮打人）跟反彈流（挨打回敬）各走各的，
+ * 中間只有借勢一座單向橋。這四張把兩條路接起來，所以每一條都在驗
+ *「**另一半真的有幫到忙**」——哪天有人把橋拆掉，這幾條會紅。
+ */
+describe('噹噹：兩條路互相加分', () => {
+  it('借力打力：反彈越高，卸出去的那一掌越痛', () => {
+    const { cs, p } = setup();
+    const e = cs.enemies[0]!;
+    e.block = 0;
+    p.block = 6;
+    let hp0 = e.hp;
+    play(cs, 'dangdang_jielidali', e.uid);
+    expect(hp0 - e.hp, '沒有反彈時就是卸多少打多少').toBe(6);
+
+    p.block = 6;
+    addStatus(p, '反彈', 5);
+    hp0 = e.hp;
+    play(cs, 'dangdang_jielidali', e.uid);
+    expect(hp0 - e.hp, '6 點蜷縮＋5 點反彈').toBe(11);
+    expect(getStatus(p, '反彈'), '反彈不會被這張吃掉').toBe(5);
+  });
+
+  it('順勢：挨打回敬的同時把彈藥補回來', () => {
+    const { cs, p } = setup();
+    play(cs, 'dangdang_shunshi');      // 之後每次反彈回敬，獲得 2 點蜷縮
+    addStatus(p, '反彈', 3);
+    const e = cs.enemies[0]!;
+    e.block = 0;
+    p.block = 0;
+    damagePlayer(cs, e, 4);
+    expect(p.block, '回敬完補 2 點蜷縮').toBe(2);
+    // 沒有反彈就不會觸發——回敬都沒發生，補給也不該發生
+    p.statuses['反彈'] = 0;
+    p.block = 0;
+    damagePlayer(cs, e, 4);
+    expect(p.block, '沒有反彈卻補了蜷縮').toBe(0);
+  });
+
+  it('反震：回合末本來要歸零的蜷縮，換成不會消失的反彈', () => {
+    const { cs, p } = setup();
+    play(cs, 'dangdang_fanzhen');      // 這回合結束時，剩下的蜷縮每 2 點換 1 點反彈
+    p.block = 9;
+    endTurn(cs);
+    expect(getStatus(p, '反彈'), '9 點換 4 點（無條件捨去）').toBe(4);
+    expect(p.blockToThornsThisTurn, '用完就清掉，不會賴著下一回合').toBeFalsy();
+    // 下一回合沒再打這張，就不該再換
+    const before = getStatus(p, '反彈');
+    p.block = 9;
+    endTurn(cs);
+    expect(getStatus(p, '反彈'), '只撐一回合').toBeLessThanOrEqual(before);
+  });
+
+  it('以身作盾：卸出去的力道自己養出反彈', () => {
+    const { cs, p } = setup();
+    play(cs, 'dangdang_yishenzuodun');   // 之後卸蜷縮打人時，拿等同卸掉點數一半的反彈
+    p.block = 12;
+    const e = cs.enemies[0]!;
+    e.block = 0;
+    play(cs, 'dangdang_bengshan', e.uid);   // 最多卸 12 點
+    expect(p.block, '12 點全卸出去').toBe(0);
+    expect(getStatus(p, '反彈'), '卸 12 點拿 6 點反彈').toBe(6);
+  });
+
+  it('以身作盾配借力打力：這一掌不能用自己剛長出來的反彈再加一次', () => {
+    /*
+     * 順序的坑：以身作盾在同一張牌裡先給反彈，借力打力又照反彈加傷害。
+     * 兩個都掛著的時候，如果先給反彈再算傷害，等於卸出去的力道被算了兩次。
+     */
+    const { cs, p } = setup();
+    play(cs, 'dangdang_yishenzuodun');
+    p.block = 6;
+    const e = cs.enemies[0]!;
+    e.block = 0;
+    const hp0 = e.hp;
+    play(cs, 'dangdang_jielidali', e.uid);
+    expect(hp0 - e.hp, '打之前身上沒有反彈，就只該打 6 點').toBe(6);
+    expect(getStatus(p, '反彈'), '打完才拿到 3 點反彈').toBe(3);
+  });
+
+  it('四張的牌面都講得出另一半', () => {
+    expect(describeCard(cardById['dangdang_jielidali']!, false)).toContain('每有 1 點反彈再多打 1 點');
+    expect(describeCard(cardById['dangdang_shunshi']!, false)).toContain('每次反彈回敬');
+    expect(describeCard(cardById['dangdang_fanzhen']!, false)).toContain('換成');
+    expect(describeCard(cardById['dangdang_yishenzuodun']!, false)).toContain('卸掉點數一半的反彈');
+    expect(describeCard(cardById['dangdang_yishenzuodun']!, true)).not.toContain('一半');
   });
 });

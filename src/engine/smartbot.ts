@@ -215,7 +215,8 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       const want = fx.all ? pool : (fx.max ?? 0);
       const hit = Math.min(want, p.halfSpendBlock ? pool * 2 : pool);
       spent += p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
-      swing(computeAttack(Math.floor(hit * (fx.mul ?? 1)) * (doubled ? 2 : 1), p, e, { noStrength: true }), fx.ignoreBlock);
+      const plus = fx.plusOwnStatus ? getStatus(p, fx.plusOwnStatus) : 0;
+      swing(computeAttack((Math.floor(hit * (fx.mul ?? 1)) + plus) * (doubled ? 2 : 1), p, e, { noStrength: true }), fx.ignoreBlock);
     } else if (fx.kind === 'damageByOwnStatus') {
       // 以彼之道：照**自己**的反彈打。反彈是自己身上的，跟目標無關，所以每一隻的估值都一樣
       swing(computeAttack(getStatus(p, fx.name) * (fx.mul ?? 1) * (doubled ? 2 : 1), p, e, { noStrength: true }));
@@ -601,6 +602,28 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       }
       // 以傷還傷：**身上要先有反彈才算數**。沒有反彈的話這張是純廢牌，估 0 是對的
       case 'thornsBonus': value += getStatus(p, '反彈') > 0 ? fx.n * rest * 0.9 : 0; break;
+      /*
+       * 橋接牌那四個（2026-09-17）。跟上面幾個長效旗標同一套折算法（`rest`＝這一場還剩幾回合），
+       * 而且**都要看另一半在不在**——沒有反彈的順勢、沒有蜷縮可卸的以身作盾都是廢牌，
+       * 估成固定值的話機器人會在還沒成形時就搶著打它們。
+       */
+      case 'blockOnThorns': value += getStatus(p, '反彈') > 0 ? fx.n * rest * 0.9 : 0; break;
+      // 以身作盾：卸多少拿多少（或一半）。手上有卸蜷縮的牌才算數
+      case 'thornsFromSpend': {
+        const canSpend = p.hand.some((h) => (cardById[h.cardId]?.effects ?? []).some((e) => e.kind === 'damageSpendBlock'));
+        value += canSpend ? rest * (fx.full ? 6 : 3) * 0.9 : 1;
+        break;
+      }
+      /*
+       * 反震：換的是**這一回合結束時本來要歸零的那些**，所以估的是
+       *「打完這張之後身上還會剩多少蜷縮」——擋不到的那部分本來就是浪費掉的，
+       * 換成反彈是純賺；擋得到的那部分換掉就少擋一點，不另外扣（它還在，回合末才走）。
+       */
+      case 'blockToThorns': {
+        const soon = p.block + st.effects.reduce((n, e) => n + (e.kind === 'block' ? e.amount : 0), 0);
+        value += Math.floor(soon / fx.per) * fx.gain * 1.2;
+        break;
+      }
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }

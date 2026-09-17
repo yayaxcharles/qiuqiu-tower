@@ -64,7 +64,14 @@ export type Effect =
    * `max` 是這張牌**最多**吃掉幾點；蜷縮不夠就吃多少算多少（打得比較小，不是打不出來）。
    * `all` 為真＝吃光全部（鐵山靠、捨身撞），`mul` 是傷害倍率（捨身撞是 2）。
    */
-  | { kind: 'damageSpendBlock'; max?: number; all?: boolean; mul?: number; target?: 'enemy' | 'all'; ignoreBlock?: true }
+  | { kind: 'damageSpendBlock'; max?: number; all?: boolean; mul?: number; target?: 'enemy' | 'all'; ignoreBlock?: true;
+      /**
+       * 再照**自己身上**這個狀態的點數多打（借力打力的反彈，2026-09-17）。
+       *
+       * 跟同一張牌拆成兩條效果不一樣：拆兩條會打兩下，魔物的防禦擋兩次、
+       * 牠身上的刺也回敬兩次，而這張牌講的是「一掌打出去，力道裡含著反彈」。
+       */
+      plusOwnStatus?: StatusName }
   /** 消耗最多 `max` 點蜷縮，回復等量生命（噹噹的借力） */
   | { kind: 'healSpendBlock'; max: number }
   /** 把現在的反彈值加到蜷縮上，**反彈不減少**（噹噹的借勢） */
@@ -94,6 +101,20 @@ export type Effect =
   | { kind: 'blockWhenAttacked'; n: number }
   /** 以傷還傷：之後反彈回敬時額外多打 `n` 點。長效旗標 */
   | { kind: 'thornsBonus'; n: number }
+  /*
+   * ===== 兩條路互相加分的四張（2026-09-17 使用者：「兩條路互相加分那個」）=====
+   *
+   * 他本來的卸力流（卸蜷縮打人）跟反彈流（挨打回敬）各走各的，中間只有借勢一座單向橋，
+   * 結果多半是玩家挑一條走到底、另一半的牌直接跳過。這四個效果把兩條路接起來：
+   * 反彈幫卸力加傷害（借力打力）、挨打補回彈藥（順勢）、
+   * 擋剩的存成反彈（反震）、卸出去的力道自己養出反彈（以身作盾）。
+   */
+  /** 順勢：之後每次**反彈回敬**，獲得 `n` 點蜷縮。長效旗標 */
+  | { kind: 'blockOnThorns'; n: number }
+  /** 反震：這回合結束時，剩下的蜷縮每 `per` 點換成 `gain` 點反彈（只有這一回合） */
+  | { kind: 'blockToThorns'; per: number; gain: number }
+  /** 以身作盾：之後打出卸蜷縮的牌時，獲得等同卸掉點數的反彈；沒有 `full` 就只拿一半（無條件捨去）。長效旗標 */
+  | { kind: 'thornsFromSpend'; full?: true }
   | { kind: 'selfDamage'; amount: number }
   | { kind: 'block'; amount: number }
   /**
@@ -875,6 +896,12 @@ export interface PlayerCombat extends Unit {
   thornsBonus?: number;
   /** 穩住：這一回合結束多留幾點蜷縮。回合開始清掉 */
   blockKeepThisTurn?: number;
+  /** 順勢：每次反彈回敬就拿幾點蜷縮 */
+  blockOnThorns?: number;
+  /** 反震：這一回合結束時，剩下的蜷縮每 `per` 點換 `gain` 點反彈。回合開始清掉 */
+  blockToThornsThisTurn?: { per: number; gain: number };
+  /** 以身作盾：卸掉蜷縮打人時，照卸掉的點數拿反彈（`'half'` 打對折、`'full'` 全拿） */
+  thornsFromSpend?: 'half' | 'full';
   /** 這回合球球自己給自己的減益：本回合結束不衰減，下一回合結束才開始減 */
   freshDebuffs: Partial<Record<StatusName, number>>;
   /**

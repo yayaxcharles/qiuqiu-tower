@@ -251,6 +251,11 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
         const back = thorns + (p.thornsBonus ?? 0);
         log(cs, `反彈回敬了${e.name} ${back} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
         damageEnemy(cs, e, back, { direct: true, throughBlock: true, by: p });
+        // 順勢（2026-09-17）：挨打把彈藥補回來。掛在「真的回敬出去」後面，跟以傷還傷同一個判斷
+        if (p.blockOnThorns) {
+          log(cs, `${unitName(p)}順著力道穩住，多了 ${p.blockOnThorns} 點蜷縮`);
+          gainBlock(cs, p, p.blockOnThorns);
+        }
       }
     }
     /*

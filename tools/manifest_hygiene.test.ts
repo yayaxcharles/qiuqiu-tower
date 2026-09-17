@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
+import { HEROES } from '../src/engine/hero';
 
 /**
  * 清單裡不可以留「中途檔」（2026-09-13 總覽稽核抓到 5 筆）。
@@ -78,11 +79,17 @@ describe('素材清單的衛生', () => {
       .flatMap(() => Object.keys((manifest as { bg: Record<string, string> }).bg))
       .filter((k) => k.startsWith('bg/event_'))
       .filter((k) => {
-        // 兩種都要試：一般事件的她版是 `event_feifei_<編號>`（前綴要剝掉），
-        // 但**她的專屬事件本身就叫 `feifei_trace`**，那個 `feifei_` 是編號的一部分，
-        // 剝掉就查不到了（第一版就這樣誤報了 8 張）。
+        /*
+         * 兩種都要試：一般事件的他版是 `event_<角色>_<編號>`（前綴要剝掉），
+         * 但**專屬事件本身就叫 `feifei_trace`／`dangdang_lining`**，那個前綴是編號的一部分，
+         * 剝掉就查不到了（第一版就這樣誤報了 8 張）。
+         *
+         * 2026-09-17 改成照 `HEROES` 掃：原本寫死只剝 `feifei_`，噹噹的 13 張專屬事件圖
+         * 一進來就被誤報成孤兒。這是同一類問題今晚第五次——一律照角色清單，不要再列舉。
+         */
         const raw = k.replace(/^bg\/event_/, '');
-        return !ids.has(raw) && !ids.has(raw.replace(/^feifei_/, ''));
+        if (ids.has(raw)) return false;
+        return !HEROES.some((h) => ids.has(raw.replace(new RegExp(`^${h}_`), '')));
       });
     expect(orphan, `這幾張沒人會去要，卻每次首載都被下載：\n${orphan.join('\n')}`).toEqual([]);
   });

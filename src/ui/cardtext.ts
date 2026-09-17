@@ -9,7 +9,8 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
 const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst',
-  'halfSpendBlock', 'blockWhenAttacked', 'thornsBonus', 'keepBlock', 'ifBlock', 'ifEnemyIntent']);
+  'halfSpendBlock', 'blockWhenAttacked', 'thornsBonus', 'keepBlock', 'ifBlock', 'ifEnemyIntent',
+  'blockOnThorns', 'thornsFromSpend', 'blockToThorns']);
 
 /** 效果落在同伴身上的那幾種：一個人玩的時候會算回自己身上（句尾統一補一句） */
 /** 效果可能包在 `ifSelfStatus` 的 `then`／`otherwise` 裡，要一路往下看（推前審查 高-2） */
@@ -43,7 +44,13 @@ function again(s: string): string {
   return /^(造成|獲得|抽|回復)/.test(s) ? `再${s}` : s;
 }
 
-/** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
+/**
+ * 一次性的狀態：**只給 1 層時**牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」）。
+ *
+ * 2026-09-17 加上「只給 1 層時」這個但書。原本一律不寫，於是菲菲的絆線升級之後
+ * 定身從 1 層變 2 層，牌面卻一個字都沒變——玩家磨了一張牌回來，完全看不出多了什麼。
+ * 規格那句話是對「都只給 1 層」的牌講的，2 層以上就不成立了。
+ */
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
 
 /**
@@ -53,6 +60,8 @@ const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
  */
 export const STATUS_UNIT: Readonly<Record<string, string>> = {
   隱身: '層', 翻肚: '層', 懶洋洋: '層', 炸毛: '層', 中毒: '層',
+  // 定身本來不用量詞（只給 1 層時牌面不寫層數），2026-09-17 絆線升級寫出兩層之後才需要
+  定身: '層',
   爪力: '點', 貓步: '點', 反彈: '點',
 };
 
@@ -140,7 +149,8 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       const n = ({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `;
       const hit = (fx.mul ?? 1) > 1 ? `造成卸掉點數${n}倍的傷害` : '造成等量傷害';
       const who = fx.target === 'all' ? hit.replace('造成', '對全體魔物造成') : hit;
-      return `${spend}，${who}` + (fx.ignoreBlock ? '，無視防禦' : '');
+      const plus = fx.plusOwnStatus ? `，每有 1 點${fx.plusOwnStatus}再多打 1 點` : '';
+      return `${spend}，${who}${plus}` + (fx.ignoreBlock ? '，無視防禦' : '');
     }
     case 'healSpendBlock': return `最多卸掉 ${fx.max} 點蜷縮，回復等量生命`;
     case 'blockFromThorns': return '把你的反彈點數加到蜷縮上（反彈不會因此減少）';
@@ -156,6 +166,10 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'halfSpendBlock': return '之後卸掉蜷縮的牌只卸一半（不滿一點算一點，連卸光那種也是），打出去的力道不變';
     case 'blockWhenAttacked': return `之後每次被魔物攻擊（擋下來也算），獲得 ${fx.n} 點蜷縮`;
     case 'thornsBonus': return `之後反彈回敬時多打 ${fx.n} 點`;
+    case 'blockOnThorns': return `之後每次反彈回敬，獲得 ${fx.n} 點蜷縮`;
+    case 'thornsFromSpend': return `之後卸掉蜷縮打人時，獲得等同卸掉點數${fx.full ? '' : '一半'}的反彈`;
+    // 蜷縮回合末本來就歸零，這張把要被丟掉的那份存成不會消失的一半
+    case 'blockToThorns': return `這回合結束時，剩下的蜷縮每 ${fx.per} 點換成 ${fx.gain} 點反彈`;
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
     // 倍率寫成「兩倍」不是「×2」：牌面其他地方都用中文，突然冒一個乘號很跳（2026-09-14）。
@@ -259,7 +273,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       }
       if (isDive(fx)) return `下回合開始時再獲得 ${fx.amount} 層隱身`;
       if (fx.name === '鐵布衫') return `下回合開始時再獲得 ${fx.amount} 點蜷縮`;
-      const oneShot = ONE_SHOT.has(fx.name);
+      const oneShot = ONE_SHOT.has(fx.name) && fx.amount <= 1;
       const body = oneShot ? fx.name : `${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`;
       const say = (head: string): string => (oneShot ? head + body : `${head} ${body}`);
       if (namesAllFoes(fx) && namesAllFoes(ctx.prev)) {

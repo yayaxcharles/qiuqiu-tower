@@ -551,7 +551,17 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const spent = p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
       p.block -= spent;
       if (spent > 0) log(cs, `${unitName(p)}卸掉 ${spent} 點蜷縮打了出去`);
-      const base = Math.floor(hit * (fx.mul ?? 1)) * (ctx.doubleDamage ? 2 : 1);
+      /*
+       * 以身作盾（2026-09-17）：卸出去的力道自己養出反彈。
+       * 擺在傷害之前，因為同一張牌裡的 `plusOwnStatus` 讀的是**打之前**的反彈——
+       * 不然借力打力配上以身作盾，會拿這一掌剛長出來的反彈再加一次傷害。
+       */
+      const bonus = fx.plusOwnStatus ? getStatus(p, fx.plusOwnStatus) : 0;
+      if (p.thornsFromSpend && spent > 0) {
+        const back = p.thornsFromSpend === 'full' ? spent : Math.floor(spent / 2);
+        if (back > 0) { addStatus(p, '反彈', back); log(cs, `${unitName(p)}把卸出去的力道反了 ${back} 點回來`); }
+      }
+      const base = (Math.floor(hit * (fx.mul ?? 1)) + bonus) * (ctx.doubleDamage ? 2 : 1);
       if (base <= 0) return false;
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
         if (damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: true, by: p }).killed) ctx.killed = true;
@@ -593,6 +603,19 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     // 跟守護符那類秘寶**相加**（`finishEnemyTurn` 讀這個欄位），但只撐這一回合
     case 'keepBlock': p.blockKeepThisTurn = Math.max(p.blockKeepThisTurn ?? 0, fx.n); return false;
     case 'halfSpendBlock': p.halfSpendBlock = true; markPassive(p, ctx); return false;
+    case 'blockOnThorns': p.blockOnThorns = (p.blockOnThorns ?? 0) + fx.n; markPassive(p, ctx, true); return false;
+    case 'thornsFromSpend': if (fx.full || !p.thornsFromSpend) p.thornsFromSpend = fx.full ? 'full' : 'half'; markPassive(p, ctx); return false;
+    /*
+     * 反震：蜷縮回合末本來就歸零，這張把浪費掉的那部分存成不會消失的一半。
+     * **取比較好的那一邊**，跟屍爆同一個規矩（稽核 2026-09-12 中-8）：
+     * 牌組裡同時有升級版與沒升級的，先打升級的再打沒升的不該把自己降回去。
+     */
+    case 'blockToThorns': {
+      const cur = p.blockToThornsThisTurn;
+      const better = !cur || fx.gain / fx.per > cur.gain / cur.per;
+      if (better) p.blockToThornsThisTurn = { per: fx.per, gain: fx.gain };
+      return false;
+    }
     case 'blockWhenAttacked': p.blockWhenAttacked = (p.blockWhenAttacked ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     case 'thornsBonus': p.thornsBonus = (p.thornsBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆

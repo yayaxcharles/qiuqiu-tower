@@ -2261,7 +2261,10 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
     // 反彈流（噹噹）：給自己上反彈的牌，加上那兩個把反彈變強的長效旗標
     const thorns = flat.some((e) => (e.kind === 'status' && e.target === 'self' && e.name === '反彈')
       || e.kind === 'thornsBonus' || e.kind === 'blockWhenAttacked' || e.kind === 'blockFromThorns'
-      || e.kind === 'damageByOwnStatus');
+      || e.kind === 'damageByOwnStatus'
+      // 橋接牌那三個也算反彈流（2026-09-17）：漏掉的話帶著整套橋接牌反而被判成沒有傾向
+      || e.kind === 'blockOnThorns' || e.kind === 'thornsFromSpend' || e.kind === 'blockToThorns'
+      || (e.kind === 'damageSpendBlock' && e.plusOwnStatus === '反彈'));
     if (alt === 'stealth' ? selfStatus('隱身') || selfStatus('潛水') : alt === 'poison' ? poisons : thorns) count.alt += 1;
     if (fx.some((e) => e.kind === 'block')) count.block += 1;
   }

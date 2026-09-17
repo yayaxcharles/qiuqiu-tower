@@ -58,9 +58,13 @@ describe('噹噹的劇本', () => {
   });
 
   it('結局：反彈流、蜷縮流、沒有明顯傾向各有各的旁白', () => {
-    const thorns = ['dangdang_huijing', 'dangdang_huili', 'dangdang_tiaoxin', 'dangdang_huxin', 'dangdang_qianjin'];
+    // 迴力鏢 2026-09-17 被橋接牌換掉了，改用順勢頂上（它也是反彈流的牌）
+    // 起手那十張不算（`deckLeaning` 會排掉），所以這裡一張起手牌都不能放——
+    // 回敬是起手牌，2026-09-17 換成順勢與以身作盾
+    const thorns = ['dangdang_shunshi', 'dangdang_yishenzuodun', 'dangdang_tiaoxin',
+      'dangdang_huxin', 'dangdang_qianjin', 'dangdang_yishang'];
     expect(deckLeaning(thorns, 'dangdang')).toBe('thorns');
-    const blocky = ['dangdang_huben', 'dangdang_yingkang', 'dangdang_xiejia', 'dangdang_tiesha', 'dangdang_jiapan'];
+    const blocky = ['dangdang_huben', 'dangdang_yingkang', 'dangdang_wenzhu', 'dangdang_tiesha', 'dangdang_jiapan'];
     expect(deckLeaning(blocky, 'dangdang')).toBe('block');
     // 起手那十張不算：整副只有起手牌的話不該被判成蜷縮流
     expect(deckLeaning(['dangdang_zhengquan', 'dangdang_jiapan', 'dangdang_jiapan'], 'dangdang')).toBe('plain');

@@ -792,9 +792,6 @@ export const cards: readonly CardDef[] = [
   // ----- 忍術・罕見 11 張：開始出現真正的取捨 -----
   { id: 'dangdang_bengshan', name: '崩山掌', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_bengshan',
     effects: [{ kind: 'damageSpendBlock', max: 12 }], upgrade: { effects: [{ kind: 'damageSpendBlock', max: 16 }] } },
-  { id: 'dangdang_huili', name: '迴力鏢', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_huili',
-    effects: [{ kind: 'status', name: '反彈', amount: 4, target: 'self' }],
-    upgrade: { effects: [{ kind: 'status', name: '反彈', amount: 6, target: 'self' }] } },
   // 跟菲菲的拒馬是同一張（同效果、同費用），她那張是稀有，這張跟著改成稀有；
   // 配上千斤墜「每一段攻擊都給」，他這張實際上還更強（審查 2026-09-17 中-4）
   { id: 'dangdang_jiahou', name: '護臂加厚', cost: 1, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_jiahou',
@@ -810,9 +807,6 @@ export const cards: readonly CardDef[] = [
   { id: 'dangdang_jianzhao', name: '見招拆招', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_jianzhao',
     effects: [{ kind: 'block', amount: 6 }, { kind: 'ifEnemyIntent', intent: 'attack', then: [{ kind: 'status', name: '反彈', amount: 3, target: 'self' }] }],
     upgrade: { effects: [{ kind: 'block', amount: 8 }, { kind: 'ifEnemyIntent', intent: 'attack', then: [{ kind: 'status', name: '反彈', amount: 4, target: 'self' }] }] } },
-  { id: 'dangdang_xiejia', name: '卸甲', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_xiejia',
-    effects: [{ kind: 'block', amount: 8 }, { kind: 'draw', n: 1 }],
-    upgrade: { effects: [{ kind: 'block', amount: 10 }, { kind: 'draw', n: 1 }] } },
   /*
    * 原本是純 15 點，被共用的金鐘罩（2 費**常見** 17 點）壓死（審查 2026-09-17 中-4）。
    * 改成「擋得住，而且留得下來」——留下來的那幾點下一輪可以拿去卸，
@@ -821,10 +815,6 @@ export const cards: readonly CardDef[] = [
   { id: 'dangdang_yingkang', name: '硬扛', cost: 2, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_yingkang',
     effects: [{ kind: 'block', amount: 15 }, { kind: 'keepBlock', n: 8 }],
     upgrade: { effects: [{ kind: 'block', amount: 20 }, { kind: 'keepBlock', n: 12 }] } },
-  { id: 'dangdang_lianhuan', name: '連環撞', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_lianhuan',
-    // 門檻寫 11 不是 10：牌面說「大於 10」，寫 10 會變成「10 也算」，玩家會覺得牌面在騙人
-    effects: [{ kind: 'damage', amount: 6 }, { kind: 'ifBlock', min: 11, then: [{ kind: 'damage', amount: 6 }] }],
-    upgrade: { effects: [{ kind: 'damage', amount: 8 }, { kind: 'ifBlock', min: 11, then: [{ kind: 'damage', amount: 8 }] }] } },
   // 「護心鏡」跟共用的「絕學·護心」只差一個字，兩張又都是 1 費能力、都在回合開始觸發，
   // 戰鬥紀錄上分不出來。改名「站樁」：站定不動、挨了打就頂回去（審查 2026-09-17 中-3）
   { id: 'dangdang_huxin', name: '站樁', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_huxin',
@@ -833,6 +823,29 @@ export const cards: readonly CardDef[] = [
   { id: 'dangdang_jieshi', name: '借勢', cost: 0, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_jieshi',
     effects: [{ kind: 'blockFromThorns' }], upgrade: { effects: [{ kind: 'blockFromThorns' }, { kind: 'draw', n: 1 }] } },
 
+  /*
+   * ===== 兩條路互相加分的四張（2026-09-17 使用者拍板）=====
+   *
+   * 原本的卸力流（卸蜷縮打人）跟反彈流（挨打回敬）各走各的，中間只有借勢一座單向橋，
+   * 結果多半是玩家挑一條走到底、另一半的牌直接跳過。這四張把兩條路接起來，
+   * 而且是**換掉**三張重疊的（連環撞跟卸力掌功能重疊、迴力鏢跟起手的回敬同型、
+   * 卸甲跟護臂格擋重疊），不是往罕見那一格再塞。
+   */
+  { id: 'dangdang_jielidali', name: '借力打力', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_jielidali', hidden: true,
+    effects: [{ kind: 'damageSpendBlock', max: 6, plusOwnStatus: '反彈' }],
+    upgrade: { effects: [{ kind: 'damageSpendBlock', max: 8, plusOwnStatus: '反彈' }] } },
+  { id: 'dangdang_shunshi', name: '順勢', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_shunshi', hidden: true,
+    effects: [{ kind: 'blockOnThorns', n: 2 }], upgrade: { effects: [{ kind: 'blockOnThorns', n: 3 }] } },
+  { id: 'dangdang_fanzhen', name: '反震', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_fanzhen', hidden: true,
+    effects: [{ kind: 'blockToThorns', per: 2, gain: 1 }],
+    upgrade: { effects: [{ kind: 'blockToThorns', per: 2, gain: 2 }] } },
+  /*
+   * 以身作盾：**卸力流自己養出反彈流**，整組裡最想放的一張。
+   * 打一發崩山掌卸 12 點，同時拿 6 點反彈，下一輪挨打就痛回去。
+   * 他的忍術稀有本來只有兩張（護臂加厚、銅牆鐵壁），這張補那一格。
+   */
+  { id: 'dangdang_yishenzuodun', name: '以身作盾', cost: 2, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_yishenzuodun', hidden: true,
+    effects: [{ kind: 'thornsFromSpend' }], upgrade: { effects: [{ kind: 'thornsFromSpend', full: true }] } },
   // ----- 忍術・稀有 1 張：整套的核心報酬 -----
   /*
    * 銅牆鐵壁：拿到之後「打人」跟「擋住」不再互斥——這是整條路線的目標，

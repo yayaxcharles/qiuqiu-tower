@@ -41,6 +41,7 @@ const SKIP: ReadonlySet<string> = new Set([
   // 噹噹的四個長效旗標（2026-09-17）：鏡子學不會就整張回 null，
   // 他大半副牌都會被跳過，那場鏡子戰變成只會擋的空殼。跳過旗標、留下蜷縮那一段
   'halfSpendBlock', 'blockWhenAttacked', 'thornsBonus', 'keepBlock',
+  'blockOnThorns', 'thornsFromSpend', 'blockToThorns',
   'draw', 'drawIfTargetStatus', 'drawNextTurn', 'energy', 'gold', 'scry',
   'exhaustFromHand', 'retainFromHand', 'discardFromHand', 'recoverFromDiscard', 'cleanse', 'removeStatuses',
   'noAttacksThisTurn',

@@ -4276,7 +4276,7 @@
    }
   ],
   "text": "給目標定身，獲得 4 點蜷縮。",
-  "up": "給目標定身，獲得 4 點蜷縮。"
+  "up": "給目標 2 層定身，獲得 4 點蜷縮。"
  },
  {
   "id": "feifei_tianzhen",
@@ -4793,31 +4793,6 @@
   "up": "最多卸掉 16 點蜷縮，造成等量傷害。"
  },
  {
-  "id": "dangdang_huili",
-  "name": "迴力鏢",
-  "pool": "忍術",
-  "rarity": "罕見",
-  "cost": 1,
-  "type": "技能",
-  "target": "self",
-  "keywords": [],
-  "hidden": false,
-  "combatOnly": false,
-  "kinds": [
-   "status"
-  ],
-  "effects": [
-   {
-    "kind": "status",
-    "name": "反彈",
-    "amount": 4,
-    "target": "self"
-   }
-  ],
-  "text": "獲得 4 點反彈。",
-  "up": "獲得 6 點反彈。"
- },
- {
   "id": "dangdang_jiahou",
   "name": "護臂加厚",
   "pool": "忍術",
@@ -4925,34 +4900,6 @@
   "up": "獲得 8 點蜷縮；有魔物這回合要攻擊的話，再獲得 4 點反彈。"
  },
  {
-  "id": "dangdang_xiejia",
-  "name": "卸甲",
-  "pool": "忍術",
-  "rarity": "罕見",
-  "cost": 1,
-  "type": "技能",
-  "target": "self",
-  "keywords": [],
-  "hidden": false,
-  "combatOnly": false,
-  "kinds": [
-   "block",
-   "draw"
-  ],
-  "effects": [
-   {
-    "kind": "block",
-    "amount": 8
-   },
-   {
-    "kind": "draw",
-    "n": 1
-   }
-  ],
-  "text": "獲得 8 點蜷縮，抽 1 張牌。",
-  "up": "獲得 10 點蜷縮，抽 1 張牌。"
- },
- {
   "id": "dangdang_yingkang",
   "name": "硬扛",
   "pool": "忍術",
@@ -4979,40 +4926,6 @@
   ],
   "text": "獲得 15 點蜷縮；這回合結束時最多保留 8 點蜷縮。",
   "up": "獲得 20 點蜷縮；這回合結束時最多保留 12 點蜷縮。"
- },
- {
-  "id": "dangdang_lianhuan",
-  "name": "連環撞",
-  "pool": "忍術",
-  "rarity": "罕見",
-  "cost": 1,
-  "type": "攻擊",
-  "target": "enemy",
-  "keywords": [],
-  "hidden": false,
-  "combatOnly": false,
-  "kinds": [
-   "damage",
-   "ifBlock"
-  ],
-  "effects": [
-   {
-    "kind": "damage",
-    "amount": 6
-   },
-   {
-    "kind": "ifBlock",
-    "min": 11,
-    "then": [
-     {
-      "kind": "damage",
-      "amount": 6
-     }
-    ]
-   }
-  ],
-  "text": "造成 6 點傷害；蜷縮大於 10 的話，再造成 6 點傷害。",
-  "up": "造成 8 點傷害；蜷縮大於 10 的話，再造成 8 點傷害。"
  },
  {
   "id": "dangdang_huxin",
@@ -5066,6 +4979,99 @@
   ],
   "text": "把你的反彈點數加到蜷縮上（反彈不會因此減少）。",
   "up": "把你的反彈點數加到蜷縮上（反彈不會因此減少），抽 1 張牌。"
+ },
+ {
+  "id": "dangdang_jielidali",
+  "name": "借力打力",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendBlock"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendBlock",
+    "max": 6,
+    "plusOwnStatus": "反彈"
+   }
+  ],
+  "text": "最多卸掉 6 點蜷縮，造成等量傷害，每有 1 點反彈再多打 1 點。",
+  "up": "最多卸掉 8 點蜷縮，造成等量傷害，每有 1 點反彈再多打 1 點。"
+ },
+ {
+  "id": "dangdang_shunshi",
+  "name": "順勢",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "blockOnThorns"
+  ],
+  "effects": [
+   {
+    "kind": "blockOnThorns",
+    "n": 2
+   }
+  ],
+  "text": "之後每次反彈回敬，獲得 2 點蜷縮。",
+  "up": "之後每次反彈回敬，獲得 3 點蜷縮。"
+ },
+ {
+  "id": "dangdang_fanzhen",
+  "name": "反震",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "blockToThorns"
+  ],
+  "effects": [
+   {
+    "kind": "blockToThorns",
+    "per": 2,
+    "gain": 1
+   }
+  ],
+  "text": "這回合結束時，剩下的蜷縮每 2 點換成 1 點反彈。",
+  "up": "這回合結束時，剩下的蜷縮每 2 點換成 2 點反彈。"
+ },
+ {
+  "id": "dangdang_yishenzuodun",
+  "name": "以身作盾",
+  "pool": "忍術",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": true,
+  "combatOnly": false,
+  "kinds": [
+   "thornsFromSpend"
+  ],
+  "effects": [
+   {
+    "kind": "thornsFromSpend"
+   }
+  ],
+  "text": "之後卸掉蜷縮打人時，獲得等同卸掉點數一半的反彈。",
+  "up": "之後卸掉蜷縮打人時，獲得等同卸掉點數的反彈。"
  },
  {
   "id": "dangdang_tongqiang",
