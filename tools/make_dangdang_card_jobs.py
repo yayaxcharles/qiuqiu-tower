@@ -244,6 +244,37 @@ CARDS: dict[str, tuple[str, str]] = {
         "waist. Orange on one side, blue on the other, and a clear flowing band in between showing which "
         "way it goes. He presses both paws together in front of his chest."),
 
+    # ===== 兩條路互相加分的四張（2026-09-17）=====
+    # 共同點：畫面上**兩種顏色同時出現**，因為它們講的就是「卸力流跟反彈流互相加分」。
+    "dangdang_jielidali": ("WARM AMBER GOLD",
+        "**the counter-spikes ride out with his own guard.** The pale-blue shield on his chest is "
+        "shattering into shards that sweep RIGHT and catch fire into a solid warm-golden blast off his "
+        "outstretched bracered palm - and riding inside that golden blast are four short HOT ORANGE-RED "
+        "spikes, clearly a second colour carried along by the first. The blue shards are behind the gold, "
+        "turning into it; the orange spikes are inside the gold, pointing the same way. "
+        "He is at the lower left, leaning into the push, eyes narrowed."),
+
+    "dangdang_shunshi": ("HOT ORANGE-RED",
+        "**being hit hands him back his footing.** A fat hot-orange arrow strikes his raised bronze bracer "
+        "from the RIGHT and bends back the way it came; where it struck, a bloom of PALE ICE BLUE shielding "
+        "light is opening outward across his chest and shoulders, clearly born from the orange impact. "
+        "Orange above, pale blue spreading below it. He is planted low at the lower left, knees bent but "
+        "steady, mouth set - he has not moved back a step."),
+
+    "dangdang_fanzhen": ("PALE ICE BLUE",
+        "**the guard he did not spend turns into spikes.** A broad plate of pale-blue shielding light "
+        "across his chest is breaking apart from its lower edge, and the loose pale-blue pieces are "
+        "curling upward and hardening into a row of five short HOT ORANGE-RED spikes standing along his "
+        "shoulders and bracers. Blue below turning orange above - one clear upward transition, no haze. "
+        "He stands square at the lower left, both bracers held close in, chin down, waiting."),
+
+    "dangdang_yishenzuodun": ("HOT ORANGE-RED",
+        "**what he throws away comes back as spikes.** His pale-blue chest shield is shattering to the "
+        "RIGHT into golden shards that fly off his bracered fist - and behind him, rising from the same "
+        "break, a dense crown of HOT ORANGE-RED spikes is growing outward along both bracers and his "
+        "shoulders, longer and thicker than the ones on his other cards. Gold leaving to the right, "
+        "orange building on him. He stands braced at the lower left, head up, taking the trade."),
+
     # ===== 忍術・稀有 1 張 =====
     "dangdang_tongqiang": ("BRONZE COPPER",
         "he braces both bronze bracers outward and a whole WALL of stacked bronze bricks rises behind him "
@@ -340,7 +371,7 @@ Background must be a solid pure green (#00FF00), completely flat, for chroma key
 
 
 def ids_in_cards_ts() -> list[str]:
-    """`src/content/cards.ts` 裡 `dd_` 開頭的牌號。
+    """`src/content/cards.ts` 裡 `dangdang_` 開頭的牌號。
 
     打錯一個字的下場是「生了一張永遠沒人用的孤兒圖」，而且
     `tests/content/cards.test.ts` 那條「插圖鍵就是自己的牌號」會紅——
@@ -348,7 +379,10 @@ def ids_in_cards_ts() -> list[str]:
     """
     import re
     src = (ROOT / "src" / "content" / "cards.ts").read_text(encoding="utf-8")
-    return re.findall(r"id: '(dd_[a-z]+)'", src)
+    # 2026-09-17 牌號從 `dd_` 改成 `dangdang_`（素材前綴要帶角色名，`heroOfKey` 才認得出來，
+    # 不然 29 張牌面會掉進首載）。這裡沒跟著改，自檢就整排誤報「cards.ts 沒有這張」——
+    # 而且它是**印警告不中止**的設計，所以看起來還是跑成功了。
+    return re.findall(r"id: '(dangdang_[a-z]+)'", src)
 
 
 def build(only: list[str]) -> dict[str, str]:
