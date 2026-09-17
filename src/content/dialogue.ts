@@ -862,7 +862,7 @@ export const dangdangDialogue = {
   victoryNarration: <Partial<Record<DeckLeaning, string>>>{
     block: '大俠貓輕推他的護臂。噹噹下意識把腳站開，這次沒有退。大俠貓收回手，點了點頭。',
     thorns: '銅面上留著幾道深凹痕。噹噹試著握拳，大俠貓按住他的手，示意他先休息。',
-    plain: '噹噹卸下護臂，才發現裡面的布墊早已濕透。菲菲遞來乾布，他低聲道了謝。',
+    plain: '噹噹卸下護臂，才發現裡面的布墊早已濕透。',
   },
   hardModeEpilogue: '球球抱起木樁往院子走。噹噹收好錘子，跟過去幫他扶住。菲菲搬了張凳子，在旁邊看著。',
   /*
