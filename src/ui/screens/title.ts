@@ -88,15 +88,19 @@ registerScreen('title', (app, root) => {
       // 陰影跟戰鬥畫面同一招：去背的角色貼在背景上就是浮著，腳下墊一片橢圓才像站著
       el('div', { class: hasSprite('hero/dangdang_cover') ? 'title-cat-box three' : 'title-cat-box' },
         el('div', { class: 'ground-shadow' }),
-        // 封面主圖用 LINE 貼圖的「參上」那張（使用者指定）：爆炸背景＋題字，比乾站著的立繪有氣勢
-        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' }),
-        // 菲菲站在他旁邊（使用者 2026-09-15：「菲菲的角色也跟球球一樣出現在首頁，在球球旁邊」）。
-        // 她的「參上」貼圖（`hero/feifei_cover`，生圖中）進倉後就跟他同款同大小；還沒有就先用勝利姿勢的立繪，矮一截、靠右
+        /*
+         * 排法：**菲菲左、球球中、噹噹右**（使用者 2026-09-17：「球球擺中間，他是主角」）。
+         *
+         * 所以 DOM 的順序就是畫面上的順序，不要再照「誰先做好」排。
+         * 封面主圖一律用 LINE 貼圖的「參上」那張：爆炸背景加題字，比乾站著的立繪有氣勢。
+         * 彈跳各錯開一拍（`base.css` 的 `animation-delay`），三隻才不會同時上下。
+         */
+        // 她的「參上」貼圖沒進倉時退回勝利姿勢的立繪（矮一截）
         hasSprite('hero/feifei_cover')
           ? el('img', { class: 'title-cat title-cat-second', src: artUrl('sprites', 'hero/feifei_cover'), alt: '菲菲參上' })
           : el('img', { class: 'title-cat title-cat-feifei', src: artUrl('sprites', 'hero/feifei_win'), alt: '菲菲' }),
-        // 噹噹第三張（使用者 2026-09-17：「放進選角畫面，一樣用參上」）。三張並排之後每張都窄了一點，
-        // 見 `base.css` 的 `.title-cat-box.three`
+        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' }),
+        // 三張並排之後每張都窄了一點，見 `base.css` 的 `.title-cat-box.three`
         ...(hasSprite('hero/dangdang_cover')
           ? [el('img', { class: 'title-cat title-cat-third', src: artUrl('sprites', 'hero/dangdang_cover'), alt: '噹噹參上' })]
           : [])),

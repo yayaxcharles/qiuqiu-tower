@@ -111,8 +111,9 @@ img { -webkit-user-drag: none; }
   color: #f8f2e6;
 }
 .title-cat-box { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 0; }
-/* 菲菲站在球球旁邊（2026-09-15）：比「參上」貼圖矮一截、往左靠一點跟他擠在同一塊地上 */
-.title-cat-box .title-cat-feifei { height: 210px; margin-left: -28px; margin-bottom: 14px; animation-delay: -1.2s; }
+/* 她的「參上」貼圖還沒進倉時的退路：比貼圖矮一截，往右靠一點跟球球擠在同一塊地上。
+   2026-09-17 她改站左邊（球球擺中間），所以是 margin-right 不是 margin-left */
+.title-cat-box .title-cat-feifei { height: 210px; margin-right: -28px; margin-bottom: 14px; animation-delay: -1.2s; }
 /* 她的「參上」貼圖進倉後跟他同款同大小，只留錯開的彈跳（補審 2026-09-15 低-1） */
 .title-cat-box .title-cat-second { animation-delay: -1.2s; }
 /* 噹噹第三張（2026-09-17）：彈跳再錯開一點，三隻才不會同時上下 */
