@@ -21,6 +21,21 @@ const POOL_NOTE: Record<string, string> = {
   壞毛病: '事件踩雷才會拿到的牌，靠貓窩或事件移除',
 };
 
+/**
+ * 這一格在這一位的圖鑑裡叫什麼。
+ *
+ * 牌名已經照角色換過了（`cardNameFor` 把「忍術·」前綴拿掉），可是分區的標題還寫著「忍術」——
+ * 於是噹噹的圖鑑長成「忍術（34）」底下一排完全沒有忍術字樣的拳腳牌，看起來像漏改
+ *（使用者 2026-09-17：「噹噹的卡牌也得把所有的忍術字眼移除」）。
+ *
+ * 只換標題、**不動 `pool` 本身**：池子是規則用的鍵（獎勵、罐頭鋪、機率都照它抽），
+ * 換掉會牽動一整排存檔與測試。這裡換的純粹是玩家看到的那四個字。
+ */
+function poolNameFor(pool: string, hero: string): string {
+  if (pool !== '忍術') return pool;
+  return hero === 'dangdang' ? '拳腳' : pool;
+}
+
 export function showCompendium(): void {
   const layer = overlayRoot();
   if (!layer || layer.querySelector('.compendium')) return;   // 已經開著就不疊第二層
@@ -56,7 +71,7 @@ export function showCompendium(): void {
       const group = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden && !c.coop && forWho(c));
       if (!group.length) continue;
       grid.append(el('div', { class: 'comp-section' },
-        el('span', { class: 'comp-pool' }, `${pool}（${group.length}）`),
+        el('span', { class: 'comp-pool' }, `${poolNameFor(pool, who)}（${group.length}）`),
         el('span', { class: 'comp-note' }, POOL_NOTE[pool] ?? '')));
       const row = el('div', { class: 'comp-grid' });
       // 同池內照稀有度排：常見→罕見→稀有，找牌時比較有秩序

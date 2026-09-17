@@ -963,15 +963,31 @@ export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
 };
 
 /**
+ * 共用牌在**噹噹**手上叫什麼（2026-09-17，使用者：「噹噹的卡牌也得把所有的忍術字眼移除」）。
+ *
+ * 跟菲菲那份同一個道理，但判準不一樣。他不是忍者，是練外家功夫的：拳、掌、踢、爪他都用，
+ * 所以「迴旋踢」「崩拳」「亮出爪子」在他手上完全合理，**不用改**。
+ * 要改的只有**指名忍者器械**的那種——他不帶那些東西上塔。
+ */
+export const DANGDANG_CARD_NAME: Readonly<Record<string, string>> = {
+  luanwu: '橫掃千軍',   // 忍術·手裏劍亂舞（全體 5 傷打兩輪）。他沒有手裏劍，是掃堂帶過一圈
+};
+
+/**
  * 這張牌在這一位手上叫什麼。
  *
- * 順序：專屬名字 →（菲菲）拿掉「忍術·」前綴 → 原名。
+ * 順序：專屬名字 → 拿掉「忍術·」前綴 → 原名。
  * 拿掉前綴做成通則而不是逐張列，是因為忍術牌有四十幾張，逐張列遲早會漏一張，
  * 而漏掉的那一張看起來就像 bug。
+ *
+ * 前綴的規矩（菲菲 2026-09-12、噹噹 2026-09-17，都是使用者指定）：
+ * **「絕學」留著、「忍術」兩字拿掉**。絕學是師門傳下來的功夫，誰學都叫絕學；
+ * 忍術是球球那一路的身法，她走暗器、他走拳腳，都不是那一路。
  */
 export function cardNameFor(def: CardDef, hero: string | undefined): string {
-  if (hero !== 'feifei') return def.name;
-  return FEIFEI_CARD_NAME[def.id] ?? def.name.replace(/^忍術·/, '');
+  const own = hero === 'feifei' ? FEIFEI_CARD_NAME : hero === 'dangdang' ? DANGDANG_CARD_NAME : null;
+  if (!own) return def.name;
+  return own[def.id] ?? def.name.replace(/^忍術·/, '');
 }
 
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));
