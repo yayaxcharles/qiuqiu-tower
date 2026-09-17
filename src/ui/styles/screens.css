@@ -1143,6 +1143,20 @@
 #stage[data-screen="rest"][data-act="2"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
 /* 第一關的基準：窩中心 x ≈ 185～200，立繪框中心＝left＋150 */
 #stage[data-screen="rest"][data-act="1"] .scene-portrait { left: 42px; }
+/*
+ * **噹噹蜷起來比另外兩隻大一號**（2026-09-17 使用者：「貓窩的位置都不正確」）。
+ *
+ * 量出來：球球的蜷縮圖實體 491×452、菲菲 372×452、他 540×517——他整整高了 65、寬了 49。
+ * 同一個座標，球球剛好坐進籃子，他會滿出來（左邊的衣襬與尾巴整個掉到籃子外）。
+ *
+ * 左右不用調：三張圖都在同一個畫布裡置中、貼底，所以 `left` 的意義完全一樣。
+ * 要調的是**大小**：等比縮到 0.87（452/517），身體就跟球球一樣高，籃子裝得下。
+ * 錨在 `bottom center`，所以三關的 `left` 與 `bottom` 都不用另外算，一條規則管完。
+ */
+#stage[data-screen="rest"][data-hero="dangdang"] .scene-portrait {
+  scale: 0.87;
+  transform-origin: bottom center;
+}
 /* 菲菲在第二關要坐**左邊那個籃子**（2026-09-14 使用者：「她位置完全不對」「右邊沒有籃子」）。
    兩隻的立繪大小不一樣——球球的蜷縮是小小一團，她整個大一圈；同一個座標他剛好坐進去，
    她會滿出來坐到地板上、還壓到右邊那疊摺好的棉被。
