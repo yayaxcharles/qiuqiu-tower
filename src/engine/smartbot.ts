@@ -121,7 +121,8 @@ function incomingHitList(cs: CombatState, e: EnemyCombat, who: PlayerCombat = cs
   const player = decayedDefender(who);
   const hits: { dmg: number; pierce: boolean }[] = [];
   for (const fx of m.effects) {
-    if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * x, e, player), pierce: !!fx.pierce });
+    // 蓄力不加倍穿透招（跟引擎同一條規則，不然機器人會高估那一下、無謂地多擋）
+    if (fx.kind === 'damage') for (let i = 0; i < (fx.times ?? 1); i++) hits.push({ dmg: computeAttack(fx.amount * (fx.pierce ? 1 : x), e, player), pierce: !!fx.pierce });
     else if (fx.kind === 'damageRandom') hits.push({ dmg: computeAttack(Math.round((fx.min + fx.max) / 2) * x, e, player), pierce: false });
     // 自爆那一下照樣要擋（河豚精的 28 點是整場最痛的單發之一）
     else if (fx.kind === 'selfDestruct') hits.push({ dmg: computeAttack(fx.amount * x, e, player), pierce: false });

@@ -10,6 +10,7 @@ import { artUrl, eventArtKey, hasHeroSprite, heroArtUrl, setLocalHero, localHero
 import { setSfxHero } from '../audio';
 import { cardNode } from '../cardview';
 import { el } from '../dom';
+import { HEROES, heroName, type Hero } from '../../engine/hero';
 
 /**
  * **除錯模式**（2026-09-14 使用者要求：「讓我能自由選擇或是移動到場景上，
@@ -221,7 +222,8 @@ registerScreen('debug', (app, root) => {
      */
     const jump = (screen: 'rest' | 'chest' | 'shop' | 'result', act: number, label: string): HTMLElement =>
       el('button', { class: 'btn small', onclick: () => {
-        const run = engineNewRun('debug', 1, hero === 'feifei' ? 'feifei' : 'ninja');
+        // 照清單認，不要一個一個 if——第三隻貓進來時這一行漏改，除錯頁就永遠跳不到他的畫面
+        const run = engineNewRun('debug', 1, HEROES.includes(hero as Hero) ? hero as Hero : 'ninja');
         run.act = act;
         run.flags['prologue'] = true;          // 別播序章
         app.leaveCoop();
@@ -285,7 +287,7 @@ registerScreen('debug', (app, root) => {
       el('span', { class: 'dbg-title' }, '除錯模式'),
       tabBtn('事件'), tabBtn('牌'), tabBtn('台詞'), tabBtn('立繪'), tabBtn('劇情'), tabBtn('場景'),
       el('span', { class: 'dbg-sep' }, '｜'),
-      heroBtn('ninja', '球球'), heroBtn('feifei', '菲菲'),
+      ...HEROES.filter((h) => h !== 'samurai').map((h) => heroBtn(h, heroName({ hero: h }))),
       el('button', {
         class: 'btn small dbg-close',
         onclick: () => { setLocalHero(heroBeforeDebug ?? 'ninja'); setSfxHero(heroBeforeDebug ?? 'ninja'); heroBeforeDebug = null; app.show('title'); },

@@ -96,7 +96,15 @@ export const relics: RelicDef[] = [
   { id: 'obsidian_claw', name: '黑曜爪', pool: '大魔物', text: '你每打倒一隻魔物就獲得 1 點爪力。', art: 'codex/relic_obsidian_claw', price: 210, hooks: { killStrength: 1 } },
   { id: 'guard_charm', name: '守護符', pool: '大魔物', text: '回合結束時最多保留 8 點蜷縮到下一回合。', art: 'codex/relic_guard_charm', price: 200, hooks: { blockKeep: 8 } },
   { id: 'turtle_shell', name: '龜甲', pool: '大魔物', text: '每場戰鬥開始時獲得 6 點蜷縮與 3 點反彈。', art: 'codex/relic_turtle_shell', price: 200, hooks: { combatStart: [{ kind: 'block', amount: 6 }, { kind: 'status', name: '反彈', amount: 3, target: 'self' }] } },
-  { id: 'wind_chime', name: '風鈴', pool: '大魔物', text: '回合結束時，如果這回合沒打過攻擊牌，獲得 2 層隱身。', art: 'codex/relic_wind_chime', price: 200, hooks: { turnEndNoAttack: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }] } },
+  /*
+   * 2026-09-17 使用者改：2 層隱身 → 1 點貓步。
+   *
+   * 隱身是球球那條線的東西，噹噹整套沒有隱身，這件秘寶開到等於廢掉；
+   * 貓步（之後獲得蜷縮都多幾點）三隻都用得到，而且對他特別有意義——
+   * 他的蜷縮既是防禦也是出招的本錢，多一點就是兩邊都多一點。
+   * 觸發條件不變（這回合沒打過攻擊牌），所以「忍著不打」的節奏還在。
+   */
+  { id: 'wind_chime', name: '風鈴', pool: '大魔物', text: '回合結束時，如果這回合沒打過攻擊牌，獲得 1 點貓步。', art: 'codex/relic_wind_chime', price: 200, hooks: { turnEndNoAttack: [{ kind: 'status', name: '貓步', amount: 1, target: 'self' }] } },
   { id: 'catnip_pipe', name: '貓薄荷煙斗', pool: '大魔物', text: '每次使用忍具後抽 2 張牌。', art: 'codex/relic_catnip_pipe', price: 190, hooks: { onPotionUse: [{ kind: 'draw', n: 2 }] } },
   { id: 'coin_sword', name: '銅錢劍', pool: '大魔物', text: '你每打倒一隻魔物就多拿 8 條小魚乾。', art: 'codex/relic_coin_sword', price: 180, hooks: { killFish: 8 } },
   // --- 塔主（+5）---

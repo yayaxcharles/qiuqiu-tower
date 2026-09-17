@@ -164,7 +164,7 @@ describe('魔物回合', () => {
     expect(cs.player.hp).toBe(hp);
     expect(getStatus(e, '定身')).toBe(0);
   });
-  it('塔主第三條血：不蓄力，起身就是亡命一擊 26×2 穿透', () => {
+  it('塔主第三條血：不蓄力，起身就是亡命一擊 20×2 穿透', () => {
     const cs = start('tower_master');
     const e = cs.enemies[0]!;
     addStatus(cs.player, '爪力', 10);
@@ -182,8 +182,10 @@ describe('魔物回合', () => {
     cs.player.hp = 90; cs.player.block = 50;
     const hp = cs.player.hp;
     // 師父爪力累計：第二條血不成長；三階段進場 +2、蹲下那回合 +1、這回合 +1 ＝ 4（第三條血每回合 +1，2026-09-06 從 +2 改）
-    endTurn(cs);                       // 亡命一擊 26×2，各加爪力 4 ＝ 30×2；穿透，50 點蜷縮擋不住
-    expect(cs.player.hp).toBe(hp - 60);
+    // 2026-09-17 使用者把底值壓成 20×2：穿透擋不住，52 對難度 5 的 70 血是七成四，
+    // 沒有閃避手段的角色只能等死。各加爪力 4 ＝ 24×2；穿透，50 點蜷縮擋不住
+    endTurn(cs);
+    expect(cs.player.hp).toBe(hp - 48);
     expect(e.charged).toBe(false);
   });
   it('塔主第三條血每回合震散你的爪力與貓步（2／2），第二條血不再震散（2026-09-06）；拍到 0 就停', () => {

@@ -271,7 +271,9 @@ export const enemies: EnemyDef[] = [
       hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 2, 貓步: 2 },   // 成長 2→1（使用者 2026-09-06：衝通關 2%）；震散 2／2 照舊   // 使用者 2026-09-03 晚：師父不放軟，維持第三條血每回合 +2、震散 2／2
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],   // 第三條血本來還有反彈 6：反彈生效後配上震散太狠（機器人 97% 敗），拿掉，只留爪力
       moves: [
-        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 26, times: 2, pierce: true }] },
+        // 26×2 ＝ 52 → 20×2 ＝ 40（使用者 2026-09-17）：穿透擋不住，52 對難度 5 的 70 血是七成四，
+        // 沒有閃避手段的角色只能等死。上限壓到 40。
+        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 20, times: 2, pierce: true }] },
         { intent: 'attack', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 14 }] },
         { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 10, times: 7 }] },
         { intent: 'attack', label: '氣沉丹田', effects: [{ kind: 'block', amount: 28 }, { kind: 'heal', n: 15 }, { kind: 'damage', amount: 8 }] },

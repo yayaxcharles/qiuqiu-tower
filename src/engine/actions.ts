@@ -791,7 +791,19 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
     if (isLost(cs)) return;
     switch (fx.kind) {
       case 'damage': {
-        const base = fx.amount * useCharge();   // 蓄力只算一次，兩個人吃到的是同一個加倍後的數字
+      /*
+       * **蓄力不加倍穿透招**（使用者 2026-09-17 裁定）。
+       *
+       * 穿透跳過蜷縮，所以擋不住的那一下配上加倍就是「不閃就死」——
+       * 而閃避是球球與菲菲才有的東西，噹噹整套沒有隱身，等於沒有答案。
+       * 橘皮大王與狸大人剛好兩樣都有：狸大人的泰山鼓壓 36 加倍之後破 80，
+       * 而難度 5 的最大生命只有 70。
+       *
+       * 蓄力**照樣被用掉**，只是這一下不吃加倍：玩家看到蓄力、接著挨了一記普通力道的穿透，
+       * 直覺上就是「牠的蓄力用在這一下了」。留著不用的話，下一招會突然變兩倍，更難預期。
+       */
+        const x = useCharge();   // 蓄力只算一次，兩個人吃到的是同一個加倍後的數字
+        const base = fx.amount * (fx.pierce ? 1 : x);
         for (const t of targets) {
           for (let i = 0; i < (fx.times ?? 1); i++) {
             if (e.dead) return;      // 被反彈打死，剩下的段數不能再打

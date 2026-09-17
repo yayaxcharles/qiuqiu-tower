@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-16",
+ "generatedAt": "2026-09-17",
  "monsters": [
   {
    "id": "rat",
@@ -1414,7 +1414,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 26,
+         "amount": 20,
          "times": 2,
          "pierce": true
         }

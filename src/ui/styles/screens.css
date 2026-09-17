@@ -1129,8 +1129,20 @@
 /* 各關的貓窩底圖不同，蒲團位置也不同（使用者 2026-09-03：「44F 這背景時他應該要再往左邊一些才能剛好趴在圓形床」）。
    塔頂（第三關）的蒲團畫在左下 x 20～290、y 400～570，球球整隻往左貼齊、抬高一點坐進籃子。關數由 app.show() 標在 #stage 的 data-act。 */
 #stage[data-screen="rest"][data-act="3"] .scene-portrait { left: 2px; bottom: 178px; }
-/* 塔中（第二關）的蒲團畫在右下 x 790～1090、y 545～690：球球挪到右邊坐進去，底邊抬到按鈕列上方（按鈕頂端約 y 599） */
-#stage[data-screen="rest"][data-act="2"] .scene-portrait { left: 790px; bottom: 95px; }
+/*
+ * 第二關的基準（2026-09-17 改）。
+ *
+ * 這條本來寫 `left: 790px`，那是**舊底圖**的座標——貓窩後來重生過、三關的窩全部搬到左下角，
+ * 球球與菲菲各自補了自己那條蓋掉它，只有這條基準沒跟著改。
+ * 於是第三隻貓一進來就掉回舊座標，坐到右邊沒有籃子的地方（使用者 2026-09-17：「又來了」）。
+ *
+ * 改成跟現在的底圖一致（＝球球那組數字，他是對位的基準）。
+ * 球球與菲菲都有自己的覆寫，兩位的畫面一個像素都沒變。
+ */
+#stage[data-screen="rest"][data-act="2"] .scene-portrait { left: 42px; bottom: 100px; }
+#stage[data-screen="rest"][data-act="2"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
+/* 第一關的基準：窩中心 x ≈ 185～200，立繪框中心＝left＋150 */
+#stage[data-screen="rest"][data-act="1"] .scene-portrait { left: 42px; }
 /* 菲菲在第二關要坐**左邊那個籃子**（2026-09-14 使用者：「她位置完全不對」「右邊沒有籃子」）。
    兩隻的立繪大小不一樣——球球的蜷縮是小小一團，她整個大一圈；同一個座標他剛好坐進去，
    她會滿出來坐到地板上、還壓到右邊那疊摺好的棉被。

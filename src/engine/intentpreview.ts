@@ -31,7 +31,8 @@ export function previewEnemyHits(e: EnemyCombat, effects: readonly EnemyEffect[]
   const out: HitPreview[] = [];
   for (const fx of effects) {
     switch (fx.kind) {
-      case 'damage': { const x = useCharge(); out.push({ fx, dmg: computeAttack(fx.amount * x, me, you) }); break; }
+      // 蓄力不加倍穿透招（跟 `actions.ts` 同一條規則，預告要跟實際打出來的一致）
+      case 'damage': { const x = useCharge(); out.push({ fx, dmg: computeAttack(fx.amount * (fx.pierce ? 1 : x), me, you) }); break; }
       case 'damageRandom': {
         const x = useCharge();
         out.push({ fx, dmg: computeAttack(fx.min * x, me, you), dmgMax: computeAttack(fx.max * x, me, you) });
