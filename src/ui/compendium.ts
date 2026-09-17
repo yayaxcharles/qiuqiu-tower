@@ -31,7 +31,7 @@ const POOL_NOTE: Record<string, string> = {
  * 只換標題、**不動 `pool` 本身**：池子是規則用的鍵（獎勵、罐頭鋪、機率都照它抽），
  * 換掉會牽動一整排存檔與測試。這裡換的純粹是玩家看到的那四個字。
  */
-function poolNameFor(pool: string, hero: string): string {
+export function poolNameFor(pool: string, hero: string): string {
   if (pool !== '忍術') return pool;
   return hero === 'dangdang' ? '拳腳' : pool;
 }
@@ -97,7 +97,7 @@ export function showCompendium(): void {
   const check = el('input', { type: 'checkbox', id: 'comp-upg' }) as HTMLInputElement;
   check.addEventListener('change', () => { upgraded = check.checked; render(); });
 
-  // 看誰的牌。**兩顆鈕不是下拉選單**：只有兩位，一眼看得出現在在看誰，也少一次點擊
+  // 看誰的牌。**三顆鈕不是下拉選單**：三位而已，一眼看得出現在在看誰，也少一次點擊
   const heroBtns = (['ninja', 'feifei', 'dangdang'] as const).map((h) => {
     const b = el('button', { class: 'btn small comp-hero' }, heroName({ hero: h }));
     b.addEventListener('click', () => {
