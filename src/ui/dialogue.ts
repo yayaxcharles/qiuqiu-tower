@@ -29,8 +29,13 @@ export function heroSpeaker(): string {
   return h === 'feifei' ? '菲菲' : h === 'dangdang' ? '噹噹' : '球球';
 }
 
-function portraitOf(speaker: DialogueLine['speaker']): string | null {
-  if (speaker === '球球') return heroArtUrl(localHero(), 'hero/ninja');
+/**
+ * `literal`＝這一組已經是最終文字，說話者就是本人（搭檔關主接話那幾組）。
+ * 2026-09-17 稽核 高-1：原本只有木牌上的名字認 `literal`，臉沒認——
+ * 連線打大俠貓時「球球：……喵！」木牌寫球球、臉卻是我自己，下一句我自己又是同一張臉。
+ */
+function portraitOf(speaker: DialogueLine['speaker'], literal = false): string | null {
+  if (speaker === '球球') return heroArtUrl(literal ? 'ninja' : localHero(), 'hero/ninja');
   // 她的劇本自己寫「菲菲」，不走「球球」那條（兩隻在連線版會同框，名字不能混）
   if (speaker === '菲菲') return heroArtUrl('feifei', 'hero/ninja');
   // 他的劇本自己寫「噹噹」，理由跟她一樣：三隻在連線版會同框，名字不能混
@@ -84,7 +89,7 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     text.textContent = l.text;
     box.classList.toggle('narration', l.speaker === '旁白');
     // 換人講話才重設圖，同一個人連講好幾句時不要每句都重播進場動畫
-    const url = who?.portrait ?? portraitOf(l.speaker);
+    const url = who?.portrait ?? portraitOf(l.speaker, literal);
     if (url && portrait.dataset['who'] !== l.speaker) {
       portrait.src = url;
       portrait.dataset['who'] = l.speaker;

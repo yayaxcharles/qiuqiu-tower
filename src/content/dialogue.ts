@@ -1179,6 +1179,18 @@ const MIXED_SCENES: Readonly<Record<string, {
   },
 };
 
+/**
+ * 這一局的劇情是不是「兩個人共用的一整段場景」（`MIXED_SCENES`）。
+ *
+ * 畫面層要拿它決定**照不照字面播**：共用場景裡「球球：……喵」是球球本人在講，
+ * 過了 `lineFor`／`heroSpeaker` 會被改成我的口氣、名牌與立繪也會變成我
+ *（稽核 2026-09-17 高-1、高-2）。
+ */
+export function hasCoopScene(hero: string | undefined): boolean {
+  const key = pairKey(hero);
+  return key !== null && MIXED_SCENES[key] !== undefined;
+}
+
 /** 這一局兩位的搭檔鍵（排序過，兩台機器算出來一樣）。一個人玩、或兩位同角色時回 null */
 function pairKey(hero: string | undefined): string | null {
   const h = hero ?? 'ninja';

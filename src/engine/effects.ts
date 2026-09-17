@@ -14,8 +14,19 @@ export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx)
     if (cs.phase === 'lost') return;
     const fx = queue.shift() as Effect;
     const paused = applyOne(cs, fx, ctx, queue);
-    if (paused) return;
+    if (paused) return;   // 暫停時池子留在 `ctx` 裡，接回來再發
   }
+  /*
+   * **收尾要把池子倒乾淨**（2026-09-17 稽核 中-1 的修正之二）。
+   *
+   * `flushSelfBlock` 看到後面還有「落在自己身上的蜷縮」就先留著，等最後一條再一起發
+   *（不然 `gainBlock` 的拒馬與貓步會被套兩遍）。而條件分支（`ifSelfStatus` 等）
+   * 也算「後面還有」——可是條件不成立時它什麼都不排進佇列，池子就沒人發了。
+   * 實測：護臂格擋在身上沒有反彈時，7 點蜷縮整個不見。
+   */
+  const p = ctx.self ?? cs.player;
+  const left = ctx.selfBlockPool ?? 0;
+  if (left > 0) { gainBlock(cs, p, left); ctx.selfBlockPool = 0; }
 }
 
 function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean) {
@@ -73,8 +84,22 @@ function markPassive(p: PlayerCombat, ctx: EffectCtx, stacks = false): void {
  * 就會把加成吃兩遍（2026-09-13 稽核 中-6）。只在「後面沒有別的自我蜷縮」時才發，
  * 所以「先幫你留著」單人版的 4＋8 會合成一次 12 點再算加成。
  */
+/**
+ * 後面還有沒有「落在自己身上的蜷縮」。**條件分支裡面也要看**（2026-09-17 稽核 中-1）：
+ * 護臂格擋是 `[block 7, ifSelfStatus 反彈 → [block 4]]`，只看最外層的話 7 點先發一次、
+ * 4 點再發一次，`gainBlock` 的拒馬與貓步各套兩遍——貓步 3 時實際拿到 17 而不是 14。
+ * 這是 2026-09-13 稽核 中-6 修過的同一個坑，只是這次從條件分支繞進來。
+ */
+function selfBlockAhead(cs: CombatState, p: PlayerCombat, e: Effect): boolean {
+  if (e.kind === 'block' || e.kind === 'blockAll' || e.kind === 'blockFromThorns') return true;
+  if (e.kind === 'blockAlly') return ally(cs, p) === p;
+  if (e.kind === 'ifSelfStatus') return [...e.then, ...e.otherwise].some((x) => selfBlockAhead(cs, p, x));
+  if (e.kind === 'ifBlock' || e.kind === 'ifEnemyIntent') return e.then.some((x) => selfBlockAhead(cs, p, x));
+  return false;
+}
+
 function flushSelfBlock(cs: CombatState, p: PlayerCombat, ctx: EffectCtx, queue: Effect[]): void {
-  const more = queue.some((e) => e.kind === 'block'
+  const more = queue.some((e) => selfBlockAhead(cs, p, e)) || queue.some((e) => e.kind === 'block'
     || (e.kind === 'blockAlly' && ally(cs, p) === p)
     || (e.kind === 'blockAll')
     // 借勢（噹噹）也是落在自己身上的一份。今天沒有牌把它排在 `block` 後面，
@@ -562,17 +587,28 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         if (back > 0) { addStatus(p, '反彈', back); log(cs, `${unitName(p)}把卸出去的力道反了 ${back} 點回來`); }
       }
       const base = (Math.floor(hit * (fx.mul ?? 1)) + bonus) * (ctx.doubleDamage ? 2 : 1);
-      if (base <= 0) return false;
+      // 蜷縮 0 時整張撲空，補一行交代（稽核 2026-09-17 低-4）：不寫的話玩家花了飯糰、畫面什麼都沒發生
+      if (base <= 0) { log(cs, `${unitName(p)}身上沒有蜷縮可卸`); return false; }
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
         if (damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: true, by: p }).killed) ctx.killed = true;
       }
       return false;
     }
     case 'healSpendBlock': {
-      const hit = Math.min(fx.max, p.halfSpendBlock ? p.block * 2 : p.block);
+      /*
+       * **只卸真的換得到血的那幾點**（2026-09-17 稽核 中-3）。
+       * 原本照 `max` 卸滿、再交給 `healPlayer` 被最大生命夾掉，滿血時等於
+       * 丟掉 6 點蜷縮換 0 點血，而且整場戰鬥紀錄一個字都沒交代。
+       */
+      const room = Math.max(0, p.maxHp - p.hp);
+      const hit = Math.min(fx.max, p.halfSpendBlock ? p.block * 2 : p.block, room);
       const spent = p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
-      if (hit <= 0) return false;
+      if (hit <= 0) {
+        log(cs, room <= 0 ? `${unitName(p)}已經是滿的，沒什麼好補` : `${unitName(p)}身上沒有蜷縮可卸`);
+        return false;
+      }
       p.block -= spent;
+      log(cs, `${unitName(p)}卸掉 ${spent} 點蜷縮喘了口氣`);
       healPlayer(cs, hit, p);
       return false;
     }

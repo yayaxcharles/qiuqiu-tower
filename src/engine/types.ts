@@ -894,11 +894,11 @@ export interface PlayerCombat extends Unit {
   blockWhenAttacked?: number;
   /** 以傷還傷：反彈回敬時額外多打幾點 */
   thornsBonus?: number;
-  /** 穩住：這一回合結束多留幾點蜷縮。回合開始清掉 */
+  /** 穩住：這一回合結束多留幾點蜷縮。**回合末**用完就清掉（`finishEnemyTurn`） */
   blockKeepThisTurn?: number;
   /** 順勢：每次反彈回敬就拿幾點蜷縮 */
   blockOnThorns?: number;
-  /** 反震：這一回合結束時，剩下的蜷縮每 `per` 點換 `gain` 點反彈。回合開始清掉 */
+  /** 反震：這一回合結束時，剩下的蜷縮每 `per` 點換 `gain` 點反彈。**回合末**用完就清掉 */
   blockToThornsThisTurn?: { per: number; gain: number };
   /** 以身作盾：卸掉蜷縮打人時，照卸掉的點數拿反彈（`'half'` 打對折、`'full'` 全拿） */
   thornsFromSpend?: 'half' | 'full';

@@ -1,4 +1,4 @@
-import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, hasCoopScene, coopBossLines, dialogue, firstMeetLine, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady } from './slides';
 import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
@@ -199,7 +199,7 @@ export class App {
       const intro = (go: () => void): void => (clip ? playVideo(clip, go) : (setBgm('act1'), go()));
       intro(() => {
         if (slidesReady(proSlides)) playSlides(proSlides, after);
-        else playDialogue(pro, after);
+        else playDialogue(pro, after, undefined, hasCoopScene(hero));
       });
     } else after();
   }
@@ -452,7 +452,17 @@ export class App {
     // **連線局不記成績、也不准刪單機的存檔**（2026-09-12 稽核 高-2）：
     // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
     if (run.status !== 'playing' && !this.coop) { recordBest(run); clearSave(); }
-    if (!rewards) { playDialogue(storyFor(me(this.run!, this.seat).hero).defeat, () => this.show('result')); return; }
+    /*
+     * 落敗這一段**沒有幻燈片版本**，是直接走 `playDialogue`，所以預設會過
+     * `lineFor`／`heroSpeaker`——連線時那一段是兩個人共用的場景，裡面「球球：……喵」
+     * 是球球本人在講，被改口就會變成「噹噹：師父回來了沒有？」然後下一句噹噹又在對球球說話
+     *（稽核 2026-09-17 高-2）。有整段場景的時候照字面播。
+     */
+    if (!rewards) {
+      const mine = me(this.run!, this.seat).hero;
+      playDialogue(storyFor(mine).defeat, () => this.show('result'), undefined, hasCoopScene(mine));
+      return;
+    }
     if (rewards.kind === '塔主') {
       // 第三關的關主倒下才是通關；前兩關的關主打完走過場對白 → 過關畫面（回滿血、挑秘寶、進下一關）。
       // 過關那條路 status 還是 playing，存檔規矩跟一般獎勵一樣：等過關畫面收尾的 backToMap() 才寫。
@@ -476,7 +486,7 @@ export class App {
         const endVideo = (go: () => void): void => ((me(run, this.seat).hero ?? 'ninja') === 'ninja' ? playVideo('ending', go) : (setBgm('ending'), go()));
         endVideo(() => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
-          else playDialogue(vic, () => this.show('result'));
+          else playDialogue(vic, () => this.show('result'), undefined, hasCoopScene(me(this.run!, this.seat).hero));
         });
         return;
       }
@@ -491,7 +501,7 @@ export class App {
       const bossRelic = rewards.relic;
       const toSlides = (): void => {
         if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear', { bossRelic }));
-        else playDialogue(lines, () => this.show('actclear', { bossRelic }));
+        else playDialogue(lines, () => this.show('actclear', { bossRelic }), undefined, hasCoopScene(me(this.run!, this.seat).hero));
       };
       // 關主倒下後先演牠的收場（被控制的清醒道謝、自願的嘴硬、路過的讓路），再接過關幻燈片（使用者 2026-09-04）
       const ids = encounterById[cs.encounterId]?.enemies ?? [];

@@ -750,8 +750,9 @@ export const cards: readonly CardDef[] = [
    *
    * 起手的正拳**不吃蜷縮**是保命設計：第一回合蜷縮是 0，全部吃蜷縮的話牌組會卡死。
    *
-   * 牌面圖 2026-09-17 全部生完了，`hidden` 已經拿掉——29 張都進得了獎勵與罐頭鋪。
-   * 他還是進不了選角畫面（`heroselect.ts` 只有兩格），所以線上還是玩不到他。
+   * 牌面圖 2026-09-17 全部生完了，`hidden` 已經拿掉；同日他也進了選角畫面，可以玩了。
+   * 後來又加了四張橋接牌（借力打力、順勢、反震、以身作盾）換掉三張重疊的，現在是 30 張，
+   * 那四張的牌面圖還在生，所以只有它們還掛著 `hidden`。
    */
   // ----- 起手三種 -----
   { id: 'dangdang_zhengquan', name: '正拳', cost: 1, type: 攻, rarity: '常見', pool: '起手', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_zhengquan',

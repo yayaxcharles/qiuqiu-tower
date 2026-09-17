@@ -35,13 +35,31 @@ import { cardStats } from './deck';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, Intent, StatusName } from './types';
 import { DEBUFFS } from './types';
 
-const SELF_OK: readonly StatusName[] = ['爪力', '貓步', '隱身'];
+/*
+ * 鏡子學得來的「給自己的狀態」。
+ *
+ * 2026-09-17 加上**反彈**：噹噹三十張裡有六張是給自己反彈（回敬、挑釁、站樁…），
+ * 不收的話那幾張整張學不到，鏡子戰對他明顯比對另外兩位軟。
+ * 魔物本來就有反彈（紙老虎、龜甲，見 `actions.ts` 的 `def.thorns`），
+ * 而且玩家打牠時會被回敬——照學出來的行為是對的，不是憑空發明一條規則。
+ */
+const SELF_OK: readonly StatusName[] = ['爪力', '貓步', '隱身', '反彈'];
 /** 學不來但不礙事的效果：略過，牌還是能用 */
 const SKIP: ReadonlySet<string> = new Set([
   // 噹噹的四個長效旗標（2026-09-17）：鏡子學不會就整張回 null，
   // 他大半副牌都會被跳過，那場鏡子戰變成只會擋的空殼。跳過旗標、留下蜷縮那一段
   'halfSpendBlock', 'blockWhenAttacked', 'thornsBonus', 'keepBlock',
   'blockOnThorns', 'thornsFromSpend', 'blockToThorns',
+  // 條件分支：條件本身學不來，但**分支外面那幾條照學**（護臂格擋的 7 點蜷縮）。
+  // 不收的話整張回 null，那張在鏡子戰裡憑空消失
+  'ifSelfStatus',
+  /*
+   * 2026-09-17 稽核 低-1：上面那幾個只救到穩住與硬扛。卸蜷縮打人、照反彈打、
+   * 條件分支那幾種都不在 SKIP 也不在 `switch`，走 `default` 整張回 null——
+   * 於是鏡中球球對上噹噹幾乎只會打正拳跟架盤，那場對他明顯比對另外兩位軟。
+   */
+  'damageSpendBlock', 'healSpendBlock', 'blockFromThorns', 'damageByOwnStatus',
+  'ifBlock', 'ifEnemyIntent',
   'draw', 'drawIfTargetStatus', 'drawNextTurn', 'energy', 'gold', 'scry',
   'exhaustFromHand', 'retainFromHand', 'discardFromHand', 'recoverFromDiscard', 'cleanse', 'removeStatuses',
   'noAttacksThisTurn',
@@ -110,6 +128,24 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
       case 'execByStatus':
         out.push({ kind: 'damageByPlayerStatus', name: fx.name });
         break;
+      /*
+       * 卸蜷縮打人：**照這張牌的上限學成固定傷害**（2026-09-17 稽核 低-1）。
+       *
+       * 原效果是「卸掉最多 N 點蜷縮、造成等量傷害」，而魔物沒有蜷縮可以卸——
+       * 牠的招是預先算好掛在頭上的，做不出「看我當下有多少」這種事。
+       * 照上限學是**對玩家比較兇**的那一邊，跟「目標原本就中毒才給蜷縮」照學成無條件
+       * 是同一個判斷（2026-09-16）：比整張不學好，不然卸力掌、崩山掌、震盪波
+       * 在鏡子戰裡會憑空消失，那場對噹噹明顯比對另外兩位軟。
+       *
+       * 卸光那種（`all`，鐵山靠與捨身撞）沒有上限可以照，仍然跳過。
+       */
+      case 'damageSpendBlock': {
+        if (fx.all || !fx.max) break;
+        const hit: Extract<EnemyEffect, { kind: 'damage' }> = { kind: 'damage', amount: Math.floor(fx.max * (fx.mul ?? 1)) };
+        if (fx.ignoreBlock) hit.pierce = true;
+        out.push(hit);
+        break;
+      }
       default:
         if (!SKIP.has(fx.kind)) return null;
     }

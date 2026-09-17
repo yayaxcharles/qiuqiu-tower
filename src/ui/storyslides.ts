@@ -51,7 +51,16 @@ export function prologueSlides(hero: string | undefined): Slide[] {
       groups[groups.length - 1]!.push(l);
       if (l.slideBreak && groups.length < stills.length) groups.push([]);
     }
-    return stills.map((k, i) => ({ img: `bg/${k}`, lines: groups[i] ?? [] }));
+    /*
+     * **切點不夠就整段不演**（稽核 2026-09-17 高-3）。
+     *
+     * 連線那兩套共用場景的序章只標了一個切點，卻要配四張圖：後兩張拿到空陣列、
+     * 安靜地不出現，而前兩段配到的是**單人劇本**那四張圖（師父在教球球、師父被魔氣控制），
+     * 講的卻是「村口的門剛關上」。`stillKey` 的檔頭自己寫著
+     *「寧可少一段幻燈片，不要放別人的故事」——這裡回空陣列，`slidesReady` 就會讓整段退回純對白。
+     */
+    if (groups.length < stills.length || groups.some((g) => g.length === 0)) return [];
+    return stills.map((k, i) => ({ img: `bg/${k}`, lines: groups[i]! }));
   }
   return stills.map((k, i) => ({ img: `bg/${k}`, lines: pro.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
 }
