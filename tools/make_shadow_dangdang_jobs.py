@@ -3,7 +3,8 @@
 
 姿勢名照 `src/ui/assets.ts` 的 `MonsterPose`：idle／attack／hurt／block／down，
 鍵是 `codex/monster_shadow_dangdang`（`src/content/enemies.ts` 的 `MIRROR_DANGDANG`）。
-圖進倉之後 `assets.ts` 的 `MONSTER_ART_FALLBACK` 那一行就可以拿掉了。
+（這五張 2026-09-16 已進倉；當時 `assets.ts` 裡那張「還沒進倉就先借別隻」的替身表
+也在 2026-09-18 一併拿掉了，現在查無鍵就是灰剪影。）
 
 做法：完全照鏡中菲菲那五張（`make_fix_0915_jobs.py` 的 e1／e2 批）
 ------------------------------------------------------------------

@@ -1,5 +1,6 @@
 import { registerScreen } from '../app';
 import { clear, el } from '../dom';
+import { clearKeepBg, screenBg } from '../screenbg';
 import { hostRoom as hostDirect, joinRoom as joinDirect } from '../../net/rtc';
 import { hostRoom as hostRelay, joinRoom as joinRelay } from '../../net/ws';
 import { CoopSession } from '../../net/session';
@@ -194,6 +195,10 @@ registerScreen('lobby', (app, root) => {
   let left = false;
   app.disposers.push(() => { left = true; st.cancel?.(); st.cancel = undefined; });
 
+  // 村口的夜景鋪在最底下，之後每次重畫都留著它（`render` 用 `clearKeepBg`）
+  clear(root);
+  root.append(screenBg('bg/screen_lobby'));
+
   const fail = (e: unknown): void => {
     if (left) return;   // 已經離開大廳，別回頭改別人的畫面
     st.step = 'failed';
@@ -237,7 +242,12 @@ registerScreen('lobby', (app, root) => {
   };
 
   const render = (): void => {
-    clear(root);
+    /*
+     * 底圖那一層留著（2026-09-18 加背景時一起改）：這一頁每按一個按鈕就整個重畫，
+     * 用 `clear(root)` 會把底圖也清掉，第二次重畫之後就變成一片深色。
+     * 其他有底圖的畫面早就是這個規矩，見 `screenbg.ts` 的 `clearKeepBg`。
+     */
+    clearKeepBg(root);
     const box = el('div', { class: 'lobby' });
     box.append(el('h1', {}, '兩個人一起爬塔'));
 

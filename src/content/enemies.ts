@@ -1494,8 +1494,7 @@ export interface EnemySkin { name: string; art: string; line: string; lines: str
 
 const MIRROR_FEIFEI: EnemySkin = {
   name: '鏡中菲菲',
-  // 這組立繪美術正在生（shadow_feifei_{idle,attack,hurt,block,down}）。
-  // 還沒進倉時 `ui/assets.ts` 會自動退回影球球那組，不會出現破圖或灰剪影
+  // 這組立繪（shadow_feifei_{idle,attack,hurt,block,down}）2026-09-15 已全部進倉
   art: 'codex/monster_shadow_feifei',
   // 她是暹羅貓、怕痛、講話會遲疑但不加「喵」；鏡子裡的那個講同樣的話，只是一點都不抖
   line: '（鏡子裡的她先站直了，針尖朝著你，一點都沒抖）',

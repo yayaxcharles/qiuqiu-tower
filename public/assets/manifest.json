@@ -1286,6 +1286,10 @@
    "hurt": "assets/monsters/shadow_dangdang_hurt.webp",
    "block": "assets/monsters/shadow_dangdang_block.webp",
    "down": "assets/monsters/shadow_dangdang_down.webp"
+  },
+  "codex/monster_stone_lion_p2": {
+   "idle": "assets/monsters/stone_lion_p2_idle.webp",
+   "attack": "assets/monsters/stone_lion_p2_attack.webp"
   }
  },
  "icons": {
@@ -1331,10 +1335,6 @@
   "icon/node_fight": "assets/icons/node_fight.webp",
   "icon/node_rest": "assets/icons/node_rest.webp",
   "icon/node_shop": "assets/icons/node_shop.webp",
-  "icon/corner_tl": "assets/icons/corner_tl.webp",
-  "icon/corner_tr": "assets/icons/corner_tr.webp",
-  "icon/corner_bl": "assets/icons/corner_bl.webp",
-  "icon/corner_br": "assets/icons/corner_br.webp",
   "icon/paw": "assets/icons/paw.webp",
   "icon/cardframe_rare": "assets/icons/cardframe_rare.webp",
   "icon/vfx_hit": "assets/icons/vfx_hit.webp",
@@ -1881,6 +1881,7 @@
   "bg/event_dangdang_toll_again_paid_r0": "assets/bg/event_dangdang_toll_again_paid_r0.webp",
   "bg/event_dangdang_toll_again_paid_r1": "assets/bg/event_dangdang_toll_again_paid_r1.webp",
   "bg/event_dangdang_weapon_rack_r0": "assets/bg/event_dangdang_weapon_rack_r0.webp",
-  "bg/event_dangdang_weapon_rack_r1": "assets/bg/event_dangdang_weapon_rack_r1.webp"
+  "bg/event_dangdang_weapon_rack_r1": "assets/bg/event_dangdang_weapon_rack_r1.webp",
+  "bg/screen_lobby": "assets/bg/screen_lobby.webp"
  }
 }

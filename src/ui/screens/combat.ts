@@ -1007,7 +1007,6 @@ registerScreen('combat', (app, root, props) => {
    * 這隻魔物要用哪一組立繪。**鏡子照的是誰就長誰的樣子**（2026-09-15）：
    * 玩菲菲時，鏡中球球那隻換成影菲菲那組（名字與開場白在引擎那邊換，見 `content/enemies.ts`）。
    * 看的是座位 0 的角色（鏡子抄的就是那一位的牌組），不是本機這一位。
-   * 圖還沒進倉時 `assets.ts` 會自動退回影球球那組。
    */
   /** 這一隻現在該用哪組立繪：先照角色變裝（鏡中球球），再照牠打到第幾階段（見 `monsterPhaseKey`） */
   function artOfEnemy(e: EnemyCombat): string {

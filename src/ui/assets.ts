@@ -307,21 +307,12 @@ export function hasHeroSprite(hero: string | undefined, key: string): boolean {
 export function hasSprite(key: string): boolean { return manifest.sprites[key] !== undefined; }
 
 export type MonsterPose = 'idle' | 'attack' | 'hurt' | 'block' | 'down';
-/**
- * 立繪還沒進倉時退回哪一組（2026-09-15）。
- *
- * 影菲菲（鏡中球球照到菲菲時的變裝，見 `content/enemies.ts`）的五張姿勢美術正在生。
- * 沒有這一條的話，清單裡查不到鍵就會回那張灰剪影——一隻沒有五官的灰團在鏡子走廊裡打你，
- * 比暫時借用影球球的立繪難看得多。圖進倉之後這條自動失效（有鍵就不會走替身）。
+/*
+ * 「立繪還沒進倉就先借長得像的那一隻」那張對照表（`MONSTER_ART_FALLBACK`）**2026-09-18 拿掉了**。
+ * 它是 2026-09-15 為影菲菲（鏡中球球照到菲菲時的變裝）臨時加的鷹架，她那五張姿勢當天就進倉，
+ * 表從此是空的、還留著一段說「正在生」的過期註解。要再借一次就從 git 歷史撈回來。
+ * 查不到鍵照樣由 `monsterUrl` 退成灰剪影（`assets.test.ts` 第一個案子守著）。
  */
-const MONSTER_ART_FALLBACK: Readonly<Record<string, string>> = {
-  'codex/monster_shadow_feifei': 'codex/monster_shadow_cat',
-};
-
-/** 清單裡沒有這個鍵就換成替身鍵（連替身都沒有就照原鍵，最後由 `monsterUrl` 退成剪影） */
-function monsterKey(artKey: string): string {
-  return manifest.monsters[artKey] ? artKey : (MONSTER_ART_FALLBACK[artKey] ?? artKey);
-}
 
 /**
  * 換階段之後那一隻的立繪鍵（2026-09-16 使用者實測：「打老住持，菲菲說牠長出鱗甲，
@@ -341,9 +332,9 @@ export function monsterPhaseKey(artKey: string, phase: number): string {
   return artKey;
 }
 
-export function hasMonsterPose(artKey: string, pose: MonsterPose): boolean { return manifest.monsters[monsterKey(artKey)]?.[pose] !== undefined; }
+export function hasMonsterPose(artKey: string, pose: MonsterPose): boolean { return manifest.monsters[artKey]?.[pose] !== undefined; }
 export function monsterUrl(artKey: string, pose: MonsterPose): string {
-  const m = manifest.monsters[monsterKey(artKey)];
+  const m = manifest.monsters[artKey];
   const rel = m?.[pose] ?? m?.idle;
   return rel ? `${BASE}${rel}` : SILHOUETTE;
 }

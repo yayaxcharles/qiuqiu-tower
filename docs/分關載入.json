@@ -1112,6 +1112,8 @@
  "assets/monsters/stone_lion_block.webp": 1,
  "assets/monsters/stone_lion_hurt.webp": 1,
  "assets/monsters/stone_lion_idle.webp": 1,
+ "assets/monsters/stone_lion_p2_attack.webp": 9,
+ "assets/monsters/stone_lion_p2_idle.webp": 9,
  "assets/monsters/tadpole_attack.webp": 1,
  "assets/monsters/tadpole_block.webp": 1,
  "assets/monsters/tadpole_hurt.webp": 1,

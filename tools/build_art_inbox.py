@@ -9,7 +9,6 @@ build_art_inbox.py — 把 tools/art_inbox 交來的素材處理成遊戲用檔�
   牌的底紋  card_paper_*.png → public/assets/bg/card_paper_*.webp（256x256，可平鋪）
   牌面插圖  card_<牌號>.png  → public/assets/cards/card/<牌號>.webp（去背，300x225）
   事件插圖  event_<事件號>.png → public/assets/bg/event_<事件號>.webp（去背，560x420）
-  面板角花  frame_corner.png → public/assets/icons/corner_{tl,tr,bl,br}.webp（去背後自動鏡射出四個角）
   牌框      frame_{common,uncommon,rare}.png → public/assets/icons/cardframe_*.webp（去背，340x510）
   腳印      map_path.png     → public/assets/icons/paw.webp（去背、轉成朝右，放進 3:2 的框留出間距）
   主角立繪  hero_*.png       → public/assets/sprites/hero/*.webp（去背後放進同一張畫布、底部對齊）
@@ -195,23 +194,9 @@ def main() -> None:
         manifest["icons"][f"icon/cardframe_{tag}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"牌框 cardframe_{tag}.webp {dst.stat().st_size // 1024} KB")
 
-    # 面板角花：只生左上角那一片，其餘三角由這裡鏡射出來（省三次生圖，也保證四角完全對稱）
-    corner_src = INBOX / "frame_corner.png"
-    if corner_src.exists():
-        base = key_out(Image.open(corner_src))
-        base.thumbnail((96, 96), Image.LANCZOS)
-        flips = {
-            "tl": base,
-            "tr": base.transpose(Image.FLIP_LEFT_RIGHT),
-            "bl": base.transpose(Image.FLIP_TOP_BOTTOM),
-            "br": base.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM),
-        }
-        for tag, im in flips.items():
-            dst = OUT / "icons" / f"corner_{tag}.webp"
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            im.save(dst, "WEBP", quality=88, method=6)
-            manifest["icons"][f"icon/corner_{tag}"] = dst.relative_to(OUT.parent).as_posix()
-        print(f"角花 corner_*.webp ×4 {(OUT / 'icons' / 'corner_tl.webp').stat().st_size // 1024} KB/張")
+    # 面板角花（`frame_corner.png` → `corner_{tl,tr,bl,br}.webp`）**2026-09-18 拿掉了**：
+    # 那四張進倉快一個月，全專案沒有任何一行程式或樣式用到它們，是純孤兒檔。
+    # 原稿還留在收件匣，哪天真的要做面板角花再把這段接回來。
 
     # 腳印：地圖上的路徑改用腳印串起來。
     # 原圖的腳掌朝上，先順時針轉 90 度變成朝右——畫面那邊會把整條路徑轉到線的角度，
