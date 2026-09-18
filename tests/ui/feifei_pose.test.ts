@@ -34,4 +34,22 @@ describe('菲菲的立繪退路', () => {
       expect(hasHeroSprite('feifei', `hero/ninja_${p}`), `${p} 嚴格版要回 false`).toBe(false);
     }
   });
+
+  /*
+   * 2026-09-18 補的四張非戰鬥姿勢（貓窩的打盹／磨東西／扶同伴，加過關走路）。
+   * 這四個姿勢名沒進退路表的話，缺圖的角色會直接掉回球球那張——貓窩裡冒出一隻灰虎斑。
+   */
+  it('貓窩與走路那四張：有自己的就用自己的，沒有的退到自己的蜷縮或站姿', () => {
+    sprites([...NINJA_POSES, 'hero/ninja_nap', 'hero/ninja_sharpen', 'hero/ninja_helpup', 'hero/ninja_walk',
+      'hero/feifei_idle', 'hero/feifei_curl', 'hero/feifei_nap']);
+    expect(heroSpriteKey('feifei', 'hero/ninja_nap')).toBe('hero/feifei_nap');
+    // 睡著退蜷縮，其餘退站姿；三張都還沒生的那一位一律退回自己的圖，不會變成球球
+    expect(heroSpriteKey('dangdang', 'hero/ninja_nap'), '連站姿都沒有才回原鍵').toBe('hero/ninja_nap');
+    for (const p of ['sharpen', 'helpup', 'walk']) {
+      expect(heroSpriteKey('feifei', `hero/ninja_${p}`), p).toBe('hero/feifei_idle');
+      expect(hasHeroSprite('feifei', `hero/ninja_${p}`), `${p} 嚴格版要回 false`).toBe(false);
+    }
+    sprites([...NINJA_POSES, 'hero/feifei_idle', 'hero/feifei_curl']);
+    expect(heroSpriteKey('feifei', 'hero/ninja_nap'), '她沒生睡著那張就退回自己的蜷縮').toBe('hero/feifei_curl');
+  });
 });

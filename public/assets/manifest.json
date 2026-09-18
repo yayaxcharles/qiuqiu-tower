@@ -561,7 +561,19 @@
   "hero/dangdang_taiji": "assets/sprites/hero/dangdang_taiji.webp",
   "hero/dangdang_throw": "assets/sprites/hero/dangdang_throw.webp",
   "hero/dangdang_win": "assets/sprites/hero/dangdang_win.webp",
-  "hero/dangdang_cover": "assets/sprites/hero/dangdang_cover.webp"
+  "hero/dangdang_cover": "assets/sprites/hero/dangdang_cover.webp",
+  "hero/ninja_nap": "assets/sprites/hero/ninja_nap.webp",
+  "hero/ninja_sharpen": "assets/sprites/hero/ninja_sharpen.webp",
+  "hero/ninja_helpup": "assets/sprites/hero/ninja_helpup.webp",
+  "hero/ninja_walk": "assets/sprites/hero/ninja_walk.webp",
+  "hero/feifei_nap": "assets/sprites/hero/feifei_nap.webp",
+  "hero/feifei_sharpen": "assets/sprites/hero/feifei_sharpen.webp",
+  "hero/feifei_helpup": "assets/sprites/hero/feifei_helpup.webp",
+  "hero/feifei_walk": "assets/sprites/hero/feifei_walk.webp",
+  "hero/dangdang_nap": "assets/sprites/hero/dangdang_nap.webp",
+  "hero/dangdang_sharpen": "assets/sprites/hero/dangdang_sharpen.webp",
+  "hero/dangdang_helpup": "assets/sprites/hero/dangdang_helpup.webp",
+  "hero/dangdang_walk": "assets/sprites/hero/dangdang_walk.webp"
  },
  "review": [],
  "monsters": {

@@ -11,6 +11,9 @@ const FAKE = {
     'hero/ninja_claw': 'assets/sprites/hero/ninja_claw.webp', 'hero/cover': 'assets/sprites/hero/cover.webp',
     'hero/feifei_attack': 'assets/sprites/hero/feifei_attack.webp', 'hero/samurai_idle': 'assets/sprites/hero/samurai_idle.webp',
     'rat_idle': 'assets/sprites/rat_idle.webp',
+    // 2026-09-18 補的四張非戰鬥姿勢，戰鬥暖圖不該碰到它們
+    'hero/ninja_nap': 'assets/sprites/hero/ninja_nap.webp', 'hero/ninja_sharpen': 'assets/sprites/hero/ninja_sharpen.webp',
+    'hero/ninja_helpup': 'assets/sprites/hero/ninja_helpup.webp', 'hero/ninja_walk': 'assets/sprites/hero/ninja_walk.webp',
   },
   monsters: {},
   icons: { 'icon/map_hero_low': 'assets/icons/map_hero_low.webp', 'icon/map_hero_feifei_low': 'assets/icons/map_hero_feifei_low.webp' },
@@ -42,6 +45,8 @@ describe('角色專屬的圖分開載', () => {
     expect(ninja.some((u) => u.includes('feifei'))).toBe(false);
     expect(ninja.some((u) => u.includes('samurai'))).toBe(false);
     expect(ninja.some((u) => u.includes('hero/cover')), '標題那張本來就不暖').toBe(false);
+    // 貓窩三張與過關走路那張戰鬥裡用不到，暖了只會擋在魔物立繪前面（2026-09-18）
+    for (const p of ['nap', 'sharpen', 'helpup', 'walk']) expect(ninja.some((u) => u.includes(`ninja_${p}`)), p).toBe(false);
     const both = heroSpriteUrls(['ninja', 'feifei']);
     expect(both.some((u) => u.includes('feifei_attack'))).toBe(true);
     expect(heroSpriteUrls([undefined]), '舊存檔沒寫角色＝球球').toEqual(ninja);

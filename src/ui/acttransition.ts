@@ -17,7 +17,12 @@ const FADE_MS = 400;
 
 export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then: () => void): void {
   const bgUrl = artUrl('bg', tierBgKey(Math.max(1, nextActFloor)));
-  const catUrl = heroArtUrl(localHero(), 'hero/ninja');
+  /*
+   * 走路那張（2026-09-18）：本來這三秒拿的是站姿圖，腳步聲有、腳沒動。
+   * 圖沒生好就退回站姿——`heroArtUrl` 查不到會回一張 `data:` 的佔位圖，所以要自己判一次。
+   */
+  const walkUrl = heroArtUrl(localHero(), 'hero/ninja_walk');
+  const catUrl = walkUrl.startsWith('data:') ? heroArtUrl(localHero(), 'hero/ninja') : walkUrl;
   if (bgUrl.startsWith('data:') || catUrl.startsWith('data:')) { then(); return; }
 
   const overlay = el('div', { class: 'actwalk-overlay' },

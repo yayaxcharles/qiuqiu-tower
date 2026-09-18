@@ -90,7 +90,12 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  *（使用者 2026-09-10 在剛部署完、整包圖都要重抓的那一次遇到）。
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
-const HERO_NOT_IN_COMBAT = new Set(['hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/idle', 'hero/armed']);
+const HERO_NOT_IN_COMBAT = new Set([
+  'hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/idle', 'hero/armed',
+  // 2026-09-18 補的四張非戰鬥姿勢（貓窩的打盹／磨爪／扶同伴，加過關走路）：戰鬥裡一張都用不到，
+  // 進暖圖只會擋在魔物立繪前面。三隻各四張＝12 張
+  ...['ninja', 'feifei', 'dangdang'].flatMap((h) => ['nap', 'sharpen', 'helpup', 'walk'].map((p) => `hero/${h}_${p}`)),
+]);
 /**
  * 帶角色名、卻在**選角之前**就會出現的圖：首頁兩張「參上」並排（2026-09-15）。
  * 開場預載不能因為鍵名帶 `feifei` 就跳過，戰鬥暖圖也不用它（總稽核 2026-09-16 戊 M3）。
@@ -183,6 +188,8 @@ const POSE_FALLBACK: Readonly<Record<string, string>> = {
   choke: 'hurt', dizzy: 'hurt', belly: 'hurt', lazy: 'hurt', puff: 'hurt', iron: 'idle',
   // 擋下來的抱胸格擋退回蜷縮；倒在地上退回站著垂頭
   guard: 'curl', down: 'lose',
+  // 貓窩與過關走路那四張（2026-09-18）：睡著退回蜷縮，其餘退回站姿
+  nap: 'curl', sharpen: 'idle', helpup: 'idle', walk: 'idle',
 };
 
 /**

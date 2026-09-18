@@ -18,9 +18,15 @@ import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
 import { heroPronoun, sharpenVerb } from '../../engine/hero';
 
-/** 蜷在貓窩旁的立繪（畫的是這一位自己的角色）；圖還沒生好就不放 */
-function heroPortrait(hero: string | undefined): string | undefined {
-  const url = heroArtUrl(hero, 'hero/ninja_curl');
+/**
+ * 貓窩畫面的立繪（畫的是這一位自己的角色）；圖還沒生好就不放。
+ *
+ * **做哪件事就換哪張**（2026-09-18）：本來三件事共用蜷在窩旁那張，
+ * 打盹、磨爪、扶同伴做完長得一模一樣，玩家看不出自己剛剛做了什麼。
+ * 沒生那張圖的角色由 `heroSpriteKey` 的三層退路自己退回去，不會破圖。
+ */
+function heroPortrait(hero: string | undefined, pose: 'curl' | 'nap' | 'sharpen' | 'helpup' | 'down' = 'curl'): string | undefined {
+  const url = heroArtUrl(hero, `hero/ninja_${pose}`);
   return url.startsWith('data:') ? undefined : url;
 }
 
@@ -59,8 +65,8 @@ registerScreen('rest', (app, root) => {
   let used = false;   // 一個貓窩只能做一件事
   let napped = 0;     // 打盹按下去那一刻算出來的回復量（動作繞回來才演得到）
 
-  /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖 */
-  function afterAction(text: string, line: string, card?: CardInstance): void {
+  /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖。`pose` 是做完那件事的立繪 */
+  function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' = 'nap'): void {
     clearKeepBg(root);
     renderHud(app, root);
     // 磨好的牌放大秀出來、打鐵發金光（本來只有一行字，使用者：「不太有回饋感」）
@@ -73,7 +79,7 @@ registerScreen('rest', (app, root) => {
       art = el('div', { class: 'showcase' }, host);
       window.setTimeout(() => burst(host, 'buff'), 60);
     }
-    root.append(sceneView({ art, portrait: heroPortrait(me(run, seat).hero), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
+    root.append(sceneView({ art, portrait: heroPortrait(me(run, seat).hero, pose), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
     toast(line, heroSpeaker());
     // 連線版：兩個人都做完才走，先做完的那位在這裡等。**回地圖一律由 onRunApplied 那一邊排**（總稽核 B 中-2）：
     // 主機的動作是同步套用的，這支本來就是從 onRunApplied 裡被叫到的，這裡再排一次就是兩個計時器、地圖畫兩次
@@ -141,7 +147,7 @@ registerScreen('rest', (app, root) => {
               ? `「${name}」磨利了，變成「${name}＋」；${fish} 條小魚乾全吃了，回復 ${me(run, seat).hp - hpBefore} 點生命。`
               : `「${name}」磨利了，變成「${name}＋」。`;
             // 吐槽要用這一位自己的那份（夜間稽核 範圍外-1）：原本是球球的「爪子有點鈍了喵。」，菲菲磨針也這樣講
-            afterAction(line, pick(storyFor(me(run, seat).hero).restSharpenLines), c);
+            afterAction(line, pick(storyFor(me(run, seat).hero).restSharpenLines), c, 'sharpen');
           });
         },
       });
@@ -191,7 +197,8 @@ registerScreen('rest', (app, root) => {
      */
     if (me(run, seat).down) {
       root.append(sceneView({
-        portrait: heroPortrait(me(run, seat).hero),
+        // 自己倒下等人扶：用倒地那張（早就畫好了），蜷在窩旁那張看起來像在睡覺
+        portrait: heroPortrait(me(run, seat).hero, 'down'),
         speaker: '貓窩',
                 text: `${heroSpeaker()}躺在貓窩旁邊動不了……得等同伴過來扶一把。`,
         actions: [],
@@ -223,7 +230,7 @@ registerScreen('rest', (app, root) => {
         // 連線這三條原本都拿球球那份吐槽、拍醒的同伴一律寫「牠」（連線稽核 中-4）：改成照座位的角色
         const mine = storyFor(me(run, seat).hero);
         // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
-        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines)); continue; }
+        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines), undefined, 'helpup'); continue; }
         if (a.t !== 'rest') continue;
         if (a.c === '打盹') { play('heal'); afterAction(`${heroSpeaker()}睡了一下，回復 ${napped} 點生命。`, pick(mine.restNapLines)); continue; }
         play('upgrade');
@@ -231,7 +238,7 @@ registerScreen('rest', (app, root) => {
         const line = pl && pl.choice === '全力準備'
           ? `「${pl.name}」磨利了，變成「${pl.name}＋」；${pl.fish} 條小魚乾全吃了，回復 ${me(run, seat).hp - pl.hpBefore} 點生命。`
           : `「${pl?.name ?? ''}」磨利了，變成「${pl?.name ?? ''}＋」。`;
-        afterAction(line, pick(mine.restSharpenLines), pendingCard ?? undefined);
+        afterAction(line, pick(mine.restSharpenLines), pendingCard ?? undefined, 'sharpen');
       }
       /*
        * **不能用 `used` 判斷要不要重畫**（實測撞到的坑）：主機的動作是同步套用的，

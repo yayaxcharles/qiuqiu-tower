@@ -34,6 +34,19 @@ describe('球球的待機姿勢', () => {
     expect(idlePoseKey(hero({ 貓步: 5 }), POSES, ALL)).toBe('iron');
   });
 
+  /*
+   * 鐵布衫那張圖畫的就是鐵布衫，卻只有貓步堆到 5 才看得到；真的掛著鐵布衫反而跟平常站姿一樣
+   *（2026-09-18 補）。它只撐一回合，所以排在貓步前面。
+   */
+  it('掛著鐵布衫就擺鐵布衫那張，而且排在貓步前面', () => {
+    expect(idlePoseKey(hero({ 鐵布衫: 1 }), POSES, ALL)).toBe('iron');
+    expect(idlePoseKey(hero({ 鐵布衫: 1, 貓步: 1 }), POSES, ALL)).toBe('iron');
+    // 圖沒生好就往下退，不會變成灰剪影
+    expect(idlePoseKey(hero({ 鐵布衫: 1 }), POSES, only('idle'))).toBe('idle');
+    // 爪力堆高仍然贏鐵布衫：那是「我變強了」，比只撐一回合的防禦值得先講
+    expect(idlePoseKey(hero({ 鐵布衫: 1, 爪力: 5 }), POSES, ALL)).toBe('power');
+  });
+
   it('原本那四個沒被擠掉', () => {
     expect(idlePoseKey(hero({}, 30), POSES, ALL)).toBe('hurt');   // 三成血
     expect(idlePoseKey(hero({ 中毒: 1 }), POSES, ALL)).toBe('choke');

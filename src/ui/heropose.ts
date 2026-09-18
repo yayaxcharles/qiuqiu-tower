@@ -35,6 +35,11 @@ export function idlePoseKey(p: Unit, poses: IdlePoses, has: (key: string) => boo
     ?? (st('懶洋洋') > 0 ? pick(poses.lazy) : null)
     ?? (st('炸毛') > 0 ? pick(poses.puff) : null)
     ?? (st('爪力') >= 5 ? pick(poses.power) : null)
+    /*
+     * 鐵布衫（2026-09-18 接上）：那張圖畫的本來就是鐵布衫，卻只有貓步堆高時才會用到，
+     * 真的掛著鐵布衫反而跟平常站姿一樣。排在貓步前面——它只撐一回合，看得到才來得及用。
+     */
+    ?? (st('鐵布衫') > 0 ? pick(poses.iron) : null)
     // 貓步堆高（防禦流）跟爪力堆高對稱，本來只有攻擊流看得到自己變強
     ?? (st('貓步') >= 5 ? pick(poses.iron) : null)
     ?? poses.idle
