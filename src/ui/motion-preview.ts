@@ -348,6 +348,7 @@ export async function startMotionPreview(app: App): Promise<void> {
   let stopPlayback: (() => void) | undefined;
   let expandedShowcase = false;
   let switching = false;
+  let screenVersion = 0;
   const modalOpen = (): boolean => !!app.overlay.querySelector('.modal-overlay, .dialogue-overlay');
   const heroLabel = (): string => currentHero === 'feifei' ? '菲菲'
     : currentHero === 'dangdang' ? '噹噹'
@@ -413,17 +414,20 @@ export async function startMotionPreview(app: App): Promise<void> {
     switching = true;
     heroSelect.disabled = true;
     const previous = currentHero;
+    const version = screenVersion;
     currentHero = heroSelect.value as MotionPreviewHero;
     currentGroup = 'basic';
     currentAction = 'idle';
     try {
       await loadHero(currentHero);
+      if (version !== screenVersion) return;   // 已離開試玩，晚到的素材不能把畫面拉回來
       setLocalHero(currentHero);
       setSfxHero(currentHero);
       fillSelects();
       switching = false;
       reset();
     } catch (error) {
+      if (version !== screenVersion) return;
       console.error(`${heroLabel()}動作素材載入失敗`, error);
       currentHero = previous;
       heroSelect.value = previous;
@@ -491,6 +495,7 @@ export async function startMotionPreview(app: App): Promise<void> {
     replayShowcase();
     app.stage.append(tools);
     app.disposers.push(() => {
+      screenVersion++;   // 重設也會同步清理；只在等待載入返回時比對版本
       stopWalk?.(); stopWalk = undefined; runButton.disabled = false;
       showcaseActor?.dispose();
       showcaseActor = undefined;

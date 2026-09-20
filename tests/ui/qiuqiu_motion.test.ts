@@ -132,6 +132,24 @@ describe('球球全身動作開關與招式選擇', () => {
 });
 
 describe('球球全身動作畫布', () => {
+  it('受擊時保留明確的後仰表情，再恢復站姿', () => {
+    const actor = createQiuqiuActor({ action: 'hurt' });
+    const frames = motionData.actions.hurt.frames;
+    step(0);
+    expect(lastDraw().slice(1, 5)).toEqual(frames[0]!.rect);
+    for (const elapsed of [60, 150, 320, 450]) {
+      step(elapsed);
+      expect(lastDraw().slice(1, 5)).toEqual(frames[1]!.rect);
+    }
+    step(500);
+    expect(lastDraw().slice(1, 5)).toEqual(frames[2]!.rect);
+    expect(qiuqiuMotionDuration('hurt')).toBe(650);
+    step(650);
+    expect(lastDraw().slice(1, 5)).toEqual(frames[3]!.rect);
+    expect(rafs.size).toBe(0);
+    actor.dispose();
+  });
+
   it.each(['poison', 'puff', 'stealth'] as const)('%s 保留狀態姿勢並持續緩慢呼吸，不輪播錯位畫格', (action) => {
     const actor = createQiuqiuActor({ action });
     const motion = extraMotionData.actions[action];

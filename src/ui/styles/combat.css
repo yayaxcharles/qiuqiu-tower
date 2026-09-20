@@ -722,6 +722,14 @@
   animation: shake .4s;
   filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);
 }
+/* 新版角色畫布也保留受擊紅閃；不覆寫移動中的腳底定位。 */
+.combat .unit.hit :is(.qiuqiu-motion, .companion-motion) {
+  animation: motion-hit-flash .5s ease-out;
+}
+@keyframes motion-hit-flash {
+  0%, 35% { filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg); }
+  100% { filter: none; }
+}
 /* 出招那一拍同時掉血（噎到結算、球球的反彈都在同一步扣血）：紅閃要看得見。
    `cast-pop` 的關鍵影格自己寫了 `filter`，而**動畫算出的值蓋過所有一般宣告、不看優先序**，
    所以上面那條紅閃整整 0.52 秒完全不生效、等動畫跑完才突然紅一下（稽核 2026-09-10 中-1）。

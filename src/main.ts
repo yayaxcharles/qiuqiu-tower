@@ -72,6 +72,12 @@ async function boot(): Promise<void> {
     }
     return;
   }
+  app.show('title');
+  // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
+  // 不 await——預載完不完成都不影響能不能玩。
+  // UI／牌面／背景先，再抓第一關會遇到的魔物；第二三關的等過關畫面再抓（分關載入，見 preload.ts）
+  void preloadArt().then(() => preloadAct(1));
+  // 逐格圖集同樣在標題顯示後載入，慢速下載或解碼不再阻塞入口。
   if (new URLSearchParams(location.search).get('motion') !== '0') {
     try {
       const hero = localHero();
@@ -86,11 +92,6 @@ async function boot(): Promise<void> {
       console.error('逐格動作預載失敗，改用普通立繪', error);
     }
   }
-  app.show('title');
-  // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
-  // 不 await——預載完不完成都不影響能不能玩。
-  // UI／牌面／背景先，再抓第一關會遇到的魔物；第二三關的等過關畫面再抓（分關載入，見 preload.ts）
-  void preloadArt().then(() => preloadAct(1));
 }
 
 void boot();

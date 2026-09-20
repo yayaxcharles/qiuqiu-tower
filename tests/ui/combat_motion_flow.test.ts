@@ -2,18 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { transformWithOxc } from 'vite';
 import SRC from '../../src/ui/screens/combat.ts?raw';
 import { companionMotionDuration } from '../../src/ui/companion-motion';
+import { qiuqiuMotionDuration } from '../../src/ui/qiuqiu-motion';
 import {
   motionPresentationMatches,
+  qiuqiuShouldPlayHurt,
   resizeMotionMeleeTrip,
   shouldResumeConfirmedMotion,
 } from '../../src/ui/qiuqiu-combat-motion';
 
 // Execute the screen's actual branches; the screen-local functions are not public APIs.
 function sourceBetween(start: string, end: string): string {
-  const first = SRC.indexOf(start);
-  const last = SRC.indexOf(end, first + start.length);
+  const normalized = SRC.replace(/\r\n/g, '\n');
+  const first = normalized.indexOf(start);
+  const last = normalized.indexOf(end, first + start.length);
   if (first < 0 || last < 0) throw new Error(`Missing combat branch: ${start}`);
-  return SRC.slice(first, last);
+  return normalized.slice(first, last);
 }
 
 async function execute(source: string, bindings: Record<string, unknown>): Promise<void> {
@@ -90,5 +93,104 @@ describe('combat motion confirmation and victory flow', () => {
     expect(state.away).toBe(true);
     expect(state.trip?.origin).toEqual({ x: 100, y: 200 });
     expect(state.trip?.plan).toMatchObject({ dx: 300, dy: 0, strikeMs: 760, totalMs: 760 });
+  });
+});
+
+
+describe('受擊反應的播放與收尾', () => {
+  it.each(['qiuqiu', 'feifei', 'dangdang', 'fengfeng'] as const)
+    ('%s 受擊完整停留，收姿勢時不清掉尚在播放的傷害提示', async (source) => {
+      const state = {
+        source, action: 'idle', active: false, away: false, raf: 0, endsAt: 0,
+        actor: { play() {} }, layer: { style: {}, remove() {} },
+      };
+      const cs = { phase: 'player', players: [{ seat: 0, hp: 40 }] };
+      const effects = new Set(['damage-number', 'hurt-vignette']);
+      let nextFrame: (now: number) => void = () => {};
+      await execute(playMotion + "\nplayMotion(0, 'hurt', undefined, 0, true);", {
+        cs, app: { cs }, mySeat: 0, motionEnabled: true, motionState: () => state,
+        root: { querySelector: () => null }, MINE: '.mine',
+        motionSourceFor: () => source, motionDuration: (_source: string, action: 'hurt') =>
+          source === 'qiuqiu' ? qiuqiuMotionDuration(action) : companionMotionDuration(source, action),
+        refreshMotion() {}, performance: { now: () => 0 }, ended: false, pose: 'hit',
+        idlePose: () => 'idle', idleMotion: () => { state.active = false; state.action = 'idle'; },
+        render: () => effects.clear(),
+        window: { cancelAnimationFrame() {}, requestAnimationFrame: (fn: (now: number) => void) => { nextFrame = fn; return 1; } },
+      });
+      nextFrame(500);
+      expect(state.active).toBe(true);
+      expect(state.action).toBe('hurt');
+      nextFrame(649);
+      expect(state.active).toBe(true);
+      nextFrame(650);
+      expect(state.active).toBe(false);
+      expect(state.action).toBe('idle');
+      expect([...effects]).toEqual(['damage-number', 'hurt-vignette']);
+    });
+});
+
+
+describe('敵方連續出手的反應銜接', () => {
+  const reactions = sourceBetween('    for (const q of cs.players) {\n      const source = motionSourceFor(q);', '    const feifeiNeedleAction');
+  it.each([1, 0])('閃避時依剩餘 %i 層隱身維持正確透明度', async (stealth) => {
+    const classes = new Set<string>();
+    const box = {
+      classList: { toggle: (name: string, on: boolean) => { if (on) classes.add(name); else classes.delete(name); } },
+      closest: () => null, append() {},
+    };
+    const state = { action: 'roll', active: true, reactive: true, away: false,
+      actor: { element: {}, play() {} }, layer: { remove() {} } };
+    await execute(sourceBetween('  const mountMotion = (', '  if (motionEnabled && cs.players.some')
+      + '\nmountMotion({ seat: 0 }, box, "hit");', {
+      box, motionEnabled: true, motionSourceFor: () => 'qiuqiu', qiuqiuMotionReady: () => true,
+      motionState: () => state, restMotionAction: () => undefined, getStatus: () => stealth,
+    });
+    expect(classes.has('has-qiuqiu-motion')).toBe(true);
+    expect(classes.has('qiuqiu-stealth-idle')).toBe(stealth > 0);
+  });
+
+  it('球球消耗隱身時播放存在的翻滾動作，不退回待機', async () => {
+    let chosen = '';
+    const q = { seat: 0, hp: 40, block: 0, down: false };
+    await execute(reactions, {
+      cs: { players: [q] }, motionSourceFor: () => 'qiuqiu', comparison: undefined,
+      before: { players: new Map([[0, { hp: 40, block: 0, stealth: 2 }]]) },
+      getStatus: () => 1, comparedPhase: 'player', opts: {}, mySeat: 0, impactMotion: undefined,
+      qiuqiuShouldPlayHurt, enemyActed: true, fresh: [], motionActors: new Map(),
+      playMotion: (_seat: number, action: string) => { chosen = action; }, idleMotion() {},
+    });
+    expect(chosen).toBe('roll');
+  });
+  it('下一擊來到時重新播放受擊，不能沿用快結束的上一擊', async () => {
+    let reactionsPlayed = 0;
+    const q = { seat: 0, hp: 36, block: 0, down: false };
+    await execute(reactions, {
+      cs: { players: [q] }, motionSourceFor: () => 'qiuqiu', comparison: undefined,
+      before: { players: new Map([[0, { hp: 40, block: 0, stealth: 0 }]]) },
+      getStatus: () => 0, comparedPhase: 'player', opts: {}, mySeat: 0, impactMotion: undefined,
+      qiuqiuShouldPlayHurt, enemyActed: true, fresh: [],
+      motionActors: new Map([[0, { active: true, action: 'hurt' }]]),
+      playMotion: () => { reactionsPlayed++; }, idleMotion() {},
+    });
+    expect(reactionsPlayed).toBe(1);
+  });
+  it.each(['roll', 'attack1'] as const)('%s 收尾不重建手牌和整個戰場', async (action) => {
+    const state = { source: 'qiuqiu', action: 'idle', active: false, away: false, raf: 0, endsAt: 0,
+      actor: { play() {} }, layer: { style: {}, remove() {} } };
+    const cs = { phase: 'player', players: [{ seat: 0, hp: 40 }] };
+    let sceneRebuilds = 0;
+    let nextFrame: (now: number) => void = () => {};
+    await execute(playMotion + `\nplayMotion(0, '${action}', undefined, 0, ${action === 'roll'});`, {
+      cs, app: { cs }, mySeat: 0, motionEnabled: true, motionState: () => state,
+      root: { querySelector: () => null }, MINE: '.mine',
+      motionSourceFor: () => 'qiuqiu', motionDuration: (_source: string, a: typeof action) => qiuqiuMotionDuration(a),
+      qiuqiuCombatMotionDecision: () => 'play', refreshMotion() {}, performance: { now: () => 0 },
+      ended: false, pose: 'hit', idlePose: () => 'idle', idleMotion: () => { state.active = false; },
+      render: () => { sceneRebuilds++; },
+      window: { cancelAnimationFrame() {}, requestAnimationFrame: (fn: (now: number) => void) => { nextFrame = fn; return 1; } },
+    });
+    nextFrame(Math.max(650, qiuqiuMotionDuration(action)));
+    expect(state.active).toBe(false);
+    expect(sceneRebuilds).toBe(0);
   });
 });

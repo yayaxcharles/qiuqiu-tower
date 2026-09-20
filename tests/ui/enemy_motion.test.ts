@@ -9,8 +9,9 @@ type DrawCall = [CanvasImageSource, number, number, number, number, number, numb
 
 class FakeContext {
   draws: DrawCall[] = [];
+  clears = 0;
   transform: [number, number, number, number, number, number] | null = null;
-  clearRect(): void { /* the following draw is the observable result */ }
+  clearRect(): void { this.clears += 1; }
   setTransform(...args: [number, number, number, number, number, number]): void {
     this.transform = args;
   }
@@ -129,6 +130,45 @@ describe('敵人逐格素材載入', () => {
 });
 
 describe('敵人逐格畫布', () => {
+  it.each((['rat', 'ninja'] as const).flatMap((kind) =>
+    (['idle', 'attack', 'hurt', 'air_rise', 'air_fall', 'knockdown', 'getup'] as const)
+      .map((action) => ({ kind, action }))))('$kind $action 在 60 Hz 下保持原始時間軸，每個來源影格只重畫一次', ({ kind, action }) => {
+    const actor = motion.createEnemyMotionActor(kind, { action });
+    const context = canvases.at(-1)!.context;
+    const data = motionData.kinds[kind].actions[action];
+    const durations = data.frames.map((frame) => frame.duration * 1000);
+    const total = durations.reduce((sum, duration) => sum + duration, 0);
+    for (let index = 0; index <= 60; index++) {
+      const elapsed = index * 1000 / 60;
+      step(elapsed);
+      let remaining = data.loop ? elapsed % total : Math.min(elapsed, total);
+      let frameIndex = 0;
+      while (frameIndex < data.frames.length - 1 && remaining >= durations[frameIndex]!) {
+        remaining -= durations[frameIndex]!;
+        frameIndex += 1;
+      }
+      expect(lastDraw().slice(1, 5)).toEqual(data.frames[frameIndex]!.rect);
+    }
+    expect(context.draws).toHaveLength(data.frames.length);
+    expect(context.clears).toBe(data.frames.length);
+    expect(rafs.size).toBe(data.loop ? 1 : 0);
+    actor.dispose();
+  });
+
+  it('攻擊重播會重新計時，不受上一輪繪製紀錄影響', () => {
+    const actor = motion.createEnemyMotionActor('rat', { action: 'attack' });
+    step(0);
+    step(110);
+    expect(lastDraw().slice(1, 5)).toEqual(motionData.kinds.rat.actions.attack.frames[1]!.rect);
+    actor.play('attack');
+    step(200);
+    step(299);
+    expect(lastDraw().slice(1, 5)).toEqual(motionData.kinds.rat.actions.attack.frames[0]!.rect);
+    step(300);
+    expect(lastDraw().slice(1, 5)).toEqual(motionData.kinds.rat.actions.attack.frames[1]!.rect);
+    actor.dispose();
+  });
+
   it('依來源時長換格，非循環動作停在最後一格', () => {
     const actor = motion.createEnemyMotionActor('rat', { action: 'attack' });
     step(1000);

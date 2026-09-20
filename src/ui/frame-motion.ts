@@ -35,8 +35,19 @@ type ResolvedFrameMotion = Readonly<{
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
 
+const timings = new WeakMap<FrameMotion, { durations: number[]; total: number }>();
+
+function timingFor(motion: FrameMotion): { durations: number[]; total: number } {
+  const cached = timings.get(motion);
+  if (cached) return cached;
+  const durations = motion.frames.map((frame) => frame.duration * 1000);
+  const timing = { durations, total: durations.reduce((sum, duration) => sum + duration, 0) };
+  timings.set(motion, timing);
+  return timing;
+}
+
 export function frameMotionDuration(motion: FrameMotion): number {
-  return Math.round(motion.frames.reduce((sum, frame) => sum + frame.duration * 1000, 0));
+  return Math.round(timingFor(motion).total);
 }
 
 export function createFrameMotionSet<Action extends string>(config: Readonly<{
@@ -106,8 +117,7 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
   };
 
   const frameAt = (motion: FrameMotion, elapsedMs: number, loop: boolean): number => {
-    const durations = motion.frames.map((frame) => frame.duration * 1000);
-    const total = durations.reduce((sum, duration) => sum + duration, 0);
+    const { durations, total } = timingFor(motion);
     let elapsed = loop && total > 0 ? elapsedMs % total : Math.min(elapsedMs, total);
     for (let index = 0; index < durations.length; index += 1) {
       if (elapsed < durations[index]!) return index;
@@ -144,9 +154,11 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     let elapsedOffset = 0;
     let raf = 0;
     let disposed = false;
+    let drawnMotion: FrameMotion | null = null;
+    let drawnFrame: FrameMotionFrame | undefined;
+    let drawnBreath = 1;
 
-    const draw = (elapsed: number): void => {
-      const resolved = config.resolve(action, elapsed, playOptions);
+    const draw = (resolved: ResolvedFrameMotion): void => {
       const motion = config.motions[resolved.key] ?? config.motions[config.initialAction];
       if (!motion) return;
       // 持續狀態的不同繪圖不能當成呼吸輪播，否則頭、手、身形會反覆跳動。
@@ -158,18 +170,22 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       const resting = restFrame !== undefined && resolved.elapsed >= settleAfter;
       const frame = motion.frames[resting ? restFrame : frameAt(motion, resolved.elapsed, resolved.loop ?? motion.loop)] ?? motion.frames[0];
       if (!frame) return;
+      const breathPhase = ((resolved.elapsed - settleAfter) % 6200) / 6200;
+      const breath = resting ? 1 + .025 * Math.sin(Math.PI * breathPhase) ** 2 : 1;
+      if (drawnMotion === motion && drawnFrame === frame && drawnBreath === breath) return;
       const image = imageFor(motion);
       if ('complete' in image && !image.complete) return;
       const [sourceX, sourceY, sourceWidth, sourceHeight] = frame.rect;
       const [pivotX, pivotY] = frame.pivot;
       const scale = motion.scale * wantedHeight / config.nativeHeight;
-      const breathPhase = ((resolved.elapsed - settleAfter) % 6200) / 6200;
-      const breath = resting ? 1 + .025 * Math.sin(Math.PI * breathPhase) ** 2 : 1;
       const drawX = -pivotX * scale - bounds.minX;
       const drawY = -pivotY * scale * breath - bounds.minY;
       context.clearRect(0, 0, width, height);
       context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight,
         drawX, drawY, sourceWidth * scale, sourceHeight * scale * breath);
+      drawnMotion = motion;
+      drawnFrame = frame;
+      drawnBreath = breath;
     };
 
     const tick = (now: number): void => {
@@ -177,8 +193,8 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       if (disposed) return;
       if (startedAt === null) startedAt = now;
       const elapsed = elapsedOffset + Math.max(0, now - startedAt);
-      draw(elapsed);
       const resolved = config.resolve(action, elapsed, playOptions);
+      draw(resolved);
       const motion = config.motions[resolved.key] ?? config.motions[config.initialAction];
       const resting = action === resolved.key && config.restFrames?.[action] !== undefined;
       if (resting || (resolved.loop ?? motion?.loop) || elapsed < config.duration(action, playOptions)) {
@@ -197,11 +213,12 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       const requestedElapsed = nextOptions.elapsed ?? 0;
       elapsedOffset = Number.isFinite(requestedElapsed) ? Math.max(0, requestedElapsed) : 0;
       startedAt = null;
-      draw(elapsedOffset);
+      drawnMotion = null;
+      draw(config.resolve(action, elapsedOffset, playOptions));
       schedule();
     };
 
-    draw(0);
+    draw(config.resolve(action, 0, playOptions));
     schedule();
 
     return {

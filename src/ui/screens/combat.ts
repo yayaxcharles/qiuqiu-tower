@@ -414,7 +414,7 @@ registerScreen('combat', (app, root, props) => {
     play(action: CombatMotionAction, options?: { elapsed?: number; waves?: number }): void;
     dispose(): void;
   };
-  type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number };
+  type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; reactive: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number };
   type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
   type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number };
   const motionActors = new Map<number, CombatMotion>();
@@ -465,7 +465,7 @@ registerScreen('combat', (app, root, props) => {
         ? createQiuqiuActor()
         : createCompanionMotionActor(companionKind(source))) as unknown as MotionActor;
       state = { source, actor, layer: el('div', { class: 'qiuqiu-melee' },
-        el('div', { class: 'qiuqiu-melee-shadow' })), action: 'idle', active: false, away: false, raf: 0, endsAt: 0 };
+        el('div', { class: 'qiuqiu-melee-shadow' })), action: 'idle', active: false, reactive: false, away: false, raf: 0, endsAt: 0 };
       motionActors.set(q.seat, state);
     }
     return state;
@@ -505,7 +505,8 @@ registerScreen('combat', (app, root, props) => {
       state.actor.play(resting);
     }
     const visible = state.active || resting !== undefined;
-    box.classList.toggle('qiuqiu-stealth-idle', source === 'qiuqiu' && visible && !state.active && resting === 'stealth');
+    box.classList.toggle('qiuqiu-stealth-idle', source === 'qiuqiu' && visible
+      && ((!state.active && resting === 'stealth') || (state.reactive && getStatus(q, '隱身') > 0)));
     box.classList.toggle('has-qiuqiu-motion', source === 'qiuqiu' && visible);
     box.classList.toggle('has-companion-motion', source !== 'qiuqiu' && visible);
     box.classList.toggle('qiuqiu-melee-away', visible && state.active && state.away);
@@ -566,6 +567,7 @@ registerScreen('combat', (app, root, props) => {
     state.trip = undefined;
     state.layer.remove();
     state.active = false;
+    state.reactive = false;
     state.away = false;
     const q = cs.players[seat];
     if (q) {
@@ -616,10 +618,13 @@ registerScreen('combat', (app, root, props) => {
     window.cancelAnimationFrame(state.raf);
     const caughtUp = Math.max(0, elapsed);
     const startedAt = performance.now() - caughtUp;
-    state.endsAt = startedAt + (trip?.plan.totalMs ?? motionDuration(source, action));
+    // 受擊、閃避與格擋至少保留原演出的 650ms，短片段播完後停在收勢。
+    state.endsAt = startedAt + Math.max(reactive ? 650 : 0,
+      trip?.plan.totalMs ?? motionDuration(source, action));
     state.trip = trip;
     state.action = action;
     state.active = true;
+    state.reactive = reactive;
     state.away = !!trip;
     state.presentationToken = presentationToken;
     state.layer.style.transform = trip ? `translate(${trip.plan.dx}px, ${trip.plan.dy}px)` : '';
@@ -643,9 +648,13 @@ registerScreen('combat', (app, root, props) => {
       const activeTrip = state.trip;
       const sample = activeTrip ? motionMeleeSample(activeTrip.plan, elapsed) : null;
       if (sample?.done || (!activeTrip && now >= state.endsAt)) {
-        if (seat === mySeat && cs.phase === 'player') pose = idlePose();
+        if (seat === mySeat && cs.phase === 'player') {
+          pose = idlePose();
+          const image = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
+          if (image) image.src = heroArt(q, pose);
+        }
+        // 只就地收姿勢；整頁重畫會重建手牌，並截斷飄字與其他單位的動作。
         idleMotion(seat);
-        if (!ended) render();
         return;
       }
       if (sample && activeTrip) {
@@ -2694,12 +2703,12 @@ registerScreen('combat', (app, root, props) => {
         outgoingSeat: opts.impactSeat ?? mySeat,
         hasOutgoingMotion: impactMotion !== undefined,
       })) reaction = 'hurt';
-      else if (afterStealth < was.stealth) reaction = source === 'feifei' ? 'roll' : 'dodge';
+      else if (afterStealth < was.stealth) reaction = source === 'qiuqiu' || source === 'feifei' ? 'roll' : 'dodge';
       else if (enemyActed && afterHp === was.hp && (afterBlock < was.block
         || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了') || line.startsWith('甲擋下了'))))) reaction = 'guard';
       else if (afterHp > was.hp) reaction = 'eat';
       const state = motionActors.get(q.seat);
-      if (reaction && (!state?.active || state.action !== reaction)) playMotion(q.seat, reaction, undefined, 0, true);
+      if (reaction) playMotion(q.seat, reaction, undefined, 0, true);
       else if (comparedPhase === 'won' && !state?.active) idleMotion(q.seat);
     }
     const feifeiNeedleAction = impactSource === 'feifei' && impactMotion && isFeifeiNeedleAction(impactMotion)
@@ -3362,6 +3371,13 @@ registerScreen('combat', (app, root, props) => {
        * 自己的動作手牌真的少了一張，要照常重排。
       */
       const alreadyShown = mine && !!session.isHost;
+      // 引擎已完成最後舉手就立即封住本回合；視覺排演可以慢，下一回合的牌不可提前套用。
+      const completedTurn = allReady(cs) && !cs.pending ? cs.turn : null;
+      if (completedTurn !== null) {
+        session.endOfTurn();
+        session.hold();
+        root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
+      }
       const finishApplied = (clearRemote = true): void => {
         if (clearRemote) {
           remoteBefore = null;
@@ -3374,12 +3390,8 @@ registerScreen('combat', (app, root, props) => {
          * 會回 false、舉手旗標也不清，等選完那一下再進來一次——原本兩次都記對帳單，
          * 第二張蓋掉還沒配到對的第一張，兩台狀態一樣也判成分岔。
          */
-        if (allReady(cs) && !cs.pending) {
-          session.endOfTurn();      // 收回合之前先對一次帳，分岔要在這裡就抓到
-          // 從這一刻到新手牌發下來，同伴的動作一律先排隊（高-7）；`runEnemyTurn` 演完放開
-          session.hold();
-          // 「再想想」這時候按了也送不出去（會話已經暫停），先反灰（夜間審查 低-4）
-          root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
+        // 只有包含最後舉手的那批演完才收牌；較早批次的收尾不能搶先結束回合。
+        if (app.cs === cs && cs.turn === completedTurn && allReady(cs) && !cs.pending) {
           sfx('turn_end');
           const wait = collectHand();
           if (wait <= 0) { runEnemyTurn(); return; }

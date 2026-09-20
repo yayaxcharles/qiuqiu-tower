@@ -41,6 +41,16 @@ const kinds = motionData.kinds as unknown as Record<EnemyMotionKind, MotionKind>
 const images = new Map<string, HTMLImageElement>();
 const readyKinds = new Set<EnemyMotionKind>();
 const kindLoads = new Map<EnemyMotionKind, Promise<void>>();
+const timings = new WeakMap<Motion, { durations: number[]; total: number }>();
+
+function timingFor(motion: Motion): { durations: number[]; total: number } {
+  const cached = timings.get(motion);
+  if (cached) return cached;
+  const durations = motion.frames.map((frame) => frame.duration * 1000);
+  const timing = { durations, total: durations.reduce((sum, duration) => sum + duration, 0) };
+  timings.set(motion, timing);
+  return timing;
+}
 
 function imageFor(texture: string): HTMLImageElement {
   const cached = images.get(texture);
@@ -76,10 +86,7 @@ export async function preloadEnemyMotion(
 }
 
 export function enemyMotionDuration(kind: EnemyMotionKind, action: EnemyMotionAction): number {
-  return Math.round(kinds[kind].actions[action].frames.reduce(
-    (sum, frame) => sum + frame.duration * 1000,
-    0,
-  ));
+  return Math.round(timingFor(kinds[kind].actions[action]).total);
 }
 
 function motionBounds(kind: MotionKind, wantedHeight: number): Bounds {
@@ -110,10 +117,10 @@ function motionBounds(kind: MotionKind, wantedHeight: number): Bounds {
 }
 
 function frameAt(motion: Motion, elapsedMs: number): number {
-  const total = motion.frames.reduce((sum, frame) => sum + frame.duration * 1000, 0);
+  const { durations, total } = timingFor(motion);
   let elapsed = motion.loop && total > 0 ? elapsedMs % total : Math.min(elapsedMs, total);
   for (let index = 0; index < motion.frames.length; index += 1) {
-    const duration = motion.frames[index]!.duration * 1000;
+    const duration = durations[index]!;
     if (elapsed < duration) return index;
     elapsed -= duration;
   }
@@ -158,11 +165,14 @@ export function createEnemyMotionActor(
   let startedAt: number | null = null;
   let raf = 0;
   let disposed = false;
+  let drawnMotion: Motion | null = null;
+  let drawnFrame: MotionFrame | undefined;
 
   const draw = (frameIndex: number): void => {
     const motion = kindData.actions[action];
     const frame = motion.frames[frameIndex] ?? motion.frames[0];
     if (!frame) return;
+    if (drawnMotion === motion && drawnFrame === frame) return;
     const image = imageFor(motion.texture);
     if ('complete' in image && !image.complete) return;
     const [sourceX, sourceY, sourceWidth, sourceHeight] = frame.rect;
@@ -185,6 +195,8 @@ export function createEnemyMotionActor(
       sourceWidth * scale,
       sourceHeight * scale,
     );
+    drawnMotion = motion;
+    drawnFrame = frame;
   };
 
   const tick = (now: number): void => {
@@ -207,6 +219,7 @@ export function createEnemyMotionActor(
     if (disposed) return;
     action = next;
     startedAt = null;
+    drawnMotion = null;
     draw(0);
     schedule();
   };
