@@ -31,6 +31,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
+import { LEGACY_HIT_MOTIONS } from '../src/ui/legacy-hit-motion.ts';
 
 /** 素材清單的位置（相對於 `dist/`）。它是入口，不加雜湊 */
 const MANIFEST_REL = 'assets/manifest.json';
@@ -157,11 +158,12 @@ export function assetHash(): Plugin {
        * 從來沒進過 `manifest.json` 的分類。執行期由 `assets.ts` 的 `fileUrl()` 查這張表；
        * 查不到就照原路徑走（開發伺服器就是這條，那邊的檔名本來就沒有雜湊）。
        *
-       * 只放「清單分類沒用到的」46 筆，不放全部 1327 筆：清單是每次開遊戲都得重新問一次的入口，
-       * 多塞一份完整對照表會讓它從 75 KB 變成快 200 KB。
+       * 只放清單分類沒用到的檔案，加上同時用作逐格動作的四張受擊立繪。
+       * 這四張也由 `fileUrl()` 載入，不能因分類已收錄就省略；其餘分類圖不重複列入。
        */
+      const sharedMotionFiles = new Set(Object.values(LEGACY_HIT_MOTIONS).map((motion) => motion.texture));
       const files: Record<string, string> = {};
-      for (const [orig, hashed] of renamed) if (!used.has(orig)) files[orig] = hashed;
+      for (const [orig, hashed] of renamed) if (!used.has(orig) || sharedMotionFiles.has(orig)) files[orig] = hashed;
       next['files'] = files;
 
       // 清單指到的檔案要真的在。這一條擋的是「改名漏了一批、畫面全變灰剪影」那種靜音失效

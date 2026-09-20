@@ -1,4 +1,4 @@
-import type { FrameMotion } from './frame-motion';
+import type { FrameMotion } from './frame-motion.ts';
 
 // 舊立繪依 alpha > 16 的可見高度校準為 252 px；腳底沿用原圖實際位置。
 function hitMotion(file: string, imageHeight: number, top: number, foot: number): FrameMotion {
