@@ -72,7 +72,7 @@ async function boot(): Promise<void> {
     }
     return;
   }
-  if (new URLSearchParams(location.search).get('motion') === '1') {
+  if (new URLSearchParams(location.search).get('motion') !== '0') {
     try {
       const hero = localHero();
       if (hero === 'ninja') {

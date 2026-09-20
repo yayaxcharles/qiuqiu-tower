@@ -93,12 +93,13 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('球球全身動作開關與招式選擇', () => {
-  it('只接受兩個明示的網址參數', () => {
+  it('一般入口預設開啟動作，仍可明確關閉或進入預覽', () => {
     expect(qiuqiuMotionReady()).toBe(true);
     expect(qiuqiuMotionEnabled('?motion-preview')).toBe(true);
     expect(qiuqiuMotionEnabled('?motion=1')).toBe(true);
     expect(qiuqiuMotionEnabled('?motion=0')).toBe(false);
-    expect(qiuqiuMotionEnabled('?preview=1')).toBe(false);
+    expect(qiuqiuMotionEnabled('')).toBe(true);
+    expect(qiuqiuMotionEnabled('?preview=1')).toBe(true);
   });
 
   it('基本貓抓與未知爪擊保留四種輪換，具名招式使用固定語義動作', () => {

@@ -58,7 +58,7 @@ beforeEach(() => {
     dispose: mocks.dispose,
   }));
   vi.stubGlobal('window', { setTimeout, clearTimeout });
-  vi.stubGlobal('location', { search: '?motion=1' });
+  vi.stubGlobal('location', { search: '' });
 });
 
 afterEach(() => {
@@ -76,6 +76,9 @@ describe('噹噹上樓跑步轉場', () => {
 
     expect(mocks.createCompanion).toHaveBeenCalledWith('dangdang', { height: 250, action: 'run' });
     expect((stage as unknown as FakeElement).children).toHaveLength(1);
+    const overlay = (stage as unknown as FakeElement).children[0]!;
+    expect(overlay.classList.values.has('actwalk-motion')).toBe(true);
+    expect(overlay.children.some((node) => node.tag === 'canvas')).toBe(true);
     vi.advanceTimersByTime(2999);
     expect(done).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);

@@ -25,7 +25,7 @@ type WalkActor = {
 
 function motionRequested(search = typeof location === 'undefined' ? '' : location.search): boolean {
   const params = new URLSearchParams(search);
-  return params.has('motion-preview') || params.get('motion') === '1';
+  return params.has('motion-preview') || params.get('motion') !== '0';
 }
 
 async function loadWalkActor(hero: Hero): Promise<WalkActor | null> {

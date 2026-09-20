@@ -153,10 +153,10 @@ function qiuqiuMotionElapsed(action: QiuqiuAction, elapsed: number, waves: numbe
     : elapsed;
 }
 
-/** 查詢字串明確開啟時才使用動作預覽。 */
+/** 一般入口預設啟用新版動作；motion=0 保留靜態演出。 */
 export function qiuqiuMotionEnabled(search = typeof location === 'undefined' ? '' : location.search): boolean {
   const params = new URLSearchParams(search);
-  return params.has('motion-preview') || params.get('motion') === '1';
+  return params.has('motion-preview') || params.get('motion') !== '0';
 }
 
 /** 卡牌規則不在此處；本函式只決定視覺動作。 */

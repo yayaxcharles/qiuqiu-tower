@@ -42,4 +42,4 @@
 - 正常闖塔新動作：`https://yayaxcharles.github.io/qiuqiu-tower-coop/?motion=1`
 - 四角色動作試玩：`https://yayaxcharles.github.io/qiuqiu-tower-coop/?motion-preview`
 
-一般網址仍依原設定使用原演出；本次沒有改變此開關規則。
+2026-09-20 晚間修正：一般網址預設啟用新版戰鬥動作與過關跑步，不再需要加上 `?motion=1`。`?motion=0` 保留靜態演出，動作預覽入口不變。
