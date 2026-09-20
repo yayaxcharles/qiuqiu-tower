@@ -4,9 +4,9 @@ import { encounterById } from '../../src/content/enemies';
 import { FIXED_EVENT_FLOOR_5, eventById, events } from '../../src/content/events';
 
 describe('事件資料', () => {
-  it('42 個事件、id 不重複、每個 1～3 個選項', () => {
-    expect(events.length).toBe(46)   // 38＋菲菲的兩個專屬事件（2026-09-12）   // 30＋五個前後集的後集＋2026-09-11 三個（換家的老鼠、磨到只剩一把刀、速成的卷軸）
-    expect(new Set(events.map((e) => e.id)).size).toBe(46);   // 42→46：2026-09-17 噹噹的四篇專屬事件
+  it('50 個事件、id 不重複、每個 1～3 個選項', () => {
+    expect(events.length).toBe(50)   // 46＋封封的四篇專屬事件（2026-09-20）
+    expect(new Set(events.map((e) => e.id)).size).toBe(50);
     for (const e of events) {
       expect(eventById[e.id]).toBe(e);
       expect(e.choices.length, e.id).toBeGreaterThanOrEqual(1);

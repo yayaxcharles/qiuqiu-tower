@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "status": "integrated_and_unit_verified",
+  "scope": {
+    "hero": "fengfeng",
+    "displayName": "封封",
+    "heroSpecificCards": 32,
+    "placeholderMotionAllowed": false,
+    "codeWiringAllowedInThisPhase": true,
+    "note": "16套整身素材與 metadata 已到位並接入；32張專屬牌使用本檔鎖定的對照，不借用球球、菲菲或噹噹的逐格圖。"
+  },
+  "sourcesOfTruth": [
+    "src/content/cards.ts",
+    "docs/fengfeng-integration-contract.md",
+    "docs/第四隻角色_封封_提案/06_批次提示摘要.md",
+    "docs/第四隻角色_封封_提案/08_卡牌與玩法/04_牌面繪圖清單_32張.md"
+  ],
+  "characterContract": {
+    "species": "橘白虎斑貓",
+    "clothing": "磚紅短武服、米白內衫、深灰褲、棕色腰帶、紅色頸巾",
+    "weapon": "腰間直劍與劍鞘；每格劍刃、護手、劍柄及握爪必須連接",
+    "body": "大頭短身；每格只有兩隻手、兩條腿和一條尾巴",
+    "sourceFacing": "right",
+    "combatFacing": "right",
+    "mirrorByDefault": false,
+    "wholeBodyFrames": true,
+    "footPivot": "每格依實際接地腳底固定；run可保留真實離地相位，其他站地動作不得因透明留白上下跳動",
+    "forbiddenChanges": [
+      "不得用其他角色換色",
+      "不得改毛色、服裝、紅色頸巾或直劍造型",
+      "不得讓劍飄離握爪、同時出現兩把劍或無故換手",
+      "不得用動畫新增傷害、命中段數、蓄氣、蜷縮或其他效果"
+    ]
+  },
+  "motionSet": {
+    "keys": [
+      {
+        "key": "idle",
+        "loop": true,
+        "pose": "朝右側身站穩，前腳微屈，慣用爪靠近劍柄，直劍完整留在腰間鞘內"
+      },
+      {
+        "key": "hurt",
+        "loop": false,
+        "pose": "受力後上身後仰但雙腳仍有支撐，握劍爪不穿過身體，劍與劍鞘維持腰間連接"
+      },
+      {
+        "key": "run",
+        "loop": true,
+        "pose": "朝右跑步，雙臂與雙腿交錯，腰間劍鞘隨步伐小幅擺動且不脫離腰帶"
+      },
+      {
+        "key": "dodge",
+        "loop": false,
+        "pose": "保持面向右側向後撤半步，前爪護住劍柄，完整身體與腳底位移清楚"
+      },
+      {
+        "key": "slash",
+        "loop": false,
+        "pose": "拔出同一把直劍做乾淨單次斜斬或平斬，揮劍爪伸出身體輪廓，另一爪穩住姿勢"
+      },
+      {
+        "key": "sweep",
+        "loop": false,
+        "pose": "降低重心做寬幅橫掃，劍尖走過前方多目標範圍，完整腳步與寬劍弧都留在畫面內"
+      },
+      {
+        "key": "heavy_slash",
+        "loop": false,
+        "pose": "雙爪握同一劍柄高舉，踏前後向下重劈，落點前保留明顯蓄力且雙腳不漂移"
+      },
+      {
+        "key": "thrust",
+        "loop": false,
+        "pose": "後腳推地、前腳踏穩，雙爪沿同一直線把直劍向右刺出，劍尖與手臂不被裁切"
+      },
+      {
+        "key": "double_slash",
+        "loop": false,
+        "pose": "同一角色、同一把劍連續完成兩次方向不同的斬擊，兩個命中姿勢清楚分開，不畫實體分身"
+      },
+      {
+        "key": "guard",
+        "loop": false,
+        "pose": "腳步站穩，以劍身或劍鞘橫架胸前承受衝擊，握點完整可見且不新增盾牌"
+      },
+      {
+        "key": "focus",
+        "loop": false,
+        "pose": "直劍保持在腰間或貼身安全位置，閉眼調息後目光集中，淡金呼吸弧貼身且不遮住全身"
+      },
+      {
+        "key": "sheath",
+        "loop": false,
+        "pose": "振袖轉身後讓劍尖對準腰間劍鞘，直劍完整滑入鞘內，雙爪與劍柄連接到收勢完成"
+      },
+      {
+        "key": "eat",
+        "loop": false,
+        "pose": "收好直劍後雙爪拿住食物進食，不讓食物、劍或爪穿過臉與身體"
+      },
+      {
+        "key": "win",
+        "loop": false,
+        "pose": "確認前方安全後甩去劍上灰塵並完整收劍，最後穩定站立供勝利畫面停留"
+      },
+      {
+        "key": "poison",
+        "loop": true,
+        "pose": "握住腹側、呼吸不穩但仍以另一爪護住腰間直劍，循環首尾連續且腳底固定"
+      },
+      {
+        "key": "defeat",
+        "loop": false,
+        "pose": "失去力氣後安全倒下，直劍保留在鞘內或貼地不穿身，最後一格完整保持到離場"
+      }
+    ],
+    "requiredDistinctActions": [
+      "slash與heavy_slash必須可由起手與落劍重量區分",
+      "sweep必須有足以對應全體目標的寬幅橫向路徑",
+      "thrust必須是直線刺擊，不得只重用平斬",
+      "double_slash必須提供兩個可對應真實兩段命中的清楚命中姿勢",
+      "guard、focus、sheath必須是三種不同的原地動作"
+    ],
+    "composites": {
+      "attackRecovery": {
+        "appliesTo": ["slash", "sweep", "heavy_slash", "thrust", "double_slash"],
+        "sequence": "攻擊素材停在持劍低架勢後，接sheath的短收劍片段，再回到劍在鞘內的idle",
+        "interruptible": true,
+        "rule": "下一張牌可立即中斷收劍片段；收劍不得鎖定輸入、延後結算或取消上一張已排定命中",
+        "impactRule": "真實impactTimes全部屬於攻擊片段；sheath恢復段沒有命中callback，也不能新增傷害"
+      }
+    },
+    "metadataContract": "沿用 companion-motion 資料結構：texture、scale、loop、frames[{rect,pivot,duration}]；攻擊動作另附 impactTimes。同 texture 依網址去重預載。"
+  },
+  "heroSpecificCardToAction": {
+    "fengfeng_pingzhan": { "action": "slash", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_hushen": { "action": "guard", "position": "stationary", "hits": "none" },
+    "fengfeng_tuna": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_tanbu": { "action": "slash", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_hengsao": { "action": "sweep", "position": "melee_nearest_live_enemy", "hits": "one_per_live_target_from_engine" },
+    "fengfeng_tabu": { "action": "heavy_slash", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_tiaokai": { "action": "slash", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_tuibu": { "action": "guard", "position": "stationary", "hits": "none" },
+    "fengfeng_zhengxi": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_wenwan": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_huanshou": { "action": "guard", "position": "stationary", "hits": "none" },
+    "fengfeng_jianqiao": { "action": "guard", "position": "stationary", "hits": "none" },
+    "fengfeng_huibu": { "action": "thrust", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_chuantang": { "action": "thrust", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_shuangduan": { "action": "double_slash", "position": "melee_near_target", "hits": "engine_exactly_two_unless_rules_change" },
+    "fengfeng_huzhou": { "action": "slash", "position": "melee_near_target", "hits": "engine", "note": "先呈現真攻擊命中；命中後所得蜷縮不得新增動畫命中" },
+    "fengfeng_zhuanshen": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_changxi": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_zhenshou": { "action": "sheath", "position": "stationary", "hits": "none" },
+    "fengfeng_xunxi": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_shoushi": { "action": "sheath", "position": "stationary", "hits": "none" },
+    "fengfeng_kanshi": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_youbian": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_jiewo": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_husong": { "action": "guard", "position": "stationary", "hits": "none" },
+    "fengfeng_duanliu": { "action": "heavy_slash", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_kaishan": { "action": "sweep", "position": "melee_nearest_live_enemy", "hits": "one_per_live_target_from_engine" },
+    "fengfeng_cunfeng": { "action": "sheath", "position": "stationary", "hits": "none" },
+    "fengfeng_lianxi": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_jizhong": { "action": "focus", "position": "stationary", "hits": "none" },
+    "fengfeng_pozhen": { "action": "heavy_slash", "position": "melee_near_target", "hits": "engine" },
+    "fengfeng_yiqichushou": { "action": "focus", "position": "stationary", "hits": "none" }
+  },
+  "positioningRules": {
+    "melee": "10張單體攻擊移到其真實目標旁；平斬、探步、踏步重劈、挑開、回步刺、穿堂、雙段、回劍護肘、斷流、破陣皆以目標UID定位",
+    "allTarget": "橫掃與開山只移到最近仍存活敵人作視覺錨點；各目標傷害與死亡仍完全由引擎事件決定",
+    "stationary": "全部技能、能力、防禦、恢復與支援牌原地，不能因指定隊友或讀取敵方狀態而瞬移",
+    "multiHit": "雙段劍只依同一目標的兩筆真實命中對應兩個impactTimes；目標首段倒下後不得把第二段改打別人",
+    "rapidPlay": "每張牌保留自己的前後快照、座位、目標UID、命中區間與計時；下一張牌不得取消前一張命中或視覺特效"
+  },
+  "statusAndTransitionActions": {
+    "idle": "一般待機且沒有較高優先靜態狀態",
+    "hurt": "真的受傷反應；自己出招中的反彈傷害保留本張出招",
+    "run": "樓層換場持續循環",
+    "dodge": "隱身或同義閃避狀態被實際消耗",
+    "eat": "真正吃喝或休養牌",
+    "poison": "中毒長駐循環",
+    "win": "最後一擊與角色動作結束後完整播放",
+    "defeat": "倒下或戰敗，最後一格保持到離場"
+  },
+  "integrationVerification": {
+    "motionData": "src/ui/fengfeng-motion-data.json",
+    "renderer": "src/ui/companion-motion.ts",
+    "combat": "src/ui/screens/combat.ts",
+    "preview": "src/ui/motion-preview.ts",
+    "transition": "src/ui/acttransition.ts",
+    "tests": [
+      "tests/ui/companion_motion.test.ts",
+      "tests/ui/qiuqiu_combat_motion.test.ts",
+      "tests/ui/motion_preview.test.ts",
+      "tests/ui/act_motion.test.ts"
+    ],
+    "attackRecovery": "五種攻擊在原攻擊片段後接sheath自120ms起的510ms收劍段；下一張動作可立即中斷。",
+    "engineBoundary": "命中、段數、目標與傷害仍取自引擎事件；收劍段不建立命中。"
+  },
+  "acceptance": [
+    "heroSpecificCardToAction恰有32個鍵，且與cards.ts中hero=fengfeng的32張牌完全一致",
+    "16個動作全部是封封自己的整身影格，朝右且不需鏡射",
+    "12張真攻擊牌靠近敵人或以最近存活敵人作群攻視覺錨點；20張技能、能力與支援牌全部原地",
+    "雙段劍、橫掃與開山只跟隨引擎真實命中，不由動畫新增段數或目標",
+    "低血量、定身、翻肚、隱身、懶洋洋、炸毛、爪力與鐵布衫若沒有新逐格素材，仍保留封封自己的既有靜態狀態圖",
+    "素材未預載完成時保留封封靜態圖，不顯示白框或其他角色動作"
+  ]
+}

@@ -1,7 +1,16 @@
 import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, STARTER_DECK, cardById } from './cards';
 import { heroName, type Hero } from '../engine/hero';
+import {
+  FENGFENG_BOSS_LINES,
+  FENGFENG_CAST_LINES,
+  FENGFENG_EVENT_TEXT,
+  fengfengCoopBossLines,
+  fengfengCoopScenes,
+  fengfengDialogue,
+  fengfengFirstMeet,
+} from './fengfeng-dialogue';
 export interface DialogueLine {
-  speaker: '球球' | '菲菲' | '噹噹' | '塔主' | '旁白' | '黑貓忍者頭目';
+  speaker: '球球' | '菲菲' | '噹噹' | '封封' | '村貓' | '塔主' | '旁白' | '黑貓忍者頭目';
   text: string;
   /**
    * 通關幻燈片的切點：**這一句演完就換第二張圖**（2026-09-12 稽核 中-1）。
@@ -1009,7 +1018,7 @@ const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, Readonl
 
 /** 混搭時把整份故事的句子換過一遍；不換就原樣回（陣列參照不動，既有測試照舊） */
 function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[]; defeat: DialogueLine[];
-  victory: DialogueLine[]; victoryNarration: Partial<Record<string, string>>; hardModeEpilogue: string; victoryTeaser: string }>(hero: string | undefined, s: T): T {
+  victory: DialogueLine[]; victoryNarration: Partial<Record<string, string>>; hardModeEpilogue: string; victoryTeaser: string; topScene?: DialogueLine[] }>(hero: string | undefined, s: T): T {
   const key = pairKey(hero);
   const scenes = key === null ? undefined : MIXED_SCENES[key];
   if (!mixedOn(hero) && !scenes) return s;
@@ -1024,6 +1033,7 @@ function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine
       prologue: scenes.prologue.map((l) => ({ ...l })),
       actClear1: scenes.actClear1.map((l) => ({ ...l })),
       actClear2: scenes.actClear2.map((l) => ({ ...l })),
+      topScene: (scenes.topScene ?? []).map((l) => ({ ...l })),
       victory: scenes.victory.map((l) => ({ ...l })),
       defeat: scenes.defeat.map((l) => ({ ...l })),
       victoryNarration: {},   // 打法插句是寫給單人結局的，連線場景自己收尾
@@ -1032,7 +1042,7 @@ function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine
   }
   return {
     ...s,
-    prologue: ls(s.prologue), actClear1: ls(s.actClear1), actClear2: ls(s.actClear2), defeat: ls(s.defeat), victory: ls(s.victory),
+    prologue: ls(s.prologue), actClear1: ls(s.actClear1), actClear2: ls(s.actClear2), topScene: ls(s.topScene ?? []), defeat: ls(s.defeat), victory: ls(s.victory),
     victoryNarration: Object.fromEntries(Object.entries(s.victoryNarration).map(([k, v]) => [k, mixedLine(hero, v as string)])),
     hardModeEpilogue: mixedLine(hero, s.hardModeEpilogue), victoryTeaser: mixedLine(hero, s.victoryTeaser),
   };
@@ -1052,13 +1062,14 @@ function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine
  * 沒有這一組搭檔的場景就照舊：各自播各自的單人劇本、再過 `MIXED_LINES` 換那幾句。
  * 球球＋菲菲目前就是那樣（他們的連線劇情還沒寫成整段場景）。
  *
- * **插圖**：這幾段沒有自己的幻燈片圖，`slidesReady` 查不到就整段退回純對白
- *（`storyslides.ts` 本來就是這個規矩）。寧可少一段幻燈片，不要放錯別人的故事。
+ * **插圖**：沒有專屬幻燈片圖的配對，`slidesReady` 查不到就整段退回純對白
+ *（`storyslides.ts` 本來就是這個規矩）；封封三條合作路線另有獨立序章、塔頂與結局圖。
  */
 const MIXED_SCENES: Readonly<Record<string, {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
-  victory: DialogueLine[]; defeat: DialogueLine[];
+  topScene?: DialogueLine[]; victory: DialogueLine[]; defeat: DialogueLine[];
 }>> = {
+  ...fengfengCoopScenes,
   'dangdang+ninja': {
     prologue: [
       { speaker: '旁白', text: '村口的門剛關上，噹噹就看見球球往魔塔跑。兩隻村貓接過門閂，催他跟去看看。' },
@@ -1185,6 +1196,11 @@ function pairKey(hero: string | undefined): string | null {
   return [h, p].sort().join('+');
 }
 
+/** 供劇情美術路由使用的排序後搭檔鍵；不暴露連線狀態，只讀取目前這一局的配對。 */
+export function coopStoryKey(hero: string | undefined): string | null {
+  return pairKey(hero);
+}
+
 
 /**
  * 搭檔一起打大俠貓時的整組接話（2026-09-17）。
@@ -1197,6 +1213,7 @@ function pairKey(hero: string | undefined): string | null {
  * 用了這一組就不重播單人版的那幾句（稿子交代「一次階段變換只播放一組」）。
  */
 const COOP_BOSS_LINES: Readonly<Record<string, Readonly<Record<'intro' | 'phase2' | 'phase3', DialogueLine[]>>>> = {
+  ...fengfengCoopBossLines,
   'dangdang+ninja': {
     intro: [
       { speaker: '旁白', text: '門後的大俠貓猛然轉身。球球伸出的手停住了——那雙眼睛仍泛著紫光。' },
@@ -1314,6 +1331,7 @@ function mirrorEventText(hero: string | undefined, original: string): string | u
 
 export function storyFor(hero: string | undefined): {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
+  topScene: DialogueLine[];
   defeat: DialogueLine[]; victoryTeaser: string;
   victory: DialogueLine[]; victoryNarration: Partial<Record<DeckLeaning, string>>;
   hardModeEpilogue: string;
@@ -1321,10 +1339,12 @@ export function storyFor(hero: string | undefined): {
   chestLines: string[]; restNapLines: string[]; restSharpenLines: string[]; reviveLines: string[];
   firstMeet: Record<string, string>;
 } {
-  if (hero === 'feifei') return withMixed(hero, { ...feifeiDialogue, firstMeet: dialogue.firstMeetFeifei });
-  if (hero === 'dangdang') return withMixed(hero, { ...dangdangDialogue, firstMeet: dialogue.firstMeetDangdang });
+  if (hero === 'fengfeng') return withMixed(hero, { ...fengfengDialogue, firstMeet: fengfengFirstMeet });
+  if (hero === 'feifei') return withMixed(hero, { ...feifeiDialogue, topScene: [], firstMeet: dialogue.firstMeetFeifei });
+  if (hero === 'dangdang') return withMixed(hero, { ...dangdangDialogue, topScene: [], firstMeet: dialogue.firstMeetDangdang });
   return withMixed(hero, {
     prologue: dialogue.prologue, actClear1: dialogue.actClear1, actClear2: dialogue.actClear2,
+    topScene: [],
     defeat: dialogue.defeat, victoryTeaser: dialogue.victoryTeaser,
     victory: dialogue.victory, victoryNarration: dialogue.masterFirstWordsNarration,
     hardModeEpilogue: dialogue.hardModeEpilogue,
@@ -1907,6 +1927,7 @@ export function eventTextFor(hero: string | undefined, text: string): string {
     const his = DANGDANG_EVENT_TEXT[text];
     return his === undefined ? text : mixedLine(hero, his);
   }
+  if (hero === 'fengfeng') return FENGFENG_EVENT_TEXT[text] ?? text;
   if (hero !== 'feifei') return text;
   const override = FEIFEI_EVENT_TEXT[text];
   if (override !== undefined) return mixedLine(hero, override);
@@ -2043,6 +2064,7 @@ export const FEIFEI_BOSS_LINES: Readonly<Record<string, string>> = {
 };
 
 export function lineFor(hero: string | undefined, text: string): string {
+  if (hero === 'fengfeng') return FENGFENG_BOSS_LINES[text] ?? text;
   // 噹噹跟她走同一條路：有重寫過的整句換掉，沒有的照舊只拿掉句尾的「喵」
   if (hero === 'dangdang') return mixedLine(hero, DANGDANG_BOSS_LINES[text]
     ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, ''));
@@ -2218,6 +2240,7 @@ export const DANGDANG_CAST_LINES: Readonly<Record<string, string>> = {
 
 /** 塔主、旁白這類**非主角**說的話，講到主角的換成這一位的版本。球球那邊一個字不動 */
 export function castLineFor(hero: string | undefined, text: string): string {
+  if (hero === 'fengfeng') return FENGFENG_CAST_LINES[text] ?? text;
   if (hero === 'dangdang') return DANGDANG_CAST_LINES[text] ?? text;
   return hero === 'feifei' ? (FEIFEI_CAST_LINES[text] ?? text) : text;
 }
@@ -2337,6 +2360,6 @@ export function victoryLinesFor(deckIds: readonly string[], difficulty: number, 
    */
   const narration = story.victoryNarration[key];
   if (narration) lines.splice(2, 0, { speaker: '旁白', text: narration });
-  if (difficulty >= 4) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
+  if (difficulty >= 4 && story.hardModeEpilogue) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
   return lines;
 }

@@ -1,0 +1,40 @@
+.qiuqiu-motion {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  display: block;
+  max-width: none;
+  max-height: none;
+  pointer-events: none;
+}
+
+.sprite-box.has-qiuqiu-motion > .sprite {
+  visibility: hidden;
+}
+
+.sprite-box.qiuqiu-stealth-idle > .qiuqiu-motion {
+  opacity: .58;
+}
+
+.qiuqiu-melee {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.qiuqiu-melee-shadow {
+  position: absolute;
+  left: -72px;
+  bottom: 3px;
+  width: 144px;
+  height: 17px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #0008 0%, #0005 52%, #0000 76%);
+}
+
+.combat .sprite-box.qiuqiu-melee-away > .ground-shadow { visibility: hidden; }
+.combat .unit.qiuqiu-melee-front { z-index: 4; }

@@ -54,7 +54,10 @@ export function combatFingerprint(cs: CombatState): string {
       statusOf(p),
       `h[${pile(p.hand)}]`, `d[${pile(p.drawPile)}]`, `x[${pile(p.discardPile)}]`, `z[${pile(p.exhaustPile)}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
-      `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`,
+      `pw[${p.powers.map((pw) => [pw.trigger, pw.cardId ?? '', pw.upgraded ? 1 : 0, pw.thisTurn ? 1 : 0,
+        pw.cardType ?? '', pw.minQiSpent ?? '', pw.oncePerTurn ? 1 : 0, pw.firedTurn ?? '', JSON.stringify(pw.effects)].join(':')).join(',')}]`,
+      `q${p.qi ?? 0}`, `nab${p.nextAttackBonus ?? 0}`, `egb${p.energyGainBlockedThisPhase ? 1 : 0}`,
+      `dn${p.doubleNext}`, `f${p.fishDelta}`,
       // 菲菲的三個長效旗標：整場都在、會影響之後每一次結算，不進指紋的話分岔會晚一拍才抓到
       `pb${p.poisonBurst ?? ''}`, `bb${p.blockBonus ?? 0}`, `ef${p.echoFirst ?? 0}`, `poa${p.poisonOnAttack ?? 0}`,
       // 噹噹的四個（2026-09-17）：`pw` 只數張數，數不出千斤墜疊到幾點

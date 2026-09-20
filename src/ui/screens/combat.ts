@@ -13,7 +13,7 @@ import { DEBUFFS } from '../../engine/types';
 import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, PlayerCombat, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
 import { registerScreen } from '../app';
 import type { CoopSession } from '../../net/session';
-import { chooserOf } from '../../net/action';
+import { applyAction, chooserOf } from '../../net/action';
 import type { CoopAction } from '../../net/action';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
@@ -31,9 +31,54 @@ import { clear, el } from '../dom';
 import { play as sfx } from '../audio';
 import { enemyLeft, nextLineup, playerLeft } from '../enemylayout';
 import { burst } from '../fx';
+import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
+import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
+import {
+  companionCardAction,
+  companionImpactDelay,
+  companionIsMelee,
+  companionMotionDuration,
+  companionMotionReady,
+  companionRestMotionAction,
+  createCompanionMotionActor,
+  preloadCompanionMotion,
+  type CompanionMotionAction,
+  type CompanionMotionKind,
+} from '../companion-motion';
+import { motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
+import { playQiuqiuShuriken } from '../qiuqiu-shuriken';
+import { playFeifeiNeedles } from '../feifei-needles';
+import { isFeifeiNeedleAction } from '../feifei-needle-patterns';
+import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
+import { createEnemyMotionActor, enemyMotionDuration, enemyMotionReady, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import {
+  buildCombatMotionImpactPlan,
+  buildFeifeiStatusImpactPlan,
+  combatMotionPresentationWait,
+  combatMotionPresentationWaitAt,
+  combatQiValue,
+  extendConfirmedMotionWaves,
+  LocalMotionPresentationQueue,
+  motionPresentationMatches,
+  qiuqiuConsumedStealth,
+  qiuqiuEnemyBlocked,
+  qiuqiuEnemyMotionAllowed,
+  qiuqiuEnemyMotionHold,
+  qiuqiuEnemyMotionKind,
+  qiuqiuMotionBatchBoundaries,
+  qiuqiuRestMotionAction,
+  qiuqiuShouldPlayHurt,
+  qiuqiuVictoryLinger,
+  resolveCombatMotionPresentationWait,
+  resizeMotionMeleeTrip,
+  shouldResumeConfirmedMotion,
+  type CombatMotionAction,
+  type CombatMotionSource,
+  type DeferredCombatMotionPresentationWait,
+} from '../qiuqiu-combat-motion';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 import { overlayRoot } from '../overlay';
@@ -244,6 +289,7 @@ const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
 const chokeTick = (now: number, was: number): boolean => was > 0 && now === was - 1;
 
 interface Snap {
+  phase: CombatState['phase'];
   hp: number;
   block: number;
   buff: number;
@@ -252,6 +298,7 @@ interface Snap {
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
   energyGain: number;   // 整場退回來的飯糰累計，用來認出「這一拍退了幾顆」（見 types.ts 的說明）
+  players: Map<number, { hp: number; block: number; stealth: number; down: boolean }>;
   enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
   logLen: number;
   hitsLen: number;
@@ -262,11 +309,15 @@ interface Snap {
 /** `me`＝**這台機器的那一位**（座位 0 或 1）。快照是拿來比「我這邊變了什麼」的，不能固定看第一位 */
 function snap(cs: CombatState, me: PlayerCombat): Snap {
   return {
+    phase: cs.phase,
     hp: me.hp, block: me.block, logLen: cs.log.length, hitsLen: cs.hits.length, handN: me.hand.length, energy: me.energy,
     energyGain: cs.energyGain, relicFiredLen: cs.relicFired.length,
     buff: sumStatus(me, GOOD_STATUS), debuff: sumStatus(me, BAD_STATUS),
     growth: getStatus(me, '爪力') + getStatus(me, '貓步'),
     choke: getStatus(me, '中毒'), stealth: getStatus(me, '隱身'),
+    players: new Map(cs.players.map((p) => [p.seat, {
+      hp: p.hp, block: p.block, stealth: getStatus(p, '隱身'), down: !!p.down,
+    }])),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), learned: e.move.learned,
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '中毒'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
@@ -356,8 +407,382 @@ registerScreen('combat', (app, root, props) => {
    * **只有加入的那一位看得到**，而且不報錯、不破圖，測試也照樣綠。
    */
   const MINE = `.unit.player[data-seat="${mySeat}"]`;
+  const motionEnabled = qiuqiuMotionEnabled();
+  type MotionActor = {
+    element: HTMLCanvasElement;
+    readonly foot: Readonly<{ x: number; y: number }>;
+    play(action: CombatMotionAction, options?: { elapsed?: number; waves?: number }): void;
+    dispose(): void;
+  };
+  type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number };
+  type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
+  type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number };
+  const motionActors = new Map<number, CombatMotion>();
+  const enemyMotionActors = new Map<number, EnemyMotionState>();
+  const motionImpactTimers = new Set<number>();
+  const motionPendingDamage = new Map<number, number>();
+  const motionProjectiles = new Set<() => void>();
+  type LocalMotionPresentation = { action: CombatMotionAction; at: number; token: number; trip?: MeleeTrip };
+  const locallyPlayedMotion = new LocalMotionPresentationQueue<LocalMotionPresentation>();
+  const localCardMotionKey = (uid: number): string => `card:${uid}`;
+  const localPotionMotionKey = (seat: number, id: string): string => `potion:${seat}:${id}`;
+  let nextMotionPresentationToken = 0;
+  let clawMotionIndex = 0;
+
+  const motionSourceFor = (q: PlayerCombat): CombatMotionSource | undefined => {
+    const hero = heroOf(q);
+    if (hero === 'ninja') return 'qiuqiu';
+    if (hero === 'feifei') return 'feifei';
+    if (hero === 'dangdang') return 'dangdang';
+    if (hero === 'fengfeng') return 'fengfeng';
+    return undefined;
+  };
+
+  const companionKind = (source: Exclude<CombatMotionSource, 'qiuqiu'>): CompanionMotionKind => source;
+
+  const motionDuration = (source: CombatMotionSource, action: CombatMotionAction, waves = 1): number =>
+    source === 'qiuqiu'
+      ? qiuqiuMotionDuration(action as QiuqiuAction, waves)
+      : companionMotionDuration(companionKind(source), action as CompanionMotionAction, waves);
+
+  const motionImpactDelay = (source: CombatMotionSource, action: CombatMotionAction): number =>
+    source === 'qiuqiu'
+      ? qiuqiuImpactDelay(action as QiuqiuAction)
+      : companionImpactDelay(companionKind(source), action as CompanionMotionAction);
+
+  const motionState = (q: PlayerCombat): CombatMotion | undefined => {
+    const source = motionSourceFor(q);
+    if (!source || (source === 'qiuqiu' ? !qiuqiuMotionReady() : !companionMotionReady(companionKind(source)))) return undefined;
+    let state = motionActors.get(q.seat);
+    if (!state || state.source !== source) {
+      if (state) {
+        window.cancelAnimationFrame(state.raf);
+        state.actor.dispose();
+        state.actor.element.remove();
+        state.layer.remove();
+      }
+      const actor = (source === 'qiuqiu'
+        ? createQiuqiuActor()
+        : createCompanionMotionActor(companionKind(source))) as unknown as MotionActor;
+      state = { source, actor, layer: el('div', { class: 'qiuqiu-melee' },
+        el('div', { class: 'qiuqiu-melee-shadow' })), action: 'idle', active: false, away: false, raf: 0, endsAt: 0 };
+      motionActors.set(q.seat, state);
+    }
+    return state;
+  };
+
+  const shownPose = (q: PlayerCombat): string => q.seat === mySeat ? pose : matePose(q);
+
+  const restMotionAction = (q: PlayerCombat, displayedPose: string): CombatMotionAction | undefined => {
+    const source = motionSourceFor(q);
+    if (source === 'qiuqiu') return qiuqiuRestMotionAction(displayedPose, {
+      idle: POSE.idle,
+      poison: POSE.choke,
+      belly: POSE.belly,
+      puff: POSE.puff,
+      stealth: POSE.stealth,
+    }, cs.phase, !!q.down);
+    if (source === 'feifei' || source === 'dangdang' || source === 'fengfeng') return companionRestMotionAction(source, displayedPose, {
+      idle: POSE.idle,
+      poison: POSE.choke,
+    }, cs.phase, !!q.down);
+    return undefined;
+  };
+
+  const mountMotion = (q: PlayerCombat, box: HTMLElement, displayedPose: string): void => {
+    const source = motionSourceFor(q);
+    if (!motionEnabled || !source
+      || (source === 'qiuqiu' ? !qiuqiuMotionReady() : !companionMotionReady(companionKind(source)))) {
+      box.classList.remove('has-qiuqiu-motion', 'has-companion-motion', 'qiuqiu-stealth-idle', 'qiuqiu-melee-away');
+      motionActors.get(q.seat)?.actor.element.remove();
+      return;
+    }
+    const state = motionState(q);
+    if (!state) return;
+    const resting = restMotionAction(q, displayedPose);
+    if (!state.active && resting && state.action !== resting) {
+      state.action = resting;
+      state.actor.play(resting);
+    }
+    const visible = state.active || resting !== undefined;
+    box.classList.toggle('qiuqiu-stealth-idle', source === 'qiuqiu' && visible && !state.active && resting === 'stealth');
+    box.classList.toggle('has-qiuqiu-motion', source === 'qiuqiu' && visible);
+    box.classList.toggle('has-companion-motion', source !== 'qiuqiu' && visible);
+    box.classList.toggle('qiuqiu-melee-away', visible && state.active && state.away);
+    box.closest('.unit')?.classList.toggle('qiuqiu-melee-front', visible && state.active && state.away);
+    if (visible) {
+      if (state.active && state.away) { state.layer.append(state.actor.element); box.append(state.layer); }
+      else { state.layer.remove(); box.append(state.actor.element); }
+    }
+  };
+
+  if (motionEnabled && cs.players.some((q) => heroOf(q) === 'ninja') && !qiuqiuMotionReady()) {
+    void preloadQiuqiuMotion().then(() => {
+      if (app.cs === cs && !ended) render();
+    }).catch((error) => console.error('球球動作素材載入失敗', error));
+  }
+  if (motionEnabled && cs.players.some((q) => heroOf(q) === 'feifei') && !companionMotionReady('feifei')) {
+    void preloadCompanionMotion('feifei').then(() => {
+      if (app.cs === cs && !ended) render();
+    }).catch((error) => console.error('菲菲動作素材載入失敗', error));
+  }
+  if (motionEnabled && cs.players.some((q) => heroOf(q) === 'dangdang') && !companionMotionReady('dangdang')) {
+    void preloadCompanionMotion('dangdang').then(() => {
+      if (app.cs === cs && !ended) render();
+    }).catch((error) => console.error('噹噹動作素材載入失敗', error));
+  }
+  if (motionEnabled && cs.players.some((q) => heroOf(q) === 'fengfeng') && !companionMotionReady('fengfeng')) {
+    void preloadCompanionMotion('fengfeng').then(() => {
+      if (app.cs === cs && !ended) render();
+    }).catch((error) => console.error('封封動作素材載入失敗', error));
+  }
+  if (qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) {
+    const requested = [...new Set(cs.enemies
+      .map((enemy) => qiuqiuEnemyMotionKind(enemy.enemyId))
+      .filter((kind): kind is EnemyMotionKind => kind !== undefined))];
+    if (requested.some((kind) => !enemyMotionReady(kind))) {
+      void preloadEnemyMotion(requested).then(() => {
+        if (app.cs === cs && !ended) render();
+      }).catch((error) => console.error('敵人動作素材載入失敗', error));
+    }
+  }
+
+  const refreshMotion = (q: PlayerCombat): void => {
+    const box = root.querySelector<HTMLElement>(`.unit.player[data-seat="${q.seat}"] .sprite-box`);
+    if (!box) return;
+    mountMotion(q, box, shownPose(q));
+    if (!box.classList.contains('has-qiuqiu-motion') && !box.classList.contains('has-companion-motion')) {
+      motionActors.get(q.seat)?.actor.element.remove();
+    }
+  };
+
+  const idleMotion = (seat: number): void => {
+    const state = motionActors.get(seat);
+    if (!state) return;
+    const wasActive = state.active;
+    window.cancelAnimationFrame(state.raf);
+    state.raf = 0;
+    state.endsAt = 0;
+    state.trip = undefined;
+    state.layer.remove();
+    state.active = false;
+    state.away = false;
+    const q = cs.players[seat];
+    if (q) {
+      const resting = restMotionAction(q, shownPose(q)) ?? 'idle';
+      // 行程結束與通用收姿勢都會進來；已經待機時保留呼吸進度。
+      if (wasActive || state.action !== resting) {
+        state.action = resting;
+        state.actor.play(resting);
+      }
+      refreshMotion(q);
+    }
+  };
+
+  // 舞台會隨視窗縮放，所有行程都先換回 1280 × 720 的座標。
+  const motionFoot = (node: HTMLElement): { x: number; y: number } => {
+    const stage = app.stage.getBoundingClientRect();
+    const box = node.getBoundingClientRect();
+    const k = stage.width > 0 ? 1280 / stage.width : 1;
+    return { x: (box.left + box.width / 2 - stage.left) * k, y: (box.bottom - stage.top) * k };
+  };
+
+  const prepareMelee = (seat: number, action: CombatMotionAction, targetUid?: number, attack = true): MeleeTrip | undefined => {
+    const q = cs.players[seat];
+    const source = q ? motionSourceFor(q) : undefined;
+    const melee = source === 'qiuqiu'
+      ? qiuqiuIsMelee(action as QiuqiuAction)
+      : source !== undefined && companionIsMelee(companionKind(source), action as CompanionMotionAction);
+    if (!q || !source || !attack || !melee) return undefined;
+    const home = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"] .sprite-box`);
+    // 全體爪擊沒有指定目標，就以最近一隻仍站著的魔物為接近位置。
+    const uid = targetUid ?? cs.enemies.find((e) => !e.dead)?.uid;
+    const enemy = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${uid}"] .sprite-box`);
+    if (!home || !enemy) return undefined;
+    const origin = motionFoot(home);
+    const width = enemy.querySelector<HTMLElement>('.sprite')?.offsetWidth ?? enemy.offsetWidth;
+    return { origin, plan: motionMeleePlan(origin, motionFoot(enemy), width, action,
+      motionDuration(source, action), motionImpactDelay(source, action)) };
+  };
+
+  const playMotion = (seat: number, action: CombatMotionAction, trip?: MeleeTrip, elapsed = 0,
+    reactive = false, presentationToken?: number): void => {
+    const q = cs.players[seat];
+    const source = q ? motionSourceFor(q) : undefined;
+    if (!motionEnabled || !q || !source
+      || (!reactive && qiuqiuCombatMotionDecision(cs.phase, true, false) !== 'play')) return;
+    const state = motionState(q);
+    if (!state) return;
+    window.cancelAnimationFrame(state.raf);
+    const caughtUp = Math.max(0, elapsed);
+    const startedAt = performance.now() - caughtUp;
+    state.endsAt = startedAt + (trip?.plan.totalMs ?? motionDuration(source, action));
+    state.trip = trip;
+    state.action = action;
+    state.active = true;
+    state.away = !!trip;
+    state.presentationToken = presentationToken;
+    state.layer.style.transform = trip ? `translate(${trip.plan.dx}px, ${trip.plan.dy}px)` : '';
+    state.actor.play(state.action, { elapsed: caughtUp });
+    refreshMotion(q);
+    if (source === 'qiuqiu' && trip && (action === 'dash' || action === 'ultimate_rush')) {
+      let cancel: () => void = () => undefined;
+      cancel = playQiuqiuAfterimages(app.stage, state.actor as unknown as QiuqiuActor, {
+        x: trip.origin.x + trip.plan.dx,
+        y: trip.origin.y + trip.plan.dy,
+      }, {
+        duration: trip.plan.totalMs,
+        elapsed: caughtUp,
+        onDone: () => { motionProjectiles.delete(cancel); },
+      });
+      motionProjectiles.add(cancel);
+    }
+    const tick = (now: number): void => {
+      if (app.cs !== cs || !state.active) return;
+      const elapsed = now - startedAt;
+      const activeTrip = state.trip;
+      const sample = activeTrip ? motionMeleeSample(activeTrip.plan, elapsed) : null;
+      if (sample?.done || (!activeTrip && now >= state.endsAt)) {
+        if (seat === mySeat && cs.phase === 'player') pose = idlePose();
+        idleMotion(seat);
+        if (!ended) render();
+        return;
+      }
+      if (sample && activeTrip) {
+        const home = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"] .sprite-box`);
+        const anchor = home ? motionFoot(home) : activeTrip.origin;
+        // 狀態列可能在出牌後變高；出手期間仍將腳底鎖在魔物身旁。
+        const x = sample.x + activeTrip.origin.x - anchor.x;
+        const y = sample.y + activeTrip.origin.y - anchor.y;
+        state.layer.style.transform = `translate(${x}px, ${y}px) scaleX(${sample.facing})`;
+        if (state.action !== sample.action) { state.action = sample.action; state.actor.play(sample.action); }
+      }
+      state.raf = window.requestAnimationFrame(tick);
+    };
+    state.raf = window.requestAnimationFrame(tick);
+  };
+
+  const motionForCard = (q: PlayerCombat, card: CardInstance): CombatMotionAction | undefined => {
+    if (!motionEnabled) return undefined;
+    const source = motionSourceFor(q);
+    if (!source) return undefined;
+    const stats = cardStats(card);
+    const def = stats.def;
+    if (source === 'qiuqiu') {
+      const action = qiuqiuCardAction(def.id, ATTACK_POSE[def.id], clawMotionIndex, card.upgraded);
+      if (action?.startsWith('attack')) clawMotionIndex += 1;
+      return action ?? undefined;
+    }
+    return companionCardAction(companionKind(source), def.id, {
+      poseFamily: ATTACK_POSE[def.id],
+      cardType: def.type,
+      hasBlock: stats.effects.some((effect) => effect.kind === 'block' || effect.kind === 'blockIfPoisoned'),
+      hasHeal: stats.effects.some((effect) => effect.kind === 'heal'),
+    });
+  };
+
+  const scheduleMotionImpact = (source: CombatMotionSource, action: CombatMotionAction, callback: () => void, elapsed = 0, approachMs = 0): void => {
+    scheduleMotionImpactAt(motionImpactDelay(source, action), callback, elapsed, approachMs);
+  };
+
+  const scheduleMotionImpactAt = (impactAt: number, callback: () => void, elapsed = 0, approachMs = 0): void => {
+    const timer = window.setTimeout(() => {
+      motionImpactTimers.delete(timer);
+      if (app.cs === cs) callback();
+    }, Math.max(0, approachMs + impactAt - elapsed));
+    motionImpactTimers.add(timer);
+  };
+
+  const disposeEnemyMotion = (uid: number): void => {
+    const state = enemyMotionActors.get(uid);
+    if (!state) return;
+    state.actor.dispose();
+    state.actor.element.remove();
+    enemyMotionActors.delete(uid);
+    root.querySelector(`.unit.enemy[data-uid="${uid}"] .sprite-box`)?.classList.remove('has-enemy-motion');
+  };
+
+  const playEnemyMotion = (uid: number, action: EnemyMotionAction): void => {
+    const state = enemyMotionActors.get(uid);
+    if (!state) return;
+    state.action = action;
+    state.busyUntil = action === 'attack' ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
+    state.actor.play(action);
+    if (action === 'attack') {
+      const expectedEnd = state.busyUntil;
+      const timer = window.setTimeout(() => {
+        motionImpactTimers.delete(timer);
+        const live = enemyMotionActors.get(uid);
+        if (app.cs === cs && live === state && live.action === 'attack' && live.busyUntil === expectedEnd) playEnemyMotion(uid, 'idle');
+      }, Math.max(0, expectedEnd - performance.now()));
+      motionImpactTimers.add(timer);
+    }
+  };
+
+  const finishEnemyMotion = (uid: number): void => {
+    const state = enemyMotionActors.get(uid);
+    if (!state) return;
+    playEnemyMotion(uid, 'knockdown');
+    const timer = window.setTimeout(() => {
+      motionImpactTimers.delete(timer);
+      if (app.cs === cs) disposeEnemyMotion(uid);
+    }, enemyMotionDuration(state.kind, 'knockdown'));
+    motionImpactTimers.add(timer);
+  };
+
+  const mountEnemyMotion = (e: EnemyCombat, box: HTMLElement): void => {
+    if (!qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) {
+      disposeEnemyMotion(e.uid);
+      box.classList.remove('has-enemy-motion');
+      return;
+    }
+    const kind = qiuqiuEnemyMotionKind(e.enemyId);
+    if (!kind || !enemyMotionReady(kind)) {
+      disposeEnemyMotion(e.uid);
+      box.classList.remove('has-enemy-motion');
+      return;
+    }
+    let state = enemyMotionActors.get(e.uid);
+    if (!state && e.dead && !fallingUids.has(e.uid) && !(e.reviveIn > 0 && willRevive(cs, e))) return;
+    if (!state || state.kind !== kind) {
+      disposeEnemyMotion(e.uid);
+      const action: EnemyMotionAction = e.dead ? 'knockdown' : 'idle';
+      state = { kind, actor: createEnemyMotionActor(kind), action, busyUntil: 0 };
+      enemyMotionActors.set(e.uid, state);
+    }
+    const action: EnemyMotionAction = e.dead && !fallingUids.has(e.uid) ? 'knockdown'
+      : hurtSet.has(e.uid) ? 'hurt'
+        : acting.get(e.uid)?.attacked ? 'attack' : 'idle';
+    const keepAttack = action === 'idle' && state.action === 'attack' && state.busyUntil > performance.now();
+    if (!keepAttack && state.action !== action) playEnemyMotion(e.uid, action);
+    box.classList.add('has-enemy-motion');
+    box.append(state.actor.element);
+  };
+
+  app.disposers.push(() => {
+    for (const timer of motionImpactTimers) window.clearTimeout(timer);
+    motionImpactTimers.clear();
+    for (const cancel of motionProjectiles) cancel();
+    motionProjectiles.clear();
+    for (const state of motionActors.values()) {
+      window.cancelAnimationFrame(state.raf);
+      state.actor.dispose();
+      state.actor.element.remove();
+      state.layer.remove();
+    }
+    motionActors.clear();
+    motionPendingDamage.clear();
+    locallyPlayedMotion.clear();
+    for (const state of enemyMotionActors.values()) {
+      state.actor.dispose();
+      state.actor.element.remove();
+    }
+    enemyMotionActors.clear();
+  });
   /** 同伴的動作套用**之前**那一刻的快照，`settle` 拿它比對出要演什麼 */
   let remoteBefore: Snap | null = null;
+  /** 缺號補齊時會一次套多張；保留整份引擎前態，才能重建每張牌自己的前後快照。 */
+  let remoteCombatBefore: CombatState | null = null;
   /** 套用前每一位的手牌（同伴剛打出哪一張要靠這份回頭找，見 `mateplay.ts`） */
   let handsBefore: CardInstance[][] = [];
   /** 同伴這回合最後打出的那張：掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15） */
@@ -404,17 +829,20 @@ registerScreen('combat', (app, root, props) => {
   const playerUnit = (q: PlayerCombat): HTMLElement => {
     const mine = q.seat === mySeat;
     const n = cs.players.length;
+    const displayedPose = mine ? pose : matePose(q);
+    const picture = spriteBox(heroArt(q, displayedPose), heroName(q));
     const node = el('div', {
       class: `unit player${mine ? ' mine' : ''}${q.down ? ' downed' : ''}${q.ready && n > 1 ? ' ready' : ''}`,
       'data-seat': String(q.seat),
       style: `left:${playerLeft(q.seat, n)}px`,
     },
-      spriteBox(heroArt(q, mine ? pose : matePose(q)), heroName(q)),
+      picture,
       el('div', { class: 'name' }, n > 1 ? `${heroName(q)}（${mine ? '你' : '同伴'}）` : heroName(q)),
       // 動畫記憶的鍵要帶座位（連線稽核 中-1）：兩位共用 'player' 的話，每次整頁重畫兩條血條都從
       // 對方的比例滑到自己的，低的那條每次拖一條「剛掉血」的殘影，狀態牌子也每次彈一下。單機只有座位 0
       hpBar(`p${q.seat}`, q.hp, q.maxHp),
       statusRow(q, true, `p${q.seat}`));
+    mountMotion(q, picture, displayedPose);
     // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
     if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
     else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
@@ -424,12 +852,12 @@ registerScreen('combat', (app, root, props) => {
     const hintCard = considering === undefined ? undefined : q.hand.find((c) => c.uid === considering);
     const mp = mine ? undefined : matePlay.get(q.seat);
     if (hintCard) {
-      node.append(el('div', { class: 'mate-play hint' }, cardNode(hintCard, { small: true, hero: heroOf(q) }), el('div', { class: 'hint-tag' }, '考慮中')));
+      node.append(el('div', { class: 'mate-play hint' }, cardNode(hintCard, { small: true, hero: heroOf(q), partnerHero: heroOf(my()) }), el('div', { class: 'hint-tag' }, '考慮中')));
     } else if (mp && mp.turn === cs.turn) {
       const fresh = matePlayShown.get(q.seat) !== mp.card.uid;   // 新的一張才播淡入；重畫同一張不動
       matePlayShown.set(q.seat, mp.card.uid);
       // 牌名與圖照**同伴**的角色：忍者那位的 hero 欄位刻意不寫，直接傳 q.hero 會退成本機角色（審查 中-3）
-      node.append(el('div', { class: `mate-play${fresh ? ' in' : ''}` }, cardNode(mp.card, { small: true, hero: heroOf(q) })));
+      node.append(el('div', { class: `mate-play${fresh ? ' in' : ''}` }, cardNode(mp.card, { small: true, hero: heroOf(q), partnerHero: heroOf(my()) })));
     }
     return node;
   };
@@ -475,7 +903,7 @@ registerScreen('combat', (app, root, props) => {
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
   const idlePose = (): string => idlePoseKey(my(), POSE, (k) => hasHeroSprite(my().hero, k));
-  let pose = POSE.idle;
+  let pose = idlePose();
   /**
    * 這一拍出手的魔物（uid → 牠剛使出的招式）。跟球球的姿勢同一個節奏：`settle` 重算、
    * 650 毫秒後跟著還原成待機。魔物只在 `endTurn` 裡行動，所以出牌那幾次結算這張表一定是空的。
@@ -483,6 +911,8 @@ registerScreen('combat', (app, root, props) => {
   let acting = new Map<number, Acted>();
   /** 這一拍被打到的魔物：有挨打圖的換挨打圖（2026-09-03 晚補的動態） */
   let hurtSet = new Set<number>();
+  /** 動作尚未打到前，死亡狀態已同步結算；暫存上一張立繪，重畫也不能提前露出倒地圖。 */
+  const motionHeldSprites = new Map<number, string>();
   /** 在「這一擊打贏」那一拍倒下的關主：只有這些才演白閃慢倒；早就倒了的（波斯先倒、僕從後倒）維持消散、不會復活再倒一次（稽核 2026-09-04 高 2） */
   const bossFallUids = new Set<number>();
   /**
@@ -735,6 +1165,8 @@ registerScreen('combat', (app, root, props) => {
    */
   function statusRow(u: Unit, mine = false, who = 'player'): HTMLElement {
     const row = el('div', { class: 'chips' });
+    const qi = combatQiValue((u as Partial<PlayerCombat>).hero ?? '', (u as Partial<PlayerCombat>).qi);
+    if (qi !== undefined) row.append(el('div', { class: 'chip good qi' }, el('b', {}, '蓄氣'), el('span', {}, `${qi}/12`)));
     if (u.block > 0) row.append(chip(mine ? '蜷縮' : '防禦', null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
       const key = `${who}|${name}`;
@@ -968,6 +1400,8 @@ registerScreen('combat', (app, root, props) => {
    * 其餘魔物只有待機與攻擊兩張，出手的那一拍換成攻擊圖。
    */
   function enemySprite(e: EnemyCombat, def: EnemyDef | undefined): string {
+    const held = motionHeldSprites.get(e.uid);
+    if (held) return held;
     const act = acting.get(e.uid);
     if (def?.art === 'daxia') {
       // 倒下：第三階段（他實際上都是這時倒的）用真面目跪倒、鬼火熄滅那張；沒生好時退回第一階段的承讓
@@ -1089,7 +1523,7 @@ registerScreen('combat', (app, root, props) => {
         def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (SPRITE_SIZE_OVERRIDE[e.enemyId] ?? def?.size ?? 'medium'),
         reviving ? undefined : intentChip(e)),
       el('div', { class: 'name' }, e.name),
-      hpBar(`e${e.uid}`, e.hp, e.maxHp),
+      hpBar(`e${e.uid}`, e.hp + (motionPendingDamage.get(e.uid) ?? 0), e.maxHp),
       row);
     // 照著學的那一拍（鏡中球球）：他身旁亮出剛打的那幾張牌面，讓玩家看到「他打了哪張」（使用者 2026-09-08）。
     // 跟出招同一拍亮、收姿勢那一拍一起拿掉（見 hold），不另外加時間
@@ -1105,6 +1539,8 @@ registerScreen('combat', (app, root, props) => {
       for (const c of learned) if (cardById[c.cardId]) cardsEl.append(cardNode({ uid: 0, cardId: c.cardId, upgraded: c.upgraded }, { small: true, ...(cs.player.hero ? { hero: cs.player.hero } : {}) }));
       node.querySelector('.sprite-box')?.append(cardsEl);
     }
+    const picture = node.querySelector<HTMLElement>('.sprite-box');
+    if (picture) mountEnemyMotion(e, picture);
     if (targeting && !e.dead) node.addEventListener('click', () => pickTarget(e.uid));
     return node;
   }
@@ -1478,6 +1914,8 @@ registerScreen('combat', (app, root, props) => {
     // 四隻以上時欄距（150）比單位窄（190），狀態牌子會互相壓到——整場掛 crowd 讓牌子縮小
     box.classList.toggle('crowd', lineup.length >= 4);
     cs.enemies.forEach((e) => field.append(enemyUnit(e, lineup.indexOf(e.uid), lineup.length)));
+    const enemyUids = new Set(cs.enemies.map((e) => e.uid));
+    for (const uid of enemyMotionActors.keys()) if (!enemyUids.has(uid)) disposeEnemyMotion(uid);
     box.append(field, sidePanel(), handRow());
 
     /*
@@ -1658,10 +2096,24 @@ registerScreen('combat', (app, root, props) => {
    * 於是只有自己這台生效（對面不知道，回合結束對帳必定對不上），客戶端還會喝掉主機袋子裡的那瓶。
    */
   function drinkPotion(id: string, enemyUid: number | undefined): void {
+    const motion: CombatMotionAction | undefined = motionEnabled
+      && motionSourceFor(my()) && EAT_POTIONS.has(id)
+      ? 'eat' : undefined;
+    const motionToken = motion && session ? ++nextMotionPresentationToken : undefined;
+    if (motion && motionToken !== undefined) {
+      locallyPlayedMotion.record(localPotionMotionKey(mySeat, id), {
+        action: motion,
+        at: Date.now(),
+        token: motionToken,
+      });
+    }
     act(() => {
       const ok = sendOrDo({ t: 'potion', seat: mySeat, id, g: enemyUid }, () => usePotion(cs, id, enemyUid, mySeat));
-      if (!ok) console.error(`usePotion 失敗：${id}`);
-    }, potionPose(heroOf(my()), id));
+      if (!ok) {
+        locallyPlayedMotion.dropInFlight();
+        console.error(`usePotion 失敗：${id}`);
+      }
+    }, { ...potionPose(heroOf(my()), id), motion, motionToken });
   }
 
   /**
@@ -1705,11 +2157,23 @@ registerScreen('combat', (app, root, props) => {
   }
 
   function play(uid: number, targetUid: number | undefined): void {
+    if (!canAct()) return;
     const card = my().hand.find((c) => c.uid === uid);
     if (!card) return;
     const st = cardStats(card);
     const chk = canPlay(cs, uid, targetUid, mySeat);
     if (!chk.ok) { hint = chk.reason; render(); return; }
+    const motion = motionForCard(my(), card);
+    const motionTrip = motion ? prepareMelee(mySeat, motion, targetUid, st.def.type === '攻擊') : undefined;
+    const motionToken = motion && session ? ++nextMotionPresentationToken : undefined;
+    if (motion && motionToken !== undefined) {
+      locallyPlayedMotion.record(localCardMotionKey(uid), {
+        action: motion,
+        at: Date.now(),
+        token: motionToken,
+        trip: motionTrip,
+      });
+    }
     flyCard(uid, targetUid);
     sfx('draw', 1.15);   // 牌離手的紙聲，比抽牌高一點才分得出是哪個動作
     // 出招一律用「參上」。以前是照牌面貼圖換姿勢，但牌面已經換成專畫的插圖（`card/*`），
@@ -1718,15 +2182,19 @@ registerScreen('combat', (app, root, props) => {
       // canPlay 剛放行卻打不出來＝引擎跟畫面對不上，出聲，不要靜靜吞掉
       const ok = sendOrDo({ t: 'card', seat: mySeat, u: uid, g: targetUid },
         () => playCard(cs, uid, targetUid, mySeat));
-      if (!ok) console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
-    }, cardPose(heroOf(my()), st.def, st.effects));
+      if (!ok) {
+        locallyPlayedMotion.dropInFlight();
+        console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
+      }
+    }, { ...cardPose(heroOf(my()), st.def, st.effects), motion, motionTrip, motionToken });
     if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
     // 稍等 650 毫秒讓這張牌的傷害數字與姿勢先播完，不然出招跟收牌疊在同一拍。
     if (allReady(cs)) window.setTimeout(() => {
       if (app.cs === cs && allReady(cs) && cs.phase === 'player') onEndTurn();
-    }, 650);
+    }, Math.max(650, motionTrip?.plan.totalMs
+      ?? (motion && motionSourceFor(my()) ? motionDuration(motionSourceFor(my())!, motion) : 0)) + 30);
   }
 
   function onPotion(id: string): void {
@@ -1917,7 +2385,65 @@ registerScreen('combat', (app, root, props) => {
   // ===== 結算與動畫 =====
 
   /** 跑一個引擎動作，然後照「前後差異」放姿勢、動畫與台詞 */
-  function act(fn: () => void, opts: { pose?: string; attack?: boolean; deal?: boolean } = {}): void {
+  type ActOptions = {
+    pose?: string;
+    attack?: boolean;
+    deal?: boolean;
+    light?: boolean;
+    motion?: CombatMotionAction;
+    motionTrip?: MeleeTrip;
+    motionToken?: number;
+    motionAlreadyPlaying?: boolean;
+    impactMotion?: CombatMotionAction;
+    impactPresentationToken?: number;
+    impactElapsed?: number;
+    impactApproach?: number;
+    impactSeat?: number;
+    impactAttack?: boolean;
+    comparison?: Snap;
+    freshLog?: readonly string[];
+    impactHits?: readonly Readonly<{ uid: number; amount: number }>[];
+    pendingPrepared?: boolean;
+    deferOver?: boolean;
+  };
+
+  type RemotePresentationItem =
+    | { kind: 'step'; play: () => void; wait: DeferredCombatMotionPresentationWait }
+    | { kind: 'done'; run: () => void };
+  const remotePresentationQueue: RemotePresentationItem[] = [];
+  let remotePresentationRunning = false;
+
+  const pumpRemotePresentation = (): void => {
+    const item = remotePresentationQueue.shift();
+    if (!item || app.cs !== cs) { remotePresentationRunning = false; return; }
+    remotePresentationRunning = true;
+    if (item.kind === 'done') {
+      // 後面又收到一批時，只讓整條展示佇列最後一個收尾；否則前一批會提早收回合。
+      if (!remotePresentationQueue.some((queued) => queued.kind === 'step')) item.run();
+      pumpRemotePresentation();
+      return;
+    }
+    item.play();
+    const wait = resolveCombatMotionPresentationWait(item.wait);
+    if (wait <= 0) { pumpRemotePresentation(); return; }
+    const timer = window.setTimeout(() => {
+      motionImpactTimers.delete(timer);
+      pumpRemotePresentation();
+    }, wait);
+    motionImpactTimers.add(timer);
+  };
+
+  const enqueueRemotePresentation = (...items: RemotePresentationItem[]): void => {
+    remotePresentationQueue.push(...items);
+    if (!remotePresentationRunning) pumpRemotePresentation();
+  };
+
+  app.disposers.push(() => {
+    remotePresentationQueue.length = 0;
+    remotePresentationRunning = false;
+  });
+
+  function act(fn: () => void, opts: ActOptions = {}): void {
     const before = snap(cs, my());
     hint = '';
     fn();
@@ -2058,7 +2584,9 @@ registerScreen('combat', (app, root, props) => {
     scheduleFlashTick(now);
   }
 
-  function settle(before: Snap, opts: { pose?: string; attack?: boolean; deal?: boolean; light?: boolean } = {}): void {
+  function settle(before: Snap, opts: ActOptions = {}): void {
+    const comparison = opts.comparison;
+    const comparedPhase = comparison?.phase ?? cs.phase;
     // 結束回合那一拍，魔物出手與新手牌是同一次重畫。手牌立刻滑進來會跟魔物前撲擠在一起，
     // 所以那一拍讓手牌晚 460 毫秒再進場：先看牠們打完，再看自己摸到什麼。
     // 打完了就不要再演發牌（稽核 2026-09-10 低-3）：`runEnemyTurn` 收尾一律傳 `deal: true`，
@@ -2071,9 +2599,12 @@ registerScreen('combat', (app, root, props) => {
     const posePref = opts.pose;
     const p = my();
     // 這一拍退了幾顆飯糰（追擊）。側欄下一次畫的時候會把那幾顆演成「跳回來」
-    energyRefund = Math.max(0, cs.energyGain - before.energyGain);
-    const fresh = cs.log.slice(before.logLen);
-    const hurt = p.hp < before.hp;
+    energyRefund = Math.max(0, (comparison?.energyGain ?? cs.energyGain) - before.energyGain);
+    const fresh = opts.freshLog ? [...opts.freshLog] : cs.log.slice(before.logLen);
+    const comparedPlayer = comparison?.players.get(mySeat);
+    const comparedHp = comparedPlayer?.hp ?? p.hp;
+    const comparedBlock = comparedPlayer?.block ?? p.block;
+    const hurt = comparedHp < before.hp;
     /*
      * 「誰閃過了」：引擎那行現在寫的是**那一位的名字**（`unitName`），不是寫死的「球球」，
      * 所以不能比對整句（換角色那天就會踩到——菲菲閃過去，畫面不演）。
@@ -2085,9 +2616,9 @@ registerScreen('combat', (app, root, props) => {
     // 姿勢優先序：分出勝負 ＞ 挨打 ＞ 閃過 ＞ 蜷縮 ＞ 這張牌 ＞ 餓扁 ＞ 待機。先決定再畫，姿勢才看得到。
     // 蜷縮排在牌姿勢前面：擋下傷害這件事比「剛剛打的是哪張牌」更該讓玩家看到。
     // 攻擊牌例外（交出來會奪走蜷縮），那種時候還是要看到出招的姿勢。
-    const enemyActed = cs.enemies.some((e) => { const b = before.enemies.get(e.uid); return !!b && e.turnCount !== b.turnCount; });
-    if (cs.phase === 'won') pose = POSE.win;
-    else if (cs.phase === 'lost') pose = posePick(heroOf(my()), 'down', POSE.lose);   // 圖沒生好就退回站著垂頭的落敗圖
+    const enemyActed = cs.enemies.some((e) => { const b = before.enemies.get(e.uid); const a = comparison?.enemies.get(e.uid); return !!b && (a?.turnCount ?? e.turnCount) !== b.turnCount; });
+    if (comparedPhase === 'won') pose = POSE.win;
+    else if (comparedPhase === 'lost') pose = posePick(heroOf(my()), 'down', POSE.lose);   // 圖沒生好就退回站著垂頭的落敗圖
     // 自己出手那一拍（posePref 有值）牌的姿勢優先：鐵頭功、亡命這些自傷牌不然永遠看不到頭槌圖，
     // 自傷本身靠球球身上的紅閃與飄數字表現就夠了（2026-09-08）。魔物打過來的挨打照舊排最前面
     else if (hurt && !posePref) pose = POSE.hit;
@@ -2095,18 +2626,47 @@ registerScreen('combat', (app, root, props) => {
     // 敵人打過來被蜷縮（或甲）整個擋掉：切抱胸格擋——這張早就畫好卻沒人用（2026-09-08）。
     // 只認「這一拍有魔物出手、血沒掉、紀錄有擋下」；自己回合疊蜷縮走下一條的 curl
     else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了') || l.startsWith('甲擋下了')) && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
-    else if (p.block > before.block && !opts.attack) pose = POSE.curl;
+    else if (comparedBlock > before.block && !opts.attack) pose = POSE.curl;
     else if (posePref) pose = posePref;
     else if (hungry) pose = POSE.hungry;
+    const motionDecision = qiuqiuCombatMotionDecision(comparedPhase, !!opts.motion, !!opts.motionAlreadyPlaying);
+    if (motionDecision === 'play' && opts.motion) {
+      playMotion(mySeat, opts.motion, opts.motionTrip, 0, false, opts.motionToken);
+    }
+    else if (motionDecision === 'stop') idleMotion(mySeat);
+    const impactMotion = opts.impactMotion ?? opts.motion;
+    const impactPlayer = cs.players[opts.impactSeat ?? mySeat];
+    const impactSource = impactPlayer ? motionSourceFor(impactPlayer) : undefined;
+    const impactElapsed = opts.impactElapsed ?? 0;
+    const impactPresentationToken = opts.impactPresentationToken ?? opts.motionToken;
+    const impactApproach = opts.impactApproach ?? opts.motionTrip?.plan.approachMs ?? 0;
+    const delayedImpact = impactMotion !== undefined && impactSource !== undefined
+      && motionImpactDelay(impactSource, impactMotion) > 0;
+    if (delayedImpact && !opts.pendingPrepared) for (const e of cs.enemies) {
+      const b = before.enemies.get(e.uid);
+      const a = comparison?.enemies.get(e.uid);
+      const afterHp = a?.hp ?? e.hp;
+      const afterDead = a?.dead ?? e.dead;
+      if (b && b.hp > afterHp) motionPendingDamage.set(e.uid, (motionPendingDamage.get(e.uid) ?? 0) + b.hp - afterHp);
+      if (!b?.dead && afterDead) {
+        const src = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`)?.src;
+        if (src) motionHeldSprites.set(e.uid, src);
+        fallingUids.add(e.uid);
+      }
+    }
     // 魔物的姿勢也要在畫之前決定。「這一拍有沒有出手」看回合數有沒有往前走：
     // 挨打與閃避（`hurt || dodged`）認不出「攻擊被蜷縮整個擋掉」與「裝死術免疫」那兩種也確實出手的情形。
     acting = new Map();
     hurtSet = new Set();
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
-      if (b && e.hp < b.hp) hurtSet.add(e.uid);
-      if (b && !b.dead && e.dead && cs.phase === 'won' && enemyById[e.enemyId]?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主') bossFallUids.add(e.uid);
-      if (!b || e.dead || e.turnCount === b.turnCount || b.noAct) continue;
+      const a = comparison?.enemies.get(e.uid);
+      const afterHp = a?.hp ?? e.hp;
+      const afterDead = a?.dead ?? e.dead;
+      const afterTurnCount = a?.turnCount ?? e.turnCount;
+      if (b && afterHp < b.hp && !delayedImpact) hurtSet.add(e.uid);
+      if (b && !b.dead && afterDead && !delayedImpact && comparedPhase === 'won' && enemyById[e.enemyId]?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主') bossFallUids.add(e.uid);
+      if (!b || afterDead || afterTurnCount === b.turnCount || b.noAct) continue;
       // 調息中的那一拍不算出手：中毒在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, blocked: b.intent === 'block' && e.invulnIn === 0, learned: b.learned });
@@ -2115,91 +2675,251 @@ registerScreen('combat', (app, root, props) => {
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。
     if (!(opts.light && patchField(before))) render();
     flashRelics(before);
+    for (const q of cs.players) {
+      const source = motionSourceFor(q);
+      if (!source) continue;
+      const was = before.players.get(q.seat);
+      const after = comparison?.players.get(q.seat);
+      if (!was) continue;
+      const afterHp = after?.hp ?? q.hp;
+      const afterBlock = after?.block ?? q.block;
+      const afterStealth = after?.stealth ?? getStatus(q, '隱身');
+      const afterDown = after?.down ?? q.down;
+      if (afterDown || comparedPhase === 'lost') { idleMotion(q.seat); continue; }
+      let reaction: CombatMotionAction | undefined;
+      if (qiuqiuShouldPlayHurt({
+        reactionSeat: q.seat,
+        beforeHp: was.hp,
+        afterHp,
+        outgoingSeat: opts.impactSeat ?? mySeat,
+        hasOutgoingMotion: impactMotion !== undefined,
+      })) reaction = 'hurt';
+      else if (afterStealth < was.stealth) reaction = source === 'feifei' ? 'roll' : 'dodge';
+      else if (enemyActed && afterHp === was.hp && (afterBlock < was.block
+        || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了') || line.startsWith('甲擋下了'))))) reaction = 'guard';
+      else if (afterHp > was.hp) reaction = 'eat';
+      const state = motionActors.get(q.seat);
+      if (reaction && (!state?.active || state.action !== reaction)) playMotion(q.seat, reaction, undefined, 0, true);
+      else if (comparedPhase === 'won' && !state?.active) idleMotion(q.seat);
+    }
+    const feifeiNeedleAction = impactSource === 'feifei' && impactMotion && isFeifeiNeedleAction(impactMotion)
+      ? impactMotion
+      : undefined;
+    const throwing = feifeiNeedleAction !== undefined
+      || (impactSource !== 'feifei' && (impactMotion === 'shuriken' || impactMotion === 'ultimate_storm'));
+    const echoing = impactSource === 'feifei'
+      ? impactMotion === 'clone'
+      : impactMotion === 'clone' || impactMotion === 'clone_duo' || impactMotion === 'ultimate_clone';
+    const throwHome = throwing ? root.querySelector<HTMLElement>(`.unit.player[data-seat="${opts.impactSeat ?? mySeat}"] .sprite-box`) : null;
+    const throwFoot = throwHome ? motionFoot(throwHome) : undefined;
+    const throwFrom = throwFoot ? {
+      x: throwFoot.x + (impactSource === 'feifei' ? 82 : 125),
+      y: throwFoot.y - (impactSource === 'feifei' ? 118 : 135),
+    } : undefined;
 
     // 畫完才把動畫類別與浮動數字掛到剛生出來的節點上
     let stagedMax = 0;   // 本拍最多分幾段：收姿勢與倒下的演出都要排在最後一段之後
+    let lastMotionImpact = 0;
+    let confirmedMotionWaves = 0;
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
+      const a = comparison?.enemies.get(e.uid);
       const node = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
       if (!b || !node) continue;
       // 攻擊牌打出多段（連環踢 5×3）：照引擎記下來的每一段，一下一下演——原本只彈一個總數，
       // 玩家看到的是「直接扣 15」而不是三下（使用者 2026-09-05）。丟擲類忍具也帶 attack（針雨 4×3 一樣分段）；
       // 單段、反彈、中毒那些照舊走下面
-      const staged = opts.attack ? cs.hits.slice(before.hitsLen).filter((h) => h.uid === e.uid).map((h) => h.amount) : [];
-      if (e.hp < b.hp && staged.length > 1) { stageHits(node, staged); stagedMax = Math.max(stagedMax, staged.length); }
-      else if (e.hp < b.hp) {
-        node.classList.add('hit');
-        node.append(floatNum(`-${b.hp - e.hp}`));
-        // 出攻擊牌打的放斬擊，其他來源（反彈、中毒、自傷）放撞擊火花：
-        // 同樣是掉血，但「我砍的」跟「牠自己踩到的」該長得不一樣
-        const poisoned = chokeTick(getStatus(e, '中毒'), b.choke);
-        burst(node, poisoned ? 'poison' : opts.attack ? 'slash' : 'hit');
-        // 音高照打掉的血量微調：連續打同一隻時，一模一樣的聲音聽起來像卡帶
-        const heavy = b.hp - e.hp >= 12;
-        sfx(poisoned ? 'poison' : opts.attack ? (heavy ? 'hit_heavy' : 'claw') : 'hit',
-          poisoned ? 1 : 0.94 + Math.random() * 0.12);
+      const allImpactHits = opts.impactHits ?? cs.hits.slice(before.hitsLen);
+      const enemyHits = allImpactHits.filter((h) => h.uid === e.uid);
+      const afterHp = a?.hp ?? e.hp;
+      const afterDead = a?.dead ?? e.dead;
+      const afterBlock = a?.block ?? e.block;
+      const afterStealth = a?.stealth ?? getStatus(e, '隱身');
+      const afterChoke = a?.choke ?? getStatus(e, '中毒');
+      const hpDamage = Math.max(0, b.hp - afterHp);
+      const killed = !b.dead && afterDead;
+      const enemySurvived = !afterDead;
+      const poisoned = hpDamage > 0 && chokeTick(afterChoke, b.choke);
+      const heavy = hpDamage >= 12;
+      // 同名魔物共用文字紀錄；只有本次確實被命中的那隻才演格擋（全擋成 0 也有命中紀錄）。
+      const guarded = qiuqiuEnemyBlocked(b.block, afterBlock, enemyHits.length);
+      const evaded = enemySurvived && afterStealth < b.stealth && hpDamage === 0;
+      // 閃避不會寫入 hits；每一層實際消耗的隱身都要補回原來節拍。
+      const leadingMisses = qiuqiuConsumedStealth(b.stealth, afterStealth);
+      const motionAttack = impactMotion !== undefined && ((opts.impactAttack ?? opts.attack ?? false) || throwing || echoing);
+      let impactPlan = impactMotion && impactSource && motionAttack
+        ? buildCombatMotionImpactPlan(impactSource, impactMotion, allImpactHits, e.uid, leadingMisses)
+        : [];
+      if (impactPlan.length === 0 && impactSource === 'feifei' && impactMotion) {
+        impactPlan = buildFeifeiStatusImpactPlan(impactMotion as CompanionMotionAction, {
+          hp: b.hp, dead: b.dead, debuff: b.debuff,
+        }, {
+          hp: e.hp, dead: e.dead, debuff: sumStatus(e, BAD_STATUS),
+        }, a ? {
+          hp: a.hp, dead: a.dead, debuff: a.debuff,
+        } : undefined);
+      }
+      confirmedMotionWaves = extendConfirmedMotionWaves(confirmedMotionWaves, impactPlan);
+      const staged = impactPlan.length > 0
+        ? impactPlan.map((impact) => impact.amount)
+        : opts.attack || throwing ? enemyHits.map((hit) => hit.amount) : [];
+      if (staged.length > 1) stagedMax = Math.max(stagedMax, staged.length);
+      const finalImpactAt = impactPlan.at(-1)?.at ?? 0;
+      if (finalImpactAt > 0) lastMotionImpact = Math.max(lastMotionImpact,
+        Math.max(0, impactApproach + finalImpactAt - impactElapsed));
+      const bossDeath = killed && comparedPhase === 'won' && enemyById[e.enemyId]?.pool === '塔主' && encounterById[cs.encounterId]?.pool === '塔主';
+      let impactSprite: string | undefined;
+      if (hpDamage > 0) {
+        const held = motionHeldSprites.get(e.uid);
+        if (held) motionHeldSprites.delete(e.uid);
+        hurtSet.add(e.uid);
+        impactSprite = enemySprite(e, enemyById[e.enemyId]);
+        if (delayedImpact) hurtSet.delete(e.uid);
+        if (held) motionHeldSprites.set(e.uid, held);
+      }
+      const showImpact = (target: HTMLElement, amount = hpDamage, wave?: number): void => {
+        if (amount > 0) {
+          if (delayedImpact) {
+            const pending = Math.max(0, (motionPendingDamage.get(e.uid) ?? 0) - amount);
+            if (pending) motionPendingDamage.set(e.uid, pending); else motionPendingDamage.delete(e.uid);
+            target.querySelector('.hpbar')?.replaceWith(hpBar(`e${e.uid}`, e.hp + pending, e.maxHp));
+          }
+          const keepStanding = e.dead && (motionPendingDamage.get(e.uid) ?? 0) > 0;
+          if (!keepStanding) motionHeldSprites.delete(e.uid);
+          hurtSet.add(e.uid);
+          playEnemyMotion(e.uid, 'hurt');
+          const img = target.querySelector<HTMLImageElement>('.sprite');
+          if (img && impactSprite && !keepStanding) img.src = impactSprite;
+          if (!delayedImpact && wave === undefined && staged.length > 1) stageHits(target, staged);
+          else {
+            target.classList.remove('hit');
+            void target.offsetWidth;
+            target.classList.add('hit');
+            const num = floatNum(`-${amount}`);
+            if (wave !== undefined) num.style.marginLeft = `${(wave - (staged.length - 1) / 2) * 28}px`;
+            target.append(num);
+            if (!impactMotion || !playAttackImpactAccent(target, impactMotion, wave ?? 0)) {
+              burst(target, poisoned ? 'poison' : opts.attack || throwing ? 'slash' : 'hit');
+            }
+            sfx(poisoned ? 'poison' : throwing ? 'hit' : opts.attack ? (heavy ? 'hit_heavy' : 'claw') : 'hit',
+              poisoned ? 1 : 0.94 + Math.random() * 0.12);
+          }
+        } else if (impactSource === 'feifei' && impactMotion === 'clone' && wave !== undefined) {
+          target.classList.remove('hit');
+          void target.offsetWidth;
+          target.classList.add('hit');
+          burst(target, 'poison');
+          sfx('poison');
+        }
+        if (enemySurvived && guarded > 0 && (wave === undefined || wave === 0)) {
+          target.append(floatNum(`擋住 ${guarded}`, 'blocked'));
+          burst(target, 'block');
+          if (hpDamage === 0) sfx('blocked');
+        }
+        if (throwing && wave !== undefined && wave > 0 && amount === 0 && guarded > 0) { burst(target, 'block'); sfx('blocked'); }
+        if (wave !== undefined ? wave < leadingMisses : evaded) target.append(floatNum('閃過！'));
+      };
+      const throwBox = node.querySelector<HTMLElement>('.sprite-box');
+      const throwFlight = throwing && throwFrom && throwBox && !b.dead && impactPlan.length > 0;
+      let throwFall: (() => void) | undefined;
+      if (throwFlight && throwFrom && throwBox) {
+        const foot = motionFoot(throwBox);
+        const width = throwBox.querySelector<HTMLElement>('.sprite')?.offsetWidth ?? 130;
+        const waves = impactPlan.length;
+        const onImpact = (wave: number): void => {
+          if (app.cs !== cs) return;
+          const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
+          if (live) showImpact(live, impactPlan[wave]?.amount ?? 0, wave);
+          if (wave === waves - 1) throwFall?.();
+        };
+        let cancel: () => void = () => undefined;
+        cancel = impactSource === 'feifei'
+          ? playFeifeiNeedles(app.stage, throwFrom, { x: foot.x, y: foot.y - width * 0.55 }, {
+              action: feifeiNeedleAction!,
+              waves,
+              elapsed: impactElapsed,
+              impactTimes: impactPlan.map((impact) => impact.at),
+              onImpact,
+              onDone: () => { motionProjectiles.delete(cancel); },
+            })
+          : playQiuqiuShuriken(app.stage, throwFrom, { x: foot.x, y: foot.y - width * 0.55 }, {
+              waves,
+              elapsed: impactElapsed,
+              impactTimes: impactPlan.map((impact) => impact.at),
+              onImpact,
+              onDone: () => { motionProjectiles.delete(cancel); },
+            });
+        motionProjectiles.add(cancel);
+      } else if (delayedImpact && impactMotion && impactPlan.length > 0) {
+        impactPlan.forEach((impact, wave) => scheduleMotionImpactAt(impact.at, () => {
+          const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
+          if (live) showImpact(live, impact.amount, wave);
+        }, impactElapsed, impactApproach));
+      } else if (delayedImpact && impactMotion && (hpDamage > 0 || guarded > 0 || evaded)) {
+        scheduleMotionImpact(impactSource!, impactMotion, () => {
+          const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
+          if (live) showImpact(live);
+        }, impactElapsed, impactApproach);
+      } else showImpact(node);
+      if (echoing && impactMotion && impactPlan.length > 0 && throwBox && !b.dead) {
+        const foot = motionFoot(throwBox);
+        const width = throwBox.querySelector<HTMLElement>('.sprite')?.offsetWidth ?? throwBox.offsetWidth;
+        let cancel: () => void = () => undefined;
+        cancel = impactSource === 'feifei'
+          ? playFeifeiClone(app.stage, { x: foot.x, y: foot.y, width }, {
+              elapsed: impactElapsed,
+              onDone: () => { motionProjectiles.delete(cancel); },
+            })
+          : playQiuqiuEchoes(app.stage, impactMotion as QiuqiuAction, { x: foot.x, y: foot.y, width }, {
+              impactTimes: impactPlan.map((impact) => impact.at),
+              elapsed: impactElapsed,
+              onDone: () => { motionProjectiles.delete(cancel); },
+            });
+        motionProjectiles.add(cancel);
       }
       // 反彈回敬的那幾下：飄「反彈！」＋刺一聲，被反彈打死的才看得出是怎麼死的
       if (fresh.some((l) => l.startsWith(`反彈回敬了${e.name} `))) {
         node.append(floatNum('反彈！', 'thorn'));
         sfx('thorns');
       }
-      // 被防禦擋下的部分：飄「擋住 N」＋盾牌閃一下（整下被吃掉時只有一聲「鏘」的話，看起來像沒打到——使用者 2026-09-02 回報）
-      const guarded = blockedAmount(fresh, `${e.name}的防禦擋下了`);
-      if (!e.dead && guarded > 0) {
-        node.append(floatNum(`擋住 ${guarded}`, 'blocked'));
-        burst(node, 'block');
-        if (e.hp === b.hp) sfx('blocked');
-      }
-      // 隱身被消耗、血卻沒動＝這一下被閃掉了。本來只有左上角一行小字，
-      // 玩家丟了 16 點的忍具看到毫無反應，只會以為遊戲壞掉（使用者真的回報過）。
-      // 頭上飄「閃過！」＋一團煙＋咻一聲，跟被打、被擋同一個等級的回饋。
-      if (!e.dead && getStatus(e, '隱身') < b.stealth && e.hp === b.hp) {
-        node.append(floatNum('閃過！'));
-      }
       if (fresh.some((l) => l === `${e.name}掙脫了定身`)) {
         node.append(floatNum('掙脫！'));
         burst(node, 'smoke');
         sfx('dodge');
       }
-      else if (e.hp > b.hp) burst(node, 'heal');
-      if (sumStatus(e, BAD_STATUS) > b.debuff) burst(node, 'debuff');
+      else if (afterHp > b.hp) burst(node, 'heal');
+      if ((a?.debuff ?? sumStatus(e, BAD_STATUS)) > b.debuff) burst(node, 'debuff');
       // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
       // 關主的白閃慢倒不放小怪化煙的煙與音效（調性不合，稽核 2026-09-04 低 22）
       // 分段演出時倒下要等最後一段打完再演，不然溶解跟煙會插在三段中間、最後那下的數字反而看不到（稽核 2026-09-05 夜 高-1）
-      if (!b.dead && e.dead) {
-        const after = staged.length > 1 ? (staged.length - 1) * 150 : 0;
-        const fall = (target: HTMLElement): void => {
-          fallingUids.delete(e.uid);
-          target.classList.remove('falling');
-          if (bossFallUids.has(e.uid)) { sfx('enemy_down'); }
-          else { target.classList.add('dead'); burst(target, 'smoke', 160); sfx('enemy_down'); }
-        };
-        if (after > 0) {
-          // **這段延遲期間不能讓牠隱形**（稽核 2026-09-10 高-1）：`enemyUnit` 一看到 `e.dead` 就掛 `gone`，
-          // 而 `.unit.gone:not(.dead)` 是 `opacity: 0`，`dead` 又要等這個計時器才補上。
-          // 結果連環踢打死一隻怪，畫面是「牌一打出去魔物瞬間消失、空 0.3 秒、又冒出來、
-          // 三個傷害數字同時懸在半空跑到一半才開始溶解」——2026-09-05 夜為了「最後那下的數字看得到」
-          // 加的這段延遲，被 `gone` 整個抵銷掉。`falling` 就是「正在等倒下、還要看得見」的記號。
+      if (killed) {
+        const beginFall = (): void => {
+          motionHeldSprites.delete(e.uid);
+          const target = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
+          if (!target) { fallingUids.delete(e.uid); disposeEnemyMotion(e.uid); return; }
+          if (bossDeath) { bossFallUids.add(e.uid); target.classList.remove('gone'); target.classList.add('boss-fall'); }
+          const fall = (live: HTMLElement): void => {
+            fallingUids.delete(e.uid);
+            live.classList.remove('falling');
+            if (bossFallUids.has(e.uid)) sfx('enemy_down');
+            else { live.classList.add('dead'); burst(live, 'smoke', 160); sfx('enemy_down'); }
+            finishEnemyMotion(e.uid);
+          };
+          const after = !delayedImpact && !throwFlight && staged.length > 1 ? (staged.length - 1) * 150 : 0;
+          if (after <= 0) { fall(target); return; }
           fallingUids.add(e.uid);
-          node.classList.add('falling');
-          /**
-           * **計時器裡不能相信抓在手上的那顆節點，而且無論如何都要把 uid 清掉**
-           *（稽核 2026-09-10 高-1）。
-           *
-           * 原本的守衛是 `node.isConnected`，但這 0.15～0.6 秒之間只要重畫一次
-           *（隨便點一張要選目標的牌就會），舊節點就離開文件 → `fall()` 永遠不跑
-           * → `fallingUids` 裡的 uid 永遠不刪 → 之後每次重畫都再掛一次 `falling`，
-           * 那隻死掉的怪**整場站在場上、血條寫 0、頭上還掛著意圖牌子**。
-           * 比修之前的「立刻消失」更糟。現在改成重新查一次現場那顆節點，查不到也照樣清集合。
-           */
-          window.setTimeout(() => {
+          target.classList.add('falling');
+          scheduleMotionImpactAt(after, () => {
             if (app.cs !== cs) return;
             const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
             fallingUids.delete(e.uid);
             if (live) fall(live);
-          }, after);
-        } else fall(node);
+          });
+        };
+        if (throwFlight) throwFall = beginFall;
+        else if (delayedImpact && finalImpactAt > 0) scheduleMotionImpactAt(finalImpactAt, beginFall, impactElapsed, impactApproach);
+        else if (delayedImpact && impactMotion && impactSource) scheduleMotionImpact(impactSource, impactMotion, beginFall, impactElapsed, impactApproach);
+        else beginFall();
       }
       // 前撲跟著立繪一起換：兩邊都認同一張 `acting` 表，不會出現「圖換了卻沒動」或反過來
       else if (acting.get(e.uid)?.attacked) {
@@ -2211,12 +2931,41 @@ registerScreen('combat', (app, root, props) => {
       else if (acting.has(e.uid)) node.classList.add('cast');   // 非攻擊招：原地蓄勢一下（樣式在 combat.css），不然看起來像沒動
       // 出招的結果各疊一團光（使用者 2026-09-03：「怪物放特效或格擋完全看不出動作」）：
       // 格擋、增益、蓄力在牠身上；減益、詛咒塞牌、看破在球球身上；召喚的煙在新冒出來的那隻身上
-      if (acting.has(e.uid) && !e.dead) {
-        if (e.block > b.block) burst(node, 'block');
-        if (sumStatus(e, GOOD_STATUS) > b.buff) burst(node, 'buff');
-        if (e.charged && !b.charged) burst(node, 'charge');
+      if (acting.has(e.uid) && !afterDead) {
+        if (afterBlock > b.block) burst(node, 'block');
+        if ((a?.buff ?? sumStatus(e, GOOD_STATUS)) > b.buff) burst(node, 'buff');
+        if ((a?.charged ?? e.charged) && !b.charged) burst(node, 'charge');
       }
-      if (e.phase > b.phase) { bossPhaseTalk(e.enemyId, e.phase); phaseBurst(node); }
+      const afterEnemyPhase = a?.phase ?? e.phase;
+      if (afterEnemyPhase > b.phase) { bossPhaseTalk(e.enemyId, afterEnemyPhase); phaseBurst(node); }
+    }
+    // 全體攻擊的各目標可能因死亡或隱身而有不同波數；整身動作採全場最大值，不能被最後一隻覆短。
+    if (impactSource && impactMotion && confirmedMotionWaves > 0) {
+      const impactSeat = opts.impactSeat ?? mySeat;
+      const totalDuration = motionDuration(impactSource, impactMotion, confirmedMotionWaves);
+      let state = motionActors.get(impactSeat);
+      const matchingPresentation = motionPresentationMatches(
+        !!opts.motionAlreadyPlaying,
+        impactPresentationToken,
+        state?.presentationToken,
+      );
+      if (shouldResumeConfirmedMotion({
+        playedHere: !!opts.motionAlreadyPlaying,
+        active: !!state?.active,
+        elapsed: impactElapsed,
+        duration: totalDuration,
+        presentationToken: impactPresentationToken,
+        activePresentationToken: state?.presentationToken,
+      })) {
+        const trip = resizeMotionMeleeTrip(opts.motionTrip ?? state?.trip, totalDuration);
+        playMotion(impactSeat, impactMotion, trip, impactElapsed, true, impactPresentationToken);
+        state = motionActors.get(impactSeat);
+      }
+      if (matchingPresentation && state?.active && state.action === impactMotion) {
+        state.trip = resizeMotionMeleeTrip(opts.motionTrip ?? state.trip, totalDuration);
+        state.actor.play(impactMotion, { elapsed: impactElapsed, waves: confirmedMotionWaves });
+        state.endsAt = performance.now() - impactElapsed + (state.trip?.plan.totalMs ?? totalDuration);
+      }
     }
     // 多段攻擊時球球的出招圖兩張輪流換（2026-09-08）：跟 stageHits 同一個 150 毫秒節拍，一毫秒都不多花。
     // 第二格用爪擊；這張牌本身就是爪擊的話換成掌推。收姿勢排在最後一段之後（見 hold），不會撞到。
@@ -2238,7 +2987,7 @@ registerScreen('combat', (app, root, props) => {
       }
     }
     // 蜷縮加上去的當下讓那個牌子彈一下：光換姿勢還是容易漏看「這回合擋了多少」
-    if (p.block > before.block) root.querySelector(`${MINE} .chip.block`)?.classList.add('gain');
+    if (comparedBlock > before.block) root.querySelector(`${MINE} .chip.block`)?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>(MINE);
     // 魔物對球球做的事也要在球球身上看得到：被塞牌／被減益／被看破
     if (cat && acting.size > 0) {
@@ -2252,8 +3001,12 @@ registerScreen('combat', (app, root, props) => {
     if (fresh.some((l) => l.startsWith('伏兵'))) toast(lineFor(my().hero, '有伏兵跳出來了喵！'), heroSpeaker());
     if (cat) {
       // 回血也飄數字：打倒巨型飯糰回 10 只有綠光、看起來像沒回（使用者 2026-09-05）
-      if (p.hp > before.hp) { cat.append(floatNum(`+${p.hp - before.hp}`, 'heal')); burst(cat, 'heal'); sfx('heal'); }
-      if (p.block > before.block) { burst(cat, 'block'); sfx('block'); }
+      if (comparedHp > before.hp) { cat.append(floatNum(`+${comparedHp - before.hp}`, 'heal')); burst(cat, 'heal'); sfx('heal'); }
+      if (comparedBlock > before.block) {
+        // 逐格踢擊保留蜷縮數字；整面盾牌會遮住轉身與腿部。
+        if (impactMotion && impactSource) scheduleMotionImpact(impactSource, impactMotion, () => sfx('block'), impactElapsed, impactApproach);
+        else { burst(cat, 'block'); sfx('block'); }
+      }
       if (sumStatus(p, GOOD_STATUS) > before.buff) {
         burst(cat, 'buff');
         // 隱身有專屬的一團煙，跟一般增益的亮音分開
@@ -2285,14 +3038,14 @@ registerScreen('combat', (app, root, props) => {
         const box = root.querySelector('.combat');
         box?.classList.add('player-hurt');
         window.setTimeout(() => { box?.classList.remove('player-hurt'); }, 500);
-        cat.append(floatNum(`-${before.hp - p.hp}`));
+        cat.append(floatNum(`-${before.hp - comparedHp}`));
         const pPoison = chokeTick(getStatus(p, '中毒'), before.choke);
         burst(cat, pPoison ? 'poison' : 'hit');
         sfx(pPoison ? 'poison' : 'hurt');
         // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
         // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
         // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。
-        if (before.hp - p.hp >= p.maxHp * 0.08) {
+        if (before.hp - comparedHp >= p.maxHp * 0.08) {
           const box = root.querySelector<HTMLElement>('.combat');
           box?.classList.add('shaken');
           window.setTimeout(() => box?.classList.remove('shaken'), 300);
@@ -2315,7 +3068,10 @@ registerScreen('combat', (app, root, props) => {
     const stagger = Math.max(0, cs.enemies.length - 1) * 110;
     // 蜷縮本來停 1200：使用者 2026-09-03 晚「有點太長，有時候會拖到下一回合」→ 縮到 700，仍比一般姿勢多停一點
     // 分段演出：最後一段在 (段數−1)×150 毫秒掛上、抖 400 毫秒，收姿勢要等它抖完（稽核 2026-09-05 夜 低-3）
-    const hold = pose === POSE.curl ? 700 : Math.max(650, stagger + 560, stagedMax > 1 ? (stagedMax - 1) * 150 + 460 : 0);
+    const hold = Math.max(pose === POSE.curl ? 700 : 650, stagger + 560,
+      stagedMax > 1 ? (stagedMax - 1) * 150 + 460 : 0,
+      lastMotionImpact + 460,
+      ...[...motionActors.values()].map((state) => state.endsAt - performance.now() + 30));
     window.setTimeout(() => {
       if (seq !== mine || app.cs !== cs || ended || cs.phase !== 'player') return;
       pose = idlePose();
@@ -2335,13 +3091,16 @@ registerScreen('combat', (app, root, props) => {
       // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。
       const cat = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
       if (cat) cat.src = heroArt(my(), pose);
+      for (const q of cs.players) if (!motionActors.get(q.seat)?.active) idleMotion(q.seat);
       for (const e of cs.enemies) {
         const img = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
         if (img) img.src = enemySprite(e, enemyById[e.enemyId]);
+        const enemyMotion = enemyMotionActors.get(e.uid);
+        if (!e.dead && (!enemyMotion || enemyMotion.busyUntil <= performance.now())) playEnemyMotion(e.uid, 'idle');
       }
     }, hold);
 
-    checkOver();
+    if (!opts.deferOver) checkOver();
     syncPicker();
   }
 
@@ -2370,7 +3129,23 @@ registerScreen('combat', (app, root, props) => {
     if (cs.phase === 'won' && !bossWon) toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
     if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
     // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
-    window.setTimeout(() => { if (app.cs === cs) app.afterCombat(bonusFish, bonusUpgrades); }, bossWon ? 2400 : 1300);
+    let victoryMotionStarted = false;
+    const finish = (): void => {
+      if (app.cs !== cs) return;
+      // 主機可能先判勝負才開始演最後一擊，換場前再看一次實際行程。
+      if ([...motionActors.values()].some((state) => state.active)) { window.setTimeout(finish, 80); return; }
+      const linger = cs.phase === 'won'
+        ? qiuqiuVictoryLinger(motionEnabled, cs.players.map((q) => heroOf(q)))
+        : 0;
+      if (linger > 0 && !victoryMotionStarted) {
+        victoryMotionStarted = true;
+        for (const q of cs.players) if (!q.down && motionSourceFor(q)) playMotion(q.seat, 'win', undefined, 0, true);
+        window.setTimeout(finish, linger + 30);
+        return;
+      }
+      app.afterCombat(bonusFish, bonusUpgrades);
+    };
+    window.setTimeout(finish, bossWon ? 2400 : 1300);
   }
 
   /**
@@ -2542,10 +3317,20 @@ registerScreen('combat', (app, root, props) => {
      * 快照要在**套用之前**拿——`ingest` 是同步的，所以這裡的 `before`
      * 必須由 session 在套用前先存好（見下面的 `beforeApply`）。
      */
-    session.beforeApply(() => { remoteBefore = snap(cs, my()); handsBefore = cs.players.map((p) => p.hand.slice()); });
+    session.beforeApply(() => {
+      remoteBefore = snap(cs, my());
+      handsBefore = cs.players.map((p) => p.hand.slice());
+      remoteCombatBefore = structuredClone(cs);
+      remoteCombatBefore.rng = cs.rng.clone();
+    });
     // 我那一下沒算數（主機已經來不及了）：把手放開，畫面重畫回真實的狀態
     // 選牌那一下沒算數的話，視窗要能再開（見 `chooseSent`）
-    session.onDropped(() => { unlockSend(); chooseSent = null; if (app.cs === cs) { render(); syncPicker(); } });
+    session.onDropped(() => {
+      locallyPlayedMotion.dropInFlight();
+      unlockSend();
+      chooseSent = null;
+      if (app.cs === cs) { render(); syncPicker(); }
+    });
     // 同伴點選了哪張：只重畫他那一格，不動整頁（跟 patchField 對同伴那格的做法一樣）
     session.onHint((seat, u) => {
       if (app.cs !== cs) return;
@@ -2575,34 +3360,243 @@ registerScreen('combat', (app, root, props) => {
        *
        * `light` 只給**同伴的**動作：那不重排手牌（他的牌不在我手上，重排會讓我的手牌無故抖一下）；
        * 自己的動作手牌真的少了一張，要照常重排。
-       */
+      */
       const alreadyShown = mine && !!session.isHost;
-      if (!alreadyShown && remoteBefore) settle(remoteBefore, { light: !mine });
-      else render();
-      remoteBefore = null;
-      checkOver();   // 最後一刀是誰補的都一樣，分出勝負就要收場
-      if (app.cs === cs) syncPicker();   // 主機自己的動作走 render 不走 settle，選牌視窗要在這裡跟上（審查 中-5）
+      const finishApplied = (clearRemote = true): void => {
+        if (clearRemote) {
+          remoteBefore = null;
+          remoteCombatBefore = null;
+        }
+        checkOver();   // 最後一刀是誰補的都一樣，分出勝負就要收場
+        if (app.cs === cs) syncPicker();   // 主機自己的動作走 render 不走 settle，選牌視窗要在這裡跟上（審查 中-5）
+        /*
+         * **還有人在選牌就先不收**（夜間審查 中-1）：舉手齊了但 `pending` 還在時，引擎的 `beginEnemyTurn`
+         * 會回 false、舉手旗標也不清，等選完那一下再進來一次——原本兩次都記對帳單，
+         * 第二張蓋掉還沒配到對的第一張，兩台狀態一樣也判成分岔。
+         */
+        if (allReady(cs) && !cs.pending) {
+          session.endOfTurn();      // 收回合之前先對一次帳，分岔要在這裡就抓到
+          // 從這一刻到新手牌發下來，同伴的動作一律先排隊（高-7）；`runEnemyTurn` 演完放開
+          session.hold();
+          // 「再想想」這時候按了也送不出去（會話已經暫停），先反灰（夜間審查 低-4）
+          root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
+          sfx('turn_end');
+          const wait = collectHand();
+          if (wait <= 0) { runEnemyTurn(); return; }
+          collecting = true;
+          window.setTimeout(() => {
+            if (app.cs !== cs || !collecting) return;
+            collecting = false;
+            runEnemyTurn();
+          }, wait);
+        }
+      };
+
       /*
-       * **還有人在選牌就先不收**（夜間審查 中-1）：舉手齊了但 `pending` 還在時，引擎的 `beginEnemyTurn`
-       * 會回 false、舉手旗標也不清，等選完那一下再進來一次——原本兩次都記對帳單，
-       * 第二張蓋掉還沒配到對的第一張，兩台狀態一樣也判成分岔。
+       * 缺號補齊時 `ActionQueue` 會一次交回多張。引擎已經在真狀態全部算完，畫面不能把
+       * 所有命中都塞給最後一張；用套用前的複本重播，重建每張自己的快照、命中與紀錄範圍，
+       * 再依動作長度逐張排演。複本只供畫面讀取，不會寫回鎖步狀態。
        */
-      if (allReady(cs) && !cs.pending) {
-        session.endOfTurn();      // 收回合之前先對一次帳，分岔要在這裡就抓到
-        // 從這一刻到新手牌發下來，同伴的動作一律先排隊（高-7）；`runEnemyTurn` 演完放開
-        session.hold();
-        // 「再想想」這時候按了也送不出去（會話已經暫停），先反灰（夜間審查 低-4）
-        root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
-        sfx('turn_end');
-        const wait = collectHand();
-        if (wait <= 0) { runEnemyTurn(); return; }
-        collecting = true;
-        window.setTimeout(() => {
-          if (app.cs !== cs || !collecting) return;
-          collecting = false;
-          runEnemyTurn();
-        }, wait);
+      if (!alreadyShown && (applied.length > 1 || remotePresentationRunning) && remoteCombatBefore) {
+        const replay = remoteCombatBefore;
+        const points: Snap[] = [snap(replay, replay.players[mySeat] ?? replay.player)];
+        const frames: Array<{
+          a: CoopAction;
+          before: Snap;
+          after: Snap;
+          card?: CardInstance;
+          player?: PlayerCombat;
+        }> = [];
+        let replayOk = true;
+        for (const { a } of applied) {
+          const before = points.at(-1)!;
+          const player = replay.players[a.seat];
+          const card = a.t === 'card' ? player?.hand.find((one) => one.uid === a.u) : undefined;
+          if (!applyAction(replay, a)) { replayOk = false; break; }
+          const after = snap(replay, replay.players[mySeat] ?? replay.player);
+          frames.push({ a, before, after, card, player });
+          points.push(after);
+        }
+        if (replayOk && frames.length === applied.length) {
+          const boundaries = qiuqiuMotionBatchBoundaries(points);
+          const items: RemotePresentationItem[] = [];
+          const preparedDamage = new Map<number, number>();
+
+          frames.forEach((frame, index) => {
+            const boundary = boundaries[index]!;
+            const freshLog = replay.log.slice(boundary.logStart, boundary.logEnd);
+            const impactHits = replay.hits.slice(boundary.hitStart, boundary.hitEnd);
+            const seat = frame.a.seat;
+            const localMotion = seat === mySeat
+              ? frame.a.t === 'card'
+                ? locallyPlayedMotion.take(localCardMotionKey(frame.a.u))
+                : frame.a.t === 'potion'
+                  ? locallyPlayedMotion.take(localPotionMotionKey(seat, frame.a.id))
+                  : undefined
+              : undefined;
+            const playedHere = localMotion !== undefined;
+            let action: CombatMotionAction | undefined = localMotion?.action;
+            let attack = false;
+            let trip = localMotion?.trip;
+
+            if (!action && frame.a.t === 'potion' && frame.player
+              && motionSourceFor(frame.player) && EAT_POTIONS.has(frame.a.id)) {
+              action = 'eat';
+            }
+            if (frame.a.t === 'card' && frame.card && frame.player) {
+              attack = cardStats(frame.card).def.type === '攻擊';
+              action ??= motionForCard(frame.player, frame.card);
+              if (action && !trip) trip = prepareMelee(seat, action, frame.a.g, attack);
+            }
+
+            const source = frame.player ? motionSourceFor(frame.player) : undefined;
+            let presentationWaves = 1;
+            if (action && source && attack) {
+              for (const [uid, beforeEnemy] of frame.before.enemies) {
+                const afterEnemy = frame.after.enemies.get(uid);
+                if (!afterEnemy) continue;
+                const leadingMisses = qiuqiuConsumedStealth(beforeEnemy.stealth, afterEnemy.stealth);
+                presentationWaves = Math.max(presentationWaves,
+                  buildCombatMotionImpactPlan(source, action, impactHits, uid, leadingMisses).length);
+              }
+            }
+            const expectedDuration = action && source ? motionDuration(source, action, presentationWaves) : 0;
+            if (trip && expectedDuration > trip.plan.totalMs) trip = {
+              ...trip,
+              plan: { ...trip.plan, strikeMs: expectedDuration, totalMs: expectedDuration },
+            };
+            if (action && source && attack && motionImpactDelay(source, action) > 0) {
+              for (const [uid, beforeEnemy] of frame.before.enemies) {
+                const afterEnemy = frame.after.enemies.get(uid);
+                if (!afterEnemy || beforeEnemy.hp <= afterEnemy.hp) continue;
+                preparedDamage.set(uid, (preparedDamage.get(uid) ?? 0) + beforeEnemy.hp - afterEnemy.hp);
+                if (!beforeEnemy.dead && afterEnemy.dead) {
+                  const src = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${uid}"] .sprite`)?.src;
+                  if (src) motionHeldSprites.set(uid, src);
+                  fallingUids.add(uid);
+                }
+              }
+            }
+
+            items.push({
+              kind: 'step',
+              wait: action && source
+                ? localMotion
+                  ? () => combatMotionPresentationWaitAt(source, action!, presentationWaves, localMotion.at)
+                  : combatMotionPresentationWait(source, action, presentationWaves, 0)
+                : 0,
+              play: () => {
+                const elapsed = localMotion ? Math.max(0, Date.now() - localMotion.at) : 0;
+                if (action && seat !== mySeat && !playedHere) playMotion(seat, action, trip, elapsed);
+                const ownOpts = frame.card && seat === mySeat
+                  ? cardPose(heroOf(my()), cardStats(frame.card).def, cardStats(frame.card).effects)
+                  : {};
+                settle(frame.before, {
+                  ...ownOpts,
+                  light: seat !== mySeat,
+                  motion: action && seat === mySeat && !playedHere ? action : undefined,
+                  motionTrip: action && seat === mySeat ? trip : undefined,
+                  motionAlreadyPlaying: playedHere,
+                  impactMotion: action,
+                  impactPresentationToken: localMotion?.token,
+                  impactElapsed: elapsed,
+                  impactApproach: trip?.plan.approachMs ?? 0,
+                  impactSeat: seat,
+                  impactAttack: attack,
+                  comparison: frame.after,
+                  freshLog,
+                  impactHits,
+                  pendingPrepared: true,
+                  deferOver: true,
+                });
+              },
+            });
+          });
+
+          for (const [uid, amount] of preparedDamage) {
+            motionPendingDamage.set(uid, (motionPendingDamage.get(uid) ?? 0) + amount);
+          }
+          items.push({ kind: 'done', run: () => finishApplied(false) });
+          enqueueRemotePresentation(...items);
+          remoteBefore = null;
+          remoteCombatBefore = null;
+          return;
+        }
       }
+
+      let ownCard: CardInstance | undefined;
+      let ownMotionAlreadyPlaying = false;
+      let ownImpactMotion: CombatMotionAction | undefined;
+      let ownImpactPresentationToken: number | undefined;
+      let ownImpactElapsed = 0;
+      let ownImpactApproach = 0;
+      let ownMotionTrip: MeleeTrip | undefined;
+      let incomingMotion: { seat: number; action: CombatMotionAction; trip?: MeleeTrip; attack: boolean } | undefined;
+      for (const { a } of applied) {
+        if (a.t === 'potion') {
+          const q = cs.players.find((one) => one.seat === a.seat);
+          const localMotion = a.seat === mySeat
+            ? locallyPlayedMotion.take(localPotionMotionKey(a.seat, a.id))
+            : undefined;
+          if (localMotion) {
+            ownMotionAlreadyPlaying = true;
+            ownImpactMotion = localMotion.action;
+            ownImpactPresentationToken = localMotion.token;
+            ownImpactElapsed = Date.now() - localMotion.at;
+          } else if (a.seat !== mySeat && q && motionSourceFor(q) && EAT_POTIONS.has(a.id)) {
+            incomingMotion = { seat: a.seat, action: 'eat', attack: false };
+          }
+          continue;
+        }
+        if (a.t !== 'card') continue;
+        const card = handsBefore[a.seat]?.find((one) => one.uid === a.u);
+        const localMotion = a.seat === mySeat
+          ? locallyPlayedMotion.take(localCardMotionKey(a.u))
+          : undefined;
+        const playedHere = localMotion !== undefined;
+        if (a.seat === mySeat) {
+          ownCard = card ?? ownCard;
+          ownMotionAlreadyPlaying ||= playedHere;
+          if (localMotion) {
+            ownImpactMotion = localMotion.action;
+            ownImpactPresentationToken = localMotion.token;
+            ownImpactElapsed = Date.now() - localMotion.at;
+            ownImpactApproach = localMotion.trip?.plan.approachMs ?? 0;
+            ownMotionTrip = localMotion.trip;
+          }
+        }
+        if (alreadyShown || playedHere || !card) continue;
+        const q = cs.players.find((one) => one.seat === a.seat);
+        const action = q ? motionForCard(q, card) : undefined;
+        if (action) incomingMotion = {
+          seat: a.seat,
+          action,
+          attack: cardStats(card).def.type === '攻擊',
+          trip: prepareMelee(a.seat, action, a.g, cardStats(card).def.type === '攻擊'),
+        };
+      }
+      if (incomingMotion && incomingMotion.seat !== mySeat) playMotion(incomingMotion.seat, incomingMotion.action, incomingMotion.trip);
+      const ownOpts = ownCard
+        ? {
+            ...cardPose(heroOf(my()), cardStats(ownCard).def, cardStats(ownCard).effects),
+            motion: incomingMotion?.seat === mySeat ? incomingMotion.action : undefined,
+            motionTrip: incomingMotion?.seat === mySeat ? incomingMotion.trip : ownMotionTrip,
+            motionAlreadyPlaying: ownMotionAlreadyPlaying,
+          }
+        : ownMotionAlreadyPlaying ? { motionAlreadyPlaying: true, motionTrip: ownMotionTrip } : {};
+      if (!alreadyShown && remoteBefore) settle(remoteBefore, {
+        ...ownOpts,
+        light: !mine,
+        impactMotion: incomingMotion?.action ?? ownImpactMotion,
+        impactPresentationToken: incomingMotion ? undefined : ownImpactPresentationToken,
+        impactElapsed: ownImpactElapsed,
+        impactApproach: incomingMotion?.trip?.plan.approachMs ?? ownImpactApproach,
+        impactSeat: incomingMotion?.seat ?? mySeat,
+        impactAttack: incomingMotion?.attack ?? (ownCard ? cardStats(ownCard).def.type === '攻擊' : false),
+      });
+      // 主機自己出的動作會在外層 act → settle 重畫；先畫會讓血條提前扣血再回升。
+      else if (!alreadyShown || !ownMotionAlreadyPlaying) render();
+      finishApplied();
     });
     session.onTrouble((why) => {
       // 分岔或斷線：**當場停下來講清楚**，不要讓兩個人繼續玩兩份不一樣的遊戲

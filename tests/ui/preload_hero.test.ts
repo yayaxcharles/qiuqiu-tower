@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { _setManifestForTest, coopArtUrls, heroArtUrls, heroOfKey, heroSpriteUrls, isCoopOnlyArt } from '../../src/ui/assets';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { _setManifestForTest, coopArtUrls, heroArtUrls, heroOfKey, heroSpriteUrls, isCoopOnlyArt, preloadArt } from '../../src/ui/assets';
+import { preloadAct } from '../../src/ui/preload';
 
 /*
  * 首載只載共用與球球的圖，角色專屬的（菲菲）選好角色才補（總稽核 2026-09-14 F 中-1、中-3）。
@@ -26,7 +27,10 @@ const FAKE = {
 };
 
 describe('角色專屬的圖分開載', () => {
-  afterEach(() => { _setManifestForTest({ cards: {}, sprites: {}, monsters: {}, icons: {}, bg: {}, review: [] }); });
+  afterEach(() => {
+    _setManifestForTest({ cards: {}, sprites: {}, monsters: {}, icons: {}, bg: {}, review: [] });
+    vi.unstubAllGlobals();
+  });
 
   it('heroOfKey：帶 feifei 的鍵是她的，其餘（含球球的）算共用', () => {
     expect(heroOfKey('card/feifei_feizhen')).toBe('feifei');
@@ -35,7 +39,28 @@ describe('角色專屬的圖分開載', () => {
     expect(heroOfKey('bg/feifei_still_teach')).toBe('feifei');
     expect(heroOfKey('icon/map_hero_feifei_low')).toBe('feifei');
     expect(heroOfKey('hero/samurai_idle')).toBe('samurai');
+    expect(heroOfKey('codex/relic_old_sword_tassel')).toBe('fengfeng');
     for (const k of ['card/sanjo', 'hero/ninja_claw', 'bg/event_toll', 'rat_idle', 'card/biepengzhenjian']) expect(heroOfKey(k), k).toBeNull();
+  });
+
+  it('封封起始秘寶隨角色補載，故事場景維持實際播放時才載', () => {
+    _setManifestForTest({
+      cards: {}, sprites: {}, monsters: {}, review: [],
+      icons: {
+        'codex/relic_old_sword_tassel': 'assets/icons/relic_old_sword_tassel.webp',
+      },
+      bg: {
+        'bg/fengfeng_story_top': 'assets/bg/fengfeng_story_top.webp',
+        'bg/fengfeng_coop_feifei_top': 'assets/bg/fengfeng_coop_feifei_top.webp',
+        'bg/event_fengfeng_toll': 'assets/bg/event_fengfeng_toll.webp',
+      },
+    });
+
+    const fengfeng = heroArtUrls(['fengfeng']);
+    expect(fengfeng).toContain('/assets/icons/relic_old_sword_tassel.webp');
+    expect(fengfeng).toContain('/assets/bg/event_fengfeng_toll.webp');
+    expect(fengfeng.some((url) => url.includes('story_top') || url.includes('coop_feifei_top'))).toBe(false);
+    expect(heroArtUrls(['ninja']).some((url) => url.includes('old_sword_tassel'))).toBe(false);
   });
 
   it('戰鬥暖圖只暖這一局登場的角色', () => {
@@ -81,5 +106,50 @@ describe('角色專屬的圖分開載', () => {
     expect(isCoopOnlyArt('card/fenyiban')).toBe(true);
     expect(isCoopOnlyArt('card/feifei_fenyiban')).toBe(true);
     expect(isCoopOnlyArt('card/sanjo')).toBe(false);
+  });
+
+  it('啟動預載保留正常底圖，但結果圖一律等實際進入結果頁才載', async () => {
+    const sources: string[] = [];
+    class FakeImage {
+      private value = '';
+      set src(value: string) { this.value = value; sources.push(value); }
+      get src(): string { return this.value; }
+      async decode(): Promise<void> { /* src 紀錄就是可觀察結果 */ }
+    }
+    vi.stubGlobal('Image', FakeImage);
+    _setManifestForTest({
+      cards: {}, sprites: {}, monsters: {}, icons: {}, review: [],
+      bg: {
+        'bg/event_toll': 'assets/bg/event_toll.webp',
+        'bg/event_toll_r0': 'assets/bg/event_toll_r0.webp',
+        'bg/event_toll_r12': 'assets/bg/event_toll_r12.webp',
+      },
+    });
+
+    await preloadArt();
+
+    expect(sources).toContain('/assets/bg/event_toll.webp');
+    expect(sources.some((source) => /_r(?:0|12)\.webp$/.test(source))).toBe(false);
+  });
+
+  it('分關預載只補本局角色的專屬事件底圖', async () => {
+    const sources: string[] = [];
+    class FakeImage {
+      set src(value: string) { sources.push(value); }
+      async decode(): Promise<void> { /* src 紀錄就是可觀察結果 */ }
+    }
+    vi.stubGlobal('Image', FakeImage);
+    _setManifestForTest({
+      cards: {}, sprites: {}, monsters: {}, icons: {}, review: [],
+      bg: {
+        'bg/event_feifei_trace': 'assets/bg/event_feifei_trace.webp',
+        'bg/event_dangdang_lining': 'assets/bg/event_dangdang_lining.webp',
+      },
+    });
+
+    await preloadAct(1, 'feifei');
+
+    expect(sources).toContain('/assets/bg/event_feifei_trace.webp');
+    expect(sources).not.toContain('/assets/bg/event_dangdang_lining.webp');
   });
 });

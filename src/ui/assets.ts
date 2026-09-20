@@ -91,16 +91,16 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
 const HERO_NOT_IN_COMBAT = new Set([
-  'hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/idle', 'hero/armed',
+  'hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/fengfeng_cover', 'hero/idle', 'hero/armed',
   // 2026-09-18 補的四張非戰鬥姿勢（貓窩的打盹／磨爪／扶同伴，加過關走路）：戰鬥裡一張都用不到，
-  // 進暖圖只會擋在魔物立繪前面。三隻各四張＝12 張
-  ...['ninja', 'feifei', 'dangdang'].flatMap((h) => ['nap', 'sharpen', 'helpup', 'walk'].map((p) => `hero/${h}_${p}`)),
+  // 進暖圖只會擋在魔物立繪前面。四隻各四張＝16 張
+  ...['ninja', 'feifei', 'dangdang', 'fengfeng'].flatMap((h) => ['nap', 'sharpen', 'helpup', 'walk'].map((p) => `hero/${h}_${p}`)),
 ]);
 /**
  * 帶角色名、卻在**選角之前**就會出現的圖：首頁兩張「參上」並排（2026-09-15）。
  * 開場預載不能因為鍵名帶 `feifei` 就跳過，戰鬥暖圖也不用它（總稽核 2026-09-16 戊 M3）。
  */
-export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover', 'hero/dangdang_cover']);
+export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover', 'hero/dangdang_cover', 'hero/fengfeng_cover']);
 
 /**
  * 這個鍵是哪一位角色專屬的；`null`＝共用或球球的。
@@ -110,7 +110,8 @@ export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover', 'her
  * 開場下載的東西」跟併入她之前一模一樣（總稽核 F 中-1：原本她的 300 多張圖全部算進每個人的首載）。
  */
 export function heroOfKey(key: string): string | null {
-  const m = /(?:^|[/_])(feifei|samurai|dangdang)(?:_|$)/.exec(key);
+  if (key === 'codex/relic_old_sword_tassel') return 'fengfeng';
+  const m = /(?:^|[/_])(feifei|samurai|dangdang|fengfeng)(?:_|$)/.exec(key);
   return m ? m[1]! : null;
 }
 
@@ -132,13 +133,14 @@ export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja
 /** 雙人專屬牌的牌面（球球版與菲菲版都算，兩位在連線裡都可能拿到） */
 export function coopArtUrls(): string[] {
   return Object.entries(manifest.cards)
-    .filter(([k]) => COOP_ONLY_ART.has(k) || COOP_ONLY_ART.has(k.replace(/^card\/(?:feifei|samurai|dangdang)_/, 'card/')))
+    .filter(([k]) => isCoopOnlyArt(k))
     .map(([, v]) => `${BASE}${v}`);
 }
 
 /** 這個鍵是不是雙人專屬牌的牌面（給分關載入的清單用） */
 export function isCoopOnlyArt(key: string): boolean {
-  return COOP_ONLY_ART.has(key) || COOP_ONLY_ART.has(key.replace(/^card\/(?:feifei|samurai|dangdang)_/, 'card/'));
+  const base = key.replace(/^card\/coop_(?:ninja|feifei|dangdang|fengfeng)_(?:ninja|feifei|dangdang|fengfeng)_/, 'card/');
+  return COOP_ONLY_ART.has(base) || COOP_ONLY_ART.has(base.replace(/^card\/(?:feifei|samurai|dangdang|fengfeng)_/, 'card/'));
 }
 
 export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
@@ -147,10 +149,14 @@ export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
   const urls: string[] = [];
   for (const g of ['sprites', 'icons', 'cards', 'bg'] as const) {
     for (const [key, v] of Object.entries(manifest[g])) {
+      if (g === 'cards' && key.startsWith('card/coop_')) continue;   // 混搭牌只由合作預載負責
       const who = heroOfKey(key);
       if (!who || !want.has(who)) continue;
       if (g === 'bg') {
-        if (/_r\d+$/.test(key) || /\/[a-z]+_still_/.test(key)) continue;   // 結果圖與幻燈片本來就是點到才載
+        if (/_r\d+$/.test(key)
+          || key.startsWith(`bg/${who}_still_`)
+          || key.startsWith(`bg/${who}_story_`)
+          || key.startsWith(`bg/${who}_coop_`)) continue;   // 結果圖與故事場景本來就是點到才載
         if (skip.has(key) || skip.has(key.replace(`_${who}_`, '_'))) continue;   // 事件底圖照共用那張的關數分流
       }
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
@@ -171,7 +177,9 @@ export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
  * 退路刻意**退回她自己**最接近的姿勢，不是退回球球的：
  * 玩菲菲卻突然跳出一隻灰虎斑，比姿勢不精準難看得多。
  */
-const HERO_PREFIX: Readonly<Record<string, string>> = { ninja: 'ninja', samurai: 'samurai', feifei: 'feifei', dangdang: 'dangdang' };
+const HERO_PREFIX: Readonly<Record<string, string>> = {
+  ninja: 'ninja', samurai: 'samurai', feifei: 'feifei', dangdang: 'dangdang', fengfeng: 'fengfeng',
+};
 
 /** 她沒生這張圖時，退到自己的哪一張。鍵與值都是**姿勢名**（不含 `hero/<前綴>_`） */
 const POSE_FALLBACK: Readonly<Record<string, string>> = {
@@ -237,7 +245,13 @@ export function heroSpriteKey(hero: string | undefined, key: string): string {
  * 開新局與讀存檔時由 `app.ts` 設定。
  */
 let localHeroId = 'ninja';
-export function setLocalHero(hero: string | undefined): void { localHeroId = hero ?? 'ninja'; }
+let localPartnerHero: string | undefined;
+export function setLocalHero(hero: string | undefined): void {
+  localHeroId = hero ?? 'ninja';
+  localPartnerHero = undefined;
+}
+/** 每次切換畫面時同步；標題、圖鑑與單人局沒有搭檔。 */
+export function setLocalPartnerHero(hero: string | undefined): void { localPartnerHero = hero; }
 export function localHero(): string { return localHeroId; }
 
 /**
@@ -250,9 +264,14 @@ export function localHero(): string { return localHeroId; }
  * 畫面上的牌永遠是**本機這一位自己的**——手牌、牌組一覽、獎勵、罐頭鋪、圖鑑都是。
  * 連線時看不到同伴的手牌，所以不會有「兩個人的牌同框」的情況。
  */
-export function cardArtKey(baseKey: string, hero?: string): string {
-  // `hero` 只有卡牌圖鑑會填（那裡可以在標題畫面切角色看），其餘一律用這一局的那位
+export function cardArtKey(baseKey: string, hero?: string, partnerHero = hero === undefined ? localPartnerHero : undefined): string {
+  // 指定角色的圖鑑不沿用本局搭檔；同伴出牌預覽則同時傳入角色與搭檔。
   const who = hero ?? localHeroId;
+  if (partnerHero && partnerHero !== who && COOP_ONLY_ART.has(baseKey)) {
+    const pair = [who, partnerHero].sort().join('_');
+    const mixed = baseKey.replace(/^card\//, `card/coop_${pair}_`);
+    if (manifest.cards[mixed] !== undefined) return mixed;
+  }
   if (who === 'ninja') return baseKey;
   const mine = baseKey.replace(/^card\//, `card/${who}_`);
   return manifest.cards[mine] !== undefined ? mine : baseKey;
@@ -389,11 +408,12 @@ export async function preloadArt(): Promise<void> {
     const group = manifest[g];
     if (!group || Array.isArray(group)) continue;
     for (const [key, v] of Object.entries(group)) {
+      if (g === 'bg' && /_r\d+$/.test(key)) continue;   // 結果圖進結果頁才載，與 heroArtUrls 保持一致
       if (g === 'bg' && skip.has(key)) continue;
       // 角色專屬的（菲菲那 300 多張）開場不載：這時還不知道玩家要選誰，選好由 `preloadHeroArt` 補
       if (heroOfKey(key) && !TITLE_ART.has(key)) continue;
       // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
-      if (g === 'cards' && COOP_ONLY_ART.has(key)) continue;
+      if (g === 'cards' && isCoopOnlyArt(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
       else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
     }
@@ -407,14 +427,14 @@ export async function preloadArt(): Promise<void> {
       try {
         const img = new Image();
         img.src = url;
-        // decode() 在有些瀏覽器對還沒進 DOM 的圖會丟例外，那就退回只等下載完成
+        // 成功解碼或下載後才登記；失敗的圖片留給後續遭遇預熱重試。
         if (typeof img.decode === 'function') await img.decode();
+        else await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = () => reject(new Error('圖片載入失敗')); });
+        markWarmed([url]);
       } catch { /* 少載一張只是那張會晚一點出現，不該讓預載整串停掉 */ }
     }
   };
   await Promise.all(Array.from({ length: 6 }, worker));
-  // 登記進共用的「解過了」名單，`preloadAct(1)` 才不會把同一批再解一次（複核 2026-09-11 低-4）
-  markWarmed(urls);
 }
 
 export function computeScale(w: number, h: number): number { return Math.min(w / 1280, h / 720); }

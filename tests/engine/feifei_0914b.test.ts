@@ -123,7 +123,7 @@ describe('事件文字', () => {
     expect(choice('feifei_trace', 1).result).not.toContain('喵');
     expect(choice('feifei_signal', 0).result).toMatch(/菲菲：「.+」/su);   // 文案 2026-09-15 由 GPT 整批改寫，只釘規矩不釘句子
     expect(choice('feifei_signal', 0).result).not.toContain('喵');
-    expect(choice('feifei_signal', 1).label).toBe('墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）');
+    expect(choice('feifei_signal', 1).label).toBe('墊著布撐開機關（獲得 45 條小魚乾，最多失去 10 點生命）');
     expect(choice('feifei_signal', 1).result).toMatch(/菲菲：「.+」/su);   // 文案 2026-09-15 由 GPT 整批改寫，只釘規矩不釘句子
     expect(choice('feifei_signal', 1).result).not.toContain('喵');
   });

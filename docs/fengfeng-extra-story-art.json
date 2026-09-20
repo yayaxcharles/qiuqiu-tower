@@ -1,0 +1,42 @@
+[
+  {
+    "key": "bg/fengfeng_coop_feifei_top",
+    "path": "assets/bg/fengfeng_coop_feifei_top.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/story_CFT.png",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "7dea2773340bcbe6a73147087a6b6e79a4ba8cb1fe7c99822f86ea7cc6ae332c"
+  },
+  {
+    "key": "bg/fengfeng_coop_feifei_victory",
+    "path": "assets/bg/fengfeng_coop_feifei_victory.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/story_CFV.png",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "50f1052ce79b6be0ddfa125c7c16137979c18e8bd3643ad77c358d6950dc03f1"
+  },
+  {
+    "key": "bg/fengfeng_coop_dangdang_top",
+    "path": "assets/bg/fengfeng_coop_dangdang_top.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/story_CDT.png",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "f004fc430baf6b1949c461936acf0240659887d027b2b90aafac9d57654fdb30"
+  },
+  {
+    "key": "bg/fengfeng_coop_dangdang_victory",
+    "path": "assets/bg/fengfeng_coop_dangdang_victory.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/story_CDV.png",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "f8f987bfd753e1fa08b16aaf0ce687b48e01d6a655d84ae123b31b0e5f6b1020"
+  }
+]

@@ -116,11 +116,16 @@ img { -webkit-user-drag: none; }
 .title-cat-box .title-cat-feifei { height: 210px; margin-right: -28px; margin-bottom: 14px; animation-delay: -1.2s; }
 /* 她的「參上」貼圖進倉後跟他同款同大小，只留錯開的彈跳（補審 2026-09-15 低-1） */
 .title-cat-box .title-cat-second { animation-delay: -1.2s; }
-/* 噹噹第三張（2026-09-17）：彈跳再錯開一點，三隻才不會同時上下 */
+/* 噹噹第三張（2026-09-17）：彈跳再錯開一點。 */
 .title-cat-box .title-cat-third { animation-delay: -0.6s; }
-/* 三張並排就擠不下原本的高度：整排縮一成四，陰影也跟著拉寬 */
+/* 封封排在最右，第四拍再錯開。 */
+.title-cat-box .title-cat-fourth { animation-delay: -1.8s; }
+/* 三張並排就擠不下原本的高度：整排縮一成四，陰影也跟著拉寬。 */
 .title-cat-box.three .title-cat { height: 274px; }
 .title-cat-box.three .ground-shadow { width: 58%; }
+/* 四位角色同框時再縮一階，仍保留各自完整輪廓與參上題字。 */
+.title-cat-box.four .title-cat { height: 246px; margin-inline: -4px; }
+.title-cat-box.four .ground-shadow { width: 72%; }
 .title-cat-box .ground-shadow {
   position: absolute;
   left: 50%;

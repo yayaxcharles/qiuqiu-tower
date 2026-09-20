@@ -60,6 +60,9 @@ const SKIP: ReadonlySet<string> = new Set([
    */
   'damageSpendBlock', 'healSpendBlock', 'blockFromThorns', 'damageByOwnStatus',
   'ifBlock', 'ifEnemyIntent',
+  // 封封：鏡子沒有蓄氣／同伴／玩家階段資源。固定傷害與自用蜷縮在 switch 轉譯，
+  // 產氣、支援、門檻分支及飯糰封禁略過，保留同張牌其餘可學的部分。
+  'gainQi', 'nextAttackBonusSpendQi', 'ifQiAtPlay', 'ifSpentQiAtLeast', 'ifAllyBlockAtPlay', 'preventEnergyGainThisPhase',
   'draw', 'drawIfTargetStatus', 'drawNextTurn', 'energy', 'gold', 'scry',
   'exhaustFromHand', 'retainFromHand', 'discardFromHand', 'recoverFromDiscard', 'cleanse', 'removeStatuses',
   'noAttacksThisTurn',
@@ -85,7 +88,24 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
         out.push(hit);
         break;
       }
+      /*
+       * 封封的蓄氣傷害：鏡子沒有可保存的蓄氣，照牌上可支付上限學成固定傷害。
+       * `allQi` 仍有全域 12 上限，因此用 12；做法與噹噹的 damageSpendBlock 照 max
+       * 學成固定傷害一致。多段與穿透原樣保留。
+       */
+      case 'damageSpendQi': {
+        const spent = fx.allQi ? 12 : (fx.maxQi ?? 0);
+        const hit: Extract<EnemyEffect, { kind: 'damage' }> = { kind: 'damage', amount: fx.amount + fx.perQi * spent };
+        if (fx.times !== undefined && fx.times > 1) hit.times = fx.times;
+        if (fx.ignoreBlock) hit.pierce = true;
+        out.push(hit);
+        break;
+      }
       case 'block': out.push({ kind: 'block', amount: fx.amount }); break;
+      case 'blockSpendQi':
+        // 幫同伴擋的版本沒有對象；自用版照最大支付量轉成一次固定蜷縮。
+        if (fx.recipient !== 'ally') out.push({ kind: 'block', amount: fx.amount + fx.perQi * fx.maxQi });
+        break;
       /*
        * 「目標原本就中毒才給蜷縮」照學成無條件的蜷縮（2026-09-16）。
        *

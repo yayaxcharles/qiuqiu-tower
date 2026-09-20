@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
+import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, FENGFENG_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 6、忍術 84、絕學 44、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 12、忍術 141、絕學 65、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     // 起手 3→6：2026-09-12 菲菲的三種起手牌（飛針、退開、淬毒）
     // 6→9：2026-09-17 噹噹的三種起手牌（正拳、架盤、回敬）
-    expect(count('起手')).toBe(9);
+    // 9→12：2026-09-20 封封的平斬、護身、吐納
+    expect(count('起手')).toBe(12);
     // 忍術 61→67：2026-09-11 的九張連線牌（`coop: true`，只有雙人局才進池）；
     // 67→84、絕學 39→44：2026-09-12 菲菲的 22 張專屬牌（`hero: 'feifei'`）。
     // 兩批都掛 `hidden`，圖到齊才會進獎勵與罐頭鋪
@@ -15,12 +16,12 @@ describe('牌資料', () => {
     // 97→98、51→52：2026-09-15 幫同伴回血的兩張連線牌（魚乾急救進忍術、一起喘口氣進絕學）
     // 98→118：2026-09-17 噹噹的 20 張忍術（常見 8、罕見 11、稀有 1）
     // 118→119：2026-09-17 橋接牌四張換掉三張（連環撞、迴力鏢、卸甲）
-    expect(count('忍術')).toBe(119);   // 連線支援牌 A＋B＋C 共 18 張，其中 12 張進忍術
-    expect(count('絕學')).toBe(58);   // 52→58：2026-09-17 噹噹的 6 張絕學
+    expect(count('忍術')).toBe(141);   // 119→141：封封 22 張非起手忍術
+    expect(count('絕學')).toBe(65);   // 58→65：封封 7 張絕學
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(196);   // 2026-09-17 噹噹的 29 張（起手 3、忍術 20、絕學 6）
+    expect(cards.length).toBe(228);   // 196→228：2026-09-20 封封 32 張
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -62,7 +63,7 @@ describe('牌資料', () => {
     for (const c of cards) {
       const hitsAll = c.effects.some((e) => ('target' in e && e.target === 'all'));
       const hitsOne = c.effects.some((e) =>
-        (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageRamp' || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
+        (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageSpendQi' || e.kind === 'damageRamp' || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
         (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus' ||
         // 菲菲的三張（2026-09-12）：遠射／見血封喉／一針斃命都是指定一隻打
@@ -88,6 +89,11 @@ describe('牌資料', () => {
   it('起手牌組 10 張', () => {
     expect(FEIFEI_STARTER_DECK.length, '菲菲也是十張').toBe(10);
     expect(DANGDANG_STARTER_DECK.length, '噹噹也是十張').toBe(10);
+    expect(FENGFENG_STARTER_DECK, '封封起手固定為四攻、四防、二吐納').toEqual([
+      'fengfeng_pingzhan', 'fengfeng_pingzhan', 'fengfeng_pingzhan', 'fengfeng_pingzhan',
+      'fengfeng_hushen', 'fengfeng_hushen', 'fengfeng_hushen', 'fengfeng_hushen',
+      'fengfeng_tuna', 'fengfeng_tuna',
+    ]);
     expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dangdang_zhengquan').length).toBe(5);
     expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dangdang_jiapan').length).toBe(4);
     for (const id of DANGDANG_STARTER_DECK) expect(cardById[id]?.pool, id).toBe('起手');
@@ -118,7 +124,7 @@ describe('牌資料', () => {
     const artReady = (c: typeof cards[number]): boolean => {
       if (!manifest.cards[c.art]) return false;
       // 綁角色的牌，`c.art` 就是那位自己的圖
-      if (c.hero === 'feifei' || c.hero === 'ninja' || c.hero === 'dangdang') return true;
+      if (c.hero === 'feifei' || c.hero === 'ninja' || c.hero === 'dangdang' || c.hero === 'fengfeng') return true;
       // 起手牌是照職業發固定清單的，她永遠拿不到球球那四張（貓抓、淡定…），不需要她的版本
       if (c.pool === '起手') return true;
       return !!manifest.cards[c.art.replace('card/', 'card/feifei_')];

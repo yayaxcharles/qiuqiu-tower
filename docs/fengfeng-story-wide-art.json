@@ -1,0 +1,322 @@
+[
+  {
+    "sourceId": "FG-P-01",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/01_FG-P-01_回村與魔塔_待去背.png",
+    "outputKey": "bg/fengfeng_still_return",
+    "outputPath": "public/assets/bg/fengfeng_still_return.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-81fe46a3-b105-4bef-8f41-4dc62aadc43f.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: Fengfeng returns to the autumn cat village beside a supply cart; villagers ahead, a tall menacing purple-lit tower far up the mountain. Wide village lane, hero seen from behind, coherent dramatic vista.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-01.png",
+    "sourceSha256": "6289b8dd6ddeca07545666782610614ee13e8ee8b8bddfdeb29c89e4e2743a79",
+    "outputSha256": "bc483a328d112a1d9b24df79cd050302882f91033581a4748625deb05b1da273",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 565968,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-P-02",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/02_FG-P-02_關門的鋪子_待去背.png",
+    "outputKey": "bg/fengfeng_still_shop",
+    "outputPath": "public/assets/bg/fengfeng_still_shop.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-e066feef-7573-4763-9dae-cf934d627144.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: Fengfeng discovers the familiar training shop closed. His left profile facing the shuttered wooden shop, a medical supply box near the door, empty training dummies in the courtyard and an ordinary small calico cat walking through at right. Preserve the quiet deserted feeling.",
+    "correctionPrompt": "Edit this finished illustration surgically, keeping the entire scene, layout, faces, costume and style identical. Fix ONLY Fengfeng's sword equipment at his hips: he owns exactly ONE sheathed straight sword. Draw one continuous brown scabbard extending down-left from his left waist, and exactly ONE gold/brass hilt attached to its mouth near his left waist. Remove the extra sword hilt/pommel and extra crossing thin weapon currently near his right paw and across his trouser front. Both white paws empty and relaxed. No duplicated weapon, no detached hilt or dangling extra sword. Keep wide 16:9 finished landscape image, no text.",
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-02.png",
+    "sourceSha256": "c905871de431ad0665de1d8987978cf3692e5290d0e60713c4535145d692d539",
+    "outputSha256": "f021b39707cb09de9d915b801c8fb7bf85b42a36e757ea93dfb9294ee5581026",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 530308,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-P-03",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/01_FG-P-03_村貓說明_待去背.png",
+    "outputKey": "bg/fengfeng_still_meet",
+    "outputPath": "public/assets/bg/fengfeng_still_meet.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-0c526826-937b-4129-bf58-28a271b0e7ca.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: An anxious brown-robed gray tabby villager explains the trouble to Fengfeng outside a boarded shop. Exactly these two speaking characters; medical supply crate foreground. Fengfeng listens with paw at chin; one sheathed sword at his belt.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-03.png",
+    "sourceSha256": "9a8397c0d44ab3598e54e9a27151e277f443eadf335ef18cf04469c389adc526",
+    "outputSha256": "045609d58f02de59855f5e3dd2c8fb7bbfa9b05af756cae441036669ee10d16c",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 535836,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-P-04",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/02_FG-P-04_塔下出發_待去背.png",
+    "outputKey": "bg/fengfeng_still_tower",
+    "outputPath": "public/assets/bg/fengfeng_still_tower.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-8fb62376-c047-4c64-8c8e-64da042ce28d.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: Fengfeng crouches at the monumental tower doorway tightening his small brown travel pouch. Scattered dried fish on stone steps provide a clue. Show his complete grounded crouching posture, single sheathed sword, broken cat banners and richly drawn wide tower threshold.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-04.png",
+    "sourceSha256": "814fae34adc6372a54694f6c2bb6f3d598829c9fa0a9fb233a930ee9cf6a06a5",
+    "outputSha256": "4d72e9a40b4c51986a145a651c9ce4b13e8aea6aff03422b6e1dce25e4861f4b",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 525388,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-P-05",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/03_FG-P-05_塔門魚乾痕跡_待去背.png",
+    "outputKey": "bg/fengfeng_story_p05",
+    "outputPath": "public/assets/bg/fengfeng_story_p05.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-ecee052b-7d87-4b33-8554-ec378d6294c9.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance:  Identity rule whenever a named companion appears: Qiuqiu is SILVER GRAY tabby, dark gray stripes, blue headband, navy ninja gi; NEVER orange. Feifei is cream/brown Siamese, blue eyes, magenta gi, high ponytail with purple bow. Dangdang is black-white tuxedo in teal with copper bracers. Fengfeng alone is orange with red scarf. Additional character sheets override mistaken colors in old story drafts. Fengfeng crouches at the massive purple tower doorway, examining small dried fish scattered over the steps, packed sacks to the right. One orange swordsman. Preserve the low searching paw and a SINGLE sheathed sword at his belt, no duplicate weapon, torn cat banners and fish clue. Complete grounded body and paws, wide doorway composition.",
+    "correctionPrompt": "Edit only the left part of this wide finished game illustration: REMOVE the three bystander cats on the far left (blue-headband gray cat, cream cat with ponytail, black-white teal cat). Fill their area naturally with empty old stone steps and castle wall consistent with the perspective and lighting. The orange tabby swordsman crouching center is ALONE at this story moment, so he must be the ONLY CHARACTER in the image. Preserve that main orange character, his entire pose and single sword, the fish on the ground, tower door, sacks, composition, 16:9 size and drawing style exactly. NO other figures anywhere, no blur, no text.",
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-05.png",
+    "sourceSha256": "98d043ebe735b350caa041e4cdda6d710601bab1c0318a5d3cc17e072ae13e70",
+    "outputSha256": "d6892511b96fadf7db52779faa990fd3981be194f1d18becc75e0055c7846f83",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 451780,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-A1-01",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/04_FG-A1-01_樓梯糧箱_待去背.png",
+    "outputKey": "bg/fengfeng_still_act1_stairs",
+    "outputPath": "public/assets/bg/fengfeng_still_act1_stairs.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-c51e151a-5ab0-4bde-90ee-a045a048253a.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: After defeating the first guardian, Fengfeng pushes aside EMPTY wooden supply crates bearing the caravan's simple cat emblem beside a tall indoor staircase. Exactly match his two paws pushing the crate and slightly effortful posture from the reference. Warm torch-lit old stone stairway winding upwards, broken crates on the floor. No added magical smoke. One character, single sheathed sword.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-A1-01.png",
+    "sourceSha256": "1cbdf6c590efc2668faa4a3abbc26610cf7ec613d1578567fecc3155a9aaeea5",
+    "outputSha256": "1365a0a21ecbfb227250b53a1ed12c2b9e1f0718e9a422ef4019c9772820c653",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 405968,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-A2-01",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/05_FG-A2-01_半途遇見噹噹_待去背.png",
+    "outputKey": "bg/fengfeng_still_act2_smoke",
+    "outputPath": "public/assets/bg/fengfeng_still_act2_smoke.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-6964a7f5-9dba-4a3d-b169-b4d1c1565f65.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CRITICAL CHARACTER CORRECTION: the scene draft incorrectly colored Dangdang brown. Use the SECOND reference as authoritative Dangdang identity: black-white tuxedo cat, amber eyes, teal vest, copper bracers. Exact story: Dangdang is coming DOWN the tower staircase supporting an injured small gray striped villager cat with a cloth-bandaged leg; Fengfeng stands below and to the side, catching the villager's sliding beige bundle. THREE cats in total: one orange/red Fengfeng, one blackwhite/teal Dangdang, one small injured gray NPC. Wide amber torchlit stone staircase, concerned helpful mood, no fight.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-A2-01.png",
+    "sourceSha256": "11f71697c6456dd75bcd249fd9158a264f4ada5d840d3b040dbd24b66deae321",
+    "outputSha256": "881d097049b2ef953910e36c0f138302599282f1eb2070a8f96298c2e2bf4fc9",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 416290,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-TOP-01",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/06_FG-TOP-01_塔頂讓出劍路_待去背.png",
+    "outputKey": "bg/fengfeng_story_top",
+    "outputPath": "public/assets/bg/fengfeng_story_top.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-8d0a6e1c-13f1-4632-89d1-723d343f3ac1.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CRITICAL CHARACTER CORRECTION: scene draft has outdated companion colors. Use additional canonical references: Qiuqiu is round pale gray/silver tabby with darker gray stripes, cream muzzle, blue ninja headband and blue ninja vest, Feifei is cream Siamese with dark brown eye mask/ears/paws, blue eyes, magenta gi and high brown ponytail with purple bow. Exactly FOUR characters: orange/red swordsman Fengfeng foreground cautiously draws ONE straight jian, the SILVER GRAY blue-clad Qiuqiu behind him weakly raises one paw to urge restraint, Feifei supports Qiuqiu near the doorway, and a much taller charcoal-gray corrupted master cat approaches from right with glowing purple eyes and purple smoky aura. Master wears damaged beige martial robe/dark belt (see boss reference), not ninja outfit. Fengfeng protects his friends without injuring the master. Full-width ruined tower summit at purple dusk, no extra orange cats, no duplicate swords, no text.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-TOP-01.png",
+    "sourceSha256": "82c5d62bcbfe10bea588ca3f939d86dffa7d5a6cdfc591dd81553aa1d429396e",
+    "outputSha256": "45a2cf487b71a7df66e7218f986275a3cd0fb0977d3b8f5869a57f05fa4ee60b",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 526222,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-D-01",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/07_FG-D-01_落敗與包紮_待去背.png",
+    "outputKey": "bg/fengfeng_story_defeat",
+    "outputPath": "public/assets/bg/fengfeng_story_defeat.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-aeaad77e-3159-4eeb-95eb-73d9703aed37.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: Fengfeng has been rescued after defeat. He sits exhausted on a straw mat inside a warmly lit village medicine room, small superficial scratches on face/cream sleeves, eyes closed; a gentle brown-gray tabby village healer wearing a plain blue-gray robe carefully bandages Fengfeng's forearm. Exactly TWO cats, not any hero companion. ONE straight sword lies safely on floor in front, its single empty brown scabbard beside it. Medical box, clean bandage rolls, lantern and small window showing distant purple tower. No gore, quiet caring mood.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-D-01.png",
+    "sourceSha256": "c97af52cac8097cd50d57de5a6d74f367f1142248a1860be5870dab17c16ea45",
+    "outputSha256": "e87064a53bafeaddaf7b1e525a27d076d273cb7efd490eddae64d856254aff9d",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 395816,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-V-08",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/08_FG-V-08_回村與熱湯_待去背.png",
+    "outputKey": "bg/fengfeng_still_home",
+    "outputPath": "public/assets/bg/fengfeng_still_home.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-61c53fa3-ab64-4994-8644-af4871beda98.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CHARACTER CORRECTION from old draft. Warm village reunion after returning from the tower: Fengfeng orange/red has a freshly wrapped white bandage on one paw and smiles relieved. Beside him stand his actual friends, Qiuqiu the SILVER GRAY tabby in navy ninja gi and blue headband; Feifei cream/brown Siamese with dark brown face mask, blue eyes, purple bow/ponytail and magenta gi; Dangdang BLACK-WHITE tuxedo wearing teal martial vest and copper bracers offers bowls of steaming soup. Friendly plain-robed village cats around the lower edges. Everyone exhausted but happy at the open medicine stall with supplies, warm hanging lanterns and dusk blue sky. No ordinary orange kitten substitutes for Qiuqiu, no plain white substitute for Feifei, no brown substitute for Dangdang. One sheathed sword on Fengfeng.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-V-08.png",
+    "sourceSha256": "479768fef5f2bb48d3c532484cc6bad7b632ce02fcb618ee10bcd04f685ce087",
+    "outputSha256": "7734dc454a5ea2d0678833103434ea9230045044fd4dd62d289ff532c7cc1190",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 452400,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-ART-EP01",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/03_FG-ART-EP01_院子練習_待去背.png",
+    "outputKey": "bg/fengfeng_story_ep01",
+    "outputPath": "public/assets/bg/fengfeng_story_ep01.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-212aed82-ec5c-4d41-9406-428a2ed3b81b.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CHARACTER AND STORY CORRECTION. A few days later in the warm autumn village training courtyard: Fengfeng orange/red is practicing carefully with a blunt wooden training sword, and Qiuqiu, a SILVER GRAY striped round cat with navy ninja gi and blue headband, stands respectfully outside his sword reach, ready to step in AFTER he finishes the swing. Neither is an ordinary pet cat. Feifei the cream/brown Siamese in magenta with ponytail/purple bow sits safely at the side near a tea tray. Dangdang the black-white teal-clad martial artist has just moved the bamboo drying rack out of the way. The tall silver-gray elder master in a straw hat and beige gi quietly watches from the doorway in the far background. Exactly FIVE named cats, cozy lighthearted training, no combat harm, clear spacing and full environment. No duplicate swords; Fengfeng holds only the wooden sword, other equipment safely aside.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-EP01.png",
+    "sourceSha256": "35ada1d623c78327ad7a2385a9f70101cf24f6d5286f048f77882fae9dba66b8",
+    "outputSha256": "ed642121c07c5171ffda1265abac39bc600313de034b8f21a73d594abaa08adc",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 504936,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-ART-CQP",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/04_FG-ART-CQP_球球搭檔出發_待去背.png",
+    "outputKey": "bg/fengfeng_coop_ninja_prologue",
+    "outputPath": "public/assets/bg/fengfeng_coop_ninja_prologue.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-1633311e-8693-491a-9ae8-f6584c97cb23.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CHARACTER CORRECTION from the old story draft. Cooperative prologue: Fengfeng and Qiuqiu set off together along the autumn village road toward the distant towering purple-lit castle. Fengfeng is the orange tabby in red scarf/red vest, cream sleeves, dark pants, travel pack and one sheathed straight sword; Qiuqiu is the SILVER GRAY tabby wearing BLUE HEADBAND and NAVY NINJA GI, round-bodied, walking upright on two legs beside him. He is NOT the ordinary calico pet cat from the old draft. Exactly TWO characters, both seen in rear three-quarter view with faces subtly visible. Both whole bodies and feet grounded, lanterns/village roofs/road widening naturally, adventurous afternoon light.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQP.png",
+    "sourceSha256": "e7a1ca52a27f88e40d878213f2941401a5d81b14a56dd758769cad6aa8c1021c",
+    "outputSha256": "e3f240ee8812622e1dfb8642d52a33005925875708785d4b1ead9031659d1917",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 557556,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-ART-CQT",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/05_FG-ART-CQT_球球搭檔塔頂_待去背.png",
+    "outputKey": "bg/fengfeng_coop_ninja_top",
+    "outputPath": "public/assets/bg/fengfeng_coop_ninja_top.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-05a92792-151a-41ef-99da-5fc31b898720.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CRITICAL CHARACTER CORRECTION: the ordinary calico pet in the story draft must be Qiuqiu, the SILVER GRAY round tabby with dark gray stripes, BLUE HEADBAND and NAVY NINJA GI (second reference), upright biped. Exactly THREE characters: Fengfeng orange/red swordsman on the LEFT, Qiuqiu on the RIGHT giving room for the sword, and tall corrupted gray-striped master above them on the tower steps. The master follows the third reference, muscular gray tabby in torn beige martial gi, dark belt, purple glowing eyes and purple smoke. Fengfeng grips only ONE straight sword and holds it safely toward his left side while Qiuqiu moves right; they coordinate their spacing. Wide ruined castle rooftop, dramatic purple sky, whole bodies and grounded feet, no extra companions and no pet cats.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQT.png",
+    "sourceSha256": "cc8afadb4813604f00aae92ec66b2315ab8ad2e9f3f6a5bb3ce96f4371f2cab0",
+    "outputSha256": "3f750318ec6bf406f20bd9e8bacf58622e5200e72098688e588783be8b5d42a5",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 498008,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-ART-CQV",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/06_FG-ART-CQV_球球搭檔回村_待去背.png",
+    "outputKey": "bg/fengfeng_coop_ninja_victory",
+    "outputPath": "public/assets/bg/fengfeng_coop_ninja_victory.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-be2c168c-0c9b-4c0d-9cc4-6317b3f390cc.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CRITICAL IDENTITY CORRECTION. Cooperative victory returning to the village gate: Fengfeng orange/red carrying his pack walks in with Qiuqiu SILVER GRAY/blue-headband/navy ninja gi and their rescued tall gray-striped elder master in straw hat and beige gi. At the open gate Dangdang BLACK-WHITE/teal vest/copper bracers reaches for the packs, while Feifei CREAM-BROWN SIAMESE/magenta gi/blue eyes/high ponytail purple bow takes Qiuqiu's paw to check his little scrapes. Exactly FIVE named cats, warm relief, not generic calico or white cats. Full width autumn village welcome, golden afternoon light, one sheathed sword on Fengfeng, no fighting. Canonical references override all outdated character appearances in first draft.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQV.png",
+    "sourceSha256": "96fd6403b90f635109300df9a6c8075c468d3bac54c64482f795c628f970e4aa",
+    "outputSha256": "b0fbf307ac4e3c593796564a272f25a3479e177a702217b86c53bda927f34276",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 502308,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-ART-CFP",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/07_FG-ART-CFP_菲菲搭檔出發_待去背.png",
+    "outputKey": "bg/fengfeng_coop_feifei_prologue",
+    "outputPath": "public/assets/bg/fengfeng_coop_feifei_prologue.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-e247535f-4041-4ab5-bd2e-c1063a5aa37f.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CRITICAL IDENTITY CORRECTION. Feifei and Fengfeng prepare to leave together. EXACTLY TWO cats: Feifei matches second reference: cream Siamese fur with dark BROWN EYE MASK, brown ears/paws/tail, bright blue eyes, high brown ponytail tied with purple bow, MAGENTA martial tunic and dark belt. Fengfeng remains orange/red scarf and cream sleeves. At a village worktable Feifei rolls clean bandages beside an open wooden medical case with shiny acupuncture needles neatly secured inside; Fengfeng attentively watches and carries one safely sheathed sword. Warm morning light through wooden doorway, small medicine drawers and bowl, wide composition, no added characters, no lab or syringe injections, no text.",
+    "correctionPrompt": "Surgical edit only: Fengfeng, the ORANGE cat on the RIGHT, has incorrectly brown hands and feet. Change his visible right hand resting on the table to CREAM WHITE fur matching his muzzle, with orange fur ending just above the wrist. Change both his visible feet below the trouser/shin wraps to CREAM WHITE paws. Any other visible Fengfeng hand must be cream white too. These are bare white-furred paws, not gloves or shoes. Preserve his orange striped arms, red/cream costume and everything else. Feifei on the LEFT must KEEP her dark brown Siamese paws and mask unchanged. Preserve all lighting, scene, composition and 16:9 format.",
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CFP.png",
+    "sourceSha256": "9762351a3dcad5e163615086394095492bcfb99035e804a6867fbfa4c5e85eef",
+    "outputSha256": "abf7b00bbe85bc5062448eae8417a6ae17b7557559f5976558c30b6242dab65b",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 393344,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  },
+  {
+    "sourceId": "FG-ART-CDP",
+    "originalPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/08_FG-ART-CDP_噹噹搭檔出發_待去背.png",
+    "outputKey": "bg/fengfeng_coop_dangdang_prologue",
+    "outputPath": "public/assets/bg/fengfeng_coop_dangdang_prologue.webp",
+    "generatedPath": "C:\\Users\\yayax\\.codex\\generated_images\\01a0b57a-11e5-73c1-8933-1f1a14c01310\\exec-5039e1e8-439a-4ead-a24c-07899bcfca3a.png",
+    "prompt": "Create a polished, full-width 16:9 landscape illustration for a hand-painted cartoon cat adventure game's story cutscene. The attached image is the approved narrative/composition and character reference. Recompose/extend it into a genuinely drawn wide environment, with sharp purposeful artwork all the way to the left and right edges. NO blurred sidebars, NO repeated panels, NO letterboxing, NO frame, NO text, NO UI, NO collage. Preserve the exact story moment, character identities, clothing, facial markings, mood, props and visual style from the reference; do not add plot elements. Keep all named characters fully in-frame including feet when visible, natural anatomy, coherent perspective and ground contact, expressive faces. Fengfeng is the orange striped tabby swordsman wearing cream sleeves, red vest and red scarf, dark trousers, brown shin wraps, with a single straight Chinese jian and scabbard. Do not turn other cats into Fengfeng or replace any companion. Crisp dark expressive linework, warm painterly environmental textures, cinematic depth and lighting, finished commercial 2D game cutscene art. Output a single 16:9 image. Story-specific guidance: CRITICAL IDENTITY CORRECTION. Dangdang and Fengfeng set off together. EXACTLY TWO cats. Dangdang matches second reference: BLACK-WHITE tuxedo with amber eyes, teal vest with cream trim, copper forearm bracers, brown sash and dark trousers. Fengfeng orange tabby with red scarf/red vest/cream sleeves and traveling backpack receives a glowing brass lantern from Dangdang at the doorway of his wooden workshop. One sheathed sword on Fengfeng, warm workshop equipment and open village lane, cozy late-afternoon atmosphere, hands anatomically clear sharing the same single lantern, whole grounded bodies. Do not use a brown villager substitute for Dangdang.",
+    "correctionPrompt": null,
+    "accepted": true,
+    "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CDP.png",
+    "sourceSha256": "27ddfbde02a09ce152b39a12eda108e5c4df2b405620e9468347580e452cd8b0",
+    "outputSha256": "8b42b5d4b70efecca95e5be51de0b1da065f62197be13be16eced27b6f26699b",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "bytes": 398904,
+    "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling"
+  }
+]

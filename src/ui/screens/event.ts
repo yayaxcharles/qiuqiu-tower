@@ -7,7 +7,7 @@ import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
-import type { CardDef, CardInstance, RunState } from '../../engine/types';
+import type { CardDef, CardInstance, EventChoice, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { artUrl, eventArtKey } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
@@ -169,6 +169,14 @@ registerScreen('event', (app, root, props) => {
    */
   let awaitingPicks = false;
   const iDown = !!coop && !!me(run, seat).down;   // 我倒下了：只能看，不能選
+
+  /** 交換是大家一起做：站著的每一位都要有可交出的非起始秘寶。 */
+  function exchangeBlockReason(choice: EventChoice): string {
+    if (!choice.outcome.some((fx) => fx.kind === 'loseRelic')) return '';
+    const participants = coop ? run.players.filter((p) => !p.down) : [me(run, seat)];
+    const missing = participants.find((p) => !p.relics.some((id) => relicById[id]?.pool !== '起始'));
+    return !missing ? '' : missing === me(run, seat) ? '沒有可交換的秘寶' : '同伴沒有可交換的秘寶';
+  }
 
   /**
    * 事件的每一條路都收在這個劇場版面：插圖立在中上、結果一句話寫在對白框、按鈕排在框裡
@@ -475,6 +483,8 @@ registerScreen('event', (app, root, props) => {
   function take(index: number): void {
     const c = ev?.choices[index];
     if (!c) return;
+    const exchangeReason = exchangeBlockReason(c);
+    if (exchangeReason) { finish('這次沒有交換秘寶。', exchangeReason); return; }
     const cost = c.costFish ?? 0;
     resultArt = c.resultArt;
     const notes: string[] = [];
@@ -584,13 +594,15 @@ registerScreen('event', (app, root, props) => {
     // 選項自己的文案就寫著要付多少（「付 30 小魚乾」「買一顆（20 小魚乾）」），這裡不要再補一次價錢；
     // 付不起才補一句話講清楚為什麼按不動。
     const poor = cost > me(run, seat).fish;
+    const exchangeReason = exchangeBlockReason(c);
     // 誰投了這一項：兩個人才知道對方想選什麼（跟地圖上的小記號同一套）
     const who = votes.map((v, i) => (v === String(index) ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
-    const btn = el('button', { class: 'btn' }, evText(c.label) + (poor ? '（小魚乾不夠）' : '') + (who.length ? `　← ${who.join('、')}` : ''));
+    const btn = el('button', { class: 'btn' }, evText(c.label) + (poor ? '（小魚乾不夠）' : '') + (exchangeReason ? `（${exchangeReason}）` : '') + (who.length ? `　← ${who.join('、')}` : ''));
     // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
-    if (poor || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
+    if (poor || exchangeReason || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
       if (cost > me(run, seat).fish) return;   // 保險：畫面畫完之後小魚乾又變少的話也不能透支
+      if (exchangeBlockReason(c)) { app.show('event', props, { quiet: true }); return; }
       play('click');
       if (coop) { coop.pick('event', String(index)); return; }   // 兩個人都投完才真的做（見 onPick）
       take(index);
@@ -628,6 +640,14 @@ registerScreen('event', (app, root, props) => {
       const alive = run.players.map((p) => !p.down);
       const now = onlyStanding(coop.picks('event', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       if (!allVoted(now, alive)) { app.show('event', props, { quiet: true }); return; }
+      // 無效交換直接顯示未交換的結果；重新投票會讓晚進畫面的同伴把新票當重複票丟掉。
+      const blockedVote = now.find((v) => v !== null && ev.choices[Number(v)] && exchangeBlockReason(ev.choices[Number(v)]!));
+      if (blockedVote !== undefined) {
+        chosen = Number(blockedVote);
+        coop.clearPicks('event');
+        take(chosen);
+        return;
+      }
       const pickStr = settleVotes(runRng(run), now);
       if (pickStr === null) return;
       chosen = Number(pickStr);

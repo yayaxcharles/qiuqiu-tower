@@ -2,7 +2,7 @@ import { cardById, cardNameFor } from '../content/cards';
 import { encounterById, enemyById, enemySkin } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
-import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainStealth, giveCards, log, makeEnemy, markPoisoner, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
+import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainEnergy, gainStealth, giveCards, log, makeEnemy, markCombatWon, markPoisoner, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
 import { coopHpMul } from './coopscale';
 import { unitName } from './hero';
 import type { Hero } from './hero';
@@ -41,6 +41,7 @@ export function startCombat(input: {
     relics: [...input.relics], potions: [...input.potions],
     hp: input.hp, maxHp: input.maxHp, block: 0, armour: 0, statuses: {},
     energy: 0, maxEnergy: 3 + relicSum(input.relics, 'energyPerTurn'),
+    qi: 0,
     hand: [], drawPile: input.rng.shuffle(input.deck), discardPile: [], exhaustPile: [],
     retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
     noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
@@ -292,6 +293,9 @@ export function startJoinedSeat(cs: CombatState, p: PlayerCombat, startBlock = 0
 }
 
 function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
+  // 集中精神與下一擊準備都只撐一個本人的玩家階段；自然補滿不受集中精神影響。
+  p.energyGainBlockedThisPhase = undefined;
+  p.nextAttackBonus = undefined;
   // 蜷縮不在這裡清：回合結束、魔物打完才照守護符留量修剪（見 endTurn 尾端）——
   // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
@@ -323,7 +327,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const o of cs.players) {
     if (o.down || !o.energyForAllyEachRound) continue;
     if (hasMate ? o === p : o !== p) continue;       // 有同伴＝別人給我；沒同伴＝自己給自己
-    p.energy += 1; cs.energyGain += 1;
+    gainEnergy(cs, p, 1);
     if (o.energyForAllyEachRound === 'draw') p.drawNextTurn += 1;
     log(cs, o === p ? '自己留的那口飯糰，現在吃了' : `${unitName(o)}留的那口飯糰，${unitName(p)}拿到了`);
   }
@@ -372,11 +376,28 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   // 球球被定身：這回合攻擊牌整排打不出（毛線球怪的「纏住」）。
   // 這一側漏了很久——引擎本來只實作魔物被定身那一半，玩家身上的定身完全沒作用
   if (st.def.type === '攻擊' && getStatus(p, '定身') > 0) return { ok: false, reason: '被定住了，這回合打不出攻擊牌' };
+  const sameOrHigherPower = st.effects.some((fx) => fx.kind === 'power' && fx.sameNameMax
+    && p.powers.some((old) => old.cardId === card.cardId && old.trigger === fx.trigger
+      && (!card.upgraded || !!old.upgraded)));
+  if (sameOrHigherPower) return { ok: false, reason: '同名或更高版本的能力已經生效' };
   let cost = st.cost;
   if (!p.firstCardPlayed) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscount'));
   if (!p.firstCardEver) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscountCombat'));   // 破卷軸：整場只有第一張（審查 #7）
   if (cost > p.energy) return { ok: false, reason: '餓扁了' };
   if (st.def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return { ok: false, reason: '要選一隻魔物' };
+  const support = st.effects.find((fx) => fx.kind === 'nextAttackBonusSpendQi');
+  if (support?.kind === 'nextAttackBonusSpendQi') {
+    const mate = cs.players.find((q) => q !== p && !q.down);
+    if (support.recipients === 'ally' && mate?.ready) {
+      return { ok: false, reason: '同伴已結束回合，請等下一回合' };
+    }
+    const recipients = support.recipients === 'ally'
+      ? (mate ? (mate.ready ? [] : [mate]) : [p])
+      : [p, ...(mate && !mate.ready ? [mate] : [])];
+    const spent = Math.min(Math.max(0, p.qi ?? 0), support.maxQi);
+    const amount = support.amount + support.perQi * spent;
+    if (!recipients.some((q) => (q.nextAttackBonus ?? 0) < amount)) return { ok: false, reason: '下一擊準備沒有提高' };
+  }
   return { ok: true, cost };
 }
 
@@ -408,7 +429,10 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   p.hand.splice(p.hand.indexOf(card), 1);
   const toExhaust = st.keywords.includes('消耗') || st.def.type === '能力';
   (toExhaust ? p.exhaustPile : p.discardPile).push(card);
-  const ctx: EffectCtx = { self: p, targetUid, cardUid: uid, cardId: st.def.id, cardUpgraded: card.upgraded, cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn };
+  const mateAtPlay = cs.players.find((q) => q !== p && !q.down) ?? p;
+  const ctx: EffectCtx = { self: p, targetUid, cardUid: uid, cardId: st.def.id, cardUpgraded: card.upgraded,
+    cardType: st.def.type, source: 'card', combo: p.cardsPlayedThisTurn,
+    qiBefore: Math.max(0, Math.min(12, p.qi ?? 0)), allyBlockBefore: mateAtPlay.block };
   /*
    * 目標**原本**有幾層毒：`blockIfPoisoned` 讀它。
    *
@@ -422,6 +446,10 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
       : Math.max(0, ...cs.enemies.filter((e) => !e.dead).map((e) => getStatus(e, '中毒')));
   }
   if (st.def.type === '攻擊' && p.doubleNext > 0) { ctx.doubleDamage = true; p.doubleNext = 0; }
+  if (st.def.type === '攻擊' && p.nextAttackBonus !== undefined) {
+    ctx.nextAttackBonus = p.nextAttackBonus;
+    p.nextAttackBonus = undefined;
+  }
   // 秘笈自己有專屬紀錄句，只推清單讓畫面閃（稽核 2026-09-10 中-3）
   if (st.def.type === '攻擊' && p.firstAttackDouble) {
     ctx.doubleDamage = true; p.firstAttackDouble = false;
@@ -446,7 +474,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     const gave = !!e && p.cardsPlayedThisTurn === e.n;
     if (drew || gave) fireRelic(cs, rid, p);
     if (drew) drawCards(cs, h!.draw, p);   // 抽進**打牌那位**的手裡（連線稽核 高-13：原本抽進座位 0）
-    if (gave) { p.energy += e!.energy; cs.energyGain += e!.energy; }
+    if (gave) gainEnergy(cs, p, e!.energy);
   }
   /*
    * 連線支援牌 C 批要兩份「打之前」的快照（2026-09-13）：
@@ -513,7 +541,13 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     let i = 0;
     for (; i < times && cs.phase === 'player' && !cs.pending; i++) {
       log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次${times > 1 ? `（${i + 1}／${times}）` : ''}`);
-      applyEffects(cs, st.effects, { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn });
+      const echoCtx: EffectCtx = { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn,
+        qiBefore: Math.max(0, Math.min(12, p.qi ?? 0)) };
+      delete echoCtx.qiSpent;
+      delete echoCtx.nextAttackBonus;
+      delete echoCtx.nextAttackBonusUsed;
+      delete echoCtx.selfBlockPool;
+      applyEffects(cs, st.effects, echoCtx);
     }
     // 重播途中開了選牌選單（告退、拖字訣、讀心術在手牌空著時原打不問、重播才問）就停在這裡，
     // 剩下的不補跑——但要說出來，不然紀錄印了 1／2 之後永遠等不到 2／2（審查 低-1）
@@ -574,6 +608,17 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
       // 憤怒每回合最多觸發一次（跟毛線手套 onHit 的 hitRelicTurn 同一套）：三隻第二關關主主招都是三段，
       // 每張技能牌都 +1／+2 會讓「先擋再打」的牌組被判死刑（全面體檢 2026-09-05；下一輪平衡拍板）
       if (d?.angerOnSkill && e.angerTurn !== cs.turn) { e.angerTurn = cs.turn; addStatus(e, '爪力', d.angerOnSkill); log(cs, `${e.name}被激怒了`); }
+    }
+  }
+  // 封封能力在原牌及既有反應完成後觸發；能力效果不會再回到 playCard，因此不遞迴。
+  if (!p.down && cs.phase === 'player') {
+    for (const pw of p.powers) {
+      if (pw.trigger !== 'afterCard' || (pw.cardType && pw.cardType !== st.def.type)
+          || (pw.minQiSpent !== undefined && (ctx.qiSpent ?? 0) < pw.minQiSpent)
+          || (pw.oncePerTurn && pw.firedTurn === cs.turn)) continue;
+      if (pw.oncePerTurn) pw.firedTurn = cs.turn;
+      applyEffects(cs, pw.effects, { self: p, source: 'power', qiBefore: Math.max(0, Math.min(12, p.qi ?? 0)) });
+      if (p.down || cs.phase !== 'player') break;
     }
   }
   return true;
@@ -692,6 +737,8 @@ function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
     if (getStatus(p, name) > fresh) addStatus(p, name, -1);
     delete p.freshDebuffs[name];
   }
+  p.nextAttackBonus = undefined;
+  p.energyGainBlockedThisPhase = undefined;
 }
 
 /** 敵方回合前半剩下的整場結算：同伴復活、魔物防禦歸零、魔氣暴走，並排好這回合要行動的魔物 */
@@ -905,7 +952,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       if (getStatus(e, '消散') === 0) {
         e.dead = true; e.escaped = true; e.faded = true;   // 自己散掉的才算「什麼都沒留下」（見 types.ts 的 faded）
         log(cs, `${e.name}散去了`);
-        if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
+        markCombatWon(cs);
       }
     }
     if (e.dead) return true;

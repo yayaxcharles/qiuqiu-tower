@@ -1,0 +1,58 @@
+{
+  "hero": "qiuqiu",
+  "reproducer": "python tools/pack_attack_variety_motion.py qiuqiu",
+  "wholeBodyFrames": true,
+  "actions": 4,
+  "frames": 36,
+  "assets": [
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/qiuqiu/roar_v2.png",
+      "sourceSha256": "c640cef88895eba8126e0600ecccc763ca77d71bfff19b0332cab8845827fbf4",
+      "target": "public/assets/motion/qiuqiu/roar_v2.webp",
+      "targetSha256": "630de6f5785518cf098c1ede9e3747636a9a9742e66f9bccb0b79518ae62dd0b",
+      "bytes": 947642,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/qiuqiu/ground_slam_v2.png",
+      "sourceSha256": "9daaedd79cc618f1a0c1ec0aec553fed16e0e04f19288860d7f31a1f0e45cdd8",
+      "target": "public/assets/motion/qiuqiu/ground_slam_v2.webp",
+      "targetSha256": "86750ea8bf9659d5453985e5216e2055108703e1d9cc962e95a0df769513694a",
+      "bytes": 903354,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/qiuqiu/body_bash_v2.png",
+      "sourceSha256": "af9675a116fe1390c80ef1dca095870f94806e5359eba7b3d58deaa98a20ff97",
+      "target": "public/assets/motion/qiuqiu/body_bash_v2.webp",
+      "targetSha256": "8083435a8113eb5caf7b2da52810fe1272ff627fed0076f4b224f468c83dc84e",
+      "bytes": 836732,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/qiuqiu/palm_combo_v2.png",
+      "sourceSha256": "b94b344b353ccad1b280fa83261f3ab313b22a77eac1cb3d82b864d1f1c2add0",
+      "target": "public/assets/motion/qiuqiu/palm_combo_v2.webp",
+      "targetSha256": "b58e3bf846d0d263af8866ad583cf1d47dc7751b44f25408aa3700a70fe5db36",
+      "bytes": 981874,
+      "size": [
+        1448,
+        1086
+      ],
+      "rgbaExact": true
+    }
+  ],
+  "uniqueBytes": 3669602
+}

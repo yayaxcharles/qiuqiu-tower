@@ -1,0 +1,477 @@
+import feifeiMotionData from './feifei-motion-data.json';
+import feifeiNeedleMotionData from './feifei-needle-motion-data.json';
+import dangdangMotionData from './dangdang-motion-data.json';
+import dangdangAttackMotionData from './dangdang-attack-motion-data.json';
+import fengfengMotionData from './fengfeng-motion-data.json';
+import fengfengAttackMotionData from './fengfeng-attack-motion-data.json';
+import {
+  FEIFEI_NEEDLE_CARD_ACTION,
+  feifeiNeedleFlightMs,
+  feifeiNeedleGapMs,
+  feifeiNeedleReleaseTimes,
+  isFeifeiNeedleAction,
+  type FeifeiNeedleAction,
+} from './feifei-needle-patterns';
+import {
+  createFrameMotionSet,
+  frameMotionDuration,
+  type FrameMotion,
+  type FrameMotionActor,
+  type FrameMotionPlayOptions,
+} from './frame-motion';
+import './styles/companion-motion.css';
+
+export type CompanionMotionKind = 'feifei' | 'dangdang' | 'fengfeng';
+
+export type FeifeiMotionAction =
+  | 'idle' | 'hurt' | 'run' | 'roll'
+  | 'attack1' | 'kick' | 'seal'
+  | 'guard' | 'eat' | 'win' | 'defeat' | 'poison'
+  | 'clone'
+  | FeifeiNeedleAction;
+
+export type DangdangMotionAction =
+  | 'idle' | 'hurt' | 'run' | 'dodge'
+  | 'punch' | 'palm' | 'kick' | 'shoulder' | 'counter' | 'ground_slam'
+  | 'rapid_combo' | 'heavy_palm' | 'sweep_combo' | 'reckless_bash'
+  | 'guard' | 'focus' | 'eat' | 'win' | 'defeat' | 'poison';
+
+export type FengfengMotionAction =
+  | 'idle' | 'hurt' | 'run' | 'dodge'
+  | 'slash' | 'sweep' | 'heavy_slash' | 'thrust' | 'double_slash'
+  | 'sword_combo' | 'qi_cleave' | 'earth_split' | 'retreat_thrust'
+  | 'guard' | 'focus' | 'sheath' | 'eat' | 'win' | 'defeat' | 'poison';
+
+export type CompanionMotionAction = FeifeiMotionAction | DangdangMotionAction | FengfengMotionAction;
+export type CompanionMotionActor = FrameMotionActor<CompanionMotionAction>;
+
+export type CompanionCardMotionOptions = Readonly<{
+  poseFamily?: string;
+  cardType?: string;
+  hasBlock?: boolean;
+  hasHeal?: boolean;
+}>;
+
+type TimedFrameMotion = FrameMotion & Readonly<{ impactTimes?: readonly number[] }>;
+
+const NATIVE_HEIGHT = 252;
+const EXTRA_WAVE_MS = 140;
+const CLONE_APPEAR_MS = 180;
+const CLONE_ATTACK_MS = 350;
+const CLONE_IMPACT_MS = 690;
+const CLONE_FADE_MS = 140;
+const CLONE_SEAL_HOLD_MS = 170;
+const FENGFENG_SHEATH_SKIP_MS = 120;
+
+const feifeiMotions = {
+  ...feifeiMotionData.actions,
+  ...feifeiNeedleMotionData.actions,
+} as unknown as Record<string, TimedFrameMotion>;
+const dangdangMotions = {
+  ...dangdangMotionData.actions,
+  ...dangdangAttackMotionData.actions,
+} as unknown as Record<string, TimedFrameMotion>;
+const fengfengMotions = {
+  ...fengfengMotionData.actions,
+  ...fengfengAttackMotionData.actions,
+} as unknown as Record<string, TimedFrameMotion>;
+const FEIFEI_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(feifeiMotions) as CompanionMotionAction[]);
+const DANGDANG_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(dangdangMotions) as CompanionMotionAction[]);
+const FENGFENG_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(fengfengMotions) as CompanionMotionAction[]);
+const FEIFEI_GUARD_CARDS = new Set([
+  'feifei_tuikai', 'feifei_tieqiang', 'feifei_tanlu',
+  'feifei_suoshou', 'feifei_taoshengsuo',
+]);
+/** 共用牌在菲菲手上已改成針術；沿用針牌整身動作，但命中波數仍由戰鬥結算決定。 */
+const FEIFEI_SHARED_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleAction>> = {
+  paozhao: 'shuriken',
+  roubao: 'needle_combo',
+  lianhuan: 'needle_combo',
+  huixuan: 'needle_fan',
+  dieda: 'needle_barrage',
+  bengquan: 'needle_pierce',
+  jiuweiquan: 'needle_barrage',
+  zuiquan: 'needle_fan',
+  caiweiba: 'needle_venom',
+  ehou: 'needle_venom',
+};
+/** 牌面是獨立暗器，現有飛針投射物不相符；素材補齊前保留卡圖演出。 */
+const FEIFEI_PROJECTILE_GAPS = new Set(['maoqiudan', 'tieshazhang', 'qinna']);
+const EAT_CARDS = new Set(['xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
+
+const DANGDANG_CARD_ACTION: Readonly<Record<string, DangdangMotionAction>> = {
+  taiji: 'counter',
+  dangdang_zhengquan: 'punch', dangdang_jiapan: 'guard', dangdang_huijing: 'guard',
+  dangdang_xieli: 'palm', dangdang_huben: 'guard', dangdang_yingpeng: 'punch',
+  dangdang_tiesha: 'guard', dangdang_tiaoxin: 'guard', dangdang_fanshou: 'rapid_combo',
+  dangdang_wenzhu: 'guard', dangdang_jieliqi: 'focus', dangdang_bengshan: 'heavy_palm',
+  dangdang_jiahou: 'focus', dangdang_yibi: 'counter', dangdang_zhendang: 'ground_slam',
+  dangdang_jianzhao: 'guard', dangdang_yingkang: 'guard', dangdang_zhanzhuang: 'focus',
+  dangdang_jieshi: 'guard', dangdang_jielidali: 'counter', dangdang_shunshi: 'focus',
+  dangdang_fanzhen: 'guard', dangdang_yishenzuodun: 'focus', dangdang_tongqiang: 'focus',
+  dangdang_tieshan: 'shoulder', dangdang_hubigong: 'focus', dangdang_huima: 'counter',
+  dangdang_qianjin: 'ground_slam', dangdang_yishang: 'focus', dangdang_sheshen: 'reckless_bash',
+};
+
+const DANGDANG_SHARED_GROUPS: Readonly<Record<DangdangMotionAction, readonly string[]>> = {
+  idle: [], hurt: [], run: [], poison: [], win: [], defeat: [],
+  palm: [
+    'shengdong', 'shunshou', 'bangnidianyixia', 'wobangnishouwei', 'zhaonishuodeda',
+    'jienideliqi', 'wozaizhe', 'susu', 'tieshazhang', 'juye', 'luoye',
+    'paozhao', 'sashoujian', 'dieda', 'liandao', 'zhuiji', 'maoqiudan',
+  ],
+  punch: ['qinna', 'dianxue', 'zuiquan', 'bengquan', 'ehou', 'jiuweiquan'],
+  kick: ['caiweiba', 'huixuan'],
+  shoulder: ['shunkan', 'beici'],
+  rapid_combo: ['roubao', 'shierlian'],
+  sweep_combo: ['luanwu', 'lianhuan'],
+  reckless_bash: ['wangming'],
+  heavy_palm: [],
+  counter: ['jiedao', 'jiaochulai', 'shuaiguo', 'yide', 'fanzhua', 'tuishou', 'jieli'],
+  ground_slam: ['shihou', 'weihe', 'chudashi', 'youcike', 'boming'],
+  guard: [
+    'fenyiban', 'ninaqudang', 'wolaidang', 'huannieduochoudian', 'kaoniyixia',
+    'chenxianzaichushou', 'xianbangniliuzhe', 'bianshen', 'meikandao', 'jinzhong',
+    'suoyituan', 'hujin', 'tiebushan',
+  ],
+  dodge: ['zhanshu', 'gaotui', 'yixing', 'diaohu'],
+  eat: ['xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu'],
+  focus: [
+    'bangnisheme', 'jienicailiangbu', 'niyechouyizhang', 'wobangnipaidiao',
+    'fantuanfenni', 'shoujiewoyixia', 'yuganjijiu', 'yiqichuankou',
+    'huannimangyixia', 'zhexienixianchi', 'biezhanzaishenshang', 'duxin',
+    'qianliyan', 'shunfenger', 'dingshang', 'tuozi', 'dingshen', 'cuimian',
+    'fengkou', 'touchi', 'xuli', 'gekong', 'liangzhua', 'sanhua', 'jingzhi',
+    'doumao', 'qianglafen', 'cuiye', 'nimangwobuwei', 'fantuanliuyikou',
+    'jiejie', 'fantan', 'renwuwancheng', 'fengyin', 'mabu', 'yungong',
+    'wanhua', 'wufeng', 'tiexin', 'huxin',
+  ],
+};
+
+const DANGDANG_SHARED_ACTION = new Map<string, DangdangMotionAction>();
+for (const [action, cards] of Object.entries(DANGDANG_SHARED_GROUPS)) {
+  for (const card of cards) DANGDANG_SHARED_ACTION.set(card, action as DangdangMotionAction);
+}
+const DANGDANG_NO_MOTION = new Set([
+  'zhongji', 'shishou', 'zouhuo', 'neili', 'shibai',
+  'maoqiu', 'zuiyang', 'fanwei', 'slime_card', 'dazed_card',
+]);
+const DANGDANG_MELEE = new Set<DangdangMotionAction>([
+  'punch', 'palm', 'kick', 'shoulder', 'counter',
+  'rapid_combo', 'heavy_palm', 'sweep_combo', 'reckless_bash',
+]);
+const FEIFEI_MELEE = new Set<FeifeiMotionAction>(['attack1', 'kick']);
+const DANGDANG_WAVE_CROPPED_ACTIONS = new Set<string>(['rapid_combo', 'sweep_combo']);
+const FENGFENG_WAVE_CROPPED_ACTIONS = new Set<string>(['sword_combo']);
+
+const FENGFENG_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
+  fengfeng_pingzhan: 'slash', fengfeng_hushen: 'guard', fengfeng_tuna: 'focus',
+  fengfeng_tanbu: 'slash', fengfeng_hengsao: 'sweep', fengfeng_tabu: 'heavy_slash',
+  fengfeng_tiaokai: 'slash', fengfeng_tuibu: 'guard', fengfeng_zhengxi: 'focus',
+  fengfeng_wenwan: 'focus', fengfeng_huanshou: 'guard', fengfeng_jianqiao: 'guard',
+  fengfeng_huibu: 'retreat_thrust', fengfeng_chuantang: 'thrust', fengfeng_shuangduan: 'double_slash',
+  fengfeng_huzhou: 'slash', fengfeng_zhuanshen: 'focus', fengfeng_changxi: 'focus',
+  fengfeng_zhenshou: 'sheath', fengfeng_xunxi: 'focus', fengfeng_shoushi: 'sheath',
+  fengfeng_kanshi: 'focus', fengfeng_youbian: 'focus', fengfeng_jiewo: 'focus',
+  fengfeng_husong: 'guard', fengfeng_duanliu: 'qi_cleave', fengfeng_kaishan: 'earth_split',
+  fengfeng_cunfeng: 'sheath', fengfeng_lianxi: 'focus', fengfeng_jizhong: 'focus',
+  fengfeng_pozhen: 'qi_cleave', fengfeng_yiqichushou: 'focus',
+};
+const FENGFENG_SHARED_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
+  liandao: 'sword_combo',
+};
+const FENGFENG_PROJECTILE_GAPS = new Set(['luanwu', 'maoqiudan', 'sashoujian']);
+const FENGFENG_ATTACKS = new Set<FengfengMotionAction>([
+  'slash', 'sweep', 'heavy_slash', 'thrust', 'double_slash',
+  'sword_combo', 'qi_cleave', 'earth_split', 'retreat_thrust',
+]);
+
+const directDuration = (motions: Readonly<Record<string, TimedFrameMotion>>, action: CompanionMotionAction): number =>
+  frameMotionDuration(motions[action] ?? motions.idle!);
+
+const cloneDuration = (): number => CLONE_ATTACK_MS + directDuration(feifeiMotions, 'attack1') + CLONE_FADE_MS;
+
+function waveCount(options: FrameMotionPlayOptions): number {
+  return Math.max(1, Math.floor(options.waves ?? 1));
+}
+
+function repeatedThrowElapsed(action: FeifeiNeedleAction, elapsed: number, waves: number): number {
+  const releases = feifeiNeedleReleaseTimes(action);
+  const usedReleases = Math.min(waves, releases.length);
+  const usedLastRelease = releases[usedReleases - 1]!;
+  const sourceRelease = releases.at(-1)!;
+  if (waves < releases.length && elapsed > usedLastRelease) {
+    return sourceRelease + elapsed - usedLastRelease;
+  }
+  if (waves <= releases.length || elapsed <= sourceRelease) return elapsed;
+  const gap = feifeiNeedleGapMs(action);
+  const firstExtraRelease = sourceRelease + gap;
+  const lastRelease = sourceRelease + (waves - releases.length) * gap;
+  if (elapsed > lastRelease) return sourceRelease + elapsed - lastRelease;
+  const releaseAt = firstExtraRelease
+    + Math.floor(Math.max(0, elapsed - firstExtraRelease) / gap) * gap;
+  const cycleStart = releaseAt - gap;
+  const sourceStart = Math.max(0, sourceRelease - gap);
+  return sourceStart + elapsed - cycleStart;
+}
+
+function repeatedImpactElapsed(motion: TimedFrameMotion, elapsed: number, waves: number, crop: boolean): number {
+  const impactTimes = motion.impactTimes ?? [];
+  if (crop && impactTimes.length > 1 && waves < impactTimes.length) {
+    const usedEnd = impactFrameEnd(motion, impactTimes[Math.max(0, waves - 1)]!);
+    const finalEnd = impactFrameEnd(motion, impactTimes.at(-1)!);
+    return elapsed >= usedEnd ? finalEnd + elapsed - usedEnd : elapsed;
+  }
+  const impact = impactTimes.at(-1);
+  const extraWaves = waves - impactTimes.length;
+  if (impact === undefined || extraWaves <= 0 || elapsed <= impact) return elapsed;
+  const lastImpact = impact + extraWaves * EXTRA_WAVE_MS;
+  if (elapsed >= lastImpact) return impact + elapsed - lastImpact;
+  const offset = Math.max(0, elapsed - impact - 1) % EXTRA_WAVE_MS;
+  return Math.max(0, impact - EXTRA_WAVE_MS + 1 + offset);
+}
+
+function impactFrameEnd(motion: TimedFrameMotion, impactAt: number): number {
+  let end = 0;
+  for (const frame of motion.frames) {
+    end += Math.round(frame.duration * 1000);
+    if (end > impactAt) return end;
+  }
+  return frameMotionDuration(motion);
+}
+
+function waveAdjustedDuration(motion: TimedFrameMotion, waves: number, crop: boolean): number {
+  const base = frameMotionDuration(motion);
+  const impactTimes = motion.impactTimes ?? [];
+  if (impactTimes.length === 0) return base;
+  if (crop && waves < impactTimes.length) {
+    const usedEnd = impactFrameEnd(motion, impactTimes[Math.max(0, waves - 1)]!);
+    const finalEnd = impactFrameEnd(motion, impactTimes.at(-1)!);
+    return base - (finalEnd - usedEnd);
+  }
+  return base + Math.max(0, waves - impactTimes.length) * EXTRA_WAVE_MS;
+}
+
+function resolveFeifei(action: CompanionMotionAction, elapsed: number, options: FrameMotionPlayOptions) {
+  if (action === 'clone') {
+    const sealDuration = directDuration(feifeiMotions, 'seal');
+    const resumeAt = cloneDuration() - (sealDuration - CLONE_SEAL_HOLD_MS);
+    const sealElapsed = elapsed <= CLONE_SEAL_HOLD_MS ? elapsed
+      : elapsed < resumeAt ? CLONE_SEAL_HOLD_MS
+        : CLONE_SEAL_HOLD_MS + elapsed - resumeAt;
+    return { key: 'seal', elapsed: sealElapsed, loop: false };
+  }
+  if (isFeifeiNeedleAction(action)) {
+    return { key: action, elapsed: repeatedThrowElapsed(action, elapsed, waveCount(options)), loop: false };
+  }
+  const key = FEIFEI_DIRECT_ACTIONS.has(action) ? action : 'idle';
+  return { key, elapsed, loop: action === 'idle' || action === 'poison' || action === 'run' };
+}
+
+function resolveDangdang(action: CompanionMotionAction, elapsed: number, options: FrameMotionPlayOptions) {
+  const key = DANGDANG_DIRECT_ACTIONS.has(action) ? action : 'idle';
+  const motion = dangdangMotions[key] ?? dangdangMotions.idle!;
+  return { key, elapsed: repeatedImpactElapsed(motion, elapsed, waveCount(options),
+    DANGDANG_WAVE_CROPPED_ACTIONS.has(key)), loop: motion.loop };
+}
+
+function resolveFengfeng(action: CompanionMotionAction, elapsed: number, options: FrameMotionPlayOptions) {
+  const requested = FENGFENG_DIRECT_ACTIONS.has(action) ? action : 'idle';
+  const motion = fengfengMotions[requested] ?? fengfengMotions.idle!;
+  const waves = waveCount(options);
+  const crop = FENGFENG_WAVE_CROPPED_ACTIONS.has(requested);
+  if (FENGFENG_ATTACKS.has(requested as FengfengMotionAction)) {
+    const attackDuration = waveAdjustedDuration(motion, waves, crop);
+    if (elapsed >= attackDuration) {
+      return { key: 'sheath', elapsed: FENGFENG_SHEATH_SKIP_MS + elapsed - attackDuration, loop: false };
+    }
+  }
+  return { key: requested, elapsed: repeatedImpactElapsed(motion, elapsed, waves, crop), loop: motion.loop };
+}
+
+const feifeiFrameMotions = createFrameMotionSet<CompanionMotionAction>({
+  restFrames: { poison: 3 },
+  motions: feifeiMotions,
+  nativeHeight: NATIVE_HEIGHT,
+  defaultHeight: NATIVE_HEIGHT,
+  initialAction: 'idle',
+  className: 'companion-motion companion-motion-feifei',
+  ariaLabel: '菲菲',
+  resolve: resolveFeifei,
+  duration: (action, options) => companionMotionDuration('feifei', action, waveCount(options)),
+});
+
+const dangdangFrameMotions = createFrameMotionSet<CompanionMotionAction>({
+  restFrames: { poison: 3 },
+  motions: dangdangMotions,
+  nativeHeight: dangdangMotionData.nativeHeight,
+  defaultHeight: dangdangMotionData.nativeHeight,
+  initialAction: 'idle',
+  className: 'companion-motion companion-motion-dangdang',
+  ariaLabel: '噹噹',
+  resolve: resolveDangdang,
+  duration: (action, options) => companionMotionDuration('dangdang', action, waveCount(options)),
+});
+
+const fengfengFrameMotions = createFrameMotionSet<CompanionMotionAction>({
+  restFrames: { poison: 3 },
+  motions: fengfengMotions,
+  nativeHeight: fengfengMotionData.nativeHeight,
+  defaultHeight: fengfengMotionData.nativeHeight,
+  initialAction: 'idle',
+  className: 'companion-motion companion-motion-fengfeng',
+  ariaLabel: '封封',
+  resolve: resolveFengfeng,
+  duration: (action, options) => companionMotionDuration('fengfeng', action, waveCount(options)),
+});
+
+const frameSets = {
+  feifei: feifeiFrameMotions,
+  dangdang: dangdangFrameMotions,
+  fengfeng: fengfengFrameMotions,
+} as const;
+
+const frameSet = (kind: CompanionMotionKind) => frameSets[kind];
+
+export async function preloadCompanionMotion(kind: CompanionMotionKind): Promise<void> {
+  await frameSet(kind).preload();
+}
+
+export function companionMotionReady(kind: CompanionMotionKind): boolean {
+  return frameSet(kind).ready();
+}
+
+export function createCompanionMotionActor(
+  kind: CompanionMotionKind,
+  options: { height?: number; action?: CompanionMotionAction } = {},
+): CompanionMotionActor {
+  return frameSet(kind).createActor(options);
+}
+
+export function companionMotionDuration(
+  kind: CompanionMotionKind,
+  action: CompanionMotionAction,
+  waves = 1,
+): number {
+  if (kind === 'feifei') {
+    if (action === 'clone') return cloneDuration();
+    const base = directDuration(feifeiMotions, action);
+    const count = Math.max(1, Math.floor(waves));
+    if (isFeifeiNeedleAction(action)) {
+      const releases = feifeiNeedleReleaseTimes(action);
+      if (count < releases.length) return base - (releases.at(-1)! - releases[count - 1]!);
+      return base + (count - releases.length) * feifeiNeedleGapMs(action);
+    }
+    return base;
+  }
+  const motions = kind === 'dangdang' ? dangdangMotions : fengfengMotions;
+  const count = Math.max(1, Math.floor(waves));
+  const motion = motions[action] ?? motions.idle!;
+  const crop = kind === 'dangdang'
+    ? DANGDANG_WAVE_CROPPED_ACTIONS.has(action)
+    : FENGFENG_WAVE_CROPPED_ACTIONS.has(action);
+  const adjusted = waveAdjustedDuration(motion, count, crop);
+  if (kind === 'fengfeng' && FENGFENG_ATTACKS.has(action as FengfengMotionAction)) {
+    return adjusted + directDuration(fengfengMotions, 'sheath') - FENGFENG_SHEATH_SKIP_MS;
+  }
+  return adjusted;
+}
+
+export function companionImpactTimes(
+  kind: CompanionMotionKind,
+  action: CompanionMotionAction,
+  count: number,
+): number[] {
+  const wanted = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
+  if (wanted === 0) return [];
+  let base: readonly number[] | undefined;
+  if (kind === 'feifei') {
+    base = action === 'attack1' ? [340]
+      : action === 'kick' ? [300]
+        : isFeifeiNeedleAction(action)
+          ? feifeiNeedleReleaseTimes(action).map((release) => release + feifeiNeedleFlightMs(action))
+          : action === 'clone' ? [CLONE_IMPACT_MS]
+            : undefined;
+  } else {
+    const motions = kind === 'dangdang' ? dangdangMotions : fengfengMotions;
+    base = motions[action]?.impactTimes;
+  }
+  if (!base?.length) return [];
+  const result = base.slice(0, wanted);
+  const gap = kind === 'feifei' && isFeifeiNeedleAction(action)
+    ? feifeiNeedleGapMs(action)
+    : EXTRA_WAVE_MS;
+  while (result.length < wanted) result.push(result.at(-1)! + gap);
+  return result;
+}
+
+export function companionImpactDelay(kind: CompanionMotionKind, action: CompanionMotionAction): number {
+  return companionImpactTimes(kind, action, 1)[0] ?? 0;
+}
+
+export function companionIsMelee(kind: CompanionMotionKind, action: CompanionMotionAction): boolean {
+  if (kind === 'feifei') return FEIFEI_MELEE.has(action as FeifeiMotionAction);
+  if (kind === 'dangdang') return DANGDANG_MELEE.has(action as DangdangMotionAction);
+  return action !== 'earth_split' && FENGFENG_ATTACKS.has(action as FengfengMotionAction);
+}
+
+export function companionCardAction(
+  kind: CompanionMotionKind,
+  cardId: string,
+  options: CompanionCardMotionOptions = {},
+): CompanionMotionAction | undefined {
+  if (kind === 'dangdang') {
+    if (DANGDANG_NO_MOTION.has(cardId)) return undefined;
+    return DANGDANG_CARD_ACTION[cardId] ?? DANGDANG_SHARED_ACTION.get(cardId);
+  }
+  if (kind === 'fengfeng') {
+    const own = FENGFENG_CARD_ACTION[cardId] ?? FENGFENG_SHARED_CARD_ACTION[cardId];
+    if (own) return own;
+    if (FENGFENG_PROJECTILE_GAPS.has(cardId)) return undefined;
+    if (options.cardType === '攻擊') {
+      if (options.poseFamily === 'dash') return 'thrust';
+      if (options.poseFamily === 'kick') return 'sweep';
+      if (options.poseFamily === 'punch') return 'heavy_slash';
+      return 'slash';
+    }
+    if (options.hasBlock) return 'guard';
+    if (EAT_CARDS.has(cardId) || options.hasHeal) return 'eat';
+    if (options.cardType) return 'focus';
+    return undefined;
+  }
+  const needle = FEIFEI_NEEDLE_CARD_ACTION[cardId] ?? FEIFEI_SHARED_NEEDLE_CARD_ACTION[cardId];
+  if (needle) return needle;
+  if (cardId === 'feifei_fenshen') return 'clone';
+  if (cardId === 'feifei_lakai') return 'roll';
+  if (FEIFEI_PROJECTILE_GAPS.has(cardId)) return undefined;
+  if (options.cardType === '攻擊') {
+    if (options.poseFamily === 'kick') return 'kick';
+    if (options.poseFamily === 'claw') return 'attack1';
+    return undefined;
+  }
+  if (FEIFEI_GUARD_CARDS.has(cardId) || options.hasBlock) return 'guard';
+  if (EAT_CARDS.has(cardId) || options.hasHeal) return 'eat';
+  if (options.cardType) return 'seal';
+  return undefined;
+}
+
+export function companionRestMotionAction(
+  _kind: CompanionMotionKind,
+  displayedPose: string,
+  poses: Readonly<{ idle: string; poison: string }>,
+  phase: string,
+  down: boolean,
+): CompanionMotionAction | undefined {
+  if (down || phase === 'lost') return 'defeat';
+  if (phase === 'won') return 'win';
+  if (displayedPose === poses.poison) return 'poison';
+  if (displayedPose === poses.idle) return 'idle';
+  return undefined;
+}
+
+export const FEIFEI_CLONE_TIMING = Object.freeze({
+  appear: CLONE_APPEAR_MS,
+  begin: CLONE_ATTACK_MS,
+  impact: CLONE_IMPACT_MS,
+  end: cloneDuration(),
+});

@@ -163,6 +163,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
       relics: [...rp.relics], potions: [...rp.potions],
       hp: rp.hp, maxHp: rp.maxHp, block: 0, armour: 0, statuses: {},
       energy: 0, maxEnergy: 3 + rp.relics.reduce((s, id) => s + (relicById[id]?.hooks.energyPerTurn ?? 0), 0),
+      qi: 0,
       hand: [], drawPile: cs.rng.shuffle(rp.deck.map((c) => ({ ...c }))), discardPile: [], exhaustPile: [],
       retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
       noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
@@ -204,6 +205,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
     first.hand = [];
     first.energy = 0;
     first.block = 0;
+    first.qi = 0;
   }
   applyBossPrefix(run, cs);
   applyEncounterModifier(run, cs);
@@ -324,6 +326,10 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    * 而且兩台機器都會這樣算，所以**指紋照樣對得上**，錯得完全無聲。
    */
   for (const p of cs.players) {
+    // 蓄氣與本玩家階段的準備不跨戰鬥；復起也不會重發開戰秘寶。
+    p.qi = 0;
+    p.nextAttackBonus = undefined;
+    p.energyGainBlockedThisPhase = undefined;
     const rp = run.players[p.seat];
     if (!rp) continue;
     rp.potions = [...p.potions];
@@ -1073,7 +1079,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
          * 上限扣到 1 以下會直接死人，所以夾在 1。
          */
         const pool = me(run, seat).relics.filter((id) => relicById[id]?.pool !== '起始');
-        if (!pool.length) { notes?.push('身上沒有可以交出去的秘寶'); break; }
+        if (!pool.length) { notes?.push('身上沒有可以交出去的秘寶'); return null; }
         const id = runRng(run).pick(pool);
         me(run, seat).relics.splice(me(run, seat).relics.indexOf(id), 1);
         const d = relicById[id]?.hooks.maxHp ?? 0;

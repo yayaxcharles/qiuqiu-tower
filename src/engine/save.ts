@@ -160,7 +160,9 @@ function usablePlayer(p: Partial<RunPlayer> | undefined): boolean {
   if (!Array.isArray(p.deck) || !p.deck.every(knownCard)) return false;
   if (!Array.isArray(p.potions) || !Array.isArray(p.relics)) return false;
   if (!p.relics.every((id) => relicById[id]) || !p.potions.every((id) => potionById[id])) return false;
-  if (typeof p.hp !== 'number' || p.hp <= 0 || typeof p.maxHp !== 'number' || p.maxHp <= 0) return false;
+  if (typeof p.hp !== 'number' || typeof p.maxHp !== 'number' || p.maxHp <= 0) return false;
+  // 合作局戰後會把倒下席保存成 0 生命；只有這一種 0 合法，站立者仍須有正生命。
+  if (p.down === true ? p.hp !== 0 : p.hp <= 0) return false;
   if (p.hp > p.maxHp) return false;
   if (p.hero !== undefined && !HEROES.includes(p.hero as Hero)) return false;   // 清單在 engine/hero.ts，不要在這裡再寫一次（稽核 2026-09-12 高-1）
   if (!finiteNum(p.removeCost) || !finiteNum(p.fish) || (p.fish as number) < 0) return false;

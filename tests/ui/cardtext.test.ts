@@ -74,6 +74,15 @@ describe('牌面文字', () => {
     expect(t('xianshuile', true)).toBe('回復 7 點生命，然後直接結束這回合。');
   });
 
+  it('封封的下一擊支援寫清首段首目標，並說明取高不疊加', () => {
+    for (const id of ['fengfeng_youbian', 'fengfeng_yiqichushou']) {
+      const text = t(id);
+      expect(text).toContain('首段首目標');
+      expect(text).toContain('取高不疊加');
+      expect(text).toContain('一個人玩時「同伴」＝你自己');
+    }
+  });
+
   it('牌面只講規則：交出來先搶再打，變身術不留玩笑話', () => {
     expect(t('jiaochulai')).toBe('把目標的防禦全部搶過來，再造成 5 點傷害。');
     expect(t('jiaochulai', true)).toBe('把目標的防禦全部搶過來，再造成 7 點傷害。');

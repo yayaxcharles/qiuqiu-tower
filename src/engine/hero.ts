@@ -21,7 +21,7 @@ import type { CardDef, RunPlayer } from './types';
  *
  * 分流深度是**中分流**：大部分牌共用，各自有一批獨占牌（`CardDef.hero`）。
  */
-export type Hero = 'ninja' | 'samurai' | 'feifei' | 'dangdang';
+export type Hero = 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
 
 /**
  * 合法的職業清單。**存檔驗證要用這一份，不要在別的檔案再手寫一次**。
@@ -31,7 +31,7 @@ export type Hero = 'ninja' | 'samurai' | 'feifei' | 'dangdang';
  * 而且**存檔是真的被刪掉**（驗不過 → `checkRun` 回 null → `loadRun` 呼叫 `clearSave()`），
  * 回到標題就會發生。共用一份之後，加第四個角色不會再漏。
  */
-export const HEROES: readonly Hero[] = ['ninja', 'samurai', 'feifei', 'dangdang'];
+export const HEROES: readonly Hero[] = ['ninja', 'samurai', 'feifei', 'dangdang', 'fengfeng'];
 
 /**
  * 這一位的職業。沒寫＝忍者。
@@ -50,7 +50,7 @@ export function heroOf(p: Pick<RunPlayer, 'hero'>): Hero {
  * 菲菲是另一隻貓（球球的師妹），名字必須不一樣——不然連線時兩格都寫「球球」，
  * 玩家根本分不出哪一格是誰。
  */
-const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', samurai: '球球', feifei: '菲菲', dangdang: '噹噹' };
+const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', samurai: '球球', feifei: '菲菲', dangdang: '噹噹', fengfeng: '封封' };
 export function heroName(p: Pick<RunPlayer, 'hero'> | undefined): string {
   return HERO_NAME[heroOf(p ?? {})];
 }
@@ -86,6 +86,7 @@ export function heroPronoun(p: { hero?: Hero } | undefined): string {
 export function startRelicFor(hero: Hero): string {
   if (hero === 'feifei') return 'backstep';
   if (hero === 'dangdang') return 'copper_bracer';
+  if (hero === 'fengfeng') return 'old_sword_tassel';
   return 'blue_headband';
 }
 
@@ -102,7 +103,7 @@ export function sharpenVerb(hero: string | undefined): string {
   // 寫成查表而不是再串一個三元式：第四隻貓進來只要加一格
   return SHARPEN_VERB[hero ?? ''] ?? '磨爪';
 }
-const SHARPEN_VERB: Readonly<Record<string, string>> = { feifei: '磨針', dangdang: '調護臂' };
+const SHARPEN_VERB: Readonly<Record<string, string>> = { feifei: '磨針', dangdang: '調護臂', fengfeng: '磨劍' };
 
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */
 export function cardsForHero(hero: Hero): CardDef[] {
@@ -122,7 +123,7 @@ export function cardsForHero(hero: Hero): CardDef[] {
  * - `coop`：連線專用牌，**只有兩個人以上的局才進池**（使用者 2026-09-11 指定）
  */
 export function pickable(c: CardDef, hero: Hero, players = 1): boolean {
-  if (c.combatOnly || c.hidden) return false;
+  if ((c.hero === 'fengfeng' && c.pool === '起手') || c.combatOnly || c.hidden) return false;
   if (c.hero && c.hero !== hero) return false;
   if (c.coop && players < 2) return false;
   return true;

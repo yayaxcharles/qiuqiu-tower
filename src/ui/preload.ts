@@ -1,7 +1,7 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, coopArtUrls, hasMonsterPose, monsterPhaseKey, heroArtUrls, localHero, monsterUrl, warmed, type MonsterPose } from './assets';
+import { artUrl, coopArtUrls, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, warmed, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 
 /**
@@ -48,12 +48,19 @@ export function enemyIdsForAct(act: number): Set<string> {
 /** 這一關會用到的立繪鍵（manifest.monsters 的鍵） */
 export function monsterArtKeysForAct(act: number): string[] {
   const keys = new Set<string>();
-  for (const id of enemyIdsForAct(act)) { const def = enemyById[id]; if (def && def.art !== 'daxia') keys.add(def.art); }
+  for (const id of enemyIdsForAct(act)) {
+    const def = enemyById[id];
+    if (!def || def.art === 'daxia') continue;
+    keys.add(def.art);
+    // 換階段立繪也在進關時預載；大小清單必須跟實際請求使用同一套鍵，
+    // 否則這些圖會被誤標成「沒用到」，從首載報告漏掉。
+    for (let phase = 1; phase <= (def.phases?.length ?? 0); phase += 1) keys.add(`${def.art}_p${phase + 1}`);
+  }
   return [...keys];
 }
 
 /** `skinHero`＝決定魔物變裝的角色（鏡中菲菲看的是**座位 0**，連線時不一定是本機這位；推前審查 2026-09-15 低-1） */
-function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero()): string[] {
+function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero(), includePhases = true): string[] {
   const urls: string[] = [];
   for (const def of defs) {
     if (def.art === 'daxia') continue;   // 師父的立繪組在 sprites 裡，首載本來就有
@@ -66,7 +73,7 @@ function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero()): 
      * 玩家看到的是「變身那一拍先閃一下白」——換階段本來就是這場仗最該看清楚的一刻。
      * 還沒生的階段圖 `monsterPhaseKey` 會退回前一階段，這裡就自然收不到新網址，不會多抓。
      */
-    for (let phase = 1; phase <= (def.phases?.length ?? 0); phase += 1) {
+    for (let phase = 1; includePhases && phase <= (def.phases?.length ?? 0); phase += 1) {
       const pk = monsterPhaseKey(art, phase);
       if (pk === art) continue;
       for (const pose of POSES) if (hasMonsterPose(pk, pose)) urls.push(monsterUrl(pk, pose));
@@ -103,7 +110,7 @@ async function decodeAll(urls: string[], concurrency = 4,
         img.src = url;
         // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
         if (typeof img.decode === 'function') await img.decode();
-        else await new Promise<void>((res) => { img.onload = () => res(); img.onerror = () => res(); });
+        else await new Promise<void>((res, reject) => { img.onload = () => res(); img.onerror = () => reject(new Error('圖片載入失敗')); });
         warmed.add(url);
       } catch { /* 少一張只是那張晚一點出現 */ }
     }
@@ -120,12 +127,18 @@ async function decodeAll(urls: string[], concurrency = 4,
  */
 export function preloadAct(act: number, skinHero: string | undefined = localHero()): Promise<void> {
   const defs = [...enemyIdsForAct(act)].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d);
-  const bg = bgKeysForAct(act).map((k) => artUrl('bg', k));
+  const bg = bgKeysForAct(act)
+    .filter((key) => {
+      const who = heroOfKey(key);
+      return !who || who === (skinHero ?? 'ninja');
+    })
+    .map((k) => artUrl('bg', k));
   // 底圖排前面（一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點），但**不留參照**。
   // 跟 `warmEncounter` 一樣送**同一批**，不要 `.then()` 串成兩段（稽核 2026-09-10 低-9）：
   // 串起來的話底圖最後一張解完之前魔物一張都不會開始下載，而 `bgKeysForAct` 從 9 個鍵長到 15 個，
   // 這裡雖然沒有時限（過關畫面停留幾十秒）不會出事，但兩支寫法不一致，照著抄就會再踩一次。
-  const held = new Set(urlsFor(defs, skinHero));
+  // 換階段圖等確定進入該遭遇後由 `warmEncounter` 補；進關時先載全關基礎姿勢即可。
+  const held = new Set(urlsFor(defs, skinHero, false));
   return decodeAll([...new Set([...bg, ...held])], 4, (u) => held.has(u));
 }
 

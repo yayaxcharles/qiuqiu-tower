@@ -16,9 +16,9 @@ describe('連線牌', () => {
    * 新的六張帶著 `hidden`＝牌面圖還沒生，**先不進任何池子**，所以
    * 「兩個人抽得到」那條只對已經有圖的生效——這是刻意的退路，不是壞掉。
    */
-  it('二十七張、都可以升級、單機一律抽不到', () => {
+  it('三十三張、都可以升級、單機一律抽不到', () => {
     const coop = cards.filter((c) => c.coop);
-    expect(coop.length).toBe(29);   // 9 原有 ＋ A 批 6 ＋ B 批 6 ＋ C 批 6 ＋ 2026-09-15 回血兩張
+    expect(coop.length).toBe(33);   // 原有 29 ＋ 封封連線牌 4 張
     for (const c of coop) {
       expect(c.upgrade, `${c.name} 要有升級效果`).toBeTruthy();
       expect(pickable(c, c.hero ?? 'ninja', 1), `${c.name} 單機不該抽得到`).toBe(false);

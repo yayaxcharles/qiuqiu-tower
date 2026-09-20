@@ -32,7 +32,7 @@ registerScreen('result', (app, root) => {
    * 教訓：**同一件事有兩個呼叫點時，擋一個等於沒擋**。當時那句「留著當無害的第二次」
    * 在加上守門條件的那一刻就不成立了。
    */
-  const best = app.coop
+  const best = app.coop || app.sandbox
     ? { floor: run.floor, won, turns: run.stats.turns, date: '' }   // 只是要拿來排版，不寫進儲存
     : recordBest(run);
   if (!app.coop && !app.sandbox) clearSave();   // 除錯模式的臨時局不能刪掉真正的存檔（審查 2026-09-15 低-3）

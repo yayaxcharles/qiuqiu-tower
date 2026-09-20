@@ -4,7 +4,8 @@ import './ui/styles/map.css';
 import './ui/styles/combat.css';
 import './ui/styles/screens.css';
 import { App } from './ui/app';
-import { loadManifest, preloadArt } from './ui/assets';
+import { registerLazyScreen } from './ui/lazy-screen';
+import { loadManifest, localHero, preloadArt } from './ui/assets';
 import { preloadAct } from './ui/preload';
 import { unlockOnFirstGesture } from './ui/audio';
 import { unlockBgmOnFirstGesture } from './ui/bgm';
@@ -12,7 +13,6 @@ import { applyArtVars } from './ui/screenbg';
 import './ui/screens/actclear';
 import './ui/screens/chest';
 import './ui/screens/bossdoor';
-import './ui/screens/combat';
 import './ui/screens/event';
 import './ui/screens/map';
 import './ui/screens/rest';
@@ -21,9 +21,11 @@ import './ui/screens/reward';
 import './ui/screens/shop';
 import './ui/screens/title';
 import './ui/screens/heroselect';
-import './ui/screens/lobby';
-// 除錯模式（標題畫面輸入 mimi36985 進去）：把事件／牌／台詞／立繪一次攤開檢查，見那支的檔頭
-import './ui/screens/debug';
+registerLazyScreen('combat', () => import('./ui/screens/combat'), '正在準備戰鬥畫面……');
+// 除錯總覽只有輸入暗號後才用到，不佔一般玩家首載。
+registerLazyScreen('debug', () => import('./ui/screens/debug'), '正在準備除錯總覽……');
+// 合作大廳只在主動選擇連線遊玩時載入。
+registerLazyScreen('lobby', () => import('./ui/screens/lobby'), '正在準備合作大廳……');
 
 async function boot(): Promise<void> {
   await loadManifest();
@@ -47,6 +49,43 @@ async function boot(): Promise<void> {
   const wantDebug = (import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV
     || new URLSearchParams(location.search).has('debug');
   if (wantDebug) (window as unknown as { __app?: App }).__app = app;
+  if (new URLSearchParams(location.search).has('motion-preview')) {
+    try {
+      const [{ startMotionPreview }] = await Promise.all([
+        import('./ui/motion-preview'),
+        import('./ui/screens/combat'),
+      ]);
+      await startMotionPreview(app);
+    } catch (error) {
+      console.error('動作試玩載入失敗', error);
+      app.stage.textContent = '動作試玩載入失敗，請重新整理再試。';
+      Object.assign(app.stage.style, { display: 'grid', placeContent: 'center', gap: '20px' });
+      const retry = document.createElement('button');
+      retry.className = 'btn';
+      retry.textContent = '重新整理';
+      retry.addEventListener('click', () => location.reload());
+      const back = document.createElement('a');
+      back.className = 'btn';
+      back.textContent = '回標題';
+      back.href = location.pathname;
+      app.stage.append(retry, back);
+    }
+    return;
+  }
+  if (new URLSearchParams(location.search).get('motion') === '1') {
+    try {
+      const hero = localHero();
+      if (hero === 'ninja') {
+        const { preloadQiuqiuMotion } = await import('./ui/qiuqiu-motion');
+        await preloadQiuqiuMotion();
+      } else if (hero === 'feifei' || hero === 'dangdang' || hero === 'fengfeng') {
+        const { preloadCompanionMotion } = await import('./ui/companion-motion');
+        await preloadCompanionMotion(hero);
+      }
+    } catch (error) {
+      console.error('逐格動作預載失敗，改用普通立繪', error);
+    }
+  }
   app.show('title');
   // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
   // 不 await——預載完不完成都不影響能不能玩。

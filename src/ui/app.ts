@@ -1,6 +1,6 @@
 import { victoryLinesFor, hasCoopScene, coopBossLines, dialogue, firstMeetLine, lineFor, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
-import { playSlides, slidesReady } from './slides';
-import { actClearSlides, endingSlides, prologueSlides } from './storyslides';
+import { playSlides, slidesReady, type Slide } from './slides';
+import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
 import { preloadAct, preloadHeroArt, warmEncounter } from './preload';
 import { potionById } from '../content/potions';
@@ -14,7 +14,7 @@ import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeShops, ne
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, heroSpriteUrls, localHero, monsterUrl, setLocalHero } from './assets';
+import { computeScale, heroSpriteUrls, localHero, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
 import { setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
@@ -150,6 +150,9 @@ export class App {
      * 有了這個屬性，樣式表就能只調她那一條，不動到本來就對的球球。
      */
     this.stage.dataset['hero'] = this.run ? (me(this.run, this.seat).hero ?? 'ninja') : 'ninja';
+    const partner = ['title', 'heroselect', 'lobby', 'debug'].includes(name)
+      ? undefined : this.run?.players.find((_, i) => i !== this.seat);
+    setLocalPartnerHero(partner ? (partner.hero ?? 'ninja') : undefined);
     r(this, this.screen, props);
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
@@ -317,11 +320,12 @@ export class App {
    * 只播一次的劇情：旗標寫在 run.flags 裡，但**不在這裡存檔**——旗標由下一次節點結算的存檔帶走。
    * 中途重整最多重播一句初見台詞，無害。之後的 firstElite、secretScroll 也走這個。
    */
-  playOnce(flag: string, lines: DialogueLine[], onDone: () => void): void {
+  playOnce(flag: string, lines: DialogueLine[], onDone: () => void, literal = false, slides: Slide[] = []): void {
     const run = this.run;
     if (!run || run.flags[flag]) { onDone(); return; }
     run.flags[flag] = true;
-    playDialogue(lines, onDone);
+    if (slidesReady(slides)) playSlides(slides, onDone);
+    else playDialogue(lines, onDone, undefined, literal);
   }
 
   enterNode(nodeId: string): void {
@@ -370,6 +374,8 @@ export class App {
   startFight(encounterId: string, isBoss = false, bonusFish = 0, bonusUpgrades = 0): void {
     const run = this.run;
     if (!run || this.fightPending) return;
+    // 戰鬥畫面已拆成按需區塊；和遭遇圖片一起暖機，避免進場後才多停一個載入畫面。
+    const combatScreenReady = import('./screens/combat');
     // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
     const pool = encounterById[encounterId]?.pool;
     const battleTrack = (['battle', 'battle2', 'battle3'] as const)[Math.min(3, Math.max(1, run.act)) - 1]!;
@@ -413,7 +419,10 @@ export class App {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
       }
       };
-      void warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero)), run.players[0]?.hero).then(proceed, proceed);
+      void Promise.allSettled([
+        warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero)), run.players[0]?.hero),
+        combatScreenReady,
+      ]).then(proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。
@@ -430,8 +439,15 @@ export class App {
        * 那是為了「劇本寫球球、實際是誰在玩」而做的，但這裡的球球就是球球本人。
        * 所以先把說話者換成旁白以外都不動的形式：這一組本來就已經是最終文字。
        */
-      const coop = coopBossLines(bossId, 'intro', localHero());
-      playDialogue(coop ?? dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go, cast, coop !== null);
+      const playBoss = (): void => {
+        const coop = coopBossLines(bossId, 'intro', localHero());
+        playDialogue(coop ?? dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go, cast, coop !== null);
+      };
+      // 塔頂門外段落只在第三關最終頭目前播放一次；前兩關的關主不應提前消耗這段劇情。
+      const top = run.act >= ACTS ? storyFor(localHero()).topScene : [];
+      const topSlides = topSceneSlides(localHero());
+      if (top.length) this.playOnce(`topScene:${run.act}`, top, playBoss, hasCoopScene(localHero()), topSlides);
+      else playBoss();
     } else go();
   }
 

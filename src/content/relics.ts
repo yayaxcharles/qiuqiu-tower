@@ -26,6 +26,8 @@ export const relics: RelicDef[] = [
    */
   { id: 'copper_bracer', name: '銅護臂', pool: '起始', text: '每場戰鬥開始時獲得 4 點蜷縮與 2 點反彈。', art: 'codex/relic_copper_bracer', price: 130,
     hooks: { combatStart: [{ kind: 'block', amount: 4 }, { kind: 'status', name: '反彈', amount: 2, target: 'self' }] } },
+  { id: 'old_sword_tassel', name: '舊劍穗', pool: '起始', text: '每場戰鬥開始時獲得 2 點蓄氣。', art: 'codex/relic_old_sword_tassel', price: 130,
+    hooks: { combatStart: [{ kind: 'gainQi', n: 2 }] } },
   { id: 'onigiri_bag', name: '飯糰袋', pool: '常見', text: '每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_onigiri_bag', price: 160, hooks: { firstTurnEnergy: 1 } },
   { id: 'tuna_can', name: '鮪魚罐頭', pool: '常見', text: '最大生命 +10。', art: 'codex/relic_tuna_can', price: 120, hooks: { maxHp: 10 } },
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回復的生命加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },

@@ -1,0 +1,4 @@
+.actwalk-motion .actwalk-bg { animation-name: actwalk-run-scroll; }
+@keyframes actwalk-run-scroll { to { background-position-x: -650px; } }
+.actwalk-motion .actwalk-shadow { animation-duration: 240ms; }
+.actwalk-motion canvas { pointer-events: none; }

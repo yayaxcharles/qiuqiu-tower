@@ -1,17 +1,19 @@
-import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainStealth, healPlayer, log, markPoisoner } from './actions';
+import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainEnergy, gainStealth, healPlayer, log, markPoisoner } from './actions';
 import { endTurn } from './combat';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
 import { heroPronoun, unitName } from './hero';
 import { DEBUFFS, TURN_DECAY } from './types';
-import type { CardInstance, CombatState, Effect, EffectCtx, PlayerCombat } from './types';
+import type { CardInstance, CombatState, Effect, EffectCtx, EnemyCombat, PlayerCombat } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
 export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx): void {
   const queue = [...effects];
   while (queue.length > 0) {
-    // 只有打輸了才半途收手；打贏了剩下的效果照樣結算（例如順手牽羊的小魚乾）
+    // 打贏後剩下的效果照樣結算（例如順手牽羊的小魚乾）；打輸或施放者倒下才收手。
     if (cs.phase === 'lost') return;
+    // 連線中施放者被反彈打倒時整場仍在繼續，但這張牌後面的抽牌、回氣等效果要停止。
+    if (ctx.self?.down) return;
     const fx = queue.shift() as Effect;
     const paused = applyOne(cs, fx, ctx, queue);
     if (paused) return;   // 暫停時池子留在 `ctx` 裡，接回來再發
@@ -44,6 +46,27 @@ function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean) {
  */
 function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
   return cs.players.find((q) => q !== me && !q.down) ?? me;
+}
+
+/** 同一串效果中的蓄氣牌只支付一次；影子分身重播會拿新的 ctx，因此會重新支付。 */
+function spendQi(p: PlayerCombat, ctx: EffectCtx, maxQi: number | undefined, all: boolean): number {
+  if (ctx.qiSpent !== undefined) return ctx.qiSpent;
+  const before = Math.max(0, Math.min(12, ctx.qiBefore ?? p.qi ?? 0));
+  const spent = all ? before : Math.min(before, maxQi ?? before);
+  p.qi = before - spent;
+  ctx.qiSpent = spent;
+  return spent;
+}
+
+/** 下一擊加成先併入原始傷害，再套原招的倍傷、爪力、防禦與反彈。 */
+function damageWithCardBonus(cs: CombatState, target: EnemyCombat, base: number, ctx: EffectCtx,
+                             p: PlayerCombat, opts: { ignoreBlock?: boolean; noStrength?: boolean; direct?: boolean } = {}) {
+  let raw = base;
+  if (ctx.nextAttackBonus !== undefined && !ctx.nextAttackBonusUsed && attackable(cs, target)) {
+    raw += ctx.nextAttackBonus;
+    ctx.nextAttackBonusUsed = true;
+  }
+  return damageEnemy(cs, target, raw * (ctx.doubleDamage ? 2 : 1), { ...opts, by: p });
 }
 
 /** 回傳 true＝已暫停等待選牌 */
@@ -93,8 +116,10 @@ function markPassive(p: PlayerCombat, ctx: EffectCtx, stacks = false): void {
 function selfBlockAhead(cs: CombatState, p: PlayerCombat, e: Effect): boolean {
   if (e.kind === 'block' || e.kind === 'blockAll' || e.kind === 'blockFromThorns') return true;
   if (e.kind === 'blockAlly') return ally(cs, p) === p;
+  if (e.kind === 'blockSpendQi') return (e.recipient ?? 'self') === 'self' || ally(cs, p) === p;
   if (e.kind === 'ifSelfStatus') return [...e.then, ...e.otherwise].some((x) => selfBlockAhead(cs, p, x));
-  if (e.kind === 'ifBlock' || e.kind === 'ifEnemyIntent') return e.then.some((x) => selfBlockAhead(cs, p, x));
+  if (e.kind === 'ifBlock' || e.kind === 'ifEnemyIntent' || e.kind === 'ifQiAtPlay'
+      || e.kind === 'ifSpentQiAtLeast' || e.kind === 'ifAllyBlockAtPlay') return e.then.some((x) => selfBlockAhead(cs, p, x));
   return false;
 }
 
@@ -123,12 +148,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
   switch (fx.kind) {
     case 'damage': {
       const times = fx.scaleWithCombo ? Math.min((ctx.combo ?? 0) + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
-      const base = fx.amount * (ctx.doubleDamage ? 2 : 1);
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
         // 背刺：目標身上沒有任何減益，這一段就不打
         if (fx.ifTargetDebuffed && !DEBUFFS.some((d) => getStatus(t, d) > 0)) continue;
         for (let i = 0; i < times; i++) {
-          const r = damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion', by: p });
+          const r = damageWithCardBonus(cs, t, fx.amount, ctx, p, { ignoreBlock: fx.ignoreBlock, noStrength: ctx.source === 'potion' });
           if (r.killed) { if (!t.reviveIn) ctx.killed = true; break; }   // 同生共死的「暫時倒下」不算擊倒，跟 killEnemy 不發擊倒能力同口徑（稽核 中-3）
         }
       }
@@ -137,9 +161,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'damageRamp': {
       // 分身術：這場戰鬥裡這張牌（同一個 uid）之前每打出一次，這次就多 step 點；次數在 playCard 打完才 +1
       const plays = ctx.cardUid !== undefined ? (cs.cardPlays?.[ctx.cardUid] ?? 0) : 0;
-      const base = (fx.amount + fx.step * plays) * (ctx.doubleDamage ? 2 : 1);
+      const base = fx.amount + fx.step * plays;
       for (const t of targetsOf(cs, ctx, false)) {
-        const r = damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion', by: p });
+        const r = damageWithCardBonus(cs, t, base, ctx, p, { noStrength: ctx.source === 'potion' });
         if (r.killed) ctx.killed = true;
       }
       return false;
@@ -163,7 +187,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         const hittable = alive.filter((e) => attackable(cs, e));
         if (!hittable.length) { log(cs, '雷光劈了下去，卻沒有一隻打得到'); break; }
         const t = cs.rng.pick(hittable);
-        if (damageEnemy(cs, t, fx.amount * (ctx.doubleDamage ? 2 : 1), { noStrength: ctx.source === 'potion', by: p }).killed) ctx.killed = true;
+        if (damageWithCardBonus(cs, t, fx.amount, ctx, p, { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
       }
       return false;
     }
@@ -173,10 +197,24 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       log(cs, '一股香氣散開，魔物們都愣住了');
       return false;
     case 'damageRandom': {
-      const base = cs.rng.int(fx.min, fx.max) * (ctx.doubleDamage ? 2 : 1);
+      const base = cs.rng.int(fx.min, fx.max);
       // 忍具的傷害不吃爪力，跟 damage／damageRamp 同口徑（稽核 2026-09-10 低-4：只有這個分支漏寫，
       // 目前沒有隨機傷害的忍具所以還沒出事，但補上比較保險）
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: ctx.source === 'potion', by: p }).killed) ctx.killed = true;
+      for (const t of targetsOf(cs, ctx, false)) if (damageWithCardBonus(cs, t, base, ctx, p, { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
+      return false;
+    }
+    case 'damageSpendQi': {
+      const spent = spendQi(p, ctx, fx.maxQi, !!fx.allQi);
+      const base = fx.amount + fx.perQi * spent;
+      const times = fx.times ?? 1;
+      for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
+        for (let i = 0; i < times; i++) {
+          const r = damageWithCardBonus(cs, t, base, ctx, p, { ignoreBlock: fx.ignoreBlock });
+          if (r.killed) { if (!t.reviveIn) ctx.killed = true; break; }
+          if (p.down || cs.phase !== 'player') return false;
+        }
+        if (p.down || cs.phase !== 'player') break;
+      }
       return false;
     }
     case 'selfDamage': {
@@ -210,6 +248,19 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // ——分兩次的話貓步與拒馬會被套兩遍（2026-09-13 稽核 中-6）
       ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount;
       flushSelfBlock(cs, p, ctx, queue);
+      return false;
+    }
+    case 'blockSpendQi': {
+      const spent = spendQi(p, ctx, fx.maxQi, false);
+      const amount = fx.amount + fx.perQi * spent;
+      const recipient = fx.recipient === 'ally' ? ally(cs, p) : p;
+      if (recipient === p) {
+        ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + amount;
+        flushSelfBlock(cs, p, ctx, queue);
+      } else {
+        gainBlock(cs, recipient, amount);
+        log(cs, `幫對方擋了 ${amount} 點`);
+      }
       return false;
     }
     case 'blockIfPoisoned': {
@@ -273,9 +324,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 所以「毒在之後才毒死牠」不算——那時候這張牌早就結算完了。
       if (fx.onKill && !ctx.killed) return false;
       const mate = ally(cs, p);
-      mate.energy += fx.n;
-      cs.energyGain += fx.n;   // 畫面靠這個數字知道飯糰是「多出來的」不是自己省下的
-      if (mate !== p) log(cs, `飯糰分了對方 ${fx.n} 顆`);
+      const got = gainEnergy(cs, mate, fx.n);
+      if (mate !== p && got > 0) log(cs, `飯糰分了對方 ${got} 顆`);
       return false;
     }
     case 'healAlly': {
@@ -313,8 +363,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (mate === p) return false;                     // 一個人時什麼都不轉（不能自己轉給自己憑空變多）
       const give = Math.min(fx.n, p.energy);            // 自己少多少，對方才多多少
       if (give <= 0) { log(cs, '飯糰已經用完了，沒得分'); return false; }
+      if (mate.energyGainBlockedThisPhase) return false; // 對方實得 0，轉移型不能白扣贈送者
       p.energy -= give;
-      mate.energy += give;
+      gainEnergy(cs, mate, give);
       log(cs, `把 ${give} 顆飯糰推給了對方`);
       return false;
     }
@@ -407,16 +458,61 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     // 追擊：onKill 只在打倒目標時退飯糰。`energyGain` 是給畫面看的累計（見 types.ts 的說明）
     case 'energy':
-      if (!fx.onKill || ctx.killed) { p.energy += fx.n; if (fx.n > 0) cs.energyGain += fx.n; }
+      if (!fx.onKill || ctx.killed) gainEnergy(cs, p, fx.n);
       return false;
+    case 'gainQi': {
+      if (p.down || cs.phase !== 'player') return false;
+      p.qi = Math.min(12, Math.max(0, p.qi ?? 0) + fx.n);
+      return false;
+    }
+    case 'ifQiAtPlay':
+      if ((ctx.qiBefore ?? 0) >= fx.min) queue.unshift(...fx.then);
+      return false;
+    case 'ifSpentQiAtLeast':
+      if (!p.down && cs.phase === 'player' && (ctx.qiSpent ?? 0) >= fx.min) queue.unshift(...fx.then);
+      return false;
+    case 'ifAllyBlockAtPlay':
+      if ((ctx.allyBlockBefore ?? 0) >= fx.min) queue.unshift(...fx.then);
+      return false;
+    case 'preventEnergyGainThisPhase': p.energyGainBlockedThisPhase = true; return false;
+    case 'nextAttackBonusSpendQi': {
+      const mate = cs.players.find((q) => q !== p && !q.down);
+      const recipients = fx.recipients === 'ally'
+        ? (mate ? (mate.ready ? [] : [mate]) : [p])
+        : [p, ...(mate && !mate.ready ? [mate] : [])];
+      // 自動重播不經過 canPlay；效果本身也必須先驗證，不能為一個沒有提高的取大值白扣蓄氣。
+      const prospectiveSpent = ctx.qiSpent ?? Math.min(Math.max(0, ctx.qiBefore ?? p.qi ?? 0), fx.maxQi);
+      const prospectiveAmount = fx.amount + fx.perQi * prospectiveSpent;
+      if (!recipients.some((recipient) => (recipient.nextAttackBonus ?? 0) < prospectiveAmount)) return false;
+      const spent = spendQi(p, ctx, fx.maxQi, false);
+      const amount = fx.amount + fx.perQi * spent;
+      for (const recipient of recipients) {
+        recipient.nextAttackBonus = Math.max(recipient.nextAttackBonus ?? 0, amount);
+      }
+      return false;
+    }
     // `percent`＝回最大生命的百分之幾（起死回生丹）。用最大生命當基準不是「缺的血」：
     // 缺得越多回越多會變成「越晚喝越賺」，那會逼玩家故意拖到快死
     case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p); return false;
     case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, `撿到 ${fx.n} 條小魚乾`); } return false;
-    case 'power':
-      // `thisTurn` 的能力回合結束會被清掉（endTurn 裡），所以旗標要一路帶進來
-      p.powers.push({ trigger: fx.trigger, effects: fx.effects, ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}), ...(ctx.cardUpgraded ? { upgraded: true } : {}) });
+    case 'power': {
+      const power = { trigger: fx.trigger, effects: fx.effects,
+        ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}),
+        ...(ctx.cardUpgraded ? { upgraded: true } : {}), ...(fx.cardType ? { cardType: fx.cardType } : {}),
+        ...(fx.minQiSpent !== undefined ? { minQiSpent: fx.minQiSpent } : {}),
+        ...(fx.oncePerTurn ? { oncePerTurn: true as const } : {}) };
+      if (fx.sameNameMax && ctx.cardId) {
+        const oldIndex = p.powers.findIndex((pw) => pw.cardId === ctx.cardId && pw.trigger === fx.trigger);
+        if (oldIndex >= 0) {
+          const old = p.powers[oldIndex]!;
+          // 升級版取代基礎版；基礎版不能把升級版降回去。已觸發回合必須保留。
+          if (!old.upgraded && ctx.cardUpgraded) p.powers[oldIndex] = { ...power, ...(old.firedTurn !== undefined ? { firedTurn: old.firedTurn } : {}) };
+          return false;
+        }
+      }
+      p.powers.push(power);
       return false;
+    }
     case 'noAttacksThisTurn': p.noAttacks = true; return false;
     case 'immuneThisTurn': p.immune = true; return false;
     case 'doubleNextAttack': p.doubleNext = 1; return false;
@@ -432,8 +528,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 所以蓄力、秘笈打在「絕學·借力使力」上完全沒作用——蜷縮 20 時打出去還是 20 點，
       // 紀錄卻已經印了「秘笈：第一擊加倍」。一飯糰的蓄力或一件 190 條的秘寶就這樣被靜靜吃掉。
       //（「絕學·太極」也是這個分支，但它是技能牌、本來就吃不到加倍，不受影響）
-      const base = p.block * (ctx.doubleDamage ? 2 : 1);
-      for (const t of targetsOf(cs, ctx, false)) if (damageEnemy(cs, t, base, { noStrength: true, by: p }).killed) ctx.killed = true;
+      const base = p.block;
+      for (const t of targetsOf(cs, ctx, false)) if (damageWithCardBonus(cs, t, base, ctx, p, { noStrength: true }).killed) ctx.killed = true;
       return false;
     }
     case 'cleanse': {
@@ -508,11 +604,10 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * 加倍旗標就被用掉了（`combat.ts` 的 `doubleDamage`），這裡不乘等於白白吃掉——紀錄框還印「秘笈：第一擊加倍」。
        * 跟 2026-09-10 借力使力漏接是同一個洞，這是後來加的第五個傷害分支。
        */
-      const mul = (fx.mul ?? 1) * (ctx.doubleDamage ? 2 : 1);
       for (const t of targetsOf(cs, ctx, false)) {
         const n = getStatus(t, fx.name);
         if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
-        if (damageEnemy(cs, t, n * mul, { direct: true, by: p }).killed) ctx.killed = true;
+        if (damageWithCardBonus(cs, t, n * (fx.mul ?? 1), ctx, p, { direct: true }).killed) ctx.killed = true;
         if (fx.consume) removeStatus(t, fx.name);
       }
       return false;
@@ -586,11 +681,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         const back = p.thornsFromSpend === 'full' ? spent : Math.floor(spent / 2);
         if (back > 0) { addStatus(p, '反彈', back); log(cs, `${unitName(p)}把卸出去的力道反了 ${back} 點回來`); }
       }
-      const base = (Math.floor(hit * (fx.mul ?? 1)) + bonus) * (ctx.doubleDamage ? 2 : 1);
+      const base = Math.floor(hit * (fx.mul ?? 1)) + bonus;
       // 蜷縮 0 時整張撲空，補一行交代（稽核 2026-09-17 低-4）：不寫的話玩家花了飯糰、畫面什麼都沒發生
       if (base <= 0) { log(cs, `${unitName(p)}身上沒有蜷縮可卸`); return false; }
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
-        if (damageEnemy(cs, t, base, { ignoreBlock: fx.ignoreBlock, noStrength: true, by: p }).killed) ctx.killed = true;
+        if (damageWithCardBonus(cs, t, base, ctx, p, { ignoreBlock: fx.ignoreBlock, noStrength: true }).killed) ctx.killed = true;
       }
       return false;
     }
@@ -621,10 +716,10 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'damageByOwnStatus': {
-      const base = getStatus(p, fx.name) * (fx.mul ?? 1) * (ctx.doubleDamage ? 2 : 1);
+      const base = getStatus(p, fx.name) * (fx.mul ?? 1);
       if (base <= 0) return false;
       for (const t of targetsOf(cs, ctx, false)) {
-        if (damageEnemy(cs, t, base, { noStrength: true, by: p }).killed) ctx.killed = true;
+        if (damageWithCardBonus(cs, t, base, ctx, p, { noStrength: true }).killed) ctx.killed = true;
       }
       return false;
     }

@@ -1,0 +1,130 @@
+{
+  "hero": "feifei",
+  "reproducer": "python tools/pack_companion_motion.py feifei",
+  "wholeBodyFrames": true,
+  "actions": 14,
+  "frames": 112,
+  "assets": [
+    {
+      "source": "tools/motion-art-source/feifei/idle_hurt.png",
+      "sourceSha256": "92b0edbae70ecf82b9953025032c65dd7bea9413e4812008a36e29b9e1cb0c45",
+      "target": "public/assets/motion/feifei/idle_hurt.webp",
+      "targetSha256": "f7c80b977d5df3362aca8082ca4d6f27d2bb75763cf6f8aeb30e6394a729c790",
+      "bytes": 1283594,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/run.png",
+      "sourceSha256": "c19fbb80abf499421a36528217b443095a4ba11724f807427b68f00be5be03ab",
+      "target": "public/assets/motion/feifei/run.webp",
+      "targetSha256": "af7f452a49273829f66af2236f4b63b6cea6db9aa1627611837f70c7722cdd95",
+      "bytes": 952508,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/needle.png",
+      "sourceSha256": "3057bc8e78505f8a7f0f9c53c9e69af91cc52733be54b24f112395d1df72153f",
+      "target": "public/assets/motion/feifei/needle.webp",
+      "targetSha256": "031abbfd8bd0dc9a0eea8992c0d553eb5355119fa25dc86eef9845ee8dd1685c",
+      "bytes": 1008828,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/fan.png",
+      "sourceSha256": "6f3f8dfcca33bec14e6c2679132826802455425794205a4b395a93942ab334d8",
+      "target": "public/assets/motion/feifei/fan.webp",
+      "targetSha256": "778114f0a6d6c72ecdc2c3cfaf5742433971bfe02d3a9f261f9547cbc9381ec8",
+      "bytes": 1064198,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/guard.png",
+      "sourceSha256": "a4dafe91bd480522795e945d1cbbb8233e2925f1b8aa7e5915222ca9ae13ea70",
+      "target": "public/assets/motion/feifei/guard.webp",
+      "targetSha256": "17ed6a02613ca55109bfa1b4c63638a9c4fc2530cb07b9714a0dfda3057a29b9",
+      "bytes": 992460,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/seal_eat.png",
+      "sourceSha256": "744416f583b04c9e29efb9ae94079b6cde1eaf597e65d40d64243f03a6183b4d",
+      "target": "public/assets/motion/feifei/seal_eat.webp",
+      "targetSha256": "7f6bceba5b3780c38bd43cafb3d700e702d131a44ec86fec652a81949444df8b",
+      "bytes": 1247010,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/kick_claw.png",
+      "sourceSha256": "81843c59e33fa9e3cb6c9287b86be4491c69b91ceca1c7443e2bedcc62470454",
+      "target": "public/assets/motion/feifei/kick_claw.webp",
+      "targetSha256": "0f353a13993715a6585acc64cc298ffc1d9eeb6b909b26951f2fba18f2844609",
+      "bytes": 1165950,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/claw.png",
+      "sourceSha256": "03000c3fdd24433244fa173dfcf4ab813e53113e7d3bd152256eab9fa8909603",
+      "target": "public/assets/motion/feifei/claw.webp",
+      "targetSha256": "ea0d38040f0255eb0ac247655f7b4f664298899d3f5be8755e733d300e2d1eaa",
+      "bytes": 919016,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/roll_win.png",
+      "sourceSha256": "c7903256d543866805fa71963f5260ce2d69dcc2ded7f2bf1e2f86a1d92b956e",
+      "target": "public/assets/motion/feifei/roll_win.webp",
+      "targetSha256": "3cd8469116426ef1ca6ef18808676029a14975db76702601b40033815a4a5c9b",
+      "bytes": 1194270,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/poison_defeat.png",
+      "sourceSha256": "517c43baa0325d25e95c4299eb6e6f5cf5ced87ac0d63eab6a9a66526bad1a04",
+      "target": "public/assets/motion/feifei/poison_defeat.webp",
+      "targetSha256": "a42d57afd96bf8baea32d3f677fa3af1a9b22deee28b180eec5d8e58dcea3a75",
+      "bytes": 1023942,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    }
+  ],
+  "uniqueBytes": 10851776
+}

@@ -1,0 +1,13 @@
+.enemy-motion {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  display: block;
+  max-width: none;
+  max-height: none;
+  pointer-events: none;
+}
+
+.sprite-box.has-enemy-motion > .sprite {
+  visibility: hidden;
+}

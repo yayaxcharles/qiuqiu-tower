@@ -21,6 +21,9 @@ const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus'
 function hasAlly(fx: Effect): boolean {
   if (ALLY_KINDS.has(fx.kind)) return true;
   if (fx.kind === 'ifSelfStatus') return [...fx.then, ...fx.otherwise].some((f) => f && hasAlly(f));
+  if (fx.kind === 'blockSpendQi') return fx.recipient === 'ally';
+  if (fx.kind === 'nextAttackBonusSpendQi') return true;
+  if (fx.kind === 'ifQiAtPlay' || fx.kind === 'ifSpentQiAtLeast' || fx.kind === 'ifAllyBlockAtPlay') return fx.then.some(hasAlly);
   return false;
 }
 
@@ -88,7 +91,7 @@ function namesAllFoes(fx: Effect | undefined): boolean {
 /** 這張牌有沒有動到魔物——有的話回復要寫成「你回復 N 生命」才分得清誰回血（規格 §6.1 以德服人） */
 const FOE_KINDS: ReadonlySet<Effect['kind']> = new Set(
   ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
-   'damageSpendBlock', 'damageByOwnStatus',
+   'damageSpendBlock', 'damageByOwnStatus', 'damageSpendQi',
    'stealBlock', 'removeStatuses', 'transferDebuffs']);
 function touchesFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => FOE_KINDS.has(e.kind) || (e.kind === 'status' && e.target !== 'self'));
@@ -101,7 +104,7 @@ function touchesFoes(effects: readonly Effect[]): boolean {
  */
 const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(
   ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
-   'damageSpendBlock', 'damageByOwnStatus']);
+   'damageSpendBlock', 'damageByOwnStatus', 'damageSpendQi']);
 function hurtsFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => HURT_KINDS.has(e.kind));
 }
@@ -112,6 +115,9 @@ function sep(prev: Effect, next: Effect): string {
   // 連續兩條都打全體魔物：主詞只講一次，第二條用頓號接在後面（規格 §6.1 催眠術）
   if (namesAllFoes(prev) && namesAllFoes(next) && next.kind === 'status' && prev.kind === 'status') return '、';
   if ((next.kind === 'gold' || next.kind === 'energy' || next.kind === 'energyAlly') && next.onKill) return '；';
+  // 條件句後的抽牌獨立成句，避免看成也要符合前面的條件。
+  if (next.kind === 'drawAlly' && (prev.kind === 'ifSelfStatus' || (prev.kind === 'energyAlly' && prev.onKill))) return '。';
+  if (next.kind === 'blockIfPoisoned' && namesAllFoes(prev)) return '。';
   return CLAUSE_AFTER.has(prev.kind) || CLAUSE_BEFORE.has(next.kind) ? '；' : '，';
 }
 
@@ -141,6 +147,20 @@ interface Ctx {
  */
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
+    case 'gainQi': return `獲得 ${fx.n} 點蓄氣`;
+    case 'damageSpendQi': {
+      const spend = fx.allQi ? '用盡蓄氣' : `最多花 ${fx.maxQi ?? 0} 點蓄氣`;
+      const who = fx.target === 'all' ? '對全體魔物' : '';
+      const hits = (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
+      return `${spend}，${who}造成 ${fx.amount} 點傷害，每點蓄氣多 ${fx.perQi} 點${hits}`
+        + (fx.ignoreBlock ? '，無視蜷縮' : '');
+    }
+    case 'blockSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipient === 'ally' ? '同伴' : '自己'}獲得 ${fx.amount} 點蜷縮，每點蓄氣多 ${fx.perQi} 點`;
+    case 'nextAttackBonusSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipients === 'ally' ? '同伴' : '雙方'}本回合下一張攻擊首段首目標多 ${fx.amount} 點傷害，每點蓄氣再多 ${fx.perQi} 點（取高不疊加）`;
+    case 'ifQiAtPlay': return `出牌前有 ${fx.min} 點蓄氣的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+    case 'ifSpentQiAtLeast': return `這張牌花了至少 ${fx.min} 點蓄氣的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+    case 'ifAllyBlockAtPlay': return `同伴原有至少 ${fx.min} 點蜷縮的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+    case 'preventEnergyGainThisPhase': return '這回合不能再獲得飯糰';
     /*
      * ===== 噹噹（2026-09-17）=====
      *
@@ -197,7 +217,9 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'poisonOnAttack': return `之後每打出一張攻擊牌，再給那個目標 ${fx.n} 層中毒`;
     // 幫隊友的三招（連線版 2026-09-11）。措辭刻意寫成「兩個人一起玩才看得出差別」，
     // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉
-    case 'blockIfPoisoned': return `目標原本就中毒的話，獲得 ${fx.amount} 點蜷縮`;
+    case 'blockIfPoisoned': return namesAllFoes(ctx.prev)
+      ? `出牌前已有任一隻魔物中毒的話，自己獲得 ${fx.amount} 點蜷縮`
+      : `目標原本就中毒的話，獲得 ${fx.amount} 點蜷縮`;
     case 'blockAll': return `每個人各獲得 ${fx.amount} 點蜷縮`;
     case 'statusAlly': return `同伴獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '層'}${fx.name}`;
     case 'taunt': return '這一輪魔物全部衝著你來（攻擊、偷小魚乾、減益都算）';
@@ -221,10 +243,10 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'watchAllyPlay': return `之後每一輪，同伴第一次打出${fx.cardType === 'any' ? '牌' : '技能牌'}時，自己抽 1 張`
       + '（自己一個人時改成看自己出牌）';
     case 'watchSelfPlay': return `之後每一輪，自己第一次打出${fx.cardType === 'any' ? '牌' : '攻擊牌'}時，同伴獲得 6 點蜷縮`;
-    case 'watchPoisonHit': return `之後每一輪一次，${fx.who === 'both' ? '任一方打中' : '同伴的攻擊打中'}原本就中毒的魔物時，兩個人各獲得 4 點蜷縮`   // 升級版技能傷害也算，所以不寫「攻擊」（審查 2026-09-15 引擎 低-7）
+    case 'watchPoisonHit': return `之後每輪一次，${fx.who === 'both' ? '任一方讓' : '同伴用攻擊牌讓'}原本就中毒的魔物扣血時，兩人各獲得 4 點蜷縮`   // 升級版技能傷害也算，所以不寫「攻擊」（審查 2026-09-15 引擎 低-7）
       + '（自己一個人時自己出手也算，獲得 8 點）';
-    case 'poisonAllyNextAttack': return `同伴本輪下一張${fx.anyDamage ? '造成傷害的牌' : '攻擊牌'}，`
-      + `對每隻被打到的魔物各施加 ${fx.amount} 層中毒`;
+    case 'poisonAllyNextAttack': return `同伴本輪下一張讓魔物扣血的${fx.anyDamage ? '牌' : '攻擊牌'}，`
+      + `對牠們各施加 ${fx.amount} 層中毒`;
     case 'energyForAllyEachRound': return `之後每一輪開始時，同伴多 1 顆飯糰`
       + `${fx.draw ? '、並多抽 1 張' : ''}`;
     // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
@@ -315,6 +337,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       const inner = fx.effects.map((e) => one(e, { inPower: true })).join('，');
       // 只限本回合的能力一定要講出來，不然玩家會當成永久的（2026-09-04 起沒有牌用 `thisTurn`，保留給日後）
       const scope = fx.thisTurn ? '這回合內，' : '';
+      if (fx.trigger === 'afterCard') {
+        const condition = fx.minQiSpent ? `花至少 ${fx.minQiSpent} 點蓄氣的` : '';
+        return `${scope}${fx.oncePerTurn ? '每回合第一次' : '每次'}打出${condition}${fx.cardType ?? ''}牌後，${inner}`
+          + (fx.sameNameMax ? '（同名取高）' : '');
+      }
+      if (fx.trigger === 'passive') return inner;
       return fx.trigger === 'turnStart' ? `${scope}每回合開始時${inner}`
         : fx.trigger === 'onKill' ? `${scope}每打倒一隻魔物就${inner}`
           : `${scope}回合結束時，如果這回合沒打過攻擊牌，${inner}`;

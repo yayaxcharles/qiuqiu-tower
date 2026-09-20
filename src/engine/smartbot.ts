@@ -186,6 +186,10 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
     if (fx.kind === 'damage') {
       const times = fx.scaleWithCombo ? Math.min(combo + 1, fx.comboCap ?? 99) : (fx.times ?? 1);
       for (let i = 0; i < times; i++) swing(computeAttack(fx.amount * (doubled ? 2 : 1), p, e, { noStrength }), fx.ignoreBlock);
+    } else if (fx.kind === 'damageSpendQi') {
+      const spentQi = fx.allQi ? (p.qi ?? 0) : Math.min(p.qi ?? 0, fx.maxQi ?? (p.qi ?? 0));
+      const raw = (fx.amount + fx.perQi * spentQi) * (doubled ? 2 : 1);
+      for (let i = 0; i < (fx.times ?? 1); i++) swing(computeAttack(raw, p, e), fx.ignoreBlock);
     } else if (fx.kind === 'damageRamp') {
       // 分身術：這場這張已打過幾次就加幾段（plays 由呼叫端查 cs.cardPlays）
       swing(computeAttack((fx.amount + fx.step * plays) * (doubled ? 2 : 1), p, e, { noStrength }));
@@ -269,7 +273,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
    * 加新的傷害種類記得回頭補這一行，跟 `damageTo` 是一對。
    */
   const DMG_KINDS: ReadonlySet<Effect['kind']> = new Set(
-    ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
+    ['damage', 'damageSpendQi', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
      // 2026-09-17 噹噹的兩種。漏掉的時候他六張主力牌（卸力掌、崩山掌、震盪波、鐵山靠、
      // 原樣奉還、捨身撞）的分數只剩負的出牌成本，永遠過不了 0.5 的門檻——
      // 第一次量出來的平衡數字就是這樣來的，而且一聲都沒響
@@ -288,6 +292,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       else v += e.hp < 20 ? 2 : 0;
       // 牠身上有反彈：每打一下就被刺一下（2026-09-02 反彈才真的生效），多段牌撞上去很痛
       const hits = st.effects.reduce((n, fx) => n + (fx.kind === 'damage' ? (fx.times ?? 1)
+        : fx.kind === 'damageSpendQi' ? (fx.times ?? 1)
         : fx.kind === 'damageRandom' || fx.kind === 'damageEqualBlock' || fx.kind === 'damageRamp'
           || fx.kind === 'damageSpendBlock' || fx.kind === 'damageByOwnStatus' ? 1 : 0), 0);
       if (getStatus(e, '反彈') > 0 && dmg < e.hp) v -= getStatus(e, '反彈') * hits * (lowHp ? 4 : 1.5);
@@ -390,6 +395,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'drawNextTurn': value += fx.n * 2; break;
       case 'drawIfTargetStatus': value += 1; break;
       case 'energy': value += fx.n * 3.5; break;
+      case 'gainQi': value += Math.min(fx.n, Math.max(0, 12 - (p.qi ?? 0))) * 1.4; break;
       case 'heal': value += Math.min(fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p.maxHp - p.hp) * (danger ? 1.5 : 0.9); break;
       case 'gold': value += fx.onKill ? 0.5 : fx.n * 0.15; break;
       case 'power': {
@@ -437,7 +443,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'retainFromHand': value += 1.5; break;
       case 'discardFromHand': value -= 1; break;
       case 'recoverFromDiscard': value += p.discardPile.length ? 3 : -5; break;
-      case 'damage': case 'damageEqualBlock': case 'damageRamp': case 'damageRandom': break;   // 傷害在 switch 之前的傷害估算區另算，這裡不重複計
+      case 'damage': case 'damageSpendQi': case 'damageEqualBlock': case 'damageRamp': case 'damageRandom': break;   // 傷害在 switch 之前的傷害估算區另算，這裡不重複計
       case 'damageScatter': value += fx.amount * fx.times * 0.8; break;   // 打散：單隻場面等於集中火力，多隻場面會浪費一點，打八折
       case 'skipEnemyTurn': value += 12; break;                          // 整輪不挨打，價值約等於一次大防禦
       /*
@@ -542,6 +548,22 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         value += Math.min(crude(fx.then), crude(fx.otherwise)) * 0.9;
         break;
       }
+      case 'blockSpendQi': {
+        const spentQi = Math.min(p.qi ?? 0, fx.maxQi);
+        const b = computeBlock(fx.amount + fx.perQi * spentQi + (p.blockBonus ?? 0), p);
+        value += Math.min(b, incoming) * (lowHp ? 3 : danger ? 1.6 : 1.1);
+        break;
+      }
+      case 'nextAttackBonusSpendQi': {
+        const spentQi = Math.min(p.qi ?? 0, fx.maxQi);
+        value += (fx.amount + fx.perQi * spentQi) * (fx.recipients === 'selfAndAlly' ? 1.3 : 1);
+        break;
+      }
+      case 'ifQiAtPlay': case 'ifSpentQiAtLeast': case 'ifAllyBlockAtPlay':
+        value += fx.then.reduce((sum, sub) => sum + ((sub as { amount?: number; n?: number }).amount
+          ?? (sub as { n?: number }).n ?? 0), 0) * 0.7;
+        break;
+      case 'preventEnergyGainThisPhase': break;
       /*
        * ===== 噹噹的十個（2026-09-17）=====
        * 傷害那幾種（`damageSpendBlock`、`damageByOwnStatus`）在 switch 之前的傷害估算區

@@ -70,7 +70,7 @@ describe('倒地圖', () => {
     const big = new Set(bigOnes());
     // 變裝立繪（不是魔物 id）照它替換的那一組算：影菲菲是鏡貓玩菲菲時的皮，底圖是影球球（大魔物）那一組（2026-09-15）；
     // 影噹噹同理，是鏡貓照到噹噹時的皮（2026-09-17）。鏡子走廊那一隻本體就是大魔物，皮有倒地圖是對的
-    const SKIN_OF: Record<string, string> = { shadow_feifei: 'shadow_cat', shadow_dangdang: 'shadow_cat' };
+    const SKIN_OF: Record<string, string> = { shadow_feifei: 'shadow_cat', shadow_dangdang: 'shadow_cat', shadow_fengfeng: 'shadow_cat' };
     const withDown = Object.entries(manifest.monsters)
       .filter(([, poses]) => poses.down)
       // 換階段的立繪（`<原鍵>_p2`／`_p3`，見 `assets.ts` 的 `monsterPhaseKey`）照**變身前那隻**算：

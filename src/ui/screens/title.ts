@@ -4,7 +4,7 @@ import { SHARE_PREFIX, decodeRun } from '../../engine/sharecode';
 import { showCompendium } from '../compendium';
 import { showItemCompendium } from '../itemcompendium';
 import { registerScreen } from '../app';
-import { hasSprite, artUrl } from '../assets';
+import { hasSprite, artUrl, heroArtUrl } from '../assets';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
 
@@ -86,24 +86,26 @@ registerScreen('title', (app, root) => {
   root.append(
     el('div', { class: 'title-screen' },
       // 陰影跟戰鬥畫面同一招：去背的角色貼在背景上就是浮著，腳下墊一片橢圓才像站著
-      el('div', { class: hasSprite('hero/dangdang_cover') ? 'title-cat-box three' : 'title-cat-box' },
+      el('div', { class: 'title-cat-box four' },
         el('div', { class: 'ground-shadow' }),
         /*
-         * 排法：**菲菲左、球球中、噹噹右**（使用者 2026-09-17：「球球擺中間，他是主角」）。
+         * 排法沿用菲菲、球球、噹噹的順序，再把封封接在右側；球球仍靠近整排中央。
          *
          * 所以 DOM 的順序就是畫面上的順序，不要再照「誰先做好」排。
          * 封面主圖一律用 LINE 貼圖的「參上」那張：爆炸背景加題字，比乾站著的立繪有氣勢。
-         * 彈跳各錯開一拍（`base.css` 的 `animation-delay`），三隻才不會同時上下。
+         * 彈跳各錯開一拍（`base.css` 的 `animation-delay`），四隻才不會同時上下。
          */
         // 她的「參上」貼圖沒進倉時退回勝利姿勢的立繪（矮一截）
         hasSprite('hero/feifei_cover')
           ? el('img', { class: 'title-cat title-cat-second', src: artUrl('sprites', 'hero/feifei_cover'), alt: '菲菲參上' })
           : el('img', { class: 'title-cat title-cat-feifei', src: artUrl('sprites', 'hero/feifei_win'), alt: '菲菲' }),
         el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' }),
-        // 三張並排之後每張都窄了一點，見 `base.css` 的 `.title-cat-box.three`
-        ...(hasSprite('hero/dangdang_cover')
-          ? [el('img', { class: 'title-cat title-cat-third', src: artUrl('sprites', 'hero/dangdang_cover'), alt: '噹噹參上' })]
-          : [])),
+        hasSprite('hero/dangdang_cover')
+          ? el('img', { class: 'title-cat title-cat-third', src: artUrl('sprites', 'hero/dangdang_cover'), alt: '噹噹參上' })
+          : el('img', { class: 'title-cat title-cat-third', src: heroArtUrl('dangdang', 'hero/ninja_win'), alt: '噹噹' }),
+        hasSprite('hero/fengfeng_cover')
+          ? el('img', { class: 'title-cat title-cat-fourth', src: artUrl('sprites', 'hero/fengfeng_cover'), alt: '封封參上' })
+          : el('img', { class: 'title-cat title-cat-fourth', src: heroArtUrl('fengfeng', 'hero/ninja_win'), alt: '封封' })),
       // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名。
       // 副標「－ 球球參上 －」2026-09-15 拿掉（使用者：第三個角色進來之後首頁不該只掛他的名字）
       el('h1', {}, '爪破魔塔'),

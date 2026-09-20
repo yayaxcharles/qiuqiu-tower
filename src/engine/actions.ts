@@ -116,6 +116,16 @@ export function markRelic(cs: CombatState, id: string): void {
 
 export function aliveEnemies(cs: CombatState): EnemyCombat[] { return cs.enemies.filter((e) => !e.dead); }
 export function findEnemy(cs: CombatState, uid: number): EnemyCombat | undefined { return cs.enemies.find((e) => e.uid === uid && !e.dead); }
+/** 清場時立刻關閉戰鬥資源；結算頁與重連指紋都不會看見殘留的蓄氣或準備。 */
+export function markCombatWon(cs: CombatState): void {
+  if (aliveEnemies(cs).length !== 0 || cs.phase !== 'player') return;
+  cs.phase = 'won';
+  for (const p of cs.players) {
+    p.qi = 0;
+    p.nextAttackBonus = undefined;
+    p.energyGainBlockedThisPhase = undefined;
+  }
+}
 /** 這一位有沒有帶這件秘寶（規則一：各帶各的）。不指定就問第一位 */
 export function hasRelic(cs: CombatState, id: string, p: PlayerCombat = cs.player): boolean { return p.relics.includes(id); }
 
@@ -131,6 +141,17 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   const v = computeBlock(base + bonus, u);
   u.block += v;
   return v;
+}
+
+/**
+ * 新增飯糰的唯一入口。集中精神只擋「新增」，回合開始自然補滿不走這裡。
+ * 回傳實得量，讓轉移類效果能在受益者被封禁時不扣贈送者。
+ */
+export function gainEnergy(cs: CombatState, p: PlayerCombat, n: number): number {
+  if (n <= 0 || p.energyGainBlockedThisPhase) return 0;
+  p.energy += n;
+  cs.energyGain += n;
+  return n;
 }
 
 /** 每回合第一次拿隱身時吃秘寶加成（紙袋的 stealthBonus），加成量由秘寶資料決定 */
@@ -287,6 +308,9 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     else {
       p.hp = 0;
       p.down = true;
+      p.qi = 0;
+      p.nextAttackBonus = undefined;
+      p.energyGainBlockedThisPhase = undefined;
       // **每一位都倒下了**才算整場輸（規則四）。單機只有一位，跟以前同一件事
       if (cs.players.every((x) => x.down)) cs.phase = 'lost';
       else log(cs, `${unitName(p)}倒下了，另一位還站著`);
@@ -506,7 +530,7 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
     if (h.killStrength) addStatus(killer, '爪力', h.killStrength);
     if (h.killFish) killer.fishDelta += h.killFish;
   }
-  if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
+  markCombatWon(cs);
 }
 
 /**
@@ -669,7 +693,7 @@ function splitEnemy(cs: CombatState, e: EnemyCombat, sp: { enemyId: string; n: n
     cs.enemies.push(fresh);
   }
   // 塞不下半隻（極端情況）就等於清場了，該判贏
-  if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
+  markCombatWon(cs);
 }
 
 export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpScale = 1): EnemyCombat {
@@ -917,7 +941,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       }
       case 'chargeNext': e.charged = true; break;
       case 'escape': e.dead = true; e.escaped = true; log(cs, `${e.name}帶著小魚乾逃走了`);
-        if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won'; break;
+        markCombatWon(cs); break;
       case 'selfDestruct': {
         // 自爆（河豚精）：先打人（吃蜷縮、隱身照閃），然後自己倒下——這一下**算打倒**，戰利品照發
         log(cs, `${e.name}炸開了`);

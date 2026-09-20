@@ -1065,6 +1065,7 @@
 .title-screen { gap: 11px; }
 .title-cat-box .title-cat { height: 290px; }
 .title-cat-box.three .title-cat { height: 248px; }
+.title-cat-box.four .title-cat { height: 220px; }
 .title-cat-box .title-cat-feifei { height: 190px; }
 .title-screen h1 { margin: 0; }
 .title-sub { margin: 0; }
@@ -1551,7 +1552,7 @@
 }
 
 /* ===== 選角畫面（2026-09-12，使用者：「開頭進地圖前可以選角色」）=====
-   排在「新的一局」與序章之間。兩張角色卡並排、選中的那張亮起來，
+   排在「新的一局」與序章之間。角色卡並排、選中的那張亮起來，
    底下寫這一位的起手十張、起始秘寶與一張代表牌——那三樣才是玩家真正在選的東西。
    整頁塞在 720 高裡：卡片 300 高、說明區固定 150，不會把按鈕擠出舞台。 */
 .heroselect {

@@ -64,9 +64,8 @@ describe('戰鬥畫面：進場、收回合、分出勝負的時機', () => {
   });
 
   it('最後一個人舉手的那一刻 hold，魔物回合演完 release（高-7）', () => {
-    const i = combat.indexOf('if (allReady(cs) && !cs.pending) {\n        session.endOfTurn();');
-    expect(i, '找不到收回合那一段').toBeGreaterThan(0);
-    expect(combat.slice(i, i + 400)).toContain('session.hold();');
+    const closeTurn = combat.match(/if \(allReady\(cs\) && !cs\.pending\) \{[\s\S]{0,500}?session\.endOfTurn\(\);[\s\S]{0,500}?session\.hold\(\);/);
+    expect(closeTurn, '最後一人舉手後必須先對帳再 hold；不能依賴函式層級或縮排').not.toBeNull();
     const run = combat.indexOf('function runEnemyTurn(): void {');
     const body = combat.slice(run, combat.indexOf('// ===== 結算與動畫 =====', run));
     expect((body.match(/session\?\.release\(\)/g) ?? []).length, '沒得演、演完，兩個出口都要放開').toBe(2);

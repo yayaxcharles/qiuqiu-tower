@@ -1,0 +1,1513 @@
+{
+  "version": 1,
+  "status": "ready",
+  "sourceOfTruth": "docs/第四隻角色_封封_提案/09_後續插圖製作清單.md",
+  "entries": {
+    "bg/fengfeng_still_return": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-P01"
+      ],
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/01_FG-P-01_回村與魔塔_待去背.png",
+      "sourceId": "FG-P-01",
+      "sourceFormalId": "FG-ART-P01",
+      "outputPath": "public/assets/bg/fengfeng_still_return.webp",
+      "path": "assets/bg/fengfeng_still_return.webp",
+      "sourceSha256": "d72a3acb24c48e258023674249c4f315fe1e1941823c8919ac03819b1cbf03d5",
+      "sha256": "bc483a328d112a1d9b24df79cd050302882f91033581a4748625deb05b1da273",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-01.png"
+    },
+    "bg/fengfeng_still_shop": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-P02"
+      ],
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/02_FG-P-02_關門的鋪子_待去背.png",
+      "sourceId": "FG-P-02",
+      "sourceFormalId": "FG-ART-P02",
+      "outputPath": "public/assets/bg/fengfeng_still_shop.webp",
+      "path": "assets/bg/fengfeng_still_shop.webp",
+      "sourceSha256": "42f9ef192b51bffb382f14b08a3b06360f014a3658f9fd251ec5dac0bbd84f2c",
+      "sha256": "f021b39707cb09de9d915b801c8fb7bf85b42a36e757ea93dfb9294ee5581026",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-02.png"
+    },
+    "bg/fengfeng_still_meet": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-P03"
+      ],
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/01_FG-P-03_村貓說明_待去背.png",
+      "sourceId": "FG-P-03",
+      "sourceFormalId": "FG-ART-P03",
+      "outputPath": "public/assets/bg/fengfeng_still_meet.webp",
+      "path": "assets/bg/fengfeng_still_meet.webp",
+      "sourceSha256": "3ca2d1ccf233aa9c2579d3c2f04cb4a9e68b85d1c2c78473b9015e4f2b9255ba",
+      "sha256": "045609d58f02de59855f5e3dd2c8fb7bbfa9b05af756cae441036669ee10d16c",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-03.png"
+    },
+    "bg/fengfeng_still_tower": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-P04"
+      ],
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/02_FG-P-04_塔下出發_待去背.png",
+      "sourceId": "FG-P-04",
+      "sourceFormalId": "FG-ART-P04",
+      "outputPath": "public/assets/bg/fengfeng_still_tower.webp",
+      "path": "assets/bg/fengfeng_still_tower.webp",
+      "sourceSha256": "3ab3a2d80bb1a9ad005dbff3e0e10e7c59773d1f1c010c1ef4512d2fc85a9718",
+      "sha256": "4d72e9a40b4c51986a145a651c9ce4b13e8aea6aff03422b6e1dce25e4861f4b",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-04.png"
+    },
+    "bg/fengfeng_still_act1_stairs": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-A101"
+      ],
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/04_FG-A1-01_樓梯糧箱_待去背.png",
+      "sourceId": "FG-A1-01",
+      "sourceFormalId": "FG-ART-A101",
+      "outputPath": "public/assets/bg/fengfeng_still_act1_stairs.webp",
+      "path": "assets/bg/fengfeng_still_act1_stairs.webp",
+      "sourceSha256": "0279b21d86c69b3607c74a8557389bca224f5167fe547bc03e9f7cd2164782fb",
+      "sha256": "1365a0a21ecbfb227250b53a1ed12c2b9e1f0718e9a422ef4019c9772820c653",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-A1-01.png"
+    },
+    "bg/fengfeng_still_act1_fish": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [],
+      "status": "ready",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-02_act1_fish.png",
+      "sourceId": "FG-A1-02",
+      "sourceFormalId": "FG-ART-A102",
+      "outputPath": "public/assets/bg/fengfeng_still_act1_fish.webp",
+      "path": "assets/bg/fengfeng_still_act1_fish.webp",
+      "sourceSha256": "be79b98e8ef5653b8417936819d68bfc8bffb40f964e113f6b92b01fb78959c9",
+      "sha256": "6917091bf5198d01001b2722ff2db8faf07cd23c6eee64637e493ff7add3d961",
+      "size": [
+        1280,
+        720
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized",
+      "centralCrop": false,
+      "centralNonUniformScale": false,
+      "fullScene": true,
+      "scene": "空糧箱與魚乾碎屑；封封在魔塔樓梯口檢查商隊記號。",
+      "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
+      "outputSha256": "6917091bf5198d01001b2722ff2db8faf07cd23c6eee64637e493ff7add3d961",
+      "wideScene": true,
+      "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-02_act1_fish.png",
+      "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A1-02_act1_fish.png",
+      "retainedPreviousOutput": "tools/motion-art-source/fengfeng-extra/story-missing-v1-output/fengfeng_still_act1_fish.webp"
+    },
+    "bg/fengfeng_still_act1_climb": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [],
+      "status": "ready",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-03_act1_climb.png",
+      "sourceId": "FG-A1-03",
+      "sourceFormalId": "FG-ART-A103",
+      "outputPath": "public/assets/bg/fengfeng_still_act1_climb.webp",
+      "path": "assets/bg/fengfeng_still_act1_climb.webp",
+      "sourceSha256": "454a80c6e5fc7474abb205cfee724fbf15c6202aedff2495e4bcfdf9c171d140",
+      "sha256": "78ba2f4554367481082a899a8d872fbb18ff3a5cfa2d524c149924711d965a76",
+      "size": [
+        1280,
+        720
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized",
+      "centralCrop": false,
+      "centralNonUniformScale": false,
+      "fullScene": true,
+      "scene": "封封扶著有新刮痕的扶手抬頭，準備追上樓梯上的腳步聲。",
+      "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
+      "outputSha256": "78ba2f4554367481082a899a8d872fbb18ff3a5cfa2d524c149924711d965a76",
+      "wideScene": true,
+      "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-03_act1_climb.png",
+      "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A1-03_act1_climb.png",
+      "retainedPreviousOutput": "tools/motion-art-source/fengfeng-extra/story-missing-v1-output/fengfeng_still_act1_climb.webp"
+    },
+    "bg/fengfeng_still_act2_smoke": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-A201"
+      ],
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/05_FG-A2-01_半途遇見噹噹_待去背.png",
+      "sourceId": "FG-A2-01",
+      "sourceFormalId": "FG-ART-A201",
+      "outputPath": "public/assets/bg/fengfeng_still_act2_smoke.webp",
+      "path": "assets/bg/fengfeng_still_act2_smoke.webp",
+      "sourceSha256": "42f819dd565bcb68fc59833bd6902d0aa6f100a1c209fa22383b4591a746fabc",
+      "sha256": "881d097049b2ef953910e36c0f138302599282f1eb2070a8f96298c2e2bf4fc9",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-A2-01.png"
+    },
+    "bg/fengfeng_still_act2_voice": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [],
+      "status": "ready",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-02_act2_voice.png",
+      "sourceId": "FG-A2-02",
+      "sourceFormalId": "FG-ART-A202",
+      "outputPath": "public/assets/bg/fengfeng_still_act2_voice.webp",
+      "path": "assets/bg/fengfeng_still_act2_voice.webp",
+      "sourceSha256": "860cbb48d2a97ebe31ed5906fa44fb268662f3435e374b043aa96e8feac23712",
+      "sha256": "0325d842b1a165357fa6b3c3d0aba8923caed8944969c99a44698d34c4f513aa",
+      "size": [
+        1280,
+        720
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized",
+      "centralCrop": false,
+      "centralNonUniformScale": false,
+      "fullScene": true,
+      "scene": "封封與黑白噹噹接住腿傷村貓的包袱，在樓梯間護送下樓。",
+      "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
+      "outputSha256": "0325d842b1a165357fa6b3c3d0aba8923caed8944969c99a44698d34c4f513aa",
+      "wideScene": true,
+      "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-02_act2_voice.png",
+      "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A2-02_act2_voice.png",
+      "retainedPreviousOutput": "tools/motion-art-source/fengfeng-extra/story-missing-v1-output/fengfeng_still_act2_voice.webp"
+    },
+    "bg/fengfeng_still_act2_moonstairs": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [],
+      "status": "ready",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-06_act2_moonstairs.png",
+      "sourceId": "FG-A2-06",
+      "sourceFormalId": "FG-ART-A206",
+      "outputPath": "public/assets/bg/fengfeng_still_act2_moonstairs.webp",
+      "path": "assets/bg/fengfeng_still_act2_moonstairs.webp",
+      "sourceSha256": "aef2a3e114851ff465c912aa997b6ea9f20d4ff6bcc7361edb7714e960b1a157",
+      "sha256": "2a46605e33f7779c303234523d27087b6b784c502ed00be4082100cd79a8c6c4",
+      "size": [
+        1280,
+        720
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized",
+      "centralCrop": false,
+      "centralNonUniformScale": false,
+      "fullScene": true,
+      "scene": "噹噹與村貓離開後，封封獨自在月光樓梯下抬頭聽見塔上吼聲。",
+      "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
+      "outputSha256": "2a46605e33f7779c303234523d27087b6b784c502ed00be4082100cd79a8c6c4",
+      "wideScene": true,
+      "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-06_act2_moonstairs.png",
+      "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A2-06_act2_moonstairs.png",
+      "retainedPreviousOutput": "tools/motion-art-source/fengfeng-extra/story-missing-v1-output/fengfeng_still_act2_moonstairs.webp"
+    },
+    "bg/fengfeng_still_embrace": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-V01"
+      ],
+      "status": "ready",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-V-01_embrace.png",
+      "sourceId": "FG-V-01",
+      "sourceFormalId": "FG-ART-V01",
+      "outputPath": "public/assets/bg/fengfeng_still_embrace.webp",
+      "path": "assets/bg/fengfeng_still_embrace.webp",
+      "sourceSha256": "2f5b0ebc5f4075b37dd613c423f1ed1dde46255342896efa92386eebbb93a706",
+      "sha256": "1d22cb9ed316606b6e5e454f4d76c103a482c56fbc744fba6bcb8f664ff6691e",
+      "size": [
+        1280,
+        720
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized",
+      "centralCrop": false,
+      "centralNonUniformScale": false,
+      "fullScene": true,
+      "scene": "紫光退去後，橘白封封收劍；大俠貓師父扶住他，菲菲查看球球傷勢。",
+      "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
+      "outputSha256": "1d22cb9ed316606b6e5e454f4d76c103a482c56fbc744fba6bcb8f664ff6691e",
+      "wideScene": true,
+      "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-V-01_embrace.png",
+      "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-V-01_embrace.png",
+      "retainedPreviousOutput": "tools/motion-art-source/fengfeng-extra/story-missing-v1-output/fengfeng_still_embrace.webp"
+    },
+    "bg/fengfeng_still_home": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_主線故事原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-V02",
+        "FG-ART-EP01"
+      ],
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/08_FG-V-08_回村與熱湯_待去背.png",
+      "sourceId": "FG-V-08",
+      "sourceFormalId": "FG-ART-V02",
+      "outputPath": "public/assets/bg/fengfeng_still_home.webp",
+      "path": "assets/bg/fengfeng_still_home.webp",
+      "sourceSha256": "e1313ce155f0f24a0f970e961ff761d01fd3f1187af3a34f02c75983ccdd0d3b",
+      "sha256": "7734dc454a5ea2d0678833103434ea9230045044fd4dd62d289ff532c7cc1190",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-V-08.png"
+    },
+    "bg/fengfeng_coop_ninja_prologue": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CQP"
+      ],
+      "status": "ready",
+      "scene": "魔塔出現當晚，封封卸貨；球球追著師父往塔裡去。",
+      "characters": "封封、球球",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/04_FG-ART-CQP_球球搭檔出發_待去背.png",
+      "sourceId": "FG-ART-CQP",
+      "sourceFormalId": "FG-ART-CQP",
+      "outputPath": "public/assets/bg/fengfeng_coop_ninja_prologue.webp",
+      "path": "assets/bg/fengfeng_coop_ninja_prologue.webp",
+      "sourceSha256": "9e8f5144547d5eebf5a1e7c679658aa50899c0ae4c31146360ce99895400771b",
+      "sha256": "e3f240ee8812622e1dfb8642d52a33005925875708785d4b1ead9031659d1917",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQP.png"
+    },
+    "bg/fengfeng_coop_ninja_top": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CQT"
+      ],
+      "status": "ready",
+      "scene": "球球在右、封封在左，大俠貓在前；兩人都能站立。",
+      "characters": "封封、球球、大俠貓（師父／塔主）",
+      "canonicalArtKeys": {
+        "enemyArt": "daxia",
+        "bossPose": "boss/idle1"
+      },
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/05_FG-ART-CQT_球球搭檔塔頂_待去背.png",
+      "sourceId": "FG-ART-CQT",
+      "sourceFormalId": "FG-ART-CQT",
+      "outputPath": "public/assets/bg/fengfeng_coop_ninja_top.webp",
+      "path": "assets/bg/fengfeng_coop_ninja_top.webp",
+      "sourceSha256": "35afed36b00fcf4f52be88019ebeecffeb9a60316d0a8c2fb4b8ecd81d33077e",
+      "sha256": "3f750318ec6bf406f20bd9e8bacf58622e5200e72098688e588783be8b5d42a5",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQT.png"
+    },
+    "bg/fengfeng_coop_ninja_victory": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CQV"
+      ],
+      "status": "ready",
+      "scene": "封封與球球回村；菲菲與噹噹在村口迎接，不能畫成跟著下塔。",
+      "characters": "封封、球球、菲菲、噹噹",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/06_FG-ART-CQV_球球搭檔回村_待去背.png",
+      "sourceId": "FG-ART-CQV",
+      "sourceFormalId": "FG-ART-CQV",
+      "outputPath": "public/assets/bg/fengfeng_coop_ninja_victory.webp",
+      "path": "assets/bg/fengfeng_coop_ninja_victory.webp",
+      "sourceSha256": "ff8bb4d9019089a32941492984a887bbfa6630a544472ccd9f6d136c78e71cf7",
+      "sha256": "b0fbf307ac4e3c593796564a272f25a3479e177a702217b86c53bda927f34276",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQV.png"
+    },
+    "bg/fengfeng_coop_feifei_prologue": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CFP"
+      ],
+      "status": "ready",
+      "scene": "第三天早上，封封與菲菲分藥布、準備針筒。",
+      "characters": "封封、菲菲",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/07_FG-ART-CFP_菲菲搭檔出發_待去背.png",
+      "sourceId": "FG-ART-CFP",
+      "sourceFormalId": "FG-ART-CFP",
+      "outputPath": "public/assets/bg/fengfeng_coop_feifei_prologue.webp",
+      "path": "assets/bg/fengfeng_coop_feifei_prologue.webp",
+      "sourceSha256": "2ee6f81c89d01e0565478135269547c80ecc34088bbce29412f0d8e3526e54af",
+      "sha256": "abf7b00bbe85bc5062448eae8417a6ae17b7557559f5976558c30b6242dab65b",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CFP.png"
+    },
+    "bg/fengfeng_coop_feifei_top": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CFT"
+      ],
+      "status": "ready",
+      "scene": "球球在門邊；封封與菲菲分開站立。",
+      "characters": "封封、菲菲、球球、大俠貓（師父／塔主）",
+      "canonicalArtKeys": {
+        "enemyArt": "daxia",
+        "bossPose": "boss/idle1"
+      },
+      "outputPath": "public/assets/bg/fengfeng_coop_feifei_top.webp",
+      "path": "assets/bg/fengfeng_coop_feifei_top.webp",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CFT.png",
+      "sha256": "7dea2773340bcbe6a73147087a6b6e79a4ba8cb1fe7c99822f86ea7cc6ae332c",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      }
+    },
+    "bg/fengfeng_coop_feifei_victory": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CFV"
+      ],
+      "status": "ready",
+      "scene": "噹噹開門；封封扶球球；菲菲照料大俠貓。",
+      "characters": "封封、菲菲、球球、噹噹、大俠貓（師父／塔主）",
+      "canonicalArtKeys": {
+        "enemyArt": "daxia",
+        "bossPose": "boss/idle1"
+      },
+      "outputPath": "public/assets/bg/fengfeng_coop_feifei_victory.webp",
+      "path": "assets/bg/fengfeng_coop_feifei_victory.webp",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CFV.png",
+      "sha256": "50f1052ce79b6be0ddfa125c7c16137979c18e8bd3643ad77c358d6950dc03f1",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      }
+    },
+    "bg/fengfeng_coop_dangdang_prologue": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CDP"
+      ],
+      "status": "ready",
+      "scene": "村貓接手門閂；封封與噹噹走出。",
+      "characters": "封封、噹噹、村貓",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/08_FG-ART-CDP_噹噹搭檔出發_待去背.png",
+      "sourceId": "FG-ART-CDP",
+      "sourceFormalId": "FG-ART-CDP",
+      "outputPath": "public/assets/bg/fengfeng_coop_dangdang_prologue.webp",
+      "path": "assets/bg/fengfeng_coop_dangdang_prologue.webp",
+      "sourceSha256": "0a9a37563207392aacf4d58a67c4239e9b2caff31590e91eb9523e2ba735d18c",
+      "sha256": "8b42b5d4b70efecca95e5be51de0b1da065f62197be13be16eced27b6f26699b",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CDP.png"
+    },
+    "bg/fengfeng_coop_dangdang_top": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CDT"
+      ],
+      "status": "ready",
+      "scene": "噹噹架掌；封封從側面出劍；球球與菲菲兩位徒弟退往門口。",
+      "characters": "封封、噹噹、球球、菲菲、大俠貓（師父／塔主）",
+      "canonicalArtKeys": {
+        "enemyArt": "daxia",
+        "bossPose": "boss/idle1"
+      },
+      "outputPath": "public/assets/bg/fengfeng_coop_dangdang_top.webp",
+      "path": "assets/bg/fengfeng_coop_dangdang_top.webp",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CDT.png",
+      "sha256": "f004fc430baf6b1949c461936acf0240659887d027b2b90aafac9d57654fdb30",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      }
+    },
+    "bg/fengfeng_coop_dangdang_victory": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/00_連線劇情補充原畫板_8格.png",
+      "draftIds": [
+        "FG-ART-CDV"
+      ],
+      "status": "ready",
+      "scene": "五人同行，護臂與劍已卸下；村貓端水。",
+      "characters": "封封、噹噹、球球、菲菲、大俠貓（師父／塔主）、村貓",
+      "canonicalArtKeys": {
+        "enemyArt": "daxia",
+        "bossPose": "boss/idle1"
+      },
+      "outputPath": "public/assets/bg/fengfeng_coop_dangdang_victory.webp",
+      "path": "assets/bg/fengfeng_coop_dangdang_victory.webp",
+      "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CDV.png",
+      "sha256": "f8f987bfd753e1fa08b16aaf0ce687b48e01d6a655d84ae123b31b0e5f6b1020",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      }
+    },
+    "bg/event_fengfeng_stuck_scabbard": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件一_2x2.png",
+      "draftIds": [],
+      "draftSlot": "intro",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件一_拔不出的劍/01_FG-EX1-I01_卡住的劍_待去背.png",
+      "sourceId": "FG-EX1-I01",
+      "outputPath": "public/assets/bg/event_fengfeng_stuck_scabbard.webp",
+      "path": "assets/bg/event_fengfeng_stuck_scabbard.webp",
+      "sourceSha256": "930b70ff0ab1202e66b2dbce0cd70e7f3ba5b2d1bf48d62ca951a076f8001a0c",
+      "sha256": "8aff99d90b4bd580f6b6798948de409907abda5d4aa308bd5c2184462652d15b",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          120,
+          43,
+          388,
+          397
+        ]
+      },
+      "alphaMidRatio": 0.039511,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_stuck_scabbard.webp",
+      "sceneSha256": "b3471daf1d6dfe2706b7704e7543dcd2cf5db7fec91c89256d0f4bca88234a65",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "I01",
+      "formalSlot": "intro",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_stuck_scabbard_r0": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件一_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r1",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件一_拔不出的劍/02_FG-EX1-R01_拆襯整理_待去背.png",
+      "sourceId": "FG-EX1-R01",
+      "outputPath": "public/assets/bg/event_fengfeng_stuck_scabbard_r0.webp",
+      "path": "assets/bg/event_fengfeng_stuck_scabbard_r0.webp",
+      "sourceSha256": "26c131292d3a4a400a5d762da118612b6ce0b0c823c83d07912091a1b30acc86",
+      "sha256": "90e484052f33e7ad431b4a51a7507559ed29feb8121531279e66492b576830c4",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          5,
+          53,
+          352,
+          379
+        ]
+      },
+      "alphaMidRatio": 0.055374,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_stuck_scabbard_r0.webp",
+      "sceneSha256": "d5b0b2ed9e003a1c200d348f4779c4b309af50522a17986d41517c73dad7441b",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R01",
+      "formalSlot": "r0",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_stuck_scabbard_r1": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件一_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r2",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件一_拔不出的劍/03_FG-EX1-R02_強行拔劍_待去背.png",
+      "sourceId": "FG-EX1-R02",
+      "outputPath": "public/assets/bg/event_fengfeng_stuck_scabbard_r1.webp",
+      "path": "assets/bg/event_fengfeng_stuck_scabbard_r1.webp",
+      "sourceSha256": "1c597158f301add14d5106dbd7bbb38214d6aaf29d3ce2d1cf441c87e1b51257",
+      "sha256": "16207067c461ffbc86cca226e5ce52810197c271d651cb186dcd649a3955db0f",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          65,
+          34,
+          387,
+          376
+        ]
+      },
+      "alphaMidRatio": 0.042445,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_stuck_scabbard_r1.webp",
+      "sceneSha256": "32c13eb65863093d4671f6dc6ebcf25994dd2eaff1b32eccfcdc965098e1d6b1",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R02",
+      "formalSlot": "r1",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_stuck_scabbard_r2": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件一_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r3",
+      "status": "source-only-unreferenced",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件一_拔不出的劍/04_FG-EX1-R03_濕襯暫時處理_待去背.png",
+      "sourceId": "FG-EX1-R03",
+      "outputPath": "public/assets/bg/event_fengfeng_stuck_scabbard_r2.webp",
+      "path": "assets/bg/event_fengfeng_stuck_scabbard_r2.webp",
+      "sourceSha256": "0acd0deca3217b13b1d2b317180837ea3a46994752e5c0ee90df9098fa04a978",
+      "sha256": "b9ad7be6473065d29815527fd9f9b67bcac266211044ad9d01095efbfb7d6a0a",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          11,
+          38,
+          560,
+          407
+        ]
+      },
+      "alphaMidRatio": 0.018644,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_stuck_scabbard_r2.webp",
+      "sceneSha256": "889e134451ad771111622b79a13bf4a3f90cc2aa3df66c3b98e121e2d4be5748",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R03",
+      "formalSlot": "r2",
+      "conversion": "imagegen-edit-residual-stuck-scabbard; RGBA 560x420 lossless WebP",
+      "generatedSourcePath": "tools/motion-art-source/fengfeng-extra/events/FG-EX1-R03.png",
+      "manifestEntry": false,
+      "runtimeReference": null,
+      "reason": "無效果選項；保留正式圖與來源供追溯，未接入事件結果演出。"
+    },
+    "bg/event_fengfeng_lost_medicine": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件二_2x2.png",
+      "draftIds": [],
+      "draftSlot": "intro",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件二_沒送到的藥包/01_FG-EX2-I01_散開貨箱_待去背.png",
+      "sourceId": "FG-EX2-I01",
+      "outputPath": "public/assets/bg/event_fengfeng_lost_medicine.webp",
+      "path": "assets/bg/event_fengfeng_lost_medicine.webp",
+      "sourceSha256": "797a9f10dc5931774959d5af34c197ada62c6735fe2eb70cec055205cfc81296",
+      "sha256": "57bfd510baccfc3e5a505b3d1b091b35dba5129180aee74359b2ba53c0134804",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          320,
+          35,
+          560,
+          363
+        ]
+      },
+      "alphaMidRatio": 0.038835,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_lost_medicine.webp",
+      "sceneSha256": "94c0950e667bf5270bfcc101daa6c187e27135f023199ae9bcb3493d8fad90bc",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "I01",
+      "formalSlot": "intro",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_lost_medicine_r0": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件二_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r1",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件二_沒送到的藥包/02_FG-EX2-R01_處理自己的傷_待去背.png",
+      "sourceId": "FG-EX2-R01",
+      "outputPath": "public/assets/bg/event_fengfeng_lost_medicine_r0.webp",
+      "path": "assets/bg/event_fengfeng_lost_medicine_r0.webp",
+      "sourceSha256": "8aab0fa284c1a9bf0ac67d6779c22a4ab4099ecb7637eba9da2969ac792e7ca7",
+      "sha256": "c82ef6cd7a69665d9b3052c6499adffffeb666491dee68ee552ef3d64d21b3f2",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          0,
+          4,
+          559,
+          417
+        ]
+      },
+      "alphaMidRatio": 0.017326,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_lost_medicine_r0.webp",
+      "sceneSha256": "f97ddbc1a174a683fc4cc832fd74d6aeb2e6c14329e0952150ed0c03c4efc405",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R01",
+      "formalSlot": "r0",
+      "conversion": "imagegen-edit-residual-lost-medicine; RGBA 560x420 lossless WebP",
+      "generatedSourcePath": "tools/motion-art-source/fengfeng-extra/events/FG-EX2-R01.png"
+    },
+    "bg/event_fengfeng_lost_medicine_r1": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件二_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r2",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件二_沒送到的藥包/03_FG-EX2-R02_把藥交給村貓_待去背.png",
+      "sourceId": "FG-EX2-R02",
+      "outputPath": "public/assets/bg/event_fengfeng_lost_medicine_r1.webp",
+      "path": "assets/bg/event_fengfeng_lost_medicine_r1.webp",
+      "sourceSha256": "9dd0842a767c73c1c53e2770ed13b90ea3a6b26ce59b70b22f333670e766977f",
+      "sha256": "c9c4e5e9abc9617316f9a06f0aff2af3202ff159eb976d37292a0caccf8c44d5",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          0,
+          27,
+          560,
+          349
+        ]
+      },
+      "alphaMidRatio": 0.098937,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_lost_medicine_r1.webp",
+      "sceneSha256": "105617341b935f75878d6a5f2279ed236232fb740f18b87aa34f0ad607aafe75",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R02",
+      "formalSlot": "r1",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_lost_medicine_r2": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件二_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r3",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件二_沒送到的藥包/04_FG-EX2-R03_護送藥包下樓_待去背.png",
+      "sourceId": "FG-EX2-R03",
+      "outputPath": "public/assets/bg/event_fengfeng_lost_medicine_r2.webp",
+      "path": "assets/bg/event_fengfeng_lost_medicine_r2.webp",
+      "sourceSha256": "7db86aa29395f7bc7c8f0b7dc3a44229202b653a541f18f8391aa3ae4751045e",
+      "sha256": "86b2c1c8e6b7d28f6c4d65b069f15fb528d91224b12c451ab50c8ba20bda821d",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          33,
+          41,
+          322,
+          378
+        ]
+      },
+      "alphaMidRatio": 0.031284,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_lost_medicine_r2.webp",
+      "sceneSha256": "b016808635059440bb3402a109e195a23bb8ba9b1779210da1f712f7f7af38f6",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R03",
+      "formalSlot": "r2",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_fallen_rack": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件三_2x2.png",
+      "draftIds": [],
+      "draftSlot": "intro",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件三_倒下的曬魚架/01_FG-EX3-I01_摸到劍鞘補片_待去背.png",
+      "sourceId": "FG-EX3-I01",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack.webp",
+      "path": "assets/bg/event_fengfeng_fallen_rack.webp",
+      "sourceSha256": "e1fbe99a77a40dbc39cab2a715dc6cf7ad37bc9c5bbbbaa0bd6609bac1296038",
+      "sha256": "25e94a87fa6191ab01dfd225afa14a1bb4564a07e281f2f6188de2b826c25ed0",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          55,
+          23,
+          365,
+          397
+        ]
+      },
+      "alphaMidRatio": 0.022075,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_fallen_rack.webp",
+      "sceneSha256": "a03e3d4afb602c89561b41d79bc0533dc2669f61bef6b6bd04a9c560bfef80a3",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "I01",
+      "formalSlot": "intro",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_fallen_rack_r0": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件三_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r1",
+      "status": "ready",
+      "sourceId": "FG-EX3-R01",
+      "sourceSlot": "R01",
+      "formalSlot": "r0",
+      "sourceSha256": "60c8e6567c7777cebdce651a2872a576f247278dfadb162ca4f7e1ff20dc0e22",
+      "sha256": "eda63afecbccfa8fc45848083e853620133fd9604d456f07a4ed1a20ae3b20d5",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          151,
+          41,
+          433,
+          343
+        ]
+      },
+      "alphaMidRatio": 0.024974,
+      "transparentQaPassed": true,
+      "conversion": "reallocated-source-only-R01-to-formal-r0-copy-hash-verified",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_r0.webp",
+      "path": "assets/bg/event_fengfeng_fallen_rack_r0.webp",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件三_倒下的曬魚架/04_FG-EX3-R01_空地練習收勢_待去背.png",
+      "sourceOnlyOutputPath": "public/assets/bg/event_fengfeng_fallen_rack_source_r1.webp",
+      "sourceOnlyOutputSha256": "eda63afecbccfa8fc45848083e853620133fd9604d456f07a4ed1a20ae3b20d5",
+      "mappingBasis": "reallocated-source-only-R01-to-formal-r0-copy-hash-verified",
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_fallen_rack_r0.webp",
+      "sceneSha256": "826cecefa41084a06d598696eb496afc8249a755f05ebc0d4fc7aef610c0436f",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sceneAvailable": true
+    },
+    "bg/event_fengfeng_fallen_rack_r1": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件三_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r2",
+      "status": "ready",
+      "sourceId": "FG-EX3-R02",
+      "sourceSlot": "R02",
+      "formalSlot": "r1",
+      "sourceSha256": "4377506a601bca0923d6090b5e78018e7d875ba4d72c6409fd3037cbfacb6325",
+      "sha256": "9ac0a2845feed32531a31a2ec9a35e6bfe1b2f87d807aaa204f0d662e6edff9c",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          0,
+          28,
+          504,
+          387
+        ]
+      },
+      "alphaMidRatio": 0.015638,
+      "transparentQaPassed": true,
+      "conversion": "generated-independent-formal-R02; RGBA 560x420 lossless WebP",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_r1.webp",
+      "path": "assets/bg/event_fengfeng_fallen_rack_r1.webp",
+      "generatedSourcePath": "tools/motion-art-source/fengfeng-extra/events/FG-EX3-R02.png",
+      "sourceCrop": null,
+      "sceneOutputPath": null,
+      "sceneAvailable": false
+    },
+    "bg/event_fengfeng_fallen_rack_r2": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件三_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r3",
+      "status": "source-only-unreferenced",
+      "sourceId": "FG-EX3-R03",
+      "sourceSlot": "R03",
+      "formalSlot": "r2",
+      "sourceSha256": "86be946d9ccb1d791af54a160d58c9e2836d66d3b4d24aef05ba7f0b4bc8491a",
+      "sha256": "c07d3d31a1be9c7415b4352446b7c96a0085d2c02d8bc1364c37bdf4e005b611",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          80,
+          3,
+          452,
+          414
+        ]
+      },
+      "alphaMidRatio": 0.017453,
+      "transparentQaPassed": true,
+      "conversion": "generated-independent-formal-R03; RGBA 560x420 lossless WebP",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_r2.webp",
+      "path": "assets/bg/event_fengfeng_fallen_rack_r2.webp",
+      "generatedSourcePath": "tools/motion-art-source/fengfeng-extra/events/FG-EX3-R03.png",
+      "sourceCrop": null,
+      "sceneOutputPath": null,
+      "sceneAvailable": false,
+      "manifestEntry": false,
+      "runtimeReference": null,
+      "reason": "無效果選項；保留正式圖與來源供追溯，未接入事件結果演出。"
+    },
+    "bg/event_fengfeng_broken_bridge": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件四_2x2.png",
+      "draftIds": [],
+      "draftSlot": "intro",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件四_斷橋上的村貓/01_FG-EX4-I01_斷橋與繩圈_待去背.png",
+      "sourceId": "FG-EX4-I01",
+      "outputPath": "public/assets/bg/event_fengfeng_broken_bridge.webp",
+      "path": "assets/bg/event_fengfeng_broken_bridge.webp",
+      "sourceSha256": "925af8765c947fc952ae01625bee999d89357de46145be8ba77427b7b50fbcb9",
+      "sha256": "efbd21816bbb029f99e6eb7ef497fb0389b4fe1910f3aa63983f261d1ba7b494",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          0,
+          19,
+          560,
+          420
+        ]
+      },
+      "alphaMidRatio": 0.019031,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_broken_bridge.webp",
+      "sceneSha256": "86b1a1e13755dd151c58d9376ddffcafa7e842eba166574ad624bf0bc1de6f2b",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "I01",
+      "formalSlot": "intro",
+      "conversion": "imagegen-edit-residual-broken-bridge; RGBA 560x420 lossless WebP",
+      "generatedSourcePath": "tools/motion-art-source/fengfeng-extra/events/FG-EX4-I01.png"
+    },
+    "bg/event_fengfeng_broken_bridge_r0": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件四_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r1",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件四_斷橋上的村貓/02_FG-EX4-R01_繞路救人_待去背.png",
+      "sourceId": "FG-EX4-R01",
+      "outputPath": "public/assets/bg/event_fengfeng_broken_bridge_r0.webp",
+      "path": "assets/bg/event_fengfeng_broken_bridge_r0.webp",
+      "sourceSha256": "b21f22e9ab22ac8481066ce15ed9b47fe4de96002cc81dfc8aec30662d46d585",
+      "sha256": "4f323c44f1400d07d08066487eb51041668d48f46bd840c8db313e8e745fc3bc",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          103,
+          42,
+          503,
+          397
+        ]
+      },
+      "alphaMidRatio": 0.11483,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_broken_bridge_r0.webp",
+      "sceneSha256": "6d65366b4efbf11d555774b9860c60e8515e31e68518ba4c90b95ecf44a32b47",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R01",
+      "formalSlot": "r0",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_broken_bridge_r1": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件四_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r2",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件四_斷橋上的村貓/03_FG-EX4-R02_斬繩取包袱_待去背.png",
+      "sourceId": "FG-EX4-R02",
+      "outputPath": "public/assets/bg/event_fengfeng_broken_bridge_r1.webp",
+      "path": "assets/bg/event_fengfeng_broken_bridge_r1.webp",
+      "sourceSha256": "ecf15e5bdac040c1ab82b304a20d9d8c24f6cb90cd636553869463d890a07d8d",
+      "sha256": "f946a5fbabe28f63ca6267c517f467a0a136874d3f13763cd8792e81e8a65e4a",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          61,
+          26,
+          477,
+          377
+        ]
+      },
+      "alphaMidRatio": 0.078376,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_broken_bridge_r1.webp",
+      "sceneSha256": "0cc67d4508b671504afa0227c2c132a4d1568964c9e2b75d16c1ba952f1d8f57",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R02",
+      "formalSlot": "r1",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/event_fengfeng_broken_bridge_r2": {
+      "draftPath": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/00_專屬事件原畫板_事件四_2x2.png",
+      "draftIds": [],
+      "draftSlot": "r3",
+      "status": "ready",
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/事件/待去背/事件四_斷橋上的村貓/04_FG-EX4-R03_用行囊帶拉回_待去背.png",
+      "sourceId": "FG-EX4-R03",
+      "outputPath": "public/assets/bg/event_fengfeng_broken_bridge_r2.webp",
+      "path": "assets/bg/event_fengfeng_broken_bridge_r2.webp",
+      "sourceSha256": "5c6498ea4b1783c5cb343a85774c0328367757d82a497726a9a671ba58a3f22e",
+      "sha256": "9151da6c5dc62c3b4c90543bf495b5e728d5914eb25d95556f55da2b3a360ab4",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          49,
+          44,
+          516,
+          296
+        ]
+      },
+      "alphaMidRatio": 0.060519,
+      "transparentQaPassed": true,
+      "sceneOutputPath": "tools/motion-art-source/fengfeng-extra/scene-fallbacks/fengfeng_scene_fengfeng_broken_bridge_r2.webp",
+      "sceneSha256": "d03c49a483c352614743547b04d049ad52773d3dd1b87736e908dd4fabca50ca",
+      "sceneSize": [
+        560,
+        420
+      ],
+      "sceneMode": "RGB",
+      "sourceSlot": "R03",
+      "formalSlot": "r2",
+      "conversion": "rembg isnet-anime + alpha_matting; transparent 560x420 WebP quality=92; complete scene 560x420 RGB WebP quality=94"
+    },
+    "bg/fengfeng_story_p05": {
+      "draftIds": [],
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/03_FG-P-05_塔門魚乾痕跡_待去背.png",
+      "sourceId": "FG-P-05",
+      "sourceFormalId": null,
+      "outputPath": "public/assets/bg/fengfeng_story_p05.webp",
+      "path": "assets/bg/fengfeng_story_p05.webp",
+      "sourceSha256": "49c2d0ad630765cb3e4e4bbec16f33a69e12fd2bfd98cf20bae808b8a4f9bbcf",
+      "sha256": "d6892511b96fadf7db52779faa990fd3981be194f1d18becc75e0055c7846f83",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "status": "ready",
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-05.png"
+    },
+    "bg/fengfeng_story_top": {
+      "draftIds": [
+        "FG-ART-T01"
+      ],
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/06_FG-TOP-01_塔頂讓出劍路_待去背.png",
+      "sourceId": "FG-TOP-01",
+      "sourceFormalId": "FG-ART-T01",
+      "outputPath": "public/assets/bg/fengfeng_story_top.webp",
+      "path": "assets/bg/fengfeng_story_top.webp",
+      "sourceSha256": "15715c999213641efe8d0412662e86e08135767f773bb1906ebf1a3fbb0d52f5",
+      "sha256": "45a2cf487b71a7df66e7218f986275a3cd0fb0977d3b8f5869a57f05fa4ee60b",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "status": "ready",
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-TOP-01.png"
+    },
+    "bg/fengfeng_story_defeat": {
+      "draftIds": [
+        "FG-ART-D01"
+      ],
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/待去背/07_FG-D-01_落敗與包紮_待去背.png",
+      "sourceId": "FG-D-01",
+      "sourceFormalId": "FG-ART-D01",
+      "outputPath": "public/assets/bg/fengfeng_story_defeat.webp",
+      "path": "assets/bg/fengfeng_story_defeat.webp",
+      "sourceSha256": "099b5e61034dd82a9a1fb6d5f505e8809f3a2cc631adee3851c611b2b322ef96",
+      "sha256": "e87064a53bafeaddaf7b1e525a27d076d273cb7efd490eddae64d856254aff9d",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "status": "ready",
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-D-01.png"
+    },
+    "bg/fengfeng_story_ep01": {
+      "draftIds": [
+        "FG-ART-EP01"
+      ],
+      "sourceCrop": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/劇情/連線補充_待去背/03_FG-ART-EP01_院子練習_待去背.png",
+      "sourceId": "FG-ART-EP01",
+      "sourceFormalId": "FG-ART-EP01",
+      "outputPath": "public/assets/bg/fengfeng_story_ep01.webp",
+      "path": "assets/bg/fengfeng_story_ep01.webp",
+      "sourceSha256": "8a4a73187985e8508c988cdada0f0b3c70af3379ea32305a52049992494300a0",
+      "sha256": "ed642121c07c5171ffda1265abac39bc600313de034b8f21a73d594abaa08adc",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "hasAlpha": false
+      },
+      "status": "ready",
+      "conversion": "imagegen full-width scene; WebP quality 94; no crop, stretch, blur or resampling",
+      "wideArtReport": "docs/fengfeng-story-wide-art.json",
+      "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-EP01.png"
+    }
+  },
+  "notes": [
+    "原畫板路徑與格位識別依實際文件保留，並不代表未存在的圖已被補齊。",
+    "封封事件正式圖依事件結果槽位對應，無效果選項不接結果圖演出。",
+    "storyslides.ts 已接入封封單人主線與三種合作路線的圖像鍵。",
+    "Event 3 formal mapping resolved: intro=I01, r0=R01, r1=independent R02, r2=independent R03; I02 and I03 remain source-only story assets.",
+    "兩筆無效果選項的正式結果圖保留檔案與報告，但已從資產索引移除，避免未引用圖被當成可演出結果。"
+  ],
+  "updatedBy": "port_all_motion_assets: story-v2-style-and-manifest-cleanup",
+  "assetProgressReport": "docs/fengfeng-story-art-progress.json",
+  "sourceOnlyEventAssets": [
+    {
+      "key": "bg/event_fengfeng_fallen_rack_source_i2",
+      "sourceId": "FG-EX3-I02",
+      "sourceSlot": "I02",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_source_i2.webp",
+      "path": "assets/bg/event_fengfeng_fallen_rack_source_i2.webp",
+      "sha256": "04adaf8707e307f470a52cf2b21d9afba1f9ed9f74abed5e79f8f0c190c00af1",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          18,
+          40,
+          522,
+          368
+        ]
+      },
+      "alphaMidRatio": 0.049184,
+      "status": "source-only-preserved",
+      "manifestEntry": false,
+      "reason": "memory scene only; no formal resultArt slot"
+    },
+    {
+      "key": "bg/event_fengfeng_fallen_rack_source_i3",
+      "sourceId": "FG-EX3-I03",
+      "sourceSlot": "I03",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_source_i3.webp",
+      "path": "assets/bg/event_fengfeng_fallen_rack_source_i3.webp",
+      "sha256": "8c98f8efe938e3c889feb4bf79a04ff12905fc30fb1abb2220104fd5e02a9d48",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          0,
+          0,
+          560,
+          403
+        ]
+      },
+      "alphaMidRatio": 0.046922,
+      "status": "source-only-preserved",
+      "manifestEntry": false,
+      "reason": "accident scene only; no formal resultArt slot"
+    },
+    {
+      "key": "bg/event_fengfeng_fallen_rack_source_r1",
+      "sourceId": "FG-EX3-R01",
+      "sourceSlot": "R01",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_source_r1.webp",
+      "path": "assets/bg/event_fengfeng_fallen_rack_source_r1.webp",
+      "sha256": "eda63afecbccfa8fc45848083e853620133fd9604d456f07a4ed1a20ae3b20d5",
+      "size": [
+        560,
+        420
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "hasAlpha": true,
+        "alphaExtrema": [
+          0,
+          255
+        ],
+        "alphaBBox": [
+          151,
+          41,
+          433,
+          343
+        ]
+      },
+      "alphaMidRatio": 0.024974,
+      "status": "source-only-preserved",
+      "manifestEntry": false,
+      "reason": "source crop retained; same visual is reassigned to formal R01/r0"
+    }
+  ],
+  "eventFormalResolution": {
+    "fengfeng_stuck_scabbard": {
+      "intro": "FG-EX1-I01",
+      "r0": "FG-EX1-R01",
+      "r1": "FG-EX1-R02",
+      "r2": "FG-EX1-R03"
+    },
+    "fengfeng_lost_medicine": {
+      "intro": "FG-EX2-I01",
+      "r0": "FG-EX2-R01",
+      "r1": "FG-EX2-R02",
+      "r2": "FG-EX2-R03"
+    },
+    "fengfeng_fallen_rack": {
+      "intro": "FG-EX3-I01",
+      "r0": "FG-EX3-R01",
+      "r1": "FG-EX3-R02",
+      "r2": "FG-EX3-R03",
+      "sourceOnly": [
+        "FG-EX3-I02",
+        "FG-EX3-I03"
+      ]
+    },
+    "fengfeng_broken_bridge": {
+      "intro": "FG-EX4-I01",
+      "r0": "FG-EX4-R01",
+      "r1": "FG-EX4-R02",
+      "r2": "FG-EX4-R03"
+    }
+  },
+  "manifestSha256AtReport": "b7b4feaf8c41639b27e5ed03d8d60435958decaa731d341fb5357ec746ad24e2",
+  "wideArtReport": "docs/fengfeng-story-wide-art.json",
+  "unreferencedFormalEventAssets": [
+    {
+      "key": "bg/event_fengfeng_stuck_scabbard_r2",
+      "sourceId": "FG-EX1-R03",
+      "formalSlot": "r2",
+      "outputPath": "public/assets/bg/event_fengfeng_stuck_scabbard_r2.webp",
+      "sha256": "b9ad7be6473065d29815527fd9f9b67bcac266211044ad9d01095efbfb7d6a0a",
+      "size": [
+        560,
+        420
+      ],
+      "status": "source-only-unreferenced",
+      "manifestEntry": false,
+      "reason": "無效果選項；保留正式圖與來源供追溯，未接入事件結果演出。"
+    },
+    {
+      "key": "bg/event_fengfeng_fallen_rack_r2",
+      "sourceId": "FG-EX3-R03",
+      "formalSlot": "r2",
+      "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_r2.webp",
+      "sha256": "c07d3d31a1be9c7415b4352446b7c96a0085d2c02d8bc1364c37bdf4e005b611",
+      "size": [
+        560,
+        420
+      ],
+      "status": "source-only-unreferenced",
+      "manifestEntry": false,
+      "reason": "無效果選項；保留正式圖與來源供追溯，未接入事件結果演出。"
+    }
+  ]
+}

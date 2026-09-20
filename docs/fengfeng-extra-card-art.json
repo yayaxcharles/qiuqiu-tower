@@ -1,0 +1,44 @@
+[
+  {
+    "key": "card/coop_feifei_fengfeng_fenyiban",
+    "path": "assets/cards/card/coop_feifei_fengfeng_fenyiban.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/pair_feifei.png",
+    "panel": 0,
+    "sha256": "458bea63f44ebc6801a5f1767ff52d8d5075b19f235e7cb5d4d1a2ecfca93653"
+  },
+  {
+    "key": "card/coop_feifei_fengfeng_yiqichuankou",
+    "path": "assets/cards/card/coop_feifei_fengfeng_yiqichuankou.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/pair_feifei.png",
+    "panel": 1,
+    "sha256": "53b444786ff1f8d94124ee2198f73b16ee8c928653f8ae4efadf76c1471c5fbc"
+  },
+  {
+    "key": "card/coop_fengfeng_ninja_fenyiban",
+    "path": "assets/cards/card/coop_fengfeng_ninja_fenyiban.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/pair_ninja.png",
+    "panel": 0,
+    "sha256": "1c3fc1996e8574cc6e27a4d2ffc0f9f32857f0cd23dd6b772a964e837a296d48"
+  },
+  {
+    "key": "card/coop_fengfeng_ninja_yiqichuankou",
+    "path": "assets/cards/card/coop_fengfeng_ninja_yiqichuankou.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/pair_ninja.png",
+    "panel": 1,
+    "sha256": "29d12e595d3a30061d0e26b65f3395a4e58c5a0aa25734fa8f9d6d63a4a5ca95"
+  },
+  {
+    "key": "card/coop_dangdang_fengfeng_fenyiban",
+    "path": "assets/cards/card/coop_dangdang_fengfeng_fenyiban.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/pair_dangdang.png",
+    "panel": 0,
+    "sha256": "4d1aef800c658cdbf710aa7269b82732b31e83ef08fd007b064f87d8a550f37b"
+  },
+  {
+    "key": "card/coop_dangdang_fengfeng_yiqichuankou",
+    "path": "assets/cards/card/coop_dangdang_fengfeng_yiqichuankou.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/pair_dangdang.png",
+    "panel": 1,
+    "sha256": "fcce79f8c40ad573915a82c6657198a2ff5c8afeaf9f8bd732a9d73ac74ab7e9"
+  }
+]

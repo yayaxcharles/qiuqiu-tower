@@ -1,0 +1,107 @@
+[
+  {
+    "sourceId": "FG-A1-02",
+    "formalId": "FG-ART-A102",
+    "key": "bg/fengfeng_still_act1_fish",
+    "filename": "FG-A1-02_act1_fish.png",
+    "scene": "空糧箱與魚乾碎屑；封封在魔塔樓梯口檢查商隊記號。",
+    "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-02_act1_fish.png",
+    "sourceSha256": "be79b98e8ef5653b8417936819d68bfc8bffb40f964e113f6b92b01fb78959c9",
+    "outputPath": "public/assets/bg/fengfeng_still_act1_fish.webp",
+    "path": "assets/bg/fengfeng_still_act1_fish.webp",
+    "outputSha256": "6917091bf5198d01001b2722ff2db8faf07cd23c6eee64637e493ff7add3d961",
+    "size": [
+      1280,
+      720
+    ],
+    "mode": "RGB",
+    "alpha": {
+      "hasAlpha": false
+    },
+    "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized"
+  },
+  {
+    "sourceId": "FG-A1-03",
+    "formalId": "FG-ART-A103",
+    "key": "bg/fengfeng_still_act1_climb",
+    "filename": "FG-A1-03_act1_climb.png",
+    "scene": "封封扶著有新刮痕的扶手抬頭，準備追上樓梯上的腳步聲。",
+    "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-03_act1_climb.png",
+    "sourceSha256": "454a80c6e5fc7474abb205cfee724fbf15c6202aedff2495e4bcfdf9c171d140",
+    "outputPath": "public/assets/bg/fengfeng_still_act1_climb.webp",
+    "path": "assets/bg/fengfeng_still_act1_climb.webp",
+    "outputSha256": "78ba2f4554367481082a899a8d872fbb18ff3a5cfa2d524c149924711d965a76",
+    "size": [
+      1280,
+      720
+    ],
+    "mode": "RGB",
+    "alpha": {
+      "hasAlpha": false
+    },
+    "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized"
+  },
+  {
+    "sourceId": "FG-A2-02",
+    "formalId": "FG-ART-A202",
+    "key": "bg/fengfeng_still_act2_voice",
+    "filename": "FG-A2-02_act2_voice.png",
+    "scene": "封封與黑白噹噹接住腿傷村貓的包袱，在樓梯間護送下樓。",
+    "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-02_act2_voice.png",
+    "sourceSha256": "860cbb48d2a97ebe31ed5906fa44fb268662f3435e374b043aa96e8feac23712",
+    "outputPath": "public/assets/bg/fengfeng_still_act2_voice.webp",
+    "path": "assets/bg/fengfeng_still_act2_voice.webp",
+    "outputSha256": "0325d842b1a165357fa6b3c3d0aba8923caed8944969c99a44698d34c4f513aa",
+    "size": [
+      1280,
+      720
+    ],
+    "mode": "RGB",
+    "alpha": {
+      "hasAlpha": false
+    },
+    "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized"
+  },
+  {
+    "sourceId": "FG-A2-06",
+    "formalId": "FG-ART-A206",
+    "key": "bg/fengfeng_still_act2_moonstairs",
+    "filename": "FG-A2-06_act2_moonstairs.png",
+    "scene": "噹噹與村貓離開後，封封獨自在月光樓梯下抬頭聽見塔上吼聲。",
+    "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-06_act2_moonstairs.png",
+    "sourceSha256": "aef2a3e114851ff465c912aa997b6ea9f20d4ff6bcc7361edb7714e960b1a157",
+    "outputPath": "public/assets/bg/fengfeng_still_act2_moonstairs.webp",
+    "path": "assets/bg/fengfeng_still_act2_moonstairs.webp",
+    "outputSha256": "2a46605e33f7779c303234523d27087b6b784c502ed00be4082100cd79a8c6c4",
+    "size": [
+      1280,
+      720
+    ],
+    "mode": "RGB",
+    "alpha": {
+      "hasAlpha": false
+    },
+    "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized"
+  },
+  {
+    "sourceId": "FG-V-01",
+    "formalId": "FG-ART-V01",
+    "key": "bg/fengfeng_still_embrace",
+    "filename": "FG-V-01_embrace.png",
+    "scene": "紫光退去後，橘白封封收劍；大俠貓師父扶住他，菲菲查看球球傷勢。",
+    "sourcePath": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-V-01_embrace.png",
+    "sourceSha256": "2f5b0ebc5f4075b37dd613c423f1ed1dde46255342896efa92386eebbb93a706",
+    "outputPath": "public/assets/bg/fengfeng_still_embrace.webp",
+    "path": "assets/bg/fengfeng_still_embrace.webp",
+    "outputSha256": "1d22cb9ed316606b6e5e454f4d76c103a482c56fbc744fba6bcb8f664ff6691e",
+    "size": [
+      1280,
+      720
+    ],
+    "mode": "RGB",
+    "alpha": {
+      "hasAlpha": false
+    },
+    "conversion": "pack_fengfeng_missing_story_art.py exact-16x9-resize-v2-stylized"
+  }
+]

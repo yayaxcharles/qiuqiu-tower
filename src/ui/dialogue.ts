@@ -26,6 +26,7 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 /** 劇本寫「球球」時，這一局實際上是誰在講話 */
 export function heroSpeaker(): string {
   const h = localHero();
+  if (h === 'fengfeng') return '封封';
   return h === 'feifei' ? '菲菲' : h === 'dangdang' ? '噹噹' : '球球';
 }
 
@@ -36,6 +37,8 @@ export function heroSpeaker(): string {
  */
 function portraitOf(speaker: DialogueLine['speaker'], literal = false): string | null {
   if (speaker === '球球') return heroArtUrl(literal ? 'ninja' : localHero(), 'hero/ninja');
+  if (speaker === '封封') return heroArtUrl('fengfeng', 'hero/ninja');
+  if (speaker === '村貓') return null;
   // 她的劇本自己寫「菲菲」，不走「球球」那條（兩隻在連線版會同框，名字不能混）
   if (speaker === '菲菲') return heroArtUrl('feifei', 'hero/ninja');
   // 他的劇本自己寫「噹噹」，理由跟她一樣：三隻在連線版會同框，名字不能混

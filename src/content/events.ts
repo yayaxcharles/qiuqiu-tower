@@ -1,8 +1,10 @@
 import type { EventDef } from '../engine/types';
+import { fengfengEvents } from './fengfeng-events';
 
 export const FIXED_EVENT_FLOOR_5 = 'daxia_teach';
 
 export const events: EventDef[] = [
+  ...fengfengEvents,
   /*
    * ===== 菲菲的專屬事件（2026-09-12）=====
    *
@@ -45,7 +47,7 @@ export const events: EventDef[] = [
       { label: '收回工具，留下調整護臂（升級至多 1 張牌）',
         outcome: [{ kind: 'upgradeCard' }],
         result: '噹噹取回鉗子和銅錘，把箱子裡能用的幾件收進工具袋，借鉗子扳正護臂翹起的邊。他試著出手，手腕終於不再被卡住。噹噹：「工具我拿走了。那個空箱給你裝零件。」', resultArt: 'dangdang_toolbox_r0' },
-      { label: '收回工具，再替老鼠修車（失去 6 點生命、獲得 45 條小魚乾）',
+      { label: '收回工具，再替老鼠修車（最多失去 6 點生命、獲得 45 條小魚乾）',
         outcome: [{ kind: 'damage', n: 6 }, { kind: 'fish', n: 45 }],
         result: '噹噹抬住車板，讓老鼠抽出歪掉的輪軸，再一起把它敲正。放下車時，他腰側猛地一疼，只能扶著車緩氣。老鼠數了 45 條小魚乾遞過來。噹噹：「下次先卸貨。這樣抬，腰真受不了。」', resultArt: 'dangdang_toolbox_r1' },
       { label: '只取回工具，繼續趕路（無效果）',
@@ -72,7 +74,7 @@ export const events: EventDef[] = [
   { id: 'dangdang_jammed_gate', title: '歪掉的門框', hero: 'dangdang', acts: [1, 2],
     text: '走廊旁的倉房傳來呼喊。兩隻村貓困在裡面，門框被倒下的橫梁壓歪了，只能推出一道細縫。村貓喊著：「是守村口的噹噹！這邊，門開不了！」噹噹貼近門縫查看：橫梁壓得很重，裡面還放著村貓找回的糧箱；牆側有扇小窗，貓能鑽出來，箱子卻過不去。他先問：「人都沒受傷吧？」裡頭答：「沒有。可是這些糧食，好不容易才找回來。」噹噹試著推門，才撐開一點，橫梁就往下沉，他連忙抽回手。',
     choices: [
-      { label: '撐住門框，讓村貓搬出糧箱（失去 8 點生命、獲得 50 條小魚乾）',
+      { label: '撐住門框，讓村貓搬出糧箱（最多失去 8 點生命、獲得 50 條小魚乾）',
         outcome: [{ kind: 'damage', n: 8 }, { kind: 'fish', n: 50 }],
         result: '噹噹頂住門框，讓村貓一箱箱往外拖。最後一箱過去時，他手臂已抖得厲害，肩頭也被粗木磨破。村貓分出小魚乾，替他裝好。噹噹：「箱子先移走，別再堵著門。」', resultArt: 'dangdang_jammed_gate_r0' },
       { label: '用護臂卡住門縫，一起搬出藏物（獲得 1 件常見秘寶、加入 1 張「失手了」）',
@@ -80,7 +82,7 @@ export const events: EventDef[] = [
         result: '噹噹卸下一隻護臂，卡進門底。三人趁空隙搬出糧箱和牆邊的布包；村貓拿出包裡的秘寶，送給他道謝。護臂抽出時已被壓歪，噹噹敲了幾下，勉強戴回去，出手卻總卡住。噹噹：「變形了。這樣下去，連手都轉不順。」', resultArt: 'dangdang_jammed_gate_r1' },
       { label: '先讓村貓從側窗出去，放棄糧箱（回復 10 點生命）',
         outcome: [{ kind: 'heal', n: 10 }],
-        result: '噹噹站到窗外，接住先鑽出來的村貓，再扶另一隻落地。牠們看見他手上有傷，拿隨身的藥替他擦好。噹噹：「箱子就先留著。這裡沒工具，硬搬會出事。」', resultArt: 'dangdang_jammed_gate_r2' },
+        result: '噹噹站到窗外，接住先鑽出來的村貓，再扶另一隻落地。牠們看見他手上有傷，拿隨身的藥替他擦好。噹噹：「箱子就先留著。手邊沒有能撐住橫梁的物品，我得小心處理。」', resultArt: 'dangdang_jammed_gate_r2' },
     ] },
   { id: 'feifei_trace', title: '師兄的痕跡', hero: 'feifei', acts: [1, 2],
     text: '牆縫裡卡著幾根針，使的是師父教的那套手法，有的已經彎了。她走近查看，發現地上散著小魚乾，旁邊還掛著深藍色的線頭。那是師兄頭巾上的線。他也走過這裡。',
@@ -99,7 +101,7 @@ export const events: EventDef[] = [
       { label: '熬一鍋（升級至多 1 張牌）',
         outcome: [{ kind: 'upgradeCard' }],
         result: '她把草葉搗成濃汁，就著燈火替針尖一根根上藥。菲菲：「比平常那批濃，分量得減些。」', resultArt: 'feifei_brew_r0' },
-      { label: '直接嚼一口試毒性（失去 8 點生命、獲得 1 張稀有牌）',
+      { label: '直接嚼一口試毒性（最多失去 8 點生命、獲得 1 張稀有牌）',
         outcome: [{ kind: 'damage', n: 8 }, { kind: 'addRandomCard', pool: '絕學', rarity: '稀有' }],
         result: '她猶豫了好一會，仍咬下一點草葉。苦澀伴著刺痛湧上來，她彎下身乾嘔，眼淚直掉。等能握筆，才把反應記進本子。菲菲：「記下來了……不要再試第二次。」', resultArt: 'feifei_brew_r1' },
       { label: '不要碰（無效果）',
@@ -127,7 +129,7 @@ export const events: EventDef[] = [
       { label: '用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'addCard', cardId: 'shibai' }],
         result: '她用飛針卡住齒輪，取出小魚乾。針還卡在鐵齒間，已經壓彎了。她抱著袋子站著沒動，眼皮一陣一陣地重——這一下耗掉的力氣比想像中多。菲菲：「先歇一下……就一下下。」', resultArt: 'feifei_signal_r0' },
-      { label: '墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）',
+      { label: '墊著布撐開機關（獲得 45 條小魚乾，最多失去 10 點生命）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'damage', n: 10 }],
         result: '她墊著袖布撐開機關，鐵片仍劃破了手。菲菲：「把手抽出來，別卡在裡面……」取出小魚乾後，她在牆邊按住傷口。那聲音再響，她也沒有回頭。', resultArt: 'feifei_signal_r1' },
     ] },

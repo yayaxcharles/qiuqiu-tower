@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "snapshotKind": "current-target-at-capture",
+  "description": "These are SHA-256 values observed in the current target checkout when the extra motion-merge paths were selected. They are not historical start-of-work hashes.",
+  "capturedAt": "2026-09-20T04:07:30.8301678+08:00",
+  "targetRoot": "F:/ClaudeWork/qiuqiu-coop",
+  "files": {
+    "tools/check_size.py": "483d45741ea90c01913c57f2d72cb47781a98a8c11e5012b3399d44944e44760",
+    "tools/check_size_test.py": null,
+    "tools/down_art.test.ts": "f9a19f1243ebdc0729ba2fafe36c2fbad2d5e3ef4d1d06b6013f752dfaca58ff",
+    "docs/dangdang-motion-assets.json": null,
+    "docs/dangdang-motion-plan.json": null,
+    "docs/enemy-motion-assets.json": null,
+    "docs/feifei-motion-assets.json": null,
+    "docs/feifei-motion-integration.md": null,
+    "docs/fengfeng-asset-intake.json": null,
+    "docs/fengfeng-effect-api.md": null,
+    "docs/fengfeng-event-art-progress.json": null,
+    "docs/fengfeng-event-art-validation.json": null,
+    "docs/fengfeng-extra-card-art.json": null,
+    "docs/fengfeng-extra-sprite-art.json": null,
+    "docs/fengfeng-extra-story-art.json": null,
+    "docs/fengfeng-integration-contract.md": null,
+    "docs/fengfeng-missing-story-art.json": null,
+    "docs/fengfeng-motion-assets.json": null,
+    "docs/fengfeng-motion-plan.json": null,
+    "docs/fengfeng-story-art-map.json": null,
+    "docs/fengfeng-story-art-progress.json": null,
+    "docs/fengfeng-story-wide-art.json": null,
+    "docs/motion-code-audit.md": null,
+    "docs/motion-merge-tool-audit.md": null,
+    "docs/motion-size-audit.md": null,
+    "docs/motion-visual-qa.md": null,
+    "docs/qiuqiu-complete-motion-plan.md": null,
+    "docs/qiuqiu-extra-motion-assets.json": null,
+    "docs/fengfeng-engine-code-audit.md": null,
+    "docs/fengfeng-event-art-overview-01.webp": null,
+    "docs/fengfeng-event-art-overview-02.webp": null,
+    "docs/fengfeng-event-art-overview-03.webp": null,
+    "docs/fengfeng-event-art-overview-04.webp": null,
+    "docs/fengfeng-event-art-overview-05.webp": null,
+    "docs/fengfeng-event-art-overview-06.webp": null,
+    "tools/integrate_fengfeng_assets.py": null,
+    "tools/launch-complete-motion.ps1": null,
+    "tools/merge_motion_copy.py": null,
+    "tools/motion-base-hashes.json": null,
+    "tools/motion-extra-base-hashes.json": null,
+    "tools/pack_companion_motion.py": null,
+    "tools/pack_fengfeng_event_art.py": null,
+    "tools/pack_fengfeng_extra_story.py": null,
+    "tools/pack_fengfeng_missing_story_art.py": null,
+    "tools/pack_fengfeng_pair_cards.py": null,
+    "tools/pack_fengfeng_shadow_relic.py": null,
+    "tools/pack_fengfeng_story_assets.py": null,
+    "tools/pack_fengfeng_story_wide.py": null,
+    "tools/pack_qiuqiu_extra_motion.py": null,
+    "tools/port_enemy_motion.py": null,
+    "tests/ui/companion_motion.test.ts": null,
+    "docs/motion-delivery.md": null,
+    "tools/coop_screen_flow.test.ts": "5e109fcb51693b54be9d258f7a0e2cde8b4f1712fcfbcaf36a0cbc576ecb2128",
+    "tools/dangdang_stills.test.ts": "b22848f64cdfc21b450b5b97a8cf5e924b24d14edca04257cc2b97002678a73d"
+  },
+  "conditionalFiles": {
+    "docs/motion-size-audit.md": {
+      "targetSha256": null,
+      "includeWhenReferencedBy": "tools/check_size.py",
+      "observedReferenced": false,
+      "reason": "The checker does not read or name this report; the report only documents checker results."
+    }
+  },
+  "additionalSnapshots": [
+    {
+      "capturedAt": "2026-09-20T05:23:42.041259+08:00",
+      "snapshotKind": "current-target-at-capture",
+      "review": "Diff reviewed; preserve readiness ordering check and exclude Fengfeng-specific art from Dangdang fallback count.",
+      "files": {
+        "tools/coop_screen_flow.test.ts": "5e109fcb51693b54be9d258f7a0e2cde8b4f1712fcfbcaf36a0cbc576ecb2128",
+        "tools/dangdang_stills.test.ts": "b22848f64cdfc21b450b5b97a8cf5e924b24d14edca04257cc2b97002678a73d"
+      }
+    }
+  ]
+}

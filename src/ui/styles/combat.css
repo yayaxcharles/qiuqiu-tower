@@ -130,7 +130,7 @@
   object-position: center bottom;
   /* 待機動作改成「呼吸」不是「上下飄」。原本用 idle-bob 整隻上下平移，
      角色會離開地面，跟接地陰影一起看更假；改成以腳底為原點的微幅縮放。 */
-  animation: idle-breathe 2.6s ease-in-out infinite;
+  animation: idle-breathe 6.2s ease-in-out infinite;
 }
 /* 主角的框開寬一點：新立繪的畫布是 758×817（含最寬的出招姿勢），
    用 240 寬會以寬度為準縮小，上面白留一截；270 才把高度吃滿。 */
@@ -138,6 +138,8 @@
 .combat .unit.size-small .sprite { width: 130px; height: 150px; }
 .combat .unit.size-medium .sprite { width: 180px; height: 210px; }
 .combat .unit.size-large .sprite { width: 230px; height: 280px; }
+/* 赤鬼受擊原圖朝右；獨立 scale 保留受擊動畫的 transform，不讓紅閃／震動蓋掉朝向。 */
+.combat .unit.enemy .sprite:is([src*="/monsters/red_oni_hurt.webp"], [src*="/monsters/red_oni_hurt-"]) { scale: -1 1; }
 /* 犰狳寶寶：橫躺的方圖，小框顯得扁、中框又太高，單獨給 150×150（跟 combat.ts 的 SPRITE_BOX.pup 一致） */
 .combat .unit.enemy[data-id="armadillo_pup"] .sprite { width: 150px; height: 150px; }
 /* 鏡中球球：跟主角一樣高（combat.ts 的 SPRITE_BOX.mirror 一致；使用者 2026-09-08「大小應該跟主角球球同大小」）。
@@ -684,16 +686,10 @@
   45% { transform: translateX(8px) rotate(2deg); }
   70% { transform: translateX(-4px); }
 }
-/* 待機：原本 scaleY 只放大 2.2%，量過等於看不見——畫面靜止時整個戰鬥場只有這一個動畫在跑，
-   跑了等於沒跑。加大到 5%，並配一點左右晃與極輕的傾斜，看起來才像活的。
-   原點在腳底（`transform-origin: center bottom`），所以放再大腳都黏在地上，
-   不會變回以前那種「浮在空中上上下下」。
-   週期用 2.6 秒不是 3.4：太慢會像慢動作，這個長度接近人真的呼吸。 */
+/* 待機持續緩慢呼吸，不插入靜止停頓；腳底不移動，也不左右搖擺。 */
 @keyframes idle-breathe {
-  0%, 100% { transform: scaleY(1) scaleX(1) rotate(0deg); }
-  28% { transform: scaleY(1.035) scaleX(.988) rotate(-.5deg); }
-  50% { transform: scaleY(1.05) scaleX(.982) rotate(0deg); }
-  76% { transform: scaleY(1.028) scaleX(.99) rotate(.5deg); }
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.025); }
 }
 /* 0.4 秒拉到 0.52：預備動作只佔前 12%，在 0.4 秒裡等於 48 毫秒，快到看不出來。
    拉長之後那一縮才讀得到（姿勢會停 650 毫秒，塞得下）。 */
@@ -1010,10 +1006,10 @@
  * **掛在 .sprite 不掛 .sprite-box**：動畫算出來的值會蓋過所有一般宣告，掛在框上會把階段紅／紫光暈
  * 跟拖曳目標的紅框一起蓋掉（稽核 2026-09-08 低 1）。掛在圖上就是疊在階段光暈上面；
  * 調息中他無敵，挨打閃紅（也動 .sprite 的 filter）不會發生，不衝突。
- * 呼吸動畫（idle-breathe，關主版 4.4 秒）要一起列出來，不然這條 animation 會把它換掉、他就僵住了。
+ * 呼吸動畫（idle-breathe，6.2 秒）要一起列出來，不然這條 animation 會把它換掉、他就僵住了。
  */
 .combat .unit.enemy.master.secluding .sprite {
-  animation: idle-breathe 4.4s ease-in-out infinite, seclude-glow 1.6s ease-in-out infinite;
+  animation: idle-breathe 6.2s ease-in-out infinite, seclude-glow 1.6s ease-in-out infinite;
 }
 @keyframes seclude-glow {
   0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 200, 90, .55)) brightness(1); }
@@ -1127,8 +1123,7 @@
 .combat .chip.power { border-style: dashed; }
 
 /* ===== 關主專屬的待機與收尾（使用者 2026-09-04：只做關主，小怪不用） ===== */
-/* 關主呼吸慢一拍：體型大、氣場穩 */
-.combat .unit.enemy.boss .sprite { animation-duration: 4.4s; }
+/* 關主沿用共同的緩慢呼吸，不覆寫出招與受擊動畫的時長。 */
 /* 睡著的關主（沉睡的龍貓）頭上冒 Zzz */
 .combat .unit.enemy.boss.asleep .sprite-box::after {
   content: 'Zzz';

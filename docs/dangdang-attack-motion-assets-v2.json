@@ -1,0 +1,58 @@
+{
+  "hero": "dangdang",
+  "reproducer": "python tools/pack_attack_variety_motion.py dangdang",
+  "wholeBodyFrames": true,
+  "actions": 4,
+  "frames": 40,
+  "assets": [
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/dangdang/rapid_combo_v2.png",
+      "sourceSha256": "9e06a9ca4a6be799f6c6308bb25e10462b565f145466cd49d40ad95ac5f7cbab",
+      "target": "public/assets/motion/dangdang/rapid_combo_v2.webp",
+      "targetSha256": "f43b7139d8343ea8b00ff3af06017f9d8bcfd1e298d565df1344f9fbbcdcd8c6",
+      "bytes": 927766,
+      "size": [
+        1448,
+        1086
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/dangdang/heavy_palm_v2.png",
+      "sourceSha256": "efb4f795678724f4066ede41580dd453be8da5eae04130a3d7df05d605fa86cd",
+      "target": "public/assets/motion/dangdang/heavy_palm_v2.webp",
+      "targetSha256": "f34d00034227f6d57a73e9c66d93e462f1a761cccfb50d437bf43c756352503c",
+      "bytes": 811028,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/dangdang/sweep_combo_v2.png",
+      "sourceSha256": "13ad315a6a789b8e23dc361410ae91fbb91b3477351888e6d98dd872351b09b5",
+      "target": "public/assets/motion/dangdang/sweep_combo_v2.webp",
+      "targetSha256": "acbfee0e1a24aa0873027e352743e7e16d087f904e63a40f30560e5cbc9cedd6",
+      "bytes": 838236,
+      "size": [
+        1448,
+        1086
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/dangdang/reckless_bash_v2.png",
+      "sourceSha256": "a00af5709449051d6c0952fbcfb94cf0c683234a79e17764817a647a87c7aba1",
+      "target": "public/assets/motion/dangdang/reckless_bash_v2.webp",
+      "targetSha256": "006b3c85e2c99f0ca99a03b42192b6bd563624bbbbb7ee5cead4db802b0521ae",
+      "bytes": 760272,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    }
+  ],
+  "uniqueBytes": 3337302
+}

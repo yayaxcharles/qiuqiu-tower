@@ -37,7 +37,9 @@ describe('通關幻燈片的切點', () => {
     for (const hero of HEROES) {
       const plain = victoryLinesFor(['sanjo'], 1, hero);
       const fancy = victoryLinesFor(['tanding', 'tanding', 'tanding'], 5, hero);
-      expect(fancy.length).toBeGreaterThan(plain.length);
+      // 封封提案沒有另列牌組傾向旁白或高難度結尾，沒有資料時維持原長度。
+      if (hero === 'fengfeng') expect(fancy.length).toBe(plain.length);
+      else expect(fancy.length).toBeGreaterThan(plain.length);
       expect(fancy.filter((l) => l.slideBreak).length).toBe(1);
     }
   });

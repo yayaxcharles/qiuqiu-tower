@@ -36,10 +36,21 @@ export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛
  * `turnStart`／`turnEndNoAttack` 那兩個迴圈是按觸發點篩的，`passive` 永遠不會被跑到，
  * 所以效果不會多跑一次。`effects` 一律留空，真正的效果在旗標那邊。
  */
-export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack' | 'passive';
+export type PowerTrigger = 'turnStart' | 'onKill' | 'turnEndNoAttack' | 'passive' | 'afterCard';
 
 export type Effect =
   | { kind: 'damage'; amount: number; times?: number; ignoreBlock?: boolean; scaleWithCombo?: boolean; comboCap?: number; target?: 'enemy' | 'all'; ifTargetDebuffed?: boolean }
+  /** 封封：共用一次蓄氣支付的普通傷害。多段與全體不會重複扣氣，且照常吃爪力 */
+  | { kind: 'damageSpendQi'; amount: number; perQi: number; maxQi?: number; allQi?: true; times?: number; target?: 'enemy' | 'all'; ignoreBlock?: true }
+  /** 封封：把本次實際支付的蓄氣換成蜷縮；recipient 省略＝自己 */
+  | { kind: 'blockSpendQi'; amount: number; perQi: number; maxQi: number; recipient?: 'self' | 'ally' }
+  /** 封封：把蓄氣換成下一擊加成。出牌前會先驗證至少一位受益者能提高 */
+  | { kind: 'nextAttackBonusSpendQi'; amount: number; perQi: number; maxQi: number; recipients: 'ally' | 'selfAndAlly' }
+  | { kind: 'gainQi'; n: number }
+  | { kind: 'ifQiAtPlay'; min: number; then: Effect[] }
+  | { kind: 'ifSpentQiAtLeast'; min: number; then: Effect[] }
+  | { kind: 'ifAllyBlockAtPlay'; min: number; then: Effect[] }
+  | { kind: 'preventEnergyGainThisPhase' }
   /** 分身術（2026-09-03）：造成 amount 點傷害；這場戰鬥裡同一張牌每打出一次，之後的傷害就多 step 點（看 CombatState.cardPlays） */
   | { kind: 'damageRamp'; amount: number; step: number }
   | { kind: 'damageRandom'; min: number; max: number }
@@ -283,7 +294,8 @@ export type Effect =
   | { kind: 'noAttacksThisTurn' }
   | { kind: 'immuneThisTurn' }
   /** `thisTurn` ＝這個能力只在本回合有效，回合結束就消失（2026-09-04 起沒有牌在用；吸貓大法基礎版改成整場有效） */
-  | { kind: 'power'; trigger: PowerTrigger; effects: Effect[]; thisTurn?: true };
+  | { kind: 'power'; trigger: PowerTrigger; effects: Effect[]; thisTurn?: true;
+      cardType?: CardType; minQiSpent?: number; oncePerTurn?: true; sameNameMax?: true };
 
 export interface CardDef {
   id: string;
@@ -293,7 +305,7 @@ export interface CardDef {
   rarity: Rarity;
   pool: Pool;
   /** 職業獨占：沒寫＝兩個職業共用；'ninja' 的隱身潛水那批武士拿不到（見 engine/hero） */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
   target: TargetMode;
   effects: Effect[];
   keywords?: Keyword[];
@@ -363,7 +375,7 @@ export interface RelicDef {
    * **2026-09-14 深夜：兩件的鎖都拿掉了。** 使用者把「後退閃躲」改成獲得隱身（跟師兄學來的招式），
    * 紙袋、影披風對她有用了。機制留著，目前沒有任何秘寶在用。
    */
-  notFor?: readonly ('ninja' | 'samurai' | 'feifei' | 'dangdang')[];
+  notFor?: readonly ('ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng')[];
   /** 罐頭鋪售價。不填＝150。強弱要有價差（使用者指定），數字標在各件定義上 */
   price?: number;
   hooks: {
@@ -660,7 +672,7 @@ export interface EventDef {
    * 用在「這個事件只有對這個角色才有意義」的那幾個——菲菲的「師兄的痕跡」
    * 是她在追球球留下的東西，球球自己遇到會很怪。
    */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
   /**
    * 插圖還沒生好：**不排進任何人的地圖**（2026-09-17）。
    *
@@ -709,7 +721,7 @@ export interface GameMap { nodes: MapNode[]; start: string[] }
  */
 export interface RunPlayer {
   /** 這一位的職業。沒寫＝忍者 */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
   hp: number;
   maxHp: number;
   fish: number;
@@ -765,7 +777,7 @@ export interface PlayerCombat extends Unit {
    * `RunPlayer` 上也有一份，這裡再放一次**不是重複**：戰鬥畫面拿得到的只有 `CombatState`，
    * 而連線時同伴可能是另一個職業——立繪、招式圖、獨占牌全看這個欄位。
    */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang';
+  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
   /**
    * 座位編號，0 起算（連線版第一步 2026-09-11）。
    *
@@ -826,7 +838,14 @@ export interface PlayerCombat extends Unit {
   exhaustPile: CardInstance[];
   retained: number[];
   /** 掛在球球身上的能力；`cardId` 記來源牌，戰鬥畫面用它掛「這是哪張牌的效果」的牌子（使用者 2026-09-03） */
-  powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string; upgraded?: boolean }[];
+  powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string; upgraded?: boolean;
+    cardType?: CardType; minQiSpent?: number; oncePerTurn?: true; firedTurn?: number }[];
+  /** 封封的蓄氣。可選是為了讓舊戰鬥快照缺欄位時自然視為 0 */
+  qi?: number;
+  /** 本玩家階段下一張合法攻擊的首段首目標固定加成，取大、不相加 */
+  nextAttackBonus?: number;
+  /** 集中精神：本玩家階段所有新增飯糰都變成 0；下一個本人回合開始清除 */
+  energyGainBlockedThisPhase?: true;
   doubleNext: number;
   drawNextTurn: number;
   /*
@@ -996,6 +1015,13 @@ export interface EffectCtx {
   targetUid?: number;
   /** 打這張牌的那一刻，目標身上有幾層中毒（`blockIfPoisoned` 讀它，見那條效果的說明） */
   targetPoisonBefore?: number;
+  /** 封封：出牌前蓄氣、同一次施放實際支付量，以及支援判斷快照 */
+  qiBefore?: number;
+  qiSpent?: number;
+  allyBlockBefore?: number;
+  /** 下一擊加成只交給第一個真正進入傷害流程的段落與目標 */
+  nextAttackBonus?: number;
+  nextAttackBonusUsed?: true;
   cardUid?: number;
   cardId?: string;         // 打出的是哪張牌（能力牌掛牌子用）
   cardUpgraded?: boolean;  // 那張牌升級了沒（牌子的說明要念對版本，稽核 2026-09-04 H-2）

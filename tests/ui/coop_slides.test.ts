@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { setCoopStory } from '../../src/content/dialogue';
-import { actClearSlides, endingSlides } from '../../src/ui/storyslides';
+import { setCoopStory, storyFor } from '../../src/content/dialogue';
+import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from '../../src/ui/storyslides';
 import { slidesReady } from '../../src/ui/slides';
 
 /*
@@ -34,5 +34,22 @@ describe('連線的共用場景：寧可少一段幻燈片，不要放別人的�
    */
   it('空陣列算「圖沒到齊」，不然退回純對白會變成整段跳過', () => {
     expect(slidesReady([])).toBe(false);
+  });
+
+  it.each([
+    ['ninja', 'bg/fengfeng_coop_ninja_prologue', 'bg/fengfeng_coop_ninja_top', 'bg/fengfeng_coop_ninja_victory'],
+    ['feifei', 'bg/fengfeng_coop_feifei_prologue', 'bg/fengfeng_coop_feifei_top', 'bg/fengfeng_coop_feifei_victory'],
+    ['dangdang', 'bg/fengfeng_coop_dangdang_prologue', 'bg/fengfeng_coop_dangdang_top', 'bg/fengfeng_coop_dangdang_victory'],
+  ] as const)('封封與 %s 的雙席位都使用同一套序章、塔頂與結局圖', (partner, prologue, top, victory) => {
+    setCoopStory({ partner });
+    expect(prologueSlides('fengfeng')[0]?.img).toBe(prologue);
+    expect(topSceneSlides('fengfeng')[0]?.img).toBe(top);
+    expect(endingSlides('fengfeng', [], 1)[0]?.img).toBe(victory);
+    expect(prologueSlides('fengfeng').flatMap((s) => s.lines)).toEqual(storyFor('fengfeng').prologue);
+
+    setCoopStory({ partner: 'fengfeng' });
+    expect(prologueSlides(partner)[0]?.img).toBe(prologue);
+    expect(topSceneSlides(partner)[0]?.img).toBe(top);
+    expect(endingSlides(partner, [], 1)[0]?.img).toBe(victory);
   });
 });

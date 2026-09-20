@@ -22,7 +22,7 @@ const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')
 };
 
 /** 別的角色的專屬圖不算「球球的」——他們的事件別人走不到，沒有「退回去」這回事 */
-const OTHERS = ['feifei', 'samurai', 'dangdang'];
+const OTHERS = ['feifei', 'samurai', 'dangdang', 'fengfeng'];
 const ownedByOther = (k: string): boolean =>
   OTHERS.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`));
 

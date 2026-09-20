@@ -537,7 +537,7 @@
    }
   ],
   "text": "造成 9 點傷害；打倒牠，同伴就這回合多 1 顆飯糰。一個人玩時「同伴」＝你自己。消耗。",
-  "up": "造成 9 點傷害；打倒牠，同伴就這回合多 1 顆飯糰，同伴抽 1 張牌。一個人玩時「同伴」＝你自己。消耗。"
+  "up": "造成 9 點傷害；打倒牠，同伴就這回合多 1 顆飯糰。同伴抽 1 張牌。一個人玩時「同伴」＝你自己。消耗。"
  },
  {
   "id": "huannimangyixia",
@@ -609,7 +609,7 @@
    }
   ],
   "text": "自己身上有隱身的話，同伴獲得 1 層隱身；否則同伴獲得 8 點蜷縮。一個人玩時「同伴」＝你自己。消耗。",
-  "up": "自己身上有隱身的話，同伴獲得 1 層隱身；否則同伴獲得 8 點蜷縮，同伴抽 1 張牌。一個人玩時「同伴」＝你自己。消耗。"
+  "up": "自己身上有隱身的話，同伴獲得 1 層隱身；否則同伴獲得 8 點蜷縮。同伴抽 1 張牌。一個人玩時「同伴」＝你自己。消耗。"
  },
  {
   "id": "kaoniyixia",
@@ -890,8 +890,8 @@
     "amount": 2
    }
   ],
-  "text": "同伴獲得 4 點蜷縮，同伴本輪下一張攻擊牌，對每隻被打到的魔物各施加 2 層中毒。一個人玩時「同伴」＝你自己。",
-  "up": "同伴獲得 4 點蜷縮，同伴本輪下一張造成傷害的牌，對每隻被打到的魔物各施加 2 層中毒。一個人玩時「同伴」＝你自己。"
+  "text": "同伴獲得 4 點蜷縮，同伴本輪下一張讓魔物扣血的攻擊牌，對牠們各施加 2 層中毒。一個人玩時「同伴」＝你自己。",
+  "up": "同伴獲得 4 點蜷縮，同伴本輪下一張讓魔物扣血的牌，對牠們各施加 2 層中毒。一個人玩時「同伴」＝你自己。"
  },
  {
   "id": "woyouxianbeihao",
@@ -913,8 +913,8 @@
     "who": "ally"
    }
   ],
-  "text": "之後每一輪一次，同伴的攻擊打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮（自己一個人時自己出手也算，獲得 8 點）。",
-  "up": "之後每一輪一次，任一方打中原本就中毒的魔物時，兩個人各獲得 4 點蜷縮（自己一個人時自己出手也算，獲得 8 點）。"
+  "text": "之後每輪一次，同伴用攻擊牌讓原本就中毒的魔物扣血時，兩人各獲得 4 點蜷縮（自己一個人時自己出手也算，獲得 8 點）。",
+  "up": "之後每輪一次，任一方讓原本就中毒的魔物扣血時，兩人各獲得 4 點蜷縮（自己一個人時自己出手也算，獲得 8 點）。"
  },
  {
   "id": "wozaizhe",
@@ -3903,8 +3903,8 @@
     "amount": 3
    }
   ],
-  "text": "對全體魔物造成 2 點傷害，再讓牠們獲得 1 層中毒，目標原本就中毒的話，獲得 3 點蜷縮。",
-  "up": "對全體魔物造成 3 點傷害，再讓牠們獲得 1 層中毒，目標原本就中毒的話，獲得 4 點蜷縮。"
+  "text": "對全體魔物造成 2 點傷害，再讓牠們獲得 1 層中毒。出牌前已有任一隻魔物中毒的話，自己獲得 3 點蜷縮。",
+  "up": "對全體魔物造成 3 點傷害，再讓牠們獲得 1 層中毒。出牌前已有任一隻魔物中毒的話，自己獲得 4 點蜷縮。"
  },
  {
   "id": "feifei_lakai",
@@ -5257,5 +5257,907 @@
   ],
   "text": "卸掉身上的蜷縮，造成卸掉點數兩倍的傷害，自己也受 10 點傷害。",
   "up": "卸掉身上的蜷縮，造成卸掉點數兩倍的傷害，自己也受 6 點傷害。"
+ },
+ {
+  "id": "fengfeng_pingzhan",
+  "name": "平斬",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 5,
+    "perQi": 2,
+    "maxQi": 2
+   }
+  ],
+  "text": "最多花 2 點蓄氣，造成 5 點傷害，每點蓄氣多 2 點。",
+  "up": "最多花 2 點蓄氣，造成 8 點傷害，每點蓄氣多 2 點。"
+ },
+ {
+  "id": "fengfeng_hushen",
+  "name": "護身",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 5
+   }
+  ],
+  "text": "獲得 5 點蜷縮。",
+  "up": "獲得 8 點蜷縮。"
+ },
+ {
+  "id": "fengfeng_tuna",
+  "name": "吐納",
+  "pool": "起手",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "gainQi"
+  ],
+  "effects": [
+   {
+    "kind": "gainQi",
+    "n": 3
+   }
+  ],
+  "text": "獲得 3 點蓄氣。",
+  "up": "獲得 5 點蓄氣。"
+ },
+ {
+  "id": "fengfeng_tanbu",
+  "name": "探步劍",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage",
+   "gainQi"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 5
+   },
+   {
+    "kind": "gainQi",
+    "n": 1
+   }
+  ],
+  "text": "造成 5 點傷害，獲得 1 點蓄氣。",
+  "up": "造成 7 點傷害，獲得 2 點蓄氣。"
+ },
+ {
+  "id": "fengfeng_hengsao",
+  "name": "橫掃",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 3,
+    "perQi": 1,
+    "maxQi": 2,
+    "target": "all"
+   }
+  ],
+  "text": "最多花 2 點蓄氣，對全體魔物造成 3 點傷害，每點蓄氣多 1 點。",
+  "up": "最多花 2 點蓄氣，對全體魔物造成 5 點傷害，每點蓄氣多 1 點。"
+ },
+ {
+  "id": "fengfeng_tabu",
+  "name": "踏步重劈",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 8,
+    "perQi": 2,
+    "maxQi": 5
+   }
+  ],
+  "text": "最多花 5 點蓄氣，造成 8 點傷害，每點蓄氣多 2 點。",
+  "up": "最多花 6 點蓄氣，造成 10 點傷害，每點蓄氣多 2 點。"
+ },
+ {
+  "id": "fengfeng_tiaokai",
+  "name": "挑開",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damage"
+  ],
+  "effects": [
+   {
+    "kind": "damage",
+    "amount": 7
+   }
+  ],
+  "text": "造成 7 點傷害。",
+  "up": "造成 9 點傷害，抽 1 張牌。"
+ },
+ {
+  "id": "fengfeng_tuibu",
+  "name": "退步守勢",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "ifQiAtPlay"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 8
+   },
+   {
+    "kind": "ifQiAtPlay",
+    "min": 3,
+    "then": [
+     {
+      "kind": "block",
+      "amount": 3
+     }
+    ]
+   }
+  ],
+  "text": "獲得 8 點蜷縮，出牌前有 3 點蓄氣的話，獲得 3 點蜷縮。",
+  "up": "獲得 10 點蜷縮，出牌前有 3 點蓄氣的話，獲得 4 點蜷縮。"
+ },
+ {
+  "id": "fengfeng_zhengxi",
+  "name": "整理呼吸",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "gainQi",
+   "draw"
+  ],
+  "effects": [
+   {
+    "kind": "gainQi",
+    "n": 2
+   },
+   {
+    "kind": "draw",
+    "n": 1
+   }
+  ],
+  "text": "獲得 2 點蓄氣，抽 1 張牌。",
+  "up": "獲得 3 點蓄氣，抽 1 張牌。"
+ },
+ {
+  "id": "fengfeng_wenwan",
+  "name": "穩住手腕",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "gainQi"
+  ],
+  "effects": [
+   {
+    "kind": "gainQi",
+    "n": 2
+   }
+  ],
+  "text": "獲得 2 點蓄氣。消耗。",
+  "up": "獲得 3 點蓄氣。消耗。"
+ },
+ {
+  "id": "fengfeng_huanshou",
+  "name": "換手握劍",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 3
+   }
+  ],
+  "text": "獲得 3 點蜷縮。",
+  "up": "獲得 5 點蜷縮。"
+ },
+ {
+  "id": "fengfeng_jianqiao",
+  "name": "劍鞘架擋",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 10
+   }
+  ],
+  "text": "獲得 10 點蜷縮。",
+  "up": "獲得 13 點蜷縮。"
+ },
+ {
+  "id": "fengfeng_huibu",
+  "name": "回步刺",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi",
+   "ifSpentQiAtLeast"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 4,
+    "perQi": 2,
+    "maxQi": 2
+   },
+   {
+    "kind": "ifSpentQiAtLeast",
+    "min": 2,
+    "then": [
+     {
+      "kind": "draw",
+      "n": 1
+     }
+    ]
+   }
+  ],
+  "text": "最多花 2 點蓄氣，造成 4 點傷害，每點蓄氣多 2 點，這張牌花了至少 2 點蓄氣的話，抽 1 張牌。",
+  "up": "最多花 2 點蓄氣，造成 6 點傷害，每點蓄氣多 2 點，這張牌花了至少 2 點蓄氣的話，抽 1 張牌。"
+ },
+ {
+  "id": "fengfeng_chuantang",
+  "name": "穿堂劍",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 8,
+    "perQi": 2,
+    "maxQi": 4,
+    "ignoreBlock": true
+   }
+  ],
+  "text": "最多花 4 點蓄氣，造成 8 點傷害，每點蓄氣多 2 點，無視蜷縮。",
+  "up": "最多花 4 點蓄氣，造成 11 點傷害，每點蓄氣多 2 點，無視蜷縮。"
+ },
+ {
+  "id": "fengfeng_shuangduan",
+  "name": "雙段劍",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 3,
+    "perQi": 1,
+    "maxQi": 2,
+    "times": 2
+   }
+  ],
+  "text": "最多花 2 點蓄氣，造成 3 點傷害，每點蓄氣多 1 點，連打 2 次。",
+  "up": "最多花 2 點蓄氣，造成 4 點傷害，每點蓄氣多 1 點，連打 2 次。"
+ },
+ {
+  "id": "fengfeng_huzhou",
+  "name": "回劍護肘",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi",
+   "ifSpentQiAtLeast"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 5,
+    "perQi": 2,
+    "maxQi": 3
+   },
+   {
+    "kind": "ifSpentQiAtLeast",
+    "min": 3,
+    "then": [
+     {
+      "kind": "block",
+      "amount": 5
+     }
+    ]
+   }
+  ],
+  "text": "最多花 3 點蓄氣，造成 5 點傷害，每點蓄氣多 2 點，這張牌花了至少 3 點蓄氣的話，獲得 5 點蜷縮。",
+  "up": "最多花 3 點蓄氣，造成 7 點傷害，每點蓄氣多 2 點，這張牌花了至少 3 點蓄氣的話，獲得 7 點蜷縮。"
+ },
+ {
+  "id": "fengfeng_zhuanshen",
+  "name": "轉身蓄勁",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "block",
+   "gainQi"
+  ],
+  "effects": [
+   {
+    "kind": "block",
+    "amount": 5
+   },
+   {
+    "kind": "gainQi",
+    "n": 2
+   }
+  ],
+  "text": "獲得 5 點蜷縮，獲得 2 點蓄氣。",
+  "up": "獲得 8 點蜷縮，獲得 2 點蓄氣。"
+ },
+ {
+  "id": "fengfeng_changxi",
+  "name": "長息",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 2,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "gainQi"
+  ],
+  "effects": [
+   {
+    "kind": "gainQi",
+    "n": 7
+   }
+  ],
+  "text": "獲得 7 點蓄氣。",
+  "up": "獲得 9 點蓄氣。"
+ },
+ {
+  "id": "fengfeng_zhenshou",
+  "name": "振袖收劍",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "blockSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "blockSpendQi",
+    "amount": 7,
+    "perQi": 2,
+    "maxQi": 3
+   }
+  ],
+  "text": "最多花 3 點蓄氣，自己獲得 7 點蜷縮，每點蓄氣多 2 點。",
+  "up": "最多花 3 點蓄氣，自己獲得 10 點蜷縮，每點蓄氣多 2 點。"
+ },
+ {
+  "id": "fengfeng_xunxi",
+  "name": "循息",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "power"
+  ],
+  "effects": [
+   {
+    "kind": "power",
+    "trigger": "afterCard",
+    "cardType": "技能",
+    "oncePerTurn": true,
+    "sameNameMax": true,
+    "effects": [
+     {
+      "kind": "gainQi",
+      "n": 1
+     }
+    ]
+   }
+  ],
+  "text": "每回合第一次打出技能牌後，獲得 1 點蓄氣（同名取高）。",
+  "up": "每回合第一次打出技能牌後，獲得 2 點蓄氣（同名取高）。"
+ },
+ {
+  "id": "fengfeng_shoushi",
+  "name": "收勢",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "power"
+  ],
+  "effects": [
+   {
+    "kind": "power",
+    "trigger": "afterCard",
+    "cardType": "攻擊",
+    "minQiSpent": 3,
+    "oncePerTurn": true,
+    "sameNameMax": true,
+    "effects": [
+     {
+      "kind": "block",
+      "amount": 4
+     }
+    ]
+   }
+  ],
+  "text": "每回合第一次打出花至少 3 點蓄氣的攻擊牌後，獲得 4 點蜷縮（同名取高）。",
+  "up": "每回合第一次打出花至少 3 點蓄氣的攻擊牌後，獲得 6 點蜷縮（同名取高）。"
+ },
+ {
+  "id": "fengfeng_kanshi",
+  "name": "看準劍路",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "draw",
+   "ifQiAtPlay"
+  ],
+  "effects": [
+   {
+    "kind": "draw",
+    "n": 2
+   },
+   {
+    "kind": "ifQiAtPlay",
+    "min": 4,
+    "then": [
+     {
+      "kind": "draw",
+      "n": 1
+     }
+    ]
+   }
+  ],
+  "upCost": 0,
+  "text": "抽 2 張牌，出牌前有 4 點蓄氣的話，抽 1 張牌。",
+  "up": "抽 2 張牌，出牌前有 4 點蓄氣的話，抽 1 張牌。消耗。"
+ },
+ {
+  "id": "fengfeng_youbian",
+  "name": "你從右邊上",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "nextAttackBonusSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "nextAttackBonusSpendQi",
+    "amount": 3,
+    "perQi": 2,
+    "maxQi": 3,
+    "recipients": "ally"
+   }
+  ],
+  "text": "最多花 3 點蓄氣，同伴本回合下一張攻擊首段首目標多 3 點傷害，每點蓄氣再多 2 點（取高不疊加）。一個人玩時「同伴」＝你自己。",
+  "up": "最多花 3 點蓄氣，同伴本回合下一張攻擊首段首目標多 5 點傷害，每點蓄氣再多 2 點（取高不疊加）。一個人玩時「同伴」＝你自己。"
+ },
+ {
+  "id": "fengfeng_jiewo",
+  "name": "借我擋一下",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "gainQi",
+   "ifAllyBlockAtPlay"
+  ],
+  "effects": [
+   {
+    "kind": "gainQi",
+    "n": 3
+   },
+   {
+    "kind": "ifAllyBlockAtPlay",
+    "min": 8,
+    "then": [
+     {
+      "kind": "gainQi",
+      "n": 2
+     }
+    ]
+   }
+  ],
+  "text": "獲得 3 點蓄氣，同伴原有至少 8 點蜷縮的話，獲得 2 點蓄氣。",
+  "up": "獲得 4 點蓄氣，同伴原有至少 8 點蜷縮的話，獲得 2 點蓄氣。"
+ },
+ {
+  "id": "fengfeng_husong",
+  "name": "我護著你走",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "技能",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "blockSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "blockSpendQi",
+    "amount": 7,
+    "perQi": 2,
+    "maxQi": 3,
+    "recipient": "ally"
+   }
+  ],
+  "text": "最多花 3 點蓄氣，同伴獲得 7 點蜷縮，每點蓄氣多 2 點。一個人玩時「同伴」＝你自己。",
+  "up": "最多花 3 點蓄氣，同伴獲得 10 點蜷縮，每點蓄氣多 2 點。一個人玩時「同伴」＝你自己。"
+ },
+ {
+  "id": "fengfeng_duanliu",
+  "name": "絕學·斷流",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 10,
+    "perQi": 3,
+    "allQi": true
+   }
+  ],
+  "text": "用盡蓄氣，造成 10 點傷害，每點蓄氣多 3 點。",
+  "up": "用盡蓄氣，造成 14 點傷害，每點蓄氣多 3 點。"
+ },
+ {
+  "id": "fengfeng_kaishan",
+  "name": "絕學·開山",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 3,
+  "type": "攻擊",
+  "target": "all",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 8,
+    "perQi": 2,
+    "allQi": true,
+    "target": "all"
+   }
+  ],
+  "upCost": 2,
+  "text": "用盡蓄氣，對全體魔物造成 8 點傷害，每點蓄氣多 2 點。",
+  "up": "用盡蓄氣，對全體魔物造成 8 點傷害，每點蓄氣多 2 點。"
+ },
+ {
+  "id": "fengfeng_cunfeng",
+  "name": "絕學·藏鋒",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "power"
+  ],
+  "effects": [
+   {
+    "kind": "power",
+    "trigger": "turnStart",
+    "sameNameMax": true,
+    "effects": [
+     {
+      "kind": "gainQi",
+      "n": 2
+     }
+    ]
+   }
+  ],
+  "upCost": 1,
+  "text": "每回合開始時獲得 2 點蓄氣。",
+  "up": "每回合開始時獲得 2 點蓄氣。"
+ },
+ {
+  "id": "fengfeng_lianxi",
+  "name": "絕學·連息",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 1,
+  "type": "能力",
+  "target": "self",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "power"
+  ],
+  "effects": [
+   {
+    "kind": "power",
+    "trigger": "afterCard",
+    "cardType": "攻擊",
+    "minQiSpent": 4,
+    "oncePerTurn": true,
+    "sameNameMax": true,
+    "effects": [
+     {
+      "kind": "draw",
+      "n": 1
+     }
+    ]
+   }
+  ],
+  "text": "每回合第一次打出花至少 4 點蓄氣的攻擊牌後，抽 1 張牌（同名取高）。",
+  "up": "每回合第一次打出花至少 4 點蓄氣的攻擊牌後，抽 2 張牌（同名取高）。"
+ },
+ {
+  "id": "fengfeng_jizhong",
+  "name": "集中精神",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 0,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "gainQi",
+   "preventEnergyGainThisPhase"
+  ],
+  "effects": [
+   {
+    "kind": "gainQi",
+    "n": 6
+   },
+   {
+    "kind": "preventEnergyGainThisPhase"
+   }
+  ],
+  "text": "獲得 6 點蓄氣，這回合不能再獲得飯糰。消耗。",
+  "up": "獲得 8 點蓄氣，這回合不能再獲得飯糰。消耗。"
+ },
+ {
+  "id": "fengfeng_pozhen",
+  "name": "絕學·破陣",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi",
+   "ifSpentQiAtLeast"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 12,
+    "perQi": 2,
+    "maxQi": 6
+   },
+   {
+    "kind": "ifSpentQiAtLeast",
+    "min": 6,
+    "then": [
+     {
+      "kind": "draw",
+      "n": 2
+     }
+    ]
+   }
+  ],
+  "text": "最多花 6 點蓄氣，造成 12 點傷害，每點蓄氣多 2 點，這張牌花了至少 6 點蓄氣的話，抽 2 張牌。",
+  "up": "最多花 6 點蓄氣，造成 15 點傷害，每點蓄氣多 2 點，這張牌花了至少 6 點蓄氣的話，抽 2 張牌。"
+ },
+ {
+  "id": "fengfeng_yiqichushou",
+  "name": "現在一起上",
+  "pool": "絕學",
+  "rarity": "稀有",
+  "cost": 2,
+  "type": "技能",
+  "target": "self",
+  "keywords": [
+   "消耗"
+  ],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "nextAttackBonusSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "nextAttackBonusSpendQi",
+    "amount": 2,
+    "perQi": 1,
+    "maxQi": 4,
+    "recipients": "selfAndAlly"
+   }
+  ],
+  "upCost": 1,
+  "text": "最多花 4 點蓄氣，雙方本回合下一張攻擊首段首目標多 2 點傷害，每點蓄氣再多 1 點（取高不疊加）。一個人玩時「同伴」＝你自己。消耗。",
+  "up": "最多花 4 點蓄氣，雙方本回合下一張攻擊首段首目標多 2 點傷害，每點蓄氣再多 1 點（取高不疊加）。一個人玩時「同伴」＝你自己。消耗。"
  }
 ]

@@ -19,7 +19,9 @@ import { heroPronoun, startRelicFor, type Hero } from '../../engine/hero';
 interface Pick { hero: Hero; name: string; tag: string; blurb: string; pose: string }
 
 /** 選角畫面右邊整張畫出來的「代表牌」。**牌號要真的存在**，見 `refresh` 裡的說明 */
-export const KEY_CARD: Readonly<Record<string, string>> = { ninja: 'sanjo', feifei: 'feifei_feizhen', dangdang: 'dangdang_zhengquan' };
+export const KEY_CARD: Readonly<Record<string, string>> = {
+  ninja: 'sanjo', feifei: 'feifei_feizhen', dangdang: 'dangdang_zhengquan', fengfeng: 'fengfeng_pingzhan',
+};
 
 const PICKS: Pick[] = [
   {
@@ -35,6 +37,11 @@ const PICKS: Pick[] = [
   {
     hero: 'dangdang', name: '噹噹', tag: '擋‧卸力反擊',
     blurb: '村口修東西的黑白賓士貓，做了一對銅護臂。魔塔出現那一夜，他留下來擋住魔物、讓村貓先進門，等門補好、糧食推進屋裡，才上塔找人。蜷縮既是他的防禦，也是他出招的本錢——打出去就沒得擋。',
+    pose: 'hero/ninja',
+  },
+  {
+    hero: 'fengfeng', name: '封封', tag: '蓄氣‧強力劍招',
+    blurb: '往返山路的橘白劍客，替村子護送藥材與糧食。這次回村，三位朋友都進了魔塔。他放下貨物，帶著劍去找人。',
     pose: 'hero/ninja',
   },
 ];

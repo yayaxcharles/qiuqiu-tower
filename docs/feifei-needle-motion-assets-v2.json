@@ -1,0 +1,95 @@
+{
+  "hero": "feifei",
+  "reproducer": "python tools/pack_feifei_needle_motion.py",
+  "wholeBodyFrames": true,
+  "actions": 8,
+  "newActions": 7,
+  "newFrames": 56,
+  "assets": [
+    {
+      "source": "tools/motion-art-source/feifei-needles-v2/needle_combo_v2.png",
+      "sourceSha256": "09ad59680ef0137e9591ad6e74058bd4815352340634074f6e4f34dd7af80641",
+      "target": "public/assets/motion/feifei/needle_combo_v2.webp",
+      "targetSha256": "1048412cdea39cc525d320802458a27db5f27a2fa0a6510571ec81fcb7b66e07",
+      "bytes": 965416,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei-needles-v2/needle_backhand_v2.png",
+      "sourceSha256": "8670ea681d1edb0cbdd6f1d3a294337724669b472836da5a0f169a16f6f7f843",
+      "target": "public/assets/motion/feifei/needle_backhand_v2.webp",
+      "targetSha256": "06df43b74c57eb358925d1346d4cf101a4e5a15cc060b1c08602ab055c494b91",
+      "bytes": 969850,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei-needles-v2/needle_pierce_v2.png",
+      "sourceSha256": "8d63567fa96d19e4c2bc42c0f8c6ba63dcf70106bf269dc588d6d4769c3ffd2b",
+      "target": "public/assets/motion/feifei/needle_pierce_v2.webp",
+      "targetSha256": "998867d35c662bba308590efe46cec8d458091c9213e3d33fca1b0d9667e6ef0",
+      "bytes": 890176,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei-needles-v2/needle_venom_v2.png",
+      "sourceSha256": "82a4040e7062d2f3881f4d3cd8eec6a37edb17dd1b2b0298b2a8e494082a43d6",
+      "target": "public/assets/motion/feifei/needle_venom_v2.webp",
+      "targetSha256": "73f1538122103bb65290df3b30eee9e9a8af8bea57352b372233ca9917c13153",
+      "bytes": 945298,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei-needles-v2/needle_retreat_v2.png",
+      "sourceSha256": "8c4f6070ce5bffe38b4265fea31b7ff0c8c5142fb2938b4e9c3f182a6f8d545b",
+      "target": "public/assets/motion/feifei/needle_retreat_v2.webp",
+      "targetSha256": "62631edf313f5b0b912b0b00a82c52c8edddc37842cdb38c7ddcd20b9184752d",
+      "bytes": 940524,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei-needles-v2/needle_rain_v2.png",
+      "sourceSha256": "ebd5546c4a9f7afa613693194a1941e66852ac8a6e943050b7c49a0bef8733e4",
+      "target": "public/assets/motion/feifei/needle_rain_v2.webp",
+      "targetSha256": "abc1844d9c911833afc8876be2d547535bc920d4a007d3db338980c99d625409",
+      "bytes": 901680,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei-needles-v2/needle_barrage_v2.png",
+      "sourceSha256": "8f6b8efb8e5b66c438fce318335c631e42883a8494940f8d11daa0fa05513d46",
+      "target": "public/assets/motion/feifei/needle_barrage_v2.webp",
+      "targetSha256": "6d653b62cb7e791f0f99f1e33fe4350bce0c083ae2301d630ca2814acf6e1b77",
+      "bytes": 995370,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    }
+  ],
+  "uniqueBytes": 6608314
+}

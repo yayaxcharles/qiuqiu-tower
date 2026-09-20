@@ -214,7 +214,7 @@ registerScreen('lobby', (app, root) => {
   const heroPicker = (): HTMLElement => {
     const row = (label: string, i: 0 | 1): HTMLElement => el('div', { class: 'lobby-hero-row' },
       el('b', {}, label),
-      ...(['ninja', 'feifei', 'dangdang'] as const).map((h) => el('button', {
+      ...HEROES.filter((h) => h !== 'samurai').map((h) => el('button', {
         class: `btn small${coopHeroes[i] === h ? ' selected' : ''}`,
         onclick: () => { coopHeroes[i] = h; render(); },
       }, heroName({ hero: h }))));

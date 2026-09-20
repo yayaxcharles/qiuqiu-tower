@@ -1,0 +1,625 @@
+{
+  "kinds": {
+    "rat": {
+      "native_height": 231,
+      "default_height": 150,
+      "mirror": true,
+      "actions": {
+        "idle": {
+          "texture": "assets/motion/enemies/rat-base.webp",
+          "mirror": false,
+          "scale": 0.5,
+          "frames": [
+            {
+              "rect": [
+                54,
+                36,
+                415,
+                468
+              ],
+              "pivot": [
+                204.5,
+                464
+              ],
+              "duration": 0.1
+            }
+          ],
+          "loop": true
+        },
+        "attack": {
+          "texture": "assets/motion/enemies/rat-attack.webp",
+          "scale": 0.583,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                32,
+                26,
+                340,
+                395
+              ],
+              "pivot": [
+                175.75,
+                393
+              ],
+              "duration": 0.1
+            },
+            {
+              "rect": [
+                476,
+                31,
+                346,
+                390
+              ],
+              "pivot": [
+                205.0,
+                388
+              ],
+              "duration": 0.14
+            },
+            {
+              "rect": [
+                903,
+                82,
+                394,
+                339
+              ],
+              "pivot": [
+                191.25,
+                337
+              ],
+              "duration": 0.15
+            },
+            {
+              "rect": [
+                1320,
+                31,
+                435,
+                390
+              ],
+              "pivot": [
+                193.75,
+                388
+              ],
+              "duration": 0.05
+            },
+            {
+              "rect": [
+                19,
+                507,
+                499,
+                344
+              ],
+              "pivot": [
+                171.75,
+                342
+              ],
+              "duration": 0.06
+            },
+            {
+              "rect": [
+                521,
+                510,
+                450,
+                340
+              ],
+              "pivot": [
+                123.5,
+                338
+              ],
+              "duration": 0.08
+            },
+            {
+              "rect": [
+                996,
+                490,
+                318,
+                365
+              ],
+              "pivot": [
+                140.75,
+                363
+              ],
+              "duration": 0.12
+            },
+            {
+              "rect": [
+                1362,
+                469,
+                340,
+                396
+              ],
+              "pivot": [
+                176.0,
+                394
+              ],
+              "duration": 0.12
+            }
+          ]
+        },
+        "hurt": {
+          "texture": "assets/motion/enemies/rat-base.webp",
+          "mirror": false,
+          "scale": 0.5,
+          "frames": [
+            {
+              "rect": [
+                551,
+                47,
+                432,
+                457
+              ],
+              "pivot": [
+                221.5,
+                453
+              ],
+              "duration": 0.055
+            },
+            {
+              "rect": [
+                1048,
+                40,
+                463,
+                464
+              ],
+              "pivot": [
+                230.25,
+                460
+              ],
+              "duration": 0.07
+            },
+            {
+              "rect": [
+                63,
+                540,
+                425,
+                454
+              ],
+              "pivot": [
+                216.75,
+                450
+              ],
+              "duration": 0.1
+            },
+            {
+              "rect": [
+                575,
+                542,
+                413,
+                458
+              ],
+              "pivot": [
+                203.5,
+                454
+              ],
+              "duration": 0.1
+            },
+            {
+              "rect": [
+                1084,
+                544,
+                411,
+                460
+              ],
+              "pivot": [
+                205.25,
+                456
+              ],
+              "duration": 0.075
+            }
+          ],
+          "loop": false
+        },
+        "air_rise": {
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "scale": 0.625,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                24,
+                47,
+                393,
+                414
+              ],
+              "pivot": [
+                236,
+                413
+              ],
+              "duration": 0.12
+            },
+            {
+              "rect": [
+                444,
+                36,
+                419,
+                348
+              ],
+              "pivot": [
+                229,
+                388
+              ],
+              "duration": 0.12
+            }
+          ]
+        },
+        "air_fall": {
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "scale": 0.625,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                891,
+                56,
+                393,
+                330
+              ],
+              "pivot": [
+                216,
+                389
+              ],
+              "duration": 0.09
+            },
+            {
+              "rect": [
+                1322,
+                95,
+                420,
+                374
+              ],
+              "pivot": [
+                211,
+                373
+              ],
+              "duration": 0.12
+            }
+          ]
+        },
+        "knockdown": {
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "scale": 0.625,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                37,
+                592,
+                406,
+                244
+              ],
+              "pivot": [
+                199,
+                241
+              ],
+              "duration": 0.08
+            },
+            {
+              "rect": [
+                472,
+                563,
+                419,
+                268
+              ],
+              "pivot": [
+                207,
+                267
+              ],
+              "duration": 0.12
+            }
+          ]
+        },
+        "getup": {
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "scale": 0.625,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                917,
+                521,
+                384,
+                311
+              ],
+              "pivot": [
+                243,
+                310
+              ],
+              "duration": 0.14
+            },
+            {
+              "rect": [
+                1402,
+                470,
+                341,
+                369
+              ],
+              "pivot": [
+                179,
+                368
+              ],
+              "duration": 0.14
+            }
+          ]
+        }
+      }
+    },
+    "ninja": {
+      "native_height": 231,
+      "default_height": 210,
+      "mirror": true,
+      "actions": {
+        "idle": {
+          "texture": "assets/motion/enemies/ninja-ground.webp",
+          "scale": 0.81,
+          "loop": true,
+          "frames": [
+            {
+              "rect": [
+                975,
+                951,
+                247,
+                285
+              ],
+              "pivot": [
+                152,
+                283
+              ],
+              "duration": 1.0
+            }
+          ]
+        },
+        "attack": {
+          "texture": "assets/motion/enemies/ninja-ground.webp",
+          "scale": 0.81,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                30,
+                667,
+                261,
+                257
+              ],
+              "pivot": [
+                150,
+                255
+              ],
+              "duration": 0.16
+            },
+            {
+              "rect": [
+                358,
+                642,
+                244,
+                282
+              ],
+              "pivot": [
+                138,
+                280
+              ],
+              "duration": 0.18
+            },
+            {
+              "rect": [
+                642,
+                655,
+                331,
+                270
+              ],
+              "pivot": [
+                169,
+                268
+              ],
+              "duration": 0.1
+            },
+            {
+              "rect": [
+                986,
+                648,
+                243,
+                277
+              ],
+              "pivot": [
+                136,
+                275
+              ],
+              "duration": 0.28
+            }
+          ]
+        },
+        "hurt": {
+          "texture": "assets/motion/enemies/ninja-ground.webp",
+          "scale": 0.81,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                14,
+                957,
+                296,
+                278
+              ],
+              "pivot": [
+                173,
+                276
+              ],
+              "duration": 0.055
+            },
+            {
+              "rect": [
+                331,
+                961,
+                280,
+                275
+              ],
+              "pivot": [
+                168,
+                273
+              ],
+              "duration": 0.1
+            },
+            {
+              "rect": [
+                657,
+                954,
+                268,
+                283
+              ],
+              "pivot": [
+                158,
+                281
+              ],
+              "duration": 0.145
+            },
+            {
+              "rect": [
+                975,
+                951,
+                247,
+                285
+              ],
+              "pivot": [
+                152,
+                283
+              ],
+              "duration": 0.1
+            }
+          ]
+        },
+        "air_rise": {
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "scale": 0.68,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                29,
+                56,
+                371,
+                388
+              ],
+              "pivot": [
+                244,
+                386
+              ],
+              "duration": 0.12
+            },
+            {
+              "rect": [
+                459,
+                108,
+                389,
+                321
+              ],
+              "pivot": [
+                226,
+                358
+              ],
+              "duration": 0.12
+            }
+          ]
+        },
+        "air_fall": {
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "scale": 0.68,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                871,
+                83,
+                403,
+                350
+              ],
+              "pivot": [
+                227,
+                387
+              ],
+              "duration": 0.09
+            },
+            {
+              "rect": [
+                1362,
+                112,
+                371,
+                368
+              ],
+              "pivot": [
+                210,
+                366
+              ],
+              "duration": 0.12
+            }
+          ]
+        },
+        "knockdown": {
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "scale": 0.68,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                24,
+                642,
+                422,
+                199
+              ],
+              "pivot": [
+                230,
+                197
+              ],
+              "duration": 0.08
+            },
+            {
+              "rect": [
+                484,
+                625,
+                472,
+                219
+              ],
+              "pivot": [
+                254,
+                217
+              ],
+              "duration": 0.12
+            }
+          ]
+        },
+        "getup": {
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "scale": 0.68,
+          "loop": false,
+          "frames": [
+            {
+              "rect": [
+                957,
+                558,
+                344,
+                297
+              ],
+              "pivot": [
+                202,
+                295
+              ],
+              "duration": 0.14
+            },
+            {
+              "rect": [
+                1391,
+                511,
+                349,
+                343
+              ],
+              "pivot": [
+                198,
+                341
+              ],
+              "duration": 0.14
+            }
+          ]
+        }
+      }
+    }
+  }
+}

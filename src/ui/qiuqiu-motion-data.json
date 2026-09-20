@@ -1,0 +1,2302 @@
+{
+  "actions": {
+    "idle": {
+      "texture": "assets/motion/qiuqiu/idle_hurt_sheet.webp",
+      "scale": 0.622,
+      "loop": true,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            35,
+            18,
+            340,
+            407
+          ],
+          "pivot": [
+            184.75,
+            405
+          ],
+          "duration": 0.6
+        },
+        {
+          "rect": [
+            476,
+            19,
+            342,
+            406
+          ],
+          "pivot": [
+            185.75,
+            404
+          ],
+          "duration": 0.5
+        },
+        {
+          "rect": [
+            35,
+            18,
+            340,
+            407
+          ],
+          "pivot": [
+            184.75,
+            405
+          ],
+          "duration": 0.45
+        },
+        {
+          "rect": [
+            923,
+            18,
+            339,
+            407
+          ],
+          "pivot": [
+            183.25,
+            405
+          ],
+          "duration": 0.1
+        },
+        {
+          "rect": [
+            1366,
+            19,
+            339,
+            406
+          ],
+          "pivot": [
+            183.25,
+            404
+          ],
+          "duration": 0.35
+        }
+      ]
+    },
+    "hurt": {
+      "texture": "assets/motion/qiuqiu/idle_hurt_sheet.webp",
+      "scale": 0.622,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            30,
+            453,
+            355,
+            416
+          ],
+          "pivot": [
+            193.5,
+            414
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            444,
+            461,
+            416,
+            408
+          ],
+          "pivot": [
+            245.75,
+            406
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            927,
+            462,
+            336,
+            407
+          ],
+          "pivot": [
+            179.25,
+            405
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            1366,
+            462,
+            339,
+            407
+          ],
+          "pivot": [
+            182.75,
+            405
+          ],
+          "duration": 0.08
+        }
+      ]
+    },
+    "down": {
+      "texture": "assets/motion/qiuqiu/idle_hurt_sheet.webp",
+      "scale": 0.622,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            444,
+            461,
+            416,
+            408
+          ],
+          "pivot": [
+            245.75,
+            406
+          ],
+          "duration": 1.0
+        }
+      ]
+    },
+    "walk": {
+      "texture": "assets/motion/qiuqiu/walk_sheet.webp",
+      "scale": 0.68,
+      "loop": true,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            45,
+            17,
+            313,
+            405
+          ],
+          "pivot": [
+            180,
+            403
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            500,
+            22,
+            325,
+            399
+          ],
+          "pivot": [
+            183,
+            397
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            945,
+            22,
+            324,
+            399
+          ],
+          "pivot": [
+            183,
+            397
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            1394,
+            21,
+            327,
+            400
+          ],
+          "pivot": [
+            181,
+            398
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            46,
+            462,
+            317,
+            401
+          ],
+          "pivot": [
+            179,
+            399
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            498,
+            463,
+            325,
+            398
+          ],
+          "pivot": [
+            185,
+            396
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            942,
+            463,
+            327,
+            400
+          ],
+          "pivot": [
+            186,
+            398
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            1388,
+            462,
+            328,
+            402
+          ],
+          "pivot": [
+            187,
+            400
+          ],
+          "duration": 0.08
+        }
+      ]
+    },
+    "run": {
+      "texture": "assets/motion/qiuqiu/run_claws_sheet.webp",
+      "scale": 0.622,
+      "loop": true,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            29,
+            25,
+            381,
+            414
+          ],
+          "pivot": [
+            223,
+            412
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            490,
+            26,
+            328,
+            413
+          ],
+          "pivot": [
+            204,
+            407
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            902,
+            24,
+            372,
+            412
+          ],
+          "pivot": [
+            215,
+            416
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1342,
+            24,
+            403,
+            402
+          ],
+          "pivot": [
+            226,
+            416
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            44,
+            462,
+            372,
+            405
+          ],
+          "pivot": [
+            213,
+            403
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            480,
+            464,
+            349,
+            399
+          ],
+          "pivot": [
+            221,
+            397
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            919,
+            464,
+            371,
+            398
+          ],
+          "pivot": [
+            209,
+            404
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1369,
+            464,
+            384,
+            392
+          ],
+          "pivot": [
+            217,
+            404
+          ],
+          "duration": 0.06
+        }
+      ]
+    },
+    "roll": {
+      "texture": "assets/motion/qiuqiu/roll_sheet.webp",
+      "scale": 0.705,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            58,
+            171,
+            343,
+            291
+          ],
+          "pivot": [
+            182,
+            289
+          ],
+          "duration": 0.045
+        },
+        {
+          "rect": [
+            478,
+            84,
+            372,
+            378
+          ],
+          "pivot": [
+            212,
+            376
+          ],
+          "duration": 0.035
+        },
+        {
+          "rect": [
+            966,
+            188,
+            295,
+            277
+          ],
+          "pivot": [
+            156,
+            275
+          ],
+          "duration": 0.045
+        },
+        {
+          "rect": [
+            1379,
+            167,
+            376,
+            301
+          ],
+          "pivot": [
+            194,
+            299
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            22,
+            555,
+            410,
+            298
+          ],
+          "pivot": [
+            215,
+            296
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            541,
+            546,
+            315,
+            293
+          ],
+          "pivot": [
+            156,
+            291
+          ],
+          "duration": 0.045
+        },
+        {
+          "rect": [
+            955,
+            497,
+            308,
+            348
+          ],
+          "pivot": [
+            180,
+            346
+          ],
+          "duration": 0.055
+        },
+        {
+          "rect": [
+            1392,
+            493,
+            319,
+            359
+          ],
+          "pivot": [
+            188,
+            357
+          ],
+          "duration": 0.075
+        }
+      ]
+    },
+    "jump": {
+      "texture": "assets/motion/qiuqiu/jump_sheet.webp",
+      "scale": 0.73,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            65,
+            132,
+            302,
+            305
+          ],
+          "pivot": [
+            164,
+            303
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            504,
+            24,
+            316,
+            413
+          ],
+          "pivot": [
+            180,
+            411
+          ],
+          "duration": 0.1
+        },
+        {
+          "rect": [
+            955,
+            39,
+            286,
+            386
+          ],
+          "pivot": [
+            190,
+            384
+          ],
+          "duration": 0.12
+        },
+        {
+          "rect": [
+            1386,
+            39,
+            340,
+            333
+          ],
+          "pivot": [
+            185,
+            331
+          ],
+          "duration": 0.1
+        },
+        {
+          "rect": [
+            82,
+            468,
+            300,
+            388
+          ],
+          "pivot": [
+            160,
+            386
+          ],
+          "duration": 0.45
+        }
+      ]
+    },
+    "land": {
+      "texture": "assets/motion/qiuqiu/jump_sheet.webp",
+      "scale": 0.73,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            506,
+            564,
+            348,
+            292
+          ],
+          "pivot": [
+            193,
+            290
+          ],
+          "duration": 0.035
+        },
+        {
+          "rect": [
+            941,
+            509,
+            336,
+            347
+          ],
+          "pivot": [
+            206,
+            345
+          ],
+          "duration": 0.035
+        },
+        {
+          "rect": [
+            1379,
+            510,
+            326,
+            346
+          ],
+          "pivot": [
+            203,
+            344
+          ],
+          "duration": 0.03
+        }
+      ]
+    },
+    "attack1": {
+      "texture": "assets/motion/qiuqiu/claw_1_sheet.webp",
+      "scale": 0.5,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            50,
+            9,
+            406,
+            499
+          ],
+          "pivot": [
+            244.25,
+            497
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            567,
+            19,
+            410,
+            488
+          ],
+          "pivot": [
+            245.25,
+            486
+          ],
+          "duration": 0.03
+        },
+        {
+          "rect": [
+            1083,
+            15,
+            415,
+            492
+          ],
+          "pivot": [
+            199.25,
+            490
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            46,
+            530,
+            474,
+            468
+          ],
+          "pivot": [
+            225.25,
+            466
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            584,
+            516,
+            381,
+            479
+          ],
+          "pivot": [
+            217.75,
+            477
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            1072,
+            516,
+            413,
+            482
+          ],
+          "pivot": [
+            224.25,
+            480
+          ],
+          "duration": 0.07
+        }
+      ]
+    },
+    "attack2": {
+      "texture": "assets/motion/qiuqiu/claw_2_sheet.webp",
+      "scale": 0.505,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            44,
+            11,
+            400,
+            489
+          ],
+          "pivot": [
+            231.5,
+            487
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            552,
+            20,
+            400,
+            480
+          ],
+          "pivot": [
+            234.5,
+            478
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            1061,
+            9,
+            406,
+            491
+          ],
+          "pivot": [
+            246.25,
+            489
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            43,
+            526,
+            422,
+            482
+          ],
+          "pivot": [
+            262.25,
+            480
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            558,
+            530,
+            415,
+            479
+          ],
+          "pivot": [
+            240.5,
+            477
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1068,
+            528,
+            418,
+            481
+          ],
+          "pivot": [
+            254.5,
+            479
+          ],
+          "duration": 0.09
+        }
+      ]
+    },
+    "attack3": {
+      "texture": "assets/motion/qiuqiu/claw_3_sheet.webp",
+      "scale": 0.72,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            71,
+            65,
+            331,
+            351
+          ],
+          "pivot": [
+            150.25,
+            349
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            509,
+            58,
+            309,
+            360
+          ],
+          "pivot": [
+            162.5,
+            358
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            955,
+            61,
+            299,
+            356
+          ],
+          "pivot": [
+            158.5,
+            354
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1401,
+            61,
+            274,
+            356
+          ],
+          "pivot": [
+            157.5,
+            354
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            78,
+            493,
+            284,
+            344
+          ],
+          "pivot": [
+            153.25,
+            342
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            492,
+            509,
+            356,
+            328
+          ],
+          "pivot": [
+            176.75,
+            326
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            958,
+            495,
+            288,
+            343
+          ],
+          "pivot": [
+            161.75,
+            341
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            1400,
+            494,
+            277,
+            344
+          ],
+          "pivot": [
+            158.25,
+            342
+          ],
+          "duration": 0.06
+        }
+      ]
+    },
+    "dash": {
+      "texture": "assets/motion/qiuqiu/skills_sheet.webp",
+      "scale": 0.795,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            31,
+            62,
+            261,
+            305
+          ],
+          "pivot": [
+            136.25,
+            303
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            371,
+            72,
+            313,
+            294
+          ],
+          "pivot": [
+            113.0,
+            292
+          ],
+          "duration": 0.02
+        },
+        {
+          "rect": [
+            717,
+            88,
+            363,
+            276
+          ],
+          "pivot": [
+            147.0,
+            274
+          ],
+          "duration": 0.07
+        },
+        {
+          "rect": [
+            1078,
+            102,
+            367,
+            263
+          ],
+          "pivot": [
+            148.25,
+            261
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            38,
+            400,
+            272,
+            319
+          ],
+          "pivot": [
+            135.0,
+            317
+          ],
+          "duration": 0.1
+        },
+        {
+          "rect": [
+            386,
+            398,
+            288,
+            322
+          ],
+          "pivot": [
+            154.5,
+            320
+          ],
+          "duration": 0.1
+        }
+      ]
+    },
+    "clone": {
+      "texture": "assets/motion/qiuqiu/skills_sheet.webp",
+      "scale": 0.795,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            748,
+            406,
+            289,
+            315
+          ],
+          "pivot": [
+            158.0,
+            313
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1108,
+            404,
+            291,
+            317
+          ],
+          "pivot": [
+            163.0,
+            315
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            35,
+            750,
+            291,
+            314
+          ],
+          "pivot": [
+            155.75,
+            312
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            388,
+            750,
+            326,
+            314
+          ],
+          "pivot": [
+            144.0,
+            312
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            732,
+            753,
+            351,
+            312
+          ],
+          "pivot": [
+            152.0,
+            310
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1114,
+            748,
+            286,
+            317
+          ],
+          "pivot": [
+            155.5,
+            315
+          ],
+          "duration": 0.26
+        }
+      ]
+    },
+    "attack4": {
+      "texture": "assets/motion/qiuqiu/claw_4_sheet.webp",
+      "scale": 0.635,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            67,
+            81,
+            321,
+            357
+          ],
+          "pivot": [
+            189.0,
+            355
+          ],
+          "duration": 0.055
+        },
+        {
+          "rect": [
+            529,
+            125,
+            332,
+            316
+          ],
+          "pivot": [
+            180.75,
+            314
+          ],
+          "duration": 0.055
+        },
+        {
+          "rect": [
+            928,
+            13,
+            331,
+            428
+          ],
+          "pivot": [
+            192.25,
+            426
+          ],
+          "duration": 0.035
+        },
+        {
+          "rect": [
+            1349,
+            14,
+            366,
+            429
+          ],
+          "pivot": [
+            221.0,
+            427
+          ],
+          "duration": 0.015
+        },
+        {
+          "rect": [
+            55,
+            492,
+            414,
+            365
+          ],
+          "pivot": [
+            167.0,
+            363
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            509,
+            548,
+            391,
+            311
+          ],
+          "pivot": [
+            178.5,
+            309
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            955,
+            494,
+            330,
+            372
+          ],
+          "pivot": [
+            188.25,
+            370
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            1401,
+            505,
+            319,
+            361
+          ],
+          "pivot": [
+            192.75,
+            359
+          ],
+          "duration": 0.1
+        }
+      ]
+    },
+    "attack_run": {
+      "texture": "assets/motion/qiuqiu/claw_run_sheet.webp",
+      "scale": 0.585,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            14,
+            54,
+            485,
+            424
+          ],
+          "pivot": [
+            254,
+            422
+          ],
+          "duration": 0.055
+        },
+        {
+          "rect": [
+            542,
+            129,
+            433,
+            346
+          ],
+          "pivot": [
+            202,
+            345
+          ],
+          "duration": 0.035
+        },
+        {
+          "rect": [
+            1040,
+            62,
+            480,
+            321
+          ],
+          "pivot": [
+            210,
+            368
+          ],
+          "duration": 0.11
+        },
+        {
+          "rect": [
+            33,
+            531,
+            462,
+            427
+          ],
+          "pivot": [
+            243,
+            425
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            545,
+            571,
+            513,
+            390
+          ],
+          "pivot": [
+            215,
+            388
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1087,
+            531,
+            407,
+            435
+          ],
+          "pivot": [
+            193,
+            433
+          ],
+          "duration": 0.08
+        }
+      ]
+    },
+    "attack_air": {
+      "texture": "assets/motion/qiuqiu/claw_air_sheet.webp",
+      "scale": 0.515,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            45,
+            18,
+            383,
+            449
+          ],
+          "pivot": [
+            218,
+            465
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            549,
+            18,
+            379,
+            448
+          ],
+          "pivot": [
+            232,
+            468
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            1067,
+            63,
+            439,
+            423
+          ],
+          "pivot": [
+            233,
+            453
+          ],
+          "duration": 0.065
+        },
+        {
+          "rect": [
+            85,
+            536,
+            348,
+            435
+          ],
+          "pivot": [
+            190,
+            464
+          ],
+          "duration": 0.055
+        },
+        {
+          "rect": [
+            558,
+            528,
+            374,
+            454
+          ],
+          "pivot": [
+            230,
+            462
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1059,
+            526,
+            390,
+            476
+          ],
+          "pivot": [
+            234,
+            476
+          ],
+          "duration": 0.08
+        }
+      ]
+    },
+    "shuriken": {
+      "texture": "assets/motion/qiuqiu/shuriken_sheet.webp",
+      "scale": 0.61,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            39,
+            10,
+            312,
+            417
+          ],
+          "pivot": [
+            186,
+            416
+          ],
+          "duration": 0.1
+        },
+        {
+          "rect": [
+            475,
+            14,
+            330,
+            416
+          ],
+          "pivot": [
+            193,
+            415
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            920,
+            13,
+            377,
+            416
+          ],
+          "pivot": [
+            154,
+            415
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            1361,
+            12,
+            348,
+            415
+          ],
+          "pivot": [
+            196,
+            414
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            21,
+            456,
+            402,
+            413
+          ],
+          "pivot": [
+            180,
+            412
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            477,
+            463,
+            380,
+            407
+          ],
+          "pivot": [
+            186,
+            406
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            924,
+            459,
+            330,
+            411
+          ],
+          "pivot": [
+            196,
+            410
+          ],
+          "duration": 0.1
+        },
+        {
+          "rect": [
+            1370,
+            456,
+            320,
+            414
+          ],
+          "pivot": [
+            192,
+            413
+          ],
+          "duration": 0.12
+        }
+      ]
+    },
+    "kick": {
+      "texture": "assets/motion/qiuqiu/kick_spin_sheet.webp",
+      "scale": 0.75,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            51,
+            16,
+            255,
+            339
+          ],
+          "pivot": [
+            163,
+            338
+          ],
+          "duration": 0.02
+        },
+        {
+          "rect": [
+            420,
+            16,
+            269,
+            335
+          ],
+          "pivot": [
+            177,
+            334
+          ],
+          "duration": 0.035
+        },
+        {
+          "rect": [
+            847,
+            19,
+            173,
+            332
+          ],
+          "pivot": [
+            66,
+            331
+          ],
+          "duration": 0.03
+        },
+        {
+          "rect": [
+            1183,
+            17,
+            256,
+            337
+          ],
+          "pivot": [
+            91,
+            336
+          ],
+          "duration": 0.03
+        },
+        {
+          "rect": [
+            84,
+            375,
+            254,
+            336
+          ],
+          "pivot": [
+            106,
+            335
+          ],
+          "duration": 0.02
+        },
+        {
+          "rect": [
+            450,
+            378,
+            281,
+            337
+          ],
+          "pivot": [
+            112,
+            336
+          ],
+          "duration": 0.02
+        },
+        {
+          "rect": [
+            817,
+            378,
+            257,
+            337
+          ],
+          "pivot": [
+            84,
+            336
+          ],
+          "duration": 0.025
+        },
+        {
+          "rect": [
+            1120,
+            373,
+            311,
+            340
+          ],
+          "pivot": [
+            163,
+            339
+          ],
+          "duration": 0.02
+        },
+        {
+          "rect": [
+            17,
+            733,
+            361,
+            327
+          ],
+          "pivot": [
+            194,
+            326
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            440,
+            731,
+            297,
+            330
+          ],
+          "pivot": [
+            148,
+            329
+          ],
+          "duration": 0.07
+        },
+        {
+          "rect": [
+            790,
+            736,
+            240,
+            326
+          ],
+          "pivot": [
+            139,
+            325
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            1132,
+            731,
+            255,
+            337
+          ],
+          "pivot": [
+            168,
+            336
+          ],
+          "duration": 0.13
+        }
+      ]
+    },
+    "seal": {
+      "texture": "assets/motion/qiuqiu/seal_sheet.webp",
+      "scale": 0.58,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            53,
+            14,
+            316,
+            430
+          ],
+          "pivot": [
+            200,
+            429
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            489,
+            17,
+            364,
+            427
+          ],
+          "pivot": [
+            221,
+            426
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            930,
+            17,
+            336,
+            427
+          ],
+          "pivot": [
+            205,
+            426
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1380,
+            21,
+            326,
+            423
+          ],
+          "pivot": [
+            209,
+            422
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            50,
+            487,
+            338,
+            374
+          ],
+          "pivot": [
+            199,
+            373
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            490,
+            496,
+            338,
+            365
+          ],
+          "pivot": [
+            202,
+            364
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            951,
+            468,
+            371,
+            393
+          ],
+          "pivot": [
+            171,
+            392
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1391,
+            484,
+            341,
+            377
+          ],
+          "pivot": [
+            173,
+            376
+          ],
+          "duration": 0.06
+        }
+      ]
+    },
+    "storm": {
+      "texture": "assets/motion/qiuqiu/storm_sheet.webp",
+      "scale": 0.622,
+      "loop": true,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            49,
+            11,
+            380,
+            415
+          ],
+          "pivot": [
+            161,
+            414
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            503,
+            11,
+            317,
+            416
+          ],
+          "pivot": [
+            156,
+            415
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            947,
+            11,
+            304,
+            416
+          ],
+          "pivot": [
+            161,
+            415
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            1396,
+            9,
+            292,
+            418
+          ],
+          "pivot": [
+            179,
+            417
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            49,
+            453,
+            383,
+            417
+          ],
+          "pivot": [
+            161,
+            416
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            500,
+            453,
+            320,
+            416
+          ],
+          "pivot": [
+            155,
+            415
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            947,
+            453,
+            307,
+            416
+          ],
+          "pivot": [
+            163,
+            415
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            1392,
+            453,
+            305,
+            416
+          ],
+          "pivot": [
+            178,
+            415
+          ],
+          "duration": 0.08
+        }
+      ]
+    },
+    "rush": {
+      "texture": "assets/motion/qiuqiu/rush_sheet.webp",
+      "scale": 0.622,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            14,
+            102,
+            378,
+            282
+          ],
+          "pivot": [
+            201,
+            281
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            450,
+            95,
+            383,
+            293
+          ],
+          "pivot": [
+            175,
+            292
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            880,
+            89,
+            489,
+            275
+          ],
+          "pivot": [
+            250,
+            310
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1393,
+            85,
+            365,
+            316
+          ],
+          "pivot": [
+            177,
+            315
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            19,
+            488,
+            340,
+            334
+          ],
+          "pivot": [
+            173,
+            333
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            463,
+            499,
+            425,
+            318
+          ],
+          "pivot": [
+            167,
+            317
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            922,
+            506,
+            382,
+            316
+          ],
+          "pivot": [
+            228,
+            315
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1394,
+            501,
+            330,
+            315
+          ],
+          "pivot": [
+            176,
+            314
+          ],
+          "duration": 0.06
+        }
+      ]
+    },
+    "combo_kick": {
+      "texture": "assets/motion/qiuqiu/combo_kick_sheet.webp",
+      "scale": 0.605,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            46,
+            12,
+            328,
+            419
+          ],
+          "pivot": [
+            203,
+            417
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            482,
+            15,
+            317,
+            416
+          ],
+          "pivot": [
+            202,
+            414
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            917,
+            15,
+            438,
+            417
+          ],
+          "pivot": [
+            183,
+            415
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1403,
+            16,
+            293,
+            415
+          ],
+          "pivot": [
+            187,
+            413
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            64,
+            450,
+            322,
+            420
+          ],
+          "pivot": [
+            204,
+            418
+          ],
+          "duration": 0.04
+        },
+        {
+          "rect": [
+            517,
+            448,
+            310,
+            419
+          ],
+          "pivot": [
+            203,
+            417
+          ],
+          "duration": 0.03
+        },
+        {
+          "rect": [
+            941,
+            447,
+            361,
+            419
+          ],
+          "pivot": [
+            219,
+            417
+          ],
+          "duration": 0.07
+        },
+        {
+          "rect": [
+            1376,
+            454,
+            336,
+            415
+          ],
+          "pivot": [
+            208,
+            413
+          ],
+          "duration": 0.06
+        }
+      ]
+    },
+    "uppercut": {
+      "texture": "assets/motion/qiuqiu/uppercut_sheet.webp",
+      "scale": 0.625,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            50,
+            67,
+            337,
+            366
+          ],
+          "pivot": [
+            193,
+            364
+          ],
+          "duration": 0.07
+        },
+        {
+          "rect": [
+            506,
+            86,
+            384,
+            346
+          ],
+          "pivot": [
+            155,
+            344
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            935,
+            42,
+            374,
+            392
+          ],
+          "pivot": [
+            163,
+            390
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            1375,
+            12,
+            374,
+            422
+          ],
+          "pivot": [
+            214,
+            420
+          ],
+          "duration": 0.08
+        },
+        {
+          "rect": [
+            37,
+            450,
+            343,
+            417
+          ],
+          "pivot": [
+            204,
+            415
+          ],
+          "duration": 0.07
+        },
+        {
+          "rect": [
+            487,
+            479,
+            381,
+            388
+          ],
+          "pivot": [
+            200,
+            386
+          ],
+          "duration": 0.07
+        },
+        {
+          "rect": [
+            955,
+            487,
+            314,
+            380
+          ],
+          "pivot": [
+            167,
+            378
+          ],
+          "duration": 0.07
+        },
+        {
+          "rect": [
+            1396,
+            482,
+            303,
+            385
+          ],
+          "pivot": [
+            180,
+            383
+          ],
+          "duration": 0.09
+        }
+      ]
+    },
+    "flying_kick": {
+      "texture": "assets/motion/qiuqiu/flying_kick_spaced_sheet.webp",
+      "scale": 0.7,
+      "loop": false,
+      "chroma_key": false,
+      "frames": [
+        {
+          "rect": [
+            73,
+            74,
+            298,
+            324
+          ],
+          "pivot": [
+            190,
+            360
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            488,
+            72,
+            324,
+            339
+          ],
+          "pivot": [
+            190,
+            362
+          ],
+          "duration": 0.05
+        },
+        {
+          "rect": [
+            888,
+            76,
+            414,
+            319
+          ],
+          "pivot": [
+            184,
+            358
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            1364,
+            77,
+            373,
+            311
+          ],
+          "pivot": [
+            154,
+            357
+          ],
+          "duration": 0.09
+        },
+        {
+          "rect": [
+            74,
+            478,
+            326,
+            343
+          ],
+          "pivot": [
+            190,
+            361
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            499,
+            478,
+            286,
+            307
+          ],
+          "pivot": [
+            189,
+            361
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            926,
+            476,
+            294,
+            371
+          ],
+          "pivot": [
+            186,
+            369
+          ],
+          "duration": 0.06
+        },
+        {
+          "rect": [
+            1368,
+            477,
+            283,
+            371
+          ],
+          "pivot": [
+            179,
+            369
+          ],
+          "duration": 0.06
+        }
+      ]
+    }
+  }
+}

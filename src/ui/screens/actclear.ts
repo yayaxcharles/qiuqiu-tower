@@ -78,7 +78,9 @@ registerScreen('actclear', (app, root, props) => {
     advanceAct(run);
     // 三秒的走路轉場（使用者點名要的儀式感）：背景已經是下一關的色調，
     // 走完才落地到新地圖；backToMap 在轉場回呼裡跑＝存檔照舊在節點結算時寫
-    actWalkTransition(app.stage, run.floor + 1, () => app.backToMap());
+    let completed = false;
+    const cancel = actWalkTransition(app.stage, run.floor + 1, () => { completed = true; app.backToMap(); });
+    app.disposers.push(() => { if (!completed) cancel(); });
   };
   const done = (relicId: string | null): void => {
     if (!relicId) { go(); return; }

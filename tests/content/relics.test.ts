@@ -3,13 +3,14 @@ import { potionById, potions } from '../../src/content/potions';
 import { relicById, relics } from '../../src/content/relics';
 
 describe('秘寶', () => {
-  it('75 件、池數正確、id 不重複', () => {
-    expect(relics.length).toBe(76);   // 76＝2026-09-17 噹噹的起始秘寶「銅護臂」   // 75＝2026-09-15 塔主池加 9 件（使用者：重複率太高）   // 60＝2026-09-02 擴充（36 → 60）；65＝2026-09-04 五件代價秘寶；66＝2026-09-12 菲菲的起始秘寶（2026-09-13 改名毒針袋）
+  it('77 件、池數正確、id 不重複', () => {
+    expect(relics.length).toBe(77);   // 77＝2026-09-20 封封的起始秘寶「舊劍穗」
     const n = (p: string) => relics.filter((r) => r.pool === p).length;
-    expect(n('起始')).toBe(3);   // 藍頭巾（球球）＋毒針袋（菲菲）＋銅護臂（噹噹）
+    expect(n('起始')).toBe(4);   // 藍頭巾（球球）＋毒針袋（菲菲）＋銅護臂（噹噹）＋舊劍穗（封封）
     expect(n('常見')).toBe(30); expect(n('大魔物')).toBe(24); expect(n('塔主')).toBe(19);   // 2026-09-04 代價秘寶：常見 +2、大魔物 +3
-    expect(new Set(relics.map((r) => r.id)).size).toBe(76);
+    expect(new Set(relics.map((r) => r.id)).size).toBe(77);
     expect(relicById['blue_headband']?.hooks.firstTurnDraw).toBe(1);
+    expect(relicById['old_sword_tassel']?.hooks.combatStart).toEqual([{ kind: 'gainQi', n: 2 }]);
   });
   it('每件至少一個掛鉤且有說明', () => {
     for (const r of relics) {
