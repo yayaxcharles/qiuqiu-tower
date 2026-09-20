@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import SRC from '../../src/main.ts?raw';
+import PRELOAD_SRC from '../../src/ui/preload.ts?raw';
 
 const mocks = vi.hoisted(() => ({
   show: vi.fn(),
@@ -58,26 +59,23 @@ afterEach(() => {
 });
 
 describe('動作模式不阻塞標題啟動', () => {
-  it.each(['ninja', 'feifei', 'dangdang', 'fengfeng'])('%s 圖集持續載入時已顯示標題並開始一般美術預載', async (hero) => {
+  it.each(['ninja', 'feifei', 'dangdang', 'fengfeng'])('本機角色為 %s 時，標題仍不預載尚未選定的角色動作', async (hero) => {
     mocks.localHero.mockReturnValue(hero);
     await import('../../src/main');
-    const preloader = hero === 'ninja' ? mocks.preloadQiuqiuMotion : mocks.preloadCompanionMotion;
-    await vi.waitFor(() => expect(preloader).toHaveBeenCalledTimes(1));
+    await vi.dynamicImportSettled();
+    await vi.waitFor(() => expect(mocks.preloadAct).toHaveBeenCalledExactlyOnceWith(1));
     expect(mocks.show).toHaveBeenCalledExactlyOnceWith('title');
-    expect(mocks.show.mock.invocationCallOrder[0]!).toBeLessThan(preloader.mock.invocationCallOrder[0]!);
+    expect(mocks.preloadQiuqiuMotion).not.toHaveBeenCalled();
+    expect(mocks.preloadCompanionMotion).not.toHaveBeenCalled();
     expect(mocks.preloadArt).toHaveBeenCalledTimes(1);
-    expect(mocks.preloadAct).toHaveBeenCalledExactlyOnceWith(1);
-    if (hero !== 'ninja') expect(preloader).toHaveBeenCalledWith(hero);
   });
 
-  it('背景預載失敗會記錄錯誤，已顯示的標題保持可用', async () => {
-    const failure = new Error('圖集載入失敗');
-    mocks.preloadQiuqiuMotion.mockRejectedValueOnce(failure);
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('一般美術尚未載完，標題已經可以操作', async () => {
+    mocks.preloadArt.mockReturnValue(new Promise<void>(() => {}));
     await import('../../src/main');
-    await vi.waitFor(() => expect(error).toHaveBeenCalledWith('逐格動作預載失敗，改用普通立繪', failure));
-    expect(mocks.show).toHaveBeenCalledExactlyOnceWith('title');
+    await vi.waitFor(() => expect(mocks.show).toHaveBeenCalledExactlyOnceWith('title'));
     expect(mocks.preloadArt).toHaveBeenCalledTimes(1);
+    expect(mocks.preloadAct).not.toHaveBeenCalled();
   });
 
   it('關閉動作時正常顯示標題且不預載逐格動作', async () => {
@@ -100,8 +98,9 @@ describe('動作模式不阻塞標題啟動', () => {
   });
 
   it('角色動作模組保留動態匯入，避免放入入口靜態載入', () => {
-    expect(SRC).toContain("import('./ui/qiuqiu-motion')");
-    expect(SRC).toContain("import('./ui/companion-motion')");
+    expect(PRELOAD_SRC).toContain("import('./qiuqiu-motion')");
+    expect(PRELOAD_SRC).toContain("import('./companion-motion')");
     expect(SRC).not.toMatch(/import\s+[^;]+\s+from\s+['"]\.\/ui\/(?:qiuqiu|companion)-motion['"]/);
+    expect(PRELOAD_SRC).not.toMatch(/import\s+[^;]+\s+from\s+['"]\.\/(?:qiuqiu|companion)-motion['"]/);
   });
 });

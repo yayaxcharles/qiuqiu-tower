@@ -8,6 +8,7 @@ import fengfengAttackMotionData from '../../src/ui/fengfeng-attack-motion-data.j
 import dangdangPlan from '../../docs/dangdang-motion-plan.json';
 import fengfengPlan from '../../docs/fengfeng-motion-plan.json';
 import { cardById } from '../../src/content/cards';
+import { visibleCanvasRect } from './motion_test_geometry';
 import {
   FEIFEI_CLONE_TIMING,
   companionCardAction,
@@ -99,12 +100,13 @@ describe('同伴持續狀態的緩慢呼吸', () => {
     for (const elapsed of [180, 400, 1000, 1550, 3100, 6200, 9300, 12400]) {
       step(elapsed);
       const draw = lastDraw();
+      const [dx, dy, , dh] = visibleCanvasRect(actor.element, [draw[5], draw[6], draw[7], draw[8]]);
       expect(draw.slice(1, 5)).toEqual(frame.rect);
-      expect(draw[5]).toBe(start[5]);
-      expect(draw[6] + draw[8] * frame.pivot[1]! / frame.rect[3]!).toBeCloseTo(actor.foot.y, 6);
+      expect(dx).toBe(start[5]);
+      expect(dy + dh * frame.pivot[1]! / frame.rect[3]!).toBeCloseTo(actor.foot.y, 6);
       expect(rafs.size).toBe(1);
-      if (elapsed === 3100 || elapsed === 9300) expect(draw[8]).toBeGreaterThan(start[8] * 1.02);
-      if (elapsed === 6200 || elapsed === 12400) expect(draw[8]).toBeCloseTo(start[8], 6);
+      if (elapsed === 3100 || elapsed === 9300) expect(dh).toBeGreaterThan(start[8] * 1.02);
+      if (elapsed === 6200 || elapsed === 12400) expect(dh).toBeCloseTo(start[8], 6);
     }
     actor.dispose();
   });
@@ -371,29 +373,32 @@ describe('菲菲全身逐格畫布', () => {
     await preloadCompanionMotion('feifei');
     expect(companionMotionReady('feifei')).toBe(true);
     expect(new Set(FakeImage.sources)).toEqual(new Set(
-      [...Object.values(motionData.actions), ...Object.values(needleMotionData.actions)]
+      [...Object.values(motionData.actions), ...Object.values(needleMotionData.actions),
+        { texture: 'assets/sprites/hero/feifei_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(17);
+    expect(new Set(FakeImage.sources)).toHaveLength(18);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('fengfeng');
     expect(companionMotionReady('fengfeng')).toBe(true);
     expect(new Set(FakeImage.sources)).toEqual(new Set(
-      [...Object.values(fengfengMotionData.actions), ...Object.values(fengfengAttackMotionData.actions)]
+      [...Object.values(fengfengMotionData.actions), ...Object.values(fengfengAttackMotionData.actions),
+        { texture: 'assets/sprites/hero/fengfeng_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(15);
+    expect(new Set(FakeImage.sources)).toHaveLength(16);
     expect(companionMotionReady('dangdang')).toBe(false);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('dangdang');
     expect(companionMotionReady('dangdang')).toBe(true);
     expect(new Set(FakeImage.sources)).toEqual(new Set(
-      [...Object.values(dangdangMotionData.actions), ...Object.values(dangdangAttackMotionData.actions)]
+      [...Object.values(dangdangMotionData.actions), ...Object.values(dangdangAttackMotionData.actions),
+        { texture: 'assets/sprites/hero/dangdang_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(14);
+    expect(new Set(FakeImage.sources)).toHaveLength(15);
   });
 
   it('以原生高度正規化、腳底固定，停止後不再排程', () => {

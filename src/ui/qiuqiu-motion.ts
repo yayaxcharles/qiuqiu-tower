@@ -2,6 +2,7 @@ import motionData from './qiuqiu-motion-data.json';
 import extraMotionData from './qiuqiu-extra-motion-data.json';
 import attackMotionData from './qiuqiu-attack-motion-data.json';
 import { createFrameMotionSet, type FrameMotion, type FrameMotionActor } from './frame-motion';
+import { LEGACY_HIT_MOTIONS } from './legacy-hit-motion';
 import {
   qiuqiuChoreographyDuration,
   qiuqiuChoreographyPose,
@@ -21,10 +22,11 @@ type Motion = FrameMotion & Readonly<{ impactTimes?: readonly number[] }>;
 export type QiuqiuActor = FrameMotionActor<QiuqiuAction>;
 
 const NATIVE_IDLE_HEIGHT = 252;
-const motions = {
+const motions: Record<string, Motion> = {
   ...(motionData.actions as unknown as Record<string, Motion>),
   ...(extraMotionData.actions as unknown as Record<string, Motion>),
   ...(attackMotionData.actions as unknown as Record<string, Motion>),
+  hurt: LEGACY_HIT_MOTIONS.qiuqiu,
 };
 
 const FALLBACK_POSES: Partial<Record<QiuqiuPoseAction, QiuqiuPoseAction>> = {
@@ -103,6 +105,7 @@ const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
   tanding: 'guard',
   tiebushan: 'guard',
   bianshen: 'guard',
+  touchi: 'eat',
   xianshuile: 'eat',
   guixi: 'eat',
   tianmao: 'eat',

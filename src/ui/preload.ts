@@ -161,10 +161,23 @@ export function warmSlides(act: number): void {
 /**
  * 選好角色之後補載這一位（連線是兩位）專屬的圖（總稽核 F 中-1）。
  * 開場的 `preloadArt` 不載任何角色專屬的鍵——那時還不知道玩家要選誰；
- * 球球沒有專屬鍵，他的東西本來就在開場那批裡，所以只玩球球的人下載量跟以前一樣。
+ * 球球的靜態圖本來就在開場那批裡；逐格動作圖集等本局角色確定後才補。
  */
 export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise<void> {
-  return decodeAll(heroArtUrls(heroes), 6, false);
+  const art = decodeAll(heroArtUrls(heroes), 6, false);
+  if (typeof location === 'undefined' || new URLSearchParams(location.search).get('motion') === '0') return art;
+  const motion = Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
+    if (hero === 'ninja') {
+      const { preloadQiuqiuMotion } = await import('./qiuqiu-motion');
+      await preloadQiuqiuMotion();
+    } else if (hero === 'feifei' || hero === 'dangdang' || hero === 'fengfeng') {
+      const { preloadCompanionMotion } = await import('./companion-motion');
+      await preloadCompanionMotion(hero);
+    }
+  })).catch((error: unknown) => {
+    console.error('逐格動作預載失敗，改用普通立繪', error);
+  });
+  return Promise.all([art, motion]).then(() => undefined);
 }
 
 /** 進大廳才補雙人專屬牌的牌面（開場不載，見 `preloadArt`） */

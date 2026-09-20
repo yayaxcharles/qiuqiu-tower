@@ -3,6 +3,7 @@ import motionData from '../../src/ui/qiuqiu-motion-data.json';
 import extraMotionData from '../../src/ui/qiuqiu-extra-motion-data.json';
 import attackMotionData from '../../src/ui/qiuqiu-attack-motion-data.json';
 import { cards } from '../../src/content/cards';
+import { visibleCanvasRect } from './motion_test_geometry';
 import {
   createQiuqiuActor,
   preloadQiuqiuMotion,
@@ -132,21 +133,18 @@ describe('球球全身動作開關與招式選擇', () => {
 });
 
 describe('球球全身動作畫布', () => {
-  it('受擊時保留明確的後仰表情，再恢復站姿', () => {
+  it('受擊時完整保持舊立繪表情，再由播放流程接回站姿', () => {
     const actor = createQiuqiuActor({ action: 'hurt' });
-    const frames = motionData.actions.hurt.frames;
-    step(0);
-    expect(lastDraw().slice(1, 5)).toEqual(frames[0]!.rect);
-    for (const elapsed of [60, 150, 320, 450]) {
+    for (const elapsed of [0, 200, 500, 649]) {
       step(elapsed);
-      expect(lastDraw().slice(1, 5)).toEqual(frames[1]!.rect);
+      expect((lastDraw()[0] as HTMLImageElement).src).toContain('assets/sprites/hero/ninja_hit.webp');
+      expect(lastDraw().slice(1, 5)).toEqual([0, 0, 560, 547]);
     }
-    step(500);
-    expect(lastDraw().slice(1, 5)).toEqual(frames[2]!.rect);
     expect(qiuqiuMotionDuration('hurt')).toBe(650);
     step(650);
-    expect(lastDraw().slice(1, 5)).toEqual(frames[3]!.rect);
     expect(rafs.size).toBe(0);
+    actor.play('idle');
+    expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.idle.frames[0]!.rect);
     actor.dispose();
   });
 
@@ -160,13 +158,14 @@ describe('球球全身動作畫布', () => {
     for (const elapsed of [0, 180, 500, 1000, 2000, 3100, 5000, 6200, 9300, 12400]) {
       step(elapsed);
       const draw = lastDraw();
+      const [dx, dy, , dh] = visibleCanvasRect(actor.element, [draw[5], draw[6], draw[7], draw[8]]);
       expect(draw.slice(1, 5)).toEqual(frame.rect);
-      expect(draw[5]).toBe(restingX);
-      expect(draw[6] + draw[8] * frame.pivot[1]! / frame.rect[3]!).toBeCloseTo(actor.foot.y, 6);
-      expect(draw[6]).toBeGreaterThanOrEqual(0);
-      expect(draw[6] + draw[8]).toBeLessThanOrEqual(actor.height);
+      expect(dx).toBe(restingX);
+      expect(dy + dh * frame.pivot[1]! / frame.rect[3]!).toBeCloseTo(actor.foot.y, 6);
+      expect(dy).toBeGreaterThanOrEqual(0);
+      expect(dy + dh).toBeLessThanOrEqual(actor.height);
       expect(rafs.size).toBe(1);
-      heights.push(draw[8]);
+      heights.push(dh);
     }
     expect(Math.max(...heights)).toBeGreaterThan(heights[0]! * 1.02);
     expect(Math.max(...heights)).toBeLessThanOrEqual(heights[0]! * 1.025 + .00001);
@@ -186,9 +185,9 @@ describe('球球全身動作畫布', () => {
     expect(rafs.size).toBe(1);
     step(end + 3100);
     expect(lastDraw().slice(1, 5)).toEqual(lying.slice(1, 5));
-    expect(lastDraw()[8]).toBeGreaterThan(lying[8]);
+    expect(visibleCanvasRect(actor.element, [lastDraw()[5], lastDraw()[6], lastDraw()[7], lastDraw()[8]])[3]).toBeGreaterThan(lying[8]);
     step(end + 6200);
-    expect(lastDraw()[8]).toBeCloseTo(lying[8], 6);
+    expect(visibleCanvasRect(actor.element, [lastDraw()[5], lastDraw()[6], lastDraw()[7], lastDraw()[8]])[3]).toBeCloseTo(lying[8], 6);
     expect(rafs.size).toBe(1);
     actor.dispose();
     expect(rafs.size).toBe(0);
@@ -202,8 +201,10 @@ describe('球球全身動作畫布', () => {
     };
     const expected = new Set(Object.values(actions).map((motion) => `/${motion.texture}`));
     expected.add('/assets/motion/qiuqiu/shuriken.webp');
+    expected.add('/assets/sprites/hero/ninja_hit.webp');
     expect(new Set(FakeImage.sources)).toEqual(expected);
-    expect(FakeImage.sources.every((src) => src.includes('assets/motion/qiuqiu/'))).toBe(true);
+    expect(FakeImage.sources.every((src) => src.includes('assets/motion/qiuqiu/')
+      || src === '/assets/sprites/hero/ninja_hit.webp')).toBe(true);
   });
 
   it('依不規則時長推進影格，非循環動作停在最後一格', () => {
@@ -242,11 +243,12 @@ describe('球球全身動作畫布', () => {
     for (const elapsed of [1000, 3100, 5000, 6200, 7200, 9300, 12400]) {
       step(start + elapsed);
       const draw = lastDraw();
+      const height = visibleCanvasRect(actor.element, [draw[5], draw[6], draw[7], draw[8]])[3];
       expect(draw.slice(1, 5)).toEqual(rest.slice(1, 5));
       expect(draw[5]).toBe(rest[5]);
       expect(rafs.size).toBe(1);
-      if (elapsed === 3100 || elapsed === 9300) expect(draw[8] - rest[8]).toBeGreaterThan(6);
-      if (elapsed === 6200 || elapsed === 12400) expect(draw[8]).toBeCloseTo(rest[8], 6);
+      if (elapsed === 3100 || elapsed === 9300) expect(height - rest[8]).toBeGreaterThan(6);
+      if (elapsed === 6200 || elapsed === 12400) expect(height).toBeCloseTo(rest[8], 6);
     }
     actor.dispose();
   });
@@ -267,7 +269,8 @@ describe('球球全身動作畫布', () => {
       step(time);
       for (let i = 0; i < 20; i++) {
         step(time + i * 50);
-        const [, , , , , dx, dy, dw, dh] = lastDraw();
+        const draw = lastDraw();
+        const [dx, dy, dw, dh] = visibleCanvasRect(actor.element, [draw[5], draw[6], draw[7], draw[8]]);
         const canvas = canvases.at(-1)!;
         const cssWidth = Number.parseFloat(canvas.style.width);
         const cssHeight = Number.parseFloat(canvas.style.height);

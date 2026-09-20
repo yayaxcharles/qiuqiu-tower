@@ -139,6 +139,8 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     canvas.style.transform = `translateX(${-foot.x}px)`;
+    canvas.style.transformOrigin = `${foot.x}px ${foot.y}px`;
+    canvas.style.scale = '1';
     canvas.style.bottom = `${-bounds.maxY}px`;
 
     const dpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
@@ -156,7 +158,7 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     let disposed = false;
     let drawnMotion: FrameMotion | null = null;
     let drawnFrame: FrameMotionFrame | undefined;
-    let drawnBreath = 1;
+    let appliedBreath = 1;
 
     const draw = (resolved: ResolvedFrameMotion): void => {
       const motion = config.motions[resolved.key] ?? config.motions[config.initialAction];
@@ -172,20 +174,24 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       if (!frame) return;
       const breathPhase = ((resolved.elapsed - settleAfter) % 6200) / 6200;
       const breath = resting ? 1 + .025 * Math.sin(Math.PI * breathPhase) ** 2 : 1;
-      if (drawnMotion === motion && drawnFrame === frame && drawnBreath === breath) return;
+      // 呼吸只縮放既有畫格，維持腳底定位，不隨螢幕更新率重畫圖集。
+      if (appliedBreath !== breath) {
+        canvas.style.scale = breath === 1 ? '1' : `1 ${breath}`;
+        appliedBreath = breath;
+      }
+      if (drawnMotion === motion && drawnFrame === frame) return;
       const image = imageFor(motion);
       if ('complete' in image && !image.complete) return;
       const [sourceX, sourceY, sourceWidth, sourceHeight] = frame.rect;
       const [pivotX, pivotY] = frame.pivot;
       const scale = motion.scale * wantedHeight / config.nativeHeight;
       const drawX = -pivotX * scale - bounds.minX;
-      const drawY = -pivotY * scale * breath - bounds.minY;
+      const drawY = -pivotY * scale - bounds.minY;
       context.clearRect(0, 0, width, height);
       context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight,
-        drawX, drawY, sourceWidth * scale, sourceHeight * scale * breath);
+        drawX, drawY, sourceWidth * scale, sourceHeight * scale);
       drawnMotion = motion;
       drawnFrame = frame;
-      drawnBreath = breath;
     };
 
     const tick = (now: number): void => {
@@ -194,10 +200,12 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       if (startedAt === null) startedAt = now;
       const elapsed = elapsedOffset + Math.max(0, now - startedAt);
       const resolved = config.resolve(action, elapsed, playOptions);
-      draw(resolved);
+      const detached = canvas.isConnected === false;
+      if (!detached) draw(resolved);
       const motion = config.motions[resolved.key] ?? config.motions[config.initialAction];
       const resting = action === resolved.key && config.restFrames?.[action] !== undefined;
-      if (resting || (resolved.loop ?? motion?.loop) || elapsed < config.duration(action, playOptions)) {
+      // 未掛入時只等下一次機會；重新掛回仍能補畫終格，不重啟動作。
+      if (detached || resting || (resolved.loop ?? motion?.loop) || elapsed < config.duration(action, playOptions)) {
         raf = window.requestAnimationFrame(tick);
       }
     };

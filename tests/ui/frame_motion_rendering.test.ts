@@ -8,6 +8,7 @@ let clear: ReturnType<typeof vi.fn>;
 let rafs: Map<number, FrameRequestCallback>;
 let nextRaf: number;
 let images: Array<{ src: string; complete: boolean }>;
+let connectedOnCreate: boolean;
 
 function step(time: number): void {
   const pending = [...rafs.values()];
@@ -21,6 +22,7 @@ beforeEach(() => {
   clear = vi.fn();
   rafs = new Map();
   nextRaf = 1;
+  connectedOnCreate = true;
   vi.stubGlobal('window', {
     devicePixelRatio: 2,
     requestAnimationFrame: (callback: FrameRequestCallback) => {
@@ -36,6 +38,7 @@ beforeEach(() => {
     constructor() { images.push(this); }
   });
   vi.stubGlobal('document', { createElement: () => ({
+    isConnected: connectedOnCreate,
     style: {}, setAttribute: vi.fn(), getContext: () => ({
       setTransform: vi.fn(), clearRect: clear,
       drawImage: (image: HTMLImageElement, ...args: number[]) => draws.push({ image, args }),
@@ -63,6 +66,46 @@ function motionSet() {
 }
 
 describe('逐格畫布只繪製有變化的畫面', () => {
+  it('尚未掛入仍先畫首格，脫離期間不重畫，重新掛回補畫已到達的終格再停止', () => {
+    connectedOnCreate = false;
+    const actor = motionSet().createActor();
+    const canvas = actor.element as unknown as { isConnected: boolean };
+    canvas.isConnected = false;
+    expect(draws).toHaveLength(1);
+    step(0);
+    step(110);
+    step(510);
+    expect(draws).toHaveLength(1);
+    expect(rafs.size).toBe(1);
+    canvas.isConnected = true;
+    step(520);
+    expect(draws).toHaveLength(2);
+    expect(draws.at(-1)!.args[0]).toBe(210);
+    expect(rafs.size).toBe(0);
+    actor.dispose();
+  });
+
+  it('跑步反覆離場與進場時保留時間軸，不重演離場期間影格', () => {
+    const actor = motionSet().createActor({ action: 'run' });
+    const canvas = actor.element as unknown as { isConnected: boolean };
+    step(0);
+    canvas.isConnected = false;
+    step(110);
+    step(270);
+    expect(draws).toHaveLength(1);
+    canvas.isConnected = true;
+    step(300);
+    expect(draws.at(-1)!.args[0]).toBe(210);
+    canvas.isConnected = false;
+    step(510);
+    expect(draws).toHaveLength(2);
+    canvas.isConnected = true;
+    step(620);
+    expect(draws.at(-1)!.args[0]).toBe(100);
+    expect(draws).toHaveLength(3);
+    actor.dispose();
+  });
+
   it('非循環招式保留每個時間點的畫格與腳底，52 次重畫降為 3 次', () => {
     const actor = motionSet().createActor();
     for (let elapsed = 0; elapsed <= 500; elapsed += 10) {

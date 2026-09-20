@@ -4,6 +4,7 @@ import dangdangMotionData from './dangdang-motion-data.json';
 import dangdangAttackMotionData from './dangdang-attack-motion-data.json';
 import fengfengMotionData from './fengfeng-motion-data.json';
 import fengfengAttackMotionData from './fengfeng-attack-motion-data.json';
+import { LEGACY_HIT_MOTIONS } from './legacy-hit-motion';
 import {
   FEIFEI_NEEDLE_CARD_ACTION,
   feifeiNeedleFlightMs,
@@ -66,14 +67,17 @@ const FENGFENG_SHEATH_SKIP_MS = 120;
 const feifeiMotions = {
   ...feifeiMotionData.actions,
   ...feifeiNeedleMotionData.actions,
+  hurt: LEGACY_HIT_MOTIONS.feifei,
 } as unknown as Record<string, TimedFrameMotion>;
 const dangdangMotions = {
   ...dangdangMotionData.actions,
   ...dangdangAttackMotionData.actions,
+  hurt: LEGACY_HIT_MOTIONS.dangdang,
 } as unknown as Record<string, TimedFrameMotion>;
 const fengfengMotions = {
   ...fengfengMotionData.actions,
   ...fengfengAttackMotionData.actions,
+  hurt: LEGACY_HIT_MOTIONS.fengfeng,
 } as unknown as Record<string, TimedFrameMotion>;
 const FEIFEI_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(feifeiMotions) as CompanionMotionAction[]);
 const DANGDANG_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(dangdangMotions) as CompanionMotionAction[]);
@@ -97,7 +101,7 @@ const FEIFEI_SHARED_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleActi
 };
 /** 牌面是獨立暗器，現有飛針投射物不相符；素材補齊前保留卡圖演出。 */
 const FEIFEI_PROJECTILE_GAPS = new Set(['maoqiudan', 'tieshazhang', 'qinna']);
-const EAT_CARDS = new Set(['xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
+const EAT_CARDS = new Set(['touchi', 'xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
 
 const DANGDANG_CARD_ACTION: Readonly<Record<string, DangdangMotionAction>> = {
   taiji: 'counter',
@@ -428,6 +432,8 @@ export function companionCardAction(
     const own = FENGFENG_CARD_ACTION[cardId] ?? FENGFENG_SHARED_CARD_ACTION[cardId];
     if (own) return own;
     if (FENGFENG_PROJECTILE_GAPS.has(cardId)) return undefined;
+    // 吼叫、太極、輕功已有專用立繪，攻擊與技能都不套用通用劍招。
+    if (options.poseFamily && ['roar', 'taiji', 'qinggong'].includes(options.poseFamily)) return undefined;
     if (options.cardType === '攻擊') {
       if (options.poseFamily === 'dash') return 'thrust';
       if (options.poseFamily === 'kick') return 'sweep';
@@ -449,6 +455,7 @@ export function companionCardAction(
     if (options.poseFamily === 'claw') return 'attack1';
     return undefined;
   }
+  if (options.poseFamily && ['roar', 'taiji', 'qinggong'].includes(options.poseFamily)) return undefined;
   if (FEIFEI_GUARD_CARDS.has(cardId) || options.hasBlock) return 'guard';
   if (EAT_CARDS.has(cardId) || options.hasHeal) return 'eat';
   if (options.cardType) return 'seal';

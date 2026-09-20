@@ -209,9 +209,9 @@ const SKILL_POSE: Readonly<Record<string, PoseKey>> = {
   // 輕功：騰空、閃身、走人
   qinggong: 'qinggong', taxue: 'qinggong', yixing: 'qinggong', zhanshu: 'qinggong', gaotui: 'qinggong', diaohu: 'qinggong',
 };
-/** 吃喝姿勢：非攻擊的回血牌；忍具裡真的是吃的那三支（卷軸、符咒照施術） */
-const EAT_CARDS: ReadonlySet<string> = new Set(['xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
-const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle']);
+/** 吃喝姿勢：食物牌與吃喝忍具；卷軸、符咒仍保留各自姿勢。 */
+const EAT_CARDS: ReadonlySet<string> = new Set(['touchi', 'xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
+const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle', 'tuna', 'milk']);
 /*
  * ===== 換角色（2026-09-12）=====
  * `POSE` 的值一律是**球球版**的鍵，那是「姿勢的身分證」——畫面到處拿它做相等比較。
@@ -683,7 +683,7 @@ registerScreen('combat', (app, root, props) => {
       return action ?? undefined;
     }
     return companionCardAction(companionKind(source), def.id, {
-      poseFamily: ATTACK_POSE[def.id],
+      poseFamily: ATTACK_POSE[def.id] ?? SKILL_POSE[def.id],
       cardType: def.type,
       hasBlock: stats.effects.some((effect) => effect.kind === 'block' || effect.kind === 'blockIfPoisoned'),
       hasHeal: stats.effects.some((effect) => effect.kind === 'heal'),
@@ -2642,7 +2642,9 @@ registerScreen('combat', (app, root, props) => {
     if (motionDecision === 'play' && opts.motion) {
       playMotion(mySeat, opts.motion, opts.motionTrip, 0, false, opts.motionToken);
     }
-    else if (motionDecision === 'stop') idleMotion(mySeat);
+    // 本人改出靜態招式時交還立繪；一般更新與已播放動作的確認保留原演出。
+    else if (motionDecision === 'stop'
+      || (posePref !== undefined && !opts.motion && !opts.motionAlreadyPlaying)) idleMotion(mySeat);
     const impactMotion = opts.impactMotion ?? opts.motion;
     const impactPlayer = cs.players[opts.impactSeat ?? mySeat];
     const impactSource = impactPlayer ? motionSourceFor(impactPlayer) : undefined;
@@ -2701,12 +2703,14 @@ registerScreen('combat', (app, root, props) => {
         beforeHp: was.hp,
         afterHp,
         outgoingSeat: opts.impactSeat ?? mySeat,
-        hasOutgoingMotion: impactMotion !== undefined,
+        hasOutgoingMotion: impactMotion !== undefined || opts.pose !== undefined || opts.impactSeat !== undefined,
       })) reaction = 'hurt';
       else if (afterStealth < was.stealth) reaction = source === 'qiuqiu' || source === 'feifei' ? 'roll' : 'dodge';
       else if (enemyActed && afterHp === was.hp && (afterBlock < was.block
         || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了') || line.startsWith('甲擋下了'))))) reaction = 'guard';
-      else if (afterHp > was.hp) reaction = 'eat';
+      // 本張牌／忍具已選好演出；回血只是效果，不能把太極或反擊改成吃飯。
+      else if (afterHp > was.hp && !(q.seat === (opts.impactSeat ?? mySeat)
+        && (opts.pose !== undefined || impactMotion !== undefined || opts.impactSeat !== undefined))) reaction = 'eat';
       const state = motionActors.get(q.seat);
       if (reaction) playMotion(q.seat, reaction, undefined, 0, true);
       else if (comparedPhase === 'won' && !state?.active) idleMotion(q.seat);

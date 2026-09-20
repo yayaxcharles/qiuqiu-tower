@@ -5,7 +5,7 @@ import './ui/styles/combat.css';
 import './ui/styles/screens.css';
 import { App } from './ui/app';
 import { registerLazyScreen } from './ui/lazy-screen';
-import { loadManifest, localHero, preloadArt } from './ui/assets';
+import { loadManifest, preloadArt } from './ui/assets';
 import { preloadAct } from './ui/preload';
 import { unlockOnFirstGesture } from './ui/audio';
 import { unlockBgmOnFirstGesture } from './ui/bgm';
@@ -77,21 +77,6 @@ async function boot(): Promise<void> {
   // 不 await——預載完不完成都不影響能不能玩。
   // UI／牌面／背景先，再抓第一關會遇到的魔物；第二三關的等過關畫面再抓（分關載入，見 preload.ts）
   void preloadArt().then(() => preloadAct(1));
-  // 逐格圖集同樣在標題顯示後載入，慢速下載或解碼不再阻塞入口。
-  if (new URLSearchParams(location.search).get('motion') !== '0') {
-    try {
-      const hero = localHero();
-      if (hero === 'ninja') {
-        const { preloadQiuqiuMotion } = await import('./ui/qiuqiu-motion');
-        await preloadQiuqiuMotion();
-      } else if (hero === 'feifei' || hero === 'dangdang' || hero === 'fengfeng') {
-        const { preloadCompanionMotion } = await import('./ui/companion-motion');
-        await preloadCompanionMotion(hero);
-      }
-    } catch (error) {
-      console.error('逐格動作預載失敗，改用普通立繪', error);
-    }
-  }
 }
 
 void boot();
