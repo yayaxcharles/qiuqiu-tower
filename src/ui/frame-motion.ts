@@ -1,4 +1,5 @@
 import { fileUrl } from './assets';
+import { decodedAtlas, prepareDecodedAtlas } from './decoded-atlas';
 
 export type FrameMotionFrame = Readonly<{
   rect: readonly [number, number, number, number];
@@ -121,8 +122,14 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       image.addEventListener('error', () => fail(new Error(`逐格動作圖載入失敗：${image.src}`)), { once: true });
     })));
     loaded = true;
+    // 畫布不吃 decode() 的結果（實機追蹤 2026-09-21）：另外在背景解開成點陣圖，出手時才不用當場解碼
+    for (const motion of unique.values()) void prepareDecodedAtlas(imageFor(motion));
     for (const [key, motion] of Object.entries(config.motions)) {
-      if (config.deferred?.has(key)) imageFor(motion);
+      if (!config.deferred?.has(key)) continue;
+      const image = imageFor(motion);
+      // 下載好也排進背景解開（排在最後，上限不夠時最先放），第一次進入狀態才不用當場解碼
+      if (image.complete) void prepareDecodedAtlas(image);
+      else image.addEventListener?.('load', () => { void prepareDecodedAtlas(image); }, { once: true });
     }
   };
 
@@ -223,13 +230,16 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       if (drawnMotion === motion && drawnFrame === frame) return;
       const image = imageFor(motion);
       if (!usable(image)) return;
+      // 優先畫背景解開的點陣圖；還沒解好或被擠掉就照舊畫 <img>（當場解碼），並排一次背景解開給下一次
+      const source: CanvasImageSource = decodedAtlas(image) ?? image;
+      if (source === image) void prepareDecodedAtlas(image, true);
       const [sourceX, sourceY, sourceWidth, sourceHeight] = frame.rect;
       const [pivotX, pivotY] = frame.pivot;
       const scale = motion.scale * wantedHeight / config.nativeHeight;
       const drawX = -pivotX * scale - bounds.minX;
       const drawY = -pivotY * scale - bounds.minY;
       context.clearRect(0, 0, width, height);
-      context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight,
+      context.drawImage(source, sourceX, sourceY, sourceWidth, sourceHeight,
         drawX, drawY, sourceWidth * scale, sourceHeight * scale);
       drawnMotion = motion;
       drawnFrame = frame;

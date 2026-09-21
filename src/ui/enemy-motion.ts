@@ -1,6 +1,7 @@
 import motionData from './enemy-motion-data.json';
 import { fileUrl } from './assets';
 import './styles/enemy-motion.css';
+import { decodedAtlas, prepareDecodedAtlas } from './decoded-atlas';
 
 export type EnemyMotionKind = 'rat' | 'ninja';
 export type EnemyMotionAction = 'idle' | 'attack' | 'hurt' | 'air_rise' | 'air_fall' | 'knockdown' | 'getup';
@@ -74,6 +75,9 @@ async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
   const load = Promise.all([...textures].map(async (texture) => {
     const image = imageFor(texture);
     if (typeof image.decode === 'function') await image.decode();
+    // 畫布不吃 decode() 的結果，另外在背景解開成點陣圖（見 decoded-atlas.ts）。
+    // 等解好才算這類魔物就緒：開戰那一刻就要畫老鼠，沒等的話第一格會在主執行緒當場解碼（實機追蹤）
+    await prepareDecodedAtlas(image);
   })).then(() => { readyKinds.add(kind); });
   kindLoads.set(kind, load);
   try { await load; } finally { kindLoads.delete(kind); }
@@ -174,7 +178,10 @@ export function createEnemyMotionActor(
     if (!frame) return;
     if (drawnMotion === motion && drawnFrame === frame) return;
     const image = imageFor(motion.texture);
-    if ('complete' in image && !image.complete) return;
+    // 載入失敗的圖 complete 也是 true、naturalWidth 為 0，拿去畫會丟例外
+    if ('complete' in image && (!image.complete || image.naturalWidth === 0)) return;
+    const source: CanvasImageSource = decodedAtlas(image) ?? image;
+    if (source === image) void prepareDecodedAtlas(image, true);
     const [sourceX, sourceY, sourceWidth, sourceHeight] = frame.rect;
     const [pivotX, pivotY] = frame.pivot;
     const scale = motion.scale * wantedHeight / kindData.native_height;
@@ -185,7 +192,7 @@ export function createEnemyMotionActor(
     context.setTransform(mirror ? -dpr : dpr, 0, 0, dpr, mirror ? width * dpr : 0, 0);
     context.clearRect(0, 0, width, height);
     context.drawImage(
-      image,
+      source,
       sourceX,
       sourceY,
       sourceWidth,
