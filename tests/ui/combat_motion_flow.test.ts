@@ -25,6 +25,7 @@ async function execute(source: string, bindings: Record<string, unknown>): Promi
 }
 
 const playMotion = sourceBetween('  const playMotion = (', '  const motionForCard =');
+const holdWinSource = sourceBetween('  const holdWin = (', '  const mountMotion = (');
 
 describe('combat motion confirmation and victory flow', () => {
   it.each([0, 1])('keeps downed seat %i down while the survivor celebrates', async (downSeat) => {
@@ -83,7 +84,7 @@ describe('combat motion confirmation and victory flow', () => {
       impactSource: 'dangdang', impactMotion: 'rapid_combo', confirmedMotionWaves: 2,
       impactElapsed: 600, impactPresentationToken: 7,
     };
-    await execute(sourceBetween('  const idleMotion = (', '  const motionFoot =') + '\nidleMotion(0);' +
+    await execute(holdWinSource + sourceBetween('  const idleMotion = (', '  const motionFoot =') + '\nidleMotion(0);' +
       sourceBetween('      let ownCard: CardInstance | undefined;', '      finishApplied();'), bindings);
     expect(state.trip).toBeUndefined();
     expect(confirmation.impactElapsed).toBe(600);
@@ -140,7 +141,7 @@ describe('敵方連續出手的反應銜接', () => {
     };
     const state = { action: 'roll', active: true, reactive: true, away: false,
       actor: { element: {}, play() {} }, layer: { remove() {} } };
-    await execute(sourceBetween('  const mountMotion = (', '  if (motionEnabled && cs.players.some')
+    await execute(sourceBetween('  const holdWin = (', '  if (motionEnabled && cs.players.some')
       + '\nmountMotion({ seat: 0 }, box, "hit");', {
       box, motionEnabled: true, motionSourceFor: () => 'qiuqiu', qiuqiuMotionReady: () => true,
       motionState: () => state, restMotionAction: () => undefined, getStatus: () => stealth,
@@ -254,7 +255,7 @@ describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () =>
     let plays = 0;
     const state = { action: 'win', active: true, reactive: true, away: false, raf: 3, endsAt: 900, trip: undefined,
       actor: { play() { plays++; } }, layer: { remove() {} } };
-    const body = sourceBetween('  const idleMotion = (', '  // 舞台會隨視窗縮放');
+    const body = holdWinSource + sourceBetween('  const idleMotion = (', '  // 舞台會隨視窗縮放');
     await execute(body + '\nidleMotion(0);', {
       motionActors: new Map([[0, state]]), cs: { phase: 'won', players: [{ seat: 0 }] },
       restMotionAction: () => 'win', shownPose: () => 'win', refreshMotion() {},
@@ -263,5 +264,34 @@ describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () =>
     });
     expect(plays).toBe(0);
     expect(state.active).toBe(false);
+  });
+  function seatState(action: string, active: boolean, log: string[], seat: number) {
+    return { action, active, reactive: active, away: false, raf: 0, endsAt: 0, trip: undefined, winAt: undefined as number | undefined,
+      actor: { play(next: string) { log.push(`${seat}:${next}`); } }, layer: { remove() {} } };
+  }
+  const idleMotionSource = (): string => holdWinSource + sourceBetween('  const idleMotion = (', '  // 舞台會隨視窗縮放');
+
+  it('同伴還在出手或反應時，我這隻收招先回待機，不提早慶祝', async () => {
+    const log: string[] = [];
+    const states = new Map([[0, seatState('roll', true, log, 0)], [1, seatState('hurt', true, log, 1)]]);
+    await execute(idleMotionSource() + '\nidleMotion(0);', {
+      motionActors: states, cs: { phase: 'won', players: [{ seat: 0 }, { seat: 1 }] },
+      restMotionAction: () => 'win', shownPose: () => 'win', refreshMotion() {},
+      lastMotionEndAt: 0, performance: { now: () => 1306 }, window: { cancelAnimationFrame() {} },
+    });
+    expect(log).toEqual(['0:idle']);
+  });
+
+  it('最後一個動作收掉時，兩隻一起開始慶祝，收場不再重播', async () => {
+    const log: string[] = [];
+    const states = new Map([[0, seatState('idle', false, log, 0)], [1, seatState('hurt', true, log, 1)]]);
+    await execute(idleMotionSource() + '\nidleMotion(1);', {
+      motionActors: states, cs: { phase: 'won', players: [{ seat: 0 }, { seat: 1 }] },
+      restMotionAction: () => 'win', shownPose: () => 'win', refreshMotion() {},
+      lastMotionEndAt: 0, performance: { now: () => 1556 }, window: { cancelAnimationFrame() {} },
+    });
+    expect(log.sort()).toEqual(['0:win', '1:win']);
+    expect(states.get(0)!.winAt).toBe(1556);
+    expect(states.get(1)!.winAt).toBe(1556);
   });
 });

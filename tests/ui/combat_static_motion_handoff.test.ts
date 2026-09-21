@@ -38,7 +38,7 @@ async function fixture(source: Source) {
   };
   const code = [
     "let pose = 'idle'; const shownPose = () => pose;",
-    branch('  const mountMotion = (', '  if (motionEnabled && cs.players.some'),
+    branch('  const holdWin = (', '  if (motionEnabled && cs.players.some'),
     branch('  const refreshMotion = (', '  const motionFoot = ('),
     branch('  const playMotion = (', '  const motionForCard ='),
     'return { playMotion, apply(opts) {',

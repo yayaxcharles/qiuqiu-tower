@@ -491,6 +491,14 @@ registerScreen('combat', (app, root, props) => {
     return undefined;
   };
 
+  /**
+   * 別的座位還在出手或做反應時，先不切勝利、維持待機（實機 2026-09-21：連線時同伴補最後一刀，
+   * 或敵方回合被反彈打死、兩隻的受擊反應長短不同，沒出手的那隻會先慶祝一整遍、收場再播一遍）。
+   * 最後一個動作收掉時由 `idleMotion` 放行，兩隻一起開始慶祝。
+   */
+  const holdWin = (seat: number, action: CombatMotionAction | undefined): CombatMotionAction | undefined =>
+    action === 'win' && [...motionActors].some(([other, state]) => other !== seat && state.active) ? 'idle' : action;
+
   const mountMotion = (q: PlayerCombat, box: HTMLElement, displayedPose: string): void => {
     const source = motionSourceFor(q);
     if (!motionEnabled || !source
@@ -501,7 +509,7 @@ registerScreen('combat', (app, root, props) => {
     }
     const state = motionState(q);
     if (!state) return;
-    const resting = restMotionAction(q, displayedPose);
+    const resting = holdWin(q.seat, restMotionAction(q, displayedPose));
     if (!state.active && resting && state.action !== resting) {
       state.action = resting;
       state.actor.play(resting);
@@ -575,7 +583,7 @@ registerScreen('combat', (app, root, props) => {
     state.away = false;
     const q = cs.players[seat];
     if (q) {
-      const resting = restMotionAction(q, shownPose(q)) ?? 'idle';
+      const resting = holdWin(seat, restMotionAction(q, shownPose(q))) ?? 'idle';
       // 行程結束與通用收姿勢都會進來；已經待機時保留呼吸進度。
       // 勝利動作演完就停在收勢，不要因為「剛剛在演」又從頭再播一次（稽核 2026-09-21 第 10 點）。
       if ((wasActive && resting !== 'win') || state.action !== resting) {
@@ -584,6 +592,16 @@ registerScreen('combat', (app, root, props) => {
         if (resting === 'win') state.winAt = performance.now();
       }
       refreshMotion(q);
+    }
+    // 全場最後一個動作收掉：先前被 holdWin 壓住的座位現在一起切到勝利。
+    if (![...motionActors.values()].some((other) => other.active)) {
+      for (const [otherSeat, other] of motionActors) {
+        const p = cs.players[otherSeat];
+        if (otherSeat === seat || !p || other.action === 'win' || restMotionAction(p, shownPose(p)) !== 'win') continue;
+        other.action = 'win';
+        other.actor.play('win');
+        other.winAt = performance.now();
+      }
     }
   };
 
