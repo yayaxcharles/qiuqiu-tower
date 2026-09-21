@@ -1,4 +1,4 @@
-import type { DialogueLine } from './dialogue';
+import type { DeckLeaning, DialogueLine } from './dialogue';
 
 export const fengfengSelection: DialogueLine[] = [
   {
@@ -473,10 +473,22 @@ export const fengfengShortLines: Record<string, string[]> = {
 export const fengfengShopkeeper = fengfengShortLines.SHOP ?? [];
 export const fengfengRevivedLines = fengfengShortLines.REVIVED ?? [];
 
+/*
+ * 結局的打法插句（稿子 FG-VAR），跟另外三位一樣由 `victoryLinesFor` 插在師父那句之後。
+ * 稿子寫的是「接 FG-V-03 後」，照共用接法會早一句（插在 FG-V-03 前面）。
+ * 稿子規定三種打法（重劍、連招、護送配合）要等有封封自己的牌組統計才分，「沒統計就只用通用版」。
+ * `deckLeaning` 目前分不出這三派，所以每一派都播通用那句（FG-VAR-04），VAR-01～03 先不接。
+ */
+const fengfengGenericNarration = fengfengVictoryVariants[3]?.text ?? '';
+const fengfengVictoryNarration: Partial<Record<DeckLeaning, string>> = {
+  strength: fengfengGenericNarration, stealth: fengfengGenericNarration, poison: fengfengGenericNarration,
+  thorns: fengfengGenericNarration, block: fengfengGenericNarration, plain: fengfengGenericNarration,
+};
+
 export const fengfengDialogue = {
   prologue: fengfengPrologue, actClear1: fengfengActClear1, actClear2: fengfengActClear2,
   defeat: fengfengDefeat, victoryTeaser: fengfengVictory[9]?.text ?? '', victory: fengfengVictory,
-  victoryNarration: {}, hardModeEpilogue: '', topScene: fengfengTopScene,
+  victoryNarration: fengfengVictoryNarration, hardModeEpilogue: '', topScene: fengfengTopScene,
   battleStart: fengfengShortLines.START ?? [], battleWin: fengfengShortLines.WIN ?? [],
   hungry: fengfengShortLines.HUNGRY ?? [], lowHp: fengfengShortLines.LOW ?? [],
   chestLines: fengfengShortLines.CHEST ?? [], restNapLines: fengfengShortLines.NAP ?? [],

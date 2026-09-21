@@ -154,7 +154,10 @@ export function endingSlides(hero: string | undefined, deckIds: string[], diffic
   if (hero === 'fengfeng') {
     // FengFeng's last six lines are the later yard practice (EP01), after the
     // return-home and hot-soup scene; keep that scene on its own background.
-    const yardStart = Math.min(vic.length, 10);
+    // 打法插句會插在前面（見 `victoryLinesFor`），院子那段的起點要照第一句找，不能寫死第 10 句
+    const yardFirst = storyFor(hero).victory[10]?.text;
+    const found = vic.findIndex((l) => l.text === yardFirst);
+    const yardStart = found > 0 ? found : vic.length;
     return ['still_embrace', 'still_home', 'story_ep01'].map((n, i) => ({
       img: stillKey(hero, n),
       lines: i === 0 ? vic.slice(0, cut) : i === 1 ? vic.slice(cut, yardStart) : vic.slice(yardStart),
