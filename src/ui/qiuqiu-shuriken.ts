@@ -1,13 +1,19 @@
 import { fileUrl } from './assets';
+import { imageLoaded } from './decoded-atlas';
 
 export const QIUQIU_SHURIKEN_RELEASE_MS = 180;
 export const QIUQIU_SHURIKEN_FLIGHT_MS = 170;
 export const QIUQIU_SHURIKEN_GAP_MS = 140;
 
-const SOURCE_X = 137;
-const SOURCE_Y = 112;
-const SOURCE_WIDTH = 979;
-const SOURCE_HEIGHT = 1001;
+/*
+ * 圖檔是預先裁好、縮好的（清理 2026-09-22）：原本的 shuriken.webp 是 1254×1254，每次只取中間
+ * (137, 112, 979×1001) 那一塊畫成 40×41——解開一張 600 多萬像素的圖只為了畫一千多個像素。
+ * 現在的 shuriken_128.webp 就是那一塊用高品質縮圖縮到 128 高（125×128、保留透明），整張拿來畫。
+ */
+const SOURCE_X = 0;
+const SOURCE_Y = 0;
+const SOURCE_WIDTH = 125;
+const SOURCE_HEIGHT = 128;
 const DRAW_WIDTH = 40;
 const DRAW_HEIGHT = 41;
 
@@ -17,9 +23,10 @@ let shurikenPreload: Promise<void> | undefined;
 export function preloadQiuqiuShuriken(): Promise<void> {
   if (shurikenPreload) return shurikenPreload;
   const image = new Image();
-  image.src = fileUrl('assets/motion/qiuqiu/shuriken.webp');
+  image.src = fileUrl('assets/motion/qiuqiu/shuriken_128.webp');
   shurikenImage = image;
-  shurikenPreload = typeof image.decode === 'function' ? image.decode() : Promise.resolve();
+  // 只等載好、不呼叫 decode()：畫布用不到 decode() 解出來的那一份（見 decoded-atlas.ts 的 `imageLoaded`）
+  shurikenPreload = imageLoaded(image);
   return shurikenPreload;
 }
 

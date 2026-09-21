@@ -11,8 +11,11 @@ beforeEach(() => {
   vi.stubGlobal('Image', class {
     srcValue = '';
     set src(value: string) { this.srcValue = value; sources.push(value); }
-    async decode(): Promise<void> {
-      if (rejectMotion && this.srcValue.includes('/motion/')) throw new Error('圖集載入失敗');
+    async decode(): Promise<void> {}
+    // 逐格動作只等 load／error（不呼叫 decode）；要測失敗就讓動作圖集觸發 error
+    addEventListener(type: string, listener: () => void): void {
+      const fail = rejectMotion && this.srcValue.includes('/motion/');
+      if (type === (fail ? 'error' : 'load')) queueMicrotask(listener);
     }
   });
 });

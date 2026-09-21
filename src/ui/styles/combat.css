@@ -1086,8 +1086,38 @@
 .combat .i-special, .combat .i-summon { background: linear-gradient(#b8761ae8, #6d4408f2); }
 .combat .i-idle { background: linear-gradient(#6f685ce8, #3f3a33f2); box-shadow: 0 3px 8px #00000080, inset 0 1px 0 #ffffff14; }
 @keyframes intent-throb {
-  0%, 100% { scale: 1; box-shadow: 0 3px 8px #00000080, 0 0 0 0 #ff6a6a00; }
-  50% { scale: 1.07; box-shadow: 0 3px 8px #00000080, 0 0 0 3px #ff6a6a3d; }
+  0%, 100% { scale: 1; }
+  50% { scale: 1.07; }
+}
+/*
+ * 攻擊牌子抽動時外圍那圈紅光（清理 2026-09-22）：以前 `intent-throb` 直接動牌子的 box-shadow，每一格都要重畫；
+ * 改成掛在偽元素上只動 opacity，交給合成器。
+ *
+ * 要看起來跟以前一樣，有三件事：
+ * 1. 以前動畫的 box-shadow 整段蓋掉牌子自己的（動畫的值排在一般樣式前面），所以攻擊牌子一直沒有內側那道亮邊、
+ *    出招預告的暖光也沒亮過——牌子本身的 box-shadow 照舊拿掉。
+ * 2. 以前那串是「落影, 紅光」，排前面的疊在上面＝落影壓在紅光上。兩個都搬到偽元素，落影掛在後畫的 ::after，疊法才一樣。
+ * 3. 光圈要跟牌子外框一樣大：偽元素的 inset 對的是框線內側，往外補回框線寬（上面那條的 1.5px），圓角照牌子的 9px。
+ */
+.combat .intent[class*='i-'].i-attack,
+.combat .unit.enemy.telegraph .intent.i-attack { box-shadow: none; }
+.combat .i-attack::before,
+.combat .i-attack::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 9px;
+  pointer-events: none;
+}
+.combat .i-attack::before {
+  box-shadow: 0 0 0 3px #ff6a6a3d;
+  opacity: 0;
+  animation: intent-glow 1.15s ease-in-out infinite;
+}
+.combat .i-attack::after { box-shadow: 0 3px 8px #00000080; }
+@keyframes intent-glow {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 /* 戰鬥裡球球的吐槽改成對話泡泡（使用者 2026-09-02：「球球戰鬥時會出現在畫面正中央講話，可以用對話泡泡的感覺」）：

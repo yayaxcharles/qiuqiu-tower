@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   playQiuqiuShuriken,
@@ -36,9 +37,15 @@ class FakeStage {
 }
 
 class FakeImage {
+  /** 載好（load 事件觸發）的網址 */
   static sources: string[] = [];
+  /** 呼叫過 decode() 的網址：不該有——畫布用不到那份解碼（清理 2026-09-22） */
+  static decoded: string[] = [];
   src = '';
-  async decode(): Promise<void> { FakeImage.sources.push(this.src); }
+  async decode(): Promise<void> { FakeImage.decoded.push(this.src); }
+  addEventListener(type: string, listener: () => void): void {
+    if (type === 'load') queueMicrotask(() => { FakeImage.sources.push(this.src); listener(); });
+  }
 }
 
 let clock = 0;
@@ -65,6 +72,7 @@ beforeEach(() => {
   cancelled = [];
   canvases = [];
   FakeImage.sources = [];
+  FakeImage.decoded = [];
   vi.stubGlobal('Image', FakeImage);
   vi.stubGlobal('performance', { now: () => clock });
   vi.stubGlobal('document', {
@@ -90,12 +98,25 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+describe('手裏劍圖檔（清理 2026-09-22：預先裁好縮好，整張拿來畫）', () => {
+  it('圖檔就是 125×128，畫的時候取整張', () => {
+    // WebP 無損格式（VP8L）的檔頭：第 21～24 位元組是寬減一、高減一，各 14 位元
+    const raw = readFileSync(new URL('../../public/assets/motion/qiuqiu/shuriken_128.webp', import.meta.url), 'latin1');
+    const b = (i: number): number => raw.charCodeAt(i);
+    expect(raw.slice(0, 4) + raw.slice(8, 16)).toBe('RIFFWEBPVP8L');
+    const width = 1 + (((b(22) & 0x3f) << 8) | b(21));
+    const height = 1 + (((b(24) & 0xf) << 10) | (b(23) << 2) | ((b(22) & 0xc0) >> 6));
+    expect([width, height]).toEqual([125, 128]);
+  });
+});
+
 describe('qiuqiu shuriken flight', () => {
   it('preloads and caches the cropped shuriken image', async () => {
     await preloadQiuqiuShuriken();
     await preloadQiuqiuShuriken();
 
-    expect(FakeImage.sources).toEqual(['/assets/motion/qiuqiu/shuriken.webp']);
+    expect(FakeImage.sources).toEqual(['/assets/motion/qiuqiu/shuriken_128.webp']);
+    expect(FakeImage.decoded).toEqual([]);
   });
 
   it('uses storm choreography timings without adding damage waves', async () => {
@@ -139,7 +160,7 @@ describe('qiuqiu shuriken flight', () => {
     expect(target.children).toHaveLength(0);
     step(180);
     expect(target.children).toHaveLength(1);
-    expect(target.children[0]?.context.draws[0]?.slice(1)).toEqual([137, 112, 979, 1001, 0, 0, 40, 41]);
+    expect(target.children[0]?.context.draws[0]?.slice(1)).toEqual([0, 0, 125, 128, 0, 0, 40, 41]);
     expect(target.children[0]?.style['pointerEvents']).toBe('none');
     expect(target.children[0]?.style['zIndex']).toBe('20');
     expect(target.children[0]?.style['transform']).toContain('translate(80px, 179.5px)');

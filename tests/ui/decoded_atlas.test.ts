@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { _resetDecodedAtlasForTest, decodedAtlas, prepareDecodedAtlas } from '../../src/ui/decoded-atlas';
+import { _resetDecodedAtlasForTest, decodedAtlas, imageLoaded, prepareDecodedAtlas } from '../../src/ui/decoded-atlas';
 import { createFrameMotionSet } from '../../src/ui/frame-motion';
 
 vi.mock('../../src/ui/assets', () => ({ fileUrl: (path: string) => path }));
@@ -176,14 +176,19 @@ describe('逐格動作改畫背景解開的點陣圖', () => {
   });
 
   it('不解碼預載的狀態圖：下載好也排進背景解開', async () => {
-    const images: Array<{ src: string; complete: boolean; listeners: Array<() => void> }> = [];
+    type Img = { src: string; complete: boolean; listeners: Array<{ type: string; listener: () => void }> };
+    const images: Img[] = [];
     vi.stubGlobal('Image', class {
       src = ''; complete = false; naturalWidth = 400; naturalHeight = 200; width = 400; height = 200;
-      listeners: Array<() => void> = [];
-      constructor() { images.push(this as unknown as (typeof images)[number]); }
-      decode() { this.complete = true; return Promise.resolve(); }
-      addEventListener(_type: string, listener: () => void) { this.listeners.push(listener); }
+      listeners: Img['listeners'] = [];
+      constructor() { images.push(this as unknown as Img); }
+      addEventListener(type: string, listener: () => void) { this.listeners.push({ type, listener }); }
     });
+    // 下載完：瀏覽器把 complete 設起來、再發 load
+    const finishLoading = (image: Img): void => {
+      image.complete = true;
+      for (const { type, listener } of image.listeners) if (type === 'load') listener();
+    };
     vi.stubGlobal('document', { createElement: () => new FakeCanvas() });
     vi.stubGlobal('window', { devicePixelRatio: 1, requestAnimationFrame: () => 1, cancelAnimationFrame() {} });
     const frame = { rect: [0, 0, 100, 100], pivot: [50, 100], duration: 0.1 };
@@ -200,13 +205,58 @@ describe('逐格動作改畫背景解開的點陣圖', () => {
       resolve: (action: 'idle' | 'puff', elapsed: number) => ({ key: action, elapsed }),
       duration: () => 100,
     } as unknown as Parameters<typeof createFrameMotionSet<'idle' | 'puff'>>[0]);
-    await set.preload();
+    const preloading = set.preload();
+    // 預載只等主要動作「載好」（不再呼叫 decode()）：待機那張載完之前預載不會結束
+    finishLoading(images.find((image) => image.src.endsWith('idle.webp'))!);
+    await preloading;
     const puff = images.find((image) => image.src.endsWith('puff.webp'))!;
     expect(puff.listeners).toHaveLength(1);
-    puff.complete = true;
-    for (const listener of puff.listeners) listener();
+    finishLoading(puff);
     for (let i = 0; i < 5; i++) await flush();
     expect(fetched).toContain('assets/motion/test/puff.webp');
     expect(decodedAtlas(puff as unknown as HTMLImageElement)).toBeInstanceOf(FakeBitmap);
+  });
+});
+
+describe('imageLoaded：逐格動作只等「載好」，不呼叫 decode()（清理 2026-09-22）', () => {
+  // decode() 解出來的那一份畫布用不到，白解一次還讓每隻貓多占 89～203 MB
+  function loadingImage() {
+    const listeners: Array<{ type: string; listener: () => void }> = [];
+    const image = {
+      src: 'x.webp', complete: false, naturalWidth: 0, decoded: 0,
+      decode() { this.decoded++; return Promise.resolve(); },
+      addEventListener(type: string, listener: () => void) { listeners.push({ type, listener }); },
+    };
+    const fire = (type: string, width = 0): void => {
+      image.complete = true;
+      image.naturalWidth = width;
+      for (const l of listeners) if (l.type === type) l.listener();
+    };
+    return { image, fire, img: image as unknown as HTMLImageElement };
+  }
+
+  it('還在下載就等 load，途中不呼叫 decode()', async () => {
+    const { image, fire, img } = loadingImage();
+    let settled = false;
+    const waiting = imageLoaded(img).then(() => { settled = true; });
+    await flush();
+    expect(settled).toBe(false);
+    fire('load', 400);
+    await waiting;
+    expect(settled).toBe(true);
+    expect(image.decoded).toBe(0);
+  });
+
+  it('已經載好就馬上結束；壞圖（complete 但沒有寬）與載入失敗都往外丟', async () => {
+    await expect(imageLoaded(fakeImage())).resolves.toBeUndefined();
+    await expect(imageLoaded(fakeImage(100, 50, false) as unknown as HTMLImageElement)).resolves.toBeUndefined();   // 沒有事件可掛的極簡假影像
+    const broken = loadingImage();
+    broken.image.complete = true;
+    await expect(imageLoaded(broken.img)).rejects.toThrow('圖片載入失敗');
+    const failing = loadingImage();
+    const waiting = imageLoaded(failing.img);
+    failing.fire('error');
+    await expect(waiting).rejects.toThrow('圖片載入失敗');
+    expect(failing.image.decoded).toBe(0);
   });
 });

@@ -1,5 +1,5 @@
 import { fileUrl } from './assets';
-import { decodedAtlas, prepareDecodedAtlas } from './decoded-atlas';
+import { decodedAtlas, imageLoaded, prepareDecodedAtlas } from './decoded-atlas';
 
 export type FrameMotionFrame = Readonly<{
   rect: readonly [number, number, number, number];
@@ -94,7 +94,7 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
   };
 
   // 開局預載、戰鬥畫面、過關轉場都會叫 preload；進行中或已成功就共用同一次，
-  // 不再對同一批圖重發一輪 decode()。失敗就清掉，下次重試（稽核 2026-09-21 晚 低-6）
+  // 不再對同一批圖重等一輪。失敗就清掉，下次重試（稽核 2026-09-21 晚 低-6）
   let preloading: Promise<void> | null = null;
   const preload = (): Promise<void> => {
     preloading ??= preloadOnce().catch((error: unknown) => { preloading = null; throw error; });
@@ -105,26 +105,17 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     for (const [key, motion] of Object.entries(config.motions)) {
       if (!config.deferred?.has(key)) unique.set(fileUrl(motion.texture), motion);
     }
-    // decode() 在舊瀏覽器沒有、在解碼失敗時還會拒絕；只靠它等於整批連坐，
-    // loaded 永遠留在 false，角色就停在空白畫布（稽核 2026-09-21 第 6 點）。
-    await Promise.all([...unique.values()].map((motion) => new Promise<void>((done, fail) => {
-      const image = imageFor(motion);
-      // 載入失敗的圖 complete 也是 true，要再看 naturalWidth，否則壞圖會被當成載好。
-      if (image.complete && image.naturalWidth > 0) { done(); return; }
+    // 只等「載好」（load），不呼叫 decode()：畫布不吃 decode() 的結果（實機追蹤 2026-09-21），
+    // 白解一次還讓每隻貓多占 89～203 MB（清理 2026-09-22，見 decoded-atlas.ts 的 `imageLoaded`）。
+    // 壞圖（complete 但 naturalWidth 是 0）不能當成載好；失敗仍要往外丟，
+    // preload.ts 的「改用普通立繪」退路才會接手（稽核 2026-09-21 第 6 點）。
+    await Promise.all([...unique.values()].map((motion) => imageLoaded(imageFor(motion)).catch((error: unknown) => {
       // 失敗的圖從快取拿掉，下次預載重試時才會真的重新下載
-      const failWith = (error: unknown): void => { images.delete(fileUrl(motion.texture)); fail(error); };
-      if (typeof image.decode === 'function') { image.decode().then(() => done(), failWith); return; }
-      // 沒有 decode() 的環境原本等於完全不等，loaded 直接變 true，
-      // 角色就停在空白畫布（稽核 2026-09-21 第 6 點）。改成等 load/error。
-      // 失敗仍要往外丟，preload.ts 的「改用普通立繪」退路才會接手。
-      if (typeof image.addEventListener !== 'function') { done(); return; }
-      // 走到這裡還是 complete＝已經載入失敗過，load／error 不會再來，不先擋掉就永遠等不到結果。
-      if (image.complete) { failWith(new Error(`逐格動作圖載入失敗：${image.src}`)); return; }
-      image.addEventListener('load', () => done(), { once: true });
-      image.addEventListener('error', () => failWith(new Error(`逐格動作圖載入失敗：${image.src}`)), { once: true });
+      images.delete(fileUrl(motion.texture));
+      throw error;
     })));
     loaded = true;
-    // 畫布不吃 decode() 的結果（實機追蹤 2026-09-21）：另外在背景解開成點陣圖，出手時才不用當場解碼
+    // 載好之後另外在背景解開成點陣圖，出手時才不用當場解碼
     for (const motion of unique.values()) void prepareDecodedAtlas(imageFor(motion));
     for (const [key, motion] of Object.entries(config.motions)) {
       if (!config.deferred?.has(key)) continue;

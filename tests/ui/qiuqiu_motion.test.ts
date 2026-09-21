@@ -43,10 +43,22 @@ class FakeCanvas {
   setAttribute(name: string, value: string): void { if (name === 'aria-label') this.ariaLabel = value; }
 }
 
+/** 延後下載的待機狀態圖：假環境裡一直「還在下載」，預載照樣要結束（證明預載不等它們） */
+const STALLED = new Set([motionData, extraMotionData, attackMotionData].flatMap((data) =>
+  Object.entries(data.actions as Record<string, { texture: string }>)
+    .filter(([key]) => DEFERRED_REST_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`)));
+
 class FakeImage {
+  /** 載好（load 事件觸發）的網址 */
   static sources: string[] = [];
+  /** 呼叫過 decode() 的網址：逐格動作不該有——畫布用不到那份解碼（清理 2026-09-22） */
+  static decoded: string[] = [];
   src = '';
-  async decode(): Promise<void> { FakeImage.sources.push(this.src); }
+  async decode(): Promise<void> { FakeImage.decoded.push(this.src); }
+  addEventListener(type: string, listener: () => void): void {
+    if (type !== 'load' || STALLED.has(this.src)) return;
+    queueMicrotask(() => { FakeImage.sources.push(this.src); listener(); });
+  }
 }
 
 let nextRaf = 1;
@@ -200,13 +212,15 @@ describe('球球全身動作畫布', () => {
       ...(extraMotionData.actions as Record<string, { texture: string }>),
       ...(attackMotionData.actions as Record<string, { texture: string }>),
     };
-    // 2026-09-21 新補的待機狀態圖不解碼預載（預載完才在背景下載）
+    // 2026-09-21 新補的待機狀態圖不在預載裡（預載完才在背景下載）
     const expected = new Set(Object.entries(actions)
       .filter(([key]) => !DEFERRED_REST_ACTIONS.has(key))
       .map(([, motion]) => `/${motion.texture}`));
-    expected.add('/assets/motion/qiuqiu/shuriken.webp');
+    expected.add('/assets/motion/qiuqiu/shuriken_128.webp');
     expected.add('/assets/sprites/hero/ninja_hit.webp');
     expect(new Set(FakeImage.sources)).toEqual(expected);
+    // 只等載好、不呼叫 decode()（清理 2026-09-22）
+    expect(FakeImage.decoded).toEqual([]);
     expect(FakeImage.sources.every((src) => src.includes('assets/motion/qiuqiu/')
       || src === '/assets/sprites/hero/ninja_hit.webp')).toBe(true);
   });

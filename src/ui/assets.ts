@@ -382,11 +382,25 @@ export const warmed = new Set<string>();
  * 整頁共用一組（`warmed`＋下面的 `keep`）；戰鬥畫面自己開一組，跟著那一場的閉包一起回收
  *（每場各留一份姿勢圖，打完就放掉，不會一路壓到分頁關掉）。
  */
-export type DecodePool = { seen: Set<string>; keep: HTMLImageElement[] };
+export type DecodePool = { seen: Set<string>; keep: Map<string, HTMLImageElement> };
 
-/** 撐住 Image 物件的參照：沒人引用的圖下載沒完成就可能被回收（稽核 2026-09-04 低 14） */
-const keep: HTMLImageElement[] = [];
+/** 撐住 Image 物件的參照：沒人引用的圖下載沒完成就可能被回收（稽核 2026-09-04 低 14）。以網址為鍵，同一張不會留兩份 */
+const keep = new Map<string, HTMLImageElement>();
 const sharedPool: DecodePool = { seen: warmed, keep };
+
+/**
+ * 放掉整頁共用那一份留著的圖（清理 2026-09-22）。
+ *
+ * 以前只增不減：三關的魔物立繪、遭遇預熱的換階段圖，一路壓到分頁關掉為止。
+ * 留參照是為了「下載沒完成前不被回收」與「開打那一刻已經解好」；換關之後上一關的魔物用不到了，
+ * 所以 `preloadAct` 抓下一關之前先放掉。放掉的同時把它們從「解過了」拿掉：下一關也會出現的魔物
+ *（一般池跨關）才會被重新解好、重新留住，不會因為「登記過」就被跳過、開打時才當場解碼。
+ * 還在下載的那幾張不受影響：解碼迴圈自己手上還握著它們。
+ */
+export function releaseHeldArt(): void {
+  for (const url of keep.keys()) warmed.delete(url);
+  keep.clear();
+}
 
 /**
  * 把一批圖片下載並解碼好（失敗就算了，不該讓流程停掉；失敗的不登記，下一批還會再試）。
@@ -412,7 +426,7 @@ export async function decodeAll(urls: readonly string[], concurrency = 4,
       const url = todo[i]!;
       try {
         const img = new Image();
-        if (typeof hold === 'function' ? hold(url) : hold) pool.keep.push(img);
+        if (typeof hold === 'function' ? hold(url) : hold) pool.keep.set(url, img);
         img.src = url;
         // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
         if (typeof img.decode === 'function') await img.decode();

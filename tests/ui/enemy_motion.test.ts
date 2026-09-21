@@ -35,11 +35,13 @@ class FakeCanvas {
 
 class FakeImage {
   static sources: string[] = [];
+  /** 呼叫過 decode() 的網址：逐格動作不該有——畫布用不到那份解碼（清理 2026-09-22） */
+  static decoded: string[] = [];
   complete = true;
   private value = '';
   set src(value: string) { this.value = value; FakeImage.sources.push(value); }
   get src(): string { return this.value; }
-  async decode(): Promise<void> { /* source assignment is the observable preload */ }
+  async decode(): Promise<void> { FakeImage.decoded.push(this.value); }
 }
 
 type EnemyMotionModule = typeof import('../../src/ui/enemy-motion');
@@ -65,6 +67,7 @@ function lastDraw(): DrawCall {
 beforeEach(async () => {
   vi.resetModules();
   FakeImage.sources = [];
+  FakeImage.decoded = [];
   nextRaf = 1;
   rafs = new Map();
   cancelled = [];
@@ -109,6 +112,7 @@ describe('敵人逐格素材載入', () => {
     expect(FakeImage.sources).toHaveLength(5);
     expect(new Set(FakeImage.sources).size).toBe(5);
     expect(motion.enemyMotionReady('ninja')).toBe(true);
+    expect(FakeImage.decoded).toEqual([]);
   });
 
   it('保留來源影格時長，並回報完整動作總時長', () => {

@@ -1120,7 +1120,7 @@
   "projectiles": [
     {
       "projectile": "shuriken",
-      "texture": "assets/motion/qiuqiu/shuriken.webp",
+      "texture": "assets/motion/qiuqiu/shuriken_128.webp",
       "source": {
         "path": "assets/fx/shuriken.png",
         "bytes": 422145,
@@ -1132,33 +1132,54 @@
         "mode": "RGBA"
       },
       "output": {
-        "path": "public/assets/motion/qiuqiu/shuriken.webp",
-        "bytes": 261790,
-        "sha256": "d854b776efae30e57f7c66f97d832d4403aa36f03a1c2287ec7f23cf4fef22fe",
+        "path": "public/assets/motion/qiuqiu/shuriken_128.webp",
+        "bytes": 10118,
+        "sha256": "4df98963a033d08d5aa353afb0262ebf4beb07e4b670c0b21541e7ec005bafc4",
         "dimensions": [
-          1254,
-          1254
+          125,
+          128
         ],
         "mode": "RGBA"
       },
-      "validation": {
-        "source_mode": "RGBA",
-        "output_mode": "RGBA",
-        "source_dimensions": [
-          1254,
-          1254
+      "derived": {
+        "note": "2026-09-22 清理：遊戲只把中間那一塊畫成 40×41，改成預先裁切縮小。從無損移植的 1254×1254 版裁出實際畫的範圍，先預乘透明度再用 LANCZOS 縮到 128 高，存無損 WebP；無損移植那一版（下面 port）已從 public 刪除，要重做就先跑 tools/port_qiuqiu_motion.py 再裁。",
+        "crop": [
+          137,
+          112,
+          979,
+          1001
         ],
-        "output_dimensions": [
-          1254,
-          1254
-        ],
-        "dimensions_match": true,
-        "alpha_mismatch_pixels": 0,
-        "visible_rgb_mismatch_pixels": 0,
-        "transparent_rgb_mismatch_pixels": 2327,
-        "visible_pixels": 289595,
-        "transparent_pixels": 1282921,
-        "rgba_visible_alpha_match": true
+        "resample": "LANCZOS（預乘透明度 RGBa）",
+        "encoding": "WebP lossless, method 6",
+        "port": {
+          "path": "public/assets/motion/qiuqiu/shuriken.webp",
+          "bytes": 261790,
+          "sha256": "d854b776efae30e57f7c66f97d832d4403aa36f03a1c2287ec7f23cf4fef22fe",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGBA",
+          "validation": {
+            "source_mode": "RGBA",
+            "output_mode": "RGBA",
+            "source_dimensions": [
+              1254,
+              1254
+            ],
+            "output_dimensions": [
+              1254,
+              1254
+            ],
+            "dimensions_match": true,
+            "alpha_mismatch_pixels": 0,
+            "visible_rgb_mismatch_pixels": 0,
+            "transparent_rgb_mismatch_pixels": 2327,
+            "visible_pixels": 289595,
+            "transparent_pixels": 1282921,
+            "rgba_visible_alpha_match": true
+          }
+        }
       }
     }
   ],
@@ -1166,17 +1187,18 @@
     "action_count": 24,
     "projectile_count": 1,
     "source_bytes": 31935937,
-    "output_bytes": 19281618,
+    "output_bytes": 19029946,
     "unique_action_image_count": 20,
     "unique_action_output_bytes": 15849282,
     "unique_projectile_image_count": 1,
-    "unique_projectile_output_bytes": 261790,
+    "unique_projectile_output_bytes": 10118,
     "unique_image_count": 21,
-    "unique_output_bytes": 16111072,
+    "unique_output_bytes": 15859400,
     "total_duration": 13.42,
     "all_dimensions_match": true,
     "all_visible_pixels_and_alpha_match": true,
-    "all_projectile_dimensions_match": true,
-    "all_projectile_visible_pixels_and_alpha_match": true
+    "all_projectile_dimensions_match": false,
+    "all_projectile_visible_pixels_and_alpha_match": false,
+    "projectile_note": "手裏劍 2026-09-22 起改用裁切縮小版（見 projectiles[0].derived），不再逐像素對應來源"
   }
 }

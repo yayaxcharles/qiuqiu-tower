@@ -10,7 +10,8 @@ import { cardStats } from '../../engine/deck';
 import { computeBlock, getStatus } from '../../engine/statuses';
 import { previewEnemyHits } from '../../engine/intentpreview';
 import { DEBUFFS } from '../../engine/types';
-import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, PlayerCombat, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
+import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, PlayerCombat, RunPlayer, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
+import { me } from '../../engine/runplayer';
 import { registerScreen } from '../app';
 import type { CoopSession } from '../../net/session';
 import { applyAction, chooserOf } from '../../net/action';
@@ -284,6 +285,32 @@ const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
  */
 const chokeTick = (now: number, was: number): boolean => was > 0 && now === was - 1;
 
+/** 每一位玩家在快照裡的那幾個數字（`buff`／`debuff` 給同伴那一格判斷要不要換新節點用） */
+type SeatSnap = { hp: number; block: number; stealth: number; down: boolean; buff: number; debuff: number };
+
+/**
+ * 同伴那一格這一步要不要換新節點（清理 2026-09-22）。
+ *
+ * 以前魔物回合每一步（0.7 秒一次）都把同伴那一格無條件整格重建。改成跟自己那一格同一套判準：
+ * 血、蜷縮、隱身、增減益有變，倒下或舉手牌子該掛該拆，姿勢圖換了，或者還留著這一拍的動畫類別
+ *（`hit`／`dodge`／`attack` 要靠換新節點收掉）才換。`wantSrc`＝照現在的狀態該畫哪一張。
+ */
+function mateUnitStale(was: SeatSnap | undefined, q: PlayerCombat, node: HTMLElement, many: boolean, wantSrc: string): boolean {
+  return !was || was.hp !== q.hp || was.block !== q.block || was.down !== !!q.down
+    || was.stealth !== getStatus(q, '隱身') || was.buff !== sumStatus(q, GOOD_STATUS) || was.debuff !== sumStatus(q, BAD_STATUS)
+    || node.classList.contains('downed') !== !!q.down || node.classList.contains('ready') !== (!!q.ready && many)
+    || node.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== wantSrc
+    || node.classList.contains('hit') || node.classList.contains('dodge') || node.classList.contains('attack');
+}
+
+/**
+ * 狀態列（`hud.ts` 的 `renderHud`）畫的東西裡，戰鬥途中會變的那幾樣：小魚乾（含這場的增減）、
+ * 血量、秘寶，順手連忍具與牌組張數。這串沒變就不必整條重建（清理 2026-09-22）。
+ */
+function hudKey(m: RunPlayer, fishDelta: number): string {
+  return [m.fish + fishDelta, m.hp, m.maxHp, m.relics.join(','), m.potions.join(','), m.deck.length].join('|');
+}
+
 interface Snap {
   phase: CombatState['phase'];
   hp: number;
@@ -294,7 +321,7 @@ interface Snap {
   choke: number;
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
   energyGain: number;   // 整場退回來的飯糰累計，用來認出「這一拍退了幾顆」（見 types.ts 的說明）
-  players: Map<number, { hp: number; block: number; stealth: number; down: boolean }>;
+  players: Map<number, SeatSnap>;
   enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
   logLen: number;
   hitsLen: number;
@@ -313,6 +340,7 @@ function snap(cs: CombatState, me: PlayerCombat): Snap {
     choke: getStatus(me, '中毒'), stealth: getStatus(me, '隱身'),
     players: new Map(cs.players.map((p) => [p.seat, {
       hp: p.hp, block: p.block, stealth: getStatus(p, '隱身'), down: !!p.down,
+      buff: sumStatus(p, GOOD_STATUS), debuff: sumStatus(p, BAD_STATUS),
     }])),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), learned: e.move.learned,
@@ -1032,13 +1060,14 @@ registerScreen('combat', (app, root, props) => {
   let shownCards = new Set<number>();            // 上一次畫的手牌，認出哪幾張是新抽的
   let dealDelay = 0;                             // 新手牌進場前要等多久（結束回合那一拍會等）
   let lineup: number[] = cs.enemies.map((e) => e.uid);   // 魔物的排位名單（見 render 裡的說明）
+  let hudShown = '';                             // 狀態列上一次畫的是什麼（`hudKey`）：沒變就不重建
   /**
    * 開戰先把這場會用到的立繪解碼好（使用者 2026-09-03：「第一次攻擊動作有點 LAG，下一次就正常」）：
    * 出手圖是換 src 的那一拍才第一次載入＋解碼，第一次前撲就會頓一下。這裡用 Image.decode() 先熱身，
    * 物件留在這一場自己的 `warmPool` 裡免得被回收（跟著畫面一起放掉）；召喚出新魔物時（render 裡）再補熱。
    * 解碼迴圈跟開場／分關預載共用 `assets.ts` 的 `decodeAll`。
    */
-  const warmPool: DecodePool = { seen: new Set(), keep: [] };
+  const warmPool: DecodePool = { seen: new Set(), keep: new Map() };
   const asked = new Set<string>();   // 送出去過的（還在解的也算）：重畫時不重送
   const warm = (urls: readonly string[]): void => {
     const fresh = [...new Set(urls)].filter((u) => u && !asked.has(u));
@@ -1046,13 +1075,32 @@ registerScreen('combat', (app, root, props) => {
     // 一次全部送出、不排隊（跟以前一張一張各自 decode 一樣）；解不開就算了，畫面照常
     if (fresh.length) void decodeAll(fresh, fresh.length, true, warmPool);
   };
-  const warmAll = (): void => {
+  /*
+   * 角色姿勢一位只暖一次（開戰那一刻；連線途中才出現的那位在下一次重畫補上），
+   * 魔物照「哪一隻、現在用哪一組立繪」記一次：重畫時只補新召喚的、或換了階段立繪的（清理 2026-09-22）。
+   * 以前每次整頁重畫都把兩位共六十幾個姿勢鍵、塔主四十幾張圖整份重算一遍，只為了挑出沒暖過的。
+   */
+  const warmedHeroes = new Set<string>();
+  const warmedEnemies = new Set<string>();
+  const warmHeroes = (): void => {
     const urls: string[] = [];
     // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
-    for (const q of cs.players) for (const key of Object.values(POSE)) urls.push(heroArtUrl(q.hero, key));
+    for (const q of cs.players) {
+      const who = `${q.seat}:${q.hero ?? ''}`;
+      if (warmedHeroes.has(who)) continue;
+      warmedHeroes.add(who);
+      for (const key of Object.values(POSE)) urls.push(heroArtUrl(q.hero, key));
+    }
+    warm(urls);
+  };
+  const warmEnemies = (): void => {
+    const urls: string[] = [];
     for (const e of cs.enemies) {
       const def = enemyById[e.enemyId];
       if (!def) continue;
+      const which = `${e.uid}:${def.art === 'daxia' ? 'daxia' : artOfEnemy(e)}`;
+      if (warmedEnemies.has(which)) continue;
+      warmedEnemies.add(which);
       if (def.art === 'daxia') {
         for (const key of [...Object.values(BOSS_ART), ...BOSS_HURT_ART, ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) urls.push(artUrl('sprites', key));
       } else {
@@ -1066,7 +1114,8 @@ registerScreen('combat', (app, root, props) => {
     }
     warm(urls);
   };
-  warmAll();
+  warmHeroes();
+  warmEnemies();
   // 開場那一次畫完才開閘，之後的變化才演（低-5）
   window.setTimeout(() => { chipsSeeded = true; }, 0);
   /**
@@ -1884,9 +1933,12 @@ registerScreen('combat', (app, root, props) => {
     const pr = pile.getBoundingClientRect();
     const ax = (pr.left + pr.width / 2 - hr.left) * k;   // 牌堆中心，換算成「相對於手牌區」
     const ay = (pr.top + pr.height / 2 - hr.top) * k;
-    for (const node of cards) {
-      node.style.setProperty('--deal-dx', `${(ax - node.offsetLeft - node.offsetWidth / 2).toFixed(0)}px`);
-      node.style.setProperty('--deal-dy', `${(ay - node.offsetTop - node.offsetHeight / 2).toFixed(0)}px`);
+    // 先把每張的定位點全部量完、再一次寫（清理 2026-09-22）：量一張寫一張的話，
+    // 每寫一次樣式，下一張一量瀏覽器就得把樣式與版面重算一遍
+    const spots = [...cards].map((node) => ({ node, x: node.offsetLeft + node.offsetWidth / 2, y: node.offsetTop + node.offsetHeight / 2 }));
+    for (const { node, x, y } of spots) {
+      node.style.setProperty('--deal-dx', `${(ax - x).toFixed(0)}px`);
+      node.style.setProperty('--deal-dy', `${(ay - y).toFixed(0)}px`);
     }
   }
 
@@ -1932,23 +1984,32 @@ registerScreen('combat', (app, root, props) => {
       || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== heroArtUrl(p.hero, pose)
       || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack');
     if (pChanged) pNode.replaceWith(playerUnit(p));
-    // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態
+    // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態，有變才換（見 `mateUnitStale`）
     for (const q of cs.players) {
       if (q.seat === mySeat) continue;
       const node = field.querySelector<HTMLElement>(`.unit.player[data-seat="${q.seat}"]`);
-      if (node) node.replaceWith(playerUnit(q));
+      if (node && mateUnitStale(before.players.get(q.seat), q, node, cs.players.length > 1, heroArtUrl(q.hero, matePose(q)))) {
+        node.replaceWith(playerUnit(q));
+      }
     }
     box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
-    box.querySelector('.hud')?.remove();
-    renderHud(app, box, my().fishDelta);
+    // 狀態列只在它畫的東西變了才重建（見 `hudKey`）
+    const hudNow = hudKey(me(run, app.seat), my().fishDelta);
+    if (hudNow !== hudShown || !box.querySelector('.hud')) {
+      box.querySelector('.hud')?.remove();
+      renderHud(app, box, my().fishDelta);
+      hudShown = hudNow;
+      paintFlashes(performance.now());   // 狀態列剛重建，還在演的秘寶要補回去（稽核 2026-09-10 複核 中-1）
+    }
     const endBtn = box.querySelector<HTMLElement>('.end-turn');
     if (endBtn) { if (!canAct() || dealDelay > 0 || my().ready || my().down) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }   // 舉手了／倒下了照整頁重畫的判準留灰（審查 中-2）
-    paintFlashes(performance.now());   // 狀態列剛重建，還在演的秘寶要補回去（稽核 2026-09-10 複核 中-1）
     return true;
   }
 
   function render(): void {
-    warmAll();   // 召喚出來的新魔物也先把兩張圖熱好
+    // 只補沒暖過的：新召喚的魔物（或換了階段立繪的）、連線途中才出現的那位；角色姿勢一位只暖一次
+    warmHeroes();
+    warmEnemies();
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     clear(root);
     const box = el('div', { class: 'combat' });
@@ -2028,6 +2089,7 @@ registerScreen('combat', (app, root, props) => {
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
     renderHud(app, box, my().fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
+    hudShown = hudKey(me(run, app.seat), my().fishDelta);
     root.append(box);
     paintFlashes(performance.now());   // 同 patchField：整頁重畫也要把還在演的秘寶補回去（稽核 2026-09-10 複核 中-1）
     // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
@@ -2113,10 +2175,21 @@ registerScreen('combat', (app, root, props) => {
     const first = box.querySelector('.unit.enemy.targetable');
     draw(first ? centreOf(first, 0.45) : { x: 900, y: 300 }, false);
 
-    // 監聽掛在 box 上：每次重畫都會換一個 box，舊的連同監聽一起被丟掉，不用自己收
+    // 監聽掛在 box 上：每次重畫都會換一個 box，舊的連同監聽一起被丟掉，不用自己收。
+    // 滑鼠一格裡可能送好幾次 mousemove：每一格最多處理一次、用最後那次的座標（清理 2026-09-22）；
+    // 排到的那一格如果 box 已經被重畫換掉就不做
+    let aimAt: { x: number; y: number } | null = null;
+    let aimRaf = 0;
     box.addEventListener('mousemove', (ev) => {
-      const foe = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.unit.enemy.targetable');
-      draw(foe ? centreOf(foe, 0.45) : toStage(ev.clientX, ev.clientY), !!foe);
+      aimAt = { x: ev.clientX, y: ev.clientY };
+      if (aimRaf) return;
+      aimRaf = window.requestAnimationFrame(() => {
+        aimRaf = 0;
+        if (!aimAt || !box.isConnected) return;
+        const { x, y } = aimAt;
+        const foe = document.elementFromPoint(x, y)?.closest('.unit.enemy.targetable');
+        draw(foe ? centreOf(foe, 0.45) : toStage(x, y), !!foe);
+      });
     });
   }
 
@@ -2298,8 +2371,11 @@ registerScreen('combat', (app, root, props) => {
     // 牌多就把出發間隔壓縮、引擎多等一點：固定 38×i 配固定 330 的話，第八張起重畫時還沒出發，
     // 看起來就是「別的牌飛走了、這幾張留在原地」（使用者 2026-09-02 回報）
     const { stagger, wait } = collectTiming(cards.length);
+    // 先量完每一張的位置再一起起飛（清理 2026-09-22）：量一張、掛一段動畫、再量下一張的話，
+    // 每掛一段動畫，下一次量瀏覽器就得把樣式與版面重算一遍
+    const rects = cards.map((node) => node.getBoundingClientRect());
     cards.forEach((node, i) => {
-      const r = node.getBoundingClientRect();
+      const r = rects[i]!;
       const dx = (bx - r.left - r.width / 2) * k;
       const dy = (by - r.top - r.height / 2) * k;
       // 一張往左轉、一張往右轉，越後面轉越多：整排一起轉同一邊會像一塊板子在倒

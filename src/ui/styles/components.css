@@ -356,9 +356,11 @@
   pointer-events: none;
   z-index: 3;
 }
+/* 以前動的是 left（每一格都要重新排版），改成 translateX（清理 2026-09-22）。位移量換算成自身寬度：
+   left 從 −80% 走到 130%＝牌寬的 210%，這道光本身寬 55%，所以是自身寬度的 210 ÷ 55＝381.82%。 */
 @keyframes rare-sheen {
-  0%, 62% { left: -80%; }
-  86%, 100% { left: 130%; }
+  0%, 62% { transform: translateX(0) skewX(-18deg); }
+  86%, 100% { transform: translateX(381.8182%) skewX(-18deg); }
 }
 /* 稀有度記號本來是右上角一顆小菱形，13 像素、離文字很遠，等於沒有
    （使用者的原話：「很不顯眼」）。搬到底部「攻擊／技能」那條標籤的字前面，
@@ -393,14 +395,10 @@
   height: 13px;
   vertical-align: -2px;
   background: linear-gradient(#ffe9a8, #e8b23a 50%, #a8760c);
-  box-shadow: 0 0 6px #ffc83ce0;
-  animation: rare-gem 2.6s ease-in-out infinite;
 }
-/* 稀有牌的寶石會慢慢亮起來——拿到稀有牌該有「挖到寶」的感覺 */
-@keyframes rare-gem {
-  0%, 100% { box-shadow: 0 0 6px #ffc83c8c; }
-  50% { box-shadow: 0 0 12px #ffc83cf5; }
-}
+/* 這裡本來還有一圈會呼吸的光暈（box-shadow 6→12 像素、2.6 秒一輪）。但菱形是用 clip-path 切的，
+   clip-path 會把 box-shadow 整圈切掉——實測有沒有那圈光暈，截圖一個像素都不差（清理 2026-09-22）。
+   等於每一格都在重畫一個看不見的東西，所以拿掉；想要真的看得到的光暈要另外設計。 */
 
 .card.clickable { cursor: pointer; }
 .card.clickable:hover { box-shadow: 0 0 0 3px var(--accent); }

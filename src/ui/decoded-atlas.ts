@@ -114,6 +114,28 @@ export function prepareDecodedAtlas(image: HTMLImageElement, inUse = false): Pro
   return settled;
 }
 
+/**
+ * 等這張圖「載好」（下載完、瀏覽器知道長寬），之後才能排進上面的背景解開。
+ *
+ * **不呼叫 `img.decode()`**（清理 2026-09-22）：畫布畫的是背景解開的點陣圖，`decode()` 另外解出來的
+ * 那一份畫布用不到——等於每張圖集白解一次，那份解碼結果還跟著 <img> 一直留在記憶體裡
+ *（實測每隻貓多占 89～203 MB）。
+ *
+ * 已經載好就馬上結束；壞圖（complete 但 naturalWidth 是 0）與載入失敗一律往外丟，呼叫端的退路才接得到。
+ * 沒有事件可掛的環境（測試用的極簡假影像）當作載好。
+ */
+export function imageLoaded(image: HTMLImageElement): Promise<void> {
+  return new Promise<void>((done, fail) => {
+    if (image.complete && image.naturalWidth > 0) { done(); return; }
+    if (typeof image.addEventListener !== 'function') { done(); return; }
+    const broken = (): void => fail(new Error(`圖片載入失敗：${image.src}`));
+    // 走到這裡還是 complete＝已經載入失敗過，load／error 不會再來，不先擋掉就永遠等不到結果
+    if (image.complete) { broken(); return; }
+    image.addEventListener('load', () => done(), { once: true });
+    image.addEventListener('error', broken, { once: true });
+  });
+}
+
 /** 測試用：清空快取並可改上限。 */
 export function _resetDecodedAtlasForTest(budget = 224 * MB): void {
   for (const entry of ready.values()) entry.bitmap.close();

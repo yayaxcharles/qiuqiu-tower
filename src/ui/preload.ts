@@ -1,7 +1,7 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, coopArtUrls, decodeAll, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, type MonsterPose } from './assets';
+import { artUrl, coopArtUrls, decodeAll, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 
 /**
@@ -89,7 +89,11 @@ function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero(), i
  * 第一關一輩子看不到。改成跟魔物同一個時機補——過關畫面停留的那幾十秒足夠抓完。
  * 底圖排在魔物前面：一進新關第一眼看到的是地圖與戰鬥背景，魔物還要等走到節點。
  */
+/** 上一次 `preloadAct` 抓的是第幾關：換了關才放掉上一關留著的圖（清理 2026-09-22，見 `releaseHeldArt`） */
+let heldAct = 0;
+
 export function preloadAct(act: number, skinHero: string | undefined = localHero()): Promise<void> {
+  if (act !== heldAct) { releaseHeldArt(); heldAct = act; }
   const defs = [...enemyIdsForAct(act)].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d);
   const bg = bgKeysForAct(act)
     .filter((key) => {

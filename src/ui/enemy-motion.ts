@@ -1,7 +1,7 @@
 import motionData from './enemy-motion-data.json';
 import { fileUrl } from './assets';
 import './styles/enemy-motion.css';
-import { decodedAtlas, prepareDecodedAtlas } from './decoded-atlas';
+import { decodedAtlas, imageLoaded, prepareDecodedAtlas } from './decoded-atlas';
 
 export type EnemyMotionKind = 'rat' | 'ninja';
 export type EnemyMotionAction = 'idle' | 'attack' | 'hurt' | 'air_rise' | 'air_fall' | 'knockdown' | 'getup';
@@ -74,8 +74,9 @@ async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
   for (const action of ACTIONS) textures.add(kinds[kind].actions[action].texture);
   const load = Promise.all([...textures].map(async (texture) => {
     const image = imageFor(texture);
-    if (typeof image.decode === 'function') await image.decode();
-    // 畫布不吃 decode() 的結果，另外在背景解開成點陣圖（見 decoded-atlas.ts）。
+    // 只等載好、不呼叫 decode()：畫布不吃 decode() 的結果，白解一次還多占記憶體（見 decoded-atlas.ts 的 `imageLoaded`）。
+    // 載好之後另外在背景解開成點陣圖。
+    await imageLoaded(image);
     // 等解好才算這類魔物就緒：開戰那一刻就要畫老鼠，沒等的話第一格會在主執行緒當場解碼（實機追蹤）。
     // 開戰就要畫＝「正要用」：插隊、解好不會一進來就被當罕用圖放掉；最多等 0.8 秒，網路卡住就照舊畫 <img>
     await Promise.race([prepareDecodedAtlas(image, true), new Promise<void>((done) => setTimeout(done, 800))]);

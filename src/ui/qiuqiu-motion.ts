@@ -1,7 +1,7 @@
 import motionData from './qiuqiu-motion-data.json';
 import extraMotionData from './qiuqiu-extra-motion-data.json';
 import attackMotionData from './qiuqiu-attack-motion-data.json';
-import { createFrameMotionSet, type FrameMotion, type FrameMotionActor } from './frame-motion';
+import { createFrameMotionSet, frameMotionDuration, type FrameMotion, type FrameMotionActor } from './frame-motion';
 import { LEGACY_HIT_MOTIONS } from './legacy-hit-motion';
 import { DEFERRED_REST_ACTIONS } from './rest-state-motion';
 import {
@@ -224,7 +224,8 @@ export function qiuqiuMotionDuration(action: QiuqiuAction, waves?: number): numb
   const compositeDuration = qiuqiuChoreographyDuration(action);
   if (compositeDuration !== null) return compositeDuration;
   const motion = motionForPose(action as QiuqiuPoseAction);
-  const fullDuration = Math.round(motion.frames.reduce((sum, frame) => sum + frame.duration * 1000, 0));
+  // 用有快取的那一支：非循環動作播放時每一格都會問一次總長（清理 2026-09-22）
+  const fullDuration = frameMotionDuration(motion);
   if (action !== 'palm_combo') return fullDuration;
   const contactEnd = PALM_COMBO_CONTACT_END_MS[qiuqiuWaveCount(waves) - 1]!;
   return contactEnd + fullDuration - PALM_COMBO_RECOVERY_START_MS;

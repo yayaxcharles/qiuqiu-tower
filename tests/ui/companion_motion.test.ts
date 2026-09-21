@@ -43,12 +43,24 @@ class FakeCanvas {
   setAttribute(name: string, value: string): void { this.attrs.set(name, value); }
 }
 
+/** 三位同伴延後下載的待機狀態圖：假環境裡它們一直「還在下載」，預載照樣要結束（證明預載不等它們） */
+const STALLED = new Set([motionData, dangdangMotionData, fengfengMotionData].flatMap((data) =>
+  Object.entries(data.actions as Record<string, { texture: string }>)
+    .filter(([key]) => DEFERRED_COMPANION_REST_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`)));
+
 class FakeImage {
+  /** 載好（load 事件觸發）的網址 */
   static sources: string[] = [];
+  /** 呼叫過 decode() 的網址：逐格動作不該有——畫布用不到那份解碼，白解還多占記憶體（清理 2026-09-22） */
+  static decoded: string[] = [];
   static created: FakeImage[] = [];
   src = '';
   constructor() { FakeImage.created.push(this); }
-  async decode(): Promise<void> { FakeImage.sources.push(this.src); }
+  async decode(): Promise<void> { FakeImage.decoded.push(this.src); }
+  addEventListener(type: string, listener: () => void): void {
+    if (type !== 'load' || STALLED.has(this.src)) return;
+    queueMicrotask(() => { FakeImage.sources.push(this.src); listener(); });
+  }
 }
 
 let nextRaf = 1;
@@ -69,6 +81,7 @@ function lastDraw(): DrawCall {
 
 beforeEach(() => {
   FakeImage.sources = [];
+  FakeImage.decoded = [];
   FakeImage.created = [];
   nextRaf = 1;
   rafs = new Map();
@@ -386,8 +399,10 @@ describe('菲菲全身逐格畫布', () => {
         { texture: 'assets/sprites/hero/feifei_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    // 2026-09-21 新補的 10 張待機狀態圖不解碼預載（預載完才在背景下載），解碼預載張數維持原本
+    // 2026-09-21 新補的 10 張待機狀態圖不在預載裡（預載完才在背景下載），預載張數維持原本
     expect(new Set(FakeImage.sources)).toHaveLength(18);
+    // 預載只等載好、不呼叫 decode()（清理 2026-09-22）
+    expect(FakeImage.decoded).toEqual([]);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('fengfeng');
@@ -425,12 +440,14 @@ describe('菲菲全身逐格畫布', () => {
     broken.naturalWidth = 1536;
     expect(companionMotionDrawable('dangdang', 'wounded')).toBe(true);
     expect(companionRestMotionAction('dangdang', 'hurt-pose', { idle: 'idle-pose', hurt: 'hurt-pose' }, 'player', false)).toBe('wounded');
-    // 延後的那十張：預載完就在背景開始下載（建立影像、設好網址），但不解碼
+    // 延後的那十張：預載完就在背景開始下載（建立影像、設好網址），但預載不等它們
+    //（假環境裡它們一直沒載完，預載照樣結束）
     const deferredTextures = Object.entries(dangdangMotionData.actions as Record<string, { texture: string }>)
       .filter(([key]) => DEFERRED_COMPANION_REST_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`);
     expect(deferredTextures).toHaveLength(10);
     expect(FakeImage.created.map((image) => image.src)).toEqual(expect.arrayContaining(deferredTextures));
     expect(FakeImage.sources.filter((src) => deferredTextures.includes(src))).toEqual([]);
+    expect(FakeImage.decoded).toEqual([]);
   });
 
   it('重複叫預載共用同一次，不再對同一批圖重發一輪解碼', async () => {

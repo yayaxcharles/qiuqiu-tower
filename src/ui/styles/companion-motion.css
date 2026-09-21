@@ -10,6 +10,9 @@
 
 .sprite-box.has-companion-motion > .sprite {
   visibility: hidden;
+  /* 被逐格畫布蓋住看不到，呼吸、前撲那些動畫跑了也是白跑（清理 2026-09-22）。
+     要 !important：combat.css 裡掛在 .sprite 上的動畫選擇器權重都比這條高（例如 .combat .unit.enemy.boss-fall.downed .sprite） */
+  animation: none !important;
 }
 
 /* 隱身待機半透明（2026-09-21 同伴補了隱身逐格圖，比照球球的 .qiuqiu-stealth-idle） */
