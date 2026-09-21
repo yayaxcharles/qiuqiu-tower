@@ -294,4 +294,38 @@ describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () =>
     expect(states.get(0)!.winAt).toBe(1556);
     expect(states.get(1)!.winAt).toBe(1556);
   });
+
+  it('兩隻同時從頭播勝利、長短不同：先播完的停在收勢，不被壓回待機、也不被重播', async () => {
+    const log: string[] = [];
+    const states = new Map([[0, seatState('win', true, log, 0)], [1, seatState('win', true, log, 1)]]);
+    const bindings = {
+      motionActors: states, cs: { phase: 'won', players: [{ seat: 0 }, { seat: 1 }] },
+      restMotionAction: () => 'win', shownPose: () => 'win', refreshMotion() {},
+      lastMotionEndAt: 0, performance: { now: () => 1200 }, window: { cancelAnimationFrame() {} },
+    };
+    await execute(idleMotionSource() + '\nidleMotion(0);', bindings);
+    expect(log).toEqual([]);
+    expect(states.get(0)!.action).toBe('win');
+    await execute(idleMotionSource() + '\nidleMotion(1);', { ...bindings, performance: { now: () => 1400 } });
+    expect(log).toEqual([]);
+  });
+
+  it('連線演出某一項丟例外，佇列照樣接著演下一項與收尾', async () => {
+    const played: string[] = [];
+    const errors: unknown[] = [];
+    const queue = [
+      { kind: 'step', wait: 0, play: () => { played.push('bad'); throw new Error('boom'); } },
+      { kind: 'step', wait: 0, play: () => { played.push('next'); } },
+      { kind: 'done', run: () => { played.push('done'); } },
+    ];
+    const cs = {};
+    const body = sourceBetween('  const pumpRemotePresentation = (): void => {', '  const enqueueRemotePresentation');
+    await execute('let remotePresentationRunning = false;\n' + body + '\npumpRemotePresentation();', {
+      remotePresentationQueue: queue, app: { cs }, cs,
+      resolveCombatMotionPresentationWait: () => 0, motionImpactTimers: new Set(),
+      window: { setTimeout: () => 0 }, console: { error: (...args: unknown[]) => errors.push(args) },
+    });
+    expect(played).toEqual(['bad', 'next', 'done']);
+    expect(errors).toHaveLength(1);
+  });
 });

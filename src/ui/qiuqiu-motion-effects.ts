@@ -131,6 +131,9 @@ export function playQiuqiuAfterimages(
 ): () => void {
   const started = performance.now() - Math.max(0, options.elapsed ?? 0);
   const ghosts: Array<{ canvas: HTMLCanvasElement; at: number }> = [];
+  // 每張殘影畫的都是開招那一格，內容一樣：收掉的畫布留著下一張再用，不再每 50 毫秒新建一張
+  // 全尺寸（高解析度螢幕上約 1.6 MB）的加速畫布；同時在場最多三、四張（稽核 2026-09-21 晚 中-3）
+  const spare: HTMLCanvasElement[] = [];
   const captured = document.createElement('canvas');
   captured.width = actor.element.width;
   captured.height = actor.element.height;
@@ -145,28 +148,32 @@ export function playQiuqiuAfterimages(
     cancelAnimationFrame(raf);
     for (const ghost of ghosts) ghost.canvas.remove();
     ghosts.length = 0;
+    spare.length = 0;
   };
   const frame = (now: number): void => {
     if (stopped) return;
     const elapsed = now - started;
     if (elapsed < options.duration && elapsed - last >= 50) {
       last = elapsed;
-      const canvas = document.createElement('canvas');
-      canvas.className = 'qiuqiu-afterimage';
-      canvas.width = actor.element.width;
-      canvas.height = actor.element.height;
-      canvas.getContext('2d')?.drawImage(captured, 0, 0);
+      let canvas = spare.pop();
+      if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.className = 'qiuqiu-afterimage';
+        canvas.width = actor.element.width;
+        canvas.height = actor.element.height;
+        canvas.getContext('2d')?.drawImage(captured, 0, 0);
+      }
       // A captured whole pose drifts a few pixels behind the fighter then fades.
       Object.assign(canvas.style, { position: 'absolute', pointerEvents: 'none', zIndex: '18',
         left: `${foot.x - actor.foot.x}px`, top: `${foot.y - actor.foot.y}px`,
-        width: `${actor.width}px`, height: `${actor.height}px` });
+        width: `${actor.width}px`, height: `${actor.height}px`, opacity: '', transform: '' });
       stage.append(canvas);
       ghosts.push({ canvas, at: elapsed });
     }
     for (let i = ghosts.length - 1; i >= 0; i--) {
       const ghost = ghosts[i]!;
       const age = elapsed - ghost.at;
-      if (age >= lifetime) { ghost.canvas.remove(); ghosts.splice(i, 1); }
+      if (age >= lifetime) { ghost.canvas.remove(); spare.push(ghost.canvas); ghosts.splice(i, 1); }
       else { ghost.canvas.style.opacity = String(.24 * (1 - age / lifetime));
         ghost.canvas.style.transform = `translateX(${-age * .10}px)`; }
     }

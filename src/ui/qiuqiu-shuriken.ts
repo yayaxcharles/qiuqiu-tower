@@ -67,7 +67,10 @@ export function playQiuqiuShuriken(
       transformOrigin: '50% 50%',
     });
     const context = canvas.getContext('2d');
-    if (context && shurikenImage) {
+    // 圖載入失敗（complete 但 naturalWidth 為 0）時 drawImage 會丟例外，整段手裏劍演出跟著中斷、
+    // 傷害數字不出、打死的怪一直站著；壞圖就只留空畫布（稽核 2026-09-21 晚 低-10）
+    const usable = !!shurikenImage && (!('complete' in shurikenImage) || (shurikenImage.complete && shurikenImage.naturalWidth !== 0));
+    if (context && shurikenImage && usable) {
       context.drawImage(
         shurikenImage,
         SOURCE_X,

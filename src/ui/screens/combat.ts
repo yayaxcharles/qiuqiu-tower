@@ -511,7 +511,11 @@ registerScreen('combat', (app, root, props) => {
    * 最後一個動作收掉時由 `idleMotion` 放行，兩隻一起開始慶祝。
    */
   const holdWin = (seat: number, action: CombatMotionAction | undefined): CombatMotionAction | undefined =>
-    action === 'win' && [...motionActors].some(([other, state]) => other !== seat && state.active) ? 'idle' : action;
+    action === 'win'
+      // 已經在播勝利的座位不壓：兩隻同時從頭播、長短不同時，先播完的會被壓回待機，
+      // 等另一隻播完又被放行從頭再播一次（審查 2026-09-21 晚）
+      && motionActors.get(seat)?.action !== 'win'
+      && [...motionActors].some(([other, state]) => other !== seat && state.active) ? 'idle' : action;
 
   const mountMotion = (q: PlayerCombat, box: HTMLElement, displayedPose: string): void => {
     const source = motionSourceFor(q);
@@ -786,7 +790,9 @@ registerScreen('combat', (app, root, props) => {
     const timer = window.setTimeout(() => {
       motionImpactTimers.delete(timer);
       if (app.cs === cs) disposeEnemyMotion(uid);
-    }, enemyMotionDuration(state.kind, 'knockdown'));
+      // 倒地畫布要留到整隻溶解完（combat.css 的 `.unit.dead` 溶解 0.8 秒）：擊倒動作只有 0.2 秒，
+      // 太早收掉的話，溶解期間底下的靜態站姿立繪會冒出來邊淡邊消失（稽核 2026-09-21 晚 中-2）
+    }, Math.max(enemyMotionDuration(state.kind, 'knockdown'), 800) + 160);
     motionImpactTimers.add(timer);
   };
 
@@ -2486,11 +2492,21 @@ registerScreen('combat', (app, root, props) => {
     remotePresentationRunning = true;
     if (item.kind === 'done') {
       // 後面又收到一批時，只讓整條展示佇列最後一個收尾；否則前一批會提早收回合。
-      if (!remotePresentationQueue.some((queued) => queued.kind === 'step')) item.run();
+      if (!remotePresentationQueue.some((queued) => queued.kind === 'step')) {
+        try { item.run(); } catch (error) { console.error('連線演出收尾失敗', error); }
+      }
       pumpRemotePresentation();
       return;
     }
-    item.play();
+    // 演出只是畫面，丟例外也要接著演下一項：不然佇列永遠停在「演出中」，
+    // 同伴之後的動作與收回合都不會再演，這位玩家整場卡住（稽核 2026-09-21 晚 中-4）
+    try {
+      item.play();
+    } catch (error) {
+      console.error('連線演出失敗，跳過這一項', error);
+      pumpRemotePresentation();
+      return;
+    }
     const wait = resolveCombatMotionPresentationWait(item.wait);
     if (wait <= 0) { pumpRemotePresentation(); return; }
     const timer = window.setTimeout(() => {
@@ -2767,8 +2783,10 @@ registerScreen('combat', (app, root, props) => {
       else if (enemyActed && afterHp === was.hp && (afterBlock < was.block
         || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了') || line.startsWith('甲擋下了'))))) reaction = 'guard';
       // 本張牌／忍具已選好演出；回血只是效果，不能把太極或反擊改成吃飯。
+      // 自己正在出招（不是反應動作）時，同伴幫忙回血也不能把招式切成吃飯、人瞬間回原位（稽核 2026-09-21 晚 低-7）
       else if (afterHp > was.hp && !(q.seat === (opts.impactSeat ?? mySeat)
-        && (opts.pose !== undefined || impactMotion !== undefined || opts.impactSeat !== undefined))) reaction = 'eat';
+        && (opts.pose !== undefined || impactMotion !== undefined || opts.impactSeat !== undefined))
+        && !(motionActors.get(q.seat)?.active && !motionActors.get(q.seat)?.reactive)) reaction = 'eat';
       const state = motionActors.get(q.seat);
       if (reaction) playMotion(q.seat, reaction, undefined, 0, true);
       else if (comparedPhase === 'won' && !state?.active) idleMotion(q.seat);
@@ -3410,10 +3428,14 @@ registerScreen('combat', (app, root, props) => {
       cs.log = fullLog.length > 1 ? fullLog.slice(-1) : fullLog;
       try {
         remoteCombatBefore = structuredClone(cs);
+        remoteCombatBefore.rng = cs.rng.clone();
+      } catch (error) {
+        // 複本只給「一次補多張」的重播用；拿不到就走單張演出，不能讓例外中斷套用這一號動作（稽核 2026-09-21 晚 低-14）
+        console.warn('連線重播複本建立失敗，改走單張演出', error);
+        remoteCombatBefore = null;
       } finally {
         cs.log = fullLog;
       }
-      remoteCombatBefore.rng = cs.rng.clone();
     });
     // 我那一下沒算數（主機已經來不及了）：把手放開，畫面重畫回真實的狀態
     // 選牌那一下沒算數的話，視窗要能再開（見 `chooseSent`）
@@ -3687,18 +3709,23 @@ registerScreen('combat', (app, root, props) => {
             motionAlreadyPlaying: ownMotionAlreadyPlaying,
           }
         : ownMotionAlreadyPlaying ? { motionAlreadyPlaying: true, motionTrip: ownMotionTrip } : {};
-      if (!alreadyShown && remoteBefore) settle(remoteBefore, {
-        ...ownOpts,
-        light: !mine,
-        impactMotion: incomingMotion?.action ?? ownImpactMotion,
-        impactPresentationToken: incomingMotion ? undefined : ownImpactPresentationToken,
-        impactElapsed: ownImpactElapsed,
-        impactApproach: incomingMotion?.trip?.plan.approachMs ?? ownImpactApproach,
-        impactSeat: incomingMotion?.seat ?? mySeat,
-        impactAttack: incomingMotion?.attack ?? (ownCard ? cardStats(ownCard).def.type === '攻擊' : false),
-      });
-      // 主機自己出的動作會在外層 act → settle 重畫；先畫會讓血條提前扣血再回升。
-      else if (!alreadyShown || !ownMotionAlreadyPlaying) render();
+      // 狀態已經套用；演出失敗只影響畫面，收尾（勝負、收回合、放開會話）一定要跑，否則整場卡住（稽核 2026-09-21 晚 中-4）
+      try {
+        if (!alreadyShown && remoteBefore) settle(remoteBefore, {
+          ...ownOpts,
+          light: !mine,
+          impactMotion: incomingMotion?.action ?? ownImpactMotion,
+          impactPresentationToken: incomingMotion ? undefined : ownImpactPresentationToken,
+          impactElapsed: ownImpactElapsed,
+          impactApproach: incomingMotion?.trip?.plan.approachMs ?? ownImpactApproach,
+          impactSeat: incomingMotion?.seat ?? mySeat,
+          impactAttack: incomingMotion?.attack ?? (ownCard ? cardStats(ownCard).def.type === '攻擊' : false),
+        });
+        // 主機自己出的動作會在外層 act → settle 重畫；先畫會讓血條提前扣血再回升。
+        else if (!alreadyShown || !ownMotionAlreadyPlaying) render();
+      } catch (error) {
+        console.error('連線演出失敗，照常收尾', error);
+      }
       finishApplied();
     });
     session.onTrouble((why) => {

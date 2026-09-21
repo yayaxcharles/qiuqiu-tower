@@ -433,6 +433,13 @@ describe('菲菲全身逐格畫布', () => {
     expect(FakeImage.sources.filter((src) => deferredTextures.includes(src))).toEqual([]);
   });
 
+  it('重複叫預載共用同一次，不再對同一批圖重發一輪解碼', async () => {
+    await preloadCompanionMotion('feifei');
+    FakeImage.sources = [];
+    await Promise.all([preloadCompanionMotion('feifei'), preloadCompanionMotion('feifei')]);
+    expect(FakeImage.sources).toEqual([]);
+  });
+
   it('新補的待機狀態圖不在解碼預載裡，播到時直接拿背景下載的那張來畫', () => {
     const wounded = `/${(dangdangMotionData.actions as Record<string, { texture: string }>).wounded!.texture}`;
     // 預載那一半由上一個測試的完整清單比對保證；這裡確認第一次播到時直接拿該圖來畫。

@@ -92,7 +92,14 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     return image;
   };
 
-  const preload = async (): Promise<void> => {
+  // 開局預載、戰鬥畫面、過關轉場都會叫 preload；進行中或已成功就共用同一次，
+  // 不再對同一批圖重發一輪 decode()。失敗就清掉，下次重試（稽核 2026-09-21 晚 低-6）
+  let preloading: Promise<void> | null = null;
+  const preload = (): Promise<void> => {
+    preloading ??= preloadOnce().catch((error: unknown) => { preloading = null; throw error; });
+    return preloading;
+  };
+  const preloadOnce = async (): Promise<void> => {
     const unique = new Map<string, FrameMotion>();
     for (const [key, motion] of Object.entries(config.motions)) {
       if (!config.deferred?.has(key)) unique.set(fileUrl(motion.texture), motion);
