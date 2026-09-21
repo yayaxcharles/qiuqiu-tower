@@ -1,7 +1,7 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, coopArtUrls, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, warmed, type MonsterPose } from './assets';
+import { artUrl, coopArtUrls, decodeAll, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 
 /**
@@ -80,42 +80,6 @@ function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero(), i
     }
   }
   return [...new Set(urls)];
-}
-
-/** 撐住 Image 物件的參照：沒人引用的圖下載沒完成就可能被回收（稽核 2026-09-04 低 14） */
-const keep: HTMLImageElement[] = [];
-
-/**
- * 把一批圖片下載並解碼好（失敗就算了，不該讓流程停掉）。
- *
- * `hold` ＝要不要把 `Image` 留在 `keep` 裡，可以給 `true`／`false`，也可以給一個逐張決定的函式
- *（同一批裡有些要留有些不留時用，見 `warmEncounter`）。**底圖一律不留**：一張 1280x720
- * 解碼成點陣圖是 3.5 MB，三關 27 張加起來將近 100 MB，全部壓到分頁關掉為止；而底圖本來就是拿去當
- * `background-image` 用的，樣式一鋪上去瀏覽器自己就會把它留在快取裡，不需要我們多抓一份。
- * 魔物立繪維持留著（那是 2026-09-04 低 14 加的，一張只有幾十 KB）。
- *
- * `urls` 的**順序就是優先序**：工人們從索引 0 往下領號碼牌，排前面的先下載。
- */
-async function decodeAll(urls: string[], concurrency = 4,
-  hold: boolean | ((url: string) => boolean) = true): Promise<void> {
-  if (typeof Image === 'undefined') return;   // 測試環境沒有瀏覽器
-  const todo = urls.filter((u) => !warmed.has(u) && !u.startsWith('data:'));
-  let next = 0;
-  const worker = async (): Promise<void> => {
-    for (let i = next++; i < todo.length; i = next++) {
-      const url = todo[i]!;
-      try {
-        const img = new Image();
-        if (typeof hold === 'function' ? hold(url) : hold) keep.push(img);
-        img.src = url;
-        // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
-        if (typeof img.decode === 'function') await img.decode();
-        else await new Promise<void>((res, reject) => { img.onload = () => res(); img.onerror = () => reject(new Error('圖片載入失敗')); });
-        warmed.add(url);
-      } catch { /* 少一張只是那張晚一點出現 */ }
-    }
-  };
-  await Promise.all(Array.from({ length: concurrency }, worker));
 }
 
 /**

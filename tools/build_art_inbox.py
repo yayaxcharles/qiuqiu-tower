@@ -106,15 +106,8 @@ def main() -> None:
         manifest["bg"][f"bg/{src.stem}"] = dst.relative_to(OUT.parent).as_posix()
         print(f"劇情定格 {src.stem}.webp {dst.stat().st_size // 1024} KB")
 
-    # 師父正常形態（綠幕去背的單張立繪，之後接對白頭像）
-    mn = INBOX / "master_normal.png"
-    if mn.exists():
-        keyed = key_out(Image.open(mn).convert("RGB"))
-        dst = OUT / "sprites" / "master_normal.webp"
-        keyed.thumbnail((640, 720), Image.LANCZOS)
-        keyed.save(dst, "WEBP", quality=80, method=6)
-        manifest.setdefault("sprites", {})["master/normal"] = dst.relative_to(OUT.parent).as_posix()
-        print(f"師父正常形態 master_normal.webp {dst.stat().st_size // 1024} KB")
+    # 師父正常形態（`master_normal.png` → `master/normal`）這一段 2026-09-22 拿掉了：
+    # 那張圖從來沒有畫面用到，卻會被開場預載整張下載；清單鍵與檔案已一起刪，別再收回來。
 
     for src in sorted(INBOX.glob("card_paper_*.png")):
         name = src.stem.replace("card_paper_", "")

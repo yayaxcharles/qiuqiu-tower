@@ -51,7 +51,7 @@ describe('食物與特殊招式不被通用施術蓋掉', () => {
     const result = await execute(code, {
       hero, cards, motionEnabled: true, motionSourceFor: () => hero, ATTACK_POSE: { shihou: 'roar', jiedao: 'taiji' },
       cardStats: (card: { cardId: string }) => ({ def: cardById[card.cardId], effects: cardById[card.cardId]!.effects }),
-      companionKind: (source: string) => source, companionCardAction,
+      companionCardAction,
     });
     expect(result).toEqual(cards.map(() => undefined));
   });

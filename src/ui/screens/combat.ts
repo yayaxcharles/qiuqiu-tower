@@ -21,13 +21,13 @@ import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
-import { artUrl, hasMonsterPose, hasHeroSprite, heroSpriteKey, monsterPhaseKey, monsterUrl, hasSprite } from '../assets';
+import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPhaseKey, monsterUrl, hasSprite, type DecodePool } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
 import { heroSpeaker, toast } from '../dialogue';
-import { clear, el } from '../dom';
+import { clear, el, stageFrame } from '../dom';
 import { play as sfx } from '../audio';
 import { enemyLeft, nextLineup, playerLeft } from '../enemylayout';
 import { burst } from '../fx';
@@ -46,7 +46,6 @@ import {
   createCompanionMotionActor,
   preloadCompanionMotion,
   type CompanionMotionAction,
-  type CompanionMotionKind,
 } from '../companion-motion';
 import { motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
 import { playQiuqiuShuriken } from '../qiuqiu-shuriken';
@@ -131,8 +130,8 @@ const DEAL_FLY = 440;          // 一張新牌從牌堆飛到定位要多久（�
 
 /**
  * 球球的姿勢。全部是專為這款遊戲畫的忍者裝立繪（`hero/*`），打包時放進同一張畫布
- * 底部對齊，換姿勢不會忽大忽小。`hero/ninja_guard`（抱胸格擋）與 `hero/idle`、
- * `hero/armed` 目前沒排到位置，留著備用。
+ * 底部對齊，換姿勢不會忽大忽小。`hero/ninja_guard`（抱胸格擋）目前沒排到位置，留著備用
+ *（同樣沒排到位置的舊素材 `hero/idle`、`hero/armed` 2026-09-22 已刪）。
  */
 const POSE = {
   idle: 'hero/ninja', attack: 'hero/ninja_attack', hit: 'hero/ninja_hit', dodge: 'hero/ninja_dodge',
@@ -216,11 +215,9 @@ const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dr
  * ===== 換角色（2026-09-12）=====
  * `POSE` 的值一律是**球球版**的鍵，那是「姿勢的身分證」——畫面到處拿它做相等比較。
  * 所以這張表不動，只在兩個出口翻譯：`hasHeroSprite`（她自己畫好了沒，嚴格、不走退路）
- * 與 `heroArt`（鍵變成網址，寬鬆、找不到會退到她自己最接近的一張）。
+ * 與 `heroArtUrl`（鍵變成網址，寬鬆、找不到會退到她自己最接近的一張）。
  */
 const posePick = (hero: Hero, k: PoseKey, fallback: string): string => (hasHeroSprite(hero, POSE[k]) ? POSE[k] : fallback);
-/** 這一位的立繪網址 */
-const heroArt = (q: Pick<PlayerCombat, 'hero'>, key: string): string => artUrl('sprites', heroSpriteKey(q.hero, key));
 /** 這一位看到的牌名（她的牌名跟球球分家，見 `cardNameFor`）。查不到牌就回牌號 */
 const nameFor = (hero: string | undefined, id: string): string => {
   const d = cardById[id];
@@ -252,7 +249,6 @@ function potionPose(hero: Hero, id: string): { pose?: string; attack?: boolean }
 const THROW_CARDS: ReadonlySet<string> = new Set(['sashoujian']);
 const THROW_POTIONS: ReadonlySet<string> = new Set(['shuriken', 'needle_rain']);
 // 塔主的姿勢對照表放在內容層（`enemies.ts`），跟招式定義擺在一起，加招時比較不會漏配。
-const BOSS_MOVE_POSE = BOSS_MOVE_ART;
 const BOSS_IDLE = BOSS_ART.idle1;          // 第一階段
 const BOSS_DEFEAT = BOSS_ART.defeat;       // 承讓
 /** 各階段的待機圖：第三階段的圖還沒生好就先用第二階段的（走火入魔），不能是灰剪影 */
@@ -268,7 +264,7 @@ function bossMovePose(phase: number, label: string): string | undefined {
   // 跨階段那一拍（血量在你的回合跨線，牠這回合出的還是上一階段宣告的招）會突然冒出戴斗笠的舊師父
   // ——使用者 2026-09-03：「都到第二第三階段換造型了，還是會突然出現調息的圖片」。
   if (phase >= 1) return undefined;
-  return BOSS_MOVE_POSE[label];
+  return BOSS_MOVE_ART[label];
 }
 
 /** 這一拍剛出手的魔物：`attacked` 決定要不要換攻擊立繪與前撲，`label` 給塔主查招式姿勢 */
@@ -399,7 +395,7 @@ registerScreen('combat', (app, root, props) => {
    *
    * 動畫那幾段本來寫 `root.querySelector('.unit.player …')`——沒帶座位，
    * `querySelector` 拿的永遠是**畫面上第一格**，也就是 0 號座位。
-   * 然後那幾行又往裡面寫 `heroArt(my(), …)`，等於**把我的立繪蓋到同伴身上**。
+   * 然後那幾行又往裡面寫 `heroArtUrl(my().hero, …)`，等於**把我的立繪蓋到同伴身上**。
    *
    * 玩家看到的：球球開房、菲菲加入時，菲菲那台畫面上兩隻都是菲菲，
    * 只有名牌還寫著「球球（同伴）」。球球那台完全正常——因為他就是 0 號，
@@ -440,21 +436,19 @@ registerScreen('combat', (app, root, props) => {
     return undefined;
   };
 
-  const companionKind = (source: Exclude<CombatMotionSource, 'qiuqiu'>): CompanionMotionKind => source;
-
   const motionDuration = (source: CombatMotionSource, action: CombatMotionAction, waves = 1): number =>
     source === 'qiuqiu'
       ? qiuqiuMotionDuration(action as QiuqiuAction, waves)
-      : companionMotionDuration(companionKind(source), action as CompanionMotionAction, waves);
+      : companionMotionDuration(source, action as CompanionMotionAction, waves);
 
   const motionImpactDelay = (source: CombatMotionSource, action: CombatMotionAction): number =>
     source === 'qiuqiu'
       ? qiuqiuImpactDelay(action as QiuqiuAction)
-      : companionImpactDelay(companionKind(source), action as CompanionMotionAction);
+      : companionImpactDelay(source, action as CompanionMotionAction);
 
   const motionState = (q: PlayerCombat): CombatMotion | undefined => {
     const source = motionSourceFor(q);
-    if (!source || (source === 'qiuqiu' ? !qiuqiuMotionReady() : !companionMotionReady(companionKind(source)))) return undefined;
+    if (!source || (source === 'qiuqiu' ? !qiuqiuMotionReady() : !companionMotionReady(source))) return undefined;
     let state = motionActors.get(q.seat);
     if (!state || state.source !== source) {
       if (state) {
@@ -465,7 +459,7 @@ registerScreen('combat', (app, root, props) => {
       }
       const actor = (source === 'qiuqiu'
         ? createQiuqiuActor()
-        : createCompanionMotionActor(companionKind(source))) as unknown as MotionActor;
+        : createCompanionMotionActor(source)) as unknown as MotionActor;
       state = { source, actor, layer: el('div', { class: 'qiuqiu-melee' },
         el('div', { class: 'qiuqiu-melee-shadow' })), action: 'idle', active: false, reactive: false, away: false, raf: 0, endsAt: 0 };
       motionActors.set(q.seat, state);
@@ -520,7 +514,7 @@ registerScreen('combat', (app, root, props) => {
   const mountMotion = (q: PlayerCombat, box: HTMLElement, displayedPose: string): void => {
     const source = motionSourceFor(q);
     if (!motionEnabled || !source
-      || (source === 'qiuqiu' ? !qiuqiuMotionReady() : !companionMotionReady(companionKind(source)))) {
+      || (source === 'qiuqiu' ? !qiuqiuMotionReady() : !companionMotionReady(source))) {
       box.classList.remove('has-qiuqiu-motion', 'has-companion-motion', 'qiuqiu-stealth-idle', 'qiuqiu-melee-away');
       motionActors.get(q.seat)?.actor.element.remove();
       return;
@@ -626,10 +620,9 @@ registerScreen('combat', (app, root, props) => {
 
   // 舞台會隨視窗縮放，所有行程都先換回 1280 × 720 的座標。
   const motionFoot = (node: HTMLElement): { x: number; y: number } => {
-    const stage = app.stage.getBoundingClientRect();
+    const stage = stageFrame(app.stage);
     const box = node.getBoundingClientRect();
-    const k = stage.width > 0 ? 1280 / stage.width : 1;
-    return { x: (box.left + box.width / 2 - stage.left) * k, y: (box.bottom - stage.top) * k };
+    return { x: (box.left + box.width / 2 - stage.left) * stage.k, y: (box.bottom - stage.top) * stage.k };
   };
 
   const prepareMelee = (seat: number, action: CombatMotionAction, targetUid?: number, attack = true): MeleeTrip | undefined => {
@@ -637,7 +630,7 @@ registerScreen('combat', (app, root, props) => {
     const source = q ? motionSourceFor(q) : undefined;
     const melee = source === 'qiuqiu'
       ? qiuqiuIsMelee(action as QiuqiuAction)
-      : source !== undefined && companionIsMelee(companionKind(source), action as CompanionMotionAction);
+      : source !== undefined && companionIsMelee(source, action as CompanionMotionAction);
     if (!q || !source || !attack || !melee) return undefined;
     const home = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"] .sprite-box`);
     // 全體爪擊沒有指定目標，就以最近一隻仍站著的魔物為接近位置。
@@ -697,7 +690,7 @@ registerScreen('combat', (app, root, props) => {
         if (seat === mySeat && cs.phase === 'player') {
           pose = idlePose();
           const image = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-          if (image) image.src = heroArt(q, pose);
+          if (image) image.src = heroArtUrl(q.hero, pose);
         }
         // 只就地收姿勢；整頁重畫會重建手牌，並截斷飄字與其他單位的動作。
         idleMotion(seat);
@@ -737,7 +730,7 @@ registerScreen('combat', (app, root, props) => {
       if (action?.startsWith('attack')) clawMotionIndex += 1;
       return action ?? undefined;
     }
-    return companionCardAction(companionKind(source), def.id, {
+    return companionCardAction(source, def.id, {
       poseFamily: ATTACK_POSE[def.id] ?? SKILL_POSE[def.id],
       cardType: def.type,
       hasBlock: stats.effects.some((effect) => effect.kind === 'block' || effect.kind === 'blockIfPoisoned'),
@@ -896,7 +889,7 @@ registerScreen('combat', (app, root, props) => {
     const mine = q.seat === mySeat;
     const n = cs.players.length;
     const displayedPose = mine ? pose : matePose(q);
-    const picture = spriteBox(heroArt(q, displayedPose), heroName(q));
+    const picture = spriteBox(heroArtUrl(q.hero, displayedPose), heroName(q));
     const node = el('div', {
       class: `unit player${mine ? ' mine' : ''}${q.down ? ' downed' : ''}${q.ready && n > 1 ? ' ready' : ''}`,
       'data-seat': String(q.seat),
@@ -1042,35 +1035,36 @@ registerScreen('combat', (app, root, props) => {
   /**
    * 開戰先把這場會用到的立繪解碼好（使用者 2026-09-03：「第一次攻擊動作有點 LAG，下一次就正常」）：
    * 出手圖是換 src 的那一拍才第一次載入＋解碼，第一次前撲就會頓一下。這裡用 Image.decode() 先熱身，
-   * 物件留在 keep 裡免得被回收；召喚出新魔物時（render 裡）再補熱。
+   * 物件留在這一場自己的 `warmPool` 裡免得被回收（跟著畫面一起放掉）；召喚出新魔物時（render 裡）再補熱。
+   * 解碼迴圈跟開場／分關預載共用 `assets.ts` 的 `decodeAll`。
    */
-  const warmed = new Set<string>();
-  const keep: HTMLImageElement[] = [];
-  const warm = (url: string): void => {
-    if (!url || url.startsWith('data:') || warmed.has(url)) return;
-    warmed.add(url);
-    const im = new Image();
-    im.src = url;
-    keep.push(im);
-    if (typeof im.decode === 'function') im.decode().catch(() => { /* 解不開就算了，畫面照常 */ });
+  const warmPool: DecodePool = { seen: new Set(), keep: [] };
+  const asked = new Set<string>();   // 送出去過的（還在解的也算）：重畫時不重送
+  const warm = (urls: readonly string[]): void => {
+    const fresh = [...new Set(urls)].filter((u) => u && !asked.has(u));
+    for (const u of fresh) asked.add(u);
+    // 一次全部送出、不排隊（跟以前一張一張各自 decode 一樣）；解不開就算了，畫面照常
+    if (fresh.length) void decodeAll(fresh, fresh.length, true, warmPool);
   };
   const warmAll = (): void => {
+    const urls: string[] = [];
     // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
-    for (const q of cs.players) for (const key of Object.values(POSE)) warm(heroArt(q, key));
+    for (const q of cs.players) for (const key of Object.values(POSE)) urls.push(heroArtUrl(q.hero, key));
     for (const e of cs.enemies) {
       const def = enemyById[e.enemyId];
       if (!def) continue;
       if (def.art === 'daxia') {
-        for (const key of [...Object.values(BOSS_ART), ...BOSS_HURT_ART, ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) warm(artUrl('sprites', key));
+        for (const key of [...Object.values(BOSS_ART), ...BOSS_HURT_ART, ...Object.values(BOSS_MOVE_ART), ...BOSS_MOVE_ART_PHASE.flatMap((t) => Object.values(t))]) if (hasSprite(key)) urls.push(artUrl('sprites', key));
       } else {
         const art = artOfEnemy(e);
-        warm(monsterUrl(art, 'idle')); warm(monsterUrl(art, 'attack'));
-        if (hasMonsterPose(art, 'hurt')) warm(monsterUrl(art, 'hurt'));
-        if (hasMonsterPose(art, 'block')) warm(monsterUrl(art, 'block'));
+        urls.push(monsterUrl(art, 'idle'), monsterUrl(art, 'attack'));
+        if (hasMonsterPose(art, 'hurt')) urls.push(monsterUrl(art, 'hurt'));
+        if (hasMonsterPose(art, 'block')) urls.push(monsterUrl(art, 'block'));
         // 倒地圖（大魔物與塔主才有）：打死那一刻才現抓的話，牠會先變空白再冒出來
-        if (hasMonsterPose(art, 'down')) warm(monsterUrl(art, 'down'));
+        if (hasMonsterPose(art, 'down')) urls.push(monsterUrl(art, 'down'));
       }
     }
+    warm(urls);
   };
   warmAll();
   // 開場那一次畫完才開閘，之後的變化才演（低-5）
@@ -1885,8 +1879,7 @@ registerScreen('combat', (app, root, props) => {
     const pile = box.querySelector('.pile-draw') ?? box.querySelector('.piles');
     if (!cards.length || !hand || !pile) return;
     // 舞台整個被 transform: scale() 縮過，量到的螢幕座標要除以縮放比才是舞台座標
-    const stage = app.stage.getBoundingClientRect();
-    const k = stage.width > 0 ? 1280 / stage.width : 1;
+    const { k } = stageFrame(app.stage);
     const hr = hand.getBoundingClientRect();     // 手牌區沒有 transform，外框就是它的版面位置
     const pr = pile.getBoundingClientRect();
     const ax = (pr.left + pr.width / 2 - hr.left) * k;   // 牌堆中心，換算成「相對於手牌區」
@@ -1936,7 +1929,7 @@ registerScreen('combat', (app, root, props) => {
     const p = my();
     const pChanged = before.hp !== p.hp || before.block !== p.block || before.buff !== sumStatus(p, GOOD_STATUS)
       || before.debuff !== sumStatus(p, BAD_STATUS) || before.stealth !== getStatus(p, '隱身')
-      || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== heroArt(p, pose)
+      || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== heroArtUrl(p.hero, pose)
       || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack');
     if (pChanged) pNode.replaceWith(playerUnit(p));
     // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態
@@ -2092,9 +2085,8 @@ registerScreen('combat', (app, root, props) => {
      * 專案裡 `tooltip.ts`、`dragplay.ts`、`dragscroll.ts` 都是現查，這裡是唯一的例外。
      */
     const toStage = (cx: number, cy: number): { x: number; y: number } => {
-      const rect = app.stage.getBoundingClientRect();
-      const k = rect.width > 0 ? 1280 / rect.width : 1;
-      return { x: (cx - rect.left) * k, y: (cy - rect.top) * k };
+      const stage = stageFrame(app.stage);
+      return { x: (cx - stage.left) * stage.k, y: (cy - stage.top) * stage.k };
     };
     const centreOf = (n: Element, yFrac: number): { x: number; y: number } => {
       const r = n.getBoundingClientRect();
@@ -2195,8 +2187,8 @@ registerScreen('combat', (app, root, props) => {
     const layer = overlayRoot();
     const from = root.querySelector<HTMLElement>(`.hand .card[data-uid="${uid}"]`);
     if (!layer || !from || typeof from.animate !== 'function') return;
-    const stage = app.stage.getBoundingClientRect();
-    const k = stage.width > 0 ? 1280 / stage.width : 1;
+    const stage = stageFrame(app.stage);
+    const { k } = stage;
     const r = from.getBoundingClientRect();
     const dest = targetUid === undefined
       ? root.querySelector(`${MINE} .sprite`)
@@ -2299,8 +2291,7 @@ registerScreen('combat', (app, root, props) => {
     const cards = [...root.querySelectorAll<HTMLElement>('.hand .card')];
     if (!hand || !btn || !cards.length || typeof cards[0]!.animate !== 'function') return 0;
     // 舞台整個被 transform: scale() 縮過，量到的螢幕座標要除以縮放比才是舞台座標
-    const stage = app.stage.getBoundingClientRect();
-    const k = stage.width > 0 ? 1280 / stage.width : 1;
+    const { k } = stageFrame(app.stage);
     const br = btn.getBoundingClientRect();
     const bx = br.left + br.width / 2;
     const by = br.top + br.height / 2;
@@ -3076,8 +3067,8 @@ registerScreen('combat', (app, root, props) => {
     if (opts.attack && stagedMax > 1 && ATTACK_POSES.has(pose)) {
       const alt = pose === POSE.claw ? POSE.attack : POSE.claw;
       if (hasHeroSprite(my().hero, alt) && hasHeroSprite(my().hero, pose)) {
-        const first = heroArt(my(), pose);
-        const second = heroArt(my(), alt);
+        const first = heroArtUrl(my().hero, pose);
+        const second = heroArtUrl(my().hero, alt);
         for (let i = 1; i < stagedMax; i++) {
           window.setTimeout(() => {
             if (seq !== mine || app.cs !== cs) return;
@@ -3191,7 +3182,7 @@ registerScreen('combat', (app, root, props) => {
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
       // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。
       const cat = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-      if (cat) cat.src = heroArt(my(), pose);
+      if (cat) cat.src = heroArtUrl(my().hero, pose);
       for (const q of cs.players) if (!motionActors.get(q.seat)?.active) idleMotion(q.seat);
       for (const e of cs.enemies) {
         const img = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
@@ -3777,7 +3768,7 @@ registerScreen('combat', (app, root, props) => {
     ? cs.enemies.map((e) => enemyById[e.enemyId]).find((d) => d?.pool === '塔主')
     : undefined;
   if (bossDef) {
-    const heroUrl = heroArt(my(), POSE.idle);
+    const heroUrl = heroArtUrl(my().hero, POSE.idle);
     const bossUrl = bossDef.art === 'daxia' ? artUrl('sprites', BOSS_IDLE) : monsterUrl(bossDef.art, 'idle');
     if (!isFallback(heroUrl) && !isFallback(bossUrl)) {
       const ov = el('div', { class: 'vs-overlay' },

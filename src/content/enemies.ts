@@ -1225,7 +1225,7 @@ export const enemies: EnemyDef[] = [
  * `tests/ui/cardtext.test.ts` 有一條會擋住這種漏配。
  */
 export const BOSS_MOVE_ART: Record<string, string> = {
-  // 蓄力、閉關兩招在師父 3.0 拿掉了（boss/charge 那張圖先留著）
+  // 蓄力、閉關兩招在師父 3.0 拿掉了（boss/charge 那張圖 2026-09-22 跟著刪了）
   鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar', 醉拳: 'boss/drunk',
   // 三階段重做（2026-09-01）加的招，先共用最接近的現有立繪
   沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm', 狂風連掌: 'boss/drunk', 蹲下調息: 'boss/seclude',

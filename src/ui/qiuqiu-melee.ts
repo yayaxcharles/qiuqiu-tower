@@ -1,4 +1,4 @@
-import { qiuqiuImpactDelay, qiuqiuMotionDuration, type QiuqiuAction } from './qiuqiu-motion';
+import type { QiuqiuAction } from './qiuqiu-motion';
 
 export type MeleePoint = { x: number; y: number };
 
@@ -12,8 +12,6 @@ export type MotionMeleePlan<Action extends string = QiuqiuAction> = {
   totalMs: number;
   action: Action;
 };
-
-export type QiuqiuMeleePlan = MotionMeleePlan<QiuqiuAction>;
 
 export function motionMeleePlan<Action extends string>(
   from: MeleePoint,
@@ -41,16 +39,6 @@ export function motionMeleePlan<Action extends string>(
   };
 }
 
-export function qiuqiuMeleePlan(
-  from: MeleePoint,
-  target: MeleePoint,
-  targetWidth: number,
-  action: QiuqiuAction,
-): QiuqiuMeleePlan {
-  return motionMeleePlan(from, target, targetWidth, action,
-    qiuqiuMotionDuration(action), qiuqiuImpactDelay(action));
-}
-
 export function motionMeleeSample<Action extends string>(
   plan: MotionMeleePlan<Action>,
   elapsedMs: number,
@@ -60,11 +48,4 @@ export function motionMeleeSample<Action extends string>(
     return { x: plan.dx, y: plan.dy, action: plan.action, facing: 1, done: false };
   }
   return { x: 0, y: 0, action: 'idle', facing: 1, done: true };
-}
-
-export function qiuqiuMeleeSample(
-  plan: QiuqiuMeleePlan,
-  elapsedMs: number,
-): { x: number; y: number; action: QiuqiuAction; facing: 1 | -1; done: boolean } {
-  return motionMeleeSample(plan, elapsedMs);
 }

@@ -18,7 +18,7 @@ import { computeScale, heroSpriteUrls, localHero, monsterUrl, setLocalHero, setL
 import { setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
-import { clear, el } from './dom';
+import { clear, el, stageFrame } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
@@ -404,10 +404,9 @@ export class App {
             if (!sprite) return;
             // 舞台的框在**要用的那一刻**才量：泡泡最晚會在 1.8 秒後才冒出來，
             // 中途改視窗大小的話，開頭量好的倍率就對不上了（跟指引箭頭同一個坑，稽核 2026-09-10 中-3）
-            const stage = this.stage.getBoundingClientRect();
-            const k = stage.width > 0 ? 1280 / stage.width : 1;
+            const stage = stageFrame(this.stage);
             const r = sprite.getBoundingClientRect();
-            bubbleAt(e.line ?? enemyById[e.enemyId]?.line ?? '', e.name, (r.left + r.width / 2 - stage.left) * k, (r.top - stage.top) * k + 16);
+            bubbleAt(e.line ?? enemyById[e.enemyId]?.line ?? '', e.name, (r.left + r.width / 2 - stage.left) * stage.k, (r.top - stage.top) * stage.k + 16);
           }, i * 420);
         });
       }, 500);

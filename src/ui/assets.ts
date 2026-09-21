@@ -91,7 +91,7 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  * 直接讀清單而不是寫死名單：以後補新姿勢不會漏。
  */
 const HERO_NOT_IN_COMBAT = new Set([
-  'hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/fengfeng_cover', 'hero/idle', 'hero/armed',
+  'hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/fengfeng_cover',
   // 2026-09-18 補的四張非戰鬥姿勢（貓窩的打盹／磨爪／扶同伴，加過關走路）：戰鬥裡一張都用不到，
   // 進暖圖只會擋在魔物立繪前面。四隻各四張＝16 張
   ...['ninja', 'feifei', 'dangdang', 'fengfeng'].flatMap((h) => ['nap', 'sharpen', 'helpup', 'walk'].map((p) => `hero/${h}_${p}`)),
@@ -118,9 +118,8 @@ export function heroOfKey(key: string): string | null {
 /** 這一局登場的角色（單機一位、連線兩位）的戰鬥姿勢圖；沒登場的那位不暖，免得跟魔物立繪搶下載（總稽核 F 中-3） */
 export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja']): string[] {
   const want = new Set(heroes.map((h) => h ?? 'ninja'));
-  // 排掉戰鬥裡永遠用不到的三張（稽核 2026-09-10 低-2）：`cover` 只有標題畫面用，
-  // `idle`／`armed` 是舊素材、`combat.ts` 的註解自己寫「目前沒排到位置，留著備用」。
-  // 三張共 89 KB，佔這批暖圖的一成一，卻只是擋在魔物前面。
+  // 排掉戰鬥裡永遠用不到的圖（稽核 2026-09-10 低-2）：`cover` 只有標題畫面用，只是擋在魔物前面。
+  // 當時一起排掉的舊素材 `idle`／`armed` 2026-09-22 已經連清單帶檔案刪掉。
   return Object.entries(manifest.sprites)
     .filter(([k]) => k.startsWith('hero/') && !HERO_NOT_IN_COMBAT.has(k) && want.has(heroOfKey(k) ?? 'ninja'))
     .map(([, v]) => `${BASE}${v}`);
@@ -366,39 +365,75 @@ export function monsterUrl(artKey: string, pose: MonsterPose): string {
 }
 
 /**
+ * 已經下載＋解碼過的圖，所有預載共用同一份紀錄（`decodeAll` 解完就登記、下一批就跳過它）。
+ *
+ * 放在 `assets.ts` 而不是 `preload.ts`：`preload.ts` 已經引用這裡，反過來再引用一次會成環——
+ * 這個專案踩過（`bossdoor.ts` 與 `app.ts` 互相引用，害一支測試在載入階段就掛掉、測試數靜靜少了四條）。
+ *
+ * 開場的 `preloadArt` 以前自己寫了一份解碼迴圈、解完的那幾百張從來沒登記，
+ * `preloadAct(1)` 接著又照 `bgKeysForAct(1)` 解一次（複核 2026-09-11 低-4）。
+ * 現在開場、分關／遭遇預載、戰鬥畫面三處都走同一支 `decodeAll`。
+ */
+export const warmed = new Set<string>();
+
+/**
+ * 一組「解過了沒」的紀錄＋留參照的地方。
+ *
+ * 整頁共用一組（`warmed`＋下面的 `keep`）；戰鬥畫面自己開一組，跟著那一場的閉包一起回收
+ *（每場各留一份姿勢圖，打完就放掉，不會一路壓到分頁關掉）。
+ */
+export type DecodePool = { seen: Set<string>; keep: HTMLImageElement[] };
+
+/** 撐住 Image 物件的參照：沒人引用的圖下載沒完成就可能被回收（稽核 2026-09-04 低 14） */
+const keep: HTMLImageElement[] = [];
+const sharedPool: DecodePool = { seen: warmed, keep };
+
+/**
+ * 把一批圖片下載並解碼好（失敗就算了，不該讓流程停掉；失敗的不登記，下一批還會再試）。
+ *
+ * 為什麼要 `decode()` 不只是 `new Image().src`：光設 src 只是**下載**，
+ * 解碼還是留到畫的那一刻才做，該頓的還是會頓。`decode()` 會把解碼也一起做完。
+ *
+ * `hold` ＝要不要把 `Image` 留在 `pool.keep` 裡，可以給 `true`／`false`，也可以給一個逐張決定的函式
+ *（同一批裡有些要留有些不留時用，見 `warmEncounter`）。**底圖一律不留**：一張 1280x720
+ * 解碼成點陣圖是 3.5 MB，三關 27 張加起來將近 100 MB，全部壓到分頁關掉為止；而底圖本來就是拿去當
+ * `background-image` 用的，樣式一鋪上去瀏覽器自己就會把它留在快取裡，不需要我們多抓一份。
+ * 魔物立繪維持留著（那是 2026-09-04 低 14 加的，一張只有幾十 KB）。
+ *
+ * `urls` 的**順序就是優先序**：工人們從索引 0 往下領號碼牌，排前面的先下載。
+ */
+export async function decodeAll(urls: readonly string[], concurrency = 4,
+  hold: boolean | ((url: string) => boolean) = true, pool: DecodePool = sharedPool): Promise<void> {
+  if (typeof Image === 'undefined') return;   // 測試環境沒有瀏覽器
+  const todo = urls.filter((u) => !pool.seen.has(u) && !u.startsWith('data:'));
+  let next = 0;
+  const worker = async (): Promise<void> => {
+    for (let i = next++; i < todo.length; i = next++) {
+      const url = todo[i]!;
+      try {
+        const img = new Image();
+        if (typeof hold === 'function' ? hold(url) : hold) pool.keep.push(img);
+        img.src = url;
+        // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
+        if (typeof img.decode === 'function') await img.decode();
+        else await new Promise<void>((res, reject) => { img.onload = () => res(); img.onerror = () => reject(new Error('圖片載入失敗')); });
+        pool.seen.add(url);
+      } catch { /* 少一張只是那張晚一點出現 */ }
+    }
+  };
+  await Promise.all(Array.from({ length: concurrency }, worker));
+}
+
+/**
  * 開場之後在背景把圖全部先載好、先解好。
  *
  * 沒有這一段的話，每張圖都是**畫面要用到的當下**才去下載＋解碼——
  * 第一次進戰鬥，整張戰鬥背景（1280x720）、魔物立繪、球球的七個姿勢
  * 全部同時在你眼前現載，畫面就頓一下。這是「好多很卡」很大一部分的來源。
  *
- * 為什麼要 `decode()` 不只是 `new Image().src`：光設 src 只是**下載**，
- * 解碼還是留到畫的那一刻才做，該頓的還是會頓。`decode()` 會把解碼也一起做完。
- *
  * 順序照「多快會用到」排：立繪與圖示馬上要，牌面進戰鬥要，背景最重但可以晚一點。
  * 一次六張：太多會跟畫面搶頻寬，反而開場更慢。
  */
-/**
- * 已經下載＋解碼過的圖，兩支預載共用同一份紀錄。
- *
- * 放在 `assets.ts` 而不是 `preload.ts`：`preload.ts` 已經引用這裡，反過來再引用一次會成環——
- * 這個專案踩過（`bossdoor.ts` 與 `app.ts` 互相引用，害一支測試在載入階段就掛掉、測試數靜靜少了四條）。
- */
-export const warmed = new Set<string>();
-
-/**
- * 登記「這張已經解碼過了」，之後 `preload.ts` 的 `decodeAll` 就會跳過它。
- *
- * 開場的 `preloadArt` 自己寫了一份解碼迴圈、不經過 `decodeAll`，所以解完的那幾百張
- * 從來沒被登記——`preloadAct(1)` 接著又照 `bgKeysForAct(1)` 解一次。
- * 以前那份清單只有 19 個鍵、重工看不出來；2026-09-11 把事件插圖也照關數分流之後長到約 50 個，
- * 開場等於多解碼三十幾張 1024×768（複核 2026-09-11 低-4）。
- * 圖檔本身在瀏覽器快取裡、不會重新下載，但解碼是實打實的 CPU，舊機器上就是開場多卡一下。
- */
-export function markWarmed(urls: Iterable<string>): void {
-  for (const u of urls) if (!u.startsWith('data:')) warmed.add(u);
-}
-
 export async function preloadArt(): Promise<void> {
   const order: (keyof Manifest)[] = ['sprites', 'icons', 'cards', 'bg'];
   // 第二、三關才看得到的底圖開場不載，過關時再由 `preloadAct` 補（跟魔物立繪同一套）
@@ -419,22 +454,8 @@ export async function preloadArt(): Promise<void> {
     }
   }
 
-  let next = 0;
-  const worker = async (): Promise<void> => {
-    for (let i = next++; i < urls.length; i = next++) {
-      const url = urls[i];
-      if (!url) continue;
-      try {
-        const img = new Image();
-        img.src = url;
-        // 成功解碼或下載後才登記；失敗的圖片留給後續遭遇預熱重試。
-        if (typeof img.decode === 'function') await img.decode();
-        else await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = () => reject(new Error('圖片載入失敗')); });
-        markWarmed([url]);
-      } catch { /* 少載一張只是那張會晚一點出現，不該讓預載整串停掉 */ }
-    }
-  };
-  await Promise.all(Array.from({ length: 6 }, worker));
+  // 成功解碼後才登記；失敗的留給後續遭遇預熱重試。不留參照：開場這幾百張交給瀏覽器快取
+  await decodeAll(urls, 6, false);
 }
 
 export function computeScale(w: number, h: number): number { return Math.min(w / 1280, h / 720); }

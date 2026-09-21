@@ -53,9 +53,8 @@ async function fixture(source: Source) {
     motionSourceFor: () => source, motionState: () => state, motionActors: new Map([[0, state]]),
     root: { querySelector: (selector: string) => selector.includes('.sprite-box') ? box : image },
     MINE: '.mine', getStatus: () => 0, qiuqiuMotionReady: () => true, companionMotionReady: () => true,
-    companionKind: (kind: Source) => kind,
     restMotionAction: (_player: unknown, displayedPose: string) => displayedPose === 'idle' ? 'idle' : undefined,
-    idlePose: () => 'idle', heroArt: (_player: unknown, displayedPose: string) => displayedPose,
+    idlePose: () => 'idle', heroArtUrl: (_hero: unknown, displayedPose: string) => displayedPose,
     qiuqiuCombatMotionDecision,
     motionDuration: (_source: Source, action: string) => source === 'qiuqiu'
       ? qiuqiuMotionDuration(action as QiuqiuAction)

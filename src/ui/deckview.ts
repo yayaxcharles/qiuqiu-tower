@@ -3,7 +3,7 @@ import type { CardInstance } from '../engine/types';
 import { play } from './audio';
 import { upgradeDiff } from './cardtext';
 import { cardNode } from './cardview';
-import { el } from './dom';
+import { el, stageFrame } from './dom';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
 
@@ -112,7 +112,7 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     hidePreview();
     const stage = document.getElementById('stage');
     if (!stage) return;
-    const k = 1280 / stage.getBoundingClientRect().width;
+    const { k } = stageFrame(stage);
     const or = overlay.getBoundingClientRect();
     const cr = node.getBoundingClientRect();
     // 升級只是「拿掉」東西的牌（出大事了少掉自傷、踏雪無痕少掉消耗、拼命少掉自傷、催噎少掉那句括號），
