@@ -1,20 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { motionMeleePlan, motionMeleeSample, qiuqiuMeleePlan, qiuqiuMeleeSample } from '../../src/ui/qiuqiu-melee';
+import { MELEE_LUNGE_PX, motionMeleePlan, motionMeleeSample, qiuqiuMeleePlan, qiuqiuMeleeSample } from '../../src/ui/qiuqiu-melee';
 import type { QiuqiuAction } from '../../src/ui/qiuqiu-motion';
+import { motionMs } from '../../src/ui/motion-speed';
 
-describe('球球近戰瞬移', () => {
-  it('依敵人腳底與寬度停在左側接觸位置', () => {
+/**
+ * 近戰原地出招（使用者 2026-09-22 裁定）：角色留在自己的位置，往魔物方向衝一小段（最多 74 像素，
+ * 比照舊版靜態演出）再退回。舊寫法是出手那一格直接瞬移到魔物身邊（488～698 像素），
+ * 這裡的「位移不超過 74 像素」「第一格還在原位」在舊寫法下都會失敗。
+ * 時間是 1.5 倍速後的毫秒（見 motion-speed.ts）。
+ */
+describe('球球近戰原地出招', () => {
+  it('往魔物方向最多衝 74 像素、上下不動，命中照動作自己的命中格', () => {
     const plan = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 900, y: 450 }, 200, 'attack1');
 
-    expect(plan.dx).toBe(650);
-    expect(plan.dy).toBe(-50);
+    expect(MELEE_LUNGE_PX).toBe(74);
+    expect(plan.dx).toBe(74);
+    expect(plan.dy).toBe(0);
     expect(plan.approachMs).toBe(0);
     expect(plan.returnMs).toBe(0);
-    expect(plan.impactMs).toBe(70);
-    expect(plan.totalMs).toBe(300);
+    expect(plan.impactMs).toBe(motionMs(70));
+    expect(plan.totalMs).toBe(motionMs(300));
   });
 
-  it('各招攻擊時間直接反映動作資料的逐格總和', () => {
+  it('各招攻擊時間直接反映動作資料的逐格總和（1.5 倍速）', () => {
     const actions: QiuqiuAction[] = ['attack1', 'attack2', 'attack3', 'attack4', 'kick'];
     const strikeTimes = actions.map((action) => qiuqiuMeleePlan(
       { x: 100, y: 500 },
@@ -23,38 +31,48 @@ describe('球球近戰瞬移', () => {
       action,
     ).strikeMs);
 
-    expect(strikeTimes).toEqual([300, 340, 420, 520, 580]);
+    expect(strikeTimes).toEqual([300, 340, 420, 520, 580].map(motionMs));
   });
 
-  it('第一格就到目標身旁出招，命中時仍在接觸位置', () => {
-    const plan = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 700, y: 500 }, 200, 'kick');
-    const arrived = qiuqiuMeleeSample(plan, 0);
-    const impact = qiuqiuMeleeSample(plan, plan.impactMs);
-
-    expect(arrived).toMatchObject({ x: plan.dx, y: plan.dy, action: 'kick', facing: 1, done: false });
-    expect(impact).toMatchObject({ x: plan.dx, y: plan.dy, action: 'kick', facing: 1, done: false });
-  });
-
-  it('收招前留在魔物身旁，結束當下直接回原位', () => {
-    const plan = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 700, y: 440 }, 200, 'attack2');
-    const lastStrike = qiuqiuMeleeSample(plan, plan.strikeMs - 0.001);
-    const done = qiuqiuMeleeSample(plan, plan.strikeMs);
-
-    expect(lastStrike).toMatchObject({ x: plan.dx, y: plan.dy, action: 'attack2', facing: 1, done: false });
-    expect(done).toEqual({ x: 0, y: 0, action: 'idle', facing: 1, done: true });
-  });
-
-  it('不同敵人位置會產生不同接觸終點', () => {
-    const near = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 600, y: 500 }, 200, 'attack3');
-    const far = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 900, y: 500 }, 200, 'attack3');
-
-    expect(near.dx).toBe(350);
-    expect(far.dx).toBe(650);
-    expect(near.dx).not.toBe(far.dx);
-    expect(near.totalMs).toBe(far.totalMs);
-    for (const plan of [near, far]) for (let elapsed = 0; elapsed <= plan.totalMs; elapsed += 10) {
-      expect(qiuqiuMeleeSample(plan, elapsed).action).not.toBe('run');
+  it.each(['attack1', 'attack4', 'kick', 'combo_kick', 'palm_combo', 'ultimate_rush'] as const)
+  ('%s 從原位出發、命中那一格衝到最前面，整段不超過 74 像素、收招回到原位', (action) => {
+    const plan = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 1000, y: 430 }, 200, action);
+    expect(qiuqiuMeleeSample(plan, 0)).toMatchObject({ x: 0, y: 0, action, facing: 1, done: false });
+    expect(qiuqiuMeleeSample(plan, plan.impactMs).x).toBeCloseTo(plan.dx, 6);
+    for (let elapsed = 0; elapsed < plan.totalMs; elapsed += 1) {
+      const sample = qiuqiuMeleeSample(plan, elapsed);
+      expect(Math.abs(sample.x)).toBeLessThanOrEqual(MELEE_LUNGE_PX);
+      expect(sample.y).toBe(0);
+      expect(sample.done).toBe(false);
     }
+    // 收招前已經退得差不多，收招當下回到原位
+    expect(Math.abs(qiuqiuMeleeSample(plan, plan.totalMs - 1).x)).toBeLessThan(1);
+    expect(qiuqiuMeleeSample(plan, plan.totalMs)).toEqual({ x: 0, y: 0, action: 'idle', facing: 1, done: true });
+  });
+
+  it('每一格（約 16 毫秒）的位移都小於舊版瞬移判定的 100 像素', () => {
+    const plan = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 1000, y: 500 }, 200, 'attack1');
+    let last = 0;
+    for (let elapsed = 0; elapsed <= plan.totalMs; elapsed += 16) {
+      const { x } = qiuqiuMeleeSample(plan, elapsed);
+      expect(Math.abs(x - last)).toBeLessThan(50);
+      last = x;
+    }
+  });
+
+  it('上一招還沒退回原位就被接手：從當下位移接著衝，不先跳回原位', () => {
+    const plan = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 900, y: 500 }, 200, 'attack2');
+    expect(motionMeleeSample(plan, 0, 60).x).toBe(60);
+    expect(motionMeleeSample(plan, plan.impactMs / 2, 60).x).toBeGreaterThan(60);
+    expect(motionMeleeSample(plan, plan.impactMs, 60).x).toBeCloseTo(plan.dx, 6);
+  });
+
+  it('魔物很近時只衝到牠面前為止，不衝過頭', () => {
+    const plan = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 330, y: 500 }, 200, 'attack3');
+    // 接觸點＝330 − (200 × 0.25 + 100) = 180，離原位 80 像素 → 仍以 74 為上限
+    expect(plan.dx).toBe(74);
+    const near = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 290, y: 500 }, 200, 'attack3');
+    expect(near.dx).toBe(40);
   });
 
   it('近左側敵人的接觸點不越過畫面，整段移動也不超出兩端', () => {
@@ -70,10 +88,12 @@ describe('球球近戰瞬移', () => {
     }
   });
 
-  it('從敵人右側瞬移到左側後，仍面向魔物出招', () => {
+  it('魔物在右側原位的左邊時往左衝，仍面向魔物出招', () => {
     const plan = qiuqiuMeleePlan({ x: 1000, y: 500 }, { x: 700, y: 500 }, 200, 'attack1');
 
-    expect(qiuqiuMeleeSample(plan, 0)).toMatchObject({ x: plan.dx, action: 'attack1', facing: 1 });
+    expect(plan.dx).toBe(-74);
+    expect(qiuqiuMeleeSample(plan, plan.impactMs)).toMatchObject({ action: 'attack1', facing: 1 });
+    expect(qiuqiuMeleeSample(plan, plan.impactMs).x).toBeCloseTo(-74, 6);
     expect(qiuqiuMeleeSample(plan, plan.strikeMs)).toMatchObject({ x: 0, facing: 1, done: true });
   });
 
@@ -94,26 +114,27 @@ describe('球球近戰瞬移', () => {
 });
 
 describe('球球複合近戰規劃', () => {
-  it('採用完整招式時間軸', () => {
+  it('採用完整招式時間軸（1.5 倍速）', () => {
     const combo = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 900, y: 500 }, 200, 'combo_kick');
     const rush = qiuqiuMeleePlan({ x: 100, y: 500 }, { x: 900, y: 500 }, 200, 'ultimate_rush');
 
-    expect(combo.strikeMs).toBe(980);
-    expect(combo.impactMs).toBe(100);
-    expect(combo.totalMs).toBe(980);
-    expect(rush.strikeMs).toBe(1450);
-    expect(rush.impactMs).toBe(160);
+    expect(combo.strikeMs).toBe(motionMs(980));
+    expect(combo.impactMs).toBe(motionMs(100));
+    expect(combo.totalMs).toBe(motionMs(980));
+    expect(rush.strikeMs).toBe(motionMs(1450));
+    expect(rush.impactMs).toBe(motionMs(160));
   });
 });
 
 describe('共用近戰規劃', () => {
-  it('噹噹沿同一腳底接觸規則，保留自己的動作時長與命中點', () => {
+  it('噹噹沿同一前衝規則，保留自己的動作時長與命中點', () => {
     const plan = motionMeleePlan(
       { x: 100, y: 500 }, { x: 900, y: 450 }, 200,
       'shoulder', 820, 360,
     );
-    expect(plan).toMatchObject({ dx: 650, dy: -50, action: 'shoulder', strikeMs: 820, impactMs: 360, totalMs: 820 });
-    expect(motionMeleeSample(plan, 360)).toMatchObject({ x: 650, y: -50, action: 'shoulder', done: false });
+    expect(plan).toMatchObject({ dx: 74, dy: 0, action: 'shoulder', strikeMs: 820, impactMs: 360, totalMs: 820 });
+    expect(motionMeleeSample(plan, 0)).toMatchObject({ x: 0, y: 0, action: 'shoulder', done: false });
+    expect(motionMeleeSample(plan, 360)).toMatchObject({ x: 74, y: 0, action: 'shoulder', done: false });
     expect(motionMeleeSample(plan, 820)).toEqual({ x: 0, y: 0, action: 'idle', facing: 1, done: true });
   });
 });

@@ -1,8 +1,10 @@
 import { fileUrl } from './assets';
+import { motionMs } from './motion-speed';
 
-export const QIUQIU_SHURIKEN_RELEASE_MS = 180;
-export const QIUQIU_SHURIKEN_FLIGHT_MS = 170;
-export const QIUQIU_SHURIKEN_GAP_MS = 140;
+// 出手、飛行、兩把之間的間隔：原速 180／170／140 毫秒，跟球球的投擲動作一起換成 1.5 倍速（見 motion-speed.ts）
+export const QIUQIU_SHURIKEN_RELEASE_MS = motionMs(180);
+export const QIUQIU_SHURIKEN_FLIGHT_MS = motionMs(170);
+export const QIUQIU_SHURIKEN_GAP_MS = motionMs(140);
 
 const SOURCE_X = 137;
 const SOURCE_Y = 112;

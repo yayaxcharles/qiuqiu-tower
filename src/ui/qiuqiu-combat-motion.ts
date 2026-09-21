@@ -185,7 +185,7 @@ export function qiuqiuEnemyBlocked(beforeBlock: number, afterBlock: number, hitC
   return hitCount > 0 ? Math.max(0, beforeBlock - afterBlock) : 0;
 }
 
-/** 最後一擊收完後，球球要再完整播放一次勝利動作。 */
+/** 勝利動作的完整長度：收場時要重播勝利的座位等這麼久，已經在播的只等剩下的（見 combat.ts 的 checkOver）。 */
 export function qiuqiuVictoryLinger(enabled: boolean, heroes: readonly string[]): number {
   if (!enabled) return 0;
   return Math.max(

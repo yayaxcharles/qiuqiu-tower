@@ -4,9 +4,11 @@ import {
   feifeiNeedleReleaseTimes,
   type FeifeiNeedleAction,
 } from './feifei-needle-patterns';
+import { motionMs } from './motion-speed';
 
-export const FEIFEI_NEEDLE_FLIGHT_MS = 170;
-export const FEIFEI_NEEDLE_GAP_MS = 140;
+// 原速 170／140 毫秒，跟菲菲的動作一起換成 1.5 倍速（實際各招的時間在 feifei-needle-patterns.ts）
+export const FEIFEI_NEEDLE_FLIGHT_MS = motionMs(170);
+export const FEIFEI_NEEDLE_GAP_MS = motionMs(140);
 
 export type FeifeiNeedlePoint = Readonly<{ x: number; y: number }>;
 

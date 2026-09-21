@@ -9,6 +9,8 @@ import {
   resizeMotionMeleeTrip,
   shouldResumeConfirmedMotion,
 } from '../../src/ui/qiuqiu-combat-motion';
+import { motionMeleeSample } from '../../src/ui/qiuqiu-melee';
+import { motionMs } from '../../src/ui/motion-speed';
 
 // Execute the screen's actual branches; the screen-local functions are not public APIs.
 function sourceBetween(start: string, end: string): string {
@@ -53,6 +55,7 @@ describe('combat motion confirmation and victory flow', () => {
     expect(states.get(1 - downSeat)?.active).toBe(true);
   });
 
+  // 時間是 1.5 倍速後的毫秒（見 motion-speed.ts）：確認在原速 600 毫秒時到達，兩段連拳原速 760 毫秒
   it('resumes a single delayed melee confirmation beside its original target after preview cleanup', async () => {
     const trip = { origin: { x: 100, y: 200 }, plan: {
       dx: 300, dy: 0, approachMs: 0, strikeMs: 520, returnMs: 0,
@@ -74,26 +77,26 @@ describe('combat motion confirmation and victory flow', () => {
       qiuqiuCombatMotionDecision: () => 'play',
       motionDuration: (_source: string, action: Parameters<typeof companionMotionDuration>[1], waves = 1) =>
         companionMotionDuration('dangdang', action, waves),
-      window: { cancelAnimationFrame() {}, requestAnimationFrame: () => 1 }, performance: { now: () => 1600 },
+      window: { cancelAnimationFrame() {}, requestAnimationFrame: () => 1 }, performance: { now: () => 1000 + motionMs(600) },
       applied: [{ a: { t: 'card', seat: 0, u: 42, g: 99 } }], handsBefore: [[card]],
       locallyPlayedMotion: { take: () => local }, localCardMotionKey: (uid: number) => `card:${uid}`,
-      alreadyShown: false, mine: true, remoteBefore: {}, Date: { now: () => 1600 },
+      alreadyShown: false, mine: true, remoteBefore: {}, Date: { now: () => 1000 + motionMs(600) },
       cardStats: () => ({ def: { type: '攻擊' }, effects: [] }), heroOf: () => 'dangdang', cardPose: () => ({ attack: true }),
       settle: (_before: unknown, opts: typeof confirmation) => { confirmation = opts; }, render() {}, finishApplied() {},
-      motionPresentationMatches, resizeMotionMeleeTrip, shouldResumeConfirmedMotion,
+      motionPresentationMatches, resizeMotionMeleeTrip, shouldResumeConfirmedMotion, motionMeleeSample,
       impactSource: 'dangdang', impactMotion: 'rapid_combo', confirmedMotionWaves: 2,
-      impactElapsed: 600, impactPresentationToken: 7,
+      impactElapsed: motionMs(600), impactPresentationToken: 7,
     };
     await execute(holdWinSource + sourceBetween('  const idleMotion = (', '  const motionFoot =') + '\nidleMotion(0);' +
       sourceBetween('      let ownCard: CardInstance | undefined;', '      finishApplied();'), bindings);
     expect(state.trip).toBeUndefined();
-    expect(confirmation.impactElapsed).toBe(600);
+    expect(confirmation.impactElapsed).toBe(motionMs(600));
     await execute(playMotion + sourceBetween('    if (impactSource && impactMotion && confirmedMotionWaves > 0)',
       '    // 多段攻擊時球球'), { ...bindings, opts: confirmation });
     expect(state.active).toBe(true);
     expect(state.away).toBe(true);
     expect(state.trip?.origin).toEqual({ x: 100, y: 200 });
-    expect(state.trip?.plan).toMatchObject({ dx: 300, dy: 0, strikeMs: 760, totalMs: 760 });
+    expect(state.trip?.plan).toMatchObject({ dx: 300, dy: 0, strikeMs: motionMs(760), totalMs: motionMs(760) });
   });
 });
 
@@ -339,5 +342,74 @@ describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () =>
     states.set(1, { action: 'win', active: true });
     await execute(holdWinSource + '\nout.value = holdWin(0, "win");', { motionActors: states, out });
     expect(out.value).toBe('win');
+  });
+});
+
+/**
+ * 勝利收尾（使用者 2026-09-22）：最後一刀到離開戰鬥回到約 1.3 秒。
+ * 舊寫法先等 1300 毫秒、再「從頭」等一整遍勝利動作，最後一刀到獎勵畫面拖到 2.5 秒；
+ * 勝利動作已經在播的，現在只等它剩下的時間（與 1300 毫秒取較晚的）。
+ */
+describe('勝利收尾只等勝利動作剩下的時間', () => {
+  const WIN = motionMs(1180);   // 球球勝利動作 1.5 倍速後的長度
+
+  /** 照 combat.ts 真正的 checkOver／finish 跑一遍，時鐘跟著計時器往前走，回傳離開戰鬥的時間與重播次數。 */
+  async function wrapUp(options: { winAt?: number; lastMotionEndAt: number; boss?: boolean; seats?: number }) {
+    let now = 0;
+    let leftAt: number | null = null;
+    let plays = 0;
+    const timers: Array<{ at: number; fn: () => void }> = [];
+    const players = Array.from({ length: options.seats ?? 1 }, (_, seat) => ({ seat, hero: 'ninja', hp: 20, down: false }));
+    const states = new Map(players.map((q) => [q.seat, {
+      source: 'qiuqiu', action: options.winAt === undefined ? 'idle' : 'win', active: false, away: false,
+      winAt: options.winAt, raf: 0, endsAt: 0, actor: { play() { plays++; } }, layer: { style: {}, remove() {} },
+    }]));
+    const pool = options.boss ? '塔主' : 'normal';
+    const cs = { phase: 'won', players, encounterId: 'fight' };
+    const app = { cs, afterCombat() { leftAt = now; } };
+    await execute(playMotion + sourceBetween('  function checkOver(): void', '  function phaseBurst(') + '\ncheckOver();', {
+      cs, app, ended: false, session: { attach() {} },
+      encounterById: { fight: { pool } }, my: () => players[0], mySeat: 0,
+      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {},
+      el: () => ({ remove() {} }), root: { append() {} },
+      motionActors: states, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
+      motionSourceFor: () => 'qiuqiu', motionDuration: () => WIN, lastMotionEndAt: options.lastMotionEndAt,
+      qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => WIN, heroOf: () => 'ninja',
+      refreshMotion() {}, render() {}, performance: { now: () => now }, bonusFish: 0, bonusUpgrades: 0,
+      window: {
+        cancelAnimationFrame() {}, requestAnimationFrame: () => 1,
+        setTimeout: (fn: () => void, ms: number) => { timers.push({ at: now + ms, fn }); return timers.length; },
+      },
+    });
+    // 沒有真的畫面更新：到了收招時間就當作收掉（idleMotion 的效果），免得收場一直等下去
+    for (let guard = 0; leftAt === null && timers.length > 0 && guard < 200; guard++) {
+      timers.sort((a, b) => a.at - b.at);
+      const next = timers.shift()!;
+      now = next.at;
+      for (const state of states.values()) if (state.active && now >= state.endsAt) state.active = false;
+      next.fn();
+    }
+    return { leftAt, plays };
+  }
+
+  it('最後一刀收招後已經在慶祝：1300 毫秒到就離開，不再多等一整遍勝利動作', async () => {
+    // 貓抓 1.5 倍速後 200 毫秒收招，收招當下切到勝利
+    expect(await wrapUp({ winAt: 200, lastMotionEndAt: 200 })).toEqual({ leftAt: 1300, plays: 0 });
+  });
+
+  it('勝利動作比較晚才開始（最後一招很長）：等它播完再離開，取兩者較晚的', async () => {
+    expect(await wrapUp({ winAt: 900, lastMotionEndAt: 900 })).toEqual({ leftAt: 900 + WIN + 30, plays: 0 });
+  });
+
+  it('連線時勝利動作太早開始要重播一次：這時才等完整的一遍（既有行為）', async () => {
+    expect(await wrapUp({ winAt: 100, lastMotionEndAt: 500 })).toEqual({ leftAt: 1300 + WIN + 30, plays: 1 });
+  });
+
+  it('兩隻一起慶祝時照最晚播完的那隻算，只播一次', async () => {
+    expect(await wrapUp({ winAt: 300, lastMotionEndAt: 300, seats: 2 })).toEqual({ leftAt: 1300, plays: 0 });
+  });
+
+  it('塔主戰照舊多站白閃慢倒的時間（2400 毫秒），不再疊一整遍勝利動作', async () => {
+    expect(await wrapUp({ winAt: 200, lastMotionEndAt: 200, boss: true })).toEqual({ leftAt: 2400, plays: 0 });
   });
 });

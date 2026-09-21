@@ -5,8 +5,16 @@ import {
   type CompanionMotionActor,
   type FeifeiMotionAction,
 } from './companion-motion';
+import { motionMs } from './motion-speed';
 
 type Point = { x: number; y: number };
+
+// 分身現身、淡入、收招後淡出的時間：motionMs() 括號裡是原速毫秒，跟分身的出招動作一起換成 1.5 倍速
+const ECHO_APPEAR_LEAD_MS = motionMs(70);
+const ULTIMATE_CLONE_APPEAR_LEAD_MS = motionMs(160);
+const ECHO_FADE_IN_LEAD_MS = motionMs(20);
+const ECHO_FADE_IN_MS = motionMs(60);
+const ECHO_FADE_OUT_MS = motionMs(140);
 
 type EchoActor<Action extends string> = Readonly<{
   element: HTMLCanvasElement;
@@ -71,8 +79,8 @@ function playMotionEchoes<Action extends string>(
         entry.playing = true;
         entry.actor.play(entry.pose, { elapsed: Math.max(0, elapsed - entry.begin) });
       }
-      const fadeIn = Math.min(1, (elapsed - entry.appear + 20) / 60);
-      const fadeOut = Math.min(1, (entry.end - elapsed) / 140);
+      const fadeIn = Math.min(1, (elapsed - entry.appear + ECHO_FADE_IN_LEAD_MS) / ECHO_FADE_IN_MS);
+      const fadeOut = Math.min(1, (entry.end - elapsed) / ECHO_FADE_OUT_MS);
       entry.layer!.style.opacity = String(.78 * fadeIn * fadeOut);
     }
     if (entries.every((entry) => elapsed >= entry.end)) { dispose(); options.onDone(); return; }
@@ -93,9 +101,9 @@ export function playQiuqiuEchoes(
     const pose: QiuqiuAction = action === 'ultimate_clone'
       ? (['attack1', 'kick', 'attack4'] as const)[index % 3]! : 'attack1';
     const begin = Math.max(0, impact - qiuqiuImpactDelay(pose));
-    const appear = Math.max(0, begin - (action === 'ultimate_clone' ? 160 : 70));
+    const appear = Math.max(0, begin - (action === 'ultimate_clone' ? ULTIMATE_CLONE_APPEAR_LEAD_MS : ECHO_APPEAR_LEAD_MS));
     return { pose, appear, begin, side: (index % 2 === 1 ? 1 : -1) as -1 | 1,
-      playing: false, end: begin + qiuqiuMotionDuration(pose) + 140,
+      playing: false, end: begin + qiuqiuMotionDuration(pose) + ECHO_FADE_OUT_MS,
       actor: undefined as QiuqiuActor | undefined, layer: undefined as HTMLElement | undefined };
   });
   return playMotionEchoes(stage, target, entries, { ...options, className: 'qiuqiu-echo' },
