@@ -194,3 +194,74 @@ describe('敵方連續出手的反應銜接', () => {
     expect(sceneRebuilds).toBe(0);
   });
 });
+
+describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () => {
+  it('打完直接結束回合的牌，要等結算延長後的動作演完才交給魔物', async () => {
+    const timers: Array<{ fn: () => void; ms: number }> = [];
+    let now = 0;
+    let ended = 0;
+    const cs = { phase: 'player' };
+    const state = { active: true, endsAt: 1400 };
+    const body = sourceBetween('    const endWhenMotionDone = ', '    if (allReady(cs)) window.setTimeout(endWhenMotionDone');
+    await execute(body + '\nendWhenMotionDone();', {
+      app: { cs }, cs, allReady: () => true, mySeat: 0, motionActors: new Map([[0, state]]),
+      performance: { now: () => now }, onEndTurn: () => { ended++; },
+      window: { setTimeout: (fn: () => void, ms: number) => timers.push({ fn, ms }) },
+    });
+    // 第一次到點（只算一段）時第二段還在演：不能結束，要補等剩下的時間。
+    expect(ended).toBe(0);
+    expect(timers).toHaveLength(1);
+    expect(timers[0]!.ms).toBe(1430);
+    now = 1430;
+    state.active = false;
+    timers.shift()!.fn();
+    expect(ended).toBe(1);
+  });
+
+  async function finishVictory(winAt: number | undefined, lastMotionEndAt: number) {
+    const players = [{ seat: 0, hero: 'ninja', hp: 20, down: false }];
+    let plays = 0;
+    const states = new Map([[0, {
+      source: 'qiuqiu', action: 'win', active: false, away: false, winAt,
+      raf: 0, endsAt: 0, actor: { play() { plays++; } }, layer: { style: {}, remove() {} },
+    }]]);
+    const timers: Array<() => void> = [];
+    const cs = { phase: 'won', players, encounterId: 'normal' };
+    await execute(playMotion + sourceBetween('  function checkOver(): void', '  function phaseBurst(') + '\ncheckOver();', {
+      cs, app: { cs, afterCombat() {} }, ended: false, session: { attach() {} },
+      encounterById: { normal: { pool: 'normal' } }, my: () => players[0], mySeat: 0,
+      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {},
+      motionActors: states, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
+      motionSourceFor: () => 'qiuqiu', motionDuration: () => 500, lastMotionEndAt,
+      qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => 500, heroOf: () => 'ninja',
+      refreshMotion() {}, render() {}, performance: { now: () => 0 }, bonusFish: 0, bonusUpgrades: 0,
+      window: { cancelAnimationFrame() {}, requestAnimationFrame: () => 1, setTimeout: (fn: () => void) => timers.push(fn) },
+    });
+    timers.shift()!();
+    return { plays, active: states.get(0)?.active };
+  }
+
+  it('結算時已經換上勝利待機的座位，收場不再從頭播一次', async () => {
+    expect(await finishVictory(800, 800)).toEqual({ plays: 0, active: false });
+  });
+
+  it('連線時同伴補最後一刀：我這邊太早開始的勝利動作，等同伴收招後要重播一次', async () => {
+    // 我這隻在 100 毫秒就切到勝利，同伴的出手到 500 毫秒才收掉
+    expect(await finishVictory(100, 500)).toEqual({ plays: 1, active: true });
+  });
+
+  it('勝利動作演完收勢時不重播', async () => {
+    let plays = 0;
+    const state = { action: 'win', active: true, reactive: true, away: false, raf: 3, endsAt: 900, trip: undefined,
+      actor: { play() { plays++; } }, layer: { remove() {} } };
+    const body = sourceBetween('  const idleMotion = (', '  // 舞台會隨視窗縮放');
+    await execute(body + '\nidleMotion(0);', {
+      motionActors: new Map([[0, state]]), cs: { phase: 'won', players: [{ seat: 0 }] },
+      restMotionAction: () => 'win', shownPose: () => 'win', refreshMotion() {},
+      lastMotionEndAt: 0, performance: { now: () => 900 },
+      window: { cancelAnimationFrame() {} },
+    });
+    expect(plays).toBe(0);
+    expect(state.active).toBe(false);
+  });
+});

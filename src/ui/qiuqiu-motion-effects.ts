@@ -46,7 +46,12 @@ function playMotionEchoes<Action extends string>(
     const elapsed = now - started;
     for (const entry of entries) {
       if (elapsed < entry.appear) continue;
-      if (elapsed >= entry.end) { entry.actor?.dispose(); entry.layer?.remove(); continue; }
+      // 收掉之後要記起來：沒有旗標的話，先結束的分身會在之後每一幀被重複 dispose 與 remove，
+      // 三個分身錯開結束，中間那段每幀白做兩次 DOM 操作（稽核 2026-09-21 第 9 點）。
+      if (elapsed >= entry.end) {
+        if (entry.actor || entry.layer) { entry.actor?.dispose(); entry.layer?.remove(); entry.actor = undefined; entry.layer = undefined; }
+        continue;
+      }
       if (!entry.actor) {
         const height = options.height ?? 252;
         entry.actor = createActor(height);

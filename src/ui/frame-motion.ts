@@ -82,10 +82,22 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
   const preload = async (): Promise<void> => {
     const unique = new Map<string, FrameMotion>();
     for (const motion of Object.values(config.motions)) unique.set(fileUrl(motion.texture), motion);
-    await Promise.all([...unique.values()].map(async (motion) => {
+    // decode() 在舊瀏覽器沒有、在解碼失敗時還會拒絕；只靠它等於整批連坐，
+    // loaded 永遠留在 false，角色就停在空白畫布（稽核 2026-09-21 第 6 點）。
+    await Promise.all([...unique.values()].map((motion) => new Promise<void>((done, fail) => {
       const image = imageFor(motion);
-      if (typeof image.decode === 'function') await image.decode();
-    }));
+      // 載入失敗的圖 complete 也是 true，要再看 naturalWidth，否則壞圖會被當成載好。
+      if (image.complete && image.naturalWidth > 0) { done(); return; }
+      if (typeof image.decode === 'function') { image.decode().then(() => done(), fail); return; }
+      // 沒有 decode() 的環境原本等於完全不等，loaded 直接變 true，
+      // 角色就停在空白畫布（稽核 2026-09-21 第 6 點）。改成等 load/error。
+      // 失敗仍要往外丟，preload.ts 的「改用普通立繪」退路才會接手。
+      if (typeof image.addEventListener !== 'function') { done(); return; }
+      // 走到這裡還是 complete＝已經載入失敗過，load／error 不會再來，不先擋掉就永遠等不到結果。
+      if (image.complete) { fail(new Error(`逐格動作圖載入失敗：${image.src}`)); return; }
+      image.addEventListener('load', () => done(), { once: true });
+      image.addEventListener('error', () => fail(new Error(`逐格動作圖載入失敗：${image.src}`)), { once: true });
+    })));
     loaded = true;
   };
 
@@ -159,6 +171,8 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     let drawnMotion: FrameMotion | null = null;
     let drawnFrame: FrameMotionFrame | undefined;
     let appliedBreath = 1;
+    let detachedFrames = 0;
+    let slowTimer = 0;
 
     const draw = (resolved: ResolvedFrameMotion): void => {
       const motion = config.motions[resolved.key] ?? config.motions[config.initialAction];
@@ -173,7 +187,9 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       const frame = motion.frames[resting ? restFrame : frameAt(motion, resolved.elapsed, resolved.loop ?? motion.loop)] ?? motion.frames[0];
       if (!frame) return;
       const breathPhase = ((resolved.elapsed - settleAfter) % 6200) / 6200;
-      const breath = resting ? 1 + .025 * Math.sin(Math.PI * breathPhase) ** 2 : 1;
+      // 量化到千分位再比對：呼吸值是連續浮點數，直接比會每幀都不相等，
+      // 等於每個待機角色每秒改 60 次行內樣式，把合成器的活搬回主執行緒（稽核 2026-09-21 第 2 點）。
+      const breath = resting ? Math.round((1 + .025 * Math.sin(Math.PI * breathPhase) ** 2) * 1000) / 1000 : 1;
       // 呼吸只縮放既有畫格，維持腳底定位，不隨螢幕更新率重畫圖集。
       if (appliedBreath !== breath) {
         canvas.style.scale = breath === 1 ? '1' : `1 ${breath}`;
@@ -205,6 +221,14 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       const motion = config.motions[resolved.key] ?? config.motions[config.initialAction];
       const resting = action === resolved.key && config.restFrames?.[action] !== undefined;
       // 未掛入時只等下一次機會；重新掛回仍能補畫終格，不重啟動作。
+      // 但不能每幀空等：被拔掉又沒 dispose() 的畫布會永遠空轉（稽核 2026-09-21 第 3 點）。
+      // 也不能直接停：戰鬥畫面掛回畫布時不一定呼叫 play()（待機姿勢沒變就不會），
+      // 停了就永遠停在那一格。所以久未掛入改成每 250 毫秒看一次。
+      detachedFrames = detached ? detachedFrames + 1 : 0;
+      if (detachedFrames > 60) {
+        if (slowTimer === 0) slowTimer = window.setTimeout(() => { slowTimer = 0; schedule(); }, 250);
+        return;
+      }
       if (detached || resting || (resolved.loop ?? motion?.loop) || elapsed < config.duration(action, playOptions)) {
         raf = window.requestAnimationFrame(tick);
       }
@@ -220,6 +244,7 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       playOptions = nextOptions;
       const requestedElapsed = nextOptions.elapsed ?? 0;
       elapsedOffset = Number.isFinite(requestedElapsed) ? Math.max(0, requestedElapsed) : 0;
+      detachedFrames = 0;
       startedAt = null;
       drawnMotion = null;
       draw(config.resolve(action, elapsedOffset, playOptions));
@@ -240,6 +265,8 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
         disposed = true;
         if (raf !== 0) window.cancelAnimationFrame(raf);
         raf = 0;
+        if (slowTimer !== 0) window.clearTimeout(slowTimer);
+        slowTimer = 0;
       },
     };
   };

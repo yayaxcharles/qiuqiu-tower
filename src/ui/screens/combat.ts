@@ -414,10 +414,12 @@ registerScreen('combat', (app, root, props) => {
     play(action: CombatMotionAction, options?: { elapsed?: number; waves?: number }): void;
     dispose(): void;
   };
-  type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; reactive: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number };
+  type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; reactive: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number; winAt?: number };
   type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
   type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number };
   const motionActors = new Map<number, CombatMotion>();
+  // 全場最後一個出手動作收掉的時間；收場用它判斷勝利動作是不是太早就開始（見 checkOver 的 finish）
+  let lastMotionEndAt = 0;
   const enemyMotionActors = new Map<number, EnemyMotionState>();
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
@@ -503,6 +505,7 @@ registerScreen('combat', (app, root, props) => {
     if (!state.active && resting && state.action !== resting) {
       state.action = resting;
       state.actor.play(resting);
+      if (resting === 'win') state.winAt = performance.now();
     }
     const visible = state.active || resting !== undefined;
     box.classList.toggle('qiuqiu-stealth-idle', source === 'qiuqiu' && visible
@@ -561,6 +564,7 @@ registerScreen('combat', (app, root, props) => {
     const state = motionActors.get(seat);
     if (!state) return;
     const wasActive = state.active;
+    if (wasActive) lastMotionEndAt = performance.now();
     window.cancelAnimationFrame(state.raf);
     state.raf = 0;
     state.endsAt = 0;
@@ -573,9 +577,11 @@ registerScreen('combat', (app, root, props) => {
     if (q) {
       const resting = restMotionAction(q, shownPose(q)) ?? 'idle';
       // 行程結束與通用收姿勢都會進來；已經待機時保留呼吸進度。
-      if (wasActive || state.action !== resting) {
+      // 勝利動作演完就停在收勢，不要因為「剛剛在演」又從頭再播一次（稽核 2026-09-21 第 10 點）。
+      if ((wasActive && resting !== 'win') || state.action !== resting) {
         state.action = resting;
         state.actor.play(resting);
+        if (resting === 'win') state.winAt = performance.now();
       }
       refreshMotion(q);
     }
@@ -642,6 +648,9 @@ registerScreen('combat', (app, root, props) => {
       });
       motionProjectiles.add(cancel);
     }
+    let anchor: { x: number; y: number } | null = null;
+    let anchorMeasuredAt = 0;
+    let anchorParent: HTMLElement | null = null;
     const tick = (now: number): void => {
       if (app.cs !== cs || !state.active) return;
       const elapsed = now - startedAt;
@@ -658,9 +667,18 @@ registerScreen('combat', (app, root, props) => {
         return;
       }
       if (sample && activeTrip) {
-        const home = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"] .sprite-box`);
-        const anchor = home ? motionFoot(home) : activeTrip.origin;
         // 狀態列可能在出牌後變高；出手期間仍將腳底鎖在魔物身旁。
+        // 但量測不能每幀做：querySelector + getBoundingClientRect 之後又在同一幀寫 transform，
+        // 讀寫交錯會逼瀏覽器每幀重算一次版面，出手那 0.4～1.8 秒整個畫面掉幀（稽核 2026-09-21 第 1 點）。
+        // 狀態列變高是離散事件，每 200 毫秒補量一次就足夠。
+        // 結算重畫會把整格換掉、圖層搬進新的外框；外框一換就立刻重量，不等 200 毫秒。
+        const parent = state.layer.parentElement;
+        if (anchor === null || parent !== anchorParent || now - anchorMeasuredAt >= 200) {
+          const home = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"] .sprite-box`);
+          anchor = home ? motionFoot(home) : activeTrip.origin;
+          anchorMeasuredAt = now;
+          anchorParent = parent;
+        }
         const x = sample.x + activeTrip.origin.x - anchor.x;
         const y = sample.y + activeTrip.origin.y - anchor.y;
         state.layer.style.transform = `translate(${x}px, ${y}px) scaleX(${sample.facing})`;
@@ -2200,9 +2218,16 @@ registerScreen('combat', (app, root, props) => {
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
     // 稍等 650 毫秒讓這張牌的傷害數字與姿勢先播完，不然出招跟收牌疊在同一拍。
-    if (allReady(cs)) window.setTimeout(() => {
-      if (app.cs === cs && allReady(cs) && cs.phase === 'player') onEndTurn();
-    }, Math.max(650, motionTrip?.plan.totalMs
+    // 這裡只知道一段的長度：連環踢這類多段牌的真正段數要等結算才算出來，屆時會把 endsAt 延長，
+    // 所以到點後再看一次動作還沒演完就補等，不然招式演到一半就被魔物回合切掉（稽核 2026-09-21 第 7 點）。
+    const endWhenMotionDone = (): void => {
+      if (app.cs !== cs || !allReady(cs) || cs.phase !== 'player') return;
+      const state = motionActors.get(mySeat);
+      const left = state?.active ? state.endsAt - performance.now() : 0;
+      if (left > 0) { window.setTimeout(endWhenMotionDone, left + 30); return; }
+      onEndTurn();
+    };
+    if (allReady(cs)) window.setTimeout(endWhenMotionDone, Math.max(650, motionTrip?.plan.totalMs
       ?? (motion && motionSourceFor(my()) ? motionDuration(motionSourceFor(my())!, motion) : 0)) + 30);
   }
 
@@ -3152,7 +3177,15 @@ registerScreen('combat', (app, root, props) => {
         : 0;
       if (linger > 0 && !victoryMotionStarted) {
         victoryMotionStarted = true;
-        for (const q of cs.players) if (!q.down && motionSourceFor(q)) playMotion(q.seat, 'win', undefined, 0, true);
+        // 結算時待機已經換成勝利動作的座位，不要再從頭播一次（稽核 2026-09-21 第 10 點：勝利動作連播兩三次）。
+        // 但比全場最後一個出手動作還早開始的要重播：連線時同伴補最後一刀，我這邊一結算就切到勝利，
+        // 那時同伴才剛衝上去，不重播的話我這隻早就慶祝完、定格等換場。
+        for (const q of cs.players) {
+          if (q.down || !motionSourceFor(q)) continue;
+          const shown = motionActors.get(q.seat);
+          if (shown?.action === 'win' && (shown.winAt ?? 0) >= lastMotionEndAt) continue;
+          playMotion(q.seat, 'win', undefined, 0, true);
+        }
         window.setTimeout(finish, linger + 30);
         return;
       }
@@ -3333,7 +3366,20 @@ registerScreen('combat', (app, root, props) => {
     session.beforeApply(() => {
       remoteBefore = snap(cs, my());
       handsBefore = cs.players.map((p) => p.hand.slice());
-      remoteCombatBefore = structuredClone(cs);
+      // 深複製整份戰鬥狀態，但日誌只帶最後一行。
+      // `cs.log` 整場從不修剪，而這裡每收到一個連線動作就複製一次，打越久頓越明顯
+      // （稽核 2026-09-21 第 4 點）。可以砍掉前面是因為兩邊都只需要最後一行：
+      //   1. 引擎只讀 `cs.log[cs.log.length - 1]`（`engine/actions.ts:79` 的秘寶摺行），
+      //      留著最後一行，摺行行為就跟真實狀態一模一樣。
+      //   2. 重播取日誌用 `replay.log.slice(logStart, logEnd)`，而 logStart/logEnd 來自
+      //      `snap(replay, …)` 記的 `logLen`——量的是複本自己的長度，不是真實狀態的。
+      const fullLog = cs.log;
+      cs.log = fullLog.length > 1 ? fullLog.slice(-1) : fullLog;
+      try {
+        remoteCombatBefore = structuredClone(cs);
+      } finally {
+        cs.log = fullLog;
+      }
       remoteCombatBefore.rng = cs.rng.clone();
     });
     // 我那一下沒算數（主機已經來不及了）：把手放開，畫面重畫回真實的狀態
@@ -3428,7 +3474,15 @@ registerScreen('combat', (app, root, props) => {
           const before = points.at(-1)!;
           const player = replay.players[a.seat];
           const card = a.t === 'card' ? player?.hand.find((one) => one.uid === a.u) : undefined;
-          if (!applyAction(replay, a)) { replayOk = false; break; }
+          // 引擎在複本上丟例外會直接竄出 session.onApplied，把整條連線流程卡死；
+          // 接起來退回單張 settle 的原路（稽核 2026-09-21 第 8 點）。
+          try {
+            if (!applyAction(replay, a)) { replayOk = false; break; }
+          } catch (error) {
+            console.warn('連線重播：複本套用失敗，改回單張演出', a, error);
+            replayOk = false;
+            break;
+          }
           const after = snap(replay, replay.players[mySeat] ?? replay.player);
           frames.push({ a, before, after, card, player });
           points.push(after);

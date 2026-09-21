@@ -736,8 +736,10 @@
   animation: shake .4s;
   filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);
 }
-/* 新版角色畫布保留受擊紅閃與遞減抖動；獨立位移不覆寫腳底定位與呼吸縮放。 */
-.combat .unit.hit :is(.qiuqiu-motion, .companion-motion) {
+/* 新版角色畫布保留受擊紅閃與遞減抖動；獨立位移不覆寫腳底定位與呼吸縮放。
+   魔物的逐格畫布 `.enemy-motion` 也要算進來：`enemy-motion.css` 把底下的 `.sprite` 藏了，
+   漏掉這個選擇器，老鼠與黑忍者被打到就完全沒有受擊回饋（稽核 2026-09-21 第 5 點）。 */
+.combat .unit.hit :is(.qiuqiu-motion, .companion-motion, .enemy-motion) {
   animation: motion-hit-flash .5s ease-out, motion-hit-shake .4s;
 }
 @keyframes motion-hit-flash {

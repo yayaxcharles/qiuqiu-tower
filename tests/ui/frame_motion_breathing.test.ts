@@ -51,7 +51,8 @@ it.each(['qiuqiu', 'feifei', 'dangdang', 'fengfeng'] as const)('%s 在 240 Hz �
     step(elapsed);
     const draw = canvas.draws.at(-1)!;
     const visible = visibleCanvasRect(actor.element, [draw[4]!, draw[5]!, draw[6]!, draw[7]!]);
-    const breath = 1 + .025 * Math.sin(Math.PI * elapsed / 6200) ** 2;
+    // 實作把呼吸值量化到千分位再比對，避免每幀都寫一次行內樣式（稽核 2026-09-21 第 2 點）。
+    const breath = Math.round((1 + .025 * Math.sin(Math.PI * elapsed / 6200) ** 2) * 1000) / 1000;
     expect(visible[0]).toBe(first[4]);
     expect(visible[1]).toBeCloseTo(actor.foot.y + (first[5]! - actor.foot.y) * breath, 8);
     expect(visible[2]).toBe(first[6]);
@@ -72,7 +73,7 @@ it.each(['qiuqiu', 'feifei', 'dangdang', 'fengfeng'] as const)('%s 在 240 Hz �
   canvas.isConnected = true;
   step(9310);
   const visible = visibleCanvasRect(actor.element, [first[4]!, first[5]!, first[6]!, first[7]!]);
-  expect(visible[3]).toBeCloseTo(first[7]! * (1 + .025 * Math.sin(Math.PI * (9310 % 6200) / 6200) ** 2), 8);
+  expect(visible[3]).toBeCloseTo(first[7]! * (Math.round((1 + .025 * Math.sin(Math.PI * (9310 % 6200) / 6200) ** 2) * 1000) / 1000), 8);
   expect(canvas.draws).toHaveLength(1);
   actor.dispose();
   expect(rafs.size).toBe(0);
@@ -101,4 +102,30 @@ it('呼吸中切換衝刺或追擊時立即恢復原尺寸，殘影可直接複�
     }
   }
   actor.dispose();
+});
+
+it('畫布拔掉超過 60 幀就改成慢速檢查，沒呼叫 play() 就掛回也會繼續呼吸', () => {
+  const timers = new Map<number, () => void>();
+  let nextTimer = 1;
+  vi.stubGlobal('window', { ...window,
+    setTimeout: (callback: () => void) => { const id = nextTimer++; timers.set(id, callback); return id; },
+    clearTimeout: (id: number) => timers.delete(id),
+  });
+  const actor = createQiuqiuActor();
+  const canvas = actor.element as unknown as FakeCanvas;
+  step(0);
+  canvas.isConnected = false;
+  for (let frame = 1; frame <= 61; frame++) step(frame * 16);
+  // 久未掛入：不再每幀要下一格，只排一個慢速檢查。
+  expect(rafs.size).toBe(0);
+  expect(timers.size).toBe(1);
+  // 戰鬥畫面把同一塊畫布掛回去；待機姿勢沒變，所以不會呼叫 play()。
+  canvas.isConnected = true;
+  const scaleBefore = actor.element.style.scale;
+  for (const callback of [...timers.values()]) { timers.clear(); callback(); }
+  expect(rafs.size).toBe(1);
+  step(3100);
+  expect(actor.element.style.scale, '掛回後停在原地不呼吸').not.toBe(scaleBefore);
+  actor.dispose();
+  expect(rafs.size + timers.size).toBe(0);
 });
