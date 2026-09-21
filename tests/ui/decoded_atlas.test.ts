@@ -91,11 +91,35 @@ describe('動作圖集的已解開快取', () => {
 
   it('從圖檔網址重新讀資料來解，而且一次只解一張', async () => {
     const images = [fakeImage(), fakeImage(), fakeImage()];
-    for (const image of images) void prepareDecodedAtlas(image);
-    await prepareDecodedAtlas(images[0]!);
+    await Promise.all(images.map((image) => prepareDecodedAtlas(image)));
     expect(fetched).toEqual(images.map((image) => image.src));
     expect(maxConcurrent).toBe(1);
     for (const image of images) expect(decodedAtlas(image)).toBeInstanceOf(FakeBitmap);
+  });
+
+  it('換角色開第二局：新角色預先解好的圖，比上一局沒再畫的舊圖優先保留', async () => {
+    _resetDecodedAtlasForTest(3 * 100 * 50 * 4);
+    const [oldIdle, oldClaw, newIdle, newClaw] = [fakeImage(), fakeImage(), fakeImage(), fakeImage()];
+    await Promise.all([prepareDecodedAtlas(oldIdle), prepareDecodedAtlas(oldClaw)]);
+    decodedAtlas(oldIdle);
+    decodedAtlas(oldClaw);   // 上一局畫過，之後就沒再用
+    await Promise.all([prepareDecodedAtlas(newIdle), prepareDecodedAtlas(newClaw)]);
+    expect(decodedAtlas(oldIdle)).toBeUndefined();
+    expect(decodedAtlas(newIdle)).toBeInstanceOf(FakeBitmap);
+    expect(decodedAtlas(newClaw)).toBeInstanceOf(FakeBitmap);
+  });
+
+  it('正要畫的插隊到最前面；失敗過的不再重試', async () => {
+    const [first, second, urgent, bad] = [fakeImage(), fakeImage(), fakeImage(), fakeImage()];
+    void prepareDecodedAtlas(first);
+    void prepareDecodedAtlas(second);
+    await prepareDecodedAtlas(urgent, true);
+    expect(fetched.slice(0, 2)).toEqual([first.src, urgent.src]);
+    vi.stubGlobal('fetch', (src: string) => { fetched.push(src); return Promise.reject(new Error('offline')); });
+    await prepareDecodedAtlas(bad);
+    const tries = fetched.filter((src) => src === bad.src).length;
+    await prepareDecodedAtlas(bad, true);
+    expect(fetched.filter((src) => src === bad.src)).toHaveLength(tries);
   });
 
   it('讀檔失敗就不解、不丟例外，後面排隊的照解', async () => {

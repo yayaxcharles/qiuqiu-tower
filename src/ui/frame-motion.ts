@@ -111,15 +111,17 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       const image = imageFor(motion);
       // 載入失敗的圖 complete 也是 true，要再看 naturalWidth，否則壞圖會被當成載好。
       if (image.complete && image.naturalWidth > 0) { done(); return; }
-      if (typeof image.decode === 'function') { image.decode().then(() => done(), fail); return; }
+      // 失敗的圖從快取拿掉，下次預載重試時才會真的重新下載
+      const failWith = (error: unknown): void => { images.delete(fileUrl(motion.texture)); fail(error); };
+      if (typeof image.decode === 'function') { image.decode().then(() => done(), failWith); return; }
       // 沒有 decode() 的環境原本等於完全不等，loaded 直接變 true，
       // 角色就停在空白畫布（稽核 2026-09-21 第 6 點）。改成等 load/error。
       // 失敗仍要往外丟，preload.ts 的「改用普通立繪」退路才會接手。
       if (typeof image.addEventListener !== 'function') { done(); return; }
       // 走到這裡還是 complete＝已經載入失敗過，load／error 不會再來，不先擋掉就永遠等不到結果。
-      if (image.complete) { fail(new Error(`逐格動作圖載入失敗：${image.src}`)); return; }
+      if (image.complete) { failWith(new Error(`逐格動作圖載入失敗：${image.src}`)); return; }
       image.addEventListener('load', () => done(), { once: true });
-      image.addEventListener('error', () => fail(new Error(`逐格動作圖載入失敗：${image.src}`)), { once: true });
+      image.addEventListener('error', () => failWith(new Error(`逐格動作圖載入失敗：${image.src}`)), { once: true });
     })));
     loaded = true;
     // 畫布不吃 decode() 的結果（實機追蹤 2026-09-21）：另外在背景解開成點陣圖，出手時才不用當場解碼

@@ -512,10 +512,10 @@ registerScreen('combat', (app, root, props) => {
    */
   const holdWin = (seat: number, action: CombatMotionAction | undefined): CombatMotionAction | undefined =>
     action === 'win'
-      // 已經在播勝利的座位不壓：兩隻同時從頭播、長短不同時，先播完的會被壓回待機，
-      // 等另一隻播完又被放行從頭再播一次（審查 2026-09-21 晚）
-      && motionActors.get(seat)?.action !== 'win'
-      && [...motionActors].some(([other, state]) => other !== seat && state.active) ? 'idle' : action;
+      // 只看「還在出手或反應」的座位；別人也在播勝利不算（兩隻同時從頭播、長短不同時，
+      // 先播完的不能被壓回待機再重播）。同伴連出兩張、第二張補刀時，我已切到勝利也要壓回來，
+      // 等牠收招一起慶祝（審查 2026-09-21 晚 中-2）
+      && [...motionActors].some(([other, state]) => other !== seat && state.active && state.action !== 'win') ? 'idle' : action;
 
   const mountMotion = (q: PlayerCombat, box: HTMLElement, displayedPose: string): void => {
     const source = motionSourceFor(q);
@@ -2486,6 +2486,17 @@ registerScreen('combat', (app, root, props) => {
   const remotePresentationQueue: RemotePresentationItem[] = [];
   let remotePresentationRunning = false;
 
+  /**
+   * 演出丟例外後回到真實狀態：排隊時先記下的「還沒打到的傷害」「等著倒下」「暫留的立繪」
+   * 永遠等不到擊中計時器扣回去，不清的話血條一直偏高、死掉的怪一直站著（審查 2026-09-21 晚 低-4）。
+   */
+  const recoverPresentation = (): void => {
+    motionPendingDamage.clear();
+    fallingUids.clear();
+    motionHeldSprites.clear();
+    if (app.cs === cs && !ended) render();
+  };
+
   const pumpRemotePresentation = (): void => {
     const item = remotePresentationQueue.shift();
     if (!item || app.cs !== cs) { remotePresentationRunning = false; return; }
@@ -2504,6 +2515,7 @@ registerScreen('combat', (app, root, props) => {
       item.play();
     } catch (error) {
       console.error('連線演出失敗，跳過這一項', error);
+      recoverPresentation();
       pumpRemotePresentation();
       return;
     }
@@ -3700,7 +3712,6 @@ registerScreen('combat', (app, root, props) => {
           trip: prepareMelee(a.seat, action, a.g, cardStats(card).def.type === '攻擊'),
         };
       }
-      if (incomingMotion && incomingMotion.seat !== mySeat) playMotion(incomingMotion.seat, incomingMotion.action, incomingMotion.trip);
       const ownOpts = ownCard
         ? {
             ...cardPose(heroOf(my()), cardStats(ownCard).def, cardStats(ownCard).effects),
@@ -3711,6 +3722,7 @@ registerScreen('combat', (app, root, props) => {
         : ownMotionAlreadyPlaying ? { motionAlreadyPlaying: true, motionTrip: ownMotionTrip } : {};
       // 狀態已經套用；演出失敗只影響畫面，收尾（勝負、收回合、放開會話）一定要跑，否則整場卡住（稽核 2026-09-21 晚 中-4）
       try {
+        if (incomingMotion && incomingMotion.seat !== mySeat) playMotion(incomingMotion.seat, incomingMotion.action, incomingMotion.trip);
         if (!alreadyShown && remoteBefore) settle(remoteBefore, {
           ...ownOpts,
           light: !mine,
@@ -3725,6 +3737,7 @@ registerScreen('combat', (app, root, props) => {
         else if (!alreadyShown || !ownMotionAlreadyPlaying) render();
       } catch (error) {
         console.error('連線演出失敗，照常收尾', error);
+        recoverPresentation();
       }
       finishApplied();
     });

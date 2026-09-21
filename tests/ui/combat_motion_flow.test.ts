@@ -324,8 +324,20 @@ describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () =>
       remotePresentationQueue: queue, app: { cs }, cs,
       resolveCombatMotionPresentationWait: () => 0, motionImpactTimers: new Set(),
       window: { setTimeout: () => 0 }, console: { error: (...args: unknown[]) => errors.push(args) },
+      recoverPresentation: () => { played.push('recover'); },
     });
-    expect(played).toEqual(['bad', 'next', 'done']);
+    expect(played).toEqual(['bad', 'recover', 'next', 'done']);
     expect(errors).toHaveLength(1);
+  });
+
+  it('同伴連出兩張、第二張補刀：我已切到勝利也要壓回待機，等牠收招一起慶祝', async () => {
+    const out: { value?: string } = {};
+    const states = new Map([[0, { action: 'win', active: false }], [1, { action: 'attack1', active: true }]]);
+    await execute(holdWinSource + '\nout.value = holdWin(0, "win");', { motionActors: states, out });
+    expect(out.value).toBe('idle');
+    // 別人也在播勝利（兩隻同時從頭播）就不壓
+    states.set(1, { action: 'win', active: true });
+    await execute(holdWinSource + '\nout.value = holdWin(0, "win");', { motionActors: states, out });
+    expect(out.value).toBe('win');
   });
 });
