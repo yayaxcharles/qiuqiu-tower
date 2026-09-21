@@ -1,4 +1,4 @@
-import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, STARTER_DECK, cardById } from './cards';
+import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, FENGFENG_STARTER_DECK, STARTER_DECK, cardById } from './cards';
 import { heroName, type Hero } from '../engine/hero';
 import {
   FENGFENG_BOSS_LINES,
@@ -2287,7 +2287,8 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
    * 而那正是這支函式的註解自己寫著要避免的事（「算進去每個人都是蜷縮流」）。
    * 兩副牌的牌號不重疊，直接併成一個集合就好。
    */
-  const starter = new Set<string>([...STARTER_DECK, ...FEIFEI_STARTER_DECK, ...DANGDANG_STARTER_DECK]);
+  // 封封的起手牌也要排掉（2026-09-22：漏了這副，只帶起手十張就被判成蜷縮流，結局師父第一句幾乎每局都講錯）
+  const starter = new Set<string>([...STARTER_DECK, ...FEIFEI_STARTER_DECK, ...DANGDANG_STARTER_DECK, ...FENGFENG_STARTER_DECK]);
   const picked = deckIds.filter((id) => !starter.has(id));
   for (const id of picked) {
     const def = cardById[id];
