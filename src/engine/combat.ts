@@ -39,7 +39,7 @@ export function startCombat(input: {
     ...(input.hero ? { hero: input.hero } : {}),
     seat: 0,
     relics: [...input.relics], potions: [...input.potions],
-    hp: input.hp, maxHp: input.maxHp, block: 0, armour: 0, statuses: {},
+    hp: input.hp, maxHp: input.maxHp, block: 0, statuses: {},
     energy: 0, maxEnergy: 3 + relicSum(input.relics, 'energyPerTurn'),
     qi: 0,
     hand: [], drawPile: input.rng.shuffle(input.deck), discardPile: [], exhaustPile: [],

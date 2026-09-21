@@ -2,11 +2,11 @@ import { cards } from '../content/cards';
 import type { CardDef, RunPlayer } from './types';
 
 /**
- * 職業（2026-09-05 拍板）。同一隻球球的兩種打法，不是兩個角色。
+ * 職業（2026-09-05 拍板）。
  *
  * - `ninja`：現況。靠隱身與潛水閃掉傷害，蜷縮每回合重新賺、回合末歸零＝流動防禦。
- * - `samurai`：穿重甲。沒有任何閃避手段，改用「甲」硬吃——甲不歸零、被打永久扣，
- *   整場就那些，得規劃著用（見 `PlayerCombat.armour` 與 `damagePlayer` 的受傷順序）。
+ * - ~~`samurai`~~：武士球球（穿重甲、用「甲」硬吃）**2026-09-22 使用者裁定整套拆掉**：
+ *   他一直沒有自己的立繪與專屬牌、選角畫面也沒放。舊存檔裡的他讀回來當忍者球球（見 `save.ts` 的 `checkRun`）。
  * - `feifei`：**不是球球**，是球球的師妹、一隻暹羅貓（2026-09-12）。丟毒暗器，
  *   路數是**毒＋攻擊自帶蜷縮**：她的攻擊牌大多同時給幾點擋，不用在打與擋之間二選一，
  *   傷害低但毒會滾（原本設計過一套「距離」機制，2026-09-12 整個拆掉了）。
@@ -21,7 +21,7 @@ import type { CardDef, RunPlayer } from './types';
  *
  * 分流深度是**中分流**：大部分牌共用，各自有一批獨占牌（`CardDef.hero`）。
  */
-export type Hero = 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
+export type Hero = 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
 
 /**
  * 合法的職業清單。**存檔驗證要用這一份，不要在別的檔案再手寫一次**。
@@ -31,7 +31,7 @@ export type Hero = 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
  * 而且**存檔是真的被刪掉**（驗不過 → `checkRun` 回 null → `loadRun` 呼叫 `clearSave()`），
  * 回到標題就會發生。共用一份之後，加第四個角色不會再漏。
  */
-export const HEROES: readonly Hero[] = ['ninja', 'samurai', 'feifei', 'dangdang', 'fengfeng'];
+export const HEROES: readonly Hero[] = ['ninja', 'feifei', 'dangdang', 'fengfeng'];
 
 /**
  * 這一位的職業。沒寫＝忍者。
@@ -46,11 +46,10 @@ export function heroOf(p: Pick<RunPlayer, 'hero'>): Hero {
 /**
  * 畫面上叫他什麼。
  *
- * 忍者與武士是**同一隻球球**的兩種打法，所以都叫「球球」；
- * 菲菲是另一隻貓（球球的師妹），名字必須不一樣——不然連線時兩格都寫「球球」，
+ * 菲菲是另一隻貓（球球的師妹），名字必須跟球球不一樣——不然連線時兩格都寫「球球」，
  * 玩家根本分不出哪一格是誰。
  */
-const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', samurai: '球球', feifei: '菲菲', dangdang: '噹噹', fengfeng: '封封' };
+const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', feifei: '菲菲', dangdang: '噹噹', fengfeng: '封封' };
 export function heroName(p: Pick<RunPlayer, 'hero'> | undefined): string {
   return HERO_NAME[heroOf(p ?? {})];
 }
@@ -119,7 +118,7 @@ export function cardsForHero(hero: Hero): CardDef[] {
  * 三道關卡：
  * - `combatOnly`：魔物塞牌用的雜牌（黏液、眼冒金星），任何池子都不進
  * - `hidden`：插圖還沒生好，圖到齊由生圖腳本拿掉旗標
- * - `hero`：職業獨占。不濾的話武士會開出隱身牌，但他整套機制裡根本沒有隱身
+ * - `hero`：職業獨占。不濾的話別的角色會開出球球的隱身牌
  * - `coop`：連線專用牌，**只有兩個人以上的局才進池**（使用者 2026-09-11 指定）
  */
 export function pickable(c: CardDef, hero: Hero, players = 1): boolean {

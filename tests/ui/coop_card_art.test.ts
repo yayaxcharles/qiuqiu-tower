@@ -35,7 +35,7 @@ describe('合作牌使用實際搭檔的插圖', () => {
   it('沒有同伴、同角色組隊或缺少混搭圖時保留自己的圖', () => {
     expect(cardArtKey('card/fenyiban', 'feifei')).toBe('card/feifei_fenyiban');
     expect(cardArtKey('card/fenyiban', 'feifei', 'feifei')).toBe('card/feifei_fenyiban');
-    expect(cardArtKey('card/fenyiban', 'feifei', 'samurai')).toBe('card/feifei_fenyiban');
+    expect(cardArtKey('card/fenyiban', 'feifei', 'newcomer')).toBe('card/feifei_fenyiban');   // 還沒有混搭圖的新角色
     expect(cardArtKey('card/sanjo', 'ninja', 'feifei')).toBe('card/sanjo');
   });
 

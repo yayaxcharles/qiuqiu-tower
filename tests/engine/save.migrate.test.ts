@@ -15,7 +15,7 @@ import type { RunState } from '../../src/engine/types';
  */
 
 function v1Save(): Record<string, unknown> {
-  const fresh = newRun('migrate-me', 3, 'samurai');
+  const fresh = newRun('migrate-me', 3);
   const p = me(fresh);
   // 攤平成第 1 版的長相：每人一份的那幾欄放回最上層，players 拿掉
   const { players, ...shared } = fresh as RunState & { players: unknown };
@@ -23,7 +23,8 @@ function v1Save(): Record<string, unknown> {
   return {
     ...shared,
     version: 1,
-    hero: p.hero,
+    // 第 1 版那時只有忍者與武士；武士 2026-09-22 拆掉了，這份舊檔就是拿他來測（讀回來要變回忍者）
+    hero: 'samurai',
     hp: p.hp, maxHp: p.maxHp, fish: p.fish,
     deck: p.deck, relics: p.relics, potions: p.potions,
     removeCost: p.removeCost,
@@ -49,7 +50,7 @@ describe('第 1 版存檔轉第 2 版', () => {
     expect(p.maxHp).toBe(old['maxHp']);
     expect(p.fish).toBe(old['fish']);
     expect(p.removeCost).toBe(old['removeCost']);
-    expect(p.hero).toBe('samurai');
+    expect(p.hero, '武士球球拆掉了，讀回來是忍者（不寫 hero 這一欄）').toBeUndefined();
     expect(p.deck.map((c) => c.cardId)).toEqual((old['deck'] as { cardId: string }[]).map((c) => c.cardId));
     expect(p.relics).toEqual(old['relics']);
     expect(p.potions).toEqual(old['potions']);

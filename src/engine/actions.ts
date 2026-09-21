@@ -201,21 +201,6 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
  * pierce＝穿透：套公式、吃隱身與反彈，但**跳過蜷縮**（師父的穿心掌、亡命一擊）
  */
 /**
- * 甲吃掉這一下的傷害，回傳還剩多少會扣到血（武士球球，2026-09-05）。
- *
- * 擺在蜷縮之後、生命之前。**穿透（pierce）穿得過蜷縮但擋在這裡**——使用者拍板：穿透本來就是
- * 設計來剋「堆蜷縮龜縮」的，而甲是整場有限的資源、堆不起來，不需要再被剋一次，
- * 不然武士打師父那場沒得打。
- */
-function eatArmour(cs: CombatState, p: PlayerCombat, lose: number): number {
-  if (lose <= 0 || p.armour <= 0) return lose;
-  const eaten = Math.min(p.armour, lose);
-  p.armour -= eaten;
-  log(cs, `甲擋下了 ${eaten} 點${p.armour === 0 ? '，甲碎了' : ''}`);
-  return lose - eaten;
-}
-
-/**
  * 兩個人時擋下的紀錄要寫是誰的（使用者 2026-09-15：「蜷縮明明不夠，打下去卻擋住了」——擋的是同伴那一下，
  * 魔物每一招隨機打一位，紀錄沒寫名字就像自己擋的）。單機照舊不加。
  */
@@ -243,7 +228,6 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
       const absorbed = Math.min(p.block, base); p.block -= absorbed; lose = base - absorbed;
       if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
     }
-    lose = eatArmour(cs, p, lose);
   } else {
     if (p.immune) { log(cs, `${unitName(p)}躲在角落，什麼都沒看到`); return 0; }
     const dmg = computeAttack(base, attacker, p);
@@ -257,7 +241,6 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     }
     p.block -= absorbed;
     lose = dmg - absorbed;
-    lose = eatArmour(cs, p, lose);
     // 擋下來要留紀錄：畫面靠這行飄「擋住 N」跟盾牌，不然整下被吃掉看起來像沒打到（使用者回報）
     if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
     if (opts.pierce && dmg > 0) log(cs, '這一下穿過了蜷縮');

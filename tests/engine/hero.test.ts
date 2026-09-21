@@ -1,4 +1,4 @@
-// 職業（2026-09-05）：忍者球球與武士球球共用大部分牌，各自有獨占牌。
+// 職業（2026-09-05）：各角色共用大部分牌，各自有獨占牌（武士球球 2026-09-22 拆掉了）。
 // 中分流——CardDef.hero 沒寫＝共用；RunState.hero 沒寫＝忍者（舊存檔相容）。
 import { describe, expect, it } from 'vitest';
 
@@ -11,12 +11,11 @@ import { rollCardChoices } from '../../src/engine/rewards';
 import { me } from '../../src/engine/runplayer';
 
 describe('牌池分流', () => {
-  it('沒標 hero 的牌兩個職業都拿得到', () => {
+  it('沒標 hero 的牌球球拿得到', () => {
     const shared = cards.filter((c) => !c.hero);
     expect(shared.length).toBeGreaterThan(50);
     for (const c of shared.slice(0, 20)) {
       expect(cardsForHero('ninja').includes(c), c.name).toBe(true);
-      expect(cardsForHero('samurai').includes(c), c.name).toBe(true);
     }
   });
 
@@ -27,25 +26,13 @@ describe('牌池分流', () => {
     expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占（10 張）＋連線牌「你先躲」「跟著我躲好」「有我在前面」＋地裂陣、沾衣十八跌、鐵頭功、分身術、影子分身').toBe(18);
     for (const c of ninjaOnly) {
       expect(cardsForHero('ninja').includes(c), c.name).toBe(true);
-      expect(cardsForHero('samurai').includes(c), `武士不該拿到 ${c.name}`).toBe(false);
     }
-  });
-
-  it('隱身與潛水的牌一張都不留給武士', () => {
-    const bad = cardsForHero('samurai').filter((c) =>
-      JSON.stringify(c.effects).includes('隱身') || JSON.stringify(c.effects).includes('潛水'));
-    expect(bad.map((c) => c.name), '武士沒有閃避手段').toEqual([]);
   });
 });
 
 describe('這一局是哪個職業', () => {
   it('沒指定就是忍者', () => {
     expect(heroOf(me(newRun('h1')))).toBe('ninja');
-  });
-
-  it('指定武士就是武士', () => {
-    const run = newRun('h2', 1, 'samurai');
-    expect(heroOf(me(run))).toBe('samurai');
   });
 
   it('沒指定職業就不寫 hero 這一欄，讀回來當忍者', () => {
@@ -60,19 +47,6 @@ describe('這一局是哪個職業', () => {
 });
 
 describe('抽牌時真的濾掉別職業的獨占牌', () => {
-  it('武士的戰鬥獎勵、罐頭鋪、事件選牌都開不出隱身牌', () => {
-    const ninjaOnly = new Set(cards.filter((c) => c.hero === 'ninja').map((c) => c.id));
-    let seen = 0;
-    for (let i = 0; i < 300; i++) {
-      const picks = rollCardChoices(new Rng(seedFromString(`s${i}`)), '忍術', 3, [], true, 0, undefined, 'samurai');
-      for (const c of picks) {
-        expect(ninjaOnly.has(c.id), `武士開出了忍者獨占牌 ${c.name}`).toBe(false);
-        seen++;
-      }
-    }
-    expect(seen, '要真的有抽到牌，不然這條等於沒測').toBeGreaterThan(500);
-  });
-
   it('忍者照樣抽得到自己的獨占牌', () => {
     const got = new Set<string>();
     for (let i = 0; i < 300; i++) {

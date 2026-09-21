@@ -70,8 +70,8 @@ export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja', playe
   /*
    * 起手牌照職業發（2026-09-12 起）：
    * - 菲菲有**自己的一整套**（飛針、退開、遠射、淬毒），見 `FEIFEI_STARTER_DECK`
-   * - 武士還是用球球那份；替身術是忍者獨占，武士先用一張淡定補位
-   *  （武士自己的起手牌等他真的有專屬牌再說——他目前是「球球換打法」不是另一個角色）
+   * - 沒有自己那一份的角色用球球那份，碰到別人的獨占牌（替身術）先用一張淡定補位
+   *  （當初是給武士球球用的，他 2026-09-22 拆掉了；現在四位都有自己的起手牌，這條補位是留給下一位新角色的）
    */
   for (const id of starterDeckFor(hero)) addCard(run, (cardById[id]?.hero && cardById[id]!.hero !== hero) ? 'tanding' : id);
   if (mods.startCurse) addCard(run, mods.startCurse);   // 難度 4 起：開局就背一張壞毛病
@@ -161,7 +161,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
       ...(rp.hero ? { hero: rp.hero } : {}),
       seat: cs.players.length,
       relics: [...rp.relics], potions: [...rp.potions],
-      hp: rp.hp, maxHp: rp.maxHp, block: 0, armour: 0, statuses: {},
+      hp: rp.hp, maxHp: rp.maxHp, block: 0, statuses: {},
       energy: 0, maxEnergy: 3 + rp.relics.reduce((s, id) => s + (relicById[id]?.hooks.energyPerTurn ?? 0), 0),
       qi: 0,
       hand: [], drawPile: cs.rng.shuffle(rp.deck.map((c) => ({ ...c }))), discardPile: [], exhaustPile: [],

@@ -2785,9 +2785,9 @@ registerScreen('combat', (app, root, props) => {
     // 自傷本身靠球球身上的紅閃與飄數字表現就夠了（2026-09-08）。魔物打過來的挨打照舊排最前面
     else if (hurt && !posePref) pose = POSE.hit;
     else if (dodged) pose = POSE.dodge;
-    // 敵人打過來被蜷縮（或甲）整個擋掉：切抱胸格擋——這張早就畫好卻沒人用（2026-09-08）。
+    // 敵人打過來被蜷縮整個擋掉：切抱胸格擋——這張早就畫好卻沒人用（2026-09-08）。
     // 只認「這一拍有魔物出手、血沒掉、紀錄有擋下」；自己回合疊蜷縮走下一條的 curl
-    else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了') || l.startsWith('甲擋下了')) && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
+    else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了')) && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
     else if (comparedBlock > before.block && !opts.attack) pose = POSE.curl;
     else if (posePref) pose = posePref;
     else if (hungry) pose = POSE.hungry;
@@ -2860,7 +2860,7 @@ registerScreen('combat', (app, root, props) => {
       })) reaction = 'hurt';
       else if (afterStealth < was.stealth) reaction = source === 'qiuqiu' || source === 'feifei' ? 'roll' : 'dodge';
       else if (enemyActed && afterHp === was.hp && (afterBlock < was.block
-        || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了') || line.startsWith('甲擋下了'))))) reaction = 'guard';
+        || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了'))))) reaction = 'guard';
       // 本張牌／忍具已選好演出；回血只是效果，不能把太極或反擊改成吃飯。
       // 自己正在出招（不是反應動作）時，同伴幫忙回血也不能把招式切成吃飯、人瞬間回原位（稽核 2026-09-21 晚 低-7）
       else if (afterHp > was.hp && !(q.seat === (opts.impactSeat ?? mySeat)

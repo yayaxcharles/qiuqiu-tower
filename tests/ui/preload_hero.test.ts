@@ -10,7 +10,7 @@ const FAKE = {
   cards: { 'card/sanjo': 'assets/cards/card/sanjo.webp', 'card/feifei_feizhen': 'assets/cards/card/feifei_feizhen.webp' },
   sprites: {
     'hero/ninja_claw': 'assets/sprites/hero/ninja_claw.webp', 'hero/cover': 'assets/sprites/hero/cover.webp',
-    'hero/feifei_attack': 'assets/sprites/hero/feifei_attack.webp', 'hero/samurai_idle': 'assets/sprites/hero/samurai_idle.webp',
+    'hero/feifei_attack': 'assets/sprites/hero/feifei_attack.webp',
     'rat_idle': 'assets/sprites/rat_idle.webp',
     // 2026-09-18 補的四張非戰鬥姿勢，戰鬥暖圖不該碰到它們
     'hero/ninja_nap': 'assets/sprites/hero/ninja_nap.webp', 'hero/ninja_sharpen': 'assets/sprites/hero/ninja_sharpen.webp',
@@ -38,7 +38,6 @@ describe('角色專屬的圖分開載', () => {
     expect(heroOfKey('bg/event_feifei_toll_r0')).toBe('feifei');
     expect(heroOfKey('bg/feifei_still_teach')).toBe('feifei');
     expect(heroOfKey('icon/map_hero_feifei_low')).toBe('feifei');
-    expect(heroOfKey('hero/samurai_idle')).toBe('samurai');
     expect(heroOfKey('codex/relic_old_sword_tassel')).toBe('fengfeng');
     for (const k of ['card/sanjo', 'hero/ninja_claw', 'bg/event_toll', 'rat_idle', 'card/biepengzhenjian']) expect(heroOfKey(k), k).toBeNull();
   });
@@ -68,7 +67,6 @@ describe('角色專屬的圖分開載', () => {
     const ninja = heroSpriteUrls(['ninja']);
     expect(ninja.some((u) => u.includes('ninja_claw'))).toBe(true);
     expect(ninja.some((u) => u.includes('feifei'))).toBe(false);
-    expect(ninja.some((u) => u.includes('samurai'))).toBe(false);
     expect(ninja.some((u) => u.includes('hero/cover')), '標題那張本來就不暖').toBe(false);
     // 貓窩三張與過關走路那張戰鬥裡用不到，暖了只會擋在魔物立繪前面（2026-09-18）
     for (const p of ['nap', 'sharpen', 'helpup', 'walk']) expect(ninja.some((u) => u.includes(`ninja_${p}`)), p).toBe(false);
@@ -86,7 +84,7 @@ describe('角色專屬的圖分開載', () => {
     expect(hers.some((u) => u.includes('event_feifei_toll.webp'))).toBe(true);
     expect(hers.some((u) => u.includes('_r0')), '結果圖點到才載').toBe(false);
     expect(hers.some((u) => u.includes('still')), '幻燈片推開關主門才載').toBe(false);
-    expect(hers.some((u) => u.includes('sanjo') || u.includes('ninja') || u.includes('samurai'))).toBe(false);
+    expect(hers.some((u) => u.includes('sanjo') || u.includes('ninja'))).toBe(false);
     expect(heroArtUrls(['ninja'])).toEqual([]);
     expect(heroArtUrls([undefined])).toEqual([]);
   });

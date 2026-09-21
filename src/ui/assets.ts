@@ -111,7 +111,7 @@ export const TITLE_ART: ReadonlySet<string> = new Set(['hero/feifei_cover', 'her
  */
 export function heroOfKey(key: string): string | null {
   if (key === 'codex/relic_old_sword_tassel') return 'fengfeng';
-  const m = /(?:^|[/_])(feifei|samurai|dangdang|fengfeng)(?:_|$)/.exec(key);
+  const m = /(?:^|[/_])(feifei|dangdang|fengfeng)(?:_|$)/.exec(key);
   return m ? m[1]! : null;
 }
 
@@ -139,7 +139,7 @@ export function coopArtUrls(): string[] {
 /** 這個鍵是不是雙人專屬牌的牌面（給分關載入的清單用） */
 export function isCoopOnlyArt(key: string): boolean {
   const base = key.replace(/^card\/coop_(?:ninja|feifei|dangdang|fengfeng)_(?:ninja|feifei|dangdang|fengfeng)_/, 'card/');
-  return COOP_ONLY_ART.has(base) || COOP_ONLY_ART.has(base.replace(/^card\/(?:feifei|samurai|dangdang|fengfeng)_/, 'card/'));
+  return COOP_ONLY_ART.has(base) || COOP_ONLY_ART.has(base.replace(/^card\/(?:feifei|dangdang|fengfeng)_/, 'card/'));
 }
 
 export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
@@ -177,7 +177,7 @@ export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
  * 玩菲菲卻突然跳出一隻灰虎斑，比姿勢不精準難看得多。
  */
 const HERO_PREFIX: Readonly<Record<string, string>> = {
-  ninja: 'ninja', samurai: 'samurai', feifei: 'feifei', dangdang: 'dangdang', fengfeng: 'fengfeng',
+  ninja: 'ninja', feifei: 'feifei', dangdang: 'dangdang', fengfeng: 'fengfeng',
 };
 
 /** 她沒生這張圖時，退到自己的哪一張。鍵與值都是**姿勢名**（不含 `hero/<前綴>_`） */

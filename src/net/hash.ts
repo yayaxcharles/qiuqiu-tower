@@ -49,7 +49,7 @@ export function combatFingerprint(cs: CombatState): string {
   ];
   for (const p of cs.players) {
     parts.push([
-      `P${p.seat}`, `hp${p.hp}/${p.maxHp}`, `b${p.block}`, `a${p.armour}`, `e${p.energy}/${p.maxEnergy}`,
+      `P${p.seat}`, `hp${p.hp}/${p.maxHp}`, `b${p.block}`, `e${p.energy}/${p.maxEnergy}`,
       p.down ? 'DOWN' : '', p.ready ? 'RDY' : '',
       statusOf(p),
       `h[${pile(p.hand)}]`, `d[${pile(p.drawPile)}]`, `x[${pile(p.discardPile)}]`, `z[${pile(p.exhaustPile)}]`,

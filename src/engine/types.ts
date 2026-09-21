@@ -304,8 +304,8 @@ export interface CardDef {
   type: CardType;
   rarity: Rarity;
   pool: Pool;
-  /** 職業獨占：沒寫＝兩個職業共用；'ninja' 的隱身潛水那批武士拿不到（見 engine/hero） */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
+  /** 職業獨占：沒寫＝每個角色共用；'ninja' 的隱身潛水那批別的角色拿不到（見 engine/hero） */
+  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
   target: TargetMode;
   effects: Effect[];
   keywords?: Keyword[];
@@ -375,7 +375,7 @@ export interface RelicDef {
    * **2026-09-14 深夜：兩件的鎖都拿掉了。** 使用者把「後退閃躲」改成獲得隱身（跟師兄學來的招式），
    * 紙袋、影披風對她有用了。機制留著，目前沒有任何秘寶在用。
    */
-  notFor?: readonly ('ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng')[];
+  notFor?: readonly ('ninja' | 'feifei' | 'dangdang' | 'fengfeng')[];
   /** 罐頭鋪售價。不填＝150。強弱要有價差（使用者指定），數字標在各件定義上 */
   price?: number;
   hooks: {
@@ -672,7 +672,7 @@ export interface EventDef {
    * 用在「這個事件只有對這個角色才有意義」的那幾個——菲菲的「師兄的痕跡」
    * 是她在追球球留下的東西，球球自己遇到會很怪。
    */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
+  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
   /**
    * 插圖還沒生好：**不排進任何人的地圖**（2026-09-17）。
    *
@@ -721,7 +721,7 @@ export interface GameMap { nodes: MapNode[]; start: string[] }
  */
 export interface RunPlayer {
   /** 這一位的職業。沒寫＝忍者 */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
+  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
   hp: number;
   maxHp: number;
   fish: number;
@@ -777,7 +777,7 @@ export interface PlayerCombat extends Unit {
    * `RunPlayer` 上也有一份，這裡再放一次**不是重複**：戰鬥畫面拿得到的只有 `CombatState`，
    * 而連線時同伴可能是另一個職業——立繪、招式圖、獨占牌全看這個欄位。
    */
-  hero?: 'ninja' | 'samurai' | 'feifei' | 'dangdang' | 'fengfeng';
+  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
   /**
    * 座位編號，0 起算（連線版第一步 2026-09-11）。
    *
@@ -818,12 +818,6 @@ export interface PlayerCombat extends Unit {
    */
   relics: string[];
   potions: string[];
-  /**
-   * 甲（武士球球的防禦，2026-09-05）。跟蜷縮並列但性格相反：**回合開始不歸零**，被打會永久扣。
-   * 受傷順序是 蜷縮 → 甲 → 生命——蜷縮回合末反正要消失，先用它擋；擋不完才啃甲。
-   * 忍者球球整場都是 0，行為跟加這個欄位之前一模一樣。
-   */
-  armour: number;
   /** 被打掉血的秘寶效果（onHit）這回合已經觸發過：記回合數 */
   hitRelicTurn?: number;
   /** 這場戰鬥打過第一張牌了（破卷軸用） */

@@ -100,22 +100,20 @@ describe('連線版第一步：玩家變陣列、效果認得出對象', () => {
     expect(p1.hp).toBe(42);
   });
 
-  it('二號的甲與蜷縮擋的是二號自己的傷害', () => {
+  it('二號的蜷縮擋的是二號自己的傷害', () => {
     const cs = combat();
     const p1 = cs.players[0] as PlayerCombat;
     const p2 = addSecond(cs);
-    p1.hp = 50; p1.block = 30; p1.armour = 30;
-    p2.hp = 50; p2.block = 5; p2.armour = 4;
+    p1.hp = 50; p1.block = 30;
+    p2.hp = 50; p2.block = 5;
     const foe = cs.enemies[0]!;
 
-    // 12 點：二號自己的 5 蜷縮擋掉 5、4 甲吃掉 4，剩 3 扣血。
+    // 12 點：二號自己的 5 蜷縮擋掉 5，剩 7 扣血（武士的甲 2026-09-22 拆掉了）。
     // 改之前這一下會去啃一號那堆厚防禦，二號一滴血都不會掉
     damagePlayer(cs, foe, 12, { victim: p2 });
     expect(p2.block).toBe(0);
-    expect(p2.armour).toBe(0);
-    expect(p2.hp).toBe(47);
+    expect(p2.hp).toBe(43);
     expect(p1.block, '一號的蜷縮沒被借走').toBe(30);
-    expect(p1.armour, '一號的甲沒被借走').toBe(30);
   });
 
   it('沒填對象就退回第一位：魔物招式那條舊路完全沒變', () => {

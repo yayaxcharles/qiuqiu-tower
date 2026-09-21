@@ -98,7 +98,7 @@ export function showCompendium(): void {
   check.addEventListener('change', () => { upgraded = check.checked; render(); });
 
   // 看誰的牌。正式角色直接排成按鈕，一眼看得出現在在看誰，也少一次點擊。
-  const heroBtns = HEROES.filter((h) => h !== 'samurai').map((h) => {
+  const heroBtns = HEROES.map((h) => {
     const b = el('button', { class: 'btn small comp-hero' }, heroName({ hero: h }));
     b.addEventListener('click', () => {
       if (who === h) return;

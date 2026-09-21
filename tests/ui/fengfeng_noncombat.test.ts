@@ -12,8 +12,8 @@ describe('封封非戰鬥共用介面', () => {
   });
 
   it('合作雙座位與圖鑑從正式角色清單列出封封', () => {
-    expect(src('src/ui/screens/lobby.ts')).toMatch(/HEROES\.filter\(\(h\) => h !== 'samurai'\)/);
-    expect(src('src/ui/compendium.ts')).toMatch(/HEROES\.filter\(\(h\) => h !== 'samurai'\)/);
+    expect(src('src/ui/screens/lobby.ts')).toMatch(/HEROES\.map\(/);
+    expect(src('src/ui/compendium.ts')).toMatch(/HEROES\.map\(/);
   });
 
   it('首頁使用封封參上圖，四角色版面有獨立縮放', () => {
@@ -25,6 +25,6 @@ describe('封封非戰鬥共用介面', () => {
   });
 
   it('除錯頁仍由正式角色清單產生按鈕', () => {
-    expect(src('src/ui/screens/debug.ts')).toMatch(/HEROES\.filter\(\(h\) => h !== 'samurai'\)/);
+    expect(src('src/ui/screens/debug.ts')).toMatch(/HEROES\.map\(/);
   });
 });

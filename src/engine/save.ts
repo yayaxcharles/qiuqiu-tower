@@ -126,7 +126,8 @@ function usableMap(map: unknown, currentNode: unknown): boolean {
 /** 第 1 版的存檔長相：每人一份的家當直接攤在最上層（那時只有一位玩家） */
 type RunV1 = Omit<RunState, 'version' | 'players'> & {
   version: 1;
-  hero?: 'ninja' | 'samurai';
+  /** 那時只有忍者與武士。武士 2026-09-22 拆掉了，`checkRun` 會把他換回忍者 */
+  hero?: string;
   hp: number; maxHp: number; fish: number;
   deck: CardInstance[]; relics: string[]; potions: string[];
   removeCost: number; restBlock?: number; rarePity?: number;
@@ -144,7 +145,7 @@ function migrateV1(old: Partial<RunV1>): Partial<RunState> {
     ...(rest as Partial<RunState>),
     version: 2,
     players: [{
-      ...(hero ? { hero } : {}),
+      ...(hero ? { hero: hero as RunPlayer['hero'] } : {}),
       hp: hp as number, maxHp: maxHp as number, fish: fish as number,
       deck: deck as CardInstance[], relics: relics as string[], potions: potions as string[],
       removeCost: removeCost as number,
@@ -179,6 +180,17 @@ export function checkRun(input: Partial<RunState>): RunState | null {
   const run: Partial<RunState> = ver === 1 ? migrateV1(input as unknown as Partial<RunV1>) : input;
   if (run.version !== 2 || !run.map || !run.rng) return null;
   if (!Array.isArray(run.players) || run.players.length < 1) return null;
+  /*
+   * 武士球球（`samurai`）與他的「甲」2026-09-22 整套拆掉了（使用者裁定）。舊存檔裡的他本來就是
+   * 同一隻球球換打法、起手牌也是球球那份，所以讀回來直接當忍者球球續玩，不判成壞檔。
+   * `armour` 只存在戰鬥中，照理不會進存檔；真的出現（手改的局面碼）也一律丟掉。
+   */
+  for (const p of run.players) {
+    if (!p || typeof p !== 'object') continue;
+    const old = p as { hero?: string; armour?: unknown };
+    if (old.hero === 'samurai') delete old.hero;
+    delete old.armour;
+  }
   // 每一位的家當各驗各的：兩個人一起玩的時候，壞掉的可能是任何一位
   if (!run.players.every((p) => usablePlayer(p))) return null;
   // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容

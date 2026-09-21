@@ -287,7 +287,7 @@ registerScreen('debug', (app, root) => {
       el('span', { class: 'dbg-title' }, '除錯模式'),
       tabBtn('事件'), tabBtn('牌'), tabBtn('台詞'), tabBtn('立繪'), tabBtn('劇情'), tabBtn('場景'),
       el('span', { class: 'dbg-sep' }, '｜'),
-      ...HEROES.filter((h) => h !== 'samurai').map((h) => heroBtn(h, heroName({ hero: h }))),
+      ...HEROES.map((h) => heroBtn(h, heroName({ hero: h }))),
       el('button', {
         class: 'btn small dbg-close',
         onclick: () => { setLocalHero(heroBeforeDebug ?? 'ninja'); setSfxHero(heroBeforeDebug ?? 'ninja'); heroBeforeDebug = null; app.show('title'); },

@@ -12,9 +12,7 @@ import { heroPronoun, startRelicFor, type Hero } from '../../engine/hero';
  *
  * 排在「新的一局」與序章之間：選完才開局，因為序章、起手牌、起始秘寶三樣都跟角色綁在一起。
  *
- * **武士不在這裡**：他沒有自己的立繪、也沒有一張專屬牌，實際上只是「球球扣掉隱身牌」。
- * 放上來只會讓玩家選到一個空殼（設計稿第一節寫得很清楚）。他的 `Hero` 型別留著，
- * 哪天真的補齊了再加一格。
+ * 武士球球從來沒放上來過（沒有自己的立繪、也沒有一張專屬牌），2026-09-22 整套拆掉了。
  */
 interface Pick { hero: Hero; name: string; tag: string; blurb: string; pose: string }
 

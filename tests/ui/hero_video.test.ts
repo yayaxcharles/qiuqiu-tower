@@ -38,7 +38,6 @@ describe('過場影片要看角色', () => {
 
   it('開頭影片對照表：球球與菲菲各一支、鐵爪機關貓沒有；結尾那支還在', () => {
     expect(SRC).toMatch(/OPENING_CLIP[^\n]*=\s*\{[^}]*ninja: 'opening'[^}]*feifei: 'opening_feifei'/);
-    expect(SRC).not.toMatch(/samurai: 'opening/);
     expect(SRC).toContain("playVideo('ending'");
   });
 

@@ -49,7 +49,8 @@ export const cards: readonly CardDef[] = [
   { id: 'ninaqudang', name: '你拿去擋', cost: 1, type: 技, rarity: '常見', pool: '忍術', target: 'self', art: 'card/ninaqudang', coop: true,
     effects: [{ kind: 'blockAlly', amount: 12 }],
     upgrade: { effects: [{ kind: 'blockAlly', amount: 16 }] } },
-  // 忍者獨占：這張給的是隱身，而武士整套機制裡根本沒有閃避（`hero.test.ts` 在守這條規則）。
+  // 忍者獨占：這張給的是隱身（當初為了武士整套機制沒有閃避才鎖；武士 2026-09-22 拆掉了，
+  // 鎖照舊留著——拿掉會改到其他角色抽得到的牌）。
   // 對方是不是忍者不影響——判準是「誰開得到這張牌」，不是「誰受得了這個效果」
   { id: 'nixianduo', name: '你先躲', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'ninja', target: 'self', art: 'card/nixianduo', coop: true,
     effects: [{ kind: 'statusAlly', name: '隱身', amount: 2 }],
@@ -1132,7 +1133,7 @@ export const FENGFENG_STARTER_DECK: readonly string[] = [
   'fengfeng_tuna', 'fengfeng_tuna',
 ];
 
-/** 這個職業的起手十張。沒有專屬的就用球球那份（武士現在是這種情況） */
+/** 這個職業的起手十張。沒有專屬的就用球球那份 */
 export function starterDeckFor(hero: string | undefined): readonly string[] {
   if (hero === 'feifei') return FEIFEI_STARTER_DECK;
   if (hero === 'dangdang') return DANGDANG_STARTER_DECK;

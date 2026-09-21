@@ -9,7 +9,6 @@ describe('音效依角色換檔', () => {
     expect(sfxFor('victory', 'feifei')).toBe('victory_feifei');
     expect(sfxFor('claw', 'feifei')).toBe('claw');
     expect(sfxFor('hurt', 'ninja')).toBe('hurt');
-    expect(sfxFor('hurt', 'samurai')).toBe('hurt');
     expect(sfxFor('hurt', undefined)).toBe('hurt');
   });
 
