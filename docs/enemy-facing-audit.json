@@ -2560,7 +2560,7 @@
       "pose": "idle",
       "facing": "left",
       "reason": "",
-      "sha256": "5f793b2211c984e061c13e1f8cdc7ad24d4df7fa5a8744a0e1105906f333a5c7",
+      "sha256": "f3db11a9f09cbb94d9aa52a024000d726a9ebe605b14ce7253549abfb84ed163",
       "displayMirror": false
     },
     {
@@ -2569,7 +2569,7 @@
       "pose": "attack",
       "facing": "left",
       "reason": "",
-      "sha256": "99913777323dfb98d3ec7bfc5ddc5157835a528f49f4683735227bdc604b3ff2",
+      "sha256": "e8b94ced263dff624c87f59f255f332f5a2a52c4eb6d5d496783213dc8caa4fe",
       "displayMirror": false
     },
     {
