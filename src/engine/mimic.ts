@@ -89,12 +89,15 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
         break;
       }
       /*
-       * 封封的蓄氣傷害：鏡子沒有可保存的蓄氣，照牌上可支付上限學成固定傷害。
-       * `allQi` 仍有全域 12 上限，因此用 12；做法與噹噹的 damageSpendBlock 照 max
-       * 學成固定傷害一致。多段與穿透原樣保留。
+       * 封封的蓄氣傷害：鏡子沒有可保存的蓄氣，照牌上可支付上限學成固定傷害，
+       * 跟噹噹的 damageSpendBlock 照 max 學成固定傷害一致。多段與穿透原樣保留。
+       *
+       * 「消耗全部蓄氣」（`allQi`，絕學·斷流、絕學·開山）沒有牌面上限，比照噹噹的卸光（`all`）
+       * 跳過不學（使用者 2026-09-21 裁定）。原本照全域上限 12 算，斷流學成單下 46（升級 50），太兇。
        */
       case 'damageSpendQi': {
-        const spent = fx.allQi ? 12 : (fx.maxQi ?? 0);
+        if (fx.allQi) break;
+        const spent = fx.maxQi ?? 0;
         const hit: Extract<EnemyEffect, { kind: 'damage' }> = { kind: 'damage', amount: fx.amount + fx.perQi * spent };
         if (fx.times !== undefined && fx.times > 1) hit.times = fx.times;
         if (fx.ignoreBlock) hit.pierce = true;

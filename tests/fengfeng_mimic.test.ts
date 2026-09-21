@@ -32,8 +32,8 @@ const EXPECT: Record<string, EnemyEffect[] | null> = {
   fengfeng_youbian: null,
   fengfeng_jiewo: null,
   fengfeng_husong: null,
-  fengfeng_duanliu: [{ kind: 'damage', amount: 46 }],
-  fengfeng_kaishan: [{ kind: 'damage', amount: 32 }],
+  fengfeng_duanliu: null,
+  fengfeng_kaishan: null,
   fengfeng_cunfeng: null,
   fengfeng_lianxi: null,
   fengfeng_jizhong: null,
@@ -56,9 +56,9 @@ describe('鏡中影子學封封的牌', () => {
     expect(learnCard(inst('fengfeng_husong', 1)), '幫同伴擋沒有鏡子可用的受益者').toBeNull();
   });
 
-  it('消耗全部蓄氣以全域上限 12 換算，升級數值同步', () => {
-    expect(learnCard(inst('fengfeng_duanliu', 1, true))).toEqual([{ kind: 'damage', amount: 50 }]);
-    expect(learnCard(inst('fengfeng_kaishan', 1, true))).toEqual([{ kind: 'damage', amount: 32 }]);
+  it('消耗全部蓄氣的絕學比照噹噹的卸光不學（使用者 2026-09-21）；有上限的照上限學', () => {
+    expect(learnCard(inst('fengfeng_duanliu', 1, true))).toBeNull();
+    expect(learnCard(inst('fengfeng_kaishan', 1, true))).toBeNull();
     expect(learnCard(inst('fengfeng_pozhen', 1, true))).toEqual([{ kind: 'damage', amount: 27 }]);
   });
 });
