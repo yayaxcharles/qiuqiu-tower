@@ -286,6 +286,11 @@ export async function preloadQiuqiuMotion(): Promise<void> {
   await Promise.all([qiuqiuFrameMotions.preload(), preloadQiuqiuShuriken()]);
 }
 
+/** 延後下載的待機狀態圖還沒到（或壞了）時回 false，戰鬥畫面就先交還靜態立繪。 */
+export function qiuqiuMotionDrawable(action: QiuqiuAction): boolean {
+  return qiuqiuFrameMotions.drawable(action);
+}
+
 export function qiuqiuMotionReady(): boolean {
   return qiuqiuFrameMotions.ready();
 }

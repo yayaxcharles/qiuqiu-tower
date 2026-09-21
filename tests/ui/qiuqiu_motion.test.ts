@@ -200,7 +200,7 @@ describe('球球全身動作畫布', () => {
       ...(extraMotionData.actions as Record<string, { texture: string }>),
       ...(attackMotionData.actions as Record<string, { texture: string }>),
     };
-    // 2026-09-21 新補的待機狀態圖不預載，第一次進入該狀態才下載
+    // 2026-09-21 新補的待機狀態圖不解碼預載（預載完才在背景下載）
     const expected = new Set(Object.entries(actions)
       .filter(([key]) => !DEFERRED_REST_ACTIONS.has(key))
       .map(([, motion]) => `/${motion.texture}`));

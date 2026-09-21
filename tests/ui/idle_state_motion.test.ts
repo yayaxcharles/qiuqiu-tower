@@ -8,7 +8,7 @@
  *  2. 素材缺了就交還舊立繪，不會退成一般站姿把狀態外觀蓋掉；
  *  3. 每個新動作播完停在第 8 格慢慢呼吸（比照翻肚），肚子餓與蜷縮只亮 650～700 毫秒，第 8 格要來得及出現。
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { transformWithOxc } from 'vite';
 import SRC from '../../src/ui/screens/combat.ts?raw';
 import extraMotionData from '../../src/ui/qiuqiu-extra-motion-data.json';
@@ -21,10 +21,19 @@ import {
   companionMotionDuration,
   companionRestMotionAction,
   createCompanionMotionActor,
+  preloadCompanionMotion,
   type CompanionMotionAction,
   type CompanionMotionKind,
 } from '../../src/ui/companion-motion';
-import { createQiuqiuActor, qiuqiuMotionDuration, type QiuqiuAction } from '../../src/ui/qiuqiu-motion';
+import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuMotionDuration, type QiuqiuAction } from '../../src/ui/qiuqiu-motion';
+
+// 待機狀態圖是預載完才在背景下載的；遊戲裡一定是預載完才用到逐格動作，
+// 所以先跑一次預載，drawable 才會說「畫得出來」（沒下載好時交還靜態立繪另有測試）。
+beforeAll(async () => {
+  vi.stubGlobal('Image', class { src = ''; complete = true; naturalWidth = 1; decode() { return Promise.resolve(); } addEventListener() {} });
+  await Promise.all([preloadQiuqiuMotion(), ...(['feifei', 'dangdang', 'fengfeng'] as const).map((kind) => preloadCompanionMotion(kind))]);
+  vi.unstubAllGlobals();
+});
 
 type Source = 'qiuqiu' | CompanionMotionKind;
 type Frame = { rect: number[]; pivot: number[]; duration: number };

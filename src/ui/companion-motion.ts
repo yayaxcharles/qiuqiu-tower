@@ -365,6 +365,11 @@ export async function preloadCompanionMotion(kind: CompanionMotionKind): Promise
   await frameSet(kind).preload();
 }
 
+/** 延後下載的待機狀態圖還沒到（或壞了）時回 false，戰鬥畫面就先交還靜態立繪。 */
+export function companionMotionDrawable(kind: CompanionMotionKind, action: CompanionMotionAction): boolean {
+  return frameSet(kind).drawable(action);
+}
+
 export function companionMotionReady(kind: CompanionMotionKind): boolean {
   return frameSet(kind).ready();
 }
@@ -505,7 +510,8 @@ export function companionRestMotionAction(
 ): CompanionMotionAction | undefined {
   if (down || phase === 'lost') return 'defeat';
   if (phase === 'won') return 'win';
-  return restStateAction(displayedPose, poses, (action) => companionHasOwnMotion(kind, action));
+  // 圖還沒下載好（或載入失敗）就交還靜態立繪，不要停在上一個動作的最後一格（審查 2026-09-21 中-2）
+  return restStateAction(displayedPose, poses, (action) => companionHasOwnMotion(kind, action) && companionMotionDrawable(kind, action));
 }
 
 export const FEIFEI_CLONE_TIMING = Object.freeze({

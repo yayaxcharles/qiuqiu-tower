@@ -71,9 +71,15 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
 }>): Readonly<{
   preload(): Promise<void>;
   ready(): boolean;
+  /** 這個動作的圖現在畫得出來嗎：延後下載的要真的載好（壞圖不算），其他跟著預載走。 */
+  drawable(action: string): boolean;
   createActor(options?: { height?: number; action?: Action }): FrameMotionActor<Action>;
 }> {
   const images = new Map<string, HTMLImageElement>();
+  // 載入失敗的圖 complete 也是 true、naturalWidth 是 0，拿去 drawImage 會丟例外（整個戰鬥畫面重畫中斷）。
+  // 測試用的假影像沒有 complete，視為可畫。
+  const usable = (image: HTMLImageElement): boolean =>
+    !('complete' in image) || (image.complete && image.naturalWidth !== 0);
   let loaded = false;
 
   const imageFor = (motion: FrameMotion): HTMLImageElement => {
@@ -209,7 +215,7 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       }
       if (drawnMotion === motion && drawnFrame === frame) return;
       const image = imageFor(motion);
-      if ('complete' in image && !image.complete) return;
+      if (!usable(image)) return;
       const [sourceX, sourceY, sourceWidth, sourceHeight] = frame.rect;
       const [pivotX, pivotY] = frame.pivot;
       const scale = motion.scale * wantedHeight / config.nativeHeight;
@@ -283,5 +289,13 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     };
   };
 
-  return { preload, ready: () => loaded, createActor };
+  const drawable = (action: string): boolean => {
+    const motion = config.motions[action];
+    if (!motion) return false;
+    if (!config.deferred?.has(action)) return true;
+    const image = images.get(fileUrl(motion.texture));
+    return !!image && usable(image);
+  };
+
+  return { preload, ready: () => loaded, drawable, createActor };
 }

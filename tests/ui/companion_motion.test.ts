@@ -14,6 +14,7 @@ import {
   FEIFEI_CLONE_TIMING,
   companionCardAction,
   companionImpactTimes,
+  companionMotionDrawable,
   companionMotionDuration,
   companionMotionReady,
   companionIsMelee,
@@ -385,7 +386,7 @@ describe('菲菲全身逐格畫布', () => {
         { texture: 'assets/sprites/hero/feifei_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    // 2026-09-21 新補的 10 張待機狀態圖不預載（用到才下載），預載張數維持原本
+    // 2026-09-21 新補的 10 張待機狀態圖不解碼預載（預載完才在背景下載），解碼預載張數維持原本
     expect(new Set(FakeImage.sources)).toHaveLength(18);
 
     FakeImage.sources = [];
@@ -408,6 +409,22 @@ describe('菲菲全身逐格畫布', () => {
         .map((motion) => `/${motion.texture}`),
     ));
     expect(new Set(FakeImage.sources)).toHaveLength(15);
+
+    // 背景下載的圖壞了（complete 為 true、naturalWidth 為 0）：不可以拿去畫，狀態交還靜態立繪
+    const brokenSrc = `/${(dangdangMotionData.actions as Record<string, { texture: string }>).wounded!.texture}`;
+    const broken = FakeImage.created.find((image) => image.src === brokenSrc)! as unknown as { complete: boolean; naturalWidth: number };
+    broken.complete = true;
+    broken.naturalWidth = 0;
+    expect(companionMotionDrawable('dangdang', 'wounded')).toBe(false);
+    expect(companionRestMotionAction('dangdang', 'hurt-pose', { idle: 'idle-pose', hurt: 'hurt-pose' }, 'player', false)).toBeUndefined();
+    const brokenActor = createCompanionMotionActor('dangdang');
+    const drawsBefore = canvases.at(-1)!.context.draws.length;
+    expect(() => brokenActor.play('wounded')).not.toThrow();
+    expect(canvases.at(-1)!.context.draws).toHaveLength(drawsBefore);
+    brokenActor.dispose();
+    broken.naturalWidth = 1536;
+    expect(companionMotionDrawable('dangdang', 'wounded')).toBe(true);
+    expect(companionRestMotionAction('dangdang', 'hurt-pose', { idle: 'idle-pose', hurt: 'hurt-pose' }, 'player', false)).toBe('wounded');
     // 延後的那十張：預載完就在背景開始下載（建立影像、設好網址），但不解碼
     const deferredTextures = Object.entries(dangdangMotionData.actions as Record<string, { texture: string }>)
       .filter(([key]) => DEFERRED_COMPANION_REST_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`);
@@ -416,7 +433,7 @@ describe('菲菲全身逐格畫布', () => {
     expect(FakeImage.sources.filter((src) => deferredTextures.includes(src))).toEqual([]);
   });
 
-  it('新補的待機狀態圖不在預載裡，第一次播到才下載', () => {
+  it('新補的待機狀態圖不在解碼預載裡，播到時直接拿背景下載的那張來畫', () => {
     const wounded = `/${(dangdangMotionData.actions as Record<string, { texture: string }>).wounded!.texture}`;
     // 預載那一半由上一個測試的完整清單比對保證；這裡確認第一次播到時直接拿該圖來畫。
     const actor = createCompanionMotionActor('dangdang');

@@ -1,4 +1,4 @@
-import { qiuqiuHasOwnMotion, qiuqiuImpactTimes, qiuqiuMotionDuration, type QiuqiuAction } from './qiuqiu-motion';
+import { qiuqiuHasOwnMotion, qiuqiuImpactTimes, qiuqiuMotionDrawable, qiuqiuMotionDuration, type QiuqiuAction } from './qiuqiu-motion';
 import { restStateAction, type RestStatePoses } from './rest-state-motion';
 import {
   companionImpactDelay,
@@ -297,5 +297,6 @@ export function qiuqiuRestMotionAction(
 ): QiuqiuAction | undefined {
   if (down || phase === 'lost') return 'defeat';
   if (phase === 'won') return 'win';
-  return restStateAction(displayedPose, poses, (action) => qiuqiuHasOwnMotion(action));
+  // 圖還沒下載好（或載入失敗）就交還靜態立繪，不要停在上一個動作的最後一格（審查 2026-09-21 中-2）
+  return restStateAction(displayedPose, poses, (action) => qiuqiuHasOwnMotion(action) && qiuqiuMotionDrawable(action));
 }
