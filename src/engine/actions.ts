@@ -126,9 +126,6 @@ export function markCombatWon(cs: CombatState): void {
     p.energyGainBlockedThisPhase = undefined;
   }
 }
-/** 這一位有沒有帶這件秘寶（規則一：各帶各的）。不指定就問第一位 */
-export function hasRelic(cs: CombatState, id: string, p: PlayerCombat = cs.player): boolean { return p.relics.includes(id); }
-
 export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   /*
    * 拒馬（菲菲的稀有能力）：之後**每次**獲得蜷縮都多幾點。

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { damagePlayer } from '../src/engine/actions';
 import { canPlay, endTurn, playCard, startCombat } from '../src/engine/combat';
 import { Rng, seedFromString } from '../src/engine/rng';
 import { addStatus } from '../src/engine/statuses';

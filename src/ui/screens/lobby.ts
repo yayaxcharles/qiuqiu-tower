@@ -4,7 +4,7 @@ import { clearKeepBg, screenBg } from '../screenbg';
 import { hostRoom as hostDirect, joinRoom as joinDirect } from '../../net/rtc';
 import { hostRoom as hostRelay, joinRoom as joinRelay } from '../../net/ws';
 import { CoopSession } from '../../net/session';
-import { beginCombat, newCoopRun } from '../../engine/run';
+import { newCoopRun } from '../../engine/run';
 import type { App } from '../app';
 import type { LinkStatus, Transport } from '../../net/transport';
 import { setLocalHero } from '../assets';

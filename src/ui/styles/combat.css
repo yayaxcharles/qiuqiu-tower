@@ -127,7 +127,6 @@
      跟旁邊高瘦的站不到同一條線上——看起來全部飄在半空。 */
   object-position: center bottom;
   transform-origin: center bottom;
-  object-position: center bottom;
   /* 待機動作改成「呼吸」不是「上下飄」。原本用 idle-bob 整隻上下平移，
      角色會離開地面，跟接地陰影一起看更假；改成以腳底為原點的微幅縮放。 */
   animation: idle-breathe 6.2s ease-in-out infinite;
@@ -361,10 +360,6 @@
   background: linear-gradient(#e06a5c, #b8342a);
   border-image-source: var(--ui-intent-attack);
   animation: intent-throb 1.15s ease-in-out infinite;
-}
-@keyframes intent-throb {
-  0%, 100% { scale: 1; box-shadow: 0 0 0 0 #ff6a6a00; }
-  50% { scale: 1.07; box-shadow: 0 0 0 3px #ff6a6a3d; }
 }
 /* 七種意圖各一塊生出來的木牌。用 `border-image` 九宮格：兩端固定、中間橫向拉伸，
    配合「攻 4」到「叫幫手」不同長度的字。木紋本來就是橫的（生圖時就照這個要求畫），
@@ -695,7 +690,7 @@
 /* 打不出來的牌左右抖一下 */
 .combat .hand .card.nope { animation: card-nope .34s ease-out; }
 @keyframes card-nope {
-  0%, 100% { margin-left: var(--nope-m, 0); }
+  0%, 100% { margin-left: 0; }
   20% { transform: translateX(-9px) rotate(-2deg); }
   45% { transform: translateX(8px) rotate(2deg); }
   70% { transform: translateX(-4px); }

@@ -5,7 +5,7 @@ import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePar
 import type { RunAction } from '../../net/runaction';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl, heroArtUrl } from '../assets';
+import { heroArtUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';

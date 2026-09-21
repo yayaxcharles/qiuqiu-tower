@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { dialogue, pick, storyFor } from '../../content/dialogue';
+import { pick, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { openChest, openChestCoop, runRng } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';

@@ -97,54 +97,6 @@
 }
 
 /* ===== 獎勵 ===== */
-/* ===== 打贏的結算畫面 =====
-   本來是「標題一行字＋三行戰利品＋一排牌」全部靠 gap 疊在一起，
-   沒有分區也沒有層次，所以很死板。現在分三塊：
-   上面一條橫幅放標題、中間一個框起來的戰利品區、下面才是選牌。 */
-
-/* 標題橫幅：掛在面板上緣的木牌，跟對白框的名牌同一套 */
-.reward-banner {
-  align-self: center;
-  margin: -4px 0 0;
-  padding: 2px 30px 4px;
-  border: 3px solid #3a2a1c;
-  border-radius: 11px;
-  background: linear-gradient(#c9702a, #8a4a22);
-  box-shadow: 0 3px 0 #00000038, inset 0 1px 0 #ffffff4d;
-}
-.reward-banner h1 {
-  margin: 0;
-  color: #fff6e2;
-  font-size: 26px;
-  letter-spacing: 3px;
-  text-shadow: 0 2px 3px #00000099;
-}
-
-/* 戰利品區：框起來自成一塊，跟下面的選牌分開 */
-/* 這一整個畫面的高度是硬上限：面板最多 648，四件戰利品＋一排 250 高的牌
-   原本疊到 812，會擠出捲軸。所以每一格都比一般畫面再收一點。 */
-.reward-loot {
-  position: relative;
-  align-self: stretch;
-  margin: 6px 0 0;
-  padding: 10px 14px 9px;
-  border: 2px solid #3a2a1c4d;
-  border-radius: 12px;
-  background: #3a2a1c0a;
-}
-/* 「戰利品」三個字騎在框線上，像貼在框上的標籤 */
-.reward-loot-label {
-  position: absolute;
-  top: 0;
-  left: 22px;
-  transform: translateY(-52%);
-  padding: 1px 12px 2px;
-  border-radius: 6px;
-  background: #f8f2e8;
-  color: #7a5a34;
-  font-size: 14px;
-  letter-spacing: 3px;
-}
 
 /* 只有一行字的戰利品（小魚乾）用 flex 換行自己併排：
    兩筆就左右各一，只有一筆就自己撐滿，不用在程式那邊分情況。 */
@@ -249,16 +201,6 @@
   object-fit: contain;
   margin: 0 auto 2px;
 }
-.event-text, .event-result {
-  max-width: 900px;
-  margin: 0;
-  font-size: 21px;
-  line-height: 1.6;
-  background: var(--panel);
-  border: 2px solid var(--ink);
-  border-radius: 14px;
-  padding: 14px 22px;
-}
 .event-note {
   margin: 0;
   font-size: 19px;
@@ -268,13 +210,6 @@
 /* 兩行式選項（44F 的全力準備）：第一行選項名，第二行小字寫算好的數字 */
 .btn.two-line { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.25; }
 .btn.two-line .sub { font-size: .78em; opacity: .85; font-weight: normal; }
-.event-choices, .rest-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: stretch;
-  width: 560px;
-}
 
 /* ===== 罐頭鋪 ===== */
 /* ===== 罐頭鋪 =====
@@ -310,60 +245,6 @@
 /* 店裡的貨架格子比別處窄一點，換兩側的店景露出來 */
 .screen.shop .shop-item { width: 148px; }
 .screen.shop .shop-item.card-item { width: auto; }
-.shop-head {
-  align-self: stretch;
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  margin-bottom: 2px;
-}
-/* 老闆站到貨架左邊的空地上，不排進版面。
-   面板拿掉之後畫面就是整間店，他縮在角落只有 84 像素、還壓在魚燈籠上，
-   看起來像貼紙。改成絕對定位站在左側留白（舞台 1280 減內容 940，兩側各餘 170），
-   高度就不吃版面上限，可以放大成真的站在店裡的人。 */
-.shop-keeper {
-  position: absolute;
-  right: -158px;   /* 改站右側空地（使用者指定右下角）；老闆的立繪本來就面朝左，站右邊剛好面向店裡 */
-  bottom: 4px;
-  width: 150px;
-  height: 196px;
-  object-fit: contain;
-  object-position: center bottom;
-  filter: drop-shadow(0 6px 14px #000000a6);
-}
-.shop-head-text { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
-/* 店名做成掛在牆上的木招牌，跟對白框的名牌同一套 */
-.shop-sign {
-  padding: 2px 22px 4px;
-  border: 3px solid #3a2a1c;
-  border-radius: 9px;
-  background: linear-gradient(#c9702a, #8a4a22);
-  box-shadow: 0 3px 0 #00000038, inset 0 1px 0 #ffffff4d;
-  color: #fff6e2;
-  font-size: 22px;
-  font-weight: bold;
-  letter-spacing: 3px;
-  text-shadow: 0 2px 3px #00000099;
-}
-/* 老闆講話的泡泡，尾巴指向他。
-   底下的貨架換成木頭之後，泡泡再用一片純白就像網頁的輸入框，
-   所以跟價標同一套：微微的紙色漸層＋一道落影，看起來是張紙不是一個欄位 */
-.shop-bubble {
-  position: relative;
-  align-self: flex-start;   /* 只有一句話，不要拉滿整排 */
-  max-width: 560px;
-  padding: 6px 13px 7px;
-  border: 2px solid #3a2a1c;
-  border-radius: 10px;
-  background: linear-gradient(#fffdf7, #f7eede);
-  box-shadow: inset 0 1px 0 #ffffffd9, 0 3px 7px -2px #00000047;
-  font-size: 15px;
-  line-height: 1.35;
-  text-align: left;
-}
-/* 尾巴拿掉了：老闆改站到畫面左下角的地板上，泡泡在右上方，
-   尾巴會指著一個沒有人的位置，比沒有尾巴更奇怪。
-   泡泡就當成招牌下面的一句招呼，老闆本人在畫面裡看得到。 */
 
 /* 貨架＝店裡真的一座木架子，不是「框起來的一區」。
    本來是淡淡的圓角虛框（#3a2a1c0a 底、半透明邊），店景一露出來，
@@ -577,15 +458,6 @@
 .shop-item.poor { cursor: default; }
 .shop-item.poor > :not(.price) { opacity: .5; }
 .shop-item.poor .price { color: #8a2f1c; }
-.shop-actions {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  margin-top: auto;
-}
-
-/* ===== 貓窩 ===== */
-.rest-result { font-size: 22px; }
 
 /*
  * 吐槽是疊層元件，固定貼在 top: 60px（base.css）——那個位置在戰鬥畫面是空的，
@@ -608,7 +480,6 @@
   background-color: rgba(30, 24, 19, .9);
   border-color: rgba(200, 180, 150, .45);
 }
-.result-cat { height: 220px; object-fit: contain; }
 .result-stats { font-size: 20px; }
 .result-stats.small { font-size: 14px; opacity: .7; }
 .result-relics {
@@ -625,18 +496,9 @@
   padding: 3px 10px;
   font-size: 15px;
 }
-.result-actions { display: flex; gap: 14px; }
 .result-best { font-size: 18px; }
-.teaser { margin: 0; font-size: 20px; opacity: .85; }
 
-/* 選完之後的反應。原本選項一按，結果那段字就「瞬間出現在原地」，
-   跟按了沒反應很難分。這裡讓結果滑進來、獎勵那句再晚一點蹦出來——
-   收穫感就是從這個先後順序來的。
-   只掛在 .event-result／.rest-result 上，不掛問題那段（.event-text）：
-   問題是一進畫面就在的，讓它也動反而變成每進一個事件都要等它演完。 */
-.event-result, .rest-result {
-  animation: result-in 320ms cubic-bezier(.2, .9, .3, 1.08) backwards;
-}
+/* 升級預覽（components.css 的 .upgrade-preview）滑進來用 */
 @keyframes result-in {
   from { opacity: 0; transform: translateY(14px); }
 }
@@ -659,7 +521,7 @@
  * 改用位移＋亮度做進場，**透明度全程是 1**：就算凍住也是「已經在定位、只是還沒收亮」，
  * 看得到東西。正常播放時跟原本幾乎沒有差別。
  *
- * `result-in` 的另外兩個用處（`.event-result`／`.rest-result`、`.upgrade-preview`）沒有延遲，
+ * `result-in` 的另一個用處（`.upgrade-preview`）沒有延遲，
  * 風險窗口只有動畫開始那一瞬間，維持原樣不動。
  */
 .reward-item {
@@ -674,33 +536,11 @@
 .reward-item:nth-child(n+5) { animation-delay: 420ms; }
 
 /* ===== 過關畫面 ===== */
-.actclear-note { margin: 0; font-size: 19px; }
 .screen.actclear .reward-item.clickable { cursor: pointer; }
 .screen.actclear .reward-item.clickable:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 #fff, 0 4px 9px #00000038; }
 
 .screen.actclear .reward-item.selected { outline: 3px solid #ffd35c; box-shadow: inset 0 1px 0 #fff, 0 0 0 3px #ffd35c40; }
 
-
-/* 老闆頭上的台詞泡泡：跟老闆同一套絕對定位（右側空地），下緣長一根小尾巴指向他 */
-.keeper-bubble {
-  position: absolute;
-  right: -166px;
-  bottom: 206px;
-  width: 170px;
-  font-size: 13px;
-  line-height: 1.5;
-  text-align: center;
-}
-.keeper-bubble::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-  border: 8px solid transparent;
-  border-top-color: #f3e9d2;
-  border-bottom: 0;
-}
 
 /* ===== 劇場版面（事件／貓窩／罐頭鋪）：底圖鋪滿、主圖在中上、對白框在底下 =====
    對白框沿用 .dialogue-box 的紙與名牌；差別只在定位（貼著舞台底邊、左右各留 90）跟按鈕排法。 */
@@ -1068,7 +908,6 @@
 .title-cat-box.four .title-cat { height: 220px; }
 .title-cat-box .title-cat-feifei { height: 190px; }
 .title-screen h1 { margin: 0; }
-.title-sub { margin: 0; }
 .title-note, .title-credit { text-align: center; }   /* 釘在底部後要自己置中（絕對定位不吃 flex 的置中） */
 
 /* 難度顏色：1 到 5 越來越紅（使用者 2026-09-02） */

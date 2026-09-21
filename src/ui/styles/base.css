@@ -555,19 +555,6 @@ img { -webkit-user-drag: none; }
   opacity: .8;
 }
 
-/* 標題畫面的副標「球球參上」：小一號、拉開字距，墊在主標下面 */
-/* 副標再放大一輪（30 還是被嫌小）：粗體、亮金、描邊，跟主標同一個量級的存在感 */
-.title-screen .title-sub {
-  margin-top: -4px;
-  font-size: 42px;
-  font-weight: bold;
-  letter-spacing: 12px;
-  color: #ffd97a;
-  text-shadow: 0 2px 3px #000, 0 0 14px #00000090, 0 4px 10px #000000c0;
-  opacity: 1;
-}
-
-
 /* ===== 標題畫面的飄落粒子（金葉＋淡櫻）===== */
 .title-petals { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
 .title-petals i {

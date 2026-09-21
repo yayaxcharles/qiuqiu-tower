@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cardById, FEIFEI_STARTER_DECK, starterDeckFor } from '../../src/content/cards';
 import { relicById } from '../../src/content/relics';
 import { damageEnemy, damagePlayer } from '../../src/engine/actions';
-import { canPlay, endTurn, playCard, startCombat } from '../../src/engine/combat';
+import { endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { heroName, pickable, startRelicFor } from '../../src/engine/hero';
 import { beginCombat, newRun } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
 import { beginCombat, newRun } from '../../src/engine/run';
 import { playCard } from '../../src/engine/combat';
-import { addCard } from '../../src/engine/run';
 
 /**
  * 影子分身：**這場戰鬥裡，每回合打出的第一張牌會再打一次**（2026-09-12 使用者指定）。

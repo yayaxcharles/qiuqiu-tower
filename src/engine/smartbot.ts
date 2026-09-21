@@ -4,7 +4,6 @@ import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
-import { relicById } from '../content/relics';
 import { aliveEnemies, attackable } from './actions';
 import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';

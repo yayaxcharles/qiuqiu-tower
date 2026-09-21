@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CoopSession } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
 import { applyRunAction, canApplyRun, type RunCtx } from '../../src/net/runaction';
-import { advanceAct, applyRunEffects, beginCombat, finishCombat, makeShop, makeShops, newCoopRun, priceFor } from '../../src/engine/run';
+import { advanceAct, applyRunEffects, beginCombat, finishCombat, makeShops, newCoopRun } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
 import type { RunState } from '../../src/engine/types';
 import { onlyStanding, settleVotes } from '../../src/engine/vote';

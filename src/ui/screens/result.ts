@@ -1,5 +1,5 @@
 import { play } from '../audio';
-import { defeatLastWord, dialogue, storyFor } from '../../content/dialogue';
+import { defeatLastWord, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { clearSave, recordBest } from '../../engine/save';
 import { registerScreen } from '../app';

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { beginCombat, newRun } from '../../src/engine/run';
 import { playCard } from '../../src/engine/combat';
-import { addStatus, getStatus } from '../../src/engine/statuses';
+import { addStatus } from '../../src/engine/statuses';
 import { hasCoopScene, setCoopStory, storyFor } from '../../src/content/dialogue';
 import { prologueSlides } from '../../src/ui/storyslides';
 

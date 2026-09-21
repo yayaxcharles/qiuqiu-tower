@@ -1,6 +1,6 @@
 import { showsTelegraph } from '../content/enemies';
 import { willAct } from '../engine/combat';
-import type { CombatState, EnemyCombat } from '../engine/types';
+import type { CombatState } from '../engine/types';
 
 /**
  * 下一個要出手、而且該亮預告的魔物 uid（沒有就回 undefined）。

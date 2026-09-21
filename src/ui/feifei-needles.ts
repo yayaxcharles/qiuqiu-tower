@@ -5,9 +5,6 @@ import {
   type FeifeiNeedleAction,
 } from './feifei-needle-patterns';
 
-export const FEIFEI_NEEDLE_FLIGHT_MS = 170;
-export const FEIFEI_NEEDLE_GAP_MS = 140;
-
 export type FeifeiNeedlePoint = Readonly<{ x: number; y: number }>;
 
 export type FeifeiNeedlePlayOptions = Readonly<{
