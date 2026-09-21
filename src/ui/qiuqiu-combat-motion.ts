@@ -1,4 +1,5 @@
-import { qiuqiuImpactTimes, qiuqiuMotionDuration, type QiuqiuAction } from './qiuqiu-motion';
+import { qiuqiuHasOwnMotion, qiuqiuImpactTimes, qiuqiuMotionDuration, type QiuqiuAction } from './qiuqiu-motion';
+import { restStateAction, type RestStatePoses } from './rest-state-motion';
 import {
   companionImpactDelay,
   companionImpactTimes,
@@ -284,19 +285,17 @@ export function qiuqiuEnemyMotionKind(enemyId: string): EnemyMotionKind | undefi
   return undefined;
 }
 
-/** 沒有逐格素材的狀態回交既有立繪，避免動作畫布把狀態外觀蓋掉。 */
+/**
+ * 沒有逐格素材的狀態回交既有立繪，避免動作畫布把狀態外觀蓋掉。
+ * 狀態 → 動作的對照在 `rest-state-motion.ts`（四隻貓共用）。
+ */
 export function qiuqiuRestMotionAction(
   displayedPose: string,
-  poses: Readonly<{ idle: string; poison: string; belly: string; puff?: string; stealth?: string }>,
+  poses: RestStatePoses,
   phase: string,
   down: boolean,
 ): QiuqiuAction | undefined {
   if (down || phase === 'lost') return 'defeat';
   if (phase === 'won') return 'win';
-  if (displayedPose === poses.poison) return 'poison';
-  if (displayedPose === poses.belly) return 'belly';
-  if (displayedPose === poses.puff) return 'puff';
-  if (displayedPose === poses.stealth) return 'stealth';
-  if (displayedPose === poses.idle) return 'idle';
-  return undefined;
+  return restStateAction(displayedPose, poses, (action) => qiuqiuHasOwnMotion(action));
 }

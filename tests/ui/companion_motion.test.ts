@@ -377,7 +377,8 @@ describe('菲菲全身逐格畫布', () => {
         { texture: 'assets/sprites/hero/feifei_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(18);
+    // 2026-09-21 每位同伴多了 10 張待機狀態圖（掛彩、氣勢、肚子餓、定身、翻肚、隱身、懶洋洋、炸毛、鐵布衫、蜷縮）
+    expect(new Set(FakeImage.sources)).toHaveLength(18 + 10);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('fengfeng');
@@ -387,7 +388,7 @@ describe('菲菲全身逐格畫布', () => {
         { texture: 'assets/sprites/hero/fengfeng_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(16);
+    expect(new Set(FakeImage.sources)).toHaveLength(16 + 10);
     expect(companionMotionReady('dangdang')).toBe(false);
 
     FakeImage.sources = [];
@@ -398,7 +399,7 @@ describe('菲菲全身逐格畫布', () => {
         { texture: 'assets/sprites/hero/dangdang_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(15);
+    expect(new Set(FakeImage.sources)).toHaveLength(15 + 10);
   });
 
   it('以原生高度正規化、腳底固定，停止後不再排程', () => {

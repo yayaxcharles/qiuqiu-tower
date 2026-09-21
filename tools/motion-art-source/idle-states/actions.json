@@ -1,0 +1,531 @@
+{
+  "note": "待機狀態逐格圖（2026-09-21）。times 單位毫秒；持續狀態前段快、第 8 格停留；肚子餓與蜷縮只亮 650～700 毫秒，第 8 格要在 0.41 秒內出現。播完停在第 8 格（restFrames = 7、loop false）。",
+  "heroes": {
+    "qiuqiu": {
+      "wounded": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "power": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "hungry": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 2
+      },
+      "dizzy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "lazy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "iron": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "curl": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 1
+      }
+    },
+    "feifei": {
+      "wounded": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "power": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "hungry": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "dizzy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "belly": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "stealth": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "lazy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "puff": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "iron": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "curl": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 1
+      }
+    },
+    "dangdang": {
+      "wounded": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "power": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "hungry": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "dizzy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "belly": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "stealth": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "lazy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "puff": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "iron": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "curl": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 1
+      }
+    },
+    "fengfeng": {
+      "wounded": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "power": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "hungry": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "dizzy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "belly": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "stealth": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "lazy": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "puff": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "iron": {
+        "times": [
+          60,
+          70,
+          70,
+          80,
+          90,
+          120,
+          140,
+          280
+        ],
+        "loop": false,
+        "attempt": 1
+      },
+      "curl": {
+        "times": [
+          40,
+          50,
+          50,
+          60,
+          60,
+          70,
+          80,
+          300
+        ],
+        "loop": false,
+        "attempt": 1
+      }
+    }
+  }
+}

@@ -11,3 +11,8 @@
 .sprite-box.has-companion-motion > .sprite {
   visibility: hidden;
 }
+
+/* 隱身待機半透明（2026-09-21 同伴補了隱身逐格圖，比照球球的 .qiuqiu-stealth-idle） */
+.sprite-box.qiuqiu-stealth-idle > .companion-motion {
+  opacity: .58;
+}

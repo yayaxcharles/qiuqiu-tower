@@ -54,6 +54,14 @@ const FALLBACK_POSES: Partial<Record<QiuqiuPoseAction, QiuqiuPoseAction>> = {
   defeat: 'down',
   puff: 'idle',
   stealth: 'idle',
+  // 2026-09-21 的待機狀態：素材缺了就退回一般待機（戰鬥畫面那邊另有把關，缺圖時根本不會叫到這些動作）
+  wounded: 'idle',
+  power: 'idle',
+  hungry: 'idle',
+  dizzy: 'idle',
+  lazy: 'idle',
+  iron: 'idle',
+  curl: 'idle',
 };
 
 const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
@@ -198,6 +206,11 @@ export function qiuqiuImpactDelay(action: QiuqiuAction): number {
   return qiuqiuImpactTimes(action, 1)[0] ?? 0;
 }
 
+/** 這個動作有沒有自己的逐格素材（不算退路）。待機狀態缺圖時要交還舊立繪，不能退成一般站姿。 */
+export function qiuqiuHasOwnMotion(action: QiuqiuPoseAction): boolean {
+  return Object.hasOwn(motions, action);
+}
+
 function motionForPose(action: QiuqiuPoseAction): Motion {
   const direct = motions[action];
   if (direct) return direct;
@@ -246,7 +259,11 @@ const qiuqiuFrameMotions = createFrameMotionSet<QiuqiuAction>({
   motions,
   nativeHeight: NATIVE_IDLE_HEIGHT,
   initialAction: 'idle',
-  restFrames: { poison: 3, puff: 0, stealth: 0, belly: 7 },
+  // 2026-09-21 的待機狀態比照翻肚：前 7 格是從一般待機轉進狀態的過場，播完停在第 8 格慢慢呼吸
+  restFrames: {
+    poison: 3, puff: 0, stealth: 0, belly: 7,
+    wounded: 7, power: 7, hungry: 7, dizzy: 7, lazy: 7, iron: 7, curl: 7,
+  },
   className: 'qiuqiu-motion',
   ariaLabel: '\u7403\u7403',
   resolve: (action, elapsed, options) => {

@@ -1,0 +1,1376 @@
+{
+  "generator": "gpt-image-1.5（codex-oauth，真透明輸出）",
+  "reproducer": "python tools/pack_idle_state_motion.py",
+  "wholeCharacterFrames": true,
+  "assets": [
+    {
+      "hero": "qiuqiu",
+      "action": "wounded",
+      "source": "tools/motion-art-source/idle-states/qiuqiu/wounded.png",
+      "sourceSha256": "37df2417b3042889f307d7720b84d3d0ff50ed5e80afaffc17f14d78c69c6b7b",
+      "target": "public/assets/motion/qiuqiu/generated_wounded.webp",
+      "targetSha256": "459a559ac3a4e927efd29ab60dcdf27f0fa4f525d309a115609f19c50b54215f",
+      "bytes": 590318,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        0.966,
+        0.997,
+        1.003,
+        1.003,
+        1.003,
+        1.003
+      ],
+      "firstFrameWidthRatio": 1.001,
+      "centerShift": [
+        0.5,
+        -0.3,
+        0.3,
+        0.0,
+        0.6,
+        0.7,
+        2.3,
+        0.2
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "power",
+      "source": "tools/motion-art-source/idle-states/qiuqiu/power.png",
+      "sourceSha256": "1a911ae141c0cb4a4ecc508fec52bffba170e71459599fdfe6510fe1185a2de9",
+      "target": "public/assets/motion/qiuqiu/generated_power.webp",
+      "targetSha256": "fde0bb80a0093772cb76639b1c770556f4103a3e3d7556cbd849c5ef686cf717",
+      "bytes": 626196,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.003,
+        1.016,
+        0.988,
+        0.991,
+        0.991,
+        0.991
+      ],
+      "firstFrameWidthRatio": 1.006,
+      "centerShift": [
+        0.1,
+        2.0,
+        2.3,
+        9.5,
+        8.7,
+        8.8,
+        9.0,
+        9.3
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "hungry",
+      "source": "tools/motion-art-source/idle-states/qiuqiu/hungry.png",
+      "sourceSha256": "298ea7577a777ca3d9b8f960e44de979b47e119a8afaf0a3e4bb75f867cd0000",
+      "target": "public/assets/motion/qiuqiu/generated_hungry.webp",
+      "targetSha256": "9486e5987c1f06a584963d4e8cd3ed86b59b65fce91787169ce3cde6d3f92d3e",
+      "bytes": 548618,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 2,
+      "heightRatios": [
+        1.0,
+        0.984,
+        0.959,
+        0.937,
+        0.934,
+        0.928,
+        0.903,
+        0.893
+      ],
+      "firstFrameWidthRatio": 0.994,
+      "centerShift": [
+        -0.3,
+        7.4,
+        7.5,
+        5.7,
+        7.1,
+        10.1,
+        6.7,
+        6.6
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "dizzy",
+      "source": "tools/motion-art-source/idle-states/qiuqiu/dizzy.png",
+      "sourceSha256": "7a8782421eed6a8727eed9412f8c107c5983d2030b8efa158afaee202e2a1e41",
+      "target": "public/assets/motion/qiuqiu/generated_dizzy.webp",
+      "targetSha256": "16589e5e57dac4c517ac7fc39e25c8ca82debd0a154f350237ec57c13a22fdbf",
+      "bytes": 612190,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.031,
+        1.009,
+        1.119,
+        1.125,
+        1.094,
+        1.132
+      ],
+      "firstFrameWidthRatio": 0.994,
+      "centerShift": [
+        -0.2,
+        0.2,
+        8.0,
+        3.5,
+        7.9,
+        7.2,
+        8.6,
+        9.3
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "lazy",
+      "source": "tools/motion-art-source/idle-states/qiuqiu/lazy.png",
+      "sourceSha256": "fdf89ad617f43741b9e44403e60c0f1a467c85871d203a504ea54cc2d3890e49",
+      "target": "public/assets/motion/qiuqiu/generated_lazy.webp",
+      "targetSha256": "4fcec10b39cf7f2f39cfcca4a7e67170c2b1cd78dc49df222339fbbde66441e8",
+      "bytes": 606792,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.045,
+        1.033,
+        1.006,
+        1.024
+      ],
+      "firstFrameWidthRatio": 0.998,
+      "centerShift": [
+        1.0,
+        1.3,
+        3.1,
+        2.4,
+        9.1,
+        7.7,
+        4.3,
+        10.3
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "iron",
+      "source": "tools/motion-art-source/idle-states/qiuqiu/iron.png",
+      "sourceSha256": "651fcdbde8311d0952c0f1e4204d305d07e955cbfc74377b0cdbfcdc1e311a30",
+      "target": "public/assets/motion/qiuqiu/generated_iron.webp",
+      "targetSha256": "a392da7cae60a6238fcde27b656882c23089fe1adc91ea4887827a06a4b1034d",
+      "bytes": 580238,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.016,
+        0.978,
+        0.997,
+        1.003,
+        1.006,
+        1.003,
+        1.006
+      ],
+      "firstFrameWidthRatio": 0.997,
+      "centerShift": [
+        -0.3,
+        1.6,
+        -0.1,
+        2.5,
+        2.4,
+        1.8,
+        1.1,
+        2.3
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "curl",
+      "source": "tools/motion-art-source/idle-states/qiuqiu/curl.png",
+      "sourceSha256": "e629830c5a1649f6c051f5f94739f194ae310e8de7e9c2c8812cf8ce31d8a567",
+      "target": "public/assets/motion/qiuqiu/generated_curl.webp",
+      "targetSha256": "edcdb4545e970de8fd5cf912c8f370954ae4b9b248faa973089249a76f4afc8e",
+      "bytes": 562446,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.907,
+        0.828,
+        0.746,
+        0.709,
+        0.698,
+        0.695,
+        0.706
+      ],
+      "firstFrameWidthRatio": 1.01,
+      "centerShift": [
+        5.2,
+        10.8,
+        9.3,
+        6.4,
+        9.0,
+        12.5,
+        10.1,
+        7.1
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "wounded",
+      "source": "tools/motion-art-source/idle-states/feifei/wounded.png",
+      "sourceSha256": "3b4885049086881bc29e5b6d7b75c4f36e5e7e7231b83bda179aafe9f1ffbb7f",
+      "target": "public/assets/motion/feifei/wounded.webp",
+      "targetSha256": "7583e60b4c70c765deb237fc7bcaccb7ab9b33e5cbe1a17ff6151d253943170f",
+      "bytes": 713796,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.991,
+        0.985,
+        0.982,
+        1.024,
+        1.021,
+        1.021,
+        1.024
+      ],
+      "firstFrameWidthRatio": 0.972,
+      "centerShift": [
+        -7.2,
+        -1.5,
+        -9.5,
+        -10.1,
+        -8.7,
+        -9.7,
+        -8.3,
+        -10.1
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "power",
+      "source": "tools/motion-art-source/idle-states/feifei/power.png",
+      "sourceSha256": "bdb2198fa3198619e8020cd0f0dcb4e31a315fe0af80cd2cacba040f8ea37bf5",
+      "target": "public/assets/motion/feifei/power.webp",
+      "targetSha256": "e2f7ee8647277204d41a08586fa96a35268f762a59c278edbefbd447e2700667",
+      "bytes": 836326,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.006,
+        1.0,
+        1.003,
+        1.017,
+        1.02,
+        1.02,
+        1.026
+      ],
+      "firstFrameWidthRatio": 1.008,
+      "centerShift": [
+        -10.2,
+        -11.4,
+        -18.7,
+        -12.6,
+        -9.4,
+        -10.5,
+        -11.7,
+        -15.1
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "hungry",
+      "source": "tools/motion-art-source/idle-states/feifei/hungry.png",
+      "sourceSha256": "638255ef9d2308bc908d8f66fca73e31225def13d42a9f490c20b8e25d1bb982",
+      "target": "public/assets/motion/feifei/hungry.webp",
+      "targetSha256": "9df2271f7c96f031288ebc02770ee115fdba69bc6489fba26edbd1928aa416ac",
+      "bytes": 694344,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.011,
+        1.003,
+        0.957,
+        0.983,
+        0.977,
+        0.974,
+        0.951
+      ],
+      "firstFrameWidthRatio": 0.979,
+      "centerShift": [
+        -15.8,
+        -13.1,
+        -23.5,
+        -23.1,
+        -8.7,
+        -8.1,
+        -16.4,
+        -18.3
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "dizzy",
+      "source": "tools/motion-art-source/idle-states/feifei/dizzy.png",
+      "sourceSha256": "0e72af7053a3216dace0002c825a43a5c32862032aec999f4e1e27f78c0258f2",
+      "target": "public/assets/motion/feifei/dizzy.webp",
+      "targetSha256": "a3d3fbcd8c853d37b1708255b0f89ea0f9e1d3ef2772617318d4365ac7335759",
+      "bytes": 784288,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.014,
+        1.02,
+        1.032,
+        1.049,
+        1.043,
+        1.055,
+        1.118
+      ],
+      "firstFrameWidthRatio": 0.983,
+      "centerShift": [
+        -13.7,
+        -7.7,
+        -19.3,
+        -20.1,
+        -12.0,
+        -12.4,
+        -15.6,
+        -11.4
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "belly",
+      "source": "tools/motion-art-source/idle-states/feifei/belly.png",
+      "sourceSha256": "48bbc1375d59bb58087c5f48e593eddcf6758ff1975ea6f6caf22239db70718a",
+      "target": "public/assets/motion/feifei/belly.webp",
+      "targetSha256": "55c5851115ddc62148138b6642b9cff896bd7a4b49dc20531e0de5430ca18bb2",
+      "bytes": 619878,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.975,
+        0.887,
+        0.858,
+        0.67,
+        0.616,
+        0.607,
+        0.616
+      ],
+      "firstFrameWidthRatio": 1.003,
+      "centerShift": [
+        0.5,
+        -21.3,
+        -29.9,
+        -30.9,
+        -17.0,
+        -31.8,
+        -39.9,
+        -42.5
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "stealth",
+      "source": "tools/motion-art-source/idle-states/feifei/stealth.png",
+      "sourceSha256": "d90674471097908dfd674acb4938c44f31e067015fc47652fdb0c0770f2471ef",
+      "target": "public/assets/motion/feifei/stealth.webp",
+      "targetSha256": "3a67acb9f8cd765f630c2e02bbf5507a6a23de98178dc74c40c02072bf7acd1d",
+      "bytes": 713896,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        0.888,
+        0.896,
+        0.916,
+        0.922,
+        0.922,
+        0.922
+      ],
+      "firstFrameWidthRatio": 0.992,
+      "centerShift": [
+        -15.1,
+        -15.4,
+        -11.1,
+        -14.3,
+        -3.8,
+        -7.0,
+        -13.6,
+        -15.7
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "lazy",
+      "source": "tools/motion-art-source/idle-states/feifei/lazy.png",
+      "sourceSha256": "3ca2bef3728334bc47b8749d7c1bb34ce294cb170cfa3f307417eef96da22bf2",
+      "target": "public/assets/motion/feifei/lazy.webp",
+      "targetSha256": "33caf7a8c618f6cad622b6bcfdc5ca75c044c66fe3a5e1d4df13966a2d962993",
+      "bytes": 688918,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.006,
+        1.012,
+        0.991,
+        1.0,
+        0.982,
+        0.994
+      ],
+      "firstFrameWidthRatio": 0.984,
+      "centerShift": [
+        -16.2,
+        -15.6,
+        -15.1,
+        -17.0,
+        -9.9,
+        -8.8,
+        -9.4,
+        -9.6
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "puff",
+      "source": "tools/motion-art-source/idle-states/feifei/puff.png",
+      "sourceSha256": "c528320bf09638b3f36409292f3558ae4c2bd32c934172c870daf20ef4f76b7a",
+      "target": "public/assets/motion/feifei/puff.webp",
+      "targetSha256": "a657ad8f90434d5ec0a34c3eeb1bd2202ba1aa020ca015fe1aa0db2eb50ab948",
+      "bytes": 831484,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.003,
+        1.018,
+        1.03,
+        1.027,
+        1.024,
+        1.024,
+        1.03
+      ],
+      "firstFrameWidthRatio": 0.994,
+      "centerShift": [
+        -1.4,
+        -15.8,
+        -26.1,
+        -24.0,
+        -20.3,
+        -21.4,
+        -26.2,
+        -28.7
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "iron",
+      "source": "tools/motion-art-source/idle-states/feifei/iron.png",
+      "sourceSha256": "d683a0d052feb747bde652e7165cc671094f45d85b359525657ab897d901e303",
+      "target": "public/assets/motion/feifei/iron.webp",
+      "targetSha256": "7e5ad63023df7cf321c5153164d0d671af825c90b8ff8faeb1098901d75871fe",
+      "bytes": 768852,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        0.972,
+        1.011,
+        1.031,
+        1.028,
+        1.028,
+        1.028
+      ],
+      "firstFrameWidthRatio": 0.956,
+      "centerShift": [
+        -18.6,
+        -17.4,
+        -20.9,
+        -15.9,
+        -18.6,
+        -18.1,
+        -18.4,
+        -17.7
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "curl",
+      "source": "tools/motion-art-source/idle-states/feifei/curl.png",
+      "sourceSha256": "e2f9d113ff071f7b2f477c275ce964e96e1dfc7d32b18c1bb6bf671461940ba0",
+      "target": "public/assets/motion/feifei/curl.webp",
+      "targetSha256": "3292c9e129dd977a95bf8fb7c462350e9de6ee7d7bd3bca34a508cefed33cfdd",
+      "bytes": 566814,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.954,
+        0.881,
+        0.808,
+        0.811,
+        0.796,
+        0.805,
+        0.777
+      ],
+      "firstFrameWidthRatio": 0.976,
+      "centerShift": [
+        -1.3,
+        10.6,
+        -2.3,
+        -26.6,
+        1.5,
+        -0.9,
+        -7.7,
+        -13.9
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "wounded",
+      "source": "tools/motion-art-source/idle-states/dangdang/wounded.png",
+      "sourceSha256": "876e8850d84b11725203059c09e7e09727843e340c3cc41b1947588d07754814",
+      "target": "public/assets/motion/dangdang/wounded.webp",
+      "targetSha256": "5c6fe86cfce04811d01eb7fea6c2673a0a51b2add3e54139df4daa62e7884190",
+      "bytes": 617524,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.962,
+        0.918,
+        0.921,
+        0.997,
+        0.997,
+        0.997,
+        0.997
+      ],
+      "firstFrameWidthRatio": 1.024,
+      "centerShift": [
+        -0.5,
+        -4.4,
+        -5.1,
+        -10.1,
+        1.9,
+        -7.2,
+        -10.7,
+        -8.3
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "power",
+      "source": "tools/motion-art-source/idle-states/dangdang/power.png",
+      "sourceSha256": "75f3e4e4ef45f9c27352a96d7668230643460417d086638e337e236c4e4522b6",
+      "target": "public/assets/motion/dangdang/power.webp",
+      "targetSha256": "ccd5be2cb2b18c219fca91496eac1568ede8f16cef74c95b0f09ac686294c468",
+      "bytes": 696796,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.003,
+        1.0,
+        1.0,
+        1.003,
+        1.003,
+        1.003,
+        1.008
+      ],
+      "firstFrameWidthRatio": 1.022,
+      "centerShift": [
+        0.1,
+        -7.6,
+        -14.2,
+        -5.6,
+        1.7,
+        3.6,
+        -0.4,
+        1.2
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "hungry",
+      "source": "tools/motion-art-source/idle-states/dangdang/hungry.png",
+      "sourceSha256": "8b2e5dd11d6eb1817706e6f260a10ddf74683e4b091bba962984aa529c091ac9",
+      "target": "public/assets/motion/dangdang/hungry.webp",
+      "targetSha256": "c2d9374eaaf2cbfcf4461a92d0beae51c51da3bf13d66aeba71b1c132fadb2e2",
+      "bytes": 598056,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.986,
+        0.951,
+        0.921,
+        0.932,
+        0.932,
+        0.907,
+        0.907
+      ],
+      "firstFrameWidthRatio": 1.034,
+      "centerShift": [
+        3.0,
+        2.3,
+        -6.1,
+        1.0,
+        6.0,
+        4.6,
+        -1.2,
+        0.4
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "dizzy",
+      "source": "tools/motion-art-source/idle-states/dangdang/dizzy.png",
+      "sourceSha256": "e82fc9778323bded702f98077463d20030e9e37a7438cc76580f43a79d922bb1",
+      "target": "public/assets/motion/dangdang/dizzy.webp",
+      "targetSha256": "75e958cddc4edd6ba4678b4b716c30b09473d5c68841ecaf36c68cc19a759a7a",
+      "bytes": 640020,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.997,
+        1.038,
+        1.035,
+        1.064,
+        1.026,
+        1.038,
+        1.092
+      ],
+      "firstFrameWidthRatio": 1.016,
+      "centerShift": [
+        -0.3,
+        -1.8,
+        0.4,
+        -7.9,
+        1.5,
+        -0.0,
+        -3.5,
+        -2.6
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "belly",
+      "source": "tools/motion-art-source/idle-states/dangdang/belly.png",
+      "sourceSha256": "1dd2fb300d26489b18c79f5d685c1c7550cae279a422da482971ea932aad705f",
+      "target": "public/assets/motion/dangdang/belly.webp",
+      "targetSha256": "ba14cda55ba9c8c96fc07c9c83a017175242364346206e6e638cbb73be33a276",
+      "bytes": 514014,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.991,
+        0.861,
+        0.766,
+        0.61,
+        0.575,
+        0.642,
+        0.517
+      ],
+      "firstFrameWidthRatio": 1.025,
+      "centerShift": [
+        -3.4,
+        -5.1,
+        -18.5,
+        -22.4,
+        18.1,
+        7.6,
+        -6.2,
+        -10.2
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "stealth",
+      "source": "tools/motion-art-source/idle-states/dangdang/stealth.png",
+      "sourceSha256": "155e62e3db2c6262e0559abce4e6209d93943ab0aa1cde6c2431bd4fe2820f7c",
+      "target": "public/assets/motion/dangdang/stealth.webp",
+      "targetSha256": "fbe11a4486e20db079a2fc3582b3c1dc08f8faa6a8607eace4951fd229bfb119",
+      "bytes": 575356,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.003,
+        0.885,
+        0.893,
+        0.908,
+        0.899,
+        0.911,
+        0.908
+      ],
+      "firstFrameWidthRatio": 1.064,
+      "centerShift": [
+        0.6,
+        1.2,
+        0.4,
+        -1.2,
+        6.9,
+        3.2,
+        0.4,
+        -2.5
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "lazy",
+      "source": "tools/motion-art-source/idle-states/dangdang/lazy.png",
+      "sourceSha256": "1966bbc4b240aaeccf62bd40ce339975ea86db2de7d529bc91b0968a5f48152c",
+      "target": "public/assets/motion/dangdang/lazy.webp",
+      "targetSha256": "4e2cde0eee63dac7fb6ce3d22ba011c8c753870e38b84d846065559f2c1b6b35",
+      "bytes": 625776,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.005,
+        1.005,
+        0.981,
+        0.979,
+        0.96,
+        0.992
+      ],
+      "firstFrameWidthRatio": 0.995,
+      "centerShift": [
+        -0.8,
+        -0.2,
+        -3.4,
+        2.2,
+        11.6,
+        6.4,
+        -0.5,
+        5.9
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "puff",
+      "source": "tools/motion-art-source/idle-states/dangdang/puff.png",
+      "sourceSha256": "747ee13dbb6a22e981f50e933fd5b7308cf12cdcee5cd55aa79bcbed0ebb00ac",
+      "target": "public/assets/motion/dangdang/puff.webp",
+      "targetSha256": "cbd49f4a37006d34e86f088a6b068c370eb7a380da3537dff68a2a0dce998559",
+      "bytes": 698876,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.025,
+        1.045,
+        1.07,
+        1.045,
+        1.039,
+        1.045,
+        1.067
+      ],
+      "firstFrameWidthRatio": 1.027,
+      "centerShift": [
+        8.1,
+        1.3,
+        -0.7,
+        -6.4,
+        -5.2,
+        -4.1,
+        -6.1,
+        -3.7
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "iron",
+      "source": "tools/motion-art-source/idle-states/dangdang/iron.png",
+      "sourceSha256": "4e5a6494f5a879ab73549b85f66cf67337d41a0a46cac9ae949a2bde3f730d06",
+      "target": "public/assets/motion/dangdang/iron.webp",
+      "targetSha256": "54c27680aae3060e49b6be1b60a3eca47a6d2ec1e05a0c3664ff8422fa37fb12",
+      "bytes": 581582,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.036,
+        0.958,
+        0.997,
+        1.045,
+        1.042,
+        1.042,
+        1.042
+      ],
+      "firstFrameWidthRatio": 1.023,
+      "centerShift": [
+        -1.1,
+        -4.6,
+        -9.8,
+        -9.2,
+        4.9,
+        -4.0,
+        -8.9,
+        -8.9
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "curl",
+      "source": "tools/motion-art-source/idle-states/dangdang/curl.png",
+      "sourceSha256": "4fbc88942106e2dde1cebcca21cf5e73462ace0129d4c6f67364a36f8000aad4",
+      "target": "public/assets/motion/dangdang/curl.webp",
+      "targetSha256": "13c147637f94e3c4ca21c70800a1dcf7aa4bc5826050c803d96648db51defbcb",
+      "bytes": 534348,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.885,
+        0.808,
+        0.718,
+        0.723,
+        0.729,
+        0.742,
+        0.729
+      ],
+      "firstFrameWidthRatio": 1.028,
+      "centerShift": [
+        -2.0,
+        4.9,
+        -5.6,
+        -14.7,
+        -3.3,
+        -7.8,
+        -10.8,
+        -12.3
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "wounded",
+      "source": "tools/motion-art-source/idle-states/fengfeng/wounded.png",
+      "sourceSha256": "15edce70cd646b65321298339d157a8c937ed09b91d6d4cefabdaed781a40a19",
+      "target": "public/assets/motion/fengfeng/wounded.webp",
+      "targetSha256": "9f5c99579dc4229080054eb306a3caa5bcb022bb567558a2a6333eb2e9d4ec6e",
+      "bytes": 793884,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.964,
+        0.888,
+        0.945,
+        0.973,
+        0.973,
+        0.973,
+        0.973
+      ],
+      "firstFrameWidthRatio": 1.015,
+      "centerShift": [
+        -15.2,
+        -6.8,
+        -8.0,
+        -12.9,
+        -8.2,
+        -8.8,
+        -9.9,
+        -9.3
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "power",
+      "source": "tools/motion-art-source/idle-states/fengfeng/power.png",
+      "sourceSha256": "40e921a8cad85e312ae4b55863b0c8a453b2313fef3f10b785a7a7027516ada0",
+      "target": "public/assets/motion/fengfeng/power.webp",
+      "targetSha256": "5bb8b0ea3947caf62b1efe8a9090ce4b4776a4b2284d9e0021f1504fbc559129",
+      "bytes": 852498,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.009,
+        1.009,
+        1.023,
+        1.023,
+        1.02,
+        1.029
+      ],
+      "firstFrameWidthRatio": 0.996,
+      "centerShift": [
+        -15.2,
+        -18.2,
+        -17.6,
+        -11.6,
+        -8.3,
+        -9.5,
+        -9.3,
+        -11.8
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "hungry",
+      "source": "tools/motion-art-source/idle-states/fengfeng/hungry.png",
+      "sourceSha256": "17eb0448828ce2ca56f06cc6b8098a5b355bb3fbcde64dd441ff585b18fe24ea",
+      "target": "public/assets/motion/fengfeng/hungry.webp",
+      "targetSha256": "4fb48c233c5f1f99aa7a9d81d46a302d8a52292b2d04a16132e5cc35176d497e",
+      "bytes": 754402,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.99,
+        0.94,
+        0.919,
+        0.906,
+        0.906,
+        0.862,
+        0.865
+      ],
+      "firstFrameWidthRatio": 0.978,
+      "centerShift": [
+        -19.9,
+        -7.4,
+        -11.5,
+        -10.1,
+        -6.4,
+        -3.1,
+        -3.4,
+        -6.2
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "dizzy",
+      "source": "tools/motion-art-source/idle-states/fengfeng/dizzy.png",
+      "sourceSha256": "69499955f29134f36ebba2956346d6b83c0dea03da475e1e861b56636f8188a2",
+      "target": "public/assets/motion/fengfeng/dizzy.webp",
+      "targetSha256": "00318f14a6ba040ece51697c192e914a1d321ddf72592d46028742ec7737efdc",
+      "bytes": 760548,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.003,
+        1.008,
+        0.981,
+        1.008,
+        1.003,
+        0.992,
+        1.0
+      ],
+      "firstFrameWidthRatio": 1.001,
+      "centerShift": [
+        -15.9,
+        -15.2,
+        -25.5,
+        -25.9,
+        -14.3,
+        -10.6,
+        -21.6,
+        -10.2
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "belly",
+      "source": "tools/motion-art-source/idle-states/fengfeng/belly.png",
+      "sourceSha256": "07e81311e5cbb2b5ddf7b3a434357f683ebfd53819760b182540695456b8e1d9",
+      "target": "public/assets/motion/fengfeng/belly.webp",
+      "targetSha256": "6080eea74f401ea95e8e6db52327fd13eea451a6549da7612bfc4e798d7c8ee5",
+      "bytes": 637794,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.986,
+        0.914,
+        0.793,
+        0.611,
+        0.524,
+        0.499,
+        0.524
+      ],
+      "firstFrameWidthRatio": 0.988,
+      "centerShift": [
+        -19.2,
+        -21.5,
+        -30.0,
+        -31.5,
+        -7.9,
+        -18.6,
+        -29.6,
+        -29.5
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "stealth",
+      "source": "tools/motion-art-source/idle-states/fengfeng/stealth.png",
+      "sourceSha256": "9aa40e52ee772f7c923a64f06b555d2c7cbb94534a1be35d5946128df74caded",
+      "target": "public/assets/motion/fengfeng/stealth.webp",
+      "targetSha256": "fce053fa26114ab49c2b4775350c8386ca3ddf5ff3116fc8b185f8f38639ca38",
+      "bytes": 664040,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.97,
+        0.893,
+        0.899,
+        0.902,
+        0.899,
+        0.902,
+        0.899
+      ],
+      "firstFrameWidthRatio": 0.977,
+      "centerShift": [
+        -28.2,
+        -21.0,
+        -24.5,
+        -21.9,
+        -19.8,
+        -20.5,
+        -21.0,
+        -22.6
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "lazy",
+      "source": "tools/motion-art-source/idle-states/fengfeng/lazy.png",
+      "sourceSha256": "ac4996b8c314e89d804508fee23c356b1ea6a77fce349442bc9bfa39d0b3c4df",
+      "target": "public/assets/motion/fengfeng/lazy.webp",
+      "targetSha256": "f61022fab7c53397759105d23ff4096a8e2649536ea43799cbba0c3f2ce65f90",
+      "bytes": 697014,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.986,
+        0.988,
+        1.003,
+        0.965,
+        0.974,
+        0.934,
+        0.96
+      ],
+      "firstFrameWidthRatio": 0.995,
+      "centerShift": [
+        -16.1,
+        -14.1,
+        -12.2,
+        -18.2,
+        -16.2,
+        -17.1,
+        -17.5,
+        -14.4
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "puff",
+      "source": "tools/motion-art-source/idle-states/fengfeng/puff.png",
+      "sourceSha256": "683e1d065741ccc781ae9733d2e9688b1e062410a66e8be38d51eac06eb50e31",
+      "target": "public/assets/motion/fengfeng/puff.webp",
+      "targetSha256": "8388f87fbbf61c722723f1e2629656b66e136b9beade1d73a7a45961e02b6f89",
+      "bytes": 944680,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.02,
+        1.009,
+        1.032,
+        1.041,
+        1.012,
+        1.07,
+        1.096
+      ],
+      "firstFrameWidthRatio": 1.017,
+      "centerShift": [
+        -33.3,
+        -16.1,
+        -23.4,
+        -19.1,
+        -27.0,
+        -20.8,
+        -19.4,
+        -20.5
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "iron",
+      "source": "tools/motion-art-source/idle-states/fengfeng/iron.png",
+      "sourceSha256": "e9d3bfd02c38b3b5119e8c38a9f0dcd65bff00a3b9b5f90ca6f95a7b38fc8255",
+      "target": "public/assets/motion/fengfeng/iron.webp",
+      "targetSha256": "ef2551e74fdbcf26ea4ddc5bae0100471c566af89d08610100fca4ba0edd674b",
+      "bytes": 677652,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.018,
+        0.965,
+        0.997,
+        1.015,
+        1.018,
+        1.018,
+        1.021
+      ],
+      "firstFrameWidthRatio": 0.966,
+      "centerShift": [
+        -2.9,
+        -5.7,
+        -14.6,
+        -16.3,
+        -0.2,
+        -5.6,
+        -6.8,
+        -10.0
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "curl",
+      "source": "tools/motion-art-source/idle-states/fengfeng/curl.png",
+      "sourceSha256": "421ba1bc979ec612857417196641d8448463d96cbc45760019ab1c8a3c967e92",
+      "target": "public/assets/motion/fengfeng/curl.webp",
+      "targetSha256": "e527ec9ecee23e083e1c69ad3420f2b9c6910dcb85bc35cb114e418a625a062a",
+      "bytes": 619724,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.899,
+        0.745,
+        0.644,
+        0.668,
+        0.668,
+        0.668,
+        0.673
+      ],
+      "firstFrameWidthRatio": 1.0,
+      "centerShift": [
+        -9.1,
+        -11.8,
+        -20.0,
+        -26.8,
+        -8.9,
+        -14.4,
+        -18.4,
+        -23.5
+      ]
+    }
+  ]
+}

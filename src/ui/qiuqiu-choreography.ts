@@ -4,7 +4,10 @@ export type QiuqiuPoseAction =
   | 'attack_run' | 'attack_air' | 'shuriken' | 'kick' | 'seal' | 'storm'
   | 'rush' | 'combo_kick' | 'uppercut' | 'flying_kick'
   | 'roar' | 'ground_slam' | 'body_bash' | 'palm_combo'
-  | 'guard' | 'eat' | 'win' | 'poison' | 'belly' | 'defeat' | 'puff' | 'stealth';
+  | 'guard' | 'eat' | 'win' | 'poison' | 'belly' | 'defeat' | 'puff' | 'stealth'
+  // 2026-09-21 補的待機狀態（原本這幾個狀態會退回舊版靜態立繪）。掛彩叫 wounded，
+  // 因為 hurt 已經是「挨打的那一下」反應動作。
+  | 'wounded' | 'power' | 'hungry' | 'dizzy' | 'lazy' | 'iron' | 'curl';
 
 type Segment = {
   action: QiuqiuPoseAction;

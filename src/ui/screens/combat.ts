@@ -475,19 +475,33 @@ registerScreen('combat', (app, root, props) => {
 
   const shownPose = (q: PlayerCombat): string => q.seat === mySeat ? pose : matePose(q);
 
+  /*
+   * 待機狀態立繪 → 逐格動作的對照（2026-09-21 補齊掛彩、氣勢、肚子餓、定身、懶洋洋、鐵布衫、蜷縮，
+   * 同伴另外補翻肚、隱身、炸毛）。原本同伴只接待機與中毒、球球少了七種，
+   * 那些狀態一出現就退回舊版靜態立繪，同一場戰鬥畫風跳來跳去。
+   * 四隻貓傳同一張表；哪隻缺哪張圖由兩邊的 `*RestMotionAction` 各自把關（缺圖就交還立繪）。
+   */
+  const REST_STATE_POSES = {
+    idle: POSE.idle,
+    poison: POSE.choke,
+    belly: POSE.belly,
+    puff: POSE.puff,
+    stealth: POSE.stealth,
+    hurt: POSE.hurt,
+    power: POSE.power,
+    hungry: POSE.hungry,
+    dizzy: POSE.dizzy,
+    lazy: POSE.lazy,
+    iron: POSE.iron,
+    curl: POSE.curl,
+  } as const;
+
   const restMotionAction = (q: PlayerCombat, displayedPose: string): CombatMotionAction | undefined => {
     const source = motionSourceFor(q);
-    if (source === 'qiuqiu') return qiuqiuRestMotionAction(displayedPose, {
-      idle: POSE.idle,
-      poison: POSE.choke,
-      belly: POSE.belly,
-      puff: POSE.puff,
-      stealth: POSE.stealth,
-    }, cs.phase, !!q.down);
-    if (source === 'feifei' || source === 'dangdang' || source === 'fengfeng') return companionRestMotionAction(source, displayedPose, {
-      idle: POSE.idle,
-      poison: POSE.choke,
-    }, cs.phase, !!q.down);
+    if (source === 'qiuqiu') return qiuqiuRestMotionAction(displayedPose, REST_STATE_POSES, cs.phase, !!q.down);
+    if (source === 'feifei' || source === 'dangdang' || source === 'fengfeng') {
+      return companionRestMotionAction(source, displayedPose, REST_STATE_POSES, cs.phase, !!q.down);
+    }
     return undefined;
   };
 
@@ -516,7 +530,8 @@ registerScreen('combat', (app, root, props) => {
       if (resting === 'win') state.winAt = performance.now();
     }
     const visible = state.active || resting !== undefined;
-    box.classList.toggle('qiuqiu-stealth-idle', source === 'qiuqiu' && visible
+    // 隱身待機半透明：2026-09-21 同伴也有了隱身逐格圖，比照球球一起變淡（樣式在兩支 motion css）
+    box.classList.toggle('qiuqiu-stealth-idle', visible
       && ((!state.active && resting === 'stealth') || (state.reactive && getStatus(q, '隱身') > 0)));
     box.classList.toggle('has-qiuqiu-motion', source === 'qiuqiu' && visible);
     box.classList.toggle('has-companion-motion', source !== 'qiuqiu' && visible);

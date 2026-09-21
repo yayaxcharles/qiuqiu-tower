@@ -20,28 +20,38 @@ import {
   type FrameMotionActor,
   type FrameMotionPlayOptions,
 } from './frame-motion';
+import { restStateAction, type RestStateAction, type RestStatePoses } from './rest-state-motion';
 import './styles/companion-motion.css';
 
 export type CompanionMotionKind = 'feifei' | 'dangdang' | 'fengfeng';
+
+/**
+ * 2026-09-21 補的待機狀態動作（三隻同伴共用同一組名字，對照表在 `rest-state-motion.ts`）。
+ * 掛彩叫 wounded，因為 hurt 已經是「挨打那一下」的反應動作。
+ */
+export type CompanionRestStateAction = Exclude<RestStateAction, 'poison'>;
 
 export type FeifeiMotionAction =
   | 'idle' | 'hurt' | 'run' | 'roll'
   | 'attack1' | 'kick' | 'seal'
   | 'guard' | 'eat' | 'win' | 'defeat' | 'poison'
   | 'clone'
+  | CompanionRestStateAction
   | FeifeiNeedleAction;
 
 export type DangdangMotionAction =
   | 'idle' | 'hurt' | 'run' | 'dodge'
   | 'punch' | 'palm' | 'kick' | 'shoulder' | 'counter' | 'ground_slam'
   | 'rapid_combo' | 'heavy_palm' | 'sweep_combo' | 'reckless_bash'
-  | 'guard' | 'focus' | 'eat' | 'win' | 'defeat' | 'poison';
+  | 'guard' | 'focus' | 'eat' | 'win' | 'defeat' | 'poison'
+  | CompanionRestStateAction;
 
 export type FengfengMotionAction =
   | 'idle' | 'hurt' | 'run' | 'dodge'
   | 'slash' | 'sweep' | 'heavy_slash' | 'thrust' | 'double_slash'
   | 'sword_combo' | 'qi_cleave' | 'earth_split' | 'retreat_thrust'
-  | 'guard' | 'focus' | 'sheath' | 'eat' | 'win' | 'defeat' | 'poison';
+  | 'guard' | 'focus' | 'sheath' | 'eat' | 'win' | 'defeat' | 'poison'
+  | CompanionRestStateAction;
 
 export type CompanionMotionAction = FeifeiMotionAction | DangdangMotionAction | FengfengMotionAction;
 export type CompanionMotionActor = FrameMotionActor<CompanionMotionAction>;
@@ -119,6 +129,8 @@ const DANGDANG_CARD_ACTION: Readonly<Record<string, DangdangMotionAction>> = {
 
 const DANGDANG_SHARED_GROUPS: Readonly<Record<DangdangMotionAction, readonly string[]>> = {
   idle: [], hurt: [], run: [], poison: [], win: [], defeat: [],
+  // 待機狀態不是出牌動作，沒有牌對應過來
+  wounded: [], power: [], hungry: [], dizzy: [], belly: [], stealth: [], lazy: [], puff: [], iron: [], curl: [],
   palm: [
     'shengdong', 'shunshou', 'bangnidianyixia', 'wobangnishouwei', 'zhaonishuodeda',
     'jienideliqi', 'wozaizhe', 'susu', 'tieshazhang', 'juye', 'luoye',
@@ -189,6 +201,15 @@ const FENGFENG_ATTACKS = new Set<FengfengMotionAction>([
   'slash', 'sweep', 'heavy_slash', 'thrust', 'double_slash',
   'sword_combo', 'qi_cleave', 'earth_split', 'retreat_thrust',
 ]);
+
+/**
+ * 待機狀態的代表畫格：前 7 格是從一般待機轉進狀態的過場，播完停在第 8 格慢慢呼吸（比照球球的翻肚）。
+ * 中毒沿用原本的第 4 格。
+ */
+const REST_FRAMES = {
+  poison: 3,
+  wounded: 7, power: 7, hungry: 7, dizzy: 7, belly: 7, stealth: 7, lazy: 7, puff: 7, iron: 7, curl: 7,
+} as const satisfies Partial<Record<CompanionMotionAction, number>>;
 
 const directDuration = (motions: Readonly<Record<string, TimedFrameMotion>>, action: CompanionMotionAction): number =>
   frameMotionDuration(motions[action] ?? motions.idle!);
@@ -294,7 +315,7 @@ function resolveFengfeng(action: CompanionMotionAction, elapsed: number, options
 }
 
 const feifeiFrameMotions = createFrameMotionSet<CompanionMotionAction>({
-  restFrames: { poison: 3 },
+  restFrames: REST_FRAMES,
   motions: feifeiMotions,
   nativeHeight: NATIVE_HEIGHT,
   defaultHeight: NATIVE_HEIGHT,
@@ -306,7 +327,7 @@ const feifeiFrameMotions = createFrameMotionSet<CompanionMotionAction>({
 });
 
 const dangdangFrameMotions = createFrameMotionSet<CompanionMotionAction>({
-  restFrames: { poison: 3 },
+  restFrames: REST_FRAMES,
   motions: dangdangMotions,
   nativeHeight: dangdangMotionData.nativeHeight,
   defaultHeight: dangdangMotionData.nativeHeight,
@@ -318,7 +339,7 @@ const dangdangFrameMotions = createFrameMotionSet<CompanionMotionAction>({
 });
 
 const fengfengFrameMotions = createFrameMotionSet<CompanionMotionAction>({
-  restFrames: { poison: 3 },
+  restFrames: REST_FRAMES,
   motions: fengfengMotions,
   nativeHeight: fengfengMotionData.nativeHeight,
   defaultHeight: fengfengMotionData.nativeHeight,
@@ -462,18 +483,26 @@ export function companionCardAction(
   return undefined;
 }
 
+/** 這位同伴有沒有這個動作自己的逐格素材（不算退路）。 */
+export function companionHasOwnMotion(kind: CompanionMotionKind, action: CompanionMotionAction): boolean {
+  const motions = kind === 'feifei' ? feifeiMotions : kind === 'dangdang' ? dangdangMotions : fengfengMotions;
+  return Object.hasOwn(motions, action);
+}
+
+/**
+ * 待機時擺什麼逐格動作。狀態 → 動作的對照在 `rest-state-motion.ts`（四隻貓共用）；
+ * 這位同伴沒有那個動作的素材就回傳 undefined，交還既有立繪。
+ */
 export function companionRestMotionAction(
-  _kind: CompanionMotionKind,
+  kind: CompanionMotionKind,
   displayedPose: string,
-  poses: Readonly<{ idle: string; poison: string }>,
+  poses: RestStatePoses,
   phase: string,
   down: boolean,
 ): CompanionMotionAction | undefined {
   if (down || phase === 'lost') return 'defeat';
   if (phase === 'won') return 'win';
-  if (displayedPose === poses.poison) return 'poison';
-  if (displayedPose === poses.idle) return 'idle';
-  return undefined;
+  return restStateAction(displayedPose, poses, (action) => companionHasOwnMotion(kind, action));
 }
 
 export const FEIFEI_CLONE_TIMING = Object.freeze({
