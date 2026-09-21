@@ -87,7 +87,8 @@ describe('逐格動作交還靜態出招', () => {
     screen.playMotion(0, 'seal');
     const previousEnd = screen.state.endsAt;
     screen.advance(100);
-    const motion = companionCardAction('feifei', 'weihe', { poseFamily: 'roar', cardType: '技能' });
+    // 2026-09-22 起吼有自己的動作；改拿仍刻意不配動作的遠程暗器牌（毒砂）來測交還靜態出招
+    const motion = companionCardAction('feifei', 'tieshazhang', { cardType: '攻擊' });
     expect(motion).toBeUndefined();
     screen.apply({ pose, motion });
     expect(screen.state.active).toBe(false);

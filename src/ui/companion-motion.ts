@@ -36,6 +36,8 @@ export type FeifeiMotionAction =
   | 'attack1' | 'kick' | 'seal'
   | 'guard' | 'eat' | 'win' | 'defeat' | 'poison'
   | 'clone'
+  // 2026-09-22 補的出牌動作：吼（含獅吼功）、太極
+  | 'roar' | 'taiji'
   | CompanionRestStateAction
   | FeifeiNeedleAction;
 
@@ -51,6 +53,8 @@ export type FengfengMotionAction =
   | 'slash' | 'sweep' | 'heavy_slash' | 'thrust' | 'double_slash'
   | 'sword_combo' | 'qi_cleave' | 'earth_split' | 'retreat_thrust'
   | 'guard' | 'focus' | 'sheath' | 'eat' | 'win' | 'defeat' | 'poison'
+  // 2026-09-22 補的出牌動作：吼（含獅吼功）、太極，劍都不出鞘
+  | 'roar' | 'taiji'
   | CompanionRestStateAction;
 
 export type CompanionMotionAction = FeifeiMotionAction | DangdangMotionAction | FengfengMotionAction;
@@ -108,6 +112,11 @@ const FEIFEI_SHARED_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleActi
   zuiquan: 'needle_fan',
   caiweiba: 'needle_venom',
   ehou: 'needle_venom',
+  // 2026-09-22 補（原本選不到動作）：點穴是一針扎穴、十二連環打全體三段跟「全撒了」同一路、
+  // 撒手鐧是一記飛出去的暗器（球球這張也是手裡劍）。這三張招式本身明確，所以逐張指定。
+  dianxue: 'needle_pierce',
+  shierlian: 'needle_barrage',
+  sashoujian: 'shuriken',
 };
 /** 牌面是獨立暗器，現有飛針投射物不相符；素材補齊前保留卡圖演出。 */
 const FEIFEI_PROJECTILE_GAPS = new Set(['maoqiudan', 'tieshazhang', 'qinna']);
@@ -177,6 +186,12 @@ const DANGDANG_MELEE = new Set<DangdangMotionAction>([
   'rapid_combo', 'heavy_palm', 'sweep_combo', 'reckless_bash',
 ]);
 const FEIFEI_MELEE = new Set<FeifeiMotionAction>(['attack1', 'kick']);
+/**
+ * 2026-09-22 補的出牌動作（吼、太極）。比照待機狀態圖：不解碼預載，預載完才在背景下載並排進背景解開。
+ * 吼、太極都是原地演出，不列近戰（菲菲的 `FEIFEI_MELEE`、封封的 `FENGFENG_ATTACKS` 都沒有它們）。
+ */
+export const DEFERRED_COMPANION_CARD_ACTIONS: ReadonlySet<string> = new Set(['roar', 'taiji']);
+export const DEFERRED_COMPANION_ACTIONS: ReadonlySet<string> = new Set([...DEFERRED_COMPANION_REST_ACTIONS, ...DEFERRED_COMPANION_CARD_ACTIONS]);
 const DANGDANG_WAVE_CROPPED_ACTIONS = new Set<string>(['rapid_combo', 'sweep_combo']);
 const FENGFENG_WAVE_CROPPED_ACTIONS = new Set<string>(['sword_combo']);
 
@@ -316,7 +331,7 @@ function resolveFengfeng(action: CompanionMotionAction, elapsed: number, options
 
 const feifeiFrameMotions = createFrameMotionSet<CompanionMotionAction>({
   restFrames: REST_FRAMES,
-  deferred: DEFERRED_COMPANION_REST_ACTIONS,
+  deferred: DEFERRED_COMPANION_ACTIONS,
   motions: feifeiMotions,
   nativeHeight: NATIVE_HEIGHT,
   defaultHeight: NATIVE_HEIGHT,
@@ -329,7 +344,7 @@ const feifeiFrameMotions = createFrameMotionSet<CompanionMotionAction>({
 
 const dangdangFrameMotions = createFrameMotionSet<CompanionMotionAction>({
   restFrames: REST_FRAMES,
-  deferred: DEFERRED_COMPANION_REST_ACTIONS,
+  deferred: DEFERRED_COMPANION_ACTIONS,
   motions: dangdangMotions,
   nativeHeight: dangdangMotionData.nativeHeight,
   defaultHeight: dangdangMotionData.nativeHeight,
@@ -342,7 +357,7 @@ const dangdangFrameMotions = createFrameMotionSet<CompanionMotionAction>({
 
 const fengfengFrameMotions = createFrameMotionSet<CompanionMotionAction>({
   restFrames: REST_FRAMES,
-  deferred: DEFERRED_COMPANION_REST_ACTIONS,
+  deferred: DEFERRED_COMPANION_ACTIONS,
   motions: fengfengMotions,
   nativeHeight: fengfengMotionData.nativeHeight,
   defaultHeight: fengfengMotionData.nativeHeight,
@@ -368,6 +383,15 @@ export async function preloadCompanionMotion(kind: CompanionMotionKind): Promise
 /** 延後下載的待機狀態圖還沒到（或壞了）時回 false，戰鬥畫面就先交還靜態立繪。 */
 export function companionMotionDrawable(kind: CompanionMotionKind, action: CompanionMotionAction): boolean {
   return frameSet(kind).drawable(action);
+}
+
+/**
+ * 出牌時這個動作能不能播。延後下載的出牌動作圖還沒到（或壞了）就回 false，
+ * 戰鬥畫面退回「選不到動作」的舊行為（靜態立繪），不能停在上一個動作的最後一格；圖到了下一張牌就用新動作。
+ * 其他動作（預載的、菲菲的分身這種組合演出）照舊一律可播。
+ */
+export function companionCardMotionPlayable(kind: CompanionMotionKind, action: CompanionMotionAction): boolean {
+  return !DEFERRED_COMPANION_CARD_ACTIONS.has(action) || frameSet(kind).drawable(action);
 }
 
 export function companionMotionReady(kind: CompanionMotionKind): boolean {
@@ -424,7 +448,8 @@ export function companionImpactTimes(
         : isFeifeiNeedleAction(action)
           ? feifeiNeedleReleaseTimes(action).map((release) => release + feifeiNeedleFlightMs(action))
           : action === 'clone' ? [CLONE_IMPACT_MS]
-            : undefined;
+            // 其餘讀動作資料（2026-09-22 的吼：獅吼功命中在吼出來那一拍）
+            : feifeiMotions[action]?.impactTimes;
   } else {
     const motions = kind === 'dangdang' ? dangdangMotions : fengfengMotions;
     base = motions[action]?.impactTimes;
@@ -461,8 +486,11 @@ export function companionCardAction(
     const own = FENGFENG_CARD_ACTION[cardId] ?? FENGFENG_SHARED_CARD_ACTION[cardId];
     if (own) return own;
     if (FENGFENG_PROJECTILE_GAPS.has(cardId)) return undefined;
-    // 吼叫、太極、輕功已有專用立繪，攻擊與技能都不套用通用劍招。
-    if (options.poseFamily && ['roar', 'taiji', 'qinggong'].includes(options.poseFamily)) return undefined;
+    // 吼、太極、輕功三個招式家族（2026-09-11 使用者要求分家）：2026-09-22 起有自己的動作，不再退回靜態立繪。
+    // 吼（含獅吼功）、太極是新畫的、劍不出鞘；輕功沿用閃身；借力使力（攻擊牌裡的太極）沿用回步刺。
+    if (options.poseFamily === 'roar') return 'roar';
+    if (options.poseFamily === 'qinggong') return 'dodge';
+    if (options.poseFamily === 'taiji') return options.cardType === '攻擊' ? 'retreat_thrust' : 'taiji';
     if (options.cardType === '攻擊') {
       if (options.poseFamily === 'dash') return 'thrust';
       if (options.poseFamily === 'kick') return 'sweep';
@@ -479,12 +507,17 @@ export function companionCardAction(
   if (cardId === 'feifei_fenshen') return 'clone';
   if (cardId === 'feifei_lakai') return 'roll';
   if (FEIFEI_PROJECTILE_GAPS.has(cardId)) return undefined;
+  // 吼、太極、輕功三個招式家族（2026-09-11 使用者要求分家）：2026-09-22 起有自己的動作，不再退回靜態立繪。
+  // 吼（含獅吼功）、太極是新畫的；輕功沿用後退閃躲。
+  if (options.poseFamily === 'roar') return 'roar';
+  if (options.poseFamily === 'qinggong') return 'roll';
   if (options.cardType === '攻擊') {
-    if (options.poseFamily === 'kick') return 'kick';
-    if (options.poseFamily === 'claw') return 'attack1';
-    return undefined;
+    // 借力使力（攻擊牌裡的太極）與踢技一樣收一記踢；其餘（爪、衝撞、拳、沒有家族的連線支援牌）一律爪擊
+    // （2026-09-22 前衝撞、拳與連線支援牌選不到動作，出牌時退回靜態立繪）
+    if (options.poseFamily === 'kick' || options.poseFamily === 'taiji') return 'kick';
+    return 'attack1';
   }
-  if (options.poseFamily && ['roar', 'taiji', 'qinggong'].includes(options.poseFamily)) return undefined;
+  if (options.poseFamily === 'taiji') return 'taiji';
   if (FEIFEI_GUARD_CARDS.has(cardId) || options.hasBlock) return 'guard';
   if (EAT_CARDS.has(cardId) || options.hasHeal) return 'eat';
   if (options.cardType) return 'seal';

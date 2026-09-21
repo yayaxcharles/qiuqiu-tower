@@ -6,6 +6,7 @@ import { cards } from '../../src/content/cards';
 import { visibleCanvasRect } from './motion_test_geometry';
 import {
   createQiuqiuActor,
+  DEFERRED_QIUQIU_ACTIONS,
   preloadQiuqiuMotion,
   qiuqiuCardAction,
   qiuqiuCombatMotionDecision,
@@ -17,7 +18,6 @@ import {
   qiuqiuMotionReady,
   type QiuqiuAction,
 } from '../../src/ui/qiuqiu-motion';
-import { DEFERRED_REST_ACTIONS } from '../../src/ui/rest-state-motion';
 
 type DrawCall = [CanvasImageSource, number, number, number, number, number, number, number, number];
 
@@ -200,9 +200,9 @@ describe('球球全身動作畫布', () => {
       ...(extraMotionData.actions as Record<string, { texture: string }>),
       ...(attackMotionData.actions as Record<string, { texture: string }>),
     };
-    // 2026-09-21 新補的待機狀態圖不解碼預載（預載完才在背景下載）
+    // 2026-09-21 新補的待機狀態圖、2026-09-22 新補的出牌動作圖都不解碼預載（預載完才在背景下載）
     const expected = new Set(Object.entries(actions)
-      .filter(([key]) => !DEFERRED_REST_ACTIONS.has(key))
+      .filter(([key]) => !DEFERRED_QIUQIU_ACTIONS.has(key))
       .map(([, motion]) => `/${motion.texture}`));
     expected.add('/assets/motion/qiuqiu/shuriken.webp');
     expected.add('/assets/sprites/hero/ninja_hit.webp');

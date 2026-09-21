@@ -7,7 +7,10 @@ export type QiuqiuPoseAction =
   | 'guard' | 'eat' | 'win' | 'poison' | 'belly' | 'defeat' | 'puff' | 'stealth'
   // 2026-09-21 補的待機狀態（原本這幾個狀態會退回舊版靜態立繪）。掛彩叫 wounded，
   // 因為 hurt 已經是「挨打的那一下」反應動作。
-  | 'wounded' | 'power' | 'hungry' | 'dizzy' | 'lazy' | 'iron' | 'curl';
+  | 'wounded' | 'power' | 'hungry' | 'dizzy' | 'lazy' | 'iron' | 'curl'
+  // 2026-09-22 補的出牌動作：太極、輕功、能力牌（運氣）、抽牌（翻卷軸）。原本這些牌選不到動作，
+  // 出牌時動作畫布收起來、舊版靜態立繪亮 0.65 秒，畫風跳一下。
+  | 'taiji' | 'qinggong' | 'focus' | 'scroll';
 
 type Segment = {
   action: QiuqiuPoseAction;

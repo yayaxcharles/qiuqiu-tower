@@ -11,6 +11,7 @@ import { cardById } from '../../src/content/cards';
 import { visibleCanvasRect } from './motion_test_geometry';
 import { DEFERRED_COMPANION_REST_ACTIONS } from '../../src/ui/rest-state-motion';
 import {
+  DEFERRED_COMPANION_ACTIONS,
   FEIFEI_CLONE_TIMING,
   companionCardAction,
   companionImpactTimes,
@@ -157,7 +158,9 @@ describe('菲菲卡牌與命中節奏', () => {
 
   it('其餘共用卡只按爪擊種類接近，非針術攻擊保留既有演出', () => {
     expect(companionCardAction('feifei', 'sanjo', { poseFamily: 'claw', cardType: '攻擊' })).toBe('attack1');
-    expect(companionCardAction('feifei', 'tietou', { poseFamily: 'dash', cardType: '攻擊' })).toBeUndefined();
+    // 2026-09-22 起衝撞、拳與沒有家族的攻擊牌不再選不到動作（原本退回靜態立繪）：一律爪擊
+    expect(companionCardAction('feifei', 'tietou', { poseFamily: 'dash', cardType: '攻擊' })).toBe('attack1');
+    expect(companionCardAction('feifei', 'bangnidianyixia', { cardType: '攻擊' })).toBe('attack1');
     expect(companionCardAction('feifei', 'feifei_moyao', { cardType: '技能' })).toBe('seal');
     expect(companionCardAction('feifei', 'feifei_tuikai', { cardType: '技能', hasBlock: true })).toBe('guard');
   });
@@ -371,9 +374,9 @@ describe('封封卡牌、近戰與收劍節奏', () => {
   });
 });
 
-/** 預載應該載的動作（排除 2026-09-21 新補、用到才下載的待機狀態圖）。 */
+/** 預載應該載的動作（排除 2026-09-21 新補的待機狀態圖、2026-09-22 新補的出牌動作圖：都是預載完才在背景下載）。 */
 const eager = (actions: Record<string, unknown>) =>
-  Object.entries(actions).filter(([key]) => !DEFERRED_COMPANION_REST_ACTIONS.has(key)).map(([, motion]) => motion as { texture: string });
+  Object.entries(actions).filter(([key]) => !DEFERRED_COMPANION_ACTIONS.has(key)).map(([, motion]) => motion as { texture: string });
 
 describe('菲菲全身逐格畫布', () => {
   it('預載舊動作與七張新增針招來源圖，載妥前後狀態可查', async () => {
