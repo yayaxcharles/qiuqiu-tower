@@ -52,6 +52,12 @@ export function frameMotionDuration(motion: FrameMotion): number {
 
 export function createFrameMotionSet<Action extends string>(config: Readonly<{
   motions: Readonly<Record<string, FrameMotion>>;
+  /**
+   * 不在預載裡、第一次要播才下載的動作。待機狀態圖（掛彩、氣勢…）一場戰鬥多半只用到一兩種，
+   * 全部預載每位同伴要多解開十張大圖，記憶體吃緊時會把出招圖擠出快取，出手又要當場重新解碼。
+   * 還沒載好時畫布停在上一格，載好後下一格就補畫上去。
+   */
+  deferred?: ReadonlySet<string>;
   nativeHeight: number;
   defaultHeight?: number;
   initialAction: Action;
@@ -81,7 +87,9 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
 
   const preload = async (): Promise<void> => {
     const unique = new Map<string, FrameMotion>();
-    for (const motion of Object.values(config.motions)) unique.set(fileUrl(motion.texture), motion);
+    for (const [key, motion] of Object.entries(config.motions)) {
+      if (!config.deferred?.has(key)) unique.set(fileUrl(motion.texture), motion);
+    }
     // decode() 在舊瀏覽器沒有、在解碼失敗時還會拒絕；只靠它等於整批連坐，
     // loaded 永遠留在 false，角色就停在空白畫布（稽核 2026-09-21 第 6 點）。
     await Promise.all([...unique.values()].map((motion) => new Promise<void>((done, fail) => {

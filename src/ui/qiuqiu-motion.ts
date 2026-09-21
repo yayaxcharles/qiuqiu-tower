@@ -3,6 +3,7 @@ import extraMotionData from './qiuqiu-extra-motion-data.json';
 import attackMotionData from './qiuqiu-attack-motion-data.json';
 import { createFrameMotionSet, type FrameMotion, type FrameMotionActor } from './frame-motion';
 import { LEGACY_HIT_MOTIONS } from './legacy-hit-motion';
+import { DEFERRED_REST_ACTIONS } from './rest-state-motion';
 import {
   qiuqiuChoreographyDuration,
   qiuqiuChoreographyPose,
@@ -257,6 +258,7 @@ function motionKeyForPose(action: QiuqiuPoseAction): string {
 
 const qiuqiuFrameMotions = createFrameMotionSet<QiuqiuAction>({
   motions,
+  deferred: DEFERRED_REST_ACTIONS,
   nativeHeight: NATIVE_IDLE_HEIGHT,
   initialAction: 'idle',
   // 2026-09-21 的待機狀態比照翻肚：前 7 格是從一般待機轉進狀態的過場，播完停在第 8 格慢慢呼吸

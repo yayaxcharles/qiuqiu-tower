@@ -9,6 +9,7 @@ import dangdangPlan from '../../docs/dangdang-motion-plan.json';
 import fengfengPlan from '../../docs/fengfeng-motion-plan.json';
 import { cardById } from '../../src/content/cards';
 import { visibleCanvasRect } from './motion_test_geometry';
+import { DEFERRED_COMPANION_REST_ACTIONS } from '../../src/ui/rest-state-motion';
 import {
   FEIFEI_CLONE_TIMING,
   companionCardAction,
@@ -366,6 +367,10 @@ describe('封封卡牌、近戰與收劍節奏', () => {
   });
 });
 
+/** 預載應該載的動作（排除 2026-09-21 新補、用到才下載的待機狀態圖）。 */
+const eager = (actions: Record<string, unknown>) =>
+  Object.entries(actions).filter(([key]) => !DEFERRED_COMPANION_REST_ACTIONS.has(key)).map(([, motion]) => motion as { texture: string });
+
 describe('菲菲全身逐格畫布', () => {
   it('預載舊動作與七張新增針招來源圖，載妥前後狀態可查', async () => {
     expect(companionMotionReady('feifei')).toBe(false);
@@ -373,33 +378,42 @@ describe('菲菲全身逐格畫布', () => {
     await preloadCompanionMotion('feifei');
     expect(companionMotionReady('feifei')).toBe(true);
     expect(new Set(FakeImage.sources)).toEqual(new Set(
-      [...Object.values(motionData.actions), ...Object.values(needleMotionData.actions),
+      [...eager(motionData.actions), ...eager(needleMotionData.actions),
         { texture: 'assets/sprites/hero/feifei_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    // 2026-09-21 每位同伴多了 10 張待機狀態圖（掛彩、氣勢、肚子餓、定身、翻肚、隱身、懶洋洋、炸毛、鐵布衫、蜷縮）
-    expect(new Set(FakeImage.sources)).toHaveLength(18 + 10);
+    // 2026-09-21 新補的 10 張待機狀態圖不預載（用到才下載），預載張數維持原本
+    expect(new Set(FakeImage.sources)).toHaveLength(18);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('fengfeng');
     expect(companionMotionReady('fengfeng')).toBe(true);
     expect(new Set(FakeImage.sources)).toEqual(new Set(
-      [...Object.values(fengfengMotionData.actions), ...Object.values(fengfengAttackMotionData.actions),
+      [...eager(fengfengMotionData.actions), ...eager(fengfengAttackMotionData.actions),
         { texture: 'assets/sprites/hero/fengfeng_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(16 + 10);
+    expect(new Set(FakeImage.sources)).toHaveLength(16);
     expect(companionMotionReady('dangdang')).toBe(false);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('dangdang');
     expect(companionMotionReady('dangdang')).toBe(true);
     expect(new Set(FakeImage.sources)).toEqual(new Set(
-      [...Object.values(dangdangMotionData.actions), ...Object.values(dangdangAttackMotionData.actions),
+      [...eager(dangdangMotionData.actions), ...eager(dangdangAttackMotionData.actions),
         { texture: 'assets/sprites/hero/dangdang_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(15 + 10);
+    expect(new Set(FakeImage.sources)).toHaveLength(15);
+  });
+
+  it('新補的待機狀態圖不在預載裡，第一次播到才下載', () => {
+    const wounded = `/${(dangdangMotionData.actions as Record<string, { texture: string }>).wounded!.texture}`;
+    // 預載那一半由上一個測試的完整清單比對保證；這裡確認第一次播到時直接拿該圖來畫。
+    const actor = createCompanionMotionActor('dangdang');
+    actor.play('wounded');
+    expect((lastDraw()[0] as unknown as FakeImage).src).toBe(wounded);
+    actor.dispose();
   });
 
   it('以原生高度正規化、腳底固定，停止後不再排程', () => {

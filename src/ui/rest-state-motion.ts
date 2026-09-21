@@ -11,6 +11,11 @@ export const REST_STATE_ACTIONS = {
   hurt: 'wounded', power: 'power', hungry: 'hungry', dizzy: 'dizzy', lazy: 'lazy', iron: 'iron', curl: 'curl',
 } as const;
 export type RestStatePose = keyof typeof REST_STATE_ACTIONS;
+
+/** 2026-09-21 新補的待機狀態動作：不預載，第一次進入該狀態才下載（見 frame-motion 的 `deferred`）。 */
+export const DEFERRED_REST_ACTIONS: ReadonlySet<string> = new Set(['wounded', 'power', 'hungry', 'dizzy', 'lazy', 'iron', 'curl']);
+/** 同伴另外新補了翻肚、隱身、炸毛（球球這三種原本就有、原本就預載，不改）。 */
+export const DEFERRED_COMPANION_REST_ACTIONS: ReadonlySet<string> = new Set([...DEFERRED_REST_ACTIONS, 'belly', 'stealth', 'puff']);
 export type RestStateAction = (typeof REST_STATE_ACTIONS)[RestStatePose];
 export type RestStatePoses = Readonly<{ idle: string } & Partial<Record<RestStatePose, string>>>;
 

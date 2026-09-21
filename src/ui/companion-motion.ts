@@ -20,7 +20,7 @@ import {
   type FrameMotionActor,
   type FrameMotionPlayOptions,
 } from './frame-motion';
-import { restStateAction, type RestStateAction, type RestStatePoses } from './rest-state-motion';
+import { DEFERRED_COMPANION_REST_ACTIONS, restStateAction, type RestStateAction, type RestStatePoses } from './rest-state-motion';
 import './styles/companion-motion.css';
 
 export type CompanionMotionKind = 'feifei' | 'dangdang' | 'fengfeng';
@@ -316,6 +316,7 @@ function resolveFengfeng(action: CompanionMotionAction, elapsed: number, options
 
 const feifeiFrameMotions = createFrameMotionSet<CompanionMotionAction>({
   restFrames: REST_FRAMES,
+  deferred: DEFERRED_COMPANION_REST_ACTIONS,
   motions: feifeiMotions,
   nativeHeight: NATIVE_HEIGHT,
   defaultHeight: NATIVE_HEIGHT,
@@ -328,6 +329,7 @@ const feifeiFrameMotions = createFrameMotionSet<CompanionMotionAction>({
 
 const dangdangFrameMotions = createFrameMotionSet<CompanionMotionAction>({
   restFrames: REST_FRAMES,
+  deferred: DEFERRED_COMPANION_REST_ACTIONS,
   motions: dangdangMotions,
   nativeHeight: dangdangMotionData.nativeHeight,
   defaultHeight: dangdangMotionData.nativeHeight,
@@ -340,6 +342,7 @@ const dangdangFrameMotions = createFrameMotionSet<CompanionMotionAction>({
 
 const fengfengFrameMotions = createFrameMotionSet<CompanionMotionAction>({
   restFrames: REST_FRAMES,
+  deferred: DEFERRED_COMPANION_REST_ACTIONS,
   motions: fengfengMotions,
   nativeHeight: fengfengMotionData.nativeHeight,
   defaultHeight: fengfengMotionData.nativeHeight,

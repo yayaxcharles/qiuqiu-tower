@@ -17,6 +17,7 @@ import {
   qiuqiuMotionReady,
   type QiuqiuAction,
 } from '../../src/ui/qiuqiu-motion';
+import { DEFERRED_REST_ACTIONS } from '../../src/ui/rest-state-motion';
 
 type DrawCall = [CanvasImageSource, number, number, number, number, number, number, number, number];
 
@@ -199,7 +200,10 @@ describe('球球全身動作畫布', () => {
       ...(extraMotionData.actions as Record<string, { texture: string }>),
       ...(attackMotionData.actions as Record<string, { texture: string }>),
     };
-    const expected = new Set(Object.values(actions).map((motion) => `/${motion.texture}`));
+    // 2026-09-21 新補的待機狀態圖不預載，第一次進入該狀態才下載
+    const expected = new Set(Object.entries(actions)
+      .filter(([key]) => !DEFERRED_REST_ACTIONS.has(key))
+      .map(([, motion]) => `/${motion.texture}`));
     expected.add('/assets/motion/qiuqiu/shuriken.webp');
     expected.add('/assets/sprites/hero/ninja_hit.webp');
     expect(new Set(FakeImage.sources)).toEqual(expected);
