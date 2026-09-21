@@ -44,7 +44,9 @@ class FakeCanvas {
 
 class FakeImage {
   static sources: string[] = [];
+  static created: FakeImage[] = [];
   src = '';
+  constructor() { FakeImage.created.push(this); }
   async decode(): Promise<void> { FakeImage.sources.push(this.src); }
 }
 
@@ -66,6 +68,7 @@ function lastDraw(): DrawCall {
 
 beforeEach(() => {
   FakeImage.sources = [];
+  FakeImage.created = [];
   nextRaf = 1;
   rafs = new Map();
   canvases = [];
@@ -405,6 +408,12 @@ describe('菲菲全身逐格畫布', () => {
         .map((motion) => `/${motion.texture}`),
     ));
     expect(new Set(FakeImage.sources)).toHaveLength(15);
+    // 延後的那十張：預載完就在背景開始下載（建立影像、設好網址），但不解碼
+    const deferredTextures = Object.entries(dangdangMotionData.actions as Record<string, { texture: string }>)
+      .filter(([key]) => DEFERRED_COMPANION_REST_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`);
+    expect(deferredTextures).toHaveLength(10);
+    expect(FakeImage.created.map((image) => image.src)).toEqual(expect.arrayContaining(deferredTextures));
+    expect(FakeImage.sources.filter((src) => deferredTextures.includes(src))).toEqual([]);
   });
 
   it('新補的待機狀態圖不在預載裡，第一次播到才下載', () => {

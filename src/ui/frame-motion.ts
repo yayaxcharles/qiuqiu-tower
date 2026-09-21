@@ -53,9 +53,10 @@ export function frameMotionDuration(motion: FrameMotion): number {
 export function createFrameMotionSet<Action extends string>(config: Readonly<{
   motions: Readonly<Record<string, FrameMotion>>;
   /**
-   * 不在預載裡、第一次要播才下載的動作。待機狀態圖（掛彩、氣勢…）一場戰鬥多半只用到一兩種，
-   * 全部預載每位同伴要多解開十張大圖，記憶體吃緊時會把出招圖擠出快取，出手又要當場重新解碼。
-   * 還沒載好時畫布停在上一格，載好後下一格就補畫上去。
+   * 不解碼預載的動作。待機狀態圖（掛彩、氣勢…）一場戰鬥多半只用到一兩種，
+   * 全部解碼預載每位同伴要多解開十張大圖，記憶體吃緊時會把出招圖擠出快取，出手又要當場重新解碼。
+   * 所以預載完主要動作後只在背景「下載」它們、不解碼，真正畫到才解；還沒到時畫布停在上一格。
+   * 不能等用到才下載：蜷縮、肚子餓只亮 0.7 秒左右，慢速網路第一次會來不及（實機 2026-09-21）。
    */
   deferred?: ReadonlySet<string>;
   nativeHeight: number;
@@ -107,6 +108,9 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       image.addEventListener('error', () => fail(new Error(`逐格動作圖載入失敗：${image.src}`)), { once: true });
     })));
     loaded = true;
+    for (const [key, motion] of Object.entries(config.motions)) {
+      if (config.deferred?.has(key)) imageFor(motion);
+    }
   };
 
   const boundsFor = (height: number): Bounds => {
