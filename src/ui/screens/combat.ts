@@ -3426,6 +3426,10 @@ registerScreen('combat', (app, root, props) => {
      * 找不到牠的立繪才退回原本的位置。
      */
     const speak = (l: { speaker: string; text: string }): void => {
+      // 收場對白已經開了（換階段後幾秒就打倒關主）：剩下的吐槽不要冒在對白上（推前審查 2026-09-22 低-2）
+      if (document.querySelector('.dialogue-overlay')) return;
+      // 旁白不是誰在講：照舊從原本的位置冒，不要從關主嘴裡出來（狸大人第二階段第一句，推前審查 中-1）
+      if (l.speaker === '旁白') { toast(text(l), name(l.speaker)); return; }
       const seat = speakerSeat(l.speaker, !!coop, cs.players, mySeat);
       if (seat !== undefined) { toast(text(l), name(l.speaker), speechBubbleAt(seat, cs.players.length)); return; }
       if (!bubbleOverUnit(app.stage, root.querySelector(`.unit.enemy[data-id="${bossId}"]`), text(l), name(l.speaker))) toast(text(l), name(l.speaker));

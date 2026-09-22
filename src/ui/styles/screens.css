@@ -1372,6 +1372,8 @@
   box-shadow: 0 2px 10px #0008;
 }
 
+/* 自己與對方同時斷線時兩條都在：第二條往下錯開一條的高度（2026-09-22） */
+.net-link + .net-link { top: 40px; }
 /* 線路暫時斷了（自己或對方）的琥珀色橫幅：接回來就撕掉（`lobby.ts` 的 `linkBanner`，2026-09-15） */
 .net-link {
   position: fixed;

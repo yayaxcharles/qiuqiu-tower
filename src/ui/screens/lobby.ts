@@ -95,10 +95,16 @@ function troubleBanner(app: App, why: string): void {
  * 接回來（back）或對方回來（peerBack）就拿掉。斷線期間傳輸層自己在接、自己在補，畫面只要讓玩家知道「等一下」。
  */
 function linkBanner(_app: App, s: LinkStatus): void {
-  document.querySelectorAll('.net-link').forEach((n) => n.remove());
+  /*
+   * 自己那條與對方那條分開記（推前審查 2026-09-22 低-3）：以前一律先撕掉全部，
+   * 自己一報「接回來了」，對方還在斷線的那條也被一起撕掉。
+   * 自己那條的文字不說「正在重新連線」：網頁端心跳 3.5 秒收不到回音就會先報，那時線還沒真的斷。
+   */
+  const who = s === 'away' || s === 'back' ? 'me' : 'peer';
+  document.querySelectorAll(`.net-link[data-who="${who}"]`).forEach((n) => n.remove());
   if (s === 'back' || s === 'peerBack') return;
-  document.body.append(el('div', { class: 'net-link' },
-    s === 'away' ? '連線中斷，正在重新連線…（會等幾分鐘，接回來就繼續）' : '對方斷線了，等對方回來…（會等幾分鐘）'));
+  document.body.append(el('div', { class: 'net-link', 'data-who': who },
+    who === 'me' ? '連線不穩，等待回應中…（接回來就繼續，會等幾分鐘）' : '對方斷線了，等對方回來…（會等幾分鐘）'));
 }
 
 /*

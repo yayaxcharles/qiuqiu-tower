@@ -119,6 +119,11 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
   if (!literal) lines = lines.map((l) => ({ ...l, text: l.speaker === '球球' ? lineFor(localHero(), l.text) : castLineFor(localHero(), l.text) }));
   const layer = overlayRoot();
   if (!layer || lines.length === 0) { onDone(); return; }
+  /*
+   * 戰鬥裡剛冒的吐槽（打贏那句、關主換階段那串）會留一兩秒；對白框一開，說話那隻貓可能被頭像取代而藏起來，
+   * 泡泡的尾巴就指著空位（推前審查 2026-09-22 低-2）。有說話者名牌的才是台詞泡泡，一般提示不動。
+   */
+  layer.querySelectorAll('.toast').forEach((t) => { if (t.querySelector('b')) t.remove(); });
   let i = 0;
   let ended = false;
   const box = el('div', { class: 'dialogue-overlay' });
