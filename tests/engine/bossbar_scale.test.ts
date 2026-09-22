@@ -47,4 +47,10 @@ describe('師父的血條跟著連線、難度放大', () => {
     expect(cs.enemies[0]!.hp).toBe(138);
     expect(nextBar(cs)).toBe(276);
   });
+
+  it('連線加難度一起乘，只乘一次（414／828）', () => {
+    const cs = start({ players: 2, hpMul: 1.15 });
+    expect(cs.enemies[0]!.hp).toBe(414);
+    expect(nextBar(cs)).toBe(828);
+  });
 });
