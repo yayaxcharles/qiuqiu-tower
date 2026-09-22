@@ -55,6 +55,9 @@ const RATING: Record<string, number> = {
   sanjo: 2, tanding: 2, kawarimi: 3, feifei_feizhen: 2, feifei_tuikai: 2, feifei_cuidu: 3,
   // 噹噹的三張同理：正拳＝貓抓、架盤＝淡定、回敬＝替身術那一格
   dangdang_zhengquan: 2, dangdang_jiapan: 2, dangdang_huijing: 3,
+  // 封封的三張同理：平斬＝貓抓、護身＝淡定、吐納＝替身術那一格（2026-09-22 量測修正：
+  // 原本漏列，照稀有度被當成 4 分，起手牌一輩子不會被放生，收局時十張全留著）
+  fengfeng_pingzhan: 2, fengfeng_hushen: 2, fengfeng_tuna: 3,
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,
@@ -138,11 +141,17 @@ function incomingHitList(cs: CombatState, e: EnemyCombat, who: PlayerCombat = cs
  * `who`＝算誰的（2026-09-16）。兩個人一起打時**一招打全部站著的人、每個人各吃完整一份**
  *（`actions.ts` 的 `ENEMY_HITS_EVERYONE`），所以每一位都照整份清單算，差別只在各自的蜷縮與隱身。
  */
-function expectedIncoming(cs: CombatState, who: PlayerCombat = cs.player): number {
+function expectedIncoming(cs: CombatState, who: PlayerCombat = cs.player, blockOverride?: number): number {
   const p = who;
   if (p.immune) return 0;
   const all = aliveEnemies(cs).flatMap((e) => incomingHitList(cs, e, who));
-  let block = p.block; let stealth = getStatus(p, '隱身'); let taken = 0;
+  /*
+   * `blockOverride`＝「身上的蜷縮換成這個數之後會吃多少」（2026-09-22 量測修正）。
+   * 噹噹的卸蜷縮牌要問「卸完之後多吃幾點」，而 `evaluate` 拿到的 `incoming`
+   * 已經是**扣過現有蜷縮**的淨值——拿淨值再去夾蜷縮等於同一份蜷縮算兩次。
+   * 傳 0 就是「完全不擋會吃多少」，兩者相減＝現有蜷縮真正擋掉的量。
+   */
+  let block = blockOverride ?? p.block; let stealth = getStatus(p, '隱身'); let taken = 0;
   for (const h of all) {
     const absorbed = h.pierce ? 0 : Math.min(block, h.dmg);
     const rest = h.dmg - absorbed;
@@ -297,6 +306,20 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       if (getStatus(e, '反彈') > 0 && dmg < e.hp) v -= getStatus(e, '反彈') * hits * (lowHp ? 4 : 1.5);
       if (!best || v > best.v) best = { e, v };
     }
+    /*
+     * **靠身上資源打人的牌，算出來 0 傷就不打**（2026-09-22 量測修正）。
+     * 噹噹的卸蜷縮牌（卸力掌、崩山掌、震盪波、鐵山靠、捨身撞）與照反彈打的原樣奉還，
+     * 身上沒蜷縮／沒反彈時整張撲空（引擎只印「身上沒有蜷縮可卸」），
+     * 可是上面那條「目標血少於 20 加 2 分」不管打不打得到都給，淨值 1.4 過了 0.5 的門檻——
+     * 原本 600 局裡 21.8% 的卸蜷縮出招是撲空的。只管這兩種：其他牌 0 傷多半是目標有隱身，
+     * 那邊本來就有「打掉那層隱身」的估法，不動它。
+     */
+    if (st.effects.some((fx) => fx.kind === 'damageSpendBlock' || fx.kind === 'damageByOwnStatus')) {
+      const total = def.target === 'all'
+        ? enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays, false, p), 0)
+        : best ? damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, plays, false, p) : 0;
+      if (total <= 0) return null;
+    }
     if (def.target === 'all') {
       value += enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays, false, p), 0);
       if (best) value += best.v - damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, plays, false, p);
@@ -315,6 +338,22 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         const b = computeBlock(fx.amount + (p.blockBonus ?? 0), p);
         const useful = Math.min(b, incoming);
         value += useful * (lowHp ? 3 : danger ? 1.6 : 1.1) + (b - useful) * 0.12;
+        /*
+         * **先存蜷縮、再卸出去**（2026-09-22 量測修正，策略性的）。手上還有卸蜷縮的牌、飯糰也夠
+         * 兩張一起打時，擋不到攻擊的那幾點其實是下一張的彈藥，照 0.8 算（原本只給 0.12，
+         * 機器人不會為了卸力掌先疊蜷縮，21.8% 的卸蜷縮出招是撲空的）。
+         * 只有噹噹有卸蜷縮的牌（`damageSpendBlock`），其他三隻的出牌一個位元都不會變。
+         */
+        if (b > useful) {
+          const fuel = p.hand.filter((h) => h.uid !== c.uid && cardStats(h).cost + st.cost <= p.energy)
+            .map((h) => cardStats(h).effects.find((x) => x.kind === 'damageSpendBlock'))
+            .filter((x): x is Extract<Effect, { kind: 'damageSpendBlock' }> => x?.kind === 'damageSpendBlock');
+          if (fuel.length) {
+            const cap = Math.max(...fuel.map((x) => (x.all ? 40 : (x.max ?? 0)) * (x.mul ?? 1)));
+            const surplusNow = Math.max(0, p.block - (expectedIncoming(cs, p, 0) - incoming));   // 現有蜷縮裡本來就擋不到的
+            value += Math.max(0, Math.min(b - useful, cap - surplusNow)) * 0.8;
+          }
+        }
         break;
       }
       case 'blockIfPoisoned': {
@@ -352,7 +391,13 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
             value += gain * (lowHp ? 3 : danger ? 1.6 : 1.1) + (fx.amount - Math.min(fx.amount, Math.max(0, all.length - cur))) * 1.5;
           } else if (fx.name === '爪力') value += fx.amount * 4 * Math.min(1, totalEnemyHp / 40);
           else if (fx.name === '貓步') value += fx.amount * 3;
-          else if (fx.name === '反彈') value += fx.amount * Math.min(hits, 4) * 0.8;
+          /*
+           * 反彈**整場不會消失**（不在 `TURN_DECAY` 裡），所以照「這一場還剩幾回合 × 每回合至少挨一下」估，
+           * 打六折（2026-09-22 量測修正）。原本只看「這一拍會挨幾下」：魔物這回合不攻擊就估 0，
+           * 噹噹起手那張「回敬」淨值 −0.6、機器人在不挨打的回合一輩子不打它（打出率 22%），
+           * 只改這一條，噹噹 600 局平均到達樓層 20.2F → 22.1F；球球、菲菲只動 0.1～0.2F。
+           */
+          else if (fx.name === '反彈') value += fx.amount * Math.max(1, Math.min(hits, 4)) * rest * 0.6;
           else if (fx.name === '潛水') value += fx.amount * 4;
           else if (fx.name === '鐵布衫') value += fx.amount * 0.9;
           else if (fx.name === '翻肚') value -= 6;   // 出大事了的代價
@@ -394,7 +439,33 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'drawNextTurn': value += fx.n * 2; break;
       case 'drawIfTargetStatus': value += 1; break;
       case 'energy': value += fx.n * 3.5; break;
-      case 'gainQi': value += Math.min(fx.n, Math.max(0, 12 - (p.qi ?? 0))) * 1.4; break;
+      case 'gainQi': {
+        const room = Math.min(fx.n, Math.max(0, 12 - (p.qi ?? 0)));
+        let v = room * 1.4;
+        /*
+         * **先吐納、再出斬**（2026-09-22 量測修正，策略性的）。手上有花蓄氣的攻擊牌、飯糰也夠
+         * 兩張一起打時，這幾點氣「這一回合就換得成傷害」，照那張牌每點氣加幾點估；
+         * 原本一律 1.4，比 0 氣的平斬（5 點）低，機器人於是先斬後吐納，每一刀都只有 5 點，
+         * 花蓄氣的牌平均只用到 1.04 點氣（上限 2～5）。
+         * 只有封封的牌會產蓄氣（`gainQi`），其他三隻的出牌一個位元都不會變。
+         */
+        let left = p.energy - st.cost;
+        let need = 0; let rate = 0;
+        const spenders = p.hand.filter((h) => h.uid !== c.uid)
+          .map((h) => ({ cost: cardStats(h).cost, e: cardStats(h).effects.find((x) => x.kind === 'damageSpendQi') }))
+          .filter((x): x is { cost: number; e: Extract<Effect, { kind: 'damageSpendQi' }> } => x.e?.kind === 'damageSpendQi')
+          .sort((a, b) => b.e.perQi - a.e.perQi);
+        for (const s of spenders) {
+          if (s.cost > left) continue;
+          left -= s.cost;
+          need += s.e.allQi ? 12 : (s.e.maxQi ?? 12);
+          rate = Math.max(rate, s.e.perQi * (s.e.times ?? 1) * (s.e.target === 'all' ? Math.max(1, enemies.length) : 1));
+        }
+        const usable = Math.max(0, Math.min(room, need - (p.qi ?? 0)));
+        if (usable > 0) v = usable * rate + (room - usable) * 1.4;
+        value += v;
+        break;
+      }
       case 'heal': value += Math.min(fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p.maxHp - p.hp) * (danger ? 1.5 : 0.9); break;
       case 'gold': value += fx.onKill ? 0.5 : fx.n * 0.15; break;
       case 'power': {
@@ -411,7 +482,15 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
           // 更糟的是 `rating()` 沒列它、照罕見給預設分，所以牌照樣被挑進牌組、然後整場躺在手上。
           // 口徑照 `case 'status'` 那邊對自己上反彈的寫法（同一支檔案上面幾行），不要另創一套。
           // 這是「加第三個角色才冒出來」的同型錯誤第五次：清單型的判斷只認得舊角色用得到的種類。
-          else if (sub.kind === 'status' && sub.name === '反彈') per += sub.amount * Math.min(hits, 4) * 0.8;
+          // 每回合給的反彈會**一路疊上去**（整場不消失），所以每一輪的價值再乘「平均疊了幾輪」（剩餘回合的一半）。
+          // 口徑跟上面 `case 'status'` 的反彈同一套（2026-09-22 量測修正：原本只看這一拍挨幾下）
+          else if (sub.kind === 'status' && sub.name === '反彈') per += sub.amount * Math.max(1, Math.min(hits, 4)) * 0.6 * Math.max(1, turnsLeft / 2);
+          /*
+           * 能力牌裡的「加蓄氣」（封封的循息、藏鋒）。原本這張清單沒有它，整張只剩 −0.6 的出牌成本，
+           * 機器人一輩子不打（600 局打出 0 次）——「清單型的判斷只認得舊角色用得到的種類」同型錯誤第六次。
+           * 口徑跟一般的 `gainQi`（每點 1.4）一樣；打出技能牌才觸發的那種打八折（不是每回合都湊得到）。
+           */
+          else if (sub.kind === 'gainQi') per += sub.n * 1.4 * (fx.trigger === 'afterCard' ? 0.8 : 1);
           else if (sub.kind === 'draw') per += sub.n * 2.5;
           else if (sub.kind === 'heal') per += sub.n * 0.6;
         }
@@ -558,10 +637,27 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         value += (fx.amount + fx.perQi * spentQi) * (fx.recipients === 'selfAndAlly' ? 1.3 : 1);
         break;
       }
-      case 'ifQiAtPlay': case 'ifSpentQiAtLeast': case 'ifAllyBlockAtPlay':
+      case 'ifQiAtPlay': case 'ifSpentQiAtLeast': case 'ifAllyBlockAtPlay': {
+        /*
+         * **門檻沒到就不算**（2026-09-22 量測修正）。原本不管條件成不成立一律打七折照算，
+         * 蓄氣 0 的時候「退步守勢」照樣被當成 11 點擋、「回步刺」照樣多抽一張。
+         * 三個條件照引擎的判準：出牌前的蓄氣、這張實際會花掉的蓄氣、出牌當下同伴的蜷縮
+         *（單人時同伴就是自己，跟 `playCard` 的 `mateAtPlay` 一樣）。
+         */
+        const qi = Math.max(0, Math.min(12, p.qi ?? 0));
+        const spender = st.effects.find((e) => e.kind === 'damageSpendQi' || e.kind === 'blockSpendQi' || e.kind === 'nextAttackBonusSpendQi');
+        const willSpend = !spender ? 0
+          : spender.kind === 'damageSpendQi' && spender.allQi ? qi
+            : Math.min(qi, (spender as { maxQi?: number }).maxQi ?? qi);
+        const mate = cs.players.find((q) => q !== p && !q.down) ?? p;
+        const met = fx.kind === 'ifQiAtPlay' ? qi >= fx.min
+          : fx.kind === 'ifSpentQiAtLeast' ? willSpend >= fx.min
+            : mate.block >= fx.min;
+        if (!met) break;
         value += fx.then.reduce((sum, sub) => sum + ((sub as { amount?: number; n?: number }).amount
           ?? (sub as { n?: number }).n ?? 0), 0) * 0.7;
         break;
+      }
       case 'preventEnergyGainThisPhase': break;
       /*
        * ===== 噹噹的十個（2026-09-17）=====
@@ -583,15 +679,22 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
          * 蜷縮 10、這一輪只會挨 8 的時候，卸掉 6 其實只少擋 4——
          * 照總量扣的話，機器人連多出來的那幾點都捨不得拿去打（審查 2026-09-17 低-11 的修正版）。
          */
-        const useful = (b: number): number => Math.min(b, incoming);
-        value -= (useful(p.block) - useful(p.block - spent)) * (lowHp ? 3 : danger ? 1.6 : 1.1);
+        /*
+         * 2026-09-22 量測修正：`incoming` 是**已經扣過現有蜷縮**的淨值，上面那版拿它再去夾蜷縮，
+         * 等於同一份蜷縮算兩次——蜷縮 10、這一拍要挨 12（淨值 2）時，卸 6 點被估成「只少擋 0 點」，
+         * 實際卸完剩 4、多吃 6 點。600 局裡 42% 的卸蜷縮出招拿的是這一拍要用的蜷縮。
+         * 改成直接模擬「卸完之後這一拍會吃多少」，減掉現在會吃的量。
+         */
+        const lost = expectedIncoming(cs, p, Math.max(0, p.block - spent)) - incoming;
+        value -= lost * (lowHp ? 3 : danger ? 1.6 : 1.1);
         break;
       }
       case 'damageByOwnStatus': break;   // 反彈不會被消耗，沒有代價
       case 'healSpendBlock': {
         // 卸蜷縮換血：擋不到的那幾點蜷縮本來就要歸零，換成血是淨賺；擋得到的就是換掉一次防禦
         const spend = Math.min(fx.max, p.halfSpendBlock ? p.block * 2 : p.block);
-        const waste = Math.max(0, p.block - incoming);
+        // 擋不到東西的那幾點＝現有蜷縮 − 它真正擋掉的量（同上，`incoming` 是淨值，不能拿來直接減）
+        const waste = Math.max(0, p.block - (expectedIncoming(cs, p, 0) - incoming));
         value += Math.min(spend, waste) * (lowHp ? 1.4 : 0.8) + Math.max(0, spend - waste) * 0.2;
         break;
       }
@@ -606,7 +709,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       // 同一張牌前面那條 `block` 還沒結算，所以要把它一起算進來（審查 2026-09-17 低-10）
       case 'keepBlock': {
         const soon = p.block + st.effects.reduce((n, e) => n + (e.kind === 'block' ? e.amount : 0), 0);
-        value += Math.min(fx.n, Math.max(0, soon - incoming)) * 0.7;
+        // 擋完還剩多少要跟「完全不擋會挨多少」比，不是跟扣過蜷縮的淨值比（2026-09-22 量測修正，同卸蜷縮那條）
+        value += Math.min(fx.n, Math.max(0, soon - expectedIncoming(cs, p, 0))) * 0.7;
         break;
       }
       case 'ifBlock': break;        // 條件分支的價值在傷害估算區算過；`then` 裡的加狀態量級太小，不另計
@@ -653,7 +757,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
        */
       case 'blockToThorns': {
         const soon = p.block + st.effects.reduce((n, e) => n + (e.kind === 'block' ? e.amount : 0), 0);
-        value += Math.floor(Math.max(0, soon - incoming) / fx.per) * fx.gain * 1.2;
+        // 同上：用「完全不擋會挨多少」算擋完剩下的（2026-09-22 量測修正）
+        value += Math.floor(Math.max(0, soon - expectedIncoming(cs, p, 0)) / fx.per) * fx.gain * 1.2;
         break;
       }
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
