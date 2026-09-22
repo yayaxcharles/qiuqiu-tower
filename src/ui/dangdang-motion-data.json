@@ -1243,7 +1243,7 @@
     },
     "dodge": {
       "texture": "assets/motion/dangdang/dodge_win.webp",
-      "scale": 0.863013698630137,
+      "scale": 0.8164109589041095,
       "loop": false,
       "frames": [
         {
@@ -1354,7 +1354,7 @@
     },
     "win": {
       "texture": "assets/motion/dangdang/dodge_win.webp",
-      "scale": 0.865979381443299,
+      "scale": 0.8330721649484536,
       "loop": false,
       "frames": [
         {
