@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { transformWithOxc } from 'vite';
 import SRC from '../../src/ui/screens/combat.ts?raw';
 import { qiuqiuCombatMotionDecision, qiuqiuMotionDuration, type QiuqiuAction } from '../../src/ui/qiuqiu-motion';
-import { companionCardAction, companionMotionDuration, type CompanionMotionAction } from '../../src/ui/companion-motion';
+import { companionMotionDuration, type CompanionMotionAction } from '../../src/ui/companion-motion';
 
 type Source = 'qiuqiu' | 'feifei' | 'dangdang' | 'fengfeng';
 type Options = { pose?: string; motion?: string; motionAlreadyPlaying?: boolean; impactMotion?: string; impactSeat?: number };
@@ -86,9 +86,9 @@ describe('逐格動作交還靜態出招', () => {
     screen.playMotion(0, 'seal');
     const previousEnd = screen.state.endsAt;
     screen.advance(100);
-    // 2026-09-22 起吼有自己的動作；改拿仍刻意不配動作的遠程暗器牌（毒砂）來測交還靜態出招
-    const motion = companionCardAction('feifei', 'tieshazhang', { cardType: '攻擊' });
-    expect(motion).toBeUndefined();
+    // 2026-09-22 晚起每張牌、每種忍具都配了逐格動作（毒砂也是），這條交還路線只剩「沒有動作可播」時會走到；
+    // 直接給一個沒有動作的出招來測交還本身
+    const motion = undefined;
     screen.apply({ pose, motion });
     expect(screen.state.active).toBe(false);
     expect(screen.staticHidden()).toBe(false);

@@ -584,11 +584,13 @@
  * 同時浮著兩句吐槽時把第二句往下挪：吐槽都貼在 top: 60px（共用的 base.css），
  * 塔主進第二階段那兩句、餓扁與生命過低同時觸發時都會疊成一團。
  */
-#stage[data-screen="combat"] .toast ~ .toast { top: 116px; }
+/* 魔物頭上的泡泡（`.bubble-at`，位置寫在行內）不算一格（2026-09-22 晚）：關主換階段那句改從牠頭上冒之後，
+   接著講的貓那句會被它推到第二格、壓在自己頭上 */
+#stage[data-screen="combat"] .toast:not(.bubble-at) ~ .toast:not(.bubble-at) { top: 116px; }
 /* 教學條（.tut-bar）跟吐槽都貼在畫面頂端同一個位置（60／64px），第一場戰鬥的
    「餓扁了」吐槽會整個壓在教學字上（2026-09-02 實玩截圖）。教學條還在時把吐槽往下推一格。 */
 #stage[data-screen="combat"]:has(.tut-bar) .toast { top: 118px; }
-#stage[data-screen="combat"]:has(.tut-bar) .toast ~ .toast { top: 174px; }
+#stage[data-screen="combat"]:has(.tut-bar) .toast:not(.bubble-at) ~ .toast:not(.bubble-at) { top: 174px; }
 
 /* 待選牌視窗底部的計數 */
 .pick-count {
@@ -1152,8 +1154,9 @@
 
 /* 掛在魔物頭上的泡泡：位置由行內樣式（right／top）決定，尾巴在右下角指向頭 */
 #stage[data-screen="combat"] .toast.bubble-at { left: auto; }
-#stage[data-screen="combat"] .toast.bubble-at.tail-right::before { left: auto; right: 22px; }
-#stage[data-screen="combat"] .toast.bubble-at.tail-right::after { left: auto; right: 25px; }
+/* 尾巴在右下角：魔物頭上的泡泡，以及連線時右邊那一格講話（2026-09-22 晚，泡泡往左長、不蓋到魔物） */
+#stage[data-screen="combat"] .toast.tail-right::before { left: auto; right: 22px; }
+#stage[data-screen="combat"] .toast.tail-right::after { left: auto; right: 25px; }
 /* 左上角的戰鬥紀錄稍微顯眼一點：字大半號、不透明、底下墊一層淡淡的暗色（亮牆上也讀得到） */
 .combat .log { font-size: 13.5px; opacity: 1; padding: 6px 10px 6px 8px; border-radius: 8px; background: linear-gradient(90deg, #00000073, #00000000); width: 300px; }
 
@@ -1258,6 +1261,14 @@
  * 用 `display: none` 不是 `opacity`：牠已經死了，那塊空間也不必留著。
  */
 .combat .unit.enemy.downed .intent { display: none; }
+/*
+ * 一般魔物化成煙那一下（2026-09-22 晚，畫面盤點低-14）：原本只有整隻一起淡出，煙上面還浮著「攻 7」、名字、
+ * 血條與最後那下的數字約 0.8 秒。跟大魔物、關主一樣收起來：意圖牌當場拿掉，名字、血條、狀態牌 0.3 秒淡掉；
+ * 打死那一下的數字照樣蹦出來（看得到打了多少），但飄得快一倍、跟著煙一起散，不在煙上掛著。
+ */
+.combat .unit.enemy.dead:not(.downed) .intent { display: none; }
+.combat .unit.enemy.dead:not(.downed) :is(.name, .chips, .hpbar) { opacity: 0; transition: opacity .3s; }
+.combat .unit.enemy.dead:not(.downed) .num { animation-duration: .55s; }
 @keyframes down-shadow {
   0%, 70% { opacity: .45; }
   100% { opacity: 0; }
@@ -1330,7 +1341,12 @@
 .combat .unit.player:not(.mine) .name { opacity: .78; }
 /* 舉手了就整格壓暗一點：一眼看得出「他在等我」 */
 .combat .unit.player.ready { filter: saturate(.65) brightness(.82); }
-.combat .unit.player.downed { filter: saturate(.25) brightness(.6); }
+/* 倒下的那一格（2026-09-22 晚，連線盤點問題 7）：原本整格 saturate(.25) brightness(.6)，封封的橘色洗成灰、
+   菲菲變成一團黑影，躺在地上認不出是誰。改成留住原色：只把身體稍微壓暗、半透明，
+   名字、血條、「倒下了」牌子照原色（倒下時若同時掛著舉手的 .ready，也不跟著整格變灰） */
+.combat .unit.player.downed { filter: none; }
+.combat .unit.player.downed .sprite-box { filter: brightness(.85); opacity: .72; }
+.combat .unit.player.downed .ready-tag { filter: none; }
 .combat .ready-tag {
   position: absolute;
   left: 50%; top: -6px;
@@ -1350,13 +1366,14 @@
 }
 .combat .ready-tag.down { background: #3a1414dd; border-color: #ff9b9b55; }
 
-/* 同伴剛打出的牌（使用者 2026-09-15：「完全不知道隊友做了什麼」）：縮小、半透明掛在他頭上，
-   下一張打出來就換掉、換回合消失。不吃滑鼠，不擋意圖牌與「已結束回合」的牌子（那個貼在頭頂，這個再往上疊） */
+/* 同伴剛打出的牌（使用者 2026-09-15：「完全不知道隊友做了什麼」）：縮小、半透明掛在他旁邊，
+   下一張打出來就換掉、換回合消失、分出勝負就收（combat.ts 的 playerUnit）。不吃滑鼠，不擋意圖牌與「已結束回合」的牌子。
+   位置 2026-09-22 晚改（連線盤點問題 8）：原本疊在頭頂正中（top -24px），蓋住耳朵與頭巾；
+   改掛在他臉前方、頭的右上角外側（四隻貓都面向右，這一側是空的；往上掛會頂進狀態列、被蓋掉） */
 .combat .unit.player .mate-play {
   position: absolute;
-  left: 50%; top: -24px;   /* 疊在頭頂那一帶：掛到框外會頂進狀態列、被蓋掉（實測） */
-  translate: -50% 0;
-  transform: scale(.6);
+  right: -80px; top: -10px;
+  transform: scale(.5);
   transform-origin: center top;
   opacity: .65;
   pointer-events: none;
@@ -1371,6 +1388,6 @@
   font-size: 24px; font-weight: 700; color: #ffd97a; text-shadow: 0 1px 2px #000, 0 0 6px #000; white-space: nowrap;
 }
 @keyframes mate-play-in {
-  from { opacity: 0; translate: -50% 12px; }
-  to { opacity: .65; translate: -50% 0; }
+  from { opacity: 0; translate: 0 12px; }
+  to { opacity: .65; translate: 0 0; }
 }

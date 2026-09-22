@@ -4,9 +4,10 @@
  *
  * 這支測試釘五件事：
  *  1. 戰鬥畫面真正在跑的 `motionForCard`（直接從 combat.ts 摳出來執行）對四隻貓每張打得出去的牌都選到
- *     有素材的動作——舊寫法這 116 張會回 undefined 而失敗；刻意不配的 8 張遠程暗器牌逐張列出理由；
+ *     有素材的動作——舊寫法這 116 張會回 undefined 而失敗；原本刻意不配的 8 張遠程暗器牌 2026-09-22 晚也配了
+ *     （使用者：出牌那一下不能露出舊立繪），不再有例外；
  *  2. 八套新圖各自接到哪些牌（照規則：招式家族、牌型、效果），吼、太極、輕功沒有被通用動作吃掉；
- *  3. 新圖延後下載、不進解碼預載；圖還沒到時交還靜態立繪（比照待機狀態的 drawable），到了就用新動作；
+ *  3. 新圖延後下載、不進解碼預載；圖還沒到時先播預載的替身（2026-09-22 晚起，原本交還靜態立繪），到了就用新動作；
  *  4. 動作長度照一般速度、原地演出不算近戰、獅吼功有命中時間；輕功騰空格留得住跳起來的高度；
  *  5. 新舊動作圖的雜湊都跟打包紀錄一致（既有圖一個位元都沒動）。
  */
@@ -33,6 +34,7 @@ import {
   qiuqiuMotionReady,
   qiuqiuCardAction,
   qiuqiuCardMotionPlayable,
+  qiuqiuPlayableAction,
   qiuqiuHasOwnMotion,
   qiuqiuIsMelee,
   qiuqiuMotionDuration,
@@ -42,6 +44,7 @@ import {
   DEFERRED_COMPANION_CARD_ACTIONS,
   companionCardAction,
   companionCardMotionPlayable,
+  companionPlayableAction,
   companionHasOwnMotion,
   companionImpactTimes,
   companionIsMelee,
@@ -61,12 +64,15 @@ const HEROES: readonly { hero: Hero; source: Source }[] = [
   { hero: 'dangdang', source: 'dangdang' }, { hero: 'fengfeng', source: 'fengfeng' },
 ];
 
-/** 刻意不配動作的牌（維持靜態立繪）：卡圖是遠程暗器，要另畫投擲動作與投射物，不能硬套近身或針術。 */
-const DELIBERATELY_STATIC: Readonly<Record<Source, Readonly<Record<string, string>>>> = {
-  qiuqiu: { juye: '聚葉成刀：卡圖是葉片飛刃', maoqiudan: '毛球彈：卡圖是丟出去的毛球' },
-  feifei: { tieshazhang: '毒砂：撒出去的毒砂', maoqiudan: '毒丸彈：丟出去的毒丸', qinna: '絆索：甩出去的繩索' },
+/**
+ * 原本刻意不配動作（維持靜態立繪）的 8 張遠程暗器牌，2026-09-22 晚改配最像的出手動作（原地出手、不衝上前）。
+ * 列在這裡釘住選到的動作，免得以後被通用規則改成近身撲抓。
+ */
+const RANGED_CARDS: Readonly<Record<Source, Readonly<Record<string, string>>>> = {
+  qiuqiu: { juye: 'shuriken', maoqiudan: 'shuriken' },
+  feifei: { tieshazhang: 'needle_fan', maoqiudan: 'shuriken', qinna: 'needle_backhand' },
   dangdang: {},
-  fengfeng: { luanwu: '手裏劍亂舞：環繞的手裏劍', maoqiudan: '毛球彈：毛球', sashoujian: '撒手鐧：甩出去的木桶' },
+  fengfeng: { luanwu: 'sweep', maoqiudan: 'roar', sashoujian: 'earth_split' },
 };
 
 /** 八套新圖的貼圖網址（測試用假影像靠它分辨「還沒下載好」） */
@@ -111,7 +117,7 @@ async function combatMotionForCard() {
     'return (q, card) => { clawMotionIndex = 0; return motionForCard(q, card); };',
   ].join('\n');
   const bindings = {
-    hasHeroSprite, qiuqiuCardAction, qiuqiuCardMotionPlayable, companionCardAction, companionCardMotionPlayable, cardStats,
+    hasHeroSprite, qiuqiuCardAction, qiuqiuPlayableAction, companionCardAction, companionPlayableAction, cardStats,
     motionEnabled: true,
     motionSourceFor: (q: { source: Source }) => q.source,
     companionKind: (source: CompanionMotionKind) => source,
@@ -137,17 +143,18 @@ function ownMotion(source: Source, action: string): boolean {
   return companionHasOwnMotion(source, action as CompanionMotionAction);
 }
 
-describe('新圖還沒下載好：交還靜態立繪，不停在上一個動作的最後一格', () => {
-  it('圖還沒到時新動作選不到、預載的沿用動作照播；圖到了就用新動作', async () => {
+describe('新圖還沒下載好：先播預載的替身，不露出靜態立繪、也不停在上一個動作的最後一格', () => {
+  it('圖還沒到時新動作換成替身、預載的沿用動作照播；圖到了就用新動作', async () => {
     const motionForCard = await combatMotionForCard();
     const play = (source: Source, cardId: string) => motionForCard({ source }, { uid: 1, cardId, upgraded: false });
-    // 還沒到：太極、輕功、運氣、翻卷軸、吼（同伴）交還靜態立繪
-    expect(play('qiuqiu', 'tuishou')).toBeUndefined();
-    expect(play('qiuqiu', 'qinggong')).toBeUndefined();
-    expect(play('qiuqiu', 'huxin')).toBeUndefined();
-    expect(play('qiuqiu', 'qianliyan')).toBeUndefined();
-    expect(play('feifei', 'weihe')).toBeUndefined();
-    expect(play('fengfeng', 'yide')).toBeUndefined();
+    // 還沒到：太極、運氣、翻卷軸換結印，輕功換翻滾（跳躍那套停在半空）；同伴的吼、太極換結印（菲菲）、運氣（封封）。
+    // 2026-09-22 晚以前這幾張會回 undefined、交還靜態立繪，網路慢一點就露出舊畫風
+    expect(play('qiuqiu', 'tuishou')).toBe('seal');
+    expect(play('qiuqiu', 'qinggong')).toBe('roll');
+    expect(play('qiuqiu', 'huxin')).toBe('seal');
+    expect(play('qiuqiu', 'qianliyan')).toBe('seal');
+    expect(play('feifei', 'weihe')).toBe('seal');
+    expect(play('fengfeng', 'yide')).toBe('focus');
     for (const action of DEFERRED_QIUQIU_CARD_ACTIONS) expect(qiuqiuCardMotionPlayable(action as QiuqiuAction)).toBe(false);
     // 沿用的動作跟著預載，不受影響
     expect(play('qiuqiu', 'jinzhong')).toBe('guard');
@@ -177,25 +184,22 @@ describe('新圖還沒下載好：交還靜態立繪，不停在上一個動作�
 describe('每張打得出去的牌都選到有素材的動作', () => {
   beforeAll(() => { pending.clear(); });
 
-  it.each(HEROES)('$hero：基礎版與升級版都選得到（刻意不配的遠程暗器牌除外）', async ({ hero, source }) => {
+  it.each(HEROES)('$hero：基礎版與升級版都選得到（遠程暗器牌也是，沒有例外）', async ({ hero, source }) => {
     const motionForCard = await combatMotionForCard();
     const missing: string[] = [];
-    const statics: string[] = [];
     for (const def of deckCards(hero)) {
       for (const upgraded of [false, true]) {
         const action = motionForCard({ source }, { uid: 1, cardId: def.id, upgraded });
-        if (DELIBERATELY_STATIC[source][def.id]) {
-          if (action !== undefined) statics.push(`${def.id}${upgraded ? '+' : ''} → ${action}`);
-          continue;
-        }
         if (action === undefined || !ownMotion(source, action)) missing.push(`${def.id}${upgraded ? '+' : ''}（${def.name}）→ ${action}`);
       }
     }
     expect(missing).toEqual([]);
-    expect(statics).toEqual([]);
-    // 刻意不配的牌確實在這位的牌池裡（列了就要真的存在，免得清單過期）
+    // 遠程暗器牌選到指定的出手動作，而且確實在這位的牌池裡（列了就要真的存在，免得清單過期）
     const pool = new Set(deckCards(hero).map((def) => def.id));
-    for (const id of Object.keys(DELIBERATELY_STATIC[source])) expect(pool.has(id), `${hero} 的 ${id}`).toBe(true);
+    for (const [id, action] of Object.entries(RANGED_CARDS[source])) {
+      expect(pool.has(id), `${hero} 的 ${id}`).toBe(true);
+      expect(motionForCard({ source }, { uid: 1, cardId: id, upgraded: false }), `${hero} 的 ${id}`).toBe(action);
+    }
   });
 
   it('八套新圖各自接到規則指定的牌（招式家族、牌型、效果），吼、太極、輕功沒有被通用動作吃掉', async () => {
@@ -215,7 +219,9 @@ describe('每張打得出去的牌都選到有素材的動作', () => {
     // 吼：技能四張沿用獅吼功那套，攻擊牌獅吼功本身照舊
     expect(using('ninja', 'qiuqiu', 'roar')).toEqual(['boming', 'chudashi', 'shihou', 'weihe', 'youcike']);
     for (const [hero, source] of [['feifei', 'feifei'], ['fengfeng', 'fengfeng']] as const) {
-      expect(using(hero, source, 'roar'), hero).toEqual(['boming', 'chudashi', 'shihou', 'weihe', 'youcike']);
+      // 封封的毛球彈（2026-09-22 晚配動作）是張嘴一吐，借吼那一套
+      const extra = hero === 'fengfeng' ? ['maoqiudan'] : [];
+      expect(using(hero, source, 'roar'), hero).toEqual(['boming', 'chudashi', ...extra, 'shihou', 'weihe', 'youcike']);
       expect(using(hero, source, 'taiji'), hero).toEqual(taiji);
     }
     expect(using('feifei', 'feifei', 'roll')).toEqual(['diaohu', 'feifei_lakai', 'gaotui', 'yixing', 'zhanshu']);

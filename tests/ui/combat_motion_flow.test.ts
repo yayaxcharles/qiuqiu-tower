@@ -41,7 +41,7 @@ describe('combat motion confirmation and victory flow', () => {
     await execute(playMotion + sourceBetween('  function checkOver(): void', '  function phaseBurst(') + '\ncheckOver();', {
       cs, app: { cs, afterCombat() {} }, ended: false, session: { attach() {} },
       encounterById: { normal: { pool: 'normal' } }, my: () => players[1 - downSeat], mySeat: 1 - downSeat,
-      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {},
+      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
       motionActors: states, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
       motionSourceFor: () => 'dangdang', motionDuration: () => 500,
       qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => 500, heroOf: () => 'dangdang',
@@ -234,7 +234,7 @@ describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () =>
     await execute(playMotion + sourceBetween('  function checkOver(): void', '  function phaseBurst(') + '\ncheckOver();', {
       cs, app: { cs, afterCombat() {} }, ended: false, session: { attach() {} },
       encounterById: { normal: { pool: 'normal' } }, my: () => players[0], mySeat: 0,
-      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {},
+      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
       motionActors: states, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
       motionSourceFor: () => 'qiuqiu', motionDuration: () => 500, lastMotionEndAt,
       qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => 500, heroOf: () => 'ninja',
@@ -370,7 +370,7 @@ describe('勝利收尾只等勝利動作剩下的時間', () => {
     await execute(playMotion + sourceBetween('  function checkOver(): void', '  function phaseBurst(') + '\ncheckOver();', {
       cs, app, ended: false, session: { attach() {} },
       encounterById: { fight: { pool } }, my: () => players[0], mySeat: 0,
-      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {},
+      storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
       el: () => ({ remove() {} }), root: { append() {} },
       motionActors: states, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
       motionSourceFor: () => 'qiuqiu', motionDuration: () => WIN, lastMotionEndAt: options.lastMotionEndAt,

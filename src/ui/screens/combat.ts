@@ -27,19 +27,19 @@ import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
-import { heroSpeaker, toast } from '../dialogue';
+import { bubbleOverUnit, heroSpeaker, toast } from '../dialogue';
 import { clear, el, stageFrame } from '../dom';
 import { play as sfx } from '../audio';
-import { enemyLeft, nextLineup, playerLeft } from '../enemylayout';
+import { enemyLeft, nextLineup, playerLeft, speechBubbleAt } from '../enemylayout';
 import { burst } from '../fx';
 import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
-import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuCardMotionPlayable, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
+import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuPlayableAction, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
 import {
   companionCardAction,
-  companionCardMotionPlayable,
+  companionPlayableAction,
   companionImpactDelay,
   companionIsMelee,
   companionMotionDuration,
@@ -49,6 +49,7 @@ import {
   preloadCompanionMotion,
   type CompanionMotionAction,
 } from '../companion-motion';
+import { EAT_POTIONS, THROW_POTIONS, potionMotionAction } from '../potion-motion';
 import { motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
 import { playQiuqiuShuriken } from '../qiuqiu-shuriken';
 import { playFeifeiNeedles } from '../feifei-needles';
@@ -212,7 +213,7 @@ const SKILL_POSE: Readonly<Record<string, PoseKey>> = {
 };
 /** 吃喝姿勢：食物牌與吃喝忍具；卷軸、符咒仍保留各自姿勢。 */
 const EAT_CARDS: ReadonlySet<string> = new Set(['touchi', 'xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
-const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle', 'tuna', 'milk']);
+// 吃喝、丟出去的忍具清單搬到 potion-motion.ts（逐格動作那邊也要看同一份，2026-09-22 晚）
 /*
  * ===== 換角色（2026-09-12）=====
  * `POSE` 的值一律是**球球版**的鍵，那是「姿勢的身分證」——畫面到處拿它做相等比較。
@@ -247,9 +248,8 @@ function potionPose(hero: Hero, id: string): { pose?: string; attack?: boolean }
   if (EAT_POTIONS.has(id) && hasHeroSprite(hero, POSE.eat)) return { pose: POSE.eat };
   return hasHeroSprite(hero, POSE.skill) ? { pose: POSE.skill } : {};
 }
-/** 出手時該用擲手裡劍立繪的牌與忍具 */
+/** 出手時該用擲手裡劍立繪的牌（忍具那份在 potion-motion.ts） */
 const THROW_CARDS: ReadonlySet<string> = new Set(['sashoujian']);
-const THROW_POTIONS: ReadonlySet<string> = new Set(['shuriken', 'needle_rain']);
 // 塔主的姿勢對照表放在內容層（`enemies.ts`），跟招式定義擺在一起，加招時比較不會漏配。
 const BOSS_IDLE = BOSS_ART.idle1;          // 第一階段
 const BOSS_DEFEAT = BOSS_ART.defeat;       // 承讓
@@ -384,6 +384,16 @@ function matePose(p: PlayerCombat): string {
   return idlePoseKey(p, POSE, (k) => hasHeroSprite(p.hero, k));
 }
 
+/**
+ * 戰鬥台詞是哪一格在講（2026-09-22 晚，連線盤點問題 5）：回傳座位，泡泡就從那一格頭上冒；
+ * 回 undefined＝不是玩家在講（關主那一句），泡泡改從魔物頭上冒。原本一律從座位 0 頭上冒。
+ * `literal`＝搭檔專屬的整組台詞，名字就是本人（「噹噹」就是噹噹那一格）；其餘劇本寫的「球球」是本機這一位。
+ */
+function speakerSeat(speaker: string, literal: boolean, players: readonly PlayerCombat[], mySeat: number): number | undefined {
+  if (!literal) return speaker === '球球' ? mySeat : undefined;
+  return players.find((q) => heroName(q) === speaker)?.seat;
+}
+
 registerScreen('combat', (app, root, props) => {
   if (!app.run || !app.cs) { app.show('map'); return; }   // 沒有戰鬥可打就退回地圖，不要留一片白
   // 收斂成不可為 null 的區域常數：型別窄化不會跟著進到下面那一堆內部函式裡
@@ -432,6 +442,8 @@ registerScreen('combat', (app, root, props) => {
    * **只有加入的那一位看得到**，而且不報錯、不破圖，測試也照樣綠。
    */
   const MINE = `.unit.player[data-seat="${mySeat}"]`;
+  /** 本機這一位講話時泡泡擺哪：從自己那一格冒出來（2026-09-22 晚；原本寫死在座位 0 頭上） */
+  const mySpeech = (): ReturnType<typeof speechBubbleAt> => speechBubbleAt(mySeat, cs.players.length);
   const motionEnabled = qiuqiuMotionEnabled();
   type MotionActor = {
     element: HTMLCanvasElement;
@@ -765,13 +777,13 @@ registerScreen('combat', (app, root, props) => {
     const def = stats.def;
     // 2026-09-22：技能、能力牌照規則選動作（家族、牌型、這次實際的效果），原本球球 70 張、菲菲 28 張、封封 18 張
     // 選不到動作，出牌時動作畫布收起來、舊版靜態立繪亮 0.65 秒，畫風跳一下（盤點 docs/審查報告/缺動作的牌_2026-09-21.md）。
-    // 新補的出牌動作圖是延後下載的：還沒到（或壞了）就照舊回 undefined 交還靜態立繪，
+    // 新補的出牌動作圖是延後下載的：還沒到（或壞了）就先播預載好的替身（2026-09-22 晚，原本交還靜態立繪、露出舊畫風），
     // 不能讓畫布停在上一個動作的最後一格；圖到了下一張牌就用新動作（比照待機狀態的 drawable）。
     if (source === 'qiuqiu') {
       const action = qiuqiuCardAction(def.id, ATTACK_POSE[def.id] ?? SKILL_POSE[def.id], clawMotionIndex, card.upgraded,
         { type: def.type, effects: stats.effects });
       if (action?.startsWith('attack')) clawMotionIndex += 1;
-      return action && qiuqiuCardMotionPlayable(action) ? action : undefined;
+      return action ? qiuqiuPlayableAction(action) : undefined;
     }
     const action = companionCardAction(source, def.id, {
       poseFamily: ATTACK_POSE[def.id] ?? SKILL_POSE[def.id],
@@ -779,7 +791,14 @@ registerScreen('combat', (app, root, props) => {
       hasBlock: stats.effects.some((effect) => effect.kind === 'block' || effect.kind === 'blockIfPoisoned'),
       hasHeal: stats.effects.some((effect) => effect.kind === 'heal'),
     });
-    return action && companionCardMotionPlayable(source, action) ? action : undefined;
+    return action ? companionPlayableAction(source, action) : undefined;
+  };
+
+  /** 用忍具時演哪個逐格動作（2026-09-22 晚：原本只有吃的有，其餘忍具露出舊立繪 0.7 秒；規則在 potion-motion.ts） */
+  const motionForPotion = (q: PlayerCombat, id: string): CombatMotionAction | undefined => {
+    const source = motionEnabled ? motionSourceFor(q) : undefined;
+    const def = potionById[id];
+    return source && def ? potionMotionAction(source, def) : undefined;
   };
 
   const scheduleMotionImpact = (source: CombatMotionSource, action: CombatMotionAction, callback: () => void, elapsed = 0, approachMs = 0): void => {
@@ -954,9 +973,11 @@ registerScreen('combat', (app, root, props) => {
     const considering = mine ? undefined : mateHint.get(q.seat);
     const hintCard = considering === undefined ? undefined : q.hand.find((c) => c.uid === considering);
     const mp = mine ? undefined : matePlay.get(q.seat);
-    if (hintCard) {
+    // 分出勝負就不掛（2026-09-22 晚，連線盤點問題 8）：原本只有換回合才消失，打贏了還掛在他頭上。
+    // 條件也寫進 mateSig，勝負一分出來那一格就會換成沒有牌的新節點
+    if (hintCard && cs.phase === 'player') {
       node.append(el('div', { class: 'mate-play hint' }, cardNode(hintCard, { small: true, hero: heroOf(q), partnerHero: heroOf(my()) }), el('div', { class: 'hint-tag' }, '考慮中')));
-    } else if (mp && mp.turn === cs.turn) {
+    } else if (mp && mp.turn === cs.turn && cs.phase === 'player') {
       const fresh = matePlayShown.get(q.seat) !== mp.card.uid;   // 新的一張才播淡入；重畫同一張不動
       matePlayShown.set(q.seat, mp.card.uid);
       // 牌名與圖照**同伴**的角色：忍者那位的 hero 欄位刻意不寫，直接傳 q.hero 會退成本機角色（審查 中-3）
@@ -1011,7 +1032,7 @@ registerScreen('combat', (app, root, props) => {
    */
   const mateSig = (q: PlayerCombat): string => {
     const mp = matePlay.get(q.seat);
-    return [mateHint.get(q.seat) ?? '', mp && mp.turn === cs.turn ? mp.card.uid : '', q.qi ?? '', q.poisonNextAttack?.amount ?? ''].join('|');
+    return [mateHint.get(q.seat) ?? '', mp && mp.turn === cs.turn ? mp.card.uid : '', q.qi ?? '', q.poisonNextAttack?.amount ?? '', cs.phase].join('|');
   };
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
@@ -2254,9 +2275,7 @@ registerScreen('combat', (app, root, props) => {
    * 於是只有自己這台生效（對面不知道，回合結束對帳必定對不上），客戶端還會喝掉主機袋子裡的那瓶。
    */
   function drinkPotion(id: string, enemyUid: number | undefined): void {
-    const motion: CombatMotionAction | undefined = motionEnabled
-      && motionSourceFor(my()) && EAT_POTIONS.has(id)
-      ? 'eat' : undefined;
+    const motion = motionForPotion(my(), id);
     const motionToken = motion && session ? ++nextMotionPresentationToken : undefined;
     if (motion && motionToken !== undefined) {
       locallyPlayedMotion.record(localPotionMotionKey(mySeat, id), {
@@ -3168,7 +3187,8 @@ registerScreen('combat', (app, root, props) => {
     // 只有出招圖才輪換：最後一段打死最後一隻時 pose 已經是勝利圖，換成爪擊會把勝利圖蓋掉（稽核 2026-09-08 中-1）；
     // 計時器認序號，0.3 秒內連出兩張牌時舊的那組不會把新姿勢改掉（低-1）
     const mine = ++seq;
-    if (opts.attack && stagedMax > 1 && ATTACK_POSES.has(pose)) {
+    // 逐格動作正在演就不換（2026-09-22 晚）：換的是底下被蓋住的靜態立繪，白換；動作收掉後若待機交還靜態立繪，還會把舊出招圖翻出來
+    if (opts.attack && stagedMax > 1 && ATTACK_POSES.has(pose) && !motionActors.get(mySeat)?.active) {
       const alt = pose === POSE.claw ? POSE.attack : POSE.claw;
       if (hasHeroSprite(my().hero, alt) && hasHeroSprite(my().hero, pose)) {
         const first = heroArtUrl(my().hero, pose);
@@ -3194,7 +3214,7 @@ registerScreen('combat', (app, root, props) => {
     // 剛被召喚出來的：煙
     for (const e of cs.enemies) if (!before.enemies.has(e.uid) && !e.dead) { const n = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`); if (n) burst(n, 'smoke'); }
     // 伏兵是在敵方回合開頭冒出來的，那一拍還沒有人出手，所以不能放在上面那個「有人出招」的區塊裡（稽核 2026-09-04 高 3）
-    if (fresh.some((l) => l.startsWith('伏兵'))) toast(lineFor(my().hero, '有伏兵跳出來了喵！'), heroSpeaker());
+    if (fresh.some((l) => l.startsWith('伏兵'))) toast(lineFor(my().hero, '有伏兵跳出來了喵！'), heroSpeaker(), mySpeech());
     if (cat) {
       // 回血也飄數字：打倒巨型飯糰回 10 只有綠光、看起來像沒回（使用者 2026-09-05）
       if (comparedHp > before.hp) { cat.append(floatNum(`+${comparedHp - before.hp}`, 'heal')); burst(cat, 'heal'); sfx('heal'); }
@@ -3254,8 +3274,8 @@ registerScreen('combat', (app, root, props) => {
     }
 
     // 姿勢每回合照舊換；吐槽一場只講一次（總稽核 2026-09-16 丙 中-7：飯糰幾乎每回合都會用完，原本每回合冒一句）
-    if (hungry) { hungryTurn = cs.turn; if (!hungryTold) { hungryTold = true; toast(pick(storyFor(my().hero).hungry), heroSpeaker()); } }
-    if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(pick(storyFor(my().hero).lowHp), heroSpeaker()); }
+    if (hungry) { hungryTurn = cs.turn; if (!hungryTold) { hungryTold = true; toast(pick(storyFor(my().hero).hungry), heroSpeaker(), mySpeech()); } }
+    if (!lowHpTold && p.hp > 0 && p.hp < p.maxHp * 0.3) { lowHpTold = true; toast(pick(storyFor(my().hero).lowHp), heroSpeaker(), mySpeech()); }
 
     // 姿勢停留時間：一般 650 毫秒看得清楚，但蜷縮例外——它是「縮成一顆球」的靜態姿勢，
     // 沒有前撲、沒有閃紅，650 毫秒閃一下根本來不及看到牠縮起來，拉到 1200。
@@ -3322,7 +3342,7 @@ registerScreen('combat', (app, root, props) => {
     const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
     // 一般的打贏吐槽只給一般戰鬥：關主打完接的是收場對白，最終戰更是剛救回師父——
     // 抽到「這下知道厲害了喵」「有沒有掉小魚乾喵？」會整個出戲（總稽核 2026-09-16 丙 中-2）
-    if (cs.phase === 'won' && !bossWon) toast(pick(storyFor(my().hero).battleWin), heroSpeaker());
+    if (cs.phase === 'won' && !bossWon) toast(pick(storyFor(my().hero).battleWin), heroSpeaker(), mySpeech());
     if (bossWon) { const flash = el('div', { class: 'boss-flash' }); root.append(flash); window.setTimeout(() => flash.remove(), 900); }
     // 讓勝負的姿勢與吐槽站一下再交棒；app.cs 換人就表示這場已經被接手，不要再叫一次
     let victoryMotionStarted = false;
@@ -3400,10 +3420,20 @@ registerScreen('combat', (app, root, props) => {
     // 塔主講到主角的也要換（波斯大小姐「收拾他」，夜間稽核 中-3）
     const text = (l: { speaker: string; text: string }): string => (coop ? l.text
       : l.speaker === '球球' ? lineFor(my().hero, l.text) : castLineFor(my().hero, l.text));
+    /*
+     * 誰講的就從誰頭上冒（2026-09-22 晚，連線盤點問題 5）：原本一律從座位 0 頭上冒，
+     * 「塔主：走火入魔。」的尾巴指著左邊的貓。關主那句改從牠頭上冒（跟開場台詞同一套、避開頭上的意圖牌），
+     * 找不到牠的立繪才退回原本的位置。
+     */
+    const speak = (l: { speaker: string; text: string }): void => {
+      const seat = speakerSeat(l.speaker, !!coop, cs.players, mySeat);
+      if (seat !== undefined) { toast(text(l), name(l.speaker), speechBubbleAt(seat, cs.players.length)); return; }
+      if (!bubbleOverUnit(app.stage, root.querySelector(`.unit.enemy[data-id="${bossId}"]`), text(l), name(l.speaker))) toast(text(l), name(l.speaker));
+    };
     // 潤飾版有三句的組（狸大人）：整串照 1.4 秒一句輪播，跟原本兩句的節奏一致
     lines.forEach((l, i) => {
-      if (i === 0) { toast(text(l), name(l.speaker)); return; }
-      window.setTimeout(() => { if (app.cs === cs) toast(text(l), name(l.speaker)); }, 1400 * i);
+      if (i === 0) { speak(l); return; }
+      window.setTimeout(() => { if (app.cs === cs) speak(l); }, 1400 * i);
     });
   }
 
@@ -3678,9 +3708,10 @@ registerScreen('combat', (app, root, props) => {
             let attack = false;
             let trip = localMotion?.trip;
 
-            if (!action && frame.a.t === 'potion' && frame.player
-              && motionSourceFor(frame.player) && EAT_POTIONS.has(frame.a.id)) {
-              action = 'eat';
+            if (frame.a.t === 'potion' && frame.player) {
+              // 丟出去的忍具跟本機那條一樣算出手（`potionPose` 的 attack）：傷害才會排到打中的那一拍
+              attack = !!potionPose(heroOf(frame.player), frame.a.id).attack;
+              action ??= motionForPotion(frame.player, frame.a.id);
             }
             if (frame.a.t === 'card' && frame.card && frame.player) {
               attack = cardStats(frame.card).def.type === '攻擊';
@@ -3782,8 +3813,9 @@ registerScreen('combat', (app, root, props) => {
             ownImpactMotion = localMotion.action;
             ownImpactPresentationToken = localMotion.token;
             ownImpactElapsed = Date.now() - localMotion.at;
-          } else if (a.seat !== mySeat && q && motionSourceFor(q) && EAT_POTIONS.has(a.id)) {
-            incomingMotion = { seat: a.seat, action: 'eat', attack: false };
+          } else if (a.seat !== mySeat && q) {
+            const action = motionForPotion(q, a.id);
+            if (action) incomingMotion = { seat: a.seat, action, attack: !!potionPose(heroOf(q), a.id).attack };
           }
           continue;
         }

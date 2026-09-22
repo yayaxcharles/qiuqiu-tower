@@ -1,7 +1,7 @@
 import { castLineFor, lineFor } from '../content/dialogue';
 import type { DialogueLine } from '../content/dialogue';
 import { artUrl, hasHeroSprite, heroArtUrl, localHero, localPartner, monsterUrl } from './assets';
-import { el } from './dom';
+import { el, stageFrame } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 
@@ -183,14 +183,22 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
  * 掛在指定位置的對話泡泡（舞台座標）：魔物開場那句「塔主有令，閒貓勿入」本來只寫在左上角的紀錄裡，
  * 使用者 2026-09-02：「非常好但左上角不顯眼」→ 改成從魔物頭上冒出來。尾巴在右下角指向頭。
  */
-export function bubbleAt(text: string, speaker: string, headX: number, headY: number): void {
+export function bubbleAt(text: string, speaker: string, headX: number, headY: number, avoid?: StageRect): void {
   if (!text) return;
   const layer = overlayRoot();
   if (!layer) return;
-  let top = Math.round(headY - 74);
+  const TOP_MIN = 62;   // 再上去就壓到狀態列
+  // 特別高的立繪（師父）頭頂離狀態列不到 74 像素，照算會壓在狀態列上：先壓到狀態列下緣，蓋到意圖牌再交給下面挪開（2026-09-22 晚）
+  let top = Math.max(TOP_MIN, Math.round(headY - 74));
   const t = el('div', { class: 'toast bubble-at tail-right', style: `right:${Math.round(1280 - headX - 34)}px; top:${top}px` },
     speaker ? el('b', {}, `${speaker}：`) : '', text);
   layer.append(t);
+  // 高大魔物頭上的意圖牌正好在泡泡該在的地方（畫面盤點 2026-09-22 低-13）：蓋到就挪開（挪法見 bubbleClearOf）
+  const clear = bubbleClearOf({ left: t.offsetLeft, top: t.offsetTop, right: t.offsetLeft + t.offsetWidth, bottom: t.offsetTop + t.offsetHeight }, avoid, TOP_MIN);
+  if (clear) {
+    top = clear.top; t.style.top = `${top}px`;
+    if (clear.right !== undefined) t.style.right = `${clear.right}px`;
+  }
   // 兩隻怪一起出場講話，泡泡會疊在一起把前一句蓋掉（2026-09-02 烏天狗＋貓頭鷹那組）：
   // 撞到還在畫面上的泡泡就往上疊一層；上面沒位子了就先收起來，等前一顆消失再冒出來。
   // 用 offset 框比（不含冒出來的位移動畫），單位就是疊層自己的 1280 座標，不用換算縮放。
@@ -200,14 +208,54 @@ export function bubbleAt(text: string, speaker: string, headX: number, headY: nu
     const [l, tp, r, b] = box(t);
     return others.some((o) => { const [ql, qt, qr, qb] = box(o); return l < qr - 2 && r > ql + 2 && tp < qb - 2 && b > qt + 2; });
   };
-  const TOP_MIN = 62;   // 再上去就壓到狀態列
   for (let i = 0; i < 4 && hits(); i++) {
     const h = t.offsetHeight + 8;
-    if (top - h < TOP_MIN) { t.remove(); window.setTimeout(() => bubbleAt(text, speaker, headX, headY), 1200); return; }
+    if (top - h < TOP_MIN) { t.remove(); window.setTimeout(() => bubbleAt(text, speaker, headX, headY, avoid), 1200); return; }
     top -= h; t.style.top = `${top}px`;
   }
   setTimeout(() => t.classList.add('out'), 3300);   // 一句台詞要讀完，留久一點
   setTimeout(() => t.remove(), 3800);
+}
+
+/** 舞台座標（1280 × 720）的一個框 */
+export interface StageRect { left: number; top: number; right: number; bottom: number }
+
+/** 泡泡底下那根尾巴的長度（combat.css 的 `.toast::before`，往下凸 14 像素） */
+const BUBBLE_TAIL = 14;
+
+/**
+ * 魔物頭上的泡泡蓋到 `avoid`（牠頭上的意圖牌，連尾巴算）時該挪到哪；沒蓋到回 undefined。
+ * - 上面還有位子（不頂到狀態列 `minTop`）：整顆往上挪到牌子上方，尾巴尖離牌子 4 像素；
+ * - 沒位子（高大魔物，牌子離狀態列只剩四五十像素）：挪到牌子左邊、牌子底下那一條（牠頭的左側），
+ *   尾巴仍在右下角朝著牠。留在上面那一條往左挪的話，會蓋到同一時間貓開場那句（兩句都貼著狀態列下緣）。
+ * `top`＝新的上緣；`right`＝新的 CSS `right`（沒給就不動）。
+ */
+export function bubbleClearOf(bubble: StageRect, avoid: StageRect | undefined, minTop: number): { top: number; right?: number } | undefined {
+  if (!avoid) return undefined;
+  const overlaps = bubble.left < avoid.right && bubble.right > avoid.left
+    && bubble.top < avoid.bottom && bubble.bottom + BUBBLE_TAIL > avoid.top;
+  if (!overlaps) return undefined;
+  const up = Math.floor(avoid.top - 4 - BUBBLE_TAIL - (bubble.bottom - bubble.top));
+  if (up >= minTop) return { top: up };
+  return { top: Math.round(avoid.bottom + 6), right: Math.round(1280 - avoid.left + 8) };
+}
+
+/**
+ * 從戰場上某一隻魔物頭上冒泡泡（開場台詞、關主換階段台詞共用）：量立繪上緣定位，避開牠頭上的意圖牌。
+ * 框在**要用的那一刻**才量（泡泡可能晚一兩秒才冒，中途改視窗大小的話先量好的倍率就對不上了）。
+ */
+export function bubbleOverUnit(stage: Element, unit: Element | null, text: string, speaker: string): boolean {
+  const sprite = unit?.querySelector('.sprite');
+  if (!unit || !sprite) return false;
+  const frame = stageFrame(stage);
+  const toStage = (r: DOMRect): StageRect => ({
+    left: (r.left - frame.left) * frame.k, top: (r.top - frame.top) * frame.k,
+    right: (r.right - frame.left) * frame.k, bottom: (r.bottom - frame.top) * frame.k,
+  });
+  const body = toStage(sprite.getBoundingClientRect());
+  const intent = unit.querySelector('.intent');
+  bubbleAt(text, speaker, (body.left + body.right) / 2, body.top + 16, intent ? toStage(intent.getBoundingClientRect()) : undefined);
+  return true;
 }
 
 /**
@@ -229,11 +277,15 @@ export function notice(text: string): void {
 }
 
 /** 戰鬥吐槽小氣泡，兩秒後自己淡掉 */
-export function toast(text: string, speaker = ''): void {
+export function toast(text: string, speaker = '', at?: { left: number } | { right: number }): void {
   if (!text) return;
   const layer = overlayRoot();
   if (!layer) return;
   const t = el('div', { class: 'toast' }, speaker ? el('b', {}, `${speaker}：`) : '', text);
+  // 戰鬥裡的泡泡要從說話那一格冒出來（連線盤點 2026-09-22 問題 5）：樣式表寫死的 left 200 只對得上單機那一格。
+  // 給 right 的是右邊那一格：尾巴改到右下角、泡泡往左長（位置算法在 enemylayout.ts 的 speechBubbleAt）
+  if (at && 'left' in at) t.style.left = `${Math.round(at.left)}px`;
+  if (at && 'right' in at) { t.style.left = 'auto'; t.style.right = `${Math.round(at.right)}px`; t.classList.add('tail-right'); }
   // 畫面上最多同時兩句（樣式表只排得出兩格，`.toast ~ .toast`）：第三句進來就先收掉最舊的那句（魔物頭上的 `bubbleAt` 自己會避讓，不算在內）。
   // 長句留得比較久之後，關主換階段三句連播會第二、三句擠同一格疊在一起（實機複驗 2026-09-16 低-1）
   const showing = [...layer.querySelectorAll<HTMLElement>('.toast:not(.out):not(.bubble-at)')];

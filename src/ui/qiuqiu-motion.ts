@@ -101,6 +101,10 @@ const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
   beici: 'dash',
   zhuiji: 'dash',
   sashoujian: 'shuriken',
+  // 2026-09-22 晚：原本刻意只演卡圖、不配動作（葉片飛刃、丟出去的毛球），出牌時露出舊立繪。
+  // 兩張都是丟出去的暗器，跟撒手鐧、手裏劍亂舞同一套：原地擲出，手裏劍飛過去
+  juye: 'shuriken',
+  maoqiudan: 'shuriken',
   dieda: 'attack1',
   shibadie: 'palm_combo',
   bengquan: 'uppercut',
@@ -130,8 +134,6 @@ const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
   jiuming: 'eat',
   fanpu: 'eat',
 };
-
-const STATIC_ATTACK_CARDS = new Set(['juye', 'maoqiudan']);
 
 // 原速（動作素材本身）的命中時點，載入時換成 1.5 倍速後的時間
 const SOURCE_IMPACT_TIMES: Partial<Record<QiuqiuAction, readonly number[]>> = {
@@ -230,7 +232,6 @@ export function qiuqiuCardAction(
   card?: QiuqiuCardInfo,
 ): QiuqiuAction | null {
   if (cardId === 'luanwu') return upgraded ? 'ultimate_storm' : 'shuriken';
-  if (STATIC_ATTACK_CARDS.has(cardId)) return null;
   const mapped = CARD_ACTIONS[cardId];
   if (mapped) return mapped;
   if (poseFamily === 'claw') {
@@ -352,11 +353,23 @@ export function qiuqiuMotionDrawable(action: QiuqiuAction): boolean {
 
 /**
  * 出牌時這個動作能不能播。延後下載的出牌動作圖還沒到（或壞了）就回 false，
- * 戰鬥畫面退回「選不到動作」的舊行為（靜態立繪），不能停在上一個動作的最後一格；圖到了下一張牌就用新動作。
+ * 戰鬥畫面改播 `qiuqiuPlayableAction` 的替身，不能停在上一個動作的最後一格；圖到了下一張牌就用新動作。
  * 其他動作（預載的、組合動作）照舊一律可播。
  */
 export function qiuqiuCardMotionPlayable(action: QiuqiuAction): boolean {
   return !DEFERRED_QIUQIU_CARD_ACTIONS.has(action) || qiuqiuFrameMotions.drawable(action);
+}
+
+/**
+ * 延後下載的出牌動作圖還沒到時，先用哪個預載好的動作頂著（2026-09-22 晚）。
+ * 原本這時交還靜態立繪，第一場戰鬥網路慢一點就會露出舊畫風；替身都是預載的，不會停在上一個動作的最後一格。
+ * 輕功用翻滾不用 `jump`：跳躍那套停在半空，接回待機會一下子掉回地上。
+ */
+const DEFERRED_CARD_STAND_IN: Readonly<Record<string, QiuqiuAction>> = { taiji: 'seal', qinggong: 'roll', focus: 'seal', scroll: 'seal' };
+
+/** 出牌、用忍具時實際要播的動作：播得了就是它，延後下載的圖還沒到就換成替身。 */
+export function qiuqiuPlayableAction(action: QiuqiuAction): QiuqiuAction {
+  return qiuqiuCardMotionPlayable(action) ? action : DEFERRED_CARD_STAND_IN[action] ?? 'seal';
 }
 
 export function qiuqiuMotionReady(): boolean {

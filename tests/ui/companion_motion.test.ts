@@ -167,10 +167,11 @@ describe('菲菲卡牌與命中節奏', () => {
     ]);
   });
 
-  it('尚缺專屬投射物的毒丸、毒砂與絆索不會誤播拳腳', () => {
-    expect(companionCardAction('feifei', 'maoqiudan', { poseFamily: 'claw', cardType: '攻擊' })).toBeUndefined();
-    expect(companionCardAction('feifei', 'tieshazhang', { cardType: '攻擊' })).toBeUndefined();
-    expect(companionCardAction('feifei', 'qinna', { poseFamily: 'punch', cardType: '攻擊' })).toBeUndefined();
+  // 2026-09-22 晚使用者裁定：原本刻意只演卡圖（出牌那一下露出舊立繪），改成配最像的出手——仍是丟出去的，不播拳腳
+  it('毒丸、毒砂與絆索配丟針的出手，不誤播拳腳', () => {
+    expect(companionCardAction('feifei', 'maoqiudan', { poseFamily: 'claw', cardType: '攻擊' })).toBe('shuriken');
+    expect(companionCardAction('feifei', 'tieshazhang', { cardType: '攻擊' })).toBe('needle_fan');
+    expect(companionCardAction('feifei', 'qinna', { poseFamily: 'punch', cardType: '攻擊' })).toBe('needle_backhand');
   });
 
   it('其餘共用卡只按爪擊種類接近，非針術攻擊保留既有演出', () => {
@@ -247,7 +248,11 @@ describe('噹噹卡牌與命中節奏', () => {
     expect(companionCardAction('dangdang', 'dangdang_huima')).toBe('counter');
     expect(companionCardAction('dangdang', 'huixuan')).toBe('kick');
     expect(companionCardAction('dangdang', 'slime_card')).toBeUndefined();
-    expect(companionCardAction('dangdang', 'future_unknown_card', { cardType: '攻擊' })).toBeUndefined();
+    // 2026-09-22 晚：沒逐張列到的牌照規則配（打得出去的戰鬥雜牌、以後新加的牌），不再退回靜態立繪
+    expect(companionCardAction('dangdang', 'slime_card', { cardType: '技能' })).toBe('focus');
+    expect(companionCardAction('dangdang', 'future_unknown_card', { cardType: '攻擊' })).toBe('palm');
+    expect(companionCardAction('dangdang', 'sanjo', { poseFamily: 'claw', cardType: '攻擊' })).toBe('palm');
+    expect(companionCardAction('dangdang', 'zhongji', { cardType: '技能' })).toBeUndefined();
   });
 
   it('多段拳掌、重掌、掃腿與捨身撞使用新整身動作', () => {
@@ -328,9 +333,10 @@ describe('封封卡牌、近戰與收劍節奏', () => {
     expect(companionCardAction('fengfeng', 'fengfeng_pozhen')).toBe('qi_cleave');
     expect(companionCardAction('fengfeng', 'fengfeng_kaishan')).toBe('earth_split');
     expect(companionCardAction('fengfeng', 'fengfeng_huibu')).toBe('retreat_thrust');
-    expect(companionCardAction('fengfeng', 'luanwu', { cardType: '攻擊' })).toBeUndefined();
-    expect(companionCardAction('fengfeng', 'maoqiudan', { cardType: '攻擊' })).toBeUndefined();
-    expect(companionCardAction('fengfeng', 'sashoujian', { cardType: '攻擊' })).toBeUndefined();
+    // 2026-09-22 晚：三張遠程暗器牌不再只演卡圖，配最像的出手（亂舞橫掃、撒手鐧原地開山、毛球彈張嘴一吐）
+    expect(companionCardAction('fengfeng', 'luanwu', { cardType: '攻擊' })).toBe('sweep');
+    expect(companionCardAction('fengfeng', 'maoqiudan', { cardType: '攻擊' })).toBe('roar');
+    expect(companionCardAction('fengfeng', 'sashoujian', { cardType: '攻擊' })).toBe('earth_split');
   });
 
   it('五種劍擊與菲菲爪踢貼近目標，技能、飛針與震地保持原位', () => {

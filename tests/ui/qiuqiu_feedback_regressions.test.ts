@@ -3,6 +3,7 @@ import { transformWithOxc } from 'vite';
 import SRC from '../../src/ui/screens/combat.ts?raw';
 import { cardById } from '../../src/content/cards';
 import { companionCardAction } from '../../src/ui/companion-motion';
+import { EAT_POTIONS } from '../../src/ui/potion-motion';
 import { qiuqiuShouldPlayHurt } from '../../src/ui/qiuqiu-combat-motion';
 
 function branch(start: string, end: string): string {
@@ -21,7 +22,7 @@ async function execute(source: string, bindings: Record<string, unknown>): Promi
 describe('食物與特殊招式不被通用施術蓋掉', () => {
   it.each([false, true])('偷吃術升級為 %s 時，靜態備援也保持吃飯姿勢', async (upgraded) => {
     const def = cardById.touchi!;
-    const code = branch('const EAT_CARDS:', 'const EAT_POTIONS:')
+    const code = branch('const EAT_CARDS:', '// 吃喝、丟出去的忍具清單')
       + branch('function cardPose(', '/** 用忍具時球球')
       + '\nreturn cardPose("ninja", def, effects);';
     const pose = await execute(code, {
@@ -33,12 +34,12 @@ describe('食物與特殊招式不被通用施術蓋掉', () => {
   });
 
   it.each(['ninja', 'feifei', 'dangdang', 'fengfeng'])('%s 的食物忍具都使用吃喝動作', async (hero) => {
-    const code = branch('const EAT_POTIONS:', '/*')
-      + branch('function potionPose(', '/** 出手時該用')
+    // 吃喝忍具清單 2026-09-22 晚搬到 potion-motion.ts（逐格動作那邊共用同一份）
+    const code = branch('function potionPose(', '/** 出手時該用')
       + '\nreturn ids.map(id => potionPose(hero, id));';
     const result = await execute(code, {
       hero, ids: ['onigiri', 'catgrass_tea', 'dried_fish_bundle', 'tuna', 'milk'],
-      THROW_POTIONS: new Set(), POSE: { eat: 'eat', skill: 'spell' }, hasHeroSprite: () => true,
+      EAT_POTIONS, THROW_POTIONS: new Set(), POSE: { eat: 'eat', skill: 'spell' }, hasHeroSprite: () => true,
     });
     expect(result).toEqual(Array.from({ length: 5 }, () => ({ pose: 'eat' })));
   });
@@ -57,12 +58,12 @@ describe('食物與特殊招式不被通用施術蓋掉', () => {
       hero, cards, motionEnabled: true, motionSourceFor: () => hero, ATTACK_POSE: { shihou: 'roar', jiedao: 'taiji' },
       cardStats: (card: { cardId: string }) => ({ def: cardById[card.cardId], effects: cardById[card.cardId]!.effects }),
       companionCardAction,
-      // 新補的吼、太極是延後下載的：圖還沒到時交還靜態立繪（其餘預載的動作照播）
-      companionCardMotionPlayable: (_kind: string, action: string) => playable || !['roar', 'taiji'].includes(action),
+      // 新補的吼、太極是延後下載的：圖還沒到時先播預載的替身（2026-09-22 晚起，原本交還靜態立繪），其餘預載的動作照播
+      companionPlayableAction: (_kind: string, action: string) => (playable || !['roar', 'taiji'].includes(action) ? action : `替身:${action}`),
     });
     expect(await execute(code, bindings(true))).toEqual(expected);
     expect(await execute(code, bindings(false))).toEqual(expected.map((action) => (
-      action === 'roar' || action === 'taiji' ? undefined : action)));
+      action === 'roar' || action === 'taiji' ? `替身:${action}` : action)));
   });
 
   it.each(['qiuqiu', 'feifei', 'dangdang', 'fengfeng'])('%s 自己施展回血招式不再被吃飯反應覆蓋', async (hero) => {

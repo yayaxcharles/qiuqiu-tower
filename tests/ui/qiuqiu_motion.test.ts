@@ -343,7 +343,8 @@ describe('球球完整動作合約', () => {
       ruying: 'clone_duo',
       tieshazhang: 'attack3',
       qinna: 'attack3',
-      juye: null,
+      // 2026-09-22 晚：遠程暗器兩張不再只演卡圖（出牌會露出舊立繪），跟撒手鐧同一套原地擲出
+      juye: 'shuriken',
       tietou: 'body_bash',
       shihou: 'roar',
       dianxue: 'attack1',
@@ -366,7 +367,7 @@ describe('球球完整動作合約', () => {
       lianhuan: 'combo_kick',
       beici: 'dash',
       zhuiji: 'dash',
-      maoqiudan: null,
+      maoqiudan: 'shuriken',
       bengquan: 'uppercut',
       ehou: 'attack1',
       jiuweiquan: 'uppercut',
@@ -380,8 +381,8 @@ describe('球球完整動作合約', () => {
       const poseFamily = cardId === 'sanjo' || cardId === 'juye' || cardId === 'maoqiudan' ? 'claw' : undefined;
       expect(qiuqiuCardAction(cardId, poseFamily, 0), cardId).toBe(action);
     }
-    expect(qiuqiuCardAction('juye', 'claw', 2)).toBeNull();
-    expect(qiuqiuCardAction('maoqiudan', 'claw', 2)).toBeNull();
+    expect(qiuqiuCardAction('juye', 'claw', 2)).toBe('shuriken');
+    expect(qiuqiuCardAction('maoqiudan', 'claw', 2)).toBe('shuriken');
 
     const expectedSkills: Record<string, QiuqiuAction> = {
       kawarimi: 'seal',
