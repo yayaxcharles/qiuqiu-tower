@@ -611,8 +611,10 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     const next = enemyById[e.enemyId]?.phases?.[e.phase];
     if (next?.hpBar) {
       e.phase += 1;
-      e.hp = next.hpBar;
-      e.maxHp = next.hpBar;
+      // 下一條血照這場的血量倍率放大（連線、難度），跟第一條血同一套（makeEnemy）。
+      // 以前直接寫表上的數字：兩人連線時第一條是三倍、後兩條還是單人的量（2026-09-22 平衡量測發現，使用者拍板修）
+      e.hp = Math.max(1, Math.round(next.hpBar * (cs.mods?.hpMul ?? 1)));
+      e.maxHp = e.hp;
       e.block = 0;
       e.invulnIn = 1;
       /*
