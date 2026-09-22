@@ -1,5 +1,5 @@
 {
-  "note": "批次 screens（2026-09-22）：選角、結算、過關、特殊獎勵、標題的主角立繪換新畫風。由 tools/pack_screen_art.py 產生，數字的意思見該檔檔頭。",
+  "note": "批次 screens（2026-09-22）：選角、結算、過關、特殊獎勵、標題的主角立繪換新畫風。由 tools/pack_screen_art.py 產生，數字的意思見該檔檔頭。 四張 cover 由批次 proj（tools/gen_cover_art.py）重做：貓放大到舊貼圖的大小、煙塵補到題字底線下。",
   "unit": 2.0741,
   "headTolerance": 0.06,
   "haloMax": 0.3,
@@ -235,31 +235,25 @@
       "oldBytes": 24532
     },
     "qiuqiu/cover": {
-      "attempt": 1,
-      "source": "qiuqiu_cover.try1.png",
-      "sourceSize": [
-        1254,
-        1254
-      ],
-      "mainBody": 0.98,
-      "headRaw": {
-        "scale": 1.18,
-        "corr": 0.829,
-        "angle": 0,
-        "flipCorr": 0.817
+      "attempt": {
+        "cat": 1,
+        "dust": 3
       },
-      "sizeFix": 1.0,
+      "source": {
+        "cat": "qiuqiu_cat.try1.png",
+        "dust": "qiuqiu_dust.try3.png"
+      },
       "sizeBy": "eye",
-      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準（下午那批同樣是人眼）；貓與煙塵分開生，貓外框高度照舊貼圖量到的貓外框放大（球球 359、菲菲 389、噹噹 402、封封 400 像素），四隻並排看過：頭身比跟新版待機第 1 格一致，頭的大小跟舊貼圖相近、四隻彼此一致",
       "pxPerUnit": 1.3273,
       "canvas": [
         560,
         560
       ],
       "box": [
-        25,
-        194,
-        541,
+        24,
+        172,
+        542,
         533
       ],
       "oldBox": [
@@ -271,9 +265,31 @@
       "soleLine": 533,
       "key": "hero/cover",
       "file": "public/assets/sprites/hero/cover.webp",
-      "sha256": "07e7b0d82ddb2501b00933cbbf779a75efd806b707bc268b984415b436bb49b2",
-      "bytes": 57356,
-      "oldBytes": 55920
+      "sha256": "02981062ddabdeb16b02af583cf42298c15176aea09ba2006b939cc6022c7cf0",
+      "bytes": 59108,
+      "oldBytes": 55920,
+      "batch": "proj",
+      "catBox": [
+        143,
+        172,
+        490,
+        531
+      ],
+      "oldCatBox": [
+        141,
+        172,
+        492,
+        531
+      ],
+      "dustBox": [
+        24,
+        184,
+        542,
+        533
+      ],
+      "gapToTitle": -6,
+      "bodyGap": -18,
+      "oldBodyGap": -24
     },
     "feifei/idle": {
       "attempt": 1,
@@ -513,31 +529,25 @@
       "oldBytes": 29330
     },
     "feifei/cover": {
-      "attempt": 1,
-      "source": "feifei_cover.try1.png",
-      "sourceSize": [
-        1254,
-        1254
-      ],
-      "mainBody": 0.978,
-      "headRaw": {
-        "scale": 0.91,
-        "corr": 0.895,
-        "angle": 0,
-        "flipCorr": 0.84
+      "attempt": {
+        "cat": 1,
+        "dust": 3
       },
-      "sizeFix": 1.0,
+      "source": {
+        "cat": "feifei_cat.try1.png",
+        "dust": "feifei_dust.try3.png"
+      },
       "sizeBy": "eye",
-      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準（下午那批同樣是人眼）；貓與煙塵分開生，貓外框高度照舊貼圖量到的貓外框放大（球球 359、菲菲 389、噹噹 402、封封 400 像素），四隻並排看過：頭身比跟新版待機第 1 格一致，頭的大小跟舊貼圖相近、四隻彼此一致",
       "pxPerUnit": 1.3333,
       "canvas": [
         560,
         560
       ],
       "box": [
-        24,
-        198,
-        536,
+        2,
+        145,
+        558,
         536
       ],
       "oldBox": [
@@ -549,9 +559,31 @@
       "soleLine": 536,
       "key": "hero/feifei_cover",
       "file": "public/assets/sprites/hero/feifei_cover.webp",
-      "sha256": "7bf2b5a648dba93d04e4baac9573a64e58bad862a1c447a3e438f42ba9cba337",
-      "bytes": 59760,
-      "oldBytes": 55586
+      "sha256": "860bf90005496c599a5fb10715726368e38f72888d98ddb6610558c981c1a30e",
+      "bytes": 67498,
+      "oldBytes": 55586,
+      "batch": "proj",
+      "catBox": [
+        125,
+        145,
+        404,
+        534
+      ],
+      "oldCatBox": [
+        129,
+        145,
+        400,
+        534
+      ],
+      "dustBox": [
+        2,
+        159,
+        558,
+        536
+      ],
+      "gapToTitle": 7,
+      "bodyGap": -7,
+      "oldBodyGap": -14
     },
     "dangdang/idle": {
       "attempt": 1,
@@ -779,31 +811,25 @@
       "oldBytes": 26902
     },
     "dangdang/cover": {
-      "attempt": 1,
-      "source": "dangdang_cover.try1.png",
-      "sourceSize": [
-        1254,
-        1254
-      ],
-      "mainBody": 0.984,
-      "headRaw": {
-        "scale": 0.66,
-        "corr": 0.811,
-        "angle": 19,
-        "flipCorr": 0.797
+      "attempt": {
+        "cat": 1,
+        "dust": 3
       },
-      "sizeFix": 1.0,
+      "source": {
+        "cat": "dangdang_cat.try1.png",
+        "dust": "dangdang_dust.try3.png"
+      },
       "sizeBy": "eye",
-      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準（下午那批同樣是人眼）；貓與煙塵分開生，貓外框高度照舊貼圖量到的貓外框放大（球球 359、菲菲 389、噹噹 402、封封 400 像素），四隻並排看過：頭身比跟新版待機第 1 格一致，頭的大小跟舊貼圖相近、四隻彼此一致",
       "pxPerUnit": 1.3333,
       "canvas": [
         560,
         560
       ],
       "box": [
-        25,
-        174,
-        535,
+        32,
+        131,
+        528,
         536
       ],
       "oldBox": [
@@ -815,9 +841,31 @@
       "soleLine": 536,
       "key": "hero/dangdang_cover",
       "file": "public/assets/sprites/hero/dangdang_cover.webp",
-      "sha256": "74abf86a3fa1565220bb7872954e98dbd5a08ae1140467b1fea4aafe5fd2aabd",
-      "bytes": 62040,
-      "oldBytes": 56088
+      "sha256": "1210ec9b0ed84e9398fb0a93ec2cf7f655f1723894c68bac2c8117d28598396f",
+      "bytes": 63776,
+      "oldBytes": 56088,
+      "batch": "proj",
+      "catBox": [
+        96,
+        131,
+        442,
+        533
+      ],
+      "oldCatBox": [
+        95,
+        131,
+        442,
+        533
+      ],
+      "dustBox": [
+        32,
+        166,
+        528,
+        536
+      ],
+      "gapToTitle": 6,
+      "bodyGap": -29,
+      "oldBodyGap": -30
     },
     "fengfeng/idle": {
       "attempt": 1,
@@ -1056,31 +1104,25 @@
       "oldBytes": 162656
     },
     "fengfeng/cover": {
-      "attempt": 1,
-      "source": "fengfeng_cover.try1.png",
-      "sourceSize": [
-        1254,
-        1254
-      ],
-      "mainBody": 0.962,
-      "headRaw": {
-        "scale": 0.76,
-        "corr": 0.879,
-        "angle": 30,
-        "flipCorr": 0.878
+      "attempt": {
+        "cat": 1,
+        "dust": 3
       },
-      "sizeFix": 1.0,
+      "source": {
+        "cat": "fengfeng_cat.try1.png",
+        "dust": "fengfeng_dust.try3.png"
+      },
       "sizeBy": "eye",
-      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準（下午那批同樣是人眼）；貓與煙塵分開生，貓外框高度照舊貼圖量到的貓外框放大（球球 359、菲菲 389、噹噹 402、封封 400 像素），四隻並排看過：頭身比跟新版待機第 1 格一致，頭的大小跟舊貼圖相近、四隻彼此一致",
       "pxPerUnit": 1.3333,
       "canvas": [
         560,
         560
       ],
       "box": [
-        16,
-        168,
-        548,
+        19,
+        131,
+        545,
         531
       ],
       "oldBox": [
@@ -1092,9 +1134,31 @@
       "soleLine": 531,
       "key": "hero/fengfeng_cover",
       "file": "public/assets/sprites/hero/fengfeng_cover.webp",
-      "sha256": "e52a1cad563dab43779ac67cddc7718eb4c0d6f3d24e339a27f148c404609446",
-      "bytes": 66540,
-      "oldBytes": 223140
+      "sha256": "b9753a4599a2ccf7c97737f3648f05d2ec7409dddc39315e3bd05e29e322adb6",
+      "bytes": 68156,
+      "oldBytes": 223140,
+      "batch": "proj",
+      "catBox": [
+        102,
+        131,
+        431,
+        531
+      ],
+      "oldCatBox": [
+        118,
+        133,
+        415,
+        533
+      ],
+      "dustBox": [
+        19,
+        184,
+        545,
+        531
+      ],
+      "gapToTitle": 34,
+      "bodyGap": -19,
+      "oldBodyGap": -34
     }
   }
 }
