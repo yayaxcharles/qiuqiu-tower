@@ -25,8 +25,6 @@ describe('封封角色與 32 張牌資料', () => {
     expect(startRelicFor('fengfeng')).toBe('old_sword_tassel');
     expect(relicById['old_sword_tassel']).toMatchObject({ name: '舊劍穗', pool: '起始' });
     expect(relicById['old_sword_tassel']!.hooks.combatStart).toEqual([{ kind: 'gainQi', n: 2 }]);
-    // 2026-09-22 平衡調整：多一條每回合開始 1 點蓄氣（開場那 2 點照留）
-    expect(relicById['old_sword_tassel']!.hooks.turnStart).toEqual([{ kind: 'gainQi', n: 1 }]);
   });
 
   it('只有 32 張封封專屬牌，圖鍵與取得條件一致', () => {

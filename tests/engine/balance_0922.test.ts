@@ -47,18 +47,22 @@ describe('封封：吐納 1 費 → 0 費', () => {
   });
 });
 
-describe('封封：舊劍穗多給每回合 1 點蓄氣', () => {
-  it('開場 2 點照留、之後每回合開始再 1 點（第一回合兩條都發＝3）', () => {
-    expect(relicById['old_sword_tassel']!.hooks.combatStart).toEqual([{ kind: 'gainQi', n: 2 }]);
-    expect(relicById['old_sword_tassel']!.hooks.turnStart).toEqual([{ kind: 'gainQi', n: 1 }]);
+/*
+ * 舊劍穗試過多給「每回合開始 1 點蓄氣」，機器人學會挑封封的好牌之後量出來偏強
+ *（600 局平均 24.2 層、球球 22.4），使用者裁定拿掉。這一段盯住「只在開場給 2 點」，
+ * 以免哪天有人照舊方案又加回去卻沒重量。
+ */
+describe('封封：舊劍穗維持開場 2 點蓄氣（每回合 +1 試過、拿掉）', () => {
+  it('只有開場那一條；之後的回合不再自己長氣', () => {
+    expect(relicById['old_sword_tassel']!.hooks).toEqual({ combatStart: [{ kind: 'gainQi', n: 2 }] });
     const cs = startCombat({ hp: 80, maxHp: 80, deck: [inst('fengfeng_hushen', uid++)], relics: ['old_sword_tassel'], potions: [],
       encounterId: 'wood_dummy', rng: new Rng(seedFromString('balance0922-tassel')), hero: 'fengfeng' });
-    expect(cs.player.qi).toBe(3);
+    expect(cs.player.qi).toBe(2);
     endTurn(cs);
-    expect(cs.player.qi, '蓄氣跨回合保留，再加這一回合的 1 點').toBe(4);
+    expect(cs.player.qi, '蓄氣跨回合保留，但不會再加').toBe(2);
   });
-  it('說明文字跟著改（秘寶說明是手寫的，不會自動跟著效果變）', () => {
-    expect(relicById['old_sword_tassel']!.text).toBe('每場戰鬥開始時獲得 2 點蓄氣；每回合開始時再獲得 1 點蓄氣。');
+  it('說明文字跟效果一致（秘寶說明是手寫的，不會自動跟著效果變）', () => {
+    expect(relicById['old_sword_tassel']!.text).toBe('每場戰鬥開始時獲得 2 點蓄氣。');
   });
 });
 
