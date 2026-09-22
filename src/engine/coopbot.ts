@@ -106,7 +106,7 @@ export function applyTuning(cs: CombatState, players: number, t: CoopTuning): vo
   if (want !== undefined) {
     // 引擎是「基礎血 × 遭遇倍率 × 難度倍率 × 人數倍率」算出來的，這裡只換掉**人數**那一項：
     // 拿新舊倍率的比值去乘現有的血量。四捨五入會跟直接改表差個一兩點，對統計沒有影響。
-    const ratio = want / coopHpMul(pool, players);
+    const ratio = want / coopHpMul(pool, players, cs.encounterId);
     if (ratio !== 1) {
       for (const e of cs.enemies) {
         e.maxHp = Math.max(1, Math.round(e.maxHp * ratio));

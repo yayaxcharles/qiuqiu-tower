@@ -31,15 +31,16 @@ describe('師父的血條跟著連線、難度放大', () => {
     expect(nextBar(cs)).toBe(300);
   });
 
-  it('兩人連線：三條都是三倍（360／720／900），上限跟著換', () => {
+  // 師父的連線倍率 2026-09-22 照遭遇覆寫成 2.4（見 coopscale.ts 的 COOP_HP_BY_ENCOUNTER），三條都乘同一個數
+  it('兩人連線：三條都是 2.4 倍（288／576／720），上限跟著換', () => {
     const cs = start({ players: 2 });
     const m = cs.enemies[0]!;
-    expect(m.hp).toBe(360);
+    expect(m.hp).toBe(288);
+    expect(nextBar(cs)).toBe(576);
+    expect(m.maxHp).toBe(576);
+    m.invulnIn = 0;
     expect(nextBar(cs)).toBe(720);
     expect(m.maxHp).toBe(720);
-    m.invulnIn = 0;
-    expect(nextBar(cs)).toBe(900);
-    expect(m.maxHp).toBe(900);
   });
 
   it('難度的血量倍率也吃得到', () => {
@@ -48,9 +49,9 @@ describe('師父的血條跟著連線、難度放大', () => {
     expect(nextBar(cs)).toBe(276);
   });
 
-  it('連線加難度一起乘，只乘一次（414／828）', () => {
+  it('連線加難度一起乘，只乘一次（331／662）', () => {
     const cs = start({ players: 2, hpMul: 1.15 });
-    expect(cs.enemies[0]!.hp).toBe(414);
-    expect(nextBar(cs)).toBe(828);
+    expect(cs.enemies[0]!.hp).toBe(331);
+    expect(nextBar(cs)).toBe(662);
   });
 });

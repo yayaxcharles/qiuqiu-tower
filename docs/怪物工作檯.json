@@ -1184,13 +1184,11 @@
        "label": "卡住",
        "effects": [
         {
-         "kind": "discardRandomHand",
-         "n": 2
-        },
-        {
-         "kind": "statusPlayer",
-         "name": "炸毛",
-         "amount": 3
+         "kind": "stripPlayer",
+         "names": [
+          "隱身",
+          "潛水"
+         ]
         }
        ]
       },

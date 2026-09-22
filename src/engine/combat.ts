@@ -69,7 +69,7 @@ export function startCombat(input: {
   };
   // 兩個人一起打時魔物血量放大（只放大血量，傷害不動——見 `coopscale.ts`）。
   // 一個人時 `coopHpMul` 一定回 1，所以單機的數字一個位元都沒變
-  const hpMul = (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1) * coopHpMul(enc.pool, input.players ?? 1);
+  const hpMul = (enc.hpScale ?? 1) * (input.mods?.hpMul ?? 1) * coopHpMul(enc.pool, input.players ?? 1, enc.id);
   enc.enemies.forEach((id, k) => cs.enemies.push(makeEnemy(cs, id, k, hpMul)));
   const strength = (enc.strength ?? 0) + (input.mods?.strength ?? 0);   // 魔氣（見 EncounterDef.strength）＋難度
   if (strength) for (const e of cs.enemies) addStatus(e, '爪力', strength);
