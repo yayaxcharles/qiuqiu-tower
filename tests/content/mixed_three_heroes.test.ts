@@ -52,11 +52,18 @@ describe('三隻貓的連線敘事不會叫錯人', () => {
     expect(who.has('球球') && who.has('噹噹'), '共用場景裡兩位都要開口').toBe(true);
   });
 
-  it('沒有整段場景的搭檔照舊走單人劇本', () => {
+  it('六組搭檔都有整段場景；一個人玩照舊走單人劇本', () => {
+    // 球球＋菲菲 2026-09-22 補上之後，四隻貓兩兩配對的六組都有共用場景（原本這條拿球球＋菲菲當「沒寫的」那一組）
     setCoopStory(null);
     const solo = storyFor('ninja').prologue.map((l) => l.text);
-    setCoopStory({ partner: 'feifei', mirror: 'ninja' });
-    expect(storyFor('ninja').prologue.map((l) => l.text), '球球＋菲菲還沒寫整段場景').toEqual(solo);
+    expect(solo.join(''), '單人序章').toContain('沒聽見師妹在身後叫他');
+    const heroes = ['ninja', 'feifei', 'dangdang', 'fengfeng'];
+    const own = Object.fromEntries(heroes.map((h) => [h, storyFor(h).prologue.map((l) => l.text)]));
+    for (const a of heroes) for (const b of heroes) {
+      if (a === b) continue;
+      setCoopStory({ partner: b, mirror: a });
+      expect(storyFor(a).prologue.map((l) => l.text), `${a}+${b} 還在播單人序章`).not.toEqual(own[a]);
+    }
   });
 
   it('鏡子照的是誰，第一次看到牠就講誰', () => {
@@ -106,7 +113,7 @@ describe('搭檔一起打大俠貓', () => {
     setCoopStory(null);
     expect(coopBossLines('tower_master', 'intro', 'ninja')).toBeNull();
     setCoopStory({ partner: 'feifei', mirror: 'ninja' });
-    expect(coopBossLines('tower_master', 'intro', 'ninja'), '球球＋菲菲還沒寫').toBeNull();
+    expect(coopBossLines('tower_master', 'intro', 'ninja'), '球球＋菲菲 2026-09-22 補上了').toBeTruthy();
     setCoopStory({ partner: 'ninja', mirror: 'ninja' });
     expect(coopBossLines('tower_master', 'intro', 'ninja'), '兩位同角色不算搭檔').toBeNull();
   });

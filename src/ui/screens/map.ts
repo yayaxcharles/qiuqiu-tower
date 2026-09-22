@@ -233,11 +233,17 @@ registerScreen('map', (app, root) => {
 
   // 可走的下一步：開局 currentNode 是 null，nextChoices 會回 1F 的三個節點
   const choices = new Set(nextChoices(run.map, run.currentNode).map((n) => n.id));
+  /*
+   * **倒下的人不能選路**（規則四），那就不要畫得像可以按（2026-09-22 連線盤點 問題 3）。
+   * 原本照樣亮著可選的光圈、寫「選下一層要去哪」，點下去完全沒反應，也沒說由同伴選。
+   * 同伴投的那一格照樣掛「同伴」記號，看得到他想去哪。
+   */
+  const iDown = !!app.coop && !!me(run, app.seat).down;
   for (const n of run.map.nodes) {
     const { x, y } = pos(n, run.seed, centre);
     const cls = ['map-node', `t-${n.type}`];
     if (n.id === run.currentNode) cls.push('current');
-    if (choices.has(n.id)) cls.push('choice');
+    if (choices.has(n.id) && !iDown) cls.push('choice');
     // n.floor 是關內 1～15，run.floor 是跨關累計（第二關 16～30）——直接比會把第二、三關整張標成走過（2026-09-02 稽核 H-1）
     if (n.floor < run.floor - base) cls.push('past');
     // 真的打過／辦完的（足跡上的格子）蓋一顆勾勾章——跟「只是在下面的樓層」區隔開
@@ -252,12 +258,12 @@ registerScreen('map', (app, root) => {
     }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
     if (mod) { btn.append(el('span', { class: 'map-mod' }, mod.label)); attachTextTooltip(btn, mod.label, mod.desc); }
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
-    if (choices.has(n.id)) {
+    if (choices.has(n.id) && !iDown) {
       btn.addEventListener('click', () => {
         play('step');
         // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
         if (!app.coop) { app.enterNode(n.id); return; }
-        if (me(run, app.seat).down) return;   // 倒下的人沒得選（規則四）；他的票結算時本來就會被洗掉
+        if (me(run, app.seat).down) return;   // 保險（倒下的人本來就掛不到這個監聽）；他的票結算時本來就會被洗掉
         if (votes[app.seat]) return;   // 投過了就不能改——改票會讓兩邊的票面對不上
         app.coop.pick('map', n.id);
       });
@@ -393,5 +399,6 @@ registerScreen('map', (app, root) => {
   lastFloor = { seed: run.seed, floor: here };
 
   renderHud(app, root);
-  root.append(el('div', { class: 'map-hint' }, run.currentNode ? '選下一層要去哪' : run.act > 1 ? `從 ${base + 1}F 選一條路往上` : '從 1F 選一條路進塔'));
+  root.append(el('div', { class: 'map-hint' }, iDown ? '你倒下了，等同伴選路…'
+    : run.currentNode ? '選下一層要去哪' : run.act > 1 ? `從 ${base + 1}F 選一條路往上` : '從 1F 選一條路進塔'));
 });

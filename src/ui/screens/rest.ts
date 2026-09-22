@@ -9,14 +9,14 @@ import { heroArtUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
-import { heroSpeaker, toast } from '../dialogue';
+import { heroSpeaker, notice, toast } from '../dialogue';
 import { el } from '../dom';
 import { burst } from '../fx';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
-import { heroPronoun, sharpenVerb } from '../../engine/hero';
+import { heroName, heroPronoun, sharpenVerb } from '../../engine/hero';
 
 /**
  * 貓窩畫面的立繪（畫的是這一位自己的角色）；圖還沒生好就不放。
@@ -28,6 +28,23 @@ import { heroPronoun, sharpenVerb } from '../../engine/hero';
 function heroPortrait(hero: string | undefined, pose: 'curl' | 'nap' | 'sharpen' | 'helpup' | 'down' = 'curl'): string | undefined {
   const url = heroArtUrl(hero, `hero/ninja_${pose}`);
   return url.startsWith('data:') ? undefined : url;
+}
+
+/**
+ * 同伴在同一個貓窩做了什麼，講給這一位聽（套用之後才叫：扶起來的血量、升級過的牌名都是新的）。
+ * 不是同伴的動作、或不是貓窩的動作回空字串。說明見畫面裡的 `mateDid`。
+ */
+export function restMateNote(run: RunState, seat: number, a: RunAction): string {
+  if (a.seat === seat) return '';
+  const mate = run.players[a.seat];
+  const who = heroName(mate);
+  if (a.t === 'revive') return a.w === seat ? `${who}把你扶起來了，你回到 ${me(run, seat).hp} 點生命。` : `${who}扶起了同伴。`;
+  if (a.t !== 'rest') return '';
+  if (a.c === '打盹') return `${who}在旁邊睡了一下。`;
+  const c = a.u === undefined ? undefined : me(run, a.seat).deck.find((x) => x.uid === a.u);
+  const nd = c ? cardById[c.cardId] : undefined;
+  const got = nd ? `「${cardNameFor(nd, mate?.hero)}」升級了` : '升級了一張牌';
+  return a.c === '全力準備' ? `${who}全力準備：${got}，小魚乾全換成了生命。` : `${who}去${sharpenVerb(mate?.hero)}了：${got}。`;
 }
 
 registerScreen('rest', (app, root) => {
@@ -64,6 +81,14 @@ registerScreen('rest', (app, root) => {
   const upgradable = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   let used = false;   // 一個貓窩只能做一件事
   let napped = 0;     // 打盹按下去那一刻算出來的回復量（動作繞回來才演得到）
+  /**
+   * 同伴剛在這個貓窩做了什麼（2026-09-22 連線盤點 問題 4）。
+   *
+   * 原本收到同伴的動作一律略過：被扶起來的那一位畫面從「躺著動不了」直接跳成一般選單，
+   * 沒有一句「球球把你扶起來了」，血量默默變了；兩個人明明在同一個貓窩，也只看得到自己。
+   * 還在挑的時候寫在對白框裡，自己早就做完、馬上要上樓的時候用公告講。
+   */
+  let mateDid = '';
 
   /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖。`pose` 是做完那件事的立繪 */
   function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' = 'nap'): void {
@@ -211,6 +236,7 @@ registerScreen('rest', (app, root) => {
       portrait: heroPortrait(me(run, seat).hero),
       speaker: '貓窩',
       text: coop ? '貓窩暖暖的，一人只能挑一件事做。' : '貓窩暖暖的，只能挑一件事做。',
+      extra: mateDid ? [el('p', { class: 'event-note rest-mate' }, mateDid)] : [],
       actions,
     }));
   }
@@ -226,7 +252,12 @@ registerScreen('rest', (app, root) => {
         if (one.a.seat === seat && (one.a.t === 'rest' || one.a.t === 'revive')) didMine = true;
         const a = one.a;
         if (a.t === 'rest' || a.t === 'revive') done.add(a.seat);
-        if (a.seat !== seat) continue;
+        if (a.seat !== seat) {
+          mateDid = restMateNote(run, seat, a) || mateDid;
+          // 被扶起來的那一位：扶人的那位講的那句也讓這邊聽到（他那邊的吐槽泡泡只在他自己的畫面上）
+          if (a.t === 'revive' && a.w === seat) { play('heal'); toast(pick(storyFor(run.players[a.seat]?.hero).reviveLines), heroName(run.players[a.seat])); }
+          continue;
+        }
         // 連線這三條原本都拿球球那份吐槽、拍醒的同伴一律寫「牠」（連線稽核 中-4）：改成照座位的角色
         const mine = storyFor(me(run, seat).hero);
         // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
@@ -249,6 +280,8 @@ registerScreen('rest', (app, root) => {
       // 兩個人都做完就回地圖；跟單機那條一樣換畫面就撤掉（總稽核 B 中-2）。
       // 磨過牌的多停一下（900／1500 毫秒），讓那張牌的特效先播完，跟單機同一個節奏
       if (allDone()) {
+        // 我早就做完在等：同伴那一下畫面上來不及寫進對白框（馬上要上樓），改用公告講
+        if (!didMine && mateDid) notice(mateDid);
         const back = window.setTimeout(() => app.backToMap(), didMine ? 900 : 700);
         app.disposers.push(() => window.clearTimeout(back));
         return;

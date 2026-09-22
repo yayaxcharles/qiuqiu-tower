@@ -413,13 +413,16 @@ registerScreen('reward', (app, root, props) => {
   root.append(sceneView({
     art: middle,
     speaker: r.escaped ? '牠散掉了' : title,
+    // 倒下的人沒得挑（牌是灰的），不要寫「選一張牌帶走」（2026-09-22 連線盤點 問題 3）
     text: r.escaped ? '一團煙散在空氣裡，什麼都沒剩下。走吧。'
+      : iDown ? '你倒下了，這次拿不到新牌。等同伴挑完就一起上樓。'
       : waiting ? '挑好了，等同伴挑完就一起上樓。'
       : myCards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
     extra: [items],
-    actions: [waiting
-      // 已經挑完就只留一顆按不下去的鈕：兩個人得一起走，這裡不能讓任何一邊先跑
-      ? el('button', { class: 'btn', disabled: 'disabled' }, '等對方…')
+    actions: [waiting || iDown
+      // 已經挑完就只留一顆按不下去的鈕：兩個人得一起走，這裡不能讓任何一邊先跑。
+      // 倒下的人也一樣：他那一票結算時本來就會被洗掉，按「放棄牌並跳過」只是看起來能走
+      ? el('button', { class: 'btn', disabled: 'disabled' }, !iDown ? '等對方…' : r.escaped ? '等同伴…' : '等同伴選…')
       /*
        * **秘寶還沒挑就不放行**（稽核 2026-09-11 中-5）。
        *

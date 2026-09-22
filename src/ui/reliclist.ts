@@ -2,7 +2,7 @@ import { relicById } from '../content/relics';
 import type { RunState } from '../engine/types';
 import { artUrl } from './assets';
 import { el } from './dom';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithScreen, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
@@ -17,7 +17,12 @@ export function showRelicList(run: RunState, seat = 0): void {
   hideTooltip();
   const overlay = el('div', { class: 'modal-overlay' });
   const onKey = (ev: KeyboardEvent): void => { if (ev.key === 'Escape') close(); };
+  let closed = false;
+  // 換到別的畫面時一起收掉（連線時同伴一推進，視窗會留在新畫面上，見 `closeWithScreen`）
+  const forget = closeWithScreen(() => close());
   const close = (): void => {
+    if (closed) return; closed = true;
+    forget();
     window.removeEventListener('keydown', onKey);
     overlay.remove();
     unlockScreen();

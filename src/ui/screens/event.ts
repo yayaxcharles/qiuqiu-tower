@@ -9,11 +9,11 @@ import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, typ
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import type { CardDef, CardInstance, EventChoice, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl, eventArtKey } from '../assets';
+import { artUrl, eventArtCast, eventArtKey } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showUpgradeConfirm } from '../confirm';
-import { showDeckPicker } from '../deckview';
+import { eventPickRule, showDeckPicker } from '../deckview';
 import { showPotionSwap, swapPotion } from '../potionswap';
 import { el } from '../dom';
 import { burst } from '../fx';
@@ -85,8 +85,10 @@ function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
  */
 function eventArt(id: string): HTMLElement | string {
   // 鍵走 `eventArtKey`：有菲菲自己的那張就用她的，沒有就退回球球那張（見那支的說明）
-  const url = artUrl('bg', eventArtKey(id));
-  return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' });
+  const key = eventArtKey(id);
+  const url = artUrl('bg', key);
+  // 插圖裡畫了誰也標上：5F 秘笈那段對白播到這一隻時就不再放頭像（同畫面兩種長相，見 dialogue.ts 的 `portraitPlan`）
+  return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '', 'data-art-cast': eventArtCast(key).join(' ') });
 }
 
 /**
@@ -156,7 +158,9 @@ registerScreen('event', (app, root, props) => {
    * 而文案只有真的開過挑牌疊層的那一台才有。
    */
   let cardPickInfo: { up: boolean; resultText: string; gains: RunGain[];
-    gotShow: Showcase; noteLine: (extra?: string) => string | null } | null = null;
+    gotShow: Showcase; noteLine: (extra?: string) => string | null;
+    /** 一張都沒挑的時候那一行怎麼寫（本來就沒得挑，跟有得挑卻選了不選，講法不一樣） */
+    none: string } | null = null;
   /**
    * **還在等同伴挑牌**（挑一張來升級／丟掉、三選一學招）。
    *
@@ -224,6 +228,7 @@ registerScreen('event', (app, root, props) => {
     }));
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
+  let pickLabel = '';                  // 這一次選的選項原文：挑牌視窗能不能不選照它寫的「至多」走（見 `eventPickRule`）
   const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void => {
     panel(resultText, note,
       awaitingPicks
@@ -394,7 +399,7 @@ registerScreen('event', (app, root, props) => {
            * **連線時這裡只畫等待、不跑 `finish`**：結算那一支之後還會再跑一次 `finish`，
            * 而 `finish` 會排「忍具帶滿要不要換」的問話——跑兩次就問兩次（稽核第三輪的邊角）。
            */
-          cardPickInfo = { up, resultText, gains, gotShow, noteLine };
+          cardPickInfo = { up, resultText, gains, gotShow, noteLine, none: up ? '沒有可以升級的牌' : '沒有牌可以移除' };
           panel(resultText, why, '', gains, resultArt);
           coop.pick('evcard', '');
           return;
@@ -428,9 +433,10 @@ registerScreen('event', (app, root, props) => {
       };
       const finishPicks = (names: string[], show: Showcase): void => {
         if (names.length) play(up ? 'upgrade' : 'dodge');
+        // 寫「至多」的可以不選（見 `eventPickRule`）：一張都沒挑也要講，不然結果那段像是真的練了
         const note = names.length
           ? `「${names.join('」「')}」${up ? '升級了' : '被丟掉了'}`
-          : undefined;
+          : '這次一張都沒挑';
         finish(resultText, noteLine(note), gains, [...gotShow, ...show]);
       };
       /*
@@ -438,7 +444,7 @@ registerScreen('event', (app, root, props) => {
        */
       const settleCards = (uids: readonly number[]): void => {
         if (!coop) { const r = applyPicks(seat, uids); finishPicks(r.names, r.show); return; }
-        cardPickInfo = { up, resultText, gains, gotShow, noteLine };
+        cardPickInfo = { up, resultText, gains, gotShow, noteLine, none: '這次一張都沒挑' };
         /*
          * **等待的畫面要先畫、再投票**：我如果是後投的那一位，`pick` 會當場把票湊齊、
          * 處理函式立刻把結果畫出來——這時候再畫「等同伴挑完」就會把結果蓋掉。
@@ -449,11 +455,13 @@ registerScreen('event', (app, root, props) => {
       // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
       // 效果已經跑掉了，選項卻還在，看起來像還能再選一次。按鈕等挑完牌才由 finish 補上。
       panel(resultText, null, '', gains, resultArt);
+      // 選項寫「至多」就可以不選（多選時挑一張也算）；寫死張數的照舊要挑滿（2026-09-22 畫面盤點 問題 11）
+      const rule = eventPickRule(pickLabel, want, verb);
       const openPicker = (): void => showDeckPicker({
-        title: want > 1 ? `選 ${want} 張牌${verb}` : `選一張牌${verb}`,
+        title: rule.title,
         previewUpgrade: up,   // 升級才需要看「變成什麼樣」；移除不用
-        cards: me(run, seat).deck, pickable: true, cancellable: false, filter,
-        pickCount: want,
+        cards: me(run, seat).deck, pickable: true, cancellable: rule.cancellable, filter,
+        pickCount: want, minPick: rule.minPick,
         onPick: (uid) => {
           if (uid === null) { settleCards([]); return; }
           const c = me(run, seat).deck.find((x) => x.uid === uid);
@@ -487,6 +495,7 @@ registerScreen('event', (app, root, props) => {
     if (exchangeReason) { finish('這次沒有交換秘寶。', exchangeReason); return; }
     const cost = c.costFish ?? 0;
     resultArt = c.resultArt;
+    pickLabel = c.label;
     const notes: string[] = [];
     const gains: RunGain[] = [];
     const had = new Set(me(run, seat).deck.map((x) => x.uid));
@@ -579,7 +588,7 @@ registerScreen('event', (app, root, props) => {
         if (!info) { showResult(); return; }   // 我這台沒開過挑牌疊層：套用完重畫一次，把「繼續」放出來
         if (mineOut.names.length) play(info.up ? 'upgrade' : 'dodge');
         const note = mineOut.names.length
-          ? `「${mineOut.names.join('」「')}」${info.up ? '升級了' : '被丟掉了'}` : undefined;
+          ? `「${mineOut.names.join('」「')}」${info.up ? '升級了' : '被丟掉了'}` : info.none;
         finish(info.resultText, info.noteLine(note), info.gains, [...info.gotShow, ...mineOut.show]);
       });
     }

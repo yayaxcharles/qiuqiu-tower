@@ -41,3 +41,24 @@ export function unlockScreen(): void {
   locks -= 1;
   if (locks === 0) screenLayer()?.removeAttribute('inert');
 }
+
+/**
+ * **跟著畫面走的疊層**（牌組、挑牌、秘寶清單）：換到**別的畫面**時由 `App.show()` 收掉（2026-09-22 畫面盤點 補查）。
+ *
+ * 連線時畫面不一定是自己換的：同伴挑完牌、投票湊齊，我這邊就被帶到下一格。原本開著的牌組視窗會整個留在新畫面上，
+ * 底下被 `inert` 鎖住（實機看過：戰利品頁開著牌組，同伴一挑完牌，回到地圖視窗還在）。
+ * 收掉時**不叫呼叫端的回呼**：那是上一格畫面的處理函式，叫下去會對新畫面動手。
+ * 同一個畫面只是重畫（同伴投了一票）不收——戰利品頁那個不能取消的升級視窗要一直留著。
+ */
+const screenModals = new Set<() => void>();
+/** 登記一個跟著畫面走的疊層；回傳「自己關掉了，不用再收」 */
+export function closeWithScreen(close: () => void): () => void {
+  screenModals.add(close);
+  return () => { screenModals.delete(close); };
+}
+/** 換畫面時收掉所有登記過的疊層（`App.show()` 在換到別的畫面時叫） */
+export function closeScreenModals(): void {
+  const all = [...screenModals];
+  screenModals.clear();
+  for (const close of all) close();
+}

@@ -253,6 +253,8 @@ export function setLocalHero(hero: string | undefined): void {
 }
 /** 每次切換畫面時同步；標題、圖鑑與單人局沒有搭檔。 */
 export function setLocalPartnerHero(hero: string | undefined): void { localPartnerHero = hero; }
+/** 這一局同伴是誰（單人、標題與圖鑑是 `undefined`）。對白疊層靠它分辨頭像是自己還是同伴，決定戰場上藏哪一格 */
+export function localPartner(): string | undefined { return localPartnerHero; }
 export function localHero(): string { return localHeroId; }
 
 /**
@@ -294,6 +296,22 @@ export function eventArtKey(id: string): string {
   if (localHeroId === 'ninja') return base;
   const mine = `bg/event_${localHeroId}_${id}`;
   return manifest.bg[mine] !== undefined ? mine : base;
+}
+
+/**
+ * 事件插圖裡**畫了哪幾隻貓主角**（2026-09-22 畫面盤點 問題 5，使用者裁定「插圖裡已經有這隻貓時，對白就不放頭像」）。
+ *
+ * 照檔名規則判斷，不另外手抄一張表：
+ * - `bg/event_<角色>_…`：那一位專屬的版本（她那份是把球球整段換成她轉出來的，見 `tools/make_feifei_event_jobs.py`），畫的就是那一位；
+ * - 沒有前綴的是球球那張：**有菲菲版的**才是畫了他的那批（她的版本只替「工單裡有球球」的圖轉，
+ *   2026-09-22 對過 `tools/codex_jobs` 的工單，找得到工單的每一張都對得上）；沒有菲菲版的是純場景。
+ * 目前只有 5F「師父留下的秘笈」會在事件畫面上播對白，四隻的版本都畫了自己。
+ */
+export function eventArtCast(key: string): string[] {
+  const own = /^bg\/event_(feifei|dangdang|fengfeng)_/.exec(key);
+  if (own) return [own[1]!];
+  if (!key.startsWith('bg/event_')) return [];
+  return manifest.bg[`bg/event_feifei_${key.slice('bg/event_'.length)}`] !== undefined ? ['ninja'] : [];
 }
 
 /**

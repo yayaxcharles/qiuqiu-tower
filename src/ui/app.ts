@@ -14,12 +14,12 @@ import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeShops, ne
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
 import type { CombatState, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, heroSpriteUrls, localHero, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
+import { computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
 import { setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
 import { clear, el, stageFrame } from './dom';
-import { setOverlayRoot } from './overlay';
+import { closeScreenModals, setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
@@ -133,6 +133,9 @@ export class App {
     const track = this.bgmFor(name);
     if (track) setBgm(track);
     hideTooltip();   // 提示框的錨點就要被清掉了，不先關掉會變成孤兒黏在畫面上
+    // 換到**別的**畫面就把牌組、挑牌、秘寶清單那幾個視窗收掉（連線時同伴一推進，視窗會留在新畫面上、底下被鎖住）；
+    // 同一個畫面只是重畫就不收（戰利品頁那個不能取消的升級視窗要留著，見 overlay.ts 的 `closeWithScreen`）
+    if (this.stage.dataset['screen'] !== name) closeScreenModals();
     // 連線的畫面級回呼也要一起斷：不斷的話新畫面會叫到上一格留下來的處理函式
     //（見 `CoopSession.clearScreenHooks`）。新畫面自己會在下面的 `r(...)` 裡重新掛
     this.coop?.clearScreenHooks(name);
@@ -231,7 +234,10 @@ export class App {
   syncStory(run: RunState = this.run as RunState): void {
     if (!run) { setCoopStory(null); return; }
     const mineHero = me(run, this.seat).hero ?? 'ninja';
-    const partner = run.players.find((p, i) => i !== this.seat && (p.hero ?? 'ninja') !== mineHero)?.hero;
+    // 球球那位的 `hero` 欄位刻意不寫（`undefined`＝球球），找到人之後要自己補回 'ninja'——
+    // 直接取 `?.hero` 的話同伴是球球時 partner 永遠是空的，另一位整局播單人劇情（2026-09-22 連線盤點 問題 1；上面 `show()` 那行早就有補）
+    const mate = run.players.find((p, i) => i !== this.seat && (p.hero ?? 'ninja') !== mineHero);
+    const partner = mate ? (mate.hero ?? 'ninja') : undefined;
     setCoopStory({ ...(partner ? { partner } : {}), mirror: run.players[0]?.hero ?? 'ninja' });
   }
 
@@ -540,7 +546,9 @@ export class App {
       const outro = dialogue.bossDefeatById[bossId];
       const bd = enemyById[bossId];
       const bossUnit = cs.enemies.find((e) => e.enemyId === bossId);
-      if (outro && bd) playDialogue(outro, toSlides, { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(bd.art, 'idle') } });   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
+      // 頭像要跟戰場上最後那個樣子一致：變身過（橘皮大王整顆站起來、全身是刺）就用那一階段的圖，不要退回變身前（2026-09-22 畫面盤點 問題 6）
+      const outroArt = monsterPhaseKey(bd?.art ?? '', bossUnit?.phase ?? 0);
+      if (outro && bd) playDialogue(outro, toSlides, { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(outroArt, 'idle') } });   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
       else toSlides();
       return;
     }
