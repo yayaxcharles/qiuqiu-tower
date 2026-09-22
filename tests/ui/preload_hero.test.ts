@@ -11,6 +11,7 @@ const FAKE = {
   sprites: {
     'hero/ninja_claw': 'assets/sprites/hero/ninja_claw.webp', 'hero/cover': 'assets/sprites/hero/cover.webp',
     'hero/feifei_attack': 'assets/sprites/hero/feifei_attack.webp',
+    'hero/ninja_portrait': 'assets/sprites/hero/ninja_portrait.webp',
     'rat_idle': 'assets/sprites/rat_idle.webp',
     // 2026-09-18 補的四張非戰鬥姿勢，戰鬥暖圖不該碰到它們
     'hero/ninja_nap': 'assets/sprites/hero/ninja_nap.webp', 'hero/ninja_sharpen': 'assets/sprites/hero/ninja_sharpen.webp',
@@ -70,6 +71,7 @@ describe('角色專屬的圖分開載', () => {
     expect(ninja.some((u) => u.includes('hero/cover')), '標題那張本來就不暖').toBe(false);
     // 貓窩三張與過關走路那張戰鬥裡用不到，暖了只會擋在魔物立繪前面（2026-09-18）
     for (const p of ['nap', 'sharpen', 'helpup', 'walk']) expect(ninja.some((u) => u.includes(`ninja_${p}`)), p).toBe(false);
+    expect(ninja.some((u) => u.includes('ninja_portrait')), '對白頭像戰鬥裡用不到（2026-09-22）').toBe(false);
     const both = heroSpriteUrls(['ninja', 'feifei']);
     expect(both.some((u) => u.includes('feifei_attack'))).toBe(true);
     expect(heroSpriteUrls([undefined]), '舊存檔沒寫角色＝球球').toEqual(ninja);
