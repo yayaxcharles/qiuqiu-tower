@@ -1,0 +1,4 @@
+# 批次 ff1 的生圖原檔、每次嘗試與參考圖：一張 1～2 MB，不進版控（看得見的像素全部無損存在 public/assets/motion/feifei/ 的 webp 裡）。
+# 提示詞與選定紀錄（json）照樣進版控。
+*.png
+*.pending

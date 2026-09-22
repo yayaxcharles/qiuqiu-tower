@@ -1,0 +1,460 @@
+{
+  "note": "菲菲五套出招動作重畫（09-20 那批頭畫小一成、身體畫長）。headScales＝每格頭部大小 ÷ 新版待機第 1 格，由 tools/redraw_ff1.py 量圖得來；測試 tests/ui/feifei_redraw_ff1.test.ts 守這些數字與圖檔雜湊。",
+  "generator": "gpt-image-1.5（codex-oauth，真透明輸出）",
+  "reproducer": "python tools/redraw_ff1.py pack",
+  "gate": {
+    "headTolerance": 0.05,
+    "headMaxStep": 0.04,
+    "headMinCorr": 0.85,
+    "firstFrameHeightTolerance": 0.06,
+    "mainBody": 0.97,
+    "leftReach": 130
+  },
+  "assets": [
+    {
+      "hero": "feifei",
+      "action": "attack1",
+      "attempt": 3,
+      "source": "tools/motion-art-source/ff1/feifei/attack1.png",
+      "sourceSha256": "125967c2a40ebeca59ba062f90473aa09629770369ce723bd9b0c0ac5eb3ba73",
+      "target": "public/assets/motion/feifei/claw.webp",
+      "targetSha256": "b04e0d023e83fbe42145f106d6a35135f665ccd441b3016032b56d2028eaffe9",
+      "bytesBefore": 919016,
+      "bytes": 774012,
+      "size": [
+        1536,
+        1024
+      ],
+      "scale": 0.7274091820976518,
+      "headScalesBefore": [
+        0.91,
+        0.88,
+        0.91,
+        0.89,
+        0.87,
+        0.87,
+        0.9,
+        0.9
+      ],
+      "headScales": [
+        0.995,
+        1.005,
+        1.016,
+        1.005,
+        0.995,
+        1.005,
+        0.995,
+        0.995
+      ],
+      "headCorr": [
+        0.976,
+        0.969,
+        0.958,
+        0.969,
+        0.961,
+        0.959,
+        0.965,
+        0.965
+      ],
+      "headMaxStep": 0.011,
+      "firstFrameHeightRatio": 1.036,
+      "heightUnits": [
+        261.1,
+        259.0,
+        261.1,
+        261.1,
+        261.9,
+        261.9,
+        261.9,
+        261.9
+      ],
+      "feetMidOffsetUnits": [
+        30.4,
+        36.2,
+        19.5,
+        22.4,
+        20.2,
+        18.7,
+        24.2,
+        29.3
+      ],
+      "idleFeetMidOffsetUnits": 30.36,
+      "leftReachUnits": [
+        85.3,
+        83.8,
+        92.6,
+        94.0,
+        91.8,
+        84.6,
+        91.8,
+        88.2
+      ],
+      "mainBody": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "guard",
+      "attempt": 1,
+      "source": "tools/motion-art-source/ff1/feifei/guard.png",
+      "sourceSha256": "14ef72ba063f3028120236bb151b5b1ea941ba24cd45c053991abe38e3677c01",
+      "target": "public/assets/motion/feifei/guard.webp",
+      "targetSha256": "d7d6ac27bead04e709f28f95f0caa5ec1dc58299ca3b01297dac0350f0714fb7",
+      "bytesBefore": 992460,
+      "bytes": 727780,
+      "size": [
+        1536,
+        1024
+      ],
+      "scale": 0.7389162561576355,
+      "headScalesBefore": [
+        0.9,
+        0.9,
+        0.91,
+        0.91,
+        0.91,
+        0.92,
+        0.91,
+        0.9
+      ],
+      "headScales": [
+        0.99,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.98,
+        1.01,
+        1.0
+      ],
+      "headCorr": [
+        0.968,
+        0.969,
+        0.964,
+        0.961,
+        0.9,
+        0.92,
+        0.965,
+        0.964
+      ],
+      "headMaxStep": 0.03,
+      "firstFrameHeightRatio": 1.02,
+      "heightUnits": [
+        257.1,
+        256.4,
+        257.9,
+        259.4,
+        256.4,
+        259.4,
+        252.7,
+        254.9
+      ],
+      "feetMidOffsetUnits": [
+        30.4,
+        31.1,
+        29.3,
+        29.3,
+        44.0,
+        32.6,
+        28.5,
+        23.7
+      ],
+      "idleFeetMidOffsetUnits": 30.36,
+      "leftReachUnits": [
+        84.5,
+        85.3,
+        86.0,
+        88.2,
+        81.6,
+        83.1,
+        88.2,
+        91.2
+      ],
+      "mainBody": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "kick",
+      "attempt": 2,
+      "source": "tools/motion-art-source/ff1/feifei/kick.png",
+      "sourceSha256": "a5a9dd98019325861aeed08d7433e538977275a62b2deacb928dd1ff607ff5ea",
+      "target": "public/assets/motion/feifei/kick_claw.webp",
+      "targetSha256": "bb1a48b1511f97486edc1cbead967c9bbdfc63e25734135e98608fa84494248f",
+      "bytesBefore": 1165950,
+      "bytes": 672278,
+      "size": [
+        1536,
+        1024
+      ],
+      "scale": 0.7743362831858408,
+      "headScalesBefore": [
+        0.89,
+        0.88,
+        0.86,
+        0.86,
+        0.9,
+        0.87,
+        0.88,
+        0.89
+      ],
+      "headScales": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "headCorr": [
+        0.976,
+        0.973,
+        0.973,
+        0.978,
+        0.967,
+        0.975,
+        0.971,
+        0.969
+      ],
+      "headMaxStep": 0.0,
+      "firstFrameHeightRatio": 1.042,
+      "heightUnits": [
+        262.5,
+        263.3,
+        264.0,
+        264.0,
+        267.1,
+        264.0,
+        264.0,
+        263.3
+      ],
+      "feetMidOffsetUnits": [
+        30.4,
+        38.9,
+        57.5,
+        21.8,
+        26.1,
+        59.8,
+        50.1,
+        23.0
+      ],
+      "idleFeetMidOffsetUnits": 30.36,
+      "leftReachUnits": [
+        88.1,
+        76.5,
+        80.4,
+        93.5,
+        90.4,
+        76.5,
+        79.6,
+        97.4
+      ],
+      "mainBody": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "shuriken",
+      "attempt": 1,
+      "source": "tools/motion-art-source/ff1/feifei/shuriken.png",
+      "sourceSha256": "e4b6b742b54fd0ff913e05174f9a3c8abe518f214f7e42d4a0660bc99b082cfd",
+      "target": "public/assets/motion/feifei/needle.webp",
+      "targetSha256": "00031bca71e61cb40f33aa2117ec5f9acf568e9a0f91833b2465aeddf62166f5",
+      "bytesBefore": 1008828,
+      "bytes": 724278,
+      "size": [
+        1536,
+        1024
+      ],
+      "scale": 0.7715624138881234,
+      "headScalesBefore": [
+        0.88,
+        0.86,
+        0.87,
+        0.87,
+        0.87,
+        0.86,
+        0.86,
+        0.88
+      ],
+      "headScales": [
+        0.995,
+        1.016,
+        1.005,
+        1.016,
+        1.005,
+        0.984,
+        0.995,
+        0.984
+      ],
+      "headCorr": [
+        0.969,
+        0.942,
+        0.941,
+        0.957,
+        0.953,
+        0.959,
+        0.965,
+        0.972
+      ],
+      "headMaxStep": 0.021,
+      "firstFrameHeightRatio": 1.047,
+      "heightUnits": [
+        263.9,
+        259.2,
+        265.4,
+        263.9,
+        258.5,
+        256.2,
+        260.0,
+        260.0
+      ],
+      "feetMidOffsetUnits": [
+        30.4,
+        37.7,
+        30.0,
+        31.9,
+        27.7,
+        29.2,
+        28.4,
+        29.2
+      ],
+      "idleFeetMidOffsetUnits": 30.36,
+      "leftReachUnits": [
+        90.4,
+        83.4,
+        89.6,
+        114.3,
+        89.6,
+        93.5,
+        89.6,
+        91.2
+      ],
+      "mainBody": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "run",
+      "attempt": 3,
+      "source": "tools/motion-art-source/ff1/feifei/run.png",
+      "sourceSha256": "618279d19d3213211430e01ad4a52eb19f23d896fe13606cb6d99dce84a47b3f",
+      "target": "public/assets/motion/feifei/run.webp",
+      "targetSha256": "61fde27df419e77fc0a5fe94064a46c70987fa1cde696d36d87f221d3a77c354",
+      "bytesBefore": 952508,
+      "bytes": 653444,
+      "size": [
+        1536,
+        1024
+      ],
+      "scale": 0.7979481333713309,
+      "headScalesBefore": [
+        0.91,
+        0.9,
+        0.9,
+        0.91,
+        0.89,
+        0.89,
+        0.9,
+        0.89
+      ],
+      "headScales": [
+        1.0,
+        1.01,
+        1.01,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.99
+      ],
+      "headCorr": [
+        0.965,
+        0.966,
+        0.963,
+        0.961,
+        0.967,
+        0.962,
+        0.963,
+        0.963
+      ],
+      "headMaxStep": 0.01,
+      "firstFrameHeightRatio": 1.01,
+      "heightUnits": [
+        254.5,
+        253.7,
+        262.5,
+        245.8,
+        248.2,
+        249.8,
+        252.2,
+        239.4
+      ],
+      "feetMidOffsetUnits": [
+        30.4,
+        24.4,
+        13.2,
+        47.1,
+        41.1,
+        12.0,
+        24.0,
+        47.1
+      ],
+      "idleFeetMidOffsetUnits": 30.36,
+      "leftReachUnits": [
+        94.1,
+        89.3,
+        92.5,
+        95.7,
+        88.5,
+        82.1,
+        81.4,
+        90.1
+      ],
+      "mainBody": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ]
+}

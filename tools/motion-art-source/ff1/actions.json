@@ -1,0 +1,112 @@
+{
+  "note": "批次 ff1（2026-09-22）：菲菲五套出招動作重畫。before＝改前量到的每格頭部倍率（÷ 新版待機第 1 格，tools/redraw_ff1.py measure）與檔案大小；lift＝跑步騰空高度（遊戲單位，照舊資料 tools/motion-art-source/feifei/actions.json 的 lift）；attempt＝選定第幾次生圖。格數、順序、每格時長、命中／出手時間沿用 src/ui/feifei-motion-data.json 原資料，不在這裡另記。",
+  "actions": {
+    "attack1": {
+      "before": {
+        "texture": "claw.webp",
+        "bytes": 919016,
+        "headScales": [
+          0.91,
+          0.88,
+          0.91,
+          0.89,
+          0.87,
+          0.87,
+          0.9,
+          0.9
+        ]
+      },
+      "attempt": 3,
+      "rejected": {
+        "1": "閘門擋下：第 5 格頭部倍率 0.947（超出 ±5%）",
+        "2": "閘門擋下：第 5→6 格頭部倍率跳 0.051（上限 0.04）"
+      }
+    },
+    "guard": {
+      "before": {
+        "texture": "guard.webp",
+        "bytes": 992460,
+        "headScales": [
+          0.9,
+          0.9,
+          0.91,
+          0.91,
+          0.91,
+          0.92,
+          0.91,
+          0.9
+        ]
+      },
+      "attempt": 1
+    },
+    "kick": {
+      "before": {
+        "texture": "kick_claw.webp",
+        "bytes": 1165950,
+        "headScales": [
+          0.89,
+          0.88,
+          0.86,
+          0.86,
+          0.9,
+          0.87,
+          0.88,
+          0.89
+        ]
+      },
+      "attempt": 2,
+      "rejected": {
+        "1": "閘門擋下：第 5→6 格頭部倍率跳 0.052（上限 0.04）"
+      }
+    },
+    "shuriken": {
+      "before": {
+        "texture": "needle.webp",
+        "bytes": 1008828,
+        "headScales": [
+          0.88,
+          0.86,
+          0.87,
+          0.87,
+          0.87,
+          0.86,
+          0.86,
+          0.88
+        ]
+      },
+      "attempt": 1
+    },
+    "run": {
+      "before": {
+        "texture": "run.webp",
+        "bytes": 952508,
+        "headScales": [
+          0.91,
+          0.9,
+          0.9,
+          0.91,
+          0.89,
+          0.89,
+          0.9,
+          0.89
+        ]
+      },
+      "lift": [
+        0,
+        0,
+        6,
+        12,
+        0,
+        0,
+        6,
+        12
+      ],
+      "attempt": 3,
+      "rejected": {
+        "1": "原本選定；統籌 09-22 要求重生：第 6 格針筒有一塊白色瑕疵、前後腿交替不夠明顯（第 3 次針筒乾淨、腿部跨度起伏 75→87 單位，換成第 3 次）",
+        "2": "閘門擋下：第 1 列腳底線差 0.025 格高",
+        "4": "閘門擋下：第 1 列腳底線差 0.033 格高"
+      }
+    }
+  }
+}
