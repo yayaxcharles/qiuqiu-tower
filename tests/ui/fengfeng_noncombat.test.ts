@@ -7,7 +7,9 @@ describe('封封非戰鬥共用介面', () => {
   it('選角保留既定人物文案與蓄氣定位', () => {
     const code = src('src/ui/screens/heroselect.ts');
     expect(code).toContain("hero: 'fengfeng'");
-    expect(code).toContain('往返山路的橘白劍客，替村子護送藥材與糧食。這次回村，三位朋友都進了魔塔。他放下貨物，帶著劍去找人。');
+    // 介紹文字的正本在封封台詞檔（FG-SEL-01），選角畫面讀那一份（2026-09-22 起不再各抄一份）
+    expect(code).toContain('blurb: fengfengSelection[0]?.text');
+    expect(src('src/content/fengfeng-dialogue.ts')).toContain('往返山路的橘白劍客，替村子護送藥材與糧食。這次回村，三位朋友都進了魔塔。他放下貨物，帶著劍去找人。');
     expect(code).toContain('蓄氣');
   });
 

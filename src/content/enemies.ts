@@ -1520,6 +1520,18 @@ const MIRROR_DANGDANG: EnemySkin = {
   ],
 };
 
+const MIRROR_FENGFENG: EnemySkin = {
+  name: '鏡中封封',
+  // 五張立繪（shadow_fengfeng_{idle,attack,hurt,block,down}）2026-09-20 已進倉、朝向稽核過
+  art: 'codex/monster_shadow_fengfeng',
+  /*
+   * 稿子沒有替鏡中封封寫專屬開場白（2026-09-22 接線時查過）。先沿用鏡中球球原本那三句裡
+   * 沒點名的兩句；「是球球的影子」那句不能用。要像鏡中菲菲、鏡中噹噹那樣有自己的話，得另外寫。
+   */
+  line: '（從鏡子裡跨出來，貼著地面滑到你面前）',
+  lines: ['（影子學著你的動作，先出手了）'],
+};
+
 /*
  * 這隻魔物在**鏡子照的那一位**面前長什麼樣；沒有變裝就回 undefined。
  *
@@ -1530,6 +1542,7 @@ const MIRROR_DANGDANG: EnemySkin = {
 const MIRROR_SKINS: Readonly<Record<string, EnemySkin>> = {
   feifei: MIRROR_FEIFEI,
   dangdang: MIRROR_DANGDANG,
+  fengfeng: MIRROR_FENGFENG,
 };
 
 export function enemySkin(enemyId: string, hero: string | undefined): EnemySkin | undefined {

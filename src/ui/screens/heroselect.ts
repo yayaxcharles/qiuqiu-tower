@@ -1,6 +1,7 @@
 import { registerScreen } from '../app';
 import { artUrl, heroArtUrl } from '../assets';
 import { cardById, cardNameFor, starterDeckFor } from '../../content/cards';
+import { fengfengSelection } from '../../content/fengfeng-dialogue';
 import { relicById } from '../../content/relics';
 import { describeCard } from '../cardtext';
 import { el } from '../dom';
@@ -39,7 +40,8 @@ const PICKS: Pick[] = [
   },
   {
     hero: 'fengfeng', name: '封封', tag: '蓄氣‧強力劍招',
-    blurb: '往返山路的橘白劍客，替村子護送藥材與糧食。這次回村，三位朋友都進了魔塔。他放下貨物，帶著劍去找人。',
+    // 正本在封封台詞檔（稿子 FG-SEL-01），這裡不再抄一份，免得改了一邊另一邊沒跟上
+    blurb: fengfengSelection[0]?.text ?? '',
     pose: 'hero/ninja',
   },
 ];
