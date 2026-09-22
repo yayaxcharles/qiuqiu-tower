@@ -1,0 +1,1100 @@
+{
+  "note": "批次 screens（2026-09-22）：選角、結算、過關、特殊獎勵、標題的主角立繪換新畫風。由 tools/pack_screen_art.py 產生，數字的意思見該檔檔頭。",
+  "unit": 2.0741,
+  "headTolerance": 0.06,
+  "haloMax": 0.3,
+  "files": {
+    "qiuqiu/idle": {
+      "attempt": 1,
+      "source": "qiuqiu_idle.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.31,
+        "corr": 0.988,
+        "angle": 0,
+        "flipCorr": 0.826
+      },
+      "sizeFix": 0.763,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        62,
+        36,
+        497,
+        543
+      ],
+      "oldBox": [
+        99,
+        5,
+        461,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 1.0,
+        "corr": 0.986,
+        "angle": 0,
+        "flipCorr": 0.799
+      },
+      "halo": 0.0,
+      "key": "hero/ninja",
+      "file": "public/assets/sprites/hero/ninja.webp",
+      "sha256": "0e8ee4d4fbf692cd6771f9ed7a0cb5f82257cc6073230dc036e9242236e8341a",
+      "bytes": 30344,
+      "oldBytes": 20860
+    },
+    "qiuqiu/win": {
+      "attempt": 1,
+      "source": "qiuqiu_win.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.2,
+        "corr": 0.945,
+        "angle": 4,
+        "flipCorr": 0.826
+      },
+      "sizeFix": 0.833,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        52,
+        12,
+        509,
+        541
+      ],
+      "oldBox": [
+        77,
+        6,
+        483,
+        541
+      ],
+      "soleLine": 541,
+      "headFinal": {
+        "scale": 1.0,
+        "corr": 0.945,
+        "angle": 4,
+        "flipCorr": 0.805
+      },
+      "halo": 0.003,
+      "key": "hero/ninja_win",
+      "file": "public/assets/sprites/hero/ninja_win.webp",
+      "sha256": "0107284e6c03111f0f9263fdcaa124b757505cf516fd3c614a865c6b0de8a6d6",
+      "bytes": 30442,
+      "oldBytes": 22190
+    },
+    "qiuqiu/lose": {
+      "attempt": 1,
+      "source": "qiuqiu_lose.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.35,
+        "corr": 0.901,
+        "angle": -23,
+        "flipCorr": 0.837
+      },
+      "sizeFix": 0.74,
+      "sizeBy": "eye",
+      "eye": "低頭閉眼的跪姿，自動量頭吻合 0.901、成品重量卻變 0.90 倍（吻合 0.884），前後對不起來＝量不準；0.74／0.80／0.86 跟待機並排比頭巾寬度與頭圍，0.74 一樣大",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        56,
+        96,
+        505,
+        541
+      ],
+      "oldBox": [
+        19,
+        6,
+        541,
+        541
+      ],
+      "soleLine": 541,
+      "halo": 0.0,
+      "key": "hero/ninja_lose",
+      "file": "public/assets/sprites/hero/ninja_lose.webp",
+      "sha256": "ec466d5968fe4b63f0d13eabfae7ce6a5bdc34991f2dc658742a9b5a0cbaec24",
+      "bytes": 25114,
+      "oldBytes": 22818
+    },
+    "qiuqiu/eat": {
+      "attempt": 2,
+      "source": "qiuqiu_eat.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.24,
+        "corr": 0.92,
+        "angle": 0,
+        "flipCorr": 0.827
+      },
+      "sizeFix": 0.806,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        50,
+        33,
+        511,
+        543
+      ],
+      "oldBox": [
+        76,
+        4,
+        484,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 1.01,
+        "corr": 0.921,
+        "angle": 0,
+        "flipCorr": 0.816
+      },
+      "halo": 0.002,
+      "key": "hero/ninja_eat",
+      "file": "public/assets/sprites/hero/ninja_eat.webp",
+      "sha256": "e9ffec6b55b6cc979f61f344388fbc848713fb1128bcfa183f7971170d5ff480",
+      "bytes": 30490,
+      "oldBytes": 24008
+    },
+    "qiuqiu/dizzy": {
+      "attempt": 2,
+      "source": "qiuqiu_dizzy.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.966,
+      "headRaw": {
+        "scale": 1.25,
+        "corr": 0.926,
+        "angle": 0,
+        "flipCorr": 0.825
+      },
+      "sizeFix": 0.8,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        52,
+        33,
+        506,
+        543
+      ],
+      "oldBox": [
+        95,
+        4,
+        464,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 0.99,
+        "corr": 0.925,
+        "angle": 0,
+        "flipCorr": 0.802
+      },
+      "halo": 0.005,
+      "key": "hero/ninja_dizzy",
+      "file": "public/assets/sprites/hero/ninja_dizzy.webp",
+      "sha256": "db032389637dca454c9a0396ac54962fccfd37cd20713a73cf1186fc7cd1ca3c",
+      "bytes": 34562,
+      "oldBytes": 24532
+    },
+    "qiuqiu/cover": {
+      "attempt": 1,
+      "source": "qiuqiu_cover.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.98,
+      "headRaw": {
+        "scale": 1.18,
+        "corr": 0.829,
+        "angle": 0,
+        "flipCorr": 0.817
+      },
+      "sizeFix": 1.0,
+      "sizeBy": "eye",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "pxPerUnit": 1.3273,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        25,
+        194,
+        541,
+        533
+      ],
+      "oldBox": [
+        24,
+        166,
+        542,
+        533
+      ],
+      "soleLine": 533,
+      "key": "hero/cover",
+      "file": "public/assets/sprites/hero/cover.webp",
+      "sha256": "07e7b0d82ddb2501b00933cbbf779a75efd806b707bc268b984415b436bb49b2",
+      "bytes": 57356,
+      "oldBytes": 55920
+    },
+    "feifei/idle": {
+      "attempt": 1,
+      "source": "feifei_idle.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.17,
+        "corr": 0.985,
+        "angle": 0,
+        "flipCorr": 0.822
+      },
+      "sizeFix": 0.855,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        73,
+        27,
+        483,
+        545
+      ],
+      "oldBox": [
+        90,
+        5,
+        466,
+        545
+      ],
+      "soleLine": 545,
+      "headFinal": {
+        "scale": 1.0,
+        "corr": 0.982,
+        "angle": 0,
+        "flipCorr": 0.793
+      },
+      "halo": 0.002,
+      "key": "hero/feifei_idle",
+      "file": "public/assets/sprites/hero/feifei_idle.webp",
+      "sha256": "ceecdc1fed1b495553860f730401df7171444dcc12be5bd7c2e684a527536c16",
+      "bytes": 37232,
+      "oldBytes": 27954
+    },
+    "feifei/win": {
+      "attempt": 1,
+      "source": "feifei_win.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.13,
+        "corr": 0.925,
+        "angle": 0,
+        "flipCorr": 0.821
+      },
+      "sizeFix": 0.885,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        62,
+        7,
+        498,
+        545
+      ],
+      "oldBox": [
+        87,
+        5,
+        473,
+        545
+      ],
+      "soleLine": 545,
+      "headFinal": {
+        "scale": 0.99,
+        "corr": 0.925,
+        "angle": 0,
+        "flipCorr": 0.802
+      },
+      "halo": 0.003,
+      "key": "hero/feifei_win",
+      "file": "public/assets/sprites/hero/feifei_win.webp",
+      "sha256": "1513dcd5c9ac8d85daad7beb7d2d87da113935a3f7fbee4ba133b690016ba876",
+      "bytes": 38194,
+      "oldBytes": 27746
+    },
+    "feifei/lose": {
+      "attempt": 1,
+      "source": "feifei_lose.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.17,
+        "corr": 0.926,
+        "angle": -8,
+        "flipCorr": 0.824
+      },
+      "sizeFix": 0.855,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        32,
+        58,
+        529,
+        545
+      ],
+      "oldBox": [
+        10,
+        19,
+        550,
+        545
+      ],
+      "soleLine": 545,
+      "headFinal": {
+        "scale": 1.0,
+        "corr": 0.927,
+        "angle": -8,
+        "flipCorr": 0.816
+      },
+      "halo": 0.004,
+      "key": "hero/feifei_lose",
+      "file": "public/assets/sprites/hero/feifei_lose.webp",
+      "sha256": "6a428932a649054372bcc17618bf455831987f0e90a4d75d89d05ab71ad9bfda",
+      "bytes": 34546,
+      "oldBytes": 32636
+    },
+    "feifei/eat": {
+      "attempt": 2,
+      "source": "feifei_eat.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.11,
+        "corr": 0.925,
+        "angle": 0,
+        "flipCorr": 0.823
+      },
+      "sizeFix": 0.901,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "fitShrink": 0.9936,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        71,
+        2,
+        489,
+        543
+      ],
+      "oldBox": [
+        93,
+        5,
+        467,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 0.99,
+        "corr": 0.925,
+        "angle": 0,
+        "flipCorr": 0.809
+      },
+      "halo": 0.006,
+      "key": "hero/feifei_eat",
+      "file": "public/assets/sprites/hero/feifei_eat.webp",
+      "sha256": "10e9dd47253a4ff0b43acdf444d10b1bc6bf8122e9157b019ef983b2b040c3dd",
+      "bytes": 36870,
+      "oldBytes": 26934
+    },
+    "feifei/dizzy": {
+      "attempt": 2,
+      "source": "feifei_dizzy.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.977,
+      "headRaw": {
+        "scale": 0.99,
+        "corr": 0.942,
+        "angle": -15,
+        "flipCorr": 0.82
+      },
+      "sizeFix": 1.01,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "fitShrink": 0.9747,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        28,
+        2,
+        530,
+        543
+      ],
+      "oldBox": [
+        97,
+        5,
+        462,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 0.98,
+        "corr": 0.943,
+        "angle": -15,
+        "flipCorr": 0.802
+      },
+      "halo": 0.011,
+      "key": "hero/feifei_dizzy",
+      "file": "public/assets/sprites/hero/feifei_dizzy.webp",
+      "sha256": "80934305b0b4877fd3a148427b915b448966b5942c4b9874e10c14106ebd11c0",
+      "bytes": 40874,
+      "oldBytes": 29330
+    },
+    "feifei/cover": {
+      "attempt": 1,
+      "source": "feifei_cover.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.978,
+      "headRaw": {
+        "scale": 0.91,
+        "corr": 0.895,
+        "angle": 0,
+        "flipCorr": 0.84
+      },
+      "sizeFix": 1.0,
+      "sizeBy": "eye",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "pxPerUnit": 1.3333,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        24,
+        198,
+        536,
+        536
+      ],
+      "oldBox": [
+        25,
+        138,
+        535,
+        536
+      ],
+      "soleLine": 536,
+      "key": "hero/feifei_cover",
+      "file": "public/assets/sprites/hero/feifei_cover.webp",
+      "sha256": "7bf2b5a648dba93d04e4baac9573a64e58bad862a1c447a3e438f42ba9cba337",
+      "bytes": 59760,
+      "oldBytes": 55586
+    },
+    "dangdang/idle": {
+      "attempt": 1,
+      "source": "dangdang_idle.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.23,
+        "corr": 0.98,
+        "angle": 0,
+        "flipCorr": 0.801
+      },
+      "sizeFix": 0.813,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        104,
+        26,
+        455,
+        543
+      ],
+      "oldBox": [
+        141,
+        5,
+        419,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 1.0,
+        "corr": 0.98,
+        "angle": 0,
+        "flipCorr": 0.788
+      },
+      "halo": 0.002,
+      "key": "hero/dangdang_idle",
+      "file": "public/assets/sprites/hero/dangdang_idle.webp",
+      "sha256": "787dbe9e1c7cdc9185fe92ad228ef745c3b1652a51dccd5c9d91993e7dd675a6",
+      "bytes": 27264,
+      "oldBytes": 21534
+    },
+    "dangdang/win": {
+      "attempt": 1,
+      "source": "dangdang_win.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.05,
+        "corr": 0.926,
+        "angle": 0,
+        "flipCorr": 0.789
+      },
+      "sizeFix": 0.952,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        68,
+        32,
+        491,
+        543
+      ],
+      "oldBox": [
+        90,
+        5,
+        470,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 1.0,
+        "corr": 0.924,
+        "angle": 0,
+        "flipCorr": 0.788
+      },
+      "halo": 0.016,
+      "key": "hero/dangdang_win",
+      "file": "public/assets/sprites/hero/dangdang_win.webp",
+      "sha256": "066cb6ed8b5e508e21fbfe6fefdaa01c20fbb4fc5bedef6c2e307689f69bfe1e",
+      "bytes": 31656,
+      "oldBytes": 26766
+    },
+    "dangdang/lose": {
+      "attempt": 2,
+      "source": "dangdang_lose.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 0.8,
+        "corr": 0.839,
+        "angle": -45,
+        "flipCorr": 0.789
+      },
+      "sizeFix": 0.84,
+      "sizeBy": "eye",
+      "eye": "低頭坐姿，自動量頭吻合只有 0.839；0.75／0.80／0.86 跟待機並排比頭寬與銅護臂，0.84 最接近",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        103,
+        120,
+        457,
+        543
+      ],
+      "oldBox": [
+        64,
+        148,
+        496,
+        543
+      ],
+      "soleLine": 543,
+      "halo": 0.007,
+      "key": "hero/dangdang_lose",
+      "file": "public/assets/sprites/hero/dangdang_lose.webp",
+      "sha256": "6334c146620810f8f66394cae1fbcc314692a14ebcafb5ad80eb0e80d58f83f7",
+      "bytes": 22448,
+      "oldBytes": 20886
+    },
+    "dangdang/eat": {
+      "attempt": 2,
+      "source": "dangdang_eat.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.19,
+        "corr": 0.911,
+        "angle": 0,
+        "flipCorr": 0.798
+      },
+      "sizeFix": 0.84,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        96,
+        22,
+        464,
+        543
+      ],
+      "oldBox": [
+        103,
+        5,
+        456,
+        543
+      ],
+      "soleLine": 543,
+      "headFinal": {
+        "scale": 1.01,
+        "corr": 0.913,
+        "angle": 0,
+        "flipCorr": 0.789
+      },
+      "halo": 0.007,
+      "key": "hero/dangdang_eat",
+      "file": "public/assets/sprites/hero/dangdang_eat.webp",
+      "sha256": "eaf031b70c00d911d4367d607948c10b0f2a1208ea04fb0a801297c5a6a0b395",
+      "bytes": 27734,
+      "oldBytes": 23502
+    },
+    "dangdang/dizzy": {
+      "attempt": 2,
+      "source": "dangdang_dizzy.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.974,
+      "headRaw": {
+        "scale": 1.17,
+        "corr": 0.894,
+        "angle": -7,
+        "flipCorr": 0.787
+      },
+      "sizeFix": 0.89,
+      "sizeBy": "eye",
+      "eye": "蚊香眼，自動量頭吻合只有 0.894；0.80／0.86／0.92 跟待機並排比頭寬、頭高與銅護臂，0.89 最接近",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        547
+      ],
+      "box": [
+        88,
+        29,
+        471,
+        543
+      ],
+      "oldBox": [
+        135,
+        5,
+        424,
+        543
+      ],
+      "soleLine": 543,
+      "halo": 0.011,
+      "key": "hero/dangdang_dizzy",
+      "file": "public/assets/sprites/hero/dangdang_dizzy.webp",
+      "sha256": "9c4f23f804fe5907f7208f44771d721d553398be6388c4cf02823bac78ebe664",
+      "bytes": 30886,
+      "oldBytes": 26902
+    },
+    "dangdang/cover": {
+      "attempt": 1,
+      "source": "dangdang_cover.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.984,
+      "headRaw": {
+        "scale": 0.66,
+        "corr": 0.811,
+        "angle": 19,
+        "flipCorr": 0.797
+      },
+      "sizeFix": 1.0,
+      "sizeBy": "eye",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "pxPerUnit": 1.3333,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        25,
+        174,
+        535,
+        536
+      ],
+      "oldBox": [
+        32,
+        130,
+        528,
+        536
+      ],
+      "soleLine": 536,
+      "key": "hero/dangdang_cover",
+      "file": "public/assets/sprites/hero/dangdang_cover.webp",
+      "sha256": "74abf86a3fa1565220bb7872954e98dbd5a08ae1140467b1fea4aafe5fd2aabd",
+      "bytes": 62040,
+      "oldBytes": 56088
+    },
+    "fengfeng/idle": {
+      "attempt": 1,
+      "source": "fengfeng_idle.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.27,
+        "corr": 0.974,
+        "angle": 0,
+        "flipCorr": 0.86
+      },
+      "sizeFix": 0.787,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        92,
+        25,
+        468,
+        533
+      ],
+      "oldBox": [
+        101,
+        26,
+        458,
+        533
+      ],
+      "soleLine": 533,
+      "headFinal": {
+        "scale": 1.0,
+        "corr": 0.973,
+        "angle": 0,
+        "flipCorr": 0.851
+      },
+      "halo": 0.005,
+      "key": "hero/fengfeng_idle",
+      "file": "public/assets/sprites/hero/fengfeng_idle.webp",
+      "sha256": "0d9e3859aface2a6092e6aaa779c5df23d3a44ff4f3bf0253107d3ab0b34ed12",
+      "bytes": 35966,
+      "oldBytes": 46298
+    },
+    "fengfeng/win": {
+      "attempt": 2,
+      "source": "fengfeng_win.try2.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.15,
+        "corr": 0.944,
+        "angle": 0,
+        "flipCorr": 0.865
+      },
+      "sizeFix": 0.87,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "fitShrink": 0.9873,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        30,
+        2,
+        529,
+        534
+      ],
+      "oldBox": [
+        104,
+        27,
+        455,
+        534
+      ],
+      "soleLine": 534,
+      "headFinal": {
+        "scale": 0.99,
+        "corr": 0.945,
+        "angle": 0,
+        "flipCorr": 0.866
+      },
+      "halo": 0.005,
+      "key": "hero/fengfeng_win",
+      "file": "public/assets/sprites/hero/fengfeng_win.webp",
+      "sha256": "3ffdf7bd5927c45f930e6be41288a5ffcda933570fb36f7ac97637b6173846ab",
+      "bytes": 44336,
+      "oldBytes": 51870
+    },
+    "fengfeng/lose": {
+      "attempt": 1,
+      "source": "fengfeng_lose.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.28,
+        "corr": 0.927,
+        "angle": -15,
+        "flipCorr": 0.873
+      },
+      "sizeFix": 0.781,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        85,
+        102,
+        476,
+        534
+      ],
+      "oldBox": [
+        45,
+        23,
+        516,
+        534
+      ],
+      "soleLine": 534,
+      "headFinal": {
+        "scale": 0.99,
+        "corr": 0.924,
+        "angle": -11,
+        "flipCorr": 0.866
+      },
+      "halo": 0.006,
+      "key": "hero/fengfeng_lose",
+      "file": "public/assets/sprites/hero/fengfeng_lose.webp",
+      "sha256": "0aa63b0d340617f2d65316e7dd35208dabe195fbee91c8e72a2e30045af37d5b",
+      "bytes": 30282,
+      "oldBytes": 61420
+    },
+    "fengfeng/eat": {
+      "attempt": 1,
+      "source": "fengfeng_eat.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 1.0,
+      "headRaw": {
+        "scale": 1.32,
+        "corr": 0.918,
+        "angle": 0,
+        "flipCorr": 0.876
+      },
+      "sizeFix": 0.758,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        88,
+        9,
+        472,
+        530
+      ],
+      "oldBox": [
+        93,
+        20,
+        468,
+        530
+      ],
+      "soleLine": 530,
+      "headFinal": {
+        "scale": 0.99,
+        "corr": 0.919,
+        "angle": 0,
+        "flipCorr": 0.867
+      },
+      "halo": 0.002,
+      "key": "hero/fengfeng_eat",
+      "file": "public/assets/sprites/hero/fengfeng_eat.webp",
+      "sha256": "c19d65452efcf7b366d086a0074484f836a06f3a9f1b6af9b7fa834b4787b5a4",
+      "bytes": 36014,
+      "oldBytes": 47598
+    },
+    "fengfeng/dizzy": {
+      "attempt": 1,
+      "source": "fengfeng_dizzy.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.982,
+      "headRaw": {
+        "scale": 1.19,
+        "corr": 0.91,
+        "angle": -7,
+        "flipCorr": 0.86
+      },
+      "sizeFix": 0.84,
+      "sizeBy": "headFit",
+      "pxPerUnit": 2.0741,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        68,
+        30,
+        510,
+        532
+      ],
+      "oldBox": [
+        59,
+        17,
+        519,
+        532
+      ],
+      "soleLine": 532,
+      "headFinal": {
+        "scale": 1.01,
+        "corr": 0.912,
+        "angle": -8,
+        "flipCorr": 0.861
+      },
+      "halo": 0.008,
+      "key": "hero/fengfeng_dizzy",
+      "file": "public/assets/sprites/hero/fengfeng_dizzy_clean.webp",
+      "sha256": "5cc2192bc76ef545fe9128d6c7594eb827bd2c37b9d851abbbf9604b50fb979f",
+      "bytes": 40416,
+      "oldBytes": 162656
+    },
+    "fengfeng/cover": {
+      "attempt": 1,
+      "source": "fengfeng_cover.try1.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "mainBody": 0.962,
+      "headRaw": {
+        "scale": 0.76,
+        "corr": 0.879,
+        "angle": 30,
+        "flipCorr": 0.878
+      },
+      "sizeFix": 1.0,
+      "sizeBy": "eye",
+      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準；四張一律照參考圖①的版面（站高 60%）整張等比例縮成 560 寬、不另外修正，四隻並排看過頭的大小一致",
+      "pxPerUnit": 1.3333,
+      "canvas": [
+        560,
+        560
+      ],
+      "box": [
+        16,
+        168,
+        548,
+        531
+      ],
+      "oldBox": [
+        47,
+        116,
+        517,
+        531
+      ],
+      "soleLine": 531,
+      "key": "hero/fengfeng_cover",
+      "file": "public/assets/sprites/hero/fengfeng_cover.webp",
+      "sha256": "e52a1cad563dab43779ac67cddc7718eb4c0d6f3d24e339a27f148c404609446",
+      "bytes": 66540,
+      "oldBytes": 223140
+    }
+  }
+}
