@@ -983,20 +983,8 @@
 #stage[data-screen="rest"][data-act="2"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
 /* 第一關的基準：窩中心 x ≈ 185～200，立繪框中心＝left＋150 */
 #stage[data-screen="rest"][data-act="1"] .scene-portrait { left: 42px; }
-/*
- * **噹噹蜷起來比另外兩隻大一號**（2026-09-17 使用者：「貓窩的位置都不正確」）。
- *
- * 量出來：球球的蜷縮圖實體 491×452、菲菲 372×452、他 540×517——他整整高了 65、寬了 49。
- * 同一個座標，球球剛好坐進籃子，他會滿出來（左邊的衣襬與尾巴整個掉到籃子外）。
- *
- * 左右不用調：三張圖都在同一個畫布裡置中、貼底，所以 `left` 的意義完全一樣。
- * 要調的是**大小**：等比縮到 0.87（452/517），身體就跟球球一樣高，籃子裝得下。
- * 錨在 `bottom center`，所以三關的 `left` 與 `bottom` 都不用另外算，一條規則管完。
- */
-#stage[data-screen="rest"][data-hero="dangdang"] .scene-portrait {
-  scale: 0.87;
-  transform-origin: bottom center;
-}
+/* 噹噹原本另外縮到 0.87（舊蜷縮圖比別人大一號）；2026-09-22 貓窩立繪換新畫風後四隻都照戰鬥比例畫，
+   再縮就比戰鬥裡小一成三，那條規則拿掉了（tests/ui/rest_art_0922.test.ts 守著） */
 /* 第三關**原版**那張底圖的窩在比較右邊（≈228，另外兩張 _b／_c ≈150），球球與菲菲各有一條，
    他漏了就停在基準的 2、比兩位左 76 像素（稽核 2026-09-17 中-4）。除錯頁跳進去看到的就是這一張 */
 #stage[data-screen="rest"][data-act="3"][data-hero="dangdang"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
@@ -1028,6 +1016,8 @@
 #stage[data-screen="rest"][data-act="1"][data-hero="feifei"] .scene-portrait { left: 42px; }
 #stage[data-screen="rest"][data-act="2"][data-hero="feifei"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 135px; }
 #stage[data-screen="rest"][data-act="3"][data-hero="feifei"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+/* 封封 2026-09-20 才進來，漏了這一條：第三關原版底圖停在基準的 2、坐在窩左邊的邊上（2026-09-22 換新畫風時實機看到） */
+#stage[data-screen="rest"][data-act="3"][data-hero="fengfeng"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 
 /* ===== 2026-09-02 使用者：「按鈕樣式你都改成這樣吧」——全部按鈕統一深色玻璃＋金邊（含標題、疊層、結束回合、狀態列小鈕）。
    難度鈕保留自己的顏色（.diff-btn.dN 在後面蓋掉底色）。 ===== */
