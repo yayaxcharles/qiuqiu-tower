@@ -49,6 +49,19 @@ export function playerLeft(seat: number, n: number): number {
   return seat === 0 ? 10 : 235;
 }
 
+/**
+ * 第 `seat` 位講話時，戰鬥泡泡擺哪（2026-09-22 晚，連線盤點問題 5）。原本一律寫死左緣 200，
+ * 兩個人時座位 1 講話，泡泡卻從座位 0 頭上冒出來。
+ *
+ * 尾巴尖一律落在那一格的嘴前（格子左緣＋204；一個人時就是原本的 234）。
+ * 左邊那一格：尾巴在泡泡左下角、泡泡往右長（一個人時左緣 200，跟樣式表原本寫的一樣）；
+ * 右邊那一格（連線座位 1）：尾巴在右下角、泡泡往左長——往右長的話，長句會一路蓋到魔物頭上。
+ */
+export function speechBubbleAt(seat: number, n: number): { left: number } | { right: number } {
+  const tail = playerLeft(seat, n) + 204;
+  return n > 1 && seat === n - 1 ? { right: STAGE_W - (tail + 34) } : { left: tail - 34 };
+}
+
 export function enemyLeft(i: number, n: number): number {
   if (i < 0) return 780;
   const step = enemyStep(n);

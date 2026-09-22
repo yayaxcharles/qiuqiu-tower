@@ -17,8 +17,9 @@ import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, localHero, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
 import { setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
-import { playDialogue, toast, bubbleAt, heroSpeaker } from './dialogue';
-import { clear, el, stageFrame } from './dom';
+import { playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
+import { speechBubbleAt } from './enemylayout';
+import { clear, el } from './dom';
 import { setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
@@ -400,22 +401,22 @@ export class App {
         cs.enemies.filter((e) => !e.dead && enemyById[e.enemyId]?.line).forEach((e, i) => {
           window.setTimeout(() => {
             if (this.cs !== cs) return;
-            const sprite = this.screen.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
-            if (!sprite) return;
             // 舞台的框在**要用的那一刻**才量：泡泡最晚會在 1.8 秒後才冒出來，
-            // 中途改視窗大小的話，開頭量好的倍率就對不上了（跟指引箭頭同一個坑，稽核 2026-09-10 中-3）
-            const stage = stageFrame(this.stage);
-            const r = sprite.getBoundingClientRect();
-            bubbleAt(e.line ?? enemyById[e.enemyId]?.line ?? '', e.name, (r.left + r.width / 2 - stage.left) * stage.k, (r.top - stage.top) * stage.k + 16);
+            // 中途改視窗大小的話，開頭量好的倍率就對不上了（跟指引箭頭同一個坑，稽核 2026-09-10 中-3）。
+            // 量法與「避開頭上的意圖牌」在 dialogue.ts 的 bubbleOverUnit（2026-09-22 晚：高大魔物的泡泡壓住攻擊預告）
+            bubbleOverUnit(this.stage, this.screen.querySelector(`.unit.enemy[data-uid="${e.uid}"]`),
+              e.line ?? enemyById[e.enemyId]?.line ?? '', e.name);
           }, i * 420);
         });
       }, 500);
       const mine = me(run, this.seat);
+      // 開場這句從自己那一格冒出來（連線時可能是座位 1，2026-09-22 晚）
+      const at = speechBubbleAt(this.seat, cs.players.length);
       if (firstNew) {
         run.flags[`seen:${firstNew}`] = true;   // 不存檔：戰鬥中不存，旗標由獎勵挑完那次存檔帶走
-        toast(firstMeetLine(mine.hero, firstNew), heroSpeaker());
+        toast(firstMeetLine(mine.hero, firstNew), heroSpeaker(), at);
       } else {
-        toast(pick(storyFor(mine.hero).battleStart), heroSpeaker());
+        toast(pick(storyFor(mine.hero).battleStart), heroSpeaker(), at);
       }
       };
       void Promise.allSettled([

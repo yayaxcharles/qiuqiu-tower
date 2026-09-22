@@ -126,9 +126,12 @@ const FEIFEI_SHARED_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleActi
   dianxue: 'needle_pierce',
   shierlian: 'needle_barrage',
   sashoujian: 'shuriken',
+  // 2026-09-22 晚：這三張原本刻意只演卡圖（毒丸、毒砂、繩索不是針），出牌時露出舊立繪。
+  // 改成配最像的出手：毒丸彈一彈、毒砂一把撒出去、絆索反手甩出去（飛出去的仍是針，素材沒有毒丸與繩索）
+  maoqiudan: 'shuriken',
+  tieshazhang: 'needle_fan',
+  qinna: 'needle_backhand',
 };
-/** 牌面是獨立暗器，現有飛針投射物不相符；素材補齊前保留卡圖演出。 */
-const FEIFEI_PROJECTILE_GAPS = new Set(['maoqiudan', 'tieshazhang', 'qinna']);
 const EAT_CARDS = new Set(['touchi', 'xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
 
 const DANGDANG_CARD_ACTION: Readonly<Record<string, DangdangMotionAction>> = {
@@ -186,10 +189,15 @@ const DANGDANG_SHARED_ACTION = new Map<string, DangdangMotionAction>();
 for (const [action, cards] of Object.entries(DANGDANG_SHARED_GROUPS)) {
   for (const card of cards) DANGDANG_SHARED_ACTION.set(card, action as DangdangMotionAction);
 }
+// 壞毛病都不可打出，打不出去就不會走到這裡；黏液、眼冒金星打得出去，2026-09-22 晚起照下面的規則配動作
 const DANGDANG_NO_MOTION = new Set([
   'zhongji', 'shishou', 'zouhuo', 'neili', 'shibai',
-  'maoqiu', 'zuiyang', 'fanwei', 'slime_card', 'dazed_card',
+  'maoqiu', 'zuiyang', 'fanwei',
 ]);
+/** 沒逐張列到的攻擊牌照招式家族配（跟共用牌分組同一個意思：爪與掌推一路、拳、踢、衝撞用肩撞） */
+const DANGDANG_ATTACK_FAMILY: Readonly<Record<string, DangdangMotionAction>> = {
+  claw: 'palm', punch: 'punch', kick: 'kick', dash: 'shoulder', roar: 'ground_slam', taiji: 'counter',
+};
 const DANGDANG_MELEE = new Set<DangdangMotionAction>([
   'punch', 'palm', 'kick', 'shoulder', 'counter',
   'rapid_combo', 'heavy_palm', 'sweep_combo', 'reckless_bash',
@@ -219,8 +227,13 @@ const FENGFENG_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
 };
 const FENGFENG_SHARED_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
   liandao: 'sword_combo',
+  // 2026-09-22 晚：這三張原本刻意只演卡圖（手裏劍、毛球、木桶都是丟出去的），出牌時露出舊立繪。
+  // 他沒有投擲動作，改配最像的出手：亂舞打全體兩輪用橫掃（噹噹那張也叫橫掃千軍）、
+  // 撒手鐧是一記大招、原地劈出地裂、毛球彈張嘴一吐（吼的那套，劍不出鞘）
+  luanwu: 'sweep',
+  sashoujian: 'earth_split',
+  maoqiudan: 'roar',
 };
-const FENGFENG_PROJECTILE_GAPS = new Set(['luanwu', 'maoqiudan', 'sashoujian']);
 const FENGFENG_ATTACKS = new Set<FengfengMotionAction>([
   'slash', 'sweep', 'heavy_slash', 'thrust', 'double_slash',
   'sword_combo', 'qi_cleave', 'earth_split', 'retreat_thrust',
@@ -396,11 +409,26 @@ export function companionMotionDrawable(kind: CompanionMotionKind, action: Compa
 
 /**
  * 出牌時這個動作能不能播。延後下載的出牌動作圖還沒到（或壞了）就回 false，
- * 戰鬥畫面退回「選不到動作」的舊行為（靜態立繪），不能停在上一個動作的最後一格；圖到了下一張牌就用新動作。
+ * 戰鬥畫面改播 `companionPlayableAction` 的替身，不能停在上一個動作的最後一格；圖到了下一張牌就用新動作。
  * 其他動作（預載的、菲菲的分身這種組合演出）照舊一律可播。
  */
 export function companionCardMotionPlayable(kind: CompanionMotionKind, action: CompanionMotionAction): boolean {
   return !DEFERRED_COMPANION_CARD_ACTIONS.has(action) || frameSet(kind).drawable(action);
+}
+
+/**
+ * 延後下載的出牌動作圖（吼、太極）還沒到時，先用哪個預載好的動作頂著（2026-09-22 晚）。
+ * 原本這時交還靜態立繪，網路慢一點就會露出舊畫風。菲菲用結印、封封用運氣（劍都不出鞘）；噹噹沒有延後的出牌動作。
+ */
+const DEFERRED_CARD_STAND_IN: Readonly<Record<CompanionMotionKind, Readonly<Record<string, CompanionMotionAction>>>> = {
+  feifei: { roar: 'seal', taiji: 'seal' },
+  dangdang: {},
+  fengfeng: { roar: 'focus', taiji: 'focus' },
+};
+
+/** 出牌、用忍具時實際要播的動作：播得了就是它，延後下載的圖還沒到就換成替身。 */
+export function companionPlayableAction(kind: CompanionMotionKind, action: CompanionMotionAction): CompanionMotionAction {
+  return companionCardMotionPlayable(kind, action) ? action : DEFERRED_CARD_STAND_IN[kind][action] ?? 'idle';
 }
 
 export function companionMotionReady(kind: CompanionMotionKind): boolean {
@@ -489,12 +517,18 @@ export function companionCardAction(
 ): CompanionMotionAction | undefined {
   if (kind === 'dangdang') {
     if (DANGDANG_NO_MOTION.has(cardId)) return undefined;
-    return DANGDANG_CARD_ACTION[cardId] ?? DANGDANG_SHARED_ACTION.get(cardId);
+    const listed = DANGDANG_CARD_ACTION[cardId] ?? DANGDANG_SHARED_ACTION.get(cardId);
+    if (listed) return listed;
+    // 沒列到的（打得出去的戰鬥雜牌、以後新加的牌）照規則配，不再退回靜態立繪（2026-09-22 晚）
+    if (options.cardType === '攻擊') return DANGDANG_ATTACK_FAMILY[options.poseFamily ?? ''] ?? 'palm';
+    if (options.poseFamily === 'qinggong') return 'dodge';
+    if (options.hasBlock) return 'guard';
+    if (EAT_CARDS.has(cardId) || options.hasHeal) return 'eat';
+    return options.cardType ? 'focus' : undefined;
   }
   if (kind === 'fengfeng') {
     const own = FENGFENG_CARD_ACTION[cardId] ?? FENGFENG_SHARED_CARD_ACTION[cardId];
     if (own) return own;
-    if (FENGFENG_PROJECTILE_GAPS.has(cardId)) return undefined;
     // 吼、太極、輕功三個招式家族（2026-09-11 使用者要求分家）：2026-09-22 起有自己的動作，不再退回靜態立繪。
     // 吼（含獅吼功）、太極是新畫的、劍不出鞘；輕功沿用閃身；借力使力（攻擊牌裡的太極）沿用回步刺。
     if (options.poseFamily === 'roar') return 'roar';
@@ -515,7 +549,6 @@ export function companionCardAction(
   if (needle) return needle;
   if (cardId === 'feifei_fenshen') return 'clone';
   if (cardId === 'feifei_lakai') return 'roll';
-  if (FEIFEI_PROJECTILE_GAPS.has(cardId)) return undefined;
   // 吼、太極、輕功三個招式家族（2026-09-11 使用者要求分家）：2026-09-22 起有自己的動作，不再退回靜態立繪。
   // 吼（含獅吼功）、太極是新畫的；輕功沿用後退閃躲。
   if (options.poseFamily === 'roar') return 'roar';
