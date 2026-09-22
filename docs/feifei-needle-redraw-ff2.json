@@ -1,0 +1,580 @@
+{
+  "generator": "gpt-image-1.5（codex-oauth，真透明輸出）",
+  "reproducer": "python tools/pack_feifei_needle_redraw.py",
+  "headTolerance": 0.05,
+  "headStep": 0.04,
+  "assets": [
+    {
+      "action": "needle_backhand",
+      "attempt": 4,
+      "source": "tools/motion-art-source/ff2/needle_backhand.png",
+      "sourceSha256": "84258fb75aa0bbf3c77c70df9a592b99dc89792a999e913a080d1ae36cdecda7",
+      "target": "public/assets/motion/feifei/needle_backhand_v3.webp",
+      "targetSha256": "ccb315c28f116d0f04b216c5d639774b45bd1fc473ae02f85628e357b3b4460a",
+      "bytes": 711304,
+      "size": [
+        1536,
+        1024
+      ],
+      "replaces": "assets/motion/feifei/needle_backhand_v2.webp",
+      "rawHeadScales": [
+        0.97,
+        0.98,
+        0.99,
+        1.01,
+        1.01,
+        0.99,
+        1.01,
+        1.02
+      ],
+      "sizeFix": 1.0,
+      "headScales": [
+        0.97,
+        0.98,
+        0.99,
+        1.01,
+        1.01,
+        0.99,
+        1.01,
+        1.02
+      ],
+      "headCorr": [
+        0.988,
+        0.903,
+        0.95,
+        0.977,
+        0.927,
+        0.934,
+        0.946,
+        0.963
+      ],
+      "headRotation": [
+        0.0,
+        -8.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.0,
+        -2.0,
+        0.0
+      ],
+      "headMethod": [
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head"
+      ],
+      "faceCheck": {},
+      "headStepMax": 0.02,
+      "firstHeightRatio": 1.0,
+      "lastHeightRatio": 1.012,
+      "feetMidOffsetUnits": [
+        30.4,
+        31.1,
+        22.1,
+        33.7,
+        35.6,
+        34.9,
+        21.7,
+        30.0
+      ],
+      "idleFeetMidOffsetUnits": 30.4,
+      "leftReachUnits": 91.5
+    },
+    {
+      "action": "needle_barrage",
+      "attempt": 2,
+      "source": "tools/motion-art-source/ff2/needle_barrage.png",
+      "sourceSha256": "ffab7b19fd0c8a0d06851e2a697d458490ad389abef8cc32c47c6d1def100db1",
+      "target": "public/assets/motion/feifei/needle_barrage_v3.webp",
+      "targetSha256": "09883729ddce6be2125246985c52ae154360c75c228e6d5ce24bb5915314d125",
+      "bytes": 716840,
+      "size": [
+        1536,
+        1024
+      ],
+      "replaces": "assets/motion/feifei/needle_barrage_v2.webp",
+      "rawHeadScales": [
+        1.0,
+        1.0,
+        0.97,
+        0.98,
+        0.98,
+        0.99,
+        0.99,
+        0.99
+      ],
+      "sizeFix": 1.0101,
+      "headScales": [
+        1.01,
+        1.01,
+        0.97,
+        0.99,
+        0.99,
+        1.0,
+        1.01,
+        1.01
+      ],
+      "headCorr": [
+        0.974,
+        0.973,
+        0.926,
+        0.942,
+        0.943,
+        0.944,
+        0.954,
+        0.961
+      ],
+      "headRotation": [
+        0.0,
+        0.0,
+        6.0,
+        2.0,
+        0.0,
+        2.0,
+        0.0,
+        0.0
+      ],
+      "headMethod": [
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head"
+      ],
+      "faceCheck": {},
+      "headStepMax": 0.04,
+      "firstHeightRatio": 1.01,
+      "lastHeightRatio": 1.0,
+      "feetMidOffsetUnits": [
+        30.4,
+        39.4,
+        29.6,
+        18.2,
+        18.6,
+        23.7,
+        40.9,
+        23.3
+      ],
+      "idleFeetMidOffsetUnits": 30.4,
+      "leftReachUnits": 109.8
+    },
+    {
+      "action": "needle_combo",
+      "attempt": 1,
+      "source": "tools/motion-art-source/ff2/needle_combo.png",
+      "sourceSha256": "b1b4838d6f09df168ac40ba9810413318826f3657097135bc9dfd91e56e716ba",
+      "target": "public/assets/motion/feifei/needle_combo_v3.webp",
+      "targetSha256": "a5d7cdd3a94e457d82e9f40a718daccee4048032a5ec5e7da7df2b0ae10c96e4",
+      "bytes": 708348,
+      "size": [
+        1536,
+        1024
+      ],
+      "replaces": "assets/motion/feifei/needle_combo_v2.webp",
+      "rawHeadScales": [
+        0.99,
+        0.98,
+        0.98,
+        0.98,
+        0.97,
+        0.98,
+        0.96,
+        0.98
+      ],
+      "sizeFix": 1.0204,
+      "headScales": [
+        1.01,
+        1.0,
+        1.0,
+        0.99,
+        0.99,
+        0.99,
+        0.98,
+        1.0
+      ],
+      "headCorr": [
+        0.963,
+        0.974,
+        0.964,
+        0.976,
+        0.962,
+        0.964,
+        0.953,
+        0.966
+      ],
+      "headRotation": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headMethod": [
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head"
+      ],
+      "faceCheck": {},
+      "headStepMax": 0.02,
+      "firstHeightRatio": 1.02,
+      "lastHeightRatio": 1.003,
+      "feetMidOffsetUnits": [
+        30.4,
+        23.3,
+        17.5,
+        18.2,
+        26.1,
+        21.8,
+        14.7,
+        21.0
+      ],
+      "idleFeetMidOffsetUnits": 30.4,
+      "leftReachUnits": 103.7
+    },
+    {
+      "action": "needle_pierce",
+      "attempt": 1,
+      "source": "tools/motion-art-source/ff2/needle_pierce.png",
+      "sourceSha256": "d082bd8fd914e4e9471334f19a65cab961e00e7a22421bde45a1536112609e5a",
+      "target": "public/assets/motion/feifei/needle_pierce_v3.webp",
+      "targetSha256": "63020b80e07e9fe4c556385813f8cde0b25c3aa5bfbe5157a3900960504fd12d",
+      "bytes": 668558,
+      "size": [
+        1536,
+        1024
+      ],
+      "replaces": "assets/motion/feifei/needle_pierce_v2.webp",
+      "rawHeadScales": [
+        0.99,
+        0.99,
+        0.97,
+        0.96,
+        0.96,
+        0.94,
+        0.95,
+        0.99
+      ],
+      "sizeFix": 1.0363,
+      "headScales": [
+        1.02,
+        1.02,
+        1.01,
+        0.99,
+        0.99,
+        0.98,
+        0.99,
+        1.03
+      ],
+      "headCorr": [
+        0.986,
+        0.91,
+        0.895,
+        0.9,
+        0.929,
+        0.936,
+        0.931,
+        0.965
+      ],
+      "headRotation": [
+        0.0,
+        0.0,
+        0.0,
+        -2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headMethod": [
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head"
+      ],
+      "faceCheck": {},
+      "headStepMax": 0.04,
+      "firstHeightRatio": 1.036,
+      "lastHeightRatio": 1.0,
+      "feetMidOffsetUnits": [
+        30.4,
+        19.8,
+        -4.6,
+        0.7,
+        19.0,
+        -5.4,
+        14.5,
+        32.4
+      ],
+      "idleFeetMidOffsetUnits": 30.4,
+      "leftReachUnits": 142.9
+    },
+    {
+      "action": "needle_rain",
+      "attempt": 2,
+      "source": "tools/motion-art-source/ff2/needle_rain.png",
+      "sourceSha256": "2c22b777498ab43a554988852bb4f4e111e6e28f1a6cf752abd0fc5621244e63",
+      "target": "public/assets/motion/feifei/needle_rain_v3.webp",
+      "targetSha256": "24a50ff9e220b3c76ce96bcd540bfbf99f1fefe024d226075fd43d43bd04dae7",
+      "bytes": 735622,
+      "size": [
+        1536,
+        1024
+      ],
+      "replaces": "assets/motion/feifei/needle_rain_v2.webp",
+      "rawHeadScales": [
+        0.98,
+        0.97,
+        0.97,
+        0.97,
+        1.02,
+        0.98,
+        0.96,
+        0.98
+      ],
+      "sizeFix": 1.0256,
+      "headScales": [
+        1.01,
+        1.0,
+        0.99,
+        1.0,
+        1.04,
+        1.01,
+        0.99,
+        1.0
+      ],
+      "headCorr": [
+        0.984,
+        0.968,
+        0.95,
+        0.916,
+        0.858,
+        0.91,
+        0.95,
+        0.974
+      ],
+      "headRotation": [
+        0.0,
+        0.0,
+        0.0,
+        8.0,
+        14.0,
+        14.0,
+        6.0,
+        2.0
+      ],
+      "headMethod": [
+        "head",
+        "head",
+        "head",
+        "head",
+        "face-confirmed",
+        "head",
+        "head",
+        "head"
+      ],
+      "faceCheck": {
+        "5": [
+          1.05,
+          0.883
+        ]
+      },
+      "headStepMax": 0.04,
+      "firstHeightRatio": 1.026,
+      "lastHeightRatio": 1.0,
+      "feetMidOffsetUnits": [
+        30.4,
+        31.5,
+        35.2,
+        32.6,
+        36.8,
+        47.3,
+        36.0,
+        28.1
+      ],
+      "idleFeetMidOffsetUnits": 30.4,
+      "leftReachUnits": 87.6
+    },
+    {
+      "action": "needle_retreat",
+      "attempt": 2,
+      "source": "tools/motion-art-source/ff2/needle_retreat.png",
+      "sourceSha256": "d84734acb2c176f7b5ceae771c601c41cdf2efd62347039a6010527465262e1b",
+      "target": "public/assets/motion/feifei/needle_retreat_v3.webp",
+      "targetSha256": "8d63f5f22f403d1413059f2d27f6ff3b633699e22f74eb80370f496872a7428a",
+      "bytes": 733718,
+      "size": [
+        1536,
+        1024
+      ],
+      "replaces": "assets/motion/feifei/needle_retreat_v2.webp",
+      "rawHeadScales": [
+        0.99,
+        1.0,
+        1.0,
+        0.98,
+        1.02,
+        0.98,
+        1.0,
+        0.99
+      ],
+      "sizeFix": 1.005,
+      "headScales": [
+        1.0,
+        1.0,
+        1.0,
+        0.99,
+        1.03,
+        0.99,
+        1.0,
+        0.99
+      ],
+      "headCorr": [
+        0.982,
+        0.892,
+        0.971,
+        0.922,
+        0.884,
+        0.871,
+        0.962,
+        0.971
+      ],
+      "headRotation": [
+        0.0,
+        8.0,
+        0.0,
+        8.0,
+        6.0,
+        -2.0,
+        0.0,
+        0.0
+      ],
+      "headMethod": [
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head"
+      ],
+      "faceCheck": {},
+      "headStepMax": 0.04,
+      "firstHeightRatio": 1.005,
+      "lastHeightRatio": 0.991,
+      "feetMidOffsetUnits": [
+        30.4,
+        46.1,
+        33.7,
+        68.4,
+        57.4,
+        57.1,
+        41.3,
+        30.7
+      ],
+      "idleFeetMidOffsetUnits": 30.4,
+      "leftReachUnits": 83.5
+    },
+    {
+      "action": "needle_venom",
+      "attempt": 1,
+      "source": "tools/motion-art-source/ff2/needle_venom.png",
+      "sourceSha256": "7ea0af2e43324c89b3865320a6d125a3cd88435ce334cc5d863fd0091a557af1",
+      "target": "public/assets/motion/feifei/needle_venom_v3.webp",
+      "targetSha256": "3b5a749d38a1177162e8e36e12a918f757569a6f52592e177cb9fc849f6c1b68",
+      "bytes": 630240,
+      "size": [
+        1536,
+        1024
+      ],
+      "replaces": "assets/motion/feifei/needle_venom_v2.webp",
+      "rawHeadScales": [
+        0.99,
+        0.99,
+        0.98,
+        0.97,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sizeFix": 1.005,
+      "headScales": [
+        0.99,
+        0.99,
+        0.99,
+        0.98,
+        1.01,
+        1.01,
+        1.0,
+        1.01
+      ],
+      "headCorr": [
+        0.984,
+        0.975,
+        0.979,
+        0.948,
+        0.966,
+        0.966,
+        0.965,
+        0.968
+      ],
+      "headRotation": [
+        0.0,
+        0.0,
+        0.0,
+        -2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "headMethod": [
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head",
+        "head"
+      ],
+      "faceCheck": {},
+      "headStepMax": 0.03,
+      "firstHeightRatio": 1.005,
+      "lastHeightRatio": 1.0,
+      "feetMidOffsetUnits": [
+        30.4,
+        33.6,
+        32.8,
+        31.6,
+        27.9,
+        29.6,
+        26.7,
+        26.7
+      ],
+      "idleFeetMidOffsetUnits": 30.4,
+      "leftReachUnits": 90.6
+    }
+  ]
+}

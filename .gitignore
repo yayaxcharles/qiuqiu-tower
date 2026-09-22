@@ -36,3 +36,6 @@ tools/motion-art-source/idle-states/**/*.png
 
 # 挨打新畫風立繪（2026-09-22）的生圖原檔、每次嘗試與參考圖：同上，不進版控；提示詞與選定紀錄（json）照樣進版控。
 tools/motion-art-source/hit-recoil/**/*.png
+
+# 菲菲針招重畫（2026-09-22，批次 ff2）的生圖原檔、每次嘗試與參考圖：同上，不進版控；提示詞與選定紀錄（json）照樣進版控。
+tools/motion-art-source/ff2/**/*.png

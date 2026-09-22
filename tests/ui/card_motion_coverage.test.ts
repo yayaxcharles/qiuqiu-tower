@@ -285,7 +285,7 @@ describe('動作圖雜湊', () => {
 
   it('既有動作圖一個位元都沒動（對各批打包紀錄）', () => {
     const records = ['feifei-motion-assets', 'dangdang-motion-assets', 'fengfeng-motion-assets', 'qiuqiu-attack-motion-assets-v2',
-      'dangdang-attack-motion-assets-v2', 'fengfeng-attack-motion-assets-v2', 'feifei-needle-motion-assets-v2', 'idle-state-motion-assets'];
+      'dangdang-attack-motion-assets-v2', 'fengfeng-attack-motion-assets-v2', 'feifei-needle-redraw-ff2', 'idle-state-motion-assets'];
     let checked = 0;
     for (const name of records) {
       const record = JSON.parse(readFileSync(`docs/${name}.json`, 'utf-8')) as { assets: { target: string; targetSha256: string }[] };

@@ -1,0 +1,25 @@
+{
+  "actions": {
+    "needle_combo": {
+      "attempt": 1
+    },
+    "needle_venom": {
+      "attempt": 1
+    },
+    "needle_pierce": {
+      "attempt": 1
+    },
+    "needle_barrage": {
+      "attempt": 2
+    },
+    "needle_retreat": {
+      "attempt": 2
+    },
+    "needle_backhand": {
+      "attempt": 4
+    },
+    "needle_rain": {
+      "attempt": 2
+    }
+  }
+}
