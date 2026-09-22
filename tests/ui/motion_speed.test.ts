@@ -60,7 +60,7 @@ describe('四隻貓的逐格動作 1.5 倍速', () => {
       [1220, 1220, 1220]);
   });
 
-  it('不加速：敵人的逐格動作、待機、跑步，以及受擊用的那張舊立繪（比照舊版靜態演出的 650 毫秒）', () => {
+  it('不加速：敵人的逐格動作、待機、跑步，以及受擊那張挨打立繪（比照舊版靜態演出的 650 毫秒）', () => {
     expect(enemyMotionDuration('rat', 'attack')).toBe(820);
     expect(enemyMotionDuration('ninja', 'attack')).toBe(720);
     expect(qiuqiuMotionDuration('idle')).toBe(2000);

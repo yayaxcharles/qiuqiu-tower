@@ -3,20 +3,32 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync,
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { assetHash } from '../../tools/vite-asset-hash';
-import { _setManifestForTest, fileUrl, type Manifest } from '../../src/ui/assets';
-import { LEGACY_HIT_MOTIONS } from '../../src/ui/legacy-hit-motion';
+import { _setManifestForTest, artUrl, fileUrl, type Manifest } from '../../src/ui/assets';
+import { HIT_RECOIL_MOTIONS } from '../../src/ui/hit-recoil-motion';
 
+/*
+ * 挨打那張圖打包後要載得到（2026-09-22 換成新畫風）。
+ *
+ * 新圖放在 `assets/motion/<角色>/hit_recoil.webp`，跟其他逐格動作一樣走 `fileUrl()`，
+ * 打包改名後靠清單的 `files` 平表找回來；舊挨打立繪 `hero/<代號>_hit` 留給 `?motion=0` 的舊版演出，
+ * 照舊走清單的 sprites 分類。兩條路都要通，缺一條就是線上灰剪影或破圖。
+ */
 const root = mkdtempSync(join(tmpdir(), 'qiuqiu-hashed-hits-'));
 const outDir = join(root, 'dist');
+const LEGACY_KEYS = ['ninja', 'feifei', 'dangdang', 'fengfeng'].map((key) => `hero/${key}_hit`);
 let builtManifest: Manifest;
 
+function copyIn(relative: string): void {
+  mkdirSync(dirname(join(outDir, relative)), { recursive: true });
+  copyFileSync(resolve('public', relative), join(outDir, relative));
+}
+
 beforeAll(() => {
+  for (const motion of Object.values(HIT_RECOIL_MOTIONS)) copyIn(motion.texture);
   const sprites: Record<string, string> = {};
-  for (const motion of Object.values(LEGACY_HIT_MOTIONS)) {
-    const relative = motion.texture;
-    mkdirSync(dirname(join(outDir, relative)), { recursive: true });
-    copyFileSync(resolve('public', relative), join(outDir, relative));
-    sprites[relative.replace('assets/sprites/', '').replace('.webp', '')] = relative;
+  for (const key of LEGACY_KEYS) {
+    sprites[key] = `assets/sprites/${key}.webp`;
+    copyIn(sprites[key]!);
   }
   writeFileSync(join(outDir, 'assets/manifest.json'), JSON.stringify({
     cards: {}, sprites, monsters: {}, icons: {}, bg: {}, review: [],
@@ -38,13 +50,25 @@ afterAll(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-it.each(Object.entries(LEGACY_HIT_MOTIONS))('%s 的受擊圖打包後可同時由立繪鍵及動作路徑載入', (_hero, motion) => {
-  const spriteKey = motion.texture.replace('assets/sprites/', '').replace('.webp', '');
-  const hashed = builtManifest.sprites[spriteKey];
+function expectWebp(relative: string): void {
+  const published = readFileSync(join(outDir, relative));
+  expect(new TextDecoder().decode(published.subarray(0, 4))).toBe('RIFF');
+  expect(new TextDecoder().decode(published.subarray(8, 12))).toBe('WEBP');
+}
+
+it.each(Object.entries(HIT_RECOIL_MOTIONS))('%s 的新畫風挨打圖打包後由動作路徑載得到', (hero, motion) => {
+  expect(motion.texture).toBe(`assets/motion/${hero}/hit_recoil.webp`);
+  const hashed = builtManifest.files?.[motion.texture];
+  expect(hashed).toBeDefined();
   expect(hashed).not.toBe(motion.texture);
   expect(fileUrl(motion.texture)).toBe(`/${hashed}`);
   expect(existsSync(join(outDir, motion.texture))).toBe(false);
-  const published = readFileSync(join(outDir, hashed!));
-  expect(new TextDecoder().decode(published.subarray(0, 4))).toBe('RIFF');
-  expect(new TextDecoder().decode(published.subarray(8, 12))).toBe('WEBP');
+  expectWebp(hashed!);
+});
+
+it.each(LEGACY_KEYS)('舊挨打立繪 %s 仍由清單載得到（舊版演出的退路）', (key) => {
+  const hashed = builtManifest.sprites[key];
+  expect(hashed).toMatch(new RegExp(`^assets/sprites/${key}-[\\w-]{8}\\.webp$`));
+  expect(artUrl('sprites', key)).toBe(`/${hashed}`);
+  expectWebp(hashed!);
 });

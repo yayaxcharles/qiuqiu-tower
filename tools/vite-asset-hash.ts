@@ -31,7 +31,6 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
-import { LEGACY_HIT_MOTIONS } from '../src/ui/legacy-hit-motion.ts';
 
 /** 素材清單的位置（相對於 `dist/`）。它是入口，不加雜湊 */
 const MANIFEST_REL = 'assets/manifest.json';
@@ -158,12 +157,12 @@ export function assetHash(): Plugin {
        * 從來沒進過 `manifest.json` 的分類。執行期由 `assets.ts` 的 `fileUrl()` 查這張表；
        * 查不到就照原路徑走（開發伺服器就是這條，那邊的檔名本來就沒有雜湊）。
        *
-       * 只放清單分類沒用到的檔案，加上同時用作逐格動作的四張受擊立繪。
-       * 這四張也由 `fileUrl()` 載入，不能因分類已收錄就省略；其餘分類圖不重複列入。
+       * 只放清單分類沒用到的檔案（逐格動作的圖集也在這裡：`assets/motion/**` 由 `fileUrl()` 載入）。
+       * 2026-09-20～22 曾經另外補列四張「同時當逐格受擊」的舊挨打立繪；挨打換成
+       * `assets/motion/<角色>/hit_recoil.webp` 之後沒有圖再同時走兩條路，那個例外拿掉了。
        */
-      const sharedMotionFiles = new Set(Object.values(LEGACY_HIT_MOTIONS).map((motion) => motion.texture));
       const files: Record<string, string> = {};
-      for (const [orig, hashed] of renamed) if (!used.has(orig) || sharedMotionFiles.has(orig)) files[orig] = hashed;
+      for (const [orig, hashed] of renamed) if (!used.has(orig)) files[orig] = hashed;
       next['files'] = files;
 
       // 清單指到的檔案要真的在。這一條擋的是「改名漏了一批、畫面全變灰剪影」那種靜音失效

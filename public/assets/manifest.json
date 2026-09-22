@@ -764,7 +764,11 @@
     "hero/fengfeng_throw": "assets/sprites/hero/fengfeng_throw.webp",
     "hero/fengfeng_walk": "assets/sprites/hero/fengfeng_walk.webp",
     "hero/fengfeng_win": "assets/sprites/hero/fengfeng_win.webp",
-    "hero/fengfeng_cover": "assets/sprites/hero/fengfeng_cover.webp"
+    "hero/fengfeng_cover": "assets/sprites/hero/fengfeng_cover.webp",
+    "hero/ninja_portrait": "assets/sprites/hero/ninja_portrait.webp",
+    "hero/feifei_portrait": "assets/sprites/hero/feifei_portrait.webp",
+    "hero/dangdang_portrait": "assets/sprites/hero/dangdang_portrait.webp",
+    "hero/fengfeng_portrait": "assets/sprites/hero/fengfeng_portrait.webp"
   },
   "review": [],
   "monsters": {

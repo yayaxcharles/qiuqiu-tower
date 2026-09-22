@@ -149,12 +149,12 @@ describe('球球全身動作開關與招式選擇', () => {
 });
 
 describe('球球全身動作畫布', () => {
-  it('受擊時完整保持舊立繪表情，再由播放流程接回站姿', () => {
+  it('受擊時完整保持新畫風挨打立繪表情，再由播放流程接回站姿', () => {
     const actor = createQiuqiuActor({ action: 'hurt' });
     for (const elapsed of [0, 200, 500, 649]) {
       step(elapsed);
-      expect((lastDraw()[0] as HTMLImageElement).src).toContain('assets/sprites/hero/ninja_hit.webp');
-      expect(lastDraw().slice(1, 5)).toEqual([0, 0, 560, 547]);
+      expect((lastDraw()[0] as HTMLImageElement).src).toContain('assets/motion/qiuqiu/hit_recoil.webp');
+      expect(lastDraw().slice(1, 5)).toEqual([0, 0, 476, 488]);
     }
     expect(qiuqiuMotionDuration('hurt')).toBe(650);
     step(650);
@@ -220,14 +220,16 @@ describe('球球全身動作畫布', () => {
       .filter(([key]) => !DEFERRED_QIUQIU_ACTIONS.has(key))
       .map(([, motion]) => `/${motion.texture}`));
     expected.add('/assets/motion/qiuqiu/shuriken_128.webp');
-    expected.add('/assets/sprites/hero/ninja_hit.webp');
+    // 受擊不用動作資料裡那組快速閃一下的格子，換成一張停 650 毫秒的挨打圖（hit-recoil-motion.ts）
+    expected.add('/assets/motion/qiuqiu/hit_recoil.webp');
     // 延後的圖預載完會在背景下載（也掛 load）；排掉之後剩下的必須正好是預載等的那批
     const deferredSrc = new Set(Object.entries(actions).filter(([key]) => DEFERRED_QIUQIU_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`));
     expect(new Set(FakeImage.sources.filter((src) => !deferredSrc.has(src)))).toEqual(expected);
     // 只等載好、不呼叫 decode()（清理 2026-09-22）
     expect(FakeImage.decoded).toEqual([]);
-    expect(FakeImage.sources.every((src) => src.includes('assets/motion/qiuqiu/')
-      || src === '/assets/sprites/hero/ninja_hit.webp')).toBe(true);
+    // 挨打那張 2026-09-22 起也在球球自己的動作資料夾（hit_recoil.webp），不再借舊立繪
+    expect(FakeImage.sources.every((src) => src.includes('assets/motion/qiuqiu/'))).toBe(true);
+    expect(FakeImage.sources).toContain('/assets/motion/qiuqiu/hit_recoil.webp');
   });
 
   it('依不規則時長推進影格，非循環動作停在最後一格', () => {

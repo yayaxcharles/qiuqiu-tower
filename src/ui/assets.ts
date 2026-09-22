@@ -95,6 +95,8 @@ const HERO_NOT_IN_COMBAT = new Set([
   // 2026-09-18 補的四張非戰鬥姿勢（貓窩的打盹／磨爪／扶同伴，加過關走路）：戰鬥裡一張都用不到，
   // 進暖圖只會擋在魔物立繪前面。四隻各四張＝16 張
   ...['ninja', 'feifei', 'dangdang', 'fengfeng'].flatMap((h) => ['nap', 'sharpen', 'helpup', 'walk'].map((p) => `hero/${h}_${p}`)),
+  // 對白頭像（2026-09-22，新版待機第 1 格裁出來的）：只有對白疊層用，戰鬥裡用不到
+  ...['ninja', 'feifei', 'dangdang', 'fengfeng'].map((h) => `hero/${h}_portrait`),
 ]);
 /**
  * 帶角色名、卻在**選角之前**就會出現的圖：首頁兩張「參上」並排（2026-09-15）。

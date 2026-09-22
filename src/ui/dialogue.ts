@@ -1,6 +1,6 @@
 import { castLineFor, lineFor } from '../content/dialogue';
 import type { DialogueLine } from '../content/dialogue';
-import { artUrl, heroArtUrl, localHero, monsterUrl } from './assets';
+import { artUrl, hasHeroSprite, heroArtUrl, localHero, monsterUrl } from './assets';
 import { el } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
@@ -31,18 +31,29 @@ export function heroSpeaker(): string {
 }
 
 /**
+ * 四隻貓的臉：新版待機動作第 1 格裁出來的那張（2026-09-22，`tools/make_dialogue_portraits.py`）。
+ * 戰鬥裡已經全是新版逐格動作，對白再掛舊版立繪，同一個畫面就有兩種長相。
+ * 清單裡還沒有這張（舊清單、剛換版）就退回舊立繪——寧可舊畫風也不要灰剪影。
+ * 大小不用另外調：框是 screens.css 的 `.dialogue-overlay .dialogue-portrait`（高 290、等比縮進框裡），
+ * 新圖貼著身體裁、舊立繪四周留一圈透明，放進同一個框站出來都是 280 上下，朝向也一樣面向右（臉朝對白與畫面中央）。
+ */
+function heroPortrait(hero: string): string {
+  return heroArtUrl(hero, hasHeroSprite(hero, 'hero/ninja_portrait') ? 'hero/ninja_portrait' : 'hero/ninja');
+}
+
+/**
  * `literal`＝這一組已經是最終文字，說話者就是本人（搭檔關主接話那幾組）。
  * 2026-09-17 稽核 高-1：原本只有木牌上的名字認 `literal`，臉沒認——
  * 連線打大俠貓時「球球：……喵！」木牌寫球球、臉卻是我自己，下一句我自己又是同一張臉。
  */
-function portraitOf(speaker: DialogueLine['speaker'], literal = false): string | null {
-  if (speaker === '球球') return heroArtUrl(literal ? 'ninja' : localHero(), 'hero/ninja');
-  if (speaker === '封封') return heroArtUrl('fengfeng', 'hero/ninja');
+export function portraitOf(speaker: DialogueLine['speaker'], literal = false): string | null {
+  if (speaker === '球球') return heroPortrait(literal ? 'ninja' : localHero());
+  if (speaker === '封封') return heroPortrait('fengfeng');
   if (speaker === '村貓') return null;
   // 她的劇本自己寫「菲菲」，不走「球球」那條（兩隻在連線版會同框，名字不能混）
-  if (speaker === '菲菲') return heroArtUrl('feifei', 'hero/ninja');
+  if (speaker === '菲菲') return heroPortrait('feifei');
   // 他的劇本自己寫「噹噹」，理由跟她一樣：三隻在連線版會同框，名字不能混
-  if (speaker === '噹噹') return heroArtUrl('dangdang', 'hero/ninja');
+  if (speaker === '噹噹') return heroPortrait('dangdang');
   if (speaker === '塔主') return artUrl('sprites', 'boss/idle1');
   if (speaker === '黑貓忍者頭目') return monsterUrl('codex/monster_ninja_boss', 'idle');
   return null;   // 旁白沒有臉

@@ -1,0 +1,16 @@
+{
+  "heroes": {
+    "qiuqiu": {
+      "attempt": 2
+    },
+    "feifei": {
+      "attempt": 3
+    },
+    "dangdang": {
+      "attempt": 1
+    },
+    "fengfeng": {
+      "attempt": 1
+    }
+  }
+}

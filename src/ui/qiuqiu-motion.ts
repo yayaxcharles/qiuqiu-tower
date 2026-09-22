@@ -2,7 +2,7 @@ import motionData from './qiuqiu-motion-data.json';
 import extraMotionData from './qiuqiu-extra-motion-data.json';
 import attackMotionData from './qiuqiu-attack-motion-data.json';
 import { createFrameMotionSet, frameMotionDuration, type FrameMotion, type FrameMotionActor } from './frame-motion';
-import { LEGACY_HIT_MOTIONS } from './legacy-hit-motion';
+import { HIT_RECOIL_MOTIONS } from './hit-recoil-motion';
 import { DEFERRED_REST_ACTIONS } from './rest-state-motion';
 import {
   qiuqiuChoreographyDuration,
@@ -24,14 +24,14 @@ type Motion = FrameMotion & Readonly<{ impactTimes?: readonly number[] }>;
 export type QiuqiuActor = FrameMotionActor<QiuqiuAction>;
 
 const NATIVE_IDLE_HEIGHT = 252;
-// 載入時整份換成 1.5 倍速的時間（見 motion-speed.ts）；受擊沿用舊立繪那一格，比照舊版靜態演出不加速
+// 載入時整份換成 1.5 倍速的時間（見 motion-speed.ts）；受擊是一張新畫風挨打立繪停 0.65 秒，比照舊版靜態演出不加速（見 hit-recoil-motion.ts）
 const motions: Record<string, Motion> = {
   ...speedUpMotions({
     ...(motionData.actions as unknown as Record<string, Motion>),
     ...(extraMotionData.actions as unknown as Record<string, Motion>),
     ...(attackMotionData.actions as unknown as Record<string, Motion>),
   }),
-  hurt: LEGACY_HIT_MOTIONS.qiuqiu,
+  hurt: HIT_RECOIL_MOTIONS.qiuqiu,
 };
 
 const FALLBACK_POSES: Partial<Record<QiuqiuPoseAction, QiuqiuPoseAction>> = {

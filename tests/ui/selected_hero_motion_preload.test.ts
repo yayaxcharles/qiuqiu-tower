@@ -48,19 +48,16 @@ describe('確定本局角色後才預載逐格動作', () => {
     await preload([hero]);
     expect(motionHeroes()).toEqual([hero === 'ninja' ? 'qiuqiu' : hero]);
     const staticSources = sources.filter((url) => !url.includes('/motion/'));
-    // 逐格受擊沿用該角色的舊立繪，雖在 sprites 目錄仍屬本局必要素材。
-    expect(staticSources.sort()).toEqual([
-      `/assets/sprites/hero/${hero}_hit.webp`,
-      ...(hero === 'ninja' ? [] : [`/assets/sprites/hero/${hero}_idle.webp`]),
-    ].sort());
+    // 逐格受擊 2026-09-22 起用該角色動作資料夾裡的新畫風挨打圖，不再到 sprites 目錄借舊立繪
+    expect(sources).toContain(`/assets/motion/${hero === 'ninja' ? 'qiuqiu' : hero}/hit_recoil.webp`);
+    expect(staticSources.sort()).toEqual(hero === 'ninja' ? [] : [`/assets/sprites/hero/${hero}_idle.webp`]);
   });
 
   it('雙人只暖本局兩位，重複角色不重複要求圖片', async () => {
     await preload(['feifei', 'fengfeng', 'feifei']);
     expect(motionHeroes()).toEqual(['feifei', 'fengfeng']);
     expect(sources.filter((url) => !url.includes('/motion/')).sort()).toEqual([
-      '/assets/sprites/hero/feifei_hit.webp', '/assets/sprites/hero/feifei_idle.webp',
-      '/assets/sprites/hero/fengfeng_hit.webp', '/assets/sprites/hero/fengfeng_idle.webp',
+      '/assets/sprites/hero/feifei_idle.webp', '/assets/sprites/hero/fengfeng_idle.webp',
     ]);
     expect(new Set(sources).size).toBe(sources.length);
   });

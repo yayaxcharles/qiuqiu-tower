@@ -4,7 +4,7 @@ import dangdangMotionData from './dangdang-motion-data.json';
 import dangdangAttackMotionData from './dangdang-attack-motion-data.json';
 import fengfengMotionData from './fengfeng-motion-data.json';
 import fengfengAttackMotionData from './fengfeng-attack-motion-data.json';
-import { LEGACY_HIT_MOTIONS } from './legacy-hit-motion';
+import { HIT_RECOIL_MOTIONS } from './hit-recoil-motion';
 import {
   FEIFEI_NEEDLE_CARD_ACTION,
   feifeiNeedleFlightMs,
@@ -80,27 +80,27 @@ const CLONE_FADE_MS = motionMs(140);
 const CLONE_SEAL_HOLD_MS = motionMs(170);
 const FENGFENG_SHEATH_SKIP_MS = motionMs(120);
 
-// 載入時整份換成 1.5 倍速的時間；受擊沿用舊立繪那一格，比照舊版靜態演出不加速
+// 載入時整份換成 1.5 倍速的時間；受擊是一張新畫風挨打立繪停 0.65 秒，比照舊版靜態演出不加速（見 hit-recoil-motion.ts）
 const feifeiMotions = {
   ...speedUpMotions({
     ...feifeiMotionData.actions,
     ...feifeiNeedleMotionData.actions,
   } as unknown as Record<string, TimedFrameMotion>),
-  hurt: LEGACY_HIT_MOTIONS.feifei,
+  hurt: HIT_RECOIL_MOTIONS.feifei,
 } as Record<string, TimedFrameMotion>;
 const dangdangMotions = {
   ...speedUpMotions({
     ...dangdangMotionData.actions,
     ...dangdangAttackMotionData.actions,
   } as unknown as Record<string, TimedFrameMotion>),
-  hurt: LEGACY_HIT_MOTIONS.dangdang,
+  hurt: HIT_RECOIL_MOTIONS.dangdang,
 } as Record<string, TimedFrameMotion>;
 const fengfengMotions = {
   ...speedUpMotions({
     ...fengfengMotionData.actions,
     ...fengfengAttackMotionData.actions,
   } as unknown as Record<string, TimedFrameMotion>),
-  hurt: LEGACY_HIT_MOTIONS.fengfeng,
+  hurt: HIT_RECOIL_MOTIONS.fengfeng,
 } as Record<string, TimedFrameMotion>;
 const FEIFEI_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(feifeiMotions) as CompanionMotionAction[]);
 const DANGDANG_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(dangdangMotions) as CompanionMotionAction[]);

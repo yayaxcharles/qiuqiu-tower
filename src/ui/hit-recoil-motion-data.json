@@ -1,0 +1,61 @@
+{
+  "note": "挨打那一下的新畫風立繪（2026-09-22）。由 tools/pack_hit_recoil_motion.py 產生，不要手改；停留時間寫在 src/ui/hit-recoil-motion.ts。",
+  "heroes": {
+    "qiuqiu": {
+      "texture": "assets/motion/qiuqiu/hit_recoil.webp",
+      "scale": 0.4996470311396973,
+      "rect": [
+        0,
+        0,
+        476,
+        488
+      ],
+      "pivot": [
+        306.19,
+        486
+      ]
+    },
+    "feifei": {
+      "texture": "assets/motion/feifei/hit_recoil.webp",
+      "scale": 0.5004144218814754,
+      "rect": [
+        0,
+        0,
+        484,
+        508
+      ],
+      "pivot": [
+        235.32,
+        506
+      ]
+    },
+    "dangdang": {
+      "texture": "assets/motion/dangdang/hit_recoil.webp",
+      "scale": 0.5003248862897987,
+      "rect": [
+        0,
+        0,
+        468,
+        486
+      ],
+      "pivot": [
+        252.15,
+        484
+      ]
+    },
+    "fengfeng": {
+      "texture": "assets/motion/fengfeng/hit_recoil.webp",
+      "scale": 0.500474816465174,
+      "rect": [
+        0,
+        0,
+        527,
+        524
+      ],
+      "pivot": [
+        260.11,
+        522
+      ]
+    }
+  }
+}

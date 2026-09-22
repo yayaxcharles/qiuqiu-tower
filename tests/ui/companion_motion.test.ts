@@ -409,7 +409,7 @@ describe('菲菲全身逐格畫布', () => {
     expect(companionMotionReady('feifei')).toBe(true);
     expect(awaited()).toEqual(new Set(
       [...eager(motionData.actions), ...eager(needleMotionData.actions),
-        { texture: 'assets/sprites/hero/feifei_hit.webp' }]
+        { texture: 'assets/motion/feifei/hit_recoil.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
     // 2026-09-21 新補的 10 張待機狀態圖不在預載裡（預載完才在背景下載），預載張數維持原本
@@ -422,7 +422,7 @@ describe('菲菲全身逐格畫布', () => {
     expect(companionMotionReady('fengfeng')).toBe(true);
     expect(awaited()).toEqual(new Set(
       [...eager(fengfengMotionData.actions), ...eager(fengfengAttackMotionData.actions),
-        { texture: 'assets/sprites/hero/fengfeng_hit.webp' }]
+        { texture: 'assets/motion/fengfeng/hit_recoil.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
     expect(awaited()).toHaveLength(16);
@@ -433,7 +433,7 @@ describe('菲菲全身逐格畫布', () => {
     expect(companionMotionReady('dangdang')).toBe(true);
     expect(awaited()).toEqual(new Set(
       [...eager(dangdangMotionData.actions), ...eager(dangdangAttackMotionData.actions),
-        { texture: 'assets/sprites/hero/dangdang_hit.webp' }]
+        { texture: 'assets/motion/dangdang/hit_recoil.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
     expect(awaited()).toHaveLength(15);

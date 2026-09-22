@@ -10,7 +10,7 @@ import type { FrameMotion } from './frame-motion';
  * **每個數字只換算一次**：已經換算過的常數拿去相加（例如手裏劍的出手＋飛行）不可以再除一次。
  *
  * 不加速的：敵人（老鼠、黑忍者）的逐格動作、待機呼吸（frame-motion 的 6200 毫秒週期）、
- * 舊版靜態演出（`?motion=0`；受擊用的那張舊立繪 650 毫秒也算，見 `legacy-hit-motion.ts`）、
+ * 舊版靜態演出（`?motion=0`；受擊那張挨打立繪的 650 毫秒也算，見 `hit-recoil-motion.ts`）、
  * 發牌收牌、敵方回合步距、對白這些介面節奏。
  */
 export const MOTION_SPEED = 1.5;
