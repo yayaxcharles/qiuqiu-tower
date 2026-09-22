@@ -51,7 +51,7 @@ describe('菲菲：她是誰', () => {
     expect(cs.player.block - before, '目標原本沒毒，第一下不該給蜷縮').toBe(0);
     const mid = cs.player.block;
     play(cs, 'feifei_feizhen');
-    expect(cs.player.block - mid, '這下目標身上已經有毒了，該給 2').toBe(2);
+    expect(cs.player.block - mid, '這下目標身上已經有毒了，該給 1（2026-09-22 平衡 2→1）').toBe(1);
     expect(getStatus(foe(cs), '中毒'), '兩張飛針各下 1 層毒').toBe(2);
   });
   it('起手十張是她自己的那一套，起始秘寶是毒針袋', () => {
@@ -215,7 +215,7 @@ describe('菲菲：三個長效旗標', () => {
     play(cs, 'feifei_feizhen');
     expect(cs.player.block, '第一下目標沒毒，蜷縮不變').toBe(7);
     play(cs, 'feifei_feizhen');
-    expect(cs.player.block, '第二下才給，飛針自帶的 2 ＋ 拒馬 2').toBe(11);
+    expect(cs.player.block, '第二下才給，飛針自帶的 1（2026-09-22 起）＋ 拒馬 2').toBe(10);
   });
 
   it('拒馬疊兩張會累加（升級版跟基礎版一起帶也不會互相蓋掉）', () => {
@@ -282,7 +282,7 @@ describe('菲菲：戰報用她的名字', () => {
 describe('菲菲：牌面文字讀得懂', () => {
   it('毒、屍爆、斬殺、蜷縮加成都寫得出人話', () => {
     expect(describeCard(cardById['feifei_feizhen']!, false)).toContain('點蜷縮');
-    expect(describeCard(cardById['feifei_cuidu']!, false)).toContain('4 層中毒');
+    expect(describeCard(cardById['feifei_cuidu']!, false)).toContain('3 層中毒');   // 4→3（2026-09-22 平衡）
     expect(describeCard(cardById['feifei_juma']!, false)).toContain('每次獲得蜷縮都多 2 點');
     expect(describeCard(cardById['feifei_sandu']!, false)).toContain('分給其他魔物');
     expect(describeCard(cardById['feifei_yudu']!, false)).toContain('分給其他魔物');

@@ -210,29 +210,41 @@ export const enemies: EnemyDef[] = [
       { intent: 'special', label: '渡氣', effects: [{ kind: 'heal', n: 4 }] },
     ] },
 
-  // 鐵爪機關貓：**蜷縮擋不住的那種**。招招都是多段小刀，而且每兩回合自己變強。
-  // 十點蜷縮對 4×4 只擋得掉前兩下，解法是隱身跟定身，不是硬擋。
+  // 鐵爪機關貓：**蜷縮擋不住的那種**，解法是隱身跟定身，不是硬擋。
+  // 原始設計是「招招多段小刀、十點蜷縮對 4×4 只擋得掉前兩下」，實際沒做到；2026-09-22 起改成穿透才真的做到，見下。
   // 2026-09-01 減壓：原本三個成長來源疊加（每 2 回合+1、發條+3、二階段每回合+1），
   // 爪力疊到 +4 之後 3×6 變 7×6＝42、4×4 變 9×4＝36，第一關牌組完全扛不住（使用者實玩回報）。
   // 段數砍一級、發條 +3→+2、自動成長改每 3 回合、血 140→120。多段穿蜷縮的性格保留。
   // 2026-09-01 二刀（機器人探測 0/60 勝）：血 105、自動成長改每 4 回合、絞刃 3×3、全開 4×4、收爪 12。
   // 之後幾輪加硬到 125；下一輪平衡 2026-09-05 五隻關主血 −10% → 113（機器人 47%→57%，是五隻裡最軟的，下輪順手看）。
+  /*
+   * 2026-09-22 重做攻擊（血量不動）：**四招攻擊全部穿透**，絞刃、全開從三下小刀改成一記 12，爪暴五下改四下。
+   *
+   * 上面那段設計說「蜷縮擋不住、解法是隱身跟定身」，但原本的寫法剛好相反：
+   * 蜷縮是一整池、多段小刀加起來照樣被整池吃掉；隱身卻是一層只閃**一下**，三四段就把隱身磨光。
+   * 所以靠蜷縮的菲菲、噹噹打牠九成以上（全遊戲最好打的關主），靠隱身的球球反而最吃虧（56%）。
+   * 量測時把四招改成「段數少、總傷一樣」，球球立刻從 56% 跳到 88%——病根就是段數，不是血量。
+   * （定案版不是總傷一樣：絞刃 9→12、爪暴 20→16；單下只吃一次爪力，所以有爪力時絞刃反而略低於舊版。）
+   * 改完（兩批種子各 600 局）：球球 56→60%、菲菲 93→74%（連同她的起手調整）、噹噹 92→67%、封封 74→59%。
+   * 雙人（300 局）61／79／50% → 47／40／42%，跟雙人打另外四隻第一關關主（22～50%）同一級。
+   * 穿透照規則吃隱身與反彈、不吃蜷縮，也不吃蓄力加倍（見 actions.ts）；頭上的意圖會寫「（穿透）」。
+   */
   { id: 'iron_claw', name: '鐵爪機關貓', hp: [113, 113], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
     strengthEveryNTurns: 3,   // 機關越轉越快（2026-09-03 關主加硬）
     line: '（齒輪轉了一圈）', lines: ['（發出喀噠喀噠的聲音）', '（眼睛亮起紅光）'],
     moves: [
-      { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
+      { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 3, pierce: true }] },
       { intent: 'buff', label: '上緊發條', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
-      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 3, times: 3 }] },
+      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 12, pierce: true }] },   // 3×3 → 一記 12（2026-09-22）
       { intent: 'block', label: '收爪', effects: [{ kind: 'block', amount: 12 }] },
     ],
     phases: [{
       hpBelow: 55, line: '（外殼彈開，裡面全是爪子）', pattern: 'cycle',
       onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 1 }],   // 反彈 2026-09-02 才真的生效：關主只給 1（機器人實測 2 就從 17% 敗變 37% 敗）
       moves: [
-        { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 5 }] },
+        { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 4, pierce: true }] },   // 4×5 → 4×4（2026-09-22）
         { intent: 'debuff', label: '卡住', effects: [{ kind: 'discardRandomHand', n: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 3 }] },
-        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
+        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 12, pierce: true }] },   // 4×3 → 一記 12（2026-09-22）
       ],
     }] },
   // 第三關的最終戰。他是師父：招式全是玩家牌組裡絕學的放大版，「同門過招」一看就懂。
@@ -1324,15 +1336,25 @@ export const encounters: EncounterDef[] = [
   { id: 'owl_geta', pool: '強', enemies: ['owl_sentry', 'geta_monster'], hpScale: 0.8, acts: [2] },
   // 塔頂＝魔氣加成（設計總覽 §2）：中池一律血 ×1.2、出場帶 2 點爪力；強池帶 3 點。
   // 2026-09-02 機器人 300 局：第一刀之後塔頂一般戰每場仍只掉 1～3 血、四回合打完，比塔中還軟。
-  { id: 'night_panther', pool: '中', enemies: ['night_panther'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.6, strength: 8, acts: [3] , reinforce: [{ turn: 4, enemyId: 'paper_crane', hpScale: 0.5, strength: 3, line: '伏兵！一隻紙鶴從樑上飄了下來' }] },   // 伏兵（2026-09-04）：壓回小怪量級（不然照 1.6×＋8 爪力放大會是 98 血 8 爪力，稽核中 8）
+  /*
+   * 2026-09-22 第三關放軟（「第三關是一道牆」）。那時加硬是對著舊機器人量的；
+   * 修好的機器人（smartbot）到了第三關有 87～93% 死在這一關，強怪戰每場輸 25～44%。
+   * 改成：**中池魔氣 8→4（血照舊 1.6×）；強池魔氣各少 4（單隻 8→4、雙怪組 6→2）、血打八折**
+   * （單隻 1.6→1.3、雙怪組 1.0→0.8——跟第二關「雙怪照慣例 0.8 血」同一條、鼠大將一夥 1.2→1.0）。
+   * 機器人（四隻貓各 3000 局、只算到了第三關的局）：強怪戰每場輸 25～44% → 11～24%、死在第三關 86～94% → 77～88%、
+   * 通關 0.5～2.2% → 0.9～3.5%；雙人（1500 局）死在第三關 74～84% → 64～69%。沒動大魔物與師父。
+   * 為什麼沒有降到 75%：弱牌組在第三關總會死在某處——強怪變軟之後，原本死在強怪戰的局
+   * 改死在一般戰或師父手上（單人打師父勝率 30～55%）。
+   */
+  { id: 'night_panther', pool: '中', enemies: ['night_panther'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.3, strength: 4, acts: [3] , reinforce: [{ turn: 4, enemyId: 'paper_crane', hpScale: 0.5, strength: 3, line: '伏兵！一隻紙鶴從樑上飄了下來' }] },   // 伏兵（2026-09-04）：壓回小怪量級（不填會照這場的倍率與魔氣放大，稽核中 8；2026-09-22 這場降到 1.3×，紙鶴跟著是 0.65×）
   // 塔頂雙怪組的教訓（探測 1～6/40）：血量倍率救不了「兩隻重砲同回合疊擊」，
   // 要拆組合——重砲一定配有守勢回合的（紙鶴會摺翼、墨貓會入卷軸那型）。
   // 貓頭鷹＋月兔那組直接砍掉，牠們照樣在中池單獨出場。
   // 2026-09-02 補怪：塔頂單怪 4→7、強池再加三組（空鎧武者血厚，倍率壓低）
-  { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 8, acts: [3] },
+  { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 4, acts: [3] },
   { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], hpScale: 1.2, strength: 9, acts: [3] },   // 塔頂菁英版：血 1.2×、魔氣 9（2026-09-04 加硬兩刀 4→7→9）
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
@@ -1386,26 +1408,26 @@ export const encounters: EncounterDef[] = [
   { id: 'bear_pup', pool: '強', enemies: ['hibernating_bear', 'armadillo_pup'], hpScale: 0.8, acts: [1] },
   // 塔中：自爆、鱗甲、指揮官、詛咒
   { id: 'puffer_spirit', pool: '強', enemies: ['puffer_spirit'], acts: [2] },
-  // 塔頂：照塔頂慣例掛魔氣（strength 3），單獨出場血 ×1.25、重砲型 ×1.1
-  { id: 'phantom_fox', pool: '中', enemies: ['phantom_fox'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'red_oni', pool: '強', enemies: ['red_oni'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'moon_moth_queen', pool: '中', enemies: ['moon_moth_queen'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'jizo_golem', pool: '強', enemies: ['jizo_golem'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'fox_moth', pool: '強', enemies: ['phantom_fox', 'moon_moth_queen'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'oni_golem', pool: '強', enemies: ['red_oni', 'jizo_golem'], hpScale: 1.0, strength: 6, acts: [3] },
+  // 塔頂：照塔頂慣例掛魔氣（數字幾經加硬，現行值見「塔頂＝魔氣加成」那段開頭的 2026-09-22 說明）
+  { id: 'phantom_fox', pool: '中', enemies: ['phantom_fox'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'red_oni', pool: '強', enemies: ['red_oni'], hpScale: 1.3, strength: 4, acts: [3] },
+  { id: 'moon_moth_queen', pool: '中', enemies: ['moon_moth_queen'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'jizo_golem', pool: '強', enemies: ['jizo_golem'], hpScale: 1.3, strength: 4, acts: [3] },
+  { id: 'fox_moth', pool: '強', enemies: ['phantom_fox', 'moon_moth_queen'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'oni_golem', pool: '強', enemies: ['red_oni', 'jizo_golem'], hpScale: 0.8, strength: 2, acts: [3] },
   // 2026-09-03 換池：墨貓、鎧甲甲蟲、鼠將軍一夥、詛咒法師從塔中升到塔頂，照塔頂慣例掛魔氣
-  { id: 'ink_cat', pool: '中', enemies: ['ink_cat'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'plated_beetle', pool: '中', enemies: ['plated_beetle'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'curse_priest', pool: '中', enemies: ['curse_priest'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'rat_general', pool: '強', enemies: ['rat_general', 'rat_guard', 'rat_guard'], hpScale: 1.2, strength: 6, acts: [3] },
-  { id: 'ink_panther', pool: '強', enemies: ['ink_cat', 'night_panther'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 32%、真人不覺得兇，維持魔氣 6
-  { id: 'beetle_armor', pool: '強', enemies: ['plated_beetle', 'armor_ghost'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 33%、真人不覺得兇，維持魔氣 6
-  { id: 'priest_fox', pool: '強', enemies: ['curse_priest', 'fox_miko'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'priest_moth', pool: '強', enemies: ['curse_priest', 'moon_moth_queen'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'tengu_beetle', pool: '強', enemies: ['tengu', 'plated_beetle'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 22%、真人不覺得兇，維持魔氣 6
-  { id: 'blob_ink', pool: '強', enemies: ['miasma_blob', 'ink_cat'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'panther_fox', pool: '強', enemies: ['night_panther', 'phantom_fox'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'tengu_priest', pool: '強', enemies: ['tengu', 'curse_priest'], hpScale: 1.0, strength: 6, acts: [3] },
+  { id: 'ink_cat', pool: '中', enemies: ['ink_cat'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'plated_beetle', pool: '中', enemies: ['plated_beetle'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'curse_priest', pool: '中', enemies: ['curse_priest'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'rat_general', pool: '強', enemies: ['rat_general', 'rat_guard', 'rat_guard'], hpScale: 1.0, strength: 2, acts: [3] },
+  { id: 'ink_panther', pool: '強', enemies: ['ink_cat', 'night_panther'], hpScale: 0.8, strength: 2, acts: [3] },   // 舊註：機器人輸 32%、真人不覺得兇，當時維持魔氣 6（2026-09-22 第三關放軟一併改 2，見本段開頭）
+  { id: 'beetle_armor', pool: '強', enemies: ['plated_beetle', 'armor_ghost'], hpScale: 0.8, strength: 2, acts: [3] },   // 舊註：機器人輸 33%、真人不覺得兇，當時維持魔氣 6（2026-09-22 第三關放軟一併改 2，見本段開頭）
+  { id: 'priest_fox', pool: '強', enemies: ['curse_priest', 'fox_miko'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'priest_moth', pool: '強', enemies: ['curse_priest', 'moon_moth_queen'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'tengu_beetle', pool: '強', enemies: ['tengu', 'plated_beetle'], hpScale: 0.8, strength: 2, acts: [3] },   // 舊註：機器人輸 22%、真人不覺得兇，當時維持魔氣 6（2026-09-22 第三關放軟一併改 2，見本段開頭）
+  { id: 'blob_ink', pool: '強', enemies: ['miasma_blob', 'ink_cat'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'panther_fox', pool: '強', enemies: ['night_panther', 'phantom_fox'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'tengu_priest', pool: '強', enemies: ['tengu', 'curse_priest'], hpScale: 0.8, strength: 2, acts: [3] },
   // 新關主（塔下兩個、塔中兩個）
   { id: 'frog_daimyo', pool: '塔主', enemies: ['frog_daimyo'] },
   { id: 'armadillo_king', pool: '塔主', enemies: ['armadillo_king'] },
@@ -1444,14 +1466,14 @@ export const encounters: EncounterDef[] = [
   { id: 'puppeteer_tofu', pool: '強', enemies: ['puppeteer', 'tofu_boy'], hpScale: 0.85, acts: [2] },
   { id: 'snow_shuten', pool: '強', enemies: ['snow_cat', 'shuten_imp'], hpScale: 0.8, acts: [2] },
   { id: 'lantern_twins', pool: '強', enemies: ['lantern_twin_a', 'lantern_twin_b'], acts: [2] },
-  { id: 'miasma_crows', pool: '中', enemies: ['miasma_crows'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'wraith_samurai', pool: '中', enemies: ['wraith_samurai'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'twin_hound', pool: '中', enemies: ['twin_hound'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'crows_ink', pool: '強', enemies: ['miasma_crows', 'ink_cat'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'wraith_armor', pool: '強', enemies: ['wraith_samurai', 'armor_ghost'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'hound_panther', pool: '強', enemies: ['twin_hound', 'night_panther'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'wraith_priest', pool: '強', enemies: ['wraith_samurai', 'curse_priest'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'hound_crows', pool: '強', enemies: ['twin_hound', 'miasma_crows'], hpScale: 1.0, strength: 6, acts: [3] },
+  { id: 'miasma_crows', pool: '中', enemies: ['miasma_crows'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'wraith_samurai', pool: '中', enemies: ['wraith_samurai'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'twin_hound', pool: '中', enemies: ['twin_hound'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'crows_ink', pool: '強', enemies: ['miasma_crows', 'ink_cat'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'wraith_armor', pool: '強', enemies: ['wraith_samurai', 'armor_ghost'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'hound_panther', pool: '強', enemies: ['twin_hound', 'night_panther'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'wraith_priest', pool: '強', enemies: ['wraith_samurai', 'curse_priest'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'hound_crows', pool: '強', enemies: ['twin_hound', 'miasma_crows'], hpScale: 0.8, strength: 2, acts: [3] },
   { id: 'guardian_statue', pool: '大魔物', enemies: ['guardian_statue'], strength: 6, acts: [3] },
   { id: 'mask_dancer', pool: '大魔物', enemies: ['mask_dancer'], strength: 6, acts: [3] },
 ];

@@ -653,7 +653,8 @@ export const cards: readonly CardDef[] = [
    */
   // ---- 起手（3 種、共 10 張）。對照球球的貓抓 ×5＋淡定 ×4＋替身術 ×1 ----
   { id: 'feifei_feizhen', name: '飛針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_feizhen',
-    effects: [{ kind: 'damage', amount: 3 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 2 }],
+    // 蜷縮 2→1（2026-09-22 平衡：她第一關太好過，見 FEIFEI_STARTER_DECK 的說明；升級版不動）
+    effects: [{ kind: 'damage', amount: 3 }, { kind: 'status', name: '中毒', amount: 1, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 5 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 3 }] } },
   // 她的「淡定」。數值刻意完全一樣——使用者要的就是「功能一樣、圖跟名字是她自己的」
   { id: 'feifei_tuikai', name: '退開', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '起手', target: 'self', art: 'card/feifei_tuikai',
@@ -661,7 +662,8 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'block', amount: 8 }] } },
   // 她的「替身術」那一格：開局唯一的招牌技，教玩家「毒要早點下」
   { id: 'feifei_cuidu', name: '淬毒', cost: 1, type: 技, rarity: '常見', hero: 'feifei', pool: '起手', target: 'enemy', art: 'card/feifei_cuidu',
-    effects: [{ kind: 'status', name: '中毒', amount: 4, target: 'enemy' }],
+    // 4→3 層（2026-09-22 平衡，同上；升級版 6 層不動）
+    effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 6, target: 'enemy' }] } },
 
   // ---- 常見（8）----
@@ -674,7 +676,7 @@ export const cards: readonly CardDef[] = [
   /*
    * 後退閃躲＝**獲得隱身**（使用者 2026-09-14 深夜裁定：「後退閃躲就是獲得隱身」，跟師兄學來的招式）。
    * 原本是 0 費 4 點蜷縮；改隱身後 0 費不合理，使用者同夜再裁定改成 1 費（升級版仍 1 費 2 層）。
-   * **2026-09-17 使用者再裁定改成 2 費**（升級版沒有另外指定費用，跟著變 2 費、照舊給 2 層）。第三關的穿透（地藏石偶、虛無貓、面具舞者，加上七隻關主與塔主）蜷縮擋不住，
+   * **2026-09-17 使用者再裁定改成 2 費**（升級版沒有另外指定費用，跟著變 2 費、照舊給 2 層）。第三關的穿透（地藏石偶、虛無貓、面具舞者，加上七隻關主與塔主；2026-09-22 起第一關的鐵爪機關貓也是）蜷縮擋不住，
    * 只有隱身、定身、整回合免傷接得住；她整套防禦全是蜷縮，碰到穿透等於零防禦，第三關很難過。
    * 這是她唯一的閃避，球球的隱身牌她照樣拿不到，所以不會像忍者那樣整副疊隱身。
    * 紙袋、影披風的鎖也因此拿掉（`relics.ts`）。
@@ -1120,6 +1122,15 @@ export const STARTER_DECK: readonly string[] = [
  * 改成 3 傷之後六百局對照：到三關 105 對 93、通關 12 對 14，跟球球對齊了
  * （難度 3、5 也一樣）。她仍然明顯比較耐打（到二關 六成 對 四成），
  * 那是「怕痛所以先擋好」的設定本身，不是數值失衡。
+ *
+ * **2026-09-22 平衡：飛針的蜷縮 2→1、淬毒 4→3 層（兩張的升級版都不動）。**
+ * 修好的機器人量出來她第一關太好過：死在第一關只有 23%（球球 56%），平均爬到 27.8 層（球球 22.4）；
+ * 拆解實驗把她的起手換成球球那套就掉回 22.4 層，毛病在起手與開局。
+ * 只削第一關、不削後段：起手牌的份量在前期最重，後面牌組變大就被稀釋；升級版留著，升到的人不吃虧。
+ * 量過的其他候選：毒針袋 3→1 層（第一關對了，但第二關死亡率也跟著多 4 個百分點，秘寶整局都在）、
+ * 淬毒 4→2（一個數字就夠，但 1 費 2 層毒太弱，這張牌會變成廢牌）。
+ * 改完（兩批種子各 600 局，連同鐵爪機關貓的重做與第三關放軟）：死在第一關 23／25% → 39／40%、
+ * 平均 27.8／26.9 → 25.0／24.6 層；第二關死亡率 69／72% → 70／71%（沒變）。
  */
 export const FEIFEI_STARTER_DECK: readonly string[] = [
   'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen', 'feifei_feizhen',
