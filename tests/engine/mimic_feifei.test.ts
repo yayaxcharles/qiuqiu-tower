@@ -51,9 +51,9 @@ const EXPECT: Record<string, EnemyEffect[] | null> = {
   feifei_yizhen: [{ kind: 'damageByPlayerStatus', name: '中毒' }],                            // 一針斃命：不秒殺，照層數打
 
   // ---- 本來就學得會的，這批不准變 ----
-  feifei_feizhen: [{ kind: 'damage', amount: 3 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }, { kind: 'block', amount: 2 }],
+  feifei_feizhen: [{ kind: 'damage', amount: 3 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }, { kind: 'block', amount: 1 }],   // 蜷縮 2→1（2026-09-22 平衡）
   feifei_tuikai: [{ kind: 'block', amount: 5 }],
-  feifei_cuidu: [{ kind: 'statusPlayer', name: '中毒', amount: 4 }],
+  feifei_cuidu: [{ kind: 'statusPlayer', name: '中毒', amount: 3 }],   // 4→3（2026-09-22 平衡）
   feifei_lianzhen: [{ kind: 'damage', amount: 2, times: 2 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }, { kind: 'block', amount: 2 }],
   feifei_sazhen: [{ kind: 'damage', amount: 2 }, { kind: 'statusPlayer', name: '中毒', amount: 1 }, { kind: 'block', amount: 3 }],
   feifei_lakai: [{ kind: 'statusSelf', name: '隱身', amount: 1 }],

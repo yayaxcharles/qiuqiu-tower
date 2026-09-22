@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-20",
+ "generatedAt": "2026-09-22",
  "monsters": [
   {
    "id": "rat",
@@ -1116,7 +1116,8 @@
       {
        "kind": "damage",
        "amount": 4,
-       "times": 3
+       "times": 3,
+       "pierce": true
       }
      ]
     },
@@ -1137,8 +1138,8 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 3,
-       "times": 3
+       "amount": 12,
+       "pierce": true
       }
      ]
     },
@@ -1173,7 +1174,8 @@
         {
          "kind": "damage",
          "amount": 4,
-         "times": 5
+         "times": 4,
+         "pierce": true
         }
        ]
       },
@@ -1198,8 +1200,8 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 4,
-         "times": 3
+         "amount": 12,
+         "pierce": true
         }
        ]
       }

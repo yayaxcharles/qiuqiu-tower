@@ -88,7 +88,7 @@ describe('影子分身', () => {
     playCard(cs, toHand(cs, 'feifei_feizhen', 901), e.uid);
     expect(hp0 - e.hp, '3 傷 ×2').toBe(6);
     expect((e.statuses['中毒'] ?? 0) - poison0, '1 層毒 ×2').toBe(2);
-    expect(p.block, '2 點蜷縮 ×2').toBe(4);
+    expect(p.block, '1 點蜷縮 ×2（飛針的蜷縮 2026-09-22 起 2→1）').toBe(2);
   });
 });
 
