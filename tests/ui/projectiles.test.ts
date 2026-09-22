@@ -45,7 +45,7 @@ import {
   shotUsedIn,
   type ProjectileKind,
 } from '../../src/ui/projectile-kinds';
-import { COMPANION_THROW_ORIGIN, PROJECTILE_LOOKS, playThrow, throwLaunch } from '../../src/ui/projectile-flight';
+import { COMPANION_THROW_ORIGIN, PROJECTILE_LOOKS, joinElapsed, playThrow, throwLaunch } from '../../src/ui/projectile-flight';
 import { motionMs } from '../../src/ui/motion-speed';
 
 type Source = 'qiuqiu' | CompanionMotionKind;
@@ -294,6 +294,56 @@ describe('噹噹、封封從出手格那隻手丟出去', () => {
       step(impact);
       expect(hits).toEqual([0]);
       expect(stage.children).toHaveLength(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
+describe('連線加入方自己丟的：確認回來時出手格已過，照樣從手上飛完整一趟', () => {
+  it('晚到的從第一波出手那一刻接著演；準時的（單人、開房方、看同伴）不動', () => {
+    // 噹噹推掌丟東西：出手 193、命中 307；來回 380 毫秒才確認
+    expect(joinElapsed(380, [307], 114)).toBe(193);
+    expect(joinElapsed(380, [307, 400], 114)).toBe(193);   // 多波一起往後挪，間隔不變
+    expect(joinElapsed(0, [307], 114)).toBe(0);
+    expect(joinElapsed(150, [307], 114)).toBe(150);        // 還沒到出手格：照原本時間
+  });
+
+  it('實際跑：晚 380 毫秒才開始，東西仍從手上出去、飛滿一趟才命中', () => {
+    let now = 1000;
+    const rafs = new Map<number, (t: number) => void>();
+    let serial = 0;
+    type Node = { style: Record<string, string>; dataset: Record<string, string>; children: Node[]; src?: string;
+      append(child: Node): void; remove(): void; parent?: Node };
+    const make = (): Node => {
+      const node: Node = { style: {}, dataset: {}, children: [],
+        append(child) { child.parent = node; node.children.push(child); },
+        remove() { if (node.parent) node.parent.children = node.parent.children.filter((c) => c !== node); } };
+      return node;
+    };
+    const stage = make();
+    vi.stubGlobal('document', { createElement: make });
+    vi.stubGlobal('performance', { now: () => now });
+    vi.stubGlobal('requestAnimationFrame', (cb: (t: number) => void) => { rafs.set(++serial, cb); return serial; });
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => { rafs.delete(id); });
+    const step = (t: number) => { now = t; const pending = [...rafs.values()]; rafs.clear(); for (const cb of pending) cb(t); };
+    try {
+      const impact = companionImpactDelay('dangdang', 'palm_throw');
+      const { flightMs } = throwLaunch('dangdang', 'palm_throw')!;
+      const hits: number[] = [];
+      const foot = { x: 200, y: 400 };
+      playThrow(stage as never, 'dangdang', 'palm_throw', { kind: 'furball_dangdang' }, foot, { x: 800, y: 330 }, {
+        waves: 1, elapsed: 380, impactTimes: [impact], onImpact: (wave) => hits.push(wave), onDone() {},
+      });
+      step(1000);
+      expect(hits).toEqual([]);
+      const node = stage.children[0]!;
+      expect(node.dataset.kind).toBe('furball_dangdang');
+      expect(Number(node.dataset.x)).toBe(foot.x + COMPANION_THROW_ORIGIN.dangdang.x);
+      step(1000 + flightMs - 1);
+      expect(hits).toEqual([]);
+      step(1000 + flightMs);
+      expect(hits).toEqual([0]);
     } finally {
       vi.unstubAllGlobals();
     }

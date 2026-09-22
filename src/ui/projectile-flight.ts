@@ -275,19 +275,33 @@ export function playThrow(
   to: Point,
   options: ProjectilePlayOptions,
 ): () => void {
+  const launch = (wave: number) => throwLaunch(source, action, wave)
+    ?? { origin: QIUQIU_THROW_ORIGIN, flightMs: QIUQIU_SHURIKEN_FLIGHT_MS };
+  const flightMs = launch(0).flightMs;
+  const timed = { ...options, elapsed: joinElapsed(options.elapsed ?? 0, options.impactTimes, flightMs) };
   if (shot.kind === 'needle' && source === 'feifei' && isFeifeiNeedleAction(action)) {
     return playFeifeiNeedles(stage, {
       x: foot.x + FEIFEI_NEEDLE_DEFAULT_ORIGIN.x,
       y: foot.y + FEIFEI_NEEDLE_DEFAULT_ORIGIN.y,
-    }, to, { action: action as FeifeiNeedleAction, ...options });
+    }, to, { action: action as FeifeiNeedleAction, ...timed });
   }
   if (shot.kind === 'shuriken' && source === 'qiuqiu') {
-    return playQiuqiuShuriken(stage, { x: foot.x + QIUQIU_THROW_ORIGIN.x, y: foot.y + QIUQIU_THROW_ORIGIN.y }, to, options);
+    return playQiuqiuShuriken(stage, { x: foot.x + QIUQIU_THROW_ORIGIN.x, y: foot.y + QIUQIU_THROW_ORIGIN.y }, to, timed);
   }
-  const launch = (wave: number) => throwLaunch(source, action, wave)
-    ?? { origin: QIUQIU_THROW_ORIGIN, flightMs: QIUQIU_SHURIKEN_FLIGHT_MS };
   return playProjectile(stage, shot.kind, (wave) => {
     const { origin } = launch(wave);
     return { x: foot.x + origin.x, y: foot.y + origin.y };
-  }, to, { ...options, flightMs: launch(0).flightMs });
+  }, to, { ...timed, flightMs });
+}
+
+/**
+ * 從第幾毫秒接著演。連線加入方自己丟的東西要等主機確認回來才飛（來回約 0.3～0.4 秒），
+ * 那時出手格早就過了——照原本的時間算，東西已經飛到，整趟直接跳過、只剩數字（2026-09-22 實機：
+ * 加入方自己的毛球、麻繩、煙霧彈在自己畫面上完全看不到，開房方那台看得到）。
+ * 這種時候從第一波出手那一刻接著演：東西照樣從手上飛完整一趟，命中跟著晚一點（數字本來就要等確認才跳）。
+ * 單人、開房方、看同伴出手都是從 0 開始，不受影響。
+ */
+export function joinElapsed(elapsed: number, impactTimes: readonly number[], flightMs: number): number {
+  const firstRelease = Math.max(0, (impactTimes[0] ?? 0) - flightMs);
+  return Math.min(Math.max(0, elapsed), firstRelease);
 }
