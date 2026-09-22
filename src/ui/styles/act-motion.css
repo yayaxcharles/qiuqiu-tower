@@ -2,3 +2,5 @@
 @keyframes actwalk-run-scroll { to { background-position-x: -650px; } }
 .actwalk-motion .actwalk-shadow { animation-duration: 240ms; }
 .actwalk-motion canvas { pointer-events: none; }
+/* 等逐格動作載好的那一小段：靜態圖＝跑步第 1 格，不晃、不加影子，換上畫布時才一模一樣（2026-09-22） */
+.actwalk-await .actwalk-cat { animation: none; filter: none; }

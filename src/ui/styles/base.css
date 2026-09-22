@@ -519,11 +519,13 @@ img { -webkit-user-drag: none; }
   animation: actwalk-scroll 3400ms linear forwards;
 }
 @keyframes actwalk-scroll { to { background-position-x: -230px; } }
+/* 靜態圖＝跑步動作第 1 格、跟畫布同比例（2026-09-22）：框放大到 300 寬才裝得下頭巾尾巴與爪子，
+   畫布 (280, 底邊上 15) 那一點＝舞台 (465, 484)，正好是逐格畫布的落腳點（tools/build_walk_first_frame.py） */
 .actwalk-cat {
   position: absolute;
-  left: 340px;
-  bottom: 236px;
-  width: 250px;
+  left: 315px;
+  bottom: 228px;
+  width: 300px;
   filter: drop-shadow(0 8px 14px #00000080);
   animation: actwalk-bob 470ms ease-in-out infinite;   /* 比戰鬥間的步伐慢，走得從容 */
 }

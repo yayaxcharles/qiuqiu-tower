@@ -57,8 +57,13 @@ export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then
   let actor: WalkActor | null = null;
   let finished = false;
   const fallback = el('img', { class: 'actwalk-cat', src: catUrl, alt: '' });
+  const animated = motionRequested() && ['ninja', 'feifei', 'dangdang', 'fengfeng'].includes(hero);
 
-  const overlay = el('div', { class: 'actwalk-overlay' },
+  /*
+   * 等逐格動作的那一小段（2026-09-22）：靜態圖就是跑步第 1 格，這段不晃、不加影子，
+   * 換上畫布時才一模一樣、不會跳一下（`act-motion.css` 的 `.actwalk-await`）。動作載不到才照舊晃著走。
+   */
+  const overlay = el('div', { class: animated ? 'actwalk-overlay actwalk-await' : 'actwalk-overlay' },
     el('div', { class: 'actwalk-bg', style: `background-image:url(${bgUrl})` }),
     el('div', { class: 'actwalk-shadow' }),
     fallback,
@@ -66,7 +71,7 @@ export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then
   stage.append(overlay);
 
   void loadWalkActor(hero).then((loaded) => {
-    if (!loaded) return;
+    if (!loaded) { overlay.classList.remove('actwalk-await'); return; }
     if (finished) { loaded.dispose(); return; }
     actor = loaded;
     actor.element.style.position = 'absolute';
@@ -78,11 +83,11 @@ export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then
     overlay.classList.add('actwalk-motion');
     overlay.append(actor.element);
   }).catch((error) => {
+    overlay.classList.remove('actwalk-await');
     console.error('跑步動作素材載入失敗，改用靜態轉場', error);
   });
 
   // 慢步調的腳步聲：三秒走六步
-  const animated = motionRequested() && ['ninja', 'feifei', 'dangdang', 'fengfeng'].includes(hero);
   const steps = Array.from({ length: animated ? 12 : 6 }, (_, i) =>
     window.setTimeout(() => play('step', 0.92 + (i % 2) * 0.1), animated ? 120 + i * 240 : 260 + i * 470));
 

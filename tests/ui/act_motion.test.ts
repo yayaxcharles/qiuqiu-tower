@@ -25,7 +25,7 @@ vi.mock('../../src/ui/companion-motion', () => ({
 }));
 vi.mock('../../src/ui/dom', () => ({
   el: (_tag: string, attrs: Record<string, string>, ...children: unknown[]) => ({
-    attrs, children, classList: { add: vi.fn() }, remove: vi.fn(),
+    attrs, children, classList: { add: vi.fn(), remove: vi.fn() }, remove: vi.fn(),   // remove：載不到時拿掉 actwalk-await
     handlers: {} as Record<string, () => void>,
     append(this: { children: unknown[] }, ...nodes: unknown[]) { this.children.push(...nodes); },
     addEventListener(this: { handlers: Record<string, () => void> }, type: string, fn: () => void) { this.handlers[type] = fn; },
