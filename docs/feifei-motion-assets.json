@@ -19,10 +19,10 @@
     },
     {
       "source": "tools/motion-art-source/ff1/feifei/run.png",
-      "sourceSha256": "ebe1b1ea6d224a7ce637d3af41c0c26583486149732f5105239badcebdfaf595",
+      "sourceSha256": "618279d19d3213211430e01ad4a52eb19f23d896fe13606cb6d99dce84a47b3f",
       "target": "public/assets/motion/feifei/run.webp",
-      "targetSha256": "a1a3c4e6a22d5e61c8b07186da7c001f27589969565c9193c08f1ed205d3530d",
-      "bytes": 698866,
+      "targetSha256": "61fde27df419e77fc0a5fe94064a46c70987fa1cde696d36d87f221d3a77c354",
+      "bytes": 653444,
       "size": [
         1536,
         1024
@@ -131,5 +131,5 @@
       "rgbaExact": true
     }
   ],
-  "uniqueBytes": 9410228
+  "uniqueBytes": 9364806
 }

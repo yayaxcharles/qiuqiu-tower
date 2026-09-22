@@ -370,18 +370,18 @@
     {
       "hero": "feifei",
       "action": "run",
-      "attempt": 1,
+      "attempt": 3,
       "source": "tools/motion-art-source/ff1/feifei/run.png",
-      "sourceSha256": "ebe1b1ea6d224a7ce637d3af41c0c26583486149732f5105239badcebdfaf595",
+      "sourceSha256": "618279d19d3213211430e01ad4a52eb19f23d896fe13606cb6d99dce84a47b3f",
       "target": "public/assets/motion/feifei/run.webp",
-      "targetSha256": "a1a3c4e6a22d5e61c8b07186da7c001f27589969565c9193c08f1ed205d3530d",
+      "targetSha256": "61fde27df419e77fc0a5fe94064a46c70987fa1cde696d36d87f221d3a77c354",
       "bytesBefore": 952508,
-      "bytes": 698866,
+      "bytes": 653444,
       "size": [
         1536,
         1024
       ],
-      "scale": 0.7621121393576483,
+      "scale": 0.7979481333713309,
       "headScalesBefore": [
         0.91,
         0.9,
@@ -394,56 +394,56 @@
       ],
       "headScales": [
         1.0,
+        1.01,
+        1.01,
         1.0,
         1.0,
-        0.99,
         1.0,
-        0.99,
         1.0,
-        0.98
+        0.99
       ],
       "headCorr": [
-        0.963,
-        0.957,
-        0.973,
-        0.968,
+        0.965,
         0.966,
-        0.952,
-        0.956,
-        0.962
+        0.963,
+        0.961,
+        0.967,
+        0.962,
+        0.963,
+        0.963
       ],
-      "headMaxStep": 0.02,
+      "headMaxStep": 0.01,
       "firstFrameHeightRatio": 1.01,
       "heightUnits": [
         254.5,
-        255.3,
-        258.4,
-        250.7,
-        252.3,
-        251.5,
-        254.5,
-        250.0
+        253.7,
+        262.5,
+        245.8,
+        248.2,
+        249.8,
+        252.2,
+        239.4
       ],
       "feetMidOffsetUnits": [
         30.4,
-        6.4,
-        8.6,
-        30.4,
-        32.3,
-        -0.1,
-        14.0,
-        36.1
+        24.4,
+        13.2,
+        47.1,
+        41.1,
+        12.0,
+        24.0,
+        47.1
       ],
       "idleFeetMidOffsetUnits": 30.36,
       "leftReachUnits": [
-        100.7,
-        93.9,
-        103.8,
-        111.4,
-        92.3,
-        90.8,
-        98.4,
-        100.7
+        94.1,
+        89.3,
+        92.5,
+        95.7,
+        88.5,
+        82.1,
+        81.4,
+        90.1
       ],
       "mainBody": [
         1.0,
