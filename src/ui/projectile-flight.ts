@@ -55,7 +55,7 @@ export const PROJECTILE_LOOKS: Readonly<Record<ProjectileKind, Look>> = {
   furball_qiuqiu: { src: art('furball_qiuqiu'), width: 40, height: 40, spin: 540, arc: 34 },
   furball_dangdang: { src: art('furball_dangdang'), width: 40, height: 40, spin: 540, arc: 34 },
   furball_fengfeng: { src: art('furball_fengfeng'), width: 40, height: 40, spin: 540, arc: 34 },
-  poison_pill: { src: art('poison_pill'), width: 46, height: 20, spin: 0 },
+  poison_pill: { src: art('poison_pill'), width: 56, height: 24, spin: 0 },
   poison_sand: { src: art('poison_sand'), width: 72, height: 38, spin: 0, grow: [0.55, 1.15] },
   snare_cord: { src: art('snare_cord'), width: 76, height: 32, spin: 0, wobble: 10, grow: [0.75, 1.15] },
   hemp_rope: { src: art('hemp_rope'), width: 76, height: 36, spin: 0, wobble: 10, grow: [0.75, 1.15] },
