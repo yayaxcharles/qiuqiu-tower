@@ -52,7 +52,7 @@ import {
 import { motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
 import { playQiuqiuShuriken } from '../qiuqiu-shuriken';
 import { playFeifeiNeedles } from '../feifei-needles';
-import { isFeifeiNeedleAction } from '../feifei-needle-patterns';
+import { FEIFEI_NEEDLE_DEFAULT_ORIGIN, isFeifeiNeedleAction } from '../feifei-needle-patterns';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
 import { createEnemyMotionActor, enemyMotionDuration, enemyMotionReady, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
@@ -2907,9 +2907,10 @@ registerScreen('combat', (app, root, props) => {
       : impactMotion === 'clone' || impactMotion === 'clone_duo' || impactMotion === 'ultimate_clone';
     const throwHome = throwing ? root.querySelector<HTMLElement>(`.unit.player[data-seat="${opts.impactSeat ?? mySeat}"] .sprite-box`) : null;
     const throwFoot = throwHome ? motionFoot(throwHome) : undefined;
+    // 菲菲的飛針：先給共用預設起點，每一招再由 playFeifeiNeedles 挪到自己出手那一格的手上（feifei-needle-patterns.ts）
     const throwFrom = throwFoot ? {
-      x: throwFoot.x + (impactSource === 'feifei' ? 82 : 125),
-      y: throwFoot.y - (impactSource === 'feifei' ? 118 : 135),
+      x: throwFoot.x + (impactSource === 'feifei' ? FEIFEI_NEEDLE_DEFAULT_ORIGIN.x : 125),
+      y: throwFoot.y + (impactSource === 'feifei' ? FEIFEI_NEEDLE_DEFAULT_ORIGIN.y : -135),
     } : undefined;
 
     // 畫完才把動畫類別與浮動數字掛到剛生出來的節點上

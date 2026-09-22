@@ -10,6 +10,7 @@
        真透明、每格只有一隻、沒被切到、每格頭部倍率在待機的 ±5%、相鄰格頭部倍率變化 ≤4%、
        腳底著地（同一列的腳底線對齊）、第 1 格身高在待機的 ±6%（頭對了身高也對＝頭身比對了）、
        第 8 格回到第 1 格的架式、往左伸出定位點不超過 150 單位。
+  另外照 09-20 那版補回針雨出手那一下的小跳（`LIFT`：第 5 格浮起 10、第 6 格 3 單位）。
 格數、順序、每格時長、出手時間照 09-20 那版（`TIMING`），打包後的資料再核一次，不一樣就停。
 
 寫出：`public/assets/motion/feifei/<動作>_v3.webp`（無損）、`src/ui/feifei-needle-motion-data.json` 裡這七套
@@ -55,6 +56,10 @@ TIMING = {
     'needle_rain': ([60, 90, 110, 90, 80, 120, 160, 170], [350]),
     'needle_barrage': ([60, 80, 100, 110, 70, 110, 150, 140], [350]),
 }
+
+# 刻意的小跳（遊戲單位）：針雨出手那一下（第 5 格雙手舉高）整隻浮起 10、第 6 格 3，跟 09-20 那版
+# （`pack_feifei_needle_motion.py` 的 lift）一樣。重畫第一版漏掉，2026-09-22 補回
+LIFT = {'needle_rain': [0, 0, 0, 0, 10, 3, 0, 0]}
 
 HEAD_TOLERANCE = 0.05       # 每格頭部倍率 ÷ 待機：±5%
 HEAD_STEP = 0.04            # 相鄰兩格頭部倍率差：≤4%（出招時頭不閃大小）
@@ -251,6 +256,11 @@ def check(action: str, path: Path, idle: Idle | None = None) -> tuple[Image.Imag
     for frame in frames:
         frame['pivot'] = [round(frame['pivot'][0] + shift / scale, 2), frame['pivot'][1]]
     feet_after = [round(o - shift, 1) for o in offsets]     # 各格兩腳中點在定位點右邊幾單位
+    # 騰空：照 09-20 那版的浮起量把定位點往下移（角色就畫高一點）。閘門的「腳底著地」量的是生圖原檔有沒有守住地面線，
+    # 這裡是刻意加上去的小跳，跟那條不衝突
+    lifts = LIFT.get(action, [0] * len(frames))
+    for frame, lift in zip(frames, lifts):
+        frame['pivot'][1] = round(frame['pivot'][1] + lift / scale, 4) if lift else frame['pivot'][1]
     if abs(feet_after[-1] - idle.feet_offset) > LAST_FEET:
         problems.append(f'第 8 格兩腳中點離待機 {feet_after[-1] - idle.feet_offset:.1f} 單位（上限 {LAST_FEET}），接回待機會橫移')
     reach = max(f['pivot'][0] * scale for f in frames)
@@ -270,7 +280,7 @@ def check(action: str, path: Path, idle: Idle | None = None) -> tuple[Image.Imag
         'headMethod': [r['method'] for r in heads],
         'faceCheck': {str(i + 1): [r['faceHead'], r['faceCorr']] for i, r in enumerate(heads) if 'faceHead' in r},
         'headStepMax': max(steps), 'firstHeightRatio': first_height, 'lastHeightRatio': last_height,
-        'feetMidOffsetUnits': feet_after, 'idleFeetMidOffsetUnits': round(idle.feet_offset, 1),
+        'feetMidOffsetUnits': feet_after, 'idleFeetMidOffsetUnits': round(idle.feet_offset, 1), 'liftUnits': lifts,
         'leftReachUnits': round(reach, 1),
     }
     return image, entry, metrics
@@ -295,6 +305,8 @@ def pack() -> None:
     staged = [(action, *result) for action, result in zip(ACTIONS, results)]
     data = json.loads(DATA.read_text(encoding='utf-8'))
     old_textures = {a: data['actions'][a]['texture'] for a in ACTIONS}
+    # 「換掉哪張圖」記的是這批重畫之前的那張（09-20 的 v2）；重打包時資料裡已經是 v3，照舊紀錄留著
+    previous = {r['action']: r.get('replaces') for r in json.loads(RECORD.read_text(encoding='utf-8'))['assets']}         if RECORD.exists() else {}
     records = []
     for action, image, entry, metrics in staged:
         target = ROOT / 'public' / entry['texture']
@@ -309,7 +321,7 @@ def pack() -> None:
         records.append({'action': action, 'attempt': config[action]['attempt'],
                         'source': source.relative_to(ROOT).as_posix(), 'sourceSha256': sha(source),
                         'target': target.relative_to(ROOT).as_posix(), 'targetSha256': sha(target),
-                        'bytes': target.stat().st_size, 'size': list(image.size), 'replaces': old_textures[action],
+                        'bytes': target.stat().st_size, 'size': list(image.size), 'replaces': previous.get(action) or old_textures[action],
                         **metrics})
     dump_json(DATA, data)
     # 舊圖沒人用了就移掉（撒針借的 fan.webp 不在這批）

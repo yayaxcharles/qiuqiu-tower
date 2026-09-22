@@ -83,6 +83,16 @@
         30.0
       ],
       "idleFeetMidOffsetUnits": 30.4,
+      "liftUnits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "leftReachUnits": 91.5
     },
     {
@@ -164,6 +174,16 @@
         23.3
       ],
       "idleFeetMidOffsetUnits": 30.4,
+      "liftUnits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "leftReachUnits": 109.8
     },
     {
@@ -245,6 +265,16 @@
         21.0
       ],
       "idleFeetMidOffsetUnits": 30.4,
+      "liftUnits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "leftReachUnits": 103.7
     },
     {
@@ -326,6 +356,16 @@
         32.4
       ],
       "idleFeetMidOffsetUnits": 30.4,
+      "liftUnits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "leftReachUnits": 142.9
     },
     {
@@ -412,6 +452,16 @@
         28.1
       ],
       "idleFeetMidOffsetUnits": 30.4,
+      "liftUnits": [
+        0,
+        0,
+        0,
+        0,
+        10,
+        3,
+        0,
+        0
+      ],
       "leftReachUnits": 87.6
     },
     {
@@ -493,6 +543,16 @@
         30.7
       ],
       "idleFeetMidOffsetUnits": 30.4,
+      "liftUnits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "leftReachUnits": 83.5
     },
     {
@@ -574,6 +634,16 @@
         26.7
       ],
       "idleFeetMidOffsetUnits": 30.4,
+      "liftUnits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "leftReachUnits": 90.6
     }
   ]

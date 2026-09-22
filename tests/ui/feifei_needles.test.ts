@@ -1,10 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { playFeifeiNeedles } from '../../src/ui/feifei-needles';
-import { feifeiNeedleFlightMs, feifeiNeedleGapMs, feifeiNeedleReleaseTimes, type FeifeiNeedleAction } from '../../src/ui/feifei-needle-patterns';
+import {
+  FEIFEI_NEEDLE_DEFAULT_ORIGIN, feifeiNeedleFlightMs, feifeiNeedleGapMs, feifeiNeedleOrigin, feifeiNeedleReleaseTimes,
+  type FeifeiNeedleAction,
+} from '../../src/ui/feifei-needle-patterns';
 
 // 出手、飛行、額外波間隔都取自招式資料：那裡已經是 1.5 倍速後的時間（素材原速見 feifei-needle-patterns.ts，換算見 motion-speed.ts）
 const release = (action: FeifeiNeedleAction, wave = 0): number => feifeiNeedleReleaseTimes(action)[wave]!;
 const hit = (action: FeifeiNeedleAction, wave = 0): number => release(action, wave) + feifeiNeedleFlightMs(action);
+// 呼叫端給的 from＝腳底＋共用預設起點；每一招的飛針從自己出手那一格的手放出去（起點表見 feifei-needle-patterns.ts，
+// 手的位置量自出手格，另有 feifei_needle_origins.test.ts 核對）。這裡算的是「剛離手那一刻飛針畫布的中心」
+const start = (action: FeifeiNeedleAction, from: { x: number; y: number }, wave = 0) => ({
+  x: from.x + feifeiNeedleOrigin(action, wave).x - FEIFEI_NEEDLE_DEFAULT_ORIGIN.x,
+  y: from.y + feifeiNeedleOrigin(action, wave).y - FEIFEI_NEEDLE_DEFAULT_ORIGIN.y,
+});
 
 class FakeContext {
   readonly strokes: string[] = [];
@@ -111,7 +120,9 @@ describe('菲菲飛針投射物', () => {
       pattern: 'shuriken', wave: '0', route: 'straight', phase: 'flight', needleCount: '1',
     });
     expect(target.children[0]!.context.strokes).toEqual(expect.arrayContaining(['#d9d8eb', '#74469d']));
-    expect(target.children[0]!.style.transform).toContain('translate(73px, 191px)');
+    // 丟針從伸直那隻手的手掌放出去（腳底右 132、上 120），不是舊的共用預設（右 82、上 118，在前臂上）
+    expect(start('shuriken', { x: 100, y: 200 })).toEqual({ x: 150, y: 198 });
+    expect(target.children[0]!.style.transform).toContain('translate(123px, 189px)');
     step(hit('shuriken'));
     expect(impact.mock.calls).toEqual([[0]]);
     expect(done).toHaveBeenCalledOnce();
@@ -147,10 +158,14 @@ describe('菲菲飛針投射物', () => {
 
     step(release('needle_combo', 0));
     expect(wave(0)!.dataset.hand).toBe('front');
-    expect(wave(0)!.style.transform).toContain('translate(73px, 179px)');
+    // 第 1 波右手（腳底右 132、上 116）、第 2 波左手（右 140、上 133），第 3 波又換回右手
+    expect(wave(0)!.style.transform).toContain(`translate(${start('needle_combo', { x: 100, y: 200 }, 0).x - 27}px, ${start('needle_combo', { x: 100, y: 200 }, 0).y - 9}px)`);
+    expect(start('needle_combo', { x: 100, y: 200 }, 0)).toEqual({ x: 150, y: 202 });
     step(release('needle_combo', 1));
     expect(wave(1)!.dataset.hand).toBe('back');
-    expect(wave(1)!.style.transform).toContain('translate(73px, 203px)');
+    expect(start('needle_combo', { x: 100, y: 200 }, 1)).toEqual({ x: 158, y: 185 });
+    expect(wave(1)!.style.transform).toContain('translate(131px, 176px)');
+    expect(start('needle_combo', { x: 100, y: 200 }, 2)).toEqual(start('needle_combo', { x: 100, y: 200 }, 0));
     step(third);
     expect(target.children.map((canvas) => canvas.dataset.hand)).toContain('front');
   });
@@ -171,7 +186,8 @@ describe('菲菲飛針投射物', () => {
       action: 'needle_rain', waves: 1, impactTimes: [hit('needle_rain')], onImpact: vi.fn(), onDone: vi.fn(),
     });
     step(rainStartedAt + release('needle_rain'));
-    expect(rainStage.children[0]!.dataset).toMatchObject({ x: '55', y: '190', hands: 'overhead' });
+    // 針雨從舉過頭頂的右手放出去（腳底右 100、上 258；出手那一格整隻浮起 10）
+    expect(rainStage.children[0]!.dataset).toMatchObject({ x: '118', y: '160', hands: 'overhead' });
     step(rainStartedAt + release('needle_rain') + feifeiNeedleFlightMs('needle_rain') / 2);
     expect(rainStage.children[0]!.dataset.route).toBe('up-then-drop');
     const rainY = Number(rainStage.children[0]!.dataset.y);
@@ -239,7 +255,8 @@ describe('菲菲飛針投射物', () => {
         pattern: action, needleCount: String(count), route, hands,
       });
       if (action === 'needle_retreat') {
-        expect(target.children[0]!.dataset).toMatchObject({ x: '75', y: '200' });
+        // 兩手往前推出去，從兩隻手掌中間放出去（腳底右 142、上 134）
+        expect(target.children[0]!.dataset).toMatchObject({ x: '160', y: '184' });
       }
     }
   });
@@ -290,10 +307,10 @@ describe('菲菲飛針投射物', () => {
       action: 'shuriken', waves: 1, impactTimes: [hit('shuriken')], onImpact: secondImpact, onDone: vi.fn(),
     });
     step(release('shuriken'));
-    expect(target.children[0]!.style.transform).toContain('translate(73px, 191px)');
+    expect(target.children[0]!.style.transform).toContain('translate(123px, 189px)');
     step(100 + release('shuriken'));
     expect(target.children).toHaveLength(2);
-    expect(target.children[1]!.style.transform).toContain('translate(273px, 391px)');
+    expect(target.children[1]!.style.transform).toContain('translate(323px, 389px)');
     cancelFirst();
     step(100 + hit('shuriken'));
     expect(firstImpact).not.toHaveBeenCalled();

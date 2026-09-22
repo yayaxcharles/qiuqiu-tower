@@ -1,6 +1,8 @@
 import {
+  FEIFEI_NEEDLE_DEFAULT_ORIGIN,
   feifeiNeedleFlightMs,
   feifeiNeedleGapMs,
+  feifeiNeedleOrigin,
   feifeiNeedleReleaseTimes,
   type FeifeiNeedleAction,
 } from './feifei-needle-patterns';
@@ -79,11 +81,17 @@ function waveReleaseAt(action: FeifeiNeedleAction, wave: number): number {
   return releases.at(-1)! + (wave - releases.length + 1) * feifeiNeedleGapMs(action);
 }
 
+/**
+ * 這一波從哪裡放出去。`from` 是呼叫端給的「腳底定位點＋共用預設起點」（`FEIFEI_NEEDLE_DEFAULT_ORIGIN`），
+ * 每一招再照自己出手那一格量到的手的位置挪過去（`feifeiNeedleOrigin`，2026-09-22 起逐招量；
+ * 原本是連針上下 ±12、針雨左 45 上 110、不要過來左 25 的手調值）。
+ */
 function waveOrigin(action: FeifeiNeedleAction, wave: number, from: FeifeiNeedlePoint): FeifeiNeedlePoint {
-  if (action === 'needle_combo') return { x: from.x, y: from.y + (wave % 2 === 0 ? -12 : 12) };
-  if (action === 'needle_rain') return { x: from.x - 45, y: from.y - 110 };
-  if (action === 'needle_retreat') return { x: from.x - 25, y: from.y };
-  return from;
+  const origin = feifeiNeedleOrigin(action, wave);
+  return {
+    x: from.x + origin.x - FEIFEI_NEEDLE_DEFAULT_ORIGIN.x,
+    y: from.y + origin.y - FEIFEI_NEEDLE_DEFAULT_ORIGIN.y,
+  };
 }
 
 function routePoint(

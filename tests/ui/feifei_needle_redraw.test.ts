@@ -11,7 +11,8 @@
  *  2. 紀錄對得上真的圖檔（雜湊）與動作資料（貼圖路徑、比例）——只換圖不重量、或只改資料的比例，這裡會紅；
  *  3. 比例是「頭對齊」算出來的：資料的比例 ＝ 252 ÷ 第 1 格高 × 修正倍率（修正倍率量自生圖原檔）；
  *     退回舊寫法（只把第 1 格外框拉成 252，頭就又小一圈）會紅；
- *  4. 格數、每格時長、出手時間跟 09-20 那版一樣（飛針投射物照出手時間放出去），第 1 格兩腳中點對齊待機。
+ *  4. 格數、每格時長、出手時間跟 09-20 那版一樣（飛針投射物照出手時間放出去），第 1 格兩腳中點對齊待機；
+ *     針雨出手那一下的小跳（第 5、6 格浮起 10、3 單位）跟 09-20 那版一樣，其他格都踩在地上。
  */
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
@@ -25,6 +26,7 @@ type Motion = { texture: string; scale: number; frames: Frame[]; releaseTimes: n
 type Asset = {
   action: string; target: string; targetSha256: string; headScales: number[]; headMethod: string[]; sizeFix: number;
   rawHeadScales: number[]; feetMidOffsetUnits: number[]; idleFeetMidOffsetUnits: number; firstHeightRatio: number;
+  liftUnits: number[];
 };
 
 const actions = needleData.actions as unknown as Record<string, Motion>;
@@ -41,6 +43,9 @@ const TIMING: Record<string, [number[], number[]]> = {
   needle_rain: [[60, 90, 110, 90, 80, 120, 160, 170], [350]],
   needle_barrage: [[60, 80, 100, 110, 70, 110, 150, 140], [350]],
 };
+
+// 刻意的小跳（遊戲單位）：針雨第 5 格雙手舉高那一下浮起 10、第 6 格 3，跟 09-20 那版一樣（重畫第一版漏掉，09-22 補回）
+const LIFT: Record<string, number[]> = { needle_rain: [0, 0, 0, 0, 10, 3, 0, 0] };
 
 describe('菲菲針招重畫：頭的大小跟新版待機一致', () => {
   it('七套都重畫過、都有紀錄', () => {
@@ -91,8 +96,10 @@ describe('菲菲針招重畫：頭的大小跟新版待機一致', () => {
       it('第 1 格兩腳中點對齊待機，第 8 格回到附近（接回待機不橫移）', () => {
         expect(asset.feetMidOffsetUnits[0]).toBeCloseTo(asset.idleFeetMidOffsetUnits, 0);
         expect(Math.abs(asset.feetMidOffsetUnits[7]! - asset.idleFeetMidOffsetUnits)).toBeLessThanOrEqual(12);
-        // 定位點在腳底最下一排：每格都踩在地上
-        for (const frame of motion.frames) expect(frame.pivot[1]).toBe(frame.rect[3]! - 1);
+        // 定位點在腳底最下一排＝踩在地上；只有刻意的小跳（針雨出手那一下）往下挪，挪多少就浮起多少單位
+        const lifts = motion.frames.map((frame) => Math.round((frame.pivot[1]! - (frame.rect[3]! - 1)) * motion.scale * 100) / 100);
+        expect(lifts).toEqual(LIFT[action] ?? [0, 0, 0, 0, 0, 0, 0, 0]);
+        expect(asset.liftUnits).toEqual(LIFT[action] ?? [0, 0, 0, 0, 0, 0, 0, 0]);
       });
     });
   }
