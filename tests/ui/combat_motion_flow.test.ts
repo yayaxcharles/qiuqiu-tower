@@ -82,6 +82,8 @@ describe('combat motion confirmation and victory flow', () => {
       locallyPlayedMotion: { take: () => local }, localCardMotionKey: (uid: number) => `card:${uid}`,
       alreadyShown: false, mine: true, remoteBefore: {}, Date: { now: () => 1000 + motionMs(600) },
       cardStats: () => ({ def: { type: '攻擊' }, effects: [] }), heroOf: () => 'dangdang', cardPose: () => ({ attack: true }),
+      // 2026-09-22 批次 proj：連線單張那條也要帶丟出去的是什麼（近身連拳什麼都不飛）
+      projectileForCard: () => undefined, projectileForPotion: () => undefined,
       settle: (_before: unknown, opts: typeof confirmation) => { confirmation = opts; }, render() {}, finishApplied() {},
       motionPresentationMatches, resizeMotionMeleeTrip, shouldResumeConfirmedMotion, motionMeleeSample,
       impactSource: 'dangdang', impactMotion: 'rapid_combo', confirmedMotionWaves: 2,
@@ -135,7 +137,7 @@ describe('受擊反應的播放與收尾', () => {
 
 
 describe('敵方連續出手的反應銜接', () => {
-  const reactions = sourceBetween('    for (const q of cs.players) {\n      const source = motionSourceFor(q);', '    const feifeiNeedleAction');
+  const reactions = sourceBetween('    for (const q of cs.players) {\n      const source = motionSourceFor(q);', '    // 丟出去的東西（2026-09-22 批次 proj）');
   it.each([1, 0])('閃避時依剩餘 %i 層隱身維持正確透明度', async (stealth) => {
     const classes = new Set<string>();
     const box = {

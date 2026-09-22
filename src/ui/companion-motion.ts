@@ -44,14 +44,14 @@ export type FeifeiMotionAction =
 
 export type DangdangMotionAction =
   | 'idle' | 'hurt' | 'run' | 'dodge'
-  | 'punch' | 'palm' | 'kick' | 'shoulder' | 'counter' | 'ground_slam'
+  | 'punch' | 'palm' | 'palm_throw' | 'kick' | 'shoulder' | 'counter' | 'ground_slam'
   | 'rapid_combo' | 'heavy_palm' | 'sweep_combo' | 'reckless_bash'
   | 'guard' | 'focus' | 'eat' | 'win' | 'defeat' | 'poison'
   | CompanionRestStateAction;
 
 export type FengfengMotionAction =
   | 'idle' | 'hurt' | 'run' | 'dodge'
-  | 'slash' | 'sweep' | 'heavy_slash' | 'thrust' | 'double_slash'
+  | 'slash' | 'sweep' | 'heavy_slash' | 'thrust' | 'thrust_throw' | 'double_slash'
   | 'sword_combo' | 'qi_cleave' | 'earth_split' | 'retreat_thrust'
   | 'guard' | 'focus' | 'sheath' | 'eat' | 'win' | 'defeat' | 'poison'
   // 2026-09-22 補的出牌動作：吼（含獅吼功）、太極，劍都不出鞘
@@ -88,10 +88,33 @@ const feifeiMotions = {
   } as unknown as Record<string, TimedFrameMotion>),
   hurt: HIT_RECOIL_MOTIONS.feifei,
 } as Record<string, TimedFrameMotion>;
+/**
+ * 噹噹、封封沒有投擲動作，丟東西（丟出去的忍具、聚葉成刀、撒手鐧、毛球彈⋯⋯）借用原地推掌、原地一刺（2026-09-22，批次 proj）。
+ * 借用的是同一套圖，但**不衝上前**（東西是丟出去的），而且命中時點要讓飛行物從手上出去再飛到：
+ * 出手＝推掌那隻手伸出去那一格（第 4 格，原速 290 毫秒）、封封空著的左手往前推那一格（第 3 格，原速 150 毫秒）；
+ * 命中＝出手＋飛行（噹噹 170 毫秒跟球球的手裏劍一樣；封封沿用突刺原本的命中點 300 毫秒，飛 150 毫秒）。
+ * 近身推掌的命中點（340）是手掌碰到魔物那一格，丟東西時用那個，東西只飛 30 毫秒、看起來像瞬間移動。
+ */
+const COMPANION_THROW_SOURCE: Readonly<Record<'dangdang' | 'fengfeng', Readonly<Record<string, { from: string; release: number; impact: number }>>>> = {
+  dangdang: { palm_throw: { from: 'palm', release: 290, impact: 460 } },
+  fengfeng: { thrust_throw: { from: 'thrust', release: 150, impact: 300 } },
+};
+const throwAliases = (kind: 'dangdang' | 'fengfeng', actions: Readonly<Record<string, TimedFrameMotion>>) =>
+  Object.fromEntries(Object.entries(COMPANION_THROW_SOURCE[kind]).map(([alias, { from, impact }]) => [
+    alias, { ...actions[from]!, impactTimes: [impact] },
+  ]));
+/** 丟東西的動作在第幾毫秒出手（已換成 1.5 倍速）；不是丟東西的動作回 undefined */
+export function companionThrowRelease(kind: CompanionMotionKind, action: string): number | undefined {
+  if (kind === 'feifei') return undefined;
+  const entry = COMPANION_THROW_SOURCE[kind][action];
+  return entry ? motionMs(entry.release) : undefined;
+}
+
 const dangdangMotions = {
   ...speedUpMotions({
     ...dangdangMotionData.actions,
     ...dangdangAttackMotionData.actions,
+    ...throwAliases('dangdang', dangdangMotionData.actions as unknown as Record<string, TimedFrameMotion>),
   } as unknown as Record<string, TimedFrameMotion>),
   hurt: HIT_RECOIL_MOTIONS.dangdang,
 } as Record<string, TimedFrameMotion>;
@@ -99,6 +122,7 @@ const fengfengMotions = {
   ...speedUpMotions({
     ...fengfengMotionData.actions,
     ...fengfengAttackMotionData.actions,
+    ...throwAliases('fengfeng', fengfengMotionData.actions as unknown as Record<string, TimedFrameMotion>),
   } as unknown as Record<string, TimedFrameMotion>),
   hurt: HIT_RECOIL_MOTIONS.fengfeng,
 } as Record<string, TimedFrameMotion>;
@@ -127,10 +151,14 @@ const FEIFEI_SHARED_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleActi
   shierlian: 'needle_barrage',
   sashoujian: 'shuriken',
   // 2026-09-22 晚：這三張原本刻意只演卡圖（毒丸、毒砂、繩索不是針），出牌時露出舊立繪。
-  // 改成配最像的出手：毒丸彈一彈、毒砂一把撒出去、絆索反手甩出去（飛出去的仍是針，素材沒有毒丸與繩索）
+  // 改成配最像的出手：毒丸彈一彈、毒砂一把撒出去、絆索反手甩出去（飛出去的東西見 projectile-kinds.ts）
   maoqiudan: 'shuriken',
   tieshazhang: 'needle_fan',
   qinna: 'needle_backhand',
+  // 2026-09-22（批次 proj）：這兩張原本是近身爪擊（衝上去抓一下），但牌面畫的是她把葉片、手裏劍撒出去。
+  // 聚葉成刀打全體兩輪、用撒針那一套一把撒出去；手裏劍亂舞打全體兩輪、用連撒兩次的那一套
+  juye: 'needle_fan',
+  luanwu: 'storm',
 };
 const EAT_CARDS = new Set(['touchi', 'xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
 
@@ -154,9 +182,12 @@ const DANGDANG_SHARED_GROUPS: Readonly<Record<DangdangMotionAction, readonly str
   wounded: [], power: [], hungry: [], dizzy: [], belly: [], stealth: [], lazy: [], puff: [], iron: [], curl: [],
   palm: [
     'shengdong', 'shunshou', 'bangnidianyixia', 'wobangnishouwei', 'zhaonishuodeda',
-    'jienideliqi', 'wozaizhe', 'susu', 'tieshazhang', 'juye', 'luoye',
-    'paozhao', 'sashoujian', 'dieda', 'liandao', 'zhuiji', 'maoqiudan',
+    'jienideliqi', 'wozaizhe', 'susu', 'tieshazhang', 'luoye',
+    'paozhao', 'dieda', 'liandao', 'zhuiji',
   ],
+  // 丟出去的三張（2026-09-22，批次 proj）：原本跟著近身推掌衝上去拍一下，牌面畫的卻是葉片、木桶、毛球飛出去。
+  // 改成原地推掌、東西從手上飛出去（見 COMPANION_THROW_SOURCE）
+  palm_throw: ['juye', 'sashoujian', 'maoqiudan'],
   punch: ['qinna', 'dianxue', 'zuiquan', 'bengquan', 'ehou', 'jiuweiquan'],
   kick: ['caiweiba', 'huixuan'],
   shoulder: ['shunkan', 'beici'],
@@ -227,15 +258,17 @@ const FENGFENG_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
 };
 const FENGFENG_SHARED_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
   liandao: 'sword_combo',
-  // 2026-09-22 晚：這三張原本刻意只演卡圖（手裏劍、毛球、木桶都是丟出去的），出牌時露出舊立繪。
-  // 他沒有投擲動作，改配最像的出手：亂舞打全體兩輪用橫掃（噹噹那張也叫橫掃千軍）、
-  // 撒手鐧是一記大招、原地劈出地裂、毛球彈張嘴一吐（吼的那套，劍不出鞘）
-  luanwu: 'sweep',
-  sashoujian: 'earth_split',
-  maoqiudan: 'roar',
+  // 2026-09-22 晚：這三張原本刻意只演卡圖（手裏劍、毛球、木桶都是丟出去的），出牌時露出舊立繪，
+  // 當晚先配了橫掃、開山、吼。2026-09-22（批次 proj）飛行物接上之後改成：左手把東西丟出去、右手的劍接著刺
+  // （跟他丟忍具同一套，原地出手、不衝上前）。橫掃是衝上去掃，東西飛不出去；開山、吼的出手格沒有手伸出去。
+  // 聚葉成刀原本照攻擊牌規則衝上去平斬，牌面畫的是葉片飛出去，一起改。
+  luanwu: 'thrust_throw',
+  sashoujian: 'thrust_throw',
+  maoqiudan: 'thrust_throw',
+  juye: 'thrust_throw',
 };
 const FENGFENG_ATTACKS = new Set<FengfengMotionAction>([
-  'slash', 'sweep', 'heavy_slash', 'thrust', 'double_slash',
+  'slash', 'sweep', 'heavy_slash', 'thrust', 'thrust_throw', 'double_slash',
   'sword_combo', 'qi_cleave', 'earth_split', 'retreat_thrust',
 ]);
 
@@ -507,7 +540,8 @@ export function companionImpactDelay(kind: CompanionMotionKind, action: Companio
 export function companionIsMelee(kind: CompanionMotionKind, action: CompanionMotionAction): boolean {
   if (kind === 'feifei') return FEIFEI_MELEE.has(action as FeifeiMotionAction);
   if (kind === 'dangdang') return DANGDANG_MELEE.has(action as DangdangMotionAction);
-  return action !== 'earth_split' && FENGFENG_ATTACKS.has(action as FengfengMotionAction);
+  // 開山是原地劈地；丟東西那一刺也是原地（東西是丟出去的），兩個都不衝上前
+  return action !== 'earth_split' && action !== 'thrust_throw' && FENGFENG_ATTACKS.has(action as FengfengMotionAction);
 }
 
 export function companionCardAction(
