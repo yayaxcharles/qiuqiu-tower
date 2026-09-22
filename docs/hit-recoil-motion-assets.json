@@ -8,21 +8,23 @@
       "source": "tools/motion-art-source/hit-recoil/qiuqiu.png",
       "sourceSha256": "74adc743b70b2662a173b24d5be3937785c2c23617637c264380355480e59339",
       "target": "public/assets/motion/qiuqiu/hit_recoil.webp",
-      "targetSha256": "1b0a95a382aedc28d60b31ead4279e070fb8bc978870c600ab6d31c479054ba7",
-      "bytes": 92168,
+      "targetSha256": "d47819604f4082339287d1f0a2d6e6e5deb17f08fc237a93c8a84b488ab4c866",
+      "bytes": 85090,
       "size": [
-        366,
-        410
+        347,
+        390
       ],
+      "sizeFix": 0.95,
       "heightRatio": 1.007,
-      "heightUnits": 254.0,
+      "shownHeightRatio": 0.953,
+      "heightUnits": 241.2,
       "idleHeightUnits": 253.2,
-      "widthUnits": 227.8,
+      "widthUnits": 215.7,
       "idleWidthUnits": 211.5,
       "mainBody": 1.0,
       "feetPieces": 2,
       "feetMidOffsetUnits": 0.16,
-      "leftReachUnits": 135.5,
+      "leftReachUnits": 128.2,
       "idleFeetMidOffsetUnits": 0.16
     },
     {
@@ -37,7 +39,9 @@
         293,
         308
       ],
+      "sizeFix": 1.0,
       "heightRatio": 1.003,
+      "shownHeightRatio": 1.003,
       "heightUnits": 253.4,
       "idleHeightUnits": 252.0,
       "widthUnits": 241.8,
@@ -60,7 +64,9 @@
         212,
         220
       ],
+      "sizeFix": 1.0,
       "heightRatio": 0.96,
+      "shownHeightRatio": 0.96,
       "heightUnits": 243.2,
       "idleHeightUnits": 252.0,
       "widthUnits": 234.3,
@@ -77,21 +83,23 @@
       "source": "tools/motion-art-source/hit-recoil/fengfeng.png",
       "sourceSha256": "93b332e6a90cc6fa1a8c027cfcdb7b39627a8eda96e702a4ba7b7f7026547f07",
       "target": "public/assets/motion/fengfeng/hit_recoil.webp",
-      "targetSha256": "d04c42d6556c6534036982432b696376f589dae4e68dcd1562b1ef61f8b06b64",
-      "bytes": 84592,
+      "targetSha256": "aedd498b47552e1df5e68e73c78895f304a3298e66e915b2e3f95f6d854749e2",
+      "bytes": 66746,
       "size": [
-        319,
-        317
+        274,
+        273
       ],
+      "sizeFix": 0.86,
       "heightRatio": 1.035,
-      "heightUnits": 260.6,
+      "shownHeightRatio": 0.89,
+      "heightUnits": 225.5,
       "idleHeightUnits": 252.0,
-      "widthUnits": 263.9,
+      "widthUnits": 226.4,
       "idleWidthUnits": 185.9,
       "mainBody": 1.0,
       "feetPieces": 2,
       "feetMidOffsetUnits": 27.47,
-      "leftReachUnits": 129.7,
+      "leftReachUnits": 107.6,
       "idleFeetMidOffsetUnits": 27.47
     }
   ]
