@@ -79,7 +79,7 @@ describe('鐵爪機關貓：四招攻擊全部穿透，絞刃、全開一記 12�
     expect(p.hp).toBe(70);
     expect(getStatus(p, '隱身')).toBe(0);
   });
-  it('意圖預告的數字跟實際一樣，而且標著穿透（有爪力時也對）', () => {
+  it('意圖預告的數字跟實際一樣，預演資料帶著穿透（有爪力時也對）', () => {
     const cs = claw(); const p = cs.player; const e = cs.enemies[0]!;
     addStatus(e, '爪力', 2);
     const hits = previewEnemyHits(e, jiaoren(), p);
