@@ -1,0 +1,1081 @@
+{
+ "public/assets/bg/event_fengfeng_chest_closed.webp": {
+  "file": "public/assets/bg/event_fengfeng_chest_closed.webp",
+  "cleared": [
+   {
+    "area": 932,
+    "box": [
+     10,
+     266,
+     16,
+     97
+    ]
+   },
+   {
+    "area": 647,
+    "box": [
+     10,
+     199,
+     15,
+     65
+    ]
+   },
+   {
+    "area": 61,
+    "box": [
+     10,
+     179,
+     9,
+     11
+    ]
+   }
+  ],
+  "pixels": 2394,
+  "boxes": [
+   [
+    8,
+    170,
+    30,
+    370
+   ]
+  ],
+  "sha256Before": "6974e1bc6a235dc26c0df7fc9d99a658f87369eb2884814d6a86c3d3a4d12712",
+  "sha256": "d305add64a4f22dd0d0e9eaf8344e56a2d4814c4f7cbc387eb2c99c57917bd28"
+ },
+ "public/assets/bg/event_fengfeng_chest_empty.webp": {
+  "file": "public/assets/bg/event_fengfeng_chest_empty.webp",
+  "cleared": [
+   {
+    "area": 166,
+    "box": [
+     146,
+     402,
+     53,
+     7
+    ]
+   }
+  ],
+  "pixels": 384,
+  "boxes": [
+   [
+    142,
+    398,
+    204,
+    412
+   ]
+  ],
+  "sha256Before": "9681387369a7e60358826c97fbb57dafa70f1baecc77e1af0ec8d170d70aa773",
+  "sha256": "3bff4097ce27db33ff85fcd9e4401195120262d021a99b1efa458f75df51d8ba"
+ },
+ "public/assets/bg/event_fengfeng_chest_open.webp": {
+  "file": "public/assets/bg/event_fengfeng_chest_open.webp",
+  "cleared": [
+   {
+    "area": 598,
+    "box": [
+     19,
+     264,
+     13,
+     66
+    ]
+   },
+   {
+    "area": 158,
+    "box": [
+     155,
+     404,
+     49,
+     6
+    ]
+   },
+   {
+    "area": 118,
+    "box": [
+     19,
+     184,
+     12,
+     15
+    ]
+   }
+  ],
+  "pixels": 1215,
+  "boxes": [
+   [
+    16,
+    175,
+    36,
+    335
+   ],
+   [
+    150,
+    398,
+    210,
+    418
+   ]
+  ],
+  "sha256Before": "f7aa5d225cba2eee0c73084749d70b10dc39cd23a10dce2656aa6ee9b02ecda5",
+  "sha256": "dfb1f0170043852186a1669f2e1f4fada1a08559975eac4377c888e50dc44d17"
+ },
+ "public/assets/bg/event_fengfeng_hidden_box_r0.webp": {
+  "file": "public/assets/bg/event_fengfeng_hidden_box_r0.webp",
+  "cleared": [
+   {
+    "area": 16,
+    "box": [
+     10,
+     224,
+     4,
+     7
+    ]
+   }
+  ],
+  "pixels": 38,
+  "boxes": [
+   [
+    8,
+    220,
+    16,
+    234
+   ]
+  ],
+  "sha256Before": "e921d4feb5f360cbfb28d64e38f368aa52087c8c6469e40514956918f929174c",
+  "sha256": "84b2440439230d3e5032e6f7d193ccd49c11c1bc3224a17597b8eb3fb6b6879d"
+ },
+ "public/assets/bg/event_fengfeng_lost_scroll_r1.webp": {
+  "file": "public/assets/bg/event_fengfeng_lost_scroll_r1.webp",
+  "cleared": [
+   {
+    "area": 88,
+    "box": [
+     182,
+     10,
+     37,
+     4
+    ]
+   }
+  ],
+  "pixels": 166,
+  "boxes": [
+   [
+    178,
+    8,
+    224,
+    16
+   ]
+  ],
+  "sha256Before": "afc71facc4436e049ae9d21591e1efc5a81b3946c4e3a4a6beb6ca0079310aa9",
+  "sha256": "3c3abf2644fc1138a32450dc1f2077496cac660e2de40fe3ab874610426c0e35"
+ },
+ "public/assets/bg/event_fengfeng_old_master_ghost.webp": {
+  "file": "public/assets/bg/event_fengfeng_old_master_ghost.webp",
+  "cleared": [
+   {
+    "area": 210,
+    "box": [
+     417,
+     405,
+     61,
+     5
+    ]
+   }
+  ],
+  "pixels": 313,
+  "boxes": [
+   [
+    412,
+    400,
+    482,
+    412
+   ]
+  ],
+  "sha256Before": "450d519f6ad2bed9fd00b7884a0cbdb23903cd598573a67f94c760c8310a94d8",
+  "sha256": "50c2339ab3c46d92942e8ad4b2df76d6427a2e1b110c7c9199dc34fe52b770d0"
+ },
+ "public/assets/bg/event_fengfeng_rescue_return_fish.webp": {
+  "file": "public/assets/bg/event_fengfeng_rescue_return_fish.webp",
+  "cleared": [
+   {
+    "area": 21,
+    "box": [
+     10,
+     222,
+     2,
+     14
+    ]
+   }
+  ],
+  "pixels": 51,
+  "boxes": [
+   [
+    8,
+    218,
+    14,
+    240
+   ]
+  ],
+  "sha256Before": "afa123c9d3eca8afaafb7eb99e88cb20c3f61441a9879a434943d0f39640c3f5",
+  "sha256": "2fdf047b7c7d5e13d6c01e269c4b61d4921796e93cad36a3459e9671d03714b5"
+ },
+ "public/assets/bg/event_fengfeng_robin_r0.webp": {
+  "file": "public/assets/bg/event_fengfeng_robin_r0.webp",
+  "cleared": [
+   {
+    "area": 56,
+    "box": [
+     10,
+     174,
+     8,
+     12
+    ]
+   }
+  ],
+  "pixels": 81,
+  "boxes": [
+   [
+    8,
+    170,
+    20,
+    190
+   ]
+  ],
+  "sha256Before": "af9d22e1fefd6ed2d3ec264678ae460a03dfd51bef3ba37817ef7a36ddd3fa37",
+  "sha256": "1471f02c1ad9e65a576d7f7962cfb6bc657a8aac286f7e9a40526bfd69019aaf"
+ },
+ "public/assets/icons/map_hero_dangdang_low.webp": {
+  "file": "public/assets/icons/map_hero_dangdang_low.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/dangdang/idle_hurt.webp#idle[0]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   23,
+   5,
+   105,
+   126
+  ],
+  "heightOnMap": 49.6,
+  "sha256": "5be48d43467628e7deeb8553cce16fa54c9450641acf0bd9d98e34e10a13ee44"
+ },
+ "public/assets/icons/map_hero_dangdang_mid.webp": {
+  "file": "public/assets/icons/map_hero_dangdang_mid.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/dangdang/guard_focus.webp#guard[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   18,
+   1,
+   109,
+   126
+  ],
+  "heightOnMap": 51.2,
+  "sha256": "b50fadc24e9fdf3f9fd159182b9196a9949e58f860b5bd404d02cbf375318ab0"
+ },
+ "public/assets/icons/map_hero_dangdang_top.webp": {
+  "file": "public/assets/icons/map_hero_dangdang_top.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/dangdang/power.webp#power[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   7,
+   5,
+   119,
+   126
+  ],
+  "heightOnMap": 49.6,
+  "sha256": "9fb6c79423ea6ae32b3bd8ebe4947bc24df88e984ce776942e58fb8154969f7f"
+ },
+ "public/assets/icons/map_hero_feifei_low.webp": {
+  "file": "public/assets/icons/map_hero_feifei_low.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/feifei/idle_hurt.webp#idle[0]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   16,
+   5,
+   112,
+   126
+  ],
+  "heightOnMap": 49.6,
+  "sha256": "7d0cdd8980efa5e339e30ab007d4b5365879f6918e2004d25764df662481a47f"
+ },
+ "public/assets/icons/map_hero_feifei_mid.webp": {
+  "file": "public/assets/icons/map_hero_feifei_mid.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/feifei/guard.webp#guard[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   16,
+   4,
+   112,
+   126
+  ],
+  "heightOnMap": 50.0,
+  "sha256": "619bd789d4b04728fde887e293f9b5bd2ed4dea3f9742e58629c494128b5bd63"
+ },
+ "public/assets/icons/map_hero_feifei_top.webp": {
+  "file": "public/assets/icons/map_hero_feifei_top.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/feifei/power.webp#power[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   5,
+   2,
+   122,
+   126
+  ],
+  "heightOnMap": 50.8,
+  "sha256": "3ffc740729c1723a45d3087c1d0fa65b4718c53f9dd3b836d7870052ff68a46f"
+ },
+ "public/assets/icons/map_hero_fengfeng_low.webp": {
+  "file": "public/assets/icons/map_hero_fengfeng_low.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/fengfeng/idle_hurt.webp#idle[0]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   18,
+   5,
+   108,
+   126
+  ],
+  "heightOnMap": 49.6,
+  "sha256": "30b4594f0f2a129d438e95f1f72a328b4b322c6f80b7d7299d2bd9e9bb74db6a"
+ },
+ "public/assets/icons/map_hero_fengfeng_mid.webp": {
+  "file": "public/assets/icons/map_hero_fengfeng_mid.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/fengfeng/guard_focus.webp#guard[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   17,
+   3,
+   110,
+   126
+  ],
+  "heightOnMap": 50.4,
+  "sha256": "7ab83b686f905737352a66b4e9cf4dcba3c1fad51103dd31924846868e450f6e"
+ },
+ "public/assets/icons/map_hero_fengfeng_top.webp": {
+  "file": "public/assets/icons/map_hero_fengfeng_top.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "assets/motion/fengfeng/power.webp#power[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.48276,
+  "bbox": [
+   8,
+   2,
+   120,
+   126
+  ],
+  "heightOnMap": 50.8,
+  "sha256": "628594d5fd02de67030d2f377e49ba3ace6a288c23cf8b0c64e9e445d7e1259a"
+ },
+ "public/assets/icons/map_hero_low.webp": {
+  "file": "public/assets/icons/map_hero_low.webp",
+  "canvas": [
+   96,
+   96
+  ],
+  "source": "assets/motion/qiuqiu/idle_hurt_sheet.webp#idle[0]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.36207,
+  "bbox": [
+   9,
+   3,
+   85,
+   94
+  ],
+  "heightOnMap": 49.8,
+  "sha256": "1e13858c25663dd434e4d766a5deaaaacb11eff95ae1eaf7f4a782742cfec333"
+ },
+ "public/assets/icons/map_hero_mid.webp": {
+  "file": "public/assets/icons/map_hero_mid.webp",
+  "canvas": [
+   96,
+   96
+  ],
+  "source": "assets/motion/qiuqiu/generated_guard.webp#guard[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.36207,
+  "bbox": [
+   9,
+   4,
+   87,
+   94
+  ],
+  "heightOnMap": 49.3,
+  "sha256": "c05c37669415a5ce02a5a34321d7a66b2cf7586e984979f45c6317b737dee275"
+ },
+ "public/assets/icons/map_hero_top.webp": {
+  "file": "public/assets/icons/map_hero_top.webp",
+  "canvas": [
+   96,
+   96
+  ],
+  "source": "assets/motion/qiuqiu/generated_power.webp#power[-1]",
+  "unitsPerCanvas128": 0.48276,
+  "scale": 0.36207,
+  "bbox": [
+   4,
+   3,
+   91,
+   94
+  ],
+  "heightOnMap": 49.8,
+  "sha256": "d9418cfdd395af17383d37b8088dc556c74ba23e91d4c08596ea6ca080d2d8ba"
+ },
+ "public/assets/icons/relic_copper_bracer.webp": {
+  "file": "public/assets/icons/relic_copper_bracer.webp",
+  "canvas": [
+   128,
+   128
+  ],
+  "source": "tools/motion-art-source/rest/relic/copper_bracer.try1.png",
+  "attempt": 1,
+  "bbox": [
+   0,
+   4,
+   127,
+   123
+  ],
+  "dropped": {
+   "count": 61,
+   "maxArea": 97,
+   "totalArea": 199
+  },
+  "sha256": "d9270b42d67378627f95fab19c4b5f323eb8f5448143af687cd527a834191820"
+ },
+ "public/assets/sprites/hero/dangdang_curl.webp": {
+  "file": "public/assets/sprites/hero/dangdang_curl.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "assets/motion/dangdang/curl.webp#curl[7]",
+  "scale": 1.2888,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": false,
+  "bbox": [
+   111,
+   200,
+   447,
+   542
+  ],
+  "head": 0.65,
+  "headAngle": 0,
+  "headCorr": 0.825,
+  "sha256": "0b278239f06500364767461d29161c42b568e3c795953bfef361fd95e3fe162a"
+ },
+ "public/assets/sprites/hero/dangdang_down.webp": {
+  "file": "public/assets/sprites/hero/dangdang_down.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "assets/motion/dangdang/defeat.webp#defeat[7]",
+  "scale": 1.1819,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": true,
+  "bbox": [
+   49,
+   360,
+   510,
+   542
+  ],
+  "head": 0.65,
+  "headAngle": 54,
+  "headCorr": 0.772,
+  "sha256": "81b9c018dacb8ae5339d4f702332751b516ed69f61545c711a73404271929ca0"
+ },
+ "public/assets/sprites/hero/dangdang_helpup.webp": {
+  "file": "public/assets/sprites/hero/dangdang_helpup.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/dangdang/helpup.try1.png",
+  "attempt": 1,
+  "rawHead": 1.25,
+  "rawAngle": -6,
+  "rawCorr": 0.906,
+  "mirrorCorr": 0.83,
+  "dropped": {
+   "count": 77,
+   "maxArea": 10,
+   "totalArea": 132
+  },
+  "scale": 0.4594,
+  "bbox": [
+   59,
+   121,
+   501,
+   542
+  ],
+  "head": 1.0,
+  "headAngle": -6,
+  "headCorr": 0.908,
+  "sha256": "4ae0cf0932346682d13366ec01726ae1bc3f6d7e4dc683a27243b70adc0d5d12"
+ },
+ "public/assets/sprites/hero/dangdang_nap.webp": {
+  "file": "public/assets/sprites/hero/dangdang_nap.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/dangdang/nap.try1.png",
+  "attempt": 1,
+  "rawHead": 1.3,
+  "rawAngle": -6,
+  "rawCorr": 0.866,
+  "mirrorCorr": 0.824,
+  "dropped": {
+   "count": 66,
+   "maxArea": 11,
+   "totalArea": 132
+  },
+  "scale": 0.4417,
+  "bbox": [
+   75,
+   265,
+   483,
+   542
+  ],
+  "head": 0.99,
+  "headAngle": -6,
+  "headCorr": 0.87,
+  "sha256": "67372b7fcfc61cbbca2b9571e98531a086398dc9087530ea2b33d68e29438a45"
+ },
+ "public/assets/sprites/hero/dangdang_sharpen.webp": {
+  "file": "public/assets/sprites/hero/dangdang_sharpen.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/dangdang/sharpen.try1.png",
+  "attempt": 1,
+  "rawHead": 1.21,
+  "rawAngle": 0,
+  "rawCorr": 0.941,
+  "mirrorCorr": 0.83,
+  "dropped": {
+   "count": 117,
+   "maxArea": 62,
+   "totalArea": 427
+  },
+  "scale": 0.4746,
+  "bbox": [
+   99,
+   96,
+   461,
+   542
+  ],
+  "head": 1.01,
+  "headAngle": 0,
+  "headCorr": 0.941,
+  "sha256": "a983214bb2ef37ab78aeb47f96f7405cc3d76dc44c10172acf3beead93b0b5e8"
+ },
+ "public/assets/sprites/hero/feifei_curl.webp": {
+  "file": "public/assets/sprites/hero/feifei_curl.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "assets/motion/feifei/curl.webp#curl[7]",
+  "scale": 1.4341,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": false,
+  "bbox": [
+   108,
+   178,
+   452,
+   542
+  ],
+  "head": 0.95,
+  "headAngle": -10,
+  "headCorr": 0.843,
+  "sha256": "22e6f097e538f2fbb4c99f5aab9ff897452fe6c1f94e858f5cb3b5541a8bdaef"
+ },
+ "public/assets/sprites/hero/feifei_down.webp": {
+  "file": "public/assets/sprites/hero/feifei_down.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "assets/motion/feifei/poison_defeat.webp#defeat[7]",
+  "scale": 1.5423,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": false,
+  "bbox": [
+   69,
+   279,
+   491,
+   542
+  ],
+  "head": 0.77,
+  "headAngle": -34,
+  "headCorr": 0.886,
+  "sha256": "c2b1353312b8c656b2d3f7020562a6b57518100e18a29f269f3cb3b027f09b07"
+ },
+ "public/assets/sprites/hero/feifei_helpup.webp": {
+  "file": "public/assets/sprites/hero/feifei_helpup.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/feifei/helpup.try1.png",
+  "attempt": 1,
+  "rawHead": 1.22,
+  "rawAngle": 0,
+  "rawCorr": 0.969,
+  "mirrorCorr": 0.829,
+  "dropped": {
+   "count": 145,
+   "maxArea": 45,
+   "totalArea": 332
+  },
+  "scale": 0.4707,
+  "bbox": [
+   63,
+   88,
+   496,
+   542
+  ],
+  "head": 0.99,
+  "headAngle": 0,
+  "headCorr": 0.968,
+  "sha256": "5904afaa9384fad3d528522f357cfe1b26bc339e6509fb46f51d83b1113b4038"
+ },
+ "public/assets/sprites/hero/feifei_nap.webp": {
+  "file": "public/assets/sprites/hero/feifei_nap.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/feifei/nap.try1.png",
+  "attempt": 1,
+  "rawHead": 1.2,
+  "rawAngle": -10,
+  "rawCorr": 0.904,
+  "mirrorCorr": 0.824,
+  "dropped": {
+   "count": 64,
+   "maxArea": 21,
+   "totalArea": 132
+  },
+  "scale": 0.4785,
+  "bbox": [
+   56,
+   201,
+   502,
+   542
+  ],
+  "head": 0.96,
+  "headAngle": -10,
+  "headCorr": 0.905,
+  "sha256": "9a1ab884dc810c1398b9da7938da6bb365518bd37176c69493e817fd58a31d75"
+ },
+ "public/assets/sprites/hero/feifei_sharpen.webp": {
+  "file": "public/assets/sprites/hero/feifei_sharpen.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/feifei/sharpen.try1.png",
+  "attempt": 1,
+  "rawHead": 1.18,
+  "rawAngle": -10,
+  "rawCorr": 0.958,
+  "mirrorCorr": 0.839,
+  "dropped": {
+   "count": 157,
+   "maxArea": 34,
+   "totalArea": 508
+  },
+  "scale": 0.4866,
+  "bbox": [
+   63,
+   67,
+   496,
+   542
+  ],
+  "head": 1.01,
+  "headAngle": -10,
+  "headCorr": 0.958,
+  "sha256": "5041d4905006305684b216aefa3e0f6570041b24a20a2e7dfbf0e9374411a876"
+ },
+ "public/assets/sprites/hero/fengfeng_claw.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_claw.webp",
+  "cleared": [
+   {
+    "area": 96,
+    "box": [
+     510,
+     464,
+     21,
+     7
+    ]
+   }
+  ],
+  "pixels": 137,
+  "boxes": [
+   [
+    506,
+    460,
+    535,
+    475
+   ]
+  ],
+  "sha256Before": "f38acf4b238536627f7ba9cd067ccfac26e7a9d0370b6de8e903c9dffae1309e",
+  "sha256": "52802c199c41e9cd96715f52eca61a9b206c80293f7ef0a33318ff3dcb5d9b92"
+ },
+ "public/assets/sprites/hero/fengfeng_curl.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_curl.webp",
+  "canvas": [
+   560,
+   560
+  ],
+  "source": "assets/motion/fengfeng/curl.webp#curl[7]",
+  "scale": 1.2218,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": false,
+  "bbox": [
+   113,
+   223,
+   446,
+   539
+  ],
+  "head": 1.06,
+  "headAngle": -16,
+  "headCorr": 0.896,
+  "sha256": "c64bcf6734e4471bb327c99d4651c8dd8ed763257bd38ad4e551231fc9f20037"
+ },
+ "public/assets/sprites/hero/fengfeng_dodge.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_dodge.webp",
+  "cleared": [
+   {
+    "area": 221,
+    "box": [
+     158,
+     510,
+     30,
+     11
+    ]
+   },
+   {
+    "area": 25,
+    "box": [
+     229,
+     519,
+     15,
+     2
+    ]
+   }
+  ],
+  "pixels": 351,
+  "boxes": [
+   [
+    154,
+    506,
+    248,
+    524
+   ]
+  ],
+  "sha256Before": "b7b2a5a0b6433a9b885ca93c63d629d586ff5f40a5544dfba7e3f25129f89378",
+  "sha256": "2d3368e76bf5611b31ffd953ad4db3ef557c7fc229bc7223fd450d259ea8c100"
+ },
+ "public/assets/sprites/hero/fengfeng_down.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_down.webp",
+  "canvas": [
+   560,
+   560
+  ],
+  "source": "assets/motion/fengfeng/poison_defeat.webp#defeat[7]",
+  "scale": 1.6165,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": true,
+  "bbox": [
+   61,
+   335,
+   498,
+   539
+  ],
+  "head": 0.76,
+  "headAngle": -50,
+  "headCorr": 0.896,
+  "sha256": "ba30372841b5a4f273e12720f75d3c14dea74fb062669da7bb817c9fe2098c05"
+ },
+ "public/assets/sprites/hero/fengfeng_helpup.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_helpup.webp",
+  "canvas": [
+   560,
+   560
+  ],
+  "source": "tools/motion-art-source/rest/fengfeng/helpup.try1.png",
+  "attempt": 1,
+  "rawHead": 1.11,
+  "rawAngle": 0,
+  "rawCorr": 0.945,
+  "mirrorCorr": 0.871,
+  "dropped": {
+   "count": 99,
+   "maxArea": 236,
+   "totalArea": 489
+  },
+  "scale": 0.5173,
+  "bbox": [
+   27,
+   103,
+   531,
+   539
+  ],
+  "head": 0.99,
+  "headAngle": 0,
+  "headCorr": 0.946,
+  "sha256": "fe27daf05f65ecec48d47975b9d52058839821575bba596a5776cd5a83c020c5"
+ },
+ "public/assets/sprites/hero/fengfeng_nap.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_nap.webp",
+  "canvas": [
+   560,
+   560
+  ],
+  "source": "tools/motion-art-source/rest/fengfeng/nap.try1.png",
+  "attempt": 1,
+  "rawHead": 1.24,
+  "rawAngle": -10,
+  "rawCorr": 0.912,
+  "mirrorCorr": 0.897,
+  "dropped": {
+   "count": 115,
+   "maxArea": 13,
+   "totalArea": 288
+  },
+  "scale": 0.4631,
+  "bbox": [
+   65,
+   249,
+   495,
+   539
+  ],
+  "head": 1.0,
+  "headAngle": -10,
+  "headCorr": 0.915,
+  "sha256": "54aef732579fdbc9026b8cd065cb6ebd95ce63da73ece608fdbe63f4db718c34"
+ },
+ "public/assets/sprites/hero/fengfeng_qinggong.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_qinggong.webp",
+  "cleared": [
+   {
+    "area": 2009,
+    "box": [
+     277,
+     507,
+     105,
+     33
+    ]
+   }
+  ],
+  "pixels": 2264,
+  "boxes": [
+   [
+    272,
+    502,
+    386,
+    545
+   ]
+  ],
+  "sha256Before": "6e7877080d59f5dadb6ef7eb96a6e6e43d9b9ffc7e2362240e0031632872da23",
+  "sha256": "4f3a27264f1ff55d79a2103d9880af121520dd5ac981ab5154bc104b6ff447bb"
+ },
+ "public/assets/sprites/hero/fengfeng_sharpen.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_sharpen.webp",
+  "canvas": [
+   560,
+   560
+  ],
+  "source": "tools/motion-art-source/rest/fengfeng/sharpen.try1.png",
+  "attempt": 1,
+  "rawHead": 1.11,
+  "rawAngle": -14,
+  "rawCorr": 0.952,
+  "mirrorCorr": 0.874,
+  "dropped": {
+   "count": 120,
+   "maxArea": 74,
+   "totalArea": 319
+  },
+  "scale": 0.5173,
+  "bbox": [
+   33,
+   117,
+   526,
+   539
+  ],
+  "head": 1.0,
+  "headAngle": -14,
+  "headCorr": 0.953,
+  "sha256": "d51274ac5d33fa78165ea86e8ecc200dae54385ab5cc35e1602d5c99295ad50d"
+ },
+ "public/assets/sprites/hero/ninja_curl.webp": {
+  "file": "public/assets/sprites/hero/ninja_curl.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "assets/motion/qiuqiu/generated_curl.webp#curl[7]",
+  "scale": 1.3288,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": false,
+  "bbox": [
+   78,
+   210,
+   481,
+   540
+  ],
+  "head": 0.69,
+  "headAngle": 36,
+  "headCorr": 0.826,
+  "sha256": "3c24415ffe32571c4c3f20692c26a446404d78ad723884a76fec5e41bf5f7c81"
+ },
+ "public/assets/sprites/hero/ninja_down.webp": {
+  "file": "public/assets/sprites/hero/ninja_down.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "assets/motion/qiuqiu/generated_defeat.webp#defeat[7]",
+  "scale": 1.1909,
+  "sizeCheck": "同一張逐格圖、同戰鬥比例",
+  "mirrored": true,
+  "bbox": [
+   37,
+   369,
+   521,
+   540
+  ],
+  "head": 0.66,
+  "headAngle": 58,
+  "headCorr": 0.813,
+  "sha256": "4e735c8cae9bc9431088752f77ada2866309add5b3f3673fed20f0905ffb0b9d"
+ },
+ "public/assets/sprites/hero/ninja_helpup.webp": {
+  "file": "public/assets/sprites/hero/ninja_helpup.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/qiuqiu/helpup.try1.png",
+  "attempt": 1,
+  "rawHead": 1.23,
+  "rawAngle": -6,
+  "rawCorr": 0.962,
+  "mirrorCorr": 0.832,
+  "dropped": {
+   "count": 140,
+   "maxArea": 43,
+   "totalArea": 299
+  },
+  "scale": 0.469,
+  "bbox": [
+   70,
+   110,
+   489,
+   540
+  ],
+  "head": 0.99,
+  "headAngle": -6,
+  "headCorr": 0.964,
+  "sha256": "80a4301f6d56d37af8883086fcb4bf11919621fd5680ca8686e71a1a7ec2e67f"
+ },
+ "public/assets/sprites/hero/ninja_nap.webp": {
+  "file": "public/assets/sprites/hero/ninja_nap.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/qiuqiu/nap.try1.png",
+  "attempt": 1,
+  "rawHead": 1.21,
+  "rawAngle": -14,
+  "rawCorr": 0.905,
+  "mirrorCorr": 0.844,
+  "dropped": {
+   "count": 67,
+   "maxArea": 116,
+   "totalArea": 265
+  },
+  "scale": 0.4767,
+  "bbox": [
+   67,
+   265,
+   493,
+   540
+  ],
+  "head": 1.0,
+  "headAngle": -14,
+  "headCorr": 0.907,
+  "sha256": "962668ef8c530c3fba6b525dccb2a2e9cc44ba0ab1e5126df8d5378687759a68"
+ },
+ "public/assets/sprites/hero/ninja_sharpen.webp": {
+  "file": "public/assets/sprites/hero/ninja_sharpen.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "source": "tools/motion-art-source/rest/qiuqiu/sharpen.try1.png",
+  "attempt": 1,
+  "rawHead": 1.33,
+  "rawAngle": -14,
+  "rawCorr": 0.925,
+  "mirrorCorr": 0.835,
+  "dropped": {
+   "count": 185,
+   "maxArea": 28,
+   "totalArea": 508
+  },
+  "scale": 0.4337,
+  "bbox": [
+   105,
+   137,
+   455,
+   540
+  ],
+  "head": 1.0,
+  "headAngle": -14,
+  "headCorr": 0.928,
+  "sha256": "be62703e078400b9ae860ec6692e6f10a2f1b291339182ba3d5814657bef95f7"
+ }
+}
