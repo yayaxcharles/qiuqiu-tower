@@ -111,7 +111,9 @@ describe('高-2：有共用場景時，落敗那段要照字面播', () => {
     setCoopStory(null);
     expect(hasCoopScene('dangdang')).toBe(false);
     setCoopStory({ partner: 'feifei', mirror: 'ninja' });
-    expect(hasCoopScene('ninja'), '球球＋菲菲還沒寫整段場景').toBe(false);
+    expect(hasCoopScene('ninja'), '球球＋菲菲 2026-09-22 補上了整段場景').toBe(true);
+    setCoopStory({ partner: 'ninja', mirror: 'ninja' });
+    expect(hasCoopScene('ninja'), '兩位同角色不算搭檔').toBe(false);
     setCoopStory({ partner: 'dangdang', mirror: 'ninja' });
     expect(hasCoopScene('ninja')).toBe(true);
   });

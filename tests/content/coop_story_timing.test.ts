@@ -15,6 +15,9 @@ const PAIRS = [
   { me: 'dangdang', partner: 'ninja' },
   { me: 'dangdang', partner: 'feifei' },
   { me: 'feifei', partner: 'dangdang' },
+  // 師兄妹那一組 2026-09-22 補上，同一套時序規矩
+  { me: 'ninja', partner: 'feifei' },
+  { me: 'feifei', partner: 'ninja' },
 ] as const;
 
 describe('連線劇情的時序', () => {

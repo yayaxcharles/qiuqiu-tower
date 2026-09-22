@@ -1069,9 +1069,14 @@
 .modal-foot .btn.primary:hover:not(:disabled) { filter: none; background: linear-gradient(#8f4a1cf0, #5a2a0cf5); }
 
 /* 對話疊層（戰鬥前後的喊話）：立繪本來站在帶子上緣、腳踩到名字，也壓在戰鬥裡的球球身上（使用者 2026-09-02：「講話時球球的位置會卡到」）。
-   1. 立繪抬到帶子上方（兩行對白的帶子高約 210）；2. 疊層在戰鬥畫面上時，戰場上的球球先隱形，講完再回來 */
+   1. 立繪抬到帶子上方（兩行對白的帶子高約 210）；2. 疊層在戰鬥畫面上時，戰場上的球球先隱形，講完再回來。
+   **只有真的放了頭像才藏**（2026-09-22 畫面盤點 問題 3）：原本不分這句有沒有頭像一律藏，
+   倒下時旁白「球球再也站不住，倒在地上。」一出來，倒地的貓整隻不見。`data-hide` 由 dialogue.ts 的 `portraitPlan` 標：
+   slot＝頭像疊著的左邊那一格（座位 0）、mine／mate＝頭像就是自己／同伴那隻；旁白與村貓沒有臉，一個都不標 */
 .dialogue-overlay .dialogue-portrait { bottom: 214px; height: 290px; }
-#stage:has(#overlay .dialogue-overlay) .combat .unit.player .sprite-box { visibility: hidden; }
+#stage:has(#overlay .dialogue-overlay[data-hide~="slot"]) .combat .unit.player[data-seat="0"] .sprite-box,
+#stage:has(#overlay .dialogue-overlay[data-hide~="mine"]) .combat .unit.player.mine .sprite-box,
+#stage:has(#overlay .dialogue-overlay[data-hide~="mate"]) .combat .unit.player:not(.mine) .sprite-box { visibility: hidden; }
 
 /* ===== 換忍具的小視窗（2026-09-02） ===== */
 .swap-modal { max-width: 560px; }

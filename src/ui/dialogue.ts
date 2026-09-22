@@ -1,6 +1,6 @@
 import { castLineFor, lineFor } from '../content/dialogue';
 import type { DialogueLine } from '../content/dialogue';
-import { artUrl, hasHeroSprite, heroArtUrl, localHero, monsterUrl } from './assets';
+import { artUrl, hasHeroSprite, heroArtUrl, localHero, localPartner, monsterUrl } from './assets';
 import { el } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { lockScreen, overlayRoot, unlockScreen } from './overlay';
@@ -47,16 +47,52 @@ function heroPortrait(hero: string): string {
  * 連線打大俠貓時「球球：……喵！」木牌寫球球、臉卻是我自己，下一句我自己又是同一張臉。
  */
 export function portraitOf(speaker: DialogueLine['speaker'], literal = false): string | null {
-  if (speaker === '球球') return heroPortrait(literal ? 'ninja' : localHero());
-  if (speaker === '封封') return heroPortrait('fengfeng');
-  if (speaker === '村貓') return null;
-  // 她的劇本自己寫「菲菲」，不走「球球」那條（兩隻在連線版會同框，名字不能混）
-  if (speaker === '菲菲') return heroPortrait('feifei');
-  // 他的劇本自己寫「噹噹」，理由跟她一樣：三隻在連線版會同框，名字不能混
-  if (speaker === '噹噹') return heroPortrait('dangdang');
+  const hero = portraitHero(speaker, literal);
+  if (hero) return heroPortrait(hero);
   if (speaker === '塔主') return artUrl('sprites', 'boss/idle1');
   if (speaker === '黑貓忍者頭目') return monsterUrl('codex/monster_ninja_boss', 'idle');
   return null;   // 旁白沒有臉
+}
+
+/**
+ * 這張臉是**哪一隻貓主角**（旁白、村貓、塔主、魔物回 null）。
+ * 劇本寫「球球」＝這一局本機那一位（`literal` 時才是球球本人）；她、他、封封的劇本自己寫名字
+ *（四隻在連線版會同框，名字不能混）。
+ */
+export function portraitHero(speaker: DialogueLine['speaker'], literal = false): string | null {
+  if (speaker === '球球') return literal ? 'ninja' : localHero();
+  if (speaker === '菲菲') return 'feifei';
+  if (speaker === '噹噹') return 'dangdang';
+  if (speaker === '封封') return 'fengfeng';
+  return null;
+}
+
+/**
+ * 這一句**放不放頭像、戰場上要藏哪一格**（2026-09-22，兩件使用者看到的事）。
+ *
+ * - 畫面上的插圖裡已經畫了這隻貓（`artCast`，事件插圖由 `event.ts` 標上 `data-art-cast`）→ 不放頭像。
+ *   不然左邊一隻新畫風頭像、正中間插圖又一隻另一種畫法的同一隻貓（畫面盤點 問題 5）。
+ * - 戰場上**只有真的放了頭像才藏**：旁白、村貓沒有臉，一格都不藏——倒下時旁白一出來，
+ *   倒地的貓不能整隻不見（畫面盤點 問題 3）。放了頭像的時候藏兩種：
+ *   `mine`／`mate`＝頭像就是這一格那隻貓（同一隻不要同時出現兩次；同角色雙人兩格都藏）；
+ *   `slot`＝頭像疊在左邊那一格（座位 0）身上，照 2026-09-02 的理由先讓位——關主落敗那段是關主的臉，
+ *   不藏的話貓會從關主頭像後面露半截出來（實機看過）。
+ */
+export function portraitPlan(speaker: DialogueLine['speaker'], literal: boolean,
+                             ctx: { artCast: readonly string[]; mine: string; mate?: string | undefined }): { show: boolean; hide: string } {
+  const hero = portraitHero(speaker, literal);
+  if (hero && ctx.artCast.includes(hero)) return { show: false, hide: '' };
+  if (portraitOf(speaker, literal) === null) return { show: true, hide: '' };
+  const tokens = ['slot'];
+  if (hero && hero === ctx.mine) tokens.push('mine');
+  if (hero && hero === ctx.mate) tokens.push('mate');
+  return { show: true, hide: tokens.join(' ') };
+}
+
+/** 現在畫面上那張插圖畫了哪幾隻貓（只有事件插圖有標；沒有插圖就是空的） */
+function screenArtCast(layer: HTMLElement): string[] {
+  const art = layer.parentElement?.querySelector<HTMLElement>('#screen [data-art-cast]');
+  return (art?.dataset['artCast'] ?? '').split(' ').filter(Boolean);
 }
 
 /** 「塔主」這個說話者實際上是誰：關主開場時傳進來，木牌與立繪都換成該關關主本人 */
@@ -103,7 +139,10 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     text.textContent = l.text;
     box.classList.toggle('narration', l.speaker === '旁白');
     // 換人講話才重設圖，同一個人連講好幾句時不要每句都重播進場動畫
-    const url = who?.portrait ?? portraitOf(l.speaker, literal);
+    const plan = portraitPlan(l.speaker, literal, { artCast: screenArtCast(layer), mine: localHero(), mate: localPartner() });
+    const url = plan.show ? (who?.portrait ?? portraitOf(l.speaker, literal)) : null;
+    // 戰場上要藏哪一格交給樣式表（screens.css 的 `data-hide`）：沒放頭像就一格都不藏
+    if (url && plan.hide) box.dataset['hide'] = plan.hide; else delete box.dataset['hide'];
     if (url && portrait.dataset['who'] !== l.speaker) {
       portrait.src = url;
       portrait.dataset['who'] = l.speaker;
