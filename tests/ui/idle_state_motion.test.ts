@@ -26,6 +26,7 @@ import {
   type CompanionMotionKind,
 } from '../../src/ui/companion-motion';
 import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuMotionDuration, type QiuqiuAction } from '../../src/ui/qiuqiu-motion';
+import { motionMs } from '../../src/ui/motion-speed';
 
 // 待機狀態圖是預載完才在背景下載的；遊戲裡一定是預載完才用到逐格動作，
 // 所以先跑一次預載，drawable 才會說「畫得出來」（沒下載好時交還靜態立繪另有測試）。
@@ -218,7 +219,8 @@ describe('新動作播完停在第 8 格', () => {
       ? qiuqiuMotionDuration(action as QiuqiuAction)
       : companionMotionDuration(source, action as CompanionMotionAction);
     const frames = DATA[source].actions[action]!.frames;
-    expect(duration).toBe(Math.round(frames.reduce((sum, frame) => sum + frame.duration * 1000, 0)));
+    // 素材資料是原速，播放時整體 1.5 倍速（見 motion-speed.ts）
+    expect(duration).toBe(motionMs(Math.round(frames.reduce((sum, frame) => sum + frame.duration * 1000, 0))));
     step(0);
     expect(lastRect()).toEqual(frames[0]!.rect);
     step(duration);

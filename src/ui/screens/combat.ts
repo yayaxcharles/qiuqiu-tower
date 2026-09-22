@@ -438,7 +438,9 @@ registerScreen('combat', (app, root, props) => {
     play(action: CombatMotionAction, options?: { elapsed?: number; waves?: number }): void;
     dispose(): void;
   };
-  type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; reactive: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number; winAt?: number };
+  type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; reactive: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number; winAt?: number;
+    /** 近戰前衝當下的位移（像素）與這一招從哪個位移接著衝：上一招還沒退回就被接手時，不先跳回原位（見 motionMeleeSample） */
+    lungeX?: number; lungeFrom?: number };
   type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
   type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number };
   const motionActors = new Map<number, CombatMotion>();
@@ -685,13 +687,17 @@ registerScreen('combat', (app, root, props) => {
     // 受擊、閃避與格擋至少保留原演出的 650ms，短片段播完後停在收勢。
     state.endsAt = startedAt + Math.max(reactive ? 650 : 0,
       trip?.plan.totalMs ?? motionDuration(source, action));
+    // 上一招還在前衝、沒退回原位就被這一招接手：從當下位移接著衝，不先跳回原位
+    state.lungeFrom = trip && state.active && state.trip ? state.lungeX ?? 0 : 0;
     state.trip = trip;
     state.action = action;
     state.active = true;
     state.reactive = reactive;
     state.away = !!trip;
     state.presentationToken = presentationToken;
-    state.layer.style.transform = trip ? `translate(${trip.plan.dx}px, ${trip.plan.dy}px)` : '';
+    const lunge = trip ? motionMeleeSample(trip.plan, caughtUp, state.lungeFrom) : undefined;
+    state.lungeX = lunge?.x ?? 0;
+    state.layer.style.transform = lunge ? `translate(${lunge.x}px, ${lunge.y}px)` : '';
     state.actor.play(state.action, { elapsed: caughtUp });
     refreshMotion(q);
     if (source === 'qiuqiu' && trip && (action === 'dash' || action === 'ultimate_rush')) {
@@ -713,7 +719,7 @@ registerScreen('combat', (app, root, props) => {
       if (app.cs !== cs || !state.active) return;
       const elapsed = now - startedAt;
       const activeTrip = state.trip;
-      const sample = activeTrip ? motionMeleeSample(activeTrip.plan, elapsed) : null;
+      const sample = activeTrip ? motionMeleeSample(activeTrip.plan, elapsed, state.lungeFrom) : null;
       if (sample?.done || (!activeTrip && now >= state.endsAt)) {
         if (seat === mySeat && cs.phase === 'player') {
           pose = idlePose();
@@ -725,7 +731,7 @@ registerScreen('combat', (app, root, props) => {
         return;
       }
       if (sample && activeTrip) {
-        // 狀態列可能在出牌後變高；出手期間仍將腳底鎖在魔物身旁。
+        // 狀態列可能在出牌後變高；出手期間前衝仍以出手當下的腳底位置為準。
         // 但量測不能每幀做：querySelector + getBoundingClientRect 之後又在同一幀寫 transform，
         // 讀寫交錯會逼瀏覽器每幀重算一次版面，出手那 0.4～1.8 秒整個畫面掉幀（稽核 2026-09-21 第 1 點）。
         // 狀態列變高是離散事件，每 200 毫秒補量一次就足夠。
@@ -739,6 +745,7 @@ registerScreen('combat', (app, root, props) => {
         }
         const x = sample.x + activeTrip.origin.x - anchor.x;
         const y = sample.y + activeTrip.origin.y - anchor.y;
+        state.lungeX = sample.x;
         state.layer.style.transform = `translate(${x}px, ${y}px) scaleX(${sample.facing})`;
         if (state.action !== sample.action) { state.action = sample.action; state.actor.play(sample.action); }
       }
@@ -3310,14 +3317,21 @@ registerScreen('combat', (app, root, props) => {
         // 結算時待機已經換成勝利動作的座位，不要再從頭播一次（稽核 2026-09-21 第 10 點：勝利動作連播兩三次）。
         // 但比全場最後一個出手動作還早開始的要重播：連線時同伴補最後一刀，我這邊一結算就切到勝利，
         // 那時同伴才剛衝上去，不重播的話我這隻早就慶祝完、定格等換場。
+        // 已經在播的只等它剩下的時間，不再多等一整遍（使用者 2026-09-22：最後一刀到獎勵畫面拖到 2.5 秒）；
+        // 走到這裡已經等過 1300 毫秒（塔主戰 2400），所以整段收尾＝這段等待與勝利動作播完兩者取較晚的。
+        const now = performance.now();
+        let wait = 0;
         for (const q of cs.players) {
           if (q.down || !motionSourceFor(q)) continue;
           const shown = motionActors.get(q.seat);
-          if (shown?.action === 'win' && (shown.winAt ?? 0) >= lastMotionEndAt) continue;
+          if (shown?.action === 'win' && (shown.winAt ?? 0) >= lastMotionEndAt) {
+            wait = Math.max(wait, (shown.winAt ?? now) + linger - now);
+            continue;
+          }
           playMotion(q.seat, 'win', undefined, 0, true);
+          wait = Math.max(wait, linger);
         }
-        window.setTimeout(finish, linger + 30);
-        return;
+        if (wait > 0) { window.setTimeout(finish, wait + 30); return; }
       }
       app.afterCombat(bonusFish, bonusUpgrades);
     };

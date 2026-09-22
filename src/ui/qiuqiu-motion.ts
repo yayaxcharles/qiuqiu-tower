@@ -10,6 +10,7 @@ import {
   type QiuqiuPoseAction,
 } from './qiuqiu-choreography';
 import { preloadQiuqiuShuriken, QIUQIU_SHURIKEN_RELEASE_MS, QIUQIU_SHURIKEN_FLIGHT_MS } from './qiuqiu-shuriken';
+import { motionMs, speedUpMotions } from './motion-speed';
 import './styles/qiuqiu-motion.css';
 
 export type QiuqiuAction = QiuqiuPoseAction
@@ -23,10 +24,13 @@ type Motion = FrameMotion & Readonly<{ impactTimes?: readonly number[] }>;
 export type QiuqiuActor = FrameMotionActor<QiuqiuAction>;
 
 const NATIVE_IDLE_HEIGHT = 252;
+// 載入時整份換成 1.5 倍速的時間（見 motion-speed.ts）；受擊沿用舊立繪那一格，比照舊版靜態演出不加速
 const motions: Record<string, Motion> = {
-  ...(motionData.actions as unknown as Record<string, Motion>),
-  ...(extraMotionData.actions as unknown as Record<string, Motion>),
-  ...(attackMotionData.actions as unknown as Record<string, Motion>),
+  ...speedUpMotions({
+    ...(motionData.actions as unknown as Record<string, Motion>),
+    ...(extraMotionData.actions as unknown as Record<string, Motion>),
+    ...(attackMotionData.actions as unknown as Record<string, Motion>),
+  }),
   hurt: LEGACY_HIT_MOTIONS.qiuqiu,
 };
 
@@ -124,7 +128,8 @@ const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
 
 const STATIC_ATTACK_CARDS = new Set(['juye', 'maoqiudan']);
 
-const IMPACT_TIMES: Partial<Record<QiuqiuAction, readonly number[]>> = {
+// 原速（動作素材本身）的命中時點，載入時換成 1.5 倍速後的時間
+const SOURCE_IMPACT_TIMES: Partial<Record<QiuqiuAction, readonly number[]>> = {
   attack1: [70],
   attack2: [90],
   attack3: [100],
@@ -138,8 +143,13 @@ const IMPACT_TIMES: Partial<Record<QiuqiuAction, readonly number[]>> = {
   flying_kick: [100],
   ultimate_rush: [160, 400, 640],
   ultimate_clone: [420, 760, 1120],
-  shuriken: [QIUQIU_SHURIKEN_RELEASE_MS + QIUQIU_SHURIKEN_FLIGHT_MS, 490],
   ultimate_storm: [470, 730],
+};
+
+const IMPACT_TIMES: Partial<Record<QiuqiuAction, readonly number[]>> = {
+  ...Object.fromEntries(Object.entries(SOURCE_IMPACT_TIMES).map(([action, times]) => [action, times.map(motionMs)])),
+  // 第一下＝手裏劍出手＋飛行，兩個常數在 qiuqiu-shuriken.ts 已經換算過，這裡不能再除一次
+  shuriken: [QIUQIU_SHURIKEN_RELEASE_MS + QIUQIU_SHURIKEN_FLIGHT_MS, motionMs(490)],
 };
 
 const MELEE_ACTIONS = new Set<QiuqiuAction>([
@@ -148,8 +158,11 @@ const MELEE_ACTIONS = new Set<QiuqiuAction>([
   'body_bash', 'palm_combo',
 ]);
 
-const PALM_COMBO_RECOVERY_START_MS = 770;
-const PALM_COMBO_CONTACT_END_MS = [290, 530, 770] as const;
+// 肉球連擊素材的格子交界（原速 290／530／770 毫秒），跟素材一起換成 1.5 倍速
+const PALM_COMBO_RECOVERY_START_MS = motionMs(770);
+const PALM_COMBO_CONTACT_END_MS = [motionMs(290), motionMs(530), motionMs(770)] as const;
+/** 素材只畫到第三下；要求更多下時，每多一下接在上一下後面（原速 150 毫秒）。 */
+const EXTRA_IMPACT_GAP_MS = motionMs(150);
 
 function qiuqiuWaveCount(waves: number | undefined): number {
   if (waves === undefined || !Number.isFinite(waves)) return 3;
@@ -198,7 +211,7 @@ export function qiuqiuImpactTimes(action: QiuqiuAction, count: number): number[]
   const base = IMPACT_TIMES[action] ?? motions[action]?.impactTimes;
   if (!base?.length || wanted === 0) return [];
   const result = base.slice(0, wanted);
-  while (result.length < wanted) result.push(result.at(-1)! + 150);
+  while (result.length < wanted) result.push(result.at(-1)! + EXTRA_IMPACT_GAP_MS);
   return result;
 }
 

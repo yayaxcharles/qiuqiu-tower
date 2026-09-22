@@ -1,3 +1,5 @@
+import { motionMs } from './motion-speed';
+
 export type FeifeiNeedleAction =
   | 'shuriken'
   | 'storm'
@@ -16,17 +18,22 @@ type NeedleTiming = Readonly<{
   gap: number;
 }>;
 
+// 原速（動作素材本身）的出手、飛行、額外波間隔，建表時就換成 1.5 倍速（見 motion-speed.ts）
+const needle = (releases: readonly number[], flight: number, gap: number): NeedleTiming => ({
+  releases: releases.map(motionMs), flight: motionMs(flight), gap: motionMs(gap),
+});
+
 const TIMINGS: Readonly<Record<FeifeiNeedleAction, NeedleTiming>> = {
-  shuriken: { releases: [285], flight: 170, gap: 140 },
-  storm: { releases: [285, 385], flight: 170, gap: 140 },
-  needle_combo: { releases: [220, 380], flight: 160, gap: 140 },
-  needle_backhand: { releases: [260], flight: 150, gap: 140 },
-  needle_venom: { releases: [360], flight: 210, gap: 140 },
-  needle_pierce: { releases: [420], flight: 100, gap: 140 },
-  needle_retreat: { releases: [260], flight: 180, gap: 140 },
-  needle_fan: { releases: [285], flight: 180, gap: 140 },
-  needle_rain: { releases: [350], flight: 400, gap: 140 },
-  needle_barrage: { releases: [350], flight: 220, gap: 140 },
+  shuriken: needle([285], 170, 140),
+  storm: needle([285, 385], 170, 140),
+  needle_combo: needle([220, 380], 160, 140),
+  needle_backhand: needle([260], 150, 140),
+  needle_venom: needle([360], 210, 140),
+  needle_pierce: needle([420], 100, 140),
+  needle_retreat: needle([260], 180, 140),
+  needle_fan: needle([285], 180, 140),
+  needle_rain: needle([350], 400, 140),
+  needle_barrage: needle([350], 220, 140),
 };
 
 const ACTIONS = new Set<string>(Object.keys(TIMINGS));

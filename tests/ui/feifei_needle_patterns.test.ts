@@ -7,7 +7,9 @@ import {
   isFeifeiNeedleAction,
   type FeifeiNeedleAction,
 } from '../../src/ui/feifei-needle-patterns';
+import { motionMs } from '../../src/ui/motion-speed';
 
+// 素材原速的離手、飛行、額外波距；播放時整體 1.5 倍速（見 motion-speed.ts）
 const timings: ReadonlyArray<readonly [FeifeiNeedleAction, readonly number[], number, number]> = [
   ['shuriken', [285], 170, 140],
   ['storm', [285, 385], 170, 140],
@@ -22,10 +24,10 @@ const timings: ReadonlyArray<readonly [FeifeiNeedleAction, readonly number[], nu
 ];
 
 describe('菲菲飛針招式資料', () => {
-  it.each(timings)('%s 有固定離手、飛行與額外波距時間', (action, releases, flight, gap) => {
-    expect(feifeiNeedleReleaseTimes(action)).toEqual(releases);
-    expect(feifeiNeedleFlightMs(action)).toBe(flight);
-    expect(feifeiNeedleGapMs(action)).toBe(gap);
+  it.each(timings)('%s 有固定離手、飛行與額外波距時間（原速經 1.5 倍速換算）', (action, releases, flight, gap) => {
+    expect(feifeiNeedleReleaseTimes(action)).toEqual(releases.map(motionMs));
+    expect(feifeiNeedleFlightMs(action)).toBe(motionMs(flight));
+    expect(feifeiNeedleGapMs(action)).toBe(motionMs(gap));
   });
 
   it('辨識十種飛針招式且拒絕其他字串', () => {

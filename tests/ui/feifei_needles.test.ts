@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { playFeifeiNeedles } from '../../src/ui/feifei-needles';
+import { feifeiNeedleFlightMs, feifeiNeedleGapMs, feifeiNeedleReleaseTimes, type FeifeiNeedleAction } from '../../src/ui/feifei-needle-patterns';
+
+// 出手、飛行、額外波間隔都取自招式資料：那裡已經是 1.5 倍速後的時間（素材原速見 feifei-needle-patterns.ts，換算見 motion-speed.ts）
+const release = (action: FeifeiNeedleAction, wave = 0): number => feifeiNeedleReleaseTimes(action)[wave]!;
+const hit = (action: FeifeiNeedleAction, wave = 0): number => release(action, wave) + feifeiNeedleFlightMs(action);
 
 class FakeContext {
   readonly strokes: string[] = [];
@@ -90,24 +95,24 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('菲菲飛針投射物', () => {
-  it('飛針在 285 毫秒離手並沿單一直線抵達真實命中時點', () => {
+  it('飛針在資料指定的時點離手（原速 285 毫秒）並沿單一直線抵達真實命中時點', () => {
     const target = stage();
     const impact = vi.fn();
     const done = vi.fn();
     playFeifeiNeedles(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 800, y: 240 }, {
-      action: 'shuriken', waves: 1, impactTimes: [455], onImpact: impact, onDone: done,
+      action: 'shuriken', waves: 1, impactTimes: [hit('shuriken')], onImpact: impact, onDone: done,
     });
 
-    step(284);
+    step(release('shuriken') - 1);
     expect(target.children).toHaveLength(0);
-    step(285);
+    step(release('shuriken'));
     expect(target.children).toHaveLength(1);
     expect(target.children[0]!.dataset).toMatchObject({
       pattern: 'shuriken', wave: '0', route: 'straight', phase: 'flight', needleCount: '1',
     });
     expect(target.children[0]!.context.strokes).toEqual(expect.arrayContaining(['#d9d8eb', '#74469d']));
     expect(target.children[0]!.style.transform).toContain('translate(73px, 191px)');
-    step(455);
+    step(hit('shuriken'));
     expect(impact.mock.calls).toEqual([[0]]);
     expect(done).toHaveBeenCalledOnce();
     expect(target.children).toHaveLength(0);
@@ -118,40 +123,44 @@ describe('菲菲飛針投射物', () => {
     const target = stage();
     const impact = vi.fn();
     playFeifeiNeedles(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 800, y: 240 }, {
-      action: 'storm', waves: 2, impactTimes: [455, 555], onImpact: impact, onDone: vi.fn(),
+      action: 'storm', waves: 2, impactTimes: [hit('storm', 0), hit('storm', 1)], onImpact: impact, onDone: vi.fn(),
     });
 
-    step(285);
+    step(release('storm', 0));
     expect(target.children).toHaveLength(1);
     expect(target.children[0]!.dataset).toMatchObject({ pattern: 'storm', wave: '0', needleCount: '3' });
-    step(385);
+    step(release('storm', 1));
     expect(target.children.map((canvas) => canvas.dataset.wave)).toEqual(['0', '1']);
-    step(555);
+    step(hit('storm', 1));
     expect(impact.mock.calls).toEqual([[0], [1]]);
   });
 
   it('連針依真實兩段或三段交替左右手起點', () => {
     const target = stage();
+    const third = release('needle_combo', 1) + feifeiNeedleGapMs('needle_combo');
     playFeifeiNeedles(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 800, y: 240 }, {
-      action: 'needle_combo', waves: 3, impactTimes: [380, 540, 680], onImpact: vi.fn(), onDone: vi.fn(),
+      action: 'needle_combo', waves: 3,
+      impactTimes: [hit('needle_combo', 0), hit('needle_combo', 1), third + feifeiNeedleFlightMs('needle_combo')],
+      onImpact: vi.fn(), onDone: vi.fn(),
     });
+    const wave = (n: number) => target.children.find((canvas) => canvas.dataset.wave === String(n));
 
-    step(220);
-    expect(target.children[0]!.dataset.hand).toBe('front');
-    expect(target.children[0]!.style.transform).toContain('translate(73px, 179px)');
-    step(380);
-    expect(target.children[0]!.dataset.hand).toBe('back');
-    expect(target.children[0]!.style.transform).toContain('translate(73px, 203px)');
-    step(520);
+    step(release('needle_combo', 0));
+    expect(wave(0)!.dataset.hand).toBe('front');
+    expect(wave(0)!.style.transform).toContain('translate(73px, 179px)');
+    step(release('needle_combo', 1));
+    expect(wave(1)!.dataset.hand).toBe('back');
+    expect(wave(1)!.style.transform).toContain('translate(73px, 203px)');
+    step(third);
     expect(target.children.map((canvas) => canvas.dataset.hand)).toContain('front');
   });
 
   it('反手拋出走低弧線，針雨由頭頂上方離手、明顯上拋再陡落', () => {
     const backhandStage = stage();
     playFeifeiNeedles(backhandStage as unknown as HTMLElement, { x: 100, y: 300 }, { x: 800, y: 300 }, {
-      action: 'needle_backhand', waves: 1, impactTimes: [410], onImpact: vi.fn(), onDone: vi.fn(),
+      action: 'needle_backhand', waves: 1, impactTimes: [hit('needle_backhand')], onImpact: vi.fn(), onDone: vi.fn(),
     });
-    step(335);
+    step(release('needle_backhand') + feifeiNeedleFlightMs('needle_backhand') / 2);
     expect(backhandStage.children[0]!.dataset.route).toBe('low-arc');
     const backhandY = Number(backhandStage.children[0]!.dataset.y);
     expect(backhandY).toBeGreaterThan(300);
@@ -159,11 +168,11 @@ describe('菲菲飛針投射物', () => {
     const rainStage = stage();
     const rainStartedAt = clock;
     playFeifeiNeedles(rainStage as unknown as HTMLElement, { x: 100, y: 300 }, { x: 800, y: 400 }, {
-      action: 'needle_rain', waves: 1, impactTimes: [750], onImpact: vi.fn(), onDone: vi.fn(),
+      action: 'needle_rain', waves: 1, impactTimes: [hit('needle_rain')], onImpact: vi.fn(), onDone: vi.fn(),
     });
-    step(rainStartedAt + 350);
+    step(rainStartedAt + release('needle_rain'));
     expect(rainStage.children[0]!.dataset).toMatchObject({ x: '55', y: '190', hands: 'overhead' });
-    step(rainStartedAt + 550);
+    step(rainStartedAt + release('needle_rain') + feifeiNeedleFlightMs('needle_rain') / 2);
     expect(rainStage.children[0]!.dataset.route).toBe('up-then-drop');
     const rainY = Number(rainStage.children[0]!.dataset.y);
     expect(rainY).toBeLessThan(100);
@@ -204,9 +213,9 @@ describe('菲菲飛針投射物', () => {
     expect(done).toHaveBeenCalledOnce();
 
     playFeifeiNeedles(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 800, y: 240 }, {
-      action: 'needle_pierce', waves: 1, impactTimes: [520], onImpact: vi.fn(), onDone: vi.fn(),
+      action: 'needle_pierce', waves: 1, impactTimes: [hit('needle_pierce')], onImpact: vi.fn(), onDone: vi.fn(),
     });
-    step(420);
+    step(release('needle_pierce'));
     expect(target.children[0]!.dataset).toMatchObject({
       pattern: 'needle_pierce', route: 'piercing-line', trail: 'long', needleCount: '1',
     });
@@ -214,18 +223,18 @@ describe('菲菲飛針投射物', () => {
 
   it('驚慌扇、水平扇面與雙手針網具有不同數量與路線', () => {
     const cases = [
-      ['needle_retreat', 260, 7, 'panic-converge', 'front'],
-      ['needle_fan', 285, 5, 'horizontal-fan', 'front'],
-      ['needle_barrage', 350, 12, 'wide-net', 'front-back'],
+      ['needle_retreat', 7, 'panic-converge', 'front'],
+      ['needle_fan', 5, 'horizontal-fan', 'front'],
+      ['needle_barrage', 12, 'wide-net', 'front-back'],
     ] as const;
-    for (const [action, release, count, route, hands] of cases) {
+    for (const [action, count, route, hands] of cases) {
       const startedAt = clock;
       const target = stage();
       playFeifeiNeedles(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 800, y: 240 }, {
-        action, waves: 1, impactTimes: [release + (action === 'needle_barrage' ? 220 : 180)],
+        action, waves: 1, impactTimes: [hit(action)],
         onImpact: vi.fn(), onDone: vi.fn(),
       });
-      step(startedAt + release);
+      step(startedAt + release(action));
       expect(target.children[0]!.dataset).toMatchObject({
         pattern: action, needleCount: String(count), route, hands,
       });
@@ -274,19 +283,19 @@ describe('菲菲飛針投射物', () => {
     const firstImpact = vi.fn();
     const secondImpact = vi.fn();
     const cancelFirst = playFeifeiNeedles(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 800, y: 240 }, {
-      action: 'shuriken', waves: 1, impactTimes: [455], onImpact: firstImpact, onDone: vi.fn(),
+      action: 'shuriken', waves: 1, impactTimes: [hit('shuriken')], onImpact: firstImpact, onDone: vi.fn(),
     });
     step(100);
     playFeifeiNeedles(target as unknown as HTMLElement, { x: 300, y: 400 }, { x: 900, y: 500 }, {
-      action: 'shuriken', waves: 1, impactTimes: [455], onImpact: secondImpact, onDone: vi.fn(),
+      action: 'shuriken', waves: 1, impactTimes: [hit('shuriken')], onImpact: secondImpact, onDone: vi.fn(),
     });
-    step(285);
+    step(release('shuriken'));
     expect(target.children[0]!.style.transform).toContain('translate(73px, 191px)');
-    step(385);
+    step(100 + release('shuriken'));
     expect(target.children).toHaveLength(2);
     expect(target.children[1]!.style.transform).toContain('translate(273px, 391px)');
     cancelFirst();
-    step(555);
+    step(100 + hit('shuriken'));
     expect(firstImpact).not.toHaveBeenCalled();
     expect(secondImpact).toHaveBeenCalledOnce();
   });

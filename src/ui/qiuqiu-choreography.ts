@@ -1,3 +1,5 @@
+import { motionMs } from './motion-speed';
+
 export type QiuqiuPoseAction =
   | 'idle' | 'hurt' | 'down' | 'walk' | 'run' | 'roll' | 'jump' | 'land'
   | 'attack1' | 'attack2' | 'attack3' | 'dash' | 'clone' | 'attack4'
@@ -17,7 +19,8 @@ type Segment = {
   wrap?: number;
 };
 
-const CHOREOGRAPHIES = {
+// 原速的分段時間；載入時換成 1.5 倍速（見 motion-speed.ts）：until、elapsed、wrap 都是毫秒要換算，rate 是比例不動
+const SOURCE_CHOREOGRAPHIES = {
   clone: [
     { action: 'seal', until: 420, rate: 480 / 420 },
     { action: 'idle', until: 560, elapsed: 0, rate: 0 },
@@ -48,7 +51,17 @@ const CHOREOGRAPHIES = {
   ],
 } as const satisfies Record<string, readonly Segment[]>;
 
-export type QiuqiuChoreographedAction = keyof typeof CHOREOGRAPHIES;
+export type QiuqiuChoreographedAction = keyof typeof SOURCE_CHOREOGRAPHIES;
+
+const CHOREOGRAPHIES: Readonly<Record<string, readonly Segment[]>> = Object.fromEntries(Object.entries(SOURCE_CHOREOGRAPHIES).map(([action, segments]) => [
+  action,
+  (segments as readonly Segment[]).map((segment): Segment => ({
+    ...segment,
+    until: motionMs(segment.until),
+    ...(segment.elapsed !== undefined ? { elapsed: motionMs(segment.elapsed) } : {}),
+    ...(segment.wrap !== undefined ? { wrap: motionMs(segment.wrap) } : {}),
+  })),
+]));
 
 function choreography(action: string): readonly Segment[] | undefined {
   return CHOREOGRAPHIES[action as QiuqiuChoreographedAction];

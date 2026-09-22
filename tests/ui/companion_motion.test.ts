@@ -22,6 +22,10 @@ import {
   createCompanionMotionActor,
   preloadCompanionMotion,
 } from '../../src/ui/companion-motion';
+import { motionMs } from '../../src/ui/motion-speed';
+
+// 2026-09-22 起同伴動作整體 1.5 倍速（見 motion-speed.ts）：下面的時間是加速後的毫秒，註解寫的是素材原速。
+// 由幾個已換算的數字相加而來的（例如離手＋飛行＋間隔）可能跟「原速總和÷1.5」差 1 毫秒，照程式實際算法寫死。
 
 type DrawCall = [CanvasImageSource, number, number, number, number, number, number, number, number];
 
@@ -176,20 +180,21 @@ describe('菲菲卡牌與命中節奏', () => {
   });
 
   it('所有針招的命中點都由各自離手時間加飛行時間得到，額外波次沿用指定間隔', () => {
-    expect(companionImpactTimes('feifei', 'shuriken', 3)).toEqual([455, 595, 735]);
-    expect(companionImpactTimes('feifei', 'storm', 4)).toEqual([455, 555, 695, 835]);
-    expect(companionImpactTimes('feifei', 'needle_combo', 4)).toEqual([380, 540, 680, 820]);
-    expect(companionImpactTimes('feifei', 'needle_backhand', 1)).toEqual([410]);
-    expect(companionImpactTimes('feifei', 'needle_venom', 1)).toEqual([570]);
-    expect(companionImpactTimes('feifei', 'needle_pierce', 1)).toEqual([520]);
-    expect(companionImpactTimes('feifei', 'needle_retreat', 1)).toEqual([440]);
-    expect(companionImpactTimes('feifei', 'needle_fan', 1)).toEqual([465]);
-    expect(companionImpactTimes('feifei', 'needle_rain', 1)).toEqual([750]);
-    expect(companionImpactTimes('feifei', 'needle_barrage', 1)).toEqual([570]);
-    expect(companionImpactTimes('feifei', 'attack1', 1)).toEqual([340]);
-    expect(companionImpactTimes('feifei', 'kick', 1)).toEqual([300]);
-    expect(companionImpactTimes('feifei', 'clone', 1)).toEqual([690]);
-    expect(FEIFEI_CLONE_TIMING).toEqual({ appear: 180, begin: 350, impact: 690, end: 1240 });
+    expect(companionImpactTimes('feifei', 'shuriken', 3)).toEqual([303, 396, 489]);   // 原速 455／595／735
+    expect(companionImpactTimes('feifei', 'storm', 4)).toEqual([303, 370, 463, 556]);   // 原速 455／555／695／835
+    expect(companionImpactTimes('feifei', 'needle_combo', 4)).toEqual([254, 360, 453, 546]);   // 原速 380／540／680／820
+    expect(companionImpactTimes('feifei', 'needle_backhand', 1)).toEqual([273]);   // 原速 410
+    expect(companionImpactTimes('feifei', 'needle_venom', 1)).toEqual([380]);   // 原速 570
+    expect(companionImpactTimes('feifei', 'needle_pierce', 1)).toEqual([347]);   // 原速 520
+    expect(companionImpactTimes('feifei', 'needle_retreat', 1)).toEqual([293]);   // 原速 440
+    expect(companionImpactTimes('feifei', 'needle_fan', 1)).toEqual([310]);   // 原速 465
+    expect(companionImpactTimes('feifei', 'needle_rain', 1)).toEqual([500]);   // 原速 750
+    expect(companionImpactTimes('feifei', 'needle_barrage', 1)).toEqual([380]);   // 原速 570
+    expect(companionImpactTimes('feifei', 'attack1', 1)).toEqual([motionMs(340)]);
+    expect(companionImpactTimes('feifei', 'kick', 1)).toEqual([motionMs(300)]);
+    expect(companionImpactTimes('feifei', 'clone', 1)).toEqual([motionMs(690)]);
+    // 原速 180／350／690／1240
+    expect(FEIFEI_CLONE_TIMING).toEqual({ appear: 120, begin: 233, impact: 460, end: 826 });
   });
 
   it('靜態專屬狀態不會被待機畫布蓋掉', () => {
@@ -263,27 +268,27 @@ describe('噹噹卡牌與命中節奏', () => {
   });
 
   it('命中點讀取噹噹 metadata，多段只延展既有拳擊節拍', () => {
-    expect(companionImpactTimes('dangdang', 'punch', 3)).toEqual([300, 440, 580]);
-    expect(companionImpactTimes('dangdang', 'palm', 1)).toEqual([340]);
-    expect(companionImpactTimes('dangdang', 'kick', 1)).toEqual([300]);
-    expect(companionImpactTimes('dangdang', 'shoulder', 1)).toEqual([360]);
-    expect(companionImpactTimes('dangdang', 'counter', 1)).toEqual([360]);
-    expect(companionImpactTimes('dangdang', 'ground_slam', 1)).toEqual([430]);
+    expect(companionImpactTimes('dangdang', 'punch', 3)).toEqual([200, 293, 386]);   // 原速 300／440／580
+    expect(companionImpactTimes('dangdang', 'palm', 1)).toEqual([motionMs(340)]);
+    expect(companionImpactTimes('dangdang', 'kick', 1)).toEqual([motionMs(300)]);
+    expect(companionImpactTimes('dangdang', 'shoulder', 1)).toEqual([motionMs(360)]);
+    expect(companionImpactTimes('dangdang', 'counter', 1)).toEqual([motionMs(360)]);
+    expect(companionImpactTimes('dangdang', 'ground_slam', 1)).toEqual([motionMs(430)]);
     expect(companionImpactTimes('dangdang', 'guard', 1)).toEqual([]);
   });
 
   it('三拍新招只播放真實一、二或三擊，再接同一段收勢', () => {
-    expect(companionImpactTimes('dangdang', 'rapid_combo', 1)).toEqual([220]);
-    expect(companionImpactTimes('dangdang', 'rapid_combo', 2)).toEqual([220, 460]);
-    expect(companionImpactTimes('dangdang', 'rapid_combo', 3)).toEqual([220, 460, 700]);
-    expect(companionMotionDuration('dangdang', 'rapid_combo', 1)).toBe(520);
-    expect(companionMotionDuration('dangdang', 'rapid_combo', 2)).toBe(760);
-    expect(companionMotionDuration('dangdang', 'rapid_combo', 3)).toBe(1000);
+    expect(companionImpactTimes('dangdang', 'rapid_combo', 1)).toEqual([220].map(motionMs));
+    expect(companionImpactTimes('dangdang', 'rapid_combo', 2)).toEqual([220, 460].map(motionMs));
+    expect(companionImpactTimes('dangdang', 'rapid_combo', 3)).toEqual([220, 460, 700].map(motionMs));
+    expect(companionMotionDuration('dangdang', 'rapid_combo', 1)).toBe(motionMs(520));
+    expect(companionMotionDuration('dangdang', 'rapid_combo', 2)).toBe(motionMs(760));
+    expect(companionMotionDuration('dangdang', 'rapid_combo', 3)).toBe(motionMs(1000));
 
     const actor = createCompanionMotionActor('dangdang', { action: 'rapid_combo' });
-    actor.play('rapid_combo', { elapsed: 290, waves: 1 });
+    actor.play('rapid_combo', { elapsed: motionMs(290), waves: 1 });
     expect(lastDraw().slice(1, 5)).toEqual(dangdangAttackMotionData.actions.rapid_combo.frames[10]!.rect);
-    actor.play('rapid_combo', { elapsed: 530, waves: 2 });
+    actor.play('rapid_combo', { elapsed: motionMs(530), waves: 2 });
     expect(lastDraw().slice(1, 5)).toEqual(dangdangAttackMotionData.actions.rapid_combo.frames[10]!.rect);
     actor.dispose();
   });
@@ -341,35 +346,35 @@ describe('封封卡牌、近戰與收劍節奏', () => {
   });
 
   it('真命中讀取metadata；攻擊播完接可中斷短收劍，收劍不增加命中', () => {
-    expect(companionImpactTimes('fengfeng', 'slash', 1)).toEqual([300]);
-    expect(companionImpactTimes('fengfeng', 'double_slash', 2)).toEqual([220, 550]);
+    expect(companionImpactTimes('fengfeng', 'slash', 1)).toEqual([motionMs(300)]);
+    expect(companionImpactTimes('fengfeng', 'double_slash', 2)).toEqual([220, 550].map(motionMs));
     expect(companionImpactTimes('fengfeng', 'guard', 1)).toEqual([]);
-    expect(companionMotionDuration('fengfeng', 'slash')).toBe(1230);
-    expect(companionMotionDuration('fengfeng', 'double_slash')).toBe(1390);
-    expect(companionMotionDuration('fengfeng', 'double_slash', 2)).toBe(1390);
+    expect(companionMotionDuration('fengfeng', 'slash')).toBe(motionMs(1230));
+    expect(companionMotionDuration('fengfeng', 'double_slash')).toBe(motionMs(1390));
+    expect(companionMotionDuration('fengfeng', 'double_slash', 2)).toBe(motionMs(1390));
 
     const actor = createCompanionMotionActor('fengfeng', { action: 'slash' });
-    actor.play('slash', { elapsed: 720 });
+    actor.play('slash', { elapsed: motionMs(720) });
     expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.sheath.frames[2]!.rect);
     actor.play('guard');
     expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.guard.frames[0]!.rect);
     actor.dispose();
   });
 
-  it('三拍連刀只播放真實波數，520／760 毫秒後立即接完整收劍', () => {
-    expect(companionImpactTimes('fengfeng', 'sword_combo', 1)).toEqual([220]);
-    expect(companionImpactTimes('fengfeng', 'sword_combo', 2)).toEqual([220, 460]);
-    expect(companionImpactTimes('fengfeng', 'sword_combo', 3)).toEqual([220, 460, 700]);
-    expect(companionMotionDuration('fengfeng', 'sword_combo', 1)).toBe(1030);
-    expect(companionMotionDuration('fengfeng', 'sword_combo', 2)).toBe(1270);
-    expect(companionMotionDuration('fengfeng', 'sword_combo', 3)).toBe(1510);
+  it('三拍連刀只播放真實波數，520／760 毫秒（1.5 倍速後 347／507）後立即接完整收劍', () => {
+    expect(companionImpactTimes('fengfeng', 'sword_combo', 1)).toEqual([220].map(motionMs));
+    expect(companionImpactTimes('fengfeng', 'sword_combo', 2)).toEqual([220, 460].map(motionMs));
+    expect(companionImpactTimes('fengfeng', 'sword_combo', 3)).toEqual([220, 460, 700].map(motionMs));
+    expect(companionMotionDuration('fengfeng', 'sword_combo', 1)).toBe(motionMs(1030));
+    expect(companionMotionDuration('fengfeng', 'sword_combo', 2)).toBe(motionMs(1270));
+    expect(companionMotionDuration('fengfeng', 'sword_combo', 3)).toBe(motionMs(1510));
 
     const actor = createCompanionMotionActor('fengfeng', { action: 'sword_combo' });
-    actor.play('sword_combo', { elapsed: 520, waves: 1 });
+    actor.play('sword_combo', { elapsed: motionMs(520), waves: 1 });
     expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.sheath.frames[2]!.rect);
-    actor.play('sword_combo', { elapsed: 760, waves: 2 });
+    actor.play('sword_combo', { elapsed: motionMs(760), waves: 2 });
     expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.sheath.frames[2]!.rect);
-    actor.play('sword_combo', { elapsed: 519, waves: 1 });
+    actor.play('sword_combo', { elapsed: motionMs(520) - 1, waves: 1 });
     expect(lastDraw().slice(1, 5)).toEqual(fengfengAttackMotionData.actions.sword_combo.frames.at(-1)!.rect);
     actor.dispose();
   });
@@ -518,32 +523,35 @@ describe('菲菲全身逐格畫布', () => {
 
   it('連針在第一次離手後重播投擲子段，投射物不會憑空追加', () => {
     const actor = createCompanionMotionActor('feifei', { action: 'shuriken' });
-    actor.play('shuriken', { elapsed: 286, waves: 2 });
+    actor.play('shuriken', { elapsed: motionMs(286), waves: 2 });
     expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.shuriken.frames[2]!.rect);
-    actor.play('shuriken', { elapsed: 425, waves: 2 });
+    actor.play('shuriken', { elapsed: motionMs(425), waves: 2 });
     expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.shuriken.frames[4]!.rect);
-    expect(companionMotionDuration('feifei', 'shuriken', 3)).toBe(980);
+    expect(companionMotionDuration('feifei', 'shuriken', 3)).toBe(motionMs(980));
     actor.dispose();
   });
 
   it('連針只保留實際波次的預備段，額外波循環後仍播放最後收招', () => {
     const combo = needleMotionData.actions.needle_combo;
-    const base = Math.round(combo.frames.reduce((sum, frame) => sum + frame.duration * 1000, 0));
-    expect(companionMotionDuration('feifei', 'needle_combo', 1)).toBe(base - 160);
+    const base = motionMs(Math.round(combo.frames.reduce((sum, frame) => sum + frame.duration * 1000, 0)));
+    // 兩次離手原速相隔 160 毫秒、額外波間隔 140 毫秒，都換成 1.5 倍速
+    const skipped = motionMs(380) - motionMs(220);
+    const extra = 2 * motionMs(140);
+    expect(companionMotionDuration('feifei', 'needle_combo', 1)).toBe(base - skipped);
     expect(companionMotionDuration('feifei', 'needle_combo', 2)).toBe(base);
-    expect(companionMotionDuration('feifei', 'needle_combo', 4)).toBe(base + 280);
+    expect(companionMotionDuration('feifei', 'needle_combo', 4)).toBe(base + extra);
 
     const actor = createCompanionMotionActor('feifei', { action: 'needle_combo' });
-    actor.play('needle_combo', { elapsed: base - 160, waves: 1 });
+    actor.play('needle_combo', { elapsed: base - skipped, waves: 1 });
     expect(lastDraw().slice(1, 5)).toEqual(combo.frames.at(-1)!.rect);
-    actor.play('needle_combo', { elapsed: base + 280, waves: 4 });
+    actor.play('needle_combo', { elapsed: base + extra, waves: 4 });
     expect(lastDraw().slice(1, 5)).toEqual(combo.frames.at(-1)!.rect);
     actor.dispose();
   });
 
   it('毒分身期間本體停在結印中格，分身收完才完成收勢', () => {
     const actor = createCompanionMotionActor('feifei', { action: 'clone' });
-    actor.play('clone', { elapsed: 300 });
+    actor.play('clone', { elapsed: motionMs(300) });
     expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.seal.frames[2]!.rect);
     actor.play('clone', { elapsed: FEIFEI_CLONE_TIMING.end });
     expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.seal.frames.at(-1)!.rect);

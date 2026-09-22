@@ -21,6 +21,7 @@ import {
   type FrameMotionPlayOptions,
 } from './frame-motion';
 import { DEFERRED_COMPANION_REST_ACTIONS, restStateAction, type RestStateAction, type RestStatePoses } from './rest-state-motion';
+import { motionMs, speedUpMotions } from './motion-speed';
 import './styles/companion-motion.css';
 
 export type CompanionMotionKind = 'feifei' | 'dangdang' | 'fengfeng';
@@ -66,29 +67,37 @@ export type CompanionCardMotionOptions = Readonly<{
 type TimedFrameMotion = FrameMotion & Readonly<{ impactTimes?: readonly number[] }>;
 
 const NATIVE_HEIGHT = 252;
-const EXTRA_WAVE_MS = 140;
-const CLONE_APPEAR_MS = 180;
-const CLONE_ATTACK_MS = 350;
-const CLONE_IMPACT_MS = 690;
-const CLONE_FADE_MS = 140;
-const CLONE_SEAL_HOLD_MS = 170;
-const FENGFENG_SHEATH_SKIP_MS = 120;
+// 以下都是跟動作對拍的時間：motionMs() 括號裡是原速毫秒，跟動作資料一起換成 1.5 倍速（見 motion-speed.ts）
+const EXTRA_WAVE_MS = motionMs(140);
+const CLONE_APPEAR_MS = motionMs(180);
+const CLONE_ATTACK_MS = motionMs(350);
+const CLONE_IMPACT_MS = motionMs(690);
+const CLONE_FADE_MS = motionMs(140);
+const CLONE_SEAL_HOLD_MS = motionMs(170);
+const FENGFENG_SHEATH_SKIP_MS = motionMs(120);
 
+// 載入時整份換成 1.5 倍速的時間；受擊沿用舊立繪那一格，比照舊版靜態演出不加速
 const feifeiMotions = {
-  ...feifeiMotionData.actions,
-  ...feifeiNeedleMotionData.actions,
+  ...speedUpMotions({
+    ...feifeiMotionData.actions,
+    ...feifeiNeedleMotionData.actions,
+  } as unknown as Record<string, TimedFrameMotion>),
   hurt: LEGACY_HIT_MOTIONS.feifei,
-} as unknown as Record<string, TimedFrameMotion>;
+} as Record<string, TimedFrameMotion>;
 const dangdangMotions = {
-  ...dangdangMotionData.actions,
-  ...dangdangAttackMotionData.actions,
+  ...speedUpMotions({
+    ...dangdangMotionData.actions,
+    ...dangdangAttackMotionData.actions,
+  } as unknown as Record<string, TimedFrameMotion>),
   hurt: LEGACY_HIT_MOTIONS.dangdang,
-} as unknown as Record<string, TimedFrameMotion>;
+} as Record<string, TimedFrameMotion>;
 const fengfengMotions = {
-  ...fengfengMotionData.actions,
-  ...fengfengAttackMotionData.actions,
+  ...speedUpMotions({
+    ...fengfengMotionData.actions,
+    ...fengfengAttackMotionData.actions,
+  } as unknown as Record<string, TimedFrameMotion>),
   hurt: LEGACY_HIT_MOTIONS.fengfeng,
-} as unknown as Record<string, TimedFrameMotion>;
+} as Record<string, TimedFrameMotion>;
 const FEIFEI_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(feifeiMotions) as CompanionMotionAction[]);
 const DANGDANG_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(dangdangMotions) as CompanionMotionAction[]);
 const FENGFENG_DIRECT_ACTIONS = new Set<CompanionMotionAction>(Object.keys(fengfengMotions) as CompanionMotionAction[]);
@@ -419,8 +428,8 @@ export function companionImpactTimes(
   if (wanted === 0) return [];
   let base: readonly number[] | undefined;
   if (kind === 'feifei') {
-    base = action === 'attack1' ? [340]
-      : action === 'kick' ? [300]
+    base = action === 'attack1' ? [motionMs(340)]
+      : action === 'kick' ? [motionMs(300)]
         : isFeifeiNeedleAction(action)
           ? feifeiNeedleReleaseTimes(action).map((release) => release + feifeiNeedleFlightMs(action))
           : action === 'clone' ? [CLONE_IMPACT_MS]

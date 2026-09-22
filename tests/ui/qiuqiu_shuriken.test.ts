@@ -1,9 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  QIUQIU_SHURIKEN_FLIGHT_MS as FLIGHT,
+  QIUQIU_SHURIKEN_GAP_MS as GAP,
+  QIUQIU_SHURIKEN_RELEASE_MS as RELEASE,
   playQiuqiuShuriken,
   preloadQiuqiuShuriken,
 } from '../../src/ui/qiuqiu-shuriken';
+import { motionMs } from '../../src/ui/motion-speed';
+
+// 出手、飛行、間隔取自模組常數，已經是 1.5 倍速後的時間（原速 180／170／140 毫秒，換算見 motion-speed.ts）；
+// 升級風暴的兩個命中點原速是 470／730 毫秒
+const [STORM_FIRST, STORM_SECOND] = [470, 730].map(motionMs) as [number, number];
 
 type DrawCall = [CanvasImageSource, number, number, number, number, number, number, number, number];
 
@@ -125,18 +133,18 @@ describe('qiuqiu shuriken flight', () => {
     const impact = vi.fn();
     const done = vi.fn();
     playQiuqiuShuriken(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 900, y: 200 },
-      { waves: 2, impactTimes: [470, 730], onImpact: impact, onDone: done });
-    step(299);
+      { waves: 2, impactTimes: [STORM_FIRST, STORM_SECOND], onImpact: impact, onDone: done });
+    step(STORM_FIRST - FLIGHT - 1);
     expect(target.children).toHaveLength(0);
-    step(300);
+    step(STORM_FIRST - FLIGHT);
     expect(target.children).toHaveLength(1);
-    step(469);
+    step(STORM_FIRST - 1);
     expect(impact).not.toHaveBeenCalled();
-    step(470);
+    step(STORM_FIRST);
     expect(impact.mock.calls).toEqual([[0]]);
-    step(560);
+    step(STORM_SECOND - FLIGHT);
     expect(target.children).toHaveLength(1);
-    step(730);
+    step(STORM_SECOND);
     expect(impact.mock.calls).toEqual([[0], [1]]);
     expect(done).toHaveBeenCalledTimes(1);
     expect(target.children).toHaveLength(0);
@@ -156,26 +164,26 @@ describe('qiuqiu shuriken flight', () => {
     );
 
     expect(target.children).toHaveLength(0);
-    step(179);
+    step(RELEASE - 1);
     expect(target.children).toHaveLength(0);
-    step(180);
+    step(RELEASE);
     expect(target.children).toHaveLength(1);
     expect(target.children[0]?.context.draws[0]?.slice(1)).toEqual([0, 0, 125, 128, 0, 0, 40, 41]);
     expect(target.children[0]?.style['pointerEvents']).toBe('none');
     expect(target.children[0]?.style['zIndex']).toBe('20');
     expect(target.children[0]?.style['transform']).toContain('translate(80px, 179.5px)');
-    step(319);
+    step(RELEASE + GAP - 1);
     expect(target.children).toHaveLength(1);
-    step(320);
+    step(RELEASE + GAP);
     expect(target.children).toHaveLength(2);
-    step(349);
+    step(RELEASE + FLIGHT - 1);
     expect(impacts).toEqual([]);
-    step(350);
+    step(RELEASE + FLIGHT);
     expect(impacts).toEqual([0]);
     expect(target.children).toHaveLength(1);
-    step(489);
+    step(RELEASE + GAP + FLIGHT - 1);
     expect(impacts).toEqual([0]);
-    step(490);
+    step(RELEASE + GAP + FLIGHT);
     expect(impacts).toEqual([0, 1]);
     expect(target.children).toHaveLength(0);
     expect(done).toHaveBeenCalledTimes(1);
@@ -219,7 +227,7 @@ describe('qiuqiu shuriken flight', () => {
       { waves: 2, onImpact: impact, onDone: done },
     );
 
-    step(180);
+    step(RELEASE);
     expect(target.children).toHaveLength(1);
     dispose();
     dispose();
@@ -252,45 +260,46 @@ describe('qiuqiu shuriken flight', () => {
       { waves: 1, onImpact: secondImpact, onDone: secondDone },
     );
 
-    step(180);
+    step(RELEASE);
     expect(firstStage.children).toHaveLength(1);
     expect(secondStage.children).toHaveLength(1);
     disposeFirst();
     expect(firstStage.children).toHaveLength(0);
     expect(secondStage.children).toHaveLength(1);
     expect(rafs).toHaveLength(1);
-    step(350);
+    step(RELEASE + FLIGHT);
     expect(firstImpact).not.toHaveBeenCalled();
     expect(firstDone).not.toHaveBeenCalled();
     expect(secondImpact).toHaveBeenCalledWith(0);
     expect(secondDone).toHaveBeenCalledTimes(1);
   });
 
-  it.each([273, 350])('升級風暴在飛行前或飛行中接下一張牌仍完成兩波，接牌=%i 毫秒', async (nextAt) => {
+  // 接牌時點原速 273（還沒出手）／350（飛行中）毫秒
+  it.each([motionMs(273), motionMs(350)])('升級風暴在飛行前或飛行中接下一張牌仍完成兩波，接牌=%i 毫秒', async (nextAt) => {
     await preloadQiuqiuShuriken();
     const target = stage();
     const stormImpact = vi.fn();
     const nextImpact = vi.fn();
     playQiuqiuShuriken(target as unknown as HTMLElement, { x: 100, y: 200 }, { x: 900, y: 200 }, {
       waves: 2,
-      impactTimes: [470, 730],
+      impactTimes: [STORM_FIRST, STORM_SECOND],
       onImpact: stormImpact,
       onDone: vi.fn(),
     });
     step(nextAt);
     playQiuqiuShuriken(target as unknown as HTMLElement, { x: 120, y: 210 }, { x: 820, y: 210 }, {
       waves: 1,
-      impactTimes: [400],
+      impactTimes: [motionMs(400)],
       onImpact: nextImpact,
       onDone: vi.fn(),
     });
-    step(Math.max(300, nextAt + 1));
+    step(Math.max(STORM_FIRST - FLIGHT, nextAt + 1));
     expect(target.children.length).toBeGreaterThan(0);
-    step(470);
+    step(STORM_FIRST);
     expect(stormImpact).toHaveBeenCalledWith(0);
-    step(730);
+    step(STORM_SECOND);
     expect(stormImpact.mock.calls).toEqual([[0], [1]]);
-    step(nextAt + 400);
+    step(nextAt + motionMs(400));
     expect(nextImpact).toHaveBeenCalledOnce();
   });
 

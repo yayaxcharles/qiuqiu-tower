@@ -26,6 +26,10 @@ import {
 import { qiuqiuMotionDuration } from '../../src/ui/qiuqiu-motion';
 import { companionMotionDuration } from '../../src/ui/companion-motion';
 import { motionMeleeSample } from '../../src/ui/qiuqiu-melee';
+import { motionMs } from '../../src/ui/motion-speed';
+
+// 2026-09-22 起四隻貓的動作整體 1.5 倍速（見 motion-speed.ts）：直接取自素材的時間寫成 motionMs(原速)；
+// 由幾個已換算的數字相加而來的（例如額外波間隔一段一段加上去）照程式實際算法寫死，註解附原速
 
 describe('buildQiuqiuCombatImpactPlan', () => {
   it('只為指定 UID 排入真正命中的三段傷害', () => {
@@ -37,9 +41,9 @@ describe('buildQiuqiuCombatImpactPlan', () => {
     ], 12);
 
     expect(plan).toEqual([
-      { at: 100, amount: 3, pendingAfter: 9 },
-      { at: 270, amount: 4, pendingAfter: 5 },
-      { at: 600, amount: 5, pendingAfter: 0 },
+      { at: motionMs(100), amount: 3, pendingAfter: 9 },
+      { at: motionMs(270), amount: 4, pendingAfter: 5 },
+      { at: motionMs(600), amount: 5, pendingAfter: 0 },
     ]);
   });
 
@@ -48,7 +52,7 @@ describe('buildQiuqiuCombatImpactPlan', () => {
       { uid: 7, amount: 6 },
       { uid: 8, amount: 6 },
     ], 7)).toEqual([
-      { at: 160, amount: 6, pendingAfter: 0 },
+      { at: motionMs(160), amount: 6, pendingAfter: 0 },
     ]);
   });
 
@@ -56,8 +60,8 @@ describe('buildQiuqiuCombatImpactPlan', () => {
     expect(buildQiuqiuCombatImpactPlan('shuriken', [
       { uid: 4, amount: 5 },
     ], 4, 1)).toEqual([
-      { at: 350, amount: 0, pendingAfter: 5 },
-      { at: 490, amount: 5, pendingAfter: 0 },
+      { at: motionMs(350), amount: 0, pendingAfter: 5 },
+      { at: motionMs(490), amount: 5, pendingAfter: 0 },
     ]);
   });
 
@@ -66,8 +70,8 @@ describe('buildQiuqiuCombatImpactPlan', () => {
       { uid: 2, amount: 5 },
       { uid: 2, amount: 5 },
     ], 2)).toEqual([
-      { at: 470, amount: 5, pendingAfter: 5 },
-      { at: 730, amount: 5, pendingAfter: 0 },
+      { at: motionMs(470), amount: 5, pendingAfter: 5 },
+      { at: motionMs(730), amount: 5, pendingAfter: 0 },
     ]);
   });
 });
@@ -143,9 +147,9 @@ describe('戰鬥動作整合判定', () => {
       { uid: 4, amount: 5 },
       { uid: 4, amount: 5 },
     ], 4, qiuqiuConsumedStealth(1, 0))).toEqual([
-      { at: 100, amount: 0, pendingAfter: 10 },
-      { at: 270, amount: 5, pendingAfter: 5 },
-      { at: 600, amount: 5, pendingAfter: 0 },
+      { at: motionMs(100), amount: 0, pendingAfter: 10 },
+      { at: motionMs(270), amount: 5, pendingAfter: 5 },
+      { at: motionMs(600), amount: 5, pendingAfter: 0 },
     ]);
   });
 
@@ -195,16 +199,18 @@ describe('連線批次動作邊界', () => {
   });
 
   it('依實際波數保留完整菲菲飛針與噹噹連拳時間', () => {
-    expect(combatMotionPresentationDuration('feifei', 'shuriken', 3)).toBe(980);
-    expect(combatMotionPresentationWait('feifei', 'shuriken', 3, 250)).toBe(760);
-    expect(combatMotionPresentationDuration('qiuqiu', 'palm_combo', 1)).toBe(520);
-    expect(combatMotionPresentationDuration('qiuqiu', 'palm_combo', 2)).toBe(760);
-    expect(combatMotionPresentationDuration('qiuqiu', 'palm_combo', 3)).toBe(1000);
-    expect(combatMotionPresentationDuration('dangdang', 'rapid_combo', 1)).toBe(520);
-    expect(combatMotionPresentationDuration('dangdang', 'rapid_combo', 2)).toBe(760);
-    expect(combatMotionPresentationDuration('dangdang', 'rapid_combo', 3)).toBe(1000);
-    expect(combatMotionPresentationDuration('dangdang', 'punch', 3)).toBe(1020);
-    expect(combatMotionPresentationWait('dangdang', 'punch', 3, 0)).toBe(1050);
+    expect(combatMotionPresentationDuration('feifei', 'shuriken', 3)).toBe(motionMs(980));
+    // 已經播了 250 毫秒：只等剩下的，再加 30 毫秒收尾（收尾是介面節奏，不加速）
+    expect(combatMotionPresentationWait('feifei', 'shuriken', 3, 250)).toBe(motionMs(980) - 250 + 30);
+    expect(combatMotionPresentationDuration('qiuqiu', 'palm_combo', 1)).toBe(motionMs(520));
+    expect(combatMotionPresentationDuration('qiuqiu', 'palm_combo', 2)).toBe(motionMs(760));
+    expect(combatMotionPresentationDuration('qiuqiu', 'palm_combo', 3)).toBe(motionMs(1000));
+    expect(combatMotionPresentationDuration('dangdang', 'rapid_combo', 1)).toBe(motionMs(520));
+    expect(combatMotionPresentationDuration('dangdang', 'rapid_combo', 2)).toBe(motionMs(760));
+    expect(combatMotionPresentationDuration('dangdang', 'rapid_combo', 3)).toBe(motionMs(1000));
+    // 原速 740＋兩段額外 140＝1020；加速後 493＋2×93
+    expect(combatMotionPresentationDuration('dangdang', 'punch', 3)).toBe(679);
+    expect(combatMotionPresentationWait('dangdang', 'punch', 3, 0)).toBe(679 + 30);
   });
 
   it.each([
@@ -237,15 +243,16 @@ describe('連線批次動作邊界', () => {
         impactMs: 220, totalMs: 520, action: 'rapid_combo' as const,
       },
     }, combatMotionPresentationDuration('dangdang', 'rapid_combo', waves))!;
-    expect(motionMeleeSample(trip.plan, 700).done).toBe(false);
-    expect(motionMeleeSample(trip.plan, 1000).done).toBe(true);
+    // 第三下原速 700 毫秒、整招 1000 毫秒，1.5 倍速後 467／667
+    expect(motionMeleeSample(trip.plan, motionMs(700)).done).toBe(false);
+    expect(motionMeleeSample(trip.plan, motionMs(1000)).done).toBe(true);
   });
 
   it('排隊期間經過的時間會在步驟真正開始時扣掉', () => {
-    let now = 1300;
+    let now = 1100;
     const wait = () => combatMotionPresentationWaitAt('feifei', 'shuriken', 3, 1000, now);
-    now = 1700;
-    expect(resolveCombatMotionPresentationWait(wait)).toBe(310);
+    now = 1400;
+    expect(resolveCombatMotionPresentationWait(wait)).toBe(motionMs(980) - 400 + 30);
   });
 
   it('本機預演已停但確認仍在延伸波次內時續播，不蓋掉下一張動作', () => {
@@ -293,7 +300,7 @@ describe('角色共用命中排程', () => {
     const before = { hp: 9999, dead: false, debuff: 3 };
     const current = { hp: 9999, dead: false, debuff: 5 };
     expect(buildFeifeiStatusImpactPlan('clone', before, current)).toEqual([
-      { at: 690, amount: 0, pendingAfter: 0 },
+      { at: motionMs(690), amount: 0, pendingAfter: 0 },
     ]);
     expect(buildFeifeiStatusImpactPlan('clone', before, before)).toEqual([]);
     expect(buildFeifeiStatusImpactPlan('clone', before, current,
@@ -308,11 +315,12 @@ describe('角色共用命中排程', () => {
       { uid: 7, amount: 2 },
       { uid: 7, amount: 2 },
     ], 7, 1)).toEqual([
-      { at: 380, amount: 0, pendingAfter: 8 },
-      { at: 540, amount: 2, pendingAfter: 6 },
-      { at: 680, amount: 2, pendingAfter: 4 },
-      { at: 820, amount: 2, pendingAfter: 2 },
-      { at: 960, amount: 2, pendingAfter: 0 },
+      // 原速 380／540／680／820／960
+      { at: 254, amount: 0, pendingAfter: 8 },
+      { at: 360, amount: 2, pendingAfter: 6 },
+      { at: 453, amount: 2, pendingAfter: 4 },
+      { at: 546, amount: 2, pendingAfter: 2 },
+      { at: 639, amount: 2, pendingAfter: 0 },
     ]);
   });
 
@@ -320,7 +328,7 @@ describe('角色共用命中排程', () => {
     const before = { hp: 30, dead: false, debuff: 2 };
     const poisoned = { hp: 30, dead: false, debuff: 3 };
     expect(buildFeifeiStatusImpactPlan('needle_fan', before, poisoned)).toEqual([
-      { at: 465, amount: 0, pendingAfter: 0 },
+      { at: motionMs(465), amount: 0, pendingAfter: 0 },
     ]);
     expect(buildFeifeiStatusImpactPlan('needle_pierce', before, before)).toEqual([]);
   });
@@ -329,8 +337,8 @@ describe('角色共用命中排程', () => {
     expect(buildCombatMotionImpactPlan('qiuqiu', 'ultimate_storm', [
       { uid: 2, amount: 7 }, { uid: 2, amount: 7 },
     ], 2)).toEqual([
-      { at: 470, amount: 7, pendingAfter: 7 },
-      { at: 730, amount: 7, pendingAfter: 0 },
+      { at: motionMs(470), amount: 7, pendingAfter: 7 },
+      { at: motionMs(730), amount: 7, pendingAfter: 0 },
     ]);
   });
 
@@ -338,8 +346,9 @@ describe('角色共用命中排程', () => {
     expect(buildCombatMotionImpactPlan('dangdang', 'punch', [
       { uid: 7, amount: 3 }, { uid: 8, amount: 99 }, { uid: 7, amount: 3 },
     ], 7)).toEqual([
-      { at: 300, amount: 3, pendingAfter: 3 },
-      { at: 440, amount: 3, pendingAfter: 0 },
+      // 原速 300／440（第二下是第一下加額外間隔 140）
+      { at: 200, amount: 3, pendingAfter: 3 },
+      { at: 293, amount: 3, pendingAfter: 0 },
     ]);
   });
 
@@ -347,8 +356,8 @@ describe('角色共用命中排程', () => {
     expect(buildCombatMotionImpactPlan('fengfeng', 'double_slash', [
       { uid: 7, amount: 4 }, { uid: 8, amount: 99 }, { uid: 7, amount: 5 },
     ], 7)).toEqual([
-      { at: 220, amount: 4, pendingAfter: 5 },
-      { at: 550, amount: 5, pendingAfter: 0 },
+      { at: motionMs(220), amount: 4, pendingAfter: 5 },
+      { at: motionMs(550), amount: 5, pendingAfter: 0 },
     ]);
   });
 });

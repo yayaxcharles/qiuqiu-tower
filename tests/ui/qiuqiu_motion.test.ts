@@ -18,6 +18,7 @@ import {
   type QiuqiuAction,
 } from '../../src/ui/qiuqiu-motion';
 import { DEFERRED_REST_ACTIONS } from '../../src/ui/rest-state-motion';
+import { motionMs } from '../../src/ui/motion-speed';
 
 type DrawCall = [CanvasImageSource, number, number, number, number, number, number, number, number];
 
@@ -128,7 +129,8 @@ describe('球球全身動作開關與招式選擇', () => {
 
   it('手裏劍亂舞優先使用投擲，不沿用舊的爪擊分類', () => {
     expect(qiuqiuCardAction('luanwu', 'claw', 3)).toBe('shuriken');
-    expect(qiuqiuImpactDelay('shuriken')).toBe(350);
+    // 素材原速 350 毫秒（出手 180＋飛行 170），播放 1.5 倍速（見 motion-speed.ts）
+    expect(qiuqiuImpactDelay('shuriken')).toBe(motionMs(350));
   });
 
   it('最後一擊已結算為勝利仍播完招式，敗北則立即交還既有姿勢', () => {
@@ -139,7 +141,7 @@ describe('球球全身動作開關與招式選擇', () => {
 
   it('命中拍點沿用 Godot 動作的第一個有效攻擊窗', () => {
     expect((['attack1', 'attack2', 'attack3', 'attack4', 'kick'] as QiuqiuAction[])
-      .map(qiuqiuImpactDelay)).toEqual([70, 90, 100, 160, 200]);
+      .map(qiuqiuImpactDelay)).toEqual([70, 90, 100, 160, 200].map(motionMs));
     expect(qiuqiuImpactDelay('idle')).toBe(0);
     expect(qiuqiuImpactDelay('run')).toBe(0);
   });
@@ -229,9 +231,10 @@ describe('球球全身動作畫布', () => {
     const actor = createQiuqiuActor({ action: 'attack1' });
     step(1000);
     expect(lastDraw().slice(1, 5)).toEqual([50, 9, 406, 499]);
-    step(1039);
+    // 第一格原速 40 毫秒，1.5 倍速後 27 毫秒
+    step(1026);
     expect(lastDraw().slice(1, 5)).toEqual([50, 9, 406, 499]);
-    step(1040);
+    step(1027);
     expect(lastDraw().slice(1, 5)).toEqual([567, 19, 410, 488]);
     step(2000);
     expect(lastDraw().slice(1, 5)).toEqual([1072, 516, 413, 482]);
@@ -402,27 +405,29 @@ describe('球球完整動作合約', () => {
     expect(qiuqiuCardAction('unknown', undefined, 0)).toBeNull();
   });
 
+  // 下面的數字都是素材原速的毫秒，播放時 1.5 倍速，所以一律過 motionMs() 換算（見 motion-speed.ts）
   it('回傳真正命中節拍並只延伸要求的溢出次數', () => {
-    expect(qiuqiuImpactTimes('combo_kick', 3)).toEqual([100, 270, 600]);
-    expect(qiuqiuImpactTimes('clone_duo', 2)).toEqual([180, 420]);
+    const sped = (times: number[]): number[] => times.map(motionMs);
+    expect(qiuqiuImpactTimes('combo_kick', 3)).toEqual(sped([100, 270, 600]));
+    expect(qiuqiuImpactTimes('clone_duo', 2)).toEqual(sped([180, 420]));
     expect(['dash', 'clone', 'uppercut', 'flying_kick'].map((action) => (
       qiuqiuImpactTimes(action as QiuqiuAction, 1)[0]
-    ))).toEqual([60, 180, 180, 100]);
-    expect(qiuqiuImpactTimes('ultimate_clone', 3)).toEqual([420, 760, 1120]);
-    expect(qiuqiuImpactTimes('ultimate_rush', 3)).toEqual([160, 400, 640]);
-    expect(qiuqiuImpactTimes('shuriken', 2)).toEqual([350, 490]);
-    expect(qiuqiuImpactTimes('ultimate_storm', 2)).toEqual([470, 730]);
-    expect(qiuqiuImpactTimes('clone_duo', 4)).toEqual([180, 420, 570, 720]);
-    expect(qiuqiuImpactTimes('combo_kick', 1)).toEqual([100]);
+    ))).toEqual(sped([60, 180, 180, 100]));
+    expect(qiuqiuImpactTimes('ultimate_clone', 3)).toEqual(sped([420, 760, 1120]));
+    expect(qiuqiuImpactTimes('ultimate_rush', 3)).toEqual(sped([160, 400, 640]));
+    expect(qiuqiuImpactTimes('shuriken', 2)).toEqual(sped([350, 490]));
+    expect(qiuqiuImpactTimes('ultimate_storm', 2)).toEqual(sped([470, 730]));
+    expect(qiuqiuImpactTimes('clone_duo', 4)).toEqual(sped([180, 420, 570, 720]));
+    expect(qiuqiuImpactTimes('combo_kick', 1)).toEqual(sped([100]));
     expect(qiuqiuImpactTimes('idle', 3)).toEqual([]);
     expect(qiuqiuImpactTimes('attack1', 0)).toEqual([]);
-    expect(qiuqiuImpactDelay('ultimate_clone')).toBe(420);
-    expect(qiuqiuImpactTimes('roar', 1)).toEqual([360]);
-    expect(qiuqiuImpactTimes('ground_slam', 1)).toEqual([340]);
-    expect(qiuqiuImpactTimes('body_bash', 1)).toEqual([260]);
-    expect(qiuqiuImpactTimes('palm_combo', 1)).toEqual([220]);
-    expect(qiuqiuImpactTimes('palm_combo', 2)).toEqual([220, 460]);
-    expect(qiuqiuImpactTimes('palm_combo', 3)).toEqual([220, 460, 700]);
+    expect(qiuqiuImpactDelay('ultimate_clone')).toBe(motionMs(420));
+    expect(qiuqiuImpactTimes('roar', 1)).toEqual(sped([360]));
+    expect(qiuqiuImpactTimes('ground_slam', 1)).toEqual(sped([340]));
+    expect(qiuqiuImpactTimes('body_bash', 1)).toEqual(sped([260]));
+    expect(qiuqiuImpactTimes('palm_combo', 1)).toEqual(sped([220]));
+    expect(qiuqiuImpactTimes('palm_combo', 2)).toEqual(sped([220, 460]));
+    expect(qiuqiuImpactTimes('palm_combo', 3)).toEqual(sped([220, 460, 700]));
   });
 
   it('只把會由主角貼身出擊的動作判定為近戰', () => {
@@ -439,43 +444,44 @@ describe('球球完整動作合約', () => {
     expect(stationary.every((action) => !qiuqiuIsMelee(action))).toBe(true);
   });
 
-  it('複合招式使用完整演出時間', () => {
-    expect(qiuqiuMotionDuration('combo_kick')).toBe(980);
-    expect(qiuqiuMotionDuration('ultimate_clone')).toBe(1800);
-    expect(qiuqiuMotionDuration('ultimate_storm')).toBe(1050);
-    expect(qiuqiuMotionDuration('ultimate_rush')).toBe(1450);
-    expect(qiuqiuMotionDuration('roar')).toBe(740);
-    expect(qiuqiuMotionDuration('ground_slam')).toBe(740);
-    expect(qiuqiuMotionDuration('body_bash')).toBe(680);
-    expect(qiuqiuMotionDuration('palm_combo')).toBe(1000);
-    expect(qiuqiuMotionDuration('palm_combo', 1)).toBe(520);
-    expect(qiuqiuMotionDuration('palm_combo', 2)).toBe(760);
-    expect(qiuqiuMotionDuration('palm_combo', 3)).toBe(1000);
+  it('複合招式使用完整演出時間（原速毫秒經 1.5 倍速換算）', () => {
+    expect(qiuqiuMotionDuration('combo_kick')).toBe(motionMs(980));
+    expect(qiuqiuMotionDuration('ultimate_clone')).toBe(motionMs(1800));
+    expect(qiuqiuMotionDuration('ultimate_storm')).toBe(motionMs(1050));
+    expect(qiuqiuMotionDuration('ultimate_rush')).toBe(motionMs(1450));
+    expect(qiuqiuMotionDuration('roar')).toBe(motionMs(740));
+    expect(qiuqiuMotionDuration('ground_slam')).toBe(motionMs(740));
+    expect(qiuqiuMotionDuration('body_bash')).toBe(motionMs(680));
+    expect(qiuqiuMotionDuration('palm_combo')).toBe(motionMs(1000));
+    expect(qiuqiuMotionDuration('palm_combo', 1)).toBe(motionMs(520));
+    expect(qiuqiuMotionDuration('palm_combo', 2)).toBe(motionMs(760));
+    expect(qiuqiuMotionDuration('palm_combo', 3)).toBe(motionMs(1000));
   });
 
   it('肉球連擊依真正段數跳過未發生的接觸格並共用收招', () => {
     const frames = attackMotionData.actions.palm_combo.frames;
     const actor = createQiuqiuActor({ action: 'idle' });
 
-    actor.play('palm_combo', { waves: 1, elapsed: 289 });
+    // 接觸格交界原速 290／530 毫秒，1.5 倍速後 193／353 毫秒
+    actor.play('palm_combo', { waves: 1, elapsed: motionMs(290) - 1 });
     expect(lastDraw().slice(1, 5)).toEqual(frames[3]!.rect);
-    actor.play('palm_combo', { waves: 1, elapsed: 290 });
+    actor.play('palm_combo', { waves: 1, elapsed: motionMs(290) });
     expect(lastDraw().slice(1, 5)).toEqual(frames[10]!.rect);
 
-    actor.play('palm_combo', { waves: 2, elapsed: 530 });
+    actor.play('palm_combo', { waves: 2, elapsed: motionMs(530) });
     expect(lastDraw().slice(1, 5)).toEqual(frames[10]!.rect);
-    actor.play('palm_combo', { waves: 3, elapsed: 531 });
+    actor.play('palm_combo', { waves: 3, elapsed: motionMs(530) + 1 });
     expect(lastDraw().slice(1, 5)).toEqual(frames[7]!.rect);
     actor.dispose();
   });
 
-  it('連環踢在四百毫秒後真的切到迴旋踢姿勢', () => {
+  it('連環踢在四百毫秒（1.5 倍速後 267 毫秒）後真的切到迴旋踢姿勢', () => {
     const actor = createQiuqiuActor({ action: 'combo_kick' });
     const openingTexture = (lastDraw()[0] as unknown as FakeImage).src;
     step(1000);
-    step(1399);
+    step(1000 + motionMs(400) - 1);
     expect((lastDraw()[0] as unknown as FakeImage).src).toBe(openingTexture);
-    step(1400);
+    step(1000 + motionMs(400));
     expect((lastDraw()[0] as unknown as FakeImage).src).not.toBe(openingTexture);
     expect((lastDraw()[0] as unknown as FakeImage).src).toContain('kick_spin_sheet');
     actor.dispose();
