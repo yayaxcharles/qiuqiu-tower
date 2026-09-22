@@ -156,7 +156,7 @@
     },
     "walk": {
       "texture": "assets/motion/qiuqiu/walk_sheet.webp",
-      "scale": 0.68,
+      "scale": 0.6181200000000001,
       "loop": true,
       "chroma_key": false,
       "frames": [
