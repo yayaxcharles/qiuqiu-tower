@@ -24,9 +24,14 @@ function play(cs: CombatState, p: PlayerCombat, id: string, target?: number, upg
   return playCard(cs, u, target, p.seat);
 }
 
+/*
+ * 2026-09-22 平衡調整：封封所有花蓄氣的牌每點蓄氣多 1 點（見 `cards.ts` 封封那一段的檔頭）。
+ * 下面傷害數字照新數值：平斬 5＋3S、橫掃每目標 3＋2S、雙段劍每段 3＋2S、你從右邊上 3＋3S。
+ * 測的支付規則（只付一次、上限、多段、群攻、重播重新支付）一條都沒變。
+ */
 describe('封封 FG-T01～FG-T10', () => {
   it('FG-T01～03：平斬依出牌前蓄氣最多支付 2', () => {
-    for (const [qi, spent, damage] of [[0, 0, 5], [1, 1, 7], [5, 2, 9]] as const) {
+    for (const [qi, spent, damage] of [[0, 0, 5], [1, 1, 8], [5, 2, 11]] as const) {
       const { cs, p } = setup(); const e = cs.enemies[0]!; e.hp = e.maxHp = 100;
       p.qi = qi; const hp = e.hp; const energy = p.energy;
       expect(play(cs, p, 'fengfeng_pingzhan', e.uid)).toBe(true);
@@ -54,8 +59,8 @@ describe('封封 FG-T01～FG-T10', () => {
     p.qi = 2; addStatus(p, '爪力', 2); const hp = e.hp;
     play(cs, p, 'fengfeng_shuangduan', e.uid);
     expect(p.qi).toBe(0);
-    expect(hp - e.hp).toBe(14);
-    expect(cs.hits.slice(-2).map((h) => h.amount)).toEqual([7, 7]);
+    expect(hp - e.hp).toBe(18);
+    expect(cs.hits.slice(-2).map((h) => h.amount)).toEqual([9, 9]);   // 每段 3＋2×2＋爪力 2
   });
 
   it('FG-T07：橫掃三個目標共用一次支付', () => {
@@ -64,7 +69,7 @@ describe('封封 FG-T01～FG-T10', () => {
     p.qi = 2; const hp = cs.enemies.map((e) => e.hp);
     play(cs, p, 'fengfeng_hengsao');
     expect(p.qi).toBe(0);
-    expect(cs.enemies.map((e, i) => hp[i]! - e.hp)).toEqual([5, 5, 5]);
+    expect(cs.enemies.map((e, i) => hp[i]! - e.hp)).toEqual([7, 7, 7]);
   });
 
   it('FG-T08：非法目標與飯糰不足不動蓄氣、能力或下一擊', () => {
@@ -142,14 +147,14 @@ describe('封封 FG-T11、FG-T12、FG-T20', () => {
     const a = setup('wood_dummy', true); const q = a.mate!; const e = a.cs.enemies[0]!; e.hp = e.maxHp = 200;
     a.p.qi = 3; play(a.cs, a.p, 'fengfeng_youbian');
     q.qi = 2; const hp = e.hp; play(a.cs, q, 'fengfeng_shuangduan', e.uid);
-    expect(hp - e.hp).toBe(19); // (5+9) + 5
+    expect(hp - e.hp).toBe(26); // (7+12) + 7
     expect(q.nextAttackBonus).toBeUndefined();
 
     const b = setup('rats3', true); const qb = b.mate!;
     for (const t of b.cs.enemies) t.hp = t.maxHp = 100;
     b.p.qi = 3; play(b.cs, b.p, 'fengfeng_youbian');
     qb.qi = 2; const before = b.cs.enemies.map((t) => t.hp); play(b.cs, qb, 'fengfeng_hengsao');
-    expect(b.cs.enemies.map((t, i) => before[i]! - t.hp)).toEqual([14, 5, 5]);
+    expect(b.cs.enemies.map((t, i) => before[i]! - t.hp)).toEqual([19, 7, 7]);
   });
 
   it('FG-T20：影子分身的追加施放重新取得並支付當時蓄氣', () => {
@@ -157,7 +162,7 @@ describe('封封 FG-T11、FG-T12、FG-T20', () => {
     p.echoFirst = 1; p.qi = 3; const hp = e.hp;
     play(cs, p, 'fengfeng_pingzhan', e.uid);
     expect(p.qi).toBe(0);
-    expect(hp - e.hp).toBe(16); // 第一次 S=2 打 9，重播 S=1 打 7
+    expect(hp - e.hp).toBe(19); // 第一次 S=2 打 11，重播 S=1 打 8
     expect(p.discardPile.filter((c) => c.cardId === 'fengfeng_pingzhan')).toHaveLength(1);
   });
 

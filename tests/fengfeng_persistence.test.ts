@@ -8,11 +8,12 @@ import { Rng, seedFromString } from '../src/engine/rng';
 import { inst } from './helpers';
 
 describe('封封 FG-T18：生命週期、舊存檔與鎖步', () => {
-  it('新戰鬥先歸零再由舊劍穗給 2 氣，正式倒下清零', () => {
+  it('新戰鬥先歸零再由舊劍穗給氣，正式倒下清零', () => {
     const cs = startCombat({ hp: 70, maxHp: 70, deck: [inst('fengfeng_hushen', 1)], relics: ['old_sword_tassel'], potions: [],
       encounterId: 'wood_dummy', rng: new Rng(seedFromString('fengfeng-life')), hero: 'fengfeng' });
     const p = cs.player;
-    expect(p.qi).toBe(2);
+    // 開場 2 氣＋第一回合開始 1 氣＝3（2026-09-22 平衡調整：舊劍穗多了「每回合開始 1 點」，原本這裡是 2）
+    expect(p.qi).toBe(3);
     p.qi = 12; p.hp = 1;
     damagePlayer(cs, cs.enemies[0]!, 5, { direct: true, victim: p });
     expect(p.down).toBe(true);

@@ -885,11 +885,15 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'thornsFromSpend' }], upgrade: { effects: [{ kind: 'thornsFromSpend', full: true }] } },
   // ----- 忍術・稀有 1 張：整套的核心報酬 -----
   /*
-   * 銅牆鐵壁：拿到之後「打人」跟「擋住」不再互斥——這是整條路線的目標，
-   * 所以代價下得重（3 費、而且要撐到抽得到）。升級只降費，不加效果。
+   * 銅牆鐵壁：拿到之後「打人」跟「擋住」不再互斥——這是整條路線的目標。
+   * 升級只降費，不加效果。
+   *
+   * 2026-09-22 平衡調整（使用者裁定）：3 費（升級 2 費）→ 2 費（升級 1 費），打出時先給 8 點蜷縮。
+   * 原本打下去那一回合飯糰全花在它身上、整回合裸著挨打，量出來「多塞一張反而少爬 3.8 層」，
+   * 而它是稀有牌、三成的局會被拿走——拿了會變弱的牌是陷阱。改完是少 1.2 層，仍偏弱但不再是陷阱。
    */
-  { id: 'dangdang_tongqiang', name: '銅牆鐵壁', cost: 3, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_tongqiang',
-    effects: [{ kind: 'halfSpendBlock' }], upgrade: { cost: 2 } },
+  { id: 'dangdang_tongqiang', name: '銅牆鐵壁', cost: 2, type: 能, rarity: '稀有', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_tongqiang',
+    effects: [{ kind: 'block', amount: 8 }, { kind: 'halfSpendBlock' }], upgrade: { cost: 1 } },
 
   // ----- 絕學・稀有 6 張 -----
   { id: 'dangdang_tieshan', name: '絕學·鐵山靠', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_tieshan',
@@ -917,13 +921,22 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damageSpendBlock', all: true, mul: 2 }, { kind: 'selfDamage', amount: 6 }] } },
 
   // ===== 封封：蓄氣劍客 32 張（規格：docs/fengfeng-integration-contract.md）=====
+  /*
+   * **2026-09-22 平衡調整（使用者裁定「方案三」）**：修好量測機器人之後封封平均只爬到 17.9 層，
+   * 球球 22.4 層。病根是蓄氣換算划不來——花一張牌、一顆飯糰存下的氣，換回來的傷害跟直接打差不多，
+   * 他自己那一池花氣的牌多塞一張進牌組大多反而變弱。三處一起改：
+   *   ① 所有花蓄氣的牌**每點蓄氣多 1 點效果**（下面 14 張的 `perQi` 全部 +1，契約表上的數字是改之前的）
+   *   ② 吐納 1 費 → 0 費（升級版照舊 5 氣、也是 0 費，升級的價值仍是多 2 氣）
+   *   ③ 起始秘寶舊劍穗多給「每回合開始 1 點蓄氣」（見 `relics.ts`）
+   * 量測（600 局、難度 1）：平均 17.9 → 22.3 層，另外三隻完全沒變。
+   */
   // 起手三種
   { id: 'fengfeng_pingzhan', name: '平斬', cost: 1, type: 攻, rarity: '常見', pool: '起手', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_pingzhan',
-    effects: [{ kind: 'damageSpendQi', amount: 5, perQi: 2, maxQi: 2 }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 2, maxQi: 2 }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 5, perQi: 3, maxQi: 2 }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 3, maxQi: 2 }] } },
   { id: 'fengfeng_hushen', name: '護身', cost: 1, type: 技, rarity: '常見', pool: '起手', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_hushen',
     effects: [{ kind: 'block', amount: 5 }], upgrade: { effects: [{ kind: 'block', amount: 8 }] } },
-  { id: 'fengfeng_tuna', name: '吐納', cost: 1, type: 技, rarity: '常見', pool: '起手', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_tuna',
+  { id: 'fengfeng_tuna', name: '吐納', cost: 0, type: 技, rarity: '常見', pool: '起手', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_tuna',
     effects: [{ kind: 'gainQi', n: 3 }], upgrade: { effects: [{ kind: 'gainQi', n: 5 }] } },
 
   // 常見
@@ -931,11 +944,11 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damage', amount: 5 }, { kind: 'gainQi', n: 1 }],
     upgrade: { effects: [{ kind: 'damage', amount: 7 }, { kind: 'gainQi', n: 2 }] } },
   { id: 'fengfeng_hengsao', name: '橫掃', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'all', art: 'card/fengfeng_hengsao',
-    effects: [{ kind: 'damageSpendQi', amount: 3, perQi: 1, maxQi: 2, target: 'all' }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 5, perQi: 1, maxQi: 2, target: 'all' }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 3, perQi: 2, maxQi: 2, target: 'all' }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 5, perQi: 2, maxQi: 2, target: 'all' }] } },
   { id: 'fengfeng_tabu', name: '踏步重劈', cost: 2, type: 攻, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_tabu',
-    effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 2, maxQi: 5 }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 10, perQi: 2, maxQi: 6 }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 3, maxQi: 5 }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 10, perQi: 3, maxQi: 6 }] } },
   { id: 'fengfeng_tiaokai', name: '挑開', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_tiaokai',
     effects: [{ kind: 'damage', amount: 7 }], upgrade: { effects: [{ kind: 'damage', amount: 9 }, { kind: 'draw', n: 1 }] } },
   { id: 'fengfeng_tuibu', name: '退步守勢', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_tuibu',
@@ -951,27 +964,27 @@ export const cards: readonly CardDef[] = [
   { id: 'fengfeng_jianqiao', name: '劍鞘架擋', cost: 1, type: 技, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_jianqiao',
     effects: [{ kind: 'block', amount: 10 }], upgrade: { effects: [{ kind: 'block', amount: 13 }] } },
   { id: 'fengfeng_huibu', name: '回步刺', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_huibu',
-    effects: [{ kind: 'damageSpendQi', amount: 4, perQi: 2, maxQi: 2 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 6, perQi: 2, maxQi: 2 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 4, perQi: 3, maxQi: 2 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 6, perQi: 3, maxQi: 2 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }] } },
 
   // 罕見
   { id: 'fengfeng_chuantang', name: '穿堂劍', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_chuantang',
-    effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 2, maxQi: 4, ignoreBlock: true }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 11, perQi: 2, maxQi: 4, ignoreBlock: true }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 3, maxQi: 4, ignoreBlock: true }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 11, perQi: 3, maxQi: 4, ignoreBlock: true }] } },
   { id: 'fengfeng_shuangduan', name: '雙段劍', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_shuangduan',
-    effects: [{ kind: 'damageSpendQi', amount: 3, perQi: 1, maxQi: 2, times: 2 }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 4, perQi: 1, maxQi: 2, times: 2 }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 3, perQi: 2, maxQi: 2, times: 2 }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 4, perQi: 2, maxQi: 2, times: 2 }] } },
   { id: 'fengfeng_huzhou', name: '回劍護肘', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_huzhou',
-    effects: [{ kind: 'damageSpendQi', amount: 5, perQi: 2, maxQi: 3 }, { kind: 'ifSpentQiAtLeast', min: 3, then: [{ kind: 'block', amount: 5 }] }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 7, perQi: 2, maxQi: 3 }, { kind: 'ifSpentQiAtLeast', min: 3, then: [{ kind: 'block', amount: 7 }] }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 5, perQi: 3, maxQi: 3 }, { kind: 'ifSpentQiAtLeast', min: 3, then: [{ kind: 'block', amount: 5 }] }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 7, perQi: 3, maxQi: 3 }, { kind: 'ifSpentQiAtLeast', min: 3, then: [{ kind: 'block', amount: 7 }] }] } },
   { id: 'fengfeng_zhuanshen', name: '轉身蓄勁', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_zhuanshen',
     effects: [{ kind: 'block', amount: 5 }, { kind: 'gainQi', n: 2 }],
     upgrade: { effects: [{ kind: 'block', amount: 8 }, { kind: 'gainQi', n: 2 }] } },
   { id: 'fengfeng_changxi', name: '長息', cost: 2, type: 技, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_changxi',
     effects: [{ kind: 'gainQi', n: 7 }], upgrade: { effects: [{ kind: 'gainQi', n: 9 }] } },
   { id: 'fengfeng_zhenshou', name: '振袖收劍', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_zhenshou',
-    effects: [{ kind: 'blockSpendQi', amount: 7, perQi: 2, maxQi: 3 }],
-    upgrade: { effects: [{ kind: 'blockSpendQi', amount: 10, perQi: 2, maxQi: 3 }] } },
+    effects: [{ kind: 'blockSpendQi', amount: 7, perQi: 3, maxQi: 3 }],
+    upgrade: { effects: [{ kind: 'blockSpendQi', amount: 10, perQi: 3, maxQi: 3 }] } },
   { id: 'fengfeng_xunxi', name: '循息', cost: 1, type: 能, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_xunxi',
     effects: [{ kind: 'power', trigger: 'afterCard', cardType: '技能', oncePerTurn: true, sameNameMax: true, effects: [{ kind: 'gainQi', n: 1 }] }],
     upgrade: { effects: [{ kind: 'power', trigger: 'afterCard', cardType: '技能', oncePerTurn: true, sameNameMax: true, effects: [{ kind: 'gainQi', n: 2 }] }] } },
@@ -982,21 +995,21 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'draw', n: 2 }, { kind: 'ifQiAtPlay', min: 4, then: [{ kind: 'draw', n: 1 }] }],
     upgrade: { cost: 0, keywords: ['消耗'], effects: [{ kind: 'draw', n: 2 }, { kind: 'ifQiAtPlay', min: 4, then: [{ kind: 'draw', n: 1 }] }] } },
   { id: 'fengfeng_youbian', name: '你從右邊上', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_youbian', coop: true,
-    effects: [{ kind: 'nextAttackBonusSpendQi', amount: 3, perQi: 2, maxQi: 3, recipients: 'ally' }],
-    upgrade: { effects: [{ kind: 'nextAttackBonusSpendQi', amount: 5, perQi: 2, maxQi: 3, recipients: 'ally' }] } },
+    effects: [{ kind: 'nextAttackBonusSpendQi', amount: 3, perQi: 3, maxQi: 3, recipients: 'ally' }],
+    upgrade: { effects: [{ kind: 'nextAttackBonusSpendQi', amount: 5, perQi: 3, maxQi: 3, recipients: 'ally' }] } },
   { id: 'fengfeng_jiewo', name: '借我擋一下', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_jiewo', coop: true,
     effects: [{ kind: 'gainQi', n: 3 }, { kind: 'ifAllyBlockAtPlay', min: 8, then: [{ kind: 'gainQi', n: 2 }] }],
     upgrade: { effects: [{ kind: 'gainQi', n: 4 }, { kind: 'ifAllyBlockAtPlay', min: 8, then: [{ kind: 'gainQi', n: 2 }] }] } },
   { id: 'fengfeng_husong', name: '我護著你走', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_husong', coop: true,
-    effects: [{ kind: 'blockSpendQi', amount: 7, perQi: 2, maxQi: 3, recipient: 'ally' }],
-    upgrade: { effects: [{ kind: 'blockSpendQi', amount: 10, perQi: 2, maxQi: 3, recipient: 'ally' }] } },
+    effects: [{ kind: 'blockSpendQi', amount: 7, perQi: 3, maxQi: 3, recipient: 'ally' }],
+    upgrade: { effects: [{ kind: 'blockSpendQi', amount: 10, perQi: 3, maxQi: 3, recipient: 'ally' }] } },
 
   // 稀有絕學
   { id: 'fengfeng_duanliu', name: '絕學·斷流', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_duanliu',
-    effects: [{ kind: 'damageSpendQi', amount: 10, perQi: 3, allQi: true }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 14, perQi: 3, allQi: true }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 10, perQi: 4, allQi: true }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 14, perQi: 4, allQi: true }] } },
   { id: 'fengfeng_kaishan', name: '絕學·開山', cost: 3, type: 攻, rarity: '稀有', pool: '絕學', hero: 'fengfeng', target: 'all', art: 'card/fengfeng_kaishan',
-    effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 2, allQi: true, target: 'all' }], upgrade: { cost: 2 } },
+    effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 3, allQi: true, target: 'all' }], upgrade: { cost: 2 } },
   { id: 'fengfeng_cunfeng', name: '絕學·藏鋒', cost: 2, type: 能, rarity: '稀有', pool: '絕學', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_cunfeng',
     effects: [{ kind: 'power', trigger: 'turnStart', sameNameMax: true, effects: [{ kind: 'gainQi', n: 2 }] }], upgrade: { cost: 1 } },
   { id: 'fengfeng_lianxi', name: '絕學·連息', cost: 1, type: 能, rarity: '稀有', pool: '絕學', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_lianxi',
@@ -1006,10 +1019,10 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'gainQi', n: 6 }, { kind: 'preventEnergyGainThisPhase' }],
     upgrade: { effects: [{ kind: 'gainQi', n: 8 }, { kind: 'preventEnergyGainThisPhase' }] } },
   { id: 'fengfeng_pozhen', name: '絕學·破陣', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_pozhen',
-    effects: [{ kind: 'damageSpendQi', amount: 12, perQi: 2, maxQi: 6 }, { kind: 'ifSpentQiAtLeast', min: 6, then: [{ kind: 'draw', n: 2 }] }],
-    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 15, perQi: 2, maxQi: 6 }, { kind: 'ifSpentQiAtLeast', min: 6, then: [{ kind: 'draw', n: 2 }] }] } },
+    effects: [{ kind: 'damageSpendQi', amount: 12, perQi: 3, maxQi: 6 }, { kind: 'ifSpentQiAtLeast', min: 6, then: [{ kind: 'draw', n: 2 }] }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 15, perQi: 3, maxQi: 6 }, { kind: 'ifSpentQiAtLeast', min: 6, then: [{ kind: 'draw', n: 2 }] }] } },
   { id: 'fengfeng_yiqichushou', name: '現在一起上', cost: 2, type: 技, rarity: '稀有', pool: '絕學', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_yiqichushou', coop: true, keywords: ['消耗'],
-    effects: [{ kind: 'nextAttackBonusSpendQi', amount: 2, perQi: 1, maxQi: 4, recipients: 'selfAndAlly' }], upgrade: { cost: 1 } },
+    effects: [{ kind: 'nextAttackBonusSpendQi', amount: 2, perQi: 2, maxQi: 4, recipients: 'selfAndAlly' }], upgrade: { cost: 1 } },
 
 ];
 

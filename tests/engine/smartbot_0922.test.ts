@@ -93,12 +93,12 @@ describe('量測工具修正 2026-09-22：封封的蓄氣', () => {
     const b = setup('fengfeng', ['fengfeng_tuibu', 'feifei_tieqiang'], { move: hit(20), energy: 1, qi: 3 });
     expect(nextPlay(b.cs, b.p)).toBe('fengfeng_tuibu');
   });
-  it('先吐納、再出斬：兩張都打得起時先補氣，平斬吃到 2 點氣打 9', () => {
+  it('先吐納、再出斬：兩張都打得起時先補氣，平斬吃到 2 點氣打 11', () => {
     const { cs, p } = setup('fengfeng', ['fengfeng_pingzhan', 'fengfeng_tuna']);
     const e = cs.enemies[0]!;
     expect(nextPlay(cs, p)).toBe('fengfeng_tuna');
     expect(nextPlay(cs, p)).toBe('fengfeng_pingzhan');
-    expect(e.hp).toBe(91);
+    expect(e.hp).toBe(89);   // 5＋3×2（2026-09-22 平衡調整後每點氣 +3）
   });
 });
 

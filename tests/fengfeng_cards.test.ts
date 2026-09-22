@@ -25,6 +25,8 @@ describe('封封角色與 32 張牌資料', () => {
     expect(startRelicFor('fengfeng')).toBe('old_sword_tassel');
     expect(relicById['old_sword_tassel']).toMatchObject({ name: '舊劍穗', pool: '起始' });
     expect(relicById['old_sword_tassel']!.hooks.combatStart).toEqual([{ kind: 'gainQi', n: 2 }]);
+    // 2026-09-22 平衡調整：多一條每回合開始 1 點蓄氣（開場那 2 點照留）
+    expect(relicById['old_sword_tassel']!.hooks.turnStart).toEqual([{ kind: 'gainQi', n: 1 }]);
   });
 
   it('只有 32 張封封專屬牌，圖鍵與取得條件一致', () => {
@@ -55,7 +57,7 @@ describe('封封角色與 32 張牌資料', () => {
   it('費用、牌型、稀有度與牌池完全對應契約', () => {
     const rows: [string, string, number, number | undefined, string, string, boolean?][] = [
       ['pingzhan', '平斬', 1, undefined, '攻擊', '常見'], ['hushen', '護身', 1, undefined, '技能', '常見'],
-      ['tuna', '吐納', 1, undefined, '技能', '常見'], ['tanbu', '探步劍', 1, undefined, '攻擊', '常見'],
+      ['tuna', '吐納', 0, undefined, '技能', '常見'],   // 2026-09-22 平衡調整：1 費 → 0 費 ['tanbu', '探步劍', 1, undefined, '攻擊', '常見'],
       ['hengsao', '橫掃', 1, undefined, '攻擊', '常見'], ['tabu', '踏步重劈', 2, undefined, '攻擊', '常見'],
       ['tiaokai', '挑開', 1, undefined, '攻擊', '常見'], ['tuibu', '退步守勢', 1, undefined, '技能', '常見'],
       ['zhengxi', '整理呼吸', 1, undefined, '技能', '常見'], ['wenwan', '穩住手腕', 0, undefined, '技能', '常見'],
@@ -81,20 +83,21 @@ describe('封封角色與 32 張牌資料', () => {
   });
 
   it('32 張普通與升級效果逐欄固定，C17 明確先蜷縮後蓄氣', () => {
+    // 2026-09-22 平衡調整：花蓄氣的牌每點蓄氣多 1 點，下面的 `perQi` 全部是新數值（契約表是改之前的）
     const fx = (id: string, up = false) => up
       ? (cardById[id]!.upgrade.effects ?? cardById[id]!.effects)
       : cardById[id]!.effects;
-    expect(fx('fengfeng_pingzhan')).toEqual([{ kind: 'damageSpendQi', amount: 5, perQi: 2, maxQi: 2 }]);
-    expect(fx('fengfeng_pingzhan', true)).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 2, maxQi: 2 }]);
+    expect(fx('fengfeng_pingzhan')).toEqual([{ kind: 'damageSpendQi', amount: 5, perQi: 3, maxQi: 2 }]);
+    expect(fx('fengfeng_pingzhan', true)).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 3, maxQi: 2 }]);
     expect(fx('fengfeng_hushen')).toEqual([{ kind: 'block', amount: 5 }]);
     expect(fx('fengfeng_hushen', true)).toEqual([{ kind: 'block', amount: 8 }]);
     expect(fx('fengfeng_tuna')).toEqual([{ kind: 'gainQi', n: 3 }]);
     expect(fx('fengfeng_tuna', true)).toEqual([{ kind: 'gainQi', n: 5 }]);
     expect(fx('fengfeng_tanbu')).toEqual([{ kind: 'damage', amount: 5 }, { kind: 'gainQi', n: 1 }]);
     expect(fx('fengfeng_tanbu', true)).toEqual([{ kind: 'damage', amount: 7 }, { kind: 'gainQi', n: 2 }]);
-    expect(fx('fengfeng_hengsao')).toEqual([{ kind: 'damageSpendQi', amount: 3, perQi: 1, maxQi: 2, target: 'all' }]);
-    expect(fx('fengfeng_tabu')).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 2, maxQi: 5 }]);
-    expect(fx('fengfeng_tabu', true)).toEqual([{ kind: 'damageSpendQi', amount: 10, perQi: 2, maxQi: 6 }]);
+    expect(fx('fengfeng_hengsao')).toEqual([{ kind: 'damageSpendQi', amount: 3, perQi: 2, maxQi: 2, target: 'all' }]);
+    expect(fx('fengfeng_tabu')).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 3, maxQi: 5 }]);
+    expect(fx('fengfeng_tabu', true)).toEqual([{ kind: 'damageSpendQi', amount: 10, perQi: 3, maxQi: 6 }]);
     expect(fx('fengfeng_tiaokai')).toEqual([{ kind: 'damage', amount: 7 }]);
     expect(fx('fengfeng_tiaokai', true)).toEqual([{ kind: 'damage', amount: 9 }, { kind: 'draw', n: 1 }]);
     expect(fx('fengfeng_tuibu')).toEqual([{ kind: 'block', amount: 8 }, { kind: 'ifQiAtPlay', min: 3, then: [{ kind: 'block', amount: 3 }] }]);
@@ -102,21 +105,21 @@ describe('封封角色與 32 張牌資料', () => {
     expect(fx('fengfeng_wenwan')).toEqual([{ kind: 'gainQi', n: 2 }]);
     expect(fx('fengfeng_huanshou')).toEqual([{ kind: 'block', amount: 3 }]);
     expect(fx('fengfeng_jianqiao')).toEqual([{ kind: 'block', amount: 10 }]);
-    expect(fx('fengfeng_huibu')).toEqual([{ kind: 'damageSpendQi', amount: 4, perQi: 2, maxQi: 2 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }]);
-    expect(fx('fengfeng_chuantang')).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 2, maxQi: 4, ignoreBlock: true }]);
-    expect(fx('fengfeng_shuangduan')).toEqual([{ kind: 'damageSpendQi', amount: 3, perQi: 1, maxQi: 2, times: 2 }]);
-    expect(fx('fengfeng_huzhou')).toEqual([{ kind: 'damageSpendQi', amount: 5, perQi: 2, maxQi: 3 }, { kind: 'ifSpentQiAtLeast', min: 3, then: [{ kind: 'block', amount: 5 }] }]);
+    expect(fx('fengfeng_huibu')).toEqual([{ kind: 'damageSpendQi', amount: 4, perQi: 3, maxQi: 2 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }]);
+    expect(fx('fengfeng_chuantang')).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 3, maxQi: 4, ignoreBlock: true }]);
+    expect(fx('fengfeng_shuangduan')).toEqual([{ kind: 'damageSpendQi', amount: 3, perQi: 2, maxQi: 2, times: 2 }]);
+    expect(fx('fengfeng_huzhou')).toEqual([{ kind: 'damageSpendQi', amount: 5, perQi: 3, maxQi: 3 }, { kind: 'ifSpentQiAtLeast', min: 3, then: [{ kind: 'block', amount: 5 }] }]);
     expect(fx('fengfeng_zhuanshen')).toEqual([{ kind: 'block', amount: 5 }, { kind: 'gainQi', n: 2 }]);
     expect(fx('fengfeng_changxi')).toEqual([{ kind: 'gainQi', n: 7 }]);
-    expect(fx('fengfeng_zhenshou')).toEqual([{ kind: 'blockSpendQi', amount: 7, perQi: 2, maxQi: 3 }]);
+    expect(fx('fengfeng_zhenshou')).toEqual([{ kind: 'blockSpendQi', amount: 7, perQi: 3, maxQi: 3 }]);
     expect(fx('fengfeng_kanshi')).toEqual([{ kind: 'draw', n: 2 }, { kind: 'ifQiAtPlay', min: 4, then: [{ kind: 'draw', n: 1 }] }]);
-    expect(fx('fengfeng_youbian')).toEqual([{ kind: 'nextAttackBonusSpendQi', amount: 3, perQi: 2, maxQi: 3, recipients: 'ally' }]);
+    expect(fx('fengfeng_youbian')).toEqual([{ kind: 'nextAttackBonusSpendQi', amount: 3, perQi: 3, maxQi: 3, recipients: 'ally' }]);
     expect(fx('fengfeng_jiewo')).toEqual([{ kind: 'gainQi', n: 3 }, { kind: 'ifAllyBlockAtPlay', min: 8, then: [{ kind: 'gainQi', n: 2 }] }]);
-    expect(fx('fengfeng_husong')).toEqual([{ kind: 'blockSpendQi', amount: 7, perQi: 2, maxQi: 3, recipient: 'ally' }]);
-    expect(fx('fengfeng_duanliu')).toEqual([{ kind: 'damageSpendQi', amount: 10, perQi: 3, allQi: true }]);
-    expect(fx('fengfeng_kaishan')).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 2, allQi: true, target: 'all' }]);
+    expect(fx('fengfeng_husong')).toEqual([{ kind: 'blockSpendQi', amount: 7, perQi: 3, maxQi: 3, recipient: 'ally' }]);
+    expect(fx('fengfeng_duanliu')).toEqual([{ kind: 'damageSpendQi', amount: 10, perQi: 4, allQi: true }]);
+    expect(fx('fengfeng_kaishan')).toEqual([{ kind: 'damageSpendQi', amount: 8, perQi: 3, allQi: true, target: 'all' }]);
     expect(fx('fengfeng_jizhong')).toEqual([{ kind: 'gainQi', n: 6 }, { kind: 'preventEnergyGainThisPhase' }]);
-    expect(fx('fengfeng_pozhen')).toEqual([{ kind: 'damageSpendQi', amount: 12, perQi: 2, maxQi: 6 }, { kind: 'ifSpentQiAtLeast', min: 6, then: [{ kind: 'draw', n: 2 }] }]);
-    expect(fx('fengfeng_yiqichushou')).toEqual([{ kind: 'nextAttackBonusSpendQi', amount: 2, perQi: 1, maxQi: 4, recipients: 'selfAndAlly' }]);
+    expect(fx('fengfeng_pozhen')).toEqual([{ kind: 'damageSpendQi', amount: 12, perQi: 3, maxQi: 6 }, { kind: 'ifSpentQiAtLeast', min: 6, then: [{ kind: 'draw', n: 2 }] }]);
+    expect(fx('fengfeng_yiqichushou')).toEqual([{ kind: 'nextAttackBonusSpendQi', amount: 2, perQi: 2, maxQi: 4, recipients: 'selfAndAlly' }]);
   });
 });
