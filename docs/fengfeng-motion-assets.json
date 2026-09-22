@@ -42,16 +42,17 @@
       "rgbaExact": true
     },
     {
-      "source": "tools/motion-art-source/fengfeng/sweep.png",
-      "sourceSha256": "12b8a71ec0e922c080651d7a85f647456b9a84e53928fd3d8817376047d9d36c",
+      "source": "tools/motion-art-source/mix/fengfeng_sweep_a.png＋tools/motion-art-source/mix/fengfeng_sweep_b.png",
+      "sourceSha256": "42a30193985ee407a7b197a9aa0fb9b8c8e3153303bcc8c7d9d76f136f6c1404＋1c6e7bf360f90fef906ef8199f06158801e363d5b715a95b183996d7d19f51eb",
       "target": "public/assets/motion/fengfeng/sweep.webp",
-      "targetSha256": "17eec344dbd68dd3a5c83789fad9243db3e1c52f85d95a694fe3b48c7daec48d",
-      "bytes": 819356,
+      "targetSha256": "9ef56ea7b5428f5ce9e57361224765abdcdf54bbff0a82dafdcdd69dadfe8bae",
+      "bytes": 594628,
       "size": [
-        1774,
-        887
+        1896,
+        662
       ],
-      "rgbaExact": true
+      "rgbaExact": true,
+      "redrawn": "2026-09-22 mix 批次重畫（頭身比），紀錄見 docs/motion-size-fix-mix.json"
     },
     {
       "source": "tools/motion-art-source/fengfeng/heavy_slash.png",
@@ -66,28 +67,30 @@
       "rgbaExact": true
     },
     {
-      "source": "tools/motion-art-source/fengfeng/thrust.png",
-      "sourceSha256": "a086701136a0a1c699bc678a553a5a1df37163b2fbd1c359fed0b95c1217b738",
+      "source": "tools/motion-art-source/mix/fengfeng_thrust_a.png＋tools/motion-art-source/mix/fengfeng_thrust_b.png",
+      "sourceSha256": "bb1583480c35d1f5d076a2fa1ace92dc21fa313e60a872b234df8bd63a5c1420＋9be0611adbb0e603d4354b45ced08cf0a4736661a043755d1440c1ee12c059d7",
       "target": "public/assets/motion/fengfeng/thrust.webp",
-      "targetSha256": "ba57fb19001e1e235fc1c9595ff0234bbd965ccc37b46b608f30d1129a9c6d32",
-      "bytes": 652796,
+      "targetSha256": "9da427a0843d9ce4f6c8ff67b01c3437270f9444f62c04053997a919404e974c",
+      "bytes": 585038,
       "size": [
-        1774,
-        887
+        1992,
+        668
       ],
-      "rgbaExact": true
+      "rgbaExact": true,
+      "redrawn": "2026-09-22 mix 批次重畫（頭身比），紀錄見 docs/motion-size-fix-mix.json"
     },
     {
-      "source": "tools/motion-art-source/fengfeng/double_slash.png",
-      "sourceSha256": "32e58fc8d8a6a32a3bce3c8f575af8c2931059765f2f2a6012a7f061ddee4499",
+      "source": "tools/motion-art-source/mix/fengfeng_double_slash_a.png＋tools/motion-art-source/mix/fengfeng_double_slash_b.png",
+      "sourceSha256": "94b85c43461c208cff81e43579d6cf42fd09dfb9a2c084ced4a89f6664c75cec＋7a83ebbea53cf3fa3c040d59d2b6b6e4f7d0f86aba285ea79bcc21f020f6b76f",
       "target": "public/assets/motion/fengfeng/double_slash.webp",
-      "targetSha256": "91cc574d5424c79575d583109a184e5de0b792b8ed7f9fcf6163ace5ad518ccb",
-      "bytes": 778274,
+      "targetSha256": "6ea9c62bf05cf23997bbfd8fb50263935f76d21ffeda789e325bee683ab578aa",
+      "bytes": 571594,
       "size": [
-        1774,
-        887
+        1672,
+        694
       ],
-      "rgbaExact": true
+      "rgbaExact": true,
+      "redrawn": "2026-09-22 mix 批次重畫（頭身比），紀錄見 docs/motion-size-fix-mix.json"
     },
     {
       "source": "tools/motion-art-source/fengfeng/guard_focus.png",
@@ -138,5 +141,5 @@
       "rgbaExact": true
     }
   ],
-  "uniqueBytes": 10184136
+  "uniqueBytes": 9684970
 }

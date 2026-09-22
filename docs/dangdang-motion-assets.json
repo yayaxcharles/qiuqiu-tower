@@ -102,16 +102,17 @@
       "rgbaExact": true
     },
     {
-      "source": "tools/motion-art-source/dangdang/eat_poison.png",
-      "sourceSha256": "ba2044a863f382ada0e150b724d0bb7f6f7b1f72cfab5cce900cdec114765b58",
+      "source": "tools/motion-art-source/mix/dangdang_eat.png＋tools/motion-art-source/mix/dangdang_poison.png",
+      "sourceSha256": "f190698cafddca2ca68a1ce8f7ed44b67e415efac2e2ad8c1c4a7d67c6d848ab＋3f891efc9a4a233ea63bd8a842c77822d46db14e568037342354d12d434eb649",
       "target": "public/assets/motion/dangdang/eat_poison.webp",
-      "targetSha256": "07e50bd8c5b48fc0b8ae6338ad1a3ec86791ed82077698fbf27f578fea2d859e",
-      "bytes": 828954,
+      "targetSha256": "9971e80f8df179cfb0ad3e676adcb8546bd09a0302680e00d25fa678e09fd539",
+      "bytes": 504994,
       "size": [
-        1254,
-        1254
+        772,
+        1004
       ],
-      "rgbaExact": true
+      "rgbaExact": true,
+      "redrawn": "2026-09-22 mix 批次重畫（頭身比），紀錄見 docs/motion-size-fix-mix.json"
     },
     {
       "source": "tools/motion-art-source/dangdang/defeat.png",
@@ -126,5 +127,5 @@
       "rgbaExact": true
     }
   ],
-  "uniqueBytes": 7708574
+  "uniqueBytes": 7384614
 }

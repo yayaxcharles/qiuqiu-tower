@@ -1,0 +1,552 @@
+{
+  "note": "2026-09-22 mix 批次動作圖大小修正：只改縮放的三套＋重畫的五套。量法與閘門見 tools/motion_size_fix_mix.py 檔頭。headAtLayout＝照生圖版面比例（站高 62% 格高）量到的頭，1.29 是搜尋上限（生圖端畫得比版面大三成以上）；headAfter＝圖集上重量的最終值；before＝改前（開分支那一版）的量測；body＝身體部件（腳掌、護臂、腰帶、尾巴、拳頭，只採相關 ≥0.93 的）倍率，跑步、弓步的腳掌形狀變很多，身體數字只當參考。",
+  "reproducer": "python tools/motion_size_fix_mix.py apply",
+  "gate": {
+    "headLimit": 0.05,
+    "headStep": 0.04,
+    "bodyLimit": 0.05,
+    "mainBody": 0.97
+  },
+  "scaleFix": {
+    "dangdang/run": {
+      "packedScale": 0.631578947368421,
+      "sizeFix": 0.909,
+      "scale": 0.5741052631578947,
+      "texture": "assets/motion/dangdang/run.webp",
+      "textureSha256": "4e3b1dedcbd90647f92ca717bab474f2f0c45238ef808cb49cfd40f49779b727",
+      "bytes": 756856,
+      "godotOriginal": false,
+      "before": {
+        "head": [
+          1.11,
+          1.1,
+          1.12,
+          1.1,
+          1.08,
+          1.09,
+          1.12,
+          1.09
+        ],
+        "body": [
+          1.11,
+          0.875,
+          0.83,
+          1.09,
+          1.155,
+          0.915,
+          null,
+          1.12
+        ]
+      },
+      "headAfter": [
+        1.01,
+        1.01,
+        1.01,
+        1.0,
+        0.99,
+        0.99,
+        1.0,
+        0.99
+      ]
+    },
+    "qiuqiu/walk": {
+      "packedScale": 0.68,
+      "sizeFix": 0.909,
+      "scale": 0.6181200000000001,
+      "texture": "assets/motion/qiuqiu/walk_sheet.webp",
+      "textureSha256": "381b73167d86ee91d8960c95367034053b8557cbfa57232285b3fb914ba0b75d",
+      "bytes": 805812,
+      "godotOriginal": true,
+      "before": {
+        "head": [
+          1.1,
+          1.11,
+          1.1,
+          1.1,
+          1.08,
+          1.1,
+          1.11,
+          1.11
+        ],
+        "body": [
+          1.08,
+          1.1,
+          1.09,
+          1.09,
+          1.08,
+          1.09,
+          1.1,
+          1.1
+        ]
+      },
+      "headAfter": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.98,
+        1.0,
+        1.0,
+        1.01
+      ]
+    },
+    "qiuqiu/taiji": {
+      "packedScale": 0.7159090909090909,
+      "sizeFix": 1.081,
+      "scale": 0.7738977272727273,
+      "texture": "assets/motion/qiuqiu/generated_taiji.webp",
+      "textureSha256": "5dfef904214155ea75a29c087292de7fb4f697942a4ca1716b13654993d247f1",
+      "bytes": 636878,
+      "godotOriginal": false,
+      "before": {
+        "head": [
+          0.93,
+          0.93,
+          0.93,
+          0.93,
+          0.92,
+          0.92,
+          0.92,
+          0.92
+        ],
+        "body": [
+          0.94,
+          0.94,
+          0.96,
+          0.97,
+          0.93,
+          0.95,
+          0.93,
+          0.94
+        ]
+      },
+      "headAfter": [
+        1.0,
+        1.01,
+        1.01,
+        1.01,
+        0.99,
+        0.99,
+        0.99,
+        0.99
+      ]
+    }
+  },
+  "redraw": {
+    "dangdang/eat": {
+      "texture": "assets/motion/dangdang/eat_poison.webp",
+      "scale": 1.105263157894737,
+      "sources": [
+        {
+          "job": "dangdang/eat",
+          "path": "tools/motion-art-source/mix/dangdang_eat.png",
+          "sha256": "f190698cafddca2ca68a1ce8f7ed44b67e415efac2e2ad8c1c4a7d67c6d848ab",
+          "attempt": 1,
+          "attemptsMade": 1,
+          "headAtLayout": [
+            1.14,
+            1.14,
+            1.13,
+            1.15,
+            1.16,
+            1.15,
+            1.16,
+            1.15
+          ],
+          "bodyMedian": 0.968,
+          "seamFix": 1.0
+        }
+      ],
+      "feetOffsetUnits": -3.81,
+      "before": {
+        "head": [
+          1.11,
+          1.09,
+          1.08,
+          1.05,
+          1.09,
+          1.06,
+          1.09,
+          1.1
+        ],
+        "body": [
+          1.01,
+          1.0,
+          1.0,
+          0.995,
+          1.005,
+          0.995,
+          0.995,
+          1.02
+        ]
+      },
+      "headAfter": [
+        0.99,
+        0.99,
+        0.98,
+        0.99,
+        1.01,
+        1.01,
+        1.01,
+        0.99
+      ],
+      "bodyAfter": [
+        0.97,
+        0.97,
+        0.96,
+        0.965,
+        0.96,
+        0.965,
+        0.97,
+        0.98
+      ]
+    },
+    "dangdang/poison": {
+      "texture": "assets/motion/dangdang/eat_poison.webp",
+      "scale": 1.105263157894737,
+      "sources": [
+        {
+          "job": "dangdang/poison",
+          "path": "tools/motion-art-source/mix/dangdang_poison.png",
+          "sha256": "3f891efc9a4a233ea63bd8a842c77822d46db14e568037342354d12d434eb649",
+          "attempt": 1,
+          "attemptsMade": 1,
+          "headAtLayout": [
+            1.13,
+            1.13,
+            1.04,
+            1.16,
+            1.15,
+            1.11,
+            1.13,
+            1.14
+          ],
+          "bodyMedian": 1.025,
+          "seamFix": 1.0
+        }
+      ],
+      "feetOffsetUnits": -2.6,
+      "before": {
+        "head": [
+          1.1,
+          1.08,
+          1.03,
+          1.07,
+          1.08,
+          1.05,
+          1.08,
+          1.09
+        ],
+        "body": [
+          1.025,
+          1.0,
+          1.01,
+          1.0,
+          1.02,
+          1.005,
+          1.01,
+          1.03
+        ]
+      },
+      "headAfter": [
+        1.0,
+        1.0,
+        1.02,
+        1.03,
+        1.01,
+        0.97,
+        0.99,
+        1.0
+      ],
+      "bodyAfter": [
+        1.005,
+        1.025,
+        1.025,
+        1.015,
+        1.025,
+        1.025,
+        1.025,
+        0.99
+      ]
+    },
+    "fengfeng/thrust": {
+      "texture": "assets/motion/fengfeng/thrust.webp",
+      "scale": 0.8262295081967214,
+      "sources": [
+        {
+          "job": "fengfeng/thrust:a",
+          "path": "tools/motion-art-source/mix/fengfeng_thrust_a.png",
+          "sha256": "bb1583480c35d1f5d076a2fa1ace92dc21fa313e60a872b234df8bd63a5c1420",
+          "attempt": 2,
+          "attemptsMade": 2,
+          "headAtLayout": [
+            1.29,
+            1.29,
+            1.29,
+            1.29
+          ],
+          "bodyMedian": 1.018,
+          "seamFix": 1.01
+        },
+        {
+          "job": "fengfeng/thrust:b",
+          "path": "tools/motion-art-source/mix/fengfeng_thrust_b.png",
+          "sha256": "9be0611adbb0e603d4354b45ced08cf0a4736661a043755d1440c1ee12c059d7",
+          "attempt": 1,
+          "attemptsMade": 1,
+          "headAtLayout": [
+            1.29,
+            1.29,
+            1.29,
+            1.29
+          ],
+          "bodyMedian": 1.0,
+          "seamFix": 0.995
+        }
+      ],
+      "feetOffsetUnits": -20.31,
+      "before": {
+        "head": [
+          0.92,
+          0.91,
+          0.92,
+          0.88,
+          0.83,
+          0.83,
+          0.82,
+          0.85
+        ],
+        "body": [
+          0.965,
+          0.97,
+          0.985,
+          0.98,
+          0.935,
+          0.93,
+          0.925,
+          0.925
+        ]
+      },
+      "headAfter": [
+        1.03,
+        1.03,
+        0.99,
+        0.97,
+        0.99,
+        0.99,
+        1.01,
+        0.98
+      ],
+      "bodyAfter": [
+        1.02,
+        1.025,
+        1.03,
+        1.055,
+        0.97,
+        0.96,
+        1.045,
+        1.02
+      ]
+    },
+    "fengfeng/double_slash": {
+      "texture": "assets/motion/fengfeng/double_slash.webp",
+      "scale": 0.8262295081967214,
+      "sources": [
+        {
+          "job": "fengfeng/double_slash:a",
+          "path": "tools/motion-art-source/mix/fengfeng_double_slash_a.try3.png",
+          "sha256": "94b85c43461c208cff81e43579d6cf42fd09dfb9a2c084ced4a89f6664c75cec",
+          "attempt": 3,
+          "attemptsMade": 3,
+          "headAtLayout": [
+            1.29,
+            1.29,
+            1.29,
+            1.29
+          ],
+          "bodyMedian": 1.022,
+          "seamFix": 0.985
+        },
+        {
+          "job": "fengfeng/double_slash:b",
+          "path": "tools/motion-art-source/mix/fengfeng_double_slash_b.png",
+          "sha256": "7a83ebbea53cf3fa3c040d59d2b6b6e4f7d0f86aba285ea79bcc21f020f6b76f",
+          "attempt": 2,
+          "attemptsMade": 2,
+          "headAtLayout": [
+            1.29,
+            1.29,
+            1.29,
+            1.29
+          ],
+          "bodyMedian": 1.027,
+          "seamFix": 1.0
+        }
+      ],
+      "feetOffsetUnits": -18.24,
+      "before": {
+        "head": [
+          0.93,
+          0.94,
+          0.9,
+          0.86,
+          0.83,
+          0.83,
+          0.85,
+          0.86
+        ],
+        "body": [
+          0.99,
+          0.965,
+          1.015,
+          0.99,
+          0.975,
+          0.975,
+          0.975,
+          0.96
+        ]
+      },
+      "headAfter": [
+        1.02,
+        0.99,
+        0.97,
+        0.97,
+        0.99,
+        1.02,
+        0.98,
+        1.01
+      ],
+      "bodyAfter": [
+        1.015,
+        1.0,
+        1.034,
+        0.995,
+        1.025,
+        0.995,
+        1.04,
+        1.03
+      ]
+    },
+    "fengfeng/sweep": {
+      "texture": "assets/motion/fengfeng/sweep.webp",
+      "scale": 0.8262295081967214,
+      "sources": [
+        {
+          "job": "fengfeng/sweep:a",
+          "path": "tools/motion-art-source/mix/fengfeng_sweep_a.png",
+          "sha256": "42a30193985ee407a7b197a9aa0fb9b8c8e3153303bcc8c7d9d76f136f6c1404",
+          "attempt": 4,
+          "attemptsMade": 4,
+          "headAtLayout": [
+            1.29,
+            1.29,
+            1.29,
+            1.29
+          ],
+          "bodyMedian": 1.05,
+          "seamFix": 1.0
+        },
+        {
+          "job": "fengfeng/sweep:b",
+          "path": "tools/motion-art-source/mix/fengfeng_sweep_b.png",
+          "sha256": "1c6e7bf360f90fef906ef8199f06158801e363d5b715a95b183996d7d19f51eb",
+          "attempt": 2,
+          "attemptsMade": 2,
+          "headAtLayout": [
+            1.29,
+            1.29,
+            1.29,
+            1.29
+          ],
+          "bodyMedian": 1.032,
+          "seamFix": 1.0
+        }
+      ],
+      "feetOffsetUnits": -22.95,
+      "before": {
+        "head": [
+          0.91,
+          0.77,
+          0.76,
+          0.76,
+          0.89,
+          0.75,
+          0.87,
+          0.9
+        ],
+        "body": [
+          0.995,
+          0.97,
+          0.96,
+          0.95,
+          1.04,
+          1.05,
+          0.99,
+          1.0
+        ]
+      },
+      "headAfter": [
+        1.0,
+        0.99,
+        0.99,
+        1.01,
+        1.01,
+        1.01,
+        1.0,
+        0.99
+      ],
+      "bodyAfter": [
+        1.04,
+        1.085,
+        1.06,
+        1.04,
+        1.025,
+        1.035,
+        1.08,
+        1.03
+      ]
+    }
+  },
+  "atlases": {
+    "eat_poison": {
+      "target": "public/assets/motion/dangdang/eat_poison.webp",
+      "sha256": "9971e80f8df179cfb0ad3e676adcb8546bd09a0302680e00d25fa678e09fd539",
+      "bytes": 504994,
+      "bytesBefore": 828954,
+      "size": [
+        772,
+        1004
+      ]
+    },
+    "thrust": {
+      "target": "public/assets/motion/fengfeng/thrust.webp",
+      "sha256": "9da427a0843d9ce4f6c8ff67b01c3437270f9444f62c04053997a919404e974c",
+      "bytes": 585038,
+      "bytesBefore": 652796,
+      "size": [
+        1992,
+        668
+      ]
+    },
+    "double_slash": {
+      "target": "public/assets/motion/fengfeng/double_slash.webp",
+      "sha256": "6ea9c62bf05cf23997bbfd8fb50263935f76d21ffeda789e325bee683ab578aa",
+      "bytes": 571594,
+      "bytesBefore": 778274,
+      "size": [
+        1672,
+        694
+      ]
+    },
+    "sweep": {
+      "target": "public/assets/motion/fengfeng/sweep.webp",
+      "sha256": "9ef56ea7b5428f5ce9e57361224765abdcdf54bbff0a82dafdcdd69dadfe8bae",
+      "bytes": 594628,
+      "bytesBefore": 819356,
+      "size": [
+        1896,
+        662
+      ]
+    }
+  }
+}
