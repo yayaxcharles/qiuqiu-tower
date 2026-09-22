@@ -3,58 +3,58 @@
   "heroes": {
     "qiuqiu": {
       "texture": "assets/motion/qiuqiu/hit_recoil.webp",
-      "scale": 0.4996470311396973,
+      "scale": 0.6224763683043529,
       "rect": [
         0,
         0,
-        476,
-        488
+        366,
+        410
       ],
       "pivot": [
-        306.19,
-        486
+        217.75,
+        408
       ]
     },
     "feifei": {
       "texture": "assets/motion/feifei/hit_recoil.webp",
-      "scale": 0.5004144218814754,
+      "scale": 0.8253588516746413,
       "rect": [
         0,
         0,
-        484,
-        508
+        293,
+        308
       ],
       "pivot": [
-        235.32,
-        506
+        141.71,
+        307
       ]
     },
     "dangdang": {
       "texture": "assets/motion/dangdang/hit_recoil.webp",
-      "scale": 0.5003248862897987,
+      "scale": 1.105263157894737,
       "rect": [
         0,
         0,
-        468,
-        486
+        212,
+        220
       ],
       "pivot": [
-        252.15,
-        484
+        114.25,
+        219
       ]
     },
     "fengfeng": {
       "texture": "assets/motion/fengfeng/hit_recoil.webp",
-      "scale": 0.500474816465174,
+      "scale": 0.8272832928320227,
       "rect": [
         0,
         0,
-        527,
-        524
+        319,
+        317
       ],
       "pivot": [
-        260.11,
-        522
+        156.79,
+        315
       ]
     }
   }

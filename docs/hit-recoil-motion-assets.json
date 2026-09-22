@@ -4,25 +4,25 @@
   "assets": [
     {
       "hero": "qiuqiu",
-      "attempt": 2,
+      "attempt": 6,
       "source": "tools/motion-art-source/hit-recoil/qiuqiu.png",
-      "sourceSha256": "01093a9b73525c0fb10289077c3200e8e56e6232c65451f20aa6041d98f8f9b6",
+      "sourceSha256": "74adc743b70b2662a173b24d5be3937785c2c23617637c264380355480e59339",
       "target": "public/assets/motion/qiuqiu/hit_recoil.webp",
-      "targetSha256": "f361bc6cd5e582d720a2f823b3ef35b969b8b0c2fa562dbebfaf8392f7e3bd33",
-      "bytes": 135030,
+      "targetSha256": "1b0a95a382aedc28d60b31ead4279e070fb8bc978870c600ab6d31c479054ba7",
+      "bytes": 92168,
       "size": [
-        476,
-        488
+        366,
+        410
       ],
-      "heightRatio": 0.962,
-      "heightUnits": 242.8,
+      "heightRatio": 1.007,
+      "heightUnits": 254.0,
       "idleHeightUnits": 253.2,
-      "widthUnits": 237.8,
+      "widthUnits": 227.8,
       "idleWidthUnits": 211.5,
       "mainBody": 1.0,
       "feetPieces": 2,
-      "feetMidOffsetUnits": 0.15,
-      "leftReachUnits": 153.0,
+      "feetMidOffsetUnits": 0.16,
+      "leftReachUnits": 135.5,
       "idleFeetMidOffsetUnits": 0.16
     },
     {
@@ -31,21 +31,21 @@
       "source": "tools/motion-art-source/hit-recoil/feifei.png",
       "sourceSha256": "33d5b5115b3dea9c9d58cbfc92ce79228f085a7edcb162c7f3d9ab9282a070be",
       "target": "public/assets/motion/feifei/hit_recoil.webp",
-      "targetSha256": "fdad62a7153c31d50badf1e3d625e244a2388f8e819fb315a52fd764ca455459",
-      "bytes": 164628,
+      "targetSha256": "de4ba009cd3375ba5ebb22b781a40ea82910ede9cb9a887a7efa1383a4ce56d3",
+      "bytes": 71080,
       "size": [
-        484,
-        508
+        293,
+        308
       ],
       "heightRatio": 1.003,
-      "heightUnits": 253.2,
+      "heightUnits": 253.4,
       "idleHeightUnits": 252.0,
-      "widthUnits": 242.2,
+      "widthUnits": 241.8,
       "idleWidthUnits": 199.9,
       "mainBody": 1.0,
       "feetPieces": 2,
-      "feetMidOffsetUnits": 30.37,
-      "leftReachUnits": 117.8,
+      "feetMidOffsetUnits": 30.36,
+      "leftReachUnits": 117.0,
       "idleFeetMidOffsetUnits": 30.36
     },
     {
@@ -54,21 +54,21 @@
       "source": "tools/motion-art-source/hit-recoil/dangdang.png",
       "sourceSha256": "66a835a79a9b0bd2a6a212f2a9b5f5e743a172deeed6e9513ada49b109aee7a9",
       "target": "public/assets/motion/dangdang/hit_recoil.webp",
-      "targetSha256": "f3984abe4acda8913f8f0601680d4ca101a1788e031b393596e342bbd5472c69",
-      "bytes": 158734,
+      "targetSha256": "d8bb4f0d9d2610971b4fdfa12fda51961ecd86b28607eb811687f597578c029d",
+      "bytes": 42800,
       "size": [
-        468,
-        486
+        212,
+        220
       ],
       "heightRatio": 0.96,
-      "heightUnits": 242.2,
+      "heightUnits": 243.2,
       "idleHeightUnits": 252.0,
-      "widthUnits": 234.2,
+      "widthUnits": 234.3,
       "idleWidthUnits": 171.3,
       "mainBody": 1.0,
       "feetPieces": 2,
       "feetMidOffsetUnits": 12.43,
-      "leftReachUnits": 126.2,
+      "leftReachUnits": 126.3,
       "idleFeetMidOffsetUnits": 12.43
     },
     {
@@ -77,21 +77,21 @@
       "source": "tools/motion-art-source/hit-recoil/fengfeng.png",
       "sourceSha256": "93b332e6a90cc6fa1a8c027cfcdb7b39627a8eda96e702a4ba7b7f7026547f07",
       "target": "public/assets/motion/fengfeng/hit_recoil.webp",
-      "targetSha256": "45169e97474d9ad6780fc3ff7a0561bbac35da562b90042313a82f5311f47fdb",
-      "bytes": 200524,
+      "targetSha256": "d04c42d6556c6534036982432b696376f589dae4e68dcd1562b1ef61f8b06b64",
+      "bytes": 84592,
       "size": [
-        527,
-        524
+        319,
+        317
       ],
       "heightRatio": 1.035,
-      "heightUnits": 261.2,
+      "heightUnits": 260.6,
       "idleHeightUnits": 252.0,
-      "widthUnits": 263.8,
+      "widthUnits": 263.9,
       "idleWidthUnits": 185.9,
       "mainBody": 1.0,
       "feetPieces": 2,
       "feetMidOffsetUnits": 27.47,
-      "leftReachUnits": 130.2,
+      "leftReachUnits": 129.7,
       "idleFeetMidOffsetUnits": 27.47
     }
   ]

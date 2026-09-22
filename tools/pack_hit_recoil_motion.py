@@ -4,7 +4,7 @@
 做三件事：
   1. 透明度整理（`tidy`，跟待機狀態那批同一道：補滿 253～254 的不透明、清掉背景灰塵，不動顏色）；
   2. 品質檢查（不合格就丟例外、整支停下、什麼都不寫——過去的教訓：自檢只印不停＝沒檢查）；
-  3. 裁掉空白、縮成遊戲大小的 2 倍，存成無損 webp（`public/assets/motion/<角色>/hit_recoil.webp`），
+  3. 裁掉空白、縮成跟該角色新版待機圖集一樣的解析度，存成無損 webp（`public/assets/motion/<角色>/hit_recoil.webp`），
      逐格資料寫進 `src/ui/hit-recoil-motion-data.json`，量到的數字寫進 `docs/hit-recoil-motion-assets.json`。
 
 **大小怎麼換算**：生圖時參考圖①是新版待機第 1 格、站高 60% 畫布（`gen_hit_recoil_art.py` 的
@@ -43,7 +43,9 @@ CONFIG = SOURCE / 'actions.json'
 DATA = ROOT / 'src/ui/hit-recoil-motion-data.json'
 RECORD = ROOT / 'docs/hit-recoil-motion-assets.json'
 NATIVE_HEIGHT = 252
-TEXELS_PER_UNIT = 2          # 存成遊戲大小的 2 倍（舊受擊立繪是 2.08 倍），高解析螢幕上一樣清楚
+# 解析度（一個遊戲單位用幾個像素）跟該角色新版待機圖集一樣：球球 1.61、菲菲與封封 1.21、噹噹 0.90。
+# 2026-09-22 第一版存成 2 倍，比待機清楚、檔案也大（135～200 KB）；挨打是從待機直接切過去的，
+# 兩張清晰度一致比較不跳，檔案也小三到七成。壓縮方式照其他逐格動作圖：133 張全部是無損（VP8L）
 PAD = 2                      # 裁切外框多留的透明邊（反鋸齒那一圈）
 HEIGHT_RATIO = (0.90, 1.10)  # 挨打圖站高 ÷ 新版待機站高（同一個比例尺下）
 MAIN_BODY = 0.97             # 最大一塊要佔全部不透明像素的比例：低於這個就是多畫了星星、特效或第二隻貓
@@ -51,9 +53,9 @@ EDGE = 0.01                  # 角色離畫布邊至少留這麼多（比例）�
 FOOT_BAND = 0.06             # 「腳底那一條」取角色高度最底下的 6%
 # 定位點左邊最多伸出去幾個遊戲單位。主角站在戰場最左邊：單人時腳底離畫面左緣 150（`enemylayout.ts` 的
 # `playerLeft` 30＋站位框一半 120），連線左邊那位只有 130；舞台 `overflow: hidden`，伸出去的部分會被切掉。
-# 球球第一版伸到 197，頭巾尾巴在實機截圖裡被切掉一截；三次重生最好的一次是 153（單人切掉頭巾尾端約 3 像素）。
-# 舊挨打立繪四隻最多伸 136（連線左邊那位本來就會切掉一點點）。上限放在 155：擋住整截被切掉的那種
-LEFT_REACH = 155
+# 球球第一版伸到 197，頭巾尾巴在實機截圖裡被切掉一截；再生五次，合格的最好一張是 135.5（第 6 次，頭巾尾巴下垂）：
+# 單人不切、連線左邊那位切掉約 5 像素，跟舊挨打立繪（最多伸 136）一樣。上限就放在選定的這張
+LEFT_REACH = 136
 
 
 def sha(path: Path) -> str:
@@ -107,17 +109,17 @@ def check(hero: str, path: Path) -> tuple[Image.Image, dict, dict]:
     if not HEIGHT_RATIO[0] <= ratio <= HEIGHT_RATIO[1]:
         raise ArtError(f'{hero}: 站高是新版待機的 {ratio:.3f} 倍，超出 {HEIGHT_RATIO[0]}～{HEIGHT_RATIO[1]}')
 
-    # 裁掉空白（多留一圈反鋸齒），縮成遊戲大小的 2 倍
+    # 裁掉空白（多留一圈反鋸齒），縮成跟該角色新版待機圖集一樣的解析度
+    idle = idle_reference(hero)
     box = (max(0, x0 - PAD), max(0, y0 - PAD), min(width, x1 + PAD + 1), min(height, y1 + PAD + 1))
     crop = image.crop(box)
-    k = TEXELS_PER_UNIT * NATIVE_HEIGHT / ref_height
+    k = NATIVE_HEIGHT / idle['scale'] / ref_height
     out = crop.resize((round(crop.width * k), round(crop.height * k)), Image.LANCZOS)
     rgba = np.array(out)
     rgba[rgba[..., 3] == 0, :3] = 0            # 完全透明的地方不留看不見的顏色（無損存檔會照存、白佔空間）
     out = Image.fromarray(rgba, 'RGBA')
     scale = NATIVE_HEIGHT / ref_height * crop.height / out.height   # 成品一個像素＝幾個遊戲單位
 
-    idle = idle_reference(hero)
     mid, bottom, pieces = feet_mid(rgba[..., 3])
     offset = (idle['feetMid'] - idle['pivot'][0]) * idle['scale']   # 待機時兩腳中點在定位點右邊幾單位
     pivot = [round(mid - offset / scale, 2), bottom]

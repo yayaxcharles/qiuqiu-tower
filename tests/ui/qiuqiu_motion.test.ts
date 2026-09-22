@@ -154,7 +154,7 @@ describe('球球全身動作畫布', () => {
     for (const elapsed of [0, 200, 500, 649]) {
       step(elapsed);
       expect((lastDraw()[0] as HTMLImageElement).src).toContain('assets/motion/qiuqiu/hit_recoil.webp');
-      expect(lastDraw().slice(1, 5)).toEqual([0, 0, 476, 488]);
+      expect(lastDraw().slice(1, 5)).toEqual([0, 0, 366, 410]);
     }
     expect(qiuqiuMotionDuration('hurt')).toBe(650);
     step(650);

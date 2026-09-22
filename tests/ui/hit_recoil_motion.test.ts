@@ -49,10 +49,10 @@ afterEach(() => vi.unstubAllGlobals());
 
 // 量圖：hit＝挨打圖、idle＝新版待機第 1 格（格內座標）。top／sole＝可見的最上一排／腳底最下一排，feetMid＝腳底那一條的左右中點
 const CASES = [
-  { kind: 'qiuqiu', size: [476, 488], hit: { top: 1, sole: 486, feetMid: 306.5 }, idle: { top: 1, sole: 405, feetMid: 185 } },
-  { kind: 'feifei', size: [484, 508], hit: { top: 1, sole: 506, feetMid: 296 }, idle: { top: 0, sole: 304, feetMid: 143.5 } },
-  { kind: 'dangdang', size: [468, 486], hit: { top: 1, sole: 484, feetMid: 277 }, idle: { top: 0, sole: 227, feetMid: 91 } },
-  { kind: 'fengfeng', size: [527, 524], hit: { top: 1, sole: 522, feetMid: 315 }, idle: { top: 0, sole: 304, feetMid: 138 } },
+  { kind: 'qiuqiu', size: [366, 410], hit: { top: 1, sole: 408, feetMid: 218 }, idle: { top: 1, sole: 405, feetMid: 185 } },
+  { kind: 'feifei', size: [293, 308], hit: { top: 1, sole: 307, feetMid: 178.5 }, idle: { top: 0, sole: 304, feetMid: 143.5 } },
+  { kind: 'dangdang', size: [212, 220], hit: { top: 0, sole: 219, feetMid: 125.5 }, idle: { top: 0, sole: 227, feetMid: 91 } },
+  { kind: 'fengfeng', size: [319, 317], hit: { top: 1, sole: 315, feetMid: 190 }, idle: { top: 0, sole: 304, feetMid: 138 } },
 ] as const;
 
 /** 無損 webp（VP8L）檔頭裡的寬高：確認上面量到的數字真的是這張圖的 */
