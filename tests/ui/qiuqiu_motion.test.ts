@@ -6,6 +6,7 @@ import { cards } from '../../src/content/cards';
 import { visibleCanvasRect } from './motion_test_geometry';
 import {
   createQiuqiuActor,
+  DEFERRED_QIUQIU_ACTIONS,
   preloadQiuqiuMotion,
   qiuqiuCardAction,
   qiuqiuCombatMotionDecision,
@@ -214,13 +215,15 @@ describe('球球全身動作畫布', () => {
       ...(extraMotionData.actions as Record<string, { texture: string }>),
       ...(attackMotionData.actions as Record<string, { texture: string }>),
     };
-    // 2026-09-21 新補的待機狀態圖不在預載裡（預載完才在背景下載）
+    // 2026-09-21 新補的待機狀態圖、2026-09-22 新補的出牌動作圖都不解碼預載（預載完才在背景下載）
     const expected = new Set(Object.entries(actions)
-      .filter(([key]) => !DEFERRED_REST_ACTIONS.has(key))
+      .filter(([key]) => !DEFERRED_QIUQIU_ACTIONS.has(key))
       .map(([, motion]) => `/${motion.texture}`));
     expected.add('/assets/motion/qiuqiu/shuriken_128.webp');
     expected.add('/assets/sprites/hero/ninja_hit.webp');
-    expect(new Set(FakeImage.sources)).toEqual(expected);
+    // 延後的圖預載完會在背景下載（也掛 load）；排掉之後剩下的必須正好是預載等的那批
+    const deferredSrc = new Set(Object.entries(actions).filter(([key]) => DEFERRED_QIUQIU_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`));
+    expect(new Set(FakeImage.sources.filter((src) => !deferredSrc.has(src)))).toEqual(expected);
     // 只等載好、不呼叫 decode()（清理 2026-09-22）
     expect(FakeImage.decoded).toEqual([]);
     expect(FakeImage.sources.every((src) => src.includes('assets/motion/qiuqiu/')

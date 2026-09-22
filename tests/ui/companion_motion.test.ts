@@ -11,6 +11,7 @@ import { cardById } from '../../src/content/cards';
 import { visibleCanvasRect } from './motion_test_geometry';
 import { DEFERRED_COMPANION_REST_ACTIONS } from '../../src/ui/rest-state-motion';
 import {
+  DEFERRED_COMPANION_ACTIONS,
   FEIFEI_CLONE_TIMING,
   companionCardAction,
   companionImpactTimes,
@@ -174,7 +175,9 @@ describe('菲菲卡牌與命中節奏', () => {
 
   it('其餘共用卡只按爪擊種類接近，非針術攻擊保留既有演出', () => {
     expect(companionCardAction('feifei', 'sanjo', { poseFamily: 'claw', cardType: '攻擊' })).toBe('attack1');
-    expect(companionCardAction('feifei', 'tietou', { poseFamily: 'dash', cardType: '攻擊' })).toBeUndefined();
+    // 2026-09-22 起衝撞、拳與沒有家族的攻擊牌不再選不到動作（原本退回靜態立繪）：一律爪擊
+    expect(companionCardAction('feifei', 'tietou', { poseFamily: 'dash', cardType: '攻擊' })).toBe('attack1');
+    expect(companionCardAction('feifei', 'bangnidianyixia', { cardType: '攻擊' })).toBe('attack1');
     expect(companionCardAction('feifei', 'feifei_moyao', { cardType: '技能' })).toBe('seal');
     expect(companionCardAction('feifei', 'feifei_tuikai', { cardType: '技能', hasBlock: true })).toBe('guard');
   });
@@ -389,9 +392,14 @@ describe('封封卡牌、近戰與收劍節奏', () => {
   });
 });
 
-/** 預載應該載的動作（排除 2026-09-21 新補、用到才下載的待機狀態圖）。 */
+/** 預載應該載的動作（排除 2026-09-21 新補的待機狀態圖、2026-09-22 新補的出牌動作圖：都是預載完才在背景下載）。 */
 const eager = (actions: Record<string, unknown>) =>
-  Object.entries(actions).filter(([key]) => !DEFERRED_COMPANION_REST_ACTIONS.has(key)).map(([, motion]) => motion as { texture: string });
+  Object.entries(actions).filter(([key]) => !DEFERRED_COMPANION_ACTIONS.has(key)).map(([, motion]) => motion as { texture: string });
+/** 延後的圖預載完會在背景下載（也掛 load），比對預載等的那批時先排掉；排掉之後剩下的必須正好是 eager 那批。 */
+const DEFERRED_SRC = new Set([motionData, needleMotionData, dangdangMotionData, dangdangAttackMotionData, fengfengMotionData, fengfengAttackMotionData]
+  .flatMap((data) => Object.entries(data.actions as Record<string, { texture: string }>))
+  .filter(([key]) => DEFERRED_COMPANION_ACTIONS.has(key)).map(([, motion]) => `/${motion.texture}`));
+const awaited = (): Set<string> => new Set(FakeImage.sources.filter((src) => !DEFERRED_SRC.has(src)));
 
 describe('菲菲全身逐格畫布', () => {
   it('預載舊動作與七張新增針招來源圖，載妥前後狀態可查', async () => {
@@ -399,36 +407,36 @@ describe('菲菲全身逐格畫布', () => {
     expect(companionMotionReady('dangdang')).toBe(false);
     await preloadCompanionMotion('feifei');
     expect(companionMotionReady('feifei')).toBe(true);
-    expect(new Set(FakeImage.sources)).toEqual(new Set(
+    expect(awaited()).toEqual(new Set(
       [...eager(motionData.actions), ...eager(needleMotionData.actions),
         { texture: 'assets/sprites/hero/feifei_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
     // 2026-09-21 新補的 10 張待機狀態圖不在預載裡（預載完才在背景下載），預載張數維持原本
-    expect(new Set(FakeImage.sources)).toHaveLength(18);
+    expect(awaited()).toHaveLength(18);
     // 預載只等載好、不呼叫 decode()（清理 2026-09-22）
     expect(FakeImage.decoded).toEqual([]);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('fengfeng');
     expect(companionMotionReady('fengfeng')).toBe(true);
-    expect(new Set(FakeImage.sources)).toEqual(new Set(
+    expect(awaited()).toEqual(new Set(
       [...eager(fengfengMotionData.actions), ...eager(fengfengAttackMotionData.actions),
         { texture: 'assets/sprites/hero/fengfeng_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(16);
+    expect(awaited()).toHaveLength(16);
     expect(companionMotionReady('dangdang')).toBe(false);
 
     FakeImage.sources = [];
     await preloadCompanionMotion('dangdang');
     expect(companionMotionReady('dangdang')).toBe(true);
-    expect(new Set(FakeImage.sources)).toEqual(new Set(
+    expect(awaited()).toEqual(new Set(
       [...eager(dangdangMotionData.actions), ...eager(dangdangAttackMotionData.actions),
         { texture: 'assets/sprites/hero/dangdang_hit.webp' }]
         .map((motion) => `/${motion.texture}`),
     ));
-    expect(new Set(FakeImage.sources)).toHaveLength(15);
+    expect(awaited()).toHaveLength(15);
 
     // 背景下載的圖壞了（complete 為 true、naturalWidth 為 0）：不可以拿去畫，狀態交還靜態立繪
     const brokenSrc = `/${(dangdangMotionData.actions as Record<string, { texture: string }>).wounded!.texture}`;

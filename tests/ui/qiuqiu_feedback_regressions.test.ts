@@ -43,17 +43,26 @@ describe('食物與特殊招式不被通用施術蓋掉', () => {
     expect(result).toEqual(Array.from({ length: 5 }, () => ({ pose: 'eat' })));
   });
 
-  it.each(['feifei', 'fengfeng'] as const)('%s 保留吼叫、輕功及太極的專用立繪', async (hero) => {
+  // 2026-09-22 前這三個家族在同伴身上刻意選不到動作（退回專用靜態立繪）；使用者裁定補新圖後改成有自己的逐格動作：
+  // 吼（含獅吼功）、太極是新畫的，輕功沿用閃身，借力使力（攻擊牌裡的太極）沿用既有攻擊。
+  it.each([
+    ['feifei', ['roar', 'roar', 'roar', 'roar', 'roll', 'roll', 'roll', 'taiji', 'roar', 'kick']],
+    ['fengfeng', ['roar', 'roar', 'roar', 'roar', 'dodge', 'dodge', 'dodge', 'taiji', 'roar', 'retreat_thrust']],
+  ] as const)('%s 的吼叫、輕功及太極有自己的逐格動作', async (hero, expected) => {
     const cards = ['weihe', 'chudashi', 'youcike', 'boming', 'gaotui', 'yixing', 'diaohu', 'yide', 'shihou', 'jiedao'];
     const code = branch('const SKILL_POSE:', '/** 吃喝姿勢')
       + branch('  const motionForCard = (', '  const scheduleMotionImpact =')
       + '\nreturn cards.map(cardId => motionForCard({ hero }, { cardId }));';
-    const result = await execute(code, {
+    const bindings = (playable: boolean) => ({
       hero, cards, motionEnabled: true, motionSourceFor: () => hero, ATTACK_POSE: { shihou: 'roar', jiedao: 'taiji' },
       cardStats: (card: { cardId: string }) => ({ def: cardById[card.cardId], effects: cardById[card.cardId]!.effects }),
       companionCardAction,
+      // 新補的吼、太極是延後下載的：圖還沒到時交還靜態立繪（其餘預載的動作照播）
+      companionCardMotionPlayable: (_kind: string, action: string) => playable || !['roar', 'taiji'].includes(action),
     });
-    expect(result).toEqual(cards.map(() => undefined));
+    expect(await execute(code, bindings(true))).toEqual(expected);
+    expect(await execute(code, bindings(false))).toEqual(expected.map((action) => (
+      action === 'roar' || action === 'taiji' ? undefined : action)));
   });
 
   it.each(['qiuqiu', 'feifei', 'dangdang', 'fengfeng'])('%s 自己施展回血招式不再被吃飯反應覆蓋', async (hero) => {

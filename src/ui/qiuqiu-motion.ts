@@ -67,6 +67,11 @@ const FALLBACK_POSES: Partial<Record<QiuqiuPoseAction, QiuqiuPoseAction>> = {
   lazy: 'idle',
   iron: 'idle',
   curl: 'idle',
+  // 2026-09-22 的出牌動作：素材缺了就退回最接近的舊動作（戰鬥畫面另有把關，圖沒到時根本不會叫到這些動作）
+  taiji: 'seal',
+  qinggong: 'jump',
+  focus: 'seal',
+  scroll: 'seal',
 };
 
 const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
@@ -184,12 +189,45 @@ export function qiuqiuMotionEnabled(search = typeof location === 'undefined' ? '
   return params.has('motion-preview') || params.get('motion') !== '0';
 }
 
-/** 卡牌規則不在此處；本函式只決定視覺動作。 */
+/** 出牌規則要看的牌面資訊：牌型，以及這一次實際的效果（升級版可能多了抽牌或蜷縮）。 */
+export type QiuqiuCardInfo = Readonly<{
+  type?: string;
+  effects?: readonly Readonly<{ kind: string }>[];
+}>;
+
+/** 技能牌的招式家族（`combat.ts` 的 `SKILL_POSE`）→ 自己的動作。2026-09-11 使用者要求分家的三路。 */
+const SKILL_FAMILY_ACTIONS: Readonly<Record<string, QiuqiuAction>> = { roar: 'roar', taiji: 'taiji', qinggong: 'qinggong' };
+const BLOCK_EFFECTS: ReadonlySet<string> = new Set(['block', 'blockAll', 'blockAlly', 'blockFromAllyBlock', 'blockIfPoisoned']);
+const HEAL_EFFECTS: ReadonlySet<string> = new Set(['heal', 'healAlly']);
+
+/**
+ * 沒有逐張指定的技能與能力牌，照規則選動作（2026-09-22，盤點見 `docs/審查報告/缺動作的牌_2026-09-21.md`）。
+ * 原本這些牌一律回 null，出牌時動作畫布收起來、舊版靜態立繪亮 0.65 秒——球球 126 張牌裡有 70 張是這樣。
+ * 順序有意義：家族最優先（太極牌也有蜷縮，但它是太極）；能力牌一律運氣；
+ * 有蜷縮的擺架式（跟淡定、鐵布衫同一套）；回血的吃（三隻同伴也是這條）；會抽牌的翻卷軸；其餘結印（跟替身術同一套）。
+ */
+function qiuqiuRuleAction(poseFamily: string | undefined, card: QiuqiuCardInfo | undefined): QiuqiuAction | null {
+  if (!card?.type || card.type === '攻擊') return null;
+  const family = poseFamily === undefined ? undefined : SKILL_FAMILY_ACTIONS[poseFamily];
+  if (family) return family;
+  if (card.type === '能力') return 'focus';
+  const kinds = (card.effects ?? []).map((effect) => effect.kind);
+  if (kinds.some((kind) => BLOCK_EFFECTS.has(kind))) return 'guard';
+  if (kinds.some((kind) => HEAL_EFFECTS.has(kind))) return 'eat';
+  if (kinds.includes('draw')) return 'scroll';
+  return 'seal';
+}
+
+/**
+ * 卡牌規則不在此處；本函式只決定視覺動作。
+ * `card` 沒給時維持舊行為（只認逐張指定與爪擊），給了才套技能／能力牌的規則。
+ */
 export function qiuqiuCardAction(
   cardId: string,
   poseFamily: string | undefined,
   clawIndex: number,
   upgraded = false,
+  card?: QiuqiuCardInfo,
 ): QiuqiuAction | null {
   if (cardId === 'luanwu') return upgraded ? 'ultimate_storm' : 'shuriken';
   if (STATIC_ATTACK_CARDS.has(cardId)) return null;
@@ -199,7 +237,7 @@ export function qiuqiuCardAction(
     const variants: readonly QiuqiuAction[] = ['attack1', 'attack2', 'attack3', 'attack4'];
     return variants[((clawIndex % variants.length) + variants.length) % variants.length] ?? 'attack1';
   }
-  return null;
+  return qiuqiuRuleAction(poseFamily, card);
 }
 
 export function qiuqiuIsMelee(action: QiuqiuAction): boolean {
@@ -270,9 +308,16 @@ function motionKeyForPose(action: QiuqiuPoseAction): string {
   return 'idle';
 }
 
+/**
+ * 2026-09-22 補的出牌動作（太極、輕功、運氣、翻卷軸）。比照待機狀態圖：不解碼預載，
+ * 預載完才在背景下載並排進背景解開——一場戰鬥不一定用得到，全部解碼預載會把常用的爪擊圖擠出快取。
+ */
+export const DEFERRED_QIUQIU_CARD_ACTIONS: ReadonlySet<string> = new Set(['taiji', 'qinggong', 'focus', 'scroll']);
+export const DEFERRED_QIUQIU_ACTIONS: ReadonlySet<string> = new Set([...DEFERRED_REST_ACTIONS, ...DEFERRED_QIUQIU_CARD_ACTIONS]);
+
 const qiuqiuFrameMotions = createFrameMotionSet<QiuqiuAction>({
   motions,
-  deferred: DEFERRED_REST_ACTIONS,
+  deferred: DEFERRED_QIUQIU_ACTIONS,
   nativeHeight: NATIVE_IDLE_HEIGHT,
   initialAction: 'idle',
   // 2026-09-21 的待機狀態比照翻肚：前 7 格是從一般待機轉進狀態的過場，播完停在第 8 格慢慢呼吸
@@ -303,6 +348,15 @@ export async function preloadQiuqiuMotion(): Promise<void> {
 /** 延後下載的待機狀態圖還沒到（或壞了）時回 false，戰鬥畫面就先交還靜態立繪。 */
 export function qiuqiuMotionDrawable(action: QiuqiuAction): boolean {
   return qiuqiuFrameMotions.drawable(action);
+}
+
+/**
+ * 出牌時這個動作能不能播。延後下載的出牌動作圖還沒到（或壞了）就回 false，
+ * 戰鬥畫面退回「選不到動作」的舊行為（靜態立繪），不能停在上一個動作的最後一格；圖到了下一張牌就用新動作。
+ * 其他動作（預載的、組合動作）照舊一律可播。
+ */
+export function qiuqiuCardMotionPlayable(action: QiuqiuAction): boolean {
+  return !DEFERRED_QIUQIU_CARD_ACTIONS.has(action) || qiuqiuFrameMotions.drawable(action);
 }
 
 export function qiuqiuMotionReady(): boolean {

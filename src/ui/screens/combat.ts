@@ -36,9 +36,10 @@ import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
-import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
+import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuCardMotionPlayable, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
 import {
   companionCardAction,
+  companionCardMotionPlayable,
   companionImpactDelay,
   companionIsMelee,
   companionMotionDuration,
@@ -760,17 +761,23 @@ registerScreen('combat', (app, root, props) => {
     if (!source) return undefined;
     const stats = cardStats(card);
     const def = stats.def;
+    // 2026-09-22：技能、能力牌照規則選動作（家族、牌型、這次實際的效果），原本球球 70 張、菲菲 28 張、封封 18 張
+    // 選不到動作，出牌時動作畫布收起來、舊版靜態立繪亮 0.65 秒，畫風跳一下（盤點 docs/審查報告/缺動作的牌_2026-09-21.md）。
+    // 新補的出牌動作圖是延後下載的：還沒到（或壞了）就照舊回 undefined 交還靜態立繪，
+    // 不能讓畫布停在上一個動作的最後一格；圖到了下一張牌就用新動作（比照待機狀態的 drawable）。
     if (source === 'qiuqiu') {
-      const action = qiuqiuCardAction(def.id, ATTACK_POSE[def.id], clawMotionIndex, card.upgraded);
+      const action = qiuqiuCardAction(def.id, ATTACK_POSE[def.id] ?? SKILL_POSE[def.id], clawMotionIndex, card.upgraded,
+        { type: def.type, effects: stats.effects });
       if (action?.startsWith('attack')) clawMotionIndex += 1;
-      return action ?? undefined;
+      return action && qiuqiuCardMotionPlayable(action) ? action : undefined;
     }
-    return companionCardAction(source, def.id, {
+    const action = companionCardAction(source, def.id, {
       poseFamily: ATTACK_POSE[def.id] ?? SKILL_POSE[def.id],
       cardType: def.type,
       hasBlock: stats.effects.some((effect) => effect.kind === 'block' || effect.kind === 'blockIfPoisoned'),
       hasHeal: stats.effects.some((effect) => effect.kind === 'heal'),
     });
+    return action && companionCardMotionPlayable(source, action) ? action : undefined;
   };
 
   const scheduleMotionImpact = (source: CombatMotionSource, action: CombatMotionAction, callback: () => void, elapsed = 0, approachMs = 0): void => {

@@ -1,0 +1,321 @@
+{
+  "generator": "gpt-image-1.5（codex-oauth，真透明輸出）",
+  "reproducer": "python tools/pack_card_motion.py",
+  "wholeCharacterFrames": true,
+  "assets": [
+    {
+      "hero": "qiuqiu",
+      "action": "taiji",
+      "source": "tools/motion-art-source/card-motions/qiuqiu/taiji.png",
+      "sourceSha256": "b177f5cb6f9f1d3bc997d382ce59a911f76ebf8f03a13acf103bfaf415efee34",
+      "target": "public/assets/motion/qiuqiu/generated_taiji.webp",
+      "targetSha256": "5dfef904214155ea75a29c087292de7fb4f697942a4ca1716b13654993d247f1",
+      "bytes": 636878,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.0,
+        1.003,
+        0.986,
+        0.986,
+        0.986,
+        0.986
+      ],
+      "firstFrameWidthRatio": 0.975,
+      "lastFrameWidthRatio": 0.997,
+      "centerShift": [
+        4.6,
+        7.5,
+        11.3,
+        11.5,
+        13.1,
+        13.4,
+        5.8,
+        4.5
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "qinggong",
+      "source": "tools/motion-art-source/card-motions/qiuqiu/qinggong.png",
+      "sourceSha256": "c9bb44e9327afdabfea374f8867a6d6fb0f738e17ed9d10bf79f991eae67e7bd",
+      "target": "public/assets/motion/qiuqiu/generated_qinggong.webp",
+      "targetSha256": "c4d29cb934e8954c485af33ff5cdd43fe16d13749da3d4c9c94ffc3357ec9924",
+      "bytes": 564632,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.831,
+        1.162,
+        1.025,
+        1.131,
+        0.99,
+        0.911,
+        1.0
+      ],
+      "firstFrameWidthRatio": 1.047,
+      "lastFrameWidthRatio": 1.011,
+      "centerShift": [
+        3.4,
+        16.8,
+        2.4,
+        15.8,
+        14.6,
+        2.9,
+        4.8,
+        6.4
+      ],
+      "airborneLift": [
+        0.0,
+        0.0,
+        0.014,
+        0.162,
+        0.086,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "focus",
+      "source": "tools/motion-art-source/card-motions/qiuqiu/focus.png",
+      "sourceSha256": "e4c53117bb5ab6544d1f02b6ac82aac5ba3d9fb9ecf3c0abe9a081d991027345",
+      "target": "public/assets/motion/qiuqiu/generated_focus.webp",
+      "targetSha256": "b8cf7a4fb66f8f1a12334632f580bfd383560a4d0da7f5f3a20311afadccb464",
+      "bytes": 546924,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.997,
+        1.003,
+        1.0,
+        1.0,
+        0.997,
+        1.0,
+        1.003
+      ],
+      "firstFrameWidthRatio": 0.989,
+      "lastFrameWidthRatio": 1.004,
+      "centerShift": [
+        0.1,
+        2.9,
+        1.8,
+        3.7,
+        1.9,
+        2.2,
+        0.8,
+        0.3
+      ]
+    },
+    {
+      "hero": "qiuqiu",
+      "action": "scroll",
+      "source": "tools/motion-art-source/card-motions/qiuqiu/scroll.png",
+      "sourceSha256": "f841829c4cf25941c5c5a20a6eabb751488c920a160707744481050b5c57e151",
+      "target": "public/assets/motion/qiuqiu/generated_scroll.webp",
+      "targetSha256": "d77c2da69727fae7c9d2845e63da14b254ca41b761b43cdf522a5e8e62c40a61",
+      "bytes": 652498,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.003,
+        1.003,
+        1.009,
+        1.009,
+        1.006,
+        1.009,
+        1.012
+      ],
+      "firstFrameWidthRatio": 1.011,
+      "lastFrameWidthRatio": 1.007,
+      "centerShift": [
+        1.6,
+        6.0,
+        3.5,
+        7.9,
+        6.3,
+        8.5,
+        5.0,
+        5.9
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "roar",
+      "source": "tools/motion-art-source/card-motions/feifei/roar.png",
+      "sourceSha256": "f46c620309e20fe94427f9ecd55dfbe5cd75f11f0f048db251fa6846e36dd4d7",
+      "target": "public/assets/motion/feifei/roar.webp",
+      "targetSha256": "43dda6c9f97f2cbb833fad518d881f64c6da5b5a180424a29f16065213fe0d99",
+      "bytes": 757058,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 2,
+      "heightRatios": [
+        1.0,
+        1.015,
+        0.971,
+        0.991,
+        1.009,
+        0.991,
+        1.0,
+        0.994
+      ],
+      "firstFrameWidthRatio": 1.031,
+      "lastFrameWidthRatio": 0.982,
+      "centerShift": [
+        -15.1,
+        -12.1,
+        -25.4,
+        -14.3,
+        -6.7,
+        -3.4,
+        -15.8,
+        -13.8
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "taiji",
+      "source": "tools/motion-art-source/card-motions/feifei/taiji.png",
+      "sourceSha256": "05c5f186285fd155943e8d6936e98557dc4a85a4d86b323e768d58abffc7d20f",
+      "target": "public/assets/motion/feifei/taiji.webp",
+      "targetSha256": "8e966df3054aef35e1d0073337a1e2776b2db4c91f876b38d232c4d3c07c7c73",
+      "bytes": 714436,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.015,
+        1.003,
+        1.024,
+        1.015,
+        1.012,
+        1.012,
+        1.012
+      ],
+      "firstFrameWidthRatio": 0.987,
+      "lastFrameWidthRatio": 1.004,
+      "centerShift": [
+        -11.8,
+        -12.0,
+        -17.0,
+        -7.9,
+        -6.3,
+        -6.5,
+        -12.8,
+        -11.3
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "roar",
+      "source": "tools/motion-art-source/card-motions/fengfeng/roar.png",
+      "sourceSha256": "9470ebf81f42e7cefa0aca0bb46aa526e4cd2a6c0813fe58a0696edcf03e7539",
+      "target": "public/assets/motion/fengfeng/roar.webp",
+      "targetSha256": "55dfeb66f9b25ff1bb04e36d3cd76a402f63cddfd88db26bda610515c8533382",
+      "bytes": 747136,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.997,
+        1.017,
+        0.949,
+        0.997,
+        0.986,
+        0.986,
+        0.989
+      ],
+      "firstFrameWidthRatio": 1.022,
+      "lastFrameWidthRatio": 0.992,
+      "centerShift": [
+        -17.3,
+        -9.5,
+        -10.1,
+        -5.6,
+        -1.6,
+        2.9,
+        -5.9,
+        -18.2
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "taiji",
+      "source": "tools/motion-art-source/card-motions/fengfeng/taiji.png",
+      "sourceSha256": "d3d62561019909fbd041cdf3ccfd1107173fc19c3e919d7d2335de945bddb1c4",
+      "target": "public/assets/motion/fengfeng/taiji.webp",
+      "targetSha256": "b84eafe5f0812ba8f1896532e44b07e19117c02722c6fe59965f34bbc9a6831d",
+      "bytes": 737238,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.009,
+        1.003,
+        1.006,
+        1.006,
+        1.006,
+        1.006,
+        1.003
+      ],
+      "firstFrameWidthRatio": 0.982,
+      "lastFrameWidthRatio": 1.0,
+      "centerShift": [
+        -12.5,
+        -28.5,
+        -26.6,
+        -29.6,
+        -11.4,
+        -18.5,
+        -30.9,
+        -34.6
+      ]
+    }
+  ]
+}
