@@ -8,6 +8,8 @@ declare module 'node:fs' {
   export function copyFileSync(source: string, destination: string): void;
   export function mkdtempSync(prefix: string): string;
   export function rmSync(path: string, options?: { recursive?: boolean; force?: boolean }): void;
+  // motion_manifest_guard.test：走一遍 public/assets/motion 底下所有動作圖
+  export function readdirSync(path: string, options: { withFileTypes: true }): { name: string; isDirectory(): boolean }[];
 }
 
 declare module 'node:os' {
@@ -16,4 +18,5 @@ declare module 'node:os' {
 
 declare module 'node:path' {
   export function dirname(path: string): string;
+  export function relative(from: string, to: string): string;
 }
