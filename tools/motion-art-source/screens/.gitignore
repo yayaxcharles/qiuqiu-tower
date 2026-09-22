@@ -1,0 +1,4 @@
+# 批次 screens 的生圖原檔、每次嘗試與參考圖：一張 1～2 MB，不進版控（採用的那張縮好後存在 public/assets/sprites/hero/ 的 webp 裡）。
+# 提示詞與選定紀錄（json）照樣進版控。
+*.png
+*.pending
