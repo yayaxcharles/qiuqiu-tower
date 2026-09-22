@@ -1266,7 +1266,7 @@
     },
     "attack_air": {
       "texture": "assets/motion/qiuqiu/claw_air_sheet.webp",
-      "scale": 0.515,
+      "scale": 0.5407500000000001,
       "loop": false,
       "chroma_key": false,
       "frames": [
@@ -1740,7 +1740,7 @@
     },
     "storm": {
       "texture": "assets/motion/qiuqiu/storm_sheet.webp",
-      "scale": 0.622,
+      "scale": 0.635684,
       "loop": true,
       "chroma_key": false,
       "frames": [
@@ -1852,7 +1852,7 @@
     },
     "rush": {
       "texture": "assets/motion/qiuqiu/rush_sheet.webp",
-      "scale": 0.622,
+      "scale": 0.6531,
       "loop": false,
       "chroma_key": false,
       "frames": [
@@ -1964,7 +1964,7 @@
     },
     "combo_kick": {
       "texture": "assets/motion/qiuqiu/combo_kick_sheet.webp",
-      "scale": 0.605,
+      "scale": 0.63283,
       "loop": false,
       "chroma_key": false,
       "frames": [
