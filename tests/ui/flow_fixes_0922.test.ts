@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
 import { transformWithOxc } from 'vite';
-import APP from '../../src/ui/app.ts?raw';
-import MAP from '../../src/ui/screens/map.ts?raw';
-import REWARD from '../../src/ui/screens/reward.ts?raw';
-import REST from '../../src/ui/screens/rest.ts?raw';
-import EVENT from '../../src/ui/screens/event.ts?raw';
+import APP_RAW from '../../src/ui/app.ts?raw';
+import MAP_RAW from '../../src/ui/screens/map.ts?raw';
+import REWARD_RAW from '../../src/ui/screens/reward.ts?raw';
+import REST_RAW from '../../src/ui/screens/rest.ts?raw';
+import EVENT_RAW from '../../src/ui/screens/event.ts?raw';
 import { dialogue, type DialogueLine } from '../../src/content/dialogue';
 import { FIXED_EVENT_FLOOR_5, events } from '../../src/content/events';
 import { newCoopRun, rest, revivePartner } from '../../src/engine/run';
@@ -15,8 +15,17 @@ import { portraitHero, portraitPlan } from '../../src/ui/dialogue';
 import { confirmReady, eventPickRule } from '../../src/ui/deckview';
 import { restMateNote } from '../../src/ui/screens/rest';
 import { closeScreenModals, closeWithScreen } from '../../src/ui/overlay';
-import DECKVIEW from '../../src/ui/deckview.ts?raw';
-import RELICLIST from '../../src/ui/reliclist.ts?raw';
+import DECKVIEW_RAW from '../../src/ui/deckview.ts?raw';
+import RELICLIST_RAW from '../../src/ui/reliclist.ts?raw';
+// Windows 上 git 會把原始碼換成 CRLF，雲端是 LF；比對多行片段前先統一成 LF
+const APP = APP_RAW.replace(/\r\n/g, '\n');
+const MAP = MAP_RAW.replace(/\r\n/g, '\n');
+const REWARD = REWARD_RAW.replace(/\r\n/g, '\n');
+const REST = REST_RAW.replace(/\r\n/g, '\n');
+const EVENT = EVENT_RAW.replace(/\r\n/g, '\n');
+const DECKVIEW = DECKVIEW_RAW.replace(/\r\n/g, '\n');
+const RELICLIST = RELICLIST_RAW.replace(/\r\n/g, '\n');
+
 
 /*
  * 2026-09-22 兩份盤點報告裡「戰鬥以外的流程、對白、連線」那幾件。
