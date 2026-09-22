@@ -14,7 +14,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import COMBAT_SRC from '../../src/ui/screens/combat.ts?raw';
+import FLIGHT_SRC from '../../src/ui/projectile-flight.ts?raw';
 import mainData from '../../src/ui/feifei-motion-data.json';
 import needleData from '../../src/ui/feifei-needle-motion-data.json';
 import record from '../../docs/feifei-needle-origins.json';
@@ -78,7 +78,8 @@ describe('菲菲飛針從出手那一格的手上放出去', () => {
   });
 
   it('戰鬥畫面給飛針的 from 是「腳底＋共用預設起點」', () => {
-    expect(COMBAT_SRC).toContain("throwFoot.x + (impactSource === 'feifei' ? FEIFEI_NEEDLE_DEFAULT_ORIGIN.x : 125)");
-    expect(COMBAT_SRC).toContain("throwFoot.y + (impactSource === 'feifei' ? FEIFEI_NEEDLE_DEFAULT_ORIGIN.y : -135)");
+    // 2026-09-22 批次 proj：戰鬥畫面丟東西改走 projectile-flight.ts 的 playThrow，起點的算法搬到那裡
+    expect(FLIGHT_SRC).toContain('x: foot.x + FEIFEI_NEEDLE_DEFAULT_ORIGIN.x,');
+    expect(FLIGHT_SRC).toContain('y: foot.y + FEIFEI_NEEDLE_DEFAULT_ORIGIN.y,');
   });
 });

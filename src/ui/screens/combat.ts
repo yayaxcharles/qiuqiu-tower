@@ -51,9 +51,8 @@ import {
 } from '../companion-motion';
 import { EAT_POTIONS, THROW_POTIONS, potionMotionAction } from '../potion-motion';
 import { motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
-import { playQiuqiuShuriken } from '../qiuqiu-shuriken';
-import { playFeifeiNeedles } from '../feifei-needles';
-import { FEIFEI_NEEDLE_DEFAULT_ORIGIN, isFeifeiNeedleAction } from '../feifei-needle-patterns';
+import { playThrow, preloadProjectiles } from '../projectile-flight';
+import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
 import { createEnemyMotionActor, enemyMotionDuration, enemyMotionReady, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
@@ -604,6 +603,8 @@ registerScreen('combat', (app, root, props) => {
       if (app.cs === cs && !ended) render();
     }).catch((error) => console.error('封封動作素材載入失敗', error));
   }
+  // 丟出去的東西的圖（每張幾 KB，連線時同伴丟的也要有，所以全部先載）
+  if (motionEnabled) preloadProjectiles();
   if (qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) {
     const requested = [...new Set(cs.enemies
       .map((enemy) => qiuqiuEnemyMotionKind(enemy.enemyId))
@@ -799,6 +800,17 @@ registerScreen('combat', (app, root, props) => {
     const source = motionEnabled ? motionSourceFor(q) : undefined;
     const def = potionById[id];
     return source && def ? potionMotionAction(source, def) : undefined;
+  };
+
+  /** 這張牌丟出去的是什麼：聚葉成刀飛葉片、毛球彈飛毛球⋯⋯（2026-09-22 批次 proj，表在 projectile-kinds.ts） */
+  const projectileForCard = (q: PlayerCombat, card: CardInstance, action: CombatMotionAction | undefined): ProjectileShot | undefined => {
+    const source = motionSourceFor(q);
+    return source && action ? cardProjectile(source, cardStats(card).def.id, action) : undefined;
+  };
+  /** 這支忍具丟出去的是什麼、丟向誰（鞭炮全體、麻繩單體、煙霧彈丟在自己腳邊） */
+  const projectileForPotion = (id: string, targetUid: number | undefined): ProjectileShot | undefined => {
+    const def = potionById[id];
+    return def ? potionProjectile(def, targetUid) : undefined;
   };
 
   const scheduleMotionImpact = (source: CombatMotionSource, action: CombatMotionAction, callback: () => void, elapsed = 0, approachMs = 0): void => {
@@ -2290,7 +2302,7 @@ registerScreen('combat', (app, root, props) => {
         locallyPlayedMotion.dropInFlight();
         console.error(`usePotion 失敗：${id}`);
       }
-    }, { ...potionPose(heroOf(my()), id), motion, motionToken });
+    }, { ...potionPose(heroOf(my()), id), motion, motionToken, impactProjectile: projectileForPotion(id, enemyUid) });
   }
 
   /**
@@ -2363,7 +2375,8 @@ registerScreen('combat', (app, root, props) => {
         locallyPlayedMotion.dropInFlight();
         console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
       }
-    }, { ...cardPose(heroOf(my()), st.def, st.effects), motion, motionTrip, motionToken });
+    }, { ...cardPose(heroOf(my()), st.def, st.effects), motion, motionTrip, motionToken,
+      impactProjectile: projectileForCard(my(), card, motion) });
     if (tutStep === 0) tutStep = 1;
     // 撒手鐧、先睡了這類「打完直接結束回合」的牌：效果只掛旗，
     // 這裡走跟按「結束回合」一模一樣的流程（收牌動畫→敵人動作→發新牌）。
@@ -2586,6 +2599,8 @@ registerScreen('combat', (app, root, props) => {
     impactApproach?: number;
     impactSeat?: number;
     impactAttack?: boolean;
+    /** 這一拍丟出去的是什麼（牌、忍具決定；沒帶就照動作的預設：球球手裏劍、菲菲飛針） */
+    impactProjectile?: ProjectileShot;
     comparison?: Snap;
     freshLog?: readonly string[];
     impactHits?: readonly Readonly<{ uid: number; amount: number }>[];
@@ -2916,21 +2931,17 @@ registerScreen('combat', (app, root, props) => {
       if (reaction) playMotion(q.seat, reaction, undefined, 0, true);
       else if (comparedPhase === 'won' && !state?.active) idleMotion(q.seat);
     }
-    const feifeiNeedleAction = impactSource === 'feifei' && impactMotion && isFeifeiNeedleAction(impactMotion)
-      ? impactMotion
-      : undefined;
-    const throwing = feifeiNeedleAction !== undefined
-      || (impactSource !== 'feifei' && (impactMotion === 'shuriken' || impactMotion === 'ultimate_storm'));
+    // 丟出去的東西（2026-09-22 批次 proj）：原本只有球球的手裏劍、菲菲的飛針，噹噹、封封丟東西什麼都不飛。
+    // 牌與忍具決定飛什麼（`opts.impactProjectile`）；沒帶的沿用動作預設。飛法與起點在 projectile-flight.ts
+    const shot = resolveProjectileShot(impactSource, impactMotion, opts.impactProjectile);
+    // 忍具要在紀錄裡真的「用了」才飛：連線客戶端送出那一拍狀態還沒變，要等主機套用那一拍（狀態類忍具沒有傷害紀錄可認）
+    const shotUsed = shotUsedIn(shot, fresh, (id) => potionById[id]?.name);
+    const throwing = shot !== undefined;
     const echoing = impactSource === 'feifei'
       ? impactMotion === 'clone'
       : impactMotion === 'clone' || impactMotion === 'clone_duo' || impactMotion === 'ultimate_clone';
     const throwHome = throwing ? root.querySelector<HTMLElement>(`.unit.player[data-seat="${opts.impactSeat ?? mySeat}"] .sprite-box`) : null;
     const throwFoot = throwHome ? motionFoot(throwHome) : undefined;
-    // 菲菲的飛針：先給共用預設起點，每一招再由 playFeifeiNeedles 挪到自己出手那一格的手上（feifei-needle-patterns.ts）
-    const throwFrom = throwFoot ? {
-      x: throwFoot.x + (impactSource === 'feifei' ? FEIFEI_NEEDLE_DEFAULT_ORIGIN.x : 125),
-      y: throwFoot.y + (impactSource === 'feifei' ? FEIFEI_NEEDLE_DEFAULT_ORIGIN.y : -135),
-    } : undefined;
 
     // 畫完才把動畫類別與浮動數字掛到剛生出來的節點上
     let stagedMax = 0;   // 本拍最多分幾段：收姿勢與倒下的演出都要排在最後一段之後
@@ -2965,6 +2976,10 @@ registerScreen('combat', (app, root, props) => {
       let impactPlan = impactMotion && impactSource && motionAttack
         ? buildCombatMotionImpactPlan(impactSource, impactMotion, allImpactHits, e.uid, leadingMisses)
         : [];
+      // 麻繩、定身釘、貓薄荷球沒有傷害紀錄，照忍具丟向誰排一波（2026-09-22 批次 proj）：原本沒有命中計畫就不飛
+      if (impactPlan.length === 0 && shotAimsAt(shot, e.uid) && shotUsed && impactSource && impactMotion && !b.dead) {
+        impactPlan = [{ at: motionImpactDelay(impactSource, impactMotion), amount: hpDamage, pendingAfter: 0 }];
+      }
       if (impactPlan.length === 0 && impactSource === 'feifei' && impactMotion) {
         impactPlan = buildFeifeiStatusImpactPlan(impactMotion as CompanionMotionAction, {
           hp: b.hp, dead: b.dead, debuff: b.debuff,
@@ -3035,9 +3050,20 @@ registerScreen('combat', (app, root, props) => {
         if (wave !== undefined ? wave < leadingMisses : evaded) target.append(floatNum('閃過！'));
       };
       const throwBox = node.querySelector<HTMLElement>('.sprite-box');
-      const throwFlight = throwing && throwFrom && throwBox && !b.dead && impactPlan.length > 0;
+      const throwFlight = throwing && throwFoot && throwBox && !b.dead && impactPlan.length > 0;
+      // 掙脫定身、上了減益：丟出去的忍具要等東西飛到才演，其餘照舊當場演
+      const brokeFree = fresh.some((l) => l === `${e.name}掙脫了定身`);
+      const landStatus = (target: HTMLElement): void => {
+        if (brokeFree) {
+          target.append(floatNum('掙脫！'));
+          burst(target, 'smoke');
+          sfx('dodge');
+        }
+        if ((a?.debuff ?? sumStatus(e, BAD_STATUS)) > b.debuff) burst(target, 'debuff');
+      };
+      const statusByFlight = throwFlight && shot?.aim !== undefined;
       let throwFall: (() => void) | undefined;
-      if (throwFlight && throwFrom && throwBox) {
+      if (throwFlight && shot && throwFoot && throwBox && impactSource && impactMotion) {
         const foot = motionFoot(throwBox);
         const width = throwBox.querySelector<HTMLElement>('.sprite')?.offsetWidth ?? 130;
         const waves = impactPlan.length;
@@ -3045,25 +3071,17 @@ registerScreen('combat', (app, root, props) => {
           if (app.cs !== cs) return;
           const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
           if (live) showImpact(live, impactPlan[wave]?.amount ?? 0, wave);
+          if (live && statusByFlight && wave === waves - 1) landStatus(live);
           if (wave === waves - 1) throwFall?.();
         };
         let cancel: () => void = () => undefined;
-        cancel = impactSource === 'feifei'
-          ? playFeifeiNeedles(app.stage, throwFrom, { x: foot.x, y: foot.y - width * 0.55 }, {
-              action: feifeiNeedleAction!,
-              waves,
-              elapsed: impactElapsed,
-              impactTimes: impactPlan.map((impact) => impact.at),
-              onImpact,
-              onDone: () => { motionProjectiles.delete(cancel); },
-            })
-          : playQiuqiuShuriken(app.stage, throwFrom, { x: foot.x, y: foot.y - width * 0.55 }, {
-              waves,
-              elapsed: impactElapsed,
-              impactTimes: impactPlan.map((impact) => impact.at),
-              onImpact,
-              onDone: () => { motionProjectiles.delete(cancel); },
-            });
+        cancel = playThrow(app.stage, impactSource, impactMotion, shot, throwFoot, { x: foot.x, y: foot.y - width * 0.55 }, {
+          waves,
+          elapsed: impactElapsed,
+          impactTimes: impactPlan.map((impact) => impact.at),
+          onImpact,
+          onDone: () => { motionProjectiles.delete(cancel); },
+        });
         motionProjectiles.add(cancel);
       } else if (delayedImpact && impactMotion && impactPlan.length > 0) {
         impactPlan.forEach((impact, wave) => scheduleMotionImpactAt(impact.at, () => {
@@ -3097,13 +3115,8 @@ registerScreen('combat', (app, root, props) => {
         node.append(floatNum('反彈！', 'thorn'));
         sfx('thorns');
       }
-      if (fresh.some((l) => l === `${e.name}掙脫了定身`)) {
-        node.append(floatNum('掙脫！'));
-        burst(node, 'smoke');
-        sfx('dodge');
-      }
-      else if (afterHp > b.hp) burst(node, 'heal');
-      if ((a?.debuff ?? sumStatus(e, BAD_STATUS)) > b.debuff) burst(node, 'debuff');
+      if (!statusByFlight) landStatus(node);
+      if (!brokeFree && afterHp > b.hp) burst(node, 'heal');
       // 倒下的一團煙晚 160 毫秒放：讓最後那下的斬擊先看完，再看牠化成煙
       // 關主的白閃慢倒不放小怪化煙的煙與音效（調性不合，稽核 2026-09-04 低 22）
       // 分段演出時倒下要等最後一段打完再演，不然溶解跟煙會插在三段中間、最後那下的數字反而看不到（稽核 2026-09-05 夜 高-1）
@@ -3155,6 +3168,24 @@ registerScreen('combat', (app, root, props) => {
       if (afterEnemyPhase > b.phase) { bossPhaseTalk(e.enemyId, afterEnemyPhase); phaseBurst(node); }
     }
     // 全體攻擊的各目標可能因死亡或隱身而有不同波數；整身動作採全場最大值，不能被最後一隻覆短。
+    // 煙霧彈丟在自己腳邊（2026-09-22 批次 proj）：從出手那隻手拋到腳前，落地才冒煙
+    if (shot?.aim === 'self' && shotUsed && throwFoot && impactSource && impactMotion) {
+      const seat = opts.impactSeat ?? mySeat;
+      let cancel: () => void = () => undefined;
+      // 落點在出手那隻手的正下方稍微前面（手在腳底往前 110～132）：往下摔在腳前，不是往後丟
+      cancel = playThrow(app.stage, impactSource, impactMotion, shot, throwFoot, { x: throwFoot.x + 140, y: throwFoot.y - 6 }, {
+        waves: 1,
+        elapsed: impactElapsed,
+        impactTimes: [motionImpactDelay(impactSource, impactMotion)],
+        onImpact: () => {
+          if (app.cs !== cs) return;
+          const live = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
+          if (live) { burst(live, 'smoke'); sfx('dodge'); }
+        },
+        onDone: () => { motionProjectiles.delete(cancel); },
+      });
+      motionProjectiles.add(cancel);
+    }
     if (impactSource && impactMotion && confirmedMotionWaves > 0) {
       const impactSeat = opts.impactSeat ?? mySeat;
       const totalDuration = motionDuration(impactSource, impactMotion, confirmedMotionWaves);
@@ -3773,6 +3804,9 @@ registerScreen('combat', (app, root, props) => {
                   impactApproach: trip?.plan.approachMs ?? 0,
                   impactSeat: seat,
                   impactAttack: attack,
+                  impactProjectile: frame.a.t === 'potion'
+                    ? projectileForPotion(frame.a.id, frame.a.g)
+                    : frame.card && frame.player ? projectileForCard(frame.player, frame.card, action) : undefined,
                   comparison: frame.after,
                   freshLog,
                   impactHits,
@@ -3801,7 +3835,8 @@ registerScreen('combat', (app, root, props) => {
       let ownImpactElapsed = 0;
       let ownImpactApproach = 0;
       let ownMotionTrip: MeleeTrip | undefined;
-      let incomingMotion: { seat: number; action: CombatMotionAction; trip?: MeleeTrip; attack: boolean } | undefined;
+      let ownImpactProjectile: ProjectileShot | undefined;
+      let incomingMotion: { seat: number; action: CombatMotionAction; trip?: MeleeTrip; attack: boolean; projectile?: ProjectileShot } | undefined;
       for (const { a } of applied) {
         if (a.t === 'potion') {
           const q = cs.players.find((one) => one.seat === a.seat);
@@ -3813,9 +3848,11 @@ registerScreen('combat', (app, root, props) => {
             ownImpactMotion = localMotion.action;
             ownImpactPresentationToken = localMotion.token;
             ownImpactElapsed = Date.now() - localMotion.at;
+            ownImpactProjectile = projectileForPotion(a.id, a.g);
           } else if (a.seat !== mySeat && q) {
             const action = motionForPotion(q, a.id);
-            if (action) incomingMotion = { seat: a.seat, action, attack: !!potionPose(heroOf(q), a.id).attack };
+            if (action) incomingMotion = { seat: a.seat, action, attack: !!potionPose(heroOf(q), a.id).attack,
+              projectile: projectileForPotion(a.id, a.g) };
           }
           continue;
         }
@@ -3834,6 +3871,8 @@ registerScreen('combat', (app, root, props) => {
             ownImpactElapsed = Date.now() - localMotion.at;
             ownImpactApproach = localMotion.trip?.plan.approachMs ?? 0;
             ownMotionTrip = localMotion.trip;
+            const me = cs.players.find((one) => one.seat === a.seat);
+            ownImpactProjectile = card && me ? projectileForCard(me, card, localMotion.action) : undefined;
           }
         }
         if (alreadyShown || playedHere || !card) continue;
@@ -3844,6 +3883,7 @@ registerScreen('combat', (app, root, props) => {
           action,
           attack: cardStats(card).def.type === '攻擊',
           trip: prepareMelee(a.seat, action, a.g, cardStats(card).def.type === '攻擊'),
+          projectile: q ? projectileForCard(q, card, action) : undefined,
         };
       }
       const ownOpts = ownCard
@@ -3866,6 +3906,7 @@ registerScreen('combat', (app, root, props) => {
           impactApproach: incomingMotion?.trip?.plan.approachMs ?? ownImpactApproach,
           impactSeat: incomingMotion?.seat ?? mySeat,
           impactAttack: incomingMotion?.attack ?? (ownCard ? cardStats(ownCard).def.type === '攻擊' : false),
+          impactProjectile: incomingMotion ? incomingMotion.projectile : ownImpactProjectile,
         });
         // 主機自己出的動作會在外層 act → settle 重畫；先畫會讓血條提前扣血再回升。
         else if (!alreadyShown || !ownMotionAlreadyPlaying) render();

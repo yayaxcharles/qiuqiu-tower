@@ -220,6 +220,8 @@ describe('噹噹卡牌與命中節奏', () => {
       dangdang_sheshen: 'reckless_bash', roubao: 'rapid_combo',
       shierlian: 'rapid_combo', luanwu: 'sweep_combo',
       lianhuan: 'sweep_combo', wangming: 'reckless_bash',
+      // 2026-09-22 批次 proj：丟出去的三張改成原地推掌、東西從手上飛出去
+      juye: 'palm_throw', sashoujian: 'palm_throw', maoqiudan: 'palm_throw',
     };
     const own = dangdangPlan.heroSpecificCardToAction as Record<string, { action: string }>;
     expect(Object.keys(own)).toHaveLength(31);
@@ -333,10 +335,11 @@ describe('封封卡牌、近戰與收劍節奏', () => {
     expect(companionCardAction('fengfeng', 'fengfeng_pozhen')).toBe('qi_cleave');
     expect(companionCardAction('fengfeng', 'fengfeng_kaishan')).toBe('earth_split');
     expect(companionCardAction('fengfeng', 'fengfeng_huibu')).toBe('retreat_thrust');
-    // 2026-09-22 晚：三張遠程暗器牌不再只演卡圖，配最像的出手（亂舞橫掃、撒手鐧原地開山、毛球彈張嘴一吐）
-    expect(companionCardAction('fengfeng', 'luanwu', { cardType: '攻擊' })).toBe('sweep');
-    expect(companionCardAction('fengfeng', 'maoqiudan', { cardType: '攻擊' })).toBe('roar');
-    expect(companionCardAction('fengfeng', 'sashoujian', { cardType: '攻擊' })).toBe('earth_split');
+    // 2026-09-22 晚：三張遠程暗器牌不再只演卡圖；同日批次 proj 接上飛行物後，四張丟東西的牌一律左手丟、右手刺（原地）
+    expect(companionCardAction('fengfeng', 'luanwu', { cardType: '攻擊' })).toBe('thrust_throw');
+    expect(companionCardAction('fengfeng', 'maoqiudan', { cardType: '攻擊' })).toBe('thrust_throw');
+    expect(companionCardAction('fengfeng', 'sashoujian', { cardType: '攻擊' })).toBe('thrust_throw');
+    expect(companionCardAction('fengfeng', 'juye', { poseFamily: 'claw', cardType: '攻擊' })).toBe('thrust_throw');
   });
 
   it('五種劍擊與菲菲爪踢貼近目標，技能、飛針與震地保持原位', () => {

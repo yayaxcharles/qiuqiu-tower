@@ -70,7 +70,7 @@ describe('食物與特殊招式不被通用施術蓋掉', () => {
     for (const opts of [{ pose: 'taiji' }, { impactSeat: 0 }, { pose: 'taiji', impactSeat: 0 }]) {
       const playMotion = vi.fn();
       const q = { seat: 0, hp: 45, block: 0, down: false };
-      await execute(branch('    for (const q of cs.players) {\n      const source = motionSourceFor(q);', '    const feifeiNeedleAction'), {
+      await execute(branch('    for (const q of cs.players) {\n      const source = motionSourceFor(q);', '    // 丟出去的東西（2026-09-22 批次 proj）'), {
         cs: { players: [q] }, motionSourceFor: () => hero, comparison: undefined,
         before: { players: new Map([[0, { hp: 40, block: 0, stealth: 0 }]]) },
         getStatus: () => 0, comparedPhase: 'player', opts, mySeat: 0, impactMotion: undefined,

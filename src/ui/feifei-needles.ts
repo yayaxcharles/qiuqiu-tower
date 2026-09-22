@@ -234,6 +234,12 @@ function drawFlight(canvas: HTMLCanvasElement, action: FeifeiNeedleAction, progr
   context.restore();
 }
 
+/** 單根飛針的畫布大小與畫法（別人丟三連針時借用，見 projectile-flight.ts） */
+export const SINGLE_NEEDLE_SIZE = Object.freeze({ width: VISUALS.shuriken.width, height: VISUALS.shuriken.height });
+export function paintSingleNeedle(canvas: HTMLCanvasElement): void {
+  drawFlight(canvas, 'shuriken', 0);
+}
+
 function drawImpact(canvas: HTMLCanvasElement, effect: string, progress: number): void {
   const context = canvas.getContext('2d');
   if (!context) return;

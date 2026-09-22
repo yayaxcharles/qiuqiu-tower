@@ -68,11 +68,13 @@ const HEROES: readonly { hero: Hero; source: Source }[] = [
  * 原本刻意不配動作（維持靜態立繪）的 8 張遠程暗器牌，2026-09-22 晚改配最像的出手動作（原地出手、不衝上前）。
  * 列在這裡釘住選到的動作，免得以後被通用規則改成近身撲抓。
  */
+// 2026-09-22 批次 proj：飛行物接上之後，丟東西的牌四隻都原地出手、東西從手上飛出去——
+// 菲菲的聚葉成刀、手裏劍亂舞原本是衝上去爪擊；噹噹三張原本衝上去推掌；封封四張改成左手丟、右手刺（原地）
 const RANGED_CARDS: Readonly<Record<Source, Readonly<Record<string, string>>>> = {
   qiuqiu: { juye: 'shuriken', maoqiudan: 'shuriken' },
-  feifei: { tieshazhang: 'needle_fan', maoqiudan: 'shuriken', qinna: 'needle_backhand' },
-  dangdang: {},
-  fengfeng: { luanwu: 'sweep', maoqiudan: 'roar', sashoujian: 'earth_split' },
+  feifei: { tieshazhang: 'needle_fan', maoqiudan: 'shuriken', qinna: 'needle_backhand', juye: 'needle_fan', luanwu: 'storm' },
+  dangdang: { juye: 'palm_throw', sashoujian: 'palm_throw', maoqiudan: 'palm_throw' },
+  fengfeng: { luanwu: 'thrust_throw', maoqiudan: 'thrust_throw', sashoujian: 'thrust_throw', juye: 'thrust_throw' },
 };
 
 /** 八套新圖的貼圖網址（測試用假影像靠它分辨「還沒下載好」） */
@@ -219,9 +221,8 @@ describe('每張打得出去的牌都選到有素材的動作', () => {
     // 吼：技能四張沿用獅吼功那套，攻擊牌獅吼功本身照舊
     expect(using('ninja', 'qiuqiu', 'roar')).toEqual(['boming', 'chudashi', 'shihou', 'weihe', 'youcike']);
     for (const [hero, source] of [['feifei', 'feifei'], ['fengfeng', 'fengfeng']] as const) {
-      // 封封的毛球彈（2026-09-22 晚配動作）是張嘴一吐，借吼那一套
-      const extra = hero === 'fengfeng' ? ['maoqiudan'] : [];
-      expect(using(hero, source, 'roar'), hero).toEqual(['boming', 'chudashi', ...extra, 'shihou', 'weihe', 'youcike']);
+      // 封封的毛球彈 2026-09-22 晚先借吼那一套，同日批次 proj 改成左手丟出去（飛行物從手上出去）
+      expect(using(hero, source, 'roar'), hero).toEqual(['boming', 'chudashi', 'shihou', 'weihe', 'youcike']);
       expect(using(hero, source, 'taiji'), hero).toEqual(taiji);
     }
     expect(using('feifei', 'feifei', 'roll')).toEqual(['diaohu', 'feifei_lakai', 'gaotui', 'yixing', 'zhanshu']);

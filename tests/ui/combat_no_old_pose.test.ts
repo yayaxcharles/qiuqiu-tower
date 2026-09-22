@@ -185,14 +185,15 @@ describe('四隻貓 × 拿得到的每一張牌：出牌不會退回舊姿勢立
     // 毛球彈四隻都會
     expect(play('qiuqiu', 'maoqiudan')).toBe('shuriken');
     expect(play('feifei', 'maoqiudan')).toBe('shuriken');
-    expect(play('dangdang', 'maoqiudan')).toBe('palm');
-    expect(play('fengfeng', 'maoqiudan')).toBe('roar');
+    // 2026-09-22 批次 proj：噹噹、封封丟東西改成「丟東西版」的原地推掌、原地一刺（東西從手上飛出去）
+    expect(play('dangdang', 'maoqiudan')).toBe('palm_throw');
+    expect(play('fengfeng', 'maoqiudan')).toBe('thrust_throw');
     // 球球聚葉成刀；菲菲鐵砂掌（毒砂）、擒拿手（絆索）；封封撒手鐧、手裏劍亂舞
     expect(play('qiuqiu', 'juye')).toBe('shuriken');
     expect(play('feifei', 'tieshazhang')).toBe('needle_fan');
     expect(play('feifei', 'qinna')).toBe('needle_backhand');
-    expect(play('fengfeng', 'sashoujian')).toBe('earth_split');
-    expect(play('fengfeng', 'luanwu')).toBe('sweep');
+    expect(play('fengfeng', 'sashoujian')).toBe('thrust_throw');
+    expect(play('fengfeng', 'luanwu')).toBe('thrust_throw');
     // 噹噹的貓抓：正常玩拿不到（球球的起手牌），盤點是硬塞進去測的；照規則也配得到
     expect(play('dangdang', 'sanjo')).toBe('palm');
     // 黏液、眼冒金星：噹噹原本列在不配動作的名單裡
@@ -223,13 +224,16 @@ describe('四隻貓 × 35 種忍具：用忍具不會退回舊姿勢立繪', () 
     pending.clear();
     const motion = await combatMotion();
     const use = (source: Source, id: string) => motion.potion({ source }, id);
+    // 2026-09-22 批次 proj：煙霧彈、鞭炮、麻繩是丟出去的（原本施術），跟手裡劍一樣擲出去；菲菲的麻繩反手甩出去
     expect(['smoke_bomb', 'shuriken', 'claw_oil', 'firecracker', 'rope', 'needle_rain'].map((id) => use('qiuqiu', id)))
-      .toEqual(['seal', 'shuriken', 'seal', 'seal', 'seal', 'shuriken']);
+      .toEqual(['shuriken', 'shuriken', 'seal', 'shuriken', 'shuriken', 'shuriken']);
     expect(['smoke_bomb', 'shuriken', 'claw_oil', 'firecracker', 'rope', 'needle_rain'].map((id) => use('feifei', id)))
-      .toEqual(['seal', 'shuriken', 'seal', 'seal', 'seal', 'needle_combo']);
-    // 噹噹、封封沒有投擲動作：原地推掌、原地一刺；施術用運氣
-    expect(['smoke_bomb', 'shuriken', 'claw_oil', 'needle_rain'].map((id) => use('dangdang', id))).toEqual(['focus', 'palm', 'focus', 'palm']);
-    expect(['smoke_bomb', 'shuriken', 'claw_oil', 'needle_rain'].map((id) => use('fengfeng', id))).toEqual(['focus', 'thrust', 'focus', 'thrust']);
+      .toEqual(['shuriken', 'shuriken', 'seal', 'shuriken', 'needle_backhand', 'needle_combo']);
+    // 噹噹、封封沒有投擲動作：原地推掌、原地一刺（丟東西版，出手格放出飛行物）；施術用運氣
+    expect(['smoke_bomb', 'shuriken', 'claw_oil', 'needle_rain'].map((id) => use('dangdang', id)))
+      .toEqual(['palm_throw', 'palm_throw', 'focus', 'palm_throw']);
+    expect(['smoke_bomb', 'shuriken', 'claw_oil', 'needle_rain'].map((id) => use('fengfeng', id)))
+      .toEqual(['thrust_throw', 'thrust_throw', 'focus', 'thrust_throw']);
     for (const { source } of HEROES) {
       expect(use(source, 'onigiri'), source).toBe('eat');
       expect(use(source, 'nine_lives'), source).toBe('eat');
@@ -259,7 +263,7 @@ describe('戰鬥畫面三條用忍具的路都走同一套動作', () => {
 
   it('連線重播時丟出去的忍具也算出手（跟本機 potionPose 的 attack 一樣），傷害才排得到打中那一拍', () => {
     expect(src).toContain('attack = !!potionPose(heroOf(frame.player), frame.a.id).attack;');
-    expect(src).toContain("incomingMotion = { seat: a.seat, action, attack: !!potionPose(heroOf(q), a.id).attack };");
+    expect(src).toContain('incomingMotion = { seat: a.seat, action, attack: !!potionPose(heroOf(q), a.id).attack,');
   });
 });
 
