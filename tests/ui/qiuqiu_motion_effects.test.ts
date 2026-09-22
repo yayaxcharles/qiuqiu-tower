@@ -330,6 +330,21 @@ describe('球球殘影效果', () => {
     expect(done).toHaveBeenCalledOnce();
   });
 
+  it('殘影冒在角色當下的位置（原地前衝時跟著前進、退回），不是固定在衝最遠那一點', () => {
+    const root = stage();
+    // 假裝 0 毫秒在原位、50 毫秒往前 40 像素、100 毫秒退回 10 像素
+    const offsets: Record<number, number> = { 0: 0, 50: 40, 100: 10 };
+    playQiuqiuAfterimages(root, sourceActor(), { x: 500, y: 300 }, {
+      duration: 120, offsetAt: (elapsed) => offsets[Math.round(elapsed)] ?? 0, onDone: () => undefined,
+    });
+    step(0);
+    step(50);
+    step(100);
+    const lefts = afterimages(root).map((canvas) => Number.parseFloat(canvas.style.left!));
+    expect(lefts[1]! - lefts[0]!).toBeCloseTo(40, 6);
+    expect(lefts[2]! - lefts[0]!).toBeCloseTo(10, 6);
+  });
+
   it('主動清理會移除所有殘影與排程，之後不誤觸完成回呼', () => {
     const root = stage();
     const done = vi.fn();

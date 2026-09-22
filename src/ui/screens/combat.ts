@@ -703,12 +703,14 @@ registerScreen('combat', (app, root, props) => {
     refreshMotion(q);
     if (source === 'qiuqiu' && trip && (action === 'dash' || action === 'ultimate_rush')) {
       let cancel: () => void = () => undefined;
+      const lungeFrom = state.lungeFrom;
       cancel = playQiuqiuAfterimages(app.stage, state.actor as unknown as QiuqiuActor, {
-        x: trip.origin.x + trip.plan.dx,
+        x: trip.origin.x,
         y: trip.origin.y + trip.plan.dy,
       }, {
         duration: trip.plan.totalMs,
         elapsed: caughtUp,
+        offsetAt: (elapsed) => motionMeleeSample(trip.plan, elapsed, lungeFrom).x,
         onDone: () => { motionProjectiles.delete(cancel); },
       });
       motionProjectiles.add(cancel);
@@ -960,6 +962,7 @@ registerScreen('combat', (app, root, props) => {
       // 牌名與圖照**同伴**的角色：忍者那位的 hero 欄位刻意不寫，直接傳 q.hero 會退成本機角色（審查 中-3）
       node.append(el('div', { class: `mate-play${fresh ? ' in' : ''}` }, cardNode(mp.card, { small: true, hero: heroOf(q), partnerHero: heroOf(my()) })));
     }
+    if (!mine) node.dataset.mateSig = mateSig(q);
     return node;
   };
   const bonusFish = (props as { bonusFish?: number } | null)?.bonusFish ?? 0;
@@ -1001,6 +1004,15 @@ registerScreen('combat', (app, root, props) => {
    * 打出、棄掉、換回合牌離開手牌就自然消失，取消或打出時對方也會送 null。
    */
   const mateHint = new Map<number, number>();
+  /**
+   * 同伴那一格上會變、但快照（SeatSnap）沒記的東西：考慮中的牌、這回合剛打出的牌、蓄氣、針上的毒。
+   * 同伴出一張只打魔物的牌時血量、蜷縮、狀態都沒變，只比快照的話頭上那張牌與封封的蓄氣都不會換
+   *（推前審查 2026-09-22 高-1）。畫的時候記在節點上，逐步修補時比一下。
+   */
+  const mateSig = (q: PlayerCombat): string => {
+    const mp = matePlay.get(q.seat);
+    return [mateHint.get(q.seat) ?? '', mp && mp.turn === cs.turn ? mp.card.uid : '', q.qi ?? '', q.poisonNextAttack?.amount ?? ''].join('|');
+  };
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
   const idlePose = (): string => idlePoseKey(my(), POSE, (k) => hasHeroSprite(my().hero, k));
@@ -2002,7 +2014,8 @@ registerScreen('combat', (app, root, props) => {
     for (const q of cs.players) {
       if (q.seat === mySeat) continue;
       const node = field.querySelector<HTMLElement>(`.unit.player[data-seat="${q.seat}"]`);
-      if (node && mateUnitStale(before.players.get(q.seat), q, node, cs.players.length > 1, heroArtUrl(q.hero, matePose(q)))) {
+      if (node && (mateUnitStale(before.players.get(q.seat), q, node, cs.players.length > 1, heroArtUrl(q.hero, matePose(q)))
+        || node.dataset.mateSig !== mateSig(q))) {
         node.replaceWith(playerUnit(q));
       }
     }

@@ -22,9 +22,10 @@ const sumStatus = (u: { statuses?: Record<string, number> }, names: readonly str
 
 type Q = { seat: number; hp: number; block: number; down?: boolean; ready?: boolean; hero: string; statuses: Record<string, number> };
 
-function fakeNode(src: string, classes: string[] = []) {
+function fakeNode(src: string, classes: string[] = [], mateSig = 'same') {
   const set = new Set(['unit', 'player', ...classes]);
   return {
+    dataset: { mateSig },
     classList: { contains: (c: string) => set.has(c) },
     querySelector: () => ({ getAttribute: () => src }),
     replaceWith: vi.fn(),
@@ -41,6 +42,7 @@ async function runMateLoop(q: Q, was: Record<string, unknown> | undefined, node:
     heroArtUrl: (_hero: string, pose: string) => `/${pose}.webp`,
     matePose: (p: Q) => (p.down ? 'lose' : 'idle'),
     playerUnit: () => ({}),
+    mateSig: () => 'same',
     getStatus, sumStatus, GOOD_STATUS: ['爪力'], BAD_STATUS: ['中毒'],
   };
   const compiled = await transformWithOxc(code, 'patch-field-mate.ts');
@@ -50,6 +52,12 @@ async function runMateLoop(q: Q, was: Record<string, unknown> | undefined, node:
 describe('同伴那一格有變才換新節點', () => {
   const q: Q = { seat: 1, hp: 40, block: 3, hero: 'feifei', statuses: { 中毒: 2 } };
   const was = { hp: 40, block: 3, stealth: 0, down: false, buff: 0, debuff: 2 };
+
+  it('同伴出了一張只打魔物的牌（血量、狀態都沒變）：頭上那張牌、蓄氣變了就要換（推前審查 高-1）', async () => {
+    const node = fakeNode('/idle.webp', [], 'uid-3|12|3|');
+    await runMateLoop(q, was, node);
+    expect(node.replaceWith).toHaveBeenCalledTimes(1);
+  });
 
   it('這一步同伴什麼都沒變：不換（以前每一步都整格重建）', async () => {
     const node = fakeNode('/idle.webp');

@@ -135,7 +135,9 @@ export function playQiuqiuAfterimages(
   stage: HTMLElement,
   actor: QiuqiuActor,
   foot: Point,
-  options: { duration: number; elapsed?: number; onDone: () => void },
+  // offsetAt：這一刻角色離 foot 往前衝了多少像素。近戰改成原地前衝後（2026-09-22），殘影要冒在角色當下的位置，
+  // 不能固定在衝最遠那一點——退回原位時殘影會跑到本人前面（推前審查 中-1）
+  options: { duration: number; elapsed?: number; offsetAt?: (elapsed: number) => number; onDone: () => void },
 ): () => void {
   const started = performance.now() - Math.max(0, options.elapsed ?? 0);
   const ghosts: Array<{ canvas: HTMLCanvasElement; at: number }> = [];
@@ -173,7 +175,7 @@ export function playQiuqiuAfterimages(
       }
       // A captured whole pose drifts a few pixels behind the fighter then fades.
       Object.assign(canvas.style, { position: 'absolute', pointerEvents: 'none', zIndex: '18',
-        left: `${foot.x - actor.foot.x}px`, top: `${foot.y - actor.foot.y}px`,
+        left: `${foot.x + (options.offsetAt?.(elapsed) ?? 0) - actor.foot.x}px`, top: `${foot.y - actor.foot.y}px`,
         width: `${actor.width}px`, height: `${actor.height}px`, opacity: '', transform: '' });
       stage.append(canvas);
       ghosts.push({ canvas, at: elapsed });
