@@ -58,6 +58,43 @@ const RATING: Record<string, number> = {
   // 封封的三張同理：平斬＝貓抓、護身＝淡定、吐納＝替身術那一格（2026-09-22 量測修正：
   // 原本漏列，照稀有度被當成 4 分，起手牌一輩子不會被放生，收局時十張全留著）
   fengfeng_pingzhan: 2, fengfeng_hushen: 2, fengfeng_tuna: 3,
+  /*
+   * 封封的專屬牌（2026-09-22 量測工具，平衡調整「方案三」之後量的）。沒列的話一律照稀有度給 4／5／7，
+   * 機器人分不出好壞：回劍護肘（實測最好的兩張之一）只有 5 分、長息（實測最差）也是 5 分，
+   * 而共用牌大多手動評過 6～8 分——於是他的好牌幾乎撿不到，後段被量得太弱。
+   *
+   * **分數的來源**：起手十張多塞一張這張牌、整局跑 600 局，看平均到達樓層多幾層，
+   * 兩批種子（smart-0～599、smartB-0～599）取平均，再照固定級距換成分數：
+   *   多 2 層以上 → 8、多 1～2 層 → 7、多 0.4～1 層 → 6、多 0～0.4 層 → 5、少 0～0.5 層 → 4、少 0.5 層以上 → 3。
+   * 括號裡是那個平均。**不給 2 分以下**：那是「放生名單」（`deckJunk`）的門檻，量出來偏弱不等於該刪掉。
+   * 四張連線專用牌（你從右邊上、借我擋一下、我護著你走、現在一起上）單人量不到，照舊用預設。
+   * 改了這幾張的數值就要重量一次，不然分數會跟著過期。
+   */
+  fengfeng_duanliu: 8,     // 絕學·斷流（+3.8）
+  fengfeng_huzhou: 8,      // 回劍護肘（+3.4）
+  fengfeng_pozhen: 8,      // 絕學·破陣（+2.4）
+  fengfeng_shuangduan: 7,  // 雙段劍（+1.7）
+  fengfeng_zhenshou: 7,    // 振袖收劍（+1.4）
+  fengfeng_kaishan: 7,     // 絕學·開山（+1.1）
+  fengfeng_chuantang: 6,   // 穿堂劍（+0.7）
+  fengfeng_tabu: 6,        // 踏步重劈（+0.7）
+  fengfeng_tuibu: 6,       // 退步守勢（+0.6）
+  fengfeng_jianqiao: 6,    // 劍鞘架擋（+0.6）
+  fengfeng_huibu: 6,       // 回步刺（+0.6）
+  fengfeng_huanshou: 6,    // 換手握劍（+0.5）
+  fengfeng_hengsao: 6,     // 橫掃（+0.4）
+  fengfeng_tiaokai: 4,     // 挑開（−0.0）
+  fengfeng_tanbu: 4,       // 探步劍（−0.0）
+  fengfeng_zhuanshen: 4,   // 轉身蓄勁（−0.2）
+  fengfeng_wenwan: 4,      // 穩住手腕（−0.3）
+  fengfeng_jizhong: 3,     // 集中精神（−0.5）
+  fengfeng_kanshi: 3,      // 看準劍路（−0.6）
+  fengfeng_zhengxi: 3,     // 整理呼吸（−0.7）
+  fengfeng_xunxi: 3,       // 循息（−0.9）
+  fengfeng_shoushi: 3,     // 收勢（−1.4）
+  fengfeng_lianxi: 3,      // 絕學·連息（−1.7）
+  fengfeng_cunfeng: 3,     // 絕學·藏鋒（−1.8）
+  fengfeng_changxi: 3,     // 長息（−2.1）
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,
@@ -72,6 +109,10 @@ const RATING: Record<string, number> = {
   zuiquan: 5, yixing: 5, gekong: 4, guixi: 5, taiji: 4, mabu: 7, yungong: 8, yide: 6, tuishou: 5, dieda: 5, shibadie: 6,
   hujin: 6, boming: 6, liandao: 8, jiedao: 6, wangming: 7, tiexin: 9, fanpu: 5, shierlian: 7, huxin: 8, jiuweiquan: 8,
 };
+/** 這張牌有沒有手動評分（沒有＝照稀有度的預設）。給測試盯「新加的牌有沒有漏評」用 */
+export function handRated(cardId: string): boolean {
+  return cardId in RATING;
+}
 export function rating(cardId: string): number {
   const def = cardById[cardId];
   if (!def) return 0;

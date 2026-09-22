@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { startCombat } from '../../src/engine/combat';
 import type { Hero } from '../../src/engine/hero';
 import { Rng, seedFromString } from '../../src/engine/rng';
-import { deckJunk, rating, smartSeatAct } from '../../src/engine/smartbot';
+import { cards } from '../../src/content/cards';
+import { deckJunk, handRated, rating, smartSeatAct } from '../../src/engine/smartbot';
 import { newRun } from '../../src/engine/run';
 import type { CombatState, EnemyMove, PlayerCombat } from '../../src/engine/types';
 
@@ -113,5 +114,25 @@ describe('量測工具修正 2026-09-22：封封起手三張的評分', () => {
     const junk = deckJunk(run).map((c) => c.cardId);
     expect(junk).toContain('fengfeng_pingzhan');
     expect(junk).toContain('fengfeng_hushen');
+  });
+});
+
+describe('量測工具 2026-09-22：封封專屬牌評分', () => {
+  /*
+   * 沒評分的牌照稀有度拿預設分，機器人分不出好壞（回劍護肘與長息都是 5 分），
+   * 封封的好牌撿不到、後段量得太弱。來源與級距寫在 `smartbot.ts` 的 RATING 那一段。
+   */
+  it('單人拿得到的封封專屬牌（起手與連線專用以外）每一張都有手動評分——新加的牌漏評會變紅', () => {
+    const own = cards.filter((c) => c.hero === 'fengfeng' && c.pool !== '起手' && !c.coop);
+    expect(own.length).toBe(25);
+    for (const c of own) expect(handRated(c.id), c.id).toBe(true);
+  });
+  it('照實測排序：斷流、回劍護肘 8 分，長息、藏鋒 3 分（預設會是 7／5／5／7）', () => {
+    expect(rating('fengfeng_duanliu')).toBe(8);
+    expect(rating('fengfeng_huzhou')).toBe(8);
+    expect(rating('fengfeng_changxi')).toBe(3);
+    expect(rating('fengfeng_cunfeng')).toBe(3);
+    // 偏弱的牌不進放生名單（2 分以下才是）
+    for (const c of cards.filter((x) => x.hero === 'fengfeng' && x.pool !== '起手')) expect(rating(c.id), c.id).toBeGreaterThan(2);
   });
 });
