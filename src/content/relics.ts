@@ -27,12 +27,13 @@ export const relics: RelicDef[] = [
   { id: 'copper_bracer', name: '銅護臂', pool: '起始', text: '每場戰鬥開始時獲得 4 點蜷縮與 2 點反彈。', art: 'codex/relic_copper_bracer', price: 130,
     hooks: { combatStart: [{ kind: 'block', amount: 4 }, { kind: 'status', name: '反彈', amount: 2, target: 'self' }] } },
   /*
-   * 封封的起始秘寶。2026-09-22 平衡調整時試過多給「每回合開始 1 點蓄氣」，
-   * 等機器人學會挑封封的好牌（`smartbot.ts` 的封封評分）之後量出來偏強（600 局平均 24.2 層、球球 22.4），
-   * 使用者裁定拿掉、維持原本只在開場給 2 點。吐納 0 費與花氣牌每氣 +1 保留。
+   * 封封的起始秘寶。2026-09-22 平衡調整（使用者裁定「B」）：開場 2 點照留，再加「每回合開始 1 點蓄氣」，
+   * 同時吐納改回 1 費。理由是形狀：吐納 0 費是前段的好處（第一關比球球輕鬆很多、第二關關主卻全在 30% 以下），
+   * 每回合給氣對長戰（關主）比較有利。第一回合兩條都會發（開場 2＋回合開始 1＝3 點）。
+   * 蓄氣已滿 12 時每回合那一次不閃、不寫「發動」（見 `combat.ts` 的 `startPlayerTurn`）。
    */
-  { id: 'old_sword_tassel', name: '舊劍穗', pool: '起始', text: '每場戰鬥開始時獲得 2 點蓄氣。', art: 'codex/relic_old_sword_tassel', price: 130,
-    hooks: { combatStart: [{ kind: 'gainQi', n: 2 }] } },
+  { id: 'old_sword_tassel', name: '舊劍穗', pool: '起始', text: '每場戰鬥開始時獲得 2 點蓄氣；每回合開始時再獲得 1 點蓄氣。', art: 'codex/relic_old_sword_tassel', price: 130,
+    hooks: { combatStart: [{ kind: 'gainQi', n: 2 }], turnStart: [{ kind: 'gainQi', n: 1 }] } },
   { id: 'onigiri_bag', name: '飯糰袋', pool: '常見', text: '每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_onigiri_bag', price: 160, hooks: { firstTurnEnergy: 1 } },
   { id: 'tuna_can', name: '鮪魚罐頭', pool: '常見', text: '最大生命 +10。', art: 'codex/relic_tuna_can', price: 120, hooks: { maxHp: 10 } },
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回復的生命加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },

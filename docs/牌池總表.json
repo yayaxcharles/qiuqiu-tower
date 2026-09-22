@@ -5316,7 +5316,7 @@
   "name": "吐納",
   "pool": "起手",
   "rarity": "常見",
-  "cost": 0,
+  "cost": 1,
   "type": "技能",
   "target": "self",
   "keywords": [],

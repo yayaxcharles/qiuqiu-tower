@@ -924,10 +924,10 @@ export const cards: readonly CardDef[] = [
   /*
    * **2026-09-22 平衡調整（使用者裁定「方案三」）**：修好量測機器人之後封封平均只爬到 17.9 層，
    * 球球 22.4 層。病根是蓄氣換算划不來——花一張牌、一顆飯糰存下的氣，換回來的傷害跟直接打差不多，
-   * 他自己那一池花氣的牌多塞一張進牌組大多反而變弱。改了兩處：
+   * 他自己那一池花氣的牌多塞一張進牌組大多反而變弱。最後定案兩處（使用者裁定「B」）：
    *   ① 所有花蓄氣的牌**每點蓄氣多 1 點效果**（下面 14 張的 `perQi` 全部 +1，契約表上的數字是改之前的）
-   *   ② 吐納 1 費 → 0 費（升級版照舊 5 氣、也是 0 費，升級的價值仍是多 2 氣）
-   * 原本還有第三處（舊劍穗多給每回合 1 點蓄氣），機器人學會挑封封的好牌之後量出來偏強，拿掉了（見 `relics.ts`）。
+   *   ② 起始秘寶舊劍穗多給「每回合開始 1 點蓄氣」（見 `relics.ts`）
+   * 中間試過吐納 0 費：平均樓層對了，但好處全在前段（第一關比球球輕鬆、第二關關主全低於 30%），改回 1 費。
    * 量測（修好的機器人含封封評分、600 局、難度 1）見提交訊息；另外三隻完全沒變。
    */
   // 起手三種
@@ -936,7 +936,7 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damageSpendQi', amount: 8, perQi: 3, maxQi: 2 }] } },
   { id: 'fengfeng_hushen', name: '護身', cost: 1, type: 技, rarity: '常見', pool: '起手', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_hushen',
     effects: [{ kind: 'block', amount: 5 }], upgrade: { effects: [{ kind: 'block', amount: 8 }] } },
-  { id: 'fengfeng_tuna', name: '吐納', cost: 0, type: 技, rarity: '常見', pool: '起手', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_tuna',
+  { id: 'fengfeng_tuna', name: '吐納', cost: 1, type: 技, rarity: '常見', pool: '起手', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_tuna',
     effects: [{ kind: 'gainQi', n: 3 }], upgrade: { effects: [{ kind: 'gainQi', n: 5 }] } },
 
   // 常見

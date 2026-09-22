@@ -25,6 +25,8 @@ describe('封封角色與 32 張牌資料', () => {
     expect(startRelicFor('fengfeng')).toBe('old_sword_tassel');
     expect(relicById['old_sword_tassel']).toMatchObject({ name: '舊劍穗', pool: '起始' });
     expect(relicById['old_sword_tassel']!.hooks.combatStart).toEqual([{ kind: 'gainQi', n: 2 }]);
+    // 2026-09-22 平衡調整：多一條每回合開始 1 點蓄氣（開場那 2 點照留）
+    expect(relicById['old_sword_tassel']!.hooks.turnStart).toEqual([{ kind: 'gainQi', n: 1 }]);
   });
 
   it('只有 32 張封封專屬牌，圖鍵與取得條件一致', () => {
@@ -55,7 +57,7 @@ describe('封封角色與 32 張牌資料', () => {
   it('費用、牌型、稀有度與牌池完全對應契約', () => {
     const rows: [string, string, number, number | undefined, string, string, boolean?][] = [
       ['pingzhan', '平斬', 1, undefined, '攻擊', '常見'], ['hushen', '護身', 1, undefined, '技能', '常見'],
-      ['tuna', '吐納', 0, undefined, '技能', '常見'],   // 2026-09-22 平衡調整：1 費 → 0 費 ['tanbu', '探步劍', 1, undefined, '攻擊', '常見'],
+      ['tuna', '吐納', 1, undefined, '技能', '常見'], ['tanbu', '探步劍', 1, undefined, '攻擊', '常見'],
       ['hengsao', '橫掃', 1, undefined, '攻擊', '常見'], ['tabu', '踏步重劈', 2, undefined, '攻擊', '常見'],
       ['tiaokai', '挑開', 1, undefined, '攻擊', '常見'], ['tuibu', '退步守勢', 1, undefined, '技能', '常見'],
       ['zhengxi', '整理呼吸', 1, undefined, '技能', '常見'], ['wenwan', '穩住手腕', 0, undefined, '技能', '常見'],
@@ -71,6 +73,9 @@ describe('封封角色與 32 張牌資料', () => {
       ['lianxi', '絕學·連息', 1, undefined, '能力', '稀有'], ['jizhong', '集中精神', 0, undefined, '技能', '稀有'],
       ['pozhen', '絕學·破陣', 2, undefined, '攻擊', '稀有'], ['yiqichushou', '現在一起上', 2, 1, '技能', '稀有', true],
     ];
+    // 一列漏掉就少驗一張而且照樣綠燈（2026-09-22 審查抓到：行尾註解把探步劍吃掉了），所以先數張數
+    expect(rows).toHaveLength(32);
+    expect(new Set(rows.map((r) => r[0])).size).toBe(32);
     for (const [suffix, name, cost, upCost, type, rarity, coop] of rows) {
       const d = cardById[`fengfeng_${suffix}`]!;
       expect([d.name, d.cost, d.upgrade.cost, d.type, d.rarity, !!d.coop], suffix)

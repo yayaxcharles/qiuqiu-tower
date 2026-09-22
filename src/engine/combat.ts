@@ -352,6 +352,8 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
     if (!h) continue;
     // 只回血的（塔主的茶碗）滿血時那一下什麼都沒發生，不閃金光、不佔紀錄——跟沙丁魚罐同一條規矩（總稽核 2026-09-16 乙 低-6）
     if (h.every((fx) => fx.kind === 'heal') && p.hp >= p.maxHp) continue;
+    // 只給蓄氣的（封封的舊劍穗）蓄氣已滿 12 時同理：那一下什麼都沒加，不閃、不寫「發動」（審查 2026-09-22）
+    if (h.every((fx) => fx.kind === 'gainQi') && (p.qi ?? 0) >= 12) continue;
     fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' });
   }
   for (const c of [...p.hand]) {
