@@ -9,8 +9,14 @@
     Godot 動作修練場移過來的原畫，**只准縮放、不准重畫**。頭小 2～13%。
 
 做法：圖一個位元都不動，資料檔的 scale ＝ 開分支那一版的值 × 修正倍率。定位點是圖內座標、不用改
-（縮放以定位點為中心，腳底線不動）。修正倍率＝1 ÷（量得準的格子裡，頭部倍率最大值與最小值的中點），
-讓離待機最遠的那一格離得最近（±5% 閘門的餘裕最大）；取到千分位。
+（縮放以定位點為中心，腳底線不動）。修正倍率取下面三個裡最小的（`fix_rule`）：
+  ① 頭：1 ÷（量得準的格子裡，頭部倍率最大值與最小值的中點），讓離待機最遠的那一格離得最近；取到千分位；
+  ② 整隻高度：1.05 ÷（改前最高那一格的外框高 ÷ 待機第 1 格外框高），無條件捨去到千分位——整隻不能比待機高 5% 以上；
+  ③ Godot 原畫：上限 ×1.05。
+第一版（9da4696）只照①，球球原畫的頭身比跟待機不同（頭比較小），頭對齊之後連環踢整隻比待機高 11%、亂舞高 7%，
+玩家看起來就是「大小變來變去」，比頭略小更明顯。2026-09-22 主控裁定：頭與整隻高度各差 ±5～6% 的折衷，
+兩者不能同時滿足時整隻高度 ≤+5% 優先，原畫放大上限 ×1.05。所以原畫的頭部倍率放寬到 ±6%，
+因為高度優先而頭還是超出的格子明列在 `HEAD_SHORT`。
 
 量法（比 mix 多一道穩健）：mix 的單一量法（比例尺 1.5、樣板到頭身交界）換個比例尺重量，難認的格子會差 3～9%，
 跟 ±4% 的相鄰格閘門同一個量級。所以每格量四種（比例尺 1.5／2.0 × 樣板到下巴 0.40／到頭身交界），取中位數；
@@ -25,8 +31,11 @@
   1. 圖與格子沒動：圖集跟開分支那一版同一個檔、每格 rect／pivot／duration 完全相同，只有 scale 變——
      所以縮放前後「相鄰格頭部倍率的比值」完全相同（原畫本身的起伏不會變好也不會變糟）；
   2. 修正倍率照規則從改前量測算出來；
-  3. 量得準的每一格：改後重量、改前×修正倍率，兩個都在待機 ±5% 內；
-  4. 量不準的只准是明列的格子（而且改前改後真的量不準），退路量到的也要在 ±5% 內；
+  3. 量得準的每一格：改後重量、改前×修正倍率，兩個都在待機 ±5%（原畫 ±6%）內；超出的只准是 `HEAD_SHORT`
+     明列的（而且修正倍率真的被高度或上限壓住、頭仍 ≥0.90）；
+  4. 量不準的只准是明列的格子（而且改前改後真的量不準），退路量到的也要在同一個範圍內；
+  4'. 整隻高度：每一格外框高 ÷ 待機第 1 格外框高，改後最高不超過 +5%；
+  4''. 銜接：`TRANSITIONS` 列的編排接點（連環踢播完接迴旋踢 kick 第 1 格），頭與整隻高度的跳動都 ≤5%；
   5. 相鄰格頭部倍率變化 ≤4%（用改前的量測＝原畫本身的比值；跳過量不準的格子；循環動作連最後一格接回第 1 格）。
      超過的只准是 `INHERENT_STEPS` 明列的那幾組——原畫的姿勢透視（轉頭、低頭），整套縮放改不了，
      2026-09-22 主控裁定不逐格再縮，閘門改成「不能比原畫更糟」（由第 1 點保證完全相同）；
@@ -64,15 +73,21 @@ MIN_CORR = 0.85               # 四種量法裡最好的相關低於這個＝量
 MAX_SPREAD = 0.08             # 四種量法最大減最小超過這個＝量不準
 CHAIN_CORR = 0.90             # 接力量每一次的相關都要到這個
 FOOT = '前腳'
+HEIGHT_LIMIT = 0.05           # 整隻高度（外框高 ÷ 待機第 1 格外框高）最高 +5%
+FIX_CAP = 1.05                # Godot 原畫放大上限
+ORIGINAL_HEAD_LIMIT = 0.06    # 原畫頭身比跟待機不同，頭部倍率放寬到 ±6%（主控裁定 ±5～6%）
+HEAD_FLOOR = 0.90             # HEAD_SHORT 的格子最小也要到這個
+TRANSITION_LIMIT = 0.05       # 編排接點的頭與整隻高度跳動上限
+IDLE_DATA = {'dangdang': 'src/ui/dangdang-motion-data.json', 'qiuqiu': 'src/ui/qiuqiu-motion-data.json'}
 
 # packed＝開分支那一版資料檔的 scale；fix＝乘上去的倍率
 SCALE_FIX = {
     'dangdang/dodge': {'data': 'src/ui/dangdang-motion-data.json', 'packed': 0.863013698630137, 'fix': 0.946},
     'dangdang/win': {'data': 'src/ui/dangdang-motion-data.json', 'packed': 0.865979381443299, 'fix': 0.962},
-    'qiuqiu/combo_kick': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.605, 'fix': 1.111},
-    'qiuqiu/rush': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.622, 'fix': 1.084},
-    'qiuqiu/storm': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.622, 'fix': 1.042},
-    'qiuqiu/attack_air': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.515, 'fix': 1.081},
+    'qiuqiu/combo_kick': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.605, 'fix': 1.046},
+    'qiuqiu/rush': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.622, 'fix': 1.05},
+    'qiuqiu/storm': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.622, 'fix': 1.022},
+    'qiuqiu/attack_air': {'data': 'src/ui/qiuqiu-motion-data.json', 'packed': 0.515, 'fix': 1.05},
 }
 GODOT_ORIGINAL = {'qiuqiu/combo_kick', 'qiuqiu/rush', 'qiuqiu/storm', 'qiuqiu/attack_air'}
 # 量不準的格子（第幾格從 1 算）：（為什麼, 退路）
@@ -86,6 +101,16 @@ INHERENT_STEPS = {
     'qiuqiu/combo_kick': [(5, 6), (6, 7)],
     'qiuqiu/rush': [(1, 2)],
     'qiuqiu/attack_air': [(3, 5)],
+}
+# 整隻高度優先、頭還是超出範圍的格子（從 1 算）
+HEAD_SHORT = {
+    'qiuqiu/combo_kick': {6: '原畫這格的頭本來就比前後格小 5%；整隻高度已到 +5% 上限，不能再放大'},
+    'qiuqiu/rush': {6: '原畫這格的頭是整套最小的（比前一格小 3%）；原畫放大上限 ×1.05 壓住'},
+}
+# 編排接點：(這一套的第幾格, 接著播的動作資料檔, 動作, 第幾格, 說明)，都從 1 算
+TRANSITIONS = {
+    'qiuqiu/combo_kick': [(8, 'src/ui/qiuqiu-motion-data.json', 'kick', 1,
+                           '連環踢的編排（qiuqiu-choreography.ts）：combo_kick 播完 400 毫秒（原速）接迴旋踢 kick，從第 1 格開始')],
 }
 LABEL = {'dangdang/dodge': '噹噹 閃避（縮放）', 'dangdang/win': '噹噹 勝利（縮放）',
          'qiuqiu/combo_kick': '球球 連環踢（縮放・原畫）', 'qiuqiu/rush': '球球 衝刺（縮放・原畫）',
@@ -205,6 +230,60 @@ def neighbours(key: str, i: int, n: int) -> list[int]:
     return before + after
 
 
+def idle_height(hero: str) -> float:
+    idle = mix.load_action(IDLE_DATA[hero], 'idle')
+    return idle['frames'][0]['rect'][3] * idle['scale']
+
+
+def heights(key: str, scale: float) -> list[float]:
+    """每一格的整隻高度：外框高（遊戲單位）÷ 待機第 1 格外框高。"""
+    return [round(f['rect'][3] * scale / idle_height(key.split('/')[0]), 4) for f in current(key)['frames']]
+
+
+def fix_rule(key: str, before: dict) -> dict:
+    """修正倍率＝min(①頭的中點, ②整隻高度 +5% 的上限, ③原畫 ×1.05)。"""
+    spec = SCALE_FIX[key]
+    ok = [h for i, h in enumerate(before['head']) if i + 1 not in UNRELIABLE.get(key, {})]
+    head = round(1 / ((min(ok) + max(ok)) / 2), 3)
+    height = int((1 + HEIGHT_LIMIT) / max(heights(key, spec['packed'])) * 1000) / 1000
+    cap = FIX_CAP if key in GODOT_ORIGINAL else None
+    return {'head': head, 'height': height, 'cap': cap, 'fix': min(head, height, *([cap] if cap else []))}
+
+
+def head_limit(key: str) -> float:
+    return ORIGINAL_HEAD_LIMIT if key in GODOT_ORIGINAL else mix.HEAD_LIMIT
+
+
+def measure_transitions(fixed: dict[str, float]) -> dict[str, list[dict]]:
+    """編排接點：接著播的那一格用同樣四種量法量頭；跟這一套那一格的頭、整隻高度比。"""
+    jobs, tags = [], []
+    for key, items in TRANSITIONS.items():
+        for k, (frm, data_file, action, to, why) in enumerate(items):
+            other = mix.load_action(data_file, action)
+            f = other['frames'][to - 1]
+            for z, cut in VARIANTS:
+                jobs.append(('head', f"{key.split('/')[0]}/{action}", to - 1, other['texture'], f['rect'], other['scale'], z, cut))
+                tags.append((key, k))
+    got: dict = {}
+    with ProcessPoolExecutor(max_workers=16) as pool:
+        for (_, _, _, r), tag in zip(pool.map(_run, jobs, chunksize=1), tags):
+            got.setdefault(tag, []).append(r)
+    out: dict[str, list[dict]] = {}
+    for key, items in TRANSITIONS.items():
+        for k, (frm, data_file, action, to, why) in enumerate(items):
+            rs = got[(key, k)]
+            other = mix.load_action(data_file, action)
+            h_other = other['frames'][to - 1]['rect'][3] * other['scale'] / idle_height(key.split('/')[0])
+            out.setdefault(key, []).append({
+                'from': frm, 'to': f'{action}#{to}', 'why': why, 'toScale': other['scale'],
+                'toHead': round(float(np.median([r['scale'] for r in rs])), 3),
+                'toSpread': round(max(r['scale'] for r in rs) - min(r['scale'] for r in rs), 3),
+                'toCorrMax': max(r['corr'] for r in rs),
+                'toHeight': round(h_other, 4),
+                'fromHeight': heights(key, fixed[key])[frm - 1]})
+    return out
+
+
 def reliable(m: dict, i: int) -> bool:
     return m['corrMax'][i] >= MIN_CORR and m['spread'][i] <= MAX_SPREAD + 1e-9
 
@@ -232,10 +311,6 @@ def steps(key: str, heads: list[float], loop: bool) -> list[tuple[int, int, floa
     return [(a + 1, b + 1, round(heads[b] / heads[a] - 1, 4)) for a, b in pairs]
 
 
-def within(v: float | None) -> bool:
-    return v is not None and abs(v - 1) <= mix.HEAD_LIMIT + 1e-9
-
-
 def gate(key: str, before: dict, after: dict) -> dict:
     spec = SCALE_FIX[key]
     data = current(key)
@@ -251,10 +326,15 @@ def gate(key: str, before: dict, after: dict) -> dict:
     n = len(data['frames'])
     listed = UNRELIABLE.get(key, {})
     # 2. 修正倍率照規則算
-    ok = [before['head'][i] for i in range(n) if i + 1 not in listed]
-    want = round(1 / ((min(ok) + max(ok)) / 2), 3)
-    if want != fix:
-        raise ArtError(f'{key}: 修正倍率 {fix} 跟改前量測算出來的 {want} 不一樣')
+    rule = fix_rule(key, before)
+    if rule['fix'] != fix:
+        raise ArtError(f'{key}: 修正倍率 {fix} 跟規則算出來的 {rule} 不一樣')
+    limit = head_limit(key)
+    short = HEAD_SHORT.get(key, {})
+
+    def within(v: float | None) -> bool:
+        return v is not None and abs(v - 1) <= limit + 1e-9
+
     for i in range(n):
         tag = f'{key}: 第 {i + 1} 格'
         if i + 1 in listed:
@@ -269,14 +349,27 @@ def gate(key: str, before: dict, after: dict) -> dict:
             if min(fb['corr'], fb0['corr']) < need:
                 raise ArtError(f'{tag}的退路（{fb["method"]}）相關 {fb0["corr"]}／{fb["corr"]} 低於 {need}，驗不了')
             if not (within(fb['value']) and within(fb0['value'] * fix)):
-                raise ArtError(f'{tag}的退路（{fb["method"]}）改後 {fb["value"]}、改前×修正 {fb0["value"] * fix:.3f}，超出 ±{mix.HEAD_LIMIT:.0%}')
+                raise ArtError(f'{tag}的退路（{fb["method"]}）改後 {fb["value"]}、改前×修正 {fb0["value"] * fix:.3f}，超出 ±{limit:.0%}')
             continue
         # 3. 量得準的：改後重量、改前×修正倍率，兩個都要在 ±5%
         if not (reliable(before, i) and reliable(after, i)):
             raise ArtError(f'{tag}量不準（相關 {before["corrMax"][i]}／{after["corrMax"][i]}、差距 '
                            f'{before["spread"][i]}／{after["spread"][i]}），又沒列在例外')
-        if not (within(after['head'][i]) and within(before['head'][i] * fix)):
-            raise ArtError(f'{tag}頭部倍率改後 {after["head"][i]}、改前×修正 {before["head"][i] * fix:.3f}，超出 ±{mix.HEAD_LIMIT:.0%}')
+        inside = within(after['head'][i]) and within(before['head'][i] * fix)
+        if i + 1 in short:
+            # 高度優先的例外：真的超出、真的是倍率被高度或上限壓住、而且不能小得離譜
+            if inside:
+                raise ArtError(f'{tag}列在 HEAD_SHORT，可是頭部倍率 {after["head"][i]} 在 ±{limit:.0%} 內，清單過期')
+            if fix >= rule['head']:
+                raise ArtError(f'{tag}列在 HEAD_SHORT，可是修正倍率沒有被高度或上限壓住（{rule}）')
+            if min(after['head'][i], before['head'][i] * fix) < HEAD_FLOOR:
+                raise ArtError(f'{tag}頭部倍率 {after["head"][i]} 小於 {HEAD_FLOOR}，高度優先也不行')
+        elif not inside:
+            raise ArtError(f'{tag}頭部倍率改後 {after["head"][i]}、改前×修正 {before["head"][i] * fix:.3f}，超出 ±{limit:.0%}')
+    # 4'. 整隻高度 +5% 以內
+    hs = heights(key, fix * spec['packed'])
+    if max(hs) > 1 + HEIGHT_LIMIT + 1e-9:
+        raise ArtError(f'{key}: 整隻高度最高 {max(hs)}（第 {hs.index(max(hs)) + 1} 格），超過待機 +{HEIGHT_LIMIT:.0%}')
     # 5. 相鄰格（原畫本身的比值，縮放前後完全相同）：超過 4% 的只准是明列的
     loop = bool(data.get('loop'))
     big = [(a, b, d) for a, b, d in steps(key, before['head'], loop) if abs(d) > mix.HEAD_STEP + 1e-9]
@@ -297,7 +390,18 @@ def gate(key: str, before: dict, after: dict) -> dict:
         if (ring > 16).any():
             raise ArtError(f'{key}: 第 {i + 1} 格外框外面緊貼著不透明像素，可能被切到')
         shares.append(mix.single_character(image, f['rect'], f'{key} 第 {i + 1} 格'))
-    return {'bigSteps': big, 'mainBodyShare': shares}
+    return {'bigSteps': big, 'mainBodyShare': shares, 'rule': rule, 'heights': hs}
+
+
+def transition_gate(key: str, after: dict, items: list[dict]) -> None:
+    """4''. 編排接點：頭與整隻高度的跳動都 ≤5%（接著播的那一格要量得準）。"""
+    for t in items:
+        if t['toCorrMax'] < MIN_CORR or t['toSpread'] > MAX_SPREAD + 1e-9:
+            raise ArtError(f'{key}: 接點 {t["to"]} 的頭量不準（相關 {t["toCorrMax"]}、差距 {t["toSpread"]}）')
+        t['headJump'] = round(t['toHead'] / after['head'][t['from'] - 1] - 1, 4)
+        t['heightJump'] = round(t['toHeight'] / t['fromHeight'] - 1, 4)
+        if abs(t['headJump']) > TRANSITION_LIMIT + 1e-9 or abs(t['heightJump']) > TRANSITION_LIMIT + 1e-9:
+            raise ArtError(f'{key}: 第 {t["from"]} 格接 {t["to"]} 跳太多（頭 {t["headJump"]:+.1%}、整隻高度 {t["heightJump"]:+.1%}）')
 
 
 def apply() -> None:
@@ -306,12 +410,16 @@ def apply() -> None:
     if missing:
         raise ArtError(f'還沒量改前（measure --save-as before）：{missing}')
     fixed = {k: v['packed'] * v['fix'] for k, v in SCALE_FIX.items()}
+    prev = json.loads(RECORD.read_text(encoding='utf-8'))['scaleFix'] if RECORD.exists() else {}
     for key, spec in SCALE_FIX.items():
-        if abs(current(key)['scale'] - spec['packed']) > 1e-12 and abs(current(key)['scale'] - fixed[key]) > 1e-12:
-            raise ArtError(f'{key}: 資料檔的 scale {current(key)["scale"]} 既不是改前值也不是修正後的值，有人改過，先查清楚')
+        known = [spec['packed'], fixed[key]] + ([prev[key]['scale']] if key in prev else [])
+        if all(abs(current(key)['scale'] - v) > 1e-12 for v in known):
+            raise ArtError(f'{key}: 資料檔的 scale {current(key)["scale"]} 不是改前值、這一版或上一版修正後的值，有人改過，先查清楚')
     after_all = measure_all(fixed)
+    trans = measure_transitions(fixed)
     data = json.loads(MEASURE.read_text(encoding='utf-8'))
     data['after'] = after_all
+    data['transitions'] = trans
     dump_json(MEASURE, data)
     errors, results = [], {}
     for key in ALL:
@@ -320,6 +428,7 @@ def apply() -> None:
               f" ｜ 退路 { {k: v['value'] for k, v in a['fallback'].items()} }", flush=True)
         try:
             results[key] = gate(key, before_all[key], a)
+            transition_gate(key, a, trans.get(key, []))
         except ArtError as e:
             errors.append(str(e))
     if errors:
@@ -331,10 +440,15 @@ def apply() -> None:
                 '量法與閘門見 tools/motion_size_fix_6pct.py 檔頭：頭部倍率＝四種量法（比例尺 1.5／2.0 × 樣板到下巴／到頭身交界）'
                 '的中位數；unreliable＝量不準的格子（四種裡最好的相關 <0.85 或四種差 >8%），改用 fallback（前腳或接力量）驗。'
                 'before＝開分支那一版；headAfter＝改後 scale 下重量；inherentSteps＝原畫本身相鄰格就跳超過 4% 的地方'
-                '（整套縮放比值不變，2026-09-22 主控裁定不逐格再縮）。',
+                '（整套縮放比值不變，2026-09-22 主控裁定不逐格再縮）。heightBefore／heightAfter＝每格外框高 ÷ 待機第 1 格外框高；'
+                'fixRule＝修正倍率的三個候選（頭的中點、整隻高度 +5% 上限、原畫 ×1.05），取最小；headShort＝整隻高度優先、'
+                '頭仍超出範圍的格子；transitions＝編排接點（連環踢接迴旋踢）的頭與整隻高度跳動。第一版（9da4696）只照頭的中點，'
+                '球球原畫整隻變高 7～11%，2026-09-22 主控裁定改折衷。',
         'reproducer': 'python tools/motion_size_fix_6pct.py measure --save-as before && python tools/motion_size_fix_6pct.py apply',
         'baseCommit': BASE_COMMIT,
-        'gate': {'headLimit': mix.HEAD_LIMIT, 'headStep': mix.HEAD_STEP, 'minCorr': MIN_CORR, 'maxSpread': MAX_SPREAD,
+        'gate': {'headLimit': mix.HEAD_LIMIT, 'originalHeadLimit': ORIGINAL_HEAD_LIMIT, 'headFloor': HEAD_FLOOR,
+                 'headStep': mix.HEAD_STEP, 'heightLimit': HEIGHT_LIMIT, 'fixCap': FIX_CAP,
+                 'transitionLimit': TRANSITION_LIMIT, 'minCorr': MIN_CORR, 'maxSpread': MAX_SPREAD,
                  'chainCorr': CHAIN_CORR, 'partCorr': mix.PART_CORR, 'mainBody': mix.MAIN_BODY},
         'scaleFix': {},
     }
@@ -357,6 +471,10 @@ def apply() -> None:
                                     'corr': min(a['fallback'][str(i)]['corr'], b['fallback'][str(i)]['corr'])}
                            for i, (why, method) in UNRELIABLE.get(key, {}).items()},
             'inherentSteps': [[x, y, d] for x, y, d in results[key]['bigSteps']],
+            'fixRule': results[key]['rule'], 'headLimit': head_limit(key),
+            'heightBefore': heights(key, spec['packed']), 'heightAfter': results[key]['heights'],
+            'headShort': {str(i): why for i, why in HEAD_SHORT.get(key, {}).items()},
+            'transitions': trans.get(key, []),
         }
     for path, doc in touched.items():
         dump_json(ROOT / path, doc)
@@ -370,7 +488,8 @@ HEADS_OUT = ROOT / 'docs/審查報告/重畫頭部_6pct_2026-09-22.png'
 
 
 def sheet() -> None:
-    """每套一列：待機第 1 格｜改前每格｜改後每格，同一個比例尺、同一條腳底線（紅線），灰虛線＝待機頭頂。
+    """每套一列：待機第 1 格｜改前每格｜改後每格，同一個比例尺、同一條腳底線（紅線）。
+    青色實線＝待機第 1 格外框頂（整隻高度的基準），上下兩條青色虛線＝±5%；每格標頭部倍率與整隻高度。
     另出一張頭部並排（待機頭｜改前頭｜改後頭：第 1 格與改前最偏的那一格），不進版控。"""
     K = 0.8                                   # 1 遊戲單位 = 0.8 像素
     LEFT = 330                                # 左邊標題欄寬
@@ -392,7 +511,8 @@ def sheet() -> None:
         imgs = [(lab, *mix._frame_image(tex, f, sc, K)) for lab, tex, f, sc in cells]
         left = max(px for _, _, px, _ in imgs) + 8
         right = max(im.width - px for _, im, px, _ in imgs) + 8
-        up = max(py for _, _, _, py in imgs) + 52
+        idle_top = idle['frames'][0]['pivot'][1] * idle['scale'] * K
+        up = max(max(py for _, _, _, py in imgs), idle_top * (1 + HEIGHT_LIMIT)) + 72
         down = max(im.height - py for _, im, _, py in imgs) + 6
         cw, rh = round(left + right), round(up + down)
         gap = 18
@@ -400,6 +520,10 @@ def sheet() -> None:
         d = ImageDraw.Draw(row)
         d.text((8, 8), LABEL[key], font=F, fill=(255, 255, 255, 255))
         d.text((8, 40), f"scale ×{rec['sizeFix']}", font=F, fill=(255, 255, 0, 255))
+        d.text((8, 72), '青實線＝待機外框頂', font=FS, fill=(90, 220, 230, 255))
+        d.text((8, 92), '青虛線＝±5%', font=FS, fill=(90, 220, 230, 255))
+        if rec.get('headShort'):
+            d.text((8, 112), '頭超出（高度優先）：第 ' + '、'.join(rec['headShort']) + ' 格', font=FS, fill=(255, 150, 120, 255))
         foot, ox = up, LEFT
         for j, (lab, im, px, py) in enumerate(imgs):
             if j in (1, n + 1):
@@ -408,14 +532,19 @@ def sheet() -> None:
             i = (j - 1) % n
             head = '' if j == 0 else ('量不準' if str(i + 1) in rec['unreliable'] else
                                       f"頭 {(rec['before']['head'] if j <= n else rec['headAfter'])[i]:.2f}")
+            height = '' if j == 0 else f"高 {(rec['heightBefore'] if j <= n else rec['heightAfter'])[i]:.2f}"
             color = (255, 255, 0, 255) if lab.startswith('改後') else (220, 220, 220, 255)
             d.text((ox + 4, 4), lab, font=FS, fill=color)
             d.text((ox + 4, 24), head, font=FS, fill=color)
+            d.text((ox + 4, 44), height, font=FS, fill=color)
             ox += cw
         d.line((LEFT, foot, row.width, foot), fill=(230, 70, 70, 255), width=2)
-        top = foot - idle['frames'][0]['pivot'][1] * idle['scale'] * K
-        for xx in range(LEFT, row.width, 10):
-            d.line((xx, top, xx + 5, top), fill=(170, 170, 170, 255))
+        cyan = (90, 220, 230, 255)
+        d.line((LEFT, foot - idle_top, row.width, foot - idle_top), fill=cyan, width=2)
+        for k in (1 - HEIGHT_LIMIT, 1 + HEIGHT_LIMIT):
+            y = foot - idle_top * k
+            for xx in range(LEFT, row.width, 10):
+                d.line((xx, y, xx + 5, y), fill=cyan)
         rows.append(row)
         # 頭部並排：照量到的位置裁，同一個比例尺
         before, after = rec['before']['head'], rec['headAfter']

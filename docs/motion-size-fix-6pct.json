@@ -1,10 +1,15 @@
 {
-  "note": "2026-09-22 6pct 批次動作圖大小修正：六套都只改資料檔 scale（圖一個位元不動、每格 rect／pivot／duration 不動）。量法與閘門見 tools/motion_size_fix_6pct.py 檔頭：頭部倍率＝四種量法（比例尺 1.5／2.0 × 樣板到下巴／到頭身交界）的中位數；unreliable＝量不準的格子（四種裡最好的相關 <0.85 或四種差 >8%），改用 fallback（前腳或接力量）驗。before＝開分支那一版；headAfter＝改後 scale 下重量；inherentSteps＝原畫本身相鄰格就跳超過 4% 的地方（整套縮放比值不變，2026-09-22 主控裁定不逐格再縮）。",
+  "note": "2026-09-22 6pct 批次動作圖大小修正：六套都只改資料檔 scale（圖一個位元不動、每格 rect／pivot／duration 不動）。量法與閘門見 tools/motion_size_fix_6pct.py 檔頭：頭部倍率＝四種量法（比例尺 1.5／2.0 × 樣板到下巴／到頭身交界）的中位數；unreliable＝量不準的格子（四種裡最好的相關 <0.85 或四種差 >8%），改用 fallback（前腳或接力量）驗。before＝開分支那一版；headAfter＝改後 scale 下重量；inherentSteps＝原畫本身相鄰格就跳超過 4% 的地方（整套縮放比值不變，2026-09-22 主控裁定不逐格再縮）。heightBefore／heightAfter＝每格外框高 ÷ 待機第 1 格外框高；fixRule＝修正倍率的三個候選（頭的中點、整隻高度 +5% 上限、原畫 ×1.05），取最小；headShort＝整隻高度優先、頭仍超出範圍的格子；transitions＝編排接點（連環踢接迴旋踢）的頭與整隻高度跳動。第一版（9da4696）只照頭的中點，球球原畫整隻變高 7～11%，2026-09-22 主控裁定改折衷。",
   "reproducer": "python tools/motion_size_fix_6pct.py measure --save-as before && python tools/motion_size_fix_6pct.py apply",
   "baseCommit": "a4e6d19",
   "gate": {
     "headLimit": 0.05,
+    "originalHeadLimit": 0.06,
+    "headFloor": 0.9,
     "headStep": 0.04,
+    "heightLimit": 0.05,
+    "fixCap": 1.05,
+    "transitionLimit": 0.05,
     "minCorr": 0.85,
     "maxSpread": 0.08,
     "chainCorr": 0.9,
@@ -198,7 +203,36 @@
           "corr": 0.987
         }
       },
-      "inherentSteps": []
+      "inherentSteps": [],
+      "fixRule": {
+        "head": 0.946,
+        "height": 1.032,
+        "cap": null,
+        "fix": 0.946
+      },
+      "headLimit": 0.05,
+      "heightBefore": [
+        1.0,
+        0.9726,
+        0.9315,
+        0.8014,
+        0.9897,
+        1.0171,
+        1.0034,
+        1.0103
+      ],
+      "heightAfter": [
+        0.946,
+        0.9201,
+        0.8812,
+        0.7581,
+        0.9363,
+        0.9622,
+        0.9492,
+        0.9557
+      ],
+      "headShort": {},
+      "transitions": []
     },
     "dangdang/win": {
       "packedScale": 0.865979381443299,
@@ -386,12 +420,41 @@
           "corr": 0.988
         }
       },
-      "inherentSteps": []
+      "inherentSteps": [],
+      "fixRule": {
+        "head": 0.962,
+        "height": 1.046,
+        "cap": null,
+        "fix": 0.962
+      },
+      "headLimit": 0.05,
+      "heightBefore": [
+        1.0,
+        1.0034,
+        1.0034,
+        1.0,
+        0.9691,
+        0.9691,
+        0.9622,
+        0.9691
+      ],
+      "heightAfter": [
+        0.962,
+        0.9653,
+        0.9653,
+        0.962,
+        0.9322,
+        0.9322,
+        0.9256,
+        0.9322
+      ],
+      "headShort": {},
+      "transitions": []
     },
     "qiuqiu/combo_kick": {
       "packedScale": 0.605,
-      "sizeFix": 1.111,
-      "scale": 0.672155,
+      "sizeFix": 1.046,
+      "scale": 0.63283,
       "loop": false,
       "texture": "assets/motion/qiuqiu/combo_kick_sheet.webp",
       "textureSha256": "f7704100af3a2173bd8515037d69d9c535eafa7a40e565f600bd4881fa81e2f7",
@@ -536,33 +599,33 @@
         ]
       },
       "headAfter": [
-        1.03,
-        1.0,
-        1.03,
-        0.99,
-        1.03,
         0.97,
-        1.015,
-        1.03
+        0.94,
+        0.97,
+        0.94,
+        0.97,
+        0.91,
+        0.96,
+        0.95
       ],
       "spreadAfter": [
         0.0,
-        0.02,
-        0.0,
-        0.01,
         0.0,
         0.0,
         0.01,
-        0.01
+        0.0,
+        0.0,
+        0.01,
+        0.03
       ],
       "corrMaxAfter": [
-        0.93,
-        0.917,
-        0.938,
-        0.921,
-        0.934,
-        0.913,
-        0.907,
+        0.929,
+        0.918,
+        0.939,
+        0.922,
+        0.933,
+        0.912,
+        0.906,
         0.915
       ],
       "unreliable": {},
@@ -577,12 +640,57 @@
           7,
           0.0517
         ]
+      ],
+      "fixRule": {
+        "head": 1.111,
+        "height": 1.046,
+        "cap": 1.05,
+        "fix": 1.046
+      },
+      "headLimit": 0.06,
+      "heightBefore": [
+        1.0013,
+        0.9942,
+        0.9966,
+        0.9918,
+        1.0037,
+        1.0013,
+        1.0013,
+        0.9918
+      ],
+      "heightAfter": [
+        1.0474,
+        1.0399,
+        1.0424,
+        1.0374,
+        1.0499,
+        1.0474,
+        1.0474,
+        1.0374
+      ],
+      "headShort": {
+        "6": "原畫這格的頭本來就比前後格小 5%；整隻高度已到 +5% 上限，不能再放大"
+      },
+      "transitions": [
+        {
+          "from": 8,
+          "to": "kick#1",
+          "why": "連環踢的編排（qiuqiu-choreography.ts）：combo_kick 播完 400 毫秒（原速）接迴旋踢 kick，從第 1 格開始",
+          "toScale": 0.75,
+          "toHead": 0.955,
+          "toSpread": 0.02,
+          "toCorrMax": 0.932,
+          "toHeight": 1.0043,
+          "fromHeight": 1.0374,
+          "headJump": 0.0053,
+          "heightJump": -0.0319
+        }
       ]
     },
     "qiuqiu/rush": {
       "packedScale": 0.622,
-      "sizeFix": 1.084,
-      "scale": 0.6742480000000001,
+      "sizeFix": 1.05,
+      "scale": 0.6531,
       "loop": false,
       "texture": "assets/motion/qiuqiu/rush_sheet.webp",
       "textureSha256": "6a89fe0a6e32b35b4d23c6a4d5a334f097b6111e17a02df8bb484ed02e54dd93",
@@ -727,34 +835,34 @@
         ]
       },
       "headAfter": [
-        1.015,
+        0.99,
+        0.95,
+        0.955,
         0.975,
-        0.985,
-        1.01,
-        1.0,
+        0.96,
+        0.935,
         0.965,
-        0.995,
-        0.975
+        0.945
       ],
       "spreadAfter": [
-        0.05,
-        0.03,
+        0.04,
+        0.04,
         0.03,
         0.04,
-        0.05,
-        0.02,
-        0.02,
-        0.04
+        0.03,
+        0.01,
+        0.04,
+        0.03
       ],
       "corrMaxAfter": [
-        0.922,
+        0.923,
         0.912,
-        0.914,
+        0.915,
         0.913,
         0.894,
-        0.909,
+        0.908,
         0.914,
-        0.907
+        0.909
       ],
       "unreliable": {},
       "inherentSteps": [
@@ -763,12 +871,43 @@
           2,
           -0.0474
         ]
-      ]
+      ],
+      "fixRule": {
+        "head": 1.084,
+        "height": 1.279,
+        "cap": 1.05,
+        "fix": 1.05
+      },
+      "headLimit": 0.06,
+      "heightBefore": [
+        0.6929,
+        0.7199,
+        0.6757,
+        0.7764,
+        0.8206,
+        0.7813,
+        0.7764,
+        0.774
+      ],
+      "heightAfter": [
+        0.7275,
+        0.7559,
+        0.7095,
+        0.8152,
+        0.8617,
+        0.8204,
+        0.8152,
+        0.8127
+      ],
+      "headShort": {
+        "6": "原畫這格的頭是整套最小的（比前一格小 3%）；原畫放大上限 ×1.05 壓住"
+      },
+      "transitions": []
     },
     "qiuqiu/storm": {
       "packedScale": 0.622,
-      "sizeFix": 1.042,
-      "scale": 0.648124,
+      "sizeFix": 1.022,
+      "scale": 0.635684,
       "loop": true,
       "texture": "assets/motion/qiuqiu/storm_sheet.webp",
       "textureSha256": "b116708742d18f5c463c120ce87b7ecaeea2cb5d37f6d88638fc8affce8a8be0",
@@ -913,42 +1052,71 @@
         ]
       },
       "headAfter": [
+        0.97,
+        0.97,
+        0.97,
+        0.975,
         0.99,
-        0.99,
-        0.99,
-        1.0,
-        1.01,
-        1.015,
-        1.005,
-        1.01
+        0.995,
+        0.985,
+        0.99
       ],
       "spreadAfter": [
         0.0,
-        0.0,
-        0.0,
         0.01,
         0.01,
+        0.01,
+        0.0,
         0.01,
         0.01,
         0.0
       ],
       "corrMaxAfter": [
-        0.94,
+        0.939,
         0.925,
         0.934,
-        0.912,
-        0.932,
+        0.913,
+        0.933,
         0.916,
-        0.936,
+        0.935,
         0.935
       ],
       "unreliable": {},
-      "inherentSteps": []
+      "inherentSteps": [],
+      "fixRule": {
+        "head": 1.042,
+        "height": 1.022,
+        "cap": 1.05,
+        "fix": 1.022
+      },
+      "headLimit": 0.06,
+      "heightBefore": [
+        1.0197,
+        1.0221,
+        1.0221,
+        1.027,
+        1.0246,
+        1.0221,
+        1.0221,
+        1.0221
+      ],
+      "heightAfter": [
+        1.0421,
+        1.0446,
+        1.0446,
+        1.0496,
+        1.0471,
+        1.0446,
+        1.0446,
+        1.0446
+      ],
+      "headShort": {},
+      "transitions": []
     },
     "qiuqiu/attack_air": {
       "packedScale": 0.515,
-      "sizeFix": 1.081,
-      "scale": 0.556715,
+      "sizeFix": 1.05,
+      "scale": 0.5407500000000001,
       "loop": false,
       "texture": "assets/motion/qiuqiu/claw_air_sheet.webp",
       "textureSha256": "9dbe9730a89f9c641197073fc3e653839108af8bd54e37a89e2213b2f766dd37",
@@ -1061,36 +1229,36 @@
         ]
       },
       "headAfter": [
-        1.01,
-        1.03,
-        1.02,
-        0.885,
-        0.965,
-        1.005
+        0.98,
+        1.0,
+        0.99,
+        0.865,
+        0.94,
+        0.97
       ],
       "spreadAfter": [
-        0.0,
-        0.01,
-        0.03,
-        0.11,
-        0.01,
-        0.01
+        0.02,
+        0.02,
+        0.05,
+        0.09,
+        0.02,
+        0.0
       ],
       "corrMaxAfter": [
         0.893,
         0.874,
-        0.896,
-        0.862,
         0.897,
-        0.903
+        0.867,
+        0.896,
+        0.904
       ],
       "unreliable": {
         "4": {
           "why": "空中翻身、頭轉 26 度往下看，四種量法差 9%",
           "method": "chain",
           "before": 0.92,
-          "after": 0.989,
-          "corr": 0.929
+          "after": 0.96,
+          "corr": 0.934
         }
       },
       "inherentSteps": [
@@ -1099,7 +1267,32 @@
           5,
           -0.0426
         ]
-      ]
+      ],
+      "fixRule": {
+        "head": 1.081,
+        "height": 1.084,
+        "cap": 1.05,
+        "fix": 1.05
+      },
+      "headLimit": 0.06,
+      "heightBefore": [
+        0.9134,
+        0.9114,
+        0.8605,
+        0.8849,
+        0.9236,
+        0.9683
+      ],
+      "heightAfter": [
+        0.9591,
+        0.957,
+        0.9035,
+        0.9292,
+        0.9698,
+        1.0168
+      ],
+      "headShort": {},
+      "transitions": []
     }
   }
 }
