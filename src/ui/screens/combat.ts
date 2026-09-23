@@ -1725,7 +1725,9 @@ registerScreen('combat', (app, root, props) => {
     }
     const picture = node.querySelector<HTMLElement>('.sprite-box');
     if (picture) mountEnemyMotion(e, picture);
-    if (targeting && !e.dead) node.addEventListener('click', () => pickTarget(e.uid));
+    // 點的當下才看在不在選目標：選目標改成就地修補（`patchTargeting` 只換 `targetable` 類別），
+    // 節點不會為了開始選目標而重建，監聽得先掛好（2026-09-23 效能）
+    node.addEventListener('click', () => { if (targeting && !e.dead) pickTarget(e.uid); });
     return node;
   }
 
@@ -2084,11 +2086,57 @@ registerScreen('combat', (app, root, props) => {
     return true;
   }
 
+  /** 選目標時鋪的接盤子：點空白處＝取消（整頁重畫與 `patchTargeting` 共用） */
+  const targetCatcher = (): HTMLElement =>
+    el('div', { class: 'target-catcher', onclick: () => { setTargeting(null); if (!patchTargeting()) render(); } });
+  /** 教學那一條（整頁重畫與 `patchTargeting` 共用） */
+  const tutBar = (): HTMLElement => el('div', { class: 'tut-bar' },
+    el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
+    el('span', {}, TUT_TEXT[tutStep] ?? ''),
+    el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕'));
+  /** 下方那一行提示：選目標中講怎麼選，沒在選就講「這張為什麼打不出來」；都沒有回 null */
+  const targetHint = (): HTMLElement | null => targeting
+    ? el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）')
+    : hint ? el('div', { class: 'target-hint warn' }, hint) : null;
+  /** 箭頭掛在 box 上的滑鼠監聽：box 不再每次選目標都換新的，收箭頭時要一起拆（見 `patchTargeting`） */
+  let arrowOff: AbortController | null = null;
+
+  /**
+   * 選目標、取消選目標：只動跟它有關的那幾樣，不整頁重畫（2026-09-23 效能）。
+   *
+   * 量過（CPU 降速 4 倍，球球點「貓抓」）：這一下原本要 31 毫秒——整頁重建之後，箭頭量那張牌的位置，
+   * 逼瀏覽器當場把整個戰鬥畫面的樣式與版面從頭算一遍；接著點魔物出牌又整頁重建一次。
+   * 選目標真正會變的只有：接盤子、選中的那張牌、魔物能不能點、下方那行提示、教學條、箭頭。
+   * 順序照 `render()` 擺（接盤子在戰場前面、教學條與提示在狀態列前面、箭頭最後），疊法才一樣。
+   * 回 false＝畫面還沒畫好（或已經換掉），呼叫端退回整頁重畫。
+   */
+  function patchTargeting(): boolean {
+    const box = root.querySelector<HTMLElement>('.combat');
+    const field = box?.querySelector<HTMLElement>('.field');
+    const hud = box?.querySelector<HTMLElement>('.hud');
+    if (!box || !field || !hud) return false;
+    hideTooltip();   // 跟整頁重畫一樣先關：點下去那張牌的提示不該黏著箭頭
+    arrowOff?.abort();
+    arrowOff = null;
+    for (const stale of box.querySelectorAll('.target-catcher, .target-arrow, .target-hint, .tut-bar')) stale.remove();
+    const picked = targeting?.kind === 'card' ? String(targeting.uid) : null;
+    for (const c of box.querySelectorAll<HTMLElement>('.hand .card')) c.classList.toggle('selected', c.dataset['uid'] === picked);
+    for (const e of cs.enemies) field.querySelector(`.unit.enemy[data-uid="${e.uid}"]`)?.classList.toggle('targetable', !!targeting && !e.dead);
+    if (targeting) field.before(targetCatcher());
+    if (tutStep >= 0) hud.before(tutBar());
+    const note = targetHint();
+    if (note) hud.before(note);
+    if (targeting) mountArrow(box);
+    return true;
+  }
+
   function render(): void {
     // 只補沒暖過的：新召喚的魔物（或換了階段立繪的）、連線途中才出現的那位；角色姿勢一位只暖一次
     warmHeroes();
     warmEnemies();
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
+    arrowOff?.abort();   // 舊的 box 連同箭頭一起丟掉，監聽也拆掉
+    arrowOff = null;
     clear(root);
     const box = el('div', { class: 'combat' });
     // 鋪法（圖＋放大率＋貼齊下緣）交給 `battleBgStyle` 一支管：關主門的門後景也叫同一支，
@@ -2099,7 +2147,7 @@ registerScreen('combat', (app, root, props) => {
     // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。三層各自飄，樣式在 combat.css。
     box.append(bg, el('div', { class: 'motes' }, el('i'), el('i'), el('i')));
     // 選目標時鋪一層透明的接盤子：點空白處＝取消。魔物與手牌都疊在它上面，照樣點得到
-    if (targeting) box.append(el('div', { class: 'target-catcher', onclick: () => { setTargeting(null); render(); } }));
+    if (targeting) box.append(targetCatcher());
 
     const field = el('div', { class: 'field' }, ...cs.players.map((q) => playerUnit(q)));
     // 排位置只算**活著的**。倒下的魔物還留在 `cs.enemies` 裡（要放倒地動畫），
@@ -2160,12 +2208,9 @@ registerScreen('combat', (app, root, props) => {
     }
     // 紀錄只留四行：六行時最後兩行會壓到球球的頭（2026-09-02 截圖檢查）
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
-    if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },
-      el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
-      el('span', {}, TUT_TEXT[tutStep] ?? ''),
-      el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕')));
-    if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
-    else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
+    if (tutStep >= 0) box.append(tutBar());
+    const note = targetHint();
+    if (note) box.append(note);
     renderHud(app, box, my().fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
     hudShown = hudKey(me(run, app.seat), my().fishDelta);
     root.append(box);
@@ -2253,22 +2298,25 @@ registerScreen('combat', (app, root, props) => {
     const first = box.querySelector('.unit.enemy.targetable');
     draw(first ? centreOf(first, 0.45) : { x: 900, y: 300 }, false);
 
-    // 監聽掛在 box 上：每次重畫都會換一個 box，舊的連同監聽一起被丟掉，不用自己收。
+    // 監聽掛在 box 上。選目標改成就地修補之後 box 不一定會換（2026-09-23 效能），
+    // 所以綁在 `arrowOff` 上：收箭頭（`patchTargeting`）或整頁重畫時一起拆，不然每選一次就多疊一個監聽。
     // 滑鼠一格裡可能送好幾次 mousemove：每一格最多處理一次、用最後那次的座標（清理 2026-09-22）；
-    // 排到的那一格如果 box 已經被重畫換掉就不做
+    // 排到的那一格如果箭頭已經被收掉（或 box 被重畫換掉）就不做
     let aimAt: { x: number; y: number } | null = null;
     let aimRaf = 0;
+    arrowOff?.abort();
+    arrowOff = new AbortController();
     box.addEventListener('mousemove', (ev) => {
       aimAt = { x: ev.clientX, y: ev.clientY };
       if (aimRaf) return;
       aimRaf = window.requestAnimationFrame(() => {
         aimRaf = 0;
-        if (!aimAt || !box.isConnected) return;
+        if (!aimAt || !box.isConnected || !svg.isConnected) return;
         const { x, y } = aimAt;
         const foe = document.elementFromPoint(x, y)?.closest('.unit.enemy.targetable');
         draw(foe ? centreOf(foe, 0.45) : toStage(x, y), !!foe);
       });
-    });
+    }, { signal: arrowOff.signal });
   }
 
   // ===== 操作 =====
@@ -2284,9 +2332,9 @@ registerScreen('combat', (app, root, props) => {
       // 場上只剩一隻的時候，連點兩下就直接打牠——反正也沒別的可以選，
       // 還要移到魔物身上再點一次很囉嗦。兩隻以上照舊：要自己挑目標。
       if (already && alive.length === 1) { setTargeting(null); play(uid, alive[0]!.uid); return; }
-      // 再點一次同一張＝取消；點另一張＝改選那一張
+      // 再點一次同一張＝取消；點另一張＝改選那一張（就地修補，見 `patchTargeting`）
       setTargeting(already ? null : { kind: 'card', uid });
-      render();
+      if (!patchTargeting()) render();
       return;
     }
     play(uid, undefined);
@@ -2418,7 +2466,7 @@ registerScreen('combat', (app, root, props) => {
     if (!def) return;
     hint = '';
     // 只有打魔物的忍具要選目標（手裡劍、麻繩）；全體與自己用的直接用掉
-    if (def.target === 'enemy') { setTargeting({ kind: 'potion', id }); render(); return; }
+    if (def.target === 'enemy') { setTargeting({ kind: 'potion', id }); if (!patchTargeting()) render(); return; }
     drinkPotion(id, undefined);
   }
 
@@ -3593,14 +3641,14 @@ registerScreen('combat', (app, root, props) => {
   // Esc 取消選目標。這場戰鬥換人（app.cs 變了）時聽眾自己退場，免得一直堆著
   const onKey = (ev: KeyboardEvent): void => {
     if (app.cs !== cs) { window.removeEventListener('keydown', onKey); return; }
-    if (ev.key === 'Escape' && targeting) { setTargeting(null); render(); }
+    if (ev.key === 'Escape' && targeting) { setTargeting(null); if (!patchTargeting()) render(); }
   };
   window.addEventListener('keydown', onKey);
   app.disposers.push(() => window.removeEventListener('keydown', onKey));   // 換畫面就拆，不用等下一次按鍵（2026-09-02 稽核 L-8）
   // 右鍵也能取消選目標（使用者 2026-09-06：有人建議，跟 Esc、點空白處同一件事）。只在選目標中才攔，平常右鍵照開瀏覽器選單
   const onContext = (ev: MouseEvent): void => {
     if (app.cs !== cs) { window.removeEventListener('contextmenu', onContext); return; }
-    if (targeting) { ev.preventDefault(); setTargeting(null); render(); }
+    if (targeting) { ev.preventDefault(); setTargeting(null); if (!patchTargeting()) render(); }
   };
   window.addEventListener('contextmenu', onContext);
   app.disposers.push(() => window.removeEventListener('contextmenu', onContext));

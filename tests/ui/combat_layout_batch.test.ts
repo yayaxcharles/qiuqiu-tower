@@ -67,19 +67,22 @@ describe('收牌：每張的位置全部量完才一起起飛', () => {
 });
 
 describe('瞄準箭頭：一格裡的好幾次滑鼠移動只算最後一次', () => {
-  async function arrow(connected = true) {
+  async function arrow(connected = true, svgConnected = true) {
     let onMove: ((ev: { clientX: number; clientY: number }) => void) | undefined;
+    let signal: AbortSignal | undefined;
     const frames: Array<() => void> = [];
-    const box = { isConnected: connected, addEventListener: (_t: string, cb: typeof onMove) => { onMove = cb; } };
+    const box = { isConnected: connected, addEventListener: (_t: string, cb: typeof onMove, opts?: { signal?: AbortSignal }) => { onMove = cb; signal = opts?.signal; } };
     const draw = vi.fn();
     const elementFromPoint = vi.fn(() => null);
     const listener = sourceBetween('    let aimAt:', '  }\n\n  // ===== 操作 =====');
+    // `arrowOff`：箭頭的監聽綁在它上面，收箭頭時一起拆（2026-09-23 效能，選目標改成就地修補）
     await run(listener, {
       box, draw, centreOf: vi.fn(), toStage: (x: number, y: number) => ({ x, y }),
+      svg: { isConnected: svgConnected }, arrowOff: null,
       document: { elementFromPoint },
       window: { requestAnimationFrame: (cb: () => void) => { frames.push(cb); return frames.length; } },
     });
-    return { move: (x: number, y: number) => onMove!({ clientX: x, clientY: y }), frames, draw, elementFromPoint };
+    return { move: (x: number, y: number) => onMove!({ clientX: x, clientY: y }), frames, draw, elementFromPoint, signal: () => signal };
   }
 
   it('同一格三次移動：只排一次、只找一次滑鼠底下是誰、用最後的座標', async () => {
@@ -96,6 +99,15 @@ describe('瞄準箭頭：一格裡的好幾次滑鼠移動只算最後一次', (
 
   it('排到的那一格畫面已經重畫換掉：什麼都不做', async () => {
     const a = await arrow(false);
+    a.move(10, 10);
+    a.frames[0]!();
+    expect(a.elementFromPoint).not.toHaveBeenCalled();
+    expect(a.draw).not.toHaveBeenCalled();
+  });
+
+  it('排到的那一格箭頭已經收掉（box 還在，就地修補收的）：什麼都不做；監聽掛在拆得掉的訊號上', async () => {
+    const a = await arrow(true, false);
+    expect(a.signal(), '監聽沒綁在 arrowOff 上，每選一次目標就多疊一個').toBeDefined();
     a.move(10, 10);
     a.frames[0]!();
     expect(a.elementFromPoint).not.toHaveBeenCalled();
