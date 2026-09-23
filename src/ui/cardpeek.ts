@@ -8,6 +8,8 @@ import { overlayRoot } from './overlay';
  * 所以比照手機牌類遊戲的做法：按住 0.32 秒，在旁邊放一張大的給你看，放開就收，**不會出牌**；
  * 輕點照舊（出牌、選目標）。只有手機（觸控＋螢幕短邊小於 600，`html[data-device="phone"]`）才開，
  * 桌機用滑鼠一律不走這條（滑鼠本來就有滑過去抬起來＋名詞提示）。
+ * 主控最後一輪裁定平板也開：改成看**這一下是不是手指**（pointerType），不看裝置、不看螢幕寬；
+ * 滑鼠照舊不走這條，所以桌機用滑鼠不受影響（觸控筆電用手指按也會放大）。
  */
 
 /** 按住多久才放大（毫秒）：比一般輕點（約 100～150）長一截，又不會久到以為沒反應 */
@@ -38,16 +40,20 @@ export function peekLayout(card: Box, stageScale: number, textPx: number): { lef
   return { left, top, scale };
 }
 
-/** 這一下要不要放大：按住夠久、手沒怎麼動、而且是手機的手指 */
-export function shouldPeek(heldMs: number, movedPx: number, pointerType: string, device: string | undefined): boolean {
-  return pointerType !== 'mouse' && device === 'phone' && heldMs >= PEEK_HOLD_MS && movedPx <= PEEK_MOVE_PX;
+/** 這一下要不要放大：按住夠久、手沒怎麼動、而且是手指（觸控或觸控筆，不是滑鼠）；手機、平板都算，不看螢幕寬 */
+export function shouldPeek(heldMs: number, movedPx: number, pointerType: string): boolean {
+  return pointerType !== 'mouse' && pointerType !== '' && heldMs >= PEEK_HOLD_MS && movedPx <= PEEK_MOVE_PX;
 }
 
-/** 現在是不是手機（跟按住放大同一個判準；教學條那一句也看這支，按不出放大的裝置就不教） */
-export function isPhoneDevice(): boolean {
-  return typeof document !== 'undefined' && document.documentElement.dataset['device'] === 'phone';
+/**
+ * 這台是不是觸控裝置（手機或平板，app.ts 的 fit 照「粗指標」寫上 html 的 data-device）。
+ * 教學條那一句看這支：按住放大在手機、平板都有，就兩種都教；桌機用滑鼠不教。
+ */
+export function isTouchDevice(): boolean {
+  if (typeof document === 'undefined') return false;
+  const device = document.documentElement.dataset['device'];
+  return device === 'phone' || device === 'tablet';
 }
-const phone = isPhoneDevice;
 
 /** 把原本那張複製一份、放大擺好。複製品沒有事件（cloneNode 不帶監聽），也不吃手指 */
 function showPeek(node: HTMLElement): HTMLElement | null {
@@ -75,11 +81,13 @@ function showPeek(node: HTMLElement): HTMLElement | null {
   return wrap;
 }
 
-/** 掛到一張牌（或罐頭鋪的一格貨）上。桌機（滑鼠、或 html 不是 phone）什麼都不做 */
+/** 掛到一張牌（或罐頭鋪的一格貨）上。滑鼠按下去什麼都不做 */
 export function attachCardPeek(node: HTMLElement): void {
   let timer = 0;
   let start: { x: number; y: number; t: number; type: string } | null = null;
   let shown: HTMLElement | null = null;
+  // 最近這一下是不是手指：長按跳的選單只對手指擋，滑鼠右鍵照舊
+  let touched = false;
   // 這一次按住的收尾：手指真的離開螢幕才算完（見 lifted）
   let lift: AbortController | null = null;
   // 放大過就不是輕點：手指放開後那一下 click 要攔掉，不然放開就把牌打出去了（攔法同 dragplay.ts）。
@@ -97,12 +105,13 @@ export function attachCardPeek(node: HTMLElement): void {
   };
   const cancelHold = (): void => { window.clearTimeout(timer); timer = 0; start = null; };
   node.addEventListener('pointerdown', (ev) => {
-    if (ev.pointerType === 'mouse' || !phone()) return;
+    touched = ev.pointerType !== 'mouse';
+    if (!touched) return;
     start = { x: ev.clientX, y: ev.clientY, t: performance.now(), type: ev.pointerType };
     window.clearTimeout(timer);
     timer = window.setTimeout(() => {
       timer = 0;
-      if (!start || !shouldPeek(performance.now() - start.t, 0, start.type, document.documentElement.dataset['device'])) return;
+      if (!start || !shouldPeek(performance.now() - start.t, 0, start.type)) return;
       shown = showPeek(node);
       if (!shown) return;
       node.addEventListener('click', swallow, true);
@@ -119,6 +128,6 @@ export function attachCardPeek(node: HTMLElement): void {
   node.addEventListener('pointerup', () => { cancelHold(); if (shown) lifted(); });
   // 被瀏覽器作廢：放大的那張先收，攔 click 的留到手指真的離開（lifted）
   node.addEventListener('pointercancel', () => { cancelHold(); removePeek(); });
-  // 安卓長按會跳選單：手機上牌不給選單
-  node.addEventListener('contextmenu', (ev) => { if (phone()) ev.preventDefault(); });
+  // 安卓長按會跳選單：手指長按牌不給選單（滑鼠右鍵不擋）
+  node.addEventListener('contextmenu', (ev) => { if (touched) ev.preventDefault(); });
 }

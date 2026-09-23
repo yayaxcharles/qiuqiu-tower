@@ -5,7 +5,7 @@ import MAIN_RAW from '../../src/main.ts?raw';
 import COMBAT_RAW from '../../src/ui/screens/combat.ts?raw';
 import SHOP_RAW from '../../src/ui/screens/shop.ts?raw';
 import PEEK_RAW from '../../src/ui/cardpeek.ts?raw';
-import { PEEK_HOLD_MS, PEEK_MOVE_PX, isPhoneDevice, peekLayout, shouldPeek } from '../../src/ui/cardpeek';
+import { PEEK_HOLD_MS, PEEK_MOVE_PX, isTouchDevice, peekLayout, shouldPeek } from '../../src/ui/cardpeek';
 import { TUT_TOUCH_PEEK } from '../../src/content/tutorial';
 
 /*
@@ -44,13 +44,17 @@ describe('第 8 條：手機橫拿讀得清楚，桌機不動', () => {
     }
   });
 
-  it('只有手機的手指按住夠久、沒移動才放大；滑鼠、平板、桌機一律不放大', () => {
-    expect(shouldPeek(PEEK_HOLD_MS, 0, 'touch', 'phone')).toBe(true);
-    expect(shouldPeek(PEEK_HOLD_MS - 1, 0, 'touch', 'phone')).toBe(false);
-    expect(shouldPeek(PEEK_HOLD_MS, PEEK_MOVE_PX + 1, 'touch', 'phone')).toBe(false);
-    expect(shouldPeek(PEEK_HOLD_MS, 0, 'mouse', 'phone')).toBe(false);
-    expect(shouldPeek(PEEK_HOLD_MS, 0, 'touch', 'tablet')).toBe(false);
-    expect(shouldPeek(PEEK_HOLD_MS, 0, 'touch', 'desktop')).toBe(false);
+  it('手指（觸控、觸控筆）按住夠久、沒移動才放大，不看裝置與螢幕寬（主控最後一輪：平板也開）；滑鼠一律不放大', () => {
+    expect(shouldPeek(PEEK_HOLD_MS, 0, 'touch')).toBe(true);
+    expect(shouldPeek(PEEK_HOLD_MS, 0, 'pen')).toBe(true);
+    expect(shouldPeek(PEEK_HOLD_MS - 1, 0, 'touch')).toBe(false);
+    expect(shouldPeek(PEEK_HOLD_MS, PEEK_MOVE_PX + 1, 'touch')).toBe(false);
+    expect(shouldPeek(PEEK_HOLD_MS, 0, 'mouse')).toBe(false);
+    // 掛上去的那支也只看這一下是不是手指，不再看 html 是不是 phone
+    const attach = PEEK_RAW.replace(/\r\n/g, '\n');
+    const body = attach.slice(attach.indexOf('export function attachCardPeek('));
+    expect(body).toContain("touched = ev.pointerType !== 'mouse';\n    if (!touched) return;");
+    expect(body).not.toMatch(/dataset\['device'\]/);
   });
 
   it('每張牌都掛按住放大（打不出來的牌也要讀得到）；手機樣式最後載入', () => {
@@ -59,13 +63,13 @@ describe('第 8 條：手機橫拿讀得清楚，桌機不動', () => {
     expect(imports.at(-1)).toBe('phone.css');
   });
 
-  it('phone.css 每一條規則都只在手機生效（html[data-device="phone"]…），放大那張的外框除外（只有手機會生出來）', () => {
+  it('phone.css 每一條規則都只在觸控裝置生效（html[data-device="phone"／"tablet"]…），放大那張的外框除外（只有手指按住才生出來）', () => {
     const text = css('phone.css').replace(/\/\*[\s\S]*?\*\//g, '');
     const selectors = [...text.matchAll(/([^{}]+)\{[^}]*\}/g)].flatMap((m) => m[1]!.split(',').map((s) => s.trim())).filter(Boolean);
     expect(selectors.length).toBeGreaterThan(10);
     for (const s of selectors) {
       if (s.startsWith('.card-peek')) continue;
-      expect(s).toMatch(/^html\[data-device="phone"\]/);
+      expect(s).toMatch(/^html\[data-device="(phone|tablet)"\]/);
     }
     // 直拿照舊只有「請橫過來」，這份不碰直拿
     expect(text).not.toContain('data-orient="portrait"');
@@ -120,17 +124,18 @@ describe('主控裁定三：手機教學條多一句「按住牌可以放大看�
     expect([...TUT_TOUCH_PEEK].length).toBeLessThanOrEqual(10);
   });
 
-  it('只有手機才算：跟按住放大同一個判準（平板、桌機都不是）', () => {
-    for (const [device, want] of [['phone', true], ['tablet', false], ['desktop', false], [undefined, false]] as const) {
+  it('手機、平板都算觸控裝置（教學條那一句看這支，跟按住放大一起開）；桌機不是', () => {
+    for (const [device, want] of [['phone', true], ['tablet', true], ['desktop', false], [undefined, false]] as const) {
       vi.stubGlobal('document', { documentElement: { dataset: device ? { device } : {} } });
-      expect(isPhoneDevice(), String(device)).toBe(want);
+      expect(isTouchDevice(), String(device)).toBe(want);
     }
   });
 
-  it('教學條第一步只在手機接上那一句；手機的教學條放大、寬度照內容維持一行', () => {
+  it('教學條第一步只在觸控裝置接上那一句；手機、平板的教學條寬度照內容維持一行', () => {
     const bar = COMBAT.slice(COMBAT.indexOf("if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },"), COMBAT.indexOf("el('button', { class: 'tut-close'"));
-    expect(bar).toContain("tutStep === 0 && isPhoneDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''");
+    expect(bar).toContain("tutStep === 0 && isTouchDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''");
     const phone = css('phone.css');
     expect(phone).toMatch(/html\[data-device="phone"\]\[data-orient="landscape"\] \.tut-bar \{[^}]*width: max-content;[^}]*font-size: 20px;/);
+    expect(phone).toMatch(/html\[data-device="tablet"\] \.tut-bar \{[^}]*width: max-content;/);
   });
 });
