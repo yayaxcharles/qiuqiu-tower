@@ -2,9 +2,9 @@
 // `npx vitest run` 會一起跑到（tools/ 也在測試範圍），所以檔案不會過期；改了遭遇、關主池或底圖分關規則，
 // 跑完測試把 docs/分關載入.json 一起提交就好
 import { readFileSync, writeFileSync } from 'node:fs';
-import { it } from 'vitest';
+import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
-import { SLIDES_BY_ACT, bgKeysForAct } from '../src/ui/bgacts';
+import { SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
 import { TITLE_ART, heroOfKey, isCoopOnlyArt } from '../src/ui/assets';
 
 it('dump monster acts', () => {
@@ -32,6 +32,10 @@ it('dump monster acts', () => {
   for (const group of SLIDES_BY_ACT) {
     for (const key of group) { const path = manifest.bg[key]; if (path) out[path] = 0; }
   }
+  // 事件主圖（2026-09-23 內容擴充 0-2）：改成照這張地圖排到的事件格現抓（`preload.ts` 的 `preloadMapEvents`），
+  // 開場與進關都不載，也不在任何一關的 `bgKeysForAct` 裡——跟幻燈片同一類，寫 0。
+  // 名單照事件編號算（`eventMainKeys`），紙箱畫面借用的 `bg/event_chest_*` 不在裡面、照舊算首載
+  for (const key of eventMainKeys()) { const path = manifest.bg[key]; if (path) out[path] = 0; }
   /*
    * **事件的「結果圖」不算首載**（2026-09-11）。只認 `_r<數字>` 結尾的，
    * 判準寫緊一點是有原因的，見下面。
@@ -49,6 +53,7 @@ it('dump monster acts', () => {
    * 那就不是修正高估，是**美化數字**。
    *
    * 值寫 0＝「不跟關數綁的按需載入」，跟過關幻燈片同一類。
+   *（2026-09-23 起基底插圖也照地圖現抓、由上面 `eventMainKeys` 那一圈歸 0；這一圈的緊判準照舊，紙箱那三張仍算首載）
    */
   for (const [key, path] of Object.entries(manifest.bg)) {
     if (/_r\d+$/.test(key)) out[path] = 0;
@@ -67,4 +72,10 @@ it('dump monster acts', () => {
   writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');
   const n = (a: number) => Object.values(sorted).filter((v) => v === a).length;
   console.log(`分關載入：第一關 ${n(1)} 檔、第二關 ${n(2)}、第三關 ${n(3)}、沒用到 ${n(9)}`);
+  // 事件主圖一張都不准算首載（2026-09-23 0-2）：拿掉上面 `eventMainKeys` 那一圈，三關都排得到的三十張會掉回首載，這裡就紅
+  const firstLoad = Object.entries(manifest.bg)
+    .filter(([key]) => eventMainKeys().includes(key) && sorted[manifest.bg[key]!] !== 0).map(([key]) => key);
+  expect(firstLoad, '事件主圖照地圖現抓，不該留在首載').toEqual([]);
+  // 紙箱畫面借用的三張不是事件，照舊算首載
+  expect(sorted[manifest.bg['bg/event_chest_closed']!]).toBeUndefined();
 });

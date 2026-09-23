@@ -58,7 +58,8 @@ describe('角色專屬的圖分開載', () => {
 
     const fengfeng = heroArtUrls(['fengfeng']);
     expect(fengfeng).toContain('/assets/icons/relic_old_sword_tassel.webp');
-    expect(fengfeng).toContain('/assets/bg/event_fengfeng_toll.webp');
+    // 他的事件主圖選角時不抓了：照地圖排到的格子現抓（2026-09-23 0-2，`preloadMapEvents`）
+    expect(fengfeng).not.toContain('/assets/bg/event_fengfeng_toll.webp');
     expect(fengfeng.some((url) => url.includes('story_top') || url.includes('coop_feifei_top'))).toBe(false);
     expect(heroArtUrls(['ninja']).some((url) => url.includes('old_sword_tassel'))).toBe(false);
   });
@@ -83,7 +84,8 @@ describe('角色專屬的圖分開載', () => {
     expect(hers.some((u) => u.includes('feifei_feizhen'))).toBe(true);
     expect(hers.some((u) => u.includes('feifei_attack'))).toBe(true);
     expect(hers.some((u) => u.includes('map_hero_feifei'))).toBe(true);
-    expect(hers.some((u) => u.includes('event_feifei_toll.webp'))).toBe(true);
+    // 事件主圖（共用事件的她版、她自己的專屬事件）照地圖現抓，選角時不抓（2026-09-23 0-2）
+    expect(hers.some((u) => u.includes('event_feifei_toll.webp') || u.includes('event_feifei_trace.webp')), '事件主圖照地圖現抓').toBe(false);
     expect(hers.some((u) => u.includes('_r0')), '結果圖點到才載').toBe(false);
     expect(hers.some((u) => u.includes('still')), '幻燈片推開關主門才載').toBe(false);
     expect(hers.some((u) => u.includes('sanjo') || u.includes('ninja'))).toBe(false);
@@ -112,7 +114,7 @@ describe('角色專屬的圖分開載', () => {
     expect(isCoopOnlyArt('card/sanjo')).toBe(false);
   });
 
-  it('啟動預載保留正常底圖，但結果圖一律等實際進入結果頁才載', async () => {
+  it('啟動預載保留正常底圖，事件主圖照地圖現抓、結果圖等實際進入結果頁才載', async () => {
     const sources: string[] = [];
     class FakeImage {
       private value = '';
@@ -124,6 +126,8 @@ describe('角色專屬的圖分開載', () => {
     _setManifestForTest({
       cards: {}, sprites: {}, monsters: {}, icons: {}, review: [],
       bg: {
+        'bg/screen_title': 'assets/bg/screen_title.webp',
+        'bg/event_chest_closed': 'assets/bg/event_chest_closed.webp',
         'bg/event_toll': 'assets/bg/event_toll.webp',
         'bg/event_toll_r0': 'assets/bg/event_toll_r0.webp',
         'bg/event_toll_r12': 'assets/bg/event_toll_r12.webp',
@@ -132,11 +136,15 @@ describe('角色專屬的圖分開載', () => {
 
     await preloadArt();
 
-    expect(sources).toContain('/assets/bg/event_toll.webp');
+    expect(sources).toContain('/assets/bg/screen_title.webp');
+    // 紙箱畫面借用的那張不是事件，照舊開場就載
+    expect(sources).toContain('/assets/bg/event_chest_closed.webp');
+    // 2026-09-23 0-2：三關都排得到的事件主圖（原本三十張、約 0.9 MB）不再進首載，由地圖畫面照排到的格子抓
+    expect(sources).not.toContain('/assets/bg/event_toll.webp');
     expect(sources.some((source) => /_r(?:0|12)\.webp$/.test(source))).toBe(false);
   });
 
-  it('分關預載只補本局角色的專屬事件底圖', async () => {
+  it('進關預載不再整關抓事件主圖（連本局角色的專屬事件也不抓，改照地圖現抓）', async () => {
     const sources: string[] = [];
     class FakeImage {
       set src(value: string) { sources.push(value); }
@@ -153,7 +161,8 @@ describe('角色專屬的圖分開載', () => {
 
     await preloadAct(1, 'feifei');
 
-    expect(sources).toContain('/assets/bg/event_feifei_trace.webp');
+    // 原本這裡要抓到她的專屬事件（`event_feifei_trace`）；2026-09-23 起一關只抓地圖上真的排到的那幾格（`preloadMapEvents`）
+    expect(sources).not.toContain('/assets/bg/event_feifei_trace.webp');
     expect(sources).not.toContain('/assets/bg/event_dangdang_lining.webp');
   });
 });

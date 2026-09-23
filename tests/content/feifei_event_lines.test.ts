@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { FEIFEI_EVENT_LINES, eventTextFor, feifeiLineOk } from '../../src/content/dialogue';
+import { feifeiLineOk } from '../../src/content/dialogue';
+import { FEIFEI_EVENT_LINES, eventTextFor } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
 
 /**

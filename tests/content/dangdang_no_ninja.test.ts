@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cardNameFor, cards, inHeroCollection } from '../../src/content/cards';
 import { events } from '../../src/content/events';
-import { DANGDANG_EVENT_TEXT, eventTextFor } from '../../src/content/dialogue';
+import { DANGDANG_EVENT_TEXT, eventTextFor } from '../../src/content/event-text';
 import { poolNameFor } from '../../src/ui/compendium';
 
 /**

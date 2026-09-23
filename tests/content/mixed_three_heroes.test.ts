@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { coopBossLines, dialogue, eventTextFor, firstMeetLine, setCoopStory, storyFor } from '../../src/content/dialogue';
+import { coopBossLines, dialogue, firstMeetLine, setCoopStory, storyFor } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
 
 /**

@@ -11,6 +11,7 @@ import { heroName } from '../../engine/hero';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
+import { preloadMapEvents } from '../preload';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { notice } from '../dialogue';
@@ -401,4 +402,9 @@ registerScreen('map', (app, root) => {
   renderHud(app, root);
   root.append(el('div', { class: 'map-hint' }, iDown ? '你倒下了，等同伴選路…'
     : run.currentNode ? '選下一層要去哪' : run.act > 1 ? `從 ${base + 1}F 選一條路往上` : '從 1F 選一條路進塔'));
+
+  // 事件畫面（連同角色事件文案）與這張地圖排到的事件主圖先在背景抓（2026-09-23 內容擴充 0-1、0-2）：
+  // 走進事件格時通常已經好了，`app.ts` 的 `enterEvent` 就不用等。抓失敗不要緊，走進去時會再要一次
+  void import('./event').catch(() => undefined);
+  void preloadMapEvents(run);
 });

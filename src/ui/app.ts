@@ -2,7 +2,7 @@ import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopS
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
-import { coopArtReady, preloadAct, preloadHeroArt, warmEncounter } from './preload';
+import { coopArtReady, preloadAct, preloadHeroArt, warmEncounter, warmEventArt } from './preload';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
@@ -427,7 +427,7 @@ export class App {
         if (node.type === '塔主' && hasBossDoor(run.act)) this.show('bossdoor', { encounterId: node.encounterId });
         else this.startFight(node.encounterId, node.type === '塔主');
         break;
-      case '事件': this.show('event', { eventId: node.eventId }); break;
+      case '事件': this.enterEvent(node.eventId); break;
       case '罐頭鋪': {
         // 各逛各的（使用者 2026-09-15）：貨架在走進來的當下就抽好、先掛到會話上，再開畫面。
         // 同伴比我早一步進店買東西，那一則到的時候貨架已經在了（審查 2026-09-15 投票 低-3）
@@ -441,8 +441,43 @@ export class App {
     }
   }
 
-  /** 開打前暖機那一小段時間的重入鎖：擋住連點「開打」或再點地圖（稽核 2026-09-04 中 7） */
+  /** 開打前暖機那一小段時間的重入鎖：擋住連點「開打」或再點地圖（稽核 2026-09-04 中 7）。走進事件格等畫面時也用這一把（`enterEvent`） */
   private fightPending = false;
+
+  /**
+   * 走進事件格：**事件畫面與這一格的主圖都到了才換畫面**（2026-09-23 內容擴充第〇批 0-1、0-2）。
+   *
+   * 事件畫面連同三份角色事件文案改成按需載入、主圖改成照地圖現抓之後，第一次走進事件格時兩樣都可能還在路上。
+   * 直接 `show('event')` 的話會先掛「正在準備事件……」那個載入畫面、主圖也是空的一格，載好才跳出來。
+   * 照開打的作法（`startFight` 等魔物立繪與戰鬥畫面）：停在地圖上、舞台先點不動，兩樣都好了才換，
+   * 換過去第一格就是完整的畫面（淡入時墊在底下的是地圖，見 screenswap.ts）。平常地圖一出來就在背景抓好了，這裡不用等。
+   * 主圖與事件畫面的底圖最多等 6 秒（`warmEventArt`；底圖沒到的話整片露出米白底，慢網路實測過），
+   * 畫面模組不設時限——沒有它畫不出東西；真的抓不到就交給載入畫面的「重新整理」。
+   * 等超過 0.4 秒就把地圖下方那行提示換成「正在準備事件……」，讓人知道不是當掉。
+   *
+   * **連線：先把地圖的投票處理拆掉**（`clearScreenHooks`）。同伴那台早一步進了事件畫面，
+   * 他的事件票、甚至（我倒下時他一個人決定、按完「繼續」回到地圖）下一格的地圖票，都可能在我等的這段時間到。
+   * 地圖那支還掛著的話，那一張地圖票會讓我在還沒跑事件結果之前就走進下一格——兩台當場分岔。
+   * 拆掉之後票照樣存在會話上（`picks()`），事件畫面掛上時補跑一次（`onPick` 的晚到補跑），不會卡、也不會漏。
+   */
+  private enterEvent(eventId: string | undefined): void {
+    const run = this.run;
+    if (!run || !eventId) { this.show('event', { eventId }); return; }
+    this.coop?.clearScreenHooks('event');
+    this.fightPending = true;
+    this.stage.classList.add('fight-pending');
+    const slow = window.setTimeout(() => {
+      const hint = this.screen.querySelector('.map-hint');
+      if (hint) hint.textContent = '正在準備事件……';
+    }, 400);
+    void Promise.allSettled([import('./screens/event'), warmEventArt(run, eventId)]).then(() => {
+      window.clearTimeout(slow);
+      if (this.run !== run) return;   // 等的時候這一局已經丟了（連線斷了回標題，`leaveCoop` 已經解開鎖）
+      this.fightPending = false;
+      this.stage.classList.remove('fight-pending');
+      this.show('event', { eventId });
+    });
+  }
 
   startFight(encounterId: string, isBoss = false, bonusFish = 0, bonusUpgrades = 0): void {
     const run = this.run;

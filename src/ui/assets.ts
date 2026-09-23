@@ -129,7 +129,7 @@ export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja
 
 /**
  * 選好角色之後才補載的那一位（連線是兩位）專屬的圖。球球沒有專屬鍵，所以他什麼都不用補。
- * 結果圖（`_r<n>`）與二三關才會遇到的事件底圖照 `preloadArt` 同一套規矩跳過。
+ * 結果圖（`_r<n>`）與事件主圖（2026-09-23 起照地圖現抓，見 `preload.ts` 的 `preloadMapEvents`）照 `preloadArt` 同一套規矩跳過。
  */
 /** 雙人專屬牌的牌面（球球版與菲菲版都算，兩位在連線裡都可能拿到） */
 /**
@@ -180,7 +180,7 @@ export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
           || key.startsWith(`bg/${who}_still_`)
           || key.startsWith(`bg/${who}_story_`)
           || key.startsWith(`bg/${who}_coop_`)) continue;   // 結果圖與故事場景本來就是點到才載
-        if (skip.has(key) || skip.has(key.replace(`_${who}_`, '_'))) continue;   // 事件底圖照共用那張的關數分流
+        if (skip.has(key) || skip.has(key.replace(`_${who}_`, '_'))) continue;   // 事件主圖（角色版換回共用那張的鍵比對）一律照地圖現抓
       }
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
       else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
@@ -325,7 +325,7 @@ export function eventArtKey(id: string, hero: string = localHeroId): string {
  * 連線時鏡子走廊的插圖照**座位 0 那一位**挑（2026-09-23 實機驗收 M-1）。
  *
  * 鏡中那隻照座位 0 變裝（`app.ts` 的 `syncStory` 把 `mirror` 設成座位 0 的角色），文字也照它改
- *（`dialogue.ts` 的 `MIRROR_EVENT_TEXT`）；插圖原本卻照本機那一位挑：坐 1 號的人讀到「鏡子裡是綁頭巾的影子」，
+ *（`event-text.ts` 的 `MIRROR_EVENT_TEXT`）；插圖原本卻照本機那一位挑：坐 1 號的人讀到「鏡子裡是綁頭巾的影子」，
  * 圖上是自己跟自己的倒影。09-23 菲菲那張換成她自己的黑影之後，球球開房、菲菲加入那一組從對變錯。
  * 現在坐 1 號的人看到座位 0 那張：同伴站在鏡前、鏡子裡是同伴的影子。主圖與結果圖都照這個挑（`event.ts`）。
  * 單人、其他事件回 `undefined`＝照本機這一位（`eventArtKey` 的預設）。
@@ -484,9 +484,13 @@ export function releaseHeldArt(): void {
  * 魔物立繪維持留著（那是 2026-09-04 低 14 加的，一張只有幾十 KB）。
  *
  * `urls` 的**順序就是優先序**：工人們從索引 0 往下領號碼牌，排前面的先下載。
+ *
+ * `priority: 'high'`＝插隊（2026-09-23 0-2）：事件主圖改成照地圖現抓之後，開場那批幾百張還在排隊時
+ * 這幾張也得先到——慢網路下瀏覽器把 `new Image()` 一律排成低優先，不插隊就排在整包開場圖後面。
  */
 export async function decodeAll(urls: readonly string[], concurrency = 4,
-  hold: boolean | ((url: string) => boolean) = true, pool: DecodePool = sharedPool): Promise<void> {
+  hold: boolean | ((url: string) => boolean) = true, pool: DecodePool = sharedPool,
+  priority?: 'high'): Promise<void> {
   if (typeof Image === 'undefined') return;   // 測試環境沒有瀏覽器
   const todo = urls.filter((u) => !pool.seen.has(u) && !u.startsWith('data:'));
   let next = 0;
@@ -496,6 +500,7 @@ export async function decodeAll(urls: readonly string[], concurrency = 4,
       try {
         const img = new Image();
         if (typeof hold === 'function' ? hold(url) : hold) pool.keep.set(url, img);
+        if (priority) img.fetchPriority = priority;   // 要在設 src 之前給，設了 src 請求就送出去了
         img.src = url;
         // 沒有 decode() 的瀏覽器退回等 onload，不能直接當作暖好了
         if (typeof img.decode === 'function') await img.decode();

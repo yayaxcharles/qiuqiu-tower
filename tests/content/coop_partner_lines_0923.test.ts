@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
-  castLineFor, DANGDANG_BOSS_LINES, DANGDANG_EVENT_TEXT, defeatLastWord, dialogue, eventTextFor,
-  FEIFEI_BOSS_LINES, FEIFEI_EVENT_LINES, FEIFEI_EVENT_TEXT, firstMeetLine, lineFor,
-  MIRROR_EVENT_TEXT, MIXED_FIRST_MEET, MIXED_LINES, setCoopStory, storyFor, type DialogueLine,
+  castLineFor, DANGDANG_BOSS_LINES, defeatLastWord, dialogue,
+  FEIFEI_BOSS_LINES, firstMeetLine, lineFor,
+  MIXED_FIRST_MEET, MIXED_LINES, setCoopStory, storyFor, type DialogueLine,
 } from '../../src/content/dialogue';
+import { DANGDANG_EVENT_TEXT, eventTextFor, FEIFEI_EVENT_LINES, FEIFEI_EVENT_TEXT, MIRROR_EVENT_TEXT, FENGFENG_EVENT_TEXT } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
 import {
-  FENGFENG_BOSS_LINES, FENGFENG_EVENT_TEXT, FENGFENG_YARD_FIRST, fengfengVictory, fengfengVictoryTeaser,
+  FENGFENG_BOSS_LINES, FENGFENG_YARD_FIRST, fengfengVictory, fengfengVictoryTeaser,
 } from '../../src/content/fengfeng-dialogue';
 import { HEROES, heroName, type Hero } from '../../src/engine/hero';
 import { actClearSlides, endingSlides, prologueSlides } from '../../src/ui/storyslides';

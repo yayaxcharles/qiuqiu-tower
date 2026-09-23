@@ -1,6 +1,6 @@
 import { it } from 'vitest';
 import { writeFileSync } from 'node:fs';
-import { eventTextFor } from '../src/content/dialogue';
+import { eventTextFor } from '../src/content/event-text';
 import { events } from '../src/content/events';
 
 /*

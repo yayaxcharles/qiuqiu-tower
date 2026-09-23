@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
-  FEIFEI_TA, dialogue, eventTextFor, feifeiDialogue, firstMeetLine, lineFor, setCoopStory, storyFor,
+  dialogue, feifeiDialogue, firstMeetLine, lineFor, setCoopStory, storyFor,
 } from '../../src/content/dialogue';
+import { FEIFEI_TA, eventTextFor } from '../../src/content/event-text';
 import { events, eventById } from '../../src/content/events';
 
 /**

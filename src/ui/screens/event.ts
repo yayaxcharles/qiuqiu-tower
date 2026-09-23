@@ -1,6 +1,7 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
-import { dialogue, eventTextFor } from '../../content/dialogue';
+import { dialogue } from '../../content/dialogue';
+import { eventTextFor } from '../../content/event-text';
 import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';

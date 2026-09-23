@@ -1,7 +1,8 @@
 import { beforeEach, expect, it } from 'vitest';
-import { castLineFor, dialogue, eventTextFor, lineFor, setCoopStory } from '../../src/content/dialogue';
+import { castLineFor, dialogue, lineFor, setCoopStory } from '../../src/content/dialogue';
+import { eventTextFor, FENGFENG_EVENT_TEXT } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
-import { FENGFENG_BOSS_LINES, FENGFENG_CAST_LINES, FENGFENG_EVENT_TEXT } from '../../src/content/fengfeng-dialogue';
+import { FENGFENG_BOSS_LINES, FENGFENG_CAST_LINES } from '../../src/content/fengfeng-dialogue';
 
 const sharedScenes = [
   dialogue.secretScroll, dialogue.afterFirstElite, ...dialogue.restBeforeBossByAct,
