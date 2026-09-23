@@ -1,8 +1,12 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import CARDVIEW_RAW from '../../src/ui/cardview.ts?raw';
 import MAIN_RAW from '../../src/main.ts?raw';
-import { PEEK_HOLD_MS, PEEK_MOVE_PX, peekLayout, shouldPeek } from '../../src/ui/cardpeek';
+import COMBAT_RAW from '../../src/ui/screens/combat.ts?raw';
+import SHOP_RAW from '../../src/ui/screens/shop.ts?raw';
+import PEEK_RAW from '../../src/ui/cardpeek.ts?raw';
+import { PEEK_HOLD_MS, PEEK_MOVE_PX, isPhoneDevice, peekLayout, shouldPeek } from '../../src/ui/cardpeek';
+import { TUT_TOUCH_PEEK } from '../../src/content/tutorial';
 
 /*
  * 2026-09-23 polish 第 8 條：手機橫拿讀得清楚（字級、按鈕、按住手牌放大），桌機一個像素都不動。
@@ -10,6 +14,7 @@ import { PEEK_HOLD_MS, PEEK_MOVE_PX, peekLayout, shouldPeek } from '../../src/ui
  */
 const CARDVIEW = CARDVIEW_RAW.replace(/\r\n/g, '\n');
 const MAIN = MAIN_RAW.replace(/\r\n/g, '\n');
+const COMBAT = COMBAT_RAW.replace(/\r\n/g, '\n');
 // 樣式檔用 fs 讀（vitest 對 `.css?raw` 會先過自己的 CSS 處理）
 const css = (name: string): string => readFileSync(`src/ui/styles/${name}`, 'utf8').replace(/\r\n/g, '\n');
 
@@ -64,5 +69,68 @@ describe('第 8 條：手機橫拿讀得清楚，桌機不動', () => {
     }
     // 直拿照舊只有「請橫過來」，這份不碰直拿
     expect(text).not.toContain('data-orient="portrait"');
+  });
+});
+
+describe('主控裁定四：罐頭鋪秘寶／忍具格、戰鬥紀錄、牌堆計數、狀態列小鈕在手機橫拿也放大', () => {
+  const phone = (): string => css('phone.css');
+  const rule = (selector: string): string | null => {
+    const text = phone();
+    const i = text.indexOf(`${selector} {`);
+    return i < 0 ? null : text.slice(text.indexOf('{', i) + 1, text.indexOf('}', i));
+  };
+  const P = 'html[data-device="phone"][data-orient="landscape"]';
+
+  it('牌堆計數改三欄兩列（高度不增）、字放大；戰鬥紀錄放大、框高剛好三行（切線落在兩行中間）', () => {
+    expect(rule(`${P} .combat .piles`)).toMatch(/grid-template-columns: repeat\(3, auto\);[^}]*font-size: 18px;/);
+    expect(rule(`${P} .combat .piles span:first-child`)).toContain('grid-column: 1 / 3;');
+    expect(rule(`${P} .combat .piles > :last-child`)).toContain('grid-row: 1; grid-column: 3;');
+    const log = rule(`${P} .combat .log`)!;
+    const lh = Number(/line-height: (\d+)px/.exec(log)?.[1]);
+    const maxH = Number(/max-height: (\d+)px/.exec(log)?.[1]);
+    expect(Number(/font-size: (\d+)px/.exec(log)?.[1])).toBeGreaterThanOrEqual(18);
+    expect(log).toContain('padding-top: 0;');
+    expect((maxH - 6) % lh).toBe(0);   // 扣掉下內距 6 是行高的整數倍
+  });
+
+  it('狀態列小鈕放大、血條保底，擠的時候另外收（量過秘寶 1～9 件都不出舞台）', () => {
+    expect(rule(`${P} .hud .btn.small`)).toMatch(/font-size: 17px;/);
+    expect(rule(`${P} .hud .hud-hp`)).toContain('min-width: 150px;');
+    expect(rule(`${P} .hud.crowded .hud-vol`)).toContain('width: 36px;');
+  });
+
+  it('罐頭鋪：名字、價錢放大；每一格貨（秘寶、忍具）都掛按住放大，放大時讀得到說明（.small）', () => {
+    expect(rule(`${P} .shop-item .shop-name`)).toMatch(/font-size: 19px;/);
+    expect(rule(`${P} .shop-item .price`)).toMatch(/font-size: 19px;/);
+    const stall = SHOP_RAW.replace(/\r\n/g, '\n');
+    const body = stall.slice(stall.indexOf('  function stall('), stall.indexOf('  /** 一個掛著木牌標籤的貨架'));
+    expect(body).toContain('attachCardPeek(node);');
+    expect(PEEK_RAW).toContain("node.querySelector<HTMLElement>('.card-text, .small')");
+    // 放大的那一格一律從左上角放大（貨架格不是 .card，第一版只寫 .card，放大後會偏離外框）
+    expect(css('phone.css')).toMatch(/\.card-peek > \* \{[^}]*transform-origin: 0 0;/);
+  });
+});
+
+describe('主控裁定三：手機教學條多一句「按住牌可以放大看」，桌機不出現', () => {
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it('那一句放在 content（畫面層不寫台詞），不帶喵、夠短（教學條要維持一行）', () => {
+    expect(TUT_TOUCH_PEEK).toContain('按住牌可以放大看');
+    expect(TUT_TOUCH_PEEK).not.toContain('喵');
+    expect([...TUT_TOUCH_PEEK].length).toBeLessThanOrEqual(10);
+  });
+
+  it('只有手機才算：跟按住放大同一個判準（平板、桌機都不是）', () => {
+    for (const [device, want] of [['phone', true], ['tablet', false], ['desktop', false], [undefined, false]] as const) {
+      vi.stubGlobal('document', { documentElement: { dataset: device ? { device } : {} } });
+      expect(isPhoneDevice(), String(device)).toBe(want);
+    }
+  });
+
+  it('教學條第一步只在手機接上那一句；手機的教學條放大、寬度照內容維持一行', () => {
+    const bar = COMBAT.slice(COMBAT.indexOf("if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },"), COMBAT.indexOf("el('button', { class: 'tut-close'"));
+    expect(bar).toContain("tutStep === 0 && isPhoneDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''");
+    const phone = css('phone.css');
+    expect(phone).toMatch(/html\[data-device="phone"\]\[data-orient="landscape"\] \.tut-bar \{[^}]*width: max-content;[^}]*font-size: 20px;/);
   });
 });

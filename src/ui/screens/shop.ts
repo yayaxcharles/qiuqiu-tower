@@ -11,6 +11,7 @@ import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
 import { cardNode } from '../cardview';
+import { attachCardPeek } from '../cardpeek';
 import { showRemoveConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
@@ -150,6 +151,8 @@ registerScreen('shop', (app, root, props) => {
       priceNode(price, sold, base, sale, soldText));
     if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
     else if (!sold) node.addEventListener('click', () => setMood('no'));   // 買不起：老闆搖頭，不再是死按鈕
+    // 手機橫拿說明只有 6～7 像素、格子又放不下更大的字：按住放大看，放開不會買（2026-09-23 polish，主控裁定四；桌機不作用）
+    attachCardPeek(node);
     return node;
   }
 

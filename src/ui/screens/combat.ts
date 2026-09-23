@@ -18,6 +18,8 @@ import { applyAction, chooserOf } from '../../net/action';
 import type { CoopAction } from '../../net/action';
 import type { SequencedAction } from '../../net/lockstep';
 import { attachCardDrag } from '../dragplay';
+import { isPhoneDevice } from '../cardpeek';
+import { TUT_TOUCH_PEEK } from '../../content/tutorial';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
@@ -307,6 +309,24 @@ function mateUnitStale(was: SeatSnap | undefined, q: PlayerCombat, node: HTMLEle
 }
 
 /**
+ * 這一拍被魔物身上的刺反彈了多少（2026-09-23 polish，主控裁定）。引擎每刺一下寫一行「X的刺反彈了 N 點」，
+ * 刺先扣蜷縮、緊接著那一行是「…蜷縮擋下了 M 點」（actions.ts 的 damagePlayer，direct＋throughBlock）。
+ * 回傳刺的總量與其中被蜷縮擋掉的量：丟東西打到帶刺的魔物時，畫面拿它把「被刺那一下」延到東西飛到才演。
+ */
+function thornPricks(lines: readonly string[]): { total: number; blocked: number } {
+  let total = 0;
+  let blocked = 0;
+  lines.forEach((line, i) => {
+    const m = /的刺反彈了 (\d+) 點$/.exec(line);
+    if (!m) return;
+    total += Number(m[1]);
+    const b = /蜷縮擋下了 (\d+) 點$/.exec(lines[i + 1] ?? '');
+    if (b) blocked += Number(b[1]);
+  });
+  return { total, blocked };
+}
+
+/**
  * 狀態列（`hud.ts` 的 `renderHud`）畫的東西裡，戰鬥途中會變的那幾樣：小魚乾（含這場的增減）、
  * 血量、秘寶，順手連忍具與牌組張數。這串沒變就不必整條重建（清理 2026-09-22）。
  */
@@ -470,11 +490,19 @@ registerScreen('combat', (app, root, props) => {
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
   /**
-   * 丟出去的狀態類忍具（麻繩、定身釘、貓薄荷球）還在飛的魔物 → 出手前的狀態（2026-09-23 polish 第 3 條）。
-   * 引擎一出手就把定身掛上去了，戰場一重畫狀態牌子與「被定住了」就先亮，繩子才剛從手上飛出去；
+   * 丟出去的東西還在飛的魔物 → 出手前的狀態與防禦（2026-09-23 polish 第 3 條）。
+   * 引擎一出手就把定身、中毒掛上去了，戰場一重畫狀態牌子與「被定住了」就先亮，繩子才剛從手上飛出去；
    * 照血條等命中才扣（motionPendingDamage）的做法，飛到那一刻（landStatus）才換成真的狀態。
+   * 一開始只管狀態類忍具（麻繩、定身釘、貓薄荷球）；主控裁定擴到所有丟出去的牌（毒砂、絆索、點穴手、毛球彈、各種飛針）：
+   * 帶傷害的牌打中還會扣防禦、打掉飛行，所以防禦也一起記，飛在天上的也等打到才掉下來。
    */
-  const motionPendingStatus = new Map<number, Unit['statuses']>();
+  const motionPendingStatus = new Map<number, Pick<Unit, 'statuses' | 'block'>>();
+  /**
+   * 丟東西打到身上帶刺（反彈）的魔物、被刺回來的那一位 → 還沒演的那一下扣了多少血與蜷縮（2026-09-23 polish，主控裁定）。
+   * 引擎出手當下就把刺結算完了，畫面照舊會在東西還在飛時就扣血、飄數字；照 motionPendingStatus 的做法，
+   * 血條與蜷縮先照被刺之前畫，東西飛到那一刻（最後一個帶刺的目標被打到）才扣、才飄。只改演出時機，引擎結算不動。
+   */
+  const motionPendingPlayer = new Map<number, { hp: number; block: number }>();
   const motionProjectiles = new Set<() => void>();
   type LocalMotionPresentation = { action: CombatMotionAction; at: number; token: number; trip?: MeleeTrip };
   const locallyPlayedMotion = new LocalMotionPresentationQueue<LocalMotionPresentation>();
@@ -936,6 +964,7 @@ registerScreen('combat', (app, root, props) => {
     motionActors.clear();
     motionPendingDamage.clear();
     motionPendingStatus.clear();
+    motionPendingPlayer.clear();
     locallyPlayedMotion.clear();
     for (const state of enemyMotionActors.values()) {
       state.actor.dispose();
@@ -987,6 +1016,20 @@ registerScreen('combat', (app, root, props) => {
     if (ok && !session.isHost) lockSend();
     return ok;
   };
+  /** 這一位的血與蜷縮照這組畫：丟東西被刺回來、東西還在飛時，把還沒演的那一下加回去（見 motionPendingPlayer） */
+  const shownPlayer = (q: PlayerCombat): PlayerCombat => {
+    const held = motionPendingPlayer.get(q.seat);
+    return held ? { ...q, hp: q.hp + held.hp, block: q.block + held.block } : q;
+  };
+  /** 只換這一位的血條與狀態牌子（被刺那一下扣下去／先加回去時用；整格重建會打斷受擊演出） */
+  const refreshPlayerStatus = (seat: number): void => {
+    const q = cs.players[seat];
+    const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
+    if (!q || !node) return;
+    const shown = shownPlayer(q);
+    node.querySelector(':scope > .hpbar')?.replaceWith(hpBar(`p${seat}`, shown.hp, q.maxHp));
+    node.querySelector(':scope > .chips')?.replaceWith(statusRow(shown, true, `p${seat}`));
+  };
   /**
    * 畫一位玩家。兩個人時靠 `playerLeft` 排位、`data-seat` 認人。
    *
@@ -1007,8 +1050,9 @@ registerScreen('combat', (app, root, props) => {
       el('div', { class: 'name' }, n > 1 ? `${heroName(q)}（${mine ? '你' : '同伴'}）` : heroName(q)),
       // 動畫記憶的鍵要帶座位（連線稽核 中-1）：兩位共用 'player' 的話，每次整頁重畫兩條血條都從
       // 對方的比例滑到自己的，低的那條每次拖一條「剛掉血」的殘影，狀態牌子也每次彈一下。單機只有座位 0
-      hpBar(`p${q.seat}`, q.hp, q.maxHp),
-      statusRow(q, true, `p${q.seat}`));
+      // 血與蜷縮照 shownPlayer：被刺的那一下還沒演（東西還在飛）時照被刺之前畫（見 motionPendingPlayer）
+      hpBar(`p${q.seat}`, shownPlayer(q).hp, q.maxHp),
+      statusRow(shownPlayer(q), true, `p${q.seat}`));
     mountMotion(q, picture, displayedPose);
     // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
     if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
@@ -1658,10 +1702,10 @@ registerScreen('combat', (app, root, props) => {
     return monsterPhaseKey(enemyArtFor(e.enemyId, cs.player.hero), e.phase ?? 0);
   }
 
-  /** 狀態牌子與意圖牌照這組畫：丟出去的狀態類忍具還在飛時是出手前的狀態（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
+  /** 狀態牌子、意圖牌、飛在天上照這組畫：丟出去的東西還在飛時是出手前的狀態與防禦（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
   function shownEnemy(e: EnemyCombat): EnemyCombat {
     const pending = motionPendingStatus.get(e.uid);
-    return pending ? { ...e, statuses: pending } : e;
+    return pending ? { ...e, ...pending } : e;
   }
 
   /** 魔物腳下那一排牌子（狀態＋引擎裡看不到的被動）。抽出來是為了東西飛到時只換這一排（見 refreshEnemyStatus） */
@@ -1693,11 +1737,14 @@ registerScreen('combat', (app, root, props) => {
     return row;
   }
 
-  /** 只換這一隻的狀態牌子與意圖牌（整隻重建會把受擊、倒下那些演出一起打斷） */
+  /** 只換這一隻的狀態牌子、意圖牌、飛在天上（整隻重建會把受擊、倒下那些演出一起打斷） */
   function refreshEnemyStatus(node: HTMLElement, e: EnemyCombat): void {
     const reviving = e.dead && e.reviveIn > 0 && willRevive(cs, e);
+    const shown = shownEnemy(e);
     node.querySelector(':scope > .chips')?.replaceWith(enemyChips(e, enemyById[e.enemyId], reviving));
-    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shownEnemy(e)));
+    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown));
+    // 打掉飛行的那一下：東西打到才掉下來（跟 enemyUnit 同一個判準）。虛化只在魔物自己的回合變，不用跟
+    node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);
   }
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
@@ -1738,7 +1785,8 @@ registerScreen('combat', (app, root, props) => {
     // 飛在天上的魔物離地浮起來（使用者 2026-09-07：「讓他能上來一點才有飛行感」）。
     // 看的是**當下的飛行層數**不是牌表上的初始值：打中幾下把牠打下來時，畫面會跟著落地，
     // 玩家一眼看得出「打下來了」，跟「攻擊只打得到一半」那條機制對得上
-    if (!e.dead && getStatus(e, '飛行') > 0) cls.push('airborne');
+    // 丟出去的東西還在飛時照出手前的層數（shownEnemy）：不然東西還沒打到，牠就先掉下來了（2026-09-23 polish 第 3 條）
+    if (!e.dead && getStatus(shownEnemy(e), '飛行') > 0) cls.push('airborne');
     // 虛化的本體半透明（使用者 2026-09-14 深夜：「第三層有虛化的怪物不明顯」）。
     // 原本只有狀態列一顆小圖示，立繪一點都沒變，玩家看不出這回合打下去每下只扣 1。
     // 看的是**當下**的虛化層數：牠實體化那一拍類別拿掉、立繪立刻變回實心，輸出窗口一眼看得到
@@ -2208,7 +2256,8 @@ registerScreen('combat', (app, root, props) => {
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },
       el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
-      el('span', {}, TUT_TEXT[tutStep] ?? ''),
+      // 手機第一步多一句「按住牌放大看」（2026-09-23 polish，主控裁定三）：桌機用滑鼠滑過去就看得到，不出現
+      el('span', {}, TUT_TEXT[tutStep] ?? '', tutStep === 0 && isPhoneDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''),
       el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕')));
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
@@ -2714,6 +2763,7 @@ registerScreen('combat', (app, root, props) => {
   const recoverPresentation = (): void => {
     motionPendingDamage.clear();
     motionPendingStatus.clear();
+    motionPendingPlayer.clear();
     fallingUids.clear();
     motionHeldSprites.clear();
     if (app.cs === cs && !ended) render();
@@ -3043,6 +3093,9 @@ registerScreen('combat', (app, root, props) => {
     let stagedMax = 0;   // 本拍最多分幾段：收姿勢與倒下的演出都要排在最後一段之後
     let lastMotionImpact = 0;
     let confirmedMotionWaves = 0;
+    // 丟東西打到帶刺的魔物（2026-09-23 polish，主控裁定）：還有幾個帶刺的目標沒被打到；最後一個打到時才演「被刺」（revealThorns，迴圈後面才決定）
+    let thornFlights = 0;
+    let revealThorns: (() => void) | undefined;
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
       const a = comparison?.enemies.get(e.uid);
@@ -3147,7 +3200,7 @@ registerScreen('combat', (app, root, props) => {
       };
       const throwBox = node.querySelector<HTMLElement>('.sprite-box');
       const throwFlight = throwing && throwFoot && throwBox && !b.dead && impactPlan.length > 0;
-      // 掙脫定身、上了減益：丟出去的忍具要等東西飛到才演，其餘照舊當場演
+      // 掙脫定身、上了減益：丟出去的東西（忍具與牌）要等東西飛到才演，其餘照舊當場演
       const brokeFree = fresh.some((l) => l === `${e.name}掙脫了定身`);
       const landStatus = (target: HTMLElement): void => {
         // 飛到了才換上真的狀態牌子（定身、懶洋洋⋯⋯）與「被定住了」（2026-09-23 polish 第 3 條，見 motionPendingStatus）
@@ -3159,10 +3212,11 @@ registerScreen('combat', (app, root, props) => {
         }
         if ((a?.debuff ?? sumStatus(e, BAD_STATUS)) > b.debuff) burst(target, 'debuff');
       };
-      const statusByFlight = throwFlight && shot?.aim !== undefined;
-      // 狀態牌子也等東西飛到：剛才那次重畫已經照引擎掛上定身，先換回出手前的樣子，landStatus 再換回來
-      if (statusByFlight && b && STATUS_ORDER.some((name) => (b.statuses[name] ?? 0) !== getStatus(e, name))) {
-        motionPendingStatus.set(e.uid, b.statuses);
+      // 原本只有忍具（帶 aim）才等；主控 2026-09-23 裁定丟出去的牌也一樣（毒砂的中毒、絆索的炸毛、點穴手的定身）
+      const statusByFlight = !!throwFlight;
+      // 狀態牌子也等東西飛到：剛才那次重畫已經照引擎掛上定身、中毒、扣了防禦，先換回出手前的樣子，landStatus 再換回來
+      if (statusByFlight && (b.block !== e.block || STATUS_ORDER.some((name) => (b.statuses[name] ?? 0) !== getStatus(e, name)))) {
+        motionPendingStatus.set(e.uid, { statuses: b.statuses, block: b.block });
         // 剛才那次重畫已經把「被定住了」記成上一次的牌面，換回去會被當成換招、繩子飛行中翻一次牌（實機膠卷）；
         // 忘掉它，飛到那一刻才翻
         lastIntent.delete(e.uid);
@@ -3177,12 +3231,16 @@ registerScreen('combat', (app, root, props) => {
         // 命中比上面用 impactElapsed 算的晚 0.1～0.3 秒；照舊算的話最後一兩波還在飛，魔物就先被換回待機
         lastMotionImpact = Math.max(lastMotionImpact, finalImpactAt
           - throwElapsed(impactSource, impactMotion, impactElapsed, impactPlan.map((impact) => impact.at)));
+        // 這隻身上帶刺、這一拍又被打中：出手的那一位會被刺回來，等這一趟飛到才演（見 revealThorns）
+        const pricks = (b.statuses['反彈'] ?? 0) > 0 && enemyHits.length > 0;
+        if (pricks) thornFlights += 1;
         const onImpact = (wave: number): void => {
           if (app.cs !== cs) return;
           const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
           if (live) showImpact(live, impactPlan[wave]?.amount ?? 0, wave);
           if (live && statusByFlight && wave === waves - 1) landStatus(live);
           if (wave === waves - 1) throwFall?.();
+          if (pricks && wave === waves - 1 && --thornFlights === 0) revealThorns?.();
         };
         let cancel: () => void = () => undefined;
         cancel = playThrow(app.stage, impactSource, impactMotion, shot, throwFoot, { x: foot.x, y: foot.y - width * 0.55 }, {
@@ -3276,6 +3334,60 @@ registerScreen('combat', (app, root, props) => {
       }
       const afterEnemyPhase = a?.phase ?? e.phase;
       if (afterEnemyPhase > b.phase) { bossPhaseTalk(e.enemyId, afterEnemyPhase); phaseBurst(node); }
+    }
+    /** 挨打那一下：紅閃、邊緣紅暈、飄數字、音效，重的再震一下（被刺那一下延到東西飛到時也走這支） */
+    const playerHurtFx = (cat: HTMLElement, amount: number, maxHp: number, poisoned: boolean): void => {
+      cat.classList.remove('hit');
+      void cat.offsetWidth;
+      cat.classList.add('hit');
+      // 邊緣紅暈：挨打的訊號要大到用餘光就看得到（受擊姿勢＋抖動一直都有，但視線常在手牌）
+      const box = root.querySelector('.combat');
+      box?.classList.add('player-hurt');
+      window.setTimeout(() => { box?.classList.remove('player-hurt'); }, 500);
+      cat.append(floatNum(`-${amount}`));
+      burst(cat, poisoned ? 'poison' : 'hit');
+      sfx(poisoned ? 'poison' : 'hurt');
+      // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
+      // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
+      // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。
+      if (amount >= maxHp * 0.08) {
+        const shakeBox = root.querySelector<HTMLElement>('.combat');
+        shakeBox?.classList.add('shaken');
+        window.setTimeout(() => shakeBox?.classList.remove('shaken'), 300);
+      }
+    };
+    /** 蜷縮擋下的部分也要看得到：飄「擋住 N」＋盾牌閃一下＋「鏘」（球球比照魔物） */
+    const playerGuardFx = (cat: HTMLElement, amount: number): void => {
+      cat.append(floatNum(`擋住 ${amount}`, 'blocked'));
+      burst(cat, 'block');
+      sfx('blocked');
+    };
+    // 丟東西打到帶刺的魔物（2026-09-23 polish，主控裁定）：被刺那一下（扣蜷縮、扣血、飄字、紅閃）延到最後一個帶刺的目標被打到。
+    // 剛才那次重畫已經照引擎扣掉了，先把血與蜷縮加回去畫；只改演出時機，引擎結算不動，連線兩台各自照這一拍的紀錄演
+    const thornSeat = opts.impactSeat ?? mySeat;
+    let thornHeld: { seat: number; hp: number; block: number } | undefined;
+    if (thornFlights > 0) {
+      const pricked = thornPricks(fresh);
+      const thrower = cs.players[thornSeat];
+      const was = before.players.get(thornSeat);
+      const afterHp = comparison?.players.get(thornSeat)?.hp ?? thrower?.hp ?? 0;
+      const hp = was ? Math.min(Math.max(0, pricked.total - pricked.blocked), Math.max(0, was.hp - afterHp)) : 0;
+      const block = pricked.blocked;
+      // 被刺到倒下就不延：倒下的演出（落敗、蜷縮成一團）當場就要走
+      if (thrower && !thrower.down && (hp > 0 || block > 0)) {
+        thornHeld = { seat: thornSeat, hp, block };
+        motionPendingPlayer.set(thornSeat, { hp, block });
+        lastHpPct.delete(`p${thornSeat}`);   // 剛才那次重畫記的是扣過的長度，不刪的話加回去那一下血條會往上長
+        refreshPlayerStatus(thornSeat);
+        revealThorns = (): void => {
+          if (app.cs !== cs || !motionPendingPlayer.delete(thornSeat)) return;
+          refreshPlayerStatus(thornSeat);   // 血條從被刺之前滑到之後，淺色殘影照常留一下
+          const live = root.querySelector<HTMLElement>(`.unit.player[data-seat="${thornSeat}"]`);
+          if (!live || thornSeat !== mySeat) return;   // 同伴那一格平常挨打也只換血條，照舊
+          if (block > 0) playerGuardFx(live, block);
+          if (hp > 0) playerHurtFx(live, hp, thrower.maxHp, false);
+        };
+      }
     }
     // 全體攻擊的各目標可能因死亡或隱身而有不同波數；整身動作採全場最大值，不能被最後一隻覆短。
     // 煙霧彈丟在自己腳邊（2026-09-22 批次 proj）：從出手那隻手拋到腳前，落地才冒煙
@@ -3382,32 +3494,12 @@ registerScreen('combat', (app, root, props) => {
         burst(cat, 'debuff');
         sfx('debuff', 0.8);
       }
-      // 蜷縮擋下的部分也要看得到：飄「擋住 N」＋盾牌閃一下＋「鏘」（球球比照魔物）
-      const guarded = blockedAmount(fresh, '蜷縮擋下了');
-      if (guarded > 0) {
-        cat.append(floatNum(`擋住 ${guarded}`, 'blocked'));
-        burst(cat, 'block');
-        sfx('blocked');
-      }
-      if (hurt) {
-        cat.classList.add('hit');
-        // 邊緣紅暈：挨打的訊號要大到用餘光就看得到（受擊姿勢＋抖動一直都有，但視線常在手牌）
-        const box = root.querySelector('.combat');
-        box?.classList.add('player-hurt');
-        window.setTimeout(() => { box?.classList.remove('player-hurt'); }, 500);
-        cat.append(floatNum(`-${before.hp - comparedHp}`));
-        const pPoison = chokeTick(getStatus(p, '中毒'), before.choke);
-        burst(cat, pPoison ? 'poison' : 'hit');
-        sfx(pPoison ? 'poison' : 'hurt');
-        // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
-        // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
-        // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。
-        if (before.hp - comparedHp >= p.maxHp * 0.08) {
-          const box = root.querySelector<HTMLElement>('.combat');
-          box?.classList.add('shaken');
-          window.setTimeout(() => box?.classList.remove('shaken'), 300);
-        }
-      }
+      // 被刺那一下延到東西飛到才演（見 thornHeld）：這裡只演扣掉那一下之後剩下的
+      const heldHere = thornHeld?.seat === mySeat ? thornHeld : undefined;
+      const guarded = blockedAmount(fresh, '蜷縮擋下了') - (heldHere?.block ?? 0);
+      if (guarded > 0) playerGuardFx(cat, guarded);
+      const lost = before.hp - comparedHp - (heldHere?.hp ?? 0);
+      if (hurt && lost > 0) playerHurtFx(cat, lost, p.maxHp, chokeTick(getStatus(p, '中毒'), before.choke));
       else if (dodged) cat.classList.add('dodge');
       // 前撲只給攻擊牌（規格 §8.4）：看 opts.attack，不能看有沒有指定姿勢——每張出的牌都會指定姿勢，
       // 拿它當條件的話「淡定」這種防禦牌也會蜷成球又往前撲
