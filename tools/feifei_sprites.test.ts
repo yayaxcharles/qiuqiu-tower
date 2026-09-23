@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { _setManifestForTest, hasHeroSprite, heroSpriteKey } from '../src/ui/assets';
+import { _setManifestForTest, hasHeroSprite, heroSpriteKey, type Manifest } from '../src/ui/assets';
 
 /**
  * 菲菲的立繪涵蓋率（2026-09-12）。
@@ -15,11 +15,9 @@ import { _setManifestForTest, hasHeroSprite, heroSpriteKey } from '../src/ui/ass
  * `POSE_KEYS` 要跟 `combat.ts` 的 `POSE` 表一致——`sprites_exist.test.ts` 已經
  * 用同一份名單釘住球球那邊，這裡沿用同樣的做法。
  */
-const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as {
-  cards: Record<string, string>; sprites: Record<string, string>;
-  monsters: Record<string, string>; icons: Record<string, string>;
-  bg: Record<string, string>; review: string[];
-};
+// 型別跟著正本走（2026-09-23 低-2：手寫的 monsters 形狀跟 `Manifest` 早就對不上，
+// `_setManifestForTest` 一直沒被型別檢查照到才沒發現）
+const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as Manifest;
 _setManifestForTest(manifest);
 
 const POSES = [

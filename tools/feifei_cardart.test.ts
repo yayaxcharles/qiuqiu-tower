@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { _setManifestForTest, cardArtKey, setLocalHero } from '../src/ui/assets';
+import { _setManifestForTest, cardArtKey, setLocalHero, type Manifest } from '../src/ui/assets';
 import { cards } from '../src/content/cards';
 
 /**
@@ -15,11 +15,9 @@ import { cards } from '../src/content/cards';
  *   2. 涵蓋率印出來，而且**不准倒退**：`FLOOR` 是目前進度，生圖補進來就往上調。
  *      寫成下限而不是「必須 100%」，是因為圖還在生，釘死會讓整套測試一直紅。
  */
-const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as {
-  cards: Record<string, string>; sprites: Record<string, string>;
-  monsters: Record<string, string>; icons: Record<string, string>;
-  bg: Record<string, string>; review: string[];
-};
+// 型別跟著正本走（2026-09-23 低-2：手寫的 monsters 形狀跟 `Manifest` 早就對不上，
+// `_setManifestForTest` 一直沒被型別檢查照到才沒發現）
+const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as Manifest;
 _setManifestForTest(manifest);
 
 /** 目前生到哪。生圖補進來就往上調，**只准往上**（2026-09-12 14:35 是 46） */
