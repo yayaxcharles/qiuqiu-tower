@@ -20,7 +20,8 @@ vi.mock('../../src/ui/assets', () => ({
 }));
 vi.mock('../../src/ui/preload', () => ({ preloadAct: mocks.preloadAct }));
 vi.mock('../../src/ui/audio', () => ({ unlockOnFirstGesture: vi.fn() }));
-vi.mock('../../src/ui/bgm', () => ({ unlockBgmOnFirstGesture: vi.fn() }));
+// `deferBgm`：慢網路時背景音樂等開場那批圖到齊才開始（2026-09-23 內容擴充第〇批）。假模組少了它，開頁那段非同步會丟未處理的錯，推送閘門判紅
+vi.mock('../../src/ui/bgm', () => ({ unlockBgmOnFirstGesture: vi.fn(), deferBgm: vi.fn() }));
 vi.mock('../../src/ui/screenbg', () => ({ applyArtVars: vi.fn() }));
 vi.mock('../../src/ui/qiuqiu-motion', () => ({ preloadQiuqiuMotion: mocks.preloadQiuqiuMotion }));
 vi.mock('../../src/ui/companion-motion', () => ({ preloadCompanionMotion: mocks.preloadCompanionMotion }));
