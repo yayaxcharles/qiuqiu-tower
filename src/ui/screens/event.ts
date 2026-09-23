@@ -148,7 +148,9 @@ registerScreen('event', (app, root, props) => {
   // backToMap 會存檔，而這是「進節點」的當下、節點還沒結算，存下去就違反「節點結算完才存」的規矩
   // （引擎保證事件節點一定帶得到 eventId，所以這條路今天走不到，但規矩要處處成立）
   if (!ev) { app.show('map'); return; }
-  const title = ev.title;
+  // 標題也照本機這一位換口吻（2026-09-23 主控裁定）：噹噹、封封不喊「師父」，看到的是「大俠貓的舊木箱」這類；
+  // 走跟本文同一條 `eventTextFor`（對照表查不到就原樣），連線混搭一樣照本機這一位
+  const title = eventTextFor(me(run, app.seat).hero, ev.title);
 
   /*
    * 兩個人一起遇到同一件事（連線版 2026-09-11）。

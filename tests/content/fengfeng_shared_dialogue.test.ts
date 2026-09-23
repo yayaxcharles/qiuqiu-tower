@@ -11,8 +11,9 @@ const sharedScenes = [
   ...Object.values(dialogue.bossPhase3ById), dialogue.bossPhase3Generic,
   ...Object.values(dialogue.bossDefeatById),
 ].flat();
+// 標題也收（2026-09-23 起標題跟本文走同一張表）
 const sharedEventTexts = events.filter((event) => !event.hero).flatMap((event) =>
-  [event.text, ...event.choices.flatMap((choice) => [choice.label, choice.result])]);
+  [event.title, event.text, ...event.choices.flatMap((choice) => [choice.label, choice.result])]);
 
 beforeEach(() => setCoopStory(null));
 
