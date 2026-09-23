@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <title>爪破魔塔：球球參上</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <!-- 暫用小圖示（2026-09-23 稽核「已知、沒有再報」）：每次載入都會少一筆 favicon.ico 404。
+       `public/favicon.png` 是從球球立繪暫時裁的，之後美術會換掉，檔名固定不用再改這行。
+       用 %BASE_URL%（Vite 建置時換成 `base` 設定值）不寫死路徑：連線版與單機版的網址前綴不同。 -->
+  <link rel="icon" type="image/png" href="%BASE_URL%favicon.png">
 </head>
 <body>
   <div id="app"></div>

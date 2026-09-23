@@ -36,6 +36,15 @@ import type { Plugin } from 'vite';
 const MANIFEST_REL = 'assets/manifest.json';
 
 /**
+ * 小圖示的位置（相對於 `dist/`，2026-09-23）。`index.html` 用 `%BASE_URL%favicon.png` 寫死網址，
+ * 跟清單一樣不能加雜湊——副檔名是 `.png`，不在下面 `SKIP_EXT` 那張表裡（那張表是給
+ * `.ico` 這種傳統副檔名用的），不額外排掉的話會被改名成 `favicon-XXXXXXXX.png`、
+ * `index.html` 裡的舊名字就 404。不把 `.png` 整個加進 `SKIP_EXT`：這個專案的圖大多是
+ * `.webp`，但以後真的進了 png 素材圖，還是要照樣加雜湊防快取，不能因為一張圖示就整類放行。
+ */
+const FAVICON_REL = 'favicon.png';
+
+/**
  * 這些副檔名不加雜湊。
  *
  * `.js`／`.css`／`.map` 是 Vite 自己打包的產物（已經有雜湊）；`.html` 是進入點；
@@ -128,6 +137,7 @@ export function assetHash(): Plugin {
         const name = rel.slice(rel.lastIndexOf('/') + 1);
         if (name.startsWith('.')) continue;                 // `.nojekyll` 這一類不能改名
         if (rel === MANIFEST_REL) continue;                 // 入口，見檔頭第 2 條
+        if (rel === FAVICON_REL) continue;                  // index.html 寫死網址，見上面 FAVICON_REL 的說明
         if (emitted.has(rel)) continue;                     // Vite 自己的產物，見檔頭第 3 條
         const ext = extname(name);
         if (ext === '' || SKIP_EXT.has(ext.toLowerCase())) continue;
