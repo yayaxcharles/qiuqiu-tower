@@ -12,8 +12,10 @@ type Fake = {
   dataset: Record<string, string>; style: Record<string, string>; hidden: boolean; textContent: string; src: string;
   classList: { add(): void; remove(): void; toggle(): void };
   append(...kids: unknown[]): void; remove(): void; addEventListener(t: string, fn: (ev: unknown) => void): void;
-  querySelector(): null; querySelectorAll(): unknown[]; setAttribute(): void; removeAttribute(): void;
+  querySelector(): null; querySelectorAll(): unknown[]; setAttribute(): void; removeAttribute(a: string): void;
   pause(): void; play(): undefined; offsetWidth: number;
+  /** 影片：拿掉 `src` 之後叫了幾次 `load()`（2026-09-23：只拿掉 src 不會停下載，要再 load 一次） */
+  load(): void; srcGone: boolean; reloadsAfterSrcGone: number;
 };
 const made: Fake[] = [];
 function fake(tag: string): Fake {
@@ -22,7 +24,8 @@ function fake(tag: string): Fake {
     classList: { add() {}, remove() {}, toggle() {} },
     append(...kids) { n.children.push(...kids); }, remove() { n.removed = true; },
     addEventListener(t, fn) { n.listeners[t] = fn; }, querySelector: () => null, querySelectorAll: () => [],
-    setAttribute() {}, removeAttribute() {}, pause() { n.paused = true; }, play: () => undefined, offsetWidth: 0,
+    setAttribute() {}, removeAttribute(a) { if (a === 'src') n.srcGone = true; }, pause() { n.paused = true; }, play: () => undefined, offsetWidth: 0,
+    load() { if (n.srcGone) n.reloadsAfterSrcGone += 1; }, srcGone: false, reloadsAfterSrcGone: 0,
   };
   made.push(n);
   return n;
@@ -72,11 +75,25 @@ describe('丟掉這一局時，劇情疊層整批收掉、不叫 onDone', () => 
     expect(done.video).not.toHaveBeenCalled();
     expect(inert, '三個鎖都要解掉，不然標題畫面點不動').toBe(false);
     expect(made.find((n) => n.tag === 'video')?.paused, '影片要停').toBe(true);
+    // 連下載一起停：拿掉 src 之後再 load() 一次（2026-09-23，只拿掉 src 瀏覽器會繼續把整支抓完）
+    expect(made.find((n) => n.tag === 'video')?.reloadsAfterSrcGone, '影片的下載要停').toBe(1);
 
     // 收掉之後再點那個已經拆掉的框（連點殘留）也不會接下去
     for (const b of boxes()) b.listeners['click']?.({ timeStamp: performance.now() + 60_000 });
     expect(done.slides).not.toHaveBeenCalled();
     expect(done.dialogue).not.toHaveBeenCalled();
+  });
+
+  it('按「跳過」收掉影片：連下載一起停（慢網路下它原本會佔住一條連線把整支抓完）', () => {
+    const done = vi.fn();
+    playVideo('opening', done);
+    const video = made.find((n) => n.tag === 'video')!;
+    const skip = made.find((n) => n.tag === 'button')!;
+    skip.listeners['click']!({});
+    expect(done).toHaveBeenCalledTimes(1);
+    expect(video.paused).toBe(true);
+    expect(video.srcGone).toBe(true);
+    expect(video.reloadsAfterSrcGone, '拿掉 src 之後要再 load() 一次').toBe(1);
   });
 
   it('正常演完的會自己除名：之後再收一次不會多叫、也不會多解一次鎖', () => {

@@ -2,6 +2,7 @@ import motionData from './enemy-motion-data.json';
 import { fileUrl } from './assets';
 import './styles/enemy-motion.css';
 import { decodedAtlas, imageLoaded, prepareDecodedAtlas } from './decoded-atlas';
+import { loadHeavy } from './heavy-lane';
 
 export type EnemyMotionKind = 'rat' | 'ninja';
 export type EnemyMotionAction = 'idle' | 'attack' | 'hurt' | 'air_rise' | 'air_fall' | 'knockdown' | 'getup';
@@ -57,8 +58,9 @@ function imageFor(texture: string): HTMLImageElement {
   const cached = images.get(texture);
   if (cached) return cached;
   const image = new Image();
-  image.src = fileUrl(texture);
   images.set(texture, image);
+  // 網址交給大檔那一條設（`heavy-lane.ts`，2026-09-23）；這一場就要畫的魔物，排隊的話插到最前面
+  void loadHeavy(image, fileUrl(texture), true);
   return image;
 }
 
@@ -74,6 +76,7 @@ async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
   for (const action of ACTIONS) textures.add(kinds[kind].actions[action].texture);
   const load = Promise.all([...textures].map(async (texture) => {
     const image = imageFor(texture);
+    await loadHeavy(image, fileUrl(texture), true);   // 排到了、網址設好了（還在排隊的圖沒有網址，底下會當成壞圖）
     // 只等載好、不呼叫 decode()：畫布不吃 decode() 的結果，白解一次還多占記憶體（見 decoded-atlas.ts 的 `imageLoaded`）。
     // 載好之後另外在背景解開成點陣圖。
     await imageLoaded(image);

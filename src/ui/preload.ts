@@ -273,7 +273,9 @@ export function _mapEventHeldForTest(): string[] { return [...mapEventPool.keep.
 export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise<void> {
   const art = decodeAll(heroArtUrls(heroes), 6, false);
   if (typeof location === 'undefined' || new URLSearchParams(location.search).get('motion') === '0') return art;
-  const motion = Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
+  // 逐格動作排在這一位的靜態圖後面（2026-09-23）：動作還沒到時畫面靠的就是靜態立繪與牌面，
+  // 小圖先到；大圖集另外還有 `heavy-lane.ts` 管同時幾張、開場那批抓完才開始
+  const motion = art.then(() => Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
     if (hero === 'ninja') {
       const { preloadQiuqiuMotion } = await import('./qiuqiu-motion');
       await preloadQiuqiuMotion();
@@ -281,7 +283,7 @@ export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise
       const { preloadCompanionMotion } = await import('./companion-motion');
       await preloadCompanionMotion(hero);
     }
-  })).catch((error: unknown) => {
+  }))).catch((error: unknown) => {
     console.error('逐格動作預載失敗，改用普通立繪', error);
   });
   return Promise.all([art, motion]).then(() => undefined);
