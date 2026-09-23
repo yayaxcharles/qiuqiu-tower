@@ -1,0 +1,266 @@
+{
+  "event_cell_bandit": {
+    "attempt": 1,
+    "key": "bg/event_cell_bandit",
+    "file": "public/assets/bg/event_cell_bandit.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 45754,
+    "droppedSpecks": 109,
+    "semiTransparentShare": 0.0244,
+    "gate": [],
+    "sha256": "aaa34f879aa170b3fdc1ab0b634a73300e24c3385af4085a5066dda8bd91300f",
+    "at": "2026-09-23 21:09:28"
+  },
+  "event_cell_bandit_r0": {
+    "attempt": 1,
+    "key": "bg/event_cell_bandit_r0",
+    "file": "public/assets/bg/event_cell_bandit_r0.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r0",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 49132,
+    "droppedSpecks": 77,
+    "semiTransparentShare": 0.028,
+    "gate": [],
+    "sha256": "69b6c2e35d0c6a69478ca499aa73badc0f3d1864d602880473a3857ad8248d52",
+    "at": "2026-09-23 21:09:46"
+  },
+  "event_cell_bandit_r1": {
+    "attempt": 1,
+    "key": "bg/event_cell_bandit_r1",
+    "file": "public/assets/bg/event_cell_bandit_r1.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r1",
+    "hero": "ninja",
+    "sourceSize": [
+      1352,
+      1163
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46326,
+    "droppedSpecks": 106,
+    "semiTransparentShare": 0.0253,
+    "gate": [],
+    "sha256": "77f6df7c56f8de9406a5f2a0a8228e1937547cc0f63c38bf02e660c69fba5b9a",
+    "at": "2026-09-23 21:10:03"
+  },
+  "event_dangdang_cell_bandit": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_cell_bandit",
+    "file": "public/assets/bg/event_dangdang_cell_bandit.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 48202,
+    "droppedSpecks": 147,
+    "semiTransparentShare": 0.0267,
+    "gate": [],
+    "sha256": "0ce88e1d58221f1e74b6f33f7f2968c06ad56969294b44d475d5410a6e4580f5",
+    "at": "2026-09-23 21:09:37"
+  },
+  "event_dangdang_cell_bandit_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_cell_bandit_r0",
+    "file": "public/assets/bg/event_dangdang_cell_bandit_r0.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r0",
+    "hero": "dangdang",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 51778,
+    "droppedSpecks": 149,
+    "semiTransparentShare": 0.0386,
+    "gate": [],
+    "sha256": "ff8f69b0203e2d441ce9d158592d2df9545ca75ef628f8a5e24938b19f45f83c",
+    "at": "2026-09-23 21:09:56"
+  },
+  "event_dangdang_cell_bandit_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_cell_bandit_r1",
+    "file": "public/assets/bg/event_dangdang_cell_bandit_r1.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r1",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 48644,
+    "droppedSpecks": 137,
+    "semiTransparentShare": 0.0253,
+    "gate": [],
+    "sha256": "76239a513c329ace69877f094f0fc0999bf92b0065f9fc25c8f2bbfbae6b4135",
+    "at": "2026-09-23 21:10:11"
+  },
+  "event_feifei_cell_bandit": {
+    "attempt": 1,
+    "key": "bg/event_feifei_cell_bandit",
+    "file": "public/assets/bg/event_feifei_cell_bandit.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 57170,
+    "droppedSpecks": 219,
+    "semiTransparentShare": 0.0236,
+    "gate": [],
+    "sha256": "aa2f93ba3e44d56bba72cd29880eb5f1f8afc9a3acbc15b7867f96084f6bb533",
+    "at": "2026-09-23 21:09:33"
+  },
+  "event_feifei_cell_bandit_r0": {
+    "attempt": 1,
+    "key": "bg/event_feifei_cell_bandit_r0",
+    "file": "public/assets/bg/event_feifei_cell_bandit_r0.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r0",
+    "hero": "feifei",
+    "sourceSize": [
+      1368,
+      1149
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 55724,
+    "droppedSpecks": 108,
+    "semiTransparentShare": 0.0264,
+    "gate": [],
+    "sha256": "edfecc033e0287a5743bae3022aa2aac975039a06fde54c2824a8155688ee43e",
+    "at": "2026-09-23 21:09:52"
+  },
+  "event_feifei_cell_bandit_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_cell_bandit_r1",
+    "file": "public/assets/bg/event_feifei_cell_bandit_r1.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r1",
+    "hero": "feifei",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 59098,
+    "droppedSpecks": 128,
+    "semiTransparentShare": 0.0254,
+    "gate": [],
+    "sha256": "0bfb7a3db99f0694349f5c5f17ee6a6237f566e83d2ad6d0191ee4ec2ad39fe4",
+    "at": "2026-09-23 21:10:07"
+  },
+  "event_fengfeng_cell_bandit": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_cell_bandit",
+    "file": "public/assets/bg/event_fengfeng_cell_bandit.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 55088,
+    "droppedSpecks": 196,
+    "semiTransparentShare": 0.0238,
+    "gate": [],
+    "sha256": "58684481ff0b473ac180fe572424b46d627549e1035a7e4214cfc590876c3bf4",
+    "at": "2026-09-23 21:09:42"
+  },
+  "event_fengfeng_cell_bandit_r0": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_cell_bandit_r0",
+    "file": "public/assets/bg/event_fengfeng_cell_bandit_r0.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r0",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50696,
+    "droppedSpecks": 123,
+    "semiTransparentShare": 0.035,
+    "gate": [],
+    "sha256": "044d26ad35fab780803c2b236d55551f54c3578974dd30142e7cc6b83d2f09fe",
+    "at": "2026-09-23 21:09:59"
+  },
+  "event_fengfeng_cell_bandit_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_cell_bandit_r1",
+    "file": "public/assets/bg/event_fengfeng_cell_bandit_r1.webp",
+    "event": "cell_bandit",
+    "stem": "cell_bandit_r1",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1444,
+      1089
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 56986,
+    "droppedSpecks": 57,
+    "semiTransparentShare": 0.0254,
+    "gate": [],
+    "sha256": "02a32a31b669f992098a6d92f4dcd19ce40fc3813bb0295b98e3f991ffa5adf1",
+    "at": "2026-09-23 21:10:15"
+  }
+}
