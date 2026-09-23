@@ -17,6 +17,9 @@
  * 所以晚到只是「晚一點才動起來」，不會空白。
  *
  * 沒有 `armHeavyLane` 的時候（測試、動作試玩頁）這一條等於不存在：設好網址就走，跟原本一模一樣。
+ *
+ * **只有量到慢網路才設上限、才擋到開場那一批抓完**（2026-09-23 主控裁定，量法見 `netspeed.ts`）：
+ * 一般寬頻照原本全部一起抓，逐格動作才不會比以前晚到。主程式在量速度的那零點幾秒先掛著（最多 2.5 秒）。
  */
 
 type Job = { image: HTMLImageElement; url: string; done: Promise<void>; settle: () => void; started: boolean };

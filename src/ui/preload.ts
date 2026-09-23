@@ -4,6 +4,7 @@ import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool, RunState } from '../engine/types';
 import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
+import { netSpeed } from './netspeed';
 import { actVariantKey } from './screenbg';
 
 /**
@@ -273,9 +274,9 @@ export function _mapEventHeldForTest(): string[] { return [...mapEventPool.keep.
 export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise<void> {
   const art = decodeAll(heroArtUrls(heroes), 6, false);
   if (typeof location === 'undefined' || new URLSearchParams(location.search).get('motion') === '0') return art;
-  // 逐格動作排在這一位的靜態圖後面（2026-09-23）：動作還沒到時畫面靠的就是靜態立繪與牌面，
-  // 小圖先到；大圖集另外還有 `heavy-lane.ts` 管同時幾張、開場那批抓完才開始
-  const motion = art.then(() => Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
+  // 慢網路：逐格動作排在這一位的靜態圖後面（2026-09-23）——動作還沒到時畫面靠的就是靜態立繪與牌面，小圖先到；
+  // 大圖集另外還有 `heavy-lane.ts` 管同時幾張、開場那批抓完才開始。快網路照原本兩邊一起抓（主控裁定：一般情況不能變慢）
+  const motion = netSpeed().then((s) => (s === 'slow' ? art : undefined)).then(() => Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
     if (hero === 'ninja') {
       const { preloadQiuqiuMotion } = await import('./qiuqiu-motion');
       await preloadQiuqiuMotion();

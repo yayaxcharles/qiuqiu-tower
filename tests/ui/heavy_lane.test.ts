@@ -4,6 +4,7 @@ import FRAME_RAW from '../../src/ui/frame-motion.ts?raw';
 import ENEMY_RAW from '../../src/ui/enemy-motion.ts?raw';
 import { _heavyLaneStateForTest, _resetHeavyLaneForTest, armHeavyLane, holdHeavyLane, loadHeavy } from '../../src/ui/heavy-lane';
 import { createFrameMotionSet } from '../../src/ui/frame-motion';
+import { _setNetSpeedForTest } from '../../src/ui/netspeed';
 
 /*
  * 大檔讓路（2026-09-23，`src/ui/heavy-lane.ts`）。
@@ -177,7 +178,12 @@ describe('逐格動作走這一條', () => {
 });
 
 describe('小圖先到', () => {
-  it('選好角色：這一位的靜態圖（動作還沒到時畫面靠它）抓完，逐格動作才開始', async () => {
+  afterEach(() => { _setNetSpeedForTest('fast'); });
+
+  it.each([['slow', true], ['fast', false]] as const)('網路 %s：這一位的靜態圖抓完才開始抓逐格動作？%s（快網路照原本一起抓）', async (speed, waits) => {
+    // 每一種都要全新的模組：動作那一組預載過一次就記著「好了」，第二次不會再發請求
+    vi.resetModules();
+    (await import('../../src/ui/netspeed'))._setNetSpeedForTest(speed);
     const sources: string[] = [];
     let releaseArt!: () => void;
     const artDone = new Promise<void>((r) => { releaseArt = r; });
@@ -196,7 +202,8 @@ describe('小圖先到', () => {
     await import('../../src/ui/companion-motion');   // 先載進來：底下那段 `import()` 才會馬上好，等得到「動作有沒有搶先開抓」
     const all = preloadHeroArt(['feifei']);
     for (let i = 0; i < 5; i++) { await new Promise((r) => setTimeout(r, 20)); await flush(); }
-    expect(sources).toEqual(['/assets/sprites/hero/feifei_idle.webp']);
+    if (waits) expect(sources).toEqual(['/assets/sprites/hero/feifei_idle.webp']);
+    else expect(sources.some((s) => s.includes('/motion/feifei/')), '快網路：靜態圖還沒好，動作也已經在抓').toBe(true);
     releaseArt();
     await all;
     expect(sources.some((s) => s.includes('/motion/feifei/')), '靜態圖好了才抓動作').toBe(true);
@@ -206,14 +213,16 @@ describe('小圖先到', () => {
   it('魔物的逐格動作也走這一條，而且插隊（這一場就要畫）', async () => {
     const made: Img[] = [];
     vi.stubGlobal('Image', class { constructor() { const i = fakeImage(); made.push(i); return i as unknown as object; } });
-    armHeavyLane(1);
-    const [other] = [fakeImage()];
-    void load(other, '/busy.webp');
-    void load(fakeImage(), '/queued.webp');
+    // 魔物動作那支跟這裡要拿同一份大檔那一條（上一條測試換過一輪模組）
+    vi.resetModules();
+    const lane = await import('../../src/ui/heavy-lane');
+    lane.armHeavyLane(1);
+    void lane.loadHeavy(fakeImage() as unknown as HTMLImageElement, '/busy.webp');
+    void lane.loadHeavy(fakeImage() as unknown as HTMLImageElement, '/queued.webp');
     const { preloadEnemyMotion } = await import('../../src/ui/enemy-motion');
     void preloadEnemyMotion(['rat']);
     await flush();
-    const waiting = _heavyLaneStateForTest().waiting;
+    const waiting = lane._heavyLaneStateForTest().waiting;
     expect(waiting.length).toBeGreaterThan(1);
     expect(waiting[0], '魔物那幾張排在前面').toContain('/motion/');
     expect(waiting.at(-1)).toBe('/queued.webp');
@@ -222,12 +231,9 @@ describe('小圖先到', () => {
 });
 
 describe('接線', () => {
-  it('主程式開機：上限 2、開場那一批（開場圖＋第一關魔物）抓完才放行，失敗也放行', () => {
-    expect(MAIN).toContain('armHeavyLane(2);');
-    expect(MAIN).toContain('const releaseHeavy = holdHeavyLane();');
-    expect(MAIN).toContain('void preloadArt().then(() => preloadAct(1)).finally(releaseHeavy);');
-    // 動作試玩頁在那之前就 return 了，不掛（那一頁只看動作）
-    expect(MAIN.indexOf('armHeavyLane(2);')).toBeGreaterThan(MAIN.indexOf("has('motion-preview')"));
+  it('主程式開機的量速度、讓路、音樂延後：行為在 `netspeed_0923.test.ts`；這裡只確認動作試玩頁不掛（那一頁只看動作）', () => {
+    expect(MAIN.indexOf('probeNetSpeed()')).toBeGreaterThan(MAIN.indexOf("has('motion-preview')"));
+    expect(MAIN.indexOf('holdHeavyLane()')).toBeGreaterThan(MAIN.indexOf("has('motion-preview')"));
   });
 
   it('逐格動作畫到還沒抓的那張時插隊；圖集的網址一律交給這一條設，不自己設', () => {
