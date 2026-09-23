@@ -177,9 +177,12 @@ export const relics: RelicDef[] = [
   // --- 菲菲（毒）---
   { id: 'snake_fang', name: '蛇牙墜', pool: '常見', text: '每打出一張攻擊牌，再給那個目標 1 層中毒。', art: 'codex/relic_snake_fang', price: 150,
     hooks: { combatStart: [{ kind: 'poisonOnAttack', n: 1 }] } },
-  // 屍爆的平分版（`poisonBurst` 不帶 full）：打倒的那一位身上有這件才算，連線時各看各的
-  { id: 'miasma_sachet', name: '毒霧香囊', pool: '大魔物', text: '你打倒中毒的魔物時，牠剩下的中毒，其他每一隻魔物都拿一份。', art: 'codex/relic_miasma_sachet', price: 190,
-    hooks: { combatStart: [{ kind: 'poisonBurst', full: true }] } },
+  /*
+   * 屍爆的全額版（打倒的那一位身上有這件才算，連線時各看各的）。提案是平分版，量尺四隻都 ≈0；改全額也只 +0.4，
+   * 主控 2026-09-23 要求調到大魔物池中位數附近：開場再冒一團毒霧（全體 2 層中毒），先有毒、打倒時才散得出去。
+   */
+  { id: 'miasma_sachet', name: '毒霧香囊', pool: '大魔物', text: '每場戰鬥開始時給全體魔物 2 層中毒；你打倒中毒的魔物時，牠剩下的中毒，其他每一隻魔物都拿一份。', art: 'codex/relic_miasma_sachet', price: 190,
+    hooks: { combatStart: [{ kind: 'status', name: '中毒', amount: 2, target: 'all' }, { kind: 'poisonBurst', full: true }] } },
   { id: 'herb_cauldron', name: '藥王鼎', pool: '塔主', text: '每場戰鬥開始時給全體魔物 5 層中毒。', art: 'codex/relic_herb_cauldron', price: 240,
     hooks: { combatStart: [{ kind: 'status', name: '中毒', amount: 5, target: 'all' }] } },
   // --- 噹噹（反彈、蜷縮當彈藥）---
@@ -187,9 +190,13 @@ export const relics: RelicDef[] = [
     hooks: { combatStart: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'thornsBonus', n: 1 }] } },
   { id: 'knee_guard', name: '順勢護膝', pool: '大魔物', text: '每次反彈回敬，獲得 3 點蜷縮。', art: 'codex/relic_knee_guard', price: 180,
     hooks: { combatStart: [{ kind: 'blockOnThorns', n: 3 }] } },
-  // 名字沿用提案。注意噹噹有一張牌也叫「千斤墜」（挨打長蜷縮），這件的效果其實是「銅牆鐵壁」那張（卸力只吃一半）
-  { id: 'iron_weight_belt', name: '千斤墜腰帶', pool: '塔主', notFor: ['ninja', 'feifei', 'fengfeng'], text: '卸掉蜷縮的牌只卸一半（不滿一點算一點），打出去的力道不變。', art: 'codex/relic_iron_weight_belt', price: 230,
-    hooks: { combatStart: [{ kind: 'halfSpendBlock' }] } },
+  /*
+   * 提案叫「千斤墜腰帶」，撞到噹噹的牌「千斤墜」（挨打長蜷縮）而且效果不同，主控 2026-09-23 裁定改名；代號不動（存檔相容）。
+   * 圖是腰帶上吊一顆大鐵墜，改叫秤砣腰帶。原本只有「卸力只卸一半」，量尺 +0.04 層（塔主三選一裡等於廢選項），
+   * 主控要求調到塔主池中位數附近：加上「回合結束最多留 8 點蜷縮」——同一條路（蜷縮是彈藥：卸一半、剩下的留著下回合再卸）。
+   */
+  { id: 'iron_weight_belt', name: '秤砣腰帶', pool: '塔主', notFor: ['ninja', 'feifei', 'fengfeng'], text: '卸掉蜷縮的牌只卸一半（不滿一點算一點），打出去的力道不變；回合結束時最多保留 8 點蜷縮（可跟同類秘寶相加）。', art: 'codex/relic_iron_weight_belt', price: 230,
+    hooks: { combatStart: [{ kind: 'halfSpendBlock' }], blockKeep: 8 } },
   // --- 封封（蓄氣，別人身上沒有蓄氣，三件都只給他）---
   { id: 'whet_stone', name: '磨劍石', pool: '常見', notFor: ['ninja', 'feifei', 'dangdang'], text: '每場戰鬥開始時獲得 3 點蓄氣。', art: 'codex/relic_whet_stone', price: 130,
     hooks: { combatStart: [{ kind: 'gainQi', n: 3 }] } },

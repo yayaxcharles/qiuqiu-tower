@@ -812,6 +812,14 @@
 .pick-tile img { width: 72px; height: 72px; object-fit: contain; }
 .pick-tile b { font-size: 17px; }
 .pick-tile em { font-style: normal; font-size: 13px; color: #5a4a3a; line-height: 1.35; }
+/* 連線過關三選一裡鎖住自己、只有同伴用得到的那件（主控 2026-09-23）：名字底下一個橘色小牌子，
+   字級跟說明一樣大再加粗（手機橫拿整個舞台一起縮，說明讀得到它就讀得到）；方塊本身照樣點得下去，只是淡一點 */
+.pick-tile .pick-tile-note {
+  font-size: 13px; font-weight: bold; line-height: 1.4;
+  padding: 0 8px; border-radius: 7px;
+  color: #7a3d12; background: #ffe2bd; border: 1px solid #b8692a;
+}
+.pick-tile.partner-only img { opacity: .7; }
 .pick-tile:hover { transform: translateY(-4px); }
 .pick-tile.selected { box-shadow: 0 0 0 4px var(--accent), 0 8px 18px #00000073; transform: translateY(-4px); }
 .scene-art:has(.scene-picks) { top: 50%; transform: translate(-50%, -66%); max-height: none; }

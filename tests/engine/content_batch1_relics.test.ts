@@ -61,8 +61,9 @@ describe('菲菲那三件（毒）', () => {
     expect(getStatus(e, '中毒')).toBe(2);
   });
 
-  it('毒霧香囊：打倒中毒的魔物，剩下的毒其他每一隻都拿一份（三隻老鼠：6 層 → 另外兩隻各 6）', () => {
+  it('毒霧香囊：開場全體 2 層中毒；打倒中毒的魔物，剩下的毒其他每一隻都拿一份（三隻老鼠：6 層 → 另外兩隻各 6）', () => {
     const cs = start(['miasma_sachet'], { encounterId: 'rats3' });
+    expect(cs.enemies.map((e) => getStatus(e, '中毒'))).toEqual([2, 2, 2]);
     const [a, b, c] = cs.enemies;
     a!.statuses['中毒'] = 6; a!.hp = 1; a!.block = 0;
     for (const e of [b!, c!]) { e.hp = 30; e.statuses = {}; }
@@ -108,7 +109,16 @@ describe('噹噹那三件（反彈、蜷縮當彈藥）', () => {
     expect(cs2.log.some((l) => l.includes('順著力道穩住'))).toBe(false);
   });
 
-  it('千斤墜腰帶：卸掉蜷縮的牌只卸一半（卸力掌 6 點：蜷縮 10 → 7，照打 6）', () => {
+  it('秤砣腰帶：回合結束最多留 8 點蜷縮（主控 2026-09-23 調強；改名避開噹噹的牌「千斤墜」）', () => {
+    const cs = start(['iron_weight_belt'], { hero: 'dangdang', deck: ['dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan'] });
+    expect(relicById['iron_weight_belt']!.name).toBe('秤砣腰帶');
+    cs.player.block = 20;
+    quiet(cs);
+    endTurn(cs);
+    expect(cs.player.block).toBe(8);
+  });
+
+  it('秤砣腰帶：卸掉蜷縮的牌只卸一半（卸力掌 6 點：蜷縮 10 → 7，照打 6）', () => {
     const cs = start(['iron_weight_belt'], { hero: 'dangdang', deck: ['dangdang_xieli', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan'] });
     expect(cs.player.halfSpendBlock).toBe(true);
     const e = cs.enemies[0]!;

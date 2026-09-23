@@ -1,7 +1,7 @@
 import { actWalkTransition } from '../acttransition';
 import { play } from '../audio';
 import { relicById } from '../../content/relics';
-import { ACT_NAMES, addCard, advanceAct, rollActCards, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../engine/run';
+import { ACT_NAMES, addCard, advanceAct, relicForPartnerOnly, rollActCards, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../engine/run';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
 import { heroSpeaker } from '../dialogue';
@@ -119,9 +119,12 @@ registerScreen('actclear', (app, root, props) => {
       const d = relicById[id];
       if (!d) continue;
       const url = artUrl('icons', d.art);
-      const node = el('div', { class: `pick-tile${pickedRelic === id ? ' selected' : ''}` },
+      // 連線時清單照「有一位用得到」開，鎖住我的那件（封封的蓄氣秘寶給菲菲看）要講明白，不然她會以為挑了有用（主控 2026-09-23）
+      const partnerOnly = relicForPartnerOnly(run, id, seat);
+      const node = el('div', { class: `pick-tile${pickedRelic === id ? ' selected' : ''}${partnerOnly ? ' partner-only' : ''}` },
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('b', {}, d.name),
+        partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
         el('em', {}, d.text));
       if (!sent && !iDown) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); render(); });
       relicRow.append(node);

@@ -11,7 +11,7 @@ import { relicById } from '../content/relics';
 import { flushAllyRelics, startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
-import { rollCardChoices, rollPotion, rollRelic, rollRelicChoices, rollRewards, type CombatRewards } from './rewards';
+import { relicOk, rollCardChoices, rollPotion, rollRelic, rollRelicChoices, rollRewards, type CombatRewards } from './rewards';
 import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, PlayerCombat, Rarity, RelicPool, RunEffect, RunState } from './types';
 import { me, standing } from './runplayer';
 
@@ -556,6 +556,16 @@ export function rollActCards(run: RunState, seat = 0): CardDef[] {
  */
 export function rollActCardsPerSeat(run: RunState): CardDef[][] {
   return run.players.map((_, i) => rollActCards(run, i));
+}
+
+/**
+ * 連線時這件秘寶**鎖住這一位、只有同伴用得到**嗎（`RelicDef.notFor`；2026-09-23 主控裁定）。
+ * 兩人一起挑的清單照「有一位用得到就留」開（`relicOk`），所以菲菲會在過關三選一看到封封的養氣葫蘆；
+ * 畫面拿這支標「同伴才用得到」。單機永遠 false（單機的清單本來就濾掉了）。
+ */
+export function relicForPartnerOnly(run: RunState, relicId: string, seat = 0): boolean {
+  const def = relicById[relicId];
+  return run.players.length > 1 && !!def && !relicOk(def, [heroOf(me(run, seat))]);
 }
 
 /** 過關獎勵：大魔物級秘寶三選一。池子抽乾了就有幾件算幾件（有可能一件都不剩）。 */
