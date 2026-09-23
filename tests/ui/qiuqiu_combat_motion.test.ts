@@ -129,12 +129,16 @@ describe('qiuqiuRestMotionAction', () => {
 });
 
 describe('戰鬥動作整合判定', () => {
-  it('只在動作模式且隊伍有已接入逐格的角色時啟用敵人逐格', () => {
+  // 原本守「隊伍有已接入逐格的角色才開」；四隻都接入之後那條永遠成立，只剩「動作模式開著就開」（health H-7）。
+  // 第五隻貓那一格是反向陷阱的護欄：舊寫法對沒列到的角色回 false，一個人玩時魔物逐格整個關掉
+  it('動作模式開著就啟用敵人逐格，不看隊伍裡是誰', () => {
     expect(qiuqiuEnemyMotionAllowed(true, ['ninja', 'feifei'])).toBe(true);
     expect(qiuqiuEnemyMotionAllowed(false, ['ninja'])).toBe(false);
     expect(qiuqiuEnemyMotionAllowed(true, ['feifei', 'dangdang'])).toBe(true);
     expect(qiuqiuEnemyMotionAllowed(true, ['dangdang', 'fengfeng'])).toBe(true);
     expect(qiuqiuEnemyMotionAllowed(true, ['fengfeng'])).toBe(true);
+    expect(qiuqiuEnemyMotionAllowed(true, ['第五隻貓']), '沒列到的角色也要開').toBe(true);
+    expect(qiuqiuEnemyMotionAllowed(false, ['第五隻貓'])).toBe(false);
   });
 
   it('依同一 UID 的隱身差補齊每一個前置閃避', () => {

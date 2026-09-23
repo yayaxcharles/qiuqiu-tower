@@ -76,18 +76,23 @@ export function unitName(p: { hero?: Hero } | undefined): string {
  * 但兩邊的 `hero` 欄位長一樣，這支兩種都吃得下。
  */
 export function heroPronoun(p: { hero?: Hero } | undefined): string {
-  return (p?.hero ?? 'ninja') === 'feifei' ? '她' : '他';
+  return HERO_PRONOUN[p?.hero ?? 'ninja'] ?? '他';
 }
+// 角色 → 值的表一律用 `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是 `if` 連鎖或三元式，
+// 沒列到的角色默默拿球球那一份；寫成表之後加第五隻貓漏了這一格，tsc 當場擋。這支原本只有菲菲回「她」，新的母貓會被叫「他」
+const HERO_PRONOUN: Readonly<Record<Hero, string>> = { ninja: '他', feifei: '她', dangdang: '他', fengfeng: '他' };
 
 /**
- * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每回合開始給所有魔物 1 層中毒）。
+ * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每場戰鬥開始時給全體魔物 3 層中毒，之後不再長），
+ * 噹噹是銅護臂（開場 4 點蜷縮＋2 點反彈），封封是舊劍穗（開場 2 點蓄氣、每回合再 1 點）。效果以 `content/relics.ts` 為準。
+ *（毒針袋 09-13 曾改成每回合 1 層，09-16 使用者裁定改回開場一次給三層；這一行 09-23 才跟上，health H-6 第 1 條）
  */
 export function startRelicFor(hero: Hero): string {
-  if (hero === 'feifei') return 'backstep';
-  if (hero === 'dangdang') return 'copper_bracer';
-  if (hero === 'fengfeng') return 'old_sword_tassel';
-  return 'blue_headband';
+  return START_RELIC[hero] ?? START_RELIC.ninja;   // 退路照舊：不認得的值（壞存檔）拿藍頭巾
 }
+const START_RELIC: Readonly<Record<Hero, string>> = {
+  ninja: 'blue_headband', feifei: 'backstep', dangdang: 'copper_bracer', fengfeng: 'old_sword_tassel',
+};
 
 /**
  * 貓窩裡那個動作叫什麼（2026-09-12）。
@@ -99,10 +104,11 @@ export function startRelicFor(hero: Hero): string {
 export function sharpenVerb(hero: string | undefined): string {
   // 噹噹用的是銅護臂、不是爪子，而且他在貓窩講的話全是在喬站姿與接招
   //（`dialogue.ts` 的 `restSharpenLines`），按鈕寫「磨爪」跟他講的話對不上（稽核 2026-09-17 中-9）。
-  // 寫成查表而不是再串一個三元式：第四隻貓進來只要加一格
-  return SHARPEN_VERB[hero ?? ''] ?? '磨爪';
+  // 寫成查表而不是再串一個三元式；表的鍵是 `Hero`，加第五隻貓漏了這一格 tsc 會擋（health H-2）。
+  // 參數收字串是因為畫面層傳的是 `localHero()`；不認得的值照舊寫「磨爪」
+  return SHARPEN_VERB[(hero ?? 'ninja') as Hero] ?? '磨爪';
 }
-const SHARPEN_VERB: Readonly<Record<string, string>> = { feifei: '磨針', dangdang: '調護臂', fengfeng: '磨劍' };
+const SHARPEN_VERB: Readonly<Record<Hero, string>> = { ninja: '磨爪', feifei: '磨針', dangdang: '調護臂', fengfeng: '磨劍' };
 
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */
 export function cardsForHero(hero: Hero): CardDef[] {
@@ -115,14 +121,21 @@ export function cardsForHero(hero: Hero): CardDef[] {
  * 抽成一支共用的判準是刻意的：同一條規則散在四個地方各寫一次，
  * 遲早會有人只改了三個（這一批的稽核就抓到過同型的問題）。
  *
- * 三道關卡：
+ * 五道關卡：
+ * - `起手`：起手十張的牌，四隻都不進池（見下）
  * - `combatOnly`：魔物塞牌用的雜牌（黏液、眼冒金星），任何池子都不進
  * - `hidden`：插圖還沒生好，圖到齊由生圖腳本拿掉旗標
  * - `hero`：職業獨占。不濾的話別的角色會開出球球的隱身牌
  * - `coop`：連線專用牌，**只有兩個人以上的局才進池**（使用者 2026-09-11 指定）
+ *
+ * 起手牌那一道（2026-09-23 health H-7，主控裁定收成一種寫法）：實際上四隻的起手牌本來就都開不到——
+ * 獎勵、罐頭鋪、事件抽牌時都指定「忍術」「絕學」「壞毛病」池。可是 09-20 封封進來時只替他在這裡擋
+ *（`c.hero === 'fengfeng' && …`），另外三隻靠抽牌時指定的池子擋，同一件事兩種寫法、各守一半，
+ * 測試還兩邊各釘一條。收成這一條、四隻一起擋：`Pool` 型別裡有「起手」，哪天有事件指定起手池，
+ * 也不會把球球的貓抓、淡定（沒標 `hero`，照職業那道會當成共用）發給別隻貓。
  */
 export function pickable(c: CardDef, hero: Hero, players = 1): boolean {
-  if ((c.hero === 'fengfeng' && c.pool === '起手') || c.combatOnly || c.hidden) return false;
+  if (c.pool === '起手' || c.combatOnly || c.hidden) return false;
   if (c.hero && c.hero !== hero) return false;
   if (c.coop && players < 2) return false;
   return true;

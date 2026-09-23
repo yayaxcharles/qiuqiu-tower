@@ -226,7 +226,8 @@ describe('主控最後一輪第 1 條：丟東西打到帶刺的魔物，被刺�
     expect(hold).toContain("lastHpPct.delete(`p${thornSeat}`);");
     expect(hold).toMatch(/revealThorns = \(\): void => \{[\s\S]*motionPendingPlayer\.delete\(thornSeat\)[\s\S]*playerHurtFx\(live, hp, thrower\.maxHp, false\)/);
     // 當場那一段只演扣掉延後那部分之後剩下的
-    expect(COMBAT).toContain("const guarded = blockedAmount(fresh, '蜷縮擋下了') - (heldHere?.block ?? 0);");
+    // 擋下的量改看引擎記的數字（同日 tidy 合併，health H-1），延後的那部分照樣扣掉
+    expect(COMBAT).toContain('const guarded = myFeedback.blocked - (heldHere?.block ?? 0);');
     expect(COMBAT).toContain('const lost = before.hp - comparedHp - (heldHere?.hp ?? 0);');
     expect(COMBAT.match(/motionPendingPlayer\.clear\(\);/g)?.length).toBe(2);
   });

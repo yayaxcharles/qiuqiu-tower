@@ -1,5 +1,5 @@
-import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, FENGFENG_STARTER_DECK, STARTER_DECK, cardById } from './cards';
-import { heroName, type Hero } from '../engine/hero';
+import { cardById, starterDeckFor } from './cards';
+import { HEROES, heroName, type Hero } from '../engine/hero';
 import {
   FENGFENG_BOSS_LINES,
   FENGFENG_CAST_LINES,
@@ -2490,6 +2490,11 @@ const lastPick = new WeakMap<readonly unknown[], number>();
  */
 export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'thorns' | 'block' | 'plain';
 
+/** 每一位的第二派（2026-09-23 health H-2 第 2 塊：原本是三元式，沒列到的默默算隱身；封封照舊算隱身，這裡照原行為列出來） */
+const LEANING_ALT: Readonly<Record<Hero, 'stealth' | 'poison' | 'thorns'>> = {
+  ninja: 'stealth', feifei: 'poison', dangdang: 'thorns', fengfeng: 'stealth',
+};
+
 /**
  * 牌組傾向：只看這一路**自己拿的牌**（起始那十張不算——它們本來就偏蜷縮，算進去每個人都是蜷縮流）。
  * 爪力、隱身只算「給自己」的效果（給敵人拆爪力的封口術不算爪力流）；毒流算的是對魔物下毒。
@@ -2502,7 +2507,7 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
    * `feifeiDialogue.victoryNarration` 沒有 stealth 鍵，別把第二派改回去。
    * 計數物件的鍵順序刻意跟原本一樣（爪力、第二派、蜷縮），球球算出來跟改之前一模一樣。
    */
-  const alt: 'stealth' | 'poison' | 'thorns' = hero === 'feifei' ? 'poison' : hero === 'dangdang' ? 'thorns' : 'stealth';
+  const alt = LEANING_ALT[(hero ?? 'ninja') as Hero] ?? 'stealth';
   const count = { strength: 0, alt: 0, block: 0 };
   /*
    * **兩位主角的起手牌都要排掉**（2026-09-12 補的）。
@@ -2512,8 +2517,9 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
    * 而那正是這支函式的註解自己寫著要避免的事（「算進去每個人都是蜷縮流」）。
    * 兩副牌的牌號不重疊，直接併成一個集合就好。
    */
-  // 封封的起手牌也要排掉（2026-09-22：漏了這副，只帶起手十張就被判成蜷縮流，結局師父第一句幾乎每局都講錯）
-  const starter = new Set<string>([...STARTER_DECK, ...FEIFEI_STARTER_DECK, ...DANGDANG_STARTER_DECK, ...FENGFENG_STARTER_DECK]);
+  // 封封的起手牌也要排掉（2026-09-22：漏了這副，只帶起手十張就被判成蜷縮流，結局師父第一句幾乎每局都講錯）。
+  // 改從 `HEROES` 產生（2026-09-23 health H-2 第 2 塊）：手列四副的寫法 09-22 已經漏過封封一次，第五隻貓進來會自動算進去
+  const starter = new Set<string>(HEROES.flatMap((h) => starterDeckFor(h)));
   const picked = deckIds.filter((id) => !starter.has(id));
   for (const id of picked) {
     const def = cardById[id];
