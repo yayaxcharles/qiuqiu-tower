@@ -743,7 +743,9 @@ export type RunEffect =
    * 記在這一位身上，**下一場戰鬥開場**套用一次（送上樓的便當）。跟暖毯 `restBlock` 同一個形狀，
    * 只是效果寫成牌的效果（`status`、`block`），開場那一拍照牌的規則跑。`note` 是開場那一行紀錄。
    */
-  | { kind: 'nextFight'; effects: Effect[]; note: string };
+  | { kind: 'nextFight'; effects: Effect[]; note: string;
+    /** 接下來幾場都套（開局祝福「護身符」3 場，2026-09-23 第三批 新B）。不寫＝1 場，跟送上樓的便當一樣 */
+    fights?: number };
 
 /**
  * 條件選項認得的四種流派（劇本 design2 新1 的 `deckTag`）：**不算起手牌**，同一張牌升級前後算一張。
@@ -870,7 +872,15 @@ export interface RunPlayer {
    * 事件帶進下一場戰鬥的東西（送上樓的便當，2026-09-23 內容擴充第二批 新6）：開戰那一拍照牌的規則套上、然後清掉。
    * 可選：舊存檔沒有這欄＝沒帶東西。進整局指紋（`net/hash.ts`），兩台記的不一樣下一場就會分岔。
    */
-  nextFight?: { note: string; effects: Effect[] }[];
+  nextFight?: { note: string; effects: Effect[];
+    /** 還要套幾場（含下一場；2026-09-23 第三批 新B「護身符」）。不寫＝只套下一場。每開一場減一，減到 0 就拿掉 */
+    left?: number }[];
+  /**
+   * 開局祝福（2026-09-23 內容擴充第三批 新A，設計稿 design3 第二節）：`offer`＝包袱裡摸到的四樣（安全、換牌、代價、賭運氣各一），
+   * `took`＝點了哪一樣。可選：舊存檔、除錯頁直接開的局沒有這一欄＝不演；有 `offer` 沒 `took`＝還沒選（重新整理回來看到同四張）。
+   * `took` 進整局指紋（`net/hash.ts`）。代號與效果見 `content/blessings.ts`、套用見 `engine/blessing.ts`。
+   */
+  bless?: { offer: string[]; took?: string };
   /**
    * 稀有牌保底：連續幾次戰鬥獎勵沒開出稀有牌（每次 +1，開出就歸零）。
    * 每一點讓下一次的稀有權重多 4——連續槓龜的手氣會自己回來。

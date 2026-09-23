@@ -126,9 +126,10 @@ export function heroOfKey(key: string): string | null {
  * 照舊劍穗那套在 `heroOfKey` 一件一件特例化只救得了鎖角色的幾件，共用的照樣算首載，
  * 所以整組一起延後（約 0.55 MB）。進入一局那一刻由 `preload.ts` 的 `preloadHeroArt` 補（`adoptRun` 叫它，
  * 新的一局、續玩、連線開局三個入口都走那裡），序章幻燈片那幾秒就抓完了。
+ * 開局祝福的物品圖示（`codex/bless_*`，2026-09-23 第三批，15 張約 94 KB）同一類：只在序章後那一格用得到，一起延後。
  */
 export function isItemIcon(key: string): boolean {
-  return /^codex\/(?:relic|potion)_/.test(key);
+  return /^codex\/(?:relic|potion|bless)_/.test(key);
 }
 
 /** 全部秘寶、忍具圖示的網址（進入一局才補，見 `isItemIcon`） */

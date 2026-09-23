@@ -140,6 +140,8 @@ export function runFingerprint(run: RunState): string {
       ...(p.counters && Object.keys(p.counters).length ? [`ctr[${countersKey(p.counters)}]`] : []),
       // 事件帶進下一場的東西（送上樓的便當，2026-09-23 內容擴充第二批）：兩台記的不一樣，下一場開打那一拍就分岔
       p.nextFight?.length ? `nf${JSON.stringify(p.nextFight)}` : '',
+      // 開局祝福拿了哪一樣（2026-09-23 第三批 新A）：有才串，沒選過的局（舊存檔、還在選）指紋一個位元都不變
+      ...(p.bless?.took ? [`bl${p.bless.took}`] : []),
     ].join('|'));
   }
   return fnv1a(parts.join('||')).toString(16).padStart(8, '0');

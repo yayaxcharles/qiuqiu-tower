@@ -22,16 +22,19 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { bestRelic, eventValue, relicEventValue, relicRating, setRelicRatings, smartRun, withSmartProbe } from '../src/engine/smartbot';
+import { bestRelic, eventValue, relicEventValue, relicRating, setRelicRatings, smartBless, smartRun, withSmartProbe } from '../src/engine/smartbot';
 import RATING_JSON from '../src/engine/relic-ratings.json';
+import BLESS_JSON from '../src/engine/bless-ratings.json';
+import { BLESSINGS } from '../src/content/blessings';
+import { blessingAvailable } from '../src/engine/blessing';
 import { relicById, relics } from '../src/content/relics';
 import { HEROES, type Hero } from '../src/engine/hero';
 import { newRun, takeRelic } from '../src/engine/run';
 import { me } from '../src/engine/runplayer';
 import type { RunEffect } from '../src/engine/types';
 import {
-  AFTER_EVENT, FISH_EVENT_POINTS, moneyEv, moneyFish, RULER_DEFAULTS, measureCell, measurePotions, measureRelics, mergeRatingFile, modeFor, obtainable, renderPotionReport, renderRelicReport,
-  runBatch, scoreOf, serializeRatingFile, type PotionReport, type RelicRatingFile,
+  AFTER_EVENT, FISH_EVENT_POINTS, moneyEv, moneyFish, RULER_DEFAULTS, blessClassSpread, blessRatingFile, measureBlessings, measureCell, measurePotions, measureRelics, mergeRatingFile, modeFor, obtainable,
+  renderBlessReport, renderPotionReport, renderRelicReport, runBatch, scoreOf, serializeRatingFile, type PotionReport, type RelicRatingFile,
 } from './relic_ruler';
 import { eventById } from '../src/content/events';
 
@@ -43,7 +46,9 @@ const DIFF = Number(env['RULER_DIFF'] ?? RULER_DEFAULTS.difficulty);
 const HERO_LIST = (env['RULER_HEROES'] ? env['RULER_HEROES'].split(',') : [...HEROES]) as Hero[];
 const ONLY = env['RULER_ONLY'] ? env['RULER_ONLY'].split(',') : undefined;
 for (const h of HERO_LIST) if (!HEROES.includes(h)) throw new Error(`RULER_HEROES 裡的 ${h} 不是角色（${HEROES.join('／')}）`);
-for (const id of ONLY ?? []) if (!relicById[id]) throw new Error(`RULER_ONLY 裡的 ${id} 不是秘寶`);
+// 祝福量尺的 RULER_ONLY 是祝福代號（`bless_` 開頭），秘寶量尺的是秘寶代號
+const ONLY_BLESS = MODE === 'bless' ? ONLY : undefined;
+for (const id of MODE === 'bless' ? [] : ONLY ?? []) if (!relicById[id]) throw new Error(`RULER_ONLY 裡的 ${id} 不是秘寶`);
 
 const ROOT = join(__dirname, '..');
 const RATING_PATH = join(ROOT, 'src', 'engine', 'relic-ratings.json');
@@ -89,6 +94,25 @@ describe('量尺工具（小樣本）', () => {
       expect(s.useKind.一般 + s.useKind.大魔物 + s.useKind.塔主, s.id).toBe(s.used);
     }
     expect(renderPotionReport(r, 'test')).toContain('喝掉率');
+  });
+
+  it('祝福量尺跑得起來：強制拿的那一樣真的拿了、報表每一種都有一列（2026-09-23 第三批）', () => {
+    const m = measureBlessings({ n: 2, seed: 'ruler-smoke', difficulty: 1, heroes: ['ninja'], only: ['bless_rations', 'bless_dice'] });
+    expect(Object.keys(m.cells).sort()).toEqual(['bless_dice', 'bless_rations']);
+    expect(Number.isFinite(m.cells['bless_rations']!.ninja!.d)).toBe(true);
+    const txt = renderBlessReport(m, 'test');
+    expect(txt).toContain('乾糧袋');
+    expect(txt).toContain('一顆骰子');
+    expect(blessClassSpread(m).map((s) => s.cls)).toEqual(['安全', '換牌', '代價', '賭運氣']);
+    // 強制拿：不在包袱裡也照拿（乾糧袋多 6 點生命上限）；`null`＝什麼都不拿、包袱也拿掉
+    const run = newRun('ruler-smoke-0', 1, 'ninja');
+    const before = me(run).maxHp;
+    withSmartProbe({ blessing: () => 'bless_rations' }, () => smartBless(run));
+    expect(me(run).bless?.took).toBe('bless_rations');
+    expect(me(run).maxHp - before).toBe(6);
+    const bare = newRun('ruler-smoke-0', 1, 'ninja');
+    withSmartProbe({ blessing: () => null }, () => smartBless(bare));
+    expect(me(bare).bless).toBeUndefined();
   });
 
   it('資料檔的寫法：一件一行、讀得回來', () => {
@@ -301,7 +325,17 @@ describe('正式遊戲不載入機器人', () => {
     const files = [...reachable(['src/main.ts', 'src/net/nettest.ts'])].map((p) => p.replace(/\\/g, '/'));
     expect(files.length, '走得到的檔案太少＝路徑或正規式寫錯了，這條會永遠綠').toBeGreaterThan(100);
     expect(files.some((f) => f.endsWith('src/engine/run.ts')), '至少要走得到引擎').toBe(true);
-    expect(files.filter((f) => /smartbot\.ts$|coopbot\.ts$|relic-ratings\.json$/.test(f))).toEqual([]);
+    expect(files.filter((f) => /smartbot\.ts$|coopbot\.ts$|relic-ratings\.json$|bless-ratings\.json$/.test(f))).toEqual([]);
+  });
+});
+
+describe('祝福分數表 src/engine/bless-ratings.json（2026-09-23 第三批）', () => {
+  it('包袱發得出來的每一樣、四隻都量過（改了祝福沒重量就擋：跑 RULER=bless）；量的局數夠', () => {
+    const table = BLESS_JSON as unknown as { meta: { n: number }; bless: Record<string, Partial<Record<Hero, number>>> };
+    expect(table.meta.n).toBeGreaterThanOrEqual(600);
+    const missing = BLESSINGS.filter((b) => blessingAvailable(b)).flatMap((b) => HEROES.filter((h) => !Number.isFinite(table.bless[b.id]?.[h])).map((h) => `${b.id}/${h}`));
+    expect(missing).toEqual([]);
+    for (const id of Object.keys(table.bless)) expect(BLESSINGS.some((b) => b.id === id), `${id} 不是祝福（改名或刪掉了？）`).toBe(true);
   });
 });
 
@@ -327,6 +361,20 @@ describe.runIf(MODE === 'rescore')('只重算分數（不重量）', () => {
     writeFileSync(RATING_PATH, serializeRatingFile(f), 'utf-8');
     writeFileSync(join(ROOT, 'docs', '秘寶量尺.md'), renderRelicReport(f), 'utf-8');
   });
+});
+
+/** 開局祝福（2026-09-23 第三批）：`RULER=bless`，16 種 × 四隻 × N 局，開局強制拿那一樣；寫 `docs/祝福量尺.md` */
+describe.runIf(MODE === 'bless')('祝福量尺（完整）', () => {
+  it(`${HERO_LIST.join('、')} 各 ${N} 局 × 每一種祝福`, () => {
+    const t0 = Date.now();
+    const m = measureBlessings({ n: N, seed: SEED, difficulty: DIFF, heroes: HERO_LIST, ...(ONLY_BLESS ? { only: ONLY_BLESS } : {}) },
+      (msg) => console.log(`[祝福] ${msg}（${((Date.now() - t0) / 1000).toFixed(0)} 秒）`));
+    mkdirSync(join(ROOT, 'tools', 'out'), { recursive: true });
+    writeFileSync(join(ROOT, 'tools', 'out', 'bless_ruler.json'), JSON.stringify(m), 'utf-8');
+    writeFileSync(join(ROOT, 'docs', '祝福量尺.md'), renderBlessReport(m, today()), 'utf-8');
+    if (!ONLY_BLESS && HERO_LIST.length === HEROES.length) writeFileSync(join(ROOT, 'src', 'engine', 'bless-ratings.json'), JSON.stringify(blessRatingFile(m, today()), null, 1) + '\n', 'utf-8');
+    for (const s of blessClassSpread(m)) console.log(`[祝福] ${s.cls}：平均 ${s.avg} 層、同類差 ${s.spread} 層`);
+  }, 7_200_000);
 });
 
 describe.runIf(MODE === 'potions')('忍具使用率（完整）', () => {

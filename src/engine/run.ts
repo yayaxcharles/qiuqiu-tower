@@ -12,7 +12,7 @@ import { applyCarriedEffects, flushAllyRelics, startCombat, startJoinedSeat } fr
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { relicOk, rollCardChoices, rollPotion, rollRelic, rollRelicChoices, rollRewards, type CombatRewards } from './rewards';
-import type { CardDef, CardInstance, CombatState, EnemyCombat, MapNode, PlayerCombat, Rarity, RelicPool, RunEffect, RunState } from './types';
+import type { CardDef, CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, Rarity, RelicPool, RunEffect, RunState } from './types';
 import { me, standing } from './runplayer';
 
 export const START_FISH = 50;
@@ -243,7 +243,9 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
     const p = cs.players[i];
     if (!rp.nextFight?.length || !p || p.down) return;
     for (const it of rp.nextFight) applyCarriedEffects(cs, p, it.effects, it.note);
-    delete rp.nextFight;
+    // 連套幾場的（開局祝福「護身符」，`left`，2026-09-23 第三批 新B）留著、少一場；便當那種照舊這一場就用完
+    const rest = rp.nextFight.filter((it) => (it.left ?? 1) > 1).map((it) => ({ ...it, left: (it.left ?? 1) - 1 }));
+    if (rest.length) rp.nextFight = rest; else delete rp.nextFight;
   });
   applyBossPrefix(run, cs);
   applyEncounterModifier(run, cs);
@@ -1327,9 +1329,14 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'nextFight': {
         // 記在這一位身上，下一場開打那一拍套（`beginCombat`）；連著拿兩次就兩份都帶
         const p = me(run, seat);
-        p.nextFight = [...(p.nextFight ?? []), { note: fx.note, effects: fx.effects }];
-        const parts = fx.effects.map((e) => (e.kind === 'status' ? `${e.amount} 點${e.name}` : e.kind === 'block' ? `${e.amount} 點蜷縮` : '')).filter(Boolean);
-        notes?.push(`下一場戰鬥開始時獲得${parts.join('與')}`);
+        // 連套幾場（`fights`，開局祝福「護身符」，2026-09-23 第三批 新B）記成 `left`，開一場少一場（`beginCombat`）
+        const n = fx.fights && fx.fights > 1 ? fx.fights : 1;
+        p.nextFight = [...(p.nextFight ?? []), { note: fx.note, effects: fx.effects, ...(n > 1 ? { left: n } : {}) }];
+        // 給魔物的（護身符的翻肚）另外講，不寫成「獲得」；只給自己的那幾種（便當）講法一個字都沒變
+        const foe = (e: Effect): boolean => e.kind === 'status' && e.target !== 'self';
+        const parts = fx.effects.filter((e) => !foe(e)).map((e) => (e.kind === 'status' ? `${e.amount} 點${e.name}` : e.kind === 'block' ? `${e.amount} 點蜷縮` : '')).filter(Boolean);
+        const foes = fx.effects.filter(foe).map((e) => (e.kind === 'status' ? `${e.amount} 層${e.name}` : ''));
+        notes?.push(`${n > 1 ? `接下來 ${n} 場` : '下一場'}戰鬥開始時${parts.length ? `獲得${parts.join('與')}` : ''}${foes.length ? `${parts.length ? '，' : ''}給全體魔物${foes.join('與')}` : ''}`);
         break;
       }
       default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆

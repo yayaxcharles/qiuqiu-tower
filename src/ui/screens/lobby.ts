@@ -7,7 +7,8 @@ import { CoopSession } from '../../net/session';
 import { newCoopRun } from '../../engine/run';
 import type { App } from '../app';
 import type { LinkStatus, Transport } from '../../net/transport';
-import { preloadCoopArt } from '../preload';
+import { preloadCoopArt, warmBlessing } from '../preload';
+import { rollBlessings } from '../../engine/blessing';
 import { me } from '../../engine/runplayer';
 import { HEROES, heroName, type Hero } from '../../engine/hero';
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
@@ -127,8 +128,12 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
     // 加入的人會安靜地變成球球（2026-09-17）
     const h = (i: number): Hero => (HEROES.includes(heroes?.[i] as Hero) ? heroes![i] as Hero : 'ninja');
     const run = newCoopRun(seed, diff, h(0), h(1));
+    // 開局祝福的包袱（2026-09-23 第三批）：**在同伴的動作到得了之前**就摸好（兩台照種子摸出一樣的），
+    // 不然他序章點得快、先選好送過來，這邊還沒有包袱，那個動作就套不進去、整場停掉
+    rollBlessings(run);
     // 本機角色的立繪、貓叫、劇情情境、兩位的專屬圖一起設（health H-3：這裡原本各寫一行，推前審查 高-1 就是漏了聲音）
     app.adoptRun(run, seat);
+    warmBlessing(run, seat);
     // 連線牌的牌面也是開局才補，**只抓這一組搭檔的**（2026-09-23；開打前 `startFight` 會等它抓完）
     void preloadCoopArt(run.players.map((p) => p.hero));
     session.useRun(run);   // 整局只有一份，設一次就不動（見 `useRun`）
@@ -139,7 +144,8 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
      * **不播開頭影片**：那支三十秒、一個人看另一個人乾等，而且兩位的影片還不一樣；
      * 幻燈片可以自己點過去，影片不行。
      */
-    app.playPrologue(me(run, seat).hero ?? 'ninja', () => app.show('map'), { video: false });
+    // 序章播完先選開局祝福（兩個人各選各的，都選好才一起進地圖，見 `screens/blessing.ts`）
+    app.playPrologue(me(run, seat).hero ?? 'ninja', () => app.afterPrologue(), { video: false });
   };
   if (isHost) {
     const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;

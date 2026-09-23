@@ -5,6 +5,7 @@ import { HEROES, type Hero } from './hero';
 import { relicById } from '../content/relics';
 import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
+import { blessingById } from '../content/blessings';
 import { ACTS } from './run';
 import type { CardInstance, RunPlayer, RunState } from './types';
 
@@ -170,7 +171,9 @@ function usablePlayer(p: Partial<RunPlayer> | undefined): boolean {
   if (new Set(p.deck.map((c) => c.uid)).size !== p.deck.length) return false;
   // 事件帶進下一場的東西（2026-09-23 內容擴充第二批）：可選、舊檔沒有；有的話每一筆都要有效果陣列，不然開打那一拍才炸
   if (p.nextFight !== undefined && !(Array.isArray(p.nextFight)
-    && p.nextFight.every((x) => !!x && typeof x === 'object' && typeof x.note === 'string' && Array.isArray(x.effects)))) return false;
+    && p.nextFight.every((x) => !!x && typeof x === 'object' && typeof x.note === 'string' && Array.isArray(x.effects)
+      // 連套幾場的剩幾場（護身符，2026-09-23 第三批）：可選，有的話要是正整數，不然開打那一拍減出負的就永遠拿不掉
+      && (x.left === undefined || (Number.isInteger(x.left) && x.left >= 1))))) return false;
   return true;
 }
 
@@ -209,6 +212,19 @@ export function checkRun(input: Partial<RunState>): RunState | null {
       const v = rec[k];
       if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || !Object.hasOwn(relicById, k)) delete rec[k];
     }
+  }
+  /*
+   * 開局祝福（2026-09-23 第三批 新A）。舊存檔沒有這一欄＝不演、照舊續玩（進行中的舊局不補發）。
+   * 壞掉的（包袱不是四個認得的代號、拿的那樣不在包袱裡）**只丟這一欄**：頂多少演一次選祝福，不值得把整局判成壞檔
+   */
+  for (const p of run.players) {
+    const b = p.bless as unknown;
+    if (b === undefined) continue;
+    const o = b as { offer?: unknown; took?: unknown } | null;
+    const offer = o && typeof o === 'object' && Array.isArray(o.offer) ? o.offer as unknown[] : null;
+    const good = !!offer && offer.length === 4 && offer.every((id) => typeof id === 'string' && Object.hasOwn(blessingById, id))
+      && (o!.took === undefined || (typeof o!.took === 'string' && offer.includes(o!.took)));
+    if (!good) delete p.bless;
   }
   // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
   if (!usableMap(run.map, run.currentNode)) return null;

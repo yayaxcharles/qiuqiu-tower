@@ -17,7 +17,7 @@ import {
   type RunEffectOutcome } from './run';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, setBonusScore, smartPending, smartSeatAct } from './smartbot';
+import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, setBonusScore, smartBless, smartPending, smartSeatAct } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunState } from './types';
 
 /**
@@ -295,6 +295,8 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
     seed, won: false, floor: 0, act: 1, diedTo: null,
     deckSize: [], upgraded: [], relics: [], cardsPlayed: [0, 0], coopCards: [], fights: [], bosses: [], events: [],
   };
+  // 開局祝福各選各的（2026-09-23 第三批）：照座位順序，用各自的分支亂數，順序不影響結果
+  run.players.forEach((_, i) => { smartBless(run, i); });
   let guard = 0;
   while (run.status === 'playing') {
     if (++guard > 140) throw new Error('節點推進超過 140 次');

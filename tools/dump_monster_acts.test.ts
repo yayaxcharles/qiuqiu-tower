@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
-import { SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
+import { NON_EVENT_ART, SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
 import { TITLE_ART, heroOfKey, isCoopOnlyArt, isItemIcon } from '../src/ui/assets';
 
 it('dump monster acts', () => {
@@ -36,6 +36,8 @@ it('dump monster acts', () => {
   // 開場與進關都不載，也不在任何一關的 `bgKeysForAct` 裡——跟幻燈片同一類，寫 0。
   // 名單照事件編號算（`eventMainKeys`），紙箱畫面借用的 `bg/event_chest_*` 不在裡面、照舊算首載
   for (const key of eventMainKeys()) { const path = manifest.bg[key]; if (path) out[path] = 0; }
+  // 不是事件的事件類主圖（祝福主圖，2026-09-23 第三批）：用到的畫面自己在背景抓（`bgacts.ts` 的 `NON_EVENT_ART`），同一類寫 0
+  for (const id of NON_EVENT_ART) { const path = manifest.bg[`bg/event_${id}`]; if (path) out[path] = 0; }
   /*
    * **事件的「結果圖」不算首載**（2026-09-11）。只認 `_r<數字>` 結尾的，
    * 判準寫緊一點是有原因的，見下面。
@@ -80,6 +82,10 @@ it('dump monster acts', () => {
   const firstLoad = Object.entries(manifest.bg)
     .filter(([key]) => eventMainKeys().includes(key) && sorted[manifest.bg[key]!] !== 0).map(([key]) => key);
   expect(firstLoad, '事件主圖照地圖現抓，不該留在首載').toEqual([]);
+  // 祝福主圖（2026-09-23 第三批）同理：拿掉上面 `NON_EVENT_ART` 那一圈，球球那張就掉回首載，這裡就紅
+  const screenArtFirst = NON_EVENT_ART.map((id) => `bg/event_${id}`).filter((key) => manifest.bg[key] && sorted[manifest.bg[key]!] !== 0);
+  expect(screenArtFirst, '祝福主圖序章時才抓，不該留在首載').toEqual([]);
+  expect(NON_EVENT_ART.length, '前提：名單裡真的有東西').toBeGreaterThan(0);
   // 紙箱畫面借用的三張不是事件，照舊算首載
   expect(sorted[manifest.bg['bg/event_chest_closed']!]).toBeUndefined();
   // 秘寶與忍具圖示一張都不准算首載（2026-09-23 第二批）：拿掉上面 `isItemIcon` 那一圈，這裡就紅
