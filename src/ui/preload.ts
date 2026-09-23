@@ -2,7 +2,7 @@ import { encounterById, encounters, enemyArtFor, enemyById } from '../content/en
 import { eventById, events } from '../content/events';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool, RunState } from '../engine/types';
-import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
+import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, itemIconUrls, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 import { actVariantKey } from './screenbg';
 
@@ -269,9 +269,11 @@ export function _mapEventHeldForTest(): string[] { return [...mapEventPool.keep.
  * 選好角色之後補載這一位（連線是兩位）專屬的圖（總稽核 F 中-1）。
  * 開場的 `preloadArt` 不載任何角色專屬的鍵——那時還不知道玩家要選誰；
  * 球球的靜態圖本來就在開場那批裡；逐格動作圖集等本局角色確定後才補。
+ * 秘寶與忍具圖示也在這裡補（2026-09-23 內容擴充第二批，見 `assets.ts` 的 `isItemIcon`），排在角色專屬的後面：
+ * 開局第一個畫面（序章、地圖）只用得到狀態列上那一兩件，那幾張自己的 `<img>` 會先去要。
  */
 export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise<void> {
-  const art = decodeAll(heroArtUrls(heroes), 6, false);
+  const art = decodeAll([...new Set([...heroArtUrls(heroes), ...itemIconUrls()])], 6, false);
   if (typeof location === 'undefined' || new URLSearchParams(location.search).get('motion') === '0') return art;
   const motion = Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
     if (hero === 'ninja') {
