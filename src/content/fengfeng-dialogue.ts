@@ -147,6 +147,10 @@ export const fengfengDefeat: DialogueLine[] = [
     "text": "還沒消息。你先把傷養好，我們一有消息就來。"
   }
 ];
+/*
+ * 養好傷再次出發時的那句（稿子的重整句）。**還沒有時機，尚未接線**（2026-09-23 health H-7，主控裁定：有時機才接、沒有的不刪）：
+ * 落敗演完就回標題，遊戲裡沒有「再次出發」這一拍；噹噹同一種句子也因此沒收（見 `dialogue.ts` 的 DD-RETRY-01 說明）。
+ */
 export const fengfengRetryLines: DialogueLine[] = [
   {
     "speaker": "封封",
@@ -499,6 +503,13 @@ export const fengfengShortLines: Record<string, string[]> = {
     "這個價錢，我現在付不起。"
   ]
 };
+/*
+ * 下面兩組**還沒有時機，尚未接線**（2026-09-23 health H-7，主控裁定：遊戲裡有這一拍、而且別隻貓在這一拍有台詞才接；沒有的不刪）。
+ * - `fengfengShopkeeper`：名字叫老闆，其實是封封自己在罐頭鋪講的話。罐頭鋪只有老闆開口（`dialogue.shopkeeper`，不分角色），
+ *   另外三隻都沒有「自己在店裡講話」的台詞，接上等於加一段新演出。
+ * - `fengfengRevivedLines`：被扶起來的那一位自己講的話。貓窩扶人那一拍只播扶人那位的 `reviveLines`（`rest.ts`），
+ *   另外三隻也沒有被扶起的台詞。
+ */
 export const fengfengShopkeeper = fengfengShortLines.SHOP ?? [];
 export const fengfengRevivedLines = fengfengShortLines.REVIVED ?? [];
 
@@ -1353,6 +1364,10 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
 export const fengfengCoopBossLines: Record<string, { intro: DialogueLine[]; phase2: DialogueLine[]; phase3: DialogueLine[] }> = Object.fromEntries(
   Object.entries(fengfengCoopScenes).map(([key, scene]) => [key, { intro: scene.bossIntro, phase2: scene.bossPhase2, phase3: scene.bossPhase3 }]),
 );
+/*
+ * 搭檔閒聊（跟另外三隻各一段）。**還沒有時機，尚未接線**（2026-09-23 health H-7，主控裁定：沒有時機的不刪）：
+ * 遊戲裡沒有讓兩位搭檔自己聊幾句的一拍，另外三隻也沒有這種台詞；連線時兩隻貓共用的只有關主場景與 `MIXED_LINES` 換句。
+ */
 export const fengfengChats: Record<string, DialogueLine[]> = {
   "ninja": [
     {
