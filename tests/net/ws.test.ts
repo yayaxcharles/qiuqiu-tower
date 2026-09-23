@@ -395,6 +395,36 @@ describe('心跳回音：自己斷線要自己看得出來', () => {
     expect(st).toEqual([]);
   });
 
+  /*
+   * 2026-09-23 稽核 低-3：主執行緒卡 2.5～3 秒（還不到上面「凍住」的 3 秒門檻）。卡住前剛收到回音、
+   * 卡住期間心跳沒送出、回音排在計時器後面才處理——醒來第一次檢查就超過 3.5 秒，先誤報一次 away。
+   */
+  it('主執行緒卡了快 3 秒：晚掉的那一拍扣掉，不先誤報一次 away', async () => {
+    const { w, st } = await connected();
+    w.msg('pong', true);                            // 剛收到回音
+    await vi.advanceTimersByTimeAsync(PROBE_MS);     // 下一拍準時：送出 ping，回音還在路上
+    vi.setSystemTime(Date.now() + 1900);             // 接著卡 1.9 秒：下一拍晚到，兩拍隔 2.9 秒（不到凍住的門檻）
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    expect(st, '是自己卡住，不是對方沒回').toEqual([]);
+    w.msg('pong', true);                            // 排在後面的回音這時才處理
+    for (let i = 0; i < 5; i++) { await vi.advanceTimersByTimeAsync(PROBE_MS); w.msg('pong', true); }
+    expect(st).toEqual([]);
+  });
+
+  it('卡過一次之後線真的斷了：跟沒卡過一樣在 3.5 秒多一點報，不會因為扣過延遲就變慢', async () => {
+    const { w, st } = await connected();
+    w.msg('pong', true);
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    vi.setSystemTime(Date.now() + 1900);
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    w.msg('pong', true);                            // 卡住後那一則回音，之後線斷了、一則都沒再來
+    // 跟上面「3.5 秒多什麼都沒收到」那條同一組數字：扣延遲只扣晚掉的那一拍，準時的拍子一毫秒都不扣
+    await vi.advanceTimersByTimeAsync(STALL_MS - 600);
+    expect(st, '還在正常延遲的範圍內').toEqual([]);
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(st).toEqual(['away']);
+  });
+
   it('自己關掉之後不再問、也不報', async () => {
     const { w, tx, st } = await connected();
     tx.close();

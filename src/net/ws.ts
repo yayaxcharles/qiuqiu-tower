@@ -159,6 +159,13 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
     lastTick = now;
     if (closed || away || !pageVisible()) { heard = now; return; }
     if (gap > PROBE_MS * 3) heard = now;   // 上一次檢查到現在隔太久：頁面剛被凍住或剛切回前景，這段不算
+    /*
+     * 晚了半拍以上：是**自己**卡住（主執行緒被大量載圖、慢手機卡了兩三秒），不是對方沒回（2026-09-23 稽核 低-3）。
+     * 卡住期間心跳送不出去、回音也排在這一拍後面才處理，照算就先誤報一次 away、下一則回音再報 back，
+     * 戰鬥畫面連重畫兩次、切斷正在演的動作。晚掉的那一段不算沒收到——只扣這一拍的延遲，
+     * 計時器準時的時候完全不動，真的斷線照樣在 3.5 秒多一點就報。
+     */
+    else if (gap > PROBE_MS * 1.5) heard = Math.min(now, heard + gap - PROBE_MS);
     if (ws.readyState === WebSocket.OPEN) ws.send('ping');
     if (!stalled && now - heard > STALL_MS) { stalled = true; onStatus?.('away'); }
   }, PROBE_MS);
