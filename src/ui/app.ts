@@ -371,6 +371,10 @@ export class App {
      * 還在演的劇情疊層也收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`）。
      */
     if (coopRun) { this.run = null; this.cs = null; closeStoryOverlays(); }
+    // 開打前正在等牌面、暖立繪時斷線回標題：舞台的「點不動」要一起解開，不然標題畫面要等暖機跑完才點得動
+    //（2026-09-23 推前審查二 中-1）。那一場的 `proceed` 看 `this.cs !== cs` 自己退場
+    this.fightPending = false;
+    this.stage.classList.remove('fight-pending');
   }
 
   /**
@@ -494,9 +498,10 @@ export class App {
         /*
          * 連線局：這一組搭檔的連線牌面要先抓完（2026-09-23 批次 coopload）。
          * 手牌第一次畫到連線牌時圖要已經在，不能先空一格再冒出來。平常序章還沒點完就抓好了，這裡通常不用等；
-         * 20 秒是保險：網路整個卡住時不讓整局停在地圖上（圖晚一點出現，總比開不了打好）。
+         * 6 秒是保險：網路整個卡住時不讓整局停在地圖上（圖晚一點出現，總比開不了打好）。
+         * 原本 20 秒，等的時候舞台點不動又沒有提示，玩家會以為當機（2026-09-23 推前審查二 中-1）。
          */
-        ...(this.coop ? [Promise.race([coopArtReady(), new Promise<void>((res) => window.setTimeout(res, 20000))])] : []),
+        ...(this.coop ? [Promise.race([coopArtReady(), new Promise<void>((res) => window.setTimeout(res, 6000))])] : []),
       ]).then(proceed);
     };
     if (isBoss) {
