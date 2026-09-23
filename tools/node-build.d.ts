@@ -21,14 +21,27 @@ declare module 'node:fs' {
   export function readdirSync(path: string, options: { withFileTypes: true }): {
     name: string; isDirectory(): boolean; isFile(): boolean;
   }[];
+  export function readdirSync(path: string): string[];
   export function readFileSync(path: string | URL): Uint8Array;
   export function readFileSync(path: string | URL, encoding: string): string;
   export function renameSync(oldPath: string, newPath: string): void;
   export function writeFileSync(path: string, data: string, encoding?: string): void;
+  /** `tools/assets_nonempty.test.ts`／`feifei_stills.test.ts`／`hero_text_scan.test.ts` 用來探路徑是不是資料夾、檔案是不是 0 位元組 */
+  export function statSync(path: string): { size: number; isDirectory(): boolean };
 }
 
 declare module 'node:path' {
+  export function dirname(path: string): string;
   export function extname(p: string): string;
   export function join(...parts: string[]): string;
   export function resolve(...parts: string[]): string;
+}
+
+/** `tools/haze.test.ts` 找一支跑得動 `check_haze.py` 的 python、再跑它 */
+declare module 'node:child_process' {
+  export function execFileSync(
+    file: string,
+    args?: string[],
+    options?: { stdio?: string; encoding?: string },
+  ): string;
 }
