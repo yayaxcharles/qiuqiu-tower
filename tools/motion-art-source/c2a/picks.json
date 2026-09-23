@@ -52,6 +52,25 @@
     "sha256": "d6ec654bdc72027f266eef843020ffda7147668d5d840d7d5e438d083a02ba24",
     "at": "2026-09-23 21:15:07"
   },
+  "event_dangdang_pigeon_grandpa_r1": {
+    "attempt": 2,
+    "key": "bg/event_dangdang_pigeon_grandpa_r1",
+    "file": "public/assets/bg/event_dangdang_pigeon_grandpa_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 42674,
+    "droppedSpecks": 80,
+    "semiTransparentShare": 0.0262,
+    "gate": [],
+    "sha256": "18632712ce43d5792c77a1d82dea82901c1a1718317871eaa2d63a55a66e8f72",
+    "at": "2026-09-23 21:21:29"
+  },
   "event_dangdang_pigeon_grandpa_r2": {
     "attempt": 1,
     "key": "bg/event_dangdang_pigeon_grandpa_r2",
@@ -471,6 +490,25 @@
     "gate": [],
     "sha256": "62d992b320b073d55a48ea6c6a61762e9d1798f11fb501d79070b84da4d8d657",
     "at": "2026-09-23 21:15:22"
+  },
+  "event_fengfeng_pigeon_grandpa_r2": {
+    "attempt": 2,
+    "key": "bg/event_fengfeng_pigeon_grandpa_r2",
+    "file": "public/assets/bg/event_fengfeng_pigeon_grandpa_r2.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39334,
+    "droppedSpecks": 124,
+    "semiTransparentShare": 0.0245,
+    "gate": [],
+    "sha256": "f1688def8275a2a17ea33327f553ef635b4ace9205a79df8582b60a1c851b5a0",
+    "at": "2026-09-23 21:21:33"
   },
   "event_fengfeng_pigeon_lost": {
     "attempt": 1,
