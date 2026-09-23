@@ -265,6 +265,72 @@
     "sha256": "76239a513c329ace69877f094f0fc0999bf92b0065f9fc25c8f2bbfbae6b4135",
     "at": "2026-09-23 21:10:11"
   },
+  "event_dangdang_fallen_star": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_fallen_star",
+    "file": "public/assets/bg/event_dangdang_fallen_star.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47588,
+    "droppedSpecks": 297,
+    "semiTransparentShare": 0.0899,
+    "gate": [],
+    "sha256": "9a3cd02c84bbba3a17c26a9e47c82284cb6562b98c256d29916e584d718cf402",
+    "at": "2026-09-23 21:33:12"
+  },
+  "event_dangdang_fallen_star_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_fallen_star_r0",
+    "file": "public/assets/bg/event_dangdang_fallen_star_r0.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r0",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47784,
+    "droppedSpecks": 259,
+    "semiTransparentShare": 0.0949,
+    "gate": [],
+    "sha256": "31d63f5b1e4d8d4dcdc3117302d6c804d7219d18fc4a0982e6cdf850bc9782e8",
+    "at": "2026-09-23 21:33:29"
+  },
+  "event_dangdang_fallen_star_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_fallen_star_r1",
+    "file": "public/assets/bg/event_dangdang_fallen_star_r1.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r1",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47994,
+    "droppedSpecks": 145,
+    "semiTransparentShare": 0.0617,
+    "gate": [],
+    "sha256": "2dea843bbccdcc0fb409cf73cec2ea60098425b2dab86438f72705feefbac476",
+    "at": "2026-09-23 21:33:45"
+  },
   "event_dangdang_library_ladder": {
     "attempt": 2,
     "key": "bg/event_dangdang_library_ladder",
@@ -352,6 +418,72 @@
     "gate": [],
     "sha256": "3e14e3f4bb73c3fe65b17d8b9897cd045323b188f0f14f00db42ff4a497efce6",
     "at": "2026-09-23 21:20:01"
+  },
+  "event_dangdang_miasma_crystal": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_miasma_crystal",
+    "file": "public/assets/bg/event_dangdang_miasma_crystal.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47614,
+    "droppedSpecks": 326,
+    "semiTransparentShare": 0.0474,
+    "gate": [],
+    "sha256": "afc12204745f50fdebb3ab1ca7a77fdd0204365dc06bee521e08a448059b92d5",
+    "at": "2026-09-23 21:40:01"
+  },
+  "event_dangdang_miasma_crystal_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_miasma_crystal_r0",
+    "file": "public/assets/bg/event_dangdang_miasma_crystal_r0.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r0",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 45330,
+    "droppedSpecks": 110,
+    "semiTransparentShare": 0.0423,
+    "gate": [],
+    "sha256": "6cf2552f341582c49bebad5030232ddf75fb0c1cf748d6dad63575d3d8cf1fad",
+    "at": "2026-09-23 21:40:22"
+  },
+  "event_dangdang_miasma_crystal_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_miasma_crystal_r1",
+    "file": "public/assets/bg/event_dangdang_miasma_crystal_r1.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r1",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 51488,
+    "droppedSpecks": 336,
+    "semiTransparentShare": 0.0628,
+    "gate": [],
+    "sha256": "212d7fececb0a3fc6fe053875fea6ed010f8596331d11b14bbe476f4929765b1",
+    "at": "2026-09-23 21:40:43"
   },
   "event_dangdang_rat_bathhouse": {
     "attempt": 1,
@@ -513,6 +645,72 @@
     "sha256": "4e2d6a767198ff05dbc71966edb54d9abce9b31751ff8b86e2d346b4d0048132",
     "at": "2026-09-23 21:24:45"
   },
+  "event_dangdang_wind_chimes_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_wind_chimes_r0",
+    "file": "public/assets/bg/event_dangdang_wind_chimes_r0.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r0",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50194,
+    "droppedSpecks": 461,
+    "semiTransparentShare": 0.0721,
+    "gate": [],
+    "sha256": "8ed6599c61da7dc5621be192db0946788ebe0a914e64b2862f67aea47a0d13ab",
+    "at": "2026-09-23 21:36:44"
+  },
+  "event_dangdang_wind_chimes_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_wind_chimes_r1",
+    "file": "public/assets/bg/event_dangdang_wind_chimes_r1.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r1",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 56828,
+    "droppedSpecks": 655,
+    "semiTransparentShare": 0.1002,
+    "gate": [],
+    "sha256": "06befefbe1bfa1893067540753a03b48a187a053bb82358092947489375554d9",
+    "at": "2026-09-23 21:36:54"
+  },
+  "event_dangdang_wind_chimes_r2": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_wind_chimes_r2",
+    "file": "public/assets/bg/event_dangdang_wind_chimes_r2.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r2",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 45022,
+    "droppedSpecks": 288,
+    "semiTransparentShare": 0.0679,
+    "gate": [],
+    "sha256": "ded59c46977079a862f9f8d90e95285f950ed06a4948f4b9ed62896efbef7694",
+    "at": "2026-09-23 21:37:07"
+  },
   "event_dangdang_wooden_men_alley": {
     "attempt": 1,
     "key": "bg/event_dangdang_wooden_men_alley",
@@ -580,6 +778,72 @@
     "gate": [],
     "sha256": "010e0d60590e3d1ec730e7274eaddb392e94c39ee477d91f79c0fe9a6703e4ef",
     "at": "2026-09-23 21:26:49"
+  },
+  "event_fallen_star": {
+    "attempt": 1,
+    "key": "bg/event_fallen_star",
+    "file": "public/assets/bg/event_fallen_star.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 45604,
+    "droppedSpecks": 295,
+    "semiTransparentShare": 0.0575,
+    "gate": [],
+    "sha256": "2dab4ecb6ff979f6934e1009a3f912da0ae847ed1e81c1fb582c15aff8250ec0",
+    "at": "2026-09-23 21:33:04"
+  },
+  "event_fallen_star_r0": {
+    "attempt": 1,
+    "key": "bg/event_fallen_star_r0",
+    "file": "public/assets/bg/event_fallen_star_r0.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r0",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46460,
+    "droppedSpecks": 351,
+    "semiTransparentShare": 0.0819,
+    "gate": [],
+    "sha256": "0fc141866fc9d43e2dd080f1e7a7220ec14c3a0a8971a1ba7b2e9c9524a5dbfe",
+    "at": "2026-09-23 21:33:20"
+  },
+  "event_fallen_star_r1": {
+    "attempt": 1,
+    "key": "bg/event_fallen_star_r1",
+    "file": "public/assets/bg/event_fallen_star_r1.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r1",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46528,
+    "droppedSpecks": 257,
+    "semiTransparentShare": 0.0571,
+    "gate": [],
+    "sha256": "2d2a35dfd67002a5a0b9cd7bd853384304130784eff902b9f88f038b9f9413a9",
+    "at": "2026-09-23 21:33:37"
   },
   "event_feifei_bear_cellar": {
     "attempt": 1,
@@ -713,6 +977,72 @@
     "sha256": "0bfb7a3db99f0694349f5c5f17ee6a6237f566e83d2ad6d0191ee4ec2ad39fe4",
     "at": "2026-09-23 21:10:07"
   },
+  "event_feifei_fallen_star": {
+    "attempt": 1,
+    "key": "bg/event_feifei_fallen_star",
+    "file": "public/assets/bg/event_feifei_fallen_star.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star",
+    "hero": "feifei",
+    "sourceSize": [
+      1402,
+      1122
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 54090,
+    "droppedSpecks": 393,
+    "semiTransparentShare": 0.0663,
+    "gate": [],
+    "sha256": "d9e59eef132cc3b61a2fcbf6703ceac36ce29c3525e9e4df59ceba668ff21540",
+    "at": "2026-09-23 21:33:09"
+  },
+  "event_feifei_fallen_star_r0": {
+    "attempt": 1,
+    "key": "bg/event_feifei_fallen_star_r0",
+    "file": "public/assets/bg/event_feifei_fallen_star_r0.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r0",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 55632,
+    "droppedSpecks": 846,
+    "semiTransparentShare": 0.0811,
+    "gate": [],
+    "sha256": "f556cbf5fd118956d18cff9581e65e2d368013f705cc9e24d0fba4b798b0a405",
+    "at": "2026-09-23 21:33:25"
+  },
+  "event_feifei_fallen_star_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_fallen_star_r1",
+    "file": "public/assets/bg/event_feifei_fallen_star_r1.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r1",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 57582,
+    "droppedSpecks": 311,
+    "semiTransparentShare": 0.0905,
+    "gate": [],
+    "sha256": "8e6dc0263b33ec9508a3917ae7d4a2555d0246f41d2e6a2e9600a857441cce49",
+    "at": "2026-09-23 21:33:41"
+  },
   "event_feifei_library_ladder": {
     "attempt": 1,
     "key": "bg/event_feifei_library_ladder",
@@ -802,6 +1132,72 @@
     "gate": [],
     "sha256": "4d5cfd78bd75a3f21365a6f36106341314fc9a083084e68d35b091b09519639e",
     "at": "2026-09-23 21:19:57"
+  },
+  "event_feifei_miasma_crystal": {
+    "attempt": 1,
+    "key": "bg/event_feifei_miasma_crystal",
+    "file": "public/assets/bg/event_feifei_miasma_crystal.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50594,
+    "droppedSpecks": 299,
+    "semiTransparentShare": 0.0515,
+    "gate": [],
+    "sha256": "a4def89e2f87937b1134565601b5781badda27880ca44fa795cb897facb240f4",
+    "at": "2026-09-23 21:39:55"
+  },
+  "event_feifei_miasma_crystal_r0": {
+    "attempt": 1,
+    "key": "bg/event_feifei_miasma_crystal_r0",
+    "file": "public/assets/bg/event_feifei_miasma_crystal_r0.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r0",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 43744,
+    "droppedSpecks": 269,
+    "semiTransparentShare": 0.052,
+    "gate": [],
+    "sha256": "9d1d6acdffd87da4ec7eb9f8744731016b42907430a318662623065645120483",
+    "at": "2026-09-23 21:40:17"
+  },
+  "event_feifei_miasma_crystal_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_miasma_crystal_r1",
+    "file": "public/assets/bg/event_feifei_miasma_crystal_r1.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r1",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 65662,
+    "droppedSpecks": 373,
+    "semiTransparentShare": 0.077,
+    "gate": [],
+    "sha256": "e9000ae19e3e37bcc2985f4dc0dae83f307a14f83cc44825238628deee990984",
+    "at": "2026-09-23 21:40:38"
   },
   "event_feifei_rat_bathhouse": {
     "attempt": 1,
@@ -962,6 +1358,50 @@
     "gate": [],
     "sha256": "bf949761d239c861fff8b86cfb1c3ab412a279c871fc71f031d6a61a8ab4ea31",
     "at": "2026-09-23 21:24:40"
+  },
+  "event_feifei_wind_chimes": {
+    "attempt": 1,
+    "key": "bg/event_feifei_wind_chimes",
+    "file": "public/assets/bg/event_feifei_wind_chimes.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 58314,
+    "droppedSpecks": 497,
+    "semiTransparentShare": 0.1033,
+    "gate": [],
+    "sha256": "f389683df2da92a9369905f3714c514e2f77070340ca8850ae7d11fff0b51cbe",
+    "at": "2026-09-23 21:36:29"
+  },
+  "event_feifei_wind_chimes_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_wind_chimes_r1",
+    "file": "public/assets/bg/event_feifei_wind_chimes_r1.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r1",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 53576,
+    "droppedSpecks": 291,
+    "semiTransparentShare": 0.0877,
+    "gate": [],
+    "sha256": "e3818a05ec5762b2328fa7bc3be188f312fb2f03a2d4f8297bb221c8d9212926",
+    "at": "2026-09-23 21:36:49"
   },
   "event_feifei_wooden_men_alley": {
     "attempt": 1,
@@ -1163,6 +1603,72 @@
     "sha256": "02a32a31b669f992098a6d92f4dcd19ce40fc3813bb0295b98e3f991ffa5adf1",
     "at": "2026-09-23 21:10:15"
   },
+  "event_fengfeng_fallen_star": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_fallen_star",
+    "file": "public/assets/bg/event_fengfeng_fallen_star.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1402,
+      1122
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50690,
+    "droppedSpecks": 322,
+    "semiTransparentShare": 0.0641,
+    "gate": [],
+    "sha256": "8b46fbfa9dbaf968a6aeae1b89cdee17b2b4d4d72f232cc9bb6530ecd0db5716",
+    "at": "2026-09-23 21:33:16"
+  },
+  "event_fengfeng_fallen_star_r0": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_fallen_star_r0",
+    "file": "public/assets/bg/event_fengfeng_fallen_star_r0.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r0",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 60380,
+    "droppedSpecks": 447,
+    "semiTransparentShare": 0.1156,
+    "gate": [],
+    "sha256": "be5717eaa9d8db3c437d1aa59a82e9c6e476d53b8f58aae4e3f70e5408d4e804",
+    "at": "2026-09-23 21:33:33"
+  },
+  "event_fengfeng_fallen_star_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_fallen_star_r1",
+    "file": "public/assets/bg/event_fengfeng_fallen_star_r1.webp",
+    "event": "fallen_star",
+    "stem": "fallen_star_r1",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 55870,
+    "droppedSpecks": 354,
+    "semiTransparentShare": 0.0766,
+    "gate": [],
+    "sha256": "4d03afce9ea24db6c057ccb3305a3d900033426a6c8b41bd1cfc18aaffa2fbe4",
+    "at": "2026-09-23 21:33:49"
+  },
   "event_fengfeng_library_ladder": {
     "attempt": 1,
     "key": "bg/event_fengfeng_library_ladder",
@@ -1250,6 +1756,72 @@
     "gate": [],
     "sha256": "0387ca7f25b9e8bd6283dd459c084ab2e8d6b6d3c79b16727c35e9acb21fedb4",
     "at": "2026-09-23 21:20:05"
+  },
+  "event_fengfeng_miasma_crystal": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_miasma_crystal",
+    "file": "public/assets/bg/event_fengfeng_miasma_crystal.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50274,
+    "droppedSpecks": 367,
+    "semiTransparentShare": 0.0477,
+    "gate": [],
+    "sha256": "f04b4a0b6f095e33bcb7cf5eb86683a4975e1043d24faafa2595a54cb250074b",
+    "at": "2026-09-23 21:40:07"
+  },
+  "event_fengfeng_miasma_crystal_r0": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_miasma_crystal_r0",
+    "file": "public/assets/bg/event_fengfeng_miasma_crystal_r0.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r0",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 48562,
+    "droppedSpecks": 162,
+    "semiTransparentShare": 0.0433,
+    "gate": [],
+    "sha256": "91462c9eed4694346e2246ed1cd31ff3b3354cd5cb78d4fce0aead8324c7b483",
+    "at": "2026-09-23 21:40:27"
+  },
+  "event_fengfeng_miasma_crystal_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_miasma_crystal_r1",
+    "file": "public/assets/bg/event_fengfeng_miasma_crystal_r1.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r1",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 63106,
+    "droppedSpecks": 422,
+    "semiTransparentShare": 0.077,
+    "gate": [],
+    "sha256": "9012ac84280bb58acec6445ef6a4dea7afeab710ed4b445a83b8da1b0d5d71db",
+    "at": "2026-09-23 21:40:49"
   },
   "event_fengfeng_rat_bathhouse": {
     "attempt": 1,
@@ -1411,6 +1983,72 @@
     "sha256": "bb6117104ef1ec9810cc27ee7507c4a2bd9489883427afe5762994202d1f1650",
     "at": "2026-09-23 21:24:49"
   },
+  "event_fengfeng_wind_chimes": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_wind_chimes",
+    "file": "public/assets/bg/event_fengfeng_wind_chimes.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 54336,
+    "droppedSpecks": 826,
+    "semiTransparentShare": 0.0891,
+    "gate": [],
+    "sha256": "4752d0784bf83eddde4d500eba5a3acc3b7f3920ad8c07e87a12396395353015",
+    "at": "2026-09-23 21:36:35"
+  },
+  "event_fengfeng_wind_chimes_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_wind_chimes_r1",
+    "file": "public/assets/bg/event_fengfeng_wind_chimes_r1.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r1",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 51634,
+    "droppedSpecks": 348,
+    "semiTransparentShare": 0.0718,
+    "gate": [],
+    "sha256": "5f850702502bf359bbdc3fbe8242e2cc6099cd84b7d77c98278a7c6a82b678ed",
+    "at": "2026-09-23 21:36:58"
+  },
+  "event_fengfeng_wind_chimes_r2": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_wind_chimes_r2",
+    "file": "public/assets/bg/event_fengfeng_wind_chimes_r2.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r2",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 51158,
+    "droppedSpecks": 323,
+    "semiTransparentShare": 0.0645,
+    "gate": [],
+    "sha256": "c8ab915e3e0dfb6480825635fd9f5ef63dda71297b38b26dd116839ab8dd8a52",
+    "at": "2026-09-23 21:37:11"
+  },
   "event_fengfeng_wooden_men_alley": {
     "attempt": 1,
     "key": "bg/event_fengfeng_wooden_men_alley",
@@ -1565,6 +2203,72 @@
     "sha256": "d3496a78fa8a504fba88d954f4ec7da8d10cc9f03b97ad991a2fb5c30e1f2da7",
     "at": "2026-09-23 21:19:54"
   },
+  "event_miasma_crystal": {
+    "attempt": 1,
+    "key": "bg/event_miasma_crystal",
+    "file": "public/assets/bg/event_miasma_crystal.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47436,
+    "droppedSpecks": 154,
+    "semiTransparentShare": 0.0485,
+    "gate": [],
+    "sha256": "15b28348aadfb560be098abb13a580a2bce568321e21167725b37510b4c08424",
+    "at": "2026-09-23 21:39:49"
+  },
+  "event_miasma_crystal_r0": {
+    "attempt": 1,
+    "key": "bg/event_miasma_crystal_r0",
+    "file": "public/assets/bg/event_miasma_crystal_r0.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r0",
+    "hero": "ninja",
+    "sourceSize": [
+      1327,
+      1185
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44902,
+    "droppedSpecks": 102,
+    "semiTransparentShare": 0.0459,
+    "gate": [],
+    "sha256": "f6aefac38cefd7658ab1ae19df44316d07399fc60c0e7daa1ce2cdb23f851c68",
+    "at": "2026-09-23 21:40:11"
+  },
+  "event_miasma_crystal_r1": {
+    "attempt": 1,
+    "key": "bg/event_miasma_crystal_r1",
+    "file": "public/assets/bg/event_miasma_crystal_r1.webp",
+    "event": "miasma_crystal",
+    "stem": "miasma_crystal_r1",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 51526,
+    "droppedSpecks": 387,
+    "semiTransparentShare": 0.0643,
+    "gate": [],
+    "sha256": "0149d833df8e4ccce50263d2a7b41a7382df2d7d6742075ab66c57a4192d1901",
+    "at": "2026-09-23 21:40:32"
+  },
   "event_rat_bathhouse": {
     "attempt": 1,
     "key": "bg/event_rat_bathhouse",
@@ -1718,6 +2422,72 @@
     "gate": [],
     "sha256": "12c985ce4ab53fe614f112405872802a17e4938bed730d202f7cf9ddbb2cf107",
     "at": "2026-09-23 21:24:35"
+  },
+  "event_wind_chimes": {
+    "attempt": 1,
+    "key": "bg/event_wind_chimes",
+    "file": "public/assets/bg/event_wind_chimes.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 53314,
+    "droppedSpecks": 324,
+    "semiTransparentShare": 0.0936,
+    "gate": [],
+    "sha256": "06c2f240a104e4ca35f178dac7bd3897534903fe833c9a970267608fab88760d",
+    "at": "2026-09-23 21:36:24"
+  },
+  "event_wind_chimes_r0": {
+    "attempt": 1,
+    "key": "bg/event_wind_chimes_r0",
+    "file": "public/assets/bg/event_wind_chimes_r0.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r0",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 48638,
+    "droppedSpecks": 390,
+    "semiTransparentShare": 0.0664,
+    "gate": [],
+    "sha256": "6d957b6baa08bf1ce1076da19efc754f44b433c101b595b23a3e9e70b36423db",
+    "at": "2026-09-23 21:36:39"
+  },
+  "event_wind_chimes_r2": {
+    "attempt": 1,
+    "key": "bg/event_wind_chimes_r2",
+    "file": "public/assets/bg/event_wind_chimes_r2.webp",
+    "event": "wind_chimes",
+    "stem": "wind_chimes_r2",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44570,
+    "droppedSpecks": 418,
+    "semiTransparentShare": 0.073,
+    "gate": [],
+    "sha256": "9d98fd4587c3fc9f66eca7ecf6f22ae20b3875ebf3216d0f3c3c3553a1c022a0",
+    "at": "2026-09-23 21:37:02"
   },
   "event_wooden_men_alley": {
     "attempt": 1,
