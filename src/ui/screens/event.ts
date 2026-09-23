@@ -4,11 +4,11 @@ import { dialogue } from '../../content/dialogue';
 import { condHint, coopFill, eventTextFor, flagWhy } from '../../content/event-text';
 import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
-import { relicById } from '../../content/relics';
+import { relicById, relicLongText } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
-import { choiceEffectsFor, choiceGate, choiceOrder, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
-import { heroName } from '../../engine/hero';
+import { choiceEffectsFor, choiceGate, choiceOrder, resultSeat, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
+import { heroName, type Hero } from '../../engine/hero';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import type { CardDef, CardInstance, EventChoice, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -64,7 +64,7 @@ function showcaseNode(items: Showcase): HTMLElement {
  *（實測效果那行整條被切掉）。另開 `.gain-stack`，只借排版不借定位。
  * 帶滿收不下的忍具不放大（那不是「拿到」），留給對白框裡那一列去說明。
  */
-function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
+function gainsNode(gains: readonly RunGain[], owned: readonly string[]): HTMLElement | '' {
   const box = el('div', { class: 'showcase icons' });
   for (const g of gains) {
     if (g.missed) continue;
@@ -75,7 +75,7 @@ function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
     const node = el('img', { class: 'showcase-icon', src: url, alt: d.name });
     const host = el('span', { class: 'fx-host' }, node);
     box.append(el('div', { class: 'gain-stack' },
-      el('p', { class: 'loot-above' }, d.text),
+      el('p', { class: 'loot-above' }, gainText(g, owned)),
       host,
       el('div', { class: 'loot-below' },
         el('span', { class: 'loot-kind' }, g.kind),
@@ -83,6 +83,16 @@ function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
     window.setTimeout(() => burst(host, 'buff'), 60);
   }
   return box.childElementCount ? box : '';
+}
+
+/**
+ * 拿到的東西的效果說明。秘寶走 `relicLongText`：師門那幾件多一段「【師門 n／3】…」，
+ * 集到幾件照身上現在的秘寶數（效果已經套完，剛拿到的那件也算進去）——狀態列、罐頭鋪、過關三選一本來就這樣寫，
+ * 事件這兩處原本只寫 `d.text`，影子給的舊木劍拿到時看不出湊到第幾件（2026-09-23 b2fin，b2mech 報告第五條）。
+ */
+function gainText(g: RunGain, owned: readonly string[]): string {
+  const r = g.kind === '秘寶' ? relicById[g.id] : undefined;
+  return r ? relicLongText(r, owned) : potionById[g.id]?.text ?? '';
 }
 
 /**
@@ -119,7 +129,7 @@ function eventArt(id: string, hero?: string, fallback?: { run: RunState; id: str
  * 事件拿到的秘寶／忍具，排成跟戰利品畫面同一種列：圖示、名稱、效果各就各位。
  * 本來只有一行「拿到忍具「鐵爪套」「小魚乾串」」，看不出那是什麼、有什麼用。
  */
-function gainRows(gains: readonly RunGain[]): HTMLElement | string {
+function gainRows(gains: readonly RunGain[], owned: readonly string[]): HTMLElement | string {
   if (!gains.length) return '';
   const box = el('div', { class: 'reward-items event-gains' });
   for (const g of gains) {
@@ -132,7 +142,7 @@ function gainRows(gains: readonly RunGain[]): HTMLElement | string {
       : g.missed ? `忍具帶滿了，「${d.name}」收不下` : `拿到${g.kind}「${d.name}」`;
     box.append(el('div', { class: `reward-item ${g.kind === '秘寶' ? 'relic' : 'potion'}${g.missed && !g.asked ? ' missed' : ''}`, 'data-gain': g.id },
       url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
-      el('span', { class: 'reward-line' }, el('b', {}, label), el('em', {}, d.text))));
+      el('span', { class: 'reward-line' }, el('b', {}, label), el('em', {}, gainText(g, owned)))));
   }
   return box;
 }
@@ -274,7 +284,7 @@ registerScreen('event', (app, root, props) => {
      */
     // 有結果圖的：還沒解好先用主圖頂著（見 `eventArt`）
     const illo = ev ? eventArt(art ?? ev.id, artHero, art ? { run, id: ev.id } : undefined) : '';
-    const loot = show.length ? showcaseNode(show) : gains.length ? gainsNode(gains) : '';
+    const loot = show.length ? showcaseNode(show) : gains.length ? gainsNode(gains, me(run, seat).relics) : '';
     const artNode = loot && illo
       ? el('div', { class: 'event-art-stack' }, illo, el('div', { class: 'event-art-loot' }, loot))
       : (loot || illo);
@@ -290,7 +300,7 @@ registerScreen('event', (app, root, props) => {
       ...(portrait2 ? { portrait2 } : {}),
       speaker: title,
       text: resultText,
-      extra: [stamp, gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
+      extra: [stamp, gainRows(gains, me(run, seat).relics), note ? el('p', { class: 'event-note' }, note) : ''],
       actions: button ? [button] : [],
     }));
   }
@@ -336,6 +346,8 @@ registerScreen('event', (app, root, props) => {
     });
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
+  /** 這一次的結果文字照誰的版本寫：條件選項連線時是同伴讓它出現的，寫同伴做的事（`resultSeat`）。`take()` 設，沒設＝本機這一位 */
+  let resultHero: Hero | undefined;
   let pickLabel = '';                  // 這一次選的選項原文：挑牌視窗能不能不選照它寫的「至多」走（見 `eventPickRule`）
   /** 學完招接著挑牌升級（`then`）：本機這一位學完（或都不要）之後，照這一支開挑牌那一步。`take()` 設 */
   let afterLearn: ((note: string, learned: CardInstance[]) => void) | null = null;
@@ -502,15 +514,16 @@ registerScreen('event', (app, root, props) => {
    * 事件文案換成這一位的（敘述裡的名字、引號裡句尾的「喵」）。球球那邊一個字不動。
    * 連線時再把「{同伴}」「{稱}」「{對方}」換成同伴的名字與稱呼（連線限定事件，2026-09-23 內容擴充第二批）；
    * 單人的文案裡沒有這幾個記號，換了也不會動到。
+   * `hero` 只有結果文字會傳（`resultHero`：同伴讓條件選項出現時，照同伴那一位的版本寫他做的事）。
    */
-  const evText = (t: string): string => {
-    const mine = eventTextFor(me(run, seat).hero, t);
+  const evText = (t: string, hero = me(run, seat).hero): string => {
+    const mine = eventTextFor(hero, t);
     return partner ? coopFill(mine, me(run, seat).hero, partner.hero) : mine;
   };
 
   function settle(outcome: RunEffectOutcome, rawResult: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
     // 換角色的文案在**入口**過一次，比每個呼叫點各包一次不容易漏（這支有六個呼叫點）
-    const resultText = evText(rawResult);
+    const resultText = evText(rawResult, resultHero);
     const noteLine = (extra?: string): string | null => {
       const all = extra ? [...notes, extra] : notes;
       return all.length ? all.join('；') : null;
@@ -628,6 +641,8 @@ registerScreen('event', (app, root, props) => {
     if (!c) return;
     const exchangeReason = exchangeBlockReason(c);
     if (exchangeReason) { finish('這次沒有交換秘寶。', exchangeReason); return; }
+    // 結果寫誰做的事：**先問、再套效果**（鈴鐺那條套完就交出去了，問不出是誰的，見 `resultSeat`）
+    resultHero = me(run, resultSeat(run, c, seat)).hero;
     const cost = c.costFish ?? 0;
     resultArt = c.resultArt;
     pickLabel = labelRaw(index);
@@ -699,11 +714,11 @@ registerScreen('event', (app, root, props) => {
           // 連線這條直接拿原文，玩菲菲時會留著「球球」跟「喵」（稽核 2026-09-12 低-1）
           const mineThen = all[seat] === '' && passLearn(seat, outcomes);
           all.forEach((v, i) => {
-            if (v) takeLearn(i, v, outcomes, i === seat ? evText(raw) : null, gains);
+            if (v) takeLearn(i, v, outcomes, i === seat ? evText(raw, resultHero) : null, gains);
             else if (v === '' && i !== seat) passLearn(i, outcomes);   // 同伴都不要也照樣接著挑牌升級（兩台都換，才判得出升級或移除）
           });
           if (mineThen && afterLearn) afterLearn('一招都沒挑', []);
-          else if (all[seat] === '' && hadLearn[seat]) finish(evText(raw), '一招都沒挑', gains);
+          else if (all[seat] === '' && hadLearn[seat]) finish(evText(raw, resultHero), '一招都沒挑', gains);
           // 我這台根本沒得挑（倒下的人、或座位不對稱時自己那一串沒有學招、投的是空票）：重畫一次把「繼續」放出來
           else if (all[seat] === null || all[seat] === '') showResult();
           return;
