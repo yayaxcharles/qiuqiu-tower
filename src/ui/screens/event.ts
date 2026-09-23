@@ -674,6 +674,8 @@ registerScreen('event', (app, root, props) => {
     });
   }
 
-  // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走
+  // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走。
+  // **整局一次、只綁第一關那一版**（2026-09-23 內容擴充第一批，5F 改成一關一版時定的）：那三句講的是
+  //「第一次認出師父的字」，搬到第二關的木箱、第三關的紙頁會跟插圖對不上；後兩版的線索寫在事件本文裡，不另播對白
   if (ev.id === FIXED_EVENT_FLOOR_5) app.playOnce('secretScroll', dialogue.secretScroll, () => { /* 看完就直接選 */ });
 });

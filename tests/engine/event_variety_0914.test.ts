@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { advanceAct, chooseNode, newCoopRun, newRun } from '../../src/engine/run';
-import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
+import { FIXED_EVENT_FLOOR_5, fixedEventFloor5 } from '../../src/content/events';
 import { runFingerprint } from '../../src/net/hash';
 import { CoopSession } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
@@ -118,7 +118,9 @@ describe('後集：前集做過，下一關第一次走進事件格就遇到', (
     advanceAct(run2);
     const f5 = run2.map.nodes.find((n) => n.floor === 5)!;
     walkTo(run2, f5.id);
-    expect(f5.eventId).toBe(FIXED_EVENT_FLOOR_5);
+    // 5F 一關一版（2026-09-23）：第二關是木箱那一版，照樣不被後集換掉
+    expect(f5.eventId).toBe(fixedEventFloor5(2));
+    expect(f5.eventId).not.toBe(FIXED_EVENT_FLOOR_5);
   });
 
   it('這一格墊的是「遇過的後集」時照樣換（審查 中-1：原本只要是後集就不換，真正該出的那個被擋掉）', () => {
