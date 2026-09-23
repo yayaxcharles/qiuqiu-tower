@@ -65,14 +65,15 @@ describe('連線時擋下的點數照座位拿得到（health H-1）', () => {
     expect(cs.log).toContain('球球閃過了');
   });
 
-  it('塞牌打在被塞的那一位：句子寫「塞進你的」，畫面卻要亮在 1 號', () => {
+  it('塞牌打在被塞的那一位：畫面要亮在 1 號，不是固定亮在自己這格', () => {
     const cs = coopFight('ninja', 'feifei', 'seatfb-curse');
     const before = cs.players.map(seatFeedbackSnap);
     giveCards(cs, cs.enemies[0]!, 'slime_card', 1, 'discard', cs.players[1]);
     const got = cs.players.map((q, i) => seatFeedback(before[i], seatFeedbackSnap(q)));
     expect(got[0]!.cursed).toBe(false);
     expect(got[1]!.cursed).toBe(true);
-    expect(cs.log.at(-1)).toContain('塞進你的');   // 舊寫法照這句把光打在自己這格
+    // 舊畫面照「塞進你的」把光打在自己這格；戰報 2026-09-23 起兩人時寫名字（見 tests/engine/curse_log_0923.test.ts）
+    expect(cs.log.at(-1)).toContain('塞進菲菲的');
   });
 
   it('看破打在隱身被拆的那一位；閃過自己用掉的那一層不算被看破', () => {

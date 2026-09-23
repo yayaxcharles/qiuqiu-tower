@@ -201,7 +201,10 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
     else p.drawPile.splice(cs.rng.int(0, p.drawPile.length), 0, card);
   }
   // 牌名要過 `cardNameFor`（稽核 2026-09-13 低-1）：塞進來的是牌，菲菲看到的名字不同
-  log(cs, `${from.name}把 ${n} 張「${cardNameFor(def, p.hero)}」塞進你的${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
+  // 兩個人時寫塞給誰（2026-09-23 主控裁定）：塞牌可能只落在一位身上（喊了「我來擋」、另一位倒下、打技能牌惹到詛咒的那位），
+  // 戰報兩台共用，寫「你的」的話另一台看到的是錯的對象。單機照舊寫「你的」，跟吹散手牌那句同一套
+  const whoseDeck = cs.players.length > 1 ? `${unitName(p)}的` : '你的';
+  log(cs, `${from.name}把 ${n} 張「${cardNameFor(def, p.hero)}」塞進${whoseDeck}${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
 }
 
 /**
