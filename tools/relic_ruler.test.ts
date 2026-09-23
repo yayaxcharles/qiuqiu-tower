@@ -104,12 +104,12 @@ describe('量尺工具（小樣本）', () => {
     expect(txt).toContain('乾糧袋');
     expect(txt).toContain('一顆骰子');
     expect(blessClassSpread(m).map((s) => s.cls)).toEqual(['安全', '換牌', '代價', '賭運氣']);
-    // 強制拿：不在包袱裡也照拿（乾糧袋多 6 點生命上限）；`null`＝什麼都不拿、包袱也拿掉
+    // 強制拿：不在包袱裡也照拿（乾糧袋多 3 點生命上限，2026-09-24 減半）；`null`＝什麼都不拿、包袱也拿掉
     const run = newRun('ruler-smoke-0', 1, 'ninja');
     const before = me(run).maxHp;
     withSmartProbe({ blessing: () => 'bless_rations' }, () => smartBless(run));
     expect(me(run).bless?.took).toBe('bless_rations');
-    expect(me(run).maxHp - before).toBe(6);
+    expect(me(run).maxHp - before).toBe(3);
     const bare = newRun('ruler-smoke-0', 1, 'ninja');
     withSmartProbe({ blessing: () => null }, () => smartBless(bare));
     expect(me(bare).bless).toBeUndefined();
