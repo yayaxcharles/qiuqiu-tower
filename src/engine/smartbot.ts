@@ -874,7 +874,21 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
     }
     if (kinds.includes('energy') && p.energy === 0 && p.hand.filter((c) => canPlay(cs, c.uid, enemies[0]?.uid, seat).ok || cardStats(c).cost > 0).length >= 2
       && (incoming > p.block || enemies.some((e) => e.hp <= 15))) return drink(id);
-    if (kinds.includes('cleanse') && getStatus(p, '中毒') >= 4) return drink(id);
+    /*
+     * 溫牛奶（清掉自己身上所有減益）。原本只認「中毒 4 層以上」，量尺實測喝掉率 8%、
+     * 死的時候還握著的有 300／342 支（2026-09-23 第〇批 0-3 忍具使用率）：翻肚、定身這些
+     * 當拍就要命的減益它完全不看。照「這一拍有多痛」補三條：
+     *   - 翻肚（受傷 ×1.5）撐過回合末的衰減、這一拍又要挨 9 點以上——清掉等於少挨三分之一
+     *   - 定身（攻擊牌整回合鎖住）而手上有兩張以上攻擊牌
+     *   - 翻肚、懶洋洋、炸毛、定身合計 3 層以上
+     */
+    if (kinds.includes('cleanse')) {
+      const after = decayedDefender(p);
+      const attacks = p.hand.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+      const other = getStatus(p, '翻肚') + getStatus(p, '懶洋洋') + getStatus(p, '炸毛') + getStatus(p, '定身');
+      if (getStatus(p, '中毒') >= 4 || (getStatus(after, '翻肚') > 0 && incoming >= 9)
+        || (getStatus(p, '定身') > 0 && attacks >= 2) || other >= 3) return drink(id);
+    }
     /*
      * 2026-09-11 新增的那批忍具（稽核中-4）。原本 `maybePotion` 只認回血、防禦、隱身、傷害、
      * 飯糰、清減益與關主戰那兩種狀態，七支新忍具裡有五支它一輩子不會用——
@@ -986,16 +1000,37 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
       }
     }
     /*
-     * 破甲錐：對手防禦厚到「一般攻擊打不穿」才划算，而且要真的打得死。
+     * 破甲錐：要真的打得死才用，防禦越厚的越優先。
      * **估傷用同檔的 `damageTo`**（稽核 2026-09-11 中-4）：自己拿 `pierce.amount` 比血量，
      * 會漏掉飛行的砍半與虛化的「每下最多 1 點」——對一隻飛著、血 10、防禦 12 的魔物
      * 算出「12 打得死」就開了 45 條的忍具，實際只進去 6 點。
      * `hp >= 6` 是跟旁邊那條 `dmg` 同口徑：不要為了補一隻剩一滴血的怪花掉一支忍具。
+     *
+     * 原本還要求「防禦 12 以上」（一般攻擊打不穿才划算），量尺實測喝掉率只有 13%、
+     * 死的時候還握著 290／342 支（2026-09-23 第〇批 0-3 忍具使用率）——厚防禦又剛好打得死的場面太少，
+     * 等於一輩子揣著。拿掉那個門檻，跟手裡劍、鐵指虎一樣「打得死就用」；防禦厚的照樣排前面。
      */
     const pierce = def.effects.find((f) => f.kind === 'damage' && f.ignoreBlock);
     if (pierce?.kind === 'damage') {
-      const turtle = enemies.find((e) => e.block >= 12 && e.hp >= 6 && damageTo(cs, def.effects, e, 0, false, 0, true, p) >= e.hp);
+      const turtle = enemies.filter((e) => e.hp >= 6 && damageTo(cs, def.effects, e, 0, false, 0, true, p) >= e.hp)
+        .sort((a, b) => b.block - a.block)[0];
       if (turtle) return drink(id, turtle.uid);
+    }
+    /*
+     * 鮪魚（抽 3 張）與鏡片（反彈 5）以前**沒有任何一條規則**，量尺實測喝掉率都是 0%，
+     * 拿到就佔一格到死（2026-09-23 第〇批 0-3 忍具使用率：死的時候還握著 340／349、312／322）。
+     */
+    // 抽牌：飯糰還剩兩顆以上、手上卻只剩一張以下打得出去，牌堆裡又有得抽——這時候三張新牌才換得成出手。
+    // 關主戰第一回合也用（跟下面那幾支增益忍具同一個想法：一局最硬的一場，留著沒意義）
+    if (kinds.includes('draw') && !kinds.includes('energy') && p.drawPile.length + p.discardPile.length >= 2
+      && ((p.energy >= 2 && p.hand.filter((c) => canPlay(cs, c.uid, enemies[0]?.uid, seat).ok).length <= 1)
+        || (boss && cs.turn === 1 && p.energy >= 1))) return drink(id);
+    // 反彈（整場不消失、每挨一下回敬一次）：挨得越多下越賺。關主、大魔物戰一開始挨打就掛上；一般戰等這一拍要挨三下以上。
+    // 疊兩支不浪費（反彈是加上去的），所以不用「已經生效就別再燒」的守衛
+    if (def.effects.some((f) => f.kind === 'status' && f.target === 'self' && f.name === '反彈')) {
+      const hitsNow = aliveEnemies(cs).reduce((n, e) => n + incomingHits(cs, e, p).length, 0);
+      const big = boss || cs.enemies.some((e) => enemyById[e.enemyId]?.pool === '大魔物');
+      if ((big && hitsNow >= 1) || hitsNow >= 3) return drink(id);
     }
     // 攻擊型狀態忍具：關主戰開頭就用
     if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return drink(id);
