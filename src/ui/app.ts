@@ -20,7 +20,7 @@ import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
 import { speechBubbleAt } from './enemylayout';
 import { clear, el } from './dom';
-import { closeScreenModals, setOverlayRoot } from './overlay';
+import { closeScreenModals, closeStoryOverlays, setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
@@ -210,9 +210,12 @@ export class App {
     run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
     const pro = storyFor(hero).prologue;
     const proSlides = prologueSlides(hero);   // 圖配哪幾句見 storyslides.ts（除錯頁也叫同一支）
+    // 播完時這一局還是同一局才接下去（2026-09-23 稽核 高-1）：連線斷了、回標題之後 `leaveCoop` 已經把這一局丟了，
+    // 這時再 `show('map')` 就是以單機模式開起兩人局。疊層本身由 `leaveCoop` 收掉，這一道是保險
+    const done = (): void => { if (this.run === run) after(); };
     const play = (): void => {
-      if (slidesReady(proSlides)) playSlides(proSlides, after);
-      else playDialogue(pro, after, undefined, hasCoopScene(hero));
+      if (slidesReady(proSlides)) playSlides(proSlides, done);
+      else playDialogue(pro, done, undefined, hasCoopScene(hero));
     };
     /*
      * 每個角色只能看自己的片子（2026-09-12 實測到）：球球那支從頭到尾是他，
@@ -292,6 +295,12 @@ export class App {
    */
   save(): void {
     if (this.coop || this.sandbox) return;   // 除錯的臨時局也一個字都不寫（見 `sandbox`）
+    /*
+     * 再看**局面本身**是不是兩人局（2026-09-23 稽核 高-1）：只看 `coop` 擋不住「連線已經離開、局面還留著」——
+     * 序章播到一半同伴斷線、按橫幅回標題，幻燈片點完就以單機模式進了兩人局的地圖，走完第一格這裡就把單機存檔蓋掉。
+     * 兩人局不管 `coop` 還在不在，一律不寫。
+     */
+    if (this.run && this.run.players.length > 1) return;
     if (this.run && this.run.status === 'playing') saveRun(this.run);
   }
 
@@ -305,12 +314,21 @@ export class App {
    * 當過座位 1 的更慘，`me(run, 1)` 會丟「這一局沒有第 1 個座位」。
    */
   leaveCoop(): void {
+    const coopRun = this.coop !== null || (this.run?.players.length ?? 0) > 1;
     this.coop?.leave();   // 跟中繼說一聲、關掉線路，對方立刻看到「對方離開了」；不關的話舊線還在跑心跳、對方永遠等不到（審查 2026-09-15 中-1）
     this.coop = null; this.seat = 0;
     setCoopStory(null);   // 敘事情境是模組層級的，離開連線就清掉（推前審查 低-2）
     // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
     // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
     document.querySelectorAll('.net-trouble, .net-link').forEach((n) => n.remove());
+    /*
+     * **那一局也一起丟掉**（2026-09-23 稽核 高-1）。原本只清 `coop`／`seat`，`run` 還是那個兩人局：
+     * 序章幻燈片（或關主開場、過關過場）蓋在標題上，點完 onDone 就 `show('map')`，
+     * 地圖以單機模式開起兩人局，走完一格 `save()` 就把單機存檔蓋掉（橫幅上還寫著「存檔不會壞」）。
+     * 清掉 `run`／`cs` 之後，還沒收掉的計時器（開打前暖機、戰鬥收場）看 `app.cs !== cs` 自己退場；
+     * 還在演的劇情疊層也收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`）。
+     */
+    if (coopRun) { this.run = null; this.cs = null; closeStoryOverlays(); }
   }
 
   /**
@@ -331,8 +349,10 @@ export class App {
     const run = this.run;
     if (!run || run.flags[flag]) { onDone(); return; }
     run.flags[flag] = true;
-    if (slidesReady(slides)) playSlides(slides, onDone);
-    else playDialogue(lines, onDone, undefined, literal);
+    // 同 playPrologue（2026-09-23 稽核 高-1）：塔頂段落播完接關主開場與開打、黑貓頭目那段播完接戰利品，這一局已經丟了就不接
+    const done = (): void => { if (this.run === run) onDone(); };
+    if (slidesReady(slides)) playSlides(slides, done);
+    else playDialogue(lines, done, undefined, literal);
   }
 
   enterNode(nodeId: string): void {
@@ -390,6 +410,7 @@ export class App {
       : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
         : pool === '大魔物' ? 'elite' : battleTrack);
     const go = (): void => {
+      if (this.run !== run) return;   // 關主開場播完時這一局已經丟了（連線斷了回標題，2026-09-23 稽核 高-1）：不開打
       this.cs = beginCombat(run, encounterId);
       const cs = this.cs;
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
@@ -489,7 +510,8 @@ export class App {
     // 其餘存檔時機一律不動：進行中的一局仍然只有 backToMap() 會寫。
     // **連線局不記成績、也不准刪單機的存檔**（2026-09-12 稽核 高-2）：
     // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
-    if (run.status !== 'playing' && !this.coop) { recordBest(run); clearSave(); }
+    // 局面是兩人局也不准（2026-09-23 稽核 高-1）：跟 `save()` 同一道，連線已經離開、局面還留著時只看 `coop` 擋不住
+    if (run.status !== 'playing' && !this.coop && run.players.length === 1) { recordBest(run); clearSave(); }
     /*
      * 落敗這一段**沒有幻燈片版本**，是直接走 `playDialogue`，所以預設會過
      * `lineFor`／`heroSpeaker`——連線時那一段是兩個人共用的場景，裡面「球球：……喵」

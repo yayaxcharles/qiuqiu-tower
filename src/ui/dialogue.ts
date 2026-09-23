@@ -3,7 +3,7 @@ import type { DialogueLine } from '../content/dialogue';
 import { artUrl, hasHeroSprite, heroArtUrl, localHero, localPartner, monsterUrl } from './assets';
 import { el, stageFrame } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 
 /**
  * 全螢幕對白疊層，點一下下一句；播完自己移除再叫 onDone。
@@ -165,10 +165,13 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
         { duration: 160, easing: 'ease-out' });
     }
   };
+  // 這一局被丟掉（連線斷了回標題）時整段收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`，2026-09-23 稽核 高-1）
+  const forget = closeWithStory(() => { if (ended) return; ended = true; box.remove(); unlockScreen(); });
   /** 收尾只會發生一次：對白住在疊層裡，換畫面不會把它拔走，這個旗標再擋住連點重播 */
   const end = (): void => {
     if (ended) return;
     ended = true;
+    forget();
     box.remove();
     unlockScreen();   // 排在 onDone 之前：回呼裡就會換畫面、擺上新的按鈕
     onDone();

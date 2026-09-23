@@ -196,6 +196,23 @@ export function qiuqiuVictoryLinger(enabled: boolean, heroes: readonly string[])
   );
 }
 
+/**
+ * 收場前「還有逐格動作在演嗎」（2026-09-23 稽核 低-1）。
+ *
+ * 動作的 `active` 只在畫面刷新回呼（rAF）裡收掉，而**分頁在背景時瀏覽器不給畫面刷新**：
+ * 同伴補最後一刀時我這台在背景，那一刀的動作永遠收不掉，收場每 80 毫秒重排一次、一直停在打完的戰鬥畫面，
+ * 同伴早就在戰利品頁等我挑牌（切回前景才接上）。
+ * 所以不能只看 `active`：背景分頁一律當演完（反正看不到）；前景時超過預定結束（`endsAt`）一段還沒收的也當演完。
+ * 刷新回呼正常時，結束那一刻十幾毫秒內就會收掉，所以前景的正常演出不會被這條提早切掉。
+ */
+export const MOTION_OVERRUN_MS = 500;
+export function motionStillPlaying(states: Iterable<Readonly<{ active: boolean; endsAt: number }>>, now: number,
+  hidden = typeof document !== 'undefined' && document.hidden === true): boolean {
+  if (hidden) return false;
+  for (const state of states) if (state.active && now < state.endsAt + MOTION_OVERRUN_MS) return true;
+  return false;
+}
+
 /** 敵人逐格不能被通用 650ms 收姿勢計時提早截斷。 */
 export function qiuqiuEnemyMotionHold(kind: EnemyMotionKind, action: EnemyMotionAction, baseMs: number): number {
   return Math.max(baseMs, enemyMotionDuration(kind, action));

@@ -1,7 +1,7 @@
 import { fileUrl } from './assets';
 import { pauseBgm, setBgm } from './bgm';
 import { el } from './dom';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 
 /**
  * 全螢幕過場影片（開頭／結尾，`public/video/<名字>.mp4`，720p 各一兩 MB；球球的兩支是使用者自製，
@@ -28,9 +28,20 @@ export function playVideo(name: VideoName, onDone: () => void): void {
   const skip = el('button', { class: 'btn small cine-skip' }, '跳過 ▸');
   const box = el('div', { class: 'cine-overlay' }, v, skip);
   let ended = false;
+  // 這一局被丟掉（連線斷了回標題）時整段收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`，2026-09-23 稽核 高-1）
+  const forget = closeWithStory(() => {
+    if (ended) return;
+    ended = true;
+    window.clearTimeout(watchdog);
+    v.pause();
+    v.removeAttribute('src');
+    box.remove();
+    unlockScreen();
+  });
   const end = (): void => {
     if (ended) return;
     ended = true;
+    forget();
     window.clearTimeout(watchdog);
     v.pause();
     v.removeAttribute('src');

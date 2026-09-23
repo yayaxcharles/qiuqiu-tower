@@ -16,6 +16,7 @@ import { registerScreen } from '../app';
 import type { CoopSession } from '../../net/session';
 import { applyAction, chooserOf } from '../../net/action';
 import type { CoopAction } from '../../net/action';
+import type { SequencedAction } from '../../net/lockstep';
 import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
@@ -64,6 +65,7 @@ import {
   extendConfirmedMotionWaves,
   LocalMotionPresentationQueue,
   motionPresentationMatches,
+  motionStillPlaying,
   qiuqiuConsumedStealth,
   qiuqiuEnemyBlocked,
   qiuqiuEnemyMotionAllowed,
@@ -937,6 +939,9 @@ registerScreen('combat', (app, root, props) => {
   let mateTurnSeen = -1;
   function mateIdleMs(): number {
     if (mateTurnSeen !== cs.turn) { mateTurnSeen = cs.turn; mateActAt = Date.now(); }
+    // 同伴還沒進到這一場的戰鬥畫面（塔頂段落、關主開場還在讀）不算閒置：從他進場那一刻才起算（2026-09-23 稽核 中-1）。
+    // 原本從我這邊建好戰鬥畫面就開始數，劇情長短不同的混搭，他一進場第一回合就被我收掉
+    if (session && !session.mateHere) mateActAt = Date.now();
     return Date.now() - mateActAt;
   }
   /** 有連線時，把動作送出去；沒有就在本機做掉。回傳 false＝這個動作現在做不出來 */
@@ -2639,15 +2644,17 @@ registerScreen('combat', (app, root, props) => {
     }
     // 演出只是畫面，丟例外也要接著演下一項：不然佇列永遠停在「演出中」，
     // 同伴之後的動作與收回合都不會再演，這位玩家整場卡住（稽核 2026-09-21 晚 中-4）
+    // 算這一項要等多久也包進來（2026-09-23 稽核 低-2）：它會去查動作長度，資料不齊一樣會丟，丟了佇列同樣永遠停住、收尾那一項輪不到
+    let wait: number;
     try {
       item.play();
+      wait = resolveCombatMotionPresentationWait(item.wait);
     } catch (error) {
       console.error('連線演出失敗，跳過這一項', error);
       recoverPresentation();
       pumpRemotePresentation();
       return;
     }
-    const wait = resolveCombatMotionPresentationWait(item.wait);
     if (wait <= 0) { pumpRemotePresentation(); return; }
     const timer = window.setTimeout(() => {
       motionImpactTimers.delete(timer);
@@ -3380,7 +3387,8 @@ registerScreen('combat', (app, root, props) => {
     const finish = (): void => {
       if (app.cs !== cs) return;
       // 主機可能先判勝負才開始演最後一擊，換場前再看一次實際行程。
-      if ([...motionActors.values()].some((state) => state.active)) { window.setTimeout(finish, 80); return; }
+      // 不能只看 `active`：分頁在背景時畫面刷新回呼不跑、永遠收不掉（2026-09-23 稽核 低-1，規則見 `motionStillPlaying`）
+      if (motionStillPlaying(motionActors.values(), performance.now())) { window.setTimeout(finish, 80); return; }
       const linger = cs.phase === 'won'
         ? qiuqiuVictoryLinger(motionEnabled, cs.players.map((q) => heroOf(q)))
         : 0;
@@ -3632,7 +3640,9 @@ registerScreen('combat', (app, root, props) => {
       const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
       if (q && node) node.replaceWith(playerUnit(q));
     });
-    session.onApplied((applied) => {
+    /** 這一批動作的收尾交接（見下面外層的例外防護）：`finish`＝收尾那一支、`started`＝已經開始收了 */
+    type AppliedTurn = { finish?: (clearRemote?: boolean) => void; started?: boolean };
+    const onApplied = (applied: SequencedAction[], turn: AppliedTurn): void => {
       if (!applied.length || app.cs !== cs) return;
       unlockSend();   // 有東西套進去了＝路上那一下回來了
       const mine = applied.every((a) => 'seat' in a.a && a.a.seat === mySeat);
@@ -3663,6 +3673,8 @@ registerScreen('combat', (app, root, props) => {
         root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
       }
       const finishApplied = (clearRemote = true): void => {
+        if (turn.started) return;   // 只收一次：外層例外防護的退路可能再叫一次（見下面 `session.onApplied`）
+        turn.started = true;
         if (clearRemote) {
           remoteBefore = null;
           remoteCombatBefore = null;
@@ -3687,6 +3699,7 @@ registerScreen('combat', (app, root, props) => {
           }, wait);
         }
       };
+      turn.finish = finishApplied;   // 交給外層：下面準備演出時丟例外，外層照常收尾（2026-09-23 稽核 低-2）
 
       /*
        * 缺號補齊時 `ActionQueue` 會一次交回多張。引擎已經在真狀態全部算完，畫面不能把
@@ -3919,6 +3932,33 @@ registerScreen('combat', (app, root, props) => {
         recoverPresentation();
       }
       finishApplied();
+    };
+    /*
+     * 外面再包一道例外防護（2026-09-23 稽核 低-2）。
+     *
+     * 舉手齊了的那一刻，上面當場 `hold()` 住會話，要等 `finishApplied()` 收牌、演完魔物回合才 `release()`；
+     * 而中間準備演出參數的那一大段（`matePlays`、`motionForCard`、`prepareMelee`、`projectileForCard`、
+     * 批次重播的 `buildCombatMotionImpactPlan`…）原本只有最後幾行在 `try` 裡。缺圖、資料不齊丟一個例外，
+     * 這台就停在 held、不跑魔物回合，同伴下一回合的牌全在這邊排隊，兩台互等。
+     * 跟 2026-09-21 晚 中-4 同一套：狀態已經套進引擎了，演出只是畫面——記一行、收掉演出、照常收尾。
+     * 收尾本身壞了（或還沒走到定義收尾那一行）就直接放開：寧可同伴下一手在這邊套不進去、兩邊跳出紅色橫幅，也不要無聲互等。
+     */
+    session.onApplied((applied) => {
+      const turn: AppliedTurn = {};
+      try {
+        onApplied(applied, turn);
+      } catch (error) {
+        console.error('連線演出準備失敗，照常收尾', error);
+        recoverPresentation();
+        const finish = turn.started ? undefined : turn.finish;
+        try {
+          if (finish) finish();
+          else session.release();   // 收尾本身丟的例外，或還沒走到定義收尾那一行：沒辦法照常收，直接放開
+        } catch (again) {
+          console.error('連線收尾失敗，直接放開會話', again);
+          session.release();
+        }
+      }
     });
     session.onTrouble((why) => {
       // 分岔或斷線：**當場停下來講清楚**，不要讓兩個人繼續玩兩份不一樣的遊戲

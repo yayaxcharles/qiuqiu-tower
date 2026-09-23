@@ -169,7 +169,10 @@ export class CoopSession {
    * 不可以留著等下一場套（牌號每場都從牌組複製，下一場手上很可能真的有同一個號碼）。
    */
   attach(cs: CombatState | null): void {
-    if (cs && cs !== this.lastCs) { this.fight += 1; this.lastCs = cs; this.held = false; }
+    if (cs && cs !== this.lastCs) {
+      this.fight += 1; this.lastCs = cs; this.held = false;
+      if (!this.dead) this.tx.send({ m: 'here', f: this.fight });   // 告訴同伴我進場了（見 `mateHere`）
+    }
     // 這一場結束（`attach(null)`）也把暫停放掉（總稽核 B 中-3）：魔物回合演到一半有人倒下、
     // 畫面被 `afterCombat` 接手時，`runEnemyTurn` 跑不到尾巴的 `release()`，會話會一直停在 held；
     // 原本靠下一場 `attach(cs)` 順便復原，那是別支的副作用，不可靠
@@ -189,6 +192,14 @@ export class CoopSession {
    * 要在「最後一個人舉手」那一刻**同步**叫（`onApplied` 裡），不能晚一拍。演完一定要 `release()`。
    */
   hold(): void { this.held = true; }
+
+  /** 同伴宣布進場過的最新一場（`here` 訊息）。場次兩台數法一樣，所以直接跟 `fight` 比 */
+  private mateFight = 0;
+  /**
+   * 同伴也進到**現在這一場**的戰鬥畫面了嗎（2026-09-23 稽核 中-1）。
+   * 「替他收回合」的閒置計時從這一刻才起算；他還沒進場之前 `submit` 也不收替他收回合。
+   */
+  get mateHere(): boolean { return this.cs !== null && this.mateFight >= this.fight; }
   /** 演完了：把排隊的動作照順序套下去 */
   release(): void {
     this.held = false;
@@ -358,6 +369,8 @@ export class CoopSession {
   submit(a: CoopAction): boolean {
     if (this.dead || !this.cs || this.held) return false;   // 魔物回合演出中不收（見 `hold`）
     if (a.seat !== this.seat && a.t !== 'force') return false;   // 只能替自己做決定（強制收回合除外）
+    // 同伴還沒進場（還在看塔頂段落、關主開場）就替他收回合，他一進戰鬥第一回合就沒了（2026-09-23 稽核 中-1）
+    if (a.t === 'force' && !this.mateHere) return false;
     if (!canApply(this.cs, a)) return false;
     if (this.isHost) {
       const sa = (this.seq as Sequencer).assign(a);
@@ -556,6 +569,8 @@ export class CoopSession {
     // 不能拿它解鎖、更不能把剛送出的選牌當成沒算數而把視窗彈回來（審查 中-4）
     if (m.m === 'drop') { if (m.n >= this.sentReq) this.dropped?.(); return; }
     if (m.m === 'hint') { if (m.seat !== this.seat) this.hinted?.(m.seat, m.u); return; }   // 純提示，不碰狀態
+    // 同伴進場了（可能比我早，那時我這邊的場次還沒跟上；記最大的就好）
+    if (m.m === 'here') { this.mateFight = Math.max(this.mateFight, m.f); return; }
     // 整局那一條不需要戰鬥狀態，所以要擺在 cs 的檢查之前（商店、打盹點本來就沒有 cs）
     if (this.handleRun(m)) return;
     // 走格子的對帳也一樣沒有 cs。存起來等自己也走到那一格再比（見 `syncRun`）
