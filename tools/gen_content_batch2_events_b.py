@@ -226,7 +226,9 @@ def bear_cellar(p: P) -> dict[str, str]:
         'bear_cellar_r0': (
             f'{cellar} The bear has rolled over in its sleep and squashed {p.n} under its big round belly: only '
             f'{p.n}\'s head and one paw clutching the cloth bundle stick out from under the bear, {p.his} face squished '
-            f'in a funny way.{squash} The bear sleeps on peacefully.'),
+            f'in a funny way (both eyes squeezed shut the same way).{squash} The cloth bundle with its little gold glow '
+            f'must be CLEARLY VISIBLE, held tight in the paw that sticks out - {p.he} did get it. The bear sleeps on '
+            f'peacefully.'),
         'bear_cellar_r1': (
             f'{cellar} The bear sleeps sitting in the straw with the blanket now tucked neatly over its shoulders, '
             f'cuddling {p.n} in its arms like a teddy; {asleep}. With its other paw the bear pushes a small clay jar '
