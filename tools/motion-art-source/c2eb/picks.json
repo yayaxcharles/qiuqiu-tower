@@ -131,6 +131,78 @@
     "sha256": "76239a513c329ace69877f094f0fc0999bf92b0065f9fc25c8f2bbfbae6b4135",
     "at": "2026-09-23 21:10:11"
   },
+  "event_dangdang_rat_bathhouse": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_rat_bathhouse",
+    "file": "public/assets/bg/event_dangdang_rat_bathhouse.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 53028,
+    "droppedSpecks": 194,
+    "semiTransparentShare": 0.0249,
+    "gate": [
+      "透明的地方只有 29%，背景可能被畫進去了"
+    ],
+    "sha256": "326d184f35a44cff9ebf3de3c2a58f13775de0ec6b49616c4118e7489c705c04",
+    "at": "2026-09-23 21:13:33"
+  },
+  "event_dangdang_rat_bathhouse_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_rat_bathhouse_r0",
+    "file": "public/assets/bg/event_dangdang_rat_bathhouse_r0.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r0",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46948,
+    "droppedSpecks": 160,
+    "semiTransparentShare": 0.0233,
+    "gate": [
+      "透明的地方只有 29%，背景可能被畫進去了"
+    ],
+    "sha256": "b95bbc5cd050799384cd5bfaf9bd74dbd253fd282decfe760784386617549439",
+    "at": "2026-09-23 21:13:45"
+  },
+  "event_dangdang_rat_bathhouse_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_rat_bathhouse_r1",
+    "file": "public/assets/bg/event_dangdang_rat_bathhouse_r1.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r1",
+    "hero": "dangdang",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 54274,
+    "droppedSpecks": 123,
+    "semiTransparentShare": 0.0244,
+    "gate": [
+      "透明的地方只有 29%，背景可能被畫進去了"
+    ],
+    "sha256": "0e2fc77838017f2e5504296699b1cac361c84ebe7f7b6740d8140b7d8672d02b",
+    "at": "2026-09-23 21:13:57"
+  },
   "event_feifei_cell_bandit": {
     "attempt": 1,
     "key": "bg/event_feifei_cell_bandit",
@@ -197,6 +269,78 @@
     "sha256": "0bfb7a3db99f0694349f5c5f17ee6a6237f566e83d2ad6d0191ee4ec2ad39fe4",
     "at": "2026-09-23 21:10:07"
   },
+  "event_feifei_rat_bathhouse": {
+    "attempt": 1,
+    "key": "bg/event_feifei_rat_bathhouse",
+    "file": "public/assets/bg/event_feifei_rat_bathhouse.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 60770,
+    "droppedSpecks": 103,
+    "semiTransparentShare": 0.0263,
+    "gate": [
+      "透明的地方只有 22%，背景可能被畫進去了"
+    ],
+    "sha256": "eb4db7fd5ae4d94abfc0f6c253287ff61db0df83d12df409d2452db419295e2c",
+    "at": "2026-09-23 21:13:29"
+  },
+  "event_feifei_rat_bathhouse_r0": {
+    "attempt": 1,
+    "key": "bg/event_feifei_rat_bathhouse_r0",
+    "file": "public/assets/bg/event_feifei_rat_bathhouse_r0.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r0",
+    "hero": "feifei",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 56198,
+    "droppedSpecks": 89,
+    "semiTransparentShare": 0.0242,
+    "gate": [
+      "透明的地方只有 29%，背景可能被畫進去了"
+    ],
+    "sha256": "5864ae220da491aed7fb1d69241975930dd4e24a51e44e6e483db021399868c9",
+    "at": "2026-09-23 21:13:41"
+  },
+  "event_feifei_rat_bathhouse_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_rat_bathhouse_r1",
+    "file": "public/assets/bg/event_feifei_rat_bathhouse_r1.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r1",
+    "hero": "feifei",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50228,
+    "droppedSpecks": 81,
+    "semiTransparentShare": 0.0246,
+    "gate": [
+      "透明的地方只有 24%，背景可能被畫進去了"
+    ],
+    "sha256": "76f7e518bcb7c2771b0f2063b83fb59eb31fb62930be4d002b33e62f1c41c6e6",
+    "at": "2026-09-23 21:13:53"
+  },
   "event_fengfeng_cell_bandit": {
     "attempt": 1,
     "key": "bg/event_fengfeng_cell_bandit",
@@ -262,5 +406,143 @@
     "gate": [],
     "sha256": "02a32a31b669f992098a6d92f4dcd19ce40fc3813bb0295b98e3f991ffa5adf1",
     "at": "2026-09-23 21:10:15"
+  },
+  "event_fengfeng_rat_bathhouse": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_rat_bathhouse",
+    "file": "public/assets/bg/event_fengfeng_rat_bathhouse.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 53492,
+    "droppedSpecks": 75,
+    "semiTransparentShare": 0.0258,
+    "gate": [
+      "透明的地方只有 28%，背景可能被畫進去了"
+    ],
+    "sha256": "e25085179c62a3d6c294cba227768d9fbe06fb32cf548ddc3699ff160352fd49",
+    "at": "2026-09-23 21:13:37"
+  },
+  "event_fengfeng_rat_bathhouse_r0": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_rat_bathhouse_r0",
+    "file": "public/assets/bg/event_fengfeng_rat_bathhouse_r0.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r0",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 49776,
+    "droppedSpecks": 84,
+    "semiTransparentShare": 0.026,
+    "gate": [
+      "透明的地方只有 29%，背景可能被畫進去了"
+    ],
+    "sha256": "41efd62b5531c676fec7c083d758c93312e12d485d94e699cda985088db7978b",
+    "at": "2026-09-23 21:13:49"
+  },
+  "event_fengfeng_rat_bathhouse_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_rat_bathhouse_r1",
+    "file": "public/assets/bg/event_fengfeng_rat_bathhouse_r1.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r1",
+    "hero": "fengfeng",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 52182,
+    "droppedSpecks": 130,
+    "semiTransparentShare": 0.0225,
+    "gate": [
+      "透明的地方只有 26%，背景可能被畫進去了"
+    ],
+    "sha256": "37726ca2bdf570c247fe6d3aefd7255287dd00270f5e792295b5cccd1e6a27dc",
+    "at": "2026-09-23 21:14:02"
+  },
+  "event_rat_bathhouse": {
+    "attempt": 1,
+    "key": "bg/event_rat_bathhouse",
+    "file": "public/assets/bg/event_rat_bathhouse.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46692,
+    "droppedSpecks": 59,
+    "semiTransparentShare": 0.0256,
+    "gate": [],
+    "sha256": "d5b627b66bca558f10fd88c6dd939e9226237ea42c8fa941f1e7efa2e486282f",
+    "at": "2026-09-23 21:12:37"
+  },
+  "event_rat_bathhouse_r0": {
+    "attempt": 1,
+    "key": "bg/event_rat_bathhouse_r0",
+    "file": "public/assets/bg/event_rat_bathhouse_r0.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r0",
+    "hero": "ninja",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 45054,
+    "droppedSpecks": 44,
+    "semiTransparentShare": 0.0246,
+    "gate": [],
+    "sha256": "efd0807b7a207b482f98606447d1eb5439752f19994858b3f7d5d5a17c68058b",
+    "at": "2026-09-23 21:12:41"
+  },
+  "event_rat_bathhouse_r1": {
+    "attempt": 1,
+    "key": "bg/event_rat_bathhouse_r1",
+    "file": "public/assets/bg/event_rat_bathhouse_r1.webp",
+    "event": "rat_bathhouse",
+    "stem": "rat_bathhouse_r1",
+    "hero": "ninja",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 49490,
+    "droppedSpecks": 136,
+    "semiTransparentShare": 0.0245,
+    "gate": [],
+    "sha256": "6fbc9bcdbfcdd74804b80a3fd9fb35892f984eca8a1928f3a8db45bdff42aeac",
+    "at": "2026-09-23 21:12:46"
   }
 }

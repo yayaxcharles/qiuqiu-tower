@@ -678,6 +678,11 @@ def pick(name: str, attempt: int, force: bool = False) -> None:
     errs = c1.gate(name, raw)
     if errs and not force:
         raise SystemExit(f'{name} 第 {attempt} 次沒過閘門：' + '；'.join(errs))
+    # `--force` 只放行「透明比例 20～30%」這一種：這一批的場景（牢房、澡堂、書庫）本來就比第一批大，
+    # 既有事件圖也有 20% 的（`event_dangdang_seclusion`）。四角不透明、主體碰邊一律不收，那兩種是真的壞。
+    transparent = float((np.array(raw)[..., 3] == 0).mean())
+    if errs and (len(errs) > 1 or not errs[0].startswith('透明的地方只有') or transparent < .2):
+        raise SystemExit(f'{name} 第 {attempt} 次的閘門問題不能硬收：' + '；'.join(errs))
     cleaned, dropped = c1.clean(raw, .0015)
     out_img = c1.fit_event(cleaned)
     target = BG / f'{name}.webp'
@@ -758,7 +763,7 @@ def main() -> None:
     k = sub.add_parser('pick')
     k.add_argument('name')
     k.add_argument('attempt', type=int)
-    k.add_argument('--force', action='store_true', help='閘門沒過也收（要在報告寫原因）')
+    k.add_argument('--force', action='store_true', help='透明比例 20～30% 也收（只放行這一種；要在報告寫原因）')
     s = sub.add_parser('sheet')
     s.add_argument('event')
     s.add_argument('out_dir')
