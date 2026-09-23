@@ -4,6 +4,7 @@ import * as DIALOGUE from '../../src/content/dialogue';
 import * as FENGFENG from '../../src/content/fengfeng-dialogue';
 import * as EVENT_TEXT from '../../src/content/event-text';
 import MAIN_RAW from '../../src/main.ts?raw';
+import LOADER_RAW from '../../src/ui/event-loader.ts?raw';
 
 /*
  * 事件文字分包（2026-09-23 內容擴充第〇批 0-1）。
@@ -14,6 +15,7 @@ import MAIN_RAW from '../../src/main.ts?raw';
  * 只有 `tools/check_size.py` 的數字悄悄漲回去。這裡照原始碼把主程式的靜態匯入走一遍，碰到就紅。
  */
 const MAIN = MAIN_RAW.replace(/\r\n/g, '\n');
+const LOADER = LOADER_RAW.replace(/\r\n/g, '\n');
 
 function resolve(from: string, spec: string): string | null {
   if (!spec.startsWith('.')) return null;   // 套件
@@ -69,8 +71,19 @@ describe('事件文字與事件畫面不在首載', () => {
     expect(graph.has('src/ui/screens/event.ts'), '事件畫面被靜態匯入了').toBe(false);
   });
 
+  it('事件文案只有事件畫面直接引用：打包才會跟事件畫面併成同一塊，下載失敗換網址重試時只有一個網址（推前審查 低-1）', () => {
+    const importers = [...staticGraph('src/ui/screens/debug.ts'), ...graph]
+      .filter((f) => f !== 'src/content/event-text.ts' && f !== 'src/ui/screens/event.ts')
+      .filter((f) => /from\s+'[^']*content\/event-text'/.test(readFileSync(f, 'utf-8')));
+    expect([...new Set(importers)]).toEqual([]);   // 首載與除錯總覽都不直接引用
+    expect(readFileSync('src/ui/screens/event.ts', 'utf-8')).toMatch(/from '\.\.\/\.\.\/content\/event-text'/);
+    expect(readFileSync('src/ui/screens/debug.ts', 'utf-8')).toContain("from './event';");
+  });
+
   it('事件畫面登記成延後載入', () => {
-    expect(MAIN).toContain("registerLazyScreen('event', () => import('./ui/screens/event')");
+    // 2026-09-23 推前審查 低-1 起經由 event-loader（失敗換網址參數重抓），那支用動態載入拿事件畫面
+    expect(MAIN).toContain("registerLazyScreen('event', loadEventScreen, ");
+    expect(LOADER).toContain("import('./screens/event')");
     expect(MAIN).not.toMatch(/^import '\.\/ui\/screens\/event';/m);
   });
 

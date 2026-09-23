@@ -12,6 +12,7 @@ import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { preloadMapEvents } from '../preload';
+import { loadEventScreen } from '../event-loader';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { notice } from '../dialogue';
@@ -405,6 +406,7 @@ registerScreen('map', (app, root) => {
 
   // 事件畫面（連同角色事件文案）與這張地圖排到的事件主圖先在背景抓（2026-09-23 內容擴充 0-1、0-2）：
   // 走進事件格時通常已經好了，`app.ts` 的 `enterEvent` 就不用等。抓失敗不要緊，走進去時會再要一次
-  void import('./event').catch(() => undefined);
+  // （走 `event-loader.ts`：這裡失敗了，下一次會換網址參數重抓，不會被瀏覽器記住的失敗卡死——推前審查 低-1）
+  void loadEventScreen().catch(() => undefined);
   void preloadMapEvents(run);
 });

@@ -38,13 +38,13 @@ interface Fake {
 
 async function harness(load: Promise<unknown>, warm: Promise<void>) {
   const calls: string[] = [];
-  const body = method('  private enterEvent(eventId: string | undefined): void {')
-    .replace("import('./screens/event')", 'loadEvent()');
-  expect(body, '畫面模組要在這一支裡等（換成可控的 Promise 才測得到）').toContain('loadEvent()');
+  const body = method('  private enterEvent(eventId: string | undefined): void {');
+  expect(body, '畫面模組要在這一支裡等（`loadEventScreen` 換成可控的 Promise 才測得到）').toContain('loadEventScreen()');
   const js = (await transformWithOxc(`class A { run: unknown = null; coop: unknown = null; fightPending = false; stage: unknown; screen: unknown; show: unknown; ${body} }\nreturn A;`, 'enter.ts')).code;
-  const A = new Function('warmEventArt', 'loadEvent', 'window', js)(
+  const A = new Function('warmEventArt', 'loadEventScreen', 'EVENT_SCREEN_WAIT_MS', 'window', js)(
     (_run: unknown, id: string) => { calls.push(`warm:${id}`); return warm; },
     () => { calls.push('load'); return load; },
+    10_000,
     { setTimeout: (fn: () => void, ms: number) => setTimeout(fn, ms), clearTimeout: (t: ReturnType<typeof setTimeout>) => clearTimeout(t) },
   ) as new () => Fake;
   const app = new A();
@@ -133,6 +133,17 @@ describe('走進事件格：畫面模組與主圖都到了才換畫面', () => {
     await flush();
     expect(app.show).toHaveBeenCalledExactlyOnceWith('event', { eventId: 'toll' });
   });
+
+  it('畫面模組卡住（一直沒回應）：最多等 10 秒就換過去，交給載入畫面接著等，不能永遠停在地圖上點不動（推前審查 低-1）', async () => {
+    const { app, cls } = await harness(new Promise(() => undefined), Promise.resolve());
+    app.enterEvent('toll');
+    await vi.advanceTimersByTimeAsync(9_999);
+    expect(app.show).not.toHaveBeenCalled();
+    expect(cls.has('fight-pending')).toBe(true);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(app.show).toHaveBeenCalledExactlyOnceWith('event', { eventId: 'toll' });
+    expect(cls.has('fight-pending')).toBe(false);
+  });
 });
 
 describe('接線', () => {
@@ -143,7 +154,9 @@ describe('接線', () => {
   });
 
   it('地圖畫面一出來就在背景先抓事件畫面與這張地圖的事件主圖', () => {
-    expect(MAP).toContain("void import('./event')");
+    // 走 event-loader（失敗會換網址參數重抓），不直接 `import('./event')`——那樣失敗一次就被瀏覽器記住（推前審查 低-1）
+    expect(MAP).toContain('void loadEventScreen().catch(() => undefined);');
+    expect(MAP).not.toContain("import('./event')");
     expect(MAP).toContain('void preloadMapEvents(run);');
   });
 });

@@ -5,7 +5,9 @@ import { actVariantKey } from '../screenbg';
 import { events } from '../../content/events';
 import { enemyNameFor } from '../../content/enemies';
 import { storyFor, dialogue, lineFor, FEIFEI_BOSS_LINES } from '../../content/dialogue';
-import { eventTextFor, FEIFEI_EVENT_LINES } from '../../content/event-text';
+// 經由事件畫面那一塊拿（2026-09-23 推前審查 低-1）：事件文案只有事件畫面直接引用，打包時才會跟事件畫面併成**同一塊**，
+// 下載失敗換網址參數重試時只有一個網址要換（見 `app.ts` 的 `loadEventScreen`）
+import { eventTextFor, FEIFEI_EVENT_LINES } from './event';
 import { registerScreen } from '../app';
 import { artUrl, eventArtKey, hasHeroSprite, heroArtUrl, setLocalHero, localHero } from '../assets';
 import { setSfxHero } from '../audio';
