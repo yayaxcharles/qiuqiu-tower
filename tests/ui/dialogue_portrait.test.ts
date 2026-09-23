@@ -44,8 +44,15 @@ describe('對白頭像', () => {
     const bytes = readFileSync(`public/assets/sprites/hero/${hero}_portrait.webp`);
     expect(new TextDecoder().decode(bytes.subarray(12, 16))).toBe('VP8X');
     const read24 = (at: number): number => bytes[at]! | (bytes[at + 1]! << 8) | (bytes[at + 2]! << 16);
+    const size = [1 + read24(24), 1 + read24(27)];
+    if (hero === 'dangdang') {
+      // 2026-09-23：他的待機圖集太小（第 1 格 167×240，框高 290 要放大、偏軟），改從選角那張新畫風待機靜態圖裁
+      //（同一個架式，tools/make_dialogue_portraits.py 的 STATIC_SOURCE），比框還高、不用放大
+      expect(size[1]).toBeGreaterThanOrEqual(300);
+      return;
+    }
     const [, , w, h] = (idle.actions.idle as { frames: { rect: number[] }[] }).frames[0]!.rect;
-    expect([1 + read24(24), 1 + read24(27)]).toEqual([w! + 12, h! + 12]);
+    expect(size).toEqual([w! + 12, h! + 12]);
   });
 
   it('其他說話者不動：塔主、黑貓忍者頭目照舊，旁白與村貓沒有臉', () => {

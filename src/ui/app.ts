@@ -563,7 +563,9 @@ export class App {
          */
         // 沒片子時自己切到結局曲（稽核 中-1）：原本靠影片收尾切，9/14 拿掉她的影片之後，
         // 整段結局幻燈片一直配著最終戰的戰鬥曲，點完進結算畫面才換
-        const endVideo = (go: () => void): void => ((me(run, this.seat).hero ?? 'ninja') === 'ninja' ? playVideo('ending', go) : (setBgm('ending'), go()));
+        // 連線局也不播（2026-09-23 美術盤點）：比照開場的 `video: false`——那支是球球單人的故事（只有他跟師父），
+        // 混搭局接著演的是兩人合演的結局，而且一台在看片、另一台乾等
+        const endVideo = (go: () => void): void => (!this.coop && (me(run, this.seat).hero ?? 'ninja') === 'ninja' ? playVideo('ending', go) : (setBgm('ending'), go()));
         endVideo(() => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
           else playDialogue(vic, () => this.show('result'), undefined, STORY_LITERAL);

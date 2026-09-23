@@ -114,6 +114,12 @@ JOBS: dict[str, tuple[str, Path, tuple[int, int, int, int] | None, int, str]] = 
                'the RIGHT: the biggest rock leads at the front right, the smaller ones follow slightly behind, chunky '
                'cartoon stones with light top faces and dark undersides, with a few short pale speed lines and a tiny '
                'puff of grey dust trailing behind on the left. No bag. The trail is small, the rocks stay the clear focus.'),
+    # 2026-09-23（批次 toss）：「忍術·拋爪」四張牌面都是甩出去的帶繩飛爪，原本飛出去的是針或什麼都沒有
+    'grapple': ('1536x1024', CARD / 'paozhao.webp', (0, 0, 160, 130), 128,
+                'ONE golden three-pronged GRAPPLING CLAW (a ninja grappling hook) flying prongs-first to the RIGHT: '
+                'three curved pointed gold hooks spread open at the front, a short gold shank with a ring at the back, '
+                'and a SHORT length of tan braided rope trailing behind the ring on the left (the rope ends after about '
+                'one claw-length, loose end fluttering), one thin pale speed streak along the rope.'),
 }
 
 _LOCK = threading.Lock()

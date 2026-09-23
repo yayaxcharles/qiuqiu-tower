@@ -23,30 +23,50 @@ function stillKey(hero: string | undefined, name: string): string {
   return `bg/${name}`;
 }
 
-type CoopStoryArt = { prologue: string; top: string; victory: string };
+/**
+ * 連線雙貓的劇情圖。鍵是 `coopStoryKey`（排序過的兩個角色），兩台機器配同一套圖。
+ * 序章與結局是一到兩張：一張就整段配它；兩張就照台詞標的 `slideBreak` 切（切點不夠或切出空段就整段退回純對白）。
+ * 沒寫的那一段（例如另外三組沒有塔頂那段台詞，就沒有 `top`）照舊退回純對白。
+ *
+ * 2026-09-20 只有封封三條有序章、塔頂、結局各一張，其他三組與封封的兩次過關都退回純對白；
+ * 2026-09-23 補齊：球球＋菲菲、球球＋噹噹、噹噹＋菲菲各六張（序章 2、過關各 1、結局 2），
+ * 封封三條補兩次過關各 1（`tools/gen_coop_story_art.py`，每張照那一段台詞畫）。
+ */
+type CoopStoryArt = { prologue: readonly string[]; act1?: string; act2?: string; top?: string; victory: readonly string[] };
 
-/** 封封三條合作路線各自的序章、塔頂與結局圖；其他配對仍按原規則退回文字。 */
-const FENGFENG_COOP_ART: Readonly<Record<string, CoopStoryArt>> = {
-  'fengfeng+ninja': {
-    prologue: 'bg/fengfeng_coop_ninja_prologue',
-    top: 'bg/fengfeng_coop_ninja_top',
-    victory: 'bg/fengfeng_coop_ninja_victory',
-  },
-  'feifei+fengfeng': {
-    prologue: 'bg/fengfeng_coop_feifei_prologue',
-    top: 'bg/fengfeng_coop_feifei_top',
-    victory: 'bg/fengfeng_coop_feifei_victory',
-  },
-  'dangdang+fengfeng': {
-    prologue: 'bg/fengfeng_coop_dangdang_prologue',
-    top: 'bg/fengfeng_coop_dangdang_top',
-    victory: 'bg/fengfeng_coop_dangdang_victory',
-  },
+const coopPairArt = (hero: string, partner: string): CoopStoryArt => {
+  const k = (part: string): string => `bg/${hero}_coop_${partner}_${part}`;
+  return { prologue: [k('prologue1'), k('prologue2')], act1: k('act1'), act2: k('act2'), victory: [k('victory1'), k('victory2')] };
+};
+const fengfengPairArt = (partner: string): CoopStoryArt => {
+  const k = (part: string): string => `bg/fengfeng_coop_${partner}_${part}`;
+  return { prologue: [k('prologue')], act1: k('act1'), act2: k('act2'), top: k('top'), victory: [k('victory')] };
 };
 
-function fengfengCoopArt(hero: string | undefined): CoopStoryArt | undefined {
+const COOP_ART: Readonly<Record<string, CoopStoryArt>> = {
+  'fengfeng+ninja': fengfengPairArt('ninja'),
+  'feifei+fengfeng': fengfengPairArt('feifei'),
+  'dangdang+fengfeng': fengfengPairArt('dangdang'),
+  'feifei+ninja': coopPairArt('feifei', 'ninja'),
+  'dangdang+ninja': coopPairArt('dangdang', 'ninja'),
+  'dangdang+feifei': coopPairArt('dangdang', 'feifei'),
+};
+
+function coopArtFor(hero: string | undefined): CoopStoryArt | undefined {
   const key = coopStoryKey(hero);
-  return key === null ? undefined : FENGFENG_COOP_ART[key];
+  return key === null ? undefined : COOP_ART[key];
+}
+
+/** 照 `slideBreak` 把台詞分給這幾張圖（多出來的切點併進最後一張）；分不齊回空陣列＝退回純對白 */
+function coopSlides(imgs: readonly string[], lines: DialogueLine[]): Slide[] {
+  if (!lines.length) return [];
+  const groups: DialogueLine[][] = [[]];
+  for (const l of lines) {
+    groups[groups.length - 1]!.push(l);
+    if (l.slideBreak && groups.length < imgs.length) groups.push([]);
+  }
+  if (groups.length < imgs.length || groups.some((g) => g.length === 0)) return [];
+  return imgs.map((img, i) => ({ img, lines: groups[i]! }));
 }
 
 /**
@@ -57,11 +77,8 @@ function fengfengCoopArt(hero: string | undefined): CoopStoryArt | undefined {
  *（稽核 範圍外-2）。改回舊的做法：最後一張 `slice(3)`。
  */
 export function prologueSlides(hero: string | undefined): Slide[] {
-  const coopArt = fengfengCoopArt(hero);
-  if (coopArt) {
-    const pro = storyFor(hero).prologue;
-    return pro.length ? [{ img: coopArt.prologue, lines: pro }] : [];
-  }
+  const coopArt = coopArtFor(hero);
+  if (coopArt) return coopSlides(coopArt.prologue, storyFor(hero).prologue);
   if (hasCoopScene(hero)) return [];
   const pro = storyFor(hero).prologue;
   // 第三張各家不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」，
@@ -115,12 +132,14 @@ function groupsAtBreaks(lines: DialogueLine[], n: number): DialogueLine[][] | nu
  * 而那些圖全都在倉裡，於是 `slidesReady` 回 true，兩隻貓的對話就被鋪到
  * 「一隻貓自己站在那裡」的圖上——第一關過關詞寫「球球在樓梯旁找到糧箱，抱起來晃了晃」，
  * 圖裡根本沒有球球。`stillKey` 的檔頭訂過規矩：**寧可少一段幻燈片，不要放別人的故事。**
- * 封封三條合作路線已有獨立圖，會由 `FENGFENG_COOP_ART` 接到序章、塔頂與結局；其他配對仍回退。
+ * 有專屬圖的連線配對（`COOP_ART`，2026-09-23 六組都有了）整段配那一張；沒有的仍回退。
  */
 export function actClearSlides(hero: string | undefined, act: number): Slide[] {
-  if (hasCoopScene(hero)) return [];
   const story = storyFor(hero);
   const lines = act === 1 ? story.actClear1 : story.actClear2;
+  const coopImg = act === 1 ? coopArtFor(hero)?.act1 : coopArtFor(hero)?.act2;
+  if (coopImg) return coopSlides([coopImg], lines);
+  if (hasCoopScene(hero)) return [];
   const names = act === 1
     ? ['still_act1_stairs', 'still_act1_fish', 'still_act1_climb']
     : ['still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs'];
@@ -134,13 +153,13 @@ export function actClearSlides(hero: string | undefined, act: number): Slide[] {
 
 /** 塔頂關主戰前的合作場景；單人路線沒有對應幻燈片，仍使用既有文字。 */
 export function topSceneSlides(hero: string | undefined): Slide[] {
-  const coopArt = fengfengCoopArt(hero);
+  const coopArt = coopArtFor(hero);
   const lines = storyFor(hero).topScene;
   if (!coopArt && hero === 'fengfeng') {
     return lines.length ? [{ img: 'bg/fengfeng_story_top', lines }] : [];
   }
-  if (!coopArt) return [];
-  return lines.length ? [{ img: coopArt.top, lines }] : [];
+  if (!coopArt?.top) return [];
+  return coopSlides([coopArt.top], lines);
 }
 
 /**
@@ -155,12 +174,12 @@ export function topSceneSlides(hero: string | undefined): Slide[] {
  * 而那些圖全都在倉裡，於是 `slidesReady` 回 true，兩隻貓的對話就被鋪到
  * 「一隻貓自己站在那裡」的圖上——第一關過關詞寫「球球在樓梯旁找到糧箱，抱起來晃了晃」，
  * 圖裡根本沒有球球。`stillKey` 的檔頭訂過規矩：**寧可少一段幻燈片，不要放別人的故事。**
- * 封封三條合作路線的結局圖與序章、塔頂圖同一路由，其他配對仍不借用單人圖。
+ * 連線配對的結局圖與序章、塔頂圖同一路由（`COOP_ART`），不借用單人圖。
  */
 export function endingSlides(hero: string | undefined, deckIds: string[], difficulty: number): Slide[] {
   const vic = victoryLinesFor(deckIds, difficulty, hero);
-  const coopArt = fengfengCoopArt(hero);
-  if (coopArt) return vic.length ? [{ img: coopArt.victory, lines: vic }] : [];
+  const coopArt = coopArtFor(hero);
+  if (coopArt) return coopSlides(coopArt.victory, vic);
   if (hasCoopScene(hero)) return [];
   const cut = Math.max(1, vic.findIndex((l) => l.slideBreak) + 1);
   if (hero === 'fengfeng') {

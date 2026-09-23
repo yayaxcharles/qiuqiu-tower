@@ -134,19 +134,12 @@
 /* 主角的框開寬一點：新立繪的畫布是 758×817（含最寬的出招姿勢），
    用 240 寬會以寬度為準縮小，上面白留一截；270 才把高度吃滿。 */
 .combat .unit.player .sprite { width: 270px; height: 300px; }
-/* 封封狀態圖的透明底邊不等高；補到同一腳底線，不拉伸身體或覆寫呼吸／受擊。 */
-.combat .unit.player .sprite[src*="/fengfeng_dizzy_clean"],
-.combat .unit.player .sprite[src*="/fengfeng_belly_clean"] { translate: 0 13.5px; }
-.combat .unit.player .sprite[src*="/fengfeng_choke_clean"] { translate: 0 24.1071px; }
-.combat .unit.player .sprite[src*="/fengfeng_lazy_clean"] { translate: 0 3.375px; }
-.combat .unit.player .sprite[src*="/fengfeng_puff_clean"] { translate: 0 17.8393px; }
-.combat .unit.player .sprite[src*="/fengfeng_stealth"] { translate: 0 75.2143px; }
+/* 封封狀態圖的透明底邊不等高；補到同一腳底線，不拉伸身體或覆寫呼吸／受擊。
+   2026-09-23：翻肚、中毒、懶洋洋、炸毛、隱身、鐵布衫、挨打、掛彩、氣勢換成從新版逐格動作裁的圖
+   （tools/pack_static_from_motion.py），底邊一律貼畫布底，那幾條位移拿掉；剩下這四張是 09-22 換的，底邊照舊圖。 */
+.combat .unit.player .sprite[src*="/fengfeng_dizzy_clean"] { translate: 0 13.5px; }
 .combat .unit.player .sprite[src*="/fengfeng_down"] { translate: 0 77.625px; }
-.combat .unit.player .sprite[src*="/fengfeng_idle"],
-.combat .unit.player .sprite[src*="/fengfeng_iron"] { translate: 0 13.0179px; }
-.combat .unit.player .sprite[src*="/fengfeng_hit"] { translate: 0 10.125px; }
-.combat .unit.player .sprite[src*="/fengfeng_hurt"] { translate: 0 14.4643px; }
-.combat .unit.player .sprite[src*="/fengfeng_power"] { translate: 0 23.1429px; }
+.combat .unit.player .sprite[src*="/fengfeng_idle"] { translate: 0 13.0179px; }
 .combat .unit.player .sprite[src*="/fengfeng_lose"] { translate: 0 12.5357px; }
 .combat .unit.size-small .sprite { width: 130px; height: 150px; }
 .combat .unit.size-medium .sprite { width: 180px; height: 210px; }

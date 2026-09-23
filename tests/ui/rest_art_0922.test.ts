@@ -18,6 +18,7 @@ interface Entry {
 }
 const RECORD = JSON.parse(readFileSync('tools/motion-art-source/rest/record.json', 'utf8')) as Record<string, Entry>;
 const MANIFEST = JSON.parse(readFileSync('public/assets/manifest.json', 'utf8')) as { icons: Record<string, string>; sprites: Record<string, string> };
+const STATICS = JSON.parse(readFileSync('docs/static-from-motion-assets.json', 'utf8')) as { assets: unknown[] };
 const HEROES = ['ninja', 'feifei', 'dangdang', 'fengfeng'] as const;
 const REST_POSES = ['curl', 'nap', 'sharpen', 'helpup', 'down'] as const;
 const GENERATED = new Set(['nap', 'sharpen', 'helpup']);
@@ -41,7 +42,17 @@ describe('批次 rest：換新畫風的圖都是閘門量過的那一版', () =>
       'public/assets/icons/relic_copper_bracer.webp',
     ];
     for (const file of want) expect(RECORD[file], file).toBeDefined();
-    for (const entry of Object.values(RECORD)) expect(sha(entry.file), entry.file).toBe(entry.sha256);
+    // 封封去殘渣那三張立繪（出招、閃避、輕功）2026-09-23 被批次 statics 整張換成新畫風，改由 static_from_motion.test.ts 守雜湊
+    const replaced = new Set((STATICS.assets as { file: string }[]).map((a) => `public/${a.file}`));
+    for (const entry of Object.values(RECORD)) {
+      if (replaced.has(entry.file)) continue;
+      expect(sha(entry.file), entry.file).toBe(entry.sha256);
+    }
+    expect([...replaced].filter((file) => RECORD[file]).sort()).toEqual([
+      'public/assets/sprites/hero/fengfeng_claw.webp',
+      'public/assets/sprites/hero/fengfeng_dodge.webp',
+      'public/assets/sprites/hero/fengfeng_qinggong.webp',
+    ]);
     expect(Object.keys(RECORD).length).toBe(want.length + 11);
   });
 

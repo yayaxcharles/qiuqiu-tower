@@ -1,0 +1,62 @@
+[
+  {
+    "pose": "idle",
+    "attempt": 1,
+    "body": [
+      333,
+      458
+    ],
+    "heightShare": 0.996,
+    "darkShare": 0.963,
+    "bytes": 26358,
+    "sha256": "7da27f6b749bc189302f77095daface45c89bf673cf38de4d31a0f17261f22d7"
+  },
+  {
+    "pose": "attack",
+    "attempt": 1,
+    "body": [
+      458,
+      455
+    ],
+    "heightShare": 0.989,
+    "darkShare": 0.967,
+    "bytes": 31696,
+    "sha256": "83645d546e34465fc8c04c6d73d4c3784a8fe994494b9388d344841e450bbe41"
+  },
+  {
+    "pose": "hurt",
+    "attempt": 1,
+    "body": [
+      452,
+      458
+    ],
+    "heightShare": 0.996,
+    "darkShare": 0.964,
+    "bytes": 32628,
+    "sha256": "df0a9cd3621c96987c0cc068eb635283a6aae9cab4ea76a733e363e68d45f214"
+  },
+  {
+    "pose": "block",
+    "attempt": 1,
+    "body": [
+      328,
+      458
+    ],
+    "heightShare": 0.996,
+    "darkShare": 0.964,
+    "bytes": 28050,
+    "sha256": "a9702b6175b6fbd3fd2f52a39e39abbcc4792b76c222f7a8da5110bb29b10ea9"
+  },
+  {
+    "pose": "down",
+    "attempt": 1,
+    "body": [
+      458,
+      290
+    ],
+    "heightShare": 0.63,
+    "darkShare": 0.959,
+    "bytes": 19450,
+    "sha256": "eed7d255df4c17915bf8cc9d18d29382aec895ff975489f0f8af14337c99b34e"
+  }
+]

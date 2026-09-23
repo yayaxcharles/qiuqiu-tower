@@ -39,6 +39,8 @@ export type FeifeiMotionAction =
   | 'clone'
   // 2026-09-22 補的出牌動作：吼（含獅吼功）、太極
   | 'roar' | 'taiji'
+  // 2026-09-23 補的空手擲出（丟的不是針的牌與忍具：苦無、毒丸、毒砂、葉片、手裏劍、飛爪⋯⋯）
+  | 'toss'
   | CompanionRestStateAction
   | FeifeiNeedleAction;
 
@@ -47,6 +49,7 @@ export type DangdangMotionAction =
   | 'punch' | 'palm' | 'palm_throw' | 'kick' | 'shoulder' | 'counter' | 'ground_slam'
   | 'rapid_combo' | 'heavy_palm' | 'sweep_combo' | 'reckless_bash'
   | 'guard' | 'focus' | 'eat' | 'win' | 'defeat' | 'poison'
+  | 'toss'
   | CompanionRestStateAction;
 
 export type FengfengMotionAction =
@@ -56,6 +59,8 @@ export type FengfengMotionAction =
   | 'guard' | 'focus' | 'sheath' | 'eat' | 'win' | 'defeat' | 'poison'
   // 2026-09-22 補的出牌動作：吼（含獅吼功）、太極，劍都不出鞘
   | 'roar' | 'taiji'
+  // 2026-09-23 補的空手擲出，劍也不出鞘
+  | 'toss'
   | CompanionRestStateAction;
 
 export type CompanionMotionAction = FeifeiMotionAction | DangdangMotionAction | FengfengMotionAction;
@@ -68,7 +73,7 @@ export type CompanionCardMotionOptions = Readonly<{
   hasHeal?: boolean;
 }>;
 
-type TimedFrameMotion = FrameMotion & Readonly<{ impactTimes?: readonly number[] }>;
+type TimedFrameMotion = FrameMotion & Readonly<{ impactTimes?: readonly number[]; releaseTimes?: readonly number[] }>;
 
 const NATIVE_HEIGHT = 252;
 // 以下都是跟動作對拍的時間：motionMs() 括號裡是原速毫秒，跟動作資料一起換成 1.5 倍速（見 motion-speed.ts）
@@ -105,6 +110,11 @@ const throwAliases = (kind: 'dangdang' | 'fengfeng', actions: Readonly<Record<st
   ]));
 /** 丟東西的動作在第幾毫秒出手（已換成 1.5 倍速）；不是丟東西的動作回 undefined */
 export function companionThrowRelease(kind: CompanionMotionKind, action: string): number | undefined {
+  // 空手擲出（2026-09-23）三隻都有自己的圖，出手時點寫在動作資料裡（`releaseTimes`，載入時已換成 1.5 倍速）
+  if (action === 'toss') {
+    const motions = kind === 'feifei' ? feifeiMotions : kind === 'dangdang' ? dangdangMotions : fengfengMotions;
+    return motions.toss?.releaseTimes?.[0];
+  }
   if (kind === 'feifei') return undefined;
   const entry = COMPANION_THROW_SOURCE[kind][action];
   return entry ? motionMs(entry.release) : undefined;
@@ -135,7 +145,6 @@ const FEIFEI_GUARD_CARDS = new Set([
 ]);
 /** 共用牌在菲菲手上已改成針術；沿用針牌整身動作，但命中波數仍由戰鬥結算決定。 */
 const FEIFEI_SHARED_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleAction>> = {
-  paozhao: 'shuriken',
   roubao: 'needle_combo',
   lianhuan: 'needle_combo',
   huixuan: 'needle_fan',
@@ -145,21 +154,17 @@ const FEIFEI_SHARED_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleActi
   zuiquan: 'needle_fan',
   caiweiba: 'needle_venom',
   ehou: 'needle_venom',
-  // 2026-09-22 補（原本選不到動作）：點穴是一針扎穴、十二連環打全體三段跟「全撒了」同一路、
-  // 撒手鐧是一記飛出去的暗器（球球這張也是手裡劍）。這三張招式本身明確，所以逐張指定。
+  // 2026-09-22 補（原本選不到動作）：點穴是一針扎穴、十二連環打全體三段跟「全撒了」同一路。這兩張招式本身明確，所以逐張指定。
   dianxue: 'needle_pierce',
   shierlian: 'needle_barrage',
-  sashoujian: 'shuriken',
-  // 2026-09-22 晚：這三張原本刻意只演卡圖（毒丸、毒砂、繩索不是針），出牌時露出舊立繪。
-  // 改成配最像的出手：毒丸彈一彈、毒砂一把撒出去、絆索反手甩出去（飛出去的東西見 projectile-kinds.ts）
-  maoqiudan: 'shuriken',
-  tieshazhang: 'needle_fan',
+  // 2026-09-22 晚：絆索原本刻意只演卡圖（繩索不是針），改成反手甩出去——那一套手上是空的，甩繩圈對得上
   qinna: 'needle_backhand',
-  // 2026-09-22（批次 proj）：這兩張原本是近身爪擊（衝上去抓一下），但牌面畫的是她把葉片、手裏劍撒出去。
-  // 聚葉成刀打全體兩輪、用撒針那一套一把撒出去；手裏劍亂舞打全體兩輪、用連撒兩次的那一套
-  juye: 'needle_fan',
-  luanwu: 'storm',
 };
+/**
+ * 丟出去的不是針的牌（2026-09-23 美術盤點）：撒手鐧（苦無）、毒丸彈、毒砂（鐵砂掌）、聚葉成刀、手裏劍亂舞、拋爪（飛爪）。
+ * 09-22 借的是針術（彈針手上一根針、撒針手上三根針扇開），出手前手上的針跟飛出去的東西對不上，改成空手擲出。
+ */
+const FEIFEI_TOSS_CARDS: ReadonlySet<string> = new Set(['sashoujian', 'maoqiudan', 'tieshazhang', 'juye', 'luanwu', 'paozhao']);
 const EAT_CARDS = new Set(['touchi', 'xianshuile', 'guixi', 'tianmao', 'jiuming', 'fanpu']);
 
 const DANGDANG_CARD_ACTION: Readonly<Record<string, DangdangMotionAction>> = {
@@ -183,11 +188,13 @@ const DANGDANG_SHARED_GROUPS: Readonly<Record<DangdangMotionAction, readonly str
   palm: [
     'shengdong', 'shunshou', 'bangnidianyixia', 'wobangnishouwei', 'zhaonishuodeda',
     'jienideliqi', 'wozaizhe', 'susu', 'tieshazhang', 'luoye',
-    'paozhao', 'dieda', 'liandao', 'zhuiji',
+    'dieda', 'liandao', 'zhuiji',
   ],
-  // 丟出去的三張（2026-09-22，批次 proj）：原本跟著近身推掌衝上去拍一下，牌面畫的卻是葉片、木桶、毛球飛出去。
-  // 改成原地推掌、東西從手上飛出去（見 COMPANION_THROW_SOURCE）
-  palm_throw: ['juye', 'sashoujian', 'maoqiudan'],
+  // 丟出去的三張（2026-09-22，批次 proj）：原本跟著近身推掌衝上去拍一下，牌面畫的卻是葉片、木桶、毛球飛出去，
+  // 當晚先改成原地推掌、東西從手上飛出去（`palm_throw`，現在只當空手擲出還沒下載好時的替身）。
+  // 2026-09-23 改成空手擲出；拋爪（牌面是甩出去的飛爪，原本近身推掌）一起
+  palm_throw: [],
+  toss: ['juye', 'sashoujian', 'maoqiudan', 'paozhao'],
   punch: ['qinna', 'dianxue', 'zuiquan', 'bengquan', 'ehou', 'jiuweiquan'],
   kick: ['caiweiba', 'huixuan'],
   shoulder: ['shunkan', 'beici'],
@@ -238,7 +245,7 @@ const FEIFEI_MELEE = new Set<FeifeiMotionAction>(['attack1', 'kick']);
  * 2026-09-22 補的出牌動作（吼、太極）。比照待機狀態圖：不解碼預載，預載完才在背景下載並排進背景解開。
  * 吼、太極都是原地演出，不列近戰（菲菲的 `FEIFEI_MELEE`、封封的 `FENGFENG_ATTACKS` 都沒有它們）。
  */
-export const DEFERRED_COMPANION_CARD_ACTIONS: ReadonlySet<string> = new Set(['roar', 'taiji']);
+export const DEFERRED_COMPANION_CARD_ACTIONS: ReadonlySet<string> = new Set(['roar', 'taiji', 'toss']);
 export const DEFERRED_COMPANION_ACTIONS: ReadonlySet<string> = new Set([...DEFERRED_COMPANION_REST_ACTIONS, ...DEFERRED_COMPANION_CARD_ACTIONS]);
 const DANGDANG_WAVE_CROPPED_ACTIONS = new Set<string>(['rapid_combo', 'sweep_combo']);
 const FENGFENG_WAVE_CROPPED_ACTIONS = new Set<string>(['sword_combo']);
@@ -260,12 +267,13 @@ const FENGFENG_SHARED_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>
   liandao: 'sword_combo',
   // 2026-09-22 晚：這三張原本刻意只演卡圖（手裏劍、毛球、木桶都是丟出去的），出牌時露出舊立繪，
   // 當晚先配了橫掃、開山、吼。2026-09-22（批次 proj）飛行物接上之後改成：左手把東西丟出去、右手的劍接著刺
-  // （跟他丟忍具同一套，原地出手、不衝上前）。橫掃是衝上去掃，東西飛不出去；開山、吼的出手格沒有手伸出去。
-  // 聚葉成刀原本照攻擊牌規則衝上去平斬，牌面畫的是葉片飛出去，一起改。
-  luanwu: 'thrust_throw',
-  sashoujian: 'thrust_throw',
-  maoqiudan: 'thrust_throw',
-  juye: 'thrust_throw',
+  // （`thrust_throw`，現在只當空手擲出還沒下載好時的替身）。聚葉成刀原本照攻擊牌規則衝上去平斬，一起改。
+  // 2026-09-23 改成空手擲出（劍不出鞘）；拋爪（牌面是甩出去的飛爪，原本近身平斬）一起
+  luanwu: 'toss',
+  sashoujian: 'toss',
+  maoqiudan: 'toss',
+  juye: 'toss',
+  paozhao: 'toss',
 };
 const FENGFENG_ATTACKS = new Set<FengfengMotionAction>([
   'slash', 'sweep', 'heavy_slash', 'thrust', 'thrust_throw', 'double_slash',
@@ -451,12 +459,13 @@ export function companionCardMotionPlayable(kind: CompanionMotionKind, action: C
 
 /**
  * 延後下載的出牌動作圖（吼、太極）還沒到時，先用哪個預載好的動作頂著（2026-09-22 晚）。
- * 原本這時交還靜態立繪，網路慢一點就會露出舊畫風。菲菲用結印、封封用運氣（劍都不出鞘）；噹噹沒有延後的出牌動作。
+ * 原本這時交還靜態立繪，網路慢一點就會露出舊畫風。菲菲用結印、封封用運氣（劍都不出鞘）。
+ * 空手擲出（2026-09-23）頂著的是原本丟東西借的那套（同樣原地出手、東西從手上飛出去）：菲菲彈針、噹噹推掌、封封劍刺。
  */
 const DEFERRED_CARD_STAND_IN: Readonly<Record<CompanionMotionKind, Readonly<Record<string, CompanionMotionAction>>>> = {
-  feifei: { roar: 'seal', taiji: 'seal' },
-  dangdang: {},
-  fengfeng: { roar: 'focus', taiji: 'focus' },
+  feifei: { roar: 'seal', taiji: 'seal', toss: 'shuriken' },
+  dangdang: { toss: 'palm_throw' },
+  fengfeng: { roar: 'focus', taiji: 'focus', toss: 'thrust_throw' },
 };
 
 /** 出牌、用忍具時實際要播的動作：播得了就是它，延後下載的圖還沒到就換成替身。 */
@@ -579,6 +588,7 @@ export function companionCardAction(
     if (options.cardType) return 'focus';
     return undefined;
   }
+  if (FEIFEI_TOSS_CARDS.has(cardId)) return 'toss';
   const needle = FEIFEI_NEEDLE_CARD_ACTION[cardId] ?? FEIFEI_SHARED_NEEDLE_CARD_ACTION[cardId];
   if (needle) return needle;
   if (cardId === 'feifei_fenshen') return 'clone';

@@ -20,12 +20,14 @@ describe('連線的共用場景：寧可少一段幻燈片，不要放別人的�
     expect(endingSlides('ninja', [], 1).length).toBeGreaterThan(0);
   });
 
-  it('兩個不同角色一起爬時，過關與結局都退回純對白', () => {
-    // 噹噹＋球球是 `MIXED_SCENES` 裡真的寫了共用場景的那一組
+  it('兩個不同角色一起爬時，過關與結局只配連線圖，絕不借單人的圖', () => {
+    // 噹噹＋球球是 `MIXED_SCENES` 裡真的寫了共用場景的那一組。
+    // 2026-09-23 這一組有了自己的連線劇情圖（原本回空陣列、退回純對白）；清單裡沒有連線圖時的退路
+    // 改由 coop_story_art.test.ts 的「舊快取」那條守。這裡守的還是同一件事：不可以配到單人版的鍵。
     setCoopStory({ partner: 'ninja' });
-    expect(actClearSlides('dangdang', 1), '第一關過關').toEqual([]);
-    expect(actClearSlides('dangdang', 2), '第二關過關').toEqual([]);
-    expect(endingSlides('dangdang', [], 1), '結局').toEqual([]);
+    const imgs = [...actClearSlides('dangdang', 1), ...actClearSlides('dangdang', 2), ...endingSlides('dangdang', [], 1)].map((s) => s.img);
+    expect(imgs.length).toBeGreaterThan(0);
+    for (const img of imgs) expect(img, img).toMatch(/^bg\/dangdang_coop_ninja_/);
   });
 
   /*

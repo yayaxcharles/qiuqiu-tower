@@ -1180,7 +1180,8 @@ function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine
  * 她說「三天了，師兄也沒回來」，明明兩個人一起從 1F 進塔——連線盤點 問題 6）。
  *
  * **插圖**：沒有專屬幻燈片圖的配對，`slidesReady` 查不到就整段退回純對白
- *（`storyslides.ts` 本來就是這個規矩）；封封三條合作路線另有獨立序章、塔頂與結局圖。
+ *（`storyslides.ts` 本來就是這個規矩）；2026-09-23 起六組搭檔都有自己的連線劇情圖（`storyslides.ts` 的 `COOP_ART`），
+ * 序章與結局兩張圖的那三組靠這裡標的 `slideBreak` 分句。
  */
 const MIXED_SCENES: Readonly<Record<string, {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
@@ -1306,7 +1307,8 @@ const MIXED_SCENES: Readonly<Record<string, {
   'feifei+ninja': {
     prologue: [
       { speaker: '旁白', text: '那天夜裡，村外冒出一座魔塔。大俠貓的眼睛變成紫色，頭也不回地衝向塔頂。球球抓起藍頭巾就追了出去。' },
-      { speaker: '旁白', text: '菲菲在後面喊了他兩聲，他都沒有回頭。她只好抓起竹筒，一路追到塔下。' },
+      // 切點（2026-09-23）：前兩句配「村外夜裡一前一後追出去」、之後配「塔下說好一起進去」兩張連線劇情圖
+      { speaker: '旁白', text: '菲菲在後面喊了他兩聲，他都沒有回頭。她只好抓起竹筒，一路追到塔下。', slideBreak: true },
       { speaker: '菲菲', text: '師兄！我、我叫你好幾次了……你都沒聽見。' },
       { speaker: '球球', text: '師父跑進去了，我不能停下來喵。' },
       { speaker: '菲菲', text: '我知道……可是你一個人進去，我在外面會更怕。' },

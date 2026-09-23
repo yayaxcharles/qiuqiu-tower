@@ -3,7 +3,7 @@
   "scope": {
     "enemyDefinitions": 111,
     "monsterAppearanceGroups": 116,
-    "monsterStillImages": 501,
+    "monsterStillImages": 503,
     "bossStillImages": 23,
     "motionFrames": 39,
     "heroPhaseRoutes": 484
@@ -3560,7 +3560,7 @@
       "pose": "attack",
       "facing": "left",
       "reason": "",
-      "sha256": "af7d9a1f90dc440947b61faa32f0d760d06cbf647d6a9018dce85a4a669283c3",
+      "sha256": "83645d546e34465fc8c04c6d73d4c3784a8fe994494b9388d344841e450bbe41",
       "displayMirror": false
     },
     {
@@ -3569,7 +3569,7 @@
       "pose": "block",
       "facing": "left",
       "reason": "",
-      "sha256": "997116112c12d0ea870aef5267bb1f09d65b0acb40f6fda537e51e727137c8b4",
+      "sha256": "a9702b6175b6fbd3fd2f52a39e39abbcc4792b76c222f7a8da5110bb29b10ea9",
       "displayMirror": false
     },
     {
@@ -3578,7 +3578,7 @@
       "pose": "down",
       "facing": "lying",
       "reason": "down pose; direction not assessed",
-      "sha256": "d789233adfd8baaa9de23cb1fe316b8d5fc7b63a74bfb3071094dcab259371d8",
+      "sha256": "eed7d255df4c17915bf8cc9d18d29382aec895ff975489f0f8af14337c99b34e",
       "displayMirror": false
     },
     {
@@ -3587,7 +3587,7 @@
       "pose": "hurt",
       "facing": "left",
       "reason": "",
-      "sha256": "ece3869e6f7c31029779df6f7277faf3a711cb3f570109e245c19ab55153eab9",
+      "sha256": "df0a9cd3621c96987c0cc068eb635283a6aae9cab4ea76a733e363e68d45f214",
       "displayMirror": false
     },
     {
@@ -3596,7 +3596,7 @@
       "pose": "idle",
       "facing": "left",
       "reason": "",
-      "sha256": "2f469a448021acc91471e353824946e5a18f3a5991e6d9506bcd780072f2831d",
+      "sha256": "7da27f6b749bc189302f77095daface45c89bf673cf38de4d31a0f17261f22d7",
       "displayMirror": false
     },
     {
@@ -3912,6 +3912,24 @@
       "facing": "left",
       "reason": "",
       "sha256": "2ea96b8ffc551bc3565e0153f8bb000f17bfc90728f76a0d79b894318f44aa6e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_p2_hurt.webp",
+      "group": "stone_lion_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "2026-09-23 新進倉，逐張目視",
+      "sha256": "594386604fbeca5bdda01e1301c570dfbefad96bab19bc3bc309c4126a756156",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_p2_block.webp",
+      "group": "stone_lion_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "2026-09-23 新進倉，逐張目視",
+      "sha256": "446a3ae83cb6748286a734c86b43bf11936fe4e1641075b9956b6b5a21ee093a",
       "displayMirror": false
     },
     {

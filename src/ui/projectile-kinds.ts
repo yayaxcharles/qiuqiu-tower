@@ -17,7 +17,8 @@ export type ProjectileKind =
   | 'leaf' | 'kunai' | 'barrel'
   | 'furball_qiuqiu' | 'furball_dangdang' | 'furball_fengfeng'
   | 'poison_pill' | 'poison_sand' | 'snare_cord'
-  | 'hemp_rope' | 'firecracker' | 'smoke_bomb' | 'nip_ball' | 'bind_nail' | 'rubble';
+  | 'hemp_rope' | 'firecracker' | 'smoke_bomb' | 'nip_ball' | 'bind_nail' | 'rubble'
+  | 'grapple';
 
 /** 丟向誰：單體、全體、丟在自己腳邊（煙霧彈） */
 export type ProjectileAim = 'enemy' | 'all' | 'self';
@@ -42,9 +43,11 @@ export type ProjectileShot = Readonly<{
  * - 毛球彈：吐出來的毛球，顏色跟那一位的毛色一樣；菲菲那張叫「毒丸彈」，彈一顆毒丸。
  * - 撒手鐧：球球、菲菲的插圖是一把大苦無，噹噹、封封的是一個木桶。
  * - 菲菲改名的兩張：毒砂（鐵砂掌）撒一把毒砂、絆索（擒拿手）甩出一圈繩套。其餘三位那兩張是近身掌、拳，沒有東西飛。
+ * - 拋爪：四位的牌面都是甩出去的帶繩飛爪（2026-09-23；原本是近身招式或飛針）。
  * 菲菲其餘的針術牌飛針（`defaultProjectile`）。
  */
 const CARD_PROJECTILE: Readonly<Record<string, Readonly<Partial<Record<CombatMotionSource, ProjectileKind>>>>> = {
+  paozhao: { qiuqiu: 'grapple', feifei: 'grapple', dangdang: 'grapple', fengfeng: 'grapple' },
   juye: { qiuqiu: 'leaf', feifei: 'leaf', dangdang: 'leaf', fengfeng: 'leaf' },
   luanwu: { qiuqiu: 'shuriken', feifei: 'shuriken', fengfeng: 'shuriken' },
   maoqiudan: { qiuqiu: 'furball_qiuqiu', feifei: 'poison_pill', dangdang: 'furball_dangdang', fengfeng: 'furball_fengfeng' },
@@ -71,16 +74,20 @@ const POTION_PROJECTILE: Readonly<Record<string, ProjectileKind>> = {
 
 export const THROW_POTION_IDS: ReadonlySet<string> = new Set(Object.keys(POTION_PROJECTILE));
 
-/** 這個動作是不是「把東西丟出去」的那一套（出手格放出飛行物） */
+/** 這個動作是不是「把東西丟出去」的那一套（出手格放出飛行物）。空手擲出 `toss`（2026-09-23）四隻都算 */
 export function isThrowAction(source: CombatMotionSource, action: CombatMotionAction): boolean {
-  if (source === 'qiuqiu') return action === 'shuriken' || action === 'ultimate_storm';
-  if (source === 'feifei') return isFeifeiNeedleAction(action);
+  if (source === 'qiuqiu') return action === 'shuriken' || action === 'ultimate_storm' || action === 'toss';
+  if (source === 'feifei' && isFeifeiNeedleAction(action)) return true;
   return companionThrowRelease(source, action) !== undefined;
 }
 
-/** 沒有逐張指定時，這一套丟東西的動作飛什麼：球球的擲手裏劍飛手裏劍、菲菲的針術飛針；噹噹、封封沒有預設 */
+/**
+ * 沒有逐張指定時，這一套丟東西的動作飛什麼：球球的擲手裏劍飛手裏劍、菲菲的針術飛針；噹噹、封封沒有預設。
+ * 空手擲出沒有預設（2026-09-23）：它本來就是「手上看不出拿什麼」，飛什麼一定要牌或忍具指定——
+ * 沒指定就什麼都不飛（命中照動作時點演），不猜一個可能對不上的東西。
+ */
 export function defaultProjectile(source: CombatMotionSource, action: CombatMotionAction): ProjectileKind | undefined {
-  if (!isThrowAction(source, action)) return undefined;
+  if (!isThrowAction(source, action) || action === 'toss') return undefined;
   if (source === 'qiuqiu') return 'shuriken';
   if (source === 'feifei') return 'needle';
   return undefined;

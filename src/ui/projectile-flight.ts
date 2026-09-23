@@ -9,6 +9,7 @@ import {
 } from './feifei-needle-patterns';
 import { paintSingleNeedle, playFeifeiNeedles, SINGLE_NEEDLE_SIZE } from './feifei-needles';
 import { playQiuqiuShuriken, QIUQIU_SHURIKEN_FLIGHT_MS } from './qiuqiu-shuriken';
+import { qiuqiuImpactDelay, qiuqiuTossRelease } from './qiuqiu-motion';
 import type { ProjectileKind, ProjectileShot } from './projectile-kinds';
 import type { CombatMotionAction, CombatMotionSource } from './qiuqiu-combat-motion';
 
@@ -64,6 +65,8 @@ export const PROJECTILE_LOOKS: Readonly<Record<ProjectileKind, Look>> = {
   nip_ball: { src: art('nip_ball'), width: 58, height: 37, spin: 0, arc: 50 },
   bind_nail: { src: art('bind_nail'), width: 56, height: 28, spin: 0 },
   rubble: { src: art('rubble'), width: 64, height: 32, spin: 0, wobble: 6, arc: 44 },
+  // 拋爪的帶繩飛爪（2026-09-23）：長條、爪尖朝前，微微甩動
+  grapple: { src: art('grapple'), width: 60, height: 32, spin: 0, wobble: 5, arc: 20 },
 };
 
 /** 球球擲出去的手（相對腳底定位點；原本寫死在 combat.ts 的 throwFrom） */
@@ -77,6 +80,16 @@ export const COMPANION_THROW_ORIGIN: Readonly<Record<'dangdang' | 'fengfeng', Po
   dangdang: { x: 110, y: -155 },
   fengfeng: { x: 112, y: -120 },
 };
+/**
+ * 空手擲出（`toss`，2026-09-23）出手那一格（第 4 格）張開的手掌：最前面 14 單位那一截的重心，
+ * 量法同上（逐格畫布以 252 單位＝252 舞台像素畫）。換了動作圖就要重量——測試核對圖檔雜湊。
+ */
+export const TOSS_ORIGIN: Readonly<Record<CombatMotionSource, Point>> = {
+  qiuqiu: { x: 121, y: -126 },
+  feifei: { x: 127, y: -108 },
+  dangdang: { x: 119, y: -138 },
+  fengfeng: { x: 121, y: -138 },
+};
 
 /** 這一套丟東西的動作第 wave 波從哪裡放出去（相對腳底）、飛多久；不是丟東西的動作回 undefined */
 export function throwLaunch(
@@ -84,6 +97,13 @@ export function throwLaunch(
   action: CombatMotionAction,
   wave = 0,
 ): Readonly<{ origin: Point; flightMs: number }> | undefined {
+  // 空手擲出：出手時點寫在各自的動作資料裡，飛多久＝命中－出手（四隻同一條算法）
+  if (action === 'toss') {
+    const release = source === 'qiuqiu' ? qiuqiuTossRelease() : companionThrowRelease(source, action);
+    if (release === undefined) return undefined;
+    const impact = source === 'qiuqiu' ? qiuqiuImpactDelay('toss') : companionImpactDelay(source, action as CompanionMotionAction);
+    return { origin: TOSS_ORIGIN[source], flightMs: impact - release };
+  }
   if (source === 'qiuqiu') {
     return action === 'shuriken' || action === 'ultimate_storm'
       ? { origin: QIUQIU_THROW_ORIGIN, flightMs: QIUQIU_SHURIKEN_FLIGHT_MS }

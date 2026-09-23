@@ -36,6 +36,7 @@ import {
   type CompanionMotionKind,
 } from '../../src/ui/companion-motion';
 import { potionMotionAction } from '../../src/ui/potion-motion';
+import { isFeifeiNeedleAction } from '../../src/ui/feifei-needle-patterns';
 import {
   cardProjectile,
   isThrowAction,
@@ -56,26 +57,39 @@ const HEROES: readonly { hero: Hero; source: Source }[] = [
 
 /** 遠程牌 × 四隻貓飛什麼（照每位自己那張牌面插圖）；null＝這一位那張是近身出招、什麼都不飛 */
 const CARD_EXPECT: Readonly<Record<Source, Readonly<Record<string, ProjectileKind | null>>>> = {
+  // 拋爪：四位的牌面都是甩出去的帶繩飛爪（2026-09-23 批次 toss；原本球球、噹噹、封封近身出招，菲菲飛針）
   qiuqiu: {
     juye: 'leaf', luanwu: 'shuriken', 'luanwu+': 'shuriken', maoqiudan: 'furball_qiuqiu', sashoujian: 'kunai',
-    tieshazhang: null, qinna: null,
+    paozhao: 'grapple', tieshazhang: null, qinna: null,
   },
   feifei: {
     juye: 'leaf', luanwu: 'shuriken', maoqiudan: 'poison_pill', sashoujian: 'kunai',
-    tieshazhang: 'poison_sand', qinna: 'snare_cord',
+    tieshazhang: 'poison_sand', qinna: 'snare_cord', paozhao: 'grapple',
     // 她自己的針術牌、改成針術的共用牌照舊飛針
-    feifei_feizhen: 'needle', feifei_zhenyu: 'needle', feifei_quansale: 'needle', paozhao: 'needle', dianxue: 'needle',
+    feifei_feizhen: 'needle', feifei_zhenyu: 'needle', feifei_quansale: 'needle', dianxue: 'needle',
   },
   dangdang: {
-    juye: 'leaf', maoqiudan: 'furball_dangdang', sashoujian: 'barrel',
+    juye: 'leaf', maoqiudan: 'furball_dangdang', sashoujian: 'barrel', paozhao: 'grapple',
     // 他那張叫「橫掃千軍」，是掃堂帶過一圈（使用者 2026-09-17 改的名），沒有東西飛
     luanwu: null, tieshazhang: null, qinna: null,
   },
   fengfeng: {
-    juye: 'leaf', luanwu: 'shuriken', maoqiudan: 'furball_fengfeng', sashoujian: 'barrel',
+    juye: 'leaf', luanwu: 'shuriken', maoqiudan: 'furball_fengfeng', sashoujian: 'barrel', paozhao: 'grapple',
     tieshazhang: null, qinna: null,
   },
 };
+
+/**
+ * 出手前手上畫的東西（2026-09-23 美術盤點）：球球的擲手裏劍第 2、4 格手上是一枚手裏劍，
+ * 菲菲的彈針、撒針手上是針；空手擲出（`toss`）與菲菲的反手甩（`needle_backhand`）手上是空的。
+ * 其餘不在這張表的丟東西動作（噹噹推掌、封封劍刺）都只准當空手擲出還沒下載好時的替身。
+ */
+function heldInHand(source: Source, action: string): ProjectileKind | 'empty' | 'borrowed' {
+  if (action === 'toss') return 'empty';
+  if (source === 'qiuqiu') return action === 'shuriken' || action === 'ultimate_storm' ? 'shuriken' : 'borrowed';
+  if (source === 'feifei') return action === 'needle_backhand' ? 'empty' : isFeifeiNeedleAction(action) ? 'needle' : 'borrowed';
+  return 'borrowed';
+}
 
 /** 丟出去的忍具飛什麼（四位一樣）；列在後面的不是丟的，什麼都不飛 */
 const POTION_EXPECT: Readonly<Record<string, ProjectileKind | null>> = {
@@ -177,6 +191,44 @@ describe('遠程牌 × 四隻貓：各飛各的東西', () => {
       }
     }
     expect(empty).toEqual([]);
+  });
+});
+
+describe('出手前手上拿的東西跟飛出去的對得上（2026-09-23 美術盤點 A1～A5）', () => {
+  // 圖都到了（延後下載的空手擲出已經載好）：選到的一定是正式動作，不是替身
+  it.each(HEROES)('$hero：每張牌、每支忍具，手上不是空的就一定跟飛出去的同一種東西', async ({ hero, source }) => {
+    const c = await combat();
+    const bad: string[] = [];
+    const judge = (label: string, action: string | undefined, kind: ProjectileKind | undefined): void => {
+      if (!action || !kind) return;
+      const held = heldInHand(source, action);
+      if (held === 'empty' || held === kind) return;
+      bad.push(`${label}：動作 ${action}（手上 ${held}）飛 ${kind}`);
+    };
+    for (const def of obtainable(hero)) {
+      for (const upgraded of [false, true]) {
+        const card = { uid: 1, cardId: def.id, upgraded };
+        const action = c.card({ source }, card);
+        judge(`${def.id}${upgraded ? '+' : ''}`, action, c.projectileForCard({ source }, card, action)?.kind);
+      }
+    }
+    for (const potion of potions) {
+      const action = c.potion({ source }, potion.id);
+      judge(potion.id, action, resolveProjectileShot(source, action as never, c.projectileForPotion(potion.id, 7) as never)?.kind);
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it('拋爪四隻都原地丟、飛出帶繩飛爪', async () => {
+    const c = await combat();
+    for (const { source } of HEROES) {
+      const card = { uid: 1, cardId: 'paozhao', upgraded: false };
+      const action = c.card({ source }, card);
+      expect(action, source).toBe('toss');
+      expect(c.projectileForCard({ source }, card, action)?.kind, source).toBe('grapple');
+      if (source !== 'qiuqiu') expect(companionIsMelee(source, 'toss'), source).toBe(false);
+    }
+    expect(artExists('grapple')).toBe(true);
   });
 });
 

@@ -1,0 +1,22 @@
+[
+  {
+    "pose": "hurt",
+    "attempt": 1,
+    "body": [
+      396,
+      415
+    ],
+    "bytes": 45998,
+    "sha256": "594386604fbeca5bdda01e1301c570dfbefad96bab19bc3bc309c4126a756156"
+  },
+  {
+    "pose": "block",
+    "attempt": 1,
+    "body": [
+      385,
+      415
+    ],
+    "bytes": 44858,
+    "sha256": "446a3ae83cb6748286a734c86b43bf11936fe4e1641075b9956b6b5a21ee093a"
+  }
+]

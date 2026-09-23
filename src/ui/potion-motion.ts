@@ -37,18 +37,20 @@ export function potionMotionKind(potion: Pick<PotionDef, 'id' | 'effects'>): Pot
 }
 
 /**
- * 丟的：球球擲手裏劍、菲菲彈飛針（三連針用連針，一次連出好幾根；麻繩用反手甩出去那一套）；
- * 噹噹、封封沒有投擲動作，改用原地推掌、原地一刺（沒有衝上前，因為東西是丟出去的）。
- * 那兩個是借同一套圖的「丟東西版」（`palm_throw`、`thrust_throw`）：出手格放出、飛到才算命中（companion-motion.ts）。
+ * 丟的：四隻都用空手擲出（`toss`，2026-09-23）——東西由遊戲另外畫著飛出去，出手前手上不拿任何東西。
+ * 原本球球借擲手裏劍、菲菲借彈飛針（出手前手上是一枚手裏劍或一根針，飛出去的卻是鞭炮、煙霧彈⋯⋯），
+ * 噹噹、封封借原地推掌、原地一刺（`palm_throw`、`thrust_throw`，現在只當擲出圖還沒下載好時的替身）。
+ * 例外：球球丟手裡劍照舊擲手裏劍（手上那枚剛好對）；菲菲的三連針用連針、麻繩用反手甩出去（手上是針、是空的）。
  * 施術：球球、菲菲結印；噹噹、封封運氣。
  */
 const ACTIONS: Readonly<Record<CombatMotionSource, Readonly<Record<PotionMotionKind, CombatMotionAction>>>> = {
-  qiuqiu: { eat: 'eat', throw: 'shuriken', guard: 'guard', draw: 'scroll', cast: 'seal' },
-  feifei: { eat: 'eat', throw: 'shuriken', guard: 'guard', draw: 'seal', cast: 'seal' },
-  dangdang: { eat: 'eat', throw: 'palm_throw', guard: 'guard', draw: 'focus', cast: 'focus' },
-  fengfeng: { eat: 'eat', throw: 'thrust_throw', guard: 'guard', draw: 'focus', cast: 'focus' },
+  qiuqiu: { eat: 'eat', throw: 'toss', guard: 'guard', draw: 'scroll', cast: 'seal' },
+  feifei: { eat: 'eat', throw: 'toss', guard: 'guard', draw: 'seal', cast: 'seal' },
+  dangdang: { eat: 'eat', throw: 'toss', guard: 'guard', draw: 'focus', cast: 'focus' },
+  fengfeng: { eat: 'eat', throw: 'toss', guard: 'guard', draw: 'focus', cast: 'focus' },
 };
 const OWN: Readonly<Partial<Record<CombatMotionSource, Readonly<Record<string, CombatMotionAction>>>>> = {
+  qiuqiu: { shuriken: 'shuriken' },
   feifei: { needle_rain: 'needle_combo', rope: 'needle_backhand' },
 };
 

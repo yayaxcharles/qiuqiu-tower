@@ -1,0 +1,243 @@
+{
+  "generator": "gpt-image-1.5（codex-oauth，真透明輸出）",
+  "reproducer": "python tools/pack_toss_motion.py",
+  "wholeCharacterFrames": true,
+  "assets": [
+    {
+      "hero": "qiuqiu",
+      "action": "toss",
+      "source": "tools/motion-art-source/toss/qiuqiu/toss.png",
+      "sourceSha256": "783a5ad0bf206a57460092be17648a3c1596cfe57f8f99c1a0e1aacc09dec857",
+      "target": "public/assets/motion/qiuqiu/generated_toss.webp",
+      "targetSha256": "48df8de3de3e4dc12f0b6f10136468fd3d5af2428095f38acca219a4ecb44945",
+      "bytes": 590542,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.994,
+        0.994,
+        0.975,
+        0.975,
+        0.985,
+        0.981,
+        0.981
+      ],
+      "firstFrameWidthRatio": 0.986,
+      "lastFrameWidthRatio": 1.019,
+      "centerShift": [
+        -0.3,
+        -4.5,
+        -6.7,
+        5.5,
+        9.5,
+        4.5,
+        -0.4,
+        0.1
+      ],
+      "sizeFix": 1.0,
+      "headFit": [
+        {
+          "frame": 1,
+          "scale": 0.99,
+          "corr": 0.993,
+          "angle": 0,
+          "flipCorr": 0.803
+        },
+        {
+          "frame": 8,
+          "scale": 0.97,
+          "corr": 0.977,
+          "angle": 0,
+          "flipCorr": 0.805
+        }
+      ],
+      "packedSize": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "hero": "feifei",
+      "action": "toss",
+      "source": "tools/motion-art-source/toss/feifei/toss.png",
+      "sourceSha256": "1759dfd5ecafcb8208fa80e0fb44c49b225d0cd417710b6c5bf4ed894b74f4ed",
+      "target": "public/assets/motion/feifei/toss.webp",
+      "targetSha256": "ee57f70fdd0ba31f4a8f5c26888d7ff835aea7dc4b1cce9d7f5526d9ec50f439",
+      "bytes": 672866,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.006,
+        1.003,
+        0.988,
+        1.003,
+        1.003,
+        1.003,
+        1.003
+      ],
+      "firstFrameWidthRatio": 1.001,
+      "lastFrameWidthRatio": 0.992,
+      "centerShift": [
+        -0.9,
+        -9.8,
+        -34.8,
+        -17.6,
+        0.7,
+        1.1,
+        -16.7,
+        -17.4
+      ],
+      "sizeFix": 1.0,
+      "headFit": [
+        {
+          "frame": 1,
+          "scale": 0.99,
+          "corr": 0.992,
+          "angle": 0,
+          "flipCorr": 0.799
+        },
+        {
+          "frame": 8,
+          "scale": 0.99,
+          "corr": 0.978,
+          "angle": 0,
+          "flipCorr": 0.797
+        }
+      ],
+      "packedSize": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "hero": "dangdang",
+      "action": "toss",
+      "source": "tools/motion-art-source/toss/dangdang/toss.png",
+      "sourceSha256": "bf97c1df5f42e6e2e815cd93082abd38f349673b7ec1da0a3c70113e3d4a6017",
+      "target": "public/assets/motion/dangdang/toss.webp",
+      "targetSha256": "e3df7af8e26e05def14b247b451ea67bce37530c87d3379192e3f66475acc3d8",
+      "bytes": 530906,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        0.984,
+        1.0,
+        0.949,
+        0.981,
+        1.016,
+        1.009,
+        1.016
+      ],
+      "firstFrameWidthRatio": 1.005,
+      "lastFrameWidthRatio": 1.042,
+      "centerShift": [
+        0.6,
+        -15.5,
+        -23.3,
+        -28.1,
+        20.6,
+        4.2,
+        -11.9,
+        -17.5
+      ],
+      "sizeFix": 1.0,
+      "headFit": [
+        {
+          "frame": 1,
+          "scale": 1.0,
+          "corr": 0.989,
+          "angle": 0,
+          "flipCorr": 0.789
+        },
+        {
+          "frame": 8,
+          "scale": 1.01,
+          "corr": 0.938,
+          "angle": 0,
+          "flipCorr": 0.792
+        }
+      ],
+      "packedSize": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "hero": "fengfeng",
+      "action": "toss",
+      "source": "tools/motion-art-source/toss/fengfeng/toss.png",
+      "sourceSha256": "8a4342e533842a987c3412a3b8b2398af6a692aa997fe25c3eebb7e6e1513b33",
+      "target": "public/assets/motion/fengfeng/toss.webp",
+      "targetSha256": "b797d0ef9c257bd002d7952cf1ac7452d63a4015ecf32781857848bc64a22fd7",
+      "bytes": 716216,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaTidy": true,
+      "rgbaExactAfterTidy": true,
+      "attempt": 1,
+      "heightRatios": [
+        1.0,
+        1.0,
+        1.0,
+        0.962,
+        1.003,
+        1.009,
+        1.009,
+        1.009
+      ],
+      "firstFrameWidthRatio": 1.021,
+      "lastFrameWidthRatio": 0.992,
+      "centerShift": [
+        -17.5,
+        -13.8,
+        -24.8,
+        -19.4,
+        -12.3,
+        -13.9,
+        -17.8,
+        -17.4
+      ],
+      "sizeFix": 1.0,
+      "headFit": [
+        {
+          "frame": 1,
+          "scale": 1.01,
+          "corr": 0.987,
+          "angle": 0,
+          "flipCorr": 0.856
+        },
+        {
+          "frame": 8,
+          "scale": 1.01,
+          "corr": 0.983,
+          "angle": 0,
+          "flipCorr": 0.855
+        }
+      ],
+      "packedSize": [
+        1536,
+        1024
+      ]
+    }
+  ]
+}
