@@ -313,11 +313,38 @@ export function cardArtKey(baseKey: string, hero?: string, partnerHero = hero ==
  * 理由是事件插圖本來就有「還沒生好就不放」的處理，而 54 張要生好幾個小時——
  * 中間這段時間放他的圖，比整批事件都沒有插圖好。生一張就換一張。
  */
-export function eventArtKey(id: string): string {
+export function eventArtKey(id: string, hero: string = localHeroId): string {
+  // `hero`：插圖照誰挑（不給＝本機這一位）。連線的鏡子走廊照座位 0 那一位，見 `event.ts` 的 `artHeroFor`
   const base = `bg/event_${id}`;
-  if (localHeroId === 'ninja') return base;
-  const mine = `bg/event_${localHeroId}_${id}`;
+  if (hero === 'ninja') return base;
+  const mine = `bg/event_${hero}_${id}`;
   return manifest.bg[mine] !== undefined ? mine : base;
+}
+
+/**
+ * 連線時鏡子走廊的插圖照**座位 0 那一位**挑（2026-09-23 實機驗收 M-1）。
+ *
+ * 鏡中那隻照座位 0 變裝（`app.ts` 的 `syncStory` 把 `mirror` 設成座位 0 的角色），文字也照它改
+ *（`dialogue.ts` 的 `MIRROR_EVENT_TEXT`）；插圖原本卻照本機那一位挑：坐 1 號的人讀到「鏡子裡是綁頭巾的影子」，
+ * 圖上是自己跟自己的倒影。09-23 菲菲那張換成她自己的黑影之後，球球開房、菲菲加入那一組從對變錯。
+ * 現在坐 1 號的人看到座位 0 那張：同伴站在鏡前、鏡子裡是同伴的影子。主圖與結果圖都照這個挑（`event.ts`）。
+ * 單人、其他事件回 `undefined`＝照本機這一位（`eventArtKey` 的預設）。
+ */
+const MIRROR_EVENTS: ReadonlySet<string> = new Set(['mirror_hall']);
+export function eventArtHero(eventId: string, heroes: readonly (string | undefined)[]): string | undefined {
+  if (heroes.length < 2 || !MIRROR_EVENTS.has(eventId)) return undefined;
+  return heroes[0] ?? 'ninja';
+}
+
+/**
+ * 插圖照別人挑、圖裡又沒畫到本機這一位時，旁邊放自己的立繪（同 `eventArtCast`／`data-art-cast` 的規矩：
+ * 插圖裡已經有這隻貓就不放，沒有才放）。只有 `eventArtHero` 有回值的那幾個事件會走到；其他事件照舊不放。
+ */
+export function eventSidePortrait(eventId: string, artHero: string | undefined, mine: string): string | undefined {
+  if (artHero === undefined || artHero === mine) return undefined;
+  if (eventArtCast(eventArtKey(eventId, artHero)).includes(mine)) return undefined;
+  const url = heroArtUrl(mine, 'hero/ninja');
+  return url.startsWith('data:') ? undefined : url;
 }
 
 /**

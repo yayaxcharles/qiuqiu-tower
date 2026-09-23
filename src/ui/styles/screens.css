@@ -934,6 +934,10 @@
    280 高時招手的手尖到 221，蓋到第一格。試過四種排版：貨架右移會超出舞台右緣、老闆左移會把尾巴切掉、
    貨架疊到老闆前面手指會被框切斷；縮小五趴手尖退到 210，第一格清清楚楚，腳底位置不變 */
 .scene:has(.scene-goods) .scene-portrait { bottom: 160px; height: 266px; }
+/* 事件畫面的立繪（2026-09-23 實機驗收 M-1：連線鏡子走廊坐 1 號的人，插圖是同伴那張、旁邊放自己）：
+   事件的選項排在框裡、框比紙箱高得多，照紙箱那條（腳底離下緣 172）會踩在「鏡子走廊」名牌上。
+   改成站在插圖左邊、腳底對齊插圖底邊（插圖 top 18、高 360），離名牌還有一段 */
+#stage[data-screen="event"] .scene .scene-portrait { left: 150px; top: 108px; bottom: auto; height: 270px; }
 #stage:has(.scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
 @keyframes toast-in-side { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
 
