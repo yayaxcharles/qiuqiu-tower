@@ -57,6 +57,18 @@ describe('第 8 條：手機橫拿讀得清楚，桌機不動', () => {
     expect(body).not.toMatch(/dataset\['device'\]/);
   });
 
+  it('推前審查 低-3：門檻跟手機系統的長按同一個量級（0.4～0.5 秒），0.38 秒的慢點不會變成放大', () => {
+    expect(PEEK_HOLD_MS).toBeGreaterThanOrEqual(400);
+    expect(PEEK_HOLD_MS).toBeLessThanOrEqual(500);
+    expect(shouldPeek(380, 0, 'touch')).toBe(false);
+  });
+
+  it('推前審查 低-3：新的一次按下先撤掉上一次的點擊攔截與收尾監聽，才開始計時', () => {
+    const attach = PEEK_RAW.replace(/\r\n/g, '\n');
+    const down = attach.slice(attach.indexOf("  node.addEventListener('pointerdown', (ev) => {"), attach.indexOf('    start = { x: ev.clientX'));
+    expect(down).toMatch(/if \(!touched\) return;[\s\S]*disarm\(\);\n\s+lift\?\.abort\(\);\n\s+lift = null;/);
+  });
+
   it('每張牌都掛按住放大（打不出來的牌也要讀得到）；手機樣式最後載入', () => {
     expect(sourceBetween(CARDVIEW, 'export function cardNode(', 'function fitCardText(')).toContain('attachCardPeek(node);');
     const imports = [...MAIN.matchAll(/^import '\.\/ui\/styles\/([\w-]+\.css)';/gm)].map((m) => m[1]);

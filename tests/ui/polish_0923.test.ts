@@ -136,7 +136,7 @@ describe('第 3 條：麻繩、定身釘這類，狀態牌子等飛到才掛上'
   it('魔物的狀態牌子與意圖牌照 shownEnemy 畫：還在飛的換成出手前的狀態與防禦', async () => {
     const body = sourceBetween(COMBAT, '  function shownEnemy(e: EnemyCombat): EnemyCombat {', '  /** 魔物腳下那一排牌子');
     let shown: unknown;
-    const pending = new Map([[7, { statuses: { 越戰越勇: 3, 飛行: 2 }, block: 8 }]]);
+    const pending = new Map([[7, [{ token: 1, statuses: { 越戰越勇: 3, 飛行: 2 }, block: 8 }]]]);
     await execute(`${body}\nresult(shownEnemy({ uid: 7, block: 0, statuses: { 越戰越勇: 3, 飛行: 1, 中毒: 3 } }), shownEnemy({ uid: 8, block: 0, statuses: { 定身: 1 } }));`,
       { motionPendingStatus: pending, result: (a: unknown, b: unknown) => { shown = [a, b]; } });
     expect(shown).toEqual([{ uid: 7, block: 8, statuses: { 越戰越勇: 3, 飛行: 2 } }, { uid: 8, block: 0, statuses: { 定身: 1 } }]);
@@ -150,8 +150,8 @@ describe('第 3 條：麻繩、定身釘這類，狀態牌子等飛到才掛上'
     expect(sourceBetween(COMBAT, '  function refreshEnemyStatus(', '  function enemyUnit(')).toContain("node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);");
     expect(COMBAT).toContain('statuses: { ...e.statuses },');
     const loop = sourceBetween(COMBAT, '      const landStatus = (target: HTMLElement): void => {', '      if (throwFlight && shot && throwFoot && throwBox && impactSource && impactMotion) {');
-    expect(loop).toContain('if (motionPendingStatus.delete(e.uid)) refreshEnemyStatus(target,');
-    expect(loop).toMatch(/if \(statusByFlight && \(b\.block !== e\.block \|\| STATUS_ORDER\.some\([^\n]+\) \{\n\s+motionPendingStatus\.set\(e\.uid, \{ statuses: b\.statuses, block: b\.block \}\);\n[\s\S]*?lastIntent\.delete\(e\.uid\);\n\s+refreshEnemyStatus\(node, e\);/);
+    expect(loop).toContain('if (statusToken && dropPending(motionPendingStatus, e.uid, statusToken)) refreshEnemyStatus(target,');
+    expect(loop).toMatch(/if \(statusByFlight && \(b\.block !== e\.block \|\| STATUS_ORDER\.some\([^\n]+\) \{\n\s+statusToken = \+\+pendingSeq;\n\s+pushPending\(motionPendingStatus, e\.uid, \{ token: statusToken, statuses: b\.statuses, block: b\.block \}\);\n[\s\S]*?lastIntent\.delete\(e\.uid\);\n\s+refreshEnemyStatus\(node, e\);/);
     // 整場收掉、演出出錯還原時一起清，不會把牌子永遠藏著
     expect(COMBAT.match(/motionPendingStatus\.clear\(\);/g)?.length).toBe(2);
   });
@@ -222,13 +222,47 @@ describe('主控最後一輪第 1 條：丟東西打到帶刺的魔物，被刺�
     expect(COMBAT).toContain("const pricks = (b.statuses['反彈'] ?? 0) > 0 && enemyHits.length > 0;");
     expect(COMBAT).toContain('if (pricks && wave === waves - 1 && --thornFlights === 0) revealThorns?.();');
     const hold = sourceBetween(COMBAT, '    if (thornFlights > 0) {', '    // 全體攻擊的各目標可能因死亡或隱身而有不同波數');
-    expect(hold).toContain('motionPendingPlayer.set(thornSeat, { hp, block });');
+    expect(hold).toContain('pushPending(motionPendingPlayer, thornSeat, { token: thornToken, hp, block });');
     expect(hold).toContain("lastHpPct.delete(`p${thornSeat}`);");
-    expect(hold).toMatch(/revealThorns = \(\): void => \{[\s\S]*motionPendingPlayer\.delete\(thornSeat\)[\s\S]*playerHurtFx\(live, hp, thrower\.maxHp, false\)/);
+    expect(hold).toMatch(/revealThorns = \(\): void => \{[\s\S]*dropPending\(motionPendingPlayer, thornSeat, thornToken\)[\s\S]*playerHurtFx\(live, hp, thrower\.maxHp, false\)/);
     // 當場那一段只演扣掉延後那部分之後剩下的
     // 擋下的量改看引擎記的數字（同日 tidy 合併，health H-1），延後的那部分照樣扣掉
     expect(COMBAT).toContain('const guarded = myFeedback.blocked - (heldHere?.block ?? 0);');
     expect(COMBAT).toContain('const lost = before.hp - comparedHp - (heldHere?.hp ?? 0);');
     expect(COMBAT.match(/motionPendingPlayer\.clear\(\);/g)?.length).toBe(2);
+  });
+});
+
+describe('推前審查 低-1：0.3 秒內連丟兩張，兩趟各記各的，飛到時只扣、只演自己那一份', () => {
+  // 把兩支小工具與畫血、畫狀態那兩支原封不動切出來跑
+  const helpers = sourceBetween(COMBAT, 'function pushPending<', 'function thornPricks(');
+  const shownPlayerSrc = sourceBetween(COMBAT, '  const shownPlayer = (q: PlayerCombat): PlayerCombat => {', '  /** 只換這一位的血條與狀態牌子');
+  const shownEnemySrc = sourceBetween(COMBAT, '  function shownEnemy(e: EnemyCombat): EnemyCombat {', '  /** 魔物腳下那一排牌子');
+
+  it('被刺：兩趟都還在飛時兩份都加回去；第一趟飛到只扣第一份，第二趟飛到才扣第二份', async () => {
+    const steps: unknown[] = [];
+    const player = { seat: 0, hp: 70, block: 0 };
+    await execute(`${helpers}\n${shownPlayerSrc}
+      pushPending(motionPendingPlayer, 0, { token: 1, hp: 3, block: 0 });
+      pushPending(motionPendingPlayer, 0, { token: 2, hp: 2, block: 1 });
+      log(shownPlayer(player));
+      log(dropPending(motionPendingPlayer, 0, 1)); log(shownPlayer(player));
+      log(dropPending(motionPendingPlayer, 0, 1));   // 同一趟不會拿兩次
+      log(dropPending(motionPendingPlayer, 0, 2)); log(shownPlayer(player)); log(motionPendingPlayer.has(0));`,
+      { motionPendingPlayer: new Map(), player, log: (v: unknown) => { steps.push(v && typeof v === 'object' ? { hp: (v as typeof player).hp, block: (v as typeof player).block } : v); } });
+    expect(steps).toEqual([{ hp: 75, block: 1 }, true, { hp: 72, block: 1 }, false, true, { hp: 70, block: 0 }, false]);
+  });
+
+  it('狀態：畫最早那一趟出手前的樣子；第一趟飛到換成第二趟出手前（第一趟的效果），第二趟飛到才是現在的', async () => {
+    const steps: unknown[] = [];
+    const enemy = { uid: 7, block: 0, statuses: { 中毒: 6 } };
+    await execute(`${helpers}\n${shownEnemySrc}
+      pushPending(motionPendingStatus, 7, { token: 1, statuses: {}, block: 0 });
+      pushPending(motionPendingStatus, 7, { token: 2, statuses: { 中毒: 3 }, block: 0 });
+      log(shownEnemy(enemy));
+      dropPending(motionPendingStatus, 7, 1); log(shownEnemy(enemy));
+      dropPending(motionPendingStatus, 7, 2); log(shownEnemy(enemy));`,
+      { motionPendingStatus: new Map(), enemy, log: (v: { statuses: unknown }) => { steps.push(v.statuses); } });
+    expect(steps).toEqual([{}, { 中毒: 3 }, { 中毒: 6 }]);
   });
 });

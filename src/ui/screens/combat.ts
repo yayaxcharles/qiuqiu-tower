@@ -308,6 +308,25 @@ function mateUnitStale(was: SeatSnap | undefined, q: PlayerCombat, node: HTMLEle
  * 刺先扣蜷縮、緊接著那一行是「…蜷縮擋下了 M 點」（actions.ts 的 damagePlayer，direct＋throughBlock）。
  * 回傳刺的總量與其中被蜷縮擋掉的量：丟東西打到帶刺的魔物時，畫面拿它把「被刺那一下」延到東西飛到才演。
  */
+/**
+ * 還在飛的東西各自記一筆（推前審查 2026-09-23 低-1）：同一位 0.3 秒內連丟兩張、兩趟都還沒飛到時，
+ * 原本第二趟直接蓋掉第一趟暫存的量——第一趟飛到時拿掉的是第二趟的、飄的卻是第一趟的數字，第二趟飛到時什麼都不演。
+ * 改成每一趟記序號、照順序排在同一格裡，飛到時只拿掉自己那一筆。
+ */
+function pushPending<T extends { token: number }>(map: Map<number, T[]>, key: number, entry: T): void {
+  const list = map.get(key);
+  if (list) list.push(entry); else map.set(key, [entry]);
+}
+/** 拿掉某一趟那一筆；真的拿到了回 true（這一格空了就整格刪掉） */
+function dropPending<T extends { token: number }>(map: Map<number, T[]>, key: number, token: number): boolean {
+  const list = map.get(key);
+  const i = list ? list.findIndex((x) => x.token === token) : -1;
+  if (!list || i < 0) return false;
+  list.splice(i, 1);
+  if (!list.length) map.delete(key);
+  return true;
+}
+
 function thornPricks(lines: readonly string[]): { total: number; blocked: number } {
   let total = 0;
   let blocked = 0;
@@ -491,14 +510,18 @@ registerScreen('combat', (app, root, props) => {
    * 照血條等命中才扣（motionPendingDamage）的做法，飛到那一刻（landStatus）才換成真的狀態。
    * 一開始只管狀態類忍具（麻繩、定身釘、貓薄荷球）；主控裁定擴到所有丟出去的牌（毒砂、絆索、點穴手、毛球彈、各種飛針）：
    * 帶傷害的牌打中還會扣防禦、打掉飛行，所以防禦也一起記，飛在天上的也等打到才掉下來。
+   * 每一趟一筆、照出手順序排（推前審查 低-1，見 pushPending）：畫的是最早那一趟出手前的樣子，一趟飛到就往後推一步。
    */
-  const motionPendingStatus = new Map<number, Pick<Unit, 'statuses' | 'block'>>();
+  const motionPendingStatus = new Map<number, Array<Pick<Unit, 'statuses' | 'block'> & { token: number }>>();
   /**
    * 丟東西打到身上帶刺（反彈）的魔物、被刺回來的那一位 → 還沒演的那一下扣了多少血與蜷縮（2026-09-23 polish，主控裁定）。
    * 引擎出手當下就把刺結算完了，畫面照舊會在東西還在飛時就扣血、飄數字；照 motionPendingStatus 的做法，
    * 血條與蜷縮先照被刺之前畫，東西飛到那一刻（最後一個帶刺的目標被打到）才扣、才飄。只改演出時機，引擎結算不動。
+   * 每一趟一筆（推前審查 低-1）：還沒飛到的每一趟都加回去，飛到的只扣、只飄自己那一份。
    */
-  const motionPendingPlayer = new Map<number, { hp: number; block: number }>();
+  const motionPendingPlayer = new Map<number, Array<{ token: number; hp: number; block: number }>>();
+  /** 上面兩張表每一趟的序號 */
+  let pendingSeq = 0;
   const motionProjectiles = new Set<() => void>();
   type LocalMotionPresentation = { action: CombatMotionAction; at: number; token: number; trip?: MeleeTrip };
   const locallyPlayedMotion = new LocalMotionPresentationQueue<LocalMotionPresentation>();
@@ -1016,7 +1039,11 @@ registerScreen('combat', (app, root, props) => {
   /** 這一位的血與蜷縮照這組畫：丟東西被刺回來、東西還在飛時，把還沒演的那一下加回去（見 motionPendingPlayer） */
   const shownPlayer = (q: PlayerCombat): PlayerCombat => {
     const held = motionPendingPlayer.get(q.seat);
-    return held ? { ...q, hp: q.hp + held.hp, block: q.block + held.block } : q;
+    if (!held) return q;
+    // 還沒飛到的每一趟都加回去（連丟兩張時兩趟都還在飛）
+    let hp = q.hp, block = q.block;
+    for (const h of held) { hp += h.hp; block += h.block; }
+    return { ...q, hp, block };
   };
   /** 只換這一位的血條與狀態牌子（被刺那一下扣下去／先加回去時用；整格重建會打斷受擊演出） */
   const refreshPlayerStatus = (seat: number): void => {
@@ -1691,8 +1718,9 @@ registerScreen('combat', (app, root, props) => {
 
   /** 狀態牌子、意圖牌、飛在天上照這組畫：丟出去的東西還在飛時是出手前的狀態與防禦（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
   function shownEnemy(e: EnemyCombat): EnemyCombat {
-    const pending = motionPendingStatus.get(e.uid);
-    return pending ? { ...e, ...pending } : e;
+    // 最早那一趟出手前的樣子（連丟兩張時第一趟還沒到，第二趟的效果更不能先亮）
+    const pending = motionPendingStatus.get(e.uid)?.[0];
+    return pending ? { ...e, statuses: pending.statuses, block: pending.block } : e;
   }
 
   /** 魔物腳下那一排牌子（狀態＋引擎裡看不到的被動）。抽出來是為了東西飛到時只換這一排（見 refreshEnemyStatus） */
@@ -3254,9 +3282,11 @@ registerScreen('combat', (app, root, props) => {
       const throwFlight = throwing && throwFoot && throwBox && !b.dead && impactPlan.length > 0;
       // 掙脫定身、上了減益：丟出去的東西（忍具與牌）要等東西飛到才演，其餘照舊當場演
       const brokeFree = fresh.some((l) => l === `${e.name}掙脫了定身`);
+      let statusToken = 0;   // 這一趟在 motionPendingStatus 裡那一筆的序號（下面決定要不要記）
       const landStatus = (target: HTMLElement): void => {
-        // 飛到了才換上真的狀態牌子（定身、懶洋洋⋯⋯）與「被定住了」（2026-09-23 polish 第 3 條，見 motionPendingStatus）
-        if (motionPendingStatus.delete(e.uid)) refreshEnemyStatus(target, cs.enemies.find((x) => x.uid === e.uid) ?? e);
+        // 飛到了才換上真的狀態牌子（定身、懶洋洋⋯⋯）與「被定住了」（2026-09-23 polish 第 3 條，見 motionPendingStatus）；
+        // 只拿掉這一趟自己那一筆，連丟兩張時第二趟的還留著（推前審查 低-1）
+        if (statusToken && dropPending(motionPendingStatus, e.uid, statusToken)) refreshEnemyStatus(target, cs.enemies.find((x) => x.uid === e.uid) ?? e);
         if (brokeFree) {
           target.append(floatNum('掙脫！'));
           burst(target, 'smoke');
@@ -3268,7 +3298,8 @@ registerScreen('combat', (app, root, props) => {
       const statusByFlight = !!throwFlight;
       // 狀態牌子也等東西飛到：剛才那次重畫已經照引擎掛上定身、中毒、扣了防禦，先換回出手前的樣子，landStatus 再換回來
       if (statusByFlight && (b.block !== e.block || STATUS_ORDER.some((name) => (b.statuses[name] ?? 0) !== getStatus(e, name)))) {
-        motionPendingStatus.set(e.uid, { statuses: b.statuses, block: b.block });
+        statusToken = ++pendingSeq;
+        pushPending(motionPendingStatus, e.uid, { token: statusToken, statuses: b.statuses, block: b.block });
         // 剛才那次重畫已經把「被定住了」記成上一次的牌面，換回去會被當成換招、繩子飛行中翻一次牌（實機膠卷）；
         // 忘掉它，飛到那一刻才翻
         lastIntent.delete(e.uid);
@@ -3428,11 +3459,14 @@ registerScreen('combat', (app, root, props) => {
       // 被刺到倒下就不延：倒下的演出（落敗、蜷縮成一團）當場就要走
       if (thrower && !thrower.down && (hp > 0 || block > 0)) {
         thornHeld = { seat: thornSeat, hp, block };
-        motionPendingPlayer.set(thornSeat, { hp, block });
+        // 每一趟一筆（推前審查 低-1）：前一張還在飛時又丟一張，兩趟各記各的，不互相蓋掉
+        const thornToken = ++pendingSeq;
+        pushPending(motionPendingPlayer, thornSeat, { token: thornToken, hp, block });
         lastHpPct.delete(`p${thornSeat}`);   // 剛才那次重畫記的是扣過的長度，不刪的話加回去那一下血條會往上長
         refreshPlayerStatus(thornSeat);
         revealThorns = (): void => {
-          if (app.cs !== cs || !motionPendingPlayer.delete(thornSeat)) return;
+          // 只拿掉、只演這一趟自己那一份：飄的數字與紅閃跟這一趟被刺的量對得上
+          if (app.cs !== cs || !dropPending(motionPendingPlayer, thornSeat, thornToken)) return;
           refreshPlayerStatus(thornSeat);   // 血條從被刺之前滑到之後，淺色殘影照常留一下
           const live = root.querySelector<HTMLElement>(`.unit.player[data-seat="${thornSeat}"]`);
           if (!live || thornSeat !== mySeat) return;   // 同伴那一格平常挨打也只換血條，照舊
