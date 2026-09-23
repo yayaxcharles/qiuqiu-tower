@@ -70,6 +70,10 @@ html[data-device="phone"][data-orient="landscape"] .tut-bar { top: 58px; width: 
 html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-step { font-size: 16px; }
 html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-close { font-size: 20px; }
 html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-touch { color: #ffd98a; }
+/* 平板（主控最後一輪：平板也開按住放大，教學條也接那一句）：字級照桌機（縮放約 0.8，本來就讀得到），
+   只把寬度改成照內容——多那一句在半個舞台寬裡會擠成兩行、底邊碰到魔物頭上的開場泡泡（同手機那次） */
+html[data-device="tablet"] .tut-bar { width: max-content; max-width: 1000px; }
+html[data-device="tablet"] .tut-bar .tut-touch { color: #ffd98a; }
 
 /* 按住手牌（或罐頭鋪一格貨）放大的那張（cardpeek.ts）：畫在疊層最上面、不吃手指（放開要落回原本那張牌）。
    裡面那張可能是牌、也可能是貨架格，一律從左上角放大（不然放大後會偏離外框） */
@@ -86,5 +90,5 @@ html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-touch { color: 
 }
 /* 放大的是買不起的那格：貨架上把說明調成半透明（.poor），放大來讀的時候字要實心；價錢照樣是紅字，看得出買不起 */
 .card-peek > .shop-item.poor > :not(.price) { opacity: 1; }
-/* 長按時手機會跳出圖片選單或選字：牌上一律不要 */
-html[data-device="phone"] .card { -webkit-touch-callout: none; }
+/* 長按時手機、平板會跳出圖片選單或選字：牌上一律不要 */
+html[data-device="phone"] .card, html[data-device="tablet"] .card { -webkit-touch-callout: none; }

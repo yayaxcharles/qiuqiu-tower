@@ -17,7 +17,7 @@ import type { CoopSession } from '../../net/session';
 import { applyAction, chooserOf } from '../../net/action';
 import type { CoopAction } from '../../net/action';
 import { attachCardDrag } from '../dragplay';
-import { isPhoneDevice } from '../cardpeek';
+import { isTouchDevice } from '../cardpeek';
 import { TUT_TOUCH_PEEK } from '../../content/tutorial';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
@@ -2238,8 +2238,9 @@ registerScreen('combat', (app, root, props) => {
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },
       el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
-      // 手機第一步多一句「按住牌放大看」（2026-09-23 polish，主控裁定三）：桌機用滑鼠滑過去就看得到，不出現
-      el('span', {}, TUT_TEXT[tutStep] ?? '', tutStep === 0 && isPhoneDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''),
+      // 手機、平板第一步多一句「按住牌放大看」（2026-09-23 polish，主控裁定三；最後一輪平板也開按住放大，一起教）：
+      // 桌機用滑鼠滑過去就看得到，不出現
+      el('span', {}, TUT_TEXT[tutStep] ?? '', tutStep === 0 && isTouchDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''),
       el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕')));
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
