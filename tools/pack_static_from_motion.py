@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import statistics
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -44,6 +45,8 @@ MAX_SHIFT = 40      # 左右放不下時最多往畫布裡推幾個畫布像素�
 MAX_FRAME_STEPS = 2  # 指定那格放不下時，最多往前後找幾格
 MIN_SHRINK = .85    # 真的放不下才縮，縮超過這個就停
 WIDE_SHIFT = {'belly': 120}   # 翻肚是橫躺的，腳底定位點不在身體中間，推多一點不會看出左右跳
+HEAD_LIMIT = 0.05   # 頭跟新版待機第 1 格差超過 5% 就不合格（使用者的硬規矩；`--only` 重裁時的閘門）
+LYING = {'belly'}   # 躺姿量不準頭：照打包紀錄的縮放倍率算
 # 封封舊圖底邊不等高而在 combat.css 補的位移：這幾張換成新圖（底邊貼畫布底）之後要拿掉，不然會往下沉
 FENGFENG_CSS_DROP = ('belly_clean', 'choke_clean', 'lazy_clean', 'puff_clean', 'stealth', 'iron', 'hit', 'hurt', 'power')
 
@@ -82,10 +85,17 @@ PICK = {
     'fengfeng': {**SHARED_REST,
                  # 劍整把伸出去的那幾格比畫布寬（270 個遊戲單位），取出劍前後劍還收在身邊的那一格
                  'attack': ('slash', 2), 'claw': ('double_slash', 3), 'kick': ('sweep', 6), 'dash': ('thrust', 1),
-                 'punch': ('heavy_slash', 3), 'skill': ('focus', 4), 'focus': ('focus', 4), 'scroll': ('focus', 4),
+                 'punch': ('heavy_slash', 1), 'skill': ('focus', 4), 'focus': ('focus', 4), 'scroll': ('focus', 4),
                  'roar': ('roar', 4), 'taiji': ('taiji', 4), 'qinggong': ('dodge', 3), 'guard': ('guard', 4),
                  'dodge': ('dodge', 3)},
 }
+# 2026-09-23 實機驗收 M-3／L-1（頭跟待機差超過 5%）改的兩張，**只用指定那一格**（放不下就縮，不換成前後格）：
+#  - 封封「拳」：原本取重劈第 4 格（劍舉過頭），比畫布高、縮成 0.904，頭只剩 0.89。改取第 2 格（劍壓低往前帶），
+#    重劈整套放大 ×1.07 之後頭 1.015、只要縮 0.95；前後格是收劍的站姿，不像出招，所以不讓它換格；
+#  - 菲菲「翻肚」：原本取第 8 格（仰躺、眼睛往上看），比畫布寬、縮成 0.924。改取第 5 格（剛翻過去、閉著眼），
+#    寬度只差一點、縮 0.975；前一格還坐著，不是翻肚。
+PICK['feifei']['belly'] = ('belly', 4)
+EXACT = {('fengfeng', 'punch'), ('feifei', 'belly')}
 POSES = sorted(PICK['ninja'])
 
 
@@ -149,14 +159,15 @@ def place(crop: Image.Image, pivot: list[float], px: float, foot: int, size: tup
     return x0 + shift, y0, x1 + shift, y1, shift
 
 
-def build(hero: str, pose: str, sprites: dict, px: float) -> tuple[Image.Image, dict]:
+def build(hero: str, pose: str, sprites: dict, px: float, foot: int | None = None) -> tuple[Image.Image, dict]:
     """先試指定的那一格；放不下就試同一個動作裡離它最近的格（出手前後那幾格通常比較收）；
-    都放不下才把指定那格等比縮進畫布（以腳底為準），縮超過 MIN_SHRINK 就停——那樣換姿勢會看得出變小。"""
+    都放不下才把指定那格等比縮進畫布（以腳底為準），縮超過 MIN_SHRINK 就停——那樣換姿勢會看得出變小。
+    `foot`：重裁時用紀錄裡的腳底線（見 `rebuild`）。"""
     action, index = PICK[hero][pose]
     motion = motions(hero)[action]
     old = Image.open(PUB / sprites[sprite_key(hero, pose)]).convert('RGBA')
-    foot = foot_line(hero, old)
-    order = sorted(range(len(motion['frames'])), key=lambda i: (abs(i - index), i))[:MAX_FRAME_STEPS + 1]
+    foot = foot_line(hero, old) if foot is None else foot
+    order = [index] if (hero, pose) in EXACT else sorted(range(len(motion['frames'])), key=lambda i: (abs(i - index), i))[:MAX_FRAME_STEPS + 1]
     chosen = None
     for i in order:
         crop, pivot = frame_image(motion, i)
@@ -239,12 +250,64 @@ def contact(images: list, sprites: dict, out: str) -> None:
     print(out, sheet.size)
 
 
+def rebuild(only: list[str], write: bool) -> None:
+    """只重裁指定的幾張（2026-09-23 實機驗收 M-3／L-1），其餘一個位元不動、紀錄只換這幾筆。
+
+    - 腳底線與腳底定位點取**紀錄裡的**（批次 statics 當時從舊圖量的）：那幾張舊圖已經被換掉了，
+      拿現在的檔重量，躺姿、騰空那幾張的外框底邊不在腳底線上，會量歪。
+    - **頭的閘門**（使用者的硬規矩：比頭，跟新版待機第 1 格差超過 5% 就是問題）：
+      站著的＝那一格逐格量到的頭（`motion_size_fix_0923` 的四種量法中位數）× 這張縮了多少；
+      躺姿（`LYING`）量不準頭，照打包紀錄的縮放倍率算，縮不能超過 5%。
+    """
+    import motion_size_fix_0923 as fix   # 量頭的工具（多行程），只有重裁時才載入
+
+    record = json.loads(RECORD.read_text(encoding='utf-8'))
+    rows = {(r['hero'], r['pose']): r for r in record['assets']}
+    sprites = json.loads(MANIFEST.read_text(encoding='utf-8'))['sprites']
+    built, errors = [], []
+    for item in only:
+        hero, pose = item.split('/')
+        old = rows[(hero, pose)]
+        image, info = build(hero, pose, sprites, old['pivotX'], old['footLine'])
+        info['pivotX'] = old['pivotX']
+        if pose in LYING:
+            info['head'], info['headCheck'] = info['shrink'], '躺姿：照打包縮放倍率'
+        else:
+            motion = motions(hero)[info['action']]
+            frame = motion['frames'][info['frame'] - 1]
+            key = f"{HIT_KEY[hero]}/{info['action']}"
+            got = [fix._head_job((key, 0, motion['texture'], frame['rect'], motion['scale'], z, cut))[2]['scale']
+                   for z, cut in fix.VARIANTS]
+            info['head'], info['headCheck'] = round(statistics.median(got) * info['shrink'], 3), '逐格那格的頭 × 縮放'
+        if abs(info['head'] - 1) > HEAD_LIMIT + 1e-9:
+            errors.append(f"{hero}/{pose}: 頭是待機的 {info['head']} 倍（{info['action']}#{info['frame']}、縮 {info['shrink']}）")
+        built.append((image, info))
+        print(f"{hero:8s} {pose:9s} ← {info['action']}#{info['frame']}  縮 {info['shrink']}  頭 {info['head']}  外框 {info['box']}")
+    if errors:
+        raise SystemExit('頭大小不合格，什麼都沒寫：\n  ' + '\n  '.join(errors))
+    if not write:
+        return
+    for image, info in built:
+        dst = PUB / info['file']
+        image.save(dst, 'WEBP', quality=WEBP_QUALITY, alpha_quality=ALPHA_QUALITY, method=6)
+        info['bytes'] = dst.stat().st_size
+        info['sha256'] = hashlib.sha256(dst.read_bytes()).hexdigest()
+        rows[(info['hero'], info['pose'])].clear()
+        rows[(info['hero'], info['pose'])].update(info)
+    RECORD.write_text(json.dumps(record, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
+    print(f'重裁了 {len(built)} 張，紀錄在 {RECORD.relative_to(ROOT)}')
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', action='store_true')
     parser.add_argument('--sheet')
+    parser.add_argument('--only', nargs='+', help='只重裁這幾張（角色/姿勢），例如 fengfeng/punch')
     args = parser.parse_args()
-    run(not args.check, args.sheet)
+    if args.only:
+        rebuild(args.only, not args.check)
+    else:
+        run(not args.check, args.sheet)
 
 
 if __name__ == '__main__':

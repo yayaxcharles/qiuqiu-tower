@@ -565,7 +565,7 @@
     },
     "heavy_slash": {
       "texture": "assets/motion/fengfeng/heavy_slash.webp",
-      "scale": 0.7325581395348837,
+      "scale": 0.7838372093023256,
       "loop": false,
       "frames": [
         {
@@ -1019,7 +1019,7 @@
     },
     "focus": {
       "texture": "assets/motion/fengfeng/guard_focus.webp",
-      "scale": 0.842809364548495,
+      "scale": 0.8849498327759198,
       "loop": false,
       "frames": [
         {
