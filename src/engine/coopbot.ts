@@ -1,21 +1,22 @@
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
+import { relicById } from '../content/relics';
 import { advanceMove, log, runEnemyEffects } from './actions';
 import { allReady, beginEnemyTurn, finishEnemyTurn, setReady, stepEnemyTurn } from './combat';
 import { coopHpMul } from './coopscale';
 import { heroOf, type Hero } from './hero';
 import { nextChoices } from './map';
-import { settleRelicPicks } from './rewards';
+import { relicOk, settleRelicPicks } from './rewards';
 import { Rng, seedFromString } from './rng';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  closeCardReward, finishCombat, makeShops, newCoopRun, openChestCoop, removeCard, rest, resolvePendingAfterFight,
+  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, removeCard, rest, resolvePendingAfterFight,
   revivePartner, rollActCardsPerSeat, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard,
   type RunEffectOutcome } from './run';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestRelic, bestUpgrade, deckJunk, eventValue, pickCard, rating, relicRating, smartPending, smartSeatAct } from './smartbot';
+import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, smartPending, smartSeatAct } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunState } from './types';
 
 /**
@@ -200,8 +201,10 @@ function nodeScoreCoop(run: RunState, n: MapNode): number {
   const anyDown = run.players.some((p) => p.down);
   const fish = Math.min(...run.players.map((p) => p.fish));
   const canUpgrade = run.players.some((_, i) => !!bestUpgrade(run, i));
+  // 缺血而且**打盹真的回得了血**的那位才算「要去睡」（帶不眠香爐的睡了也不回，2026-09-23）；沒人帶時跟 `hpPct < 0.55` 同一件事
+  const needNap = alive.some((p) => p.hp / p.maxHp < 0.55 && napWorks(run, run.players.indexOf(p)));
   switch (n.type) {
-    case '貓窩': return anyDown ? 130 : hpPct < 0.55 ? 100 : canUpgrade ? 55 : 20;
+    case '貓窩': return anyDown ? 130 : needNap ? 100 : canUpgrade ? 55 : 20;
     case '罐頭鋪': return fish >= 120 ? 75 : fish >= 75 ? 45 : 15;
     case '事件': return 50;
     case '紙箱': return 90;
@@ -214,15 +217,18 @@ function nodeScoreCoop(run: RunState, n: MapNode): number {
 /** 一件秘寶要不要挑：兩個人從同一份選項各挑自己最想要的（撞件由 `settleRelicPicks` 擲骰） */
 function pickRelic(offers: readonly string[], run: RunState, seat: number): string | null {
   const mine = me(run, seat).relics;
-  // 分數照**這一位**的角色（2026-09-23 量尺：同一件對不同貓價值不同）
-  const want = bestRelic(offers.filter((id) => !mine.includes(id)), heroOf(me(run, seat)));
+  // 分數照**這一位**的角色（2026-09-23 量尺：同一件對不同貓價值不同）。
+  // 鎖這一位的不挑（2026-09-23 內容擴充第一批）：混搭時清單照「有人用得到」開，量尺對鎖住的那格留空＝5 分，
+  // 不濾的話別件量出來比 5 低時，菲菲會去挑封封的磨劍石
+  const hero = heroOf(me(run, seat));
+  const want = bestRelic(offers.filter((id) => !mine.includes(id) && relicOk(relicById[id] ?? {}, [hero])), hero);
   return want ?? null;
 }
 
 function takeOffers(run: RunState, offers: string[]): void {
   if (!offers.length) return;
   const picks = run.players.map((p, i) => (p.down ? null : pickRelic(offers, run, i)));
-  const got = settleRelicPicks(runRng(run), offers, picks);
+  const got = settleRelicPicks(runRng(run), offers, picks, heroesIn(run));
   got.forEach((id, i) => { if (id) takeRelic(run, id, i); });
 }
 
@@ -373,7 +379,7 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
         run.players.forEach((p, i) => {
           if (p.down || (downSeat >= 0 && i === helper)) return;   // 救人的那位這一格用掉了
           const u = bestUpgrade(run, i);
-          if (p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹', undefined, i);
+          if ((p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run, i)) || !u) rest(run, '打盹', undefined, i);
           else rest(run, '磨爪', u.uid, i);
         });
         break;

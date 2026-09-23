@@ -11,7 +11,7 @@ import { applyEffects } from './effects';
 import type { Rng } from './rng';
 import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } from './statuses';
 import { TURN_DECAY } from './types';
-import type { CardInstance, CombatState, EffectCtx, PlayerCombat, PotionDef, StatusName, EnemyCombat } from './types';
+import type { CardInstance, CombatState, Effect, EffectCtx, PlayerCombat, PotionDef, StatusName, EnemyCombat } from './types';
 
 type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount' | 'firstCardDiscountCombat' | 'blockKeep' | 'killHeal' | 'killStrength' | 'killFish' | 'combatEndHeal';
 function relicSum(relics: string[], key: NumHook): number {
@@ -98,7 +98,7 @@ export function startCombat(input: {
    */
   for (const rid of player.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;
-    if (hooks) { fireRelic(cs, rid, player); applyEffects(cs, hooks, { self: player, source: 'relic' }); }
+    if (hooks) { fireRelic(cs, rid, player); applyRelicHook(cs, player, hooks); }
   }
   // 暖毯：打盹後帶進來的蜷縮（run.ts 的 rest 記、beginCombat 帶進來）
   if (input.mods?.startBlock) {
@@ -110,6 +110,43 @@ export function startCombat(input: {
   }
   startPlayerTurn(cs);
   return cs;
+}
+
+/** 效果對象是「同伴」的那幾種（見 `Effect` 的幫隊友那一批） */
+const ALLY_KINDS: ReadonlySet<Effect['kind']> = new Set(['statusAlly', 'blockAlly', 'drawAlly', 'healAlly', 'energyAlly', 'cleanseAlly']);
+
+/**
+ * 跑一件秘寶的效果（2026-09-23 內容擴充第一批：同心結、分食便當第一次用到「給同伴」）。
+ *
+ * 座位 0 的開場與第一回合是在 `startCombat` 裡跑的，那時座位 1 還沒進場（`players.length < seatCount`），
+ * 「給同伴」會退回給自己——同心結的兩點爪力全落在座位 0、同伴一點都沒有。
+ * 所以人還沒到齊時，給同伴的那幾條先記進 `cs.pendingAllyRelics`，其餘照常當場跑；
+ * `beginCombat` 補完人之後叫 `flushAllyRelics` 一次發掉。人到齊（或單機）時跟以前一模一樣。
+ */
+function applyRelicHook(cs: CombatState, p: PlayerCombat, effects: Effect[]): void {
+  let now = effects;
+  if (cs.players.length < (cs.seatCount ?? 1)) {
+    const later = effects.filter((fx) => ALLY_KINDS.has(fx.kind));
+    if (later.length) {
+      cs.pendingAllyRelics = [...(cs.pendingAllyRelics ?? []), { seat: p.seat, effects: later }];
+      now = effects.filter((fx) => !ALLY_KINDS.has(fx.kind));
+    }
+  }
+  if (now.length) applyEffects(cs, now, { self: p, source: 'relic' });
+}
+
+/**
+ * 人到齊之後，把開場時先記著的「給同伴」發掉（`beginCombat` 叫）。發完就刪掉那個欄位。
+ * 記的那一位已經倒下（座位 0 上一場就倒了）就不發；同伴倒著的話 `ally()` 會退回給自己，跟單人一樣。
+ */
+export function flushAllyRelics(cs: CombatState): void {
+  const list = cs.pendingAllyRelics ?? [];
+  delete cs.pendingAllyRelics;
+  for (const { seat, effects } of list) {
+    const p = cs.players[seat];
+    if (!p || p.down || cs.phase !== 'player') continue;
+    applyEffects(cs, effects, { self: p, source: 'relic' });
+  }
 }
 
 export function startPlayerTurn(cs: CombatState): void {
@@ -283,7 +320,7 @@ export function startJoinedSeat(cs: CombatState, p: PlayerCombat, startBlock = 0
   if (p.relics.some((id) => relicById[id]?.hooks.firstAttackDouble)) p.firstAttackDouble = true;   // 秘笈
   for (const rid of p.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;
-    if (hooks) { fireRelic(cs, rid, p); applyEffects(cs, hooks, { self: p, source: 'relic' }); }
+    if (hooks) { fireRelic(cs, rid, p); applyRelicHook(cs, p, hooks); }
   }
   if (startBlock) {
     p.block += startBlock;
@@ -310,7 +347,12 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 照樣抽 5 張、拿飯糰、秘寶照發（毒針袋還會記在一個躺著的人頭上）。單機倒下＝整場輸，行為不變
   if (poison > 0) { addStatus(p, '中毒', -1); damagePlayer(cs, p, poison, { direct: true, victim: p }); if (p.down || cs.phase !== 'player') return; }
   const dive = getStatus(p, '潛水');
-  if (dive > 0) { removeStatus(p, '潛水'); gainStealth(cs, dive, p); }
+  /*
+   * 第一回合不換（2026-09-23 內容擴充第一批，竹筒）：開場拿到的潛水（秘寶的「每場戰鬥開始」）在第一回合開頭就換掉的話，
+   * 「下回合變成隱身」等於開場直接給隱身，竹筒就跟無聲鈴一模一樣。牌與忍具給的潛水都是在某一回合中途拿到，
+   * 換的時候一定已經是第二回合以後，不受影響。
+   */
+  if (dive > 0 && cs.turn > 1) { removeStatus(p, '潛水'); gainStealth(cs, dive, p); }
   const iron = getStatus(p, '鐵布衫');
   if (iron > 0) { removeStatus(p, '鐵布衫'); gainBlock(cs, p, iron); }   // 走 gainBlock：跟牌上其他蜷縮一樣吃貓步（稽核 低-1）
   p.energy = p.maxEnergy + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnEnergy') : 0);
@@ -359,7 +401,9 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
     if (h.every((fx) => fx.kind === 'heal') && p.hp >= p.maxHp) continue;
     // 只給蓄氣的（封封的舊劍穗）蓄氣已滿 12 時同理：那一下什麼都沒加，不閃、不寫「發動」（審查 2026-09-22）
     if (h.every((fx) => fx.kind === 'gainQi') && (p.qi ?? 0) >= 12) continue;
-    fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' });
+    // 看身上有沒有某狀態、這一次走到空的那一邊的（影忍頭帶：身上已經有隱身）同理，什麼都沒做就不閃（2026-09-23）
+    if (h.every((fx) => fx.kind === 'ifSelfStatus' && (getStatus(p, fx.name) > 0 ? fx.then : fx.otherwise).length === 0)) continue;
+    fireRelic(cs, rid, p); applyRelicHook(cs, p, h);
   }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;

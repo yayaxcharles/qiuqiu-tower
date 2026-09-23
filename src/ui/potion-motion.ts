@@ -15,7 +15,8 @@ import { THROW_POTION_IDS } from './projectile-kinds';
  */
 
 /** 吃喝的忍具（食物與喝的） */
-export const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle', 'tuna', 'milk']);
+// 提神茶（喝的）、對半包子（掰開吃的，效果是蜷縮不是回血，照規則會落到施術）是 2026-09-23 內容擴充第一批加的
+export const EAT_POTIONS: ReadonlySet<string> = new Set(['onigiri', 'catgrass_tea', 'dried_fish_bundle', 'tuna', 'milk', 'qi_tea', 'share_half']);
 /**
  * 丟出去的忍具。原本只有手裡劍、三連針；2026-09-22（批次 proj）接上飛行物之後，
  * 鞭炮、麻繩、煙霧彈、貓薄荷球、定身釘、亂石包也是丟出去的（清單與飛什麼在 projectile-kinds.ts）。

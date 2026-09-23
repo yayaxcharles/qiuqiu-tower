@@ -50,9 +50,10 @@ describe('隨機試玩', () => {
     // 2026-09-17 使用者一批費用裁定（後退閃躲 1→2、催噎 1→3、借力使力 1→3、崩拳 2→3、
     // 速速退散 2→3、肉球連擊 1→2，太極收歸噹噹專屬）：機器人每一回合能打的牌都變了，
     // 整條戰局往後位移，錨值重錄。**下面那條固定戰鬥的錨照樣沒動**，引擎行為沒變
-    // 2026-09-23 內容擴充第一批：球球多了三篇專屬事件（他的事件池變大、洗牌位移），5F 第二、三關換版，錨值重錄；固定戰鬥的錨照樣沒動
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 7, turns: 52, kills: 4, deckSize: 17 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 12, turns: 37, kills: 3, deckSize: 15 });
+    // 2026-09-23 內容擴充第一批：球球多了三篇專屬事件、5F 第二三關換版；秘寶 +18、忍具 +10、忍具改成先抽稀有度再抽支數。
+    // 兩批合併後重錄一次（各自分支錄的值合起來就不成立）；固定戰鬥的錨照樣沒動
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 10, turns: 56, kills: 5, deckSize: 15 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 7, turns: 33, kills: 3, deckSize: 15 });
   });
 
   /**

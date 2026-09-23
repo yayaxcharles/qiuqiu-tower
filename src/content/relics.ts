@@ -160,6 +160,76 @@ export const relics: RelicDef[] = [
     hooks: { winGold: 25, shopDiscount: 1.3 } },
   { id: 'black_cat_mask', name: '黑貓面具', pool: '大魔物', text: '每場戰鬥第一回合多 2 顆飯糰；開戰帶 1 層懶洋洋。', art: 'codex/relic_black_cat_mask', price: 230,
     hooks: { firstTurnEnergy: 2, combatStart: [{ kind: 'status', name: '懶洋洋', amount: 1, target: 'self' }] } },
+
+  /*
+   * ===== 2026-09-23 內容擴充第一批：18 件（提案 docs/審查報告/2026-09-23/內容擴充提案_秘寶忍具事件.md 第⑤節）=====
+   *
+   * 為什麼是這 18 件：原本 77 件裡菲菲（毒）、封封（蓄氣）的放大器一件都沒有，塔主池沒有代價型、
+   * 引擎現成的一整批「給同伴」效果秘寶一件都沒用。這一批四隻各補三件（常見、大魔物、塔主各一）、
+   * 塔主池加四件「多一點好處＋一個代價」（使用者裁定要加）、連線互助兩件。**全部沿用現成的效果與掛鉤**。
+   *
+   * 鎖角色（`notFor`）的四件：蓄氣三件只給封封、千斤墜腰帶只給噹噹（卸蜷縮出招的牌只有他有）。
+   * 其餘「偏誰」只是比較好用，誰都抽得到——跟紙袋、影披風當初解鎖是同一個判準（`RelicDef.notFor`）。
+   *
+   * 旗標類效果（下毒、屍爆、以傷還傷、順勢、卸力減半）從秘寶掛上去不會在狀態列多一個牌子（那個牌子只給牌用），
+   * 所以牌面文字要把效果講完整，不要只寫牌名。
+   */
+  // --- 菲菲（毒）---
+  { id: 'snake_fang', name: '蛇牙墜', pool: '常見', text: '每打出一張攻擊牌，再給那個目標 1 層中毒。', art: 'codex/relic_snake_fang', price: 150,
+    hooks: { combatStart: [{ kind: 'poisonOnAttack', n: 1 }] } },
+  /*
+   * 屍爆的全額版（打倒的那一位身上有這件才算，連線時各看各的）。提案是平分版，量尺四隻都 ≈0；改全額也只 +0.4，
+   * 主控 2026-09-23 要求調到大魔物池中位數附近：開場再冒一團毒霧（全體 2 層中毒），先有毒、打倒時才散得出去。
+   */
+  { id: 'miasma_sachet', name: '毒霧香囊', pool: '大魔物', text: '每場戰鬥開始時給全體魔物 2 層中毒；你打倒中毒的魔物時，牠剩下的中毒，其他每一隻魔物都拿一份。', art: 'codex/relic_miasma_sachet', price: 190,
+    hooks: { combatStart: [{ kind: 'status', name: '中毒', amount: 2, target: 'all' }, { kind: 'poisonBurst', full: true }] } },
+  { id: 'herb_cauldron', name: '藥王鼎', pool: '塔主', text: '每場戰鬥開始時給全體魔物 5 層中毒。', art: 'codex/relic_herb_cauldron', price: 240,
+    hooks: { combatStart: [{ kind: 'status', name: '中毒', amount: 5, target: 'all' }] } },
+  // --- 噹噹（反彈、蜷縮當彈藥）---
+  { id: 'anvil', name: '鐵砧', pool: '常見', text: '每場戰鬥開始時獲得 2 點反彈；反彈回敬時多打 1 點。', art: 'codex/relic_anvil', price: 140,
+    hooks: { combatStart: [{ kind: 'status', name: '反彈', amount: 2, target: 'self' }, { kind: 'thornsBonus', n: 1 }] } },
+  { id: 'knee_guard', name: '順勢護膝', pool: '大魔物', text: '每次反彈回敬，獲得 3 點蜷縮。', art: 'codex/relic_knee_guard', price: 180,
+    hooks: { combatStart: [{ kind: 'blockOnThorns', n: 3 }] } },
+  /*
+   * 提案叫「千斤墜腰帶」，撞到噹噹的牌「千斤墜」（挨打長蜷縮）而且效果不同，主控 2026-09-23 裁定改名；代號不動（存檔相容）。
+   * 圖是腰帶上吊一顆大鐵墜，改叫秤砣腰帶。原本只有「卸力只卸一半」，量尺 +0.04 層（塔主三選一裡等於廢選項），
+   * 主控要求調到塔主池中位數附近：加上「回合結束最多留 8 點蜷縮」——同一條路（蜷縮是彈藥：卸一半、剩下的留著下回合再卸）。
+   */
+  { id: 'iron_weight_belt', name: '秤砣腰帶', pool: '塔主', notFor: ['ninja', 'feifei', 'fengfeng'], text: '卸掉蜷縮的牌只卸一半（不滿一點算一點），打出去的力道不變；回合結束時最多保留 8 點蜷縮（可跟同類秘寶相加）。', art: 'codex/relic_iron_weight_belt', price: 230,
+    hooks: { combatStart: [{ kind: 'halfSpendBlock' }], blockKeep: 8 } },
+  // --- 封封（蓄氣，別人身上沒有蓄氣，三件都只給他）---
+  { id: 'whet_stone', name: '磨劍石', pool: '常見', notFor: ['ninja', 'feifei', 'dangdang'], text: '每場戰鬥開始時獲得 3 點蓄氣。', art: 'codex/relic_whet_stone', price: 130,
+    hooks: { combatStart: [{ kind: 'gainQi', n: 3 }] } },
+  { id: 'tassel_knot', name: '劍穗結', pool: '大魔物', notFor: ['ninja', 'feifei', 'dangdang'], text: '每回合第一張攻擊牌打出後獲得 2 點蓄氣。', art: 'codex/relic_tassel_knot', price: 190,
+    hooks: { onAttackPlayed: { firstEachTurn: true, effects: [{ kind: 'gainQi', n: 2 }] } } },
+  { id: 'qi_gourd', name: '養氣葫蘆', pool: '塔主', notFor: ['ninja', 'feifei', 'dangdang'], text: '每回合開始時獲得 2 點蓄氣。', art: 'codex/relic_qi_gourd', price: 240,
+    hooks: { turnStart: [{ kind: 'gainQi', n: 2 }] } },
+  // --- 球球（隱身、潛水）---
+  // 開場拿到的潛水**第二回合開始**才變隱身（`combat.ts` 的 `startSeatTurn`）：不然開戰那一拍就換掉，跟無聲鈴一模一樣
+  { id: 'bamboo_tube', name: '竹筒', pool: '常見', text: '每場戰鬥開始時獲得 1 層潛水（第二回合開始變成隱身）。', art: 'codex/relic_bamboo_tube', price: 150,
+    hooks: { combatStart: [{ kind: 'status', name: '潛水', amount: 1, target: 'self' }] } },
+  // 跟毛線手套同一個時機（每回合最多一次），挨打之後這一輪剩下的攻擊就閃得掉一下
+  { id: 'startle_bell', name: '驚弓鈴', pool: '大魔物', text: '被魔物打掉血時獲得 1 層隱身（每回合最多一次）。', art: 'codex/relic_startle_bell', price: 200,
+    hooks: { onHit: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
+  { id: 'shadow_band', name: '影忍頭帶', pool: '塔主', text: '每回合開始時，身上沒有隱身的話獲得 1 層潛水（下回合開始變成隱身）。', art: 'codex/relic_shadow_band', price: 240,
+    hooks: { turnStart: [{ kind: 'ifSelfStatus', name: '隱身', then: [], otherwise: [{ kind: 'status', name: '潛水', amount: 1, target: 'self' }] }] } },
+  // --- 塔主池的代價型（使用者 2026-09-23 裁定要加）：過關三選一要有會猶豫的選項 ---
+  // 打盹回血整個歸零（貓草種子那幾點也算在內，見 `run.ts` 的 `napHeal`）；44F 師父門前那一格本來就回滿，照舊；扶同伴起來不受影響
+  { id: 'sleepless_censer', name: '不眠香爐', pool: '塔主', text: '每回合多 1 顆飯糰；在貓窩打盹不再回血（44F 最後那個貓窩照樣回滿）。', art: 'codex/relic_sleepless_censer', price: 240,
+    hooks: { energyPerTurn: 1, restMultiplier: 0 } },
+  { id: 'greedy_pouch', name: '銅臭錢袋', pool: '塔主', text: '每回合多 1 顆飯糰；罐頭鋪的商品貴五成（放生與重整不算）。', art: 'codex/relic_greedy_pouch', price: 220,
+    hooks: { energyPerTurn: 1, shopDiscount: 1.5 } },
+  // 少一張可選：跟掌門印（+1）、中了魔氣的遭遇（+1）相加，所以兩件一起帶等於沒變
+  { id: 'renounce_beads', name: '斷念珠', pool: '塔主', text: '每回合開始時多抽 1 張牌；戰鬥獎勵的牌少一張可選。', art: 'codex/relic_renounce_beads', price: 230,
+    hooks: { turnStart: [{ kind: 'draw', n: 1 }], rewardChoices: -1 } },
+  { id: 'mad_sheath', name: '狂刀鞘', pool: '塔主', text: '每場戰鬥開始時獲得 4 點爪力與 2 層翻肚。', art: 'codex/relic_mad_sheath', price: 230,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 4, target: 'self' }, { kind: 'status', name: '翻肚', amount: 2, target: 'self' }] } },
+  // --- 連線互助（引擎現成的「給同伴」效果；一個人玩時退化成給自己，見 `Effect` 的 `blockAlly`／`statusAlly`）---
+  // 開場那一拍同伴還沒進場，給同伴的那份等人到齊才發（`CombatState.pendingAllyRelics`）
+  { id: 'shared_bento', name: '分食便當', pool: '常見', text: '每回合開始時，同伴獲得 2 點蜷縮（一個人時給自己）。', art: 'codex/relic_shared_bento', price: 120,
+    hooks: { turnStart: [{ kind: 'blockAlly', amount: 2 }] } },
+  { id: 'bond_knot', name: '同心結', pool: '大魔物', text: '每場戰鬥開始時，你和同伴各獲得 1 點爪力（一個人時自己拿 2 點）。', art: 'codex/relic_bond_knot', price: 190,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'statusAlly', name: '爪力', amount: 1 }] } },
 ];
 
 export const relicById: Record<string, RelicDef> = Object.fromEntries(relics.map((r) => [r.id, r]));

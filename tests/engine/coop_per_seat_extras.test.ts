@@ -52,7 +52,9 @@ describe('戰利品的排除名單與加牌，各座位各算各的', () => {
    */
   it('0 號疊了兩張，不該連累 1 號那一份', () => {
     let seen = 0;
-    for (let i = 0; i < 40; i++) {
+    // 40 局 → 160 局（2026-09-23 內容擴充第一批）：忍具改成先抽稀有度，戰利品多吃一次亂數，
+    // 這四十顆種子剛好一次都沒開到（單次約六趴、四十局全落空約一成的機率）；拉長樣本讓它只在真的被連累時才紅
+    for (let i = 0; i < 160; i++) {
       const run = newCoopRun(`extras-ex2-${i}`, 1, 'ninja', 'ninja');
       addCard(run, 'wozaizhe', false, 0);
       addCard(run, 'wozaizhe', false, 0);

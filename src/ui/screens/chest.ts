@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { pick, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
-import { openChest, openChestCoop, runRng } from '../../engine/run';
+import { heroesIn, openChest, openChestCoop, runRng } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { registerScreen } from '../app';
@@ -88,7 +88,7 @@ registerScreen('chest', (app, root) => {
       const picks = onlyStanding(coop.picks('relic', run.players.length), alive);   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       if (!allVoted(picks, alive)) { if (openedCoop) revealCoop(); return; }
       settled = true;
-      const got = settleRelicPicks(runRng(run), offers, picks);
+      const got = settleRelicPicks(runRng(run), offers, picks, heroesIn(run));   // 撞件輸的那位不會被塞鎖他的那件（2026-09-23）
       notice(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
       coop.clearPicks('relic');   // 結算完才清（收尾時清會把票清掉，見上面的說明）
       const mine = got[seat];

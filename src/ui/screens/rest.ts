@@ -1,6 +1,7 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue, pick, storyFor } from '../../content/dialogue';
+import { relicById } from '../../content/relics';
 import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePartner } from '../../engine/run';
 import type { RunAction } from '../../net/runaction';
 import type { CardInstance, RunState } from '../../engine/types';
@@ -81,6 +82,8 @@ registerScreen('rest', (app, root) => {
   const upgradable = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   let used = false;   // 一個貓窩只能做一件事
   let napped = 0;     // 打盹按下去那一刻算出來的回復量（動作繞回來才演得到）
+  // 回 0 點（滿血、或帶著不眠香爐）不要寫「回復 0 點生命」（2026-09-23）
+  const napLine = (n: number): string => (n > 0 ? `${heroSpeaker()}睡了一下，回復 ${n} 點生命。` : `${heroSpeaker()}躺了一下，但沒有回血。`);
   /**
    * 同伴剛在這個貓窩做了什麼（2026-09-22 連線盤點 問題 4）。
    *
@@ -121,7 +124,11 @@ registerScreen('rest', (app, root) => {
     renderHud(app, root);
     const finalRest = run.act >= 3 && run.floor === 44;   // 師父前一格：回滿（引擎 napHeal 同一條規則）
     const heal = healNow();   // 每次重畫都重算：被扶起來之後血量變了，寫死的數字會對不上
-    const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前睡飽：回復 ${heal} 點生命，補到全滿）` : `打盹（回復 ${heal} 點生命）`) : '打盹（生命已經滿了）');
+    // 回 0 不一定是滿血：帶著「打盹不再回血」的秘寶（不眠香爐，2026-09-23）時要講是誰害的，不然按鈕寫「生命已經滿了」是在騙人
+    const sleepless = me(run, seat).hp < me(run, seat).maxHp && napHeal(run, seat) === 0
+      ? me(run, seat).relics.map((id) => relicById[id]).find((d) => d?.hooks.restMultiplier === 0) : undefined;
+    const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前睡飽：回復 ${heal} 點生命，補到全滿）` : `打盹（回復 ${heal} 點生命）`)
+      : sleepless ? `打盹（${sleepless.name}：睡了也不回血）` : '打盹（生命已經滿了）');
     nap.addEventListener('click', () => {
       if (used) return;
       napped = heal;   // 送出之前先記下來：連線要等動作繞回來才演，那時血已經回過了
@@ -131,7 +138,7 @@ registerScreen('rest', (app, root) => {
       play('heal');
       // **用按下去之前算好的 `heal`**：`healNow()` 是「缺多少血」，回完血之後再算會變小，
       // 回到滿血時甚至會寫成「回復 0 點」（稽核 2026-09-12 中-3）
-      afterAction(`${heroSpeaker()}睡了一下，回復 ${heal} 點生命。`, pick(storyFor(me(run, seat).hero).restNapLines));
+      afterAction(napLine(heal), pick(storyFor(me(run, seat).hero).restNapLines));
     });
 
     const verb = sharpenVerb(me(run, seat).hero);   // 她磨的是針，不是爪子
@@ -263,7 +270,7 @@ registerScreen('rest', (app, root) => {
         // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
         if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines), undefined, 'helpup'); continue; }
         if (a.t !== 'rest') continue;
-        if (a.c === '打盹') { play('heal'); afterAction(`${heroSpeaker()}睡了一下，回復 ${napped} 點生命。`, pick(mine.restNapLines)); continue; }
+        if (a.c === '打盹') { play('heal'); afterAction(napLine(napped), pick(mine.restNapLines)); continue; }
         play('upgrade');
         const pl = pendingLine;
         const line = pl && pl.choice === '全力準備'

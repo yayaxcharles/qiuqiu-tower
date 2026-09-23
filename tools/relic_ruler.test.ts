@@ -203,7 +203,9 @@ describe('機器人真的讀這份分數（把表換掉，選擇跟著變）', (
   it('事件：「隨機一件常見秘寶」＝這一位抽得到的那幾件的平均事件分；表換了估值跟著換', () => {
     const run = newRun('ruler-ev', 1, 'dangdang');
     const opt: RunEffect[] = [{ kind: 'relic', pool: '常見' }];
-    const common = relics.filter((r) => r.pool === '常見');
+    // 「這一位抽得到的」＝濾掉鎖住噹噹的（2026-09-23 內容擴充第一批：常見池多了只給封封的磨劍石，量尺對鎖住的那格留空）
+    const common = relics.filter((r) => r.pool === '常見' && obtainable(r, 'dangdang'));
+    expect(common.length, '前提：常見池裡確實有鎖住噹噹的，這條才測得到濾網').toBeLessThan(relics.filter((r) => r.pool === '常見').length);
     const avg = common.reduce((s, r) => s + FILE.relics[r.id]!.dangdang!.ev, 0) / common.length;
     expect(eventValue(run, opt, 0)).toBeCloseTo(avg, 5);
     const table = fakeTable(3);

@@ -428,6 +428,17 @@ export interface RelicDef {
 export interface PotionDef {
   id: string;
   name: string;
+  /**
+   * 稀有度（2026-09-23 內容擴充第一批）：抽的時候照 `POTION_RARITY_ODDS`（常見 65、罕見 27、稀有 8）先抽稀有度再抽這一級裡的一支。
+   * 原本 35 支平均抽，起死回生丹、先手香跟飯糰一樣常見，開到好東西沒有驚喜。跟牌共用同一組三個字。
+   */
+  rarity: Rarity;
+  /**
+   * **這幾位抽不到這一支**（2026-09-23；沒寫＝誰都抽得到）。跟 `RelicDef.notFor` 同一種寫法，
+   * 但「連線時誰用得到」的判準不同：戰利品的忍具是**兩個人各發一支同樣的**，所以要兩位都用得到才開（見 `potionOk`）。
+   * 目前只鎖蓄氣那兩支（提神茶、劍意符）：蓄氣只有封封有，別人喝下去什麼都不會發生。
+   */
+  notFor?: readonly Hero[];
   text: string;
   art: string;
   /** 罐頭鋪售價。不填＝45。 */
@@ -1072,6 +1083,15 @@ export interface CombatState {
    * 魔物血量倍率本來就是靠傳進來的人數算的，這個欄位就是把同一個數字留下來。
    */
   seatCount?: number;
+  /**
+   * 開場那一拍**給同伴的**秘寶效果先記在這裡（2026-09-23 內容擴充第一批：同心結、分食便當）。
+   *
+   * 座位 0 的「每場戰鬥開始」與第一回合的「每回合開始」是在 `startCombat` 裡跑的，那時座位 1 還沒進場，
+   * 「給同伴」會退回給自己（`ally()` 找不到人）——同心結的兩點爪力全落在座位 0 身上。
+   * 所以人還沒到齊時（`players.length < seatCount`）先記著，`beginCombat` 補完人之後一次發掉（`flushAllyRelics`）。
+   * **只在 `beginCombat` 這一拍裡存在**，發完就刪掉，平常永遠是 undefined（指紋照樣收，萬一留下來會當場抓到）。
+   */
+  pendingAllyRelics?: { seat: number; effects: Effect[] }[];
   /**
    * 相容用的別名，**永遠等於 `players[0]`**。
    *

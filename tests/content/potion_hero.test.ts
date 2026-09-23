@@ -13,11 +13,22 @@ import { cards } from '../../src/content/cards';
  *
  * 這條測試釘住的是**前提**：忍具不分職業。哪天有人給忍具加上 `hero` 那類欄位，
  * 或讓某支忍具去翻牌池，這裡就會紅，提醒他回來想一遍「這支對另外兩位還有用嗎」。
+ *
+ * **2026-09-23 內容擴充第一批改了前提**：忍具有了角色鎖（`PotionDef.notFor`），但只鎖「對別人**零效果**」的——
+ * 蓄氣只有封封身上有（`effects.ts` 的 `gainQi`），提神茶、劍意符別人喝下去什麼都不會發生。
+ * 其餘偏某一位的（散毒粉、以牙還牙粉、潛水竹管……）只是比較好用，照上面的判準不鎖。
  */
 describe('忍具不分職業', () => {
-  it('沒有一支忍具綁職業', () => {
-    const bound = potions.filter((p) => 'hero' in p || 'notFor' in p).map((p) => p.name);
-    expect(bound, `這幾支綁了職業：${bound.join('、')}——要想一遍對另外兩位還有沒有用`).toEqual([]);
+  it('只有「對別人零效果」的蓄氣忍具鎖了角色，而且只留給封封', () => {
+    const bound = potions.filter((p) => 'hero' in p || p.notFor?.length);
+    expect(bound.map((p) => p.id).sort()).toEqual(['qi_tea', 'sword_talisman']);
+    for (const p of bound) {
+      expect(p.effects.every((f) => f.kind === 'gainQi'), `${p.name} 除了蓄氣還有別的效果，鎖掉會讓別人少拿到那一半`).toBe(true);
+      expect([...(p.notFor ?? [])].sort(), p.name).toEqual(['dangdang', 'feifei', 'ninja']);
+    }
+    // 反過來：只給蓄氣的忍具一定要鎖（不然球球會抽到一支喝了沒事發生的）
+    const qiOnly = potions.filter((p) => p.effects.every((f) => f.kind === 'gainQi')).map((p) => p.id).sort();
+    expect(qiOnly).toEqual(['qi_tea', 'sword_talisman']);
   });
 
   it('沒有一支忍具的效果會去翻牌池', () => {
