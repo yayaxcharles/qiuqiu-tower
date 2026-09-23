@@ -257,7 +257,7 @@ describe('低-1、低-2、低-5、低-6', () => {
     // 檔頭註解會提到它（寫成「hasCoopScene(…)」），所以只抓真的帶參數的呼叫
     expect(src, '又拿 hasCoopScene 決定照不照字面播：單人時是 false').not.toMatch(/hasCoopScene\(\w/);
     for (const call of [
-      'playDialogue(pro, after, undefined, STORY_LITERAL)',
+      'playDialogue(pro, done, undefined, STORY_LITERAL)',   // `done`＝播完還是同一局才接下去（連線稽核 高-1，同日合併）
       'playOnce(`topScene:${run.act}`, top, playBoss, STORY_LITERAL, topSlides)',
       "playDialogue(storyFor(mine).defeat, () => this.show('result'), undefined, STORY_LITERAL)",
       "playDialogue(vic, () => this.show('result'), undefined, STORY_LITERAL)",
