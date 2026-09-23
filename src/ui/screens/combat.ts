@@ -467,11 +467,13 @@ registerScreen('combat', (app, root, props) => {
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
   /**
-   * 丟出去的狀態類忍具（麻繩、定身釘、貓薄荷球）還在飛的魔物 → 出手前的狀態（2026-09-23 polish 第 3 條）。
-   * 引擎一出手就把定身掛上去了，戰場一重畫狀態牌子與「被定住了」就先亮，繩子才剛從手上飛出去；
+   * 丟出去的東西還在飛的魔物 → 出手前的狀態與防禦（2026-09-23 polish 第 3 條）。
+   * 引擎一出手就把定身、中毒掛上去了，戰場一重畫狀態牌子與「被定住了」就先亮，繩子才剛從手上飛出去；
    * 照血條等命中才扣（motionPendingDamage）的做法，飛到那一刻（landStatus）才換成真的狀態。
+   * 一開始只管狀態類忍具（麻繩、定身釘、貓薄荷球）；主控裁定擴到所有丟出去的牌（毒砂、絆索、點穴手、毛球彈、各種飛針）：
+   * 帶傷害的牌打中還會扣防禦、打掉飛行，所以防禦也一起記，飛在天上的也等打到才掉下來。
    */
-  const motionPendingStatus = new Map<number, Unit['statuses']>();
+  const motionPendingStatus = new Map<number, Pick<Unit, 'statuses' | 'block'>>();
   const motionProjectiles = new Set<() => void>();
   type LocalMotionPresentation = { action: CombatMotionAction; at: number; token: number; trip?: MeleeTrip };
   const locallyPlayedMotion = new LocalMotionPresentationQueue<LocalMotionPresentation>();
@@ -1642,10 +1644,10 @@ registerScreen('combat', (app, root, props) => {
     return monsterPhaseKey(enemyArtFor(e.enemyId, cs.player.hero), e.phase ?? 0);
   }
 
-  /** 狀態牌子與意圖牌照這組畫：丟出去的狀態類忍具還在飛時是出手前的狀態（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
+  /** 狀態牌子、意圖牌、飛在天上照這組畫：丟出去的東西還在飛時是出手前的狀態與防禦（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
   function shownEnemy(e: EnemyCombat): EnemyCombat {
     const pending = motionPendingStatus.get(e.uid);
-    return pending ? { ...e, statuses: pending } : e;
+    return pending ? { ...e, ...pending } : e;
   }
 
   /** 魔物腳下那一排牌子（狀態＋引擎裡看不到的被動）。抽出來是為了東西飛到時只換這一排（見 refreshEnemyStatus） */
@@ -1677,11 +1679,14 @@ registerScreen('combat', (app, root, props) => {
     return row;
   }
 
-  /** 只換這一隻的狀態牌子與意圖牌（整隻重建會把受擊、倒下那些演出一起打斷） */
+  /** 只換這一隻的狀態牌子、意圖牌、飛在天上（整隻重建會把受擊、倒下那些演出一起打斷） */
   function refreshEnemyStatus(node: HTMLElement, e: EnemyCombat): void {
     const reviving = e.dead && e.reviveIn > 0 && willRevive(cs, e);
+    const shown = shownEnemy(e);
     node.querySelector(':scope > .chips')?.replaceWith(enemyChips(e, enemyById[e.enemyId], reviving));
-    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shownEnemy(e)));
+    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown));
+    // 打掉飛行的那一下：東西打到才掉下來（跟 enemyUnit 同一個判準）。虛化只在魔物自己的回合變，不用跟
+    node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);
   }
 
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
@@ -1722,7 +1727,8 @@ registerScreen('combat', (app, root, props) => {
     // 飛在天上的魔物離地浮起來（使用者 2026-09-07：「讓他能上來一點才有飛行感」）。
     // 看的是**當下的飛行層數**不是牌表上的初始值：打中幾下把牠打下來時，畫面會跟著落地，
     // 玩家一眼看得出「打下來了」，跟「攻擊只打得到一半」那條機制對得上
-    if (!e.dead && getStatus(e, '飛行') > 0) cls.push('airborne');
+    // 丟出去的東西還在飛時照出手前的層數（shownEnemy）：不然東西還沒打到，牠就先掉下來了（2026-09-23 polish 第 3 條）
+    if (!e.dead && getStatus(shownEnemy(e), '飛行') > 0) cls.push('airborne');
     // 虛化的本體半透明（使用者 2026-09-14 深夜：「第三層有虛化的怪物不明顯」）。
     // 原本只有狀態列一顆小圖示，立繪一點都沒變，玩家看不出這回合打下去每下只扣 1。
     // 看的是**當下**的虛化層數：牠實體化那一拍類別拿掉、立繪立刻變回實心，輸出窗口一眼看得到
@@ -3098,7 +3104,7 @@ registerScreen('combat', (app, root, props) => {
       };
       const throwBox = node.querySelector<HTMLElement>('.sprite-box');
       const throwFlight = throwing && throwFoot && throwBox && !b.dead && impactPlan.length > 0;
-      // 掙脫定身、上了減益：丟出去的忍具要等東西飛到才演，其餘照舊當場演
+      // 掙脫定身、上了減益：丟出去的東西（忍具與牌）要等東西飛到才演，其餘照舊當場演
       const brokeFree = fresh.some((l) => l === `${e.name}掙脫了定身`);
       const landStatus = (target: HTMLElement): void => {
         // 飛到了才換上真的狀態牌子（定身、懶洋洋⋯⋯）與「被定住了」（2026-09-23 polish 第 3 條，見 motionPendingStatus）
@@ -3110,10 +3116,11 @@ registerScreen('combat', (app, root, props) => {
         }
         if ((a?.debuff ?? sumStatus(e, BAD_STATUS)) > b.debuff) burst(target, 'debuff');
       };
-      const statusByFlight = throwFlight && shot?.aim !== undefined;
-      // 狀態牌子也等東西飛到：剛才那次重畫已經照引擎掛上定身，先換回出手前的樣子，landStatus 再換回來
-      if (statusByFlight && b && STATUS_ORDER.some((name) => (b.statuses[name] ?? 0) !== getStatus(e, name))) {
-        motionPendingStatus.set(e.uid, b.statuses);
+      // 原本只有忍具（帶 aim）才等；主控 2026-09-23 裁定丟出去的牌也一樣（毒砂的中毒、絆索的炸毛、點穴手的定身）
+      const statusByFlight = !!throwFlight;
+      // 狀態牌子也等東西飛到：剛才那次重畫已經照引擎掛上定身、中毒、扣了防禦，先換回出手前的樣子，landStatus 再換回來
+      if (statusByFlight && (b.block !== e.block || STATUS_ORDER.some((name) => (b.statuses[name] ?? 0) !== getStatus(e, name)))) {
+        motionPendingStatus.set(e.uid, { statuses: b.statuses, block: b.block });
         // 剛才那次重畫已經把「被定住了」記成上一次的牌面，換回去會被當成換招、繩子飛行中翻一次牌（實機膠卷）；
         // 忘掉它，飛到那一刻才翻
         lastIntent.delete(e.uid);

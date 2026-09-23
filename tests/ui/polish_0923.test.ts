@@ -133,24 +133,35 @@ describe('第 2 條（稽核 ui 低-2）：收姿勢的等待照「延後後」�
 });
 
 describe('第 3 條：麻繩、定身釘這類，狀態牌子等飛到才掛上', () => {
-  it('魔物的狀態牌子與意圖牌照 shownEnemy 畫：還在飛的換成出手前的狀態', async () => {
+  it('魔物的狀態牌子與意圖牌照 shownEnemy 畫：還在飛的換成出手前的狀態與防禦', async () => {
     const body = sourceBetween(COMBAT, '  function shownEnemy(e: EnemyCombat): EnemyCombat {', '  /** 魔物腳下那一排牌子');
     let shown: unknown;
-    const pending = new Map([[7, { 越戰越勇: 3 }]]);
-    await execute(`${body}\nresult(shownEnemy({ uid: 7, statuses: { 越戰越勇: 3, 定身: 1 } }), shownEnemy({ uid: 8, statuses: { 定身: 1 } }));`,
+    const pending = new Map([[7, { statuses: { 越戰越勇: 3, 飛行: 2 }, block: 8 }]]);
+    await execute(`${body}\nresult(shownEnemy({ uid: 7, block: 0, statuses: { 越戰越勇: 3, 飛行: 1, 中毒: 3 } }), shownEnemy({ uid: 8, block: 0, statuses: { 定身: 1 } }));`,
       { motionPendingStatus: pending, result: (a: unknown, b: unknown) => { shown = [a, b]; } });
-    expect(shown).toEqual([{ uid: 7, statuses: { 越戰越勇: 3 } }, { uid: 8, statuses: { 定身: 1 } }]);
+    expect(shown).toEqual([{ uid: 7, block: 8, statuses: { 越戰越勇: 3, 飛行: 2 } }, { uid: 8, block: 0, statuses: { 定身: 1 } }]);
   });
 
-  it('畫法接線：牌子排與意圖牌都走 shownEnemy；丟出去那一拍記下出手前的狀態，飛到（landStatus）才拿掉並換牌子', () => {
+  it('畫法接線：牌子排、意圖牌、飛在天上都走 shownEnemy；丟出去那一拍記下出手前的狀態與防禦，飛到（landStatus）才拿掉並換牌子', () => {
     expect(sourceBetween(COMBAT, '  function enemyChips(', '  /** 只換這一隻')).toContain('statusRow(shownEnemy(e), false, `e${e.uid}`)');
-    expect(sourceBetween(COMBAT, '  function enemyUnit(', '  function sidePanel(')).toContain('intentChip(shownEnemy(e))');
+    const unit = sourceBetween(COMBAT, '  function enemyUnit(', '  function sidePanel(');
+    expect(unit).toContain('intentChip(shownEnemy(e))');
+    expect(unit).toContain("getStatus(shownEnemy(e), '飛行') > 0) cls.push('airborne')");
+    expect(sourceBetween(COMBAT, '  function refreshEnemyStatus(', '  function enemyUnit(')).toContain("node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);");
     expect(COMBAT).toContain('statuses: { ...e.statuses },');
     const loop = sourceBetween(COMBAT, '      const landStatus = (target: HTMLElement): void => {', '      if (throwFlight && shot && throwFoot && throwBox && impactSource && impactMotion) {');
     expect(loop).toContain('if (motionPendingStatus.delete(e.uid)) refreshEnemyStatus(target,');
-    expect(loop).toMatch(/if \(statusByFlight && b && STATUS_ORDER\.some\([^\n]+\) \{\n\s+motionPendingStatus\.set\(e\.uid, b\.statuses\);\n[\s\S]*?lastIntent\.delete\(e\.uid\);\n\s+refreshEnemyStatus\(node, e\);/);
+    expect(loop).toMatch(/if \(statusByFlight && \(b\.block !== e\.block \|\| STATUS_ORDER\.some\([^\n]+\) \{\n\s+motionPendingStatus\.set\(e\.uid, \{ statuses: b\.statuses, block: b\.block \}\);\n[\s\S]*?lastIntent\.delete\(e\.uid\);\n\s+refreshEnemyStatus\(node, e\);/);
     // 整場收掉、演出出錯還原時一起清，不會把牌子永遠藏著
     expect(COMBAT.match(/motionPendingStatus\.clear\(\);/g)?.length).toBe(2);
+  });
+
+  it('主控裁定：丟出去的牌也等飛到（不只帶 aim 的忍具）——毒砂、絆索、點穴手、毛球彈、飛針都在這一條', () => {
+    const loop = sourceBetween(COMBAT, '      const landStatus = (target: HTMLElement): void => {', '      if (throwFlight && shot && throwFoot && throwBox && impactSource && impactMotion) {');
+    expect(loop).toContain('const statusByFlight = !!throwFlight;');
+    // 飛到才演減益特效與「掙脫！」：最後一波打到時叫 landStatus，沒有飛行的才當場演
+    expect(COMBAT).toContain('if (live && statusByFlight && wave === waves - 1) landStatus(live);');
+    expect(COMBAT).toContain('if (!statusByFlight) landStatus(node);');
   });
 });
 
