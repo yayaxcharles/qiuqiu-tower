@@ -45,3 +45,17 @@ declare module 'node:child_process' {
     options?: { stdio?: string; encoding?: string },
   ): string;
 }
+
+/**
+ * `process`／`__dirname`（2026-09-23 低-2）：CommonJS 執行環境的全域變數，不是從
+ * 哪個 `node:` 模組匯入的，`@types/node` 才會幫忙補。這幾支 `tools/*.test.ts`
+ * 本來就用得到（讀環境變數決定要不要重生匯出檔、拼絕對路徑），以前沒被型別檢查
+ * 照到所以沒人發現少宣告——**這條要用「LF 副本＋鎖檔套件＋`--preserveSymlinks`」
+ * 模擬雲端才驗得出來**：本機用 junction 借套件時，tsc 預設會順著 junction 解回
+ * 主資料夾的真實路徑，在那裡撿到 `@types/node` 的全域宣告，看起來一路是綠的；
+ * 雲端 `npm ci` 沒有任何連結、也沒有 `@types/node`，會是真的紅。
+ * `vite.config.ts` 也用得到 `process`，但它是那個檔案自己局部宣告的一份，
+ * 只在那一支看得到，不能覆蓋到這裡；這裡是全域，各支測試不用重宣告一次。
+ */
+declare const process: { env: Record<string, string | undefined> };
+declare const __dirname: string;
