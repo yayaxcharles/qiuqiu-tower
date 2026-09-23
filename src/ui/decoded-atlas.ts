@@ -17,6 +17,7 @@
  *   比排隊之後才畫過的低、比排隊之前就沒再用的舊圖高。換角色開第二局時先放上一局的舊圖；
  *   同一批裡資料檔排在前面的常用動作（待機、爪擊）保得住，後面罕用的先放。
  * - 「正要畫」而排的（包括開戰就要畫的魔物），解好時當作剛畫過。
+ * - 預先解的那張算得出「一存進去就會被放掉」，就乾脆不下載、不解（2026-09-23，見 `drain`）。
  * 被放掉或還沒解好的，呼叫端照舊畫原本的 <img>（當場解碼，跟以前一樣），並排一次「正要畫」。
  */
 
@@ -50,9 +51,25 @@ export function decodedAtlas(image: HTMLImageElement): ImageBitmap | undefined {
   return entry.bitmap;
 }
 
+/** 預先解好、還沒畫過的分數（見檔頭）：排隊當下的使用序號，後排的減得多 */
+const preparedScore = (request: Request): number => request.clock - request.seq * 1e-6;
+
+/**
+ * 分數是 `score`、大小是 `bytes` 的新一張存進去之後留不留得住（2026-09-23 稽核 ui 低-3）。
+ *
+ * `store` 超過上限時從分數最低的開始放，同分先放先存進去的（`Map` 照存入順序走，新的一張排最後）。
+ * 所以留得住＝分數不比它高的全放掉之後，總量不超過上限。
+ */
+export function survivesBudget(bytes: number, score: number,
+  entries: Iterable<Readonly<{ bytes: number; score: number }>>, used: number, budget: number): boolean {
+  let freed = 0;
+  for (const entry of entries) if (entry.score <= score) freed += entry.bytes;
+  return used + bytes - freed <= budget;
+}
+
 function store(image: HTMLImageElement, bitmap: ImageBitmap, request: Request): void {
   const bytes = bitmap.width * bitmap.height * 4;
-  const score = request.inUse ? ++useClock : request.clock - request.seq * 1e-6;
+  const score = request.inUse ? ++useClock : preparedScore(request);
   ready.set(image, { bitmap, bytes, score });
   usedBytes += bytes;
   while (usedBytes > budgetBytes && ready.size > 0) {
@@ -74,6 +91,16 @@ async function drain(): Promise<void> {
     for (let image = queue.shift(); image; image = queue.shift()) {
       const request = queued.get(image)!;
       try {
+        /*
+         * 預先解（還沒人要畫）的那張，存進去就會被擠掉的話就不做（2026-09-23 稽核 ui 低-3）。
+         * 同一批預先解的分數一張比一張低，快取滿了之後每張新解好的都是最低分、存進去立刻 `close()`——
+         * 手機（上限 128 MB、放得下約 20 張）球球開局會多下載＋解開約 23 張再丟掉，白耗處理器與電池。
+         * 解開後的大小就是圖本身的長寬，<img> 載好時就知道，不必真的解一次才算得出來。
+         * 正要畫的（`inUse`）照舊一定解；這裡跳過的沒記成失敗，真的要畫時會再排一次、插隊解。
+         */
+        const bytes = image.naturalWidth * image.naturalHeight * 4;
+        if (!request.inUse && Number.isFinite(bytes) && bytes > 0
+          && !survivesBudget(bytes, preparedScore(request), ready.values(), usedBytes, budgetBytes)) continue;
         const response = await fetch(image.src, { cache: 'force-cache' });
         if (!response.ok) throw new Error(`讀不到 ${image.src}`);
         store(image, await createImageBitmap(await response.blob()), request);

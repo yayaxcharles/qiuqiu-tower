@@ -36,6 +36,7 @@ import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
+import { combatWarmPoses } from '../rest-state-motion';
 import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuPlayableAction, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
 import {
   companionCardAction,
@@ -1141,6 +1142,13 @@ registerScreen('combat', (app, root, props) => {
    */
   const warmedHeroes = new Set<string>();
   const warmedEnemies = new Set<string>();
+  /**
+   * 逐格動作好了之後還可能露出來的靜態立繪（2026-09-23 稽核 ui 低-4，判準見 `combatWarmPoses`）：
+   * 待機狀態那批一定要；挨打、閃、擋、勝、敗、倒下的逐格動作不是延後下載的，照理不會露出靜態圖，
+   * 但那幾條交還路線沒有測試釘著，一位才六張，保守起見照暖——那一刻空白比多占幾 MB 糟。
+   */
+  const motionFallbackPoses: ReadonlySet<string> = new Set([...Object.values(REST_STATE_POSES),
+    POSE.hit, POSE.dodge, POSE.guard, POSE.win, POSE.lose, POSE.down]);
   const warmHeroes = (): void => {
     const urls: string[] = [];
     // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
@@ -1148,7 +1156,10 @@ registerScreen('combat', (app, root, props) => {
       const who = `${q.seat}:${q.hero ?? ''}`;
       if (warmedHeroes.has(who)) continue;
       warmedHeroes.add(who);
-      for (const key of Object.values(POSE)) urls.push(heroArtUrl(q.hero, key));
+      // 逐格動作已經載好就只暖退路會用到的；還沒載好（冷快取的第一場）或 `?motion=0` 照舊全套
+      const source = motionEnabled ? motionSourceFor(q) : undefined;
+      const motionReady = !!source && (source === 'qiuqiu' ? qiuqiuMotionReady() : companionMotionReady(source));
+      for (const key of combatWarmPoses(Object.values(POSE), motionFallbackPoses, motionReady)) urls.push(heroArtUrl(q.hero, key));
     }
     warm(urls);
   };
