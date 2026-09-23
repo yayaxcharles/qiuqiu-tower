@@ -200,3 +200,34 @@ describe('第 7 條：罐頭鋪老闆的手不蓋到秘寶第一格', () => {
     expect(Math.round(height * 221.33 / 280)).toBeLessThan(219);
   });
 });
+
+describe('主控最後一輪第 1 條：丟東西打到帶刺的魔物，被刺回來那一下也等飛到才演（只改演出時機）', () => {
+  it('從這一拍的紀錄算出刺了多少、其中蜷縮擋掉多少（刺先扣蜷縮，引擎緊接著寫一行擋下）', async () => {
+    const body = sourceBetween(COMBAT, 'function thornPricks(', '/**\n * 狀態列（`hud.ts` 的 `renderHud`）');
+    let got: unknown;
+    await execute(`${body}\nresult([
+      thornPricks(['球球打出「毛球彈」', '木樁人的刺反彈了 3 點', '蜷縮擋下了 2 點', '木樁人的刺反彈了 3 點']),
+      thornPricks(['菲菲打出「連針」', '刺蝟師傅的刺反彈了 1 點', '菲菲的蜷縮擋下了 1 點']),
+      thornPricks(['蜷縮擋下了 5 點', '木樁人的防禦擋下了 4 點']),
+    ]);`, { result: (r: unknown) => { got = r; } });
+    // 第三個：沒有被刺，前面那行是魔物打人時擋下的，不能算進來
+    expect(got).toEqual([{ total: 6, blocked: 2 }, { total: 1, blocked: 1 }, { total: 0, blocked: 0 }]);
+  });
+
+  it('接線：出手那一位的血與蜷縮照 shownPlayer 畫；帶刺的目標最後一個飛到才演；當場那一段扣掉延後的部分', () => {
+    const unit = sourceBetween(COMBAT, '  const playerUnit = (q: PlayerCombat): HTMLElement => {', '    mountMotion(q, picture, displayedPose);');
+    expect(unit).toContain('hpBar(`p${q.seat}`, shownPlayer(q).hp, q.maxHp)');
+    expect(unit).toContain('statusRow(shownPlayer(q), true, `p${q.seat}`)');
+    // 帶刺又被打中的目標才算；最後一波打到時倒數，歸零才演
+    expect(COMBAT).toContain("const pricks = (b.statuses['反彈'] ?? 0) > 0 && enemyHits.length > 0;");
+    expect(COMBAT).toContain('if (pricks && wave === waves - 1 && --thornFlights === 0) revealThorns?.();');
+    const hold = sourceBetween(COMBAT, '    if (thornFlights > 0) {', '    // 全體攻擊的各目標可能因死亡或隱身而有不同波數');
+    expect(hold).toContain('motionPendingPlayer.set(thornSeat, { hp, block });');
+    expect(hold).toContain("lastHpPct.delete(`p${thornSeat}`);");
+    expect(hold).toMatch(/revealThorns = \(\): void => \{[\s\S]*motionPendingPlayer\.delete\(thornSeat\)[\s\S]*playerHurtFx\(live, hp, thrower\.maxHp, false\)/);
+    // 當場那一段只演扣掉延後那部分之後剩下的
+    expect(COMBAT).toContain("const guarded = blockedAmount(fresh, '蜷縮擋下了') - (heldHere?.block ?? 0);");
+    expect(COMBAT).toContain('const lost = before.hp - comparedHp - (heldHere?.hp ?? 0);');
+    expect(COMBAT.match(/motionPendingPlayer\.clear\(\);/g)?.length).toBe(2);
+  });
+});
