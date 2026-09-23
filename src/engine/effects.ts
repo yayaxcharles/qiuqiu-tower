@@ -803,7 +803,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     case 'guardLethal':
       p.guardLethal = true;
-      log(cs, '回魂香點上了：這場接下來第一次會被打倒時，留下 1 點生命');
+      log(cs, '回魂香點上了：這場接下來第一次會被打倒時，留下 1 點生命，那一輪魔物再打也打不倒');
       return false;
     // 替換符：手上挑一張（選單照「消耗」那套走），挑完在 `resolveChoice` 換（`combat.ts` 的 `transformCard`）
     case 'transformFromHand':

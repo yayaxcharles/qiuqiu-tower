@@ -1075,6 +1075,11 @@ export interface PlayerCombat extends Unit {
   energyNextTurn?: number;
   /** 回魂香：這場接下來第一次會被打倒時留 1 點生命。用掉就清掉 */
   guardLethal?: boolean;
+  /**
+   * 回魂香拉住過一次：這個魔物回合剩下的攻擊都打不死（最低留 1 血）。`actions.ts` 的 `damagePlayer` 立、`combat.ts` 的
+   * `finishEnemyTurn` 清（2026-09-24 b3int 主控裁決）。在自己的回合被打倒（自傷）時立的，撐到接下來那個魔物回合結束
+   */
+  guardLethalHold?: boolean;
   /** 跨戰鬥計數的戰鬥內那一份（木人樁），開打時從 `RunPlayer.counters` 抄進來、`finishCombat` 寫回去 */
   relicCounters?: Record<string, number>;
   /** 收鞘墜：這場花掉的蓄氣還沒湊滿一份的零頭 */

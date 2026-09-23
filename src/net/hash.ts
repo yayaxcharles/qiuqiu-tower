@@ -81,6 +81,7 @@ export function combatFingerprint(cs: CombatState): string {
        */
       ...(p.energyNextTurn ? [`ent${p.energyNextTurn}`] : []),
       ...(p.guardLethal ? ['gl'] : []),
+      ...(p.guardLethalHold ? ['glh'] : []),   // 回魂香拉住過、這一輪魔物打不死（2026-09-24 b3int）
       ...(p.relicCounters && Object.keys(p.relicCounters).length ? [`rc[${countersKey(p.relicCounters)}]`] : []),
       ...(p.qiSpentAcc ? [`qsa${p.qiSpentAcc}`] : []),
       ...(p.fullMoonTurn !== undefined ? [`fmt${p.fullMoonTurn}`] : []),

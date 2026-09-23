@@ -300,7 +300,16 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
   if (p.hp <= 0) {
     // 擋一次致命傷的秘寶由資料決定（最後一口氣的 preventLethal），不要把 id 寫死在引擎裡
     const saverId = p.relics.find((id) => relicById[id]?.hooks.preventLethal);
-    if (saverId && !p.lethalPrevented) {
+    /*
+     * 回魂香拉住過一次之後，這個魔物回合剩下的攻擊都打不死（最低留 1 血，`guardLethalHold`，魔物回合結束清掉）。
+     * 2026-09-24 b3int 主控裁決：原本只救第一下，同一回合第二隻魔物再打就倒，玩家會覺得被騙。
+     * 擺在最前面：已經被香拉著的這一回合，不該再把最後一口氣那一次用掉
+     */
+    if (p.guardLethalHold) {
+      p.hp = 1;
+      log(cs, `回魂香的煙還繞著${unitName(p)}，這一下打不倒`);
+    }
+    else if (saverId && !p.lethalPrevented) {
       p.hp = 1; p.lethalPrevented = true;
       // 這條自己有專屬的紀錄句子（比「發動」講得清楚），所以只推清單、不再多印一行
       markRelic(cs, saverId);
@@ -308,8 +317,8 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     }
     // 回魂香（2026-09-23 第二批）：秘寶那一次先用，已經用掉（或沒帶）才輪到忍具這一次
     else if (p.guardLethal) {
-      p.hp = 1; p.guardLethal = undefined;
-      log(cs, `回魂香的煙拉住了${unitName(p)}，留下 1 點生命`);
+      p.hp = 1; p.guardLethal = undefined; p.guardLethalHold = true;
+      log(cs, `回魂香的煙拉住了${unitName(p)}，留下 1 點生命，這一輪魔物再打也打不倒`);
     }
     else {
       p.hp = 0;

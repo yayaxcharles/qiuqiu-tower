@@ -67,8 +67,8 @@ describe('畫面接線', () => {
     expect(combat).toContain('dazeTarget(cs, e)?.name');
     expect(combat).toContain("chip-bento");
     expect(combat).toContain("chip-guard");
-    expect(combat).toContain("!!pNode.querySelector('.chip-guard') !== !!p.guardLethal");
-    expect(combat).toContain("q.energyNextTurn ?? '', q.guardLethal ? 1 : ''");
+    expect(combat).toContain("(pNode.querySelector('.chip-guard')?.textContent ?? '') !== guardChipText(p)");   // 2026-09-24 b3int：拉住之後換成「打不倒」
+    expect(combat).toContain("q.energyNextTurn ?? '', q.guardLethalHold ? 2 : q.guardLethal ? 1 : ''");
   });
   it('圖鑑：兩個限定池各一區、套組那一區寫集到幾件（封面帶續玩那一局的秘寶）', () => {
     expect(ITEMS).toContain("const RELIC_POOLS = ['起始', '常見', '大魔物', '塔主', '罐頭鋪', '事件'] as const;");

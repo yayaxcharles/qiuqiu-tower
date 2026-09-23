@@ -174,7 +174,8 @@ export const potions: PotionDef[] = [
    * 四種新效果（`energyNextTurn`、`guardLethal`、`transformFromHand`、`daze`）＋照妖鏡的「全體拔狀態」＋傳功丹（現成的給同伴）。
    * 圖示照美術 art2 的對照表（代號＝檔名）；迷魂香是丟出去的（飛行物 `daze_incense`，見 `ui/projectile-kinds.ts`）。
    */
-  { id: 'revive_incense', name: '回魂香', rarity: '稀有', text: '這場戰鬥接下來第一次會被打倒時，留下 1 點生命。', art: 'codex/potion_revive_incense', price: 70, target: 'self',
+  // 回魂香 2026-09-24 b3int 主控裁決：原本只救第一下、同一回合第二隻魔物再打就倒，改成拉住之後這一輪魔物剩下的攻擊都打不死（`guardLethalHold`）
+  { id: 'revive_incense', name: '回魂香', rarity: '稀有', text: '這場戰鬥接下來第一次會被打倒時，留下 1 點生命；這個魔物回合剩下的攻擊也打不死你（最低留 1 點）。', art: 'codex/potion_revive_incense', price: 70, target: 'self',
     effects: [{ kind: 'guardLethal' }] },
   { id: 'bento', name: '便當', rarity: '常見', text: '下回合開始時多 2 顆飯糰。', art: 'codex/potion_bento', price: 40, target: 'self',
     effects: [{ kind: 'energyNextTurn', n: 2 }] },

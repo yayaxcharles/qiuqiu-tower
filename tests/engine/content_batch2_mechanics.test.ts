@@ -523,6 +523,35 @@ describe('四支新忍具', () => {
     expect(both.phase).toBe('player');
   });
 
+  it('回魂香拉住之後，這個魔物回合剩下的攻擊都打不死（連打、三隻一起打都留 1 血）；下一輪就沒了（2026-09-24 b3int 主控裁決）', () => {
+    // 同一隻連打三下：第一下被香拉住，後兩下也打不倒
+    const combo = start([], { potions: ['revive_incense'] });
+    quiet(combo, HIT(200, 3));
+    usePotion(combo, 'revive_incense');
+    endTurn(combo);
+    expect(combo.player.hp).toBe(1);
+    expect(combo.phase).toBe('player');
+    expect(combo.player.guardLethalHold, '魔物回合結束就清掉').toBeFalsy();
+    endTurn(combo);
+    expect(combo.phase, '下一輪沒有香了，照樣倒').toBe('lost');
+    // 三隻老鼠同一輪各打一下（原本第二隻就打倒，玩家會覺得被騙）
+    const trio = start([], { potions: ['revive_incense'], encounterId: 'rats3' });
+    expect(trio.enemies.length).toBeGreaterThanOrEqual(2);
+    quiet(trio, HIT(200));
+    usePotion(trio, 'revive_incense');
+    endTurn(trio);
+    expect(trio.player.hp).toBe(1);
+    expect(trio.phase).toBe('player');
+    // 最後一口氣先用掉的那一輪：香還沒點到，第二下才輪到香、之後同一輪也打不倒
+    const both = start(['last_breath'], { potions: ['revive_incense'] });
+    quiet(both, HIT(200, 3));
+    usePotion(both, 'revive_incense');
+    endTurn(both);
+    expect(both.player.hp).toBe(1);
+    expect(both.phase).toBe('player');
+    expect(both.player.guardLethal, '第二下用掉了香').toBeFalsy();
+  });
+
   it('照妖鏡：拔掉全體魔物的隱身、潛水與虛化', () => {
     const cs = start([], { encounterId: 'rats3', potions: ['demon_mirror'] });
     for (const e of cs.enemies) { e.statuses['隱身'] = 2; e.statuses['虛化'] = 1; e.statuses['潛水'] = 1; e.statuses['爪力'] = 2; }

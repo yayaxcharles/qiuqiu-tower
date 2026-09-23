@@ -319,7 +319,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     }
     // 2026-09-23 內容擴充第二批的四個（今天只有忍具用，忍具的牌面是手寫的 `text`；這裡寫好是為了哪天有牌用到時不會漏）
     case 'energyNextTurn': return `下回合開始時多 ${fx.n} 顆飯糰`;
-    case 'guardLethal': return '這場戰鬥接下來第一次會被打倒時，留下 1 點生命';
+    case 'guardLethal': return '這場戰鬥接下來第一次會被打倒時，留下 1 點生命；這個魔物回合剩下的攻擊也打不死你（最低留 1 點）';
     case 'transformFromHand': return '挑一張手牌，換成一張隨機的升級牌（只在這場戰鬥）';
     case 'daze': return '目標這回合的攻擊改打牠旁邊的同伴（沒有同伴就打空）';
     case 'removeStatuses': return fx.target === 'all' ? `拔掉全體魔物身上的${fx.names.join('、')}` : fx.max === undefined

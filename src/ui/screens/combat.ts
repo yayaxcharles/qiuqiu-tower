@@ -331,6 +331,11 @@ function dropPending<T extends { token: number }>(map: Map<number, T[]>, key: nu
   return true;
 }
 
+/** 回魂香那塊牌子的字：點上了＝「回魂香」、拉住過一次這一輪打不倒＝「回魂香：打不倒」、都沒有＝空（重畫比對也用這支，2026-09-24 b3int） */
+function guardChipText(p: Pick<PlayerCombat, 'guardLethal' | 'guardLethalHold'>): string {
+  return p.guardLethalHold ? '回魂香：打不倒' : p.guardLethal ? '回魂香' : '';
+}
+
 function thornPricks(lines: readonly string[]): { total: number; blocked: number } {
   let total = 0;
   let blocked = 0;
@@ -1150,7 +1155,7 @@ registerScreen('combat', (app, root, props) => {
   const mateSig = (q: PlayerCombat): string => {
     const mp = matePlay.get(q.seat);
     return [mateHint.get(q.seat) ?? '', mp && mp.turn === cs.turn ? mp.card.uid : '', q.qi ?? '', q.poisonNextAttack?.amount ?? '', cs.phase,
-      q.energyNextTurn ?? '', q.guardLethal ? 1 : ''].join('|');   // 便當、回魂香的牌子（2026-09-23 第二批）
+      q.energyNextTurn ?? '', q.guardLethalHold ? 2 : q.guardLethal ? 1 : ''].join('|');   // 便當、回魂香的牌子（2026-09-23 第二批）
   };
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
@@ -1473,9 +1478,11 @@ registerScreen('combat', (app, root, props) => {
       attachTextTooltip(node, '下回合飯糰', `下回合開始時多 ${pc.energyNextTurn} 顆飯糰（便當、影分身卷軸給的）`);
       row.append(node);
     }
-    if (pc.guardLethal) {
-      const node = el('div', { class: 'chip good power chip-guard' }, el('b', {}, '回魂香'));
-      attachTextTooltip(node, '回魂香', '這場戰鬥接下來第一次會被打倒時，留下 1 點生命');
+    if (pc.guardLethal || pc.guardLethalHold) {
+      // 拉住過一次之後換成「打不倒」：這一輪魔物剩下的攻擊都打不死（2026-09-24 b3int），牌子要看得出來，不然會以為香已經沒了
+      const node = el('div', { class: 'chip good power chip-guard' }, el('b', {}, guardChipText(pc)));
+      attachTextTooltip(node, '回魂香', pc.guardLethalHold ? '這一輪魔物剩下的攻擊都打不死你（最低留 1 點生命）'
+        : '這場戰鬥接下來第一次會被打倒時，留下 1 點生命；這個魔物回合剩下的攻擊也打不死你（最低留 1 點）');
       row.append(node);
     }
     // 球球身上生效中的能力牌（封印解除、結界……）：一張一個牌子，疊了幾張寫數字，滑上去看那張牌的效果
@@ -2195,7 +2202,7 @@ registerScreen('combat', (app, root, props) => {
       || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack')
       // 便當、回魂香的牌子（2026-09-23 第二批）：喝下去時血、蜷縮、狀態都沒變，不比這兩個的話牌子要等下一次重畫才冒出來
       || (pNode.querySelector('.chip-bento')?.textContent ?? '') !== (p.energyNextTurn ? `下回合飯糰+${p.energyNextTurn}` : '')
-      || !!pNode.querySelector('.chip-guard') !== !!p.guardLethal;
+      || (pNode.querySelector('.chip-guard')?.textContent ?? '') !== guardChipText(p);
     if (pChanged) pNode.replaceWith(playerUnit(p));
     // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態，有變才換（見 `mateUnitStale`）
     for (const q of cs.players) {

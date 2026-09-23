@@ -1132,6 +1132,8 @@ export function finishEnemyTurn(cs: CombatState): void {
   cs.enemyQueue = [];
   // 迷魂只撐這一輪（2026-09-23 第二批）：出過手、被定住、先手香整輪跳過，一律在這裡散掉
   for (const e of cs.enemies) if (getStatus(e, '迷魂') > 0 || e.dazedBy !== undefined) { removeStatus(e, '迷魂'); delete e.dazedBy; }
+  // 回魂香的「這個魔物回合剩下的攻擊都打不死」只撐到這一輪魔物打完（2026-09-24 b3int）
+  for (const p of cs.players) delete p.guardLethalHold;
   // 蜷縮撐到你下回合開始：魔物打完了才修剪，守護符留 8 點、沒有守護符就歸零（審查 #1）
   cs.enemyActing = false;
   // 留蜷縮到下一回合的那幾件：真的留下東西才算發動（稽核 2026-09-10 中-3）
