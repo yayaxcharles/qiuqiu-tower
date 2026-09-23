@@ -1,0 +1,1218 @@
+{
+  "event_dangdang_daxia_chest": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_daxia_chest",
+    "file": "public/assets/bg/event_dangdang_daxia_chest.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39024,
+    "droppedSpecks": 110,
+    "semiTransparentShare": 0.0433,
+    "gate": [],
+    "sha256": "ea0a7dbd31d6625cd5a364a672d38fac49dff56a2cf3a8a8833f96b0401331b7",
+    "at": "2026-09-23 19:51:04"
+  },
+  "event_dangdang_daxia_chest_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_daxia_chest_r0",
+    "file": "public/assets/bg/event_dangdang_daxia_chest_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40038,
+    "droppedSpecks": 138,
+    "semiTransparentShare": 0.0465,
+    "gate": [],
+    "sha256": "dc039347d2c41f6caf48231455d548d98776aa8b6d27b00f1332f2178b5fe8f3",
+    "at": "2026-09-23 19:51:08"
+  },
+  "event_dangdang_daxia_chest_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_daxia_chest_r1",
+    "file": "public/assets/bg/event_dangdang_daxia_chest_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 42884,
+    "droppedSpecks": 152,
+    "semiTransparentShare": 0.0435,
+    "gate": [],
+    "sha256": "6ebf9a6ce035575668688d64c3c3bb16cb542b5528edffb929d34a52f497482c",
+    "at": "2026-09-23 19:51:11"
+  },
+  "event_dangdang_daxia_lastpage": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_daxia_lastpage",
+    "file": "public/assets/bg/event_dangdang_daxia_lastpage.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40128,
+    "droppedSpecks": 135,
+    "semiTransparentShare": 0.0445,
+    "gate": [],
+    "sha256": "de44d623a6235db13cc01f38a13faf2b1bc73de9509be76d18d20498b0557245",
+    "at": "2026-09-23 19:52:35"
+  },
+  "event_dangdang_daxia_lastpage_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_daxia_lastpage_r0",
+    "file": "public/assets/bg/event_dangdang_daxia_lastpage_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40372,
+    "droppedSpecks": 150,
+    "semiTransparentShare": 0.0442,
+    "gate": [],
+    "sha256": "47d5bd478312b1377214bcf86fd7926f3ccd14103384e0b088ccd65ef20e3505",
+    "at": "2026-09-23 19:52:39"
+  },
+  "event_dangdang_daxia_lastpage_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_daxia_lastpage_r1",
+    "file": "public/assets/bg/event_dangdang_daxia_lastpage_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39828,
+    "droppedSpecks": 112,
+    "semiTransparentShare": 0.0504,
+    "gate": [],
+    "sha256": "3ecfdcec645469885a307179f911c7dcbfc404d49dd7b4c1ddefc791659353d7",
+    "at": "2026-09-23 19:52:42"
+  },
+  "event_dangdang_daxia_lastpage_r2": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_daxia_lastpage_r2",
+    "file": "public/assets/bg/event_dangdang_daxia_lastpage_r2.webp",
+    "sourceSize": [
+      1378,
+      1142
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 42900,
+    "droppedSpecks": 94,
+    "semiTransparentShare": 0.0397,
+    "gate": [],
+    "sha256": "65f7d115c87b1856f7e7ec4c248b03c229e3bfa2103bb7a54b50a144a80e571b",
+    "at": "2026-09-23 19:52:46"
+  },
+  "event_daxia_chest": {
+    "attempt": 1,
+    "key": "bg/event_daxia_chest",
+    "file": "public/assets/bg/event_daxia_chest.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 36862,
+    "droppedSpecks": 309,
+    "semiTransparentShare": 0.0478,
+    "gate": [],
+    "sha256": "890216b7cc2c22923eff9b4a0c89461fdc39ddb8bc3bad73306659dabd8c42a9",
+    "at": "2026-09-23 19:41:03"
+  },
+  "event_daxia_chest_r0": {
+    "attempt": 1,
+    "key": "bg/event_daxia_chest_r0",
+    "file": "public/assets/bg/event_daxia_chest_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 43842,
+    "droppedSpecks": 137,
+    "semiTransparentShare": 0.0417,
+    "gate": [],
+    "sha256": "f618a287f02bd127193b6b43081f3aaba18757e0aeef0ea00260f85d6da9eac7",
+    "at": "2026-09-23 19:49:08"
+  },
+  "event_daxia_chest_r1": {
+    "attempt": 1,
+    "key": "bg/event_daxia_chest_r1",
+    "file": "public/assets/bg/event_daxia_chest_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 42478,
+    "droppedSpecks": 182,
+    "semiTransparentShare": 0.0512,
+    "gate": [],
+    "sha256": "1d7be6805e7d13ed643d038fe8e8b1c12d91c3730a6f74ed8a4ee3b50ce209a3",
+    "at": "2026-09-23 19:49:12"
+  },
+  "event_daxia_lastpage": {
+    "attempt": 1,
+    "key": "bg/event_daxia_lastpage",
+    "file": "public/assets/bg/event_daxia_lastpage.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 42494,
+    "droppedSpecks": 311,
+    "semiTransparentShare": 0.0397,
+    "gate": [],
+    "sha256": "a36c19dd5780e078bff6d5fd6bf732794e3fe11d09385e96a01913213ee4d88e",
+    "at": "2026-09-23 19:49:16"
+  },
+  "event_daxia_lastpage_r0": {
+    "attempt": 1,
+    "key": "bg/event_daxia_lastpage_r0",
+    "file": "public/assets/bg/event_daxia_lastpage_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44224,
+    "droppedSpecks": 124,
+    "semiTransparentShare": 0.0518,
+    "gate": [],
+    "sha256": "98b9429d6d3c044684ccc44be7218340764357fbd807c106626ca50550006db6",
+    "at": "2026-09-23 19:49:19"
+  },
+  "event_daxia_lastpage_r1": {
+    "attempt": 1,
+    "key": "bg/event_daxia_lastpage_r1",
+    "file": "public/assets/bg/event_daxia_lastpage_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38290,
+    "droppedSpecks": 164,
+    "semiTransparentShare": 0.0508,
+    "gate": [],
+    "sha256": "8cf81ffef3ccff159a0700493f097b4c65aa2de65d7b5a7ef801e136d24836cb",
+    "at": "2026-09-23 19:49:23"
+  },
+  "event_daxia_lastpage_r2": {
+    "attempt": 1,
+    "key": "bg/event_daxia_lastpage_r2",
+    "file": "public/assets/bg/event_daxia_lastpage_r2.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41180,
+    "droppedSpecks": 81,
+    "semiTransparentShare": 0.0462,
+    "gate": [],
+    "sha256": "1167a5a602c531c72d8d24ff7d76d96cfa7bd57e9541330fe3a6b04e3b5a2995",
+    "at": "2026-09-23 19:49:26"
+  },
+  "event_feifei_daxia_chest": {
+    "attempt": 1,
+    "key": "bg/event_feifei_daxia_chest",
+    "file": "public/assets/bg/event_feifei_daxia_chest.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41876,
+    "droppedSpecks": 158,
+    "semiTransparentShare": 0.0492,
+    "gate": [],
+    "sha256": "081fd1240927f5cc6f7fafd7bc8155e56488e843a6e1518478c20689b15c5784",
+    "at": "2026-09-23 19:49:30"
+  },
+  "event_feifei_daxia_chest_r0": {
+    "attempt": 1,
+    "key": "bg/event_feifei_daxia_chest_r0",
+    "file": "public/assets/bg/event_feifei_daxia_chest_r0.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38562,
+    "droppedSpecks": 133,
+    "semiTransparentShare": 0.0542,
+    "gate": [],
+    "sha256": "3d9c56e27a47dee85d6b4c029a0a0e28af9e82fd855bf62e221f56387bd74708",
+    "at": "2026-09-23 19:51:35"
+  },
+  "event_feifei_daxia_chest_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_daxia_chest_r1",
+    "file": "public/assets/bg/event_feifei_daxia_chest_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44962,
+    "droppedSpecks": 401,
+    "semiTransparentShare": 0.0654,
+    "gate": [],
+    "sha256": "c1a708516d3e6a601a103850d06f122452df71f17a7eb8d7216f61d666467456",
+    "at": "2026-09-23 19:50:46"
+  },
+  "event_feifei_daxia_lastpage": {
+    "attempt": 1,
+    "key": "bg/event_feifei_daxia_lastpage",
+    "file": "public/assets/bg/event_feifei_daxia_lastpage.webp",
+    "sourceSize": [
+      1328,
+      1184
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 45194,
+    "droppedSpecks": 338,
+    "semiTransparentShare": 0.0501,
+    "gate": [],
+    "sha256": "457af460f8b7581061e0f741f66322df8c20f7114c1c86fa68647d0b52148572",
+    "at": "2026-09-23 19:50:50"
+  },
+  "event_feifei_daxia_lastpage_r0": {
+    "attempt": 1,
+    "key": "bg/event_feifei_daxia_lastpage_r0",
+    "file": "public/assets/bg/event_feifei_daxia_lastpage_r0.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 43416,
+    "droppedSpecks": 247,
+    "semiTransparentShare": 0.0655,
+    "gate": [],
+    "sha256": "b1cb802fd27af3d03d014eb53761fe1ef20229b681d6546a5bd21492347f18ca",
+    "at": "2026-09-23 19:50:54"
+  },
+  "event_feifei_daxia_lastpage_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_daxia_lastpage_r1",
+    "file": "public/assets/bg/event_feifei_daxia_lastpage_r1.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39714,
+    "droppedSpecks": 253,
+    "semiTransparentShare": 0.0612,
+    "gate": [],
+    "sha256": "53a0f5e236aedea87858e66dd62c15d945ce52d07a6212fb5d654e1b4737d649",
+    "at": "2026-09-23 19:50:57"
+  },
+  "event_feifei_daxia_lastpage_r2": {
+    "attempt": 1,
+    "key": "bg/event_feifei_daxia_lastpage_r2",
+    "file": "public/assets/bg/event_feifei_daxia_lastpage_r2.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40618,
+    "droppedSpecks": 108,
+    "semiTransparentShare": 0.041,
+    "gate": [],
+    "sha256": "da514d5c9a3ea0fe6897ae7563622a6a273ac91cbf19f71234087e5a5b520e4c",
+    "at": "2026-09-23 19:51:01"
+  },
+  "event_fengfeng_daxia_chest": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_daxia_chest",
+    "file": "public/assets/bg/event_fengfeng_daxia_chest.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41958,
+    "droppedSpecks": 179,
+    "semiTransparentShare": 0.0504,
+    "gate": [],
+    "sha256": "42d149ed6e52a761147824b142dd5de3d623eaa9bbb370c76e57498e39c62ba7",
+    "at": "2026-09-23 19:52:50"
+  },
+  "event_fengfeng_daxia_chest_r0": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_daxia_chest_r0",
+    "file": "public/assets/bg/event_fengfeng_daxia_chest_r0.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44620,
+    "droppedSpecks": 303,
+    "semiTransparentShare": 0.0484,
+    "gate": [],
+    "sha256": "99c58e164568a3aec7b92c7fda78e944cf1ecf3cb0fab0e0ae2ca46b5acbcce4",
+    "at": "2026-09-23 19:52:53"
+  },
+  "event_fengfeng_daxia_chest_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_daxia_chest_r1",
+    "file": "public/assets/bg/event_fengfeng_daxia_chest_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 53920,
+    "droppedSpecks": 280,
+    "semiTransparentShare": 0.0533,
+    "gate": [],
+    "sha256": "388c35ccf97c78ce907f6e3e01b52581c0966fe60f6b85b4a5defb339e257b0e",
+    "at": "2026-09-23 19:52:57"
+  },
+  "event_fengfeng_daxia_lastpage": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_daxia_lastpage",
+    "file": "public/assets/bg/event_fengfeng_daxia_lastpage.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 48054,
+    "droppedSpecks": 228,
+    "semiTransparentShare": 0.0399,
+    "gate": [],
+    "sha256": "fc54882b8d9d1ec3f12e2835fd884b27cae6b7fa1f7c80100107e05f9fe8bf80",
+    "at": "2026-09-23 19:53:01"
+  },
+  "event_fengfeng_daxia_lastpage_r0": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_daxia_lastpage_r0",
+    "file": "public/assets/bg/event_fengfeng_daxia_lastpage_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40052,
+    "droppedSpecks": 229,
+    "semiTransparentShare": 0.0535,
+    "gate": [],
+    "sha256": "3143e384d0a76b46ed520e721d320baa6da743a2718952838835fb76e55f3d22",
+    "at": "2026-09-23 19:53:05"
+  },
+  "event_fengfeng_daxia_lastpage_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_daxia_lastpage_r1",
+    "file": "public/assets/bg/event_fengfeng_daxia_lastpage_r1.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40508,
+    "droppedSpecks": 219,
+    "semiTransparentShare": 0.046,
+    "gate": [],
+    "sha256": "7441e5a2e298e9750a3ea6b04b577575b1e6550aed6b5040cf35c3029f1b760c",
+    "at": "2026-09-23 19:53:09"
+  },
+  "event_fengfeng_daxia_lastpage_r2": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_daxia_lastpage_r2",
+    "file": "public/assets/bg/event_fengfeng_daxia_lastpage_r2.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 43396,
+    "droppedSpecks": 184,
+    "semiTransparentShare": 0.0313,
+    "gate": [],
+    "sha256": "ebb575d4f4520ba8dbab53b280795be7a3fff9057dd990ef024f4ab215763f3e",
+    "at": "2026-09-23 19:55:42"
+  },
+  "event_ninja_blue_headband": {
+    "attempt": 1,
+    "key": "bg/event_ninja_blue_headband",
+    "file": "public/assets/bg/event_ninja_blue_headband.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40368,
+    "droppedSpecks": 197,
+    "semiTransparentShare": 0.0635,
+    "gate": [],
+    "sha256": "f4961650798e5f9f9a94fd8aa18ded4f5f586d793c1c94c338d54e3b8b2434ac",
+    "at": "2026-09-23 19:55:45"
+  },
+  "event_ninja_blue_headband_r0": {
+    "attempt": 1,
+    "key": "bg/event_ninja_blue_headband_r0",
+    "file": "public/assets/bg/event_ninja_blue_headband_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 37976,
+    "droppedSpecks": 139,
+    "semiTransparentShare": 0.0518,
+    "gate": [],
+    "sha256": "6af51070042cbef76356c8bd3060b77f1666b9b2e99d216f083111bce94a38eb",
+    "at": "2026-09-23 19:55:49"
+  },
+  "event_ninja_blue_headband_r1": {
+    "attempt": 1,
+    "key": "bg/event_ninja_blue_headband_r1",
+    "file": "public/assets/bg/event_ninja_blue_headband_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 33872,
+    "droppedSpecks": 119,
+    "semiTransparentShare": 0.0397,
+    "gate": [],
+    "sha256": "443b30b16dc8c7791d3a56728170bfd9c0eaeecb088475a83bce80e3ad81574a",
+    "at": "2026-09-23 19:56:26"
+  },
+  "event_ninja_roof_shadow": {
+    "attempt": 1,
+    "key": "bg/event_ninja_roof_shadow",
+    "file": "public/assets/bg/event_ninja_roof_shadow.webp",
+    "sourceSize": [
+      1379,
+      1141
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38202,
+    "droppedSpecks": 221,
+    "semiTransparentShare": 0.0803,
+    "gate": [],
+    "sha256": "1e427e6394185e4cd4510ba62d4e187a62653fd2592a080f97c52407b11775f0",
+    "at": "2026-09-23 19:56:05"
+  },
+  "event_ninja_roof_shadow_r1": {
+    "attempt": 1,
+    "key": "bg/event_ninja_roof_shadow_r1",
+    "file": "public/assets/bg/event_ninja_roof_shadow_r1.webp",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 31928,
+    "droppedSpecks": 388,
+    "semiTransparentShare": 0.0827,
+    "gate": [],
+    "sha256": "a1ddf779c4cc7c2f48079dea21dea61e164dd8690e3ce0a29cb0e0772b051ebb",
+    "at": "2026-09-23 19:56:08"
+  },
+  "event_ninja_target": {
+    "attempt": 1,
+    "key": "bg/event_ninja_target",
+    "file": "public/assets/bg/event_ninja_target.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 51858,
+    "droppedSpecks": 112,
+    "semiTransparentShare": 0.0597,
+    "gate": [],
+    "sha256": "f5c0e9bdd39c723a8759a51362a7a264bec431e341bbe96c84433aa143f19a2d",
+    "at": "2026-09-23 19:55:53"
+  },
+  "event_ninja_target_r0": {
+    "attempt": 1,
+    "key": "bg/event_ninja_target_r0",
+    "file": "public/assets/bg/event_ninja_target_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50766,
+    "droppedSpecks": 299,
+    "semiTransparentShare": 0.0787,
+    "gate": [],
+    "sha256": "cd666a4cac1e2becf237164b57a43171076a65bd46ffaf3f64cabe326c2f22fa",
+    "at": "2026-09-23 19:55:57"
+  },
+  "event_ninja_target_r1": {
+    "attempt": 1,
+    "key": "bg/event_ninja_target_r1",
+    "file": "public/assets/bg/event_ninja_target_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 49906,
+    "droppedSpecks": 382,
+    "semiTransparentShare": 0.0556,
+    "gate": [],
+    "sha256": "5237b12b5e5c59c5818c7047249b4d393ad0a441c8162d0d739259bc436a4cbc",
+    "at": "2026-09-23 19:56:01"
+  },
+  "potion_decoy_doll": {
+    "attempt": 1,
+    "key": "codex/potion_decoy_doll",
+    "file": "public/assets/icons/potion_decoy_doll.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6158,
+    "droppedSpecks": 281,
+    "semiTransparentShare": 0.1089,
+    "gate": [],
+    "sha256": "e2de3d739a59fc981555d6e9d4c8f8b87b80c690bd40b8835629b15625f058aa",
+    "at": "2026-09-23 19:47:34"
+  },
+  "potion_dive_straw": {
+    "attempt": 1,
+    "key": "codex/potion_dive_straw",
+    "file": "public/assets/icons/potion_dive_straw.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5498,
+    "droppedSpecks": 108,
+    "semiTransparentShare": 0.2137,
+    "gate": [],
+    "sha256": "b71a89a7f9deeb3e6f62912c19c9b020f82d9c56b28dbcc9e730dca5ca45c1bf",
+    "at": "2026-09-23 19:47:33"
+  },
+  "potion_iron_oil": {
+    "attempt": 1,
+    "key": "codex/potion_iron_oil",
+    "file": "public/assets/icons/potion_iron_oil.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5916,
+    "droppedSpecks": 289,
+    "semiTransparentShare": 0.0749,
+    "gate": [],
+    "sha256": "1d241e6ac7b9ab10c97581dad89843e260809e5ebb8b5005309c87b3913ffffb",
+    "at": "2026-09-23 19:47:31"
+  },
+  "potion_needle_salve": {
+    "attempt": 1,
+    "key": "codex/potion_needle_salve",
+    "file": "public/assets/icons/potion_needle_salve.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7204,
+    "droppedSpecks": 68,
+    "semiTransparentShare": 0.1084,
+    "gate": [],
+    "sha256": "a64dd6a7f44ca9125066f33cab4c1cd257070e9e643ed6305598a11265947904",
+    "at": "2026-09-23 19:47:30"
+  },
+  "potion_payback_powder": {
+    "attempt": 1,
+    "key": "codex/potion_payback_powder",
+    "file": "public/assets/icons/potion_payback_powder.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6280,
+    "droppedSpecks": 132,
+    "semiTransparentShare": 0.0796,
+    "gate": [],
+    "sha256": "7fbb70eba0949b978ce709fc1408b7e9fc77478c6108230ecf5180b4a1f757e5",
+    "at": "2026-09-23 19:47:32"
+  },
+  "potion_qi_tea": {
+    "attempt": 1,
+    "key": "codex/potion_qi_tea",
+    "file": "public/assets/icons/potion_qi_tea.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6450,
+    "droppedSpecks": 100,
+    "semiTransparentShare": 0.1341,
+    "gate": [],
+    "sha256": "c4a858516c49e8941c730107419d9e0040d12a08b2df2ccd9fa0f8ebdc1600a6",
+    "at": "2026-09-23 19:41:00"
+  },
+  "potion_share_half": {
+    "attempt": 1,
+    "key": "codex/potion_share_half",
+    "file": "public/assets/icons/potion_share_half.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6828,
+    "droppedSpecks": 66,
+    "semiTransparentShare": 0.1501,
+    "gate": [],
+    "sha256": "d462f8518a0838557b0f46a5f2ad9af9a4ca4df779fbc009603e7d88b77cd2d9",
+    "at": "2026-09-23 19:47:36"
+  },
+  "potion_spread_powder": {
+    "attempt": 1,
+    "key": "codex/potion_spread_powder",
+    "file": "public/assets/icons/potion_spread_powder.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6272,
+    "droppedSpecks": 155,
+    "semiTransparentShare": 0.1546,
+    "gate": [],
+    "sha256": "eeaf9288ec40f88b893cad0a1d64fac9770a1153cb3d9b5a98dc76b12c72e16f",
+    "at": "2026-09-23 19:47:29"
+  },
+  "potion_sword_talisman": {
+    "attempt": 1,
+    "key": "codex/potion_sword_talisman",
+    "file": "public/assets/icons/potion_sword_talisman.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6146,
+    "droppedSpecks": 253,
+    "semiTransparentShare": 0.1895,
+    "gate": [],
+    "sha256": "7a877d9e67b6f3037c076ecd933d789136cc8b4420bb3967965dc3addfdc842c",
+    "at": "2026-09-23 19:47:28"
+  },
+  "potion_thunder_bead": {
+    "attempt": 1,
+    "key": "codex/potion_thunder_bead",
+    "file": "public/assets/icons/potion_thunder_bead.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 8648,
+    "droppedSpecks": 173,
+    "semiTransparentShare": 0.1937,
+    "gate": [],
+    "sha256": "75cb010ecd8a2979460679e2343b9db5133cbe91973e27500d870ca3230a7667",
+    "at": "2026-09-23 19:47:35"
+  },
+  "relic_anvil": {
+    "attempt": 1,
+    "key": "codex/relic_anvil",
+    "file": "public/assets/icons/relic_anvil.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6050,
+    "droppedSpecks": 115,
+    "semiTransparentShare": 0.1216,
+    "gate": [],
+    "sha256": "fa09e6be88e8959a3141957f4c691fa9a47e1639759b0b62aa0f1cbc489aef5d",
+    "at": "2026-09-23 19:47:15"
+  },
+  "relic_bamboo_tube": {
+    "attempt": 1,
+    "key": "codex/relic_bamboo_tube",
+    "file": "public/assets/icons/relic_bamboo_tube.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5568,
+    "droppedSpecks": 64,
+    "semiTransparentShare": 0.1246,
+    "gate": [],
+    "sha256": "f6be909309bdc50ae3f5a5eb3bf0135818d51bbba3e32dcffa135512e2e77773",
+    "at": "2026-09-23 19:47:20"
+  },
+  "relic_bond_knot": {
+    "attempt": 1,
+    "key": "codex/relic_bond_knot",
+    "file": "public/assets/icons/relic_bond_knot.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6160,
+    "droppedSpecks": 45,
+    "semiTransparentShare": 0.2137,
+    "gate": [],
+    "sha256": "0d05d52cbf97d1caa82e94897a30c69dacd2c8ab2e984909ea03692822737cbd",
+    "at": "2026-09-23 19:47:27"
+  },
+  "relic_greedy_pouch": {
+    "attempt": 1,
+    "key": "codex/relic_greedy_pouch",
+    "file": "public/assets/icons/relic_greedy_pouch.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7482,
+    "droppedSpecks": 46,
+    "semiTransparentShare": 0.0766,
+    "gate": [],
+    "sha256": "7e9751776c952e3ed227067d34f1c596ae51239fee0b2f6c31dc4faabb22546b",
+    "at": "2026-09-23 19:47:24"
+  },
+  "relic_herb_cauldron": {
+    "attempt": 1,
+    "key": "codex/relic_herb_cauldron",
+    "file": "public/assets/icons/relic_herb_cauldron.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7746,
+    "droppedSpecks": 152,
+    "semiTransparentShare": 0.1241,
+    "gate": [],
+    "sha256": "c1d12147ce87432f23a4e1198b32bf3e9f86716c412a765ff98497f9973182e4",
+    "at": "2026-09-23 19:47:14"
+  },
+  "relic_iron_weight_belt": {
+    "attempt": 1,
+    "key": "codex/relic_iron_weight_belt",
+    "file": "public/assets/icons/relic_iron_weight_belt.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5852,
+    "droppedSpecks": 112,
+    "semiTransparentShare": 0.1233,
+    "gate": [],
+    "sha256": "22aaf6f265eac87630b610e44ca97fcf204a30e9246eb7c64051a00fa134ee93",
+    "at": "2026-09-23 19:47:17"
+  },
+  "relic_knee_guard": {
+    "attempt": 1,
+    "key": "codex/relic_knee_guard",
+    "file": "public/assets/icons/relic_knee_guard.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6056,
+    "droppedSpecks": 211,
+    "semiTransparentShare": 0.0789,
+    "gate": [],
+    "sha256": "b00d8b383a1994b71a45bccf8e5e0c30bf0d5ec7cdc416fd65fb8eea9bda9a43",
+    "at": "2026-09-23 19:47:16"
+  },
+  "relic_mad_sheath": {
+    "attempt": 1,
+    "key": "codex/relic_mad_sheath",
+    "file": "public/assets/icons/relic_mad_sheath.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5696,
+    "droppedSpecks": 93,
+    "semiTransparentShare": 0.247,
+    "gate": [],
+    "sha256": "2dc5600a2e0671dc11f5c5cf1b63a3234550c2804eec3c92dab79d23c7475ed1",
+    "at": "2026-09-23 19:47:26"
+  },
+  "relic_miasma_sachet": {
+    "attempt": 1,
+    "key": "codex/relic_miasma_sachet",
+    "file": "public/assets/icons/relic_miasma_sachet.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7492,
+    "droppedSpecks": 71,
+    "semiTransparentShare": 0.1288,
+    "gate": [],
+    "sha256": "55ff8fb5dfd72ad5648d2f4fce49a4c0ab56594d8a2a5abc4c7c8f42c283c18d",
+    "at": "2026-09-23 19:47:13"
+  },
+  "relic_qi_gourd": {
+    "attempt": 1,
+    "key": "codex/relic_qi_gourd",
+    "file": "public/assets/icons/relic_qi_gourd.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5510,
+    "droppedSpecks": 84,
+    "semiTransparentShare": 0.1538,
+    "gate": [],
+    "sha256": "867aeb2aa07256e3724a8fb2fb12504d06260bf08da17674a2c3938d60f6a055",
+    "at": "2026-09-23 19:47:19"
+  },
+  "relic_renounce_beads": {
+    "attempt": 1,
+    "key": "codex/relic_renounce_beads",
+    "file": "public/assets/icons/relic_renounce_beads.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5764,
+    "droppedSpecks": 305,
+    "semiTransparentShare": 0.2228,
+    "gate": [],
+    "sha256": "f91916ff7d13cd19ea3874df61bf9dfc731faacd1f286dfb6024d073195c895a",
+    "at": "2026-09-23 19:47:25"
+  },
+  "relic_shadow_band": {
+    "attempt": 1,
+    "key": "codex/relic_shadow_band",
+    "file": "public/assets/icons/relic_shadow_band.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 4972,
+    "droppedSpecks": 272,
+    "semiTransparentShare": 0.2163,
+    "gate": [],
+    "sha256": "80d396422a16cd816a4b578b788e87c525eca6994644f09a81913a138717006c",
+    "at": "2026-09-23 19:47:22"
+  },
+  "relic_shared_bento": {
+    "attempt": 1,
+    "key": "codex/relic_shared_bento",
+    "file": "public/assets/icons/relic_shared_bento.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7964,
+    "droppedSpecks": 52,
+    "semiTransparentShare": 0.0723,
+    "gate": [],
+    "sha256": "ffca47078d13ba6fb0678531f44ca7d69fcb1ec75e255298f608fb9ab874e0fe",
+    "at": "2026-09-23 19:47:26"
+  },
+  "relic_sleepless_censer": {
+    "attempt": 1,
+    "key": "codex/relic_sleepless_censer",
+    "file": "public/assets/icons/relic_sleepless_censer.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7448,
+    "droppedSpecks": 166,
+    "semiTransparentShare": 0.1511,
+    "gate": [],
+    "sha256": "14996f9b07622658786e3b5894f93ce3824f73c82684e8f8ca30966eeee7ae8f",
+    "at": "2026-09-23 19:47:23"
+  },
+  "relic_snake_fang": {
+    "attempt": 1,
+    "key": "codex/relic_snake_fang",
+    "file": "public/assets/icons/relic_snake_fang.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 3376,
+    "droppedSpecks": 70,
+    "semiTransparentShare": 0.2482,
+    "gate": [],
+    "sha256": "76e344e5fdf38843a5704271d19ff4857f1c89350b1a183a1d89881181dcd2e3",
+    "at": "2026-09-23 19:40:59"
+  },
+  "relic_startle_bell": {
+    "attempt": 1,
+    "key": "codex/relic_startle_bell",
+    "file": "public/assets/icons/relic_startle_bell.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 4948,
+    "droppedSpecks": 89,
+    "semiTransparentShare": 0.35,
+    "gate": [],
+    "sha256": "d8a17896fe98bbbc4f5b59ac065be6d0bee66b25f9ca47c60a1d0b8677e8b9a9",
+    "at": "2026-09-23 19:47:21"
+  },
+  "relic_tassel_knot": {
+    "attempt": 1,
+    "key": "codex/relic_tassel_knot",
+    "file": "public/assets/icons/relic_tassel_knot.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5000,
+    "droppedSpecks": 126,
+    "semiTransparentShare": 0.2413,
+    "gate": [],
+    "sha256": "3d63224e12131f94d7178d57bba60485bc20520e4a48096f4f882d1e72aa1e17",
+    "at": "2026-09-23 19:47:19"
+  },
+  "relic_whet_stone": {
+    "attempt": 1,
+    "key": "codex/relic_whet_stone",
+    "file": "public/assets/icons/relic_whet_stone.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5438,
+    "droppedSpecks": 103,
+    "semiTransparentShare": 0.1096,
+    "gate": [],
+    "sha256": "0d762b23f9a9b357e156a90008c398c5d38f462e22ac333c924a048fbba2dcb8",
+    "at": "2026-09-23 19:47:18"
+  }
+}
