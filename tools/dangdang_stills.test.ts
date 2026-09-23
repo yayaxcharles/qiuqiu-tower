@@ -26,7 +26,9 @@ const OTHERS = ['feifei', 'dangdang', 'fengfeng'];
 const ownedByOther = (k: string): boolean =>
   OTHERS.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`))
   // 球球的專屬事件（代號 `ninja_…`，2026-09-23 內容擴充第一批起）只畫他，別人走不到，不算「退回球球」
-  || k.startsWith('bg/event_ninja_');
+  || k.startsWith('bg/event_ninja_')
+  // 連線限定事件（代號 `coop_…`，2026-09-23 內容擴充第二批起）是純場景、誰都沒畫，四隻看同一張，不算「退回球球」
+  || k.startsWith('bg/event_coop_');
 
 describe('噹噹的事件插圖', () => {
   it('張數不准倒退', () => {
