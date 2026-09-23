@@ -1,6 +1,7 @@
 import { cardStats } from '../engine/deck';
 import type { CardDef, CardInstance } from '../engine/types';
 import { artUrl, cardArtKey, localHero } from './assets';
+import { attachCardPeek } from './cardpeek';
 import { cardNameFor } from '../content/cards';
 import { describeCard, upgradedChangedChars } from './cardtext';
 import { el } from './dom';
@@ -77,6 +78,8 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
   if (uid !== null) node.dataset['uid'] = String(uid);
   const onClick = opts.onClick;
   if (onClick) node.addEventListener('click', () => { if (!opts.disabled) onClick(); });
+  // 手機橫拿按住放大看（2026-09-23 polish 第 8 條）：打不出來的牌也要讀得到，所以每張都掛；桌機不作用
+  attachCardPeek(node);
   fitCardText(node);
   return node;
 }

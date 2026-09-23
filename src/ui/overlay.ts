@@ -62,3 +62,26 @@ export function closeScreenModals(): void {
   screenModals.clear();
   for (const close of all) close();
 }
+
+/**
+ * **劇情疊層**（幻燈片、對白、過場影片）：丟掉這一局的時候整批收掉（2026-09-23 稽核 高-1）。
+ *
+ * 這三種平常刻意**不**跟著換畫面收（收掉的話 onDone 永遠不會叫，流程靜靜卡死，見檔頭）。
+ * 可是連線斷了、按紅色橫幅「回標題」的時候，它們的 onDone 接著就是 `show('map')`、開打、進過關畫面——
+ * 那一局已經丟了，接下去只會把兩人局當成單機玩、再把它寫進單機存檔。
+ * 實際踩到的是序章：幻燈片蓋在標題上，把剩下幾張點完就以單機模式進了兩人局的地圖。
+ *
+ * 所以這一批收掉時**不叫 onDone**，只拆節點、解鎖。由 `App.leaveCoop()` 在離開連線局時叫。
+ */
+const storyOverlays = new Set<() => void>();
+/** 登記一段劇情疊層；回傳「自己演完了，不用再收」 */
+export function closeWithStory(close: () => void): () => void {
+  storyOverlays.add(close);
+  return () => { storyOverlays.delete(close); };
+}
+/** 收掉所有還在演的劇情疊層，不叫它們的 onDone */
+export function closeStoryOverlays(): void {
+  const all = [...storyOverlays];
+  storyOverlays.clear();
+  for (const close of all) close();
+}

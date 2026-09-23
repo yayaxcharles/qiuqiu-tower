@@ -12,6 +12,15 @@ import type { CombatState, RunState } from '../engine/types';
 type FightMsg = Extract<NetMessage, { m: 'req' | 'act' }>;
 
 /**
+ * 「大家各選一個」有哪幾種（2026-09-23 health H-10）。原本是自由字串，畫面送票、讀票、清票、比對種類
+ * 任何一處拼錯一個字，那一輪就永遠湊不齊票，而且不報錯；收成聯集之後 tsc 會擋。
+ * **線上訊息的格式不變**：`transport.ts` 的 `k` 還是字串，收到時才對照這份。
+ */
+const VOTE_KINDS = ['map', 'card', 'relic', 'rwup', 'event', 'evlearn', 'evcard', 'actcard', 'actrelic'] as const;
+export type VoteKind = typeof VOTE_KINDS[number];
+function isVoteKind(k: string): k is VoteKind { return (VOTE_KINDS as readonly string[]).includes(k); }
+
+/**
  * 一場連線對戰的會話：把傳輸層、號碼機、動作佇列黏起來。
  *
  * 兩邊的角色不對稱，這是刻意的（主機排序，使用者 2026-09-11 拍板）：
@@ -169,7 +178,10 @@ export class CoopSession {
    * 不可以留著等下一場套（牌號每場都從牌組複製，下一場手上很可能真的有同一個號碼）。
    */
   attach(cs: CombatState | null): void {
-    if (cs && cs !== this.lastCs) { this.fight += 1; this.lastCs = cs; this.held = false; }
+    if (cs && cs !== this.lastCs) {
+      this.fight += 1; this.lastCs = cs; this.held = false;
+      if (!this.dead) this.tx.send({ m: 'here', f: this.fight });   // 告訴同伴我進場了（見 `mateHere`）
+    }
     // 這一場結束（`attach(null)`）也把暫停放掉（總稽核 B 中-3）：魔物回合演到一半有人倒下、
     // 畫面被 `afterCombat` 接手時，`runEnemyTurn` 跑不到尾巴的 `release()`，會話會一直停在 held；
     // 原本靠下一場 `attach(cs)` 順便復原，那是別支的副作用，不可靠
@@ -189,6 +201,14 @@ export class CoopSession {
    * 要在「最後一個人舉手」那一刻**同步**叫（`onApplied` 裡），不能晚一拍。演完一定要 `release()`。
    */
   hold(): void { this.held = true; }
+
+  /** 同伴宣布進場過的最新一場（`here` 訊息）。場次兩台數法一樣，所以直接跟 `fight` 比 */
+  private mateFight = 0;
+  /**
+   * 同伴也進到**現在這一場**的戰鬥畫面了嗎（2026-09-23 稽核 中-1）。
+   * 「替他收回合」的閒置計時從這一刻才起算；他還沒進場之前 `submit` 也不收替他收回合。
+   */
+  get mateHere(): boolean { return this.cs !== null && this.mateFight >= this.fight; }
   /** 演完了：把排隊的動作照順序套下去 */
   release(): void {
     this.held = false;
@@ -358,6 +378,8 @@ export class CoopSession {
   submit(a: CoopAction): boolean {
     if (this.dead || !this.cs || this.held) return false;   // 魔物回合演出中不收（見 `hold`）
     if (a.seat !== this.seat && a.t !== 'force') return false;   // 只能替自己做決定（強制收回合除外）
+    // 同伴還沒進場（還在看塔頂段落、關主開場）就替他收回合，他一進戰鬥第一回合就沒了（2026-09-23 稽核 中-1）
+    if (a.t === 'force' && !this.mateHere) return false;
     if (!canApply(this.cs, a)) return false;
     if (this.isHost) {
       const sa = (this.seq as Sequencer).assign(a);
@@ -466,19 +488,19 @@ export class CoopSession {
    * 用標籤分開不同的選擇：同一個畫面裡可能同時在選牌與選秘寶，
    * 混在一起的話「他選好了沒」會算錯。
    */
-  private readonly ballots = new Map<string, Map<number, string>>();
-  private box(kind: string): Map<number, string> {
+  private readonly ballots = new Map<VoteKind, Map<number, string>>();
+  private box(kind: VoteKind): Map<number, string> {
     let b = this.ballots.get(kind);
     if (!b) { b = new Map(); this.ballots.set(kind, b); }
     return b;
   }
   /** 目前的選擇：索引＝座位，`null`＝還沒選 */
-  picks(kind: string, seats: number): (string | null)[] {
+  picks(kind: VoteKind, seats: number): (string | null)[] {
     const b = this.box(kind);
     return Array.from({ length: seats }, (_, i) => b.get(i) ?? null);
   }
   /** 這一輪結束就清乾淨，不然下一次會直接沿用上一輪的選擇 */
-  clearPicks(kind: string): void { this.ballots.delete(kind); this.replayed.delete(kind); }
+  clearPicks(kind: VoteKind): void { this.ballots.delete(kind); this.replayed.delete(kind); }
   /**
    * 我選了。兩邊都選完才會真的生效（規則見 `engine/vote.ts`）。
    *
@@ -487,7 +509,7 @@ export class CoopSession {
    * 跟戰鬥那邊 `playCard 在 canPlay 放行後仍失敗` 同一套作法——那行字已經抓到過兩個坑。
    * 回傳 `false`＝沒送出去。
    */
-  pick(kind: string, value: string): boolean {
+  pick(kind: VoteKind, value: string): boolean {
     if (this.dead) { console.error(`連線已經停了，「${kind}」的選擇沒送出去`); return false; }
     if (this.box(kind).has(this.seat)) { console.error(`「${kind}」這一輪已經選過了，不能改`); return false; }
     this.tx.send({ m: 'pick', seat: this.seat, k: kind, v: value });
@@ -502,7 +524,7 @@ export class CoopSession {
    * 註冊前就到的選擇不會漏掉——畫面每次重畫都直接讀 `picks()` 的現況，
    * 所以「顯示」與「通知」是兩件事，不需要靠補跑把它們兜起來。
    */
-  onPick(fn: (kind: string) => void): void {
+  onPick(fn: (kind: VoteKind) => void): void {
     this.picked = fn;
     /*
      * **晚到的畫面要補跑一次**（2026-09-14 夜間審查）。
@@ -518,7 +540,7 @@ export class CoopSession {
     if (this.replayTimer === null) this.replayTimer = setTimeout(() => { this.replay(); }, 0);
   }
   /** 每一種選擇上一次補跑時有幾票；票數沒變就不再補 */
-  private readonly replayed = new Map<string, number>();
+  private readonly replayed = new Map<VoteKind, number>();
   private replayTimer: ReturnType<typeof setTimeout> | null = null;
   private replay(): void {
     this.replayTimer = null;
@@ -533,14 +555,14 @@ export class CoopSession {
   }
   /** 上一次換到的是哪個畫面：**換了畫面**才重新允許補跑（同一個畫面重畫不算，不然又是無限迴圈） */
   private lastScreen: string | undefined;
-  private record(kind: string, seat: number, value: string): void {
+  private record(kind: VoteKind, seat: number, value: string): void {
     const b = this.box(kind);
     if (b.has(seat)) return;   // 同一個人選兩次只算第一次
     b.set(seat, value);
     if (kind === 'map') this.mapEpoch += 1;
     this.picked?.(kind);
   }
-  private picked: ((kind: string) => void) | null = null;
+  private picked: ((kind: VoteKind) => void) | null = null;
 
   /** 主機用：宣布開局。兩邊各自用同一顆種子跑出同一局 */
   start(seed: string, diff: number, enc: string, heroes?: string[]): void {
@@ -551,11 +573,14 @@ export class CoopSession {
   private handle(m: NetMessage): void {
     if (this.dead) return;
     // 開局訊息在 `attach` 之前就會到（那時還沒有戰鬥），所以要擺在 cs 的檢查之前
-    if (m.m === 'pick') { this.record(m.k, m.seat, m.v); return; }
+    // 對面送來的種類是字串：不認得的（兩台版本不同）畫面本來就不理，記一行就丟，不進票箱（health H-10）
+    if (m.m === 'pick') { if (isVoteKind(m.k)) this.record(m.k, m.seat, m.v); else console.warn(`不認得的投票種類「${m.k}」，丟掉`); return; }
     // 我那一則沒算數：把手放開（見 `onDropped`）。**只認最新那一則**：更早那則的 drop 遲到（保險絲跳掉之後又送了新的），
     // 不能拿它解鎖、更不能把剛送出的選牌當成沒算數而把視窗彈回來（審查 中-4）
     if (m.m === 'drop') { if (m.n >= this.sentReq) this.dropped?.(); return; }
     if (m.m === 'hint') { if (m.seat !== this.seat) this.hinted?.(m.seat, m.u); return; }   // 純提示，不碰狀態
+    // 同伴進場了（可能比我早，那時我這邊的場次還沒跟上；記最大的就好）
+    if (m.m === 'here') { this.mateFight = Math.max(this.mateFight, m.f); return; }
     // 整局那一條不需要戰鬥狀態，所以要擺在 cs 的檢查之前（商店、打盹點本來就沒有 cs）
     if (this.handleRun(m)) return;
     // 走格子的對帳也一樣沒有 cs。存起來等自己也走到那一格再比（見 `syncRun`）

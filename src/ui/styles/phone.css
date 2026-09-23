@@ -1,0 +1,94 @@
+/*
+ * ===== 手機橫拿（2026-09-23 polish 第 8 條；複驗 09-22 單人第 15 項「橫拿字小」）=====
+ *
+ * 舞台固定 1280×720、整片等比縮小塞進視窗。手機橫拿時高度只有 360～390，縮放是 0.50～0.54——
+ * 量到的實際字級：牌面說明 7～8.5、牌名 8～9、血量數字 6.5、戰鬥紀錄 6.8、結束回合鈕 26.5 高、其他按鈕 18～26 高（844×390）。
+ * 整片放大不行：高度已經貼滿，再大就切掉上下（手牌、狀態列）。所以只調個別字級與按鈕，
+ * 數值抓「縮放 0.5 時實際約 11 像素」＝舞台上 22；按鈕抓實際約 36 高＝舞台上 72。
+ *
+ * 手牌是例外：一張小牌 145 寬，22 的字一行只放得下 6 個字，牌池說明中位數 21 字、九成在 39 字以內，
+ * 放不進牌面；牌放大到 1.7 倍則六張排不下、會蓋到血條。改成「按住一張牌 0.32 秒放大給你看」（cardpeek.ts），
+ * 放大後說明在 0.5 縮放時也有 12 像素；放開不會出牌，輕點照舊出牌。
+ *
+ * 這一整份只在 `html[data-device="phone"][data-orient="landscape"]` 下生效（app.ts 的 fit 寫上去的：
+ * 觸控＋螢幕短邊小於 600 才是 phone），桌機與平板一個像素都不動。直拿照舊只顯示「請橫過來」（使用者裁定）。
+ */
+
+/* 台詞泡泡、吐槽（戰鬥 19、其他畫面 20）→ 22 */
+html[data-device="phone"][data-orient="landscape"] #stage .toast { font-size: 22px; }
+
+/* 血條上的數字 12 → 20。單位是貼底排的：名字、血條、狀態牌子每高 1 像素，立繪就往上浮 1 像素、腳離開畫上的地板
+  （實機截圖：第一版名字 20＋血條 28 高，貓和老鼠整隻浮起 17 像素）。所以名字不放大，血條只加高 6、上邊距 2 拿掉，淨浮 4 */
+html[data-device="phone"][data-orient="landscape"] .combat .hpbar { height: 24px; margin-top: 0; font-size: 20px; line-height: 20px; }
+/* 意圖牌（絕對定位，不影響排版）、狀態牌子。
+   左下角的牌堆計數與戰鬥紀錄第一版照原樣放大會疊在一起（紀錄蓋到「消耗／連抓」），改排法的做法在下面「主控裁定四」那段 */
+html[data-device="phone"][data-orient="landscape"] .combat .intent { font-size: 19px; }
+html[data-device="phone"][data-orient="landscape"] .combat .chip { font-size: 16px; }
+
+/* 按鈕：總高至少 72（`<button>` 本來就是 border-box，寫明白讓不是 button 的 .btn 也照這個量）。
+   狀態列的小鈕（.small）與連線那兩顆另外處理 */
+html[data-device="phone"][data-orient="landscape"] #stage .btn:not(.small):not(.end-undo):not(.end-force) {
+  box-sizing: border-box;
+  min-height: 72px;
+  font-size: 22px;
+}
+/* 結束回合：往上挪 12，底下還要排連線的「收回」「替他結束」兩顆 */
+html[data-device="phone"][data-orient="landscape"] .combat .end-turn { top: 548px; font-size: 26px; }
+html[data-device="phone"][data-orient="landscape"] .combat .end-undo,
+html[data-device="phone"][data-orient="landscape"] .combat .end-force { font-size: 17px; padding: 6px 14px; }
+html[data-device="phone"][data-orient="landscape"] .combat .end-undo { top: 628px; }
+html[data-device="phone"][data-orient="landscape"] .combat .end-force { top: 674px; }
+
+/* ===== 主控裁定四：牌堆計數、戰鬥紀錄、狀態列小鈕、罐頭鋪秘寶／忍具格 =====
+   左下角這一塊高度是死的：側欄（飯糰、忍具、計數）底邊 627，紀錄框貼著它、最高 86、底邊 714。
+   計數 13 → 18：兩欄三列改三欄兩列（第一列「第 N 回合」佔兩格＋連抓，第二列抽牌／棄牌／消耗），高度不增反減。
+   紀錄 12.5 → 18：框不加高，四行換三行（最新的貼底，舊的從上面切掉），字大到讀得到，代價是一次看到的句子變少 */
+html[data-device="phone"][data-orient="landscape"] .combat .piles { grid-template-columns: repeat(3, auto); column-gap: 8px; font-size: 18px; }
+html[data-device="phone"][data-orient="landscape"] .combat .piles span:first-child { grid-column: 1 / 3; }
+html[data-device="phone"][data-orient="landscape"] .combat .piles > :last-child { grid-row: 1; grid-column: 3; }
+/* 行高寫死 24、上內距拿掉、框高剛好三行（72＋下內距 6）：原本 6 的上內距裡會露出被切掉那一行的下半截（實機截圖），
+   行高整數、框高是行高的倍數，切線就一定落在兩行中間 */
+html[data-device="phone"][data-orient="landscape"] .combat .log { font-size: 18px; line-height: 24px; padding-top: 0; max-height: 78px; }
+/* 狀態列的小鈕（牌組、圖鑑、分享、音樂、音效）15 → 17、內距收窄。狀態列是一整條橫排、寬度是死的，量過（740×360）：
+   19 時秘寶一大堆（.crowded）最右邊的音效鈕被擠到 1316、出了舞台；秘寶六件（還差一件才算 crowded）也到 1289；
+   而血條是整列唯一會縮的，鈕一放大它就被擠到剩一小截、「76 / 76 生命」切掉。所以鈕 17、血條保底 150、擠的時候音量拉桿窄一點 */
+html[data-device="phone"][data-orient="landscape"] .hud .btn.small { font-size: 17px; padding: 3px 6px; }
+html[data-device="phone"][data-orient="landscape"] .hud .hud-hp { min-width: 150px; }
+html[data-device="phone"][data-orient="landscape"] .hud.crowded .btn.small { padding: 3px 6px; }
+html[data-device="phone"][data-orient="landscape"] .hud.crowded .hud-vol { width: 36px; }
+html[data-device="phone"][data-orient="landscape"] .hud .hud-hp span { font-size: 18px; }
+/* 罐頭鋪：名字、價錢在格子裡放大；說明文字格子放不下，跟手牌一樣按住放大（shop.ts 的秘寶／忍具格也掛 cardpeek） */
+html[data-device="phone"][data-orient="landscape"] .shop-item .shop-name { font-size: 19px; }
+html[data-device="phone"][data-orient="landscape"] .shop-item .price { font-size: 19px; }
+html[data-device="phone"][data-orient="landscape"] .shop-item .price.sale b { font-size: 19px; }
+
+/* 教學條 15 → 20（主控裁定三：手機多一句「按住牌可以放大看」，那句不能又是 8 像素）。
+   條要維持一行：兩行時底邊到 122，魔物頭上的開場泡泡（約 108 起）正好蓋住第二行（實機截圖）。
+   寬度照內容（width: max-content）：left 50% 的絕對定位預設只給得到半個舞台寬（640），放大的字會擠成三行；
+   最長的第二步 40 字、第一步加那句 39 字，1000 寬放得下一行，上緣貼齊狀態列（58）、底邊約 95，條下的吐槽照舊 118 */
+html[data-device="phone"][data-orient="landscape"] .tut-bar { top: 58px; width: max-content; max-width: 1000px; padding: 4px 14px; font-size: 20px; line-height: 1.35; }
+html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-step { font-size: 16px; }
+html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-close { font-size: 20px; }
+html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-touch { color: #ffd98a; }
+/* 平板（主控最後一輪：平板也開按住放大，教學條也接那一句）：字級照桌機（縮放約 0.8，本來就讀得到），
+   只把寬度改成照內容——多那一句在半個舞台寬裡會擠成兩行、底邊碰到魔物頭上的開場泡泡（同手機那次） */
+html[data-device="tablet"] .tut-bar { width: max-content; max-width: 1000px; }
+html[data-device="tablet"] .tut-bar .tut-touch { color: #ffd98a; }
+
+/* 按住手牌（或罐頭鋪一格貨）放大的那張（cardpeek.ts）：畫在疊層最上面、不吃手指（放開要落回原本那張牌）。
+   裡面那張可能是牌、也可能是貨架格，一律從左上角放大（不然放大後會偏離外框） */
+.card-peek {
+  position: absolute;
+  z-index: 70;
+  pointer-events: none;
+}
+.card-peek > * {
+  margin: 0 !important;
+  transform-origin: 0 0;
+  animation: none !important;
+  box-shadow: 0 12px 32px #000000b3, 0 0 0 3px #ffd35c;
+}
+/* 放大的是買不起的那格：貨架上把說明調成半透明（.poor），放大來讀的時候字要實心；價錢照樣是紅字，看得出買不起 */
+.card-peek > .shop-item.poor > :not(.price) { opacity: 1; }
+/* 長按時手機、平板會跳出圖片選單或選字：牌上一律不要 */
+html[data-device="phone"] .card, html[data-device="tablet"] .card { -webkit-touch-callout: none; }

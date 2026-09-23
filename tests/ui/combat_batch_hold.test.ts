@@ -57,7 +57,7 @@ describe('連線批次演出與回合暫停', () => {
     });
     guest.onApplied((applied) => {
       const bindings = {
-        applied, mine: false, session: guest, cs: guestCs, app: { cs: guestCs }, mySeat: 1,
+        applied, turn: {}, mine: false, session: guest, cs: guestCs, app: { cs: guestCs }, mySeat: 1,
         my: () => guestCs.players[1], remoteBefore: before, remoteCombatBefore: replay,
         remotePresentationRunning: false, allReady, checkOver() {}, syncPicker() {},
         root: { querySelector: () => undefined }, sfx() {}, collectHand: () => 0,

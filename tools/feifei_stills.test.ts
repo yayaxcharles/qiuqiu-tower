@@ -151,7 +151,9 @@ describe('事件插圖依角色', () => {
      * 改成照 `HEROES` 掃，第四隻貓進來也不會再犯（這個專案已經為了同一件事踩過三次：
      * 連線的改口表、機器人的傷害種類清單、還有這裡）。
      */
-    const others = HEROES.filter((h) => h !== 'ninja' && h !== 'samurai');
+    // `samurai` 2026-09-22 已經整套拆掉、不再是 `Hero` 的合法值（見 `hero.ts`），
+    // 這裡不用再比對它——留著會是型別上比不出結果的死比較（2026-09-23 低-2 開 tools/ 型別檢查抓到）
+    const others = HEROES.filter((h) => h !== 'ninja');
     const mine = (k: string): boolean => others.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`));
     const his = bg.filter((k) => k.startsWith('bg/event_') && !mine(k));
     const gap = his.filter((k) => !manifest.bg[k.replace('bg/event_', 'bg/event_feifei_')]);

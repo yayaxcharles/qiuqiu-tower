@@ -71,12 +71,17 @@ describe('菲菲：她是誰', () => {
     expect(heroName({})).toBe('球球');
   });
 
+  // 原本拿飛針、替身術當例子，兩張都是起手牌；2026-09-23 起手牌一律不進池（health H-7）之後，
+  // 改拿池子裡的獨占牌，守的還是「職業那一道」
   it('她的牌只有她拿得到，球球的隱身牌她拿不到', () => {
-    const feizhen = cardById['feifei_feizhen']!;
-    expect(pickable({ ...feizhen, hidden: undefined }, 'feifei')).toBe(true);
-    expect(pickable({ ...feizhen, hidden: undefined }, 'ninja')).toBe(false);
-    const kawarimi = cardById['kawarimi']!;
-    expect(pickable(kawarimi, 'feifei')).toBe(false);
+    const fenshen = cardById['feifei_fenshen']!;
+    expect(fenshen.pool).not.toBe('起手');
+    expect(pickable({ ...fenshen, hidden: undefined }, 'feifei')).toBe(true);
+    expect(pickable({ ...fenshen, hidden: undefined }, 'ninja')).toBe(false);
+    const yinshen = cardById['yinshen']!;
+    expect(yinshen.hero).toBe('ninja');
+    expect(pickable({ ...yinshen, hidden: undefined }, 'ninja')).toBe(true);
+    expect(pickable({ ...yinshen, hidden: undefined }, 'feifei')).toBe(false);
   });
 });
 

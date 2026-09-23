@@ -1,4 +1,5 @@
 import { coopStoryKey, hasCoopScene, storyFor, victoryLinesFor, type DialogueLine } from '../content/dialogue';
+import { FENGFENG_YARD_FIRST } from '../content/fengfeng-dialogue';
 import type { Slide } from './slides';
 
 /*
@@ -98,23 +99,29 @@ export function prologueSlides(hero: string | undefined): Slide[] {
    * 球球與菲菲的序章沒有標任何切點，走的還是原本那一條，一個字都沒動。
    */
   if (pro.some((l) => l.slideBreak)) {
-    const groups: typeof pro[] = [[]];
-    for (const l of pro) {
-      groups[groups.length - 1]!.push(l);
-      if (l.slideBreak && groups.length < stills.length) groups.push([]);
-    }
-    /*
-     * **切點不夠就整段不演**（稽核 2026-09-17 高-3）。
-     *
-     * 連線那兩套共用場景的序章只標了一個切點，卻要配四張圖：後兩張拿到空陣列、
-     * 安靜地不出現，而前兩段配到的是**單人劇本**那四張圖（師父在教球球、師父被魔氣控制），
-     * 講的卻是「村口的門剛關上」。`stillKey` 的檔頭自己寫著
-     *「寧可少一段幻燈片，不要放別人的故事」——這裡回空陣列，`slidesReady` 就會讓整段退回純對白。
-     */
-    if (groups.length < stills.length || groups.some((g) => g.length === 0)) return [];
-    return stills.map((k, i) => ({ img: `bg/${k}`, lines: groups[i]! }));
+    const groups = groupsAtBreaks(pro, stills.length);
+    return groups ? stills.map((k, i) => ({ img: `bg/${k}`, lines: groups[i]! })) : [];
   }
   return stills.map((k, i) => ({ img: `bg/${k}`, lines: pro.slice(i, i === stills.length - 1 ? undefined : i + 1) }));
+}
+
+/** 照 `slideBreak` 切成 `n` 段；切點不夠、或有一段是空的就回 null（呼叫端整段不演） */
+function groupsAtBreaks(lines: DialogueLine[], n: number): DialogueLine[][] | null {
+  const groups: DialogueLine[][] = [[]];
+  for (const l of lines) {
+    groups[groups.length - 1]!.push(l);
+    if (l.slideBreak && groups.length < n) groups.push([]);
+  }
+  /*
+   * **切點不夠就整段不演**（稽核 2026-09-17 高-3）。
+   *
+   * 連線那兩套共用場景的序章只標了一個切點，卻要配四張圖：後兩張拿到空陣列、
+   * 安靜地不出現，而前兩段配到的是**單人劇本**那四張圖（師父在教球球、師父被魔氣控制），
+   * 講的卻是「村口的門剛關上」。`stillKey` 的檔頭自己寫著
+   *「寧可少一段幻燈片，不要放別人的故事」——這裡回空陣列，`slidesReady` 就會讓整段退回純對白。
+   */
+  if (groups.length < n || groups.some((g) => g.length === 0)) return null;
+  return groups;
 }
 
 /** 過關：三句台詞配三張圖，最後一張吃掉剩下的（她第二關比圖多一句） */
@@ -136,6 +143,11 @@ export function actClearSlides(hero: string | undefined, act: number): Slide[] {
   const names = act === 1
     ? ['still_act1_stairs', 'still_act1_fish', 'still_act1_climb']
     : ['still_act2_smoke', 'still_act2_voice', 'still_act2_moonstairs'];
+  // 標了切點就照切點分（2026-09-23 稽核 中-4）：封封第二關六句三張圖，照舊切法噹噹那幾句全擠在他獨自一人的那張
+  if (lines.some((l) => l.slideBreak)) {
+    const groups = groupsAtBreaks(lines, names.length);
+    return groups ? names.map((n, i) => ({ img: stillKey(hero, n), lines: groups[i]! })) : [];
+  }
   return names.map((n, i) => ({ img: stillKey(hero, n), lines: lines.slice(i, i === names.length - 1 ? undefined : i + 1) }));
 }
 
@@ -173,9 +185,9 @@ export function endingSlides(hero: string | undefined, deckIds: string[], diffic
   if (hero === 'fengfeng') {
     // FengFeng's last six lines are the later yard practice (EP01), after the
     // return-home and hot-soup scene; keep that scene on its own background.
-    // 打法插句會插在前面（見 `victoryLinesFor`），院子那段的起點要照第一句找，不能寫死第 10 句
-    const yardFirst = storyFor(hero).victory[10]?.text;
-    const found = vic.findIndex((l) => l.text === yardFirst);
+    // 打法插句會插在前面（見 `victoryLinesFor`），院子那段的起點要照第一句找，不能寫死第 10 句；
+    // 那一句收在具名常數裡（2026-09-23 稽核 低-6：原本寫 `victory[10]`，結局多一句少一句就切到別人的話上）
+    const found = vic.findIndex((l) => l.text === FENGFENG_YARD_FIRST);
     const yardStart = found > 0 ? found : vic.length;
     return ['still_embrace', 'still_home', 'story_ep01'].map((n, i) => ({
       img: stillKey(hero, n),

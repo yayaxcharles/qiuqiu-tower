@@ -1,7 +1,7 @@
 import { cardById } from '../content/cards';
 import type { Hero } from './hero';
 import { eventById } from '../content/events';
-import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
+import { allReady, canPlay, endTurn, playCard, potionBlockedReason, resolveChoice, usePotion } from './combat';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
@@ -23,10 +23,10 @@ export function playCombat(cs: CombatState, rng: Rng, maxTurns: number, seed = '
       continue;
     }
     const enemies = aliveEnemies(cs);
-    // 有使用條件的（起死回生丹要血低於三成）現在用不出來是**正常的**，先濾掉再抽
+    // 有使用條件的（起死回生丹要血低於三成、集中精神後的飯糰類）現在用不出來是**正常的**，先濾掉再抽
     const ready = cs.potions.filter((id) => {
-      const u = potionById[id]?.usable;
-      return !u || u.check(cs.player.hp, cs.player.maxHp);
+      const def = potionById[id];
+      return !def || potionBlockedReason(cs.player, def) === null;
     });
     if (ready.length > 0 && rng.chance(0.3)) {
       const pid = rng.pick(ready);

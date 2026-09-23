@@ -1,4 +1,5 @@
 import type { App } from './app';
+import type { Hero } from '../engine/hero';
 import { beginCombat, newRun } from '../engine/run';
 import { cardStats } from '../engine/deck';
 import { setStore } from '../engine/save';
@@ -13,7 +14,8 @@ import type { CompanionMotionAction, CompanionMotionKind } from './companion-mot
 import { playFeifeiClone, playQiuqiuEchoes } from './qiuqiu-motion-effects';
 import './styles/motion-preview.css';
 
-export type MotionPreviewHero = 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
+// 角色清單只有 `engine/hero.ts` 那一份（2026-09-23 health H-2 第 1 塊：這裡原本手寫一份聯集）
+export type MotionPreviewHero = Hero;
 export type MotionPreviewGroup = 'basic' | 'ninjutsu' | 'ultimate' | 'defense';
 
 type MotionPreviewCard = Readonly<{ cardId: string; upgraded: boolean }>;

@@ -87,6 +87,6 @@ describe('連線牌面的預載', () => {
     const body = src.slice(src.indexOf('  startFight(encounterId'), src.indexOf('  afterCombat('));
     expect(body).toMatch(/Promise\.allSettled\(\[[\s\S]*this\.coop \? \[Promise\.race\(\[coopArtReady\(\)/);
     const lobby = readFileSync('src/ui/screens/lobby.ts', 'utf8');
-    expect(lobby).toContain('preloadCoopArt(app.run.players.map((p) => p.hero))');
+    expect(lobby).toContain('preloadCoopArt(run.players.map((p) => p.hero))');
   });
 });

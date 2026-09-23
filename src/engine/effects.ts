@@ -1,4 +1,4 @@
-import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainEnergy, gainStealth, healPlayer, log, markPoisoner } from './actions';
+import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainEnergy, gainStealth, healPlayer, log, logEnergyBlocked, markPoisoner } from './actions';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
 import { heroPronoun, unitName } from './hero';
@@ -296,7 +296,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * `gainBlock` 每次都先加一份拒馬（blockBonus）再過貓步，分兩次呼叫就吃兩次。
        * 實測貓步 3 時「先幫你留著」單人會拿到 18 點，交辦單要的是 15。
        * 玩家不會發現，只會覺得這張牌莫名好用。
-       * 所以單人時先把量記在 `pendingSelfBlock`，由這張牌最後一次 `block`／`blockAlly` 一起發。
+       * 所以單人時先把量記在 `ctx.selfBlockPool`，由這張牌最後一次 `block`／`blockAlly` 一起發（`flushSelfBlock`）。
        */
       if (mate === p) { ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount; flushSelfBlock(cs, p, ctx, queue); return false; }
       gainBlock(cs, mate, fx.amount);
@@ -362,7 +362,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (mate === p) return false;                     // 一個人時什麼都不轉（不能自己轉給自己憑空變多）
       const give = Math.min(fx.n, p.energy);            // 自己少多少，對方才多多少
       if (give <= 0) { log(cs, '飯糰已經用完了，沒得分'); return false; }
-      if (mate.energyGainBlockedThisPhase) return false; // 對方實得 0，轉移型不能白扣贈送者
+      // 對方實得 0，轉移型不能白扣贈送者；但要說出來，不然這張牌打出去像什麼都沒做（2026-09-23 主控裁決）
+      if (mate.energyGainBlockedThisPhase) { logEnergyBlocked(cs, mate); return false; }
       p.energy -= give;
       gainEnergy(cs, mate, give);
       log(cs, `把 ${give} 顆飯糰推給了對方`);

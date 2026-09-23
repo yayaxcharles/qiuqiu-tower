@@ -1,4 +1,5 @@
 import type { CardDef } from '../engine/types';
+import type { Hero } from '../engine/hero';
 
 const 攻 = '攻擊', 技 = '技能', 能 = '能力';
 
@@ -1094,12 +1095,21 @@ export const DANGDANG_CARD_NAME: Readonly<Record<string, string>> = {
  * 前綴的規矩（菲菲 2026-09-12、噹噹 2026-09-17，都是使用者指定）：
  * **「絕學」留著、「忍術」兩字拿掉**。絕學是師門傳下來的功夫，誰學都叫絕學；
  * 忍術是球球那一路的身法，她走暗器、他走拳腳，都不是那一路。
+ * 封封是劍客，也不是那一路（2026-09-23 稽核 引擎 低-6）：前綴照樣拿掉，沒有專屬改名表。
  */
 export function cardNameFor(def: CardDef, hero: string | undefined): string {
-  const own = hero === 'feifei' ? FEIFEI_CARD_NAME : hero === 'dangdang' ? DANGDANG_CARD_NAME : null;
+  // 不認得的值照舊當球球（查不到＝原名）
+  const own = CARD_NAME_OF[(hero ?? 'ninja') as Hero];
   if (!own) return def.name;
   return own[def.id] ?? def.name.replace(/^忍術·/, '');
 }
+/**
+ * 每一位的專屬牌名表（2026-09-23 health H-2 第 2 塊：原本是三元式，沒列到的角色默默照球球的名字；
+ * 鍵是 `Hero`，加第五隻貓漏了這一格 tsc 會擋）。`null`＝原名照用（球球）；空表＝沒有專屬改名、只拿掉「忍術·」（封封）
+ */
+const CARD_NAME_OF: Readonly<Record<Hero, Readonly<Record<string, string>> | null>> = {
+  ninja: null, feifei: FEIFEI_CARD_NAME, dangdang: DANGDANG_CARD_NAME, fengfeng: {},
+};
 
 export const cardById: Record<string, CardDef> = Object.fromEntries(cards.map((c) => [c.id, c]));
 
@@ -1157,13 +1167,16 @@ export const FENGFENG_STARTER_DECK: readonly string[] = [
   'fengfeng_tuna', 'fengfeng_tuna',
 ];
 
-/** 這個職業的起手十張。沒有專屬的就用球球那份 */
+/**
+ * 這個職業的起手十張。不認得的值照舊用球球那份。
+ * 寫成 `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是 `if` 連鎖，加第五隻貓漏了會默默拿球球的十張；現在 tsc 會擋
+ */
 export function starterDeckFor(hero: string | undefined): readonly string[] {
-  if (hero === 'feifei') return FEIFEI_STARTER_DECK;
-  if (hero === 'dangdang') return DANGDANG_STARTER_DECK;
-  if (hero === 'fengfeng') return FENGFENG_STARTER_DECK;
-  return STARTER_DECK;
+  return STARTER_DECK_OF[(hero ?? 'ninja') as Hero] ?? STARTER_DECK;
 }
+const STARTER_DECK_OF: Readonly<Record<Hero, readonly string[]>> = {
+  ninja: STARTER_DECK, feifei: FEIFEI_STARTER_DECK, dangdang: DANGDANG_STARTER_DECK, fengfeng: FENGFENG_STARTER_DECK,
+};
 
 /**
  * 圖鑑與除錯頁「這一位拿得到的牌」（2026-09-14 夜間稽核 中-2）。

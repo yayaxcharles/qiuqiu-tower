@@ -71,10 +71,13 @@ describe('三隻貓的連線敘事不會叫錯人', () => {
     expect(firstMeetLine('dangdang', 'mirror_qiuqiu')).toContain('球球');
     setCoopStory({ partner: 'dangdang', mirror: 'feifei' });
     expect(firstMeetLine('dangdang', 'mirror_qiuqiu')).toContain('菲菲');
-    // 沒有對應句子時退回自己那句「鏡子裡的我」——講錯人比講得不精準糟
+    // 2026-09-23 十二組補齊：球球看到的鏡中噹噹也講噹噹了（原本這一組沒寫、退回「鏡子裡的我」）
     setCoopStory({ partner: 'ninja', mirror: 'dangdang' });
-    expect(firstMeetLine('ninja', 'mirror_qiuqiu')).toBe(storyFor('ninja').firstMeet['mirror_qiuqiu']);
+    expect(firstMeetLine('ninja', 'mirror_qiuqiu')).toContain('噹噹');
     expect(firstMeetLine('ninja', 'mirror_qiuqiu')).not.toContain('師妹');
+    // 沒有對應句子時（表裡沒有的角色）仍退回自己那句「鏡子裡的我」——講錯人比講得不精準糟
+    setCoopStory({ partner: 'ninja', mirror: 'nobody' });
+    expect(firstMeetLine('ninja', 'mirror_qiuqiu')).toBe(storyFor('ninja').firstMeet['mirror_qiuqiu']);
   });
 
   it('鏡子走廊的事件文案同理：照的是噹噹就不會寫成師妹', () => {

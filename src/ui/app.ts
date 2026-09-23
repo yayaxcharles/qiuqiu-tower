@@ -1,4 +1,4 @@
-import { victoryLinesFor, hasCoopScene, coopBossLines, dialogue, firstMeetLine, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
@@ -20,11 +20,19 @@ import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
 import { speechBubbleAt } from './enemylayout';
 import { clear, el } from './dom';
-import { closeScreenModals, setOverlayRoot } from './overlay';
+import { closeScreenModals, closeStoryOverlays, setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
 export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug';
+
+/*
+ * 劇情段落（序章、過關、塔頂門外、結局、落敗）退回純對白時**一律照字面播**（2026-09-23 稽核 低-5）。
+ * 這幾段是各角色自己的劇本（`storyFor`），說話者寫的就是本人：封封塔頂那段「球球：封封，別傷到師父喵！」是球球在講。
+ * 原本傳 `hasCoopScene(…)`，單人時是 false，圖清單沒載到、退回 `playDialogue` 時名牌與頭像換成本機這一位，
+ * 變成「封封：封封，別傷到師父！」。要換口氣的只有寫死「球球」的共用關主台詞，那批不走這幾條。
+ */
+const STORY_LITERAL = true;
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
@@ -169,18 +177,34 @@ export class App {
     }
   }
 
+  /**
+   * 接手一局、坐這個座位：「本機這一位是誰」那四件事一起設（2026-09-23 health H-3）。
+   *
+   * - 立繪：對白、過關轉場那些單人畫面靠它知道要畫誰（`assets.ts` 的 `setLocalHero`）
+   * - 貓叫：受傷、勝利那類照角色換檔（`audio.ts` 的 `setSfxHero`）
+   * - 劇情情境：混搭時個人主線要換幾句（`syncStory`）
+   * - 補圖：這一局角色專屬的圖開場沒載，現在補（總稽核 F 中-1；連線時同伴的立繪戰鬥裡也看得到）
+   *
+   * 新的一局、續玩、連線開局三個入口原本各抄一份，連線那份就漏過聲音（推前審查 高-1：只設了圖沒設聲）。
+   * 以後加入口（觀戰、重新連線）一律叫這一支。
+   */
+  adoptRun(run: RunState, seat: number): void {
+    this.run = run;
+    this.seat = seat;
+    const hero = me(run, seat).hero;
+    setLocalHero(hero);
+    setSfxHero(hero);
+    this.syncStory(run);
+    void preloadHeroArt(run.players.map((p) => p.hero));
+  }
+
   /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
   newRun(seed?: string, difficulty = 1, hero: Hero = 'ninja'): void {
     // 「新的一局」一定是單機，**先把上一場連線的殘留清掉**（見 `leaveCoop`）
     this.leaveCoop();
     this.sandbox = false;
-    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero);
+    this.adoptRun(engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero), 0);
     this.cs = null;
-    // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
-    setLocalHero(hero);
-    setSfxHero(hero);   // 貓叫也照角色換（菲菲的受傷、勝利）
-    this.syncStory();
-    void preloadHeroArt([hero]);   // 這一位專屬的圖開場沒載，現在補（總稽核 F 中-1）
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     /*
      * 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白。
@@ -210,9 +234,12 @@ export class App {
     run.flags['prologue'] = true;   // 旗標規矩同 playOnce：不在這裡存檔
     const pro = storyFor(hero).prologue;
     const proSlides = prologueSlides(hero);   // 圖配哪幾句見 storyslides.ts（除錯頁也叫同一支）
+    // 播完時這一局還是同一局才接下去（2026-09-23 稽核 高-1）：連線斷了、回標題之後 `leaveCoop` 已經把這一局丟了，
+    // 這時再 `show('map')` 就是以單機模式開起兩人局。疊層本身由 `leaveCoop` 收掉，這一道是保險
+    const done = (): void => { if (this.run === run) after(); };
     const play = (): void => {
-      if (slidesReady(proSlides)) playSlides(proSlides, after);
-      else playDialogue(pro, after, undefined, hasCoopScene(hero));
+      if (slidesReady(proSlides)) playSlides(proSlides, done);
+      else playDialogue(pro, done, undefined, STORY_LITERAL);
     };
     /*
      * 每個角色只能看自己的片子（2026-09-12 實測到）：球球那支從頭到尾是他，
@@ -248,12 +275,8 @@ export class App {
     this.sandbox = false;
     const run = from ?? loadRun();
     if (!run) return false;
-    this.run = run;
+    this.adoptRun(run, 0);   // 讀檔續玩也要換回那一局的角色；單機存檔一律坐 0 號（上面 `leaveCoop` 已經歸零）
     this.cs = null;
-    setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
-    setSfxHero(me(run, this.seat).hero);
-    this.syncStory(run);
-    void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
     void preloadAct(run.act, run.players[0]?.hero);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
@@ -292,6 +315,12 @@ export class App {
    */
   save(): void {
     if (this.coop || this.sandbox) return;   // 除錯的臨時局也一個字都不寫（見 `sandbox`）
+    /*
+     * 再看**局面本身**是不是兩人局（2026-09-23 稽核 高-1）：只看 `coop` 擋不住「連線已經離開、局面還留著」——
+     * 序章播到一半同伴斷線、按橫幅回標題，幻燈片點完就以單機模式進了兩人局的地圖，走完第一格這裡就把單機存檔蓋掉。
+     * 兩人局不管 `coop` 還在不在，一律不寫。
+     */
+    if (this.run && this.run.players.length > 1) return;
     if (this.run && this.run.status === 'playing') saveRun(this.run);
   }
 
@@ -305,12 +334,21 @@ export class App {
    * 當過座位 1 的更慘，`me(run, 1)` 會丟「這一局沒有第 1 個座位」。
    */
   leaveCoop(): void {
+    const coopRun = this.coop !== null || (this.run?.players.length ?? 0) > 1;
     this.coop?.leave();   // 跟中繼說一聲、關掉線路，對方立刻看到「對方離開了」；不關的話舊線還在跑心跳、對方永遠等不到（審查 2026-09-15 中-1）
     this.coop = null; this.seat = 0;
     setCoopStory(null);   // 敘事情境是模組層級的，離開連線就清掉（推前審查 低-2）
     // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
     // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
     document.querySelectorAll('.net-trouble, .net-link').forEach((n) => n.remove());
+    /*
+     * **那一局也一起丟掉**（2026-09-23 稽核 高-1）。原本只清 `coop`／`seat`，`run` 還是那個兩人局：
+     * 序章幻燈片（或關主開場、過關過場）蓋在標題上，點完 onDone 就 `show('map')`，
+     * 地圖以單機模式開起兩人局，走完一格 `save()` 就把單機存檔蓋掉（橫幅上還寫著「存檔不會壞」）。
+     * 清掉 `run`／`cs` 之後，還沒收掉的計時器（開打前暖機、戰鬥收場）看 `app.cs !== cs` 自己退場；
+     * 還在演的劇情疊層也收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`）。
+     */
+    if (coopRun) { this.run = null; this.cs = null; closeStoryOverlays(); }
   }
 
   /**
@@ -331,8 +369,10 @@ export class App {
     const run = this.run;
     if (!run || run.flags[flag]) { onDone(); return; }
     run.flags[flag] = true;
-    if (slidesReady(slides)) playSlides(slides, onDone);
-    else playDialogue(lines, onDone, undefined, literal);
+    // 同 playPrologue（2026-09-23 稽核 高-1）：塔頂段落播完接關主開場與開打、黑貓頭目那段播完接戰利品，這一局已經丟了就不接
+    const done = (): void => { if (this.run === run) onDone(); };
+    if (slidesReady(slides)) playSlides(slides, done);
+    else playDialogue(lines, done, undefined, literal);
   }
 
   enterNode(nodeId: string): void {
@@ -390,6 +430,7 @@ export class App {
       : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
         : pool === '大魔物' ? 'elite' : battleTrack);
     const go = (): void => {
+      if (this.run !== run) return;   // 關主開場播完時這一局已經丟了（連線斷了回標題，2026-09-23 稽核 高-1）：不開打
       this.cs = beginCombat(run, encounterId);
       const cs = this.cs;
       const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
@@ -458,7 +499,7 @@ export class App {
       // 塔頂門外段落只在第三關最終頭目前播放一次；前兩關的關主不應提前消耗這段劇情。
       const top = run.act >= ACTS ? storyFor(localHero()).topScene : [];
       const topSlides = topSceneSlides(localHero());
-      if (top.length) this.playOnce(`topScene:${run.act}`, top, playBoss, hasCoopScene(localHero()), topSlides);
+      if (top.length) this.playOnce(`topScene:${run.act}`, top, playBoss, STORY_LITERAL, topSlides);
       else playBoss();
     } else go();
   }
@@ -495,16 +536,17 @@ export class App {
     // 其餘存檔時機一律不動：進行中的一局仍然只有 backToMap() 會寫。
     // **連線局不記成績、也不准刪單機的存檔**（2026-09-12 稽核 高-2）：
     // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
-    if (run.status !== 'playing' && !this.coop) { recordBest(run); clearSave(); }
+    // 局面是兩人局也不准（2026-09-23 稽核 高-1）：跟 `save()` 同一道，連線已經離開、局面還留著時只看 `coop` 擋不住
+    if (run.status !== 'playing' && !this.coop && run.players.length === 1) { recordBest(run); clearSave(); }
     /*
      * 落敗這一段**沒有幻燈片版本**，是直接走 `playDialogue`，所以預設會過
      * `lineFor`／`heroSpeaker`——連線時那一段是兩個人共用的場景，裡面「球球：……喵」
      * 是球球本人在講，被改口就會變成「噹噹：師父回來了沒有？」然後下一句噹噹又在對球球說話
-     *（稽核 2026-09-17 高-2）。有整段場景的時候照字面播。
+     *（稽核 2026-09-17 高-2）。有整段場景的時候照字面播；2026-09-23 起單人也照字面播（見檔頭 `STORY_LITERAL`）。
      */
     if (!rewards) {
       const mine = me(this.run!, this.seat).hero;
-      playDialogue(storyFor(mine).defeat, () => this.show('result'), undefined, hasCoopScene(mine));
+      playDialogue(storyFor(mine).defeat, () => this.show('result'), undefined, STORY_LITERAL);
       return;
     }
     if (rewards.kind === '塔主') {
@@ -532,7 +574,7 @@ export class App {
         const endVideo = (go: () => void): void => (!this.coop && (me(run, this.seat).hero ?? 'ninja') === 'ninja' ? playVideo('ending', go) : (setBgm('ending'), go()));
         endVideo(() => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
-          else playDialogue(vic, () => this.show('result'), undefined, hasCoopScene(me(this.run!, this.seat).hero));
+          else playDialogue(vic, () => this.show('result'), undefined, STORY_LITERAL);
         });
         return;
       }
@@ -547,7 +589,7 @@ export class App {
       const bossRelic = rewards.relic;
       const toSlides = (): void => {
         if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear', { bossRelic }));
-        else playDialogue(lines, () => this.show('actclear', { bossRelic }), undefined, hasCoopScene(me(this.run!, this.seat).hero));
+        else playDialogue(lines, () => this.show('actclear', { bossRelic }), undefined, STORY_LITERAL);
       };
       // 關主倒下後先演牠的收場（被控制的清醒道謝、自願的嘴硬、路過的讓路），再接過關幻燈片（使用者 2026-09-04）
       const ids = encounterById[cs.encounterId]?.enemies ?? [];

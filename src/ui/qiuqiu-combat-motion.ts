@@ -158,9 +158,15 @@ export function combatQiValue(hero: string, qi: number | undefined): number | un
   return Math.max(0, Math.min(12, value));
 }
 
-/** 敵人逐格目前只跟著球球的 opt-in 動作模式啟用。 */
-export function qiuqiuEnemyMotionAllowed(enabled: boolean, heroes: readonly string[]): boolean {
-  return enabled && heroes.some((hero) => hero === 'ninja' || hero === 'feifei' || hero === 'dangdang' || hero === 'fengfeng');
+/**
+ * 敵人逐格跟著動作模式（網址沒寫 `?motion=0`）啟用，不看隊伍裡是誰（2026-09-23 health H-7）。
+ *
+ * 原本還要「隊伍裡有已接入逐格的角色」，四隻都接入之後那條對現有角色永遠成立，
+ * 反而是個反向陷阱：加第五隻貓時他一個人玩，魔物的逐格動作會整個關掉、不報錯。
+ * 第二個參數沒在用，留著只是這一輪不動 `combat.ts` 的呼叫端（其中一處在預載那段）；之後可以改成直接看 `motionEnabled`。
+ */
+export function qiuqiuEnemyMotionAllowed(enabled: boolean, _heroes?: readonly string[]): boolean {
+  return enabled;
 }
 
 /** 一次引擎動作真正消耗了幾層目標隱身。 */
@@ -194,6 +200,23 @@ export function qiuqiuVictoryLinger(enabled: boolean, heroes: readonly string[])
     heroes.includes('dangdang') ? companionMotionDuration('dangdang', 'win') : 0,
     heroes.includes('fengfeng') ? companionMotionDuration('fengfeng', 'win') : 0,
   );
+}
+
+/**
+ * 收場前「還有逐格動作在演嗎」（2026-09-23 稽核 低-1）。
+ *
+ * 動作的 `active` 只在畫面刷新回呼（rAF）裡收掉，而**分頁在背景時瀏覽器不給畫面刷新**：
+ * 同伴補最後一刀時我這台在背景，那一刀的動作永遠收不掉，收場每 80 毫秒重排一次、一直停在打完的戰鬥畫面，
+ * 同伴早就在戰利品頁等我挑牌（切回前景才接上）。
+ * 所以不能只看 `active`：背景分頁一律當演完（反正看不到）；前景時超過預定結束（`endsAt`）一段還沒收的也當演完。
+ * 刷新回呼正常時，結束那一刻十幾毫秒內就會收掉，所以前景的正常演出不會被這條提早切掉。
+ */
+export const MOTION_OVERRUN_MS = 500;
+export function motionStillPlaying(states: Iterable<Readonly<{ active: boolean; endsAt: number }>>, now: number,
+  hidden = typeof document !== 'undefined' && document.hidden === true): boolean {
+  if (hidden) return false;
+  for (const state of states) if (state.active && now < state.endsAt + MOTION_OVERRUN_MS) return true;
+  return false;
 }
 
 /** 敵人逐格不能被通用 650ms 收姿勢計時提早截斷。 */

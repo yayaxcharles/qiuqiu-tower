@@ -5,7 +5,7 @@ import { castLineFor, coopBossLines, dialogue, lineFor, pick, storyFor } from '.
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, enemyArtFor, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
-import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
+import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, potionBlockedReason, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeBlock, getStatus } from '../../engine/statuses';
 import { previewEnemyHits } from '../../engine/intentpreview';
@@ -16,10 +16,15 @@ import { registerScreen } from '../app';
 import type { CoopSession } from '../../net/session';
 import { applyAction, chooserOf } from '../../net/action';
 import type { CoopAction } from '../../net/action';
+import type { SequencedAction } from '../../net/lockstep';
 import { attachCardDrag } from '../dragplay';
+import { isTouchDevice } from '../cardpeek';
+import { TUT_TOUCH_PEEK } from '../../content/tutorial';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
+import { seatFeedback, seatFeedbackSnap, type SeatFeedbackSnap } from '../seat-feedback';
+import { BAD_STATUS, GOOD_STATUS, STATUS_ORDER } from '../status-kind';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
 import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPhaseKey, monsterUrl, hasSprite, type DecodePool } from '../assets';
@@ -36,6 +41,7 @@ import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
+import { combatWarmPoses } from '../rest-state-motion';
 import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuPlayableAction, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
 import {
   companionCardAction,
@@ -50,8 +56,8 @@ import {
   type CompanionMotionAction,
 } from '../companion-motion';
 import { EAT_POTIONS, THROW_POTIONS, potionMotionAction } from '../potion-motion';
-import { motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
-import { playThrow, preloadProjectiles } from '../projectile-flight';
+import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
+import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
 import { createEnemyMotionActor, enemyMotionDuration, enemyMotionReady, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
@@ -64,6 +70,7 @@ import {
   extendConfirmedMotionWaves,
   LocalMotionPresentationQueue,
   motionPresentationMatches,
+  motionStillPlaying,
   qiuqiuConsumedStealth,
   qiuqiuEnemyBlocked,
   qiuqiuEnemyMotionAllowed,
@@ -99,9 +106,6 @@ const STATUS_ICON: Record<StatusName, string> = {
   //（codex_gen.py 的坑 5）。改用「實心淡色本體＋錯位殘影」表達。
   虛化: 'icon/status_phase',
 };
-/** 狀態排列順序寫死，好的排前面，才不會每次重畫就換位置（物件鍵的順序不保證） */
-const STATUS_ORDER: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '不壞身', '縮殼', '飛行', '鱗甲', '虛化',
-  '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒'];
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
  * 規格 §2 的名詞表根本沒有這個詞、牌面也刻意不講（見 `cardtext.ts` 的 `isDive`），
@@ -272,11 +276,7 @@ function bossMovePose(phase: number, label: string): string | undefined {
 type Learned = NonNullable<EnemyMove['learned']>;
 interface Acted { label: string; attacked: boolean; blocked: boolean; learned: Learned | undefined }   // learned＝照著學剛打的牌（亮牌面用）；blocked＝這一拍出的是防禦招
 
-/** 好狀態與壞狀態各自分組：加了好狀態放金光、被丟壞狀態放紫光，兩邊要分得開 */
-// 好壞是**站在掛著這個狀態的那一隻的立場**看：縮殼、飛行、鱗甲、虛化對魔物是好事（金光），
-// 沉睡、消散對牠是壞事（紫光）。球球身上永遠不會有這六個。
-const GOOD_STATUS: readonly StatusName[] = ['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '不壞身', '縮殼', '飛行', '鱗甲', '虛化'];
-const BAD_STATUS: readonly StatusName[] = ['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒'];
+// 好狀態、壞狀態、狀態列順序三份清單從 status-kind.ts 那一張產生（2026-09-23 health H-8：原本這裡手寫三份）
 const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
   names.reduce((t, k) => t + getStatus(u, k), 0);
 /**
@@ -285,8 +285,8 @@ const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
  */
 const chokeTick = (now: number, was: number): boolean => was > 0 && now === was - 1;
 
-/** 每一位玩家在快照裡的那幾個數字（`buff`／`debuff` 給同伴那一格判斷要不要換新節點用） */
-type SeatSnap = { hp: number; block: number; stealth: number; down: boolean; buff: number; debuff: number };
+/** 每一位玩家在快照裡的那幾個數字（`buff`／`debuff` 給同伴那一格判斷要不要換新節點用；其餘見 seat-feedback.ts） */
+type SeatSnap = { hp: number; block: number; stealth: number; down: boolean; buff: number; debuff: number } & SeatFeedbackSnap;
 
 /**
  * 同伴那一格這一步要不要換新節點（清理 2026-09-22）。
@@ -301,6 +301,24 @@ function mateUnitStale(was: SeatSnap | undefined, q: PlayerCombat, node: HTMLEle
     || node.classList.contains('downed') !== !!q.down || node.classList.contains('ready') !== (!!q.ready && many)
     || node.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== wantSrc
     || node.classList.contains('hit') || node.classList.contains('dodge') || node.classList.contains('attack');
+}
+
+/**
+ * 這一拍被魔物身上的刺反彈了多少（2026-09-23 polish，主控裁定）。引擎每刺一下寫一行「X的刺反彈了 N 點」，
+ * 刺先扣蜷縮、緊接著那一行是「…蜷縮擋下了 M 點」（actions.ts 的 damagePlayer，direct＋throughBlock）。
+ * 回傳刺的總量與其中被蜷縮擋掉的量：丟東西打到帶刺的魔物時，畫面拿它把「被刺那一下」延到東西飛到才演。
+ */
+function thornPricks(lines: readonly string[]): { total: number; blocked: number } {
+  let total = 0;
+  let blocked = 0;
+  lines.forEach((line, i) => {
+    const m = /的刺反彈了 (\d+) 點$/.exec(line);
+    if (!m) return;
+    total += Number(m[1]);
+    const b = /蜷縮擋下了 (\d+) 點$/.exec(lines[i + 1] ?? '');
+    if (b) blocked += Number(b[1]);
+  });
+  return { total, blocked };
 }
 
 /**
@@ -322,7 +340,9 @@ interface Snap {
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
   energyGain: number;   // 整場退回來的飯糰累計，用來認出「這一拍退了幾顆」（見 types.ts 的說明）
   players: Map<number, SeatSnap>;
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined;
+    /** 出手前的整組狀態：丟出去的狀態類忍具還在飛時照這組畫（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
+    statuses: Unit['statuses'] }>;
   logLen: number;
   hitsLen: number;
   handN: number;   // 手牌張數與飯糰：同伴讓我抽牌／分飯糰時，只換立繪那條路碰不到手牌與側欄，要退回整頁重畫
@@ -341,10 +361,12 @@ function snap(cs: CombatState, me: PlayerCombat): Snap {
     players: new Map(cs.players.map((p) => [p.seat, {
       hp: p.hp, block: p.block, stealth: getStatus(p, '隱身'), down: !!p.down,
       buff: sumStatus(p, GOOD_STATUS), debuff: sumStatus(p, BAD_STATUS),
+      ...seatFeedbackSnap(p),
     }])),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), learned: e.move.learned,
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '中毒'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
+      statuses: { ...e.statuses },
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
       label: e.move.label, turnCount: e.turnCount,
@@ -452,7 +474,9 @@ registerScreen('combat', (app, root, props) => {
   };
   type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; reactive: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number; winAt?: number;
     /** 近戰前衝當下的位移（像素）與這一招從哪個位移接著衝：上一招還沒退回就被接手時，不先跳回原位（見 motionMeleeSample） */
-    lungeX?: number; lungeFrom?: number };
+    lungeX?: number; lungeFrom?: number;
+    /** 這一招的衝刺殘影收掉的方法：下一招接手時連殘影一起收（2026-09-23 稽核 ui 低-1） */
+    afterimages?: () => void };
   type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
   type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number };
   const motionActors = new Map<number, CombatMotion>();
@@ -461,6 +485,20 @@ registerScreen('combat', (app, root, props) => {
   const enemyMotionActors = new Map<number, EnemyMotionState>();
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
+  /**
+   * 丟出去的東西還在飛的魔物 → 出手前的狀態與防禦（2026-09-23 polish 第 3 條）。
+   * 引擎一出手就把定身、中毒掛上去了，戰場一重畫狀態牌子與「被定住了」就先亮，繩子才剛從手上飛出去；
+   * 照血條等命中才扣（motionPendingDamage）的做法，飛到那一刻（landStatus）才換成真的狀態。
+   * 一開始只管狀態類忍具（麻繩、定身釘、貓薄荷球）；主控裁定擴到所有丟出去的牌（毒砂、絆索、點穴手、毛球彈、各種飛針）：
+   * 帶傷害的牌打中還會扣防禦、打掉飛行，所以防禦也一起記，飛在天上的也等打到才掉下來。
+   */
+  const motionPendingStatus = new Map<number, Pick<Unit, 'statuses' | 'block'>>();
+  /**
+   * 丟東西打到身上帶刺（反彈）的魔物、被刺回來的那一位 → 還沒演的那一下扣了多少血與蜷縮（2026-09-23 polish，主控裁定）。
+   * 引擎出手當下就把刺結算完了，畫面照舊會在東西還在飛時就扣血、飄數字；照 motionPendingStatus 的做法，
+   * 血條與蜷縮先照被刺之前畫，東西飛到那一刻（最後一個帶刺的目標被打到）才扣、才飄。只改演出時機，引擎結算不動。
+   */
+  const motionPendingPlayer = new Map<number, { hp: number; block: number }>();
   const motionProjectiles = new Set<() => void>();
   type LocalMotionPresentation = { action: CombatMotionAction; at: number; token: number; trip?: MeleeTrip };
   const locallyPlayedMotion = new LocalMotionPresentationQueue<LocalMotionPresentation>();
@@ -696,22 +734,30 @@ registerScreen('combat', (app, root, props) => {
     const state = motionState(q);
     if (!state) return;
     window.cancelAnimationFrame(state.raf);
+    // 上一招的衝刺殘影跟著收掉（2026-09-23 稽核 ui 低-1）：原本只取消逐格排程，殘影照上一招的前衝位移
+    // 繼續每 50 毫秒冒一張，本人已經在演下一招（實機：連刀接淡定，殘影多冒 0.7 秒）；下一張也衝刺就兩條疊在一起
+    if (state.afterimages) { motionProjectiles.delete(state.afterimages); state.afterimages(); state.afterimages = undefined; }
     const caughtUp = Math.max(0, elapsed);
     const startedAt = performance.now() - caughtUp;
     // 受擊、閃避與格擋至少保留原演出的 650ms，短片段播完後停在收勢。
     state.endsAt = startedAt + Math.max(reactive ? 650 : 0,
       trip?.plan.totalMs ?? motionDuration(source, action));
-    // 上一招還在前衝、沒退回原位就被這一招接手：從當下位移接著衝，不先跳回原位
-    state.lungeFrom = trip && state.active && state.trip ? state.lungeX ?? 0 : 0;
+    // 上一招還在前衝、沒退回原位就被這一招接手：這一招是近戰就從當下位移接著衝，不先跳回原位；
+    // 不是近戰就從當下位移平順退回原位（2026-09-23 polish 第 4 條：原本一格跳回 74 像素）。
+    // 「還在前衝」也包含上一個非近戰動作正在退回的那 140 毫秒（state.away 還開著）
+    const carried = state.active && (state.trip || state.away) ? state.lungeX ?? 0 : 0;
+    state.lungeFrom = trip ? carried : 0;
+    const handoffFrom = trip ? 0 : carried;
+    const handoffAt = performance.now();
     state.trip = trip;
     state.action = action;
     state.active = true;
     state.reactive = reactive;
-    state.away = !!trip;
+    state.away = !!trip || handoffFrom !== 0;
     state.presentationToken = presentationToken;
     const lunge = trip ? motionMeleeSample(trip.plan, caughtUp, state.lungeFrom) : undefined;
-    state.lungeX = lunge?.x ?? 0;
-    state.layer.style.transform = lunge ? `translate(${lunge.x}px, ${lunge.y}px)` : '';
+    state.lungeX = lunge?.x ?? handoffFrom;
+    state.layer.style.transform = lunge ? `translate(${lunge.x}px, ${lunge.y}px)` : handoffFrom ? `translate(${handoffFrom}px, 0px)` : '';
     state.actor.play(state.action, { elapsed: caughtUp });
     refreshMotion(q);
     if (source === 'qiuqiu' && trip && (action === 'dash' || action === 'ultimate_rush')) {
@@ -724,9 +770,10 @@ registerScreen('combat', (app, root, props) => {
         duration: trip.plan.totalMs,
         elapsed: caughtUp,
         offsetAt: (elapsed) => motionMeleeSample(trip.plan, elapsed, lungeFrom).x,
-        onDone: () => { motionProjectiles.delete(cancel); },
+        onDone: () => { motionProjectiles.delete(cancel); if (state.afterimages === cancel) state.afterimages = undefined; },
       });
       motionProjectiles.add(cancel);
+      state.afterimages = cancel;
     }
     let anchor: { x: number; y: number } | null = null;
     let anchorMeasuredAt = 0;
@@ -764,6 +811,12 @@ registerScreen('combat', (app, root, props) => {
         state.lungeX = sample.x;
         state.layer.style.transform = `translate(${x}px, ${y}px) scaleX(${sample.facing})`;
         if (state.action !== sample.action) { state.action = sample.action; state.actor.play(sample.action); }
+      } else if (handoffFrom !== 0 && state.away) {
+        // 非近戰動作接手近戰：邊演新動作邊退回原位，退到了就把畫布放回自己那一格（見上面的 handoffFrom）
+        const x = meleeHandoffReturn(handoffFrom, now - handoffAt);
+        state.lungeX = x;
+        state.layer.style.transform = x ? `translate(${x}px, 0px)` : '';
+        if (x === 0) { state.away = false; refreshMotion(q); }
       }
       state.raf = window.requestAnimationFrame(tick);
     };
@@ -906,6 +959,8 @@ registerScreen('combat', (app, root, props) => {
     }
     motionActors.clear();
     motionPendingDamage.clear();
+    motionPendingStatus.clear();
+    motionPendingPlayer.clear();
     locallyPlayedMotion.clear();
     for (const state of enemyMotionActors.values()) {
       state.actor.dispose();
@@ -937,6 +992,9 @@ registerScreen('combat', (app, root, props) => {
   let mateTurnSeen = -1;
   function mateIdleMs(): number {
     if (mateTurnSeen !== cs.turn) { mateTurnSeen = cs.turn; mateActAt = Date.now(); }
+    // 同伴還沒進到這一場的戰鬥畫面（塔頂段落、關主開場還在讀）不算閒置：從他進場那一刻才起算（2026-09-23 稽核 中-1）。
+    // 原本從我這邊建好戰鬥畫面就開始數，劇情長短不同的混搭，他一進場第一回合就被我收掉
+    if (session && !session.mateHere) mateActAt = Date.now();
     return Date.now() - mateActAt;
   }
   /** 有連線時，把動作送出去；沒有就在本機做掉。回傳 false＝這個動作現在做不出來 */
@@ -953,6 +1011,20 @@ registerScreen('combat', (app, root, props) => {
     const ok = session.submit(a);
     if (ok && !session.isHost) lockSend();
     return ok;
+  };
+  /** 這一位的血與蜷縮照這組畫：丟東西被刺回來、東西還在飛時，把還沒演的那一下加回去（見 motionPendingPlayer） */
+  const shownPlayer = (q: PlayerCombat): PlayerCombat => {
+    const held = motionPendingPlayer.get(q.seat);
+    return held ? { ...q, hp: q.hp + held.hp, block: q.block + held.block } : q;
+  };
+  /** 只換這一位的血條與狀態牌子（被刺那一下扣下去／先加回去時用；整格重建會打斷受擊演出） */
+  const refreshPlayerStatus = (seat: number): void => {
+    const q = cs.players[seat];
+    const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
+    if (!q || !node) return;
+    const shown = shownPlayer(q);
+    node.querySelector(':scope > .hpbar')?.replaceWith(hpBar(`p${seat}`, shown.hp, q.maxHp));
+    node.querySelector(':scope > .chips')?.replaceWith(statusRow(shown, true, `p${seat}`));
   };
   /**
    * 畫一位玩家。兩個人時靠 `playerLeft` 排位、`data-seat` 認人。
@@ -974,8 +1046,9 @@ registerScreen('combat', (app, root, props) => {
       el('div', { class: 'name' }, n > 1 ? `${heroName(q)}（${mine ? '你' : '同伴'}）` : heroName(q)),
       // 動畫記憶的鍵要帶座位（連線稽核 中-1）：兩位共用 'player' 的話，每次整頁重畫兩條血條都從
       // 對方的比例滑到自己的，低的那條每次拖一條「剛掉血」的殘影，狀態牌子也每次彈一下。單機只有座位 0
-      hpBar(`p${q.seat}`, q.hp, q.maxHp),
-      statusRow(q, true, `p${q.seat}`));
+      // 血與蜷縮照 shownPlayer：被刺的那一下還沒演（東西還在飛）時照被刺之前畫（見 motionPendingPlayer）
+      hpBar(`p${q.seat}`, shownPlayer(q).hp, q.maxHp),
+      statusRow(shownPlayer(q), true, `p${q.seat}`));
     mountMotion(q, picture, displayedPose);
     // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
     if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
@@ -1141,6 +1214,13 @@ registerScreen('combat', (app, root, props) => {
    */
   const warmedHeroes = new Set<string>();
   const warmedEnemies = new Set<string>();
+  /**
+   * 逐格動作好了之後還可能露出來的靜態立繪（2026-09-23 稽核 ui 低-4，判準見 `combatWarmPoses`）：
+   * 待機狀態那批一定要；挨打、閃、擋、勝、敗、倒下的逐格動作不是延後下載的，照理不會露出靜態圖，
+   * 但那幾條交還路線沒有測試釘著，一位才六張，保守起見照暖——那一刻空白比多占幾 MB 糟。
+   */
+  const motionFallbackPoses: ReadonlySet<string> = new Set([...Object.values(REST_STATE_POSES),
+    POSE.hit, POSE.dodge, POSE.guard, POSE.win, POSE.lose, POSE.down]);
   const warmHeroes = (): void => {
     const urls: string[] = [];
     // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
@@ -1148,7 +1228,10 @@ registerScreen('combat', (app, root, props) => {
       const who = `${q.seat}:${q.hero ?? ''}`;
       if (warmedHeroes.has(who)) continue;
       warmedHeroes.add(who);
-      for (const key of Object.values(POSE)) urls.push(heroArtUrl(q.hero, key));
+      // 逐格動作已經載好就只暖退路會用到的；還沒載好（冷快取的第一場）或 `?motion=0` 照舊全套
+      const source = motionEnabled ? motionSourceFor(q) : undefined;
+      const motionReady = !!source && (source === 'qiuqiu' ? qiuqiuMotionReady() : companionMotionReady(source));
+      for (const key of combatWarmPoses(Object.values(POSE), motionFallbackPoses, motionReady)) urls.push(heroArtUrl(q.hero, key));
     }
     warm(urls);
   };
@@ -1288,16 +1371,6 @@ registerScreen('combat', (app, root, props) => {
   }
 
   /** 飄起來的傷害數字。飄完自己移除，免得留在 DOM 裡等下一次重畫才被掃掉 */
-  /** 這一拍的紀錄裡，某個開頭（「蜷縮擋下了」或「〇〇的防禦擋下了」）總共擋了幾點；多段攻擊會有好幾行，加總 */
-  function blockedAmount(lines: readonly string[], prefix: string): number {
-    let sum = 0;
-    for (const l of lines) {
-      if (!l.startsWith(prefix)) continue;
-      const m = /(\d+) 點$/.exec(l);
-      if (m) sum += Number(m[1]);
-    }
-    return sum;
-  }
 
   /** 多段攻擊一下一下演：每段隔 150 毫秒重掛一次挨打動畫、飄那一段的數字、放一聲。被擋成 0 的那段只閃不飄（「擋住 N」另外飄） */
   function stageHits(node: HTMLElement, amounts: number[]): void {
@@ -1615,6 +1688,51 @@ registerScreen('combat', (app, root, props) => {
     return monsterPhaseKey(enemyArtFor(e.enemyId, cs.player.hero), e.phase ?? 0);
   }
 
+  /** 狀態牌子、意圖牌、飛在天上照這組畫：丟出去的東西還在飛時是出手前的狀態與防禦（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
+  function shownEnemy(e: EnemyCombat): EnemyCombat {
+    const pending = motionPendingStatus.get(e.uid);
+    return pending ? { ...e, ...pending } : e;
+  }
+
+  /** 魔物腳下那一排牌子（狀態＋引擎裡看不到的被動）。抽出來是為了東西飛到時只換這一排（見 refreshEnemyStatus） */
+  function enemyChips(e: EnemyCombat, def: EnemyDef | undefined, reviving: boolean): HTMLElement {
+    const row = statusRow(shownEnemy(e), false, `e${e.uid}`);
+    // 引擎裡玩家看不到的狀態，全部做成牌子掛出來（滑上去有白話說明）——
+    // 「機制是對的但畫面沒講」已經連續中招三次：隱身閃避、蜷縮延遲、影子復活
+    if (!e.dead) {
+      if (def?.onDeathHealPlayer) row.prepend(chip('打倒回血', null, String(def.onDeathHealPlayer), 'good'));
+      if (def?.strengthEveryNTurns) {
+        const left = def.strengthEveryNTurns - (e.turnCount % def.strengthEveryNTurns);
+        row.prepend(chip('越戰越勇', null, String(left), 'bad'));
+      }
+      if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
+      if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
+      if (e.invulnIn > 0) row.prepend(chip('無敵', null, '', 'bad'));
+      if (def?.reviveGroup && !def.neverRevive) row.prepend(chip('同生共死', null, '', 'bad'));   // 蛙大名自己倒了就倒了，不掛這塊牌
+      // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
+      if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
+      // 第二波魔物的三個被動（2026-09-02）。狀態型的（縮殼、飛行、鱗甲、沉睡、消散）自己就是狀態牌子，
+      // 這三個沒有層數可掛，所以照「僕從護體」那一套做成小牌
+      if (def?.splitInto && !e.split) row.prepend(chip('分裂', null, '', 'bad'));
+      if (def?.hexOnSkill) row.prepend(chip('詛咒', null, '', 'bad'));
+      if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
+    }
+    if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
+    // 魔氣暴走：第 10 回合（關主戰第 15 回合）起掛在每隻魔物身上，提醒拖下去每回合都會更痛
+    if (!e.dead && cs.turn >= rampageTurnFor(cs)) row.prepend(chip('魔氣暴走', null, '', 'bad'));
+    return row;
+  }
+
+  /** 只換這一隻的狀態牌子、意圖牌、飛在天上（整隻重建會把受擊、倒下那些演出一起打斷） */
+  function refreshEnemyStatus(node: HTMLElement, e: EnemyCombat): void {
+    const reviving = e.dead && e.reviveIn > 0 && willRevive(cs, e);
+    const shown = shownEnemy(e);
+    node.querySelector(':scope > .chips')?.replaceWith(enemyChips(e, enemyById[e.enemyId], reviving));
+    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown));
+    // 打掉飛行的那一下：東西打到才掉下來（跟 enemyUnit 同一個判準）。虛化只在魔物自己的回合變，不用跟
+    node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);
+  }
+
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
     const def = enemyById[e.enemyId];
     const left = enemyLeft(i, n);   // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）
@@ -1653,7 +1771,8 @@ registerScreen('combat', (app, root, props) => {
     // 飛在天上的魔物離地浮起來（使用者 2026-09-07：「讓他能上來一點才有飛行感」）。
     // 看的是**當下的飛行層數**不是牌表上的初始值：打中幾下把牠打下來時，畫面會跟著落地，
     // 玩家一眼看得出「打下來了」，跟「攻擊只打得到一半」那條機制對得上
-    if (!e.dead && getStatus(e, '飛行') > 0) cls.push('airborne');
+    // 丟出去的東西還在飛時照出手前的層數（shownEnemy）：不然東西還沒打到，牠就先掉下來了（2026-09-23 polish 第 3 條）
+    if (!e.dead && getStatus(shownEnemy(e), '飛行') > 0) cls.push('airborne');
     // 虛化的本體半透明（使用者 2026-09-14 深夜：「第三層有虛化的怪物不明顯」）。
     // 原本只有狀態列一顆小圖示，立繪一點都沒變，玩家看不出這回合打下去每下只扣 1。
     // 看的是**當下**的虛化層數：牠實體化那一拍類別拿掉、立繪立刻變回實心，輸出窗口一眼看得到
@@ -1662,34 +1781,11 @@ registerScreen('combat', (app, root, props) => {
     // 意圖牌子放進立繪框裡（不是當它的兄弟節點）：框裡才有「圖畫實際佔多高」這個座標，
     // 牌子用絕對定位掛在圖畫頂端，扁的魔物才不會讓牌子飄在半空。
     // 放在外面用負邊界試過兩次都不準——那個排版下負邊界只挪了 15 像素而不是 130。
-    const row = statusRow(e, false, `e${e.uid}`);
-    // 引擎裡玩家看不到的狀態，全部做成牌子掛出來（滑上去有白話說明）——
-    // 「機制是對的但畫面沒講」已經連續中招三次：隱身閃避、蜷縮延遲、影子復活
-    if (!e.dead) {
-      if (def?.onDeathHealPlayer) row.prepend(chip('打倒回血', null, String(def.onDeathHealPlayer), 'good'));
-      if (def?.strengthEveryNTurns) {
-        const left = def.strengthEveryNTurns - (e.turnCount % def.strengthEveryNTurns);
-        row.prepend(chip('越戰越勇', null, String(left), 'bad'));
-      }
-      if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
-      if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
-      if (e.invulnIn > 0) row.prepend(chip('無敵', null, '', 'bad'));
-      if (def?.reviveGroup && !def.neverRevive) row.prepend(chip('同生共死', null, '', 'bad'));   // 蛙大名自己倒了就倒了，不掛這塊牌
-      // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
-      if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
-      // 第二波魔物的三個被動（2026-09-02）。狀態型的（縮殼、飛行、鱗甲、沉睡、消散）自己就是狀態牌子，
-      // 這三個沒有層數可掛，所以照「僕從護體」那一套做成小牌
-      if (def?.splitInto && !e.split) row.prepend(chip('分裂', null, '', 'bad'));
-      if (def?.hexOnSkill) row.prepend(chip('詛咒', null, '', 'bad'));
-      if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
-    }
-    if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
-    // 魔氣暴走：第 10 回合（關主戰第 15 回合）起掛在每隻魔物身上，提醒拖下去每回合都會更痛
-    if (!e.dead && cs.turn >= rampageTurnFor(cs)) row.prepend(chip('魔氣暴走', null, '', 'bad'));
+    const row = enemyChips(e, def, reviving);
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), 'data-id': e.enemyId, style: `left:${left}px` },
       spriteBox(enemySprite(e, def), e.name,
         def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (SPRITE_SIZE_OVERRIDE[e.enemyId] ?? def?.size ?? 'medium'),
-        reviving ? undefined : intentChip(e)),
+        reviving ? undefined : intentChip(shownEnemy(e))),
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp + (motionPendingDamage.get(e.uid) ?? 0), e.maxHp),
       row);
@@ -1762,13 +1858,15 @@ registerScreen('combat', (app, root, props) => {
         // 長相又跟旁邊的飯糰、連抓提示不同款，玩家等不到就以為沒說明。改掛遊戲自己的提示框。
         /**
          * 有使用條件的（起死回生丹：生命低於三成才准用）要**看得出來為什麼用不了**。
-         * 條件本身寫在忍具資料上、引擎與畫面共用同一支（`PotionDef.usable`）——
+         * 條件本身寫在忍具資料上、引擎與畫面共用同一支（`potionBlockedReason`，內含 `PotionDef.usable`）——
          * 兩邊各寫一套遲早會走鐘，罐頭鋪的「買不起」踩過這個坑。
          * 點下去沒反應是最糟的：格子變灰、說明多一行原因，玩家才知道是「還不能用」不是「壞了」。
+         * 集中精神之後的飯糰類忍具也走這裡（2026-09-23 稽核 引擎 低-1）。
          */
-        const ready = !def.usable || def.usable.check(p.hp, p.maxHp);
+        const blocked = potionBlockedReason(p, def);
+        const ready = blocked === null;
         attachTextTooltip(slot, def.name, ready ? def.text : `${def.text}
-（${def.usable!.reason}）`);
+（${blocked}）`);
         if (!ready) slot.classList.add('not-ready');
         // 連線舉手等對方時不能用（引擎擋著）：不掛「可點」，免得點下去沒反應（夜間審查 低-5）
         if (canAct() && ready && !p.ready) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }
@@ -2144,7 +2242,9 @@ registerScreen('combat', (app, root, props) => {
     box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },
       el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
-      el('span', {}, TUT_TEXT[tutStep] ?? ''),
+      // 手機、平板第一步多一句「按住牌放大看」（2026-09-23 polish，主控裁定三；最後一輪平板也開按住放大，一起教）：
+      // 桌機用滑鼠滑過去就看得到，不出現
+      el('span', {}, TUT_TEXT[tutStep] ?? '', tutStep === 0 && isTouchDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''),
       el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕')));
     if (targeting) box.append(el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'));
     else if (hint) box.append(el('div', { class: 'target-hint warn' }, hint));
@@ -2480,8 +2580,8 @@ registerScreen('combat', (app, root, props) => {
     hideTooltip();
     /*
      * 連線版：按「結束回合」只是**舉手**，要兩邊都舉手才真的收（見 `combat.ts` 的 `setReady`）。
-     * 所以這裡送出去就回，收牌與魔物回合交給 `onAllReady()`——那支會在最後一個人
-     * 舉手的那一刻，在兩台機器上各自跑一次（引擎是決定性的，跑出來一模一樣）。
+     * 所以這裡送出去就回，收牌與魔物回合交給 `session.onApplied` 裡的 `finishApplied`（看 `allReady(cs)`）——
+     * 最後一個人舉手的那一下套用時，在兩台機器上各自跑一次（引擎是決定性的，跑出來一模一樣）。
      */
     if (session) {
       sendOrDo({ t: 'ready', seat: mySeat, on: true }, () => true);
@@ -2544,7 +2644,8 @@ registerScreen('combat', (app, root, props) => {
     return true;
   }
 
-  function runEnemyTurn(): void {
+  function runEnemyTurn(): void { guardEnemyTurn(startEnemyTurn)(); }
+  function startEnemyTurn(): void {
     const before = snap(cs, my());
     // 連線：收回合那一刻會話被 `hold()` 住了，演完（或根本沒得演）都要放開，同伴下一回合的牌才套得進來（稽核 2026-09-14 高-7）
     if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); session?.release(); return; }
@@ -2552,7 +2653,7 @@ registerScreen('combat', (app, root, props) => {
     // （點了仍被 canAct 擋住，但看起來像可以點）——稽核 2026-09-04 夜 L-2
     enemyTurnRunning = true;
     settle(before, { light: true });
-    const step = (): void => {
+    const step = guardEnemyTurn((): void => {
       if (app.cs !== cs) { enemyTurnRunning = false; return; }
       clearTelegraph();
       const b = snap(cs, my());
@@ -2575,10 +2676,38 @@ registerScreen('combat', (app, root, props) => {
         window.setTimeout(() => { if (app.cs === cs) telegraphNext(); }, gap - TELEGRAPH_MS);
       }
       window.setTimeout(step, gap);
-    };
+    });
     // 整個回合的第一隻沒有「上一隻的結果」可以借時間，這 0.32 秒是真的多花的（一回合一次）
     if (telegraphNext()) window.setTimeout(step, TELEGRAPH_MS);
     else step();
+  }
+
+  /*
+   * 魔物回合演到一半丟例外的退路（2026-09-23，接稽核 低-2 的「沒做的」）。
+   *
+   * 收牌之後，魔物回合的開頭與每一步都在計時器裡跑，`onApplied` 外層那道防護接不到：
+   * 任何一支演出（`settle`、出招預告）丟一個例外，這一步之後就沒人排下一步，
+   * `release()` 永遠等不到——同伴下一回合的牌全在這邊排隊，兩台互等（單機則是停在魔物回合、按鈕全灰）。
+   * 跟低-2 同一套：記一行、照常收尾，連收尾都壞就直接放開。
+   * 「照常收尾」＝引擎那一半照常走完、只是不演（跟 `endTurn` 同一個走法；兩台都要走到同一個地方，鎖步才對得上），
+   * 畫面重畫回真實的狀態、照常判勝負。
+   */
+  function guardEnemyTurn(fn: () => void): () => void {
+    return () => { try { fn(); } catch (error) { rescueEnemyTurn(error); } };
+  }
+  function rescueEnemyTurn(error: unknown): void {
+    console.error('魔物回合演出失敗，照常收尾', error);
+    enemyTurnRunning = false;
+    try {
+      if (cs.enemyActing) { while (stepEnemyTurn(cs)) { /* 一隻一隻 */ } finishEnemyTurn(cs); }
+      recoverPresentation();
+      checkOver();
+      syncPicker();
+    } catch (again) {
+      console.error('魔物回合收尾也失敗，直接放開會話', again);
+    } finally {
+      session?.release();
+    }
   }
 
   // ===== 結算與動畫 =====
@@ -2620,6 +2749,8 @@ registerScreen('combat', (app, root, props) => {
    */
   const recoverPresentation = (): void => {
     motionPendingDamage.clear();
+    motionPendingStatus.clear();
+    motionPendingPlayer.clear();
     fallingUids.clear();
     motionHeldSprites.clear();
     if (app.cs === cs && !ended) render();
@@ -2639,15 +2770,17 @@ registerScreen('combat', (app, root, props) => {
     }
     // 演出只是畫面，丟例外也要接著演下一項：不然佇列永遠停在「演出中」，
     // 同伴之後的動作與收回合都不會再演，這位玩家整場卡住（稽核 2026-09-21 晚 中-4）
+    // 算這一項要等多久也包進來（2026-09-23 稽核 低-2）：它會去查動作長度，資料不齊一樣會丟，丟了佇列同樣永遠停住、收尾那一項輪不到
+    let wait: number;
     try {
       item.play();
+      wait = resolveCombatMotionPresentationWait(item.wait);
     } catch (error) {
       console.error('連線演出失敗，跳過這一項', error);
       recoverPresentation();
       pumpRemotePresentation();
       return;
     }
-    const wait = resolveCombatMotionPresentationWait(item.wait);
     if (wait <= 0) { pumpRemotePresentation(); return; }
     const timer = window.setTimeout(() => {
       motionImpactTimers.delete(timer);
@@ -2829,11 +2962,14 @@ registerScreen('combat', (app, root, props) => {
     const comparedBlock = comparedPlayer?.block ?? p.block;
     const hurt = comparedHp < before.hp;
     /*
-     * 「誰閃過了」：引擎那行現在寫的是**那一位的名字**（`unitName`），不是寫死的「球球」，
-     * 所以不能比對整句（換角色那天就會踩到——菲菲閃過去，畫面不演）。
-     * 魔物閃過也是同一句型，用「開頭是不是魔物的名字」排掉。
+     * 魔物對每一位做了什麼（擋下、閃過、塞牌、看破、吹散）照**座位**看數字，不讀戰報句子（2026-09-23 health H-1）：
+     * 句子 09-15 多了名字之後，連線時自己擋下的演出整個不見；兩位同角色時「球球閃過了」也分不出是誰。
+     * 判斷在 seat-feedback.ts（純函式、用引擎實跑測過）。連線重播那條走 `comparison`，跟上面的血與蜷縮同一套
      */
-    const dodged = fresh.includes(`${heroName(my())}閃過了`);
+    const feedbackOf = (q: PlayerCombat) => seatFeedback(before.players.get(q.seat),
+      comparison?.players.get(q.seat) ?? seatFeedbackSnap(q));
+    const myFeedback = feedbackOf(p);
+    const dodged = myFeedback.dodged;
     const hungry = cs.phase === 'player' && p.energy === 0 && hungryTurn !== cs.turn
       && p.hand.some((c) => cardStats(c).cost > 0);
     // 姿勢優先序：分出勝負 ＞ 挨打 ＞ 閃過 ＞ 蜷縮 ＞ 這張牌 ＞ 餓扁 ＞ 待機。先決定再畫，姿勢才看得到。
@@ -2847,8 +2983,8 @@ registerScreen('combat', (app, root, props) => {
     else if (hurt && !posePref) pose = POSE.hit;
     else if (dodged) pose = POSE.dodge;
     // 敵人打過來被蜷縮整個擋掉：切抱胸格擋——這張早就畫好卻沒人用（2026-09-08）。
-    // 只認「這一拍有魔物出手、血沒掉、紀錄有擋下」；自己回合疊蜷縮走下一條的 curl
-    else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了')) && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
+    // 只認「這一拍有魔物出手、血沒掉、我擋下了點數」；自己回合疊蜷縮走下一條的 curl
+    else if (enemyActed && myFeedback.blocked > 0 && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
     else if (comparedBlock > before.block && !opts.attack) pose = POSE.curl;
     else if (posePref) pose = posePref;
     else if (hungry) pose = POSE.hungry;
@@ -2920,8 +3056,9 @@ registerScreen('combat', (app, root, props) => {
         hasOutgoingMotion: impactMotion !== undefined || opts.pose !== undefined || opts.impactSeat !== undefined,
       })) reaction = 'hurt';
       else if (afterStealth < was.stealth) reaction = source === 'qiuqiu' || source === 'feifei' ? 'roll' : 'dodge';
+      // 擋下的點數照座位記，同伴那格也認得（原本只有自己認得出、而且連線時連自己都認不出，health H-1）
       else if (enemyActed && afterHp === was.hp && (afterBlock < was.block
-        || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了'))))) reaction = 'guard';
+        || feedbackOf(q).blocked > 0)) reaction = 'guard';
       // 本張牌／忍具已選好演出；回血只是效果，不能把太極或反擊改成吃飯。
       // 自己正在出招（不是反應動作）時，同伴幫忙回血也不能把招式切成吃飯、人瞬間回原位（稽核 2026-09-21 晚 低-7）
       else if (afterHp > was.hp && !(q.seat === (opts.impactSeat ?? mySeat)
@@ -2947,6 +3084,9 @@ registerScreen('combat', (app, root, props) => {
     let stagedMax = 0;   // 本拍最多分幾段：收姿勢與倒下的演出都要排在最後一段之後
     let lastMotionImpact = 0;
     let confirmedMotionWaves = 0;
+    // 丟東西打到帶刺的魔物（2026-09-23 polish，主控裁定）：還有幾個帶刺的目標沒被打到；最後一個打到時才演「被刺」（revealThorns，迴圈後面才決定）
+    let thornFlights = 0;
+    let revealThorns: (() => void) | undefined;
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
       const a = comparison?.enemies.get(e.uid);
@@ -3051,9 +3191,11 @@ registerScreen('combat', (app, root, props) => {
       };
       const throwBox = node.querySelector<HTMLElement>('.sprite-box');
       const throwFlight = throwing && throwFoot && throwBox && !b.dead && impactPlan.length > 0;
-      // 掙脫定身、上了減益：丟出去的忍具要等東西飛到才演，其餘照舊當場演
+      // 掙脫定身、上了減益：丟出去的東西（忍具與牌）要等東西飛到才演，其餘照舊當場演
       const brokeFree = fresh.some((l) => l === `${e.name}掙脫了定身`);
       const landStatus = (target: HTMLElement): void => {
+        // 飛到了才換上真的狀態牌子（定身、懶洋洋⋯⋯）與「被定住了」（2026-09-23 polish 第 3 條，見 motionPendingStatus）
+        if (motionPendingStatus.delete(e.uid)) refreshEnemyStatus(target, cs.enemies.find((x) => x.uid === e.uid) ?? e);
         if (brokeFree) {
           target.append(floatNum('掙脫！'));
           burst(target, 'smoke');
@@ -3061,18 +3203,35 @@ registerScreen('combat', (app, root, props) => {
         }
         if ((a?.debuff ?? sumStatus(e, BAD_STATUS)) > b.debuff) burst(target, 'debuff');
       };
-      const statusByFlight = throwFlight && shot?.aim !== undefined;
+      // 原本只有忍具（帶 aim）才等；主控 2026-09-23 裁定丟出去的牌也一樣（毒砂的中毒、絆索的炸毛、點穴手的定身）
+      const statusByFlight = !!throwFlight;
+      // 狀態牌子也等東西飛到：剛才那次重畫已經照引擎掛上定身、中毒、扣了防禦，先換回出手前的樣子，landStatus 再換回來
+      if (statusByFlight && (b.block !== e.block || STATUS_ORDER.some((name) => (b.statuses[name] ?? 0) !== getStatus(e, name)))) {
+        motionPendingStatus.set(e.uid, { statuses: b.statuses, block: b.block });
+        // 剛才那次重畫已經把「被定住了」記成上一次的牌面，換回去會被當成換招、繩子飛行中翻一次牌（實機膠卷）；
+        // 忘掉它，飛到那一刻才翻
+        lastIntent.delete(e.uid);
+        refreshEnemyStatus(node, e);
+      }
       let throwFall: (() => void) | undefined;
       if (throwFlight && shot && throwFoot && throwBox && impactSource && impactMotion) {
         const foot = motionFoot(throwBox);
         const width = throwBox.querySelector<HTMLElement>('.sprite')?.offsetWidth ?? 130;
         const waves = impactPlan.length;
+        // 收姿勢要等最後一波真的打到（2026-09-23 稽核 ui 低-2）：連線加入方丟的東西被 joinElapsed 拉回第一波出手那一刻飛，
+        // 命中比上面用 impactElapsed 算的晚 0.1～0.3 秒；照舊算的話最後一兩波還在飛，魔物就先被換回待機
+        lastMotionImpact = Math.max(lastMotionImpact, finalImpactAt
+          - throwElapsed(impactSource, impactMotion, impactElapsed, impactPlan.map((impact) => impact.at)));
+        // 這隻身上帶刺、這一拍又被打中：出手的那一位會被刺回來，等這一趟飛到才演（見 revealThorns）
+        const pricks = (b.statuses['反彈'] ?? 0) > 0 && enemyHits.length > 0;
+        if (pricks) thornFlights += 1;
         const onImpact = (wave: number): void => {
           if (app.cs !== cs) return;
           const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);
           if (live) showImpact(live, impactPlan[wave]?.amount ?? 0, wave);
           if (live && statusByFlight && wave === waves - 1) landStatus(live);
           if (wave === waves - 1) throwFall?.();
+          if (pricks && wave === waves - 1 && --thornFlights === 0) revealThorns?.();
         };
         let cancel: () => void = () => undefined;
         cancel = playThrow(app.stage, impactSource, impactMotion, shot, throwFoot, { x: foot.x, y: foot.y - width * 0.55 }, {
@@ -3167,6 +3326,60 @@ registerScreen('combat', (app, root, props) => {
       const afterEnemyPhase = a?.phase ?? e.phase;
       if (afterEnemyPhase > b.phase) { bossPhaseTalk(e.enemyId, afterEnemyPhase); phaseBurst(node); }
     }
+    /** 挨打那一下：紅閃、邊緣紅暈、飄數字、音效，重的再震一下（被刺那一下延到東西飛到時也走這支） */
+    const playerHurtFx = (cat: HTMLElement, amount: number, maxHp: number, poisoned: boolean): void => {
+      cat.classList.remove('hit');
+      void cat.offsetWidth;
+      cat.classList.add('hit');
+      // 邊緣紅暈：挨打的訊號要大到用餘光就看得到（受擊姿勢＋抖動一直都有，但視線常在手牌）
+      const box = root.querySelector('.combat');
+      box?.classList.add('player-hurt');
+      window.setTimeout(() => { box?.classList.remove('player-hurt'); }, 500);
+      cat.append(floatNum(`-${amount}`));
+      burst(cat, poisoned ? 'poison' : 'hit');
+      sfx(poisoned ? 'poison' : 'hurt');
+      // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
+      // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
+      // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。
+      if (amount >= maxHp * 0.08) {
+        const shakeBox = root.querySelector<HTMLElement>('.combat');
+        shakeBox?.classList.add('shaken');
+        window.setTimeout(() => shakeBox?.classList.remove('shaken'), 300);
+      }
+    };
+    /** 蜷縮擋下的部分也要看得到：飄「擋住 N」＋盾牌閃一下＋「鏘」（球球比照魔物） */
+    const playerGuardFx = (cat: HTMLElement, amount: number): void => {
+      cat.append(floatNum(`擋住 ${amount}`, 'blocked'));
+      burst(cat, 'block');
+      sfx('blocked');
+    };
+    // 丟東西打到帶刺的魔物（2026-09-23 polish，主控裁定）：被刺那一下（扣蜷縮、扣血、飄字、紅閃）延到最後一個帶刺的目標被打到。
+    // 剛才那次重畫已經照引擎扣掉了，先把血與蜷縮加回去畫；只改演出時機，引擎結算不動，連線兩台各自照這一拍的紀錄演
+    const thornSeat = opts.impactSeat ?? mySeat;
+    let thornHeld: { seat: number; hp: number; block: number } | undefined;
+    if (thornFlights > 0) {
+      const pricked = thornPricks(fresh);
+      const thrower = cs.players[thornSeat];
+      const was = before.players.get(thornSeat);
+      const afterHp = comparison?.players.get(thornSeat)?.hp ?? thrower?.hp ?? 0;
+      const hp = was ? Math.min(Math.max(0, pricked.total - pricked.blocked), Math.max(0, was.hp - afterHp)) : 0;
+      const block = pricked.blocked;
+      // 被刺到倒下就不延：倒下的演出（落敗、蜷縮成一團）當場就要走
+      if (thrower && !thrower.down && (hp > 0 || block > 0)) {
+        thornHeld = { seat: thornSeat, hp, block };
+        motionPendingPlayer.set(thornSeat, { hp, block });
+        lastHpPct.delete(`p${thornSeat}`);   // 剛才那次重畫記的是扣過的長度，不刪的話加回去那一下血條會往上長
+        refreshPlayerStatus(thornSeat);
+        revealThorns = (): void => {
+          if (app.cs !== cs || !motionPendingPlayer.delete(thornSeat)) return;
+          refreshPlayerStatus(thornSeat);   // 血條從被刺之前滑到之後，淺色殘影照常留一下
+          const live = root.querySelector<HTMLElement>(`.unit.player[data-seat="${thornSeat}"]`);
+          if (!live || thornSeat !== mySeat) return;   // 同伴那一格平常挨打也只換血條，照舊
+          if (block > 0) playerGuardFx(live, block);
+          if (hp > 0) playerHurtFx(live, hp, thrower.maxHp, false);
+        };
+      }
+    }
     // 全體攻擊的各目標可能因死亡或隱身而有不同波數；整身動作採全場最大值，不能被最後一隻覆短。
     // 煙霧彈丟在自己腳邊（2026-09-22 批次 proj）：從出手那隻手拋到腳前，落地才冒煙
     if (shot?.aim === 'self' && shotUsed && throwFoot && impactSource && impactMotion) {
@@ -3237,10 +3450,13 @@ registerScreen('combat', (app, root, props) => {
     if (comparedBlock > before.block) root.querySelector(`${MINE} .chip.block`)?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>(MINE);
     // 魔物對球球做的事也要在球球身上看得到：被塞牌／被減益／被看破
-    if (cat && acting.size > 0) {
-      if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
-      if (fresh.some((l) => l.includes('塞進你的'))) burst(cat, 'curse');
-      if (fresh.some((l) => l.includes('的身法') || l.includes('拍散') || l.includes('震散'))) burst(cat, 'strip');
+    if (cat && acting.size > 0 && sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
+    // 被塞牌、被看破打在**中招的那一位**身上（health H-1）：原本比對戰報句子、一律打在自己這格，連線時同伴中招也亮在我身上
+    if (acting.size > 0) for (const q of cs.players) {
+      const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${q.seat}"]`);
+      const got = feedbackOf(q);
+      if (node && got.cursed) burst(node, 'curse');
+      if (node && got.stripped) burst(node, 'strip');
     }
     // 剛被召喚出來的：煙
     for (const e of cs.enemies) if (!before.enemies.has(e.uid) && !e.dead) { const n = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`); if (n) burst(n, 'smoke'); }
@@ -3265,39 +3481,22 @@ registerScreen('combat', (app, root, props) => {
         cat.append(floatNum('氣勁被拍散！'));
         burst(cat, 'debuff'); sfx('debuff', 0.8);
       }
-      // 被吹散手牌（下回合少抽）：飄一句在球球身上，紀錄框裡也有
-      const blown = fresh.find((l) => l.includes('下回合少抽'));
-      if (blown) {
-        cat.append(floatNum(blown.slice(blown.indexOf('下回合')), 'bad'));
+      // 被吹散手牌（下回合少抽）：飄一句在球球身上，紀錄框裡也有。
+      // 看自己的「下回合抽幾張」少了沒（health H-1）：原本找紀錄裡的句子，連線時同伴被吹散也飄在我身上。
+      // 只認魔物出手那一拍：回合開始這個數字會歸零，不擋的話上回合多抽一張的也會被當成吹散
+      const blown = acting.size > 0 ? myFeedback.blown : 0;
+      if (blown > 0) {
+        cat.append(floatNum(`下回合少抽 ${blown} 張`, 'bad'));
         burst(cat, 'debuff');
         sfx('debuff', 0.8);
       }
-      // 蜷縮擋下的部分也要看得到：飄「擋住 N」＋盾牌閃一下＋「鏘」（球球比照魔物）
-      const guarded = blockedAmount(fresh, '蜷縮擋下了');
-      if (guarded > 0) {
-        cat.append(floatNum(`擋住 ${guarded}`, 'blocked'));
-        burst(cat, 'block');
-        sfx('blocked');
-      }
-      if (hurt) {
-        cat.classList.add('hit');
-        // 邊緣紅暈：挨打的訊號要大到用餘光就看得到（受擊姿勢＋抖動一直都有，但視線常在手牌）
-        const box = root.querySelector('.combat');
-        box?.classList.add('player-hurt');
-        window.setTimeout(() => { box?.classList.remove('player-hurt'); }, 500);
-        cat.append(floatNum(`-${before.hp - comparedHp}`));
-        const pPoison = chokeTick(getStatus(p, '中毒'), before.choke);
-        burst(cat, pPoison ? 'poison' : 'hit');
-        sfx(pPoison ? 'poison' : 'hurt');
-        // 挨重擊整個戰場震一下。門檻設在最大生命的 8%，小刮傷不震——
-        // 每一下都震反而會麻痺，變成背景雜訊。震的是 .combat 不是舞台：
-        // 舞台身上有 transform: scale()，在那裡加動畫會把縮放蓋掉。
-        if (before.hp - comparedHp >= p.maxHp * 0.08) {
-          const box = root.querySelector<HTMLElement>('.combat');
-          box?.classList.add('shaken');
-          window.setTimeout(() => box?.classList.remove('shaken'), 300);
-        }
-      }
+      // 蜷縮擋下的量看引擎記的數字（health H-1：原本比對戰報句首，連線時句子帶名字就認不到）；
+      // 被刺那一下延到東西飛到才演（見 thornHeld）：這裡只演扣掉那一下之後剩下的
+      const heldHere = thornHeld?.seat === mySeat ? thornHeld : undefined;
+      const guarded = myFeedback.blocked - (heldHere?.block ?? 0);
+      if (guarded > 0) playerGuardFx(cat, guarded);
+      const lost = before.hp - comparedHp - (heldHere?.hp ?? 0);
+      if (hurt && lost > 0) playerHurtFx(cat, lost, p.maxHp, chokeTick(getStatus(p, '中毒'), before.choke));
       else if (dodged) cat.classList.add('dodge');
       // 前撲只給攻擊牌（規格 §8.4）：看 opts.attack，不能看有沒有指定姿勢——每張出的牌都會指定姿勢，
       // 拿它當條件的話「淡定」這種防禦牌也會蜷成球又往前撲
@@ -3380,7 +3579,8 @@ registerScreen('combat', (app, root, props) => {
     const finish = (): void => {
       if (app.cs !== cs) return;
       // 主機可能先判勝負才開始演最後一擊，換場前再看一次實際行程。
-      if ([...motionActors.values()].some((state) => state.active)) { window.setTimeout(finish, 80); return; }
+      // 不能只看 `active`：分頁在背景時畫面刷新回呼不跑、永遠收不掉（2026-09-23 稽核 低-1，規則見 `motionStillPlaying`）
+      if (motionStillPlaying(motionActors.values(), performance.now())) { window.setTimeout(finish, 80); return; }
       const linger = cs.phase === 'won'
         ? qiuqiuVictoryLinger(motionEnabled, cs.players.map((q) => heroOf(q)))
         : 0;
@@ -3632,7 +3832,9 @@ registerScreen('combat', (app, root, props) => {
       const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
       if (q && node) node.replaceWith(playerUnit(q));
     });
-    session.onApplied((applied) => {
+    /** 這一批動作的收尾交接（見下面外層的例外防護）：`finish`＝收尾那一支、`started`＝已經開始收了 */
+    type AppliedTurn = { finish?: (clearRemote?: boolean) => void; started?: boolean };
+    const onApplied = (applied: SequencedAction[], turn: AppliedTurn): void => {
       if (!applied.length || app.cs !== cs) return;
       unlockSend();   // 有東西套進去了＝路上那一下回來了
       const mine = applied.every((a) => 'seat' in a.a && a.a.seat === mySeat);
@@ -3663,6 +3865,8 @@ registerScreen('combat', (app, root, props) => {
         root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
       }
       const finishApplied = (clearRemote = true): void => {
+        if (turn.started) return;   // 只收一次：外層例外防護的退路可能再叫一次（見下面 `session.onApplied`）
+        turn.started = true;
         if (clearRemote) {
           remoteBefore = null;
           remoteCombatBefore = null;
@@ -3687,6 +3891,7 @@ registerScreen('combat', (app, root, props) => {
           }, wait);
         }
       };
+      turn.finish = finishApplied;   // 交給外層：下面準備演出時丟例外，外層照常收尾（2026-09-23 稽核 低-2）
 
       /*
        * 缺號補齊時 `ActionQueue` 會一次交回多張。引擎已經在真狀態全部算完，畫面不能把
@@ -3919,6 +4124,33 @@ registerScreen('combat', (app, root, props) => {
         recoverPresentation();
       }
       finishApplied();
+    };
+    /*
+     * 外面再包一道例外防護（2026-09-23 稽核 低-2）。
+     *
+     * 舉手齊了的那一刻，上面當場 `hold()` 住會話，要等 `finishApplied()` 收牌、演完魔物回合才 `release()`；
+     * 而中間準備演出參數的那一大段（`matePlays`、`motionForCard`、`prepareMelee`、`projectileForCard`、
+     * 批次重播的 `buildCombatMotionImpactPlan`…）原本只有最後幾行在 `try` 裡。缺圖、資料不齊丟一個例外，
+     * 這台就停在 held、不跑魔物回合，同伴下一回合的牌全在這邊排隊，兩台互等。
+     * 跟 2026-09-21 晚 中-4 同一套：狀態已經套進引擎了，演出只是畫面——記一行、收掉演出、照常收尾。
+     * 收尾本身壞了（或還沒走到定義收尾那一行）就直接放開：寧可同伴下一手在這邊套不進去、兩邊跳出紅色橫幅，也不要無聲互等。
+     */
+    session.onApplied((applied) => {
+      const turn: AppliedTurn = {};
+      try {
+        onApplied(applied, turn);
+      } catch (error) {
+        console.error('連線演出準備失敗，照常收尾', error);
+        recoverPresentation();
+        const finish = turn.started ? undefined : turn.finish;
+        try {
+          if (finish) finish();
+          else session.release();   // 收尾本身丟的例外，或還沒走到定義收尾那一行：沒辦法照常收，直接放開
+        } catch (again) {
+          console.error('連線收尾失敗，直接放開會話', again);
+          session.release();
+        }
+      }
     });
     session.onTrouble((why) => {
       // 分岔或斷線：**當場停下來講清楚**，不要讓兩個人繼續玩兩份不一樣的遊戲

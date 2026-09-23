@@ -1,4 +1,6 @@
 import type { Rng, RngState } from './rng';
+// 角色清單只有 `hero.ts` 那一份（2026-09-23 health H-2 第 1 塊：這裡原本手寫五份聯集）。只借型別，執行時不互相載入
+import type { Hero } from './hero';
 
 // ===== 牌 =====
 export type CardType = '攻擊' | '技能' | '能力';
@@ -305,7 +307,7 @@ export interface CardDef {
   rarity: Rarity;
   pool: Pool;
   /** 職業獨占：沒寫＝每個角色共用；'ninja' 的隱身潛水那批別的角色拿不到（見 engine/hero） */
-  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
+  hero?: Hero;
   target: TargetMode;
   effects: Effect[];
   keywords?: Keyword[];
@@ -375,7 +377,7 @@ export interface RelicDef {
    * **2026-09-14 深夜：兩件的鎖都拿掉了。** 使用者把「後退閃躲」改成獲得隱身（跟師兄學來的招式），
    * 紙袋、影披風對她有用了。機制留著，目前沒有任何秘寶在用。
    */
-  notFor?: readonly ('ninja' | 'feifei' | 'dangdang' | 'fengfeng')[];
+  notFor?: readonly Hero[];
   /** 罐頭鋪售價。不填＝150。強弱要有價差（使用者指定），數字標在各件定義上 */
   price?: number;
   hooks: {
@@ -672,7 +674,7 @@ export interface EventDef {
    * 用在「這個事件只有對這個角色才有意義」的那幾個——菲菲的「師兄的痕跡」
    * 是她在追球球留下的東西，球球自己遇到會很怪。
    */
-  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
+  hero?: Hero;
   /**
    * 插圖還沒生好：**不排進任何人的地圖**（2026-09-17）。
    *
@@ -721,7 +723,7 @@ export interface GameMap { nodes: MapNode[]; start: string[] }
  */
 export interface RunPlayer {
   /** 這一位的職業。沒寫＝忍者 */
-  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
+  hero?: Hero;
   hp: number;
   maxHp: number;
   fish: number;
@@ -777,7 +779,7 @@ export interface PlayerCombat extends Unit {
    * `RunPlayer` 上也有一份，這裡再放一次**不是重複**：戰鬥畫面拿得到的只有 `CombatState`，
    * 而連線時同伴可能是另一個職業——立繪、招式圖、獨占牌全看這個欄位。
    */
-  hero?: 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
+  hero?: Hero;
   /**
    * 座位編號，0 起算（連線版第一步 2026-09-11）。
    *
@@ -842,6 +844,18 @@ export interface PlayerCombat extends Unit {
   energyGainBlockedThisPhase?: true;
   doubleNext: number;
   drawNextTurn: number;
+  /**
+   * 整場被蜷縮擋下的點數累計、閃過攻擊的次數（2026-09-23 health H-1）。**只給畫面讀**：
+   * 畫面拿它跟自己的快照相減，就知道「這一拍**這一位**擋下幾點、有沒有閃過」（跟 `cs.energyGain` 同一套）。
+   *
+   * 為什麼要記：畫面原本比對戰報句子開頭「蜷縮擋下了」。09-15 連線時句子多了名字（「球球的蜷縮擋下了」），
+   * 畫面沒跟著改，連線時自己擋下的「擋住 N」飄字、盾牌光、鏘聲整個不見；兩位同角色時句子也分不出是哪一位。
+   *
+   * 引擎自己**不讀**這兩個數字、也不收進連線指紋（`net/hash.ts`）——兩台的結算不會因為它們走岔。
+   * 可選是為了不必動每一個造玩家的地方：沒寫就是 0。
+   */
+  blockedTotal?: number;
+  dodgedTotal?: number;
   /*
    * ===== 連線支援牌 C 批的狀態（2026-09-13）=====
    *
@@ -1112,14 +1126,6 @@ export interface CombatState {
    * 那條沒走 `applyEffects`，本來漏掉，玩家看到的一樣是一個突然變大的數字（稽核 低-8）。
    */
   energyGain: number;
-  /**
-   * 整場**真的打進魔物血條**的傷害累計（被防禦擋掉的、虛化吃掉的都不算）。
-   *
-   * 只給「魔物散掉時要不要發獎」用（`finishCombat` 的 `FADE_REWARD_MIN`）。
-   * 為什麼不看終局血量：那量的是「牠現在缺幾成血」，魔物回血就等於把玩家打過的功勞洗掉。
-   * 醉拳狗六回合灌兩次酒各回 10 點，實際要打進 36% 才過得了兩成的門檻（稽核 2026-09-10 中-2）。
-   */
-  damageDealt: number;
   /**
    * 這場**發動過的秘寶**，照發生順序一件一筆（同一件發動兩次就兩筆）。
    *

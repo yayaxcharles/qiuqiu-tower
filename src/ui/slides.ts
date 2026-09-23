@@ -2,7 +2,7 @@ import type { DialogueLine } from '../content/dialogue';
 import { artUrl } from './assets';
 import { el } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 
 /**
  * 插圖幻燈片：整張劇情圖鋪滿舞台、台詞盒壓在下緣，點一下推進一句，
@@ -63,9 +63,12 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
     text.textContent = cur.l.text;
     box.classList.toggle('narration', cur.l.speaker === '旁白');
   };
+  // 這一局被丟掉（連線斷了回標題）時整段收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`，2026-09-23 稽核 高-1）
+  const forget = closeWithStory(() => { if (ended) return; ended = true; box.remove(); unlockScreen(); });
   const end = (): void => {
     if (ended) return;
     ended = true;
+    forget();
     box.remove();
     unlockScreen();
     onDone();

@@ -298,7 +298,7 @@ export function playThrow(
   const launch = (wave: number) => throwLaunch(source, action, wave)
     ?? { origin: QIUQIU_THROW_ORIGIN, flightMs: QIUQIU_SHURIKEN_FLIGHT_MS };
   const flightMs = launch(0).flightMs;
-  const timed = { ...options, elapsed: joinElapsed(options.elapsed ?? 0, options.impactTimes, flightMs) };
+  const timed = { ...options, elapsed: throwElapsed(source, action, options.elapsed ?? 0, options.impactTimes) };
   if (shot.kind === 'needle' && source === 'feifei' && isFeifeiNeedleAction(action)) {
     return playFeifeiNeedles(stage, {
       x: foot.x + FEIFEI_NEEDLE_DEFAULT_ORIGIN.x,
@@ -324,4 +324,19 @@ export function playThrow(
 export function joinElapsed(elapsed: number, impactTimes: readonly number[], flightMs: number): number {
   const firstRelease = Math.max(0, (impactTimes[0] ?? 0) - flightMs);
   return Math.min(Math.max(0, elapsed), firstRelease);
+}
+
+/**
+ * `playThrow` 實際從第幾毫秒演起（套過 `joinElapsed`）。戰鬥畫面算「最後一波什麼時候打到」要用同一個數：
+ * 照原本的 `impactElapsed` 算，連線加入方的多波投擲會以為早就打完，650 毫秒的收姿勢先把魔物換回待機，
+ * 最後一兩波打到時又切回受擊，魔物閃一下待機（2026-09-23 稽核 ui 低-2）。
+ */
+export function throwElapsed(
+  source: CombatMotionSource,
+  action: CombatMotionAction,
+  elapsed: number,
+  impactTimes: readonly number[],
+): number {
+  const flightMs = (throwLaunch(source, action, 0) ?? { flightMs: QIUQIU_SHURIKEN_FLIGHT_MS }).flightMs;
+  return joinElapsed(elapsed, impactTimes, flightMs);
 }

@@ -33,9 +33,18 @@ describe('總稽核 2026-09-14 的畫面層修正', () => {
   it('F 中-1：開場預載跳過角色專屬的鍵，三個入口選好角色都補載', () => {
     // 2026-09-16 總稽核戊 M3：首頁就出現的菲菲參上封面（TITLE_ART）是例外，其餘角色專屬的鍵照舊跳過
     expect(readFileSync('src/ui/assets.ts', 'utf-8')).toContain('if (heroOfKey(key) && !TITLE_ART.has(key)) continue;');
-    expect(readFileSync('src/ui/app.ts', 'utf-8')).toContain('preloadHeroArt([hero])');
-    expect(readFileSync('src/ui/app.ts', 'utf-8')).toContain('preloadHeroArt(run.players.map((p) => p.hero))');
-    expect(readFileSync('src/ui/screens/lobby.ts', 'utf-8')).toContain('preloadHeroArt(app.run.players.map((p) => p.hero))');
+    // 2026-09-23 health H-3：三個入口（新的一局、續玩、連線開局）收成 `adoptRun`，補載只寫在那一支。
+    // 原本逐一比對三個入口各自那行補載；現在守「補載在 adoptRun 裡，三個入口都叫它」
+    const app = readFileSync('src/ui/app.ts', 'utf-8').replace(/\r\n/g, '\n');
+    const body = (start: string): string => {
+      const at = app.indexOf(start);
+      expect(at, start).toBeGreaterThanOrEqual(0);
+      return app.slice(at, app.indexOf('\n  }\n', at));
+    };
+    expect(body('  adoptRun(run: RunState, seat: number): void {')).toContain('preloadHeroArt(run.players.map((p) => p.hero))');
+    expect(body('  newRun(seed?: string')).toContain('this.adoptRun(');
+    expect(body('  continueRun(from?: RunState): boolean {')).toContain('this.adoptRun(run, 0)');
+    expect(readFileSync('src/ui/screens/lobby.ts', 'utf-8')).toContain('app.adoptRun(run, seat);');
     expect(readFileSync('src/ui/app.ts', 'utf-8')).toContain('heroSpriteUrls(run.players.map((p) => p.hero))');
   });
 });

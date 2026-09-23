@@ -5,8 +5,9 @@
 // 測試全過、線上不報錯，只有玩家會覺得「怎麼這隻怪怪的」。
 // 日後加新關主、新大魔物時，這條會在忘記生圖的當下就變紅。
 //
-// 放在 tools/ 是因為 tsconfig 的 include 不含 tools，用 node:fs 的測試只能放這裡
-//（`f4b082a` 的教訓）。
+// 放在 tools/ 是因為這條要讀 public/assets 底下實際生好的圖，跟其他生圖檢查工具放一起
+//（`f4b082a` 的教訓）。2026-09-23 起 tsconfig 的 include 已經把 tools/*.test.ts 收進來了，
+// 這支跟其他 tools/ 測試一樣會被型別檢查照到，不再是唯一的例外。
 import { readFileSync, existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
@@ -16,12 +17,27 @@ const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')
 const src = readFileSync('src/content/enemies.ts', 'utf-8');
 
 /**
+ * `readFileSync` 沒給編碼時，Node 實際回傳的是 Buffer（`Uint8Array` 的子類，
+ * 多幾個讀二進位欄位的方法），但共用宣告檔（`tools/node-build.d.ts`）只宣告了
+ * 其他呼叫端都用得到的最小交集——單獨幫 Buffer 開一個子型別會拖累那些呼叫端
+ * （2026-09-23 低-2 試過：`Uint8Array` 的 `slice` 一旦被覆寫，`node:crypto` 那幾支
+ * 呼叫 `createHash().update()` 全部型別對不上，得不償失）。只有這支測試要讀
+ * WebP 檔頭的二進位欄位，型別的擴充就留在這裡，不動共用宣告。
+ */
+interface WebpHeaderBytes {
+  slice(start: number, end: number): { toString(encoding: string): string };
+  readUIntLE(offset: number, byteLength: number): number;
+  readUInt32LE(offset: number): number;
+  readUInt16LE(offset: number): number;
+}
+
+/**
  * 讀 WebP 的畫布寬高，不拉圖形函式庫進來（測試環境沒有瀏覽器，Node 也沒有內建解碼器）。
  * 這批全是 VP8L（無損，`add_sprite.py` 存的是有損 VP8 還是 VP8L 由 Pillow 決定），
  * 所以三種容器格式都認：VP8L、VP8（有損）、VP8X（帶 alpha 的擴充容器）。
  */
 function webpSize(path: string): { w: number; h: number } {
-  const b = readFileSync(path);
+  const b = readFileSync(path) as unknown as WebpHeaderBytes;
   expect(b.slice(0, 4).toString('ascii'), `${path} 不是 RIFF`).toBe('RIFF');
   expect(b.slice(8, 12).toString('ascii'), `${path} 不是 WEBP`).toBe('WEBP');
   const fourcc = b.slice(12, 16).toString('ascii');

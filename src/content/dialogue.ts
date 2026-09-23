@@ -1,5 +1,5 @@
-import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, FENGFENG_STARTER_DECK, STARTER_DECK, cardById } from './cards';
-import { heroName, type Hero } from '../engine/hero';
+import { cardById, starterDeckFor } from './cards';
+import { HEROES, heroName, type Hero } from '../engine/hero';
 import {
   FENGFENG_BOSS_LINES,
   FENGFENG_CAST_LINES,
@@ -21,6 +21,11 @@ export interface DialogueLine {
    * 跟紀錄字串那個雷同一類：**字串是給人看的，不是給程式比對的**。
    */
   slideBreak?: true;
+  /**
+   * 結局的打法插句**接在這一句後面**（2026-09-23，封封的稿子寫「接 FG-V-03 後」）。
+   * 沒標的照舊插在師父那句之後（第三句）。跟 `slideBreak` 同一個道理：位置用標記，不用數第幾句。
+   */
+  narrationAfter?: true;
 }
 
 /** 球球台詞的句尾檢查：去掉結尾標點後最後一個字必須是「喵」 */
@@ -930,7 +935,8 @@ export function setCoopStory(ctx: CoopStoryCtx | null): void { coopStory = ctx ?
  * 球球跟噹噹一起爬時，會讀到「身形跟師妹一模一樣」這種指名道姓的句子，
  * 而師妹根本不在場。這種錯不會報錯、測試也照樣綠，只有玩家看得出來。
  */
-const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
+// 匯出只給測試盯「每個鍵都還對得到原句」（`tests/content/coop_partner_lines_0923.test.ts`）；畫面層一律走 `mixedLine`
+export const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
   feifei: {
     ninja: {
     '是師兄的頭巾。他以前也老是勾破……回去又得替他補了。':
@@ -946,6 +952,11 @@ const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readonly<Reco
       '婆婆，我也想回去。可是師父還在上面，我不能就這樣走。',
     '師父、師兄……你們那邊也看得到月亮嗎？':
       '師父……您那邊也看得到月亮嗎？',
+    // 哭牆「敲開藏物磚」與古井許願（2026-09-23 稽核 中-2）：師兄就站在旁邊，她還在說他沒回來、替他求平安
+    '我知道上面危險，可師父和師兄都還沒回來。':
+      '我知道上面危險……可師父還在上面。師兄，我們一起上去。',
+    '我不求別的，讓師父和師兄平安就好。':
+      '我不求別的，只要我們三個都平安回家。',
     },
     /*
      * 她跟噹噹一起爬。她的原句幾乎每一句都在找「師父跟師兄」兩個人，
@@ -980,38 +991,143 @@ const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readonly<Reco
   dangdang: {
     ninja: {
       '球球，菲菲，我來了。': '球球，我來了。菲菲還在裡面。',
+      // 破戒住持倒下後那句（2026-09-23 稽核 低-3）：這一組菲菲留在村口替傷貓包紮，沒有進塔找師父
+      '他的兩個徒弟都在找他。我這就上去。': '球球一路找他找到這裡。我們這就上去。',
     },
     feifei: {
       '球球，菲菲，我來了。': '菲菲，我跟上了。球球還在裡面。',
+      // 同一句：菲菲就站在旁邊，不要用「他的兩個徒弟」把她講成第三人
+      '他的兩個徒弟都在找他。我這就上去。': '菲菲跟球球都在找他。我們這就上去。',
+    },
+    // 跟封封一起時原句成立（球球、菲菲都在塔裡找師父），不必換
+  },
+  /*
+   * 封封跟人一起爬（2026-09-23 稽核 中-1）。他的序章、過關、結局、落敗在連線時整段換成
+   * 共用場景（`fengfengCoopScenes`），剩下會逐句經過這裡的是關主台詞（`lineFor`）與事件（`eventTextFor`）。
+   * 三組搭檔各自「誰留在村裡」不一樣——跟球球：菲菲、噹噹都在村裡，只少大俠貓，而且是當晚就追上去；
+   * 跟菲菲：大俠貓跟球球三天沒回來；跟噹噹：球球、菲菲都在塔裡。原句「兩個徒弟都沒回村」只有最後一組成立。
+   */
+  fengfeng: {
+    ninja: {
+      '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我陪球球來找大俠貓。他中了魔氣，跑上塔頂了。',
+      '他的徒弟沒有放棄找他。我也會上去。': '球球一路追他追到這裡。我們這就上去。',
+      '小魚乾落進井裡，水面泛起一圈漣漪。封封扶著井沿等待。封封：「能讓我把他們找到就好了。」':
+        '小魚乾落進井裡，水面泛起一圈漣漪。封封扶著井沿等待。封封：「能讓我們把大俠貓帶回村就好了。」',
+      '封封敲鬆磚塊，取出布包，手卻被碎石劃開。他用袖布壓住傷口，聽著牆裡的勸阻。封封：「我知道上面危險。朋友還沒回來，我得去找。」':
+        '封封敲鬆磚塊，取出布包，手卻被碎石劃開。他用袖布壓住傷口，聽著牆裡的勸阻。封封：「我知道上面危險。大俠貓還在上面，我們得去。」',
+    },
+    feifei: {
+      '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我陪菲菲來找大俠貓和球球。他們三天沒回村了。',
+      '他的徒弟沒有放棄找他。我也會上去。': '菲菲在村裡等了他三天。我們這就上去。',
+    },
+    dangdang: {
+      // 原句成立（球球、菲菲都在塔裡），只把「我」換成兩個人：婆婆面前站的是他跟噹噹
+      '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我和噹噹來找大俠貓和他的兩個徒弟。他們都沒回村。',
     },
   },
 };
 
+/**
+ * 鏡子走廊那篇事件的四段球球原句（`events.ts` 的 `mirror_hall`）：開頭、打一場的按鈕、打一場的結果、走過去的結果。
+ * 下面那張表的鍵都是這四句；2026-09-23 補齊四隻貓兩兩配對時抽成常數，免得十二組各抄一次長句、抄錯一個字就靜靜查不到。
+ */
+const HALL = {
+  intro: '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。',
+  fight: '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+  fought: '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」',
+  left: '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」',
+} as const;
+
 /** 鏡子走廊：鏡中那隻照座位 0 變裝，跟自己不同角色時讀到的是同伴的鏡像。鍵是**球球那份原句** */
 /** 鏡子走廊的文案。外層是**我是誰**，第二層是**鏡子照的是誰**（理由同 `MIXED_LINES`） */
-const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
+/*
+ * 2026-09-23 補齊十二組（原本只有球球、菲菲互照那兩組）。缺的那十組讀到的是自己那份「鏡中的自己」，
+ * 打的卻是鏡中噹噹或鏡中封封——封封坐 0 號時，另一位整段讀舊版（連線盤點的已知項）。
+ * 認假貨的理由各照同伴的習慣寫：噹噹不先動手、菲菲握針會抖、封封出劍前叫人站開、球球出招前會先喊。
+ */
+export const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
   feifei: {
     ninja: {
-    '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
+    [HALL.intro]:
       '走廊兩側排滿鏡子。菲菲停步，其中一面慢了半拍——鏡子裡站著的不是她，是一個綁著頭巾的黑影，身形跟師兄一模一樣。那個「師兄」沒有笑，先擺出了迎戰的架勢。',
-    '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
+    [HALL.fight]:
       '跟鏡中的假師兄過招（進入戰鬥，勝利後可升級至多 2 張牌）',
-    '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
+    [HALL.fought]:
       '黑影踏出鏡面，抬爪的角度跟師兄一模一樣，一出手卻全是照著學來的招式——這不是師兄。菲菲握緊飛針，往後退了半步。菲菲：「那個……你連我發抖都學，能不能不要靠過來？」',
-    '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
+    [HALL.left]:
         '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那個假的沒有跟上吧？」',
+    },
+    dangdang: {
+      [HALL.intro]: '走廊兩側排滿鏡子。菲菲停步，其中一面慢了半拍——鏡子裡站著的不是她，是一個套著護臂的黑影，身形跟噹噹一模一樣。那個「噹噹」沒有說話，先把護臂抬了起來。',
+      [HALL.fight]: '跟鏡中的假噹噹過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影踏出鏡面，擋架的姿勢跟噹噹一模一樣，卻搶先往前踏了一步——噹噹從來不先動手。菲菲握緊飛針，往後退了半步。菲菲：「那、那個……你不是噹噹。噹噹會先問我有沒有受傷。」',
+      [HALL.left]: '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那個假的沒有跟上吧？」',
+    },
+    fengfeng: {
+      [HALL.intro]: '走廊兩側排滿鏡子。菲菲停步，其中一面慢了半拍——鏡子裡站著的不是她，是一個背著劍的黑影，身形跟封封一模一樣。那個「封封」沒有說話，手已經按上了劍柄。',
+      [HALL.fight]: '跟鏡中的假封封過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影踏出鏡面，拔劍的動作跟封封一模一樣，劍尖卻朝著她。菲菲握緊飛針，往後退了半步。菲菲：「對、對不起，我知道你不是他……封封出劍前，都會先叫我站開。」',
+      [HALL.left]: '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那個假的沒有跟上吧？」',
     },
   },
   ninja: {
     feifei: {
-    '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
+    [HALL.intro]:
       '走廊兩側排滿鏡子，無數個球球同時抬起頭。只有一面裡站的不是他——是個紮著蝴蝶結的黑影，身形跟師妹一模一樣，手裡還捏著針。',
-    '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
+    [HALL.fight]:
       '跟鏡中的假師妹過招（進入戰鬥，勝利後可升級至多 2 張牌）',
-    '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
+    [HALL.fought]:
       '黑影踏出鏡面，抬手的角度跟師妹一模一樣，針尖卻對著他。球球壓低身子，把師妹擋在身後。球球：「假的就是假的，動作再像也沒用喵。」',
-    '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
+    [HALL.left]:
         '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「別看了，那不是師妹喵。」',
+    },
+    dangdang: {
+      [HALL.intro]: '走廊兩側排滿鏡子，無數個球球同時抬起頭。只有一面裡站的不是他——是個套著護臂的黑影，身形跟噹噹一模一樣，正把護臂慢慢舉高。',
+      [HALL.fight]: '跟鏡中的假噹噹過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影踏出鏡面，護臂舉到跟噹噹一樣高，卻先往前踏了一步。球球壓低身子，擋在噹噹前面。球球：「噹噹才不會先動手，你是假的喵。」',
+      [HALL.left]: '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「別看了，那不是噹噹喵。」',
+    },
+    fengfeng: {
+      [HALL.intro]: '走廊兩側排滿鏡子，無數個球球同時抬起頭。只有一面裡站的不是他——是個背著劍的黑影，身形跟封封一模一樣，手已經按在劍柄上。',
+      [HALL.fight]: '跟鏡中的假封封過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影踏出鏡面，拔劍的樣子跟封封一模一樣，劍尖卻對著球球。球球往旁邊一跳，讓出封封出劍的位置。球球：「封封才不會拿劍指著我，你是假的喵。」',
+      [HALL.left]: '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「別看了，那不是封封喵。」',
+    },
+  },
+  // 噹噹自己那份的「走過去」結果沒有講到鏡中的自己（「到了。別回頭看。」），三組都不必換
+  dangdang: {
+    ninja: {
+      [HALL.intro]: '走廊兩側排滿鏡子。噹噹往前走，其中一面慢了半拍——裡面站的不是他，是個綁著頭巾的黑影，身形跟球球一模一樣，已經擺好了架勢。',
+      [HALL.fight]: '跟鏡中的假球球過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影踏出鏡面，架勢跟球球一模一樣，出手卻不喊也不笑。噹噹抬起護臂，擋在球球前面。噹噹：「球球出招前一定先喊一聲。你不會。」',
+    },
+    feifei: {
+      [HALL.intro]: '走廊兩側排滿鏡子。噹噹往前走，其中一面慢了半拍——裡面站的不是他，是個紮著蝴蝶結的黑影，身形跟菲菲一模一樣，手裡捏著針。',
+      [HALL.fight]: '跟鏡中的假菲菲過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影踏出鏡面，握針的手勢跟菲菲一模一樣，手卻一點也不抖。噹噹側身擋住菲菲，把護臂抬高。噹噹：「菲菲握針會抖。你這個，太穩了。」',
+    },
+    fengfeng: {
+      [HALL.intro]: '走廊兩側排滿鏡子。噹噹往前走，其中一面慢了半拍——裡面站的不是他，是個背著劍的黑影，身形跟封封一模一樣，手按在劍柄上。',
+      [HALL.fight]: '跟鏡中的假封封過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影踏出鏡面，拔劍的動作跟封封一模一樣，劍尖卻對著噹噹。噹噹抬起護臂，往封封身前站了半步。噹噹：「封封的劍鞘是我補的。你那把，扣帶是鬆的。」',
+    },
+  },
+  // 封封自己那份的「走過去」結果（「出來了，影子沒跟上。」）也沒講到自己，同上
+  fengfeng: {
+    ninja: {
+      [HALL.intro]: '走廊兩邊都是鏡子。封封停下時，其中一面裡的影子卻繼續往前——那不是他，是個綁著頭巾的黑影，身形跟球球一模一樣。',
+      [HALL.fight]: '跟鏡中的假球球過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影跨出鏡面，擺出跟球球一樣的架勢，卻直直衝進封封的劍路。封封收劍退開半步。封封：「真的球球知道要讓出劍路。你不知道。」',
+    },
+    feifei: {
+      [HALL.intro]: '走廊兩邊都是鏡子。封封停下時，其中一面裡的影子卻繼續往前——那不是他，是個紮著蝴蝶結的黑影，身形跟菲菲一模一樣，指間夾著針。',
+      [HALL.fight]: '跟鏡中的假菲菲過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影跨出鏡面，出針的手勢跟菲菲一模一樣，卻一步步往前逼。封封把劍擋在菲菲身前。封封：「菲菲出針前會先退開。你一直往前，是假的。」',
+    },
+    dangdang: {
+      [HALL.intro]: '走廊兩邊都是鏡子。封封停下時，其中一面裡的影子卻繼續往前——那不是他，是個套著護臂的黑影，身形跟噹噹一模一樣。',
+      [HALL.fight]: '跟鏡中的假噹噹過招（進入戰鬥，勝利後可升級至多 2 張牌）',
+      [HALL.fought]: '黑影跨出鏡面，護臂舉得跟噹噹一樣高，卻搶先踏了一步。封封拔劍站到噹噹旁邊。封封：「噹噹從不先出手。你這一步，踏錯了。」',
     },
   },
 };
@@ -1174,6 +1290,8 @@ const MIXED_SCENES: Readonly<Record<string, {
       { speaker: '噹噹', text: '她醒過嗎？' },
       { speaker: '旁白', text: '守門的村貓說：「醒過，問了球球的消息，又睡了。」' },
       { speaker: '旁白', text: '噹噹往窗外看。塔頂的紫光還亮著，他把手放回被上，等菲菲醒來。' },
+      // 菲菲那台落敗結算要有她自己的最後一句（2026-09-23 稽核 低-1）：原本她整段沒開口，結算畫面退回「菲菲倒下了。」
+      { speaker: '菲菲', text: '……噹噹，你也醒了。等傷好了，我們再去找師父和師兄。' },
     ],
   },
   /*
@@ -1390,13 +1508,28 @@ function mixedOn(hero: string | undefined): boolean {
  * 查不到就退回自己那 111 句裡的 `mirror_qiuqiu`——那句講的是「鏡子裡的我」，
  * 跟畫面上站的不是同一隻，但**至少不會叫錯人**，比指名道姓講錯好。
  */
-const MIXED_FIRST_MEET: Readonly<Record<string, Readonly<Record<string, string>>>> = {
-  feifei: { ninja: '那是師兄的臉……可是師兄不會這樣笑。' },
-  ninja: { feifei: '鏡子裡站的是師妹，怎麼衝著我笑喵？' },
+// 2026-09-23 補齊十二組（跟 `MIRROR_EVENT_TEXT` 同一批）：缺的那幾組會退回「鏡子裡的我」，打的卻是同伴的影子
+export const MIXED_FIRST_MEET: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  feifei: {
+    ninja: '那是師兄的臉……可是師兄不會這樣笑。',
+    dangdang: '是噹噹的護臂……可是噹噹不會這樣看人。',
+    fengfeng: '封封的影子？……劍尖怎麼對著我。',
+  },
+  ninja: {
+    feifei: '鏡子裡站的是師妹，怎麼衝著我笑喵？',
+    dangdang: '鏡子裡的噹噹，怎麼先舉起護臂了喵？',
+    fengfeng: '那是封封的影子？劍別對著我喵！',
+  },
   // 稿子 DD-MIR-02／03：只有對應的真人隊友真的在場時才用（這張表本來就只在混搭時查）
   dangdang: {
     ninja: '頭巾也一樣……球球，你別跟牠站在一起。',
     feifei: '菲菲在我旁邊。你這個假的，別再往前了。',
+    fengfeng: '封封在我旁邊。拿著劍的這個，是假的。',
+  },
+  fengfeng: {
+    ninja: '那是球球的影子。球球，別跟牠站在一邊。',
+    feifei: '菲菲在我後面。你這個假的，把針放下。',
+    dangdang: '噹噹在我旁邊。你這副護臂是假的。',
   },
 };
 
@@ -2015,7 +2148,11 @@ export function eventTextFor(hero: string | undefined, text: string): string {
     const his = DANGDANG_EVENT_TEXT[text];
     return his === undefined ? text : mixedLine(hero, his);
   }
-  if (hero === 'fengfeng') return FENGFENG_EVENT_TEXT[text] ?? text;
+  // 封封那份也是整篇換掉，跟噹噹同一條路：查得到再過混搭（2026-09-23 稽核 中-1、低-4：哭牆那句「朋友還沒回來」）
+  if (hero === 'fengfeng') {
+    const his = FENGFENG_EVENT_TEXT[text];
+    return his === undefined ? text : mixedLine(hero, his);
+  }
   if (hero !== 'feifei') return text;
   const override = FEIFEI_EVENT_TEXT[text];
   if (override !== undefined) return mixedLine(hero, override);
@@ -2153,7 +2290,8 @@ export const FEIFEI_BOSS_LINES: Readonly<Record<string, string>> = {
 
 export function lineFor(hero: string | undefined, text: string): string {
   // 查不到改句也要拿掉句尾的「喵」（2026-09-22 連線盤點 問題 10：過關拿信物那句原句照回，封封講了「信物喵！」）
-  if (hero === 'fengfeng') return FENGFENG_BOSS_LINES[text] ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, '');
+  // 混搭時再換一手（2026-09-23 稽核 中-1：原本沒過 `mixedLine`，跟球球一起爬還對貓又婆婆說「兩個徒弟都沒回村」）
+  if (hero === 'fengfeng') return mixedLine(hero, FENGFENG_BOSS_LINES[text] ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, ''));
   // 噹噹跟她走同一條路：有重寫過的整句換掉，沒有的照舊只拿掉句尾的「喵」
   if (hero === 'dangdang') return mixedLine(hero, DANGDANG_BOSS_LINES[text]
     ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, ''));
@@ -2354,6 +2492,11 @@ const lastPick = new WeakMap<readonly unknown[], number>();
  */
 export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'thorns' | 'block' | 'plain';
 
+/** 每一位的第二派（2026-09-23 health H-2 第 2 塊：原本是三元式，沒列到的默默算隱身；封封照舊算隱身，這裡照原行為列出來） */
+const LEANING_ALT: Readonly<Record<Hero, 'stealth' | 'poison' | 'thorns'>> = {
+  ninja: 'stealth', feifei: 'poison', dangdang: 'thorns', fengfeng: 'stealth',
+};
+
 /**
  * 牌組傾向：只看這一路**自己拿的牌**（起始那十張不算——它們本來就偏蜷縮，算進去每個人都是蜷縮流）。
  * 爪力、隱身只算「給自己」的效果（給敵人拆爪力的封口術不算爪力流）；毒流算的是對魔物下毒。
@@ -2366,7 +2509,7 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
    * `feifeiDialogue.victoryNarration` 沒有 stealth 鍵，別把第二派改回去。
    * 計數物件的鍵順序刻意跟原本一樣（爪力、第二派、蜷縮），球球算出來跟改之前一模一樣。
    */
-  const alt: 'stealth' | 'poison' | 'thorns' = hero === 'feifei' ? 'poison' : hero === 'dangdang' ? 'thorns' : 'stealth';
+  const alt = LEANING_ALT[(hero ?? 'ninja') as Hero] ?? 'stealth';
   const count = { strength: 0, alt: 0, block: 0 };
   /*
    * **兩位主角的起手牌都要排掉**（2026-09-12 補的）。
@@ -2376,8 +2519,9 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
    * 而那正是這支函式的註解自己寫著要避免的事（「算進去每個人都是蜷縮流」）。
    * 兩副牌的牌號不重疊，直接併成一個集合就好。
    */
-  // 封封的起手牌也要排掉（2026-09-22：漏了這副，只帶起手十張就被判成蜷縮流，結局師父第一句幾乎每局都講錯）
-  const starter = new Set<string>([...STARTER_DECK, ...FEIFEI_STARTER_DECK, ...DANGDANG_STARTER_DECK, ...FENGFENG_STARTER_DECK]);
+  // 封封的起手牌也要排掉（2026-09-22：漏了這副，只帶起手十張就被判成蜷縮流，結局師父第一句幾乎每局都講錯）。
+  // 改從 `HEROES` 產生（2026-09-23 health H-2 第 2 塊）：手列四副的寫法 09-22 已經漏過封封一次，第五隻貓進來會自動算進去
+  const starter = new Set<string>(HEROES.flatMap((h) => starterDeckFor(h)));
   const picked = deckIds.filter((id) => !starter.has(id));
   for (const id of picked) {
     const def = cardById[id];
@@ -2449,7 +2593,9 @@ export function victoryLinesFor(deckIds: readonly string[], difficulty: number, 
    * 球球與菲菲的表裡沒有 `plain` 這個鍵，兩位的行為跟改之前一模一樣。
    */
   const narration = story.victoryNarration[key];
-  if (narration) lines.splice(2, 0, { speaker: '旁白', text: narration });
+  // 標了 `narrationAfter` 的就接在那一句後面（封封：稿子寫「接 FG-V-03 後」，插句講的是他收劍那一下，2026-09-23）
+  const after = lines.findIndex((l) => l.narrationAfter);
+  if (narration) lines.splice(after >= 0 ? after + 1 : 2, 0, { speaker: '旁白', text: narration });
   if (difficulty >= 4 && story.hardModeEpilogue) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
   return lines;
 }

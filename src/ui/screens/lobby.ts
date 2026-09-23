@@ -7,9 +7,7 @@ import { CoopSession } from '../../net/session';
 import { newCoopRun } from '../../engine/run';
 import type { App } from '../app';
 import type { LinkStatus, Transport } from '../../net/transport';
-import { setLocalHero } from '../assets';
-import { setSfxHero } from '../audio';
-import { preloadCoopArt, preloadHeroArt } from '../preload';
+import { preloadCoopArt } from '../preload';
 import { me } from '../../engine/runplayer';
 import { HEROES, heroName, type Hero } from '../../engine/hero';
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
@@ -128,14 +126,12 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
     // 主機宣布的字串**照清單認**，不要一個一個 if——第三隻貓進來時這一行漏改，
     // 加入的人會安靜地變成球球（2026-09-17）
     const h = (i: number): Hero => (HEROES.includes(heroes?.[i] as Hero) ? heroes![i] as Hero : 'ninja');
-    app.run = newCoopRun(seed, diff, h(0), h(1));
-    setLocalHero(me(app.run, seat).hero);
-    setSfxHero(me(app.run, seat).hero);   // 貓叫也照本機角色換（推前審查 高-1：只設了圖沒設聲）
-    app.syncStory(app.run);   // 混搭時個人主線要換幾句（2026-09-16）
-    void preloadHeroArt(app.run.players.map((p) => p.hero));   // 兩位的專屬圖開場都沒載（同伴的立繪戰鬥裡看得到）
+    const run = newCoopRun(seed, diff, h(0), h(1));
+    // 本機角色的立繪、貓叫、劇情情境、兩位的專屬圖一起設（health H-3：這裡原本各寫一行，推前審查 高-1 就是漏了聲音）
+    app.adoptRun(run, seat);
     // 連線牌的牌面也是開局才補，**只抓這一組搭檔的**（2026-09-23；開打前 `startFight` 會等它抓完）
-    void preloadCoopArt(app.run.players.map((p) => p.hero));
-    session.useRun(app.run);   // 整局只有一份，設一次就不動（見 `useRun`）
+    void preloadCoopArt(run.players.map((p) => p.hero));
+    session.useRun(run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
     /*
      * 連線也要演序章（2026-09-17 使用者指出「從頭到尾不會播」）。
@@ -143,7 +139,7 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
      * **不播開頭影片**：那支三十秒、一個人看另一個人乾等，而且兩位的影片還不一樣；
      * 幻燈片可以自己點過去，影片不行。
      */
-    app.playPrologue(me(app.run, seat).hero ?? 'ninja', () => app.show('map'), { video: false });
+    app.playPrologue(me(run, seat).hero ?? 'ninja', () => app.show('map'), { video: false });
   };
   if (isHost) {
     const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;

@@ -140,12 +140,20 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   return v;
 }
 
+/** 集中精神擋下新增飯糰的那一行戰報。連線時帶名字，才分得出是誰拿不到 */
+export function logEnergyBlocked(cs: CombatState, p: PlayerCombat): void {
+  log(cs, `集中精神：${cs.players.length > 1 ? unitName(p) : ''}這回合拿不到飯糰`);
+}
+
 /**
  * 新增飯糰的唯一入口。集中精神只擋「新增」，回合開始自然補滿不走這裡。
  * 回傳實得量，讓轉移類效果能在受益者被封禁時不扣贈送者。
  */
 export function gainEnergy(cs: CombatState, p: PlayerCombat, n: number): number {
-  if (n <= 0 || p.energyGainBlockedThisPhase) return 0;
+  if (n <= 0) return 0;
+  // 被擋下來要說出來（2026-09-23 主控裁決）：牌、忍具（半卷殘頁還抽得到牌）、秘寶、同伴送的飯糰都走這裡，
+  // 原本一律靜靜回 0，玩家只看到「用了」卻不知道飯糰去哪了
+  if (p.energyGainBlockedThisPhase) { logEnergyBlocked(cs, p); return 0; }
   p.energy += n;
   cs.energyGain += n;
   return n;
@@ -193,7 +201,10 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
     else p.drawPile.splice(cs.rng.int(0, p.drawPile.length), 0, card);
   }
   // 牌名要過 `cardNameFor`（稽核 2026-09-13 低-1）：塞進來的是牌，菲菲看到的名字不同
-  log(cs, `${from.name}把 ${n} 張「${cardNameFor(def, p.hero)}」塞進你的${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
+  // 兩個人時寫塞給誰（2026-09-23 主控裁定）：塞牌可能只落在一位身上（喊了「我來擋」、另一位倒下、打技能牌惹到詛咒的那位），
+  // 戰報兩台共用，寫「你的」的話另一台看到的是錯的對象。單機照舊寫「你的」，跟吹散手牌那句同一套
+  const whoseDeck = cs.players.length > 1 ? `${unitName(p)}的` : '你的';
+  log(cs, `${from.name}把 ${n} 張「${cardNameFor(def, p.hero)}」塞進${whoseDeck}${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
 }
 
 /**
@@ -206,6 +217,10 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
  */
 function whose(cs: CombatState, p: PlayerCombat): string {
   return cs.players.length > 1 ? `${unitName(p)}的` : '';
+}
+/** 替畫面記「這一位整場擋下幾點」（見 `PlayerCombat.blockedTotal`：引擎不讀、不進指紋） */
+function noteBlocked(p: PlayerCombat, absorbed: number): void {
+  p.blockedTotal = (p.blockedTotal ?? 0) + absorbed;
 }
 
 export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
@@ -226,7 +241,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     // 反彈那種「直傷但先扣蜷縮」（使用者 2026-09-03：被反彈的人都應該優先扣蜷縮，蜷縮 4 被反彈 2 就剩 2）
     if (opts.throughBlock) {
       const absorbed = Math.min(p.block, base); p.block -= absorbed; lose = base - absorbed;
-      if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
+      if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
     }
   } else {
     if (p.immune) { log(cs, `${unitName(p)}躲在角落，什麼都沒看到`); return 0; }
@@ -236,13 +251,13 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
     if (dmg - absorbed > 0 && getStatus(p, '隱身') > 0) {
       p.block -= absorbed;
-      if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
-      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); return 0;
+      if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
+      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); p.dodgedTotal = (p.dodgedTotal ?? 0) + 1; return 0;
     }
     p.block -= absorbed;
     lose = dmg - absorbed;
-    // 擋下來要留紀錄：畫面靠這行飄「擋住 N」跟盾牌，不然整下被吃掉看起來像沒打到（使用者回報）
-    if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
+    // 擋下來要留紀錄：不然整下被吃掉看起來像沒打到（使用者回報）。畫面飄「擋住 N」跟盾牌看的是 `blockedTotal`，不是這行字
+    if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
     if (opts.pierce && dmg > 0) log(cs, '這一下穿過了蜷縮');
     const thorns = getStatus(p, '反彈');
     if (dmg > 0 && thorns > 0 && attacker !== p) {
@@ -582,7 +597,6 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     lose = 1;
   }
   cs.hits.push({ uid: e.uid, amount: Math.min(lose, e.hp) });   // 每一段各記一筆（含被擋成 0 的）、只記真的扣到血的量，畫面拆多段用
-  cs.damageDealt += Math.min(lose, e.hp);   // 整場累計（`hits` 每回合會清掉，不能拿來加總），魔物散掉時的獎勵門檻看它
   e.hp = Math.max(0, e.hp - lose);
   if (lose > 0) {
     // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。

@@ -38,7 +38,8 @@ describe('升級牌也在罐頭鋪與事件選牌出現', () => {
     expect(i).toBeGreaterThanOrEqual(0);
     expect(buyCard(run, shop, i)).toBe(true);
     expect(me(run).deck[me(run).deck.length - 1]!.upgraded).toBe(true);
-  });
+    // 開 2400 局量機率，單獨跑約 0.5 秒；全套平行跑、機器又忙時曾超過預設 5 秒被判紅（2026-09-23），放寬等待上限，斷言不動
+  }, 30000);
   it('事件三選一（大俠傳功）在第三關約四成有一張升級版', () => {
     const ev = eventById['daxia_teach']!;
     let n = 0, total = 0;

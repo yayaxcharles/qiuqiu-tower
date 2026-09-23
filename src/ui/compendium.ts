@@ -3,7 +3,7 @@ import { el } from './dom';
 import { cardNode } from './cardview';
 import { localHero } from './assets';
 import { overlayRoot } from './overlay';
-import { HEROES, heroName } from '../engine/hero';
+import { HEROES, heroName, type Hero } from '../engine/hero';
 
 /**
  * 卡牌圖鑑：整個牌庫一覽（依牌池分區），右上角勾「顯示升級版」整頁切成＋版數值。
@@ -30,11 +30,17 @@ const POOL_NOTE: Record<string, string> = {
  *
  * 只換標題、**不動 `pool` 本身**：池子是規則用的鍵（獎勵、罐頭鋪、機率都照它抽），
  * 換掉會牽動一整排存檔與測試。這裡換的純粹是玩家看到的那四個字。
+ * 封封（劍客）的牌名 2026-09-23 也拿掉了「忍術·」（稽核 引擎 低-6），標題跟著換成「劍術」——
+ * 契約的「不新增劍術牌池」講的是規則用的池子，這裡只是顯示的字。
  */
 export function poolNameFor(pool: string, hero: string): string {
   if (pool !== '忍術') return pool;
-  return hero === 'dangdang' ? '拳腳' : pool;
+  return NINJUTSU_TITLE[hero as Hero] ?? pool;   // 不認得的值照舊寫「忍術」
 }
+// `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是三元式，加第五隻貓漏了會默默寫「忍術」；現在 tsc 會擋。
+// 菲菲 2026-09-23 改叫「暗器」（主控裁定比照噹噹、封封）：她的牌名早就拿掉「忍術·」，`cards.ts` 自己也寫「她走暗器、他走拳腳」，
+// 飛針、淬毒、毒分身都是丟出去的東西；「毒術」蓋不到她那幾張退開、閃躲的牌，「針術」又不是常用的說法
+const NINJUTSU_TITLE: Readonly<Record<Hero, string>> = { ninja: '忍術', feifei: '暗器', dangdang: '拳腳', fengfeng: '劍術' };
 
 export function showCompendium(): void {
   const layer = overlayRoot();

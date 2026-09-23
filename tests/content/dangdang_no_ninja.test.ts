@@ -37,7 +37,8 @@ describe('噹噹不是忍者', () => {
     // 標題是給人看的，`pool` 是規則用的鍵（獎勵、罐頭鋪、機率都照它抽），兩件事不可以混
     expect(poolNameFor('忍術', 'dangdang')).toBe('拳腳');
     expect(poolNameFor('忍術', 'ninja')).toBe('忍術');
-    expect(poolNameFor('忍術', 'feifei')).toBe('忍術');
+    expect(poolNameFor('忍術', 'feifei')).toBe('暗器');   // 2026-09-23 主控裁定：比照噹噹、封封改名（原本還寫「忍術」）
+    expect(poolNameFor('絕學', 'feifei')).toBe('絕學');
     expect(poolNameFor('絕學', 'dangdang')).toBe('絕學');
     expect(cards.some((c) => c.pool === '忍術')).toBe(true);
     expect(cards.some((c) => (c.pool as string) === '拳腳')).toBe(false);

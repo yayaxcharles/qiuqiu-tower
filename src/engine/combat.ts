@@ -11,7 +11,7 @@ import { applyEffects } from './effects';
 import type { Rng } from './rng';
 import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } from './statuses';
 import { TURN_DECAY } from './types';
-import type { CardInstance, CombatState, EffectCtx, PlayerCombat, StatusName, EnemyCombat } from './types';
+import type { CardInstance, CombatState, EffectCtx, PlayerCombat, PotionDef, StatusName, EnemyCombat } from './types';
 
 type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount' | 'firstCardDiscountCombat' | 'blockKeep' | 'killHeal' | 'killStrength' | 'killFish' | 'combatEndHeal';
 function relicSum(relics: string[], key: NumHook): number {
@@ -63,7 +63,7 @@ export function startCombat(input: {
     set fishDelta(v: number) { (this.players[0] as PlayerCombat).fishDelta = v; },
     enemies: [],
     turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId,
-    stolenFish: 0, energyGain: 0, damageDealt: 0, relicFired: [], kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
+    stolenFish: 0, energyGain: 0, relicFired: [], kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
   };
@@ -141,7 +141,7 @@ export function startPlayerTurn(cs: CombatState): void {
  */
 function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
   hitsBefore: number, poisonBefore: ReadonlyMap<number, number>,
-  had: ReadonlyMap<PlayerCombat, WatchSnapshot>): void {
+  had: ReadonlyMap<PlayerCombat, WatchSnapshot>, junk: boolean): void {
   // 打完了就不補（跟千針萬毒、逗貓棒、詛咒魔物同一個判斷）。
   // 少了這道，打贏的那一下同伴照樣抽一張、照樣吃掉本輪的觸發機會，
   // 而那次抽牌會動到 `cs.rng`（那份就是 `run.rng`），等於白推了戰後獎勵的骰子。
@@ -198,13 +198,18 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
      * 千針萬毒那 19 張能力牌卻一次都不會觸發。跟影子分身那次是同一型的錯。
      * 改看快照之後，自觸發自然被擋掉（打出來的當下快照裡還沒有它），能力牌也不必整類排除。
      */
-    if (!solo && snap.allyPlay && !w.firedAllyPlay && w !== p
+    /*
+     * 戰鬥雜牌（黏液、眼冒金星）不算「打出牌」（2026-09-23 主控裁決，跟循息那條同一個標準）：
+     * 這兩張監聽的牌面寫的是「第一次打出牌／技能牌／攻擊牌時」，沒說雜牌也算，
+     * 原本打掉一張眼冒金星就吃掉本輪那一次。附毒與「我有先備好」看的是真的扣到血，雜牌不會打人，本來就碰不到。
+     */
+    if (!junk && !solo && snap.allyPlay && !w.firedAllyPlay && w !== p
         && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
       w.firedAllyPlay = true;
       drawCards(cs, 1, w);
       log(cs, `${unitName(w)}接上了節奏，多抽一張`);
     }
-    if (solo && snap.allyPlay && !w.firedAllyPlay && w === p
+    if (!junk && solo && snap.allyPlay && !w.firedAllyPlay && w === p
         && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
       w.firedAllyPlay = true;                        // 一個人時改成監聽自己
       drawCards(cs, 1, w);
@@ -212,7 +217,7 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
     }
 
     // 有我在前面：看的是**自己**打牌，好處給同伴；一個人時給自己
-    if (w === p && snap.selfPlay && !w.firedSelfPlay
+    if (!junk && w === p && snap.selfPlay && !w.firedSelfPlay
         && (snap.selfPlay === 'any' || type === snap.selfPlay)) {
       w.firedSelfPlay = true;
       const to = mate ?? w;
@@ -252,7 +257,7 @@ interface WatchSnapshot {
  * **中途加入這一場的人，第一回合要跑跟別人一樣的開場**（2026-09-13 實測抓到）。
  *
  * `beginCombat` 幫加入的那一位手動發了五張牌、給滿飯糰，卻**漏掉秘寶那一段**——
- * 每回合開始的掛鉤（毒針袋、鐵砂袋、靈貓鈴）與第一回合限定的掛鉤
+ * 每回合開始的掛鉤（鐵砂袋、靈貓鈴，以及當時還是每回合灑毒的毒針袋——09-16 改成開場一次，現在走下面 `combatStart` 那一段）與第一回合限定的掛鉤
  *（藍頭巾多抽一張、飯糰袋多一顆）在他身上一次都不會跑。
  *
  * 玩家看到的是：菲菲當加入方時，她的起始秘寶毒針袋第一回合完全沒作用
@@ -378,9 +383,17 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   // 球球被定身：這回合攻擊牌整排打不出（毛線球怪的「纏住」）。
   // 這一側漏了很久——引擎本來只實作魔物被定身那一半，玩家身上的定身完全沒作用
   if (st.def.type === '攻擊' && getStatus(p, '定身') > 0) return { ok: false, reason: '被定住了，這回合打不出攻擊牌' };
+  /*
+   * 「取高」比的是**能力的內容**，不是有沒有磨過（2026-09-23 稽核 引擎 低-2）：
+   * 絕學·藏鋒的升級只降費用，掛上去的能力跟基礎版一模一樣。原本只看 `upgraded`，
+   * 已掛基礎版時照樣打得出升級版，換上一份相同的能力——白花一張牌和飯糰。
+   * 內容相同就跟「同名同級」一樣擋下來；循息、收勢、連息的升級版數字比較大，照舊取代基礎版。
+   */
   const sameOrHigherPower = st.effects.some((fx) => fx.kind === 'power' && fx.sameNameMax
     && p.powers.some((old) => old.cardId === card.cardId && old.trigger === fx.trigger
-      && (!card.upgraded || !!old.upgraded)));
+      && (!card.upgraded || !!old.upgraded
+        || JSON.stringify([old.effects, old.cardType, old.minQiSpent, old.oncePerTurn])
+          === JSON.stringify([fx.effects, fx.cardType, fx.minQiSpent, fx.oncePerTurn]))));
   if (sameOrHigherPower) return { ok: false, reason: '同名或更高版本的能力已經生效' };
   let cost = st.cost;
   if (!p.firstCardPlayed) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscount'));
@@ -564,7 +577,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * `hitsBefore` 本來就從打牌前起算，所以兩次的傷害會一起被涵蓋；
    * 每隻只上一次毒靠 `new Set` 去重，重複發動靠 `fired*` 旗標，都還擋得住。
    */
-  coopWatchers(cs, p, st.def.type, hitsBefore, poisonBefore, watchHad);
+  coopWatchers(cs, p, st.def.type, hitsBefore, poisonBefore, watchHad, !!st.def.combatOnly);
   // 這張牌這場打過幾次（分身術疊傷害用）：效果結算完才 +1，第一次打是 0 次
   cs.cardPlays = cs.cardPlays ?? {};
   cs.cardPlays[uid] = (cs.cardPlays[uid] ?? 0) + 1;
@@ -613,7 +626,9 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     }
   }
   // 封封能力在原牌及既有反應完成後觸發；能力效果不會再回到 playCard，因此不遞迴。
-  if (!p.down && cs.phase === 'player') {
+  // 戰鬥雜牌（黏液、眼冒金星）不算，跟上面詛咒、憤怒同一個排除（2026-09-23 稽核 引擎 低-5）：
+  // 原本白狐巫女、鏡仙塞進來的眼冒金星 0 費打掉，就白拿循息的蓄氣。牌面寫的是「打出技能牌」，指的是牌組裡的牌
+  if (!p.down && cs.phase === 'player' && !st.def.combatOnly) {
     for (const pw of p.powers) {
       if (pw.trigger !== 'afterCard' || (pw.cardType && pw.cardType !== st.def.type)
           || (pw.minQiSpent !== undefined && (ctx.qiSpent ?? 0) < pw.minQiSpent)
@@ -1061,10 +1076,27 @@ export function canUsePotion(cs: CombatState, potionId: string, targetUid?: numb
   if (!p || p.down || p.ready) return false;
   const def = potionById[potionId];
   if (!p.potions.includes(potionId) || !def) return false;   // 喝的是**自己**袋子裡的那瓶（規則一）
-  // 有使用條件的（起死回生丹：生命低於三成才准用）。畫面讀同一個 `usable` 把格子變灰並寫原因，見 `ui/screens/combat.ts` 的忍具列
-  if (def.usable && !def.usable.check(p.hp, p.maxHp)) return false;
+  // 用不出來的條件（起死回生丹的生命門檻、集中精神後的飯糰忍具）。畫面讀同一支把格子變灰並寫原因，見 `ui/screens/combat.ts` 的忍具列
+  if (potionBlockedReason(p, def) !== null) return false;
   if (def.target === 'enemy' && (targetUid === undefined || !findEnemy(cs, targetUid))) return false;
   return true;
+}
+
+/**
+ * 這瓶忍具**此刻**為什麼用不出來（`null`＝用得出來）。只看忍具本身與喝的那一位；
+ * 階段、袋子裡有沒有、目標對不對歸 `canUsePotion`。
+ * 引擎、畫面（格子變灰＋原因）、兩支機器人共用這一支，理由跟 `PotionDef.usable` 一樣：各寫一套遲早走鐘。
+ *
+ * 集中精神那條（2026-09-23 稽核 引擎 低-1）：打了集中精神之後這回合新增的飯糰一律變 0（`gainEnergy`），
+ * 原本飯糰、兩顆飯糰照樣喝得下去——忍具被吃掉、飯糰一顆沒多、紀錄只有一行「用了」。
+ * 牌面寫了「這回合不能再獲得飯糰」，規則本身沒錯，錯在讓玩家白白丟掉一支忍具。
+ * 只擋**整支都是給飯糰**的（主控 2026-09-23 裁決）：半卷殘頁還抽得到兩張牌，照樣能喝，
+ * 被擋掉的那兩顆由 `gainEnergy` 印一行「集中精神：這回合拿不到飯糰」，不會靜靜消失。
+ */
+export function potionBlockedReason(p: PlayerCombat, def: PotionDef): string | null {
+  if (def.usable && !def.usable.check(p.hp, p.maxHp)) return def.usable.reason;
+  if (p.energyGainBlockedThisPhase && def.effects.every((fx) => fx.kind === 'energy')) return '集中精神之後，這回合不能再獲得飯糰';
+  return null;
 }
 
 /** `seat`＝誰喝這瓶忍具。忍具各帶各的（規則一），所以找的是那一位自己袋子裡的 */

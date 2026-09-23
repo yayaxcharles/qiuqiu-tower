@@ -80,7 +80,7 @@ export function rollCardChoices(rng: Rng, pool: Pool, n: number, exclude: string
   const taken = new Set(exclude);
   const heroes: readonly Hero[] = typeof hero === 'string' ? [hero] : hero;
   for (let i = 0; i < n; i++) {
-    // 能不能開出來一律問 `pickable`（雜牌、待圖、職業、連線牌四道關卡都在那裡）
+    // 能不能開出來一律問 `pickable`（起手、雜牌、待圖、職業、連線牌五道關卡都在那裡）
     const remaining = cards.filter((c) => c.pool === pool && heroes.some((h) => pickable(c, h, players)) && !taken.has(c.id));
     if (remaining.length === 0) break;
     const rar = rollRarity(rng, new Set(remaining.map((c) => c.rarity)), late, rareBonus, odds);
