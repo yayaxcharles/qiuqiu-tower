@@ -320,6 +320,63 @@
     "sha256": "63219c067e25f17bae4bc465bf0fa749981c819604b9aef0b683165b232bfe74",
     "at": "2026-09-23 21:26:47"
   },
+  "event_dangdang_shadow_truth": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_shadow_truth",
+    "file": "public/assets/bg/event_dangdang_shadow_truth.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 36762,
+    "droppedSpecks": 104,
+    "semiTransparentShare": 0.0472,
+    "gate": [],
+    "sha256": "9582a014a62c66315aff5d7d67d8809ce82e2873ca61f5adb68aa5f9c5bad81c",
+    "at": "2026-09-23 21:33:40"
+  },
+  "event_dangdang_shadow_truth_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_shadow_truth_r1",
+    "file": "public/assets/bg/event_dangdang_shadow_truth_r1.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 37956,
+    "droppedSpecks": 120,
+    "semiTransparentShare": 0.0321,
+    "gate": [],
+    "sha256": "dd76d3dfdae5de177792a38bb0125177277c1f9ac5adabe3c0aef411321e1c2b",
+    "at": "2026-09-23 21:33:56"
+  },
+  "event_dangdang_shadow_truth_r2": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_shadow_truth_r2",
+    "file": "public/assets/bg/event_dangdang_shadow_truth_r2.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 34552,
+    "droppedSpecks": 160,
+    "semiTransparentShare": 0.0356,
+    "gate": [],
+    "sha256": "54831c2f7be348f6cb92ce07d3953226b3d7b9c86140b2a18b081f948f94551e",
+    "at": "2026-09-23 21:34:12"
+  },
   "event_feifei_pigeon_grandpa": {
     "attempt": 1,
     "key": "bg/event_feifei_pigeon_grandpa",
@@ -626,6 +683,63 @@
     "sha256": "5765e10621af65d3ddb69122f8a8b2f98f7c1a8d279d923b6eb6745793f3a450",
     "at": "2026-09-23 21:26:43"
   },
+  "event_feifei_shadow_truth": {
+    "attempt": 1,
+    "key": "bg/event_feifei_shadow_truth",
+    "file": "public/assets/bg/event_feifei_shadow_truth.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47358,
+    "droppedSpecks": 267,
+    "semiTransparentShare": 0.0565,
+    "gate": [],
+    "sha256": "08490aaf868239616ccc3f75fc876738e6bc2ec6f5907c0752d26f99b252dd6c",
+    "at": "2026-09-23 21:33:36"
+  },
+  "event_feifei_shadow_truth_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_shadow_truth_r1",
+    "file": "public/assets/bg/event_feifei_shadow_truth_r1.webp",
+    "sourceSize": [
+      1402,
+      1122
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50290,
+    "droppedSpecks": 149,
+    "semiTransparentShare": 0.0509,
+    "gate": [],
+    "sha256": "841ab81de6c617582bd8942a871a7c8952574a13969f118d458b8441d972a74f",
+    "at": "2026-09-23 21:33:51"
+  },
+  "event_feifei_shadow_truth_r2": {
+    "attempt": 1,
+    "key": "bg/event_feifei_shadow_truth_r2",
+    "file": "public/assets/bg/event_feifei_shadow_truth_r2.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 43546,
+    "droppedSpecks": 119,
+    "semiTransparentShare": 0.0464,
+    "gate": [],
+    "sha256": "5810a02a084fe0ed7213b26cd015cc88093085825fc27ace302c69fc94faa46f",
+    "at": "2026-09-23 21:34:08"
+  },
   "event_fengfeng_pigeon_grandpa": {
     "attempt": 1,
     "key": "bg/event_fengfeng_pigeon_grandpa",
@@ -929,6 +1043,63 @@
     "gate": [],
     "sha256": "aa99766a49af4372628b316f3a4275e4c9c42aa5ad19e1da56405c3e5b562885",
     "at": "2026-09-23 21:26:50"
+  },
+  "event_fengfeng_shadow_truth": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_shadow_truth",
+    "file": "public/assets/bg/event_fengfeng_shadow_truth.webp",
+    "sourceSize": [
+      1300,
+      1210
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40490,
+    "droppedSpecks": 94,
+    "semiTransparentShare": 0.0505,
+    "gate": [],
+    "sha256": "76eb1ced1d4f43718363c370920f5d9b6e32713a2cb517837392c577e0136bfe",
+    "at": "2026-09-23 21:33:44"
+  },
+  "event_fengfeng_shadow_truth_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_shadow_truth_r1",
+    "file": "public/assets/bg/event_fengfeng_shadow_truth_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 45290,
+    "droppedSpecks": 159,
+    "semiTransparentShare": 0.0408,
+    "gate": [],
+    "sha256": "da59f9254efb91b55c1dc3d09b269c51a35a1827eab879fa2a75a19dd58904de",
+    "at": "2026-09-23 21:34:01"
+  },
+  "event_fengfeng_shadow_truth_r2": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_shadow_truth_r2",
+    "file": "public/assets/bg/event_fengfeng_shadow_truth_r2.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 34198,
+    "droppedSpecks": 67,
+    "semiTransparentShare": 0.0425,
+    "gate": [],
+    "sha256": "fefc76cb9546fe171f3ffa0fe7a5833c0448f9aaad361128bf9a99eee70789ff",
+    "at": "2026-09-23 21:34:15"
   },
   "event_pigeon_grandpa": {
     "attempt": 1,
@@ -1239,5 +1410,62 @@
     "gate": [],
     "sha256": "5ca83b5c8019d15b9f4628cbedb654d2142b2fd30b411d455f3326b914a1efd1",
     "at": "2026-09-23 21:26:39"
+  },
+  "event_shadow_truth": {
+    "attempt": 1,
+    "key": "bg/event_shadow_truth",
+    "file": "public/assets/bg/event_shadow_truth.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39990,
+    "droppedSpecks": 106,
+    "semiTransparentShare": 0.048,
+    "gate": [],
+    "sha256": "1a4734781e814daff3c67b01f9614c64d14a63252bba0b594abfbc6a088e5ca3",
+    "at": "2026-09-23 21:33:32"
+  },
+  "event_shadow_truth_r1": {
+    "attempt": 1,
+    "key": "bg/event_shadow_truth_r1",
+    "file": "public/assets/bg/event_shadow_truth_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44058,
+    "droppedSpecks": 122,
+    "semiTransparentShare": 0.0311,
+    "gate": [],
+    "sha256": "41861e0d2d0386d77d9b39b7ef0e483ef6c004dc5b975bb744ae6504354dcc86",
+    "at": "2026-09-23 21:33:47"
+  },
+  "event_shadow_truth_r2": {
+    "attempt": 1,
+    "key": "bg/event_shadow_truth_r2",
+    "file": "public/assets/bg/event_shadow_truth_r2.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 33276,
+    "droppedSpecks": 85,
+    "semiTransparentShare": 0.0401,
+    "gate": [],
+    "sha256": "b30aeb7f685925fa945198bf1fb7725adf482ad98829d79f3cd0847d03a6d23d",
+    "at": "2026-09-23 21:34:05"
   }
 }
