@@ -1859,7 +1859,17 @@
     "codex/relic_renounce_beads": "assets/icons/relic_renounce_beads.webp",
     "codex/relic_mad_sheath": "assets/icons/relic_mad_sheath.webp",
     "codex/relic_shared_bento": "assets/icons/relic_shared_bento.webp",
-    "codex/relic_bond_knot": "assets/icons/relic_bond_knot.webp"
+    "codex/relic_bond_knot": "assets/icons/relic_bond_knot.webp",
+    "codex/potion_qi_tea": "assets/icons/potion_qi_tea.webp",
+    "codex/potion_sword_talisman": "assets/icons/potion_sword_talisman.webp",
+    "codex/potion_spread_powder": "assets/icons/potion_spread_powder.webp",
+    "codex/potion_needle_salve": "assets/icons/potion_needle_salve.webp",
+    "codex/potion_iron_oil": "assets/icons/potion_iron_oil.webp",
+    "codex/potion_payback_powder": "assets/icons/potion_payback_powder.webp",
+    "codex/potion_dive_straw": "assets/icons/potion_dive_straw.webp",
+    "codex/potion_decoy_doll": "assets/icons/potion_decoy_doll.webp",
+    "codex/potion_thunder_bead": "assets/icons/potion_thunder_bead.webp",
+    "codex/potion_share_half": "assets/icons/potion_share_half.webp"
   },
   "bg": {
     "bg/low": "assets/bg/low.webp",
