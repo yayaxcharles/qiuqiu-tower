@@ -10,8 +10,6 @@ import { playCard } from '../../src/engine/combat';
  */
 function setup(hero: 'ninja' | 'feifei') {
   const run = newRun(`echo-${hero}`, 1, hero);
-  // 球球不帶藍頭巾（2026-09-23 平衡 bal）：它改成開場 1 點爪力，這裡量的是「打幾次」，每一下多 1 就看不出是牌本身
-  if (hero === 'ninja') run.players[0]!.relics = run.players[0]!.relics.filter((id) => id !== 'blue_headband');
   const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
   run.currentNode = node.id;
   // 對手釘死成飯糰怪（2026-09-23 內容擴充第二批）：原本拿地圖第一格戰鬥，事件池一變、地圖的亂數走向跟著變，

@@ -44,8 +44,6 @@ function quiet(cs: CombatState, move: EnemyMove = IDLE): void { for (const e of 
 /** 兩個人的局開一場戰鬥（走 `beginCombat` 整條路；遭遇指定成木樁人，不吃地圖格的修飾詞） */
 function coopFight(setup: (run: RunState) => void, heroes: [Hero, Hero] = ['ninja', 'ninja']): { run: RunState; cs: CombatState } {
   const run = newCoopRun('batch1-coop', 1, heroes[0], heroes[1]);
-  // 拿掉藍頭巾（2026-09-23 平衡 bal）：它改成開場 1 點爪力，同心結量的就是爪力，帶著它每個人都多 1
-  for (const p of run.players) p.relics = p.relics.filter((id) => id !== 'blue_headband');
   setup(run);
   return { run, cs: beginCombat(run, 'wood_dummy') };
 }

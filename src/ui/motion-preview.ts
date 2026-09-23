@@ -294,8 +294,6 @@ export function createMotionPreviewState(group: MotionPreviewGroup = 'basic', he
   player.hp = Math.max(1, player.maxHp - 24);
   player.deck = groupsFor(hero)[group].cards.map((card) =>
     ({ uid: run.nextUid++, cardId: card.cardId, upgraded: card.upgraded }));
-  // 球球不帶藍頭巾（2026-09-23 平衡 bal）：它改成開場 1 點爪力，試玩局要照牌面的數字演（原本只多抽一張，手牌下面整副換掉，沒影響）
-  if (hero === 'ninja') player.relics = player.relics.filter((id) => id !== 'blue_headband');
   const cs = beginCombat(run, 'rats2');
   cs.player.hand = player.deck.map((card) => ({ ...card }));
   cs.player.drawPile = [];

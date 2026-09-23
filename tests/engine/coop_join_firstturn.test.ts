@@ -30,10 +30,10 @@ describe('加入的那一位的第一回合', () => {
     }
   });
 
-  it('球球當加入方：藍頭巾第一回合要多抽一張', () => {
+  it('球球當加入方：藍頭巾第一回合要多抽兩張（2026-09-23 平衡 1 → 2）', () => {
     const { cs } = coopFight('feifei', 'ninja', 'join-2');
     expect(cs.players[1]!.relics).toContain('blue_headband');
-    expect(cs.players[1]!.hand.length, '基本 5 張 ＋ 藍頭巾那 1 張').toBe(6);
+    expect(cs.players[1]!.hand.length, '基本 5 張 ＋ 藍頭巾那 2 張').toBe(7);
   });
 
   it('每回合開始的秘寶也算：鐵砂袋給加入方 2 點蜷縮（2026-09-23 平衡 3 → 2）', () => {

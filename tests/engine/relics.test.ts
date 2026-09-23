@@ -22,8 +22,8 @@ function attackNext(cs: CombatState, amount: number): void {
 }
 
 describe('秘寶（戰鬥端）', () => {
-  it('藍頭巾：第一回合多抽 1；沒有就 5', () => {
-    expect(start(['blue_headband']).player.hand.length).toBe(6);
+  it('藍頭巾：第一回合多抽 2（2026-09-23 平衡 1 → 2）；沒有就 5', () => {
+    expect(start(['blue_headband']).player.hand.length).toBe(7);
     expect(start([]).player.hand.length).toBe(5);
   });
   it('飯糰袋：第一回合 4 顆，第二回合 3 顆', () => {
