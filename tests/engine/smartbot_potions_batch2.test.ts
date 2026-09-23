@@ -136,6 +136,21 @@ describe('迷魂香', () => {
   });
 });
 
+describe('滿月劍意：機器人會為了灌滿蓄氣先打吐納', () => {
+  it('蓄氣 9、手上吐納＋攻擊：帶著滿月劍意先打吐納（灌到 12，下一張加倍）；沒帶就照舊', () => {
+    const first = (relic: boolean): string | undefined => {
+      const { cs, p } = setup([], { hero: 'fengfeng', hand: ['fengfeng_tuna', 'fengfeng_hushen', 'sanjo'], energy: 2, move: hit(4) });
+      if (relic) p.relics.push('full_moon_sword');
+      p.qi = 9;
+      const before = p.hand.map((c) => c.cardId);
+      smartSeatAct(cs, rng(), 0);
+      return before.find((id) => !p.hand.some((c) => c.cardId === id));
+    };
+    expect(first(true)).toBe('fengfeng_tuna');
+    expect(first(false)).not.toBe('fengfeng_tuna');
+  });
+});
+
 describe('師門套組：湊成那一件加分', () => {
   it('身上有斗笠，舊木劍多了一份「飯糰袋」的分數；已經兩件就不再加', () => {
     for (const hero of ['ninja', 'feifei', 'dangdang', 'fengfeng'] as const) {

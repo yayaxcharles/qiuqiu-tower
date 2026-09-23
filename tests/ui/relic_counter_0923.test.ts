@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest';
 import HUD_RAW from '../../src/ui/hud.ts?raw';
 import COMBAT_RAW from '../../src/ui/screens/combat.ts?raw';
 import SHOP_RAW from '../../src/ui/screens/shop.ts?raw';
+import ITEMS_RAW from '../../src/ui/itemcompendium.ts?raw';
+import TITLE_RAW from '../../src/ui/screens/title.ts?raw';
+
+const ITEMS = ITEMS_RAW.replace(/\r\n/g, '\n');
+const TITLE = TITLE_RAW.replace(/\r\n/g, '\n');
 import { relicCounter, relicCounterKey } from '../../src/engine/counters';
 import { blankPlayer } from '../helpers';
 import type { RunPlayer } from '../../src/engine/types';
@@ -56,6 +61,19 @@ describe('畫面接線', () => {
   it('套組湊成那一刻跳提示、撲滿倒錢跳提示（兩個都在狀態列，任何畫面拿到秘寶都蓋得到）', () => {
     expect(hud).toMatch(/notice\(`\$\{set\}套組湊成了：\$\{RELIC_SETS\[set\]\.text\}`\)/);
     expect(hud).toContain('piggyNow < lastPiggy.n');
+  });
+  it('戰鬥：迷魂的魔物牌子寫「打同伴」、提示框講打誰；下回合飯糰與回魂香掛在人身上（喝下去那一拍就換格子）', () => {
+    expect(combat).toContain("text += '（迷魂：打同伴）'");
+    expect(combat).toContain('dazeTarget(cs, e)?.name');
+    expect(combat).toContain("chip-bento");
+    expect(combat).toContain("chip-guard");
+    expect(combat).toContain("!!pNode.querySelector('.chip-guard') !== !!p.guardLethal");
+    expect(combat).toContain("q.energyNextTurn ?? '', q.guardLethal ? 1 : ''");
+  });
+  it('圖鑑：兩個限定池各一區、套組那一區寫集到幾件（封面帶續玩那一局的秘寶）', () => {
+    expect(ITEMS).toContain("const RELIC_POOLS = ['起始', '常見', '大魔物', '塔主', '罐頭鋪', '事件'] as const;");
+    expect(ITEMS).toMatch(/`\$\{set\}套組（集到 \$\{got\}／\$\{members\.length\}）`/);
+    expect(TITLE).toContain('showItemCompendium(loadRun()?.players[0]?.relics ?? [])');
   });
   it('罐頭鋪：私藏那一格掛牌子、欠條進門講一句、價錢照這間店算（帶貨架）', () => {
     const shop = SHOP_RAW.replace(/\r\n/g, '\n');
