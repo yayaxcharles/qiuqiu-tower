@@ -357,6 +357,29 @@
     "sha256": "66041feaf70c2ca1755a7405a639d3fc000de2aaedfd2dfd0eafc015b1b1afbf",
     "at": "2026-09-23 23:26:42"
   },
+  "event_broken_shrine_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_broken_shrine_r2",
+    "group": "broken_shrine_r2",
+    "stem": "broken_shrine_r2",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_broken_shrine_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50352,
+    "droppedSpecks": 149,
+    "semiTransparentShare": 0.0597,
+    "sha256": "1871cd526545176e91446f041deb48169d267534f6c561ce7949c5563a23d3c5",
+    "at": "2026-09-23 23:29:26"
+  },
   "event_dangdang_bless_bundle": {
     "attempt": 2,
     "gate": [],
@@ -379,6 +402,29 @@
     "semiTransparentShare": 0.0276,
     "sha256": "e1bf802ee2a9873593f6e7982b8b928a80ad960a42fc0675ca09afaf9510b6e2",
     "at": "2026-09-23 23:26:49"
+  },
+  "event_dangdang_broken_shrine_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_broken_shrine_r2",
+    "group": "broken_shrine_r2",
+    "stem": "broken_shrine_r2",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_broken_shrine_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46362,
+    "droppedSpecks": 268,
+    "semiTransparentShare": 0.0579,
+    "sha256": "c3fefde75e424218f9559514d424992279995ad893771cbb3a54f98ed6ebf600",
+    "at": "2026-09-23 23:29:34"
   },
   "event_dangdang_q_ambush": {
     "attempt": 1,
@@ -448,6 +494,98 @@
     "semiTransparentShare": 0.0322,
     "sha256": "c1588ae4da49ec697d8808397da5365d58780c980f331aa339d251c44eab7f2b",
     "at": "2026-09-23 23:17:39"
+  },
+  "event_dangdang_rare_catnip_master": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_rare_catnip_master",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_rare_catnip_master.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 66678,
+    "droppedSpecks": 255,
+    "semiTransparentShare": 0.046,
+    "sha256": "b781d965bf89875bd6daf45ef453db941cebb105ca1241896b96682783ec4436",
+    "at": "2026-09-23 23:28:53"
+  },
+  "event_dangdang_rare_catnip_master_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_rare_catnip_master_r0",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r0",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_rare_catnip_master_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 64486,
+    "droppedSpecks": 133,
+    "semiTransparentShare": 0.0396,
+    "sha256": "c6f8afd705ec473dd961e27cdbecc9b0e623e8dd2078d98eca5159dfce6de936",
+    "at": "2026-09-23 23:28:57"
+  },
+  "event_dangdang_rare_catnip_master_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_rare_catnip_master_r1",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r1",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_rare_catnip_master_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 64152,
+    "droppedSpecks": 122,
+    "semiTransparentShare": 0.0434,
+    "sha256": "6f49ef7d062ffa8b4ec69ccc757fb7c24181a52d82d92a79fa06358ebade9f3b",
+    "at": "2026-09-23 23:29:01"
+  },
+  "event_dangdang_rare_catnip_master_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_rare_catnip_master_r2",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r2",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_rare_catnip_master_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 65556,
+    "droppedSpecks": 103,
+    "semiTransparentShare": 0.0353,
+    "sha256": "9a37a6ed82ea248ac91e0024ea0de2df656818b42c934e49ae75212cbe17ffd6",
+    "at": "2026-09-23 23:29:05"
   },
   "event_dangdang_rare_fortune_sticks": {
     "attempt": 1,
@@ -610,6 +748,75 @@
     "sha256": "57ce9bb4213dc5a6fa7b007d11107be70a2a6f714761701e4dbb0dd9e2014d86",
     "at": "2026-09-23 23:23:10"
   },
+  "event_dangdang_rare_miasma_whisper": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1441,
+      1091
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_rare_miasma_whisper",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_rare_miasma_whisper.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40304,
+    "droppedSpecks": 186,
+    "semiTransparentShare": 0.046,
+    "sha256": "9a585274c60d334504bcd3b427a27c0dee81a3d529e21dde08de714be2c4afbd",
+    "at": "2026-09-23 23:27:58"
+  },
+  "event_dangdang_rare_miasma_whisper_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_rare_miasma_whisper_r0",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r0",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_rare_miasma_whisper_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 43408,
+    "droppedSpecks": 220,
+    "semiTransparentShare": 0.0398,
+    "sha256": "61da26161338b25478d85028d84f8677c54561cbe7f039d3162a9dd686637a40",
+    "at": "2026-09-23 23:28:02"
+  },
+  "event_dangdang_rare_miasma_whisper_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_rare_miasma_whisper_r1",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r1",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_rare_miasma_whisper_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41444,
+    "droppedSpecks": 105,
+    "semiTransparentShare": 0.0543,
+    "sha256": "efc64ef38201a7f715bf201f77784a7e53b2c43acdb0020b1c1c9ce16a465ef9",
+    "at": "2026-09-23 23:28:05"
+  },
   "event_dangdang_rare_sleeping_hoard": {
     "attempt": 1,
     "gate": [],
@@ -702,6 +909,29 @@
     "sha256": "a0bdc206efe0668853a73aa9847d19a6cd6a69a46d1066b87b749f8b83885e18",
     "at": "2026-09-23 23:26:45"
   },
+  "event_feifei_broken_shrine_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_broken_shrine_r2",
+    "group": "broken_shrine_r2",
+    "stem": "broken_shrine_r2",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_broken_shrine_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50524,
+    "droppedSpecks": 257,
+    "semiTransparentShare": 0.0646,
+    "sha256": "6b396883d3d6847a4f8256e400926164ffe661712050ddaa6e22c8b2c412fe65",
+    "at": "2026-09-23 23:29:30"
+  },
   "event_feifei_q_ambush": {
     "attempt": 1,
     "gate": [],
@@ -770,6 +1000,98 @@
     "semiTransparentShare": 0.0408,
     "sha256": "d1c062a977f11fe9ce60405431fb6a877cc466e75def948e46d97c1a67367edc",
     "at": "2026-09-23 23:17:35"
+  },
+  "event_feifei_rare_catnip_master": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_rare_catnip_master",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_rare_catnip_master.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 69268,
+    "droppedSpecks": 128,
+    "semiTransparentShare": 0.0501,
+    "sha256": "d33a0a6d0728ed0c7bc66471d4ce63fca531ea257072dab7c33727e15ff02bd8",
+    "at": "2026-09-23 23:28:36"
+  },
+  "event_feifei_rare_catnip_master_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_rare_catnip_master_r0",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r0",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_rare_catnip_master_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 69356,
+    "droppedSpecks": 144,
+    "semiTransparentShare": 0.053,
+    "sha256": "4fdea023084bc003182fb0c1f8df5ce1195fb11afaa9ab51e9ce0d398f9f2b4b",
+    "at": "2026-09-23 23:28:40"
+  },
+  "event_feifei_rare_catnip_master_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_rare_catnip_master_r1",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r1",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_rare_catnip_master_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 75392,
+    "droppedSpecks": 136,
+    "semiTransparentShare": 0.0581,
+    "sha256": "9d9d855be54d6cec1ef403fc41bab92b9722f6cb21ac19a4622d3d75059f06a1",
+    "at": "2026-09-23 23:28:44"
+  },
+  "event_feifei_rare_catnip_master_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_rare_catnip_master_r2",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r2",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_rare_catnip_master_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 69812,
+    "droppedSpecks": 199,
+    "semiTransparentShare": 0.0377,
+    "sha256": "06b109081cd7a4c8e95dc4ff2db2fd6a55d47c3a8ccc58985a6a0c9313bd7d62",
+    "at": "2026-09-23 23:28:49"
   },
   "event_feifei_rare_fortune_sticks": {
     "attempt": 1,
@@ -932,6 +1254,75 @@
     "sha256": "3b558d9e1695d1380539cc7097a7d3efae3c1d83f7d9ea2c760711244ec4a19e",
     "at": "2026-09-23 23:22:54"
   },
+  "event_feifei_rare_miasma_whisper": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_rare_miasma_whisper",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_rare_miasma_whisper.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38196,
+    "droppedSpecks": 143,
+    "semiTransparentShare": 0.0427,
+    "sha256": "bba2e172b31530744ce5074fcc3442e7f9585decb2c0f000a7f18e88eb653eb3",
+    "at": "2026-09-23 23:27:47"
+  },
+  "event_feifei_rare_miasma_whisper_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_rare_miasma_whisper_r0",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r0",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_rare_miasma_whisper_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 50974,
+    "droppedSpecks": 153,
+    "semiTransparentShare": 0.0628,
+    "sha256": "c24b7c512220aa8c0fd624b8152949d3b2b487927ba003b2d24e13a84591ed11",
+    "at": "2026-09-23 23:27:51"
+  },
+  "event_feifei_rare_miasma_whisper_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_rare_miasma_whisper_r1",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r1",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_rare_miasma_whisper_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 42006,
+    "droppedSpecks": 193,
+    "semiTransparentShare": 0.0509,
+    "sha256": "1e9ff1a429ff26be5ab9e3884159491eee9f649f8b265b2b8bae311af9fed56b",
+    "at": "2026-09-23 23:27:54"
+  },
   "event_feifei_rare_sleeping_hoard": {
     "attempt": 1,
     "gate": [],
@@ -1024,6 +1415,29 @@
     "sha256": "30f358a14f9ad9919218efd11fb9ca3910ffb7a654c8e72d88f3c869a05f97da",
     "at": "2026-09-23 23:26:53"
   },
+  "event_fengfeng_broken_shrine_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_broken_shrine_r2",
+    "group": "broken_shrine_r2",
+    "stem": "broken_shrine_r2",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_broken_shrine_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46568,
+    "droppedSpecks": 171,
+    "semiTransparentShare": 0.0547,
+    "sha256": "c026bd73594e4c9a44b251c279fcffcc5aed379beee28a0775dbf779c6eb8812",
+    "at": "2026-09-23 23:29:37"
+  },
   "event_fengfeng_q_ambush": {
     "attempt": 1,
     "gate": [],
@@ -1092,6 +1506,98 @@
     "semiTransparentShare": 0.0338,
     "sha256": "2541af7058945d4ff03104999c2a6d20195a99384edf5e373114abd78cb5d5c6",
     "at": "2026-09-23 23:17:42"
+  },
+  "event_fengfeng_rare_catnip_master": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_rare_catnip_master",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_rare_catnip_master.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 67140,
+    "droppedSpecks": 120,
+    "semiTransparentShare": 0.0361,
+    "sha256": "d860c81e8aa8c5d9300d342a8f1f57f1650ff48c29b0f742f6b92861f45eb25b",
+    "at": "2026-09-23 23:29:09"
+  },
+  "event_fengfeng_rare_catnip_master_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_rare_catnip_master_r0",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r0",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_rare_catnip_master_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 65918,
+    "droppedSpecks": 79,
+    "semiTransparentShare": 0.0394,
+    "sha256": "8ab64ebc029d4d8cb124f51dc6dfb27573fb5df25362127284504403642db924",
+    "at": "2026-09-23 23:29:14"
+  },
+  "event_fengfeng_rare_catnip_master_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_rare_catnip_master_r1",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r1",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_rare_catnip_master_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 63728,
+    "droppedSpecks": 102,
+    "semiTransparentShare": 0.0407,
+    "sha256": "e14e2b171a43e37219106a504513b97b7d29d6c2712b0e63bd469c3a228c1e39",
+    "at": "2026-09-23 23:29:18"
+  },
+  "event_fengfeng_rare_catnip_master_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_rare_catnip_master_r2",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r2",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_rare_catnip_master_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 66550,
+    "droppedSpecks": 69,
+    "semiTransparentShare": 0.0317,
+    "sha256": "74e92c19fef4e1b48c50cb35a41fa9e3d6adbbb298eb5ab6e0b561b8be796cfe",
+    "at": "2026-09-23 23:29:22"
   },
   "event_fengfeng_rare_fortune_sticks": {
     "attempt": 1,
@@ -1254,6 +1760,75 @@
     "sha256": "8a90059fc4fb9eedcc07554e43af095fdee5e66d8a9017869259ce20934ea097",
     "at": "2026-09-23 23:23:27"
   },
+  "event_fengfeng_rare_miasma_whisper": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_rare_miasma_whisper",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_rare_miasma_whisper.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41734,
+    "droppedSpecks": 278,
+    "semiTransparentShare": 0.0465,
+    "sha256": "72a22fd8b69c371d3d1c21c93b033830658c4c626b387993634c56990f51e7cc",
+    "at": "2026-09-23 23:28:09"
+  },
+  "event_fengfeng_rare_miasma_whisper_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_rare_miasma_whisper_r0",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r0",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_rare_miasma_whisper_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47468,
+    "droppedSpecks": 169,
+    "semiTransparentShare": 0.0532,
+    "sha256": "f11fbb464f9f470893f3b1d5082df51c627e8f3554730195438fcdd7679500fe",
+    "at": "2026-09-23 23:28:12"
+  },
+  "event_fengfeng_rare_miasma_whisper_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_rare_miasma_whisper_r1",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r1",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_rare_miasma_whisper_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 40280,
+    "droppedSpecks": 203,
+    "semiTransparentShare": 0.044,
+    "sha256": "7f63c8621ffc21fd1d1beffdca05dbe7d653963df6450d65e967c2dfb4f44271",
+    "at": "2026-09-23 23:28:16"
+  },
   "event_fengfeng_rare_sleeping_hoard": {
     "attempt": 1,
     "gate": [],
@@ -1391,6 +1966,98 @@
     "semiTransparentShare": 0.0406,
     "sha256": "9978fbad9b1be7c355bc570e33511b663c207e01809540ab206f7965334d2cdf",
     "at": "2026-09-23 23:17:32"
+  },
+  "event_rare_catnip_master": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_rare_catnip_master",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_rare_catnip_master.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 66290,
+    "droppedSpecks": 99,
+    "semiTransparentShare": 0.0344,
+    "sha256": "e64bd69e4f47e8ae673a8bb7e254478b2d7969c7e39dff42b93867cd7b264070",
+    "at": "2026-09-23 23:28:20"
+  },
+  "event_rare_catnip_master_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_rare_catnip_master_r0",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r0",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_rare_catnip_master_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 61346,
+    "droppedSpecks": 114,
+    "semiTransparentShare": 0.0376,
+    "sha256": "684ac2f5994a8d1411a5dccfecf4c8b10ac17751011c32f27bec33671e4468da",
+    "at": "2026-09-23 23:28:24"
+  },
+  "event_rare_catnip_master_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_rare_catnip_master_r1",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r1",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_rare_catnip_master_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 65654,
+    "droppedSpecks": 123,
+    "semiTransparentShare": 0.0498,
+    "sha256": "44da6222c53e22c60822600a152e6c52378b7f20031230f16124da25f14a1a7d",
+    "at": "2026-09-23 23:28:28"
+  },
+  "event_rare_catnip_master_r2": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_rare_catnip_master_r2",
+    "group": "rare_catnip_master",
+    "stem": "rare_catnip_master_r2",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_rare_catnip_master_r2.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 64246,
+    "droppedSpecks": 73,
+    "semiTransparentShare": 0.0365,
+    "sha256": "90c67fbb1db306d82ad71dc0b6e26abef9a012b98ec41044d0be387a847e6694",
+    "at": "2026-09-23 23:28:32"
   },
   "event_rare_fortune_sticks": {
     "attempt": 1,
@@ -1552,6 +2219,75 @@
     "semiTransparentShare": 0.0386,
     "sha256": "b5f3097883c5cc9af1ecee1e3e506f93c55fba5f40fc12bf7a6337f588f1366e",
     "at": "2026-09-23 23:22:36"
+  },
+  "event_rare_miasma_whisper": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_rare_miasma_whisper",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_rare_miasma_whisper.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39844,
+    "droppedSpecks": 111,
+    "semiTransparentShare": 0.0407,
+    "sha256": "b45a93435227278872fbfa79d0f4e8b306d4b749380c006b8502cdabf57f5cbc",
+    "at": "2026-09-23 23:27:36"
+  },
+  "event_rare_miasma_whisper_r0": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_rare_miasma_whisper_r0",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r0",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_rare_miasma_whisper_r0.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38442,
+    "droppedSpecks": 151,
+    "semiTransparentShare": 0.047,
+    "sha256": "28bb793b34467564a30987874a9bc5797a3e191a2b97749db7dae0423eb04d0c",
+    "at": "2026-09-23 23:27:40"
+  },
+  "event_rare_miasma_whisper_r1": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_rare_miasma_whisper_r1",
+    "group": "rare_miasma_whisper",
+    "stem": "rare_miasma_whisper_r1",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_rare_miasma_whisper_r1.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 34432,
+    "droppedSpecks": 91,
+    "semiTransparentShare": 0.0406,
+    "sha256": "78c68f93c5fe0eb92bc2737fdfe31af35b96e4071317dfce95fdd6498b1bcc7a",
+    "at": "2026-09-23 23:27:43"
   },
   "event_rare_sleeping_hoard": {
     "attempt": 1,
