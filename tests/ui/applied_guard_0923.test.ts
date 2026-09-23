@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { transformWithOxc } from 'vite';
 import RAW from '../../src/ui/screens/combat.ts?raw';
-import { allReady, endTurn } from '../../src/engine/combat';
+import { allReady, beginEnemyTurn, endTurn, finishEnemyTurn, stepEnemyTurn } from '../../src/engine/combat';
 import { beginCombat, newCoopRun } from '../../src/engine/run';
 import { cardStats } from '../../src/engine/deck';
 import { applyAction } from '../../src/net/action';
@@ -156,5 +156,66 @@ describe('低-2：演出佇列算「這一項要等多久」丟例外，也要�
       queue, { cs }, cs, (w: number | (() => number)) => (typeof w === 'function' ? w() : w), new Set(),
       { setTimeout: () => 0 }, { error: () => {} }, () => { played.push('recover'); });
     expect(played, '收尾那一項輪不到，這台就停在 held').toEqual(['bad', 'recover', 'done']);
+  });
+});
+
+/*
+ * 2026-09-23 追加（低-2 的「沒做的」）：收牌之後魔物回合的每一步都在計時器裡跑，外層那道防護接不到。
+ * 用真的引擎（開頭、一步一步、收尾）跑戰鬥畫面真正的 `runEnemyTurn`，演出在第 N 次 `settle` 丟例外。
+ */
+describe('低-2 追加：魔物回合交給計時器之後演出丟例外，照常收尾、會話一定放開', () => {
+  const BODY = sourceBetween('  function runEnemyTurn(): void {', '  // ===== 結算與動畫 =====') + '\nrunEnemyTurn();';
+
+  async function enemyTurn(opts: { settleThrowsAt?: number; recoverThrows?: boolean } = {}) {
+    const js = (await transformWithOxc(BODY, 'enemy-turn-guard.ts')).code;
+    const cs = beginCombat(newCoopRun('enemy-guard-0923'), 'rats2');
+    for (const p of cs.players) p.ready = true;
+    // 對照組：引擎一口氣收完這一回合（兩台只要走到同一個地方，鎖步就對得上）
+    const expected = structuredClone(cs); expected.rng = cs.rng.clone();
+    endTurn(expected);
+    const timers: Array<() => void> = [];
+    let settles = 0;
+    const release = vi.fn();
+    const errors: unknown[] = [];
+    const calls: string[] = [];
+    const bindings = {
+      cs, app: { cs }, my: () => cs.players[0],
+      snap: (c: CombatState) => ({ logLen: c.log.length, enemies: new Map(c.enemies.map((e) => [e.uid, { turnCount: e.turnCount }])) }),
+      beginEnemyTurn, stepEnemyTurn, finishEnemyTurn,
+      settle: () => { settles += 1; if (settles === opts.settleThrowsAt) throw new Error('演出壞了：缺圖'); },
+      session: { release }, enemyTurnRunning: false, clearTelegraph() {},
+      telegraphNext: () => true, TELEGRAPH_MS: 320,   // 有預告：第一步就排進計時器，整段都在計時器裡跑
+      window: { setTimeout: (fn: () => void) => { timers.push(fn); return timers.length; } },
+      recoverPresentation: () => { calls.push('recover'); if (opts.recoverThrows) throw new Error('收尾也壞了'); },
+      checkOver: () => { calls.push('checkOver'); }, syncPicker: () => { calls.push('syncPicker'); },
+      console: { error: (...args: unknown[]) => errors.push(args) },
+    };
+    new Function(...Object.keys(bindings), js)(...Object.values(bindings));
+    for (let guard = 0; timers.length && guard < 200; guard++) {
+      try { timers.shift()!(); } catch { /* 沒有防護時例外從計時器竄出去就沒了；下面看它留下的後果 */ }
+    }
+    return { cs, expected, release, errors, calls, settles };
+  }
+
+  it('沒出錯時照原本的路：放開一次，跟一口氣收完的結果一樣', async () => {
+    const r = await enemyTurn();
+    expect(r.release).toHaveBeenCalledTimes(1);
+    expect(r.errors).toEqual([]);
+    expect(combatFingerprint(r.cs)).toBe(combatFingerprint(r.expected));
+  });
+
+  it('第一隻出完手、計時器裡那一步的演出丟例外：引擎照常走完這一回合、判勝負、放開會話', async () => {
+    const r = await enemyTurn({ settleThrowsAt: 2 });
+    expect(r.errors.length, '照連線演出防護的風格記一行').toBe(1);
+    expect(r.release, '沒放開：同伴下一回合的牌全在這邊排隊，兩台互等').toHaveBeenCalledTimes(1);
+    expect(r.cs.enemyActing, '魔物回合停在一半').toBeFalsy();
+    expect(combatFingerprint(r.cs), '沒演的那幾隻也要照常出手，不然兩台分岔').toBe(combatFingerprint(r.expected));
+    expect(r.calls).toEqual(['recover', 'checkOver', 'syncPicker']);
+  });
+
+  it('連收尾都壞了：直接放開，並多記一行', async () => {
+    const r = await enemyTurn({ settleThrowsAt: 2, recoverThrows: true });
+    expect(r.release).toHaveBeenCalledTimes(1);
+    expect(r.errors).toHaveLength(2);
   });
 });
