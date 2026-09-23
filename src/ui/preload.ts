@@ -165,8 +165,8 @@ export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: 
    * 球球那三十張姿勢也一起暖（2026-09-10，使用者回報「球球的腳色會突然消失再出現」）。
    *
    * 換姿勢是直接換 `<img>` 的 `src`。圖已經在快取裡就是無縫的，**還沒下載好就會先畫成一片空白、
-   * 載好才冒出來**——正好是「消失又出現」。平常碰不到（`combat.ts` 的 `warmAll` 開戰時會暖），
-   * 但**冷快取的第一場**（例如剛部署完、所有圖的內容都變了那一次）`warmAll` 自己也還在下載，
+   * 載好才冒出來**——正好是「消失又出現」。平常碰不到（`combat.ts` 的 `warmHeroes` 開戰時會暖），
+   * 但**冷快取的第一場**（例如剛部署完、所有圖的內容都變了那一次）`warmHeroes` 自己也還在下載，
    * 玩家已經在出牌了。放進這裡就會卡在既有的 1.5 秒上限內先抓完，不另外增加等待。
    */
   // **魔物排前面**（稽核 2026-09-10 中-1）：球球那 27 張（`heroSpriteUrls()` 排掉了
@@ -181,7 +181,7 @@ export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: 
   // 球球等於整批沒暖到，正好是這段當初要修的那個毛病。合成一串交給同一組工人，
   // 空出來的工人就會自己往下接球球那段，兩批的頭尾自然交疊，優先序還是靠順序決定。
   // `hold` 逐張決定：魔物那批照 2026-09-04 低 14 的規矩留參照；球球那 27 張解成點陣圖約 33 MB，
-  // 戰鬥畫面掛上時 `combat.ts` 的 `warmAll()` 自己會再暖一次並留自己那份（每場一份、跟著閉包回收），
+  // 戰鬥畫面掛上時 `combat.ts` 的 `warmHeroes()` 自己會再暖一次並留自己那份（`warmPool`，每場一份、跟著閉包回收），
   // 這裡不必再永久壓一份。
   const monsters = urlsFor(defs, skinHero);
   const held = new Set(monsters);

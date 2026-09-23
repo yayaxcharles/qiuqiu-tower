@@ -296,7 +296,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * `gainBlock` 每次都先加一份拒馬（blockBonus）再過貓步，分兩次呼叫就吃兩次。
        * 實測貓步 3 時「先幫你留著」單人會拿到 18 點，交辦單要的是 15。
        * 玩家不會發現，只會覺得這張牌莫名好用。
-       * 所以單人時先把量記在 `pendingSelfBlock`，由這張牌最後一次 `block`／`blockAlly` 一起發。
+       * 所以單人時先把量記在 `ctx.selfBlockPool`，由這張牌最後一次 `block`／`blockAlly` 一起發（`flushSelfBlock`）。
        */
       if (mate === p) { ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount; flushSelfBlock(cs, p, ctx, queue); return false; }
       gainBlock(cs, mate, fx.amount);

@@ -2536,8 +2536,8 @@ registerScreen('combat', (app, root, props) => {
     hideTooltip();
     /*
      * 連線版：按「結束回合」只是**舉手**，要兩邊都舉手才真的收（見 `combat.ts` 的 `setReady`）。
-     * 所以這裡送出去就回，收牌與魔物回合交給 `onAllReady()`——那支會在最後一個人
-     * 舉手的那一刻，在兩台機器上各自跑一次（引擎是決定性的，跑出來一模一樣）。
+     * 所以這裡送出去就回，收牌與魔物回合交給 `session.onApplied` 裡的 `finishApplied`（看 `allReady(cs)`）——
+     * 最後一個人舉手的那一下套用時，在兩台機器上各自跑一次（引擎是決定性的，跑出來一模一樣）。
      */
     if (session) {
       sendOrDo({ t: 'ready', seat: mySeat, on: true }, () => true);
