@@ -434,7 +434,8 @@ describe('罐頭鋪限定三件的效果', () => {
   it('帳本＋批發箱＋零錢罐相乘、只四捨五入一次', () => {
     const { run, shop } = shopWith(['shop_ledger', 'bulk_crate', 'coin_jar']);
     const it = shop.potions[0]!;
-    expect(priceFor(run, it, 0, shop)).toBe(Math.round(it.base * 0.8 * 0.5 * 0.5 * (it.sale ?? 1)));
+    // 2026-09-23 第三批（design3 4-3）：售價最低 5 條——這一格疊完三件折扣原本算成 4 條，現在停在 5
+    expect(priceFor(run, it, 0, shop)).toBe(Math.max(5, Math.round(it.base * 0.8 * 0.5 * 0.5 * (it.sale ?? 1))));
   });
 });
 

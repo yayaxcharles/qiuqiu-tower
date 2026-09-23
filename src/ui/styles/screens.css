@@ -1193,6 +1193,22 @@
 .shelf-cards.six .shop-row { gap: 12px; }
 .shelf-cards.six .shop-item.card-item { width: 158px; }
 
+/* 客座店主（2026-09-23 第三批 新J）：招牌木牌掛在新牌架子上緣的右邊（跟左邊「新牌」同一塊木牌料、字深一點的底），
+   不多佔一排高度——多一排的話貨架最下面那排價錢會被對白框壓住（實機量過） */
+.shelf-label.shop-sign { left: auto; right: 18px; background: linear-gradient(#a3471c, #6b2f12); font-weight: bold; }
+/* 店主一句＋自己回一句（兩行）：名牌不再浮在框頂那一條留白裡，改成跟店主那句排在同一行、自己那句排第二行，
+   框的高度跟橘貓老闆一行字時差不多（名牌那條留白省下來給第二行）。照原樣多一行的話，手機橫拿時框頂壓到貨架最下面那排價錢（實機截圖） */
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene .dialogue-box.scene-box:has(.shop-reply) {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; padding-top: 30px;
+}
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) .dialogue-speaker { position: static; grid-column: 1; justify-self: start; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) > .scene-text { grid-column: 2; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) > .shop-reply,
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) > .scene-actions { grid-column: 1 / -1; }
+/* 有服務鈕時對白框裡四顆鈕：照原本的最小寬度排不下一行，換行之後框頂整個往上長、蓋住貨架最下面那排價錢（實機截圖）。四顆時鈕縮一號 */
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-actions:has(> .btn:nth-child(4)) { gap: 8px; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-actions:has(> .btn:nth-child(4)) .btn { min-width: 0; padding-left: 14px; padding-right: 14px; font-size: 18px; }
+
 /* 首頁：貼進局面碼時的說明。會蓋掉自己進度的時候換成警告色，讓人按下去之前先看到 */
 .title-note.share-note { min-height: 18px; margin-top: 2px; }
 .title-note.share-note.warn { color: #ffd06a; font-weight: 700; }

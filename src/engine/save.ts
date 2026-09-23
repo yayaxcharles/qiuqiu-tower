@@ -5,6 +5,7 @@ import { HEROES, type Hero } from './hero';
 import { relicById } from '../content/relics';
 import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
+import { isKeeperId } from '../content/keepers';
 import { ACTS } from './run';
 import type { CardInstance, RunPlayer, RunState } from './types';
 
@@ -212,6 +213,8 @@ export function checkRun(input: Partial<RunState>): RunState | null {
   }
   // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
   if (!usableMap(run.map, run.currentNode)) return null;
+  // 罐頭鋪誰顧店（2026-09-23 第三批 新J）：舊存檔沒有＝橘貓老闆；認不得的值（手改的局面碼、之後拿掉的店主）只丟那一格、當橘貓老闆
+  for (const n of run.map.nodes) if ((n as { keeper?: unknown }).keeper !== undefined && !isKeeperId(n.keeper)) delete n.keeper;
   // 統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
   if (!run.stats || typeof run.stats !== 'object') return null;
   // 遭遇、事件、秘寶、忍具的 id 對不上（內容改名、拆併之後帶舊檔）也當不相容。原本只驗牌：

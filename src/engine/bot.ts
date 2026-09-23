@@ -115,7 +115,7 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number; hero?:
       case '罐頭鋪': {
         const shop = makeShop(run);
         for (let i = 0; i < shop.cards.length; i++) if (rng.chance(0.4)) buyCard(run, shop, i);
-        if (rng.chance(0.5) && me(run).deck.length > 0) buyRemove(run, rng.pick(me(run).deck).uid);
+        if (rng.chance(0.5) && me(run).deck.length > 0) buyRemove(run, rng.pick(me(run).deck).uid, 0, shop);   // 帶貨架：阿福那間半價（2026-09-23 第三批）
         break;
       }
       case '貓窩': {

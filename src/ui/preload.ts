@@ -1,5 +1,6 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
+import { KEEPERS } from '../content/keepers';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool, RunState } from '../engine/types';
 import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, itemIconUrls, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
@@ -206,6 +207,24 @@ export function preloadMapEvents(run: RunState): Promise<void> {
   for (const u of fresh) mapEventAsked.add(u);
   // 插隊（`priority: 'high'`）：第一次看到地圖時開場那幾百張多半還在排隊，這幾張不插隊就排在最後
   return decodeAll(fresh, 3, (u) => u !== mapBg, pool, 'high');
+}
+
+/**
+ * 這張地圖上客座店主的立繪（2026-09-23 內容擴充第三批 新J，design3 4-4）：開場不載（`assets.ts` 的 `isGuestKeeperArt`），
+ * 這一關有那一位顧的店，才抓那一位的招呼、成交、錢不夠三張；橘貓老闆那三張本來就在開場那批。
+ * 鍵跟罐頭鋪畫面挑圖同一條規則（`KEEPERS[..].art` ＋ `_happy`／`_no`），地圖的小頭像也是裁招呼那張。
+ */
+export function mapKeeperArtUrls(run: RunState): string[] {
+  const guests = [...new Set(run.map.nodes.filter((n) => n.type === '罐頭鋪' && n.keeper && n.keeper !== 'orange').map((n) => n.keeper!))];
+  return guests.flatMap((k) => ['', '_happy', '_no'].map((m) => artUrl('sprites', `${KEEPERS[k].art}${m}`)));
+}
+
+/** 地圖畫面出來就在背景抓（跟事件主圖同一組、留參照、換了地圖整組放掉）；同一張不重送 */
+export function preloadMapKeepers(run: RunState): Promise<void> {
+  const pool = mapEventPoolFor(run);
+  const fresh = mapKeeperArtUrls(run).filter((u) => !mapEventAsked.has(u));
+  for (const u of fresh) mapEventAsked.add(u);
+  return decodeAll(fresh, 3, true, pool);
 }
 
 /**

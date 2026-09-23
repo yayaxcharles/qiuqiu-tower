@@ -131,6 +131,16 @@ export function isItemIcon(key: string): boolean {
   return /^codex\/(?:relic|potion)_/.test(key);
 }
 
+/**
+ * 三位客座店主的立繪（`shop/keeper_<tortoise|curio|junk>` 與 `_happy`／`_no`，2026-09-23 內容擴充第三批 新J）：
+ * **開場不載**，這一關地圖上有那一位顧的店才在背景抓那一位的三張（`preload.ts` 的 `preloadMapKeepers`，地圖畫面叫）。
+ * 橘貓老闆那三張（`shop/keeper`、`shop/keeper_happy`、`shop/keeper_no`）照舊開場就載——一半的店是他。
+ * 判準寫死三個代號：`shop/keeper_happy` 這種橘貓老闆的表情鍵跟客座的前綴一樣，不能用「開頭是 `shop/keeper_`」來判斷。
+ */
+export function isGuestKeeperArt(key: string): boolean {
+  return /^shop\/keeper_(?:tortoise|curio|junk)(?:_happy|_no)?$/.test(key);
+}
+
 /** 全部秘寶、忍具圖示的網址（進入一局才補，見 `isItemIcon`） */
 export function itemIconUrls(): string[] {
   return Object.entries(manifest.icons).filter(([k]) => isItemIcon(k)).map(([, v]) => `${BASE}${v}`);
@@ -557,6 +567,8 @@ export async function preloadArt(): Promise<void> {
       if (heroOfKey(key) && !TITLE_ART.has(key)) continue;
       // 秘寶與忍具圖示同理，進入一局才補（`isItemIcon`，2026-09-23 內容擴充第二批）
       if (g === 'icons' && isItemIcon(key)) continue;
+      // 客座店主的立繪照地圖現抓（`isGuestKeeperArt`，2026-09-23 第三批）
+      if (g === 'sprites' && isGuestKeeperArt(key)) continue;
       // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
       if (g === 'cards' && isCoopOnlyArt(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);

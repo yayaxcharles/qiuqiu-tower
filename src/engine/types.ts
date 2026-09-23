@@ -839,7 +839,15 @@ export interface MapNode {
    * 可選欄位：舊存檔沒有這一欄＝那一局沒有修飾詞，不必升存檔版本（升了會清掉進行中的局）。
    */
   modifier?: string;
+  /**
+   * 罐頭鋪今天誰顧店（2026-09-23 內容擴充第三批 新J，design3 第四節）。地圖生成完就擲好（`run.ts` 的 `assignKeepers`），
+   * 地圖上看得到、進門前就知道。**只寫客座店主**：沒寫＝橘貓老闆（舊存檔、一半的店），貨架跟以前一模一樣。
+   * 有才進整局指紋（`net/hash.ts`），存檔讀到認不得的值就丟掉（`save.ts`）。
+   */
+  keeper?: KeeperId;
 }
+/** 罐頭鋪的四位店主（design3 4-1）：`orange` 橘貓老闆（常駐）、`tortoise` 玳瑁婆婆、`curio` 長毛掌櫃、`junk` 阿福 */
+export type KeeperId = 'orange' | 'tortoise' | 'curio' | 'junk';
 export interface GameMap { nodes: MapNode[]; start: string[] }
 
 // ===== 整局 =====

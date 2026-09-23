@@ -130,6 +130,8 @@ export function runFingerprint(run: RunState): string {
     // `shop_bought:` 是店長私藏買過哪幾件（2026-09-23 第二批，引擎的 `buyRelic` 寫）：兩台不一樣，下一間店的私藏那格就會擺得不一樣
     `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:') || k.startsWith('chain:') || k.startsWith('shop_bought:'))).sort().join(',')}]`,
     `m[${run.map.nodes.map((n) => n.eventId ?? '').join(',')}]`,
+    // 罐頭鋪誰顧店（2026-09-23 第三批 新J）：兩台記的不一樣，走進那一間貨架、價錢、服務全部不同。有才串，只有橘貓老闆的地圖指紋不變
+    ...(run.map.nodes.some((n) => n.keeper) ? [`kp[${run.map.nodes.filter((n) => n.keeper).map((n) => `${n.id}:${n.keeper}`).join(',')}]`] : []),
   ];
   for (const p of run.players) {
     parts.push([

@@ -1,4 +1,4 @@
-import { buyCard, buyPotion, buyRelic, buyRemove, notMyCard, priceFor, potionCapacity, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, takeRelic, type ShopStock } from '../engine/run';
+import { buyCard, buyPotion, buyRelic, buyRemove, buySwap, canSwap, notMyCard, priceFor, potionCapacity, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, takeRelic, type ShopStock } from '../engine/run';
 import type { RunState } from '../engine/types';
 
 /**
@@ -16,6 +16,8 @@ import type { RunState } from '../engine/types';
 export type RunAction =
   /** 買東西。`k`＝哪一區、`i`＝第幾格、`r`＝忍具帶滿時要換掉第幾支 */
   | { t: 'buy'; seat: number; k: 'card' | 'relic' | 'potion'; i: number; r?: number }
+  /** 阿福的「舊招換新招」（2026-09-23 第三批 新J，design3 4-4）：換第 `u` 號那張，一間一人一次。婆婆的淨化是淨化那條線的 `{ t: 'purify' }` */
+  | { t: 'buy'; seat: number; k: 'swap'; u: number }
   /** 花錢移除一張自己的牌 */
   | { t: 'scrub'; seat: number; u: number }
   /** 重整貨架（每店一次，動到整局亂數，所以一定要排序） */
@@ -60,6 +62,8 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
   switch (a.t) {
     case 'buy': {
       if (!shop) return false;
+      // 換招的判準跟引擎同一支（`canSwap`）：做不出來就不發號碼，免得兩台套用都失敗、整場斷線
+      if (a.k === 'swap') return canSwap(run, shop, a.u, a.seat);
       const it = a.k === 'card' ? shop.cards[a.i] : a.k === 'relic' ? shop.relics[a.i] : shop.potions[a.i];
       if (!it || it.sold || p.fish < priceFor(run, it, a.seat, shop)) return false;   // 帶貨架：批發箱、帳本的折扣要算進去（2026-09-23 第二批）
       if (a.k === 'relic') return !p.relics.includes((it as { id: string }).id);
@@ -71,7 +75,7 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
       }
       return true;
     }
-    case 'scrub': return !!shop && p.deck.some((c) => c.uid === a.u) && p.fish >= removePrice(run, a.seat);   // 會員卡的固定價（2026-09-23 第二批）
+    case 'scrub': return !!shop && p.deck.some((c) => c.uid === a.u) && p.fish >= removePrice(run, a.seat, shop);   // 會員卡的固定價（2026-09-23 第二批）、阿福半價（第三批）
     /*
      * 條件要跟 `reshuffleShop` 自己的判斷**一模一樣**（2026-09-14 連線稽核 高-17）。
      * 原本只看「重整過了沒」：先買一張、動作還沒繞回來又按重整（畫面上錢還夠），
@@ -100,11 +104,12 @@ export function applyRunAction(ctx: RunCtx, a: RunAction): boolean {
     case 'swap': return replacePotion(run, a.i, a.id, a.seat);
     case 'buy': {
       if (!shop) return false;
+      if (a.k === 'swap') return buySwap(run, shop, a.u, a.seat) !== null;
       if (a.k === 'card') return buyCard(run, shop, a.i, a.seat);
       if (a.k === 'relic') return buyRelic(run, shop, a.i, a.seat);
       return buyPotion(run, shop, a.i, a.r, a.seat);
     }
-    case 'scrub': return !!shop && buyRemove(run, a.u, a.seat);
+    case 'scrub': return !!shop && buyRemove(run, a.u, a.seat, shop);
     case 'shuffle': return !!shop && reshuffleShop(run, shop, a.seat);
     case 'rest': return rest(run, a.c, a.u, a.seat);
   }

@@ -78,10 +78,15 @@ describe('畫面接線', () => {
   it('罐頭鋪：私藏那一格掛牌子、欠條進門講一句、價錢照這間店算（帶貨架）', () => {
     const shop = SHOP_RAW.replace(/\r\n/g, '\n');
     expect(shop).toContain("'店長私藏'");
-    expect(shop).toContain('if (shop.entryFee) notice(');
+    // 2026-09-23 第三批：欠條那句改由 `greet` → `sayDebt` 講（客座店主講自己的一句，橘貓老闆照舊，第一次見到客座時晚一拍）
+    expect(shop).toContain('if (!guest || shopTextNow()) greet();');
+    expect(shop).toContain('if (!shop.entryFee) return;');
+    expect(shop).toContain('notice(`老闆認得那張欠條，先收走 ${fee} 條小魚乾`)');
     expect(shop).not.toMatch(/priceFor\(run, it, seat\)/);
-    // 放生的價錢照會員卡的固定價算（按鈕、挑牌視窗、確認框、買不起變灰四處都走 `removePrice`）
-    expect(shop.match(/removePrice\(run, seat\)/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
+    // 放生的價錢照會員卡的固定價算（按鈕、挑牌視窗、確認框、買不起變灰四處都走 `removePrice`）；
+    // 第三批起帶貨架（阿福半價），先算成 `releaseCost` 一次、四處共用
+    expect(shop).toContain('const releaseCost = removePrice(run, seat, shop);');
+    expect(shop.match(/releaseCost/g)?.length ?? 0).toBeGreaterThanOrEqual(5);
     expect(shop).not.toContain('me(run, seat).removeCost');
   });
 });
