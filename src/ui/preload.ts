@@ -224,28 +224,33 @@ export function warmEventArt(run: RunState, eventId: string, timeoutMs = 6000): 
  * 這個事件各選項的結果圖（同 `screens/event.ts` 的 `eventArt(c.resultArt, artHero)`；沒有結果圖的選項沿用主圖，不列）。
  * 結果圖原本是點了選項、畫面建出 `<img>` 那一刻才抓，慢網路下結果那一塊先空著（2026-09-23 主控補充）。
  */
-function eventResultUrl(run: RunState, eventId: string, choice: number): string | null {
+/**
+ * `hero`＝這個選項的結果圖照誰挑（事件畫面的 `resultArtHeroFor`：連線時同伴讓條件選項出現的，照同伴那一版，2026-09-23 b2fin）；
+ * 不給就照原本（鏡子走廊照座位 0，其餘本機這一位）
+ */
+function eventResultUrl(run: RunState, eventId: string, choice: number, hero?: string): string | null {
   const art = eventById[eventId]?.choices[choice]?.resultArt;
-  return art ? artUrl('bg', eventArtKey(art, eventArtHero(eventId, run.players.map((p) => p.hero)))) : null;
+  return art ? artUrl('bg', eventArtKey(art, hero ?? eventArtHero(eventId, run.players.map((p) => p.hero)))) : null;
 }
 
-export function eventResultUrls(run: RunState, eventId: string): string[] {
+/** `heroes[i]`＝第 i 個選項的結果圖照誰挑（同 `eventResultUrl` 的 `hero`），不給就全部照原本 */
+export function eventResultUrls(run: RunState, eventId: string, heroes?: readonly (string | undefined)[]): string[] {
   const n = eventById[eventId]?.choices.length ?? 0;
-  const urls = Array.from({ length: n }, (_, i) => eventResultUrl(run, eventId, i)).filter((u): u is string => u !== null);
+  const urls = Array.from({ length: n }, (_, i) => eventResultUrl(run, eventId, i, heroes?.[i])).filter((u): u is string => u !== null);
   return [...new Set(urls)];
 }
 
 /** 進到事件畫面就在背景抓這個事件所有選項的結果圖：插隊、留參照（跟主圖同一組），同一張不重送（連線每投一票就重畫一次） */
-export function preloadEventResults(run: RunState, eventId: string): Promise<void> {
+export function preloadEventResults(run: RunState, eventId: string, heroes?: readonly (string | undefined)[]): Promise<void> {
   const pool = mapEventPoolFor(run);
-  const fresh = eventResultUrls(run, eventId).filter((u) => !mapEventAsked.has(u));
+  const fresh = eventResultUrls(run, eventId, heroes).filter((u) => !mapEventAsked.has(u));
   for (const u of fresh) mapEventAsked.add(u);
   return decodeAll(fresh, 3, true, pool, 'high');
 }
 
 /** 選了這個選項、要畫結果之前等那張結果圖解好（`screens/event.ts` 的 `whenResultArtReady`）；沒有結果圖就立刻好。上限同主圖 */
-export function warmResultArt(run: RunState, eventId: string, choice: number, timeoutMs = 6000): Promise<void> {
-  const url = eventResultUrl(run, eventId, choice);
+export function warmResultArt(run: RunState, eventId: string, choice: number, hero?: string, timeoutMs = 6000): Promise<void> {
+  const url = eventResultUrl(run, eventId, choice, hero);
   if (!url) return Promise.resolve();
   const work = decodeAll([url], 1, true, mapEventPoolFor(run), 'high');
   let timer: ReturnType<typeof setTimeout> | undefined;

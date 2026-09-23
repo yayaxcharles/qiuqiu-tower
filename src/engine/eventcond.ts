@@ -110,6 +110,17 @@ export function choiceGate(run: RunState, choice: EventChoice, viewer = 0): Choi
   return { shown: false };
 }
 
+/**
+ * 條件選項的結果文字照哪一位的版本寫（2026-09-23 b2fin，主控裁定）：連線時是**同伴**讓它出現的（養成型，`choiceGate` 的 `by`），
+ * 結果就寫同伴做的事——畫面拿同伴那一位的文字（事件開頭那句條件提示句本來就照 `by` 那一位挑，這裡跟它同一套）。
+ * 兩個人都符合、單人、付錢型、旗標，都照本機這一位。只影響畫面上的字，兩台各看各的也不會分岔。
+ * **要在套效果之前問**：鈴鐺那條會把條件本身交出去，套完就問不出是誰的了。
+ */
+export function resultSeat(run: RunState, choice: EventChoice, viewer = 0): number {
+  if (!choice.requires) return viewer;
+  return choiceGate(run, choice, viewer).by ?? viewer;
+}
+
 /** 這篇事件現在看得到哪幾個選項（原本的索引，由小到大）。畫面、機器人、票的結算都用這一支 */
 export function visibleChoices(run: RunState, ev: EventDef, viewer = 0): number[] {
   return ev.choices.map((c, i) => (choiceGate(run, c, viewer).shown ? i : -1)).filter((i) => i >= 0);

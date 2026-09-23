@@ -406,7 +406,9 @@ describe('兩個人的機器人走得完連線限定事件（投票與一人得�
     expect([...seen.keys()].sort(), '八十局連一篇連線限定事件都沒遇到').toContain('coop_rope_bridge');
     const anyBySeat = [...seen.values()].some((s) => s.has(0) || s.has(1));
     expect(anyBySeat, '機器人一次都沒選過一人得一人付的那兩個').toBe(true);
-  });
+    // 八十局連線機器人，單獨跑約 1.5 秒；全套平行跑、機器又忙時實測 8.3 秒超過預設 5 秒被判紅（2026-09-23 b2fin），
+    // 照 shop_upgrade_coin 那支的做法放寬等待上限，斷言不動
+  }, 30000);
 });
 
 describe('機器人估得出每個新選項的值', () => {

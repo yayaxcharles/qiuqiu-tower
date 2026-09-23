@@ -115,7 +115,8 @@ function inner(start: string): string {
 
 async function harness(opts: { resultArt: boolean; warm: Promise<void> }) {
   const body = inner('  function whenResultArtReady(index: number, go: () => void): void {');
-  const js = (await transformWithOxc(`let resolving = false;\n${body}\nreturn { whenResultArtReady, busy: () => resolving };`, 'wait.ts')).code;
+  // 2026-09-23 b2fin 起多讀一個閉包變數 `resultArtHero`（結果圖照誰挑），替身留空＝照原本
+  const js = (await transformWithOxc(`let resolving = false;\nlet resultArtHero;\n${body}\nreturn { whenResultArtReady, busy: () => resolving };`, 'wait.ts')).code;
   const cls = new Set<string>();
   const appended: { text: string; removed: boolean }[] = [];
   const box = { append: (n: { text: string; removed: boolean }) => { appended.push(n); } };
@@ -145,7 +146,8 @@ describe('事件畫面：點了選項等結果圖', () => {
     const h = await harness({ resultArt: true, warm: new Promise<void>((r) => { release = r; }) });
     const go = vi.fn();
     h.api.whenResultArtReady(0, go);
-    expect(h.warmCalls[0]!.slice(1)).toEqual(['rescue', 0]);
+    // 第四個是結果圖照誰挑（`resultArtHero`，2026-09-23 b2fin），替身留空
+    expect(h.warmCalls[0]!.slice(1)).toEqual(['rescue', 0, undefined]);
     expect(h.cls.has('fight-pending')).toBe(true);
     expect(h.api.busy(), '鍵盤再按一次也不收').toBe(true);
     expect(go).not.toHaveBeenCalled();
@@ -258,7 +260,8 @@ describe('結果圖等滿 6 秒還沒到：先用主圖頂著，不露空白', (
   });
 
   it('結果畫面有結果圖時才帶頂替', () => {
-    expect(EVENT).toContain('eventArt(art ?? ev.id, artHero, art ? { run, id: ev.id } : undefined)');
+    // 2026-09-23 b2fin：結果圖照 `resultArtHero` 挑、頂替的主圖照主圖那一位（`hero: artHero`）
+    expect(EVENT).toContain('eventArt(art ?? ev.id, art ? resultArtHero : artHero, art ? { run, id: ev.id, hero: artHero } : undefined)');
   });
 });
 
@@ -271,7 +274,7 @@ async function paintHarness(warm: Promise<void>) {
   const wait = inner('  function whenResultArtReady(index: number, go: () => void): void {');
   const a = EVENT.indexOf('  let heldPaint:');
   const hold = EVENT.slice(a, EVENT.indexOf('\n  }\n', EVENT.indexOf('  function holdPaintForResultArt(', a)) + 4);
-  const js = (await transformWithOxc(`let resolving = false;\n${wait}\n${hold}\nreturn { paint, holdPaintForResultArt };`, 'paint.ts')).code;
+  const js = (await transformWithOxc(`let resolving = false;\nlet resultArtHero;\n${wait}\n${hold}\nreturn { paint, holdPaintForResultArt };`, 'paint.ts')).code;
   const run = { id: 'run' };
   const app = { run: run as unknown, stage: { classList: { add() {}, remove() {} } } };
   const ev = { id: 'toll', choices: [{ resultArt: 'toll_r0' }, { resultArt: undefined }] };
@@ -334,7 +337,7 @@ describe('效果當場套、只有畫面等圖（推前審查 高-1）', () => {
 
 describe('接線', () => {
   it('進畫面就先抓；選項的點擊一進來先看是不是還在等', () => {
-    expect(EVENT).toContain('void preloadEventResults(run, ev.id);');
+    expect(EVENT).toContain('void preloadEventResults(run, ev.id, ev.choices.map((_, i) => resultArtHeroFor(i)));');
     const click = EVENT.slice(EVENT.indexOf("else btn.addEventListener('click', () => {"));
     expect(click.slice(0, 200)).toContain('if (resolving) return;');
   });

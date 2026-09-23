@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
 import { encounterById } from '../../src/content/enemies';
 import { FIXED_EVENT_FLOOR_5, FIXED_EVENTS_FLOOR_5, eventById, events, fixedEventFloor5 } from '../../src/content/events';
+// 球球第二批的開頭與結果延後載入，這支一載入才填回事件資料（2026-09-23 b2fin）；不載的話下面「每篇都有字」驗不到那十八篇
+import '../../src/content/event-text-b2';
 
 describe('事件資料', () => {
   it('73 個事件、id 不重複、每個 1～3 個選項（條件選項另外算，最多再一條、排在最後）', () => {

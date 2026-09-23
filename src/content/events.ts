@@ -26,6 +26,8 @@ export function fixedEventFloor5(act: number): string {
  * 條件選項（2026-09-23 內容擴充第二批，劇本 design2 第七節）：八篇既有事件的 `choices` 最後各多一條，
  * 帶 `requires`（達成才出現）與 `requiresLabel`（按鈕前的金底標籤）。既有選項的索引與結果圖一張都沒動。
  * 判斷在 `engine/eventcond.ts`；三隻的文字與條件提示句在 `event-text-b2.ts`。
+ * 那八條的 `result` 故意留空：**球球那份結果也在 `event-text-b2.ts`**（`NINJA_COND_RESULT_B2`，延後載入、載入時填回，
+ * 2026-09-23 b2fin 主控裁定），標籤留在這裡。
  */
 export const events: EventDef[] = [
   ...fengfengEvents,
@@ -290,7 +292,7 @@ export const events: EventDef[] = [
       { label: '指出集合處，讓牠自己回去（獲得 15 條小魚乾）', outcome: [{ kind: 'fish', n: 15 }], result: '小黑貓聽見同伴在轉角呼喚，留下 15 條小魚乾作為謝禮，跑了過去。球球：「對，就是那邊，看著路喵。」', resultArt: 'lost_kitten_r1' },
       { label: '把鈴鐺繫在牠的頭巾上（交出「鈴鐺」；生命上限與當前生命各 +10、隨機獲得 1 個忍具）', requires: { kind: 'relic', ids: ['bell'] }, requiresLabel: '鈴鐺',
         outcome: [{ kind: 'loseRelicId', id: 'bell' }, { kind: 'maxHp', n: 10 }, { kind: 'potions', n: 1 }],
-        result: '球球解下鈴鐺，繫在小黑貓太大的頭巾上，再替牠把頭巾往上折了兩折。小黑貓搖一搖頭，鈴鐺叮叮響，牠破涕為笑。轉角的同伴聽到聲音跑上來，七手八腳塞了一個忍具給球球，還輪流撲上來抱牠。球球：「以後走到哪都叮噹響，就不會走丟了喵。」', resultArt: 'lost_kitten_r2' },
+        result: '', resultArt: 'lost_kitten_r2' },
     ] },
   // ===== 2026-08-31 補 20 個。本來只有 10 個，兩三局就全看過 =====
 
@@ -319,7 +321,7 @@ export const events: EventDef[] = [
       { label: '硬從旁邊擠過去（最多失去 8 點生命）', outcome: [{ kind: 'damage', n: 8 }], result: '球球從旁邊往樓梯擠，白貓卻撞了過來，撞得牠肩膀發麻。牠忍痛鑽過空隙，快步上樓。球球：「不陪你打，就故意撞我喵？」', resultArt: 'sparring_cat_r1' },
       { label: '站著不動，讓他撞（最多失去 3 點生命；獲得 30 條小魚乾、隨機獲得 1 個忍具）', requires: { kind: 'anyOf', of: [{ kind: 'deckTag', tag: '反彈', min: 3 }, { kind: 'relic', ids: ['bronze_mirror', 'turtle_shell', 'anvil'] }] }, requiresLabel: '反彈',
         outcome: [{ kind: 'damage', n: 3 }, { kind: 'fish', n: 30 }, { kind: 'potions', n: 1 }],
-        result: '球球雙手抱胸站著不動。白貓一頭撞上來，「咚」地被彈回去，一屁股坐在地上。黑衣師弟笑到彎腰，被白貓瞪了一眼，還是偷偷塞了一個忍具給球球。白貓揉著額頭丟來一袋小魚乾：「算、算你贏！」球球：「我什麼都還沒做喵。」', resultArt: 'sparring_cat_r2' },
+        result: '', resultArt: 'sparring_cat_r2' },
     ] },
 
   { id: 'cat_tower', title: '好高的貓抓柱',
@@ -346,7 +348,7 @@ export const events: EventDef[] = [
       { label: '不取用，繼續走（無效果）', outcome: [], result: '球球擺好碰歪的碗，從走廊離開廚房。球球：「留給後面的人吧喵。」' },
       { label: '留一個用不上的忍具在盒子裡，換一碗加料的（交出 1 個忍具；回復相當於生命上限 50% 的生命、生命上限與當前生命各 +4）', requires: { kind: 'potionsFull' }, requiresLabel: '忍具滿了',
         outcome: [{ kind: 'losePotion' }, { kind: 'healPercent', p: 0.5 }, { kind: 'maxHp', n: 4 }],
-        result: '球球從袋子裡挑出一個最用不到的忍具，放進備用品盒，還在旁邊壓了一張紙條，畫了一隻比讚的貓爪。鍋裡果然多了一塊燉得軟爛的肉。牠連湯帶肉吃光，肚子暖得發燙。球球：「下一個人，這個給你喵。」', resultArt: 'noisy_kitchen_r3' },
+        result: '', resultArt: 'noisy_kitchen_r3' },
     ] },
 
   { id: 'mirror_hall', title: '鏡子走廊',
@@ -367,7 +369,7 @@ export const events: EventDef[] = [
       { label: '調勻氣息，悄悄通過（生命上限與當前生命各 +4）', outcome: [{ kind: 'maxHp', n: 4 }], result: '球球輕輕呼吸，踩穩每一步，悄悄走過守衛身旁。牠試著讓呼吸配合步伐，越走越順。球球：「原來這樣走路，不用一直憋著氣喵。」', resultArt: 'sleeping_guard_r1' },
       { label: '藏在牆角的影子裡摸走錢袋（獲得 45 條小魚乾）', requires: { kind: 'deckTag', tag: '隱身', min: 3 }, requiresLabel: '隱身',
         outcome: [{ kind: 'fish', n: 45 }],
-        result: '球球貼著牆角的影子一點一點挪過去，連呼吸都跟著守衛的鼾聲。爪子勾到錢袋時，大橘貓咂了咂嘴，說了一句夢話：「娘，再睡五分鐘……」球球僵了好久，才把錢袋勾走。球球：「五分鐘，夠我跑到樓上了喵。」', resultArt: 'sleeping_guard_r2' },
+        result: '', resultArt: 'sleeping_guard_r2' },
     ] },
 
   { id: 'medicine_cat', title: '賣藥的三花貓',
@@ -378,7 +380,7 @@ export const events: EventDef[] = [
       { label: '不買（無效果）', outcome: [], result: '球球看完價目牌，搖搖頭。三花貓見牠不買，也收起了量匙。球球：「太貴了，這次先不買喵。」' },
       { label: '讓她拿你的毒試新解藥（最多失去 8 點生命；生命上限與當前生命各 +8）', requires: { kind: 'deckTag', tag: '毒', min: 3 }, requiresLabel: '毒',
         outcome: [{ kind: 'damage', n: 8 }, { kind: 'maxHp', n: 8 }],
-        result: '球球把自己的毒抹在爪尖，輕輕劃了一下手背。毒一上來，牠整隻貓都發麻，連舌頭都打結。三花貓一邊灌解藥一邊記筆記，最後把一瓶補身藥塞給牠當謝禮。球球：「……下次，換你自己試喵。」', resultArt: 'medicine_cat_r3' },
+        result: '', resultArt: 'medicine_cat_r3' },
     ] },
 
   { id: 'stuck_kitten', title: '卡住的小貓',
@@ -411,7 +413,7 @@ export const events: EventDef[] = [
       { label: '從門縫伸爪取物（獲得 35 條小魚乾）', outcome: [{ kind: 'fish', n: 35 }], result: '球球把爪子伸進門縫，勾住籃子，一點一點拉到面前，取出裡面的 35 條小魚乾。球球：「拿到了，不用推門了喵。」', resultArt: 'heavy_door_r1' },
       { label: '蓄足一口氣，一擊劈斷門閂（最多失去 6 點生命；隨機獲得 1 件大魔物秘寶）', requires: { kind: 'deckTag', tag: '蓄氣', min: 3 }, requiresLabel: '蓄氣',
         outcome: [{ kind: 'damage', n: 6 }, { kind: 'relic', pool: '大魔物' }],
-        result: '球球深吸一口氣，把氣全憋在爪尖，一爪從門縫劈出去。「喀」一聲，門閂斷成兩截——石門沒了閂，自己盪開，又盪回來，正好撞在牠肩上。球球揉著肩膀走進去，從寶箱裡拿出秘寶。球球：「原來不用推的……早知道喵。」', resultArt: 'heavy_door_r2' },
+        result: '', resultArt: 'heavy_door_r2' },
     ] },
 
   { id: 'old_master_ghost', title: '師父的影子',
@@ -425,7 +427,7 @@ export const events: EventDef[] = [
         result: '球球試了試那套動作，找出兩招怎麼練都不順的，決定不再用它們。球球：「這兩招不適合我，換別的練喵。」', resultArt: 'old_master_ghost_r1' },
       { label: '把師父的斗笠戴到影子頭上（從 3 張絕學牌中選擇 1 張、自選升級至多 1 張牌）', requires: { kind: 'relic', ids: ['master_hat'] }, requiresLabel: '師門',
         outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }, { kind: 'upgradeCard' }],
-        result: '球球踮起腳，把斗笠輕輕戴到影子頭上。那一瞬間，模糊的輪廓好像清楚了一點——斗笠底下，像極了師父的臉。影子抬手，把一套球球從沒見過的招式慢慢打了一遍，最後伸手按了按牠的頭。斗笠落回牠懷裡時，影子已經不見了。球球：「……還是那麼喜歡按我的頭喵。」', resultArt: 'old_master_ghost_r2' },
+        result: '', resultArt: 'old_master_ghost_r2' },
     ] },
 
   { id: 'catnip_field', title: '一整片貓薄荷',
@@ -493,7 +495,7 @@ export const events: EventDef[] = [
       { label: '不做生意（無效果）', outcome: [], result: '球球看完布角下的小字，搖頭走開。灰貓收起布包，沒再攔牠。球球：「會留下毛病的功夫，我可不練喵。」' },
       { label: '整包買下（支付 150 條小魚乾；隨機獲得 1 件大魔物秘寶、1 件常見秘寶與 2 個忍具）', costFish: 150, requires: { kind: 'fishAtLeast', n: 150 }, requiresLabel: '小魚乾 150',
         outcome: [{ kind: 'relic', pool: '大魔物' }, { kind: 'relic', pool: '常見' }, { kind: 'potions', n: 2 }],
-        result: '球球把整袋小魚乾往布上一倒。灰貓愣住了，數了三遍，手一直在抖，最後連布包帶秘寶帶忍具全部包好推過來——差點連自己的眼鏡都一起包進去。球球：「眼鏡不用，我又沒近視喵。」', resultArt: 'greedy_merchant_r3' },
+        result: '', resultArt: 'greedy_merchant_r3' },
     ] },
   // ===== 事件前後集（2026-09-04，使用者：「第一關遇到的角色第二關再出現，看上次的選擇」）=====
   // 後集只在第二、三關的地圖排進來，而且要有前集留下的旗標；前集在哪一關遇到都行。
