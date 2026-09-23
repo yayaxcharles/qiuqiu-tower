@@ -5,7 +5,7 @@ import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
 import { aliveEnemies, attackable } from './actions';
-import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion, willAct } from './combat';
+import { allReady, canPlay, endTurn, playCard, potionBlockedReason, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
@@ -852,8 +852,8 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
     // 有使用條件的（起死回生丹要血低於三成）現在用不出來就跳過（稽核 2026-09-11 中-3）。
     // 不濾的話 `usePotion` 會回 false，而 `maybePotion` 拿到 false 就整支 return，
     // 同一輪連後面那支九命符都不會試——`bot.ts` 補了這一條，這裡漏了，兩支機器人不同調
-    const u = def.usable;
-    if (u && !u.check(p.hp, p.maxHp)) continue;
+    // 集中精神後的飯糰類忍具也一樣用不出來（2026-09-23 稽核 引擎 低-1），同一支 `potionBlockedReason` 一起濾
+    if (potionBlockedReason(p, def) !== null) continue;
     const kinds = def.effects.map((f) => f.kind);
     const heal = def.effects.find((f) => f.kind === 'heal');
     // `percent` 是回最大生命的百分之幾，`n` 這時是 0——照 `n` 判會讓「缺的血夠不夠回」恆為真

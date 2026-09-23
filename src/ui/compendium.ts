@@ -30,10 +30,12 @@ const POOL_NOTE: Record<string, string> = {
  *
  * 只換標題、**不動 `pool` 本身**：池子是規則用的鍵（獎勵、罐頭鋪、機率都照它抽），
  * 換掉會牽動一整排存檔與測試。這裡換的純粹是玩家看到的那四個字。
+ * 封封（劍客）的牌名 2026-09-23 也拿掉了「忍術·」（稽核 引擎 低-6），標題跟著換成「劍術」——
+ * 契約的「不新增劍術牌池」講的是規則用的池子，這裡只是顯示的字。
  */
 export function poolNameFor(pool: string, hero: string): string {
   if (pool !== '忍術') return pool;
-  return hero === 'dangdang' ? '拳腳' : pool;
+  return hero === 'dangdang' ? '拳腳' : hero === 'fengfeng' ? '劍術' : pool;
 }
 
 export function showCompendium(): void {

@@ -39,8 +39,12 @@ describe('玩家看得到的名字', () => {
     };
     for (const c of cards) {
       add(c.name, `牌 ${c.id}`);
-      const hers = cardNameFor(c, 'feifei');
-      if (hers !== c.name) add(hers, `牌 ${c.id}（菲菲看到的）`);
+      // 噹噹、封封也會拿掉「忍術·」（封封是 2026-09-23 稽核 引擎 低-6 加的）：同一張牌在幾位手上拿掉前綴後同名不算撞，
+      // 所以「在哪裡」只記牌號；別張牌、秘寶、忍具、狀態跟它同名才算
+      for (const hero of ['feifei', 'dangdang', 'fengfeng']) {
+        const theirs = cardNameFor(c, hero);
+        if (theirs !== c.name) add(theirs, `牌 ${c.id}（換角色看到的）`);
+      }
     }
     for (const r of relics) add(r.name, `秘寶 ${r.id}`);
     for (const p of potions) add(p.name, `忍具 ${p.id}`);
