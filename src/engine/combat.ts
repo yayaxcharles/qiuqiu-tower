@@ -354,6 +354,10 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 集中精神與下一擊準備都只撐一個本人的玩家階段；自然補滿不受集中精神影響。
   p.energyGainBlockedThisPhase = undefined;
   p.nextAttackBonus = undefined;
+  // 蓄力只撐到回合結束：**在這一支最前面清**（2026-09-23 推前審查四 中-1）。原本排在回合開始的能力之後才清，
+  // 藏鋒這類能力把蓄氣推過 10 時，滿月劍意剛設好的加倍（紀錄也寫了「下一張攻擊牌傷害加倍」）當場被清掉。
+  // 秘笈的第一擊加倍走自己的旗標（審查 #8）
+  p.doubleNext = 0;
   // 蜷縮不在這裡清：回合結束、魔物打完才照守護符留量修剪（見 endTurn 尾端）——
   // 以前在這裡歸零，開戰拿到的蜷縮（斗笠、鐵項圈、龜甲、暖毯）從來沒生效過（審查 #1）
   p.freshDebuffs = {};   // 先清，這樣回合開始的能力若自己疊減益也算「本回合拿到的」
@@ -416,7 +420,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { self: p, source: 'power' });
   p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0; p.echoUsed = false;
   p.taunt = false;   // 「我來擋」只保護一輪（連線版 2026-09-11）
-  p.firstCardPlayed = false; p.doubleNext = 0;   // 蓄力只撐到回合結束；秘笈的第一擊加倍走自己的旗標（審查 #8）
+  p.firstCardPlayed = false;   // 蓄力（doubleNext）改在這一支最前面清，見開頭
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnDraw') : 0);
   if (cs.turn === 1) for (const rid of p.relics) if ((relicById[rid]?.hooks.firstTurnDraw ?? 0) > 0) fireRelic(cs, rid, p);
   p.drawNextTurn = 0;
