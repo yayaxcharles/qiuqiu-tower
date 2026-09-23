@@ -44,6 +44,22 @@ function flatten(node: unknown, path: string[] = [], out: [string, string][] = [
 
 const entries = flatten(manifest);
 
+/*
+ * **第一批程式接線前暫放**（2026-09-23，內容擴充第一批、批次 c1，美術代理 art1）。
+ *
+ * 5F 第二、三關兩版與球球三篇專屬事件的圖照最終鍵名先進倉，事件資料由程式代理之後接（提案工單 C）。
+ * 這幾篇還不在 `events.ts`，下面那條會把它們的圖當孤兒；先在這裡列成「有人會要」。
+ * 值＝有結果圖的選項序號（`<代號>_r<序號>`，照提案的選項順序；「什麼都不做」與「進戰鬥」的選項不畫）。
+ * **接線之後這份名單要拿掉**：再下面那條會逼你拿（事件已經進 `events.ts` 還留在名單上就紅）。
+ */
+const PENDING_C1: Readonly<Record<string, readonly number[]>> = {
+  daxia_chest: [0, 1],
+  daxia_lastpage: [0, 1, 2],
+  ninja_blue_headband: [0, 1],
+  ninja_target: [0, 1],
+  ninja_roof_shadow: [1],
+};
+
 describe('素材清單的衛生', () => {
   it('清單裡沒有生圖的中途檔', () => {
     const bad = entries
@@ -73,6 +89,11 @@ describe('素材清單的衛生', () => {
     }
     // 畫面自己組的：紙箱那三態不是事件，是 `chest.ts` 直接叫 `eventArtKey` 的
     for (const k of ['chest_closed', 'chest_open', 'chest_empty']) ids.add(k);
+    // 第一批程式接線前暫放（見檔頭 `PENDING_C1`）
+    for (const [id, rs] of Object.entries(PENDING_C1)) {
+      ids.add(id);
+      for (const r of rs) ids.add(`${id}_r${r}`);
+    }
 
     const orphan = Object.keys(manifest)
       .filter((k) => k === 'bg')
@@ -92,6 +113,13 @@ describe('素材清單的衛生', () => {
         return !HEROES.some((h) => ids.has(raw.replace(new RegExp(`^${h}_`), '')));
       });
     expect(orphan, `這幾張沒人會去要，卻每次首載都被下載：\n${orphan.join('\n')}`).toEqual([]);
+  });
+
+  it('暫放名單裡的事件都還沒接線（接好了就把它從 PENDING_C1 拿掉）', async () => {
+    const { events } = await import('../src/content/events');
+    const wired = events.map((e) => e.id).filter((id) => id in PENDING_C1);
+    expect(wired, `這幾篇已經進 events.ts，請把它們從 tools/manifest_hygiene.test.ts 的 PENDING_C1 拿掉：${wired.join('、')}`)
+      .toEqual([]);
   });
 
   it('清單列到的檔案都真的在', () => {

@@ -154,7 +154,9 @@ describe('事件插圖依角色', () => {
     // `samurai` 2026-09-22 已經整套拆掉、不再是 `Hero` 的合法值（見 `hero.ts`），
     // 這裡不用再比對它——留著會是型別上比不出結果的死比較（2026-09-23 低-2 開 tools/ 型別檢查抓到）
     const others = HEROES.filter((h) => h !== 'ninja');
-    const mine = (k: string): boolean => others.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`));
+    // 球球的專屬事件（代號 `ninja_…`，2026-09-23 內容擴充第一批起）同理：掛 `hero: 'ninja'`，她走不到、沒有「退回去」這回事
+    const mine = (k: string): boolean => others.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`))
+      || k.startsWith('bg/event_ninja_');
     const his = bg.filter((k) => k.startsWith('bg/event_') && !mine(k));
     const gap = his.filter((k) => !manifest.bg[k.replace('bg/event_', 'bg/event_feifei_')]);
     // eslint-disable-next-line no-console

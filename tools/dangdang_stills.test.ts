@@ -24,7 +24,9 @@ const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')
 /** 別的角色的專屬圖不算「球球的」——他們的事件別人走不到，沒有「退回去」這回事 */
 const OTHERS = ['feifei', 'dangdang', 'fengfeng'];
 const ownedByOther = (k: string): boolean =>
-  OTHERS.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`));
+  OTHERS.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`))
+  // 球球的專屬事件（代號 `ninja_…`，2026-09-23 內容擴充第一批起）只畫他，別人走不到，不算「退回球球」
+  || k.startsWith('bg/event_ninja_');
 
 describe('噹噹的事件插圖', () => {
   it('張數不准倒退', () => {
