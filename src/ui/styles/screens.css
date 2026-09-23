@@ -614,6 +614,22 @@
 /* 橘貓老闆的立繪原圖面向左、背對貨架與對白；左右翻過來面向右邊（使用者 2026-09-06）。
    用獨立的 scale 屬性，才不會被 portrait-in 進場動畫的 transform 蓋掉 */
 :is(#stage, .screen-leaving)[data-screen="shop"] .scene-portrait { scale: -1 1; }
+/* 開局祝福（2026-09-23 第三批）：主圖在上、包袱四樣排一排（格子借罐頭鋪的 .shop-item），同伴那四張縮小排在最下面 */
+.scene-art:has(.bless-stage) { top: 4px; max-height: none; }
+.bless-stage { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.bless-art { height: 250px; width: auto; filter: drop-shadow(0 10px 18px #000000a6); }
+.bless-row .shop-item { width: 220px; padding-bottom: 8px; }
+.bless-row .shop-item + .shop-item::before { display: none; }   /* 罐頭鋪貨架的立柱：這裡不是貨架 */
+.bless-row .shop-item img { width: 64px; height: 64px; }
+.bless-row .shop-item .small { font-size: 13px; }
+.bless-row .shop-item.took { outline: 4px solid #ffd35c; }
+.bless-cls[data-cls="換牌"] { border-color: #2f5fa8; color: #234a85; background: #dbe7f7; }
+.bless-cls[data-cls="代價"] { border-color: #7a3fa0; color: #5a2a78; background: #efe0f7; }
+.bless-cls[data-cls="賭運氣"] { border-color: #b8860b; color: #6b4d05; background: #ffe9a8; }
+.bless-mate { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; background: #000000a0; color: #fff; font-size: 14px; }
+.bless-mate img { width: 30px; height: 30px; filter: grayscale(1) opacity(.5); }
+.bless-mate img.took { filter: drop-shadow(0 0 4px #ffd35c); }
+.scene .bless-say { margin: 6px 0 0; font-size: 20px; text-align: center; }
 /* 紙箱：秘寶的圖放大立在中上（圖示原檔夠大，放到 200 還清楚），輕輕上下浮 */
 .scene-art img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
 

@@ -1,5 +1,6 @@
 import { buyCard, buyPotion, buyRelic, buyRemove, notMyCard, priceFor, potionCapacity, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, takeRelic, type ShopStock } from '../engine/run';
 import type { RunState } from '../engine/types';
+import { canTakeBlessing, takeBlessing, type BlessPick } from '../engine/blessing';
 
 /**
  * 戰鬥**以外**的動作——商店、打盹、紙箱那些（連線版 2026-09-11）。
@@ -29,6 +30,11 @@ export type RunAction =
   /** 忍具帶滿時換掉第 `i` 支 */
   | { t: 'swap'; seat: number; i: number; id: string }
   /**
+   * 開局祝福選第 `i` 樣（2026-09-23 第三批 新A）。要挑牌的那幾樣挑好了才一起送（`u`＝牌號、`c`＝三選一那張），
+   * 一個動作就結案：效果用這一位自己的分支亂數，兩人誰先繞回來都一樣（見 `engine/blessing.ts`）
+   */
+  | { t: 'bless'; seat: number; i: number; u?: number[]; c?: string }
+  /**
    * 我這一格弄完了，可以上樓。
    *
    * **不是「我按了離開」而是「我這邊結束了」**：兩個人都送出這個才真的離開，
@@ -42,6 +48,10 @@ export type RunAction =
  * 有欄位才問得出這句話。每個座位一份貨架（各逛各的，使用者 2026-09-15），動作只動自己那份。
  */
 export interface RunCtx { run: RunState; shops?: ShopStock[] | undefined }
+/** 祝福動作裡挑的那一步（沒有的欄位不帶，送出去的字串才短） */
+function blessPickOf(a: { u?: number[]; c?: string }): BlessPick {
+  return { ...(a.u ? { u: a.u } : {}), ...(a.c !== undefined ? { c: a.c } : {}) };
+}
 const shopOf = (ctx: RunCtx, seat: number): ShopStock | undefined => ctx.shops?.[seat];
 
 /** 這個動作現在做得出來嗎。判準一律問引擎，這裡不另外寫一套規則 */
@@ -55,6 +65,7 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
     case 'revive': return !!run.players[a.w]?.down && !p.down;
     case 'relic': return !p.down && !p.relics.includes(a.id);
     case 'swap': return !p.down && a.i >= 0 && a.i < p.potions.length;
+    case 'bless': return canTakeBlessing(run, a.seat, a.i, blessPickOf(a));
   }
   if (p.down) return false;                        // 倒下的人不逛街也不打盹
   switch (a.t) {
@@ -98,6 +109,7 @@ export function applyRunAction(ctx: RunCtx, a: RunAction): boolean {
     case 'revive': return revivePartner(run, a.w);
     case 'relic': return takeRelic(run, a.id, a.seat);
     case 'swap': return replacePotion(run, a.i, a.id, a.seat);
+    case 'bless': return takeBlessing(run, a.seat, a.i, blessPickOf(a));
     case 'buy': {
       if (!shop) return false;
       if (a.k === 'card') return buyCard(run, shop, a.i, a.seat);

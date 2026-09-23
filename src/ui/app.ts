@@ -2,7 +2,8 @@ import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopS
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
-import { coopArtReady, preloadAct, preloadHeroArt, warmEncounter, warmEventArt } from './preload';
+import { coopArtReady, preloadAct, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt } from './preload';
+import { anyBlessingPending, rollBlessings } from '../engine/blessing';
 import { loadEventScreen } from './event-loader';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -26,7 +27,7 @@ import { closeScreenModals, closeStoryOverlays, setOverlayRoot } from './overlay
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
-export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug';
+export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug' | 'blessing';
 
 /*
  * 劇情段落（序章、過關、塔頂門外、結局、落敗）退回純對白時**一律照字面播**（2026-09-23 稽核 低-5）。
@@ -137,7 +138,7 @@ export class App {
       // 結算分輸贏：贏放通關曲、輸放陣亡曲——原本共用休閒曲，剛死掉卻放輕鬆的曲子，調性不對
       case 'result': return this.run?.status === 'won' ? 'ending' : this.run?.status === 'lost' ? 'defeat' : 'leisure';
       case 'title': return 'leisure';
-      case 'map': case 'event': case 'chest': case 'bossdoor': case 'actclear': case 'reward': return actTrack;
+      case 'map': case 'event': case 'chest': case 'bossdoor': case 'actclear': case 'reward': case 'blessing': return actTrack;
       case 'shop': return 'shop';
       case 'rest': return 'rest';
       default: return null;   // combat 在 startFight 裡自己設
@@ -228,7 +229,10 @@ export class App {
     // 「新的一局」一定是單機，**先把上一場連線的殘留清掉**（見 `leaveCoop`）
     this.leaveCoop();
     this.sandbox = false;
-    this.adoptRun(engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero), 0);
+    const run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero);
+    rollBlessings(run);   // 開局祝福的包袱（2026-09-23 第三批）：開局就摸好，序章播放時在背景抓畫面與圖
+    this.adoptRun(run, 0);
+    warmBlessing(run, 0);
     this.cs = null;
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     /*
@@ -238,7 +242,18 @@ export class App {
      * 球球是「我要把師父帶回家」，菲菲是「師父跟師兄都沒回來」。
      * 圖也各生一套（`feifei_still_*`），只有這四張非換不可：其餘場景（塔、魔物、忍具）共用。
      */
-    this.playPrologue(hero, () => { this.save(); this.show('map'); });
+    this.playPrologue(hero, () => this.afterPrologue());
+  }
+
+  /**
+   * 序章播完（新的一局、連線開局都走這裡）：還有人沒選開局祝福就先去選（2026-09-23 第三批 新A），不然直接進地圖。
+   * 先存一次：包袱摸到的四樣跟著存檔走，選到一半重新整理，續玩回來看到的是同四張（設計稿 2-1）。連線不存（見 `save`）
+   */
+  afterPrologue(): void {
+    const run = this.run;
+    if (!run) return;
+    this.save();
+    this.show(anyBlessingPending(run) ? 'blessing' : 'map');
   }
 
   /**
@@ -313,7 +328,8 @@ export class App {
       this.startFight(node.encounterId, true);
       return true;
     }
-    this.show('map');
+    // 選祝福選到一半重新整理的（2026-09-23 第三批）：回到同四張；舊存檔沒有包袱，照舊進地圖
+    this.show(anyBlessingPending(run) ? 'blessing' : 'map');
     return true;
   }
 

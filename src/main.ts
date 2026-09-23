@@ -29,6 +29,8 @@ registerLazyScreen('combat', () => import('./ui/screens/combat'), '正在準備�
 // 平常走不到這個載入畫面：地圖一出來就在背景先抓，走進事件格時 `app.ts` 的 `enterEvent` 也會等它抓好才換畫面
 // 載入走 `event-loader.ts`：失敗會換網址參數重試、跟地圖預抓共用同一次（2026-09-23 推前審查 低-1）
 registerLazyScreen('event', loadEventScreen, '正在準備事件……');
+// 開局祝福（2026-09-23 第三批）：一局只用一次，畫面與文字按需載入；序章播放時 `warmBlessing` 就在背景抓好
+registerLazyScreen('blessing', () => import('./ui/screens/blessing'), '正在打開包袱……');
 // 除錯總覽只有輸入暗號後才用到，不佔一般玩家首載。
 registerLazyScreen('debug', () => import('./ui/screens/debug'), '正在準備除錯總覽……');
 // 合作大廳只在主動選擇連線遊玩時載入。

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { HEROES } from '../src/engine/hero';
+import { NON_EVENT_ART } from '../src/ui/bgacts';
 
 /**
  * 清單裡不可以留「中途檔」（2026-09-13 總覽稽核抓到 5 筆）。
@@ -46,7 +47,7 @@ const entries = flatten(manifest);
 
 /** 第三批的事件圖編號：圖已登記、程式還沒接（2026-09-23）。接好一項拿掉一項，見下面「暫放名單」那兩條 */
 const BATCH3_PENDING = [
-  'bless_bundle', 'broken_shrine_r2', 'q_ambush', 'q_merchant', 'q_roadbox',
+  'broken_shrine_r2', 'q_ambush', 'q_merchant', 'q_roadbox',
   'rare_catnip_master', 'rare_catnip_master_r0', 'rare_catnip_master_r1', 'rare_catnip_master_r2',
   'rare_fortune_sticks', 'rare_fortune_sticks_r0', 'rare_fortune_sticks_r1',
   'rare_hot_spring', 'rare_hot_spring_r0', 'rare_hot_spring_r1', 'rare_hot_spring_r2',
@@ -83,6 +84,8 @@ describe('素材清單的衛生', () => {
     }
     // 畫面自己組的：紙箱那三態不是事件，是 `chest.ts` 直接叫 `eventArtKey` 的
     for (const k of ['chest_closed', 'chest_open', 'chest_empty']) ids.add(k);
+    // 不是事件的事件類主圖（祝福主圖，2026-09-23 第三批）：畫面照 `eventArtKey` 挑，名單在 `bgacts.ts`
+    for (const k of NON_EVENT_ART) ids.add(k);
     // 第三批程式接線前暫放（2026-09-23）：圖先一次登記，免得祝福、問號格、稀有事件、神龕幾條分支各自改清單互相衝突。
     // 哪一項接好了就把它從這裡拿掉；下面那條「暫放名單已接線的要拿掉」會提醒
     for (const k of BATCH3_PENDING) ids.add(k);
@@ -114,6 +117,7 @@ describe('素材清單的衛生', () => {
       wired.add(ev.id);
       for (const c of ev.choices) if (c.resultArt) wired.add(c.resultArt);
     }
+    for (const k of NON_EVENT_ART) wired.add(k);   // 接進畫面的非事件主圖也算接好了（祝福主圖，2026-09-23 第三批）
     const stale = BATCH3_PENDING.filter((k) => wired.has(k));
     expect(stale, `這幾項已經接進 events.ts，請從 BATCH3_PENDING 拿掉：\n${stale.join('\n')}`).toEqual([]);
   });

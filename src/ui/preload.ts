@@ -1,5 +1,6 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
+import { blessingById } from '../content/blessings';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool, RunState } from '../engine/types';
 import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, itemIconUrls, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
@@ -206,6 +207,21 @@ export function preloadMapEvents(run: RunState): Promise<void> {
   for (const u of fresh) mapEventAsked.add(u);
   // 插隊（`priority: 'high'`）：第一次看到地圖時開場那幾百張多半還在排隊，這幾張不插隊就排在最後
   return decodeAll(fresh, 3, (u) => u !== mapBg, pool, 'high');
+}
+
+/** 開局祝福畫面那一塊（延後載入；`main.ts` 的 `registerLazyScreen` 載的是同一個模組，打包成同一塊、瀏覽器只抓一次） */
+export const loadBlessingScreen = (): Promise<unknown> => import('./screens/blessing');
+
+/**
+ * 開局祝福（2026-09-23 第三批，設計稿 2-1「首載」）：**序章播放時**在背景抓祝福畫面那一塊、這一位的祝福主圖、
+ * 包袱裡那四樣的圖示（連線連同伴那四樣）。序章至少十幾秒，平常點完序章都到了。
+ * 主圖開場不載（`bgacts.ts` 的 `NON_EVENT_ART`）、圖示進入一局才補（`isItemIcon`），這裡插隊先要這幾張、留參照。
+ */
+export function warmBlessing(run: RunState, seat: number): void {
+  void loadBlessingScreen().catch(() => { /* 抓不到就等走到那一步，載入畫面會給「再試一次」 */ });
+  const hero = run.players[seat]?.hero ?? 'ninja';
+  const icons = run.players.flatMap((p) => p.bless?.offer ?? []).map((id) => blessingById[id]?.art).filter((k): k is string => !!k);
+  void decodeAll([artUrl('bg', eventArtKey('bless_bundle', hero)), ...icons.map((k) => artUrl('icons', k))], 3, true, undefined, 'high');
 }
 
 /**

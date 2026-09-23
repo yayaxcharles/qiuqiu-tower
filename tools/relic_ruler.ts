@@ -27,6 +27,9 @@ import { runMods, takeRelic } from '../src/engine/run';
 import { relicOk } from '../src/engine/rewards';
 import { me } from '../src/engine/runplayer';
 import type { CombatState, MapNode, RelicDef, RunState } from '../src/engine/types';
+import { BLESSINGS, BLESS_CLASSES, type BlessClass } from '../src/content/blessings';
+import { BLESS_NAMES } from '../src/content/blessing-text';
+import { blessingAvailable } from '../src/engine/blessing';
 
 export const RULER_DEFAULTS = { n: 600, seed: 'ruler', difficulty: 1 } as const;
 export const HERO_NAMES: Readonly<Record<Hero, string>> = { ninja: '球球', feifei: '菲菲', dangdang: '噹噹', fengfeng: '封封' };
@@ -67,13 +70,18 @@ export function modeFor(relicId: string, hero: Hero): RulerMode {
   return startRelicFor(hero) === relicId ? 'remove' : 'cross';
 }
 
-/** 跑 N 局。`relicId` 不給＝基準（什麼都不動） */
-export function runBatch(hero: Hero, n: number, seed: string, difficulty: number, relicId?: string): RunRow[] {
+/**
+ * 跑 N 局。`relicId` 不給＝基準（什麼都不動）。
+ * `bless`＝開局祝福（2026-09-23 第三批）：預設 `null`＝**不拿**——秘寶量尺量的是「只多這一件」，跟祝福混在一起會多一份雜訊，
+ * 而且舊的分數表是沒有祝福時量的，不拿才接得上。祝福量尺傳代號＝強制拿那一樣（`measureBlessings`）。
+ */
+export function runBatch(hero: Hero, n: number, seed: string, difficulty: number, relicId?: string, bless: string | null = null): RunRow[] {
   const rows: RunRow[] = [];
   const mode = relicId ? modeFor(relicId, hero) : null;
   for (let i = 0; i < n; i++) {
     let combats = 0; let fired = 0;
     const stats = withSmartProbe({
+      blessing: () => bless,
       setup(run: RunState) {
         if (!relicId) return;
         if (mode === 'remove') {
@@ -420,6 +428,7 @@ export function measurePotions(o: { n: number; seed: string; difficulty: number;
       let usedHere: string[] = [];
       let runRef: RunState | null = null;
       withSmartProbe({
+        blessing: () => null,   // 開局祝福不拿（2026-09-23 第三批）：舊忍具袋那三支會記成第一格拿到的，跟以前的數字接不上
         setup(run) { runRef = run; bag = [...me(run).potions]; baseSlots = runMods(run).potionSlots; },
         potion(cs, id, seat) {
           usedHere.push(id);
@@ -476,5 +485,100 @@ export function renderPotionReport(r: PotionReport, date: string, before?: Potio
   const tg = all.reduce((s, x) => s + x.got, 0); const tu = all.reduce((s, x) => s + x.used, 0);
   const th = all.reduce((s, x) => s + x.heldDeath, 0);
   L.push('', `合計：拿到 ${tg}、喝掉 ${tu}（${pct(tg ? tu / tg : null)}）、死的時候袋子裡還有 ${th} 支（平均每局 ${(th / r.runs).toFixed(2)} 支）。`, '');
+  return L.join('\n');
+}
+
+// ===================== 開局祝福（2026-09-23 第三批，設計稿 design3 2-3） =====================
+
+/**
+ * 祝福量尺：**開局強制拿這一樣**、四隻各跑 N 局，跟「什麼都不拿」的同一批種子逐局相減（算法同秘寶那一格）。
+ * 看的是同一類裡強弱差多少（設計稿：同類最高與最低差超過 2 層就回報）、賭運氣的期望值有沒有明顯高過安全類。
+ * 包袱裡發不出來的（舊護腕那件秘寶還沒進池）不量，報表標「還沒進池」。
+ */
+export interface BlessCell { d: number; se: number; a2: number; a3: number; won: number }
+export interface BlessMeasurement {
+  n: number; seed: string; difficulty: number; heroes: Hero[];
+  baseline: Partial<Record<Hero, Baseline>>;
+  cells: Record<string, Partial<Record<Hero, BlessCell>>>;
+}
+
+export function measureBlessings(o: MeasureOptions, onProgress?: (msg: string) => void): BlessMeasurement {
+  const out: BlessMeasurement = { n: o.n, seed: o.seed, difficulty: o.difficulty, heroes: [...o.heroes], baseline: {}, cells: {} };
+  for (const hero of o.heroes) {
+    const base = runBatch(hero, o.n, o.seed, o.difficulty);
+    out.baseline[hero] = baselineOf(base);
+    for (const def of BLESSINGS) {
+      if (o.only && !o.only.includes(def.id)) continue;
+      if (!blessingAvailable(def)) continue;
+      const rows = runBatch(hero, o.n, o.seed, o.difficulty, undefined, def.id);
+      const diffs = rows.map((r, i) => r.floor - base[i]!.floor);
+      const d = mean(diffs);
+      const sd = Math.sqrt(mean(diffs.map((x) => (x - d) ** 2)) * diffs.length / Math.max(1, diffs.length - 1));
+      const pp = (f: (r: RunRow) => number): number => r1((mean(rows.map(f)) - mean(base.map(f))) * 100);
+      (out.cells[def.id] ??= {})[hero] = {
+        d: r2(d), se: r2(sd / Math.sqrt(diffs.length)),
+        a2: pp((r) => (r.act >= 2 ? 1 : 0)), a3: pp((r) => (r.act >= 3 ? 1 : 0)), won: pp((r) => (r.won ? 1 : 0)),
+      };
+    }
+    onProgress?.(`${HERO_NAMES[hero]} 量完`);
+  }
+  return out;
+}
+
+/**
+ * 機器人挑祝福讀的分數表（`src/engine/bless-ratings.json`）：每一樣、每一隻多爬幾層。
+ * 為什麼不直接用 `eventValue`：第一輪量出來它把小魚乾估得太高——機器人逛店很簡單、錢花不滿，
+ * 照事件分挑會一直拿私房錢與零錢袋，量出來卻是四類裡最沒用的，整份雙人／單人平衡就會量歪（秘寶量尺同一個理由）。
+ */
+export interface BlessRatingFile { 說明: string; meta: { n: number; seed: string; difficulty: number; date: string }; bless: Record<string, Partial<Record<Hero, number>>> }
+export function blessRatingFile(m: BlessMeasurement, date: string): BlessRatingFile {
+  const bless: Record<string, Partial<Record<Hero, number>>> = {};
+  for (const [id, per] of Object.entries(m.cells)) bless[id] = Object.fromEntries(Object.entries(per).map(([h, c]) => [h, c!.d]));
+  return {
+    說明: '開局祝福量尺的結果（tools/relic_ruler.test.ts 的 RULER=bless 產生，不要手改）：開局強制拿這一樣，比什麼都不拿平均多爬幾層。機器人照它挑包袱裡的四樣（smartbot.ts 的 smartBless）。',
+    meta: { n: m.n, seed: m.seed, difficulty: m.difficulty, date }, bless,
+  };
+}
+
+/** 四隻平均的層差（沒量到的那隻不算） */
+export function blessAvg(m: BlessMeasurement, id: string): number | null {
+  const xs = m.heroes.map((h) => m.cells[id]?.[h]?.d).filter((x): x is number => x !== undefined);
+  return xs.length ? r2(mean(xs)) : null;
+}
+
+/** 同一類裡最強與最弱差幾層（四隻平均）；`spread > 2` 要回報（設計稿 2-3） */
+export function blessClassSpread(m: BlessMeasurement): { cls: BlessClass; avg: number; spread: number; top: string; bottom: string }[] {
+  return BLESS_CLASSES.map((cls) => {
+    const got = BLESSINGS.filter((b) => b.cls === cls).map((b) => ({ id: b.id, d: blessAvg(m, b.id) }))
+      .filter((x): x is { id: string; d: number } => x.d !== null).sort((a, b) => b.d - a.d);
+    return { cls, avg: r2(mean(got.map((x) => x.d))), spread: got.length ? r2(got[0]!.d - got[got.length - 1]!.d) : 0,
+      top: got[0]?.id ?? '', bottom: got[got.length - 1]?.id ?? '' };
+  });
+}
+
+export function renderBlessReport(m: BlessMeasurement, date: string, notes: string[] = []): string {
+  const L: string[] = [];
+  L.push('# 開局祝福量尺（機器人實測）', '');
+  L.push(`> 由 \`tools/relic_ruler.test.ts\` 產生（\`RULER=bless npx vitest run tools/relic_ruler.test.ts\`），不要手改。${date}。`);
+  L.push(`> 每一格：開局**強制拿這一樣**（不管包袱裡有沒有）、這隻跑 ${m.n} 局（種子 \`${m.seed}-0\`～、難度 ${m.difficulty}），跟「什麼都不拿」的同一批種子逐局相減。`);
+  L.push('> 括號是標準誤；差距小於兩倍標準誤的標「≈」＝量不出差別。過一關／過二關／通關是比例差（百分點，四隻平均）。', '');
+  for (const n of notes) L.push(`> ${n}`);
+  if (notes.length) L.push('');
+  L.push('## 各類', '', '| 類 | 四隻平均層差 | 同類最強－最弱 | 最強 | 最弱 |', '|---|---|---|---|---|');
+  for (const s of blessClassSpread(m)) {
+    L.push(`| ${s.cls} | ${s.avg >= 0 ? '+' : ''}${s.avg} | ${s.spread}${s.spread > 2 ? ' ⚠' : ''} | ${BLESS_NAMES[s.top] ?? '—'} | ${BLESS_NAMES[s.bottom] ?? '—'} |`);
+  }
+  L.push('');
+  L.push(`| 祝福 | 類 | ${m.heroes.map((h) => `${HERO_NAMES[h]}（層差±標準誤）`).join(' | ')} | 四隻平均 | 過一關／過二關／通關 |`);
+  L.push(`|---|---|${m.heroes.map(() => '---').join('|')}|---|---|`);
+  for (const def of BLESSINGS) {
+    const cells = m.heroes.map((h) => m.cells[def.id]?.[h]);
+    if (!cells.some(Boolean)) { L.push(`| ${BLESS_NAMES[def.id]} \`${def.id}\` | ${def.cls} | ${m.heroes.map(() => '還沒進池').join(' | ')} | — | — |`); continue; }
+    const txt = cells.map((c) => (c ? `${Math.abs(c.d) <= 2 * c.se ? '≈' : ''}${c.d >= 0 ? '+' : ''}${c.d}±${c.se}` : '—'));
+    const got = cells.filter((c): c is BlessCell => !!c);
+    const avg = blessAvg(m, def.id)!;
+    L.push(`| ${BLESS_NAMES[def.id]} \`${def.id}\` | ${def.cls} | ${txt.join(' | ')} | ${avg >= 0 ? '+' : ''}${avg} | ${r1(mean(got.map((c) => c.a2)))}／${r1(mean(got.map((c) => c.a3)))}／${r1(mean(got.map((c) => c.won)))} |`);
+  }
+  L.push('');
   return L.join('\n');
 }

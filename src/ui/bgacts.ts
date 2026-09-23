@@ -89,6 +89,14 @@ export function eventMainKeys(): string[] {
 }
 
 /**
+ * 畫面自己用、不是 `EventDef` 的事件類主圖（2026-09-23 內容擴充第三批）：鍵照事件圖的命名（`bg/event_<代號>`、角色版 `bg/event_<角色>_<代號>`），
+ * 走 `eventArtKey` 挑這一位的版本。**開場不載**（併進 `deferredBgKeys`），用到的畫面自己在背景抓：
+ * 祝福主圖由 `preload.ts` 的 `warmBlessing` 在序章播放時抓。`tools/dump_monster_acts.test.ts` 把它們記成 0（不算首載），
+ * `tools/manifest_hygiene.test.ts` 認得它們不是孤兒。之後的問號格三種也可以加在這裡。
+ */
+export const NON_EVENT_ART: readonly string[] = ['bless_bundle'];
+
+/**
  * 開場可以先不載的底圖：第二、三關才會用到、第一關碰不到的那些。
  *
  * 用「二三關的鍵減掉第一關的鍵」算，不是寫死一份名單——
@@ -106,5 +114,7 @@ export function deferredBgKeys(): Set<string> {
    */
   const slides = SLIDES_BY_ACT.flat();
   // 事件主圖同理：不在任何一關的清單裡，不併進來的話開場會照舊整包載（2026-09-23 0-2）
-  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides, ...eventMainKeys()].filter((k) => !first.has(k)));
+  // 不是事件的事件類主圖（祝福主圖，2026-09-23 第三批）同理，用到的畫面自己抓
+  const screenArt = NON_EVENT_ART.map((id) => `bg/event_${id}`);
+  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides, ...eventMainKeys(), ...screenArt].filter((k) => !first.has(k)));
 }

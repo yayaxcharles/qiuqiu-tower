@@ -7,6 +7,7 @@ import { potionById } from '../content/potions';
 import { relicById, relics, RELIC_SETS, setCount } from '../content/relics';
 import { relicOk } from './rewards';
 import RELIC_RATINGS from './relic-ratings.json';
+import BLESS_RATINGS from './bless-ratings.json';
 import { aliveEnemies, attackable, dazeTarget, isDazed } from './actions';
 import { allReady, canPlay, canUsePotion, endTurn, playCard, potionBlockedReason, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
@@ -20,6 +21,8 @@ import {
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, RelicPool, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
+import { blessingById, type BlessingDef } from '../content/blessings';
+import { blessChoices, blessPickable, blessPickCount, rollBlessings, takeBlessing, type BlessPick } from './blessing';
 
 /**
  * 會算傷害的機器人（2026-09-02）。
@@ -202,6 +205,11 @@ export interface SmartProbe {
   combatEnd?(cs: CombatState): void;
   /** 機器人**確定喝得下去**、正要喝一支忍具（喝之前叫，看得到喝之前的血量與回合） */
   potion?(cs: CombatState, potionId: string, seat: number): void;
+  /**
+   * 開局祝福要拿哪一樣（祝福量尺用，2026-09-23 第三批）：回代號＝**強制拿這一樣**（不管包袱裡有沒有）、
+   * 回 `null`＝什麼都不拿（量尺的基準）、不給或回 `undefined`＝照機器人自己挑
+   */
+  blessing?(run: RunState, seat: number): string | null | undefined;
 }
 let probe: SmartProbe | null = null;
 /** 掛著觀察點跑一段（跑完一定拆掉，例外也一樣） */
@@ -1409,12 +1417,77 @@ export function eventValue(run: RunState, effects: RunEffect[], costFish: number
       case 'loseRelicId': if (me(run, seat).relics.includes(fx.id)) v -= relicEventValue(fx.id, heroOf(me(run, seat))); break;
       case 'losePotion': if (me(run, seat).potions.length) v -= 7; break;
       case 'nextFight':
-        for (const e of fx.effects) v += e.kind === 'status' && e.name === '爪力' ? e.amount * 4 : e.kind === 'block' ? e.amount * 0.6 : 2;
+        // 給魔物的減益（開局祝福「護身符」的翻肚，2026-09-23 第三批）一層約 2.5 分；連套幾場就乘幾場。便當那種只給自己的照舊
+        for (const e of fx.effects) v += (e.kind === 'status' && e.name === '爪力' ? e.amount * 4 : e.kind === 'block' ? e.amount * 0.6
+          : e.kind === 'status' && e.target !== 'self' ? e.amount * 2.5 : 2) * (fx.fights ?? 1);
         break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }
   return v;
+}
+
+/**
+ * 開局祝福一樣值多少（2026-09-23 第三批，設計稿 2-3）：一般效果照 `eventValue`；只有祝福有的幾種——
+ * 交出起始秘寶扣那一件的事件分、擲骰照機率平均、挑牌照事件的移除／升級（換一張 12 分、選一張稀有 18 分，設計稿 2-2）。
+ */
+export function blessingValue(run: RunState, def: BlessingDef, seat = 0): number {
+  const hero = heroOf(me(run, seat));
+  let v = eventValue(run, def.effects, 0, seat);
+  const starter = def.loseStarter ? me(run, seat).relics.find((id) => relicById[id]?.pool === '起始') : undefined;
+  if (starter) v -= relicEventValue(starter, hero);
+  let prev = 0;
+  for (const t of def.dice ?? []) { v += ((t.max - prev) / 6) * eventValue(run, t.effects, 0, seat); prev = t.max; }
+  const pk = def.pick;
+  if (pk?.kind === 'choose') v += blessChoices(run, seat, def.id).length ? 18 : 0;
+  else if (pk) {
+    const n = blessPickCount(run, seat, def).max;
+    if (pk.kind === 'transform') v += n * 12;
+    else v += eventValue(run, Array.from({ length: n }, () => ({ kind: pk.kind === 'remove' ? 'removeCard' : 'upgradeCard' }) as RunEffect), 0, seat);
+  }
+  return v;
+}
+
+/** 挑牌那一步機器人怎麼挑：丟／換評分最低的、升評分最高的；三選一照戰利品的挑法（都不夠格就拿評分最高那張） */
+export function blessingPickFor(run: RunState, def: BlessingDef, seat = 0): BlessPick {
+  const pk = def.pick;
+  if (!pk) return {};
+  if (pk.kind === 'choose') {
+    const opts = blessChoices(run, seat, def.id);
+    const c = pickCard(run, opts, seat) ?? opts.slice().sort((a, b) => rating(b.id) - rating(a.id))[0]?.id;
+    return c ? { c } : {};
+  }
+  const n = blessPickCount(run, seat, def).max;
+  const cands = blessPickable(run, seat, pk.kind).slice()
+    .sort((a, b) => (pk.kind === 'upgrade' ? rating(b.cardId) - rating(a.cardId) : rating(a.cardId) - rating(b.cardId)));
+  return { u: cands.slice(0, n).map((c) => c.uid) };
+}
+
+/**
+ * 祝福量尺量出來的「多爬幾層」（`bless-ratings.json`，`tools/relic_ruler.test.ts` 的 `RULER=bless` 產生），每隻一份。
+ * 表上沒有的（還沒量、舊護腕那件秘寶還沒進池）照 `blessingValue` 換成層數（一層 8 事件分，同秘寶量尺的 `eventPointsPerFloor`）。
+ */
+const BLESS_TABLE = (BLESS_RATINGS as { bless: Record<string, Partial<Record<Hero, number>>> }).bless;
+const EVENT_POINTS_PER_FLOOR = (RELIC_RATINGS as { meta?: { eventPointsPerFloor?: number } }).meta?.eventPointsPerFloor ?? 8;
+export function blessingScore(run: RunState, def: BlessingDef, seat = 0): number {
+  return BLESS_TABLE[def.id]?.[heroOf(me(run, seat))] ?? blessingValue(run, def, seat) / EVENT_POINTS_PER_FLOOR;
+}
+
+/**
+ * 開局拿祝福（`smartRun`／`coopRun` 走第一格之前）：包袱四樣各算 `blessingScore`、拿最高的。
+ * 觀察點 `blessing` 可以強制拿某一樣或什麼都不拿（祝福量尺）。
+ */
+export function smartBless(run: RunState, seat = 0): string | null {
+  rollBlessings(run);
+  const forced = probe?.blessing?.(run, seat);
+  if (forced === null) { delete me(run, seat).bless; return null; }
+  if (forced) me(run, seat).bless = { offer: [forced] };
+  const offer = me(run, seat).bless?.offer ?? [];
+  const scored = offer.map((id, i) => ({ i, def: blessingById[id]! })).filter((x) => x.def)
+    .map((x) => ({ ...x, v: blessingScore(run, x.def, seat) })).sort((a, b) => b.v - a.v);
+  const best = scored[0];
+  if (!best) return null;
+  return takeBlessing(run, seat, best.i, blessingPickFor(run, best.def, seat)) ? best.def.id : null;
 }
 
 /**
@@ -1445,6 +1518,7 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
   const rng = new Rng(seedFromString('smart:' + seed));
   const stats: SmartStats = { seed, won: false, floor: 0, act: 1, deckSize: 0, deckIds: [], relicIds: [], upgraded: 0, relics: 0, diedTo: null, bosses: [], fights: [] };
   probe?.setup?.(run);
+  smartBless(run);   // 開局祝福（2026-09-23 第三批）：分支亂數，不動整局亂數與機器人自己的亂數
   let guard = 0;
   while (run.status === 'playing') {
     if (++guard > 140) throw new Error('節點推進超過 140 次');
