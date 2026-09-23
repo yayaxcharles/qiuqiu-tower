@@ -1,6 +1,6 @@
 import { actWalkTransition } from '../acttransition';
 import { play } from '../audio';
-import { relicById } from '../../content/relics';
+import { relicById, relicLongText } from '../../content/relics';
 import { ACT_NAMES, addCard, advanceAct, relicForPartnerOnly, rollActCards, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../engine/run';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
@@ -125,7 +125,7 @@ registerScreen('actclear', (app, root, props) => {
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('b', {}, d.name),
         partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
-        el('em', {}, d.text));
+        el('em', {}, relicLongText(d, me(run, seat).relics)));   // 師門那兩件多一段集到幾件（2026-09-23 第二批），挑的時候就看得到湊不湊得成
       if (!sent && !iDown) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); render(); });
       relicRow.append(node);
     }

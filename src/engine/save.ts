@@ -192,6 +192,21 @@ export function checkRun(input: Partial<RunState>): RunState | null {
   }
   // 每一位的家當各驗各的：兩個人一起玩的時候，壞掉的可能是任何一位
   if (!run.players.every((p) => usablePlayer(p))) return null;
+  /*
+   * 跨戰鬥的秘寶計數（木人樁、撲滿，2026-09-23 第二批）。舊存檔沒有這一欄＝全部從 0 算，不必升版本；
+   * 壞掉的（不是物件、值不是非負整數、代號不是秘寶）**只丟那幾格**，不整份判壞檔——
+   * 計數錯了頂多早一點或晚一點發動，為了它把整局進度清掉不划算。
+   */
+  for (const p of run.players) {
+    const c = p.counters as unknown;
+    if (c === undefined) continue;
+    if (!c || typeof c !== 'object' || Array.isArray(c)) { delete p.counters; continue; }
+    const rec = c as Record<string, unknown>;
+    for (const k of Object.keys(rec)) {
+      const v = rec[k];
+      if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || !Object.hasOwn(relicById, k)) delete rec[k];
+    }
+  }
   // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
   if (!usableMap(run.map, run.currentNode)) return null;
   // 統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容

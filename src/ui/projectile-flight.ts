@@ -69,6 +69,8 @@ export const PROJECTILE_LOOKS: Readonly<Record<ProjectileKind, Look>> = {
   grapple: { src: art('grapple'), width: 60, height: 32, spin: 0, wobble: 5, arc: 20 },
   // 火雷珠（2026-09-23 內容擴充第一批）：圖檔 112×72 跟貓薄荷球同尺寸，圓的、拋出去的；引信與電花畫在身後，順著飛行方向擺頭、不轉
   thunder_bead: { src: art('thunder_bead'), width: 58, height: 37, spin: 0, arc: 50 },
+  // 迷魂香（2026-09-23 第二批）：圖檔 112×89，照貓薄荷球的比例抓（美術 art2 建議）；香丸在前、煙往後拖，只擺頭不轉
+  daze_incense: { src: art('daze_incense'), width: 58, height: 46, spin: 0, arc: 50 },
 };
 
 /** 球球擲出去的手（相對腳底定位點；原本寫死在 combat.ts 的 throwFrom） */

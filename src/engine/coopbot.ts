@@ -11,12 +11,12 @@ import { relicOk, settleRelicPicks } from './rewards';
 import { Rng, seedFromString } from './rng';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, removeCard, rest, resolvePendingAfterFight,
+  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, removeCard, removePrice, rest, resolvePendingAfterFight,
   revivePartner, rollActCardsPerSeat, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard,
   type RunEffectOutcome } from './run';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, smartPending, smartSeatAct } from './smartbot';
+import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, setBonusScore, smartPending, smartSeatAct } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunState } from './types';
 
 /**
@@ -221,7 +221,7 @@ function pickRelic(offers: readonly string[], run: RunState, seat: number): stri
   // 鎖這一位的不挑（2026-09-23 內容擴充第一批）：混搭時清單照「有人用得到」開，量尺對鎖住的那格留空＝5 分，
   // 不濾的話別件量出來比 5 低時，菲菲會去挑封封的磨劍石
   const hero = heroOf(me(run, seat));
-  const want = bestRelic(offers.filter((id) => !mine.includes(id) && relicOk(relicById[id] ?? {}, [hero])), hero);
+  const want = bestRelic(offers.filter((id) => !mine.includes(id) && relicOk(relicById[id] ?? {}, [hero])), hero, mine);   // 帶身上的：湊成師門套組的那件加分（2026-09-23 第二批）
   return want ?? null;
 }
 
@@ -356,8 +356,8 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
           const shop = shops[i];
           if (!shop) return;
           const junk = deckJunk(run, i);
-          if (junk.length >= 3 && me(run, i).fish >= me(run, i).removeCost + 60) buyRemove(run, junk[0]!.uid, i);
-          const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id, heroOf(me(run, i))), p: r.price })).sort((a, b) => b.v - a.v)[0];
+          if (junk.length >= 3 && me(run, i).fish >= removePrice(run, i) + 60) buyRemove(run, junk[0]!.uid, i);   // 會員卡的固定價（2026-09-23 第二批）
+          const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id, heroOf(me(run, i))) + setBonusScore(r.id, heroOf(me(run, i)), me(run, i).relics), p: r.price })).sort((a, b) => b.v - a.v)[0];
           if (relicIdx && relicIdx.v >= 6 && me(run, i).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.k, i);
           const cardIdx = shop.cards.map((c, k) => ({ k, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
           if (cardIdx && cardIdx.v >= 7 && me(run, i).fish >= cardIdx.p && me(run, i).deck.length < 24) buyCard(run, shop, cardIdx.k, i);

@@ -100,6 +100,9 @@ const POTION_EXPECT: Readonly<Record<string, ProjectileKind | null>> = {
   thunder_bead: 'thunder_bead',
   qi_tea: null, sword_talisman: null, spread_powder: null, needle_salve: null, iron_oil: null,
   payback_powder: null, dive_straw: null, decoy_doll: null, share_half: null,
+  // 2026-09-23 內容擴充第二批：迷魂香丟出去（單體），其餘五支都不是丟的（點香、吃、照鏡子、吞丹、貼符）
+  daze_incense: 'daze_incense',
+  revive_incense: null, bento: null, demon_mirror: null, transfer_pill: null, swap_talisman: null,
 };
 
 class FakeImage {
@@ -269,7 +272,7 @@ describe('丟出去的忍具 × 四隻貓', () => {
   });
 
   it('忍具總數沒變，丟的清單每一支都真的存在', () => {
-    expect(potions).toHaveLength(45);   // 2026-09-23 內容擴充第一批 +10（其中丟的只有火雷珠，上面 POTION_EXPECT 有列）
+    expect(potions).toHaveLength(51);   // 2026-09-23 內容擴充第一批 +10（其中丟的只有火雷珠）、第二批 +6（丟的只有迷魂香）；上面 POTION_EXPECT 有列
     for (const id of Object.keys(POTION_EXPECT)) expect(potionById[id], id).toBeDefined();
   });
 });

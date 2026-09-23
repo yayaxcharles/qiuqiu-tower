@@ -1,9 +1,10 @@
-import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainEnergy, gainStealth, healPlayer, log, logEnergyBlocked, markPoisoner } from './actions';
+import { relicById } from '../content/relics';
+import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainEnergy, gainStealth, healPlayer, log, logEnergyBlocked, markPoisoner } from './actions';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
 import { heroPronoun, unitName } from './hero';
 import { DEBUFFS, TURN_DECAY } from './types';
-import type { CardInstance, CombatState, Effect, EffectCtx, EnemyCombat, PlayerCombat } from './types';
+import type { CardInstance, CombatState, Effect, EffectCtx, EnemyCombat, PendingChoice, PlayerCombat } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
 export function applyEffects(cs: CombatState, effects: Effect[], ctx: EffectCtx): void {
@@ -48,13 +49,49 @@ function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
 }
 
 /** 同一串效果中的蓄氣牌只支付一次；影子分身重播會拿新的 ctx，因此會重新支付。 */
-function spendQi(p: PlayerCombat, ctx: EffectCtx, maxQi: number | undefined, all: boolean): number {
+function spendQi(cs: CombatState, p: PlayerCombat, ctx: EffectCtx, maxQi: number | undefined, all: boolean): number {
   if (ctx.qiSpent !== undefined) return ctx.qiSpent;
   const before = Math.max(0, Math.min(12, ctx.qiBefore ?? p.qi ?? 0));
   const spent = all ? before : Math.min(before, maxQi ?? before);
   p.qi = before - spent;
   ctx.qiSpent = spent;
+  if (spent > 0) onQiSpent(cs, p, spent);
   return spent;
+}
+
+/**
+ * 收鞘墜（2026-09-23 內容擴充第二批）：這場每花掉 `per` 點蓄氣得飯糰。**唯一的花蓄氣出口就是上面的 `spendQi`**，
+ * 所以掛在這裡就蓋到每一張花氣的牌（斬、護身、下一擊準備）。零頭記在 `qiSpentAcc`，只在這一場裡累計。
+ */
+function onQiSpent(cs: CombatState, p: PlayerCombat, spent: number): void {
+  for (const rid of p.relics) {
+    const h = relicById[rid]?.hooks.qiSpentEnergy;
+    if (!h) continue;
+    const acc = (p.qiSpentAcc ?? 0) + spent;
+    const k = Math.floor(acc / h.per);
+    p.qiSpentAcc = acc % h.per;
+    if (k <= 0) continue;
+    fireRelic(cs, rid, p);
+    const got = gainEnergy(cs, p, k * h.energy);
+    if (got > 0) log(cs, `${relicById[rid]!.name}：花掉的蓄氣換回 ${got} 顆飯糰`);
+  }
+}
+
+/**
+ * 滿月劍意（2026-09-23 內容擴充第二批）：蓄氣**從不到門檻變成門檻以上的那一刻**，這回合下一張攻擊牌傷害加倍，每回合一次。
+ * 已經在門檻以上再加不算——不然掛著滿滿的氣每回合都白拿一次加倍，那就不是「蓄足一口氣」了。
+ * 門檻原本是 12（灌滿），機器人幾乎不囤氣、量尺每場只發動 0.08 次，主控 2026-09-23 裁定降到 10。
+ * 加倍走蓄力那個旗標（`doubleNext`，打出攻擊牌時用掉、回合開始清掉），跟分身油同一條路。
+ */
+function onQiReach(cs: CombatState, p: PlayerCombat, before: number): void {
+  for (const rid of p.relics) {
+    const t = relicById[rid]?.hooks.qiReachDoubleNext;
+    if (t === undefined || before >= t || (p.qi ?? 0) < t || p.fullMoonTurn === cs.turn) continue;
+    p.fullMoonTurn = cs.turn;
+    p.doubleNext = 1;
+    fireRelic(cs, rid, p);
+    log(cs, `${relicById[rid]!.name}：蓄足 ${t} 點氣，下一張攻擊牌傷害加倍`);
+  }
 }
 
 /** 下一擊加成先併入原始傷害，再套原招的倍傷、爪力、防禦與反彈。 */
@@ -186,7 +223,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         const hittable = alive.filter((e) => attackable(cs, e));
         if (!hittable.length) { log(cs, '雷光劈了下去，卻沒有一隻打得到'); break; }
         const t = cs.rng.pick(hittable);
-        if (damageWithCardBonus(cs, t, fx.amount, ctx, p, { noStrength: ctx.source === 'potion' }).killed) ctx.killed = true;
+        // 秘寶打的（暗器匣，2026-09-23 第二批）也不吃爪力：牌面寫 5 點就是 5 點，跟忍具同口徑
+        if (damageWithCardBonus(cs, t, fx.amount, ctx, p, { noStrength: ctx.source === 'potion' || ctx.source === 'relic' }).killed) ctx.killed = true;
       }
       return false;
     }
@@ -203,7 +241,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'damageSpendQi': {
-      const spent = spendQi(p, ctx, fx.maxQi, !!fx.allQi);
+      const spent = spendQi(cs, p, ctx, fx.maxQi, !!fx.allQi);
       const base = fx.amount + fx.perQi * spent;
       const times = fx.times ?? 1;
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
@@ -250,7 +288,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'blockSpendQi': {
-      const spent = spendQi(p, ctx, fx.maxQi, false);
+      const spent = spendQi(cs, p, ctx, fx.maxQi, false);
       const amount = fx.amount + fx.perQi * spent;
       const recipient = fx.recipient === 'ally' ? ally(cs, p) : p;
       if (recipient === p) {
@@ -462,7 +500,9 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     case 'gainQi': {
       if (p.down || cs.phase !== 'player') return false;
-      p.qi = Math.min(12, Math.max(0, p.qi ?? 0) + fx.n);
+      const before = Math.max(0, p.qi ?? 0);
+      p.qi = Math.min(12, before + fx.n);
+      if (p.qi > before) onQiReach(cs, p, before);   // 滿月劍意：蓄到門檻的那一刻（2026-09-23 第二批）
       return false;
     }
     case 'ifQiAtPlay':
@@ -484,7 +524,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const prospectiveSpent = ctx.qiSpent ?? Math.min(Math.max(0, ctx.qiBefore ?? p.qi ?? 0), fx.maxQi);
       const prospectiveAmount = fx.amount + fx.perQi * prospectiveSpent;
       if (!recipients.some((recipient) => (recipient.nextAttackBonus ?? 0) < prospectiveAmount)) return false;
-      const spent = spendQi(p, ctx, fx.maxQi, false);
+      const spent = spendQi(cs, p, ctx, fx.maxQi, false);
       const amount = fx.amount + fx.perQi * spent;
       for (const recipient of recipients) {
         recipient.nextAttackBonus = Math.max(recipient.nextAttackBonus ?? 0, amount);
@@ -556,13 +596,15 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'removeStatuses': {
-      for (const t of targetsOf(cs, ctx, false)) {
+      for (const t of targetsOf(cs, ctx, fx.target === 'all')) {   // `all`＝照妖鏡（2026-09-23 第二批）：場上每一隻都拆
         for (const name of fx.names) {
           if (fx.max === undefined) removeStatus(t, name);
           else addStatus(t, name, -Math.min(fx.max, getStatus(t, name)));
         }
         if (fx.removeBlock) t.block = fx.max === undefined ? 0 : Math.max(0, t.block - fx.max);
       }
+      // 照妖鏡一次動整排，拔掉的是看不太出來的狀態（隱身的牌子消失而已），要講一句
+      if (fx.target === 'all') log(cs, '鏡光一照，魔物們現出了原形');
       return false;
     }
     case 'scry': {
@@ -749,13 +791,38 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'blockWhenAttacked': p.blockWhenAttacked = (p.blockWhenAttacked ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     case 'thornsBonus': p.thornsBonus = (p.thornsBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
+    /*
+     * ===== 2026-09-23 內容擴充第二批：四支新忍具的效果 =====
+     * 便當、回魂香只是**立旗標**，真正做事的在回合開始（`combat.ts` 的 `startSeatTurn`）與被打倒那一刻（`actions.ts` 的 `damagePlayer`）；
+     * 迷魂香在魔物出招時才改目標（`actions.ts` 的 `runEnemyEffects`）。每一條都要留紀錄：忍具喝下去當下畫面上看不出任何數字在動。
+     */
+    // 便當與影分身卷軸（閃過之後）共用：紀錄只講結果，不講是誰給的（秘寶那邊有「秘寶發動」那一行）
+    case 'energyNextTurn':
+      p.energyNextTurn = (p.energyNextTurn ?? 0) + fx.n;
+      log(cs, `${cs.players.length > 1 ? `${unitName(p)}` : ''}下回合開始多 ${p.energyNextTurn} 顆飯糰`);
+      return false;
+    case 'guardLethal':
+      p.guardLethal = true;
+      log(cs, '回魂香點上了：這場接下來第一次會被打倒時，留下 1 點生命');
+      return false;
+    // 替換符：手上挑一張（選單照「消耗」那套走），挑完在 `resolveChoice` 換（`combat.ts` 的 `transformCard`）
+    case 'transformFromHand':
+      return pause(cs, queue, ctx, { from: 'hand', purpose: 'transform', cards: [...p.hand], min: 1, max: 1 });
+    case 'daze': {
+      for (const t of targetsOf(cs, ctx, false)) {
+        addStatus(t, '迷魂', 1);
+        t.dazedBy = p.seat;   // 牠打倒同伴的話，擊倒獎勵算下香的這一位（見 `EnemyCombat.dazedBy`）
+        log(cs, `${t.name}聞到迷魂香，暈頭轉向`);
+      }
+      return false;
+    }
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }
 
 /** 戰鬥已分出勝負或候選為空就跳過；否則把剩餘效果收進 pending 並清空佇列 */
 function pause(cs: CombatState, queue: Effect[], ctx: EffectCtx,
-  spec: { from: 'hand' | 'discard' | 'scry'; purpose: 'exhaust' | 'retain' | 'discard' | 'recover' | 'scryDiscard'; cards: CardInstance[]; min: number; max: number }): boolean {
+  spec: { from: 'hand' | 'discard' | 'scry'; purpose: PendingChoice['purpose']; cards: CardInstance[]; min: number; max: number }): boolean {
   if (cs.phase !== 'player' || spec.cards.length === 0) return false;
   cs.pending = { kind: 'chooseCards', ...spec, remaining: [...queue], ctx };
   queue.length = 0;

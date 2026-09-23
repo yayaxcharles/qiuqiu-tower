@@ -7,7 +7,7 @@ import { heroOf, pickable, startRelicFor } from './hero';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
-import { relicById } from '../content/relics';
+import { relicById, relics } from '../content/relics';
 import { flushAllyRelics, startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
@@ -102,7 +102,28 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
   run.floor = (run.act - 1) * FLOORS + n.floor;
   // 5F 固定事件（三關各一版、舊存檔的 `daxia_teach`）不換後集、不記「遇過」：看 `fixedFloor`，不寫死哪一篇（2026-09-23 內容擴充第一批）
   if (n.type === '事件' && n.eventId && eventById[n.eventId]?.fixedFloor === undefined) enterEvent(run, n);
+  if (n.type !== '戰鬥' && n.type !== '大魔物' && n.type !== '塔主') tickNodeCounters(run);
   return n;
+}
+
+/**
+ * 撲滿（2026-09-23 第二批）：走進不是戰鬥的格子（事件、罐頭鋪、貓窩、紙箱）就數一格，數到 n 倒出小魚乾、歸零重數。
+ * 在 `chooseNode` 裡數，連線兩台、機器人都走同一條；計數存在 `RunPlayer.counters`（存檔、整局指紋都有）。
+ * 走進去還沒結算就重整的話，存檔是進格子之前的，重進一次算出一樣的結果、不會多數。
+ * 每一位各數各的；倒下的人也跟著走，照樣數（撲滿數的是走了幾格，不是打了幾場）。
+ */
+export function tickNodeCounters(run: RunState): void {
+  for (const p of run.players) {
+    for (const id of p.relics) {
+      const h = relicById[id]?.hooks.nodeCounterFish;
+      if (!h) continue;
+      const counters = (p.counters ??= {});
+      const now = (counters[id] ?? 0) + 1;
+      if (now < h.n) { counters[id] = now; continue; }
+      counters[id] = 0;
+      p.fish += h.fish;
+    }
+  }
 }
 
 /**
@@ -146,6 +167,8 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   me(run).restBlock = 0;   // 暖毯的蜷縮只帶一場
   const cs = startCombat({ hp: me(run).hp, maxHp: me(run).maxHp, deck: me(run).deck.map((c) => ({ ...c })), relics: me(run).relics, potions: me(run).potions, encounterId: enc, rng: runRng(run),
     mods: { hpMul: m.hpMul, strength, startBlock }, hero: heroOf(me(run)),
+    // 跨戰鬥的秘寶計數（木人樁，2026-09-23 第二批）抄一份進戰鬥，打完 `finishCombat` 寫回
+    ...(me(run).counters ? { counters: me(run).counters } : {}),
     // 幾個人決定魔物的血量倍率（只放大血量，傷害不動——見 `coopscale.ts`）
     players: run.players.length });
   /*
@@ -169,6 +192,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
       retained: [], powers: [], doubleNext: 0, drawNextTurn: 0,
       noAttacks: false, immune: false, attackedThisTurn: false, cardsPlayedThisTurn: 0,
       firstStealthGiven: false, firstCardPlayed: false, lethalPrevented: false, freshDebuffs: {}, fishDelta: 0,
+      ...(rp.counters ? { relicCounters: { ...rp.counters } } : {}),   // 同座位 0（木人樁，2026-09-23 第二批）
     };
     cs.players.push(p);
     /*
@@ -340,6 +364,8 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
     rp.hp = p.down ? 0 : p.hp;
     rp.down = !!p.down;
     rp.fish = Math.max(0, rp.fish + p.fishDelta);
+    // 跨戰鬥的秘寶計數寫回整局（木人樁，2026-09-23 第二批）。沒帶這類秘寶的人戰鬥裡沒有這一份，整局那欄也不長出來
+    if (p.relicCounters) rp.counters = { ...p.relicCounters };
   }
   /*
    * **輸掉的那一場也把小魚乾併回去**——這是刻意的，跟舊版不同。
@@ -794,10 +820,15 @@ export interface ShopStock {
    * `sale`＝特價折數（0.7＝七折；每間店隨機一件，使用者 2026-09-04）
    */
   cards: { def: CardDef; base: number; price: number; sold: boolean; upgraded?: boolean; sale?: number }[];
-  relics: { id: string; base: number; price: number; sold: boolean; sale?: number }[];
+  /** `limited`＝秘寶貨架最右邊的「店長私藏」那一格（罐頭鋪限定池，2026-09-23 第二批） */
+  relics: { id: string; base: number; price: number; sold: boolean; sale?: number; limited?: true }[];
   potions: { id: string; base: number; price: number; sold: boolean; sale?: number }[];
   /** 重整貨架用過了沒（每店一次，75 條；賣掉的格子不動） */
   reshuffled?: boolean;
+  /** 這間店已經買過東西了（店主的帳本「第一件半價」看這個；放生與重整不算，2026-09-23 第二批） */
+  anyBought?: boolean;
+  /** 走進來先付掉的舊帳（山賊的欠條，2026-09-23 第二批）：畫面拿它講一句「老闆先收走 N 條」 */
+  entryFee?: number;
 }
 
 /** 特價折數與權重：七折最常見、三折最少（使用者 2026-09-04：「不一定五折，7／5／4／3 折隨機，機率你定」） */
@@ -815,8 +846,7 @@ export function shopMulFor(run: RunState, seat = 0): number {
 
 /** 依現在的倍率把還沒賣掉的東西重新標價（買到會改價格的秘寶時叫——使用者 2026-09-04：買了零錢罐商品沒跟著變） */
 export function repriceShop(run: RunState, shop: ShopStock, seat = 0): void {
-  const mul = shopMulFor(run, seat);
-  for (const it of [...shop.cards, ...shop.relics, ...shop.potions]) if (!it.sold) it.price = priceOf(it.base, mul, it.sale);
+  for (const it of [...shop.cards, ...shop.relics, ...shop.potions]) if (!it.sold) it.price = priceFor(run, it, seat, shop);
 }
 
 /** 罐頭鋪的牌：依關數的稀有度配額抽 n 張（排除 `exclude`），並套稀有保底 */
@@ -880,12 +910,19 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
   // 牌格本來就是整排排除（見上面傳給 rollShopCards 的第四個參數），兩邊一致。
   const taken = [...me(run, seat).relics, ...shop.relics.map((r) => r.id)];
   for (const slot of openRelics) {
-    const id = rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken, [heroOf(me(run, seat))]);
+    const prev = shop.relics[slot]!;
+    // 店長私藏那一格照舊從罐頭鋪限定池換（2026-09-23 第二批）；沒得換就維持原樣。不再擲「有沒有」那一次，格子已經在了
+    const id = prev.limited
+      ? (() => {
+        const cands = relics.filter((r) => r.pool === '罐頭鋪' && !taken.includes(r.id)
+          && !run.flags[`shop_bought:${seat}:${r.id}`] && relicOk(r, [heroOf(me(run, seat))]));
+        return cands.length ? rng.pick(cands).id : null;
+      })()
+      : rollRelic(rng, slot >= 2 ? '大魔物' : '常見', taken, [heroOf(me(run, seat))]);
     if (!id) continue;   // 池子抽乾就維持原樣，不留空格
     taken.push(id);
-    const prev = shop.relics[slot]!;
     const base = relicById[id]?.price ?? RELIC_PRICE;
-    shop.relics[slot] = { id, base, price: priceOf(base, mul, prev.sale), sold: false, ...(prev.sale ? { sale: prev.sale } : {}) };
+    shop.relics[slot] = { id, base, price: priceOf(base, mul, prev.sale), sold: false, ...(prev.sale ? { sale: prev.sale } : {}), ...(prev.limited ? { limited: true as const } : {}) };
   }
 
   for (const slot of openPotions) {
@@ -894,6 +931,7 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
     const base = potionById[id]?.price ?? POTION_PRICE;
     shop.potions[slot] = { id, base, price: priceOf(base, mul, prev.sale), sold: false, ...(prev.sale ? { sale: prev.sale } : {}) };
   }
+  repriceShop(run, shop, seat);   // 換上來的新貨也吃批發箱、帳本的折扣（2026-09-23 第二批；沒帶那兩件時數字不變）
   return true;
 }
 
@@ -924,11 +962,14 @@ export function makeShop(run: RunState, seat = 0): ShopStock {
   // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）
   let treasure: string | null = null;
   if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]); if (treasure) relicIds.push(treasure); }
+  // 店長私藏（2026-09-23 第二批，事件劇本第八節）：一半的店在秘寶貨架最右邊多一格罐頭鋪限定池，擺這一位這一局沒買過、身上沒有的
+  const limited = rollLimitedRelic(run, rng, seat, relicIds);
+  if (limited) relicIds.push(limited);
   // 升級牌：依關數機率把架上（第一關五張、第二關起六張）的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
   const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
   const shop: ShopStock = {
     cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
-    relics: relicIds.map((id) => { const base = relicById[id]?.price ?? RELIC_PRICE; return { id, base, price: priceOf(base, shopMul), sold: false }; }),
+    relics: relicIds.map((id) => { const base = relicById[id]?.price ?? RELIC_PRICE; return { id, base, price: priceOf(base, shopMul), sold: false, ...(id === limited ? { limited: true as const } : {}) }; }),
     potions: Array.from({ length: 3 }, () => {
       const id = rollPotion(rng, [heroOf(me(run, seat))]);   // 照這一位的角色抽（同 reshuffleShop，2026-09-23）
       const base = potionById[id]?.price ?? POTION_PRICE;
@@ -944,8 +985,36 @@ export function makeShop(run: RunState, seat = 0): ShopStock {
     const it = all[rng.int(0, all.length - 1)]!;
     it.sale = rate; it.price = priceOf(it.base, shopMul, rate);
   }
+  // 批發箱的忍具半價、帳本的第一件半價要算進標價（2026-09-23 第二批；沒帶這兩件時跟上面算出來的一模一樣）
+  repriceShop(run, shop, seat);
+  /*
+   * 山賊的欠條（2026-09-23 第二批）：每間罐頭鋪**第一次走進來**先替山賊還舊帳，不夠就付到 0。
+   * `makeShop` 一間店只叫一次（走進格子那一刻，`App.enterNode`；重整回到進店之前的存檔，重進一次算出一樣的數），
+   * 所以扣在這裡剛好「每間一次」。付了多少記在貨架上，畫面拿它講一句。
+   */
+  const fee = me(run, seat).relics.reduce((n, id) => n + (relicById[id]?.hooks.shopEntryFee ?? 0), 0);
+  if (fee > 0) {
+    const paid = Math.min(fee, me(run, seat).fish);
+    me(run, seat).fish -= paid;
+    shop.entryFee = paid;
+  }
   return shop;
 }
+
+/**
+ * 店長私藏那一格要擺哪一件（罐頭鋪限定池，2026-09-23 第二批）。候選＝這一位身上沒有、這一局沒在罐頭鋪買過
+ *（`shop_bought:<座位>:<代號>`）、架上還沒擺的；一件都不剩就不擺、**也不擲骰**（三件都拿過之後，後面的店跟以前一模一樣）。
+ * 有候選時先擲一次五成，中了再挑——用整局亂數，兩台一致；連線每一位的貨架各抽各的（`makeShops` 照座位順序連抽）。
+ */
+function rollLimitedRelic(run: RunState, rng: Rng, seat: number, shelf: readonly string[]): string | null {
+  const p = me(run, seat);
+  const cands = relics.filter((r) => r.pool === '罐頭鋪' && !p.relics.includes(r.id) && !shelf.includes(r.id)
+    && !run.flags[`shop_bought:${seat}:${r.id}`] && relicOk(r, [heroOf(p)]));
+  if (!cands.length || !rng.chance(LIMITED_SHELF_CHANCE)) return null;
+  return rng.pick(cands).id;
+}
+/** 店長私藏出現的機率（事件劇本第八節：一半的店） */
+export const LIMITED_SHELF_CHANCE = 0.5;
 
 /**
  * 這一位要付多少（連線版 2026-09-11）。
@@ -957,8 +1026,20 @@ export function makeShop(run: RunState, seat = 0): ShopStock {
  * `it.price` 仍然留著：那是第一位看到的價格，單機的畫面與既有測試都讀它，
  * 對第一位來說兩者永遠相等（同一條算式、同一批秘寶）。
  */
-export function priceFor(run: RunState, it: { base: number; sale?: number }, seat = 0): number {
-  return priceOf(it.base, shopMulFor(run, seat), it.sale);
+/*
+ * `shop`（2026-09-23 第二批）：兩件罐頭鋪限定秘寶的價格規則要知道「這是哪一間店的哪一格」——
+ * 批發箱只折忍具（看這一格是不是在 `shop.potions` 裡）、店主的帳本只折這間店的第一件（看 `shop.anyBought`）。
+ * 沒帶就是舊的算法（這兩件都不算），單機的畫面與舊測試照舊。幾個倍率**相乘、最後才四捨五入一次**：
+ * 半價、零錢罐八折、特價、銅臭錢袋與貪吃錢袋的加價誰先誰後都一樣，只捨入一次才不會多扣或少扣一條。
+ */
+export function priceFor(run: RunState, it: { base: number; sale?: number }, seat = 0, shop?: ShopStock): number {
+  let mul = shopMulFor(run, seat);
+  if (shop) {
+    const hooks = me(run, seat).relics.map((id) => relicById[id]?.hooks);
+    if ((shop.potions as readonly object[]).includes(it)) mul *= hooks.reduce((m, h) => m * (h?.shopPotionMul ?? 1), 1);
+    if (!shop.anyBought && hooks.some((h) => h?.shopFirstItemHalf)) mul *= 0.5;
+  }
+  return priceOf(it.base, mul, it.sale);
 }
 
 function pay(run: RunState, price: number, seat = 0): boolean {
@@ -971,14 +1052,23 @@ function pay(run: RunState, price: number, seat = 0): boolean {
 export function notMyCard(run: RunState, def: CardDef, seat = 0): boolean {
   return !!def.hero && def.hero !== heroOf(me(run, seat));
 }
+/** 成交之後：這間店算「買過東西了」（店主的帳本的半價只給第一件），整間店照新狀態重標（2026-09-23 第二批） */
+function afterBuy(run: RunState, shop: ShopStock, seat: number): void {
+  shop.anyBought = true;
+  repriceShop(run, shop, seat);
+}
 export function buyCard(run: RunState, shop: ShopStock, i: number, seat = 0): boolean {
-  const it = shop.cards[i]; if (!it || it.sold || notMyCard(run, it.def, seat) || !pay(run, priceFor(run, it, seat), seat)) return false;
-  it.sold = true; addCard(run, it.def.id, !!it.upgraded, seat); return true;   // 標成升級版的那格買到就是升級牌
+  const it = shop.cards[i]; if (!it || it.sold || notMyCard(run, it.def, seat) || !pay(run, priceFor(run, it, seat, shop), seat)) return false;
+  it.sold = true; addCard(run, it.def.id, !!it.upgraded, seat);   // 標成升級版的那格買到就是升級牌
+  afterBuy(run, shop, seat);
+  return true;
 }
 export function buyRelic(run: RunState, shop: ShopStock, i: number, seat = 0): boolean {
-  const it = shop.relics[i]; if (!it || it.sold || me(run, seat).relics.includes(it.id) || !pay(run, priceFor(run, it, seat), seat)) return false;
+  const it = shop.relics[i]; if (!it || it.sold || me(run, seat).relics.includes(it.id) || !pay(run, priceFor(run, it, seat, shop), seat)) return false;
   it.sold = true; takeRelic(run, it.id, seat);
-  repriceShop(run, shop, seat);   // 零錢罐、貪吃錢袋這類改價的秘寶買到當下整間店重標（使用者 2026-09-04）
+  // 店長私藏買過的，這一局不再擺（2026-09-23 第二批；被事件拿走了也一樣，「沒買過」照劇本）
+  if (relicById[it.id]?.pool === '罐頭鋪') run.flags[`shop_bought:${seat}:${it.id}`] = true;
+  afterBuy(run, shop, seat);   // 零錢罐、貪吃錢袋這類改價的秘寶買到當下整間店重標（使用者 2026-09-04）
   return true;
 }
 /** `replaceIndex`＝帶滿時要換掉哪一支；帶滿又沒指定就不賣（錢也不扣） */
@@ -986,15 +1076,28 @@ export function buyPotion(run: RunState, shop: ShopStock, i: number, replaceInde
   const it = shop.potions[i]; if (!it || it.sold) return false;
   const full = me(run, seat).potions.length >= potionCapacity(run, seat);
   if (full && (replaceIndex === undefined || replaceIndex < 0 || replaceIndex >= me(run, seat).potions.length)) return false;
-  if (!pay(run, priceFor(run, it, seat), seat)) return false;
+  if (!pay(run, priceFor(run, it, seat, shop), seat)) return false;
   it.sold = true;
   if (full) replacePotion(run, replaceIndex!, it.id, seat); else addPotion(run, it.id, seat);
+  afterBuy(run, shop, seat);
   return true;
+}
+/**
+ * 這一位現在放生一張要付多少（2026-09-23 第二批）。平常就是 `removeCost`（每放生一次漲 25）；
+ * 帶會員卡時一律卡上那個數、不再漲（`removeCostFixed`）。罐頭鋪畫面、連線的放行判斷、機器人都問這一支，不各算一份。
+ */
+export function removePrice(run: RunState, seat = 0): number {
+  const q = me(run, seat);
+  const fixed = q.relics.map((id) => relicById[id]?.hooks.removeCostFixed).filter((n): n is number => n !== undefined);
+  return fixed.length ? Math.min(q.removeCost, ...fixed) : q.removeCost;
 }
 export function buyRemove(run: RunState, uid: number, seat = 0): boolean {
   const q = me(run, seat);
-  if (!q.deck.some((c) => c.uid === uid) || !pay(run, q.removeCost, seat)) return false;
-  removeCard(run, uid, seat); q.removeCost += 25; return true;
+  if (!q.deck.some((c) => c.uid === uid) || !pay(run, removePrice(run, seat), seat)) return false;
+  removeCard(run, uid, seat);
+  // 會員卡（2026-09-23 第二批）：帶著的時候不漲；卡被拿走就從原本的數接著漲
+  if (!q.relics.some((id) => relicById[id]?.hooks.removeCostFixed !== undefined)) q.removeCost += 25;
+  return true;
 }
 
 export type RunEffectOutcome =

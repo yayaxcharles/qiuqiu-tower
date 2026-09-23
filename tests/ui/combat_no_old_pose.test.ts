@@ -201,9 +201,9 @@ describe('四隻貓 × 拿得到的每一張牌：出牌不會退回舊姿勢立
   });
 });
 
-describe('四隻貓 × 45 種忍具：用忍具不會退回舊姿勢立繪', () => {
-  it('忍具總表 45 種，每種都分得到類別', () => {
-    expect(potions).toHaveLength(45);   // 2026-09-23 內容擴充第一批 +10
+describe('四隻貓 × 51 種忍具：用忍具不會退回舊姿勢立繪', () => {
+  it('忍具總表 51 種，每種都分得到類別', () => {
+    expect(potions).toHaveLength(51);   // 2026-09-23 內容擴充第一批 +10、第二批 +6
     for (const potion of potions) expect(['eat', 'throw', 'guard', 'draw', 'cast']).toContain(potionMotionKind(potion));
   });
 

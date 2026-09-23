@@ -1,4 +1,4 @@
-import type { RelicDef } from '../engine/types';
+import type { RelicDef, RelicSet } from '../engine/types';
 
 export const relics: RelicDef[] = [
   { id: 'blue_headband', name: '藍頭巾', pool: '起始', text: '每場戰鬥第一回合多抽 1 張牌。', art: 'codex/relic_headband', price: 130, hooks: { firstTurnDraw: 1 } },
@@ -125,7 +125,7 @@ export const relics: RelicDef[] = [
    * 這 9 件全部用**既有掛鉤**（不動引擎），強度對齊塔主級（起手就有感、價 220～240）；圖示鍵 `codex/relic_<id>`，圖另生。
    */
   // 2026-09-16 使用者：「開場給 14 有點弱」→ 改成每回合 8（鐵砂袋每回合 3 的塔主版）
-  { id: 'master_hat', name: '師父的斗笠', pool: '塔主', text: '每回合開始時獲得 8 點蜷縮。', art: 'codex/relic_master_hat', price: 240,
+  { id: 'master_hat', name: '師父的斗笠', pool: '塔主', set: '師門', text: '每回合開始時獲得 8 點蜷縮。', art: 'codex/relic_master_hat', price: 240,
     hooks: { turnStart: [{ kind: 'block', amount: 8 }] } },
   { id: 'iron_palm_wraps', name: '暖身護腕', pool: '塔主', text: '每回合第一張攻擊牌打出後獲得 1 點爪力（那一張吃不到）。', art: 'codex/relic_iron_palm_wraps', price: 240,
     hooks: { onAttackPlayed: { effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }], firstEachTurn: true } } },
@@ -133,7 +133,7 @@ export const relics: RelicDef[] = [
     hooks: { turnStart: [{ kind: 'heal', n: 2 }] } },
   { id: 'jade_pendant', name: '傳功玉佩', pool: '塔主', text: '每場戰鬥第一回合多抽 2 張牌、多 1 顆飯糰。', art: 'codex/relic_jade_pendant', price: 240,
     hooks: { firstTurnDraw: 2, firstTurnEnergy: 1 } },
-  { id: 'master_gourd', name: '塔主的酒葫蘆', pool: '塔主', text: '每次使用忍具後獲得 2 點爪力與 6 點蜷縮。', art: 'codex/relic_master_gourd', price: 230,
+  { id: 'master_gourd', name: '塔主的酒葫蘆', pool: '塔主', set: '師門', text: '每次使用忍具後獲得 2 點爪力與 6 點蜷縮。', art: 'codex/relic_master_gourd', price: 230,
     hooks: { onPotionUse: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }, { kind: 'block', amount: 6 }] } },
   { id: 'lucky_cat', name: '招財貓', pool: '塔主', text: '每打贏一場戰鬥多拿 30 條小魚乾。', art: 'codex/relic_lucky_cat', price: 220,
     hooks: { winGold: 30 } },
@@ -230,6 +230,110 @@ export const relics: RelicDef[] = [
     hooks: { turnStart: [{ kind: 'blockAlly', amount: 2 }] } },
   { id: 'bond_knot', name: '同心結', pool: '大魔物', text: '每場戰鬥開始時，你和同伴各獲得 1 點爪力（一個人時自己拿 2 點）。', art: 'codex/relic_bond_knot', price: 190,
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'statusAlly', name: '爪力', amount: 1 }] } },
+
+  /*
+   * ===== 2026-09-23 內容擴充第二批：16 件（提案第⑤節第二批；限定秘寶與套組照事件劇本 design2 第八節）=====
+   *
+   * 圖示照美術 art2 的對照表（`batch2_icon_keys.md`），代號照劇本；三件代號跟圖檔名不同（主控裁定圖示鍵沿用已登記的）：
+   * 魔氣殘片 `miasma_shard`→`relic_demon_shard`、師父的舊木劍 `master_wooden_sword`→`relic_master_wood_sword`、
+   * 店主的帳本 `shop_ledger`（主控裁定從「店主的算盤」改名）→`relic_shop_abacus`、批發箱 `bulk_crate`→`relic_wholesale_crate`。
+   */
+  // --- 計數型：圖示右下角 44×44 留白給數字（`engine/counters.ts` 算、狀態列疊上去）---
+  { id: 'wooden_dummy', name: '木人樁', pool: '常見', text: '每打出第 10 張攻擊牌，那一張的傷害加倍（跨戰鬥累計）。', art: 'codex/relic_wooden_dummy', price: 140,
+    hooks: { attackCounterDouble: 10 } },
+  { id: 'hourglass', name: '沙漏', pool: '常見', text: '每 3 回合（第 3、6、9…回合開始時）多 1 顆飯糰。', art: 'codex/relic_hourglass', price: 150,
+    hooks: { everyNTurns: { n: 3, effects: [{ kind: 'energy', n: 1 }] } } },
+  /*
+   * 提案是 25 條：量尺四隻平均 +0.4 層（常見池下四分位 1.1、中位 2.2），主控 2026-09-23 裁定加到池子中下。
+   * 機器人對小魚乾量不準（40、50 條都只量到 +0.7），照心算定：完整一局約 25 個非戰鬥格＝倒 8 次，
+   * 40 條＝320 條，落在小魚乾罐（每場 10 條，約 250）與幸運錢幣（每場 20 條，約 500）中間（b2mech 報告）
+   */
+  { id: 'piggy_bank', name: '撲滿', pool: '常見', text: '每走進 3 個不是戰鬥的格子（事件、罐頭鋪、貓窩、紙箱），得到 40 條小魚乾（跨關累計）。', art: 'codex/relic_piggy_bank', price: 110,
+    hooks: { nodeCounterFish: { n: 3, fish: 40 } } },
+  { id: 'incense_stick', name: '線香', pool: '大魔物', text: '每 4 回合（第 4、8、12…回合開始時）獲得 1 層隱身。', art: 'codex/relic_incense_stick', price: 190,
+    hooks: { everyNTurns: { n: 4, effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }] } } },
+  { id: 'dart_case', name: '暗器匣', pool: '大魔物', text: '每回合打出第 3 張牌後，對隨機一隻魔物造成 5 點傷害。', art: 'codex/relic_dart_case', price: 190,
+    hooks: { onNthCard: { n: 3, effects: [{ kind: 'damageScatter', amount: 5, times: 1 }] } } },
+  // --- 角色的新時機：封封兩件（蓄氣只有他有，鎖另外三位）、菲菲、噹噹、球球各一件（偏誰而已，不鎖）---
+  // 門檻原本是灌滿 12：機器人不囤氣，量尺每場只發動 0.08 次；主控 2026-09-23 裁定降到 10
+  { id: 'full_moon_sword', name: '滿月劍意', pool: '塔主', notFor: ['ninja', 'feifei', 'dangdang'], text: '蓄氣蓄到 10 點以上的那一刻，這回合下一張攻擊牌傷害加倍（每回合一次）。', art: 'codex/relic_full_moon_sword', price: 240,
+    hooks: { qiReachDoubleNext: 10 } },
+  { id: 'sheath_pendant', name: '收鞘墜', pool: '大魔物', notFor: ['ninja', 'feifei', 'dangdang'], text: '這場戰鬥每花掉 6 點蓄氣，獲得 1 顆飯糰。', art: 'codex/relic_sheath_pendant', price: 190,
+    hooks: { qiSpentEnergy: { per: 6, energy: 1 } } },
+  // 提案是多扣 1 點：量尺菲菲只多爬 1.7 層（塔主池中位 4.0，過關三選一等於廢選項）；2 點＝4.1 層，剛好中位（b2mech 報告）
+  { id: 'five_poison_manual', name: '五毒譜', pool: '塔主', text: '你下的毒，每回合結算時多扣 2 點生命。', art: 'codex/relic_five_poison_manual', price: 240,
+    hooks: { poisonTickBonus: 2 } },
+  { id: 'iron_wall', name: '鐵壁', pool: '大魔物', text: '回合結束時，蜷縮超過 15 點的部分每 2 點換 1 點反彈（蜷縮不會減少）。', art: 'codex/relic_iron_wall', price: 190,
+    hooks: { turnEndBlockToThorns: { over: 15, per: 2 } } },
+  // 閃過都在魔物的回合，所以「抽 1 張」落在下回合。提案只有抽牌：量尺球球只多爬 0.9 層（塔主池中位 4.0）；
+  // 加上下回合多 1 顆飯糰＝3.8 層（只抽 2 張是 0.6，多的是飯糰不是牌），閃得越多下回合越猛，正好是隱身流要的回報（b2mech 報告）
+  { id: 'clone_scroll', name: '影分身卷軸', pool: '塔主', text: '每次閃過魔物的攻擊，下回合多抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_clone_scroll', price: 240,
+    hooks: { onDodge: [{ kind: 'drawNextTurn', n: 1 }, { kind: 'energyNextTurn', n: 1 }] } },
+  // --- 罐頭鋪限定：只擺在罐頭鋪最右邊的「店長私藏」那一格（`makeShop`），不進紙箱、戰利品、事件、三選一 ---
+  /*
+   * 劇本是「價錢停在拿到時、不再漲」：量尺 +0.05 層（機器人一局只放生一次左右）。主控 2026-09-23 裁定加數字：一律 40 條、不再漲。
+   * 心算：完整一局放生四五次，平常 75＋100＋125＋150（＋175）＝450～625 條，會員卡 160～200 條，省下 290～425 條，
+   * 落在小魚乾罐與幸運錢幣之間；便宜了也會多放生幾張，牌組更精。機器人量到的（25 條 +0.7、50 條 +0.2）偏低（b2mech 報告）
+   */
+  { id: 'member_card', name: '會員卡', pool: '罐頭鋪', text: '放生一律 40 條小魚乾，不再上漲。', art: 'codex/relic_member_card', price: 140,
+    hooks: { removeCostFixed: 40 } },
+  { id: 'shop_ledger', name: '店主的帳本', pool: '罐頭鋪', text: '每間罐頭鋪買的第一件商品半價（牌、秘寶、忍具都算；放生與重整不算）。', art: 'codex/relic_shop_abacus', price: 180,
+    hooks: { shopFirstItemHalf: true } },
+  /*
+   * 劇本是多帶 1 支＋半價：量尺 +0.65 層。主控 2026-09-23 裁定加數字：多帶 2 支（九命鈴的格數，但沒有回血）＋半價，+0.8 層；
+   * 機器人只在身上少於兩支時才買忍具、格子多半空著，量不準。心算：完整一局逛五間、每間買兩支（平均 45 條）省 225 條，
+   * 多兩格讓稀有的起死回生丹、先手香留得住（b2mech 報告）
+   */
+  { id: 'bulk_crate', name: '批發箱', pool: '罐頭鋪', text: '忍具可以多帶 2 支；罐頭鋪的忍具半價。', art: 'codex/relic_wholesale_crate', price: 160,
+    hooks: { potionSlots: 2, shopPotionMul: 0.5 } },
+  // --- 事件限定：只從指定的事件拿（事件劇本的 `relicId`），不進任何抽取池 ---
+  { id: 'master_wooden_sword', name: '師父的舊木劍', pool: '事件', set: '師門', text: '每場戰鬥開始時獲得 1 點爪力與 4 點蜷縮。', art: 'codex/relic_master_wood_sword', price: 200,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'block', amount: 4 }] } },
+  { id: 'miasma_shard', name: '魔氣殘片', pool: '事件', text: '最大生命 +15；每場戰鬥開始時獲得 1 層炸毛。', art: 'codex/relic_demon_shard', price: 190,
+    hooks: { maxHp: 15, combatStart: [{ kind: 'status', name: '炸毛', amount: 1, target: 'self' }] } },
+  /*
+   * 劇本是每場 15 條：量尺 +0.6 層。主控 2026-09-23 裁定加數字：每場 25 條（貪吃錢袋同樣 25 條，代價是全店貴三成、這件是每間店 10 條），
+   * 量尺 +1.5 層＝常見池中下；事件池只有三件、另兩件是純數值（+3.4～3.8），它是拿錢的那一路，不硬拉到那個高度（b2mech 報告）
+   */
+  { id: 'bandit_iou', name: '山賊的欠條', pool: '事件', text: '每打贏一場戰鬥多拿 25 條小魚乾；每間罐頭鋪第一次走進去，先替山賊還 10 條舊帳（不夠就付到 0）。', art: 'codex/relic_bandit_iou', price: 150,
+    hooks: { winGold: 25, shopEntryFee: 10 } },
 ];
 
 export const relicById: Record<string, RelicDef> = Object.fromEntries(relics.map((r) => [r.id, r]));
+
+/**
+ * 秘寶套組（2026-09-23 內容擴充第二批，事件劇本第八節）。**集到 `need` 件就有加成，再多不再加**——
+ * 提案第⑥節的提醒：套組太強會讓每局都追同一套，反而更重複，所以只給小加成。連線時各算各的。
+ */
+export const RELIC_SETS: Readonly<Record<RelicSet, { need: number; firstTurnEnergy: number; text: string }>> = {
+  師門: { need: 2, firstTurnEnergy: 1, text: '集到任兩件：每場戰鬥第一回合多 1 顆飯糰' },
+};
+
+/** 這一套有哪幾件（照資料表順序） */
+export function setMembers(set: RelicSet): RelicDef[] {
+  return relics.filter((r) => r.set === set);
+}
+
+/** 身上這一套集到幾件 */
+export function setCount(set: RelicSet, owned: readonly string[]): number {
+  return setMembers(set).filter((r) => owned.includes(r.id)).length;
+}
+
+/** 身上已經湊成（集到 `need` 件以上）的套組 */
+export function activeSets(owned: readonly string[]): RelicSet[] {
+  return (Object.keys(RELIC_SETS) as RelicSet[]).filter((s) => setCount(s, owned) >= RELIC_SETS[s].need);
+}
+
+/**
+ * 秘寶說明＋套組那一段（「【師門 1／3】集到任兩件：……」）。狀態列提示、本局秘寶清單、罐頭鋪、圖鑑都用這一支，
+ * 集到幾件照 `owned` 數（圖鑑沒有一局可看就傳空的，寫 0）。沒有套組的就是原本的說明。
+ */
+export function relicLongText(def: RelicDef, owned: readonly string[] = []): string {
+  if (!def.set) return def.text;
+  return `${def.text}【${def.set} ${setCount(def.set, owned)}／${setMembers(def.set).length}】${RELIC_SETS[def.set].text}。`;
+}
+
+/** 套組給的「每場戰鬥第一回合多幾顆飯糰」（`combat.ts` 的 `startSeatTurn` 加在秘寶的 `firstTurnEnergy` 後面） */
+export function setFirstTurnEnergy(owned: readonly string[]): number {
+  return activeSets(owned).reduce((n, s) => n + RELIC_SETS[s].firstTurnEnergy, 0);
+}

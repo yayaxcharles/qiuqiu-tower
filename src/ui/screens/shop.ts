@@ -1,9 +1,9 @@
 import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
-import { relicById } from '../../content/relics';
-import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, notMyCard, potionCapacity, priceFor, reshuffleShop, shopMulFor, type ShopStock } from '../../engine/run';
-import { heroSpeaker } from '../dialogue';
+import { relicById, relicLongText } from '../../content/relics';
+import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, notMyCard, potionCapacity, priceFor, removePrice, reshuffleShop, shopMulFor, type ShopStock } from '../../engine/run';
+import { heroSpeaker, notice } from '../dialogue';
 import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
 import type { Rarity, RunState } from '../../engine/types';
@@ -129,27 +129,36 @@ registerScreen('shop', (app, root, props) => {
    * 貨架上的一格：圖、名字、說明、價錢。賣掉了寫「賣掉了」；買不起或現在拿不了（例如忍具帶滿）
    * 就變淡、點不動，但價錢照樣寫著——「賣掉了」與「買不起」是兩件事，不要混成同一個樣子。
    */
-  /** 價錢牌：特價的把原價劃掉、特價紅字放大（使用者 2026-09-04：「要明顯」） */
+  /**
+   * 價錢牌：特價的把原價劃掉、特價紅字放大（使用者 2026-09-04：「要明顯」）。
+   * 店主的帳本（第一件半價）、批發箱（忍具半價）打的折也一樣劃掉原價（2026-09-23 第二批）：只看「比原價便宜」，不分是誰給的。
+   */
   function priceNode(price: number, sold: boolean, base?: number, sale?: number, soldText = '賣掉了'): HTMLElement {
     if (sold) return el('div', { class: 'price' }, soldText);
-    if (sale && base !== undefined) {
-      const orig = Math.round(base * shopMulFor(run, seat));
+    const orig = base === undefined ? price : Math.round(base * shopMulFor(run, seat));
+    if (base !== undefined && (sale || price < orig)) {
       return el('div', { class: 'price sale' }, el('s', {}, String(orig)), el('b', {}, `${price} 條小魚乾`));
     }
     return el('div', { class: 'price' }, `${price} 條小魚乾`);
   }
   const saleTag = (sale?: number): HTMLElement | '' => (sale ? el('div', { class: 'sale-tag' }, `特價 ${Math.round(sale * 10)} 折`) : '');
+  /** 帳本的半價還沒用掉：每一格掛一個小牌子，讓人知道「現在買哪一件都半價」 */
+  const ledgerOn = (): boolean => !shop.anyBought && me(run, seat).relics.some((id) => relicById[id]?.hooks.shopFirstItemHalf);
+  const ledgerTag = (sold: boolean): HTMLElement | '' => (!sold && ledgerOn() ? el('div', { class: 'sale-tag ledger' }, '第一件半價') : '');
 
   function stall(key: string, name: string, text: string, price: number,
     sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number, soldText?: string,
     /** 忍具的稀有度（2026-09-23 內容擴充第一批）：名字底下一個小牌子，秘寶不帶 */
-    rarity?: Rarity): HTMLElement {
+    rarity?: Rarity,
+    /** 秘寶的「店長私藏」那一格（罐頭鋪限定池，2026-09-23 第二批）：名字底下一個小牌子 */
+    limited?: boolean): HTMLElement {
     const afford = me(run, seat).fish >= price;
-    const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}` },
-      saleTag(sold ? undefined : sale),
+    const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}${limited ? ' limited' : ''}` },
+      sale ? saleTag(sold ? undefined : sale) : ledgerTag(sold),
       icon(key, name),
       el('div', { class: 'shop-name' }, name),
       rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarity) : '',
+      limited ? el('div', { class: 'potion-rarity rarity-limited' }, '店長私藏') : '',
       el('div', { class: 'small' }, text),
       priceNode(price, sold, base, sale, soldText));
     if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
@@ -192,12 +201,12 @@ registerScreen('shop', (app, root, props) => {
 
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
-      const price = priceFor(run, it, seat);
+      const price = priceFor(run, it, seat, shop);
       // 貨架照自己的角色抽，同伴的專屬招式不會擺上來；這道保險留著，萬一擺上來也寫清楚、不要只是變淡
       const theirs = notMyCard(run, it.def, seat);
       const buyable = !it.sold && !iDown && !theirs && me(run, seat).fish >= price;
       const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
-        saleTag(it.sold ? undefined : it.sale),
+        it.sale ? saleTag(it.sold ? undefined : it.sale) : ledgerTag(it.sold),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { act({ t: 'buy', seat, k: 'card', i }, () => buyCard(run, shop, i, seat)) && bought('buy'); } }),   // 升級格照＋版畫
         theirs && !it.sold ? el('div', { class: 'price' }, '同伴的牌') : priceNode(price, it.sold, it.base, it.sale));
       // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
@@ -214,9 +223,9 @@ registerScreen('shop', (app, root, props) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = me(run, seat).relics.includes(it.id);
       // 自己已經有、架上卻還沒賣掉的，寫「你已經有了」：寫「賣掉了」的話同伴明明還買得到（連線稽核 高-8）
-      relics.append(stall(d.art, d.name, d.text, priceFor(run, it, seat), it.sold || owned, false,
+      relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics), priceFor(run, it, seat, shop), it.sold || owned, false,
         () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale,
-        !it.sold && owned ? '你已經有了' : undefined));
+        !it.sold && owned ? '你已經有了' : undefined, undefined, !!it.limited));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -224,7 +233,7 @@ registerScreen('shop', (app, root, props) => {
       if (!d) return;
       // 帶滿了還是能買：先問要換掉哪一支，選了才付錢（2026-09-02）
       const full = me(run, seat).potions.length >= potionCapacity(run, seat);
-      const price = priceFor(run, it, seat);
+      const price = priceFor(run, it, seat, shop);
       const poor = me(run, seat).fish < price;
       potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, price, it.sold, poor,
         () => {
@@ -235,11 +244,11 @@ registerScreen('shop', (app, root, props) => {
 
     // 放生：挑完先跳確認（使用者 2026-09-04：「選牌後沒有跳確定」），按「再看看」回牌堆重挑
     const pickRelease = (): void => showDeckPicker({
-      title: `放生一張牌（${me(run, seat).removeCost} 條小魚乾）`, cards: me(run, seat).deck, pickable: true, cancellable: true,
+      title: `放生一張牌（${removePrice(run, seat)} 條小魚乾）`, cards: me(run, seat).deck, pickable: true, cancellable: true,
       onPick: (uid) => {
         const c = uid === null ? undefined : me(run, seat).deck.find((x) => x.uid === uid);
         if (uid === null || !c) { render(); return; }
-        showRemoveConfirm(c, me(run, seat).removeCost, (ok) => {
+        showRemoveConfirm(c, removePrice(run, seat), (ok) => {
           if (!ok) { pickRelease(); return; }
           // 放生成功也要重畫：牌組少一張、小魚乾也扣了（本來靠 setMood 順便重畫，那條路已經拆掉）
           if (act({ t: 'scrub', seat, u: uid }, () => buyRemove(run, uid, seat))) bought('upgrade');
@@ -250,8 +259,8 @@ registerScreen('shop', (app, root, props) => {
     const remove = el('button', {
       class: 'btn',
       onclick: () => pickRelease(),
-    }, `放生一張牌：${me(run, seat).removeCost} 條小魚乾`);
-    if (iDown || me(run, seat).fish < me(run, seat).removeCost || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
+    }, `放生一張牌：${removePrice(run, seat)} 條小魚乾${me(run, seat).relics.some((id) => relicById[id]?.hooks.removeCostFixed !== undefined) ? '（會員價，不再漲）' : ''}`);
+    if (iDown || me(run, seat).fish < removePrice(run, seat) || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
     const reshuffle = el('button', { class: 'btn', onclick: () => { act({ t: 'shuffle', seat }, () => reshuffleShop(run, shop, seat)) && bought('buy'); } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
@@ -264,7 +273,8 @@ registerScreen('shop', (app, root, props) => {
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
     const goods = el('div', { class: 'scene-goods' },
       shelf('新牌', cards, `shelf-cards${shop.cards.length >= 6 ? ' six' : ''}`),
-      el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));   // 珍品架多一格時六格並排，格子縮一點
+      // 珍品架多一格時六格並排，格子縮一點；再加店長私藏（2026-09-23 第二批）七格並排，再縮一級
+      el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}${shop.relics.length >= 4 ? ' seven' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));
     root.append(sceneView({
       art: goods,
       portrait: keeperArt(),
@@ -287,4 +297,6 @@ registerScreen('shop', (app, root, props) => {
   }
 
   render();
+  // 山賊的欠條（2026-09-23 第二批）：進門就被收走的那幾條要講出來，不然狀態列的小魚乾少了一截卻不知道為什麼
+  if (shop.entryFee) notice(`老闆認得那張欠條，先收走 ${shop.entryFee} 條小魚乾`);
 });

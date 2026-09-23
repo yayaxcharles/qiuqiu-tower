@@ -3,13 +3,17 @@ import { potionById, potions } from '../../src/content/potions';
 import { relicById, relics } from '../../src/content/relics';
 
 describe('秘寶', () => {
-  it('95 件、池數正確、id 不重複', () => {
-    expect(relics.length).toBe(95);   // 77＝2026-09-20 封封的起始秘寶「舊劍穗」；95＝2026-09-23 內容擴充第一批 +18
+  it('111 件、池數正確、id 不重複', () => {
+    // 77＝2026-09-20 封封的起始秘寶「舊劍穗」；95＝2026-09-23 內容擴充第一批 +18；111＝第二批 +16
+    expect(relics.length).toBe(111);
     const n = (p: string) => relics.filter((r) => r.pool === p).length;
     expect(n('起始')).toBe(4);   // 藍頭巾（球球）＋毒針袋（菲菲）＋銅護臂（噹噹）＋舊劍穗（封封）
-    // 2026-09-04 代價秘寶：常見 +2、大魔物 +3；2026-09-23 第一批：常見 +5、大魔物 +5、塔主 +8
-    expect(n('常見')).toBe(35); expect(n('大魔物')).toBe(29); expect(n('塔主')).toBe(27);
-    expect(new Set(relics.map((r) => r.id)).size).toBe(95);
+    // 2026-09-04 代價秘寶：常見 +2、大魔物 +3；2026-09-23 第一批：常見 +5、大魔物 +5、塔主 +8；
+    // 第二批：常見 +3（木人樁、沙漏、撲滿）、大魔物 +4（線香、暗器匣、收鞘墜、鐵壁）、塔主 +3（滿月劍意、五毒譜、影分身卷軸），
+    // 兩個限定池各 3 件
+    expect(n('常見')).toBe(38); expect(n('大魔物')).toBe(33); expect(n('塔主')).toBe(30);
+    expect(n('罐頭鋪')).toBe(3); expect(n('事件')).toBe(3);
+    expect(new Set(relics.map((r) => r.id)).size).toBe(111);
     expect(relicById['blue_headband']?.hooks.firstTurnDraw).toBe(1);
     expect(relicById['old_sword_tassel']?.hooks.combatStart).toEqual([{ kind: 'gainQi', n: 2 }]);
   });
@@ -35,13 +39,15 @@ const NEEDS_TARGET = ['damageEqualBlock', 'damageRamp', 'damageRandom', 'doubleS
   'removeStatuses', 'stealBlock', 'transferDebuffs',
   // 散毒粉（2026-09-23）是第一支用它的忍具：`effects.ts` 的 `spreadStatus` 走 `targetsOf(cs, ctx, false)`
   'spreadStatus',
+  // 迷魂香（2026-09-23 第二批）：掛在指定的那一隻身上
+  'daze',
   // 這個不走 `targetsOf`、直接讀 `ctx.targetUid`，照「走 targetsOf」去抓會漏掉（稽核 2026-09-11 低-5）
   'drawIfTargetStatus'] as const;
 
 describe('忍具', () => {
-  it('45 種、id 不重複、目標與效果一致', () => {
-    expect(potions.length).toBe(45);   // 45＝2026-09-23 內容擴充第一批 +10
-    expect(new Set(potions.map((p) => p.id)).size).toBe(45);
+  it('51 種、id 不重複、目標與效果一致', () => {
+    expect(potions.length).toBe(51);   // 45＝2026-09-23 內容擴充第一批 +10；51＝第二批 +6
+    expect(new Set(potions.map((p) => p.id)).size).toBe(51);
     for (const p of potions) {
       expect(potionById[p.id]).toBe(p);
       const hitsAll = p.effects.some((e) => 'target' in e && e.target === 'all');

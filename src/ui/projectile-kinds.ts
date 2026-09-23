@@ -18,7 +18,7 @@ export type ProjectileKind =
   | 'furball_qiuqiu' | 'furball_dangdang' | 'furball_fengfeng'
   | 'poison_pill' | 'poison_sand' | 'snare_cord'
   | 'hemp_rope' | 'firecracker' | 'smoke_bomb' | 'nip_ball' | 'bind_nail' | 'rubble'
-  | 'grapple' | 'thunder_bead';
+  | 'grapple' | 'thunder_bead' | 'daze_incense';
 
 /** 丟向誰：單體、全體、丟在自己腳邊（煙霧彈） */
 export type ProjectileAim = 'enemy' | 'all' | 'self';
@@ -72,6 +72,8 @@ const POTION_PROJECTILE: Readonly<Record<string, ProjectileKind>> = {
   rubble_bag: 'rubble',
   // 2026-09-23 內容擴充第一批：火雷珠（全體 14 點），圖 `public/assets/motion/projectile/thunder_bead.webp`
   thunder_bead: 'thunder_bead',
+  // 2026-09-23 內容擴充第二批：迷魂香（單體，丟向一隻魔物改牠的目標；跟貓薄荷球、定身釘同一類），圖 `daze_incense.webp`
+  daze_incense: 'daze_incense',
 };
 
 export const THROW_POTION_IDS: ReadonlySet<string> = new Set(Object.keys(POTION_PROJECTILE));

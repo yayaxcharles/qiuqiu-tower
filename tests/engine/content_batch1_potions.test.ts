@@ -133,11 +133,12 @@ describe('10 支新忍具：照說明發動', () => {
 });
 
 describe('稀有度', () => {
-  it('45 支分級：常見 22、罕見 16、稀有 7；稀有照提案那 6 支＋火雷珠', () => {
+  // 2026-09-23 第二批 +6：常見 +2（便當、傳功丹）、罕見 +2（照妖鏡、替換符）、稀有 +2（回魂香、迷魂香）
+  it('51 支分級：常見 24、罕見 18、稀有 9；稀有照提案那 6 支＋火雷珠＋第二批兩支', () => {
     const n = (r: Rarity): number => potions.filter((p) => p.rarity === r).length;
-    expect([n('常見'), n('罕見'), n('稀有')]).toEqual([22, 16, 7]);
+    expect([n('常見'), n('罕見'), n('稀有')]).toEqual([24, 18, 9]);
     expect(potions.filter((p) => p.rarity === '稀有').map((p) => p.id).sort())
-      .toEqual(['clone_oil', 'first_incense', 'iron_salve', 'nine_lives', 'revive_pill', 'secret_scroll', 'thunder_bead']);
+      .toEqual(['clone_oil', 'daze_incense', 'first_incense', 'iron_salve', 'nine_lives', 'revive_incense', 'revive_pill', 'secret_scroll', 'thunder_bead']);
   });
 
   it('殺戮尖塔的慣例「越稀有越貴」照樣成立：三級的平均標價由低到高（我們不另外乘倍率，理由見 POTION_RARITY_ODDS）', () => {
@@ -159,13 +160,14 @@ describe('稀有度', () => {
     }
   });
 
-  it('同一級裡平均抽：稀有 7 支每一支都在「8%÷7」附近（不是某一支獨佔）', () => {
+  it('同一級裡平均抽：稀有每一支都在「8%÷支數」附近（不是某一支獨佔）', () => {
     const rng = new Rng(seedFromString('rarity-even'));
     const count = new Map<string, number>();
     const N = 40_000;
     for (let i = 0; i < N; i++) { const id = rollPotion(rng, ['ninja']); count.set(id, (count.get(id) ?? 0) + 1); }
-    for (const p of potions.filter((x) => x.rarity === '稀有')) {
-      expect(Math.abs((count.get(p.id) ?? 0) / N - 0.08 / 7), p.id).toBeLessThan(0.004);
+    const rare = potions.filter((x) => x.rarity === '稀有');
+    for (const p of rare) {
+      expect(Math.abs((count.get(p.id) ?? 0) / N - 0.08 / rare.length), p.id).toBeLessThan(0.004);
     }
   });
 });

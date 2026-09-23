@@ -4,7 +4,8 @@ import { relicById } from '../../content/relics';
 import { castLineFor, coopBossLines, dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, enemyArtFor, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
-import { aliveEnemies, willRevive } from '../../engine/actions';
+import { aliveEnemies, dazeTarget, isDazed, willRevive } from '../../engine/actions';
+import { relicCounterKey } from '../../engine/counters';
 import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, endTurn, finishEnemyTurn, IDLE_FORCE_MS, playCard, potionBlockedReason, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeBlock, getStatus } from '../../engine/statuses';
@@ -105,6 +106,8 @@ const STATUS_ICON: Record<StatusName, string> = {
   // 虛化的意思就是「半透明」，但圖示不能真的畫半透明——綠幕會從身體裡透出來、去背後整張帶綠
   //（codex_gen.py 的坑 5）。改用「實心淡色本體＋錯位殘影」表達。
   虛化: 'icon/status_phase',
+  // 迷魂（2026-09-23 第二批）：沒有另畫狀態圖示，借迷魂香那支忍具的圖（同一個 icons 分類，戰鬥中一定載好了）
+  迷魂: 'codex/potion_daze_incense',
 };
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
@@ -117,6 +120,7 @@ const INTENT_GLYPH: Record<Intent, string> = { attack: '攻', block: '守', buff
 const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
   exhaust: '挑要消耗的牌', retain: '挑要留到下回合的牌', discard: '挑要丟掉的牌',
   recover: '挑要拿回手上的牌', scryDiscard: '這是抽牌堆最上面的牌，挑要丟掉的',
+  transform: '挑一張要換掉的牌（換成隨機一張升級牌）',
 };
 /**
  * 回合交接的節拍（毫秒）。按下「結束回合」之後畫面依序做三件事：
@@ -344,8 +348,9 @@ function thornPricks(lines: readonly string[]): { total: number; blocked: number
  * 狀態列（`hud.ts` 的 `renderHud`）畫的東西裡，戰鬥途中會變的那幾樣：小魚乾（含這場的增減）、
  * 血量、秘寶，順手連忍具與牌組張數。這串沒變就不必整條重建（清理 2026-09-22）。
  */
-function hudKey(m: RunPlayer, fishDelta: number): string {
-  return [m.fish + fishDelta, m.hp, m.maxHp, m.relics.join(','), m.potions.join(','), m.deck.length].join('|');
+function hudKey(m: RunPlayer, fishDelta: number, counters = ''): string {
+  // `counters`＝計數型秘寶右下角的數字（2026-09-23 第二批）：回合數、這回合打了幾張一變就要重畫那一列
+  return [m.fish + fishDelta, m.hp, m.maxHp, m.relics.join(','), m.potions.join(','), m.deck.length, counters].join('|');
 }
 
 interface Snap {
@@ -469,6 +474,8 @@ registerScreen('combat', (app, root, props) => {
    * 座位不存在時退回第一位（單機、或畫面比引擎早一步的那一拍）。
    */
   const my = (): PlayerCombat => cs.players[mySeat] ?? cs.player;
+  /** 計數型秘寶此刻的數字串（狀態列的 `hudKey` 用：數字一變就重畫那一列，2026-09-23 第二批） */
+  const hudCounters = (): string => relicCounterKey(my().relics, me(run, app.seat), { turn: cs.turn, p: my() });
   /**
    * **我那一格的選擇器**（2026-09-13 開兩個分頁玩出來的）。
    *
@@ -1142,7 +1149,8 @@ registerScreen('combat', (app, root, props) => {
    */
   const mateSig = (q: PlayerCombat): string => {
     const mp = matePlay.get(q.seat);
-    return [mateHint.get(q.seat) ?? '', mp && mp.turn === cs.turn ? mp.card.uid : '', q.qi ?? '', q.poisonNextAttack?.amount ?? '', cs.phase].join('|');
+    return [mateHint.get(q.seat) ?? '', mp && mp.turn === cs.turn ? mp.card.uid : '', q.qi ?? '', q.poisonNextAttack?.amount ?? '', cs.phase,
+      q.energyNextTurn ?? '', q.guardLethal ? 1 : ''].join('|');   // 便當、回魂香的牌子（2026-09-23 第二批）
   };
   /** 待機姿勢隨狀態換：血剩三成以下就掛彩、爪力堆到 5 就氣勢；圖還沒生好就退回一般待機 */
   // 判斷與理由都在 `heropose.ts`（純函式，有測試釘著）
@@ -1457,6 +1465,19 @@ registerScreen('combat', (app, root, props) => {
       attachTextTooltip(node, '針上有毒（只到本回合）', `下一次攻擊命中時多給 ${pna.amount} 層中毒${pna.anyDamage ? '（任何造成傷害的招都算）' : ''}，用掉或回合結束就沒了`);
       row.append(node);
     }
+    // 便當、回魂香（2026-09-23 第二批）：喝下去當下什麼數字都沒動，要掛牌子才看得出「還在等著」。跟上面那個一樣照資料畫
+    const pc = u as Partial<PlayerCombat>;
+    if (pc.energyNextTurn) {
+      // 便當與影分身卷軸（閃過之後）共用這一個牌子，所以寫結果「下回合飯糰」，不寫是誰給的
+      const node = el('div', { class: 'chip good power chip-bento' }, el('b', {}, '下回合飯糰'), el('span', {}, `+${pc.energyNextTurn}`));
+      attachTextTooltip(node, '下回合飯糰', `下回合開始時多 ${pc.energyNextTurn} 顆飯糰（便當、影分身卷軸給的）`);
+      row.append(node);
+    }
+    if (pc.guardLethal) {
+      const node = el('div', { class: 'chip good power chip-guard' }, el('b', {}, '回魂香'));
+      attachTextTooltip(node, '回魂香', '這場戰鬥接下來第一次會被打倒時，留下 1 點生命');
+      row.append(node);
+    }
     // 球球身上生效中的能力牌（封印解除、結界……）：一張一個牌子，疊了幾張寫數字，滑上去看那張牌的效果
     // （使用者 2026-09-03：「爪力的確有加，但我不知道是哪張牌的效果」）
     const powers = mine ? (u as Partial<CombatState['player']>).powers ?? [] : [];
@@ -1575,6 +1596,8 @@ registerScreen('combat', (app, root, props) => {
     if (getStatus(e, '定身') === 0) {
       if (m.effects.some(has('stripPlayer'))) text += '（看破）';
       if (m.effects.some(has('purgePlayer'))) text += '（破功）';
+      // 迷魂香（2026-09-23 第二批）：牌子上的數字照舊（那是牠這一下的力道），但要講明這一下不是打你
+      if (isDazed(e) && getStatus(e, '沉睡') === 0 && (hits.length || rnd || boom || byStatus.length)) text += '（迷魂：打同伴）';
     }
     // 換招才翻牌子（第一次看到這隻不算換：開場整排一起翻很吵，而且那時本來就在看牠們的開場白）
     const before = lastIntent.get(e.uid);
@@ -1658,7 +1681,9 @@ registerScreen('combat', (app, root, props) => {
       }
     }
     const body = parts.length ? parts.join('，') : '看不出來要做什麼';
-    return e.charged && m.intent === 'attack' ? `${body}（已蓄力，傷害已經算進去了）。` : `${body}。`;
+    // 迷魂香（2026-09-23 第二批）：上面那些數字是牠這一下的力道，但這一輪會打在牠旁邊的同伴身上
+    const daze = isDazed(e) ? `迷魂了：這一輪的攻擊改打${dazeTarget(cs, e)?.name ?? '空氣（旁邊沒有同伴）'}，不打你。` : '';
+    return daze + (e.charged && m.intent === 'attack' ? `${body}（已蓄力，傷害已經算進去了）。` : `${body}。`);
   }
 
   /**
@@ -2167,7 +2192,10 @@ registerScreen('combat', (app, root, props) => {
     const pChanged = before.hp !== p.hp || before.block !== p.block || before.buff !== sumStatus(p, GOOD_STATUS)
       || before.debuff !== sumStatus(p, BAD_STATUS) || before.stealth !== getStatus(p, '隱身')
       || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== heroArtUrl(p.hero, pose)
-      || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack');
+      || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack')
+      // 便當、回魂香的牌子（2026-09-23 第二批）：喝下去時血、蜷縮、狀態都沒變，不比這兩個的話牌子要等下一次重畫才冒出來
+      || (pNode.querySelector('.chip-bento')?.textContent ?? '') !== (p.energyNextTurn ? `下回合飯糰+${p.energyNextTurn}` : '')
+      || !!pNode.querySelector('.chip-guard') !== !!p.guardLethal;
     if (pChanged) pNode.replaceWith(playerUnit(p));
     // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態，有變才換（見 `mateUnitStale`）
     for (const q of cs.players) {
@@ -2180,10 +2208,10 @@ registerScreen('combat', (app, root, props) => {
     }
     box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
     // 狀態列只在它畫的東西變了才重建（見 `hudKey`）
-    const hudNow = hudKey(me(run, app.seat), my().fishDelta);
+    const hudNow = hudKey(me(run, app.seat), my().fishDelta, hudCounters());
     if (hudNow !== hudShown || !box.querySelector('.hud')) {
       box.querySelector('.hud')?.remove();
-      renderHud(app, box, my().fishDelta);
+      renderHud(app, box, my().fishDelta, { turn: cs.turn, p: my() });
       hudShown = hudNow;
       paintFlashes(performance.now());   // 狀態列剛重建，還在演的秘寶要補回去（稽核 2026-09-10 複核 中-1）
     }
@@ -2319,8 +2347,8 @@ registerScreen('combat', (app, root, props) => {
     if (tutStep >= 0) box.append(tutBar());
     const note = targetHint();
     if (note) box.append(note);
-    renderHud(app, box, my().fishDelta);   // 偷走／賺到的當下就要在狀態列看得到
-    hudShown = hudKey(me(run, app.seat), my().fishDelta);
+    renderHud(app, box, my().fishDelta, { turn: cs.turn, p: my() });   // 偷走／賺到的當下就要在狀態列看得到
+    hudShown = hudKey(me(run, app.seat), my().fishDelta, hudCounters());
     root.append(box);
     paintFlashes(performance.now());   // 同 patchField：整頁重畫也要把還在演的秘寶補回去（稽核 2026-09-10 複核 中-1）
     // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
