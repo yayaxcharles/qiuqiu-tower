@@ -14,6 +14,177 @@
     "ref": "tools/motion-art-source/c2a/_ref/design_wood_sword.png",
     "at": "2026-09-23 21:05:29"
   },
+  "event_coop_rope_bridge": {
+    "attempt": 1,
+    "key": "bg/event_coop_rope_bridge",
+    "file": "public/assets/bg/event_coop_rope_bridge.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 36402,
+    "droppedSpecks": 204,
+    "semiTransparentShare": 0.0482,
+    "gate": [],
+    "sha256": "e88b5d05ab06461d49acb090c1389031498d57e247e4ad0a8ec41a240466a78a",
+    "at": "2026-09-23 21:38:16"
+  },
+  "event_coop_rope_bridge_r0": {
+    "attempt": 1,
+    "key": "bg/event_coop_rope_bridge_r0",
+    "file": "public/assets/bg/event_coop_rope_bridge_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 48520,
+    "droppedSpecks": 193,
+    "semiTransparentShare": 0.0621,
+    "gate": [],
+    "sha256": "6db59fe52a9e02129d2ce437438b135ba695a52603af09951a6609c9b60395f7",
+    "at": "2026-09-23 21:38:20"
+  },
+  "event_coop_rope_bridge_r2": {
+    "attempt": 2,
+    "key": "bg/event_coop_rope_bridge_r2",
+    "file": "public/assets/bg/event_coop_rope_bridge_r2.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 36062,
+    "droppedSpecks": 163,
+    "semiTransparentShare": 0.0432,
+    "gate": [],
+    "sha256": "0634c6e3152191f4098b92a8c14af7fc78afed2c87e835c723a71621afaea2b4",
+    "at": "2026-09-23 21:40:25"
+  },
+  "event_coop_seesaw": {
+    "attempt": 1,
+    "key": "bg/event_coop_seesaw",
+    "file": "public/assets/bg/event_coop_seesaw.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 29392,
+    "droppedSpecks": 134,
+    "semiTransparentShare": 0.0598,
+    "gate": [],
+    "sha256": "abdff4ba190a319f3cfd3d493815d9cc9153886f08984c5b22c0762745c5c1f9",
+    "at": "2026-09-23 21:38:24"
+  },
+  "event_coop_seesaw_r0": {
+    "attempt": 2,
+    "key": "bg/event_coop_seesaw_r0",
+    "file": "public/assets/bg/event_coop_seesaw_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 32536,
+    "droppedSpecks": 286,
+    "semiTransparentShare": 0.0687,
+    "gate": [],
+    "sha256": "ff52f583b6f61e03cf37025d86a74be22d2f8fcf17e52fc5001c2bf9ae561202",
+    "at": "2026-09-23 21:40:30"
+  },
+  "event_coop_seesaw_r2": {
+    "attempt": 1,
+    "key": "bg/event_coop_seesaw_r2",
+    "file": "public/assets/bg/event_coop_seesaw_r2.webp",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 32346,
+    "droppedSpecks": 354,
+    "semiTransparentShare": 0.0543,
+    "gate": [],
+    "sha256": "c5114c2f1b55b3ad13599b0c182bd1591af4bd423d958502c84567ce12cbf3f6",
+    "at": "2026-09-23 21:38:27"
+  },
+  "event_coop_shooting_star": {
+    "attempt": 1,
+    "key": "bg/event_coop_shooting_star",
+    "file": "public/assets/bg/event_coop_shooting_star.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 33460,
+    "droppedSpecks": 110,
+    "semiTransparentShare": 0.0522,
+    "gate": [],
+    "sha256": "219c8f413581817ada95d5e07226b53809880c26ae1ef415a7c27b0b9a5ba230",
+    "at": "2026-09-23 21:38:31"
+  },
+  "event_coop_shooting_star_r0": {
+    "attempt": 1,
+    "key": "bg/event_coop_shooting_star_r0",
+    "file": "public/assets/bg/event_coop_shooting_star_r0.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 37716,
+    "droppedSpecks": 296,
+    "semiTransparentShare": 0.0498,
+    "gate": [],
+    "sha256": "b86894a051e13f29463c0b292d7a22ddf21f29af210be2dd7e81e84f6be6d7ea",
+    "at": "2026-09-23 21:38:35"
+  },
+  "event_coop_shooting_star_r2": {
+    "attempt": 1,
+    "key": "bg/event_coop_shooting_star_r2",
+    "file": "public/assets/bg/event_coop_shooting_star_r2.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44196,
+    "droppedSpecks": 168,
+    "semiTransparentShare": 0.0611,
+    "gate": [],
+    "sha256": "538affa06e44f783483c2e75d2819053bbc685acd7763fe53aa107d1b67e51ae",
+    "at": "2026-09-23 21:38:39"
+  },
   "event_dangdang_pigeon_grandpa": {
     "attempt": 1,
     "key": "bg/event_dangdang_pigeon_grandpa",

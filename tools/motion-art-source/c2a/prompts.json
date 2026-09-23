@@ -1129,6 +1129,15 @@
         "coop_style_1.png"
       ],
       "at": "2026-09-23 21:32:36"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create one new EVENT ILLUSTRATION for a cute cat-ninja card game. It is a cut-out vignette of a PLACE with NO CHARACTERS AT ALL: only the props of the scene and a small patch of floor around them, on a truly transparent background. (In the game, the two heroes' portraits stand on either side of this picture, so it must stay empty of anyone.)\nReference image 1 is a piece of an existing event illustration from this game set in the same part of the tower, shown ONLY for its ART STYLE (bold dark hand-drawn outlines, flat colours with soft cel shading, the colours of the setting) and the cut-out look. Do NOT copy its props or composition.\nSCENE: SETTING: the same stone dungeon chasm with the rickety plank rope bridge, lit warm orange by a wall torch. The TWO planks nearest the bridge head are MISSING (a clear gap). The treasure chest with the carved monster-face pattern still sits closed on the far ledge. In one corner of the picture, at a stair landing, stands a small unattended SECOND-HAND JUNK STALL (a low wooden stall with some old pots and odds and ends) with the two old wooden planks leaning against it.\nNOBODY is in this picture: no cats, no heroes, no people, no animals, no silhouettes, no hands. No text, no letters, no numbers, no writing of any kind, no frame, no border. Truly transparent RGBA background: no checkerboard drawing, no white box, no wall or sky filling the whole frame. The whole scene is centred with a clear transparent margin on every side; nothing is cut off at the edges.\nStyle: thick black outlines, FLAT colours with only subtle soft shading - not painterly, no heavy airbrushed shadows, cute cartoon.\n\nFIX: the rope bridge is still COMPLETE and walkable with ALL of its many wooden planks in place from end to end, EXCEPT that exactly the TWO planks at the NEAR bridge head (closest to the wooden post) are missing, leaving one small clear gap there. The wooden post with its rope stays at the near bridge head.",
+      "refs": [
+        "coop_style_1.png"
+      ],
+      "at": "2026-09-23 21:37:46"
     }
   ],
   "event_coop_rope_bridge_r0": [
@@ -1173,6 +1182,15 @@
         "coop_style_2.png"
       ],
       "at": "2026-09-23 21:34:44"
+    },
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create one new EVENT ILLUSTRATION for a cute cat-ninja card game. It is a cut-out vignette of a PLACE with NO CHARACTERS AT ALL: only the props of the scene and a small patch of floor around them, on a truly transparent background. (In the game, the two heroes' portraits stand on either side of this picture, so it must stay empty of anyone.)\nReference image 1 is a piece of an existing event illustration from this game set in the same part of the tower, shown ONLY for its ART STYLE (bold dark hand-drawn outlines, flat colours with soft cel shading, the colours of the setting) and the cut-out look. Do NOT copy its props or composition.\nSCENE: SETTING: the same wooden machinery room with the GIANT WOODEN SEESAW on its central gear axle. The seesaw now rests perfectly LEVEL, and both of its seats are rubbed smooth and SHINY from use. On the floor lie two squashed flat cushions and a dropped towel.\nNOBODY is in this picture: no cats, no heroes, no people, no animals, no silhouettes, no hands. No text, no letters, no numbers, no writing of any kind, no frame, no border. Truly transparent RGBA background: no checkerboard drawing, no white box, no wall or sky filling the whole frame. The whole scene is centred with a clear transparent margin on every side; nothing is cut off at the edges.\nStyle: thick black outlines, FLAT colours with only subtle soft shading - not painterly, no heavy airbrushed shadows, cute cartoon.\n",
+      "refs": [
+        "coop_style_2.png"
+      ],
+      "at": "2026-09-23 21:36:27"
     }
   ],
   "event_coop_shooting_star": [
@@ -1184,6 +1202,15 @@
         "coop_style_3.png"
       ],
       "at": "2026-09-23 21:34:46"
+    },
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create one new EVENT ILLUSTRATION for a cute cat-ninja card game. It is a cut-out vignette of a PLACE with NO CHARACTERS AT ALL: only the props of the scene and a small patch of floor around them, on a truly transparent background. (In the game, the two heroes' portraits stand on either side of this picture, so it must stay empty of anyone.)\nReference image 1 is a piece of an existing event illustration from this game set in the same part of the tower, shown ONLY for its ART STYLE (bold dark hand-drawn outlines, flat colours with soft cel shading, the colours of the setting) and the cut-out look. Do NOT copy its props or composition.\nSCENE: SETTING: night at the very top of the tower - a flat grey stone platform. On it sits a round WISHING STONE with two paw-print hollows pressed into its top: one DEEP and worn, one SHALLOW and faint. Carved on the side of the stone are only two small paw-print symbols (no letters). Above, a SHOOTING STAR streaks in toward it from the upper left: a bright star with a long golden tail, drawn as a solid golden shape with an outline, with a few small solid star sparkles (no sky filled in around it).\nNOBODY is in this picture: no cats, no heroes, no people, no animals, no silhouettes, no hands. No text, no letters, no numbers, no writing of any kind, no frame, no border. Truly transparent RGBA background: no checkerboard drawing, no white box, no wall or sky filling the whole frame. The whole scene is centred with a clear transparent margin on every side; nothing is cut off at the edges.\nStyle: thick black outlines, FLAT colours with only subtle soft shading - not painterly, no heavy airbrushed shadows, cute cartoon.\n",
+      "refs": [
+        "coop_style_3.png"
+      ],
+      "at": "2026-09-23 21:36:15"
     }
   ],
   "event_coop_seesaw_r0": [
@@ -1195,6 +1222,24 @@
         "coop_style_2.png"
       ],
       "at": "2026-09-23 21:34:54"
+    },
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create one new EVENT ILLUSTRATION for a cute cat-ninja card game. It is a cut-out vignette of a PLACE with NO CHARACTERS AT ALL: only the props of the scene and a small patch of floor around them, on a truly transparent background. (In the game, the two heroes' portraits stand on either side of this picture, so it must stay empty of anyone.)\nReference image 1 is a piece of an existing event illustration from this game set in the same part of the tower, shown ONLY for its ART STYLE (bold dark hand-drawn outlines, flat colours with soft cel shading, the colours of the setting) and the cut-out look. Do NOT copy its props or composition.\nSCENE: SETTING: the same wooden machinery room with the GIANT WOODEN SEESAW on its central gear axle, one end high, one end low. The wooden SHELF up by the ceiling beams is now EMPTY. On the floor beside the LOW end lies a small opened bag of dried fish, a few little dried fish spilling out.\nNOBODY is in this picture: no cats, no heroes, no people, no animals, no silhouettes, no hands. No text, no letters, no numbers, no writing of any kind, no frame, no border. Truly transparent RGBA background: no checkerboard drawing, no white box, no wall or sky filling the whole frame. The whole scene is centred with a clear transparent margin on every side; nothing is cut off at the edges.\nStyle: thick black outlines, FLAT colours with only subtle soft shading - not painterly, no heavy airbrushed shadows, cute cartoon.\n",
+      "refs": [
+        "coop_style_2.png"
+      ],
+      "at": "2026-09-23 21:36:22"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create one new EVENT ILLUSTRATION for a cute cat-ninja card game. It is a cut-out vignette of a PLACE with NO CHARACTERS AT ALL: only the props of the scene and a small patch of floor around them, on a truly transparent background. (In the game, the two heroes' portraits stand on either side of this picture, so it must stay empty of anyone.)\nReference image 1 is a piece of an existing event illustration from this game set in the same part of the tower, shown ONLY for its ART STYLE (bold dark hand-drawn outlines, flat colours with soft cel shading, the colours of the setting) and the cut-out look. Do NOT copy its props or composition.\nSCENE: SETTING: the same wooden machinery room with the GIANT WOODEN SEESAW on its central gear axle, one end high, one end low. The wooden SHELF up by the ceiling beams is now EMPTY. On the floor beside the LOW end lies a small opened bag of dried fish, a few little dried fish spilling out.\nNOBODY is in this picture: no cats, no heroes, no people, no animals, no silhouettes, no hands. No text, no letters, no numbers, no writing of any kind, no frame, no border. Truly transparent RGBA background: no checkerboard drawing, no white box, no wall or sky filling the whole frame. The whole scene is centred with a clear transparent margin on every side; nothing is cut off at the edges.\nStyle: thick black outlines, FLAT colours with only subtle soft shading - not painterly, no heavy airbrushed shadows, cute cartoon.\n\nFRAMING FIX: show the WHOLE machine small enough to fit completely inside the picture with a clear transparent margin on every side - the top of the wooden frame and the empty shelf near the ceiling beam must be fully visible and must not touch the top edge. Draw it at the same scale as a full-room view: the empty shelf high up on a wooden post-and-beam frame, the giant seesaw on its big gear axle with its high end raised up next to the empty shelf and its low end down on the floor, and the opened dried-fish bag beside the low end.",
+      "refs": [
+        "coop_style_2.png"
+      ],
+      "at": "2026-09-23 21:39:01"
     }
   ]
 }
