@@ -3,6 +3,7 @@ import './ui/styles/components.css';
 import './ui/styles/map.css';
 import './ui/styles/combat.css';
 import './ui/styles/screens.css';
+import './ui/styles/phone.css';   // 手機橫拿的字級與按鈕（2026-09-23），排最後才蓋得過前面幾份
 import { App } from './ui/app';
 import { registerLazyScreen } from './ui/lazy-screen';
 import { loadManifest, preloadArt } from './ui/assets';

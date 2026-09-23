@@ -52,8 +52,8 @@ import {
   type CompanionMotionAction,
 } from '../companion-motion';
 import { EAT_POTIONS, THROW_POTIONS, potionMotionAction } from '../potion-motion';
-import { motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
-import { playThrow, preloadProjectiles } from '../projectile-flight';
+import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMeleePlan } from '../qiuqiu-melee';
+import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
 import { createEnemyMotionActor, enemyMotionDuration, enemyMotionReady, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
@@ -325,7 +325,9 @@ interface Snap {
   stealth: number;   // 音效要分辨「拿到隱身」與「拿到其他增益」
   energyGain: number;   // 整場退回來的飯糰累計，用來認出「這一拍退了幾顆」（見 types.ts 的說明）
   players: Map<number, SeatSnap>;
-  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined }>;
+  enemies: Map<number, { hp: number; dead: boolean; phase: number; secluding: boolean; intent: Intent; label: string; turnCount: number; noAct: boolean; debuff: number; choke: number; block: number; stealth: number; buff: number; charged: boolean; learned: Learned | undefined;
+    /** 出手前的整組狀態：丟出去的狀態類忍具還在飛時照這組畫（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
+    statuses: Unit['statuses'] }>;
   logLen: number;
   hitsLen: number;
   handN: number;   // 手牌張數與飯糰：同伴讓我抽牌／分飯糰時，只換立繪那條路碰不到手牌與側欄，要退回整頁重畫
@@ -348,6 +350,7 @@ function snap(cs: CombatState, me: PlayerCombat): Snap {
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), learned: e.move.learned,
       debuff: sumStatus(e, BAD_STATUS), choke: getStatus(e, '中毒'), buff: sumStatus(e, GOOD_STATUS), charged: e.charged,
+      statuses: { ...e.statuses },
       // 招式名與回合數是拿來認「剛剛出的是哪一招」的：魔物行動完 `advanceMove` 就把 `move` 推到下一招，
       // 事後再讀 `e.move` 讀到的是「頭上意圖顯示的下一招」，不是剛剛做完的那一招
       label: e.move.label, turnCount: e.turnCount,
@@ -455,7 +458,9 @@ registerScreen('combat', (app, root, props) => {
   };
   type CombatMotion = { source: CombatMotionSource; actor: MotionActor; layer: HTMLElement; action: CombatMotionAction; active: boolean; reactive: boolean; away: boolean; raf: number; endsAt: number; trip?: MeleeTrip; presentationToken?: number; winAt?: number;
     /** 近戰前衝當下的位移（像素）與這一招從哪個位移接著衝：上一招還沒退回就被接手時，不先跳回原位（見 motionMeleeSample） */
-    lungeX?: number; lungeFrom?: number };
+    lungeX?: number; lungeFrom?: number;
+    /** 這一招的衝刺殘影收掉的方法：下一招接手時連殘影一起收（2026-09-23 稽核 ui 低-1） */
+    afterimages?: () => void };
   type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
   type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number };
   const motionActors = new Map<number, CombatMotion>();
@@ -464,6 +469,12 @@ registerScreen('combat', (app, root, props) => {
   const enemyMotionActors = new Map<number, EnemyMotionState>();
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
+  /**
+   * 丟出去的狀態類忍具（麻繩、定身釘、貓薄荷球）還在飛的魔物 → 出手前的狀態（2026-09-23 polish 第 3 條）。
+   * 引擎一出手就把定身掛上去了，戰場一重畫狀態牌子與「被定住了」就先亮，繩子才剛從手上飛出去；
+   * 照血條等命中才扣（motionPendingDamage）的做法，飛到那一刻（landStatus）才換成真的狀態。
+   */
+  const motionPendingStatus = new Map<number, Unit['statuses']>();
   const motionProjectiles = new Set<() => void>();
   type LocalMotionPresentation = { action: CombatMotionAction; at: number; token: number; trip?: MeleeTrip };
   const locallyPlayedMotion = new LocalMotionPresentationQueue<LocalMotionPresentation>();
@@ -699,22 +710,30 @@ registerScreen('combat', (app, root, props) => {
     const state = motionState(q);
     if (!state) return;
     window.cancelAnimationFrame(state.raf);
+    // 上一招的衝刺殘影跟著收掉（2026-09-23 稽核 ui 低-1）：原本只取消逐格排程，殘影照上一招的前衝位移
+    // 繼續每 50 毫秒冒一張，本人已經在演下一招（實機：連刀接淡定，殘影多冒 0.7 秒）；下一張也衝刺就兩條疊在一起
+    if (state.afterimages) { motionProjectiles.delete(state.afterimages); state.afterimages(); state.afterimages = undefined; }
     const caughtUp = Math.max(0, elapsed);
     const startedAt = performance.now() - caughtUp;
     // 受擊、閃避與格擋至少保留原演出的 650ms，短片段播完後停在收勢。
     state.endsAt = startedAt + Math.max(reactive ? 650 : 0,
       trip?.plan.totalMs ?? motionDuration(source, action));
-    // 上一招還在前衝、沒退回原位就被這一招接手：從當下位移接著衝，不先跳回原位
-    state.lungeFrom = trip && state.active && state.trip ? state.lungeX ?? 0 : 0;
+    // 上一招還在前衝、沒退回原位就被這一招接手：這一招是近戰就從當下位移接著衝，不先跳回原位；
+    // 不是近戰就從當下位移平順退回原位（2026-09-23 polish 第 4 條：原本一格跳回 74 像素）。
+    // 「還在前衝」也包含上一個非近戰動作正在退回的那 140 毫秒（state.away 還開著）
+    const carried = state.active && (state.trip || state.away) ? state.lungeX ?? 0 : 0;
+    state.lungeFrom = trip ? carried : 0;
+    const handoffFrom = trip ? 0 : carried;
+    const handoffAt = performance.now();
     state.trip = trip;
     state.action = action;
     state.active = true;
     state.reactive = reactive;
-    state.away = !!trip;
+    state.away = !!trip || handoffFrom !== 0;
     state.presentationToken = presentationToken;
     const lunge = trip ? motionMeleeSample(trip.plan, caughtUp, state.lungeFrom) : undefined;
-    state.lungeX = lunge?.x ?? 0;
-    state.layer.style.transform = lunge ? `translate(${lunge.x}px, ${lunge.y}px)` : '';
+    state.lungeX = lunge?.x ?? handoffFrom;
+    state.layer.style.transform = lunge ? `translate(${lunge.x}px, ${lunge.y}px)` : handoffFrom ? `translate(${handoffFrom}px, 0px)` : '';
     state.actor.play(state.action, { elapsed: caughtUp });
     refreshMotion(q);
     if (source === 'qiuqiu' && trip && (action === 'dash' || action === 'ultimate_rush')) {
@@ -727,9 +746,10 @@ registerScreen('combat', (app, root, props) => {
         duration: trip.plan.totalMs,
         elapsed: caughtUp,
         offsetAt: (elapsed) => motionMeleeSample(trip.plan, elapsed, lungeFrom).x,
-        onDone: () => { motionProjectiles.delete(cancel); },
+        onDone: () => { motionProjectiles.delete(cancel); if (state.afterimages === cancel) state.afterimages = undefined; },
       });
       motionProjectiles.add(cancel);
+      state.afterimages = cancel;
     }
     let anchor: { x: number; y: number } | null = null;
     let anchorMeasuredAt = 0;
@@ -767,6 +787,12 @@ registerScreen('combat', (app, root, props) => {
         state.lungeX = sample.x;
         state.layer.style.transform = `translate(${x}px, ${y}px) scaleX(${sample.facing})`;
         if (state.action !== sample.action) { state.action = sample.action; state.actor.play(sample.action); }
+      } else if (handoffFrom !== 0 && state.away) {
+        // 非近戰動作接手近戰：邊演新動作邊退回原位，退到了就把畫布放回自己那一格（見上面的 handoffFrom）
+        const x = meleeHandoffReturn(handoffFrom, now - handoffAt);
+        state.lungeX = x;
+        state.layer.style.transform = x ? `translate(${x}px, 0px)` : '';
+        if (x === 0) { state.away = false; refreshMotion(q); }
       }
       state.raf = window.requestAnimationFrame(tick);
     };
@@ -909,6 +935,7 @@ registerScreen('combat', (app, root, props) => {
     }
     motionActors.clear();
     motionPendingDamage.clear();
+    motionPendingStatus.clear();
     locallyPlayedMotion.clear();
     for (const state of enemyMotionActors.values()) {
       state.actor.dispose();
@@ -1631,6 +1658,48 @@ registerScreen('combat', (app, root, props) => {
     return monsterPhaseKey(enemyArtFor(e.enemyId, cs.player.hero), e.phase ?? 0);
   }
 
+  /** 狀態牌子與意圖牌照這組畫：丟出去的狀態類忍具還在飛時是出手前的狀態（2026-09-23 polish 第 3 條，見 motionPendingStatus） */
+  function shownEnemy(e: EnemyCombat): EnemyCombat {
+    const pending = motionPendingStatus.get(e.uid);
+    return pending ? { ...e, statuses: pending } : e;
+  }
+
+  /** 魔物腳下那一排牌子（狀態＋引擎裡看不到的被動）。抽出來是為了東西飛到時只換這一排（見 refreshEnemyStatus） */
+  function enemyChips(e: EnemyCombat, def: EnemyDef | undefined, reviving: boolean): HTMLElement {
+    const row = statusRow(shownEnemy(e), false, `e${e.uid}`);
+    // 引擎裡玩家看不到的狀態，全部做成牌子掛出來（滑上去有白話說明）——
+    // 「機制是對的但畫面沒講」已經連續中招三次：隱身閃避、蜷縮延遲、影子復活
+    if (!e.dead) {
+      if (def?.onDeathHealPlayer) row.prepend(chip('打倒回血', null, String(def.onDeathHealPlayer), 'good'));
+      if (def?.strengthEveryNTurns) {
+        const left = def.strengthEveryNTurns - (e.turnCount % def.strengthEveryNTurns);
+        row.prepend(chip('越戰越勇', null, String(left), 'bad'));
+      }
+      if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
+      if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
+      if (e.invulnIn > 0) row.prepend(chip('無敵', null, '', 'bad'));
+      if (def?.reviveGroup && !def.neverRevive) row.prepend(chip('同生共死', null, '', 'bad'));   // 蛙大名自己倒了就倒了，不掛這塊牌
+      // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
+      if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
+      // 第二波魔物的三個被動（2026-09-02）。狀態型的（縮殼、飛行、鱗甲、沉睡、消散）自己就是狀態牌子，
+      // 這三個沒有層數可掛，所以照「僕從護體」那一套做成小牌
+      if (def?.splitInto && !e.split) row.prepend(chip('分裂', null, '', 'bad'));
+      if (def?.hexOnSkill) row.prepend(chip('詛咒', null, '', 'bad'));
+      if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
+    }
+    if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
+    // 魔氣暴走：第 10 回合（關主戰第 15 回合）起掛在每隻魔物身上，提醒拖下去每回合都會更痛
+    if (!e.dead && cs.turn >= rampageTurnFor(cs)) row.prepend(chip('魔氣暴走', null, '', 'bad'));
+    return row;
+  }
+
+  /** 只換這一隻的狀態牌子與意圖牌（整隻重建會把受擊、倒下那些演出一起打斷） */
+  function refreshEnemyStatus(node: HTMLElement, e: EnemyCombat): void {
+    const reviving = e.dead && e.reviveIn > 0 && willRevive(cs, e);
+    node.querySelector(':scope > .chips')?.replaceWith(enemyChips(e, enemyById[e.enemyId], reviving));
+    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shownEnemy(e)));
+  }
+
   function enemyUnit(e: EnemyCombat, i: number, n: number): HTMLElement {
     const def = enemyById[e.enemyId];
     const left = enemyLeft(i, n);   // 算式在 `enemylayout.ts`，有測試釘著（曾經算到畫面外）
@@ -1678,34 +1747,11 @@ registerScreen('combat', (app, root, props) => {
     // 意圖牌子放進立繪框裡（不是當它的兄弟節點）：框裡才有「圖畫實際佔多高」這個座標，
     // 牌子用絕對定位掛在圖畫頂端，扁的魔物才不會讓牌子飄在半空。
     // 放在外面用負邊界試過兩次都不準——那個排版下負邊界只挪了 15 像素而不是 130。
-    const row = statusRow(e, false, `e${e.uid}`);
-    // 引擎裡玩家看不到的狀態，全部做成牌子掛出來（滑上去有白話說明）——
-    // 「機制是對的但畫面沒講」已經連續中招三次：隱身閃避、蜷縮延遲、影子復活
-    if (!e.dead) {
-      if (def?.onDeathHealPlayer) row.prepend(chip('打倒回血', null, String(def.onDeathHealPlayer), 'good'));
-      if (def?.strengthEveryNTurns) {
-        const left = def.strengthEveryNTurns - (e.turnCount % def.strengthEveryNTurns);
-        row.prepend(chip('越戰越勇', null, String(left), 'bad'));
-      }
-      if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
-      if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
-      if (e.invulnIn > 0) row.prepend(chip('無敵', null, '', 'bad'));
-      if (def?.reviveGroup && !def.neverRevive) row.prepend(chip('同生共死', null, '', 'bad'));   // 蛙大名自己倒了就倒了，不掛這塊牌
-      // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
-      if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
-      // 第二波魔物的三個被動（2026-09-02）。狀態型的（縮殼、飛行、鱗甲、沉睡、消散）自己就是狀態牌子，
-      // 這三個沒有層數可掛，所以照「僕從護體」那一套做成小牌
-      if (def?.splitInto && !e.split) row.prepend(chip('分裂', null, '', 'bad'));
-      if (def?.hexOnSkill) row.prepend(chip('詛咒', null, '', 'bad'));
-      if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
-    }
-    if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
-    // 魔氣暴走：第 10 回合（關主戰第 15 回合）起掛在每隻魔物身上，提醒拖下去每回合都會更痛
-    if (!e.dead && cs.turn >= rampageTurnFor(cs)) row.prepend(chip('魔氣暴走', null, '', 'bad'));
+    const row = enemyChips(e, def, reviving);
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), 'data-id': e.enemyId, style: `left:${left}px` },
       spriteBox(enemySprite(e, def), e.name,
         def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (SPRITE_SIZE_OVERRIDE[e.enemyId] ?? def?.size ?? 'medium'),
-        reviving ? undefined : intentChip(e)),
+        reviving ? undefined : intentChip(shownEnemy(e))),
       el('div', { class: 'name' }, e.name),
       hpBar(`e${e.uid}`, e.hp + (motionPendingDamage.get(e.uid) ?? 0), e.maxHp),
       row);
@@ -2667,6 +2713,7 @@ registerScreen('combat', (app, root, props) => {
    */
   const recoverPresentation = (): void => {
     motionPendingDamage.clear();
+    motionPendingStatus.clear();
     fallingUids.clear();
     motionHeldSprites.clear();
     if (app.cs === cs && !ended) render();
@@ -3103,6 +3150,8 @@ registerScreen('combat', (app, root, props) => {
       // 掙脫定身、上了減益：丟出去的忍具要等東西飛到才演，其餘照舊當場演
       const brokeFree = fresh.some((l) => l === `${e.name}掙脫了定身`);
       const landStatus = (target: HTMLElement): void => {
+        // 飛到了才換上真的狀態牌子（定身、懶洋洋⋯⋯）與「被定住了」（2026-09-23 polish 第 3 條，見 motionPendingStatus）
+        if (motionPendingStatus.delete(e.uid)) refreshEnemyStatus(target, cs.enemies.find((x) => x.uid === e.uid) ?? e);
         if (brokeFree) {
           target.append(floatNum('掙脫！'));
           burst(target, 'smoke');
@@ -3111,11 +3160,23 @@ registerScreen('combat', (app, root, props) => {
         if ((a?.debuff ?? sumStatus(e, BAD_STATUS)) > b.debuff) burst(target, 'debuff');
       };
       const statusByFlight = throwFlight && shot?.aim !== undefined;
+      // 狀態牌子也等東西飛到：剛才那次重畫已經照引擎掛上定身，先換回出手前的樣子，landStatus 再換回來
+      if (statusByFlight && b && STATUS_ORDER.some((name) => (b.statuses[name] ?? 0) !== getStatus(e, name))) {
+        motionPendingStatus.set(e.uid, b.statuses);
+        // 剛才那次重畫已經把「被定住了」記成上一次的牌面，換回去會被當成換招、繩子飛行中翻一次牌（實機膠卷）；
+        // 忘掉它，飛到那一刻才翻
+        lastIntent.delete(e.uid);
+        refreshEnemyStatus(node, e);
+      }
       let throwFall: (() => void) | undefined;
       if (throwFlight && shot && throwFoot && throwBox && impactSource && impactMotion) {
         const foot = motionFoot(throwBox);
         const width = throwBox.querySelector<HTMLElement>('.sprite')?.offsetWidth ?? 130;
         const waves = impactPlan.length;
+        // 收姿勢要等最後一波真的打到（2026-09-23 稽核 ui 低-2）：連線加入方丟的東西被 joinElapsed 拉回第一波出手那一刻飛，
+        // 命中比上面用 impactElapsed 算的晚 0.1～0.3 秒；照舊算的話最後一兩波還在飛，魔物就先被換回待機
+        lastMotionImpact = Math.max(lastMotionImpact, finalImpactAt
+          - throwElapsed(impactSource, impactMotion, impactElapsed, impactPlan.map((impact) => impact.at)));
         const onImpact = (wave: number): void => {
           if (app.cs !== cs) return;
           const live = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`);

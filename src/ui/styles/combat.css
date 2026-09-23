@@ -1117,6 +1117,15 @@
   animation: intent-glow 1.15s ease-in-out infinite;
 }
 .combat .i-attack::after { box-shadow: 0 3px 8px #00000080; }
+/* 出招預告的暖光補回攻擊牌子（2026-09-23 polish 第 5 條）：2026-09-04 的設計是「牌子放大加暖光」，
+   攻擊牌子的暖光先被 intent-throb 的 box-shadow 蓋掉、09-22 清理又照舊拿掉，關主與菁英最常出的攻擊預告反而從來沒亮過。
+   光圈照上一段掛在 ::before：預告那 0.32 秒把紅色抽動換成暖光、亮著不閃，跟其他意圖牌子同一組數值，不另外加大 */
+.combat .unit.enemy.telegraph .intent.i-attack::before {
+  box-shadow: 0 0 14px 3px #ffd97a, 0 0 26px #ffb84a80;
+  opacity: 1;
+  animation: none;
+  transition: opacity .16s ease-out;
+}
 @keyframes intent-glow {
   0%, 100% { opacity: 0; }
   50% { opacity: 1; }
@@ -1378,6 +1387,7 @@
   opacity: .65;
   pointer-events: none;
   z-index: 6;
+  transition: opacity .2s ease-out;   /* 泡泡收掉後淡回來（見下面「讓位」那條） */
 }
 .combat .unit.player .mate-play.in { animation: mate-play-in .22s ease-out; }   /* 只有新的一張才淡入 */
 /* 同伴點選還沒打的那張（使用者 2026-09-15：像 Spire 2 那樣看得到隊友想打哪張）：更淡、虛線框、標「考慮中」 */
@@ -1390,4 +1400,14 @@
 @keyframes mate-play-in {
   from { opacity: 0; translate: 0 12px; }
   to { opacity: .65; translate: 0 0; }
+}
+/* 台詞泡泡在畫面上的時候，同伴頭上的牌先退到後面（2026-09-23 polish 第 6 條，複驗 09-22 新發現 1）：
+   牌掛在頭的右上外側（y 93～200），泡泡也在頭上那一條（y 62～220），兩邊實機量到都會疊——
+   加入方講話時泡泡從自己頭上往左長、正好蓋到開房方那張牌（重疊 3285 平方像素）；開房方講 12 字以上往右長，也碰到加入方那張。
+   頭上那一條以下是兩隻貓的頭、魔物與側欄，找不到四種角色、兩個座位、一到五隻魔物都不撞的固定位置，
+   所以讓牌讓位：泡泡最多留 3.2 秒，收掉牌就淡回來；魔物頭上的泡泡（.bubble-at）不在這一條，不算 */
+#stage[data-screen="combat"]:has(#overlay .toast:not(.out):not(.bubble-at)) .combat .unit.player .mate-play {
+  opacity: .1;
+  animation: none;
+  transition: opacity .2s ease-out;
 }

@@ -930,7 +930,10 @@
 /* 字不往右讓（讓了整條帶子看起來偏右，使用者 2026-09-02：「不是置中而是整體偏右」）；
    改成把球球立繪抬高一點，腳底離開名字那一行就不會踩到 */
 .scene .scene-portrait { bottom: 172px; height: 300px; }
-.scene:has(.scene-goods) .scene-portrait { bottom: 160px; height: 280px; }
+/* 老闆 280→266 高（2026-09-23 polish 第 7 條，複驗 09-22「另外看到」）：秘寶三格時（第二、三關、珍品架）貨架第一格左緣在 219，
+   280 高時招手的手尖到 221，蓋到第一格。試過四種排版：貨架右移會超出舞台右緣、老闆左移會把尾巴切掉、
+   貨架疊到老闆前面手指會被框切斷；縮小五趴手尖退到 210，第一格清清楚楚，腳底位置不變 */
+.scene:has(.scene-goods) .scene-portrait { bottom: 160px; height: 266px; }
 #stage:has(.scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
 @keyframes toast-in-side { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
 
