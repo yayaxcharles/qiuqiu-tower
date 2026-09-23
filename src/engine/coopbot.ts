@@ -4,7 +4,7 @@ import { eventById } from '../content/events';
 import { advanceMove, log, runEnemyEffects } from './actions';
 import { allReady, beginEnemyTurn, finishEnemyTurn, setReady, stepEnemyTurn } from './combat';
 import { coopHpMul } from './coopscale';
-import type { Hero } from './hero';
+import { heroOf, type Hero } from './hero';
 import { nextChoices } from './map';
 import { settleRelicPicks } from './rewards';
 import { Rng, seedFromString } from './rng';
@@ -15,7 +15,7 @@ import {
   type RunEffectOutcome } from './run';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestUpgrade, deckJunk, eventValue, pickCard, rating, relicRating, smartPending, smartSeatAct } from './smartbot';
+import { bestRelic, bestUpgrade, deckJunk, eventValue, pickCard, rating, relicRating, smartPending, smartSeatAct } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunState } from './types';
 
 /**
@@ -214,7 +214,8 @@ function nodeScoreCoop(run: RunState, n: MapNode): number {
 /** 一件秘寶要不要挑：兩個人從同一份選項各挑自己最想要的（撞件由 `settleRelicPicks` 擲骰） */
 function pickRelic(offers: readonly string[], run: RunState, seat: number): string | null {
   const mine = me(run, seat).relics;
-  const want = offers.filter((id) => !mine.includes(id)).sort((a, b) => relicRating(b) - relicRating(a))[0];
+  // 分數照**這一位**的角色（2026-09-23 量尺：同一件對不同貓價值不同）
+  const want = bestRelic(offers.filter((id) => !mine.includes(id)), heroOf(me(run, seat)));
   return want ?? null;
 }
 
@@ -350,7 +351,7 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
           if (!shop) return;
           const junk = deckJunk(run, i);
           if (junk.length >= 3 && me(run, i).fish >= me(run, i).removeCost + 60) buyRemove(run, junk[0]!.uid, i);
-          const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id), p: r.price })).sort((a, b) => b.v - a.v)[0];
+          const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id, heroOf(me(run, i))), p: r.price })).sort((a, b) => b.v - a.v)[0];
           if (relicIdx && relicIdx.v >= 6 && me(run, i).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.k, i);
           const cardIdx = shop.cards.map((c, k) => ({ k, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
           if (cardIdx && cardIdx.v >= 7 && me(run, i).fish >= cardIdx.p && me(run, i).deck.length < 24) buyCard(run, shop, cardIdx.k, i);
