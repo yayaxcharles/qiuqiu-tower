@@ -96,6 +96,12 @@
    "feifei": 1.88,
    "dangdang": 1.08,
    "fengfeng": 1.37
+  },
+  "bless_bracer": {
+   "ninja": 4.64,
+   "feifei": 0.98,
+   "dangdang": 0.7,
+   "fengfeng": 2.32
   }
  }
 }
