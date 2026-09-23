@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import * as DIALOGUE from '../../src/content/dialogue';
 import * as FENGFENG from '../../src/content/fengfeng-dialogue';
 import * as EVENT_TEXT from '../../src/content/event-text';
+import { NINJA_COND_RESULT_B2, NINJA_EVENT_TEXT_B2 } from '../../src/content/event-text-b2';
+import { eventById } from '../../src/content/events';
 import MAIN_RAW from '../../src/main.ts?raw';
 import LOADER_RAW from '../../src/ui/event-loader.ts?raw';
 
@@ -96,5 +98,38 @@ describe('事件文字與事件畫面不在首載', () => {
     }
     // 量級：這一份就是那一百多 KB，比首載預算剩下的多得多
     expect(readFileSync('src/content/event-text.ts', 'utf-8').length).toBeGreaterThan(30_000);
+  });
+
+  /*
+   * 球球第二批事件的開頭與結果（2026-09-23 b2fin，主控裁定跟另外三隻一樣延後載入）：原本寫在 `events-batch2.ts`
+   * 與 `events.ts` 八條條件選項裡，跟著事件資料一起進首載。現在住在 `event-text-b2.ts`，載入時填回事件資料。
+   */
+  const ninjaB2 = [...Object.values(NINJA_EVENT_TEXT_B2).flatMap((t) => [t.text, ...t.results]), ...Object.values(NINJA_COND_RESULT_B2)];
+
+  it('球球第二批的開頭與結果不在首載：主程式走得到的每一支都找不到那幾段', () => {
+    expect(graph.has('src/content/event-text-b2.ts'), '有首載的模組靜態匯入了第二批事件文字').toBe(false);
+    expect(ninjaB2.length).toBeGreaterThan(70);   // 十八篇開頭＋五十三個結果＋八條條件選項
+    for (const f of graph) {
+      const src = readFileSync(f, 'utf-8');
+      const hit = ninjaB2.find((t) => src.includes(t));
+      expect(hit, `${f} 裡還有球球第二批的文字`).toBeUndefined();
+    }
+  });
+
+  it('載入之後一段不少地填回事件資料（事件畫面、除錯總覽、另外三隻對照表的鍵都靠它）', () => {
+    for (const [id, t] of Object.entries(NINJA_EVENT_TEXT_B2)) {
+      const ev = eventById[id];
+      expect(ev, id).toBeDefined();
+      expect(ev!.text, id).toBe(t.text);
+      expect(t.results.length, `${id} 結果數跟選項數對不上`).toBe(ev!.choices.length);
+      t.results.forEach((r, i) => expect(ev!.choices[i]!.result, `${id} 第 ${i + 1} 個結果`).toBe(r));
+    }
+    for (const [id, r] of Object.entries(NINJA_COND_RESULT_B2)) {
+      expect(eventById[id]?.choices.find((c) => !!c.requires)?.result, id).toBe(r);
+    }
+    // 另外三隻的表鍵就是球球那份：每一段都對得到（沒填回的話三隻會一起退回空白）
+    for (const t of ninjaB2) for (const h of ['feifei', 'dangdang', 'fengfeng']) {
+      expect(EVENT_TEXT.eventTextFor(h, t), `${h} 對不到「${t.slice(0, 20)}…」`).not.toBe(t);
+    }
   });
 });
