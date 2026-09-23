@@ -129,7 +129,8 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
     const run = newCoopRun(seed, diff, h(0), h(1));
     // 本機角色的立繪、貓叫、劇情情境、兩位的專屬圖一起設（health H-3：這裡原本各寫一行，推前審查 高-1 就是漏了聲音）
     app.adoptRun(run, seat);
-    void preloadCoopArt();   // 雙人專屬牌的牌面也是進大廳才補
+    // 連線牌的牌面也是開局才補，**只抓這一組搭檔的**（2026-09-23；開打前 `startFight` 會等它抓完）
+    void preloadCoopArt(run.players.map((p) => p.hero));
     session.useRun(run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
     /*

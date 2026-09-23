@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { _setManifestForTest, cardArtKey, coopArtUrls, heroArtUrls, isCoopOnlyArt, setLocalHero, setLocalPartnerHero } from '../../src/ui/assets';
+import { _setManifestForTest, cardArtKey, coopArtUrlsFor, heroArtUrls, isCoopOnlyArt, setLocalHero, setLocalPartnerHero } from '../../src/ui/assets';
 
 describe('合作牌使用實際搭檔的插圖', () => {
   beforeEach(() => {
@@ -40,7 +40,9 @@ describe('合作牌使用實際搭檔的插圖', () => {
   });
 
   it('合作預載包含混搭圖，單人角色預載不下載混搭圖', () => {
-    expect(coopArtUrls().some((url) => url.endsWith('pair_nf.webp'))).toBe(true);
+    // 2026-09-23 起連線預載只抓這一組搭檔的（`coopArtUrlsFor`），不再是全部
+    expect(coopArtUrlsFor(['ninja', 'feifei']).some((url) => url.endsWith('pair_nf.webp'))).toBe(true);
+    expect(coopArtUrlsFor(['ninja', 'dangdang']).some((url) => url.endsWith('pair_nf.webp'))).toBe(false);
     expect(isCoopOnlyArt('card/coop_dangdang_feifei_fenyiban')).toBe(true);
     expect(isCoopOnlyArt('card/coop_fengfeng_ninja_fenyiban')).toBe(true);
     expect(heroArtUrls(['feifei']).some((url) => url.includes('pair_'))).toBe(false);
