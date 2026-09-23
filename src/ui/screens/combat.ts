@@ -5,7 +5,7 @@ import { castLineFor, coopBossLines, dialogue, lineFor, pick, storyFor } from '.
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, enemyArtFor, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
-import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, potionBlockedReason, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
+import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, endTurn, finishEnemyTurn, IDLE_FORCE_MS, playCard, potionBlockedReason, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeBlock, getStatus } from '../../engine/statuses';
 import { previewEnemyHits } from '../../engine/intentpreview';
@@ -994,7 +994,8 @@ registerScreen('combat', (app, root, props) => {
     if (mateTurnSeen !== cs.turn) { mateTurnSeen = cs.turn; mateActAt = Date.now(); }
     // 同伴還沒進到這一場的戰鬥畫面（塔頂段落、關主開場還在讀）不算閒置：從他進場那一刻才起算（2026-09-23 稽核 中-1）。
     // 原本從我這邊建好戰鬥畫面就開始數，劇情長短不同的混搭，他一進場第一回合就被我收掉
-    if (session && !session.mateHere) mateActAt = Date.now();
+    // 他掛著一直不進來、滿三分鐘的長上限（`mayForce`，推前審查 低-2）之後就不再歸零：從那一刻起照常再數一分鐘
+    if (session && !session.mateHere && !session.mayForce) mateActAt = Date.now();
     return Date.now() - mateActAt;
   }
   /** 有連線時，把動作送出去；沒有就在本機做掉。回傳 false＝這個動作現在做不出來 */
@@ -2700,6 +2701,7 @@ registerScreen('combat', (app, root, props) => {
     enemyTurnRunning = false;
     try {
       if (cs.enemyActing) { while (stepEnemyTurn(cs)) { /* 一隻一隻 */ } finishEnemyTurn(cs); }
+      else if (turnWaiting()) endTurn(cs);   // 例外丟在魔物回合開始之前：照 endTurn 補跑一次（見 `turnWaiting`）
       recoverPresentation();
       checkOver();
       syncPicker();
@@ -2708,6 +2710,17 @@ registerScreen('combat', (app, root, props) => {
     } finally {
       session?.release();
     }
+  }
+  /*
+   * 都舉手了、魔物回合卻還沒開始（2026-09-23 推前審查 低-4）。
+   *
+   * 例外丟在魔物回合開始之前——`startEnemyTurn` 開頭那一次快照、`onApplied` 算出「這回合收完了」之前那幾行——
+   * 原本兩條退路都只放開：這台一直不跑魔物回合，同伴那台早就跑完了，兩台分岔、跳紅色橫幅。
+   * 這個判斷只看引擎狀態，兩台一致；照 `endTurn` 補跑一次，兩台就停在同一個地方。
+   * 正在收牌（`collecting`）的不算：計時器等一下自己會開魔物回合。單機沒有舉手旗標，永遠不成立。
+   */
+  function turnWaiting(): boolean {
+    return cs.phase === 'player' && !cs.pending && !cs.enemyActing && !collecting && allReady(cs);
   }
 
   // ===== 結算與動畫 =====
@@ -3833,7 +3846,7 @@ registerScreen('combat', (app, root, props) => {
       if (q && node) node.replaceWith(playerUnit(q));
     });
     /** 這一批動作的收尾交接（見下面外層的例外防護）：`finish`＝收尾那一支、`started`＝已經開始收了 */
-    type AppliedTurn = { finish?: (clearRemote?: boolean) => void; started?: boolean };
+    type AppliedTurn = { finish?: (clearRemote?: boolean) => void; started?: boolean; sealed?: boolean };
     const onApplied = (applied: SequencedAction[], turn: AppliedTurn): void => {
       if (!applied.length || app.cs !== cs) return;
       unlockSend();   // 有東西套進去了＝路上那一下回來了
@@ -3862,6 +3875,7 @@ registerScreen('combat', (app, root, props) => {
       if (completedTurn !== null) {
         session.endOfTurn();
         session.hold();
+        turn.sealed = true;   // 對過帳、暫停了：外層退路不要再做一次（推前審查 低-4）
         root.querySelector('.end-undo')?.setAttribute('disabled', 'disabled');
       }
       const finishApplied = (clearRemote = true): void => {
@@ -4145,7 +4159,12 @@ registerScreen('combat', (app, root, props) => {
         const finish = turn.started ? undefined : turn.finish;
         try {
           if (finish) finish();
-          else session.release();   // 收尾本身丟的例外，或還沒走到定義收尾那一行：沒辦法照常收，直接放開
+          else if (turnWaiting()) {
+            // 都舉手了、魔物回合還沒開始（例外丟在收尾接手之前，或收尾自己丟在開魔物回合之前；推前審查 低-4）：
+            // 照常收這一回合，魔物回合演完自己會放開。只放開的話這台不跑魔物回合，兩台分岔
+            if (!turn.sealed) { session.endOfTurn(); session.hold(); }
+            runEnemyTurn();
+          } else session.release();   // 收尾本身丟的例外，或還沒走到定義收尾那一行：沒辦法照常收，直接放開
         } catch (again) {
           console.error('連線收尾失敗，直接放開會話', again);
           session.release();

@@ -11,6 +11,9 @@ import type { CombatState, RunState } from '../engine/types';
 /** 戰鬥那一條的動作訊息（客戶端的請求、主機編號過的動作）：這兩種要照場次排隊 */
 type FightMsg = Extract<NetMessage, { m: 'req' | 'act' }>;
 
+/** 同伴一直沒進場時，我進場多久之後可以替他收回合（2026-09-23 推前審查 低-2，見 `CoopSession.mayForce`） */
+export const MATE_ABSENT_MS = 180_000;
+
 /**
  * 「大家各選一個」有哪幾種（2026-09-23 health H-10）。原本是自由字串，畫面送票、讀票、清票、比對種類
  * 任何一處拼錯一個字，那一輪就永遠湊不齊票，而且不報錯；收成聯集之後 tsc 會擋。
@@ -180,6 +183,7 @@ export class CoopSession {
   attach(cs: CombatState | null): void {
     if (cs && cs !== this.lastCs) {
       this.fight += 1; this.lastCs = cs; this.held = false;
+      this.enteredAt = Date.now();   // 同伴一直沒進場時的長上限從這一刻算（見 `mayForce`）
       if (!this.dead) this.tx.send({ m: 'here', f: this.fight });   // 告訴同伴我進場了（見 `mateHere`）
     }
     // 這一場結束（`attach(null)`）也把暫停放掉（總稽核 B 中-3）：魔物回合演到一半有人倒下、
@@ -209,6 +213,18 @@ export class CoopSession {
    * 「替他收回合」的閒置計時從這一刻才起算；他還沒進場之前 `submit` 也不收替他收回合。
    */
   get mateHere(): boolean { return this.cs !== null && this.mateFight >= this.fight; }
+  /** 我進到這一場的時間（只拿來算同伴沒進場的長上限，不進鎖步） */
+  private enteredAt = 0;
+  /**
+   * 現在可不可以替同伴收回合（2026-09-23 推前審查 低-2）。
+   *
+   * 同伴進場了就可以（還要閒置夠久，那是畫面那一層的事）。可是他一直掛在劇情、關主門、事件結果頁不點的話，
+   * 只看「進場了沒」這邊就永遠只能乾等或回標題——所以給一條長上限：我進場滿 `MATE_ABSENT_MS` 他還沒進來，也可以。
+   * 看的是**這一台**自己的時間：送出去的是一個明確的動作，兩台照編號套用，不會因為兩台時鐘不同而分岔。
+   */
+  get mayForce(): boolean {
+    return this.mateHere || (this.cs !== null && Date.now() - this.enteredAt >= MATE_ABSENT_MS);
+  }
   /** 演完了：把排隊的動作照順序套下去 */
   release(): void {
     this.held = false;
@@ -378,8 +394,9 @@ export class CoopSession {
   submit(a: CoopAction): boolean {
     if (this.dead || !this.cs || this.held) return false;   // 魔物回合演出中不收（見 `hold`）
     if (a.seat !== this.seat && a.t !== 'force') return false;   // 只能替自己做決定（強制收回合除外）
-    // 同伴還沒進場（還在看塔頂段落、關主開場）就替他收回合，他一進戰鬥第一回合就沒了（2026-09-23 稽核 中-1）
-    if (a.t === 'force' && !this.mateHere) return false;
+    // 同伴還沒進場（還在看塔頂段落、關主開場）就替他收回合，他一進戰鬥第一回合就沒了（2026-09-23 稽核 中-1）；
+    // 他掛著不進來太久的長上限見 `mayForce`（推前審查 低-2）
+    if (a.t === 'force' && !this.mayForce) return false;
     if (!canApply(this.cs, a)) return false;
     if (this.isHost) {
       const sa = (this.seq as Sequencer).assign(a);
