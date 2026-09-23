@@ -764,7 +764,9 @@ const CHEST_POOLS: RelicPool[] = ['常見', '大魔物', '塔主'];
 export function openChest(run: RunState, seat = 0): string | null {
   const rng = runRng(run);
   for (const pool of CHEST_POOLS) {
-    const id = rollRelic(rng, pool, me(run, seat).relics, heroesIn(run));
+    // 直接塞給這一位的，只看這一位的角色（跟罐頭鋪、事件一致；推前審查 2026-09-23 資訊-2）。
+    // 今天只有單人會走這裡（兩人走 `openChestCoop`），單人時兩種寫法一模一樣、亂數走向不變
+    const id = rollRelic(rng, pool, me(run, seat).relics, [heroOf(me(run, seat))]);
     if (id) { takeRelic(run, id, seat); return id; }
   }
   return null;

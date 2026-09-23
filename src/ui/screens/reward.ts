@@ -3,7 +3,7 @@ import { cardById, cardNameFor } from '../../content/cards';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
-import { closeCardReward, heroesIn, runRng, takeCardReward, upgradeCard } from '../../engine/run';
+import { closeCardReward, heroesIn, relicForPartnerOnly, runRng, takeCardReward, upgradeCard } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import type { CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -293,9 +293,12 @@ registerScreen('reward', (app, root, props) => {
       if (!d) continue;
       const who = picks.map((v, i) => (v === id ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
       const got = me(run, seat).relics.includes(id);
-      const b = el('button', { class: `relic-offer${mine === id ? ' picked' : ''}${got ? ' got' : ''}` },
+      // 鎖住我、只有同伴用得到的那件要講明白（推前審查 2026-09-23 中-1，照過關三選一的做法）：清單照「有一位用得到」開
+      const partnerOnly = relicForPartnerOnly(run, id, seat);
+      const b = el('button', { class: `relic-offer${mine === id ? ' picked' : ''}${got ? ' got' : ''}${partnerOnly ? ' partner-only' : ''}` },
         icon(d.art, d.name),
-        el('span', { class: 'relic-offer-text' }, el('b', {}, d.name), el('em', {}, d.text)),
+        el('span', { class: 'relic-offer-text' }, el('b', {}, d.name),
+          partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '', el('em', {}, d.text)),
         who.length ? el('span', { class: 'relic-offer-who' }, who.join('、')) : '');
       if (mine || r.relicSettled || iDown) b.setAttribute('disabled', 'disabled');
       else b.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
