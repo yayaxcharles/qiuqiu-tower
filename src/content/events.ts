@@ -190,7 +190,9 @@ export const events: EventDef[] = [
    * 跟自己頭上一模一樣的藍頭巾、他丟慣了的手裏劍、跟他長得一模一樣的影子。
    * 只有一份文字（專屬事件排不進別人的地圖，連線局整批不排，見 `map.ts` 的 `MapOpts.hero`）。
    * 屋頂上的影子打的是鏡子走廊那一場（`mirror_duel`，照關數接 `_a2`／`_a3`），
-   * 追上去那一條記 `chain:shadow_chased`，留給第二批「影子的真面目」接後集（`chain:` 開頭的旗標收進整局指紋）。
+   * 兩個選項都記 `chain:shadow_2`（遇過影子），追上去另記 `chain:shadow_2_fought`、躲著看另記 `chain:shadow_2_watched`，
+   * 留給第二批「影子的真面目」照上一集怎麼選接後集（主控 2026-09-23 指定的鍵名）。旗標在 `run.flags`，跟著存檔走；
+   * `chain:` 開頭的收進整局指紋（這篇連線不排，平常碰不到，是替之後的鏈留的）。
    */
   { id: 'ninja_blue_headband', title: '欄杆上的藍頭巾', hero: 'ninja', acts: [1, 2],
     text: '石階轉角的木欄杆上，綁著一條洗到褪色的藍頭巾。樣式跟球球頭上那條一模一樣，連打結的方法都是師父教的那一種。球球伸手摸了摸，布邊已經被風吹得起了毛。',
@@ -217,9 +219,9 @@ export const events: EventDef[] = [
     text: '夜裡，球球翻上一片瓦屋頂。高處的屋簷上，一道黑影正在跑——綁著頭巾，身形跟球球一模一樣，只有一雙眼睛亮著紫光。球球蹲在低處，一時看傻了。',
     choices: [
       { label: '追上去（進入戰鬥，勝利後額外獲得 30 條小魚乾、可升級至多 1 張牌）',
-        outcome: [{ kind: 'flag', name: 'chain:shadow_chased' }, { kind: 'fight', encounterId: 'mirror_duel', bonusFish: 30, bonusUpgrades: 1 }],
+        outcome: [{ kind: 'flag', name: 'chain:shadow_2' }, { kind: 'flag', name: 'chain:shadow_2_fought' }, { kind: 'fight', encounterId: 'mirror_duel', bonusFish: 30, bonusUpgrades: 1 }],
         result: '球球踩著瓦片追上去。黑影在屋脊上停下，轉過身來，擺出跟球球一模一樣的架勢。球球：「學得這麼像，你到底是誰喵？」' },
-      { label: '躲著看它的招式（自選移除 1 張牌）', outcome: [{ kind: 'removeCard' }],
+      { label: '躲著看它的招式（自選移除 1 張牌）', outcome: [{ kind: 'flag', name: 'chain:shadow_2' }, { kind: 'flag', name: 'chain:shadow_2_watched' }, { kind: 'removeCard' }],
         result: '球球躲到屋脊後面，只露出頭和爪子。黑影在屋簷上一招接一招地練，飛踢、翻身，全是球球會的招式，卻使得比球球還俐落。看著看著，球球發現自己有一招老是多了一個破綻。球球：「那一招，我不要再用了喵。」', resultArt: 'ninja_roof_shadow_r1' },
     ] },
   { id: 'toll', title: '留下買路財',

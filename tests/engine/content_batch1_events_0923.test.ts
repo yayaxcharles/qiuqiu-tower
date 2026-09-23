@@ -14,7 +14,7 @@ import type { RunState } from '../../src/engine/types';
  *   - 5F 一關一版：第一關 `daxia_teach`、第二關 `daxia_chest`、第三關 `daxia_lastpage`；
  *     **舊存檔**第二、三關地圖上的 5F 仍是 `daxia_teach`，要繼續合法、玩得下去；
  *   - 球球三篇專屬事件：只排給一個人玩的球球，連線局不排；
- *   - 屋頂上的影子：打鏡子走廊那一場（照關數換版），追上去記 `chain:shadow_chased`，收進整局指紋；
+ *   - 屋頂上的影子：打鏡子走廊那一場（照關數換版），兩個選項都記 `chain:shadow_2`、各自再記 `_fought`／`_watched`，跟著存檔、收進整局指紋；
  *   - 機器人對每個新選項都估得出值（不然平衡報告會量歪）。
  */
 
@@ -163,27 +163,61 @@ describe('球球的三篇專屬事件', () => {
     }
   });
 
-  it('屋頂上的影子：打鏡子走廊那一場、照關數換版、贏了多 30 條與升級 1 張；追上去記鏈的旗標', () => {
+  it('屋頂上的影子：打鏡子走廊那一場、照關數換版、贏了多 30 條與升級 1 張', () => {
     for (const act of [2, 3]) {
       const run = newRun(`roof-${act}`, 1, 'ninja');
       for (let a = 1; a < act; a++) advanceAct(run);
       const out = applyRunEffects(run, eventById['ninja_roof_shadow']!.choices[0]!.outcome);
       expect(out && 'fight' in out ? out.fight : null).toEqual({ encounterId: `mirror_duel_a${act}`, bonusFish: 30, bonusUpgrades: 1 });
-      expect(run.flags['chain:shadow_chased']).toBe(true);
     }
-    // 躲著看的那一條不記（旗標留給「追上去」的後集）
-    const run = newRun('roof-hide', 1, 'ninja');
-    advanceAct(run);
-    applyRunEffects(run, eventById['ninja_roof_shadow']!.choices[1]!.outcome);
-    expect(run.flags['chain:shadow_chased']).toBeUndefined();
+  });
+
+  /*
+   * 影子鏈的三個旗標（主控 2026-09-23 追加，第二批接「影子的真面目」要用）：
+   * 兩個選項都記 `chain:shadow_2`；追上去另記 `_fought`、躲著看另記 `_watched`，兩條互斥。
+   * 追上去那條的旗標是**當場記**的（不是打贏才記）：`applyRunEffects` 把打一場之外的獎勵延到打贏才發，旗標不在延後之列。
+   */
+  it('影子鏈的旗標：兩個選項都記 shadow_2，各自再記 fought／watched', () => {
+    const pick = (i: number): RunState => {
+      const run = newRun(`roof-flag-${i}`, 1, 'ninja');
+      advanceAct(run);
+      applyRunEffects(run, eventById['ninja_roof_shadow']!.choices[i]!.outcome);
+      return run;
+    };
+    const fought = pick(0);
+    expect(fought.flags['chain:shadow_2']).toBe(true);
+    expect(fought.flags['chain:shadow_2_fought']).toBe(true);
+    expect(fought.flags['chain:shadow_2_watched']).toBeUndefined();
+    const again = newRun('roof-flag-defer', 1, 'ninja');
+    advanceAct(again);
+    const out = applyRunEffects(again, eventById['ninja_roof_shadow']!.choices[0]!.outcome);
+    expect(out && 'fight' in out ? out.fight.afterWin ?? [] : null, '旗標不可以被延到打贏才記').toEqual([]);
+    const watched = pick(1);
+    expect(watched.flags['chain:shadow_2']).toBe(true);
+    expect(watched.flags['chain:shadow_2_watched']).toBe(true);
+    expect(watched.flags['chain:shadow_2_fought']).toBeUndefined();
+  });
+
+  it('影子鏈的旗標跟著存檔走（存了再讀回來還在）', () => {
+    for (const i of [0, 1]) {
+      const run = newRun(`roof-save-${i}`, 1, 'ninja');
+      advanceAct(run);
+      applyRunEffects(run, eventById['ninja_roof_shadow']!.choices[i]!.outcome);
+      saveRun(run);
+      const back = loadRun()!;
+      expect(back.flags['chain:shadow_2']).toBe(true);
+      expect(back.flags[i === 0 ? 'chain:shadow_2_fought' : 'chain:shadow_2_watched']).toBe(true);
+    }
   });
 
   it('鏈的旗標收進整局指紋（兩台記得不一樣要在走下一格就抓到）', () => {
-    const a = newRun('roof-hash', 1, 'ninja');
-    const b = newRun('roof-hash', 1, 'ninja');
-    expect(runFingerprint(a)).toBe(runFingerprint(b));
-    a.flags['chain:shadow_chased'] = true;
-    expect(runFingerprint(a)).not.toBe(runFingerprint(b));
+    for (const flag of ['chain:shadow_2', 'chain:shadow_2_fought', 'chain:shadow_2_watched']) {
+      const a = newRun('roof-hash', 1, 'ninja');
+      const b = newRun('roof-hash', 1, 'ninja');
+      expect(runFingerprint(a)).toBe(runFingerprint(b));
+      a.flags[flag] = true;
+      expect(runFingerprint(a), flag).not.toBe(runFingerprint(b));
+    }
   });
 });
 
