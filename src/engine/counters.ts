@@ -18,7 +18,7 @@ export function relicCounter(id: string, rp: RunPlayer | undefined, combat?: { t
   if (h.nodeCounterFish) return rp?.counters?.[id] ?? 0;
   if (h.everyNTurns) return combat ? combat.turn % h.everyNTurns.n : null;
   if (h.onNthCard) return combat ? Math.min(combat.p.cardsPlayedThisTurn, h.onNthCard.n) : null;
-  // 2026-09-23 第三批：探路杖（數到第幾個問號格，0～2）、箱中箱（**剩幾次**，用完是 0，畫面把圖示變灰，見 `relicSpent`）
+  // 2026-09-23 第三批：探路杖（數到第幾個問號格，0～1；2026-09-24 改成每 2 格）、箱中箱（**剩幾次**，用完是 0，畫面把圖示變灰，見 `relicSpent`）
   if (h.qmarkEvery) return rp?.counters?.[id] ?? 0;
   if (h.chestExtra) return Math.max(0, h.chestExtra - (rp?.counters?.[id] ?? 0));
   return null;

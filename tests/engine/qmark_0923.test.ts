@@ -310,7 +310,8 @@ describe('伏擊（設計稿 3-2）', () => {
 });
 
 describe('探路杖（`qmarkEvery`）', () => {
-  it('每走進 3 個會擲的問號格，第 3 個一定是行腳商或路邊紙箱；各算各的，到了的那位歸零', () => {
+  // 2026-09-24 b3int 量尺調整：到點那一格改成一定是路邊紙箱（原本行腳商或路邊紙箱各一半），真的探路杖改成每 2 格
+  it('每走進 n 個會擲的問號格，第 n 個一定是路邊紙箱；各算各的，到了的那位歸零', () => {
     fakeRelic('qm_test_staff', { qmarkEvery: 3 });
     const kinds = new Set<string>();
     for (let i = 0; i < 200; i++) {
@@ -319,12 +320,13 @@ describe('探路杖（`qmarkEvery`）', () => {
       run.act = 2;
       const got: (string | null)[] = [];
       for (let k = 0; k < 3; k++) { run.qmark = 0; got.push(rollQmark(run, cell(`f${6 + k}-l1`, 6 + k))); }
-      expect(['行腳商', '路邊紙箱']).toContain(got[2]);
+      expect(got[2]).toBe('路邊紙箱');
       kinds.add(got[2]!);
       expect(run.players[0]!.counters?.['qm_test_staff']).toBe(0);
       expect(run.players[1]!.counters?.['qm_test_staff']).toBeUndefined();
     }
-    expect(kinds.size).toBe(2);
+    expect([...kinds]).toEqual(['路邊紙箱']);
+    expect(relicById['scout_staff']!.hooks.qmarkEvery).toBe(2);
   });
 });
 

@@ -491,7 +491,7 @@ export interface RelicDef {
     qmarkNoAmbush?: boolean;
     /** 每走進一個問號格回復幾點生命（平安繩；`chooseNode`） */
     qmarkHeal?: number;
-    /** 每走進第 n 個問號格，那一格一定是行腳商或路邊紙箱（探路杖；計數在 `RunPlayer.counters`，見 `scoutStaffTick`） */
+    /** 每走進第 n 個問號格，那一格一定是路邊紙箱（探路杖；計數在 `RunPlayer.counters`，見 `qmark.ts` 的 `tickScoutStaff`） */
     qmarkEvery?: number;
     /** 接下來打開的 n 個紙箱各多給 1 件秘寶（箱中箱；用掉幾次記在 `RunPlayer.counters`） */
     chestExtra?: number;

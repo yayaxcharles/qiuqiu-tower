@@ -389,15 +389,18 @@ describe('抽獎、大魔物池、泡壞忍具（新F／新M／新O）', () => {
 describe('新秘寶 9 件的掛鉤（新P）', () => {
   it('藥簍：單人每一場一般戰鬥的戰利品都有一支忍具（拿掉 `herbBasket` 就紅）；稀有度照一般的抽、大魔物那幾場照常擲', () => {
     // 2026-09-24 b3int 主控裁決調弱：原本還會升成罕見以上、每一場都發（量到 +4.2 層），改成只保證有、只在一般戰鬥
-    const rarities = new Set<string>();
+    const rarities = new Set<string>();   // 藥簍自己補的那幾支（同一顆種子不帶藥簍時本來沒掉）的稀有度
     let eliteNone = 0, eliteSeen = 0;
     for (let i = 0; i < 40; i++) {
+      const bare = newRun(`herb-${i}`, 1, 'ninja');
+      bare.currentNode = bare.map.start[0]!;
+      const natural = winFight(bare, 'rats3')!.potion;
       const run = newRun(`herb-${i}`, 1, 'ninja');
       takeRelic(run, 'herb_basket');
       run.currentNode = run.map.start[0]!;
       const r = winFight(run, 'rats3')!;
       expect(r.potion, `herb-${i}`).not.toBeNull();
-      rarities.add(potionById[r.potion!]!.rarity);
+      if (!natural) rarities.add(potionById[r.potion!]!.rarity);
       const elite = run.map.nodes.find((n) => n.type === '大魔物');
       if (!elite) continue;
       run.currentNode = elite.id;
@@ -444,7 +447,7 @@ describe('新秘寶 9 件的掛鉤（新P）', () => {
   // 「不會變伏擊」與探路杖的計數是問號格那條線讀掛鉤做的（主控 2026-09-23 對齊），這裡只守掛鉤名與回血
   it('平安繩：走進問號格回 5 點（寫一句提示）；掛鉤名照設計稿（問號格那條線讀的）', () => {
     expect(relicById['peace_cord']!.hooks).toEqual({ qmarkNoAmbush: true, qmarkHeal: 5 });
-    expect(relicById['scout_staff']!.hooks).toEqual({ qmarkEvery: 3 });
+    expect(relicById['scout_staff']!.hooks).toEqual({ qmarkEvery: 2 });   // 2026-09-24 b3int 量尺調整：3 → 2
     const run = newCoopRun('cord', 1, 'ninja', 'fengfeng');
     takeRelic(run, 'peace_cord', 1);
     const target = run.map.nodes.find((n) => n.type === '事件' && pathTo(run, n.id))!;
@@ -539,7 +542,7 @@ describe('新秘寶 9 件的掛鉤（新P）', () => {
     const cs = beginCombat(run, 'rats3');
     expect(cs.player.energy).toBe(4);
     expect(cs.player.hand.length).toBe(5 + 2 + 1);   // 藍頭巾第一回合 +2（2026-09-23 bal 從 +1 改）、燈籠每回合 +1
-    expect(cs.player.statuses['懶洋洋']).toBe(2);
+    expect(cs.player.statuses['懶洋洋']).toBe(1);   // 魔氣燈籠 2026-09-24 b3int 量尺調整：2 → 1 層
     expect(cs.player.statuses['爪力']).toBe(3);
     expect(cs.player.statuses['翻肚']).toBe(2);
   });

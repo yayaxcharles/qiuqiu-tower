@@ -1629,6 +1629,17 @@ export function keeperPotions(run: RunState, shop: ShopStock, seat = 0): boolean
   return true;
 }
 
+/**
+ * 探路杖下一個問號格就到點了（任一位；到點那一格一定是路邊紙箱）：選路時問號格多 20 分，機器人才會「照著杖走」
+ *（2026-09-24 b3int：原本機器人不理它，量出來常見池墊底 +0.4 層；真人帶著它也會往問號格走）。計數存在 `RunPlayer.counters[秘寶代號]`
+ */
+export function scoutDue(run: RunState): boolean {
+  return run.players.some((p) => !p.down && p.relics.some((id) => {
+    const every = relicById[id]?.hooks.qmarkEvery;
+    return !!every && (p.counters?.[id] ?? 0) >= every - 1;
+  }));
+}
+
 function nodeScore(run: RunState, n: MapNode): number {
   const hpPct = me(run).hp / me(run).maxHp;
   switch (n.type) {
@@ -1636,7 +1647,7 @@ function nodeScore(run: RunState, n: MapNode): number {
     case '貓窩': return hpPct < 0.55 && napWorks(run) ? 100 : bestUpgrade(run) ? 55 : 20;
     // 客座店主繞路加分（`keeperDetour`，b3shop）；帶集章卡、這位店主還沒蓋過章時再 +15（design3 7-3：機器人要會繞路，量尺才量得準）
     case '罐頭鋪': return (me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15) + keeperDetour(run, n) + (stampWanted(run, 0, n) ? 15 : 0);
-    case '事件': return 50;
+    case '事件': return 50 + (scoutDue(run) ? 20 : 0);
     case '紙箱': return 90;
     case '大魔物': return hpPct >= 0.7 && me(run).deck.some((c) => c.upgraded) ? 62 : 8;
     case '戰鬥': return 42;

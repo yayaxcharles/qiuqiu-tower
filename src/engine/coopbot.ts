@@ -18,7 +18,7 @@ import {
 import { ambushOutcomes } from './qmark';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestPurify, bestRelic, bestUpgrade, deckJunk, eventValue, keeperDetour, keeperPotions, keeperServices, napWorks, pickCard, pillowWorthNap, rating, relicRating, restPurifyPick, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct, takePillowCard } from './smartbot';
+import { bestPurify, bestRelic, bestUpgrade, deckJunk, eventValue, keeperDetour, keeperPotions, keeperServices, napWorks, pickCard, pillowWorthNap, rating, relicRating, restPurifyPick, scoutDue, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct, takePillowCard } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunEffect, RunState } from './types';
 
 /**
@@ -210,7 +210,7 @@ function nodeScoreCoop(run: RunState, n: MapNode): number {
   switch (n.type) {
     case '貓窩': return anyDown ? 130 : needNap ? 100 : canUpgrade ? 55 : 20;
     case '罐頭鋪': return (fish >= 120 ? 75 : fish >= 75 ? 45 : 15) + keeperDetour(run, n);   // 為了店主繞路看座位 0（2026-09-23 第三批）
-    case '事件': return 50;
+    case '事件': return 50 + (scoutDue(run) ? 20 : 0);   // 探路杖到點了往問號格走（2026-09-24 b3int，同單人）
     case '紙箱': return 90;
     case '大魔物': return hpPct >= 0.7 && run.players.some((p) => p.deck.some((c) => c.upgraded)) ? 62 : 8;
     case '戰鬥': return 42;

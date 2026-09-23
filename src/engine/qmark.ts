@@ -58,7 +58,7 @@ export function ambushAllowed(run: RunState, n: MapNode): boolean {
 }
 
 /**
- * 探路杖（設計稿 7-2 第 4 件）：每走進一個「會擲」的問號格數一格，數到 n 的那位歸零，這一格直接指定成行腳商或路邊紙箱。
+ * 探路杖（設計稿 7-2 第 4 件）：每走進一個「會擲」的問號格數一格，數到 n 的那位歸零，這一格直接指定成路邊紙箱（2026-09-24 b3int 從「行腳商或路邊紙箱」改）。
  * 計數各算各的、存在 `RunPlayer.counters`（跟撲滿同一欄，存檔與指紋都有）；任一位到了就觸發。
  */
 function tickScoutStaff(run: RunState): boolean {
@@ -105,9 +105,11 @@ export function rollQmark(run: RunState, n: MapNode, rollable = true): QmarkVari
   const plain = (): null => { run.qmark = (run.qmark ?? 0) + 1; return null; };
   if (!rollable || qmarkProtected(n)) return plain();
   let v: QmarkVariant | null = null;
-  // 探路杖到點：不擲，直接指定（各一半）。設計稿 3-1 把它列在「照樣算一次正常事件」那一組，所以累積照樣 +1
+  // 探路杖到點：不擲，直接指定成路邊紙箱。設計稿 3-1 把它列在「照樣算一次正常事件」那一組，所以累積照樣 +1。
+  // 2026-09-24 b3int 量尺調整：原本「每 3 格、行腳商或路邊紙箱各一半」量到常見池墊底（+0.4 層），每 2 格仍各一半也只有 +0.9；
+  // 行腳商要花錢、機器人多半逛不起，改成一定是路邊紙箱、每 2 格一次，量到 +2.0（常見池中段）
   const forced = tickScoutStaff(run);
-  if (forced) v = new Rng(seedFromString(`${run.seed}|qstaff|${run.act}|${n.id}`)).chance(0.5) ? '行腳商' : '路邊紙箱';
+  if (forced) v = '路邊紙箱';
   else {
     const rng = new Rng(seedFromString(`${run.seed}|q|${run.act}|${n.id}|${run.qmark ?? 0}`));
     if (rng.next() < qmarkChance(run)) {

@@ -383,20 +383,22 @@ export const relics: RelicDef[] = [
    */
   // --- 常見 +4 ---
   // 藥簍、夢枕 2026-09-24 b3int 主控裁決調過：藥簍原本「一定有、升成罕見以上」量到 +4.2 層（太強），改成只保證有、只在一般戰鬥；
-  // 夢枕原本收一般版量到約 0 層，改成三張都是升級版（機器人帶著它時挑得到好牌就改去打盹）
+  // 夢枕原本收一般版量到約 0 層，改成三張都是升級版（機器人帶著它時挑得到好牌就改去打盹）；
+  // 探路杖原本「每 3 格、行腳商或路邊紙箱各一半」量到常見池墊底 +0.4 層，改成每 2 格、一定是路邊紙箱（+2.0）；
+  // 魔氣燈籠原本開戰帶 2 層懶洋洋量到 +2.1 層（大魔物池下四分位 +2.6 以下），改成 1 層（+3.1）
   { id: 'herb_basket', name: '藥簍', pool: '常見', text: '打贏一般戰鬥時，戰利品一定有 1 個忍具（本來就會掉的，不另外給）。', art: 'codex/relic_herb_basket', price: 130,
     hooks: { winPotion: true } },
   { id: 'dream_pillow', name: '夢枕', pool: '常見', text: '在貓窩打盹之後，從 3 張升級版的牌中選 1 張加入牌組（可以不拿）。', art: 'codex/relic_dream_pillow', price: 140,
     hooks: { restCardReward: 3 } },
   { id: 'peace_cord', name: '平安繩', pool: '常見', text: '問號格不會變成伏擊；每走進一個問號格回復 5 點生命。', art: 'codex/relic_peace_cord', price: 110,
     hooks: { qmarkNoAmbush: true, qmarkHeal: 5 } },
-  { id: 'scout_staff', name: '探路杖', pool: '常見', text: '每走進 3 個問號格，第 3 個一定是行腳商或路邊紙箱（各一半）。', art: 'codex/relic_scout_staff', price: 150,
-    hooks: { qmarkEvery: 3 } },
+  { id: 'scout_staff', name: '探路杖', pool: '常見', text: '每走進 2 個問號格，第 2 個一定是路邊紙箱。', art: 'codex/relic_scout_staff', price: 150,
+    hooks: { qmarkEvery: 2 } },
   // --- 大魔物 +2 ---
   { id: 'box_in_box', name: '箱中箱', pool: '大魔物', text: '接下來打開的 2 個紙箱（8F 紙箱、路邊紙箱），每個多給你 1 件秘寶。', art: 'codex/relic_box_in_box', price: 190,
     hooks: { chestExtra: 2 } },
-  { id: 'miasma_lantern', name: '魔氣燈籠', pool: '大魔物', text: '每回合開始時多抽 1 張牌；每場戰鬥第一回合多 1 顆飯糰；開戰帶 2 層懶洋洋。', art: 'codex/relic_miasma_lantern', price: 200,
-    hooks: { turnStart: [{ kind: 'draw', n: 1 }], firstTurnEnergy: 1, combatStart: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'self' }] } },
+  { id: 'miasma_lantern', name: '魔氣燈籠', pool: '大魔物', text: '每回合開始時多抽 1 張牌；每場戰鬥第一回合多 1 顆飯糰；開戰帶 1 層懶洋洋。', art: 'codex/relic_miasma_lantern', price: 200,
+    hooks: { turnStart: [{ kind: 'draw', n: 1 }], firstTurnEnergy: 1, combatStart: [{ kind: 'status', name: '懶洋洋', amount: 1, target: 'self' }] } },
   // --- 塔主 +1 ---
   { id: 'demon_seal', name: '鎮魔符', pool: '塔主', text: '每場戰鬥開始時給全體魔物 1 層定身（每隻七成機會定住）。', art: 'codex/relic_demon_seal', price: 240,
     hooks: { combatStart: [{ kind: 'status', name: '定身', amount: 1, target: 'all' }] } },
