@@ -103,17 +103,85 @@ describe('低-2：收回合那一刻 hold() 之後準備演出丟例外，照常
     expect(failures).toEqual([]);
   });
 
+  it('推前審查 低-4：最後舉手那一批在算出「這回合收完了」之前就丟例外：照常收這一回合，兩台不分岔', async () => {
+    // 在本體最前面（`matePlays` 那一帶，比 `completedTurn` 早）丟一次例外；退路用戰鬥畫面真正的 `turnWaiting`
+    const inner = 'const onApplied = (applied, turn) => {\nconst mine = false;\nmatePlays();\n'
+      + sourceBetween('      const alreadyShown =', '      let ownCard: CardInstance | undefined;')
+      + '\nfinishApplied();\n};\n'
+      + sourceBetween('  function turnWaiting(): boolean {', '  // ===== 結算與動畫 =====');
+    const js = (await transformWithOxc(inner + WRAPPER, 'applied-guard-early.ts')).code;
+    const link = new LoopbackPair();
+    const hostCs = beginCombat(newCoopRun('applied-guard-early-0923'), 'rats2');
+    const guestCs = beginCombat(newCoopRun('applied-guard-early-0923'), 'rats2');
+    for (const cs of [hostCs, guestCs]) for (const enemy of cs.enemies) { enemy.hp = 9999; enemy.maxHp = 9999; }
+    const failures: string[] = [];
+    const host = new CoopSession(link.a, { isHost: true, seat: 0, onDesync: (why) => failures.push(why) });
+    const guest = new CoopSession(link.b, { isHost: false, seat: 1, onDesync: (why) => failures.push(why) });
+    host.attach(hostCs);
+    guest.attach(guestCs);
+    host.onApplied(() => { if (allReady(hostCs) && !hostCs.pending) { host.endOfTurn(); host.hold(); } });
+    let armed = true;
+    const errors: unknown[] = [];
+    guest.onApplied((applied) => {
+      const proxy = {
+        isHost: false, endOfTurn: () => guest.endOfTurn(), hold: () => guest.hold(), release: () => guest.release(),
+        onApplied: (fn: (a: typeof applied) => void) => fn(applied),
+      };
+      const bindings = {
+        session: proxy, cs: guestCs, app: { cs: guestCs }, mySeat: 1, my: () => guestCs.players[1],
+        matePlays: () => { if (armed) { armed = false; throw new Error('matePlays 壞了'); } },
+        remoteBefore: null, remoteCombatBefore: null, remotePresentationRunning: false,
+        allReady, collecting: false, checkOver() {}, syncPicker() {}, root: { querySelector: () => undefined }, sfx() {},
+        collectHand: () => 0, runEnemyTurn: () => { endTurn(guestCs); guest.release(); },
+        recoverPresentation: () => {}, console: { error: (...args: unknown[]) => errors.push(args) },
+      };
+      new Function(...Object.keys(bindings), js)(...Object.values(bindings));
+    });
+
+    link.hold = true;
+    expect(host.submit({ t: 'ready', seat: 0, on: true })).toBe(true);
+    expect(host.submit({ t: 'force', seat: 0, w: 1 })).toBe(true);
+    try { link.flush({ reverse: true }); } catch { /* 沒有防護時例外會一路竄出會話 */ }
+    expect(errors.length).toBeGreaterThan(0);
+    endTurn(hostCs); host.release();
+    expect(guestCs.turn, '客戶端只放開、沒跑魔物回合，就停在上一回合').toBe(hostCs.turn);
+    link.hold = false;
+    const next = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === '攻擊')!;
+    expect(host.submit({ t: 'card', seat: 0, u: next.uid, g: hostCs.enemies[0]!.uid })).toBe(true);
+    expect(failures, '兩台分岔、跳紅色橫幅').toEqual([]);
+    expect(combatFingerprint(guestCs)).toBe(combatFingerprint(hostCs));
+  });
+
   describe('外層那一道的退路', () => {
-    async function run(inner: (applied: unknown[], turn: { finish?: () => void; started?: boolean }) => void) {
+    type Turn = { finish?: () => void; started?: boolean; sealed?: boolean };
+    async function run(inner: (applied: unknown[], turn: Turn) => void, waiting = false) {
       const js = (await transformWithOxc(WRAPPER, 'applied-wrapper.ts')).code;
       let handler: ((a: unknown[]) => void) | null = null;
-      const session = { onApplied: (fn: (a: unknown[]) => void) => { handler = fn; }, release: vi.fn() };
+      const calls: string[] = [];
+      const session = {
+        onApplied: (fn: (a: unknown[]) => void) => { handler = fn; }, release: vi.fn(),
+        endOfTurn: () => { calls.push('check'); }, hold: () => { calls.push('hold'); },
+      };
       const errors: unknown[] = [];
-      new Function('session', 'onApplied', 'recoverPresentation', 'console', js)(
-        session, inner, () => {}, { error: (...args: unknown[]) => errors.push(args) });
+      new Function('session', 'onApplied', 'recoverPresentation', 'console', 'turnWaiting', 'runEnemyTurn', js)(
+        session, inner, () => {}, { error: (...args: unknown[]) => errors.push(args) },
+        () => waiting, () => { calls.push('enemy'); });
       handler!([{}]);
-      return { release: session.release, errors };
+      return { release: session.release, errors, calls };
     }
+
+    // 推前審查 低-4：例外丟在「這回合收完了」之前，而兩個人其實都舉手了——只放開的話這台不跑魔物回合，兩台分岔
+    it('都舉手了、收尾還沒接手就丟：對帳、暫停、照常開魔物回合（魔物回合演完自己放開）', async () => {
+      const r = await run(() => { throw new Error('matePlays 壞了'); }, true);
+      expect(r.calls).toEqual(['check', 'hold', 'enemy']);
+      expect(r.release).not.toHaveBeenCalled();
+    });
+
+    it('已經對帳暫停過、收尾自己丟在開魔物回合之前：不再對帳一次，照常開魔物回合', async () => {
+      const r = await run((_a, turn) => { turn.sealed = true; turn.finish = () => {}; turn.started = true; throw new Error('checkOver 壞了'); }, true);
+      expect(r.calls).toEqual(['enemy']);
+      expect(r.release).not.toHaveBeenCalled();
+    });
 
     it('收尾還沒開始就丟例外：照常收尾一次（收尾自己會放開），不另外放開', async () => {
       const finish = vi.fn();
@@ -166,7 +234,7 @@ describe('低-2：演出佇列算「這一項要等多久」丟例外，也要�
 describe('低-2 追加：魔物回合交給計時器之後演出丟例外，照常收尾、會話一定放開', () => {
   const BODY = sourceBetween('  function runEnemyTurn(): void {', '  // ===== 結算與動畫 =====') + '\nrunEnemyTurn();';
 
-  async function enemyTurn(opts: { settleThrowsAt?: number; recoverThrows?: boolean } = {}) {
+  async function enemyTurn(opts: { settleThrowsAt?: number; recoverThrows?: boolean; snapThrowsFirst?: boolean } = {}) {
     const js = (await transformWithOxc(BODY, 'enemy-turn-guard.ts')).code;
     const cs = beginCombat(newCoopRun('enemy-guard-0923'), 'rats2');
     for (const p of cs.players) p.ready = true;
@@ -178,10 +246,15 @@ describe('低-2 追加：魔物回合交給計時器之後演出丟例外，照�
     const release = vi.fn();
     const errors: unknown[] = [];
     const calls: string[] = [];
+    let snaps = 0;
     const bindings = {
       cs, app: { cs }, my: () => cs.players[0],
-      snap: (c: CombatState) => ({ logLen: c.log.length, enemies: new Map(c.enemies.map((e) => [e.uid, { turnCount: e.turnCount }])) }),
-      beginEnemyTurn, stepEnemyTurn, finishEnemyTurn,
+      snap: (c: CombatState) => {
+        snaps += 1;
+        if (opts.snapThrowsFirst && snaps === 1) throw new Error('快照壞了：魔物回合還沒開始');
+        return { logLen: c.log.length, enemies: new Map(c.enemies.map((e) => [e.uid, { turnCount: e.turnCount }])) };
+      },
+      beginEnemyTurn, stepEnemyTurn, finishEnemyTurn, endTurn, allReady, collecting: false,
       settle: () => { settles += 1; if (settles === opts.settleThrowsAt) throw new Error('演出壞了：缺圖'); },
       session: { release }, enemyTurnRunning: false, clearTelegraph() {},
       telegraphNext: () => true, TELEGRAPH_MS: 320,   // 有預告：第一步就排進計時器，整段都在計時器裡跑
@@ -211,6 +284,13 @@ describe('低-2 追加：魔物回合交給計時器之後演出丟例外，照�
     expect(r.cs.enemyActing, '魔物回合停在一半').toBeFalsy();
     expect(combatFingerprint(r.cs), '沒演的那幾隻也要照常出手，不然兩台分岔').toBe(combatFingerprint(r.expected));
     expect(r.calls).toEqual(['recover', 'checkOver', 'syncPicker']);
+  });
+
+  it('推前審查 低-4：魔物回合還沒開始就丟例外（開頭的快照）：照 endTurn 補跑一次，兩台停在同一個地方', async () => {
+    const r = await enemyTurn({ snapThrowsFirst: true });
+    expect(r.errors).toHaveLength(1);
+    expect(r.release).toHaveBeenCalledTimes(1);
+    expect(combatFingerprint(r.cs), '只放開不補跑：這台停在上一回合，同伴早就跑完了').toBe(combatFingerprint(r.expected));
   });
 
   it('連收尾都壞了：直接放開，並多記一行', async () => {
