@@ -9,7 +9,7 @@ import { potionById } from '../src/content/potions';
 import { describeCard } from '../src/ui/cardtext';
 import { poolNameFor } from '../src/ui/compendium';
 import type { CombatState, PlayerCombat } from '../src/engine/types';
-import { inst } from './helpers';
+import { blankPlayer, inst } from './helpers';
 
 /*
  * 2026-09-23 引擎稽核（scratchpad audit/engine.md）低 1～6：封封那一路的六個小毛病。
@@ -35,24 +35,57 @@ function play(cs: CombatState, p: PlayerCombat, id: string, upgraded = false): b
 }
 
 describe('低-1：集中精神之後，飯糰類忍具變成用不出來（不再白白吃掉）', () => {
-  it('兩顆飯糰、半卷殘頁、飯糰擋下來、留在袋子裡；不給飯糰的照常能用；下一回合恢復', () => {
+  it('兩顆飯糰、飯糰擋下來、留在袋子裡；不給飯糰的照常能用；下一回合恢復', () => {
     const { cs, p } = setup();
-    p.potions = ['dried_fish_bundle', 'secret_scroll', 'onigiri', 'smoke_bomb'];
-    for (const id of ['dried_fish_bundle', 'secret_scroll', 'onigiri']) {
+    p.potions = ['dried_fish_bundle', 'onigiri', 'smoke_bomb'];
+    for (const id of ['dried_fish_bundle', 'onigiri']) {
       expect(potionBlockedReason(p, potionById[id]!), `${id} 集中精神之前用得出來`).toBeNull();
     }
     expect(play(cs, p, 'fengfeng_jizhong')).toBe(true);
-    for (const id of ['dried_fish_bundle', 'secret_scroll', 'onigiri']) {
+    for (const id of ['dried_fish_bundle', 'onigiri']) {
       expect(potionBlockedReason(p, potionById[id]!), id).toMatch(/集中精神.*飯糰/);
       expect(canUsePotion(cs, id), id).toBe(false);
       expect(usePotion(cs, id), id).toBe(false);
     }
-    expect(p.potions, '三支都還在袋子裡').toEqual(['dried_fish_bundle', 'secret_scroll', 'onigiri', 'smoke_bomb']);
+    expect(p.potions, '兩支都還在袋子裡').toEqual(['dried_fish_bundle', 'onigiri', 'smoke_bomb']);
     expect(usePotion(cs, 'smoke_bomb'), '不給飯糰的忍具不受影響').toBe(true);
 
     endTurn(cs);
     expect(cs.phase).toBe('player');
     expect(canUsePotion(cs, 'dried_fish_bundle'), '下一個自己的回合就能喝').toBe(true);
+  });
+
+  // 主控 2026-09-23 裁決：還抽得到牌的照樣能喝，但被擋掉的飯糰要在戰報說出來
+  it('半卷殘頁照樣能喝、抽得到兩張；飯糰那一半被擋，戰報寫出來', () => {
+    const { cs, p } = setup();
+    p.potions = ['secret_scroll'];
+    p.drawPile = [inst('fengfeng_hushen', uid++), inst('fengfeng_hushen', uid++), inst('fengfeng_hushen', uid++)];
+    expect(play(cs, p, 'fengfeng_jizhong')).toBe(true);
+    expect(potionBlockedReason(p, potionById['secret_scroll']!)).toBeNull();
+    const energy = p.energy;
+    const hand = p.hand.length;
+    const logs = cs.log.length;
+    expect(usePotion(cs, 'secret_scroll')).toBe(true);
+    expect(p.hand.length - hand, '抽到兩張').toBe(2);
+    expect(p.energy, '飯糰一顆都沒多').toBe(energy);
+    expect(cs.log.slice(logs)).toContain('集中精神：這回合拿不到飯糰');
+  });
+
+  it('同伴送的飯糰被擋也寫出來，連線時帶名字（給一顆、轉兩顆兩條路都算）', () => {
+    const { cs, p } = setup();
+    const q = blankPlayer([], 1); q.hero = 'dangdang'; q.energy = 9; q.hand = []; q.drawPile = [];
+    cs.players.push(q);
+    expect(play(cs, p, 'fengfeng_jizhong')).toBe(true);
+    const energy = p.energy;
+    let logs = cs.log.length;
+    expect(play(cs, q, 'fantuanfenni')).toBe(true);
+    expect(p.energy).toBe(energy);
+    expect(cs.log.slice(logs)).toContain('集中精神：封封這回合拿不到飯糰');
+    logs = cs.log.length;
+    const qEnergy = q.energy;
+    expect(play(cs, q, 'zhexienixianchi')).toBe(true);
+    expect([p.energy, q.energy], '轉移型不扣送的人').toEqual([energy, qEnergy]);
+    expect(cs.log.slice(logs)).toContain('集中精神：封封這回合拿不到飯糰');
   });
 
   it('起死回生丹的生命門檻照舊走同一支，原因字串就是資料上那一句', () => {
@@ -122,6 +155,28 @@ describe('低-5：戰鬥雜牌不觸發「打出牌後」的能力', () => {
     expect(p.qi, '雜牌不算技能牌').toBe(0);
     expect(play(cs, p, 'fengfeng_hushen')).toBe(true);
     expect(p.qi, '這回合第一張真的技能牌才觸發').toBe(1);
+  });
+
+  // 主控 2026-09-23 裁決：連線支援牌的監聽照同一個標準（牌面沒寫雜牌也算，就排除）
+  it('你忙我補位（看同伴打牌）、有我在前面（看自己打牌）都不吃雜牌', () => {
+    const { cs, p } = setup();
+    const q = blankPlayer([], 1); q.hero = 'ninja'; q.energy = 9; q.hand = [];
+    q.drawPile = [inst('sanjo', uid++), inst('sanjo', uid++)];
+    cs.players.push(q);
+    p.drawPile = [inst('fengfeng_hushen', uid++), inst('fengfeng_hushen', uid++)];
+    // 升級版＝不限牌型，最容易被雜牌吃掉那一次
+    // 同伴先掛自己的（不然他打這張能力牌就先用掉我那一次）
+    expect(play(cs, q, 'youwozaiqianmian', true)).toBe(true);
+    expect(play(cs, p, 'nimangwobuwei', true)).toBe(true);
+    const pHand = p.hand.length;
+    const pBlock = p.block;
+    expect(play(cs, q, 'dazed_card')).toBe(true);
+    expect(play(cs, q, 'slime_card')).toBe(true);
+    expect(p.hand.length, '同伴打雜牌，我不抽').toBe(pHand);
+    expect(p.block, '同伴打雜牌，我不拿蜷縮').toBe(pBlock);
+    expect(play(cs, q, 'tanding')).toBe(true);
+    expect(p.hand.length, '同伴打真的牌才抽').toBe(pHand + 1);
+    expect(p.block, '同伴打真的牌才給蜷縮').toBe(pBlock + 6);
   });
 });
 

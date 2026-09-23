@@ -141,7 +141,7 @@ export function startPlayerTurn(cs: CombatState): void {
  */
 function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
   hitsBefore: number, poisonBefore: ReadonlyMap<number, number>,
-  had: ReadonlyMap<PlayerCombat, WatchSnapshot>): void {
+  had: ReadonlyMap<PlayerCombat, WatchSnapshot>, junk: boolean): void {
   // 打完了就不補（跟千針萬毒、逗貓棒、詛咒魔物同一個判斷）。
   // 少了這道，打贏的那一下同伴照樣抽一張、照樣吃掉本輪的觸發機會，
   // 而那次抽牌會動到 `cs.rng`（那份就是 `run.rng`），等於白推了戰後獎勵的骰子。
@@ -198,13 +198,18 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
      * 千針萬毒那 19 張能力牌卻一次都不會觸發。跟影子分身那次是同一型的錯。
      * 改看快照之後，自觸發自然被擋掉（打出來的當下快照裡還沒有它），能力牌也不必整類排除。
      */
-    if (!solo && snap.allyPlay && !w.firedAllyPlay && w !== p
+    /*
+     * 戰鬥雜牌（黏液、眼冒金星）不算「打出牌」（2026-09-23 主控裁決，跟循息那條同一個標準）：
+     * 這兩張監聽的牌面寫的是「第一次打出牌／技能牌／攻擊牌時」，沒說雜牌也算，
+     * 原本打掉一張眼冒金星就吃掉本輪那一次。附毒與「我有先備好」看的是真的扣到血，雜牌不會打人，本來就碰不到。
+     */
+    if (!junk && !solo && snap.allyPlay && !w.firedAllyPlay && w !== p
         && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
       w.firedAllyPlay = true;
       drawCards(cs, 1, w);
       log(cs, `${unitName(w)}接上了節奏，多抽一張`);
     }
-    if (solo && snap.allyPlay && !w.firedAllyPlay && w === p
+    if (!junk && solo && snap.allyPlay && !w.firedAllyPlay && w === p
         && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
       w.firedAllyPlay = true;                        // 一個人時改成監聽自己
       drawCards(cs, 1, w);
@@ -212,7 +217,7 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
     }
 
     // 有我在前面：看的是**自己**打牌，好處給同伴；一個人時給自己
-    if (w === p && snap.selfPlay && !w.firedSelfPlay
+    if (!junk && w === p && snap.selfPlay && !w.firedSelfPlay
         && (snap.selfPlay === 'any' || type === snap.selfPlay)) {
       w.firedSelfPlay = true;
       const to = mate ?? w;
@@ -572,7 +577,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * `hitsBefore` 本來就從打牌前起算，所以兩次的傷害會一起被涵蓋；
    * 每隻只上一次毒靠 `new Set` 去重，重複發動靠 `fired*` 旗標，都還擋得住。
    */
-  coopWatchers(cs, p, st.def.type, hitsBefore, poisonBefore, watchHad);
+  coopWatchers(cs, p, st.def.type, hitsBefore, poisonBefore, watchHad, !!st.def.combatOnly);
   // 這張牌這場打過幾次（分身術疊傷害用）：效果結算完才 +1，第一次打是 0 次
   cs.cardPlays = cs.cardPlays ?? {};
   cs.cardPlays[uid] = (cs.cardPlays[uid] ?? 0) + 1;
@@ -1085,11 +1090,12 @@ export function canUsePotion(cs: CombatState, potionId: string, targetUid?: numb
  * 集中精神那條（2026-09-23 稽核 引擎 低-1）：打了集中精神之後這回合新增的飯糰一律變 0（`gainEnergy`），
  * 原本飯糰、兩顆飯糰照樣喝得下去——忍具被吃掉、飯糰一顆沒多、紀錄只有一行「用了」。
  * 牌面寫了「這回合不能再獲得飯糰」，規則本身沒錯，錯在讓玩家白白丟掉一支忍具。
- * 半卷殘頁也擋：它的抽兩張還拿得到，但一半的效果會靜靜消失，跟這條要修的是同一件事。
+ * 只擋**整支都是給飯糰**的（主控 2026-09-23 裁決）：半卷殘頁還抽得到兩張牌，照樣能喝，
+ * 被擋掉的那兩顆由 `gainEnergy` 印一行「集中精神：這回合拿不到飯糰」，不會靜靜消失。
  */
 export function potionBlockedReason(p: PlayerCombat, def: PotionDef): string | null {
   if (def.usable && !def.usable.check(p.hp, p.maxHp)) return def.usable.reason;
-  if (p.energyGainBlockedThisPhase && def.effects.some((fx) => fx.kind === 'energy')) return '集中精神之後，這回合不能再獲得飯糰';
+  if (p.energyGainBlockedThisPhase && def.effects.every((fx) => fx.kind === 'energy')) return '集中精神之後，這回合不能再獲得飯糰';
   return null;
 }
 
