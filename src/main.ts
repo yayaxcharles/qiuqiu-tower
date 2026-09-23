@@ -8,8 +8,10 @@ import { App } from './ui/app';
 import { registerLazyScreen } from './ui/lazy-screen';
 import { loadManifest, preloadArt } from './ui/assets';
 import { preloadAct } from './ui/preload';
+import { armHeavyLane, holdHeavyLane } from './ui/heavy-lane';
+import { probeNetSpeed } from './ui/netspeed';
 import { unlockOnFirstGesture } from './ui/audio';
-import { unlockBgmOnFirstGesture } from './ui/bgm';
+import { deferBgm, unlockBgmOnFirstGesture } from './ui/bgm';
 import { applyArtVars } from './ui/screenbg';
 import './ui/screens/actclear';
 import './ui/screens/chest';
@@ -79,7 +81,23 @@ async function boot(): Promise<void> {
   // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
   // 不 await——預載完不完成都不影響能不能玩。
   // UI／牌面／背景先，再抓第一關會遇到的魔物；第二三關的等過關畫面再抓（分關載入，見 preload.ts）
-  void preloadArt().then(() => preloadAct(1));
+  /*
+   * 慢網路才讓路（2026-09-23，主控裁定）：開場這一批一開抓就量速度（netspeed.ts，最多 2.5 秒）。
+   * - 快：跟原本一模一樣——逐格動作的大圖集不限張數、不等，音樂一點就放；
+   * - 慢：大圖集同時最多兩張、開場這一批抓完才開始（heavy-lane.ts），背景音樂也等這一批抓完才放。
+   * 量出來之前大圖集先別開抓（最多 2.5 秒；快網路通常零點幾秒就量完）。
+   */
+  const speed = probeNetSpeed();
+  const releaseHeavy = holdHeavyLane();
+  const opening = preloadArt().then(() => preloadAct(1));
+  void speed.then((s) => {
+    if (s === 'fast') { releaseHeavy(); return; }
+    armHeavyLane(2);
+    void opening.finally(releaseHeavy);
+  });
+  // 慢網路的音樂：開場這一批抓完才放，最多等 90 秒（跟大圖集同一個保險）
+  deferBgm(speed.then((s) => (s === 'slow'
+    ? Promise.race([opening, new Promise<void>((r) => window.setTimeout(r, 90_000))]) : undefined)));
 }
 
 void boot();

@@ -1,5 +1,6 @@
 import { fileUrl } from './assets';
 import { decodedAtlas, imageLoaded, prepareDecodedAtlas } from './decoded-atlas';
+import { loadHeavy } from './heavy-lane';
 
 export type FrameMotionFrame = Readonly<{
   rect: readonly [number, number, number, number];
@@ -87,13 +88,20 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     !('complete' in image) || (image.complete && image.naturalWidth !== 0);
   let loaded = false;
 
-  const imageFor = (motion: FrameMotion): HTMLImageElement => {
+  /**
+   * 網址交給大檔那一條去設（`heavy-lane.ts`，2026-09-23）：同時抓幾張有上限、開場那一批小圖抓完才開始。
+   * `urgent`＝正要畫它，排隊的話插到最前面。
+   */
+  const imageFor = (motion: FrameMotion, urgent = false): HTMLImageElement => {
     const url = fileUrl(motion.texture);
     const cached = images.get(url);
-    if (cached) return cached;
+    if (cached) {
+      if (urgent) void loadHeavy(cached, url, true);
+      return cached;
+    }
     const image = new Image();
-    image.src = url;
     images.set(url, image);
+    void loadHeavy(image, url, urgent);
     return image;
   };
 
@@ -113,20 +121,30 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     // 白解一次還讓每隻貓多占 89～203 MB（清理 2026-09-22，見 decoded-atlas.ts 的 `imageLoaded`）。
     // 壞圖（complete 但 naturalWidth 是 0）不能當成載好；失敗仍要往外丟，
     // preload.ts 的「改用普通立繪」退路才會接手（稽核 2026-09-21 第 6 點）。
-    await Promise.all([...unique.values()].map((motion) => imageLoaded(imageFor(motion)).catch((error: unknown) => {
-      // 失敗的圖從快取拿掉，下次預載重試時才會真的重新下載
-      images.delete(fileUrl(motion.texture));
-      throw error;
-    })));
+    // 先等大檔那一條排到它、設好網址（`loadHeavy`），再等載好：還在排隊的圖沒有網址，`imageLoaded` 會當成壞圖
+    await Promise.all([...unique.values()].map(async (motion) => {
+      const image = imageFor(motion);
+      try {
+        await loadHeavy(image, fileUrl(motion.texture));
+        await imageLoaded(image);
+      } catch (error: unknown) {
+        // 失敗的圖從快取拿掉，下次預載重試時才會真的重新下載
+        images.delete(fileUrl(motion.texture));
+        throw error;
+      }
+    }));
     loaded = true;
     // 載好之後另外在背景解開成點陣圖，出手時才不用當場解碼
     for (const motion of unique.values()) void prepareDecodedAtlas(imageFor(motion));
     for (const [key, motion] of Object.entries(config.motions)) {
       if (!config.deferred?.has(key)) continue;
       const image = imageFor(motion);
-      // 下載好也排進背景解開（排在最後，上限不夠時最先放），第一次進入狀態才不用當場解碼
-      if (image.complete) void prepareDecodedAtlas(image);
-      else image.addEventListener?.('load', () => { void prepareDecodedAtlas(image); }, { once: true });
+      // 下載好也排進背景解開（排在最後，上限不夠時最先放），第一次進入狀態才不用當場解碼。
+      // 排隊中的還沒有網址（`complete` 會是真的），所以等排到了再看
+      void loadHeavy(image, fileUrl(motion.texture)).then(() => {
+        if (image.complete) void prepareDecodedAtlas(image);
+        else image.addEventListener?.('load', () => { void prepareDecodedAtlas(image); }, { once: true });
+      });
     }
   };
 
@@ -252,7 +270,7 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
         appliedBreath = breath;
       }
       if (drawnMotion === motion && drawnFrame === frame) return;
-      const image = imageFor(motion);
+      const image = imageFor(motion, true);   // 正要畫：還在大檔那一條排隊的話插到最前面
       if (!usable(image)) return;
       // 優先畫背景解開的點陣圖；還沒解好或被擠掉就照舊畫 <img>（當場解碼），並排一次背景解開給下一次
       const source: CanvasImageSource = decodedAtlas(image) ?? image;
