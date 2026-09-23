@@ -9,7 +9,7 @@ import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, typ
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import type { CardDef, CardInstance, EventChoice, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl, eventArtCast, eventArtKey } from '../assets';
+import { artUrl, eventArtCast, eventArtHero, eventArtKey, eventSidePortrait } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showUpgradeConfirm } from '../confirm';
@@ -83,9 +83,9 @@ function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
  * 畫面上卻什麼都沒有，故事裡的角色不在畫面上，難怪沒有故事感。
  * 每個事件配一張自己的插圖；還沒生好的就不放（`artUrl` 會回灰剪影，那比沒有更糟）。
  */
-function eventArt(id: string): HTMLElement | string {
+function eventArt(id: string, hero?: string): HTMLElement | string {
   // 鍵走 `eventArtKey`：有菲菲自己的那張就用她的，沒有就退回球球那張（見那支的說明）
-  const key = eventArtKey(id);
+  const key = eventArtKey(id, hero);
   const url = artUrl('bg', key);
   // 插圖裡畫了誰也標上：5F 秘笈那段對白播到這一隻時就不再放頭像（同畫面兩種長相，見 dialogue.ts 的 `portraitPlan`）
   return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '', 'data-art-cast': eventArtCast(key).join(' ') });
@@ -143,6 +143,9 @@ registerScreen('event', (app, root, props) => {
    */
   const seat = app.seat;
   const coop = app.coop;
+  // 插圖照誰挑、要不要在旁邊放自己的立繪（連線的鏡子走廊照座位 0，見 assets.ts 的 `eventArtHero`）
+  const artHero = eventArtHero(ev.id, run.players.map((p) => p.hero));
+  const portrait = eventSidePortrait(ev.id, artHero, me(run, seat).hero ?? 'ninja');
   /*
    * **選擇不可以在畫面收尾時清掉**（2026-09-11 實測的坑）。
    *
@@ -208,7 +211,7 @@ registerScreen('event', (app, root, props) => {
      *（`.event-art-stack` 是 `position: relative`，疊上去的那層絕對定位、不佔空間）。
      * 插圖沒生好時退回原本的行為，不會開天窗。
      */
-    const illo = ev ? eventArt(art ?? ev.id) : '';
+    const illo = ev ? eventArt(art ?? ev.id, artHero) : '';
     const loot = show.length ? showcaseNode(show) : gains.length ? gainsNode(gains) : '';
     const artNode = loot && illo
       ? el('div', { class: 'event-art-stack' }, illo, el('div', { class: 'event-art-loot' }, loot))
@@ -221,6 +224,7 @@ registerScreen('event', (app, root, props) => {
     if (won) play('victory'); else if (lost) play('defeat');
     root.append(sceneView({
       art: artNode,
+      ...(portrait ? { portrait } : {}),
       speaker: title,
       text: resultText,
       extra: [stamp, gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
@@ -640,7 +644,7 @@ registerScreen('event', (app, root, props) => {
     ? [el('p', { class: 'event-note' }, '這個難度下，事件會更兇：掉血多一半，賭運氣只剩七成機會中（選項上寫的是一般難度的數字）')]
     : [];
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
-  root.append(sceneView({ art: eventArt(ev.id), speaker: title,
+  root.append(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), speaker: title,
     text: iDown ? `${evText(ev.text)}（你倒下了，這次由同伴決定）` : evText(ev.text), extra, actions: choices, column: true }));
 
   if (coop) {

@@ -606,7 +606,7 @@
    "hero": "feifei",
    "pose": "belly",
    "action": "belly",
-   "frame": 8,
+   "frame": 5,
    "texture": "assets/motion/feifei/belly.webp",
    "file": "assets/sprites/hero/feifei_belly.webp",
    "canvas": [
@@ -616,15 +616,17 @@
    "footLine": 542,
    "box": [
     2,
-    246,
+    204,
     555,
-    543
+    544
    ],
-   "shift": 43,
-   "shrink": 0.924,
+   "shift": 4,
+   "shrink": 0.971,
    "pivotX": 253.4,
-   "bytes": 24990,
-   "sha256": "8d44972352b78586ff0e5065f1c3e5ca2714642b84dcd2b055d92d45ab1a2768"
+   "head": 0.971,
+   "headCheck": "躺姿：照打包縮放倍率",
+   "bytes": 26958,
+   "sha256": "2c19845c9654ba8a14ee83e0ef9e080f078415975917b48ea1911989c599f8ff"
   },
   {
    "hero": "feifei",
@@ -1407,16 +1409,18 @@
    ],
    "footLine": 542,
    "box": [
-    65,
-    22,
-    464,
+    71,
+    36,
+    459,
     543
    ],
    "shift": 0,
    "shrink": 1.0,
    "pivotX": 285.3,
-   "bytes": 26738,
-   "sha256": "caf787a16527a1f5315d78f1938b52a7ff2be59afd4bc328a1e1853aa73bc8e0"
+   "head": 1.02,
+   "headCheck": "逐格那格的頭 × 縮放",
+   "bytes": 25790,
+   "sha256": "ba2b38beb9195fb64dbbe2e5a816d38870c1cac798a94c0e9ce38a471af7d7fc"
   },
   {
    "hero": "dangdang",
@@ -1671,16 +1675,18 @@
    ],
    "footLine": 542,
    "box": [
-    41,
-    69,
-    467,
-    543
+    56,
+    98,
+    456,
+    544
    ],
    "shift": 0,
    "shrink": 1.0,
    "pivotX": 285.3,
-   "bytes": 24740,
-   "sha256": "010b33713cf93e8271ee5fbd39db7f95a3d01e882584108555104cef28f4b2a5"
+   "head": 1.025,
+   "headCheck": "逐格那格的頭 × 縮放",
+   "bytes": 22518,
+   "sha256": "d17d72c514e5372ccfbf5f413177223ec5c9f275fa3ed72f8d990030254e6f5d"
   },
   {
    "hero": "dangdang",
@@ -1887,16 +1893,18 @@
    ],
    "footLine": 557,
    "box": [
-    74,
-    50,
-    469,
+    64,
+    25,
+    479,
     559
    ],
    "shift": 0,
    "shrink": 1.0,
    "pivotX": 266.5,
-   "bytes": 36996,
-   "sha256": "e5352b80b8c871d9a7e794a5360c618a08be6da99ad0f4d20adad065d6466984"
+   "head": 0.98,
+   "headCheck": "逐格那格的頭 × 縮放",
+   "bytes": 39260,
+   "sha256": "3f04aa7e219b4c21cd8fc70c42ba06f3de0ee8b5209697489ab6d19c795fa911"
   },
   {
    "hero": "fengfeng",
@@ -2118,7 +2126,7 @@
    "hero": "fengfeng",
    "pose": "punch",
    "action": "heavy_slash",
-   "frame": 4,
+   "frame": 2,
    "texture": "assets/motion/fengfeng/heavy_slash.webp",
    "file": "assets/sprites/hero/fengfeng_punch.webp",
    "canvas": [
@@ -2127,16 +2135,18 @@
    ],
    "footLine": 557,
    "box": [
-    48,
     5,
-    447,
+    53,
+    558,
     558
    ],
-   "shift": 0,
-   "shrink": 0.904,
+   "shift": -28,
+   "shrink": 0.942,
    "pivotX": 266.5,
-   "bytes": 37102,
-   "sha256": "18bb0852dbecfa01f098d5331f3457dfffbc7a646be71954778d1f6cd6d0d291"
+   "head": 0.956,
+   "headCheck": "逐格那格的頭 × 縮放",
+   "bytes": 43348,
+   "sha256": "cdee36cf440e704fb553e401207ce97a477a104b126006a304423b76f88cd435"
   },
   {
    "hero": "fengfeng",
@@ -2199,16 +2209,18 @@
    ],
    "footLine": 557,
    "box": [
-    74,
-    50,
-    469,
+    64,
+    25,
+    479,
     559
    ],
    "shift": 0,
    "shrink": 1.0,
    "pivotX": 266.5,
-   "bytes": 36996,
-   "sha256": "e5352b80b8c871d9a7e794a5360c618a08be6da99ad0f4d20adad065d6466984"
+   "head": 0.98,
+   "headCheck": "逐格那格的頭 × 縮放",
+   "bytes": 39260,
+   "sha256": "3f04aa7e219b4c21cd8fc70c42ba06f3de0ee8b5209697489ab6d19c795fa911"
   },
   {
    "hero": "fengfeng",
@@ -2223,16 +2235,18 @@
    ],
    "footLine": 557,
    "box": [
-    74,
-    50,
-    469,
+    64,
+    25,
+    479,
     559
    ],
    "shift": 0,
    "shrink": 1.0,
    "pivotX": 266.5,
-   "bytes": 36996,
-   "sha256": "e5352b80b8c871d9a7e794a5360c618a08be6da99ad0f4d20adad065d6466984"
+   "head": 0.98,
+   "headCheck": "逐格那格的頭 × 縮放",
+   "bytes": 39260,
+   "sha256": "3f04aa7e219b4c21cd8fc70c42ba06f3de0ee8b5209697489ab6d19c795fa911"
   },
   {
    "hero": "fengfeng",

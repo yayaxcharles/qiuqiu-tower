@@ -1798,7 +1798,7 @@
     },
     "wounded": {
       "texture": "assets/motion/dangdang/wounded.webp",
-      "scale": 0.6904109589041096,
+      "scale": 0.6717698630136987,
       "loop": false,
       "frames": [
         {
@@ -2242,7 +2242,7 @@
     },
     "stealth": {
       "texture": "assets/motion/dangdang/stealth.webp",
-      "scale": 0.7262247838616714,
+      "scale": 0.6819250720461094,
       "loop": false,
       "frames": [
         {
