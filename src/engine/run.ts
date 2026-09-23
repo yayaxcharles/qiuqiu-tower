@@ -575,7 +575,7 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    * 只給第一位的話，第二位的秘寶列會少一格，而他明明也在場打完了那一場。
    */
   if (r.relic) for (const rp of standing(run)) takeRelic(run, r.relic, run.players.indexOf(rp));
-  herbBasket(run, r);   // 藥簍（2026-09-23 第三批）：帶的人一定有一支罕見以上的忍具
+  herbBasket(run, r);   // 藥簍（2026-09-23 第三批；2026-09-24 調弱）：帶的人一般戰鬥的戰利品一定有一支忍具
   if (r.potionPerSeat) {
     // 兩個人、有人帶藥簍：各收各的那一支（`potionPerSeat`）；收不下的照樣記在 `potionMissedSeats`，獎勵畫面各問各的
     const missed = standing(run).filter((rp) => { const i = run.players.indexOf(rp); const pid = r.potionPerSeat![i]; return !!pid && !addPotion(run, pid, i); });
@@ -1352,6 +1352,20 @@ export function swapCandidates(run: RunState, cardId: string, seat = 0): CardDef
     && c.id !== old.id && cardNameFor(c, hero) !== name);
 }
 
+/**
+ * 新C 換牌的共用一步（2026-09-24 b3int：阿福的「舊招換新招」與開局祝福「塗鴉本」原本各寫一份，規則一樣，併成這一支）：
+ * 照 `swapCandidates` 挑一張、**原地**換掉（牌號與在牌組裡的位置不動、升級不帶過去）。
+ * 亂數由呼叫端給——兩邊的分支不同（阿福 `keeperswap`、祝福 `bless|…|fx`），都不推整局亂數。換不了回 null、什麼都不動。
+ */
+export function transformCard(run: RunState, c: CardInstance, rng: Rng, seat = 0): CardDef | null {
+  const cands = swapCandidates(run, c.cardId, seat);
+  if (!cands.length) return null;
+  const next = rng.pick(cands);
+  c.cardId = next.id;
+  c.upgraded = false;
+  return next;
+}
+
 /** 阿福這一格現在換得了嗎（引擎、連線放行、畫面都問這一支） */
 export function canSwap(run: RunState, shop: ShopStock, uid: number, seat = 0): boolean {
   const s = shopService(shop);
@@ -1368,18 +1382,15 @@ export function buySwap(run: RunState, shop: ShopStock, uid: number, seat = 0): 
   if (!canSwap(run, shop, uid, seat)) return null;
   const c = me(run, seat).deck.find((x) => x.uid === uid)!;
   const rng = new Rng(seedFromString(`${run.seed}|keeperswap|${run.act}|${run.currentNode ?? '-'}|${seat}`));
-  const next = rng.pick(swapCandidates(run, c.cardId, seat));
   pay(run, shopService(shop)!.cost, seat);
   shop.serviced = true;
-  c.cardId = next.id;
-  c.upgraded = false;
-  return next.id;
+  return transformCard(run, c, rng, seat)!.id;   // `canSwap` 擋過了，一定有得換
 }
 
 /*
  * 婆婆的「請婆婆淨化」：淨化本身（哪幾件沾了魔氣、換代號、調生命上限、90 條、一間一次）是淨化那條線（b3rare，design3 第六節）的，
  * 那條線已經寫好給這裡接的介面（`canPurifyAtShop`／`purifyAtShop`、連線動作 `{ t: 'purify' }`、挑選窗 `showPurifyPick`）。
- * 兩條線同時開工、這個分支還沒有那幾支，所以這裡不另寫一份：畫面的服務鈕在合併之後接上（`screens/shop.ts` 的 `serviceBtn`，b3shop 報告附程式碼）。
+ * 這裡不另寫一份：畫面的服務鈕合併後接在 `screens/shop.ts` 的 `serviceBtn`（2026-09-24 b3int），連線動作只在她那間放行（`net/runaction.ts`）。
  */
 
 /** 要玩家從牌組挑幾張來升級或移除 */
@@ -1911,19 +1922,23 @@ export function takeRestCard(run: RunState, cardId: string, seat = 0): boolean {
   if (run.flags[flag] || me(run, seat).down) return false;
   if (cardId && !restCardChoices(run, seat).some((c) => c.id === cardId)) return false;
   run.flags[flag] = true;
-  if (cardId) addCard(run, cardId, false, seat);
+  // 挑到的是升級版（2026-09-24 b3int 主控裁決：原本收一般版量到約 0 層，機器人多半不拿）
+  if (cardId) addCard(run, cardId, true, seat);
   return true;
 }
 
-/** 藥簍：帶著的人這一場的戰利品一定有一支罕見以上的忍具（本來掉的是罕見以上就不動）。兩個人時各拿各的（`potionPerSeat`） */
+/**
+ * 藥簍：帶著的人這一場的戰利品一定有一支忍具（本來就掉了一支就不動）。兩個人時各拿各的（`potionPerSeat`）。
+ * 2026-09-24 b3int 主控裁決調弱：原本「一定有、而且升成罕見以上」量到四隻平均 +4.2 層（常見池第 38／42），
+ * 改成只保證有、稀有度照一般戰利品的機率抽（常見也抽得到），而且只在一般戰鬥（大魔物、塔主那幾場照常擲）。
+ */
 function herbBasket(run: RunState, r: CombatRewards): void {
-  const good = (id: string | null): boolean => !!id && potionById[id]?.rarity !== undefined && potionById[id]!.rarity !== '常見';
   const seats = run.players.map((p, i) => (!p.down && p.relics.some((id) => relicById[id]?.hooks.winPotion) ? i : -1)).filter((i) => i >= 0);
-  if (!seats.length || good(r.potion)) return;
+  if (!seats.length || r.potion || r.kind !== '戰鬥') return;
   const roll = (i: number): string => {
     const rng = branch(run, 'herb', run.act, run.currentNode ?? '-', i);
-    const cands = potions.filter((x) => x.rarity !== '常見' && potionOk(x, [heroOf(me(run, i))]));
-    const odds = POTION_RARITY_ODDS.filter(([rar]) => rar !== '常見' && cands.some((x) => x.rarity === rar));
+    const cands = potions.filter((x) => potionOk(x, [heroOf(me(run, i))]));
+    const odds = POTION_RARITY_ODDS.filter(([rar]) => cands.some((x) => x.rarity === rar));
     let roll = rng.next() * odds.reduce((s, [, w]) => s + w, 0);
     let rar = odds[odds.length - 1]![0];
     for (const [k, w] of odds) { roll -= w; if (roll < 0) { rar = k; break; } }

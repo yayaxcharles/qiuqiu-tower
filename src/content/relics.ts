@@ -382,9 +382,11 @@ export const relics: RelicDef[] = [
    * 集章卡看的店主是店主輪替那條線寫在地圖格子上的 `keeper`（`run.ts` 的 `stampVisit`，還沒有那一欄＝橘貓老闆）。
    */
   // --- 常見 +4 ---
-  { id: 'herb_basket', name: '藥簍', pool: '常見', text: '打贏戰鬥時，戰利品一定有 1 個忍具（本來就會掉的，改成罕見以上）。', art: 'codex/relic_herb_basket', price: 130,
+  // 藥簍、夢枕 2026-09-24 b3int 主控裁決調過：藥簍原本「一定有、升成罕見以上」量到 +4.2 層（太強），改成只保證有、只在一般戰鬥；
+  // 夢枕原本收一般版量到約 0 層，改成三張都是升級版（機器人帶著它時挑得到好牌就改去打盹）
+  { id: 'herb_basket', name: '藥簍', pool: '常見', text: '打贏一般戰鬥時，戰利品一定有 1 個忍具（本來就會掉的，不另外給）。', art: 'codex/relic_herb_basket', price: 130,
     hooks: { winPotion: true } },
-  { id: 'dream_pillow', name: '夢枕', pool: '常見', text: '在貓窩打盹之後，從 3 張牌中選 1 張加入牌組（可以不拿）。', art: 'codex/relic_dream_pillow', price: 140,
+  { id: 'dream_pillow', name: '夢枕', pool: '常見', text: '在貓窩打盹之後，從 3 張升級版的牌中選 1 張加入牌組（可以不拿）。', art: 'codex/relic_dream_pillow', price: 140,
     hooks: { restCardReward: 3 } },
   { id: 'peace_cord', name: '平安繩', pool: '常見', text: '問號格不會變成伏擊；每走進一個問號格回復 5 點生命。', art: 'codex/relic_peace_cord', price: 110,
     hooks: { qmarkNoAmbush: true, qmarkHeal: 5 } },

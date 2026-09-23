@@ -18,7 +18,7 @@ import {
 import { ambushOutcomes } from './qmark';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestPurify, bestRelic, bestUpgrade, deckJunk, eventValue, keeperDetour, keeperPotions, keeperServices, napWorks, pickCard, rating, relicRating, restPurifyPick, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct, takePillowCard } from './smartbot';
+import { bestPurify, bestRelic, bestUpgrade, deckJunk, eventValue, keeperDetour, keeperPotions, keeperServices, napWorks, pickCard, pillowWorthNap, rating, relicRating, restPurifyPick, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct, takePillowCard } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunEffect, RunState } from './types';
 
 /**
@@ -423,7 +423,7 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
           const u = bestUpgrade(run, i);
           const pur = restPurifyPick(run, i);   // 點清心香（2026-09-23 第三批），判準同單人
           if (pur) rest(run, '淨化', undefined, i, pur);
-          else if ((p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run, i)) || !u) { rest(run, '打盹', undefined, i); takePillowCard(run, i); }
+          else if ((p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run, i)) || !u || pillowWorthNap(run, i)) { rest(run, '打盹', undefined, i); takePillowCard(run, i); }
           else rest(run, '磨爪', u.uid, i);
         });
         break;

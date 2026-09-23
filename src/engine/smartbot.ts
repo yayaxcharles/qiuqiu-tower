@@ -20,7 +20,7 @@ import {
   finishCombat, makeShop, miasmaRelicsOf, napHeal, newRun, openChest, purifyRelic, removeCard, removePrice, rest, restCardChoices, rollActCards, rollActRelics,
   stampWanted, takeCardReward, closeCardReward, takeRelic, takeRestCard,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight, makeMerchant, openRoadsideBox,
-  buySwap, keeperOf, potionCapacity, priceFor, type ShopStock } from './run';
+  buySwap, keeperOf, potionCapacity, priceFor, purifyAtShop, type ShopStock } from './run';
 import { ambushOutcomes } from './qmark';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, RelicPool, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
@@ -214,10 +214,19 @@ export function restPurifyPick(run: RunState, seat = 0): string | undefined {
   const id = bestPurify(miasmaRelicsOf(run, seat), hero);
   return id && purifyGain(id, hero).floors >= 1.5 ? id : undefined;
 }
-/** 夢枕：打盹之後照 `pickCard` 挑（不到門檻就不拿） */
+/** 夢枕：打盹之後照 `pickCard` 挑（三張都是升級版，每張 +1；不到門檻就不拿） */
 export function takePillowCard(run: RunState, seat = 0): void {
   const picks = restCardChoices(run, seat);
-  if (picks.length) takeRestCard(run, pickCard(run, picks, seat) ?? '', seat);
+  if (picks.length) takeRestCard(run, pickCard(run, picks, seat, 1) ?? '', seat);
+}
+/**
+ * 帶夢枕的貓窩要不要改成打盹（2026-09-24 b3int）：三張裡挑得到一張夠好的升級版牌，睡下去＝回血＋一張新的升級牌，
+ * 比磨爪（升一張舊牌）划算，就睡。三張是這一格的分支亂數算的（`restCardChoices`），先看不會推整局亂數。
+ * 原本只在缺血時打盹，夢枕量出來約 0 層（大多數貓窩都去磨爪，根本沒看到那三張）。
+ */
+export function pillowWorthNap(run: RunState, seat = 0): boolean {
+  const picks = restCardChoices(run, seat);
+  return picks.length > 0 && pickCard(run, picks, seat, 1) !== null;
 }
 
 /**
@@ -1322,14 +1331,16 @@ export function deckJunk(run: RunState, seat = 0): CardInstance[] {
   return me(run, seat).deck.filter((c) => rating(c.cardId) <= 2).sort((a, b) => rating(a.cardId) - rating(b.cardId));
 }
 
-export function pickCard(run: RunState, choices: { id: string }[], seat = 0): string | null {
+export function pickCard(run: RunState, choices: { id: string }[], seat = 0,
+  /** 每一張都加這麼多（夢枕的三張都是升級版：+1，跟牌組評分 `c.upgraded ? 1 : 0` 同一把尺；2026-09-24 b3int） */
+  bonus = 0): string | null {
   let best: { id: string; v: number } | null = null;
   const attacks = me(run, seat).deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
   const skills = me(run, seat).deck.length - attacks;
   for (const ch of choices) {
     const def = cardById[ch.id];
     if (!def) continue;
-    let v = rating(ch.id);
+    let v = rating(ch.id) + bonus;
     if (def.type === '攻擊' && attacks < skills) v += 1;
     if (def.type !== '攻擊' && skills < attacks - 2) v += 1;
     if (me(run, seat).deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
@@ -1576,15 +1587,16 @@ export function keeperDetour(run: RunState, n: MapNode, seat = 0): number {
   const p = me(run, seat);
   if (k === 'junk') return deckJunk(run, seat).length >= 2 ? 15 : 0;
   if (k === 'curio') return p.fish >= 150 ? 15 : 0;
-  // 「或身上有沾了魔氣的秘寶」那一半等淨化那條線（b3rare 的 `miasmaRelicsOf`）合併後補上，見 b3shop 報告
-  if (k === 'tortoise') return p.potions.length < 2 ? 10 : 0;
+  // 婆婆：忍具不到兩支，或身上有沾了魔氣的秘寶（她會淨化，2026-09-24 b3int 合併後接上 b3rare 的 `miasmaRelicsOf`）
+  if (k === 'tortoise') return p.potions.length < 2 || miasmaRelicsOf(run, seat).length > 0 ? 10 : 0;
   return 0;
 }
 
 /**
  * 客座店主的服務與放生（2026-09-23 第三批 新J，design3 4-4），逛店一開始先跑（跟「先放生爛牌」同一個時機）：
  * 阿福——廢牌一張以上、錢夠半價放生再留 40 就放生；牌組還有評分 2 以下的、錢 100 以上才換招。
- * 婆婆——淨化後多 1.5 層以上、錢 130 以上就淨化：淨化是淨化那條線（b3rare）的 `purifyAtShop`，合併後補在這裡（b3shop 報告附程式碼）。
+ * 婆婆——淨化後多 1.5 層以上、錢 130 以上就淨化（淨化那條線 b3rare 的 `purifyAtShop`；收益＝量尺上「淨化版 − 原件」，`purifyGain`，
+ * 跟貓窩的清心香同一把尺；2026-09-24 b3int 合併後接上）。
  * 橘貓老闆、掌櫃什麼都不做（掌櫃照現在：秘寶 6 分門檻）。兩支機器人（單人、連線）共用，規則一樣。
  */
 export function keeperServices(run: RunState, shop: ShopStock, seat = 0): void {
@@ -1594,6 +1606,11 @@ export function keeperServices(run: RunState, shop: ShopStock, seat = 0): void {
     if (junk.length >= 1 && p.fish >= removePrice(run, seat, shop) + 40) buyRemove(run, junk[0]!.uid, seat, shop);
     const left = deckJunk(run, seat);
     if (left.length && p.fish >= 100) buySwap(run, shop, left[0]!.uid, seat);
+  }
+  if (shop.keeper === 'tortoise' && p.fish >= 130) {
+    const hero = heroOf(p);
+    const id = bestPurify(miasmaRelicsOf(run, seat), hero);
+    if (id && purifyGain(id, hero).floors >= 1.5) purifyAtShop(run, shop, id, seat);
   }
 }
 
@@ -1714,7 +1731,7 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
         // 點清心香（2026-09-23 第三批）：收益 ≥ 1.5 層、血 ≥ 六成、不是 44F 才淨化（`restPurifyPick`），不然照原本的打盹／磨爪
         const pur = restPurifyPick(run);
         if (pur) rest(run, '淨化', undefined, 0, pur);
-        else if ((me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run)) || !u) { rest(run, '打盹'); takePillowCard(run); }   // 夢枕：睡完挑一張
+        else if ((me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run)) || !u || pillowWorthNap(run)) { rest(run, '打盹'); takePillowCard(run); }   // 夢枕：睡完挑一張
         else rest(run, '磨爪', u.uid);
         break;
       }

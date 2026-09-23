@@ -251,6 +251,11 @@ describe('沾了魔氣的秘寶與淨化（新K）', () => {
     expect(shop.purified).toBe(true);
     expect(purifyAtShop(run, shop, 'black_cat_mask'), '一間一次').toBe(false);
     const shops = [makeShop(run)];
+    // 只有玳瑁婆婆那間有這項服務：畫面只在她那間出鈕，連線動作引擎這邊也擋（2026-09-24 b3int 合併店主輪替後補）
+    expect(canApplyRun({ run, shops }, { t: 'purify', seat: 0, id: 'black_cat_mask' }), '橘貓老闆那間不能淨化').toBe(false);
+    shops[0]!.keeper = 'junk';
+    expect(canApplyRun({ run, shops }, { t: 'purify', seat: 0, id: 'black_cat_mask' }), '阿福那間也不能').toBe(false);
+    shops[0]!.keeper = 'tortoise';
     expect(canApplyRun({ run, shops }, { t: 'purify', seat: 0, id: 'black_cat_mask' })).toBe(true);
     expect(canApplyRun({ run }, { t: 'purify', seat: 0, id: 'black_cat_mask' }), '不在店裡').toBe(false);
     expect(applyRunAction({ run, shops }, { t: 'purify', seat: 0, id: 'black_cat_mask' })).toBe(true);
@@ -382,15 +387,27 @@ describe('抽獎、大魔物池、泡壞忍具（新F／新M／新O）', () => {
 });
 
 describe('新秘寶 9 件的掛鉤（新P）', () => {
-  it('藥簍：單人每一場戰利品都有一支罕見以上的忍具（拿掉 `herbBasket` 就紅）', () => {
+  it('藥簍：單人每一場一般戰鬥的戰利品都有一支忍具（拿掉 `herbBasket` 就紅）；稀有度照一般的抽、大魔物那幾場照常擲', () => {
+    // 2026-09-24 b3int 主控裁決調弱：原本還會升成罕見以上、每一場都發（量到 +4.2 層），改成只保證有、只在一般戰鬥
+    const rarities = new Set<string>();
+    let eliteNone = 0, eliteSeen = 0;
     for (let i = 0; i < 40; i++) {
       const run = newRun(`herb-${i}`, 1, 'ninja');
       takeRelic(run, 'herb_basket');
       run.currentNode = run.map.start[0]!;
       const r = winFight(run, 'rats3')!;
       expect(r.potion, `herb-${i}`).not.toBeNull();
-      expect(potionById[r.potion!]!.rarity).not.toBe('常見');
+      rarities.add(potionById[r.potion!]!.rarity);
+      const elite = run.map.nodes.find((n) => n.type === '大魔物');
+      if (!elite) continue;
+      run.currentNode = elite.id;
+      const e = winFight(run, 'rats3')!;
+      eliteSeen += 1;
+      if (!e.potion) eliteNone += 1;
     }
+    expect(rarities.has('常見'), '不再升成罕見以上：常見的也抽得到').toBe(true);
+    expect(eliteSeen, '前提：樣本裡有大魔物格').toBeGreaterThan(10);
+    expect(eliteNone, '大魔物那幾場不保證（照常五成擲）').toBeGreaterThan(0);
   });
 
   it('藥簍：兩個人時只有帶的那一位保證有（`potionPerSeat`），另一位照常擲', () => {
@@ -401,7 +418,7 @@ describe('新秘寶 9 件的掛鉤（新P）', () => {
       run.currentNode = run.map.start[0]!;
       const r = winFight(run, 'rats3')!;
       const mine = r.potionPerSeat ? r.potionPerSeat[1] : r.potion;
-      expect(mine && potionById[mine]!.rarity !== '常見', `herb-coop-${i}`).toBe(true);
+      expect(!!mine && !!potionById[mine], `herb-coop-${i}`).toBe(true);
       expect(run.players[1]!.potions).toContain(mine);
       if (r.potionPerSeat && r.potionPerSeat[0] !== r.potionPerSeat[1]) diff += 1;
     }

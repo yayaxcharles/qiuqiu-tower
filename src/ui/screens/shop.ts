@@ -1,8 +1,10 @@
 import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
-import { relicById, relicLongText } from '../../content/relics';
-import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, buySwap, canSwap, keeperMulFor, makeShops, notMyCard, potionCapacity, priceFor, removePrice, reshuffleShop, runMods, shopClosed, shopMulFor, shopService, type ShopStock } from '../../engine/run';
+import { MIASMA_PURE, relicById, relicLongText } from '../../content/relics';
+import { PURIFY_PRICE, RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, keeperMulFor, makeShops, miasmaRelicsOf, notMyCard, potionCapacity, priceFor, purifyAtShop, removePrice, reshuffleShop, runMods, shopClosed, shopMulFor, shopService, type ShopStock } from '../../engine/run';
+import { TORTOISE_PURIFY_LINE, purifyLine, tortoisePurifyLabel } from '../../content/purify-text';
+import { showPurifyPick } from '../purifypick';
 import type { MERCHANT_LINES } from '../../content/qmark-text';
 import { heroSpeaker, notice, toast } from '../dialogue';
 import { KEEPERS } from '../../content/keepers';
@@ -297,6 +299,7 @@ registerScreen('shop', (app, root, props) => {
   function render(): void {
     clearKeepBg(root);
     renderHud(app, root);
+    if (flashPure) { root.querySelector(`.hud-relic[data-relic="${flashPure}"]`)?.classList.add('purified'); flashPure = null; }
     // 行腳商的開頭：揭曉圖＋這一位的那段話，按一下才攤開貨架（只換畫法，不動任何東西）
     if (mer && intro) {
       const url = artUrl('bg', eventArtKey('q_merchant'));
@@ -419,13 +422,17 @@ registerScreen('shop', (app, root, props) => {
   /*
    * ===== 店主的服務（2026-09-23 內容擴充第三批 新J，design3 4-2、4-4）=====
    * 對白框裡第三顆鈕（跟放生、重整並排）。阿福「舊招換新招」：一間一次、判準問引擎（`canSwap`），連線走 `act()`、等動作繞回來才講話（見 `afterService`）。
-   * 婆婆「請婆婆淨化」（身上有沾了魔氣的秘寶才出現）：淨化那條線（b3rare）寫好了 `canPurifyAtShop`／`purifyAtShop`、`{ t: 'purify' }`、
-   * `showPurifyPick` 與台詞 `purify-text.ts`，這個分支還沒有那幾支——**合併後在這裡接**（b3shop 報告附要貼的程式碼），現在婆婆那間不出這顆鈕。
+   * 婆婆「請婆婆淨化」（身上有沾了魔氣的秘寶才出現）：接淨化那條線（b3rare）的 `canPurifyAtShop`／`purifyAtShop`、`{ t: 'purify' }`、
+   * `showPurifyPick` 與台詞 `purify-text.ts`（2026-09-24 b3int 合併後照 b3shop 報告第五節接上）：一件直接淨化、兩件以上跳挑選窗（可以先不要），
+   * 判準問引擎，連線等動作繞回來才講話（`afterPurify`）。
    */
   /** 送出去還沒繞回來的那一筆（連線時要等 `onRunApplied` 才知道換成了什麼） */
   let pendingService: { kind: 'swap'; uid: number; oldName: string } | null = null;
+  /** 剛淨化好的那一件淨化版：下一次畫狀態列時那一格閃一下白金光（跟貓窩的清心香同一個 `.hud-relic.purified`） */
+  let flashPure: string | null = null;
   function serviceBtn(): HTMLElement | '' {
     const svc = shopService(shop);
+    if (svc?.kind === 'purify') return purifyBtn();
     if (!svc || svc.kind !== 'swap') return '';
     const btn = el('button', { class: 'btn', onclick: () => pickSwap(svc.cost) }, shop.serviced ? '這間已經換過一招了' : `${svc.label}：${svc.cost} 條小魚乾`);
     if (iDown || !me(run, seat).deck.some((c) => canSwap(run, shop, c.uid, seat))) btn.setAttribute('disabled', 'disabled');
@@ -442,6 +449,28 @@ registerScreen('shop', (app, root, props) => {
       else render();   // 換不成（錢不夠、連線斷著）或連線送出去等繞回來：照樣把牌組視窗收掉後的畫面重畫一次
     },
   });
+  function purifyBtn(): HTMLElement | '' {
+    const list = miasmaRelicsOf(run, seat);
+    if (!list.length) return '';
+    const go = (id: string | null): void => {
+      if (!id) return;
+      if (act({ t: 'purify', seat, id }, () => purifyAtShop(run, shop, id, seat)) && !coop) afterPurify(id);
+    };
+    const btn = el('button', { class: 'btn', onclick: () => (list.length === 1 ? go(list[0]!) : showPurifyPick(list, go, { cancellable: true })) },
+      shop.purified ? '這間已經淨化過了' : tortoisePurifyLabel(PURIFY_PRICE));
+    if (iDown || !list.some((id) => canPurifyAtShop(run, shop, id, seat))) btn.setAttribute('disabled', 'disabled');
+    return btn;
+  }
+  /** 淨化好了：系統提示哪一件變成哪一件、婆婆那句＋自己回一句、那一格閃白金光（單機當下叫；連線等動作繞回來才叫） */
+  function afterPurify(id: string): void {
+    const pure = MIASMA_PURE[id] ?? '';
+    notice(`「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]?.name ?? pure}」了。`);
+    talk = { text: TORTOISE_PURIFY_LINE, reply: purifyLine(hero) };
+    flashPure = pure;
+    countBuy();   // 服務也算「買了一樣」（design3 4-5）
+    play('upgrade'); setMood('happy');
+    if (!coop) render();
+  }
   /** 服務做完了：系統提示一行、對白框換成自己那一句、老闆笑一下（單機當下叫；連線等動作繞回來才叫） */
   function afterService(): void {
     const s = pendingService;
@@ -471,6 +500,7 @@ registerScreen('shop', (app, root, props) => {
         if (one.a.t === 'done') done.add(one.a.seat);
         // 店主的服務繞回來了（2026-09-23 第三批）：這時才講「換成了什麼」、換對白（`afterService` 自己播聲、自己算一樣）
         else if (one.a.seat === seat && one.a.t === 'buy' && one.a.k === 'swap') afterService();
+        else if (one.a.seat === seat && one.a.t === 'purify') afterPurify(one.a.id);   // 婆婆淨化繞回來了（2026-09-24 b3int）
         // 換忍具（`swap`，由 potionswap 送出）不是買東西，不播買賣聲（總稽核 B 低-5）
         else if (one.a.seat === seat && one.a.t !== 'swap') {
           play(one.a.t === 'buy' && one.a.k === 'relic' ? 'relic' : one.a.t === 'scrub' ? 'upgrade' : 'buy'); setMood('happy');

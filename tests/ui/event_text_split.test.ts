@@ -4,6 +4,7 @@ import * as DIALOGUE from '../../src/content/dialogue';
 import * as FENGFENG from '../../src/content/fengfeng-dialogue';
 import * as EVENT_TEXT from '../../src/content/event-text';
 import { NINJA_COND_RESULT_B2, NINJA_EVENT_TEXT_B2 } from '../../src/content/event-text-b2';
+import { NINJA_EVENT_TEXT_B3RARE } from '../../src/content/event-text-b3rare';
 import { eventById } from '../../src/content/events';
 import MAIN_RAW from '../../src/main.ts?raw';
 import LOADER_RAW from '../../src/ui/event-loader.ts?raw';
@@ -129,6 +130,36 @@ describe('事件文字與事件畫面不在首載', () => {
     }
     // 另外三隻的表鍵就是球球那份：每一段都對得到（沒填回的話三隻會一起退回空白）
     for (const t of ninjaB2) for (const h of ['feifei', 'dangdang', 'fengfeng']) {
+      expect(EVENT_TEXT.eventTextFor(h, t), `${h} 對不到「${t.slice(0, 20)}…」`).not.toBe(t);
+    }
+  });
+
+  /*
+   * 球球的稀有事件 5 篇（2026-09-24 b3int 主控裁決，同一個做法）：原本寫在 `events-rare.ts`，跟著事件資料進首載（實測 5.5 KB）。
+   * 現在住在 `event-text-b3rare.ts`（跟另外三隻同一塊），載入時填回。
+   */
+  const ninjaRare = Object.values(NINJA_EVENT_TEXT_B3RARE).flatMap((t) => [t.text, ...t.results]);
+
+  it('球球稀有事件的開頭與結果不在首載：主程式走得到的每一支都找不到那幾段', () => {
+    expect(graph.has('src/content/event-text-b3rare.ts'), '有首載的模組靜態匯入了稀有事件文字').toBe(false);
+    expect(ninjaRare.length).toBe(20);   // 五篇開頭＋十五個結果
+    for (const f of graph) {
+      const src = readFileSync(f, 'utf-8');
+      const hit = ninjaRare.find((t) => src.includes(t));
+      expect(hit, `${f} 裡還有球球稀有事件的文字`).toBeUndefined();
+    }
+  });
+
+  it('稀有事件載入之後一段不少地填回（另外三隻對照表的鍵、抽到之後那一句都靠它）', () => {
+    for (const [id, t] of Object.entries(NINJA_EVENT_TEXT_B3RARE)) {
+      const ev = eventById[id];
+      expect(ev?.rare, id).toBeDefined();
+      expect(ev!.text, id).toBe(t.text);
+      expect(t.results.length, `${id} 結果數跟選項數對不上`).toBe(ev!.choices.length);
+      t.results.forEach((r, i) => expect(ev!.choices[i]!.result, `${id} 第 ${i + 1} 個結果`).toBe(r));
+    }
+    expect(Object.keys(NINJA_EVENT_TEXT_B3RARE).sort()).toEqual(Object.values(eventById).filter((e) => e.rare).map((e) => e.id).sort());
+    for (const t of ninjaRare) for (const h of ['feifei', 'dangdang', 'fengfeng']) {
       expect(EVENT_TEXT.eventTextFor(h, t), `${h} 對不到「${t.slice(0, 20)}…」`).not.toBe(t);
     }
   });

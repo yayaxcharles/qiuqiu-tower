@@ -1,4 +1,4 @@
-import { buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, notMyCard, priceFor, potionCapacity, purifyAtShop, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, shopClosed, takeRelic, takeRestCard, type ShopStock } from '../engine/run';
+import { buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, notMyCard, priceFor, potionCapacity, purifyAtShop, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, shopClosed, shopService, takeRelic, takeRestCard, type ShopStock } from '../engine/run';
 import { isMiasma } from '../content/relics';
 import type { RunState } from '../engine/types';
 import { canTakeBlessing, takeBlessing, type BlessPick } from '../engine/blessing';
@@ -105,7 +105,8 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
       if (a.c === '淨化') return a.r !== undefined && isMiasma(a.r) && p.relics.includes(a.r);
       return a.c === '磨爪' || a.c === '全力準備' ? a.u !== undefined : true;
     case 'restCard': return true;   // 挑的那張在不在三張裡、是不是已經挑過，`takeRestCard` 自己擋（兩台照同一份算）
-    case 'purify': return !!shop && canPurifyAtShop(run, shop, a.id, a.seat);
+    // 只有玳瑁婆婆那間有這項服務（2026-09-24 b3int：畫面只在她那間出鈕，引擎這邊也擋，改過的局面碼送不進來）
+    case 'purify': return !!shop && shopService(shop)?.kind === 'purify' && canPurifyAtShop(run, shop, a.id, a.seat);
   }
 }
 

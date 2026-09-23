@@ -143,14 +143,15 @@ registerScreen('rest', (app, root) => {
       if (coop) { root.querySelectorAll('.reward-cards .card, .scene-actions .btn').forEach((b) => b.setAttribute('disabled', 'disabled')); return; }
       afterPillow(heal, id);
     };
-    const grid = el('div', { class: 'reward-cards' }, ...picks.map((c) => cardNode(c, { onClick: () => take(c.id) })));
+    // 三張都是升級版（2026-09-24 b3int 主控裁決）：照＋版畫
+    const grid = el('div', { class: 'reward-cards' }, ...picks.map((c) => cardNode({ uid: -1, cardId: c.id, upgraded: true }, { onClick: () => take(c.id) })));
     root.append(sceneView({ art: grid, portrait: heroPortrait(me(run, seat).hero, 'nap'), speaker: relicById['dream_pillow']?.name ?? '',
       text: `${napLine(heal)}夢裡好像看見了幾招，選一張帶走。`, actions: [el('button', { class: 'btn', onclick: () => take('') }, '都不要')] }));
   }
   /** 夢枕挑完之後：演睡醒那一段（學到的那張牌秀出來） */
   function afterPillow(heal: number, id: string): void {
     const nd = id ? cardById[id] : undefined;
-    afterAction(`${napLine(heal)}${nd ? `學會了「${cardNameFor(nd, me(run, seat).hero)}」。` : ''}`, napQuip(), undefined, 'nap');
+    afterAction(`${napLine(heal)}${nd ? `學會了「${cardNameFor(nd, me(run, seat).hero)}＋」。` : ''}`, napQuip(), undefined, 'nap');
   }
 
   function show(): void {

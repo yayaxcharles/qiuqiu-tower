@@ -10,6 +10,8 @@ import { it } from 'vitest';
 import { events } from '../src/content/events';
 // 球球第二批的開頭與結果延後載入，這支一載入才填回事件資料（2026-09-23 b2fin）；不載的話那十八篇在文案表裡是空的
 import '../src/content/event-text-b2';
+// 球球的稀有事件 5 篇同理（2026-09-24 b3int 改成延後載入）
+import '../src/content/event-text-b3rare';
 import { cardById } from '../src/content/cards';
 import type { RunEffect } from '../src/engine/types';
 

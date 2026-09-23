@@ -3,7 +3,7 @@ import { BLESSINGS, BLESS_CLASSES, blessingById, type BlessingDef, type BlessPic
 import { relicById } from '../content/relics';
 import { heroOf, pickable } from './hero';
 import { Rng, seedFromString } from './rng';
-import { addCard, applyRunEffects, removeCard, runRng, upgradeCard, type RunGain } from './run';
+import { addCard, applyRunEffects, removeCard, runRng, transformCard, upgradeCard, type RunGain } from './run';
 import { me } from './runplayer';
 import type { CardDef, CardInstance, RunEffect, RunState } from './types';
 
@@ -103,21 +103,12 @@ function withBranchRng(run: RunState, key: string, fn: () => void): void {
   try { fn(); } finally { run.rng = saved; }
 }
 
-/**
+/*
  * 換牌（塗鴉本，新C）：這一張換成**同一位、同是忍術池、罕見以上**的隨機一張（壞毛病換成常見），不會換到同名的；
  * 升級不帶過去。**原地換**：牌號、在牌組裡的位置都不動（兩台一樣，`nextUid` 也不用推）。
+ * 跟阿福的「舊招換新招」是同一條規則，共用 `run.ts` 的 `transformCard`（2026-09-24 b3int 合併：兩份候選逐張逐隻比過一模一樣，
+ * 行為不變）；亂數用這一位祝福的分支（`withBranchRng` 換上來的那一條）。
  */
-function transformCard(run: RunState, c: CardInstance, seat: number): CardDef | null {
-  const hero = heroOf(me(run, seat));
-  const curse = cardById[c.cardId]?.pool === '壞毛病';
-  const cands = cards.filter((d) => d.pool === '忍術' && d.id !== c.cardId && pickable(d, hero, run.players.length)
-    && (curse ? d.rarity === '常見' : d.rarity !== '常見'));
-  if (!cands.length) return null;
-  const next = runRng(run).pick(cands);
-  c.cardId = next.id;
-  c.upgraded = false;
-  return next;
-}
 
 /**
  * 選這一樣、當場套完。回 false＝選不下去（`canTakeBlessing` 不過），什麼都沒動。
@@ -153,7 +144,7 @@ export function takeBlessing(run: RunState, seat: number, i: number, pick: Bless
       if (pk.kind === 'transform') {
         for (const c of picked) {
           const before = name(c);
-          const next = transformCard(run, c, seat);
+          const next = transformCard(run, c, runRng(run), seat);
           if (next) notes?.push(`「${before}」換成了「${name(next)}」`);
         }
       } else if (picked.length) {

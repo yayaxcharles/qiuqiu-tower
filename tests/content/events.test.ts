@@ -4,6 +4,8 @@ import { encounterById, encountersOfPool } from '../../src/content/enemies';
 import { FIXED_EVENT_FLOOR_5, FIXED_EVENTS_FLOOR_5, eventById, events, fixedEventFloor5 } from '../../src/content/events';
 // 球球第二批的開頭與結果延後載入，這支一載入才填回事件資料（2026-09-23 b2fin）；不載的話下面「每篇都有字」驗不到那十八篇
 import '../../src/content/event-text-b2';
+// 球球的稀有事件 5 篇同理（2026-09-24 b3int 改成延後載入）
+import '../../src/content/event-text-b3rare';
 
 describe('事件資料', () => {
   it('78 個事件、id 不重複、每個 1～3 個選項（條件選項另外算，最多再一條、排在最後）', () => {
