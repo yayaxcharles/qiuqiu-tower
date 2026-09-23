@@ -994,7 +994,8 @@ registerScreen('combat', (app, root, props) => {
     if (mateTurnSeen !== cs.turn) { mateTurnSeen = cs.turn; mateActAt = Date.now(); }
     // 同伴還沒進到這一場的戰鬥畫面（塔頂段落、關主開場還在讀）不算閒置：從他進場那一刻才起算（2026-09-23 稽核 中-1）。
     // 原本從我這邊建好戰鬥畫面就開始數，劇情長短不同的混搭，他一進場第一回合就被我收掉
-    if (session && !session.mateHere) mateActAt = Date.now();
+    // 他掛著一直不進來、滿三分鐘的長上限（`mayForce`，推前審查 低-2）之後就不再歸零：從那一刻起照常再數一分鐘
+    if (session && !session.mateHere && !session.mayForce) mateActAt = Date.now();
     return Date.now() - mateActAt;
   }
   /** 有連線時，把動作送出去；沒有就在本機做掉。回傳 false＝這個動作現在做不出來 */

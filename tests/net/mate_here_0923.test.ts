@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { transformWithOxc } from 'vite';
 import COMBAT_RAW from '../../src/ui/screens/combat.ts?raw';
-import { CoopSession } from '../../src/net/session';
+import { CoopSession, MATE_ABSENT_MS } from '../../src/net/session';
+import { combatFingerprint } from '../../src/net/hash';
 import { LoopbackPair } from '../../src/net/transport';
 import { IDLE_FORCE_MS, allReady } from '../../src/engine/combat';
 import { beginCombat, newCoopRun } from '../../src/engine/run';
@@ -44,6 +45,41 @@ describe('中-1：同伴還沒進場，不能替他收回合', () => {
     expect(allReady(t.hostCs) && allReady(t.guestCs)).toBe(true);
   });
 
+  describe('推前審查 低-2：同伴一直掛著不進場的長上限', () => {
+    afterEach(() => { vi.useRealTimers(); });
+
+    it('我進場滿三分鐘他還沒進來，就可以替他收回合；他那台時鐘不同也照樣套得進去', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-09-23T12:00:00+08:00'));
+      const t = table();
+      t.link.hold = true;
+      t.host.attach(t.hostCs);                // 我進場
+      t.link.flush();
+      expect(t.host.submit({ t: 'ready', seat: 0, on: true })).toBe(true);
+      vi.setSystemTime(Date.now() + MATE_ABSENT_MS - 1000);
+      expect(t.host.mayForce, '還差一秒').toBe(false);
+      expect(t.host.submit({ t: 'force', seat: 0, w: 1 })).toBe(false);
+      vi.setSystemTime(Date.now() + 2000);
+      expect(t.host.mateHere, '他還掛在劇情裡').toBe(false);
+      expect(t.host.mayForce).toBe(true);
+      expect(t.host.submit({ t: 'force', seat: 0, w: 1 }), '滿三分鐘了：不用再乾等或回標題').toBe(true);
+      // 他那台的時鐘比我慢十分鐘，終於點完劇情進場：排隊的動作照編號套下去，兩台一致
+      vi.setSystemTime(Date.now() - 600_000);
+      t.guest.attach(t.guestCs);
+      t.link.flush();
+      expect(allReady(t.hostCs) && allReady(t.guestCs)).toBe(true);
+      expect(combatFingerprint(t.guestCs)).toBe(combatFingerprint(t.hostCs));
+    });
+
+    it('他進場了就回到原本的規矩（進場這件事本身不擋，閒置夠久由畫面那一層判斷）', () => {
+      const t = table();
+      t.host.attach(t.hostCs);
+      expect(t.host.mayForce).toBe(false);
+      t.guest.attach(t.guestCs);
+      expect(t.host.mayForce).toBe(true);
+    });
+  });
+
   it('下一場重新算：上一場的 here 不算這一場的', () => {
     const t = table();
     t.host.attach(t.hostCs);
@@ -82,5 +118,22 @@ describe('中-1：戰鬥畫面的閒置計時從同伴進場那一刻才起算',
     expect(out.idle!(), '進場才 59 秒').toBeLessThan(IDLE_FORCE_MS);
     now = 70_000 + IDLE_FORCE_MS + 1000;
     expect(out.idle!(), '進場後真的一分鐘沒動，才可以替他收').toBeGreaterThanOrEqual(IDLE_FORCE_MS);
+  });
+
+  it('推前審查 低-2：他一直不進場，滿三分鐘長上限之後照常再數一分鐘就亮（不是永遠不亮）', async () => {
+    let now = 0;
+    const session = { mateHere: false, mayForce: false };
+    const out: { idle?: () => number } = {};
+    const js = (await transformWithOxc(`${body}\nout.idle = mateIdleMs;`, 'mate-idle-absent.ts')).code;
+    new Function('Date', 'cs', 'session', 'out', js)({ now: () => now }, { turn: 1 }, session, out);
+    // 每秒那一支從我舉手（第 5 秒）起一直問
+    for (now = 5_000; now < MATE_ABSENT_MS; now += 1000) out.idle!();
+    expect(out.idle!(), '長上限還沒到：他在看劇情不算閒置').toBeLessThan(1000);
+    session.mayForce = true;                  // 會話說：滿三分鐘了
+    const since = now;
+    now = since + IDLE_FORCE_MS - 2000;
+    expect(out.idle!()).toBeLessThan(IDLE_FORCE_MS);
+    now = since + IDLE_FORCE_MS + 1000;
+    expect(out.idle!(), '原本的一分鐘規矩照舊，只是起算點補了這條退路').toBeGreaterThanOrEqual(IDLE_FORCE_MS);
   });
 });
