@@ -37,8 +37,10 @@ export function poolNameFor(pool: string, hero: string): string {
   if (pool !== '忍術') return pool;
   return NINJUTSU_TITLE[hero as Hero] ?? pool;   // 不認得的值照舊寫「忍術」
 }
-// `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是三元式，加第五隻貓漏了會默默寫「忍術」；現在 tsc 會擋
-const NINJUTSU_TITLE: Readonly<Record<Hero, string>> = { ninja: '忍術', feifei: '忍術', dangdang: '拳腳', fengfeng: '劍術' };
+// `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是三元式，加第五隻貓漏了會默默寫「忍術」；現在 tsc 會擋。
+// 菲菲 2026-09-23 改叫「暗器」（主控裁定比照噹噹、封封）：她的牌名早就拿掉「忍術·」，`cards.ts` 自己也寫「她走暗器、他走拳腳」，
+// 飛針、淬毒、毒分身都是丟出去的東西；「毒術」蓋不到她那幾張退開、閃躲的牌，「針術」又不是常用的說法
+const NINJUTSU_TITLE: Readonly<Record<Hero, string>> = { ninja: '忍術', feifei: '暗器', dangdang: '拳腳', fengfeng: '劍術' };
 
 export function showCompendium(): void {
   const layer = overlayRoot();
