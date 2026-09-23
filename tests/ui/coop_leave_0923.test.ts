@@ -68,8 +68,13 @@ describe('高-1（a）：離開連線時，那一局一起丟掉、還在演的�
     app.seat = 1;
     app.run = coopRun();
     app.cs = {};
+    const remove = vi.fn();
+    Object.assign(app, { stage: { classList: { remove } }, fightPending: true });
     app.leaveCoop();
     expect(leave).toHaveBeenCalledTimes(1);
+    // 開打前等牌面時斷線回標題：舞台的「點不動」一起解開（2026-09-23 推前審查二 中-1）
+    expect(remove).toHaveBeenCalledWith('fight-pending');
+    expect((app as unknown as { fightPending: boolean }).fightPending).toBe(false);
     expect(app.run, '兩人局還留著，序章點完就會以單機模式開起它').toBeNull();
     expect(app.cs).toBeNull();
     expect(close, '幻燈片還蓋在標題上').toHaveBeenCalledTimes(1);
@@ -82,6 +87,7 @@ describe('高-1（a）：離開連線時，那一局一起丟掉、還在演的�
     const app = new A() as { run: RunState | null; leaveCoop(): void };
     const run = soloRun();
     app.run = run;
+    Object.assign(app, { stage: { classList: { remove: vi.fn() } } });
     app.leaveCoop();
     expect(app.run).toBe(run);
     expect(close).not.toHaveBeenCalled();
