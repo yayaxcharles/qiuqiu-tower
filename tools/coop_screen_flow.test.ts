@@ -36,7 +36,7 @@ async function closeTurnFixture(ready: boolean[], pending: object | null) {
   const cs = { turn: 1, players: ready.map((value) => ({ ready: value, down: false })), pending };
   const finish = await executeBranch('      const alreadyShown =', '      if (!alreadyShown && (applied.length',
     '\nreturn finishApplied;', {
-      cs, app: { cs }, allReady, mine: false, remoteBefore: {}, remoteCombatBefore: {},
+      cs, app: { cs }, allReady, mine: false, remoteBefore: {}, remoteCombatBefore: {}, turn: {},
       session: { isHost: false, endOfTurn: () => calls.push('check'), hold: () => calls.push('hold') },
       root: { querySelector: () => undefined }, checkOver() {}, syncPicker() {}, sfx() {},
       collectHand: () => { calls.push('collect'); return 0; },
