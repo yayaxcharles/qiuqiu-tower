@@ -6,6 +6,7 @@ import './ui/styles/screens.css';
 import './ui/styles/phone.css';   // 手機橫拿的字級與按鈕（2026-09-23），排最後才蓋得過前面幾份
 import { App } from './ui/app';
 import { registerLazyScreen } from './ui/lazy-screen';
+import { loadEventScreen } from './ui/event-loader';
 import { loadManifest, preloadArt } from './ui/assets';
 import { preloadAct } from './ui/preload';
 import { armHeavyLane, holdHeavyLane } from './ui/heavy-lane';
@@ -26,7 +27,8 @@ import './ui/screens/heroselect';
 registerLazyScreen('combat', () => import('./ui/screens/combat'), '正在準備戰鬥畫面……');
 // 事件畫面連同三份角色事件文案（`content/event-text.ts`，一百多 KB）按需載入（2026-09-23 內容擴充 0-1）。
 // 平常走不到這個載入畫面：地圖一出來就在背景先抓，走進事件格時 `app.ts` 的 `enterEvent` 也會等它抓好才換畫面
-registerLazyScreen('event', () => import('./ui/screens/event'), '正在準備事件……');
+// 載入走 `event-loader.ts`：失敗會換網址參數重試、跟地圖預抓共用同一次（2026-09-23 推前審查 低-1）
+registerLazyScreen('event', loadEventScreen, '正在準備事件……');
 // 除錯總覽只有輸入暗號後才用到，不佔一般玩家首載。
 registerLazyScreen('debug', () => import('./ui/screens/debug'), '正在準備除錯總覽……');
 // 合作大廳只在主動選擇連線遊玩時載入。

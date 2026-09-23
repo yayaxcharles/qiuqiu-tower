@@ -3,6 +3,7 @@ import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
 import { coopArtReady, preloadAct, preloadHeroArt, warmEncounter, warmEventArt } from './preload';
+import { loadEventScreen } from './event-loader';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
@@ -34,6 +35,8 @@ export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 
  * 變成「封封：封封，別傷到師父！」。要換口氣的只有寫死「球球」的共用關主台詞，那批不走這幾條。
  */
 const STORY_LITERAL = true;
+/** 走進事件格時，事件畫面那一塊最多等多久（2026-09-23 推前審查 低-1，見 `enterEvent`） */
+const EVENT_SCREEN_WAIT_MS = 10_000;
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
@@ -452,7 +455,10 @@ export class App {
    * 照開打的作法（`startFight` 等魔物立繪與戰鬥畫面）：停在地圖上、舞台先點不動，兩樣都好了才換，
    * 換過去第一格就是完整的畫面（淡入時墊在底下的是地圖，見 screenswap.ts）。平常地圖一出來就在背景抓好了，這裡不用等。
    * 主圖與事件畫面的底圖最多等 6 秒（`warmEventArt`；底圖沒到的話整片露出米白底，慢網路實測過），
-   * 畫面模組不設時限——沒有它畫不出東西；真的抓不到就交給載入畫面的「重新整理」。
+   * 畫面模組最多等 10 秒（2026-09-23 推前審查 低-1：原本不設時限，下載卡住就永遠停在地圖上點不動）。
+   * 模組失敗會換網址參數自己重試（`event-loader.ts`）；10 秒到了還沒好就照樣換過去，交給載入畫面接著等，
+   * 真的抓不到它會說明原因、給「再試一次」（`lazy-screen.ts`）。連線時兩台的狀態都停在「進了這一格」，
+   * 沒有誰先套了什麼，所以一台卡著只是另一台等，不會分岔。
    * 等超過 0.4 秒就把地圖下方那行提示換成「正在準備事件……」，讓人知道不是當掉。
    *
    * **連線：先把地圖的投票處理拆掉**（`clearScreenHooks`）。同伴那台早一步進了事件畫面，
@@ -470,7 +476,8 @@ export class App {
       const hint = this.screen.querySelector('.map-hint');
       if (hint) hint.textContent = '正在準備事件……';
     }, 400);
-    void Promise.allSettled([import('./screens/event'), warmEventArt(run, eventId)]).then(() => {
+    const screenReady = Promise.race([loadEventScreen(), new Promise<void>((r) => window.setTimeout(r, EVENT_SCREEN_WAIT_MS))]);
+    void Promise.allSettled([screenReady, warmEventArt(run, eventId)]).then(() => {
       window.clearTimeout(slow);
       if (this.run !== run) return;   // 等的時候這一局已經丟了（連線斷了回標題，`leaveCoop` 已經解開鎖）
       this.fightPending = false;

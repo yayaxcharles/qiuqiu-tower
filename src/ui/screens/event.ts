@@ -23,6 +23,9 @@ import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
 import { eventArtReady, preloadEventResults, warmResultArt, whenEventArtDecoded } from '../preload';
 
+// 除錯總覽也要讀事件文案：經由這裡轉給它，打包時文案才會跟事件畫面併成同一塊（見 debug.ts 的匯入說明）
+export { eventTextFor, FEIFEI_EVENT_LINES } from '../../content/event-text';
+
 /**
  * 結果畫面要秀出來的牌：學會的彈出來、升級的打鐵發金光、丟掉的化成煙散掉、被塞的壞毛病抖一下。
  * 本來只有一行字「「淡定」被丟掉了」（使用者 2026-09-02：「感覺不太有回饋感」）。
@@ -259,9 +262,25 @@ registerScreen('event', (app, root, props) => {
    * 進畫面時已經在背景抓了這個事件所有選項的結果圖（下面的 `preloadEventResults`），平常這裡不用等；
    * 慢網路下還沒到的話，照走進事件格那一套（`app.ts` 的 `enterEvent`）：舞台先點不動、最多等 6 秒，
    * 超過 0.4 秒在對白框補一行「正在準備……」，好了才跑 `go`——不然結果畫面的插圖那一塊會先空著。
-   * 連線時 `go` 是 `take()`（兩台都要跑）：等的時候只有這一局丟了（斷線回標題）才不跑。
+   *
+   * **等的只有「畫」，效果當場就套**（2026-09-23 推前審查 高-1）：`go` 是把結果畫出來（`paint` 記著的那一筆），
+   * 不是 `take()`。原本連線時連 `take()` 都延到圖到了才跑——圖先到的那台先套效果，同伴在「要不要換忍具」視窗
+   * 送出的 swap 到了慢的那台，那一格還不存在（`replacePotion` 拒絕）：加入方整局停掉、主機悄悄丟掉。
+   * 現在兩台都在票結算那一拍 `take()`、同一拍套效果，只有畫面各自等自己的圖。
    */
   let resolving = false;   // 等結果圖的時候，鍵盤按選項也不再收（舞台的點不動只擋得住滑鼠）
+  /**
+   * 結果畫面「要畫的那一筆」。`undefined`＝沒在等圖，直接畫；在等的時候只記最後一筆（同伴挑完那一次重畫會蓋掉前一筆），
+   * 圖到了畫那一筆。狀態（牌組、忍具、小魚乾）早就套好了，畫面只是晚一點出來。
+   */
+  let heldPaint: (() => void) | null | undefined;
+  const paint = (fn: () => void): void => { if (heldPaint !== undefined) heldPaint = fn; else fn(); };
+  /** 這個選項有結果圖：先把畫面扣住，等圖到了（或這一局丟了就不畫）再放出去 */
+  function holdPaintForResultArt(index: number): void {
+    if (!ev?.choices[index]?.resultArt) return;
+    heldPaint = null;
+    whenResultArtReady(index, () => { const fn = heldPaint; heldPaint = undefined; fn?.(); });
+  }
   function whenResultArtReady(index: number, go: () => void): void {
     if (!ev?.choices[index]?.resultArt) { go(); return; }
     resolving = true;
@@ -586,8 +605,12 @@ registerScreen('event', (app, root, props) => {
      * 戰鬥本來就是兩個人一起的（倒下的人在場上觀戰，規則四），所以照站著那位的那一場進去。
      */
     const fightOf = coop && !outcomes[seat] ? outcomes.find((o) => !!o && 'fight' in o) ?? null : null;
-    /** 把結果畫面重畫一次（自己沒得挑的那一台，等同伴挑完之後要把「繼續」放出來） */
-    const showResult = (): void => { settle(outcomes[seat] ?? fightOf, c.result, notes, gains, added, outcomes); };
+    /**
+     * 把結果畫面重畫一次（自己沒得挑的那一台，等同伴挑完之後要把「繼續」放出來）。
+     * 結果圖還沒到就先記著，圖到了才畫（`paint`，推前審查 高-1：效果上面已經當場套完了）
+     */
+    const showResult = (): void => { paint(() => settle(outcomes[seat] ?? fightOf, c.result, notes, gains, added, outcomes)); };
+    holdPaintForResultArt(index);
     if (coop) {
       const alive = run.players.map((p) => !p.down);
       // 只要**有人**要挑牌，這個畫面就先鎖住「繼續」（見 `awaitingPicks`）
@@ -666,7 +689,7 @@ registerScreen('event', (app, root, props) => {
       if (exchangeBlockReason(c)) { app.show('event', props, { quiet: true }); return; }
       play('click');
       if (coop) { coop.pick('event', String(index)); return; }   // 兩個人都投完才真的做（見 onPick）
-      whenResultArtReady(index, () => take(index));
+      take(index);   // 效果當場套；結果圖還沒到的話只有畫面等（`holdPaintForResultArt`）
     });
     choices.push(btn);
   });
@@ -717,8 +740,8 @@ registerScreen('event', (app, root, props) => {
         notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${evText(ev.choices[chosen]?.label ?? '')}」`);
       }
       coop.clearPicks('event');
-      const pickIndex = chosen;
-      whenResultArtReady(pickIndex, () => take(pickIndex));
+      // 兩台在同一拍結算、同一拍套效果（推前審查 高-1）：不可以等圖才 `take()`，只有畫面等
+      take(chosen);
     });
   }
 

@@ -27,12 +27,22 @@ export function registerLazyScreen(
       app.show(name, props, { quiet: true });
     }, () => {
       if (request !== latestRequest || app.stage.dataset['screen'] !== name) return;
-      notice(root, '畫面載入失敗，請重新整理再試。', 'screen-load-error');
+      /*
+       * 先給「再試一次」（2026-09-23 推前審查 低-1）：原本只有「重新整理」，連線時重新整理等於這一局結束。
+       * 再試一次就是再畫一次這個載入畫面、再叫一次 `load`（事件畫面那支失敗後會換網址參數重抓，見 event-loader.ts）。
+       */
+      notice(root, '畫面載入失敗，可能是網路斷了一下。先按「再試一次」；還是不行再重新整理（連線中重新整理會中斷這一局）。', 'screen-load-error');
+      const again = root.ownerDocument.createElement('button');
+      again.className = 'btn primary';
+      again.textContent = '再試一次';
+      again.addEventListener('click', () => {
+        if (app.stage.dataset['screen'] === name) app.show(name, props, { quiet: true });
+      });
       const retry = root.ownerDocument.createElement('button');
       retry.className = 'btn';
       retry.textContent = '重新整理';
       retry.addEventListener('click', () => root.ownerDocument.defaultView?.location.reload());
-      root.append(retry);
+      root.append(again, retry);
     });
   });
 }

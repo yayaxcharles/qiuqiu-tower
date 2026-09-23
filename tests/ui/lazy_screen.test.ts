@@ -75,9 +75,34 @@ describe('延遲畫面登記', () => {
     await Promise.resolve();
     expect(root.replaceChildren).toHaveBeenCalledTimes(2);
     expect(app.show).not.toHaveBeenCalled();
-    const retry = root.elements.find((node) => node.tag === 'button');
+    const retry = root.elements.find((node) => node.tag === 'button' && node.textContent === '重新整理');
     expect(retry?.textContent).toBe('重新整理');
     retry.addEventListener.mock.calls[0][1]();
     expect(root.ownerDocument.defaultView.location.reload).toHaveBeenCalledOnce();
+  });
+
+  it('載入失敗先給「再試一次」：再畫一次載入畫面（再叫一次 load），不必重新整理（連線中重新整理會中斷這一局，推前審查 低-1）', async () => {
+    let calls = 0;
+    const loads = [deferred(), deferred()];
+    registerLazyScreen('event', () => loads[calls++]!.promise);
+    const app = { stage: { dataset: { screen: 'event' } }, show: vi.fn() };
+    const root = fakeRoot();
+    mocks.renderer!(app, root, { eventId: 'toll' });
+    loads[0]!.reject(new Error('Failed to fetch dynamically imported module'));
+    await loads[0]!.promise.catch(() => undefined);
+    await Promise.resolve();
+    const again = root.elements.find((node) => node.tag === 'button' && node.textContent === '再試一次');
+    expect(again, '要有「再試一次」').toBeDefined();
+    expect(root.append.mock.calls.flat(), '而且真的放上畫面').toContain(again);
+    const msg = root.elements.find((node) => node.className === 'screen-load-error');
+    expect(msg?.textContent).toContain('連線中重新整理會中斷這一局');
+    again.addEventListener.mock.calls[0][1]();
+    expect(app.show).toHaveBeenCalledExactlyOnceWith('event', { eventId: 'toll' }, { quiet: true });
+    // 畫面層照 show 重畫載入畫面：再叫一次 load，這次成功就換上真的畫面
+    mocks.renderer!(app, root, { eventId: 'toll' });
+    expect(calls).toBe(2);
+    loads[1]!.resolve();
+    await loads[1]!.promise; await Promise.resolve();
+    expect(app.show).toHaveBeenCalledTimes(2);
   });
 });
