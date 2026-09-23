@@ -3,7 +3,7 @@ import { el } from './dom';
 import { cardNode } from './cardview';
 import { localHero } from './assets';
 import { overlayRoot } from './overlay';
-import { HEROES, heroName } from '../engine/hero';
+import { HEROES, heroName, type Hero } from '../engine/hero';
 
 /**
  * 卡牌圖鑑：整個牌庫一覽（依牌池分區），右上角勾「顯示升級版」整頁切成＋版數值。
@@ -35,8 +35,10 @@ const POOL_NOTE: Record<string, string> = {
  */
 export function poolNameFor(pool: string, hero: string): string {
   if (pool !== '忍術') return pool;
-  return hero === 'dangdang' ? '拳腳' : hero === 'fengfeng' ? '劍術' : pool;
+  return NINJUTSU_TITLE[hero as Hero] ?? pool;   // 不認得的值照舊寫「忍術」
 }
+// `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是三元式，加第五隻貓漏了會默默寫「忍術」；現在 tsc 會擋
+const NINJUTSU_TITLE: Readonly<Record<Hero, string>> = { ninja: '忍術', feifei: '忍術', dangdang: '拳腳', fengfeng: '劍術' };
 
 export function showCompendium(): void {
   const layer = overlayRoot();

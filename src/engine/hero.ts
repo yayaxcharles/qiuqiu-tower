@@ -76,8 +76,11 @@ export function unitName(p: { hero?: Hero } | undefined): string {
  * 但兩邊的 `hero` 欄位長一樣，這支兩種都吃得下。
  */
 export function heroPronoun(p: { hero?: Hero } | undefined): string {
-  return (p?.hero ?? 'ninja') === 'feifei' ? '她' : '他';
+  return HERO_PRONOUN[p?.hero ?? 'ninja'] ?? '他';
 }
+// 角色 → 值的表一律用 `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是 `if` 連鎖或三元式，
+// 沒列到的角色默默拿球球那一份；寫成表之後加第五隻貓漏了這一格，tsc 當場擋。這支原本只有菲菲回「她」，新的母貓會被叫「他」
+const HERO_PRONOUN: Readonly<Record<Hero, string>> = { ninja: '他', feifei: '她', dangdang: '他', fengfeng: '他' };
 
 /**
  * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每場戰鬥開始時給全體魔物 3 層中毒，之後不再長），
@@ -85,11 +88,11 @@ export function heroPronoun(p: { hero?: Hero } | undefined): string {
  *（毒針袋 09-13 曾改成每回合 1 層，09-16 使用者裁定改回開場一次給三層；這一行 09-23 才跟上，health H-6 第 1 條）
  */
 export function startRelicFor(hero: Hero): string {
-  if (hero === 'feifei') return 'backstep';
-  if (hero === 'dangdang') return 'copper_bracer';
-  if (hero === 'fengfeng') return 'old_sword_tassel';
-  return 'blue_headband';
+  return START_RELIC[hero] ?? START_RELIC.ninja;   // 退路照舊：不認得的值（壞存檔）拿藍頭巾
 }
+const START_RELIC: Readonly<Record<Hero, string>> = {
+  ninja: 'blue_headband', feifei: 'backstep', dangdang: 'copper_bracer', fengfeng: 'old_sword_tassel',
+};
 
 /**
  * 貓窩裡那個動作叫什麼（2026-09-12）。
@@ -101,10 +104,11 @@ export function startRelicFor(hero: Hero): string {
 export function sharpenVerb(hero: string | undefined): string {
   // 噹噹用的是銅護臂、不是爪子，而且他在貓窩講的話全是在喬站姿與接招
   //（`dialogue.ts` 的 `restSharpenLines`），按鈕寫「磨爪」跟他講的話對不上（稽核 2026-09-17 中-9）。
-  // 寫成查表而不是再串一個三元式：第四隻貓進來只要加一格
-  return SHARPEN_VERB[hero ?? ''] ?? '磨爪';
+  // 寫成查表而不是再串一個三元式；表的鍵是 `Hero`，加第五隻貓漏了這一格 tsc 會擋（health H-2）。
+  // 參數收字串是因為畫面層傳的是 `localHero()`；不認得的值照舊寫「磨爪」
+  return SHARPEN_VERB[(hero ?? 'ninja') as Hero] ?? '磨爪';
 }
-const SHARPEN_VERB: Readonly<Record<string, string>> = { feifei: '磨針', dangdang: '調護臂', fengfeng: '磨劍' };
+const SHARPEN_VERB: Readonly<Record<Hero, string>> = { ninja: '磨爪', feifei: '磨針', dangdang: '調護臂', fengfeng: '磨劍' };
 
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */
 export function cardsForHero(hero: Hero): CardDef[] {
