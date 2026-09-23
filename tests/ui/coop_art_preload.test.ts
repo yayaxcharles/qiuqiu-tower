@@ -87,6 +87,7 @@ describe('連線牌面的預載', () => {
     const body = src.slice(src.indexOf('  startFight(encounterId'), src.indexOf('  afterCombat('));
     expect(body).toMatch(/Promise\.allSettled\(\[[\s\S]*this\.coop \? \[Promise\.race\(\[coopArtReady\(\)/);
     const lobby = readFileSync('src/ui/screens/lobby.ts', 'utf8');
-    expect(lobby).toContain('preloadCoopArt(app.run.players.map((p) => p.hero))');
+    // 大廳開局同日改走 `app.adoptRun(run, seat)`（health H-3），這一局叫 `run`
+    expect(lobby).toContain('preloadCoopArt(run.players.map((p) => p.hero))');
   });
 });

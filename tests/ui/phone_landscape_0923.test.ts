@@ -132,7 +132,9 @@ describe('主控裁定三：手機教學條多一句「按住牌可以放大看�
   });
 
   it('教學條第一步只在觸控裝置接上那一句；手機、平板的教學條寬度照內容維持一行', () => {
-    const bar = COMBAT.slice(COMBAT.indexOf("if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },"), COMBAT.indexOf("el('button', { class: 'tut-close'"));
+    // 教學條同日被效能批次抽成 `tutBar()`（整頁重畫與就地修補共用），從那支切
+    const bar = COMBAT.slice(COMBAT.indexOf("const tutBar = (): HTMLElement => el('div', { class: 'tut-bar' },"), COMBAT.indexOf("el('button', { class: 'tut-close'"));
+    expect(bar.length, '切得到 tutBar').toBeGreaterThan(50);
     expect(bar).toContain("tutStep === 0 && isTouchDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''");
     const phone = css('phone.css');
     expect(phone).toMatch(/html\[data-device="phone"\]\[data-orient="landscape"\] \.tut-bar \{[^}]*width: max-content;[^}]*font-size: 20px;/);

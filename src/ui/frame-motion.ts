@@ -51,6 +51,10 @@ export function frameMotionDuration(motion: FrameMotion): number {
   return Math.round(timingFor(motion).total);
 }
 
+/** 停在代表畫格上呼吸時往後試算的步距（約一拍）與最多看多遠（跟久未掛入的慢速檢查同一個 250 毫秒） */
+const QUIET_STEP_MS = 16;
+const QUIET_MAX_MS = 250;
+
 export function createFrameMotionSet<Action extends string>(config: Readonly<{
   motions: Readonly<Record<string, FrameMotion>>;
   /**
@@ -199,9 +203,10 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
     let detachedFrames = 0;
     let slowTimer = 0;
 
-    const draw = (resolved: ResolvedFrameMotion): void => {
+    /** 這個時間點該畫哪一格、呼吸縮放多少（`draw` 與往後看的 `quietFor` 共用同一套算法） */
+    const poseAt = (resolved: ResolvedFrameMotion) => {
       const motion = config.motions[resolved.key] ?? config.motions[config.initialAction];
-      if (!motion) return;
+      if (!motion) return undefined;
       // 持續狀態的不同繪圖不能當成呼吸輪播，否則頭、手、身形會反覆跳動。
       // 只對指定的狀態使用自己的代表姿勢；翻肚等一次性轉姿先照原節奏播完。
       const restFrame = action === resolved.key
@@ -210,11 +215,37 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       const settleAfter = (resolved.loop ?? motion.loop) ? 0 : frameMotionDuration(motion);
       const resting = restFrame !== undefined && resolved.elapsed >= settleAfter;
       const frame = motion.frames[resting ? restFrame : frameAt(motion, resolved.elapsed, resolved.loop ?? motion.loop)] ?? motion.frames[0];
-      if (!frame) return;
+      if (!frame) return undefined;
       const breathPhase = ((resolved.elapsed - settleAfter) % 6200) / 6200;
       // 量化到千分位再比對：呼吸值是連續浮點數，直接比會每幀都不相等，
       // 等於每個待機角色每秒改 60 次行內樣式，把合成器的活搬回主執行緒（稽核 2026-09-21 第 2 點）。
       const breath = resting ? Math.round((1 + .025 * Math.sin(Math.PI * breathPhase) ** 2) * 1000) / 1000 : 1;
+      return { motion, frame, breath, resting };
+    };
+
+    /**
+     * 停在代表畫格上呼吸的時候，畫面還要多久才會變（2026-09-23 效能）。
+     *
+     * 那時候唯一會動的只有呼吸那個千分位的縮放（平均一秒八次、最快一秒十三次），原本卻每一拍都醒來：
+     * 60 Hz 就是一秒 60 次，而只要有人每一拍要下一格，瀏覽器就每一拍都得把畫面上所有 CSS 動畫的樣式重算一遍
+     *（實測閒置 3 秒、CPU 降速 4 倍：主執行緒忙 1.8～2.2 秒，樣式重算一秒 240 次）。
+     * 這裡往後一格一格試算（照 `config.resolve` 算，速度倍率、換動作都照實），找到第一個會不一樣的時間點。
+     * 回 0＝現在不是這種狀態（或這一格還沒真的畫上去），照舊每一拍醒；最多只看 `QUIET_MAX_MS`。
+     */
+    const quietFor = (elapsed: number): number => {
+      const now = poseAt(config.resolve(action, elapsed, playOptions));
+      if (!now?.resting || drawnMotion !== now.motion || drawnFrame !== now.frame || appliedBreath !== now.breath) return 0;
+      for (let ahead = QUIET_STEP_MS; ahead < QUIET_MAX_MS; ahead += QUIET_STEP_MS) {
+        const next = poseAt(config.resolve(action, elapsed + ahead, playOptions));
+        if (!next || next.motion !== now.motion || next.frame !== now.frame || next.breath !== now.breath) return ahead;
+      }
+      return QUIET_MAX_MS;
+    };
+
+    const draw = (resolved: ResolvedFrameMotion): void => {
+      const pose = poseAt(resolved);
+      if (!pose) return;
+      const { motion, frame, breath } = pose;
       // 呼吸只縮放既有畫格，維持腳底定位，不隨螢幕更新率重畫圖集。
       if (appliedBreath !== breath) {
         canvas.style.scale = breath === 1 ? '1' : `1 ${breath}`;
@@ -258,6 +289,13 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
         return;
       }
       if (detached || resting || (resolved.loop ?? motion?.loop) || elapsed < config.duration(action, playOptions)) {
+        // 停在代表畫格上呼吸：睡到下一次呼吸變化的前一拍再醒（見 `quietFor`）；早一拍醒是為了照舊在變化後的第一拍畫上去
+        // 沒有計時器可用（單元測試的假 window 只給 requestAnimationFrame）就照舊每一拍醒
+        const quiet = detached || typeof window.setTimeout !== 'function' ? 0 : quietFor(elapsed);
+        if (quiet > QUIET_STEP_MS * 2) {
+          if (slowTimer === 0) slowTimer = window.setTimeout(() => { slowTimer = 0; schedule(); }, quiet - QUIET_STEP_MS);
+          return;
+        }
         raf = window.requestAnimationFrame(tick);
       }
     };
@@ -275,6 +313,8 @@ export function createFrameMotionSet<Action extends string>(config: Readonly<{
       detachedFrames = 0;
       startedAt = null;
       drawnMotion = null;
+      // 換動作就不再照上一個動作的呼吸時間睡：那個時間點是照舊動作算的
+      if (slowTimer !== 0) { window.clearTimeout(slowTimer); slowTimer = 0; }
       draw(config.resolve(action, elapsedOffset, playOptions));
       schedule();
     };

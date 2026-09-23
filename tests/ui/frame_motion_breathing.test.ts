@@ -79,6 +79,49 @@ it.each(['qiuqiu', 'feifei', 'dangdang', 'fengfeng'] as const)('%s 在 240 Hz �
   expect(rafs.size).toBe(0);
 });
 
+/**
+ * 停在代表畫格上呼吸時不再每一拍都醒（2026-09-23 效能）：用有到期時間的假計時器跑一整個 6.2 秒的呼吸週期（240 Hz），
+ * 每一拍看到的縮放都要跟原本每一拍都醒時一模一樣，但真的被叫醒的次數要少很多。
+ * 把 frame-motion.ts 的 `quietFor` 改回一律回 0（每一拍醒）→ 醒來次數那條會紅。
+ */
+it.each(['qiuqiu', 'feifei', 'dangdang', 'fengfeng'] as const)('%s 呼吸時睡到下一次變化才醒，每一拍看到的縮放不變', kind => {
+  let clock = 0;
+  let nextTimer = 1;
+  const timers = new Map<number, { due: number; callback: () => void }>();
+  vi.stubGlobal('window', { ...window,
+    setTimeout: (callback: () => void, ms = 0) => { const id = nextTimer++; timers.set(id, { due: clock + ms, callback }); return id; },
+    clearTimeout: (id: number) => timers.delete(id),
+  });
+  let wakes = 0;
+  const at = (time: number): void => {
+    clock = time;
+    for (const [id, t] of [...timers]) if (t.due <= time) { timers.delete(id); t.callback(); }
+    if (rafs.size) wakes++;
+    step(time);
+  };
+  const actor = kind === 'qiuqiu' ? createQiuqiuActor() : createCompanionMotionActor(kind);
+  const canvas = actor.element as unknown as FakeCanvas;
+  const first = canvas.draws[0]!;
+  at(0);
+  const frames = 1488;
+  for (let frame = 1; frame <= frames; frame++) {
+    const elapsed = frame * 6200 / frames;
+    at(elapsed);
+    const breath = Math.round((1 + .025 * Math.sin(Math.PI * elapsed / 6200) ** 2) * 1000) / 1000;
+    const visible = visibleCanvasRect(actor.element, [first[4]!, first[5]!, first[6]!, first[7]!]);
+    expect(visible[3], `第 ${frame} 拍（${elapsed.toFixed(1)} 毫秒）`).toBeCloseTo(first[7]! * breath, 8);
+  }
+  expect(canvas.draws).toHaveLength(1);
+  // 一個週期 50 次呼吸變化：每次最多醒兩三拍，外加每 250 毫秒保底醒一次；原本是每一拍都醒（1488 次）
+  expect(wakes).toBeLessThan(frames / 6);
+  // 換動作要立刻反應：不能等上一個呼吸的計時器
+  actor.play('hurt' as never);
+  expect(rafs.size).toBe(1);
+  expect(timers.size).toBe(0);
+  actor.dispose();
+  expect(rafs.size + timers.size).toBe(0);
+});
+
 it('呼吸中切換衝刺或追擊時立即恢復原尺寸，殘影可直接複製同一畫布', () => {
   const actor = createQiuqiuActor();
   for (const action of ['dash', 'ultimate_rush'] as const) {
