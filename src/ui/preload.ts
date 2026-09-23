@@ -1,8 +1,10 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
+import { events } from '../content/events';
 import { bossPoolForAct } from '../engine/run';
-import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, coopArtUrlsFor, decodeAll, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, type DecodePool, type MonsterPose } from './assets';
+import type { EnemyDef, EnemyEffect, EnemyPool, RunState } from '../engine/types';
+import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
+import { actVariantKey } from './screenbg';
 
 /**
  * 魔物立繪的分關預載（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）。
@@ -125,6 +127,100 @@ export function warmSlides(act: number): void {
   const mine = (k: string): string => (h === 'ninja' ? k : k.replace('bg/still_', `bg/${h}_still_`));
   void decodeAll(SLIDES_BY_ACT[i]!.map((k) => artUrl('bg', mine(k))), 3, false);
 }
+
+/*
+ * ===== 事件主圖照這張地圖現抓（2026-09-23 內容擴充第〇批 0-2）=====
+ *
+ * 原本三十張球球版事件主圖全在首載（約 0.9 MB），玩菲菲、噹噹、封封的人選角時又各補三十幾張自己的；
+ * 一局一關實際只走進兩三個事件格。地圖在進關那一刻就排好了，所以改成：
+ * 地圖畫面一出來，只抓**這張地圖上排到的事件格**＋**這一關待出的後集**（走進第一個事件格就會換成它），
+ * 走進事件格時再確認那一張已經解好（`warmEventArt`，`app.ts` 的 `enterEvent` 等它）。
+ *
+ * 鍵跟事件畫面挑圖**走同一條路**（`eventArtKey` ＋ `eventArtHero`）：本機這一位有自己的版本就抓她的、沒有退回球球那張；
+ * 連線的鏡子走廊照座位 0 挑。兩邊算法不一樣的話，抓的是一張、畫的是另一張，等於沒抓。
+ */
+
+/** 這張地圖上看得到的事件：待出的後集排前面（第一個事件格就會換成它），其餘照樓層由近到遠 */
+export function mapEventIds(run: RunState): string[] {
+  // 判準照抄 `engine/run.ts` 的 `enterEvent`（`tests/ui/map_event_art.test.ts` 拿真的 `chooseNode` 對過）
+  const pending = events
+    .filter((e) => run.flags[`sequel:${e.id}`] && !run.flags[`event:${e.id}`] && (!e.acts || e.acts.includes(run.act)))
+    .map((e) => e.id);
+  const onMap = run.map.nodes
+    .filter((n) => n.type === '事件' && n.eventId)
+    .sort((a, b) => a.floor - b.floor)
+    .map((n) => n.eventId!);
+  return [...new Set([...pending, ...onMap])];
+}
+
+/** 事件畫面會畫的那一張主圖（同 `screens/event.ts` 的 `eventArt(ev.id, artHero)`） */
+function eventMainUrl(run: RunState, eventId: string): string {
+  return artUrl('bg', eventArtKey(eventId, eventArtHero(eventId, run.players.map((p) => p.hero))));
+}
+
+/** 這張地圖要先抓的事件主圖網址（清單裡沒有的圖回剪影網址，`decodeAll` 自己會跳過） */
+export function mapEventArtUrls(run: RunState): string[] {
+  return mapEventIds(run).map((id) => eventMainUrl(run, id));
+}
+
+/**
+ * 事件畫面的底圖（同 `screens/event.ts` 第一行的 `screenBg(actVariantKey('bg/screen_event', …))`）。
+ * 它本來就在開場那批裡，但排在幾百張圖的最後；慢網路（約 1.6 Mbps）實測第一次走進事件格時它還沒到，
+ * 事件畫面整片露出舞台的米白底一秒多才補上（2026-09-23 實機）。所以跟主圖一起插隊、一起等。
+ */
+export function eventScreenBgUrl(run: RunState): string {
+  return artUrl('bg', actVariantKey('bg/screen_event', run.act));
+}
+
+/**
+ * 這張地圖的事件主圖**留參照、自己一組**：一張 560x420，解開不到 1 MB，一張地圖六七張（外加事件畫面底圖一張）；
+ * 換了地圖（下一關、新的一局）整組放掉。不放進共用那一組，是因為換關的 `releaseHeldArt` 會把共用的整組放掉，
+ * 而走進事件格那一刻要的就是「已經解好」。
+ */
+let mapEventPool: DecodePool = { seen: new Set(), keep: new Map() };
+let mapEventKey = '';
+/** 這張地圖已經送出去的：地圖畫面連線時每投一票就安靜重畫一次，同一張不重送 */
+let mapEventAsked = new Set<string>();
+
+/** 這一局這一關的那一組（換了地圖就整組放掉、重開一組） */
+function mapEventPoolFor(run: RunState): DecodePool {
+  const key = `${run.seed}|${run.act}|${run.players.map((p) => p.hero ?? 'ninja').join(',')}`;
+  if (key !== mapEventKey) {
+    mapEventKey = key;
+    mapEventPool = { seen: new Set(), keep: new Map() };
+    mapEventAsked = new Set();
+  }
+  return mapEventPool;
+}
+
+export function preloadMapEvents(run: RunState): Promise<void> {
+  const pool = mapEventPoolFor(run);
+  /*
+   * **地圖自己的底圖排第一**：這一批插隊，第一次看到地圖時（慢網路下開場那幾百張還在排）會搶在地圖底圖前面，
+   * 實測地圖先空著一兩秒才鋪上底圖。它就是玩家眼前這一張，排第一、不留參照（1280 寬的長條圖解開好幾 MB，
+   * 樣式鋪上去瀏覽器自己會留著，見 `decodeAll` 的說明）。
+   */
+  const mapBg = artUrl('bg', actVariantKey('bg/map_tall', run.act));
+  const fresh = [...new Set([mapBg, eventScreenBgUrl(run), ...mapEventArtUrls(run)])].filter((u) => !mapEventAsked.has(u));
+  for (const u of fresh) mapEventAsked.add(u);
+  // 插隊（`priority: 'high'`）：第一次看到地圖時開場那幾百張多半還在排隊，這幾張不插隊就排在最後
+  return decodeAll(fresh, 3, (u) => u !== mapBg, pool, 'high');
+}
+
+/**
+ * 走進事件格時等那一張主圖與事件畫面的底圖解好，最多 `timeoutMs`（`app.ts` 的 `enterEvent`）。
+ * 地圖預載已經抓好就立刻結束；還在路上（或上次失敗）就插隊再要一次。
+ * 時限到了照樣進去——網路整個卡住時不讓整局停在地圖上（同 `startFight` 等連線牌面的 6 秒）。
+ */
+export function warmEventArt(run: RunState, eventId: string, timeoutMs = 6000): Promise<void> {
+  const work = decodeAll([eventScreenBgUrl(run), eventMainUrl(run, eventId)], 2, true, mapEventPoolFor(run), 'high');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
+  return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });
+}
+
+/** 測試用：這張地圖現在留著哪幾張事件主圖 */
+export function _mapEventHeldForTest(): string[] { return [...mapEventPool.keep.keys()]; }
 
 /**
  * 選好角色之後補載這一位（連線是兩位）專屬的圖（總稽核 F 中-1）。

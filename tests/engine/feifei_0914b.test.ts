@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STARTER_DECK, cardById, cardNameFor } from '../../src/content/cards';
-import { eventTextFor } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 import { eventById } from '../../src/content/events';
 import { playCard, startCombat } from '../../src/engine/combat';
 import { pickable } from '../../src/engine/hero';

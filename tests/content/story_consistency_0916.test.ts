@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { dialogue, eventTextFor, feifeiDialogue, lineFor, storyFor } from '../../src/content/dialogue';
+import { dialogue, feifeiDialogue, lineFor, storyFor } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
 
 /**

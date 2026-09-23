@@ -9,7 +9,7 @@
   - 改寫欄空白、或跟原文一樣 → 跳過。
   - literal：在該檔找到 '原文' 字串常值換成 '改寫'。**當成句子的只准剛好 1 處**（2026-09-16 起，兩個角色都一樣）；
     當成對照表鍵（'原句':）的那幾處一起換——球球的原句是菲菲對照表 FEIFEI_BOSS_LINES／FEIFEI_EVENT_TEXT 的鍵。球球在 events.ts 的句子改了之後，
-    dialogue.ts 裡拿整句當鍵的（FEIFEI_EVENT_TEXT）與拿引號裡那句當鍵的（FEIFEI_EVENT_LINES）也一起換鍵。
+    event-text.ts 裡拿整句當鍵的（FEIFEI_EVENT_TEXT）與拿引號裡那句當鍵的（FEIFEI_EVENT_LINES）也一起換鍵（2026-09-23 從 dialogue.ts 搬過去）。
   - map-add：原本沒有她的版本，把 `'鍵': '改寫',` 加進對照表最後（找配對的收尾大括號，跳過字串與註解；**不認得正規表達式常值**，表裡別放）。
   - blurb：選角小傳（`blurb: '…' + '…',`）整個運算式換成一個常值。
   - 球球講的話句尾要有「喵」：沒有的列出來、不寫（跟程式的 qiuqiuLineOk 同一條規矩）。
@@ -143,14 +143,15 @@ def main() -> int:
             src = src.replace(old, ts_lit(new))
             files[rel] = src
             # 球球的句子當菲菲對照表的鍵：events.ts 的整句與引號裡那句都要同步過去
+            # 那兩張對照表 2026-09-23 搬到 event-text.ts（0-1 事件文字分包）
             if hero == "ninja" and rel.endswith("events.ts"):
-                d = load("src/content/dialogue.ts")
+                d = load("src/content/event-text.ts")
                 d2 = d.replace(ts_lit(old_text) + ":", ts_lit(new) + ":")
                 oi, ni = SPOKEN.search(old_text), SPOKEN.search(new)
                 if oi and ni and oi.group(1) != ni.group(1):
                     d2 = d2.replace(ts_lit(oi.group(1)) + ":", ts_lit(ni.group(1)) + ":")
                 if d2 != d:
-                    files["src/content/dialogue.ts"] = d2
+                    files["src/content/event-text.ts"] = d2
         elif kind == "map-add":
             m = r["map"]
             # 容許型別斷言：`firstMeetFeifei: <Record<string, string>>{`（總稽核 2026-09-16 戊 M1：原本這張表永遠找不到）

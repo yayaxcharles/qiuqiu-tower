@@ -1,6 +1,7 @@
 import { it } from 'vitest';
 import { writeFileSync } from 'node:fs';
-import { castLineFor, dialogue, eventTextFor, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES, FEIFEI_EVENT_LINES } from '../src/content/dialogue';
+import { castLineFor, dialogue, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES } from '../src/content/dialogue';
+import { eventTextFor, FEIFEI_EVENT_LINES } from '../src/content/event-text';
 import { events } from '../src/content/events';
 import { enemyById } from '../src/content/enemies';
 

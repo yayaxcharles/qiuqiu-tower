@@ -14,7 +14,6 @@ import { applyArtVars } from './ui/screenbg';
 import './ui/screens/actclear';
 import './ui/screens/chest';
 import './ui/screens/bossdoor';
-import './ui/screens/event';
 import './ui/screens/map';
 import './ui/screens/rest';
 import './ui/screens/result';
@@ -23,6 +22,9 @@ import './ui/screens/shop';
 import './ui/screens/title';
 import './ui/screens/heroselect';
 registerLazyScreen('combat', () => import('./ui/screens/combat'), '正在準備戰鬥畫面……');
+// 事件畫面連同三份角色事件文案（`content/event-text.ts`，一百多 KB）按需載入（2026-09-23 內容擴充 0-1）。
+// 平常走不到這個載入畫面：地圖一出來就在背景先抓，走進事件格時 `app.ts` 的 `enterEvent` 也會等它抓好才換畫面
+registerLazyScreen('event', () => import('./ui/screens/event'), '正在準備事件……');
 // 除錯總覽只有輸入暗號後才用到，不佔一般玩家首載。
 registerLazyScreen('debug', () => import('./ui/screens/debug'), '正在準備除錯總覽……');
 // 合作大廳只在主動選擇連線遊玩時載入。

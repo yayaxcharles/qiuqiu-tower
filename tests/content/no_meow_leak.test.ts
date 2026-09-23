@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
-  castLineFor, dialogue, eventTextFor, lineFor, setCoopStory, storyFor, type DialogueLine,
+  castLineFor, dialogue, lineFor, setCoopStory, storyFor, type DialogueLine,
 } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
 import ACTCLEAR from '../../src/ui/screens/actclear.ts?raw';
 import REWARD from '../../src/ui/screens/reward.ts?raw';

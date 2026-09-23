@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { events } from '../../src/content/events';
-import { eventTextFor } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 import { generateMap } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 

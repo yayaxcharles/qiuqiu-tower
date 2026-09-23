@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { events } from '../src/content/events';
-import { eventTextFor } from '../src/content/dialogue';
+import { eventTextFor } from '../src/content/event-text';
 
 /**
  * 把「選完選項之後那段文字」的她版匯出成 JSON，給生圖腳本用（2026-09-13）。

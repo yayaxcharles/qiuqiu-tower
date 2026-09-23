@@ -1,11 +1,11 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import {
   coopBossLines,
-  eventTextFor,
   hasCoopScene,
   setCoopStory,
   storyFor,
 } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 import { eventById } from '../../src/content/events';
 import { fengfengCoopScenes } from '../../src/content/fengfeng-dialogue';
 

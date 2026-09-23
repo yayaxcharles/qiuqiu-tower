@@ -1,8 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import {
-  FEIFEI_BOSS_LINES, FEIFEI_CAST_LINES, FEIFEI_EVENT_LINES, FEIFEI_EVENT_TEXT,
-  dialogue, eventTextFor, lineFor, storyFor,
+  FEIFEI_BOSS_LINES, FEIFEI_CAST_LINES,
+  dialogue, lineFor, storyFor,
 } from '../src/content/dialogue';
+import { FEIFEI_EVENT_LINES, FEIFEI_EVENT_TEXT, eventTextFor } from '../src/content/event-text';
 import { events } from '../src/content/events';
 import { enemyById } from '../src/content/enemies';
 
@@ -31,6 +32,8 @@ export function spoken(text: string): string | null {
 const cell = (s: string): string => s.replace(/\|/g, '\\|').replace(/\n/g, ' ');
 const DIALOGUE = 'src/content/dialogue.ts';
 const EVENTS = 'src/content/events.ts';
+// 共用事件的角色文案（菲菲的 `FEIFEI_EVENT_LINES`／`FEIFEI_EVENT_TEXT`）2026-09-23 搬出 `dialogue.ts`（0-1 事件文字分包）
+const EVENT_TEXT = 'src/content/event-text.ts';
 
 /** 選角小傳：`blurb: '…' + '…',` 把幾段常值接起來 */
 function blurbOf(hero: string): string | null {
@@ -124,16 +127,16 @@ export function buildRows(hero: 'ninja' | 'feifei'): Row[] {
       const his = spoken(raw);
       if (!his) return;
       if (hero === 'ninja') { lit('EV', where, '旁白／球球', raw, EVENTS, { inner: his }); return; }
-      if (FEIFEI_EVENT_LINES[his] !== undefined) lit('EV', where, '菲菲', FEIFEI_EVENT_LINES[his]!);
+      if (FEIFEI_EVENT_LINES[his] !== undefined) lit('EV', where, '菲菲', FEIFEI_EVENT_LINES[his]!, EVENT_TEXT);
       else {
         const now = spoken(eventTextFor('feifei', raw)) ?? '';
-        rows.push({ id: nextId('EV'), where: `${where}（現在是球球的句子轉的）`, who: '菲菲', text: now, file: DIALOGUE, kind: 'map-add', hero, map: 'FEIFEI_EVENT_LINES', key: his });
+        rows.push({ id: nextId('EV'), where: `${where}（現在是球球的句子轉的）`, who: '菲菲', text: now, file: EVENT_TEXT, kind: 'map-add', hero, map: 'FEIFEI_EVENT_LINES', key: his });
       }
     };
     push(`事件「${e.title}」開頭`, e.text);
     for (const c of e.choices) if (c.result) push(`事件「${e.title}」選「${c.label}」的結果`, c.result);
   }
-  if (hero === 'feifei') for (const v of Object.values(FEIFEI_EVENT_TEXT)) lit('ET', '共用事件整句（敘述＋她的話，整句都可改）', '旁白／菲菲', v);
+  if (hero === 'feifei') for (const v of Object.values(FEIFEI_EVENT_TEXT)) lit('ET', '共用事件整句（敘述＋她的話，整句都可改）', '旁白／菲菲', v, EVENT_TEXT);
 
   // ---- 六、專屬事件（events.ts） ----
   for (const e of events) {

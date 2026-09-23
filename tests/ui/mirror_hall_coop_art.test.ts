@@ -11,7 +11,8 @@
  */
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { eventTextFor, setCoopStory } from '../../src/content/dialogue';
+import { setCoopStory } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
 import { HEROES, type Hero } from '../../src/engine/hero';
 import { _setManifestForTest, eventArtCast, eventArtHero, eventArtKey, eventSidePortrait, setLocalHero, type Manifest } from '../../src/ui/assets';
