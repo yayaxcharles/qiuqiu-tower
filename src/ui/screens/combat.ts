@@ -2549,7 +2549,8 @@ registerScreen('combat', (app, root, props) => {
     return true;
   }
 
-  function runEnemyTurn(): void {
+  function runEnemyTurn(): void { guardEnemyTurn(startEnemyTurn)(); }
+  function startEnemyTurn(): void {
     const before = snap(cs, my());
     // 連線：收回合那一刻會話被 `hold()` 住了，演完（或根本沒得演）都要放開，同伴下一回合的牌才套得進來（稽核 2026-09-14 高-7）
     if (!beginEnemyTurn(cs)) { settle(before, { deal: true }); session?.release(); return; }
@@ -2557,7 +2558,7 @@ registerScreen('combat', (app, root, props) => {
     // （點了仍被 canAct 擋住，但看起來像可以點）——稽核 2026-09-04 夜 L-2
     enemyTurnRunning = true;
     settle(before, { light: true });
-    const step = (): void => {
+    const step = guardEnemyTurn((): void => {
       if (app.cs !== cs) { enemyTurnRunning = false; return; }
       clearTelegraph();
       const b = snap(cs, my());
@@ -2580,10 +2581,38 @@ registerScreen('combat', (app, root, props) => {
         window.setTimeout(() => { if (app.cs === cs) telegraphNext(); }, gap - TELEGRAPH_MS);
       }
       window.setTimeout(step, gap);
-    };
+    });
     // 整個回合的第一隻沒有「上一隻的結果」可以借時間，這 0.32 秒是真的多花的（一回合一次）
     if (telegraphNext()) window.setTimeout(step, TELEGRAPH_MS);
     else step();
+  }
+
+  /*
+   * 魔物回合演到一半丟例外的退路（2026-09-23，接稽核 低-2 的「沒做的」）。
+   *
+   * 收牌之後，魔物回合的開頭與每一步都在計時器裡跑，`onApplied` 外層那道防護接不到：
+   * 任何一支演出（`settle`、出招預告）丟一個例外，這一步之後就沒人排下一步，
+   * `release()` 永遠等不到——同伴下一回合的牌全在這邊排隊，兩台互等（單機則是停在魔物回合、按鈕全灰）。
+   * 跟低-2 同一套：記一行、照常收尾，連收尾都壞就直接放開。
+   * 「照常收尾」＝引擎那一半照常走完、只是不演（跟 `endTurn` 同一個走法；兩台都要走到同一個地方，鎖步才對得上），
+   * 畫面重畫回真實的狀態、照常判勝負。
+   */
+  function guardEnemyTurn(fn: () => void): () => void {
+    return () => { try { fn(); } catch (error) { rescueEnemyTurn(error); } };
+  }
+  function rescueEnemyTurn(error: unknown): void {
+    console.error('魔物回合演出失敗，照常收尾', error);
+    enemyTurnRunning = false;
+    try {
+      if (cs.enemyActing) { while (stepEnemyTurn(cs)) { /* 一隻一隻 */ } finishEnemyTurn(cs); }
+      recoverPresentation();
+      checkOver();
+      syncPicker();
+    } catch (again) {
+      console.error('魔物回合收尾也失敗，直接放開會話', again);
+    } finally {
+      session?.release();
+    }
   }
 
   // ===== 結算與動畫 =====
