@@ -12,7 +12,8 @@
 等比縮進去之後新圖站出來約 280 高，跟舊立繪（四周留透明、站出來約 285）差不多。
 
 用法：
-    python tools/make_dialogue_portraits.py
+    python tools/make_dialogue_portraits.py              # 四隻
+    python tools/make_dialogue_portraits.py dangdang     # 只重做指定的
 """
 from __future__ import annotations
 
@@ -48,10 +49,28 @@ def crop_idle(hero: str) -> Image.Image:
     return Image.fromarray(crop, 'RGBA')
 
 
+def crop_static(key: str) -> Image.Image:
+    """從靜態立繪裁（外框外多留 MARGIN 的透明邊）。"""
+    manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
+    image = Image.open(ROOT / 'public' / manifest['sprites'][key]).convert('RGBA')
+    x0, y0, x1, y1 = image.getchannel('A').point(lambda a: 255 if a > 16 else 0).getbbox()
+    crop = np.array(image.crop((max(0, x0 - MARGIN), max(0, y0 - MARGIN), min(image.width, x1 + MARGIN), min(image.height, y1 + MARGIN))))
+    crop[crop[..., 3] == 0, :3] = 0
+    return Image.fromarray(crop, 'RGBA')
+
+
+# 噹噹的待機圖集解析度低（待機第 1 格只有 167×240），框高 290 要放大 1.2 倍、看起來偏軟（2026-09-22 記過）。
+# 2026-09-23 改從選角那張新畫風待機靜態圖裁（同一個架式，09-22 批次 screens 照新版待機生的，529 高），不用放大
+STATIC_SOURCE = {'dangdang': 'hero/dangdang_idle'}
+
+
 def main() -> None:
+    only = set(sys.argv[1:])
     manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
     for hero, key in SPRITE_KEY.items():
-        image = crop_idle(hero)
+        if only and hero not in only:
+            continue
+        image = crop_static(STATIC_SOURCE[hero]) if hero in STATIC_SOURCE else crop_idle(hero)
         rel = f'assets/sprites/hero/{key}_portrait.webp'
         target = ROOT / 'public' / rel
         image.save(target, 'WEBP', quality=QUALITY, alpha_quality=100, method=6)

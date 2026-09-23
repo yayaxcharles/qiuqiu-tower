@@ -1,0 +1,18 @@
+{
+  "stone_lion_p2_block": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "A single cartoon monster for a cute game set in a cat ninja tower, full body, facing LEFT: the STONE GUARDIAN LION in its ENRAGED SECOND PHASE, EXACTLY as in reference image 1 - grey carved stone body with swirl-curl mane, cracked all over with glowing orange-yellow lava light shining through the cracks, glowing yellow eyes, small floating stone chips. Reference image 2 shows the SAME lion in its first phase doing this pose: copy only the pose from it, keep the cracked lava look of reference image 1. Pose: bracing to block, both front legs crossed in front of its chest like a shield, head lowered behind them, glowing eyes narrowed, the stone ball on the ground beside its front paw. It stands on the ground with its feet at the very bottom edge of the picture and fills the frame vertically. Thick black outlines, flat colours with soft shading, EXACTLY the drawing style of reference image 1. Nothing else: no ground line, no cast shadow, no scenery, no text, no border. Truly transparent RGBA background (no checkerboard drawing, no white box).",
+      "at": "2026-09-23 10:57:08"
+    }
+  ],
+  "stone_lion_p2_hurt": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "A single cartoon monster for a cute game set in a cat ninja tower, full body, facing LEFT: the STONE GUARDIAN LION in its ENRAGED SECOND PHASE, EXACTLY as in reference image 1 - grey carved stone body with swirl-curl mane, cracked all over with glowing orange-yellow lava light shining through the cracks, glowing yellow eyes, small floating stone chips. Reference image 2 shows the SAME lion in its first phase doing this pose: copy only the pose from it, keep the cracked lava look of reference image 1. Pose: recoiling from a hit, head knocked back and to the right, eyes squeezed shut, mouth open in a pained roar, one front paw still resting on its carved stone ball, a few small stone chips breaking off. It stands on the ground with its feet at the very bottom edge of the picture and fills the frame vertically. Thick black outlines, flat colours with soft shading, EXACTLY the drawing style of reference image 1. Nothing else: no ground line, no cast shadow, no scenery, no text, no border. Truly transparent RGBA background (no checkerboard drawing, no white box).",
+      "at": "2026-09-23 10:57:12"
+    }
+  ]
+}

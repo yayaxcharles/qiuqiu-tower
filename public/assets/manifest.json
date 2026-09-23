@@ -1496,7 +1496,9 @@
     },
     "codex/monster_stone_lion_p2": {
       "idle": "assets/monsters/stone_lion_p2_idle.webp",
-      "attack": "assets/monsters/stone_lion_p2_attack.webp"
+      "attack": "assets/monsters/stone_lion_p2_attack.webp",
+      "hurt": "assets/monsters/stone_lion_p2_hurt.webp",
+      "block": "assets/monsters/stone_lion_p2_block.webp"
     },
     "codex/monster_shadow_fengfeng": {
       "idle": "assets/monsters/shadow_fengfeng_idle.webp",
