@@ -745,6 +745,9 @@
  "assets/bg/event_pigeon_reply_r1.webp": 0,
  "assets/bg/event_pigeon_reply_r2.webp": 0,
  "assets/bg/event_pigeon_reply.webp": 0,
+ "assets/bg/event_q_ambush.webp": 0,
+ "assets/bg/event_q_merchant.webp": 0,
+ "assets/bg/event_q_roadbox.webp": 0,
  "assets/bg/event_rare_catnip_master_r0.webp": 0,
  "assets/bg/event_rare_catnip_master_r1.webp": 0,
  "assets/bg/event_rare_catnip_master_r2.webp": 0,
@@ -2362,5 +2365,8 @@
  "assets/sprites/hero/fengfeng_taiji.webp": 0,
  "assets/sprites/hero/fengfeng_throw.webp": 0,
  "assets/sprites/hero/fengfeng_walk.webp": 0,
- "assets/sprites/hero/fengfeng_win.webp": 0
+ "assets/sprites/hero/fengfeng_win.webp": 0,
+ "assets/sprites/shop/merchant_happy.webp": 0,
+ "assets/sprites/shop/merchant_no.webp": 0,
+ "assets/sprites/shop/merchant.webp": 0
 }

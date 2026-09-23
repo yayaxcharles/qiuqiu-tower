@@ -221,7 +221,8 @@ describe('同一局不重複遇到同一個事件', () => {
       const run = newRun(`norepeat-${i}`, 1, i % 2 ? 'feifei' : 'ninja');
       const seen: string[] = [];
       for (const n of eventNodes(run).slice(0, 3)) {
-        try { walkTo(run, n.id); seen.push(n.eventId!); } catch { /* 走不到（已經走過那一層）就換下一個 */ }
+        // 變成伏擊／行腳商／路邊紙箱的那一格（問號格變化，2026-09-23 第三批）原本那篇沒被看到，照設計稿 3-1 不記「遇過」，之後照樣排得到
+        try { walkTo(run, n.id); if (!n.variant) seen.push(n.eventId!); } catch { /* 走不到（已經走過那一層）就換下一個 */ }
       }
       expect(seen.length, `種子 ${i} 一個事件都沒走到`).toBeGreaterThan(0);
       advanceAct(run);

@@ -47,7 +47,7 @@ const entries = flatten(manifest);
 
 /** 第三批的事件圖編號：圖已登記、程式還沒接（2026-09-23）。接好一項拿掉一項，見下面「暫放名單」那兩條 */
 const BATCH3_PENDING = [
-  'broken_shrine_r2', 'q_ambush', 'q_merchant', 'q_roadbox',
+  'broken_shrine_r2',
   'rare_catnip_master', 'rare_catnip_master_r0', 'rare_catnip_master_r1', 'rare_catnip_master_r2',
   'rare_fortune_sticks', 'rare_fortune_sticks_r0', 'rare_fortune_sticks_r1',
   'rare_hot_spring', 'rare_hot_spring_r0', 'rare_hot_spring_r1', 'rare_hot_spring_r2',
@@ -84,7 +84,8 @@ describe('素材清單的衛生', () => {
     }
     // 畫面自己組的：紙箱那三態不是事件，是 `chest.ts` 直接叫 `eventArtKey` 的
     for (const k of ['chest_closed', 'chest_open', 'chest_empty']) ids.add(k);
-    // 不是事件的事件類主圖（祝福主圖，2026-09-23 第三批）：畫面照 `eventArtKey` 挑，名單在 `bgacts.ts`
+    // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）：畫面照 `eventArtKey` 挑，名單在 `bgacts.ts`
+    // （問號格那三張的編號照引擎那一份 `QMARK_ART`，`NON_EVENT_ART` 直接併進去）
     for (const k of NON_EVENT_ART) ids.add(k);
     // 第三批程式接線前暫放（2026-09-23）：圖先一次登記，免得祝福、問號格、稀有事件、神龕幾條分支各自改清單互相衝突。
     // 哪一項接好了就把它從這裡拿掉；下面那條「暫放名單已接線的要拿掉」會提醒

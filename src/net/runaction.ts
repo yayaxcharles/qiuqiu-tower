@@ -1,4 +1,4 @@
-import { buyCard, buyPotion, buyRelic, buyRemove, notMyCard, priceFor, potionCapacity, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, takeRelic, type ShopStock } from '../engine/run';
+import { buyCard, buyPotion, buyRelic, buyRemove, notMyCard, priceFor, potionCapacity, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, shopClosed, takeRelic, type ShopStock } from '../engine/run';
 import type { RunState } from '../engine/types';
 import { canTakeBlessing, takeBlessing, type BlessPick } from '../engine/blessing';
 
@@ -71,6 +71,7 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
   switch (a.t) {
     case 'buy': {
       if (!shop) return false;
+      if (shopClosed(shop)) return false;   // 行腳商收攤了（只做一筆生意，2026-09-23 第三批）：不擋的話會發號碼、套用失敗、整場斷線
       const it = a.k === 'card' ? shop.cards[a.i] : a.k === 'relic' ? shop.relics[a.i] : shop.potions[a.i];
       if (!it || it.sold || p.fish < priceFor(run, it, a.seat, shop)) return false;   // 帶貨架：批發箱、帳本的折扣要算進去（2026-09-23 第二批）
       if (a.k === 'relic') return !p.relics.includes((it as { id: string }).id);
@@ -82,14 +83,14 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
       }
       return true;
     }
-    case 'scrub': return !!shop && p.deck.some((c) => c.uid === a.u) && p.fish >= removePrice(run, a.seat);   // 會員卡的固定價（2026-09-23 第二批）
+    case 'scrub': return !!shop && !shop.merchant && p.deck.some((c) => c.uid === a.u) && p.fish >= removePrice(run, a.seat);   // 會員卡的固定價（2026-09-23 第二批）；行腳商沒有放生（第三批）
     /*
      * 條件要跟 `reshuffleShop` 自己的判斷**一模一樣**（2026-09-14 連線稽核 高-17）。
      * 原本只看「重整過了沒」：先買一張、動作還沒繞回來又按重整（畫面上錢還夠），
      * 或同伴剛好買走架上最後一件——主機照樣發號碼，兩台套用都失敗，整場斷線。
      * 做不出來的就該在這裡擋下、不發號碼（搶標那條路本來就是這樣設計的）。
      */
-    case 'shuffle': return !!shop && !shop.reshuffled && p.fish >= RESHUFFLE_COST
+    case 'shuffle': return !!shop && !shop.merchant && !shop.reshuffled && p.fish >= RESHUFFLE_COST
       && [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
     case 'rest': return a.c === '磨爪' || a.c === '全力準備' ? a.u !== undefined : true;
   }

@@ -841,7 +841,15 @@ export interface MapNode {
    * 可選欄位：舊存檔沒有這一欄＝那一局沒有修飾詞，不必升存檔版本（升了會清掉進行中的局）。
    */
   modifier?: string;
+  /**
+   * 問號格變化（2026-09-23 內容擴充第三批 新G，設計稿 design3 第三節）：走進這一格的那一刻（`chooseNode`）擲出來的，
+   * 事件換成伏擊、行腳商或路邊紙箱。伏擊打的那一組寫在同一格的 `encounterId`。
+   * 可選：舊存檔沒有＝那一格就是原本的事件；進整局指紋（`net/hash.ts`）。
+   */
+  variant?: QmarkVariant;
 }
+/** 問號格變成哪一種（見 `MapNode.variant`） */
+export type QmarkVariant = '伏擊' | '行腳商' | '路邊紙箱';
 export interface GameMap { nodes: MapNode[]; start: string[] }
 
 // ===== 整局 =====
@@ -921,6 +929,12 @@ export interface RunState {
   flags: Record<string, boolean>;
   /** 事件選項「要打一場」附帶的獎勵：先記在這裡，打贏才發（輸了就清掉）——使用者 2026-09-04：秘寶不該還沒打就到手 */
   pendingAfterFight?: RunEffect[];
+  /**
+   * 問號格變化的累積（2026-09-23 內容擴充第三批 新G）：上一次變化之後，連續走進幾個正常事件格。
+   * 下一格會變的機率＝min(20%, 5% ＋ 5% × 這個數)，變了就歸零（`engine/qmark.ts`）。
+   * 可選：舊存檔沒有＝0，進整局指紋。
+   */
+  qmark?: number;
 }
 
 // ===== 戰鬥 =====

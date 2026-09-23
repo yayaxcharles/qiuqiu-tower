@@ -130,6 +130,10 @@ export function runFingerprint(run: RunState): string {
     // `shop_bought:` 是店長私藏買過哪幾件（2026-09-23 第二批，引擎的 `buyRelic` 寫）：兩台不一樣，下一間店的私藏那格就會擺得不一樣
     `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:') || k.startsWith('chain:') || k.startsWith('shop_bought:'))).sort().join(',')}]`,
     `m[${run.map.nodes.map((n) => n.eventId ?? '').join(',')}]`,
+    // 問號格變化（2026-09-23 內容擴充第三批 新G）：累積幾次、哪幾格變成什麼（伏擊連同那一組）。兩台不一樣，下一個問號格就會擲出不同的結果。
+    // 有才串：還沒走進任何事件格的局（開局、舊存檔）指紋跟以前一樣
+    ...(run.qmark ? [`qm${run.qmark}`] : []),
+    ...(run.map.nodes.some((n) => n.variant) ? [`qv[${run.map.nodes.filter((n) => n.variant).map((n) => `${n.id}:${n.variant}:${n.encounterId ?? ''}`).join(',')}]`] : []),
   ];
   for (const p of run.players) {
     parts.push([

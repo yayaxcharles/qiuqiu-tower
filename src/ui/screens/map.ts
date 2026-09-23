@@ -3,7 +3,8 @@ import { attachTextTooltip } from '../tooltip';
 import { modifierById } from '../../content/modifiers';
 import { play } from '../audio';
 import { FLOORS, nextChoices, nodeById } from '../../engine/map';
-import type { MapNode } from '../../engine/types';
+import type { MapNode, QmarkVariant } from '../../engine/types';
+import { loadQmarkText, qmarkTip } from '../qmark';
 import { registerScreen } from '../app';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
@@ -11,7 +12,7 @@ import { heroName } from '../../engine/hero';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
-import { preloadMapEvents } from '../preload';
+import { mapHasQmark, preloadMapEvents, preloadQmarkArt } from '../preload';
 import { loadEventScreen } from '../event-loader';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
@@ -24,6 +25,8 @@ const ICON: Record<MapNode['type'], string> = {
   戰鬥: 'icon/node_fight', 大魔物: 'icon/node_elite', 事件: 'icon/node_event',
   罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
 };
+/** 變過的問號格畫成哪一種節點的圖示（伏擊＝戰鬥、行腳商＝罐頭鋪、路邊紙箱＝紙箱） */
+const VARIANT_ICON: Record<QmarkVariant, MapNode['type']> = { 伏擊: '戰鬥', 行腳商: '罐頭鋪', 路邊紙箱: '紙箱' };
 
 
 /** 地圖上那隻球球的尺寸與跟節點的間隙（樣式在 map.css 的 `.map-hero`，兩邊要一致） */
@@ -230,6 +233,8 @@ registerScreen('map', (app, root) => {
      * 認的是輪廓與主色，同一種節點長得一模一樣正是它好認的原因——換了圖案就得重新辨認一次，
      * 省下的重複感遠不如失去的辨識度。變體圖檔留在 `tools/art_inbox/`，要回頭再撿。
      */
+    // 變過的問號格（2026-09-23 第三批，設計稿 3-3）：走過之後畫成實際的那一種（戰鬥／罐頭鋪／紙箱），另掛一個小問號（見下面的 `.map-qv`）
+    if (n.variant) return artUrl('icons', ICON[VARIANT_ICON[n.variant]]);
     return artUrl('icons', ICON[n.type]);
   }
 
@@ -259,6 +264,13 @@ registerScreen('map', (app, root) => {
       title: `${base + n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
     }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
     if (mod) { btn.append(el('span', { class: 'map-mod' }, mod.label)); attachTextTooltip(btn, mod.label, mod.desc); }
+    // 問號格的說明寫出**目前的機率**（主控裁決第 3 條）；變過的那一格講它變成了什麼、左上角掛小問號
+    // （設計稿寫右上角，但右上角是打過的勾勾，兩個疊在一起看不清楚）
+    if (n.type === '事件' && (n.variant || (n.floor >= run.floor - base && !run.trail.includes(n.id)))) {
+      const tip = qmarkTip(run, n);
+      attachTextTooltip(btn, tip.title, tip.body);
+      if (n.variant) btn.append(el('span', { class: 'map-qv' }, '？'));
+    }
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
     if (choices.has(n.id) && !iDown) {
       btn.addEventListener('click', () => {
@@ -409,4 +421,6 @@ registerScreen('map', (app, root) => {
   // （走 `event-loader.ts`：這裡失敗了，下一次會換網址參數重抓，不會被瀏覽器記住的失敗卡死——推前審查 低-1）
   void loadEventScreen().catch(() => undefined);
   void preloadMapEvents(run);
+  // 問號格變化的文字與圖（2026-09-23 第三批）：地圖上還有會變的問號格才抓，一樣不插隊、抓失敗走進去時再要一次
+  if (mapHasQmark(run)) { void loadQmarkText().catch(() => undefined); void preloadQmarkArt(run); }
 });

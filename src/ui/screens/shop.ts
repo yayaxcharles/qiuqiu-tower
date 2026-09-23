@@ -2,14 +2,15 @@ import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById, relicLongText } from '../../content/relics';
-import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, notMyCard, potionCapacity, priceFor, removePrice, reshuffleShop, shopMulFor, type ShopStock } from '../../engine/run';
-import { heroSpeaker, notice } from '../dialogue';
+import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, notMyCard, potionCapacity, priceFor, removePrice, reshuffleShop, runMods, shopClosed, shopMulFor, type ShopStock } from '../../engine/run';
+import type { MERCHANT_LINES } from '../../content/qmark-text';
+import { heroSpeaker, notice, toast } from '../dialogue';
 import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
 import type { Rarity, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
-import { artUrl } from '../assets';
+import { artUrl, eventArtKey } from '../assets';
 import { cardNode } from '../cardview';
 import { attachCardPeek } from '../cardpeek';
 import { showRemoveConfirm } from '../confirm';
@@ -19,6 +20,9 @@ import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
 
+/** 行腳商自己的那幾句（延後模組 `content/qmark-text.ts`；只借型別，不把字拉進首載） */
+type MerchantLines = typeof MERCHANT_LINES;
+
 /** 圖示還沒生好時 artUrl 會回一張灰剪影；貨架每格都寫著名字，寧可不放圖也不要排一列灰影 */
 function icon(key: string, alt: string): Node | string {
   const url = artUrl('icons', key);
@@ -26,13 +30,23 @@ function icon(key: string, alt: string): Node | string {
 }
 
 registerScreen('shop', (app, root, props) => {
-  root.append(screenBg(actVariantKey('bg/screen_shop', app.run?.act ?? 1, app.run?.floor)));
+  // 行腳商的攤子擺在樓梯轉角，底圖用事件畫面那張，不是罐頭鋪裡面（2026-09-23 第三批）
+  const merchantBg = !!(props as { merchant?: unknown } | null)?.merchant;
+  root.append(screenBg(merchantBg ? actVariantKey('bg/screen_event', app.run?.act ?? 1) : actVariantKey('bg/screen_shop', app.run?.act ?? 1, app.run?.floor)));
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
   // 貨架在走進這一格時就抽好了（`enterNode`），這裡只接過來；除錯模式直接跳進來才自己抽。
   // 進貨只做一次：makeShops 會推進 run.rng，每次重畫都叫的話買一樣東西整個貨架就換一批
   const shops = (props as { shops?: ShopStock[] } | null)?.shops ?? makeShops(run);
-  const line = dialogue.shopkeeper[Math.floor(Math.random() * dialogue.shopkeeper.length)] ?? '';
+  /*
+   * 行腳商（問號格變化，2026-09-23 內容擴充第三批，設計稿 3-2、3-6）：沿用這個畫面，貨架是 `makeMerchant` 那一份。
+   * 先一段開頭（揭曉圖＋這一位的那段話）、按一下才攤開貨架；對白框換成行腳商講話，只做一筆生意，沒有放生、沒有重整貨架。
+   * 開頭那一段只是換個畫法、不動任何東西，連線時兩台各看各的、不用對齊。
+   */
+  const mer = (props as { merchant?: { opening: string; lines?: MerchantLines } } | null)?.merchant;
+  const pickLine = (list: readonly string[]): string => list[Math.floor(Math.random() * list.length)] ?? '';
+  let line = mer ? pickLine(mer.lines?.enter ?? []) : pickLine(dialogue.shopkeeper);
+  let intro = !!mer;
 
   /*
    * 兩個人一起逛，**各逛各的**（使用者 2026-09-15：「不如各逛各的？跟戰鬥完選牌一樣」）。
@@ -88,8 +102,9 @@ registerScreen('shop', (app, root, props) => {
   let mood: Mood = 'idle';
   let moodTimer = 0;
   function keeperArt(): string | undefined {
-    // 新表情沒生好就退回招呼那張，退不了才整個不放（跟原本一樣）
-    for (const key of mood === 'idle' ? ['shop/keeper'] : [`shop/keeper_${mood}`, 'shop/keeper']) {
+    // 新表情沒生好就退回招呼那張，退不了才整個不放（跟原本一樣）。行腳商用自己那三張（鍵照對照表：`shop/merchant`、`_happy`、`_no`）
+    const base = mer ? 'shop/merchant' : 'shop/keeper';
+    for (const key of mood === 'idle' ? [base] : [`${base}_${mood}`, base]) {
       const url = artUrl('sprites', key);
       if (!url.startsWith('data:')) return url;
     }
@@ -123,6 +138,14 @@ registerScreen('shop', (app, root, props) => {
     // 比 `getAttribute` 不比 `img.src`：後者的 getter 回的是解析過的絕對網址，
     // 跟 `artUrl` 給的相對路徑永遠不相等，那個判斷等於沒作用（稽核 2026-09-10 低-5）
     if (img && url && img.getAttribute('src') !== url) img.src = url;
+    // 行腳商按了買不起的：換成他那一句（設計稿 3-6）。只換字、不重畫（理由同上）
+    if (mer && m === 'no' && mer.lines && !shopClosed(shop)) say(mer.lines.poor);
+  }
+  /** 行腳商換一句話（對白框裡那一行字就地換掉，不重畫整頁） */
+  function say(text: string): void {
+    line = text;
+    const node = root.querySelector('.scene-text');
+    if (node && !intro) node.textContent = text;
   }
 
   /**
@@ -135,7 +158,8 @@ registerScreen('shop', (app, root, props) => {
    */
   function priceNode(price: number, sold: boolean, base?: number, sale?: number, soldText = '賣掉了'): HTMLElement {
     if (sold) return el('div', { class: 'price' }, soldText);
-    const orig = base === undefined ? price : Math.round(base * shopMulFor(run, seat));
+    // 行腳商劃掉的原價只乘難度（他不吃零錢罐、錢袋那些，原價也不該照它們算）
+    const orig = base === undefined ? price : Math.round(base * (mer ? runMods(run).shopMul : shopMulFor(run, seat)));
     if (base !== undefined && (sale || price < orig)) {
       return el('div', { class: 'price sale' }, el('s', {}, String(orig)), el('b', {}, `${price} 條小魚乾`));
     }
@@ -143,7 +167,9 @@ registerScreen('shop', (app, root, props) => {
   }
   const saleTag = (sale?: number): HTMLElement | '' => (sale ? el('div', { class: 'sale-tag' }, `特價 ${Math.round(sale * 10)} 折`) : '');
   /** 帳本的半價還沒用掉：每一格掛一個小牌子，讓人知道「現在買哪一件都半價」 */
-  const ledgerOn = (): boolean => !shop.anyBought && me(run, seat).relics.some((id) => relicById[id]?.hooks.shopFirstItemHalf);
+  const ledgerOn = (): boolean => !shop.merchant && !shop.anyBought && me(run, seat).relics.some((id) => relicById[id]?.hooks.shopFirstItemHalf);
+  /** 行腳商收攤了：買下的那格寫「買下了」、其他格子寫「收攤了」（`shopClosed`） */
+  const closedText = (sold: boolean): string | undefined => (shopClosed(shop) ? (sold ? '買下了' : '收攤了') : undefined);
   const ledgerTag = (sold: boolean): HTMLElement | '' => (!sold && ledgerOn() ? el('div', { class: 'sale-tag ledger' }, '第一件半價') : '');
 
   function stall(key: string, name: string, text: string, price: number,
@@ -182,12 +208,19 @@ registerScreen('shop', (app, root, props) => {
    */
   function bought(sound: 'buy' | 'relic' | 'upgrade'): void {
     if (coop) return;   // 連線的統一由 onRunApplied 處理
-    play(sound); setMood('happy'); render();
+    play(sound); setMood('happy'); merchantDeal(); render();
+  }
+  /** 行腳商成交了：換成他那一句（收攤那一刻） */
+  function merchantDeal(): void { if (mer?.lines) say(pickLine(mer.lines.bought)); }
+  /** 回地圖。行腳商那裡一樣都沒買就走，他丟下一句再走（設計稿 3-6） */
+  function leave(): void {
+    if (mer?.lines && !shop.anyBought) toast(mer.lines.left, '行腳商');
+    app.backToMap();
   }
 
   /** 離開：單機直接走；連線要兩個人都按了才一起上樓 */
   function leaveBtn(): HTMLElement {
-    if (!coop) return el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '離開');
+    if (!coop) return el('button', { class: 'btn primary', onclick: leave }, mer ? '走了' : '離開');
     const mine = done.has(seat);
     const btn = el('button', { class: 'btn primary', onclick: () => { if (!mine) coop.submitRun({ t: 'done', seat }); } },
       mine ? '等同伴逛完…' : '逛好了');
@@ -198,19 +231,32 @@ registerScreen('shop', (app, root, props) => {
   function render(): void {
     clearKeepBg(root);
     renderHud(app, root);
+    // 行腳商的開頭：揭曉圖＋這一位的那段話，按一下才攤開貨架（只換畫法，不動任何東西）
+    if (mer && intro) {
+      const url = artUrl('bg', eventArtKey('q_merchant'));
+      root.append(sceneView({
+        art: url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' }),
+        speaker: '行腳商',
+        text: mer.opening,
+        actions: [el('button', { class: 'btn primary', onclick: () => { intro = false; play('click'); render(); } }, '看看貨架（只能挑一樣）')],
+      }));
+      return;
+    }
+    const closed = shopClosed(shop);   // 行腳商收攤了（只做一筆生意）
 
     const cards = el('div', { class: 'shop-row' });
     shop.cards.forEach((it, i) => {
       const price = priceFor(run, it, seat, shop);
       // 貨架照自己的角色抽，同伴的專屬招式不會擺上來；這道保險留著，萬一擺上來也寫清楚、不要只是變淡
       const theirs = notMyCard(run, it.def, seat);
-      const buyable = !it.sold && !iDown && !theirs && me(run, seat).fish >= price;
-      const slot = el('div', { class: `shop-item card-item${it.sold ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
+      const gone = it.sold || closed;
+      const buyable = !gone && !iDown && !theirs && me(run, seat).fish >= price;
+      const slot = el('div', { class: `shop-item card-item${gone ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         it.sale ? saleTag(it.sold ? undefined : it.sale) : ledgerTag(it.sold),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { act({ t: 'buy', seat, k: 'card', i }, () => buyCard(run, shop, i, seat)) && bought('buy'); } }),   // 升級格照＋版畫
-        theirs && !it.sold ? el('div', { class: 'price' }, '同伴的牌') : priceNode(price, it.sold, it.base, it.sale));
+        theirs && !it.sold ? el('div', { class: 'price' }, '同伴的牌') : priceNode(price, gone, it.base, it.sale, closedText(it.sold)));
       // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
-      if (!it.sold && !buyable) slot.addEventListener('click', () => setMood('no'));
+      if (!gone && !buyable) slot.addEventListener('click', () => setMood('no'));
       cards.append(slot);
     });
 
@@ -223,9 +269,9 @@ registerScreen('shop', (app, root, props) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = me(run, seat).relics.includes(it.id);
       // 自己已經有、架上卻還沒賣掉的，寫「你已經有了」：寫「賣掉了」的話同伴明明還買得到（連線稽核 高-8）
-      relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics), priceFor(run, it, seat, shop), it.sold || owned, false,
+      relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics), priceFor(run, it, seat, shop), it.sold || owned || closed, false,
         () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale,
-        !it.sold && owned ? '你已經有了' : undefined, undefined, !!it.limited));
+        closedText(it.sold) ?? (!it.sold && owned ? '你已經有了' : undefined), undefined, !!it.limited));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -235,11 +281,11 @@ registerScreen('shop', (app, root, props) => {
       const full = me(run, seat).potions.length >= potionCapacity(run, seat);
       const price = priceFor(run, it, seat, shop);
       const poor = me(run, seat).fish < price;
-      potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, price, it.sold, poor,
+      potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, price, it.sold || closed, poor,
         () => {
           if (!full) { act({ t: 'buy', seat, k: 'potion', i }, () => buyPotion(run, shop, i, undefined, seat)) && bought('buy'); return; }
           showPotionSwap(run, it.id, (idx) => { if (idx >= 0) act({ t: 'buy', seat, k: 'potion', i, r: idx }, () => buyPotion(run, shop, i, idx, seat)) && bought('buy'); }, { apply: false, seat });
-        }, it.base, it.sale, undefined, d.rarity));
+        }, it.base, it.sale, closedText(it.sold), d.rarity));
     });
 
     // 放生：挑完先跳確認（使用者 2026-09-04：「選牌後沒有跳確定」），按「再看看」回牌堆重挑
@@ -278,9 +324,10 @@ registerScreen('shop', (app, root, props) => {
     root.append(sceneView({
       art: goods,
       portrait: keeperArt(),
-      speaker: '橘貓老闆',
+      speaker: mer ? '行腳商' : '橘貓老闆',
       text: iDown ? `${heroSpeaker()}倒在門口，只能看著同伴逛。` : line,   // 倒下的可能是菲菲（連線稽核 中-5）
-      actions: [reshuffle, remove, leaveBtn()],
+      // 行腳商沒有放生、沒有重整貨架（設計稿 3-2）
+      actions: mer ? [leaveBtn()] : [reshuffle, remove, leaveBtn()],
     }));
   }
 
@@ -289,9 +336,9 @@ registerScreen('shop', (app, root, props) => {
       for (const one of applied) {
         if (one.a.t === 'done') done.add(one.a.seat);
         // 換忍具（`swap`，由 potionswap 送出）不是買東西，不播買賣聲（總稽核 B 低-5）
-        else if (one.a.seat === seat && one.a.t !== 'swap') { play(one.a.t === 'buy' && one.a.k === 'relic' ? 'relic' : one.a.t === 'scrub' ? 'upgrade' : 'buy'); setMood('happy'); }
+        else if (one.a.seat === seat && one.a.t !== 'swap') { play(one.a.t === 'buy' && one.a.k === 'relic' ? 'relic' : one.a.t === 'scrub' ? 'upgrade' : 'buy'); setMood('happy'); if (one.a.t === 'buy') merchantDeal(); }
       }
-      if (allDone()) { app.backToMap(); return; }
+      if (allDone()) { leave(); return; }
       render();
     });
   }

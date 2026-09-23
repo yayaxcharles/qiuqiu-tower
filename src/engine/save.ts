@@ -7,6 +7,7 @@ import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
 import { blessingById } from '../content/blessings';
 import { ACTS } from './run';
+import { QMARK_WEIGHTS } from './qmark';
 import type { CardInstance, RunPlayer, RunState } from './types';
 
 export interface KeyValueStore { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void }
@@ -228,6 +229,15 @@ export function checkRun(input: Partial<RunState>): RunState | null {
   }
   // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
   if (!usableMap(run.map, run.currentNode)) return null;
+  /*
+   * 問號格變化（2026-09-23 內容擴充第三批 新G）：舊存檔沒有 `qmark`＝0、格子沒有 `variant`＝原本那篇事件，不必升版本。
+   * 壞掉的**只丟那一欄**，不整份判壞檔（累積數錯了頂多早一點或晚一點變）；伏擊那一格要有遭遇，沒有就當原本的事件。
+   */
+  if (run.qmark !== undefined && !(typeof run.qmark === 'number' && Number.isInteger(run.qmark) && run.qmark >= 0)) delete run.qmark;
+  for (const n of run.map.nodes) {
+    if (n.variant === undefined) continue;
+    if (n.type !== '事件' || !QMARK_WEIGHTS.some(([v]) => v === n.variant) || (n.variant === '伏擊' && !n.encounterId)) delete n.variant;
+  }
   // 統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
   if (!run.stats || typeof run.stats !== 'object') return null;
   // 遭遇、事件、秘寶、忍具的 id 對不上（內容改名、拆併之後帶舊檔）也當不相容。原本只驗牌：

@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
 import { NON_EVENT_ART, SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
-import { TITLE_ART, heroOfKey, isCoopOnlyArt, isItemIcon } from '../src/ui/assets';
+import { MERCHANT_SPRITES, TITLE_ART, heroOfKey, isCoopOnlyArt, isItemIcon } from '../src/ui/assets';
 
 it('dump monster acts', () => {
   const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as { monsters: Record<string, Record<string, string>>; bg: Record<string, string> };
@@ -36,8 +36,12 @@ it('dump monster acts', () => {
   // 開場與進關都不載，也不在任何一關的 `bgKeysForAct` 裡——跟幻燈片同一類，寫 0。
   // 名單照事件編號算（`eventMainKeys`），紙箱畫面借用的 `bg/event_chest_*` 不在裡面、照舊算首載
   for (const key of eventMainKeys()) { const path = manifest.bg[key]; if (path) out[path] = 0; }
-  // 不是事件的事件類主圖（祝福主圖，2026-09-23 第三批）：用到的畫面自己在背景抓（`bgacts.ts` 的 `NON_EVENT_ART`），同一類寫 0
+  // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）：用到的畫面自己在背景抓（`bgacts.ts` 的 `NON_EVENT_ART`），同一類寫 0。
+  // 角色版的揭曉圖由下面「角色專屬」那一圈收
   for (const id of NON_EVENT_ART) { const path = manifest.bg[`bg/event_${id}`]; if (path) out[path] = 0; }
+  // 行腳商三張立繪（2026-09-23 第三批）：地圖上有會變的問號格才背景抓（`preload.ts` 的 `preloadQmarkArt`），同一類、寫 0
+  const sprites = (manifest as unknown as { sprites: Record<string, string> }).sprites;
+  for (const key of MERCHANT_SPRITES) { const path = sprites[key]; if (path) out[path] = 0; }
   /*
    * **事件的「結果圖」不算首載**（2026-09-11）。只認 `_r<數字>` 結尾的，
    * 判準寫緊一點是有原因的，見下面。
@@ -93,4 +97,10 @@ it('dump monster acts', () => {
   expect(iconFirstLoad, '秘寶與忍具圖示進入一局才補，不該留在首載').toEqual([]);
   // 狀態、節點、介面那些 `icon/` 圖示開場就要，照舊算首載
   expect(sorted[icons['icon/onigiri_full']!]).toBeUndefined();
+  // 問號格那三張（四隻各一份）與行腳商三張一張都不准算首載（2026-09-23 第三批）：拿掉上面那兩圈，這裡就紅
+  const qmarkFirstLoad = [
+    ...Object.entries(manifest.bg).filter(([key]) => /^bg\/event_(?:(?:feifei|dangdang|fengfeng)_)?q_(?:ambush|merchant|roadbox)$/.test(key)),
+    ...MERCHANT_SPRITES.map((key): [string, string] => [key, sprites[key]!]),
+  ].filter(([, path]) => sorted[path] !== 0).map(([key]) => key);
+  expect(qmarkFirstLoad, '問號格的圖照地圖現抓，不該留在首載').toEqual([]);
 });

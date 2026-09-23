@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { pick, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
-import { heroesIn, openChest, openChestCoop, relicForPartnerOnly, runRng } from '../../engine/run';
+import { heroesIn, openChest, openChestCoop, openRoadsideBox, openRoadsideBoxCoop, relicForPartnerOnly, runRng } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { registerScreen } from '../app';
@@ -22,12 +22,17 @@ import { me } from '../../engine/runplayer';
  * **這不違反「拉長節奏的動畫一律不做」那條鐵則**：第一段完全由玩家決定要停多久，
  * 不是強迫等待；第二段的開箱閃光只有 0.36 秒，而且是你按下去換來的回饋，不是過場稅。
  */
-registerScreen('chest', (app, root) => {
+registerScreen('chest', (app, root, props) => {
   root.append(screenBg(actVariantKey('bg/screen_chest', app.run?.act ?? 1, app.run?.floor)));
   const run = app.run;
   if (!run) { app.show('title'); return; }
   const seat = app.seat;
   const coop = app.coop;
+  /*
+   * 路邊紙箱（問號格變化，2026-09-23 內容擴充第三批，設計稿 3-2）：沿用這個畫面的兩段。
+   * 第一段的圖換成這一格的揭曉圖、對白框是這一位的開頭；點開之後跟 8F 紙箱一模一樣，只是池子照路邊紙箱抽（`openRoadsideBox`）。
+   */
+  const road = (props as { roadbox?: { opening: string } } | null)?.roadbox;
 
   /*
    * 兩個人一起開箱（規則三，2026-09-11）：**開兩件出來各挑一件**，
@@ -39,7 +44,7 @@ registerScreen('chest', (app, root) => {
    * 一個人先點、另一個人還在看，之後的地圖與戰利品就整個位移了。
    * 早抽不會劇透——連線版在兩個人都挑完之前，秘寶根本還沒進任何人的背包。
    */
-  const offers: string[] = coop ? openChestCoop(run) : [];
+  const offers: string[] = coop ? (road ? openRoadsideBoxCoop(run) : openChestCoop(run)) : [];
   /*
    * 結算只能跑一次（它會擲骰，跑兩次亂數就多走一步）。
    *
@@ -105,10 +110,12 @@ registerScreen('chest', (app, root) => {
   }
 
   // 鍵走 `eventArtKey`：紙箱這三張也有球球入鏡，她要看她自己那張（使用者 2026-09-12 回報）
-  const closed = artUrl('bg', eventArtKey('chest_closed'));
+  const closed = artUrl('bg', eventArtKey(road ? 'q_roadbox' : 'chest_closed'));
+  // 開箱那句台詞：8F 紙箱在第一段就講；路邊紙箱第一段是開頭那段話，點開之後才講（設計稿 3-6）
+  const chestLine = (): void => toast(pick(storyFor(me(run, app.seat).hero).chestLines), heroSpeaker());
   if (!closed.startsWith('data:')) {
     renderHud(app, root);
-    toast(pick(storyFor(me(run, app.seat).hero).chestLines), heroSpeaker());
+    if (!road) chestLine();
     const box = el('img', { class: 'event-art chest-closed', src: closed, alt: '沒開過的紙箱' });
     const scene = el('div', { class: 'chest-scene chest-waiting' }, box);
     let opened = false;
@@ -136,8 +143,8 @@ registerScreen('chest', (app, root) => {
     scene.addEventListener('click', open);
     root.append(sceneView({
       art: scene,
-      speaker: '紙箱',
-      text: '箱子還封著，上面貼了一條膠帶。',
+      speaker: road ? '路邊紙箱' : '紙箱',
+      text: road ? road.opening : '箱子還封著，上面貼了一條膠帶。',
       actions: [el('button', { class: 'btn primary', onclick: open }, '打開箱子')],
     }));
     return;
@@ -148,10 +155,11 @@ registerScreen('chest', (app, root) => {
   /** 第二段：箱子開了。這一段跟兩段式之前的畫面完全一樣 */
   function reveal(): void {
     if (!run) return;
+    if (road) chestLine();
     if (coop) { openedCoop = true; revealCoop(); return; }
     clearKeepBg(root);   // 底圖那一層要留著，clear(root) 會把它一起清掉、畫面看起來像當掉
     // 常見秘寶全部拿過的話會回 null，那就是一個空紙箱（引擎不會硬塞別的池子給你）
-    const id = openChest(run);
+    const id = road ? openRoadsideBox(run) : openChest(run);
     // 狀態列一定要等開箱之後才畫：鮪魚罐頭那類秘寶會當場改最大生命，先畫的話玩家會看到
     // 「最大生命 +10」的訊息，配上還沒加的血條與少一格的秘寶列，要回地圖才對得起來
     renderHud(app, root);

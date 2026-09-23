@@ -14,11 +14,12 @@ import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
   closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, removeCard, removePrice, rest, resolvePendingAfterFight,
   revivePartner, rollActCardsPerSeat, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard,
-  type RunEffectOutcome } from './run';
+  type RunEffectOutcome, makeMerchants, openRoadsideBoxCoop } from './run';
+import { ambushOutcomes } from './qmark';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, setBonusScore, smartBless, smartPending, smartSeatAct } from './smartbot';
-import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunState } from './types';
+import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct } from './smartbot';
+import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunEffect, RunState } from './types';
 
 /**
  * **兩個人的量平衡機器人**（2026-09-16）。
@@ -282,6 +283,29 @@ function fight(run: RunState, rng: Rng, encounterId: string | undefined, bonusFi
 }
 
 /**
+ * 問號格變成的那一種（2026-09-23 內容擴充第三批，設計稿 3-5），照畫面那邊的規則：
+ * 伏擊兩人投同一條（兩位的估值加起來比），效果各跑一次、要打的那一場兩個人一起打一次；
+ * 行腳商一人一個攤子各買各的一樣；路邊紙箱開兩件各挑一件（撞件擲骰，同 8F 紙箱）。
+ */
+function coopQmark(run: RunState, rng: Rng, node: MapNode, seed: string, stats: CoopStats, t: CoopTuning): void {
+  const seats = run.players.map((_, i) => i).filter((i) => !run.players[i]?.down);
+  if (node.variant === '伏擊') {
+    const [fightFx, fleeFx] = ambushOutcomes(node);
+    const value = (fx: RunEffect[]): number => seats.reduce((s, i) => s + eventValue(run, fx, 0, i), 0);
+    const fx = value(fightFx) >= value(fleeFx) ? fightFx : fleeFx;
+    const outcomes = seats.map((i) => applyRunEffects(run, fx, undefined, undefined, i));
+    const f = outcomes.find((o) => !!o && 'fight' in o);
+    if (f && 'fight' in f) fight(run, rng, f.fight.encounterId, f.fight.bonusFish, seed, stats, t);
+    return;
+  }
+  if (node.variant === '行腳商') {
+    makeMerchants(run).forEach((shop, i) => { if (!run.players[i]?.down) shopAtMerchant(run, shop, i); });
+    return;
+  }
+  takeOffers(run, openRoadsideBoxCoop(run));
+}
+
+/**
  * 跑一整局兩個人的。
  *
  * `heroes`＝兩位的角色（`['ninja','ninja']` 或 `['ninja','feifei']`…）。
@@ -327,6 +351,8 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
         break;
       }
       case '事件': {
+        // 問號格變化（2026-09-23 內容擴充第三批，設計稿 3-5）：走進去才知道變成什麼
+        if (node.variant) { coopQmark(run, rng, node, seed, stats, t); break; }
         const ev = eventById[node.eventId!]!;
         /*
          * 兩個人投同一個選項（真人會商量）：估值把兩位各自的加起來挑最高的那個，
