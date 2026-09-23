@@ -2507,6 +2507,11 @@
     "bg/event_ninja_blue_headband_r1": "assets/bg/event_ninja_blue_headband_r1.webp",
     "bg/event_ninja_target_r0": "assets/bg/event_ninja_target_r0.webp",
     "bg/event_ninja_target_r1": "assets/bg/event_ninja_target_r1.webp",
-    "bg/event_ninja_roof_shadow_r1": "assets/bg/event_ninja_roof_shadow_r1.webp"
+    "bg/event_ninja_roof_shadow_r1": "assets/bg/event_ninja_roof_shadow_r1.webp",
+    "bg/event_daxia_chest": "assets/bg/event_daxia_chest.webp",
+    "bg/event_daxia_lastpage": "assets/bg/event_daxia_lastpage.webp",
+    "bg/event_ninja_blue_headband": "assets/bg/event_ninja_blue_headband.webp",
+    "bg/event_ninja_target": "assets/bg/event_ninja_target.webp",
+    "bg/event_ninja_roof_shadow": "assets/bg/event_ninja_roof_shadow.webp"
   }
 }

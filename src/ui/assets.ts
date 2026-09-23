@@ -374,9 +374,10 @@ export function eventSidePortrait(eventId: string, artHero: string | undefined, 
  * - 沒有前綴的是球球那張：**有菲菲版的**才是畫了他的那批（她的版本只替「工單裡有球球」的圖轉，
  *   2026-09-22 對過 `tools/codex_jobs` 的工單，找得到工單的每一張都對得上）；沒有菲菲版的是純場景。
  * 目前只有 5F「師父留下的秘笈」會在事件畫面上播對白，四隻的版本都畫了自己。
+ * `ninja_` 開頭的是球球的專屬事件（2026-09-23 內容擴充第一批）：沒有菲菲版，不認前綴的話會被當成純場景，但圖裡畫的就是他。
  */
 export function eventArtCast(key: string): string[] {
-  const own = /^bg\/event_(feifei|dangdang|fengfeng)_/.exec(key);
+  const own = /^bg\/event_(ninja|feifei|dangdang|fengfeng)_/.exec(key);
   if (own) return [own[1]!];
   if (!key.startsWith('bg/event_')) return [];
   return manifest.bg[`bg/event_feifei_${key.slice('bg/event_'.length)}`] !== undefined ? ['ninja'] : [];

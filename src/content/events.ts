@@ -1,7 +1,25 @@
 import type { EventDef } from '../engine/types';
 import { fengfengEvents } from './fengfeng-events';
 
-export const FIXED_EVENT_FLOOR_5 = 'daxia_teach';
+/**
+ * 5F 固定事件，**一關一版**（2026-09-23 內容擴充第一批，提案第⑥節「5F 秘笈三關三版」）。索引＝關數−1。
+ *
+ * 原本三關都是同一篇「師父留下的秘笈」：完整一局看三次、每局都看，是全遊戲重複最重的一幕（盤點第②節）。
+ * 改成第一關照舊、第二關「師父的舊木箱」、第三關「最後一頁」——一路往上是三段不同的師父線索
+ *（掉在樓梯間的秘笈 → 刻著記號、特地留下的木箱 → 墨還沒乾的最後一頁）。
+ *
+ * **舊存檔**：第二、三關的地圖是改版前生的，5F 仍是 `daxia_teach`。那一篇照舊合法（`validateMap`）、
+ * 照舊玩得下去（`chooseNode` 看的是 `fixedFloor`，不是寫死哪一篇）。
+ */
+export const FIXED_EVENTS_FLOOR_5 = ['daxia_teach', 'daxia_chest', 'daxia_lastpage'] as const;
+/**
+ * 第一關那一版。舊存檔第二、三關的 5F 也是它；撿到秘笈那段對白只綁這一篇（見 `screens/event.ts`）。
+ */
+export const FIXED_EVENT_FLOOR_5 = FIXED_EVENTS_FLOOR_5[0];
+/** 這一關 5F 排哪一版（關數超出範圍就夾到最近的一關） */
+export function fixedEventFloor5(act: number): string {
+  return FIXED_EVENTS_FLOOR_5[Math.min(Math.max(Math.floor(act), 1), FIXED_EVENTS_FLOOR_5.length) - 1]!;
+}
 
 export const events: EventDef[] = [
   ...fengfengEvents,
@@ -138,6 +156,73 @@ export const events: EventDef[] = [
     choices: [
       { label: '研讀秘笈（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }], result: '球球攤開秘笈，仔細看上面的三幅圖。球球：「字有點難認，先看圖好了喵。」', resultArt: 'daxia_teach_r0' },
       { label: '放回原位（無效果）', outcome: [], result: '球球合上秘笈，放回樓梯邊。球球：「這招看不懂，等找到師父再問他喵。」' },
+    ] },
+  /*
+   * 5F 第二、三關那兩版（2026-09-23 內容擴充第一批）。四隻各有自己的圖與文字：
+   * 菲菲走引號句對照（`FEIFEI_EVENT_LINES`），噹噹、封封整段改寫（`event-text.ts`）。
+   * 敘述裡不用「牠」指主角——菲菲那邊換名字之後要跟著換成「她」，多一個片語就多一條要維護的對照。
+   * 選項順序跟插圖的結果序號綁在一起（`_r0`／`_r1`／`_r2`，美術代理 art1 的對照表），不要調換。
+   */
+  { id: 'daxia_chest', title: '師父的舊木箱', fixedFloor: 5, acts: [2],
+    text: '樓梯轉角擱著一只包鐵角的舊木箱，箱蓋上刻著一個大貓掌印，是師父的記號。鎖頭一扳就彈開了，像是特地留給誰來開。球球蹲下來，把手搭上箱蓋。',
+    choices: [
+      { label: '翻出箱底的秘笈（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }],
+        result: '球球把箱子裡的雜物推到一邊，從箱底捧出一本舊秘笈。翻開一看，裡面畫著三幅招式圖。球球：「這本比樓下那本還舊，師父以前就在練這些喵。」', resultArt: 'daxia_chest_r0' },
+      { label: '帶走箱裡的舊忍具（隨機獲得 2 個忍具）', outcome: [{ kind: 'potions', n: 2 }],
+        result: '箱子裡還收著兩件舊忍具，擦掉灰還能用。球球一手拿起一件，舉起來看了看。球球：「師父的東西，我先借來用喵。」', resultArt: 'daxia_chest_r1' },
+      { label: '蓋回去（無效果）', outcome: [],
+        result: '球球把箱蓋輕輕蓋回去，再把彈開的鎖頭掛好。球球：「這是師父的箱子，等他回來自己開喵。」' },
+    ] },
+  { id: 'daxia_lastpage', title: '最後一頁', fixedFloor: 5, acts: [3],
+    text: '塔頂前的石階上落著一頁撕下來的秘笈，石燈籠的光照在紙上。上頭畫著幾隻出招的貓，字是師父的筆跡，墨色還亮，像是剛寫好不久。球球彎下腰，把紙頁撿了起來。',
+    choices: [
+      { label: '照著最後一頁練（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }],
+        result: '球球撿了一顆小石頭，把紙頁壓在石階上，照著上面的圖擺好架勢，一招一招練下去。球球：「這一招師父還沒教過我，原來寫在這裡喵。」', resultArt: 'daxia_lastpage_r0' },
+      { label: '摺進衣襟，想著師父教過的（自選升級至多 2 張牌）', outcome: [{ kind: 'upgradeCard' }, { kind: 'upgradeCard' }],
+        result: '球球在石階上坐下，把紙頁摺小，塞進衣襟裡，閉上眼睛，把師父教過的招式從頭想了一遍。球球：「師父說過，招式不用多，要練熟喵。」', resultArt: 'daxia_lastpage_r1' },
+      { label: '收好不看（回復 10 點生命）', outcome: [{ kind: 'heal', n: 10 }],
+        result: '球球沒有打開紙頁，把它收進腰間的小袋裡，靠著石欄杆坐下來，喝了幾口水。球球：「等見到師父，再請他親口教我喵。」', resultArt: 'daxia_lastpage_r2' },
+    ] },
+  /*
+   * ===== 球球的三篇專屬事件（2026-09-23 內容擴充第一批）=====
+   *
+   * 另外三隻各有四篇、他一篇都沒有（盤點第①節）。判準照舊：「這件事只有對他才成立」——
+   * 跟自己頭上一模一樣的藍頭巾、他丟慣了的手裏劍、跟他長得一模一樣的影子。
+   * 只有一份文字（專屬事件排不進別人的地圖，連線局整批不排，見 `map.ts` 的 `MapOpts.hero`）。
+   * 屋頂上的影子打的是鏡子走廊那一場（`mirror_duel`，照關數接 `_a2`／`_a3`），
+   * 兩個選項都記 `chain:shadow_2`（遇過影子），追上去另記 `chain:shadow_2_fought`、躲著看另記 `chain:shadow_2_watched`，
+   * 留給第二批「影子的真面目」照上一集怎麼選接後集（主控 2026-09-23 指定的鍵名）。旗標在 `run.flags`，跟著存檔走；
+   * `chain:` 開頭的收進整局指紋（這篇連線不排，平常碰不到，是替之後的鏈留的）。
+   */
+  { id: 'ninja_blue_headband', title: '欄杆上的藍頭巾', hero: 'ninja', acts: [1, 2],
+    text: '石階轉角的木欄杆上，綁著一條洗到褪色的藍頭巾。樣式跟球球頭上那條一模一樣，連打結的方法都是師父教的那一種。球球伸手摸了摸，布邊已經被風吹得起了毛。',
+    choices: [
+      { label: '綁在手腕上（生命上限與當前生命各 +6）', outcome: [{ kind: 'maxHp', n: 6 }],
+        result: '球球把頭巾解下來，一圈一圈纏在手腕上綁緊，再用力握了握拳。球球：「綁緊一點，出爪就更有力了喵。」', resultArt: 'ninja_blue_headband_r0' },
+      { label: '撕成繃帶（回復 18 點生命）', outcome: [{ kind: 'heal', n: 18 }],
+        result: '球球在石階上坐下，把頭巾撕成幾條布，一圈圈纏在腿上的傷口，剩下的碎布擱在階邊。球球：「舊布拿來包傷口，剛剛好喵。」', resultArt: 'ninja_blue_headband_r1' },
+      { label: '留著給師父認路（無效果）', outcome: [],
+        result: '球球把頭巾重新綁緊，打了一個師父教的結。球球：「師父下樓的時候看到它，就認得回家的路了喵。」' },
+    ] },
+  { id: 'ninja_target', title: '滿是刀痕的木靶', hero: 'ninja', acts: [1, 2],
+    text: '樓梯旁的木地板上立著一面圓木靶，靶面插滿生鏽的手裏劍，只有靶心被磨得發亮。不知道是誰，在這裡練了多少個晚上。球球摸著下巴，抬頭看了好一會兒。',
+    choices: [
+      { label: '練到天黑（自選升級至多 1 張牌；最多失去 6 點生命）', outcome: [{ kind: 'upgradeCard' }, { kind: 'damage', n: 6 }],
+        result: '球球對著木靶一枚接一枚地射，射到靶架上的燈籠都亮了起來。臉頰擦破了皮，貼著一塊布，汗一直往下滴，最後一枚總算正中靶心。球球：「中了！這次是真的中了喵！」', resultArt: 'ninja_target_r0' },
+      { label: '撿還能用的暗器（隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }],
+        // 撿到的是隨機一張罕見忍術牌（可能是「先睡了」那種跟暗器無關的），所以台詞不指名哪一招（實機驗收 2026-09-23）
+        result: '球球從靶上拔下幾枚手裏劍，斷掉的丟在地上，挑出三枚還能用的，握在手裡掂了掂。球球：「還能用的都帶走，說不定哪天用得上喵。」', resultArt: 'ninja_target_r1' },
+      { label: '走開（無效果）', outcome: [],
+        result: '球球看了靶心最後一眼，轉身走回樓梯。球球：「練功要緊，找師父更要緊喵。」' },
+    ] },
+  { id: 'ninja_roof_shadow', title: '屋頂上的影子', hero: 'ninja', acts: [2, 3],
+    text: '夜裡，球球翻上一片瓦屋頂。高處的屋簷上，一道黑影正在跑——綁著頭巾，身形跟球球一模一樣，只有一雙眼睛亮著紫光。球球蹲在低處，一時看傻了。',
+    choices: [
+      { label: '追上去（進入戰鬥，勝利後額外獲得 30 條小魚乾、可升級至多 1 張牌）',
+        outcome: [{ kind: 'flag', name: 'chain:shadow_2' }, { kind: 'flag', name: 'chain:shadow_2_fought' }, { kind: 'fight', encounterId: 'mirror_duel', bonusFish: 30, bonusUpgrades: 1 }],
+        result: '球球踩著瓦片追上去。黑影在屋脊上停下，轉過身來，擺出跟球球一模一樣的架勢。球球：「學得這麼像，你到底是誰喵？」' },
+      { label: '躲著看它的招式（自選移除 1 張牌）', outcome: [{ kind: 'flag', name: 'chain:shadow_2' }, { kind: 'flag', name: 'chain:shadow_2_watched' }, { kind: 'removeCard' }],
+        result: '球球躲到屋脊後面，只露出頭和爪子。黑影在屋簷上一招接一招地練，飛踢、翻身，全是球球會的招式，卻使得比球球還俐落。看著看著，球球發現自己有一招老是多了一個破綻。球球：「那一招，我不要再用了喵。」', resultArt: 'ninja_roof_shadow_r1' },
     ] },
   { id: 'toll', title: '留下買路財',
     text: '轉角站著一隻橘貓山賊，手裡的木棒比牠還長。「留下買路財！」牠喊得很大聲，兩條腿卻抖個不停。',

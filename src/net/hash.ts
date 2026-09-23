@@ -112,7 +112,8 @@ export function runFingerprint(run: RunState): string {
      * **只收引擎自己寫的 `event:`／`sequel:`**，加上地圖每一格排的事件——
      * 序章、看過哪隻魔物那些是畫面寫的旗標，兩台寫的時機本來就可能不同，收進來會誤報斷線。
      */
-    `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:'))).sort().join(',')}]`,
+    // `chain:` 是事件鏈的旗標（2026-09-23 內容擴充第一批起，提案第⑦節）：前集記下、後集照它排，兩台不一樣就會各自排到不同的後集
+    `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:') || k.startsWith('chain:'))).sort().join(',')}]`,
     `m[${run.map.nodes.map((n) => n.eventId ?? '').join(',')}]`,
   ];
   for (const p of run.players) {

@@ -47,7 +47,8 @@ describe('噹噹不是忍者', () => {
   it('整句換掉的表，每個鍵都還對得到事件裡的原句（改了球球的字會靜靜失效，所以要盯著）', () => {
     // 抄菲菲那條（`feifei_event_text.test.ts`）。他那份有 121 個鍵，一條守門都沒有：
     // 球球的原句一改，`eventTextFor` 查不到就靜靜退回球球版本，畫面不會錯、測試也不會紅
-    const originals = new Set(events.flatMap((e) => [e.text, ...e.choices.flatMap((c) => [c.label, c.result])]));
+    // 標題也收（2026-09-23 起標題跟本文走同一張表，「師父留下的秘笈」那幾個鍵是標題）
+    const originals = new Set(events.flatMap((e) => [e.title, e.text, ...e.choices.flatMap((c) => [c.label, c.result])]));
     for (const k of Object.keys(DANGDANG_EVENT_TEXT)) expect(originals.has(k), k).toBe(true);
   });
 

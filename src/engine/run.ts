@@ -2,7 +2,7 @@ import { cardById, cardNameFor, cards, starterDeckFor } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
 import { encounterById, enemyById } from '../content/enemies';
-import { FIXED_EVENT_FLOOR_5, eventById, events } from '../content/events';
+import { eventById, events } from '../content/events';
 import { heroOf, pickable, startRelicFor } from './hero';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
@@ -100,7 +100,8 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
   run.trail.push(n.id);   // 足跡：地圖上「走過的路亮起來」靠這條
   // 顯示用的樓層是**跨關累計**的（第二關從 16F 起跳），地圖節點自己的 floor 仍是關內 1～15
   run.floor = (run.act - 1) * FLOORS + n.floor;
-  if (n.type === '事件' && n.eventId && n.eventId !== FIXED_EVENT_FLOOR_5) enterEvent(run, n);
+  // 5F 固定事件（三關各一版、舊存檔的 `daxia_teach`）不換後集、不記「遇過」：看 `fixedFloor`，不寫死哪一篇（2026-09-23 內容擴充第一批）
+  if (n.type === '事件' && n.eventId && eventById[n.eventId]?.fixedFloor === undefined) enterEvent(run, n);
   return n;
 }
 
@@ -114,7 +115,7 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
  * 地圖上別格如果本來就排了這個後集，跟那格互換，免得等一下又遇到一次。
  *
  * 記下的 `event:<事件>` 給下一關生地圖時排掉（見 `map.ts`），同一局不會重複遇到。
- * 固定在 5F 的「師父留下的秘笈」不在這條規則裡（每一關都固定在那一格）。
+ * 固定在 5F 的那一篇不在這條規則裡（一關一版、固定在那一格，見 `events.ts` 的 `FIXED_EVENTS_FLOOR_5`）。
  *
  * 在 `chooseNode` 裡做，所以連線兩台、機器人都走同一條；只看整局狀態，兩台換出來一模一樣。
  * 走進去還沒結算就重新整理的話，存檔是進格子之前的（節點結算完才存），重進時會算出一樣的結果。

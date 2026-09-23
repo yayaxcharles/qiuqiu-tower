@@ -1,6 +1,6 @@
 import { ENCOUNTER_MODIFIERS, modifierChanceFor } from '../content/modifiers';
 import { encounterById, encountersOfPool } from '../content/enemies';
-import { FIXED_EVENT_FLOOR_5, eventById, events } from '../content/events';
+import { FIXED_EVENT_FLOOR_5, eventById, events, fixedEventFloor5 } from '../content/events';
 import type { Rng } from './rng';
 import type { GameMap, MapNode, NodeType } from './types';
 
@@ -380,7 +380,8 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       n.encounterId = rng.pick(pool.length ? pool : encountersOfPool('塔主')).id;
     }
     else if (n.type === '事件') {
-      if (n.floor === 5) n.eventId = FIXED_EVENT_FLOOR_5;
+      // 5F 一關一版（2026-09-23 內容擴充第一批）：只換排哪一篇，不多抽亂數，地圖的其餘部分跟以前一模一樣
+      if (n.floor === 5) n.eventId = fixedEventFloor5(act);
       else { n.eventId = eventQueue[eventIdx % eventQueue.length]; eventIdx++; }
     }
     // 遭遇修飾詞（使用者 2026-09-04 拍板）：一般怪與菁英在這裡就抽好，地圖上才標得出來、
@@ -416,7 +417,9 @@ export function validateMap(map: GameMap, act = 1): string[] {
   if (nodesOnFloor(map, 14).map((n) => n.type).join() !== '貓窩') p.push('14F 必須是唯一的貓窩');
   if (!nodesOnFloor(map, 1).every((n) => n.type === '戰鬥')) p.push('1F 必須全是戰鬥');
   const f5 = nodesOnFloor(map, 5);
-  if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)) p.push('5F 必須是唯一的大俠傳功');
+  // 5F 是這一關那一版；**舊存檔**第二、三關的地圖是改版前生的，5F 仍是第一關那篇，照樣合法（2026-09-23 內容擴充第一批）
+  const f5ok = (id: string | undefined): boolean => id === fixedEventFloor5(act) || id === FIXED_EVENT_FLOOR_5;
+  if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && f5ok(n.eventId))) p.push('5F 必須是唯一的大俠傳功（這一關那一版）');
   // 整關至少一個大魔物（2026-09-03 起不再綁 7F：大魔物要放在避得開的格子，7F 沒位置就往上放）
   if (!map.nodes.some((n) => n.type === '大魔物')) p.push('整關必須至少有一個大魔物');
 

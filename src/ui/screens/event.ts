@@ -148,7 +148,9 @@ registerScreen('event', (app, root, props) => {
   // backToMap 會存檔，而這是「進節點」的當下、節點還沒結算，存下去就違反「節點結算完才存」的規矩
   // （引擎保證事件節點一定帶得到 eventId，所以這條路今天走不到，但規矩要處處成立）
   if (!ev) { app.show('map'); return; }
-  const title = ev.title;
+  // 標題也照本機這一位換口吻（2026-09-23 主控裁定）：噹噹、封封不喊「師父」，看到的是「大俠貓的舊木箱」這類；
+  // 走跟本文同一條 `eventTextFor`（對照表查不到就原樣），連線混搭一樣照本機這一位
+  const title = eventTextFor(me(run, app.seat).hero, ev.title);
 
   /*
    * 兩個人一起遇到同一件事（連線版 2026-09-11）。
@@ -723,6 +725,8 @@ registerScreen('event', (app, root, props) => {
   // 這個事件所有選項的結果圖先在背景抓（插隊、留著），讀完文字點下去時通常已經到了（見 `whenResultArtReady`）
   void preloadEventResults(run, ev.id);
 
-  // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走
+  // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走。
+  // **整局一次、只綁第一關那一版**（2026-09-23 內容擴充第一批，5F 改成一關一版時定的）：那三句講的是
+  //「第一次認出師父的字」，搬到第二關的木箱、第三關的紙頁會跟插圖對不上；後兩版的線索寫在事件本文裡，不另播對白
   if (ev.id === FIXED_EVENT_FLOOR_5) app.playOnce('secretScroll', dialogue.secretScroll, () => { /* 看完就直接選 */ });
 });
