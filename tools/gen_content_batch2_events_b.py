@@ -281,7 +281,8 @@ def tower_kitchen(p: P) -> dict[str, str]:
             f'the little onigiri monsters crowd around watching curiously.'),
         'tower_kitchen_r1': (
             f'{kit} {oni} A bento wrapped in a knotted cloth is tied onto {p.n}\'s back; the little onigiri monsters '
-            f'stand in a neat row, all bowing politely to {p.him}.'),
+            f'stand in a neat row, all bowing politely to {p.him}. {p.He} takes only ONE bento - the one on {p.his} '
+            f'back - and {p.his} paws are empty (no second bundle in {p.his} paws).'),
         'tower_kitchen_r2': (
             f'{kit} {oni} {p.n} works side by side with the little onigiri monsters, shaping rice balls and packing '
             f'them into bento boxes - {work}.'),
