@@ -12,7 +12,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cards } from '../../src/content/cards';
 import { pickable } from '../../src/engine/hero';
-import { _setManifestForTest, cardArtKey, coopArtUrls, setLocalHero, type Manifest } from '../../src/ui/assets';
+import { _setManifestForTest, cardArtKey, coopArtUrlsFor, setLocalHero, type Manifest } from '../../src/ui/assets';
 
 const MANIFEST = JSON.parse(readFileSync('public/assets/manifest.json', 'utf8')) as Manifest;
 const RECORD = JSON.parse(readFileSync('docs/coop-card-art.json', 'utf8')) as {
@@ -82,8 +82,13 @@ describe('連線牌的混搭牌面', () => {
     }
   });
 
-  it('混搭牌面照舊只在連線預載裡（單人開場不下載）', () => {
-    const urls = new Set(coopArtUrls());
-    for (const r of RECORD.assets) expect(urls.has(`/${r.path}`) || [...urls].some((u) => u.endsWith(r.path)), r.key).toBe(true);
+  it('混搭牌面只在那一組搭檔的連線預載裡（單人開場不下載、別組也不抓）', () => {
+    // 2026-09-23 批次 coopload：連線預載改成只抓這一組搭檔的（`coopArtUrlsFor`）
+    for (const r of RECORD.assets) {
+      const mine = coopArtUrlsFor(r.pair);
+      expect(mine.some((u) => u.endsWith(r.path)), r.key).toBe(true);
+      const other = HEROES.filter((h) => !r.pair.includes(h));
+      expect(coopArtUrlsFor(other).some((u) => u.endsWith(r.path)), `${other.join('+')} 不該抓 ${r.key}`).toBe(false);
+    }
   });
 });

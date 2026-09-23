@@ -133,7 +133,8 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
     setSfxHero(me(app.run, seat).hero);   // 貓叫也照本機角色換（推前審查 高-1：只設了圖沒設聲）
     app.syncStory(app.run);   // 混搭時個人主線要換幾句（2026-09-16）
     void preloadHeroArt(app.run.players.map((p) => p.hero));   // 兩位的專屬圖開場都沒載（同伴的立繪戰鬥裡看得到）
-    void preloadCoopArt();   // 雙人專屬牌的牌面也是進大廳才補
+    // 連線牌的牌面也是開局才補，**只抓這一組搭檔的**（2026-09-23；開打前 `startFight` 會等它抓完）
+    void preloadCoopArt(app.run.players.map((p) => p.hero));
     session.useRun(app.run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
     /*

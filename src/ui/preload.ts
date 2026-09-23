@@ -1,7 +1,7 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool } from '../engine/types';
-import { artUrl, coopArtUrls, decodeAll, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, type MonsterPose } from './assets';
+import { artUrl, coopArtUrlsFor, decodeAll, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 
 /**
@@ -148,10 +148,38 @@ export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise
   return Promise.all([art, motion]).then(() => undefined);
 }
 
-/** 進大廳才補雙人專屬牌的牌面（開場不載，見 `preloadArt`） */
-export function preloadCoopArt(): Promise<void> {
-  return decodeAll(coopArtUrls(), 6, false);
+/**
+ * 連線開局後補這一組搭檔的連線牌面（開場與單人都不載，見 `preloadArt`、`heroArtUrls`）。
+ *
+ * 2026-09-23 批次 coopload 改了三件事：
+ *  1. **只抓這一組**（`coopArtUrlsFor`）：原本進大廳就抓全部 278 張、8.6 MB，一局只用得到二十幾張；
+ *  2. **留參照、自己一組**：原本解完不留（`hold: false`），瀏覽器隨時可以把圖從記憶體丟掉，
+ *     實測第一場戰鬥手牌上的連線牌在畫出來那一刻還是空的、要重新下載。
+ *     這一組二十幾張、解碼後幾 MB，整局都用得到（獎勵、罐頭鋪、牌組一覽），所以整局留著；
+ *     不放進共用那一組，是因為換關的 `releaseHeldArt` 會把共用的整組放掉；
+ *  3. **換了搭檔就換一組**：同一個分頁回標題、兩人換角色再開一局時，上一組放掉、補抓新組合。
+ *     同一組再叫一次就沿用手上那一份，不重抓。
+ * 回傳（與 `coopArtReady`）＝這一組抓完的時候；開打前等它（`app.ts` 的 `startFight`）。
+ */
+let coopPool: DecodePool = { seen: new Set(), keep: new Map() };
+let coopPair = '';
+let coopDone: Promise<void> = Promise.resolve();
+
+export function preloadCoopArt(heroes: readonly (string | undefined)[]): Promise<void> {
+  const urls = coopArtUrlsFor(heroes);
+  const pair = urls.join('\n');
+  if (pair === coopPair) return coopDone;
+  coopPair = pair;
+  coopPool = { seen: new Set(), keep: new Map() };
+  coopDone = decodeAll(urls, 6, true, coopPool);
+  return coopDone;
 }
+
+/** 這一組連線牌面抓完了沒（沒開過連線局＝已完成） */
+export function coopArtReady(): Promise<void> { return coopDone; }
+
+/** 測試用：現在手上留著哪幾張連線牌面 */
+export function _coopArtHeldForTest(): string[] { return [...coopPool.keep.keys()]; }
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */
 export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: readonly string[] = [],

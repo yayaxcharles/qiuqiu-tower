@@ -132,10 +132,30 @@ export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja
  * 結果圖（`_r<n>`）與二三關才會遇到的事件底圖照 `preloadArt` 同一套規矩跳過。
  */
 /** 雙人專屬牌的牌面（球球版與菲菲版都算，兩位在連線裡都可能拿到） */
-export function coopArtUrls(): string[] {
-  return Object.entries(manifest.cards)
-    .filter(([k]) => isCoopOnlyArt(k))
-    .map(([, v]) => `${BASE}${v}`);
+/**
+ * 這一局（連線）的兩位會畫到的連線牌圖——**只算這一組搭檔**（2026-09-23 批次 coopload）。
+ *
+ * 原本進大廳就把清單裡所有連線牌圖抓下來：四位各自的版本＋全部搭檔的混搭版。
+ * 混搭牌面補齊 171 張之後變成 278 張、8.6 MB，而一局只用得到其中一組的二十幾張。
+ *
+ * 鍵直接問 `cardArtKey`（兩個席位各問一次），畫面要畫哪一張、這裡就抓哪一張，兩邊不會走鐘：
+ * 不同角色抓混搭那組（沒有混搭圖的新牌會退回自己的版本，也一起算進來），
+ * 同角色雙人抓那一位自己的版本。只挑兩位拿得到的牌（標了別人 `hero` 的專屬牌不抓）。
+ * 一個人玩回空陣列。
+ */
+export function coopArtUrlsFor(heroes: readonly (string | undefined)[]): string[] {
+  if (heroes.length < 2) return [];
+  const hs = heroes.map((h) => h ?? 'ninja');
+  const urls = new Set<string>();
+  for (const c of cards) {
+    if (!c.coop || (c.hero && !hs.includes(c.hero))) continue;
+    for (let i = 0; i < hs.length; i++) {
+      for (let j = 0; j < hs.length; j++) {
+        if (i !== j) urls.add(artUrl('cards', cardArtKey(c.art, hs[i], hs[j])));
+      }
+    }
+  }
+  return [...urls].filter((u) => !u.startsWith('data:'));
 }
 
 /** 這個鍵是不是雙人專屬牌的牌面（給分關載入的清單用） */
@@ -150,7 +170,9 @@ export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
   const urls: string[] = [];
   for (const g of ['sprites', 'icons', 'cards', 'bg'] as const) {
     for (const [key, v] of Object.entries(manifest[g])) {
-      if (g === 'cards' && key.startsWith('card/coop_')) continue;   // 混搭牌只由合作預載負責
+      // 連線牌（混搭的、這一位自己的版本都算）只由連線預載負責（2026-09-23：原本只擋了混搭的，
+      // 單人玩菲菲、噹噹、封封也會把自己那二十幾張連線牌抓下來；連線時又跟連線預載同時各抓一次）
+      if (g === 'cards' && isCoopOnlyArt(key)) continue;
       const who = heroOfKey(key);
       if (!who || !want.has(who)) continue;
       if (g === 'bg') {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { _setManifestForTest, coopArtUrls, heroArtUrls, heroOfKey, heroSpriteUrls, isCoopOnlyArt, preloadArt } from '../../src/ui/assets';
+import { _setManifestForTest, coopArtUrlsFor, heroArtUrls, heroOfKey, heroSpriteUrls, isCoopOnlyArt, preloadArt } from '../../src/ui/assets';
 import { preloadAct } from '../../src/ui/preload';
 
 /*
@@ -99,10 +99,14 @@ describe('角色專屬的圖分開載', () => {
         'card/fenyiban': 'assets/cards/card/fenyiban.webp', 'card/feifei_fenyiban': 'assets/cards/card/feifei_fenyiban.webp',
       },
     });
-    const urls = coopArtUrls();
-    expect(urls.some((u) => u.endsWith('/fenyiban.webp'))).toBe(true);
-    expect(urls.some((u) => u.endsWith('/feifei_fenyiban.webp'))).toBe(true);
-    expect(urls.some((u) => u.includes('sanjo'))).toBe(false);
+    // 2026-09-23 起連線預載只抓這一組搭檔的（`coopArtUrlsFor`）：同角色雙人抓那一位自己的版本
+    const ninja = coopArtUrlsFor(['ninja', 'ninja']);
+    const feifei = coopArtUrlsFor(['feifei', 'feifei']);
+    expect(ninja.some((u) => u.endsWith('/fenyiban.webp'))).toBe(true);
+    expect(feifei.some((u) => u.endsWith('/feifei_fenyiban.webp'))).toBe(true);
+    expect([...ninja, ...feifei].some((u) => u.includes('sanjo'))).toBe(false);
+    // 單人的角色補載不抓她的連線牌（原本只擋了混搭的 `card/coop_`，她自己那張照抓）
+    expect(heroArtUrls(['feifei']).some((u) => u.endsWith('/feifei_fenyiban.webp'))).toBe(false);
     expect(isCoopOnlyArt('card/fenyiban')).toBe(true);
     expect(isCoopOnlyArt('card/feifei_fenyiban')).toBe(true);
     expect(isCoopOnlyArt('card/sanjo')).toBe(false);

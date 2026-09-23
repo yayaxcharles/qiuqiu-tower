@@ -2,7 +2,7 @@ import { victoryLinesFor, hasCoopScene, coopBossLines, dialogue, firstMeetLine, 
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
-import { preloadAct, preloadHeroArt, warmEncounter } from './preload';
+import { coopArtReady, preloadAct, preloadHeroArt, warmEncounter } from './preload';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
@@ -428,6 +428,12 @@ export class App {
       void Promise.allSettled([
         warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero)), run.players[0]?.hero),
         combatScreenReady,
+        /*
+         * 連線局：這一組搭檔的連線牌面要先抓完（2026-09-23 批次 coopload）。
+         * 手牌第一次畫到連線牌時圖要已經在，不能先空一格再冒出來。平常序章還沒點完就抓好了，這裡通常不用等；
+         * 20 秒是保險：網路整個卡住時不讓整局停在地圖上（圖晚一點出現，總比開不了打好）。
+         */
+        ...(this.coop ? [Promise.race([coopArtReady(), new Promise<void>((res) => window.setTimeout(res, 20000))])] : []),
       ]).then(proceed);
     };
     if (isBoss) {
