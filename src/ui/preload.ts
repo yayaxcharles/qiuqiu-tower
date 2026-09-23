@@ -1,8 +1,8 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
-import { events } from '../content/events';
+import { eventById, events } from '../content/events';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool, RunState } from '../engine/types';
-import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, type DecodePool, type MonsterPose } from './assets';
+import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 import { actVariantKey } from './screenbg';
 
@@ -219,7 +219,50 @@ export function warmEventArt(run: RunState, eventId: string, timeoutMs = 6000): 
   return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });
 }
 
-/** 測試用：這張地圖現在留著哪幾張事件主圖 */
+/**
+ * 這個事件各選項的結果圖（同 `screens/event.ts` 的 `eventArt(c.resultArt, artHero)`；沒有結果圖的選項沿用主圖，不列）。
+ * 結果圖原本是點了選項、畫面建出 `<img>` 那一刻才抓，慢網路下結果那一塊先空著（2026-09-23 主控補充）。
+ */
+function eventResultUrl(run: RunState, eventId: string, choice: number): string | null {
+  const art = eventById[eventId]?.choices[choice]?.resultArt;
+  return art ? artUrl('bg', eventArtKey(art, eventArtHero(eventId, run.players.map((p) => p.hero)))) : null;
+}
+
+export function eventResultUrls(run: RunState, eventId: string): string[] {
+  const n = eventById[eventId]?.choices.length ?? 0;
+  const urls = Array.from({ length: n }, (_, i) => eventResultUrl(run, eventId, i)).filter((u): u is string => u !== null);
+  return [...new Set(urls)];
+}
+
+/** 進到事件畫面就在背景抓這個事件所有選項的結果圖：插隊、留參照（跟主圖同一組），同一張不重送（連線每投一票就重畫一次） */
+export function preloadEventResults(run: RunState, eventId: string): Promise<void> {
+  const pool = mapEventPoolFor(run);
+  const fresh = eventResultUrls(run, eventId).filter((u) => !mapEventAsked.has(u));
+  for (const u of fresh) mapEventAsked.add(u);
+  return decodeAll(fresh, 3, true, pool, 'high');
+}
+
+/** 選了這個選項、要畫結果之前等那張結果圖解好（`screens/event.ts` 的 `whenResultArtReady`）；沒有結果圖就立刻好。上限同主圖 */
+export function warmResultArt(run: RunState, eventId: string, choice: number, timeoutMs = 6000): Promise<void> {
+  const url = eventResultUrl(run, eventId, choice);
+  if (!url) return Promise.resolve();
+  const work = decodeAll([url], 1, true, mapEventPoolFor(run), 'high');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
+  return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });
+}
+
+/** 這張事件圖（主圖或結果圖）解好了沒：結果圖還沒好的話，事件畫面先用主圖頂著（`screens/event.ts` 的 `eventArt`） */
+export function eventArtReady(run: RunState, url: string): boolean {
+  return mapEventPoolFor(run).seen.has(url) || warmed.has(url);
+}
+
+/** 等這張事件圖解好，不設時限（先用主圖頂著的那一張，解好就換上）；解不出來也會結束，之後照 `eventArtReady` 判斷 */
+export function whenEventArtDecoded(run: RunState, url: string): Promise<void> {
+  return decodeAll([url], 1, true, mapEventPoolFor(run), 'high');
+}
+
+/** 測試用：這張地圖現在留著哪幾張事件主圖（與結果圖） */
 export function _mapEventHeldForTest(): string[] { return [...mapEventPool.keep.keys()]; }
 
 /**
