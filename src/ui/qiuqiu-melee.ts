@@ -78,3 +78,18 @@ export function motionMeleeSample<Action extends string>(
   }
   return { x: 0, y: 0, action: 'idle', facing: 1, done: true };
 }
+
+/** 近戰還沒退回原位就被不是近戰的動作接手時，花多久退回原位（2026-09-23 polish 第 4 條） */
+export const MELEE_HANDOFF_RETURN_MS = 140;
+
+/**
+ * 近戰前衝到一半被非近戰動作接手（連刀接淡定、衝刺接挨打）：從接手當下的位移 `fromX` 平順退回原位。
+ * 原本接手那一格位移直接歸零，角色一格從前面跳回 74 像素（2026-09-23 實機膠卷）。
+ * 曲線跟 `motionMeleeSample` 退回那段一樣是 smoothstep，只是時間縮成 140 毫秒：新動作已經開始演，不能拖太久。
+ */
+export function meleeHandoffReturn(fromX: number, elapsedMs: number): number {
+  if (!Number.isFinite(fromX) || fromX === 0) return 0;
+  const elapsed = Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) : MELEE_HANDOFF_RETURN_MS;
+  const p = Math.min(1, elapsed / MELEE_HANDOFF_RETURN_MS);
+  return p >= 1 ? 0 : fromX * (1 - p * p * (3 - 2 * p));
+}
