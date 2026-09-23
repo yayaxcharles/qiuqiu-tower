@@ -1558,7 +1558,8 @@ const MIRROR_DANGDANG: EnemySkin = {
 
 const MIRROR_FENGFENG: EnemySkin = {
   name: '鏡中封封',
-  // 五張立繪（shadow_fengfeng_{idle,attack,hurt,block,down}）2026-09-20 已進倉、朝向稽核過
+  // 五張立繪（shadow_fengfeng_{idle,attack,hurt,block,down}）2026-09-20 進倉；那一批畫成灰虎斑穿封封的衣服、
+  // 只佔畫布六成，2026-09-23 照另外三隻影子重生成黑紫煙霧的封封（tools/gen_shadow_fengfeng.py），朝向重新目視過
   art: 'codex/monster_shadow_fengfeng',
   /*
    * 稿子沒有替鏡中封封寫專屬開場白（2026-09-22 接線時查過）。先沿用鏡中球球原本那三句裡
