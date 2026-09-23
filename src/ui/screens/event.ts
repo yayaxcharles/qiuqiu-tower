@@ -21,6 +21,7 @@ import { burst } from '../fx';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
+import { eventArtReady, preloadEventResults, warmResultArt, whenEventArtDecoded } from '../preload';
 
 /**
  * 結果畫面要秀出來的牌：學會的彈出來、升級的打鐵發金光、丟掉的化成煙散掉、被塞的壞毛病抖一下。
@@ -84,12 +85,29 @@ function gainsNode(gains: readonly RunGain[]): HTMLElement | '' {
  * 畫面上卻什麼都沒有，故事裡的角色不在畫面上，難怪沒有故事感。
  * 每個事件配一張自己的插圖；還沒生好的就不放（`artUrl` 會回灰剪影，那比沒有更糟）。
  */
-function eventArt(id: string, hero?: string): HTMLElement | string {
+function eventArt(id: string, hero?: string, fallback?: { run: RunState; id: string }): HTMLElement | string {
   // 鍵走 `eventArtKey`：有菲菲自己的那張就用她的，沒有就退回球球那張（見那支的說明）
-  const key = eventArtKey(id, hero);
-  const url = artUrl('bg', key);
+  const want = eventArtKey(id, hero);
+  const url = artUrl('bg', want);
+  if (url.startsWith('data:')) return '';
+  /*
+   * 結果圖等滿 6 秒還沒解好（`whenResultArtReady`）：**先用這一篇的主圖頂著，結果圖解好再換上**，不露空白
+   *（2026-09-23 0-2 補）。慢網路實測過：本機預覽是 HTTP/1.1、一個主機只開 6 條連線，
+   * 跳過的開頭影片、背景音樂、角色逐格動作那幾個大檔會把 6 條全佔住，新請求再怎麼插隊也要排十幾秒。
+   * 主圖在事件畫面上已經畫過（走進來時等過它），換上去不會空。結果圖抓不到就一直用主圖。
+   */
+  const wait = !!fallback && !eventArtReady(fallback.run, url);
+  const key = wait && fallback ? eventArtKey(fallback.id, hero) : want;   // 現在要畫的那一張
   // 插圖裡畫了誰也標上：5F 秘笈那段對白播到這一隻時就不再放頭像（同畫面兩種長相，見 dialogue.ts 的 `portraitPlan`）
-  return url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '', 'data-art-cast': eventArtCast(key).join(' ') });
+  const img = el('img', { class: 'event-art', src: artUrl('bg', key), alt: '', 'data-art-cast': eventArtCast(key).join(' ') }) as HTMLImageElement;
+  if (wait && fallback) {
+    void whenEventArtDecoded(fallback.run, url).then(() => {
+      if (!eventArtReady(fallback.run, url)) return;
+      img.src = url;
+      img.dataset['artCast'] = eventArtCast(want).join(' ');
+    });
+  }
+  return img;
 }
 
 /**
@@ -212,7 +230,8 @@ registerScreen('event', (app, root, props) => {
      *（`.event-art-stack` 是 `position: relative`，疊上去的那層絕對定位、不佔空間）。
      * 插圖沒生好時退回原本的行為，不會開天窗。
      */
-    const illo = ev ? eventArt(art ?? ev.id, artHero) : '';
+    // 有結果圖的：還沒解好先用主圖頂著（見 `eventArt`）
+    const illo = ev ? eventArt(art ?? ev.id, artHero, art ? { run, id: ev.id } : undefined) : '';
     const loot = show.length ? showcaseNode(show) : gains.length ? gainsNode(gains) : '';
     const artNode = loot && illo
       ? el('div', { class: 'event-art-stack' }, illo, el('div', { class: 'event-art-loot' }, loot))
@@ -231,6 +250,31 @@ registerScreen('event', (app, root, props) => {
       extra: [stamp, gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
       actions: button ? [button] : [],
     }));
+  }
+  /**
+   * 選好選項、要畫結果之前，先等那張結果圖到（2026-09-23 內容擴充 0-2 補，主控裁定）。
+   *
+   * 進畫面時已經在背景抓了這個事件所有選項的結果圖（下面的 `preloadEventResults`），平常這裡不用等；
+   * 慢網路下還沒到的話，照走進事件格那一套（`app.ts` 的 `enterEvent`）：舞台先點不動、最多等 6 秒，
+   * 超過 0.4 秒在對白框補一行「正在準備……」，好了才跑 `go`——不然結果畫面的插圖那一塊會先空著。
+   * 連線時 `go` 是 `take()`（兩台都要跑）：等的時候只有這一局丟了（斷線回標題）才不跑。
+   */
+  let resolving = false;   // 等結果圖的時候，鍵盤按選項也不再收（舞台的點不動只擋得住滑鼠）
+  function whenResultArtReady(index: number, go: () => void): void {
+    if (!ev?.choices[index]?.resultArt) { go(); return; }
+    resolving = true;
+    app.stage.classList.add('fight-pending');
+    const slow = window.setTimeout(() => {
+      root.querySelector('.scene-box')?.append(el('p', { class: 'event-note event-wait' }, '正在準備……'));
+    }, 400);
+    void warmResultArt(run, ev.id, index).then(() => {
+      window.clearTimeout(slow);
+      resolving = false;
+      app.stage.classList.remove('fight-pending');
+      root.querySelector('.event-wait')?.remove();
+      if (app.run !== run) return;
+      go();
+    });
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
   let pickLabel = '';                  // 這一次選的選項原文：挑牌視窗能不能不選照它寫的「至多」走（見 `eventPickRule`）
@@ -615,11 +659,12 @@ registerScreen('event', (app, root, props) => {
     // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
     if (poor || exchangeReason || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
+      if (resolving) return;   // 正在等上一次點的結果圖（見 `whenResultArtReady`），不收第二次
       if (cost > me(run, seat).fish) return;   // 保險：畫面畫完之後小魚乾又變少的話也不能透支
       if (exchangeBlockReason(c)) { app.show('event', props, { quiet: true }); return; }
       play('click');
       if (coop) { coop.pick('event', String(index)); return; }   // 兩個人都投完才真的做（見 onPick）
-      take(index);
+      whenResultArtReady(index, () => take(index));
     });
     choices.push(btn);
   });
@@ -670,9 +715,13 @@ registerScreen('event', (app, root, props) => {
         notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${evText(ev.choices[chosen]?.label ?? '')}」`);
       }
       coop.clearPicks('event');
-      take(chosen);
+      const pickIndex = chosen;
+      whenResultArtReady(pickIndex, () => take(pickIndex));
     });
   }
+
+  // 這個事件所有選項的結果圖先在背景抓（插隊、留著），讀完文字點下去時通常已經到了（見 `whenResultArtReady`）
+  void preloadEventResults(run, ev.id);
 
   // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走。
   // **整局一次、只綁第一關那一版**（2026-09-23 內容擴充第一批，5F 改成一關一版時定的）：那三句講的是

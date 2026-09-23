@@ -128,6 +128,14 @@ JOBS: dict[str, tuple[str, Path, tuple[int, int, int, int] | None, int, str]] = 
                      'the wind and burning with a small bright orange flame, a few small crackling zigzag yellow lightning '
                      'sparks around the bead and a short trail of tiny sparks streaming back to the left. The trail and '
                      'sparks are small, the bead stays the clear focus.'),
+    # 2026-09-23（內容擴充第二批、批次 c2）：新忍具「迷魂香」（稀有、目標這回合改打牠的同伴）是單體、丟向魔物的，
+    # 跟貓薄荷球、定身釘同一類（丟出去的狀態忍具），圖示畫成一顆香丸；內容參考＝同一批生的 `potion_daze_incense`。
+    # 要不要真的走「丟」由程式代理接 `POTION_PROJECTILE` 時定（見 art2 報告）
+    'daze_incense': ('1536x1024', ICON / 'potion_daze_incense.webp', None, 112,
+                     'ONE round DAZING INCENSE PELLET caught IN FLIGHT, tossed towards the RIGHT: a small dark plum-purple '
+                     'incense ball wrapped with a thin band of white paper, a tiny orange ember smouldering on it, and a '
+                     'short swirling trail of pink-violet smoke curling into a small spiral streaming back to the left. '
+                     'The trail is small, the pellet stays the clear focus.'),
 }
 
 _LOCK = threading.Lock()

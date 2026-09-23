@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { _setManifestForTest, coopArtUrlsFor, heroArtUrls, heroOfKey, heroSpriteUrls, isCoopOnlyArt, preloadArt } from '../../src/ui/assets';
-import { preloadAct } from '../../src/ui/preload';
+import { _setManifestForTest, coopArtUrlsFor, heroArtUrls, heroOfKey, heroSpriteUrls, isCoopOnlyArt, isItemIcon, itemIconUrls, preloadArt } from '../../src/ui/assets';
+import { preloadAct, preloadHeroArt } from '../../src/ui/preload';
 
 /*
  * 首載只載共用與球球的圖，角色專屬的（菲菲）選好角色才補（總稽核 2026-09-14 F 中-1、中-3）。
@@ -164,5 +164,44 @@ describe('角色專屬的圖分開載', () => {
     // 原本這裡要抓到她的專屬事件（`event_feifei_trace`）；2026-09-23 起一關只抓地圖上真的排到的那幾格（`preloadMapEvents`）
     expect(sources).not.toContain('/assets/bg/event_feifei_trace.webp');
     expect(sources).not.toContain('/assets/bg/event_dangdang_lining.webp');
+  });
+
+  /*
+   * 秘寶與忍具圖示整組延後到進入一局才補（2026-09-23 內容擴充第二批，`assets.ts` 的 `isItemIcon`）。
+   * 第一批 28 張進來時首載總計只剩約 50 KB；第二批 22 張、第三批還要再補，不延後就一定爆預算。
+   * 標題的「秘寶與忍具圖鑑」直接畫 `<img src>`，沒預載也會自己下載（實機看過，見 art2 報告）。
+   */
+  it('秘寶與忍具圖示開場不載、進入一局才補；狀態、介面那些 `icon/` 圖示照舊開場就載', async () => {
+    const sources: string[] = [];
+    class FakeImage {
+      set src(value: string) { sources.push(value); }
+      async decode(): Promise<void> { /* src 紀錄就是可觀察結果 */ }
+    }
+    vi.stubGlobal('Image', FakeImage);
+    _setManifestForTest({
+      cards: {}, sprites: {}, monsters: {}, bg: {}, review: [],
+      icons: {
+        'icon/onigiri_full': 'assets/icons/onigiri_full.webp',
+        'codex/relic_headband': 'assets/icons/relic_headband.webp',
+        'codex/relic_hourglass': 'assets/icons/relic_hourglass.webp',
+        'codex/potion_bento': 'assets/icons/potion_bento.webp',
+        'codex/relic_old_sword_tassel': 'assets/icons/relic_old_sword_tassel.webp',
+      },
+    });
+    expect(isItemIcon('codex/relic_hourglass')).toBe(true);
+    expect(isItemIcon('codex/potion_bento')).toBe(true);
+    expect(isItemIcon('icon/status_curl')).toBe(false);
+
+    await preloadArt();
+    expect(sources, '開場只載介面圖示').toEqual(['/assets/icons/onigiri_full.webp']);
+
+    sources.length = 0;
+    await preloadHeroArt(['fengfeng']);
+    // 封封的舊劍穗兩條路都會列到（`heroOfKey` 與 `itemIconUrls`），只要一次
+    expect([...sources].sort()).toEqual([
+      '/assets/icons/potion_bento.webp', '/assets/icons/relic_headband.webp',
+      '/assets/icons/relic_hourglass.webp', '/assets/icons/relic_old_sword_tassel.webp',
+    ]);
+    expect(itemIconUrls()).toHaveLength(4);
   });
 });

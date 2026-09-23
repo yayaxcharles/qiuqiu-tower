@@ -62,7 +62,8 @@ describe('連線的鏡子走廊插圖照座位 0 那一位挑', () => {
   it('事件畫面的開頭、結果兩處都照它挑圖、放立繪', () => {
     const src = readFileSync('src/ui/screens/event.ts', 'utf8').replace(/\r\n/g, '\n');
     expect(src).toContain("const artHero = eventArtHero(ev.id, run.players.map((p) => p.hero));");
-    expect(src).toContain('eventArt(art ?? ev.id, artHero)');
+    // 2026-09-23 起結果圖多帶一個「還沒解好先用主圖頂著」的參數（`event_result_art.test.ts`），挑圖的角色照舊是 artHero
+    expect(src).toContain('eventArt(art ?? ev.id, artHero, ');
     expect(src).toContain('eventArt(ev.id, artHero)');
     expect(src.match(/\.\.\.\(portrait \? \{ portrait \} : \{\}\)/g)?.length).toBe(2);
     // 事件的框比紙箱高，立繪照紙箱那條放會踩在名牌上：事件畫面自己一條，站在插圖左邊、腳底對齊插圖底邊
