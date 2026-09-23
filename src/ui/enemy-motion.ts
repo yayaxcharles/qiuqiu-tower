@@ -215,6 +215,11 @@ export function createEnemyMotionActor(
     const elapsed = Math.max(0, now - startedAt);
     const current = kindData.actions[action];
     draw(frameAt(current, elapsed));
+    // 只有一格的循環（兩種魔物的待機都是）畫好就不會再變：不必每一拍都醒來（2026-09-23 效能）。
+    // 場上每一隻都在每一拍要下一格的話，主執行緒整場都停不下來，CSS 動畫也被拖著每一拍重算樣式
+    //（實測閒置 3 秒、CPU 降速 4 倍：主執行緒忙 1.8～2.2 秒）。下一次 play() 會重新排。
+    // 還沒畫上去（圖還沒載好）就照舊每一拍再試。
+    if (current.loop && current.frames.length <= 1 && drawnMotion === current) return;
     if (current.loop || elapsed < enemyMotionDuration(kind, action)) {
       raf = window.requestAnimationFrame(tick);
     }

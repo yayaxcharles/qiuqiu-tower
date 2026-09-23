@@ -37,6 +37,9 @@ class FakeImage {
   static sources: string[] = [];
   /** 呼叫過 decode() 的網址：逐格動作不該有——畫布用不到那份解碼（清理 2026-09-22） */
   static decoded: string[] = [];
+  /** 建過的每一張（待機畫不上去那條要把某一張改成還沒載好） */
+  static instances: FakeImage[] = [];
+  constructor() { FakeImage.instances.push(this); }
   complete = true;
   private value = '';
   set src(value: string) { this.value = value; FakeImage.sources.push(value); }
@@ -68,6 +71,7 @@ beforeEach(async () => {
   vi.resetModules();
   FakeImage.sources = [];
   FakeImage.decoded = [];
+  FakeImage.instances = [];
   nextRaf = 1;
   rafs = new Map();
   cancelled = [];
@@ -155,7 +159,8 @@ describe('敵人逐格畫布', () => {
     }
     expect(context.draws).toHaveLength(data.frames.length);
     expect(context.clears).toBe(data.frames.length);
-    expect(rafs.size).toBe(data.loop ? 1 : 0);
+    // 只有一格的循環（待機）畫好就不再要下一格（2026-09-23 效能）；多格的循環才一直排
+    expect(rafs.size).toBe(data.loop && data.frames.length > 1 ? 1 : 0);
     actor.dispose();
   });
 
@@ -246,8 +251,43 @@ describe('敵人逐格畫布', () => {
     }
   });
 
+  /**
+   * 2026-09-23 效能：待機只有一格，畫好就不再每一拍要下一格（三隻老鼠每一拍各要一格，閒置時主執行緒整場停不下來）。
+   * 把 enemy-motion.ts 那行「一格的循環畫好就收」拿掉 → 第一個 expect 會紅。
+   */
+  it.each(['rat', 'ninja'] as const)('%s 待機畫好就停，換動作重新排、回待機再停；圖還沒載好就繼續試', (kind) => {
+    const actor = motion.createEnemyMotionActor(kind, { action: 'idle' });
+    const context = canvases.at(-1)!.context;
+    step(0);
+    expect(rafs.size, '待機畫好了還在要下一格').toBe(0);
+    const idleDraws = context.draws.length;
+    actor.play('hurt');
+    expect(rafs.size).toBe(1);
+    for (let t = 0; t <= 600; t += 16) step(t);
+    expect(context.draws.length).toBeGreaterThan(idleDraws);
+    actor.play('idle');
+    step(700);
+    expect(rafs.size).toBe(0);
+    expect(lastDraw().slice(1, 5)).toEqual(motionData.kinds[kind].actions.idle.frames[0]!.rect);
+    actor.dispose();
+
+    // 圖還沒載好（complete 是 false）：畫不上去就照舊每一拍再試，載好畫上去才停
+    const loading = motion.createEnemyMotionActor(kind, { action: 'idle' });
+    const idleTexture = motionData.kinds[kind].actions.idle.texture.replace(/\.webp$/, '');
+    const image = FakeImage.instances.find((one) => one.src.includes(idleTexture))!;
+    image.complete = false;
+    loading.play('idle');
+    step(800);
+    expect(rafs.size).toBe(1);
+    image.complete = true;
+    step(816);
+    expect(rafs.size).toBe(0);
+    loading.dispose();
+  });
+
   it('建立後持續請求影格，釋放後取消且不再繪製', () => {
-    const actor = motion.createEnemyMotionActor('ninja', { action: 'idle' });
+    // 用出招（多格、還在演）：待機只有一格，畫好就不再排下一格，沒有東西可以取消（見下一條）
+    const actor = motion.createEnemyMotionActor('ninja', { action: 'attack' });
     const canvas = canvases.at(-1)!;
     expect(actor.element.className).toBe('enemy-motion');
     expect(actor.element.role).toBe('img');
