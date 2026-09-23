@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue } from '../../content/dialogue';
-import { condHint, coopFill, eventTextFor, flagWhy } from '../../content/event-text';
+import { condHint, coopFill, eventTextFor, flagWhy, partnerCondLabel } from '../../content/event-text';
 import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
 import { relicById, relicLongText } from '../../content/relics';
@@ -532,6 +532,17 @@ registerScreen('event', (app, root, props) => {
     const mine = eventTextFor(hero, t);
     return partner ? coopFill(mine, me(run, seat).hero, partner.hero) : mine;
   };
+  /**
+   * 選項按鈕上的字（2026-09-23 b2fin，主控裁定改口）：條件選項連線時是**同伴**讓它出現的（`choiceGate` 的 `by`），
+   * 照實際達成的人寫（`partnerCondLabel`：「讓她拿菲菲的毒試新解藥」，不是「你的毒」），其餘照原本。
+   * 擲骰結果那一句也走這支：兩處講的是同一顆按鈕，字要一樣。
+   */
+  const labelText = (i: number): string => {
+    const c = evd.choices[i];
+    const by = c?.requires ? choiceGate(run, c, seat).by : undefined;
+    const theirs = by !== undefined && by !== seat && partner ? partnerCondLabel(evd.id, me(run, seat).hero, partner.hero) : undefined;
+    return theirs ?? evText(labelRaw(i));
+  };
 
   function settle(outcome: RunEffectOutcome, rawResult: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
     // 換角色的文案在**入口**過一次，比每個呼叫點各包一次不容易漏（這支有六個呼叫點）
@@ -821,7 +832,7 @@ registerScreen('event', (app, root, props) => {
     const btn = el('button', { class: 'btn' },
       // 條件選項：按鈕最前面一個金底小標籤（連線時是同伴讓它出現的，寫「某某的…」）
       gate && c.requiresLabel ? el('span', { class: 'choice-tag' }, `【${bySelf ? '' : `${partnerName}的`}${c.requiresLabel}】`) : '',
-      evText(labelRaw(index)) + (poor ? '（小魚乾不夠）' : '') + (exchangeReason ? `（${exchangeReason}）` : '') + (who.length ? `　← ${who.join('、')}` : ''),
+      labelText(index) + (poor ? '（小魚乾不夠）' : '') + (exchangeReason ? `（${exchangeReason}）` : '') + (who.length ? `　← ${who.join('、')}` : ''),
       gate ? el('span', { class: 'choice-why' }, condWhyLine(gate, bySelf ? '你' : partnerName, !!coop)) : '');
     // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
     if (poor || exchangeReason || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
@@ -881,7 +892,7 @@ registerScreen('event', (app, root, props) => {
       chosen = Number(pickStr);
       // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一個選項（使用者 2026-09-15：「要知道隨機到哪個事件」）
       if (new Set(now.filter((v) => v !== null)).size > 1) {
-        notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${evText(labelRaw(chosen))}」`);
+        notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${labelText(chosen)}」`);
       }
       coop.clearPicks('event');
       // 兩台在同一拍結算、同一拍套效果（推前審查 高-1）：不可以等圖才 `take()`，只有畫面等

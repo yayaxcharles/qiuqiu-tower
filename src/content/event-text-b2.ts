@@ -725,6 +725,30 @@ export function flagWhy(flag: string): string {
 }
 
 /**
+ * 連線時**同伴**讓條件選項出現（養成型：流派牌、秘寶、忍具滿了，`choiceGate` 的 `by` 是同伴）的按鈕標籤（2026-09-23 b2fin，主控裁定改口）。
+ * 原本的標籤寫的是「我」做的事——同伴養出毒，按鈕卻寫「讓她拿**你的**毒試新解藥」。這裡照實際達成的人寫，
+ * `{同伴}` 走 `coopFill`（跟連線限定事件同一套稱呼）。**括號裡的效果一字不動**（兩人一樣照原本的效果跑，測試守著）。
+ * 四隻的標籤本來就一樣（`eventTextFor` 不換這幾條），所以一篇一條。付錢型（整包買下）與旗標型（整局的）沒有「誰達成」，不在這裡。
+ */
+const COND_LABEL_PARTNER: Readonly<Record<string, string>> = {
+  lost_kitten: '請{同伴}把鈴鐺繫在牠的頭巾上（交出「鈴鐺」；生命上限與當前生命各 +10、隨機獲得 1 個忍具）',
+  sparring_cat: '讓{同伴}站著不動，給他撞（最多失去 3 點生命；獲得 30 條小魚乾、隨機獲得 1 個忍具）',
+  noisy_kitchen: '請{同伴}留一個用不上的忍具在盒子裡，換一碗加料的（交出 1 個忍具；回復相當於生命上限 50% 的生命、生命上限與當前生命各 +4）',
+  sleeping_guard: '讓{同伴}藏在牆角的影子裡摸走錢袋（獲得 45 條小魚乾）',
+  medicine_cat: '讓她拿{同伴}的毒試新解藥（最多失去 8 點生命；生命上限與當前生命各 +8）',
+  heavy_door: '讓{同伴}蓄足一口氣，一擊劈斷門閂（最多失去 6 點生命；隨機獲得 1 件大魔物秘寶）',
+  old_master_ghost: '請{同伴}把師父的斗笠戴到影子頭上（從 3 張絕學牌中選擇 1 張、自選升級至多 1 張牌）',
+};
+// 匯出只給測試盯「每條養成型條件選項都有、括號跟原標籤一樣」；畫面一律走 `partnerCondLabel`
+export const COND_LABEL_PARTNER_FOR_TEST = COND_LABEL_PARTNER;
+
+/** 同伴讓這篇的條件選項出現時，本機這一位看到的標籤（稱呼已換好）；這篇沒有同伴版就回 `undefined`（照原本的標籤） */
+export function partnerCondLabel(eventId: string, me: string | undefined, partner: string | undefined): string | undefined {
+  const t = COND_LABEL_PARTNER[eventId];
+  return t === undefined ? undefined : coopFill(t, me, partner);
+}
+
+/**
  * 連線限定事件的稱呼（劇本 design2 第二節的表）：`{同伴}`＝旁白裡的名字、`{稱}`＝台詞開頭的稱呼、`{對方}`＝台詞中間提到對方。
  * 外層是我是誰、第二層是同伴是誰；師兄妹互稱「師兄／師妹」，其他叫名字。
  * **同角色配對**（兩個球球）：旁白寫「同伴」、台詞開頭的稱呼連後面的逗號一起拿掉、台詞中間寫「你」。

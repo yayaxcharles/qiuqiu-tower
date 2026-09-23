@@ -1,7 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { eventById } from '../../src/content/events';
+import { COND_LABEL_PARTNER_FOR_TEST, partnerCondLabel } from '../../src/content/event-text-b2';
+import { eventById, events } from '../../src/content/events';
+import { HEROES } from '../../src/engine/hero';
 import { newCoopRun } from '../../src/engine/run';
+import type { ChoiceCond } from '../../src/engine/types';
 import { BASE, _setManifestForTest, setLocalHero, type Manifest } from '../../src/ui/assets';
 import { eventResultUrls } from '../../src/ui/preload';
 import EVENT_RAW from '../../src/ui/screens/event.ts?raw';
@@ -98,5 +101,49 @@ describe('連線時同伴讓條件選項出現：結果文字寫同伴做的事'
     const f = body('  const evText = (t: string, hero = me(run, seat).hero): string => {', '  ', ';');
     expect(f).toContain('eventTextFor(hero, t)');
     expect(f).toContain('coopFill(mine, me(run, seat).hero, partner.hero)');
+  });
+});
+
+/*
+ * 連線時同伴讓條件選項出現：**按鈕標籤**也照實際達成的人寫（2026-09-23 b2fin，主控裁定改口）。
+ * 原本同伴養出毒，按鈕寫【菲菲的毒】讓她拿**你的**毒試新解藥。
+ */
+describe('連線時同伴讓條件選項出現：標籤照實際達成的人寫', () => {
+  /** 養成型＝連線時可能是同伴讓它出現的（付錢型每一位都要、旗標是整局的，沒有「誰達成」） */
+  const grown = (c: ChoiceCond): boolean => c.kind === 'anyOf' ? c.of.some(grown) : c.kind === 'deckTag' || c.kind === 'relic' || c.kind === 'potionsFull';
+  const conds = events.flatMap((e) => e.choices.filter((c) => c.requires).map((c) => ({ id: e.id, c })));
+  const paren = (s: string): string => s.slice(s.indexOf('（'));
+
+  it('每一條養成型條件選項都有同伴版、付錢型與旗標型沒有；括號裡的效果一字不動、動作那一段換成同伴', () => {
+    const table = COND_LABEL_PARTNER_FOR_TEST;
+    const want = conds.filter(({ c }) => grown(c.requires!)).map(({ id }) => id).sort();
+    expect(want.length).toBe(7);
+    expect(Object.keys(table).sort()).toEqual(want);
+    for (const { id, c } of conds.filter(({ c }) => grown(c.requires!))) {
+      const t = table[id]!;
+      expect(paren(t), `${id} 的效果跟原標籤不一樣`).toBe(paren(c.label));
+      expect(t.slice(0, t.indexOf('（')), `${id} 的動作那一段沒寫同伴`).toContain('{同伴}');
+    }
+    for (const { id, c } of conds.filter(({ c }) => !grown(c.requires!))) expect(partnerCondLabel(id, 'ninja', 'feifei'), id).toBeUndefined();
+  });
+
+  it('稱呼換好：不同角色寫名字、同一隻寫「同伴」，沒有留下記號；賣藥的三花貓寫「她拿菲菲的毒」不寫「你的毒」', () => {
+    for (const id of Object.keys(COND_LABEL_PARTNER_FOR_TEST)) for (const me of HEROES) for (const mate of HEROES) {
+      const s = partnerCondLabel(id, me, mate)!;
+      expect(s, `${id} ${me}+${mate}`).not.toMatch(/[{}]/);
+      expect(s, `${id} ${me}+${mate}`).toContain(me === mate ? '同伴' : ({ ninja: '球球', feifei: '菲菲', dangdang: '噹噹', fengfeng: '封封' } as const)[mate]);
+    }
+    expect(partnerCondLabel('medicine_cat', 'ninja', 'feifei')).toBe('讓她拿菲菲的毒試新解藥（最多失去 8 點生命；生命上限與當前生命各 +8）');
+    expect(partnerCondLabel('medicine_cat', 'feifei', undefined), '球球的 hero 欄不填也認得').toContain('拿球球的毒');
+  });
+
+  it('畫面接線：只有同伴讓它出現（by 不是本機）才換，按鈕與擲骰那一句都走同一支', () => {
+    const f = body('  const labelText = (i: number): string => {', '  ', ';');
+    expect(f).toContain('c?.requires ? choiceGate(run, c, seat).by : undefined');
+    expect(f).toContain("by !== undefined && by !== seat && partner ? partnerCondLabel(evd.id, me(run, seat).hero, partner.hero) : undefined");
+    expect(f).toContain('return theirs ?? evText(labelRaw(i));');
+    expect(EV).toContain('labelText(index) + ');
+    expect(EV).toContain('選的「${labelText(chosen)}」');
+    expect(EV).not.toMatch(/evText\(labelRaw\((?:index|chosen)\)\)/);
   });
 });

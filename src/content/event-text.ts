@@ -2,7 +2,7 @@ import { coopMirror, lineFor, mixedLine } from './dialogue';
 import { DANGDANG_EVENT_TEXT_B2, FEIFEI_EVENT_TEXT_B2, FENGFENG_EVENT_TEXT_B2 } from './event-text-b2';
 
 // 條件提示句、連線限定事件的稱呼（2026-09-23 內容擴充第二批）：事件畫面從這一支拿，跟著一起延後載入
-export { condHint, coopFill, flagWhy, EVENT_COND_HINTS } from './event-text-b2';
+export { condHint, coopFill, flagWhy, partnerCondLabel, EVENT_COND_HINTS } from './event-text-b2';
 
 /*
  * **事件畫面才用得到的角色文字**（2026-09-23 內容擴充第〇批 0-1：事件文字分包）。

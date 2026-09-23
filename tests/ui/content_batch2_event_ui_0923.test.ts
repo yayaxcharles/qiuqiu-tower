@@ -79,7 +79,9 @@ describe('事件畫面的接線（讀原始碼）', () => {
   it('座位不對稱：每一位套自己那一串效果、文字照自己的視角挑、連線的稱呼換掉', () => {
     expect(ev).toContain('applyRunEffects(run, choiceEffectsFor(c, i),');
     expect(ev).toContain('const raw = resultRaw(index);');
-    expect(ev).toContain('evText(labelRaw(index))');
+    // 2026-09-23 b2fin 起按鈕走 `labelText`（同伴讓條件選項出現時改口），其餘仍是 `evText(labelRaw(i))`
+    expect(ev).toContain('labelText(index) + ');
+    expect(ev).toContain('return theirs ?? evText(labelRaw(i));');
     expect(ev).toContain('coopFill(mine, me(run, seat).hero, partner.hero)');
   });
 
