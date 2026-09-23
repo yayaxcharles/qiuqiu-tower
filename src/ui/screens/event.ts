@@ -8,7 +8,7 @@ import { relicById, relicLongText } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
 import { choiceEffectsFor, choiceGate, choiceOrder, resultSeat, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
-import { heroName, type Hero } from '../../engine/hero';
+import { heroName, heroOf, type Hero } from '../../engine/hero';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import type { CardDef, CardInstance, EventChoice, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -100,7 +100,7 @@ function gainText(g: RunGain, owned: readonly string[]): string {
  * 畫面上卻什麼都沒有，故事裡的角色不在畫面上，難怪沒有故事感。
  * 每個事件配一張自己的插圖；還沒生好的就不放（`artUrl` 會回灰剪影，那比沒有更糟）。
  */
-function eventArt(id: string, hero?: string, fallback?: { run: RunState; id: string }): HTMLElement | string {
+function eventArt(id: string, hero?: string, fallback?: { run: RunState; id: string; hero?: string }): HTMLElement | string {
   // 鍵走 `eventArtKey`：有菲菲自己的那張就用她的，沒有就退回球球那張（見那支的說明）
   const want = eventArtKey(id, hero);
   const url = artUrl('bg', want);
@@ -112,7 +112,8 @@ function eventArt(id: string, hero?: string, fallback?: { run: RunState; id: str
    * 主圖在事件畫面上已經畫過（走進來時等過它），換上去不會空。結果圖抓不到就一直用主圖。
    */
   const wait = !!fallback && !eventArtReady(fallback.run, url);
-  const key = wait && fallback ? eventArtKey(fallback.id, hero) : want;   // 現在要畫的那一張
+  // 頂替的主圖照主圖那一位挑（`fallback.hero`）：結果圖照同伴挑的時候（`resultArtHeroFor`），頂著的仍是畫面上剛畫過的那一張
+  const key = wait && fallback ? eventArtKey(fallback.id, fallback.hero) : want;   // 現在要畫的那一張
   // 插圖裡畫了誰也標上：5F 秘笈那段對白播到這一隻時就不再放頭像（同畫面兩種長相，見 dialogue.ts 的 `portraitPlan`）
   const img = el('img', { class: 'event-art', src: artUrl('bg', key), alt: '', 'data-art-cast': eventArtCast(key).join(' ') }) as HTMLImageElement;
   if (wait && fallback) {
@@ -201,6 +202,15 @@ registerScreen('event', (app, root, props) => {
   const evd = ev;   // 收斂成不可為 undefined 的常數，給下面的內部函式用（窄化不會跟進函式裡）
   // 插圖照誰挑、要不要在旁邊放自己的立繪（連線的鏡子走廊照座位 0，見 assets.ts 的 `eventArtHero`）
   const artHero = eventArtHero(ev.id, run.players.map((p) => p.hero));
+  /**
+   * 這個選項的結果圖照誰挑（2026-09-23 b2fin，實機抓到）：條件選項是同伴讓它出現的（`resultSeat`），結果文字寫同伴做的事，
+   * **結果圖也要是同伴那一版**，不然字寫菲菲、圖畫球球。其餘照原本（`artHero`）。進畫面時預載用、`take()` 套效果之前定案用，同一個局面問兩次答案一樣。
+   */
+  const resultArtHeroFor = (i: number): string | undefined => {
+    const c = evd.choices[i];
+    const s = c ? resultSeat(run, c, seat) : seat;
+    return s === seat ? artHero : heroOf(me(run, s));
+  };
   /*
    * 連線限定事件（2026-09-23 內容擴充第二批，劇本 design2 新7）：插圖是純場景、圖裡沒有主角，
    * 兩位的立繪站兩邊——本機這一位在左、同伴在右。其餘事件照舊（鏡子走廊那種才在旁邊放自己）。
@@ -283,7 +293,7 @@ registerScreen('event', (app, root, props) => {
      * 插圖沒生好時退回原本的行為，不會開天窗。
      */
     // 有結果圖的：還沒解好先用主圖頂著（見 `eventArt`）
-    const illo = ev ? eventArt(art ?? ev.id, artHero, art ? { run, id: ev.id } : undefined) : '';
+    const illo = ev ? eventArt(art ?? ev.id, art ? resultArtHero : artHero, art ? { run, id: ev.id, hero: artHero } : undefined) : '';
     const loot = show.length ? showcaseNode(show) : gains.length ? gainsNode(gains, me(run, seat).relics) : '';
     const artNode = loot && illo
       ? el('div', { class: 'event-art-stack' }, illo, el('div', { class: 'event-art-loot' }, loot))
@@ -336,7 +346,7 @@ registerScreen('event', (app, root, props) => {
     const slow = window.setTimeout(() => {
       root.querySelector('.scene-box')?.append(el('p', { class: 'event-note event-wait' }, '正在準備……'));
     }, 400);
-    void warmResultArt(run, ev.id, index).then(() => {
+    void warmResultArt(run, ev.id, index, resultArtHero).then(() => {
       window.clearTimeout(slow);
       resolving = false;
       app.stage.classList.remove('fight-pending');
@@ -348,6 +358,8 @@ registerScreen('event', (app, root, props) => {
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
   /** 這一次的結果文字照誰的版本寫：條件選項連線時是同伴讓它出現的，寫同伴做的事（`resultSeat`）。`take()` 設，沒設＝本機這一位 */
   let resultHero: Hero | undefined;
+  /** 這一次的結果圖照誰挑（`resultArtHeroFor`，跟 `resultHero` 同一個判準）。`take()` 設 */
+  let resultArtHero: string | undefined;
   let pickLabel = '';                  // 這一次選的選項原文：挑牌視窗能不能不選照它寫的「至多」走（見 `eventPickRule`）
   /** 學完招接著挑牌升級（`then`）：本機這一位學完（或都不要）之後，照這一支開挑牌那一步。`take()` 設 */
   let afterLearn: ((note: string, learned: CardInstance[]) => void) | null = null;
@@ -641,8 +653,10 @@ registerScreen('event', (app, root, props) => {
     if (!c) return;
     const exchangeReason = exchangeBlockReason(c);
     if (exchangeReason) { finish('這次沒有交換秘寶。', exchangeReason); return; }
-    // 結果寫誰做的事：**先問、再套效果**（鈴鐺那條套完就交出去了，問不出是誰的，見 `resultSeat`）
-    resultHero = me(run, resultSeat(run, c, seat)).hero;
+    // 結果寫誰做的事、結果圖照誰挑：**先問、再套效果**（鈴鐺那條套完就交出去了，問不出是誰的，見 `resultSeat`）。
+    // 走 `heroOf`：球球那一位的 `hero` 欄可能不填，直接傳 undefined 會被當成「照本機這一位」
+    resultHero = heroOf(me(run, resultSeat(run, c, seat)));
+    resultArtHero = resultArtHeroFor(index);
     const cost = c.costFish ?? 0;
     resultArt = c.resultArt;
     pickLabel = labelRaw(index);
@@ -876,7 +890,7 @@ registerScreen('event', (app, root, props) => {
   }
 
   // 這個事件所有選項的結果圖先在背景抓（插隊、留著），讀完文字點下去時通常已經到了（見 `whenResultArtReady`）
-  void preloadEventResults(run, ev.id);
+  void preloadEventResults(run, ev.id, ev.choices.map((_, i) => resultArtHeroFor(i)));
 
   // 5F 大俠傳功：撿到秘笈那段只播一次，旗標寫在 run.flags，由結算那次存檔帶走。
   // **整局一次、只綁第一關那一版**（2026-09-23 內容擴充第一批，5F 改成一關一版時定的）：那三句講的是

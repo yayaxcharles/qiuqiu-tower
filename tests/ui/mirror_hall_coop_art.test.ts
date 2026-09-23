@@ -63,7 +63,9 @@ describe('連線的鏡子走廊插圖照座位 0 那一位挑', () => {
     const src = readFileSync('src/ui/screens/event.ts', 'utf8').replace(/\r\n/g, '\n');
     expect(src).toContain("const artHero = eventArtHero(ev.id, run.players.map((p) => p.hero));");
     // 2026-09-23 起結果圖多帶一個「還沒解好先用主圖頂著」的參數（`event_result_art.test.ts`），挑圖的角色照舊是 artHero
-    expect(src).toContain('eventArt(art ?? ev.id, artHero, ');
+    // 2026-09-23 b2fin 起結果圖照 `resultArtHeroFor` 挑：只有條件選項是同伴讓它出現的才換成同伴，其餘仍是 artHero
+    expect(src).toContain('eventArt(art ?? ev.id, art ? resultArtHero : artHero, ');
+    expect(src).toContain('return s === seat ? artHero : heroOf(me(run, s));');
     expect(src).toContain('eventArt(ev.id, artHero)');
     expect(src.match(/\.\.\.\(portrait \? \{ portrait \} : \{\}\)/g)?.length).toBe(2);
     // 事件的框比紙箱高，立繪照紙箱那條放會踩在名牌上：事件畫面自己一條，站在插圖左邊、腳底對齊插圖底邊
