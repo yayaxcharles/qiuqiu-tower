@@ -225,6 +225,101 @@
     "sha256": "21452d7de10444655a09668c8dc64d6e1730b83d225658358e9212e50bbe3356",
     "at": "2026-09-23 21:20:33"
   },
+  "event_dangdang_shadow_loose": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_shadow_loose",
+    "file": "public/assets/bg/event_dangdang_shadow_loose.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38884,
+    "droppedSpecks": 71,
+    "semiTransparentShare": 0.0261,
+    "gate": [],
+    "sha256": "8baeae615a2c1e4c82b9ba62a5bb6632507a80a12c73f0c0002e8301a3adf4d2",
+    "at": "2026-09-23 21:24:08"
+  },
+  "event_dangdang_shadow_loose_r0": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_shadow_loose_r0",
+    "file": "public/assets/bg/event_dangdang_shadow_loose_r0.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 32668,
+    "droppedSpecks": 89,
+    "semiTransparentShare": 0.0284,
+    "gate": [],
+    "sha256": "4092a14e7db28829faef4df7d6752dbbcb8a49f1da97e3a72c5b27fc752d97ac",
+    "at": "2026-09-23 21:24:22"
+  },
+  "event_dangdang_shadow_loose_r1": {
+    "attempt": 2,
+    "key": "bg/event_dangdang_shadow_loose_r1",
+    "file": "public/assets/bg/event_dangdang_shadow_loose_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 47154,
+    "droppedSpecks": 202,
+    "semiTransparentShare": 0.0273,
+    "gate": [],
+    "sha256": "86d95e771e4cf16caf5dad38c5b2b3ba36e4bd611edadc742ab675ecf05b65fc",
+    "at": "2026-09-23 21:27:41"
+  },
+  "event_dangdang_shadow_study": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_shadow_study",
+    "file": "public/assets/bg/event_dangdang_shadow_study.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 35032,
+    "droppedSpecks": 223,
+    "semiTransparentShare": 0.0306,
+    "gate": [],
+    "sha256": "812a3909c3951ef09ca380954ef86090a92f90f84f9c443910f607e9aaf98aee",
+    "at": "2026-09-23 21:26:32"
+  },
+  "event_dangdang_shadow_study_r1": {
+    "attempt": 1,
+    "key": "bg/event_dangdang_shadow_study_r1",
+    "file": "public/assets/bg/event_dangdang_shadow_study_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 37130,
+    "droppedSpecks": 307,
+    "semiTransparentShare": 0.0344,
+    "gate": [],
+    "sha256": "63219c067e25f17bae4bc465bf0fa749981c819604b9aef0b683165b232bfe74",
+    "at": "2026-09-23 21:26:47"
+  },
   "event_feifei_pigeon_grandpa": {
     "attempt": 1,
     "key": "bg/event_feifei_pigeon_grandpa",
@@ -434,6 +529,103 @@
     "sha256": "9db38a35a55ba126af024796145efa326c1b37be0de60dab639154b5c867bd09",
     "at": "2026-09-23 21:20:29"
   },
+  "event_feifei_shadow_loose": {
+    "attempt": 1,
+    "key": "bg/event_feifei_shadow_loose",
+    "file": "public/assets/bg/event_feifei_shadow_loose.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46118,
+    "droppedSpecks": 179,
+    "semiTransparentShare": 0.025,
+    "gate": [
+      "透明的地方只有 30%，背景可能被畫進去了"
+    ],
+    "sha256": "5c9a2d2d9e3f5532d7d449ed6b4895fb5d57ddc1a27b41b3be46b4686425a5f8",
+    "at": "2026-09-23 21:24:05"
+  },
+  "event_feifei_shadow_loose_r0": {
+    "attempt": 1,
+    "key": "bg/event_feifei_shadow_loose_r0",
+    "file": "public/assets/bg/event_feifei_shadow_loose_r0.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41638,
+    "droppedSpecks": 195,
+    "semiTransparentShare": 0.0272,
+    "gate": [],
+    "sha256": "3fbabdfbd0b79a25d86856304dcddcf145099b05d741cd24fcaacd3b60693345",
+    "at": "2026-09-23 21:24:19"
+  },
+  "event_feifei_shadow_loose_r1": {
+    "attempt": 2,
+    "key": "bg/event_feifei_shadow_loose_r1",
+    "file": "public/assets/bg/event_feifei_shadow_loose_r1.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 42512,
+    "droppedSpecks": 299,
+    "semiTransparentShare": 0.0464,
+    "gate": [],
+    "sha256": "56aed915271aaedf79699290c91444e94e8bb824bb9fe3b2c522073a2e09d9c3",
+    "at": "2026-09-23 21:27:37"
+  },
+  "event_feifei_shadow_study": {
+    "attempt": 1,
+    "key": "bg/event_feifei_shadow_study",
+    "file": "public/assets/bg/event_feifei_shadow_study.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38244,
+    "droppedSpecks": 314,
+    "semiTransparentShare": 0.0323,
+    "gate": [],
+    "sha256": "0ba9cedb4d4742fc85862a91b5c56bfe46e830ab5762599451a35ab187bd2177",
+    "at": "2026-09-23 21:26:29"
+  },
+  "event_feifei_shadow_study_r1": {
+    "attempt": 1,
+    "key": "bg/event_feifei_shadow_study_r1",
+    "file": "public/assets/bg/event_feifei_shadow_study_r1.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 38062,
+    "droppedSpecks": 310,
+    "semiTransparentShare": 0.0247,
+    "gate": [],
+    "sha256": "5765e10621af65d3ddb69122f8a8b2f98f7c1a8d279d923b6eb6745793f3a450",
+    "at": "2026-09-23 21:26:43"
+  },
   "event_fengfeng_pigeon_grandpa": {
     "attempt": 1,
     "key": "bg/event_fengfeng_pigeon_grandpa",
@@ -642,6 +834,101 @@
     "gate": [],
     "sha256": "cad63fc4ace1217c956a89c76f8c918de47cdfdc42488f4efda0f81a1cdc4cc8",
     "at": "2026-09-23 21:20:36"
+  },
+  "event_fengfeng_shadow_loose": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_shadow_loose",
+    "file": "public/assets/bg/event_fengfeng_shadow_loose.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 48374,
+    "droppedSpecks": 190,
+    "semiTransparentShare": 0.0408,
+    "gate": [],
+    "sha256": "4cf5e5bfff9fe10409aaf048cd16d3697d9f848f81e93620a8144c405b72ac8c",
+    "at": "2026-09-23 21:24:12"
+  },
+  "event_fengfeng_shadow_loose_r0": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_shadow_loose_r0",
+    "file": "public/assets/bg/event_fengfeng_shadow_loose_r0.webp",
+    "sourceSize": [
+      1295,
+      1214
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 31984,
+    "droppedSpecks": 71,
+    "semiTransparentShare": 0.0303,
+    "gate": [],
+    "sha256": "fec721bd2fae91876b9c9f76caa5cdda7e920448efa7059f59c58a5b7a2e9e01",
+    "at": "2026-09-23 21:24:26"
+  },
+  "event_fengfeng_shadow_loose_r1": {
+    "attempt": 2,
+    "key": "bg/event_fengfeng_shadow_loose_r1",
+    "file": "public/assets/bg/event_fengfeng_shadow_loose_r1.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39024,
+    "droppedSpecks": 331,
+    "semiTransparentShare": 0.0619,
+    "gate": [],
+    "sha256": "c6d68a0bb18850258dd48b1baefdb5bb5da121fd143ba7f4f94351a472b02ab4",
+    "at": "2026-09-23 21:27:45"
+  },
+  "event_fengfeng_shadow_study": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_shadow_study",
+    "file": "public/assets/bg/event_fengfeng_shadow_study.webp",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 34602,
+    "droppedSpecks": 235,
+    "semiTransparentShare": 0.0312,
+    "gate": [],
+    "sha256": "a44ebd8bc2f3bdff1fc9193c1ef5d434027a1c24c19f4286f29bb16d33610380",
+    "at": "2026-09-23 21:26:36"
+  },
+  "event_fengfeng_shadow_study_r1": {
+    "attempt": 1,
+    "key": "bg/event_fengfeng_shadow_study_r1",
+    "file": "public/assets/bg/event_fengfeng_shadow_study_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 32950,
+    "droppedSpecks": 216,
+    "semiTransparentShare": 0.0259,
+    "gate": [],
+    "sha256": "aa99766a49af4372628b316f3a4275e4c9c42aa5ad19e1da56405c3e5b562885",
+    "at": "2026-09-23 21:26:50"
   },
   "event_pigeon_grandpa": {
     "attempt": 1,
@@ -857,5 +1144,100 @@
     "gate": [],
     "sha256": "931721a4fe6ada86b5bf548f02930bd07b12514b649411ab4a5a306d7c0bb6da",
     "at": "2026-09-23 21:20:25"
+  },
+  "event_shadow_loose": {
+    "attempt": 1,
+    "key": "bg/event_shadow_loose",
+    "file": "public/assets/bg/event_shadow_loose.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 46154,
+    "droppedSpecks": 142,
+    "semiTransparentShare": 0.0375,
+    "gate": [],
+    "sha256": "373a737eff543cb96b445c2e298905eeb16667eca036e28efdd0f3e586bd60b1",
+    "at": "2026-09-23 21:24:00"
+  },
+  "event_shadow_loose_r0": {
+    "attempt": 1,
+    "key": "bg/event_shadow_loose_r0",
+    "file": "public/assets/bg/event_shadow_loose_r0.webp",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 29538,
+    "droppedSpecks": 88,
+    "semiTransparentShare": 0.0303,
+    "gate": [],
+    "sha256": "2abcdc2e12ed535c87f5f46a9cfea220d17211f727cb236118a0d8e818136ceb",
+    "at": "2026-09-23 21:24:15"
+  },
+  "event_shadow_loose_r1": {
+    "attempt": 2,
+    "key": "bg/event_shadow_loose_r1",
+    "file": "public/assets/bg/event_shadow_loose_r1.webp",
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 36208,
+    "droppedSpecks": 238,
+    "semiTransparentShare": 0.0464,
+    "gate": [],
+    "sha256": "44da9306daa7b26c5fdc43d18d332debc9e57795cc073e3e1c6a7f6e924b996a",
+    "at": "2026-09-23 21:27:33"
+  },
+  "event_shadow_study": {
+    "attempt": 1,
+    "key": "bg/event_shadow_study",
+    "file": "public/assets/bg/event_shadow_study.webp",
+    "sourceSize": [
+      1380,
+      1140
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 37464,
+    "droppedSpecks": 168,
+    "semiTransparentShare": 0.0298,
+    "gate": [],
+    "sha256": "0b639afe0bbd146076159054a9445c5777044a437a66b002023e3af23ad89387",
+    "at": "2026-09-23 21:26:25"
+  },
+  "event_shadow_study_r1": {
+    "attempt": 1,
+    "key": "bg/event_shadow_study_r1",
+    "file": "public/assets/bg/event_shadow_study_r1.webp",
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 30730,
+    "droppedSpecks": 127,
+    "semiTransparentShare": 0.0243,
+    "gate": [],
+    "sha256": "5ca83b5c8019d15b9f4628cbedb654d2142b2fd30b411d455f3326b914a1efd1",
+    "at": "2026-09-23 21:26:39"
   }
 }
