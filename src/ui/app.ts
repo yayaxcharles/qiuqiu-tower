@@ -177,18 +177,34 @@ export class App {
     }
   }
 
+  /**
+   * 接手一局、坐這個座位：「本機這一位是誰」那四件事一起設（2026-09-23 health H-3）。
+   *
+   * - 立繪：對白、過關轉場那些單人畫面靠它知道要畫誰（`assets.ts` 的 `setLocalHero`）
+   * - 貓叫：受傷、勝利那類照角色換檔（`audio.ts` 的 `setSfxHero`）
+   * - 劇情情境：混搭時個人主線要換幾句（`syncStory`）
+   * - 補圖：這一局角色專屬的圖開場沒載，現在補（總稽核 F 中-1；連線時同伴的立繪戰鬥裡也看得到）
+   *
+   * 新的一局、續玩、連線開局三個入口原本各抄一份，連線那份就漏過聲音（推前審查 高-1：只設了圖沒設聲）。
+   * 以後加入口（觀戰、重新連線）一律叫這一支。
+   */
+  adoptRun(run: RunState, seat: number): void {
+    this.run = run;
+    this.seat = seat;
+    const hero = me(run, seat).hero;
+    setLocalHero(hero);
+    setSfxHero(hero);
+    this.syncStory(run);
+    void preloadHeroArt(run.players.map((p) => p.hero));
+  }
+
   /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
   newRun(seed?: string, difficulty = 1, hero: Hero = 'ninja'): void {
     // 「新的一局」一定是單機，**先把上一場連線的殘留清掉**（見 `leaveCoop`）
     this.leaveCoop();
     this.sandbox = false;
-    this.run = engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero);
+    this.adoptRun(engineNewRun(seed && seed.trim() ? seed.trim() : `${Date.now()}`, difficulty, hero), 0);
     this.cs = null;
-    // 對白、過關轉場那些單人畫面靠這個知道要畫誰（見 assets.ts 的 `setLocalHero`）
-    setLocalHero(hero);
-    setSfxHero(hero);   // 貓叫也照角色換（菲菲的受傷、勝利）
-    this.syncStory();
-    void preloadHeroArt([hero]);   // 這一位專屬的圖開場沒載，現在補（總稽核 F 中-1）
     // 序章播完存一次：此時 currentNode 還是 null，存的是乾淨的開局狀態，「續玩」從一開局就能用
     /*
      * 序章幻燈片：四張劇情圖配台詞；圖還沒裝（舊快取）就退回純文字對白。
@@ -259,12 +275,8 @@ export class App {
     this.sandbox = false;
     const run = from ?? loadRun();
     if (!run) return false;
-    this.run = run;
+    this.adoptRun(run, 0);   // 讀檔續玩也要換回那一局的角色；單機存檔一律坐 0 號（上面 `leaveCoop` 已經歸零）
     this.cs = null;
-    setLocalHero(me(run, this.seat).hero);   // 讀檔續玩也要換回那一局的角色
-    setSfxHero(me(run, this.seat).hero);
-    this.syncStory(run);
-    void preloadHeroArt(run.players.map((p) => p.hero));   // 那一局角色專屬的圖（總稽核 F 中-1）
     void preloadAct(run.act, run.players[0]?.hero);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
