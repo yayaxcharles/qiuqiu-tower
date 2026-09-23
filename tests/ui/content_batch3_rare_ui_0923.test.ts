@@ -78,7 +78,9 @@ describe('事件畫面', () => {
     expect(src).toContain("if (kind === 'evpurify') {");
     expect(src).toContain("purifyRelic(run, v, i, i === seat ? mine : undefined);");
     expect(src).toContain("if (outcomes.some((o) => !!o && 'purify' in o) && !(mine && 'purify' in mine)) coop.pick('evpurify', '');");
-    expect(src).toContain("awaitingPicks = outcomes.some((o) => !!o && ('needs' in o || 'chooseCard' in o || 'purify' in o));");
+    // 有人要挑淨化也鎖「繼續」：2026-09-24 推前審查五 高-4 起記每一種（`PickWaits`），淨化那一種要自己湊齊
+    expect(src).toContain('waitingPicks.start(outcomes);');
+    expect(src).toContain("waitingPicks.settle('evpurify');");
   });
 });
 

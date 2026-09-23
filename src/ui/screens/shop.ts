@@ -1,8 +1,8 @@
 import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
-import { MIASMA_PURE, relicById, relicLongText } from '../../content/relics';
-import { PURIFY_PRICE, RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, keeperMulFor, makeShops, miasmaRelicsOf, notMyCard, potionCapacity, priceFor, purifyAtShop, removePrice, reshuffleShop, runMods, shopClosed, shopMulFor, shopService, type ShopStock } from '../../engine/run';
+import { MIASMA_PURE, ownsRelic, relicById, relicLongText } from '../../content/relics';
+import { PURIFY_PRICE, RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, keeperFirstMeet, keeperMulFor, makeShops, miasmaRelicsOf, notMyCard, potionCapacity, priceFor, purifyAtShop, removePrice, reshuffleShop, runMods, shopClosed, shopMulFor, shopService, type ShopStock } from '../../engine/run';
 import { TORTOISE_PURIFY_LINE, purifyLine, tortoisePurifyLabel } from '../../content/purify-text';
 import { showPurifyPick } from '../purifypick';
 import type { MERCHANT_LINES } from '../../content/qmark-text';
@@ -77,9 +77,8 @@ registerScreen('shop', (app, root, props) => {
   const K = KEEPERS[shop.keeper ?? 'orange'];
   const guest: GuestKeeper | undefined = shop.keeper && shop.keeper !== 'orange' ? shop.keeper : undefined;
   const hero = heroOf(me(run, seat));
-  const metFlag = guest ? `keeper_met:${guest}` : '';
-  const firstMeet = !!guest && !run.flags[metFlag];
-  if (guest) run.flags[metFlag] = true;   // 畫面寫的旗標（不進整局指紋，見 `net/hash.ts`）：重整回到進店前的存檔就再演一次，無妨
+  // 第一次見到這位：旗標由引擎在走進格子時寫（`meetKeeper`，推前審查五 低-1），畫面只讀
+  const firstMeet = !!guest && keeperFirstMeet(run);
   type Talk = { text: string; reply?: string };
   const chatterPick = Math.random();   // 碎念挑哪一句只是畫面的事，跟橘貓老闆那句同一個做法（不動整局亂數）
   function openingTalk(): Talk {
@@ -336,7 +335,7 @@ registerScreen('shop', (app, root, props) => {
       const d = relicById[it.id];
       if (!d) return;
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
-      const owned = me(run, seat).relics.includes(it.id);
+      const owned = ownsRelic(me(run, seat).relics, it.id);   // 淨化版在身上也算有（推前審查五 高-3，跟 `buyRelic` 同一個判準）
       // 自己已經有、架上卻還沒賣掉的，寫「你已經有了」：寫「賣掉了」的話同伴明明還買得到（連線稽核 高-8）
       relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics), priceFor(run, it, seat, shop), it.sold || owned || closed, false,
         () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale,

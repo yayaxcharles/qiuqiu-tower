@@ -3,7 +3,7 @@ import { cards } from '../content/cards';
 import { pickable } from './hero';
 import type { Hero } from './hero';
 import { potions } from '../content/potions';
-import { relics } from '../content/relics';
+import { ownedForRolls, relics } from '../content/relics';
 import type { Rng } from './rng';
 import type { CardDef, Pool, Rarity, RelicPool } from './types';
 
@@ -106,7 +106,9 @@ export function relicOk(r: { notFor?: readonly string[] }, heroes: readonly stri
 }
 
 export function rollRelic(rng: Rng, pool: RelicPool, owned: string[], heroes: readonly string[] = ['ninja']): string | null {
-  const cands = relics.filter((r) => r.pool === pool && !owned.includes(r.id) && relicOk(r, heroes));
+  // 淨化版在身上＝原件也算有（2026-09-24 推前審查五 高-3，`ownedForRolls`）：所有抽秘寶的地方都走這兩支
+  const skip = ownedForRolls(owned);
+  const cands = relics.filter((r) => r.pool === pool && !skip.includes(r.id) && relicOk(r, heroes));
   return cands.length ? rng.pick(cands).id : null;
 }
 
@@ -152,11 +154,12 @@ export function rollPotion(rng: Rng, heroes: readonly string[] = ['ninja']): str
 export function rollRelicChoices(rng: Rng, pool: RelicPool, ownedPerSeat: readonly string[][], n: number,
                                  heroes: readonly string[] = ['ninja']): string[] {
   const out: string[] = [];
+  const skip = ownedPerSeat.map(ownedForRolls);   // 淨化版在身上＝原件也算有（推前審查五 高-3）
   for (let i = 0; i < n; i++) {
     const cands = relics.filter((r) => r.pool === pool
       && !out.includes(r.id)
       && relicOk(r, heroes)
-      && ownedPerSeat.every((owned) => !owned.includes(r.id)));
+      && skip.every((owned) => !owned.includes(r.id)));
     if (!cands.length) break;
     out.push(rng.pick(cands).id);
   }

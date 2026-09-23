@@ -18,6 +18,7 @@ import { burst } from '../fx';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { restRedrawOnMate, type RestPhase } from '../restphase';
 import { me } from '../../engine/runplayer';
 import { heroName, heroPronoun, sharpenVerb } from '../../engine/hero';
 
@@ -98,9 +99,17 @@ registerScreen('rest', (app, root) => {
    * 還在挑的時候寫在對白框裡，自己早就做完、馬上要上樓的時候用公告講。
    */
   let mateDid = '';
+  /** 畫面現在停在哪（推前審查五 高-1）：同伴的動作套進來時照它決定重畫哪一頁（`restRedrawOnMate`） */
+  let phase: RestPhase = 'menu';
+  /**
+   * 夢枕的牌已經送出去了（推前審查五 高-2）：連線時要等動作繞回來才換畫面，這段空檔再點一張，
+   * 原本會再送一筆 `restCard`，主機照樣發號碼、兩台套用都失敗，整場斷線。牌是 `div`，設 `disabled` 屬性擋不住點擊，要靠這個旗標
+   */
+  let pillowSent = false;
 
   /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖。`pose` 是做完那件事的立繪（點清心香用蜷在窩旁那張 `curl`） */
   function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' | 'curl' = 'nap'): void {
+    phase = 'after';
     clearKeepBg(root);
     renderHud(app, root);
     // 磨好的牌放大秀出來、打鐵發金光（本來只有一行字，使用者：「不太有回饋感」）
@@ -133,20 +142,28 @@ registerScreen('rest', (app, root) => {
   /**
    * 夢枕（2026-09-23 第三批）：睡完從三張裡挑一張（可以不拿）。三張是引擎照這一格算的（`restCardChoices`，兩台一樣），
    * 挑好了單人當場收、連線送出去（`restCard`），套用之後才演「睡了一下」那一段。
+   * 同伴在我挑的時候做完事，重畫的是這一頁（不是選單），同伴做了什麼寫在下面（推前審查五 高-1）
    */
   function showPillow(heal: number): void {
+    phase = 'pillow';
     const picks = restCardChoices(run, seat);
     clearKeepBg(root);
     renderHud(app, root);
     const take = (id: string): void => {
-      if (!act({ t: 'restCard', seat, id }, () => takeRestCard(run, id, seat))) return;
-      if (coop) { root.querySelectorAll('.reward-cards .card, .scene-actions .btn').forEach((b) => b.setAttribute('disabled', 'disabled')); return; }
+      if (pillowSent) return;   // 已經送出去一張（見 `pillowSent`）
+      pillowSent = true;   // 主機的動作在 `act()` 裡面就套用、畫面當場換掉，所以要先設
+      if (!act({ t: 'restCard', seat, id }, () => takeRestCard(run, id, seat))) { pillowSent = false; return; }
+      if (coop) { root.querySelectorAll('.reward-cards .card, .scene-actions .btn').forEach((b) => { b.classList.add('disabled'); b.setAttribute('disabled', 'disabled'); }); return; }
       afterPillow(heal, id);
     };
-    // 三張都是升級版（2026-09-24 b3int 主控裁決）：照＋版畫
-    const grid = el('div', { class: 'reward-cards' }, ...picks.map((c) => cardNode({ uid: -1, cardId: c.id, upgraded: true }, { onClick: () => take(c.id) })));
+    // 三張都是升級版（2026-09-24 b3int 主控裁決）：照＋版畫；已經送出去的（重畫時）一律按不動
+    const grid = el('div', { class: 'reward-cards' }, ...picks.map((c) => cardNode({ uid: -1, cardId: c.id, upgraded: true }, { onClick: () => take(c.id), disabled: pillowSent })));
+    const skip = el('button', { class: 'btn', onclick: () => take('') }, '都不要');
+    if (pillowSent) skip.setAttribute('disabled', 'disabled');
     root.append(sceneView({ art: grid, portrait: heroPortrait(me(run, seat).hero, 'nap'), speaker: relicById['dream_pillow']?.name ?? '',
-      text: `${napLine(heal)}夢裡好像看見了幾招，選一張帶走。`, actions: [el('button', { class: 'btn', onclick: () => take('') }, '都不要')] }));
+      text: `${napLine(heal)}夢裡好像看見了幾招，${pillowSent ? '挑好了，等同伴弄完。' : '選一張帶走。'}`,
+      extra: mateDid ? [el('p', { class: 'event-note rest-mate' }, mateDid)] : [],
+      actions: [skip] }));
   }
   /** 夢枕挑完之後：演睡醒那一段（學到的那張牌秀出來） */
   function afterPillow(heal: number, id: string): void {
@@ -155,6 +172,7 @@ registerScreen('rest', (app, root) => {
   }
 
   function show(): void {
+    phase = 'menu';
     // 重畫前一定要先清（只留底圖）：`renderHud` 是直接 append，不先清會疊出第二條狀態列
     // 與第二個對白框（稽核 2026-09-11 中-6：對方先做完時看得到）
     clearKeepBg(root);
@@ -361,7 +379,10 @@ registerScreen('rest', (app, root) => {
         return;
       }
       if (didMine) return;
-      show();   // 還沒做的那位：對方扶了誰、按鈕要跟著變
+      // 還沒做的那位：選單重畫（對方扶了誰、按鈕要跟著變）；正在挑夢枕的牌就重畫挑牌那一頁，做完在等的不動（推前審查五 高-1）
+      const how = restRedrawOnMate(phase);
+      if (how === 'pillow') showPillow(napped);
+      else if (how === 'menu') show();
     });
   }
 

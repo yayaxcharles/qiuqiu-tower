@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { eventById } from '../../src/content/events';
 import { batch2Events } from '../../src/content/events-batch2';
 import { HEROES } from '../../src/engine/hero';
+import { pickKindsOf } from '../../src/engine/eventpicks';
 import { _setManifestForTest, eventArtCast, eventArtKey, type Manifest } from '../../src/ui/assets';
 import { deferredBgKeys, eventMainKeys } from '../../src/ui/bgacts';
 import EVENT from '../../src/ui/screens/event.ts?raw';
@@ -95,7 +96,10 @@ describe('事件畫面的接線（讀原始碼）', () => {
   it('學完招接著挑牌升級（then）：單人、都不要、連線三條路都接上', () => {
     expect(ev).toContain('if (chained && afterLearn) { afterLearn(note, [got]); return; }');
     expect(ev).toContain("if (passLearn(seat, outcomes) && afterLearn) { afterLearn('一招都沒挑', []); return; }");
-    expect(ev).toContain("awaitingPicks = outcomes.some((o) => !!o && 'chooseCard' in o && !!o.then);");
+    // 學完招還要接著挑牌升級的：這一輪一開始就把挑牌那一種也記進去，學招湊齊了「繼續」照樣鎖著（2026-09-24 推前審查五 高-4 改成記每一種）
+    expect(ev).toContain('waitingPicks.start(outcomes);');
+    expect(ev).toContain("waitingPicks.settle('evlearn');");
+    expect(pickKindsOf({ chooseCard: [], then: { needs: 'upgradeCard', n: 1 } } as never)).toEqual(['evlearn', 'evcard']);
     expect(ev).toContain("else if (v === '' && i !== seat) passLearn(i, outcomes);");
     expect(ev).toContain('afterLearn = (note, learned) => settle(outcomes[seat] ?? null, raw,');
   });
@@ -108,7 +112,8 @@ describe('事件畫面的接線（讀原始碼）', () => {
     expect(ev).toContain("if (outcomes.some((o) => !!o && 'needs' in o) && !(mine && 'needs' in mine)) coop.pick('evcard', '');");
     expect(ev).toContain("if (outcomes.some((o) => !!o && 'chooseCard' in o) && !hadLearn[seat]) coop.pick('evlearn', '');");
     expect(ev).toContain("if (!(oi && 'needs' in oi)) return;");
-    expect(ev).toContain("else if (all[seat] === null || all[seat] === '') showResult();");
+    // 沒得挑的那一台重畫一次：2026-09-24 推前審查五 高-4 起走 `refresh`（自己還有別種沒挑完就不重畫）
+    expect(ev).toContain("else if (all[seat] === null || all[seat] === '') refresh();");
     // 空票投在畫好結果之後（票剛好湊齊時處理函式再畫一次，才把「繼續」放出來）
     expect(ev.indexOf("!(mine && 'needs' in mine)) coop.pick('evcard', '');")).toBeGreaterThan(ev.lastIndexOf('    showResult();\n'));
   });

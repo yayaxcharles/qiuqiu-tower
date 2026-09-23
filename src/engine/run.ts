@@ -7,7 +7,7 @@ import { heroOf, pickable, startRelicFor } from './hero';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
-import { isMiasma, MIASMA_PURE, relicById, relics } from '../content/relics';
+import { isMiasma, MIASMA_PURE, ownsRelic, relicById, relics } from '../content/relics';
 import { GUEST_KEEPERS, KEEPERS } from '../content/keepers';
 import { applyCarriedEffects, flushAllyRelics, startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
@@ -111,6 +111,24 @@ export function keeperOf(node: MapNode | null | undefined): KeeperId {
 }
 
 /**
+ * 客座店主「第一次見到」（2026-09-24 推前審查五 低-1）：原本是罐頭鋪畫面自己寫 `keeper_met:` 旗標，改成走進格子時在引擎記（`chooseNode`），
+ * 兩台、機器人都走同一步。`keeper_met:<店主>`＝這一局見過這位；`keeper_first:<關>:<格子>`＝就是在這一格第一次見到（畫面照它演旁白與進店那句）。
+ * 兩個都**不進**整局指紋（`net/hash.ts` 只收 event:／sequel:／chain:／shop_bought:）；兩台在同一步寫、值一樣，收不收都不會誤報。
+ * 存檔只在一格結算完才存，走進來還沒離開就重整，會回到進店前、重演一次第一次見面，跟原本一樣。
+ */
+export function meetKeeper(run: RunState, node: MapNode): void {
+  const k = keeperOf(node);
+  if (k === 'orange' || run.flags[`keeper_met:${k}`]) return;
+  run.flags[`keeper_met:${k}`] = true;
+  run.flags[`keeper_first:${run.act}:${node.id}`] = true;
+}
+
+/** 現在這一格是不是第一次見到這位客座店主（見 `meetKeeper`） */
+export function keeperFirstMeet(run: RunState): boolean {
+  return !!run.flags[`keeper_first:${run.act}:${run.currentNode ?? '-'}`];
+}
+
+/**
  * 這一局有哪些職業（連線就是兩位）。抽秘寶時用來濾掉「對這一局的人完全沒用」的那幾件。
  *
  * 連線時**只要有一位用得到就留著**：影披風對球球有用、對菲菲沒用，
@@ -142,6 +160,7 @@ export function chooseNode(run: RunState, nodeId: string, notes?: string[], view
   // 平安繩（每走進一個問號格回血）、集章卡（走進罐頭鋪蓋章）：2026-09-23 第三批，只在帶著的人身上發生，沒帶的局一步都沒多做
   if (n.type === '事件') qmarkHealOnEnter(run, notes, viewer);
   if (n.type === '罐頭鋪') run.players.forEach((_, i) => stampVisit(run, i, keeperOf(n), i === viewer ? notes : undefined));
+  if (n.type === '罐頭鋪') meetKeeper(run, n);
   return n;
 }
 
@@ -745,7 +764,8 @@ export function upgradeCard(run: RunState, uid: number, seat = 0): boolean {
 
 export function takeRelic(run: RunState, relicId: string, seat = 0): boolean {
   const def = relicById[relicId];
-  if (!def || me(run, seat).relics.includes(relicId)) return false;
+  // 淨化版在身上＝原件也算有（2026-09-24 推前審查五 高-3）：同一件東西不拿兩份，兩件並存時清心香放行卻套不下去
+  if (!def || ownsRelic(me(run, seat).relics, relicId)) return false;
   me(run, seat).relics.push(relicId);
   const d = def.hooks.maxHp ?? 0;
   if (d) { const p = me(run, seat); p.maxHp += d; p.hp = Math.min(p.maxHp, Math.max(1, p.hp + Math.max(0, d))); }
@@ -1281,7 +1301,7 @@ export function buyCard(run: RunState, shop: ShopStock, i: number, seat = 0): bo
 }
 export function buyRelic(run: RunState, shop: ShopStock, i: number, seat = 0): boolean {
   if (shopClosed(shop)) return false;
-  const it = shop.relics[i]; if (!it || it.sold || me(run, seat).relics.includes(it.id) || !pay(run, priceFor(run, it, seat, shop), seat)) return false;
+  const it = shop.relics[i]; if (!it || it.sold || ownsRelic(me(run, seat).relics, it.id) || !pay(run, priceFor(run, it, seat, shop), seat)) return false;
   it.sold = true; takeRelic(run, it.id, seat);
   // 店長私藏買過的，這一局不再擺（2026-09-23 第二批；被事件拿走了也一樣，「沒買過」照劇本）
   if (relicById[it.id]?.pool === '罐頭鋪') run.flags[`shop_bought:${seat}:${it.id}`] = true;
@@ -1587,7 +1607,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'relicId': {
         // 給指定那一件；已經有了就改給小魚乾（不會兩手空空，也不會拿到兩件一樣的）
         const rd = relicById[fx.id];
-        if (rd && !me(run, seat).relics.includes(fx.id)) { takeRelic(run, fx.id, seat); gains?.push({ kind: '秘寶', id: fx.id }); break; }
+        if (rd && !ownsRelic(me(run, seat).relics, fx.id)) { takeRelic(run, fx.id, seat); gains?.push({ kind: '秘寶', id: fx.id }); break; }   // 淨化版在身上也算有（推前審查五 高-3）
         // 已經有了改給那一池隨機一件（2026-09-23 第三批 新N：塔主的酒葫蘆 → 隨機塔主秘寶）；那一池也抽乾了才退回小魚乾
         if (fx.fallbackPool) {
           const alt = rollRelic(runRng(run), fx.fallbackPool, me(run, seat).relics, [heroOf(me(run, seat))]);
@@ -1772,7 +1792,7 @@ export const RARE_EVENT_CHANCE = 0.25;
 export function placeRareEvent(run: RunState): string | null {
   const rng = branch(run, 'rare', run.act);
   if (!rng.chance(RARE_EVENT_CHANCE)) return null;
-  const miasma = Math.max(0, ...run.players.map((p) => p.relics.filter(isMiasma).length));
+  const miasma = Math.max(0, ...run.players.map((_, i) => miasmaRelicsOf(run, i).length));   // 淨化得了的才算（推前審查五 高-3）
   const weightOf = (r: NonNullable<(typeof events)[number]['rare']>): number => {
     if (r.maxMiasma !== undefined && miasma >= r.maxMiasma) return 0;
     return Math.max(0, miasma > 0 && r.miasmaWeight !== undefined ? r.miasmaWeight : r.weight);
@@ -1800,7 +1820,9 @@ function eventElite(run: RunState): string {
 
 /** 這一位身上沾了魔氣的秘寶（照身上的順序） */
 export function miasmaRelicsOf(run: RunState, seat = 0): string[] {
-  return me(run, seat).relics.filter(isMiasma);
+  // 淨化版已經在身上的那件不算（舊存檔可能兩件並存：淨化不了，就不擺清心香、不給淨化選項，2026-09-24 推前審查五 高-3）
+  const own = me(run, seat).relics;
+  return own.filter((id) => isMiasma(id) && !own.includes(MIASMA_PURE[id]!));
 }
 
 /**
@@ -1916,11 +1938,22 @@ export function restCardChoices(run: RunState, seat = 0): CardDef[] {
   const rng = branch(run, 'pillow', run.act, run.currentNode ?? '-', seat);
   return rollCardChoices(rng, '忍術', n, [], run.act >= 2 || run.floor >= 8, 0, undefined, heroOf(me(run, seat)), run.players.length);
 }
-/** 夢枕挑好了（`''`＝都不要）。這一格這一位只算一次（旗標 `pillow:<關>:<格子>:<座位>`）；不在那幾張裡的回 false */
-export function takeRestCard(run: RunState, cardId: string, seat = 0): boolean {
+/**
+ * 夢枕這一格現在挑得了嗎（引擎、連線放行判準、畫面都問這一支；2026-09-24 推前審查五 高-2）：
+ * 這一格這一位還沒挑過（旗標沒立）、人沒倒、帶著夢枕，挑的是那三張之一或空字串（都不要）。
+ * 原本連線放行一律 true：加入的那台連點兩張，主機照樣發第二個號碼、兩台套用都失敗、整場斷線。
+ */
+export function canTakeRestCard(run: RunState, cardId: string, seat = 0): boolean {
   const flag = `pillow:${run.act}:${run.currentNode ?? '-'}:${seat}`;
   if (run.flags[flag] || me(run, seat).down) return false;
-  if (cardId && !restCardChoices(run, seat).some((c) => c.id === cardId)) return false;
+  const picks = restCardChoices(run, seat);
+  if (!picks.length) return false;
+  return !cardId || picks.some((c) => c.id === cardId);
+}
+/** 夢枕挑好了（`''`＝都不要）。這一格這一位只算一次（旗標 `pillow:<關>:<格子>:<座位>`）；挑不了的回 false（`canTakeRestCard`） */
+export function takeRestCard(run: RunState, cardId: string, seat = 0): boolean {
+  if (!canTakeRestCard(run, cardId, seat)) return false;
+  const flag = `pillow:${run.act}:${run.currentNode ?? '-'}:${seat}`;
   run.flags[flag] = true;
   // 挑到的是升級版（2026-09-24 b3int 主控裁決：原本收一般版量到約 0 層，機器人多半不拿）
   if (cardId) addCard(run, cardId, true, seat);

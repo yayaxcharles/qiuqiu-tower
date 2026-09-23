@@ -1,5 +1,5 @@
-import { buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, notMyCard, priceFor, potionCapacity, purifyAtShop, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, shopClosed, shopService, takeRelic, takeRestCard, type ShopStock } from '../engine/run';
-import { isMiasma } from '../content/relics';
+import { buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, canTakeRestCard, miasmaRelicsOf, notMyCard, priceFor, potionCapacity, purifyAtShop, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, shopClosed, shopService, takeRelic, takeRestCard, type ShopStock } from '../engine/run';
+import { ownsRelic } from '../content/relics';
 import type { RunState } from '../engine/types';
 import { canTakeBlessing, takeBlessing, type BlessPick } from '../engine/blessing';
 
@@ -70,7 +70,7 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
   switch (a.t) {
     case 'done': return true;                      // 隨時可以說「我好了」（包含倒下的人）
     case 'revive': return !!run.players[a.w]?.down && !p.down;
-    case 'relic': return !p.down && !p.relics.includes(a.id);
+    case 'relic': return !p.down && !ownsRelic(p.relics, a.id);   // 淨化版在身上也算有（推前審查五 高-3，跟 `takeRelic` 同一個判準）
     case 'swap': return !p.down && a.i >= 0 && a.i < p.potions.length;
     case 'bless': return canTakeBlessing(run, a.seat, a.i, blessPickOf(a));
   }
@@ -102,9 +102,11 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
     case 'shuffle': return !!shop && !shop.merchant && !shop.reshuffled && p.fish >= RESHUFFLE_COST
       && [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
     case 'rest':
-      if (a.c === '淨化') return a.r !== undefined && isMiasma(a.r) && p.relics.includes(a.r);
+      // 淨化版已經在身上的那件淨化不了（`purifyRelic` 會回 false）：一起擋，不然主機發號碼、兩台套用都失敗（推前審查五 高-3）
+      if (a.c === '淨化') return a.r !== undefined && miasmaRelicsOf(run, a.seat).includes(a.r);
       return a.c === '磨爪' || a.c === '全力準備' ? a.u !== undefined : true;
-    case 'restCard': return true;   // 挑的那張在不在三張裡、是不是已經挑過，`takeRestCard` 自己擋（兩台照同一份算）
+    // 挑的那張在不在三張裡、是不是已經挑過，問引擎同一支（2026-09-24 推前審查五 高-2：原本一律放行，連點第二張就斷線）
+    case 'restCard': return canTakeRestCard(run, a.id, a.seat);
     // 只有玳瑁婆婆那間有這項服務（2026-09-24 b3int：畫面只在她那間出鈕，引擎這邊也擋，改過的局面碼送不進來）
     case 'purify': return !!shop && shopService(shop)?.kind === 'purify' && canPurifyAtShop(run, shop, a.id, a.seat);
   }

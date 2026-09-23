@@ -11,6 +11,7 @@ import { showPurifyPick } from '../purifypick';
 import { choiceEffectsFor, choiceGate, choiceOrder, resultSeat, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
 import { heroName, heroOf, type Hero } from '../../engine/hero';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
+import { PickWaits, pickKindsOf } from '../../engine/eventpicks';
 import type { CardDef, CardInstance, EventChoice, EventDef, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { artUrl, eventArtCast, eventArtHero, eventArtKey, eventSidePortrait, heroArtUrl } from '../assets';
@@ -260,7 +261,13 @@ registerScreen('event', (app, root, props) => {
    * 最容易踩到的是「自己沒得挑」的人：倒下的、或牌組裡每張都升級過的，
    * 他那台一進來就直接看到結果與「繼續」，一按就走。
    */
-  let awaitingPicks = false;
+  /**
+   * 這一輪還在等哪幾種票（2026-09-24 推前審查五 高-4）：原本是一個旗標，哪一種先湊齊就放「繼續」——紫霧②一人丟牌、一人挑淨化時，
+   * 先挑好的那台能先走，另一人挑的結果套不進這台、兩台分岔。改成記每一種，湊齊一種拿掉一種，全拿掉了才放（`engine/eventpicks.ts`）。
+   */
+  const waitingPicks = new PickWaits();
+  /** 最近一次畫的結果畫面（`finish` 的參數）：別種票湊齊、要把按鈕換成「繼續」時照這一份重畫，不重跑結果（重跑會再開一次挑選窗） */
+  let lastFinish: [string, string | null, readonly RunGain[], Showcase] | null = null;
   /** 連線時「挑一件淨化」那一輪的文案（2026-09-23 第三批）：只有真的開過挑選窗的那一台才有，理由同 `cardPickInfo` */
   let purifyInfo: { resultText: string; gains: RunGain[]; gotShow: Showcase; noteLine: (extra?: string) => string | null } | null = null;
   const iDown = !!coop && !!me(run, seat).down;   // 我倒下了：只能看，不能選
@@ -376,8 +383,9 @@ registerScreen('event', (app, root, props) => {
   /** 學完招接著挑牌升級（`then`）：本機這一位學完（或都不要）之後，照這一支開挑牌那一步。`take()` 設 */
   let afterLearn: ((note: string, learned: CardInstance[]) => void) | null = null;
   const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void => {
+    lastFinish = [resultText, note, gains, show];
     panel(resultText, note,
-      awaitingPicks
+      waitingPicks.waiting
         ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
         : el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'),
       gains, resultArt, show);
@@ -762,14 +770,26 @@ registerScreen('event', (app, root, props) => {
     /** 這一位本來有沒有「三選一學招」要挑（座位不對稱的選項可能只有一邊有；見下面的空票） */
     const hadLearn = outcomes.map((o) => !!o && 'chooseCard' in o);
     if (coop) {
-      // 只要**有人**要挑牌（或挑一件淨化，2026-09-23 第三批），這個畫面就先鎖住「繼續」（見 `awaitingPicks`）
-      awaitingPicks = outcomes.some((o) => !!o && ('needs' in o || 'chooseCard' in o || 'purify' in o));
+      // 只要**有人**要挑牌（或挑一件淨化，2026-09-23 第三批），這個畫面就先鎖住「繼續」；要等的每一種都湊齊才放（見 `waitingPicks`）
+      waitingPicks.start(outcomes);
+      lastFinish = null;
+      /**
+       * 別種票湊齊了、我這台沒開過那一種的視窗：自己還有沒挑完的（挑選窗開著）就不動畫面；沒有的話照最近一次結果重畫、把按鈕換掉。
+       * 原本直接 `showResult()`：一人丟牌、一人挑淨化時，丟牌那台會再開出第二個丟牌視窗疊在上面（推前審查五 高-4）。
+       * 自己那一種已經投了、還沒結算（`lastFinish` 還沒有）：畫面停在「挑好了，等同伴挑完」，等自己那一種結算時 `finish` 會畫；
+       * 只有自己這一輪本來就沒得挑的，才用 `showResult()` 畫一次結果（`settle` 走不到任何挑選窗）
+       */
+      const refresh = (): void => {
+        if (waitingPicks.ownPending(outcomes[seat], (k) => coop.picks(k, run.players.length)[seat] != null)) return;
+        if (lastFinish) finish(...lastFinish);
+        else if (!pickKindsOf(outcomes[seat]).length) showResult();
+      };
       coop.onPick((kind) => {
         if (kind === 'evpurify') {
           const all = onlyStanding(coop.picks('evpurify', run.players.length), alive);
           if (!allVoted(all, alive)) return;
           coop.clearPicks('evpurify');
-          awaitingPicks = false;
+          waitingPicks.settle('evpurify');
           // 照座位順序淨化（兩台一樣）；「要不要淨化、候選是哪幾件」看那一位自己的 `outcome`，不看本機有沒有開過視窗
           const mine: string[] = [];
           all.forEach((v, i) => {
@@ -778,7 +798,7 @@ registerScreen('event', (app, root, props) => {
             purifyRelic(run, v, i, i === seat ? mine : undefined);
           });
           const info = purifyInfo;
-          if (!info) { showResult(); return; }   // 我這台沒開過視窗（沒得挑、倒下）：重畫一次把「繼續」放出來
+          if (!info) { refresh(); return; }   // 我這台沒開過視窗（沒得挑、倒下、挑的是別種）：重畫一次把「繼續」放出來
           if (mine.length) play('relic');
           finish(info.resultText, info.noteLine(mine.join('；') || undefined), info.gains, info.gotShow);
           return;
@@ -787,8 +807,8 @@ registerScreen('event', (app, root, props) => {
           const all = onlyStanding(coop.picks('evlearn', run.players.length), alive);
           if (!allVoted(all, alive)) return;
           coop.clearPicks('evlearn');
-          // 學完招還要接著挑牌升級的（`then`）：「繼續」要等下一輪（`evcard`）都挑完才放出來
-          awaitingPicks = outcomes.some((o) => !!o && 'chooseCard' in o && !!o.then);
+          // 學完招還要接著挑牌升級的（`then`）：「繼續」要等下一輪（`evcard`）都挑完才放出來——`PickWaits.start` 一開始就把 evcard 也記進去了
+          waitingPicks.settle('evlearn');
           // 照座位順序套，兩台算出來的牌組才一樣；只有自己那張要演出來
           // 文案要過 `evText`（換角色的名字與句尾的喵）——單人那條在 `settle` 進門就過了，
           // 連線這條直接拿原文，玩菲菲時會留著「球球」跟「喵」（稽核 2026-09-12 低-1）
@@ -800,14 +820,14 @@ registerScreen('event', (app, root, props) => {
           if (mineThen && afterLearn) afterLearn('一招都沒挑', []);
           else if (all[seat] === '' && hadLearn[seat]) finish(evText(raw, resultHero), '一招都沒挑', gains);
           // 我這台根本沒得挑（倒下的人、或座位不對稱時自己那一串沒有學招、投的是空票）：重畫一次把「繼續」放出來
-          else if (all[seat] === null || all[seat] === '') showResult();
+          else if (all[seat] === null || all[seat] === '') refresh();
           return;
         }
         if (kind !== 'evcard') return;
         const all = onlyStanding(coop.picks('evcard', run.players.length), alive);
         if (!allVoted(all, alive)) return;
         coop.clearPicks('evcard');
-        awaitingPicks = false;
+        waitingPicks.settle('evcard');
         const info = cardPickInfo;
         const mineOut = { names: [] as string[], show: [] as Showcase };
         all.forEach((v, i) => {
@@ -836,7 +856,7 @@ registerScreen('event', (app, root, props) => {
           }
           if (i === seat) mineOut.names = names;
         });
-        if (!info) { showResult(); return; }   // 我這台沒開過挑牌疊層：套用完重畫一次，把「繼續」放出來
+        if (!info) { refresh(); return; }   // 我這台沒開過挑牌疊層：套用完重畫一次，把「繼續」放出來（自己還在挑別種的就不動）
         if (mineOut.names.length) play(info.up ? 'upgrade' : 'dodge');
         const note = mineOut.names.length
           ? `「${mineOut.names.join('」「')}」${info.up ? '升級了' : '被丟掉了'}` : info.none;

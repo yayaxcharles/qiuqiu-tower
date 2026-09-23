@@ -43,7 +43,8 @@ describe('罐頭鋪：婆婆的「請婆婆淨化」接上淨化那條線', () =
 
 describe('貓窩：夢枕的三張照升級版畫', () => {
   it('牌面用＋版、學會那句帶＋', () => {
-    expect(REST).toContain('cardNode({ uid: -1, cardId: c.id, upgraded: true }, { onClick: () => take(c.id) })');
+    // 已經送出去的（推前審查五 高-2）重畫時按不動
+    expect(REST).toContain('cardNode({ uid: -1, cardId: c.id, upgraded: true }, { onClick: () => take(c.id), disabled: pillowSent })');
     expect(REST).toContain('學會了「${cardNameFor(nd, me(run, seat).hero)}＋」。');
   });
 });

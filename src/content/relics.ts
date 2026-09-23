@@ -445,6 +445,18 @@ export const MIASMA_PURE: Readonly<Record<string, string>> = {
 };
 /** 這件沾了魔氣嗎（淨化得掉） */
 export function isMiasma(id: string): boolean { return Object.hasOwn(MIASMA_PURE, id); }
+/**
+ * 身上「算有」這一件嗎：有原件，或有它的淨化版（2026-09-24 推前審查五 高-3）。淨化版是同一件東西擦乾淨了，
+ * 淨化過的原件不該再被抽到、再被給一次——原本三選一、紙箱、罐頭鋪、行腳商都抽得到，兩件並存時清心香放行卻套不下去，連線必斷。
+ */
+export function ownsRelic(owned: readonly string[], id: string): boolean {
+  return owned.includes(id) || (isMiasma(id) && owned.includes(MIASMA_PURE[id]!));
+}
+/** 抽秘寶時要排掉的：身上有的，加上「淨化版在身上」的那幾件原件（`rewards.ts` 的 `rollRelic`／`rollRelicChoices` 用） */
+export function ownedForRolls(owned: readonly string[]): string[] {
+  const extra = Object.keys(MIASMA_PURE).filter((id) => owned.includes(MIASMA_PURE[id]!) && !owned.includes(id));
+  return extra.length ? [...owned, ...extra] : [...owned];
+}
 /** 說明下面自動補的那一行紫字（design3 6-1）：不改原本六件的說明，畫面看到 `isMiasma` 就補這一句 */
 export const MIASMA_NOTE = '沾了魔氣：可以淨化（貓窩、玳瑁婆婆、某些事件）';
 
