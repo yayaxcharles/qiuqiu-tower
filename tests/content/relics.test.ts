@@ -14,7 +14,7 @@ describe('秘寶', () => {
     expect(n('常見')).toBe(38); expect(n('大魔物')).toBe(33); expect(n('塔主')).toBe(30);
     expect(n('罐頭鋪')).toBe(3); expect(n('事件')).toBe(3);
     expect(new Set(relics.map((r) => r.id)).size).toBe(111);
-    expect(relicById['blue_headband']?.hooks.firstTurnDraw).toBe(1);
+    expect(relicById['blue_headband']?.hooks.firstTurnDraw).toBe(2);   // 2026-09-23 平衡（bal）1 → 2
     expect(relicById['old_sword_tassel']?.hooks.combatStart).toEqual([{ kind: 'gainQi', n: 2 }]);
   });
   it('每件至少一個掛鉤且有說明', () => {

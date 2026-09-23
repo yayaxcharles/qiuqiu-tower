@@ -30,9 +30,10 @@ import { newRun, takeRelic } from '../src/engine/run';
 import { me } from '../src/engine/runplayer';
 import type { RunEffect } from '../src/engine/types';
 import {
-  RULER_DEFAULTS, measureCell, measurePotions, measureRelics, mergeRatingFile, modeFor, obtainable, renderPotionReport, renderRelicReport,
+  AFTER_EVENT, FISH_EVENT_POINTS, moneyEv, moneyFish, RULER_DEFAULTS, measureCell, measurePotions, measureRelics, mergeRatingFile, modeFor, obtainable, renderPotionReport, renderRelicReport,
   runBatch, scoreOf, serializeRatingFile, type PotionReport, type RelicRatingFile,
 } from './relic_ruler';
+import { eventById } from '../src/content/events';
 
 const env = process.env;
 const MODE = env['RULER'] ?? '';
@@ -122,7 +123,9 @@ describe('分數表 src/engine/relic-ratings.json', () => {
         for (const k of ['d', 'se', 'a2', 'a3', 'score', 'ev'] as const) expect(Number.isFinite(c[k]), `${where} ${k}`).toBe(true);
         expect(c.score, where).toBe(scoreOf(c.d));
         expect(c.score, where).toBeGreaterThanOrEqual(0);
-        expect(c.ev, where).toBeCloseTo(Math.round(c.d * FILE.meta.eventPointsPerFloor * 10) / 10, 5);
+        // 錢類的事件分走心算（`moneyEv`，2026-09-23 bal），其餘＝層差×一層幾分
+        const byFish = moneyEv(relicById[id]!);
+        expect(c.ev, where).toBeCloseTo(byFish ?? Math.round(c.d * FILE.meta.eventPointsPerFloor * 10) / 10, 5);
       }
     }
   });
@@ -226,6 +229,39 @@ describe('機器人真的讀這份分數（把表換掉，選擇跟著變）', (
     takeRelic(run, 'nine_tails');
     const expected = -FILE.relics['nine_tails']!.ninja!.ev + 2 * eventValue(run, [{ kind: 'relic', pool: '常見' }], 0);
     expect(eventValue(run, opt, 0)).toBeCloseTo(expected, 5);
+  });
+
+  it('錢類的事件分走心算：牢裡的山賊，機器人會放牠出來拿欠條，不是挖那 50 條（2026-09-23 bal）', () => {
+    // 量尺換出來的欠條只有 8～12 分，一直比不過「挖 50 條」的 17.5 分，2400 局一次都沒拿過
+    const ev = eventById['cell_bandit']!;
+    const iou = ev.choices.find((c) => c.outcome.some((fx) => fx.kind === 'relicId' && fx.id === 'bandit_iou'))!;
+    const dig = ev.choices.find((c) => c.outcome.some((fx) => fx.kind === 'fish'))!;
+    expect(FISH_EVENT_POINTS, '跟 eventValue 的小魚乾同一把尺').toBeCloseTo(eventValue(newRun('iou-scale', 1, 'ninja'), [{ kind: 'fish', n: 1 }], 0), 5);
+    for (const h of HEROES) {
+      const run = newRun(`iou-${h}`, 1, h);
+      expect(eventValue(run, iou.outcome, iou.costFish ?? 0), h).toBeGreaterThan(eventValue(run, dig.outcome, dig.costFish ?? 0));
+      expect(relicEventValue('bandit_iou', h), h).toBeCloseTo(moneyEv(relicById['bandit_iou']!)!, 5);
+    }
+  });
+
+  it('錢類全部走同一套心算：哪幾件算錢類、公式一處、表上的事件分就是它（2026-09-23 bal 主控裁定）', () => {
+    const money = relics.filter((r) => moneyFish(r) !== null).map((r) => r.id).sort();
+    // 只有錢的掛鉤的才算；銅臭錢袋（飯糰）、批發箱（忍具格）不算。新的錢類秘寶會自動進來，這裡要跟著改名單
+    expect(money).toEqual(['bandit_iou', 'coin_jar', 'coin_sword', 'fish_jar', 'glutton_purse', 'lucky_cat', 'lucky_coin', 'piggy_bank']);
+    const A = AFTER_EVENT;
+    // 公式對得上牌面：小魚乾罐＝每場 15 × 剩下幾場；銅錢劍＝每隻 15 × 剩下幾隻；貪吃錢袋＝每場 25 − 店貴三成；欠條＝每場 25 − 每間店 10
+    expect(moneyFish(relicById['fish_jar']!)).toBeCloseTo(15 * A.wins, 5);
+    expect(moneyFish(relicById['coin_sword']!)).toBeCloseTo(15 * A.kills, 5);
+    expect(moneyFish(relicById['glutton_purse']!)).toBeCloseTo(25 * A.wins - 0.3 * A.shopSpendPerVisit * A.shops, 5);
+    expect(moneyFish(relicById['bandit_iou']!)).toBeCloseTo(25 * A.wins - 10 * A.shops, 5);
+    expect(moneyFish(relicById['piggy_bank']!)).toBeCloseTo(40 * A.nonCombatNodes / 3, 5);
+    for (const id of money) for (const h of HEROES) {
+      const cell = FILE.relics[id]?.[h];
+      if (!cell) continue;
+      expect(relicEventValue(id, h), `${id}/${h}`).toBeCloseTo(moneyEv(relicById[id]!)!, 5);
+      // 同一把尺：多拿 N 條的秘寶，事件分＝直接給 N 條
+      expect(relicEventValue(id, h), `${id}/${h}`).toBeCloseTo(eventValue(newRun('money-scale', 1, h), [{ kind: 'fish', n: moneyFish(relicById[id]!)! }], 0), 0);
+    }
   });
 
   it('bestRelic 就是分數最高的那件', () => {

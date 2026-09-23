@@ -53,8 +53,9 @@ describe('隨機試玩', () => {
     // 2026-09-23 內容擴充第一批：球球多了三篇專屬事件、5F 第二三關換版；秘寶 +18、忍具 +10、忍具改成先抽稀有度再抽支數。
     // 兩批合併後重錄一次（各自分支錄的值合起來就不成立）；固定戰鬥的錨照樣沒動
     // 2026-09-23 內容擴充第二批（新機制與秘寶忍具、18 篇事件與條件選項）兩條分支合併後再重錄一次
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 4, turns: 30, kills: 5, deckSize: 13 });
-    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 15, turns: 34, kills: 5, deckSize: 19 });
+    // 2026-09-23 秘寶平衡（bal）：藍頭巾第一回合多抽 1 → 2 張，球球每場的手牌都變了，錨值重錄；固定戰鬥的錨照樣沒動
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 10, turns: 54, kills: 8, deckSize: 15 });
+    expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 15, turns: 60, kills: 6, deckSize: 16 });
   });
 
   /**

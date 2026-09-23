@@ -29,12 +29,12 @@ describe('開戰與回合開始', () => {
     for (const e of cs.enemies) { expect(e.hp).toBeGreaterThanOrEqual(12); expect(e.hp).toBeLessThanOrEqual(15); }
     expect(cs.enemies.map((e) => e.move.label)).toEqual(['啃', '啃', '躲']);
   });
-  it('第一回合：3 顆飯糰、抽 5＋藍頭巾 1', () => {
+  it('第一回合：3 顆飯糰、抽 5＋藍頭巾 2（2026-09-23 平衡 1 → 2）', () => {
     const cs = start('cucumber');
     expect(cs.turn).toBe(1);
     expect(cs.player.energy).toBe(3);
-    expect(cs.player.hand.length).toBe(6);
-    expect(cs.player.drawPile.length).toBe(4);
+    expect(cs.player.hand.length).toBe(7);
+    expect(cs.player.drawPile.length).toBe(3);
   });
   it('同種子同結果', () => {
     const a = start('rats2', STARTER_DECK, 'same'); const b = start('rats2', STARTER_DECK, 'same');

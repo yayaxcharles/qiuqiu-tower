@@ -22,22 +22,23 @@ function toHand(cs: CombatState, cardId: string): number {
 }
 
 describe('秘寶新掛鉤', () => {
-  it('貓抓板：每回合第一張攻擊牌之後 +3 蜷縮，第二張沒有', () => {
+  it('貓抓板：每回合第一張攻擊牌之後 +2 蜷縮，第二張沒有（2026-09-23 平衡 3 → 2）', () => {
     const cs = start(['scratch_board']);
     const e = cs.enemies[0]!; e.hp = 999;
     playCard(cs, toHand(cs, 'sanjo'), e.uid);
-    expect(cs.player.block).toBe(3);
+    expect(cs.player.block).toBe(2);
     playCard(cs, toHand(cs, 'sanjo'), e.uid);
-    expect(cs.player.block).toBe(3);
+    expect(cs.player.block).toBe(2);
   });
   it('黑曜爪、沙丁魚罐、銅錢劍：打倒魔物得爪力、回血、小魚乾', () => {
     const cs = start(['obsidian_claw', 'sardine_tin', 'coin_sword']);
+    expect(getStatus(cs.player, '爪力'), '黑曜爪開場 1 點（2026-09-23 平衡加的）').toBe(1);
     const e = cs.enemies[0]!; e.hp = 1; cs.player.hp = 50;
     playCard(cs, toHand(cs, 'sanjo'), e.uid);
     expect(e.dead).toBe(true);
-    expect(getStatus(cs.player, '爪力')).toBe(1);
+    expect(getStatus(cs.player, '爪力'), '打倒一隻再 +1').toBe(2);
     expect(cs.player.hp).toBe(52);
-    expect(cs.fishDelta).toBe(8);
+    expect(cs.fishDelta, '銅錢劍 15 條（2026-09-23 平衡 8 → 15）').toBe(15);
   });
   it('舊毛巾：用忍具回 4；守護符：回合結束留 8 點蜷縮', () => {
     const cs = start(['old_towel', 'guard_charm'], 'cucumber', ['whetstone']);
@@ -49,14 +50,18 @@ describe('秘寶新掛鉤', () => {
     endTurn(cs);
     expect(cs.player.block).toBe(8);
   });
-  it('鐵砂袋：每回合開始 +3 蜷縮；竹蜻蜓：第 4 張牌多 1 顆飯糰', () => {
+  // 2026-09-23 平衡（bal）：鐵砂袋 3 → 2；竹蜻蜓改成第 4 張抽 1 張、多 2 顆
+  it('鐵砂袋：每回合開始 +2 蜷縮；竹蜻蜓：第 4 張牌抽 1 張、多 2 顆飯糰', () => {
     const cs = start(['sand_bag', 'bamboo_copter']);
-    expect(cs.player.block).toBe(3);
+    expect(cs.player.block).toBe(2);
     cs.player.energy = 10;
     for (let i = 0; i < 3; i++) playCard(cs, toHand(cs, 'tanding'));
     const before = cs.player.energy;
-    playCard(cs, toHand(cs, 'tanding'));   // 第 4 張：花 1、竹蜻蜓補 1
-    expect(cs.player.energy).toBe(before);
+    const uid = toHand(cs, 'tanding');
+    const hand = cs.player.hand.length;
+    playCard(cs, uid);   // 第 4 張：花 1、竹蜻蜓補 2
+    expect(cs.player.energy).toBe(before + 1);
+    expect(cs.player.hand.length, '打出 −1、竹蜻蜓抽 ＋1').toBe(hand);
   });
   it('毛線手套：被打掉血得 1 爪力，每回合最多一次', () => {
     const cs = start(['yarn_gloves']);
@@ -71,12 +76,15 @@ describe('秘寶新掛鉤', () => {
     playCard(cs, toHand(cs, 'sanjo'), e.uid);
     expect(999 - e.hp).toBe(12);
   });
-  it('貓草種子＋貓草：打盹回三成×2＋8；暖毯：下一場開戰 12 點蜷縮', () => {
+  // 2026-09-23 平衡（bal）：暖毯改成打盹多回 4 點＋下一場 20 點蜷縮
+  it('貓草種子＋貓草：打盹回三成×2＋8；暖毯：打盹再多 4、下一場開戰 20 點蜷縮', () => {
     const r = newRun('rest-hooks'); me(r).hp = 10;
-    takeRelic(r, 'catgrass'); takeRelic(r, 'catgrass_seed'); takeRelic(r, 'warm_blanket');
+    takeRelic(r, 'catgrass'); takeRelic(r, 'catgrass_seed');
     expect(napHeal(r)).toBe(Math.floor(76 * 0.3 * 2) + 8);
+    takeRelic(r, 'warm_blanket');
+    expect(napHeal(r)).toBe(Math.floor(76 * 0.3 * 2) + 8 + 4);
     rest(r, '打盹');
-    expect(me(r).restBlock).toBe(12);
+    expect(me(r).restBlock).toBe(20);
   });
   it('零錢罐：罐頭鋪八折；掌門印：獎勵四張牌', () => {
     const r = newRun('shop-hooks'); takeRelic(r, 'coin_jar');

@@ -170,21 +170,29 @@ describe('球球那三件（隱身、潛水）', () => {
     expect(getStatus(cs.player, '隱身')).toBe(1);
   });
 
-  it('驚弓鈴：被打掉血時 1 層隱身；每回合最多一次', () => {
+  it('驚弓鈴：被打掉血時 1 層潛水（下回合開始變成隱身）；每回合最多一次', () => {
+    // 2026-09-23 平衡（bal）：原本當下給隱身（第二下就閃掉），改成潛水——這一輪兩下都挨、下回合才閃得掉
     const cs = start(['startle_bell'], { encounterId: 'rats2' });
-    // 兩隻都打人：第一下掉血 → 拿到 1 層隱身 → 第二下被閃掉（每回合只發一次，閃掉之後隱身用完）
     quiet(cs, HIT(5));
     const hp = cs.player.hp;
     endTurn(cs);
-    expect(hp - cs.player.hp).toBe(5);
+    expect(hp - cs.player.hp, '這一輪兩下都挨（潛水還不是隱身）').toBe(10);
+    expect(cs.log.some((l) => l.includes('閃過了'))).toBe(false);
+    // 兩下都掉血，但每回合只發一次：一層
+    expect(getStatus(cs.player, '潛水') + getStatus(cs.player, '隱身')).toBe(1);
+    expect(getStatus(cs.player, '隱身'), '下回合開始換成隱身').toBe(1);
+    // 下一輪第一下就閃掉
+    quiet(cs, HIT(5));
+    const hp2 = cs.player.hp;
+    endTurn(cs);
     expect(cs.log.some((l) => l.includes('閃過了'))).toBe(true);
-    expect(getStatus(cs.player, '隱身')).toBe(0);
+    expect(hp2 - cs.player.hp).toBe(5);
     // 沒被打掉血（蜷縮擋住）就不發
     const cs2 = start(['startle_bell']);
     quiet(cs2, HIT(5));
     cs2.player.block = 10;
     endTurn(cs2);
-    expect(getStatus(cs2.player, '隱身')).toBe(0);
+    expect(getStatus(cs2.player, '潛水') + getStatus(cs2.player, '隱身')).toBe(0);
   });
 
   /*
@@ -313,19 +321,20 @@ describe('塔主池的代價型四件', () => {
 });
 
 describe('連線互助兩件（一個人時退化成給自己）', () => {
-  it('分食便當（單人）：每回合開始自己拿 2 點蜷縮', () => {
+  // 2026-09-23 平衡（bal）：每回合 2 → 1 點
+  it('分食便當（單人）：每回合開始自己拿 1 點蜷縮', () => {
     const cs = start(['shared_bento']);
-    expect(cs.player.block).toBe(2);
+    expect(cs.player.block).toBe(1);
   });
 
   it('分食便當（連線）：座位 0 帶的，第一回合就給座位 1——不是開場那一拍同伴還沒到就退回給自己', () => {
     const { cs } = coopFight((run) => { takeRelic(run, 'shared_bento', 0); });
-    expect(cs.players[1]!.block).toBe(2);
+    expect(cs.players[1]!.block).toBe(1);
     expect(cs.players[0]!.block).toBe(0);
     expect(cs.pendingAllyRelics).toBeUndefined();
     for (const e of cs.enemies) e.move = IDLE;
     endTurn(cs);
-    expect(cs.players.map((p) => p.block)).toEqual([0, 2]);
+    expect(cs.players.map((p) => p.block)).toEqual([0, 1]);
   });
 
   it('同心結（單人）：開場自己 2 點爪力', () => {

@@ -30,19 +30,19 @@ describe('加入的那一位的第一回合', () => {
     }
   });
 
-  it('球球當加入方：藍頭巾第一回合要多抽一張', () => {
+  it('球球當加入方：藍頭巾第一回合要多抽兩張（2026-09-23 平衡 1 → 2）', () => {
     const { cs } = coopFight('feifei', 'ninja', 'join-2');
     expect(cs.players[1]!.relics).toContain('blue_headband');
-    expect(cs.players[1]!.hand.length, '基本 5 張 ＋ 藍頭巾那 1 張').toBe(6);
+    expect(cs.players[1]!.hand.length, '基本 5 張 ＋ 藍頭巾那 2 張').toBe(7);
   });
 
-  it('每回合開始的秘寶也算：鐵砂袋給加入方 3 點蜷縮', () => {
+  it('每回合開始的秘寶也算：鐵砂袋給加入方 2 點蜷縮（2026-09-23 平衡 3 → 2）', () => {
     const run = newCoopRun('join-3', 1, 'ninja', 'ninja');
     takeRelic(run, 'sand_bag', 1);
     const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
     run.currentNode = node.id;
     const cs = beginCombat(run);
-    expect(cs.players[1]!.block, '加入方的鐵砂袋第一回合沒發動').toBeGreaterThanOrEqual(3);
+    expect(cs.players[1]!.block, '加入方的鐵砂袋第一回合沒發動').toBeGreaterThanOrEqual(2);
   });
 
   it('開房那位不受影響（本來就是對的）', () => {

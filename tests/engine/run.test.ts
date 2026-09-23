@@ -85,7 +85,7 @@ describe('戰鬥與獎勵', () => {
     expect(run.status).toBe('lost'); expect(me(run).hp).toBe(0);
     expect(run.stats).toEqual({ kills: 2, turns: 4, cardsPlayed: 7 });
   });
-  it('小魚乾罐：戰鬥勝利多拿 10 條', () => {
+  it('小魚乾罐：戰鬥勝利多拿 15 條（2026-09-23 平衡 10 → 15）', () => {
     const fight = (jar: boolean) => {
       const run = fresh('jar');
       if (jar) expect(takeRelic(run, 'fish_jar')).toBe(true);
@@ -97,9 +97,9 @@ describe('戰鬥與獎勵', () => {
     };
     const withJar = fight(true), without = fight(false);
     expect(without.r.fish).toBeGreaterThanOrEqual(15); expect(without.r.fish).toBeLessThanOrEqual(25);   // 戰利品 15～25（2026-09-01）
-    expect(withJar.r.fish).toBe(without.r.fish + 10);
-    expect(withJar.r.fish).toBeGreaterThanOrEqual(25); expect(withJar.r.fish).toBeLessThanOrEqual(35);
-    expect(me(withJar.run).fish).toBe(me(without.run).fish + 10);
+    expect(withJar.r.fish).toBe(without.r.fish + 15);
+    expect(withJar.r.fish).toBeGreaterThanOrEqual(30); expect(withJar.r.fish).toBeLessThanOrEqual(40);
+    expect(me(withJar.run).fish).toBe(me(without.run).fish + 15);
   });
   it('戰鬥還沒結束不准收尾', () => {
     const run = fresh('guard');

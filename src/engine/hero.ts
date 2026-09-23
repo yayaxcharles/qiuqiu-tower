@@ -83,7 +83,7 @@ export function heroPronoun(p: { hero?: Hero } | undefined): string {
 const HERO_PRONOUN: Readonly<Record<Hero, string>> = { ninja: '他', feifei: '她', dangdang: '他', fengfeng: '他' };
 
 /**
- * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每場戰鬥開始時給全體魔物 3 層中毒，之後不再長），
+ * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽兩張；09-23 平衡從一張加到兩張），菲菲是毒針袋（每場戰鬥開始時給全體魔物 3 層中毒，之後不再長），
  * 噹噹是銅護臂（開場 4 點蜷縮＋2 點反彈），封封是舊劍穗（開場 2 點蓄氣、每回合再 1 點）。效果以 `content/relics.ts` 為準。
  *（毒針袋 09-13 曾改成每回合 1 層，09-16 使用者裁定改回開場一次給三層；這一行 09-23 才跟上，health H-6 第 1 條）
  */

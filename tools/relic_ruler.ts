@@ -217,13 +217,51 @@ export function measureCell(hero: Hero, relicId: string, base: RunRow[], o: { n:
   };
 }
 
+/**
+ * **錢類秘寶的事件分改用心算**（2026-09-23 bal；主控裁定全面改，起因是機器人 2400 局一次都沒拿過欠條）。
+ *
+ * 錢類秘寶量尺量不準（機器人逛店規則簡單，錢花不滿），量出來只值一層左右、換成事件分幾分到十幾分；
+ * 可是事件裡跟它並排的常常是「直接拿 N 條小魚乾」，那一邊照 `eventValue` 是一條 0.35 分——
+ * 兩把尺放在同一個選單裡，錢類秘寶永遠比不過一小包現金（牢裡的山賊：欠條量尺 8～12 分、挖 50 條＝17.5 分）。
+ *
+ * 所以**只有錢的掛鉤**（`MONEY_HOOKS`）的秘寶，事件分改成「拿到之後這一局預期多拿（或省下）幾條 × 0.35」，跟現金同一把尺。
+ * 次數全部讀 `AFTER_EVENT` 這一張（機器人實跑），公式只在 `moneyFish` 一處。**只蓋事件分**：`score`（過關三選一、罐頭鋪）照實測，
+ * 那是機器人自己用它真正拿得到的好處。沒進來的：銅臭錢袋（還有每回合多 1 顆飯糰，主要值在那裡）、
+ * 批發箱（還有忍具格）、會員卡與店主的帳本（罐頭鋪限定，不會從事件拿到，事件分用不到）。
+ */
+export const FISH_EVENT_POINTS = 0.35;   // 跟 smartbot.ts `eventValue` 的 `fish` 那一行同一個數
+/**
+ * 在事件拿到一件秘寶之後，這一局平均還剩多少（ruler 種子、難度 1、四隻各 600 局，共 974 次在事件拿到秘寶；
+ * 量法在 scratchpad `bal/probe_money.ts`）。店裡每間花的錢不含放生（零錢罐、貪吃錢袋都寫放生不算）。
+ */
+export const AFTER_EVENT = { wins: 6.4, kills: 11.2, shops: 1.8, nonCombatNodes: 8.4, shopSpendPerVisit: 64 } as const;
+export const MONEY_HOOKS: readonly string[] = ['winGold', 'killFish', 'nodeCounterFish', 'shopEntryFee', 'shopDiscount'];
+/** 錢類秘寶拿到之後預期多拿（負的＝多花）幾條小魚乾；不是錢類（有任何一個不是錢的掛鉤）回 null */
+export function moneyFish(def: RelicDef): number | null {
+  const keys = Object.keys(def.hooks);
+  if (!keys.length || !keys.every((k) => MONEY_HOOKS.includes(k))) return null;
+  const h = def.hooks; const A = AFTER_EVENT;
+  return (h.winGold ?? 0) * A.wins
+    + (h.killFish ?? 0) * A.kills
+    + (h.nodeCounterFish ? h.nodeCounterFish.fish * A.nonCombatNodes / h.nodeCounterFish.n : 0)
+    - (h.shopEntryFee ?? 0) * A.shops
+    + (h.shopDiscount !== undefined ? (1 - h.shopDiscount) * A.shopSpendPerVisit * A.shops : 0);
+}
+/** 心算的事件分（錢類才有，其餘 null） */
+export function moneyEv(def: RelicDef): number | null {
+  const f = moneyFish(def);
+  return f === null ? null : r1(f * FISH_EVENT_POINTS);
+}
+
 /** 全部量完之後補上事件分（要用到全體的錨點），順便把分數照 `d` 重算一次（合併舊檔時舊格子也一起更新） */
 export function finishCells(cells: Record<string, Partial<Record<Hero, RelicCell>>>): { k: number; anchors: string[]; fallback: boolean } {
   const k = eventPointsPerFloor(cells);
-  for (const per of Object.values(cells)) for (const c of Object.values(per)) {
+  for (const [id, per] of Object.entries(cells)) for (const c of Object.values(per)) {
     if (!c) continue;
     c.score = scoreOf(c.d);
-    c.ev = r1(c.d * k.k);
+    const def = relicById[id];
+    const byFish = def ? moneyEv(def) : null;
+    c.ev = byFish ?? r1(c.d * k.k);
   }
   return k;
 }
@@ -317,7 +355,10 @@ export const UNRELIABLE_HOOKS: Readonly<Record<string, string>> = {
 };
 
 export function unreliableNotes(def: RelicDef): string[] {
-  return Object.keys(def.hooks).filter((k) => k in UNRELIABLE_HOOKS).map((k) => UNRELIABLE_HOOKS[k]!);
+  const notes = Object.keys(def.hooks).filter((k) => k in UNRELIABLE_HOOKS).map((k) => UNRELIABLE_HOOKS[k]!);
+  const fish = moneyFish(def);
+  if (fish !== null) notes.push(`**事件分改用心算**：拿到之後預期多 ${Math.round(fish)} 條小魚乾 × ${FISH_EVENT_POINTS}＝${moneyEv(def)} 分（次數見 \`AFTER_EVENT\`）`);
+  return notes;
 }
 
 /** 一格的判讀：差距在兩倍標準誤以內＝量不出差別（完全沒差的 0±0 也算，例如別隻的舊劍穗：蓄氣對他們沒用） */

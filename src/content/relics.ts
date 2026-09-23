@@ -1,7 +1,14 @@
 import type { RelicDef, RelicSet } from '../engine/types';
 
 export const relics: RelicDef[] = [
-  { id: 'blue_headband', name: '藍頭巾', pool: '起始', text: '每場戰鬥第一回合多抽 1 張牌。', art: 'codex/relic_headband', price: 130, hooks: { firstTurnDraw: 1 } },
+  /*
+   * 球球的起始秘寶。2026-09-23 平衡（bal）：原本只有「第一回合多抽 1 張」，量尺拿掉它球球只少 −0.4 層（雜訊內），
+   * 另外三隻自己的起始秘寶值 +4.1～4.6 層。先試過加開場 1 點爪力（+2.4 層），平均樓層跟菲菲並列、通關率四隻最高（8.9%，菲菲 7.2%）。
+   * 主控裁定：通關率不高於另外三隻最高那隻、平均樓層不超過菲菲。八批 4800 局量過十幾種寫法，
+   * 只有「第一回合多抽 2 張」守得住兩條（通關 7.1%、23.6F，比原本多 0.4 層）：球球的通關率本來就高，
+   * 起始秘寶每多值一層，通關率就多將近一個百分點。效果跟常見池的小坐墊一樣，列給主控（scratchpad bal 報告）。
+   */
+  { id: 'blue_headband', name: '藍頭巾', pool: '起始', text: '每場戰鬥第一回合多抽 2 張牌。', art: 'codex/relic_headband', price: 130, hooks: { firstTurnDraw: 2 } },
   /*
    * 菲菲的起始秘寶。**現在是「每場戰鬥開始時給全體魔物 3 層中毒」，之後不再長**（2026-09-16 使用者裁定）。
    *
@@ -15,7 +22,7 @@ export const relics: RelicDef[] = [
   { id: 'backstep', name: '毒針袋', pool: '起始', text: '每場戰鬥開始時給全體魔物 3 層中毒。', art: 'codex/relic_backstep', price: 130,
     hooks: { combatStart: [{ kind: 'status', name: '中毒', amount: 3, target: 'all' }] } },
   /*
-   * 噹噹的起始秘寶（2026-09-17）。對照：球球＝藍頭巾（第一回合多抽一張）、菲菲＝毒針袋（開場全體 3 層毒）。
+   * 噹噹的起始秘寶（2026-09-17）。對照：球球＝藍頭巾（第一回合多抽一張；09-23 起兩張）、菲菲＝毒針袋（開場全體 3 層毒）。
    *
    * 為什麼是「蜷縮 4 ＋ 反彈 2」而不是純蜷縮：他的蜷縮**會被自己的牌吃掉**，
    * 純給蜷縮等於只是多一發卸力掌。那 2 點反彈是**不會被消耗**的那一半，
@@ -36,14 +43,26 @@ export const relics: RelicDef[] = [
   { id: 'catgrass', name: '貓草', pool: '常見', text: '在貓窩打盹回復的生命加倍。', art: 'codex/relic_catgrass', price: 100, hooks: { restMultiplier: 2 } },
   { id: 'bell', name: '鈴鐺', pool: '常見', text: '每場戰鬥開始時獲得 1 層隱身。', art: 'codex/relic_bell', price: 160,
     hooks: { combatStart: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
-  { id: 'fish_jar', name: '小魚乾罐', pool: '常見', text: '每打贏一場戰鬥多拿 10 條小魚乾。', art: 'codex/relic_fish_jar', price: 100, hooks: { winGold: 10 } },
+  /*
+   * 2026-09-23 平衡（bal）：10 → 15 條。量尺 +0.4 層（改完 +0.8），但小魚乾量尺量不準（機器人逛店規則簡單，錢花不滿）；
+   * 心算：機器人平均一局打贏約 11 場（通關的局約 22 場），15 條＝多 165 條（通關約 330 條），約一件常見秘寶或兩張牌的錢。
+   * 幸運錢幣是 20 條，這件留在它下面一級（價錢也便宜 40 條）。
+   */
+  { id: 'fish_jar', name: '小魚乾罐', pool: '常見', text: '每打贏一場戰鬥多拿 15 條小魚乾。', art: 'codex/relic_fish_jar', price: 100, hooks: { winGold: 15 } },
   { id: 'catnip', name: '貓薄荷', pool: '常見', text: '每場戰鬥開始時回復 3 點生命。', art: 'codex/relic_catnip', price: 130,
     hooks: { combatStart: [{ kind: 'heal', n: 3 }] } },
   { id: 'tail_bell', name: '尾巴鈴', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，獲得 4 點蜷縮。', art: 'codex/relic_tail_bell', price: 120,
     hooks: { turnEndNoAttack: [{ kind: 'block', amount: 4 }] } },
   { id: 'wood_post', name: '木樁', pool: '大魔物', text: '每場戰鬥開始時給全體魔物 1 層翻肚。', art: 'codex/relic_wood_post', price: 200, hooks: { combatStart: [{ kind: 'status', name: '翻肚', amount: 1, target: 'all' }] } },
-  { id: 'yarn_ball', name: '毛線球', pool: '大魔物', text: '每回合第一張牌少花 1 顆飯糰（最低 0）。', art: 'codex/relic_yarn_ball', price: 210, hooks: { firstCardDiscount: 1 } },
-  { id: 'cat_teaser', name: '逗貓棒', pool: '大魔物', text: '每打出一張攻擊牌，有兩成機會抽 1 張牌。', art: 'codex/relic_cat_teaser', price: 190, hooks: { onAttackPlayed: { chance: 0.2, effects: [{ kind: 'draw', n: 1 }] } } },
+  /*
+   * 2026-09-23 平衡（bal）：毛線球、九尾墜等於「每回合多 1 顆飯糰」、量到多爬 9.3～9.4 層，比塔主池一半以上還強，
+   * 大魔物獎勵抽到它跟抽到別件差太多。只收一點：第一回合少 1 顆（等於第二回合起才賺），兩件都量到 +7.1～7.2 層，仍是大魔物池前段。
+   */
+  { id: 'yarn_ball', name: '毛線球', pool: '大魔物', text: '每回合第一張牌少花 1 顆飯糰（最低 0）；每場戰鬥第一回合少 1 顆飯糰。', art: 'codex/relic_yarn_ball', price: 210,
+    hooks: { firstCardDiscount: 1, firstTurnEnergy: -1 } },
+  // 2026-09-23 平衡（bal）：原本兩成機會抽 1 張，量尺 +0.3 層（多抽的牌多半打不出去，飯糰才是瓶頸；機率拉到五成也只 +1.1）；改成一成半機會抽牌＋飯糰，+2.5 層＝大魔物池中下
+  { id: 'cat_teaser', name: '逗貓棒', pool: '大魔物', text: '每打出一張攻擊牌，有一成半機會抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_cat_teaser', price: 190,
+    hooks: { onAttackPlayed: { chance: 0.15, effects: [{ kind: 'draw', n: 1 }, { kind: 'energy', n: 1 }] } } },
   { id: 'scroll', name: '秘笈', pool: '大魔物', text: '每場戰鬥第一張攻擊牌的傷害加倍。', art: 'codex/relic_scroll', price: 190, hooks: { firstAttackDouble: true } },
   { id: 'paper_bag', name: '紙袋', pool: '大魔物', text: '每回合第一次獲得隱身時多 1 層。', art: 'codex/relic_paper_bag', price: 180, hooks: { stealthBonus: 1 } },
   { id: 'bronze_mirror', name: '銅鏡', pool: '大魔物', text: '每場戰鬥開始時獲得 2 點反彈。', art: 'codex/relic_bronze_mirror', price: 170,
@@ -58,7 +77,12 @@ export const relics: RelicDef[] = [
   // --- 常見：開場就有感的小加成 ---
   { id: 'straw_hat', name: '斗笠', pool: '常見', text: '每場戰鬥開始時獲得 4 點蜷縮。', art: 'codex/relic_straw_hat', price: 120, hooks: { combatStart: [{ kind: 'block', amount: 4 }] } },
   // 2026-09-02 使用者：「忍具滿了後續都拿不到？該出個秘寶增加格子」
-  { id: 'potion_bag', name: '忍具袋', pool: '常見', text: '忍具可以多帶一支。', art: 'codex/relic_potion_bag', price: 140, hooks: { potionSlots: 1 } },
+  /*
+   * 2026-09-23 平衡（bal）：只多一格量尺 ≈0（機器人只在身上少於兩支時才買忍具，多的格子多半空著；多兩格也只 +0.3）。
+   * 加「用完忍具得 6 點蜷縮」：量到 +1.5 層＝常見池下四分位到中位之間；忍具類量尺偏低（真人會留、會挑時機喝），心算落在中下。
+   */
+  { id: 'potion_bag', name: '忍具袋', pool: '常見', text: '忍具可以多帶一支；每次使用忍具後獲得 6 點蜷縮。', art: 'codex/relic_potion_bag', price: 140,
+    hooks: { potionSlots: 1, onPotionUse: [{ kind: 'block', amount: 6 }] } },
   { id: 'wrist_guard', name: '護腕', pool: '常見', text: '每場戰鬥開始時獲得 1 點爪力。', art: 'codex/relic_wrist_guard', price: 150, hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] } },
   { id: 'soft_pad', name: '軟墊', pool: '常見', text: '每場戰鬥開始時獲得 1 點貓步。', art: 'codex/relic_soft_pad', price: 150, hooks: { combatStart: [{ kind: 'status', name: '貓步', amount: 1, target: 'self' }] } },
   { id: 'dried_squid', name: '魷魚絲', pool: '常見', text: '最大生命 +6。', art: 'codex/relic_dried_squid', price: 90, hooks: { maxHp: 6 } },
@@ -67,15 +91,24 @@ export const relics: RelicDef[] = [
   { id: 'sardine_tin', name: '沙丁魚罐', pool: '常見', text: '你每打倒一隻魔物就回復 2 點生命。', art: 'codex/relic_sardine_tin', price: 110, hooks: { killHeal: 2 } },
   { id: 'worn_scroll', name: '破卷軸', pool: '常見', text: '每場戰鬥第一張牌少花 1 顆飯糰（最低 0）。', art: 'codex/relic_worn_scroll', price: 130, hooks: { firstCardDiscountCombat: 1 } },
   { id: 'lucky_coin', name: '幸運錢幣', pool: '常見', text: '打贏一場多拿 20 條小魚乾。', art: 'codex/relic_lucky_coin', price: 140, hooks: { winGold: 20 } },
-  { id: 'warm_blanket', name: '暖毯', pool: '常見', text: '打盹之後，下一場戰鬥開始時獲得 12 點蜷縮。', art: 'codex/relic_warm_blanket', price: 150, hooks: { restNextFightBlock: 12 } },
+  /*
+   * 2026-09-23 平衡（bal）：量尺 +0.9 層（一局只打盹兩三次，每場約 0.1 次發動）；蜷縮加到 20、25 也只 +1.1～1.2。
+   * 改成打盹時多回 4 點＋下一場 20 點蜷縮：+1.7 層＝常見池中下，還是「打盹的秘寶」
+   */
+  { id: 'warm_blanket', name: '暖毯', pool: '常見', text: '在貓窩打盹額外回復 4 點生命；打盹之後，下一場戰鬥開始時獲得 20 點蜷縮。', art: 'codex/relic_warm_blanket', price: 150,
+    hooks: { restNextFightBlock: 20, restFlat: 4 } },
 
   // --- 大魔物：打贏精英才拿得到，效果要有存在感 ---
   { id: 'iron_collar', name: '鐵項圈', pool: '大魔物', text: '每場戰鬥開始時獲得 10 點蜷縮。', art: 'codex/relic_iron_collar', price: 190, hooks: { combatStart: [{ kind: 'block', amount: 10 }] } },
   { id: 'claw_sheath', name: '爪鞘', pool: '大魔物', text: '每場戰鬥開始時獲得 2 點爪力。', art: 'codex/relic_claw_sheath', price: 200, hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }] } },
-  { id: 'ghost_bell', name: '無聲鈴', pool: '大魔物', text: '每場戰鬥開始時獲得 2 層隱身。', art: 'codex/relic_ghost_bell', price: 200, hooks: { combatStart: [{ kind: 'status', name: '隱身', amount: 2, target: 'self' }] } },
-  { id: 'counting_beads', name: '算盤珠', pool: '大魔物', text: '每回合打出第 3 張牌時抽 1 張牌。', art: 'codex/relic_counting_beads', price: 190, hooks: { drawOnNthCard: { n: 3, draw: 1 } } },
+  // 2026-09-23 平衡（bal）：2 層隱身量到 +9.2 層（大魔物池上四分位 4.8）；第二層換成 1 點貓步，+7.4 層，仍是池子前段
+  { id: 'ghost_bell', name: '無聲鈴', pool: '大魔物', text: '每場戰鬥開始時獲得 1 層隱身與 1 點貓步。', art: 'codex/relic_ghost_bell', price: 200,
+    hooks: { combatStart: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }, { kind: 'status', name: '貓步', amount: 1, target: 'self' }] } },
+  // 2026-09-23 平衡（bal）：第 3 張抽 1 張量尺 ≈0（打到第三張時飯糰多半用完，抽到的打不出去）；改成第 2 張就抽 3 張，+2.2 層＝大魔物池下四分位附近
+  { id: 'counting_beads', name: '算盤珠', pool: '大魔物', text: '每回合打出第 2 張牌時抽 3 張牌。', art: 'codex/relic_counting_beads', price: 190, hooks: { drawOnNthCard: { n: 2, draw: 3 } } },
   { id: 'still_water', name: '止水碗', pool: '大魔物', text: '回合結束時如果這回合沒打過攻擊牌，獲得 8 點蜷縮。', art: 'codex/relic_still_water', price: 180, hooks: { turnEndNoAttack: [{ kind: 'block', amount: 8 }] } },
-  { id: 'nine_tails', name: '九尾墜', pool: '大魔物', text: '每回合多 1 顆飯糰。', art: 'codex/relic_nine_tails', price: 240, hooks: { energyPerTurn: 1 } },
+  // 2026-09-23 平衡（bal）：跟塔主令牌一樣「每回合多 1 顆」、量到 +9.4 層；只收一點＝第一回合不加（上限 +1、第一回合 −1），+7.1 層
+  { id: 'nine_tails', name: '九尾墜', pool: '大魔物', text: '第二回合起，每回合多 1 顆飯糰。', art: 'codex/relic_nine_tails', price: 240, hooks: { energyPerTurn: 1, firstTurnEnergy: -1 } },
 
   // --- 塔主：打贏塔主才有，直接改變玩法 ---
   { id: 'shadow_cloak', name: '影披風', pool: '塔主', text: '每次獲得隱身時多 1 層。', art: 'codex/relic_shadow_cloak', price: 220, hooks: { stealthBonusEvery: 1 } },
@@ -84,21 +117,34 @@ export const relics: RelicDef[] = [
   { id: 'golden_bowl', name: '金飯碗', pool: '塔主', text: '每場戰鬥第一回合多 2 顆飯糰。', art: 'codex/relic_golden_bowl', price: 240, hooks: { firstTurnEnergy: 2 } },
   // ===== 2026-09-02 擴充到 60 件（使用者：「36 件不夠，補到 60，效果你設計」）。圖還沒生的先用名字顯示 =====
   // --- 常見（+10）---
-  { id: 'feather_toy', name: '羽毛玩具', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，下回合多抽 1 張牌。', art: 'codex/relic_feather_toy', price: 130, hooks: { turnEndNoAttack: [{ kind: 'drawNextTurn', n: 1 }] } },
+  // 2026-09-23 平衡（bal）：只多抽 1 張量尺 ≈0（抽 2 張也只 +0.4）；加下回合多 1 顆飯糰（忍一回合、下回合爆發），+1.7 層＝常見池中下。
+  // 「沒攻擊才發動」機器人不會刻意配合，真人會，所以不再往上加
+  { id: 'feather_toy', name: '羽毛玩具', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，下回合多抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_feather_toy', price: 130,
+    hooks: { turnEndNoAttack: [{ kind: 'drawNextTurn', n: 1 }, { kind: 'energyNextTurn', n: 1 }] } },
   { id: 'old_towel', name: '舊毛巾', pool: '常見', text: '每次使用忍具後回復 4 點生命。', art: 'codex/relic_old_towel', price: 120, hooks: { onPotionUse: [{ kind: 'heal', n: 4 }] } },
   { id: 'coin_jar', name: '零錢罐', pool: '常見', text: '罐頭鋪的商品打八折（放生與重整不算）。', art: 'codex/relic_coin_jar', price: 120, hooks: { shopDiscount: 0.8 } },   // 九折→八折、當下生效（使用者 2026-09-04）
-  { id: 'scratch_board', name: '貓抓板', pool: '常見', text: '每回合第一張攻擊牌打出後獲得 3 點蜷縮。', art: 'codex/relic_scratch_board', price: 140, hooks: { onAttackPlayed: { firstEachTurn: true, effects: [{ kind: 'block', amount: 3 }] } } },
+  // 2026-09-23 平衡（bal）：3 → 2 點，+5.3 → +4.1 層（常見池上四分位 2.9，仍是前段）
+  { id: 'scratch_board', name: '貓抓板', pool: '常見', text: '每回合第一張攻擊牌打出後獲得 2 點蜷縮。', art: 'codex/relic_scratch_board', price: 140, hooks: { onAttackPlayed: { firstEachTurn: true, effects: [{ kind: 'block', amount: 2 }] } } },
   { id: 'wooden_fish', name: '木魚', pool: '常見', text: '回合結束時，如果這回合沒打過攻擊牌，回復 2 點生命。', art: 'codex/relic_wooden_fish', price: 130, hooks: { turnEndNoAttack: [{ kind: 'heal', n: 2 }] } },
   { id: 'warm_stone', name: '暖爐石', pool: '常見', text: '每打贏一場戰鬥回復 4 點生命。', art: 'codex/relic_warm_stone', price: 140, hooks: { combatEndHeal: 4 } },
   { id: 'yarn_gloves', name: '毛線手套', pool: '常見', text: '被魔物打掉血時獲得 1 點爪力（每回合最多一次）。', art: 'codex/relic_yarn_gloves', price: 150, hooks: { onHit: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] } },
   { id: 'catgrass_seed', name: '貓草種子', pool: '常見', text: '在貓窩打盹額外回復 8 點生命。', art: 'codex/relic_catgrass_seed', price: 110, hooks: { restFlat: 8 } },
   { id: 'crane_bookmark', name: '紙鶴書籤', pool: '常見', text: '每場戰鬥第一回合多抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_crane_bookmark', price: 160, hooks: { firstTurnDraw: 1, firstTurnEnergy: 1 } },
-  { id: 'bamboo_copter', name: '竹蜻蜓', pool: '常見', text: '每回合打出第 4 張牌時多 1 顆飯糰。', art: 'codex/relic_bamboo_copter', price: 150, hooks: { energyOnNthCard: { n: 4, energy: 1 } } },
+  /*
+   * 2026-09-23 平衡（bal）：量尺 +0.5～0.8 層（每場只打到第 4 張約 0.5 次，而且打到第 4 張時手上常常沒牌可用那顆飯糰）。
+   * 改成第 4 張時抽 1 張、多 2 顆：+1.5 層＝常見池下四分位之上。改第 3 張會跳到 +3.9 層（金爪套的一半），常見池太強
+   */
+  { id: 'bamboo_copter', name: '竹蜻蜓', pool: '常見', text: '每回合打出第 4 張牌時抽 1 張牌、多 2 顆飯糰。', art: 'codex/relic_bamboo_copter', price: 150,
+    hooks: { drawOnNthCard: { n: 4, draw: 1 }, energyOnNthCard: { n: 4, energy: 2 } } },
   // --- 大魔物（+9）---
   { id: 'ink_jade', name: '墨玉', pool: '大魔物', text: '每場戰鬥開始時給全體魔物 2 層懶洋洋。', art: 'codex/relic_ink_jade', price: 200, hooks: { combatStart: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'all' }] } },
-  { id: 'sand_bag', name: '鐵砂袋', pool: '大魔物', text: '每回合開始時獲得 3 點蜷縮。', art: 'codex/relic_sand_bag', price: 190, hooks: { turnStart: [{ kind: 'block', amount: 3 }] } },
+  // 2026-09-23 平衡（bal）：3 → 2 點，+7.6 → +5.1 層（大魔物池上四分位 4.8），仍是前段
+  { id: 'sand_bag', name: '鐵砂袋', pool: '大魔物', text: '每回合開始時獲得 2 點蜷縮。', art: 'codex/relic_sand_bag', price: 190, hooks: { turnStart: [{ kind: 'block', amount: 2 }] } },
   { id: 'spirit_bell', name: '靈貓鈴', pool: '大魔物', text: '每回合開始時多抽 1 張牌。', art: 'codex/relic_spirit_bell', price: 220, hooks: { turnStart: [{ kind: 'draw', n: 1 }] } },
-  { id: 'obsidian_claw', name: '黑曜爪', pool: '大魔物', text: '你每打倒一隻魔物就獲得 1 點爪力。', art: 'codex/relic_obsidian_claw', price: 210, hooks: { killStrength: 1 } },
+  // 2026-09-23 平衡（bal）：只靠打倒魔物長爪力量尺 +0.8 層（多半是最後一隻倒下才長，這場用不到）；打倒 2、3 點也只 +1.3～1.7。
+  // 加開場 1 點爪力：+2.9 層＝大魔物池中位附近
+  { id: 'obsidian_claw', name: '黑曜爪', pool: '大魔物', text: '每場戰鬥開始時獲得 1 點爪力；你每打倒一隻魔物再獲得 1 點爪力。', art: 'codex/relic_obsidian_claw', price: 210,
+    hooks: { killStrength: 1, combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }] } },
   { id: 'guard_charm', name: '守護符', pool: '大魔物', text: '回合結束時最多保留 8 點蜷縮到下一回合。', art: 'codex/relic_guard_charm', price: 200, hooks: { blockKeep: 8 } },
   { id: 'turtle_shell', name: '龜甲', pool: '大魔物', text: '每場戰鬥開始時獲得 6 點蜷縮與 3 點反彈。', art: 'codex/relic_turtle_shell', price: 200, hooks: { combatStart: [{ kind: 'block', amount: 6 }, { kind: 'status', name: '反彈', amount: 3, target: 'self' }] } },
   /*
@@ -110,14 +156,28 @@ export const relics: RelicDef[] = [
    * 觸發條件不變（這回合沒打過攻擊牌），所以「忍著不打」的節奏還在。
    */
   { id: 'wind_chime', name: '風鈴', pool: '大魔物', text: '回合結束時，如果這回合沒打過攻擊牌，獲得 1 點貓步。', art: 'codex/relic_wind_chime', price: 200, hooks: { turnEndNoAttack: [{ kind: 'status', name: '貓步', amount: 1, target: 'self' }] } },
-  { id: 'catnip_pipe', name: '貓薄荷煙斗', pool: '大魔物', text: '每次使用忍具後抽 2 張牌。', art: 'codex/relic_catnip_pipe', price: 190, hooks: { onPotionUse: [{ kind: 'draw', n: 2 }] } },
-  { id: 'coin_sword', name: '銅錢劍', pool: '大魔物', text: '你每打倒一隻魔物就多拿 8 條小魚乾。', art: 'codex/relic_coin_sword', price: 180, hooks: { killFish: 8 } },
+  // 2026-09-23 平衡（bal）：只抽 2 張量尺 +0.4 層；加 2 顆飯糰，+2.6 層＝大魔物池中位（忍具類量尺偏低，真人喝得比機器人有計畫）
+  { id: 'catnip_pipe', name: '貓薄荷煙斗', pool: '大魔物', text: '每次使用忍具後抽 2 張牌、多 2 顆飯糰。', art: 'codex/relic_catnip_pipe', price: 190,
+    hooks: { onPotionUse: [{ kind: 'draw', n: 2 }, { kind: 'energy', n: 2 }] } },
+  /*
+   * 2026-09-23 平衡（bal）：8 → 15 條。量尺 +0.5 層（改 15 條後 +1.1；小魚乾量尺量不準，照心算定）。
+   * 心算：機器人一局平均打倒約 18 隻、打贏約 11 場（打倒數約是場數的 1.6 倍），8 條只等於每場 13 條，比常見池的幸運錢幣（每場 20）還少。
+   * 15 條＝每場約 24 條、一局多 270 條（通關約 525 條），排在幸運錢幣之上、招財貓（塔主，每場 30）之下
+   */
+  { id: 'coin_sword', name: '銅錢劍', pool: '大魔物', text: '你每打倒一隻魔物就多拿 15 條小魚乾。', art: 'codex/relic_coin_sword', price: 180, hooks: { killFish: 15 } },
   // --- 塔主（+5）---
-  { id: 'tower_moon', name: '塔頂之月', pool: '塔主', text: '每場戰鬥開始時獲得 3 點爪力與 3 點貓步。', art: 'codex/relic_tower_moon', price: 240, hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }, { kind: 'status', name: '貓步', amount: 3, target: 'self' }] } },
+  // 2026-09-23 平衡（bal）：量到 +12.4 層、塔主池第二強；只收一點：貓步 3 → 2，+10.7 層
+  { id: 'tower_moon', name: '塔頂之月', pool: '塔主', text: '每場戰鬥開始時獲得 3 點爪力與 2 點貓步。', art: 'codex/relic_tower_moon', price: 240, hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }, { kind: 'status', name: '貓步', amount: 2, target: 'self' }] } },
   { id: 'daruma', name: '不倒翁', pool: '塔主', text: '最大生命 +20；每打贏一場戰鬥回復 6 點生命。', art: 'codex/relic_daruma', price: 240, hooks: { maxHp: 20, combatEndHeal: 6 } },
-  { id: 'nine_bell', name: '九命鈴', pool: '塔主', text: '忍具可以多帶兩支；每次使用忍具後回復 3 點生命。', art: 'codex/relic_nine_bell', price: 230, hooks: { potionSlots: 2, onPotionUse: [{ kind: 'heal', n: 3 }] } },
+  // 2026-09-23 平衡（bal）：回 3 → 6 點，+1.6 → +2.6 層＝塔主池下四分位之上（忍具格、用忍具類量尺偏低，心算再高一點）
+  { id: 'nine_bell', name: '九命鈴', pool: '塔主', text: '忍具可以多帶兩支；每次使用忍具後回復 6 點生命。', art: 'codex/relic_nine_bell', price: 230, hooks: { potionSlots: 2, onPotionUse: [{ kind: 'heal', n: 6 }] } },
   { id: 'gold_claws', name: '金爪套', pool: '塔主', text: '每回合打出第 3 張牌時抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_gold_claws', price: 240, hooks: { drawOnNthCard: { n: 3, draw: 1 }, energyOnNthCard: { n: 3, energy: 1 } } },
-  { id: 'master_seal', name: '掌門印', pool: '塔主', text: '戰鬥獎勵的牌多一張可選。', art: 'codex/relic_master_seal', price: 230, hooks: { rewardChoices: 1 } },
+  /*
+   * 2026-09-23 平衡（bal）：只有「牌多一張可選」量尺 ≈0（+0.1 層；挑牌類量不準，但塔主三選一裡它等於廢選項）。
+   * 加開場「全體 1 層懶洋洋＋1 層翻肚」（掌門印一亮，魔物先軟了腳）：+3.4 層＝塔主池下四分位到中位之間
+   */
+  { id: 'master_seal', name: '掌門印', pool: '塔主', text: '每場戰鬥開始時給全體魔物 1 層懶洋洋與 1 層翻肚；戰鬥獎勵的牌多一張可選。', art: 'codex/relic_master_seal', price: 230,
+    hooks: { rewardChoices: 1, combatStart: [{ kind: 'status', name: '懶洋洋', amount: 1, target: 'all' }, { kind: 'status', name: '翻肚', amount: 1, target: 'all' }] } },
   /*
    * ---- 2026-09-15 塔主池加到 19 件（含令牌）----
    * 使用者實測：「打完王的秘寶很容易看到掌門印、金爪套、塔頂之月」。查過抽法是公平的（均勻亂數、每局種子不同），
@@ -125,8 +185,9 @@ export const relics: RelicDef[] = [
    * 這 9 件全部用**既有掛鉤**（不動引擎），強度對齊塔主級（起手就有感、價 220～240）；圖示鍵 `codex/relic_<id>`，圖另生。
    */
   // 2026-09-16 使用者：「開場給 14 有點弱」→ 改成每回合 8（鐵砂袋每回合 3 的塔主版）
-  { id: 'master_hat', name: '師父的斗笠', pool: '塔主', set: '師門', text: '每回合開始時獲得 8 點蜷縮。', art: 'codex/relic_master_hat', price: 240,
-    hooks: { turnStart: [{ kind: 'block', amount: 8 }] } },
+  // 2026-09-23 平衡（bal）：每回合 8 量到 +14.6 層、全遊戲最強（過第二關多 48 個百分點）；只收一點 8 → 6，+12.0 層，仍是塔主池第一
+  { id: 'master_hat', name: '師父的斗笠', pool: '塔主', set: '師門', text: '每回合開始時獲得 6 點蜷縮。', art: 'codex/relic_master_hat', price: 240,
+    hooks: { turnStart: [{ kind: 'block', amount: 6 }] } },
   { id: 'iron_palm_wraps', name: '暖身護腕', pool: '塔主', text: '每回合第一張攻擊牌打出後獲得 1 點爪力（那一張吃不到）。', art: 'codex/relic_iron_palm_wraps', price: 240,
     hooks: { onAttackPlayed: { effects: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }], firstEachTurn: true } } },
   { id: 'master_teacup', name: '塔主的茶碗', pool: '塔主', text: '每回合開始時回復 2 點生命。', art: 'codex/relic_master_teacup', price: 240,
@@ -149,8 +210,9 @@ export const relics: RelicDef[] = [
   // ===== 代價秘寶（2026-09-04，使用者：「很強但有代價的，玩家會猶豫，選擇才有趣」）。圖示還沒生，先顯示文字牌 =====
   { id: 'blood_dagger', name: '血契短刀', pool: '大魔物', text: '每場戰鬥開始獲得 3 點爪力；拿到時最大生命 −12。', art: 'codex/relic_blood_dagger', price: 210,
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }], maxHp: -12 } },
-  { id: 'miasma_charm', name: '魔氣護符', pool: '大魔物', text: '每回合多 1 顆飯糰；每場戰鬥開始帶 2 層炸毛。', art: 'codex/relic_miasma_charm', price: 240,
-    hooks: { energyPerTurn: 1, combatStart: [{ kind: 'status', name: '炸毛', amount: 2, target: 'self' }] } },
+  // 2026-09-23 平衡（bal）：代價 2 → 3 層炸毛，+6.7 → +6.3 層（跟九尾墜、毛線球同一群，仍是前段）
+  { id: 'miasma_charm', name: '魔氣護符', pool: '大魔物', text: '每回合多 1 顆飯糰；每場戰鬥開始帶 3 層炸毛。', art: 'codex/relic_miasma_charm', price: 240,
+    hooks: { energyPerTurn: 1, combatStart: [{ kind: 'status', name: '炸毛', amount: 3, target: 'self' }] } },
   // 開戰扣 4 點生命拿掉了（使用者 2026-09-11：「不該扣血，只有好處就好，
   // 目前的每回合留下 6 蜷縮也不太過分」）。留蜷縮本來就是慢熱型的加成——
   // 前兩回合幾乎沒感覺，要堆起來才有用；再收一筆開場血當代價，對一件常見池的秘寶太重
@@ -208,9 +270,11 @@ export const relics: RelicDef[] = [
   // 開場拿到的潛水**第二回合開始**才變隱身（`combat.ts` 的 `startSeatTurn`）：不然開戰那一拍就換掉，跟無聲鈴一模一樣
   { id: 'bamboo_tube', name: '竹筒', pool: '常見', text: '每場戰鬥開始時獲得 1 層潛水（第二回合開始變成隱身）。', art: 'codex/relic_bamboo_tube', price: 150,
     hooks: { combatStart: [{ kind: 'status', name: '潛水', amount: 1, target: 'self' }] } },
-  // 跟毛線手套同一個時機（每回合最多一次），挨打之後這一輪剩下的攻擊就閃得掉一下
-  { id: 'startle_bell', name: '驚弓鈴', pool: '大魔物', text: '被魔物打掉血時獲得 1 層隱身（每回合最多一次）。', art: 'codex/relic_startle_bell', price: 200,
-    hooks: { onHit: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }] } },
+  // 跟毛線手套同一個時機（每回合最多一次）。
+  // 2026-09-23 平衡（bal）：原本挨打當下就給隱身（這一輪剩下的攻擊閃得掉一下），量到 +8.4 層、大魔物池第四強；
+  // 改成給潛水（下回合開始才變隱身，竹筒、影忍頭帶同一套），+7.7 層，只收一點
+  { id: 'startle_bell', name: '驚弓鈴', pool: '大魔物', text: '被魔物打掉血時獲得 1 層潛水（下回合開始變成隱身；每回合最多一次）。', art: 'codex/relic_startle_bell', price: 200,
+    hooks: { onHit: [{ kind: 'status', name: '潛水', amount: 1, target: 'self' }] } },
   { id: 'shadow_band', name: '影忍頭帶', pool: '塔主', text: '每回合開始時，身上沒有隱身的話獲得 1 層潛水（下回合開始變成隱身）。', art: 'codex/relic_shadow_band', price: 240,
     hooks: { turnStart: [{ kind: 'ifSelfStatus', name: '隱身', then: [], otherwise: [{ kind: 'status', name: '潛水', amount: 1, target: 'self' }] }] } },
   // --- 塔主池的代價型（使用者 2026-09-23 裁定要加）：過關三選一要有會猶豫的選項 ---
@@ -226,8 +290,9 @@ export const relics: RelicDef[] = [
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 4, target: 'self' }, { kind: 'status', name: '翻肚', amount: 2, target: 'self' }] } },
   // --- 連線互助（引擎現成的「給同伴」效果；一個人玩時退化成給自己，見 `Effect` 的 `blockAlly`／`statusAlly`）---
   // 開場那一拍同伴還沒進場，給同伴的那份等人到齊才發（`CombatState.pendingAllyRelics`）
-  { id: 'shared_bento', name: '分食便當', pool: '常見', text: '每回合開始時，同伴獲得 2 點蜷縮（一個人時給自己）。', art: 'codex/relic_shared_bento', price: 120,
-    hooks: { turnStart: [{ kind: 'blockAlly', amount: 2 }] } },
+  // 2026-09-23 平衡（bal）：一個人時每回合 2 點給自己＝鐵砂袋（大魔物）打七折，量到 +5.4 層、常見池第一；2 → 1 點，+3.0 層（仍在上四分位之上）
+  { id: 'shared_bento', name: '分食便當', pool: '常見', text: '每回合開始時，同伴獲得 1 點蜷縮（一個人時給自己）。', art: 'codex/relic_shared_bento', price: 120,
+    hooks: { turnStart: [{ kind: 'blockAlly', amount: 1 }] } },
   { id: 'bond_knot', name: '同心結', pool: '大魔物', text: '每場戰鬥開始時，你和同伴各獲得 1 點爪力（一個人時自己拿 2 點）。', art: 'codex/relic_bond_knot', price: 190,
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 1, target: 'self' }, { kind: 'statusAlly', name: '爪力', amount: 1 }] } },
 
@@ -256,19 +321,23 @@ export const relics: RelicDef[] = [
     hooks: { onNthCard: { n: 3, effects: [{ kind: 'damageScatter', amount: 5, times: 1 }] } } },
   // --- 角色的新時機：封封兩件（蓄氣只有他有，鎖另外三位）、菲菲、噹噹、球球各一件（偏誰而已，不鎖）---
   // 門檻原本是灌滿 12：機器人不囤氣，量尺每場只發動 0.08 次；主控 2026-09-23 裁定降到 10
-  { id: 'full_moon_sword', name: '滿月劍意', pool: '塔主', notFor: ['ninja', 'feifei', 'dangdang'], text: '蓄氣蓄到 10 點以上的那一刻，這回合下一張攻擊牌傷害加倍（每回合一次）。', art: 'codex/relic_full_moon_sword', price: 240,
-    hooks: { qiReachDoubleNext: 10 } },
+  // 2026-09-23 平衡（bal）：門檻 10 量尺還是 ≈0（−0.1 層；降到 8、6 也只 +0.6～0.7），缺的是氣；加每回合 1 點蓄氣，門檻照 10，+4.0 層＝塔主池中位附近
+  { id: 'full_moon_sword', name: '滿月劍意', pool: '塔主', notFor: ['ninja', 'feifei', 'dangdang'], text: '每回合開始時獲得 1 點蓄氣；蓄氣蓄到 10 點以上的那一刻，這回合下一張攻擊牌傷害加倍（每回合一次）。', art: 'codex/relic_full_moon_sword', price: 240,
+    hooks: { qiReachDoubleNext: 10, turnStart: [{ kind: 'gainQi', n: 1 }] } },
   { id: 'sheath_pendant', name: '收鞘墜', pool: '大魔物', notFor: ['ninja', 'feifei', 'dangdang'], text: '這場戰鬥每花掉 6 點蓄氣，獲得 1 顆飯糰。', art: 'codex/relic_sheath_pendant', price: 190,
     hooks: { qiSpentEnergy: { per: 6, energy: 1 } } },
   // 提案是多扣 1 點：量尺菲菲只多爬 1.7 層（塔主池中位 4.0，過關三選一等於廢選項）；2 點＝4.1 層，剛好中位（b2mech 報告）
-  { id: 'five_poison_manual', name: '五毒譜', pool: '塔主', text: '你下的毒，每回合結算時多扣 2 點生命。', art: 'codex/relic_five_poison_manual', price: 240,
-    hooks: { poisonTickBonus: 2 } },
+  // 2026-09-23 平衡（bal）：另外三隻自己不太下毒，量到 +0.8～1.1 層（塔主三選一裡等於少一個選項）；
+  // 開場給全體 1 層毒當引子（這一層也吃「多扣 2 點」），四隻平均 +2.9 層、菲菲 +5.2
+  { id: 'five_poison_manual', name: '五毒譜', pool: '塔主', text: '每場戰鬥開始時給全體魔物 1 層中毒；你下的毒，每回合結算時多扣 2 點生命。', art: 'codex/relic_five_poison_manual', price: 240,
+    hooks: { poisonTickBonus: 2, combatStart: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] } },
   { id: 'iron_wall', name: '鐵壁', pool: '大魔物', text: '回合結束時，蜷縮超過 15 點的部分每 2 點換 1 點反彈（蜷縮不會減少）。', art: 'codex/relic_iron_wall', price: 190,
     hooks: { turnEndBlockToThorns: { over: 15, per: 2 } } },
   // 閃過都在魔物的回合，所以「抽 1 張」落在下回合。提案只有抽牌：量尺球球只多爬 0.9 層（塔主池中位 4.0）；
   // 加上下回合多 1 顆飯糰＝3.8 層（只抽 2 張是 0.6，多的是飯糰不是牌），閃得越多下回合越猛，正好是隱身流要的回報（b2mech 報告）
-  { id: 'clone_scroll', name: '影分身卷軸', pool: '塔主', text: '每次閃過魔物的攻擊，下回合多抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_clone_scroll', price: 240,
-    hooks: { onDodge: [{ kind: 'drawNextTurn', n: 1 }, { kind: 'energyNextTurn', n: 1 }] } },
+  // 2026-09-23 平衡（bal）：只有球球常閃，另外三隻量到 +0.4～1.3 層；加開場 1 點貓步（誰都用得到的身法），四隻平均 +3.8 層、球球 +4.7
+  { id: 'clone_scroll', name: '影分身卷軸', pool: '塔主', text: '每場戰鬥開始時獲得 1 點貓步；每次閃過魔物的攻擊，下回合多抽 1 張牌、多 1 顆飯糰。', art: 'codex/relic_clone_scroll', price: 240,
+    hooks: { onDodge: [{ kind: 'drawNextTurn', n: 1 }, { kind: 'energyNextTurn', n: 1 }], combatStart: [{ kind: 'status', name: '貓步', amount: 1, target: 'self' }] } },
   // --- 罐頭鋪限定：只擺在罐頭鋪最右邊的「店長私藏」那一格（`makeShop`），不進紙箱、戰利品、事件、三選一 ---
   /*
    * 劇本是「價錢停在拿到時、不再漲」：量尺 +0.05 層（機器人一局只放生一次左右）。主控 2026-09-23 裁定加數字：一律 40 條、不再漲。

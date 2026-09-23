@@ -258,7 +258,9 @@ describe('角色的新時機', () => {
     endTurn(cs);
     expect(cs.player.hand).toHaveLength(7);
     expect(cs.player.energy).toBe(5);
-    expect(cs.relicFired.filter((x) => x === 'clone_scroll')).toHaveLength(2);
+    // 開場的 1 點貓步發動 1 次（2026-09-23 平衡 bal 加的）＋閃過兩下各 1 次
+    expect(cs.relicFired.filter((x) => x === 'clone_scroll')).toHaveLength(3);
+    expect(getStatus(cs.player, '貓步')).toBe(1);
     // 對照：沒帶就是 5 張
     const plain = start([]);
     quiet(plain, HIT(10, 2));
@@ -621,7 +623,7 @@ describe('迷魂香（目標這一輪的攻擊改打牠旁邊的同伴）', () =
   });
   it('連線：打倒同伴時擊倒獎勵算下香的那一位（座位 1）', () => {
     const run = newCoopRun('daze-coop', 1, 'ninja', 'feifei');
-    takeRelic(run, 'coin_sword', 1);   // 打倒一隻多拿 8 條：看是誰拿到
+    takeRelic(run, 'coin_sword', 1);   // 打倒一隻多拿 15 條（2026-09-23 平衡 8 → 15）：看是誰拿到
     addPotion(run, 'daze_incense', 1);
     const cs = beginCombat(run, 'rats3');
     const [, b, c] = cs.enemies;
@@ -633,7 +635,7 @@ describe('迷魂香（目標這一輪的攻擊改打牠旁邊的同伴）', () =
     const fish = cs.players.map((p) => p.fishDelta);
     endTurn(cs);
     expect(c!.dead).toBe(true);
-    expect(cs.players.map((p, i) => p.fishDelta - fish[i]!)).toEqual([0, 8]);
+    expect(cs.players.map((p, i) => p.fishDelta - fish[i]!)).toEqual([0, 15]);
   });
 });
 
