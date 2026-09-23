@@ -75,6 +75,19 @@ describe('條件選項（新1）：達成才出現、差一點就不出現', () 
     for (let k = 0; k < i; k++) { expect(visibleChoices(a, ev)).toContain(k); expect(visibleChoices(b, ev)).toContain(k); }
   });
 
+  it('條件選項的效果照劇本：交出鈴鐺換生命上限、交出一個忍具換加料的湯、整包買下付 150 條', () => {
+    const run = newRun('b2-cond-fx');
+    takeRelic(run, 'bell');
+    const max = me(run).maxHp;
+    applyRunEffects(run, eventById['lost_kitten']!.choices[2]!.outcome);
+    expect(me(run).relics).not.toContain('bell');
+    expect(me(run).maxHp).toBe(max + 10);
+    me(run).potions = ['onigiri', 'smoke_bomb', 'shuriken'];
+    applyRunEffects(run, eventById['noisy_kitchen']!.choices[3]!.outcome);
+    expect(me(run).potions.length).toBe(2);
+    expect(eventById['greedy_merchant']!.choices[3]!.costFish).toBe(150);
+  });
+
   it('白貓【反彈】：身上有銅鏡、龜甲、鐵砧任一件也算（起始的銅護臂不算）', () => {
     const ev = eventById['sparring_cat']!;
     const dd = newRun('b2-dd-start', 1, 'dangdang');
