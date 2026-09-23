@@ -120,6 +120,14 @@ JOBS: dict[str, tuple[str, Path, tuple[int, int, int, int] | None, int, str]] = 
                 'three curved pointed gold hooks spread open at the front, a short gold shank with a ring at the back, '
                 'and a SHORT length of tan braided rope trailing behind the ring on the left (the rope ends after about '
                 'one claw-length, loose end fluttering), one thin pale speed streak along the rope.'),
+    # 2026-09-23（內容擴充第一批、批次 c1）：新忍具「火雷珠」（稀有、對全體 14 點）是丟出去的，
+    # 內容參考＝同一批生的忍具圖示 `potion_thunder_bead`；飛法（大小、拋物線）由程式代理接 `PROJECTILE_LOOKS` 時定
+    'thunder_bead': ('1536x1024', ICON / 'potion_thunder_bead.webp', None, 112,
+                     'ONE FIRE-THUNDER BEAD caught IN FLIGHT, lobbed towards the RIGHT: a round glossy dark-red lacquered '
+                     'bomb bead held in a gold metal cage of crossing bands, its short fuse bent BACKWARDS to the left by '
+                     'the wind and burning with a small bright orange flame, a few small crackling zigzag yellow lightning '
+                     'sparks around the bead and a short trail of tiny sparks streaming back to the left. The trail and '
+                     'sparks are small, the bead stays the clear focus.'),
 }
 
 _LOCK = threading.Lock()
