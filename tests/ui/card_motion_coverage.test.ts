@@ -20,6 +20,7 @@ import SRC from '../../src/ui/screens/combat.ts?raw';
 import manifest from '../../public/assets/manifest.json';
 import extraMotionData from '../../src/ui/qiuqiu-extra-motion-data.json';
 import feifeiMotionData from '../../src/ui/feifei-motion-data.json';
+import dangdangMotionData from '../../src/ui/dangdang-motion-data.json';
 import fengfengMotionData from '../../src/ui/fengfeng-motion-data.json';
 import cardMotionRecord from '../../docs/card-motion-assets.json';
 import { cards, starterDeckFor } from '../../src/content/cards';
@@ -69,19 +70,22 @@ const HEROES: readonly { hero: Hero; source: Source }[] = [
  * 列在這裡釘住選到的動作，免得以後被通用規則改成近身撲抓。
  */
 // 2026-09-22 批次 proj：飛行物接上之後，丟東西的牌四隻都原地出手、東西從手上飛出去——
-// 菲菲的聚葉成刀、手裏劍亂舞原本是衝上去爪擊；噹噹三張原本衝上去推掌；封封四張改成左手丟、右手刺（原地）
+// 菲菲的聚葉成刀、手裏劍亂舞原本是衝上去爪擊；噹噹三張原本衝上去推掌；封封四張改成左手丟、右手刺（原地）。
+// 2026-09-23（批次 toss）：借來的那幾套出手前手上是手裏劍、針，或是一記推掌、一記劍刺——丟的不是那樣東西的牌
+// 四隻一律改成空手擲出；拋爪（牌面是甩出去的飛爪，原本近身出招）一起。菲菲的絆索照舊反手甩（手上本來就是空的）
 const RANGED_CARDS: Readonly<Record<Source, Readonly<Record<string, string>>>> = {
-  qiuqiu: { juye: 'shuriken', maoqiudan: 'shuriken' },
-  feifei: { tieshazhang: 'needle_fan', maoqiudan: 'shuriken', qinna: 'needle_backhand', juye: 'needle_fan', luanwu: 'storm' },
-  dangdang: { juye: 'palm_throw', sashoujian: 'palm_throw', maoqiudan: 'palm_throw' },
-  fengfeng: { luanwu: 'thrust_throw', maoqiudan: 'thrust_throw', sashoujian: 'thrust_throw', juye: 'thrust_throw' },
+  qiuqiu: { juye: 'toss', maoqiudan: 'toss', sashoujian: 'toss', paozhao: 'toss', luanwu: 'shuriken' },
+  feifei: { tieshazhang: 'toss', maoqiudan: 'toss', qinna: 'needle_backhand', juye: 'toss', luanwu: 'toss', sashoujian: 'toss', paozhao: 'toss' },
+  dangdang: { juye: 'toss', sashoujian: 'toss', maoqiudan: 'toss', paozhao: 'toss' },
+  fengfeng: { luanwu: 'toss', maoqiudan: 'toss', sashoujian: 'toss', juye: 'toss', paozhao: 'toss' },
 };
 
-/** 八套新圖的貼圖網址（測試用假影像靠它分辨「還沒下載好」） */
+/** 八套新圖＋四套空手擲出（2026-09-23）的貼圖網址（測試用假影像靠它分辨「還沒下載好」） */
 const NEW_TEXTURES = [
-  ...['taiji', 'qinggong', 'focus', 'scroll'].map((a) => (extraMotionData.actions as Record<string, Motion>)[a]!.texture),
-  ...['roar', 'taiji'].map((a) => (feifeiMotionData.actions as Record<string, Motion>)[a]!.texture),
-  ...['roar', 'taiji'].map((a) => (fengfengMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['taiji', 'qinggong', 'focus', 'scroll', 'toss'].map((a) => (extraMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['roar', 'taiji', 'toss'].map((a) => (feifeiMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['toss'].map((a) => (dangdangMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['roar', 'taiji', 'toss'].map((a) => (fengfengMotionData.actions as Record<string, Motion>)[a]!.texture),
 ].map((texture) => `/${texture}`);
 
 const pending = new Set<string>();
@@ -157,6 +161,11 @@ describe('新圖還沒下載好：先播預載的替身，不露出靜態立繪�
     expect(play('qiuqiu', 'qianliyan')).toBe('seal');
     expect(play('feifei', 'weihe')).toBe('seal');
     expect(play('fengfeng', 'yide')).toBe('focus');
+    // 空手擲出還沒到（2026-09-23）：頂著的是原本丟東西借的那套，同樣原地出手
+    expect(play('qiuqiu', 'juye')).toBe('shuriken');
+    expect(play('feifei', 'juye')).toBe('shuriken');
+    expect(play('dangdang', 'juye')).toBe('palm_throw');
+    expect(play('fengfeng', 'juye')).toBe('thrust_throw');
     for (const action of DEFERRED_QIUQIU_CARD_ACTIONS) expect(qiuqiuCardMotionPlayable(action as QiuqiuAction)).toBe(false);
     // 沿用的動作跟著預載，不受影響
     expect(play('qiuqiu', 'jinzhong')).toBe('guard');
@@ -172,11 +181,12 @@ describe('新圖還沒下載好：先播預載的替身，不露出靜態立繪�
     expect(play('qiuqiu', 'qianliyan')).toBe('scroll');
     expect(play('feifei', 'weihe')).toBe('roar');
     expect(play('fengfeng', 'yide')).toBe('taiji');
+    for (const source of ['qiuqiu', 'feifei', 'dangdang', 'fengfeng'] as const) expect(play(source, 'juye'), source).toBe('toss');
   });
 
   it('新圖不進解碼預載（預載完才在背景下載、排進背景解開）', () => {
-    expect([...DEFERRED_QIUQIU_CARD_ACTIONS].sort()).toEqual(['focus', 'qinggong', 'scroll', 'taiji']);
-    expect([...DEFERRED_COMPANION_CARD_ACTIONS].sort()).toEqual(['roar', 'taiji']);
+    expect([...DEFERRED_QIUQIU_CARD_ACTIONS].sort()).toEqual(['focus', 'qinggong', 'scroll', 'taiji', 'toss']);
+    expect([...DEFERRED_COMPANION_CARD_ACTIONS].sort()).toEqual(['roar', 'taiji', 'toss']);
     // beforeAll 裡新圖一直沒載好（load 永遠不來），預載照樣完成＝預載沒有等它們
     expect(qiuqiuMotionReady()).toBe(true);
     for (const kind of ['feifei', 'dangdang', 'fengfeng'] as const) expect(companionMotionReady(kind)).toBe(true);
@@ -230,10 +240,10 @@ describe('每張打得出去的牌都選到有素材的動作', () => {
     // 借力使力（攻擊牌裡的太極）沿用既有攻擊
     expect(motionForCard({ source: 'feifei' }, { uid: 1, cardId: 'jiedao', upgraded: false })).toBe('kick');
     expect(motionForCard({ source: 'fengfeng' }, { uid: 1, cardId: 'jiedao', upgraded: false })).toBe('retreat_thrust');
-    // 菲菲逐張指定的三張：點穴一針、十二連環全撒、撒手鐧飛針
+    // 菲菲逐張指定的三張：點穴一針、十二連環全撒；撒手鐧 2026-09-23 起空手擲出（飛出去的是苦無，不是針）
     expect(motionForCard({ source: 'feifei' }, { uid: 1, cardId: 'dianxue', upgraded: false })).toBe('needle_pierce');
     expect(motionForCard({ source: 'feifei' }, { uid: 1, cardId: 'shierlian', upgraded: false })).toBe('needle_barrage');
-    expect(motionForCard({ source: 'feifei' }, { uid: 1, cardId: 'sashoujian', upgraded: false })).toBe('shuriken');
+    expect(motionForCard({ source: 'feifei' }, { uid: 1, cardId: 'sashoujian', upgraded: false })).toBe('toss');
   });
 });
 

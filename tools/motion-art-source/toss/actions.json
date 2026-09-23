@@ -1,0 +1,97 @@
+{
+  "note": "空手擲出逐格圖（2026-09-23，批次 toss）。times 單位毫秒、照一般速度（載入時跟全部動作一起加快 1.5 倍，motion-speed.ts）。播一次、不循環、播完接回待機；第 8 格回到待機架式。releaseTimes＝出手那一刻（第 4 格開始），東西從手上放出去；impactTimes＝出手＋飛行 170 毫秒（跟球球擲手裏劍同一個飛行時間），飛到魔物身上才算命中。多波（聚葉成刀、手裏劍亂舞打兩輪）由程式照最後一下往後排。sizeFix＝量頭之後的大小修正（打包時乘在 scale 上），1 表示不用修。",
+  "heroes": {
+    "qiuqiu": {
+      "toss": {
+        "times": [
+          70,
+          80,
+          90,
+          70,
+          100,
+          100,
+          90,
+          110
+        ],
+        "releaseTimes": [
+          240
+        ],
+        "impactTimes": [
+          410
+        ],
+        "loop": false,
+        "sizeFix": 1,
+        "attempt": 1
+      }
+    },
+    "feifei": {
+      "toss": {
+        "times": [
+          70,
+          80,
+          90,
+          70,
+          100,
+          100,
+          90,
+          110
+        ],
+        "releaseTimes": [
+          240
+        ],
+        "impactTimes": [
+          410
+        ],
+        "loop": false,
+        "sizeFix": 1,
+        "attempt": 1
+      }
+    },
+    "dangdang": {
+      "toss": {
+        "times": [
+          70,
+          80,
+          90,
+          70,
+          100,
+          100,
+          90,
+          110
+        ],
+        "releaseTimes": [
+          240
+        ],
+        "impactTimes": [
+          410
+        ],
+        "loop": false,
+        "sizeFix": 1,
+        "attempt": 1
+      }
+    },
+    "fengfeng": {
+      "toss": {
+        "times": [
+          70,
+          80,
+          90,
+          70,
+          100,
+          100,
+          90,
+          110
+        ],
+        "releaseTimes": [
+          240
+        ],
+        "impactTimes": [
+          410
+        ],
+        "loop": false,
+        "sizeFix": 1,
+        "attempt": 1
+      }
+    }
+  }
+}

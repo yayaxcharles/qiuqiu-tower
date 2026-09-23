@@ -162,15 +162,17 @@ describe('菲菲卡牌與命中節奏', () => {
           : 'claw',
       cardType: '攻擊',
     }))).toEqual([
-      'shuriken', 'needle_combo', 'needle_combo', 'needle_fan', 'needle_barrage',
+      // 拋爪 2026-09-23 起空手擲出（牌面是甩出去的飛爪，不是針）
+      'toss', 'needle_combo', 'needle_combo', 'needle_fan', 'needle_barrage',
       'needle_pierce', 'needle_barrage', 'needle_fan', 'needle_venom', 'needle_venom',
     ]);
   });
 
-  // 2026-09-22 晚使用者裁定：原本刻意只演卡圖（出牌那一下露出舊立繪），改成配最像的出手——仍是丟出去的，不播拳腳
-  it('毒丸、毒砂與絆索配丟針的出手，不誤播拳腳', () => {
-    expect(companionCardAction('feifei', 'maoqiudan', { poseFamily: 'claw', cardType: '攻擊' })).toBe('shuriken');
-    expect(companionCardAction('feifei', 'tieshazhang', { cardType: '攻擊' })).toBe('needle_fan');
+  // 2026-09-22 晚使用者裁定：原本刻意只演卡圖（出牌那一下露出舊立繪），改成配最像的出手——仍是丟出去的，不播拳腳。
+  // 2026-09-23（批次 toss）：毒丸、毒砂借彈針、撒針時出手前手上是針，改成空手擲出；絆索反手甩那套手上本來就空，不動
+  it('毒丸、毒砂空手擲出、絆索反手甩出去，不誤播拳腳', () => {
+    expect(companionCardAction('feifei', 'maoqiudan', { poseFamily: 'claw', cardType: '攻擊' })).toBe('toss');
+    expect(companionCardAction('feifei', 'tieshazhang', { cardType: '攻擊' })).toBe('toss');
     expect(companionCardAction('feifei', 'qinna', { poseFamily: 'punch', cardType: '攻擊' })).toBe('needle_backhand');
   });
 
@@ -220,8 +222,9 @@ describe('噹噹卡牌與命中節奏', () => {
       dangdang_sheshen: 'reckless_bash', roubao: 'rapid_combo',
       shierlian: 'rapid_combo', luanwu: 'sweep_combo',
       lianhuan: 'sweep_combo', wangming: 'reckless_bash',
-      // 2026-09-22 批次 proj：丟出去的三張改成原地推掌、東西從手上飛出去
-      juye: 'palm_throw', sashoujian: 'palm_throw', maoqiudan: 'palm_throw',
+      // 2026-09-22 批次 proj：丟出去的三張改成原地推掌、東西從手上飛出去；
+      // 2026-09-23（批次 toss）改成空手擲出，拋爪（牌面是甩出去的飛爪）一起
+      juye: 'toss', sashoujian: 'toss', maoqiudan: 'toss', paozhao: 'toss',
     };
     const own = dangdangPlan.heroSpecificCardToAction as Record<string, { action: string }>;
     expect(Object.keys(own)).toHaveLength(31);
@@ -335,11 +338,12 @@ describe('封封卡牌、近戰與收劍節奏', () => {
     expect(companionCardAction('fengfeng', 'fengfeng_pozhen')).toBe('qi_cleave');
     expect(companionCardAction('fengfeng', 'fengfeng_kaishan')).toBe('earth_split');
     expect(companionCardAction('fengfeng', 'fengfeng_huibu')).toBe('retreat_thrust');
-    // 2026-09-22 晚：三張遠程暗器牌不再只演卡圖；同日批次 proj 接上飛行物後，四張丟東西的牌一律左手丟、右手刺（原地）
-    expect(companionCardAction('fengfeng', 'luanwu', { cardType: '攻擊' })).toBe('thrust_throw');
-    expect(companionCardAction('fengfeng', 'maoqiudan', { cardType: '攻擊' })).toBe('thrust_throw');
-    expect(companionCardAction('fengfeng', 'sashoujian', { cardType: '攻擊' })).toBe('thrust_throw');
-    expect(companionCardAction('fengfeng', 'juye', { poseFamily: 'claw', cardType: '攻擊' })).toBe('thrust_throw');
+    // 2026-09-22 晚：三張遠程暗器牌不再只演卡圖；同日批次 proj 接上飛行物後，四張丟東西的牌一律左手丟、右手刺（原地）。
+    // 2026-09-23（批次 toss）：改成空手擲出、劍不出鞘；拋爪一起（原本近身平斬）
+    for (const cardId of ['luanwu', 'maoqiudan', 'sashoujian', 'juye', 'paozhao']) {
+      expect(companionCardAction('fengfeng', cardId, { poseFamily: 'claw', cardType: '攻擊' }), cardId).toBe('toss');
+    }
+    expect(companionIsMelee('fengfeng', 'toss')).toBe(false);
   });
 
   it('五種劍擊與菲菲爪踢貼近目標，技能、飛針與震地保持原位', () => {

@@ -12,7 +12,9 @@ export type QiuqiuPoseAction =
   | 'wounded' | 'power' | 'hungry' | 'dizzy' | 'lazy' | 'iron' | 'curl'
   // 2026-09-22 補的出牌動作：太極、輕功、能力牌（運氣）、抽牌（翻卷軸）。原本這些牌選不到動作，
   // 出牌時動作畫布收起來、舊版靜態立繪亮 0.65 秒，畫風跳一下。
-  | 'taiji' | 'qinggong' | 'focus' | 'scroll';
+  | 'taiji' | 'qinggong' | 'focus' | 'scroll'
+  // 2026-09-23 補的空手擲出：丟葉片、苦無、毛球、飛爪與丟出去的忍具（原本借擲手裏劍，出手前手上是一枚手裏劍）
+  | 'toss';
 
 type Segment = {
   action: QiuqiuPoseAction;

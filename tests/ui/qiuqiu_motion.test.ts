@@ -343,18 +343,19 @@ describe('球球完整動作合約', () => {
       ruying: 'clone_duo',
       tieshazhang: 'attack3',
       qinna: 'attack3',
-      // 2026-09-22 晚：遠程暗器兩張不再只演卡圖（出牌會露出舊立繪），跟撒手鐧同一套原地擲出
-      juye: 'shuriken',
+      // 2026-09-22 晚：遠程暗器兩張不再只演卡圖（出牌會露出舊立繪），跟撒手鐧同一套原地擲出；
+      // 2026-09-23（批次 toss）丟的不是手裏劍，改成空手擲出（撒手鐧、毛球彈、拋爪一起；手裏劍亂舞照舊擲手裏劍）
+      juye: 'toss',
       tietou: 'body_bash',
       shihou: 'roar',
       dianxue: 'attack1',
       zuiquan: 'attack2',
       roubao: 'palm_combo',
       luoye: 'attack4',
-      paozhao: 'attack1',
+      paozhao: 'toss',
       canying: 'dash',
       caiweiba: 'flying_kick',
-      sashoujian: 'shuriken',
+      sashoujian: 'toss',
       dieda: 'attack1',
       shibadie: 'palm_combo',
       liandao: 'ultimate_rush',
@@ -367,7 +368,7 @@ describe('球球完整動作合約', () => {
       lianhuan: 'combo_kick',
       beici: 'dash',
       zhuiji: 'dash',
-      maoqiudan: 'shuriken',
+      maoqiudan: 'toss',
       bengquan: 'uppercut',
       ehou: 'attack1',
       jiuweiquan: 'uppercut',
@@ -381,8 +382,8 @@ describe('球球完整動作合約', () => {
       const poseFamily = cardId === 'sanjo' || cardId === 'juye' || cardId === 'maoqiudan' ? 'claw' : undefined;
       expect(qiuqiuCardAction(cardId, poseFamily, 0), cardId).toBe(action);
     }
-    expect(qiuqiuCardAction('juye', 'claw', 2)).toBe('shuriken');
-    expect(qiuqiuCardAction('maoqiudan', 'claw', 2)).toBe('shuriken');
+    expect(qiuqiuCardAction('juye', 'claw', 2)).toBe('toss');
+    expect(qiuqiuCardAction('maoqiudan', 'claw', 2)).toBe('toss');
 
     const expectedSkills: Record<string, QiuqiuAction> = {
       kawarimi: 'seal',

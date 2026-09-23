@@ -18,6 +18,7 @@ import SRC from '../../src/ui/screens/combat.ts?raw';
 import manifest from '../../public/assets/manifest.json';
 import extraMotionData from '../../src/ui/qiuqiu-extra-motion-data.json';
 import feifeiMotionData from '../../src/ui/feifei-motion-data.json';
+import dangdangMotionData from '../../src/ui/dangdang-motion-data.json';
 import fengfengMotionData from '../../src/ui/fengfeng-motion-data.json';
 import { cards, starterDeckFor } from '../../src/content/cards';
 import { events } from '../../src/content/events';
@@ -53,11 +54,12 @@ const HEROES: readonly { hero: Hero; source: Source }[] = [
   { hero: 'dangdang', source: 'dangdang' }, { hero: 'fengfeng', source: 'fengfeng' },
 ];
 
-/** 延後下載的出牌動作圖：測試用假影像靠它模擬「還在下載」 */
+/** 延後下載的出牌動作圖（含 2026-09-23 的空手擲出）：測試用假影像靠它模擬「還在下載」 */
 const DEFERRED_TEXTURES = [
-  ...['taiji', 'qinggong', 'focus', 'scroll'].map((a) => (extraMotionData.actions as Record<string, Motion>)[a]!.texture),
-  ...['roar', 'taiji'].map((a) => (feifeiMotionData.actions as Record<string, Motion>)[a]!.texture),
-  ...['roar', 'taiji'].map((a) => (fengfengMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['taiji', 'qinggong', 'focus', 'scroll', 'toss'].map((a) => (extraMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['roar', 'taiji', 'toss'].map((a) => (feifeiMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['toss'].map((a) => (dangdangMotionData.actions as Record<string, Motion>)[a]!.texture),
+  ...['roar', 'taiji', 'toss'].map((a) => (fengfengMotionData.actions as Record<string, Motion>)[a]!.texture),
 ].map((texture) => `/${texture}`);
 
 const pending = new Set<string>();
@@ -182,18 +184,15 @@ describe('四隻貓 × 拿得到的每一張牌：出牌不會退回舊姿勢立
     pending.clear();
     const motion = await combatMotion();
     const play = (source: Source, cardId: string) => motion.card({ source }, { uid: 1, cardId, upgraded: false });
-    // 毛球彈四隻都會
-    expect(play('qiuqiu', 'maoqiudan')).toBe('shuriken');
-    expect(play('feifei', 'maoqiudan')).toBe('shuriken');
-    // 2026-09-22 批次 proj：噹噹、封封丟東西改成「丟東西版」的原地推掌、原地一刺（東西從手上飛出去）
-    expect(play('dangdang', 'maoqiudan')).toBe('palm_throw');
-    expect(play('fengfeng', 'maoqiudan')).toBe('thrust_throw');
-    // 球球聚葉成刀；菲菲鐵砂掌（毒砂）、擒拿手（絆索）；封封撒手鐧、手裏劍亂舞
-    expect(play('qiuqiu', 'juye')).toBe('shuriken');
-    expect(play('feifei', 'tieshazhang')).toBe('needle_fan');
+    // 毛球彈四隻都會。2026-09-23（批次 toss）起四隻都是空手擲出：原本球球擲手裏劍、菲菲彈針（出手前手上的東西不對），
+    // 噹噹、封封是原地推掌、原地一刺
+    for (const source of ['qiuqiu', 'feifei', 'dangdang', 'fengfeng'] as const) expect(play(source, 'maoqiudan'), source).toBe('toss');
+    // 球球聚葉成刀；菲菲鐵砂掌（毒砂）、擒拿手（絆索，反手甩、手上本來就空）；封封撒手鐧、手裏劍亂舞
+    expect(play('qiuqiu', 'juye')).toBe('toss');
+    expect(play('feifei', 'tieshazhang')).toBe('toss');
     expect(play('feifei', 'qinna')).toBe('needle_backhand');
-    expect(play('fengfeng', 'sashoujian')).toBe('thrust_throw');
-    expect(play('fengfeng', 'luanwu')).toBe('thrust_throw');
+    expect(play('fengfeng', 'sashoujian')).toBe('toss');
+    expect(play('fengfeng', 'luanwu')).toBe('toss');
     // 噹噹的貓抓：正常玩拿不到（球球的起手牌），盤點是硬塞進去測的；照規則也配得到
     expect(play('dangdang', 'sanjo')).toBe('palm');
     // 黏液、眼冒金星：噹噹原本列在不配動作的名單裡
@@ -224,16 +223,17 @@ describe('四隻貓 × 35 種忍具：用忍具不會退回舊姿勢立繪', () 
     pending.clear();
     const motion = await combatMotion();
     const use = (source: Source, id: string) => motion.potion({ source }, id);
-    // 2026-09-22 批次 proj：煙霧彈、鞭炮、麻繩是丟出去的（原本施術），跟手裡劍一樣擲出去；菲菲的麻繩反手甩出去
+    // 2026-09-22 批次 proj：煙霧彈、鞭炮、麻繩是丟出去的（原本施術）。2026-09-23（批次 toss）起丟的一律空手擲出，
+    // 只有球球丟手裡劍照舊擲手裏劍（手上那枚剛好對）；菲菲的麻繩反手甩出去、三連針用連針
     expect(['smoke_bomb', 'shuriken', 'claw_oil', 'firecracker', 'rope', 'needle_rain'].map((id) => use('qiuqiu', id)))
-      .toEqual(['shuriken', 'shuriken', 'seal', 'shuriken', 'shuriken', 'shuriken']);
+      .toEqual(['toss', 'shuriken', 'seal', 'toss', 'toss', 'toss']);
     expect(['smoke_bomb', 'shuriken', 'claw_oil', 'firecracker', 'rope', 'needle_rain'].map((id) => use('feifei', id)))
-      .toEqual(['shuriken', 'shuriken', 'seal', 'shuriken', 'needle_backhand', 'needle_combo']);
-    // 噹噹、封封沒有投擲動作：原地推掌、原地一刺（丟東西版，出手格放出飛行物）；施術用運氣
+      .toEqual(['toss', 'toss', 'seal', 'toss', 'needle_backhand', 'needle_combo']);
+    // 噹噹、封封原本沒有投擲動作、借原地推掌與原地一刺；2026-09-23 起有自己的空手擲出。施術用運氣
     expect(['smoke_bomb', 'shuriken', 'claw_oil', 'needle_rain'].map((id) => use('dangdang', id)))
-      .toEqual(['palm_throw', 'palm_throw', 'focus', 'palm_throw']);
+      .toEqual(['toss', 'toss', 'focus', 'toss']);
     expect(['smoke_bomb', 'shuriken', 'claw_oil', 'needle_rain'].map((id) => use('fengfeng', id)))
-      .toEqual(['thrust_throw', 'thrust_throw', 'focus', 'thrust_throw']);
+      .toEqual(['toss', 'toss', 'focus', 'toss']);
     for (const { source } of HEROES) {
       expect(use(source, 'onigiri'), source).toBe('eat');
       expect(use(source, 'nine_lives'), source).toBe('eat');

@@ -19,7 +19,7 @@ export type QiuqiuAction = QiuqiuPoseAction
   | 'ultimate_storm'
   | 'ultimate_rush';
 
-type Motion = FrameMotion & Readonly<{ impactTimes?: readonly number[] }>;
+type Motion = FrameMotion & Readonly<{ impactTimes?: readonly number[]; releaseTimes?: readonly number[] }>;
 
 export type QiuqiuActor = FrameMotionActor<QiuqiuAction>;
 
@@ -72,6 +72,8 @@ const FALLBACK_POSES: Partial<Record<QiuqiuPoseAction, QiuqiuPoseAction>> = {
   qinggong: 'jump',
   focus: 'seal',
   scroll: 'seal',
+  // 2026-09-23 的空手擲出：缺了就退回擲手裏劍（同一個出手節拍）
+  toss: 'shuriken',
 };
 
 const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
@@ -95,16 +97,18 @@ const CARD_ACTIONS: Readonly<Record<string, QiuqiuAction>> = {
   zuiquan: 'attack2',
   roubao: 'palm_combo',
   luoye: 'attack4',
-  paozhao: 'attack1',
+  // 拋爪的牌面是甩出去的帶繩飛爪（2026-09-23 美術盤點），原本是近身爪擊
+  paozhao: 'toss',
   canying: 'dash',
   shunkan: 'dash',
   beici: 'dash',
   zhuiji: 'dash',
-  sashoujian: 'shuriken',
-  // 2026-09-22 晚：原本刻意只演卡圖、不配動作（葉片飛刃、丟出去的毛球），出牌時露出舊立繪。
-  // 兩張都是丟出去的暗器，跟撒手鐧、手裏劍亂舞同一套：原地擲出，手裏劍飛過去
-  juye: 'shuriken',
-  maoqiudan: 'shuriken',
+  // 2026-09-22 晚：聚葉成刀、毛球彈原本刻意只演卡圖、不配動作（葉片飛刃、丟出去的毛球），出牌時露出舊立繪，
+  // 當晚先借擲手裏劍。2026-09-23 美術盤點：借來的那套出手前手上捏著一枚手裏劍，飛出去的卻是葉片、苦無、毛球——
+  // 丟的不是手裏劍的牌一律改成空手擲出（手裏劍亂舞照舊擲手裏劍，見 `qiuqiuCardAction`）
+  sashoujian: 'toss',
+  juye: 'toss',
+  maoqiudan: 'toss',
   dieda: 'attack1',
   shibadie: 'palm_combo',
   bengquan: 'uppercut',
@@ -313,7 +317,7 @@ function motionKeyForPose(action: QiuqiuPoseAction): string {
  * 2026-09-22 補的出牌動作（太極、輕功、運氣、翻卷軸）。比照待機狀態圖：不解碼預載，
  * 預載完才在背景下載並排進背景解開——一場戰鬥不一定用得到，全部解碼預載會把常用的爪擊圖擠出快取。
  */
-export const DEFERRED_QIUQIU_CARD_ACTIONS: ReadonlySet<string> = new Set(['taiji', 'qinggong', 'focus', 'scroll']);
+export const DEFERRED_QIUQIU_CARD_ACTIONS: ReadonlySet<string> = new Set(['taiji', 'qinggong', 'focus', 'scroll', 'toss']);
 export const DEFERRED_QIUQIU_ACTIONS: ReadonlySet<string> = new Set([...DEFERRED_REST_ACTIONS, ...DEFERRED_QIUQIU_CARD_ACTIONS]);
 
 const qiuqiuFrameMotions = createFrameMotionSet<QiuqiuAction>({
@@ -364,8 +368,14 @@ export function qiuqiuCardMotionPlayable(action: QiuqiuAction): boolean {
  * 延後下載的出牌動作圖還沒到時，先用哪個預載好的動作頂著（2026-09-22 晚）。
  * 原本這時交還靜態立繪，第一場戰鬥網路慢一點就會露出舊畫風；替身都是預載的，不會停在上一個動作的最後一格。
  * 輕功用翻滾不用 `jump`：跳躍那套停在半空，接回待機會一下子掉回地上。
+ * 空手擲出（2026-09-23）還沒到就先擲手裏劍：同樣是原地丟、同樣從手上飛出去（手上那一枚不對，但只在圖還沒下載好時）。
  */
-const DEFERRED_CARD_STAND_IN: Readonly<Record<string, QiuqiuAction>> = { taiji: 'seal', qinggong: 'roll', focus: 'seal', scroll: 'seal' };
+const DEFERRED_CARD_STAND_IN: Readonly<Record<string, QiuqiuAction>> = { taiji: 'seal', qinggong: 'roll', focus: 'seal', scroll: 'seal', toss: 'shuriken' };
+
+/** 空手擲出第幾毫秒出手（已換成 1.5 倍速）；東西從手上放出去的那一刻，飛多久＝命中－出手（`projectile-flight.ts`） */
+export function qiuqiuTossRelease(): number {
+  return motions.toss?.releaseTimes?.[0] ?? QIUQIU_SHURIKEN_RELEASE_MS;
+}
 
 /** 出牌、用忍具時實際要播的動作：播得了就是它，延後下載的圖還沒到就換成替身。 */
 export function qiuqiuPlayableAction(action: QiuqiuAction): QiuqiuAction {
