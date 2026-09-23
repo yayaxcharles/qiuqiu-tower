@@ -63,7 +63,7 @@ export function startCombat(input: {
     set fishDelta(v: number) { (this.players[0] as PlayerCombat).fishDelta = v; },
     enemies: [],
     turn: 0, phase: 'player', pending: null, log: [], hits: [], encounterId: input.encounterId,
-    stolenFish: 0, energyGain: 0, damageDealt: 0, relicFired: [], kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
+    stolenFish: 0, energyGain: 0, relicFired: [], kills: 0, cardsPlayed: 0, nextEnemyUid: 1,
     // 魔物塞牌用的編號從牌組最大編號 +1 起跳，不會跟原本的牌撞號
     nextCardUid: input.deck.reduce((m, c) => Math.max(m, c.uid), 0) + 1,
   };

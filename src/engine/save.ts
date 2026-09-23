@@ -32,7 +32,6 @@ const PREFIX = BASE_PATH || 'qiuqiu-tower';
 /** 匯出給測試用：測試寫死字串的話，這裡一改就會默默測到不存在的鍵 */
 export const RUN_KEY = `${PREFIX}/run`;
 export const BEST_KEY = `${PREFIX}/best`;
-const UNLOCK_KEY = `${PREFIX}/difficulty-unlocked`;
 const SELECT_KEY = `${PREFIX}/difficulty`;
 
 function memoryStore(): KeyValueStore {
@@ -273,7 +272,11 @@ export function loadBestFor(level: number): BestRecord | null {
     return b as BestRecord;
   } catch { return null; }
 }
-/** 解鎖到第幾級難度。2026-09-03 使用者拍板：五級預設全開，讓玩家自己選；通關紀錄仍照舊寫（UNLOCK_KEY），只是不再拿來鎖 */
+/**
+ * 解鎖到第幾級難度。2026-09-03 使用者拍板：五級預設全開，讓玩家自己選。
+ * 以前通關會寫一個「解鎖到第幾級」的鍵，全開之後那行的條件永遠不成立、從沒寫過，2026-09-23 拿掉（health H-7）。
+ * 舊版寫過的那個鍵（`/difficulty-unlocked`）留在玩家瀏覽器裡也沒人讀，不必清。
+ */
 export function unlockedDifficulty(): number {
   return MAX_DIFFICULTY;
 }
@@ -287,10 +290,9 @@ export function recordBest(run: RunState, date = new Date().toISOString().slice(
   const old = loadBest();
   const best = old && !better(cur, old) ? old : cur;
   write(BEST_KEY, JSON.stringify(best));
-  // 分難度再記一份；通關就解鎖下一級
+  // 分難度再記一份
   const level = clampDifficulty(run.difficulty ?? 1);
   const oldL = loadBestFor(level);
   write(`${BEST_KEY}/${level}`, JSON.stringify(oldL && !better(cur, oldL) ? oldL : cur));
-  if (cur.won && level < MAX_DIFFICULTY && unlockedDifficulty() <= level) write(UNLOCK_KEY, String(level + 1));
   return best;
 }
