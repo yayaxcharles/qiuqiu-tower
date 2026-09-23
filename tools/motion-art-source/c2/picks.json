@@ -1,0 +1,442 @@
+{
+  "potion_bento": {
+    "attempt": 1,
+    "key": "codex/potion_bento",
+    "file": "public/assets/icons/potion_bento.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 8330,
+    "droppedSpecks": 82,
+    "semiTransparentShare": 0.0894,
+    "gate": [],
+    "sha256": "8c75e10b501bdddb5a5e8de20f59310bdc29e3d27f5996ba781869633e120887",
+    "at": "2026-09-23 20:25:39"
+  },
+  "potion_daze_incense": {
+    "attempt": 1,
+    "key": "codex/potion_daze_incense",
+    "file": "public/assets/icons/potion_daze_incense.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5154,
+    "droppedSpecks": 170,
+    "semiTransparentShare": 0.1683,
+    "gate": [],
+    "sha256": "5f13237f9f7766dc0547d9e658de7dc8a6d1298e2a02ce52c3c4ef3f1762d5a3",
+    "at": "2026-09-23 20:25:42"
+  },
+  "potion_demon_mirror": {
+    "attempt": 1,
+    "key": "codex/potion_demon_mirror",
+    "file": "public/assets/icons/potion_demon_mirror.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7612,
+    "droppedSpecks": 100,
+    "semiTransparentShare": 0.1194,
+    "gate": [],
+    "sha256": "e32f3dead99f330215a065af4fbc6ebf2be2d3b7f0d297ca05af5b15237a3230",
+    "at": "2026-09-23 20:25:39"
+  },
+  "potion_revive_incense": {
+    "attempt": 1,
+    "key": "codex/potion_revive_incense",
+    "file": "public/assets/icons/potion_revive_incense.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5992,
+    "droppedSpecks": 95,
+    "semiTransparentShare": 0.1486,
+    "gate": [],
+    "sha256": "af1823144c30df33c87d2dd7034bb1335fdc88ec80017e29fa04da99ee42558a",
+    "at": "2026-09-23 20:25:38"
+  },
+  "potion_swap_talisman": {
+    "attempt": 1,
+    "key": "codex/potion_swap_talisman",
+    "file": "public/assets/icons/potion_swap_talisman.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6758,
+    "droppedSpecks": 177,
+    "semiTransparentShare": 0.1817,
+    "gate": [],
+    "sha256": "ab623e5eba0f5704fd35b09ba80c1d4362f3df04c54f9329bed07800a66968ef",
+    "at": "2026-09-23 20:25:41"
+  },
+  "potion_transfer_pill": {
+    "attempt": 1,
+    "key": "codex/potion_transfer_pill",
+    "file": "public/assets/icons/potion_transfer_pill.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 8932,
+    "droppedSpecks": 134,
+    "semiTransparentShare": 0.1136,
+    "gate": [],
+    "sha256": "5a25abea210401fd8440436e02cfcb1f905d4c9e6c115832b95f674669172e63",
+    "at": "2026-09-23 20:25:40"
+  },
+  "relic_bandit_iou": {
+    "attempt": 1,
+    "key": "codex/relic_bandit_iou",
+    "file": "public/assets/icons/relic_bandit_iou.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6676,
+    "droppedSpecks": 77,
+    "semiTransparentShare": 0.138,
+    "gate": [],
+    "sha256": "75decf378fb013f965a5fe4d6eac5b8664fd49a219fff16b1eeae670ea24693a",
+    "at": "2026-09-23 20:24:25"
+  },
+  "relic_clone_scroll": {
+    "attempt": 1,
+    "key": "codex/relic_clone_scroll",
+    "file": "public/assets/icons/relic_clone_scroll.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5472,
+    "droppedSpecks": 219,
+    "semiTransparentShare": 0.1097,
+    "gate": [],
+    "sha256": "ff87c61c3d523c35f999235dc8cf4bb28d6821c56802bd1c2d82620e8c92bb8a",
+    "at": "2026-09-23 20:24:20"
+  },
+  "relic_dart_case": {
+    "attempt": 1,
+    "key": "codex/relic_dart_case",
+    "file": "public/assets/icons/relic_dart_case.webp",
+    "counterCorner": 44,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5532,
+    "droppedSpecks": 66,
+    "semiTransparentShare": 0.0938,
+    "gate": [],
+    "sha256": "a2cf86d2b1c54c4241a7dca299644403a68b9704e4e16ea55dbacd2bb541e559",
+    "at": "2026-09-23 20:24:15"
+  },
+  "relic_demon_shard": {
+    "attempt": 1,
+    "key": "codex/relic_demon_shard",
+    "file": "public/assets/icons/relic_demon_shard.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5842,
+    "droppedSpecks": 477,
+    "semiTransparentShare": 0.2049,
+    "gate": [],
+    "sha256": "f697b317872095d2a839b95d3b764c5ac653f8914b92bc71c97197fbe1d43bc4",
+    "at": "2026-09-23 20:24:24"
+  },
+  "relic_five_poison_manual": {
+    "attempt": 1,
+    "key": "codex/relic_five_poison_manual",
+    "file": "public/assets/icons/relic_five_poison_manual.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7428,
+    "droppedSpecks": 97,
+    "semiTransparentShare": 0.0844,
+    "gate": [],
+    "sha256": "0d0817a36aa4b2c96c3d5448bd8bf8e681ee47d8858246e45ab47cd353a282d1",
+    "at": "2026-09-23 20:24:18"
+  },
+  "relic_full_moon_sword": {
+    "attempt": 1,
+    "key": "codex/relic_full_moon_sword",
+    "file": "public/assets/icons/relic_full_moon_sword.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7414,
+    "droppedSpecks": 159,
+    "semiTransparentShare": 0.1624,
+    "gate": [],
+    "sha256": "110144eba4d13ab1836642f742b59ed831b4449ec42d41d496b82d8164f45ab7",
+    "at": "2026-09-23 20:24:17"
+  },
+  "relic_hourglass": {
+    "attempt": 1,
+    "key": "codex/relic_hourglass",
+    "file": "public/assets/icons/relic_hourglass.webp",
+    "counterCorner": 44,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6478,
+    "droppedSpecks": 142,
+    "semiTransparentShare": 0.1313,
+    "gate": [],
+    "sha256": "0effaa52a3437b0605b42a9a6881e7b1c9a9dcce3c62c56e233a42d6f3459339",
+    "at": "2026-09-23 20:24:14"
+  },
+  "relic_incense_stick": {
+    "attempt": 2,
+    "key": "codex/relic_incense_stick",
+    "file": "public/assets/icons/relic_incense_stick.webp",
+    "counterCorner": 44,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 5360,
+    "droppedSpecks": 91,
+    "semiTransparentShare": 0.161,
+    "gate": [],
+    "sha256": "3b643d883e924b948f47668565c467dcaeaac4da0483c630dbdc131e652b0bb7",
+    "at": "2026-09-23 20:27:26"
+  },
+  "relic_iron_wall": {
+    "attempt": 1,
+    "key": "codex/relic_iron_wall",
+    "file": "public/assets/icons/relic_iron_wall.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6044,
+    "droppedSpecks": 129,
+    "semiTransparentShare": 0.0877,
+    "gate": [],
+    "sha256": "d905ca4bc85df71cd30b5cd912bfaf2317b53e3fb3aa0ee23dd3dd66d8dcd859",
+    "at": "2026-09-23 20:24:19"
+  },
+  "relic_master_wood_sword": {
+    "attempt": 1,
+    "key": "codex/relic_master_wood_sword",
+    "file": "public/assets/icons/relic_master_wood_sword.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 3928,
+    "droppedSpecks": 48,
+    "semiTransparentShare": 0.2341,
+    "gate": [],
+    "sha256": "2673c9da6d1df6a3692ba9657161ee4d0799392c359230231dbc76871e9becb0",
+    "at": "2026-09-23 20:24:26"
+  },
+  "relic_member_card": {
+    "attempt": 1,
+    "key": "codex/relic_member_card",
+    "file": "public/assets/icons/relic_member_card.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 6650,
+    "droppedSpecks": 121,
+    "semiTransparentShare": 0.1008,
+    "gate": [],
+    "sha256": "990ab7bbef438d2fc1d195e2bab7f883f02a111ba81e92cbbacd2f8c0eb35762",
+    "at": "2026-09-23 20:24:21"
+  },
+  "relic_piggy_bank": {
+    "attempt": 1,
+    "key": "codex/relic_piggy_bank",
+    "file": "public/assets/icons/relic_piggy_bank.webp",
+    "counterCorner": 44,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 4774,
+    "droppedSpecks": 25,
+    "semiTransparentShare": 0.0985,
+    "gate": [],
+    "sha256": "a1ce03347f103d41691db81e234fe161669af37afa8e079662725a127f29a055",
+    "at": "2026-09-23 20:24:16"
+  },
+  "relic_sheath_pendant": {
+    "attempt": 1,
+    "key": "codex/relic_sheath_pendant",
+    "file": "public/assets/icons/relic_sheath_pendant.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 4630,
+    "droppedSpecks": 77,
+    "semiTransparentShare": 0.2412,
+    "gate": [],
+    "sha256": "83775d8c8136aef99be9fa5dc8eca3ee717607d20baa18a2aceb8627330db116",
+    "at": "2026-09-23 20:24:18"
+  },
+  "relic_shop_abacus": {
+    "attempt": 1,
+    "key": "codex/relic_shop_abacus",
+    "file": "public/assets/icons/relic_shop_abacus.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 8780,
+    "droppedSpecks": 190,
+    "semiTransparentShare": 0.1773,
+    "gate": [],
+    "sha256": "d347b67738306fbf84e25af298f7f45c0054b9e16d346ce2cbf3c720f2bc3df1",
+    "at": "2026-09-23 20:24:22"
+  },
+  "relic_wholesale_crate": {
+    "attempt": 1,
+    "key": "codex/relic_wholesale_crate",
+    "file": "public/assets/icons/relic_wholesale_crate.webp",
+    "counterCorner": null,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7912,
+    "droppedSpecks": 56,
+    "semiTransparentShare": 0.0696,
+    "gate": [],
+    "sha256": "47167ff574bc178c0d7421058ea2c233ed5ddbdcdf3fd5df1bb3a17499c0d088",
+    "at": "2026-09-23 20:24:23"
+  },
+  "relic_wooden_dummy": {
+    "attempt": 1,
+    "key": "codex/relic_wooden_dummy",
+    "file": "public/assets/icons/relic_wooden_dummy.webp",
+    "counterCorner": 44,
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 4794,
+    "droppedSpecks": 89,
+    "semiTransparentShare": 0.131,
+    "gate": [],
+    "sha256": "aa867bb7c4155b571aa663e820d0702a175a09b5fd7b3d5851f19e4a4c0dcff9",
+    "at": "2026-09-23 20:24:13"
+  }
+}
