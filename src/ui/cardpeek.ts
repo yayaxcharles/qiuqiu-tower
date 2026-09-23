@@ -61,7 +61,8 @@ function showPeek(node: HTMLElement): HTMLElement | null {
   const h = node.offsetHeight;
   const cx = (r.left + r.width / 2 - f.left) * f.k;
   const cy = (r.top + r.height / 2 - f.top) * f.k;
-  const text = node.querySelector<HTMLElement>('.card-text');
+  // 牌的說明是 .card-text；罐頭鋪秘寶／忍具格的說明是 .small（主控裁定四，貨架格也掛這支）
+  const text = node.querySelector<HTMLElement>('.card-text, .small');
   const textPx = text ? parseFloat(getComputedStyle(text).fontSize) : 13;
   const { left, top, scale } = peekLayout({ x: cx - w / 2, y: cy - h / 2, w, h }, 1 / f.k, textPx);
   const clone = node.cloneNode(true) as HTMLElement;
@@ -74,7 +75,7 @@ function showPeek(node: HTMLElement): HTMLElement | null {
   return wrap;
 }
 
-/** 掛到一張牌上。桌機（滑鼠、或 html 不是 phone）什麼都不做 */
+/** 掛到一張牌（或罐頭鋪的一格貨）上。桌機（滑鼠、或 html 不是 phone）什麼都不做 */
 export function attachCardPeek(node: HTMLElement): void {
   let timer = 0;
   let start: { x: number; y: number; t: number; type: string } | null = null;

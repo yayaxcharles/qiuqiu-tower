@@ -21,8 +21,7 @@ html[data-device="phone"][data-orient="landscape"] #stage .toast { font-size: 22
   （實機截圖：第一版名字 20＋血條 28 高，貓和老鼠整隻浮起 17 像素）。所以名字不放大，血條只加高 6、上邊距 2 拿掉，淨浮 4 */
 html[data-device="phone"][data-orient="landscape"] .combat .hpbar { height: 24px; margin-top: 0; font-size: 20px; line-height: 20px; }
 /* 意圖牌（絕對定位，不影響排版）、狀態牌子。
-   左下角的牌堆計數與戰鬥紀錄不動：紀錄框固定四行高（216×86）、貼著牌堆計數的下緣，兩邊任一個放大就疊在一起
-  （實機截圖：紀錄放大蓋到「消耗／連抓」，計數放大也一樣）；這兩塊本來就是輔助，照原樣 */
+   左下角的牌堆計數與戰鬥紀錄第一版照原樣放大會疊在一起（紀錄蓋到「消耗／連抓」），改排法的做法在下面「主控裁定四」那段 */
 html[data-device="phone"][data-orient="landscape"] .combat .intent { font-size: 19px; }
 html[data-device="phone"][data-orient="landscape"] .combat .chip { font-size: 16px; }
 
@@ -40,6 +39,29 @@ html[data-device="phone"][data-orient="landscape"] .combat .end-force { font-siz
 html[data-device="phone"][data-orient="landscape"] .combat .end-undo { top: 628px; }
 html[data-device="phone"][data-orient="landscape"] .combat .end-force { top: 674px; }
 
+/* ===== 主控裁定四：牌堆計數、戰鬥紀錄、狀態列小鈕、罐頭鋪秘寶／忍具格 =====
+   左下角這一塊高度是死的：側欄（飯糰、忍具、計數）底邊 627，紀錄框貼著它、最高 86、底邊 714。
+   計數 13 → 18：兩欄三列改三欄兩列（第一列「第 N 回合」佔兩格＋連抓，第二列抽牌／棄牌／消耗），高度不增反減。
+   紀錄 12.5 → 18：框不加高，四行換三行（最新的貼底，舊的從上面切掉），字大到讀得到，代價是一次看到的句子變少 */
+html[data-device="phone"][data-orient="landscape"] .combat .piles { grid-template-columns: repeat(3, auto); column-gap: 8px; font-size: 18px; }
+html[data-device="phone"][data-orient="landscape"] .combat .piles span:first-child { grid-column: 1 / 3; }
+html[data-device="phone"][data-orient="landscape"] .combat .piles > :last-child { grid-row: 1; grid-column: 3; }
+/* 行高寫死 24、上內距拿掉、框高剛好三行（72＋下內距 6）：原本 6 的上內距裡會露出被切掉那一行的下半截（實機截圖），
+   行高整數、框高是行高的倍數，切線就一定落在兩行中間 */
+html[data-device="phone"][data-orient="landscape"] .combat .log { font-size: 18px; line-height: 24px; padding-top: 0; max-height: 78px; }
+/* 狀態列的小鈕（牌組、圖鑑、分享、音樂、音效）15 → 17、內距收窄。狀態列是一整條橫排、寬度是死的，量過（740×360）：
+   19 時秘寶一大堆（.crowded）最右邊的音效鈕被擠到 1316、出了舞台；秘寶六件（還差一件才算 crowded）也到 1289；
+   而血條是整列唯一會縮的，鈕一放大它就被擠到剩一小截、「76 / 76 生命」切掉。所以鈕 17、血條保底 150、擠的時候音量拉桿窄一點 */
+html[data-device="phone"][data-orient="landscape"] .hud .btn.small { font-size: 17px; padding: 3px 6px; }
+html[data-device="phone"][data-orient="landscape"] .hud .hud-hp { min-width: 150px; }
+html[data-device="phone"][data-orient="landscape"] .hud.crowded .btn.small { padding: 3px 6px; }
+html[data-device="phone"][data-orient="landscape"] .hud.crowded .hud-vol { width: 36px; }
+html[data-device="phone"][data-orient="landscape"] .hud .hud-hp span { font-size: 18px; }
+/* 罐頭鋪：名字、價錢在格子裡放大；說明文字格子放不下，跟手牌一樣按住放大（shop.ts 的秘寶／忍具格也掛 cardpeek） */
+html[data-device="phone"][data-orient="landscape"] .shop-item .shop-name { font-size: 19px; }
+html[data-device="phone"][data-orient="landscape"] .shop-item .price { font-size: 19px; }
+html[data-device="phone"][data-orient="landscape"] .shop-item .price.sale b { font-size: 19px; }
+
 /* 教學條 15 → 20（主控裁定三：手機多一句「按住牌可以放大看」，那句不能又是 8 像素）。
    條要維持一行：兩行時底邊到 122，魔物頭上的開場泡泡（約 108 起）正好蓋住第二行（實機截圖）。
    寬度照內容（width: max-content）：left 50% 的絕對定位預設只給得到半個舞台寬（640），放大的字會擠成三行；
@@ -49,17 +71,20 @@ html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-step { font-siz
 html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-close { font-size: 20px; }
 html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-touch { color: #ffd98a; }
 
-/* 按住手牌放大的那張（cardpeek.ts）：畫在疊層最上面、不吃手指（放開要落回原本那張牌） */
+/* 按住手牌（或罐頭鋪一格貨）放大的那張（cardpeek.ts）：畫在疊層最上面、不吃手指（放開要落回原本那張牌）。
+   裡面那張可能是牌、也可能是貨架格，一律從左上角放大（不然放大後會偏離外框） */
 .card-peek {
   position: absolute;
   z-index: 70;
   pointer-events: none;
 }
-.card-peek > .card {
+.card-peek > * {
   margin: 0 !important;
   transform-origin: 0 0;
   animation: none !important;
   box-shadow: 0 12px 32px #000000b3, 0 0 0 3px #ffd35c;
 }
+/* 放大的是買不起的那格：貨架上把說明調成半透明（.poor），放大來讀的時候字要實心；價錢照樣是紅字，看得出買不起 */
+.card-peek > .shop-item.poor > :not(.price) { opacity: 1; }
 /* 長按時手機會跳出圖片選單或選字：牌上一律不要 */
 html[data-device="phone"] .card { -webkit-touch-callout: none; }
