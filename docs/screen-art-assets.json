@@ -235,16 +235,8 @@
       "oldBytes": 24532
     },
     "qiuqiu/cover": {
-      "attempt": {
-        "cat": 1,
-        "dust": 3
-      },
-      "source": {
-        "cat": "qiuqiu_cat.try1.png",
-        "dust": "qiuqiu_dust.try3.png"
-      },
       "sizeBy": "eye",
-      "eye": "正面三分之一側的貼圖，拿朝右的待機頭比對量不準（下午那批同樣是人眼）；貓與煙塵分開生，貓外框高度照舊貼圖量到的貓外框放大（球球 359、菲菲 389、噹噹 402、封封 400 像素），四隻並排看過：頭身比跟新版待機第 1 格一致，頭的大小跟舊貼圖相近、四隻彼此一致",
+      "eye": "09-01 原版貼圖（使用者 2026-09-23 裁定換回），不是照新版待機縮放的，頭的大小以原版為準",
       "pxPerUnit": 1.3273,
       "canvas": [
         560,
@@ -252,7 +244,7 @@
       ],
       "box": [
         24,
-        172,
+        166,
         542,
         533
       ],
@@ -265,14 +257,14 @@
       "soleLine": 533,
       "key": "hero/cover",
       "file": "public/assets/sprites/hero/cover.webp",
-      "sha256": "02981062ddabdeb16b02af583cf42298c15176aea09ba2006b939cc6022c7cf0",
-      "bytes": 59108,
+      "sha256": "56385f30aee228358e59f9d891353d03631db01a76f3716ab4438341c40d8ca2",
+      "bytes": 55920,
       "oldBytes": 55920,
-      "batch": "proj",
+      "batch": "original",
       "catBox": [
-        143,
+        141,
         172,
-        490,
+        492,
         531
       ],
       "oldCatBox": [
@@ -281,15 +273,9 @@
         492,
         531
       ],
-      "dustBox": [
-        24,
-        184,
-        542,
-        533
-      ],
-      "gapToTitle": -6,
-      "bodyGap": -18,
-      "oldBodyGap": -24
+      "bodyGap": -24,
+      "oldBodyGap": -24,
+      "restored": "使用者 2026-09-23 裁定：球球的標題「參上」貼圖換回 09-01 的原版（b25d7a64 起用、81ca08c4 那張），換新畫風與批次 proj 的兩版都不用；其餘三隻照舊"
     },
     "feifei/idle": {
       "attempt": 1,

@@ -24,10 +24,21 @@ const FILES = record.files as unknown as Record<string, Cover>;
 const OLD_CAT_HEIGHT = { qiuqiu: 359, feifei: 389, dangdang: 402, fengfeng: 400 } as const;
 const OLD_SOLE = { qiuqiu: 533, feifei: 536, dangdang: 536, fengfeng: 531 } as const;
 const sha = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
+// 使用者 2026-09-23：「封面球球參上的圖怎麼改了 改回去」→ 球球那張換回 09-01 的原版（81ca08c4 那張），其餘三隻照這一批
+const ORIGINAL_SHA = { qiuqiu: '56385f30aee228358e59f9d891353d03631db01a76f3716ab4438341c40d8ca2' } as const;
+
+describe('球球的標題貼圖是 09-01 原版（使用者 2026-09-23 裁定）', () => {
+  it('遊戲裡的檔就是原版那張，紀錄也標成原版', () => {
+    const e = FILES['qiuqiu/cover']!;
+    expect(sha(e.file)).toBe(ORIGINAL_SHA.qiuqiu);
+    expect(e.batch).toBe('original');
+  });
+});
 
 describe('標題「參上」貼圖：貓跟舊貼圖一樣大、題字下不再空一截', () => {
   it('四張都是批次 proj 做的，遊戲裡的檔就是紀錄那張', () => {
     for (const hero of Object.keys(OLD_CAT_HEIGHT)) {
+      if (hero in ORIGINAL_SHA) continue;   // 換回原版的那張不是這一批的，見上一段
       const e = FILES[`${hero}/cover`]!;
       expect(e.batch, hero).toBe('proj');
       expect(sha(e.file), hero).toBe(e.sha256);
@@ -49,6 +60,7 @@ describe('標題「參上」貼圖：貓跟舊貼圖一樣大、題字下不再�
 
   it('煙塵補到題字底線下，本體頂端跟舊圖差不多高', () => {
     for (const hero of Object.keys(OLD_CAT_HEIGHT)) {
+      if (hero in ORIGINAL_SHA) continue;   // 原版本身就是「舊圖」，沒有另外量這兩個數字
       const e = FILES[`${hero}/cover`]!;
       expect(e.gapToTitle!, `${hero} 煙塵頂離底線`).toBeLessThanOrEqual(40);
       expect(e.bodyGap! - e.oldBodyGap!, `${hero} 本體頂端比舊圖低`).toBeLessThanOrEqual(20);
