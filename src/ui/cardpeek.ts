@@ -5,15 +5,19 @@ import { overlayRoot } from './overlay';
  * 手機橫拿時「按住一張牌放大看」（2026-09-23 polish 第 8 條）。
  *
  * 手機橫拿舞台只縮到 0.50～0.54，手牌上的說明實際只有 7 像素上下；牌面放不下更大的字（見 phone.css 檔頭）。
- * 所以比照手機牌類遊戲的做法：按住 0.32 秒，在旁邊放一張大的給你看，放開就收，**不會出牌**；
+ * 所以比照手機牌類遊戲的做法：按住 0.45 秒（門檻理由見 PEEK_HOLD_MS），在旁邊放一張大的給你看，放開就收，**不會出牌**；
  * 輕點照舊（出牌、選目標）。只有手機（觸控＋螢幕短邊小於 600，`html[data-device="phone"]`）才開，
  * 桌機用滑鼠一律不走這條（滑鼠本來就有滑過去抬起來＋名詞提示）。
  * 主控最後一輪裁定平板也開：改成看**這一下是不是手指**（pointerType），不看裝置、不看螢幕寬；
  * 滑鼠照舊不走這條，所以桌機用滑鼠不受影響（觸控筆電用手指按也會放大）。
  */
 
-/** 按住多久才放大（毫秒）：比一般輕點（約 100～150）長一截，又不會久到以為沒反應 */
-export const PEEK_HOLD_MS = 320;
+/**
+ * 按住多久才放大（毫秒）。第一版 320（比一般輕點的 100～150 長一截），推前審查（低-3）指出比手機系統的長按短：
+ * 安卓的長按門檻 400～500、iOS 約 500，0.32～0.45 秒的「慢一點的點」是很平常的點法，被當成放大就變成點了不出牌。
+ * 改成 450：跟系統長按同一個量級，玩家本來就知道「按久一點」是另一個意思；再長會讓人以為沒反應
+ */
+export const PEEK_HOLD_MS = 450;
 /** 手指移動超過這麼多（螢幕像素）就當成不是按住 */
 export const PEEK_MOVE_PX = 10;
 /** 放大後說明文字在螢幕上至少幾像素 */
@@ -107,6 +111,12 @@ export function attachCardPeek(node: HTMLElement): void {
   node.addEventListener('pointerdown', (ev) => {
     touched = ev.pointerType !== 'mouse';
     if (!touched) return;
+    // 新的一下就不該被上一次攔（推前審查 低-3）：上一次放大後若沒有 click 來把攔截用掉
+    //（系統長按跳選單、瀏覽器作廢這一下、觸控筆作廢後沒有 touchend），攔截會留到放開後 450 毫秒、甚至下一次放開，
+    // 這段時間再點同一張，那一下會被吃掉（實機：放大後作廢、0.15 秒後再點，牌沒打出去）。先撤掉，上一次的收尾監聽也一起收
+    disarm();
+    lift?.abort();
+    lift = null;
     start = { x: ev.clientX, y: ev.clientY, t: performance.now(), type: ev.pointerType };
     window.clearTimeout(timer);
     timer = window.setTimeout(() => {
