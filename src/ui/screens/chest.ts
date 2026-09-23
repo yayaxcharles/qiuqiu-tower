@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { pick, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
-import { heroesIn, openChest, openChestCoop, runRng } from '../../engine/run';
+import { heroesIn, openChest, openChestCoop, relicForPartnerOnly, runRng } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { registerScreen } from '../app';
@@ -243,9 +243,12 @@ registerScreen('chest', (app, root) => {
       const url = artUrl('icons', d.art);
       const who = picks.map((v, i) => (v === id ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
       const got = taken.includes(id);
-      const slot = el('button', { class: `chest-offer${myPick === id ? ' picked' : ''}${got ? ' got' : ''}` },
+      // 鎖住我、只有同伴用得到的那件要講明白（推前審查 2026-09-23 中-1，照過關三選一的做法）：清單照「有一位用得到」開
+      const partnerOnly = relicForPartnerOnly(run, id, seat);
+      const slot = el('button', { class: `chest-offer${myPick === id ? ' picked' : ''}${got ? ' got' : ''}${partnerOnly ? ' partner-only' : ''}` },
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('b', {}, d.name),
+        partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
         el('span', { class: 'small' }, d.text),
         who.length ? el('span', { class: 'chest-offer-who' }, who.join('、')) : '');
       if (!myPick && !settled && !me(run, seat).down) slot.addEventListener('click', () => { play('click'); coop.pick('relic', id); });

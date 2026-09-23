@@ -812,14 +812,17 @@
 .pick-tile img { width: 72px; height: 72px; object-fit: contain; }
 .pick-tile b { font-size: 17px; }
 .pick-tile em { font-style: normal; font-size: 13px; color: #5a4a3a; line-height: 1.35; }
-/* 連線過關三選一裡鎖住自己、只有同伴用得到的那件（主控 2026-09-23）：名字底下一個橘色小牌子，
-   字級跟說明一樣大再加粗（手機橫拿整個舞台一起縮，說明讀得到它就讀得到）；方塊本身照樣點得下去，只是淡一點 */
-.pick-tile .pick-tile-note {
+/* 連線時鎖住自己、只有同伴用得到的那件（主控 2026-09-23）：名字底下一個橘色小牌子，
+   字級跟說明一樣大再加粗（手機橫拿整個舞台一起縮，說明讀得到它就讀得到）；格子本身照樣點得下去，只是圖淡一點。
+   過關三選一、連線紙箱、大魔物戰利品二選一共用這一個牌子（推前審查 中-1：原本只有過關三選一掛了）。
+   自己帶底色，淺色的方塊（過關）與深色的格子（紙箱、戰利品）上都讀得到 */
+.pick-tile-note {
   font-size: 13px; font-weight: bold; line-height: 1.4;
   padding: 0 8px; border-radius: 7px;
   color: #7a3d12; background: #ffe2bd; border: 1px solid #b8692a;
 }
-.pick-tile.partner-only img { opacity: .7; }
+.relic-offer-text .pick-tile-note { align-self: flex-start; }   /* 戰利品那格是直排的字欄，不要被拉滿整欄寬 */
+.pick-tile.partner-only img, .chest-offer.partner-only img, .relic-offer.partner-only img { opacity: .7; }
 .pick-tile:hover { transform: translateY(-4px); }
 .pick-tile.selected { box-shadow: 0 0 0 4px var(--accent), 0 8px 18px #00000073; transform: translateY(-4px); }
 .scene-art:has(.scene-picks) { top: 50%; transform: translate(-50%, -66%); max-height: none; }
