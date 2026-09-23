@@ -8,7 +8,9 @@ import type { CardInstance, CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
 
 function deck(ids: readonly string[]): CardInstance[] { return ids.map((id, i) => inst(id, i + 1)); }
-function start(encounterId: string, ids: readonly string[] = STARTER_DECK, seed = 's', relics = ['blue_headband'], hp = 70): CombatState {
+// 預設不帶秘寶（2026-09-23 平衡 bal）：藍頭巾改成開場多 1 點爪力，這一檔量的是牌與魔物本身的數字（參上打 6 這類），
+// 帶著它每一下都多 1；要看藍頭巾的那幾條自己傳 ['blue_headband']
+function start(encounterId: string, ids: readonly string[] = STARTER_DECK, seed = 's', relics: string[] = [], hp = 70): CombatState {
   return startCombat({ hp, maxHp: 70, deck: deck(ids), relics, potions: [], encounterId, rng: new Rng(seedFromString(seed)) });
 }
 /** 把指定牌放到手牌最前面（測試用） */
@@ -29,12 +31,17 @@ describe('開戰與回合開始', () => {
     for (const e of cs.enemies) { expect(e.hp).toBeGreaterThanOrEqual(12); expect(e.hp).toBeLessThanOrEqual(15); }
     expect(cs.enemies.map((e) => e.move.label)).toEqual(['啃', '啃', '躲']);
   });
-  it('第一回合：3 顆飯糰、抽 5＋藍頭巾 1', () => {
-    const cs = start('cucumber');
+  it('第一回合：3 顆飯糰、抽 5＋藍頭巾 1（藍頭巾另給 1 點爪力）', () => {
+    const cs = start('cucumber', STARTER_DECK, 's', ['blue_headband']);
     expect(cs.turn).toBe(1);
     expect(cs.player.energy).toBe(3);
     expect(cs.player.hand.length).toBe(6);
     expect(cs.player.drawPile.length).toBe(4);
+    expect(getStatus(cs.player, '爪力')).toBe(1);
+    // 不帶秘寶就是抽 5、沒有爪力
+    const bare = start('cucumber');
+    expect(bare.player.hand.length).toBe(5);
+    expect(getStatus(bare.player, '爪力')).toBe(0);
   });
   it('同種子同結果', () => {
     const a = start('rats2', STARTER_DECK, 'same'); const b = start('rats2', STARTER_DECK, 'same');

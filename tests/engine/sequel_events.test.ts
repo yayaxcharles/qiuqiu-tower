@@ -112,6 +112,7 @@ describe('代價秘寶', () => {
   });
   it('血契短刀：開戰 +3 爪力、最大生命 −12；貪吃錢袋：店價漲三成', () => {
     const run = newRun('costly');
+    me(run).relics = me(run).relics.filter((id) => id !== 'blue_headband');   // 藍頭巾 2026-09-23 起開場給 1 點爪力，這裡只看短刀那 3 點
     const hp0 = me(run).maxHp;
     takeRelic(run, 'blood_dagger');
     expect(me(run).maxHp).toBe(hp0 - 12);

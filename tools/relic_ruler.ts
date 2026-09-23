@@ -217,13 +217,31 @@ export function measureCell(hero: Hero, relicId: string, base: RunRow[], o: { n:
   };
 }
 
+/**
+ * **事件分改用心算的幾件**（2026-09-23 bal，主控追加：機器人 2400 局一次都沒拿過欠條）。
+ *
+ * 錢類秘寶量尺量不準（機器人逛店規則簡單，錢花不滿），量出來只值一層多、換成事件分十幾分；
+ * 可是事件裡跟它並排的常常是「直接拿 N 條小魚乾」，那一邊照 `eventValue` 是一條 0.35 分——
+ * 兩把尺放在同一個選單裡，錢類秘寶永遠比不過一小包現金（牢裡的山賊：欠條量尺 8～12 分、挖 50 條＝17.5 分）。
+ * 這幾件的事件分改成「預期多拿幾條 × 0.35」，跟現金同一把尺。**只蓋事件分**：`score`（過關三選一、罐頭鋪）照實測，
+ * 那是機器人自己用它真正拿得到的好處；欠條只從事件拿，本來就不會出現在三選一或罐頭鋪。
+ */
+export const FISH_EVENT_POINTS = 0.35;   // 跟 smartbot.ts `eventValue` 的 `fish` 那一行同一個數
+export const EV_BY_FISH: Readonly<Record<string, { fish: number; why: string }>> = {
+  bandit_iou: {
+    fish: 150,
+    why: '第一關的事件給的；機器人一局平均打贏約 11 場，拿到之後大約還有 8 場 × 25 條＝200 條，扣掉兩三間罐頭鋪的舊帳（每間 10 條）約 175 條，保守抓 150 條',
+  },
+};
+
 /** 全部量完之後補上事件分（要用到全體的錨點），順便把分數照 `d` 重算一次（合併舊檔時舊格子也一起更新） */
 export function finishCells(cells: Record<string, Partial<Record<Hero, RelicCell>>>): { k: number; anchors: string[]; fallback: boolean } {
   const k = eventPointsPerFloor(cells);
-  for (const per of Object.values(cells)) for (const c of Object.values(per)) {
+  for (const [id, per] of Object.entries(cells)) for (const c of Object.values(per)) {
     if (!c) continue;
     c.score = scoreOf(c.d);
-    c.ev = r1(c.d * k.k);
+    const byFish = EV_BY_FISH[id];
+    c.ev = byFish ? r1(byFish.fish * FISH_EVENT_POINTS) : r1(c.d * k.k);
   }
   return k;
 }
@@ -317,7 +335,10 @@ export const UNRELIABLE_HOOKS: Readonly<Record<string, string>> = {
 };
 
 export function unreliableNotes(def: RelicDef): string[] {
-  return Object.keys(def.hooks).filter((k) => k in UNRELIABLE_HOOKS).map((k) => UNRELIABLE_HOOKS[k]!);
+  const notes = Object.keys(def.hooks).filter((k) => k in UNRELIABLE_HOOKS).map((k) => UNRELIABLE_HOOKS[k]!);
+  const byFish = EV_BY_FISH[def.id];
+  if (byFish) notes.push(`**事件分改用心算**：${byFish.fish} 條小魚乾 × ${FISH_EVENT_POINTS}＝${r1(byFish.fish * FISH_EVENT_POINTS)} 分（${byFish.why}）`);
+  return notes;
 }
 
 /** 一格的判讀：差距在兩倍標準誤以內＝量不出差別（完全沒差的 0±0 也算，例如別隻的舊劍穗：蓄氣對他們沒用） */

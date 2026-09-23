@@ -30,9 +30,10 @@ import { newRun, takeRelic } from '../src/engine/run';
 import { me } from '../src/engine/runplayer';
 import type { RunEffect } from '../src/engine/types';
 import {
-  RULER_DEFAULTS, measureCell, measurePotions, measureRelics, mergeRatingFile, modeFor, obtainable, renderPotionReport, renderRelicReport,
+  EV_BY_FISH, FISH_EVENT_POINTS, RULER_DEFAULTS, measureCell, measurePotions, measureRelics, mergeRatingFile, modeFor, obtainable, renderPotionReport, renderRelicReport,
   runBatch, scoreOf, serializeRatingFile, type PotionReport, type RelicRatingFile,
 } from './relic_ruler';
+import { eventById } from '../src/content/events';
 
 const env = process.env;
 const MODE = env['RULER'] ?? '';
@@ -122,7 +123,9 @@ describe('分數表 src/engine/relic-ratings.json', () => {
         for (const k of ['d', 'se', 'a2', 'a3', 'score', 'ev'] as const) expect(Number.isFinite(c[k]), `${where} ${k}`).toBe(true);
         expect(c.score, where).toBe(scoreOf(c.d));
         expect(c.score, where).toBeGreaterThanOrEqual(0);
-        expect(c.ev, where).toBeCloseTo(Math.round(c.d * FILE.meta.eventPointsPerFloor * 10) / 10, 5);
+        // 錢類幾件的事件分走心算（`EV_BY_FISH`，2026-09-23 bal），其餘＝層差×一層幾分
+        const byFish = EV_BY_FISH[id];
+        expect(c.ev, where).toBeCloseTo(byFish ? Math.round(byFish.fish * FISH_EVENT_POINTS * 10) / 10 : Math.round(c.d * FILE.meta.eventPointsPerFloor * 10) / 10, 5);
       }
     }
   });
@@ -226,6 +229,19 @@ describe('機器人真的讀這份分數（把表換掉，選擇跟著變）', (
     takeRelic(run, 'nine_tails');
     const expected = -FILE.relics['nine_tails']!.ninja!.ev + 2 * eventValue(run, [{ kind: 'relic', pool: '常見' }], 0);
     expect(eventValue(run, opt, 0)).toBeCloseTo(expected, 5);
+  });
+
+  it('錢類的事件分走心算：牢裡的山賊，機器人會放牠出來拿欠條，不是挖那 50 條（2026-09-23 bal）', () => {
+    // 量尺換出來的欠條只有 8～12 分，一直比不過「挖 50 條」的 17.5 分，2400 局一次都沒拿過
+    const ev = eventById['cell_bandit']!;
+    const iou = ev.choices.find((c) => c.outcome.some((fx) => fx.kind === 'relicId' && fx.id === 'bandit_iou'))!;
+    const dig = ev.choices.find((c) => c.outcome.some((fx) => fx.kind === 'fish'))!;
+    expect(FISH_EVENT_POINTS, '跟 eventValue 的小魚乾同一把尺').toBeCloseTo(eventValue(newRun('iou-scale', 1, 'ninja'), [{ kind: 'fish', n: 1 }], 0), 5);
+    for (const h of HEROES) {
+      const run = newRun(`iou-${h}`, 1, h);
+      expect(eventValue(run, iou.outcome, iou.costFish ?? 0), h).toBeGreaterThan(eventValue(run, dig.outcome, dig.costFish ?? 0));
+      expect(relicEventValue('bandit_iou', h), h).toBeCloseTo((EV_BY_FISH['bandit_iou']?.fish ?? 0) * FISH_EVENT_POINTS, 1);
+    }
   });
 
   it('bestRelic 就是分數最高的那件', () => {

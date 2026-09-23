@@ -165,6 +165,7 @@ describe('新的事件結果（新2／新4／新5／新6）', () => {
 
   it('nextFight：記在身上、下一場開打那一拍套上（爪力、蜷縮）、用完就清掉', () => {
     const run = newRun('b2-bento');
+    me(run).relics = me(run).relics.filter((id) => id !== 'blue_headband');   // 藍頭巾 2026-09-23 起開場給 1 點爪力，這裡只看便當那 2 點
     applyRunEffects(run, eventById['tower_kitchen']!.choices[1]!.outcome);
     expect(me(run).nextFight?.length).toBe(1);
     const cs = beginCombat(run, 'cucumber');
