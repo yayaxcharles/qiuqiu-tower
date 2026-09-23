@@ -8,7 +8,7 @@ import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
-import { startCombat, startJoinedSeat } from './combat';
+import { flushAllyRelics, startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { rollCardChoices, rollPotion, rollRelic, rollRelicChoices, rollRewards, type CombatRewards } from './rewards';
@@ -207,6 +207,9 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
     first.block = 0;
     first.qi = 0;
   }
+  // 人到齊了：座位 0 開場時「給同伴」的那份秘寶效果現在才發（同心結、分食便當，見 `CombatState.pendingAllyRelics`）。
+  // 擺在「座位 0 倒下」那段之後：倒著的人的秘寶不該再替別人加東西
+  flushAllyRelics(cs);
   applyBossPrefix(run, cs);
   applyEncounterModifier(run, cs);
   return cs;
@@ -670,6 +673,8 @@ export function napHeal(run: RunState, seat = 0): number {
   if (run.act >= 3 && run.floor === 44) return me(run, seat).maxHp;
   const p = me(run, seat);
   const mult = p.relics.reduce((m, id) => m * (relicById[id]?.hooks.restMultiplier ?? 1), 1);
+  // 倍率 0＝不眠香爐「打盹不再回血」（2026-09-23）：貓草種子那幾點是「額外」回的，本體不回了它也不回，不然牌面那句話就不成立
+  if (mult === 0) return 0;
   const flat = p.relics.reduce((n, id) => n + (relicById[id]?.hooks.restFlat ?? 0), 0);
   return Math.floor(p.maxHp * 0.3 * mult) + flat;
 }
@@ -872,7 +877,7 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
 
   for (const slot of openPotions) {
     const prev = shop.potions[slot]!;
-    const id = rollPotion(rng);
+    const id = rollPotion(rng, [heroOf(me(run, seat))]);   // 貨架一人一份，照這一位的角色抽（蓄氣忍具只擺給封封，2026-09-23）
     const base = potionById[id]?.price ?? POTION_PRICE;
     shop.potions[slot] = { id, base, price: priceOf(base, mul, prev.sale), sold: false, ...(prev.sale ? { sale: prev.sale } : {}) };
   }
@@ -912,7 +917,7 @@ export function makeShop(run: RunState, seat = 0): ShopStock {
     cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
     relics: relicIds.map((id) => { const base = relicById[id]?.price ?? RELIC_PRICE; return { id, base, price: priceOf(base, shopMul), sold: false }; }),
     potions: Array.from({ length: 3 }, () => {
-      const id = rollPotion(rng);
+      const id = rollPotion(rng, [heroOf(me(run, seat))]);   // 照這一位的角色抽（同 reshuffleShop，2026-09-23）
       const base = potionById[id]?.price ?? POTION_PRICE;
       return { id, base, price: priceOf(base, shopMul), sold: false };
     }),
@@ -1131,7 +1136,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         const rng = runRng(run);
         let full = 0;
         for (let i = 0; i < fx.n; i++) {
-          const id = rollPotion(rng);
+          const id = rollPotion(rng, [heroOf(me(run, seat))]);   // 直接塞給這一位的，只看這一位的角色（跟上面 `relic` 同一條，2026-09-23）
           if (addPotion(run, id, seat)) gains?.push({ kind: '忍具', id }); else { full += 1; gains?.push({ kind: '忍具', id, missed: true }); }
         }
         if (full > 0) notes?.push(`忍具帶滿了，還有 ${full} 個收不下`);

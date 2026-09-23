@@ -96,6 +96,10 @@ const POTION_EXPECT: Readonly<Record<string, ProjectileKind | null>> = {
   shuriken: 'shuriken', needle_rain: 'needle', firecracker: 'firecracker', rope: 'hemp_rope',
   smoke_bomb: 'smoke_bomb', nip_ball: 'nip_ball', bind_nail: 'bind_nail', rubble_bag: 'rubble',
   onigiri: null, quilt: null, claw_oil: null, iron_paw: null, pepper: null, tuna: null, armor_pick: null,
+  // 2026-09-23 內容擴充第一批：火雷珠丟出去（全體），其餘九支都不是丟的（喝、撒、抹、吃）
+  thunder_bead: 'thunder_bead',
+  qi_tea: null, sword_talisman: null, spread_powder: null, needle_salve: null, iron_oil: null,
+  payback_powder: null, dive_straw: null, decoy_doll: null, share_half: null,
 };
 
 class FakeImage {
@@ -265,7 +269,7 @@ describe('丟出去的忍具 × 四隻貓', () => {
   });
 
   it('忍具總數沒變，丟的清單每一支都真的存在', () => {
-    expect(potions).toHaveLength(35);
+    expect(potions).toHaveLength(45);   // 2026-09-23 內容擴充第一批 +10（其中丟的只有火雷珠，上面 POTION_EXPECT 有列）
     for (const id of Object.keys(POTION_EXPECT)) expect(potionById[id], id).toBeDefined();
   });
 });

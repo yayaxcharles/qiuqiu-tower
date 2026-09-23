@@ -46,6 +46,9 @@ export function combatFingerprint(cs: CombatState): string {
     // 亂數狀態：走岔一步當下看不出來，下一次抽牌才爆開
     `r${cs.rng.state.a},${cs.rng.state.b},${cs.rng.state.c},${cs.rng.state.d}`,
     `k${cs.kills}`, `c${cs.cardsPlayed}`, `s${cs.stolenFish}`,
+    // 開場還沒發的「給同伴」秘寶效果（2026-09-23，同心結、分食便當）：`beginCombat` 裡就發完刪掉，正常永遠是空的。
+    // 有才串進來，舊的指紋一個位元都不變；萬一哪條路漏了沒發，兩台會各自留著一份，在這裡當場抓到
+    ...(cs.pendingAllyRelics?.length ? [`pal[${cs.pendingAllyRelics.map((x) => `${x.seat}:${JSON.stringify(x.effects)}`).join(',')}]`] : []),
   ];
   for (const p of cs.players) {
     parts.push([

@@ -105,7 +105,35 @@ export function rollRelic(rng: Rng, pool: RelicPool, owned: string[], heroes: re
   return cands.length ? rng.pick(cands).id : null;
 }
 
-export function rollPotion(rng: Rng): string { return rng.pick(potions).id; }
+/**
+ * 忍具的稀有度權重（2026-09-23 內容擴充第一批，照提案）：常見 65、罕見 27、稀有 8。
+ * 先照這組權重抽稀有度、再從這一級（這位抽得到的）裡平均挑一支——所以一支稀有的出現率是常見那支的零頭，
+ * 不會因為稀有那一級支數少就被稀釋或放大。
+ *
+ * **罐頭鋪不另外照稀有度加價**：殺戮尖塔是用稀有度定價（常見 50、罕見 75、稀有 100），
+ * 我們的忍具每一支本來就各自標價（使用者要的「強弱要有價差」，`potions.ts` 照換得掉多少一回合訂），
+ * 而稀有度正是照那個標價分的，等於價格已經跟著稀有度走；再乘一次倍率就是把同一件事算兩遍，
+ * 還會動到既有 35 支凍結的數值。畫面在貨架上標出稀有度（`ui/screens/shop.ts`）。
+ */
+export const POTION_RARITY_ODDS: readonly [Rarity, number][] = [['常見', 65], ['罕見', 27], ['稀有', 8]];
+
+/**
+ * 這支忍具**這幾位都用得到**嗎（`PotionDef.notFor`）。
+ *
+ * 跟秘寶的 `relicOk`（有一位用得到就留）刻意不同：戰利品的忍具是**每一位各發一支同樣的**（`finishCombat`），
+ * 只要有一位被鎖，那一位就會拿到一支喝了什麼都不會發生的東西。所以混搭連線時戰利品只開兩位都用得到的；
+ * 罐頭鋪與事件是一人一份，只傳那一位。
+ */
+export function potionOk(p: { notFor?: readonly string[] }, heroes: readonly string[]): boolean {
+  return !p.notFor?.length || heroes.every((h) => !p.notFor!.includes(h));
+}
+
+/** `heroes` 沒傳就當忍者（單機舊呼叫端不用改），理由同 `rollRelic` */
+export function rollPotion(rng: Rng, heroes: readonly string[] = ['ninja']): string {
+  const cands = potions.filter((p) => potionOk(p, heroes));
+  const rar = rollRarity(rng, new Set(cands.map((p) => p.rarity)), false, 0, POTION_RARITY_ODDS);
+  return rng.pick(cands.filter((p) => p.rarity === rar)).id;
+}
 
 /**
  * 兩個人的秘寶獎勵：抽 `n` 件出來讓他們各挑一件（規則三，使用者 2026-09-11）。
@@ -159,7 +187,13 @@ export function relicOutcomeText(offered: readonly string[], picks: readonly (st
  * 撞件時**只擲一次骰**決定誰拿到自己挑的那件，輸的人自動拿剩下那件——
  * 所以兩個人一定都拿得到東西，沒有人會因為手慢而空手。
  */
-export function settleRelicPicks(rng: Rng, offered: readonly string[], picks: readonly (string | null)[]): (string | null)[] {
+export function settleRelicPicks(rng: Rng, offered: readonly string[], picks: readonly (string | null)[],
+  /**
+   * 每個座位的角色（2026-09-23 內容擴充第一批：秘寶又開始鎖角色了）。**撞件輸的那位**自動拿剩下那件時，
+   * 跳過鎖他的（`notFor`）：菲菲跟封封都挑了鐵砧、菲菲骰輸，剩下的是磨劍石的話，她不該被塞一件自己用不到的蓄氣秘寶——
+   * 那時她空手（`relicOutcomeText` 會寫「你沒分到」），比拿一件廢物好。不傳＝不看鎖（跟以前一樣）。
+   */
+  heroesPerSeat?: readonly string[]): (string | null)[] {
   const valid = picks.map((p) => (p !== null && offered.includes(p) ? p : null));
   const chosen = valid.filter((p): p is string => p !== null);
   // 沒撞件（含只有一個人挑）就各拿各的，一次骰都不用擲
@@ -167,8 +201,9 @@ export function settleRelicPicks(rng: Rng, offered: readonly string[], picks: re
 
   const winner = rng.int(0, valid.length - 1);
   const prize = valid[winner] as string;
-  const leftover = offered.find((id) => id !== prize) ?? null;
-  return valid.map((p, i) => (p === null ? null : i === winner ? prize : leftover));
+  const leftoverFor = (seat: number): string | null => offered.find((id) => id !== prize
+    && (!heroesPerSeat?.[seat] || relicOk(relicById[id] ?? {}, [heroesPerSeat[seat]!]))) ?? null;
+  return valid.map((p, i) => (p === null ? null : i === winner ? prize : leftoverFor(i)));
 }
 
 /**
@@ -210,7 +245,8 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
     const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero, players);
     const rest = rollCardChoices(rng, '忍術', 2 + extra, ex, late, bonus, undefined, hero, players);
     const cards = rng.shuffle([...jue, ...rest]);
-    const potion = rng.chance(0.5) ? rollPotion(rng) : null;
+    // 忍具每一位各發一支同樣的：要這一局每一位都用得到（`potionOk`，2026-09-23）
+    const potion = rng.chance(0.5) ? rollPotion(rng, opts.heroes ?? [hero]) : null;
     const seats = opts.ownedPerSeat;
     if (seats && seats.length > 1) {
       const offers = rollRelicChoices(rng, '大魔物', seats, seats.length, opts.heroes ?? [hero]);
@@ -227,5 +263,5 @@ export function rollRewards(rng: Rng, kind: CombatRewards['kind'], owned: string
     const jue = rollCardChoices(rng, '絕學', 1, ex, late, bonus, undefined, hero, players);
     if (jue.length) picks = rng.shuffle([...picks.slice(0, 2 + extra), ...jue]);
   }
-  return { kind, cards: picks, fish: rng.int(15, 25) + winGoldBonus, potion: rng.chance(0.4) ? rollPotion(rng) : null, relic: null, ...withUpgrade(picks) };
+  return { kind, cards: picks, fish: rng.int(15, 25) + winGoldBonus, potion: rng.chance(0.4) ? rollPotion(rng, opts.heroes ?? [hero]) : null, relic: null, ...withUpgrade(picks) };
 }

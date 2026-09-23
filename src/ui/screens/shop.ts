@@ -6,7 +6,7 @@ import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, not
 import { heroSpeaker } from '../dialogue';
 import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
-import type { RunState } from '../../engine/types';
+import type { Rarity, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { artUrl } from '../assets';
@@ -141,12 +141,15 @@ registerScreen('shop', (app, root, props) => {
   const saleTag = (sale?: number): HTMLElement | '' => (sale ? el('div', { class: 'sale-tag' }, `特價 ${Math.round(sale * 10)} 折`) : '');
 
   function stall(key: string, name: string, text: string, price: number,
-    sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number, soldText?: string): HTMLElement {
+    sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number, soldText?: string,
+    /** 忍具的稀有度（2026-09-23 內容擴充第一批）：名字底下一個小牌子，秘寶不帶 */
+    rarity?: Rarity): HTMLElement {
     const afford = me(run, seat).fish >= price;
     const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}` },
       saleTag(sold ? undefined : sale),
       icon(key, name),
       el('div', { class: 'shop-name' }, name),
+      rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarity) : '',
       el('div', { class: 'small' }, text),
       priceNode(price, sold, base, sale, soldText));
     if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
@@ -227,7 +230,7 @@ registerScreen('shop', (app, root, props) => {
         () => {
           if (!full) { act({ t: 'buy', seat, k: 'potion', i }, () => buyPotion(run, shop, i, undefined, seat)) && bought('buy'); return; }
           showPotionSwap(run, it.id, (idx) => { if (idx >= 0) act({ t: 'buy', seat, k: 'potion', i, r: idx }, () => buyPotion(run, shop, i, idx, seat)) && bought('buy'); }, { apply: false, seat });
-        }, it.base, it.sale));
+        }, it.base, it.sale, undefined, d.rarity));
     });
 
     // 放生：挑完先跳確認（使用者 2026-09-04：「選牌後沒有跳確定」），按「再看看」回牌堆重挑

@@ -15,7 +15,7 @@ import { Rng, seedFromString } from './rng';
 import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
+  finishCombat, makeShop, napHeal, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, RelicPool, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
@@ -904,6 +904,9 @@ function pickPending(cs: CombatState, rng: Rng): void {
   }
 }
 
+/** 封封會吃蓄氣（或看蓄氣）的牌效果：蓄氣忍具要手上有這種牌才喝（2026-09-23） */
+const QI_USE: ReadonlySet<Effect['kind']> = new Set(['damageSpendQi', 'blockSpendQi', 'nextAttackBonusSpendQi', 'ifQiAtPlay']);
+
 /** `seat`＝誰要喝（2026-09-16 量雙人時加的）。不傳就是座位 0，`p.potions` 跟 `cs.potions` 是同一個陣列，單機完全沒變 */
 function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
   const p = (cs.players[seat] ?? cs.player) as PlayerCombat;
@@ -1100,6 +1103,46 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
       const big = boss || cs.enemies.some((e) => enemyById[e.enemyId]?.pool === '大魔物');
       if ((big && hitsNow >= 1) || hitsNow >= 3) return drink(id);
     }
+    /*
+     * ===== 2026-09-23 內容擴充第一批的十支 =====
+     * 鐵布衫油（蜷縮＋反彈）、替身人偶（隱身＋抽牌）上面的蜷縮／隱身救命、反彈、抽牌那幾條已經接得到；
+     * 其餘每一支在這裡各有一條——沒有的話機器人拿到就佔一格到死，平衡報告會被量歪（提案 ⑦）。
+     */
+    const bigFight = boss || cs.enemies.some((e) => enemyById[e.enemyId]?.pool === '大魔物');
+    // 火雷珠（全體 14）：上面那條全體傷害只在「兩隻以上、有一隻收得掉」時用，對關主一隻永遠等不到；
+    // 關主戰直接丟、一般戰三隻以上也丟。鞭炮（6 點）不走這條（`>= 10`），它的判斷照舊
+    const aoe = def.effects.find((f) => f.kind === 'damage' && f.target === 'all');
+    if (aoe?.kind === 'damage' && aoe.amount * (aoe.times ?? 1) >= 10 && (boss || enemies.length >= 3)) return drink(id);
+    // 蓄氣（提神茶、劍意符，只有封封拿得到）：手上有打得出去、會吃蓄氣的牌，而且灌下去不會被 12 的上限吃掉一大半；
+    // 關主戰第一回合也喝（先把氣灌滿，下一輪就能開大招）
+    const qi = def.effects.find((f) => f.kind === 'gainQi');
+    if (qi?.kind === 'gainQi') {
+      const room = 12 - Math.max(0, p.qi ?? 0);
+      const spender = p.hand.some((c) => canPlay(cs, c.uid, enemies[0]?.uid, seat).ok && cardStats(c).effects.some((f) => QI_USE.has(f.kind)));
+      if (room >= Math.min(qi.n, 6) && (spender || (boss && cs.turn === 1))) return drink(id);
+    }
+    // 散毒粉：目標身上的毒夠多、旁邊還有別隻分得到才撒（一半給每一隻，目標自己不少）
+    const spread = def.effects.find((f) => f.kind === 'spreadStatus');
+    if (spread?.kind === 'spreadStatus' && aliveEnemies(cs).length >= 2) {
+      const t = enemies.filter((e) => getStatus(e, spread.name) >= 4).sort((a, b) => getStatus(b, spread.name) - getStatus(a, spread.name))[0];
+      if (t) return drink(id, t.uid);
+    }
+    // 千針膏（整場每張攻擊牌再上 2 層毒）：長的仗越早喝越賺——關主、大魔物戰前兩回合；一般戰魔物血還厚、手上有兩張以上攻擊牌才喝
+    if (kinds.includes('poisonOnAttack')) {
+      const attacks = p.hand.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+      if ((bigFight && cs.turn <= 2) || (enemies.reduce((s, e) => s + e.hp, 0) >= 40 && attacks >= 2)) return drink(id);
+    }
+    // 以牙還牙粉（反彈回敬多打 4）：身上要真的有反彈才有用；這一拍要挨兩下以上、或是關主／大魔物戰
+    if (kinds.includes('thornsBonus') && getStatus(p, '反彈') > 0) {
+      const hitsNow = aliveEnemies(cs).reduce((n, e) => n + incomingHits(cs, e, p).length, 0);
+      if (hitsNow >= 2 || (bigFight && hitsNow >= 1)) return drink(id);
+    }
+    // 潛水竹管（下回合開始變 2 層隱身，隱身不會自己消失）：大場面先喝囤著；一般戰血掉到一半以下才喝
+    if (def.effects.some((f) => f.kind === 'status' && f.name === '潛水')
+      && ((bigFight && cs.turn <= 2) || (p.hp <= p.maxHp * 0.5 && incoming > 0))) return drink(id);
+    // 對半包子（每一位 8 點蜷縮）：這一拍擋不住的量有 8 點以上，而且挨下去會掉到一半以下（或大場面）
+    if (kinds.includes('blockAll') && incoming - p.block >= 8
+      && (bigFight || p.hp - (incoming - p.block) <= p.maxHp * 0.5)) return drink(id);
     // 攻擊型狀態忍具：關主戰開頭就用
     if (boss && cs.turn <= 2 && def.effects.some((f) => f.kind === 'status' && f.target === 'self' && (f.name === '爪力' || f.name === '貓步'))) return drink(id);
     if (boss && def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && (f.name === '翻肚' || f.name === '中毒'))) {
@@ -1286,10 +1329,20 @@ export function eventValue(run: RunState, effects: RunEffect[], costFish: number
   return v;
 }
 
+/**
+ * 打盹回的血比磨爪（順便回一成）多嗎（2026-09-23 內容擴充第一批，不眠香爐「打盹不再回血」的代價）。
+ * 沒帶香爐時打盹回三成，一定成立，兩支機器人的貓窩判斷跟以前一模一樣；帶了就知道睡下去什麼都不回，
+ * 不會照舊在缺血時衝貓窩打盹、白白放掉一次升級。44F 師父門前那一格照樣回滿，也成立。
+ */
+export function napWorks(run: RunState, seat = 0): boolean {
+  return napHeal(run, seat) > Math.floor(me(run, seat).maxHp * 0.1);
+}
+
 function nodeScore(run: RunState, n: MapNode): number {
   const hpPct = me(run).hp / me(run).maxHp;
   switch (n.type) {
-    case '貓窩': return hpPct < 0.55 ? 100 : bestUpgrade(run) ? 55 : 20;
+    // 缺血才衝貓窩——前提是打盹回得了血（不眠香爐睡了不回，那時貓窩只剩磨爪，2026-09-23）
+    case '貓窩': return hpPct < 0.55 && napWorks(run) ? 100 : bestUpgrade(run) ? 55 : 20;
     case '罐頭鋪': return me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15;
     case '事件': return 50;
     case '紙箱': return 90;
@@ -1348,8 +1401,9 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
       }
       case '貓窩': {
         const u = bestUpgrade(run);
-        // 44F 打盹回滿：真人只要沒滿血都會睡，機器人比照（不然 60% 以上的血會去磨爪、量不到補給的效果）
-        if (me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
+        // 44F 打盹回滿：真人只要沒滿血都會睡，機器人比照（不然 60% 以上的血會去磨爪、量不到補給的效果）。
+        // 打盹回不了血（不眠香爐）就去磨爪——磨爪還順便回一成，睡下去只剩暖毯那點蜷縮（2026-09-23）
+        if ((me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run)) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
         break;
       }
       case '紙箱': openChest(run); break;

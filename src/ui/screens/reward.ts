@@ -3,7 +3,7 @@ import { cardById, cardNameFor } from '../../content/cards';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
-import { closeCardReward, runRng, takeCardReward, upgradeCard } from '../../engine/run';
+import { closeCardReward, heroesIn, runRng, takeCardReward, upgradeCard } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import type { CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -83,7 +83,7 @@ registerScreen('reward', (app, root, props) => {
       const picks = onlyStanding(coop.picks('relic', run.players.length), alive());   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       if (!allVoted(picks, alive())) return;
       r.relicSettled = true;
-      const got = settleRelicPicks(runRng(run), offers, picks);
+      const got = settleRelicPicks(runRng(run), offers, picks, heroesIn(run));   // 撞件輸的那位不會被塞鎖他的那件（2026-09-23）
       notice(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
       /*
        * **分不到的座位也要算完成**（2026-09-12 稽核 中-1）。

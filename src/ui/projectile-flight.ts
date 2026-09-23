@@ -67,6 +67,8 @@ export const PROJECTILE_LOOKS: Readonly<Record<ProjectileKind, Look>> = {
   rubble: { src: art('rubble'), width: 64, height: 32, spin: 0, wobble: 6, arc: 44 },
   // 拋爪的帶繩飛爪（2026-09-23）：長條、爪尖朝前，微微甩動
   grapple: { src: art('grapple'), width: 60, height: 32, spin: 0, wobble: 5, arc: 20 },
+  // 火雷珠（2026-09-23 內容擴充第一批）：圖檔 112×72 跟貓薄荷球同尺寸，圓的、拋出去的；引信與電花畫在身後，順著飛行方向擺頭、不轉
+  thunder_bead: { src: art('thunder_bead'), width: 58, height: 37, spin: 0, arc: 50 },
 };
 
 /** 球球擲出去的手（相對腳底定位點；原本寫死在 combat.ts 的 throwFrom） */
