@@ -23,7 +23,10 @@ function hasAlly(fx: Effect): boolean {
   if (fx.kind === 'ifSelfStatus') return [...fx.then, ...fx.otherwise].some((f) => f && hasAlly(f));
   if (fx.kind === 'blockSpendQi') return fx.recipient === 'ally';
   if (fx.kind === 'nextAttackBonusSpendQi') return true;
-  if (fx.kind === 'ifQiAtPlay' || fx.kind === 'ifSpentQiAtLeast' || fx.kind === 'ifAllyBlockAtPlay') return fx.then.some(hasAlly);
+  // 條件本身就在看同伴（借我擋一下：一個人或同伴倒下時改看自己的蜷縮），
+  // 不能只看 `then` 裡有沒有同伴效果——`then` 是自己拿蓄氣，句尾那句就漏掉了（2026-09-23 稽核 引擎 低-4）
+  if (fx.kind === 'ifAllyBlockAtPlay') return true;
+  if (fx.kind === 'ifQiAtPlay' || fx.kind === 'ifSpentQiAtLeast') return fx.then.some(hasAlly);
   return false;
 }
 
@@ -157,9 +160,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     }
     case 'blockSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipient === 'ally' ? '同伴' : '自己'}獲得 ${fx.amount} 點蜷縮，每點蓄氣多 ${fx.perQi} 點`;
     case 'nextAttackBonusSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipients === 'ally' ? '同伴' : '雙方'}本回合下一張攻擊首段首目標多 ${fx.amount} 點傷害，每點蓄氣再多 ${fx.perQi} 點（取高不疊加）`;
-    case 'ifQiAtPlay': return `出牌前有 ${fx.min} 點蓄氣的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+    // 門檻是「至少」（引擎 `>=`），條件成立才跑的那段接「再」——跟噹噹的 `ifBlock` 同一套（2026-09-23 稽核 引擎 低-3）：
+    // 原本印「獲得 8 點蜷縮，出牌前有 3 點蓄氣的話，獲得 3 點蜷縮」，像同一份拿兩次，「有 3 點」也會被讀成剛好 3 點。
+    // 借我擋一下（`ifAllyBlockAtPlay`）是同一型句子，一起補「再」
+    case 'ifQiAtPlay': return `出牌前有至少 ${fx.min} 點蓄氣的話，` + fx.then.map((e) => again(one(e, ctx))).join('，');
     case 'ifSpentQiAtLeast': return `這張牌花了至少 ${fx.min} 點蓄氣的話，` + fx.then.map((e) => one(e, ctx)).join('，');
-    case 'ifAllyBlockAtPlay': return `同伴原有至少 ${fx.min} 點蜷縮的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+    case 'ifAllyBlockAtPlay': return `同伴原有至少 ${fx.min} 點蜷縮的話，` + fx.then.map((e) => again(one(e, ctx))).join('，');
     case 'preventEnergyGainThisPhase': return '這回合不能再獲得飯糰';
     /*
      * ===== 噹噹（2026-09-17）=====
@@ -343,9 +349,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
           + (fx.sameNameMax ? '（同名取高）' : '');
       }
       if (fx.trigger === 'passive') return inner;
-      return fx.trigger === 'turnStart' ? `${scope}每回合開始時${inner}`
+      // 「同名取高」每種觸發都要講（2026-09-23 稽核 引擎 低-2）：原本只有上面那一支有，
+      // 絕學·藏鋒（每回合開始時）第二張會變灰，牌面卻沒交代為什麼
+      return (fx.trigger === 'turnStart' ? `${scope}每回合開始時${inner}`
         : fx.trigger === 'onKill' ? `${scope}每打倒一隻魔物就${inner}`
-          : `${scope}回合結束時，如果這回合沒打過攻擊牌，${inner}`;
+          : `${scope}回合結束時，如果這回合沒打過攻擊牌，${inner}`)
+        + (fx.sameNameMax ? '（同名取高）' : '');
     }
   }
 }

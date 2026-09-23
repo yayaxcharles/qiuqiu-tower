@@ -35,3 +35,16 @@ export function restStateAction(
   }
   return displayedPose === poses.idle ? 'idle' : undefined;
 }
+
+/**
+ * 戰鬥開場要解碼並留到整場結束的靜態立繪（2026-09-23 稽核 ui 低-4）。
+ *
+ * `?motion=0`、或這一位的逐格動作還沒載好：靜態立繪就是演出本身，全套照舊暖好。
+ * 逐格動作好了之後，出牌與忍具每一張都選得到畫得出來的動作（`combat_no_old_pose.test.ts` 釘著），
+ * 招式那一大批靜態圖不會再露出來，原本卻每場都解好留住（球球一位約 36 MB，連線兩位翻倍）。
+ * 會露出來的只有 `fallback`：待機狀態那批（逐格圖延後下載，還沒到時交還靜態立繪——以前這一瞬間空白過），
+ * 以及戰鬥畫面另外列的幾張保險（見 `combat.ts` 的 `motionFallbackPoses`）。
+ */
+export function combatWarmPoses(all: readonly string[], fallback: ReadonlySet<string>, motionReady: boolean): string[] {
+  return motionReady ? all.filter((key) => fallback.has(key)) : [...all];
+}

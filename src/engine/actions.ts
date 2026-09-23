@@ -140,12 +140,20 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   return v;
 }
 
+/** 集中精神擋下新增飯糰的那一行戰報。連線時帶名字，才分得出是誰拿不到 */
+export function logEnergyBlocked(cs: CombatState, p: PlayerCombat): void {
+  log(cs, `集中精神：${cs.players.length > 1 ? unitName(p) : ''}這回合拿不到飯糰`);
+}
+
 /**
  * 新增飯糰的唯一入口。集中精神只擋「新增」，回合開始自然補滿不走這裡。
  * 回傳實得量，讓轉移類效果能在受益者被封禁時不扣贈送者。
  */
 export function gainEnergy(cs: CombatState, p: PlayerCombat, n: number): number {
-  if (n <= 0 || p.energyGainBlockedThisPhase) return 0;
+  if (n <= 0) return 0;
+  // 被擋下來要說出來（2026-09-23 主控裁決）：牌、忍具（半卷殘頁還抽得到牌）、秘寶、同伴送的飯糰都走這裡，
+  // 原本一律靜靜回 0，玩家只看到「用了」卻不知道飯糰去哪了
+  if (p.energyGainBlockedThisPhase) { logEnergyBlocked(cs, p); return 0; }
   p.energy += n;
   cs.energyGain += n;
   return n;

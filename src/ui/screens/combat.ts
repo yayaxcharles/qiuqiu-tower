@@ -5,7 +5,7 @@ import { castLineFor, coopBossLines, dialogue, lineFor, pick, storyFor } from '.
 import { BOSS_ART, BOSS_HURT_ART, BOSS_MOVE_ART, encounterById, enemyById, enemyArtFor, BOSS_MOVE_ART_PHASE } from '../../content/enemies';
 import { potionById } from '../../content/potions';
 import { aliveEnemies, willRevive } from '../../engine/actions';
-import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
+import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, finishEnemyTurn, IDLE_FORCE_MS, playCard, potionBlockedReason, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
 import { cardStats } from '../../engine/deck';
 import { computeBlock, getStatus } from '../../engine/statuses';
 import { previewEnemyHits } from '../../engine/intentpreview';
@@ -37,6 +37,7 @@ import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
+import { combatWarmPoses } from '../rest-state-motion';
 import { createQiuqiuActor, preloadQiuqiuMotion, qiuqiuCardAction, qiuqiuPlayableAction, qiuqiuCombatMotionDecision, qiuqiuImpactDelay, qiuqiuIsMelee, qiuqiuMotionDuration, qiuqiuMotionEnabled, qiuqiuMotionReady, type QiuqiuAction, type QiuqiuActor } from '../qiuqiu-motion';
 import {
   companionCardAction,
@@ -1146,6 +1147,13 @@ registerScreen('combat', (app, root, props) => {
    */
   const warmedHeroes = new Set<string>();
   const warmedEnemies = new Set<string>();
+  /**
+   * 逐格動作好了之後還可能露出來的靜態立繪（2026-09-23 稽核 ui 低-4，判準見 `combatWarmPoses`）：
+   * 待機狀態那批一定要；挨打、閃、擋、勝、敗、倒下的逐格動作不是延後下載的，照理不會露出靜態圖，
+   * 但那幾條交還路線沒有測試釘著，一位才六張，保守起見照暖——那一刻空白比多占幾 MB 糟。
+   */
+  const motionFallbackPoses: ReadonlySet<string> = new Set([...Object.values(REST_STATE_POSES),
+    POSE.hit, POSE.dodge, POSE.guard, POSE.win, POSE.lose, POSE.down]);
   const warmHeroes = (): void => {
     const urls: string[] = [];
     // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
@@ -1153,7 +1161,10 @@ registerScreen('combat', (app, root, props) => {
       const who = `${q.seat}:${q.hero ?? ''}`;
       if (warmedHeroes.has(who)) continue;
       warmedHeroes.add(who);
-      for (const key of Object.values(POSE)) urls.push(heroArtUrl(q.hero, key));
+      // 逐格動作已經載好就只暖退路會用到的；還沒載好（冷快取的第一場）或 `?motion=0` 照舊全套
+      const source = motionEnabled ? motionSourceFor(q) : undefined;
+      const motionReady = !!source && (source === 'qiuqiu' ? qiuqiuMotionReady() : companionMotionReady(source));
+      for (const key of combatWarmPoses(Object.values(POSE), motionFallbackPoses, motionReady)) urls.push(heroArtUrl(q.hero, key));
     }
     warm(urls);
   };
@@ -1767,13 +1778,15 @@ registerScreen('combat', (app, root, props) => {
         // 長相又跟旁邊的飯糰、連抓提示不同款，玩家等不到就以為沒說明。改掛遊戲自己的提示框。
         /**
          * 有使用條件的（起死回生丹：生命低於三成才准用）要**看得出來為什麼用不了**。
-         * 條件本身寫在忍具資料上、引擎與畫面共用同一支（`PotionDef.usable`）——
+         * 條件本身寫在忍具資料上、引擎與畫面共用同一支（`potionBlockedReason`，內含 `PotionDef.usable`）——
          * 兩邊各寫一套遲早會走鐘，罐頭鋪的「買不起」踩過這個坑。
          * 點下去沒反應是最糟的：格子變灰、說明多一行原因，玩家才知道是「還不能用」不是「壞了」。
+         * 集中精神之後的飯糰類忍具也走這裡（2026-09-23 稽核 引擎 低-1）。
          */
-        const ready = !def.usable || def.usable.check(p.hp, p.maxHp);
+        const blocked = potionBlockedReason(p, def);
+        const ready = blocked === null;
         attachTextTooltip(slot, def.name, ready ? def.text : `${def.text}
-（${def.usable!.reason}）`);
+（${blocked}）`);
         if (!ready) slot.classList.add('not-ready');
         // 連線舉手等對方時不能用（引擎擋著）：不掛「可點」，免得點下去沒反應（夜間審查 低-5）
         if (canAct() && ready && !p.ready) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }

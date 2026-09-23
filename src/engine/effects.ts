@@ -1,4 +1,4 @@
-import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainEnergy, gainStealth, healPlayer, log, markPoisoner } from './actions';
+import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, gainBlock, gainEnergy, gainStealth, healPlayer, log, logEnergyBlocked, markPoisoner } from './actions';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
 import { heroPronoun, unitName } from './hero';
@@ -362,7 +362,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (mate === p) return false;                     // 一個人時什麼都不轉（不能自己轉給自己憑空變多）
       const give = Math.min(fx.n, p.energy);            // 自己少多少，對方才多多少
       if (give <= 0) { log(cs, '飯糰已經用完了，沒得分'); return false; }
-      if (mate.energyGainBlockedThisPhase) return false; // 對方實得 0，轉移型不能白扣贈送者
+      // 對方實得 0，轉移型不能白扣贈送者；但要說出來，不然這張牌打出去像什麼都沒做（2026-09-23 主控裁決）
+      if (mate.energyGainBlockedThisPhase) { logEnergyBlocked(cs, mate); return false; }
       p.energy -= give;
       gainEnergy(cs, mate, give);
       log(cs, `把 ${give} 顆飯糰推給了對方`);

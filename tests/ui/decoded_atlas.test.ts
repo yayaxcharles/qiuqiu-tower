@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { _resetDecodedAtlasForTest, decodedAtlas, imageLoaded, prepareDecodedAtlas } from '../../src/ui/decoded-atlas';
+import { _resetDecodedAtlasForTest, decodedAtlas, imageLoaded, prepareDecodedAtlas, survivesBudget } from '../../src/ui/decoded-atlas';
 import { createFrameMotionSet } from '../../src/ui/frame-motion';
 
 vi.mock('../../src/ui/assets', () => ({ fileUrl: (path: string) => path }));
@@ -87,6 +87,32 @@ describe('動作圖集的已解開快取', () => {
     expect(decodedAtlas(idle)).toBeInstanceOf(FakeBitmap);
     expect(decodedAtlas(claw)).toBeInstanceOf(FakeBitmap);
     expect(decodedAtlas(rare)).toBeUndefined();
+  });
+
+  it('裝不下的預先解：不下載、不解，正要畫時照樣插隊解（2026-09-23 稽核 ui 低-3）', async () => {
+    _resetDecodedAtlasForTest(2 * 100 * 50 * 4);
+    let decodes = 0;
+    vi.stubGlobal('createImageBitmap', async (blob: { width: number; height: number }) => { decodes++; return new FakeBitmap(blob.width, blob.height); });
+    const [idle, claw, rare] = [fakeImage(), fakeImage(), fakeImage()];
+    for (const image of [idle, claw, rare]) void prepareDecodedAtlas(image);
+    await prepareDecodedAtlas(rare);
+    // 原本三張都下載、都解開，第三張存進去就被放掉——白做一次
+    expect(fetched).toEqual([idle.src, claw.src]);
+    expect(decodes).toBe(2);
+    expect(decodedAtlas(rare)).toBeUndefined();
+    // 真的要畫它：沒被記成失敗，照樣插隊解，擠掉的是還沒畫過的
+    await prepareDecodedAtlas(rare, true);
+    expect(decodedAtlas(rare)).toBeInstanceOf(FakeBitmap);
+    expect(decodes).toBe(3);
+  });
+
+  it('留不留得住的算法跟 store 的放法一致：放掉分數不比它高的之後不超過上限', () => {
+    const entries = [{ bytes: 10, score: 1 }, { bytes: 10, score: 2 }];
+    expect(survivesBudget(10, 0.5, entries, 20, 20), '比現有的都低分：自己先被放').toBe(false);
+    expect(survivesBudget(10, 1.5, entries, 20, 20), '放掉 1 分那張就夠').toBe(true);
+    expect(survivesBudget(10, 1, entries, 20, 20), '同分先放先存進去的').toBe(true);
+    expect(survivesBudget(10, 0, [], 0, 20), '空的快取').toBe(true);
+    expect(survivesBudget(30, 9, entries, 20, 20), '一張就比上限大').toBe(false);
   });
 
   it('從圖檔網址重新讀資料來解，而且一次只解一張', async () => {

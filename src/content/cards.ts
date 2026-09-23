@@ -1094,8 +1094,10 @@ export const DANGDANG_CARD_NAME: Readonly<Record<string, string>> = {
  * 前綴的規矩（菲菲 2026-09-12、噹噹 2026-09-17，都是使用者指定）：
  * **「絕學」留著、「忍術」兩字拿掉**。絕學是師門傳下來的功夫，誰學都叫絕學；
  * 忍術是球球那一路的身法，她走暗器、他走拳腳，都不是那一路。
+ * 封封是劍客，也不是那一路（2026-09-23 稽核 引擎 低-6）：前綴照樣拿掉，沒有專屬改名表。
  */
 export function cardNameFor(def: CardDef, hero: string | undefined): string {
+  if (hero === 'fengfeng') return def.name.replace(/^忍術·/, '');
   const own = hero === 'feifei' ? FEIFEI_CARD_NAME : hero === 'dangdang' ? DANGDANG_CARD_NAME : null;
   if (!own) return def.name;
   return own[def.id] ?? def.name.replace(/^忍術·/, '');
