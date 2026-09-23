@@ -273,7 +273,8 @@ registerScreen('shop', (app, root, props) => {
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
     const goods = el('div', { class: 'scene-goods' },
       shelf('新牌', cards, `shelf-cards${shop.cards.length >= 6 ? ' six' : ''}`),
-      el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));   // 珍品架多一格時六格並排，格子縮一點
+      // 珍品架多一格時六格並排，格子縮一點；再加店長私藏（2026-09-23 第二批）七格並排，再縮一級
+      el('div', { class: `shop-shelves${shop.relics.length >= 3 ? ' six' : ''}${shop.relics.length >= 4 ? ' seven' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));
     root.append(sceneView({
       art: goods,
       portrait: keeperArt(),
