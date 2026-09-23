@@ -68,8 +68,9 @@ export const BLESSINGS: readonly BlessingDef[] = [
   { id: 'bless_bracer', cls: '代價', art: 'codex/relic_master_bracer',
     effects: [{ kind: 'relicId', id: 'master_bracer', fallbackFish: 60 }, { kind: 'maxHp', n: -5 }], needsRelic: 'master_bracer' },
   // ===== 賭運氣：卡面寫明機率 =====
+  // 包袱最底下 2026-09-24 b3int：合併後量到賭運氣同類差 2.28 層（超過設計稿的 2 層），六成 → 五成
   { id: 'bless_bottom', cls: '賭運氣', art: 'codex/bless_bottom',
-    effects: [{ kind: 'gamble', p: 0.6, win: [{ kind: 'relic', pool: '大魔物' }], lose: [{ kind: 'addCard', cardId: 'zhongji' }] }] },
+    effects: [{ kind: 'gamble', p: 0.5, win: [{ kind: 'relic', pool: '大魔物' }], lose: [{ kind: 'addCard', cardId: 'zhongji' }] }] },
   { id: 'bless_dice', cls: '賭運氣', art: 'codex/bless_dice', effects: [], dice: [
     { max: 2, effects: [{ kind: 'damage', n: 10 }, { kind: 'fish', n: 50 }] },
     { max: 4, effects: [{ kind: 'relic', pool: '常見' }] },

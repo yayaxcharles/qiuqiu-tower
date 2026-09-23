@@ -8,100 +8,100 @@
  },
  "bless": {
   "bless_rations": {
-   "ninja": 1.74,
-   "feifei": 2.64,
-   "dangdang": 2.01,
-   "fengfeng": 1.83
+   "ninja": 1.71,
+   "feifei": 2.47,
+   "dangdang": 1.98,
+   "fengfeng": 1.88
   },
   "bless_coins": {
-   "ninja": 1.01,
-   "feifei": 0.2,
-   "dangdang": 1.29,
-   "fengfeng": 1.07
+   "ninja": 0.97,
+   "feifei": 0.18,
+   "dangdang": 1.55,
+   "fengfeng": 0.88
   },
   "bless_potions": {
-   "ninja": 1.39,
-   "feifei": 0.41,
-   "dangdang": 1.54,
-   "fengfeng": 1.12
+   "ninja": 1.14,
+   "feifei": 0.47,
+   "dangdang": 1.52,
+   "fengfeng": 1.11
   },
   "bless_charm": {
-   "ninja": 1.74,
-   "feifei": 0.01,
-   "dangdang": 1.51,
-   "fengfeng": 1.01
+   "ninja": 1.56,
+   "feifei": -0.29,
+   "dangdang": 1.42,
+   "fengfeng": 0.92
   },
   "bless_scissors": {
-   "ninja": 0.85,
-   "feifei": 0.53,
-   "dangdang": 2.48,
-   "fengfeng": -0.63
+   "ninja": 0.77,
+   "feifei": 0.73,
+   "dangdang": 2.3,
+   "fengfeng": -0.65
   },
   "bless_notes": {
-   "ninja": 2.22,
-   "feifei": 3.85,
-   "dangdang": 3.73,
-   "fengfeng": 0.6
+   "ninja": 2.1,
+   "feifei": 3.7,
+   "dangdang": 3.55,
+   "fengfeng": 0.65
   },
   "bless_moves": {
-   "ninja": 3.68,
-   "feifei": 1,
-   "dangdang": 0.76,
+   "ninja": 3.84,
+   "feifei": 0.85,
+   "dangdang": 0.72,
    "fengfeng": 1.26
   },
   "bless_doodle": {
    "ninja": 1.38,
-   "feifei": 1.12,
-   "dangdang": 1.84,
-   "fengfeng": 0.42
+   "feifei": 1.06,
+   "dangdang": 2.11,
+   "fengfeng": 0.28
   },
   "bless_treasure": {
-   "ninja": 1.19,
-   "feifei": 2.09,
-   "dangdang": 0.68,
-   "fengfeng": 2.57
-  },
-  "bless_stash": {
-   "ninja": 1.44,
-   "feifei": 0.82,
-   "dangdang": 1.74,
-   "fengfeng": 1.14
-  },
-  "bless_box": {
-   "ninja": 5.54,
-   "feifei": 0.82,
-   "dangdang": 1.61,
-   "fengfeng": 1.06
-  },
-  "bless_bracer": {
-   "ninja": 4.55,
-   "feifei": 0.86,
-   "dangdang": 2.11,
-   "fengfeng": 3.14
-  },
-  "bless_bottom": {
-   "ninja": 3.62,
-   "feifei": 1.21,
-   "dangdang": 2.31,
+   "ninja": 1.09,
+   "feifei": 2.08,
+   "dangdang": 0.6,
    "fengfeng": 2.54
   },
+  "bless_stash": {
+   "ninja": 1.47,
+   "feifei": 0.7,
+   "dangdang": 1.85,
+   "fengfeng": 1.07
+  },
+  "bless_box": {
+   "ninja": 5.64,
+   "feifei": 0.94,
+   "dangdang": 1.42,
+   "fengfeng": 1.05
+  },
+  "bless_bracer": {
+   "ninja": 4.52,
+   "feifei": 0.93,
+   "dangdang": 1.93,
+   "fengfeng": 3
+  },
+  "bless_bottom": {
+   "ninja": 2.78,
+   "feifei": 0.74,
+   "dangdang": 1.74,
+   "fengfeng": 1.92
+  },
   "bless_dice": {
-   "ninja": 1.74,
-   "feifei": 1.23,
-   "dangdang": 2.96,
-   "fengfeng": 1.77
+   "ninja": 1.77,
+   "feifei": 1.29,
+   "dangdang": 3,
+   "fengfeng": 1.59
   },
   "bless_scroll": {
-   "ninja": 0.43,
-   "feifei": -0.47,
-   "dangdang": -0.48,
-   "fengfeng": 0.7
+   "ninja": 0.53,
+   "feifei": -0.56,
+   "dangdang": -0.34,
+   "fengfeng": 0.78
   },
   "bless_wine": {
-   "ninja": 1.36,
-   "feifei": 2.11,
-   "dangdang": 1.5,
-   "fengfeng": 1.05
+   "ninja": 1.28,
+   "feifei": 2.04,
+   "dangdang": 1.27,
+   "fengfeng": 0.87
   }
  }
 }
