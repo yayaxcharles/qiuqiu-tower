@@ -138,6 +138,8 @@ export function runFingerprint(run: RunState): string {
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
       // 跨戰鬥的秘寶計數（木人樁、撲滿，2026-09-23 第二批）：兩台數得不一樣，發動的那一場就會分岔。有才串，舊局的指紋不變
       ...(p.counters && Object.keys(p.counters).length ? [`ctr[${countersKey(p.counters)}]`] : []),
+      // 事件帶進下一場的東西（送上樓的便當，2026-09-23 內容擴充第二批）：兩台記的不一樣，下一場開打那一拍就分岔
+      p.nextFight?.length ? `nf${JSON.stringify(p.nextFight)}` : '',
     ].join('|'));
   }
   return fnv1a(parts.join('||')).toString(16).padStart(8, '0');

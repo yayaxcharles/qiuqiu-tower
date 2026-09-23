@@ -98,11 +98,14 @@ describe('指她的「牠」換成「她」', () => {
     }
     // 這些「牠」指的都是別的貓（村貓、老鼠、母貓、小貓、山賊、池裡的魚）。
     // 數字變了就是有事件改動：多一個要確認不是指她，少一個要確認不是把別的貓也改掉了。
+    // 2026-09-23 內容擴充第二批的六篇逐句看過：熊、山賊、閣樓的老貓、郵差鴿、飯糰怪，都不是她（她那份是整段寫的）
     expect(Object.fromEntries(Object.entries(n).sort())).toEqual({
+      bear_cellar: 2, cell_bandit: 2,
       fish_pond: 1, gambling_rats: 1, greedy_merchant: 1, lost_kitten: 2, moving_rat: 1,
+      pigeon_grandpa: 3, pigeon_lost: 2, pigeon_reply: 1,
       rat_stall: 1, rescue: 1, rescue_return_fish: 3, rescue_return_herb: 1, robin: 1,
       robin_feast: 1, sleeping_guard: 1, stuck_kitten: 5, toll: 2, toll_again_fought: 1,
-      toll_again_paid: 2,
+      toll_again_paid: 2, tower_kitchen: 1,
     });
   });
 });

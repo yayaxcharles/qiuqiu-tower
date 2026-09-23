@@ -11,6 +11,8 @@ export interface SceneOpts {
   art?: Node | string;
   /** 站在對白框左側的立繪（老闆、球球）；跟對白疊層的立繪同一個位置 */
   portrait?: string;
+  /** 站在右側的第二張立繪（連線限定事件：本機這一位在左、同伴在右，2026-09-23 內容擴充第二批） */
+  portrait2?: string;
   /** 對白框左上角的名牌；不給或給空字串就是旁白（字置中、冷色紙） */
   speaker?: string;
   text: string;
@@ -31,6 +33,7 @@ export function sceneView(o: SceneOpts): HTMLElement {
   const scene = el('div', { class: 'scene' },
     o.art ? el('div', { class: 'scene-art' }, o.art) : '',
     o.portrait ? el('img', { class: 'scene-portrait', src: o.portrait, alt: '' }) : '',
+    o.portrait2 ? el('img', { class: 'scene-portrait right', src: o.portrait2, alt: '' }) : '',
     box);
   fitArt(scene, box);
   return scene;

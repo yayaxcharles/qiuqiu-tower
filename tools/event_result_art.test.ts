@@ -55,8 +55,9 @@ describe('事件結果圖', () => {
    *
    * 進戰鬥的不配：選完就切到戰鬥畫面，結果圖根本沒機會出現。
    */
-  const shouldHaveArt = (c: { outcome: { kind: string }[]; costFish?: number }): boolean => {
-    const kinds = c.outcome.map((o) => o.kind).filter((k) => k !== 'flag');
+  const shouldHaveArt = (c: { outcome: { kind: string }[]; costFish?: number; bySeat?: { kind: string }[][] }): boolean => {
+    // 座位不對稱的選項（連線限定事件，2026-09-23）效果寫在 `bySeat`、`outcome` 是空的：兩個座位的都要算
+    const kinds = [...c.outcome, ...(c.bySeat?.flat() ?? [])].map((o) => o.kind).filter((k) => k !== 'flag');
     if (kinds.includes('fight')) return false;
     return kinds.length > 0 || (c.costFish ?? 0) > 0;
   };

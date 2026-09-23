@@ -494,14 +494,21 @@ export class App {
     // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
     const pool = encounterById[encounterId]?.pool;
     const battleTrack = (['battle', 'battle2', 'battle3'] as const)[Math.min(3, Math.max(1, run.act)) - 1]!;
-    setBgm(encounterId.startsWith('shadow_cat') || encounterId.startsWith('mirror_duel') ? 'shadow'
+    // 影子鏈那一場（`shadow_duel`，2026-09-23 內容擴充第二批）也是鏡像戰
+    setBgm(encounterId.startsWith('shadow_cat') || encounterId.startsWith('mirror_duel') || encounterId.startsWith('shadow_duel') ? 'shadow'
       : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
         : pool === '大魔物' ? 'elite' : battleTrack);
     const go = (): void => {
       if (this.run !== run) return;   // 關主開場播完時這一局已經丟了（連線斷了回標題，2026-09-23 稽核 高-1）：不開打
       this.cs = beginCombat(run, encounterId);
       const cs = this.cs;
-      const firstNew = (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
+      /*
+       * 換了名牌與開場白的遭遇（影子鏈那一場，2026-09-23 內容擴充第二批）不跳初見吐槽：那張表是照魔物排的，
+       * 鏡中對手那句是「鏡子裡的我，怎麼自己跑出來了」，屋頂上、練功房裡都沒有鏡子。也不記「看過」，
+       * 之後在鏡子走廊第一次遇到鏡中對手時照樣跳那句。
+       */
+      const firstNew = encounterById[encounterId]?.skin ? undefined
+        : (encounterById[encounterId]?.enemies ?? []).find((id) => !run.flags[`seen:${id}`]);
       // 開打前先把這場魔物（含召喚物）的立繪解碼好，最多等 1.5 秒；沒等到也照開（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）
       this.fightPending = true;
       this.stage.classList.add('fight-pending');

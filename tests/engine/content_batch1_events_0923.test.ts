@@ -163,12 +163,13 @@ describe('球球的三篇專屬事件', () => {
     }
   });
 
-  it('屋頂上的影子：打鏡子走廊那一場、照關數換版、贏了多 30 條與升級 1 張', () => {
+  // 2026-09-23 內容擴充第二批：屋頂那一場換成影子鏈自己的遭遇（`shadow_duel`，同一隻鏡中對手、名牌與開場白換掉）
+  it('屋頂上的影子：打影子鏈那一場、照關數換版、贏了多 30 條與升級 1 張', () => {
     for (const act of [2, 3]) {
       const run = newRun(`roof-${act}`, 1, 'ninja');
       for (let a = 1; a < act; a++) advanceAct(run);
       const out = applyRunEffects(run, eventById['ninja_roof_shadow']!.choices[0]!.outcome);
-      expect(out && 'fight' in out ? out.fight : null).toEqual({ encounterId: `mirror_duel_a${act}`, bonusFish: 30, bonusUpgrades: 1 });
+      expect(out && 'fight' in out ? out.fight : null).toEqual({ encounterId: `shadow_duel_a${act}`, bonusFish: 30, bonusUpgrades: 1 });
     }
   });
 

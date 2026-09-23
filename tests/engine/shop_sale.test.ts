@@ -55,11 +55,14 @@ describe('重整貨架', () => {
 
 describe('珍品架', () => {
   it('第一關兩件常見秘寶；第二三關第三件是大魔物池、標價照那件秘寶自己的定價', () => {
-    const r1 = newRun('t1'); expect(makeShop(r1).relics.length).toBe(2);
+    // 最右邊的「店長私藏」（`limited`，2026-09-23 第二批）一半的店才有、擲不擲到跟種子走，這條只數一般貨架；
+    // 第二批兩條分支合併後種子 t1 剛好擲到私藏，原本直接數 length 就紅了
+    const regular = (shop: ReturnType<typeof makeShop>) => shop.relics.filter((r) => !r.limited);
+    const r1 = newRun('t1'); expect(regular(makeShop(r1)).length).toBe(2);
     for (const act of [2, 3]) {
       const run = newRun(`t${act}`); run.act = act;
       const shop = makeShop(run);
-      expect(shop.relics.length).toBe(3);
+      expect(regular(shop).length).toBe(3);
       const t = shop.relics[2]!;
       expect(relicById[t.id]!.pool).toBe('大魔物');
       expect(t.base).toBe(relicById[t.id]!.price ?? 150);

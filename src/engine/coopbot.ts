@@ -5,6 +5,7 @@ import { relicById } from '../content/relics';
 import { advanceMove, log, runEnemyEffects } from './actions';
 import { allReady, beginEnemyTurn, finishEnemyTurn, setReady, stepEnemyTurn } from './combat';
 import { coopHpMul } from './coopscale';
+import { choiceEffectsFor, visibleChoices } from './eventcond';
 import { heroOf, type Hero } from './hero';
 import { nextChoices } from './map';
 import { relicOk, settleRelicPicks } from './rewards';
@@ -90,6 +91,8 @@ export interface CoopStats {
   coopCards: number[];
   fights: CoopFight[];
   bosses: { id: string; act: number; turns: number; won: boolean; hpIn: number[]; maxHp: number[] }[];
+  /** 走進了哪些事件、挑了第幾個選項（2026-09-23 內容擴充第二批：量連線限定事件有沒有真的走完、兩人分工選了哪邊） */
+  events: { id: string; choice: number }[];
 }
 
 // ===== 戰鬥 =====
@@ -243,6 +246,7 @@ function handleNeeds(run: RunState, outcome: RunEffectOutcome, seat: number): vo
   } else if ('chooseCard' in outcome) {
     const id = pickCard(run, outcome.chooseCard, seat) ?? outcome.chooseCard[0]?.id;
     if (id) addCard(run, id, outcome.upgradedCard === id, seat);
+    if (outcome.then) handleNeeds(run, outcome.then, seat);   // 學完再挑牌升級（2026-09-23 內容擴充第二批）
   }
 }
 
@@ -289,7 +293,7 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
   const rng = new Rng(seedFromString('coop:' + seed));
   const stats: CoopStats = {
     seed, won: false, floor: 0, act: 1, diedTo: null,
-    deckSize: [], upgraded: [], relics: [], cardsPlayed: [0, 0], coopCards: [], fights: [], bosses: [],
+    deckSize: [], upgraded: [], relics: [], cardsPlayed: [0, 0], coopCards: [], fights: [], bosses: [], events: [],
   };
   let guard = 0;
   while (run.status === 'playing') {
@@ -326,13 +330,18 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
          * 兩個人投同一個選項（真人會商量）：估值把兩位各自的加起來挑最高的那個，
          * 因為事件的效果**每個人各跑一次**（見 `ui/screens/event.ts` 的 `take`）。
          */
-        const choice = ev.choices
-          .map((c) => ({ c, v: eventValue(run, c.outcome, c.costFish ?? 0, 0) + eventValue(run, c.outcome, c.costFish ?? 0, 1) }))
+        /*
+         * 只挑看得到的選項（條件選項、倒下時的分工選項，2026-09-23 內容擴充第二批）；
+         * 座位不對稱的（連線限定事件的「我拿／我付」）照每一位自己那一串估，兩人加起來比。
+         */
+        const choice = visibleChoices(run, ev).map((i) => ev.choices[i]!)
+          .map((c) => ({ c, v: eventValue(run, choiceEffectsFor(c, 0), c.costFish ?? 0, 0) + eventValue(run, choiceEffectsFor(c, 1), c.costFish ?? 0, 1) }))
           .sort((a, b) => b.v - a.v)[0]!.c;
+        stats.events.push({ id: ev.id, choice: ev.choices.indexOf(choice) });
         const seats = run.players.map((_, i) => i).filter((i) => !run.players[i]?.down);
         for (const i of seats) me(run, i).fish = Math.max(0, me(run, i).fish - (choice.costFish ?? 0));
         const outcomes: RunEffectOutcome[] = [];
-        for (const i of seats) outcomes[i] = applyRunEffects(run, choice.outcome, undefined, undefined, i);
+        for (const i of seats) outcomes[i] = applyRunEffects(run, choiceEffectsFor(choice, i), undefined, undefined, i);
         // 各自的挑牌／放生／升級先處理掉
         for (const i of seats) handleNeeds(run, outcomes[i] ?? null, i);
         // 「打一場」是**兩個人一起打的同一場**，只打一次

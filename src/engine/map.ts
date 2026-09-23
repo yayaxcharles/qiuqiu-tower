@@ -2,7 +2,7 @@ import { ENCOUNTER_MODIFIERS, modifierChanceFor } from '../content/modifiers';
 import { encounterById, encountersOfPool } from '../content/enemies';
 import { FIXED_EVENT_FLOOR_5, eventById, events, fixedEventFloor5 } from '../content/events';
 import type { Rng } from './rng';
-import type { GameMap, MapNode, NodeType } from './types';
+import type { EventDef, GameMap, MapNode, NodeType } from './types';
 
 export const FLOORS = 15;
 /**
@@ -307,6 +307,13 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
      * `hero` 傳 null（連線局）時整批不排——那些故事在兩個人一起爬的時候不成立。
      */
     && (!e.hero || (opts.hero !== null && e.hero === (opts.hero ?? 'ninja')))
+    /*
+     * 只在單人／只在連線（2026-09-23 內容擴充第二批，劇本 design2 新7、新8）：`hero` 傳 null 就是連線局。
+     * 單人而且這一位有自己那一篇的（`soloHeroSwap`，新9），這篇不排——換關時會改標他那一篇當後集（`run.ts` 的 `advanceAct`）。
+     */
+    && (!e.soloOnly || opts.hero !== null)
+    && (!e.coopOnly || opts.hero === null)
+    && (opts.hero === null || !e.soloHeroSwap?.[(opts.hero ?? 'ninja') as keyof NonNullable<EventDef['soloHeroSwap']>])
     && (!e.requiresFlag || opts.flags?.[e.requiresFlag])).map((e) => e.id);
   /*
    * **這一局前面關卡遇過的不再排**（使用者 2026-09-14）：原本每一關各自洗牌，一局平均重複遇到 0.45 次。
@@ -316,8 +323,8 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   const fresh = eligible.filter((id) => !opts.flags?.[`event:${id}`]);
   const slots = nodes.filter((n) => n.type === '事件' && n.floor !== 5).length;
   const eventQueue = fresh.length >= slots
-    ? rng.shuffle(fresh)
-    : [...rng.shuffle(fresh), ...rng.shuffle(eligible.filter((id) => !fresh.includes(id)))];
+    ? weightedOrder(rng, fresh)
+    : [...weightedOrder(rng, fresh), ...weightedOrder(rng, eligible.filter((id) => !fresh.includes(id)))];
   let eventIdx = 0;
   // 遭遇也排成洗好的佇列、一池一條：整關抽完一輪才會重複（本來每格獨立亂抽，塔頂強池只有三組，
   // 九場架平均每組遇三次；使用者：「怎麼一直遇到重複的」）。佇列用完就重洗再來一輪。
@@ -391,6 +398,28 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     }
   }
   return { nodes, start: byFloor[1]!.map((n) => n.id) };
+}
+
+/**
+ * 事件排進地圖的順序（2026-09-23 內容擴充第二批：事件權重）。地圖照這個順序從低樓層往上填事件格，
+ * 玩家一關只走進兩三格，所以**越前面越容易遇到**。
+ *
+ * 整批都是權重 1（沒寫）的時候照舊用 `rng.shuffle`——亂數走向跟以前一模一樣，第二、三關的地圖一個位元都不變。
+ * 有權重時用「不放回的加權抽」：每次從剩下的裡照權重抽一篇排到下一位（權重 2 的大約是別篇兩倍機會排在前面）。
+ */
+export function weightedOrder(rng: Rng, ids: readonly string[]): string[] {
+  const w = (id: string): number => Math.max(0, eventById[id]?.weight ?? 1);
+  if (ids.every((id) => w(id) === 1)) return rng.shuffle(ids);
+  const left = [...ids];
+  const out: string[] = [];
+  while (left.length) {
+    const total = left.reduce((s, id) => s + w(id), 0);
+    let r = rng.next() * total;
+    let k = 0;
+    for (; k < left.length - 1; k++) { r -= w(left[k]!); if (r < 0) break; }
+    out.push(left.splice(k, 1)[0]!);
+  }
+  return out;
 }
 
 export function nodeById(map: GameMap, id: string): MapNode {

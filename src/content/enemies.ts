@@ -1295,6 +1295,11 @@ export const encounters: EncounterDef[] = [
   { id: 'mirror_duel', pool: '召喚', enemies: ['mirror_qiuqiu'] },   // 第一關用這個基本版（沒有 _a1）
   { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [], learnCards: 2 },
   { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [], learnCards: 2 },
+  // 影子鏈（屋頂上的影子、偷練的影子、影子的真面目，2026-09-23 內容擴充第二批）：數值與學牌照鏡子走廊那三筆，
+  // 只換名牌與開場白（`skin`，見檔尾的 `encounterSkin`）——第一批暫用鏡子走廊那場，開場白是「從鏡子裡跨出來」，屋頂上沒有鏡子
+  { id: 'shadow_duel', pool: '召喚', enemies: ['mirror_qiuqiu'], skin: 'shadow' },
+  { id: 'shadow_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [], learnCards: 2, skin: 'shadow' },
+  { id: 'shadow_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [], learnCards: 2, skin: 'shadow' },
   // 2026-09-04 使用者：「事件怪有點爛」——事件對手原本第二三關還在打第一關的怪。
   // 引擎會先找 `<遭遇>_a<關數>`，找不到才退回基本版（run.ts 的 fight），所以只要補這幾筆就跟著關卡變強。
   { id: 'orange_bandit_a2', pool: '中', enemies: ['orange_bandit', 'orange_bandit'], hpScale: 1.3, strength: 3, acts: [] },
@@ -1584,6 +1589,44 @@ const MIRROR_SKINS: Readonly<Record<string, EnemySkin>> = {
 
 export function enemySkin(enemyId: string, hero: string | undefined): EnemySkin | undefined {
   return enemyId === 'mirror_qiuqiu' && hero ? MIRROR_SKINS[hero] : undefined;
+}
+
+/*
+ * ===== 影子鏈那一場的名牌與開場白（2026-09-23 內容擴充第二批）=====
+ *
+ * 影子是**你自己的影子**被魔氣拉起來（劇本 design2 第四節），所以照鏡子那一位（單人＝自己）換名牌：
+ * 「球球的影子」「菲菲的影子」……立繪沿用那一位的鏡中對手（`enemyArtFor`），不另生圖。
+ * 開場白寫成三個場面（屋頂、練功房、塔頂石階）都說得通的一句：擺出跟你一樣的起手式。
+ * 只換名牌與開場白，魔物 id 照舊是 `mirror_qiuqiu`（理由同上面那段「做成變裝不是做成新的一隻魔物」）。
+ */
+const SHADOW_SKINS: Readonly<Record<string, Omit<EnemySkin, 'art'>>> = {
+  ninja: {
+    name: '球球的影子',
+    line: '（影子擺出跟你一模一樣的起手式，連頭巾的結都打在同一邊）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+  feifei: {
+    name: '菲菲的影子',
+    line: '（影子舉起跟你一樣的竹筒，指間夾著三根針，手一點也不抖）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+  dangdang: {
+    name: '噹噹的影子',
+    line: '（影子把護臂抬到跟你一樣高，兩腳分得剛剛好）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+  fengfeng: {
+    name: '封封的影子',
+    line: '（影子拔出一把跟你一樣的劍，收劍時一聲都沒響）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+};
+
+/** 這場遭遇有沒有自己的名牌與開場白（目前只有影子鏈那三筆 `shadow_duel*`）；沒有就回 undefined，照魔物自己的變裝走 */
+export function encounterSkin(enc: EncounterDef | undefined, enemyId: string, hero: string | undefined): EnemySkin | undefined {
+  if (enc?.skin !== 'shadow' || enemyId !== 'mirror_qiuqiu') return undefined;
+  const s = SHADOW_SKINS[hero ?? 'ninja'];
+  return s ? { ...s, art: enemyArtFor(enemyId, hero) } : undefined;
 }
 
 /** 戰場上顯示的名字（含紀錄）。沒有變裝就是魔物表上的名字 */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { feifeiLineOk } from '../../src/content/dialogue';
-import { FEIFEI_EVENT_LINES, eventTextFor } from '../../src/content/event-text';
+import { FEIFEI_EVENT_LINES, FEIFEI_EVENT_TEXT, eventTextFor } from '../../src/content/event-text';
 import { events } from '../../src/content/events';
 
 /**
@@ -47,9 +47,26 @@ describe('共用事件台詞的她版', () => {
    * **現在要求一句都不能漏**（使用者 2026-09-14：原本維持原樣的 6 句「可以先做」，補完了）。
    * 以前留那 6 句時刻意只要求九成；現在全數補齊，之後新加的事件台詞沒寫她的版本就會變紅。
    */
-  it('每一句都有她自己的版本', () => {
-    const missing = theirs.filter((t) => FEIFEI_EVENT_LINES[t] === undefined);
+  /*
+   * 2026-09-23 內容擴充第二批起：新事件她那份是**整段**寫的（`FEIFEI_EVENT_TEXT`，劇本 design2），
+   * 整段換掉的那幾段不走「換引號裡那句」，所以那幾段的引號句不必另收一份。其餘照舊一句都不能漏。
+   */
+  it('每一句都有她自己的版本（整段換掉的那幾段除外）', () => {
+    const wholes = new Set(Object.keys(FEIFEI_EVENT_TEXT));
+    const missing: string[] = [];
+    for (const e of events) {
+      if (e.hero) continue;
+      for (const raw of [e.text, ...e.choices.map((c) => c.result ?? '')]) {
+        const m = /球球：「(.+?)」/su.exec(raw);
+        if (m && FEIFEI_EVENT_LINES[m[1]!] === undefined && !wholes.has(raw)) missing.push(m[1]!);
+      }
+    }
     expect(missing, `沒寫她的版本的有 ${missing.length}／${theirs.length} 句`).toEqual([]);
+  });
+
+  it('整段換掉的新事件，她那份不帶球球的名字、也不講喵', () => {
+    const bad = Object.values(FEIFEI_EVENT_TEXT).filter((v) => v.includes('球球：「') || /喵[！？。…～」]*$/u.test(v));
+    expect(bad).toEqual([]);
   });
 
   it('沒有一句原封不動照抄，也沒有只拿掉「喵」了事', () => {
