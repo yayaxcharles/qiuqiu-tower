@@ -98,6 +98,8 @@ const FIRED_HOOKS = new Set([
   'combatStart', 'turnStart', 'firstTurnDraw', 'firstTurnEnergy', 'firstCardDiscount', 'firstCardDiscountCombat',
   'firstAttackDouble', 'drawOnNthCard', 'energyOnNthCard', 'onAttackPlayed', 'turnEndNoAttack', 'onHit', 'blockKeep',
   'onPotionUse', 'killHeal', 'killStrength', 'killFish', 'stealthBonus', 'stealthBonusEvery', 'preventLethal', 'restNextFightBlock',
+  // 2026-09-23 內容擴充第二批：計數型與角色的新時機（撲滿在地圖上發動、不在戰鬥裡，不列）
+  'everyNTurns', 'onNthCard', 'attackCounterDouble', 'qiFullDoubleNext', 'qiSpentEnergy', 'poisonTickBonus', 'turnEndBlockToThorns', 'onDodge',
 ]);
 export function hasFiredHook(def: RelicDef): boolean {
   return Object.keys(def.hooks).some((k) => FIRED_HOOKS.has(k));
@@ -228,7 +230,6 @@ export function finishCells(cells: Record<string, Partial<Record<Hero, RelicCell
 
 /** 這隻抽不抽得到（`notFor` 鎖）。抽不到的不量，表上留空 */
 export function obtainable(def: RelicDef, hero: Hero): boolean {
-  if (def.wip) return false;   // 還沒接好的（2026-09-23 第二批先放定義）不量
   return def.pool !== '起始' ? relicOk(def, [hero]) : true;
 }
 
@@ -307,6 +308,12 @@ export const UNRELIABLE_HOOKS: Readonly<Record<string, string>> = {
   winGold: '小魚乾要花掉才有價值；機器人逛店規則簡單，偏低',
   killFish: '同上（小魚乾）',
   rewardChoices: '多一張可選只在機器人的挑牌評分分得出好壞時才有用，偏低',
+  // 2026-09-23 內容擴充第二批：價值在罐頭鋪與地圖上的四種
+  removeCostFrozen: '機器人只在牌組有三張以上爛牌、錢夠時才放生，一局放生沒幾次，偏低',
+  shopFirstItemHalf: '價值在罐頭鋪；機器人一間店多半只買一兩件，而且不會為了半價多買，偏低',
+  shopPotionMul: '機器人只在身上少於兩支時才買忍具，半價多半用不到，偏低',
+  shopEntryFee: '代價在罐頭鋪；機器人逛店規則簡單，錢的價值估不準（偏高或偏低都有可能）',
+  nodeCounterFish: '小魚乾要花掉才有價值（同上）；而且機器人挑路只看格子種類，不會為了它多走事件格',
 };
 
 export function unreliableNotes(def: RelicDef): string[] {
@@ -334,7 +341,7 @@ export function renderRelicReport(f: RelicRatingFile): string {
     L.push(`| ${HERO_NAMES[h]} | ${b.floor}F | ${pc(b.act2)} | ${pc(b.act3)} | ${pc(b.won)} | ${pc(b.boss1)} | ${pc(b.boss2)} |`);
   }
   L.push('');
-  const pools: RelicDef['pool'][] = ['起始', '常見', '大魔物', '塔主'];
+  const pools: RelicDef['pool'][] = ['起始', '常見', '大魔物', '塔主', '罐頭鋪', '事件'];   // 後兩個是 2026-09-23 第二批的限定池
   for (const pool of pools) {
     const defs = relics.filter((r) => r.pool === pool && f.relics[r.id]);
     if (!defs.length) continue;

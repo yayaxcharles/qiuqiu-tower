@@ -1,6 +1,6 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
-import { dialogue, pick, storyFor } from '../../content/dialogue';
+import { dialogue, napLinesFor, pick, storyFor } from '../../content/dialogue';
 import { relicById } from '../../content/relics';
 import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePartner } from '../../engine/run';
 import type { RunAction } from '../../net/runaction';
@@ -84,6 +84,9 @@ registerScreen('rest', (app, root) => {
   let napped = 0;     // 打盹按下去那一刻算出來的回復量（動作繞回來才演得到）
   // 回 0 點（滿血、或帶著不眠香爐）不要寫「回復 0 點生命」（2026-09-23）
   const napLine = (n: number): string => (n > 0 ? `${heroSpeaker()}睡了一下，回復 ${n} 點生命。` : `${heroSpeaker()}躺了一下，但沒有回血。`);
+  /** 睡醒那句吐槽：帶著不眠香爐（打盹回 0）就換成「燻得睡不著」那一句（2026-09-23 主控裁決，台詞在 content/dialogue.ts） */
+  const napQuip = (): string => pick(napLinesFor(me(run, seat).hero,
+    napHeal(run, seat) === 0 && me(run, seat).relics.some((id) => relicById[id]?.hooks.restMultiplier === 0)));
   /**
    * 同伴剛在這個貓窩做了什麼（2026-09-22 連線盤點 問題 4）。
    *
@@ -138,7 +141,7 @@ registerScreen('rest', (app, root) => {
       play('heal');
       // **用按下去之前算好的 `heal`**：`healNow()` 是「缺多少血」，回完血之後再算會變小，
       // 回到滿血時甚至會寫成「回復 0 點」（稽核 2026-09-12 中-3）
-      afterAction(napLine(heal), pick(storyFor(me(run, seat).hero).restNapLines));
+      afterAction(napLine(heal), napQuip());
     });
 
     const verb = sharpenVerb(me(run, seat).hero);   // 她磨的是針，不是爪子
@@ -270,7 +273,7 @@ registerScreen('rest', (app, root) => {
         // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
         if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines), undefined, 'helpup'); continue; }
         if (a.t !== 'rest') continue;
-        if (a.c === '打盹') { play('heal'); afterAction(napLine(napped), pick(mine.restNapLines)); continue; }
+        if (a.c === '打盹') { play('heal'); afterAction(napLine(napped), napQuip()); continue; }
         play('upgrade');
         const pl = pendingLine;
         const line = pl && pl.choice === '全力準備'

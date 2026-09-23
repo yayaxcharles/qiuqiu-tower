@@ -383,11 +383,6 @@ export interface RelicDef {
   /** 套組（師門：師父的斗笠、塔主的酒葫蘆、師父的舊木劍）。集到幾件、加成是什麼見 `RELIC_SETS` */
   set?: RelicSet;
   /**
-   * **還沒接好，不進任何抽取池**（2026-09-23 第二批先把定義放上去給事件代理用，效果接好就拿掉）。
-   * `rollRelic`／`rollRelicChoices` 跳過它；量尺也不量。直接 `takeRelic` 塞得進去（測試用）。
-   */
-  wip?: true;
-  /**
    * **這幾位抽不到這一件**（2026-09-12；沒寫＝誰都抽得到）。
    *
    * 原本寫成 `hero`（「只有這個職業抽得到」），兩個毛病：
@@ -511,8 +506,6 @@ export interface PotionDef {
    * 兩邊各寫一套遲早會走鐘（罐頭鋪的「買不起」就踩過）。
    */
   usable?: { check: (hp: number, maxHp: number) => boolean; reason: string };
-  /** 還沒接好，不進任何抽取池（跟 `RelicDef.wip` 同一件事，2026-09-23 第二批） */
-  wip?: true;
 }
 
 // ===== 魔物 =====

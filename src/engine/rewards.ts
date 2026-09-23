@@ -101,8 +101,7 @@ export function relicOk(r: { notFor?: readonly string[] }, heroes: readonly stri
 }
 
 export function rollRelic(rng: Rng, pool: RelicPool, owned: string[], heroes: readonly string[] = ['ninja']): string | null {
-  // `wip`＝還沒接好的（2026-09-23 第二批先放定義），不進任何抽取池
-  const cands = relics.filter((r) => r.pool === pool && !r.wip && !owned.includes(r.id) && relicOk(r, heroes));
+  const cands = relics.filter((r) => r.pool === pool && !owned.includes(r.id) && relicOk(r, heroes));
   return cands.length ? rng.pick(cands).id : null;
 }
 
@@ -131,7 +130,7 @@ export function potionOk(p: { notFor?: readonly string[] }, heroes: readonly str
 
 /** `heroes` 沒傳就當忍者（單機舊呼叫端不用改），理由同 `rollRelic` */
 export function rollPotion(rng: Rng, heroes: readonly string[] = ['ninja']): string {
-  const cands = potions.filter((p) => !p.wip && potionOk(p, heroes));
+  const cands = potions.filter((p) => potionOk(p, heroes));
   const rar = rollRarity(rng, new Set(cands.map((p) => p.rarity)), false, 0, POTION_RARITY_ODDS);
   return rng.pick(cands.filter((p) => p.rarity === rar)).id;
 }
@@ -149,7 +148,7 @@ export function rollRelicChoices(rng: Rng, pool: RelicPool, ownedPerSeat: readon
                                  heroes: readonly string[] = ['ninja']): string[] {
   const out: string[] = [];
   for (let i = 0; i < n; i++) {
-    const cands = relics.filter((r) => r.pool === pool && !r.wip
+    const cands = relics.filter((r) => r.pool === pool
       && !out.includes(r.id)
       && relicOk(r, heroes)
       && ownedPerSeat.every((owned) => !owned.includes(r.id)));

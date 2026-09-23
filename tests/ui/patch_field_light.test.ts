@@ -88,7 +88,7 @@ describe('同伴那一格有變才換新節點', () => {
 });
 
 describe('狀態列只在小魚乾、血量、秘寶這些東西變了才重建', () => {
-  async function runHud(shown: string, player: Record<string, unknown>, fishDelta: number, hasHud = true) {
+  async function runHud(shown: string, player: Record<string, unknown>, fishDelta: number, hasHud = true, counters = '') {
     const renderHud = vi.fn();
     const paintFlashes = vi.fn();
     const removed = vi.fn();
@@ -98,13 +98,21 @@ describe('狀態列只在小魚乾、血量、秘寶這些東西變了才重建'
       me: () => player, run: {}, app: { seat: 0 }, my: () => ({ fishDelta }),
       box: { querySelector: () => (hasHud ? { remove: removed } : null) },
       renderHud, paintFlashes, performance: { now: () => 0 },
+      // 計數型秘寶的數字（2026-09-23 第二批）
+      cs: { turn: 1 }, hudCounters: () => counters,
     };
     const compiled = await transformWithOxc(code, 'patch-field-hud.ts');
     const next = new Function(...Object.keys(bindings), compiled.code)(...Object.values(bindings)) as string;
     return { renderHud, paintFlashes, removed, next };
   }
   const player = { fish: 120, hp: 40, maxHp: 60, relics: ['scroll'], potions: ['onigiri'], deck: [1, 2, 3] };
-  const key = [120, 40, 60, 'scroll', 'onigiri', 3].join('|');
+  const key = [120, 40, 60, 'scroll', 'onigiri', 3, ''].join('|');
+
+  it('計數型秘寶的數字變了（第幾回合、這回合打了幾張）：重建（2026-09-23 第二批）', async () => {
+    const r = await runHud(key, player, 0, true, '2');
+    expect(r.renderHud).toHaveBeenCalledTimes(1);
+    expect(r.next).not.toBe(key);
+  });
 
   it('跟上次畫的一樣：不重建', async () => {
     const r = await runHud(key, player, 0);

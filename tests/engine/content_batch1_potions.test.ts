@@ -165,7 +165,7 @@ describe('稀有度', () => {
     const count = new Map<string, number>();
     const N = 40_000;
     for (let i = 0; i < N; i++) { const id = rollPotion(rng, ['ninja']); count.set(id, (count.get(id) ?? 0) + 1); }
-    const rare = potions.filter((x) => x.rarity === '稀有' && !x.wip);   // 還沒接好的（`wip`）抽不到，不算在內
+    const rare = potions.filter((x) => x.rarity === '稀有');
     for (const p of rare) {
       expect(Math.abs((count.get(p.id) ?? 0) / N - 0.08 / rare.length), p.id).toBeLessThan(0.004);
     }

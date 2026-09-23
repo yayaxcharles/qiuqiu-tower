@@ -61,7 +61,7 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
     case 'buy': {
       if (!shop) return false;
       const it = a.k === 'card' ? shop.cards[a.i] : a.k === 'relic' ? shop.relics[a.i] : shop.potions[a.i];
-      if (!it || it.sold || p.fish < priceFor(run, it, a.seat)) return false;
+      if (!it || it.sold || p.fish < priceFor(run, it, a.seat, shop)) return false;   // 帶貨架：批發箱、帳本的折扣要算進去（2026-09-23 第二批）
       if (a.k === 'relic') return !p.relics.includes((it as { id: string }).id);
       // 別人的專屬招式買不下去（貨架照自己的角色抽、不會擺上來；`buyCard` 擋著，這裡不先擋的話會發號碼、套用失敗、整場斷線）
       if (a.k === 'card' && notMyCard(run, shop.cards[a.i]!.def, a.seat)) return false;

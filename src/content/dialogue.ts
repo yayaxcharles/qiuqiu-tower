@@ -1467,6 +1467,26 @@ export function storyFor(hero: string | undefined): {
 }
 
 /**
+ * 帶著不眠香爐在貓窩打盹（2026-09-23 主控裁決）：睡了也不回血，醒來卻說「睡飽了，出發喵」是在騙人。
+ * 四隻各一句，講的是「那個香爐燻得睡不著」；照各自的口吻（球球句尾喵、菲菲結巴、噹噹短句講手上的東西、封封平靜講路）。
+ */
+export const RESTLESS_NAP_LINES: Readonly<Record<Hero, string>> = {
+  ninja: '那個香爐一直冒煙，燻得我整晚睡不著喵。',
+  feifei: '香、香爐的煙一直往鼻子鑽……我一整晚都沒闔眼，對不起……',
+  dangdang: '香爐還在冒煙。躺了半天，一點都沒睡著。',
+  fengfeng: '香爐的煙整夜沒停。沒睡著也好，天亮就上路。',
+};
+
+/**
+ * 打盹之後那一句吐槽從哪一組挑（貓窩畫面的單機與連線兩條路都走這支）。
+ * `restless`＝帶著「打盹不再回血」的秘寶、而且這一格真的沒回到血（44F 最後那個貓窩照樣回滿，那時照常講睡飽）。
+ */
+export function napLinesFor(hero: string | undefined, restless: boolean): readonly string[] {
+  if (restless) return [RESTLESS_NAP_LINES[(hero ?? 'ninja') as Hero] ?? RESTLESS_NAP_LINES.ninja];
+  return storyFor(hero).restNapLines;
+}
+
+/**
  * 把一句球球的台詞換成她的口氣：**只拿掉句尾的「喵」**。
  *
  * 魔物的初見吐槽本來走這一條，2026-09-12 使用者否決了（「不建議只把句尾的喵拿掉」），

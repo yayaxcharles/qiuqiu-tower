@@ -170,7 +170,9 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     expect(shop.cards.length).toBe(5);
     expect(shop.cards.filter((c) => c.def.pool === '忍術').length).toBeGreaterThanOrEqual(4);
     expect(shop.cards.filter((c) => c.def.pool === '絕學').length).toBeLessThanOrEqual(1);
-    expect(shop.relics.length).toBe(2); expect(shop.potions.length).toBe(3);
+    // 第一關兩件常見；另外一半的店多一格店長私藏（罐頭鋪限定池，2026-09-23 第二批），擺在最右邊
+    expect(shop.relics.filter((r) => !r.limited).length).toBe(2); expect(shop.potions.length).toBe(3);
+    expect(shop.relics.slice(0, 2).every((r) => !r.limited)).toBe(true);
     const price = shop.cards[0]!.price;
     expect(buyCard(run, shop, 0)).toBe(true); expect(me(run).fish).toBe(500 - price); expect(shop.cards[0]!.sold).toBe(true);
     expect(buyCard(run, shop, 0)).toBe(false);

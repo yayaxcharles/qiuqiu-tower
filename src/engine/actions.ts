@@ -252,7 +252,13 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     if (dmg - absorbed > 0 && getStatus(p, '隱身') > 0) {
       p.block -= absorbed;
       if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
-      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); p.dodgedTotal = (p.dodgedTotal ?? 0) + 1; return 0;
+      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); p.dodgedTotal = (p.dodgedTotal ?? 0) + 1;
+      // 閃過攻擊之後的秘寶（影分身卷軸，2026-09-23 第二批）：這裡是「閃過」唯一的出口
+      for (const rid of p.relics) {
+        const h = relicById[rid]?.hooks.onDodge;
+        if (h) { fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' }); }
+      }
+      return 0;
     }
     p.block -= absorbed;
     lose = dmg - absorbed;
@@ -299,6 +305,11 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
       // 這條自己有專屬的紀錄句子（比「發動」講得清楚），所以只推清單、不再多印一行
       markRelic(cs, saverId);
       log(cs, `${relicById[saverId]?.name ?? '秘寶'}替${unitName(p)}挨了這一下`);
+    }
+    // 回魂香（2026-09-23 第二批）：秘寶那一次先用，已經用掉（或沒帶）才輪到忍具這一次
+    else if (p.guardLethal) {
+      p.hp = 1; p.guardLethal = undefined;
+      log(cs, `回魂香的煙拉住了${unitName(p)}，留下 1 點生命`);
     }
     else {
       p.hp = 0;
@@ -785,6 +796,38 @@ export function pickVictim(cs: CombatState): PlayerCombat {
 /** 包成函式再讀，免得 TypeScript 把 cs.phase 窄化後，看不見 damagePlayer 途中把戰鬥打成敗北 */
 function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
 
+/** 這隻這一輪中了迷魂香（2026-09-23 第二批）：攻擊改打同伴。畫面的預告、機器人的估傷都問這一支 */
+export function isDazed(e: EnemyCombat): boolean { return getStatus(e, '迷魂') > 0; }
+
+/**
+ * 中了迷魂香的這隻要打**哪一個同伴**（2026-09-23 第二批）。
+ *
+ * **不擲骰、照站位**：場上的順序（`cs.enemies`）往右找第一隻還站著的，右邊沒有就往左找最近的——
+ * 兩台照同一個陣列算，連線一定一樣；玩家看畫面也猜得到「牠會打旁邊那隻」。一隻同伴都沒有回 undefined（打空）。
+ */
+export function dazeTarget(cs: CombatState, e: EnemyCombat): EnemyCombat | undefined {
+  const i = cs.enemies.indexOf(e);
+  const standing = (o: EnemyCombat): boolean => o !== e && !o.dead && !o.escaped;
+  return cs.enemies.slice(i + 1).find(standing) ?? cs.enemies.slice(0, Math.max(0, i)).reverse().find(standing);
+}
+
+/**
+ * 迷魂的這隻把這一下打在同伴身上。`times` 段各自找一次目標（打到一半同伴倒了，剩下的換下一隻）。
+ * 算法照魔物打人：吃牠自己的爪力、懶洋洋與對方的翻肚，同伴的防禦擋得住（`throughBlock`；穿透招就不擋），不觸發閃避與反彈。
+ * 打倒了算**下香的那一位**的（`dazedBy`），不然連線時一律歸座位 0（跟 `poisonedBy` 同一個坑）。
+ */
+function hitDazedMate(cs: CombatState, e: EnemyCombat, amount: number, times = 1, pierce = false): void {
+  const by = cs.players[e.dazedBy ?? 0];
+  let named = '';
+  for (let i = 0; i < times; i++) {
+    if (e.dead || cs.phase !== 'player') return;
+    const mate = dazeTarget(cs, e);
+    if (!mate) { log(cs, `${e.name}暈頭轉向，這一下打空了`); return; }
+    if (mate.name !== named) { log(cs, `${e.name}暈頭轉向，打中了${mate.name}`); named = mate.name; }
+    damageEnemy(cs, mate, computeAttack(amount, e, mate), { direct: true, throughBlock: !pierce, by });
+  }
+}
+
 /** 把球球身上指定的狀態各減半（向下取整保留），回傳真的有動到的那幾個。破功與看破共用（原本兩份一字不差）。 */
 function halvePlayerStatuses(p: PlayerCombat, names: readonly StatusName[]): StatusName[] {
   const hit = names.filter((n) => getStatus(p, n) > 0);
@@ -806,9 +849,28 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
   const useCharge = (): number => { if (!mult) return 1; mult = false; e.charged = false; return 2; };
   const p = victim;
   const targets = enemyTargets(cs, victim);   // 打人的效果對每一位各來一次；只偷一位的（偷魚）用 `p`
+  /*
+   * 迷魂香（2026-09-23 第二批）：這一輪**會打人的那幾種**改打旁邊的同伴（`hitDazedMate`），其餘照舊
+   *（給你減益、塞牌、偷小魚乾不算「攻擊」，照樣落在你身上——牌面寫的是「攻擊改打同伴」）。
+   */
+  const dazed = isDazed(e);
   for (const fx of effects) {
     if (e.dead) return;        // 已經倒下（例如被反彈打死）就不再執行剩下的效果
     if (isLost(cs)) return;
+    if (dazed && (fx.kind === 'damage' || fx.kind === 'damageRandom' || fx.kind === 'damageByPlayerStatus')) {
+      const x = useCharge();
+      if (fx.kind === 'damage') hitDazedMate(cs, e, fx.amount * (fx.pierce ? 1 : x), fx.times ?? 1, !!fx.pierce);
+      else if (fx.kind === 'damageRandom') hitDazedMate(cs, e, cs.rng.int(fx.min, fx.max) * x);
+      else log(cs, `${e.name}暈頭轉向，這一下打空了`);   // 照「你身上的層數」打的：打同伴沒有層數可照
+      if (cs.phase !== 'player') return;
+      continue;
+    }
+    if (dazed && fx.kind === 'selfDestruct') {
+      log(cs, `${e.name}炸開了`);
+      hitDazedMate(cs, e, fx.amount * useCharge());
+      if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true, by: cs.players[e.dazedBy ?? 0] });
+      return;
+    }
     switch (fx.kind) {
       case 'damage': {
       /*

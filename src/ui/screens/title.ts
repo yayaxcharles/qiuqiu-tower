@@ -1,5 +1,5 @@
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
-import { hasSave, loadBestFor, saveRun, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
+import { hasSave, loadBestFor, loadRun, saveRun, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
 import { SHARE_PREFIX, decodeRun } from '../../engine/sharecode';
 import { showCompendium } from '../compendium';
 import { showItemCompendium } from '../itemcompendium';
@@ -118,7 +118,8 @@ registerScreen('title', (app, root) => {
       // 圖鑑放封面（使用者：秘寶、忍具不需要一直看，不放遊戲內）
       el('div', { class: 'title-books' },
         el('button', { class: 'btn small', onclick: () => showCompendium() }, '📖 卡牌圖鑑'),
-        el('button', { class: 'btn small', onclick: () => showItemCompendium() }, '🎒 秘寶與忍具圖鑑'),
+        // 帶著續玩那一局身上的秘寶：套組那一區寫得出集到幾件（2026-09-23 第二批；沒有進行中的局就是 0）
+        el('button', { class: 'btn small', onclick: () => showItemCompendium(loadRun()?.players[0]?.relics ?? []) }, '🎒 秘寶與忍具圖鑑'),
         // 連線版還在做，按鈕先放這裡（這個網址本來就是實驗版，不會影響單機的那一份）
         el('button', { class: 'btn small', onclick: () => app.show('lobby') }, '🤝 兩個人一起玩')),
       diffText,

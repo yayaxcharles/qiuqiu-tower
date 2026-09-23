@@ -175,18 +175,18 @@ export const potions: PotionDef[] = [
    * 圖示照美術 art2 的對照表（代號＝檔名）；迷魂香是丟出去的（飛行物 `daze_incense`，見 `ui/projectile-kinds.ts`）。
    */
   { id: 'revive_incense', name: '回魂香', rarity: '稀有', text: '這場戰鬥接下來第一次會被打倒時，留下 1 點生命。', art: 'codex/potion_revive_incense', price: 70, target: 'self',
-    wip: true, effects: [{ kind: 'guardLethal' }] },
+    effects: [{ kind: 'guardLethal' }] },
   { id: 'bento', name: '便當', rarity: '常見', text: '下回合開始時多 2 顆飯糰。', art: 'codex/potion_bento', price: 40, target: 'self',
-    wip: true, effects: [{ kind: 'energyNextTurn', n: 2 }] },
+    effects: [{ kind: 'energyNextTurn', n: 2 }] },
   // 魔物躲起來靠的是隱身（九隻會自己掛）；潛水只有鏡中球球學你的牌才會掛上。提案寫「虛化與潛水」，三個一起拔才名實相符（見報告）
   { id: 'demon_mirror', name: '照妖鏡', rarity: '罕見', text: '拔掉全體魔物身上的隱身、潛水與虛化。', art: 'codex/potion_demon_mirror', price: 55, target: 'all',
-    wip: true, effects: [{ kind: 'removeStatuses', names: ['隱身', '潛水', '虛化'], target: 'all' }] },
+    effects: [{ kind: 'removeStatuses', names: ['隱身', '潛水', '虛化'], target: 'all' }] },
   { id: 'transfer_pill', name: '傳功丹', rarity: '常見', text: '同伴抽 2 張牌，你多 1 顆飯糰（一個人時自己抽 2 張）。', art: 'codex/potion_transfer_pill', price: 45, target: 'self',
-    wip: true, effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energy', n: 1 }] },
+    effects: [{ kind: 'drawAlly', n: 2 }, { kind: 'energy', n: 1 }] },
   { id: 'swap_talisman', name: '替換符', rarity: '罕見', text: '挑一張手牌，換成一張隨機的升級牌（只在這場戰鬥）。', art: 'codex/potion_swap_talisman', price: 50, target: 'self',
-    wip: true, effects: [{ kind: 'transformFromHand' }] },
+    effects: [{ kind: 'transformFromHand' }] },
   { id: 'daze_incense', name: '迷魂香', rarity: '稀有', text: '目標這回合的攻擊改打牠旁邊的同伴（沒有同伴就打空）。', art: 'codex/potion_daze_incense', price: 70, target: 'enemy',
-    wip: true, effects: [{ kind: 'daze' }] },
+    effects: [{ kind: 'daze' }] },
 ];
 
 export const potionById: Record<string, PotionDef> = Object.fromEntries(potions.map((p) => [p.id, p]));

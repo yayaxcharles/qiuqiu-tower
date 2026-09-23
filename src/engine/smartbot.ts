@@ -4,10 +4,10 @@ import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { potionById } from '../content/potions';
-import { relicById, relics } from '../content/relics';
+import { relicById, relics, RELIC_SETS, setCount } from '../content/relics';
 import { relicOk } from './rewards';
 import RELIC_RATINGS from './relic-ratings.json';
-import { aliveEnemies, attackable } from './actions';
+import { aliveEnemies, attackable, dazeTarget, isDazed } from './actions';
 import { allReady, canPlay, canUsePotion, endTurn, playCard, potionBlockedReason, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
 import { nextChoices } from './map';
@@ -154,9 +154,23 @@ export function relicRating(id: string, hero: Hero = 'ninja'): number {
 export function relicEventValue(id: string, hero: Hero = 'ninja'): number {
   return relicTable.relics[id]?.[hero]?.ev ?? (relicById[id]?.pool === '大魔物' ? 34 : 24);
 }
-/** 幾件裡挑一件（過關三選一、兩個人的秘寶獎勵）：分數最高的；同分照原本的順序 */
-export function bestRelic(ids: readonly string[], hero: Hero): string | undefined {
-  return ids.slice().sort((a, b) => relicRating(b, hero) - relicRating(a, hero))[0];
+/**
+ * 拿到這一件就湊成套組的話，套組加成值幾分（2026-09-23 第二批，師門：集到兩件每場第一回合多 1 顆飯糰）。
+ *
+ * 量尺是一件一件量的，量不到「湊成一套」那份——機器人不會為了湊兩件去挑斗笠（事件劇本第八節的提醒）。
+ * 師門的加成跟**飯糰袋一模一樣**（每場第一回合多 1 顆飯糰），所以直接借飯糰袋量出來的層差當這份加成的分數，不另外手填。
+ * 不傳 `owned`＝不看套組（舊呼叫端照舊）。
+ */
+export function setBonusScore(id: string, hero: Hero, owned?: readonly string[]): number {
+  const set = relicById[id]?.set;
+  if (!set || !owned || owned.includes(id) || setCount(set, owned) !== RELIC_SETS[set].need - 1) return 0;
+  return Math.max(0, relicRating('onigiri_bag', hero) - 5) * RELIC_SETS[set].firstTurnEnergy;
+}
+
+/** 幾件裡挑一件（過關三選一、兩個人的秘寶獎勵）：分數最高的；同分照原本的順序。`owned` 給了就把湊成套組的加成算進去 */
+export function bestRelic(ids: readonly string[], hero: Hero, owned?: readonly string[]): string | undefined {
+  const score = (id: string): number => relicRating(id, hero) + setBonusScore(id, hero, owned);
+  return ids.slice().sort((a, b) => score(b) - score(a))[0];
 }
 /**
  * 事件說「隨機獲得一件某池的秘寶」值多少：**這一位抽得到的那幾件的平均**。
@@ -166,7 +180,7 @@ export function bestRelic(ids: readonly string[], hero: Hero): string | undefine
 export function relicPoolValue(run: RunState, pool: RelicPool, seat = 0): number {
   const hero = heroOf(me(run, seat));
   const owned = me(run, seat).relics;
-  const cands = relics.filter((r) => r.pool === pool && !r.wip && !owned.includes(r.id) && relicOk(r, [hero]));
+  const cands = relics.filter((r) => r.pool === pool && !owned.includes(r.id) && relicOk(r, [hero]));
   return cands.length ? cands.reduce((s, r) => s + relicEventValue(r.id, hero), 0) / cands.length : 0;
 }
 
@@ -223,6 +237,7 @@ function incomingHitList(cs: CombatState, e: EnemyCombat, who: PlayerCombat = cs
   if (e.dead) return [];
   const m = e.move;
   if (!willAct(e)) return [];   // 定身擋整個動作、沉睡什麼都不做——跟引擎與畫面同一支判準
+  if (isDazed(e)) return [];    // 迷魂香（2026-09-23 第二批）：這一輪牠的攻擊打牠的同伴，不打你
   const x = e.charged ? 2 : 1;
   // 翻肚（受傷 ×1.5）要照**衰減之後**的層數算（稽核 2026-09-10 低-5）：
   // 引擎在魔物出手之前就先把玩家的減益減一層（`endTurn` 裡那段），所以身上剛好 1 層翻肚時
@@ -571,6 +586,13 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         }
         const usable = Math.max(0, Math.min(room, need - (p.qi ?? 0)));
         if (usable > 0) v = usable * rate + (room - usable) * 1.4;
+        /*
+         * 滿月劍意（2026-09-23 第二批）：這一張把蓄氣灌到 12 的話，這回合下一張攻擊牌加倍——照分身油那條估（手上還有攻擊牌才算）。
+         * 不寫的話機器人不會為了灌滿去打吐納，量尺量到這件每場只發動 0.06 次，分數等於沒量。
+         */
+        if (room > 0 && (p.qi ?? 0) + fx.n >= 12 && p.fullMoonTurn !== cs.turn
+            && p.relics.some((id) => relicById[id]?.hooks.qiFullDoubleNext)
+            && p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === '攻擊')) v += 6;
         value += v;
         break;
       }
@@ -891,7 +913,8 @@ function pickPending(cs: CombatState, rng: Rng): void {
   const score = (c: CardInstance): number => rating(c.cardId) + (c.upgraded ? 1 : 0);
   let picks: number[] = [];
   const sorted = [...pd.cards];
-  if (pd.purpose === 'exhaust' || pd.purpose === 'discard' || pd.purpose === 'scryDiscard') {
+  // 替換符（2026-09-23 第二批）換掉的也是最爛的那一張（壞毛病、起手的基本牌），跟消耗同一套挑法
+  if (pd.purpose === 'exhaust' || pd.purpose === 'discard' || pd.purpose === 'scryDiscard' || pd.purpose === 'transform') {
     sorted.sort((a, b) => score(a) - score(b));   // 最爛的先丟
     const n = pd.purpose === 'scryDiscard' ? Math.min(pd.max, sorted.filter((c) => score(c) <= 2).length) : pd.min;
     picks = sorted.slice(0, n).map((c) => c.uid);
@@ -908,6 +931,11 @@ function pickPending(cs: CombatState, rng: Rng): void {
 
 /** 封封會吃蓄氣（或看蓄氣）的牌效果：蓄氣忍具要手上有這種牌才喝（2026-09-23） */
 const QI_USE: ReadonlySet<Effect['kind']> = new Set(['damageSpendQi', 'blockSpendQi', 'nextAttackBonusSpendQi', 'ifQiAtPlay']);
+
+/** 關主或大魔物戰（第二批的幾條喝法用；第一批那段在迴圈裡另算了一份同樣的 `bigFight`） */
+function bigFightOf(cs: CombatState): boolean {
+  return cs.enemies.some((e) => { const pool = enemyById[e.enemyId]?.pool; return pool === '塔主' || pool === '大魔物'; });
+}
 
 /** `seat`＝誰要喝（2026-09-16 量雙人時加的）。不傳就是座位 0，`p.potions` 跟 `cs.potions` 是同一個陣列，單機完全沒變 */
 function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
@@ -1045,6 +1073,36 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
      * 判準一律用「那個麻煩現在有多痛」，不是「有沒有出現」——出現就用會讓機器人在小怪身上
      * 把 40~60 條的忍具燒光。
      */
+    /*
+     * ===== 2026-09-23 內容擴充第二批的六支 =====
+     * 每一支各一條（傳功丹走上面「飯糰」那條：`energy` 就接得到）。沒有規則的忍具拿到就佔一格到死，平衡報告會被量歪（提案 ⑦）。
+     */
+    // 照妖鏡（全體拔隱身、潛水、虛化）：有一隻正在虛化、全場的隱身合計兩層以上、或隱身擋在我手上打得出去的攻擊牌前面才照。
+    // 只看「兩層以上」時量尺喝掉率 9%（魔物多半一次只掛一層），拿到就揣到死；一層擋著我這回合的攻擊就值得照。
+    // 排在下面「拔狀態」那一段前面：那段的兜底會拿它當單體的拔狀態忍具用
+    const mirror = def.effects.find((f) => f.kind === 'removeStatuses' && f.target === 'all');
+    if (mirror) {
+      const stealth = enemies.reduce((n, e) => n + getStatus(e, '隱身'), 0);
+      const attackReady = p.hand.some((c) => cardById[c.cardId]?.type === '攻擊' && canPlay(cs, c.uid, enemies[0]?.uid, seat).ok);
+      if (enemies.some((e) => getStatus(e, '虛化') > 0) || stealth >= 2 || (stealth >= 1 && attackReady)) return drink(id);
+      continue;
+    }
+    // 回魂香（這場第一次會被打倒時留 1 血）：這一拍挨下去會死、或是大場面血掉到三成以下，而且還沒點過
+    if (kinds.includes('guardLethal') && !p.guardLethal
+      && (p.hp - incoming <= 0 || (bigFightOf(cs) && p.hp <= p.maxHp * 0.3))) return drink(id);
+    // 便當（下回合多 2 顆飯糰）：這回合的飯糰用光了、仗還長（大場面或魔物總血 30 以上）才打開，已經有一份等著就不疊
+    if (kinds.includes('energyNextTurn') && !p.energyNextTurn && p.energy === 0
+      && (bigFightOf(cs) || enemies.reduce((s, e) => s + e.hp, 0) >= 30)) return drink(id);
+    // 替換符（手上一張換成隨機升級牌）：手上有爛牌（壞毛病、起手的基本牌）才換，換完還有飯糰打得出去
+    if (kinds.includes('transformFromHand') && p.energy >= 1 && p.hand.some((c) => rating(c.cardId) <= 2)) return drink(id);
+    // 迷魂香：這一拍打我最痛的那一隻，痛到 12 點以上、旁邊還有同伴可以替我挨（打同伴＝傷害轉給魔物）；
+    // 只剩牠一隻時等於讓牠這一下打空，留到會要命的那一拍（挨下去剩不到四成）才用
+    if (kinds.includes('daze')) {
+      const worst = enemies.filter((e) => !isDazed(e))
+        .map((e) => ({ e, dmg: incomingHits(cs, e, p).reduce((s, h) => s + h, 0) }))
+        .sort((a, b) => b.dmg - a.dmg)[0];
+      if (worst && worst.dmg >= 12 && (dazeTarget(cs, worst.e) || p.hp - incoming <= p.maxHp * 0.4)) return drink(id, worst.e.uid);
+    }
     const strip = def.effects.find((f) => f.kind === 'removeStatuses');
     if (strip?.kind === 'removeStatuses') {
       const names = strip.names;
@@ -1370,7 +1428,7 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
         fight(run, rng, undefined, 0, seed, stats);
         if (node.type === '塔主' && run.status === 'playing' && run.act < ACTS) {
           const picks = rollActRelics(run);
-          const best = bestRelic(picks, heroOf(me(run)));
+          const best = bestRelic(picks, heroOf(me(run)), me(run).relics);
           if (best) takeRelic(run, best);
           const cardPicks = rollActCards(run);
           const id = pickCard(run, cardPicks) ?? cardPicks.slice().sort((a, b) => rating(b.id) - rating(a.id))[0]?.id;
@@ -1391,7 +1449,7 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
         // 先放生爛牌（留 60 條買東西），再看秘寶，再看牌
         const junk = deckJunk(run);
         if (junk.length >= 3 && me(run).fish >= me(run).removeCost + 60) buyRemove(run, junk[0]!.uid);
-        const relicIdx = shop.relics.map((r, i) => ({ i, v: relicRating(r.id, heroOf(me(run))), p: r.price })).sort((a, b) => b.v - a.v)[0];
+        const relicIdx = shop.relics.map((r, i) => ({ i, v: relicRating(r.id, heroOf(me(run))) + setBonusScore(r.id, heroOf(me(run)), me(run).relics), p: r.price })).sort((a, b) => b.v - a.v)[0];
         if (relicIdx && relicIdx.v >= 6 && me(run).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.i);
         const cardIdx = shop.cards.map((c, i) => ({ i, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
         if (cardIdx && cardIdx.v >= 7 && me(run).fish >= cardIdx.p && me(run).deck.length < 24) buyCard(run, shop, cardIdx.i);

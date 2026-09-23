@@ -75,6 +75,15 @@ export function combatFingerprint(cs: CombatState): string {
       // `watch*` 與 `energyForAllyEachRound` 靠 `pw` 的張數間接蓋到，這裡補的是沒蓋到的四個。
       `pna${p.poisonNextAttack ? `${p.poisonNextAttack.amount}${p.poisonNextAttack.anyDamage ? 'a' : ''}` : ''}`,
       `fap${p.firedAllyPlay ? 1 : 0}`, `fsp${p.firedSelfPlay ? 1 : 0}`, `fph${p.firedPoisonHit ? 1 : 0}`,
+      /*
+       * 2026-09-23 內容擴充第二批的戰鬥內狀態：便當、回魂香、木人樁的計數、收鞘墜的零頭、滿月劍意發動過的回合。
+       * **有才串**：沒帶這幾件的局指紋一個位元都不變。
+       */
+      ...(p.energyNextTurn ? [`ent${p.energyNextTurn}`] : []),
+      ...(p.guardLethal ? ['gl'] : []),
+      ...(p.relicCounters && Object.keys(p.relicCounters).length ? [`rc[${countersKey(p.relicCounters)}]`] : []),
+      ...(p.qiSpentAcc ? [`qsa${p.qiSpentAcc}`] : []),
+      ...(p.fullMoonTurn !== undefined ? [`fmt${p.fullMoonTurn}`] : []),
     ].join('|'));
   }
   for (const e of cs.enemies) {
@@ -83,6 +92,8 @@ export function combatFingerprint(cs: CombatState): string {
       e.dead ? 'DEAD' : '', e.escaped ? 'GONE' : '',
       `ph${e.phase}`, `mi${e.moveIndex}`, `tc${e.turnCount}`, `rv${e.reviveIn}`, `iv${e.invulnIn}`,
       `pby${e.poisonedBy ?? ''}`,   // 誰下的毒——毒死牠時擊倒獎勵算在這個人頭上，兩邊記的人不一樣會分岔
+      // 誰丟的迷魂香（2026-09-23 第二批）：牠打倒同伴時擊倒獎勵歸這一位。有才串（迷魂本身在狀態那一欄）
+      ...(e.dazedBy !== undefined ? [`dzb${e.dazedBy}`] : []),
       // 頭上預告的那一招：兩邊預告不同，下一拍就會打出不一樣的東西
       e.move.label,
       statusOf(e),
@@ -116,7 +127,8 @@ export function runFingerprint(run: RunState): string {
      * 序章、看過哪隻魔物那些是畫面寫的旗標，兩台寫的時機本來就可能不同，收進來會誤報斷線。
      */
     // `chain:` 是事件鏈的旗標（2026-09-23 內容擴充第一批起，提案第⑦節）：前集記下、後集照它排，兩台不一樣就會各自排到不同的後集
-    `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:') || k.startsWith('chain:'))).sort().join(',')}]`,
+    // `shop_bought:` 是店長私藏買過哪幾件（2026-09-23 第二批，引擎的 `buyRelic` 寫）：兩台不一樣，下一間店的私藏那格就會擺得不一樣
+    `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:') || k.startsWith('chain:') || k.startsWith('shop_bought:'))).sort().join(',')}]`,
     `m[${run.map.nodes.map((n) => n.eventId ?? '').join(',')}]`,
   ];
   for (const p of run.players) {
@@ -124,7 +136,14 @@ export function runFingerprint(run: RunState): string {
       `h:${p.hero ?? 'ninja'}`, `hp${p.hp}/${p.maxHp}`, `$${p.fish}`, `rm${p.removeCost}`, p.down ? 'DOWN' : '',
       `d[${p.deck.map((c: CardInstance) => `${c.uid}.${c.cardId}${c.upgraded ? '+' : ''}`).join(' ')}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
+      // 跨戰鬥的秘寶計數（木人樁、撲滿，2026-09-23 第二批）：兩台數得不一樣，發動的那一場就會分岔。有才串，舊局的指紋不變
+      ...(p.counters && Object.keys(p.counters).length ? [`ctr[${countersKey(p.counters)}]`] : []),
     ].join('|'));
   }
   return fnv1a(parts.join('||')).toString(16).padStart(8, '0');
+}
+
+/** 計數表排序後串起來：物件的鍵順序跟先寫哪一件有關，兩台內容一樣但順序不同時不該判成分岔（跟 `statusOf` 同一個理由） */
+function countersKey(c: Record<string, number>): string {
+  return Object.keys(c).sort().map((k) => `${k}:${c[k]}`).join(',');
 }
