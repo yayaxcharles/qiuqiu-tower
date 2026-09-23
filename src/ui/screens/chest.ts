@@ -44,7 +44,13 @@ registerScreen('chest', (app, root, props) => {
    * 一個人先點、另一個人還在看，之後的地圖與戰利品就整個位移了。
    * 早抽不會劇透——連線版在兩個人都挑完之前，秘寶根本還沒進任何人的背包。
    */
-  const offers: string[] = coop ? (road ? openRoadsideBoxCoop(run) : openChestCoop(run)) : [];
+  // 箱中箱（2026-09-23 第三批）：`openChestCoop` 開箱那一拍照座位順序多給（兩台一樣），多給了誰寫進 `bonusAll`；單人等點開才給（`openChest`）
+  // 路邊紙箱走同一支（`openRoadsideBoxCoop` 只換池子），一樣吃得到
+  const bonusAll: { seat: number; id: string }[] = [];
+  const offers: string[] = coop ? (road ? openRoadsideBoxCoop(run, bonusAll) : openChestCoop(run, bonusAll)) : [];
+  const coopBonus = bonusAll.filter((b) => b.seat === seat);
+  const bonusLine = (got: readonly { id: string }[]): HTMLElement | '' => (got.length
+    ? el('p', { class: 'event-note' }, `${relicById['box_in_box']?.name ?? ''}：箱子裡還藏著一個小箱子，多拿到「${got.map((b) => relicById[b.id]?.name ?? b.id).join('」「')}」`) : '');
   /*
    * 結算只能跑一次（它會擲骰，跑兩次亂數就多走一步）。
    *
@@ -159,7 +165,9 @@ registerScreen('chest', (app, root, props) => {
     if (coop) { openedCoop = true; revealCoop(); return; }
     clearKeepBg(root);   // 底圖那一層要留著，clear(root) 會把它一起清掉、畫面看起來像當掉
     // 常見秘寶全部拿過的話會回 null，那就是一個空紙箱（引擎不會硬塞別的池子給你）
-    const id = road ? openRoadsideBox(run) : openChest(run);
+    const bonus: { seat: number; id: string }[] = [];
+    // 箱中箱（2026-09-23 第三批）：開完再多拿一件，寫進 `bonus`；路邊紙箱只換池子，一樣吃得到
+    const id = road ? openRoadsideBox(run, seat, bonus) : openChest(run, seat, bonus);
     // 狀態列一定要等開箱之後才畫：鮪魚罐頭那類秘寶會當場改最大生命，先畫的話玩家會看到
     // 「最大生命 +10」的訊息，配上還沒加的血條與少一格的秘寶列，要回地圖才對得起來
     renderHud(app, root);
@@ -226,6 +234,7 @@ registerScreen('chest', (app, root, props) => {
       // 空箱現在幾乎碰不到了：`openChest` 會從常見一路退到大魔物、塔主池，
       // 三池 64 件全部收齊才會真的空（使用者 2026-09-10：「紙箱節點是一定有寶物」）
       text: def ? `${heroSpeaker()}把箱子翻了個底朝天，找到了——` : '紙箱是空的——塔裡的秘寶全被你搬光了，裡面只剩一堆碎紙。',
+      extra: [bonusLine(bonus)],
       actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')],
     }));
   }
@@ -285,6 +294,7 @@ registerScreen('chest', (app, root, props) => {
         : settled ? '兩個人各拿了一件，走吧。'
           : waiting ? '挑好了，等同伴挑完就一起分。'
             : offers.length > 1 ? '箱子裡有兩件，一人一件——挑你要的那件。' : '只開出一件，兩個人搶——擲骰決定給誰。',
+      extra: [bonusLine(coopBonus)],
       actions: [go],
     }));
   }

@@ -2,8 +2,8 @@ import type { PlayerCombat, RunState } from '../engine/types';
 import { DIFFICULTY_TEXT, difficultyName } from '../content/difficulty';
 import { potionById } from '../content/potions';
 import { showCompendium } from './compendium';
-import { activeSets, relicById, relicLongText, RELIC_SETS, setCount } from '../content/relics';
-import { relicCounter } from '../engine/counters';
+import { activeSets, isMiasma, relicById, relicLongText, RELIC_SETS, setCount } from '../content/relics';
+import { relicCounter, relicSpent } from '../engine/counters';
 import { notice } from './dialogue';
 import type { App } from './app';
 import { artUrl } from './assets';
@@ -125,7 +125,9 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
     const url = artUrl('icons', r.art);
     const fresh = seenRelics !== null && !seenRelics.has(id);
     // `data-relic`：戰鬥畫面靠它找到「剛剛發動的那一件」讓它閃一下（見 combat.ts 的 `flashRelics`）
-    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}`, 'data-relic': id }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
+    // 沾了魔氣的掛一個小紫火（`miasma`）、次數用完的變灰（`spent`，箱中箱）：2026-09-23 第三批
+    const spent = relicSpent(id, me(run, seat));
+    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}${isMiasma(id) ? ' miasma' : ''}${spent ? ' spent' : ''}`, 'data-relic': id }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
     // 計數型秘寶：右下角疊目前數到幾（2026-09-23 第二批，圖上留了空角，見 `engine/counters.ts`）
     const count = relicCounter(id, me(run, seat), combat);
     if (count !== null) node.append(el('span', { class: 'relic-count' }, String(count)));
@@ -133,7 +135,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
     // 套組的秘寶多一段「【師門 n／3】…」（2026-09-23 第二批）；計數型的補一句目前數到幾
-    attachTextTooltip(node, r.name, relicLongText(r, me(run, seat).relics) + (count !== null ? `（目前數到 ${count}）` : ''));
+    attachTextTooltip(node, r.name, relicLongText(r, me(run, seat).relics) + (spent ? '（用完了）' : count !== null ? `（${r.hooks.chestExtra ? '還剩' : '目前數到'} ${count}${r.hooks.chestExtra ? ' 次' : ''}）` : ''));
     node.addEventListener('click', () => showRelicList(run, seat));
     relics.append(node);
   }

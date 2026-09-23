@@ -371,7 +371,12 @@ export interface CardInstance { uid: number; cardId: string; upgraded: boolean }
  * 事件的 `relic` 效果）一律只抽前四池，這兩池只從自己的管道拿——罐頭鋪的「店長私藏」那一格（`makeShop`）、
  * 事件指定給那一件（事件劇本的 `relicId`）。
  */
-export type RelicPool = '起始' | '常見' | '大魔物' | '塔主' | '罐頭鋪' | '事件';
+export type RelicPool = '起始' | '常見' | '大魔物' | '塔主' | '罐頭鋪' | '事件'
+  /**
+   * 淨化版（2026-09-23 內容擴充第三批，design3 第六節）：「沾了魔氣」的秘寶淨化之後換成的那一件。
+   * **這一池永遠抽不到**（紙箱、罐頭鋪、三選一、事件的 `relic` 都指名別的池），只從淨化換來；不算進 120 件。
+   */
+  | '淨化';
 /** 秘寶套組（2026-09-23 內容擴充第二批）。今天只有師門一套，加成寫在 `content/relics.ts` 的 `RELIC_SETS` */
 export type RelicSet = '師門';
 export interface RelicDef {
@@ -477,6 +482,21 @@ export interface RelicDef {
     shopPotionMul?: number;
     /** 每間罐頭鋪第一次走進去先付幾條（山賊的欠條；不夠就付到 0） */
     shopEntryFee?: number;
+    // ---- 2026-09-23 內容擴充第三批（design3 第七節 新P）：接在引擎哪裡見 `run.ts` 各支的註解 ----
+    /** 打贏戰鬥時戰利品一定有 1 個罕見以上的忍具（藥簍；`finishCombat`） */
+    winPotion?: boolean;
+    /** 在貓窩打盹之後，從 n 張牌中選 1 張加入牌組（夢枕；`restCardChoices`） */
+    restCardReward?: number;
+    /** 問號格不會變成伏擊（平安繩；問號格變化那一條呼叫 `qmarkNoAmbush`） */
+    qmarkNoAmbush?: boolean;
+    /** 每走進一個問號格回復幾點生命（平安繩；`chooseNode`） */
+    qmarkHeal?: number;
+    /** 每走進第 n 個問號格，那一格一定是行腳商或路邊紙箱（探路杖；計數在 `RunPlayer.counters`，見 `scoutStaffTick`） */
+    qmarkEvery?: number;
+    /** 接下來打開的 n 個紙箱各多給 1 件秘寶（箱中箱；用掉幾次記在 `RunPlayer.counters`） */
+    chestExtra?: number;
+    /** 集章卡：每間店主不同的罐頭鋪蓋一個章，集滿三個給一件塔主秘寶、之後罐頭鋪九折（章記在 `RunPlayer.counters`） */
+    stampCard?: boolean;
   };
 }
 
@@ -724,8 +744,12 @@ export type RunEffect =
    */
   | { kind: 'loseRelic' }
   | { kind: 'potions'; n: number }
-  /** `bonusUpgrades`＝打贏後在獎勵畫面挑幾張牌升級（鏡子走廊用）。`encounterId` 若有 `_a<關數>` 的版本會自動換成該關的 */
-  | { kind: 'fight'; encounterId: string; bonusFish: number; bonusUpgrades?: number }
+  /**
+   * `bonusUpgrades`＝打贏後在獎勵畫面挑幾張牌升級（鏡子走廊用）。`encounterId` 若有 `_a<關數>` 的版本會自動換成該關的。
+   * `pool: '大魔物'`（2026-09-23 第三批 新M，睡著的大魔物）：**不看 `encounterId`**，打這一關大魔物池隨機一組
+   *（分支亂數、兩個座位抽到同一組，見 `run.ts` 的 `fight` 那一支）
+   */
+  | { kind: 'fight'; encounterId: string; bonusFish: number; bonusUpgrades?: number; pool?: '大魔物' }
   | { kind: 'chooseCard'; pool: Pool; n: number }
   | { kind: 'gamble'; p: number; win: RunEffect[]; lose: RunEffect[] }
   /** 在本局旗標上記一筆（事件前後集用：下一關的地圖生成時看旗標決定要不要排後集） */
@@ -733,8 +757,11 @@ export type RunEffect =
   /*
    * ===== 內容擴充第二批的事件結果（2026-09-23，劇本 design2 第一節「新2／新4／新5／新6」）=====
    */
-  /** 給**指定那一件**秘寶（風鈴、山賊的欠條……）；已經有了就改給 `fallbackFish` 條小魚乾，不會兩手空空 */
-  | { kind: 'relicId'; id: string; fallbackFish: number }
+  /**
+   * 給**指定那一件**秘寶（風鈴、山賊的欠條……）；已經有了就改給 `fallbackFish` 條小魚乾，不會兩手空空。
+   * `fallbackPool`（2026-09-23 第三批 新N）：已經有了改給這一池隨機一件（塔主的酒葫蘆 → 隨機塔主秘寶），那一池也抽乾了才給小魚乾
+   */
+  | { kind: 'relicId'; id: string; fallbackFish: number; fallbackPool?: RelicPool }
   /** 交出**指定那一件**（迷路的小黑貓：把鈴鐺繫在牠頭巾上）；身上沒有就跳過。生命上限與忍具格照 `loseRelic` 還原 */
   | { kind: 'loseRelicId'; id: string }
   /** 交出身上**價格最低**的一個忍具（同價取最後拿到的）；身上沒有就什麼都沒少 */
@@ -745,7 +772,25 @@ export type RunEffect =
    */
   | { kind: 'nextFight'; effects: Effect[]; note: string;
     /** 接下來幾場都套（開局祝福「護身符」3 場，2026-09-23 第三批 新B）。不寫＝1 場，跟送上樓的便當一樣 */
-    fights?: number };
+    fights?: number }
+  /*
+   * ===== 內容擴充第三批（2026-09-23，design3 第一節 新F／新K／新N／新O）=====
+   */
+  /**
+   * 照權重抽一格（塔裡的籤筒、睡著的大魔物）：`tier` 是提示那一行的整句（「抽到：上上籤！」「牠醒了！」），子效果照常跑。
+   * 用整局亂數（跟 `gamble` 同一條，事件當下抽）；`shared`＝**兩個座位抽到同一格**（大魔物醒沒醒是同一件事，
+   * 一個人醒一個人沒醒的話一台要開打、另一台不用），改用這一格的分支亂數，不動整局亂數。
+   */
+  | { kind: 'lottery'; table: { w: number; tier: string; effects: RunEffect[] }[]; shared?: true }
+  /**
+   * 淨化身上沾了魔氣的秘寶（換成淨化版，見 `content/relics.ts` 的 `MIASMA_PURE`）。`n: 'all'`＝全部；`1`＝一件，
+   * 身上兩件以上時要玩家挑（`RunEffectOutcome` 的 `purify`）。`orRemove`＝身上一件都沒有時改成自選移除 1 張牌（紫霧②）
+   */
+  | { kind: 'purify'; n: 1 | 'all'; orRemove?: true }
+  /** 身上的忍具全部失去（溫泉①：行囊泡在水裡） */
+  | { kind: 'loseAllPotions' }
+  /** 隨機一件「沾了魔氣」而且身上沒有的秘寶（紫霧①）；六件都有了就改給 `fallbackFish` 條小魚乾 */
+  | { kind: 'relicMiasma'; fallbackFish: number };
 
 /**
  * 條件選項認得的四種流派（劇本 design2 新1 的 `deckTag`）：**不算起手牌**，同一張牌升級前後算一張。
@@ -763,7 +808,9 @@ export type ChoiceCond =
   | { kind: 'fishAtLeast'; n: number }
   | { kind: 'potionsFull' }
   | { kind: 'flag'; name: string }
-  | { kind: 'anyOf'; of: ChoiceCond[] };
+  | { kind: 'anyOf'; of: ChoiceCond[] }
+  /** 身上有沾了魔氣的秘寶（2026-09-23 第三批 新K：倒了的神龕【魔氣】）。養成型：連線時任一位有就出現 */
+  | { kind: 'miasmaRelic' };
 /**
  * `resultArt`＝這個選項有自己的結果插圖時，圖檔的鍵（對應 `bg/event_<resultArt>`）。
  * 沒填就沿用事件本身的場景圖。選了之後畫面上如果只有文字換掉、圖一模一樣，
@@ -824,6 +871,12 @@ export interface EventDef {
   /** 前後集（2026-09-04）：要有這個本局旗標才會排進地圖（旗標由前集選項的 `flag` 效果設）；`acts` 限定只在哪幾關出現 */
   requiresFlag?: string;
   acts?: number[];
+  /**
+   * 稀有事件（2026-09-23 內容擴充第三批，design3 第五節 新L）：**不進一般的洗牌佇列**，只靠 `run.ts` 的 `placeRareEvent`
+   * 在生完地圖後照機率蓋掉一格事件。`weight`＝同一關幾篇之間的相對權重；`miasmaWeight`＝放置那一刻有人帶著沾了魔氣的秘寶時改用這個（溫泉）；
+   * `maxMiasma`＝放置那一刻有人身上已經有這麼多件沾了魔氣的秘寶就不放（紫霧：2 件以上不放）。走進去時不換後集。
+   */
+  rare?: { weight: number; miasmaWeight?: number; maxMiasma?: number };
 }
 
 // ===== 地圖 =====

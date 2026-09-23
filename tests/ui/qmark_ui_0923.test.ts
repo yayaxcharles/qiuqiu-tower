@@ -143,8 +143,9 @@ describe('行腳商與路邊紙箱沿用罐頭鋪、紙箱畫面', () => {
 
   it('路邊紙箱：第一段換成揭曉圖與開頭、開箱照路邊紙箱的池子（單人、連線兩條都換）', () => {
     expect(CHEST).toContain("eventArtKey(road ? 'q_roadbox' : 'chest_closed')");
-    expect(CHEST).toContain('road ? openRoadsideBox(run) : openChest(run)');
-    expect(CHEST).toContain('road ? openRoadsideBoxCoop(run) : openChestCoop(run)');
+    // 箱中箱的回報陣列（稀有事件那條線）兩邊都帶（2026-09-24 b3int 合併）
+    expect(CHEST).toContain('road ? openRoadsideBox(run, seat, bonus) : openChest(run, seat, bonus)');
+    expect(CHEST).toContain('road ? openRoadsideBoxCoop(run, bonusAll) : openChestCoop(run, bonusAll)');
     expect(CHEST).toContain('text: road ? road.opening : ');
   });
 });

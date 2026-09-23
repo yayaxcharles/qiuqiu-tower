@@ -4,7 +4,7 @@ import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
 import { potionById } from '../content/potions';
-import { relicById, relics, RELIC_SETS, setCount } from '../content/relics';
+import { MIASMA_PURE, relicById, relics, RELIC_SETS, setCount } from '../content/relics';
 import { relicOk } from './rewards';
 import RELIC_RATINGS from './relic-ratings.json';
 import BLESS_RATINGS from './bless-ratings.json';
@@ -17,7 +17,8 @@ import { Rng, seedFromString } from './rng';
 import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  finishCombat, makeShop, napHeal, newRun, openChest, removeCard, removePrice, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
+  finishCombat, makeShop, miasmaRelicsOf, napHeal, newRun, openChest, purifyRelic, removeCard, removePrice, rest, restCardChoices, rollActCards, rollActRelics,
+  stampWanted, takeCardReward, closeCardReward, takeRelic, takeRestCard,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight, makeMerchant, openRoadsideBox,
   buySwap, keeperOf, potionCapacity, priceFor, type ShopStock } from './run';
 import { ambushOutcomes } from './qmark';
@@ -188,6 +189,35 @@ export function relicPoolValue(run: RunState, pool: RelicPool, seat = 0): number
   const owned = me(run, seat).relics;
   const cands = relics.filter((r) => r.pool === pool && !owned.includes(r.id) && relicOk(r, [hero]));
   return cands.length ? cands.reduce((s, r) => s + relicEventValue(r.id, hero), 0) / cands.length : 0;
+}
+
+/**
+ * 淨化這一件值多少（2026-09-23 第三批，design3 6-4）：量尺上「淨化版 − 原件」，`ev` 是事件分（事件估值用）、`floors` 是層差（貓窩、罐頭鋪的門檻用）。
+ * 淨化版跟原件都要量過（`RULER_ONLY`），不然退回池子的預設分、收益算不準。
+ */
+export function purifyGain(id: string, hero: Hero): { ev: number; floors: number } {
+  const pure = MIASMA_PURE[id];
+  if (!pure) return { ev: 0, floors: 0 };
+  return { ev: relicEventValue(pure, hero) - relicEventValue(id, hero), floors: relicRating(pure, hero) - relicRating(id, hero) };
+}
+/** 幾件裡挑一件淨化：淨化後分數多最多的那件（design3 6-2：機器人的挑法）；同分照身上的順序 */
+export function bestPurify(ids: readonly string[], hero: Hero): string | undefined {
+  return ids.slice().sort((a, b) => purifyGain(b, hero).ev - purifyGain(a, hero).ev)[0];
+}
+/**
+ * 貓窩要不要點清心香（design3 6-4）：收益 ≥ 1.5 層、血 ≥ 六成、而且不是 44F（那一格打盹回滿）才淨化，回要淨化哪一件；不然回 undefined，照原本的打盹／磨爪。
+ */
+export function restPurifyPick(run: RunState, seat = 0): string | undefined {
+  const p = me(run, seat);
+  if (run.floor === 44 || p.hp < p.maxHp * 0.6) return undefined;
+  const hero = heroOf(p);
+  const id = bestPurify(miasmaRelicsOf(run, seat), hero);
+  return id && purifyGain(id, hero).floors >= 1.5 ? id : undefined;
+}
+/** 夢枕：打盹之後照 `pickCard` 挑（不到門檻就不拿） */
+export function takePillowCard(run: RunState, seat = 0): void {
+  const picks = restCardChoices(run, seat);
+  if (picks.length) takeRestCard(run, pickCard(run, picks, seat) ?? '', seat);
 }
 
 /**
@@ -1326,6 +1356,10 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, seed:
     const id = pickCard(run, outcome.chooseCard) ?? outcome.chooseCard[0]?.id;   // 開出升級版的那張學到就是升級牌（下面 addCard 帶旗標）
     if (id) addCard(run, id, outcome.upgradedCard === id);
     if (outcome.then) handleOutcome(run, rng, outcome.then, seed, stats);   // 學完再挑牌升級（2026-09-23 內容擴充第二批）
+  } else if ('purify' in outcome) {
+    // 兩件以上沾了魔氣的：挑淨化後分數多最多的那件（2026-09-23 第三批）
+    const id = bestPurify(outcome.purify, heroOf(me(run)));
+    if (id) purifyRelic(run, id);
   } else if ('fight' in outcome) {
     run.pendingAfterFight = outcome.fight.afterWin;   // 事件附帶的獎勵：打贏才發（稽核 2026-09-04 中 2）
     fight(run, rng, outcome.fight.encounterId, outcome.fight.bonusFish, seed, stats);
@@ -1392,7 +1426,8 @@ export function eventValue(run: RunState, effects: RunEffect[], costFish: number
       // 隨機一件：這一位抽得到的那幾件的平均事件分（2026-09-23 量尺；原本一律 24／34，不看角色也不看身上有什麼）
       case 'relic': v += relicPoolValue(run, fx.pool, seat); break;
       case 'potions': v += Math.min(fx.n, 3 - me(run, seat).potions.length) * 7; break;
-      case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;
+      // 打這一關大魔物池的（睡著的大魔物，2026-09-23 第三批 新M）再扣 15：這支估值不看對手多強，不扣的話叫醒牠會被高估（design3 R3 自評）
+      case 'fight': v += (hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5) - (fx.pool ? 15 : 0); break;
       case 'chooseCard': v += fx.pool === '絕學' ? 14 : 9; break;
       case 'gamble': v += fx.p * eventValue(run, fx.win, 0, seat) + (1 - fx.p) * eventValue(run, fx.lose, 0, seat); break;
       /*
@@ -1413,7 +1448,9 @@ export function eventValue(run: RunState, effects: RunEffect[], costFish: number
        */
       case 'relicId': {
         const own = me(run, seat).relics.includes(fx.id) || !relicById[fx.id];
-        v += own ? fx.fallbackFish * 0.35 : relicEventValue(fx.id, heroOf(me(run, seat)));
+        // 已經有了改給那一池隨機一件的（2026-09-23 第三批 `fallbackPool`）：那一池抽得到的平均；抽乾了才是小魚乾
+        const alt = own && fx.fallbackPool ? relicPoolValue(run, fx.fallbackPool, seat) : 0;
+        v += !own ? relicEventValue(fx.id, heroOf(me(run, seat))) : alt > 0 ? alt : fx.fallbackFish * 0.35;
         break;
       }
       case 'loseRelicId': if (me(run, seat).relics.includes(fx.id)) v -= relicEventValue(fx.id, heroOf(me(run, seat))); break;
@@ -1423,6 +1460,34 @@ export function eventValue(run: RunState, effects: RunEffect[], costFish: number
         for (const e of fx.effects) v += (e.kind === 'status' && e.name === '爪力' ? e.amount * 4 : e.kind === 'block' ? e.amount * 0.6
           : e.kind === 'status' && e.target !== 'self' ? e.amount * 2.5 : 2) * (fx.fights ?? 1);
         break;
+      /*
+       * 內容擴充第三批（2026-09-23，design3 新F／新K／新N／新O）。
+       * - 抽獎：各格估值 × 機率（跟 `gamble` 同一套）
+       * - 淨化：量尺上「淨化版 − 原件」的事件分（`purifyGain`）；一件挑最多的、全部就加起來；沒得淨化時 `orRemove` 照 `removeCard`
+       * - 忍具全部失去：每支 7 分（跟 `potions` 同一把尺）
+       * - 隨機一件沾了魔氣的：這一位抽得到的那幾件的平均事件分；都有了是退回的小魚乾
+       */
+      case 'lottery': {
+        const total = fx.table.reduce((s, t) => s + Math.max(0, t.w), 0);
+        if (total > 0) for (const t of fx.table) v += (Math.max(0, t.w) / total) * eventValue(run, t.effects, 0, seat);
+        break;
+      }
+      case 'purify': {
+        const hero = heroOf(me(run, seat));
+        const mine = miasmaRelicsOf(run, seat);
+        if (!mine.length) { if (fx.orRemove) v += removed++ < junk ? 18 : 2; break; }
+        const gains = mine.map((id) => purifyGain(id, hero).ev);
+        v += fx.n === 'all' ? gains.reduce((s, g) => s + g, 0) : Math.max(...gains);
+        break;
+      }
+      case 'loseAllPotions': v -= me(run, seat).potions.length * 7; break;
+      case 'relicMiasma': {
+        const hero = heroOf(me(run, seat));
+        const owned = me(run, seat).relics;
+        const cands = Object.keys(MIASMA_PURE).filter((id) => relicById[id] && !owned.includes(id) && !owned.includes(MIASMA_PURE[id]!) && relicOk(relicById[id]!, [hero]));
+        v += cands.length ? cands.reduce((s, id) => s + relicEventValue(id, hero), 0) / cands.length : fx.fallbackFish * 0.35;
+        break;
+      }
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }
@@ -1552,7 +1617,8 @@ function nodeScore(run: RunState, n: MapNode): number {
   switch (n.type) {
     // 缺血才衝貓窩——前提是打盹回得了血（不眠香爐睡了不回，那時貓窩只剩磨爪，2026-09-23）
     case '貓窩': return hpPct < 0.55 && napWorks(run) ? 100 : bestUpgrade(run) ? 55 : 20;
-    case '罐頭鋪': return (me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15) + keeperDetour(run, n);
+    // 客座店主繞路加分（`keeperDetour`，b3shop）；帶集章卡、這位店主還沒蓋過章時再 +15（design3 7-3：機器人要會繞路，量尺才量得準）
+    case '罐頭鋪': return (me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15) + keeperDetour(run, n) + (stampWanted(run, 0, n) ? 15 : 0);
     case '事件': return 50;
     case '紙箱': return 90;
     case '大魔物': return hpPct >= 0.7 && me(run).deck.some((c) => c.upgraded) ? 62 : 8;
@@ -1645,7 +1711,11 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
         const u = bestUpgrade(run);
         // 44F 打盹回滿：真人只要沒滿血都會睡，機器人比照（不然 60% 以上的血會去磨爪、量不到補給的效果）。
         // 打盹回不了血（不眠香爐）就去磨爪——磨爪還順便回一成，睡下去只剩暖毯那點蜷縮（2026-09-23）
-        if ((me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run)) || !u) rest(run, '打盹'); else rest(run, '磨爪', u.uid);
+        // 點清心香（2026-09-23 第三批）：收益 ≥ 1.5 層、血 ≥ 六成、不是 44F 才淨化（`restPurifyPick`），不然照原本的打盹／磨爪
+        const pur = restPurifyPick(run);
+        if (pur) rest(run, '淨化', undefined, 0, pur);
+        else if ((me(run).hp < me(run).maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run)) || !u) { rest(run, '打盹'); takePillowCard(run); }   // 夢枕：睡完挑一張
+        else rest(run, '磨爪', u.uid);
         break;
       }
       case '紙箱': openChest(run); break;

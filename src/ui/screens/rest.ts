@@ -1,8 +1,10 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue, napLinesFor, pick, storyFor } from '../../content/dialogue';
-import { relicById } from '../../content/relics';
-import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePartner } from '../../engine/run';
+import { MIASMA_PURE, relicById } from '../../content/relics';
+import { PURIFY_NARRATION, PURIFY_REST_LABEL, purifyLine, purifyRestSub } from '../../content/purify-text';
+import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, miasmaRelicsOf, napHeal, rest, restCardChoices, revivePartner, takeRestCard } from '../../engine/run';
+import { showPurifyPick } from '../purifypick';
 import type { RunAction } from '../../net/runaction';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -42,6 +44,7 @@ export function restMateNote(run: RunState, seat: number, a: RunAction): string 
   if (a.t === 'revive') return a.w === seat ? `${who}把你扶起來了，你回到 ${me(run, seat).hp} 點生命。` : `${who}扶起了同伴。`;
   if (a.t !== 'rest') return '';
   if (a.c === '打盹') return `${who}在旁邊睡了一下。`;
+  if (a.c === '淨化') return `${who}點了一炷清心香，淨化了「${relicById[a.r ?? '']?.name ?? ''}」。`;   // 2026-09-23 第三批
   const c = a.u === undefined ? undefined : me(run, a.seat).deck.find((x) => x.uid === a.u);
   const nd = c ? cardById[c.cardId] : undefined;
   const got = nd ? `「${cardNameFor(nd, mate?.hero)}」升級了` : '升級了一張牌';
@@ -96,8 +99,8 @@ registerScreen('rest', (app, root) => {
    */
   let mateDid = '';
 
-  /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖。`pose` 是做完那件事的立繪 */
-  function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' = 'nap'): void {
+  /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖。`pose` 是做完那件事的立繪（點清心香用蜷在窩旁那張 `curl`） */
+  function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' | 'curl' = 'nap'): void {
     clearKeepBg(root);
     renderHud(app, root);
     // 磨好的牌放大秀出來、打鐵發金光（本來只有一行字，使用者：「不太有回饋感」）
@@ -120,6 +123,36 @@ registerScreen('rest', (app, root) => {
     app.disposers.push(() => window.clearTimeout(back));
   }
 
+  /** 點完清心香（2026-09-23 第三批）：旁白＋哪一件變成哪一件，換過的那一格圖示閃一下白金光（`.hud-relic.purified`） */
+  function afterPurify(id: string): void {
+    const pure = MIASMA_PURE[id] ?? '';
+    afterAction(`${PURIFY_NARRATION}「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]?.name ?? pure}」了。`, purifyLine(me(run, seat).hero), undefined, 'curl');
+    root.querySelector(`.hud-relic[data-relic="${pure}"]`)?.classList.add('purified');
+  }
+
+  /**
+   * 夢枕（2026-09-23 第三批）：睡完從三張裡挑一張（可以不拿）。三張是引擎照這一格算的（`restCardChoices`，兩台一樣），
+   * 挑好了單人當場收、連線送出去（`restCard`），套用之後才演「睡了一下」那一段。
+   */
+  function showPillow(heal: number): void {
+    const picks = restCardChoices(run, seat);
+    clearKeepBg(root);
+    renderHud(app, root);
+    const take = (id: string): void => {
+      if (!act({ t: 'restCard', seat, id }, () => takeRestCard(run, id, seat))) return;
+      if (coop) { root.querySelectorAll('.reward-cards .card, .scene-actions .btn').forEach((b) => b.setAttribute('disabled', 'disabled')); return; }
+      afterPillow(heal, id);
+    };
+    const grid = el('div', { class: 'reward-cards' }, ...picks.map((c) => cardNode(c, { onClick: () => take(c.id) })));
+    root.append(sceneView({ art: grid, portrait: heroPortrait(me(run, seat).hero, 'nap'), speaker: relicById['dream_pillow']?.name ?? '',
+      text: `${napLine(heal)}夢裡好像看見了幾招，選一張帶走。`, actions: [el('button', { class: 'btn', onclick: () => take('') }, '都不要')] }));
+  }
+  /** 夢枕挑完之後：演睡醒那一段（學到的那張牌秀出來） */
+  function afterPillow(heal: number, id: string): void {
+    const nd = id ? cardById[id] : undefined;
+    afterAction(`${napLine(heal)}${nd ? `學會了「${cardNameFor(nd, me(run, seat).hero)}」。` : ''}`, napQuip(), undefined, 'nap');
+  }
+
   function show(): void {
     // 重畫前一定要先清（只留底圖）：`renderHud` 是直接 append，不先清會疊出第二條狀態列
     // 與第二個對白框（稽核 2026-09-11 中-6：對方先做完時看得到）
@@ -139,6 +172,8 @@ registerScreen('rest', (app, root) => {
       used = true;
       if (coop) return;   // 連線的等動作繞回來才演（見 onRunApplied）
       play('heal');
+      // 夢枕（2026-09-23 第三批）：睡完先挑一張牌，挑完才演睡醒
+      if (restCardChoices(run, seat).length) { showPillow(heal); return; }
       // **用按下去之前算好的 `heal`**：`healNow()` 是「缺多少血」，回完血之後再算會變小，
       // 回到滿血時甚至會寫成「回復 0 點」（稽核 2026-09-12 中-3）
       afterAction(napLine(heal), napQuip());
@@ -209,6 +244,27 @@ registerScreen('rest', (app, root) => {
      */
     const hurt = fallen();
     const actions = prep ? [nap, sharpen, prep] : [nap, sharpen];
+    /*
+     * 點一炷清心香（2026-09-23 第三批，design3 6-3）：身上有沾了魔氣的秘寶就出現（44F 也有），用掉這一格。
+     * 一件就直接淨化；兩件以上跳小視窗挑（可以按「先不要」回來選別的）。
+     */
+    const miasma = miasmaRelicsOf(run, seat);
+    if (miasma.length) {
+      const incense = el('button', { class: 'btn two-line' }, el('span', {}, PURIFY_REST_LABEL), el('span', { class: 'sub' }, purifyRestSub(verb)));
+      const go = (id: string | null): void => {
+        if (!id || used) return;
+        if (!act({ t: 'rest', seat, c: '淨化', r: id }, () => rest(run, '淨化', undefined, seat, id))) return;
+        used = true;
+        if (coop) return;   // 連線的等動作繞回來才演（見 onRunApplied）
+        play('relic');
+        afterPurify(id);
+      };
+      incense.addEventListener('click', () => {
+        if (used) return;
+        if (miasma.length === 1) go(miasma[0]!); else showPurifyPick(miasma, go, { cancellable: true });
+      });
+      actions.push(incense);
+    }
     if (coop && hurt >= 0 && hurt !== seat) {
       const back = Math.max(1, Math.floor((run.players[hurt]?.maxHp ?? 0) * REVIVE_RATIO));
       const lift = el('button', { class: 'btn two-line' },
@@ -259,9 +315,15 @@ registerScreen('rest', (app, root) => {
     coop.onRunApplied((applied) => {
       let didMine = false;
       for (const one of applied) {
-        if (one.a.seat === seat && (one.a.t === 'rest' || one.a.t === 'revive')) didMine = true;
+        if (one.a.seat === seat && (one.a.t === 'rest' || one.a.t === 'revive' || one.a.t === 'restCard')) didMine = true;
         const a = one.a;
-        if (a.t === 'rest' || a.t === 'revive') done.add(a.seat);
+        // 帶夢枕的人睡完還要挑一張牌（2026-09-23 第三批）：挑完（`restCard`）才算做完，不然同伴一做完就把他拖上樓
+        const pillowWait = a.t === 'rest' && a.c === '打盹' && restCardChoices(run, a.seat).length > 0;
+        if ((a.t === 'rest' && !pillowWait) || a.t === 'revive' || a.t === 'restCard') done.add(a.seat);
+        if (a.t === 'restCard') {
+          if (a.seat === seat) { play('heal'); afterPillow(napped, a.id); }
+          continue;
+        }
         if (a.seat !== seat) {
           mateDid = restMateNote(run, seat, a) || mateDid;
           // 被扶起來的那一位：扶人的那位講的那句也讓這邊聽到（他那邊的吐槽泡泡只在他自己的畫面上）
@@ -273,7 +335,8 @@ registerScreen('rest', (app, root) => {
         // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
         if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines), undefined, 'helpup'); continue; }
         if (a.t !== 'rest') continue;
-        if (a.c === '打盹') { play('heal'); afterAction(napLine(napped), napQuip()); continue; }
+        if (a.c === '打盹') { play('heal'); if (restCardChoices(run, seat).length) showPillow(napped); else afterAction(napLine(napped), napQuip()); continue; }
+        if (a.c === '淨化') { play('relic'); afterPurify(a.r ?? ''); continue; }   // 點清心香（2026-09-23 第三批）
         play('upgrade');
         const pl = pendingLine;
         const line = pl && pl.choice === '全力準備'

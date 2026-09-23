@@ -20,7 +20,7 @@ import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
 import { play, setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
-import { playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
+import { notice, playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
 import { speechBubbleAt } from './enemylayout';
 import { clear, el } from './dom';
 import { retireLeavingScreen, swapScreen } from './screenswap';
@@ -424,7 +424,10 @@ export class App {
   enterNode(nodeId: string): void {
     const run = this.run;
     if (!run) return;
-    const node = chooseNode(run, nodeId);
+    // 走進這一格時秘寶做了什麼（平安繩回血、集章卡蓋章，2026-09-23 第三批）：寫給本機這一位的，換畫面後用公告講
+    const entryNotes: string[] = [];
+    const node = chooseNode(run, nodeId, entryNotes, this.seat);
+    if (entryNotes.length) window.setTimeout(() => notice(entryNotes.join('；')), 300);
     /*
      * 走進一格的當下對一次整局的帳（連線版 2026-09-11）。
      *

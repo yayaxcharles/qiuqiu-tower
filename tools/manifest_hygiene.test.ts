@@ -45,15 +45,11 @@ function flatten(node: unknown, path: string[] = [], out: [string, string][] = [
 
 const entries = flatten(manifest);
 
-/** 第三批的事件圖編號：圖已登記、程式還沒接（2026-09-23）。接好一項拿掉一項，見下面「暫放名單」那兩條 */
-const BATCH3_PENDING = [
-  'broken_shrine_r2',
-  'rare_catnip_master', 'rare_catnip_master_r0', 'rare_catnip_master_r1', 'rare_catnip_master_r2',
-  'rare_fortune_sticks', 'rare_fortune_sticks_r0', 'rare_fortune_sticks_r1',
-  'rare_hot_spring', 'rare_hot_spring_r0', 'rare_hot_spring_r1', 'rare_hot_spring_r2',
-  'rare_miasma_whisper', 'rare_miasma_whisper_r0', 'rare_miasma_whisper_r1',
-  'rare_sleeping_hoard', 'rare_sleeping_hoard_r0', 'rare_sleeping_hoard_r1',
-];
+/*
+ * 第三批的暫放名單（2026-09-23 圖先一次登記、程式還沒接的事件圖編號）四條線都接好、合併後名單空了，
+ * 名單與「暫放名單已接線的要拿掉」那條測試整段拿掉（2026-09-24 b3int）：祝福主圖與問號格三張走 `NON_EVENT_ART`，
+ * 稀有事件 5 篇與神龕【魔氣】的結果圖接進 `events.ts`，下面的孤兒檢查照一般事件認。
+ */
 
 describe('素材清單的衛生', () => {
   it('清單裡沒有生圖的中途檔', () => {
@@ -87,9 +83,6 @@ describe('素材清單的衛生', () => {
     // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）：畫面照 `eventArtKey` 挑，名單在 `bgacts.ts`
     // （問號格那三張的編號照引擎那一份 `QMARK_ART`，`NON_EVENT_ART` 直接併進去）
     for (const k of NON_EVENT_ART) ids.add(k);
-    // 第三批程式接線前暫放（2026-09-23）：圖先一次登記，免得祝福、問號格、稀有事件、神龕幾條分支各自改清單互相衝突。
-    // 哪一項接好了就把它從這裡拿掉；下面那條「暫放名單已接線的要拿掉」會提醒
-    for (const k of BATCH3_PENDING) ids.add(k);
 
     const orphan = Object.keys(manifest)
       .filter((k) => k === 'bg')
@@ -109,18 +102,6 @@ describe('素材清單的衛生', () => {
         return !HEROES.some((h) => ids.has(raw.replace(new RegExp(`^${h}_`), '')));
       });
     expect(orphan, `這幾張沒人會去要，卻每次首載都被下載：\n${orphan.join('\n')}`).toEqual([]);
-  });
-
-  it('第三批暫放名單裡已經接線的要拿掉（名單只能越來越短）', async () => {
-    const { events } = await import('../src/content/events');
-    const wired = new Set<string>();
-    for (const ev of events) {
-      wired.add(ev.id);
-      for (const c of ev.choices) if (c.resultArt) wired.add(c.resultArt);
-    }
-    for (const k of NON_EVENT_ART) wired.add(k);   // 接進畫面的非事件主圖也算接好了（祝福主圖，2026-09-23 第三批）
-    const stale = BATCH3_PENDING.filter((k) => wired.has(k));
-    expect(stale, `這幾項已經接進 events.ts，請從 BATCH3_PENDING 拿掉：\n${stale.join('\n')}`).toEqual([]);
   });
 
   it('清單列到的檔案都真的在', () => {

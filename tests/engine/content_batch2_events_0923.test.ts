@@ -397,13 +397,16 @@ describe('影子鏈那一場（取代第一批暫用的鏡子走廊那場）', (
 describe('兩個人的機器人走得完連線限定事件（投票與一人得一人付）', () => {
   it('跑一批連線局：遇得到三篇、選得出「我拿／我付」那兩個、整局跑完不出錯', () => {
     const seen = new Map<string, Set<number>>();
-    for (let i = 0; i < 80; i++) {
+    // 第三批合併後（2026-09-24 b3int）問號格會變、稀有事件會佔一格，一般事件格少了一些：同一批種子八十局只遇到兩次橋、兩次都選賣橋板。
+    // 改成最多跑 240 局、兩件事都看到就停（斷言不動；照實跑到第 100 局就停）
+    const bySeatSeen = (): boolean => [...seen.values()].some((s) => s.has(0) || s.has(1));
+    for (let i = 0; i < 240 && !(seen.has('coop_rope_bridge') && bySeatSeen()); i++) {
       const st = coopRun(`b2-coopbot-${i}`, 1, i % 2 ? ['ninja', 'feifei'] : ['dangdang', 'fengfeng']);
       for (const e of st.events) if (e.id.startsWith('coop_')) {
         const s = seen.get(e.id) ?? new Set<number>(); s.add(e.choice); seen.set(e.id, s);
       }
     }
-    expect([...seen.keys()].sort(), '八十局連一篇連線限定事件都沒遇到').toContain('coop_rope_bridge');
+    expect([...seen.keys()].sort(), '兩百四十局連一篇連線限定事件都沒遇到').toContain('coop_rope_bridge');
     const anyBySeat = [...seen.values()].some((s) => s.has(0) || s.has(1));
     expect(anyBySeat, '機器人一次都沒選過一人得一人付的那兩個').toBe(true);
     // 八十局連線機器人，單獨跑約 1.5 秒；全套平行跑、機器又忙時實測 8.3 秒超過預設 5 秒被判紅（2026-09-23 b2fin），

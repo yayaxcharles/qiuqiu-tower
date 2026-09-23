@@ -301,6 +301,7 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   // 事件前後集（2026-09-04）：後集要有前集留下的旗標、且在指定的關才排進來；這一關的選擇要到下一關的地圖才看得到結果
   const eligible = events.filter((e) => e.fixedFloor === undefined
     && !e.artPending          // 插圖還沒生好的一律不排（2026-09-17，跟牌的 `hidden` 同一道閘門）
+    && !e.rare                // 稀有事件不進一般的洗牌佇列，只靠 `run.ts` 的 `placeRareEvent` 放（2026-09-23 第三批）；排掉之後佇列跟加它們之前一模一樣
     && (!e.acts || e.acts.includes(act))
     /*
      * 職業獨占（2026-09-12）：菲菲的「師兄的痕跡」是她在追球球留下的東西，球球自己遇到會很怪。

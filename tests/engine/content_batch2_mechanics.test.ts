@@ -292,9 +292,10 @@ describe('師門套組（集到任兩件：每場戰鬥第一回合多 1 顆飯�
 
 describe('兩個限定池不進一般抽法', () => {
   const LIMITED = relics.filter((r) => r.pool === '罐頭鋪' || r.pool === '事件').map((r) => r.id);
-  it('限定池各 3 件', () => {
-    expect(relics.filter((r) => r.pool === '罐頭鋪').map((r) => r.id).sort()).toEqual(['bulk_crate', 'member_card', 'shop_ledger']);
-    expect(relics.filter((r) => r.pool === '事件').map((r) => r.id).sort()).toEqual(['bandit_iou', 'master_wooden_sword', 'miasma_shard']);
+  // 第三批（2026-09-23）各 +1：罐頭鋪限定的集章卡、事件限定的沾了魔氣的舊護腕（design3 7-2）
+  it('限定池各 4 件', () => {
+    expect(relics.filter((r) => r.pool === '罐頭鋪').map((r) => r.id).sort()).toEqual(['bulk_crate', 'member_card', 'shop_ledger', 'stamp_card']);
+    expect(relics.filter((r) => r.pool === '事件').map((r) => r.id).sort()).toEqual(['bandit_iou', 'master_bracer', 'master_wooden_sword', 'miasma_shard']);
   });
   it('紙箱、戰利品、過關三選一、罐頭鋪一般貨架抽 400 次都抽不到', () => {
     const seen = new Set<string>();
@@ -353,7 +354,7 @@ describe('罐頭鋪限定：店長私藏那一格', () => {
       // 被拿走（事件交出秘寶）也不再擺
       me(run).relics = me(run).relics.filter((x) => x !== id);
     }
-    expect([...seen].sort()).toEqual(['bulk_crate', 'member_card', 'shop_ledger']);
+    expect([...seen].sort()).toEqual(['bulk_crate', 'member_card', 'shop_ledger', 'stamp_card']);   // 第三批 +集章卡
     const rngBefore = { ...run.rng };
     const a = makeShop(run);
     expect(a.relics.some((r) => r.limited)).toBe(false);

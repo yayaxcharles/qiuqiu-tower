@@ -67,7 +67,8 @@ describe('連線時同伴讓條件選項出現：結果文字寫同伴做的事'
   });
 
   it('三條結果路（一般結算、連線學招、連線學招都不要）都照 resultHero 寫；沒有漏掉的', () => {
-    expect(EV).toContain('const resultText = evText(rawResult, resultHero);');
+    // 稀有事件那條線在後面接了「抽到之後的那一句」（2026-09-24 b3int 合併）
+    expect(EV).toContain('const resultText = evText(rawResult, resultHero) + lotteryAfter(');
     expect(EV.split('evText(raw, resultHero)').length - 1).toBe(2);
     expect(EV).not.toMatch(/evText\(raw(?:Result)?\)/);
   });

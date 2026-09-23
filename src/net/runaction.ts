@@ -1,4 +1,5 @@
-import { buyCard, buyPotion, buyRelic, buyRemove, buySwap, canSwap, notMyCard, priceFor, potionCapacity, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, shopClosed, takeRelic, type ShopStock } from '../engine/run';
+import { buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, notMyCard, priceFor, potionCapacity, purifyAtShop, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, shopClosed, takeRelic, takeRestCard, type ShopStock } from '../engine/run';
+import { isMiasma } from '../content/relics';
 import type { RunState } from '../engine/types';
 import { canTakeBlessing, takeBlessing, type BlessPick } from '../engine/blessing';
 
@@ -23,8 +24,12 @@ export type RunAction =
   | { t: 'scrub'; seat: number; u: number }
   /** 重整貨架（每店一次，動到整局亂數，所以一定要排序） */
   | { t: 'shuffle'; seat: number }
-  /** 打盹點：`c`＝選了哪一種、`u`＝要升級哪一張 */
-  | { t: 'rest'; seat: number; c: '打盹' | '磨爪' | '全力準備'; u?: number }
+  /** 打盹點：`c`＝選了哪一種、`u`＝要升級哪一張、`r`＝點清心香要淨化哪一件（2026-09-23 第三批） */
+  | { t: 'rest'; seat: number; c: '打盹' | '磨爪' | '全力準備' | '淨化'; u?: number; r?: string }
+  /** 夢枕：打盹之後從三張裡挑的那一張（`''`＝都不要；2026-09-23 第三批） */
+  | { t: 'restCard'; seat: number; id: string }
+  /** 罐頭鋪請店主淨化一件（玳瑁婆婆的服務，90 條、一間一次；2026-09-23 第三批）。「是不是婆婆顧店」由店主輪替那條線在畫面上擋 */
+  | { t: 'purify'; seat: number; id: string }
   /** 打盹點扶起倒下的同伴。`w`＝扶誰 */
   | { t: 'revive'; seat: number; w: number }
   /** 收下一件秘寶（紙箱、大魔物戰利品：兩件裡挑完之後由結算送出） */
@@ -96,7 +101,11 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
      */
     case 'shuffle': return !!shop && !shop.merchant && !shop.reshuffled && p.fish >= RESHUFFLE_COST
       && [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
-    case 'rest': return a.c === '磨爪' || a.c === '全力準備' ? a.u !== undefined : true;
+    case 'rest':
+      if (a.c === '淨化') return a.r !== undefined && isMiasma(a.r) && p.relics.includes(a.r);
+      return a.c === '磨爪' || a.c === '全力準備' ? a.u !== undefined : true;
+    case 'restCard': return true;   // 挑的那張在不在三張裡、是不是已經挑過，`takeRestCard` 自己擋（兩台照同一份算）
+    case 'purify': return !!shop && canPurifyAtShop(run, shop, a.id, a.seat);
   }
 }
 
@@ -124,6 +133,8 @@ export function applyRunAction(ctx: RunCtx, a: RunAction): boolean {
     }
     case 'scrub': return !!shop && buyRemove(run, a.u, a.seat, shop);
     case 'shuffle': return !!shop && reshuffleShop(run, shop, a.seat);
-    case 'rest': return rest(run, a.c, a.u, a.seat);
+    case 'rest': return rest(run, a.c, a.u, a.seat, a.r);
+    case 'restCard': return takeRestCard(run, a.id, a.seat);
+    case 'purify': return !!shop && purifyAtShop(run, shop, a.id, a.seat);
   }
 }

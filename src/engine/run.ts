@@ -1,13 +1,13 @@
 import { cardById, cardNameFor, cards, starterDeckFor } from '../content/cards';
 import { addStatus } from './statuses';
 import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content/difficulty';
-import { encounterById, enemyById } from '../content/enemies';
+import { encounterById, encountersOfPool, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
 import { heroOf, pickable, startRelicFor } from './hero';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
-import { relicById, relics } from '../content/relics';
+import { isMiasma, MIASMA_PURE, relicById, relics } from '../content/relics';
 import { GUEST_KEEPERS, KEEPERS } from '../content/keepers';
 import { applyCarriedEffects, flushAllyRelics, startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
@@ -79,6 +79,7 @@ export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja', playe
   if (mods.startCurse) addCard(run, mods.startCurse);   // 難度 4 起：開局就背一張壞毛病
   takeRelic(run, startRelicFor(hero));
   assignKeepers(run);   // 罐頭鋪誰顧店（2026-09-23 第三批 新J）：分支亂數，整局亂數一步都不推
+  placeRareEvent(run);   // 稀有事件（2026-09-23 第三批）：分支亂數，不動整局亂數，沒擲中的局地圖一格都不變
   return run;
 }
 
@@ -123,7 +124,11 @@ export function currentNode(run: RunState): MapNode | null {
   return run.currentNode ? nodeById(run.map, run.currentNode) : null;
 }
 
-export function chooseNode(run: RunState, nodeId: string): MapNode {
+/**
+ * `notes`／`viewer`（2026-09-23 第三批）：走進這一格當下秘寶做了什麼（平安繩回血、集章卡蓋章），寫給第 `viewer` 位看的那幾句；
+ * 不傳就不寫（機器人、測試）。畫面在 `app.ts` 的 `enterNode` 用公告講。
+ */
+export function chooseNode(run: RunState, nodeId: string, notes?: string[], viewer = 0): MapNode {
   const n = nextChoices(run.map, run.currentNode).find((x) => x.id === nodeId);
   if (!n) throw new Error(`不能走到 ${nodeId}`);
   run.currentNode = n.id;
@@ -134,6 +139,9 @@ export function chooseNode(run: RunState, nodeId: string): MapNode {
   if (n.type === '事件' && n.eventId && eventById[n.eventId]?.fixedFloor === undefined) enterEvent(run, n);
   else if (n.type === '事件') rollQmark(run, n, false);   // 5F 不擲問號格變化，照樣算一次正常事件（2026-09-23 第三批，設計稿 3-1）
   if (n.type !== '戰鬥' && n.type !== '大魔物' && n.type !== '塔主') tickNodeCounters(run);
+  // 平安繩（每走進一個問號格回血）、集章卡（走進罐頭鋪蓋章）：2026-09-23 第三批，只在帶著的人身上發生，沒帶的局一步都沒多做
+  if (n.type === '事件') qmarkHealOnEnter(run, notes, viewer);
+  if (n.type === '罐頭鋪') run.players.forEach((_, i) => stampVisit(run, i, keeperOf(n), i === viewer ? notes : undefined));
   return n;
 }
 
@@ -180,7 +188,8 @@ function enterEvent(run: RunState, n: MapNode): void {
   // 墊到的剛好是後集的話，原本會擋住真正該出的那個，玩家反而再遇一次舊的
   const cur = n.eventId!;
   const freshSequel = !!eventById[cur]?.requiresFlag && !run.flags[`event:${cur}`];
-  const swapped = !!pending && pending.id !== cur && !freshSequel;
+  // 稀有事件那一格受保護（2026-09-23 第三批 新L）：不換成後集，後集等下一個事件格
+  const swapped = !!pending && pending.id !== cur && !freshSequel && !eventById[cur]?.rare;
   if (pending && swapped) {
     const other = run.map.nodes.find((x) => x !== n && x.type === '事件' && x.eventId === pending.id);
     if (other) other.eventId = n.eventId;
@@ -566,7 +575,12 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
    * 只給第一位的話，第二位的秘寶列會少一格，而他明明也在場打完了那一場。
    */
   if (r.relic) for (const rp of standing(run)) takeRelic(run, r.relic, run.players.indexOf(rp));
-  if (r.potion) {
+  herbBasket(run, r);   // 藥簍（2026-09-23 第三批）：帶的人一定有一支罕見以上的忍具
+  if (r.potionPerSeat) {
+    // 兩個人、有人帶藥簍：各收各的那一支（`potionPerSeat`）；收不下的照樣記在 `potionMissedSeats`，獎勵畫面各問各的
+    const missed = standing(run).filter((rp) => { const i = run.players.indexOf(rp); const pid = r.potionPerSeat![i]; return !!pid && !addPotion(run, pid, i); });
+    if (missed.length) r.potionMissedSeats = missed.map((rp) => run.players.indexOf(rp));
+  } else if (r.potion) {
     // 一人一個背包，滿的人不一定是同一個。全部人都收不下才把這一支收回來讓畫面問要不要換
     const missed = standing(run).filter((rp) => !addPotion(run, r.potion as string, run.players.indexOf(rp)));
     if (missed.length) r.potionMissedSeats = missed.map((rp) => run.players.indexOf(rp));
@@ -606,6 +620,7 @@ export function advanceAct(run: RunState): void {
   // 連線局（兩位以上）傳 null＝不排職業獨占的事件，理由見 `MapOpts.hero`
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1, hero: run.players.length > 1 ? null : heroOf(me(run)) });
   assignKeepers(run);   // 罐頭鋪誰顧店（2026-09-23 第三批 新J）
+  placeRareEvent(run);   // 稀有事件（2026-09-23 第三批），同 `newRun`
   run.currentNode = null;
   run.trail = [];
   run.floor = (run.act - 1) * FLOORS;
@@ -802,9 +817,14 @@ export function revivePartner(run: RunState, seat: number): boolean {
   return true;
 }
 
-export function rest(run: RunState, choice: '打盹' | '磨爪' | '全力準備', uid?: number, seat = 0): boolean {
+/**
+ * `relicId`（2026-09-23 第三批）：「點一炷清心香」（`淨化`）要淨化哪一件。這一格就用掉了（不能打盹、磨爪、扶同伴），
+ * 身上沒有那一件沾了魔氣的秘寶就不做事（回 false）。
+ */
+export function rest(run: RunState, choice: '打盹' | '磨爪' | '全力準備' | '淨化', uid?: number, seat = 0, relicId?: string): boolean {
   const p = me(run, seat);
   if (p.down) return false;   // 倒下的人自己動不了，要等隊友扶（見 `revivePartner`）
+  if (choice === '淨化') return relicId !== undefined && purifyRelic(run, relicId, seat);
   if (choice === '全力準備') {
     if (!fullPrepAvailable(run)) return false;
     const ok = uid !== undefined && upgradeCard(run, uid, seat);
@@ -839,13 +859,17 @@ export function rest(run: RunState, choice: '打盹' | '磨爪' | '全力準備'
  */
 const CHEST_POOLS: RelicPool[] = ['常見', '大魔物', '塔主'];
 
-export function openChest(run: RunState, seat = 0, pools: readonly RelicPool[] = CHEST_POOLS): string | null {
+/**
+ * `bonus`（2026-09-23 第三批）：箱中箱多給的那幾件寫進這裡（畫面要講「箱子裡還藏著一個小箱子」）；不傳照樣給，只是不回報。
+ * `pools`：路邊紙箱換池子（問號格那條線）。兩條線各加了一個參數，合併時 `bonus` 排前面（2026-09-24 b3int）
+ */
+export function openChest(run: RunState, seat = 0, bonus?: { seat: number; id: string }[], pools: readonly RelicPool[] = CHEST_POOLS): string | null {
   const rng = runRng(run);
   for (const pool of pools) {
     // 直接塞給這一位的，只看這一位的角色（跟罐頭鋪、事件一致；推前審查 2026-09-23 資訊-2）。
     // 今天只有單人會走這裡（兩人走 `openChestCoop`），單人時兩種寫法一模一樣、亂數走向不變
     const id = rollRelic(rng, pool, me(run, seat).relics, [heroOf(me(run, seat))]);
-    if (id) { takeRelic(run, id, seat); return id; }
+    if (id) { takeRelic(run, id, seat); chestBonus(run, [seat], [], bonus); return id; }   // 箱中箱：開完再多一件（8F 紙箱、路邊紙箱都走這裡）
   }
   return null;
 }
@@ -856,12 +880,13 @@ export function openChest(run: RunState, seat = 0, pools: readonly RelicPool[] =
  * 抽法跟單人一樣一池一池往上退，只是每一池要抽到兩件都抽不出來才換池——
  * 這樣「一定有東西」的保證對兩個人都成立。
  */
-export function openChestCoop(run: RunState, pools: readonly RelicPool[] = CHEST_POOLS): string[] {
+export function openChestCoop(run: RunState, bonus?: { seat: number; id: string }[], pools: readonly RelicPool[] = CHEST_POOLS): string[] {
   const rng = runRng(run);
   const ownedPerSeat = run.players.map((p) => p.relics);
   for (const pool of pools) {
     const got = rollRelicChoices(rng, pool, ownedPerSeat, run.players.length, heroesIn(run));
-    if (got.length) return got;
+    // 箱中箱（2026-09-23 第三批）：帶的人照座位順序多拿一件，攤出來還沒挑的那幾件先排除（兩台在同一拍算，一樣）
+    if (got.length) { chestBonus(run, run.players.map((_, i) => i), got, bonus); return got; }
   }
   return [];
 }
@@ -875,12 +900,12 @@ function roadsidePools(run: RunState): RelicPool[] {
   return runRng(run).chance(ROADSIDE_COMMON) ? [...CHEST_POOLS] : CHEST_POOLS.slice(1);
 }
 export const ROADSIDE_COMMON = 0.75;
-export function openRoadsideBox(run: RunState, seat = 0): string | null {
-  return openChest(run, seat, roadsidePools(run));
+export function openRoadsideBox(run: RunState, seat = 0, bonus?: { seat: number; id: string }[]): string | null {
+  return openChest(run, seat, bonus, roadsidePools(run));
 }
 /** 兩個人：開兩件各挑一件（同 `openChestCoop`，池子同上） */
-export function openRoadsideBoxCoop(run: RunState): string[] {
-  return openChestCoop(run, roadsidePools(run));
+export function openRoadsideBoxCoop(run: RunState, bonus?: { seat: number; id: string }[]): string[] {
+  return openChestCoop(run, bonus, roadsidePools(run));
 }
 
 export interface ShopStock {
@@ -898,6 +923,8 @@ export interface ShopStock {
   anyBought?: boolean;
   /** 走進來先付掉的舊帳（山賊的欠條，2026-09-23 第二批）：畫面拿它講一句「老闆先收走 N 條」 */
   entryFee?: number;
+  /** 這間店已經請店主淨化過一件了（玳瑁婆婆的服務，一間一次；2026-09-23 第三批，見 `purifyAtShop`） */
+  purified?: boolean;
   /** 誰顧店（2026-09-23 第三批 新J）：沒寫＝橘貓老闆。開店那一刻照這一格的 `MapNode.keeper` 抄過來，價格倍率、放生價、服務都看它 */
   keeper?: KeeperId;
   /** 阿福的換招用過了沒：一間一次（貨架一人一份，所以是每人一次）。婆婆的淨化記在淨化那條線的 `purified` */
@@ -926,7 +953,8 @@ export function shopCardCount(run: RunState): number { return run.act >= 2 ? 6 :
 
 /** 罐頭鋪價格倍率：難度 4 起貴一成 × 帶著的秘寶折扣（零錢罐八折、貪吃錢袋漲三成，相乘） */
 export function shopMulFor(run: RunState, seat = 0): number {
-  return runMods(run).shopMul * me(run, seat).relics.reduce((m, id) => m * (relicById[id]?.hooks.shopDiscount ?? 1), 1);
+  return runMods(run).shopMul * me(run, seat).relics.reduce((m, id) => m * (relicById[id]?.hooks.shopDiscount ?? 1), 1)
+    * (stampDone(run, seat) ? STAMP_DISCOUNT : 1);   // 集章卡集滿之後九折（2026-09-23 第三批）
 }
 
 /** 依現在的倍率把還沒賣掉的東西重新標價（買到會改價格的秘寶時叫——使用者 2026-09-04：買了零錢罐商品沒跟著變） */
@@ -1257,6 +1285,8 @@ export function buyRelic(run: RunState, shop: ShopStock, i: number, seat = 0): b
   it.sold = true; takeRelic(run, it.id, seat);
   // 店長私藏買過的，這一局不再擺（2026-09-23 第二批；被事件拿走了也一樣，「沒買過」照劇本）
   if (relicById[it.id]?.pool === '罐頭鋪') run.flags[`shop_bought:${seat}:${it.id}`] = true;
+  // 集章卡（2026-09-23 第三批）：買到它的這間算第一個章
+  if (relicById[it.id]?.hooks.stampCard) { const n = currentNode(run); if (n?.type === '罐頭鋪') stampVisit(run, seat, keeperOf(n)); }
   afterBuy(run, shop, seat);   // 零錢罐、貪吃錢袋這類改價的秘寶買到當下整間店重標（使用者 2026-09-04）
   return true;
 }
@@ -1368,6 +1398,11 @@ export type RunEffectOutcome =
   | { chooseCard: CardDef[]; upgradedCard?: string; then?: PickNeed }
   /** `afterWin`＝同一個選項裡其他的獎勵效果（秘寶、小魚乾、牌……），要等打贏才發；事件畫面開打前把它放進 run.pendingAfterFight */
   | { fight: { encounterId: string; bonusFish: number; bonusUpgrades?: number; afterWin?: RunEffect[] } }
+  /**
+   * 淨化一件、身上有兩件以上沾了魔氣的（2026-09-23 第三批 新K）：要玩家從 `purify` 裡挑一件，挑好叫 `purifyRelic`。
+   * 只有一件就當場淨化了，不會走到這裡。
+   */
+  | { purify: string[] }
   | null;
 
 /**
@@ -1504,7 +1539,9 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'fight': {
         // 事件寫 `mirror_duel`，實際打 `mirror_duel_a<關數>`：同一個事件三關都抽得到，對手要跟著關卡變強
         const byAct = `${fx.encounterId}_a${run.act}`;
-        outcome = { fight: { encounterId: encounterById[byAct] ? byAct : fx.encounterId, bonusFish: fx.bonusFish, bonusUpgrades: fx.bonusUpgrades, ...(deferred.length ? { afterWin: deferred } : {}) } };
+        // 睡著的大魔物（2026-09-23 第三批 新M）：打這一關大魔物池隨機一組，兩個座位抽到同一組（`eventElite`）
+        const enc = fx.pool ? eventElite(run) : encounterById[byAct] ? byAct : fx.encounterId;
+        outcome = { fight: { encounterId: enc, bonusFish: fx.bonusFish, bonusUpgrades: fx.bonusUpgrades, ...(deferred.length ? { afterWin: deferred } : {}) } };
         break;
       }
       case 'chooseCard': {
@@ -1540,6 +1577,15 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         // 給指定那一件；已經有了就改給小魚乾（不會兩手空空，也不會拿到兩件一樣的）
         const rd = relicById[fx.id];
         if (rd && !me(run, seat).relics.includes(fx.id)) { takeRelic(run, fx.id, seat); gains?.push({ kind: '秘寶', id: fx.id }); break; }
+        // 已經有了改給那一池隨機一件（2026-09-23 第三批 新N：塔主的酒葫蘆 → 隨機塔主秘寶）；那一池也抽乾了才退回小魚乾
+        if (fx.fallbackPool) {
+          const alt = rollRelic(runRng(run), fx.fallbackPool, me(run, seat).relics, [heroOf(me(run, seat))]);
+          if (alt) {
+            takeRelic(run, alt, seat); gains?.push({ kind: '秘寶', id: alt });
+            if (rd) notes?.push(`已經有「${rd.name}」了，改拿「${relicById[alt]?.name ?? alt}」`);
+            break;
+          }
+        }
         me(run, seat).fish += fx.fallbackFish;
         notes?.push(rd ? `已經有「${rd.name}」了，改拿 ${fx.fallbackFish} 條小魚乾` : `拿到 ${fx.fallbackFish} 條小魚乾`);
         break;
@@ -1573,6 +1619,50 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         const parts = fx.effects.filter((e) => !foe(e)).map((e) => (e.kind === 'status' ? `${e.amount} 點${e.name}` : e.kind === 'block' ? `${e.amount} 點蜷縮` : '')).filter(Boolean);
         const foes = fx.effects.filter(foe).map((e) => (e.kind === 'status' ? `${e.amount} 層${e.name}` : ''));
         notes?.push(`${n > 1 ? `接下來 ${n} 場` : '下一場'}戰鬥開始時${parts.length ? `獲得${parts.join('與')}` : ''}${foes.length ? `${parts.length ? '，' : ''}給全體魔物${foes.join('與')}` : ''}`);
+        break;
+      }
+      /*
+       * ===== 內容擴充第三批（2026-09-23，design3 新F／新K／新N／新O）=====
+       */
+      case 'lottery': {
+        // 照權重抽一格；`shared` 的用這一格的分支亂數（兩個座位抽到同一格，大魔物醒沒醒是同一件事），其餘跟 `gamble` 一樣用整局亂數
+        const rng = fx.shared ? new Rng(seedFromString(`${run.seed}|lottery|${run.act}|${run.currentNode ?? '-'}`)) : runRng(run);
+        const total = fx.table.reduce((s, t) => s + Math.max(0, t.w), 0);
+        let roll = rng.next() * total;
+        let row = fx.table[fx.table.length - 1];
+        for (const t of fx.table) { roll -= Math.max(0, t.w); if (roll < 0) { row = t; break; } }
+        if (!row) break;
+        notes?.push(row.tier);
+        const o = applyRunEffects(run, row.effects, notes, gains, seat); if (o) outcome = o;   // 座位照樣傳下去（`gamble` 那條的教訓）
+        break;
+      }
+      case 'purify': {
+        const mine = miasmaRelicsOf(run, seat);
+        if (!mine.length) {
+          // 紫霧②：身上一件都沒有就改成自選移除 1 張牌（跟 `removeCard` 同一條：接在學招後面或累加張數）
+          if (fx.orRemove) { const o = applyRunEffects(run, [{ kind: 'removeCard' }], notes, gains, seat); if (o) outcome = o; }
+          else notes?.push('身上沒有沾了魔氣的東西');
+          break;
+        }
+        if (fx.n === 'all' || mine.length === 1) { for (const id of mine) purifyRelic(run, id, seat, notes); break; }
+        outcome = { purify: mine };   // 兩件以上：玩家挑（畫面的挑選窗、機器人挑淨化後分數多最多的那件）
+        break;
+      }
+      case 'loseAllPotions': {
+        const n = me(run, seat).potions.length;
+        me(run, seat).potions = [];
+        notes?.push(n ? `忍具全部泡壞了（失去 ${n} 個）` : '身上沒有忍具，沒東西泡壞');
+        break;
+      }
+      case 'relicMiasma': {
+        // 六件裡身上沒有的（淨化版也算有：同一件東西不會拿兩份）；全都有了改給小魚乾
+        const owned = me(run, seat).relics;
+        const cands = Object.keys(MIASMA_PURE).filter((id) => relicById[id] && !owned.includes(id) && !owned.includes(MIASMA_PURE[id]!)
+          && relicOk(relicById[id]!, [heroOf(me(run, seat))]));
+        if (!cands.length) { me(run, seat).fish += fx.fallbackFish; notes?.push(`沾了魔氣的東西都拿過了，改拿 ${fx.fallbackFish} 條小魚乾`); break; }
+        const id = runRng(run).pick(cands);
+        takeRelic(run, id, seat);
+        gains?.push({ kind: '秘寶', id });
         break;
       }
       default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆
@@ -1641,4 +1731,227 @@ export function resolvePendingAfterFight(run: RunState, won: boolean, notes?: st
     const i = run.players.indexOf(p);
     applyRunEffects(run, list, i === forSeat ? notes : undefined, i === forSeat ? gains : undefined, i);
   }
+}
+
+/*
+ * ===== 內容擴充第三批（2026-09-23，design3）：稀有事件、魔氣與淨化、新秘寶的掛鉤 =====
+ *
+ * 這一批新的隨機一律用**分支亂數**（design3 決定 2）：`new Rng(seedFromString('<種子>|<用途>|<關>|<格子或座位>'))`，
+ * 不推整局的 `run.rng`——兩台一定算得一樣、重整重進算出同一個結果、沒遇到新東西的局一格都不位移。
+ * 例外照現成做法用整局亂數的：事件當下的抽獎（`lottery` 不帶 `shared`）、`relicMiasma`、`fallbackPool`（跟 `relic` 同一條）。
+ */
+function branch(run: RunState, ...parts: (string | number)[]): Rng {
+  return new Rng(seedFromString([run.seed, ...parts].join('|')));
+}
+
+// ---- 稀有事件（design3 第五節 新L）----
+
+/** 每一關地圖放一篇稀有事件的機率（主控裁決 4：25%） */
+export const RARE_EVENT_CHANCE = 0.25;
+
+/**
+ * 生完這一關的地圖之後（`newRun`、`advanceAct`），擲一次分支亂數 `<種子>|rare|<關>`：中了就從候選裡照權重抽一篇，
+ * 蓋掉這張地圖上隨機一格不是 5F 的事件格（被蓋掉的那篇沒被看到，不記遇過）。回傳放了哪一篇（沒放回 null）。
+ *
+ * 候選＝這一關可排（`acts`）、這一局沒遇過（`event:<代號>`）、圖到齊（沒有 `artPending`）、權重大於 0 的稀有事件。
+ * 權重看放置那一刻的身上（兩人的局看任一位）：有人帶著沾了魔氣的秘寶時溫泉用 `miasmaWeight`；
+ * 已經有 `maxMiasma` 件以上的人在場，那一篇不放（紫霧）。放下去就固定在地圖上（地圖存檔、進整局指紋）。
+ * 稀有事件不進一般的洗牌佇列（`map.ts` 的 `eligible` 排掉 `rare`），只能靠這一條進來。
+ */
+export function placeRareEvent(run: RunState): string | null {
+  const rng = branch(run, 'rare', run.act);
+  if (!rng.chance(RARE_EVENT_CHANCE)) return null;
+  const miasma = Math.max(0, ...run.players.map((p) => p.relics.filter(isMiasma).length));
+  const weightOf = (r: NonNullable<(typeof events)[number]['rare']>): number => {
+    if (r.maxMiasma !== undefined && miasma >= r.maxMiasma) return 0;
+    return Math.max(0, miasma > 0 && r.miasmaWeight !== undefined ? r.miasmaWeight : r.weight);
+  };
+  const cands = events.filter((e) => e.rare && !e.artPending && (!e.acts || e.acts.includes(run.act)) && !run.flags[`event:${e.id}`])
+    .map((e) => ({ id: e.id, w: weightOf(e.rare!) })).filter((c) => c.w > 0);
+  const slots = run.map.nodes.filter((n) => n.type === '事件' && n.floor !== 5 && !eventById[n.eventId ?? '']?.rare);
+  if (!cands.length || !slots.length) return null;
+  const total = cands.reduce((s, c) => s + c.w, 0);
+  let roll = rng.next() * total;
+  let pick = cands[cands.length - 1]!;
+  for (const c of cands) { roll -= c.w; if (roll < 0) { pick = c; break; } }
+  rng.pick(slots).eventId = pick.id;
+  return pick.id;
+}
+
+/** 大魔物池隨機一組（睡著的大魔物，新M）：這一格的分支亂數，兩個座位各跑一次效果也抽到同一組（不然兩台打不同的架） */
+function eventElite(run: RunState): string {
+  const pool = encountersOfPool('大魔物', run.act);
+  const list = pool.length ? pool : encountersOfPool('大魔物', 2);   // 萬一這一關的池是空的，照 `map.ts` 退回塔中那池
+  return branch(run, 'elite', run.act, run.currentNode ?? '-').pick(list).id;
+}
+
+// ---- 魔氣與淨化（design3 第六節 新K）----
+
+/** 這一位身上沾了魔氣的秘寶（照身上的順序） */
+export function miasmaRelicsOf(run: RunState, seat = 0): string[] {
+  return me(run, seat).relics.filter(isMiasma);
+}
+
+/**
+ * 淨化一件：在這一位的秘寶清單裡**原地**把代號換成淨化版（位置不變，狀態列不會跳）。
+ * 最大生命照兩件的 `maxHp` 差調整：差是正的，上限與當前生命一起加（跟 `takeRelic` 一樣；血契短刀把拿到時扣的 12 點還回來）；
+ * 是負的就只扣上限、當前生命往下夾（跟 `dropRelic` 一樣）。只在戰鬥外叫（貓窩、罐頭鋪、事件），不用管開戰秘寶已經發過的事。
+ * 身上沒有這一件、它不是沾了魔氣的、或身上已經有淨化版了，回 false 什麼都不動。
+ */
+export function purifyRelic(run: RunState, id: string, seat = 0, notes?: string[]): boolean {
+  const p = me(run, seat);
+  const i = p.relics.indexOf(id);
+  const pure = MIASMA_PURE[id];
+  if (i < 0 || !pure || !relicById[pure] || p.relics.includes(pure)) return false;
+  p.relics[i] = pure;
+  const d = (relicById[pure]!.hooks.maxHp ?? 0) - (relicById[id]?.hooks.maxHp ?? 0);
+  if (d > 0) { p.maxHp += d; if (!p.down) p.hp = Math.min(p.maxHp, p.hp + d); }
+  else if (d < 0) { p.maxHp = Math.max(1, p.maxHp + d); if (!p.down) p.hp = Math.max(1, Math.min(p.hp, p.maxHp)); }
+  notes?.push(`「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]!.name}」了`);
+  return true;
+}
+
+/** 玳瑁婆婆「請婆婆淨化」的價錢（design3 6-3：90 條，不吃折扣） */
+export const PURIFY_PRICE = 90;
+/**
+ * 罐頭鋪這一格現在能不能請店主淨化這一件（**給店主輪替那條線的介面**，2026-09-23 第三批）：
+ * 一間一次（`shop.purified`）、身上有這件沾了魔氣的、付得起 90 條、人沒倒下。**「是不是玳瑁婆婆顧店」由呼叫端判斷**。
+ */
+export function canPurifyAtShop(run: RunState, shop: ShopStock, relicId: string, seat = 0): boolean {
+  const p = me(run, seat);
+  return !shop.purified && !p.down && isMiasma(relicId) && p.relics.includes(relicId) && !p.relics.includes(MIASMA_PURE[relicId]!) && p.fish >= PURIFY_PRICE;
+}
+/** 請店主淨化：付 90 條、淨化那一件、這間店記「淨化過了」。做不到回 false，錢也不扣 */
+export function purifyAtShop(run: RunState, shop: ShopStock, relicId: string, seat = 0, notes?: string[]): boolean {
+  if (!canPurifyAtShop(run, shop, relicId, seat) || !pay(run, PURIFY_PRICE, seat)) return false;
+  purifyRelic(run, relicId, seat, notes);
+  shop.purified = true;
+  return true;
+}
+
+// ---- 新秘寶的掛鉤（design3 第七節 新P）----
+/*
+ * 平安繩的「不會變成伏擊」（`qmarkNoAmbush`）與探路杖的計數（`qmarkEvery`）**由問號格變化那條線讀掛鉤、自己數**
+ *（主控 2026-09-23 對齊通知：這邊不再數一次，不然會數兩次）。這裡只做平安繩的回血。
+ */
+
+/** 平安繩：每走進一個問號格（事件格），帶著的人各回自己的（倒下的不回） */
+function qmarkHealOnEnter(run: RunState, notes: string[] | undefined, viewer: number): void {
+  run.players.forEach((p, i) => {
+    if (p.down) return;
+    const n = p.relics.reduce((s, id) => s + (relicById[id]?.hooks.qmarkHeal ?? 0), 0);
+    if (!n) return;
+    const got = Math.min(p.maxHp, p.hp + n) - p.hp;
+    p.hp += got;
+    if (i === viewer && got > 0) notes?.push(`平安繩：回復了 ${got} 點生命`);
+  });
+}
+
+/** 集章卡：四位店主各一個位元（橘貓老闆＝沒寫店主的舊地圖），第五個位元＝集滿過了 */
+const KEEPER_BIT: Readonly<Record<string, number>> = { orange: 1, tortoise: 2, curio: 4, junk: 8 };
+const STAMP_DONE = 16;
+/** 集滿之後罐頭鋪的價格倍率（九折） */
+export const STAMP_DISCOUNT = 0.9;
+// 這一格罐頭鋪是誰顧的：用店主輪替那條線的 `keeperOf`（上面，沒寫＝橘貓老闆）。兩條線各寫了一支，合併時留那一支（2026-09-24 b3int）
+/** 這一位集章卡上蓋了幾個章（沒帶就是 0） */
+export function stampCount(run: RunState, seat = 0): number {
+  const p = me(run, seat);
+  const id = p.relics.find((r) => relicById[r]?.hooks.stampCard);
+  const v = id ? p.counters?.[id] ?? 0 : 0;
+  return [1, 2, 4, 8].filter((b) => v & b).length;
+}
+/** 集章卡集滿過了、而且還帶著（被拿走就沒有九折） */
+export function stampDone(run: RunState, seat = 0): boolean {
+  const p = me(run, seat);
+  const id = p.relics.find((r) => relicById[r]?.hooks.stampCard);
+  return !!id && ((p.counters?.[id] ?? 0) & STAMP_DONE) !== 0;
+}
+/** 機器人選路用：走進這一格罐頭鋪會不會蓋到新章（帶著集章卡、還沒集滿、這位店主還沒蓋過；design3 7-3） */
+export function stampWanted(run: RunState, seat: number, n: MapNode): boolean {
+  const p = me(run, seat);
+  const id = p.relics.find((r) => relicById[r]?.hooks.stampCard);
+  if (!id || n.type !== '罐頭鋪') return false;
+  const v = p.counters?.[id] ?? 0;
+  return (v & STAMP_DONE) === 0 && (v & (KEEPER_BIT[keeperOf(n)] ?? KEEPER_BIT['orange']!)) === 0;
+}
+/**
+ * 集章卡蓋章：這一位走進（或在店裡買到集章卡的）這一間店主的罐頭鋪。同一位店主只蓋一次；
+ * 集滿三個不同的章那一刻給一件塔主秘寶（分支亂數），之後九折（`shopMulFor`）。章存在 `RunPlayer.counters`（存檔、整局指紋都有）。
+ */
+export function stampVisit(run: RunState, seat: number, keeper: string, notes?: string[]): void {
+  const p = me(run, seat);
+  const id = p.relics.find((r) => relicById[r]?.hooks.stampCard);
+  if (!id) return;
+  const bit = KEEPER_BIT[keeper] ?? KEEPER_BIT['orange']!;
+  const c = (p.counters ??= {});
+  const cur = c[id] ?? 0;
+  if (cur & STAMP_DONE || cur & bit) return;
+  const next = cur | bit;
+  const n = [1, 2, 4, 8].filter((b) => next & b).length;
+  if (n < 3) { c[id] = next; notes?.push(`集章卡蓋了第 ${n} 個章`); return; }
+  c[id] = next | STAMP_DONE;
+  const got = rollRelic(branch(run, 'stamp', seat), '塔主', p.relics, [heroOf(p)]);
+  if (got) takeRelic(run, got, seat);
+  notes?.push(got ? `集章卡集滿三個章：拿到「${relicById[got]?.name ?? got}」，之後罐頭鋪的商品打九折` : '集章卡集滿三個章：之後罐頭鋪的商品打九折');
+}
+
+/**
+ * 夢枕：打盹之後從這幾張裡挑一張（可以不拿）。分支亂數 `<種子>|pillow|<關>|<格子>|<座位>`：重整重進、兩台都算出同一份。
+ * 沒帶夢枕回空陣列。牌照戰鬥獎勵的忍術池（第一關 8F 起、第二關起抽好一點的）。
+ */
+export function restCardChoices(run: RunState, seat = 0): CardDef[] {
+  const n = me(run, seat).relics.reduce((s, id) => Math.max(s, relicById[id]?.hooks.restCardReward ?? 0), 0);
+  if (!n) return [];
+  const rng = branch(run, 'pillow', run.act, run.currentNode ?? '-', seat);
+  return rollCardChoices(rng, '忍術', n, [], run.act >= 2 || run.floor >= 8, 0, undefined, heroOf(me(run, seat)), run.players.length);
+}
+/** 夢枕挑好了（`''`＝都不要）。這一格這一位只算一次（旗標 `pillow:<關>:<格子>:<座位>`）；不在那幾張裡的回 false */
+export function takeRestCard(run: RunState, cardId: string, seat = 0): boolean {
+  const flag = `pillow:${run.act}:${run.currentNode ?? '-'}:${seat}`;
+  if (run.flags[flag] || me(run, seat).down) return false;
+  if (cardId && !restCardChoices(run, seat).some((c) => c.id === cardId)) return false;
+  run.flags[flag] = true;
+  if (cardId) addCard(run, cardId, false, seat);
+  return true;
+}
+
+/** 藥簍：帶著的人這一場的戰利品一定有一支罕見以上的忍具（本來掉的是罕見以上就不動）。兩個人時各拿各的（`potionPerSeat`） */
+function herbBasket(run: RunState, r: CombatRewards): void {
+  const good = (id: string | null): boolean => !!id && potionById[id]?.rarity !== undefined && potionById[id]!.rarity !== '常見';
+  const seats = run.players.map((p, i) => (!p.down && p.relics.some((id) => relicById[id]?.hooks.winPotion) ? i : -1)).filter((i) => i >= 0);
+  if (!seats.length || good(r.potion)) return;
+  const roll = (i: number): string => {
+    const rng = branch(run, 'herb', run.act, run.currentNode ?? '-', i);
+    const cands = potions.filter((x) => x.rarity !== '常見' && potionOk(x, [heroOf(me(run, i))]));
+    const odds = POTION_RARITY_ODDS.filter(([rar]) => rar !== '常見' && cands.some((x) => x.rarity === rar));
+    let roll = rng.next() * odds.reduce((s, [, w]) => s + w, 0);
+    let rar = odds[odds.length - 1]![0];
+    for (const [k, w] of odds) { roll -= w; if (roll < 0) { rar = k; break; } }
+    return rng.pick(cands.filter((x) => x.rarity === rar)).id;
+  };
+  if (run.players.length === 1) { r.potion = roll(0); return; }
+  r.potionPerSeat = run.players.map((_, i) => (seats.includes(i) ? roll(i) : r.potion));
+}
+
+/**
+ * 箱中箱：打開紙箱之後，帶著而且還有次數的人各多拿 1 件秘寶（照 `openChest` 同一池往上退，分支亂數），用掉一次記在 `RunPlayer.counters`。
+ * **接在 `openChest`／`openChestCoop` 裡面**，所以 8F 紙箱、路邊紙箱（問號格那條線也走這兩支）、機器人都自動吃得到，不用各叫一次。
+ * `seats`＝這一次開箱的是誰；`exclude`＝這一次箱子裡攤出來、還沒挑的那幾件（兩個人的紙箱），多給的不跟它們撞。誰多拿到哪一件寫進 `out`。
+ */
+function chestBonus(run: RunState, seats: readonly number[], exclude: readonly string[], out: { seat: number; id: string }[] = []): void {
+  const given: string[] = [];
+  seats.forEach((i) => {
+    const p = run.players[i];
+    if (!p || p.down) return;
+    const id = p.relics.find((r) => relicById[r]?.hooks.chestExtra);
+    if (!id) return;
+    const used = p.counters?.[id] ?? 0;
+    if (used >= relicById[id]!.hooks.chestExtra!) return;
+    (p.counters ??= {})[id] = used + 1;
+    const rng = branch(run, 'boxinbox', run.act, run.currentNode ?? '-', i, used);
+    for (const pool of CHEST_POOLS) {
+      const got = rollRelic(rng, pool, [...p.relics, ...exclude, ...given], [heroOf(p)]);
+      if (got) { takeRelic(run, got, i); given.push(got); out.push({ seat: i, id: got }); break; }
+    }
+  });
 }

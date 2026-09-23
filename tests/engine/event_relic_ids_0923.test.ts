@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { eventById, events } from '../../src/content/events';
-import { relicById, relicLongText, relics } from '../../src/content/relics';
+import { MIASMA_PURE, relicById, relicLongText, relics } from '../../src/content/relics';
+import { BLESSINGS } from '../../src/content/blessings';
 import { choiceEffectsFor } from '../../src/engine/eventcond';
 import { applyRunEffects, newRun, takeRelic, type RunGain } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
@@ -17,7 +18,8 @@ import type { ChoiceCond, RunEffect } from '../../src/engine/types';
 /** 一串效果裡指名的秘寶代號（賭局的輸贏兩邊也算） */
 function effectIds(fxs: readonly RunEffect[]): string[] {
   return fxs.flatMap((fx) => fx.kind === 'relicId' || fx.kind === 'loseRelicId' ? [fx.id]
-    : fx.kind === 'gamble' ? [...effectIds(fx.win), ...effectIds(fx.lose)] : []);
+    : fx.kind === 'gamble' ? [...effectIds(fx.win), ...effectIds(fx.lose)]
+    : fx.kind === 'lottery' ? fx.table.flatMap((t) => effectIds(t.effects)) : []);   // 抽獎的每一格也算（稀有事件，2026-09-24 b3int 合併）
 }
 function condIds(c: ChoiceCond | undefined): string[] {
   if (!c) return [];
@@ -39,6 +41,9 @@ describe('事件裡每個秘寶代號都查得到秘寶定義', () => {
   it('事件限定池的每一件都有事件給（不然整局拿不到）', () => {
     const given = new Set(events.flatMap((e) => e.choices.flatMap((c) => [c.outcome, ...(c.bySeat ?? [])]
       .flatMap((fxs) => fxs.filter((fx) => fx.kind === 'relicId').map((fx) => (fx as { id: string }).id)))));
+    // 第三批（2026-09-24 b3int 合併）：沾了魔氣的舊護腕（事件池）由開局祝福「舊護腕」給、紫霧①（`relicMiasma`，六件魔氣隨機一件）也給得到
+    for (const b of BLESSINGS) for (const fx of b.effects ?? []) if (fx.kind === 'relicId') given.add(fx.id);
+    if (events.some((e) => e.choices.some((c) => c.outcome.some((fx) => fx.kind === 'relicMiasma')))) for (const id of Object.keys(MIASMA_PURE)) given.add(id);
     const eventPool = relics.filter((r) => r.pool === '事件').map((r) => r.id);
     expect(eventPool.length).toBeGreaterThan(0);
     for (const id of eventPool) expect(given.has(id), `「${id}」沒有任何事件給`).toBe(true);

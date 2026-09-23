@@ -50,6 +50,11 @@ export interface CombatRewards {
    * 加成各算各的。單機不填（走 `fish`），理由跟 `cardsPerSeat` 一樣。
    */
   fishPerSeat?: number[];
+  /**
+   * **兩個人時每個人拿到哪一支忍具**（2026-09-23 第三批，藥簍）：帶藥簍的那一位保證有一支罕見以上的，
+   * 另一位照常擲（就是 `potion`）。只有兩個人、而且有人帶藥簍時才填；有它就不看 `potion`／`potionMissed`。
+   */
+  potionPerSeat?: (string | null)[];
 }
 
 const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];
