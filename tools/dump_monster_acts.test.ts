@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
 import { SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
-import { TITLE_ART, heroOfKey, isCoopOnlyArt } from '../src/ui/assets';
+import { TITLE_ART, heroOfKey, isCoopOnlyArt, isItemIcon } from '../src/ui/assets';
 
 it('dump monster acts', () => {
   const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as { monsters: Record<string, Record<string, string>>; bg: Record<string, string> };
@@ -67,6 +67,10 @@ it('dump monster acts', () => {
       for (const path of typeof v === 'string' ? [v] : Object.values(v)) out[path] = 0;
     }
   }
+  // 秘寶與忍具圖示（2026-09-23 內容擴充第二批）：開場不載、進入一局才補（`assets.ts` 的 `isItemIcon`、
+  // `preload.ts` 的 `preloadHeroArt`），跟角色專屬圖同一類，寫 0
+  const icons = (groups.icons ?? {}) as Record<string, string>;
+  for (const [key, path] of Object.entries(icons)) if (isItemIcon(key)) out[path] = 0;
 
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');
@@ -78,4 +82,9 @@ it('dump monster acts', () => {
   expect(firstLoad, '事件主圖照地圖現抓，不該留在首載').toEqual([]);
   // 紙箱畫面借用的三張不是事件，照舊算首載
   expect(sorted[manifest.bg['bg/event_chest_closed']!]).toBeUndefined();
+  // 秘寶與忍具圖示一張都不准算首載（2026-09-23 第二批）：拿掉上面 `isItemIcon` 那一圈，這裡就紅
+  const iconFirstLoad = Object.entries(icons).filter(([key, path]) => isItemIcon(key) && sorted[path] !== 0).map(([key]) => key);
+  expect(iconFirstLoad, '秘寶與忍具圖示進入一局才補，不該留在首載').toEqual([]);
+  // 狀態、節點、介面那些 `icon/` 圖示開場就要，照舊算首載
+  expect(sorted[icons['icon/onigiri_full']!]).toBeUndefined();
 });

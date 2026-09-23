@@ -117,6 +117,25 @@ export function heroOfKey(key: string): string | null {
   return m ? m[1]! : null;
 }
 
+/**
+ * 秘寶與忍具的圖示（`codex/relic_*`、`codex/potion_*`）：**開場不載，進入一局才補**（2026-09-23 內容擴充第二批）。
+ *
+ * 這一組只在一局裡用得到（狀態列、獎勵、罐頭鋪、紙箱、事件、戰鬥忍具欄）；標題畫面唯一碰得到的是
+ * 「秘寶與忍具圖鑑」，它直接畫 `<img src>`（`itemcompendium.ts`），沒預載也會自己下載。
+ * 第一批 28 張進來時首載總計只剩約 50 KB，第二批再 22 張、第三批還要補到約 120 件——
+ * 照舊劍穗那套在 `heroOfKey` 一件一件特例化只救得了鎖角色的幾件，共用的照樣算首載，
+ * 所以整組一起延後（約 0.55 MB）。進入一局那一刻由 `preload.ts` 的 `preloadHeroArt` 補（`adoptRun` 叫它，
+ * 新的一局、續玩、連線開局三個入口都走那裡），序章幻燈片那幾秒就抓完了。
+ */
+export function isItemIcon(key: string): boolean {
+  return /^codex\/(?:relic|potion)_/.test(key);
+}
+
+/** 全部秘寶、忍具圖示的網址（進入一局才補，見 `isItemIcon`） */
+export function itemIconUrls(): string[] {
+  return Object.entries(manifest.icons).filter(([k]) => isItemIcon(k)).map(([, v]) => `${BASE}${v}`);
+}
+
 /** 這一局登場的角色（單機一位、連線兩位）的戰鬥姿勢圖；沒登場的那位不暖，免得跟魔物立繪搶下載（總稽核 F 中-3） */
 export function heroSpriteUrls(heroes: readonly (string | undefined)[] = ['ninja']): string[] {
   const want = new Set(heroes.map((h) => h ?? 'ninja'));
@@ -535,6 +554,8 @@ export async function preloadArt(): Promise<void> {
       if (g === 'bg' && skip.has(key)) continue;
       // 角色專屬的（菲菲那 300 多張）開場不載：這時還不知道玩家要選誰，選好由 `preloadHeroArt` 補
       if (heroOfKey(key) && !TITLE_ART.has(key)) continue;
+      // 秘寶與忍具圖示同理，進入一局才補（`isItemIcon`，2026-09-23 內容擴充第二批）
+      if (g === 'icons' && isItemIcon(key)) continue;
       // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
       if (g === 'cards' && isCoopOnlyArt(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
