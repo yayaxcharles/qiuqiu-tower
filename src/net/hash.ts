@@ -134,6 +134,8 @@ export function runFingerprint(run: RunState): string {
     // 有才串：還沒走進任何事件格的局（開局、舊存檔）指紋跟以前一樣
     ...(run.qmark ? [`qm${run.qmark}`] : []),
     ...(run.map.nodes.some((n) => n.variant) ? [`qv[${run.map.nodes.filter((n) => n.variant).map((n) => `${n.id}:${n.variant}:${n.encounterId ?? ''}`).join(',')}]`] : []),
+    // 罐頭鋪誰顧店（2026-09-23 第三批 新J）：兩台記的不一樣，走進那一間貨架、價錢、服務全部不同。有才串，只有橘貓老闆的地圖指紋不變
+    ...(run.map.nodes.some((n) => n.keeper) ? [`kp[${run.map.nodes.filter((n) => n.keeper).map((n) => `${n.id}:${n.keeper}`).join(',')}]`] : []),
   ];
   for (const p of run.players) {
     parts.push([

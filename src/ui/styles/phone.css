@@ -66,6 +66,15 @@ html[data-device="phone"][data-orient="landscape"] .shop-shelves.seven .shop-ite
 html[data-device="phone"][data-orient="landscape"] .shop-shelves.seven .shop-item .price,
 html[data-device="phone"][data-orient="landscape"] .shop-shelves.seven .shop-item .price.sale b { font-size: 14px; }
 
+/* 罐頭鋪店主一句＋自己回一句（兩行，2026-09-23 第三批）：手機的鈕高 72，框比桌機高一截，照桌機那套排第一行會壓到貨架最下面那排價錢
+   （實機量過：價錢底邊約 540、框頂 482）。框頂留白、行高、鈕上方間距收窄，第一行落在價錢下面。
+   選擇器只寫 #stage（不寫換場時墊在底下那層）：這一份的規則要一條一條以 html[data-device] 開頭（phone_landscape 測試守），逗號分開的 :is 會被拆壞 */
+html[data-device="phone"][data-orient="landscape"] #stage[data-screen="shop"] .scene .dialogue-box.scene-box:has(.shop-reply) { padding-top: 12px; }
+html[data-device="phone"][data-orient="landscape"] #stage[data-screen="shop"] .scene-box:has(.shop-reply) .scene-text { line-height: 1.35; }
+html[data-device="phone"][data-orient="landscape"] #stage[data-screen="shop"] .scene-box:has(.shop-reply) .scene-actions { margin-top: 8px; }
+/* 罐頭鋪有服務鈕（婆婆淨化、阿福換招，2026-09-23 第三批）時四顆鈕：照手機的 22 排不下一行、換行會把框頂推上去壓到價錢，四顆時 20、內距收窄 */
+html[data-device="phone"][data-orient="landscape"] #stage[data-screen="shop"] .scene-actions:has(> .btn:nth-child(4)) .btn { font-size: 20px; padding-left: 10px; padding-right: 10px; }
+
 /* 教學條 15 → 20（主控裁定三：手機多一句「按住牌可以放大看」，那句不能又是 8 像素）。
    條要維持一行：兩行時底邊到 122，魔物頭上的開場泡泡（約 108 起）正好蓋住第二行（實機截圖）。
    寬度照內容（width: max-content）：left 50% 的絕對定位預設只給得到半個舞台寬（640），放大的字會擠成三行；

@@ -247,3 +247,9 @@
   background: #f6e7c1; border: 2px solid #2b2118; color: #b0402a;
   font: bold 13px/16px sans-serif; text-align: center; pointer-events: none;
 }
+/* 罐頭鋪的客座店主小頭像（2026-09-23 第三批 新J）：疊在圖示右下角，從招呼立繪裁頭（裁切在 map.ts 的 keeperHead 算，直徑 30 兩邊要一致） */
+.map-keeper {
+  position: absolute; right: -8px; bottom: -6px; width: 30px; height: 30px;
+  border: 2px solid #2b2118; border-radius: 50%; background-color: #f2dfb4; background-repeat: no-repeat;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .7); pointer-events: none;
+}

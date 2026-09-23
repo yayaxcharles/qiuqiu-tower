@@ -130,13 +130,14 @@ describe('走進變了的格子（`app.ts` 的 `enterQmark`）', () => {
 
 describe('行腳商與路邊紙箱沿用罐頭鋪、紙箱畫面', () => {
   it('行腳商：先一段開頭、立繪用 `shop/merchant` 那三張、沒有放生與重整貨架、收攤的格子寫「收攤了」', () => {
-    expect(SHOP).toContain("const base = mer ? 'shop/merchant' : 'shop/keeper';");
-    expect(SHOP).toContain('actions: mer ? [leaveBtn()] : [reshuffle, remove, leaveBtn()],');
+    // 罐頭鋪那邊的鍵照店主（`K.art`，店主輪替那條線），合併後兩種鍵同一個迴圈（2026-09-24 b3int）
+    expect(SHOP).toContain("const base = mer ? 'shop/merchant' : K.art;");
+    expect(SHOP).toContain('actions: mer ? [leaveBtn()] : [reshuffle, remove, serviceBtn(), leaveBtn()],');
     expect(SHOP).toContain("if (mer && intro) {");
     expect(SHOP).toContain("eventArtKey('q_merchant')");
     expect(SHOP).toContain("(shopClosed(shop) ? (sold ? '買下了' : '收攤了') : undefined)");
     // 劃掉的原價不吃罐頭鋪的秘寶（主控裁決第 5 條）
-    expect(SHOP).toContain('(mer ? runMods(run).shopMul : shopMulFor(run, seat))');
+    expect(SHOP).toContain('(mer ? runMods(run).shopMul : shopMulFor(run, seat) *');
     expect(SHOP).toContain('const ledgerOn = (): boolean => !shop.merchant &&');
   });
 

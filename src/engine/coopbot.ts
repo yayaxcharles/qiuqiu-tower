@@ -18,7 +18,7 @@ import {
 import { ambushOutcomes } from './qmark';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct } from './smartbot';
+import { bestRelic, bestUpgrade, deckJunk, eventValue, keeperDetour, keeperPotions, keeperServices, napWorks, pickCard, rating, relicRating, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunEffect, RunState } from './types';
 
 /**
@@ -209,7 +209,7 @@ function nodeScoreCoop(run: RunState, n: MapNode): number {
   const needNap = alive.some((p) => p.hp / p.maxHp < 0.55 && napWorks(run, run.players.indexOf(p)));
   switch (n.type) {
     case '貓窩': return anyDown ? 130 : needNap ? 100 : canUpgrade ? 55 : 20;
-    case '罐頭鋪': return fish >= 120 ? 75 : fish >= 75 ? 45 : 15;
+    case '罐頭鋪': return (fish >= 120 ? 75 : fish >= 75 ? 45 : 15) + keeperDetour(run, n);   // 為了店主繞路看座位 0（2026-09-23 第三批）
     case '事件': return 50;
     case '紙箱': return 90;
     case '大魔物': return hpPct >= 0.7 && run.players.some((p) => p.deck.some((c) => c.upgraded)) ? 62 : 8;
@@ -392,13 +392,14 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
         run.players.forEach((_, i) => {
           const shop = shops[i];
           if (!shop) return;
+          keeperServices(run, shop, i);   // 客座店主（2026-09-23 第三批）：阿福放生換招、婆婆淨化，規則同單人機器人
           const junk = deckJunk(run, i);
-          if (junk.length >= 3 && me(run, i).fish >= removePrice(run, i) + 60) buyRemove(run, junk[0]!.uid, i);   // 會員卡的固定價（2026-09-23 第二批）
+          if (shop.keeper !== 'junk' && junk.length >= 3 && me(run, i).fish >= removePrice(run, i, shop) + 60) buyRemove(run, junk[0]!.uid, i, shop);   // 會員卡的固定價（2026-09-23 第二批）
           const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id, heroOf(me(run, i))) + setBonusScore(r.id, heroOf(me(run, i)), me(run, i).relics), p: r.price })).sort((a, b) => b.v - a.v)[0];
           if (relicIdx && relicIdx.v >= 6 && me(run, i).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.k, i);
           const cardIdx = shop.cards.map((c, k) => ({ k, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
           if (cardIdx && cardIdx.v >= 7 && me(run, i).fish >= cardIdx.p && me(run, i).deck.length < 24) buyCard(run, shop, cardIdx.k, i);
-          for (let k = 0; k < shop.potions.length; k++) {
+          if (!keeperPotions(run, shop, i)) for (let k = 0; k < shop.potions.length; k++) {   // 婆婆那間照她的規則買（2026-09-23 第三批）
             const it = shop.potions[k]!;
             if (me(run, i).potions.length < 2 && me(run, i).fish >= it.price + 40) buyPotion(run, shop, k, undefined, i);
           }

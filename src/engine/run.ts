@@ -8,12 +8,13 @@ import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
 import { relicById, relics } from '../content/relics';
+import { GUEST_KEEPERS, KEEPERS } from '../content/keepers';
 import { applyCarriedEffects, flushAllyRelics, startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { rollQmark } from './qmark';
 import { Rng, seedFromString } from './rng';
 import { POTION_RARITY_ODDS, potionOk, relicOk, rollCardChoices, rollPotion, rollRelic, rollRelicChoices, rollRewards, type CombatRewards } from './rewards';
-import type { CardDef, CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, Rarity, RelicPool, RunEffect, RunState } from './types';
+import type { CardDef, CardInstance, CombatState, Effect, EnemyCombat, KeeperId, MapNode, PlayerCombat, Rarity, RelicPool, RunEffect, RunState } from './types';
 import { me, standing } from './runplayer';
 
 export const START_FISH = 50;
@@ -77,7 +78,35 @@ export function newRun(seed: string, difficulty = 1, hero: Hero = 'ninja', playe
   for (const id of starterDeckFor(hero)) addCard(run, (cardById[id]?.hero && cardById[id]!.hero !== hero) ? 'tanding' : id);
   if (mods.startCurse) addCard(run, mods.startCurse);   // 難度 4 起：開局就背一張壞毛病
   takeRelic(run, startRelicFor(hero));
+  assignKeepers(run);   // 罐頭鋪誰顧店（2026-09-23 第三批 新J）：分支亂數，整局亂數一步都不推
   return run;
+}
+
+/**
+ * 替這張地圖的每一間罐頭鋪擲誰顧店（2026-09-23 內容擴充第三批 新J，design3 4-1）：橘貓老闆一半、三位客座各六分之一；
+ * 同一關已經有這位客座了就改回橘貓老闆（一關裡三位最多各一間）。寫在節點 `keeper`，地圖上看得到。
+ *
+ * **用分支亂數**（`<種子>|keeper|<關>|<格子>`，design3 〇-2）：兩台一定擲得一樣、重新整理重進也一樣，
+ * 而且整局亂數一步都不推——地圖、戰利品、機器人定錨照舊，只有真的走進客座那一間的局才會不一樣。
+ * 由低樓層往上擲，「同一位只給一間」就是給最先遇到的那一間。
+ */
+export function assignKeepers(run: RunState): void {
+  const used = new Set<KeeperId>();
+  const shops = run.map.nodes.filter((n) => n.type === '罐頭鋪').sort((a, b) => a.floor - b.floor || a.lane - b.lane);
+  for (const n of shops) {
+    delete n.keeper;
+    const r = new Rng(seedFromString(`${run.seed}|keeper|${run.act}|${n.id}`)).next();
+    if (r < 0.5) continue;
+    const k = GUEST_KEEPERS[Math.min(GUEST_KEEPERS.length - 1, Math.floor((r - 0.5) * 2 * GUEST_KEEPERS.length))]!;
+    if (used.has(k)) continue;
+    used.add(k);
+    n.keeper = k;
+  }
+}
+
+/** 這一格罐頭鋪誰顧店（沒寫＝橘貓老闆：舊存檔、一半的店） */
+export function keeperOf(node: MapNode | null | undefined): KeeperId {
+  return node?.keeper ?? 'orange';
 }
 
 /**
@@ -576,6 +605,7 @@ export function advanceAct(run: RunState): void {
   }
   // 連線局（兩位以上）傳 null＝不排職業獨占的事件，理由見 `MapOpts.hero`
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1, hero: run.players.length > 1 ? null : heroOf(me(run)) });
+  assignKeepers(run);   // 罐頭鋪誰顧店（2026-09-23 第三批 新J）
   run.currentNode = null;
   run.trail = [];
   run.floor = (run.act - 1) * FLOORS;
@@ -868,6 +898,10 @@ export interface ShopStock {
   anyBought?: boolean;
   /** 走進來先付掉的舊帳（山賊的欠條，2026-09-23 第二批）：畫面拿它講一句「老闆先收走 N 條」 */
   entryFee?: number;
+  /** 誰顧店（2026-09-23 第三批 新J）：沒寫＝橘貓老闆。開店那一刻照這一格的 `MapNode.keeper` 抄過來，價格倍率、放生價、服務都看它 */
+  keeper?: KeeperId;
+  /** 阿福的換招用過了沒：一間一次（貨架一人一份，所以是每人一次）。婆婆的淨化記在淨化那條線的 `purified` */
+  serviced?: boolean;
   /**
    * 行腳商的攤子（問號格變化，2026-09-23 第三批 新H）：只做一筆生意，買了一樣其他格子全部收攤（`shopClosed`）；
    * 價錢一律定價七折 × 難度倍率，不吃任何罐頭鋪秘寶（主控裁決第 5 條）；沒有放生、沒有重整貨架。
@@ -949,7 +983,9 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
   const mul = shopMulFor(run, seat);
 
   const fresh = rollShopCards(run, rng, openCards.length, shop.cards.map((c) => c.def.id), seat);
-  const upIdx = fresh.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, fresh.length - 1) : -1;
+  // 重整照這位店主的規矩（2026-09-23 第三批 新J）：阿福換上來的那批一樣保證一張升級版、婆婆的忍具一樣保底（見下面）
+  const K = KEEPERS[shop.keeper ?? 'orange'];
+  const upIdx = fresh.length && (K.upgradedCard === 'always' || rng.chance(upgradeChanceFor(run))) ? rng.int(0, fresh.length - 1) : -1;
   openCards.forEach((slot, k) => {
     const def = fresh[k]; if (!def) return;
     const prev = shop.cards[slot]!;
@@ -983,6 +1019,7 @@ export function reshuffleShop(run: RunState, shop: ShopStock, seat = 0): boolean
     const base = potionById[id]?.price ?? POTION_PRICE;
     shop.potions[slot] = { id, base, price: priceOf(base, mul, prev.sale), sold: false, ...(prev.sale ? { sale: prev.sale } : {}) };
   }
+  if (K.potionFloor) ensurePotionFloor(rng, shop.potions, openPotions, K.potionFloor, [heroOf(me(run, seat))]);   // 婆婆那六格照樣保證稀有與罕見（只換剛洗上來的格子）
   repriceShop(run, shop, seat);   // 換上來的新貨也吃批發箱、帳本的折扣（2026-09-23 第二批；沒帶那兩件時數字不變）
   return true;
 }
@@ -1005,29 +1042,45 @@ export function makeShops(run: RunState): ShopStock[] {
 export function makeShop(run: RunState, seat = 0): ShopStock {
   const shopMul = shopMulFor(run, seat);
   const rng = runRng(run);
+  /*
+   * 誰顧店（2026-09-23 內容擴充第三批 新J，design3 4-2）：格數、池子、店長私藏、升級牌、忍具保底照 `KEEPERS` 那一列。
+   * 橘貓老闆那一列就是原本寫死的數字（牌 5／6、常見 2、珍品架第二關起 1、私藏五成、忍具 3），
+   * 抽的順序與整局亂數的走向一步都沒變——沒有店主欄位的舊存檔、一半的店跟以前一模一樣。
+   */
+  const keeper = keeperOf(currentNode(run));
+  const K = KEEPERS[keeper];
+  const late = run.act >= 2 ? 1 : 0;
   // 罐頭鋪的稀有度隨關數往上（使用者 2026-09-03）、絕學低機率一張、稀有保底（稽核 2026-09-04 M-4）——全部在 rollShopCards 裡
   // 第二關起貨架放六張牌（使用者 2026-09-04：新招區還有空間）；第一關五張
-  const cardDefs = rollShopCards(run, rng, shopCardCount(run), [], seat);
+  const cardDefs = rollShopCards(run, rng, K.cards[late], [], seat);
   const relicIds: string[] = [];
   // 罐頭鋪的貨也要濾職業獨占的秘寶（2026-09-12 實戰樣本抓到：菲菲在店裡買到了紙袋）
-  for (let i = 0; i < 2; i++) { const id = rollRelic(rng, '常見', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]); if (id) relicIds.push(id); }
-  // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）
-  let treasure: string | null = null;
-  if (run.act >= 2) { treasure = rollRelic(rng, '大魔物', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]); if (treasure) relicIds.push(treasure); }
-  // 店長私藏（2026-09-23 第二批，事件劇本第八節）：一半的店在秘寶貨架最右邊多一格罐頭鋪限定池，擺這一位這一局沒買過、身上沒有的
-  const limited = rollLimitedRelic(run, rng, seat, relicIds);
+  for (let i = 0; i < K.common; i++) { const id = rollRelic(rng, '常見', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]); if (id) relicIds.push(id); }
+  // 珍品架（使用者 2026-09-04）：第二、三關多一件大魔物池的秘寶，標價照那件秘寶自己的定價（使用者：不要另外抬到 250）。長毛掌櫃第一關就有、第二關起兩件
+  for (let i = 0; i < K.big[late]; i++) { const id = rollRelic(rng, '大魔物', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]); if (id) relicIds.push(id); }
+  // 店長私藏（2026-09-23 第二批，事件劇本第八節）：一半的店在秘寶貨架最右邊多一格罐頭鋪限定池，擺這一位這一局沒買過、身上沒有的。
+  // 第三批（主控裁決第 1 條，蓋過第二批）：橘貓老闆照舊五成、長毛掌櫃一定有、婆婆與阿福不擺（專賣的架子擺了就不專了）
+  const limited = K.limited === 'none' ? null : rollLimitedRelic(run, rng, seat, relicIds, K.limited === 'always' ? 1 : LIMITED_SHELF_CHANCE);
   if (limited) relicIds.push(limited);
-  // 升級牌：依關數機率把架上（第一關五張、第二關起六張）的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）
-  const upgradedIdx = cardDefs.length && rng.chance(upgradeChanceFor(run)) ? rng.int(0, cardDefs.length - 1) : -1;
+  else if (K.limited === 'always') {
+    // 掌櫃的私藏一定有：限定池這一位都拿過了（連本批的集章卡），改擺一件大魔物（design3 4-2）
+    const id = rollRelic(rng, '大魔物', [...me(run, seat).relics, ...relicIds], [heroOf(me(run, seat))]);
+    if (id) relicIds.push(id);
+  }
+  // 升級牌：依關數機率把架上（第一關五張、第二關起六張）的一張標成升級版（同價；使用者 2026-09-04：罐頭鋪也要套用）。阿福的舊貨攤一定有一張
+  const upgradedIdx = cardDefs.length && (K.upgradedCard === 'always' || rng.chance(upgradeChanceFor(run))) ? rng.int(0, cardDefs.length - 1) : -1;
   const shop: ShopStock = {
     cards: cardDefs.map((def, i) => ({ def, base: PRICE[def.rarity], price: priceOf(PRICE[def.rarity], shopMul), sold: false, ...(i === upgradedIdx ? { upgraded: true } : {}) })),
     relics: relicIds.map((id) => { const base = relicById[id]?.price ?? RELIC_PRICE; return { id, base, price: priceOf(base, shopMul), sold: false, ...(id === limited ? { limited: true as const } : {}) }; }),
-    potions: Array.from({ length: 3 }, () => {
+    potions: Array.from({ length: K.potions }, () => {
       const id = rollPotion(rng, [heroOf(me(run, seat))]);   // 照這一位的角色抽（同 reshuffleShop，2026-09-23）
       const base = potionById[id]?.price ?? POTION_PRICE;
       return { id, base, price: priceOf(base, shopMul), sold: false };
     }),
+    ...(keeper !== 'orange' ? { keeper } : {}),
   };
+  // 婆婆的六格忍具保底（至少 1 支稀有、2 支罕見）：六格全部都可以換
+  if (K.potionFloor) ensurePotionFloor(rng, shop.potions, shop.potions.map((_, i) => i), K.potionFloor, [heroOf(me(run, seat))]);
   // 每店一件特價（使用者 2026-09-04）：全部商品裡隨機一件，折數照 SALE_RATES 的權重抽
   const all = [...shop.cards, ...shop.relics, ...shop.potions];
   if (all.length) {
@@ -1058,12 +1111,34 @@ export function makeShop(run: RunState, seat = 0): ShopStock {
  *（`shop_bought:<座位>:<代號>`）、架上還沒擺的；一件都不剩就不擺、**也不擲骰**（三件都拿過之後，後面的店跟以前一模一樣）。
  * 有候選時先擲一次五成，中了再挑——用整局亂數，兩台一致；連線每一位的貨架各抽各的（`makeShops` 照座位順序連抽）。
  */
-function rollLimitedRelic(run: RunState, rng: Rng, seat: number, shelf: readonly string[]): string | null {
+function rollLimitedRelic(run: RunState, rng: Rng, seat: number, shelf: readonly string[], chance: number): string | null {
   const p = me(run, seat);
   const cands = relics.filter((r) => r.pool === '罐頭鋪' && !p.relics.includes(r.id) && !shelf.includes(r.id)
     && !run.flags[`shop_bought:${seat}:${r.id}`] && relicOk(r, [heroOf(p)]));
-  if (!cands.length || !rng.chance(LIMITED_SHELF_CHANCE)) return null;
+  if (!cands.length || !rng.chance(chance)) return null;
   return rng.pick(cands).id;
+}
+
+/**
+ * 婆婆的忍具保底（2026-09-23 第三批，design3 4-2）：整排至少 `floor.稀有` 支稀有、`floor.罕見` 支罕見。
+ * 不夠就從 `open`（這一次可以換的格子：開店是全部、重整貨架是沒賣掉的那幾格）裡挑常見的換掉；
+ * 要稀有而常見都換完了，才動多出來的罕見。換上來的照這一位的角色抽（`potionOk`），價錢照那一支的定價、之後照常重標。
+ */
+function ensurePotionFloor(rng: Rng, shelf: { id: string; base: number; price: number }[], open: readonly number[],
+  floor: { 稀有: number; 罕見: number }, heroes: readonly string[]): void {
+  const count = (rar: Rarity): number => shelf.filter((it) => potionById[it.id]?.rarity === rar).length;
+  for (const rar of ['稀有', '罕見'] as const) {
+    const cands = potions.filter((p) => p.rarity === rar && potionOk(p, heroes));
+    if (!cands.length) continue;
+    while (count(rar) < floor[rar]) {
+      let slots = open.filter((i) => potionById[shelf[i]!.id]?.rarity === '常見');
+      if (!slots.length && rar === '稀有' && count('罕見') > floor.罕見) slots = open.filter((i) => potionById[shelf[i]!.id]?.rarity === '罕見');
+      if (!slots.length) break;
+      const it = shelf[rng.pick(slots)]!;
+      it.id = rng.pick(cands).id;
+      it.base = potionById[it.id]?.price ?? POTION_PRICE;
+    }
+  }
 }
 /** 店長私藏出現的機率（事件劇本第八節：一半的店） */
 export const LIMITED_SHELF_CHANCE = 0.5;
@@ -1135,8 +1210,23 @@ export function priceFor(run: RunState, it: { base: number; sale?: number }, sea
     const hooks = me(run, seat).relics.map((id) => relicById[id]?.hooks);
     if ((shop.potions as readonly object[]).includes(it)) mul *= hooks.reduce((m, h) => m * (h?.shopPotionMul ?? 1), 1);
     if (!shop.anyBought && hooks.some((h) => h?.shopFirstItemHalf)) mul *= 0.5;
+    mul *= keeperMulFor(shop, it);   // 店主的招牌倍率（2026-09-23 第三批）：婆婆的忍具 ×0.75、掌櫃的秘寶 ×1.1，只乘那一類
   }
-  return priceOf(it.base, mul, it.sale);
+  // 最低 5 條（design3 4-3）：零錢罐、批發箱、帳本、三折特價、婆婆的七五折全疊上去時，便宜的忍具會算到兩三條
+  return Math.max(MIN_PRICE, priceOf(it.base, mul, it.sale));
+}
+const MIN_PRICE = 5;
+
+/**
+ * 這間店的店主對這一格加了多少（2026-09-23 第三批 新J）：看這一格在牌、秘寶、忍具哪一排，乘那一類的倍率。
+ * 橘貓老闆全部是 1。畫面劃掉的「原價」要把掌櫃的加價算進去（`shop.ts` 的 `priceNode`），所以匯出。
+ */
+export function keeperMulFor(shop: ShopStock, it: object): number {
+  const m = KEEPERS[shop.keeper ?? 'orange'].mul;
+  if ((shop.cards as readonly object[]).includes(it)) return m.card;
+  if ((shop.relics as readonly object[]).includes(it)) return m.relic;
+  if ((shop.potions as readonly object[]).includes(it)) return m.potion;
+  return 1;
 }
 
 function pay(run: RunState, price: number, seat = 0): boolean {
@@ -1186,19 +1276,81 @@ export function buyPotion(run: RunState, shop: ShopStock, i: number, replaceInde
  * 這一位現在放生一張要付多少（2026-09-23 第二批）。平常就是 `removeCost`（每放生一次漲 25）；
  * 帶會員卡時一律卡上那個數、不再漲（`removeCostFixed`）。罐頭鋪畫面、連線的放行判斷、機器人都問這一支，不各算一份。
  */
-export function removePrice(run: RunState, seat = 0): number {
+/*
+ * `shop`（2026-09-23 第三批 新J）：阿福那間放生半價——現在的放生價（會員卡的話是卡上那個數）× 0.5、進位到 5 的倍數（design3 4-3）。
+ * 秘寶的商品折扣照舊不算放生。沒給店＝橘貓老闆的價錢（地圖上、機器人估價、舊呼叫點）。放生完照舊漲 25（會員卡不漲），漲的是原價。
+ */
+export function removePrice(run: RunState, seat = 0, shop?: ShopStock): number {
   const q = me(run, seat);
   const fixed = q.relics.map((id) => relicById[id]?.hooks.removeCostFixed).filter((n): n is number => n !== undefined);
-  return fixed.length ? Math.min(q.removeCost, ...fixed) : q.removeCost;
+  const base = fixed.length ? Math.min(q.removeCost, ...fixed) : q.removeCost;
+  const k = KEEPERS[shop?.keeper ?? 'orange'].removeMul;
+  return k === 1 ? base : Math.ceil(base * k / 5) * 5;
 }
-export function buyRemove(run: RunState, uid: number, seat = 0): boolean {
+export function buyRemove(run: RunState, uid: number, seat = 0, shop?: ShopStock): boolean {
   const q = me(run, seat);
-  if (!q.deck.some((c) => c.uid === uid) || !pay(run, removePrice(run, seat), seat)) return false;
+  if (!q.deck.some((c) => c.uid === uid) || !pay(run, removePrice(run, seat, shop), seat)) return false;
   removeCard(run, uid, seat);
   // 會員卡（2026-09-23 第二批）：帶著的時候不漲；卡被拿走就從原本的數接著漲
   if (!q.relics.some((id) => relicById[id]?.hooks.removeCostFixed !== undefined)) q.removeCost += 25;
   return true;
 }
+
+/*
+ * ===== 店主的服務（2026-09-23 內容擴充第三批 新J，design3 4-2、4-3）=====
+ *
+ * 婆婆「請婆婆淨化」90 條（淨化那條線的 `purifyAtShop`，見下面）、阿福「舊招換新招」40 條。一間一次（貨架一人一份，所以是每人一次；
+ * 換招記在 `shop.serviced`）；手續費寫死：不吃零錢罐、特價、帳本，也不吃錢袋的加價（跟放生、重整同一類）。
+ * 連線一律走 `act()`：`{ t: 'buy', seat, k: 'swap', u }`（`net/runaction.ts`），判準都問這幾支。
+ */
+/** 這間店的服務（橘貓老闆、長毛掌櫃沒有） */
+export function shopService(shop: ShopStock): { kind: 'purify' | 'swap'; cost: number; label: string } | undefined {
+  return KEEPERS[shop.keeper ?? 'orange'].service;
+}
+
+/**
+ * 阿福的「舊招換新招」會換出哪幾張（新C 的規則，design3 1-1）：同職業（這一位拿得到的）、罕見以上的忍術牌；
+ * 換掉的是壞毛病就換成常見；換出來的不會跟原本同名（菲菲那套名字照她的算）。
+ */
+export function swapCandidates(run: RunState, cardId: string, seat = 0): CardDef[] {
+  const old = cardById[cardId];
+  if (!old) return [];
+  const hero = heroOf(me(run, seat));
+  const name = cardNameFor(old, hero);
+  const want: readonly Rarity[] = old.pool === '壞毛病' ? ['常見'] : ['罕見', '稀有'];
+  return cards.filter((c) => c.pool === '忍術' && want.includes(c.rarity) && pickable(c, hero, run.players.length)
+    && c.id !== old.id && cardNameFor(c, hero) !== name);
+}
+
+/** 阿福這一格現在換得了嗎（引擎、連線放行、畫面都問這一支） */
+export function canSwap(run: RunState, shop: ShopStock, uid: number, seat = 0): boolean {
+  const s = shopService(shop);
+  const c = me(run, seat).deck.find((x) => x.uid === uid);
+  return s?.kind === 'swap' && !shop.serviced && !!c && me(run, seat).fish >= s.cost && swapCandidates(run, c.cardId, seat).length > 0;
+}
+
+/**
+ * 換招：那一張**原地**換成隨機一張（牌組裡的位置與牌號不變、升級不帶過去），回傳換上來的牌號；做不到回 null、不扣錢。
+ * 抽哪一張用分支亂數（`<種子>|keeperswap|<關>|<格子>|<座位>`，design3 〇-2）：一間一人一次，種子不會重複；
+ * 兩台算得一樣，也不推整局亂數。
+ */
+export function buySwap(run: RunState, shop: ShopStock, uid: number, seat = 0): string | null {
+  if (!canSwap(run, shop, uid, seat)) return null;
+  const c = me(run, seat).deck.find((x) => x.uid === uid)!;
+  const rng = new Rng(seedFromString(`${run.seed}|keeperswap|${run.act}|${run.currentNode ?? '-'}|${seat}`));
+  const next = rng.pick(swapCandidates(run, c.cardId, seat));
+  pay(run, shopService(shop)!.cost, seat);
+  shop.serviced = true;
+  c.cardId = next.id;
+  c.upgraded = false;
+  return next.id;
+}
+
+/*
+ * 婆婆的「請婆婆淨化」：淨化本身（哪幾件沾了魔氣、換代號、調生命上限、90 條、一間一次）是淨化那條線（b3rare，design3 第六節）的，
+ * 那條線已經寫好給這裡接的介面（`canPurifyAtShop`／`purifyAtShop`、連線動作 `{ t: 'purify' }`、挑選窗 `showPurifyPick`）。
+ * 兩條線同時開工、這個分支還沒有那幾支，所以這裡不另寫一份：畫面的服務鈕在合併之後接上（`screens/shop.ts` 的 `serviceBtn`，b3shop 報告附程式碼）。
+ */
 
 /** 要玩家從牌組挑幾張來升級或移除 */
 export type PickNeed = { needs: 'removeCard' | 'upgradeCard'; n: number };

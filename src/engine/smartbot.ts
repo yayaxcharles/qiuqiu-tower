@@ -18,7 +18,8 @@ import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
   finishCombat, makeShop, napHeal, newRun, openChest, removeCard, removePrice, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
-  upgradeCard, type RunEffectOutcome, resolvePendingAfterFight, makeMerchant, openRoadsideBox, priceFor, type ShopStock } from './run';
+  upgradeCard, type RunEffectOutcome, resolvePendingAfterFight, makeMerchant, openRoadsideBox,
+  buySwap, keeperOf, potionCapacity, priceFor, type ShopStock } from './run';
 import { ambushOutcomes } from './qmark';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, RelicPool, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
@@ -1500,12 +1501,58 @@ export function napWorks(run: RunState, seat = 0): boolean {
   return napHeal(run, seat) > Math.floor(me(run, seat).maxHp * 0.1);
 }
 
+/**
+ * 為了店主繞路（2026-09-23 第三批 新J，design3 4-4）：罐頭鋪那一格照顧店的是誰加分——阿福＋15（廢牌兩張以上）、
+ * 掌櫃＋15（錢 150 以上）、婆婆＋10（忍具不到兩支，或身上有沾了魔氣的秘寶）。橘貓老闆不加，跟以前一樣。
+ * 讓機器人也會「看到那張臉就繞過去」，量尺才量得到這個結構。連線那支（`coopbot.ts`）看座位 0。
+ */
+export function keeperDetour(run: RunState, n: MapNode, seat = 0): number {
+  const k = keeperOf(n);
+  const p = me(run, seat);
+  if (k === 'junk') return deckJunk(run, seat).length >= 2 ? 15 : 0;
+  if (k === 'curio') return p.fish >= 150 ? 15 : 0;
+  // 「或身上有沾了魔氣的秘寶」那一半等淨化那條線（b3rare 的 `miasmaRelicsOf`）合併後補上，見 b3shop 報告
+  if (k === 'tortoise') return p.potions.length < 2 ? 10 : 0;
+  return 0;
+}
+
+/**
+ * 客座店主的服務與放生（2026-09-23 第三批 新J，design3 4-4），逛店一開始先跑（跟「先放生爛牌」同一個時機）：
+ * 阿福——廢牌一張以上、錢夠半價放生再留 40 就放生；牌組還有評分 2 以下的、錢 100 以上才換招。
+ * 婆婆——淨化後多 1.5 層以上、錢 130 以上就淨化：淨化是淨化那條線（b3rare）的 `purifyAtShop`，合併後補在這裡（b3shop 報告附程式碼）。
+ * 橘貓老闆、掌櫃什麼都不做（掌櫃照現在：秘寶 6 分門檻）。兩支機器人（單人、連線）共用，規則一樣。
+ */
+export function keeperServices(run: RunState, shop: ShopStock, seat = 0): void {
+  const p = me(run, seat);
+  if (shop.keeper === 'junk') {
+    const junk = deckJunk(run, seat);
+    if (junk.length >= 1 && p.fish >= removePrice(run, seat, shop) + 40) buyRemove(run, junk[0]!.uid, seat, shop);
+    const left = deckJunk(run, seat);
+    if (left.length && p.fish >= 100) buySwap(run, shop, left[0]!.uid, seat);
+  }
+}
+
+/**
+ * 婆婆那間的忍具（design3 4-4）：身上不到三支、錢夠價錢再留 30 就買最便宜那支，買到三支或錢不夠為止（帶滿了不換）。
+ * 回傳 false＝不是婆婆那間，呼叫端照舊規則買（不到兩支、留 40）。
+ */
+export function keeperPotions(run: RunState, shop: ShopStock, seat = 0): boolean {
+  if (shop.keeper !== 'tortoise') return false;
+  const p = me(run, seat);
+  while (p.potions.length < 3 && p.potions.length < potionCapacity(run, seat)) {
+    const cheap = shop.potions.map((it, i) => ({ i, price: priceFor(run, it, seat, shop), sold: it.sold }))
+      .filter((x) => !x.sold).sort((a, b) => a.price - b.price)[0];
+    if (!cheap || p.fish < cheap.price + 30 || !buyPotion(run, shop, cheap.i, undefined, seat)) break;
+  }
+  return true;
+}
+
 function nodeScore(run: RunState, n: MapNode): number {
   const hpPct = me(run).hp / me(run).maxHp;
   switch (n.type) {
     // 缺血才衝貓窩——前提是打盹回得了血（不眠香爐睡了不回，那時貓窩只剩磨爪，2026-09-23）
     case '貓窩': return hpPct < 0.55 && napWorks(run) ? 100 : bestUpgrade(run) ? 55 : 20;
-    case '罐頭鋪': return me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15;
+    case '罐頭鋪': return (me(run).fish >= 120 ? 75 : me(run).fish >= 75 ? 45 : 15) + keeperDetour(run, n);
     case '事件': return 50;
     case '紙箱': return 90;
     case '大魔物': return hpPct >= 0.7 && me(run).deck.some((c) => c.upgraded) ? 62 : 8;
@@ -1579,14 +1626,16 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
       }
       case '罐頭鋪': {
         const shop = makeShop(run);
+        // 客座店主的服務與放生先跑（阿福放生換招、婆婆淨化，2026-09-23 第三批）；阿福那間放生照他的規則，下面不再放生
+        keeperServices(run, shop);
         // 先放生爛牌（留 60 條買東西），再看秘寶，再看牌
         const junk = deckJunk(run);
-        if (junk.length >= 3 && me(run).fish >= removePrice(run) + 60) buyRemove(run, junk[0]!.uid);   // 會員卡的固定價（2026-09-23 第二批）
+        if (shop.keeper !== 'junk' && junk.length >= 3 && me(run).fish >= removePrice(run, 0, shop) + 60) buyRemove(run, junk[0]!.uid, 0, shop);   // 會員卡的固定價（2026-09-23 第二批）
         const relicIdx = shop.relics.map((r, i) => ({ i, v: relicRating(r.id, heroOf(me(run))) + setBonusScore(r.id, heroOf(me(run)), me(run).relics), p: r.price })).sort((a, b) => b.v - a.v)[0];
         if (relicIdx && relicIdx.v >= 6 && me(run).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.i);
         const cardIdx = shop.cards.map((c, i) => ({ i, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
         if (cardIdx && cardIdx.v >= 7 && me(run).fish >= cardIdx.p && me(run).deck.length < 24) buyCard(run, shop, cardIdx.i);
-        for (let i = 0; i < shop.potions.length; i++) {
+        if (!keeperPotions(run, shop)) for (let i = 0; i < shop.potions.length; i++) {   // 婆婆那間照她的規則買（2026-09-23 第三批）
           const it = shop.potions[i]!;
           if (me(run).potions.length < 2 && me(run).fish >= it.price + 40) buyPotion(run, shop, i);
         }

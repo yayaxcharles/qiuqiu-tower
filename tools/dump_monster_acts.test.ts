@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
 import { NON_EVENT_ART, SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
-import { MERCHANT_SPRITES, TITLE_ART, heroOfKey, isCoopOnlyArt, isItemIcon } from '../src/ui/assets';
+import { MERCHANT_SPRITES, TITLE_ART, heroOfKey, isCoopOnlyArt, isGuestKeeperArt, isItemIcon } from '../src/ui/assets';
 
 it('dump monster acts', () => {
   const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as { monsters: Record<string, Record<string, string>>; bg: Record<string, string> };
@@ -77,6 +77,9 @@ it('dump monster acts', () => {
   // `preload.ts` 的 `preloadHeroArt`），跟角色專屬圖同一類，寫 0
   const icons = (groups.icons ?? {}) as Record<string, string>;
   for (const [key, path] of Object.entries(icons)) if (isItemIcon(key)) out[path] = 0;
+  // 客座店主的立繪（2026-09-23 第三批 新J）：開場不載、這一關地圖上有那一位的店才抓（`assets.ts` 的 `isGuestKeeperArt`、
+  // `preload.ts` 的 `preloadMapKeepers`），跟事件主圖同一類，寫 0（`sprites` 跟上面行腳商那一圈同一份）
+  for (const [key, path] of Object.entries(sprites)) if (isGuestKeeperArt(key)) out[path] = 0;
 
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');
@@ -103,4 +106,9 @@ it('dump monster acts', () => {
     ...MERCHANT_SPRITES.map((key): [string, string] => [key, sprites[key]!]),
   ].filter(([, path]) => sorted[path] !== 0).map(([key]) => key);
   expect(qmarkFirstLoad, '問號格的圖照地圖現抓，不該留在首載').toEqual([]);
+  // 三位客座店主九張立繪一張都不准算首載（2026-09-23 第三批）：拿掉上面 `isGuestKeeperArt` 那一圈，這裡就紅；橘貓老闆那三張照舊首載
+  const keeperFirstLoad = Object.entries(sprites).filter(([key, path]) => isGuestKeeperArt(key) && sorted[path] !== 0).map(([key]) => key);
+  expect(keeperFirstLoad, '客座店主的立繪照地圖現抓，不該留在首載').toEqual([]);
+  expect(Object.keys(sprites).filter((k) => isGuestKeeperArt(k))).toHaveLength(9);
+  for (const k of ['shop/keeper', 'shop/keeper_happy', 'shop/keeper_no']) expect(sorted[sprites[k]!], k).toBeUndefined();
 });

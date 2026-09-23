@@ -12,8 +12,10 @@ import { heroName } from '../../engine/hero';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
-import { mapHasQmark, preloadMapEvents, preloadQmarkArt } from '../preload';
+import { mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadQmarkArt } from '../preload';
 import { loadEventScreen } from '../event-loader';
+import { loadShopText } from '../shop-text-loader';
+import { KEEPERS, type KeeperDef } from '../../content/keepers';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { notice } from '../dialogue';
@@ -271,6 +273,14 @@ registerScreen('map', (app, root) => {
       attachTextTooltip(btn, tip.title, tip.body);
       if (n.variant) btn.append(el('span', { class: 'map-qv' }, '？'));
     }
+    // 罐頭鋪今天誰顧店（2026-09-23 第三批 新J，design3 4-4）：客座店主那一間在圖示右下角疊一顆小頭像、滑上去講招牌——
+    // 要讓人「為了某位店主繞路」，進門前就得看得到是誰。橘貓老闆那間不疊，維持原樣（看得出「換人了」才有意思）
+    const keeper = n.type === '罐頭鋪' && n.keeper && n.keeper !== 'orange' ? KEEPERS[n.keeper] : undefined;
+    if (keeper) {
+      const head = keeperHead(keeper);
+      if (head) btn.append(head);
+      if (keeper.tip) attachTextTooltip(btn, `今天顧店：${keeper.name}`, keeper.tip);
+    }
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
     if (choices.has(n.id) && !iDown) {
       btn.addEventListener('click', () => {
@@ -423,4 +433,24 @@ registerScreen('map', (app, root) => {
   void preloadMapEvents(run);
   // 問號格變化的文字與圖（2026-09-23 第三批）：地圖上還有會變的問號格才抓，一樣不插隊、抓失敗走進去時再要一次
   if (mapHasQmark(run)) { void loadQmarkText().catch(() => undefined); void preloadQmarkArt(run); }
+  // 這一關有客座店主的店：那一位的三張立繪與店主台詞（延後模組）也先在背景抓（2026-09-23 第三批 新J，design3 4-4）
+  void preloadMapKeepers(run);
+  if (run.map.nodes.some((n) => n.keeper && n.keeper !== 'orange')) void loadShopText().catch(() => undefined);
 });
+
+/** 地圖上罐頭鋪的小頭像直徑（樣式在 map.css 的 `.map-keeper`，兩邊要一致） */
+const KEEPER_HEAD = 30;
+/**
+ * 從招呼立繪裁頭（design3 4-4：不另外生圖）：整張 332×420 當背景，縮放到頭框剛好填滿這顆圓，再把頭框推到圓心。
+ * 裁哪一塊寫在 `KEEPERS[..].head`。立繪還沒到（清單沒有）就不疊，名字照樣在滑上去的說明裡。
+ */
+function keeperHead(k: KeeperDef): HTMLElement | null {
+  const url = artUrl('sprites', k.art);
+  if (!k.head || url.startsWith('data:')) return null;
+  const [x, y, s] = k.head;
+  const z = KEEPER_HEAD / s;
+  return el('span', {
+    class: 'map-keeper',
+    style: `background-image:url(${url});background-size:${(332 * z).toFixed(1)}px ${(420 * z).toFixed(1)}px;background-position:${(-x * z).toFixed(1)}px ${(-y * z).toFixed(1)}px`,
+  });
+}
