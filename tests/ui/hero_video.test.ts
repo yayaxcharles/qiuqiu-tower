@@ -41,6 +41,11 @@ describe('過場影片要看角色', () => {
     expect(SRC).toContain("playVideo('ending'");
   });
 
+  it('連線局通關不播球球的單人結尾影片（2026-09-23，比照開場連線不播）', () => {
+    const line = SRC.split('\n').find((l) => /playVideo\('ending'/.test(l) && !/^\s*(\/\/|\*)/.test(l)) ?? '';
+    expect(line).toMatch(/!this\.coop && \(me\(run, this\.seat\)\.hero \?\? 'ninja'\) === 'ninja' \? playVideo\('ending'/);
+  });
+
   it('菲菲的開頭影片檔真的在（對照表寫了就要有檔，不然她的開場會少一段而沒人發現）', () => {
     expect(existsSync(new URL('../../public/video/opening_feifei.mp4', import.meta.url))).toBe(true);
   });
