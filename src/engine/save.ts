@@ -168,6 +168,9 @@ function usablePlayer(p: Partial<RunPlayer> | undefined): boolean {
   if (!finiteNum(p.removeCost) || !finiteNum(p.fish) || (p.fish as number) < 0) return false;
   // uid 撞號會讓「放生這一張」放掉別張（`deck.find` 只找得到第一個）
   if (new Set(p.deck.map((c) => c.uid)).size !== p.deck.length) return false;
+  // 事件帶進下一場的東西（2026-09-23 內容擴充第二批）：可選、舊檔沒有；有的話每一筆都要有效果陣列，不然開打那一拍才炸
+  if (p.nextFight !== undefined && !(Array.isArray(p.nextFight)
+    && p.nextFight.every((x) => !!x && typeof x === 'object' && typeof x.note === 'string' && Array.isArray(x.effects)))) return false;
   return true;
 }
 

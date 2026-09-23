@@ -1,16 +1,18 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue } from '../../content/dialogue';
-import { eventTextFor } from '../../content/event-text';
+import { condHint, coopFill, eventTextFor, flagWhy } from '../../content/event-text';
 import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
+import { choiceEffectsFor, choiceGate, choiceOrder, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
+import { heroName } from '../../engine/hero';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import type { CardDef, CardInstance, EventChoice, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl, eventArtCast, eventArtHero, eventArtKey, eventSidePortrait } from '../assets';
+import { artUrl, eventArtCast, eventArtHero, eventArtKey, eventSidePortrait, heroArtUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { cardNode } from '../cardview';
 import { showUpgradeConfirm } from '../confirm';
@@ -135,6 +137,25 @@ function gainRows(gains: readonly RunGain[]): HTMLElement | string {
   return box;
 }
 
+/**
+ * 條件選項按鈕下面那一行灰字「因為：…」（2026-09-23 內容擴充第二批，劇本 design2 新1）：
+ * 讓玩家知道「為什麼多了這條路」是**這一局養出來的**。`who`＝讓它出現的那一位（本機這一位寫「你」，同伴寫名字）。
+ */
+const TAG_VERB: Readonly<Record<string, string>> = { 毒: '會上毒', 反彈: '會反彈', 隱身: '會隱身', 蓄氣: '會蓄氣' };
+function condWhyLine(gate: ChoiceGate, who: string, coop: boolean): string {
+  const w = gate.why;
+  if (!w) return '';
+  const all = coop ? '你們' : '你';   // 付錢型與整局旗標是兩個人一起的
+  switch (w.kind) {
+    case 'deckTag': return `因為：${who}後來學的牌裡有 ${w.n} 張${TAG_VERB[w.tag] ?? ''}`;
+    case 'relic': return `因為：${who}身上帶著「${relicById[w.id]?.name ?? w.id}」`;
+    case 'fishAtLeast': return `因為：${all}身上${coop ? '都' : ''}有 ${w.n} 條以上的小魚乾`;
+    case 'potionsFull': return `因為：${who}的忍具帶滿了`;
+    case 'flag': { const why = flagWhy(w.name); return why ? `因為：${all}${why}` : ''; }
+    default: { const _never: never = w; void _never; return ''; }
+  }
+}
+
 /** 牌名。**要收 hero**：菲菲看到的是她那套名字（`cardNameFor`），拿原名會跟牌面對不起來 */
 function cardName(c: CardInstance, hero: string | undefined): string {
   const d = cardById[c.cardId];
@@ -167,9 +188,25 @@ registerScreen('event', (app, root, props) => {
    */
   const seat = app.seat;
   const coop = app.coop;
+  const evd = ev;   // 收斂成不可為 undefined 的常數，給下面的內部函式用（窄化不會跟進函式裡）
   // 插圖照誰挑、要不要在旁邊放自己的立繪（連線的鏡子走廊照座位 0，見 assets.ts 的 `eventArtHero`）
   const artHero = eventArtHero(ev.id, run.players.map((p) => p.hero));
-  const portrait = eventSidePortrait(ev.id, artHero, me(run, seat).hero ?? 'ninja');
+  /*
+   * 連線限定事件（2026-09-23 內容擴充第二批，劇本 design2 新7）：插圖是純場景、圖裡沒有主角，
+   * 兩位的立繪站兩邊——本機這一位在左、同伴在右。其餘事件照舊（鏡子走廊那種才在旁邊放自己）。
+   */
+  const partner = run.players.length > 1 ? run.players[seat === 0 ? 1 : 0] : undefined;
+  const pairUrl = (h: string | undefined): string | undefined => { const u = heroArtUrl(h ?? 'ninja', 'hero/ninja'); return u.startsWith('data:') ? undefined : u; };
+  const coopPair = !!coop && !!ev.coopOnly && !!partner;
+  const portrait = coopPair ? pairUrl(me(run, seat).hero) : eventSidePortrait(ev.id, artHero, me(run, seat).hero ?? 'ninja');
+  const portrait2 = coopPair ? pairUrl(partner?.hero) : undefined;
+  /**
+   * 座位不對稱的選項（連線限定事件的「我拿／我付」）：按鈕與結果的文字照本機這一位的視角挑。
+   * 約定見 `EventChoice.bySeat`：`choices[0]` 的字是「我拿」、`choices[1]` 的是「我付」（座位 0 的視角），
+   * 座位 1 看的時候兩個對調。**投票、套效果仍用原本的索引**（票是絕對的，兩台才結算得一樣）。
+   */
+  const labelRaw = (i: number): string => evd.choices[seatTextIndex(evd, i, seat)]?.label ?? '';
+  const resultRaw = (i: number): string => evd.choices[seatTextIndex(evd, i, seat)]?.result ?? '';
   /*
    * **選擇不可以在畫面收尾時清掉**（2026-09-11 實測的坑）。
    *
@@ -250,6 +287,7 @@ registerScreen('event', (app, root, props) => {
     root.append(sceneView({
       art: artNode,
       ...(portrait ? { portrait } : {}),
+      ...(portrait2 ? { portrait2 } : {}),
       speaker: title,
       text: resultText,
       extra: [stamp, gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
@@ -299,6 +337,8 @@ registerScreen('event', (app, root, props) => {
   }
   let resultArt: string | undefined;   // 這一次選的選項有沒有專屬結果圖
   let pickLabel = '';                  // 這一次選的選項原文：挑牌視窗能不能不選照它寫的「至多」走（見 `eventPickRule`）
+  /** 學完招接著挑牌升級（`then`）：本機這一位學完（或都不要）之後，照這一支開挑牌那一步。`take()` 設 */
+  let afterLearn: ((note: string, learned: CardInstance[]) => void) | null = null;
   const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void => {
     panel(resultText, note,
       awaitingPicks
@@ -357,11 +397,24 @@ registerScreen('event', (app, root, props) => {
     }
     const up = def.id === upId;
     const got = addCard(run, def.id, up, who);
+    const chained = passLearn(who, outcomes);   // 學完還要挑牌升級的：待辦換成那一步（兩台都換，挑牌那一輪才判得出升級或移除）
     if (resultText === null) return;   // 別人的：只套用、不演（見上面對這個參數的說明）
     // 牌名要過 `cardNameFor`（2026-09-12 使用者實測抓到）：牌面畫的是「絕學·絆索」，
     // 這一行卻寫「學會了「絕學·擒拿手」」——同一張牌兩個名字。看的是**學到的那一位**
-    finish(resultText, `學會了「${cardNameFor(def, me(run, who).hero)}${up ? '＋' : ''}」`,
-      gains, [{ kind: 'learn', card: got }]);
+    const note = `學會了「${cardNameFor(def, me(run, who).hero)}${up ? '＋' : ''}」`;
+    if (chained && afterLearn) { afterLearn(note, [got]); return; }
+    finish(resultText, note, gains, [{ kind: 'learn', card: got }]);
+  }
+
+  /**
+   * 「三選一學招」之後**接著**要挑牌升級（`then`，2026-09-23 內容擴充第二批：影子的真面目③、師父的影子【師門】）。
+   * 把這一位的待辦換成挑牌那一步，回傳有沒有接下去。學了或「都不要」都要換——「都不要」也照樣可以挑牌升級。
+   */
+  function passLearn(who: number, outcomes: RunEffectOutcome[]): boolean {
+    const o = outcomes[who];
+    const then = o && 'chooseCard' in o ? o.then : undefined;
+    if (then) outcomes[who] = then;
+    return !!then;
   }
 
   /** 選一招（大俠傳功那種）：牌排在中上方（插圖的位置），挑完就收尾，也可以都不要 */
@@ -395,7 +448,12 @@ registerScreen('event', (app, root, props) => {
          *
          * 連線那條走 `coop.onPick` 的回呼，那裡本來就有傳 `c.result` 與處理空字串，所以沒事。
          */
-        if (cardId === '') { finish(resultText, '一招都沒挑', gains); return; }
+        if (cardId === '') {
+          // 都不要：學完還要挑牌升級的（`then`）照樣接下去
+          if (passLearn(seat, outcomes) && afterLearn) { afterLearn('一招都沒挑', []); return; }
+          finish(resultText, '一招都沒挑', gains);
+          return;
+        }
         takeLearn(seat, cardId, outcomes, resultText, gains);
         return;
       }
@@ -440,8 +498,15 @@ registerScreen('event', (app, root, props) => {
    * `notes` 是引擎一路記下來的「實際發生了什麼」（賭飯糰中了哪一邊、忍具收不收得下、
    * 隨機撿到哪一張牌）。挑牌那條路自己還會再補一句，所以用 `noteLine` 接起來一起顯示。
    */
-  /** 事件文案換成這一位的（敘述裡的名字、引號裡句尾的「喵」）。球球那邊一個字不動 */
-  const evText = (t: string): string => eventTextFor(me(run, seat).hero, t);
+  /**
+   * 事件文案換成這一位的（敘述裡的名字、引號裡句尾的「喵」）。球球那邊一個字不動。
+   * 連線時再把「{同伴}」「{稱}」「{對方}」換成同伴的名字與稱呼（連線限定事件，2026-09-23 內容擴充第二批）；
+   * 單人的文案裡沒有這幾個記號，換了也不會動到。
+   */
+  const evText = (t: string): string => {
+    const mine = eventTextFor(me(run, seat).hero, t);
+    return partner ? coopFill(mine, me(run, seat).hero, partner.hero) : mine;
+  };
 
   function settle(outcome: RunEffectOutcome, rawResult: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
     // 換角色的文案在**入口**過一次，比每個呼叫點各包一次不容易漏（這支有六個呼叫點）
@@ -565,7 +630,7 @@ registerScreen('event', (app, root, props) => {
     if (exchangeReason) { finish('這次沒有交換秘寶。', exchangeReason); return; }
     const cost = c.costFish ?? 0;
     resultArt = c.resultArt;
-    pickLabel = c.label;
+    pickLabel = labelRaw(index);
     const notes: string[] = [];
     const gains: RunGain[] = [];
     const had = new Set(me(run, seat).deck.map((x) => x.uid));
@@ -588,7 +653,8 @@ registerScreen('event', (app, root, props) => {
      */
     const outcomes: RunEffectOutcome[] = [];
     for (const i of seats) {
-      outcomes[i] = applyRunEffects(run, c.outcome, i === seat ? notes : undefined, i === seat ? gains : undefined, i);
+      // 座位不對稱的選項（連線限定事件）每一位跑自己那一串：一人拿、一人付（`EventChoice.bySeat`）
+      outcomes[i] = applyRunEffects(run, choiceEffectsFor(c, i), i === seat ? notes : undefined, i === seat ? gains : undefined, i);
     }
     /*
      * **挑牌的處理函式掛在這裡，不掛在挑牌的畫面裡**（稽核第二輪 高-3）。
@@ -609,7 +675,11 @@ registerScreen('event', (app, root, props) => {
      * 把結果畫面重畫一次（自己沒得挑的那一台，等同伴挑完之後要把「繼續」放出來）。
      * 結果圖還沒到就先記著，圖到了才畫（`paint`，推前審查 高-1：效果上面已經當場套完了）
      */
-    const showResult = (): void => { paint(() => settle(outcomes[seat] ?? fightOf, c.result, notes, gains, added, outcomes)); };
+    // 結果文字照本機這一位的視角挑（連線限定事件的「我拿／我付」，見 `seatTextIndex`）
+    const raw = resultRaw(index);
+    const showResult = (): void => { paint(() => settle(outcomes[seat] ?? fightOf, raw, notes, gains, added, outcomes)); };
+    // 學完招還要挑牌升級（`then`）：學完那一刻把這一位的待辦換成挑牌那一步，照同一套畫面接下去
+    afterLearn = (note, learned) => settle(outcomes[seat] ?? null, raw, [...notes, note], gains, [...added, ...learned], outcomes);
     holdPaintForResultArt(index);
     if (coop) {
       const alive = run.players.map((p) => !p.down);
@@ -620,12 +690,18 @@ registerScreen('event', (app, root, props) => {
           const all = onlyStanding(coop.picks('evlearn', run.players.length), alive);
           if (!allVoted(all, alive)) return;
           coop.clearPicks('evlearn');
-          awaitingPicks = false;
+          // 學完招還要接著挑牌升級的（`then`）：「繼續」要等下一輪（`evcard`）都挑完才放出來
+          awaitingPicks = outcomes.some((o) => !!o && 'chooseCard' in o && !!o.then);
           // 照座位順序套，兩台算出來的牌組才一樣；只有自己那張要演出來
           // 文案要過 `evText`（換角色的名字與句尾的喵）——單人那條在 `settle` 進門就過了，
           // 連線這條直接拿原文，玩菲菲時會留著「球球」跟「喵」（稽核 2026-09-12 低-1）
-          all.forEach((v, i) => { if (v) takeLearn(i, v, outcomes, i === seat ? evText(c.result) : null, gains); });
-          if (all[seat] === '') finish(evText(c.result), '一招都沒挑', gains);
+          const mineThen = all[seat] === '' && passLearn(seat, outcomes);
+          all.forEach((v, i) => {
+            if (v) takeLearn(i, v, outcomes, i === seat ? evText(raw) : null, gains);
+            else if (v === '' && i !== seat) passLearn(i, outcomes);   // 同伴都不要也照樣接著挑牌升級（兩台都換，才判得出升級或移除）
+          });
+          if (mineThen && afterLearn) afterLearn('一招都沒挑', []);
+          else if (all[seat] === '') finish(evText(raw), '一招都沒挑', gains);
           else if (all[seat] === null) showResult();   // 我這台根本沒得挑：重畫一次把「繼續」放出來
           return;
         }
@@ -672,7 +748,17 @@ registerScreen('event', (app, root, props) => {
   renderHud(app, root);
   const choices: HTMLElement[] = [];
   const votes = coop ? coop.picks('event', run.players.length) : [];
-  ev.choices.forEach((c, index) => {
+  /*
+   * 看得到哪幾個選項（2026-09-23 內容擴充第二批，劇本 design2 新1、新7）：條件沒達成的不顯示；
+   * 座位不對稱的「我拿」排第一（座位 1 的人看到的是原本的第二個在上面），投的票照舊是原本的索引。
+   */
+  const shown = visibleChoices(run, ev, seat);
+  const order = choiceOrder(run, ev, seat);
+  // 條件選項出現時，事件開頭多接一句條件提示句（故事裡就講出「為什麼多了這條路」）：照讓它出現的那一位挑
+  const hints: string[] = [];
+  const partnerName = partner ? heroName(partner) : '';
+  order.forEach((index) => {
+    const c = ev.choices[index]!;
     const cost = c.costFish ?? 0;
     // 選項自己的文案就寫著要付多少（「付 30 小魚乾」「買一顆（20 小魚乾）」），這裡不要再補一次價錢；
     // 付不起才補一句話講清楚為什麼按不動。
@@ -680,7 +766,17 @@ registerScreen('event', (app, root, props) => {
     const exchangeReason = exchangeBlockReason(c);
     // 誰投了這一項：兩個人才知道對方想選什麼（跟地圖上的小記號同一套）
     const who = votes.map((v, i) => (v === String(index) ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
-    const btn = el('button', { class: 'btn' }, evText(c.label) + (poor ? '（小魚乾不夠）' : '') + (exchangeReason ? `（${exchangeReason}）` : '') + (who.length ? `　← ${who.join('、')}` : ''));
+    const gate = c.requires ? choiceGate(run, c, seat) : null;
+    const bySelf = gate?.by === undefined || gate.by === seat;
+    if (gate) {
+      const hint = condHint(ev.id, me(run, bySelf ? seat : gate.by!).hero);
+      if (hint) hints.push(hint);
+    }
+    const btn = el('button', { class: 'btn' },
+      // 條件選項：按鈕最前面一個金底小標籤（連線時是同伴讓它出現的，寫「某某的…」）
+      gate && c.requiresLabel ? el('span', { class: 'choice-tag' }, `【${bySelf ? '' : `${partnerName}的`}${c.requiresLabel}】`) : '',
+      evText(labelRaw(index)) + (poor ? '（小魚乾不夠）' : '') + (exchangeReason ? `（${exchangeReason}）` : '') + (who.length ? `　← ${who.join('、')}` : ''),
+      gate ? el('span', { class: 'choice-why' }, condWhyLine(gate, bySelf ? '你' : partnerName, !!coop)) : '');
     // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
     if (poor || exchangeReason || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
@@ -710,13 +806,15 @@ registerScreen('event', (app, root, props) => {
    * 藏在 `gamble` 裡的扣血確實看不到，可是那個 `gamble` 本身就被 ×0.7 改過、
    * 已經讓提示出現了，所以不會有「該提示卻沒提示」的情形。
    */
-  const risky = ev.choices.some((c) => c.outcome.some((o) => o.kind === 'damage' || o.kind === 'gamble'));
+  // 看得到的選項才算；座位不對稱的兩邊都算（一人扣血那種也是「會掉血」）
+  const risky = shown.some((i) => [...ev.choices[i]!.outcome, ...(ev.choices[i]!.bySeat?.flat() ?? [])].some((o) => o.kind === 'damage' || o.kind === 'gamble'));
   const extra = runMods(run).unlucky && risky
     ? [el('p', { class: 'event-note' }, '這個難度下，事件會更兇：掉血多一半，賭運氣只剩七成機會中（選項上寫的是一般難度的數字）')]
     : [];
+  const opening = evText(ev.text) + hints.join('');
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
-  root.append(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), speaker: title,
-    text: iDown ? `${evText(ev.text)}（你倒下了，這次由同伴決定）` : evText(ev.text), extra, actions: choices, column: true }));
+  root.append(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), ...(portrait2 ? { portrait2 } : {}), speaker: title,
+    text: iDown ? `${opening}（你倒下了，這次由同伴決定）` : opening, extra, actions: choices, column: true }));
 
   if (coop) {
     coop.onPick((kind) => {
@@ -737,7 +835,7 @@ registerScreen('event', (app, root, props) => {
       chosen = Number(pickStr);
       // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一個選項（使用者 2026-09-15：「要知道隨機到哪個事件」）
       if (new Set(now.filter((v) => v !== null)).size > 1) {
-        notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${evText(ev.choices[chosen]?.label ?? '')}」`);
+        notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${evText(labelRaw(chosen))}」`);
       }
       coop.clearPicks('event');
       // 兩台在同一拍結算、同一拍套效果（推前審查 高-1）：不可以等圖才 `take()`，只有畫面等

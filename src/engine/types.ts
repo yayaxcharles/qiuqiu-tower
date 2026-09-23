@@ -641,6 +641,12 @@ export interface EncounterDef {
   strength?: number;
   /** 照著學的魔物一動抽幾張牌（不填＝1）。鏡子走廊二、三關版是 2 */
   learnCards?: number;
+  /**
+   * 這場的魔物換名牌與開場白（2026-09-23 內容擴充第二批）：`'shadow'`＝影子鏈的那一場，
+   * 同一隻鏡中對手、同一套數值與學牌規則，只換成「某某的影子」與鏈裡的開場白（`content/enemies.ts` 的 `encounterSkin`）。
+   * 魔物 id 不動，所以指紋、預載、立繪、初見吐槽那幾張表都不用補。
+   */
+  skin?: 'shadow';
 }
 
 // ===== 事件與整局效果 =====
@@ -668,7 +674,39 @@ export type RunEffect =
   | { kind: 'chooseCard'; pool: Pool; n: number }
   | { kind: 'gamble'; p: number; win: RunEffect[]; lose: RunEffect[] }
   /** 在本局旗標上記一筆（事件前後集用：下一關的地圖生成時看旗標決定要不要排後集） */
-  | { kind: 'flag'; name: string };
+  | { kind: 'flag'; name: string }
+  /*
+   * ===== 內容擴充第二批的事件結果（2026-09-23，劇本 design2 第一節「新2／新4／新5／新6」）=====
+   */
+  /** 給**指定那一件**秘寶（風鈴、山賊的欠條……）；已經有了就改給 `fallbackFish` 條小魚乾，不會兩手空空 */
+  | { kind: 'relicId'; id: string; fallbackFish: number }
+  /** 交出**指定那一件**（迷路的小黑貓：把鈴鐺繫在牠頭巾上）；身上沒有就跳過。生命上限與忍具格照 `loseRelic` 還原 */
+  | { kind: 'loseRelicId'; id: string }
+  /** 交出身上**價格最低**的一個忍具（同價取最後拿到的）；身上沒有就什麼都沒少 */
+  | { kind: 'losePotion' }
+  /**
+   * 記在這一位身上，**下一場戰鬥開場**套用一次（送上樓的便當）。跟暖毯 `restBlock` 同一個形狀，
+   * 只是效果寫成牌的效果（`status`、`block`），開場那一拍照牌的規則跑。`note` 是開場那一行紀錄。
+   */
+  | { kind: 'nextFight'; effects: Effect[]; note: string };
+
+/**
+ * 條件選項認得的四種流派（劇本 design2 新1 的 `deckTag`）：**不算起手牌**，同一張牌升級前後算一張。
+ * 判準在 `engine/eventcond.ts` 的 `cardTags`。
+ */
+export type DeckTag = '毒' | '反彈' | '隱身' | '蓄氣';
+/**
+ * 條件選項的出現條件（2026-09-23 內容擴充第二批，劇本 design2 新1）。
+ * 條件沒達成的選項**不顯示**（不做灰色預告）；只讀整局狀態，兩台算得一樣。
+ * 連線時怎麼算見 `engine/eventcond.ts` 的 `choiceGate`（養成型任一位、付錢型每一位）。
+ */
+export type ChoiceCond =
+  | { kind: 'deckTag'; tag: DeckTag; min: number }
+  | { kind: 'relic'; ids: string[] }
+  | { kind: 'fishAtLeast'; n: number }
+  | { kind: 'potionsFull' }
+  | { kind: 'flag'; name: string }
+  | { kind: 'anyOf'; of: ChoiceCond[] };
 /**
  * `resultArt`＝這個選項有自己的結果插圖時，圖檔的鍵（對應 `bg/event_<resultArt>`）。
  * 沒填就沿用事件本身的場景圖。選了之後畫面上如果只有文字換掉、圖一模一樣，
@@ -676,9 +714,37 @@ export type RunEffect =
  */
 export interface EventChoice {
   label: string; costFish?: number; outcome: RunEffect[]; result: string; resultArt?: string;
+  /**
+   * 條件選項（2026-09-23 內容擴充第二批）：達成才出現。一律**加在 `choices` 最後**，
+   * 既有選項的索引與結果圖一張都不動。`requiresLabel` 是按鈕最前面那個金底小標籤的字（【毒】【師門】……）。
+   */
+  requires?: ChoiceCond;
+  requiresLabel?: string;
+  /**
+   * 座位不對稱的結果（連線限定事件，劇本 design2 新7）：`[座位 0 的效果, 座位 1 的效果]`，**有這欄就不看 `outcome`**。
+   * 約定：`choices[0]` 是「座位 0 拿、座位 1 付」、`choices[1]` 是反過來那一個（兩者的 `bySeat` 互為鏡像），
+   * 文字也照這個約定寫：`choices[0]` 的標籤與結果是「我拿」、`choices[1]` 的是「我付」（座位 0 的視角）；
+   * 座位 1 看的時候兩個對調（`ui/screens/event.ts` 的 `seatView`）。任一位倒下時這種選項不出現。
+   */
+  bySeat?: [RunEffect[], RunEffect[]];
 }
 export interface EventDef {
   id: string; title: string; text: string; choices: EventChoice[]; fixedFloor?: number;
+  /**
+   * 事件權重（2026-09-23 內容擴充第二批）：排地圖時的相對機率，不寫＝1。
+   * 用在鏈的第一集——第一集只在第一關、一關只走進兩三格事件，照平均排的話走完三集的局太少。
+   * 整批都是 1 的關卡照舊用原本的洗牌（亂數走向一個位元都不變），見 `map.ts` 的 `weightedOrder`。
+   */
+  weight?: number;
+  /** 只在單人排（影子鏈：鏡中對手在連線時照座位 0 變裝，坐 1 號的人會打到同伴的影子，劇本 design2 新8） */
+  soloOnly?: true;
+  /** 只在連線排（兩個人的取捨，劇本 design2 新7） */
+  coopOnly?: true;
+  /**
+   * 單人、而且是這個角色時，這篇不排進地圖，換關時改標另一篇為後集（劇本 design2 新9，主控 2026-09-23 裁定照做）：
+   * 球球的影子鏈第二集換成他自己的「屋頂上的影子」，免得同一局遇到兩篇很像的影子事件。
+   */
+  soloHeroSwap?: Partial<Record<Hero, string>>;
   /**
    * 職業獨占（2026-09-12）：沒寫＝兩邊都會遇到，寫了就只有那個職業的局會排進地圖。
    *
@@ -745,6 +811,11 @@ export interface RunPlayer {
   removeCost: number;
   /** 暖毯：打盹後下一場開戰帶的蜷縮，開戰用掉就歸零 */
   restBlock?: number;
+  /**
+   * 事件帶進下一場戰鬥的東西（送上樓的便當，2026-09-23 內容擴充第二批 新6）：開戰那一拍照牌的規則套上、然後清掉。
+   * 可選：舊存檔沒有這欄＝沒帶東西。進整局指紋（`net/hash.ts`），兩台記的不一樣下一場就會分岔。
+   */
+  nextFight?: { note: string; effects: Effect[] }[];
   /**
    * 稀有牌保底：連續幾次戰鬥獎勵沒開出稀有牌（每次 +1，開出就歸零）。
    * 每一點讓下一次的稀有權重多 4——連續槓龜的手氣會自己回來。

@@ -8,7 +8,7 @@ import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
 import { relicById } from '../content/relics';
-import { flushAllyRelics, startCombat, startJoinedSeat } from './combat';
+import { applyCarriedEffects, flushAllyRelics, startCombat, startJoinedSeat } from './combat';
 import { FLOORS, generateMap, nextChoices, nodeById } from './map';
 import { Rng, seedFromString } from './rng';
 import { relicOk, rollCardChoices, rollPotion, rollRelic, rollRelicChoices, rollRewards, type CombatRewards } from './rewards';
@@ -211,6 +211,16 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   // 人到齊了：座位 0 開場時「給同伴」的那份秘寶效果現在才發（同心結、分食便當，見 `CombatState.pendingAllyRelics`）。
   // 擺在「座位 0 倒下」那段之後：倒著的人的秘寶不該再替別人加東西
   flushAllyRelics(cs);
+  /*
+   * 事件帶進這一場的東西（送上樓的便當，2026-09-23 內容擴充第二批 新6）：人到齊、同伴那份秘寶發完之後才套，各帶各的。
+   * 倒下的人這一場不打，便當留著等他被扶起來的那一場。
+   */
+  run.players.forEach((rp, i) => {
+    const p = cs.players[i];
+    if (!rp.nextFight?.length || !p || p.down) return;
+    for (const it of rp.nextFight) applyCarriedEffects(cs, p, it.effects, it.note);
+    delete rp.nextFight;
+  });
   applyBossPrefix(run, cs);
   applyEncounterModifier(run, cs);
   return cs;
@@ -523,8 +533,12 @@ export function advanceAct(run: RunState): void {
    * 前集留下的旗標，**換到下一關才算數**：這一關的選擇到下一關才看得到結果（原本的設計），
    * 標成 `sequel:<後集>` 之後，這一關第一次走進事件格就會換成它（見 `enterEvent`）。
    */
+  const soloHero = run.players.length > 1 ? null : heroOf(me(run));
   for (const e of events) {
-    if (e.requiresFlag && run.flags[e.requiresFlag] && (!e.acts || e.acts.includes(run.act))) run.flags[`sequel:${e.id}`] = true;
+    if (!(e.requiresFlag && run.flags[e.requiresFlag] && (!e.acts || e.acts.includes(run.act)))) continue;
+    // 單人、而且這一位有自己那一篇的話，改標那一篇（球球的影子鏈第二集＝屋頂上的影子，劇本 design2 新9）
+    const swap = soloHero ? e.soloHeroSwap?.[soloHero] : undefined;
+    run.flags[`sequel:${swap ?? e.id}`] = true;
   }
   // 連線局（兩位以上）傳 null＝不排職業獨占的事件，理由見 `MapOpts.hero`
   run.map = generateMap(runRng(run), { act: run.act, bossIds: bossPoolForAct(run.act), eliteMul: runMods(run).eliteMul, flags: run.flags, difficulty: run.difficulty ?? 1, hero: run.players.length > 1 ? null : heroOf(me(run)) });
@@ -997,13 +1011,20 @@ export function buyRemove(run: RunState, uid: number, seat = 0): boolean {
   removeCard(run, uid, seat); q.removeCost += 25; return true;
 }
 
+/** 要玩家從牌組挑幾張來升級或移除 */
+export type PickNeed = { needs: 'removeCard' | 'upgradeCard'; n: number };
 export type RunEffectOutcome =
   /**
    * `n`＝要玩家挑幾張。本來只是一個旗標，事件寫兩次 `upgradeCard` 也只會覆蓋成同一個，
    * 畫面就只跳一次選牌——「升級兩張牌」的事件實際上只升到一張（鏡子、腳印兩個事件都中招）。
    */
-  | { needs: 'removeCard' | 'upgradeCard'; n: number }
-  | { chooseCard: CardDef[]; upgradedCard?: string }   // `upgradedCard`＝這一張是升級版（機率同戰鬥獎勵）
+  | PickNeed
+  /**
+   * `upgradedCard`＝這一張是升級版（機率同戰鬥獎勵）。
+   * `then`＝挑完這一張**接著**要挑牌升級／移除（2026-09-23 內容擴充第二批：「從 3 張絕學牌中選擇 1 張、自選升級至多 1 張牌」
+   * 那兩條——影子的真面目③、師父的影子【師門】）。原本同一個選項只容得下一種要挑的，後寫的會把前一個蓋掉。
+   */
+  | { chooseCard: CardDef[]; upgradedCard?: string; then?: PickNeed }
   /** `afterWin`＝同一個選項裡其他的獎勵效果（秘寶、小魚乾、牌……），要等打贏才發；事件畫面開打前把它放進 run.pendingAfterFight */
   | { fight: { encounterId: string; bonusFish: number; bonusUpgrades?: number; afterWin?: RunEffect[] } }
   | null;
@@ -1084,6 +1105,13 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'removeCard':
       case 'upgradeCard': {
         const need = fx.kind;
+        // 前面已經有「三選一學招」：接在它後面（挑完那一張再挑要升級的），不蓋掉它（2026-09-23 內容擴充第二批）
+        const cur = outcome as RunEffectOutcome;   // 用 as：迴圈裡的控制流程推不出前一輪可能是學招
+        if (cur && 'chooseCard' in cur) {
+          const t: PickNeed | undefined = cur.then;
+          outcome = { ...cur, then: t && t.needs === need ? { needs: need, n: t.n + 1 } : { needs: need, n: 1 } };
+          break;
+        }
         outcome = outcome && 'needs' in outcome && outcome.needs === need
           ? { needs: need, n: outcome.n + 1 } : { needs: need, n: 1 };
         break;
@@ -1099,30 +1127,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         const pool = me(run, seat).relics.filter((id) => relicById[id]?.pool !== '起始');
         if (!pool.length) { notes?.push('身上沒有可以交出去的秘寶'); return null; }
         const id = runRng(run).pick(pool);
-        me(run, seat).relics.splice(me(run, seat).relics.indexOf(id), 1);
-        const d = relicById[id]?.hooks.maxHp ?? 0;
-        if (d) { me(run, seat).maxHp = Math.max(1, me(run, seat).maxHp - d); me(run, seat).hp = Math.max(1, Math.min(me(run, seat).hp, me(run, seat).maxHp)); }
-        /**
-         * **忍具格也要跟著收**（稽核 2026-09-11 中-5）。忍具袋（常見池，+1 格）與
-         * 九命鈴（塔主池，+2 格）都可能被抽中，交出去之後 `potionCapacity` 就少了——
-         * 而狀態列與戰鬥畫面都只畫 `Math.max(cap, 3)` 格、拿 `run.potions[i]`，
-         * 索引超出的那幾支等於憑空消失（不是永久卡死，前面用掉會往前挪，但玩家看不懂）。
-         * 直接砍掉最後幾支並講明白，比讓它靜靜不見好。
-         */
-        const cap = potionCapacity(run, seat);
-        if (me(run, seat).potions.length > cap) {
-          // **掉的是最便宜的那幾支**，不是最後拿到的（複核 2026-09-11 低-3）：
-          // 砍陣列尾巴等於砍掉剛在罐頭鋪花 80 條小魚乾買的那支，而玩家沒有任何選擇餘地
-          const dropped: string[] = [];
-          while (me(run, seat).potions.length > cap) {
-            const price = (pid: string): number => potions.find((x) => x.id === pid)?.price ?? 45;
-            let worst = 0;
-            for (let k = 1; k < me(run, seat).potions.length; k++) if (price(me(run, seat).potions[k]!) < price(me(run, seat).potions[worst]!)) worst = k;
-            dropped.push(potions.find((x) => x.id === me(run, seat).potions[worst])?.name ?? me(run, seat).potions[worst]!);
-            me(run, seat).potions.splice(worst, 1);
-          }
-          notes?.push(`忍具袋子小了，放不下的${dropped.join('、')}掉了出來`);
-        }
+        dropRelic(run, id, seat, notes);
         // **交出去的那件要排除在換回來的兩件之外**（稽核 2026-09-11 低-1）：
         // 上面已經把它從 `run.relics` 拿掉，後面兩個 `relic` 的 `rollRelic` 就不再避開它，
         // 約一成機率原封不動換回同一件；而 `takeRelic` 拿到加最大生命的秘寶還會順便補血，
@@ -1165,7 +1170,10 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         const rng = runRng(run);
         const picks = rollCardChoices(rng, fx.pool, fx.n, [], false, 0, undefined, heroOf(me(run, seat)), run.players.length);
         const up = picks.length && rng.chance(upgradeChanceFor(run)) ? rng.pick(picks).id : undefined;
-        outcome = { chooseCard: picks, ...(up ? { upgradedCard: up } : {}) };
+        // 前面已經排了「挑牌升級／移除」的話，改成學完招再挑（`then`）
+        const prev = outcome as RunEffectOutcome;
+        const before: PickNeed | undefined = prev && 'needs' in prev ? prev : undefined;
+        outcome = { chooseCard: picks, ...(up ? { upgradedCard: up } : {}), ...(before ? { then: before } : {}) };
         break;
       }
       case 'flag': run.flags[fx.name] = true; break;
@@ -1183,10 +1191,81 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         const o = applyRunEffects(run, won ? fx.win : fx.lose, notes, gains, seat); if (o) outcome = o;
         break;
       }
+      /*
+       * ===== 內容擴充第二批的事件結果（2026-09-23，劇本 design2 新2／新4／新5／新6）=====
+       * 四種都不抽亂數：兩台機器算出來一模一樣，也不會動到後面效果的亂數走向。
+       */
+      case 'relicId': {
+        // 給指定那一件；已經有了就改給小魚乾（不會兩手空空，也不會拿到兩件一樣的）
+        const rd = relicById[fx.id];
+        if (rd && !me(run, seat).relics.includes(fx.id)) { takeRelic(run, fx.id, seat); gains?.push({ kind: '秘寶', id: fx.id }); break; }
+        me(run, seat).fish += fx.fallbackFish;
+        notes?.push(rd ? `已經有「${rd.name}」了，改拿 ${fx.fallbackFish} 條小魚乾` : `拿到 ${fx.fallbackFish} 條小魚乾`);
+        break;
+      }
+      case 'loseRelicId': {
+        // 交出指定那一件；身上沒有就跳過（連線時兩人都跑一次，沒有那件的人照樣拿其他好處）
+        if (!me(run, seat).relics.includes(fx.id)) break;
+        dropRelic(run, fx.id, seat, notes);
+        notes?.push(`交出了「${relicById[fx.id]?.name ?? fx.id}」`);
+        break;
+      }
+      case 'losePotion': {
+        // 交出身上**價格最低**的一支；同價取最後拿到的（陣列越後面越晚拿到）。身上沒有就什麼都沒少
+        const p = me(run, seat);
+        if (!p.potions.length) { notes?.push('身上沒有忍具，沒被拿走什麼'); break; }
+        const price = (pid: string): number => potions.find((x) => x.id === pid)?.price ?? 45;
+        let worst = p.potions.length - 1;
+        for (let k = p.potions.length - 2; k >= 0; k--) if (price(p.potions[k]!) < price(p.potions[worst]!)) worst = k;
+        const gone = p.potions.splice(worst, 1)[0]!;
+        notes?.push(`少了忍具「${potions.find((x) => x.id === gone)?.name ?? gone}」`);
+        break;
+      }
+      case 'nextFight': {
+        // 記在這一位身上，下一場開打那一拍套（`beginCombat`）；連著拿兩次就兩份都帶
+        const p = me(run, seat);
+        p.nextFight = [...(p.nextFight ?? []), { note: fx.note, effects: fx.effects }];
+        const parts = fx.effects.map((e) => (e.kind === 'status' ? `${e.amount} 點${e.name}` : e.kind === 'block' ? `${e.amount} 點蜷縮` : '')).filter(Boolean);
+        notes?.push(`下一場戰鬥開始時獲得${parts.join('與')}`);
+        break;
+      }
       default: { const _never: never = fx; void _never; }   // 漏接新的 RunEffect 種類會在型別檢查就爆
     }
   }
   return outcome;
+}
+
+/**
+ * 把這一件從這一位身上拿掉，`takeRelic` 做過的事逐項還原（換家的老鼠「隨機交一件」與小黑貓「交出鈴鐺」共用，
+ * 2026-09-23 內容擴充第二批從 `loseRelic` 那一支抽出來，行為一個字都沒改）。
+ * 改最大生命的那幾件（鮪魚罐頭 +10）拿掉之後上限要扣回去，而**現有血量只往下夾、不補血**——
+ * 不然「拿走一件東西」反而變成回血。上限扣到 1 以下會直接死人，所以夾在 1。
+ */
+function dropRelic(run: RunState, id: string, seat: number, notes?: string[]): void {
+  me(run, seat).relics.splice(me(run, seat).relics.indexOf(id), 1);
+  const d = relicById[id]?.hooks.maxHp ?? 0;
+  if (d) { me(run, seat).maxHp = Math.max(1, me(run, seat).maxHp - d); me(run, seat).hp = Math.max(1, Math.min(me(run, seat).hp, me(run, seat).maxHp)); }
+  /**
+   * **忍具格也要跟著收**（稽核 2026-09-11 中-5）。忍具袋（常見池，+1 格）與
+   * 九命鈴（塔主池，+2 格）都可能被抽中，交出去之後 `potionCapacity` 就少了——
+   * 而狀態列與戰鬥畫面都只畫 `Math.max(cap, 3)` 格、拿 `run.potions[i]`，
+   * 索引超出的那幾支等於憑空消失（不是永久卡死，前面用掉會往前挪，但玩家看不懂）。
+   * 直接砍掉最後幾支並講明白，比讓它靜靜不見好。
+   */
+  const cap = potionCapacity(run, seat);
+  if (me(run, seat).potions.length > cap) {
+    // **掉的是最便宜的那幾支**，不是最後拿到的（複核 2026-09-11 低-3）：
+    // 砍陣列尾巴等於砍掉剛在罐頭鋪花 80 條小魚乾買的那支，而玩家沒有任何選擇餘地
+    const dropped: string[] = [];
+    while (me(run, seat).potions.length > cap) {
+      const price = (pid: string): number => potions.find((x) => x.id === pid)?.price ?? 45;
+      let worst = 0;
+      for (let k = 1; k < me(run, seat).potions.length; k++) if (price(me(run, seat).potions[k]!) < price(me(run, seat).potions[worst]!)) worst = k;
+      dropped.push(potions.find((x) => x.id === me(run, seat).potions[worst])?.name ?? me(run, seat).potions[worst]!);
+      me(run, seat).potions.splice(worst, 1);
+    }
+    notes?.push(`忍具袋子小了，放不下的${dropped.join('、')}掉了出來`);
+  }
 }
 
 /**

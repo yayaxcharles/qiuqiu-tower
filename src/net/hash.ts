@@ -124,6 +124,8 @@ export function runFingerprint(run: RunState): string {
       `h:${p.hero ?? 'ninja'}`, `hp${p.hp}/${p.maxHp}`, `$${p.fish}`, `rm${p.removeCost}`, p.down ? 'DOWN' : '',
       `d[${p.deck.map((c: CardInstance) => `${c.uid}.${c.cardId}${c.upgraded ? '+' : ''}`).join(' ')}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
+      // 事件帶進下一場的東西（送上樓的便當，2026-09-23 內容擴充第二批）：兩台記的不一樣，下一場開打那一拍就分岔
+      p.nextFight?.length ? `nf${JSON.stringify(p.nextFight)}` : '',
     ].join('|'));
   }
   return fnv1a(parts.join('||')).toString(16).padStart(8, '0');

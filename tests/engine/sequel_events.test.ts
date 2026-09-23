@@ -13,8 +13,13 @@ import { getStatus } from '../../src/engine/statuses';
 describe('事件前後集', () => {
   it('後集要有前集旗標才排進地圖，而且只在二三關', () => {
     const sequels = events.filter((e) => e.requiresFlag);
-    expect(sequels.length).toBe(5);
-    for (const s of sequels) expect(s.acts).toEqual([2, 3]);
+    // 原本五篇後集是第二三關都行；2026-09-23 內容擴充第二批的兩條鏈一關一集（第二集只在第二關、第三集只在第三關）
+    expect(sequels.length).toBe(9);
+    const chain = new Set(['pigeon_grandpa', 'pigeon_reply', 'shadow_study', 'shadow_truth']);
+    for (const s of sequels) {
+      if (chain.has(s.id)) expect(s.acts, s.id).toEqual([s.id.endsWith('_grandpa') || s.id.endsWith('_study') ? 2 : 3]);
+      else expect(s.acts, s.id).toEqual([2, 3]);
+    }
     const ids = (flags: Record<string, boolean>, act: number) => {
       const set = new Set<string>();
       for (let i = 0; i < 40; i++) for (const n of generateMap(new Rng(seedFromString(`sq${i}`)), { act, flags }).nodes) if (n.eventId) set.add(n.eventId);

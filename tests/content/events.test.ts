@@ -4,14 +4,19 @@ import { encounterById } from '../../src/content/enemies';
 import { FIXED_EVENT_FLOOR_5, FIXED_EVENTS_FLOOR_5, eventById, events, fixedEventFloor5 } from '../../src/content/events';
 
 describe('事件資料', () => {
-  it('55 個事件、id 不重複、每個 1～3 個選項', () => {
+  it('73 個事件、id 不重複、每個 1～3 個選項（條件選項另外算，最多再一條、排在最後）', () => {
     // 46＋封封的四篇專屬事件（2026-09-20）＋內容擴充第一批：5F 第二、三關兩版、球球三篇專屬（2026-09-23）
-    expect(events.length).toBe(55);
-    expect(new Set(events.map((e) => e.id)).size).toBe(55);
+    // ＋內容擴充第二批：兩條鏈六集、關卡限定九篇、連線限定三篇（2026-09-23）
+    expect(events.length).toBe(73);
+    expect(new Set(events.map((e) => e.id)).size).toBe(73);
     for (const e of events) {
       expect(eventById[e.id]).toBe(e);
-      expect(e.choices.length, e.id).toBeGreaterThanOrEqual(1);
-      expect(e.choices.length, e.id).toBeLessThanOrEqual(3);
+      const base = e.choices.filter((c) => !c.requires);
+      expect(base.length, e.id).toBeGreaterThanOrEqual(1);
+      expect(base.length, e.id).toBeLessThanOrEqual(3);
+      expect(e.choices.length - base.length, `${e.id} 的條件選項`).toBeLessThanOrEqual(1);
+      // 條件選項一律加在最後：既有選項的索引與結果圖一張都不能動（劇本 design2 決定 5）
+      expect(e.choices.slice(0, base.length).every((c) => !c.requires), `${e.id} 的條件選項不在最後`).toBe(true);
       expect(e.text.length, e.id).toBeGreaterThan(10);
     }
   });

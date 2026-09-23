@@ -12,7 +12,9 @@ function setup(hero: 'ninja' | 'feifei') {
   const run = newRun(`echo-${hero}`, 1, hero);
   const node = run.map.nodes.find((n) => n.type === '戰鬥')!;
   run.currentNode = node.id;
-  const cs = beginCombat(run);
+  // 對手釘死成飯糰怪（2026-09-23 內容擴充第二批）：原本拿地圖第一格戰鬥，事件池一變、地圖的亂數走向跟著變，
+  // 換成會縮殼的犰狳寶寶，「打兩次＝12 點」就量到防禦了
+  const cs = beginCombat(run, 'onigiri_monster');
   const p = cs.players[0]!;
   p.energy = 99;
   return { run, cs, p };

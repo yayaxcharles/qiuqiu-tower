@@ -1,4 +1,8 @@
 import { coopMirror, lineFor, mixedLine } from './dialogue';
+import { DANGDANG_EVENT_TEXT_B2, FEIFEI_EVENT_TEXT_B2, FENGFENG_EVENT_TEXT_B2 } from './event-text-b2';
+
+// 條件提示句、連線限定事件的稱呼（2026-09-23 內容擴充第二批）：事件畫面從這一支拿，跟著一起延後載入
+export { condHint, coopFill, flagWhy, EVENT_COND_HINTS } from './event-text-b2';
 
 /*
  * **事件畫面才用得到的角色文字**（2026-09-23 內容擴充第〇批 0-1：事件文字分包）。
@@ -354,7 +358,9 @@ export const FENGFENG_EVENT_TEXT: Readonly<Record<string, string>> = {
   "球球照卷軸上的訣竅，試著改進自己熟悉的招式。前幾下還算順利，收勢時卻發現不對勁。球球：「怎麼會這樣，是哪裡練錯了喵？」": "封封依照圖解改了兩招，出手快了，收劍時卻接連卡住。他又試一次，問題仍在。封封：「出得去，收不回來。後半段根本沒教完。」",
   "球球鬆開紙角，爪子沾了一點墨。牠甩甩爪子，轉身離開。球球：「來路不明的功夫，還是別亂練喵。」": "封封放開卷軸，擦掉手指沾到的墨。封封：「這份沒寫完，我不照著練。」",
   "照著練（自選升級至多 2 張牌；牌組加入 1 張隨機壞毛病牌）": "照著練（自選升級至多 2 張牌；牌組加入 1 張隨機壞毛病牌）",
-  "不練（無效果）": "不練（無效果）"
+  "不練（無效果）": "不練（無效果）",
+  // 內容擴充第二批（2026-09-23）的新事件與條件選項，整段放在 `event-text-b2.ts`
+  ...FENGFENG_EVENT_TEXT_B2,
 };
 
 /**
@@ -596,6 +602,8 @@ export const FEIFEI_EVENT_TEXT: Readonly<Record<string, string>> = {
     '鏡中的菲菲踏出鏡面，握針的手勢與她完全相同。她試著將針交到另一隻手，對方立即照做，眼睛卻始終盯著她。菲菲：「我換手，你也換……到底怎樣才跟不上？」',
   '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
     '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那些影子沒有跟上吧？」',
+  // 內容擴充第二批（2026-09-23）的新事件與條件選項：她那份是整段寫的（劇本 design2），不走換名字＋換引號那條
+  ...FEIFEI_EVENT_TEXT_B2,
 };
 
 /**
@@ -946,6 +954,8 @@ export const DANGDANG_EVENT_TEXT: Readonly<Record<string, string>> = {
     '噹噹照著訣竅改過熟悉的招式，前幾下確實順手，收勢時卻忽然卡住。他重做一次，那股不對勁仍在。噹噹：「這裡沒有寫……可我就是收不回來。」',
   '球球鬆開紙角，爪子沾了一點墨。牠甩甩爪子，轉身離開。球球：「來路不明的功夫，還是別亂練喵。」':
     '噹噹鬆開卷軸，擦去指尖沾到的墨。噹噹：「連後半段都不交代清楚，不學了。」',
+  // 內容擴充第二批（2026-09-23）的新事件與條件選項，整段放在 `event-text-b2.ts`
+  ...DANGDANG_EVENT_TEXT_B2,
 };
 
 export function eventTextFor(hero: string | undefined, text: string): string {

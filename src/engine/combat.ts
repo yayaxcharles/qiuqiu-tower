@@ -1,5 +1,5 @@
 import { cardById, cardNameFor } from '../content/cards';
-import { encounterById, enemyById, enemySkin } from '../content/enemies';
+import { encounterById, encounterSkin, enemyById, enemySkin } from '../content/enemies';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainEnergy, gainStealth, giveCards, log, makeEnemy, markCombatWon, markPoisoner, markRelic, pickVictim, runEnemyEffects, SLEEP_MOVE, willRevive } from './actions';
@@ -80,7 +80,10 @@ export function startCombat(input: {
     // 用亂數種子的目前狀態加編號做一個穩定的選法：同一局同一場永遠同一句，不同局會不同
     const def = enemyById[e.enemyId];
     // 有變裝的（玩菲菲時的鏡中球球）講變裝那份開場白，不然「那是我的影子」會從一隻暹羅貓嘴裡冒出來
-    const skin = enemySkin(e.enemyId, player.hero);
+    // 遭遇自己也可以換名牌與開場白（影子鏈那一場，2026-09-23 內容擴充第二批）：同一隻鏡中對手，名牌換成「某某的影子」
+    const encSkin = encounterSkin(enc, e.enemyId, player.hero);
+    if (encSkin) e.name = encSkin.name;
+    const skin = encSkin ?? enemySkin(e.enemyId, player.hero);
     const pool = [skin?.line ?? def?.line ?? '', ...(skin?.lines ?? def?.lines ?? [])].filter((l) => l.length > 0);
     const st = (cs.rng as unknown as { state?: unknown }).state;
     const seed = typeof st === 'number' ? st : (typeof st === 'object' && st !== null ? Object.values(st as Record<string, unknown>).reduce<number>((a, v) => a + (typeof v === 'number' ? v : 0), 0) : 0);
@@ -147,6 +150,16 @@ export function flushAllyRelics(cs: CombatState): void {
     if (!p || p.down || cs.phase !== 'player') continue;
     applyEffects(cs, effects, { self: p, source: 'relic' });
   }
+}
+
+/**
+ * 事件帶進這一場的東西（送上樓的便當，2026-09-23 內容擴充第二批 新6）：人到齊之後、開打之前套一次（`beginCombat` 叫）。
+ * 效果照牌的規則跑（`status` 走爪力、`block` 走蜷縮，拒馬與貓步照算），紀錄先寫一行是誰吃了什麼。
+ */
+export function applyCarriedEffects(cs: CombatState, p: PlayerCombat, effects: Effect[], note: string): void {
+  if (p.down || cs.phase !== 'player') return;
+  log(cs, `${unitName(p)}${note}`);
+  applyEffects(cs, effects, { self: p, source: 'relic' });
 }
 
 export function startPlayerTurn(cs: CombatState): void {

@@ -2,7 +2,7 @@ import { DEBUFFS, TURN_DECAY } from './types';
 import { heroOf, type Hero } from './hero';
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
-import { eventById } from '../content/events';
+import { eventById, events } from '../content/events';
 import { potionById } from '../content/potions';
 import { relicById, relics } from '../content/relics';
 import { relicOk } from './rewards';
@@ -10,6 +10,7 @@ import RELIC_RATINGS from './relic-ratings.json';
 import { aliveEnemies, attackable } from './actions';
 import { allReady, canPlay, canUsePotion, endTurn, playCard, potionBlockedReason, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
+import { choiceEffectsFor, visibleChoices } from './eventcond';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { computeAttack, computeBlock, getStatus } from './statuses';
@@ -1253,6 +1254,7 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, seed:
   } else if ('chooseCard' in outcome) {
     const id = pickCard(run, outcome.chooseCard) ?? outcome.chooseCard[0]?.id;   // 開出升級版的那張學到就是升級牌（下面 addCard 帶旗標）
     if (id) addCard(run, id, outcome.upgradedCard === id);
+    if (outcome.then) handleOutcome(run, rng, outcome.then, seed, stats);   // 學完再挑牌升級（2026-09-23 內容擴充第二批）
   } else if ('fight' in outcome) {
     run.pendingAfterFight = outcome.fight.afterWin;   // 事件附帶的獎勵：打贏才發（稽核 2026-09-04 中 2）
     fight(run, rng, outcome.fight.encounterId, outcome.fight.bonusFish, seed, stats);
@@ -1322,7 +1324,32 @@ export function eventValue(run: RunState, effects: RunEffect[], costFish: number
       case 'fight': v += hpPct < 0.5 ? -30 : fx.bonusFish * 0.35 + 6 + (fx.bonusUpgrades ?? 0) * 5; break;
       case 'chooseCard': v += fx.pool === '絕學' ? 14 : 9; break;
       case 'gamble': v += fx.p * eventValue(run, fx.win, 0, seat) + (1 - fx.p) * eventValue(run, fx.lose, 0, seat); break;
-      case 'flag': break;   // 旗標只影響後集事件會不會出現，對機器人的當下估值沒有意義
+      /*
+       * 旗標只影響後集事件會不會出現，一般不算分——**事件鏈的入口例外**（2026-09-23 內容擴充第二批）：
+       * 郵差鴿、影子鏈的第一集只有代價（扣血），好處在後兩集（第二集約 15 分、第三集塔主秘寶約 40 分），
+       * 不算的話機器人永遠不幫鴿子、不追影子，兩條鏈在平衡報告裡等於不存在（實測 800 局鏈開頭 0 次）。
+       * 照「到得了第二、三關的機率」打折估成 12 分；只算 `chain:` 開頭、會解鎖後集、這一局還沒記過的，舊的前後集照舊不算。
+       */
+      case 'flag':
+        if (fx.name.startsWith('chain:') && !run.flags[fx.name] && events.some((e) => e.requiresFlag === fx.name)) v += 12;
+        break;
+      /*
+       * 內容擴充第二批的四種（2026-09-23）。
+       * - 指定那一件：身上沒有＝那一件的事件分（量尺），已經有了＝退回的小魚乾
+       * - 交出指定那一件：身上有才扣，扣那一件的事件分
+       * - 交出最便宜的忍具：身上有才扣，照一個忍具 7 分（跟 `potions` 同一把尺）
+       * - 下一場開場的加成：爪力一點約 4 分、蜷縮一點約 0.6 分（跟回血同一把尺：一點蜷縮大約擋一點血）
+       */
+      case 'relicId': {
+        const own = me(run, seat).relics.includes(fx.id) || !relicById[fx.id];
+        v += own ? fx.fallbackFish * 0.35 : relicEventValue(fx.id, heroOf(me(run, seat)));
+        break;
+      }
+      case 'loseRelicId': if (me(run, seat).relics.includes(fx.id)) v -= relicEventValue(fx.id, heroOf(me(run, seat))); break;
+      case 'losePotion': if (me(run, seat).potions.length) v -= 7; break;
+      case 'nextFight':
+        for (const e of fx.effects) v += e.kind === 'status' && e.name === '爪力' ? e.amount * 4 : e.kind === 'block' ? e.amount * 0.6 : 2;
+        break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }
@@ -1379,9 +1406,11 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
       }
       case '事件': {
         const ev = eventById[node.eventId!]!;
-        const choice = ev.choices.map((c) => ({ c, v: eventValue(run, c.outcome, c.costFish ?? 0) })).sort((a, b) => b.v - a.v)[0]!.c;
+        // 只挑看得到的選項（條件選項沒達成就不在，2026-09-23 內容擴充第二批）；估值照這一位會跑的那一串
+        const choice = visibleChoices(run, ev).map((i) => ev.choices[i]!)
+          .map((c) => ({ c, v: eventValue(run, choiceEffectsFor(c, 0), c.costFish ?? 0) })).sort((a, b) => b.v - a.v)[0]!.c;
         me(run).fish = Math.max(0, me(run).fish - (choice.costFish ?? 0));
-        handleOutcome(run, rng, applyRunEffects(run, choice.outcome), seed, stats);
+        handleOutcome(run, rng, applyRunEffects(run, choiceEffectsFor(choice, 0)), seed, stats);
         break;
       }
       case '罐頭鋪': {
