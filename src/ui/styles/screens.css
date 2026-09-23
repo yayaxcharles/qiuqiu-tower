@@ -985,6 +985,9 @@
    280 高時招手的手尖到 221，蓋到第一格。試過四種排版：貨架右移會超出舞台右緣、老闆左移會把尾巴切掉、
    貨架疊到老闆前面手指會被框切斷；縮小五趴手尖退到 210，第一格清清楚楚，腳底位置不變 */
 .scene:has(.scene-goods) .scene-portrait { bottom: 160px; height: 266px; }
+/* 行腳商（2026-09-24 實機驗收五 低-4）：照頭寬重縮之後畫布大一號（360×480，店主是 332×420，`gen_content_batch3_art.py` 的 `MERCHANT_SIZE`），
+   框照同一個每像素比例放大（266 × 480 ÷ 420 = 304），頭就跟橘貓老闆一樣大；底邊照舊＝腳底線不變。他的攤子貨少，右邊離貨架還有兩百多像素 */
+.scene:has(.scene-goods) .scene-portrait.merchant { height: 304px; }
 /* 事件畫面的立繪（2026-09-23 實機驗收 M-1：連線鏡子走廊坐 1 號的人，插圖是同伴那張、旁邊放自己）：
    事件的選項排在框裡、框比紙箱高得多，照紙箱那條（腳底離下緣 172）會踩在「鏡子走廊」名牌上。
    改成站在插圖左邊、腳底對齊插圖底邊（插圖 top 18、高 360），離名牌還有一段 */
@@ -1091,6 +1094,19 @@
 :is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="feifei"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 /* 封封 2026-09-20 才進來，漏了這一條：第三關原版底圖停在基準的 2、坐在窩左邊的邊上（2026-09-22 換新畫風時實機看到） */
 :is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="fengfeng"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+/*
+ * 貓窩的旁白與按鈕（2026-09-24 實機驗收五 低）：**上面那幾條貓的位置一個像素都不動**（貓窩門檻），只動字與鈕。
+ * 多了清心香那顆鈕（全力準備、扶起同伴也一樣）按鈕排不下一行、換成兩排，對白框頂被推高 78 像素，
+ * 「貓窩」名牌與「貓窩暖暖的…」那行字疊到貓的下半身（貓趴在左下角，字原本從 120 開始靠左排）。
+ * 1. 字與名牌改成置中：貓最右只到 372 左右，置中的那一行從 480 起，框再高也蓋不到貓（手機本來就有一點壓到籃子，一起好）。
+ * 2. 三顆鈕以上桌機縮一級（字 17、內距收窄、兩行鈕的行高收緊），三顆排得進一行、框跟兩顆時一樣高；
+ *    手機照手機那份的 22 字、72 高（字小了讀不到），排不下就換行——字已經置中，換行也蓋不到貓。
+ */
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene .scene-box .scene-text { text-align: center; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene .scene-box .dialogue-speaker { left: 50%; translate: -50% 0; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-actions:has(> .btn:nth-child(3)) { gap: 8px; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-actions:has(> .btn:nth-child(3)) .btn { min-width: 0; padding: 10px 14px; font-size: 17px; letter-spacing: 0; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-actions:has(> .btn:nth-child(3)) .btn.two-line { padding-top: 4px; padding-bottom: 4px; line-height: 1.1; }
 
 /* ===== 2026-09-02 使用者：「按鈕樣式你都改成這樣吧」——全部按鈕統一深色玻璃＋金邊（含標題、疊層、結束回合、狀態列小鈕）。
    難度鈕保留自己的顏色（.diff-btn.dN 在後面蓋掉底色）。 ===== */

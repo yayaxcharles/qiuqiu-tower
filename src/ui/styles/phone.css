@@ -74,6 +74,9 @@ html[data-device="phone"][data-orient="landscape"] #stage[data-screen="shop"] .s
 html[data-device="phone"][data-orient="landscape"] #stage[data-screen="shop"] .scene-box:has(.shop-reply) .scene-actions { margin-top: 8px; }
 /* 罐頭鋪有服務鈕（婆婆淨化、阿福換招，2026-09-23 第三批）時四顆鈕：照手機的 22 排不下一行、換行會把框頂推上去壓到價錢，四顆時 20、內距收窄 */
 html[data-device="phone"][data-orient="landscape"] #stage[data-screen="shop"] .scene-actions:has(> .btn:nth-child(4)) .btn { font-size: 20px; padding-left: 10px; padding-right: 10px; }
+/* 貓窩四顆鈕（44F 全力準備＋清心香、連線扶起同伴＋清心香，2026-09-24 實機驗收五 低）：照 22 排成三排，第一排的鈕壓到趴在左下角的貓；
+   跟罐頭鋪四顆鈕同一招，20 字、內距收窄，排成兩排就碰不到貓（貓的位置不動） */
+html[data-device="phone"][data-orient="landscape"] #stage[data-screen="rest"] .scene-actions:has(> .btn:nth-child(4)) .btn { font-size: 20px; padding-left: 10px; padding-right: 10px; }
 
 /* 教學條 15 → 20（主控裁定三：手機多一句「按住牌可以放大看」，那句不能又是 8 像素）。
    條要維持一行：兩行時底邊到 122，魔物頭上的開場泡泡（約 108 起）正好蓋住第二行（實機截圖）。

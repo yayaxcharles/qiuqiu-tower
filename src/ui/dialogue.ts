@@ -272,16 +272,59 @@ export function bubbleOverUnit(stage: Element, unit: Element | null, text: strin
  * 不借 `toast`（總稽核 2026-09-16 甲 低-3）：戰鬥畫面把 `.toast` 畫成主角頭上的對話泡泡，
  * 地圖投票完緊接著進戰鬥，就變成角色在講「擲骰選了戰鬥」，還把角色真正的開場白擠到下一格；
  * 進貓窩獨白、5F 秘笈時又被對白層（層級 50）蓋住。
+ *
+ * **同一時間只有一條、排隊輪流上**（2026-09-24 實機驗收五 低）：原本每一句各開一條、疊在同一個位置——第一次見到婆婆或阿福，
+ * 進店 4 秒內按淨化或換招，「淨化成…了」就蓋在初見那句旁白上，兩行字疊成一團。
+ * 改成排隊：還掛著一條的時候新的一句先排著，現在那條最多再留 `NOTICE_YIELD_MS` 就淡出讓位（初見旁白是氣氛、淨化結果是回饋，不讓回饋等太久），
+ * 淡出拔掉之後才換下一句上來，永遠只有一條、一行（合成兩行的框會蓋到貨架上緣的木牌，試過）。
+ * 同一句已經掛著或排著就不再排（連線兩台各講一次的那種）。
  */
 export function notice(text: string): void {
   if (!text) return;
   const layer = overlayRoot();
   if (!layer) return;
+  const cur = noticeNow;
+  if (cur && !cur.el.isConnected) { window.clearTimeout(cur.out); window.clearTimeout(cur.gone); noticeNow = null; }   // 疊層被清掉了：從頭來
+  if (noticeNow) {
+    if (noticeNow.text === text || noticeWait.includes(text)) return;
+    noticeWait.push(text);
+    if (noticeNow.outAt - Date.now() > NOTICE_YIELD_MS) hideNoticeIn(noticeNow, NOTICE_YIELD_MS);
+    return;
+  }
+  showNotice(layer, text);
+}
+/** 還掛著的那一條：字、兩個計時器（淡出、拔掉）、什麼時候開始淡出 */
+let noticeNow: { el: HTMLElement; text: string; out: number; gone: number; outAt: number } | null = null;
+/** 排著還沒上的 */
+const noticeWait: string[] = [];
+/** 有下一句在排時，現在那條最多再留多久 */
+export const NOTICE_YIELD_MS = 1500;
+/** 淡出多久（樣式表 `.notice` 的 `transition: opacity .4s`，多留 0.1 秒才拔） */
+const NOTICE_FADE_MS = 500;
+function showNotice(layer: HTMLElement, text: string): void {
   const t = el('div', { class: 'notice' }, text);
   layer.append(t);
-  const stay = Math.min(4200, Math.max(2600, [...text].length * 90));   // 照字數留，最短 2.6 秒（推前審查 2026-09-16 低-5）
-  setTimeout(() => t.classList.add('out'), stay);
-  setTimeout(() => t.remove(), stay + 500);
+  noticeNow = { el: t, text, out: 0, gone: 0, outAt: 0 };
+  hideNoticeIn(noticeNow, noticeStayMs(text));
+}
+/** 這一條 `ms` 之後開始淡出；拔掉的那一刻換排著的下一句上來（只有它還是「現在那條」才換，不然會跟新的一條疊在一起） */
+function hideNoticeIn(cur: NonNullable<typeof noticeNow>, ms: number): void {
+  window.clearTimeout(cur.out);
+  window.clearTimeout(cur.gone);
+  cur.outAt = Date.now() + ms;
+  cur.out = window.setTimeout(() => cur.el.classList.add('out'), ms);
+  cur.gone = window.setTimeout(() => {
+    cur.el.remove();
+    if (noticeNow !== cur) return;
+    noticeNow = null;
+    const next = noticeWait.shift();
+    const layer = overlayRoot();
+    if (next && layer) showNotice(layer, next);
+  }, ms + NOTICE_FADE_MS);
+}
+/** 一句公告留多久：照字數，最短 2.6 秒、最長 4.2 秒（推前審查 2026-09-16 低-5） */
+export function noticeStayMs(text: string): number {
+  return Math.min(4200, Math.max(2600, [...text].length * 90));
 }
 
 /** 戰鬥吐槽小氣泡，兩秒後自己淡掉 */

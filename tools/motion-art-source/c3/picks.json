@@ -2585,20 +2585,20 @@
     ],
     "section": "sprites",
     "key": "shop/merchant",
-    "headSource": 530.0,
-    "scale": 0.2887,
+    "headSource": 427.0,
+    "scale": 0.3583,
     "headTarget": 153,
     "headInCanvas": 153.0,
     "file": "public/assets/sprites/shop/merchant.webp",
     "size": [
-      332,
-      420
+      360,
+      480
     ],
-    "bytes": 36930,
+    "bytes": 49486,
     "droppedSpecks": 42,
-    "semiTransparentShare": 0.0507,
-    "sha256": "e58d3fd16b4ebe963b4fd7f0439c983284c8cea7be1128ff0628929ad3ae5cb3",
-    "at": "2026-09-23 23:12:39"
+    "semiTransparentShare": 0.0421,
+    "sha256": "512dc28909a722113c234dd611065ccae51758a45b5bb52c29bc930e7a830482",
+    "at": "2026-09-24 06:11:09"
   },
   "merchant_happy": {
     "attempt": 1,
@@ -2609,20 +2609,20 @@
     ],
     "section": "sprites",
     "key": "shop/merchant_happy",
-    "headSource": 525.0,
-    "scale": 0.2914,
+    "headSource": 425.0,
+    "scale": 0.36,
     "headTarget": 153,
     "headInCanvas": 153.0,
     "file": "public/assets/sprites/shop/merchant_happy.webp",
     "size": [
-      332,
-      420
+      360,
+      480
     ],
-    "bytes": 35550,
+    "bytes": 47698,
     "droppedSpecks": 57,
-    "semiTransparentShare": 0.0506,
-    "sha256": "791a3134e6ab95977ad77af4162f07a98f15fd73eeb9e6c01813fa160956e33d",
-    "at": "2026-09-23 23:12:42"
+    "semiTransparentShare": 0.0436,
+    "sha256": "01f65ec59b091815226fdb78a3b27be434af3dbace5ae05484d89ba20182a8bd",
+    "at": "2026-09-24 06:11:12"
   },
   "merchant_no": {
     "attempt": 3,
@@ -2633,20 +2633,20 @@
     ],
     "section": "sprites",
     "key": "shop/merchant_no",
-    "headSource": 520.0,
-    "scale": 0.2942,
+    "headSource": 483.0,
+    "scale": 0.3168,
     "headTarget": 153,
     "headInCanvas": 153.0,
     "file": "public/assets/sprites/shop/merchant_no.webp",
     "size": [
-      332,
-      420
+      360,
+      480
     ],
-    "bytes": 37614,
+    "bytes": 41462,
     "droppedSpecks": 54,
-    "semiTransparentShare": 0.0532,
-    "sha256": "0804b7970703bb3e273901cac5155a662da8cbe5b92fd776aac2fd23f0ac50c7",
-    "at": "2026-09-23 23:15:39"
+    "semiTransparentShare": 0.0502,
+    "sha256": "a97eb9148fae868022066f1178d9c2663f548e339b4e253cae62d7abc2642230",
+    "at": "2026-09-24 06:11:15"
   },
   "relic_black_cat_mask_pure": {
     "attempt": 1,

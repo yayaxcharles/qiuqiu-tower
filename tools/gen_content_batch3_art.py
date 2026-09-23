@@ -77,6 +77,11 @@ SPRITE_SIZE = (332, 420)
 HEAD_TARGET = 153
 # 照頭寬縮完塞不進 332×420 時，最多准頭再縮到目標的幾成（`--fit`）：超過這個就要重生，不偷偷縮
 FIT_MIN = 0.95
+# 行腳商的畫布（2026-09-24 實機驗收五 低-4）：第一版挑定時 `--head` 量到頭巾尾巴（530），照那個數縮完頭只有橘貓老闆的七成六
+# （畫面上臉寬約 74 對 99）。重量臉頰黑線到黑線（招呼 427、成交 425、錢不夠 483）照 153 縮，背後那一大架貨擔就比 332×420 大，
+# 塞不下又不准再縮頭（`FIT_MIN`），所以他一個人換大一號的畫布：每像素在畫面上一樣大（高 420→480，畫面上 266→304 像素，
+# `screens.css` 的 `.scene-portrait.merchant`），腳底照樣貼下緣＝畫面上的腳底線不變
+MERCHANT_SIZE = (360, 480)
 
 
 def event_name(hero: str, stem: str) -> str:
@@ -1046,8 +1051,9 @@ def save_pick(name: str, entry: dict) -> None:
         PICKS.write_text(json.dumps(dict(sorted(picks.items())), ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
 
-def fit_sprite(im: Image.Image, head: float, fit: bool = False) -> tuple[Image.Image, float]:
-    """立繪：照頭寬縮放（原檔頭寬 `head` → `HEAD_TARGET`），腳底貼下緣、外框水平置中，貼進 332×420。
+def fit_sprite(im: Image.Image, head: float, fit: bool = False,
+               size: tuple[int, int] = SPRITE_SIZE) -> tuple[Image.Image, float]:
+    """立繪：照頭寬縮放（原檔頭寬 `head` → `HEAD_TARGET`），腳底貼下緣、外框水平置中，貼進 `size`（店主 332×420、行腳商 `MERCHANT_SIZE`）。
 
     放不進畫布就停下來（縮了頭就不一樣大——設計稿「比頭不比外框」）。`fit` 准頭最多縮到 `FIT_MIN`
     （阿福那種「身體最大隻」照頭寬會比畫布高一點點），再多就要重生；縮了多少記在 `picks.json`。
@@ -1055,16 +1061,16 @@ def fit_sprite(im: Image.Image, head: float, fit: bool = False) -> tuple[Image.I
     im = im.crop(im.getchannel('A').point(lambda v: 255 if v > 16 else 0).getbbox())
     k = HEAD_TARGET / head
     w, h = round(im.width * k), round(im.height * k)
-    if w > SPRITE_SIZE[0] or h > SPRITE_SIZE[1]:
-        shrink = min(SPRITE_SIZE[0] / w, SPRITE_SIZE[1] / h)
+    if w > size[0] or h > size[1]:
+        shrink = min(size[0] / w, size[1] / h)
         if not fit or shrink < FIT_MIN:
-            raise SystemExit(f'照頭寬縮完是 {w}×{h}，塞不進 {SPRITE_SIZE[0]}×{SPRITE_SIZE[1]}（要把頭縮到 '
+            raise SystemExit(f'照頭寬縮完是 {w}×{h}，塞不進 {size[0]}×{size[1]}（要把頭縮到 '
                              f'{shrink:.0%}）：{"超過准許的 " + format(FIT_MIN, ".0%") if fit else "加 --fit 或"}重生（姿勢收一點）')
         k *= shrink
-        w, h = min(SPRITE_SIZE[0], round(im.width * k)), min(SPRITE_SIZE[1], round(im.height * k))
+        w, h = min(size[0], round(im.width * k)), min(size[1], round(im.height * k))
     small = im.resize((w, h), Image.LANCZOS)
-    canvas = Image.new('RGBA', SPRITE_SIZE, (0, 0, 0, 0))
-    canvas.alpha_composite(small, ((SPRITE_SIZE[0] - w) // 2, SPRITE_SIZE[1] - h))
+    canvas = Image.new('RGBA', size, (0, 0, 0, 0))
+    canvas.alpha_composite(small, ((size[0] - w) // 2, size[1] - h))
     return canvas, k
 
 
@@ -1100,7 +1106,7 @@ def pick(name: str, attempt: int, force: bool = False, head: float | None = None
         if head is None:
             raise SystemExit('立繪要給 --head（原檔上量到的頭寬，臉頰外緣到外緣、不含耳朵）')
         cleaned, dropped = c1.clean(raw, .002)
-        out_img, k = fit_sprite(cleaned, head, fit)
+        out_img, k = fit_sprite(cleaned, head, fit, MERCHANT_SIZE if name.startswith('merchant') else SPRITE_SIZE)
         target = SHOP / f'{name}.webp'
         out_img.save(target, 'WEBP', quality=82, method=6)
         entry.update(section='sprites', key=f'shop/{name}', headSource=head, scale=round(k, 4),

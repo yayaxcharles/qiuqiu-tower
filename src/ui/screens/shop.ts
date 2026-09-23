@@ -24,7 +24,7 @@ import { showRemoveConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
 import { el } from '../dom';
 import { renderHud } from '../hud';
-import { sceneView } from '../scene';
+import { refitGoods, sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
 
 /** 行腳商自己的那幾句（延後模組 `content/qmark-text.ts`；只借型別，不把字拉進首載） */
@@ -206,7 +206,7 @@ registerScreen('shop', (app, root, props) => {
   function say(text: string): void {
     line = text;
     const node = root.querySelector('.scene-text');
-    if (node && !intro) node.textContent = text;
+    if (node && !intro) { node.textContent = text; refitGoods(root); }   // 換一句可能變兩行：貨架重新讓位（實機驗收五 中）
   }
 
   /**
@@ -408,6 +408,8 @@ registerScreen('shop', (app, root, props) => {
       // 行腳商沒有放生、沒有重整貨架（設計稿 3-2）
       actions: mer ? [leaveBtn()] : [reshuffle, remove, serviceBtn(), leaveBtn()],
     }));
+    // 行腳商的立繪畫布大一號（360×480，照頭寬縮完背後的貨擔塞不進 332×420）：樣式表照這個 class 把框放大、每像素一樣大（實機驗收五 低-4）
+    if (mer) root.querySelector('.scene-portrait')?.classList.add('merchant');
   }
 
   /** 進門那一拍：初見旁白（正上方那一條），帶欠條的話晚一拍再講那一句 */

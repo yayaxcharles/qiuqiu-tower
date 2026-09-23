@@ -1,4 +1,5 @@
 import { el } from './dom';
+import { goodsShrink, nextGoodsScale, type Box } from './goodsfit';
 
 /**
  * 劇場版面：整張底圖鋪滿舞台、插圖（或商品、或牌）立在中上方、底下一個跟序章幻燈片同一套的對白框，
@@ -36,7 +37,58 @@ export function sceneView(o: SceneOpts): HTMLElement {
     o.portrait2 ? el('img', { class: 'scene-portrait right', src: o.portrait2, alt: '' }) : '',
     box);
   fitArt(scene, box);
+  if (scene.querySelector('.scene-goods')) watchGoods(scene);
   return scene;
+}
+
+/**
+ * 貨架與對白框的高度畫好之後還會變：牌面的圖晚到、牌面說明自己縮字（`cardview.ts` 的 `fitCardText`）、台詞晚到換成兩行，
+ * 第一版只在下一個畫格量一次，量的時候秘寶那排還沒沉下去，縮得不夠（實機量到還蓋 19 像素）。
+ * 改成盯著兩塊的大小（`ResizeObserver`），一變就重量；縮放用 `scale` 不改版面大小，不會自己觸發自己。畫面換掉就收掉。
+ * 對白框進場有一段 0.28 秒的彈入動畫（`base.css` 的 `dialogue-in`），那段時間量到的字比實際低；動畫播完（`animationend` 會冒泡上來）再量一次。
+ */
+function watchGoods(scene: HTMLElement): void {
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => refitGoods(scene)); else refitGoods(scene);
+  scene.addEventListener('animationend', () => refitGoods(scene));
+  if (typeof ResizeObserver !== 'function') return;
+  const watch = new ResizeObserver(() => {
+    if (!scene.isConnected) { watch.disconnect(); return; }
+    refitGoods(scene);
+  });
+  for (const e of scene.querySelectorAll('.scene-goods, .scene-box')) watch.observe(e);
+}
+
+/**
+ * 罐頭鋪的貨架讓位給對白（2026-09-24 實機驗收五 中，理由與純計算見 `goodsfit.ts`）：量每一格價錢跟對白框裡每一行字、每一顆按鈕，
+ * 左右有交集又上下撞到（含 `GOODS_GAP` 的留白），就把整座貨架從上緣往上縮（`scale`，原點在上緣正中，樣式表 `.scene-goods` 那條），
+ * 縮完再量一次（左右位置會跟著動），最多四輪。沒撞到就維持原樣——橘貓老闆那幾間一個像素都不動。
+ * 畫面畫好時 `sceneView` 自己叫；對白那一行字就地換掉（行腳商的 `say`）不重畫，要自己叫一次。
+ */
+export function refitGoods(scope: ParentNode): void {
+  const goods = scope.querySelector<HTMLElement>('.scene-goods');
+  const box = scope.querySelector<HTMLElement>('.scene-box');
+  if (!goods || !box || !goods.isConnected) return;
+  const k = stageScale();
+  const stage = document.getElementById('stage')?.getBoundingClientRect();
+  const ox = stage?.left ?? 0, oy = stage?.top ?? 0;
+  const R = (r: DOMRect): Box => ({ x: (r.left - ox) / k, y: (r.top - oy) / k, w: r.width / k, h: r.height / k });
+  goods.style.removeProperty('scale');
+  const covers: Box[] = [];
+  for (const e of box.querySelectorAll('.dialogue-speaker, .scene-text, .shop-reply, .event-note')) {
+    const range = document.createRange();
+    range.selectNodeContents(e);
+    for (const r of range.getClientRects()) if (r.width > 1 && r.height > 1) covers.push(R(r));
+  }
+  for (const b of box.querySelectorAll('.scene-actions .btn')) covers.push(R(b.getBoundingClientRect()));
+  let scale = 1;
+  for (let i = 0; i < 4; i++) {
+    const top = R(goods.getBoundingClientRect()).y;
+    const prices = [...goods.querySelectorAll('.price')].map((p) => R(p.getBoundingClientRect()));
+    const next = nextGoodsScale(scale, goodsShrink(top, prices, covers));
+    if (next >= scale) break;   // 不用再縮，或已經縮到底
+    scale = next;
+    goods.style.scale = String(Math.floor(scale * 1000) / 1000);
+  }
 }
 
 /**
