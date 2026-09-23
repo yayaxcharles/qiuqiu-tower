@@ -25,7 +25,7 @@
   83% { filter: brightness(1.015); }
 }
 /* 開始畫面是夜景不是火光，改成天色極慢的明暗（22 秒），不要跟著火在跳 */
-#stage[data-screen="title"] .screen-bg {
+:is(#stage, .screen-leaving)[data-screen="title"] .screen-bg {
   animation: night-drift 22s ease-in-out infinite;
 }
 @keyframes night-drift {
@@ -42,7 +42,7 @@
     rgba(10, 8, 6, .58) 100%);
 }
 /* 開始畫面沒有面板，罩子放淡一點，讓貓村夜景看得清楚 */
-#stage[data-screen="title"] .screen-bg::after {
+:is(#stage, .screen-leaving)[data-screen="title"] .screen-bg::after {
   background: radial-gradient(ellipse 80% 84% at 50% 46%,
     rgba(10, 12, 24, .1) 0%,
     rgba(10, 12, 24, .26) 66%,
@@ -595,7 +595,7 @@
 .scene:has(.scene-goods) .scene-portrait { height: 290px; bottom: 140px; left: 24px; }
 /* 橘貓老闆的立繪原圖面向左、背對貨架與對白；左右翻過來面向右邊（使用者 2026-09-06）。
    用獨立的 scale 屬性，才不會被 portrait-in 進場動畫的 transform 蓋掉 */
-#stage[data-screen="shop"] .scene-portrait { scale: -1 1; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-portrait { scale: -1 1; }
 /* 紙箱：秘寶的圖放大立在中上（圖示原檔夠大，放到 200 還清楚），輕輕上下浮 */
 .scene-art img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
 
@@ -972,10 +972,10 @@
 .scene-actions .btn:disabled { opacity: .4; filter: grayscale(.6); }
 /* 貓窩：球球要正好趴在蒲團上（使用者 2026-09-02：「現在稍微偏左了」）。蒲團畫在底圖上約 x 300、y 470～540（舞台座標），
    立繪底邊放到 160、左緣 150，趴姿的圖寬約 300 → 屁股坐進蒲團、中心對到蒲團 */
-#stage[data-screen="rest"] .scene-portrait { left: 156px; bottom: 150px; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-portrait { left: 156px; bottom: 150px; }
 /* 各關的貓窩底圖不同，蒲團位置也不同（使用者 2026-09-03：「44F 這背景時他應該要再往左邊一些才能剛好趴在圓形床」）。
    塔頂（第三關）的蒲團畫在左下 x 20～290、y 400～570，球球整隻往左貼齊、抬高一點坐進籃子。關數由 app.show() 標在 #stage 的 data-act。 */
-#stage[data-screen="rest"][data-act="3"] .scene-portrait { left: 2px; bottom: 178px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"] .scene-portrait { left: 2px; bottom: 178px; }
 /*
  * 第二關的基準（2026-09-17 改）。
  *
@@ -986,21 +986,21 @@
  * 改成跟現在的底圖一致（＝球球那組數字，他是對位的基準）。
  * 球球與菲菲都有自己的覆寫，兩位的畫面一個像素都沒變。
  */
-#stage[data-screen="rest"][data-act="2"] .scene-portrait { left: 42px; bottom: 100px; }
-#stage[data-screen="rest"][data-act="2"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"] .scene-portrait { left: 42px; bottom: 100px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
 /* 第一關的基準：窩中心 x ≈ 185～200，立繪框中心＝left＋150 */
-#stage[data-screen="rest"][data-act="1"] .scene-portrait { left: 42px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="1"] .scene-portrait { left: 42px; }
 /* 噹噹原本另外縮到 0.87（舊蜷縮圖比別人大一號）；2026-09-22 貓窩立繪換新畫風後四隻都照戰鬥比例畫，
    再縮就比戰鬥裡小一成三，那條規則拿掉了（tests/ui/rest_art_0922.test.ts 守著） */
 /* 第三關**原版**那張底圖的窩在比較右邊（≈228，另外兩張 _b／_c ≈150），球球與菲菲各有一條，
    他漏了就停在基準的 2、比兩位左 76 像素（稽核 2026-09-17 中-4）。除錯頁跳進去看到的就是這一張 */
-#stage[data-screen="rest"][data-act="3"][data-hero="dangdang"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="dangdang"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 /* 菲菲在第二關要坐**左邊那個籃子**（2026-09-14 使用者：「她位置完全不對」「右邊沒有籃子」）。
    兩隻的立繪大小不一樣——球球的蜷縮是小小一團，她整個大一圈；同一個座標他剛好坐進去，
    她會滿出來坐到地板上、還壓到右邊那疊摺好的棉被。
    左邊籃子的舞台座標約 x 69～327、y 473～595，籃子中心 x ≈ 198；她的立繪寬約 313 →
    left = 198 − 313/2 ≈ 42。**只改她這一條**，球球那條原封不動（他本來就是對的）。 */
-#stage[data-screen="rest"][data-act="2"][data-hero="feifei"] .scene-portrait { left: 42px; bottom: 110px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="feifei"] .scene-portrait { left: 42px; bottom: 110px; }
 /*
  * **球球的三關重新對位**（2026-09-14 使用者：「第一關再更左邊一點、第二關跑去右邊了（窩在左邊）、第三關偏右一點點」）。
  * 貓窩的底圖後來重生過，窩全部改到左下角，上面那幾條還是舊底圖量的座標。這次逐張量了九張底圖：
@@ -1011,20 +1011,20 @@
  * 除錯頁「跳進畫面」開的是第 0 層，看到的永遠是原版那張——使用者說「偏右一點點」看的就是它。
  * **只改球球**（`data-hero="ninja"`）：菲菲照舊用上面那幾條，她的部分使用者之後再看。
  */
-#stage[data-screen="rest"][data-act="1"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 150px; }
-#stage[data-screen="rest"][data-act="2"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 100px; }
-#stage[data-screen="rest"][data-act="2"][data-hero="ninja"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
-#stage[data-screen="rest"][data-act="3"][data-hero="ninja"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="1"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 150px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 100px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="ninja"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="ninja"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 /*
  * **菲菲的三關**（2026-09-14 下午使用者：「第一關往左、第二關位置對但往上一點、第三關往右一點」）。
  * 她的立繪框跟球球同一個，貓的中心一樣是 left＋150，所以左右照球球那幾條的窩中心算；
  * 高低另外量過（她蜷起來比球球大一圈）。第二關整體抬高：_b、_c 寫在她原本那條（95→110），原版那張窩比較高、另外 135。
  */
-#stage[data-screen="rest"][data-act="1"][data-hero="feifei"] .scene-portrait { left: 42px; }
-#stage[data-screen="rest"][data-act="2"][data-hero="feifei"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 135px; }
-#stage[data-screen="rest"][data-act="3"][data-hero="feifei"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="1"][data-hero="feifei"] .scene-portrait { left: 42px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="feifei"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 135px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="feifei"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 /* 封封 2026-09-20 才進來，漏了這一條：第三關原版底圖停在基準的 2、坐在窩左邊的邊上（2026-09-22 換新畫風時實機看到） */
-#stage[data-screen="rest"][data-act="3"][data-hero="fengfeng"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="fengfeng"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 
 /* ===== 2026-09-02 使用者：「按鈕樣式你都改成這樣吧」——全部按鈕統一深色玻璃＋金邊（含標題、疊層、結束回合、狀態列小鈕）。
    難度鈕保留自己的顏色（.diff-btn.dN 在後面蓋掉底色）。 ===== */
@@ -1053,7 +1053,7 @@
 .scene .reward-items .reward-item.relic { border-color: #c9a0ffb3; }
 .scene .reward-items .reward-item.potion { border-color: #8fc2ffb3; }
 /* 結算畫面的帶子比較高（成績、秘寶、最佳三行），球球要站得更高才不會踩到名字 */
-#stage[data-screen="result"] .scene-portrait { bottom: 300px; height: 260px; }
+:is(#stage, .screen-leaving)[data-screen="result"] .scene-portrait { bottom: 300px; height: 260px; }
 /* 淺色面板（磨爪確認、挑牌）裡的按鈕也統一深色玻璃（使用者：全部都改）；兩顆之間用外距拉開（.modal-foot 不是 flex，gap 沒作用） */
 .modal-foot .btn, .scene-actions .btn, .dialogue-overlay .btn {
   border-image: none; border: 1.5px solid #ffd98a8c; border-radius: 12px;

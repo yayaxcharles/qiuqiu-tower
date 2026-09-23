@@ -96,8 +96,8 @@ registerScreen('shop', (app, root, props) => {
     return undefined;
   }
   // 換畫面時把還沒到期的表情計時器拆掉。
-  // **不能靠 `root.isConnected` 判斷畫面還在不在**：`root` 就是 `app.screen`，那是建構式裡建一次的
-  // 常駐節點，`show()`（`app.ts:92`）只對它跑 `clear()`、從來不換掉它，所以 `isConnected` 永遠是 true。
+  // **不能靠 `root.isConnected` 判斷畫面還在不在**：安靜重畫時 `root` 一直是同一個節點；淡入換場時它會變成
+  // 退場層、墊在底下淡出 220 毫秒才拔掉（見 screenswap.ts），那段時間 `isConnected` 還是 true。
   // 沒拆的話：買完東西馬上按「離開」，1.5 秒後計時器照樣觸發 → `render()` → `clearKeepBg(root)`，
   // **地圖被整個抹掉、換成剛才那家店的貨架**，而且那份貨架是活的、還能再買一輪（稽核 2026-09-10 高-1）。
   app.disposers.push(() => window.clearTimeout(moodTimer));

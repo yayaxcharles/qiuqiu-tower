@@ -974,21 +974,18 @@ registerScreen('combat', (app, root, props) => {
     motionImpactTimers.clear();
     for (const cancel of motionProjectiles) cancel();
     motionProjectiles.clear();
+    // 只停、不拔：畫布與近戰層都在這個畫面層裡，跟著畫面層一起走。
+    // 換場時舊畫面會墊在底下淡出 220 毫秒（M-2，見 screenswap.ts），這裡先拔掉的話那段時間貓和魔物整隻不見
     for (const state of motionActors.values()) {
       window.cancelAnimationFrame(state.raf);
       state.actor.dispose();
-      state.actor.element.remove();
-      state.layer.remove();
     }
     motionActors.clear();
     motionPendingDamage.clear();
     motionPendingStatus.clear();
     motionPendingPlayer.clear();
     locallyPlayedMotion.clear();
-    for (const state of enemyMotionActors.values()) {
-      state.actor.dispose();
-      state.actor.element.remove();
-    }
+    for (const state of enemyMotionActors.values()) state.actor.dispose();
     enemyMotionActors.clear();
   });
   /** 同伴的動作套用**之前**那一刻的快照，`settle` 拿它比對出要演什麼 */

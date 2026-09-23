@@ -20,6 +20,7 @@ import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
 import { speechBubbleAt } from './enemylayout';
 import { clear, el } from './dom';
+import { retireLeavingScreen, swapScreen } from './screenswap';
 import { closeScreenModals, closeStoryOverlays, setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
@@ -71,7 +72,11 @@ export class App {
    * 走別的路離開就永遠留著，之後玩真正的一局按 Esc 關圖鑑會被踢回除錯畫面。
    */
   sandbox = false;
-  /** 畫面層：每次 show() 就整個清空重畫，畫面渲染函式拿到的 root 就是它 */
+  /**
+   * 畫面層：畫面渲染函式拿到的 root 就是它。安靜重畫是就地清空；淡入換場會**換成新的一層**，
+   * 舊的那層墊在底下淡出後拔掉（M-2，見 screenswap.ts）——要問「某個節點還在不在現在的畫面上」請用
+   * `app.screen.contains(node)`，別用 `isConnected`（淡出那 220 毫秒裡舊節點還連在文件上）
+   */
   screen: HTMLElement;
   /** 疊層：吐槽、對白、名詞提示、牌組視窗住這裡，換畫面時不會被清掉 */
   overlay: HTMLElement;
@@ -149,7 +154,15 @@ export class App {
     //（見 `CoopSession.clearScreenHooks`）。新畫面自己會在下面的 `r(...)` 裡重新掛
     this.coop?.clearScreenHooks(name);
     for (const d of this.disposers.splice(0)) d();
-    clear(this.screen);
+    // 要淡入、而且上一個畫面還在：舊畫面層墊到底下、換一個新的畫面層（M-2，見 screenswap.ts）；
+    // 安靜重畫（同一頁只因同伴投票而重畫）照舊就地清掉。
+    // 整片不透明的劇情層（幻燈片、過場影片、過關走路）蓋著時，玩家看的是那一層、不是底下的舊畫面：
+    // 不淡入也不墊，新畫面直接畫好，由那一層自己淡出（不然那一層一收，先露出早就不在的舊畫面）
+    const covered = !!this.stage.querySelector('.slide-overlay, .cine-overlay, .actwalk-overlay:not(.out)');
+    const fade = !opts.quiet && !covered && typeof this.screen.animate === 'function';
+    const leaving = fade && this.screen.firstChild ? this.screen : null;
+    if (leaving) this.screen = swapScreen(this.stage, leaving);
+    else clear(this.screen);
     this.stage.dataset['screen'] = name;
     // 也標上關數：同一個畫面在不同關換底圖時（貓窩的蒲團位置各關不同），樣式表用它換版面
     this.stage.dataset['act'] = String(this.run?.act ?? 1);
@@ -165,15 +178,24 @@ export class App {
     const partner = ['title', 'heroselect', 'lobby', 'debug'].includes(name)
       ? undefined : this.run?.players.find((_, i) => i !== this.seat);
     setLocalPartnerHero(partner ? (partner.hero ?? 'ninja') : undefined);
-    r(this, this.screen, props);
+    const screen = this.screen;
+    r(this, screen, props);
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
     // 所以出一張牌不會整個畫面閃一次。
     // `quiet`：同一頁只因為同伴投了一票而重畫（連線版的獎勵、事件、地圖），不再淡入一次——
     // 不然每投一票整頁閃一下（使用者 2026-09-15：「每次選完牌另一個玩家畫面都會閃一下」）
-    if (!opts.quiet && typeof this.screen.animate === 'function') {
-      this.screen.animate([{ opacity: 0, transform: 'scale(.988)' }, { opacity: 1, transform: 'none' }],
-        { duration: 220, easing: 'ease-out' });
+    // 畫面渲染途中自己又換了畫面（例如沒有局面就回標題）：那一次已經接手淡入與退場層，這裡不再動
+    if (fade && this.screen === screen) {
+      if (leaving) {
+        const anim = screen.animate([{ opacity: 0, transform: 'scale(.988)' }, { opacity: 1, transform: 'none' }],
+          { duration: 220, easing: 'ease-out' });
+        retireLeavingScreen(leaving, anim);
+      } else {
+        // 底下沒有舊畫面（開頁第一個畫面）：整個舞台從頁面的深色底淡入。只淡畫面層的話，
+        // 透出來的是舞台的米白底色——開頁那一下同樣閃白（M-2 同型）。只動不透明度：舞台的縮放寫在行內 transform
+        this.stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+      }
     }
   }
 

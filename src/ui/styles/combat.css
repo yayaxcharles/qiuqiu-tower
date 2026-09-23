@@ -614,8 +614,8 @@
  * 戰鬥中的生命與忍具以戰鬥狀態（cs）為準，整局狀態（run）要等這場打完才寫回，
  * 所以狀態列那兩格在戰鬥中一定是舊值——藏起來，改由球球腳下的生命條與左下的忍具格顯示。
  */
-#stage[data-screen="combat"] .hud-hp,
-#stage[data-screen="combat"] .hud-potions { display: none; }
+:is(#stage, .screen-leaving)[data-screen="combat"] .hud-hp,
+:is(#stage, .screen-leaving)[data-screen="combat"] .hud-potions { display: none; }
 
 /* 立繪與腳下的接地陰影 */
 .combat .sprite-box { position: relative; }

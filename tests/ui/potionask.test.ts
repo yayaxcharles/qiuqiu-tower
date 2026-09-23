@@ -31,7 +31,8 @@ describe('換忍具問到哪一步', () => {
     const at = REWARD.indexOf("r.potionAsk = 'asking';");
     expect(at, '開視窗前要先記「正在問」').toBeGreaterThan(-1);
     expect(REWARD.indexOf('showPotionSwap(run, newId', at), '記號要在開視窗之前').toBeGreaterThan(at);
-    expect(REWARD).toMatch(/if \(!line\.isConnected \|\| !shouldAskPotion\(r\.potionAsk\)\) return;/);
+    // 「這一行還在不在現在的畫面上」2026-09-23（M-2）起看 `app.screen.contains`：換場後舊畫面墊在底下淡出，那段時間 `isConnected` 還是 true
+    expect(REWARD).toMatch(/if \(!app\.screen\.contains\(line\) \|\| !shouldAskPotion\(r\.potionAsk\)\) return;/);
   });
 
   it('戰利品頁：「換了」在按下去的當下就記，而且只有真的送出去才算', () => {

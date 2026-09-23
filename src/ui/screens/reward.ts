@@ -327,7 +327,8 @@ registerScreen('reward', (app, root, props) => {
     // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）；
     // 計時器到的時候再看一次記號：這 350 毫秒裡重畫過，那一次的計時器可能已經先開了視窗
     if (shouldAskPotion(r.potionAsk)) window.setTimeout(() => {
-      if (!line.isConnected || !shouldAskPotion(r.potionAsk)) return;
+      // 看「還在現在的畫面上」不看 `isConnected`：換場後舊畫面會墊在底下淡出（見 screenswap.ts），那段時間它還連在文件上
+      if (!app.screen.contains(line) || !shouldAskPotion(r.potionAsk)) return;
       r.potionAsk = 'asking';
       showPotionSwap(run, newId, (idx) => {
         // 換不成（連線停了）就回到沒問過，下一次重畫再問；換了要送出去，只改本機會分岔（稽核 高-3）
