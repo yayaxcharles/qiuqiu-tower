@@ -360,8 +360,10 @@ def fallen_star(p: P) -> dict[str, str]:
             f'{p.n} scrapes a little of the glittering dust off it {scrape}.'),
         'fallen_star_r2': (
             f'{place(True, p.hero == "dangdang")} {p.n} has just thrown the star back up into the sky: {p.he} stands in '
-            f'a follow-through pose, looking up, and a soft warm golden light pours down on {p.him} from the '
-            f'constellation. The star-shaped stone is gone from the platform (only the small scorched crater is left).'),
+            f'a follow-through pose, looking up with a warm smile. From the returned star a broad beam of soft warm '
+            f'golden light shines DOWN onto {p.n} (a few solid pale-gold rays with outlines, fanning out from the star '
+            f'to {p.him}), and {p.he} is bathed in its glow. The star-shaped stone is gone from the platform (only the '
+            f'small scorched crater is left).'),
     }
 
 
