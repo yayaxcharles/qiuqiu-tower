@@ -623,6 +623,12 @@
   translate: -50% -50%;
   filter: drop-shadow(0 6px 14px #00000080) drop-shadow(0 0 18px #ffd97a99);
 }
+/* 光柱中心照各自那張插圖（2026-09-23 使用者：「紙箱開出寶物的位置歪掉了……偏左邊，沒有在光的正中間」）：
+   上面的 33% 是照球球那張量的；各角色的開箱插圖是另外生的，光柱位置不一樣。
+   用透明度掃高度 8～36% 每一列的光柱左右緣取中心：球球 34、菲菲 32、噹噹 29、封封 41（差 1% 以內的照舊用 33）。
+   `data-hero`＝本機這一位，跟挑哪張插圖（`eventArtKey`）同一個人；退場層也抄了 data-*，淡出時不會跳 */
+:is(#stage, .screen-leaving)[data-hero="dangdang"] .scene-art :is(img.chest-loot, .chest-loot-missing).in-beam { left: 29%; }
+:is(#stage, .screen-leaving)[data-hero="fengfeng"] .scene-art :is(img.chest-loot, .chest-loot-missing).in-beam { left: 41%; }
 /* 浮動改用獨立屬性：`translate` 已經拿去置中了，再用 transform 動 Y 才不會打架 */
 .scene-art img.chest-loot.in-beam { animation: loot-float-beam 2.6s ease-in-out infinite; }
 @keyframes loot-float-beam { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
