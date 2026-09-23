@@ -113,7 +113,7 @@ describe('包袱：一類一張、分支亂數', () => {
     const hp = me(r).maxHp;
     expect(takeBlessing(r, 0, 0)).toBe(true);
     expect(me(r).relics).toContain('master_bracer');
-    expect(me(r).maxHp).toBe(hp - 5);
+    expect(me(r).maxHp).toBe(hp - 8);   // 2026-09-24 祝福減半：−5 → −8（那件秘寶本身不變，換得的代價加重）
   });
 });
 
@@ -127,28 +127,29 @@ describe('每一種的效果', () => {
     return { run, before, p: me(run), notes };
   };
 
-  it('乾糧袋：生命上限與當前生命各 +6；零錢袋 +90 條；私房錢 +200 條、上限 −6', () => {
+  // 2026-09-24 b3int 主控裁決祝福整體減半：乾糧袋 +6 → +3、零錢袋 90 → 45、私房錢 200／−6 → 120／−3
+  it('乾糧袋：生命上限與當前生命各 +3；零錢袋 +45 條；私房錢 +120 條、上限 −3', () => {
     const a = take('bless_rations');
-    expect(a.p.maxHp - a.before.maxHp).toBe(6);
-    expect(a.p.hp - a.before.hp).toBe(6);
-    expect(take('bless_coins').p.fish - START).toBe(90);
+    expect(a.p.maxHp - a.before.maxHp).toBe(3);
+    expect(a.p.hp - a.before.hp).toBe(3);
+    expect(take('bless_coins').p.fish - START).toBe(45);
     const s = take('bless_stash');
-    expect(s.p.fish - START).toBe(200);
-    expect(s.p.maxHp - s.before.maxHp).toBe(-6);
+    expect(s.p.fish - START).toBe(120);
+    expect(s.p.maxHp - s.before.maxHp).toBe(-3);
   });
 
-  it('舊忍具袋：3 個忍具（帶不下的講出來）', () => {
+  it('舊忍具袋：2 個忍具（帶不下的講出來；2026-09-24 減半 3 → 2）', () => {
     const { p, notes } = take('bless_potions');
-    expect(p.potions.length).toBe(3);
+    expect(p.potions.length).toBe(2);
     expect(notes.some((n) => n.includes('收不下'))).toBe(false);
   });
 
-  it('護身符：接下來 5 場開打時魔物全體 2 層翻肚，第 6 場就沒有了', () => {
+  it('護身符：接下來 5 場開打時魔物全體 1 層翻肚，第 6 場就沒有了（2026-09-24 減半 2 → 1 層）', () => {
     const { run } = take('bless_charm');
     expect(me(run).nextFight?.[0]?.left).toBe(5);
     for (let i = 1; i <= 6; i++) {
       const cs = beginCombat(run, 'rats3');
-      const flipped = cs.enemies.every((e) => (e.statuses['翻肚'] ?? 0) >= 2);
+      const flipped = cs.enemies.every((e) => (e.statuses['翻肚'] ?? 0) >= 1);
       expect(flipped, `第 ${i} 場`).toBe(i <= 5);
       for (const e of cs.enemies) { e.dead = true; e.hp = 0; }
       cs.kills = cs.enemies.length; cs.phase = 'won';
@@ -166,21 +167,21 @@ describe('每一種的效果', () => {
     expect(me(run).nextFight).toBeUndefined();
   });
 
-  it('舊剪刀：一定要挑滿 3 張、不重複、在牌組裡；丟掉的真的不見了', () => {
+  it('舊剪刀：一定要挑滿 2 張、不重複、在牌組裡；丟掉的真的不見了（2026-09-24 減半 3 → 2）', () => {
     const run = withOffer(newRun('scissors', 1, 'ninja'), 'bless_scissors');
     const deck = me(run).deck;
-    const [a, b, c] = [deck[0]!.uid, deck[1]!.uid, deck[2]!.uid];
-    expect(blessPickCount(run, 0, blessingById['bless_scissors']!)).toEqual({ min: 3, max: 3 });
-    expect(canTakeBlessing(run, 0, 0, { u: [a, b] }), '少挑').toBe(false);
-    expect(canTakeBlessing(run, 0, 0, { u: [a, a, b] }), '重複').toBe(false);
-    expect(canTakeBlessing(run, 0, 0, { u: [a, b, 99999] }), '不在牌組').toBe(false);
+    const [a, b] = [deck[0]!.uid, deck[1]!.uid];
+    expect(blessPickCount(run, 0, blessingById['bless_scissors']!)).toEqual({ min: 2, max: 2 });
+    expect(canTakeBlessing(run, 0, 0, { u: [a] }), '少挑').toBe(false);
+    expect(canTakeBlessing(run, 0, 0, { u: [a, a] }), '重複').toBe(false);
+    expect(canTakeBlessing(run, 0, 0, { u: [a, 99999] }), '不在牌組').toBe(false);
     const n = deck.length;
-    expect(takeBlessing(run, 0, 0, { u: [a, b, c] })).toBe(true);
-    expect(me(run).deck.length).toBe(n - 3);
-    expect(me(run).deck.some((x) => [a, b, c].includes(x.uid))).toBe(false);
+    expect(takeBlessing(run, 0, 0, { u: [a, b] })).toBe(true);
+    expect(me(run).deck.length).toBe(n - 2);
+    expect(me(run).deck.some((x) => [a, b].includes(x.uid))).toBe(false);
   });
 
-  it('練功筆記：至多 2 張（挑 1 張也行），壞毛病與升過的不能挑', () => {
+  it('練功筆記：至多 1 張（2026-09-24 減半 2 → 1），壞毛病與升過的不能挑', () => {
     const run = withOffer(newRun('notes', 4, 'ninja'), 'bless_notes');   // 難度 4 開局帶一張壞毛病
     const curse = me(run).deck.find((c) => cardById[c.cardId]?.pool === '壞毛病')!;
     expect(curse, '前提：難度 4 開局有壞毛病').toBeDefined();
@@ -191,13 +192,13 @@ describe('每一種的效果', () => {
     expect(me(run).deck.find((c) => c.uid === ok.uid)!.upgraded).toBe(true);
   });
 
-  it('一疊招式圖：三張都是這一位拿得到的稀有忍術牌、每次一樣；挑的那張進牌組而且是升級版；噹噹拿到的是他自己的', () => {
+  it('一疊招式圖：三張都是這一位拿得到的罕見忍術牌、每次一樣；挑的那張進牌組（一般版）；噹噹拿到的是他自己的（2026-09-24 減半：稀有升級版 → 罕見）', () => {
     for (const hero of ['ninja', 'dangdang'] as const) {
       const run = withOffer(newRun('moves', 1, hero), 'bless_moves');
       const opts = blessChoices(run, 0, 'bless_moves');
       expect(opts).toHaveLength(3);
       for (const c of opts) {
-        expect(c.rarity).toBe('稀有');
+        expect(c.rarity).toBe('罕見');
         expect(c.pool).toBe('忍術');
         expect(!c.hero || c.hero === hero, c.id).toBe(true);
       }
@@ -208,20 +209,26 @@ describe('每一種的效果', () => {
       expect(me(run).deck.length).toBe(n + 1);
       const got = me(run).deck[me(run).deck.length - 1]!;
       expect(got.cardId).toBe(opts[1]!.id);
-      expect(got.upgraded).toBe(true);
+      expect(got.upgraded).toBe(false);
     }
   });
 
   it('塗鴉本：原地換成這一位的罕見以上忍術牌（不同名、不帶升級、牌號不變），壞毛病換成常見的', () => {
+    // 2026-09-24 減半：挑 2 張 → 1 張，一般牌與壞毛病各開一局
     const run = withOffer(newRun('doodle', 4, 'fengfeng'), 'bless_doodle');
-    const curse = me(run).deck.find((c) => cardById[c.cardId]?.pool === '壞毛病')!;
-    const first = me(run).deck.find((c) => c !== curse)!;
+    const curse0 = me(run).deck.find((c) => cardById[c.cardId]?.pool === '壞毛病')!;
+    const first = me(run).deck.find((c) => c !== curse0)!;
     first.upgraded = true;
-    const [oldCard, oldCurse] = [first.cardId, curse.cardId];
+    const oldCard = first.cardId;
     const nextUid = run.nextUid;
-    expect(takeBlessing(run, 0, 0, { u: [first.uid, curse.uid] })).toBe(true);
+    expect(canTakeBlessing(run, 0, 0, { u: [first.uid, curse0.uid] }), '只能挑 1 張').toBe(false);
+    expect(takeBlessing(run, 0, 0, { u: [first.uid] })).toBe(true);
     const a = me(run).deck.find((c) => c.uid === first.uid)!;
-    const b = me(run).deck.find((c) => c.uid === curse.uid)!;
+    const run2 = withOffer(newRun('doodle', 4, 'fengfeng'), 'bless_doodle');
+    const curse = me(run2).deck.find((c) => cardById[c.cardId]?.pool === '壞毛病')!;
+    const oldCurse = curse.cardId;
+    expect(takeBlessing(run2, 0, 0, { u: [curse.uid] })).toBe(true);
+    const b = me(run2).deck.find((c) => c.uid === curse.uid)!;
     expect(a.cardId).not.toBe(oldCard);
     expect(cardById[a.cardId]!.rarity).not.toBe('常見');
     expect(cardById[a.cardId]!.pool).toBe('忍術');
@@ -232,19 +239,19 @@ describe('每一種的效果', () => {
     expect(run.nextUid).toBe(nextUid);
   });
 
-  it('包得很緊的寶貝：一件塔主秘寶＋兩張「失手了」', () => {
+  it('包得很緊的寶貝：一件常見秘寶＋一張「失手了」（2026-09-24 減半：塔主＋兩張 → 常見＋一張）', () => {
     const { p, before } = take('bless_treasure');
     const got = p.relics.filter((id) => !before.relics.includes(id));
     expect(got).toHaveLength(1);
-    expect(relicById[got[0]!]!.pool).toBe('塔主');
-    expect(p.deck.filter((c) => c.cardId === 'shishou').length - before.deck.filter((c) => c.cardId === 'shishou').length).toBe(2);
+    expect(relicById[got[0]!]!.pool).toBe('常見');
+    expect(p.deck.filter((c) => c.cardId === 'shishou').length - before.deck.filter((c) => c.cardId === 'shishou').length).toBe(1);
   });
 
-  it('空的寶盒：交出自己的起始秘寶、換一件塔主秘寶（四隻都是）', () => {
+  it('空的寶盒：交出自己的起始秘寶、換一件大魔物秘寶（四隻都是；2026-09-24 減半：原本換塔主秘寶）', () => {
     for (const hero of ['ninja', 'feifei', 'dangdang', 'fengfeng'] as const) {
       const { p } = take('bless_box', hero);
       expect(p.relics, hero).not.toContain(startRelicFor(hero));
-      expect(p.relics.filter((id) => relicById[id]?.pool === '塔主'), hero).toHaveLength(1);
+      expect(p.relics.filter((id) => relicById[id]?.pool === '大魔物'), hero).toHaveLength(1);
     }
   });
 
@@ -274,7 +281,7 @@ describe('每一種的效果', () => {
     const run = withOffer(newRun('twice', 1, 'ninja'), 'bless_coins');
     expect(takeBlessing(run, 0, 0)).toBe(true);
     expect(takeBlessing(run, 0, 0)).toBe(false);
-    expect(me(run).fish).toBe(START + 90);
+    expect(me(run).fish).toBe(START + 45);
     const bare = newRun('bare', 1, 'ninja');
     expect(takeBlessing(bare, 0, 0)).toBe(false);
     expect(blessingPending(bare, 0)).toBe(false);
@@ -338,8 +345,8 @@ describe('連線：一個動作就結案，兩台一樣', () => {
     rollBlessings(run);
     run.players[1]!.bless = { offer: ['bless_scissors'] };
     const ctx = { run };
-    const u = run.players[1]!.deck.slice(0, 3).map((c) => c.uid);
-    expect(canApplyRun(ctx, { t: 'bless', seat: 1, i: 0, u: u.slice(0, 2) })).toBe(false);
+    const u = run.players[1]!.deck.slice(0, 2).map((c) => c.uid);   // 舊剪刀 2026-09-24 減半後挑 2 張
+    expect(canApplyRun(ctx, { t: 'bless', seat: 1, i: 0, u: u.slice(0, 1) })).toBe(false);
     expect(canApplyRun(ctx, { t: 'bless', seat: 1, i: 0, u })).toBe(true);
     expect(applyRunAction(ctx, { t: 'bless', seat: 1, i: 0, u })).toBe(true);
     expect(canApplyRun(ctx, { t: 'bless', seat: 1, i: 0, u })).toBe(false);
@@ -354,7 +361,7 @@ describe('連線：一個動作就結案，兩台一樣', () => {
     const guest = new CoopSession(pair.b, { isHost: false, seat: 1, onDesync: (w) => bad.push(w) });
     host.useRun(a); guest.useRun(b);
     const c = blessChoices(a, 0, 'bless_moves')[0]!.id;
-    const u = b.players[1]!.deck.slice(0, 2).map((x) => x.uid);
+    const u = b.players[1]!.deck.slice(0, 1).map((x) => x.uid);   // 塗鴉本 2026-09-24 減半後挑 1 張
     expect(guest.submitRun({ t: 'bless', seat: 1, i: 0, u })).toBe(true);
     expect(host.submitRun({ t: 'bless', seat: 0, i: 0, c })).toBe(true);
     expect(bad).toEqual([]);

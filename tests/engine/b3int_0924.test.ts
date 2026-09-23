@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { cards } from '../../src/content/cards';
 import { potions } from '../../src/content/potions';
-import { MIASMA_PURE, relicById } from '../../src/content/relics';
+import { MIASMA_PURE, relicById, relics } from '../../src/content/relics';
+import RATINGS from '../../src/engine/relic-ratings.json';
 import { events, eventById } from '../../src/content/events';
 import { HEROES, heroOf, pickable } from '../../src/engine/hero';
 import {
@@ -114,6 +115,35 @@ describe('「大俠貓打過滾的貓薄荷田」（原名「掉進貓薄荷田�
     expect(eventById['rare_catnip_master']!.title).toBe('大俠貓打過滾的貓薄荷田');
     const all = JSON.stringify(events);
     expect(all).not.toContain('掉進貓薄荷田的大俠貓');
+  });
+});
+
+describe('淨化版照原件那一池的下四分位～上四分位（2026-09-24 b3int 主控裁決）', () => {
+  const avg = (id: string): number => {
+    const per = (RATINGS as { relics: Record<string, Record<string, { d: number }>> }).relics[id]!;
+    const xs = HEROES.flatMap((h) => (per[h] ? [per[h]!.d] : []));   // 鎖角色的那幾件只有拿得到的那幾隻有格子
+    return xs.reduce((s, x) => s + x, 0) / xs.length;
+  };
+  const q3 = (pool: string): number => {
+    const xs = relics.filter((r) => r.pool === pool).map((r) => avg(r.id)).sort((a, b) => a - b);
+    const k = (xs.length - 1) * 0.75, lo = Math.floor(k), hi = Math.min(lo + 1, xs.length - 1);
+    return xs[lo]! + (xs[hi]! - xs[lo]!) * (k - lo);
+  };
+
+  it('量尺表上：每一件淨化版都比原件好，而且不超過原件那一池的上四分位（原件本來就超過的，只准比原件好一點）', () => {
+    for (const [orig, pure] of Object.entries(MIASMA_PURE)) {
+      const pool = relicById[orig]!.pool;
+      expect(avg(pure), `${pure} 要比 ${orig} 好`).toBeGreaterThan(avg(orig));
+      // 量尺每格標準誤約 ±0.25 層，上四分位留 0.2 的量測誤差
+      expect(avg(pure), `${pure} 不超過 ${pool} 池上四分位（或原件 +1.5）`).toBeLessThanOrEqual(Math.max(q3(pool), avg(orig) + 1.5) + 0.2);
+    }
+  });
+
+  it('寫法：清心護符留 2 層炸毛、解契短刀 2 點爪力、大俠貓的舊護腕 2 點爪力並扣 3 點上限、月光晶石 +13', () => {
+    expect(relicById['miasma_charm_pure']!.hooks).toEqual({ energyPerTurn: 1, combatStart: [{ kind: 'status', name: '炸毛', amount: 2, target: 'self' }] });
+    expect(relicById['blood_dagger_pure']!.hooks).toEqual({ combatStart: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }] });
+    expect(relicById['master_bracer_pure']!.hooks).toEqual({ combatStart: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }], maxHp: -3 });
+    expect(relicById['miasma_shard_pure']!.hooks).toEqual({ maxHp: 13 });
   });
 });
 

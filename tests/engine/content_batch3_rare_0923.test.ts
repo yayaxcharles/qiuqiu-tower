@@ -196,11 +196,12 @@ describe('沾了魔氣的秘寶與淨化（新K）', () => {
     expect(p.hp).toBe(42);
     expect(purifyRelic(run, 'blood_dagger'), '已經淨化過了').toBe(false);
     expect(purifyRelic(run, 'tuna_can'), '不是沾了魔氣的').toBe(false);
-    // 魔氣殘片：兩件一樣是最大生命 +15，淨化不動血
+    // 魔氣殘片 +15 → 月光晶石 +13（2026-09-24 b3int 照量尺調）：差是負的只扣上限、當前生命往下夾（跟 dropRelic 一樣）
     takeRelic(run, 'miasma_shard');
-    const m2 = p.maxHp, h2 = p.hp;
+    p.hp = p.maxHp;
+    const m2 = p.maxHp;
     purifyRelic(run, 'miasma_shard');
-    expect([p.maxHp, p.hp]).toEqual([m2, h2]);
+    expect([p.maxHp, p.hp]).toEqual([m2 - 2, m2 - 2]);
   });
 
   it('事件的淨化：全部／一件（一件直接淨化、兩件以上要挑）／紫霧沒得淨化時改成移除一張', () => {

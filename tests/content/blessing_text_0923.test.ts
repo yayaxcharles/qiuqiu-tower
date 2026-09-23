@@ -37,15 +37,15 @@ describe('卡面', () => {
       if (b.pick) want.push(String(b.pick.n));
       for (const n of want) expect(text, `${b.id} 的卡面少了「${n}」`).toContain(n);
     }
-    // 兩張壞毛病那一句要寫「2 張」（第一輪量尺之後從 1 張改的）
-    expect(blessCardText('bless_treasure', 'ninja')).toContain('2 張壞毛病');
+    // 壞毛病那一句要寫張數（第一輪量尺 1 → 2 張，2026-09-24 祝福減半又改回 1 張）
+    expect(blessCardText('bless_treasure', 'ninja')).toContain('1 張壞毛病');
   });
 
   it('噹噹的卡面寫「拳腳」、一個「忍術」都沒有；其他三隻照事件的講法寫「忍術」', () => {
     for (const b of BLESSINGS) expect(blessCardText(b.id, 'dangdang'), b.id).not.toContain('忍術');
-    expect(blessCardText('bless_moves', 'dangdang')).toContain('稀有拳腳牌');
+    expect(blessCardText('bless_moves', 'dangdang')).toContain('罕見拳腳牌');   // 2026-09-24 減半：稀有 → 罕見
     expect(blessCardText('bless_scroll', 'dangdang')).toContain('稀有拳腳牌');
-    for (const h of ['ninja', 'feifei', 'fengfeng']) expect(blessCardText('bless_moves', h)).toContain('稀有忍術牌');
+    for (const h of ['ninja', 'feifei', 'fengfeng']) expect(blessCardText('bless_moves', h)).toContain('罕見忍術牌');
   });
 
   it('系統口吻：卡面不加喵、不指名角色', () => {

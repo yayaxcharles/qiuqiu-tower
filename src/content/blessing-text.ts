@@ -24,23 +24,23 @@ export const BLESS_NAMES: Readonly<Record<string, string>> = {
  *（主控裁決第 10 條「噹噹的卡面照角色出兩種字」；跟 `event-text-b2.ts` 只換噹噹那兩處同一套）。
  */
 const BLESS_CARD_TEXT: Readonly<Record<string, string>> = {
-  bless_rations: '生命上限與當前生命各 +6。',
-  bless_coins: '獲得 90 條小魚乾。',
-  bless_potions: '隨機獲得 3 個忍具。',
-  bless_charm: '接下來 5 場戰鬥開始時，給全體魔物 2 層翻肚。',
-  bless_scissors: '自選移除 3 張牌。',
-  bless_notes: '自選升級至多 2 張牌。',
-  bless_moves: '從 3 張稀有{招式}牌中選擇 1 張（升級版）。',
-  bless_doodle: '自選 2 張牌，各換成隨機 1 張你自己的罕見以上的{招式}牌（壞毛病換成常見的）。',
-  bless_treasure: '隨機獲得 1 件塔主秘寶；牌組加入 2 張壞毛病「失手了」。',
-  bless_stash: '獲得 200 條小魚乾；生命上限 −6。',
-  bless_box: '交出你的起始秘寶，換隨機 1 件塔主秘寶。',
+  bless_rations: '生命上限與當前生命各 +3。',
+  bless_coins: '獲得 45 條小魚乾。',
+  bless_potions: '隨機獲得 2 個忍具。',
+  bless_charm: '接下來 5 場戰鬥開始時，給全體魔物 1 層翻肚。',
+  bless_scissors: '自選移除 2 張牌。',
+  bless_notes: '自選升級至多 1 張牌。',
+  bless_moves: '從 3 張罕見{招式}牌中選擇 1 張。',
+  bless_doodle: '自選 1 張牌，換成隨機 1 張你自己的罕見以上的{招式}牌（壞毛病換成常見的）。',
+  bless_treasure: '隨機獲得 1 件常見秘寶；牌組加入 1 張壞毛病「失手了」。',
+  bless_stash: '獲得 120 條小魚乾；生命上限 −3。',
+  bless_box: '交出你的起始秘寶，換隨機 1 件大魔物秘寶。',
   // 秘寶的名字與說明照那件秘寶自己寫的（`{秘寶}`），那件是稀有事件那條線做的，數字改了這裡跟著變
-  bless_bracer: '獲得秘寶「{秘寶}」：{秘寶說明}（沾了魔氣：可以淨化）生命上限 −5。',
-  bless_bottom: '五成：隨機獲得 1 件大魔物秘寶；五成：牌組加入 1 張壞毛病「中計了」。',
-  bless_dice: '擲一次：1～2 點，最多失去 10 點生命、獲得 50 條小魚乾；3～4 點，隨機獲得 1 件常見秘寶；5～6 點，隨機獲得 1 件大魔物秘寶。',
+  bless_bracer: '獲得秘寶「{秘寶}」：{秘寶說明}（沾了魔氣：可以淨化）生命上限 −8。',
+  bless_bottom: '五成：隨機獲得 1 件常見秘寶；五成：牌組加入 1 張壞毛病「中計了」。',
+  bless_dice: '擲一次：1～2 點，最多失去 10 點生命、獲得 25 條小魚乾；3～4 點，獲得 50 條小魚乾；5～6 點，隨機獲得 1 件常見秘寶。',
   bless_scroll: '隨機獲得 1 張稀有{招式}牌。',
-  bless_wine: '五成：生命上限與當前生命各 +15；五成：生命上限 −5。',
+  bless_wine: '五成：生命上限與當前生命各 +8；五成：生命上限 −3。',
 };
 
 export function blessCardText(id: string, hero: string | undefined): string {

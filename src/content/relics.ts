@@ -409,18 +409,23 @@ export const relics: RelicDef[] = [
   { id: 'master_bracer', name: '沾了魔氣的舊護腕', pool: '事件', text: '每場戰鬥開始時獲得 3 點爪力與 2 層翻肚。', art: 'codex/relic_master_bracer', price: 180,
     hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }, { kind: 'status', name: '翻肚', amount: 2, target: 'self' }] } },
   // --- 淨化版 6 件（`淨化` 池，永遠抽不到；說明就是原件拿掉魔氣那一半）---
-  { id: 'miasma_charm_pure', name: '清心護符', pool: '淨化', text: '每回合多 1 顆飯糰。', art: 'codex/relic_miasma_charm_pure', price: 240,
-    hooks: { energyPerTurn: 1 } },
+  // 2026-09-24 b3int 主控裁決：淨化版照原件那一池的下四分位～上四分位調、要比原件好。拿掉整個代價的版本量到清心護符 +9.7、
+  // 解契短刀 +6.7、大俠貓的舊護腕 +6.8、月光晶石 +4.4（大魔物池上四分位 +4.8、事件池 +3.7），改成清心護符留 2 層炸毛（+7.4）、
+  // 解契短刀爪力 3 → 2（+4.5）、大俠貓的舊護腕爪力 3 → 2 並扣最大生命 3（+3.7）、月光晶石最大生命 15 → 13（+3.7）。
+  // 魔氣護符原件 +6.4 本來就在大魔物池上四分位以上，清心護符只能「比原件好一點」。原件的分數會跟著淨化版變：
+  // 淨化收益到 1.5 層以上機器人才會去淨化，原件量出來就連淨化後那一段一起算（血契短刀原本 +4.5、舊護腕 +4.35，現在 +2.9、+3.5）
+  { id: 'miasma_charm_pure', name: '清心護符', pool: '淨化', text: '每回合多 1 顆飯糰；每場戰鬥開始帶 2 層炸毛（魔氣散了一些）。', art: 'codex/relic_miasma_charm_pure', price: 240,
+    hooks: { energyPerTurn: 1, combatStart: [{ kind: 'status', name: '炸毛', amount: 2, target: 'self' }] } },
   // 拿到原件時扣的 12 點最大生命，淨化那一刻還回來（`run.ts` 的 `purifyRelic` 照兩件的 `maxHp` 差調整）
-  { id: 'blood_dagger_pure', name: '解契短刀', pool: '淨化', text: '每場戰鬥開始獲得 3 點爪力。', art: 'codex/relic_blood_dagger_pure', price: 210,
-    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }] } },
+  { id: 'blood_dagger_pure', name: '解契短刀', pool: '淨化', text: '每場戰鬥開始獲得 2 點爪力。', art: 'codex/relic_blood_dagger_pure', price: 210,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }] } },
   { id: 'black_cat_mask_pure', name: '白貓面具', pool: '淨化', text: '每場戰鬥第一回合多 2 顆飯糰。', art: 'codex/relic_black_cat_mask_pure', price: 230,
     hooks: { firstTurnEnergy: 2 } },
   // 圖示檔名跟代號走（`relic_miasma_shard_pure`）；原件的圖示是 art2 的 `relic_demon_shard`，兩個前綴不一樣是刻意的（`batch3_art_keys.md` 第二段）
-  { id: 'miasma_shard_pure', name: '月光晶石', pool: '淨化', text: '最大生命 +15。', art: 'codex/relic_miasma_shard_pure', price: 190,
-    hooks: { maxHp: 15 } },
-  { id: 'master_bracer_pure', name: '大俠貓的舊護腕', pool: '淨化', text: '每場戰鬥開始時獲得 3 點爪力。', art: 'codex/relic_master_bracer_pure', price: 180,
-    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }] } },
+  { id: 'miasma_shard_pure', name: '月光晶石', pool: '淨化', text: '最大生命 +13。', art: 'codex/relic_miasma_shard_pure', price: 190,
+    hooks: { maxHp: 13 } },
+  { id: 'master_bracer_pure', name: '大俠貓的舊護腕', pool: '淨化', text: '每場戰鬥開始時獲得 2 點爪力；最大生命 −3。', art: 'codex/relic_master_bracer_pure', price: 180,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 2, target: 'self' }], maxHp: -3 } },
   { id: 'miasma_lantern_pure', name: '長明燈', pool: '淨化', text: '每回合開始時多抽 1 張牌；每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_miasma_lantern_pure', price: 200,
     hooks: { turnStart: [{ kind: 'draw', n: 1 }], firstTurnEnergy: 1 } },
 ];
