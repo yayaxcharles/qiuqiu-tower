@@ -66,7 +66,8 @@ describe('連線的鏡子走廊插圖照座位 0 那一位挑', () => {
     expect(src.match(/\.\.\.\(portrait \? \{ portrait \} : \{\}\)/g)?.length).toBe(2);
     // 事件的框比紙箱高，立繪照紙箱那條放會踩在名牌上：事件畫面自己一條，站在插圖左邊、腳底對齊插圖底邊
     const css = readFileSync('src/ui/styles/screens.css', 'utf8').replace(/\r\n/g, '\n');
-    expect(css).toMatch(/#stage\[data-screen="event"\] \.scene \.scene-portrait \{[^}]*top: 108px;[^}]*bottom: auto;/);
+    // 同日換畫面改成舊畫面墊底淡出（screenswap），看畫面名的規則要連退場層一起寫成 `:is(#stage, .screen-leaving)`
+    expect(css).toMatch(/:is\(#stage, \.screen-leaving\)\[data-screen="event"\] \.scene \.scene-portrait \{[^}]*top: 108px;[^}]*bottom: auto;/);
   });
 });
 

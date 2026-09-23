@@ -937,7 +937,7 @@
 /* 事件畫面的立繪（2026-09-23 實機驗收 M-1：連線鏡子走廊坐 1 號的人，插圖是同伴那張、旁邊放自己）：
    事件的選項排在框裡、框比紙箱高得多，照紙箱那條（腳底離下緣 172）會踩在「鏡子走廊」名牌上。
    改成站在插圖左邊、腳底對齊插圖底邊（插圖 top 18、高 360），離名牌還有一段 */
-#stage[data-screen="event"] .scene .scene-portrait { left: 150px; top: 108px; bottom: auto; height: 270px; }
+:is(#stage, .screen-leaving)[data-screen="event"] .scene .scene-portrait { left: 150px; top: 108px; bottom: auto; height: 270px; }
 #stage:has(.scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
 @keyframes toast-in-side { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
 
