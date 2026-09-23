@@ -681,8 +681,10 @@ registerScreen('event', (app, root, props) => {
     // 學完招還要挑牌升級（`then`）：學完那一刻把這一位的待辦換成挑牌那一步，照同一套畫面接下去
     afterLearn = (note, learned) => settle(outcomes[seat] ?? null, raw, [...notes, note], gains, [...added, ...learned], outcomes);
     holdPaintForResultArt(index);
+    const alive = run.players.map((p) => !p.down);
+    /** 這一位本來有沒有「三選一學招」要挑（座位不對稱的選項可能只有一邊有；見下面的空票） */
+    const hadLearn = outcomes.map((o) => !!o && 'chooseCard' in o);
     if (coop) {
-      const alive = run.players.map((p) => !p.down);
       // 只要**有人**要挑牌，這個畫面就先鎖住「繼續」（見 `awaitingPicks`）
       awaitingPicks = outcomes.some((o) => !!o && ('needs' in o || 'chooseCard' in o));
       coop.onPick((kind) => {
@@ -701,8 +703,9 @@ registerScreen('event', (app, root, props) => {
             else if (v === '' && i !== seat) passLearn(i, outcomes);   // 同伴都不要也照樣接著挑牌升級（兩台都換，才判得出升級或移除）
           });
           if (mineThen && afterLearn) afterLearn('一招都沒挑', []);
-          else if (all[seat] === '') finish(evText(raw), '一招都沒挑', gains);
-          else if (all[seat] === null) showResult();   // 我這台根本沒得挑：重畫一次把「繼續」放出來
+          else if (all[seat] === '' && hadLearn[seat]) finish(evText(raw), '一招都沒挑', gains);
+          // 我這台根本沒得挑（倒下的人、或座位不對稱時自己那一串沒有學招、投的是空票）：重畫一次把「繼續」放出來
+          else if (all[seat] === null || all[seat] === '') showResult();
           return;
         }
         if (kind !== 'evcard') return;
@@ -722,7 +725,10 @@ registerScreen('event', (app, root, props) => {
            * `outcomes[i]` 是引擎算出來的，兩台一模一樣。
            */
           const oi = outcomes[i];
-          const upI = !!oi && 'needs' in oi && oi.needs === 'upgradeCard';
+          // 這一位這次根本沒有要挑牌（座位不對稱的選項，他投的是空票）：什麼都不動。
+          // 不擋的話一張不該在的牌號會被當成「移除」（下面的 `upI` 是 false），兩台雖然一樣、牌卻平白少一張
+          if (!(oi && 'needs' in oi)) return;
+          const upI = oi.needs === 'upgradeCard';
           const list = v ? v.split(',').map(Number) : [];
           const names: string[] = [];
           for (const uid of list) {
@@ -743,6 +749,17 @@ registerScreen('event', (app, root, props) => {
       });
     }
     showResult();
+    /*
+     * **座位不對稱的選項：只有一邊要挑牌時，沒得挑的那一邊替自己投一張空票**（2026-09-23 內容擴充第二批，實機驗收抓到）。
+     * 兩人一樣的選項兩邊一定同時要挑、同時投；「翹翹板」那種卻是一個人拿秘寶、另一個人挑牌升級——
+     * 拿秘寶的那一位沒有挑牌畫面、永遠不投，挑牌的那一位挑完之後票湊不齊，兩台一起卡在「等同伴挑完」。
+     * 投在畫好結果之後：票剛好湊齊時處理函式會再畫一次，把「繼續」放出來。倒下的人不投（票本來就不算他）。
+     */
+    if (coop && alive[seat]) {
+      const mine = outcomes[seat];
+      if (outcomes.some((o) => !!o && 'needs' in o) && !(mine && 'needs' in mine)) coop.pick('evcard', '');
+      if (outcomes.some((o) => !!o && 'chooseCard' in o) && !hadLearn[seat]) coop.pick('evlearn', '');
+    }
   }
 
   renderHud(app, root);

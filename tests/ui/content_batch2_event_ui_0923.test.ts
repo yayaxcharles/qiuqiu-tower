@@ -98,6 +98,19 @@ describe('事件畫面的接線（讀原始碼）', () => {
     expect(ev).toContain('afterLearn = (note, learned) => settle(outcomes[seat] ?? null, raw,');
   });
 
+  /*
+   * 實機驗收抓到的（2026-09-23）：翹翹板是一個人拿秘寶、另一個人挑牌升級。拿秘寶的那一位沒有挑牌畫面、永遠不投，
+   * 挑牌的那一位挑完之後票湊不齊，兩台一起卡在「等同伴挑完」；卡住的那張舊票還會留到下一次、被當成「移除」套掉。
+   */
+  it('只有一邊要挑牌時，沒得挑的那一邊投空票；沒要挑牌的那一位，票裡的牌號一律不動', () => {
+    expect(ev).toContain("if (outcomes.some((o) => !!o && 'needs' in o) && !(mine && 'needs' in mine)) coop.pick('evcard', '');");
+    expect(ev).toContain("if (outcomes.some((o) => !!o && 'chooseCard' in o) && !hadLearn[seat]) coop.pick('evlearn', '');");
+    expect(ev).toContain("if (!(oi && 'needs' in oi)) return;");
+    expect(ev).toContain("else if (all[seat] === null || all[seat] === '') showResult();");
+    // 空票投在畫好結果之後（票剛好湊齊時處理函式再畫一次，才把「繼續」放出來）
+    expect(ev.indexOf("!(mine && 'needs' in mine)) coop.pick('evcard', '');")).toBeGreaterThan(ev.lastIndexOf('    showResult();\n'));
+  });
+
   it('影子鏈那一場：配樂照鏡像戰、不跳鏡子的初見吐槽', () => {
     const app = lf(APP);
     expect(app).toContain("encounterId.startsWith('shadow_duel') ? 'shadow'");
