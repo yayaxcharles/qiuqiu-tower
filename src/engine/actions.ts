@@ -215,6 +215,10 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
 function whose(cs: CombatState, p: PlayerCombat): string {
   return cs.players.length > 1 ? `${unitName(p)}的` : '';
 }
+/** 替畫面記「這一位整場擋下幾點」（見 `PlayerCombat.blockedTotal`：引擎不讀、不進指紋） */
+function noteBlocked(p: PlayerCombat, absorbed: number): void {
+  p.blockedTotal = (p.blockedTotal ?? 0) + absorbed;
+}
 
 export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
                              opts: {
@@ -234,7 +238,7 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     // 反彈那種「直傷但先扣蜷縮」（使用者 2026-09-03：被反彈的人都應該優先扣蜷縮，蜷縮 4 被反彈 2 就剩 2）
     if (opts.throughBlock) {
       const absorbed = Math.min(p.block, base); p.block -= absorbed; lose = base - absorbed;
-      if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
+      if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
     }
   } else {
     if (p.immune) { log(cs, `${unitName(p)}躲在角落，什麼都沒看到`); return 0; }
@@ -244,13 +248,13 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
     if (dmg - absorbed > 0 && getStatus(p, '隱身') > 0) {
       p.block -= absorbed;
-      if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
-      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); return 0;
+      if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
+      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); p.dodgedTotal = (p.dodgedTotal ?? 0) + 1; return 0;
     }
     p.block -= absorbed;
     lose = dmg - absorbed;
-    // 擋下來要留紀錄：畫面靠這行飄「擋住 N」跟盾牌，不然整下被吃掉看起來像沒打到（使用者回報）
-    if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
+    // 擋下來要留紀錄：不然整下被吃掉看起來像沒打到（使用者回報）。畫面飄「擋住 N」跟盾牌看的是 `blockedTotal`，不是這行字
+    if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
     if (opts.pierce && dmg > 0) log(cs, '這一下穿過了蜷縮');
     const thorns = getStatus(p, '反彈');
     if (dmg > 0 && thorns > 0 && attacker !== p) {

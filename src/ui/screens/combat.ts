@@ -21,6 +21,7 @@ import { attachCardDrag } from '../dragplay';
 import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
+import { seatFeedback, seatFeedbackSnap, type SeatFeedbackSnap } from '../seat-feedback';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
 import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPhaseKey, monsterUrl, hasSprite, type DecodePool } from '../assets';
@@ -288,8 +289,8 @@ const sumStatus = (u: Unit, names: readonly StatusName[]): number =>
  */
 const chokeTick = (now: number, was: number): boolean => was > 0 && now === was - 1;
 
-/** 每一位玩家在快照裡的那幾個數字（`buff`／`debuff` 給同伴那一格判斷要不要換新節點用） */
-type SeatSnap = { hp: number; block: number; stealth: number; down: boolean; buff: number; debuff: number };
+/** 每一位玩家在快照裡的那幾個數字（`buff`／`debuff` 給同伴那一格判斷要不要換新節點用；其餘見 seat-feedback.ts） */
+type SeatSnap = { hp: number; block: number; stealth: number; down: boolean; buff: number; debuff: number } & SeatFeedbackSnap;
 
 /**
  * 同伴那一格這一步要不要換新節點（清理 2026-09-22）。
@@ -346,6 +347,7 @@ function snap(cs: CombatState, me: PlayerCombat): Snap {
     players: new Map(cs.players.map((p) => [p.seat, {
       hp: p.hp, block: p.block, stealth: getStatus(p, '隱身'), down: !!p.down,
       buff: sumStatus(p, GOOD_STATUS), debuff: sumStatus(p, BAD_STATUS),
+      ...seatFeedbackSnap(p),
     }])),
     enemies: new Map(cs.enemies.map((e) => [e.uid, {
       hp: e.hp, dead: e.dead, phase: e.phase, secluding: e.invulnIn > 0, intent: e.move.intent, block: e.block, stealth: getStatus(e, '隱身'), learned: e.move.learned,
@@ -1331,16 +1333,6 @@ registerScreen('combat', (app, root, props) => {
   }
 
   /** 飄起來的傷害數字。飄完自己移除，免得留在 DOM 裡等下一次重畫才被掃掉 */
-  /** 這一拍的紀錄裡，某個開頭（「蜷縮擋下了」或「〇〇的防禦擋下了」）總共擋了幾點；多段攻擊會有好幾行，加總 */
-  function blockedAmount(lines: readonly string[], prefix: string): number {
-    let sum = 0;
-    for (const l of lines) {
-      if (!l.startsWith(prefix)) continue;
-      const m = /(\d+) 點$/.exec(l);
-      if (m) sum += Number(m[1]);
-    }
-    return sum;
-  }
 
   /** 多段攻擊一下一下演：每段隔 150 毫秒重掛一次挨打動畫、飄那一段的數字、放一聲。被擋成 0 的那段只閃不飄（「擋住 N」另外飄） */
   function stageHits(node: HTMLElement, amounts: number[]): void {
@@ -2925,11 +2917,14 @@ registerScreen('combat', (app, root, props) => {
     const comparedBlock = comparedPlayer?.block ?? p.block;
     const hurt = comparedHp < before.hp;
     /*
-     * 「誰閃過了」：引擎那行現在寫的是**那一位的名字**（`unitName`），不是寫死的「球球」，
-     * 所以不能比對整句（換角色那天就會踩到——菲菲閃過去，畫面不演）。
-     * 魔物閃過也是同一句型，用「開頭是不是魔物的名字」排掉。
+     * 魔物對每一位做了什麼（擋下、閃過、塞牌、看破、吹散）照**座位**看數字，不讀戰報句子（2026-09-23 health H-1）：
+     * 句子 09-15 多了名字之後，連線時自己擋下的演出整個不見；兩位同角色時「球球閃過了」也分不出是誰。
+     * 判斷在 seat-feedback.ts（純函式、用引擎實跑測過）。連線重播那條走 `comparison`，跟上面的血與蜷縮同一套
      */
-    const dodged = fresh.includes(`${heroName(my())}閃過了`);
+    const feedbackOf = (q: PlayerCombat) => seatFeedback(before.players.get(q.seat),
+      comparison?.players.get(q.seat) ?? seatFeedbackSnap(q));
+    const myFeedback = feedbackOf(p);
+    const dodged = myFeedback.dodged;
     const hungry = cs.phase === 'player' && p.energy === 0 && hungryTurn !== cs.turn
       && p.hand.some((c) => cardStats(c).cost > 0);
     // 姿勢優先序：分出勝負 ＞ 挨打 ＞ 閃過 ＞ 蜷縮 ＞ 這張牌 ＞ 餓扁 ＞ 待機。先決定再畫，姿勢才看得到。
@@ -2943,8 +2938,8 @@ registerScreen('combat', (app, root, props) => {
     else if (hurt && !posePref) pose = POSE.hit;
     else if (dodged) pose = POSE.dodge;
     // 敵人打過來被蜷縮整個擋掉：切抱胸格擋——這張早就畫好卻沒人用（2026-09-08）。
-    // 只認「這一拍有魔物出手、血沒掉、紀錄有擋下」；自己回合疊蜷縮走下一條的 curl
-    else if (enemyActed && fresh.some((l) => l.startsWith('蜷縮擋下了')) && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
+    // 只認「這一拍有魔物出手、血沒掉、我擋下了點數」；自己回合疊蜷縮走下一條的 curl
+    else if (enemyActed && myFeedback.blocked > 0 && hasHeroSprite(my().hero, POSE.guard)) pose = POSE.guard;
     else if (comparedBlock > before.block && !opts.attack) pose = POSE.curl;
     else if (posePref) pose = posePref;
     else if (hungry) pose = POSE.hungry;
@@ -3016,8 +3011,9 @@ registerScreen('combat', (app, root, props) => {
         hasOutgoingMotion: impactMotion !== undefined || opts.pose !== undefined || opts.impactSeat !== undefined,
       })) reaction = 'hurt';
       else if (afterStealth < was.stealth) reaction = source === 'qiuqiu' || source === 'feifei' ? 'roll' : 'dodge';
+      // 擋下的點數照座位記，同伴那格也認得（原本只有自己認得出、而且連線時連自己都認不出，health H-1）
       else if (enemyActed && afterHp === was.hp && (afterBlock < was.block
-        || (q.seat === mySeat && fresh.some((line) => line.startsWith('蜷縮擋下了'))))) reaction = 'guard';
+        || feedbackOf(q).blocked > 0)) reaction = 'guard';
       // 本張牌／忍具已選好演出；回血只是效果，不能把太極或反擊改成吃飯。
       // 自己正在出招（不是反應動作）時，同伴幫忙回血也不能把招式切成吃飯、人瞬間回原位（稽核 2026-09-21 晚 低-7）
       else if (afterHp > was.hp && !(q.seat === (opts.impactSeat ?? mySeat)
@@ -3347,10 +3343,13 @@ registerScreen('combat', (app, root, props) => {
     if (comparedBlock > before.block) root.querySelector(`${MINE} .chip.block`)?.classList.add('gain');
     const cat = root.querySelector<HTMLElement>(MINE);
     // 魔物對球球做的事也要在球球身上看得到：被塞牌／被減益／被看破
-    if (cat && acting.size > 0) {
-      if (sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
-      if (fresh.some((l) => l.includes('塞進你的'))) burst(cat, 'curse');
-      if (fresh.some((l) => l.includes('的身法') || l.includes('拍散') || l.includes('震散'))) burst(cat, 'strip');
+    if (cat && acting.size > 0 && sumStatus(p, BAD_STATUS) > before.debuff) burst(cat, 'debuff');
+    // 被塞牌、被看破打在**中招的那一位**身上（health H-1）：原本比對戰報句子、一律打在自己這格，連線時同伴中招也亮在我身上
+    if (acting.size > 0) for (const q of cs.players) {
+      const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${q.seat}"]`);
+      const got = feedbackOf(q);
+      if (node && got.cursed) burst(node, 'curse');
+      if (node && got.stripped) burst(node, 'strip');
     }
     // 剛被召喚出來的：煙
     for (const e of cs.enemies) if (!before.enemies.has(e.uid) && !e.dead) { const n = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"]`); if (n) burst(n, 'smoke'); }
@@ -3375,15 +3374,17 @@ registerScreen('combat', (app, root, props) => {
         cat.append(floatNum('氣勁被拍散！'));
         burst(cat, 'debuff'); sfx('debuff', 0.8);
       }
-      // 被吹散手牌（下回合少抽）：飄一句在球球身上，紀錄框裡也有
-      const blown = fresh.find((l) => l.includes('下回合少抽'));
-      if (blown) {
-        cat.append(floatNum(blown.slice(blown.indexOf('下回合')), 'bad'));
+      // 被吹散手牌（下回合少抽）：飄一句在球球身上，紀錄框裡也有。
+      // 看自己的「下回合抽幾張」少了沒（health H-1）：原本找紀錄裡的句子，連線時同伴被吹散也飄在我身上。
+      // 只認魔物出手那一拍：回合開始這個數字會歸零，不擋的話上回合多抽一張的也會被當成吹散
+      const blown = acting.size > 0 ? myFeedback.blown : 0;
+      if (blown > 0) {
+        cat.append(floatNum(`下回合少抽 ${blown} 張`, 'bad'));
         burst(cat, 'debuff');
         sfx('debuff', 0.8);
       }
       // 蜷縮擋下的部分也要看得到：飄「擋住 N」＋盾牌閃一下＋「鏘」（球球比照魔物）
-      const guarded = blockedAmount(fresh, '蜷縮擋下了');
+      const guarded = myFeedback.blocked;
       if (guarded > 0) {
         cat.append(floatNum(`擋住 ${guarded}`, 'blocked'));
         burst(cat, 'block');

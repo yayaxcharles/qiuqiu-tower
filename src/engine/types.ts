@@ -842,6 +842,18 @@ export interface PlayerCombat extends Unit {
   energyGainBlockedThisPhase?: true;
   doubleNext: number;
   drawNextTurn: number;
+  /**
+   * 整場被蜷縮擋下的點數累計、閃過攻擊的次數（2026-09-23 health H-1）。**只給畫面讀**：
+   * 畫面拿它跟自己的快照相減，就知道「這一拍**這一位**擋下幾點、有沒有閃過」（跟 `cs.energyGain` 同一套）。
+   *
+   * 為什麼要記：畫面原本比對戰報句子開頭「蜷縮擋下了」。09-15 連線時句子多了名字（「球球的蜷縮擋下了」），
+   * 畫面沒跟著改，連線時自己擋下的「擋住 N」飄字、盾牌光、鏘聲整個不見；兩位同角色時句子也分不出是哪一位。
+   *
+   * 引擎自己**不讀**這兩個數字、也不收進連線指紋（`net/hash.ts`）——兩台的結算不會因為它們走岔。
+   * 可選是為了不必動每一個造玩家的地方：沒寫就是 0。
+   */
+  blockedTotal?: number;
+  dodgedTotal?: number;
   /*
    * ===== 連線支援牌 C 批的狀態（2026-09-13）=====
    *
