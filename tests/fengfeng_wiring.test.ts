@@ -32,13 +32,16 @@ describe('封封結局的打法插句', () => {
   // 稿子 FG-VAR-04「通用」：沒有封封自己的牌組統計前，只用這一句
   const generic = fengfengVictoryVariants[3]!.text;
 
-  it('插句用的是通用那句（FG-VAR-04），插在師父那句之後', () => {
+  // 2026-09-23 改：稿子寫「接 FG-V-03 後、FG-V-04 前」，插句講的是他收劍那一下，要等他說「我把劍收好」才接得上
+  it('插句用的是通用那句（FG-VAR-04），插在「先坐下，我把劍收好」之後', () => {
     expect(generic).toBe('劍鞘碰到腰側的傷，封封皺了皺眉，把腰帶鬆開一格。');
     for (const deck of [[], [...FENGFENG_STARTER_DECK], ['sanjo'], ['tanding', 'tanding', 'tanding', 'tanding']]) {
       for (const diff of [1, 5]) {
         const lines = victoryLinesFor(deck, diff, 'fengfeng');
         expect(lines[1]?.speaker, '第二句仍是師父').toBe('塔主');
-        expect(lines[2], `牌組 ${deck.join('+') || '空'}／難度 ${diff}`).toEqual({ speaker: '旁白', text: generic });
+        expect(lines[2]?.text, '第三句仍是封封說要收劍（FG-V-03）').toBe('您認得我了。先坐下，我把劍收好。');
+        expect(lines[3], `牌組 ${deck.join('+') || '空'}／難度 ${diff}`).toEqual({ speaker: '旁白', text: generic });
+        expect(lines[4]?.text, '插句後面接 FG-V-04').toContain('球球扶著牆走過來');
         // 一次最多一段插句
         expect(lines.filter((l) => fengfengVictoryVariants.some((v) => v.text === l.text))).toHaveLength(1);
       }

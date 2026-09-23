@@ -1,4 +1,4 @@
-import { victoryLinesFor, hasCoopScene, coopBossLines, dialogue, firstMeetLine, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
@@ -25,6 +25,14 @@ import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
 export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug';
+
+/*
+ * 劇情段落（序章、過關、塔頂門外、結局、落敗）退回純對白時**一律照字面播**（2026-09-23 稽核 低-5）。
+ * 這幾段是各角色自己的劇本（`storyFor`），說話者寫的就是本人：封封塔頂那段「球球：封封，別傷到師父喵！」是球球在講。
+ * 原本傳 `hasCoopScene(…)`，單人時是 false，圖清單沒載到、退回 `playDialogue` 時名牌與頭像換成本機這一位，
+ * 變成「封封：封封，別傷到師父！」。要換口氣的只有寫死「球球」的共用關主台詞，那批不走這幾條。
+ */
+const STORY_LITERAL = true;
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
@@ -215,7 +223,7 @@ export class App {
     const done = (): void => { if (this.run === run) after(); };
     const play = (): void => {
       if (slidesReady(proSlides)) playSlides(proSlides, done);
-      else playDialogue(pro, done, undefined, hasCoopScene(hero));
+      else playDialogue(pro, done, undefined, STORY_LITERAL);
     };
     /*
      * 每個角色只能看自己的片子（2026-09-12 實測到）：球球那支從頭到尾是他，
@@ -473,7 +481,7 @@ export class App {
       // 塔頂門外段落只在第三關最終頭目前播放一次；前兩關的關主不應提前消耗這段劇情。
       const top = run.act >= ACTS ? storyFor(localHero()).topScene : [];
       const topSlides = topSceneSlides(localHero());
-      if (top.length) this.playOnce(`topScene:${run.act}`, top, playBoss, hasCoopScene(localHero()), topSlides);
+      if (top.length) this.playOnce(`topScene:${run.act}`, top, playBoss, STORY_LITERAL, topSlides);
       else playBoss();
     } else go();
   }
@@ -516,11 +524,11 @@ export class App {
      * 落敗這一段**沒有幻燈片版本**，是直接走 `playDialogue`，所以預設會過
      * `lineFor`／`heroSpeaker`——連線時那一段是兩個人共用的場景，裡面「球球：……喵」
      * 是球球本人在講，被改口就會變成「噹噹：師父回來了沒有？」然後下一句噹噹又在對球球說話
-     *（稽核 2026-09-17 高-2）。有整段場景的時候照字面播。
+     *（稽核 2026-09-17 高-2）。有整段場景的時候照字面播；2026-09-23 起單人也照字面播（見檔頭 `STORY_LITERAL`）。
      */
     if (!rewards) {
       const mine = me(this.run!, this.seat).hero;
-      playDialogue(storyFor(mine).defeat, () => this.show('result'), undefined, hasCoopScene(mine));
+      playDialogue(storyFor(mine).defeat, () => this.show('result'), undefined, STORY_LITERAL);
       return;
     }
     if (rewards.kind === '塔主') {
@@ -546,7 +554,7 @@ export class App {
         const endVideo = (go: () => void): void => ((me(run, this.seat).hero ?? 'ninja') === 'ninja' ? playVideo('ending', go) : (setBgm('ending'), go()));
         endVideo(() => {
           if (slidesReady(endSlides)) playSlides(endSlides, () => this.show('result'));
-          else playDialogue(vic, () => this.show('result'), undefined, hasCoopScene(me(this.run!, this.seat).hero));
+          else playDialogue(vic, () => this.show('result'), undefined, STORY_LITERAL);
         });
         return;
       }
@@ -561,7 +569,7 @@ export class App {
       const bossRelic = rewards.relic;
       const toSlides = (): void => {
         if (slidesReady(actSlides)) playSlides(actSlides, () => this.show('actclear', { bossRelic }));
-        else playDialogue(lines, () => this.show('actclear', { bossRelic }), undefined, hasCoopScene(me(this.run!, this.seat).hero));
+        else playDialogue(lines, () => this.show('actclear', { bossRelic }), undefined, STORY_LITERAL);
       };
       // 關主倒下後先演牠的收場（被控制的清醒道謝、自願的嘴硬、路過的讓路），再接過關幻燈片（使用者 2026-09-04）
       const ids = encounterById[cs.encounterId]?.enemies ?? [];

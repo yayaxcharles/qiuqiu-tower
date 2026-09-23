@@ -14,14 +14,21 @@ export const fengfengSelection: DialogueLine[] = [
     "text": "累積蓄氣，選擇留到下一回合，或消耗蓄氣使出強力劍招。"
   }
 ];
+/*
+ * 序章五張圖的切點（2026-09-23 稽核 中-3）：回村／關門的鋪子／跟村貓問話／塔下撿魚乾／塔下查看。
+ * 原本沒標切點，照「一張一句、最後一張吃剩下的」切，村貓回話那句配到封封已經蹲在塔下的圖，
+ * 真正講「走到塔下」的旁白又跟最後一句擠在第五張。封封問、村貓答兩句同一張（兩隻貓對話那張）。
+ */
 export const fengfengPrologue: DialogueLine[] = [
   {
     "speaker": "旁白",
-    "text": "第三天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。"
+    "text": "第三天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。",
+    "slideBreak": true
   },
   {
     "speaker": "旁白",
-    "text": "噹噹的鋪子關著，練功的院子也沒人。封封把藥箱放到門口，叫住一隻經過的村貓。"
+    "text": "噹噹的鋪子關著，練功的院子也沒人。封封把藥箱放到門口，叫住一隻經過的村貓。",
+    "slideBreak": true
   },
   {
     "speaker": "封封",
@@ -29,11 +36,13 @@ export const fengfengPrologue: DialogueLine[] = [
   },
   {
     "speaker": "村貓",
-    "text": "大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹今天也去了。"
+    "text": "大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹今天也去了。",
+    "slideBreak": true
   },
   {
     "speaker": "旁白",
-    "text": "封封請商隊把貨搬進屋，接過裝滿水的袋子。他走到塔下，看見門檻上散著村裡的小魚乾。"
+    "text": "封封請商隊把貨搬進屋，接過裝滿水的袋子。他走到塔下，看見門檻上散著村裡的小魚乾。",
+    "slideBreak": true
   },
   {
     "speaker": "封封",
@@ -58,6 +67,10 @@ export const fengfengActClear1: DialogueLine[] = [
     "text": "上面有人。我去問問。"
   }
 ];
+/*
+ * 第二關過關三張圖的切點（2026-09-23 稽核 中-4）：接包袱／三隻貓一起站在樓梯上／封封獨自望向月光樓梯。
+ * 原本沒標，第三到第六句（噹噹連講兩句）全配在封封一個人的那張，噹噹跟受傷的村貓都不在畫面裡。
+ */
 export const fengfengActClear2: DialogueLine[] = [
   {
     "speaker": "旁白",
@@ -65,7 +78,8 @@ export const fengfengActClear2: DialogueLine[] = [
   },
   {
     "speaker": "封封",
-    "text": "你受傷了？"
+    "text": "你受傷了？",
+    "slideBreak": true
   },
   {
     "speaker": "噹噹",
@@ -77,7 +91,8 @@ export const fengfengActClear2: DialogueLine[] = [
   },
   {
     "speaker": "噹噹",
-    "text": "大俠貓現在認不得人。看到他抬手，就躲開。"
+    "text": "大俠貓現在認不得人。看到他抬手，就躲開。",
+    "slideBreak": true
   },
   {
     "speaker": "旁白",
@@ -138,6 +153,19 @@ export const fengfengRetryLines: DialogueLine[] = [
     "text": "能握劍了。我把藥帶上，再去一次。"
   }
 ];
+/**
+ * 後日談（院子練劍）的第一句：結局第三張圖從這一句開始（2026-09-23 稽核 低-6）。
+ * `storyslides.ts` 原本寫死 `victory[10]` 去找，結局多一句少一句就切到別人的話上、而且不會報錯。
+ */
+export const FENGFENG_YARD_FIRST = '過了幾天，封封在院子裡用木劍練習。球球站在旁邊，這次沒有搶著衝進來。';
+
+/*
+ * 結局兩個標記（2026-09-23）：
+ * - `narrationAfter` 在 FG-V-03「先坐下，我把劍收好」：稿子寫打法插句「接 FG-V-03 後、FG-V-04 前」，
+ *   四句插句講的都是收劍那一下（劍尖對鞘口、收回舉著的劍、劍鞘碰到腰側的傷），要等他說了要收劍才接得上。
+ * - `slideBreak` 在 FG-V-06：第一張圖是塔頂四隻貓抱在一起，FG-V-04～06（大俠貓扶住球球、拉過菲菲）就是那一幕；
+ *   原本切在 FG-V-03，這三句被配到第二張「村口喝熱湯」的圖上。
+ */
 export const fengfengVictory: DialogueLine[] = [
   {
     "speaker": "旁白",
@@ -150,7 +178,7 @@ export const fengfengVictory: DialogueLine[] = [
   {
     "speaker": "封封",
     "text": "您認得我了。先坐下，我把劍收好。",
-    "slideBreak": true
+    "narrationAfter": true
   },
   {
     "speaker": "旁白",
@@ -162,7 +190,8 @@ export const fengfengVictory: DialogueLine[] = [
   },
   {
     "speaker": "菲菲",
-    "text": "手給我看看。這些傷都得包起來。"
+    "text": "手給我看看。這些傷都得包起來。",
+    "slideBreak": true
   },
   {
     "speaker": "旁白",
@@ -182,7 +211,7 @@ export const fengfengVictory: DialogueLine[] = [
   },
   {
     "speaker": "旁白",
-    "text": "過了幾天，封封在院子裡用木劍練習。球球站在旁邊，這次沒有搶著衝進來。"
+    "text": FENGFENG_YARD_FIRST
   },
   {
     "speaker": "球球",
@@ -474,8 +503,8 @@ export const fengfengShopkeeper = fengfengShortLines.SHOP ?? [];
 export const fengfengRevivedLines = fengfengShortLines.REVIVED ?? [];
 
 /*
- * 結局的打法插句（稿子 FG-VAR），跟另外三位一樣由 `victoryLinesFor` 插在師父那句之後。
- * 稿子寫的是「接 FG-V-03 後」，照共用接法會早一句（插在 FG-V-03 前面）。
+ * 結局的打法插句（稿子 FG-VAR），由 `victoryLinesFor` 插在標了 `narrationAfter` 的 FG-V-03 之後（2026-09-23 改）。
+ * 原本照共用接法插在師父那句之後，比稿子寫的「接 FG-V-03 後」早一句。
  * 稿子規定三種打法（重劍、連招、護送配合）要等有封封自己的牌組統計才分，「沒統計就只用通用版」。
  * `deckLeaning` 目前分不出這三派，所以每一派都播通用那句（FG-VAR-04），VAR-01～03 先不接。
  */
@@ -485,9 +514,16 @@ const fengfengVictoryNarration: Partial<Record<DeckLeaning, string>> = {
   thorns: fengfengGenericNarration, block: fengfengGenericNarration, plain: fengfengGenericNarration,
 };
 
+/*
+ * 全破結算畫面的最後一句（2026-09-23 稽核 低-6）。原本抓 `fengfengVictory[9]`（「幸好這批藥趕上了」），
+ * 結算畫面把結局剛演過的那句再印一次；結局多一句少一句還會抓到別人講的話。
+ * 另外三隻都是另寫一句收尾，他的接結局那張「過了幾天在村裡練劍」：送貨的人這次留下來。
+ */
+export const fengfengVictoryTeaser = '下一趟貨晚幾天再送，先在村裡把傷養好。';
+
 export const fengfengDialogue = {
   prologue: fengfengPrologue, actClear1: fengfengActClear1, actClear2: fengfengActClear2,
-  defeat: fengfengDefeat, victoryTeaser: fengfengVictory[9]?.text ?? '', victory: fengfengVictory,
+  defeat: fengfengDefeat, victoryTeaser: fengfengVictoryTeaser, victory: fengfengVictory,
   victoryNarration: fengfengVictoryNarration, hardModeEpilogue: '', topScene: fengfengTopScene,
   battleStart: fengfengShortLines.START ?? [], battleWin: fengfengShortLines.WIN ?? [],
   hungry: fengfengShortLines.HUNGRY ?? [], lowHp: fengfengShortLines.LOW ?? [],
@@ -770,7 +806,7 @@ export const FENGFENG_EVENT_TEXT: Readonly<Record<string, string>> = {
   "不做生意（無效果）": "不做生意（無效果）",
   "轉角又是那隻橘貓山賊。牠看見球球，趕緊把木棒放到一旁。「上次那三十條，我拿去替我娘買藥了。她現在好多了，曬了些小魚乾，叫我一定要把謝禮帶來。」牠捧出一個包裹，這次沒有擋路。": "上次收過買路錢的山賊又出現了，這次立刻放下木棒。「我娘吃了藥好多了，叫我帶謝禮來。」牠把曬好的小魚乾和包裹捧到封封面前。",
   "山賊把小魚乾和忍具包好，交到球球手裡。球球打開聞了聞。球球：「你娘曬的魚真香，替我謝謝她喵。」": "山賊把回禮送到手裡，封封打開聞了聞新曬的小魚乾。封封：「你娘好了就好，替我謝謝她。」",
-  "山賊把回禮收好，改把自己母親傳下的調息法教給球球。球球跟著練了幾遍，呼吸更穩，也不容易喘了。球球：「這招很有用，我學會了喵。」": "山賊收回包裹，教封封母親傳的調息法。封封試著走了幾步，呼吸仍很平穩。封封：「這方法適合走長路，我記下來了。」",
+  "山賊把回禮收好，改把自己母親傳下的調息法教給球球。球球跟著練了幾遍，呼吸更穩，也不容易喘了。球球：「這招很有用，我學會了喵。」": "山賊收回包裹，把自己母親傳下的調息法教給封封。封封試著走了幾步，呼吸仍很平穩。封封：「這方法適合走長路，我記下來了。」",
   "收下回禮（獲得 60 條小魚乾，隨機獲得 1 個忍具）": "收下回禮（獲得 60 條小魚乾，隨機獲得 1 個忍具）",
   "請牠把回禮留給母親（生命上限與當前生命各 +5）": "請牠把回禮留給母親（生命上限與當前生命各 +5）",
   "那隻橘貓山賊又站在轉角，這回帶了一群拿木棒的幫手。「上次是我大意！今天我們人多！」牠往前一步，身後的幫手卻一起往後縮。": "上次打過的山賊帶了一群幫手，在轉角攔住封封。「這次我們人多！」木棒舉了起來，後面的幫手卻互相推擠，不肯先上。",
