@@ -228,6 +228,7 @@ export function finishCells(cells: Record<string, Partial<Record<Hero, RelicCell
 
 /** 這隻抽不抽得到（`notFor` 鎖）。抽不到的不量，表上留空 */
 export function obtainable(def: RelicDef, hero: Hero): boolean {
+  if (def.wip) return false;   // 還沒接好的（2026-09-23 第二批先放定義）不量
   return def.pool !== '起始' ? relicOk(def, [hero]) : true;
 }
 

@@ -749,6 +749,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'blockWhenAttacked': p.blockWhenAttacked = (p.blockWhenAttacked ?? 0) + fx.n; markPassive(p, ctx, true); return false;
     case 'thornsBonus': p.thornsBonus = (p.thornsBonus ?? 0) + fx.n; markPassive(p, ctx, true); return false;
+    // 2026-09-23 內容擴充第二批的四個忍具效果：接線中（用到它們的忍具都標了 `wip`，抽不到）
+    case 'energyNextTurn': case 'guardLethal': case 'transformFromHand': case 'daze': return false;
     default: { const _never: never = fx; void _never; return false; }   // 漏接新的 Effect 種類會在型別檢查就爆
   }
 }

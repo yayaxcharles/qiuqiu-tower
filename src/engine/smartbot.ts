@@ -166,7 +166,7 @@ export function bestRelic(ids: readonly string[], hero: Hero): string | undefine
 export function relicPoolValue(run: RunState, pool: RelicPool, seat = 0): number {
   const hero = heroOf(me(run, seat));
   const owned = me(run, seat).relics;
-  const cands = relics.filter((r) => r.pool === pool && !owned.includes(r.id) && relicOk(r, [hero]));
+  const cands = relics.filter((r) => r.pool === pool && !r.wip && !owned.includes(r.id) && relicOk(r, [hero]));
   return cands.length ? cands.reduce((s, r) => s + relicEventValue(r.id, hero), 0) / cands.length : 0;
 }
 
@@ -869,6 +869,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         value += Math.floor(Math.max(0, soon - expectedIncoming(cs, p, 0)) / fx.per) * fx.gain * 1.2;
         break;
       }
+      // 2026-09-23 內容擴充第二批：只有忍具用這四種（忍具走 `maybePotion`，不經過這裡），沒有牌會打出它們
+      case 'energyNextTurn': case 'guardLethal': case 'transformFromHand': case 'daze': break;
       default: { const _never: never = fx; void _never; }   // 每加一種效果都得來這裡寫一行估值，不能靜默估 0（體檢 2026-09-05）
     }
   }

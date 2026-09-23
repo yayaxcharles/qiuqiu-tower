@@ -25,6 +25,7 @@ import type { StatusName } from '../../src/engine/types';
 const STATUSES = [
   '爪力', '貓步', '翻肚', '懶洋洋', '炸毛', '中毒', '隱身', '定身', '反彈', '潛水',
   '縮殼', '飛行', '鱗甲', '沉睡', '消散', '虛化', '不壞身', '鐵布衫',
+  '迷魂',   // 2026-09-23 內容擴充第二批（迷魂香）
 ] as const satisfies readonly StatusName[];
 type 漏掉的狀態 = Exclude<StatusName, (typeof STATUSES)[number]>;
 const _沒漏: 漏掉的狀態 extends never ? true : false = true;

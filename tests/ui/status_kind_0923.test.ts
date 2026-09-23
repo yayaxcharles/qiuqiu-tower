@@ -10,9 +10,10 @@ import { BAD_STATUS, GOOD_STATUS, STATUS_ORDER } from '../../src/ui/status-kind'
 describe('狀態清單從一張表產生', () => {
   it('好狀態、壞狀態、狀態列順序跟原本寫死的一模一樣', () => {
     expect(GOOD_STATUS).toEqual(['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '不壞身', '縮殼', '飛行', '鱗甲', '虛化']);
-    expect(BAD_STATUS).toEqual(['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒']);
+    // 迷魂（2026-09-23 內容擴充第二批，迷魂香）接在最後
+    expect(BAD_STATUS).toEqual(['定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒', '迷魂']);
     expect(STATUS_ORDER).toEqual(['爪力', '貓步', '隱身', '潛水', '鐵布衫', '反彈', '不壞身', '縮殼', '飛行', '鱗甲', '虛化',
-      '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒']);
+      '定身', '沉睡', '消散', '翻肚', '懶洋洋', '炸毛', '中毒', '迷魂']);
     expect(new Set(STATUS_ORDER).size).toBe(STATUS_ORDER.length);
   });
 

@@ -18,6 +18,7 @@ const STATUS_KIND: Readonly<Record<StatusName, 'good' | 'bad'>> = {
   爪力: 'good', 貓步: 'good', 隱身: 'good', 潛水: 'good', 鐵布衫: 'good', 反彈: 'good', 不壞身: 'good',
   縮殼: 'good', 飛行: 'good', 鱗甲: 'good', 虛化: 'good',
   定身: 'bad', 沉睡: 'bad', 消散: 'bad', 翻肚: 'bad', 懶洋洋: 'bad', 炸毛: 'bad', 中毒: 'bad',
+  迷魂: 'bad',   // 2026-09-23 第二批迷魂香：只掛在魔物身上，對牠是壞事（紫光）
 };
 
 const ALL = Object.keys(STATUS_KIND) as StatusName[];

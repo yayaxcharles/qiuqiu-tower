@@ -15,17 +15,19 @@ import { Rng, seedFromString } from '../../src/engine/rng';
  * 當初盯五個入口（戰利品、紙箱、過關三選一、罐頭鋪、事件）的那批測試從 git 歷史（2e326a6、9f0ea98）撿回來，
  * 照新的四件改寫；這一次常見池裡也有鎖（磨劍石），罐頭鋪常見那兩格終於測得到。
  */
-const LOCKED = ['iron_weight_belt', 'qi_gourd', 'tassel_knot', 'whet_stone'];
+// 2026-09-23 第二批：滿月劍意、收鞘墜（蓄氣，只給封封）
+const LOCKED = ['full_moon_sword', 'iron_weight_belt', 'qi_gourd', 'sheath_pendant', 'tassel_knot', 'whet_stone'];
 /** 球球抽不到的那幾件（四件都是） */
 const bannedFor = (hero: string): string[] => relics.filter((r) => r.notFor?.includes(hero as never)).map((r) => r.id);
 
 describe('秘寶的職業鎖', () => {
   it('鎖的就是這四件，而且只留給用得到的那一位', () => {
     expect(relics.filter((r) => r.notFor?.length).map((r) => r.id).sort()).toEqual(LOCKED);
-    for (const id of ['whet_stone', 'tassel_knot', 'qi_gourd']) expect([...relicById[id]!.notFor!].sort(), id).toEqual(['dangdang', 'feifei', 'ninja']);
+    for (const id of ['whet_stone', 'tassel_knot', 'qi_gourd', 'full_moon_sword', 'sheath_pendant']) expect([...relicById[id]!.notFor!].sort(), id).toEqual(['dangdang', 'feifei', 'ninja']);
     expect([...relicById['iron_weight_belt']!.notFor!].sort()).toEqual(['feifei', 'fengfeng', 'ninja']);
-    // 偏某一位但別人也用得到的，一件都不鎖（判準見 `RelicDef.notFor`）
-    for (const id of ['snake_fang', 'miasma_sachet', 'herb_cauldron', 'anvil', 'knee_guard', 'bamboo_tube', 'startle_bell', 'shadow_band']) {
+    // 偏某一位但別人也用得到的，一件都不鎖（判準見 `RelicDef.notFor`）；第二批的五毒譜、鐵壁、影分身卷軸同理
+    for (const id of ['snake_fang', 'miasma_sachet', 'herb_cauldron', 'anvil', 'knee_guard', 'bamboo_tube', 'startle_bell', 'shadow_band',
+      'five_poison_manual', 'iron_wall', 'clone_scroll']) {
       expect(relicById[id]!.notFor, `${id} 不該鎖`).toBeUndefined();
     }
   });

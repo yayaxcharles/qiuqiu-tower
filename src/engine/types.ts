@@ -19,7 +19,12 @@ export type TargetMode = 'enemy' | 'all' | 'self' | 'none';
 export type StatusName =
   | '爪力' | '貓步' | '翻肚' | '懶洋洋' | '炸毛' | '中毒' | '隱身' | '定身' | '反彈' | '潛水'
   | '縮殼' | '飛行' | '鱗甲' | '沉睡' | '消散' | '虛化' | '不壞身'
-  | '鐵布衫';   // 2026-09-04：下回合開始換成等量蜷縮（跟潛水→隱身同型）
+  | '鐵布衫'   // 2026-09-04：下回合開始換成等量蜷縮（跟潛水→隱身同型）
+  /**
+   * 迷魂（2026-09-23 內容擴充第二批，忍具「迷魂香」）：**只會掛在魔物身上**，這一輪牠的攻擊改打牠旁邊的同伴。
+   * 敵方回合收尾（`finishEnemyTurn`）整排清掉，所以只撐一輪；誰下的香記在 `EnemyCombat.dazedBy`（打倒同伴時擊倒獎勵歸誰）。
+   */
+  | '迷魂';
 export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '中毒', '定身'];   // 溫牛奶、返璞「清掉所有減益」含定身（審查 #16）
 /** 回合結束層數 −1 的狀態 */
 // 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
@@ -184,6 +189,17 @@ export type Effect =
    * 沒填就是每隻都拿全額。目標自己身上的層數不動。
    */
   | { kind: 'spreadStatus'; name: StatusName; half?: boolean }
+  /*
+   * ===== 2026-09-23 內容擴充第二批：忍具的四個新效果 =====
+   */
+  /** 便當：**下回合開始時**多 n 顆飯糰（記在 `PlayerCombat.energyNextTurn`，回合開始補滿之後才加，同一回合喝兩個會疊） */
+  | { kind: 'energyNextTurn'; n: number }
+  /** 回魂香：這場戰鬥接下來第一次會被打倒時留 1 點生命（`PlayerCombat.guardLethal`，跟最後一口氣分開算，秘寶先用） */
+  | { kind: 'guardLethal' }
+  /** 替換符：挑一張手牌，換成一張隨機的升級牌（只在這場戰鬥，戰鬥用的本來就是牌組的副本） */
+  | { kind: 'transformFromHand' }
+  /** 迷魂香：目標這一輪的攻擊改打牠旁邊的同伴（掛「迷魂」、記下是誰下的，見 `StatusName` 的 迷魂） */
+  | { kind: 'daze' }
   /** 千針萬毒：之後每打出一張攻擊牌，就給那個目標額外 `n` 層中毒（長效旗標） */
   | { kind: 'poisonOnAttack'; n: number }
   /*
@@ -276,8 +292,9 @@ export type Effect =
   | { kind: 'drawNextTurn'; n: number }
   /** `step`＝成長牌（菲菲的分身術，2026-09-14）：這場戰鬥裡同一張牌之前每打出一次，這次就多 step 層（跟 damageRamp 同一套次數） */
   | { kind: 'status'; name: StatusName; amount: number; target: 'self' | 'enemy' | 'all'; step?: number }
-  /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5） */
-  | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number }
+  /** `max`＝每種最多拆幾點（防禦也照這個數）。不填＝整個拆光（封口術本來全拆，使用者 2026-09-02：太強，改最多 5）。
+   *  `target: 'all'`＝場上每一隻都拆（2026-09-23 第二批照妖鏡）；不填＝指定的那一隻 */
+  | { kind: 'removeStatuses'; names: StatusName[]; removeBlock?: boolean; max?: number; target?: 'all' }
   /** 催噎：目標身上這個狀態翻倍（沒有就沒事），再加 add 層 */
   | { kind: 'doubleStatus'; name: StatusName; add?: number }
   | { kind: 'transferDebuffs' }
@@ -349,13 +366,27 @@ export interface CardDef {
 export interface CardInstance { uid: number; cardId: string; upgraded: boolean }
 
 // ===== 秘寶、忍具 =====
-export type RelicPool = '起始' | '常見' | '大魔物' | '塔主';
+/**
+ * `罐頭鋪`、`事件`（2026-09-23 內容擴充第二批）是**限定池**：一般抽法（紙箱、戰利品、過關三選一、罐頭鋪一般貨架、
+ * 事件的 `relic` 效果）一律只抽前四池，這兩池只從自己的管道拿——罐頭鋪的「店長私藏」那一格（`makeShop`）、
+ * 事件指定給那一件（事件劇本的 `relicId`）。
+ */
+export type RelicPool = '起始' | '常見' | '大魔物' | '塔主' | '罐頭鋪' | '事件';
+/** 秘寶套組（2026-09-23 內容擴充第二批）。今天只有師門一套，加成寫在 `content/relics.ts` 的 `RELIC_SETS` */
+export type RelicSet = '師門';
 export interface RelicDef {
   id: string;
   name: string;
   pool: RelicPool;
   text: string;
   art: string;
+  /** 套組（師門：師父的斗笠、塔主的酒葫蘆、師父的舊木劍）。集到幾件、加成是什麼見 `RELIC_SETS` */
+  set?: RelicSet;
+  /**
+   * **還沒接好，不進任何抽取池**（2026-09-23 第二批先把定義放上去給事件代理用，效果接好就拿掉）。
+   * `rollRelic`／`rollRelicChoices` 跳過它；量尺也不量。直接 `takeRelic` 塞得進去（測試用）。
+   */
+  wip?: true;
   /**
    * **這幾位抽不到這一件**（2026-09-12；沒寫＝誰都抽得到）。
    *
@@ -422,6 +453,35 @@ export interface RelicDef {
     blockKeep?: number;
     /** 戰鬥獎勵的牌多幾張可選 */
     rewardChoices?: number;
+    // ---- 2026-09-23 內容擴充第二批：計數型（秘寶圖示右下角疊數字，見 `engine/counters.ts`）----
+    /** 每 n 回合（第 n、2n…回合開始時）跑一次（沙漏、線香）。看戰鬥的回合數，不用存 */
+    everyNTurns?: { n: number; effects: Effect[] };
+    /** 每回合打出第 n 張牌、那張牌結算完之後跑一次（暗器匣）。跟算盤珠同一個計數（`cardsPlayedThisTurn`） */
+    onNthCard?: { n: number; effects: Effect[] };
+    /** 攻擊牌**跨戰鬥**累計：每打出第 n 張攻擊牌，那一張傷害加倍（木人樁）。計數存在 `RunPlayer.counters` */
+    attackCounterDouble?: number;
+    /** 走進不是戰鬥的格子**跨關**累計：每走進第 n 格得 fish 條小魚乾（撲滿）。計數存在 `RunPlayer.counters` */
+    nodeCounterFish?: { n: number; fish: number };
+    // ---- 角色的新時機（每一種都接在引擎裡對應的那一刻，見 combat.ts／actions.ts／effects.ts）----
+    /** 蓄氣灌到 12 的那一刻：這回合下一張攻擊牌傷害加倍，每回合最多一次（滿月劍意） */
+    qiFullDoubleNext?: boolean;
+    /** 這場戰鬥每花掉 per 點蓄氣，得 energy 顆飯糰（收鞘墜）。零頭記在 `PlayerCombat.qiSpentAcc` */
+    qiSpentEnergy?: { per: number; energy: number };
+    /** 你下的毒（魔物的 `poisonedBy` 是你）每回合結算時多扣 n 點（五毒譜） */
+    poisonTickBonus?: number;
+    /** 回合結束時蜷縮超過 over 點的部分，每 per 點換 1 點反彈，蜷縮不減少（鐵壁） */
+    turnEndBlockToThorns?: { over: number; per: number };
+    /** 每次閃過魔物的攻擊之後跑一次（影分身卷軸：下回合多抽） */
+    onDodge?: Effect[];
+    // ---- 罐頭鋪與事件限定的四個（價格規則見 `run.ts` 的 `shopPrice`）----
+    /** 放生的價錢不再上漲（會員卡） */
+    removeCostFrozen?: boolean;
+    /** 每間罐頭鋪買的第一件商品半價（店主的帳本）。放生、重整不算 */
+    shopFirstItemHalf?: boolean;
+    /** 罐頭鋪忍具的價格倍率（批發箱 0.5） */
+    shopPotionMul?: number;
+    /** 每間罐頭鋪第一次走進去先付幾條（山賊的欠條；不夠就付到 0） */
+    shopEntryFee?: number;
   };
 }
 
@@ -451,6 +511,8 @@ export interface PotionDef {
    * 兩邊各寫一套遲早會走鐘（罐頭鋪的「買不起」就踩過）。
    */
   usable?: { check: (hp: number, maxHp: number) => boolean; reason: string };
+  /** 還沒接好，不進任何抽取池（跟 `RelicDef.wip` 同一件事，2026-09-23 第二批） */
+  wip?: true;
 }
 
 // ===== 魔物 =====
@@ -751,6 +813,12 @@ export interface RunPlayer {
    */
   rarePity?: number;
   /**
+   * 跨戰鬥、跨關的秘寶計數（2026-09-23 內容擴充第二批：木人樁數攻擊牌、撲滿數非戰鬥格），鍵是秘寶代號。
+   * 可選：舊存檔沒有這一欄＝全部從 0 算（`save.ts` 會把壞掉的值丟掉、不整份判壞檔）。整局指紋有收（有才串）。
+   * 戰鬥中的木人樁照 `PlayerCombat.relicCounters` 那一份數，打完才寫回這裡（戰鬥不存檔，重整回到進場前的數）。
+   */
+  counters?: Record<string, number>;
+  /**
    * 倒下了（規則四）。倒下的人之後的戰鬥都只能觀戰，
    * **直到有人在打盹點把他扶起來**（使用者 2026-09-11 追認）。
    */
@@ -851,6 +919,19 @@ export interface PlayerCombat extends Unit {
   qi?: number;
   /** 本玩家階段下一張合法攻擊的首段首目標固定加成，取大、不相加 */
   nextAttackBonus?: number;
+  /*
+   * ===== 2026-09-23 內容擴充第二批的戰鬥內狀態（全部收進 `combatFingerprint`，有才串）=====
+   */
+  /** 便當：下回合開始時多幾顆飯糰。回合開始補滿之後發掉就清掉 */
+  energyNextTurn?: number;
+  /** 回魂香：這場接下來第一次會被打倒時留 1 點生命。用掉就清掉 */
+  guardLethal?: boolean;
+  /** 跨戰鬥計數的戰鬥內那一份（木人樁），開打時從 `RunPlayer.counters` 抄進來、`finishCombat` 寫回去 */
+  relicCounters?: Record<string, number>;
+  /** 收鞘墜：這場花掉的蓄氣還沒湊滿一份的零頭 */
+  qiSpentAcc?: number;
+  /** 滿月劍意：這一回合（`cs.turn`）已經發動過了 */
+  fullMoonTurn?: number;
   /** 集中精神：本玩家階段所有新增飯糰都變成 0；下一個本人回合開始清除 */
   energyGainBlockedThisPhase?: true;
   doubleNext: number;
@@ -966,6 +1047,11 @@ export interface EnemyCombat extends Unit {
    * 進指紋，兩邊記的人不一樣會當場抓到。
    */
   poisonedBy?: number;
+  /**
+   * 誰對牠丟了迷魂香（座位編號，2026-09-23 內容擴充第二批）。牠這一輪打同伴、打倒了，擊倒獎勵算這一位的——
+   * 不記的話一律退回座位 0（跟 `poisonedBy` 同一個坑）。跟「迷魂」狀態一起在敵方回合收尾清掉，進指紋。
+   */
+  dazedBy?: number;
   uid: number;
   enemyId: string;
   name: string;
@@ -1053,7 +1139,8 @@ export interface EffectCtx {
 export interface PendingChoice {
   kind: 'chooseCards';
   from: 'hand' | 'discard' | 'scry';
-  purpose: 'exhaust' | 'retain' | 'discard' | 'recover' | 'scryDiscard';
+  /** `transform`＝替換符（2026-09-23 第二批）：挑的那一張換成一張隨機的升級牌 */
+  purpose: 'exhaust' | 'retain' | 'discard' | 'recover' | 'scryDiscard' | 'transform';
   cards: CardInstance[];
   min: number;
   max: number;

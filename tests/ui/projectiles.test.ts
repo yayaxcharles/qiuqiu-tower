@@ -269,7 +269,7 @@ describe('丟出去的忍具 × 四隻貓', () => {
   });
 
   it('忍具總數沒變，丟的清單每一支都真的存在', () => {
-    expect(potions).toHaveLength(45);   // 2026-09-23 內容擴充第一批 +10（其中丟的只有火雷珠，上面 POTION_EXPECT 有列）
+    expect(potions).toHaveLength(51);   // 2026-09-23 內容擴充第一批 +10（其中丟的只有火雷珠）、第二批 +6（丟的只有迷魂香）；上面 POTION_EXPECT 有列
     for (const id of Object.keys(POTION_EXPECT)) expect(potionById[id], id).toBeDefined();
   });
 });

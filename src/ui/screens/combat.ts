@@ -105,6 +105,8 @@ const STATUS_ICON: Record<StatusName, string> = {
   // 虛化的意思就是「半透明」，但圖示不能真的畫半透明——綠幕會從身體裡透出來、去背後整張帶綠
   //（codex_gen.py 的坑 5）。改用「實心淡色本體＋錯位殘影」表達。
   虛化: 'icon/status_phase',
+  // 迷魂（2026-09-23 第二批）：沒有另畫狀態圖示，借迷魂香那支忍具的圖（同一個 icons 分類，戰鬥中一定載好了）
+  迷魂: 'codex/potion_daze_incense',
 };
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
@@ -117,6 +119,7 @@ const INTENT_GLYPH: Record<Intent, string> = { attack: '攻', block: '守', buff
 const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
   exhaust: '挑要消耗的牌', retain: '挑要留到下回合的牌', discard: '挑要丟掉的牌',
   recover: '挑要拿回手上的牌', scryDiscard: '這是抽牌堆最上面的牌，挑要丟掉的',
+  transform: '挑一張要換掉的牌（換成隨機一張升級牌）',
 };
 /**
  * 回合交接的節拍（毫秒）。按下「結束回合」之後畫面依序做三件事：

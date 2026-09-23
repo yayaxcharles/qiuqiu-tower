@@ -317,7 +317,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
         : fx.target === 'all' ? say('全體魔物獲得')
           : say('給目標');
     }
-    case 'removeStatuses': return fx.max === undefined
+    // 2026-09-23 內容擴充第二批的四個（今天只有忍具用，忍具的牌面是手寫的 `text`；這裡寫好是為了哪天有牌用到時不會漏）
+    case 'energyNextTurn': return `下回合開始時多 ${fx.n} 顆飯糰`;
+    case 'guardLethal': return '這場戰鬥接下來第一次會被打倒時，留下 1 點生命';
+    case 'transformFromHand': return '挑一張手牌，換成一張隨機的升級牌（只在這場戰鬥）';
+    case 'daze': return '目標這回合的攻擊改打牠旁邊的同伴（沒有同伴就打空）';
+    case 'removeStatuses': return fx.target === 'all' ? `拔掉全體魔物身上的${fx.names.join('、')}` : fx.max === undefined
       ? `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與防禦' : ''}`
       : `移除目標最多 ${fx.max} 點${fx.names.join('、')}${fx.removeBlock ? `與 ${fx.max} 點防禦` : ''}`;
     case 'transferDebuffs': return `把你身上的${DEBUFFS.join('、')}全部丟到目標身上`;   // 照引擎的表，不手抄

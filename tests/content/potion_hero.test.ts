@@ -43,7 +43,9 @@ describe('忍具不分職業', () => {
       ...(c.upgrade.effects ?? []).map((f) => f.kind),
     ]));
     // 只挑忍具特有的幾種當白名單：這幾種牌上沒有，是忍具專屬的一次性效果
-    const potionOnly = new Set(['immuneThisTurn', 'skipEnemyTurn', 'recoverFromDiscard', 'damageScatter']);
+    // 2026-09-23 第二批的四種也是忍具專屬（便當、回魂香、替換符、迷魂香），引擎只看喝的人是誰、不看職業
+    const potionOnly = new Set(['immuneThisTurn', 'skipEnemyTurn', 'recoverFromDiscard', 'damageScatter',
+      'energyNextTurn', 'guardLethal', 'transformFromHand', 'daze']);
     const orphan = [...new Set(potions.flatMap((p) => p.effects.map((f) => f.kind)))]
       .filter((k) => !kindsInCards.has(k) && !potionOnly.has(k));
     expect(orphan, `這幾種效果只有忍具有，牌上沒有：${orphan.join('、')}——確認引擎對三個職業都一樣處理`).toEqual([]);
