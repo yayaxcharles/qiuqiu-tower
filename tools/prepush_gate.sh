@@ -91,6 +91,22 @@ if ! npx vitest run > "$log" 2>&1; then
   exit 1
 fi
 grep -E "Test Files |Tests " "$log"
+
+# 型別檢查加 --preserveSymlinks（2026-09-23 稽核低-2 驗證時另外抓到的坑，不在原稽核清單上）。
+# **為什麼要多這一步**：`node_modules` 底下是逐套件連結回主資料夾的 junction，
+# tsc 預設遇到連結會解回它的真實路徑，於是從「真實路徑」往上找 node_modules 時，
+# 又摸到主資料夾自己那份完整的 node_modules——裡面有本機多裝、鎖檔沒有的
+# `@types/node`，型別檢查就在本機悄悄撿到它，跟雲端不一樣還是看不出來。
+# 用 LF 副本＋這面旗子模擬雲端時，才真的抓到 `process`／`__dirname` 兩個全域沒宣告
+# （`tools/node-build.d.ts` 已經補上）。下面這行本來就會被 `npm run build` 的
+# `tsc --noEmit` 再跑一次（沒有這面旗子），這裡是刻意加嚴、不是重複。
+if ! npx tsc --noEmit -p . --preserveSymlinks >> "$log" 2>&1; then
+  echo "[推送閘門] ✗ 型別檢查沒過（用 --preserveSymlinks 模擬雲端沒有連結可以借型別），這次不推："
+  grep -E "error TS" "$log" | head -20
+  echo "（完整輸出：$(cygpath -w "$log")）"
+  exit 1
+fi
+
 # 打包編號用這一筆提交（雲端的 Actions 用 GITHUB_SHA，是同一個值）：兩邊打出來的主程式才會一模一樣，
 # `tools/deploy.sh` 第三步比對檔名才有意義（2026-09-14 用時間當編號，第三步必定對不上）
 # 網址路徑照要推的遠端帶（`vite.config.ts` 的 `SITE_NAME`）：連線版倉庫是 qiuqiu-tower-coop、單機版是 qiuqiu-tower。
