@@ -137,7 +137,8 @@ describe('貓窩立繪的樣式表', () => {
   it('第三關原版底圖（窩在比較右邊）四隻都有自己往右挪的那一條（封封原本漏了，坐在窩邊上）', () => {
     const css = readFileSync('src/ui/styles/screens.css', 'utf8').replace(/\r\n/g, '\n').replace(/\/\*[\s\S]*?\*\//g, '');
     for (const hero of HEROES) {
-      const rule = new RegExp(`#stage\\[data-screen="rest"\\]\\[data-act="3"\\]\\[data-hero="${hero}"\\]\\[data-restbg="screen_rest_top"\\] \\.scene-portrait \\{ left: 78px; \\}`);
+      // 2026-09-23 M-2 起選擇器前綴是 `:is(#stage, .screen-leaving)`：換場時墊在底下的舊貓窩也吃得到同一條（特異度不變）
+      const rule = new RegExp(`:is\\(#stage, \\.screen-leaving\\)\\[data-screen="rest"\\]\\[data-act="3"\\]\\[data-hero="${hero}"\\]\\[data-restbg="screen_rest_top"\\] \\.scene-portrait \\{ left: 78px; \\}`);
       expect(css, hero).toMatch(rule);
     }
   });

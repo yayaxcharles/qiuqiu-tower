@@ -69,9 +69,19 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
     if (ended) return;
     ended = true;
     forget();
-    box.remove();
     unlockScreen();
+    /*
+     * **回呼先叫、這一層後收**（2026-09-23 實機驗收 M-2 同型）：回呼換的畫面（過關畫面、地圖）就畫在這一層底下，
+     * 這一層再淡出。原本先拔掉這一層再換畫面，換場那一格露出來的是幻燈片底下的舞台——
+     * 以前是米白底色，舊畫面改成墊在底下淡出後，會是早就看不到的舊畫面（剛打完的關主戰、選角畫面）。
+     * 有這一層蓋著時 `App.show()` 不淡入、也不墊舊畫面（見 app.ts），新畫面一出來就是完整的。
+     */
     onDone();
+    box.style.pointerEvents = 'none';
+    const out = typeof box.animate === 'function'
+      ? box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-out', fill: 'forwards' }) : null;
+    if (out) out.finished.then(() => box.remove(), () => box.remove());
+    else box.remove();
   };
   const gate = newClickGate();   // 連點保護，規則見 clickgate.ts
   box.addEventListener('click', (ev) => {

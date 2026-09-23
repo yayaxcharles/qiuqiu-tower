@@ -69,9 +69,8 @@ function fitArt(scene: HTMLElement, box: HTMLElement): void {
   const firstText = box.querySelector<HTMLElement>('.dialogue-speaker, .scene-text');
   // 量高度要等節點進到文件裡；`requestAnimationFrame` 在測試環境（jsdom、node）可能沒有
   const run = (): void => {
-    // `scene` 是每次 `sceneView()` 新建、`app.show()` 會整個清掉的節點，
-    // 所以它的 `isConnected` 真的代表「這張畫面還在不在」——
-    // 跟 `app.screen`（常駐節點、恆真）那個坑正好相反，這裡是安全的
+    // `scene` 是每次 `sceneView()` 新建的節點，畫面換掉它就跟著拔掉（淡入換場時晚 220 毫秒，舊畫面墊在底下淡出，
+    // 見 screenswap.ts）。這裡只是量版面，那段時間多量一次舊的也無害
     if (!scene.isConnected || !firstText) return;
     const k = stageScale();
     const sceneTop = scene.getBoundingClientRect().top;

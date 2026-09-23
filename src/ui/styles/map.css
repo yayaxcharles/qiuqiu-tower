@@ -1,6 +1,6 @@
 /* ===== 地圖畫面 ===== */
 /* 狀態列後面是捲軸看不到的地方，鋪深色免得透出舞台的米色 */
-#stage[data-screen="map"] { background-color: #14100c; }
+:is(#stage, .screen-leaving)[data-screen="map"] { background-color: #14100c; }
 /* 底圖沒生好時漸層撐著；有圖時行內樣式會蓋掉這裡的 background-image。
    這層放在捲軸內容裡，尺寸跟內容一樣高，所以跟著捲。 */
 .map-bg {

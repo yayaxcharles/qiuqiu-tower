@@ -235,7 +235,8 @@ describe('畫面盤點 補查：牌組／挑牌視窗換畫面時要收掉（連
   });
 
   it('App.show() 只在換到**別的**畫面時收（同一個畫面重畫不收：戰利品頁不能取消的升級視窗要留著）', () => {
-    const show = sourceBetween(APP, '  show(name: ScreenName, props: unknown = {}', '    r(this, this.screen, props);');
+    // 2026-09-23 M-2 起淡入換場會換一個新的畫面層，渲染那行改成 `r(this, screen, props)`（見 screenswap.ts）
+    const show = sourceBetween(APP, '  show(name: ScreenName, props: unknown = {}', '    r(this, screen, props);');
     expect(show).toContain("if (this.stage.dataset['screen'] !== name) closeScreenModals();");
     expect(show.indexOf('closeScreenModals()'), '要在換上新的畫面名字之前比').toBeLessThan(show.indexOf("this.stage.dataset['screen'] = name;"));
   });

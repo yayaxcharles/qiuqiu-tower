@@ -130,7 +130,8 @@ registerScreen('chest', (app, root) => {
        * 180 毫秒剛好走到那支閃光最亮的那一格（`chest-burst` 的 45%）。
        * 這是**玩家自己按出來的回饋**、不是每場都要付的過場稅，不違反「不做拉長節奏的動畫」。
        */
-      window.setTimeout(() => { if (scene.isConnected) reveal(); }, 180);
+      // 看「還在現在的畫面上」不看 `isConnected`：換場後舊畫面會墊在底下淡出 220 毫秒（見 screenswap.ts），那段時間它還連在文件上
+      window.setTimeout(() => { if (app.screen.contains(scene)) reveal(); }, 180);
     };
     scene.addEventListener('click', open);
     root.append(sceneView({
