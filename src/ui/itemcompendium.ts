@@ -1,5 +1,5 @@
 import { potions } from '../content/potions';
-import { relicLongText, relics, RELIC_SETS, setCount, setMembers } from '../content/relics';
+import { MIASMA_PURE, relicById, relicLongText, relics, RELIC_SETS, setCount, setMembers } from '../content/relics';
 import type { RelicSet } from '../engine/types';
 import { artUrl } from './assets';
 import { el } from './dom';
@@ -62,6 +62,11 @@ export function showItemCompendium(owned: readonly string[] = []): void {
       list.append(el('div', { class: 'item-row' }, icon(r.art, r.name),
         el('div', { class: 'item-text' }, el('b', {}, r.name), el('em', {}, relicLongText(r, owned))),
         el('span', { class: 'item-price' }, `${r.price ?? 150} 條`)));
+      // 淨化版跟在原件下面一格（2026-09-23 第三批，design3 6-1）：`淨化` 池不自成一區、抽不到也買不到；身上沒有的畫剪影
+      const pure = relicById[MIASMA_PURE[r.id] ?? ''];
+      if (pure) list.append(el('div', { class: `item-row pure${owned.includes(pure.id) ? '' : ' unseen'}` }, icon(pure.art, pure.name),
+        el('div', { class: 'item-text' }, el('b', {}, `${pure.name}（淨化後）`), el('em', {}, pure.text)),
+        el('span', { class: 'item-price' }, '淨化')));
     }
     body.append(list);
   }

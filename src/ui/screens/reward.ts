@@ -320,7 +320,9 @@ registerScreen('reward', (app, root, props) => {
    * 怎麼問、怎麼畫的判斷在 `potionask.ts`（純函式，有測試釘著）。
    */
   // 倒下的人沒分到這支、背包也沒滿：原本 `potionMissed`（站著的人全收不下）連他一起問，按「換」被引擎擋下又回到沒問過，同伴一動就再彈（推前審查 2026-09-16 中-1）
-  const missedId = iDown ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null));
+  // 兩個人、有人帶藥簍時各拿各的那一支（`potionPerSeat`，2026-09-23 第三批）；沒有就是大家同一支
+  const myPotion = r.potionPerSeat ? r.potionPerSeat[seat] ?? null : r.potion;
+  const missedId = iDown ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? myPotion : null));
   const missed = missedId ? potionById[missedId] : undefined;
   if (missed && missedId) {
     const label = (): Node[] => [el('b', {}, missedPotionLabel(r.potionAsk, missed.name)), el('em', {}, missed.text)];
@@ -345,7 +347,7 @@ registerScreen('reward', (app, root, props) => {
       }, { seat, apply: false });
     }, 350);
   }
-  const potion = r.potion && !missedId && !iDown ? potionById[r.potion] : undefined;
+  const potion = myPotion && !missedId && !iDown ? potionById[myPotion] : undefined;
   if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),
     el('span', { class: 'reward-line' },
       el('b', {}, `獲得忍具「${potion.name}」`), el('em', {}, potion.text))));

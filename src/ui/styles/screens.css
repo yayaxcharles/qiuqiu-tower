@@ -982,6 +982,10 @@
   background: linear-gradient(#ffe08a, #e0a93a); color: #4a2a08; font-weight: 700; font-size: .9em;
 }
 .scene-actions .btn .choice-why { display: block; margin-top: 2px; font-size: .78em; color: #d9d0c2; opacity: .9; }
+/* 稀有事件（2026-09-23 第三批）：名牌旁的金色小牌「難得一見」；圖鑑裡淨化版跟在原件下面、沒拿過的畫剪影 */
+.rare-badge { margin-left: 8px; padding: 0 6px; border-radius: 4px; background: linear-gradient(#ffe08a, #e0a93a); color: #4a2a08; font-size: .72em; vertical-align: 2px; }
+.compendium.items .item-row.pure { margin-left: 22px; }
+.compendium.items .item-row.unseen img { filter: brightness(0) opacity(.35); }
 /* 只看現在的畫面層（`#screen`）：換畫面時墊在底下淡出的舊畫面也有 .scene，從事件「打一場」進戰鬥那 0.2 秒
    開場泡泡會先被推到右上、再跳回頭上（2026-09-23 推前審查二 低-1） */
 #stage:has(#screen .scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }

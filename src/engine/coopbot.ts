@@ -12,12 +12,12 @@ import { relicOk, settleRelicPicks } from './rewards';
 import { Rng, seedFromString } from './rng';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, removeCard, removePrice, rest, resolvePendingAfterFight,
+  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, purifyRelic, removeCard, removePrice, rest, resolvePendingAfterFight,
   revivePartner, rollActCardsPerSeat, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard,
   type RunEffectOutcome } from './run';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, setBonusScore, smartPending, smartSeatAct } from './smartbot';
+import { bestPurify, bestRelic, bestUpgrade, deckJunk, eventValue, napWorks, pickCard, rating, relicRating, restPurifyPick, setBonusScore, smartPending, smartSeatAct, takePillowCard } from './smartbot';
 import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunState } from './types';
 
 /**
@@ -247,6 +247,10 @@ function handleNeeds(run: RunState, outcome: RunEffectOutcome, seat: number): vo
     const id = pickCard(run, outcome.chooseCard, seat) ?? outcome.chooseCard[0]?.id;
     if (id) addCard(run, id, outcome.upgradedCard === id, seat);
     if (outcome.then) handleNeeds(run, outcome.then, seat);   // 學完再挑牌升級（2026-09-23 內容擴充第二批）
+  } else if ('purify' in outcome) {
+    // 兩件以上沾了魔氣的：挑淨化後分數多最多的那件（2026-09-23 第三批）
+    const id = bestPurify(outcome.purify, heroOf(me(run, seat)));
+    if (id) purifyRelic(run, id, seat);
   }
 }
 
@@ -388,7 +392,9 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
         run.players.forEach((p, i) => {
           if (p.down || (downSeat >= 0 && i === helper)) return;   // 救人的那位這一格用掉了
           const u = bestUpgrade(run, i);
-          if ((p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run, i)) || !u) rest(run, '打盹', undefined, i);
+          const pur = restPurifyPick(run, i);   // 點清心香（2026-09-23 第三批），判準同單人
+          if (pur) rest(run, '淨化', undefined, i, pur);
+          else if ((p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run, i)) || !u) { rest(run, '打盹', undefined, i); takePillowCard(run, i); }
           else rest(run, '磨爪', u.uid, i);
         });
         break;

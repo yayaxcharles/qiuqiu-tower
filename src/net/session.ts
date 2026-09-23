@@ -19,7 +19,8 @@ export const MATE_ABSENT_MS = 180_000;
  * 任何一處拼錯一個字，那一輪就永遠湊不齊票，而且不報錯；收成聯集之後 tsc 會擋。
  * **線上訊息的格式不變**：`transport.ts` 的 `k` 還是字串，收到時才對照這份。
  */
-const VOTE_KINDS = ['map', 'card', 'relic', 'rwup', 'event', 'evlearn', 'evcard', 'actcard', 'actrelic'] as const;
+// `evpurify`＝事件裡兩件以上沾了魔氣、挑一件淨化（2026-09-23 第三批）
+const VOTE_KINDS = ['map', 'card', 'relic', 'rwup', 'event', 'evlearn', 'evcard', 'actcard', 'actrelic', 'evpurify'] as const;
 export type VoteKind = typeof VOTE_KINDS[number];
 function isVoteKind(k: string): k is VoteKind { return (VOTE_KINDS as readonly string[]).includes(k); }
 
@@ -115,7 +116,7 @@ export class CoopSession {
    * 現在先留著、`attachShop` 時照順序補套；主機收到 `rreq` 也一樣先發號碼（對方那台已經照自己的貨架驗過）。
    */
   private readonly earlyShop: RunAction[] = [];
-  private static isShopAction(a: RunAction): boolean { return a.t === 'buy' || a.t === 'scrub' || a.t === 'shuffle'; }
+  private static isShopAction(a: RunAction): boolean { return a.t === 'buy' || a.t === 'scrub' || a.t === 'shuffle' || a.t === 'purify'; }
   private applyRun(a: RunAction): boolean {
     if (!this.rctx) return false;
     if (!this.shops && CoopSession.isShopAction(a)) { this.earlyShop.push(a); return true; }

@@ -39,7 +39,9 @@ export function showRelicList(run: RunState, seat = 0): void {
     const n = relicCounter(id, me(run, seat));
     list.append(el('div', { class: 'swap-item relic-row' },
       url.startsWith('data:') ? el('b', { class: 'relic-row-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }),
-      el('div', { class: 'swap-text' }, el('b', {}, r.name), el('em', {}, relicLongText(r, me(run, seat).relics) + (n !== null ? `（目前數到 ${n}）` : '')))));
+      // 箱中箱數的是剩幾次、用完寫「用完了」（2026-09-23 第三批）
+      el('div', { class: 'swap-text' }, el('b', {}, r.name), el('em', {}, relicLongText(r, me(run, seat).relics)
+        + (r.hooks.chestExtra ? (n ? `（還剩 ${n} 次）` : '（用完了）') : n !== null ? `（目前數到 ${n}）` : '')))));
   }
   overlay.append(el('div', { class: 'modal swap-modal relic-modal' },
     el('h2', { class: 'modal-title' }, `本局秘寶（${ids.length} 件）`),

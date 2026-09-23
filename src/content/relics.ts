@@ -297,7 +297,78 @@ export const relics: RelicDef[] = [
    */
   { id: 'bandit_iou', name: '山賊的欠條', pool: '事件', text: '每打贏一場戰鬥多拿 25 條小魚乾；每間罐頭鋪第一次走進去，先替山賊還 10 條舊帳（不夠就付到 0）。', art: 'codex/relic_bandit_iou', price: 150,
     hooks: { winGold: 25, shopEntryFee: 10 } },
+
+  /*
+   * ===== 2026-09-23 內容擴充第三批：9 件＋淨化版 6 件（design3 第六、七節）=====
+   *
+   * 9 件補到 120：量尺上「量出來幾乎沒效果」或「一件都沒有」的方向——忍具的來源（藥簍）、貓窩（夢枕）、
+   * 問號格（平安繩、探路杖）、紙箱（箱中箱）、魔氣（魔氣燈籠、舊護腕，可淨化）、削弱魔物（鎮魔符）、店主（集章卡）。
+   * 圖示是美術 art5 登記好的（`batch3_art_keys.md` 第三段），代號照設計稿。
+   *
+   * 「沾了魔氣」的六件（本批兩件＋既有三件＋第二批的魔氣殘片）淨化之後換成 `淨化` 池那一件（`MIASMA_PURE`），
+   * 淨化版永遠抽不到、不算進 120。**既有那四件的條目一個字都沒動**：哪幾件算「沾了魔氣」寫在下面的 `MIASMA_PURE` 表，不掛在條目上。
+   * 塔主池四件代價型（不眠香爐、銅臭錢袋、斷念珠、狂刀鞘）、貪吃錢袋、山賊的欠條**不能淨化**（design3 6-1：那是三選一與逛店時要猶豫的代價）。
+   *
+   * 平安繩的「不會變成伏擊」（`qmarkNoAmbush`）與探路杖的計數（`qmarkEvery`）由問號格變化那條線讀掛鉤、自己數（主控 2026-09-23 對齊）；
+   * 集章卡看的店主是店主輪替那條線寫在地圖格子上的 `keeper`（`run.ts` 的 `stampVisit`，還沒有那一欄＝橘貓老闆）。
+   */
+  // --- 常見 +4 ---
+  { id: 'herb_basket', name: '藥簍', pool: '常見', text: '打贏戰鬥時，戰利品一定有 1 個忍具（本來就會掉的，改成罕見以上）。', art: 'codex/relic_herb_basket', price: 130,
+    hooks: { winPotion: true } },
+  { id: 'dream_pillow', name: '夢枕', pool: '常見', text: '在貓窩打盹之後，從 3 張牌中選 1 張加入牌組（可以不拿）。', art: 'codex/relic_dream_pillow', price: 140,
+    hooks: { restCardReward: 3 } },
+  { id: 'peace_cord', name: '平安繩', pool: '常見', text: '問號格不會變成伏擊；每走進一個問號格回復 5 點生命。', art: 'codex/relic_peace_cord', price: 110,
+    hooks: { qmarkNoAmbush: true, qmarkHeal: 5 } },
+  { id: 'scout_staff', name: '探路杖', pool: '常見', text: '每走進 3 個問號格，第 3 個一定是行腳商或路邊紙箱（各一半）。', art: 'codex/relic_scout_staff', price: 150,
+    hooks: { qmarkEvery: 3 } },
+  // --- 大魔物 +2 ---
+  { id: 'box_in_box', name: '箱中箱', pool: '大魔物', text: '接下來打開的 2 個紙箱（8F 紙箱、路邊紙箱），每個多給你 1 件秘寶。', art: 'codex/relic_box_in_box', price: 190,
+    hooks: { chestExtra: 2 } },
+  { id: 'miasma_lantern', name: '魔氣燈籠', pool: '大魔物', text: '每回合開始時多抽 1 張牌；每場戰鬥第一回合多 1 顆飯糰；開戰帶 2 層懶洋洋。', art: 'codex/relic_miasma_lantern', price: 200,
+    hooks: { turnStart: [{ kind: 'draw', n: 1 }], firstTurnEnergy: 1, combatStart: [{ kind: 'status', name: '懶洋洋', amount: 2, target: 'self' }] } },
+  // --- 塔主 +1 ---
+  { id: 'demon_seal', name: '鎮魔符', pool: '塔主', text: '每場戰鬥開始時給全體魔物 1 層定身（每隻七成機會定住）。', art: 'codex/relic_demon_seal', price: 240,
+    hooks: { combatStart: [{ kind: 'status', name: '定身', amount: 1, target: 'all' }] } },
+  // --- 罐頭鋪限定 +1：只擺在店長私藏那一格 ---
+  { id: 'stamp_card', name: '集章卡', pool: '罐頭鋪', text: '每走進一間店主不同的罐頭鋪蓋一個章（買到它的這間算第一個）；集滿三個不同的章，隨機獲得 1 件塔主秘寶，之後罐頭鋪的商品打九折。', art: 'codex/relic_stamp_card', price: 150,
+    hooks: { stampCard: true } },
+  // --- 事件限定 +1：開局祝福、紫霧裡的聲音 ---
+  { id: 'master_bracer', name: '沾了魔氣的舊護腕', pool: '事件', text: '每場戰鬥開始時獲得 3 點爪力與 2 層翻肚。', art: 'codex/relic_master_bracer', price: 180,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }, { kind: 'status', name: '翻肚', amount: 2, target: 'self' }] } },
+  // --- 淨化版 6 件（`淨化` 池，永遠抽不到；說明就是原件拿掉魔氣那一半）---
+  { id: 'miasma_charm_pure', name: '清心護符', pool: '淨化', text: '每回合多 1 顆飯糰。', art: 'codex/relic_miasma_charm_pure', price: 240,
+    hooks: { energyPerTurn: 1 } },
+  // 拿到原件時扣的 12 點最大生命，淨化那一刻還回來（`run.ts` 的 `purifyRelic` 照兩件的 `maxHp` 差調整）
+  { id: 'blood_dagger_pure', name: '解契短刀', pool: '淨化', text: '每場戰鬥開始獲得 3 點爪力。', art: 'codex/relic_blood_dagger_pure', price: 210,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }] } },
+  { id: 'black_cat_mask_pure', name: '白貓面具', pool: '淨化', text: '每場戰鬥第一回合多 2 顆飯糰。', art: 'codex/relic_black_cat_mask_pure', price: 230,
+    hooks: { firstTurnEnergy: 2 } },
+  // 圖示檔名跟代號走（`relic_miasma_shard_pure`）；原件的圖示是 art2 的 `relic_demon_shard`，兩個前綴不一樣是刻意的（`batch3_art_keys.md` 第二段）
+  { id: 'miasma_shard_pure', name: '月光晶石', pool: '淨化', text: '最大生命 +15。', art: 'codex/relic_miasma_shard_pure', price: 190,
+    hooks: { maxHp: 15 } },
+  { id: 'master_bracer_pure', name: '大俠貓的舊護腕', pool: '淨化', text: '每場戰鬥開始時獲得 3 點爪力。', art: 'codex/relic_master_bracer_pure', price: 180,
+    hooks: { combatStart: [{ kind: 'status', name: '爪力', amount: 3, target: 'self' }] } },
+  { id: 'miasma_lantern_pure', name: '長明燈', pool: '淨化', text: '每回合開始時多抽 1 張牌；每場戰鬥第一回合多 1 顆飯糰。', art: 'codex/relic_miasma_lantern_pure', price: 200,
+    hooks: { turnStart: [{ kind: 'draw', n: 1 }], firstTurnEnergy: 1 } },
 ];
+
+/**
+ * **沾了魔氣的秘寶 → 淨化版**（2026-09-23 第三批，design3 6-1）。這張表就是「哪幾件算沾了魔氣」的唯一來源：
+ * 淨化換的是代號（原地換、位置不變），存檔與整局指紋只存代號，自動跟著走。
+ * 判準：代價是魔氣造成的、而且不是過關三選一或逛店時要猶豫的那種代價（塔主池四件代價型、貪吃錢袋、山賊的欠條不在這裡）。
+ */
+export const MIASMA_PURE: Readonly<Record<string, string>> = {
+  miasma_charm: 'miasma_charm_pure',
+  blood_dagger: 'blood_dagger_pure',
+  black_cat_mask: 'black_cat_mask_pure',
+  miasma_shard: 'miasma_shard_pure',
+  master_bracer: 'master_bracer_pure',
+  miasma_lantern: 'miasma_lantern_pure',
+};
+/** 這件沾了魔氣嗎（淨化得掉） */
+export function isMiasma(id: string): boolean { return Object.hasOwn(MIASMA_PURE, id); }
+/** 說明下面自動補的那一行紫字（design3 6-1）：不改原本六件的說明，畫面看到 `isMiasma` 就補這一句 */
+export const MIASMA_NOTE = '沾了魔氣：可以淨化（貓窩、玳瑁婆婆、某些事件）';
 
 export const relicById: Record<string, RelicDef> = Object.fromEntries(relics.map((r) => [r.id, r]));
 
@@ -329,6 +400,8 @@ export function activeSets(owned: readonly string[]): RelicSet[] {
  * 集到幾件照 `owned` 數（圖鑑沒有一局可看就傳空的，寫 0）。沒有套組的就是原本的說明。
  */
 export function relicLongText(def: RelicDef, owned: readonly string[] = []): string {
+  // 沾了魔氣的六件補一句「可以淨化」（2026-09-23 第三批，design3 6-1：不改原本的說明，看到 `MIASMA_PURE` 就補）
+  if (isMiasma(def.id)) return `${def.text}（${MIASMA_NOTE}）`;
   if (!def.set) return def.text;
   return `${def.text}【${def.set} ${setCount(def.set, owned)}／${setMembers(def.set).length}】${RELIC_SETS[def.set].text}。`;
 }

@@ -1,12 +1,13 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { dialogue } from '../../content/dialogue';
-import { condHint, coopFill, eventTextFor, flagWhy } from '../../content/event-text';
+import { condHint, coopFill, eventTextFor, flagWhy, lotteryAfter } from '../../content/event-text';
 import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
-import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
+import { addCard, applyRunEffects, purifyRelic, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
+import { showPurifyPick } from '../purifypick';
 import { choiceEffectsFor, choiceGate, choiceOrder, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
 import { heroName } from '../../engine/hero';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
@@ -236,6 +237,8 @@ registerScreen('event', (app, root, props) => {
    * 他那台一進來就直接看到結果與「繼續」，一按就走。
    */
   let awaitingPicks = false;
+  /** 連線時「挑一件淨化」那一輪的文案（2026-09-23 第三批）：只有真的開過挑選窗的那一台才有，理由同 `cardPickInfo` */
+  let purifyInfo: { resultText: string; gains: RunGain[]; gotShow: Showcase; noteLine: (extra?: string) => string | null } | null = null;
   const iDown = !!coop && !!me(run, seat).down;   // 我倒下了：只能看，不能選
 
   /** 交換是大家一起做：站著的每一位都要有可交出的非起始秘寶。 */
@@ -284,7 +287,7 @@ registerScreen('event', (app, root, props) => {
     const lost = note?.includes('沒中') ?? false;
     const stamp = won || lost ? el('div', { class: `gamble-stamp ${won ? 'win' : 'lose'}` }, won ? '賭贏了！' : '賭輸了……') : '';
     if (won) play('victory'); else if (lost) play('defeat');
-    root.append(sceneView({
+    root.append(markRare(sceneView({
       art: artNode,
       ...(portrait ? { portrait } : {}),
       ...(portrait2 ? { portrait2 } : {}),
@@ -292,7 +295,12 @@ registerScreen('event', (app, root, props) => {
       text: resultText,
       extra: [stamp, gainRows(gains), note ? el('p', { class: 'event-note' }, note) : ''],
       actions: button ? [button] : [],
-    }));
+    })));
+  }
+  /** 稀有事件：名牌旁掛金色小牌「難得一見」（2026-09-23 第三批，design3 5-1）。其他事件原樣回 */
+  function markRare(scene: HTMLElement): HTMLElement {
+    if (evd.rare) scene.querySelector('.dialogue-speaker')?.append(el('span', { class: 'rare-badge' }, '難得一見'));
+    return scene;
   }
   /**
    * 選好選項、要畫結果之前，先等那張結果圖到（2026-09-23 內容擴充 0-2 補，主控裁定）。
@@ -481,14 +489,14 @@ registerScreen('event', (app, root, props) => {
       grid.append(cardNode(up ? { uid: -1, cardId: c.id, upgraded: true } : c,
         picked ? { disabled: true } : { onClick: () => learn(c.id) }));
     }
-    root.append(sceneView({
+    root.append(markRare(sceneView({
       art: grid,
       speaker: title,
       text: picked ? `${resultText}　挑好了，等同伴挑完。` : `${resultText}　選一張牌帶走。`,
       actions: [picked
         ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
         : el('button', { class: 'btn', onclick: () => learn('') }, '都不要')],
-    }));
+    })));
   }
 
   /**
@@ -509,8 +517,9 @@ registerScreen('event', (app, root, props) => {
   };
 
   function settle(outcome: RunEffectOutcome, rawResult: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
-    // 換角色的文案在**入口**過一次，比每個呼叫點各包一次不容易漏（這支有六個呼叫點）
-    const resultText = evText(rawResult);
+    // 換角色的文案在**入口**過一次，比每個呼叫點各包一次不容易漏（這支有六個呼叫點）。
+    // 稀有事件的抽獎（籤筒、睡著的大魔物）接一句「抽到之後的那一句」：抽到哪一格從引擎寫的提示裡找（2026-09-23 第三批）
+    const resultText = evText(rawResult) + lotteryAfter(evd.id, notes, me(run, seat).hero);
     const noteLine = (extra?: string): string | null => {
       const all = extra ? [...notes, extra] : notes;
       return all.length ? all.join('；') : null;
@@ -611,6 +620,29 @@ registerScreen('event', (app, root, props) => {
       return;
     }
     if ('chooseCard' in outcome) { chooseCard(resultText, outcome.chooseCard, gains, outcome.upgradedCard, outcomes); return; }
+    /*
+     * 身上兩件以上沾了魔氣、只淨化一件（2026-09-23 第三批，design3 6-2）：跳一個小視窗挑。
+     * 單人挑完當場淨化；連線照挑牌那一套投票（`evpurify`），**套用是 `take()` 掛的那一支在做**（兩台都跑得到，理由同 `settleCards`）。
+     */
+    if ('purify' in outcome) {
+      panel(resultText, noteLine(), '', gains, resultArt, gotShow);
+      const ids = outcome.purify;
+      if (!coop) {
+        showPurifyPick(ids, (id) => {
+          const got: string[] = [];
+          if (id) purifyRelic(run, id, seat, got);
+          if (got.length) play('relic');
+          finish(resultText, noteLine(got.join('；') || undefined), gains, gotShow);
+        });
+        return;
+      }
+      purifyInfo = { resultText, gains, gotShow, noteLine };
+      showPurifyPick(ids, (id) => {
+        panel(`${resultText}　挑好了，等同伴挑完。`, noteLine(), '', gains, resultArt);   // 先畫等待再投票（我是後投的那一位時，投下去當場就結算、畫出結果）
+        coop.pick('evpurify', id ?? '');
+      });
+      return;
+    }
     // 打一場：戰鬥畫面會把獎金一路帶到戰後結算，這裡不存檔（節點還沒結束）
     const f = outcome.fight;
     panel(resultText, noteLine(), el('button', { class: 'btn primary', onclick: () => {
@@ -685,9 +717,27 @@ registerScreen('event', (app, root, props) => {
     /** 這一位本來有沒有「三選一學招」要挑（座位不對稱的選項可能只有一邊有；見下面的空票） */
     const hadLearn = outcomes.map((o) => !!o && 'chooseCard' in o);
     if (coop) {
-      // 只要**有人**要挑牌，這個畫面就先鎖住「繼續」（見 `awaitingPicks`）
-      awaitingPicks = outcomes.some((o) => !!o && ('needs' in o || 'chooseCard' in o));
+      // 只要**有人**要挑牌（或挑一件淨化，2026-09-23 第三批），這個畫面就先鎖住「繼續」（見 `awaitingPicks`）
+      awaitingPicks = outcomes.some((o) => !!o && ('needs' in o || 'chooseCard' in o || 'purify' in o));
       coop.onPick((kind) => {
+        if (kind === 'evpurify') {
+          const all = onlyStanding(coop.picks('evpurify', run.players.length), alive);
+          if (!allVoted(all, alive)) return;
+          coop.clearPicks('evpurify');
+          awaitingPicks = false;
+          // 照座位順序淨化（兩台一樣）；「要不要淨化、候選是哪幾件」看那一位自己的 `outcome`，不看本機有沒有開過視窗
+          const mine: string[] = [];
+          all.forEach((v, i) => {
+            const oi = outcomes[i];
+            if (!v || !(oi && 'purify' in oi) || !oi.purify.includes(v)) return;
+            purifyRelic(run, v, i, i === seat ? mine : undefined);
+          });
+          const info = purifyInfo;
+          if (!info) { showResult(); return; }   // 我這台沒開過視窗（沒得挑、倒下）：重畫一次把「繼續」放出來
+          if (mine.length) play('relic');
+          finish(info.resultText, info.noteLine(mine.join('；') || undefined), info.gains, info.gotShow);
+          return;
+        }
         if (kind === 'evlearn') {
           const all = onlyStanding(coop.picks('evlearn', run.players.length), alive);
           if (!allVoted(all, alive)) return;
@@ -759,6 +809,8 @@ registerScreen('event', (app, root, props) => {
       const mine = outcomes[seat];
       if (outcomes.some((o) => !!o && 'needs' in o) && !(mine && 'needs' in mine)) coop.pick('evcard', '');
       if (outcomes.some((o) => !!o && 'chooseCard' in o) && !hadLearn[seat]) coop.pick('evlearn', '');
+      // 挑一件淨化也一樣（2026-09-23 第三批）：同伴有兩件要挑、我只有一件（當場淨化了）或沒有，替自己投空票
+      if (outcomes.some((o) => !!o && 'purify' in o) && !(mine && 'purify' in mine)) coop.pick('evpurify', '');
     }
   }
 
@@ -824,14 +876,17 @@ registerScreen('event', (app, root, props) => {
    * 已經讓提示出現了，所以不會有「該提示卻沒提示」的情形。
    */
   // 看得到的選項才算；座位不對稱的兩邊都算（一人扣血那種也是「會掉血」）
-  const risky = shown.some((i) => [...ev.choices[i]!.outcome, ...(ev.choices[i]!.bySeat?.flat() ?? [])].some((o) => o.kind === 'damage' || o.kind === 'gamble'));
+  // 抽獎（籤筒的下籤會掉血，2026-09-23 第三批）也算
+  const risky = shown.some((i) => [...ev.choices[i]!.outcome, ...(ev.choices[i]!.bySeat?.flat() ?? [])].some((o) => o.kind === 'damage' || o.kind === 'gamble' || o.kind === 'lottery'));
   const extra = runMods(run).unlucky && risky
     ? [el('p', { class: 'event-note' }, '這個難度下，事件會更兇：掉血多一半，賭運氣只剩七成機會中（選項上寫的是一般難度的數字）')]
     : [];
   const opening = evText(ev.text) + hints.join('');
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
-  root.append(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), ...(portrait2 ? { portrait2 } : {}), speaker: title,
-    text: iDown ? `${opening}（你倒下了，這次由同伴決定）` : opening, extra, actions: choices, column: true }));
+  root.append(markRare(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), ...(portrait2 ? { portrait2 } : {}), speaker: title,
+    text: iDown ? `${opening}（你倒下了，這次由同伴決定）` : opening, extra, actions: choices, column: true })));
+  // 稀有事件開場播一聲秘寶那個音效（design3 5-1）。連線時每投一票會重畫一次，有人投過票就不再響
+  if (ev.rare && !votes.some((v) => v !== null)) play('relic');
 
   if (coop) {
     coop.onPick((kind) => {

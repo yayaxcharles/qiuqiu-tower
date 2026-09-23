@@ -1,6 +1,7 @@
 import type { EventDef } from '../engine/types';
 import { fengfengEvents } from './fengfeng-events';
 import { batch2Events } from './events-batch2';
+import { rareEvents } from './events-rare';
 
 /**
  * 5F 固定事件，**一關一版**（2026-09-23 內容擴充第一批，提案第⑥節「5F 秘笈三關三版」）。索引＝關數−1。
@@ -310,6 +311,10 @@ export const events: EventDef[] = [
       { label: '扶正神龕、安放神像（生命上限與當前生命各 +6）', outcome: [{ kind: 'maxHp', n: 6 }], result: '球球扶起神龕，把兩截神像拼好。神像亮了起來，暖意從爪尖傳到身上，牠深吸一口氣，胸口也舒展了。球球：「這是在謝我喵？」', resultArt: 'broken_shrine_r0' },
       { label: '拿走供品（獲得 45 條小魚乾、牌組加入 1 張壞毛病「走火入魔」）', outcome: [{ kind: 'fish', n: 45 }, { kind: 'addCard', cardId: 'zouhuo' }],
         result: '球球抱起供品就走，神像卻冒出一縷冷氣，鑽進牠的胸口。牠急忙停下，呼吸已經亂了。球球：「怎麼回事，胸口好冷喵！」', resultArt: 'broken_shrine_r1' },
+      // 條件選項【魔氣】（2026-09-23 第三批，design3 6-5）：身上有沾了魔氣的秘寶才出現，淨化一件；三隻的文字與條件提示句在 `event-text-b3rare.ts`
+      { label: '把沾了魔氣的東西供在神龕前（淨化 1 件沾了魔氣的秘寶）', requires: { kind: 'miasmaRelic' }, requiresLabel: '魔氣',
+        outcome: [{ kind: 'purify', n: 1 }],
+        result: '球球把那件東西捧出來，擺在兩截神像中間的供盤上。神像的眼睛亮成金色，紫色的霧從那件東西上一縷一縷被抽走，鑽進神像的裂縫，再也沒有出來。球球把它拿回來，摸起來是暖的。球球：「謝謝貓神，下次我一定把你扶好喵。」', resultArt: 'broken_shrine_r2' },
     ] },
 
   { id: 'sparring_cat', title: '硬要切磋的白貓',
@@ -566,6 +571,8 @@ export const events: EventDef[] = [
     ] },
   // 內容擴充第二批（2026-09-23）：兩條事件鏈、關卡限定九篇、連線限定三篇，見 `events-batch2.ts`
   ...batch2Events,
+  // 內容擴充第三批（2026-09-23）：稀有事件 5 篇（不進一般的洗牌佇列，見 `events-rare.ts`）
+  ...rareEvents,
 ];
 
 export const eventById: Record<string, EventDef> = Object.fromEntries(events.map((e) => [e.id, e]));

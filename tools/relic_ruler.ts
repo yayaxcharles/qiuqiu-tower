@@ -341,7 +341,8 @@ export function renderRelicReport(f: RelicRatingFile): string {
     L.push(`| ${HERO_NAMES[h]} | ${b.floor}F | ${pc(b.act2)} | ${pc(b.act3)} | ${pc(b.won)} | ${pc(b.boss1)} | ${pc(b.boss2)} |`);
   }
   L.push('');
-  const pools: RelicDef['pool'][] = ['起始', '常見', '大魔物', '塔主', '罐頭鋪', '事件'];   // 後兩個是 2026-09-23 第二批的限定池
+  // 罐頭鋪、事件是 2026-09-23 第二批的限定池；淨化是第三批「沾了魔氣」淨化之後換成的那一件（抽不到，量了才算得出淨化值多少）
+  const pools: RelicDef['pool'][] = ['起始', '常見', '大魔物', '塔主', '罐頭鋪', '事件', '淨化'];
   for (const pool of pools) {
     const defs = relics.filter((r) => r.pool === pool && f.relics[r.id]);
     if (!defs.length) continue;

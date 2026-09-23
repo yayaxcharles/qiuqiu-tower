@@ -10,6 +10,7 @@ import { me } from '../../engine/runplayer';
 import { heroName } from '../../engine/hero';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
+import { eventById } from '../../content/events';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { preloadMapEvents } from '../preload';
 import { loadEventScreen } from '../event-loader';
@@ -250,6 +251,8 @@ registerScreen('map', (app, root) => {
     if (n.floor < run.floor - base) cls.push('past');
     // 真的打過／辦完的（足跡上的格子）蓋一顆勾勾章——跟「只是在下面的樓層」區隔開
     if (n.id !== run.currentNode && run.trail.includes(n.id)) cls.push('cleared');
+    // 走過的稀有事件那一格，問號畫成金色（2026-09-23 第三批，design3 5-1）：沒走進去之前照樣是問號，是驚喜不是暗示
+    if (n.type === '事件' && run.trail.includes(n.id) && eventById[n.eventId ?? '']?.rare) cls.push('rare');
     // 遭遇修飾詞（2026-09-04）：節點下面掛一塊小牌子，選路的當下就看得到這一場不一樣；
     // 完整的得與失用遊戲自己的說明泡泡（原本塞原生 title：要停一秒才跳、長相不同、玩家以為沒說明——hud.ts 早就註解過，體檢 2026-09-05）
     const mod = n.modifier ? modifierById[n.modifier] : undefined;

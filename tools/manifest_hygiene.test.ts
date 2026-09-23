@@ -46,12 +46,8 @@ const entries = flatten(manifest);
 
 /** 第三批的事件圖編號：圖已登記、程式還沒接（2026-09-23）。接好一項拿掉一項，見下面「暫放名單」那兩條 */
 const BATCH3_PENDING = [
-  'bless_bundle', 'broken_shrine_r2', 'q_ambush', 'q_merchant', 'q_roadbox',
-  'rare_catnip_master', 'rare_catnip_master_r0', 'rare_catnip_master_r1', 'rare_catnip_master_r2',
-  'rare_fortune_sticks', 'rare_fortune_sticks_r0', 'rare_fortune_sticks_r1',
-  'rare_hot_spring', 'rare_hot_spring_r0', 'rare_hot_spring_r1', 'rare_hot_spring_r2',
-  'rare_miasma_whisper', 'rare_miasma_whisper_r0', 'rare_miasma_whisper_r1',
-  'rare_sleeping_hoard', 'rare_sleeping_hoard_r0', 'rare_sleeping_hoard_r1',
+  'bless_bundle', 'q_ambush', 'q_merchant', 'q_roadbox',
+  // 稀有事件 5 篇與神龕【魔氣】的結果圖（`broken_shrine_r2`、`rare_*` 17 筆）2026-09-23 b3rare 接好了，已拿掉
 ];
 
 describe('素材清單的衛生', () => {

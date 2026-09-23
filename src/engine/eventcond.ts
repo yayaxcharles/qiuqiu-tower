@@ -1,4 +1,5 @@
 import { cardById } from '../content/cards';
+import { isMiasma } from '../content/relics';
 import { potionCapacity } from './run';
 import { me } from './runplayer';
 import type { CardDef, CardInstance, ChoiceCond, DeckTag, Effect, EventChoice, EventDef, RunEffect, RunState } from './types';
@@ -74,6 +75,8 @@ function seatWhy(run: RunState, cond: ChoiceCond, seat: number): CondWhy | null 
     case 'potionsFull': return me(run, seat).potions.length >= potionCapacity(run, seat) ? { kind: 'potionsFull' } : null;
     case 'flag': return run.flags[cond.name] ? { kind: 'flag', name: cond.name } : null;
     case 'anyOf': { for (const c of cond.of) { const w = seatWhy(run, c, seat); if (w) return w; } return null; }
+    // 身上有沾了魔氣的秘寶（2026-09-23 第三批，倒了的神龕【魔氣】）：畫面寫「身上帶著「那一件」」
+    case 'miasmaRelic': { const id = me(run, seat).relics.find(isMiasma); return id ? { kind: 'relic', id } : null; }
     default: { const _never: never = cond; void _never; return null; }
   }
 }

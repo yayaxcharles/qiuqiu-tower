@@ -110,6 +110,11 @@
 /* 計數型秘寶的數字（2026-09-23 第二批）：疊在圖示右下角那塊留白（美術 art2 留了 44×44 透明），白字黑邊 */
 .hud-relic .relic-count { position: absolute; right: -1px; bottom: -2px; font: bold 11px/1 sans-serif; color: #fff; pointer-events: none;
   text-shadow: 1px 0 #000, -1px 0 #000, 0 1px #000, 0 -1px #000, 1px 1px #000, -1px -1px #000; }
+/* 2026-09-23 第三批：沾了魔氣的左上角一顆小紫火、次數用完的變灰、剛淨化的那一格閃一下白金光（0.3 秒） */
+.hud-relic.miasma::before { content: ''; position: absolute; left: -3px; top: -3px; width: 9px; height: 11px; border-radius: 50% 50% 45% 45%; background: radial-gradient(#e9c8ff, #8a3fd1 70%); pointer-events: none; }
+.hud-relic.spent img { filter: grayscale(1); opacity: .5; }
+.hud-relic.purified { animation: relic-pure .3s ease-out; }
+@keyframes relic-pure { 50% { box-shadow: 0 0 0 4px #fff8dd, 0 0 16px #ffe7a0; } }
 .hud-relic.fired { animation: relic-fire .62s cubic-bezier(.2, .9, .3, 1.25); z-index: 3; }
 @keyframes relic-fire {
   0%   { transform: scale(1); box-shadow: inset 0 -2px 3px #8a6a3f3d, inset 0 1px 0 #fff; }

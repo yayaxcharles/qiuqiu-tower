@@ -1,8 +1,15 @@
 import { coopMirror, lineFor, mixedLine } from './dialogue';
-import { DANGDANG_EVENT_TEXT_B2, FEIFEI_EVENT_TEXT_B2, FENGFENG_EVENT_TEXT_B2 } from './event-text-b2';
+import { condHint as condHintB2, DANGDANG_EVENT_TEXT_B2, FEIFEI_EVENT_TEXT_B2, FENGFENG_EVENT_TEXT_B2 } from './event-text-b2';
+import { DANGDANG_EVENT_TEXT_B3RARE, EVENT_COND_HINTS_B3, FEIFEI_EVENT_TEXT_B3RARE, FENGFENG_EVENT_TEXT_B3RARE } from './event-text-b3rare';
 
 // 條件提示句、連線限定事件的稱呼（2026-09-23 內容擴充第二批）：事件畫面從這一支拿，跟著一起延後載入
-export { condHint, coopFill, flagWhy, EVENT_COND_HINTS } from './event-text-b2';
+export { coopFill, flagWhy, EVENT_COND_HINTS } from './event-text-b2';
+// 稀有事件「抽到之後的那一句」（2026-09-23 第三批）：同一塊延後載入
+export { lotteryAfter } from './event-text-b3rare';
+/** 這篇事件的條件提示句：第三批的（倒了的神龕【魔氣】，`EVENT_COND_HINTS_B3`）先查，再查第二批那十篇 */
+export function condHint(eventId: string, hero: string | undefined): string {
+  return EVENT_COND_HINTS_B3[eventId]?.[hero ?? 'ninja'] ?? condHintB2(eventId, hero);
+}
 
 /*
  * **事件畫面才用得到的角色文字**（2026-09-23 內容擴充第〇批 0-1：事件文字分包）。
@@ -361,6 +368,7 @@ export const FENGFENG_EVENT_TEXT: Readonly<Record<string, string>> = {
   "不練（無效果）": "不練（無效果）",
   // 內容擴充第二批（2026-09-23）的新事件與條件選項，整段放在 `event-text-b2.ts`
   ...FENGFENG_EVENT_TEXT_B2,
+  ...FENGFENG_EVENT_TEXT_B3RARE,   // 第三批稀有事件 5 篇＋神龕【魔氣】（2026-09-23，`event-text-b3rare.ts`）
 };
 
 /**
@@ -604,6 +612,7 @@ export const FEIFEI_EVENT_TEXT: Readonly<Record<string, string>> = {
     '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那些影子沒有跟上吧？」',
   // 內容擴充第二批（2026-09-23）的新事件與條件選項：她那份是整段寫的（劇本 design2），不走換名字＋換引號那條
   ...FEIFEI_EVENT_TEXT_B2,
+  ...FEIFEI_EVENT_TEXT_B3RARE,   // 第三批稀有事件 5 篇＋神龕【魔氣】（2026-09-23）：一樣整段換
 };
 
 /**
@@ -956,6 +965,7 @@ export const DANGDANG_EVENT_TEXT: Readonly<Record<string, string>> = {
     '噹噹鬆開卷軸，擦去指尖沾到的墨。噹噹：「連後半段都不交代清楚，不學了。」',
   // 內容擴充第二批（2026-09-23）的新事件與條件選項，整段放在 `event-text-b2.ts`
   ...DANGDANG_EVENT_TEXT_B2,
+  ...DANGDANG_EVENT_TEXT_B3RARE,   // 第三批稀有事件 5 篇＋神龕【魔氣】（2026-09-23）
 };
 
 export function eventTextFor(hero: string | undefined, text: string): string {
