@@ -2,10 +2,10 @@
 // 中分流——CardDef.hero 沒寫＝共用；RunState.hero 沒寫＝忍者（舊存檔相容）。
 import { describe, expect, it } from 'vitest';
 
-import { cards } from '../../src/content/cards';
+import { cardById, cards, starterDeckFor } from '../../src/content/cards';
 import { newRun } from '../../src/engine/run';
 import { loadRun, saveRun, setStore, RUN_KEY } from '../../src/engine/save';
-import { cardsForHero, heroOf } from '../../src/engine/hero';
+import { HEROES, cardsForHero, heroOf, pickable } from '../../src/engine/hero';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { rollCardChoices } from '../../src/engine/rewards';
 import { me } from '../../src/engine/runplayer';
@@ -26,6 +26,23 @@ describe('牌池分流', () => {
     expect(ninjaOnly.length, '隱身潛水那批該標成忍者獨占（10 張）＋連線牌「你先躲」「跟著我躲好」「有我在前面」＋地裂陣、沾衣十八跌、鐵頭功、分身術、影子分身').toBe(18);
     for (const c of ninjaOnly) {
       expect(cardsForHero('ninja').includes(c), c.name).toBe(true);
+    }
+  });
+});
+
+/*
+ * 起手牌四隻都不進池（2026-09-23 health H-7，主控裁定收成一種寫法）。
+ * 原本只有封封的起手牌在 `pickable` 擋，另外三隻靠抽牌時指定的池子擋；結果一樣、寫法兩套。
+ * 改回只擋封封的話，貓抓、飛針、正拳這幾格會紅。
+ */
+describe('起手牌不進任何池', () => {
+  it('每一隻的起手牌，替哪一隻問都開不到', () => {
+    for (const owner of HEROES) {
+      for (const id of new Set(starterDeckFor(owner))) {
+        const c = cardById[id]!;
+        expect(c.pool, id).toBe('起手');
+        for (const h of HEROES) expect(pickable({ ...c, hidden: undefined }, h, 2), `${id} 替 ${h} 問`).toBe(false);
+      }
     }
   });
 });

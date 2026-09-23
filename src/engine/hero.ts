@@ -117,14 +117,21 @@ export function cardsForHero(hero: Hero): CardDef[] {
  * 抽成一支共用的判準是刻意的：同一條規則散在四個地方各寫一次，
  * 遲早會有人只改了三個（這一批的稽核就抓到過同型的問題）。
  *
- * 三道關卡：
+ * 五道關卡：
+ * - `起手`：起手十張的牌，四隻都不進池（見下）
  * - `combatOnly`：魔物塞牌用的雜牌（黏液、眼冒金星），任何池子都不進
  * - `hidden`：插圖還沒生好，圖到齊由生圖腳本拿掉旗標
  * - `hero`：職業獨占。不濾的話別的角色會開出球球的隱身牌
  * - `coop`：連線專用牌，**只有兩個人以上的局才進池**（使用者 2026-09-11 指定）
+ *
+ * 起手牌那一道（2026-09-23 health H-7，主控裁定收成一種寫法）：實際上四隻的起手牌本來就都開不到——
+ * 獎勵、罐頭鋪、事件抽牌時都指定「忍術」「絕學」「壞毛病」池。可是 09-20 封封進來時只替他在這裡擋
+ *（`c.hero === 'fengfeng' && …`），另外三隻靠抽牌時指定的池子擋，同一件事兩種寫法、各守一半，
+ * 測試還兩邊各釘一條。收成這一條、四隻一起擋：`Pool` 型別裡有「起手」，哪天有事件指定起手池，
+ * 也不會把球球的貓抓、淡定（沒標 `hero`，照職業那道會當成共用）發給別隻貓。
  */
 export function pickable(c: CardDef, hero: Hero, players = 1): boolean {
-  if ((c.hero === 'fengfeng' && c.pool === '起手') || c.combatOnly || c.hidden) return false;
+  if (c.pool === '起手' || c.combatOnly || c.hidden) return false;
   if (c.hero && c.hero !== hero) return false;
   if (c.coop && players < 2) return false;
   return true;
