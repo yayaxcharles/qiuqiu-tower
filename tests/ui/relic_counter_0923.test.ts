@@ -80,5 +80,8 @@ describe('畫面接線', () => {
     expect(shop).toContain("'店長私藏'");
     expect(shop).toContain('if (shop.entryFee) notice(');
     expect(shop).not.toMatch(/priceFor\(run, it, seat\)/);
+    // 放生的價錢照會員卡的固定價算（按鈕、挑牌視窗、確認框、買不起變灰四處都走 `removePrice`）
+    expect(shop.match(/removePrice\(run, seat\)/g)?.length ?? 0).toBeGreaterThanOrEqual(4);
+    expect(shop).not.toContain('me(run, seat).removeCost');
   });
 });

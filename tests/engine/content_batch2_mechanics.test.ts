@@ -8,7 +8,7 @@ import { rollPotion, rollRelic, rollRelicChoices, rollRewards } from '../../src/
 import { Rng, seedFromString } from '../../src/engine/rng';
 import {
   addPotion, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode, finishCombat, makeShop, makeShops, newCoopRun, newRun,
-  openChest, openChestCoop, potionCapacity, priceFor, reshuffleShop, rollActRelics, takeRelic, tickNodeCounters, type ShopStock,
+  openChest, openChestCoop, potionCapacity, priceFor, removePrice, reshuffleShop, rollActRelics, takeRelic, tickNodeCounters, type ShopStock,
 } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
 import { getStatus } from '../../src/engine/statuses';
@@ -127,7 +127,7 @@ describe('計數型：暗器匣（每回合第 3 張牌打完，對隨機一隻 
   });
 });
 
-describe('計數型：撲滿（走進 3 個不是戰鬥的格子得 25 條，跨關）', () => {
+describe('計數型：撲滿（走進 3 個不是戰鬥的格子得 40 條，跨關）', () => {
   it('三格才給、給完歸零；戰鬥格不算', () => {
     const run = newRun('piggy', 1, 'ninja');
     takeRelic(run, 'piggy_bank');
@@ -137,7 +137,7 @@ describe('計數型：撲滿（走進 3 個不是戰鬥的格子得 25 條，跨
     expect(me(run).fish).toBe(fish);
     tickNodeCounters(run);
     expect(me(run).counters?.['piggy_bank']).toBe(0);
-    expect(me(run).fish).toBe(fish + 25);
+    expect(me(run).fish).toBe(fish + 40);
   });
   it('`chooseNode` 走進事件、罐頭鋪、貓窩、紙箱才數，戰鬥格不數', () => {
     const run = newRun('piggy-walk', 1, 'ninja');
@@ -158,24 +158,32 @@ describe('計數型：撲滿（走進 3 個不是戰鬥的格子得 25 條，跨
 });
 
 describe('角色的新時機', () => {
-  it('滿月劍意：蓄氣灌到 12 的那一刻，這回合下一張攻擊加倍（每回合一次、已經滿的不算）', () => {
+  // 門檻 10（主控 2026-09-23 從 12 降下來）
+  it('滿月劍意：蓄氣蓄到 10 點以上的那一刻，這回合下一張攻擊加倍（每回合一次、已經在 10 以上的不算）', () => {
     const cs = start(['full_moon_sword'], { hero: 'fengfeng' });
     tank(cs); quiet(cs);
     const p = cs.player;
-    p.qi = 10; p.energy = 9;
-    playCard(cs, toHand(cs, 'fengfeng_tuna'));
-    expect(p.qi).toBe(12);
+    p.qi = 6; p.energy = 9;
+    playCard(cs, toHand(cs, 'fengfeng_tuna'));   // 6 → 9：還沒到
+    expect(p.doubleNext).toBe(0);
+    playCard(cs, toHand(cs, 'fengfeng_tuna'));   // 9 → 12：跨過 10
     expect(p.doubleNext).toBe(1);
     expect(cs.relicFired).toContain('full_moon_sword');
-    // 同一回合再灌滿不再發（每回合一次）
-    p.qi = 9; p.doubleNext = 0;
+    // 同一回合再跨一次不再發（每回合一次）
+    p.qi = 7; p.doubleNext = 0;
     playCard(cs, toHand(cs, 'fengfeng_tuna'));
     expect(p.doubleNext).toBe(0);
-    // 下一回合：已經滿著再加不算
+    // 下一回合：已經在 10 以上再加不算
     endTurn(cs);
-    p.qi = 12; p.energy = 3;
+    p.qi = 10; p.energy = 3;
     playCard(cs, toHand(cs, 'fengfeng_tuna'));
     expect(p.doubleNext).toBe(0);
+    // 下一回合：7 → 10 剛好到門檻就算
+    endTurn(cs);
+    p.qi = 7; p.energy = 3;
+    playCard(cs, toHand(cs, 'fengfeng_tuna'));
+    expect(p.qi).toBe(10);
+    expect(p.doubleNext).toBe(1);
   });
 
   it('收鞘墜：這場每花掉 6 點蓄氣得 1 顆飯糰（零頭留著）', () => {
@@ -372,12 +380,17 @@ describe('罐頭鋪限定三件的效果', () => {
     me(run).fish = 999;
     return { run, shop: makeShop(run) };
   }
-  it('會員卡：放生的價錢不再漲', () => {
+  it('會員卡：放生一律 40 條、不再漲；卡被拿走就照原本的數接著漲', () => {
     const { run } = shopWith(['member_card']);
     const cost = me(run).removeCost;
+    expect(removePrice(run)).toBe(40);
+    const fish = me(run).fish;
     expect(buyRemove(run, me(run).deck[0]!.uid)).toBe(true);
     expect(buyRemove(run, me(run).deck[0]!.uid)).toBe(true);
+    expect(fish - me(run).fish).toBe(80);
     expect(me(run).removeCost).toBe(cost);
+    me(run).relics = me(run).relics.filter((id) => id !== 'member_card');
+    expect(removePrice(run)).toBe(cost);
     const plain = newRun('lim-fx', 1, 'ninja');
     me(plain).fish = 999;
     buyRemove(plain, me(plain).deck[0]!.uid);
@@ -407,9 +420,9 @@ describe('罐頭鋪限定三件的效果', () => {
     expect(fish - me(run).fish).toBe(cost);
     expect(shop.anyBought).toBeFalsy();
   });
-  it('批發箱：忍具多帶 1 支、罐頭鋪的忍具半價（牌與秘寶不折）', () => {
+  it('批發箱：忍具多帶 2 支、罐頭鋪的忍具半價（牌與秘寶不折）', () => {
     const { run, shop } = shopWith(['bulk_crate']);
-    expect(potionCapacity(run)).toBe(4);
+    expect(potionCapacity(run)).toBe(5);
     for (const it of shop.potions) expect(priceFor(run, it, 0, shop)).toBe(Math.round(it.base * 0.5 * (it.sale ?? 1)));
     for (const it of shop.cards) expect(priceFor(run, it, 0, shop)).toBe(Math.round(it.base * (it.sale ?? 1)));
     const fish = me(run).fish;
@@ -426,7 +439,7 @@ describe('罐頭鋪限定三件的效果', () => {
 });
 
 describe('事件限定三件', () => {
-  it('山賊的欠條：每間罐頭鋪走進去先付 10 條（不夠付到 0）；打贏多拿 15 條', () => {
+  it('山賊的欠條：每間罐頭鋪走進去先付 10 條（不夠付到 0）；打贏多拿 25 條', () => {
     const run = newRun('iou', 1, 'ninja');
     takeRelic(run, 'bandit_iou');
     me(run).fish = 50;
@@ -436,7 +449,7 @@ describe('事件限定三件', () => {
     me(run).fish = 4;
     expect(makeShop(run).entryFee).toBe(4);
     expect(me(run).fish).toBe(0);
-    expect(relicById['bandit_iou']!.hooks.winGold).toBe(15);
+    expect(relicById['bandit_iou']!.hooks.winGold).toBe(25);
     const plain = newRun('iou', 1, 'ninja');
     me(plain).fish = 50;
     expect(makeShop(plain).entryFee).toBeUndefined();

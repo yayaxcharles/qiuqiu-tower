@@ -1082,12 +1082,21 @@ export function buyPotion(run: RunState, shop: ShopStock, i: number, replaceInde
   afterBuy(run, shop, seat);
   return true;
 }
+/**
+ * 這一位現在放生一張要付多少（2026-09-23 第二批）。平常就是 `removeCost`（每放生一次漲 25）；
+ * 帶會員卡時一律卡上那個數、不再漲（`removeCostFixed`）。罐頭鋪畫面、連線的放行判斷、機器人都問這一支，不各算一份。
+ */
+export function removePrice(run: RunState, seat = 0): number {
+  const q = me(run, seat);
+  const fixed = q.relics.map((id) => relicById[id]?.hooks.removeCostFixed).filter((n): n is number => n !== undefined);
+  return fixed.length ? Math.min(q.removeCost, ...fixed) : q.removeCost;
+}
 export function buyRemove(run: RunState, uid: number, seat = 0): boolean {
   const q = me(run, seat);
-  if (!q.deck.some((c) => c.uid === uid) || !pay(run, q.removeCost, seat)) return false;
+  if (!q.deck.some((c) => c.uid === uid) || !pay(run, removePrice(run, seat), seat)) return false;
   removeCard(run, uid, seat);
-  // 會員卡（2026-09-23 第二批）：價錢停在拿到時那個數，不再往上漲
-  if (!q.relics.some((id) => relicById[id]?.hooks.removeCostFrozen)) q.removeCost += 25;
+  // 會員卡（2026-09-23 第二批）：帶著的時候不漲；卡被拿走就從原本的數接著漲
+  if (!q.relics.some((id) => relicById[id]?.hooks.removeCostFixed !== undefined)) q.removeCost += 25;
   return true;
 }
 

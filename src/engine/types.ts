@@ -458,8 +458,8 @@ export interface RelicDef {
     /** 走進不是戰鬥的格子**跨關**累計：每走進第 n 格得 fish 條小魚乾（撲滿）。計數存在 `RunPlayer.counters` */
     nodeCounterFish?: { n: number; fish: number };
     // ---- 角色的新時機（每一種都接在引擎裡對應的那一刻，見 combat.ts／actions.ts／effects.ts）----
-    /** 蓄氣灌到 12 的那一刻：這回合下一張攻擊牌傷害加倍，每回合最多一次（滿月劍意） */
-    qiFullDoubleNext?: boolean;
+    /** 蓄氣從不到 N 點變成 N 點以上的那一刻：這回合下一張攻擊牌傷害加倍，每回合最多一次（滿月劍意 10） */
+    qiReachDoubleNext?: number;
     /** 這場戰鬥每花掉 per 點蓄氣，得 energy 顆飯糰（收鞘墜）。零頭記在 `PlayerCombat.qiSpentAcc` */
     qiSpentEnergy?: { per: number; energy: number };
     /** 你下的毒（魔物的 `poisonedBy` 是你）每回合結算時多扣 n 點（五毒譜） */
@@ -468,9 +468,9 @@ export interface RelicDef {
     turnEndBlockToThorns?: { over: number; per: number };
     /** 每次閃過魔物的攻擊之後跑一次（影分身卷軸：下回合多抽） */
     onDodge?: Effect[];
-    // ---- 罐頭鋪與事件限定的四個（價格規則見 `run.ts` 的 `shopPrice`）----
-    /** 放生的價錢不再上漲（會員卡） */
-    removeCostFrozen?: boolean;
+    // ---- 罐頭鋪與事件限定的四個（價格規則見 `run.ts` 的 `priceFor`／`removePrice`）----
+    /** 放生一律 N 條、不再上漲（會員卡）。帶著的時候 `RunPlayer.removeCost` 不動，卡被拿走就從原本的數接著漲 */
+    removeCostFixed?: number;
     /** 每間罐頭鋪買的第一件商品半價（店主的帳本）。放生、重整不算 */
     shopFirstItemHalf?: boolean;
     /** 罐頭鋪忍具的價格倍率（批發箱 0.5） */

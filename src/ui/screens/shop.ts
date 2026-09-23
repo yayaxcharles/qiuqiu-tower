@@ -2,7 +2,7 @@ import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
 import { relicById, relicLongText } from '../../content/relics';
-import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, notMyCard, potionCapacity, priceFor, reshuffleShop, shopMulFor, type ShopStock } from '../../engine/run';
+import { RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, makeShops, notMyCard, potionCapacity, priceFor, removePrice, reshuffleShop, shopMulFor, type ShopStock } from '../../engine/run';
 import { heroSpeaker, notice } from '../dialogue';
 import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
@@ -244,11 +244,11 @@ registerScreen('shop', (app, root, props) => {
 
     // 放生：挑完先跳確認（使用者 2026-09-04：「選牌後沒有跳確定」），按「再看看」回牌堆重挑
     const pickRelease = (): void => showDeckPicker({
-      title: `放生一張牌（${me(run, seat).removeCost} 條小魚乾）`, cards: me(run, seat).deck, pickable: true, cancellable: true,
+      title: `放生一張牌（${removePrice(run, seat)} 條小魚乾）`, cards: me(run, seat).deck, pickable: true, cancellable: true,
       onPick: (uid) => {
         const c = uid === null ? undefined : me(run, seat).deck.find((x) => x.uid === uid);
         if (uid === null || !c) { render(); return; }
-        showRemoveConfirm(c, me(run, seat).removeCost, (ok) => {
+        showRemoveConfirm(c, removePrice(run, seat), (ok) => {
           if (!ok) { pickRelease(); return; }
           // 放生成功也要重畫：牌組少一張、小魚乾也扣了（本來靠 setMood 順便重畫，那條路已經拆掉）
           if (act({ t: 'scrub', seat, u: uid }, () => buyRemove(run, uid, seat))) bought('upgrade');
@@ -259,8 +259,8 @@ registerScreen('shop', (app, root, props) => {
     const remove = el('button', {
       class: 'btn',
       onclick: () => pickRelease(),
-    }, `放生一張牌：${me(run, seat).removeCost} 條小魚乾${me(run, seat).relics.some((id) => relicById[id]?.hooks.removeCostFrozen) ? '（會員價，不再漲）' : ''}`);
-    if (iDown || me(run, seat).fish < me(run, seat).removeCost || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
+    }, `放生一張牌：${removePrice(run, seat)} 條小魚乾${me(run, seat).relics.some((id) => relicById[id]?.hooks.removeCostFixed !== undefined) ? '（會員價，不再漲）' : ''}`);
+    if (iDown || me(run, seat).fish < removePrice(run, seat) || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）
     const reshuffle = el('button', { class: 'btn', onclick: () => { act({ t: 'shuffle', seat }, () => reshuffleShop(run, shop, seat)) && bought('buy'); } },
       shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);

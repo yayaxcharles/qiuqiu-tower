@@ -1,4 +1,4 @@
-import { buyCard, buyPotion, buyRelic, buyRemove, notMyCard, priceFor, potionCapacity, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, takeRelic, type ShopStock } from '../engine/run';
+import { buyCard, buyPotion, buyRelic, buyRemove, notMyCard, priceFor, potionCapacity, removePrice, replacePotion, reshuffleShop, rest, revivePartner, RESHUFFLE_COST, takeRelic, type ShopStock } from '../engine/run';
 import type { RunState } from '../engine/types';
 
 /**
@@ -71,7 +71,7 @@ export function canApplyRun(ctx: RunCtx, a: RunAction): boolean {
       }
       return true;
     }
-    case 'scrub': return !!shop && p.deck.some((c) => c.uid === a.u) && p.fish >= p.removeCost;
+    case 'scrub': return !!shop && p.deck.some((c) => c.uid === a.u) && p.fish >= removePrice(run, a.seat);   // 會員卡的固定價（2026-09-23 第二批）
     /*
      * 條件要跟 `reshuffleShop` 自己的判斷**一模一樣**（2026-09-14 連線稽核 高-17）。
      * 原本只看「重整過了沒」：先買一張、動作還沒繞回來又按重整（畫面上錢還夠），

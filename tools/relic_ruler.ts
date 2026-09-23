@@ -99,7 +99,7 @@ const FIRED_HOOKS = new Set([
   'firstAttackDouble', 'drawOnNthCard', 'energyOnNthCard', 'onAttackPlayed', 'turnEndNoAttack', 'onHit', 'blockKeep',
   'onPotionUse', 'killHeal', 'killStrength', 'killFish', 'stealthBonus', 'stealthBonusEvery', 'preventLethal', 'restNextFightBlock',
   // 2026-09-23 內容擴充第二批：計數型與角色的新時機（撲滿在地圖上發動、不在戰鬥裡，不列）
-  'everyNTurns', 'onNthCard', 'attackCounterDouble', 'qiFullDoubleNext', 'qiSpentEnergy', 'poisonTickBonus', 'turnEndBlockToThorns', 'onDodge',
+  'everyNTurns', 'onNthCard', 'attackCounterDouble', 'qiReachDoubleNext', 'qiSpentEnergy', 'poisonTickBonus', 'turnEndBlockToThorns', 'onDodge',
 ]);
 export function hasFiredHook(def: RelicDef): boolean {
   return Object.keys(def.hooks).some((k) => FIRED_HOOKS.has(k));
@@ -309,7 +309,7 @@ export const UNRELIABLE_HOOKS: Readonly<Record<string, string>> = {
   killFish: '同上（小魚乾）',
   rewardChoices: '多一張可選只在機器人的挑牌評分分得出好壞時才有用，偏低',
   // 2026-09-23 內容擴充第二批：價值在罐頭鋪與地圖上的四種
-  removeCostFrozen: '機器人只在牌組有三張以上爛牌、錢夠時才放生，一局放生沒幾次，偏低',
+  removeCostFixed: '機器人只在牌組有三張以上爛牌、錢夠時才放生，一局放生沒幾次，偏低',
   shopFirstItemHalf: '價值在罐頭鋪；機器人一間店多半只買一兩件，而且不會為了半價多買，偏低',
   shopPotionMul: '機器人只在身上少於兩支時才買忍具，半價多半用不到，偏低',
   shopEntryFee: '代價在罐頭鋪；機器人逛店規則簡單，錢的價值估不準（偏高或偏低都有可能）',

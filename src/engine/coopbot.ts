@@ -11,7 +11,7 @@ import { relicOk, settleRelicPicks } from './rewards';
 import { Rng, seedFromString } from './rng';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, removeCard, rest, resolvePendingAfterFight,
+  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, removeCard, removePrice, rest, resolvePendingAfterFight,
   revivePartner, rollActCardsPerSeat, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard,
   type RunEffectOutcome } from './run';
 import { me, standing } from './runplayer';
@@ -356,7 +356,7 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
           const shop = shops[i];
           if (!shop) return;
           const junk = deckJunk(run, i);
-          if (junk.length >= 3 && me(run, i).fish >= me(run, i).removeCost + 60) buyRemove(run, junk[0]!.uid, i);
+          if (junk.length >= 3 && me(run, i).fish >= removePrice(run, i) + 60) buyRemove(run, junk[0]!.uid, i);   // 會員卡的固定價（2026-09-23 第二批）
           const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id, heroOf(me(run, i))) + setBonusScore(r.id, heroOf(me(run, i)), me(run, i).relics), p: r.price })).sort((a, b) => b.v - a.v)[0];
           if (relicIdx && relicIdx.v >= 6 && me(run, i).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.k, i);
           const cardIdx = shop.cards.map((c, k) => ({ k, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];

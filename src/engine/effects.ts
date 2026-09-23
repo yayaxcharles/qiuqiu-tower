@@ -78,17 +78,19 @@ function onQiSpent(cs: CombatState, p: PlayerCombat, spent: number): void {
 }
 
 /**
- * 滿月劍意（2026-09-23 內容擴充第二批）：蓄氣**灌到 12 的那一刻**，這回合下一張攻擊牌傷害加倍，每回合一次。
- * 判準是「從不滿變成滿」，已經滿著再加不算——不然掛著 12 點氣每回合都白拿一次加倍，那就不是「蓄滿一口氣」了。
+ * 滿月劍意（2026-09-23 內容擴充第二批）：蓄氣**從不到門檻變成門檻以上的那一刻**，這回合下一張攻擊牌傷害加倍，每回合一次。
+ * 已經在門檻以上再加不算——不然掛著滿滿的氣每回合都白拿一次加倍，那就不是「蓄足一口氣」了。
+ * 門檻原本是 12（灌滿），機器人幾乎不囤氣、量尺每場只發動 0.08 次，主控 2026-09-23 裁定降到 10。
  * 加倍走蓄力那個旗標（`doubleNext`，打出攻擊牌時用掉、回合開始清掉），跟分身油同一條路。
  */
-function onQiFull(cs: CombatState, p: PlayerCombat): void {
+function onQiReach(cs: CombatState, p: PlayerCombat, before: number): void {
   for (const rid of p.relics) {
-    if (!relicById[rid]?.hooks.qiFullDoubleNext || p.fullMoonTurn === cs.turn) continue;
+    const t = relicById[rid]?.hooks.qiReachDoubleNext;
+    if (t === undefined || before >= t || (p.qi ?? 0) < t || p.fullMoonTurn === cs.turn) continue;
     p.fullMoonTurn = cs.turn;
     p.doubleNext = 1;
     fireRelic(cs, rid, p);
-    log(cs, `${relicById[rid]!.name}：蓄氣滿了，下一張攻擊牌傷害加倍`);
+    log(cs, `${relicById[rid]!.name}：蓄足 ${t} 點氣，下一張攻擊牌傷害加倍`);
   }
 }
 
@@ -500,7 +502,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (p.down || cs.phase !== 'player') return false;
       const before = Math.max(0, p.qi ?? 0);
       p.qi = Math.min(12, before + fx.n);
-      if (before < 12 && p.qi >= 12) onQiFull(cs, p);   // 滿月劍意：灌滿的那一刻（2026-09-23 第二批）
+      if (p.qi > before) onQiReach(cs, p, before);   // 滿月劍意：蓄到門檻的那一刻（2026-09-23 第二批）
       return false;
     }
     case 'ifQiAtPlay':

@@ -76,7 +76,7 @@ describe('重整續玩：計數跟著存檔走', () => {
     expect(me(back).counters).toEqual({ piggy_bank: 2, wooden_dummy: 7 });
     const fish = me(back).fish;
     tickNodeCounters(back);
-    expect(me(back).fish).toBe(fish + 25);
+    expect(me(back).fish).toBe(fish + 40);
     const cs = beginCombat(back, 'wood_dummy');
     expect(cs.player.relicCounters?.['wooden_dummy']).toBe(7);
   });

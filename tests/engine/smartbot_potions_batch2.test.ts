@@ -136,8 +136,8 @@ describe('迷魂香', () => {
   });
 });
 
-describe('滿月劍意：機器人會為了灌滿蓄氣先打吐納', () => {
-  it('蓄氣 9、手上吐納＋攻擊：帶著滿月劍意先打吐納（灌到 12，下一張加倍）；沒帶就照舊', () => {
+describe('滿月劍意：機器人會為了蓄到門檻先打吐納', () => {
+  it('蓄氣 9、手上吐納＋攻擊：帶著滿月劍意先打吐納（蓄過 10，下一張加倍）；沒帶就照舊', () => {
     const first = (relic: boolean): string | undefined => {
       const { cs, p } = setup([], { hero: 'fengfeng', hand: ['fengfeng_tuna', 'fengfeng_hushen', 'sanjo'], energy: 2, move: hit(4) });
       if (relic) p.relics.push('full_moon_sword');

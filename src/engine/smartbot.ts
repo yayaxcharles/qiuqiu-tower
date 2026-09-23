@@ -15,7 +15,7 @@ import { Rng, seedFromString } from './rng';
 import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  finishCombat, makeShop, napHeal, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
+  finishCombat, makeShop, napHeal, newRun, openChest, removeCard, removePrice, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
   upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, RelicPool, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
@@ -587,11 +587,12 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         const usable = Math.max(0, Math.min(room, need - (p.qi ?? 0)));
         if (usable > 0) v = usable * rate + (room - usable) * 1.4;
         /*
-         * 滿月劍意（2026-09-23 第二批）：這一張把蓄氣灌到 12 的話，這回合下一張攻擊牌加倍——照分身油那條估（手上還有攻擊牌才算）。
-         * 不寫的話機器人不會為了灌滿去打吐納，量尺量到這件每場只發動 0.06 次，分數等於沒量。
+         * 滿月劍意（2026-09-23 第二批）：這一張把蓄氣蓄到門檻（10）的話，這回合下一張攻擊牌加倍——照分身油那條估（手上還有攻擊牌才算）。
+         * 不寫的話機器人不會為了蓄氣去打吐納，量尺量到這件每場只發動 0.06 次，分數等於沒量。
          */
-        if (room > 0 && (p.qi ?? 0) + fx.n >= 12 && p.fullMoonTurn !== cs.turn
-            && p.relics.some((id) => relicById[id]?.hooks.qiFullDoubleNext)
+        const qiNow = Math.max(0, p.qi ?? 0);
+        if (room > 0 && p.fullMoonTurn !== cs.turn
+            && p.relics.some((id) => { const t = relicById[id]?.hooks.qiReachDoubleNext; return t !== undefined && qiNow < t && Math.min(12, qiNow + fx.n) >= t; })
             && p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === '攻擊')) v += 6;
         value += v;
         break;
@@ -1448,7 +1449,7 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
         const shop = makeShop(run);
         // 先放生爛牌（留 60 條買東西），再看秘寶，再看牌
         const junk = deckJunk(run);
-        if (junk.length >= 3 && me(run).fish >= me(run).removeCost + 60) buyRemove(run, junk[0]!.uid);
+        if (junk.length >= 3 && me(run).fish >= removePrice(run) + 60) buyRemove(run, junk[0]!.uid);   // 會員卡的固定價（2026-09-23 第二批）
         const relicIdx = shop.relics.map((r, i) => ({ i, v: relicRating(r.id, heroOf(me(run))) + setBonusScore(r.id, heroOf(me(run)), me(run).relics), p: r.price })).sort((a, b) => b.v - a.v)[0];
         if (relicIdx && relicIdx.v >= 6 && me(run).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.i);
         const cardIdx = shop.cards.map((c, i) => ({ i, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
