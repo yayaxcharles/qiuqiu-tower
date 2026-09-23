@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import CARDVIEW_RAW from '../../src/ui/cardview.ts?raw';
 import MAIN_RAW from '../../src/main.ts?raw';
-import { PEEK_HOLD_MS, PEEK_MOVE_PX, peekLayout, shouldPeek } from '../../src/ui/cardpeek';
+import COMBAT_RAW from '../../src/ui/screens/combat.ts?raw';
+import { PEEK_HOLD_MS, PEEK_MOVE_PX, isPhoneDevice, peekLayout, shouldPeek } from '../../src/ui/cardpeek';
+import { TUT_TOUCH_PEEK } from '../../src/content/tutorial';
 
 /*
  * 2026-09-23 polish 第 8 條：手機橫拿讀得清楚（字級、按鈕、按住手牌放大），桌機一個像素都不動。
@@ -10,6 +12,7 @@ import { PEEK_HOLD_MS, PEEK_MOVE_PX, peekLayout, shouldPeek } from '../../src/ui
  */
 const CARDVIEW = CARDVIEW_RAW.replace(/\r\n/g, '\n');
 const MAIN = MAIN_RAW.replace(/\r\n/g, '\n');
+const COMBAT = COMBAT_RAW.replace(/\r\n/g, '\n');
 // 樣式檔用 fs 讀（vitest 對 `.css?raw` 會先過自己的 CSS 處理）
 const css = (name: string): string => readFileSync(`src/ui/styles/${name}`, 'utf8').replace(/\r\n/g, '\n');
 
@@ -64,5 +67,29 @@ describe('第 8 條：手機橫拿讀得清楚，桌機不動', () => {
     }
     // 直拿照舊只有「請橫過來」，這份不碰直拿
     expect(text).not.toContain('data-orient="portrait"');
+  });
+});
+
+describe('主控裁定三：手機教學條多一句「按住牌可以放大看」，桌機不出現', () => {
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it('那一句放在 content（畫面層不寫台詞），不帶喵、夠短（教學條要維持一行）', () => {
+    expect(TUT_TOUCH_PEEK).toContain('按住牌可以放大看');
+    expect(TUT_TOUCH_PEEK).not.toContain('喵');
+    expect([...TUT_TOUCH_PEEK].length).toBeLessThanOrEqual(10);
+  });
+
+  it('只有手機才算：跟按住放大同一個判準（平板、桌機都不是）', () => {
+    for (const [device, want] of [['phone', true], ['tablet', false], ['desktop', false], [undefined, false]] as const) {
+      vi.stubGlobal('document', { documentElement: { dataset: device ? { device } : {} } });
+      expect(isPhoneDevice(), String(device)).toBe(want);
+    }
+  });
+
+  it('教學條第一步只在手機接上那一句；手機的教學條放大、寬度照內容維持一行', () => {
+    const bar = COMBAT.slice(COMBAT.indexOf("if (tutStep >= 0) box.append(el('div', { class: 'tut-bar' },"), COMBAT.indexOf("el('button', { class: 'tut-close'"));
+    expect(bar).toContain("tutStep === 0 && isPhoneDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''");
+    const phone = css('phone.css');
+    expect(phone).toMatch(/html\[data-device="phone"\]\[data-orient="landscape"\] \.tut-bar \{[^}]*width: max-content;[^}]*font-size: 20px;/);
   });
 });

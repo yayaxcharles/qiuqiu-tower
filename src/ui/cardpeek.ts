@@ -43,9 +43,11 @@ export function shouldPeek(heldMs: number, movedPx: number, pointerType: string,
   return pointerType !== 'mouse' && device === 'phone' && heldMs >= PEEK_HOLD_MS && movedPx <= PEEK_MOVE_PX;
 }
 
-function phone(): boolean {
+/** 現在是不是手機（跟按住放大同一個判準；教學條那一句也看這支，按不出放大的裝置就不教） */
+export function isPhoneDevice(): boolean {
   return typeof document !== 'undefined' && document.documentElement.dataset['device'] === 'phone';
 }
+const phone = isPhoneDevice;
 
 /** 把原本那張複製一份、放大擺好。複製品沒有事件（cloneNode 不帶監聽），也不吃手指 */
 function showPeek(node: HTMLElement): HTMLElement | null {

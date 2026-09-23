@@ -40,6 +40,15 @@ html[data-device="phone"][data-orient="landscape"] .combat .end-force { font-siz
 html[data-device="phone"][data-orient="landscape"] .combat .end-undo { top: 628px; }
 html[data-device="phone"][data-orient="landscape"] .combat .end-force { top: 674px; }
 
+/* 教學條 15 → 20（主控裁定三：手機多一句「按住牌可以放大看」，那句不能又是 8 像素）。
+   條要維持一行：兩行時底邊到 122，魔物頭上的開場泡泡（約 108 起）正好蓋住第二行（實機截圖）。
+   寬度照內容（width: max-content）：left 50% 的絕對定位預設只給得到半個舞台寬（640），放大的字會擠成三行；
+   最長的第二步 40 字、第一步加那句 39 字，1000 寬放得下一行，上緣貼齊狀態列（58）、底邊約 95，條下的吐槽照舊 118 */
+html[data-device="phone"][data-orient="landscape"] .tut-bar { top: 58px; width: max-content; max-width: 1000px; padding: 4px 14px; font-size: 20px; line-height: 1.35; }
+html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-step { font-size: 16px; }
+html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-close { font-size: 20px; }
+html[data-device="phone"][data-orient="landscape"] .tut-bar .tut-touch { color: #ffd98a; }
+
 /* 按住手牌放大的那張（cardpeek.ts）：畫在疊層最上面、不吃手指（放開要落回原本那張牌） */
 .card-peek {
   position: absolute;
