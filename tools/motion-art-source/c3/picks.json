@@ -334,6 +334,374 @@
     "ref": "tools/motion-art-source/c3/_ref/design_tortoise.png",
     "at": "2026-09-23 22:58:07"
   },
+  "event_bless_bundle": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_bless_bundle",
+    "group": "bless_bundle",
+    "stem": "bless_bundle",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_bless_bundle.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 34894,
+    "droppedSpecks": 121,
+    "semiTransparentShare": 0.0328,
+    "sha256": "39d90e854efe5673065fb36fda91461efeaf3b4c79383d28480935a487a50cf7",
+    "at": "2026-09-23 23:16:48"
+  },
+  "event_dangdang_bless_bundle": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_bless_bundle",
+    "group": "bless_bundle",
+    "stem": "bless_bundle",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_bless_bundle.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 34416,
+    "droppedSpecks": 72,
+    "semiTransparentShare": 0.028,
+    "sha256": "53cf7c7909822665d09e8e756f4a8fa25c26a3b53ca0199f364913123efbbec1",
+    "at": "2026-09-23 23:16:55"
+  },
+  "event_dangdang_q_ambush": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_q_ambush",
+    "group": "q_ambush",
+    "stem": "q_ambush",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_q_ambush.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 32374,
+    "droppedSpecks": 321,
+    "semiTransparentShare": 0.032,
+    "sha256": "95ea3d8bfc4d2cb7760d45ca253bf6dfadc841dbfabfa6ba7665d101a7162665",
+    "at": "2026-09-23 23:17:11"
+  },
+  "event_dangdang_q_merchant": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_q_merchant",
+    "group": "q_merchant",
+    "stem": "q_merchant",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_q_merchant.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 43300,
+    "droppedSpecks": 189,
+    "semiTransparentShare": 0.0426,
+    "sha256": "9f449d399da93ee687ffd6cfed3543ba5e963b9becc663d813d0a7aa566fd432",
+    "at": "2026-09-23 23:17:25"
+  },
+  "event_dangdang_q_roadbox": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1355,
+      1160
+    ],
+    "section": "bg",
+    "key": "bg/event_dangdang_q_roadbox",
+    "group": "q_roadbox",
+    "stem": "q_roadbox",
+    "hero": "dangdang",
+    "file": "public/assets/bg/event_dangdang_q_roadbox.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 33948,
+    "droppedSpecks": 261,
+    "semiTransparentShare": 0.0322,
+    "sha256": "c1588ae4da49ec697d8808397da5365d58780c980f331aa339d251c44eab7f2b",
+    "at": "2026-09-23 23:17:39"
+  },
+  "event_feifei_bless_bundle": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_bless_bundle",
+    "group": "bless_bundle",
+    "stem": "bless_bundle",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_bless_bundle.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41806,
+    "droppedSpecks": 100,
+    "semiTransparentShare": 0.0359,
+    "sha256": "acfaa1bafeffed3d698dc341bd34d32444def21b06842906b096a4b69c3c8100",
+    "at": "2026-09-23 23:16:52"
+  },
+  "event_feifei_q_ambush": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_q_ambush",
+    "group": "q_ambush",
+    "stem": "q_ambush",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_q_ambush.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 31294,
+    "droppedSpecks": 179,
+    "semiTransparentShare": 0.0287,
+    "sha256": "a82d71c799b2834157192776a74ba54c43dd2a1f6e43acb8c1796628c837b15d",
+    "at": "2026-09-23 23:17:06"
+  },
+  "event_feifei_q_merchant": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_q_merchant",
+    "group": "q_merchant",
+    "stem": "q_merchant",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_q_merchant.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44878,
+    "droppedSpecks": 177,
+    "semiTransparentShare": 0.0436,
+    "sha256": "78c3f0977635fd549b09fab0ec41ed2afb08aa3a333b2e402b4d8a12a88dec6c",
+    "at": "2026-09-23 23:17:22"
+  },
+  "event_feifei_q_roadbox": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "section": "bg",
+    "key": "bg/event_feifei_q_roadbox",
+    "group": "q_roadbox",
+    "stem": "q_roadbox",
+    "hero": "feifei",
+    "file": "public/assets/bg/event_feifei_q_roadbox.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 35116,
+    "droppedSpecks": 174,
+    "semiTransparentShare": 0.0408,
+    "sha256": "d1c062a977f11fe9ce60405431fb6a877cc466e75def948e46d97c1a67367edc",
+    "at": "2026-09-23 23:17:35"
+  },
+  "event_fengfeng_bless_bundle": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1374,
+      1145
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_bless_bundle",
+    "group": "bless_bundle",
+    "stem": "bless_bundle",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_bless_bundle.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 39430,
+    "droppedSpecks": 185,
+    "semiTransparentShare": 0.0353,
+    "sha256": "39df5b5bd25b862ec9abf2584baa03f8e63ef3c88fc1378981d91f1c98adc230",
+    "at": "2026-09-23 23:16:59"
+  },
+  "event_fengfeng_q_ambush": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_q_ambush",
+    "group": "q_ambush",
+    "stem": "q_ambush",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_q_ambush.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 35318,
+    "droppedSpecks": 208,
+    "semiTransparentShare": 0.0397,
+    "sha256": "c8f59ea830a10de92351ef3355ef85775325ff416ff996f2c70f443e4f7f71f1",
+    "at": "2026-09-23 23:17:14"
+  },
+  "event_fengfeng_q_merchant": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1394,
+      1128
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_q_merchant",
+    "group": "q_merchant",
+    "stem": "q_merchant",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_q_merchant.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 44422,
+    "droppedSpecks": 42,
+    "semiTransparentShare": 0.0301,
+    "sha256": "3649c844140851fe55459f4d0c06128a348c42a7f014f210cf430ab7a81ef6b9",
+    "at": "2026-09-23 23:17:28"
+  },
+  "event_fengfeng_q_roadbox": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_fengfeng_q_roadbox",
+    "group": "q_roadbox",
+    "stem": "q_roadbox",
+    "hero": "fengfeng",
+    "file": "public/assets/bg/event_fengfeng_q_roadbox.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 37680,
+    "droppedSpecks": 99,
+    "semiTransparentShare": 0.0338,
+    "sha256": "2541af7058945d4ff03104999c2a6d20195a99384edf5e373114abd78cb5d5c6",
+    "at": "2026-09-23 23:17:42"
+  },
+  "event_q_ambush": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_q_ambush",
+    "group": "q_ambush",
+    "stem": "q_ambush",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_q_ambush.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 33718,
+    "droppedSpecks": 334,
+    "semiTransparentShare": 0.0591,
+    "sha256": "e55031306238234bbe943e77a5f3807c0624dcbbb92a6702f5f00ac2d62c5164",
+    "at": "2026-09-23 23:17:03"
+  },
+  "event_q_merchant": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1312,
+      1199
+    ],
+    "section": "bg",
+    "key": "bg/event_q_merchant",
+    "group": "q_merchant",
+    "stem": "q_merchant",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_q_merchant.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 41524,
+    "droppedSpecks": 139,
+    "semiTransparentShare": 0.0445,
+    "sha256": "685950cec850e23f22402610416db076354d5d52bd6f7ea83b559827d9b96519",
+    "at": "2026-09-23 23:17:18"
+  },
+  "event_q_roadbox": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "section": "bg",
+    "key": "bg/event_q_roadbox",
+    "group": "q_roadbox",
+    "stem": "q_roadbox",
+    "hero": "ninja",
+    "file": "public/assets/bg/event_q_roadbox.webp",
+    "size": [
+      560,
+      420
+    ],
+    "bytes": 33700,
+    "droppedSpecks": 75,
+    "semiTransparentShare": 0.0406,
+    "sha256": "9978fbad9b1be7c355bc570e33511b663c207e01809540ab206f7965334d2cdf",
+    "at": "2026-09-23 23:17:32"
+  },
   "keeper_curio": {
     "attempt": 1,
     "gate": [],
@@ -915,6 +1283,27 @@
     "semiTransparentShare": 0.2582,
     "sha256": "9b7131bf96bb5ada375c0f8dafbb9c9f5ddfe1dfbb12d1f6640e6c6427ab64b3",
     "at": "2026-09-23 23:13:57"
+  },
+  "relic_shop_abacus": {
+    "attempt": 1,
+    "gate": [],
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "section": "icons",
+    "key": "codex/relic_shop_abacus",
+    "counterCorner": null,
+    "file": "public/assets/icons/relic_shop_abacus.webp",
+    "size": [
+      128,
+      128
+    ],
+    "bytes": 7050,
+    "droppedSpecks": 80,
+    "semiTransparentShare": 0.0887,
+    "sha256": "b3d0af1e8a77a69a9a7c92b0f4f2523494919d04d49c807b6e97caf97c586d57",
+    "at": "2026-09-23 23:19:54"
   },
   "relic_stamp_card": {
     "attempt": 1,

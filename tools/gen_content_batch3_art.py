@@ -217,9 +217,21 @@ ICON_JOBS: dict[str, tuple[str, list[str], str]] = {
         'loops and one long trailing tail; the cloth is blotched with dark PURPLE stains and a curl of purple '
         'smoke rises from it (solid, with outlines). Cloth only - no metal, no buckle.',
         ['relic_wrist_guard', 'relic_copper_bracer', 'relic_master_hat'], '沾了魔氣的舊護腕'),
+    # ---- 重畫既有的一張（2026-09-23 主控追加）：秘寶「店主的帳本」`shop_ledger`（原名店主的算盤，改名了），
+    # art2 的圖示畫的是算盤、圖文對不上。**鍵名與檔名沿用原本那張**（`codex/relic_shop_abacus`，早就登記過），
+    # 直接覆蓋檔案；所以它不在本批 130 張、`register` 也不碰它。圖示不准有字，「數字格」畫成格線加短橫點
+    'relic_shop_abacus': (
+        'a SHOPKEEPER\'S ACCOUNT LEDGER: one thick thread-bound account book with a dark INDIGO cover and white '
+        'stitching down its spine, lying OPEN; its two cream pages are ruled into neat columns and rows of small '
+        'boxes, with short dashes and dots in some of the boxes like tallies (marks only - NOT readable digits, '
+        'NOT letters), a red ribbon bookmark hanging out, and TWO gold square-holed coins stacked on one corner of '
+        'the book.',
+        ['relic_five_poison_manual', 'relic_member_card', 'relic_lucky_coin'], '店主的帳本（重畫）'),
 }
+# 重畫、覆蓋既有檔的（不算本批新圖）
+REDRAW = ('relic_shop_abacus',)
 BLESS = [n for n in ICON_JOBS if n.startswith('bless_')]
-RELIC_NEW = [n for n in ICON_JOBS if n.startswith('relic_')]
+RELIC_NEW = [n for n in ICON_JOBS if n.startswith('relic_') and n not in REDRAW]
 COUNTER = ('relic_scout_staff', 'relic_box_in_box')
 # 圖示提示詞的結尾有「no hands, no living characters」；這一張設計稿就是要畫一隻爪子伸進包袱
 PAW_OK = {'bless_bottom': 'The ONLY exception to "no hands": the one cat paw described above.\n'}
@@ -1111,8 +1123,8 @@ def pick(name: str, attempt: int, force: bool = False, head: float | None = None
 
 
 def deliverables() -> list[str]:
-    """要進 public 的全部（不含設計圖）：圖示 24＋淨化版 6＋立繪 12＋事件圖 88＝130。"""
-    return list(ICON_JOBS) + list(PURE_JOBS) + list(SPRITE_JOBS) + list(EVENT_JOBS)
+    """要進 public 的全部（不含設計圖、不含覆蓋既有檔的 `REDRAW`）：圖示 24＋淨化版 6＋立繪 12＋事件圖 88＝130。"""
+    return [n for n in ICON_JOBS if n not in REDRAW] + list(PURE_JOBS) + list(SPRITE_JOBS) + list(EVENT_JOBS)
 
 
 def register_picked(dry_run: bool) -> None:
@@ -1230,7 +1242,8 @@ def sheet(kind: str, out_dir: Path) -> None:
 def keys() -> None:
     lines = []
     for n in ICON_JOBS:
-        lines.append(f'codex/{n}\tpublic/assets/icons/{n}.webp\t{ICON_JOBS[n][2]}' + ('\t計數型' if n in COUNTER else ''))
+        lines.append(f'codex/{n}\tpublic/assets/icons/{n}.webp\t{ICON_JOBS[n][2]}' + ('\t計數型' if n in COUNTER else '')
+                     + ('\t覆蓋既有檔（早就登記過）' if n in REDRAW else ''))
     for n, (base, _, zh) in PURE_JOBS.items():
         lines.append(f'codex/{n}\tpublic/assets/icons/{n}.webp\t{zh}（淨化版，原件 {base}）')
     for n, (who, mood) in SPRITE_JOBS.items():
