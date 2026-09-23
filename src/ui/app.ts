@@ -2,8 +2,9 @@ import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopS
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
-import { coopArtReady, preloadAct, preloadHeroArt, warmEncounter, warmEventArt } from './preload';
+import { coopArtReady, preloadAct, preloadHeroArt, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
 import { loadEventScreen } from './event-loader';
+import { QMARK_BANNER, ambushEvent, loadQmarkText, playQmarkReveal, qmarkHeroText, qmarkText } from './qmark';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
@@ -11,12 +12,12 @@ import { enemyById, encounterById } from '../content/enemies';
 import { hasBossDoor } from './screenbg';
 import type { CoopSession } from '../net/session';
 import { nodeById } from '../engine/map';
-import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeShops, newRun as engineNewRun } from '../engine/run';
+import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeMerchants, makeShops, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
-import type { CombatState, RunState } from '../engine/types';
+import type { CombatState, MapNode, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
-import { setSfxHero } from './audio';
+import { play, setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
 import { speechBubbleAt } from './enemylayout';
@@ -422,6 +423,8 @@ export class App {
     // 這裡不存檔（見 save() 的註解）：節點結算完才存，重整就回到上一個結算過的節點重選。
     // 曾經在這裡插過一秒的走路過場（參考《Take Me To The Dungeon!!》），
     // 實際玩起來每一場都要等、很卡節奏，拆掉了；換場的感覺交給畫面淡入就好
+    // 問號格變了（2026-09-23 內容擴充第三批）：伏擊、行腳商、路邊紙箱各走各的畫面，見 `enterQmark`
+    if (node.variant) { this.enterQmark(node); return; }
     switch (node.type) {
       case '戰鬥': case '大魔物': case '塔主':
         if (!node.encounterId) break;
@@ -483,6 +486,47 @@ export class App {
       this.fightPending = false;
       this.stage.classList.remove('fight-pending');
       this.show('event', { eventId });
+    });
+  }
+
+  /**
+   * 走進變了的問號格（2026-09-23 內容擴充第三批，設計稿 3-3）：伏擊走事件畫面、行腳商走罐頭鋪畫面、路邊紙箱走紙箱畫面，
+   * 換過去那一拍中央的問號翻成那一種的圖示、上方一行橫幅（`qmark.ts` 的 `playQmarkReveal`：0.4 秒、不擋點擊）。
+   *
+   * 跟 `enterEvent` 同一套：先停在地圖上（舞台點不動）等四隻的文字（延後模組）與這一種的揭曉圖，
+   * 伏擊還要等事件畫面那一塊；最多 10 秒，到了照樣換（文字沒到就退回橫幅那一句），好了才換，換過去第一格就是完整的畫面。
+   * 連線時先把地圖的投票處理拆掉（理由同 `enterEvent`）。
+   * **行腳商的攤子在這裡當場抽**，跟罐頭鋪一樣走進格子那一刻就抽好、先掛到會話上：等的時候同伴的買賣到了也接得住。
+   */
+  private enterQmark(node: MapNode): void {
+    const run = this.run;
+    const variant = node.variant;
+    if (!run || !variant) return;
+    const shops = variant === '行腳商' ? makeMerchants(run) : undefined;
+    if (shops) this.coop?.attachShop(shops);
+    const target: ScreenName = variant === '伏擊' ? 'event' : variant === '行腳商' ? 'shop' : 'chest';
+    this.coop?.clearScreenHooks(target);
+    this.fightPending = true;
+    this.stage.classList.add('fight-pending');
+    const slow = window.setTimeout(() => {
+      const hint = this.screen.querySelector('.map-hint');
+      if (hint) hint.textContent = '正在準備……';
+    }, 400);
+    const needs: Promise<unknown>[] = [loadQmarkText(), ...(variant === '伏擊' ? [loadEventScreen()] : [])];
+    const ready = Promise.race([Promise.allSettled(needs), new Promise<void>((r) => window.setTimeout(r, EVENT_SCREEN_WAIT_MS))]);
+    void Promise.allSettled([ready, warmQmarkArt(run, variant)]).then(() => {
+      window.clearTimeout(slow);
+      if (this.run !== run) return;   // 等的時候這一局已經丟了（連線斷了回標題）
+      this.fightPending = false;
+      this.stage.classList.remove('fight-pending');
+      const hero = me(run, this.seat).hero;
+      const t = qmarkHeroText(hero);
+      if (variant === '伏擊') this.show('event', { eventId: node.eventId, qmark: ambushEvent(node, hero) });
+      else if (variant === '行腳商') this.show('shop', { shops, merchant: { opening: t?.merchant ?? QMARK_BANNER[variant], lines: qmarkText()?.MERCHANT_LINES } });
+      else this.show('chest', { roadbox: { opening: t?.roadbox ?? QMARK_BANNER[variant] } });
+      // 音效沿用現成的：伏擊用戰鬥開始那一聲、行腳商用買東西那一聲、紙箱用翻紙那一聲
+      play(variant === '伏擊' ? 'turn_start' : variant === '行腳商' ? 'buy' : 'draw');
+      playQmarkReveal(this.overlay, variant);
     });
   }
 

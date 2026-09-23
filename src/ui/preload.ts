@@ -1,8 +1,9 @@
 import { encounterById, encounters, enemyArtFor, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
 import { bossPoolForAct } from '../engine/run';
-import type { EnemyDef, EnemyEffect, EnemyPool, RunState } from '../engine/types';
-import { artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, itemIconUrls, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
+import type { EnemyDef, EnemyEffect, EnemyPool, QmarkVariant, RunState } from '../engine/types';
+import { QMARK_ART, qmarkProtected } from '../engine/qmark';
+import { MERCHANT_SPRITES, artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, itemIconUrls, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 import { netSpeed } from './netspeed';
 import { actVariantKey } from './screenbg';
@@ -248,6 +249,39 @@ export function warmResultArt(run: RunState, eventId: string, choice: number, ti
   const url = eventResultUrl(run, eventId, choice);
   if (!url) return Promise.resolve();
   const work = decodeAll([url], 1, true, mapEventPoolFor(run), 'high');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
+  return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });
+}
+
+/*
+ * ===== 問號格變化的圖（2026-09-23 內容擴充第三批，設計稿 3-7）=====
+ * 三張揭曉圖（本機這一位的版本，鍵走 `eventArtKey`、跟畫面挑圖同一條）＋行腳商三張立繪。開場、選角、進關都不載；
+ * 地圖上還有會變的問號格才背景抓（不插隊：一局平均遇不到一次，不跟這張地圖的事件主圖搶），跟事件主圖留在同一組、換地圖就放掉。
+ * 真的走進變了的那一格時插隊再要一次、最多等 6 秒（`warmQmarkArt`，`app.ts` 的 `enterQmark`）。
+ */
+export function qmarkArtUrls(variant?: QmarkVariant): string[] {
+  const kinds = variant ? [variant] : (Object.keys(QMARK_ART) as QmarkVariant[]);
+  const sprites = !variant || variant === '行腳商' ? MERCHANT_SPRITES : [];
+  return [...kinds.map((k) => artUrl('bg', eventArtKey(QMARK_ART[k]))), ...sprites.map((k) => artUrl('sprites', k))];
+}
+
+/** 這張地圖上還有沒有會變的問號格（還沒走過、不是 5F／後集／鏈／稀有事件） */
+export function mapHasQmark(run: RunState): boolean {
+  return run.map.nodes.some((n) => n.type === '事件' && !n.variant && !qmarkProtected(n) && !run.trail.includes(n.id));
+}
+
+export function preloadQmarkArt(run: RunState): Promise<void> {
+  if (!mapHasQmark(run)) return Promise.resolve();
+  const fresh = qmarkArtUrls().filter((u) => !mapEventAsked.has(u));
+  for (const u of fresh) mapEventAsked.add(u);
+  return decodeAll(fresh, 2, true, mapEventPoolFor(run));
+}
+
+/** 走進變了的那一格：這一種的揭曉圖（伏擊、行腳商還有事件畫面那張底圖，行腳商的攤子也擺在那裡）插隊解好，最多 `timeoutMs` */
+export function warmQmarkArt(run: RunState, variant: QmarkVariant, timeoutMs = 6000): Promise<void> {
+  const urls = [...(variant !== '路邊紙箱' ? [eventScreenBgUrl(run)] : []), ...qmarkArtUrls(variant)];
+  const work = decodeAll(urls, 3, true, mapEventPoolFor(run), 'high');
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
   return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });

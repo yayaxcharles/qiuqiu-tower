@@ -241,3 +241,9 @@
   pointer-events: none;
 }
 .map-node.past .map-mod, .map-node.cleared .map-mod { display: none; }
+/* 變過的問號格（2026-09-23 第三批）：左上角一顆小問號，看得出「這格原本是問號格」（右上角是打過的勾勾） */
+.map-qv {
+  position: absolute; left: -4px; top: -4px; width: 20px; height: 20px; border-radius: 50%;
+  background: #f6e7c1; border: 2px solid #2b2118; color: #b0402a;
+  font: bold 13px/16px sans-serif; text-align: center; pointer-events: none;
+}

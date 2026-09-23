@@ -10,7 +10,7 @@ import { addCard, applyRunEffects, removeCard, runMods, runRng, upgradeCard, typ
 import { choiceEffectsFor, choiceGate, choiceOrder, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
 import { heroName } from '../../engine/hero';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
-import type { CardDef, CardInstance, EventChoice, RunState } from '../../engine/types';
+import type { CardDef, CardInstance, EventChoice, EventDef, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
 import { artUrl, eventArtCast, eventArtHero, eventArtKey, eventSidePortrait, heroArtUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
@@ -166,8 +166,12 @@ registerScreen('event', (app, root, props) => {
   root.append(screenBg(actVariantKey('bg/screen_event', app.run?.act ?? 1)));
   if (!app.run) { app.show('title'); return; }
   const run: RunState = app.run;   // 收斂成不可為 null 的區域常數：窄化不會跟著進到下面的內部函式
-  const { eventId } = props as { eventId?: string };
-  const ev = eventId ? eventById[eventId] : undefined;
+  /*
+   * `qmark`＝問號格變成伏擊的那一篇（2026-09-23 內容擴充第三批，`app.ts` 的 `enterQmark` 組好帶進來）：不在事件表裡，
+   * 文字已經是本機這一位的版本（`content/qmark-text.ts`），所以下面換口吻那一層（`eventTextFor`）整個跳過。
+   */
+  const { eventId, qmark } = props as { eventId?: string; qmark?: EventDef };
+  const ev = qmark ?? (eventId ? eventById[eventId] : undefined);
   // 節點沒帶事件 id 就別停在一片空白，直接回地圖。這裡走 show 不走 backToMap：
   // backToMap 會存檔，而這是「進節點」的當下、節點還沒結算，存下去就違反「節點結算完才存」的規矩
   // （引擎保證事件節點一定帶得到 eventId，所以這條路今天走不到，但規矩要處處成立）
@@ -504,6 +508,7 @@ registerScreen('event', (app, root, props) => {
    * 單人的文案裡沒有這幾個記號，換了也不會動到。
    */
   const evText = (t: string): string => {
+    if (qmark) return t;   // 伏擊那一篇本來就是這一位的版本（見上面 `qmark`）
     const mine = eventTextFor(me(run, seat).hero, t);
     return partner ? coopFill(mine, me(run, seat).hero, partner.hero) : mine;
   };

@@ -10,6 +10,7 @@
  */
 
 import { events } from '../content/events';
+import { QMARK_ART } from '../engine/qmark';
 
 /** 每個關卡色調有三張，用樓層輪著挑（見 `screenbg.ts` 的 `tierBgKey`） */
 export const BG_VARIANTS = ['', '_b', '_c'] as const;
@@ -89,6 +90,14 @@ export function eventMainKeys(): string[] {
 }
 
 /**
+ * 問號格變化的三張揭曉圖（伏擊、行腳商、路邊紙箱；2026-09-23 內容擴充第三批）。不是 `EventDef`，鍵沿用事件圖的命名。
+ * 跟事件主圖同一類：開場、選角、進關都不載，地圖上有會變的問號格時才背景抓（`preload.ts` 的 `preloadQmarkArt`）。
+ */
+export function qmarkMainKeys(): string[] {
+  return Object.values(QMARK_ART).map((id) => `bg/event_${id}`);
+}
+
+/**
  * 開場可以先不載的底圖：第二、三關才會用到、第一關碰不到的那些。
  *
  * 用「二三關的鍵減掉第一關的鍵」算，不是寫死一份名單——
@@ -106,5 +115,5 @@ export function deferredBgKeys(): Set<string> {
    */
   const slides = SLIDES_BY_ACT.flat();
   // 事件主圖同理：不在任何一關的清單裡，不併進來的話開場會照舊整包載（2026-09-23 0-2）
-  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides, ...eventMainKeys()].filter((k) => !first.has(k)));
+  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides, ...eventMainKeys(), ...qmarkMainKeys()].filter((k) => !first.has(k)));
 }

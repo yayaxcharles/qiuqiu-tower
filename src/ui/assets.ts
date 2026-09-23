@@ -131,6 +131,12 @@ export function isItemIcon(key: string): boolean {
   return /^codex\/(?:relic|potion)_/.test(key);
 }
 
+/**
+ * 行腳商的三張立繪（問號格變化，2026-09-23 內容擴充第三批）：**開場不載**，地圖上有會變的問號格時才背景抓
+ *（`preload.ts` 的 `preloadQmarkArt`）。一局平均遇不到一次，不該算進每個人的首載。
+ */
+export const MERCHANT_SPRITES: readonly string[] = ['shop/merchant', 'shop/merchant_happy', 'shop/merchant_no'];
+
 /** 全部秘寶、忍具圖示的網址（進入一局才補，見 `isItemIcon`） */
 export function itemIconUrls(): string[] {
   return Object.entries(manifest.icons).filter(([k]) => isItemIcon(k)).map(([, v]) => `${BASE}${v}`);
@@ -557,6 +563,8 @@ export async function preloadArt(): Promise<void> {
       if (heroOfKey(key) && !TITLE_ART.has(key)) continue;
       // 秘寶與忍具圖示同理，進入一局才補（`isItemIcon`，2026-09-23 內容擴充第二批）
       if (g === 'icons' && isItemIcon(key)) continue;
+      // 行腳商的立繪照地圖現抓（`MERCHANT_SPRITES`，2026-09-23 第三批）
+      if (g === 'sprites' && MERCHANT_SPRITES.includes(key)) continue;
       // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
       if (g === 'cards' && isCoopOnlyArt(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);

@@ -1552,3 +1552,21 @@
 .debug-screen .dbg-slide .dbg-shot { width: 300px; }
 .debug-screen .dbg-slide .dbg-text { margin-top: 4px; line-height: 1.6; }
 .debug-screen .dbg-jump { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+
+/* 問號格揭曉一拍（2026-09-23 第三批，設計稿 3-3）：問號卡翻面 0.4 秒內翻完淡掉，橫幅留著給人讀；整塊不擋點擊 */
+.qmark-reveal { position: absolute; inset: 0; pointer-events: none; }
+/* 淡出放在外層：卡片本身動到不透明度會被瀏覽器壓平成 2D，背面那張就永遠翻不出來（實機膠卷抓到的：翻過去只看到鏡像的問號） */
+.qmark-flip { position: absolute; left: calc(50% - 75px); top: 124px; width: 150px; height: 150px; animation: qm-out .12s .28s ease-in forwards; }
+.qmark-card { position: absolute; inset: 0; transform-style: preserve-3d; animation: qm-flip .28s ease-out forwards; }
+.qmark-face { position: absolute; inset: 0; display: grid; place-items: center; backface-visibility: hidden; border-radius: 22px; border: 4px solid #2b2118; background: #f6e7c1; box-shadow: 0 6px 18px #0008; }
+.qmark-face.front { font: 900 108px/1 serif; color: #b0402a; }
+.qmark-face.back { transform: rotateY(180deg); }
+.qmark-face.back img { width: 84%; height: 84%; object-fit: contain; }
+@keyframes qm-flip { from { transform: perspective(600px) rotateY(0) scale(.8); } to { transform: perspective(600px) rotateY(180deg) scale(1); } }
+@keyframes qm-out { to { transform: scale(1.12); opacity: 0; } }
+.qmark-banner {
+  position: absolute; left: 50%; top: 64px; padding: 6px 26px; border-radius: 12px; white-space: nowrap;
+  background: #2b2118eb; color: #fff4d8; border: 2px solid #d9a441; font-size: 22px; font-weight: bold;
+  animation: qm-banner 1.9s ease-out forwards;
+}
+@keyframes qm-banner { 0% { opacity: 0; transform: translate(-50%, -12px); } 10%, 78% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }

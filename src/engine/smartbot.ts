@@ -17,7 +17,8 @@ import { computeAttack, computeBlock, getStatus } from './statuses';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
   finishCombat, makeShop, napHeal, newRun, openChest, removeCard, removePrice, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic,
-  upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
+  upgradeCard, type RunEffectOutcome, resolvePendingAfterFight, makeMerchant, openRoadsideBox, priceFor, type ShopStock } from './run';
+import { ambushOutcomes } from './qmark';
 import type { CardInstance, CombatState, Effect, EnemyCombat, MapNode, PlayerCombat, RelicPool, RunEffect, RunState, Unit } from './types';
 import { me } from './runplayer';
 
@@ -1440,6 +1441,32 @@ function nodeScore(run: RunState, n: MapNode): number {
   }
 }
 
+/**
+ * 行腳商（問號格變化，2026-09-23 內容擴充第三批，設計稿 3-5）：只做一筆生意。秘寶分數 ≥ 6 且買得起就買秘寶；
+ * 不然牌評分 ≥ 7 就買牌；不然身上忍具少於 2 支就買便宜的那支；都不合就走。兩支機器人共用（`coopbot.ts` 每一位各叫一次）。
+ */
+export function shopAtMerchant(run: RunState, shop: ShopStock, seat = 0): void {
+  const hero = heroOf(me(run, seat));
+  const fish = me(run, seat).fish;
+  const relic = shop.relics.map((r, i) => ({ i, v: relicRating(r.id, hero) + setBonusScore(r.id, hero, me(run, seat).relics), p: priceFor(run, r, seat, shop) })).sort((a, b) => b.v - a.v)[0];
+  if (relic && relic.v >= 6 && fish >= relic.p && buyRelic(run, shop, relic.i, seat)) return;
+  const card = shop.cards.map((c, i) => ({ i, v: rating(c.def.id), p: priceFor(run, c, seat, shop) })).sort((a, b) => b.v - a.v)[0];
+  if (card && card.v >= 7 && fish >= card.p && buyCard(run, shop, card.i, seat)) return;
+  if (me(run, seat).potions.length >= 2) return;
+  const cheap = shop.potions.map((x, i) => ({ i, p: priceFor(run, x, seat, shop) })).sort((a, b) => a.p - b.p)[0];
+  if (cheap && fish >= cheap.p) buyPotion(run, shop, cheap.i, undefined, seat);
+}
+
+/** 問號格變成的那一種（設計稿 3-5）：伏擊照 `eventValue` 比兩條路（血少於五成時打一場 −30，所以血少會跑、血多會打）；路邊紙箱照紙箱開 */
+function smartQmark(run: RunState, rng: Rng, node: MapNode, seed: string, stats: SmartStats): void {
+  if (node.variant === '伏擊') {
+    const [fightFx, fleeFx] = ambushOutcomes(node);
+    const fx = eventValue(run, fightFx, 0) >= eventValue(run, fleeFx, 0) ? fightFx : fleeFx;
+    handleOutcome(run, rng, applyRunEffects(run, fx), seed, stats);
+  } else if (node.variant === '行腳商') shopAtMerchant(run, makeMerchant(run));
+  else openRoadsideBox(run);
+}
+
 export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): SmartStats {
   const run = newRun(seed, difficulty, hero);   // `hero`＝拿聰明機器人量另一個角色的平衡（2026-09-12 加的）
   const rng = new Rng(seedFromString('smart:' + seed));
@@ -1466,6 +1493,8 @@ export function smartRun(seed: string, difficulty = 1, hero: Hero = 'ninja'): Sm
         break;
       }
       case '事件': {
+        // 問號格變化（2026-09-23 內容擴充第三批，設計稿 3-5）：走進去才知道變成什麼，`nodeScore` 的事件格照舊 50
+        if (node.variant) { smartQmark(run, rng, node, seed, stats); break; }
         const ev = eventById[node.eventId!]!;
         // 只挑看得到的選項（條件選項沒達成就不在，2026-09-23 內容擴充第二批）；估值照這一位會跑的那一串
         const choice = visibleChoices(run, ev).map((i) => ev.choices[i]!)

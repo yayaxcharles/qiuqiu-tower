@@ -6,7 +6,8 @@ import { choiceEffectsFor, visibleChoices } from './eventcond';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
-import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
+import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight, makeMerchant, openRoadsideBox } from './run';
+import { ambushOutcomes } from './qmark';
 import { potionById } from '../content/potions';
 import type { CombatState, RunState } from './types';
 import { me } from './runplayer';
@@ -103,6 +104,10 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number; hero?:
         break;
       }
       case '事件': {
+        // 問號格變化（2026-09-23 內容擴充第三批）：亂打的也要走得過——伏擊隨便挑一條、行腳商一半機會買一張牌、路邊紙箱照開
+        if (node.variant === '伏擊') { handleOutcome(run, rng, applyRunEffects(run, rng.pick(ambushOutcomes(node))), maxTurns, seed); break; }
+        if (node.variant === '行腳商') { const shop = makeMerchant(run); if (shop.cards.length && rng.chance(0.5)) buyCard(run, shop, rng.int(0, shop.cards.length - 1)); break; }
+        if (node.variant === '路邊紙箱') { openRoadsideBox(run); break; }
         const ev = eventById[node.eventId!]!;
         // 只從看得到的選項裡挑（條件選項沒達成就不在，2026-09-23 內容擴充第二批）
         const shown = visibleChoices(run, ev).map((i) => ev.choices[i]!);
