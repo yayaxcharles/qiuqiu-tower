@@ -1,4 +1,4 @@
-import { cards } from '../content/cards';
+import { cards, grantsStrength, NO_STRENGTH_HEROES } from '../content/cards';
 import type { CardDef, RunPlayer } from './types';
 
 /**
@@ -138,5 +138,7 @@ export function pickable(c: CardDef, hero: Hero, players = 1): boolean {
   if (c.pool === '起手' || c.combatOnly || c.hidden) return false;
   if (c.hero && c.hero !== hero) return false;
   if (c.coop && players < 2) return false;
+  // 菲菲主打中毒，不拿加爪力的牌（2026-09-25 使用者裁定；判準與圖鑑共用，見 cards.ts 的 `grantsStrength`）
+  if (NO_STRENGTH_HEROES.includes(hero) && grantsStrength(c)) return false;
   return true;
 }

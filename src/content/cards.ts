@@ -1191,6 +1191,29 @@ const STARTER_DECK_OF: Readonly<Record<Hero, readonly string[]>> = {
  * 貓抓、淡定沒標 `hero`，照一般規則會算成共用，切到菲菲時起手區就混進兩張球球畫像的牌，
  * 而她一輩子拿不到。兩個畫面各寫一份判準的話遲早又走鐘，所以放在這裡。
  */
-export function inHeroCollection(c: Pick<CardDef, 'id' | 'pool' | 'hero'>, hero: string | undefined): boolean {
-  return c.pool === '起手' ? starterDeckFor(hero).includes(c.id) : !c.hero || c.hero === (hero ?? 'ninja');
+export function inHeroCollection(c: Pick<CardDef, 'id' | 'pool' | 'hero' | 'effects' | 'upgrade'>, hero: string | undefined): boolean {
+  if (c.pool === '起手') return starterDeckFor(hero).includes(c.id);
+  if (NO_STRENGTH_HEROES.includes(hero ?? 'ninja') && grantsStrength(c)) return false;
+  return !c.hero || c.hero === (hero ?? 'ninja');
+}
+
+/**
+ * 不拿加爪力牌的角色（2026-09-25 使用者：「有玩家反應菲菲的中毒會疊層，有點類似爪力了，所以菲菲不應該有爪力的牌」「主打中毒為主」）。
+ * 獎勵、罐頭鋪、事件抽牌（`hero.ts` 的 `pickable`）與圖鑑（`inHeroCollection`）都照這張表擋。
+ */
+export const NO_STRENGTH_HEROES: readonly string[] = ['feifei'];
+
+/**
+ * 這張牌會替自己或同伴加爪力嗎：基本版、升級版、能力牌觸發的效果、條件句裡面的都算（整棵效果樹往下找）。
+ * 給魔物上的（`target: 'enemy'`／`'all'`）不算。用效果判斷、不列牌號清單：以後新增的爪力牌也自動擋
+ */
+export function grantsStrength(c: Pick<CardDef, 'effects' | 'upgrade'>): boolean {
+  const walk = (x: unknown): boolean => {
+    if (Array.isArray(x)) return x.some(walk);
+    if (!x || typeof x !== 'object') return false;
+    const o = x as Record<string, unknown>;
+    if (o['kind'] === 'status' && o['name'] === '爪力' && Number(o['amount'] ?? 0) > 0 && o['target'] !== 'enemy' && o['target'] !== 'all') return true;
+    return Object.values(o).some(walk);
+  };
+  return walk(c.effects) || walk(c.upgrade);
 }
