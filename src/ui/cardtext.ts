@@ -267,7 +267,8 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'ifSelfStatus': {
       const then = fx.then.map((e) => one(e, ctx)).join('，');
       const other = fx.otherwise.map((e) => one(e, ctx)).join('，');
-      return `自己身上有${fx.name}的話，${then}` + (other ? `；否則${other}` : '');
+      // 沒有「否則」的是加碼（護臂格擋：7 點之外再 4 點），寫「再」，不然唸起來像同一份拿兩次（2026-09-25 文字盤點）
+      return other ? `自己身上有${fx.name}的話，${then}；否則${other}` : `自己身上有${fx.name}的話，再${then}`;
     }
     case 'energyAlly': return fx.onKill
       ? `打倒牠，同伴這回合就多 ${fx.n} 顆飯糰`   // 審查 2026-09-15 高-1：原本沒寫條件，9 點打不死玩家以為牌壞了
