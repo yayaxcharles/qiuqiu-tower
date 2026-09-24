@@ -26,6 +26,12 @@ describe('菲菲抽不到、圖鑑也不列加爪力的牌', () => {
     expect(left).toEqual([]);
   });
 
+  it('只加給同伴的爪力不算：連線牌「幫你一把」菲菲照樣拿得到（使用者 2026-09-25 裁定）', () => {
+    const c = cards.find((x) => x.id === 'bangnisheme')!;
+    expect(grantsStrength(c)).toBe(false);
+    expect(pickable(c, 'feifei', 2)).toBe(true);
+  });
+
   it('給魔物的爪力、減爪力不算；能力牌觸發、升級版才有的也算', () => {
     expect(grantsStrength({ effects: [{ kind: 'status', name: '爪力', amount: 2, target: 'enemy' }] } as never)).toBe(false);
     expect(grantsStrength({ effects: [{ kind: 'status', name: '爪力', amount: -1, target: 'self' }] } as never)).toBe(false);

@@ -1239,7 +1239,8 @@ export function inHeroCollection(c: Pick<CardDef, 'id' | 'pool' | 'hero' | 'effe
 export const NO_STRENGTH_HEROES: readonly string[] = ['feifei'];
 
 /**
- * 這張牌會替自己或同伴加爪力嗎：基本版、升級版、能力牌觸發的效果、條件句裡面的都算（整棵效果樹往下找）。
+ * 這張牌會替**自己**加爪力嗎：基本版、升級版、能力牌觸發的效果、條件句裡面的都算（整棵效果樹往下找）。
+ * 只加給同伴的（`statusAlly`，連線牌「幫你一把」）不算：菲菲自己不會變成爪力流，使用者 2026-09-25 裁定讓她拿。
  * 給魔物上的（`target: 'enemy'`／`'all'`）不算。用效果判斷、不列牌號清單：以後新增的爪力牌也自動擋
  */
 export function grantsStrength(c: Pick<CardDef, 'effects' | 'upgrade'>): boolean {
