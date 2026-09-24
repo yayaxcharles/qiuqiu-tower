@@ -67,7 +67,9 @@ describe('憋氣：一次花 4 點以上 ×1.3', () => {
     const prep = Object.values(cardById).filter((c) => [...c.effects, ...(c.upgrade?.effects ?? [])]
       .some((e) => e.kind === 'nextAttackBonusSpendQi' && e.maxQi >= QI_BURST_MIN));
     expect(prep.map((c) => c.id)).toContain('fengfeng_yiqichushou');
-    expect(glossary['蓄氣']).toContain('（讓同伴下一擊變強的牌不算）');
+    expect(glossary['蓄氣']).toContain('讓下一擊變強的牌不算）');
+    // 使用者 2026-09-24 晚：「最多 4 點」又「4 點以上 ×1.3」讀起來像自打嘴巴 → 寫明上限 4 點的牌花滿就算
+    expect(glossary['蓄氣']).toContain(`（上限剛好 ${QI_BURST_MIN} 點的牌，花滿就算；`);
     const pick = between(HERO, "hero: 'fengfeng', name: '封封'", '},');
     expect(pick).toContain("rule: '蓄氣',");
     expect(HERO).toContain("p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',");

@@ -944,7 +944,7 @@ registerScreen('event', (app, root, props) => {
   // 抽獎（籤筒的下籤會掉血，2026-09-23 第三批）也算
   const risky = shown.some((i) => [...ev.choices[i]!.outcome, ...(ev.choices[i]!.bySeat?.flat() ?? [])].some((o) => o.kind === 'damage' || o.kind === 'gamble' || o.kind === 'lottery'));
   const extra = runMods(run).unlucky && risky
-    ? [el('p', { class: 'event-note' }, '這個難度下，事件會更兇：掉血多一半，賭運氣只剩 70%機率會中（選項上寫的是一般難度的數字）')]
+    ? [el('p', { class: 'event-note' }, '這個難度下，事件會更兇：掉血多一半，賭運氣的成功機率打七折（例如 50% 只剩 35%）；選項上寫的是一般難度的數字')]
     : [];
   const opening = evText(ev.text) + hints.join('');
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）

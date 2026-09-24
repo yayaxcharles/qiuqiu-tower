@@ -3,6 +3,9 @@ import { BLESSINGS, BLESS_CLASSES } from '../../src/content/blessings';
 import { BLESS_COOP_TOOK, BLESS_COOP_WAIT, BLESS_NAMES, BLESS_OPENING, blessCardText, blessTakeLine } from '../../src/content/blessing-text';
 import { HEROES } from '../../src/engine/hero';
 import type { RunEffect } from '../../src/engine/types';
+import RUN from '../../src/engine/run.ts?raw';
+import BLESS_SCREEN from '../../src/ui/screens/blessing.ts?raw';
+import EVENT_SCREEN from '../../src/ui/screens/event.ts?raw';
 
 /**
  * 開局祝福的文字（2026-09-23 第三批，設計稿 2-2、2-4）。
@@ -89,5 +92,18 @@ describe('台詞', () => {
     expect(BLESS_COOP_TOOK).toContain('{同伴}');
     expect(BLESS_COOP_TOOK).toContain('{名稱}');
     expect(BLESS_COOP_WAIT).toContain('{同伴}');
+  });
+});
+
+// 推前稽核 2026-09-24 複審 中-1：高難度是把賭運氣的機率「再乘 0.7」（卡面 50% → 35%），不是改成 70%。
+// 提示第一版寫成「只剩 70%機率會中」，玩家會以為比卡面還高
+describe('高難度的賭運氣提示跟引擎的倍率一致', () => {
+  it('引擎乘 0.7；祝福與事件兩處提示寫「打七折」並舉 50%→35% 的例子', () => {
+    expect(RUN).toContain('chance(fx.p * (runMods(run).unlucky ? 0.7 : 1))');
+    for (const [name, src] of [['blessing', BLESS_SCREEN], ['event', EVENT_SCREEN]] as const) {
+      expect(src, name).toContain('賭運氣的成功機率打七折');
+      expect(src, name).toContain('50% 只剩 35%');
+      expect(src, name).not.toContain('70%機率會中');
+    }
   });
 });

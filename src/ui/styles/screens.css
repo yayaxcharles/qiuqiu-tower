@@ -628,8 +628,9 @@
 .bless-art { height: 250px; width: auto; filter: drop-shadow(0 10px 18px #000000a6); }
 .bless-row .shop-item { width: 220px; padding-bottom: 8px; }
 .bless-row .shop-item + .shop-item::before { display: none; }   /* 罐頭鋪貨架的立柱：這裡不是貨架 */
-.bless-row .shop-item img { width: 64px; height: 64px; }
-.bless-row .shop-item .small { font-size: 13px; }
+/* 圖示與字級掛在 `.bless-card` 上：手機按住放大的複製品（疊層裡、不在 `.bless-row` 底下）也要一樣大（複審 低-3） */
+.shop-item.bless-card img { width: 64px; height: 64px; }
+.shop-item.bless-card .small { font-size: 13px; }
 .bless-row .shop-item.took { outline: 4px solid #ffd35c; }
 /*
  * 包袱裡的四樣換成生出來的木框（使用者 2026-09-24 晚：「用黃色框框顯示而已…用生圖設計比較好的框」）。
@@ -661,7 +662,15 @@
   box-shadow: none;
   filter: drop-shadow(0 10px 12px #000000b3) drop-shadow(0 0 8px #ffd35c99);
 }
-.shop-item.bless-card.took { outline: none; transform: none; filter: drop-shadow(0 0 5px #ffd35c) drop-shadow(0 0 14px #ffd35cd9); }
+/* `:hover` 那條要一起寫：罐頭鋪通用的滑過（`.shop-item:not(.sold):not(.poor):hover`，權重 0,4,0）比 `.took` 高，
+   不寫會照樣上浮、還冒出方形的價標影子（複審 低-1） */
+.shop-item.bless-card.took, .shop-item.bless-card.took:hover {
+  outline: none; transform: none; box-shadow: none;
+  filter: drop-shadow(0 0 5px #ffd35c) drop-shadow(0 0 14px #ffd35cd9);
+}
+/* 沒選的那三張：罐頭鋪「賣完」那條（`.shop-item.sold:not(.card-item)`，0,3,0）會把紙底鋪回整個外框，
+   框圖外緣與四角的透明邊就透出一圈灰（複審 低-2）。底色留在內容區 */
+.shop-item.bless-card.sold { background: linear-gradient(#fffdf6, #f1e4c8) content-box; box-shadow: none; }
 .bless-cls[data-cls="換牌"] { border-color: #2f5fa8; color: #234a85; background: #dbe7f7; }
 .bless-cls[data-cls="代價"] { border-color: #7a3fa0; color: #5a2a78; background: #efe0f7; }
 .bless-cls[data-cls="賭運氣"] { border-color: #b8860b; color: #6b4d05; background: #ffe9a8; }
