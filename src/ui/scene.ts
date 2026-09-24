@@ -22,6 +22,12 @@ export interface SceneOpts {
   /** 對白框裡的按鈕；`column` 讓它們一列一顆撐滿（事件的選項），否則一排排開 */
   actions?: (Node | string)[];
   column?: boolean;
+  /**
+   * 同一個畫面只是內容換了一點的重畫（罐頭鋪買完、過關點選、連線時同伴投一票）：
+   * 對白框、立繪、戰利品列、備註不再播一次進場動畫（`.scene.calm`，樣式在 screens.css；畫面抖動稽核 2026-09-24）。
+   * 類別跟著這個新節點一起生、一起死，不會有「拿掉那一刻動畫重播」的問題。第一次進場、換成另一段內容照舊播
+   */
+  calm?: boolean;
 }
 
 export function sceneView(o: SceneOpts): HTMLElement {
@@ -31,7 +37,7 @@ export function sceneView(o: SceneOpts): HTMLElement {
     el('div', { class: 'dialogue-text scene-text' }, o.text),
     ...(o.extra ?? []),
     o.actions?.length ? el('div', { class: `scene-actions${o.column ? ' column' : ''}` }, ...o.actions) : '');
-  const scene = el('div', { class: 'scene' },
+  const scene = el('div', { class: o.calm ? 'scene calm' : 'scene' },
     o.art ? el('div', { class: 'scene-art' }, o.art) : '',
     o.portrait ? el('img', { class: 'scene-portrait', src: o.portrait, alt: '' }) : '',
     o.portrait2 ? el('img', { class: 'scene-portrait right', src: o.portrait2, alt: '' }) : '',

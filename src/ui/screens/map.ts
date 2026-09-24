@@ -118,6 +118,12 @@ function centreLane(nodes: readonly MapNode[]): number {
  * 跟種子綁在一起：換一局要從頭算，不然新局開頭會從上一局的樓層滑下來。
  */
 let lastFloor: { seed: string; floor: number } | null = null;
+/**
+ * 離開這張地圖時捲在哪（畫面抖動稽核 2026-09-24 第 5 項）。連線時同伴投一票整張地圖安靜重畫，
+ * 原本一律捲回「現在站的那一層」——正往上捲著看前面的路，就整張被拉回來 400 舞台像素。
+ * 同一局、同一關、同一層的安靜重畫（`App.redraw`）接回這個位置；真的換了樓層照舊捲過去。
+ */
+let lastScroll: { key: string; top: number } | null = null;
 
 registerScreen('map', (app, root) => {
   const run = app.run;
@@ -417,7 +423,19 @@ registerScreen('map', (app, root) => {
   // 只在「確實往上走了」才播：重進同一層（存檔載入、看完牌組回來）直接定位，不要每次都演一次。
   const climbed = lastFloor && lastFloor.seed === run.seed && here > lastFloor.floor
     ? clamp(floorY(lastFloor.floor)) : null;
-  if (climbed !== null && climbed !== want && typeof scroll.scrollTo === 'function') {
+  const scrollKey = `${run.seed}|${run.act}|${here}`;
+  /*
+   * 換畫面（含安靜重畫）先跑收尾、再清畫面：這時捲軸還在，量得到。
+   * 但往上爬那段平滑捲動還沒播完（連線時同伴先投了地圖票，晚一步進地圖的人下一拍就被安靜重畫）時，
+   * 當下的位置是起點或半路，記下來之後每次重畫都接回這裡，畫面就一直停在上一層（程式碼稽核 2026-09-24 中-1）。
+   * 所以玩家自己沒捲過的話，記「要去的那一層」。
+   */
+  const climbing = climbed !== null && climbed !== want;
+  let userMoved = false;
+  for (const ev of ['wheel', 'pointerdown', 'touchstart', 'keydown'] as const) scroll.addEventListener(ev, () => { userMoved = true; }, { passive: true });
+  app.disposers.push(() => { lastScroll = { key: scrollKey, top: climbing && !userMoved ? want : scroll.scrollTop }; });
+  if (app.redraw && lastScroll?.key === scrollKey) scroll.scrollTop = lastScroll.top;
+  else if (climbed !== null && climbed !== want && typeof scroll.scrollTo === 'function') {
     scroll.scrollTop = climbed;
     // 等這一格畫完再捲，不然瀏覽器會把「設起點」跟「捲到終點」併成一次，畫面還是用跳的
     requestAnimationFrame(() => scroll.scrollTo({ top: want, behavior: 'smooth' }));

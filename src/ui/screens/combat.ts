@@ -34,7 +34,7 @@ import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
 import { bubbleOverUnit, heroSpeaker, toast } from '../dialogue';
-import { clear, el, stageFrame } from '../dom';
+import { clear, el, keepLoops, stageFrame } from '../dom';
 import { play as sfx } from '../audio';
 import { enemyLeft, nextLineup, playerLeft, speechBubbleAt } from '../enemylayout';
 import { burst } from '../fx';
@@ -1971,6 +1971,44 @@ registerScreen('combat', (app, root, props) => {
     return typeof t === 'number' ? t : null;
   }
 
+  /** 重畫前每張手牌（依 uid）的版面位置、行內扇形、起伏跑到週期的哪裡（扣掉自己的延遲）；給 `slideHand` 接 */
+  type HandWas = Map<string, { x: number; y: number; tf: string; idle: number | null }>;
+  function handSnap(): HandWas {
+    const was: HandWas = new Map();
+    for (const n of root.querySelectorAll<HTMLElement>('.hand .card[data-uid]')) {
+      const t = idleTimeOf(n);
+      was.set(n.dataset['uid']!, { x: n.offsetLeft, y: n.offsetTop, tf: n.style.transform,
+        idle: t === null ? null : t - Number(idleAnimOf(n)?.effect?.getTiming().delay ?? 0) });
+    }
+    return was;
+  }
+  /**
+   * 整頁重畫之後，還在手上的牌**從舊位置滑到新位置**、起伏接著晃（畫面抖動稽核 2026-09-24 第 3 項）。
+   *
+   * 出一張牌整手重建，剩下的牌原本一格就跳到新的扇形位置（最多 111 像素），起伏也從頭晃。
+   * 位置差用 `offsetLeft`／`offsetTop`（版面座標，不吃 transform 與舞台縮放）。補間動的是 `transform`：
+   * 起點＝「平移那段差＋舊的扇形」、終點＝「平移 0＋新的扇形」，兩端函式清單一樣，角度與下沉跟著轉過去；
+   * 終點就是行內那個值，播完交還行內樣式不會跳。起伏（`card-idle`）動的是獨立屬性 `translate`／`rotate`，
+   * 跟 `transform` 疊加、不打架；滑過去那條（`:hover` 的 `!important`）照樣蓋過補間。
+   * 起伏的進度加回新節點自己的延遲再接：重畫後排第幾張變了，`nth-child` 錯開的延遲也跟著變。
+   */
+  function slideHand(was: HandWas): void {
+    // 先把每張牌的新位置全部量完、再一起寫：量一張寫一張會逼瀏覽器每張都重算一次樣式（程式碼稽核 2026-09-24 低-2）
+    const todo = [...root.querySelectorAll<HTMLElement>('.hand .card[data-uid]')].flatMap((n) => {
+      const w = was.get(n.dataset['uid']!);
+      return w ? [{ n, w, dx: w.x - n.offsetLeft, dy: w.y - n.offsetTop, tf: n.style.transform }] : [];
+    });
+    // 作業系統設了「減少動態效果」就不滑，直接定位（同 `@media (prefers-reduced-motion: reduce)` 那幾塊）
+    const still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    for (const { n, w, dx, dy, tf } of todo) {
+      const idle = idleAnimOf(n);
+      if (idle && w.idle !== null) idle.currentTime = w.idle + Number(idle.effect?.getTiming().delay ?? 0);
+      if (!still && (dx || dy || w.tf !== tf) && typeof n.animate === 'function') {
+        n.animate([{ transform: `translate(${dx}px, ${dy}px) ${w.tf}` }, { transform: `translate(0px, 0px) ${tf}` }], { duration: 180, easing: 'ease-out' });
+      }
+    }
+  }
+
   function handRow(): HTMLElement {
     const p = my();
     const n = p.hand.length;
@@ -2224,6 +2262,8 @@ registerScreen('combat', (app, root, props) => {
     }
     const endBtn = box.querySelector<HTMLElement>('.end-turn');
     if (endBtn) { if (!canAct() || dealDelay > 0 || my().ready || my().down) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }   // 舉手了／倒下了照整頁重畫的判準留灰（審查 中-2）
+    // 逐步修補換掉的那幾隻，呼吸也照整頁重畫釘回開場的起點：不釘的話自己從頭起跑，下一次整頁重畫釘回去那一下會縮一下（畫面抖動稽核 2026-09-24 第 3 項）
+    keepLoops(box, app.loopT0, 'card-idle');
     return true;
   }
 
@@ -2280,6 +2320,7 @@ registerScreen('combat', (app, root, props) => {
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     arrowOff?.abort();   // 舊的 box 連同箭頭一起丟掉，監聽也拆掉
     arrowOff = null;
+    const handWas = handSnap();   // 清掉之前先記下手牌在哪（見 `slideHand`）
     clear(root);
     const box = el('div', { class: 'combat' });
     // 鋪法（圖＋放大率＋貼齊下緣）交給 `battleBgStyle` 一支管：關主門的門後景也叫同一支，
@@ -2370,6 +2411,13 @@ registerScreen('combat', (app, root, props) => {
     }
     // 箭頭要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後
     if (targeting) mountArrow(box);
+    /*
+     * 整頁重建之後：背景火光與暖光、三層浮塵、魔物呼吸、意圖牌這些循環動畫接回原進度（`keepLoops`），
+     * 還在手上的牌從舊位置滑過去、起伏接著晃（`slideHand`；它自己接起伏，所以 `keepLoops` 跳過 `card-idle`——
+     * 剛發到手的牌那支起伏跟著發牌的延遲起跑，釘到開場時間的話發牌一落地會抖一下）。畫面抖動稽核 2026-09-24 第 3 項
+     */
+    keepLoops(root, app.loopT0, 'card-idle');
+    slideHand(handWas);
     // `dealDelay` 是**一次性**的：settle 設好、緊接著那一次重畫用掉就歸零。
     // 不歸零的話，換完回合之後每一次重畫（點一張要選目標的牌、按 Esc 取消）
     // 都會以為自己還在發牌，把整排手牌與「結束回合」再鎖一秒多。
@@ -3658,6 +3706,8 @@ registerScreen('combat', (app, root, props) => {
         u.classList.remove('attack', 'hit', 'dodge', 'cast');
         const sp = u.querySelector<HTMLElement>('.sprite');
         if (sp) sp.style.animationDelay = '';
+        // 呼吸回來時就釘在開場的起點（`keepLoops`）：自己從頭起跑的話，下一次整頁重畫釘回去那一下會縮一下（畫面抖動稽核 2026-09-24）
+        keepLoops(u, app.loopT0);
       }
       // **就地換圖，不要 render()**：這一拍畫面沒有任何資料變動，只是姿勢收回待機。
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、

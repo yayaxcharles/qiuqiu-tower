@@ -165,6 +165,8 @@ async function setup(opts: { content?: boolean; covered?: boolean; nested?: bool
   const show = await loadShow({
     screens, setBgm: () => {}, hideTooltip: () => {}, closeScreenModals: () => {}, me: () => ({}), setLocalPartnerHero: () => {},
     clear: clearFn, swapScreen: swap, retireLeavingScreen: retire,
+    // 畫面抖動稽核 2026-09-24：show() 多記一個循環動畫起點、畫完把循環動畫接回去（這裡只驗換層，兩樣給空的）
+    keepLoops: () => {}, document: { timeline: { currentTime: 0 } },
   });
   app.show = show.bind(app) as ShowFn;
   // 戰利品頁先掛底圖、沒有局面才回標題（reward.ts 開頭就是這樣）：回標題那一下畫面層已經有東西

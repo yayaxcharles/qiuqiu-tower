@@ -9,7 +9,7 @@ import { lineFor } from '../../content/dialogue';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { artUrl, heroArtUrl } from '../assets';
-import { el } from '../dom';
+import { el, keepLoops } from '../dom';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
@@ -107,10 +107,41 @@ registerScreen('actclear', (app, root, props) => {
     }));
   };
 
+  /**
+   * 點選秘寶或牌**不整頁重畫**，只換「選中」的樣子與底下那顆鈕（畫面抖動稽核 2026-09-24 第 2 項）：
+   * 整頁重畫會讓對白框從下面再滑上來一次、已選那張的「✓ 選這個」章消失再彈出、稀有牌流光從頭跑、背景暗一下。
+   * `tiles`／`cardEls`／`goBtn` 是現在畫面上那一份，`render()` 每次重新登記。
+   */
+  const tiles = new Map<string, HTMLElement>();
+  const cardEls = new Map<string, HTMLElement>();
+  let goBtn: HTMLElement | null = null;
+  /** 秘寶一定要挑一件、送出去了就只能等（連線）：鈕上的字與能不能按 */
+  function goState(sent: boolean): { label: string; off: boolean } {
+    const next = ACT_NAMES[run!.act] ?? '塔頂';
+    // 有秘寶可挑卻沒挑就不放行：原本按鈕文字只看有沒有選牌，一件塔主池秘寶按下去就無聲消失（體檢 2026-09-05）
+    const mustPickRelic = picks.length > 0 && !pickedRelic;
+    return { label: sent ? '等同伴挑完…' : mustPickRelic ? '先挑一件秘寶' : pickedCard ? `帶著新招上${next}` : `出發，上${next}`, off: mustPickRelic || sent };
+  }
+  function refresh(): void {
+    // 這一下才變成選中的，拿掉 `kept`：它的勾章要彈出來（`kept` 是重畫前就選著的那張，見 screens.css）
+    const mark = (n: HTMLElement, on: boolean): void => { if (on && !n.classList.contains('selected')) n.classList.remove('kept'); n.classList.toggle('selected', on); };
+    for (const [id, n] of tiles) mark(n, pickedRelic === id);
+    for (const [id, n] of cardEls) mark(n, pickedCard === id);
+    const g = goState(false);
+    if (!goBtn) return;
+    goBtn.textContent = g.label;
+    goBtn.classList.toggle('disabled', g.off);
+    if (g.off) goBtn.setAttribute('disabled', 'true'); else goBtn.removeAttribute('disabled');
+  }
+
+  let drawn = false;   // 三選一畫過了沒：再畫一次（連線時同伴投票）就是同一段內容，不再播進場
   function render(): void {
     if (!run) return;
+    const calm = drawn;
+    drawn = true;
     clearKeepBg(root);
     renderHud(app, root);
+    tiles.clear(); cardEls.clear();
     // 連線：送出去之後就不能改了（改了兩邊的清單會對不上）
     const sent = coop ? coop.picks('actrelic', run.players.length)[seat] !== null : false;
     // 秘寶三選一：大圖示的方塊，點了亮起、可換選；跟牌一樣按「出發」才一起結算
@@ -121,28 +152,29 @@ registerScreen('actclear', (app, root, props) => {
       const url = artUrl('icons', d.art);
       // 連線時清單照「有一位用得到」開，鎖住我的那件（封封的蓄氣秘寶給菲菲看）要講明白，不然她會以為挑了有用（主控 2026-09-23）
       const partnerOnly = relicForPartnerOnly(run, id, seat);
-      const node = el('div', { class: `pick-tile${pickedRelic === id ? ' selected' : ''}${partnerOnly ? ' partner-only' : ''}` },
+      const node = el('div', { class: `pick-tile${pickedRelic === id ? ` selected${calm ? ' kept' : ''}` : ''}${partnerOnly ? ' partner-only' : ''}` },
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('b', {}, d.name),
         partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
         el('em', {}, relicLongText(d, me(run, seat).relics)));   // 師門那兩件多一段集到幾件（2026-09-23 第二批），挑的時候就看得到湊不湊得成
-      if (!sent && !iDown) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); render(); });
+      if (!sent && !iDown) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); refresh(); });
+      tiles.set(id, node);
       relicRow.append(node);
     }
     // 稀有牌三選一：點了亮起、可換選；帶不帶都能出發
     const cardRow = el('div', { class: 'reward-cards' });
     for (const c of cardPicks) {
-      cardRow.append(cardNode(c, {
+      const node = cardNode(c, {
         small: true,
         selected: pickedCard === c.id,
         disabled: sent || iDown,
-        onClick: () => { if (!sent && !iDown) { pickedCard = pickedCard === c.id ? null : c.id; play('click'); render(); } },
-      }));
+        onClick: () => { if (!sent && !iDown) { pickedCard = pickedCard === c.id ? null : c.id; play('click'); refresh(); } },
+      });
+      if (calm && pickedCard === c.id) node.classList.add('kept');
+      cardEls.set(c.id, node);
+      cardRow.append(node);
     }
-    const next = ACT_NAMES[run.act] ?? '塔頂';
-    // 有秘寶可挑卻沒挑就不放行：原本按鈕文字只看有沒有選牌，一件塔主池秘寶按下去就無聲消失（體檢 2026-09-05）
-    const mustPickRelic = picks.length > 0 && !pickedRelic;
-    const goLabel = sent ? '等同伴挑完…' : mustPickRelic ? '先挑一件秘寶' : pickedCard ? `帶著新招上${next}` : `出發，上${next}`;
+    const { label: goLabel, off } = goState(sent);
     // 劇場版面：秘寶一排、牌一排立在畫面中央；說明與出發鈕在底下的帶子裡
     root.append(sceneView({
       art: el('div', { class: 'scene-picks' },
@@ -154,18 +186,20 @@ registerScreen('actclear', (app, root, props) => {
       // 「通過」才是「爬過這一段、還要繼續往上」的意思
       speaker: `通過${ACT_NAMES[run.act - 1] ?? ''}`,
       text: `${heroSpeaker()}歇了口氣，回復完體力，繼續往${NEXT_PLACE[run.act] ?? '塔頂'}前進。`,
-      actions: [el('button', {
-        class: 'btn primary' + (mustPickRelic || sent ? ' disabled' : ''),
-        ...(mustPickRelic || sent ? { disabled: 'true' } : {}),
+      actions: [goBtn = el('button', {
+        class: 'btn primary' + (off ? ' disabled' : ''),
+        ...(off ? { disabled: 'true' } : {}),
         onclick: () => {
-          if (mustPickRelic) return;
+          if (picks.length > 0 && !pickedRelic) return;   // 點選不重畫了，按下去的當下才看（見 `refresh`）
           // 單機：挑完就走。兩個人：把挑的送出去，等對方也挑完才一起結算、一起上樓
           if (coop) { coop.pick('actrelic', pickedRelic ?? ''); coop.pick('actcard', pickedCard ?? ''); return; }
           if (pickedCard) addCard(run, pickedCard, false, seat);
           done(pickedRelic);
         },
       }, goLabel)],
+      calm,
     }));
+    keepLoops(root, app.loopT0);   // 稀有牌流光、底圖火光接回原進度（連線時同伴投票那次重畫）
   }
   /*
    * **連線的回呼要掛在下面那個早退之前。**

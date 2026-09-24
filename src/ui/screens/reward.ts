@@ -440,5 +440,7 @@ registerScreen('reward', (app, root, props) => {
         ? el('button', { class: 'btn', disabled: 'disabled' }, '先挑一件秘寶')
         : el('button', { class: 'btn primary', onclick: () => done(null) },
           !r.escaped && myCards.length ? '放棄牌並跳過' : '繼續')],
+    // 同伴投一票的安靜重畫：對白框與戰利品列不再彈一次（畫面抖動稽核 2026-09-24 第 4 項，見 `App.redraw`）
+    calm: app.redraw,
   }));
 });

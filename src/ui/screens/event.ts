@@ -949,7 +949,8 @@ registerScreen('event', (app, root, props) => {
   const opening = evText(ev.text) + hints.join('');
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
   root.append(markRare(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), ...(portrait2 ? { portrait2 } : {}), speaker: title,
-    text: iDown ? `${opening}（你倒下了，這次由同伴決定）` : opening, extra, actions: choices, column: true })));
+    // 同伴投一票的安靜重畫：對白框、立繪、備註不再彈一次（畫面抖動稽核 2026-09-24 第 4 項，見 `App.redraw`）
+    text: iDown ? `${opening}（你倒下了，這次由同伴決定）` : opening, extra, actions: choices, column: true, calm: app.redraw })));
   // 稀有事件開場播一聲秘寶那個音效（design3 5-1）。連線時每投一票會重畫一次，有人投過票就不再響
   if (ev.rare && !votes.some((v) => v !== null)) play('relic');
 

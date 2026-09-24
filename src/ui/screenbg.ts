@@ -1,6 +1,6 @@
 import { artUrl } from './assets';
 import { BG_VARIANTS } from './bgacts';
-import { clear, el } from './dom';
+import { el } from './dom';
 
 /**
  * 節點畫面的底圖層。鋪滿整個舞台（含狀態列後面），放在畫面內容之前 append。
@@ -43,11 +43,14 @@ export function screenBg(key: string): HTMLElement {
  * 畫面內部重畫（事件選完、貓窩做完事、罐頭鋪買完東西）一律用這個，不要用 clear(root)——
  * 底圖是 root 的第一個子節點，clear 會把它一起清掉，畫面就變成一片米白、中間浮一小塊面板，
  * 看起來像當掉。2026-08-30 加底圖時漏掉這件事，事件選完真的被當成當機回報過。
+ *
+ * **底圖留在原地，不拔下來再接回**（畫面抖動稽核 2026-09-24 第 1 項）：節點一離開文件，
+ * 它身上的火光起伏（`bg-torchlight`）就從頭播，罐頭鋪每買一樣背景就暗一下。只拔掉底圖以外的東西。
  */
 export function clearKeepBg(root: HTMLElement): void {
   const bg = root.querySelector('.screen-bg');
-  clear(root);
-  if (bg) root.append(bg);
+  for (const n of [...root.childNodes]) if (n !== bg) n.remove();
+  if (bg && bg.parentNode !== root) root.append(bg);
 }
 
 /**

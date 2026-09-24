@@ -592,6 +592,9 @@
   filter: drop-shadow(0 8px 16px #000000a6);
   animation: portrait-in 260ms cubic-bezier(.2, .9, .3, 1.1);
 }
+/* 同一個畫面的重畫（`sceneView` 的 `calm`：罐頭鋪買完、連線時同伴投一票）：進場動畫只在第一次進場播，
+   重畫時對白框不再從下面滑上來、立繪不再閃、戰利品列不再一列列彈上來（畫面抖動稽核 2026-09-24） */
+.scene.calm > .dialogue-box, .scene.calm > .scene-portrait, .scene.calm .reward-item, .scene.calm .event-note { animation: none; }
 .scene .dialogue-box.scene-box {
   position: absolute; left: 90px; right: 90px; bottom: 30px;
   width: auto; margin: 0; padding: 22px 34px 22px;
@@ -896,6 +899,8 @@
   box-shadow: 0 3px 8px #00000080;
   animation: showcase-pop .3s cubic-bezier(.2, .9, .3, 1.3) both;
 }
+/* 重畫前就選著、重畫後還選著的那張（`kept`，actclear.ts）：勾章不再消失再彈一次（畫面抖動稽核 2026-09-24） */
+.scene-picks .kept.selected::after { animation: none; }
 .pick-row:has(.selected) .pick-tile:not(.selected), .scene-picks .reward-cards:has(.selected) .card:not(.selected) { opacity: .55; filter: saturate(.7); }
 .pick-row:has(.selected) .pick-tile:not(.selected):hover, .scene-picks .reward-cards:has(.selected) .card:not(.selected):hover { opacity: .9; }
 /* ===== 結算畫面（劇場版面） ===== */

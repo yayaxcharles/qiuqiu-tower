@@ -22,7 +22,7 @@ import { cardNode } from '../cardview';
 import { attachCardPeek } from '../cardpeek';
 import { showRemoveConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
-import { el } from '../dom';
+import { el, keepLoops } from '../dom';
 import { renderHud } from '../hud';
 import { refitGoods, sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
@@ -295,7 +295,20 @@ registerScreen('shop', (app, root, props) => {
     return btn;
   }
 
+  /**
+   * 上一次畫的是開頭那段還是貨架（畫面抖動稽核 2026-09-24 第 1 項）：同一段再畫一次（買完、放生、重整、服務、同伴買了東西）
+   * 就是「內容換一點」，對白框與立繪不再從透明滑進來（`calm`），循環動畫接回原進度（`keepLoops`）；
+   * 第一次進門、開頭換成貨架那一下照舊播進場
+   */
+  let drawn: 'intro' | 'stall' | null = null;
   function render(): void {
+    const mode = mer && intro ? 'intro' : 'stall';
+    const calm = drawn === mode;
+    drawn = mode;
+    paint(calm);
+    keepLoops(root, app.loopT0);
+  }
+  function paint(calm: boolean): void {
     clearKeepBg(root);
     renderHud(app, root);
     if (flashPure) { root.querySelector(`.hud-relic[data-relic="${flashPure}"]`)?.classList.add('purified'); flashPure = null; }
@@ -307,6 +320,7 @@ registerScreen('shop', (app, root, props) => {
         speaker: '行腳商',
         text: mer.opening,
         actions: [el('button', { class: 'btn primary', onclick: () => { intro = false; play('click'); render(); } }, '看看貨架（只能挑一樣）')],
+        calm,
       }));
       return;
     }
@@ -407,6 +421,7 @@ registerScreen('shop', (app, root, props) => {
       extra: !iDown && t.reply ? [el('div', { class: 'dialogue-text scene-text shop-reply' }, `${heroSpeaker()}：「${t.reply}」`)] : [],
       // 行腳商沒有放生、沒有重整貨架（設計稿 3-2）
       actions: mer ? [leaveBtn()] : [reshuffle, remove, serviceBtn(), leaveBtn()],
+      calm,
     }));
     // 行腳商的立繪畫布大一號（360×480，照頭寬縮完背後的貨擔塞不進 332×420）：樣式表照這個 class 把框放大、每像素一樣大（實機驗收五 低-4）
     if (mer) root.querySelector('.scene-portrait')?.classList.add('merchant');

@@ -22,7 +22,7 @@ import { play, setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { notice, playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
 import { speechBubbleAt } from './enemylayout';
-import { clear, el } from './dom';
+import { clear, el, keepLoops } from './dom';
 import { retireLeavingScreen, swapScreen } from './screenswap';
 import { closeScreenModals, closeStoryOverlays, setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
@@ -85,6 +85,13 @@ export class App {
   screen: HTMLElement;
   /** 疊層：吐槽、對白、名詞提示、牌組視窗住這裡，換畫面時不會被清掉 */
   overlay: HTMLElement;
+  /**
+   * 這一次 `show()` 只是同一個畫面因為同伴投票而重畫（`quiet`、畫面名沒變、不是從載入畫面接手）。
+   * 畫面拿它決定對白框、戰利品列要不要再播進場動畫（`sceneView` 的 `calm`；畫面抖動稽核 2026-09-24 第 4 項）
+   */
+  redraw = false;
+  /** 這個畫面第一次進場的時間：無限循環的動畫一律從這一刻起算，重畫之後才接得上（見 dom.ts 的 `keepLoops`） */
+  loopT0 = 0;
 
   constructor(root: HTMLElement) {
     this.screen = el('div', { id: 'screen' });
@@ -159,6 +166,13 @@ export class App {
     //（見 `CoopSession.clearScreenHooks`）。新畫面自己會在下面的 `r(...)` 裡重新掛
     this.coop?.clearScreenHooks(name);
     for (const d of this.disposers.splice(0)) d();
+    // 同一個畫面的安靜重畫：循環動畫沿用第一次進場的起點、進場動畫不再播（見 `redraw`、`loopT0`）。
+    // 從「正在準備畫面……」接手的那一次（lazy-screen.ts 也走 quiet）是第一次畫出真正的內容，照新畫面算
+    // 剛進場 300 毫秒內的安靜重畫也照新畫面算：連線時晚一步進來的人，第一次畫完下一拍就被同伴那票的重畫蓋掉，
+    // 不然他的對白框、戰利品列一次都沒滑進來過（程式碼稽核 2026-09-24 低-1）
+    this.redraw = !!opts.quiet && this.stage.dataset['screen'] === name && !this.screen.querySelector('.screen-loading, .screen-load-error')
+      && Number(document.timeline?.currentTime ?? 0) - this.loopT0 > 300;
+    if (!this.redraw) this.loopT0 = Number(document.timeline?.currentTime ?? 0);
     // 要淡入、而且上一個畫面還在：舊畫面層墊到底下、換一個新的畫面層（M-2，見 screenswap.ts）；
     // 安靜重畫（同一頁只因同伴投票而重畫）照舊就地清掉。
     // 整片不透明的劇情層（幻燈片、過場影片、過關走路）蓋著時，玩家看的是那一層、不是底下的舊畫面：
@@ -185,6 +199,7 @@ export class App {
     setLocalPartnerHero(partner ? (partner.hero ?? 'ninja') : undefined);
     const screen = this.screen;
     r(this, screen, props);
+    if (this.screen === screen) keepLoops(screen, this.loopT0);
     // 換畫面淡一下。用 animate() 不用 CSS 類別：元素本身永遠是最終樣子，
     // 動畫被節流或中斷也不會卡在半透明。戰鬥中的重畫不走這裡（那是直接改 screen 的內容），
     // 所以出一張牌不會整個畫面閃一次。
