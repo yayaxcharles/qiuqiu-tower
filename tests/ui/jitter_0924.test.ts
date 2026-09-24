@@ -248,7 +248,8 @@ describe('戰鬥：整頁重畫後循環動畫接上、手牌滑過去', () => {
     expect(render.indexOf('const handWas = handSnap();')).toBeLessThan(render.indexOf('clear(root);'));
     expect(render).toContain("keepLoops(root, app.loopT0, 'card-idle');\n    slideHand(handWas);");
     const patch = between(COMBAT, '  function patchField(', '  /** 選目標時鋪的接盤子');
-    expect(patch).toContain("keepLoops(box, app.loopT0, 'card-idle');\n    return true;");
+    // 扣血預覽（2026-09-24 晚）在接回循環動畫之後、回傳之前重畫
+    expect(patch).toContain("keepLoops(box, app.loopT0, 'card-idle');\n    repaintPreview();   // 魔物格子可能整格換掉了（同伴出手）：扣血預覽照同一組重算\n    return true;");
     expect(COMBAT).toContain("u.classList.remove('attack', 'hit', 'dodge', 'cast');");
     expect(between(COMBAT, "u.classList.remove('attack', 'hit', 'dodge', 'cast');", '      // **就地換圖，不要 render()**')).toContain('keepLoops(u, app.loopT0);');
   });
