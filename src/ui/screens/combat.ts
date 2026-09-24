@@ -28,6 +28,7 @@ import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { seatFeedback, seatFeedbackSnap, type SeatFeedbackSnap } from '../seat-feedback';
 import { BAD_STATUS, GOOD_STATUS, STATUS_ORDER } from '../status-kind';
+import { createChipsLift } from '../chiplift';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
 import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPhaseKey, monsterUrl, hasSprite, type DecodePool } from '../assets';
@@ -1064,6 +1065,7 @@ registerScreen('combat', (app, root, props) => {
     const shown = shownPlayer(q);
     node.querySelector(':scope > .hpbar')?.replaceWith(hpBar(`p${seat}`, shown.hp, q.maxHp));
     node.querySelector(':scope > .chips')?.replaceWith(statusRow(shown, true, `p${seat}`));
+    chipLift.settle(node);   // 牌子列整排換了，排數可能變了（見 `chipLift`）
   };
   /**
    * 畫一位玩家。兩個人時靠 `playerLeft` 排位、`data-seat` 認人。
@@ -1219,6 +1221,13 @@ registerScreen('combat', (app, root, props) => {
    * 只在**值真的變了**的時候演，重畫幾十次也不會一直閃。
    */
   const lastChips = new Map<string, number>();
+  /**
+   * 牌子折成好幾排時立繪不被往上頂（使用者 2026-09-25：「角色會突然往上移……腳離地」，見 `chiplift.ts`）。
+   * 每排牌子列建好就 `watch`；節點放進畫面的那幾處（整頁重畫、就地修補、只換牌子列）另外當場 `settle`，
+   * 同一拍就量立繪位置的瞄準箭頭、近戰衝刺才不會量到被頂高的舊位置
+   */
+  const chipLift = createChipsLift();
+  app.disposers.push(() => chipLift.disconnect());
   /**
    * 第一次重畫先把現況灌進 `lastChips` 再畫，不然開場就自帶飛行、鱗甲、或被修飾詞加了爪力的魔物，
    * 整排牌子會在開場白正在冒泡泡的時候一起蹦（稽核 2026-09-10 低-5）。
@@ -1517,9 +1526,11 @@ registerScreen('combat', (app, root, props) => {
         row.append(node);
       }
     }
-    // 牌子太多（一堆增益＋一堆能力牌）會疊到四五排、把整隻貓往上頂到頭被切掉（使用者 2026-09-04 要求測的情境）：
-    // 超過八個就縮小字與間距、排寬一點，十六個也壓得進三排
+    // 牌子太多（一堆增益＋一堆能力牌）會疊到四五排（使用者 2026-09-04 要求測的情境）：
+    // 超過八個就縮小字與間距、排寬一點，十六個也壓得進三排。
+    // 折幾排都不再把貓往上頂（2026-09-25，`chipLift`），但排數少，往上長、蓋在腳上的那塊就小
     if (mine && row.children.length > 8) row.classList.add('many');
+    chipLift.watch(row);
     return row;
   }
 
@@ -1797,6 +1808,7 @@ registerScreen('combat', (app, root, props) => {
     const reviving = e.dead && e.reviveIn > 0 && willRevive(cs, e);
     const shown = shownEnemy(e);
     node.querySelector(':scope > .chips')?.replaceWith(enemyChips(e, enemyById[e.enemyId], reviving));
+    chipLift.settle(node);   // 牌子列整排換了，排數可能變了（見 `chipLift`）
     if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown));
     // 打掉飛行的那一下：東西打到才掉下來（跟 enemyUnit 同一個判準）。虛化只在魔物自己的回合變，不用跟
     node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);
@@ -2286,6 +2298,7 @@ registerScreen('combat', (app, root, props) => {
       }
     }
     box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
+    chipLift.settle(field);   // 換掉的那幾格：牌子折幾排當場量好，後面量立繪位置的才準（見 `chipLift`）
     // 狀態列只在它畫的東西變了才重建（見 `hudKey`）
     const hudNow = hudKey(me(run, app.seat), my().fishDelta, hudCounters());
     if (hudNow !== hudShown || !box.querySelector('.hud')) {
@@ -2435,6 +2448,8 @@ registerScreen('combat', (app, root, props) => {
     renderHud(app, box, my().fishDelta, { turn: cs.turn, p: my() });   // 偷走／賺到的當下就要在狀態列看得到
     hudShown = hudKey(me(run, app.seat), my().fishDelta, hudCounters());
     root.append(box);
+    // 牌子折成好幾排的那幾格，立繪框當場放回原位（見 `chipLift`）。要排在下面量位置的發牌、瞄準箭頭、手牌滑動之前
+    chipLift.settle(field);
     paintFlashes(performance.now());   // 同 patchField：整頁重畫也要把還在演的秘寶補回去（稽核 2026-09-10 複核 中-1）
     // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
     // dealFrom 排在同一拍（不是下一幀）：動畫要到下一幀才開始播，這時候補上位移還來得及。
@@ -4099,7 +4114,11 @@ registerScreen('combat', (app, root, props) => {
       if (u === null) mateHint.delete(seat); else mateHint.set(seat, u);
       const q = cs.players[seat];
       const node = root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"]`);
-      if (q && node) node.replaceWith(playerUnit(q));
+      if (q && node) {
+        const fresh = playerUnit(q);
+        node.replaceWith(fresh);
+        chipLift.settle(fresh);   // 見 `chipLift`
+      }
     });
     /** 這一批動作的收尾交接（見下面外層的例外防護）：`finish`＝收尾那一支、`started`＝已經開始收了 */
     type AppliedTurn = { finish?: (clearRemote?: boolean) => void; started?: boolean; sealed?: boolean };
