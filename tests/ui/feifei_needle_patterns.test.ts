@@ -36,9 +36,11 @@ describe('菲菲飛針招式資料', () => {
     expect(isFeifeiNeedleAction('')).toBe(false);
   });
 
-  it('把九張牌映射到各自投射物，不合併成通用飛針或針雨', () => {
+  // 九張→十張：2026-09-25 補一針借飛針的單手彈針（不另畫動作）
+  it('把十張牌映射到各自投射物，不合併成通用飛針或針雨', () => {
     expect(FEIFEI_NEEDLE_CARD_ACTION).toEqual({
       feifei_feizhen: 'shuriken',
+      feifei_buyizhen: 'shuriken',
       feifei_lianzhen: 'needle_combo',
       feifei_shouhua: 'needle_backhand',
       feifei_jianxue: 'needle_venom',

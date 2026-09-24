@@ -121,6 +121,9 @@ function sep(prev: Effect, next: Effect): string {
   // 條件句後的抽牌獨立成句，避免看成也要符合前面的條件。
   if (next.kind === 'drawAlly' && (prev.kind === 'ifSelfStatus' || (prev.kind === 'energyAlly' && prev.onKill))) return '。';
   if (next.kind === 'blockIfPoisoned' && namesAllFoes(prev)) return '。';
+  // 「目標身上有中毒就抽 N 張牌」後面還有事（補一針、看準破綻＋再上毒，2026-09-25）：用逗號接會被讀成
+  // 「有毒才抽、也才上毒」，其實上毒是無條件的。用分號切開，跟前面「造成 N 點傷害；」那一刀對稱
+  if (prev.kind === 'drawIfTargetStatus') return '；';
   return CLAUSE_AFTER.has(prev.kind) || CLAUSE_BEFORE.has(next.kind) ? '；' : '，';
 }
 

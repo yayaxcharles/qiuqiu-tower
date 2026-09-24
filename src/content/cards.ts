@@ -667,13 +667,32 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'status', name: '中毒', amount: 3, target: 'enemy' }],
     upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 6, target: 'enemy' }] } },
 
-  // ---- 常見（8）----
+  // ---- 常見（9）----
   { id: 'feifei_lianzhen', name: '連針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_lianzhen',
     effects: [{ kind: 'damage', amount: 2, times: 2 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 2 }],
     upgrade: { effects: [{ kind: 'damage', amount: 2, times: 3 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }, { kind: 'blockIfPoisoned', amount: 3 }] } },
   { id: 'feifei_sazhen', name: '撒針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_sazhen',
     effects: [{ kind: 'damage', amount: 2, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'blockIfPoisoned', amount: 3 }],
     upgrade: { effects: [{ kind: 'damage', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 1, target: 'all' }, { kind: 'blockIfPoisoned', amount: 4 }] } },
+  /*
+   * ===== 補爪力牌的缺：三張毒系專屬牌（2026-09-25 使用者裁定）=====
+   *
+   * 同一天使用者先裁定「菲菲不拿加爪力的牌」（玩家反應她的中毒會疊層、有點像爪力；見檔尾 `NO_STRENGTH_HEROES`），
+   * 她因此少了五張共用爪力牌：常見的亮出爪子、罕見的絕學·運功、稀有的封印解除／絕學·鐵心／絕學·九尾拳。
+   * 使用者選「補兩三張菲菲專屬的毒系牌，主打中毒」，所以補這三張，一個稀有度一張：
+   *   - 常見　補一針（這張）：打已經中毒的魔物會多抽一張，讓「先下毒再出手」有回報
+   *   - 罕見　看準破綻（`feifei_kanzhun`）：0 費，目標已經中毒就抽兩張
+   *   - 稀有　越撒越順手（`feifei_yuesa`）：之後每打出一張技能牌，所有魔物中毒 1 層
+   * 全部用現有的效果拼，沒有新引擎。
+   *
+   * **效果順序就是規則**：「本來就中毒」看的是這張牌上毒**之前**，所以一定是
+   * 傷害 → 抽牌判斷（`drawIfTargetStatus` 是當下才看目標身上有沒有毒）→ 上毒。
+   * 把上毒排到前面，條件就永遠成立、抽牌變成白送（`tests/engine/feifei_poison_0925.test.ts` 盯著）。
+   * 她的攻擊牌多半自帶蜷縮，這張刻意不給：回報換成了抽牌。
+   */
+  { id: 'feifei_buyizhen', name: '補一針', cost: 1, type: 攻, rarity: '常見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_buyizhen',
+    effects: [{ kind: 'damage', amount: 4 }, { kind: 'drawIfTargetStatus', name: '中毒', n: 1 }, { kind: 'status', name: '中毒', amount: 2, target: 'enemy' }],
+    upgrade: { effects: [{ kind: 'damage', amount: 6 }, { kind: 'drawIfTargetStatus', name: '中毒', n: 1 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }] } },
   /*
    * 後退閃躲＝**獲得隱身**（使用者 2026-09-14 深夜裁定：「後退閃躲就是獲得隱身」，跟師兄學來的招式）。
    * 原本是 0 費 4 點蜷縮；改隱身後 0 費不合理，使用者同夜再裁定改成 1 費（升級版仍 1 費 2 層）。
@@ -703,7 +722,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damage', amount: 9 }, { kind: 'selfDamage', amount: 2 }, { kind: 'blockIfPoisoned', amount: 2 }],
     upgrade: { effects: [{ kind: 'damage', amount: 13 }, { kind: 'selfDamage', amount: 2 }, { kind: 'blockIfPoisoned', amount: 3 }] } },
 
-  // ---- 罕見（9）----
+  // ---- 罕見（10）----
   { id: 'feifei_cuidugai', name: '淬毒·改', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_cuidugai',
     effects: [{ kind: 'status', name: '中毒', amount: 7, target: 'enemy' }, { kind: 'selfDamage', amount: 2 }],
     upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 9, target: 'enemy' }, { kind: 'selfDamage', amount: 2 }] } },
@@ -746,12 +765,19 @@ export const cards: readonly CardDef[] = [
   { id: 'feifei_tianzhen', name: '強力塗毒', cost: 1, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_tianzhen', keywords: ['消耗'],
     effects: [{ kind: 'status', name: '中毒', amount: 10, target: 'enemy' }, { kind: 'status', name: '中毒', amount: 3, target: 'self' }],
     upgrade: { effects: [{ kind: 'status', name: '中毒', amount: 13, target: 'enemy' }, { kind: 'status', name: '中毒', amount: 3, target: 'self' }] } },
+  /*
+   * 看準破綻（2026-09-25，補爪力牌的缺那三張之二，說明見常見區的補一針）。
+   * 升級多給 3 層中毒，**排在抽牌判斷後面**：目標原本沒毒的話照樣不抽，不會被自己這 3 層騙過去。
+   */
+  { id: 'feifei_kanzhun', name: '看準破綻', cost: 0, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_kanzhun',
+    effects: [{ kind: 'drawIfTargetStatus', name: '中毒', n: 2 }],
+    upgrade: { effects: [{ kind: 'drawIfTargetStatus', name: '中毒', n: 2 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }] } },
   // 自傷牌之三：全部丟出去，手上就沒東西擋了——這張**刻意不給蜷縮**，那就是它的代價
   { id: 'feifei_quansale', name: '全撒了', cost: 2, type: 攻, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'all', art: 'card/feifei_quansale',
     effects: [{ kind: 'damage', amount: 12, target: 'all' }, { kind: 'status', name: '中毒', amount: 2, target: 'all' }, { kind: 'status', name: '中毒', amount: 2, target: 'self' }],
     upgrade: { effects: [{ kind: 'damage', amount: 15, target: 'all' }, { kind: 'status', name: '中毒', amount: 3, target: 'all' }, { kind: 'status', name: '中毒', amount: 2, target: 'self' }] } },
 
-  // ---- 稀有（5）----
+  // ---- 稀有（6）----
   { id: 'feifei_qianzhen', name: '千針萬毒', cost: 2, type: 能, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'self', art: 'card/feifei_qianzhen',
     effects: [{ kind: 'poisonOnAttack', n: 1 }],
     upgrade: { effects: [{ kind: 'poisonOnAttack', n: 2 }] } },
@@ -769,6 +795,15 @@ export const cards: readonly CardDef[] = [
   { id: 'feifei_yudu', name: '餘毒', cost: 1, type: 能, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'self', art: 'card/feifei_yudu',
     effects: [{ kind: 'poisonBurst' }],
     upgrade: { effects: [{ kind: 'poisonBurst', full: true }] } },
+  /*
+   * 越撒越順手（2026-09-25，補爪力牌的缺那三張之三，說明見常見區的補一針）。
+   * 走封封那套「打出某類牌後」的能力（`trigger: 'afterCard'`），但**不加** `oncePerTurn`（每張技能牌都算）、
+   * 不加 `minQiSpent`（她沒有蓄氣）、也不加 `sameNameMax`：跟毒霧、千針萬毒一樣，掛兩張就是每張技能牌 2 層。
+   * 引擎只在玩家回合、不是戰鬥雜牌（黏液、眼冒金星）時才觸發；打出這張能力牌本身不算（它是能力牌不是技能牌）。
+   */
+  { id: 'feifei_yuesa', name: '越撒越順手', cost: 2, type: 能, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'self', art: 'card/feifei_yuesa',
+    effects: [{ kind: 'power', trigger: 'afterCard', cardType: '技能', effects: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] }],
+    upgrade: { cost: 1 } },
   { id: 'feifei_yizhen', name: '一針斃命', cost: 2, type: 攻, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'enemy', art: 'card/feifei_yizhen', keywords: ['消耗'],
     effects: [{ kind: 'execByStatus', name: '中毒' }],
     upgrade: { keywords: [] } },

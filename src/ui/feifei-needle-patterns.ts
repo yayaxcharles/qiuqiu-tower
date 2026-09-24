@@ -75,6 +75,8 @@ export function feifeiNeedleOrigin(action: FeifeiNeedleAction, wave: number): Fe
 
 export const FEIFEI_NEEDLE_CARD_ACTION: Readonly<Record<string, FeifeiNeedleAction>> = {
   feifei_feizhen: 'shuriken',
+  // 補一針（2026-09-25）：朝已經中毒的魔物再射一根針，跟飛針同一套單手彈針
+  feifei_buyizhen: 'shuriken',
   feifei_lianzhen: 'needle_combo',
   feifei_shouhua: 'needle_backhand',
   feifei_jianxue: 'needle_venom',

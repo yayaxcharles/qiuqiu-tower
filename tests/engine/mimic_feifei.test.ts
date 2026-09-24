@@ -66,23 +66,31 @@ const EXPECT: Record<string, EnemyEffect[] | null> = {
   feifei_banxian: [{ kind: 'statusPlayer', name: '定身', amount: 1 }, { kind: 'block', amount: 4 }],
   feifei_tianzhen: [{ kind: 'statusPlayer', name: '中毒', amount: 10 }],   // 給自己的那 3 層毒不學（鏡貓不自傷）
   feifei_quansale: [{ kind: 'damage', amount: 12 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }],
+
+  // ---- 2026-09-25 補爪力牌的缺那三張（mimic.ts 沒改，照既有規則翻）----
+  feifei_buyizhen: [{ kind: 'damage', amount: 4 }, { kind: 'statusPlayer', name: '中毒', amount: 2 }],   // 補一針：抽牌那段略過
+  feifei_kanzhun: null,    // 看準破綻：基礎版只有抽牌（略過）→ 整張沒東西可學；升級版才學得到 3 層毒
+  feifei_yuesa: [{ kind: 'statusPlayer', name: '中毒', amount: 1 }],   // 越撒越順手：跟毒霧同一條，能力段裡掛在你身上的那層毒
 };
 
 describe('鏡中球球學菲菲的牌', () => {
-  it('她的 29 張逐張翻，一張都不漏', () => {
-    expect(HERS.length, '她的牌變多或變少了，EXPECT 要跟著更新').toBe(29);
+  it('她的 32 張逐張翻，一張都不漏', () => {
+    // 29→32：2026-09-25 補一針、看準破綻、越撒越順手
+    expect(HERS.length, '她的牌變多或變少了，EXPECT 要跟著更新').toBe(32);
     for (const id of HERS) {
       expect(Object.hasOwn(EXPECT, id), `${id} 沒寫在 EXPECT 裡`).toBe(true);
       expect(learnCard(inst(id, 1)), `${cardById[id]?.name ?? id}（${id}）`).toEqual(EXPECT[id]);
     }
   });
 
-  it('學得會的從 15 張變成 21 張，學不會的只剩純能力與連線牌', () => {
+  it('學得會的從 15 張變成 21 張（09-25 補的三張再多 2 張），學不會的只剩純能力、連線牌與只會抽牌的看準破綻', () => {
     const ok = HERS.filter((id) => learnCard(inst(id, 1)) !== null);
-    expect(ok.length).toBe(21);
+    expect(ok.length).toBe(23);
     const no = HERS.filter((id) => learnCard(inst(id, 1)) === null);
     expect(no.sort()).toEqual(['biepengzhenjian', 'feifei_fenshen', 'feifei_juma', 'feifei_qianzhen',
-      'feifei_sandu', 'feifei_yingzi', 'feifei_yudu', 'woyouxianbeihao'].sort());
+      'feifei_sandu', 'feifei_yingzi', 'feifei_yudu', 'woyouxianbeihao', 'feifei_kanzhun'].sort());
+    // 看準破綻升級版多了 3 層毒，那一段學得到
+    expect(learnCard(inst('feifei_kanzhun', 1, true))).toEqual([{ kind: 'statusPlayer', name: '中毒', amount: 3 }]);
     // 招牌的六張一張都不能少（這批要修的就是它們）
     for (const id of ['feifei_shouhua', 'feifei_buyaoguolai', 'feifei_cuidugai', 'feifei_duwu', 'feifei_jianxue', 'feifei_yizhen']) {
       expect(learnCard(inst(id, 1)), id).not.toBeNull();
