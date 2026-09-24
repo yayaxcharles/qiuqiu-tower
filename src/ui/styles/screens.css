@@ -434,6 +434,11 @@
 .shop-item .potion-rarity.rarity-罕見::before { background: linear-gradient(#7ea9e0, #2f5fa8 55%, #1d3f74); }
 .shop-item .potion-rarity.rarity-稀有::before { background: linear-gradient(#ffe9a8, #e8b23a 50%, #a8760c); }
 .shop-item .small { font-size: 11.5px; line-height: 1.3; color: #5c4a35; text-align: center; }
+/* 貨架說明最多四行（2026-09-24 使用者：長毛掌櫃那間買完東西畫面忽大忽小、字比原本小）：店長私藏（集章卡）的說明七行，
+   把整座貨架撐高、價錢沉進對白框，貨架只好整座縮到八成（`scene.ts` 的 `refitGoods`）。超過四行的收成「…」，
+   滑鼠停上去看全文（`shop.ts` 的 `title`），手機按住放大的那張照樣是全文（`.card-peek` 那條解開）。 */
+.shop-item:not(.card-item) .small { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+.card-peek > .shop-item .small { display: block; -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; }
 /* 價錢做成價標底部那條牛皮紙色的帶子，橫貫整格、切齊圓角，
    像貼在貨架上的標價條；深色的字壓在淺色帶子上才讀得動 */
 .shop-item .price {

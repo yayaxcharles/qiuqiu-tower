@@ -53,9 +53,30 @@ describe('中：罐頭鋪價錢永遠看得到（貨架讓位給對白）', () =
     expect(scene).toContain("scene.addEventListener('animationend', () => refitGoods(scene));");
     expect(scene).toContain('const next = nextGoodsScale(scale, goodsShrink(top, prices, covers));');
     expect(scene).toContain("goods.style.scale = String(Math.floor(scale * 1000) / 1000);");
-    expect(scene).toContain("for (const b of box.querySelectorAll('.scene-actions .btn')) covers.push(R(b.getBoundingClientRect()));");
+    expect(scene).toContain("for (const b of box.querySelectorAll('.scene-actions .btn')) covers.push(settled(R(b.getBoundingClientRect())));");
     expect(norm(SHOP_SRC)).toContain('if (node && !intro) { node.textContent = text; refitGoods(root); }');
     expect(norm(SCREENS_CSS)).toMatch(/\.scene-goods \{[^}]*transform-origin: top center;/);
+  });
+
+  /*
+   * 2026-09-24 使用者：「長毛掌櫃那間買完東西介面突然放大縮小、畫面抖動，字比原本小」。
+   * 實機逐格記錄（桌機第一關長毛掌櫃，買一件秘寶）：買完那一刻整個畫面重畫、對白框重播彈入（往下 26 像素滑上來），
+   * 那 0.28 秒量到「不用縮」→ 貨架彈回原大（0.979 → 1），播完又縮回 0.978——這就是忽大忽小。
+   * 修法兩條：① 量的時候扣掉框現在的位移（量「播完的位置」）；② 貨架說明最多四行，店長私藏（集章卡）七行的說明不再把貨架撐到要縮。
+   * 修後同一格：進店到買完 6 秒內貨架一直是原大、一次都沒變（桌機第一、二關，手機橫拿第一關）。
+   */
+  it('買完東西貨架不再忽大忽小：量對白框時扣掉彈入動畫的位移', () => {
+    const scene = norm(SCENE_SRC);
+    expect(scene).toContain("const t = getComputedStyle(box).transform;");
+    expect(scene).toContain('new DOMMatrixReadOnly(t).m42');
+    expect(scene).toContain('const settled = (b: Box): Box => ({ ...b, y: b.y - lift });');
+    expect(scene).toContain('covers.push(settled(R(r)))');
+  });
+  it('貨架說明最多四行（全文在滑鼠提示，手機按住放大的那張解開），牌不受影響', () => {
+    const css = norm(SCREENS_CSS);
+    expect(css).toMatch(/\.shop-item:not\(\.card-item\) \.small \{[^}]*-webkit-line-clamp: 4;/);
+    expect(css).toMatch(/\.card-peek > \.shop-item \.small \{[^}]*-webkit-line-clamp: unset;/);
+    expect(norm(SHOP_SRC)).toContain("el('div', { class: 'small', title: text }, text)");
   });
 });
 

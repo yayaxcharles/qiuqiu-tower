@@ -73,13 +73,21 @@ export function refitGoods(scope: ParentNode): void {
   const ox = stage?.left ?? 0, oy = stage?.top ?? 0;
   const R = (r: DOMRect): Box => ({ x: (r.left - ox) / k, y: (r.top - oy) / k, w: r.width / k, h: r.height / k });
   goods.style.removeProperty('scale');
+  /*
+   * 對白框彈入動畫（`base.css` 的 `dialogue-in`，從下面 26 像素滑上來）播的時候，量到的字比實際低。
+   * 扣掉框現在的位移，量的是「動畫播完的位置」，什麼時候量都一樣（2026-09-24 使用者：長毛掌櫃那間買完東西畫面忽大忽小——
+   * 每買一次整個畫面重畫、框重播彈入，那 0.28 秒量到「不用縮」貨架彈回原大，播完又縮回去）。
+   */
+  const t = getComputedStyle(box).transform;
+  const lift = t && t !== 'none' && typeof DOMMatrixReadOnly === 'function' ? new DOMMatrixReadOnly(t).m42 : 0;
+  const settled = (b: Box): Box => ({ ...b, y: b.y - lift });
   const covers: Box[] = [];
   for (const e of box.querySelectorAll('.dialogue-speaker, .scene-text, .shop-reply, .event-note')) {
     const range = document.createRange();
     range.selectNodeContents(e);
-    for (const r of range.getClientRects()) if (r.width > 1 && r.height > 1) covers.push(R(r));
+    for (const r of range.getClientRects()) if (r.width > 1 && r.height > 1) covers.push(settled(R(r)));
   }
-  for (const b of box.querySelectorAll('.scene-actions .btn')) covers.push(R(b.getBoundingClientRect()));
+  for (const b of box.querySelectorAll('.scene-actions .btn')) covers.push(settled(R(b.getBoundingClientRect())));
   let scale = 1;
   for (let i = 0; i < 4; i++) {
     const top = R(goods.getBoundingClientRect()).y;

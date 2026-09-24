@@ -250,7 +250,7 @@ registerScreen('shop', (app, root, props) => {
       el('div', { class: 'shop-name' }, name),
       rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarity) : '',
       limited ? el('div', { class: 'potion-rarity rarity-limited' }, '店長私藏') : '',
-      el('div', { class: 'small' }, text),
+      el('div', { class: 'small', title: text }, text),   // 貨架上最多四行（screens.css），全文放在滑鼠提示
       priceNode(price, sold, base, sale, soldText, item));
     if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
     else if (!sold) node.addEventListener('click', () => setMood('no'));   // 買不起：老闆搖頭，不再是死按鈕
