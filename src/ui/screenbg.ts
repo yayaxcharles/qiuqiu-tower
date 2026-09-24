@@ -192,6 +192,7 @@ export function applyArtVars(): void {
     '--ui-beam': 'icon/ui_beam',
     '--ui-nameplate': 'icon/ui_nameplate',
     '--ui-note': 'icon/ui_note',
+    '--ui-blessframe': 'icon/ui_blessframe',   // 開局包袱四樣的木框（screens.css 的 `.bless-card`，2026-09-24 晚）
     '--ui-intent-attack': 'icon/ui_intent_attack',
     '--ui-intent-block': 'icon/ui_intent_block',
     '--ui-intent-buff': 'icon/ui_intent_buff',

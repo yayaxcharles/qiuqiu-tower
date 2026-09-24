@@ -134,8 +134,9 @@ describe('低-2：絕學·藏鋒的同名取高', () => {
 describe('低-3：門檻句補「至少」與「再」', () => {
   // 退步守勢 2026-09-24 改成花氣架擋（憋氣乙版），不再有門檻句；門檻句剩看準劍路
   it('退步守勢、看準劍路', () => {
-    expect(describeCard(cardById['fengfeng_tuibu']!, false)).toBe('最多花 6 點蓄氣，自己獲得 7 點蜷縮，每點蓄氣多 3 點，花 4 點以上再 ×1.3。');
-    expect(describeCard(cardById['fengfeng_tuibu']!, true)).toBe('最多花 6 點蓄氣，自己獲得 9 點蜷縮，每點蓄氣多 3 點，花 4 點以上再 ×1.3。');
+    // 「花 4 點以上再 ×1.3」2026-09-24 晚起不寫在牌面（使用者：每張都寫太亂），改在選角與蓄氣牌子說明
+    expect(describeCard(cardById['fengfeng_tuibu']!, false)).toBe('最多花 6 點蓄氣，自己獲得 7 點蜷縮，每點蓄氣多 3 點。');
+    expect(describeCard(cardById['fengfeng_tuibu']!, true)).toBe('最多花 6 點蓄氣，自己獲得 9 點蜷縮，每點蓄氣多 3 點。');
     expect(describeCard(cardById['fengfeng_kanshi']!, false)).toBe('抽 2 張牌，出牌前有至少 4 點蓄氣的話，再抽 1 張牌。');
   });
 });

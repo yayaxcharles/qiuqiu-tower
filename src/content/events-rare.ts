@@ -63,7 +63,7 @@ export const rareEvents: EventDef[] = [
       { label: '輕輕拿走最上面那一件（隨機獲得 1 件大魔物秘寶）',
         outcome: [{ kind: 'relic', pool: '大魔物' }],
         result: '', resultArt: 'rare_sleeping_hoard_r0' },
-      { label: '再多拿一件，賭牠不會醒（六成：隨機獲得 2 件大魔物秘寶；四成：牠醒了——進入戰鬥（這一關的大魔物），勝利後獲得 2 件大魔物秘寶）',
+      { label: '再多拿一件，賭牠不會醒（60%機率：隨機獲得 2 件大魔物秘寶；40%機率：牠醒了——進入戰鬥（這一關的大魔物），勝利後獲得 2 件大魔物秘寶）',
         outcome: [{ kind: 'lottery', shared: true, table: [
           { w: 60, tier: '牠翻個身，繼續睡', effects: [{ kind: 'relic', pool: '大魔物' }, { kind: 'relic', pool: '大魔物' }] },
           { w: 40, tier: '牠醒了！', effects: [{ kind: 'fight', encounterId: '', pool: '大魔物', bonusFish: 0 }, { kind: 'relic', pool: '大魔物' }, { kind: 'relic', pool: '大魔物' }] },

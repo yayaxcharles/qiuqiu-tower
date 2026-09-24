@@ -48,9 +48,9 @@
     ]
   },
   "event_fengfeng_fallen_rack": {
-    "why": "半身像被裁切：下半身離圖底約 25 像素處被水平切平、左耳尖切平；文字「擦劍鞘時摸到側面補過的裂口」圖上沒有擦布、看不到裂口",
+    "why": "半身像被裁切：下半身離圖底約 25 像素處被水平切平、左耳尖切平；文字「擦劍鞘時摸到側面補過的裂口」圖上沒有擦布、看不到裂口（09-24 晚使用者：「看起來有兩把劍」——劍鞘尾端的金色套頭像另一支劍柄，加上右邊的劍柄與護手，縮小看像兩把劍交疊）",
     "gear_off": "the red scarf stays on his neck. His sheathed jian (sword inside the dark-brown scabbard) is OFF his waist and lies across his lap; there is no second scabbard at his waist.",
-    "scene": "Fengfeng's WHOLE body is in the picture, from ear tips to feet, with a clear empty margin all around. He sits on a small wooden crate that stands on a small floor patch. For this scene his sheathed straight jian is taken off his waist and lies ACROSS HIS LAP, resting on his thighs. His right paw holds a small white cloth and wipes along the dark-brown scabbard. The fingertips of his left paw touch a crack on the side of the scabbard that has been mended by binding it tightly with thin pale cord. He looks down at the mended crack with a thoughtful, slightly nostalgic expression. No other cats.",
+    "scene": "Fengfeng's WHOLE body is in the picture, from ear tips to feet, with a clear empty margin all around. He sits on a small wooden crate that stands on a small floor patch. For this scene his sheathed straight jian is taken off his waist and lies ACROSS HIS LAP, resting on his thighs. His right paw holds a small white cloth and wipes along the dark-brown scabbard. The fingertips of his left paw touch a crack on the side of the scabbard that has been mended by binding it tightly with thin pale cord. He looks down at the mended crack with a thoughtful, slightly nostalgic expression. No other cats. There is exactly ONE sword in the picture: the HILT (small round guard, wrapped grip, red tassel) sticks out at the right end, and at the left end the scabbard simply ends in a plain, rounded dark-brown TIP - no metal cap, no knob, nothing at that end that could look like a second handle. Nothing else long and thin is in the picture.",
     "style": "bg/event_fengfeng_fallen_rack_r2.webp"
   },
   "event_rescue_r0": {

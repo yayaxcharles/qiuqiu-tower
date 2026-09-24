@@ -37,10 +37,10 @@ const BLESS_CARD_TEXT: Readonly<Record<string, string>> = {
   bless_box: '交出你的起始秘寶，換隨機 1 件大魔物秘寶。',
   // 秘寶的名字與說明照那件秘寶自己寫的（`{秘寶}`），那件是稀有事件那條線做的，數字改了這裡跟著變
   bless_bracer: '獲得秘寶「{秘寶}」：{秘寶說明}（沾了魔氣：可以淨化）生命上限 −8。',
-  bless_bottom: '五成：隨機獲得 1 件常見秘寶；五成：牌組加入 1 張壞毛病「中計了」。',
+  bless_bottom: '50%機率：隨機獲得 1 件常見秘寶；50%機率：牌組加入 1 張壞毛病「中計了」。',
   bless_dice: '擲一次：1～2 點，最多失去 10 點生命、獲得 25 條小魚乾；3～4 點，獲得 50 條小魚乾；5～6 點，隨機獲得 1 件常見秘寶。',
   bless_scroll: '隨機獲得 1 張稀有{招式}牌。',
-  bless_wine: '五成：生命上限與當前生命各 +8；五成：生命上限 −3。',
+  bless_wine: '50%機率：生命上限與當前生命各 +8；50%機率：生命上限 −3。',
 };
 
 export function blessCardText(id: string, hero: string | undefined): string {

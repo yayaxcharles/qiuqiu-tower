@@ -2,6 +2,7 @@ import { registerScreen } from '../app';
 import { artUrl, heroArtUrl } from '../assets';
 import { cardById, cardNameFor, starterDeckFor } from '../../content/cards';
 import { fengfengSelection } from '../../content/fengfeng-dialogue';
+import { glossary } from '../../content/glossary';
 import { relicById } from '../../content/relics';
 import { describeCard } from '../cardtext';
 import { el } from '../dom';
@@ -15,7 +16,14 @@ import { heroPronoun, startRelicFor, type Hero } from '../../engine/hero';
  *
  * 武士球球從來沒放上來過（沒有自己的立繪、也沒有一張專屬牌），2026-09-22 整套拆掉了。
  */
-interface Pick { hero: Hero; name: string; tag: string; blurb: string; pose: string }
+interface Pick {
+  hero: Hero; name: string; tag: string; blurb: string; pose: string;
+  /**
+   * 這位角色專屬的規則（名詞＋說明，說明照名詞表那一條、不另抄一份）：選角時就講清楚，牌面上不再每張重寫。
+   * 使用者 2026-09-24 晚：「每張牌都寫上花四點以上的蓄氣 ×1.3 太累了……在角色說明之類的地方寫清楚」
+   */
+  rule?: string;
+}
 
 /** 選角畫面右邊整張畫出來的「代表牌」。**牌號要真的存在**，見 `refresh` 裡的說明 */
 export const KEY_CARD: Readonly<Record<string, string>> = {
@@ -43,6 +51,7 @@ const PICKS: Pick[] = [
     // 正本在封封台詞檔（稿子 FG-SEL-01），這裡不再抄一份，免得改了一邊另一邊沒跟上
     blurb: fengfengSelection[0]?.text ?? '',
     pose: 'hero/ninja',
+    rule: '蓄氣',
   },
 ];
 
@@ -79,6 +88,7 @@ registerScreen('heroselect', (app, root, props) => {
     detail.replaceChildren(
       el('p', { class: 'hero-blurb' }, p.blurb),
       el('div', { class: 'hero-kit' },
+        p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',
         el('div', { class: 'hero-kit-row' }, el('b', {}, '起手十張'), el('span', {}, deckLine(chosen))),
         el('div', { class: 'hero-kit-row' }, el('b', {}, '起始秘寶'),
           el('span', {}, relic ? `${relic.name}：${relic.text}` : '—')),

@@ -9,15 +9,14 @@ import type { RunEffect } from '../../src/engine/types';
  * 卡面的數字要跟 `blessings.ts` 的效果對得上（量尺之後調過七處數字，文字漏改就是圖文不符）；
  * 噹噹的卡面寫「拳腳」不寫「忍術」（主控裁決第 10 條）；四隻的台詞照各自的口吻。
  */
-const CN = '零一二三四五六七八九十';
-
 /** 這一樣效果裡寫在卡面上的數字（照效果種類挑：生命上限、小魚乾、忍具、掉血、連幾場、幾層、挑幾張、幾成） */
 function numbers(effects: readonly RunEffect[]): string[] {
   const out: string[] = [];
   for (const fx of effects) {
     if (fx.kind === 'maxHp' || fx.kind === 'fish' || fx.kind === 'potions' || fx.kind === 'damage') out.push(String(Math.abs(fx.n)));
     if (fx.kind === 'nextFight') { out.push(String(fx.fights ?? 1)); for (const e of fx.effects) if (e.kind === 'status') out.push(String(e.amount)); }
-    if (fx.kind === 'gamble') { out.push(`${CN[Math.round(fx.p * 10)]}成`, `${CN[Math.round((1 - fx.p) * 10)]}成`, ...numbers(fx.win), ...numbers(fx.lose)); }
+    // 機率寫成「50%機率」（使用者 2026-09-24 晚：「5成改成 50%機率」）
+    if (fx.kind === 'gamble') { out.push(`${Math.round(fx.p * 100)}%機率`, `${Math.round((1 - fx.p) * 100)}%機率`, ...numbers(fx.win), ...numbers(fx.lose)); }
   }
   return out;
 }

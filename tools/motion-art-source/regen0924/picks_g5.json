@@ -144,13 +144,13 @@
     "at": "2026-09-24 12:57:24"
   },
   "event_feifei_sunbath_r1": {
-    "attempt": 1,
+    "attempt": 6,
     "file": "public/assets/bg/event_feifei_sunbath_r1.webp",
-    "bytes": 41776,
-    "droppedSpecks": 72,
+    "bytes": 36014,
+    "droppedSpecks": 174,
     "gate": [],
-    "sha256": "0893d6ec794a97e78bf8ff478f348f1ecb88868bf95c1f4eb942ba4e556d023d",
-    "at": "2026-09-24 12:33:37"
+    "sha256": "3f78e76462a60d5bb34ec273595928647525cbd94488712fd52e1467fc645c6b",
+    "at": "2026-09-24 16:18:16"
   },
   "event_fengfeng_lost_kitten": {
     "attempt": 1,

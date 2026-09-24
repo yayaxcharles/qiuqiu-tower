@@ -631,6 +631,34 @@
 .bless-row .shop-item img { width: 64px; height: 64px; }
 .bless-row .shop-item .small { font-size: 13px; }
 .bless-row .shop-item.took { outline: 4px solid #ffd35c; }
+/*
+ * 包袱裡的四樣換成生出來的木框（使用者 2026-09-24 晚：「用黃色框框顯示而已…用生圖設計比較好的框」）。
+ * 九宮格：四個角的銅飾（原圖 512 裡約 72 像素）整塊落在切線 15%＝77 像素之內，只縮放不拉伸；四條邊是素面木紋，
+ * 中間的和紙跟著拉（`fill`）。框吃掉的那一圈用內距讓開，字不壓到木頭。
+ * 原本的價標底色縮到內容區（`content-box`）當退路：框的圖沒載到時字底下仍有紙色，不會變成暗底黑字。
+ * 價標的厚度、落地影子、選中的黃框都換成照著框外形走的 `drop-shadow`（`box-shadow`／`outline` 是方的，框的四角是圓銅飾）
+ */
+.bless-row .shop-item.bless-card {
+  background: linear-gradient(#fffdf6, #f1e4c8) content-box;
+  border: 0;
+  border-radius: 0;
+  border-image-source: var(--ui-blessframe);
+  border-image-slice: 15% fill;
+  border-image-width: 34px;
+  border-image-repeat: stretch;
+  /* 木頭約佔框寬的 57%（原圖 44／77）＝19 像素，上下左右都讓出來；最長的骰子說明（五行）才不壓到下緣 */
+  width: 236px;
+  padding: 22px 18px 24px;
+  box-shadow: none;
+  filter: drop-shadow(0 6px 8px #000000a6);
+}
+.bless-row .shop-item.bless-card::after { display: none; }
+.bless-row .shop-item.bless-card:not(.sold):not(.poor):hover {
+  transform: translateY(-4px);
+  box-shadow: none;
+  filter: drop-shadow(0 10px 12px #000000b3) drop-shadow(0 0 8px #ffd35c99);
+}
+.bless-row .shop-item.bless-card.took { outline: none; filter: drop-shadow(0 0 5px #ffd35c) drop-shadow(0 0 14px #ffd35cd9); }
 .bless-cls[data-cls="換牌"] { border-color: #2f5fa8; color: #234a85; background: #dbe7f7; }
 .bless-cls[data-cls="代價"] { border-color: #7a3fa0; color: #5a2a78; background: #efe0f7; }
 .bless-cls[data-cls="賭運氣"] { border-color: #b8860b; color: #6b4d05; background: #ffe9a8; }

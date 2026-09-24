@@ -1445,7 +1445,12 @@ registerScreen('combat', (app, root, props) => {
   function statusRow(u: Unit, mine = false, who = 'player'): HTMLElement {
     const row = el('div', { class: 'chips' });
     const qi = combatQiValue((u as Partial<PlayerCombat>).hero ?? '', (u as Partial<PlayerCombat>).qi);
-    if (qi !== undefined) row.append(el('div', { class: 'chip good qi' }, el('b', {}, '蓄氣'), el('span', {}, `${qi}/12`)));
+    if (qi !== undefined) {
+      const node = el('div', { class: 'chip good qi' }, el('b', {}, '蓄氣'), el('span', {}, `${qi}/12`));
+      // 「一次花 4 點以上 ×1.3」不再每張牌重寫（使用者 2026-09-24 晚），滑到這個牌子看名詞表那一條
+      attachTooltip(node, '蓄氣');
+      row.append(node);
+    }
     if (u.block > 0) row.append(chip(mine ? '蜷縮' : '防禦', null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
       const key = `${who}|${name}`;

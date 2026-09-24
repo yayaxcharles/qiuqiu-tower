@@ -5,7 +5,19 @@ import { qiAmount } from '../src/engine/effects';
 import { Rng, seedFromString } from '../src/engine/rng';
 import type { CombatState, PlayerCombat } from '../src/engine/types';
 import { describeCard } from '../src/ui/cardtext';
+import { glossary } from '../src/content/glossary';
+import HERO_RAW from '../src/ui/screens/heroselect.ts?raw';
+import COMBAT_RAW from '../src/ui/screens/combat.ts?raw';
 import { inst } from './helpers';
+
+// 這台的原始碼是 CRLF，比對多行片段前先換成 LF
+const HERO = HERO_RAW.replace(/\r\n/g, '\n'), COMBAT = COMBAT_RAW.replace(/\r\n/g, '\n');
+function between(src: string, start: string, end: string): string {
+  const a = src.indexOf(start);
+  const b = src.indexOf(end, a + start.length);
+  if (a < 0 || b < 0) throw new Error(`找不到片段：${start}`);
+  return src.slice(a, b);
+}
 
 /*
  * 封封「憋氣」乙版（2026-09-24 使用者拍板）：一張牌一次花 4 點以上蓄氣，那一招的傷害或蜷縮 ×1.3（無條件捨去）。
@@ -44,9 +56,16 @@ describe('憋氣：一次花 4 點以上 ×1.3', () => {
     expect(b.p.qi).toBe(2);
   });
 
-  it('牌面寫出門檻；花不到 4 點的牌（下一擊準備）不寫', () => {
-    expect(describeCard(cardById['fengfeng_pingzhan']!, false)).toBe('最多花 4 點蓄氣，造成 5 點傷害，每點蓄氣多 3 點，花 4 點以上再 ×1.3。');
-    expect(describeCard(cardById['fengfeng_duanliu']!, false)).toContain('用盡蓄氣，造成 10 點傷害，每點蓄氣多 4 點，花 4 點以上再 ×1.3');
-    expect(describeCard(cardById['fengfeng_youbian']!, false)).not.toContain('×1.3');
+  // 使用者 2026-09-24 晚：「每張牌都寫上花四點以上 ×1.3 太累了……在角色說明之類的地方寫清楚」
+  it('牌面不再每張寫門檻；規則寫在名詞表「蓄氣」，選角畫面與戰鬥的蓄氣牌子都引用那一條', () => {
+    expect(describeCard(cardById['fengfeng_pingzhan']!, false)).toBe('最多花 4 點蓄氣，造成 5 點傷害，每點蓄氣多 3 點。');
+    expect(describeCard(cardById['fengfeng_duanliu']!, false)).toContain('用盡蓄氣，造成 10 點傷害，每點蓄氣多 4 點');
+    for (const c of Object.values(cardById)) expect(describeCard(c, false), c.id).not.toContain('×1.3');
+    expect(glossary['蓄氣']).toContain('一張牌一次花 4 點以上，那一招的傷害或蜷縮再 ×1.3');
+    const pick = between(HERO, "hero: 'fengfeng', name: '封封'", '},');
+    expect(pick).toContain("rule: '蓄氣',");
+    expect(HERO).toContain("p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',");
+    expect(COMBAT).toContain("const node = el('div', { class: 'chip good qi' }, el('b', {}, '蓄氣'), el('span', {}, `${qi}/12`));");
+    expect(between(COMBAT, "const node = el('div', { class: 'chip good qi' }", 'row.append(node);')).toContain("attachTooltip(node, '蓄氣');");
   });
 });

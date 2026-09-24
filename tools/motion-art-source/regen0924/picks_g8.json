@@ -1,0 +1,47 @@
+{
+  "event_dangdang_daxia_teach": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_daxia_teach.webp",
+    "bytes": 39450,
+    "droppedSpecks": 151,
+    "gate": [],
+    "sha256": "3538f1c7bf7511bfc152496d6c471061ea0132797226dd00c8784ba4c5ee605d",
+    "at": "2026-09-24 16:26:10"
+  },
+  "event_daxia_teach": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_daxia_teach.webp",
+    "bytes": 34914,
+    "droppedSpecks": 192,
+    "gate": [],
+    "sha256": "8257b4780ae4030d4b9001f2b61551b27b3c76164c050ef764cbc8a3f360be4f",
+    "at": "2026-09-24 16:25:56"
+  },
+  "event_daxia_teach_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_daxia_teach_r0.webp",
+    "bytes": 33132,
+    "droppedSpecks": 146,
+    "gate": [],
+    "sha256": "9096f2bcc6b40dcac5f8704cb43ea84f2ca65693ea949a3d149147aabe51fbb5",
+    "at": "2026-09-24 16:26:00"
+  },
+  "event_fengfeng_daxia_teach": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_daxia_teach.webp",
+    "bytes": 33670,
+    "droppedSpecks": 240,
+    "gate": [],
+    "sha256": "0d9c439fc0b8816d7996d2ee55d7545b9cac2722ff1444c4595fe881ff731846",
+    "at": "2026-09-24 16:26:03"
+  },
+  "event_fengfeng_daxia_teach_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_daxia_teach_r0.webp",
+    "bytes": 42590,
+    "droppedSpecks": 188,
+    "gate": [],
+    "sha256": "6e0cf62ffd18b45d3231d023b5269bbdf64bb230168097047e65ac886175ca8c",
+    "at": "2026-09-24 16:26:07"
+  }
+}

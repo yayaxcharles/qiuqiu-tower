@@ -1733,6 +1733,7 @@
     "icon/vfx_poison": "assets/icons/vfx_poison.webp",
     "icon/vfx_smoke": "assets/icons/vfx_smoke.webp",
     "icon/ui_beam": "assets/icons/ui_beam.webp",
+    "icon/ui_blessframe": "assets/icons/ui_blessframe.webp",
     "icon/ui_intent_attack": "assets/icons/ui_intent_attack.webp",
     "icon/ui_intent_block": "assets/icons/ui_intent_block.webp",
     "icon/ui_intent_buff": "assets/icons/ui_intent_buff.webp",

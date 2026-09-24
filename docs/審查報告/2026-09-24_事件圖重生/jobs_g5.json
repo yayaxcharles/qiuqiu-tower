@@ -77,9 +77,15 @@
     "style": "bg/event_old_well_r0.webp"
   },
   "event_feifei_sunbath_r1": {
-    "why": "菲菲坐在貓耳形亮黃色光斑上揉眼睛、單眼閉著，像「剛睡醒」，跟打盹選項混在一起；沒有「回想招式、挑出一招」的東西；光斑底下沒有地板。",
+    "why": "菲菲坐在貓耳形亮黃色光斑上揉眼睛、單眼閉著，像「剛睡醒」，跟打盹選項混在一起；沒有「回想招式、挑出一招」的東西；光斑底下沒有地板。（09-24 晚使用者要求再重生：第 1 次採用的地板前緣缺角像八角形，同組另兩張是長方形；第 3、4 次只加句子沒用，這次改給長方形地板那兩張當參考圖）",
     "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Feifei sits cross-legged on the floorboards inside the patch of sunlight. Three rolled-open martial-arts scrolls lie flat on the floor in front of her, each showing a few simple ink drawings of a small cat doing a move (pictures only, no writing). With one paw she pushes one of the scrolls aside, away from the others; her other paw rests under her chin. Her face is brisk and decided, both eyes open - she has made up her mind. No glow, no sparkles, no floating objects.",
-    "style": "bg/event_feifei_old_well_r0.webp"
+    "style": "bg/event_feifei_sunbath_r0.webp",
+    "refs": [
+      [
+        "bg/event_feifei_sunbath.webp",
+        "the SAME ROOM from the same event (reference image 4, and also reference image 2): copy this SETTING exactly - the plank floor is a plain RECTANGLE seen in three-quarter view, with four straight edges and four square corners (no cut-off corners, no notch, not eight-sided), the wooden wall with the window along the back edge, and the slanted patch of sunlight on the planks. Only Feifei's pose and the scrolls are new."
+      ]
+    ]
   },
   "event_feifei_rat_stall_r0": {
     "why": "老鼠整個低頭、眼睛盯著車上的飯糰，完全沒看菲菲，跟菲菲那句「你這樣看著我做什麼？」矛盾。",
