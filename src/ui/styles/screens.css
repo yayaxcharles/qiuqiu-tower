@@ -1001,10 +1001,10 @@
   background: linear-gradient(#ffe08a, #e0a93a); color: #4a2a08; font-weight: 700; font-size: .9em;
 }
 .scene-actions .btn .choice-why { display: block; margin-top: 2px; font-size: .78em; color: #d9d0c2; opacity: .9; }
-/* 稀有事件（2026-09-23 第三批）：名牌旁的金色小牌「難得一見」；圖鑑裡淨化版跟在原件下面、沒拿過的畫剪影 */
+/* 稀有事件（2026-09-23 第三批）：名牌旁的金色小牌「難得一見」；圖鑑裡淨化版跟在原件下面縮一格。
+   沒拿過的原本畫成全黑剪影，在深色底上幾乎看不見，使用者以為圖壞了（2026-09-24），改成照常顯示 */
 .rare-badge { margin-left: 8px; padding: 0 6px; border-radius: 4px; background: linear-gradient(#ffe08a, #e0a93a); color: #4a2a08; font-size: .72em; vertical-align: 2px; }
 .compendium.items .item-row.pure { margin-left: 22px; }
-.compendium.items .item-row.unseen img { filter: brightness(0) opacity(.35); }
 /* 只看現在的畫面層（`#screen`）：換畫面時墊在底下淡出的舊畫面也有 .scene，從事件「打一場」進戰鬥那 0.2 秒
    開場泡泡會先被推到右上、再跳回頭上（2026-09-23 推前審查二 低-1） */
 #stage:has(#screen .scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
@@ -1192,8 +1192,8 @@
 /* 套組那一區（2026-09-23 第二批）：三件並排，沒拿到的畫剪影 */
 .item-set { display: flex; gap: 10px; margin-bottom: 6px; }
 .item-set-slot { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid #ffd98a40; border-radius: 10px; background: #00000040; color: #fff3d6; font-size: 13px; }
-.item-set-slot:not(.owned) img { filter: brightness(0); opacity: .45; }
-.item-set-slot:not(.owned) b { opacity: .55; }
+/* 身上有的那件框成金色；沒有的照常顯示圖（原本畫全黑剪影，深色底上看不見，2026-09-24 使用者以為壞了） */
+.item-set-slot.owned { border-color: #ffd98a; background: #ffd98a2e; }
 /* 圖鑑兩顆鈕改釘在封面右上角：放在難度列下面會把「最佳成績」跟「存檔說明」擠到疊在一起 */
 .title-books { position: absolute; top: 14px; right: 16px; margin: 0; }
 

@@ -29,7 +29,8 @@ function icon(art: string, name: string): HTMLElement {
 }
 
 /**
- * 套組那一區（2026-09-23 第二批，事件劇本第八節）：三件並排，身上有的亮、沒有的畫剪影，標題寫集到幾件。
+ * 套組那一區（2026-09-23 第二批，事件劇本第八節）：三件並排，身上有的框金色（沒有的照常顯示圖，
+ * 原本畫全黑剪影、深色底上看不見，2026-09-24 改），標題寫集到幾件。
  * `owned`＝這一局身上的秘寶（標題畫面拿存檔那一局的；沒有進行中的局就是空的，寫 0）。
  */
 function setSection(owned: readonly string[]): HTMLElement[] {
@@ -62,7 +63,8 @@ export function showItemCompendium(owned: readonly string[] = []): void {
       list.append(el('div', { class: 'item-row' }, icon(r.art, r.name),
         el('div', { class: 'item-text' }, el('b', {}, r.name), el('em', {}, relicLongText(r, owned))),
         el('span', { class: 'item-price' }, `${r.price ?? 150} 條`)));
-      // 淨化版跟在原件下面一格（2026-09-23 第三批，design3 6-1）：`淨化` 池不自成一區、抽不到也買不到；身上沒有的畫剪影
+      // 淨化版跟在原件下面一格（2026-09-23 第三批，design3 6-1）：`淨化` 池不自成一區、抽不到也買不到。
+      // `unseen` 只是記號，圖照常顯示（2026-09-24 拿掉全黑剪影，見 screens.css）
       const pure = relicById[MIASMA_PURE[r.id] ?? ''];
       if (pure) list.append(el('div', { class: `item-row pure${owned.includes(pure.id) ? '' : ' unseen'}` }, icon(pure.art, pure.name),
         el('div', { class: 'item-text' }, el('b', {}, `${pure.name}（淨化後）`), el('em', {}, pure.text)),

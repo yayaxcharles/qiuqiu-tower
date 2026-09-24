@@ -113,7 +113,14 @@ describe('貓窩、紙箱、獎勵、地圖、狀態列、圖鑑', () => {
     expect(lf(APP)).toContain('const node = chooseNode(run, nodeId, entryNotes, this.seat);');
     expect(readFileSync('src/ui/styles/map.css', 'utf8')).toContain('.map-node.rare img');
   });
-  it('狀態列：沾了魔氣的掛紫火、箱中箱用完變灰；圖鑑的淨化版跟在原件下面、沒拿過畫剪影', () => {
+  // 2026-09-24：圖鑑裡沒拿過的淨化版、師門套組原本畫全黑剪影，深色底上看不見，使用者以為圖壞了——改成照常顯示
+  it('圖鑑：沒拿過的淨化版與師門套組照常顯示圖，不再畫全黑剪影', () => {
+    const css = readFileSync('src/ui/styles/screens.css', 'utf8');
+    expect(css).not.toMatch(/\.item-row\.unseen img\s*\{[^}]*brightness\(0\)/);
+    expect(css).not.toMatch(/\.item-set-slot[^{]*img\s*\{[^}]*brightness\(0\)/);
+    expect(css).toContain('.item-set-slot.owned {');
+  });
+  it('狀態列：沾了魔氣的掛紫火、箱中箱用完變灰；圖鑑的淨化版跟在原件下面', () => {
     expect(lf(HUD)).toContain("${isMiasma(id) ? ' miasma' : ''}${spent ? ' spent' : ''}");
     const css = readFileSync('src/ui/styles/components.css', 'utf8');
     expect(css).toContain('.hud-relic.miasma::before');
