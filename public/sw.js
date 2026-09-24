@@ -23,11 +23,13 @@ const PREFIX = 'qiuqiu-img:' + self.registration.scope + ':';
 const CACHE = PREFIX + 'v1';
 const HASHED_IMAGE = /\/assets\/.+-[A-Za-z0-9_-]{8}\.(?:webp|png|jpe?g)$/;
 /*
- * 最多存幾張（推前稽核 低-1）：整局玩完看過的圖約 2600 張、120 MB。快取跟存檔在同一個網域，
- * 有些瀏覽器（Firefox）空間吃緊時兩者共用配額，快取塞滿之後存檔可能寫不進去。
- * 存到 1500 張（約 70 MB）就從最早存的開始刪——刪掉的下次用到再從網路抓，只是慢一點
+ * 最多存幾張（推前稽核 低-1）：快取跟存檔在同一個網域，有些瀏覽器（Firefox）磁碟空間很少時兩者共用配額，
+ * 快取塞滿之後存檔可能寫不進去（待真機確認），所以要有上限。
+ * 上限 3000 張：整局（四隻角色都玩過）看過的圖約 2600 張、壓縮後約 120 MB，正常玩不會碰到上限，
+ * 首頁那批每次都要用的圖不會被擠掉（複審 低-1：原本 1500 張，玩完一整局一定超過，最先刪的正好是首載那批）。
+ * 真的超過才從最早存的刪到剩九成——刪掉的下次用到再從網路抓，只是慢一點
  */
-const MAX_ENTRIES = 1500;
+const MAX_ENTRIES = 3000;
 
 self.addEventListener('install', () => { self.skipWaiting(); });
 
@@ -45,27 +47,42 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET' || req.headers.has('range')) return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin || url.search || !HASHED_IMAGE.test(url.pathname)) return;
-  event.respondWith(
-    caches.open(CACHE).then(async (cache) => {
-      const hit = await cache.match(req);
-      if (hit) return hit;
-      const res = await fetch(req);
-      // 只存完整、同源的成功回覆；存失敗（空間不夠之類）不影響這一次的顯示
-      if (res.status === 200 && res.type === 'basic') cache.put(req, res.clone()).then(() => trim(cache)).catch(() => undefined);
-      return res;
-    // 快取本身出錯（儲存被封鎖、隱私模式、儲存壞掉）就直接上網抓，不能讓圖整張載不出來（推前稽核 低-2）
-    }).catch(() => fetch(req)),
-  );
+  event.respondWith(serve(req));
 });
 
-/** 超過上限就從最早存的刪起（`keys()` 照存入的先後排） */
+async function serve(req) {
+  // 快取本身出錯（儲存被封鎖、隱私模式、儲存壞掉）就直接上網抓，不能讓圖整張載不出來（推前稽核 低-2）；
+  // 只接住快取那兩步的錯，網路那一步的錯照樣往外丟——不然斷線時會多抓一次、多等一次逾時（複審 低-2）
+  let cache;
+  try {
+    cache = await caches.open(CACHE);
+    const hit = await cache.match(req);
+    if (hit) return hit;
+  } catch {
+    return fetch(req);
+  }
+  const res = await fetch(req);
+  // 只存完整、同源的成功回覆；存失敗（空間不夠之類）不影響這一次的顯示
+  if (res.status === 200 && res.type === 'basic') cache.put(req, res.clone()).then(() => noteStored(cache)).catch(() => undefined);
+  return res;
+}
+
+/*
+ * 超過上限才修剪（複審 低-1）：原本每存一張就把整份目錄讀一次，開場幾百張一起進來時重複讀幾十次。
+ * 改成記一個大概的張數（第一次存入時讀一次目錄當起點），超過上限才讀目錄、從最早存的刪到剩九成。
+ */
+let stored = -1;
 let trimming = false;
-async function trim(cache) {
-  if (trimming) return;
+async function noteStored(cache) {
+  if (stored < 0) stored = (await cache.keys()).length;
+  else stored += 1;
+  if (stored <= MAX_ENTRIES || trimming) return;
   trimming = true;
   try {
     const keys = await cache.keys();
-    for (let i = 0; i < keys.length - MAX_ENTRIES; i++) await cache.delete(keys[i]);
+    const drop = keys.length - Math.floor(MAX_ENTRIES * 0.9);
+    for (let i = 0; i < drop; i++) await cache.delete(keys[i]);
+    stored = keys.length - Math.max(0, drop);
   } finally {
     trimming = false;
   }

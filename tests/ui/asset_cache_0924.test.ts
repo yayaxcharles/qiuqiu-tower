@@ -93,16 +93,28 @@ describe('sw.js：帶雜湊的圖本機有就用本機', () => {
     expect(s.fetchFn).toHaveBeenCalledTimes(1);
   });
 
-  // 推前稽核 低-1：跟存檔同網域，Firefox 空間吃緊時共用配額——存到 1500 張就從最早存的刪起
-  it('超過 1500 張：從最早存的刪起', async () => {
+  // 推前稽核 低-1＋複審 低-1：有上限（3000 張，整局約 2600 張碰不到），超過才讀目錄、從最早存的刪到剩九成；平常存入不讀目錄
+  it('超過 3000 張：從最早存的刪到剩 2700；沒超過時每存一張不再整份讀目錄', async () => {
     const s = loadSw();
-    for (let i = 0; i < 1500; i++) s.store.set(`https://x.github.io/qiuqiu-tower-coop/assets/x/${i}-AAAAAAAA.webp`, 'x');
+    const flush = async () => { for (let i = 0; i < 20; i++) await new Promise((ok) => setTimeout(ok, 0)); };
+    for (let i = 0; i < 3000; i++) s.store.set(`https://x.github.io/qiuqiu-tower-coop/assets/x/${i}-AAAAAAAA.webp`, 'x');
     await s.fire(IMG);
-    await new Promise((ok) => setTimeout(ok, 0));
-    await new Promise((ok) => setTimeout(ok, 0));
-    expect(s.store.size).toBe(1500);
+    await flush();
+    expect(s.store.size).toBe(2700);
     expect(s.store.has('https://x.github.io/qiuqiu-tower-coop/assets/x/0-AAAAAAAA.webp')).toBe(false);
     expect(s.store.has(IMG)).toBe(true);
+    const reads = s.cache.keys.mock.calls.length;
+    for (let i = 0; i < 20; i++) await s.fire(`https://x.github.io/qiuqiu-tower-coop/assets/y/${i}-BBBBBBBB.webp`);
+    await flush();
+    expect(s.cache.keys.mock.calls.length, '沒超過上限就不讀目錄').toBe(reads);
+  });
+
+  // 複審 低-2：只接住快取的錯，網路本身失敗不重抓
+  it('網路抓失敗：錯誤照樣丟出去，不會再抓第二次', async () => {
+    const s = loadSw();
+    s.fetchFn.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    await expect(s.fire(IMG)).rejects.toThrow('Failed to fetch');
+    expect(s.fetchFn).toHaveBeenCalledTimes(1);
   });
 
   it('清單名單傳過來：不在名單上的圖（舊版換掉的）刪掉；名單太短（清單沒載到）不刪', async () => {
