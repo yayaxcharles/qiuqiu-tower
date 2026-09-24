@@ -317,8 +317,9 @@ export const relics: RelicDef[] = [
    */
   { id: 'piggy_bank', name: '撲滿', pool: '常見', text: '每走進 3 個不是戰鬥的格子（事件、罐頭鋪、貓窩、紙箱），得到 40 條小魚乾（跨關累計）。', art: 'codex/relic_piggy_bank', price: 110,
     hooks: { nodeCounterFish: { n: 3, fish: 40 } } },
-  { id: 'incense_stick', name: '線香', pool: '大魔物', text: '每 4 回合（第 4、8、12…回合開始時）獲得 1 層隱身。', art: 'codex/relic_incense_stick', price: 190,
-    hooks: { everyNTurns: { n: 4, effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }] } } },
+  // 原本是「每 4 回合 1 層隱身」，跟影忍頭帶重疊，改成清減益（2026-09-25 使用者裁定：每 2 回合清 1 種）
+  { id: 'incense_stick', name: '線香', pool: '大魔物', text: '每 2 回合（第 2、4、6…回合開始時）清掉自己身上 1 種減益。', art: 'codex/relic_incense_stick', price: 190,
+    hooks: { everyNTurns: { n: 2, effects: [{ kind: 'cleanse', max: 1 }] } } },
   { id: 'dart_case', name: '暗器匣', pool: '大魔物', text: '每回合打出第 3 張牌後，對隨機一隻魔物造成 5 點傷害。', art: 'codex/relic_dart_case', price: 190,
     hooks: { onNthCard: { n: 3, effects: [{ kind: 'damageScatter', amount: 5, times: 1 }] } } },
   // --- 角色的新時機：封封兩件（蓄氣只有他有，鎖另外三位）、菲菲、噹噹、球球各一件（偏誰而已，不鎖）---

@@ -99,13 +99,16 @@ describe('計數型：每 N 回合（沙漏、線香）', () => {
     for (let t = 2; t <= 6; t++) { endTurn(cs); got.push(cs.player.energy); }
     expect(got).toEqual([3, 3, 4, 3, 3, 4]);
   });
-  it('線香：第 4 回合開始獲得 1 層隱身', () => {
+  it('線香（2026-09-25 改）：第 2、4 回合開始各清掉 1 種減益，第 3 回合不清', () => {
     const cs = start(['incense_stick']);
     quiet(cs);
-    const got: number[] = [getStatus(cs.player, '隱身')];
-    for (let t = 2; t <= 4; t++) { endTurn(cs); got.push(getStatus(cs.player, '隱身')); }
-    expect(got).toEqual([0, 0, 0, 1]);
-    expect(cs.relicFired.filter((x) => x === 'incense_stick')).toHaveLength(1);
+    cs.player.statuses['炸毛'] = 9; cs.player.statuses['中毒'] = 9;
+    const has = (): string => ['炸毛', '中毒'].filter((n) => getStatus(cs.player, n as '中毒') > 0).join('');
+    const got: string[] = [has()];
+    for (let t = 2; t <= 4; t++) { endTurn(cs); got.push(has()); }
+    expect(got).toEqual(['炸毛中毒', '中毒', '中毒', '']);
+    expect(cs.relicFired.filter((x) => x === 'incense_stick')).toHaveLength(2);
+    expect(getStatus(cs.player, '隱身'), '不再給隱身').toBe(0);
   });
 });
 
