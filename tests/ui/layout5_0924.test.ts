@@ -72,10 +72,11 @@ describe('中：罐頭鋪價錢永遠看得到（貨架讓位給對白）', () =
     expect(scene).toContain('const settled = (b: Box): Box => ({ ...b, y: b.y - lift });');
     expect(scene).toContain('covers.push(settled(R(r)))');
   });
-  it('貨架說明最多四行（全文在滑鼠提示，手機按住放大的那張解開），牌不受影響', () => {
+  it('貨架說明最多四行（全文在滑鼠提示）；只夾罐頭鋪貨架，開局祝福與手機放大那張不受影響，牌也不受影響', () => {
     const css = norm(SCREENS_CSS);
-    expect(css).toMatch(/\.shop-item:not\(\.card-item\) \.small \{[^}]*-webkit-line-clamp: 4;/);
-    expect(css).toMatch(/\.card-peek > \.shop-item \.small \{[^}]*-webkit-line-clamp: unset;/);
+    expect(css).toMatch(/\.scene-goods \.shop-item:not\(\.card-item\) \.small \{[^}]*-webkit-line-clamp: 4;/);
+    // 沒有別的規則夾 `.shop-item .small`（推前審查 中：開局祝福的卡也是 `.shop-item`，曾被連帶夾成四行）
+    expect(css.match(/-webkit-line-clamp: 4/g)?.length).toBe(1);
     expect(norm(SHOP_SRC)).toContain("el('div', { class: 'small', title: text }, text)");
   });
 });
