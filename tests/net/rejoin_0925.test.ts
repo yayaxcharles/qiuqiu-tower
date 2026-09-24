@@ -145,6 +145,16 @@ describe('打完之後、次數、輪次（推前稽核 2026-09-25 中-2、低-2
     expect(t.host.desync[0]).toContain('打完');
   });
 
+  it('打完之後才判到對不上（最後一回合的對帳晚到）：不重新同步、也不停下（稽核第三輪 低-3）', () => {
+    const t = table();
+    const a = twoPlayerCombat('late'); const b = twoPlayerCombat('late');
+    t.host.s.attach(a); t.guest.s.attach(b); b.enemies[0]!.hp -= 1;
+    t.host.s.runOver(); t.guest.s.runOver();
+    t.host.s.endOfTurn(); t.guest.s.endOfTurn(); settle();
+    expect(t.host.resynced).toHaveLength(0); expect(t.guest.resynced).toHaveLength(0);
+    expect(t.host.desync).toEqual([]); expect(t.guest.desync).toEqual([]);
+  });
+
   it('打完之後回到地圖也不再記存檔點', () => {
     const t = table();
     const before = t.host.saved.length;
@@ -215,6 +225,12 @@ describe('分頁裡記的東西', () => {
     noteRejoinRecv(7);
     expect(box.get(main[0])).toBe(main[1]);
     expect(readRejoin()!.recv).toBe(7);
+  });
+
+  it('第一次寫記錄（還沒有舊的）不會把已經數好的「收到幾則」清掉（稽核第三輪 低-2）', () => {
+    noteRejoinRecv(12);
+    writeRejoin({ code: '123456', role: 'host', seat: 0, checkpoint: '{}', gen: 0 });
+    expect(readRejoin()!.recv).toBe(12);
   });
 
   it('換了一間房：從頭記，上一間的存檔點與收到幾則不帶過來', () => {

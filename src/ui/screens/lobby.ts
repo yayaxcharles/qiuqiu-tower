@@ -163,10 +163,11 @@ function makeSession(app: App, tx: Transport, isHost: boolean, resume?: { gen: n
     onClose: (w) => { clearRejoin(); troubleBanner(app, w); },
     onLink: (s) => linkBanner(app, s),
     onResync: (json, why) => resyncTo(app, session, seat, json, why),
-    onCheckpoint: remember ? (json, gen) => remember({ checkpoint: json, gen }) : undefined,
+    // 第一次記下存檔點之後才「離開頁面不說 bye」（稽核第三輪 低-1）：還沒回到過地圖（序章、開局祝福）就重新整理，
+    // 本來就接不回來，照舊當場通知對方，對方馬上看到原因，不用乾等兩分鐘
+    onCheckpoint: remember ? (json, gen) => { remember({ checkpoint: json, gen }); tx.stayOnReload?.(true); } : undefined,
   });
   if (remember) {
-    tx.stayOnReload?.(true);
     tx.onProgress?.(noteRejoinRecv);
     // 有效期從離開頁面那一刻算（跟中繼等人的算法一樣，推前稽核 中-1）；記錄已經清掉的話什麼都不做
     window.addEventListener('pagehide', touchRejoin);
@@ -197,6 +198,7 @@ export function rejoinCoop(app: App, rec: RejoinRecord): void {
 
 function startCoop(app: App, tx: Transport, isHost: boolean): void {
   const seat = isHost ? 0 : 1;
+  clearRejoin();   // 新的一局：上一局留在分頁裡的（例如打完之後還數著的「收到幾則」）清掉
   const session = makeSession(app, tx, isHost);
   const begin = (seed: string, diff: number, heroes?: string[]): void => {
     // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）。

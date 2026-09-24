@@ -110,6 +110,12 @@ describe('計數型：每 N 回合（沙漏、線香）', () => {
     expect(cs.relicFired.filter((x) => x === 'incense_stick')).toHaveLength(2);
     expect(getStatus(cs.player, '隱身'), '不再給隱身').toBe(0);
   });
+  it('線香：身上沒有減益時到了第 2、4 回合也不閃（什麼都沒做）', () => {
+    const cs = start(['incense_stick']);
+    quiet(cs);
+    for (let t = 2; t <= 4; t++) endTurn(cs);
+    expect(cs.relicFired.filter((x) => x === 'incense_stick')).toHaveLength(0);
+  });
 });
 
 describe('計數型：暗器匣（每回合第 3 張牌打完，對隨機一隻 5 點）', () => {

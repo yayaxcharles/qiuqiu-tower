@@ -829,8 +829,8 @@ export class CoopSession {
   private snapTimer: ReturnType<typeof setTimeout> | null = null;
   /** 正在收的存檔點（切段收，收齊才用） */
   private snapIn: { g: number; id: number | undefined; parts: string[]; got: number } | null = null;
-  /** 最近載入的那一份存檔點的編號（重新整理接回的存檔點靠它分新舊，見 `handleResync`） */
-  private lastSnapId: number | undefined = undefined;
+  /** 載入過的存檔點編號（重新整理接回的存檔點靠它分新舊，見 `handleResync`）。記全部不只上一份：更早的一份萬一重複到也認得（稽核第三輪 低-4） */
+  private seenSnapIds = new Set<number>();
 
   /** 每一則都帶上這一輪；等存檔點的期間只送「請重新同步」那一則 */
   private send(m: NetMessage): void {
@@ -881,7 +881,8 @@ export class CoopSession {
 
   /** 對不上了：能重新同步就重新同步；不能（沒有存檔點、次數用完、畫面沒接）才照舊停下 */
   private desync(why: string): void {
-    if (this.dead || this.awaitingSnap || this.resyncQueued) return;
+    // 整局打完之後才判到對不上（例如最後一回合的對帳晚到）：不理。重新同步會把兩個人從結算畫面拉回地圖＝悔棋（推前稽核 第三輪 低-3）
+    if (this.dead || this.awaitingSnap || this.resyncQueued || this.over) return;
     if (!this.checkpointJson || this.resyncs >= MAX_RESYNC || !this.hooks.onResync) { this.stop(why); return; }
     // eslint-disable-next-line no-console
     console.warn('[連線] 兩台對不上，重新同步：', why);
@@ -903,7 +904,7 @@ export class CoopSession {
   private queueHostResync(why: string, counted = true): void {
     if (this.resyncQueued) return;
     this.resyncQueued = true;
-    setTimeout(() => { this.resyncQueued = false; if (!this.dead) this.hostResync(why, counted); }, 0);
+    setTimeout(() => { this.resyncQueued = false; if (!this.dead && !this.over) this.hostResync(why, counted); }, 0);
   }
 
   /** 主機：換到新的一輪、把存檔點切段送出去、自己也載入它。`counted`＝算不算進「最多幾次」（重新整理接回的不算：那不是引擎出錯） */
@@ -942,7 +943,7 @@ export class CoopSession {
     // 重新整理接回的存檔點：不看輪次、只要不是剛載入過的那一份就收（推前稽核 低-4）。主機的分頁記錄萬一寫失敗、
     // 輪次落後，照「比我新才收」的規矩會被丟掉，之後兩台一個在地圖、一個還在戰鬥，互等、也沒有任何提示
     const rejoinSnap = m.why === REJOIN_WHY;
-    if (this.isHost || (rejoinSnap ? m.id !== undefined && m.id === this.lastSnapId : m.g <= this.gen)) return true;
+    if (this.isHost || this.over || (rejoinSnap ? m.id !== undefined && this.seenSnapIds.has(m.id) : m.g <= this.gen)) return true;
     if (!this.snapIn || this.snapIn.g !== m.g || this.snapIn.id !== m.id) this.snapIn = { g: m.g, id: m.id, parts: Array.from({ length: m.n }, () => ''), got: 0 };
     const box = this.snapIn;
     if (m.i < 0 || m.i >= box.parts.length || box.parts[m.i]) return true;   // 超出範圍或重複到的那段
@@ -954,7 +955,7 @@ export class CoopSession {
     this.awaitingSnap = false;
     if (!rejoinSnap) this.resyncs += 1;   // 重新整理接回不算進「最多幾次」（主機那邊同一個規矩，推前稽核 低-2）
     this.gen = m.g;
-    this.lastSnapId = m.id;
+    if (m.id !== undefined) this.seenSnapIds.add(m.id);
     this.reset();
     const json = box.parts.join('');
     this.checkpointJson = json;   // 載入的就是新的存檔點（我這台之後再重新整理，也接得回這一份）

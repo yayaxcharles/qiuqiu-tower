@@ -10,7 +10,7 @@ import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
 import { addStatus, decayTurnStatuses, getStatus, removeStatus, tickPoison } from './statuses';
-import { TURN_DECAY } from './types';
+import { DEBUFFS, TURN_DECAY } from './types';
 import type { CardInstance, CombatState, Effect, EffectCtx, PlayerCombat, PotionDef, StatusName, EnemyCombat } from './types';
 
 type NumHook = 'firstTurnDraw' | 'firstTurnEnergy' | 'energyPerTurn' | 'firstCardDiscount' | 'firstCardDiscountCombat' | 'blockKeep' | 'killHeal' | 'killStrength' | 'killFish' | 'combatEndHeal';
@@ -441,6 +441,8 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const rid of p.relics) {
     const h = relicById[rid]?.hooks.everyNTurns;
     if (!h || cs.turn % h.n !== 0) continue;
+    // 只會清減益、身上又沒有減益（線香）：什麼都沒做就不閃、不記（推前稽核 2026-09-25 第三輪 低-5）
+    if (h.effects.every((fx) => fx.kind === 'cleanse') && !DEBUFFS.some((d) => getStatus(p, d) > 0)) continue;
     fireRelic(cs, rid, p); applyRelicHook(cs, p, h.effects);
   }
   for (const c of [...p.hand]) {

@@ -1,4 +1,5 @@
-import { potionCapacity } from '../../engine/run';
+import { ACTS, potionCapacity } from '../../engine/run';
+import { clearRejoin } from '../../net/rejoin';
 import { cardById, cardNameFor } from '../../content/cards';
 import { relicById } from '../../content/relics';
 import { castLineFor, coopBossLines, dialogue, lineFor, pick, storyFor } from '../../content/dialogue';
@@ -3835,6 +3836,9 @@ registerScreen('combat', (app, root, props) => {
     session?.attach(null);
     // 關主戰打贏：白閃一下、關主慢慢倒下，多站一秒再交棒（收尾節奏，使用者 2026-09-04）
     const bossWon = cs.phase === 'won' && encounterById[cs.encounterId]?.pool === '塔主';
+    // 整局在這一刻就定了（全滅、最後一關的塔主打贏）：連線局馬上標成打完，之後重新整理不再接回。
+    // `afterCombat` 還要等收尾一兩秒，那段空窗重新整理會回到最後一戰之前＝悔棋（推前稽核 2026-09-25 第三輪 低-3）
+    if (session && (cs.phase === 'lost' || (bossWon && (app.run?.act ?? 0) >= ACTS))) { clearRejoin(); session.runOver(); }
     // 一般的打贏吐槽只給一般戰鬥：關主打完接的是收場對白，最終戰更是剛救回師父——
     // 抽到「這下知道厲害了喵」「有沒有掉小魚乾喵？」會整個出戲（總稽核 2026-09-16 丙 中-2）
     if (cs.phase === 'won' && !bossWon) toast(pick(storyFor(my().hero).battleWin), heroSpeaker(), mySpeech());

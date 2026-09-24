@@ -371,7 +371,7 @@ describe('勝利收尾只等勝利動作剩下的時間', () => {
     const cs = { phase: 'won', players, encounterId: 'fight' };
     const app = { cs, afterCombat() { leftAt = now; } };
     await execute(playMotion + sourceBetween('  function checkOver(): void', '  function phaseBurst(') + '\ncheckOver();', {
-      cs, app, ended: false, session: { attach() {} },
+      cs, app, ended: false, session: { attach() {}, runOver() {} }, ACTS: 3, clearRejoin() {},
       encounterById: { fight: { pool } }, my: () => players[0], mySeat: 0,
       storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
       el: () => ({ remove() {} }), root: { append() {} },

@@ -63,7 +63,9 @@ export function writeRejoin(patch: Partial<Omit<RejoinRecord, 'recv'>> & Pick<Re
     let prev: RejoinRecord | null = null;
     try { prev = readRaw(s); } catch { prev = null; }
     const same = prev && prev.code === patch.code && prev.role === patch.role;
-    if (!same) s.removeItem(RECV_KEY());
+    // 換了房間才清「收到幾則」；第一次寫（還沒有舊記錄）不清，那時已經數了一段了（稽核第三輪 低-2）。
+    // 上一局留下的舊數字由開新局時的 `clearRejoin` 清（lobby.ts 的 `startCoop`）
+    if (prev && !same) s.removeItem(RECV_KEY());
     const base = same ? { gen: prev!.gen, checkpoint: prev!.checkpoint } : { gen: 0, checkpoint: null };
     s.setItem(KEY(), JSON.stringify({ ...base, ...patch, at: Date.now() }));
   } catch { /* 存不進去（隱私模式、空間滿了）：重新整理就接不回來而已 */ }
