@@ -321,7 +321,9 @@ export type Effect =
   | { kind: 'immuneThisTurn' }
   /** `thisTurn` ＝這個能力只在本回合有效，回合結束就消失（2026-09-04 起沒有牌在用；吸貓大法基礎版改成整場有效） */
   | { kind: 'power'; trigger: PowerTrigger; effects: Effect[]; thisTurn?: true;
-      cardType?: CardType; minQiSpent?: number; oncePerTurn?: true; sameNameMax?: true };
+      cardType?: CardType; minQiSpent?: number; oncePerTurn?: true; sameNameMax?: true;
+      /** 每回合最多觸發幾次（越撒越順手：薄牌組 0 費技能無限循環會無限疊毒，推前稽核 2026-09-25 第四輪 低-4） */
+      maxPerTurn?: number };
 
 export interface CardDef {
   id: string;
@@ -1070,7 +1072,7 @@ export interface PlayerCombat extends Unit {
   retained: number[];
   /** 掛在球球身上的能力；`cardId` 記來源牌，戰鬥畫面用它掛「這是哪張牌的效果」的牌子（使用者 2026-09-03） */
   powers: { trigger: PowerTrigger; effects: Effect[]; thisTurn?: true; cardId?: string; upgraded?: boolean;
-    cardType?: CardType; minQiSpent?: number; oncePerTurn?: true; firedTurn?: number }[];
+    cardType?: CardType; minQiSpent?: number; oncePerTurn?: true; firedTurn?: number; maxPerTurn?: number; firedCount?: number }[];
   /** 封封的蓄氣。可選是為了讓舊戰鬥快照缺欄位時自然視為 0 */
   qi?: number;
   /** 本玩家階段下一張合法攻擊的首段首目標固定加成，取大、不相加 */

@@ -357,6 +357,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       if (fx.trigger === 'afterCard') {
         const condition = fx.minQiSpent ? `花至少 ${fx.minQiSpent} 點蓄氣的` : '';
         return `${scope}${fx.oncePerTurn ? '每回合第一次' : '每次'}打出${condition}${fx.cardType ?? ''}牌後，${inner}`
+          + (fx.maxPerTurn !== undefined ? `（每回合最多 ${fx.maxPerTurn} 次）` : '')
           + (fx.sameNameMax ? '（同名取高）' : '');
       }
       if (fx.trigger === 'passive') return inner;

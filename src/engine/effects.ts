@@ -552,7 +552,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}),
         ...(ctx.cardUpgraded ? { upgraded: true } : {}), ...(fx.cardType ? { cardType: fx.cardType } : {}),
         ...(fx.minQiSpent !== undefined ? { minQiSpent: fx.minQiSpent } : {}),
-        ...(fx.oncePerTurn ? { oncePerTurn: true as const } : {}) };
+        ...(fx.oncePerTurn ? { oncePerTurn: true as const } : {}),
+        ...(fx.maxPerTurn !== undefined ? { maxPerTurn: fx.maxPerTurn } : {}) };
       if (fx.sameNameMax && ctx.cardId) {
         const oldIndex = p.powers.findIndex((pw) => pw.cardId === ctx.cardId && pw.trigger === fx.trigger);
         if (oldIndex >= 0) {

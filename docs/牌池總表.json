@@ -4356,7 +4356,9 @@
   "cost": 0,
   "type": "技能",
   "target": "enemy",
-  "keywords": [],
+  "keywords": [
+   "消耗"
+  ],
   "hidden": false,
   "combatOnly": false,
   "kinds": [
@@ -4369,8 +4371,8 @@
     "n": 2
    }
   ],
-  "text": "目標身上有中毒就抽 2 張牌。",
-  "up": "目標身上有中毒就抽 2 張牌；給目標 3 層中毒。"
+  "text": "目標身上有中毒就抽 2 張牌。消耗。",
+  "up": "目標身上有中毒就抽 2 張牌；給目標 3 層中毒。消耗。"
  },
  {
   "id": "feifei_quansale",
@@ -4497,6 +4499,7 @@
     "kind": "power",
     "trigger": "afterCard",
     "cardType": "技能",
+    "maxPerTurn": 5,
     "effects": [
      {
       "kind": "status",
@@ -4508,8 +4511,8 @@
    }
   ],
   "upCost": 1,
-  "text": "每次打出技能牌後，全體魔物獲得 1 層中毒。",
-  "up": "每次打出技能牌後，全體魔物獲得 1 層中毒。"
+  "text": "每次打出技能牌後，全體魔物獲得 1 層中毒（每回合最多 5 次）。",
+  "up": "每次打出技能牌後，全體魔物獲得 1 層中毒（每回合最多 5 次）。"
  },
  {
   "id": "feifei_yizhen",

@@ -155,6 +155,17 @@ describe('打完之後、次數、輪次（推前稽核 2026-09-25 中-2、低-2
     expect(t.host.desync).toEqual([]); expect(t.guest.desync).toEqual([]);
   });
 
+  it('我這邊打完了、主機卻判對不上送來存檔點（兩台結局不同）：停下關線，主機馬上知道（第四輪 低-1）', () => {
+    const t = table();
+    const a = twoPlayerCombat('end'); const b = twoPlayerCombat('end');
+    t.host.s.attach(a); t.guest.s.attach(b); b.enemies[0]!.hp -= 1;
+    t.guest.s.runOver();                       // 客戶端判打完了，主機還沒
+    t.guest.s.endOfTurn(); t.host.s.endOfTurn(); settle();
+    expect(t.guest.resynced).toHaveLength(0);
+    expect(t.guest.desync[0]).toContain('結果不一樣');
+    expect(t.host.s.stopped, '主機那條線也跟著斷了').toBe(true);
+  });
+
   it('打完之後回到地圖也不再記存檔點', () => {
     const t = table();
     const before = t.host.saved.length;

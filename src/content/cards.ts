@@ -769,7 +769,8 @@ export const cards: readonly CardDef[] = [
    * 看準破綻（2026-09-25，補爪力牌的缺那三張之二，說明見常見區的補一針）。
    * 升級多給 3 層中毒，**排在抽牌判斷後面**：目標原本沒毒的話照樣不抽，不會被自己這 3 層騙過去。
    */
-  { id: 'feifei_kanzhun', name: '看準破綻', cost: 0, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_kanzhun',
+  // 消耗（推前稽核第四輪 低-4）：0 費抽 2，牌組刪薄時會把自己抽回來無限打，升級版每次再上 3 層毒＝一回合疊出無限毒
+  { id: 'feifei_kanzhun', name: '看準破綻', cost: 0, type: 技, rarity: '罕見', hero: 'feifei', pool: '忍術', target: 'enemy', art: 'card/feifei_kanzhun', keywords: ['消耗'],
     effects: [{ kind: 'drawIfTargetStatus', name: '中毒', n: 2 }],
     upgrade: { effects: [{ kind: 'drawIfTargetStatus', name: '中毒', n: 2 }, { kind: 'status', name: '中毒', amount: 3, target: 'enemy' }] } },
   // 自傷牌之三：全部丟出去，手上就沒東西擋了——這張**刻意不給蜷縮**，那就是它的代價
@@ -802,7 +803,9 @@ export const cards: readonly CardDef[] = [
    * 引擎只在玩家回合、不是戰鬥雜牌（黏液、眼冒金星）時才觸發；打出這張能力牌本身不算（它是能力牌不是技能牌）。
    */
   { id: 'feifei_yuesa', name: '越撒越順手', cost: 2, type: 能, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'self', art: 'card/feifei_yuesa',
-    effects: [{ kind: 'power', trigger: 'afterCard', cardType: '技能', effects: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] }],
+    // 每回合最多 5 次（推前稽核第四輪 低-4）：牌組刪薄之後，0 費技能（探路、看準破綻）能一直把自己抽回來，
+    // 沒有上限就一回合疊出無限毒、連塔主都一回合毒死。平常一回合打不到 5 張技能，正常打法不受影響
+    effects: [{ kind: 'power', trigger: 'afterCard', cardType: '技能', maxPerTurn: 5, effects: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] }],
     upgrade: { cost: 1 } },
   { id: 'feifei_yizhen', name: '一針斃命', cost: 2, type: 攻, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'enemy', art: 'card/feifei_yizhen', keywords: ['消耗'],
     effects: [{ kind: 'execByStatus', name: '中毒' }],

@@ -121,11 +121,19 @@ describe('看準破綻', () => {
     expect(poison(cs)).toBe(5);
   });
 
+  it('消耗：打一次就移出這場（薄牌組不能把自己抽回來無限打，推前稽核第四輪 低-4）；升級版照樣消耗', () => {
+    const cs = fight(['feifei_kanzhun']);
+    addStatus(cs.enemies[0]!, '中毒', 1);
+    play(cs, 'feifei_kanzhun');
+    expect(cs.player.exhaustPile.map((c) => c.cardId)).toEqual(['feifei_kanzhun']);
+    expect(cardStats(inst('feifei_kanzhun', 1, true)).keywords ?? []).toContain('消耗');
+  });
+
   it('牌面：罕見技能、要選一隻', () => {
     const c = cardById['feifei_kanzhun']!;
     expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([0, '技能', '罕見', '忍術', 'feifei', 'enemy']);
-    expect(describeCard(c, false)).toBe('目標身上有中毒就抽 2 張牌。');
-    expect(describeCard(c, true)).toBe('目標身上有中毒就抽 2 張牌；給目標 3 層中毒。');
+    expect(describeCard(c, false)).toBe('目標身上有中毒就抽 2 張牌。消耗。');
+    expect(describeCard(c, true)).toBe('目標身上有中毒就抽 2 張牌；給目標 3 層中毒。消耗。');
   });
 });
 
@@ -169,6 +177,16 @@ describe('越撒越順手', () => {
     expect(poison(cs)).toBe(2);
   });
 
+  it('每回合最多 5 次：同一回合第 6 張技能不再加毒，下一回合重新算（薄牌組 0 費循環不會無限疊毒，推前稽核第四輪 低-4）', () => {
+    const cs = fight(['feifei_yuesa', ...Array.from({ length: 7 }, () => 'feifei_tanlu')]);
+    play(cs, 'feifei_yuesa');
+    for (let i = 0; i < 6; i++) play(cs, 'feifei_tanlu');
+    expect(poison(cs)).toBe(5);
+    cs.turn += 1;
+    play(cs, 'feifei_tanlu');
+    expect(poison(cs), '新的一回合重新數').toBe(6);
+  });
+
   it('升級只降費用：2→1，效果不變', () => {
     const c = cardById['feifei_yuesa']!;
     expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([2, '能力', '稀有', '絕學', 'feifei', 'self']);
@@ -177,7 +195,7 @@ describe('越撒越順手', () => {
     const fx = c.effects[0]!;
     expect(fx.kind === 'power' && [fx.trigger, fx.cardType, fx.oncePerTurn, fx.minQiSpent, fx.sameNameMax])
       .toEqual(['afterCard', '技能', undefined, undefined, undefined]);
-    expect(describeCard(c, false)).toBe('每次打出技能牌後，全體魔物獲得 1 層中毒。');
+    expect(describeCard(c, false)).toBe('每次打出技能牌後，全體魔物獲得 1 層中毒（每回合最多 5 次）。');
 
     const cs = fight(['feifei_yuesa', 'feifei_tuikai'], { upgraded: ['feifei_yuesa'] });
     const energy = cs.player.energy;

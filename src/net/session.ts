@@ -943,7 +943,11 @@ export class CoopSession {
     // 重新整理接回的存檔點：不看輪次、只要不是剛載入過的那一份就收（推前稽核 低-4）。主機的分頁記錄萬一寫失敗、
     // 輪次落後，照「比我新才收」的規矩會被丟掉，之後兩台一個在地圖、一個還在戰鬥，互等、也沒有任何提示
     const rejoinSnap = m.why === REJOIN_WHY;
-    if (this.isHost || this.over || (rejoinSnap ? m.id !== undefined && this.seenSnapIds.has(m.id) : m.g <= this.gen)) return true;
+    if (this.isHost) return true;
+    // 我這邊已經打完、主機卻送來重新同步的存檔點＝最後一回合兩台算出不同的結局：停下、關線，主機馬上知道，
+    // 不然主機回到地圖乾等、沒有任何提示（推前稽核 第四輪 低-1）。兩台都打完、只是對帳晚到的，不會有人送存檔點
+    if (this.over) { if (!rejoinSnap && m.g > this.gen) this.stop('這一局已經打完，可是兩台算出來的結果不一樣'); return true; }
+    if (rejoinSnap ? m.id !== undefined && this.seenSnapIds.has(m.id) : m.g <= this.gen) return true;
     if (!this.snapIn || this.snapIn.g !== m.g || this.snapIn.id !== m.id) this.snapIn = { g: m.g, id: m.id, parts: Array.from({ length: m.n }, () => ''), got: 0 };
     const box = this.snapIn;
     if (m.i < 0 || m.i >= box.parts.length || box.parts[m.i]) return true;   // 超出範圍或重複到的那段

@@ -168,6 +168,8 @@ function makeSession(app: App, tx: Transport, isHost: boolean, resume?: { gen: n
     onCheckpoint: remember ? (json, gen) => { remember({ checkpoint: json, gen }); tx.stayOnReload?.(true); } : undefined,
   });
   if (remember) {
+    // 接回的會話分頁裡一定已經有存檔點：當場就不說 bye，不然存檔點還沒到就又重新整理一次會接不回來（推前稽核 第四輪 低-2）
+    if (resume) tx.stayOnReload?.(true);
     tx.onProgress?.(noteRejoinRecv);
     // 有效期從離開頁面那一刻算（跟中繼等人的算法一樣，推前稽核 中-1）；記錄已經清掉的話什麼都不做
     window.addEventListener('pagehide', touchRejoin);

@@ -476,8 +476,8 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   const sameOrHigherPower = st.effects.some((fx) => fx.kind === 'power' && fx.sameNameMax
     && p.powers.some((old) => old.cardId === card.cardId && old.trigger === fx.trigger
       && (!card.upgraded || !!old.upgraded
-        || JSON.stringify([old.effects, old.cardType, old.minQiSpent, old.oncePerTurn])
-          === JSON.stringify([fx.effects, fx.cardType, fx.minQiSpent, fx.oncePerTurn]))));
+        || JSON.stringify([old.effects, old.cardType, old.minQiSpent, old.oncePerTurn, old.maxPerTurn])
+          === JSON.stringify([fx.effects, fx.cardType, fx.minQiSpent, fx.oncePerTurn, fx.maxPerTurn]))));
   if (sameOrHigherPower) return { ok: false, reason: '同名或更高版本的能力已經生效' };
   let cost = st.cost;
   if (!p.firstCardPlayed) cost = Math.max(0, cost - relicSum(p.relics, 'firstCardDiscount'));
@@ -742,8 +742,10 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     for (const pw of p.powers) {
       if (pw.trigger !== 'afterCard' || (pw.cardType && pw.cardType !== st.def.type)
           || (pw.minQiSpent !== undefined && (ctx.qiSpent ?? 0) < pw.minQiSpent)
-          || (pw.oncePerTurn && pw.firedTurn === cs.turn)) continue;
+          || (pw.oncePerTurn && pw.firedTurn === cs.turn)
+          || (pw.maxPerTurn !== undefined && pw.firedTurn === cs.turn && (pw.firedCount ?? 0) >= pw.maxPerTurn)) continue;
       if (pw.oncePerTurn) pw.firedTurn = cs.turn;
+      if (pw.maxPerTurn !== undefined) { pw.firedCount = pw.firedTurn === cs.turn ? (pw.firedCount ?? 0) + 1 : 1; pw.firedTurn = cs.turn; }
       applyEffects(cs, pw.effects, { self: p, source: 'power', qiBefore: Math.max(0, Math.min(12, p.qi ?? 0)) });
       if (p.down || cs.phase !== 'player') break;
     }
