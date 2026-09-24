@@ -2004,7 +2004,11 @@ registerScreen('combat', (app, root, props) => {
       const idle = idleAnimOf(n);
       if (idle && w.idle !== null) idle.currentTime = w.idle + Number(idle.effect?.getTiming().delay ?? 0);
       if (!still && (dx || dy || w.tf !== tf) && typeof n.animate === 'function') {
-        n.animate([{ transform: `translate(${dx}px, ${dy}px) ${w.tf}` }, { transform: `translate(0px, 0px) ${tf}` }], { duration: 180, easing: 'ease-out' });
+        const a = n.animate([{ transform: `translate(${dx}px, ${dy}px) ${w.tf}` }, { transform: `translate(0px, 0px) ${tf}` }], { duration: 180, easing: 'ease-out' });
+        // 滑的這 180 毫秒不套「滑過抬起」：那條是 `!important`，會蓋掉補間，游標底下那張一格就跳到終點抬起來（畫面稽核重量 2026-09-24）。
+        // 滑完拿掉，抬起照原本 0.12 秒的過渡走
+        n.classList.add('sliding');
+        a.onfinish = a.oncancel = () => n.classList.remove('sliding');
       }
     }
   }

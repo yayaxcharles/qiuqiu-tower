@@ -143,7 +143,11 @@ function fitArt(scene: HTMLElement, box: HTMLElement): void {
     if (!scene.isConnected || !firstText) return;
     const k = stageScale();
     const sceneTop = scene.getBoundingClientRect().top;
-    const textTop = (firstText.getBoundingClientRect().top - sceneTop) / k;
+    // 對白框彈入動畫（從下面 26 像素滑上來）播的時候量到的字比實際低：扣掉框現在的位移，量播完的位置（同 `refitGoods`）。
+    // 不扣的話第一次進事件插圖撐到 360、壓到第一行字；連線時同伴一投票（安靜重畫不再彈入）才量對、插圖縮一截（畫面稽核重量 2026-09-24）
+    const t = getComputedStyle(box).transform;
+    const lift = t && t !== 'none' && typeof DOMMatrixReadOnly === 'function' ? new DOMMatrixReadOnly(t).m42 : 0;
+    const textTop = (firstText.getBoundingClientRect().top - sceneTop) / k - lift;
     if (!textTop) return;
     const ART_TOP = 18;   // `.scene-art` 的 top，對 `.scene` 算（screens.css:685）
     img.style.height = `${Math.max(210, Math.min(360, textTop - ART_TOP - 8))}px`;

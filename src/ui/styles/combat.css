@@ -492,7 +492,8 @@
   0%, 100% { translate: 0 0; rotate: 0deg; }
   50% { translate: 0 -3px; rotate: .4deg; }
 }
-.combat .hand .card:hover {
+/* 重畫後正從舊位置滑過來的那張（`.sliding`，combat.ts 的 slideHand，180 毫秒）先不抬：這條的 !important 會蓋掉補間、一格跳到終點 */
+.combat .hand .card:not(.sliding):hover {
   transform: translateY(-46px) scale(1.06) !important;
   z-index: 50 !important;
 }

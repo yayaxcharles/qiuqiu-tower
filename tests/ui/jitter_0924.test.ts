@@ -223,7 +223,10 @@ describe('戰鬥：整頁重畫後循環動畫接上、手牌滑過去', () => {
     const js = (await transformWithOxc(`${code}\nreturn { handSnap, slideHand };`, 'slide.ts')).code;
     const idleOf = new Map<object, { currentTime: number; effect: { getTiming: () => { delay: number } } }>();
     const card = (uid: string, x: number, tf: string, idleT: number, delay: number) => {
-      const n = { dataset: { uid }, offsetLeft: x, offsetTop: 0, style: { transform: tf }, animate: vi.fn() };
+      const cls = new Set<string>();
+      const anim: { onfinish?: () => void; oncancel?: () => void } = {};
+      const n = { dataset: { uid }, offsetLeft: x, offsetTop: 0, style: { transform: tf }, animate: vi.fn(() => anim), anim, cls,
+        classList: { add: (c: string) => cls.add(c), remove: (c: string) => cls.delete(c) } };
       idleOf.set(n, { currentTime: idleT, effect: { getTiming: () => ({ delay }) } });
       return n;
     };
@@ -243,5 +246,24 @@ describe('戰鬥：整頁重畫後循環動畫接上、手牌滑過去', () => {
     expect(idleOf.get(moved!)!.currentTime).toBe(2500);
     expect(fresh!.animate, '新發的牌走發牌動畫，不滑').not.toHaveBeenCalled();
     expect(idleOf.get(fresh!)!.currentTime).toBe(0);
+    // 畫面稽核重量 2026-09-24：滑的這段掛 .sliding（不套滑過抬起），滑完拿掉
+    expect(moved!.cls.has('sliding')).toBe(true);
+    moved!.anim.onfinish!();
+    expect(moved!.cls.has('sliding')).toBe(false);
+    expect(fresh!.cls.has('sliding')).toBe(false);
+  });
+
+  it('滑過抬起那條（!important）不套在正滑過來的牌上，不然游標底下那張一格跳到終點', () => {
+    const css = norm(readFileSync('src/ui/styles/combat.css', 'utf8'));
+    expect(css).toContain('.combat .hand .card:not(.sliding):hover {\n  transform: translateY(-46px) scale(1.06) !important;');
+    expect(css).not.toMatch(/\n\.combat \.hand \.card:hover \{\n  transform:/);
+  });
+});
+
+describe('事件插圖讓位量字的位置時扣掉對白框的彈入位移（畫面稽核重量 2026-09-24）', () => {
+  it('fitArt 跟 refitGoods 一樣扣掉框現在的位移，第一次進場就量對、連線投票後不會再縮一截', () => {
+    const fit = between(SCENE, 'function fitArt(scene: HTMLElement, box: HTMLElement): void {', '/** 舞台目前被縮放多少倍');
+    expect(fit).toContain('const t = getComputedStyle(box).transform;');
+    expect(fit).toContain('const textTop = (firstText.getBoundingClientRect().top - sceneTop) / k - lift;');
   });
 });
