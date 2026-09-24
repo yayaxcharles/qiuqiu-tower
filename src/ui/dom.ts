@@ -26,6 +26,14 @@ export function clear(node: Element): void {
  * `loot-float .6s` 延遲），被釘到過去的起點會立刻生效、蓋掉前面那段；那一頁不走這支，今天碰不到，
  * 以後要在會呼叫這支的畫面加這種動畫，改用負延遲或先排除（程式碼稽核 2026-09-24 低-3）。
  */
+/**
+ * 畫好不到這麼久又重畫同一段，照新畫面算（進場動畫重播），不算「內容換一點」的安靜重畫（程式碼稽核 2026-09-24 低-1、低-3）。
+ * 對白框的彈入是 0.28 秒（`base.css` 的 `dialogue-in`）：這段時間裡改畫成靜止版，框會一格跳到定位。
+ * 從**畫完**那一刻算（`performance.now()`），不從開始畫算——手機上畫一頁可能就要好幾百毫秒。
+ * `App.show`、罐頭鋪、過關三選一共用
+ */
+export const ENTER_MS = 300;
+
 export function keepLoops(root: Element, t0: number, except = ''): void {
   if (typeof root.getAnimations !== 'function') return;
   for (const a of root.getAnimations({ subtree: true })) {

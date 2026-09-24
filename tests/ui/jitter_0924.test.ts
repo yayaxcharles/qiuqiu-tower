@@ -107,22 +107,26 @@ async function loadShow() {
   const out: { fn?: ShowFn } = {};
   const code = (await transformWithOxc(`type ScreenName = string;\nfunction ${method.trim()}\n__out.fn = show;`, 'show.ts')).code;
   const kept: Array<[unknown, number]> = [];
-  const timeline = { currentTime: 100 };
+  // 動畫時間軸與 performance.now() 用同一個假時鐘：瀏覽器裡兩個是同一個原點
+  const clock = { t: 100 };
+  const timeline = { get currentTime() { return clock.t; }, set currentTime(v: number) { clock.t = v; } };
   const screens = new Map<string, (app: unknown, root: unknown, props: unknown) => void>();
-  new Function('__out', 'screens', 'setBgm', 'hideTooltip', 'closeScreenModals', 'me', 'setLocalPartnerHero', 'clear', 'swapScreen', 'retireLeavingScreen', 'keepLoops', 'document', code)(
+  new Function('__out', 'screens', 'setBgm', 'hideTooltip', 'closeScreenModals', 'me', 'setLocalPartnerHero', 'clear', 'swapScreen', 'retireLeavingScreen', 'keepLoops', 'document', 'performance', 'ENTER_MS', code)(
     out, screens, () => {}, () => {}, () => {}, () => ({}), () => {}, () => {}, () => ({}), () => {},
-    (root: unknown, t0: number) => kept.push([root, t0]), { timeline });
+    (root: unknown, t0: number) => kept.push([root, t0]), { timeline }, { now: () => clock.t }, 300);
   let loading = false;
   const screen = { firstChild: null, animate: undefined, querySelector: (s: string) => (loading && s.includes('.screen-loading') ? {} : null) };
   const app = {
     stage: { dataset: {} as Record<string, string>, querySelector: () => null },
     screen, overlay: {}, coop: null, disposers: [] as Array<() => void>, run: null, seat: 0,
-    bgmFor: () => null, redraw: false, loopT0: 0,
+    bgmFor: () => null, redraw: false, loopT0: 0, shownAt: 0,
   };
   const seen: boolean[] = [];
   for (const n of ['reward', 'event']) screens.set(n, (a) => { seen.push((a as typeof app).redraw); });
+  // 畫一頁要 500 毫秒的慢手機
+  screens.set('slow', (a) => { seen.push((a as typeof app).redraw); clock.t += 500; });
   const show = out.fn!.bind(app) as ShowFn;
-  return { app, show, seen, kept, timeline, setLoading: (v: boolean) => { loading = v; } };
+  return { app, show, seen, kept, timeline, clock, setLoading: (v: boolean) => { loading = v; } };
 }
 
 describe('App.show()：同一頁安靜重畫才算 redraw；循環動畫的起點只在真的換畫面時重設', () => {
@@ -156,6 +160,35 @@ describe('App.show()：同一頁安靜重畫才算 redraw；循環動畫的起�
     t.show('reward', {}, { quiet: true });
     expect(t.seen.at(-1)).toBe(true);
   });
+  // 推前稽核 2026-09-24 低-3：300 毫秒從畫完算，畫的時間不算在裡面
+  it('手機畫一頁要 500 毫秒：畫完 100 毫秒後的安靜重畫仍照新畫面算', async () => {
+    const t = await loadShow();
+    t.clock.t = 0;
+    t.show('slow', {});
+    expect(t.app.loopT0, '循環動畫的起點照舊是開始畫那一刻').toBe(0);
+    expect(t.app.shownAt).toBe(500);
+    t.clock.t = 600;
+    t.show('slow', {}, { quiet: true });
+    expect(t.seen.at(-1), '從開始畫算已經 600 毫秒，但畫完才 100 毫秒').toBe(false);
+    t.clock.t = 1100 + 301;
+    t.show('slow', {}, { quiet: true });
+    expect(t.seen.at(-1)).toBe(true);
+    expect(t.app.shownAt, '安靜重畫不動畫完時間').toBe(1100);
+  });
+});
+
+/* ---------- 罐頭鋪、過關三選一：自己的「畫過了沒」也要等進場播完 ---------- */
+describe('罐頭鋪、過關三選一：上一次畫完不到 ENTER_MS 的重畫照舊播進場（推前稽核 2026-09-24 低-1）', () => {
+  it('罐頭鋪：同一段而且畫完超過 ENTER_MS 才 calm；非 calm 那次重記畫完時間', () => {
+    const render = between(SHOP, '  function render(): void {', '  function paint(calm: boolean): void {');
+    expect(render).toContain('const calm = drawn === mode && performance.now() - drawnAt > ENTER_MS;');
+    expect(render.indexOf('if (!calm) drawnAt = performance.now();')).toBeGreaterThan(render.indexOf('paint(calm);'));
+  });
+  it('過關三選一：同上', () => {
+    const render = between(ACTCLEAR, '  function render(): void {', '  /*\n   * **連線的回呼要掛在下面那個早退之前。**');
+    expect(render).toContain('const calm = drawn && performance.now() - drawnAt > ENTER_MS;');
+    expect(render).toContain('keepLoops(root, app.loopT0);   // 稀有牌流光、底圖火光接回原進度（連線時同伴投票那次重畫）\n    if (!calm) drawnAt = performance.now();\n  }');
+  });
 });
 
 /* ---------- 各畫面的接法（原始碼層級） ---------- */
@@ -169,7 +202,7 @@ describe('同一個畫面的重畫不再播進場動畫', () => {
   it('罐頭鋪：同一段（貨架／開頭）再畫一次就是 calm，畫完把循環動畫接回去', () => {
     const render = between(SHOP, '  function render(): void {', '  function paint(calm: boolean): void {');
     expect(render).toContain("const mode = mer && intro ? 'intro' : 'stall';");
-    expect(render).toContain('const calm = drawn === mode;');
+    expect(render).toContain('const calm = drawn === mode && ');
     expect(render).toContain('keepLoops(root, app.loopT0);');
     const paint = between(SHOP, '  function paint(calm: boolean): void {', '  /** 進門那一拍');
     expect(paint.match(/\n\s+calm,\n/g)?.length, '開頭與貨架兩個 sceneView 都要帶').toBe(2);
@@ -199,7 +232,10 @@ describe('地圖：同一層的安靜重畫接回自己捲到的位置', () => {
     expect(MAP).toContain('const scrollKey = `${run.seed}|${run.act}|${here}`;');
     // 程式碼稽核 2026-09-24 中-1：往上爬的平滑捲動還沒播完就被安靜重畫時，玩家自己沒捲過就記「要去的那一層」，不記半路
     expect(MAP).toContain('const climbing = climbed !== null && climbed !== want;');
-    expect(MAP).toContain("for (const ev of ['wheel', 'pointerdown', 'touchstart', 'keydown'] as const) scroll.addEventListener(ev, () => { userMoved = true; }, { passive: true });");
+    // 推前稽核 2026-09-24 低-2：點節點投票的按下會冒泡到捲軸，不算「自己捲過」；只算按在捲軸本身
+    expect(MAP).toContain("for (const ev of ['wheel', 'touchmove', 'keydown'] as const) scroll.addEventListener(ev, moved, { passive: true });");
+    expect(MAP).toContain("scroll.addEventListener('pointerdown', (e) => { if (e.target === scroll) moved(); }, { passive: true });");
+    expect(MAP).not.toContain("'pointerdown', 'touchstart'");
     expect(MAP).toContain('app.disposers.push(() => { lastScroll = { key: scrollKey, top: climbing && !userMoved ? want : scroll.scrollTop }; });');
     expect(MAP).toContain('if (app.redraw && lastScroll?.key === scrollKey) scroll.scrollTop = lastScroll.top;\n  else if (climbed !== null');
     expect(MAP).toContain('else scroll.scrollTop = want;');
@@ -218,25 +254,37 @@ describe('戰鬥：整頁重畫後循環動畫接上、手牌滑過去', () => {
     expect(between(COMBAT, "u.classList.remove('attack', 'hit', 'dodge', 'cast');", '      // **就地換圖，不要 render()**')).toContain('keepLoops(u, app.loopT0);');
   });
 
-  it('slideHand：同一張牌從舊位置補間到新位置（transform 兩端清單一樣），起伏扣掉延遲再接；新牌不動', async () => {
-    const code = between(COMBAT, '  /** 重畫前每張手牌（依 uid）', '  function handRow(): HTMLElement {');
+  // 把 handSnap／slideHand 抽出來、配假手牌跑；`offsetReads` 數量了幾次位置（每量一次就可能逼瀏覽器當場排版）
+  async function loadSlide() {
+    const code = between(COMBAT, '  /**\n   * 重畫前每張手牌（依 uid）', '  function handRow(): HTMLElement {');
     const js = (await transformWithOxc(`${code}\nreturn { handSnap, slideHand };`, 'slide.ts')).code;
     const idleOf = new Map<object, { currentTime: number; effect: { getTiming: () => { delay: number } } }>();
-    const card = (uid: string, x: number, tf: string, idleT: number, delay: number) => {
+    const stat = { offsetReads: 0 };
+    const card = (uid: string, x: number, tf: string, idleT: number, delay: number, computed = '') => {
       const cls = new Set<string>();
       const anim: { onfinish?: () => void; oncancel?: () => void } = {};
-      const n = { dataset: { uid }, offsetLeft: x, offsetTop: 0, style: { transform: tf }, animate: vi.fn(() => anim), anim, cls,
-        classList: { add: (c: string) => cls.add(c), remove: (c: string) => cls.delete(c) } };
+      const n = { dataset: { uid }, get offsetLeft() { stat.offsetReads++; return x; }, offsetTop: 0, style: { transform: tf }, computed,
+        animate: vi.fn(() => anim), anim, cls,
+        classList: { add: (c: string) => cls.add(c), remove: (c: string) => cls.delete(c), contains: (c: string) => cls.has(c) } };
       idleOf.set(n, { currentTime: idleT, effect: { getTiming: () => ({ delay }) } });
       return n;
     };
-    let hand = [card('1', 100, 'rotate(-3deg) translateY(5px)', 2000, -500), card('2', 250, 'rotate(0deg) translateY(0px)', 2000, -1000)];
-    const root = { querySelectorAll: () => hand };
-    const fns = new Function('root', 'idleAnimOf', 'idleTimeOf', js)(root,
-      (n: object) => idleOf.get(n), (n: object) => idleOf.get(n)?.currentTime ?? null) as { handSnap: () => unknown; slideHand: (w: unknown) => void };
+    const ref: { hand: ReturnType<typeof card>[] } = { hand: [] };
+    const root = { querySelectorAll: () => ref.hand };
+    const fns = new Function('root', 'idleAnimOf', 'idleTimeOf', 'getComputedStyle', js)(root,
+      (n: object) => idleOf.get(n), (n: object) => idleOf.get(n)?.currentTime ?? null,
+      (n: { computed: string }) => ({ transform: n.computed })) as { handSnap: () => unknown; slideHand: (w: unknown) => void };
+    return { ...fns, card, ref, idleOf, stat };
+  }
+
+  it('slideHand：同一張牌從舊位置補間到新位置（transform 兩端清單一樣），起伏扣掉延遲再接；新牌不動', async () => {
+    const { handSnap, slideHand, card, ref, idleOf } = await loadSlide();
+    ref.hand = [card('1', 100, 'rotate(-3deg) translateY(5px)', 2000, -500), card('2', 250, 'rotate(0deg) translateY(0px)', 2000, -1000)];
+    const fns = { handSnap, slideHand };
+    let hand = ref.hand;
     const was = fns.handSnap();
     // 出掉 uid 1 之後重畫：uid 2 換成新節點、排到第一張（延遲從 -1000 變 -500），另外發來一張新牌 uid 3
-    hand = [card('2', 180, 'rotate(-1.6deg) translateY(2px)', 0, -500), card('3', 330, 'rotate(1.6deg) translateY(2px)', 0, 0)];
+    hand = ref.hand = [card('2', 180, 'rotate(-1.6deg) translateY(2px)', 0, -500), card('3', 330, 'rotate(1.6deg) translateY(2px)', 0, 0)];
     fns.slideHand(was);
     const [moved, fresh] = hand;
     expect(moved!.animate).toHaveBeenCalledWith(
@@ -251,6 +299,48 @@ describe('戰鬥：整頁重畫後循環動畫接上、手牌滑過去', () => {
     moved!.anim.onfinish!();
     expect(moved!.cls.has('sliding')).toBe(false);
     expect(fresh!.cls.has('sliding')).toBe(false);
+  });
+
+  // 推前稽核 2026-09-24 低-4：連出兩張，第二次重畫時上一段還沒滑完
+  it('還在滑的牌從它現在看起來的樣子接著滑，不先跳回上一段的終點', async () => {
+    const { handSnap, slideHand, card, ref } = await loadSlide();
+    const midway = 'matrix(0.999, -0.04, 0.04, 0.999, 31, 3)';
+    const a = card('2', 180, 'rotate(-1.6deg) translateY(2px)', 0, -500, midway);
+    a.cls.add('sliding');
+    ref.hand = [a, card('3', 330, 'rotate(1.6deg) translateY(2px)', 0, 0)];
+    const was = handSnap();
+    ref.hand = [card('3', 250, 'rotate(0deg) translateY(0px)', 0, -500)];
+    const b = card('2', 100, 'rotate(0deg) translateY(0px)', 0, -1000);
+    ref.hand = [b, ...ref.hand];
+    slideHand(was);
+    expect(b.animate).toHaveBeenCalledWith(
+      [{ transform: `translate(80px, 0px) ${midway}` }, { transform: 'translate(0px, 0px) rotate(0deg) translateY(0px)' }],
+      { duration: 180, easing: 'ease-out' });
+  });
+
+  // 推前稽核 2026-09-24 低-5：敵人回合、同伴動作的重畫手牌沒變，不去量新位置
+  it('手牌同一批、同一個順序、沒有在滑：不量新位置、不補間，只接回起伏', async () => {
+    const { handSnap, slideHand, card, ref, idleOf, stat } = await loadSlide();
+    ref.hand = [card('1', 100, 'rotate(-1.6deg) translateY(2px)', 2000, -500), card('2', 250, 'rotate(1.6deg) translateY(2px)', 2000, -1000)];
+    const was = handSnap();
+    const next = [card('1', 100, 'rotate(-1.6deg) translateY(2px)', 0, -500), card('2', 250, 'rotate(1.6deg) translateY(2px)', 0, -1000)];
+    ref.hand = next;
+    stat.offsetReads = 0;
+    slideHand(was);
+    expect(stat.offsetReads, '新手牌的位置一次都不量').toBe(0);
+    expect(next[0]!.animate).not.toHaveBeenCalled();
+    expect(next[1]!.animate).not.toHaveBeenCalled();
+    expect(idleOf.get(next[1]!)!.currentTime, '起伏照樣接回').toBe(2000);
+    // 有一張還在滑就照量（不然它會跳到終點）
+    const s = card('1', 100, 'rotate(-1.6deg) translateY(2px)', 0, -500, 'matrix(1, 0, 0, 1, 20, 0)');
+    s.cls.add('sliding');
+    ref.hand = [s, card('2', 250, 'rotate(1.6deg) translateY(2px)', 0, -1000)];
+    const was2 = handSnap();
+    ref.hand = [card('1', 100, 'rotate(-1.6deg) translateY(2px)', 0, -500), card('2', 250, 'rotate(1.6deg) translateY(2px)', 0, -1000)];
+    stat.offsetReads = 0;
+    slideHand(was2);
+    expect(stat.offsetReads).toBe(2);
+    expect(ref.hand[0]!.animate).toHaveBeenCalledTimes(1);
   });
 
   it('滑過抬起那條（!important）不套在正滑過來的牌上，不然游標底下那張一格跳到終點', () => {

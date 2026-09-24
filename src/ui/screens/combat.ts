@@ -1971,14 +1971,19 @@ registerScreen('combat', (app, root, props) => {
     return typeof t === 'number' ? t : null;
   }
 
-  /** 重畫前每張手牌（依 uid）的版面位置、行內扇形、起伏跑到週期的哪裡（扣掉自己的延遲）；給 `slideHand` 接 */
-  type HandWas = Map<string, { x: number; y: number; tf: string; idle: number | null }>;
+  /**
+   * 重畫前每張手牌（依 uid）的版面位置、行內扇形、起伏跑到週期的哪裡（扣掉自己的延遲）；給 `slideHand` 接。
+   * 還在滑的牌（上一次重畫才不到 180 毫秒：連出兩張、出完牌同伴馬上動作）記它**現在看起來**的樣子
+   *（補間中的 `transform`，含還沒滑完的那段位移），不記終點——不然它先跳到終點再滑一次（推前稽核 2026-09-24 低-4）
+   */
+  type HandWas = Map<string, { x: number; y: number; tf: string; idle: number | null; sliding: boolean }>;
   function handSnap(): HandWas {
     const was: HandWas = new Map();
     for (const n of root.querySelectorAll<HTMLElement>('.hand .card[data-uid]')) {
       const t = idleTimeOf(n);
-      was.set(n.dataset['uid']!, { x: n.offsetLeft, y: n.offsetTop, tf: n.style.transform,
-        idle: t === null ? null : t - Number(idleAnimOf(n)?.effect?.getTiming().delay ?? 0) });
+      const sliding = n.classList.contains('sliding');
+      was.set(n.dataset['uid']!, { x: n.offsetLeft, y: n.offsetTop, tf: sliding ? getComputedStyle(n).transform : n.style.transform,
+        idle: t === null ? null : t - Number(idleAnimOf(n)?.effect?.getTiming().delay ?? 0), sliding });
     }
     return was;
   }
@@ -1994,9 +1999,16 @@ registerScreen('combat', (app, root, props) => {
    */
   function slideHand(was: HandWas): void {
     // 先把每張牌的新位置全部量完、再一起寫：量一張寫一張會逼瀏覽器每張都重算一次樣式（程式碼稽核 2026-09-24 低-2）
-    const todo = [...root.querySelectorAll<HTMLElement>('.hand .card[data-uid]')].flatMap((n) => {
+    const nodes = [...root.querySelectorAll<HTMLElement>('.hand .card[data-uid]')];
+    // 同一批牌、同一個順序、也沒有還在滑的（敵人回合、同伴動作的重畫）：扇形位置只看第幾張、共幾張，一定沒動，
+    // 不去量位置，省掉一次逼瀏覽器當場排版，只接回起伏（推前稽核 2026-09-24 低-5）
+    const before = [...was.keys()];
+    const same = nodes.length === before.length && nodes.every((n, i) => n.dataset['uid'] === before[i])
+      && ![...was.values()].some((w) => w.sliding);
+    const todo = nodes.flatMap((n) => {
       const w = was.get(n.dataset['uid']!);
-      return w ? [{ n, w, dx: w.x - n.offsetLeft, dy: w.y - n.offsetTop, tf: n.style.transform }] : [];
+      if (!w) return [];
+      return [same ? { n, w, dx: 0, dy: 0, tf: n.style.transform } : { n, w, dx: w.x - n.offsetLeft, dy: w.y - n.offsetTop, tf: n.style.transform }];
     });
     // 作業系統設了「減少動態效果」就不滑，直接定位（同 `@media (prefers-reduced-motion: reduce)` 那幾塊）
     const still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;

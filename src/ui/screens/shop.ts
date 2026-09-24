@@ -22,7 +22,7 @@ import { cardNode } from '../cardview';
 import { attachCardPeek } from '../cardpeek';
 import { showRemoveConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
-import { el, keepLoops } from '../dom';
+import { el, ENTER_MS, keepLoops } from '../dom';
 import { renderHud } from '../hud';
 import { refitGoods, sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
@@ -298,15 +298,19 @@ registerScreen('shop', (app, root, props) => {
   /**
    * 上一次畫的是開頭那段還是貨架（畫面抖動稽核 2026-09-24 第 1 項）：同一段再畫一次（買完、放生、重整、服務、同伴買了東西）
    * 就是「內容換一點」，對白框與立繪不再從透明滑進來（`calm`），循環動畫接回原進度（`keepLoops`）；
-   * 第一次進門、開頭換成貨架那一下照舊播進場
+   * 第一次進門、開頭換成貨架那一下照舊播進場。
+   * 上一次畫完還沒滿 `ENTER_MS` 也照舊播：客座店主的台詞檔晚一步到、進門那段彈入還沒播完就重畫，
+   * 改畫成靜止版的話框和立繪一格跳到定位（推前稽核 2026-09-24 低-1）
    */
   let drawn: 'intro' | 'stall' | null = null;
+  let drawnAt = 0;
   function render(): void {
     const mode = mer && intro ? 'intro' : 'stall';
-    const calm = drawn === mode;
+    const calm = drawn === mode && performance.now() - drawnAt > ENTER_MS;
     drawn = mode;
     paint(calm);
     keepLoops(root, app.loopT0);
+    if (!calm) drawnAt = performance.now();
   }
   function paint(calm: boolean): void {
     clearKeepBg(root);

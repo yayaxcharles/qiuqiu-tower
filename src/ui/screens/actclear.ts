@@ -9,7 +9,7 @@ import { lineFor } from '../../content/dialogue';
 import { registerScreen } from '../app';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { artUrl, heroArtUrl } from '../assets';
-import { el, keepLoops } from '../dom';
+import { el, ENTER_MS, keepLoops } from '../dom';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
@@ -135,9 +135,11 @@ registerScreen('actclear', (app, root, props) => {
   }
 
   let drawn = false;   // 三選一畫過了沒：再畫一次（連線時同伴投票）就是同一段內容，不再播進場
+  // 上一次畫完還沒滿 `ENTER_MS`（同伴先挑好、我這邊補跑票下一拍就重畫）照舊播進場，不然對白框一格跳到定位（推前稽核 2026-09-24 低-1）
+  let drawnAt = 0;
   function render(): void {
     if (!run) return;
-    const calm = drawn;
+    const calm = drawn && performance.now() - drawnAt > ENTER_MS;
     drawn = true;
     clearKeepBg(root);
     renderHud(app, root);
@@ -200,6 +202,7 @@ registerScreen('actclear', (app, root, props) => {
       calm,
     }));
     keepLoops(root, app.loopT0);   // 稀有牌流光、底圖火光接回原進度（連線時同伴投票那次重畫）
+    if (!calm) drawnAt = performance.now();
   }
   /*
    * **連線的回呼要掛在下面那個早退之前。**

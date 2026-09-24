@@ -429,10 +429,14 @@ registerScreen('map', (app, root) => {
    * 但往上爬那段平滑捲動還沒播完（連線時同伴先投了地圖票，晚一步進地圖的人下一拍就被安靜重畫）時，
    * 當下的位置是起點或半路，記下來之後每次重畫都接回這裡，畫面就一直停在上一層（程式碼稽核 2026-09-24 中-1）。
    * 所以玩家自己沒捲過的話，記「要去的那一層」。
+   * 「自己捲過」只算真的會捲的動作：滾輪、手指拖、鍵盤、按住捲軸本身。點節點投票的按下不算——
+   * 它也會冒泡到捲軸，算進去的話爬升途中先投票，記下的又是半路（推前稽核 2026-09-24 低-2）
    */
   const climbing = climbed !== null && climbed !== want;
   let userMoved = false;
-  for (const ev of ['wheel', 'pointerdown', 'touchstart', 'keydown'] as const) scroll.addEventListener(ev, () => { userMoved = true; }, { passive: true });
+  const moved = (): void => { userMoved = true; };
+  for (const ev of ['wheel', 'touchmove', 'keydown'] as const) scroll.addEventListener(ev, moved, { passive: true });
+  scroll.addEventListener('pointerdown', (e) => { if (e.target === scroll) moved(); }, { passive: true });
   app.disposers.push(() => { lastScroll = { key: scrollKey, top: climbing && !userMoved ? want : scroll.scrollTop }; });
   if (app.redraw && lastScroll?.key === scrollKey) scroll.scrollTop = lastScroll.top;
   else if (climbed !== null && climbed !== want && typeof scroll.scrollTo === 'function') {
