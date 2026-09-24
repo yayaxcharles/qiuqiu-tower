@@ -131,7 +131,7 @@ describe('事件文字', () => {
   it('共用事件的敘述、選項、標題（3、5、8、9、15），她看到的就是這幾句', () => {
     expect(eventTextFor('feifei', eventById['blocked']!.text)).toBe('樓梯被一座垃圾山堵住，頂上插著一塊新牌子，感覺就是有人故意擋住的，隱約看見一卷忍術卷軸露在一個破木板底下；旁邊的小走道似乎還是繞得過去。');
     expect(eventTextFor('feifei', choice('sunbath', 1).label)).toBe('曬著太陽整理招式（移除 1 張牌）');
-    expect(eventTextFor('feifei', eventById['lost_scroll']!.text)).toBe('一卷沒署名的卷軸掉在階梯上，潦草的字旁畫著三段忍術圖解。旁邊有個轉角的舊書攤，攤主表示：「收購秘笈，破舊的也收。」');
+    expect(eventTextFor('feifei', eventById['lost_scroll']!.text)).toBe('一卷沒署名的卷軸掉在階梯上，潦草的字旁畫著三段忍術圖解。轉角有個舊書攤，攤主喊著：「收購秘笈，破舊的也收。」');
     expect(eventTextFor('feifei', eventById['noisy_kitchen']!.text)).toBe('樓梯轉角的廚房傳來一陣鏗鏘聲，爐上的湯鍋咕嚕作響，蒸氣把鍋蓋頂得直跳。灶邊貼著「我吃不完但得先走了，想吃自己盛一碗」，旁邊還放著一盒供人取用的備用忍具。');
     expect(eventById['grindstone']!.title).toBe('磨利我的刀');
   });

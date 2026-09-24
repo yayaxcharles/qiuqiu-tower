@@ -434,7 +434,7 @@ registerScreen('lobby', (app, root) => {
     if (st.step === 'connected') {
       box.append(
         el('p', { class: 'lobby-ok' }, '連上了！'),
-        el('p', { class: 'lobby-note' }, '正在開一局兩個人的…'));
+        el('p', { class: 'lobby-note' }, '正在開一局兩個人的遊戲…'));
     }
 
     if (st.step === 'failed') {

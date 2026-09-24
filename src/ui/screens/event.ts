@@ -141,7 +141,7 @@ function gainRows(gains: readonly RunGain[], owned: readonly string[]): HTMLElem
     const url = artUrl('icons', d.art);
     // 帶滿收不下的忍具要寫清楚（不然看起來像拿到了）；問過之後照 `asked` 畫（換成了／放棄了），重畫也不會變回「收不下」
     const label = g.asked === 'swapped' ? `換成了「${d.name}」`
-      : g.asked === 'declined' ? `沒有換，「${d.name}」放棄了`
+      : g.asked === 'declined' ? `沒有換，放棄了「${d.name}」`
       : g.missed ? `忍具帶滿了，「${d.name}」收不下` : `拿到${g.kind}「${d.name}」`;
     box.append(el('div', { class: `reward-item ${g.kind === '秘寶' ? 'relic' : 'potion'}${g.missed && !g.asked ? ' missed' : ''}`, 'data-gain': g.id },
       url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
@@ -405,7 +405,7 @@ registerScreen('event', (app, root, props) => {
           play('relic'); root.querySelector('.hud')?.remove(); renderHud(app, root);   // 先拆舊的，不然疊兩條
           if (row && d) { row.classList.remove('missed'); row.querySelector('b')!.textContent = `換成了「${d.name}」`; }
         } else if (row && d) {
-          row.classList.remove('missed'); row.querySelector('b')!.textContent = `沒有換，「${d.name}」放棄了`;
+          row.classList.remove('missed'); row.querySelector('b')!.textContent = `沒有換，放棄了「${d.name}」`;
         }
         askNext(i + 1);
       }, missed.length > 1 ? { progress: `第 ${i + 1}／${missed.length} 支`, seat, apply: false } : { seat, apply: false });

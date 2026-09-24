@@ -24,7 +24,7 @@ describe('換忍具問到哪一步', () => {
     expect(missedPotionLabel(undefined, '煙霧彈')).toBe('忍具帶滿了，「煙霧彈」收不下');
     expect(missedPotionLabel('asking', '煙霧彈')).toBe('忍具帶滿了，「煙霧彈」收不下');
     expect(missedPotionLabel('swapped', '煙霧彈')).toBe('換成了「煙霧彈」');
-    expect(missedPotionLabel('declined', '煙霧彈')).toBe('沒有換，「煙霧彈」放棄了');
+    expect(missedPotionLabel('declined', '煙霧彈')).toBe('沒有換，放棄了「煙霧彈」');
   });
 
   it('戰利品頁：開視窗前先記 asking、計時器到了再查一次記號', () => {

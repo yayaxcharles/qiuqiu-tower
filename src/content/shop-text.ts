@@ -102,7 +102,7 @@ export const KEEPER_TEXT: Readonly<Record<GuestKeeper, KeeperLines>> = {
     byHero: {
       ninja: {
         enter: ['哎呀，小忍者，招式太多背不動了吧？放一兩招在我這兒。', '我才背得動喵！……不過有兩招真的很難用喵。'],
-        leave: '阿福叔，我放你這的招式，別賣給壞貓喵。',
+        leave: '阿福叔，我放在你這裡的招式，別賣給壞貓喵。',
         tooMuch: ['買這麼多，你那包袱還闔得上嗎？', '用尾巴壓一壓就闔上了喵。'],
       },
       feifei: {

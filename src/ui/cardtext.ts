@@ -159,7 +159,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
         + (fx.ignoreBlock ? '，無視蜷縮' : '');
     }
     case 'blockSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipient === 'ally' ? '同伴' : '自己'}獲得 ${fx.amount} 點蜷縮，每點蓄氣多 ${fx.perQi} 點`;
-    case 'nextAttackBonusSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipients === 'ally' ? '同伴' : '雙方'}本回合下一張攻擊首段首目標多 ${fx.amount} 點傷害，每點蓄氣再多 ${fx.perQi} 點（取高不疊加）`;
+    case 'nextAttackBonusSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipients === 'ally' ? '同伴' : '雙方'}本回合下一張攻擊牌的首段首目標多 ${fx.amount} 點傷害，每點蓄氣再多 ${fx.perQi} 點（取高不疊加）`;
     // 門檻是「至少」（引擎 `>=`），條件成立才跑的那段接「再」——跟噹噹的 `ifBlock` 同一套（2026-09-23 稽核 引擎 低-3）：
     // 原本印「獲得 8 點蜷縮，出牌前有 3 點蓄氣的話，獲得 3 點蜷縮」，像同一份拿兩次，「有 3 點」也會被讀成剛好 3 點。
     // 借我擋一下（`ifAllyBlockAtPlay`）是同一型句子，一起補「再」
@@ -270,7 +270,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       return `自己身上有${fx.name}的話，${then}` + (other ? `；否則${other}` : '');
     }
     case 'energyAlly': return fx.onKill
-      ? `打倒牠，同伴就這回合多 ${fx.n} 顆飯糰`   // 審查 2026-09-15 高-1：原本沒寫條件，9 點打不死玩家以為牌壞了
+      ? `打倒牠，同伴這回合就多 ${fx.n} 顆飯糰`   // 審查 2026-09-15 高-1：原本沒寫條件，9 點打不死玩家以為牌壞了
       : `同伴這回合多 ${fx.n} 顆飯糰`;
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）

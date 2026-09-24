@@ -73,7 +73,7 @@ export const BLESS_OPENING: Readonly<Record<Hero, { narration: string; line: str
 const TAKE_LINE: Readonly<Record<Hero, Readonly<Record<BlessClass, string>>>> = {
   ninja: { 安全: '先拿實在的，路還很長喵。', 換牌: '師父說招式不用多，要練熟喵。', 代價: '好東西都有代價，師父說的喵。', 賭運氣: '閉著眼睛拿，拿到什麼都算我的喵！' },
   feifei: { 安全: '這個……師父應該不會生氣吧。', 換牌: '師父以前也這樣教我……先把手上的練好。', 代價: '會、會痛也沒關係……我要變強。', 賭運氣: '不、不要是奇怪的東西……' },
-  dangdang: { 安全: '這個用得上。', 換牌: '工具不用多，要順手。', 代價: '代價我看清楚了。拿。', 賭運氣: '看不到裡面，就摸摸看。' },
+  dangdang: { 安全: '這個用得上。', 換牌: '工具不用多，要順手。', 代價: '代價我看清楚了。就拿這個。', 賭運氣: '看不到裡面，就摸摸看。' },
   fengfeng: { 安全: '走遠路，帶這個最穩。', 換牌: '行李輕一點，路才走得快。', 代價: '這筆帳，我記下了。', 賭運氣: '沒得挑的貨，也得收。' },
 };
 
@@ -83,7 +83,7 @@ const SPECIAL_LINE: Readonly<Record<string, Readonly<Record<Hero, string>>>> = {
     ninja: '先寄放在師父這裡，見面再拿回來喵。',
     feifei: '毒針袋……先放在這裡。師父，您幫我顧著。',
     dangdang: '換。我自己的東西，回去還能再打一對。',
-    fengfeng: '劍穗先押在這裡。回來再取。',
+    fengfeng: '劍穗先押在這裡。回來再拿。',
   },
   bless_bracer: {
     ninja: '師父的護腕……上面的紫氣好冰喵。我一定會把它洗乾淨喵。',

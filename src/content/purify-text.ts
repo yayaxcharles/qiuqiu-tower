@@ -20,4 +20,4 @@ export function purifyLine(hero: string | undefined): string {
 }
 /** 玳瑁婆婆的按鈕（價錢由呼叫端帶 `PURIFY_PRICE`）與婆婆那一句 */
 export function tortoisePurifyLabel(price: number): string { return `請婆婆淨化：${price} 條小魚乾`; }
-export const TORTOISE_PURIFY_LINE = '拿來。那個大個子比這還髒的東西，婆婆都擦過。';
+export const TORTOISE_PURIFY_LINE = '拿來。那個大個子的東西比這還髒，婆婆都擦過。';

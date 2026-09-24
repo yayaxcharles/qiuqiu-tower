@@ -182,7 +182,7 @@ registerScreen('actclear', (app, root, props) => {
       art: el('div', { class: 'scene-picks' },
         picks.length ? el('div', { class: 'pick-label' }, '挑一件秘寶') : '',
         picks.length ? relicRow : '',
-        cardPicks.length ? el('div', { class: 'pick-label' }, '挑一張牌（可不挑）') : '',
+        cardPicks.length ? el('div', { class: 'pick-label' }, '挑一張牌（也可以不挑）') : '',
         cardPicks.length ? cardRow : ''),
       // 文案 2026-09-11 改（使用者）：「破關」像在講整個遊戲通關，但這只是過了一關；
       // 「通過」才是「爬過這一段、還要繼續往上」的意思

@@ -87,7 +87,7 @@ export const enemies: EnemyDef[] = [
   // 招式走堂堂正正的劍客路線：起手亮劍（蓄力）、正面重斬，跟忍者的隱身流分開。
   // 2026-09-04 使用者：「白貓超弱、血少攻低技能爛」→ 血量與招式全面加重，並帶一個陪練的同伴
   { id: 'white_duelist', name: '切磋的白貓', hp: [66, 72], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_white_duelist',
-    line: '打一場。全力來。', lines: ['點到為止？不，全力。', '讓我看看你有幾分本事。'],   // 原本「讓我看看你的爪子」，菲菲不亮爪（總稽核 C 中-3）；開場台詞進的是戰報，沒過 castLineFor，改成兩位都通的
+    line: '打一場。拿出全力來。', lines: ['點到為止？不，全力。', '讓我看看你有幾分本事。'],   // 原本「讓我看看你的爪子」，菲菲不亮爪（總稽核 C 中-3）；開場台詞進的是戰報，沒過 castLineFor，改成兩位都通的
     moves: [
       { intent: 'special', label: '亮劍', effects: [{ kind: 'chargeNext' }] },
       { intent: 'attack', label: '正面斬', effects: [{ kind: 'damage', amount: 13 }] },
@@ -1103,7 +1103,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 小鬼：跟鬼將同一組（reviveGroup 'imps'），鬼將還站著就會爬起來。要三隻同一回合一起清光
   { id: 'imp', name: '小鬼', hp: [12, 12], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_imp',
-    line: '（躲在鬼將腳邊，探出半顆頭）', lines: ['（呲牙笑了一下）', '（拿著一根小木棒）'],
+    line: '（躲在鬼將腳邊，探出半顆頭）', lines: ['（齜牙笑了一下）', '（拿著一根小木棒）'],
     reviveGroup: 'imps', reviveHp: 8,
     moves: [
       { intent: 'attack', label: '戳', effects: [{ kind: 'damage', amount: 6 }] },
@@ -1207,7 +1207,7 @@ export const enemies: EnemyDef[] = [
   { id: 'wraith_samurai', name: '怨靈武者', hp: [80, 86], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_wraith_samurai',
     thorns: 3,   // 碰牠會被反彈。原本還有 `fadeAfter: 6`（六回合打不死就散去），
     // 2026-09-11 一併拿掉——使用者：「除了偷小魚乾的外，其他的怪都別逃跑」
-    line: '（刀還握著，握刀的手卻看得見後面的牆）', lines: ['……回去。', '（走過的地方留著一層淡淡的殘影）'], moves: [
+    line: '（刀還握著，卻能透過握刀的手看見後面的牆）', lines: ['……回去。', '（走過的地方留著一層淡淡的殘影）'], moves: [
       { intent: 'attack', label: '怨斬', effects: [{ kind: 'damage', amount: 16 }] },
       // 翻肚 1→2（稽核 2026-09-10 中-2）：玩家身上的減益在**魔物出手之前**就先減一層（combat.ts 的 freshDebuffs 那段），
       // 所以給 1 層的翻肚到牠下一次出手前就歸零、等於整個效果作廢。給 2 層的其他七招都正常，只有這招與波斯大小姐的尖叫中招。
