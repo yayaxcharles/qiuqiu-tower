@@ -127,17 +127,25 @@
      跟旁邊高瘦的站不到同一條線上——看起來全部飄在半空。 */
   object-position: center bottom;
   transform-origin: center bottom;
-  object-position: center bottom;
   /* 待機動作改成「呼吸」不是「上下飄」。原本用 idle-bob 整隻上下平移，
      角色會離開地面，跟接地陰影一起看更假；改成以腳底為原點的微幅縮放。 */
-  animation: idle-breathe 2.6s ease-in-out infinite;
+  animation: idle-breathe 6.2s ease-in-out infinite;
 }
 /* 主角的框開寬一點：新立繪的畫布是 758×817（含最寬的出招姿勢），
    用 240 寬會以寬度為準縮小，上面白留一截；270 才把高度吃滿。 */
 .combat .unit.player .sprite { width: 270px; height: 300px; }
+/* 封封狀態圖的透明底邊不等高；補到同一腳底線，不拉伸身體或覆寫呼吸／受擊。
+   2026-09-23：翻肚、中毒、懶洋洋、炸毛、隱身、鐵布衫、挨打、掛彩、氣勢換成從新版逐格動作裁的圖
+   （tools/pack_static_from_motion.py），底邊一律貼畫布底，那幾條位移拿掉；剩下這四張是 09-22 換的，底邊照舊圖。 */
+.combat .unit.player .sprite[src*="/fengfeng_dizzy_clean"] { translate: 0 13.5px; }
+.combat .unit.player .sprite[src*="/fengfeng_down"] { translate: 0 77.625px; }
+.combat .unit.player .sprite[src*="/fengfeng_idle"] { translate: 0 13.0179px; }
+.combat .unit.player .sprite[src*="/fengfeng_lose"] { translate: 0 12.5357px; }
 .combat .unit.size-small .sprite { width: 130px; height: 150px; }
 .combat .unit.size-medium .sprite { width: 180px; height: 210px; }
 .combat .unit.size-large .sprite { width: 230px; height: 280px; }
+/* 赤鬼受擊原圖朝右；獨立 scale 保留受擊動畫的 transform，不讓紅閃／震動蓋掉朝向。 */
+.combat .unit.enemy .sprite:is([src*="/monsters/red_oni_hurt.webp"], [src*="/monsters/red_oni_hurt-"]) { scale: -1 1; }
 /* 犰狳寶寶：橫躺的方圖，小框顯得扁、中框又太高，單獨給 150×150（跟 combat.ts 的 SPRITE_BOX.pup 一致） */
 .combat .unit.enemy[data-id="armadillo_pup"] .sprite { width: 150px; height: 150px; }
 /* 鏡中球球：跟主角一樣高（combat.ts 的 SPRITE_BOX.mirror 一致；使用者 2026-09-08「大小應該跟主角球球同大小」）。
@@ -229,6 +237,24 @@
   transition: width .38s ease-out;
 }
 .combat .hpbar span { position: relative; text-shadow: 0 1px 1px #000; }
+/*
+ * 瞄準時先標出這一下會打掉的那段（使用者 2026-09-24 晚：「7 是紅色（跟現在一樣），5 是紫色或藍色」）。
+ * 疊在紅色血條上、從「打完剩下」蓋到「現在」；斜紋＋輕輕一明一暗，一眼分得出是「還沒扣、快要扣」的那段。
+ * 數字裡的 +5 也用同一個紫（`b.hp-loss`）。見 combat.ts 的 `damagePreview`
+ */
+.combat .hpbar-preview {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: repeating-linear-gradient(135deg, #a77bff 0 5px, #7c4dff 5px 10px);
+  box-shadow: inset 0 0 0 1px #ffffff59;
+  animation: hp-preview 0.8s ease-in-out infinite alternate;
+}
+@keyframes hp-preview { from { opacity: .7; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .combat .hpbar-preview { animation: none; } }
+.combat .hpbar b.hp-loss { color: #d9c4ff; }
+/* 隨機可能多扣的那段（醉拳 4～14）：同一個紫、淡一半，看得出「最少這麼多、最多到這裡」 */
+.combat .hpbar-preview.maybe { opacity: .5; animation: none; }
 
 /* 狀態與蜷縮的小牌子 */
 .combat .chips {
@@ -239,6 +265,18 @@
   margin-top: 3px;
   min-height: 24px;   /* 佔住高度，有沒有狀態版面都一樣 */
 }
+/*
+ * 牌子折成好幾排時，立繪不被往上頂（使用者 2026-09-25：「角色會突然往上移，變成不是站在地上……腳離地」）。
+ * 角色格是貼著戰場底邊往上疊的，牌子列每多一排，整格就高一排、立繪跟著浮起來 26 像素。
+ * `--chips-lift` 是牌子列比一排多出來的高度（combat.ts 的 `chipLift` 量了寫上去，見 `src/ui/chiplift.ts`），
+ * 立繪框用等量的負下邊距吃掉：整格高度不變，立繪框不動；名字、血條、牌子整塊往上長、蓋在腳上。
+ * 不往下溢出：戰場下緣緊貼手牌與飯糰列，那幾層疊在戰場上面，溢出去的牌子會被壓住看不到（魔物那排整排被手牌蓋掉，實測）。
+ */
+.combat .unit > .sprite-box { margin-bottom: calc(-1 * var(--chips-lift, 0px)); }
+/* 往上長的那塊要畫在立繪上面：逐格動作的畫布是 z-index 1（qiuqiu／companion／enemy-motion.css），
+   沒墊高的話名字會被噹噹、封封的白腳掌蓋掉（實測）；折到三排時血條也會被腳蓋住。
+   2 就夠：傷害數字（6）、特效（5）、照著學的牌（6）、「已結束回合」（7）照樣在它上面 */
+.combat .unit > :is(.name, .hpbar, .chips) { position: relative; z-index: 2; }
 /* 狀態牌子本來是半透明黑底。但九個狀態圖示裡有四個本身就是深色
    （隱身最暗、其次爪力、定身、懶洋洋），深色圖畫在黑底上等於看不見——
    隱身那顆整個糊成一塊深藍。改成淺色牌子＋深色字，每個圖示都讀得出來。 */
@@ -261,6 +299,10 @@
 .combat .chip.good { background: linear-gradient(#e9f7e1, #c6e7b8); }
 .combat .chip.bad { background: linear-gradient(#fce3e0, #f2c4bf); }
 .combat .chip.block { background: linear-gradient(#6ba6e2, #2e6db4); color: #fff; }
+/* 下回合才生效的（下回合隱身、下回合蜷縮）：淡一點、虛線框，跟這回合就擋得住的分得開（使用者 2026-09-24 深夜：影忍頭帶看起來有隱身卻一直被打） */
+/* 點線不用虛線：虛線（dashed）已經是能力牌牌子的記號（`.chip.power`），同一排不要一種線兩個意思（推前稽核 低-2） */
+.combat .chip.later { opacity: .7; border-style: dotted; }
+.combat .chip.later img { filter: grayscale(.7); }
 /* 自己的狀態要比魔物的更好認：牌子大一點、圖示大一點 */
 .combat .unit.player .chip { padding: 2px 7px; font-size: 13px; }
 .combat .unit.player .chip img { width: 19px; height: 19px; }
@@ -345,10 +387,6 @@
   background: linear-gradient(#e06a5c, #b8342a);
   border-image-source: var(--ui-intent-attack);
   animation: intent-throb 1.15s ease-in-out infinite;
-}
-@keyframes intent-throb {
-  0%, 100% { scale: 1; box-shadow: 0 0 0 0 #ff6a6a00; }
-  50% { scale: 1.07; box-shadow: 0 0 0 3px #ff6a6a3d; }
 }
 /* 七種意圖各一塊生出來的木牌。用 `border-image` 九宮格：兩端固定、中間橫向拉伸，
    配合「攻 4」到「叫幫手」不同長度的字。木紋本來就是橫的（生圖時就照這個要求畫），
@@ -488,7 +526,8 @@
   0%, 100% { translate: 0 0; rotate: 0deg; }
   50% { translate: 0 -3px; rotate: .4deg; }
 }
-.combat .hand .card:hover {
+/* 重畫後正從舊位置滑過來的那張（`.sliding`，combat.ts 的 slideHand，180 毫秒）先不抬：這條的 !important 會蓋掉補間、一格跳到終點 */
+.combat .hand .card:not(.sliding):hover {
   transform: translateY(-46px) scale(1.06) !important;
   z-index: 50 !important;
 }
@@ -573,11 +612,13 @@
  * 同時浮著兩句吐槽時把第二句往下挪：吐槽都貼在 top: 60px（共用的 base.css），
  * 塔主進第二階段那兩句、餓扁與生命過低同時觸發時都會疊成一團。
  */
-#stage[data-screen="combat"] .toast ~ .toast { top: 116px; }
+/* 魔物頭上的泡泡（`.bubble-at`，位置寫在行內）不算一格（2026-09-22 晚）：關主換階段那句改從牠頭上冒之後，
+   接著講的貓那句會被它推到第二格、壓在自己頭上 */
+#stage[data-screen="combat"] .toast:not(.bubble-at) ~ .toast:not(.bubble-at) { top: 116px; }
 /* 教學條（.tut-bar）跟吐槽都貼在畫面頂端同一個位置（60／64px），第一場戰鬥的
    「餓扁了」吐槽會整個壓在教學字上（2026-09-02 實玩截圖）。教學條還在時把吐槽往下推一格。 */
 #stage[data-screen="combat"]:has(.tut-bar) .toast { top: 118px; }
-#stage[data-screen="combat"]:has(.tut-bar) .toast ~ .toast { top: 174px; }
+#stage[data-screen="combat"]:has(.tut-bar) .toast:not(.bubble-at) ~ .toast:not(.bubble-at) { top: 174px; }
 
 /* 待選牌視窗底部的計數 */
 .pick-count {
@@ -608,8 +649,8 @@
  * 戰鬥中的生命與忍具以戰鬥狀態（cs）為準，整局狀態（run）要等這場打完才寫回，
  * 所以狀態列那兩格在戰鬥中一定是舊值——藏起來，改由球球腳下的生命條與左下的忍具格顯示。
  */
-#stage[data-screen="combat"] .hud-hp,
-#stage[data-screen="combat"] .hud-potions { display: none; }
+:is(#stage, .screen-leaving)[data-screen="combat"] .hud-hp,
+:is(#stage, .screen-leaving)[data-screen="combat"] .hud-potions { display: none; }
 
 /* 立繪與腳下的接地陰影 */
 .combat .sprite-box { position: relative; }
@@ -679,21 +720,15 @@
 /* 打不出來的牌左右抖一下 */
 .combat .hand .card.nope { animation: card-nope .34s ease-out; }
 @keyframes card-nope {
-  0%, 100% { margin-left: var(--nope-m, 0); }
+  0%, 100% { margin-left: 0; }
   20% { transform: translateX(-9px) rotate(-2deg); }
   45% { transform: translateX(8px) rotate(2deg); }
   70% { transform: translateX(-4px); }
 }
-/* 待機：原本 scaleY 只放大 2.2%，量過等於看不見——畫面靜止時整個戰鬥場只有這一個動畫在跑，
-   跑了等於沒跑。加大到 5%，並配一點左右晃與極輕的傾斜，看起來才像活的。
-   原點在腳底（`transform-origin: center bottom`），所以放再大腳都黏在地上，
-   不會變回以前那種「浮在空中上上下下」。
-   週期用 2.6 秒不是 3.4：太慢會像慢動作，這個長度接近人真的呼吸。 */
+/* 待機持續緩慢呼吸，不插入靜止停頓；腳底不移動，也不左右搖擺。 */
 @keyframes idle-breathe {
-  0%, 100% { transform: scaleY(1) scaleX(1) rotate(0deg); }
-  28% { transform: scaleY(1.035) scaleX(.988) rotate(-.5deg); }
-  50% { transform: scaleY(1.05) scaleX(.982) rotate(0deg); }
-  76% { transform: scaleY(1.028) scaleX(.99) rotate(.5deg); }
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.025); }
 }
 /* 0.4 秒拉到 0.52：預備動作只佔前 12%，在 0.4 秒裡等於 48 毫秒，快到看不出來。
    拉長之後那一縮才讀得到（姿勢會停 650 毫秒，塞得下）。 */
@@ -725,6 +760,24 @@
 .combat .unit.hit .sprite {
   animation: shake .4s;
   filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg);
+}
+/* 新版角色畫布保留受擊紅閃與遞減抖動；獨立位移不覆寫腳底定位與呼吸縮放。
+   魔物的逐格畫布 `.enemy-motion` 也要算進來：`enemy-motion.css` 把底下的 `.sprite` 藏了，
+   漏掉這個選擇器，老鼠與黑忍者被打到就完全沒有受擊回饋（稽核 2026-09-21 第 5 點）。 */
+.combat .unit.hit :is(.qiuqiu-motion, .companion-motion, .enemy-motion) {
+  animation: motion-hit-flash .5s ease-out, motion-hit-shake .4s;
+}
+@keyframes motion-hit-flash {
+  0%, 35% { filter: brightness(1.5) sepia(1) saturate(6) hue-rotate(-35deg); }
+  100% { filter: none; }
+}
+@keyframes motion-hit-shake {
+  0%, 100% { translate: 0; }
+  14% { translate: -13px; }
+  32% { translate: 11px; }
+  50% { translate: -7px; }
+  68% { translate: 5px; }
+  84% { translate: -2px; }
 }
 /* 出招那一拍同時掉血（噎到結算、球球的反彈都在同一步扣血）：紅閃要看得見。
    `cast-pop` 的關鍵影格自己寫了 `filter`，而**動畫算出的值蓋過所有一般宣告、不看優先序**，
@@ -1010,10 +1063,10 @@
  * **掛在 .sprite 不掛 .sprite-box**：動畫算出來的值會蓋過所有一般宣告，掛在框上會把階段紅／紫光暈
  * 跟拖曳目標的紅框一起蓋掉（稽核 2026-09-08 低 1）。掛在圖上就是疊在階段光暈上面；
  * 調息中他無敵，挨打閃紅（也動 .sprite 的 filter）不會發生，不衝突。
- * 呼吸動畫（idle-breathe，關主版 4.4 秒）要一起列出來，不然這條 animation 會把它換掉、他就僵住了。
+ * 呼吸動畫（idle-breathe，6.2 秒）要一起列出來，不然這條 animation 會把它換掉、他就僵住了。
  */
 .combat .unit.enemy.master.secluding .sprite {
-  animation: idle-breathe 4.4s ease-in-out infinite, seclude-glow 1.6s ease-in-out infinite;
+  animation: idle-breathe 6.2s ease-in-out infinite, seclude-glow 1.6s ease-in-out infinite;
 }
 @keyframes seclude-glow {
   0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 200, 90, .55)) brightness(1); }
@@ -1063,8 +1116,47 @@
 .combat .i-special, .combat .i-summon { background: linear-gradient(#b8761ae8, #6d4408f2); }
 .combat .i-idle { background: linear-gradient(#6f685ce8, #3f3a33f2); box-shadow: 0 3px 8px #00000080, inset 0 1px 0 #ffffff14; }
 @keyframes intent-throb {
-  0%, 100% { scale: 1; box-shadow: 0 3px 8px #00000080, 0 0 0 0 #ff6a6a00; }
-  50% { scale: 1.07; box-shadow: 0 3px 8px #00000080, 0 0 0 3px #ff6a6a3d; }
+  0%, 100% { scale: 1; }
+  50% { scale: 1.07; }
+}
+/*
+ * 攻擊牌子抽動時外圍那圈紅光（清理 2026-09-22）：以前 `intent-throb` 直接動牌子的 box-shadow，每一格都要重畫；
+ * 改成掛在偽元素上只動 opacity，交給合成器。
+ *
+ * 要看起來跟以前一樣，有三件事：
+ * 1. 以前動畫的 box-shadow 整段蓋掉牌子自己的（動畫的值排在一般樣式前面），所以攻擊牌子一直沒有內側那道亮邊、
+ *    出招預告的暖光也沒亮過——牌子本身的 box-shadow 照舊拿掉。
+ * 2. 以前那串是「落影, 紅光」，排前面的疊在上面＝落影壓在紅光上。兩個都搬到偽元素，落影掛在後畫的 ::after，疊法才一樣。
+ * 3. 光圈要跟牌子外框一樣大：偽元素的 inset 對的是框線內側，往外補回框線寬（上面那條的 1.5px），圓角照牌子的 9px。
+ */
+.combat .intent[class*='i-'].i-attack,
+.combat .unit.enemy.telegraph .intent.i-attack { box-shadow: none; }
+.combat .i-attack::before,
+.combat .i-attack::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 9px;
+  pointer-events: none;
+}
+.combat .i-attack::before {
+  box-shadow: 0 0 0 3px #ff6a6a3d;
+  opacity: 0;
+  animation: intent-glow 1.15s ease-in-out infinite;
+}
+.combat .i-attack::after { box-shadow: 0 3px 8px #00000080; }
+/* 出招預告的暖光補回攻擊牌子（2026-09-23 polish 第 5 條）：2026-09-04 的設計是「牌子放大加暖光」，
+   攻擊牌子的暖光先被 intent-throb 的 box-shadow 蓋掉、09-22 清理又照舊拿掉，關主與菁英最常出的攻擊預告反而從來沒亮過。
+   光圈照上一段掛在 ::before：預告那 0.32 秒把紅色抽動換成暖光、亮著不閃，跟其他意圖牌子同一組數值，不另外加大 */
+.combat .unit.enemy.telegraph .intent.i-attack::before {
+  box-shadow: 0 0 14px 3px #ffd97a, 0 0 26px #ffb84a80;
+  opacity: 1;
+  animation: none;
+  transition: opacity .16s ease-out;
+}
+@keyframes intent-glow {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 /* 戰鬥裡球球的吐槽改成對話泡泡（使用者 2026-09-02：「球球戰鬥時會出現在畫面正中央講話，可以用對話泡泡的感覺」）：
@@ -1099,8 +1191,9 @@
 
 /* 掛在魔物頭上的泡泡：位置由行內樣式（right／top）決定，尾巴在右下角指向頭 */
 #stage[data-screen="combat"] .toast.bubble-at { left: auto; }
-#stage[data-screen="combat"] .toast.bubble-at.tail-right::before { left: auto; right: 22px; }
-#stage[data-screen="combat"] .toast.bubble-at.tail-right::after { left: auto; right: 25px; }
+/* 尾巴在右下角：魔物頭上的泡泡，以及連線時右邊那一格講話（2026-09-22 晚，泡泡往左長、不蓋到魔物） */
+#stage[data-screen="combat"] .toast.tail-right::before { left: auto; right: 22px; }
+#stage[data-screen="combat"] .toast.tail-right::after { left: auto; right: 25px; }
 /* 左上角的戰鬥紀錄稍微顯眼一點：字大半號、不透明、底下墊一層淡淡的暗色（亮牆上也讀得到） */
 .combat .log { font-size: 13.5px; opacity: 1; padding: 6px 10px 6px 8px; border-radius: 8px; background: linear-gradient(90deg, #00000073, #00000000); width: 300px; }
 
@@ -1127,8 +1220,7 @@
 .combat .chip.power { border-style: dashed; }
 
 /* ===== 關主專屬的待機與收尾（使用者 2026-09-04：只做關主，小怪不用） ===== */
-/* 關主呼吸慢一拍：體型大、氣場穩 */
-.combat .unit.enemy.boss .sprite { animation-duration: 4.4s; }
+/* 關主沿用共同的緩慢呼吸，不覆寫出招與受擊動畫的時長。 */
 /* 睡著的關主（沉睡的龍貓）頭上冒 Zzz */
 .combat .unit.enemy.boss.asleep .sprite-box::after {
   content: 'Zzz';
@@ -1206,6 +1298,14 @@
  * 用 `display: none` 不是 `opacity`：牠已經死了，那塊空間也不必留著。
  */
 .combat .unit.enemy.downed .intent { display: none; }
+/*
+ * 一般魔物化成煙那一下（2026-09-22 晚，畫面盤點低-14）：原本只有整隻一起淡出，煙上面還浮著「攻 7」、名字、
+ * 血條與最後那下的數字約 0.8 秒。跟大魔物、關主一樣收起來：意圖牌當場拿掉，名字、血條、狀態牌 0.3 秒淡掉；
+ * 打死那一下的數字照樣蹦出來（看得到打了多少），但飄得快一倍、跟著煙一起散，不在煙上掛著。
+ */
+.combat .unit.enemy.dead:not(.downed) .intent { display: none; }
+.combat .unit.enemy.dead:not(.downed) :is(.name, .chips, .hpbar) { opacity: 0; transition: opacity .3s; }
+.combat .unit.enemy.dead:not(.downed) .num { animation-duration: .55s; }
 @keyframes down-shadow {
   0%, 70% { opacity: .45; }
   100% { opacity: 0; }
@@ -1278,7 +1378,12 @@
 .combat .unit.player:not(.mine) .name { opacity: .78; }
 /* 舉手了就整格壓暗一點：一眼看得出「他在等我」 */
 .combat .unit.player.ready { filter: saturate(.65) brightness(.82); }
-.combat .unit.player.downed { filter: saturate(.25) brightness(.6); }
+/* 倒下的那一格（2026-09-22 晚，連線盤點問題 7）：原本整格 saturate(.25) brightness(.6)，封封的橘色洗成灰、
+   菲菲變成一團黑影，躺在地上認不出是誰。改成留住原色：只把身體稍微壓暗、半透明，
+   名字、血條、「倒下了」牌子照原色（倒下時若同時掛著舉手的 .ready，也不跟著整格變灰） */
+.combat .unit.player.downed { filter: none; }
+.combat .unit.player.downed .sprite-box { filter: brightness(.85); opacity: .72; }
+.combat .unit.player.downed .ready-tag { filter: none; }
 .combat .ready-tag {
   position: absolute;
   left: 50%; top: -6px;
@@ -1298,17 +1403,19 @@
 }
 .combat .ready-tag.down { background: #3a1414dd; border-color: #ff9b9b55; }
 
-/* 同伴剛打出的牌（使用者 2026-09-15：「完全不知道隊友做了什麼」）：縮小、半透明掛在他頭上，
-   下一張打出來就換掉、換回合消失。不吃滑鼠，不擋意圖牌與「已結束回合」的牌子（那個貼在頭頂，這個再往上疊） */
+/* 同伴剛打出的牌（使用者 2026-09-15：「完全不知道隊友做了什麼」）：縮小、半透明掛在他旁邊，
+   下一張打出來就換掉、換回合消失、分出勝負就收（combat.ts 的 playerUnit）。不吃滑鼠，不擋意圖牌與「已結束回合」的牌子。
+   位置 2026-09-22 晚改（連線盤點問題 8）：原本疊在頭頂正中（top -24px），蓋住耳朵與頭巾；
+   改掛在他臉前方、頭的右上角外側（四隻貓都面向右，這一側是空的；往上掛會頂進狀態列、被蓋掉） */
 .combat .unit.player .mate-play {
   position: absolute;
-  left: 50%; top: -24px;   /* 疊在頭頂那一帶：掛到框外會頂進狀態列、被蓋掉（實測） */
-  translate: -50% 0;
-  transform: scale(.6);
+  right: -80px; top: -10px;
+  transform: scale(.5);
   transform-origin: center top;
   opacity: .65;
   pointer-events: none;
   z-index: 6;
+  transition: opacity .2s ease-out;   /* 泡泡收掉後淡回來（見下面「讓位」那條） */
 }
 .combat .unit.player .mate-play.in { animation: mate-play-in .22s ease-out; }   /* 只有新的一張才淡入 */
 /* 同伴點選還沒打的那張（使用者 2026-09-15：像 Spire 2 那樣看得到隊友想打哪張）：更淡、虛線框、標「考慮中」 */
@@ -1319,6 +1426,16 @@
   font-size: 24px; font-weight: 700; color: #ffd97a; text-shadow: 0 1px 2px #000, 0 0 6px #000; white-space: nowrap;
 }
 @keyframes mate-play-in {
-  from { opacity: 0; translate: -50% 12px; }
-  to { opacity: .65; translate: -50% 0; }
+  from { opacity: 0; translate: 0 12px; }
+  to { opacity: .65; translate: 0 0; }
+}
+/* 台詞泡泡在畫面上的時候，同伴頭上的牌先退到後面（2026-09-23 polish 第 6 條，複驗 09-22 新發現 1）：
+   牌掛在頭的右上外側（y 93～200），泡泡也在頭上那一條（y 62～220），兩邊實機量到都會疊——
+   加入方講話時泡泡從自己頭上往左長、正好蓋到開房方那張牌（重疊 3285 平方像素）；開房方講 12 字以上往右長，也碰到加入方那張。
+   頭上那一條以下是兩隻貓的頭、魔物與側欄，找不到四種角色、兩個座位、一到五隻魔物都不撞的固定位置，
+   所以讓牌讓位：泡泡最多留 3.2 秒，收掉牌就淡回來；魔物頭上的泡泡（.bubble-at）不在這一條，不算 */
+#stage[data-screen="combat"]:has(#overlay .toast:not(.out):not(.bubble-at)) .combat .unit.player .mate-play {
+  opacity: .1;
+  animation: none;
+  transition: opacity .2s ease-out;
 }

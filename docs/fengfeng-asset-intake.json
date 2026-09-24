@@ -1,0 +1,4297 @@
+{
+  "schema": 1,
+  "processor_version": 2,
+  "source_root": "docs/第四隻角色_封封_提案",
+  "ready": {
+    "roles": {
+      "count": 36,
+      "breakdown": {
+        "poses": 35,
+        "cover": 1
+      },
+      "items": [
+        {
+          "key": "hero/fengfeng_attack",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_attack.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_attack.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.881119,
+            "visible_bbox": [
+              21,
+              156,
+              540,
+              403
+            ],
+            "sha256": "6b30c30e794f46f282fc293b7df014e3442a499f76782372ad93c9febcb9de7b",
+            "bytes": 31706
+          }
+        },
+        {
+          "key": "hero/fengfeng_belly",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_belly.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_belly.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.666846,
+            "visible_bbox": [
+              39,
+              97,
+              520,
+              534
+            ],
+            "sha256": "0a1b6ba6111926af1a829a099a1d14cc5b61e1b566f89d7f2fb3ab36519f3b83",
+            "bytes": 41702
+          }
+        },
+        {
+          "key": "hero/fengfeng_choke",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_choke.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_choke.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.632427,
+            "visible_bbox": [
+              91,
+              26,
+              466,
+              540
+            ],
+            "sha256": "a3be2fabc441e5dfd46a225b6520efff7a4f2da8d326a928c390b5ba5fe6e43d",
+            "bytes": 46954
+          }
+        },
+        {
+          "key": "hero/fengfeng_claw",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_claw.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_claw.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.795462,
+            "visible_bbox": [
+              27,
+              93,
+              533,
+              471
+            ],
+            "sha256": "f38acf4b238536627f7ba9cd067ccfac26e7a9d0370b6de8e903c9dffae1309e",
+            "bytes": 36200
+          }
+        },
+        {
+          "key": "hero/fengfeng_curl",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_curl.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_curl.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.537599,
+            "visible_bbox": [
+              65,
+              29,
+              493,
+              540
+            ],
+            "sha256": "96c3c1b53979860658f94c437b17953fe82f526f8a563eb0762a6eaefc7fabee",
+            "bytes": 47002
+          }
+        },
+        {
+          "key": "hero/fengfeng_dash",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_dash.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_dash.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.736983,
+            "visible_bbox": [
+              27,
+              82,
+              532,
+              483
+            ],
+            "sha256": "e09f218b101f1d641aac801df31b2f7f462659d0b88d67979cc66d7a97ac8cb2",
+            "bytes": 40082
+          }
+        },
+        {
+          "key": "hero/fengfeng_dizzy",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_dizzy.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_dizzy.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.603109,
+            "visible_bbox": [
+              66,
+              27,
+              495,
+              540
+            ],
+            "sha256": "0ed11495b14572c4213e4b70149a01527b90790cd9d361f4a6e76bc73a219a64",
+            "bytes": 49448
+          }
+        },
+        {
+          "key": "hero/fengfeng_dodge",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_dodge.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_dodge.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.63022,
+            "visible_bbox": [
+              29,
+              45,
+              530,
+              521
+            ],
+            "sha256": "b7b2a5a0b6433a9b885ca93c63d629d586ff5f40a5544dfba7e3f25129f89378",
+            "bytes": 45464
+          }
+        },
+        {
+          "key": "hero/fengfeng_down",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_down.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_down.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.780303,
+            "visible_bbox": [
+              20,
+              158,
+              540,
+              402
+            ],
+            "sha256": "c6e09e1730a7972acb892ffa79ea14b2a79f8c81bbbaa98dd7b3f043e68bc5c0",
+            "bytes": 38940
+          }
+        },
+        {
+          "key": "hero/fengfeng_eat",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_eat.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_eat.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.60126,
+            "visible_bbox": [
+              91,
+              20,
+              470,
+              532
+            ],
+            "sha256": "f60d83bc87723e4b90c52c5f5599fd738ab2ae81418c212b246c2c6649091a08",
+            "bytes": 47598
+          }
+        },
+        {
+          "key": "hero/fengfeng_focus",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_focus.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_focus.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.62544,
+            "visible_bbox": [
+              49,
+              20,
+              508,
+              532
+            ],
+            "sha256": "fd54daee6b41942dcb78180c5b154e7b5dee9079f054be51eb45af13d07db0ad",
+            "bytes": 47492
+          }
+        },
+        {
+          "key": "hero/fengfeng_guard",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_guard.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_guard.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.634764,
+            "visible_bbox": [
+              50,
+              41,
+              511,
+              538
+            ],
+            "sha256": "384b6619d480829ef0dafb3847593d6e18dfad9961236929e8413b6de5f40d4f",
+            "bytes": 50238
+          }
+        },
+        {
+          "key": "hero/fengfeng_helpup",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_helpup.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_helpup.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.71332,
+            "visible_bbox": [
+              29,
+              75,
+              532,
+              483
+            ],
+            "sha256": "aeb34d2af27d6042f0dbac5f9000d689cfe2b60d03c5ccceedc8d94f78117ae4",
+            "bytes": 45958
+          }
+        },
+        {
+          "key": "hero/fengfeng_hit",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_hit.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_hit.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.612621,
+            "visible_bbox": [
+              41,
+              21,
+              518,
+              539
+            ],
+            "sha256": "87d6c0427ba4f0bd188e1cddfbf16cfa34b34e6b27c3c63b43c1a6fa52c90192",
+            "bytes": 51518
+          }
+        },
+        {
+          "key": "hero/fengfeng_hungry",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_hungry.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_hungry.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.630992,
+            "visible_bbox": [
+              101,
+              20,
+              457,
+              532
+            ],
+            "sha256": "bd65025d0d3599586bd308b8c24d6f4a878ceb0c4dec1a1f1b86e066a9a4668b",
+            "bytes": 43354
+          }
+        },
+        {
+          "key": "hero/fengfeng_hurt",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_hurt.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_hurt.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.705944,
+            "visible_bbox": [
+              73,
+              50,
+              485,
+              532
+            ],
+            "sha256": "bf0745332c30a98a94f7a417ca8c443d46b1a38a166b35089cebbad987d976da",
+            "bytes": 39634
+          }
+        },
+        {
+          "key": "hero/fengfeng_idle",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_idle.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_idle.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.691588,
+            "visible_bbox": [
+              100,
+              24,
+              461,
+              534
+            ],
+            "sha256": "d81a524ee26804c6c53bb4087024222af58d06a3129cf00a7ee235c38b764df0",
+            "bytes": 46298
+          }
+        },
+        {
+          "key": "hero/fengfeng_iron",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_iron.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_iron.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.657468,
+            "visible_bbox": [
+              41,
+              26,
+              511,
+              534
+            ],
+            "sha256": "c20823aa2e2832c5dbc3c364dabba8cebe0ff111b7d74d8a218ce3577b6cd872",
+            "bytes": 50500
+          }
+        },
+        {
+          "key": "hero/fengfeng_kick",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_kick.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_kick.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.708913,
+            "visible_bbox": [
+              27,
+              58,
+              529,
+              497
+            ],
+            "sha256": "0baca4d0406c2d6b7757bd79b6cd77221e43346c6a006904dcf5dec498fe86c7",
+            "bytes": 40790
+          }
+        },
+        {
+          "key": "hero/fengfeng_lazy",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_lazy.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_lazy.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.622006,
+            "visible_bbox": [
+              67,
+              28,
+              489,
+              540
+            ],
+            "sha256": "f24d36a83f621ac2c65dc6373b38832ea59a65dec6dfee18d1f7a1bd4145c04a",
+            "bytes": 44630
+          }
+        },
+        {
+          "key": "hero/fengfeng_lose",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_lose.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_lose.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.520756,
+            "visible_bbox": [
+              30,
+              20,
+              530,
+              540
+            ],
+            "sha256": "a13e0e5f808d477b9e18daa5cdb8876156164c0ad74de05f0528a9dd05950173",
+            "bytes": 61420
+          }
+        },
+        {
+          "key": "hero/fengfeng_nap",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_nap.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_nap.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.833068,
+            "visible_bbox": [
+              27,
+              174,
+              534,
+              386
+            ],
+            "sha256": "da053c2d17fc7509b2abddbede83ea9634cbf9b61cc606783e16331aaa38ab32",
+            "bytes": 26734
+          }
+        },
+        {
+          "key": "hero/fengfeng_power",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_power.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_power.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.619423,
+            "visible_bbox": [
+              27,
+              54,
+              540,
+              512
+            ],
+            "sha256": "f7b203b3e6cb312eb6b43ee603736960bec64be2ea5e30c178628824c7a15c3a",
+            "bytes": 54024
+          }
+        },
+        {
+          "key": "hero/fengfeng_puff",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_puff.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_puff.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.656779,
+            "visible_bbox": [
+              127,
+              20,
+              497,
+              497
+            ],
+            "sha256": "8e838faa929388b6628a426562d93ad7ed35c7f5a914a195280089cc5e797f70",
+            "bytes": 43052
+          }
+        },
+        {
+          "key": "hero/fengfeng_punch",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_punch.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_punch.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.691036,
+            "visible_bbox": [
+              29,
+              53,
+              531,
+              499
+            ],
+            "sha256": "7102e62b4854018a0e1bad18c8c3b2e74aeb2e0b0f79960bf05e19bed14b5d58",
+            "bytes": 47718
+          }
+        },
+        {
+          "key": "hero/fengfeng_qinggong",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_qinggong.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_qinggong.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.677592,
+            "visible_bbox": [
+              22,
+              25,
+              530,
+              540
+            ],
+            "sha256": "6e7877080d59f5dadb6ef7eb96a6e6e43d9b9ffc7e2362240e0031632872da23",
+            "bytes": 52216
+          }
+        },
+        {
+          "key": "hero/fengfeng_roar",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_roar.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_roar.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.584372,
+            "visible_bbox": [
+              30,
+              22,
+              528,
+              533
+            ],
+            "sha256": "287ca0dd01e49fe635997501ecc2338c6d543972fd0706614891575e680f9531",
+            "bytes": 52474
+          }
+        },
+        {
+          "key": "hero/fengfeng_scroll",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_scroll.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_scroll.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.616987,
+            "visible_bbox": [
+              51,
+              20,
+              511,
+              533
+            ],
+            "sha256": "6baa9f3fa80c1aefb1b63203a8341755eedb1cf88f6bb812a1d9b85b530ff5cc",
+            "bytes": 49128
+          }
+        },
+        {
+          "key": "hero/fengfeng_sharpen",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_sharpen.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_sharpen.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.693559,
+            "visible_bbox": [
+              27,
+              78,
+              532,
+              476
+            ],
+            "sha256": "1c3de357b0cf2e2d443deb816f723e5c79c9a0a1e10a7c54bfdb177b8ec1ee68",
+            "bytes": 40792
+          }
+        },
+        {
+          "key": "hero/fengfeng_skill",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_skill.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_skill.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.795316,
+            "visible_bbox": [
+              29,
+              104,
+              535,
+              450
+            ],
+            "sha256": "cca88c525437ca4d3272dcfacf365cde6587444276b623bb71af40844625196c",
+            "bytes": 40266
+          }
+        },
+        {
+          "key": "hero/fengfeng_stealth",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_stealth.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_stealth.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.804222,
+            "visible_bbox": [
+              28,
+              137,
+              534,
+              406
+            ],
+            "sha256": "6c4fb0b4b34dbd23cc0004fb72b2db876b71f6c8b98f4fed2a4aa3ab48729aca",
+            "bytes": 36226
+          }
+        },
+        {
+          "key": "hero/fengfeng_taiji",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_taiji.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_taiji.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.740845,
+            "visible_bbox": [
+              27,
+              61,
+              540,
+              466
+            ],
+            "sha256": "21aef2d7a6aef7ba398368f751625d362719e05d94be071e139d693ab1d39c39",
+            "bytes": 38710
+          }
+        },
+        {
+          "key": "hero/fengfeng_throw",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_throw.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_throw.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.720596,
+            "visible_bbox": [
+              30,
+              69,
+              534,
+              496
+            ],
+            "sha256": "915746cd9bd4610e279ac3665dbcc061b8931db0847bfe4b205d2db43c8b7a04",
+            "bytes": 47266
+          }
+        },
+        {
+          "key": "hero/fengfeng_walk",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_walk.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_walk.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.620239,
+            "visible_bbox": [
+              75,
+              26,
+              484,
+              540
+            ],
+            "sha256": "16dda2379054c9a746dc392e27bf107501d4324b9e89816578c48390eb3190f7",
+            "bytes": 49882
+          }
+        },
+        {
+          "key": "hero/fengfeng_win",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_win.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_win.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.680784,
+            "visible_bbox": [
+              102,
+              26,
+              458,
+              535
+            ],
+            "sha256": "eaa54b252b864f8c5c96eecfb4557fbcea95165052cf6d5a7cd4bbf2ea4f118c",
+            "bytes": 51870
+          }
+        },
+        {
+          "key": "hero/fengfeng_cover",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/fengfeng_cover.webp",
+          "destination": "public/assets/sprites/hero/fengfeng_cover.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 560,
+            "height": 560,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.539987,
+            "visible_bbox": [
+              45,
+              4,
+              520,
+              533
+            ],
+            "sha256": "8174a18bf7c14f01c8cab8cef72c8867dc53d568b83e1c08577f73f01f6eb6f4",
+            "bytes": 206380
+          }
+        }
+      ]
+    },
+    "map_heads": {
+      "count": 3,
+      "items": [
+        {
+          "key": "icon/map_hero_fengfeng_low",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/map_hero_fengfeng_low.webp",
+          "destination": "public/assets/icons/map_hero_fengfeng_low.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 128,
+            "height": 128,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.722717,
+            "visible_bbox": [
+              2,
+              12,
+              126,
+              116
+            ],
+            "sha256": "66eb9e2e89b071523581ea2d9f62d327504c64a48d8e561ab64743194f612f6d",
+            "bytes": 6080
+          }
+        },
+        {
+          "key": "icon/map_hero_fengfeng_mid",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/map_hero_fengfeng_mid.webp",
+          "destination": "public/assets/icons/map_hero_fengfeng_mid.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 128,
+            "height": 128,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.86322,
+            "visible_bbox": [
+              2,
+              34,
+              126,
+              93
+            ],
+            "sha256": "31e1ae02b8da7de66e19b74ec51389c3c83a9a40e05018c6a6516ed957de1124",
+            "bytes": 4298
+          }
+        },
+        {
+          "key": "icon/map_hero_fengfeng_top",
+          "source": "docs/第四隻角色_封封_提案/07_整合用WebP/map_hero_fengfeng_top.webp",
+          "destination": "public/assets/icons/map_hero_fengfeng_top.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 128,
+            "height": 128,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.561829,
+            "visible_bbox": [
+              6,
+              2,
+              121,
+              126
+            ],
+            "sha256": "b7d12a69cdc619d1d4590d90c4b572065d6fd2303021e6916f2d8de3b1cb56f0",
+            "bytes": 8322
+          }
+        }
+      ]
+    },
+    "common_cards": {
+      "count": 118,
+      "items": [
+        {
+          "key": "card/fengfeng_sanjo",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_sanjo.webp",
+          "destination": "public/assets/cards/card/fengfeng_sanjo.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.640287,
+            "visible_bbox": [
+              18,
+              12,
+              282,
+              223
+            ],
+            "sha256": "27bf13a070274224cac23316c411dceeb1837b0ffe603039489cfadded3f9977",
+            "bytes": 51160
+          }
+        },
+        {
+          "key": "card/fengfeng_tanding",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_tanding.webp",
+          "destination": "public/assets/cards/card/fengfeng_tanding.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.583668,
+            "visible_bbox": [
+              30,
+              43,
+              279,
+              227
+            ],
+            "sha256": "dc5c7c37fa1f5b9fc29d66d63b60e17c6fd7ff0b5e491b20cd6b0a5c18ba0f2e",
+            "bytes": 46918
+          }
+        },
+        {
+          "key": "card/fengfeng_shunkan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shunkan.webp",
+          "destination": "public/assets/cards/card/fengfeng_shunkan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.480421,
+            "visible_bbox": [
+              7,
+              6,
+              290,
+              234
+            ],
+            "sha256": "338980793c899d45e4365d044685c7ac1591073dd7cf21acf78ef0eeaa9e1636",
+            "bytes": 77278
+          }
+        },
+        {
+          "key": "card/fengfeng_shengdong",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shengdong.webp",
+          "destination": "public/assets/cards/card/fengfeng_shengdong.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.469077,
+            "visible_bbox": [
+              9,
+              8,
+              286,
+              225
+            ],
+            "sha256": "3501e2c1f69b1c8322d050cbb45424fd501fc6c86094a475cd91910a27bad7d0",
+            "bytes": 79802
+          }
+        },
+        {
+          "key": "card/fengfeng_shunshou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shunshou.webp",
+          "destination": "public/assets/cards/card/fengfeng_shunshou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.409629,
+            "visible_bbox": [
+              7,
+              6,
+              288,
+              234
+            ],
+            "sha256": "2c17657aa1bc94bbb5a6a26a654449b91dcc18c59604426ed70df369a7c08447",
+            "bytes": 96508
+          }
+        },
+        {
+          "key": "card/fengfeng_fenyiban",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fenyiban.webp",
+          "destination": "public/assets/cards/card/fengfeng_fenyiban.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.330895,
+            "visible_bbox": [
+              7,
+              8,
+              291,
+              231
+            ],
+            "sha256": "bdf2f98284e683cb16be51af39f3dcbf6d8256969681eda5e8fc607bcc79e2de",
+            "bytes": 98896
+          }
+        },
+        {
+          "key": "card/fengfeng_ninaqudang",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_ninaqudang.webp",
+          "destination": "public/assets/cards/card/fengfeng_ninaqudang.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.608166,
+            "visible_bbox": [
+              11,
+              34,
+              287,
+              210
+            ],
+            "sha256": "a19c5fba2dc294f1b31dd0c44758d258676492d088d6edcff20b64278fce31d1",
+            "bytes": 56804
+          }
+        },
+        {
+          "key": "card/fengfeng_wolaidang",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_wolaidang.webp",
+          "destination": "public/assets/cards/card/fengfeng_wolaidang.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.541026,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              228
+            ],
+            "sha256": "659b1ce7f23f93e2d4ea84b92c33addf99d50239d85a79338fe0a126cd44a62b",
+            "bytes": 61986
+          }
+        },
+        {
+          "key": "card/fengfeng_bangnisheme",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_bangnisheme.webp",
+          "destination": "public/assets/cards/card/fengfeng_bangnisheme.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.490747,
+            "visible_bbox": [
+              10,
+              11,
+              291,
+              223
+            ],
+            "sha256": "1535ed1b0885406d2fa84aaf059a4dc0017352ce20b22778c04372ce6abf6c72",
+            "bytes": 76638
+          }
+        },
+        {
+          "key": "card/fengfeng_jienicailiangbu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jienicailiangbu.webp",
+          "destination": "public/assets/cards/card/fengfeng_jienicailiangbu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.650669,
+            "visible_bbox": [
+              10,
+              9,
+              291,
+              232
+            ],
+            "sha256": "46ae5312ec93089b30ca0cca4c8792f2c0c68686aa2118ebe827a3424cca99bd",
+            "bytes": 55142
+          }
+        },
+        {
+          "key": "card/fengfeng_niyechouyizhang",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_niyechouyizhang.webp",
+          "destination": "public/assets/cards/card/fengfeng_niyechouyizhang.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.656647,
+            "visible_bbox": [
+              12,
+              28,
+              288,
+              213
+            ],
+            "sha256": "1d04f57645b2f28ed328fe3bec375c7feb00833d794a092cd4315e50485da5c4",
+            "bytes": 51854
+          }
+        },
+        {
+          "key": "card/fengfeng_wobangnipaidiao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_wobangnipaidiao.webp",
+          "destination": "public/assets/cards/card/fengfeng_wobangnipaidiao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.522366,
+            "visible_bbox": [
+              11,
+              22,
+              290,
+              225
+            ],
+            "sha256": "3d0abc416db81286ef6b2161b05b42ed16486869704d233422aa2997187966e1",
+            "bytes": 68372
+          }
+        },
+        {
+          "key": "card/fengfeng_fantuanfenni",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fantuanfenni.webp",
+          "destination": "public/assets/cards/card/fengfeng_fantuanfenni.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.651853,
+            "visible_bbox": [
+              13,
+              41,
+              288,
+              217
+            ],
+            "sha256": "bc8772d56a30596b1e26cf6af385f9bcc83bc82df10dff1c6f0892a99a719817",
+            "bytes": 52140
+          }
+        },
+        {
+          "key": "card/fengfeng_bangnidianyixia",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_bangnidianyixia.webp",
+          "destination": "public/assets/cards/card/fengfeng_bangnidianyixia.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.475293,
+            "visible_bbox": [
+              7,
+              25,
+              291,
+              221
+            ],
+            "sha256": "567a0660ea2d6bdbf578ef8f42f5e8ff0cb8fdb0a2e3817847dd5f71c4532722",
+            "bytes": 77736
+          }
+        },
+        {
+          "key": "card/fengfeng_shoujiewoyixia",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shoujiewoyixia.webp",
+          "destination": "public/assets/cards/card/fengfeng_shoujiewoyixia.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.552188,
+            "visible_bbox": [
+              7,
+              18,
+              291,
+              224
+            ],
+            "sha256": "423e8a4fed381f288607e9a925c0653f8e6321085e3396d5ab5861780a71e8a9",
+            "bytes": 62908
+          }
+        },
+        {
+          "key": "card/fengfeng_yuganjijiu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_yuganjijiu.webp",
+          "destination": "public/assets/cards/card/fengfeng_yuganjijiu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.424498,
+            "visible_bbox": [
+              9,
+              16,
+              290,
+              228
+            ],
+            "sha256": "cf50507831fe936d96655e3793f7ff92e3bcb87115d0ffdad87cb1ec222a9d06",
+            "bytes": 77648
+          }
+        },
+        {
+          "key": "card/fengfeng_yiqichuankou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_yiqichuankou.webp",
+          "destination": "public/assets/cards/card/fengfeng_yiqichuankou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.407873,
+            "visible_bbox": [
+              14,
+              6,
+              287,
+              225
+            ],
+            "sha256": "a719fcd898e632a2cb9b28e1fc2e1454d6dcf8d825d201e021cef052b2d6f25a",
+            "bytes": 83054
+          }
+        },
+        {
+          "key": "card/fengfeng_huannieduochoudian",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_huannieduochoudian.webp",
+          "destination": "public/assets/cards/card/fengfeng_huannieduochoudian.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.561664,
+            "visible_bbox": [
+              7,
+              16,
+              291,
+              228
+            ],
+            "sha256": "1a0735bfb5c1cfcb16840d830cbf1653779642baff6d75d56611ebf45a69a921",
+            "bytes": 65918
+          }
+        },
+        {
+          "key": "card/fengfeng_wobangnishouwei",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_wobangnishouwei.webp",
+          "destination": "public/assets/cards/card/fengfeng_wobangnishouwei.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.498829,
+            "visible_bbox": [
+              10,
+              8,
+              290,
+              232
+            ],
+            "sha256": "00bb1516f5782d0fb0093329b4c7542add8b196a86149a4c3d8e6c80dcf3e928",
+            "bytes": 77086
+          }
+        },
+        {
+          "key": "card/fengfeng_huannimangyixia",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_huannimangyixia.webp",
+          "destination": "public/assets/cards/card/fengfeng_huannimangyixia.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.592182,
+            "visible_bbox": [
+              7,
+              23,
+              291,
+              223
+            ],
+            "sha256": "cd05f010b751232e02f7b599c1808ddb47f4eb6fa4897b9ae266f1d340b44965",
+            "bytes": 65728
+          }
+        },
+        {
+          "key": "card/fengfeng_kaoniyixia",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_kaoniyixia.webp",
+          "destination": "public/assets/cards/card/fengfeng_kaoniyixia.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.48279,
+            "visible_bbox": [
+              10,
+              6,
+              290,
+              234
+            ],
+            "sha256": "47147813e72582ba38fd5091963486e19c3ac9f147c55a25fa4a4d321875d216",
+            "bytes": 73106
+          }
+        },
+        {
+          "key": "card/fengfeng_zhexienixianchi",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zhexienixianchi.webp",
+          "destination": "public/assets/cards/card/fengfeng_zhexienixianchi.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.516987,
+            "visible_bbox": [
+              10,
+              19,
+              291,
+              230
+            ],
+            "sha256": "9fd96311078c083f1f4e16dc42f0c1cb428d7bfc3052430ef1dea62c9708af82",
+            "bytes": 69266
+          }
+        },
+        {
+          "key": "card/fengfeng_zhaonishuodeda",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zhaonishuodeda.webp",
+          "destination": "public/assets/cards/card/fengfeng_zhaonishuodeda.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.453554,
+            "visible_bbox": [
+              7,
+              12,
+              291,
+              223
+            ],
+            "sha256": "519b0c25c9e60f6b5c51d441e399ba40f701cff3e02ced13238ff440551653cf",
+            "bytes": 91714
+          }
+        },
+        {
+          "key": "card/fengfeng_jienideliqi",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jienideliqi.webp",
+          "destination": "public/assets/cards/card/fengfeng_jienideliqi.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.500836,
+            "visible_bbox": [
+              7,
+              10,
+              291,
+              220
+            ],
+            "sha256": "ac0776fa1a6cdac739b311d305c0cdc8498f0bd56196e47e255c4043ad8dab98",
+            "bytes": 81342
+          }
+        },
+        {
+          "key": "card/fengfeng_chenxianzaichushou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_chenxianzaichushou.webp",
+          "destination": "public/assets/cards/card/fengfeng_chenxianzaichushou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.546251,
+            "visible_bbox": [
+              10,
+              10,
+              291,
+              226
+            ],
+            "sha256": "6002889e8d2200c6ea32717b3580fc277d2ca6273d977d205bff4b07038d4a8a",
+            "bytes": 71916
+          }
+        },
+        {
+          "key": "card/fengfeng_biezhanzaishenshang",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_biezhanzaishenshang.webp",
+          "destination": "public/assets/cards/card/fengfeng_biezhanzaishenshang.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.483292,
+            "visible_bbox": [
+              11,
+              8,
+              291,
+              232
+            ],
+            "sha256": "df6d6e6444a9d97f052df02ff489a77912b53a131cea1f30fb687c25d8c0516d",
+            "bytes": 70658
+          }
+        },
+        {
+          "key": "card/fengfeng_xianbangniliuzhe",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_xianbangniliuzhe.webp",
+          "destination": "public/assets/cards/card/fengfeng_xianbangniliuzhe.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.519175,
+            "visible_bbox": [
+              7,
+              16,
+              291,
+              221
+            ],
+            "sha256": "6f671be250d8c6441087f42577d1ab2079fe24f65d1aa7a5d811a228ee6dde4f",
+            "bytes": 71112
+          }
+        },
+        {
+          "key": "card/fengfeng_nimangwobuwei",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_nimangwobuwei.webp",
+          "destination": "public/assets/cards/card/fengfeng_nimangwobuwei.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.576672,
+            "visible_bbox": [
+              7,
+              24,
+              287,
+              210
+            ],
+            "sha256": "20ff294f4b3846e0dcf10d71665e7976c6f209df979e2a6473d296098cee9ede",
+            "bytes": 63322
+          }
+        },
+        {
+          "key": "card/fengfeng_fantuanliuyikou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fantuanliuyikou.webp",
+          "destination": "public/assets/cards/card/fengfeng_fantuanliuyikou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.555463,
+            "visible_bbox": [
+              7,
+              25,
+              291,
+              220
+            ],
+            "sha256": "7af7f637fa2877ac26e667b32735afe025d3b8595e4c897083af02c924053aa1",
+            "bytes": 63646
+          }
+        },
+        {
+          "key": "card/fengfeng_wozaizhe",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_wozaizhe.webp",
+          "destination": "public/assets/cards/card/fengfeng_wozaizhe.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.573885,
+            "visible_bbox": [
+              22,
+              11,
+              286,
+              231
+            ],
+            "sha256": "77792831dc7e27af0917c56dcd0c459cd79e719d8a47cf116d166643358db9e4",
+            "bytes": 51734
+          }
+        },
+        {
+          "key": "card/fengfeng_jiaochulai",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jiaochulai.webp",
+          "destination": "public/assets/cards/card/fengfeng_jiaochulai.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.499749,
+            "visible_bbox": [
+              8,
+              26,
+              290,
+              213
+            ],
+            "sha256": "390f00174d95a29a9bf5d2ca9be89780833241df4f1762b3f5c17b2ab18cf37d",
+            "bytes": 56638
+          }
+        },
+        {
+          "key": "card/fengfeng_susu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_susu.webp",
+          "destination": "public/assets/cards/card/fengfeng_susu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.525516,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              223
+            ],
+            "sha256": "382bf68d4343eadc07ab33a89236c944dc1df0582f1f2cd39dfa63142298f61d",
+            "bytes": 69008
+          }
+        },
+        {
+          "key": "card/fengfeng_bianshen",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_bianshen.webp",
+          "destination": "public/assets/cards/card/fengfeng_bianshen.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.563712,
+            "visible_bbox": [
+              18,
+              23,
+              276,
+              221
+            ],
+            "sha256": "46a2ca3e6a083b362a35831dea0052dee64e82f86b1ca41c3174b12b5fd6cd3c",
+            "bytes": 54596
+          }
+        },
+        {
+          "key": "card/fengfeng_duxin",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_duxin.webp",
+          "destination": "public/assets/cards/card/fengfeng_duxin.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.46342,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              232
+            ],
+            "sha256": "fa5641cf8b5027daca7a551aaf258b08c15aec5e54eb78816b1eb06f24fe1772",
+            "bytes": 66200
+          }
+        },
+        {
+          "key": "card/fengfeng_qianliyan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_qianliyan.webp",
+          "destination": "public/assets/cards/card/fengfeng_qianliyan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.607762,
+            "visible_bbox": [
+              11,
+              16,
+              291,
+              226
+            ],
+            "sha256": "f6e62cc3af348cb2f83042da036e82f8e12e69c8ee135fc9403ab182157803ce",
+            "bytes": 51842
+          }
+        },
+        {
+          "key": "card/fengfeng_shunfenger",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shunfenger.webp",
+          "destination": "public/assets/cards/card/fengfeng_shunfenger.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.540831,
+            "visible_bbox": [
+              7,
+              8,
+              290,
+              231
+            ],
+            "sha256": "e23bab3e79c8fad11204d3e3f2eec1380004f91ff5bfe3e8a823c7dda04553da",
+            "bytes": 62924
+          }
+        },
+        {
+          "key": "card/fengfeng_dingshang",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_dingshang.webp",
+          "destination": "public/assets/cards/card/fengfeng_dingshang.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.413698,
+            "visible_bbox": [
+              12,
+              15,
+              287,
+              227
+            ],
+            "sha256": "8902110231e7ad499cc0f47505fbf8f2528f9f12c2d8d09cd085a3dc9f83536e",
+            "bytes": 71616
+          }
+        },
+        {
+          "key": "card/fengfeng_chudashi",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_chudashi.webp",
+          "destination": "public/assets/cards/card/fengfeng_chudashi.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.464186,
+            "visible_bbox": [
+              13,
+              17,
+              288,
+              219
+            ],
+            "sha256": "929d4b16768bb42dbdc4f0e53e9c4217dc9d20c6de11106c12981bb22be1b244",
+            "bytes": 66654
+          }
+        },
+        {
+          "key": "card/fengfeng_youcike",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_youcike.webp",
+          "destination": "public/assets/cards/card/fengfeng_youcike.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.582246,
+            "visible_bbox": [
+              7,
+              7,
+              287,
+              221
+            ],
+            "sha256": "0418878a4ff7ee68f82fad52352f079710d940a4220e6bd070e1cb4acd96fa16",
+            "bytes": 58444
+          }
+        },
+        {
+          "key": "card/fengfeng_zhanshu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zhanshu.webp",
+          "destination": "public/assets/cards/card/fengfeng_zhanshu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.580295,
+            "visible_bbox": [
+              7,
+              15,
+              285,
+              221
+            ],
+            "sha256": "d595da311270b2fc6bc33f28ad733b31058f78a6c6bbdbdfd65a368fb7506cba",
+            "bytes": 57970
+          }
+        },
+        {
+          "key": "card/fengfeng_tuozi",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_tuozi.webp",
+          "destination": "public/assets/cards/card/fengfeng_tuozi.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.523829,
+            "visible_bbox": [
+              17,
+              8,
+              283,
+              220
+            ],
+            "sha256": "35e8d59b1dce1f9de8d13390773205406d735453d62f7aa9d980c2c1a8276d21",
+            "bytes": 63416
+          }
+        },
+        {
+          "key": "card/fengfeng_shuaiguo",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shuaiguo.webp",
+          "destination": "public/assets/cards/card/fengfeng_shuaiguo.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.61937,
+            "visible_bbox": [
+              15,
+              18,
+              280,
+              225
+            ],
+            "sha256": "e4f194acbcd563ca221b5d10ebc1d696dab218e18f9cf2c31b30cc77c7d5d123",
+            "bytes": 56452
+          }
+        },
+        {
+          "key": "card/fengfeng_dingshen",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_dingshen.webp",
+          "destination": "public/assets/cards/card/fengfeng_dingshen.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.41519,
+            "visible_bbox": [
+              7,
+              7,
+              291,
+              234
+            ],
+            "sha256": "330c6ca5ef04c894b7dcf76908eb7d9c8657592548f6e5c413f1cc83bc59dd5b",
+            "bytes": 76170
+          }
+        },
+        {
+          "key": "card/fengfeng_cuimian",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_cuimian.webp",
+          "destination": "public/assets/cards/card/fengfeng_cuimian.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.449972,
+            "visible_bbox": [
+              11,
+              15,
+              291,
+              226
+            ],
+            "sha256": "59534a1f5300e1070ea3fd28b68c8980d87187d01647369d0b8b59bb338f4a50",
+            "bytes": 76008
+          }
+        },
+        {
+          "key": "card/fengfeng_fengkou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fengkou.webp",
+          "destination": "public/assets/cards/card/fengfeng_fengkou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.554822,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              234
+            ],
+            "sha256": "142548926985605b312fdb7414da6369dd35d7f54491e91938a23515138e48f5",
+            "bytes": 54638
+          }
+        },
+        {
+          "key": "card/fengfeng_touchi",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_touchi.webp",
+          "destination": "public/assets/cards/card/fengfeng_touchi.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.420833,
+            "visible_bbox": [
+              12,
+              6,
+              289,
+              234
+            ],
+            "sha256": "af07911a235fb9264e9dc161d496caa413602aee68a87ee325f5e2c8624f229a",
+            "bytes": 59154
+          }
+        },
+        {
+          "key": "card/fengfeng_xianshuile",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_xianshuile.webp",
+          "destination": "public/assets/cards/card/fengfeng_xianshuile.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.490148,
+            "visible_bbox": [
+              20,
+              16,
+              285,
+              227
+            ],
+            "sha256": "f6920f338726a402af7d6471b5545d4e7d774b7464417dcbaae94189875ffbda",
+            "bytes": 52050
+          }
+        },
+        {
+          "key": "card/fengfeng_gaotui",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_gaotui.webp",
+          "destination": "public/assets/cards/card/fengfeng_gaotui.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.738866,
+            "visible_bbox": [
+              24,
+              8,
+              231,
+              227
+            ],
+            "sha256": "865ba3c29846d7cf316afdc62dbb7429db6ac0ad7b5aacf9a05de0f3575f9e1d",
+            "bytes": 35168
+          }
+        },
+        {
+          "key": "card/fengfeng_meikandao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_meikandao.webp",
+          "destination": "public/assets/cards/card/fengfeng_meikandao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.575627,
+            "visible_bbox": [
+              36,
+              11,
+              277,
+              228
+            ],
+            "sha256": "b521ab23e69c529bc7811fccead00986538bc52bf5d746778805f17dde05871d",
+            "bytes": 50916
+          }
+        },
+        {
+          "key": "card/fengfeng_jiejie",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jiejie.webp",
+          "destination": "public/assets/cards/card/fengfeng_jiejie.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.379515,
+            "visible_bbox": [
+              11,
+              17,
+              284,
+              223
+            ],
+            "sha256": "572f037d7564f09a25110163077d04baa389351978f045630b2a28789f347295",
+            "bytes": 85630
+          }
+        },
+        {
+          "key": "card/fengfeng_fantan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fantan.webp",
+          "destination": "public/assets/cards/card/fengfeng_fantan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.60733,
+            "visible_bbox": [
+              14,
+              10,
+              287,
+              229
+            ],
+            "sha256": "455ee02ed8f1226d621c72e6d1ee2d2c547c4a53bde2e744ae4a94071d06b750",
+            "bytes": 64866
+          }
+        },
+        {
+          "key": "card/fengfeng_renwuwancheng",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_renwuwancheng.webp",
+          "destination": "public/assets/cards/card/fengfeng_renwuwancheng.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.517726,
+            "visible_bbox": [
+              23,
+              10,
+              291,
+              234
+            ],
+            "sha256": "9ffa441ffc88e8f963a1906f27ecbd3ae21cfc10efa70026d9188ede1584f20f",
+            "bytes": 61054
+          }
+        },
+        {
+          "key": "card/fengfeng_fengyin",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fengyin.webp",
+          "destination": "public/assets/cards/card/fengfeng_fengyin.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.498272,
+            "visible_bbox": [
+              14,
+              22,
+              287,
+              219
+            ],
+            "sha256": "d02104f769ebc08ba99ad621d48ecf8031a12868a30d28913db126dcf3c420c5",
+            "bytes": 71884
+          }
+        },
+        {
+          "key": "card/fengfeng_tieshazhang",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_tieshazhang.webp",
+          "destination": "public/assets/cards/card/fengfeng_tieshazhang.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.42277,
+            "visible_bbox": [
+              8,
+              10,
+              289,
+              229
+            ],
+            "sha256": "f3e3a40948a52ead71310b0cd1521af2ad42502b98b15df9e53f6b11d2a4c1cd",
+            "bytes": 96506
+          }
+        },
+        {
+          "key": "card/fengfeng_qinna",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_qinna.webp",
+          "destination": "public/assets/cards/card/fengfeng_qinna.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.531717,
+            "visible_bbox": [
+              10,
+              6,
+              291,
+              226
+            ],
+            "sha256": "698414ddadb272e8e1fa7207382a7f7525851f51802dd0d5443b963fd92a3970",
+            "bytes": 59350
+          }
+        },
+        {
+          "key": "card/fengfeng_juye",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_juye.webp",
+          "destination": "public/assets/cards/card/fengfeng_juye.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.499707,
+            "visible_bbox": [
+              7,
+              8,
+              291,
+              232
+            ],
+            "sha256": "1d3ae7d911d25a65387bd8ecce91ca144b28ff127d8f9b27d8d00eaf20f7315f",
+            "bytes": 79156
+          }
+        },
+        {
+          "key": "card/fengfeng_jinzhong",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jinzhong.webp",
+          "destination": "public/assets/cards/card/fengfeng_jinzhong.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.303303,
+            "visible_bbox": [
+              7,
+              6,
+              289,
+              234
+            ],
+            "sha256": "30cadc2fc222cf1cfdb9096977d342f5545ce44d6513f21b719583ba91abe461",
+            "bytes": 101436
+          }
+        },
+        {
+          "key": "card/fengfeng_xuli",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_xuli.webp",
+          "destination": "public/assets/cards/card/fengfeng_xuli.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.507483,
+            "visible_bbox": [
+              7,
+              9,
+              285,
+              224
+            ],
+            "sha256": "430a4e3ce0fc5c9ebaa4d77872bf3f8e5dcb1499e6cc55531aba1de866e41ff1",
+            "bytes": 73706
+          }
+        },
+        {
+          "key": "card/fengfeng_shihou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shihou.webp",
+          "destination": "public/assets/cards/card/fengfeng_shihou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.567559,
+            "visible_bbox": [
+              12,
+              19,
+              288,
+              224
+            ],
+            "sha256": "e8e114978e2a53f4f7f0bb145c19dd734508e8fd0a2b63243f0c7fc06b2544c3",
+            "bytes": 62592
+          }
+        },
+        {
+          "key": "card/fengfeng_dianxue",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_dianxue.webp",
+          "destination": "public/assets/cards/card/fengfeng_dianxue.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.426185,
+            "visible_bbox": [
+              13,
+              6,
+              290,
+              228
+            ],
+            "sha256": "aa921286e6a9230a2f8561b03dfb04cac22c3d298ebf327e5f6280059a6b9342",
+            "bytes": 89678
+          }
+        },
+        {
+          "key": "card/fengfeng_zuiquan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zuiquan.webp",
+          "destination": "public/assets/cards/card/fengfeng_zuiquan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.520805,
+            "visible_bbox": [
+              10,
+              12,
+              290,
+              224
+            ],
+            "sha256": "fcd14d2d01874de049daeb0ff9e7600e1ac23da00f36c6a5f8a501b2880202a7",
+            "bytes": 64876
+          }
+        },
+        {
+          "key": "card/fengfeng_yixing",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_yixing.webp",
+          "destination": "public/assets/cards/card/fengfeng_yixing.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.449192,
+            "visible_bbox": [
+              9,
+              8,
+              291,
+              228
+            ],
+            "sha256": "04ead62fcc46e9c1d963d8c2cc6ba59d8970daeee92823e0de648d7b9e3d6b19",
+            "bytes": 74364
+          }
+        },
+        {
+          "key": "card/fengfeng_gekong",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_gekong.webp",
+          "destination": "public/assets/cards/card/fengfeng_gekong.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.504863,
+            "visible_bbox": [
+              7,
+              15,
+              289,
+              224
+            ],
+            "sha256": "981392e655deefe711fe859612b57658a9b3ec566ca8731823ee61a65bf130e8",
+            "bytes": 76360
+          }
+        },
+        {
+          "key": "card/fengfeng_guixi",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_guixi.webp",
+          "destination": "public/assets/cards/card/fengfeng_guixi.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.372227,
+            "visible_bbox": [
+              11,
+              14,
+              291,
+              231
+            ],
+            "sha256": "eca74e6b6bb38ca3406daccab00f700378a68b0bf3739ee852a59697a47b145f",
+            "bytes": 69908
+          }
+        },
+        {
+          "key": "card/fengfeng_mabu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_mabu.webp",
+          "destination": "public/assets/cards/card/fengfeng_mabu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.54568,
+            "visible_bbox": [
+              7,
+              13,
+              291,
+              234
+            ],
+            "sha256": "26c6a2ffd693cb1b30ac35ed0b5d2b1fe9d0e2a802ddb325bd393ea5cfc2aedd",
+            "bytes": 67886
+          }
+        },
+        {
+          "key": "card/fengfeng_yungong",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_yungong.webp",
+          "destination": "public/assets/cards/card/fengfeng_yungong.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.395011,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              234
+            ],
+            "sha256": "e675fe230e1a8965c7dd3aa60e9e391d58832c73e17ff1930036aab496b31543",
+            "bytes": 90062
+          }
+        },
+        {
+          "key": "card/fengfeng_yide",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_yide.webp",
+          "destination": "public/assets/cards/card/fengfeng_yide.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.391054,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              234
+            ],
+            "sha256": "f9f56c7bc69e9e3be6e249de00699480f51e06fcdc4428b6e58dce380ec6df91",
+            "bytes": 84376
+          }
+        },
+        {
+          "key": "card/fengfeng_zhongji",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zhongji.webp",
+          "destination": "public/assets/cards/card/fengfeng_zhongji.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.533082,
+            "visible_bbox": [
+              14,
+              12,
+              289,
+              234
+            ],
+            "sha256": "43eabdd1d8ea436b5a4e235586c7ef35fe7df376445f6cbd48427bb3d8177e0a",
+            "bytes": 64918
+          }
+        },
+        {
+          "key": "card/fengfeng_shishou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shishou.webp",
+          "destination": "public/assets/cards/card/fengfeng_shishou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.613685,
+            "visible_bbox": [
+              8,
+              16,
+              291,
+              219
+            ],
+            "sha256": "9d5affa586d985edbab617f0f42dd8e007f83bb6f5965583872caa9c8a375c95",
+            "bytes": 52142
+          }
+        },
+        {
+          "key": "card/fengfeng_zouhuo",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zouhuo.webp",
+          "destination": "public/assets/cards/card/fengfeng_zouhuo.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.539953,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              234
+            ],
+            "sha256": "b92d72708d2ea5ecc7947cc8866700d595855f7a22a4d0c4b89d2ca6e66aed69",
+            "bytes": 62696
+          }
+        },
+        {
+          "key": "card/fengfeng_neili",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_neili.webp",
+          "destination": "public/assets/cards/card/fengfeng_neili.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.508082,
+            "visible_bbox": [
+              13,
+              14,
+              287,
+              227
+            ],
+            "sha256": "bfd02b114b758693862eec4e7fa45a62b5c997d1f52f8ddc5b537f6c4e4072f3",
+            "bytes": 54484
+          }
+        },
+        {
+          "key": "card/fengfeng_roubao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_roubao.webp",
+          "destination": "public/assets/cards/card/fengfeng_roubao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.420973,
+            "visible_bbox": [
+              10,
+              6,
+              291,
+              234
+            ],
+            "sha256": "d0ff753d339f29aa4d828d19a021d552c2a0d9e21bac08fe479788b64d66a98a",
+            "bytes": 85140
+          }
+        },
+        {
+          "key": "card/fengfeng_luoye",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_luoye.webp",
+          "destination": "public/assets/cards/card/fengfeng_luoye.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.32036,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              234
+            ],
+            "sha256": "71a89f15b7d233127cb1fdadd679230d52f64f6d5151441e9e3301590cec8d51",
+            "bytes": 106732
+          }
+        },
+        {
+          "key": "card/fengfeng_liangzhua",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_liangzhua.webp",
+          "destination": "public/assets/cards/card/fengfeng_liangzhua.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.446878,
+            "visible_bbox": [
+              10,
+              9,
+              291,
+              230
+            ],
+            "sha256": "44694fe7dec1215f6e02e62de378128dd36d15e44ab3c72223acdac9dd483cb5",
+            "bytes": 73420
+          }
+        },
+        {
+          "key": "card/fengfeng_suoyituan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_suoyituan.webp",
+          "destination": "public/assets/cards/card/fengfeng_suoyituan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.571586,
+            "visible_bbox": [
+              7,
+              7,
+              265,
+              228
+            ],
+            "sha256": "b4f38a767d539da70096eafcd58be22cf0135f32651bdceee287faf184c51373",
+            "bytes": 51146
+          }
+        },
+        {
+          "key": "card/fengfeng_weihe",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_weihe.webp",
+          "destination": "public/assets/cards/card/fengfeng_weihe.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.465858,
+            "visible_bbox": [
+              7,
+              10,
+              285,
+              223
+            ],
+            "sha256": "3561be977d313822fbcdc4578fad9b6c4c5040408b371fd6bb85e570b32f28e7",
+            "bytes": 76824
+          }
+        },
+        {
+          "key": "card/fengfeng_paozhao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_paozhao.webp",
+          "destination": "public/assets/cards/card/fengfeng_paozhao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.603567,
+            "visible_bbox": [
+              10,
+              13,
+              291,
+              234
+            ],
+            "sha256": "79d6b190f6a63f7f12e63c24d4ae50130e2de3b4d3c64ceab5149d485ede3177",
+            "bytes": 61846
+          }
+        },
+        {
+          "key": "card/fengfeng_tianmao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_tianmao.webp",
+          "destination": "public/assets/cards/card/fengfeng_tianmao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.539521,
+            "visible_bbox": [
+              16,
+              6,
+              279,
+              226
+            ],
+            "sha256": "1b0c89076f140098bef9da0aff55093793cf685d6d9c8c55d764fbd346bb36c2",
+            "bytes": 57432
+          }
+        },
+        {
+          "key": "card/fengfeng_caiweiba",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_caiweiba.webp",
+          "destination": "public/assets/cards/card/fengfeng_caiweiba.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.385521,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              234
+            ],
+            "sha256": "7d78dace3b78064105c0747fd0ca86d66a4b148df847b9228fb245f9f94e068f",
+            "bytes": 73058
+          }
+        },
+        {
+          "key": "card/fengfeng_diaohu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_diaohu.webp",
+          "destination": "public/assets/cards/card/fengfeng_diaohu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.513113,
+            "visible_bbox": [
+              14,
+              13,
+              290,
+              224
+            ],
+            "sha256": "2c3571afc5a37bd1de08bf6fa0c1f43f9bb097d31ff4e29786555b8bcdf01bbc",
+            "bytes": 68748
+          }
+        },
+        {
+          "key": "card/fengfeng_sashoujian",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_sashoujian.webp",
+          "destination": "public/assets/cards/card/fengfeng_sashoujian.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.543994,
+            "visible_bbox": [
+              7,
+              24,
+              291,
+              224
+            ],
+            "sha256": "ef681085e02b1c9e96cf8e0c6c7a368fe55978089bd86f0792ab7cd40f3a55ee",
+            "bytes": 68072
+          }
+        },
+        {
+          "key": "card/fengfeng_jiuming",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jiuming.webp",
+          "destination": "public/assets/cards/card/fengfeng_jiuming.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.468548,
+            "visible_bbox": [
+              8,
+              6,
+              291,
+              234
+            ],
+            "sha256": "78893afaad7fd280c81b6a8bd25d5f15e796ee4247f788852a436eaa8e3299c4",
+            "bytes": 83844
+          }
+        },
+        {
+          "key": "card/fengfeng_fanzhua",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fanzhua.webp",
+          "destination": "public/assets/cards/card/fengfeng_fanzhua.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.464005,
+            "visible_bbox": [
+              14,
+              6,
+              291,
+              225
+            ],
+            "sha256": "b1e4307cef0b7f1635305caac39cecf3513afa95e011f613e7601d4ee047d58a",
+            "bytes": 90576
+          }
+        },
+        {
+          "key": "card/fengfeng_wanhua",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_wanhua.webp",
+          "destination": "public/assets/cards/card/fengfeng_wanhua.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.526505,
+            "visible_bbox": [
+              13,
+              11,
+              291,
+              225
+            ],
+            "sha256": "ac976a01e23416cfa85f248b8b574b4d394969d6be0d805d08733babf989c390",
+            "bytes": 72314
+          }
+        },
+        {
+          "key": "card/fengfeng_tuishou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_tuishou.webp",
+          "destination": "public/assets/cards/card/fengfeng_tuishou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.449902,
+            "visible_bbox": [
+              10,
+              10,
+              291,
+              233
+            ],
+            "sha256": "fc37c3a37568607094ca0a90eda2aaa07188da3beec00a7a98914ccc8732e260",
+            "bytes": 78908
+          }
+        },
+        {
+          "key": "card/fengfeng_dieda",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_dieda.webp",
+          "destination": "public/assets/cards/card/fengfeng_dieda.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.538336,
+            "visible_bbox": [
+              15,
+              16,
+              291,
+              230
+            ],
+            "sha256": "ba0317f1b8f5fc56fef7674b2687638b3879ced3748076a13e41d83b6438370a",
+            "bytes": 70690
+          }
+        },
+        {
+          "key": "card/fengfeng_hujin",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_hujin.webp",
+          "destination": "public/assets/cards/card/fengfeng_hujin.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.56544,
+            "visible_bbox": [
+              17,
+              17,
+              285,
+              220
+            ],
+            "sha256": "3a57d16e5326093bebab91d40ba27d0c9a8eb3e90de5dd50428ac673c8331403",
+            "bytes": 53184
+          }
+        },
+        {
+          "key": "card/fengfeng_boming",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_boming.webp",
+          "destination": "public/assets/cards/card/fengfeng_boming.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.467531,
+            "visible_bbox": [
+              9,
+              9,
+              290,
+              228
+            ],
+            "sha256": "0fc9c3f4a32a2b43d6b8d19485ff51a632ef1da2627a2d7b2d7f645f592dfc55",
+            "bytes": 73220
+          }
+        },
+        {
+          "key": "card/fengfeng_shibai",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shibai.webp",
+          "destination": "public/assets/cards/card/fengfeng_shibai.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.435368,
+            "visible_bbox": [
+              7,
+              26,
+              291,
+              232
+            ],
+            "sha256": "fd41ac3054c3501e930d5674acad8c4c2e7c93a60593b70d6d05461848ab5491",
+            "bytes": 57064
+          }
+        },
+        {
+          "key": "card/fengfeng_maoqiu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_maoqiu.webp",
+          "destination": "public/assets/cards/card/fengfeng_maoqiu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.581605,
+            "visible_bbox": [
+              21,
+              23,
+              291,
+              220
+            ],
+            "sha256": "f7f15499ca37c84a352fa667b2077a2354b2f4cb8c20916d731f29350ff6e727",
+            "bytes": 58128
+          }
+        },
+        {
+          "key": "card/fengfeng_zuiyang",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zuiyang.webp",
+          "destination": "public/assets/cards/card/fengfeng_zuiyang.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.560479,
+            "visible_bbox": [
+              10,
+              6,
+              291,
+              234
+            ],
+            "sha256": "b84e4a74606c8c65c26c4fdf6a1307446fea4c9e53dee0a3a21254da82eacb1b",
+            "bytes": 54318
+          }
+        },
+        {
+          "key": "card/fengfeng_fanwei",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fanwei.webp",
+          "destination": "public/assets/cards/card/fengfeng_fanwei.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.528219,
+            "visible_bbox": [
+              13,
+              8,
+              285,
+              230
+            ],
+            "sha256": "f45319ca94587871919915fc1bcfe1db7e1cb44c3f3c1420f29af74ef7028b27",
+            "bytes": 65992
+          }
+        },
+        {
+          "key": "card/fengfeng_liandao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_liandao.webp",
+          "destination": "public/assets/cards/card/fengfeng_liandao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.479696,
+            "visible_bbox": [
+              10,
+              10,
+              290,
+              231
+            ],
+            "sha256": "ad8c98c3867107708f5ffcfb77b1eaf6c9ccf050491452a00aebc83762d5b05e",
+            "bytes": 71008
+          }
+        },
+        {
+          "key": "card/fengfeng_jiedao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jiedao.webp",
+          "destination": "public/assets/cards/card/fengfeng_jiedao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.488211,
+            "visible_bbox": [
+              16,
+              19,
+              289,
+              223
+            ],
+            "sha256": "8c559fe0a5cf52bbf8963e86c272aa3d40bb1074c0c745ae07782a5d8f339514",
+            "bytes": 65328
+          }
+        },
+        {
+          "key": "card/fengfeng_wangming",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_wangming.webp",
+          "destination": "public/assets/cards/card/fengfeng_wangming.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.479376,
+            "visible_bbox": [
+              9,
+              6,
+              291,
+              231
+            ],
+            "sha256": "056b35938ca511672583d0488e021cd118b73066556fb148ad81e46daa2aa896",
+            "bytes": 78668
+          }
+        },
+        {
+          "key": "card/fengfeng_wufeng",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_wufeng.webp",
+          "destination": "public/assets/cards/card/fengfeng_wufeng.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.586009,
+            "visible_bbox": [
+              7,
+              16,
+              283,
+              225
+            ],
+            "sha256": "d6b420d99521436c6a9ff887584c353823366c40e2759811f55d0a2d9f8e7511",
+            "bytes": 60796
+          }
+        },
+        {
+          "key": "card/fengfeng_tiexin",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_tiexin.webp",
+          "destination": "public/assets/cards/card/fengfeng_tiexin.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.470164,
+            "visible_bbox": [
+              13,
+              17,
+              287,
+              225
+            ],
+            "sha256": "3f0032be2fb616a3ba0941133bb654cc4c77cee73aaa2adfe7d9b0055c6095d2",
+            "bytes": 76276
+          }
+        },
+        {
+          "key": "card/fengfeng_sanhua",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_sanhua.webp",
+          "destination": "public/assets/cards/card/fengfeng_sanhua.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.573272,
+            "visible_bbox": [
+              30,
+              7,
+              257,
+              231
+            ],
+            "sha256": "5c81a29e1e86d7e123675a3556a6242d64ed9ff4d94dd70d689387a3ca77e58c",
+            "bytes": 70876
+          }
+        },
+        {
+          "key": "card/fengfeng_fanpu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_fanpu.webp",
+          "destination": "public/assets/cards/card/fengfeng_fanpu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.601491,
+            "visible_bbox": [
+              23,
+              18,
+              281,
+              225
+            ],
+            "sha256": "e13312b9cded9a81816883e63a53f97b1f85243042d96e2b1bcc172e82fb523a",
+            "bytes": 58606
+          }
+        },
+        {
+          "key": "card/fengfeng_shierlian",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_shierlian.webp",
+          "destination": "public/assets/cards/card/fengfeng_shierlian.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.504041,
+            "visible_bbox": [
+              8,
+              6,
+              291,
+              228
+            ],
+            "sha256": "c20cd4ef0d9024fb1941c9e6ef6c4b2734c2189733329548244b22298df8f667",
+            "bytes": 82976
+          }
+        },
+        {
+          "key": "card/fengfeng_jingzhi",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jingzhi.webp",
+          "destination": "public/assets/cards/card/fengfeng_jingzhi.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.48056,
+            "visible_bbox": [
+              8,
+              6,
+              291,
+              223
+            ],
+            "sha256": "89708a2e13eb3c016b4f95b84299582935333aedf26111585f62e2cc4207391b",
+            "bytes": 71228
+          }
+        },
+        {
+          "key": "card/fengfeng_luanwu",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_luanwu.webp",
+          "destination": "public/assets/cards/card/fengfeng_luanwu.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.482999,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              230
+            ],
+            "sha256": "7665647e7358dc4dec10961b8e643aa90b972a06919890762dcd0ae222945ca7",
+            "bytes": 82812
+          }
+        },
+        {
+          "key": "card/fengfeng_huixuan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_huixuan.webp",
+          "destination": "public/assets/cards/card/fengfeng_huixuan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.425348,
+            "visible_bbox": [
+              7,
+              6,
+              290,
+              232
+            ],
+            "sha256": "0e14c4953ee2ba327d289db186331643ab244d60a213481cb8eea441469eb041",
+            "bytes": 81132
+          }
+        },
+        {
+          "key": "card/fengfeng_lianhuan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_lianhuan.webp",
+          "destination": "public/assets/cards/card/fengfeng_lianhuan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.481856,
+            "visible_bbox": [
+              7,
+              13,
+              291,
+              228
+            ],
+            "sha256": "2db4f324538ab26191bbdc57939903f5917c0b9954a2b5a3134f951615436ae6",
+            "bytes": 77390
+          }
+        },
+        {
+          "key": "card/fengfeng_beici",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_beici.webp",
+          "destination": "public/assets/cards/card/fengfeng_beici.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.476268,
+            "visible_bbox": [
+              9,
+              30,
+              291,
+              231
+            ],
+            "sha256": "b3d7bb42a65e7f20d201cb432c5fcc4a2df9ef737f361b9dd20c57d8ca42fba3",
+            "bytes": 58268
+          }
+        },
+        {
+          "key": "card/fengfeng_zhuiji",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_zhuiji.webp",
+          "destination": "public/assets/cards/card/fengfeng_zhuiji.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.487974,
+            "visible_bbox": [
+              7,
+              12,
+              291,
+              222
+            ],
+            "sha256": "aae925aafbcaab22ad20c548d2b1c502845c204434d9072845786786d410a62a",
+            "bytes": 76950
+          }
+        },
+        {
+          "key": "card/fengfeng_doumao",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_doumao.webp",
+          "destination": "public/assets/cards/card/fengfeng_doumao.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.381187,
+            "visible_bbox": [
+              7,
+              6,
+              291,
+              234
+            ],
+            "sha256": "f69323887cf31b0b60824611532271e332ea634dad14c8054be0e2a2eb7d6945",
+            "bytes": 92422
+          }
+        },
+        {
+          "key": "card/fengfeng_maoqiudan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_maoqiudan.webp",
+          "destination": "public/assets/cards/card/fengfeng_maoqiudan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.536859,
+            "visible_bbox": [
+              7,
+              8,
+              289,
+              228
+            ],
+            "sha256": "7adc7c189f5c58891813a28a73599791f3797c6dacf7e624f1a14fe1c31fbeea",
+            "bytes": 70084
+          }
+        },
+        {
+          "key": "card/fengfeng_qianglafen",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_qianglafen.webp",
+          "destination": "public/assets/cards/card/fengfeng_qianglafen.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.435856,
+            "visible_bbox": [
+              8,
+              7,
+              291,
+              228
+            ],
+            "sha256": "fcfcc4c2552a45496df57af11f17c84ca7676910cb580951942983b2303ad7b0",
+            "bytes": 87800
+          }
+        },
+        {
+          "key": "card/fengfeng_bengquan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_bengquan.webp",
+          "destination": "public/assets/cards/card/fengfeng_bengquan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.489242,
+            "visible_bbox": [
+              11,
+              7,
+              290,
+              226
+            ],
+            "sha256": "ffefb127c345927e9920245b0e038c0fe0125fff742073e627e7fbcc489560f0",
+            "bytes": 81318
+          }
+        },
+        {
+          "key": "card/fengfeng_tiebushan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_tiebushan.webp",
+          "destination": "public/assets/cards/card/fengfeng_tiebushan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.45871,
+            "visible_bbox": [
+              7,
+              13,
+              291,
+              223
+            ],
+            "sha256": "e73d915dbd13c51df6eea443800829be5bc70f2b539b513204f7f3671a69450f",
+            "bytes": 68276
+          }
+        },
+        {
+          "key": "card/fengfeng_jieli",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jieli.webp",
+          "destination": "public/assets/cards/card/fengfeng_jieli.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.461204,
+            "visible_bbox": [
+              10,
+              13,
+              289,
+              221
+            ],
+            "sha256": "1a6bc42e81eb58aa18182ddda69e998f6acdfc674c7ccd28b472a84a8fffe734",
+            "bytes": 79124
+          }
+        },
+        {
+          "key": "card/fengfeng_cuiye",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_cuiye.webp",
+          "destination": "public/assets/cards/card/fengfeng_cuiye.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.49699,
+            "visible_bbox": [
+              18,
+              11,
+              285,
+              225
+            ],
+            "sha256": "0754e82f1ff056ba5db8d36b428dea932122cf709d28e88f4b0fbe8a60dbefd1",
+            "bytes": 73104
+          }
+        },
+        {
+          "key": "card/fengfeng_ehou",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_ehou.webp",
+          "destination": "public/assets/cards/card/fengfeng_ehou.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.32709,
+            "visible_bbox": [
+              13,
+              6,
+              291,
+              234
+            ],
+            "sha256": "e6e213c77128745c425b531464562da4def727ece2bfee47008afa4061d64d6e",
+            "bytes": 76458
+          }
+        },
+        {
+          "key": "card/fengfeng_huxin",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_huxin.webp",
+          "destination": "public/assets/cards/card/fengfeng_huxin.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.329585,
+            "visible_bbox": [
+              14,
+              6,
+              291,
+              229
+            ],
+            "sha256": "d81840d01778008f5138c898e0bf184f0e56d7701ec7c41520f66346b661c664",
+            "bytes": 81592
+          }
+        },
+        {
+          "key": "card/fengfeng_jiuweiquan",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_jiuweiquan.webp",
+          "destination": "public/assets/cards/card/fengfeng_jiuweiquan.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.374443,
+            "visible_bbox": [
+              9,
+              6,
+              291,
+              233
+            ],
+            "sha256": "bc053a87dee8e1ad30e43a3f6fd716f0355afa5e3db1f01a437ba77dae421c1e",
+            "bytes": 98920
+          }
+        },
+        {
+          "key": "card/fengfeng_slime_card",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_slime_card.webp",
+          "destination": "public/assets/cards/card/fengfeng_slime_card.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.444928,
+            "visible_bbox": [
+              22,
+              6,
+              291,
+              234
+            ],
+            "sha256": "0ceb0fa84d97df8fdd02b5da1f91330ab90660c05e4ed987ec8deb49376b427f",
+            "bytes": 73342
+          }
+        },
+        {
+          "key": "card/fengfeng_dazed_card",
+          "source": "docs/第四隻角色_封封_提案/11_共用卡牌_封封版_待整合/WebP_299x240/fengfeng_dazed_card.webp",
+          "destination": "public/assets/cards/card/fengfeng_dazed_card.webp",
+          "copy_hash_verified": true,
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.543952,
+            "visible_bbox": [
+              30,
+              6,
+              288,
+              228
+            ],
+            "sha256": "8d8bfd0c34eb74794891bfbaa6137de7434d067151eddfb17fb3a17351ea6181",
+            "bytes": 69134
+          }
+        }
+      ]
+    }
+  },
+  "converted": {
+    "exclusive_cards": {
+      "count": 32,
+      "selected_contract_drafts": [
+        "01_fengfeng_pingzhan_待去背.png",
+        "02_fengfeng_hushen_待去背.png",
+        "03_fengfeng_tuna_待去背.png",
+        "04_fengfeng_tanbu_待去背.png",
+        "05_fengfeng_hengsao_待去背.png",
+        "06_fengfeng_tabu_待去背.png",
+        "07_fengfeng_tiaokai_待去背.png",
+        "08_fengfeng_tuibu_待去背.png",
+        "02_fengfeng_zhengxi_待去背.png",
+        "03_fengfeng_wenwan_待去背.png",
+        "04_fengfeng_huanshou_待去背.png",
+        "05_fengfeng_jianqiao_待去背.png",
+        "06_fengfeng_huibu_待去背.png",
+        "07_fengfeng_chuantang_待去背.png",
+        "01_fengfeng_shuangduan_待去背.png",
+        "01_fengfeng_huzhou_待去背.png",
+        "01_fengfeng_zhuanshen_待去背.png",
+        "03_fengfeng_changxi_待去背.png",
+        "04_fengfeng_zhenshou_待去背.png",
+        "05_fengfeng_xunxi_待去背.png",
+        "06_fengfeng_shoushi_待去背.png",
+        "07_fengfeng_kanshi_待去背.png",
+        "08_fengfeng_youbian_待去背.png",
+        "01_fengfeng_jiewo_待去背.png",
+        "02_fengfeng_husong_待去背.png",
+        "03_fengfeng_duanliu_待去背.png",
+        "04_fengfeng_kaishan_待去背.png",
+        "05_fengfeng_cunfeng_待去背.png",
+        "02_fengfeng_lianxi_待去背.png",
+        "07_fengfeng_jizhong_待去背.png",
+        "08_fengfeng_pozhen_待去背.png",
+        "02_fengfeng_yiqichushou_待去背.png"
+      ],
+      "excluded_alternatives": [
+        "01_fengfeng_tabu_補充_不採用_待去背.png",
+        "03_fengfeng_shuangduan_備選_待去背.png",
+        "08_fengfeng_shuangduan_補充_待去背.png",
+        "02_fengfeng_zhuanshen_原始不採用_待去背.png",
+        "03_fengfeng_zhuanshen_備選_待去背.png",
+        "04_fengfeng_lianxi_備選_待去背.png",
+        "06_fengfeng_lianxi_原始不採用_待去背.png",
+        "04_fengfeng_yiqichushou_備選_待去背.png"
+      ],
+      "items": [
+        {
+          "key": "card/fengfeng_pingzhan",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/01_fengfeng_pingzhan_待去背.png",
+          "source_sha256": "2ce206e5bf639ffcadce1ad054526cd9dec87f0e792978cde3ff0528d4f0ce42",
+          "destination": "public/assets/cards/card/fengfeng_pingzhan.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.698565,
+            "visible_bbox": [
+              69,
+              6,
+              230,
+              234
+            ],
+            "sha256": "0cf64d864fad6164f3c55348067377cfb520afb856214ec6f008117a848a657d",
+            "bytes": 13166
+          }
+        },
+        {
+          "key": "card/fengfeng_hushen",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/02_fengfeng_hushen_待去背.png",
+          "source_sha256": "03cc72b38b1ea99847845d623defc396fec1bc96453b8566add8593c552147d6",
+          "destination": "public/assets/cards/card/fengfeng_hushen.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.707985,
+            "visible_bbox": [
+              52,
+              6,
+              247,
+              234
+            ],
+            "sha256": "f323afce51b4e5beacc7f1e22edff36d76ad0435c2b115b5537a07911461d092",
+            "bytes": 12738
+          }
+        },
+        {
+          "key": "card/fengfeng_tuna",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/03_fengfeng_tuna_待去背.png",
+          "source_sha256": "8b4ba1e591ea2b8b9716b8372a2a4961c4b67f0734f6c97ab1b99c1dc2ed031f",
+          "destination": "public/assets/cards/card/fengfeng_tuna.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.704599,
+            "visible_bbox": [
+              57,
+              7,
+              242,
+              234
+            ],
+            "sha256": "de3817b6f2e3c0e59f12c8e16433c75480b7ff66ba63a164b631138d90db905b",
+            "bytes": 15752
+          }
+        },
+        {
+          "key": "card/fengfeng_tanbu",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/04_fengfeng_tanbu_待去背.png",
+          "source_sha256": "0a732db7258c73b448dfb72d10611599306bb00681408031405abb87beccf4e3",
+          "destination": "public/assets/cards/card/fengfeng_tanbu.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.715231,
+            "visible_bbox": [
+              44,
+              6,
+              254,
+              234
+            ],
+            "sha256": "889c358b566fac5d6ab83f4484f4c0037de710767afe2cc39654f2ba5cd5d62d",
+            "bytes": 12036
+          }
+        },
+        {
+          "key": "card/fengfeng_hengsao",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/05_fengfeng_hengsao_待去背.png",
+          "source_sha256": "7b74cc7f13d43e798c292ff37de202fe779139e8e7c8bd82d5050115a9dcc169",
+          "destination": "public/assets/cards/card/fengfeng_hengsao.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.58573,
+            "visible_bbox": [
+              35,
+              6,
+              264,
+              234
+            ],
+            "sha256": "37d9e92eb4855827eb9d03c9425e3a7c5a67c198d303b9c52784f2a18afbc093",
+            "bytes": 17008
+          }
+        },
+        {
+          "key": "card/fengfeng_tabu",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/06_fengfeng_tabu_待去背.png",
+          "source_sha256": "427d79be8b757df66dc116d4b81b497fb18805c7afd58bce12e51bf10c7e3900",
+          "destination": "public/assets/cards/card/fengfeng_tabu.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.657191,
+            "visible_bbox": [
+              53,
+              6,
+              245,
+              234
+            ],
+            "sha256": "fd0ead77509de244e3495f05bd52a4c66ac529f58ea07dc286bdad4ce6e81982",
+            "bytes": 16550
+          }
+        },
+        {
+          "key": "card/fengfeng_tiaokai",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/07_fengfeng_tiaokai_待去背.png",
+          "source_sha256": "91063b5b3786f8e0585da1f06158484e93ee14ea1ee96fb9380961472c989f54",
+          "destination": "public/assets/cards/card/fengfeng_tiaokai.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.672241,
+            "visible_bbox": [
+              54,
+              6,
+              244,
+              234
+            ],
+            "sha256": "80fd6338e90dbb5b018d3f6edfc6d18de0b5fc15c28df76d80f48537f1cb9cff",
+            "bytes": 17822
+          }
+        },
+        {
+          "key": "card/fengfeng_tuibu",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/08_fengfeng_tuibu_待去背.png",
+          "source_sha256": "67b58ad4f97f3128201018be388e511d3c1e3fb77328ce009ccb6a9f137916f2",
+          "destination": "public/assets/cards/card/fengfeng_tuibu.webp",
+          "method": "existing_alpha_then_add_card_art_key_out_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.655017,
+            "visible_bbox": [
+              57,
+              6,
+              241,
+              234
+            ],
+            "sha256": "94635d8f82661f964960a18ae904fe040fc0f04456122aa636b9e7e47178d9b3",
+            "bytes": 16330
+          }
+        },
+        {
+          "key": "card/fengfeng_zhengxi",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/02_fengfeng_zhengxi_待去背.png",
+          "source_sha256": "cc7f5ba92be6a9e743b5c6a013b570354a682b043a1bb34de1df8ffaebc802a0",
+          "destination": "public/assets/cards/card/fengfeng_zhengxi.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.618339,
+            "visible_bbox": [
+              7,
+              6,
+              292,
+              234
+            ],
+            "sha256": "fc40cd53ca0c51f1d7eb7f151bdf541478d5a7f05482f80ba655bd79ef1c3f9e",
+            "bytes": 16140
+          }
+        },
+        {
+          "key": "card/fengfeng_wenwan",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/03_fengfeng_wenwan_待去背.png",
+          "source_sha256": "cd081916b55fc0c95651fe0d6ed72a856a0ac6a89c472e7d7cac9de8d92f591e",
+          "destination": "public/assets/cards/card/fengfeng_wenwan.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.620973,
+            "visible_bbox": [
+              30,
+              6,
+              268,
+              234
+            ],
+            "sha256": "bbaa8bf94765739f8c110204f03c5ff999c2fc6f1e390d68df476a75df83091a",
+            "bytes": 20352
+          }
+        },
+        {
+          "key": "card/fengfeng_huanshou",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/04_fengfeng_huanshou_待去背.png",
+          "source_sha256": "7cacc1d4babb0d9a735d6549606b33427f1430fcd9c988f60b8eceb6808d7a1b",
+          "destination": "public/assets/cards/card/fengfeng_huanshou.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.649652,
+            "visible_bbox": [
+              26,
+              6,
+              272,
+              234
+            ],
+            "sha256": "9cbcca9f139f519a58b1c871631f173f6ca98223e8ed9f13f16d5d405c513992",
+            "bytes": 15388
+          }
+        },
+        {
+          "key": "card/fengfeng_jianqiao",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/05_fengfeng_jianqiao_待去背.png",
+          "source_sha256": "70174cf41fae4c04bc69452a4891219d94ef6e97ad9227747bdc6d5bedfacc4c",
+          "destination": "public/assets/cards/card/fengfeng_jianqiao.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.63233,
+            "visible_bbox": [
+              43,
+              6,
+              256,
+              234
+            ],
+            "sha256": "06d77b07e9f3c878b422eac2a004036a60d90a325164b9a4c7f07b46352875a2",
+            "bytes": 16384
+          }
+        },
+        {
+          "key": "card/fengfeng_huibu",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/06_fengfeng_huibu_待去背.png",
+          "source_sha256": "b0a5bd8e85e3418e940bf6b12e2c960c82a837bc34d0ab3ab19a028eb7ac226b",
+          "destination": "public/assets/cards/card/fengfeng_huibu.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.653261,
+            "visible_bbox": [
+              49,
+              6,
+              250,
+              234
+            ],
+            "sha256": "d4f7b5a4b4af26102284ca4c5430e02c5c2b9367511180d99e4e35c6ea001470",
+            "bytes": 14694
+          }
+        },
+        {
+          "key": "card/fengfeng_chuantang",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/07_fengfeng_chuantang_待去背.png",
+          "source_sha256": "13359af0adbf95130ddd8abd08d6f628c480062b70d5d0c69728bac3017f77a3",
+          "destination": "public/assets/cards/card/fengfeng_chuantang.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.642071,
+            "visible_bbox": [
+              7,
+              17,
+              292,
+              223
+            ],
+            "sha256": "8da147450b64c8527bad540c0109e2cd80d37b926f38b3f6e626f49e1b2650f4",
+            "bytes": 13998
+          }
+        },
+        {
+          "key": "card/fengfeng_shuangduan",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/01_fengfeng_shuangduan_待去背.png",
+          "source_sha256": "06e398e745973f4e7f92efd5f84fa4d0f7152232a73fe8021fc92e50b14be110",
+          "destination": "public/assets/cards/card/fengfeng_shuangduan.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.755686,
+            "visible_bbox": [
+              35,
+              51,
+              263,
+              218
+            ],
+            "sha256": "96db8fb8c5ed274a8d3d731f1e9316e28fd0aa61f09bbd151222bfc2e4474394",
+            "bytes": 13922
+          }
+        },
+        {
+          "key": "card/fengfeng_huzhou",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/01_fengfeng_huzhou_待去背.png",
+          "source_sha256": "e8b6aacedd1db7170a74e811b66770e6ce863c3ea0a95f345dc217d7133641ef",
+          "destination": "public/assets/cards/card/fengfeng_huzhou.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.56675,
+            "visible_bbox": [
+              37,
+              6,
+              261,
+              234
+            ],
+            "sha256": "0a0f02a09ca691795ffaf517bd380bc9a6fc555370568f8df589977d693bb44e",
+            "bytes": 18782
+          }
+        },
+        {
+          "key": "card/fengfeng_zhuanshen",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/01_fengfeng_zhuanshen_待去背.png",
+          "source_sha256": "d6f6d6f69c0c9a438764da6c977040bf7559b9b0855508557b3a3960e5bede98",
+          "destination": "public/assets/cards/card/fengfeng_zhuanshen.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.750167,
+            "visible_bbox": [
+              16,
+              26,
+              274,
+              214
+            ],
+            "sha256": "0a14ad4e2d3405f8b1c992766d7ffd096420fae16e34ec37467296032f673aba",
+            "bytes": 12602
+          }
+        },
+        {
+          "key": "card/fengfeng_changxi",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/03_fengfeng_changxi_待去背.png",
+          "source_sha256": "00b4b5aac17e14503353b2ddac1a8a46da71c25805a1244323ce76f37ca05705",
+          "destination": "public/assets/cards/card/fengfeng_changxi.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.605881,
+            "visible_bbox": [
+              7,
+              23,
+              292,
+              216
+            ],
+            "sha256": "ae2ab3ba1bcd8611ab1506cbb399da8096513559eaf08336c66ae54b9397f05e",
+            "bytes": 16104
+          }
+        },
+        {
+          "key": "card/fengfeng_zhenshou",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/04_fengfeng_zhenshou_待去背.png",
+          "source_sha256": "42cd6500b03d3277ec5988d97f8d595049e0ed0746d1763e29f07625c14ad428",
+          "destination": "public/assets/cards/card/fengfeng_zhenshou.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.657901,
+            "visible_bbox": [
+              20,
+              6,
+              278,
+              234
+            ],
+            "sha256": "638a049ea7fa8ce3cb268921e79619445c32f3656ce7dee500ac7d99f42c2c8a",
+            "bytes": 15324
+          }
+        },
+        {
+          "key": "card/fengfeng_xunxi",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/05_fengfeng_xunxi_待去背.png",
+          "source_sha256": "48c4186fbdd7c86775b49bb4d3f4ea759f021f789fa6bf56bab8fafe0c318541",
+          "destination": "public/assets/cards/card/fengfeng_xunxi.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.600934,
+            "visible_bbox": [
+              7,
+              9,
+              292,
+              231
+            ],
+            "sha256": "1791e45b44b15f378c525ad60012557d6da50d1900dea14713dbe6874e4303b3",
+            "bytes": 17116
+          }
+        },
+        {
+          "key": "card/fengfeng_shoushi",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/06_fengfeng_shoushi_待去背.png",
+          "source_sha256": "5bb4a684da6c16ae6aae3b946e51d041cbc30698ecf1b577a1c46727a7faae8c",
+          "destination": "public/assets/cards/card/fengfeng_shoushi.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.695652,
+            "visible_bbox": [
+              64,
+              6,
+              234,
+              234
+            ],
+            "sha256": "3365e2bb72ae649ada8665a8efa49a361c38d4d2a90264002595c3c014e14177",
+            "bytes": 13846
+          }
+        },
+        {
+          "key": "card/fengfeng_kanshi",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/07_fengfeng_kanshi_待去背.png",
+          "source_sha256": "152293b8b904e9cd220fc025e28ad04f80210b112bd13847e3c9d15cd1804d1e",
+          "destination": "public/assets/cards/card/fengfeng_kanshi.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.597255,
+            "visible_bbox": [
+              7,
+              13,
+              292,
+              226
+            ],
+            "sha256": "534fdfadfcc58aa3266bbaf121d41ef08cac1b1e80cd218b4991bdba1e5588ae",
+            "bytes": 15920
+          }
+        },
+        {
+          "key": "card/fengfeng_youbian",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/08_fengfeng_youbian_待去背.png",
+          "source_sha256": "566a3a2feb2eccbf5f7940bc85171fbb8b81588631075497f24c55b56884df7f",
+          "destination": "public/assets/cards/card/fengfeng_youbian.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.645262,
+            "visible_bbox": [
+              12,
+              6,
+              287,
+              234
+            ],
+            "sha256": "fa03172f7b1fcae5249d281f805a6d3202fabaa3450df7ab71a42149ac0e43d0",
+            "bytes": 15874
+          }
+        },
+        {
+          "key": "card/fengfeng_jiewo",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/01_fengfeng_jiewo_待去背.png",
+          "source_sha256": "9a14f9ca9b6163176c6d5c7279cef1b6495a66ce3d2cf7fbb65322d31de50fd2",
+          "destination": "public/assets/cards/card/fengfeng_jiewo.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.475125,
+            "visible_bbox": [
+              32,
+              6,
+              266,
+              234
+            ],
+            "sha256": "c23cccb7c099d79547c2c8633552faa4c0a15d8d61a60d6a6deccd75783fdd4b",
+            "bytes": 14468
+          }
+        },
+        {
+          "key": "card/fengfeng_husong",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/02_fengfeng_husong_待去背.png",
+          "source_sha256": "cfa2035e7cc9c7befc06d29854572d7ad34ecd2c4b3378c9a5ff1e72b7447ad9",
+          "destination": "public/assets/cards/card/fengfeng_husong.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.600446,
+            "visible_bbox": [
+              31,
+              6,
+              267,
+              234
+            ],
+            "sha256": "8936526d0f9dfe04c5bbd547dee95ba3aa9a27f7213ffadb054ed8b9545c6f86",
+            "bytes": 16554
+          }
+        },
+        {
+          "key": "card/fengfeng_duanliu",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/03_fengfeng_duanliu_待去背.png",
+          "source_sha256": "0ba19cd95a6d0f3e8974c184026ee446a797c396a995c755f0a82d35179022e6",
+          "destination": "public/assets/cards/card/fengfeng_duanliu.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.643924,
+            "visible_bbox": [
+              7,
+              18,
+              292,
+              222
+            ],
+            "sha256": "5ef53218fbfb0cb2301fc3d4904679d54fbabd0b23eadc36836cac3995480add",
+            "bytes": 16194
+          }
+        },
+        {
+          "key": "card/fengfeng_kaishan",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/04_fengfeng_kaishan_待去背.png",
+          "source_sha256": "417fa4d141769de00ea29df4977c64e8d6335c7f80b1e5abe03ef7c1a919b84e",
+          "destination": "public/assets/cards/card/fengfeng_kaishan.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.728177,
+            "visible_bbox": [
+              7,
+              40,
+              292,
+              200
+            ],
+            "sha256": "afec83c1b6fd9cce347406a849cf0642e30c09c6798406d1a992203720fe307b",
+            "bytes": 12276
+          }
+        },
+        {
+          "key": "card/fengfeng_cunfeng",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/05_fengfeng_cunfeng_待去背.png",
+          "source_sha256": "51721bd5d9281757f547d49f8ceb5cfd4850a1cb7125761b21c559c6daa67354",
+          "destination": "public/assets/cards/card/fengfeng_cunfeng.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.658459,
+            "visible_bbox": [
+              42,
+              6,
+              257,
+              234
+            ],
+            "sha256": "22499353cafc6b64876248e65a3d0d81a953f73e140d37c422576144fe5f7583",
+            "bytes": 16164
+          }
+        },
+        {
+          "key": "card/fengfeng_lianxi",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/02_fengfeng_lianxi_待去背.png",
+          "source_sha256": "648b8f22a6cfb648f405a4ad367b49bcfd33797c7c072adb5f6618b1ea65fd40",
+          "destination": "public/assets/cards/card/fengfeng_lianxi.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.787277,
+            "visible_bbox": [
+              9,
+              49,
+              286,
+              213
+            ],
+            "sha256": "9eced11ac1e09ce0fb39d84e5c06c1d2bc6b71de5d9cd84e3d483dc91ba96820",
+            "bytes": 11216
+          }
+        },
+        {
+          "key": "card/fengfeng_jizhong",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/07_fengfeng_jizhong_待去背.png",
+          "source_sha256": "4495319903e99ad9a45760bffcc1aeb50403acb0da506fa9dca716c4eddc6518",
+          "destination": "public/assets/cards/card/fengfeng_jizhong.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.607121,
+            "visible_bbox": [
+              7,
+              8,
+              292,
+              231
+            ],
+            "sha256": "37fcf345b945c14e802bd553656fb4e6e4abbbed88a41aa0cfb261c08d6d1463",
+            "bytes": 16062
+          }
+        },
+        {
+          "key": "card/fengfeng_pozhen",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/08_fengfeng_pozhen_待去背.png",
+          "source_sha256": "2809b6bd5bf2f383aa04f5d228a730986945a1010207da5a13a86b781ccd55c5",
+          "destination": "public/assets/cards/card/fengfeng_pozhen.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.725543,
+            "visible_bbox": [
+              7,
+              29,
+              292,
+              211
+            ],
+            "sha256": "67e1e0f84a4bf8b278e8f8929f49c046e20e7ca81237cd7f2e5d7118b949c29f",
+            "bytes": 12958
+          }
+        },
+        {
+          "key": "card/fengfeng_yiqichushou",
+          "source": "docs/第四隻角色_封封_提案/10_圖片素材_待整合/卡牌/待去背/02_fengfeng_yiqichushou_待去背.png",
+          "source_sha256": "d57c82b4112be2659d1ffb1b4bd9dd5abdc4bd97c9749b546896140d62da0303",
+          "destination": "public/assets/cards/card/fengfeng_yiqichushou.webp",
+          "method": "isnet_anime_background_removal_then_common_batch_contain",
+          "image": {
+            "width": 299,
+            "height": 240,
+            "mode": "RGBA",
+            "alpha_min": 0,
+            "alpha_max": 255,
+            "transparent_fraction": 0.734016,
+            "visible_bbox": [
+              35,
+              68,
+              263,
+              224
+            ],
+            "sha256": "96a0165e4aa3d27aedb021cfdd5538e2ff5153c000e65b5835229f3ceb30f92c",
+            "bytes": 13788
+          }
+        }
+      ]
+    }
+  },
+  "completed_supplements": {
+    "validation_report": "docs/fengfeng-event-art-validation.json",
+    "event_progress_report": "docs/fengfeng-event-art-progress.json",
+    "events": 101,
+    "coop_cards": 6,
+    "story_images": 4,
+    "shadow_images": 5,
+    "old_sword_tassel": 1
+  },
+  "pending_generation": {
+    "story_art_map": "後續正式素材已由 completed_supplements 所列驗證報告核對",
+    "events": 0,
+    "coop_cards": 0,
+    "story_images": 0,
+    "shadow_images": 0,
+    "old_sword_tassel": 0
+  },
+  "summary": {
+    "ready_copied": 157,
+    "ready_roles_and_heads": 39,
+    "ready_common_cards": 118,
+    "exclusive_cards_converted": 32,
+    "manifest_entries_added_or_verified": 189,
+    "supplemental_event_manifest_entries_verified": 101,
+    "source_files_unchanged": true,
+    "all_ready_copy_hashes_verified": true,
+    "all_images_opened": true,
+    "all_output_dimensions_verified": true,
+    "all_output_alpha_verified": true
+  }
+}

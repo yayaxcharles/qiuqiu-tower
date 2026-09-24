@@ -39,7 +39,7 @@ describe('底圖分關', () => {
     }
   });
 
-  it('可延後的每一張都說得出理由：二三關專屬的變體，或標了 acts 的事件', () => {
+  it('可延後的每一張都說得出理由：二三關專屬的變體、過關幻燈片，或照地圖現抓的事件主圖', () => {
     const skip = deferredBgKeys();
     expect([...skip].every((k) => k.startsWith('bg/'))).toBe(true);
     /*
@@ -50,15 +50,21 @@ describe('底圖分關', () => {
      *（複核 2026-09-11：「延後名單裡的每一個鍵都不在第一關清單裡」那種寫法是套套邏輯——
      *  `deferredBgKeys` 的定義就是「二三關的鍵減掉第一關的」，數學上不可能不成立，永遠會綠。）
      */
-    // ① 只在二三關出現的事件，插圖一定要延後（漏掉就是白佔首載）
+    /*
+     * ①② **每一篇事件的主圖都延後**，不管標不標 `acts`（2026-09-23 內容擴充 0-2）。
+     * 原本沒標 `acts` 的三十張「每一關都排得到」所以留首載；現在改成照這張地圖排到的那幾格現抓
+     *（`preload.ts` 的 `preloadMapEvents`），開場一張都不載。漏一張就是那一張白佔首載。
+     */
     for (const e of events) {
-      if (e.acts && !e.acts.includes(1)) {
-        expect(skip.has(`bg/event_${e.id}`), `${e.id} 只在第 ${e.acts.join('、')} 關出現，插圖該延後`).toBe(true);
-      }
+      expect(skip.has(`bg/event_${e.id}`), `${e.id} 的主圖照地圖現抓，開場不該載`).toBe(true);
     }
-    // ② 沒標 acts 的每一關都排得到，一律留首載
-    for (const e of events) {
-      if (!e.acts) expect(skip.has(`bg/event_${e.id}`), `${e.id} 每一關都遇得到，不能延後`).toBe(false);
+    // 也不在任何一關的清單裡：進關的 `preloadAct` 不再整關抓事件圖
+    for (const act of [1, 2, 3]) {
+      expect(bgKeysForAct(act).filter((k) => k.startsWith('bg/event_')), `第 ${act} 關`).toEqual([]);
+    }
+    // 紙箱畫面借用的 `bg/event_chest_*` 不是事件，不可以跟著延後（紙箱一打開就要用）
+    for (const k of ['bg/event_chest_closed', 'bg/event_chest_open', 'bg/event_chest_empty']) {
+      expect(skip.has(k), k).toBe(false);
     }
     /*
      * ③ **三關的過關幻燈片全部要延後**（2026-09-11 改）。
@@ -84,13 +90,14 @@ describe('底圖分關', () => {
     for (const k of bgKeysForAct(1)) expect(skip.has(k)).toBe(false);
   });
 
-  it('過關畫面、開場幻燈片、事件插圖不在延後名單裡', () => {
+  it('過關畫面、開場幻燈片不在延後名單裡', () => {
     // 2026-09-05 全面體檢點名過的雷：`screen_result_win` 第一關過關就要用。
-    // 這裡列的每一張都是**每一關都用得到**的（`bg/event_toll` 沒標 acts），被誤判延後就會現抓、閃一下。
-    //（2026-09-11 起，有標 `acts` 的事件插圖與二三關的幻燈片是**刻意**延後的，見上一條。）
+    // 這裡列的每一張都是**每一關都用得到**的，被誤判延後就會現抓、閃一下。
+    //（2026-09-11 起二三關的幻燈片、2026-09-23 起事件主圖是**刻意**延後的，見上一條；
+    //  事件主圖改由地圖畫面照排到的格子先抓、走進事件格時等它解好，所以不會現抓）
     const skip = deferredBgKeys();
     for (const k of ['bg/screen_result_win', 'bg/screen_result_lose', 'bg/screen_title',
-      'bg/event_toll', 'bg/boss1', 'bg/low']) {
+      'bg/screen_event', 'bg/boss1', 'bg/low']) {
       expect(skip.has(k)).toBe(false);
     }
     // 序幕那四張是開新局第一秒就播的，一定要留在首載

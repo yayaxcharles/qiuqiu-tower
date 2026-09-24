@@ -48,6 +48,11 @@
       case 'rest': { const bs = qa('.scene-actions button').filter(vis); const b = bs[Math.floor(Math.random() * bs.length)] || qa('button').filter(vis).find((b) => /打盹/.test(b.textContent)); if (b) { b.click(); log('rest ' + b.textContent.slice(0, 6)); } break; }
       case 'chest': { const b = qa('.scene-actions button, button').filter(vis).find((b) => /繼續|拿走|回地圖|收下|出發/.test(b.textContent)) || qa('.scene-actions button').filter(vis).pop(); if (b) { b.click(); log('chest ' + b.textContent.slice(0, 6)); } break; }
       case 'actclear': { const t = qa('.pick-tile').filter(vis).find((t) => !t.classList.contains('picked') && !t.classList.contains('chosen')); const already = q('.pick-tile.picked, .pick-tile.chosen, .pick-tile.selected'); if (t && !already) { t.click(); log('actclear relic'); break; } const c = qa('.reward-cards .card, .actclear .card').filter(vis); if (c.length && !q('.card.picked, .card.chosen, .card.selected')) { c[0].click(); log('actclear card'); break; } const b = qa('button').filter(vis).find((b) => /出發|繼續|上路/.test(b.textContent)) || qa('.scene-actions button').filter(vis).pop(); if (b) { b.click(); log('actclear btn ' + b.textContent.slice(0, 6)); } break; }
+      // 關主戰前推開門那一頁（2026-09-23 稽核「已知、沒有再報」）：以前沒認得這個畫面，
+      // 走到這裡卡住 40 步就被上面的 stuck 判定當成卡關自停。門開演出跑完之前按鈕會
+      // 失去點擊（`.boss-door.opening .door-hint { pointer-events: none }`），vis() 那時候
+      // 找不到可見按鈕、什麼都不做，一直等到畫面自己切進 combat 就好，不用額外處理
+      case 'bossdoor': { const b = qa('button').filter(vis).find((b) => /推開/.test(b.textContent)); if (b) { b.click(); log('bossdoor open'); } break; }
       case 'result': { __autoStop = true; log('RESULT ' + app.run?.status + ' floor ' + app.run?.floor); break; }
       default: log('screen? ' + screen);
     }

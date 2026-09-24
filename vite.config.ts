@@ -1,4 +1,5 @@
-import { defineConfig } from 'vite';
+// 從 vitest/config 拿 defineConfig（同一支、多了 `test` 欄位的型別），打包照舊走 vite
+import { defineConfig } from 'vitest/config';
 import { assetHash } from './tools/vite-asset-hash.ts';
 
 /*
@@ -17,6 +18,12 @@ const SITE_NAME = process.env['SITE_NAME']
 const SITE_BASE = `/${SITE_NAME.replace(/^\/+|\/+$/g, '')}/`;
 
 export default defineConfig({
+  /*
+   * 測試的等待上限統一放寬到 30 秒（2026-09-24）：內容擴充之後有十幾支測試要讓機器人跑整局（幾百局），
+   * 本機一兩秒，雲端 Actions 的機器慢、又平行跑，曾超過預設 5 秒被判紅，第三批推完那次部署就是這樣擋下的。
+   * 只放寬等待，不改任何斷言；真的卡死的測試照樣會在 30 秒紅
+   */
+  test: { testTimeout: 30_000 },
   /*
    * 打包時把素材檔名改成「原名－內容雜湊碼」（見 `tools/vite-asset-hash.ts` 的檔頭）。
    * GitHub Pages 一律回十分鐘的快取又改不了，固定檔名換了內容會讓回鍋的玩家吃到舊圖。

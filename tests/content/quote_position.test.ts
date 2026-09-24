@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { events } from '../../src/content/events';
+// 球球第二批的開頭與結果延後載入，這支一載入才填回（2026-09-23 b2fin）；不載的話那十八篇是空字串、靜靜跳過
+import '../../src/content/event-text-b2';
+// 球球的稀有事件 5 篇同理（2026-09-24 b3int 改成延後載入）
+import '../../src/content/event-text-b3rare';
 
 /**
  * 共用事件結果句裡，主角講的那句話擺在哪（2026-09-16 第三輪回填踩到）。

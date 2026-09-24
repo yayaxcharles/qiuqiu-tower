@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { STARTER_DECK } from '../../src/content/cards';
 import { damageEnemy } from '../../src/engine/actions';
 import { applyEffects } from '../../src/engine/effects';
-import { endTurn, playCard, startCombat } from '../../src/engine/combat';
+import { endTurn, startCombat } from '../../src/engine/combat';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import type { CardInstance } from '../../src/engine/types';
 import { inst } from '../helpers';

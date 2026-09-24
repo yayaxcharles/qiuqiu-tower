@@ -1,23 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { FEIFEI_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
+import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, FENGFENG_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 6、忍術 84、絕學 44、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 12、忍術 143、絕學 66、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     // 起手 3→6：2026-09-12 菲菲的三種起手牌（飛針、退開、淬毒）
-    expect(count('起手')).toBe(6);
+    // 6→9：2026-09-17 噹噹的三種起手牌（正拳、架盤、回敬）
+    // 9→12：2026-09-20 封封的平斬、護身、吐納
+    expect(count('起手')).toBe(12);
     // 忍術 61→67：2026-09-11 的九張連線牌（`coop: true`，只有雙人局才進池）；
     // 67→84、絕學 39→44：2026-09-12 菲菲的 22 張專屬牌（`hero: 'feifei'`）。
     // 兩批都掛 `hidden`，圖到齊才會進獎勵與罐頭鋪
     // 95→96：2026-09-14 菲菲的分身術分成她自己那張（疊毒，`feifei_fenshen`）
     // 96→97：2026-09-14 影子分身分成球球（原版）與菲菲（9/12 改版 `feifei_yingzi`）兩張
     // 97→98、51→52：2026-09-15 幫同伴回血的兩張連線牌（魚乾急救進忍術、一起喘口氣進絕學）
-    expect(count('忍術')).toBe(98);   // 連線支援牌 A＋B＋C 共 18 張，其中 12 張進忍術
-    expect(count('絕學')).toBe(52);
+    // 98→118：2026-09-17 噹噹的 20 張忍術（常見 8、罕見 11、稀有 1）
+    // 118→119：2026-09-17 橋接牌四張換掉三張（連環撞、迴力鏢、卸甲）
+    // 141→143、絕學 65→66：2026-09-25 菲菲補爪力牌的缺那三張毒系牌（補一針、看準破綻進忍術，越撒越順手進絕學）
+    expect(count('忍術')).toBe(143);   // 119→141：封封 22 張非起手忍術
+    expect(count('絕學')).toBe(66);   // 58→65：封封 7 張絕學
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(166);   // 2026-09-13 連線支援牌 A＋B＋C 共 +18；2026-09-14 菲菲的分身術 +1、影子分身分家 +1；2026-09-15 回血連線牌 +2
+    expect(cards.length).toBe(231);   // 196→228：2026-09-20 封封 32 張；228→231：2026-09-25 菲菲三張毒系牌
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
@@ -59,11 +64,14 @@ describe('牌資料', () => {
     for (const c of cards) {
       const hitsAll = c.effects.some((e) => ('target' in e && e.target === 'all'));
       const hitsOne = c.effects.some((e) =>
-        (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageRamp' || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
+        (e.kind === 'damage' && e.target !== 'all') || e.kind === 'damageSpendQi' || e.kind === 'damageRamp' || e.kind === 'damageRandom' || e.kind === 'damageEqualBlock' ||
         e.kind === 'stealBlock' || e.kind === 'transferDebuffs' || e.kind === 'removeStatuses' ||
         (e.kind === 'status' && e.target === 'enemy') || e.kind === 'drawIfTargetStatus' || e.kind === 'doubleStatus' ||
         // 菲菲的三張（2026-09-12）：遠射／見血封喉／一針斃命都是指定一隻打
         e.kind === 'damageByStatus' || e.kind === 'execByStatus' || e.kind === 'spreadStatus' ||
+        // 噹噹的兩種（2026-09-17）：卸蜷縮打人、照自己的反彈打。
+        // `damageSpendBlock` 打全體時自己帶 `target: 'all'`，上面的 `hitsAll` 會先接住
+        e.kind === 'damageSpendBlock' || e.kind === 'damageByOwnStatus' ||
         // 連線支援牌 B 批（2026-09-13）：這兩個也是「指定一隻」——
         // `damageFromAllyStrength` 的傷害是排進佇列的，效果表上看不到 `damage`，
         // 所以要在這裡點名，不然它會被判成 self（這條測試就是這樣抓到的）
@@ -81,6 +89,15 @@ describe('牌資料', () => {
   });
   it('起手牌組 10 張', () => {
     expect(FEIFEI_STARTER_DECK.length, '菲菲也是十張').toBe(10);
+    expect(DANGDANG_STARTER_DECK.length, '噹噹也是十張').toBe(10);
+    expect(FENGFENG_STARTER_DECK, '封封起手固定為四攻、四防、二吐納').toEqual([
+      'fengfeng_pingzhan', 'fengfeng_pingzhan', 'fengfeng_pingzhan', 'fengfeng_pingzhan',
+      'fengfeng_hushen', 'fengfeng_hushen', 'fengfeng_hushen', 'fengfeng_hushen',
+      'fengfeng_tuna', 'fengfeng_tuna',
+    ]);
+    expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dangdang_zhengquan').length).toBe(5);
+    expect(DANGDANG_STARTER_DECK.filter((id) => id === 'dangdang_jiapan').length).toBe(4);
+    for (const id of DANGDANG_STARTER_DECK) expect(cardById[id]?.pool, id).toBe('起手');
     // 形狀跟球球一樣：5 攻＋4 防＋1 招牌技
     expect(FEIFEI_STARTER_DECK.filter((id) => id === 'feifei_feizhen').length).toBe(5);
     expect(FEIFEI_STARTER_DECK.filter((id) => id === 'feifei_tuikai').length).toBe(4);
@@ -108,7 +125,7 @@ describe('牌資料', () => {
     const artReady = (c: typeof cards[number]): boolean => {
       if (!manifest.cards[c.art]) return false;
       // 綁角色的牌，`c.art` 就是那位自己的圖
-      if (c.hero === 'feifei' || c.hero === 'ninja') return true;
+      if (c.hero === 'feifei' || c.hero === 'ninja' || c.hero === 'dangdang' || c.hero === 'fengfeng') return true;
       // 起手牌是照職業發固定清單的，她永遠拿不到球球那四張（貓抓、淡定…），不需要她的版本
       if (c.pool === '起手') return true;
       return !!manifest.cards[c.art.replace('card/', 'card/feifei_')];
@@ -132,5 +149,63 @@ describe('牌資料', () => {
         for (const c of rollCardChoices(new Rng(seedFromString('hidden-' + seed)), pool, 6, [], true, 0)) expect(c.hidden).toBeUndefined();
       }
     }
+  });
+});
+
+/**
+ * 升級之後玩家要看得出差別（2026-09-17）。
+ *
+ * 菲菲的絆線升級是定身 1 層→2 層，可是「定身」被列進 `ONE_SHOT`（牌面不寫層數），
+ * 於是升級前後印出來一模一樣——磨了一張牌回來，完全看不出多了什麼。
+ * 規格 §6.1 那句「定身術、點穴手都只寫『給目標定身』」是對**只給 1 層**的牌講的。
+ */
+describe('升級要看得出來', () => {
+  it('沒有一張牌升級之後牌面跟費用都沒變', async () => {
+    const { describeCard } = await import('../../src/ui/cardtext');
+    const same = cards
+      .filter((c) => c.pool !== '壞毛病')
+      .filter((c) => describeCard(c, false) === describeCard(c, true)
+        && (c.upgrade.cost === undefined || c.upgrade.cost === c.cost))
+      .map((c) => `${c.name}｜${describeCard(c, false)}`);
+    expect(same, `這幾張升級之後玩家看不出差別：\n  ${same.join('\n  ')}`).toEqual([]);
+  });
+
+  it('絆線升級之後牌面真的寫出兩層', async () => {
+    const { describeCard } = await import('../../src/ui/cardtext');
+    const c = cardById['feifei_banxian']!;
+    expect(describeCard(c, false), '只給 1 層時照舊不寫層數').toBe('給目標定身，獲得 4 點蜷縮。');
+    // 措辭照全遊戲一致的「N 層<狀態>」（跟「給目標 2 層翻肚」同一個形狀）
+    expect(describeCard(c, true)).toBe('給目標 2 層定身，獲得 4 點蜷縮。');
+  });
+});
+
+/**
+ * 專屬牌號不可以撞到「共用牌的他版」換算出來的鍵（2026-09-17）。
+ *
+ * `assets.ts` 的 `cardArtKey()` 把共用牌換成某位角色的版本時，查的是
+ * `card/<角色>_<共用牌號>`。所以只要有一張專屬牌剛好叫 `<角色>_<某張共用牌的牌號>`，
+ * 那位角色抽到那張共用牌時，看到的就是自己專屬牌的圖。
+ *
+ * 實際踩過：噹噹的「借力」叫 `dangdang_jieli`，而共用牌「絕學·卸勁」的牌號就是 `jieli`；
+ * 「站樁」對上「絕學·護心」同理。病根是那天把他的牌號從 `dd_` 改成 `dangdang_`
+ *（為了讓 `heroOfKey` 認得出來、不要掉進首載），解決了首載卻撞進共用牌的命名空間。
+ * 菲菲沒踩到只是運氣——她的專屬牌號本來就帶前綴，而共用牌裡沒有同名的。
+ */
+describe('專屬牌號不可以撞到共用牌的他版', () => {
+  it('掃每一位角色', async () => {
+    const { HEROES } = await import('../../src/engine/hero');
+    const shared = cards.filter((c) => !c.hero);
+    const bad: string[] = [];
+    for (const hero of HEROES) {
+      const his = new Set(cards.filter((c) => c.hero === hero).map((c) => c.id));
+      for (const c of shared) {
+        const key = `${hero}_${c.id}`;
+        if (his.has(key)) {
+          const mine = cards.find((x) => x.id === key)!;
+          bad.push(`${hero}：共用「${c.name}」會查 card/${key}，那是他自己的「${mine.name}」`);
+        }
+      }
+    }
+    expect(bad, `這幾張會顯示錯誤的牌面圖：\n  ${bad.join('\n  ')}`).toEqual([]);
   });
 });

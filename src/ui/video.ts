@@ -1,7 +1,7 @@
 import { fileUrl } from './assets';
 import { pauseBgm, setBgm } from './bgm';
 import { el } from './dom';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 
 /**
  * 全螢幕過場影片（開頭／結尾，`public/video/<名字>.mp4`，720p 各一兩 MB；球球的兩支是使用者自製，
@@ -28,12 +28,27 @@ export function playVideo(name: VideoName, onDone: () => void): void {
   const skip = el('button', { class: 'btn small cine-skip' }, '跳過 ▸');
   const box = el('div', { class: 'cine-overlay' }, v, skip);
   let ended = false;
-  const end = (): void => {
+  /*
+   * 收掉影片**要連下載一起停**（2026-09-23 主控派工：慢網路下牌圖、結果圖排很久）。
+   * 只拿掉 `src` 不會停：媒體元素要再叫一次 `load()` 才會重設、把還在傳的那條連線放掉。
+   * 實測（限速約 1.6 Mbps）：按了跳過之後，開頭影片（1.8 MB）還在背景一直下載，佔住 6 條連線的其中一條好幾十秒。
+   */
+  const stopDownload = (): void => { v.pause(); v.removeAttribute('src'); v.load(); };
+  // 這一局被丟掉（連線斷了回標題）時整段收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`，2026-09-23 稽核 高-1）
+  const forget = closeWithStory(() => {
     if (ended) return;
     ended = true;
     window.clearTimeout(watchdog);
-    v.pause();
-    v.removeAttribute('src');
+    stopDownload();
+    box.remove();
+    unlockScreen();
+  });
+  const end = (): void => {
+    if (ended) return;
+    ended = true;
+    forget();
+    window.clearTimeout(watchdog);
+    stopDownload();
     box.remove();
     unlockScreen();
     setBgm(name === 'ending' ? 'ending' : 'act1');   // 接影片裡那一首，下一幕本來就是它

@@ -28,7 +28,7 @@ describe('蛙大名：標了 neverRevive 的關主倒下就是倒下', () => {
     damageEnemy(cs, frog, 9999);
     expect(frog.dead).toBe(true);
     expect(frog.reviveIn, '牠自己倒了就倒了，不該掛「重生中」').toBe(0);
-    expect(cs.fishDelta, '銅錢劍的 8 條小魚乾要發').toBe(8);
+    expect(cs.fishDelta, '銅錢劍的 15 條小魚乾要發（2026-09-23 平衡 8 → 15）').toBe(15);
     expect(cs.player.hp, '沙丁魚罐的回血要發').toBe(252);
   });
 

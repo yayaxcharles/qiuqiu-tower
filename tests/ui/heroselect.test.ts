@@ -13,6 +13,11 @@ import { HEROES, startRelicFor } from '../../src/engine/hero';
  * 只有人眼抓得出來。起手牌與起始秘寶也是同一類：查不到就顯示牌號本身或「—」。
  */
 describe('選角畫面', () => {
+  it('四位正式角色都有自己的代表牌', () => {
+    expect(Object.keys(KEY_CARD).sort()).toEqual(['dangdang', 'feifei', 'fengfeng', 'ninja']);
+    expect(KEY_CARD.fengfeng).toBe('fengfeng_pingzhan');
+  });
+
   it('代表牌的牌號存在', () => {
     for (const hero of HEROES) {
       const id = KEY_CARD[hero];

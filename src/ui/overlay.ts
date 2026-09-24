@@ -41,3 +41,49 @@ export function unlockScreen(): void {
   locks -= 1;
   if (locks === 0) screenLayer()?.removeAttribute('inert');
 }
+
+/**
+ * **跟著畫面走的疊層**（牌組、挑牌、秘寶清單）：換到**別的畫面**時由 `App.show()` 收掉（2026-09-22 畫面盤點 補查）。
+ *
+ * 連線時畫面不一定是自己換的：同伴挑完牌、投票湊齊，我這邊就被帶到下一格。原本開著的牌組視窗會整個留在新畫面上，
+ * 底下被 `inert` 鎖住（實機看過：戰利品頁開著牌組，同伴一挑完牌，回到地圖視窗還在）。
+ * 收掉時**不叫呼叫端的回呼**：那是上一格畫面的處理函式，叫下去會對新畫面動手。
+ * 同一個畫面只是重畫（同伴投了一票）不收——戰利品頁那個不能取消的升級視窗要一直留著。
+ */
+const screenModals = new Set<() => void>();
+/** 登記一個跟著畫面走的疊層；回傳「自己關掉了，不用再收」 */
+export function closeWithScreen(close: () => void): () => void {
+  screenModals.add(close);
+  return () => { screenModals.delete(close); };
+}
+/** 換畫面時收掉所有登記過的疊層（`App.show()` 在換到別的畫面時叫） */
+export function closeScreenModals(): void {
+  const all = [...screenModals];
+  screenModals.clear();
+  for (const close of all) close();
+}
+
+/**
+ * **劇情疊層**（幻燈片、對白、過場影片）：丟掉這一局的時候整批收掉（2026-09-23 稽核 高-1）。
+ *
+ * 這三種平常刻意**不**跟著換畫面收（收掉的話 onDone 永遠不會叫，流程靜靜卡死，見檔頭）。
+ * 可是連線斷了、按紅色橫幅「回標題」的時候，它們的 onDone 接著就是 `show('map')`、開打、進過關畫面——
+ * 那一局已經丟了，接下去只會把兩人局當成單機玩、再把它寫進單機存檔。
+ * 實際踩到的是序章：幻燈片蓋在標題上，把剩下幾張點完就以單機模式進了兩人局的地圖。
+ *
+ * 所以這一批收掉時**不叫 onDone**，只拆節點、解鎖。由 `App.leaveCoop()` 在離開連線局時叫。
+ * 重新同步換掉整局時也叫（`App.dropPendingFlows`）。換忍具、淨化、放生確認這三個選擇視窗也登記在這裡
+ *（推前稽核 2026-09-25 低-1）：它們刻意不跟著換畫面收，可是整局換掉之後再答，就會套到新的那一局上。
+ */
+const storyOverlays = new Set<() => void>();
+/** 登記一段劇情疊層；回傳「自己演完了，不用再收」 */
+export function closeWithStory(close: () => void): () => void {
+  storyOverlays.add(close);
+  return () => { storyOverlays.delete(close); };
+}
+/** 收掉所有還在演的劇情疊層，不叫它們的 onDone */
+export function closeStoryOverlays(): void {
+  const all = [...storyOverlays];
+  storyOverlays.clear();
+  for (const close of all) close();
+}

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-16",
+ "generatedAt": "2026-09-22",
  "monsters": [
   {
    "id": "rat",
@@ -1116,7 +1116,8 @@
       {
        "kind": "damage",
        "amount": 4,
-       "times": 3
+       "times": 3,
+       "pierce": true
       }
      ]
     },
@@ -1137,8 +1138,8 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 3,
-       "times": 3
+       "amount": 12,
+       "pierce": true
       }
      ]
     },
@@ -1173,7 +1174,8 @@
         {
          "kind": "damage",
          "amount": 4,
-         "times": 5
+         "times": 4,
+         "pierce": true
         }
        ]
       },
@@ -1182,13 +1184,11 @@
        "label": "卡住",
        "effects": [
         {
-         "kind": "discardRandomHand",
-         "n": 2
-        },
-        {
-         "kind": "statusPlayer",
-         "name": "炸毛",
-         "amount": 3
+         "kind": "stripPlayer",
+         "names": [
+          "隱身",
+          "潛水"
+         ]
         }
        ]
       },
@@ -1198,8 +1198,8 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 4,
-         "times": 3
+         "amount": 12,
+         "pierce": true
         }
        ]
       }
@@ -1414,7 +1414,7 @@
        "effects": [
         {
          "kind": "damage",
-         "amount": 26,
+         "amount": 20,
          "times": 2,
          "pierce": true
         }

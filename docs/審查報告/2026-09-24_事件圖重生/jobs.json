@@ -1,0 +1,18 @@
+{
+  "event_fengfeng_stuck_scabbard_r0": {
+    "why": "使用者：劍浮在半空中，加一張桌子讓武器放在桌上",
+    "scene": "Fengfeng sits on a small stool at a low sturdy wooden workbench (draw the whole little table, its four legs standing on the floor patch). His sheathed straight jian lies FLAT ON THE TABLE TOP. With his right paw he holds a thin wooden spatula and gently lifts a strip of cloth lining out of the scabbard mouth; his left paw holds the scabbard steady against the table. A second strip of damp lining lies drying on the table edge. Calm, focused expression.",
+    "style": "bg/event_fengfeng_stuck_scabbard.webp"
+  },
+  "event_fengfeng_stuck_scabbard_r1": {
+    "why": "使用者：手沒有握著劍，劍飛在空中",
+    "scene": "Fengfeng has just yanked his straight jian out of the stuck scabbard. Feet planted wide and firm on the floor patch. His RIGHT paw firmly grips the sword hilt (paw closed around the hilt), the blade pointing down and slightly forward toward the floor. His LEFT paw clutches his own right wrist because it got twisted; he winces with both eyes squeezed shut. The empty dark-brown scabbard still hangs at his waist.",
+    "style": "bg/event_fengfeng_stuck_scabbard.webp"
+  },
+  "event_fengfeng_lost_medicine": {
+    "why": "使用者：文字說村貓坐在旁邊，圖上只有封封",
+    "scene": "A small wooden supply crate lies toppled on its side on the floor patch, its lid broken open, a few bundles spilling out. Fengfeng crouches beside it holding up a paper medicine packet stamped with a simple leaf mark (a picture, no writing), looking at it with recognition. RIGHT BESIDE the crate sits a VILLAGE CAT on the floor, one hind leg wrapped in a dirty grey cloth, looking up at Fengfeng tiredly. Both cats are fully visible.",
+    "style": "bg/event_fengfeng_lost_medicine_r1.webp",
+    "refs": [["bg/event_fengfeng_lost_medicine_r1.webp", "the VILLAGE CAT to copy: the grey-brown and white cat on the right side (ignore the orange cat and the bowl) - draw the village cat with exactly this look, but with a dirty cloth wrapped on one hind leg instead of a clean bandage."]]
+  }
+}

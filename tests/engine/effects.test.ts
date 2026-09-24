@@ -96,10 +96,10 @@ describe('選牌類效果', () => {
     const cs = start('wood_dummy', ['duxin'], [], 'fx', ['counting_beads']);
     const e = cs.enemies[0]!.uid;
     playCard(cs, toHand(cs, 'sanjo'), e);
-    playCard(cs, toHand(cs, 'sanjo'), e);
+    // 2026-09-23 平衡（bal）：算盤珠改成第 2 張抽 3 張，讀心術改當第 2 張
     const uid = toHand(cs, 'duxin');
     const n = cs.player.hand.length;
-    playCard(cs, uid);                                   // 第 3 張：先補抽 1，才結算讀心術
+    playCard(cs, uid);                                   // 第 2 張：先補抽 3，才結算讀心術
     expect(cs.pending?.purpose).toBe('scryDiscard');
     expect(cs.pending!.cards.length).toBeGreaterThan(0);
     const top3 = cs.player.drawPile.slice(0, 3).map((c) => c.uid);
@@ -108,7 +108,7 @@ describe('選牌類效果', () => {
       expect(top3).toContain(c.uid);                                     // 候選就是現在抽牌堆最上面那幾張
     }
     resolveChoice(cs, []);
-    expect(cs.player.hand.length).toBe(n - 1 + 1 + 1);    // 打出 −1、算盤珠 ＋1、讀心術 ＋1
+    expect(cs.player.hand.length).toBe(n - 1 + 3 + 1);    // 打出 −1、算盤珠 ＋3、讀心術 ＋1
   });
   // 隔空取物打完就躺在棄牌堆裡，若能把自己撿回來就變成 1 費無限循環（控制端 2026-08-29 裁決）
   it('隔空取物不能把自己撿回來，只能撿別的牌', () => {

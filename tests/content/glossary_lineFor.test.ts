@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { glossary } from '../../src/content/glossary';
-import { eventTextFor, lineFor } from '../../src/content/dialogue';
+import { lineFor } from '../../src/content/dialogue';
+import { eventTextFor } from '../../src/content/event-text';
 
 /**
  * 2026-09-12 使用者實測抓到的兩個「換角色沒換乾淨」（都不是菲菲專屬，球球那邊也看得到）。

@@ -100,7 +100,10 @@ describe('連線的四個靜音卡死點', () => {
     const i = event.indexOf("kind === 'evlearn'");
     expect(i, '找不到 evlearn 的處理').toBeGreaterThan(0);
     const body = event.slice(i, i + 900);
-    expect(body, 'takeLearn 收到的是原文不是 evText').toContain('evText(c.result)');
+    // 2026-09-23 內容擴充第二批起，結果原文照本機這一位的視角挑（連線限定事件的「我拿／我付」）：`raw = resultRaw(index)`
+    // 2026-09-23 b2fin 起多帶 `resultHero`（同伴讓條件選項出現時照同伴的版本寫，見 tests/ui/b2fin_event_0923.test.ts）
+    expect(body, 'takeLearn 收到的是原文不是 evText').toContain('evText(raw, resultHero)');
+    expect(event, '結果原文不是照本機這一位的視角挑').toContain('const raw = resultRaw(index);');
   });
 
   it('打贏附帶的獎勵提示認的是「我」不是座位 0', () => {

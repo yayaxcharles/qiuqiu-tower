@@ -85,8 +85,25 @@ function fade(a: HTMLAudioElement, to: number, then?: () => void): void {
   }, 40);
 }
 
+/**
+ * 先別放音樂，等這件事做完（2026-09-23，主程式：量到慢網路時等開場那一批小圖抓完）。
+ * 音樂是串流的，一放就一直佔著一條連線；慢網路下那條連線拿去抓牌面、事件圖比較要緊。
+ * 等的時候照樣記著「應該放哪首」（`current`），做完就放那一首。快網路不叫這支，照原本一點下去就放。
+ */
+let waitUntil: Promise<void> | null = null;
+export function deferBgm(until: Promise<unknown>): void {
+  const gate = until.then(() => undefined, () => undefined);
+  waitUntil = gate;
+  void gate.then(() => {
+    if (waitUntil !== gate) return;
+    waitUntil = null;
+    if (current) startPlaying(current);
+  });
+}
+
 function startPlaying(name: BgmName): void {
   if (!enabled || !unlocked) return;
+  if (waitUntil) return;   // 慢網路：開場那一批到齊才放（見 `deferBgm`）
   const swap = (): void => {
     stopNow();
     const a = new Audio(fileUrl(`bgm/${name}.mp3`));

@@ -7,7 +7,7 @@ import { eventById } from '../../src/content/events';
 import { relicById } from '../../src/content/relics';
 import { playCard, startCombat, usePotion } from '../../src/engine/combat';
 import { endTurn } from '../../src/engine/combat';
-import { applyRunEffects, newRun, potionCapacity, takeRelic } from '../../src/engine/run';
+import { applyRunEffects, newRun, potionCapacity, takeRelic, type RunGain } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { inst } from '../helpers';
 import { me } from '../../src/engine/runplayer';
@@ -154,6 +154,27 @@ describe('換家的老鼠（loseRelic）', () => {
     const notes: string[] = [];
     expect(() => applyRunEffects(run, [{ kind: 'loseRelic' }], notes)).not.toThrow();
     expect(notes.some((n) => n.includes('沒有可以交出去'))).toBe(true);
+  });
+  it('沒有非起始秘寶時，不能跳過交換代價直接領取兩件秘寶', () => {
+    const run = newRun('rat-no-relic');
+    const before = structuredClone(run);
+    const notes: string[] = [];
+    const gains: RunGain[] = [];
+    applyRunEffects(run, eventById['moving_rat']!.choices[0]!.outcome, notes, gains);
+    expect(run, '拒絕交換時家當與亂數都不變').toEqual(before);
+    expect(gains).toEqual([]);
+    expect(notes.some((n) => n.includes('沒有可以交出去'))).toBe(true);
+  });
+  it('有非起始秘寶時確實交一換二，起始秘寶保留', () => {
+    const run = newRun('rat-with-relic');
+    takeRelic(run, 'tuna_can');
+    const gains: RunGain[] = [];
+    applyRunEffects(run, eventById['moving_rat']!.choices[0]!.outcome, [], gains);
+    expect(me(run).relics).toHaveLength(3);
+    expect(me(run).relics).toContain('blue_headband');
+    expect(me(run).relics).not.toContain('tuna_can');
+    expect(gains).toHaveLength(2);
+    expect(gains.every((g) => g.kind === '秘寶' && relicById[g.id]?.pool === '常見')).toBe(true);
   });
   it('**交出去的那件不會被立刻換回來**（稽核 2026-09-11 低-1）', () => {
     // 交一件、換兩件常見；跑很多種子，同一件不該出現在換回來的兩件裡

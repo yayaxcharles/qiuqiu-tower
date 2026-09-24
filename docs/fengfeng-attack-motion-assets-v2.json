@@ -1,0 +1,58 @@
+{
+  "hero": "fengfeng",
+  "reproducer": "python tools/pack_attack_variety_motion.py fengfeng",
+  "wholeBodyFrames": true,
+  "actions": 4,
+  "frames": 36,
+  "assets": [
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/fengfeng/sword_combo_v2.png",
+      "sourceSha256": "2dc6b679cfdfcd8542462f9f53b3b2ec900c6bb358818485e307122cceb8893d",
+      "target": "public/assets/motion/fengfeng/sword_combo_v2.webp",
+      "targetSha256": "66de657e8ccc3d725c47e310f0d5d1541f681dc471ca1f36b64b143e2a03e1ee",
+      "bytes": 849760,
+      "size": [
+        1448,
+        1086
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/fengfeng/qi_cleave_v2.png",
+      "sourceSha256": "83e993952a5cce36540221976cdf3ac87b0234355acd130592384a50d2a619b6",
+      "target": "public/assets/motion/fengfeng/qi_cleave_v2.webp",
+      "targetSha256": "d10de719735ed527615f79e11e73101ee49da522588194d3f72add98b2abdfae",
+      "bytes": 564748,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/fengfeng/earth_split_v2.png",
+      "sourceSha256": "9be91bbab7fac676ba2bbee7f84c690441a6fc7f46aba71f0c4461e685e09681",
+      "target": "public/assets/motion/fengfeng/earth_split_v2.webp",
+      "targetSha256": "6cf0b47e43c1084f920aee45aede686d1b453459dcc35eafc13665ada33cbd41",
+      "bytes": 812806,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/attack-variety-v2/fengfeng/retreat_thrust_v2.png",
+      "sourceSha256": "48b62592704c744a28cf8fc16ecf58a42ffb047a45540bef72786e7484070e7d",
+      "target": "public/assets/motion/fengfeng/retreat_thrust_v2.webp",
+      "targetSha256": "aa0456f2e4a48fc18c7e60496944a4b2211dea15982ebc1894ee59c05340e435",
+      "bytes": 822906,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    }
+  ],
+  "uniqueBytes": 3050220
+}

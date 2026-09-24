@@ -1,0 +1,188 @@
+{
+  "kunai": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE heavy dark-steel KUNAI throwing knife flying tip-first to the RIGHT: broad leaf-shaped blade with a bright bevelled edge, dark cord-wrapped grip and a ring pommel at the back, with one thin pale speed streak trailing behind the ring on the left. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:53:08"
+    }
+  ],
+  "leaf": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE single leaf hardened into a razor blade (the martial-arts trick \"gathering leaves into blades\"): a slim pointed bronze-gold metallic leaf with a sharp glinting edge and a short stem, flying tip-first to the RIGHT, very slightly curved, with one thin pale speed streak trailing behind the stem on the left. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:53:19"
+    }
+  ],
+  "snare_cord": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE braided ORANGE-RED snare cord thrown as an open lasso loop flying to the RIGHT: a round open loop with a slip knot at the front and a short loose tail of cord trailing behind on the left. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:53:20"
+    }
+  ],
+  "poison_sand": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE handful of flung POISONED SAND flying to the RIGHT: a compact cone-shaped spray of coarse yellow-ochre sand grains mixed with sickly lime-green poison specks, dense and clumped at the front (right), thinning out and scattering towards the back (left). Just the sand spray, no hand, no cloud background. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:53:24"
+    }
+  ],
+  "poison_pill": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE small round POISON PILL flicked through the air: a glossy dark-purple pellet with a sickly lime-green poison sheen and one tiny green drip, flying to the RIGHT, with a short wispy green-purple poison vapour trail behind it on the left. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:53:26"
+    }
+  ],
+  "hemp_rope": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE tan twisted HEMP ROPE thrown as an open lasso loop flying to the RIGHT: a round open loop with a slip knot at the front and a short loose tail of rope trailing behind on the left, visible twisted fibres. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:53:58"
+    }
+  ],
+  "barrel": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE small sturdy WOODEN BARREL hurled through the air, seen from a tilted three-quarter angle so both the round end and the side staves show: warm brown wooden staves, two brass hoop bands with rivets. No trail, no splinters (the game tumbles it). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:54:07"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE small sturdy WOODEN BARREL caught IN FLIGHT, hurled towards the RIGHT: tilted diagonally with its round lid end leading towards the upper right, warm brown wooden staves, two brass hoop bands with rivets, and a few short pale curved speed lines trailing behind it on the lower left. The speed lines are thin and small, the barrel itself stays the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 23:06:25"
+    }
+  ],
+  "firecracker": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE lit bundle of RED FIRECRACKERS tied together with string, the fuse burning with a small bright yellow spark at its tip, gold paper wrapping on the tubes. No smoke trail (the game tumbles it). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:54:10"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE lit bundle of RED FIRECRACKERS tied together with string caught IN FLIGHT, tossed towards the RIGHT: the bundle is tilted diagonally with the tubes pointing towards the upper right, gold paper wrapping on the tubes, and the burning fuse at the BACK (left) streams a short trail of tiny yellow sparks and a wisp of grey smoke flowing backwards to the left. Small sparks, the firecrackers stay the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 23:06:27"
+    }
+  ],
+  "nip_ball": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round CATNIP BALL: a soft purple felt ball stuffed with catnip, a small fresh green catnip leaf poking out of the top, a few green catnip flecks on the surface. No trail (the game spins it). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:54:16"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round CATNIP BALL caught IN FLIGHT, tossed towards the RIGHT: a soft purple felt ball stuffed with catnip, a small fresh green catnip leaf on it bent backwards by the wind, and a short trail of a few tiny green catnip flecks and two or three thin pale speed lines streaming back to the left. The trail is small, the ball stays the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 23:06:20"
+    }
+  ],
+  "smoke_bomb": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round ninja SMOKE BOMB: a dark purple-black glossy ball with a darker band, a short rope fuse on top burning with a small bright spark. No smoke yet (it bursts when it lands). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:54:18"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round ninja SMOKE BOMB caught IN FLIGHT, lobbed towards the RIGHT: a dark purple-black glossy ball with a darker band, its short rope fuse bent BACKWARDS to the left by the wind, burning with a small bright spark that leaves a short trail of tiny sparks and a thin wisp of grey smoke streaming back to the left. The trail is small, the bomb stays the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 23:06:19"
+    }
+  ],
+  "bind_nail": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE long dark-iron BINDING NAIL flying point-first to the RIGHT: square iron shank with a flat head at the back, a strip of white paper talisman tied just behind the head fluttering backwards, with one thin pale speed streak trailing on the left. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:54:46"
+    }
+  ],
+  "rubble": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE tight cluster of four jagged GREY ROCKS of different sizes flying together as a single clump, chunky cartoon stones with light top faces and dark undersides. No bag, no dust, no trail (the game tumbles it). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:54:56"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: A tight cluster of four jagged GREY ROCKS of different sizes caught IN FLIGHT together, hurled towards the RIGHT: the biggest rock leads at the front right, the smaller ones follow slightly behind, chunky cartoon stones with light top faces and dark undersides, with a few short pale speed lines and a tiny puff of grey dust trailing behind on the left. No bag. The trail is small, the rocks stay the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 23:06:11"
+    }
+  ],
+  "furball_qiuqiu": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round fluffy cat hairball rolled tight and flung like a ball: soft light-grey cat fur with a few darker grey tabby strands wound around it, a couple of loose tufts sticking out, cute and slightly silly. No trail (the game spins it). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:55:03"
+    }
+  ],
+  "furball_dangdang": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round fluffy cat hairball rolled tight and flung like a ball: soft BLACK cat fur mixed with a few WHITE fur strands wound around it, a couple of loose tufts sticking out, cute and slightly silly. No trail (the game spins it). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:55:07"
+    }
+  ],
+  "furball_fengfeng": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round fluffy cat hairball rolled tight and flung like a ball: soft ORANGE ginger tabby cat fur with a few cream strands wound around it, a couple of loose tufts sticking out, cute and slightly silly. No flames, no trail (the game spins it). Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-22 22:55:09"
+    }
+  ],
+  "grapple": [
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE golden three-pronged GRAPPLING CLAW (a ninja grappling hook) flying prongs-first to the RIGHT: three curved pointed gold hooks spread open at the front, a short gold shank with a ring at the back, and a SHORT length of tan braided rope trailing behind the ring on the left (the rope ends after about one claw-length, loose end fluttering), one thin pale speed streak along the rope. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-23 10:05:15"
+    },
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE golden three-pronged GRAPPLING CLAW (a ninja grappling hook) flying prongs-first to the RIGHT: three curved pointed gold hooks spread open at the front, a short gold shank with a ring at the back, and a SHORT length of tan braided rope trailing behind the ring on the left (the rope ends after about one claw-length, loose end fluttering), one thin pale speed streak along the rope. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-23 10:05:29"
+    }
+  ],
+  "thunder_bead": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE FIRE-THUNDER BEAD caught IN FLIGHT, lobbed towards the RIGHT: a round glossy dark-red lacquered bomb bead held in a gold metal cage of crossing bands, its short fuse bent BACKWARDS to the left by the wind and burning with a small bright orange flame, a few small crackling zigzag yellow lightning sparks around the bead and a short trail of tiny sparks streaming back to the left. The trail and sparks are small, the bead stays the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-23 19:57:23"
+    }
+  ],
+  "daze_incense": [
+    {
+      "attempt": 1,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round DAZING INCENSE PELLET caught IN FLIGHT, tossed towards the RIGHT: a small dark plum-purple incense ball wrapped with a thin band of white paper, a tiny orange ember smouldering on it, and a short swirling trail of pink-violet smoke curling into a small spiral streaming back to the left. The trail is small, the pellet stays the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-23 20:28:23"
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "prompt": "Create a production-ready transparent GAME PROJECTILE sprite for a cute cartoon cat-ninja card game. Reference image 1 is an existing projectile from the same game (a flying shuriken): copy its art style EXACTLY — clean confident dark hand-drawn outline, soft cel shading with one light direction from the top left, bright readable colours, chunky toy-like proportions, crisp edges that stay readable at 40 pixels. Reference image 2 shows the object as it appears on a card or item icon: use it ONLY to know what the object is and its colours; do NOT copy its composition, background, characters or effects. New asset: ONE round DAZING INCENSE PELLET caught IN FLIGHT, tossed towards the RIGHT: a small dark plum-purple incense ball wrapped with a thin band of white paper, a tiny orange ember smouldering on it, and a short swirling trail of pink-violet smoke curling into a small spiral streaming back to the left. The trail is small, the pellet stays the clear focus. Draw exactly ONE object (or the one described clump), no hands, no cat, no characters, no text, no numbers, no labels, no frame, no border, no ground, no cast shadow, no glow halo, no background scenery. Truly transparent RGBA background (no checkerboard drawing, no white box). The object is centred and fills about 70% of the canvas with generous transparent margins on every side, nothing cut off at the edges.",
+      "at": "2026-09-23 20:28:31"
+    }
+  ]
+}

@@ -25,10 +25,12 @@ function setup() {
 }
 
 describe('後退閃躲：她跟師兄學來的閃避', () => {
-  it('1 費（使用者：0 費拿隱身不合理）、基本版 1 層隱身、升級版 2 層', () => {
+  // 費用改過兩次，兩次都是使用者當場裁定：0 → 1（2026-09-14，「0 費拿隱身不合理」）
+  // → 2（2026-09-17）。這條測試就是那個裁定的紀錄，要改費用連同這裡一起改。
+  it('2 費（使用者 2026-09-17 裁定）、基本版 1 層隱身、升級版 2 層', () => {
     const d = cardById['feifei_lakai']!;
-    expect(d.cost).toBe(1);
-    expect(d.upgrade.cost, '升級版不降費，只多 1 層').toBeUndefined();
+    expect(d.cost).toBe(2);
+    expect(d.upgrade.cost, '升級版不另外指定費用，跟著基本版走').toBeUndefined();
     expect(d.effects).toEqual([{ kind: 'status', name: '隱身', amount: 1, target: 'self' }]);
     expect(d.upgrade.effects).toEqual([{ kind: 'status', name: '隱身', amount: 2, target: 'self' }]);
   });

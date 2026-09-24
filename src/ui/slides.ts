@@ -2,7 +2,7 @@ import type { DialogueLine } from '../content/dialogue';
 import { artUrl } from './assets';
 import { el } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 
 /**
  * 插圖幻燈片：整張劇情圖鋪滿舞台、台詞盒壓在下緣，點一下推進一句，
@@ -19,8 +19,16 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
  */
 export interface Slide { img: string; lines: DialogueLine[]; box?: 'top' | 'bottom' }
 
+/**
+ * 這組幻燈片的圖都到齊了嗎——**空陣列算「沒到齊」**（2026-09-17 稽核 中-4）。
+ *
+ * 少了 `length > 0` 那一半的後果很安靜：`[].every(...)` 永遠是 `true`，
+ * 於是「回空陣列就退回純對白」那條退路實際上變成 `playSlides([])` → `flat.length === 0`
+ * → 直接 `onDone()`，**整段劇情一個字都不播**。
+ * 好幾處的註解都寫著「回空陣列就會退回純對白」，那句話要成立就靠這一行。
+ */
 export function slidesReady(slides: Slide[]): boolean {
-  return slides.every((s) => !artUrl('bg', s.img).startsWith('data:'));
+  return slides.length > 0 && slides.every((s) => !artUrl('bg', s.img).startsWith('data:'));
 }
 
 export function playSlides(slides: Slide[], onDone: () => void): void {
@@ -55,12 +63,25 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
     text.textContent = cur.l.text;
     box.classList.toggle('narration', cur.l.speaker === '旁白');
   };
+  // 這一局被丟掉（連線斷了回標題）時整段收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`，2026-09-23 稽核 高-1）
+  const forget = closeWithStory(() => { if (ended) return; ended = true; box.remove(); unlockScreen(); });
   const end = (): void => {
     if (ended) return;
     ended = true;
-    box.remove();
+    forget();
     unlockScreen();
+    /*
+     * **回呼先叫、這一層後收**（2026-09-23 實機驗收 M-2 同型）：回呼換的畫面（過關畫面、地圖）就畫在這一層底下，
+     * 這一層再淡出。原本先拔掉這一層再換畫面，換場那一格露出來的是幻燈片底下的舞台——
+     * 以前是米白底色，舊畫面改成墊在底下淡出後，會是早就看不到的舊畫面（剛打完的關主戰、選角畫面）。
+     * 有這一層蓋著時 `App.show()` 不淡入、也不墊舊畫面（見 app.ts），新畫面一出來就是完整的。
+     */
     onDone();
+    box.style.pointerEvents = 'none';
+    const out = typeof box.animate === 'function'
+      ? box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-out', fill: 'forwards' }) : null;
+    if (out) out.finished.then(() => box.remove(), () => box.remove());
+    else box.remove();
   };
   const gate = newClickGate();   // 連點保護，規則見 clickgate.ts
   box.addEventListener('click', (ev) => {

@@ -37,7 +37,9 @@ describe('通關幻燈片的切點', () => {
     for (const hero of HEROES) {
       const plain = victoryLinesFor(['sanjo'], 1, hero);
       const fancy = victoryLinesFor(['tanding', 'tanding', 'tanding'], 5, hero);
-      expect(fancy.length).toBeGreaterThan(plain.length);
+      // 封封的打法插句目前每一派都是同一句通用版（FG-VAR-04），稿子也沒寫高難度結尾，所以兩種長度一樣。
+      if (hero === 'fengfeng') expect(fancy.length).toBe(plain.length);
+      else expect(fancy.length).toBeGreaterThan(plain.length);
       expect(fancy.filter((l) => l.slideBreak).length).toBe(1);
     }
   });

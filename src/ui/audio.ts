@@ -39,7 +39,11 @@ export function setSfxHero(hero: string | undefined): void { sfxHero = hero ?? '
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 const buffers = new Map<Sfx, AudioBuffer>();
-const pending = new Set<Sfx>();
+const pending = new Map<Sfx, Promise<AudioBuffer | undefined>>();
+let resuming: Promise<void> | null = null;
+let playbackEpoch = 0;
+// 慢網路或背景分頁恢復後，不要一口氣補播早已過去的動作。
+const MAX_START_DELAY_MS = 500;
 
 /**
  * 開關記在瀏覽器裡，換一局也不會忘。讀取包在 try 裡：無痕視窗或擋了網站資料的
@@ -58,6 +62,7 @@ let enabled = readEnabled();
 export function soundOn(): boolean { return enabled; }
 
 export function setSoundOn(on: boolean): void {
+  if (!on) playbackEpoch++;
   enabled = on;
   try { window.localStorage.setItem(STORE_KEY, on ? 'on' : 'off'); } catch { /* 存不了就算了 */ }
   if (master && ctx) master.gain.setTargetAtTime(on ? 1 : 0, ctx.currentTime, 0.01);
@@ -69,18 +74,36 @@ export function toggleSound(): boolean {
   return enabled;
 }
 
-async function load(name: Sfx): Promise<void> {
-  if (!ctx || buffers.has(name) || pending.has(name)) return;
-  pending.add(name);
-  try {
-    const res = await fetch(fileUrl(`assets/sfx/${name}.mp3`));
-    if (!res.ok) return;                       // 檔案沒生好就當作這個音效不存在，不要吵
-    buffers.set(name, await ctx.decodeAudioData(await res.arrayBuffer()));
-  } catch {
-    /* 抓不到或解不開就放棄這一個，其餘照常 */
-  } finally {
-    pending.delete(name);
+function load(name: Sfx): Promise<AudioBuffer | undefined> {
+  const audio = ctx;
+  if (!audio) return Promise.resolve(undefined);
+  const cached = buffers.get(name);
+  if (cached) return Promise.resolve(cached);
+  const existing = pending.get(name);
+  if (existing) return existing;
+  const task = (async () => {
+    try {
+      const res = await fetch(fileUrl(`assets/sfx/${name}.mp3`));
+      if (!res.ok) return;                     // 檔案沒生好就當作這個音效不存在，不要吵
+      const buffer = await audio.decodeAudioData(await res.arrayBuffer());
+      if (ctx !== audio || audio.state === 'closed') return;
+      buffers.set(name, buffer);
+      return buffer;
+    } catch {
+      /* 抓不到或解不開就放棄這一個，其餘照常 */
+    }
+  })().finally(() => { pending.delete(name); });
+  pending.set(name, task);
+  return task;
+}
+
+function resume(audio: AudioContext): Promise<void> {
+  if (audio.state === 'running' || audio.state === 'closed') return Promise.resolve();
+  if (!resuming) {
+    resuming = audio.resume().catch(() => { /* 解鎖失敗，等下次互動再試 */ })
+      .finally(() => { resuming = null; });
   }
+  return resuming;
 }
 
 /**
@@ -97,21 +120,26 @@ async function load(name: Sfx): Promise<void> {
 const GESTURES = ['pointerdown', 'mousedown', 'touchstart', 'keydown'] as const;
 
 export function unlockOnFirstGesture(): void {
+  if (ctx) return;
   const start = (): void => {
     for (const g of GESTURES) window.removeEventListener(g, start);
+    if (ctx) return;
     try {
-      ctx = new AudioContext();
-      master = ctx.createGain();
-      master.gain.value = enabled ? 1 : 0;
-      master.connect(ctx.destination);
+      const audio = new AudioContext();
+      const output = audio.createGain();
+      output.gain.value = enabled ? 1 : 0;
+      output.connect(audio.destination);
+      ctx = audio;
+      master = output;
     } catch {
       return;                                   // 不支援 Web Audio 就整套靜音，遊戲照玩
     }
-    void ctx.resume();
+    void resume(ctx);
     // 常用的先載，其餘等用到再載。開場就把 26 個一起抓會跟素材搶頻寬。
     // 菲菲的受傷叫聲也先載（各 9 KB）：這一刻還不知道玩家要選誰，原本只載球球那顆，
     // 玩菲菲時第一次被打才去抓、那一下沒聲音（總稽核 2026-09-16 丁 低-1）
-    for (const n of ['click', 'draw', 'claw', 'hit', 'block', 'hurt', 'hurt_feifei', 'turn_end', 'turn_start'] as Sfx[]) {
+    // 紙箱第一次開啟就要有秘寶音，這顆也先載（約 10 KB）。
+    for (const n of ['click', 'draw', 'claw', 'hit', 'block', 'hurt', 'hurt_feifei', 'turn_end', 'turn_start', 'relic'] as Sfx[]) {
       void load(n);
     }
   };
@@ -123,15 +151,25 @@ export function unlockOnFirstGesture(): void {
  * `rate` 可以微調音高：連續同一個音效（三連擊）錯開一點才不會像壞掉的複讀機。
  */
 export function play(name: Sfx, rate = 1): void {
-  if (!enabled || !ctx || !master) return;
+  if (!enabled || !ctx || !master || ctx.state === 'closed') return;
   name = sfxFor(name, sfxHero);   // 角色專屬版本（菲菲的貓叫）
+  const audio = ctx;
+  const output = master;
+  const epoch = playbackEpoch;
+  const requestedAt = performance.now();
+  const start = (buffer: AudioBuffer | undefined): void => {
+    if (!buffer || !enabled || epoch !== playbackEpoch || ctx !== audio || master !== output
+      || audio.state !== 'running' || performance.now() - requestedAt > MAX_START_DELAY_MS) return;
+    const src = audio.createBufferSource();
+    src.buffer = buffer;
+    src.playbackRate.value = rate;
+    const g = audio.createGain();
+    g.gain.value = GAIN[name] ?? 0.6;
+    src.connect(g).connect(output);
+    src.start();
+  };
   const buf = buffers.get(name);
-  if (!buf) { void load(name); return; }        // 第一次用到才載，這一下就沒聲音，之後都有
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  src.playbackRate.value = rate;
-  const g = ctx.createGain();
-  g.gain.value = GAIN[name] ?? 0.6;
-  src.connect(g).connect(master);
-  src.start();
+  if (buf && audio.state === 'running') { start(buf); return; }
+  // 預載中或第一次用到都等同一份解碼；每次呼叫仍保有自己的播放節點。
+  void Promise.all([load(name), resume(audio)]).then(([buffer]) => start(buffer));
 }

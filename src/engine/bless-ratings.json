@@ -1,0 +1,107 @@
+{
+ "說明": "開局祝福量尺的結果（tools/relic_ruler.test.ts 的 RULER=bless 產生，不要手改）：開局強制拿這一樣，比什麼都不拿平均多爬幾層。機器人照它挑包袱裡的四樣（smartbot.ts 的 smartBless）。",
+ "meta": {
+  "n": 600,
+  "seed": "ruler",
+  "difficulty": 1,
+  "date": "2026-09-23"
+ },
+ "bless": {
+  "bless_rations": {
+   "ninja": 0.55,
+   "feifei": 1.04,
+   "dangdang": 1.2,
+   "fengfeng": 0.69
+  },
+  "bless_coins": {
+   "ninja": 0.29,
+   "feifei": 0.03,
+   "dangdang": 0.75,
+   "fengfeng": 0.41
+  },
+  "bless_potions": {
+   "ninja": 1.21,
+   "feifei": 0.29,
+   "dangdang": 1.51,
+   "fengfeng": 0.69
+  },
+  "bless_charm": {
+   "ninja": 1.48,
+   "feifei": -0.3,
+   "dangdang": 0.77,
+   "fengfeng": 0.59
+  },
+  "bless_scissors": {
+   "ninja": 1.1,
+   "feifei": -0.28,
+   "dangdang": 1.86,
+   "fengfeng": -0.3
+  },
+  "bless_notes": {
+   "ninja": 1.55,
+   "feifei": 2.48,
+   "dangdang": 3.46,
+   "fengfeng": 0.5
+  },
+  "bless_moves": {
+   "ninja": 1.19,
+   "feifei": -0.35,
+   "dangdang": 1.63,
+   "fengfeng": 0.6
+  },
+  "bless_doodle": {
+   "ninja": 1.87,
+   "feifei": 0.57,
+   "dangdang": 0.83,
+   "fengfeng": 0.27
+  },
+  "bless_treasure": {
+   "ninja": 2,
+   "feifei": 1.03,
+   "dangdang": 0.94,
+   "fengfeng": 0.67
+  },
+  "bless_stash": {
+   "ninja": 1.22,
+   "feifei": -0.07,
+   "dangdang": 1.26,
+   "fengfeng": -0.32
+  },
+  "bless_box": {
+   "ninja": 3.33,
+   "feifei": -1.92,
+   "dangdang": -1.06,
+   "fengfeng": -0.89
+  },
+  "bless_bracer": {
+   "ninja": 4.25,
+   "feifei": -1.42,
+   "dangdang": -0.3,
+   "fengfeng": 1.08
+  },
+  "bless_bottom": {
+   "ninja": 1.43,
+   "feifei": 0.16,
+   "dangdang": 0.94,
+   "fengfeng": 0.87
+  },
+  "bless_dice": {
+   "ninja": 0.66,
+   "feifei": -0.12,
+   "dangdang": 0.18,
+   "fengfeng": 1.15
+  },
+  "bless_scroll": {
+   "ninja": 0.62,
+   "feifei": -0.62,
+   "dangdang": -0.41,
+   "fengfeng": 0.46
+  },
+  "bless_wine": {
+   "ninja": 0.69,
+   "feifei": 1.43,
+   "dangdang": 0.93,
+   "fengfeng": 0.44
+  }
+ }
+}

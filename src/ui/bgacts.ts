@@ -10,6 +10,7 @@
  */
 
 import { events } from '../content/events';
+import { QMARK_ART } from '../engine/qmark';
 
 /** 每個關卡色調有三張，用樓層輪著挑（見 `screenbg.ts` 的 `tierBgKey`） */
 export const BG_VARIANTS = ['', '_b', '_c'] as const;
@@ -63,25 +64,43 @@ export function bgKeysForAct(act: number): string[] {
    * 門會停在那裡等你點，載完綽綽有餘，而且一關只會遇到一次。
    * 三關的幻燈片因此全部離開首載。
    */
-  /**
-   * **事件插圖也照 `acts` 分關**（2026-09-11）。
-   *
-   * 事件畫面靠事件編號自己找圖（`bg/event_<id>`），所以插圖從來沒被算進分關規則，
-   * 三十八張全擠在首載——其中七張標了 `acts: [2, 3]`，第一關的地圖根本排不出那些事件
-   *（`engine/map.ts` 的 `eventQueue` 就是照 `acts` 濾的），卻在開場就下載＋解碼，白佔 297 KB。
-   *
-   * 沒標 `acts` 的（大多數）每一關都排得到，照樣留在首載；
-   * 後集事件（`requiresFlag`）不特別處理——它的旗標是前集留下的、可能同一關就觸發，
-   * 而且那幾張本來就標了 `acts`，走這一條就夠。
-   * 下面 `deferredBgKeys` 的「二三關減第一關」會自動把每一關都排得到的那些留在首載。
+  /*
+   * 事件主圖**不在這裡了**（2026-09-23 內容擴充 0-2）。2026-09-11 起照 `acts` 分關，
+   * 可是沒標 `acts` 的三十張每一關都排得到、全留在首載（約 0.9 MB），每加一篇三關共用的事件又多 27 KB。
+   * 現在改成「這張地圖上真的排到的那幾格」才抓（`preload.ts` 的 `preloadMapEvents`，地圖畫面出來就叫），
+   * 開場與進關都不載；名單見下面的 `eventMainKeys`。
    */
-  for (const e of events) if (!e.acts || e.acts.includes(i + 1)) keys.push(`bg/event_${e.id}`);
   for (const base of SCREEN_BASES) {
     const stem = `bg/${base}${SCREEN_SUFFIX[i]}`;
     if (SCREEN_BC.has(base)) for (const v of BG_VARIANTS) keys.push(`${stem}${v}`);
     else keys.push(stem);
   }
   return keys;
+}
+
+/**
+ * 每篇事件的主圖鍵（球球那張 `bg/event_<id>`；角色版 `bg/event_<角色>_<id>` 在 `assets.ts` 的 `heroArtUrls` 換回這個鍵比對）。
+ *
+ * 全部照地圖現抓（`preload.ts` 的 `preloadMapEvents`），開場的 `preloadArt`、選角的 `heroArtUrls`、
+ * 進關的 `preloadAct` 都不碰（2026-09-23 0-2）。結果圖（`_r<n>`）本來就是點到才載，不在這裡。
+ * 紙箱畫面借用的 `bg/event_chest_*` 不是事件、不在名單裡，照舊開場就載。
+ */
+export function eventMainKeys(): string[] {
+  return events.map((e) => `bg/event_${e.id}`);
+}
+
+/**
+ * 畫面自己用、不是 `EventDef` 的事件類主圖（2026-09-23 內容擴充第三批）：鍵照事件圖的命名（`bg/event_<代號>`、角色版 `bg/event_<角色>_<代號>`），
+ * 走 `eventArtKey` 挑這一位的版本。**開場不載**（併進 `deferredBgKeys`），用到的畫面自己在背景抓：
+ * 祝福主圖由 `preload.ts` 的 `warmBlessing` 在序章播放時抓；問號格三張揭曉圖（伏擊、行腳商、路邊紙箱，編號照引擎的 `QMARK_ART`）
+ * 由 `preloadQmarkArt` 在地圖上有會變的問號格時抓。`tools/dump_monster_acts.test.ts` 把它們記成 0（不算首載），
+ * `tools/manifest_hygiene.test.ts` 認得它們不是孤兒。（祝福與問號格兩條線各寫了一份，合併時併成這一份，2026-09-24 b3int）
+ */
+export const NON_EVENT_ART: readonly string[] = ['bless_bundle', ...Object.values(QMARK_ART)];
+
+/** 問號格那三張的主圖鍵（`NON_EVENT_ART` 的子集，問號格自己的測試與預抓用） */
+export function qmarkMainKeys(): string[] {
+  return Object.values(QMARK_ART).map((id) => `bg/event_${id}`);
 }
 
 /**
@@ -101,5 +120,8 @@ export function deferredBgKeys(): Set<string> {
    * 開場的 `preloadArt` 會把三關八張全部載好載滿，等於白改。
    */
   const slides = SLIDES_BY_ACT.flat();
-  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides].filter((k) => !first.has(k)));
+  // 事件主圖同理：不在任何一關的清單裡，不併進來的話開場會照舊整包載（2026-09-23 0-2）
+  // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）同理，用到的畫面自己抓
+  const screenArt = NON_EVENT_ART.map((id) => `bg/event_${id}`);
+  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides, ...eventMainKeys(), ...screenArt].filter((k) => !first.has(k)));
 }

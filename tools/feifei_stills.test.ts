@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { HEROES } from '../src/engine/hero';
 
 /**
  * 過關與結局的插圖不可以混到別人（2026-09-12）。
@@ -139,7 +140,26 @@ describe('事件插圖依角色', () => {
    */
   it('退回球球的事件圖只准變少', () => {
     const bg = Object.keys(manifest.bg);
-    const his = bg.filter((k) => k.startsWith('bg/event_') && !k.includes('_feifei_'));
+    /*
+     * **別人的專屬圖不算「球球的」**（2026-09-17 加噹噹時抓到）。
+     *
+     * 這條原本只認兩個角色：凡是 `bg/event_*` 而且不含 `_feifei_` 的就當成球球那張，
+     * 再去看她有沒有對應的一張。噹噹的四篇專屬事件圖（`bg/event_dangdang_*`）一進來，
+     * 就被算成「球球有、菲菲沒有」，缺口從 0 變成 13——可是那四篇掛 `hero: 'dangdang'`，
+     * 菲菲一輩子走不到，根本沒有「退回去」這回事。
+     *
+     * 改成照 `HEROES` 掃，第四隻貓進來也不會再犯（這個專案已經為了同一件事踩過三次：
+     * 連線的改口表、機器人的傷害種類清單、還有這裡）。
+     */
+    // `samurai` 2026-09-22 已經整套拆掉、不再是 `Hero` 的合法值（見 `hero.ts`），
+    // 這裡不用再比對它——留著會是型別上比不出結果的死比較（2026-09-23 低-2 開 tools/ 型別檢查抓到）
+    const others = HEROES.filter((h) => h !== 'ninja');
+    // 球球的專屬事件（代號 `ninja_…`，2026-09-23 內容擴充第一批起）同理：掛 `hero: 'ninja'`，她走不到、沒有「退回去」這回事
+    // 連線限定事件（代號 `coop_…`，2026-09-23 內容擴充第二批起）的插圖是純場景、誰都沒畫（兩位的立繪由畫面放在兩邊），
+    // 四隻看的是同一張，沒有「退回球球」這回事
+    const mine = (k: string): boolean => others.some((h) => k.includes(`_${h}_`) || k.startsWith(`bg/event_${h}_`))
+      || k.startsWith('bg/event_ninja_') || k.startsWith('bg/event_coop_');
+    const his = bg.filter((k) => k.startsWith('bg/event_') && !mine(k));
     const gap = his.filter((k) => !manifest.bg[k.replace('bg/event_', 'bg/event_feifei_')]);
     // eslint-disable-next-line no-console
     console.log(`  事件插圖 ${his.length - gap.length}/${his.length}，還退回球球的 ${gap.length} 張`);

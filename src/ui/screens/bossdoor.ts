@@ -50,8 +50,8 @@ registerScreen('bossdoor', (app, root, props) => {
     play('hit_heavy', 0.6);
     /**
      * 門拉開演完才進戰鬥。護欄有兩層：
-     * ①`app.screen.contains(scene)`——`app.screen` 是常駐節點、`show()` 只清它的子節點，
-     *   所以畫面一換 `scene` 就脫離文件，這個判斷會回 false（不能用 `isConnected`，那永遠是 true）。
+     * ①`app.screen.contains(scene)`——畫面一換，`scene` 就不在現在的畫面層裡，這個判斷會回 false
+     *   （不能用 `isConnected`：淡入換場時舊畫面層會墊在底下淡出 220 毫秒，那段時間它還連在文件上，見 screenswap.ts）。
      * ②掛進 `app.disposers`，換畫面當下就把計時器拆掉，跟這專案其他五處的寫法一致。
      *
      * 這段期間**整個舞台不吃點擊**（`door-opening`）：狀態列的層級是 10、畫在門上面又照樣可以按，

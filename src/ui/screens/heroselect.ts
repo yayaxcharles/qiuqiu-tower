@@ -1,6 +1,8 @@
 import { registerScreen } from '../app';
 import { artUrl, heroArtUrl } from '../assets';
 import { cardById, cardNameFor, starterDeckFor } from '../../content/cards';
+import { fengfengSelection } from '../../content/fengfeng-dialogue';
+import { glossary } from '../../content/glossary';
 import { relicById } from '../../content/relics';
 import { describeCard } from '../cardtext';
 import { el } from '../dom';
@@ -12,14 +14,21 @@ import { heroPronoun, startRelicFor, type Hero } from '../../engine/hero';
  *
  * 排在「新的一局」與序章之間：選完才開局，因為序章、起手牌、起始秘寶三樣都跟角色綁在一起。
  *
- * **武士不在這裡**：他沒有自己的立繪、也沒有一張專屬牌，實際上只是「球球扣掉隱身牌」。
- * 放上來只會讓玩家選到一個空殼（設計稿第一節寫得很清楚）。他的 `Hero` 型別留著，
- * 哪天真的補齊了再加一格。
+ * 武士球球從來沒放上來過（沒有自己的立繪、也沒有一張專屬牌），2026-09-22 整套拆掉了。
  */
-interface Pick { hero: Hero; name: string; tag: string; blurb: string; pose: string }
+interface Pick {
+  hero: Hero; name: string; tag: string; blurb: string; pose: string;
+  /**
+   * 這位角色專屬的規則（名詞＋說明，說明照名詞表那一條、不另抄一份）：選角時就講清楚，牌面上不再每張重寫。
+   * 使用者 2026-09-24 晚：「每張牌都寫上花四點以上的蓄氣 ×1.3 太累了……在角色說明之類的地方寫清楚」
+   */
+  rule?: string;
+}
 
 /** 選角畫面右邊整張畫出來的「代表牌」。**牌號要真的存在**，見 `refresh` 裡的說明 */
-export const KEY_CARD: Readonly<Record<string, string>> = { ninja: 'sanjo', feifei: 'feifei_feizhen' };
+export const KEY_CARD: Readonly<Record<string, string>> = {
+  ninja: 'sanjo', feifei: 'feifei_feizhen', dangdang: 'dangdang_zhengquan', fengfeng: 'fengfeng_pingzhan',
+};
 
 const PICKS: Pick[] = [
   {
@@ -31,6 +40,18 @@ const PICKS: Pick[] = [
     hero: 'feifei', name: '菲菲', tag: '毒‧攻擊帶蜷縮',
     blurb: '球球的師妹，一隻怕痛的暹羅貓。平時替師兄補頭巾，跟師父學使針。師父被魔氣控制，師兄也追進塔裡，三天都沒有消息。她帶上針和藥，進塔找人。',
     pose: 'hero/ninja',   // 立繪鍵一律寫球球版的，`heroArtUrl` 會換成她自己的（見 assets.ts）
+  },
+  {
+    hero: 'dangdang', name: '噹噹', tag: '擋‧卸力反擊',
+    blurb: '村口修東西的黑白賓士貓，做了一對銅護臂。魔塔出現那一夜，他留下來擋住魔物、讓村貓先進門，等門補好、糧食推進屋裡，才上塔找人。蜷縮既是他的防禦，也是他出招的本錢——打出去就沒得擋。',
+    pose: 'hero/ninja',
+  },
+  {
+    hero: 'fengfeng', name: '封封', tag: '蓄氣‧強力劍招',
+    // 正本在封封台詞檔（稿子 FG-SEL-01），這裡不再抄一份，免得改了一邊另一邊沒跟上
+    blurb: fengfengSelection[0]?.text ?? '',
+    pose: 'hero/ninja',
+    rule: '蓄氣',
   },
 ];
 
@@ -67,6 +88,7 @@ registerScreen('heroselect', (app, root, props) => {
     detail.replaceChildren(
       el('p', { class: 'hero-blurb' }, p.blurb),
       el('div', { class: 'hero-kit' },
+        p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',
         el('div', { class: 'hero-kit-row' }, el('b', {}, '起手十張'), el('span', {}, deckLine(chosen))),
         el('div', { class: 'hero-kit-row' }, el('b', {}, '起始秘寶'),
           el('span', {}, relic ? `${relic.name}：${relic.text}` : '—')),

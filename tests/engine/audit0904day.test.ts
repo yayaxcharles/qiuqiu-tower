@@ -1,7 +1,7 @@
 // 2026-09-04 白天稽核（docs/審查報告/程式稽核_2026-09-04白天.md）修掉的問題，各釘一個回歸
 import { describe, expect, it } from 'vitest';
 import { STARTER_DECK } from '../../src/content/cards';
-import { encounterById, encounters, encountersOfPool } from '../../src/content/enemies';
+import { encounterById, encounters } from '../../src/content/enemies';
 import { damagePlayer, gainStealth } from '../../src/engine/actions';
 import { endTurn, startCombat } from '../../src/engine/combat';
 import { generateMap } from '../../src/engine/map';

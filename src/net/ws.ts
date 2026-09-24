@@ -63,6 +63,22 @@ export const HOST_WAIT_MS = 10 * 60_000;
 export const JOIN_WAIT_MS = 15_000;
 /** 心跳：中繼超過 90 秒沒收到就當這邊斷了（背景分頁的計時器會被拉長到約一分鐘一次，漏一次還在線內） */
 export const PING_MS = 25_000;
+/**
+ * **自己斷線要自己看得出來**（2026-09-22 連線盤點 問題 2，使用者裁定只改網頁端、不動中繼）。
+ *
+ * 原本只靠瀏覽器的「連線關閉」事件：中繼收到關閉時不回關閉訊框，瀏覽器要等到逾時（實測 10～16 秒、代碼 1006）
+ * 才宣告關閉，這段時間斷線的那一方手牌全灰、什麼提示都沒有；網路真的斷掉（手機換基地台）甚至可能更久。
+ * 現在頁面在前景時每秒問中繼一次 `ping`（中繼的自動回應回 `pong`，不吵醒物件、不算進每秒訊息上限），
+ * 超過 `STALL_MS` 什麼都沒收到（連 pong 都沒有）就先跟畫面說 `away`，收到任何東西就說 `back`。
+ * 只是提早講，**不自己砍線重連**：真的斷了照舊等關閉事件走 `reconnect`（一則不多一則不少那一套不動）。
+ *
+ * 不誤報的三個條件：分頁在背景不量（瀏覽器把計時器拉長到一分鐘一次，量出來一定「很久沒收到」）；
+ * 兩次檢查之間隔太久（主執行緒卡住、剛切回前景）那一段不算；正常延遲有三秒多的餘裕（每秒問一次，回音通常零點幾秒就到）。
+ */
+export const PROBE_MS = 1000;
+export const STALL_MS = 3500;
+/** 分頁在不在前景（沒有 document 的環境＝測試或背景工作，一律當不在，不量） */
+const pageVisible = (): boolean => typeof document !== 'undefined' && document.visibilityState === 'visible';
 /** 斷線之後最多花多久接回（跟中繼的 `GRACE_MS` 一樣）；超過就當這一局散了 */
 export const GRACE_MS = 120_000;
 /** 自己送過的最近幾則留著（接回時補送中繼沒收到的那幾則）；斷線期間的操作也在這裡排隊 */
@@ -118,10 +134,13 @@ function keepAlive(ws: WebSocket): () => void {
 /** 接回要用的東西：同一個房號、同一個身分、同一個開 socket 的辦法 */
 interface Link { code: string; role: 'host' | 'join'; mk: WsFactory }
 
-function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
+function wrap(first: WebSocket, link: Link, stopPing0: () => void, init: { recv?: number } = {}): Transport & { resumedAt(got: number): void } {
   let ws = first;
   let stopPing = stopPing0;
   let onMsg: ((m: NetMessage) => void) | null = null;
+  let onProgress: ((recv: number) => void) | null = null;
+  /** 連線局進行中：重新整理、關分頁不先說 bye，讓中繼等兩分鐘（見 `Transport.stayOnReload`） */
+  let stay = false;
   let onClose: ((w: string) => void) | null = null;
   let onStatus: ((s: LinkStatus) => void) | null = null;
   // 監聽器掛上之前就到的遊戲訊息先收著（跟 `session.ts` 的 pendingStart 同一招）：不然只要呼叫端多一個 await，開局訊息就無聲消失
@@ -131,15 +150,40 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
   let gen = 0;          // 第幾次接回：補送到一半又斷了，舊的那一輪不可以再宣布「接回來了」
   let sent = 0;         // 自己送出去第幾則（斷線期間排隊的也算）
   const history: { i: number; s: string }[] = [];
-  let recv = 0;         // 收到對方幾則遊戲訊息（中繼的話與 pong 不算）——接回時告訴中繼從第幾則補
+  let recv = init.recv ?? 0;   // 收到對方幾則遊戲訊息（中繼的話與 pong 不算）——接回時告訴中繼從第幾則補；重新整理後接回的從存著的那個數接著數
   let attempting: WebSocket | null = null;   // 接回途中正在試的那一條（中繼補來的舊訊息會先到它上面）
-  /** 關分頁、重新整理：先跟中繼說一聲，對方立刻知道我走了（審查 中-1）。手機切走不一定觸發，那就走斷線那條路 */
-  const onHide = (): void => { if (!closed && !away && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } } };
+  let heard = Date.now();   // 現在這條線最後一次收到東西的時間（pong 也算）
+  let stalled = false;      // 已經跟畫面說過「斷了」、之後還沒收到任何東西
+  let lastTick = Date.now();
+  /** 每秒一次：問一聲、看多久沒收到（見 `STALL_MS` 的說明）。背景、斷線接回中、已經結束都不量 */
+  const probe = setInterval(() => {
+    const now = Date.now();
+    const gap = now - lastTick;
+    lastTick = now;
+    if (closed || away || !pageVisible()) { heard = now; return; }
+    if (gap > PROBE_MS * 3) heard = now;   // 上一次檢查到現在隔太久：頁面剛被凍住或剛切回前景，這段不算
+    /*
+     * 晚了半拍以上：是**自己**卡住（主執行緒被大量載圖、慢手機卡了兩三秒），不是對方沒回（2026-09-23 稽核 低-3）。
+     * 卡住期間心跳送不出去、回音也排在這一拍後面才處理，照算就先誤報一次 away、下一則回音再報 back，
+     * 戰鬥畫面連重畫兩次、切斷正在演的動作。晚掉的那一段不算沒收到——只扣這一拍的延遲，
+     * 計時器準時的時候完全不動，真的斷線照樣在 3.5 秒多一點就報。
+     */
+    else if (gap > PROBE_MS * 1.5) heard = Math.min(now, heard + gap - PROBE_MS);
+    if (ws.readyState === WebSocket.OPEN) ws.send('ping');
+    if (!stalled && now - heard > STALL_MS) { stalled = true; onStatus?.('away'); }
+  }, PROBE_MS);
+  /**
+   * 關分頁、重新整理：先跟中繼說一聲，對方立刻知道我走了（審查 中-1）。手機切走不一定觸發，那就走斷線那條路。
+   * **連線局進行中不說**（2026-09-25 重新整理後接回）：分不出是重新整理還是真的關掉，說了中繼就把房間關了、接不回來；
+   * 不說的話中繼當成斷線等兩分鐘——真的關掉的，對方兩分鐘後才看到「對方離開了」。按「回標題」離開照舊當場說（`close`）
+   */
+  const onHide = (): void => { if (!stay && !closed && !away && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } } };
   if (typeof window !== 'undefined') window.addEventListener('pagehide', onHide);
   const die = (why: string): void => {
     if (closed) return;
     closed = true;
     stopPing();
+    clearInterval(probe);
     if (typeof window !== 'undefined') window.removeEventListener('pagehide', onHide);
     onClose?.(why);
     try { ws.close(); } catch { /* 已經關了 */ }
@@ -147,6 +191,11 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
   /** 收到一則：pong 丟掉、中繼的話（closed／away／back）轉成事件、遊戲訊息數一則交給遊戲 */
   const deliver = (sock: WebSocket, raw: string): void => {
     if (sock !== ws && sock !== attempting) return;   // 早就換掉的那一條（保險；瀏覽器在 close 之後本來就不會再給 message）
+    if (sock === ws) {
+      heard = Date.now();
+      // 前面先講了「斷了」，結果線其實還活著（只是慢）：講回來。斷線接回中（away）由接回那一支自己講 back
+      if (stalled) { stalled = false; if (!away) onStatus?.('back'); }
+    }
     if (raw === 'pong') return;   // 心跳的回聲
     let v: unknown;
     try { v = JSON.parse(raw); } catch { die('收到看不懂的訊息，可能兩邊不是同一版'); return; }
@@ -157,6 +206,7 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
       return;   // hosting／open 由等待的那一支接；中繼的話不交給遊戲
     }
     recv += 1;
+    onProgress?.(recv);
     if (onMsg) onMsg(v as NetMessage); else pending.push(v as NetMessage);
   };
   const listen = (sock: WebSocket): void => {
@@ -202,6 +252,7 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
       try {
         const open = await untilRelay(sock, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話');
         ws = sock; stopPing = ping; attempting = null;
+        heard = Date.now(); stalled = false;   // 新的那條從現在開始量
         // 補送完才算接回：期間送的照樣排隊、順序不亂
         if (!(await resend(open.got ?? sent, sock, g))) return;
         away = false;
@@ -232,7 +283,30 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
       if (!closed && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } }
       die('自己關掉了');
     },
+    link: { code: link.code, role: link.role },
+    onProgress: (fn) => { onProgress = fn; fn(recv); },
+    stayOnReload: (on) => { stay = on; },
+    /**
+     * 重新整理後接回（`resumeRoom`）：中繼在 `open` 裡說它收過我幾則，我從那個數接著編。
+     * 重新整理之前送出、中繼沒收到的那幾則補不回來（記錄跟著頁面沒了），交給會話那層的重新同步對齊
+     */
+    resumedAt: (got) => { sent = got; },
   };
+}
+
+/**
+ * 重新整理後接回同一間房（2026-09-25 使用者：「兩件都做」——重新同步與重新整理後接回）。
+ * 用分頁存著的房號、身分、收到幾則，照「斷線接回」那一套跟中繼說 `resume=1&got=收到幾則`：
+ * 中繼先把漏掉的補過來（一開始就掛好監聽，先收著）、再說 `open`。接不回去（房間關了、等太久、版本不同）就失敗。
+ */
+export function resumeRoom(code: string, role: 'host' | 'join', recv: number, opts: { ws?: WsFactory } = {}): Joining {
+  const mk = opts.ws ?? realWs;
+  const ws = mk(wsUrl(code, role, recv));
+  const stopPing = keepAlive(ws);
+  const tx = wrap(ws, { code, role, mk }, stopPing, { recv });
+  const ready = untilRelay(ws, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話，接不回剛剛的連線局')
+    .then((open) => { tx.resumedAt(open.got ?? 0); return tx as Transport; });
+  return { ready, cancel: () => { stopPing(); try { ws.close(); } catch { /* 已經關了 */ } } };
 }
 
 export interface Hosting { code: string; ready: Promise<Transport>; cancel: () => void }

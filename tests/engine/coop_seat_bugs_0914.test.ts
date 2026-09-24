@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { beginCombat, finishCombat, makeShop, makeShops, newCoopRun, notMyCard, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../src/engine/run';
+import { beginCombat, finishCombat, makeShops, newCoopRun, notMyCard, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../src/engine/run';
 import { beginEnemyTurn, playCard, startPlayerTurn, stepEnemyTurn } from '../../src/engine/combat';
 import { damageEnemy } from '../../src/engine/actions';
 import { addStatus, getStatus } from '../../src/engine/statuses';
@@ -59,15 +59,15 @@ describe('戰鬥裡寫死 cs.player 的六處', () => {
     for (const e of cs.enemies) { e.hp = 999; e.block = 0; }   // 別在第三張之前就打贏
     const handA = a.hand.length;
     const handB = b.hand.length;   // 藍頭巾第一回合多抽一張，所以不寫死 5
-    // 隨便打三張，第三張觸發補抽
-    for (let k = 0; k < 3; k++) {
+    // 隨便打兩張，第二張觸發補抽 3 張（2026-09-23 平衡 bal：原本第三張抽一張）
+    for (let k = 0; k < 2; k++) {
       const c = b.hand[0];
       expect(c, '手上沒牌了，這條在測空氣').toBeDefined();
       const tgt = cardById[c!.cardId]?.target === 'enemy' ? cs.enemies[0]!.uid : undefined;
       expect(playCard(cs, c!.uid, tgt, 1)).toBe(true);
     }
     expect(a.hand.length, '補抽的牌跑進了座位 0 手裡').toBe(handA);
-    expect(b.hand.length, '座位 1 打了三張、補抽一張').toBe(handB - 3 + 1);
+    expect(b.hand.length, '座位 1 打了兩張、補抽三張').toBe(handB - 2 + 3);
   });
 
   it('高-14：座位 1 打技能牌，詛咒魔物的爛牌塞進座位 1 的牌堆', () => {

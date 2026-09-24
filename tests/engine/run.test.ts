@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cardById } from '../../src/content/cards';
 import { relicById, relics } from '../../src/content/relics';
-import { endTurn, startCombat } from '../../src/engine/combat';
-import { nextChoices, nodeById } from '../../src/engine/map';
+import { nextChoices } from '../../src/engine/map';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { rollCardChoices, rollRelic, rollRewards } from '../../src/engine/rewards';
 import { addCard, addPotion, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard } from '../../src/engine/run';
@@ -86,7 +85,7 @@ describe('戰鬥與獎勵', () => {
     expect(run.status).toBe('lost'); expect(me(run).hp).toBe(0);
     expect(run.stats).toEqual({ kills: 2, turns: 4, cardsPlayed: 7 });
   });
-  it('小魚乾罐：戰鬥勝利多拿 10 條', () => {
+  it('小魚乾罐：戰鬥勝利多拿 15 條（2026-09-23 平衡 10 → 15）', () => {
     const fight = (jar: boolean) => {
       const run = fresh('jar');
       if (jar) expect(takeRelic(run, 'fish_jar')).toBe(true);
@@ -98,9 +97,9 @@ describe('戰鬥與獎勵', () => {
     };
     const withJar = fight(true), without = fight(false);
     expect(without.r.fish).toBeGreaterThanOrEqual(15); expect(without.r.fish).toBeLessThanOrEqual(25);   // 戰利品 15～25（2026-09-01）
-    expect(withJar.r.fish).toBe(without.r.fish + 10);
-    expect(withJar.r.fish).toBeGreaterThanOrEqual(25); expect(withJar.r.fish).toBeLessThanOrEqual(35);
-    expect(me(withJar.run).fish).toBe(me(without.run).fish + 10);
+    expect(withJar.r.fish).toBe(without.r.fish + 15);
+    expect(withJar.r.fish).toBeGreaterThanOrEqual(30); expect(withJar.r.fish).toBeLessThanOrEqual(40);
+    expect(me(withJar.run).fish).toBe(me(without.run).fish + 15);
   });
   it('戰鬥還沒結束不准收尾', () => {
     const run = fresh('guard');
@@ -171,7 +170,9 @@ describe('貓窩、紙箱、罐頭鋪', () => {
     expect(shop.cards.length).toBe(5);
     expect(shop.cards.filter((c) => c.def.pool === '忍術').length).toBeGreaterThanOrEqual(4);
     expect(shop.cards.filter((c) => c.def.pool === '絕學').length).toBeLessThanOrEqual(1);
-    expect(shop.relics.length).toBe(2); expect(shop.potions.length).toBe(3);
+    // 第一關兩件常見；另外一半的店多一格店長私藏（罐頭鋪限定池，2026-09-23 第二批），擺在最右邊
+    expect(shop.relics.filter((r) => !r.limited).length).toBe(2); expect(shop.potions.length).toBe(3);
+    expect(shop.relics.slice(0, 2).every((r) => !r.limited)).toBe(true);
     const price = shop.cards[0]!.price;
     expect(buyCard(run, shop, 0)).toBe(true); expect(me(run).fish).toBe(500 - price); expect(shop.cards[0]!.sold).toBe(true);
     expect(buyCard(run, shop, 0)).toBe(false);

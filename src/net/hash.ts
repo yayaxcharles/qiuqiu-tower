@@ -46,23 +46,45 @@ export function combatFingerprint(cs: CombatState): string {
     // 亂數狀態：走岔一步當下看不出來，下一次抽牌才爆開
     `r${cs.rng.state.a},${cs.rng.state.b},${cs.rng.state.c},${cs.rng.state.d}`,
     `k${cs.kills}`, `c${cs.cardsPlayed}`, `s${cs.stolenFish}`,
+    // 開場還沒發的「給同伴」秘寶效果（2026-09-23，同心結、分食便當）：`beginCombat` 裡就發完刪掉，正常永遠是空的。
+    // 有才串進來，舊的指紋一個位元都不變；萬一哪條路漏了沒發，兩台會各自留著一份，在這裡當場抓到
+    ...(cs.pendingAllyRelics?.length ? [`pal[${cs.pendingAllyRelics.map((x) => `${x.seat}:${JSON.stringify(x.effects)}`).join(',')}]`] : []),
   ];
   for (const p of cs.players) {
     parts.push([
-      `P${p.seat}`, `hp${p.hp}/${p.maxHp}`, `b${p.block}`, `a${p.armour}`, `e${p.energy}/${p.maxEnergy}`,
+      `P${p.seat}`, `hp${p.hp}/${p.maxHp}`, `b${p.block}`, `e${p.energy}/${p.maxEnergy}`,
       p.down ? 'DOWN' : '', p.ready ? 'RDY' : '',
       statusOf(p),
       `h[${pile(p.hand)}]`, `d[${pile(p.drawPile)}]`, `x[${pile(p.discardPile)}]`, `z[${pile(p.exhaustPile)}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
-      `pw${p.powers.length}`, `dn${p.doubleNext}`, `f${p.fishDelta}`,
+      `pw[${p.powers.map((pw) => [pw.trigger, pw.cardId ?? '', pw.upgraded ? 1 : 0, pw.thisTurn ? 1 : 0,
+        pw.cardType ?? '', pw.minQiSpent ?? '', pw.oncePerTurn ? 1 : 0, pw.firedTurn ?? '', JSON.stringify(pw.effects)].join(':')).join(',')}]`,
+      `q${p.qi ?? 0}`, `nab${p.nextAttackBonus ?? 0}`, `egb${p.energyGainBlockedThisPhase ? 1 : 0}`,
+      `dn${p.doubleNext}`, `f${p.fishDelta}`,
       // 菲菲的三個長效旗標：整場都在、會影響之後每一次結算，不進指紋的話分岔會晚一拍才抓到
       `pb${p.poisonBurst ?? ''}`, `bb${p.blockBonus ?? 0}`, `ef${p.echoFirst ?? 0}`, `poa${p.poisonOnAttack ?? 0}`,
+      // 噹噹的四個（2026-09-17）：`pw` 只數張數，數不出千斤墜疊到幾點
+      `hs${p.halfSpendBlock ? 1 : 0}`, `bwa${p.blockWhenAttacked ?? 0}`,
+      `tb${p.thornsBonus ?? 0}`, `bk${p.blockKeepThisTurn ?? 0}`,
+      // 橋接牌那三個（2026-09-17）
+      `bot${p.blockOnThorns ?? 0}`, `tfs${p.thornsFromSpend ?? ''}`,
+      `b2t${p.blockToThornsThisTurn ? `${p.blockToThornsThisTurn.per}/${p.blockToThornsThisTurn.gain}` : ''}`,
       // 連線支援牌 C 批的四個跨回合旗標（2026-09-13 稽核 低-4）。
       // 沒有它們真分岔還是會被蜷縮或手牌抓到，只是**晚一拍、而且訊息指錯地方**——
       // 分岔點會被算在後面某個無關的效果上，查起來會繞遠路。
       // `watch*` 與 `energyForAllyEachRound` 靠 `pw` 的張數間接蓋到，這裡補的是沒蓋到的四個。
       `pna${p.poisonNextAttack ? `${p.poisonNextAttack.amount}${p.poisonNextAttack.anyDamage ? 'a' : ''}` : ''}`,
       `fap${p.firedAllyPlay ? 1 : 0}`, `fsp${p.firedSelfPlay ? 1 : 0}`, `fph${p.firedPoisonHit ? 1 : 0}`,
+      /*
+       * 2026-09-23 內容擴充第二批的戰鬥內狀態：便當、回魂香、木人樁的計數、收鞘墜的零頭、滿月劍意發動過的回合。
+       * **有才串**：沒帶這幾件的局指紋一個位元都不變。
+       */
+      ...(p.energyNextTurn ? [`ent${p.energyNextTurn}`] : []),
+      ...(p.guardLethal ? ['gl'] : []),
+      ...(p.guardLethalHold ? ['glh'] : []),   // 回魂香拉住過、這一輪魔物打不死（2026-09-24 b3int）
+      ...(p.relicCounters && Object.keys(p.relicCounters).length ? [`rc[${countersKey(p.relicCounters)}]`] : []),
+      ...(p.qiSpentAcc ? [`qsa${p.qiSpentAcc}`] : []),
+      ...(p.fullMoonTurn !== undefined ? [`fmt${p.fullMoonTurn}`] : []),
     ].join('|'));
   }
   for (const e of cs.enemies) {
@@ -71,6 +93,8 @@ export function combatFingerprint(cs: CombatState): string {
       e.dead ? 'DEAD' : '', e.escaped ? 'GONE' : '',
       `ph${e.phase}`, `mi${e.moveIndex}`, `tc${e.turnCount}`, `rv${e.reviveIn}`, `iv${e.invulnIn}`,
       `pby${e.poisonedBy ?? ''}`,   // 誰下的毒——毒死牠時擊倒獎勵算在這個人頭上，兩邊記的人不一樣會分岔
+      // 誰丟的迷魂香（2026-09-23 第二批）：牠打倒同伴時擊倒獎勵歸這一位。有才串（迷魂本身在狀態那一欄）
+      ...(e.dazedBy !== undefined ? [`dzb${e.dazedBy}`] : []),
       // 頭上預告的那一招：兩邊預告不同，下一拍就會打出不一樣的東西
       e.move.label,
       statusOf(e),
@@ -103,15 +127,34 @@ export function runFingerprint(run: RunState): string {
      * **只收引擎自己寫的 `event:`／`sequel:`**，加上地圖每一格排的事件——
      * 序章、看過哪隻魔物那些是畫面寫的旗標，兩台寫的時機本來就可能不同，收進來會誤報斷線。
      */
-    `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:'))).sort().join(',')}]`,
+    // `chain:` 是事件鏈的旗標（2026-09-23 內容擴充第一批起，提案第⑦節）：前集記下、後集照它排，兩台不一樣就會各自排到不同的後集
+    // `shop_bought:` 是店長私藏買過哪幾件（2026-09-23 第二批，引擎的 `buyRelic` 寫）：兩台不一樣，下一間店的私藏那格就會擺得不一樣
+    `ev[${Object.keys(run.flags).filter((k) => run.flags[k] && (k.startsWith('event:') || k.startsWith('sequel:') || k.startsWith('chain:') || k.startsWith('shop_bought:'))).sort().join(',')}]`,
     `m[${run.map.nodes.map((n) => n.eventId ?? '').join(',')}]`,
+    // 問號格變化（2026-09-23 內容擴充第三批 新G）：累積幾次、哪幾格變成什麼（伏擊連同那一組）。兩台不一樣，下一個問號格就會擲出不同的結果。
+    // 有才串：還沒走進任何事件格的局（開局、舊存檔）指紋跟以前一樣
+    ...(run.qmark ? [`qm${run.qmark}`] : []),
+    ...(run.map.nodes.some((n) => n.variant) ? [`qv[${run.map.nodes.filter((n) => n.variant).map((n) => `${n.id}:${n.variant}:${n.encounterId ?? ''}`).join(',')}]`] : []),
+    // 罐頭鋪誰顧店（2026-09-23 第三批 新J）：兩台記的不一樣，走進那一間貨架、價錢、服務全部不同。有才串，只有橘貓老闆的地圖指紋不變
+    ...(run.map.nodes.some((n) => n.keeper) ? [`kp[${run.map.nodes.filter((n) => n.keeper).map((n) => `${n.id}:${n.keeper}`).join(',')}]`] : []),
   ];
   for (const p of run.players) {
     parts.push([
       `h:${p.hero ?? 'ninja'}`, `hp${p.hp}/${p.maxHp}`, `$${p.fish}`, `rm${p.removeCost}`, p.down ? 'DOWN' : '',
       `d[${p.deck.map((c: CardInstance) => `${c.uid}.${c.cardId}${c.upgraded ? '+' : ''}`).join(' ')}]`,
       `rel[${[...p.relics].sort().join(',')}]`, `pot[${p.potions.join(',')}]`,
+      // 跨戰鬥的秘寶計數（木人樁、撲滿，2026-09-23 第二批）：兩台數得不一樣，發動的那一場就會分岔。有才串，舊局的指紋不變
+      ...(p.counters && Object.keys(p.counters).length ? [`ctr[${countersKey(p.counters)}]`] : []),
+      // 事件帶進下一場的東西（送上樓的便當，2026-09-23 內容擴充第二批）：兩台記的不一樣，下一場開打那一拍就分岔
+      p.nextFight?.length ? `nf${JSON.stringify(p.nextFight)}` : '',
+      // 開局祝福拿了哪一樣（2026-09-23 第三批 新A）：有才串，沒選過的局（舊存檔、還在選）指紋一個位元都不變
+      ...(p.bless?.took ? [`bl${p.bless.took}`] : []),
     ].join('|'));
   }
   return fnv1a(parts.join('||')).toString(16).padStart(8, '0');
+}
+
+/** 計數表排序後串起來：物件的鍵順序跟先寫哪一件有關，兩台內容一樣但順序不同時不該判成分岔（跟 `statusOf` 同一個理由） */
+function countersKey(c: Record<string, number>): string {
+  return Object.keys(c).sort().map((k) => `${k}:${c[k]}`).join(',');
 }

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BYE, GRACE_MS, hostRoom, joinRoom, makeCode, relayUrl, PING_MS } from '../../src/net/ws';
+import { BYE, GRACE_MS, hostRoom, joinRoom, makeCode, relayUrl, PING_MS, PROBE_MS, STALL_MS } from '../../src/net/ws';
 import type { LinkStatus, NetMessage } from '../../src/net/transport';
 
 /*
@@ -307,5 +307,130 @@ describe('中途斷線接回（2026-09-15）', () => {
     await vi.advanceTimersByTimeAsync(5000);
     expect(b.f.made.length).toBe(1);
     expect(b.closed).toEqual(['對方離開了']);
+  });
+});
+
+/*
+ * 自己斷線要自己看得出來（2026-09-22 連線盤點 問題 2）：頁面在前景時每秒問一聲，3.5 秒什麼都沒收到就說 away，
+ * 收到任何東西就說 back。背景分頁與頁面凍住那一段不量，不能誤報。
+ */
+describe('心跳回音：自己斷線要自己看得出來', () => {
+  let visibility: 'visible' | 'hidden' = 'visible';
+  beforeEach(() => {
+    vi.useFakeTimers();
+    visibility = 'visible';
+    vi.stubGlobal('document', { get visibilityState() { return visibility; } });
+  });
+  afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
+
+  async function connected() {
+    const f = factory();
+    const p = hostRoom({ ws: f.ws, rng: seq(0.5) });
+    await Promise.resolve(); hosting(f.made[0]!);
+    const r = await p; opened(f.made[0]!);
+    const tx = await r.ready;
+    const st: LinkStatus[] = [];
+    tx.onStatus!((s) => st.push(s));
+    return { w: f.made[0]!, tx, st, f };
+  }
+  const pings = (w: FakeWs) => w.sent.filter((s) => s === 'ping').length;
+
+  it('前景時每秒問一聲；回音照常到就一直不報', async () => {
+    const { w, st } = await connected();
+    for (let i = 0; i < 20; i++) { await vi.advanceTimersByTimeAsync(PROBE_MS); w.msg('pong', true); }
+    expect(pings(w), '每秒一次').toBeGreaterThanOrEqual(20);
+    expect(st, '回音都有到，不能報斷線').toEqual([]);
+  });
+
+  it(`${STALL_MS / 1000} 秒多什麼都沒收到就說 away，之後收到任何東西就說 back`, async () => {
+    const { w, st } = await connected();
+    await vi.advanceTimersByTimeAsync(STALL_MS - 600);
+    expect(st, '還在正常延遲的範圍內').toEqual([]);
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(st, '收不到回音要在自己畫面講出來，不能等十幾秒的關閉事件').toEqual(['away']);
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(st, '只講一次').toEqual(['away']);
+    w.msg('pong', true);
+    expect(st, '線其實還活著：講回來').toEqual(['away', 'back']);
+  });
+
+  it('報了斷線之後真的斷掉（1006）：照舊走接回，接回來才 back', async () => {
+    const { w, st, f } = await connected();
+    await vi.advanceTimersByTimeAsync(STALL_MS + 1000);
+    expect(st).toEqual(['away']);
+    w.serverClose(1006);
+    f.made[1]!.readyState = 1;
+    f.made[1]!.msg({ m: 'relay', s: 'open', got: 0 });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(st.at(-1)).toBe('back');
+    // 新的那條從接回那一刻開始量：回音照常到就不再報
+    const n = st.length;
+    for (let i = 0; i < 6; i++) { await vi.advanceTimersByTimeAsync(PROBE_MS); f.made[1]!.msg('pong', true); }
+    expect(st.length).toBe(n);
+  });
+
+  it('分頁在背景：不問也不量（計時器被瀏覽器拉長，量了一定誤報）；切回前景先給一段時間', async () => {
+    const { w, st } = await connected();
+    visibility = 'hidden';
+    const before = pings(w);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(st, '背景一分鐘沒收到東西是正常的').toEqual([]);
+    expect(pings(w) - before, '背景只剩 25 秒一次的那個心跳').toBeLessThanOrEqual(3);
+    visibility = 'visible';
+    await vi.advanceTimersByTimeAsync(PROBE_MS * 2);
+    expect(st, '剛切回前景不能馬上報').toEqual([]);
+    w.msg('pong', true);
+    await vi.advanceTimersByTimeAsync(PROBE_MS * 2);
+    expect(st).toEqual([]);
+  });
+
+  it('頁面被凍住一段（兩次檢查隔太久）：那一段不算', async () => {
+    const { w, st } = await connected();
+    w.msg('pong', true);
+    vi.setSystemTime(Date.now() + 8000);   // 主執行緒卡了八秒，這段期間計時器一次都沒跑
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    expect(st, '卡住那段沒收到東西不是斷線').toEqual([]);
+    w.msg('pong', true);
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    expect(st).toEqual([]);
+  });
+
+  /*
+   * 2026-09-23 稽核 低-3：主執行緒卡 2.5～3 秒（還不到上面「凍住」的 3 秒門檻）。卡住前剛收到回音、
+   * 卡住期間心跳沒送出、回音排在計時器後面才處理——醒來第一次檢查就超過 3.5 秒，先誤報一次 away。
+   */
+  it('主執行緒卡了快 3 秒：晚掉的那一拍扣掉，不先誤報一次 away', async () => {
+    const { w, st } = await connected();
+    w.msg('pong', true);                            // 剛收到回音
+    await vi.advanceTimersByTimeAsync(PROBE_MS);     // 下一拍準時：送出 ping，回音還在路上
+    vi.setSystemTime(Date.now() + 1900);             // 接著卡 1.9 秒：下一拍晚到，兩拍隔 2.9 秒（不到凍住的門檻）
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    expect(st, '是自己卡住，不是對方沒回').toEqual([]);
+    w.msg('pong', true);                            // 排在後面的回音這時才處理
+    for (let i = 0; i < 5; i++) { await vi.advanceTimersByTimeAsync(PROBE_MS); w.msg('pong', true); }
+    expect(st).toEqual([]);
+  });
+
+  it('卡過一次之後線真的斷了：跟沒卡過一樣在 3.5 秒多一點報，不會因為扣過延遲就變慢', async () => {
+    const { w, st } = await connected();
+    w.msg('pong', true);
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    vi.setSystemTime(Date.now() + 1900);
+    await vi.advanceTimersByTimeAsync(PROBE_MS);
+    w.msg('pong', true);                            // 卡住後那一則回音，之後線斷了、一則都沒再來
+    // 跟上面「3.5 秒多什麼都沒收到」那條同一組數字：扣延遲只扣晚掉的那一拍，準時的拍子一毫秒都不扣
+    await vi.advanceTimersByTimeAsync(STALL_MS - 600);
+    expect(st, '還在正常延遲的範圍內').toEqual([]);
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(st).toEqual(['away']);
+  });
+
+  it('自己關掉之後不再問、也不報', async () => {
+    const { w, tx, st } = await connected();
+    tx.close();
+    const n = pings(w);
+    await vi.advanceTimersByTimeAsync(STALL_MS * 3);
+    expect(pings(w)).toBe(n);
+    expect(st).toEqual([]);
   });
 });

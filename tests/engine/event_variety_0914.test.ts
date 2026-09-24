@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { advanceAct, chooseNode, newCoopRun, newRun } from '../../src/engine/run';
-import { FIXED_EVENT_FLOOR_5 } from '../../src/content/events';
+import { FIXED_EVENT_FLOOR_5, fixedEventFloor5 } from '../../src/content/events';
 import { runFingerprint } from '../../src/net/hash';
 import { CoopSession } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
@@ -118,7 +118,9 @@ describe('後集：前集做過，下一關第一次走進事件格就遇到', (
     advanceAct(run2);
     const f5 = run2.map.nodes.find((n) => n.floor === 5)!;
     walkTo(run2, f5.id);
-    expect(f5.eventId).toBe(FIXED_EVENT_FLOOR_5);
+    // 5F 一關一版（2026-09-23）：第二關是木箱那一版，照樣不被後集換掉
+    expect(f5.eventId).toBe(fixedEventFloor5(2));
+    expect(f5.eventId).not.toBe(FIXED_EVENT_FLOOR_5);
   });
 
   it('這一格墊的是「遇過的後集」時照樣換（審查 中-1：原本只要是後集就不換，真正該出的那個被擋掉）', () => {
@@ -219,7 +221,8 @@ describe('同一局不重複遇到同一個事件', () => {
       const run = newRun(`norepeat-${i}`, 1, i % 2 ? 'feifei' : 'ninja');
       const seen: string[] = [];
       for (const n of eventNodes(run).slice(0, 3)) {
-        try { walkTo(run, n.id); seen.push(n.eventId!); } catch { /* 走不到（已經走過那一層）就換下一個 */ }
+        // 變成伏擊／行腳商／路邊紙箱的那一格（問號格變化，2026-09-23 第三批）原本那篇沒被看到，照設計稿 3-1 不記「遇過」，之後照樣排得到
+        try { walkTo(run, n.id); if (!n.variant) seen.push(n.eventId!); } catch { /* 走不到（已經走過那一層）就換下一個 */ }
       }
       expect(seen.length, `種子 ${i} 一個事件都沒走到`).toBeGreaterThan(0);
       advanceAct(run);

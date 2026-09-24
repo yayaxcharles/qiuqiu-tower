@@ -1,0 +1,109 @@
+import { describe, expect, it } from 'vitest';
+import { BLESSINGS, BLESS_CLASSES } from '../../src/content/blessings';
+import { BLESS_COOP_TOOK, BLESS_COOP_WAIT, BLESS_NAMES, BLESS_OPENING, blessCardText, blessTakeLine } from '../../src/content/blessing-text';
+import { HEROES } from '../../src/engine/hero';
+import type { RunEffect } from '../../src/engine/types';
+import RUN from '../../src/engine/run.ts?raw';
+import BLESS_SCREEN from '../../src/ui/screens/blessing.ts?raw';
+import EVENT_SCREEN from '../../src/ui/screens/event.ts?raw';
+
+/**
+ * 開局祝福的文字（2026-09-23 第三批，設計稿 2-2、2-4）。
+ * 卡面的數字要跟 `blessings.ts` 的效果對得上（量尺之後調過七處數字，文字漏改就是圖文不符）；
+ * 噹噹的卡面寫「拳腳」不寫「忍術」（主控裁決第 10 條）；四隻的台詞照各自的口吻。
+ */
+/** 這一樣效果裡寫在卡面上的數字（照效果種類挑：生命上限、小魚乾、忍具、掉血、連幾場、幾層、挑幾張、幾成） */
+function numbers(effects: readonly RunEffect[]): string[] {
+  const out: string[] = [];
+  for (const fx of effects) {
+    if (fx.kind === 'maxHp' || fx.kind === 'fish' || fx.kind === 'potions' || fx.kind === 'damage') out.push(String(Math.abs(fx.n)));
+    if (fx.kind === 'nextFight') { out.push(String(fx.fights ?? 1)); for (const e of fx.effects) if (e.kind === 'status') out.push(String(e.amount)); }
+    // 機率寫成「50%機率」（使用者 2026-09-24 晚：「5成改成 50%機率」）
+    if (fx.kind === 'gamble') { out.push(`${Math.round(fx.p * 100)}%機率`, `${Math.round((1 - fx.p) * 100)}%機率`, ...numbers(fx.win), ...numbers(fx.lose)); }
+  }
+  return out;
+}
+
+describe('卡面', () => {
+  it('每一樣都有名字與說明，四隻都看得到', () => {
+    for (const b of BLESSINGS) {
+      expect(BLESS_NAMES[b.id], b.id).toBeTruthy();
+      for (const h of HEROES) expect(blessCardText(b.id, h).length, `${b.id}/${h}`).toBeGreaterThan(5);
+    }
+  });
+
+  it('卡面的數字跟效果對得上（調數字時文字要跟著改）', () => {
+    for (const b of BLESSINGS) {
+      const text = blessCardText(b.id, 'ninja');
+      const want = [...numbers(b.effects), ...(b.dice ?? []).flatMap((t) => numbers(t.effects))];
+      if (b.pick) want.push(String(b.pick.n));
+      for (const n of want) expect(text, `${b.id} 的卡面少了「${n}」`).toContain(n);
+    }
+    // 壞毛病那一句要寫張數（第一輪量尺 1 → 2 張，2026-09-24 祝福減半又改回 1 張）
+    expect(blessCardText('bless_treasure', 'ninja')).toContain('1 張壞毛病');
+  });
+
+  it('噹噹的卡面寫「拳腳」、一個「忍術」都沒有；其他三隻照事件的講法寫「忍術」', () => {
+    for (const b of BLESSINGS) expect(blessCardText(b.id, 'dangdang'), b.id).not.toContain('忍術');
+    expect(blessCardText('bless_moves', 'dangdang')).toContain('罕見拳腳牌');   // 2026-09-24 減半：稀有 → 罕見
+    expect(blessCardText('bless_scroll', 'dangdang')).toContain('稀有拳腳牌');
+    for (const h of ['ninja', 'feifei', 'fengfeng']) expect(blessCardText('bless_moves', h)).toContain('罕見忍術牌');
+  });
+
+  it('系統口吻：卡面不加喵、不指名角色', () => {
+    for (const b of BLESSINGS) for (const h of HEROES) {
+      const t = blessCardText(b.id, h);
+      expect(t, b.id).not.toContain('喵');
+      for (const name of ['球球', '菲菲', '噹噹', '封封']) expect(t, b.id).not.toContain(name);
+    }
+  });
+});
+
+describe('台詞', () => {
+  const linesOf = (h: string): string[] => [BLESS_OPENING[h as keyof typeof BLESS_OPENING].line,
+    ...BLESS_CLASSES.map((c) => blessTakeLine('bless_coins', c, h)), blessTakeLine('bless_box', '代價', h), blessTakeLine('bless_bracer', '代價', h)];
+
+  it('四隻都有開場（旁白＋一句）與每一類的那一句；空的寶盒、舊護腕有自己的一句', () => {
+    for (const h of HEROES) {
+      expect(BLESS_OPENING[h].narration.length, h).toBeGreaterThan(20);
+      for (const line of linesOf(h)) expect(line.length, h).toBeGreaterThan(2);
+      expect(blessTakeLine('bless_box', '代價', h)).not.toBe(blessTakeLine('bless_stash', '代價', h));
+    }
+  });
+
+  it('球球每一句最後一個字是「喵」；另外三隻一句都不講喵', () => {
+    for (const line of linesOf('ninja')) expect(line.replace(/[。！？……，、]+$/u, '').at(-1), line).toBe('喵');
+    for (const h of ['feifei', 'dangdang', 'fengfeng']) {
+      for (const line of linesOf(h)) expect(line, `${h}：${line}`).not.toContain('喵');
+      expect(BLESS_OPENING[h as 'feifei'].narration).not.toContain('喵');
+    }
+  });
+
+  it('噹噹、封封叫「大俠貓」不叫「師父」（噹噹跟大俠貓不是師徒）；菲菲叫「師父」', () => {
+    for (const h of ['dangdang', 'fengfeng']) {
+      const all = [BLESS_OPENING[h as 'dangdang'].narration, ...linesOf(h)].join('');
+      expect(all, h).not.toContain('師父');
+      expect(all, h).toContain('大俠貓');
+    }
+    expect([BLESS_OPENING.feifei.narration, ...linesOf('feifei')].join('')).toContain('師父');
+  });
+
+  it('連線提示有兩個記號可以換', () => {
+    expect(BLESS_COOP_TOOK).toContain('{同伴}');
+    expect(BLESS_COOP_TOOK).toContain('{名稱}');
+    expect(BLESS_COOP_WAIT).toContain('{同伴}');
+  });
+});
+
+// 推前稽核 2026-09-24 複審 中-1：高難度是把賭運氣的機率「再乘 0.7」（卡面 50% → 35%），不是改成 70%。
+// 提示第一版寫成「只剩 70%機率會中」，玩家會以為比卡面還高
+describe('高難度的賭運氣提示跟引擎的倍率一致', () => {
+  it('引擎乘 0.7；祝福與事件兩處提示寫「打七折」並舉 50%→35% 的例子', () => {
+    expect(RUN).toContain('chance(fx.p * (runMods(run).unlucky ? 0.7 : 1))');
+    for (const [name, src] of [['blessing', BLESS_SCREEN], ['event', EVENT_SCREEN]] as const) {
+      expect(src, name).toContain('賭運氣的成功機率打七折');
+      expect(src, name).toContain('50% 只剩 35%');
+      expect(src, name).not.toContain('70%機率會中');
+    }
+  });
+});

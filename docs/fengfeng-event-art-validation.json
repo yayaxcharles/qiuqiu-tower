@@ -1,0 +1,236 @@
+{
+  "schema": 1,
+  "validated_at": "2026-09-20",
+  "events": {
+    "expected": 101,
+    "manifested": 101,
+    "files": 101,
+    "unique_hashes": 101,
+    "source_hash_overlap": 0,
+    "size": [
+      560,
+      420
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "overview_pages": [
+      "docs/fengfeng-event-art-overview-01.webp",
+      "docs/fengfeng-event-art-overview-02.webp",
+      "docs/fengfeng-event-art-overview-03.webp",
+      "docs/fengfeng-event-art-overview-04.webp",
+      "docs/fengfeng-event-art-overview-05.webp",
+      "docs/fengfeng-event-art-overview-06.webp"
+    ],
+    "visual_review": "self-reviewed on six overview pages; all protagonists use the canonical orange-and-white Fengfeng identity; root independently reviewed all six pages and passed the set"
+  },
+  "rootIndependentVisualReview": {
+    "status": "passed",
+    "reviewed_at": "2026-09-20",
+    "overview_pages_reviewed": 6,
+    "identity": "canonical orange-and-white Fengfeng with red vest and scarf remained distinguishable across all 101 event images",
+    "source_check": "lost_kitten_r0 orange NPC with blue headscarf matches the original event composition",
+    "new_major_defects": 0
+  },
+  "extra_assets": {
+    "coop_cards": [
+      {
+        "key": "card/coop_feifei_fengfeng_fenyiban",
+        "path": "assets/cards/card/coop_feifei_fengfeng_fenyiban.webp",
+        "size": [
+          299,
+          240
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "card/coop_feifei_fengfeng_yiqichuankou",
+        "path": "assets/cards/card/coop_feifei_fengfeng_yiqichuankou.webp",
+        "size": [
+          299,
+          240
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "card/coop_fengfeng_ninja_fenyiban",
+        "path": "assets/cards/card/coop_fengfeng_ninja_fenyiban.webp",
+        "size": [
+          299,
+          240
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "card/coop_fengfeng_ninja_yiqichuankou",
+        "path": "assets/cards/card/coop_fengfeng_ninja_yiqichuankou.webp",
+        "size": [
+          299,
+          240
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "card/coop_dangdang_fengfeng_fenyiban",
+        "path": "assets/cards/card/coop_dangdang_fengfeng_fenyiban.webp",
+        "size": [
+          299,
+          240
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "card/coop_dangdang_fengfeng_yiqichuankou",
+        "path": "assets/cards/card/coop_dangdang_fengfeng_yiqichuankou.webp",
+        "size": [
+          299,
+          240
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      }
+    ],
+    "shadow_and_relic": [
+      {
+        "key": "codex/monster_shadow_fengfeng",
+        "path": "assets/monsters/shadow_fengfeng_idle.webp",
+        "size": [
+          460,
+          460
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "codex/monster_shadow_fengfeng",
+        "path": "assets/monsters/shadow_fengfeng_attack.webp",
+        "size": [
+          460,
+          460
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "codex/monster_shadow_fengfeng",
+        "path": "assets/monsters/shadow_fengfeng_hurt.webp",
+        "size": [
+          460,
+          460
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "codex/monster_shadow_fengfeng",
+        "path": "assets/monsters/shadow_fengfeng_block.webp",
+        "size": [
+          460,
+          460
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "codex/monster_shadow_fengfeng",
+        "path": "assets/monsters/shadow_fengfeng_down.webp",
+        "size": [
+          460,
+          460
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      },
+      {
+        "key": "codex/relic_old_sword_tassel",
+        "path": "assets/icons/relic_old_sword_tassel.webp",
+        "size": [
+          128,
+          128
+        ],
+        "alpha": [
+          0,
+          255
+        ]
+      }
+    ],
+    "story": [
+      {
+        "key": "bg/fengfeng_coop_feifei_top",
+        "path": "assets/bg/fengfeng_coop_feifei_top.webp",
+        "size": [
+          1672,
+          941
+        ],
+        "alpha": [
+          255,
+          255
+        ]
+      },
+      {
+        "key": "bg/fengfeng_coop_feifei_victory",
+        "path": "assets/bg/fengfeng_coop_feifei_victory.webp",
+        "size": [
+          1672,
+          941
+        ],
+        "alpha": [
+          255,
+          255
+        ]
+      },
+      {
+        "key": "bg/fengfeng_coop_dangdang_top",
+        "path": "assets/bg/fengfeng_coop_dangdang_top.webp",
+        "size": [
+          1672,
+          941
+        ],
+        "alpha": [
+          255,
+          255
+        ]
+      },
+      {
+        "key": "bg/fengfeng_coop_dangdang_victory",
+        "path": "assets/bg/fengfeng_coop_dangdang_victory.webp",
+        "size": [
+          1672,
+          941
+        ],
+        "alpha": [
+          255,
+          255
+        ]
+      }
+    ]
+  }
+}

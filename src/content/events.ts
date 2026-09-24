@@ -1,8 +1,37 @@
 import type { EventDef } from '../engine/types';
+import { fengfengEvents } from './fengfeng-events';
+import { batch2Events } from './events-batch2';
+import { rareEvents } from './events-rare';
 
-export const FIXED_EVENT_FLOOR_5 = 'daxia_teach';
+/**
+ * 5F 固定事件，**一關一版**（2026-09-23 內容擴充第一批，提案第⑥節「5F 秘笈三關三版」）。索引＝關數−1。
+ *
+ * 原本三關都是同一篇「師父留下的秘笈」：完整一局看三次、每局都看，是全遊戲重複最重的一幕（盤點第②節）。
+ * 改成第一關照舊、第二關「師父的舊木箱」、第三關「最後一頁」——一路往上是三段不同的師父線索
+ *（掉在樓梯間的秘笈 → 刻著記號、特地留下的木箱 → 墨還沒乾的最後一頁）。
+ *
+ * **舊存檔**：第二、三關的地圖是改版前生的，5F 仍是 `daxia_teach`。那一篇照舊合法（`validateMap`）、
+ * 照舊玩得下去（`chooseNode` 看的是 `fixedFloor`，不是寫死哪一篇）。
+ */
+export const FIXED_EVENTS_FLOOR_5 = ['daxia_teach', 'daxia_chest', 'daxia_lastpage'] as const;
+/**
+ * 第一關那一版。舊存檔第二、三關的 5F 也是它；撿到秘笈那段對白只綁這一篇（見 `screens/event.ts`）。
+ */
+export const FIXED_EVENT_FLOOR_5 = FIXED_EVENTS_FLOOR_5[0];
+/** 這一關 5F 排哪一版（關數超出範圍就夾到最近的一關） */
+export function fixedEventFloor5(act: number): string {
+  return FIXED_EVENTS_FLOOR_5[Math.min(Math.max(Math.floor(act), 1), FIXED_EVENTS_FLOOR_5.length) - 1]!;
+}
 
+/*
+ * 條件選項（2026-09-23 內容擴充第二批，劇本 design2 第七節）：八篇既有事件的 `choices` 最後各多一條，
+ * 帶 `requires`（達成才出現）與 `requiresLabel`（按鈕前的金底標籤）。既有選項的索引與結果圖一張都沒動。
+ * 判斷在 `engine/eventcond.ts`；三隻的文字與條件提示句在 `event-text-b2.ts`。
+ * 那八條的 `result` 故意留空：**球球那份結果也在 `event-text-b2.ts`**（`NINJA_COND_RESULT_B2`，延後載入、載入時填回，
+ * 2026-09-23 b2fin 主控裁定），標籤留在這裡。
+ */
 export const events: EventDef[] = [
+  ...fengfengEvents,
   /*
    * ===== 菲菲的專屬事件（2026-09-12）=====
    *
@@ -11,8 +40,79 @@ export const events: EventDef[] = [
    *   - 調藥：她整套是毒，替一張攻擊牌永久加毒對別人沒有意義。
    * 其餘 36 個共用事件不鎖職業，只在顯示時換名字與口氣（見 `eventTextFor`）。
    */
+  /*
+   * ===== 噹噹的四篇專屬事件（2026-09-17）=====
+   *
+   * 判準跟菲菲那幾篇一樣：「這件事只有對他才成立」。
+   *   - 磨手的護臂：那對護臂是他自己做、自己戴的，內墊磨穿只有他會遇到。
+   *   - 偷走的工具箱：他認得自己修過的箱角與那把斷柄鉗。
+   *   - 一掌留下的凹痕：他跟大俠貓練承力的那一次，銅面上的凹痕就是那天留下的。
+   *   - 歪掉的門框：村貓認得他，因為魔塔出現那一夜是他守在村口。
+   *
+   * **插圖還沒生**（排在 E 批）。他現在進不了選角畫面，所以這四篇不會排進任何人的地圖；
+   * 讓他能選之前要先把圖補上，不然會是破圖——這個專案被回報過好幾次同型的事。
+   *
+   * 數值是稿子給的第一版，沒有實戰平衡過。形狀照既有事件的慣例：
+   * 一個修練、一個拿好處但要付代價、一個什麼都不拿的安全選項。
+   */
+  { id: 'dangdang_lining', title: '磨手的護臂', hero: 'dangdang', acts: [1, 2],
+    text: '噹噹抬起左手，護臂裡忽然一陣刺痛。他解開扣帶，發現布墊已磨穿，銅邊在手腕上刮出一道紅痕。噹噹：「難怪越戴越疼。」工具袋裡還有一塊厚布，也放著包紮用的藥布。他把兩樣攤到膝上，試著屈伸手腕。',
+    choices: [
+      { label: '重新墊好護臂（升級至多 1 張牌）',
+        outcome: [{ kind: 'upgradeCard' }],
+        result: '噹噹把厚布折進護臂，磨平刮手的銅邊。他重新扣好，靠著牆試推幾次，將原先太緊的扣帶放鬆一格。噹噹：「這樣手腕才轉得動。剛才綁太死了。」', resultArt: 'dangdang_lining_r0' },
+      { label: '先敷藥，讓手腕歇一會兒（回復 16 點生命）',
+        outcome: [{ kind: 'heal', n: 16 }],
+        result: '噹噹拿藥布敷住傷處，把護臂放在旁邊。等疼痛減輕，他活動手指，墊入厚布，再鬆鬆扣回去。噹噹：「先別磨到傷口。等下次休息再重新調整。」', resultArt: 'dangdang_lining_r1' },
+      { label: '調鬆扣帶，繼續上路（無效果）',
+        outcome: [],
+        result: '噹噹把扣帶放鬆，將衣袖拉進銅邊和手腕之間。他抬了抬手，沒有再刮到剛才那處傷。噹噹：「先墊著，找到地方再拆。」' },
+    ] },
+  { id: 'dangdang_toolbox', title: '偷走的工具箱', hero: 'dangdang', acts: [1, 2],
+    text: '一隻老鼠推著板車經過，車上壓著一只舊木箱。箱角包了三塊銅片，第四角卻只釘著薄木板。噹噹攔住車：「那只工具箱，是我的。」老鼠瞇起眼：「我從魔物那裡換來的。你說是你的，有什麼證據？」噹噹說：「底下有一排釘錯的孔。打開，裡面那把鉗子少半截柄。」老鼠掀開箱子，看見斷柄鉗，耳朵頓時垂了下來，扶著歪斜的車輪說：「好吧，箱子還你。你肯順便修車，我再分你一袋小魚乾。」輪軸已經歪了，要修得先把整車的東西抬起來。噹噹摸了摸痠痛的肩膀。',
+    choices: [
+      { label: '收回工具，留下來調整護臂（升級至多 1 張牌）',
+        outcome: [{ kind: 'upgradeCard' }],
+        result: '噹噹取回鉗子和銅錘，把箱子裡能用的幾件收進工具袋，用鉗子扳正護臂翹起的邊。他試著出手，手腕終於不再被卡住。噹噹：「工具我拿走了。那個空箱給你裝零件。」', resultArt: 'dangdang_toolbox_r0' },
+      { label: '收回工具，再替老鼠修車（最多失去 6 點生命、獲得 45 條小魚乾）',
+        outcome: [{ kind: 'damage', n: 6 }, { kind: 'fish', n: 45 }],
+        result: '噹噹抬住車板，讓老鼠抽出歪掉的輪軸，再一起把它敲正。放下車時，他腰側猛地一疼，只能扶著車喘口氣。老鼠數了 45 條小魚乾遞過來。噹噹：「下次先卸貨。這樣抬，腰真受不了。」', resultArt: 'dangdang_toolbox_r1' },
+      { label: '只取回工具，繼續趕路（無效果）',
+        outcome: [],
+        result: '噹噹挑出能用的工具收好，指了指鬆動的車軸。噹噹：「重的搬到另一頭，這邊別再壓。修車得另找人，我還要上樓。」' },
+    ] },
+  /*
+   * 一掌留下的凹痕：**這一段是進塔前的回憶**，球球、菲菲出現在回憶裡，
+   * 不代表這一刻跟他同行（稿子特別交代過這件事）。
+   */
+  { id: 'dangdang_old_dent', title: '一掌留下的凹痕', hero: 'dangdang', acts: [2],
+    text: '噹噹靠著空房裡的木柱歇腳，擦去護臂上的灰。新刮痕底下，有一處早已磨圓的凹痕。他用拇指按了按，想起村裡的一次練習——院子裡，球球擺好架勢喊：「我出招了喵！」噹噹剛戴上做好的護臂，兩腳站得太近，被撞得連退幾步，背碰到了牆。他皺著眉：「手都擋住了，怎麼還會退這麼遠？」路過的大俠貓停下來看了一會，伸腳踢了踢他的後腳跟：「站太近了。」說完就走了。噹噹自己把兩腳挪開，重新站好，等球球再撞過來時才把護臂往前送。那一下銅面凹下一小塊，他膝蓋彎了彎，終於沒再退到牆邊。樓上的腳步聲讓噹噹回過神。他放下擦布，低頭看了看自己的腳。',
+    choices: [
+      { label: '照記得的站姿重新練習（升級至多 1 張牌）',
+        outcome: [{ kind: 'upgradeCard' }],
+        result: '噹噹把兩腳挪開，對著木柱練習承力，再把手往前送。做到最後幾次，腳下總算沒再打滑。噹噹：「對，就是這個位置。」', resultArt: 'dangdang_old_dent_r0' },
+      { label: '捨去總讓自己失去重心的招式（自選移除 1 張牌）',
+        outcome: [{ kind: 'removeCard' }],
+        result: '噹噹試過幾個熟悉的動作。有一招每次使到一半，身子就會往前栽。他收回手，決定不再用它。噹噹：「這招跟我的站法合不來，換掉。」', resultArt: 'dangdang_old_dent_r1' },
+      { label: '收起擦布，繼續找人（無效果）',
+        outcome: [],
+        result: '噹噹把擦布塞回工具袋，重新扣緊護臂。走出房門前，他又看了一眼那處舊凹痕。噹噹：「大俠貓，等找到您，我再試一次給您看。」' },
+    ] },
+  { id: 'dangdang_jammed_gate', title: '歪掉的門框', hero: 'dangdang', acts: [1, 2],
+    text: '走廊旁的倉房傳來呼喊。兩隻村貓困在裡面，門框被倒下的橫梁壓歪了，只能推出一道細縫。村貓喊著：「是守村口的噹噹！這邊，門開不了！」噹噹貼近門縫查看：橫梁壓得很重，裡面還放著村貓找回的糧箱；牆側有扇小窗，貓能鑽出來，箱子卻過不去。他先問：「人都沒受傷吧？」裡頭回答：「沒有。可是這些糧食，好不容易才找回來。」噹噹試著推門，才撐開一點，橫梁就往下沉，他連忙抽回手。',
+    choices: [
+      { label: '撐住門框，讓村貓搬出糧箱（最多失去 8 點生命、獲得 50 條小魚乾）',
+        outcome: [{ kind: 'damage', n: 8 }, { kind: 'fish', n: 50 }],
+        result: '噹噹頂住門框，讓村貓一箱箱往外拖。最後一箱過去時，他手臂已抖得厲害，肩頭也被粗木磨破。村貓分出小魚乾，替他裝好。噹噹：「箱子先移走，別再堵著門。」', resultArt: 'dangdang_jammed_gate_r0' },
+      { label: '用護臂卡住門縫，一起搬出藏物（獲得 1 件常見秘寶、加入 1 張「失手了」）',
+        outcome: [{ kind: 'relic', pool: '常見' }, { kind: 'addCard', cardId: 'shishou' }],
+        result: '噹噹卸下一隻護臂，卡進門底。三人趁空隙搬出糧箱和牆邊的布包；村貓拿出包裡的秘寶，送給他道謝。護臂抽出時已被壓歪，噹噹敲了幾下，勉強戴回去，出手卻總卡住。噹噹：「變形了。這樣下去，連手都轉不順。」', resultArt: 'dangdang_jammed_gate_r1' },
+      { label: '先讓村貓從側窗出去，放棄糧箱（回復 10 點生命）',
+        outcome: [{ kind: 'heal', n: 10 }],
+        result: '噹噹站到窗外，接住先鑽出來的村貓，再扶另一隻落地。牠們看見他手上有傷，拿隨身的藥替他擦好。噹噹：「箱子就先留著。手邊沒有能撐住橫梁的東西，我得小心處理。」', resultArt: 'dangdang_jammed_gate_r2' },
+    ] },
   { id: 'feifei_trace', title: '師兄的痕跡', hero: 'feifei', acts: [1, 2],
-    text: '牆縫裡卡著幾根針，使的是師父教的那套手法，有的已經彎了。她走近查看，發現地上散著小魚乾，旁邊還掛著深藍色的線頭。那是師兄頭巾上的線。他也走過這裡。',
+    text: '牆縫裡卡著幾根針，看得出用的是師父教的那套手法，有的已經彎了。她走近查看，發現地上散著小魚乾，旁邊還掛著深藍色的線頭。那是師兄頭巾上的線。他也走過這裡。',
     choices: [
       { label: '把針收起來（回復 12 點生命、獲得 20 條小魚乾）',
         outcome: [{ kind: 'heal', n: 12 }, { kind: 'fish', n: 20 }],
@@ -27,13 +127,13 @@ export const events: EventDef[] = [
     choices: [
       { label: '熬一鍋（升級至多 1 張牌）',
         outcome: [{ kind: 'upgradeCard' }],
-        result: '她把草葉搗成濃汁，就著燈火替針尖一根根上藥。菲菲：「比平常那批濃，分量得減些。」', resultArt: 'feifei_brew_r0' },
-      { label: '直接嚼一口試毒性（失去 8 點生命、獲得 1 張稀有牌）',
+        result: '她把草葉搗成濃汁，就著燈火替針尖一根根上藥。菲菲：「比平常那批濃，分量得減一點。」', resultArt: 'feifei_brew_r0' },
+      { label: '直接嚼一口試毒性（最多失去 8 點生命、獲得 1 張稀有牌）',
         outcome: [{ kind: 'damage', n: 8 }, { kind: 'addRandomCard', pool: '絕學', rarity: '稀有' }],
-        result: '她猶豫了好一會，仍咬下一點草葉。苦澀伴著刺痛湧上來，她彎下身乾嘔，眼淚直掉。等能握筆，才把反應記進本子。菲菲：「記下來了……不要再試第二次。」', resultArt: 'feifei_brew_r1' },
+        result: '她猶豫了好一會，仍咬下一點草葉。苦澀伴著刺痛湧上來，她彎下身乾嘔，眼淚直掉。等到能握筆了，她才把反應記進本子。菲菲：「記下來了……不要再試第二次。」', resultArt: 'feifei_brew_r1' },
       { label: '不要碰（無效果）',
         outcome: [],
-        result: '菲菲把折下的草葉放回牆邊，擦掉指尖的汁。菲菲：「聞著像，也不能當成一樣的用。」' },
+        result: '菲菲把折下的草葉放回牆邊，擦掉指尖的汁。菲菲：「聞起來再像，也不能當成同一種用。」' },
     ] },
   /*
    * 2026-09-13 新增的兩個（文字由另一位寫、數值由這邊定）。判準一樣：只有對她才成立。
@@ -56,7 +156,7 @@ export const events: EventDef[] = [
       { label: '用飛針卡住齒輪（獲得 45 條小魚乾，但牌組多一張壞毛病）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'addCard', cardId: 'shibai' }],
         result: '她用飛針卡住齒輪，取出小魚乾。針還卡在鐵齒間，已經壓彎了。她抱著袋子站著沒動，眼皮一陣一陣地重——這一下耗掉的力氣比想像中多。菲菲：「先歇一下……就一下下。」', resultArt: 'feifei_signal_r0' },
-      { label: '墊著布撐開機關（獲得 45 條小魚乾，失去 10 點生命）',
+      { label: '墊著布撐開機關（獲得 45 條小魚乾，最多失去 10 點生命）',
         outcome: [{ kind: 'fish', n: 45 }, { kind: 'damage', n: 10 }],
         result: '她墊著袖布撐開機關，鐵片仍劃破了手。菲菲：「把手抽出來，別卡在裡面……」取出小魚乾後，她在牆邊按住傷口。那聲音再響，她也沒有回頭。', resultArt: 'feifei_signal_r1' },
     ] },
@@ -65,6 +165,74 @@ export const events: EventDef[] = [
     choices: [
       { label: '研讀秘笈（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }], result: '球球攤開秘笈，仔細看上面的三幅圖。球球：「字有點難認，先看圖好了喵。」', resultArt: 'daxia_teach_r0' },
       { label: '放回原位（無效果）', outcome: [], result: '球球合上秘笈，放回樓梯邊。球球：「這招看不懂，等找到師父再問他喵。」' },
+    ] },
+  /*
+   * 5F 第二、三關那兩版（2026-09-23 內容擴充第一批）。四隻各有自己的圖與文字：
+   * 菲菲走引號句對照（`FEIFEI_EVENT_LINES`），噹噹、封封整段改寫（`event-text.ts`）。
+   * 敘述裡不用「牠」指主角——菲菲那邊換名字之後要跟著換成「她」，多一個片語就多一條要維護的對照。
+   * 選項順序跟插圖的結果序號綁在一起（`_r0`／`_r1`／`_r2`，美術代理 art1 的對照表），不要調換。
+   */
+  { id: 'daxia_chest', title: '師父的舊木箱', fixedFloor: 5, acts: [2],
+    text: '樓梯轉角擱著一只包鐵角的舊木箱，箱蓋上刻著一個大貓掌印，是師父的記號。鎖頭一扳就彈開了，像是特地留給誰來開。球球蹲下來，把手搭上箱蓋。',
+    choices: [
+      { label: '翻出箱底的秘笈（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }],
+        result: '球球把箱子裡的雜物推到一邊，從箱底捧出一本舊秘笈。翻開一看，裡面畫著三幅招式圖。球球：「這本比樓下那本還舊，師父以前就在練這些喵。」', resultArt: 'daxia_chest_r0' },
+      { label: '帶走箱裡的舊忍具（隨機獲得 2 個忍具）', outcome: [{ kind: 'potions', n: 2 }],
+        result: '箱子裡還收著兩件舊忍具，擦掉灰還能用。球球一手拿起一件，舉起來看了看。球球：「師父的東西，我先借來用喵。」', resultArt: 'daxia_chest_r1' },
+      { label: '蓋回去（無效果）', outcome: [],
+        result: '球球把箱蓋輕輕蓋回去，再把彈開的鎖頭掛好。球球：「這是師父的箱子，等他回來自己開喵。」' },
+    ] },
+  { id: 'daxia_lastpage', title: '最後一頁', fixedFloor: 5, acts: [3],
+    text: '塔頂前的石階上落著一頁撕下來的秘笈，石燈籠的光照在紙上。上頭畫著幾隻出招的貓，字是師父的筆跡，墨色還亮，像是剛寫好不久。球球彎下腰，把紙頁撿了起來。',
+    choices: [
+      { label: '照著最後一頁練（從 3 張絕學牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }],
+        result: '球球撿了一顆小石頭，把紙頁壓在石階上，照著上面的圖擺好架勢，一招一招練下去。球球：「這一招師父還沒教過我，原來寫在這裡喵。」', resultArt: 'daxia_lastpage_r0' },
+      { label: '摺進衣襟，想著師父教過的（自選升級至多 2 張牌）', outcome: [{ kind: 'upgradeCard' }, { kind: 'upgradeCard' }],
+        result: '球球在石階上坐下，把紙頁摺小，塞進衣襟裡，閉上眼睛，把師父教過的招式從頭想了一遍。球球：「師父說過，招式不用多，要練熟喵。」', resultArt: 'daxia_lastpage_r1' },
+      { label: '收好不看（回復 10 點生命）', outcome: [{ kind: 'heal', n: 10 }],
+        result: '球球沒有打開紙頁，把它收進腰間的小袋裡，靠著石欄杆坐下來，喝了幾口水。球球：「等見到師父，再請他親口教我喵。」', resultArt: 'daxia_lastpage_r2' },
+    ] },
+  /*
+   * ===== 球球的三篇專屬事件（2026-09-23 內容擴充第一批）=====
+   *
+   * 另外三隻各有四篇、他一篇都沒有（盤點第①節）。判準照舊：「這件事只有對他才成立」——
+   * 跟自己頭上一模一樣的藍頭巾、他丟慣了的手裏劍、跟他長得一模一樣的影子。
+   * 只有一份文字（專屬事件排不進別人的地圖，連線局整批不排，見 `map.ts` 的 `MapOpts.hero`）。
+   * 屋頂上的影子打的是影子鏈那一場（`shadow_duel`，照關數接 `_a2`／`_a3`；第一批暫用鏡子走廊那場，第二批換掉），
+   * 兩個選項都記 `chain:shadow_2`（遇過影子），追上去另記 `chain:shadow_2_fought`、躲著看另記 `chain:shadow_2_watched`，
+   * 留給第二批「影子的真面目」照上一集怎麼選接後集（主控 2026-09-23 指定的鍵名）。旗標在 `run.flags`，跟著存檔走；
+   * `chain:` 開頭的收進整局指紋（這篇連線不排，平常碰不到，是替之後的鏈留的）。
+   */
+  { id: 'ninja_blue_headband', title: '欄杆上的藍頭巾', hero: 'ninja', acts: [1, 2],
+    text: '石階轉角的木欄杆上，綁著一條洗到褪色的藍頭巾。樣式跟球球頭上那條一模一樣，連打結的方法都是師父教的那一種。球球伸手摸了摸，布邊已經被風吹得起了毛。',
+    choices: [
+      { label: '綁在手腕上（生命上限與當前生命各 +6）', outcome: [{ kind: 'maxHp', n: 6 }],
+        result: '球球把頭巾解下來，一圈一圈纏在手腕上綁緊，再用力握了握拳。球球：「綁緊一點，出爪就更有力了喵。」', resultArt: 'ninja_blue_headband_r0' },
+      { label: '撕成繃帶（回復 18 點生命）', outcome: [{ kind: 'heal', n: 18 }],
+        result: '球球在石階上坐下，把頭巾撕成幾條布，一圈圈纏在腿上的傷口，剩下的碎布擱在階邊。球球：「舊布拿來包傷口，剛剛好喵。」', resultArt: 'ninja_blue_headband_r1' },
+      { label: '留著給師父認路（無效果）', outcome: [],
+        result: '球球把頭巾重新綁緊，打了一個師父教的結。球球：「師父下樓的時候看到它，就認得回家的路了喵。」' },
+    ] },
+  { id: 'ninja_target', title: '滿是刀痕的木靶', hero: 'ninja', acts: [1, 2],
+    text: '樓梯旁的木地板上立著一面圓木靶，靶面插滿生鏽的手裏劍，只有靶心被磨得發亮。不知道是誰，在這裡練了多少個晚上。球球摸著下巴，抬頭看了好一會兒。',
+    choices: [
+      { label: '練到天黑（自選升級至多 1 張牌；最多失去 6 點生命）', outcome: [{ kind: 'upgradeCard' }, { kind: 'damage', n: 6 }],
+        result: '球球對著木靶一枚接一枚地射，射到靶架上的燈籠都亮了起來。臉頰擦破了皮，貼著一塊布，汗一直往下滴，最後一枚總算正中靶心。球球：「中了！這次是真的中了喵！」', resultArt: 'ninja_target_r0' },
+      { label: '撿還能用的暗器（隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }],
+        // 撿到的是隨機一張罕見忍術牌（可能是「先睡了」那種跟暗器無關的），所以台詞不指名哪一招（實機驗收 2026-09-23）
+        result: '球球從靶上拔下幾枚手裏劍，斷掉的丟在地上，挑出三枚還能用的，握在手裡掂了掂。球球：「還能用的都帶走，說不定哪天用得上喵。」', resultArt: 'ninja_target_r1' },
+      { label: '走開（無效果）', outcome: [],
+        result: '球球看了靶心最後一眼，轉身走回樓梯。球球：「練功要緊，找師父更要緊喵。」' },
+    ] },
+  { id: 'ninja_roof_shadow', title: '屋頂上的影子', hero: 'ninja', acts: [2, 3],
+    text: '夜裡，球球翻上一片瓦屋頂。高處的屋簷上，一道黑影正在跑——綁著頭巾，身形跟球球一模一樣，只有一雙眼睛亮著紫光。球球蹲在低處，一時看傻了。',
+    choices: [
+      { label: '追上去（進入戰鬥，勝利後額外獲得 30 條小魚乾、可升級至多 1 張牌）',
+        // 打的是影子鏈自己那一場（`shadow_duel`，2026-09-23 內容擴充第二批）：同一隻鏡中對手，名牌「球球的影子」、開場白不再是「從鏡子裡跨出來」
+        outcome: [{ kind: 'flag', name: 'chain:shadow_2' }, { kind: 'flag', name: 'chain:shadow_2_fought' }, { kind: 'fight', encounterId: 'shadow_duel', bonusFish: 30, bonusUpgrades: 1 }],
+        result: '球球踩著瓦片追上去。黑影在屋脊上停下，轉過身來，擺出跟球球一模一樣的架勢。球球：「學得這麼像，你到底是誰喵？」' },
+      { label: '躲著看它的招式（自選移除 1 張牌）', outcome: [{ kind: 'flag', name: 'chain:shadow_2' }, { kind: 'flag', name: 'chain:shadow_2_watched' }, { kind: 'removeCard' }],
+        result: '球球躲到屋脊後面，只露出頭和爪子。黑影在屋簷上一招接一招地練，飛踢、翻身，全是球球會的招式，卻使得比球球還俐落。看著看著，球球發現自己有一招老是多了一個破綻。球球：「那一招，我不要再用了喵。」', resultArt: 'ninja_roof_shadow_r1' },
     ] },
   { id: 'toll', title: '留下買路財',
     text: '轉角站著一隻橘貓山賊，手裡的木棒比牠還長。「留下買路財！」牠喊得很大聲，兩條腿卻抖個不停。',
@@ -123,6 +291,9 @@ export const events: EventDef[] = [
     choices: [
       { label: '送牠到轉角的集合處（隨機獲得 2 個忍具）', outcome: [{ kind: 'potions', n: 2 }], result: '球球把小黑貓送回同伴身邊。小黑貓拿出兩個忍具，塞進球球手裡，揮爪向牠道謝。球球：「下次跟緊一點，別再走丟了喵。」', resultArt: 'lost_kitten_r0' },
       { label: '指出集合處，讓牠自己回去（獲得 15 條小魚乾）', outcome: [{ kind: 'fish', n: 15 }], result: '小黑貓聽見同伴在轉角呼喚，留下 15 條小魚乾作為謝禮，跑了過去。球球：「對，就是那邊，看著路喵。」', resultArt: 'lost_kitten_r1' },
+      { label: '把鈴鐺繫在牠的頭巾上（交出「鈴鐺」；生命上限與當前生命各 +10、隨機獲得 1 個忍具）', requires: { kind: 'relic', ids: ['bell'] }, requiresLabel: '鈴鐺',
+        outcome: [{ kind: 'loseRelicId', id: 'bell' }, { kind: 'maxHp', n: 10 }, { kind: 'potions', n: 1 }],
+        result: '', resultArt: 'lost_kitten_r2' },
     ] },
   // ===== 2026-08-31 補 20 個。本來只有 10 個，兩三局就全看過 =====
 
@@ -142,6 +313,10 @@ export const events: EventDef[] = [
       { label: '扶正神龕、安放神像（生命上限與當前生命各 +6）', outcome: [{ kind: 'maxHp', n: 6 }], result: '球球扶起神龕，把兩截神像拼好。神像亮了起來，暖意從爪尖傳到身上，牠深吸一口氣，胸口也舒展了。球球：「這是在謝我喵？」', resultArt: 'broken_shrine_r0' },
       { label: '拿走供品（獲得 45 條小魚乾、牌組加入 1 張壞毛病「走火入魔」）', outcome: [{ kind: 'fish', n: 45 }, { kind: 'addCard', cardId: 'zouhuo' }],
         result: '球球抱起供品就走，神像卻冒出一縷冷氣，鑽進牠的胸口。牠急忙停下，呼吸已經亂了。球球：「怎麼回事，胸口好冷喵！」', resultArt: 'broken_shrine_r1' },
+      // 條件選項【魔氣】（2026-09-23 第三批，design3 6-5）：身上有沾了魔氣的秘寶才出現，淨化一件；三隻的文字與條件提示句在 `event-text-b3rare.ts`
+      { label: '把沾了魔氣的東西供在神龕前（淨化 1 件沾了魔氣的秘寶）', requires: { kind: 'miasmaRelic' }, requiresLabel: '魔氣',
+        outcome: [{ kind: 'purify', n: 1 }],
+        result: '球球把那件東西捧出來，擺在兩截神像中間的供盤上。神像的眼睛亮成金色，紫色的霧從那件東西上一縷一縷被抽走，鑽進神像的裂縫，再也沒有出來。球球把它拿回來，摸起來是暖的。球球：「謝謝貓神，下次我一定把你扶好喵。」', resultArt: 'broken_shrine_r2' },
     ] },
 
   { id: 'sparring_cat', title: '硬要切磋的白貓',
@@ -149,6 +324,9 @@ export const events: EventDef[] = [
     choices: [
       { label: '接下挑戰（打一場，勝利後額外獲得 60 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'white_duelist', bonusFish: 60 }], result: '白貓擺好架勢，旁邊的黑貓也抬起爪子。球球把魚乾袋收好，站到兩隻貓面前。球球：「兩個一起打，你們也好意思喵？」' },
       { label: '硬從旁邊擠過去（最多失去 8 點生命）', outcome: [{ kind: 'damage', n: 8 }], result: '球球從旁邊往樓梯擠，白貓卻撞了過來，撞得牠肩膀發麻。牠忍痛鑽過空隙，快步上樓。球球：「不陪你打，就故意撞我喵？」', resultArt: 'sparring_cat_r1' },
+      { label: '站著不動，讓他撞（最多失去 3 點生命；獲得 30 條小魚乾、隨機獲得 1 個忍具）', requires: { kind: 'anyOf', of: [{ kind: 'deckTag', tag: '反彈', min: 3 }, { kind: 'relic', ids: ['bronze_mirror', 'turtle_shell', 'anvil'] }] }, requiresLabel: '反彈',
+        outcome: [{ kind: 'damage', n: 3 }, { kind: 'fish', n: 30 }, { kind: 'potions', n: 1 }],
+        result: '', resultArt: 'sparring_cat_r2' },
     ] },
 
   { id: 'cat_tower', title: '好高的貓抓柱',
@@ -161,7 +339,7 @@ export const events: EventDef[] = [
     ] },
 
   { id: 'lost_scroll', title: '掉在地上的卷軸',
-    text: '一卷沒署名的卷軸掉在階梯上，潦草的字旁畫著三段忍術圖解。旁邊有個轉角的舊書攤，攤主表示：「收購秘笈，破舊的也收。」',
+    text: '一卷沒署名的卷軸掉在階梯上，潦草的字旁畫著三段忍術圖解。轉角有個舊書攤，攤主喊著：「收購秘笈，破舊的也收。」',
     choices: [
       { label: '挑一段照著練（從 3 張忍術牌中選擇 1 張）', outcome: [{ kind: 'chooseCard', pool: '忍術', n: 3 }], result: '球球把卷軸攤開，一段一段比對上面的圖解。球球：「先挑一招學，別一次弄混了喵。」', resultArt: 'lost_scroll_r0' },
       { label: '賣給舊書攤（獲得 40 條小魚乾）', outcome: [{ kind: 'fish', n: 40 }], result: '舊書攤的攤主翻了翻卷軸，付給球球 40 條小魚乾。球球收好錢，聞了聞袋子。球球：「夠買頓飯了喵。」', resultArt: 'lost_scroll_r1' },
@@ -173,6 +351,9 @@ export const events: EventDef[] = [
       { label: '盛一碗熱湯（回復相當於生命上限 50% 的生命）', outcome: [{ kind: 'healPercent', p: 0.5 }], result: '球球吹涼熱湯，連湯帶料吃得乾乾淨淨。肚子暖起來，身上的痠痛也減輕了。球球：「這湯真好喝喵。」', resultArt: 'noisy_kitchen_r0' },
       { label: '取用備用忍具（隨機獲得 2 個忍具）', outcome: [{ kind: 'potions', n: 2 }], result: '球球從備用品盒裡取出兩個忍具，照著盒邊的圖示確認用法。球球：「原來是給路過的人用的，我收下了喵。」', resultArt: 'noisy_kitchen_r1' },
       { label: '不取用，繼續走（無效果）', outcome: [], result: '球球擺好碰歪的碗，從走廊離開廚房。球球：「留給後面的人吧喵。」' },
+      { label: '留一個用不上的忍具在盒子裡，換一碗加料的（交出 1 個忍具；回復相當於生命上限 50% 的生命、生命上限與當前生命各 +4）', requires: { kind: 'potionsFull' }, requiresLabel: '忍具滿了',
+        outcome: [{ kind: 'losePotion' }, { kind: 'healPercent', p: 0.5 }, { kind: 'maxHp', n: 4 }],
+        result: '', resultArt: 'noisy_kitchen_r3' },
     ] },
 
   { id: 'mirror_hall', title: '鏡子走廊',
@@ -191,6 +372,9 @@ export const events: EventDef[] = [
       { label: '伸爪偷錢袋（進入戰鬥，勝利後額外獲得 70 條小魚乾）', outcome: [{ kind: 'fish', n: 70 }, { kind: 'fight', encounterId: 'orange_bandit', bonusFish: 0 }],
         result: '爪尖才碰到錢袋，大橘貓就睜開眼睛，擋住去路。球球連忙縮手，往後退了一步。球球：「醒得也太快了喵！」' },
       { label: '調勻氣息，悄悄通過（生命上限與當前生命各 +4）', outcome: [{ kind: 'maxHp', n: 4 }], result: '球球輕輕呼吸，踩穩每一步，悄悄走過守衛身旁。牠試著讓呼吸配合步伐，越走越順。球球：「原來這樣走路，不用一直憋著氣喵。」', resultArt: 'sleeping_guard_r1' },
+      { label: '藏在牆角的影子裡摸走錢袋（獲得 45 條小魚乾）', requires: { kind: 'deckTag', tag: '隱身', min: 3 }, requiresLabel: '隱身',
+        outcome: [{ kind: 'fish', n: 45 }],
+        result: '', resultArt: 'sleeping_guard_r2' },
     ] },
 
   { id: 'medicine_cat', title: '賣藥的三花貓',
@@ -199,6 +383,9 @@ export const events: EventDef[] = [
       { label: '購買混裝忍具（支付 25 條小魚乾，隨機獲得 2 個忍具）', costFish: 25, outcome: [{ kind: 'potions', n: 2 }], result: '三花貓收下小魚乾，從箱裡拿出兩個忍具。球球接過來，把標記看清楚才收進行囊。球球：「這兩個怎麼用，你說清楚一點喵。」', resultArt: 'medicine_cat_r0' },   // 文案照使用者 2026-09-06（結果句也講「忍具」，不再講「瓶子」）
       { label: '購買祖傳補身藥（支付 60 條小魚乾，生命上限與當前生命各 +12）', costFish: 60, outcome: [{ kind: 'maxHp', n: 12 }], result: '球球喝下補身藥，沒多久身上就暖了，抬爪也比先前有力。牠把空瓶還給三花貓。球球：「真的有用，就是賣得太貴了喵。」', resultArt: 'medicine_cat_r1' },
       { label: '不買（無效果）', outcome: [], result: '球球看完價目牌，搖搖頭。三花貓見牠不買，也收起了量匙。球球：「太貴了，這次先不買喵。」' },
+      { label: '讓她拿你的毒試新解藥（最多失去 8 點生命；生命上限與當前生命各 +8）', requires: { kind: 'deckTag', tag: '毒', min: 3 }, requiresLabel: '毒',
+        outcome: [{ kind: 'damage', n: 8 }, { kind: 'maxHp', n: 8 }],
+        result: '', resultArt: 'medicine_cat_r3' },
     ] },
 
   { id: 'stuck_kitten', title: '卡住的小貓',
@@ -229,6 +416,9 @@ export const events: EventDef[] = [
       { label: '硬推石門，進去取寶（最多失去 14 點生命，隨機獲得 1 件大魔物秘寶）', outcome: [{ kind: 'damage', n: 14 }, { kind: 'relic', pool: '大魔物' }],
         result: '球球用肩膀頂開石門，肩上被磨掉一片毛。牠忍著痛走進去，從寶箱裡拿出秘寶。球球：「這門也太重了，肩膀好痛喵。」', resultArt: 'heavy_door_r0' },
       { label: '從門縫伸爪取物（獲得 35 條小魚乾）', outcome: [{ kind: 'fish', n: 35 }], result: '球球把爪子伸進門縫，勾住籃子，一點一點拉到面前，取出裡面的 35 條小魚乾。球球：「拿到了，不用推門了喵。」', resultArt: 'heavy_door_r1' },
+      { label: '蓄足一口氣，一擊劈斷門閂（最多失去 6 點生命；隨機獲得 1 件大魔物秘寶）', requires: { kind: 'deckTag', tag: '蓄氣', min: 3 }, requiresLabel: '蓄氣',
+        outcome: [{ kind: 'damage', n: 6 }, { kind: 'relic', pool: '大魔物' }],
+        result: '', resultArt: 'heavy_door_r2' },
     ] },
 
   { id: 'old_master_ghost', title: '師父的影子',
@@ -240,6 +430,9 @@ export const events: EventDef[] = [
         result: '球球照著指點，先把呼吸調整好，再重新練了一次招式。這回出手穩了，胸口也不再那麼緊。球球：「師父以前也這樣教我喵。」', resultArt: 'old_master_ghost_r0' },
       { label: '有所領悟，捨去不合適的兩張牌（移除 2 張牌）', outcome: [{ kind: 'removeCard' }, { kind: 'removeCard' }],
         result: '球球試了試那套動作，找出兩招怎麼練都不順的，決定不再用它們。球球：「這兩招不適合我，換別的練喵。」', resultArt: 'old_master_ghost_r1' },
+      { label: '把師父的斗笠戴到影子頭上（從 3 張絕學牌中選擇 1 張、自選升級至多 1 張牌）', requires: { kind: 'relic', ids: ['master_hat'] }, requiresLabel: '師門',
+        outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }, { kind: 'upgradeCard' }],
+        result: '', resultArt: 'old_master_ghost_r2' },
     ] },
 
   { id: 'catnip_field', title: '一整片貓薄荷',
@@ -296,7 +489,7 @@ export const events: EventDef[] = [
     ] },
 
   { id: 'greedy_merchant', title: '很貪心的商人',
-    text: '戴眼鏡的灰貓攤開布包，露出幾件秘寶和忍具。「八十條小魚乾，配一件秘寶、一個忍具。沒錢也行，替我的灌功法試一次，秘寶就歸你。」牠把布角一翻，露出一行小字：會留下內力不足的毛病。',
+    text: '戴眼鏡的灰貓攤開布包，露出幾件秘寶和忍具。「八十條小魚乾，配一件秘寶、一個忍具。沒錢也行，幫我試一次灌功法，秘寶就歸你。」牠把布角一翻，露出一行小字：會留下內力不足的毛病。',
     choices: [
       { label: '買下組合（支付 80 條小魚乾；隨機獲得 1 件大魔物秘寶、隨機獲得 1 個忍具）', costFish: 80,
         outcome: [{ kind: 'relic', pool: '大魔物' }, { kind: 'potions', n: 1 }],
@@ -305,6 +498,9 @@ export const events: EventDef[] = [
         outcome: [{ kind: 'addCard', cardId: 'neili' }, { kind: 'relic', pool: '大魔物' }],
         result: '灰貓一手灌功，一手托著約好的秘寶。熱流一進來，球球胸口就一陣不順，連氣都接不上。球球：「不對，剛才明明還好好的喵。」', resultArt: 'greedy_merchant_r1' },
       { label: '不做生意（無效果）', outcome: [], result: '球球看完布角下的小字，搖頭走開。灰貓收起布包，沒再攔牠。球球：「會留下毛病的功夫，我可不練喵。」' },
+      { label: '整包買下（支付 150 條小魚乾；隨機獲得 1 件大魔物秘寶、1 件常見秘寶與 2 個忍具）', costFish: 150, requires: { kind: 'fishAtLeast', n: 150 }, requiresLabel: '小魚乾 150',
+        outcome: [{ kind: 'relic', pool: '大魔物' }, { kind: 'relic', pool: '常見' }, { kind: 'potions', n: 2 }],
+        result: '', resultArt: 'greedy_merchant_r3' },
     ] },
   // ===== 事件前後集（2026-09-04，使用者：「第一關遇到的角色第二關再出現，看上次的選擇」）=====
   // 後集只在第二、三關的地圖排進來，而且要有前集留下的旗標；前集在哪一關遇到都行。
@@ -321,7 +517,7 @@ export const events: EventDef[] = [
       { label: '支付 45 條小魚乾息事寧人', costFish: 45, outcome: [], result: '球球交出小魚乾。山賊們蹲到路邊分錢，吵著誰該多拿一條。牠趁機走了過去。球球：「你們分吧，別再攔我喵。」', resultArt: 'toll_again_fought_r1' },
     ] },
   { id: 'rescue_return_herb', title: '村貓的回禮', acts: [2, 3], requiresFlag: 'rescue_took_herb',
-    text: '腳傷已好的村貓從樓梯間探出頭。「是你！上次你拿了藥，把小魚乾留給我，我靠那包撐過了三天。」牠捧出一個布包，又指了指腰間的磨刀工具。「我備了謝禮。你要練招的話，我也能幫忙看看出手。」',
+    text: '腳傷已好的村貓從樓梯間探出頭。「是你！上次你拿了藥，把小魚乾留給我，我靠那包撐過了三天。」牠捧出一個布包，又指了指腰間的磨刀工具。「我準備了謝禮。你要練招的話，我也能幫忙看看出手。」',
     choices: [
       { label: '收下回禮（隨機獲得 1 件常見秘寶）', outcome: [{ kind: 'relic', pool: '常見' }], result: '村貓把布一掀，取出裡面的秘寶交給球球，連那塊布也一起塞了過來。球球：「謝謝，我會好好保管喵。」', resultArt: 'rescue_return_herb_r0' },
       { label: '請牠幫忙練招（自選升級至多 1 張牌）', outcome: [{ kind: 'upgradeCard' }], result: '村貓看了球球的動作，指出牠抬爪的角度不對，接招時也多停了一下。「磨刀要看角度，出手也一樣。」球球照著調整，再練了一次。球球：「順多了，再幫我看看喵。」', resultArt: 'rescue_return_herb_r1' },
@@ -345,7 +541,7 @@ export const events: EventDef[] = [
    * 三個都給得起也拒絕得起——每一個都留一條「不換／不練」的路，玩家不會被逼著吞。
    */
   { id: 'moving_rat', title: '換家的老鼠', acts: [2, 3],
-    text: '老鼠背著鼓鼓的包袱，在階梯上邊數家當邊嘆氣。「搬家帶不動這麼多。你拿一件秘寶，我拿兩件交換，都不挑款式。」牠指著球球的行囊補了一句：「你原本隨身帶的那件不算，其他的閉眼抽。」',
+    text: '老鼠背著鼓鼓的包袱，在階梯上邊數家當邊嘆氣。「搬家帶不動這麼多。你給我一件秘寶，我拿兩件跟你換，都不挑款式。」牠指著球球的行囊補了一句：「你原本隨身帶的那件不算，其他的閉眼抽。」',
     choices: [
       // 交一件換兩件：期望值是賺的，但**交出去的那件是隨機的**——你可能失去這一局的核心。
       // 那個不確定性才是這個事件的重點，所以不讓玩家挑要交哪一件
@@ -375,6 +571,10 @@ export const events: EventDef[] = [
         result: '球球照卷軸上的訣竅，試著改進自己熟悉的招式。前幾下還算順利，收勢時卻發現不對勁。球球：「怎麼會這樣，是哪裡練錯了喵？」', resultArt: 'shortcut_scroll_r0' },
       { label: '不練（無效果）', outcome: [], result: '球球鬆開紙角，爪子沾了一點墨。牠甩甩爪子，轉身離開。球球：「來路不明的功夫，還是別亂練喵。」' },
     ] },
+  // 內容擴充第二批（2026-09-23）：兩條事件鏈、關卡限定九篇、連線限定三篇，見 `events-batch2.ts`
+  ...batch2Events,
+  // 內容擴充第三批（2026-09-23）：稀有事件 5 篇（不進一般的洗牌佇列，見 `events-rare.ts`）
+  ...rareEvents,
 ];
 
 export const eventById: Record<string, EventDef> = Object.fromEntries(events.map((e) => [e.id, e]));

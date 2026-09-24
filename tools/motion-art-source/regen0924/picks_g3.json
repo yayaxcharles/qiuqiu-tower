@@ -1,0 +1,371 @@
+{
+  "event_catnip_field": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_catnip_field.webp",
+    "bytes": 58954,
+    "droppedSpecks": 153,
+    "gate": [],
+    "sha256": "c8c3e2d4787b6a91ceb729ebb4c107a3f5df765ad0ac38d7115e7c5a413a0624",
+    "at": "2026-09-24 12:47:07"
+  },
+  "event_catnip_field_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_catnip_field_r0.webp",
+    "bytes": 63732,
+    "droppedSpecks": 115,
+    "gate": [],
+    "sha256": "15fca16992dad6c96fa2cb56f9282392bbb9dbfa6d30faf147b990d2cd29e812",
+    "at": "2026-09-24 13:26:52"
+  },
+  "event_catnip_field_r1": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_catnip_field_r1.webp",
+    "bytes": 61562,
+    "droppedSpecks": 149,
+    "gate": [],
+    "sha256": "6889011bbd734584dc236839aecab9a1e6fc2be1d63e5c1a0444dbdb04f8d3be",
+    "at": "2026-09-24 12:26:42"
+  },
+  "event_crying_wall": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_crying_wall.webp",
+    "bytes": 35390,
+    "droppedSpecks": 159,
+    "gate": [],
+    "sha256": "1b5bb4c45fdd8b96fdbfd84cfcb51797d0947afbb432b5113e86697a186717b0",
+    "at": "2026-09-24 12:23:41"
+  },
+  "event_crying_wall_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_crying_wall_r0.webp",
+    "bytes": 33768,
+    "droppedSpecks": 77,
+    "gate": [],
+    "sha256": "6bb551dda9ba0c12eaa12443e93eae639bba6a004c7adce996983d7ba5b0d5a9",
+    "at": "2026-09-24 13:26:30"
+  },
+  "event_crying_wall_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_crying_wall_r1.webp",
+    "bytes": 36970,
+    "droppedSpecks": 103,
+    "gate": [],
+    "sha256": "0bb8455d218d7a91cc2f7312cdd77da6eddbe531c72438921abfe2e71ce2594b",
+    "at": "2026-09-24 13:26:34"
+  },
+  "event_dangdang_catnip_field": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_catnip_field.webp",
+    "bytes": 58786,
+    "droppedSpecks": 126,
+    "gate": [],
+    "sha256": "70de5190e8cadd2021587526a7ef89393df726ee6d0b2c52173879e9742ca132",
+    "at": "2026-09-24 12:23:14"
+  },
+  "event_dangdang_fish_pond_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_fish_pond_r1.webp",
+    "bytes": 52888,
+    "droppedSpecks": 225,
+    "gate": [],
+    "sha256": "f2d1c9c95e4f1a03c1189886a30d996be2c961a2316a801d12438eba04919380",
+    "at": "2026-09-24 12:24:00"
+  },
+  "event_dangdang_stuck_kitten": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_stuck_kitten.webp",
+    "bytes": 45130,
+    "droppedSpecks": 130,
+    "gate": [],
+    "sha256": "39ed0b63ff267745a010e495436408f7c1249f1540d7a4e8f9670c259b09e5b4",
+    "at": "2026-09-24 12:23:04"
+  },
+  "event_dangdang_stuck_kitten_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_stuck_kitten_r1.webp",
+    "bytes": 42500,
+    "droppedSpecks": 151,
+    "gate": [],
+    "sha256": "0d89cd5c28e2a71ecb7303c70971fb7a97443238313ef0b73b5c1ff83e0f5b22",
+    "at": "2026-09-24 12:23:07"
+  },
+  "event_feifei_catnip_field": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_feifei_catnip_field.webp",
+    "bytes": 63672,
+    "droppedSpecks": 427,
+    "gate": [],
+    "sha256": "63f08df0628dc12d259a2c3a4fc6e8b8cd18661923ec0e2fc3ccec4a8c092fa3",
+    "at": "2026-09-24 13:26:49"
+  },
+  "event_feifei_catnip_field_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_catnip_field_r1.webp",
+    "bytes": 67668,
+    "droppedSpecks": 230,
+    "gate": [],
+    "sha256": "684dd810d42bb8d6a146c1df2be3740bc4d1b44f29494455b583d5e51ac7bae0",
+    "at": "2026-09-24 12:51:25"
+  },
+  "event_feifei_crying_wall": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_crying_wall.webp",
+    "bytes": 49500,
+    "droppedSpecks": 280,
+    "gate": [],
+    "sha256": "618303aeed58e3339967fa3b29db068276bb362d21b950bd3062cd6f051c9d06",
+    "at": "2026-09-24 12:23:45"
+  },
+  "event_feifei_crying_wall_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_crying_wall_r0.webp",
+    "bytes": 47016,
+    "droppedSpecks": 93,
+    "gate": [],
+    "sha256": "8b2a016be06a355e13516671f1228e59bb9868b4f668d4edf1c3aa3609d806e7",
+    "at": "2026-09-24 13:31:30"
+  },
+  "event_feifei_crying_wall_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_crying_wall_r1.webp",
+    "bytes": 48152,
+    "droppedSpecks": 419,
+    "gate": [],
+    "sha256": "7a42a1296004d6f26c1d41572108b33726970b4dd6c63cd3c5e8eb256e6f6c45",
+    "at": "2026-09-24 13:26:44"
+  },
+  "event_feifei_fish_pond": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_fish_pond.webp",
+    "bytes": 47798,
+    "droppedSpecks": 274,
+    "gate": [],
+    "sha256": "0d6ba4d6ecfc54c6e4299fd7aea8d40ed23aaebcbae3b9813f7fa49f1740f19a",
+    "at": "2026-09-24 12:23:56"
+  },
+  "event_feifei_stuck_kitten": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_stuck_kitten.webp",
+    "bytes": 46990,
+    "droppedSpecks": 245,
+    "gate": [],
+    "sha256": "e137bc7637bea1dfd551541520e7bcc3e4e782dbe1e94f4a9a59f5aa7754e108",
+    "at": "2026-09-24 12:23:00"
+  },
+  "event_feifei_weapon_rack": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_weapon_rack.webp",
+    "bytes": 61976,
+    "droppedSpecks": 282,
+    "gate": [],
+    "sha256": "740514710831bd5c61ed25c1a7c82e1dfd5506ef537949b8b2fe6907425825de",
+    "at": "2026-09-24 12:23:34"
+  },
+  "event_feifei_weapon_rack_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_weapon_rack_r0.webp",
+    "bytes": 56658,
+    "droppedSpecks": 236,
+    "gate": [],
+    "sha256": "8b7ad7b7d220d01c0f1e01e69a20ed0d900ace52b045d967ec6d54eb8af1f9a7",
+    "at": "2026-09-24 12:47:19"
+  },
+  "event_feifei_weapon_rack_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_weapon_rack_r1.webp",
+    "bytes": 61118,
+    "droppedSpecks": 634,
+    "gate": [],
+    "sha256": "02df3e31719b05b8fed3e00a2aa9d65a3842e9cddd2d9d7a2346abec320452b0",
+    "at": "2026-09-24 12:47:24"
+  },
+  "event_fengfeng_catnip_field": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_catnip_field.webp",
+    "bytes": 61054,
+    "droppedSpecks": 151,
+    "gate": [],
+    "sha256": "7abe94640caf4792d05a9520a0bee8b1aca32491205cfe5af37a9bffb7d4ea6c",
+    "at": "2026-09-24 12:23:22"
+  },
+  "event_fengfeng_catnip_field_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_catnip_field_r0.webp",
+    "bytes": 50872,
+    "droppedSpecks": 142,
+    "gate": [],
+    "sha256": "7201bf65529272bcc73f187faed437adab72f9c88db55308922df1314188ac65",
+    "at": "2026-09-24 12:23:25"
+  },
+  "event_fengfeng_catnip_field_r1": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_fengfeng_catnip_field_r1.webp",
+    "bytes": 64130,
+    "droppedSpecks": 131,
+    "gate": [],
+    "sha256": "36686a3277540ddfe5755c79b4e851f5f9225e62f139dec84009481d06a3886b",
+    "at": "2026-09-24 12:26:45"
+  },
+  "event_fengfeng_crying_wall": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_crying_wall.webp",
+    "bytes": 41646,
+    "droppedSpecks": 172,
+    "gate": [],
+    "sha256": "b2859982416f719886a6d0685d7e25f0894a5c7ecdfa0d37d371408dc015eca3",
+    "at": "2026-09-24 12:23:49"
+  },
+  "event_fengfeng_crying_wall_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_crying_wall_r0.webp",
+    "bytes": 35896,
+    "droppedSpecks": 134,
+    "gate": [],
+    "sha256": "308182e4c309ccfe4a7257f82cab49b034eb08dc9a87f43ab001834b13773a94",
+    "at": "2026-09-24 13:26:37"
+  },
+  "event_fengfeng_crying_wall_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_crying_wall_r1.webp",
+    "bytes": 40182,
+    "droppedSpecks": 113,
+    "gate": [],
+    "sha256": "8a387c45056580907c520f918ec6f8012b47d3ab77c756d7ba7584b50dc3fb34",
+    "at": "2026-09-24 13:26:40"
+  },
+  "event_fengfeng_fish_pond": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_fish_pond.webp",
+    "bytes": 37326,
+    "droppedSpecks": 202,
+    "gate": [],
+    "sha256": "b807236bbb00c64c804e26c3cf276b01946ec6309916622c8849f4c6e3212805",
+    "at": "2026-09-24 12:24:03"
+  },
+  "event_fengfeng_fish_pond_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_fish_pond_r0.webp",
+    "bytes": 39116,
+    "droppedSpecks": 148,
+    "gate": [],
+    "sha256": "78030655046ba43e8b322d698ce9a6cca89f41c347aed32b763b49989dfd70cf",
+    "at": "2026-09-24 13:31:33"
+  },
+  "event_fengfeng_stuck_kitten": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_stuck_kitten.webp",
+    "bytes": 48006,
+    "droppedSpecks": 188,
+    "gate": [],
+    "sha256": "8219c9618b27fd6f2e81f7be0f01786d2b1885cc24a5edd95393ecd0af3775cd",
+    "at": "2026-09-24 12:23:11"
+  },
+  "event_fengfeng_weapon_rack": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_weapon_rack.webp",
+    "bytes": 55164,
+    "droppedSpecks": 255,
+    "gate": [],
+    "sha256": "1d30e0c23205cb8c9a806410a0e8770b7207c7c45f0dfade32630770b7829dee",
+    "at": "2026-09-24 12:23:37"
+  },
+  "event_fengfeng_weapon_rack_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_weapon_rack_r0.webp",
+    "bytes": 52346,
+    "droppedSpecks": 484,
+    "gate": [],
+    "sha256": "827c7d22f482e4aecd846ec145b3fc6f7cfe5cf4c905136ad87c43f7cab66593",
+    "at": "2026-09-24 12:47:28"
+  },
+  "event_fengfeng_weapon_rack_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_weapon_rack_r1.webp",
+    "bytes": 49012,
+    "droppedSpecks": 748,
+    "gate": [],
+    "sha256": "c86583c95a830b56b5af9ab54abbdd1eea2912c3acc4500464d80bc219975b36",
+    "at": "2026-09-24 12:47:32"
+  },
+  "event_fish_pond": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fish_pond.webp",
+    "bytes": 42078,
+    "droppedSpecks": 142,
+    "gate": [],
+    "sha256": "4d25a0ce34d20bcef57b5acd01633af72e59735b84ba0076f7b94ca29d6e385e",
+    "at": "2026-09-24 12:23:52"
+  },
+  "event_fish_pond_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fish_pond_r0.webp",
+    "bytes": 38794,
+    "droppedSpecks": 86,
+    "gate": [],
+    "sha256": "7e973260f72a53927b724ddfba22413e33d952e121f64c8d78d28dc392de21bb",
+    "at": "2026-09-24 13:26:56"
+  },
+  "event_fish_pond_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fish_pond_r1.webp",
+    "bytes": 49482,
+    "droppedSpecks": 180,
+    "gate": [],
+    "sha256": "8bc372f1ece44cd9d365cfd2361c660beb4236dbe6aff90930b99566f4a054ef",
+    "at": "2026-09-24 13:26:59"
+  },
+  "event_stuck_kitten": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_stuck_kitten.webp",
+    "bytes": 42924,
+    "droppedSpecks": 153,
+    "gate": [],
+    "sha256": "4b82944a0767b74c6b72fdf843da7176d3f838148efa532707973aebc5323954",
+    "at": "2026-09-24 12:22:57"
+  },
+  "event_stuck_kitten_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_stuck_kitten_r0.webp",
+    "bytes": 45984,
+    "droppedSpecks": 210,
+    "gate": [],
+    "sha256": "d60eebe46a24b86e4b282d18b787eed06782e0dd135ba120287cebf80fad273b",
+    "at": "2026-09-24 13:27:03"
+  },
+  "event_stuck_kitten_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_stuck_kitten_r1.webp",
+    "bytes": 47262,
+    "droppedSpecks": 237,
+    "gate": [],
+    "sha256": "e352f97a56282bdc14cdda28b070c62551a97c4a95010818519fb31107ff1b05",
+    "at": "2026-09-24 13:27:07"
+  },
+  "event_weapon_rack": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_weapon_rack.webp",
+    "bytes": 56734,
+    "droppedSpecks": 367,
+    "gate": [],
+    "sha256": "4a61eac2a650abe27ca7c7dca62c64f38c618462808c57536809589347d47ac0",
+    "at": "2026-09-24 12:23:30"
+  },
+  "event_weapon_rack_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_weapon_rack_r0.webp",
+    "bytes": 52764,
+    "droppedSpecks": 435,
+    "gate": [],
+    "sha256": "899cf28f10e38f983d5aae9c7bb2f9877ceb68b9efe7e8e2f2ce7d3c5a1db242",
+    "at": "2026-09-24 12:47:11"
+  },
+  "event_weapon_rack_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_weapon_rack_r1.webp",
+    "bytes": 55572,
+    "droppedSpecks": 783,
+    "gate": [],
+    "sha256": "0cba45d741c6b59f02768ad99858c726e4630b1220d393b5ece830cc8ac4f397",
+    "at": "2026-09-24 12:47:16"
+  }
+}

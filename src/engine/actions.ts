@@ -116,9 +116,16 @@ export function markRelic(cs: CombatState, id: string): void {
 
 export function aliveEnemies(cs: CombatState): EnemyCombat[] { return cs.enemies.filter((e) => !e.dead); }
 export function findEnemy(cs: CombatState, uid: number): EnemyCombat | undefined { return cs.enemies.find((e) => e.uid === uid && !e.dead); }
-/** 這一位有沒有帶這件秘寶（規則一：各帶各的）。不指定就問第一位 */
-export function hasRelic(cs: CombatState, id: string, p: PlayerCombat = cs.player): boolean { return p.relics.includes(id); }
-
+/** 清場時立刻關閉戰鬥資源；結算頁與重連指紋都不會看見殘留的蓄氣或準備。 */
+export function markCombatWon(cs: CombatState): void {
+  if (aliveEnemies(cs).length !== 0 || cs.phase !== 'player') return;
+  cs.phase = 'won';
+  for (const p of cs.players) {
+    p.qi = 0;
+    p.nextAttackBonus = undefined;
+    p.energyGainBlockedThisPhase = undefined;
+  }
+}
 export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   /*
    * 拒馬（菲菲的稀有能力）：之後**每次**獲得蜷縮都多幾點。
@@ -131,6 +138,25 @@ export function gainBlock(cs: CombatState, u: Unit, base: number): number {
   const v = computeBlock(base + bonus, u);
   u.block += v;
   return v;
+}
+
+/** 集中精神擋下新增飯糰的那一行戰報。連線時帶名字，才分得出是誰拿不到 */
+export function logEnergyBlocked(cs: CombatState, p: PlayerCombat): void {
+  log(cs, `集中精神：${cs.players.length > 1 ? unitName(p) : ''}這回合拿不到飯糰`);
+}
+
+/**
+ * 新增飯糰的唯一入口。集中精神只擋「新增」，回合開始自然補滿不走這裡。
+ * 回傳實得量，讓轉移類效果能在受益者被封禁時不扣贈送者。
+ */
+export function gainEnergy(cs: CombatState, p: PlayerCombat, n: number): number {
+  if (n <= 0) return 0;
+  // 被擋下來要說出來（2026-09-23 主控裁決）：牌、忍具（半卷殘頁還抽得到牌）、秘寶、同伴送的飯糰都走這裡，
+  // 原本一律靜靜回 0，玩家只看到「用了」卻不知道飯糰去哪了
+  if (p.energyGainBlockedThisPhase) { logEnergyBlocked(cs, p); return 0; }
+  p.energy += n;
+  cs.energyGain += n;
+  return n;
 }
 
 /** 每回合第一次拿隱身時吃秘寶加成（紙袋的 stealthBonus），加成量由秘寶資料決定 */
@@ -175,7 +201,10 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
     else p.drawPile.splice(cs.rng.int(0, p.drawPile.length), 0, card);
   }
   // 牌名要過 `cardNameFor`（稽核 2026-09-13 低-1）：塞進來的是牌，菲菲看到的名字不同
-  log(cs, `${from.name}把 ${n} 張「${cardNameFor(def, p.hero)}」塞進你的${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
+  // 兩個人時寫塞給誰（2026-09-23 主控裁定）：塞牌可能只落在一位身上（喊了「我來擋」、另一位倒下、打技能牌惹到詛咒的那位），
+  // 戰報兩台共用，寫「你的」的話另一台看到的是錯的對象。單機照舊寫「你的」，跟吹散手牌那句同一套
+  const whoseDeck = cs.players.length > 1 ? `${unitName(p)}的` : '你的';
+  log(cs, `${from.name}把 ${n} 張「${cardNameFor(def, p.hero)}」塞進${whoseDeck}${to === 'discard' ? '棄牌堆' : '抽牌堆'}`);
 }
 
 /**
@@ -183,26 +212,15 @@ export function giveCards(cs: CombatState, from: EnemyCombat, cardId: string, n:
  * pierce＝穿透：套公式、吃隱身與反彈，但**跳過蜷縮**（師父的穿心掌、亡命一擊）
  */
 /**
- * 甲吃掉這一下的傷害，回傳還剩多少會扣到血（武士球球，2026-09-05）。
- *
- * 擺在蜷縮之後、生命之前。**穿透（pierce）穿得過蜷縮但擋在這裡**——使用者拍板：穿透本來就是
- * 設計來剋「堆蜷縮龜縮」的，而甲是整場有限的資源、堆不起來，不需要再被剋一次，
- * 不然武士打師父那場沒得打。
- */
-function eatArmour(cs: CombatState, p: PlayerCombat, lose: number): number {
-  if (lose <= 0 || p.armour <= 0) return lose;
-  const eaten = Math.min(p.armour, lose);
-  p.armour -= eaten;
-  log(cs, `甲擋下了 ${eaten} 點${p.armour === 0 ? '，甲碎了' : ''}`);
-  return lose - eaten;
-}
-
-/**
  * 兩個人時擋下的紀錄要寫是誰的（使用者 2026-09-15：「蜷縮明明不夠，打下去卻擋住了」——擋的是同伴那一下，
  * 魔物每一招隨機打一位，紀錄沒寫名字就像自己擋的）。單機照舊不加。
  */
 function whose(cs: CombatState, p: PlayerCombat): string {
   return cs.players.length > 1 ? `${unitName(p)}的` : '';
+}
+/** 替畫面記「這一位整場擋下幾點」（見 `PlayerCombat.blockedTotal`：引擎不讀、不進指紋） */
+function noteBlocked(p: PlayerCombat, absorbed: number): void {
+  p.blockedTotal = (p.blockedTotal ?? 0) + absorbed;
 }
 
 export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
@@ -223,9 +241,8 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     // 反彈那種「直傷但先扣蜷縮」（使用者 2026-09-03：被反彈的人都應該優先扣蜷縮，蜷縮 4 被反彈 2 就剩 2）
     if (opts.throughBlock) {
       const absorbed = Math.min(p.block, base); p.block -= absorbed; lose = base - absorbed;
-      if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
+      if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
     }
-    lose = eatArmour(cs, p, lose);
   } else {
     if (p.immune) { log(cs, `${unitName(p)}躲在角落，什麼都沒看到`); return 0; }
     const dmg = computeAttack(base, attacker, p);
@@ -234,22 +251,47 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
     const absorbed = opts.pierce ? 0 : Math.min(p.block, dmg);
     if (dmg - absorbed > 0 && getStatus(p, '隱身') > 0) {
       p.block -= absorbed;
-      if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
-      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); return 0;
+      if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
+      addStatus(p, '隱身', -1); log(cs, `${unitName(p)}閃過了`); p.dodgedTotal = (p.dodgedTotal ?? 0) + 1;
+      // 閃過攻擊之後的秘寶（影分身卷軸，2026-09-23 第二批）：這裡是「閃過」唯一的出口
+      for (const rid of p.relics) {
+        const h = relicById[rid]?.hooks.onDodge;
+        if (h) { fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' }); }
+      }
+      return 0;
     }
     p.block -= absorbed;
     lose = dmg - absorbed;
-    lose = eatArmour(cs, p, lose);
-    // 擋下來要留紀錄：畫面靠這行飄「擋住 N」跟盾牌，不然整下被吃掉看起來像沒打到（使用者回報）
-    if (absorbed > 0) log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`);
+    // 擋下來要留紀錄：不然整下被吃掉看起來像沒打到（使用者回報）。畫面飄「擋住 N」跟盾牌看的是 `blockedTotal`，不是這行字
+    if (absorbed > 0) { log(cs, `${whose(cs, p)}蜷縮擋下了 ${absorbed} 點`); noteBlocked(p, absorbed); }
     if (opts.pierce && dmg > 0) log(cs, '這一下穿過了蜷縮');
     const thorns = getStatus(p, '反彈');
     if (dmg > 0 && thorns > 0 && attacker !== p) {
       const e = cs.enemies.find((x) => x === attacker);
       if (e) {
-        log(cs, `反彈回敬了${e.name} ${thorns} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
-        damageEnemy(cs, e, thorns, { direct: true, throughBlock: true, by: p });
+        // 以傷還傷（噹噹）只在**真的回敬出去**的時候加，掛著但沒反彈層數不會憑空打人
+        const back = thorns + (p.thornsBonus ?? 0);
+        log(cs, `反彈回敬了${e.name} ${back} 點`);   // 畫面靠這行飄「反彈！」——被反彈打死的魔物本來只是默默消失（使用者回報）
+        damageEnemy(cs, e, back, { direct: true, throughBlock: true, by: p });
+        // 順勢（2026-09-17）：挨打把彈藥補回來。掛在「真的回敬出去」後面，跟以傷還傷同一個判斷
+        if (p.blockOnThorns) {
+          log(cs, `${unitName(p)}順著力道穩住，多了 ${p.blockOnThorns} 點蜷縮`);
+          gainBlock(cs, p, p.blockOnThorns);
+        }
       }
+    }
+    /*
+     * 千斤墜（噹噹 2026-09-17）：挨魔物的攻擊就蹲得更穩。
+     *
+     * 判準是「**這一招是攻擊、而且輪到你挨**」，不是「有沒有扣到血」——
+     * 蜷縮擋滿也照樣觸發，不然這張牌在它最該發揮的局面（擋得住）反而不動。
+     * 自傷與中毒走 `direct` 那一條，根本到不了這裡。
+     */
+    if (p.blockWhenAttacked && cs.enemies.some((x) => x === attacker)) {
+      // 要留紀錄：`gainBlock` 自己不寫，不寫的話蜷縮會在挨打途中莫名往上跳
+      //（這個專案被回報過好幾次同型的事：反彈要飄字、擋住要飄字）
+      log(cs, `${unitName(p)}蹲得更穩，多了 ${p.blockWhenAttacked} 點蜷縮`);
+      gainBlock(cs, p, p.blockWhenAttacked);
     }
   }
   p.hp -= lose;
@@ -258,15 +300,32 @@ export function damagePlayer(cs: CombatState, attacker: Unit, base: number,
   if (p.hp <= 0) {
     // 擋一次致命傷的秘寶由資料決定（最後一口氣的 preventLethal），不要把 id 寫死在引擎裡
     const saverId = p.relics.find((id) => relicById[id]?.hooks.preventLethal);
-    if (saverId && !p.lethalPrevented) {
+    /*
+     * 回魂香拉住過一次之後，這個魔物回合剩下的攻擊都打不死（最低留 1 血，`guardLethalHold`，魔物回合結束清掉）。
+     * 2026-09-24 b3int 主控裁決：原本只救第一下，同一回合第二隻魔物再打就倒，玩家會覺得被騙。
+     * 擺在最前面：已經被香拉著的這一回合，不該再把最後一口氣那一次用掉
+     */
+    if (p.guardLethalHold) {
+      p.hp = 1;
+      log(cs, `回魂香的煙還繞著${unitName(p)}，這一下打不倒`);
+    }
+    else if (saverId && !p.lethalPrevented) {
       p.hp = 1; p.lethalPrevented = true;
       // 這條自己有專屬的紀錄句子（比「發動」講得清楚），所以只推清單、不再多印一行
       markRelic(cs, saverId);
       log(cs, `${relicById[saverId]?.name ?? '秘寶'}替${unitName(p)}挨了這一下`);
     }
+    // 回魂香（2026-09-23 第二批）：秘寶那一次先用，已經用掉（或沒帶）才輪到忍具這一次
+    else if (p.guardLethal) {
+      p.hp = 1; p.guardLethal = undefined; p.guardLethalHold = true;
+      log(cs, `回魂香的煙拉住了${unitName(p)}，留下 1 點生命，這一輪魔物再打也打不倒`);
+    }
     else {
       p.hp = 0;
       p.down = true;
+      p.qi = 0;
+      p.nextAttackBonus = undefined;
+      p.energyGainBlockedThisPhase = undefined;
       // **每一位都倒下了**才算整場輸（規則四）。單機只有一位，跟以前同一件事
       if (cs.players.every((x) => x.down)) cs.phase = 'lost';
       else log(cs, `${unitName(p)}倒下了，另一位還站著`);
@@ -486,7 +545,7 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
     if (h.killStrength) addStatus(killer, '爪力', h.killStrength);
     if (h.killFish) killer.fishDelta += h.killFish;
   }
-  if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
+  markCombatWon(cs);
 }
 
 /**
@@ -558,7 +617,6 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     lose = 1;
   }
   cs.hits.push({ uid: e.uid, amount: Math.min(lose, e.hp) });   // 每一段各記一筆（含被擋成 0 的）、只記真的扣到血的量，畫面拆多段用
-  cs.damageDealt += Math.min(lose, e.hp);   // 整場累計（`hits` 每回合會清掉，不能拿來加總），魔物散掉時的獎勵門檻看它
   e.hp = Math.max(0, e.hp - lose);
   if (lose > 0) {
     // 打痛牠才會發生的四件事。擺在扣血之後、判死之前：被一擊打死的當然不用醒也不用縮。
@@ -587,8 +645,10 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
     const next = enemyById[e.enemyId]?.phases?.[e.phase];
     if (next?.hpBar) {
       e.phase += 1;
-      e.hp = next.hpBar;
-      e.maxHp = next.hpBar;
+      // 下一條血照這場的血量倍率放大（連線、難度），跟第一條血同一套（makeEnemy）。
+      // 以前直接寫表上的數字：兩人連線時第一條是三倍、後兩條還是單人的量（2026-09-22 平衡量測發現，使用者拍板修）
+      e.hp = Math.max(1, Math.round(next.hpBar * (cs.mods?.hpMul ?? 1)));
+      e.maxHp = e.hp;
       e.block = 0;
       e.invulnIn = 1;
       /*
@@ -649,7 +709,7 @@ function splitEnemy(cs: CombatState, e: EnemyCombat, sp: { enemyId: string; n: n
     cs.enemies.push(fresh);
   }
   // 塞不下半隻（極端情況）就等於清場了，該判贏
-  if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won';
+  markCombatWon(cs);
 }
 
 export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpScale = 1): EnemyCombat {
@@ -745,6 +805,38 @@ export function pickVictim(cs: CombatState): PlayerCombat {
 /** 包成函式再讀，免得 TypeScript 把 cs.phase 窄化後，看不見 damagePlayer 途中把戰鬥打成敗北 */
 function isLost(cs: CombatState): boolean { return cs.phase === 'lost'; }
 
+/** 這隻這一輪中了迷魂香（2026-09-23 第二批）：攻擊改打同伴。畫面的預告、機器人的估傷都問這一支 */
+export function isDazed(e: EnemyCombat): boolean { return getStatus(e, '迷魂') > 0; }
+
+/**
+ * 中了迷魂香的這隻要打**哪一個同伴**（2026-09-23 第二批）。
+ *
+ * **不擲骰、照站位**：場上的順序（`cs.enemies`）往右找第一隻還站著的，右邊沒有就往左找最近的——
+ * 兩台照同一個陣列算，連線一定一樣；玩家看畫面也猜得到「牠會打旁邊那隻」。一隻同伴都沒有回 undefined（打空）。
+ */
+export function dazeTarget(cs: CombatState, e: EnemyCombat): EnemyCombat | undefined {
+  const i = cs.enemies.indexOf(e);
+  const standing = (o: EnemyCombat): boolean => o !== e && !o.dead && !o.escaped;
+  return cs.enemies.slice(i + 1).find(standing) ?? cs.enemies.slice(0, Math.max(0, i)).reverse().find(standing);
+}
+
+/**
+ * 迷魂的這隻把這一下打在同伴身上。`times` 段各自找一次目標（打到一半同伴倒了，剩下的換下一隻）。
+ * 算法照魔物打人：吃牠自己的爪力、懶洋洋與對方的翻肚，同伴的防禦擋得住（`throughBlock`；穿透招就不擋），不觸發閃避與反彈。
+ * 打倒了算**下香的那一位**的（`dazedBy`），不然連線時一律歸座位 0（跟 `poisonedBy` 同一個坑）。
+ */
+function hitDazedMate(cs: CombatState, e: EnemyCombat, amount: number, times = 1, pierce = false): void {
+  const by = cs.players[e.dazedBy ?? 0];
+  let named = '';
+  for (let i = 0; i < times; i++) {
+    if (e.dead || cs.phase !== 'player') return;
+    const mate = dazeTarget(cs, e);
+    if (!mate) { log(cs, `${e.name}暈頭轉向，這一下打空了`); return; }
+    if (mate.name !== named) { log(cs, `${e.name}暈頭轉向，打中了${mate.name}`); named = mate.name; }
+    damageEnemy(cs, mate, computeAttack(amount, e, mate), { direct: true, throughBlock: !pierce, by });
+  }
+}
+
 /** 把球球身上指定的狀態各減半（向下取整保留），回傳真的有動到的那幾個。破功與看破共用（原本兩份一字不差）。 */
 function halvePlayerStatuses(p: PlayerCombat, names: readonly StatusName[]): StatusName[] {
   const hit = names.filter((n) => getStatus(p, n) > 0);
@@ -766,12 +858,43 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
   const useCharge = (): number => { if (!mult) return 1; mult = false; e.charged = false; return 2; };
   const p = victim;
   const targets = enemyTargets(cs, victim);   // 打人的效果對每一位各來一次；只偷一位的（偷魚）用 `p`
+  /*
+   * 迷魂香（2026-09-23 第二批）：這一輪**會打人的那幾種**改打旁邊的同伴（`hitDazedMate`），其餘照舊
+   *（給你減益、塞牌、偷小魚乾不算「攻擊」，照樣落在你身上——牌面寫的是「攻擊改打同伴」）。
+   */
+  const dazed = isDazed(e);
   for (const fx of effects) {
     if (e.dead) return;        // 已經倒下（例如被反彈打死）就不再執行剩下的效果
     if (isLost(cs)) return;
+    if (dazed && (fx.kind === 'damage' || fx.kind === 'damageRandom' || fx.kind === 'damageByPlayerStatus')) {
+      const x = useCharge();
+      if (fx.kind === 'damage') hitDazedMate(cs, e, fx.amount * (fx.pierce ? 1 : x), fx.times ?? 1, !!fx.pierce);
+      else if (fx.kind === 'damageRandom') hitDazedMate(cs, e, cs.rng.int(fx.min, fx.max) * x);
+      else log(cs, `${e.name}暈頭轉向，這一下打空了`);   // 照「你身上的層數」打的：打同伴沒有層數可照
+      if (cs.phase !== 'player') return;
+      continue;
+    }
+    if (dazed && fx.kind === 'selfDestruct') {
+      log(cs, `${e.name}炸開了`);
+      hitDazedMate(cs, e, fx.amount * useCharge());
+      if (!e.dead) damageEnemy(cs, e, e.hp, { direct: true, by: cs.players[e.dazedBy ?? 0] });
+      return;
+    }
     switch (fx.kind) {
       case 'damage': {
-        const base = fx.amount * useCharge();   // 蓄力只算一次，兩個人吃到的是同一個加倍後的數字
+      /*
+       * **蓄力不加倍穿透招**（使用者 2026-09-17 裁定）。
+       *
+       * 穿透跳過蜷縮，所以擋不住的那一下配上加倍就是「不閃就死」——
+       * 而閃避是球球與菲菲才有的東西，噹噹整套沒有隱身，等於沒有答案。
+       * 橘皮大王與狸大人剛好兩樣都有：狸大人的泰山鼓壓 36 加倍之後破 80，
+       * 而難度 5 的最大生命只有 70。
+       *
+       * 蓄力**照樣被用掉**，只是這一下不吃加倍：玩家看到蓄力、接著挨了一記普通力道的穿透，
+       * 直覺上就是「牠的蓄力用在這一下了」。留著不用的話，下一招會突然變兩倍，更難預期。
+       */
+        const x = useCharge();   // 蓄力只算一次，兩個人吃到的是同一個加倍後的數字
+        const base = fx.amount * (fx.pierce ? 1 : x);
         for (const t of targets) {
           for (let i = 0; i < (fx.times ?? 1); i++) {
             if (e.dead) return;      // 被反彈打死，剩下的段數不能再打
@@ -885,7 +1008,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       }
       case 'chargeNext': e.charged = true; break;
       case 'escape': e.dead = true; e.escaped = true; log(cs, `${e.name}帶著小魚乾逃走了`);
-        if (aliveEnemies(cs).length === 0 && cs.phase === 'player') cs.phase = 'won'; break;
+        markCombatWon(cs); break;
       case 'selfDestruct': {
         // 自爆（河豚精）：先打人（吃蜷縮、隱身照閃），然後自己倒下——這一下**算打倒**，戰利品照發
         log(cs, `${e.name}炸開了`);

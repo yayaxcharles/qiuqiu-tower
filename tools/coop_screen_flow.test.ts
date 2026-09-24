@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { transformWithOxc } from 'vite';
+import { allReady } from '../src/engine/combat';
 
 /*
  * 連線的畫面層有沒有接上會話那幾條規矩（2026-09-14 夜間稽核 高-3、高-4、高-6、高-7、高-11）。
  *
  * 會話本身的時機規則在 `tests/net/coop_flow_0914.test.ts` 測；可是規則寫得再對，
  * 畫面不照著叫就等於沒有——這五條原本就是這樣活下來的：`{ t: 'potion' }`、`{ t: 'choose' }`
- * 早就定義好了，畫面從來沒送過。畫面層沒有測試碰得到兩台連線，所以這裡掃原始碼。
+ * 早就定義好了，畫面從來沒送過。通訊入口掃原始碼；收回合時機則執行畫面的實際分支。
  */
 /**
  * 讀檔、統一換行、拿掉註解（工作目錄是 CRLF；註解裡本來就會提到舊寫法，不能讓它誤判）。
@@ -20,6 +22,28 @@ const code = (path: string): string => readFileSync(path, 'utf-8').split('\r\n')
 const combat = code('src/ui/screens/combat.ts');
 const event = code('src/ui/screens/event.ts');
 const lines = combat.split('\n');
+
+async function executeBranch(start: string, end: string, tail: string, bindings: Record<string, unknown>): Promise<unknown> {
+  const first = combat.indexOf(start);
+  const last = combat.indexOf(end, first + start.length);
+  if (first < 0 || last < 0) throw new Error(`找不到戰鬥分支：${start}`);
+  const result = await transformWithOxc(combat.slice(first, last) + tail, 'coop-screen-branch.ts');
+  return new Function(...Object.keys(bindings), result.code)(...Object.values(bindings));
+}
+
+async function closeTurnFixture(ready: boolean[], pending: object | null) {
+  const calls: string[] = [];
+  const cs = { turn: 1, players: ready.map((value) => ({ ready: value, down: false })), pending };
+  const finish = await executeBranch('      const alreadyShown =', '      if (!alreadyShown && (applied.length',
+    '\nreturn finishApplied;', {
+      cs, app: { cs }, allReady, mine: false, remoteBefore: {}, remoteCombatBefore: {}, turn: {},
+      session: { isHost: false, endOfTurn: () => calls.push('check'), hold: () => calls.push('hold') },
+      root: { querySelector: () => undefined }, checkOver() {}, syncPicker() {}, sfx() {},
+      collectHand: () => { calls.push('collect'); return 0; },
+      runEnemyTurn: () => calls.push('enemy'),
+    }) as () => void;
+  return { calls, finish };
+}
 
 describe('戰鬥畫面：會改狀態的動作一律走會話', () => {
   it('用忍具、選牌的引擎呼叫都包在 sendOrDo 裡（高-3、高-4）', () => {
@@ -55,21 +79,52 @@ describe('戰鬥畫面：進場、收回合、分出勝負的時機', () => {
     expect(combat.slice(i, i + 400)).toContain('session?.attach(null)');
   });
 
-  it('還有人在選牌就先不收回合，免得同一回合記兩張對帳單（審查 中-1）', () => {
-    expect(combat).toContain('if (allReady(cs) && !cs.pending) {');
+  it.each([
+    { reason: '尚未全部舉手', ready: [true, false], pending: null },
+    { reason: '全部舉手但仍在選牌', ready: [true, true], pending: {} },
+  ])('$reason 時不對帳、不暫停，也不收回合（審查 中-1）', async ({ ready, pending }) => {
+    const fixture = await closeTurnFixture(ready, pending);
+    expect(fixture.calls).toEqual([]);
+    fixture.finish();
+    expect(fixture.calls).toEqual([]);
   });
 
   it('舉手等對方時忍具格不掛「可點」（審查 低-5）', () => {
     expect(combat).toMatch(/canAct\(\) && ready && !p\.ready\) \{ slot\.classList\.add\('usable'\)/);
   });
 
-  it('最後一個人舉手的那一刻 hold，魔物回合演完 release（高-7）', () => {
-    const i = combat.indexOf('if (allReady(cs) && !cs.pending) {\n        session.endOfTurn();');
-    expect(i, '找不到收回合那一段').toBeGreaterThan(0);
-    expect(combat.slice(i, i + 400)).toContain('session.hold();');
-    const run = combat.indexOf('function runEnemyTurn(): void {');
-    const body = combat.slice(run, combat.indexOf('// ===== 結算與動畫 =====', run));
-    expect((body.match(/session\?\.release\(\)/g) ?? []).length, '沒得演、演完，兩個出口都要放開').toBe(2);
+  it('全部舉手且無待選時立即先對帳再暫停，演出收尾不重複對帳（高-7）', async () => {
+    const fixture = await closeTurnFixture([true, true], null);
+    expect(fixture.calls, '尚未呼叫演出收尾，會話就應已暫停').toEqual(['check', 'hold']);
+    fixture.finish();
+    expect(fixture.calls).toEqual(['check', 'hold', 'collect', 'enemy']);
+  });
+
+  it.each([false, true])('魔物回合開始結果為 %s 時，對應出口都在結算後解除暫停（高-7）', async (began) => {
+    const calls: string[] = [];
+    const timers: Array<() => void> = [];
+    const cs = { phase: 'player', log: [] as string[], enemies: [] };
+    let steps = 0;
+    await executeBranch('  function runEnemyTurn(): void {', '  type ActOptions = {', '\nrunEnemyTurn();', {
+      cs, app: { cs }, my: () => ({}), snap: () => ({ logLen: cs.log.length, enemies: new Map() }),
+      beginEnemyTurn: () => began,
+      settle: (_before: unknown, options: { deal?: boolean }) => calls.push(options.deal ? 'deal' : 'settle'),
+      session: { release: () => calls.push('release') }, enemyTurnRunning: false,
+      clearTelegraph() {}, telegraphNext: () => true, TELEGRAPH_MS: 320,
+      stepEnemyTurn: () => { cs.log.push('出招'); return steps++ === 0; },
+      finishEnemyTurn: () => calls.push('finish'),
+      window: { setTimeout: (callback: () => void) => timers.push(callback) },
+    });
+    if (began) {
+      expect(calls).toEqual(['settle']);
+      timers.shift()!();
+      expect(calls, '第一隻出手後仍不能解除暫停').toEqual(['settle', 'settle']);
+      while (timers.length) timers.shift()!();
+      expect(calls).toEqual(['settle', 'settle', 'finish', 'deal', 'release']);
+    } else {
+      expect(timers).toHaveLength(0);
+      expect(calls).toEqual(['deal', 'release']);
+    }
   });
 });
 

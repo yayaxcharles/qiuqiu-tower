@@ -20,7 +20,12 @@
 | 橘皮大王 | 「縮進去只露眼睛」 | 台詞「整顆站了起來」、反彈 3，註解寫「站起來全身是刺」 | **站起來**、外皮硬成尖刺，不是縮起來（縮起來是第一階段的 `curlUp`） |
 
 另外兩處補正：三花貓武僧的台詞是「（睜開眼）」，所以眼睛一定要睜開（規劃書只寫脫袈裟）；
-石獅子（`stone_lion`，強池）也有階段但不是關主，這批不做。
+石獅子（`stone_lion`，強池）也有階段但不是關主，第一批沒做。
+
+**2026-09-18 補做石獅子**：牠的 `phases[0]`（`hpBelow: 32`、台詞「（裂開了）」）在程式裡照樣會換階段，
+但沒有 `_p2` 圖，玩家看到的是「招式變了、長相一模一樣」——跟當初詛咒老住持那個回報一模一樣。
+**只生待機與出招兩張**：牠是一般怪，倉裡 114 隻一般怪都只有待機／出招／挨打／防禦四張、沒有倒下圖
+（倒下那張是關主專屬），而第二階段的兩手都是攻擊、用不到防禦；挨打沿用第一階段那張，程式會自動退回去。
 
 跑法（兩條線，四條會互相餓死——`codex_gen.py` 的坑 1）：
 
@@ -317,7 +322,25 @@ SPECS: list[tuple[str, int, str, str, str]] = [
         "Pose: ATTACKING - risen up off the floor onto one knee and driving an open palm strike forward "
         "to the LEFT, shoulders squared, beads swinging, the other paw pulled back at the hip.",
     ),
+    (
+        'stone_lion', 2, 'the guardian lion carved out of stone',
+        # line「（裂開了）」＋ onEnter 爪力 3；第二階段兩手是「碎石」與「獅吼」
+        "The STONE HAS CRACKED APART. Deep jagged fractures now run all over the carved body - across "
+        "the chest, along both forelegs, around the neck and through the curled stone mane - and the "
+        "broken edges are lifted and offset so the pieces no longer sit flush. Hot amber-orange light "
+        "burns in the gaps between the pieces, solid and glowing like a furnace seen through the cracks, "
+        "and that same amber light now fills both carved eyes, which were blank stone in the reference. "
+        "A few thumb-sized chips of stone have broken off and hang close against its shoulders and paws. "
+        "Same grey carved stone, same lion shape, same mane, same proportions - it has simply split open "
+        "and lit up from the inside.",
+        "Pose: ATTACKING - reared back on its hind legs and slamming one heavy stone forepaw down toward "
+        "the LEFT, jaw open in a roar, the cracks in the raised leg pulled wide with amber light showing "
+        "through, loose chips of stone flung up close beside it.",
+    ),
 ]
+
+# 沒有倒下圖的（一般怪只有待機／出招／挨打／防禦四張，倒下是關主專屬）
+NO_DOWN = {'stone_lion'}
 
 # 兩條線各五隻（`codex_gen.py` 的坑 1：兩條可以，四條會互相餓死）
 LANES = {'a': SPECS[:5], 'b': SPECS[5:]}
@@ -394,6 +417,8 @@ def build() -> None:
                 # 所以倒下一定要畫成變身後的樣子——現在畫面用的是變身前那張，等於一定錯。
                 ('down', DOWN_OVERRIDE + DOWN_POSE + '\n', None),
             ):
+                if pose == 'down' and mid in NO_DOWN:
+                    continue
                 fid = f'monster_{key}_{pose}.png'
                 if tailtext is None:
                     prompt = head + body + '\n' + TIGHT_FX + DOWN_TAIL.format(name=fid)
@@ -436,8 +461,9 @@ def build() -> None:
                     raise SystemExit(f'{mid}：變身敘述裡有「{bad}」，去背後會在牠身上破一個洞（坑 5）。'
                                      '要「發光」就靠形狀與暖色（琥珀、奶白、藍白），一律畫成實心。')
 
-    if len(seen) != 30:
-        raise SystemExit(f'!! 應該是 30 張（10 組 × 3 張），實際 {len(seen)}')
+    want = sum(2 if mid in NO_DOWN else 3 for specs in LANES.values() for mid, *_ in specs)
+    if len(seen) != want:
+        raise SystemExit(f'!! 應該是 {want} 張（每組 3 張，沒有倒下圖的 2 張），實際 {len(seen)}')
 
     # 已經有原稿的從工單拿掉（`codex_gen` 本來就會跳過，列在工單裡只會讓數字騙人）。
     # 要重生就先把 `tools/codex_raw/<檔名>` 改名成 `.previous-<日期>.png`，這裡自然就收得到。

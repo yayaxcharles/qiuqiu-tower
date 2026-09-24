@@ -45,6 +45,32 @@
 這不是把檢查關掉：餘裕仍然只有兩百多 KB，再進一批圖還是會擋下來，該減的時候還是要減。
 真正的底線（別變成十幾 MB 的網頁）沒有動。
 
+2026-09-17：**第三隻貓（噹噹）的文字進來，程式從 523.8 KB 變成 605.7 KB**，超過 580 KB。
+那 82 KB 全部是字：111 句魔物初遇、121 段共用事件文案、50 句關主台詞、整套單人劇本、
+29 張牌與四篇專屬事件。**每加一個角色就是這個量級**——菲菲那次也一樣（那一批把程式從
+兩百多推到 515 KB）。所以這不是程式肥，是內容。壓縮之後實際下載約 192 KB。
+
+改成 **680 KB**，留約一成餘裕。**第四個角色進來之前要先做分包**：
+`src/content/{cards,dialogue,events}.ts` 現在是開場就全部載進來，每個角色的文字都在裡面，
+玩球球的人也得下載噹噹的 121 段事件文案。要分就是照角色動態載入，
+但那要把引擎裡讀這幾張表的地方全部改成非同步——使用者 2026-09-16 問過載入方式，
+裁定「照現在這樣」，所以先不做，只把數字往上調一格並且在這裡寫明原因。
+
+2026-09-23（內容擴充第〇批 0-1、0-2）：**分包做了一部分**——噹噹、封封、菲菲三份共用事件文案
+搬到 `src/content/event-text.ts`、事件畫面改成按需載入，首載程式 675.5 → 557.3 KB；
+事件主圖改成照這張地圖排到的格子現抓（`preload.ts` 的 `preloadMapEvents`），圖片 9.40 MB（原 10.29 MB）。
+預算數字沒動。牌與其他台詞仍在首載。
+
+2026-09-23（內容擴充第二批）：秘寶與忍具圖示（`codex/relic_*`、`codex/potion_*`）整組改成進入一局才補
+（`assets.ts` 的 `isItemIcon`、`preload.ts` 的 `preloadHeroArt`），`docs/分關載入.json` 記 0。
+第二批 22 張圖示進來之後實測 圖片 9.57 → 9.04 MB、首載總計 10.24 → 9.71 MB。預算數字沒動。
+
+2026-09-24（內容擴充第三批合併，design3 主控裁決第 8 條）：**樣式上限 120 → 130 KB**。
+第三批的祝福、問號格變化、客座店主、稀有事件四條線各帶一組畫面樣式（祝福卡、揭曉圖、店主名牌與木牌、淨化小視窗），
+合併完實測樣式 119.3 KB，只剩 0.7 KB，下一個小改動就會擋下來（推前審查五 低-2）。
+裁決第 8 條是「先整理、能共用就共用；真的不夠才調到 130 KB」：主控看過推前審查之後指示照第 8 條調，
+這一次沒有另外做樣式整理（要瘦的話，四條線新加的樣式還沒逐條比對過有沒有能共用的）。其他三項沒動。
+
 要瘦回去的兩條路，順序照省得多的排：
   1. 過關幻燈片與結局那幾張（`still_*` 共 552 KB）改成分關載入——結局兩張 145 KB 是打通
      第三關才看得到的，現在卻在開場就下載。使用者 2026-09-10 說先不做。
@@ -56,6 +82,7 @@
 from __future__ import annotations
 
 import json
+import re
 
 import sys
 from pathlib import Path
@@ -65,10 +92,15 @@ DIST = ROOT / "dist"
 
 # 類別 → (中文標籤, 上限位元組)；上限 None 代表不列管，只是列出來讓總計對得起來
 CATEGORIES: dict[str, tuple[str, int | None]] = {
-    "js": ("程式", 580_000),
-    "css": ("樣式", 120_000),
+    "js": ("首載程式", 680_000),   # 2026-09-17 噹噹的文字（見檔頭）
+    "lazy_js": ("按需程式", None),
+    "css": ("樣式", 130_000),   # 2026-09-24 第三批合併（見檔頭，design3 主控裁決第 8 條）
     "img": ("圖片", 10_600_000),
     "deferred": ("分關載入", None),
+    "encounter": ("遭遇預熱", None),
+    "result": ("按需結果", None),
+    "motion": ("按需動作", None),
+    "unreferenced": ("未引用圖", None),
     "other": ("其他", None),
     "total": ("首載總計", 11_300_000),
 }
@@ -80,6 +112,7 @@ CATEGORIES: dict[str, tuple[str, int | None]] = {
 #         （`screens/bossdoor.ts` 的 `warmSlides`）。第一關那三張也是這一類，
 #         寫成「第 1 關」會被下面的 >= 2 擋掉、白白算進首載（2026-09-11）。
 DEFERRED_FILE = ROOT / "docs" / "分關載入.json"
+MANIFEST_FILE = ROOT / "public" / "assets" / "manifest.json"
 
 
 def load_deferred() -> set[str]:
@@ -88,6 +121,57 @@ def load_deferred() -> set[str]:
         return set()
     data = json.loads(DEFERRED_FILE.read_text(encoding="utf-8"))
     return {rel for rel, act in data.items() if int(act) == 0 or int(act) >= 2}
+
+
+def load_result_art() -> set[str]:
+    """回傳與 heroArtUrls/preloadArt 同樣排除的事件結果圖。"""
+    if not MANIFEST_FILE.exists():
+        return set()
+    data = json.loads(MANIFEST_FILE.read_text(encoding="utf-8"))
+    bg = data.get("bg", {})
+    return {
+        value
+        for key, value in bg.items()
+        if isinstance(value, str) and re.search(r"_r\d+$", key)
+    }
+
+
+def load_manifest_art() -> set[str]:
+    """回傳遊戲清單實際引用的圖片；public 中的工作檔不等於首載。"""
+    if not MANIFEST_FILE.exists():
+        return set()
+    data = json.loads(MANIFEST_FILE.read_text(encoding="utf-8"))
+    found: set[str] = set()
+
+    def collect(value: object) -> None:
+        if isinstance(value, str):
+            if Path(value).suffix.lower() in IMAGE_SUFFIXES:
+                found.add(value)
+        elif isinstance(value, dict):
+            for child in value.values():
+                collect(child)
+        elif isinstance(value, list):
+            for child in value:
+                collect(child)
+
+    for group in ("cards", "sprites", "review", "monsters", "icons", "bg"):
+        collect(data.get(group, {}))
+    return found
+
+
+def load_encounter_art() -> set[str]:
+    """回傳只在確定遭遇後由 warmEncounter 預熱的關主階段圖。"""
+    if not MANIFEST_FILE.exists():
+        return set()
+    data = json.loads(MANIFEST_FILE.read_text(encoding="utf-8"))
+    monsters = data.get("monsters", {})
+    return {
+        path
+        for key, poses in monsters.items()
+        if re.search(r"_p\d+$", key) and isinstance(poses, dict)
+        for path in poses.values()
+        if isinstance(path, str)
+    }
 
 # 打包時素材檔名會加上內容雜湊碼（`tools/vite-asset-hash.ts`），`dist/` 裡的
 # `assets/bg/boss2-Ab3xY9z1.webp` 對應的原始路徑是 `assets/bg/boss2.webp`。
@@ -125,6 +209,48 @@ def classify(path: Path) -> str:
     return "other"
 
 
+def classify_built_asset(
+    path: Path,
+    original: str,
+    deferred: set[str],
+    result_art: set[str] | None = None,
+    manifest_art: set[str] | None = None,
+    encounter_art: set[str] | None = None,
+) -> str:
+    """把逐格動作獨立列示，避免將真正按需下載的檔案算進啟動預算。"""
+    kind = classify(path)
+    if kind == "img" and original.startswith("assets/motion/"):
+        return "motion"
+    if kind == "img" and manifest_art is not None and original not in manifest_art:
+        return "unreferenced"
+    if kind == "img" and original in (encounter_art or set()):
+        return "encounter"
+    if kind == "img" and original in (result_art or set()):
+        return "result"
+    if kind == "img" and original in deferred:
+        return "deferred"
+    return kind
+
+
+def load_initial_js(dist: Path) -> set[str]:
+    """讀取主入口實際載入的模組；其他入口與動態分塊另列為按需程式。"""
+    index = dist / "index.html"
+    if not index.exists():
+        return set()
+    html = index.read_text(encoding="utf-8")
+    initial: set[str] = set()
+    for url in re.findall(r'(?:src|href)=["\']([^"\']+\.js)(?:[?#][^"\']*)?["\']', html):
+        path = url.split("?", 1)[0].split("#", 1)[0].lstrip("/")
+        if (dist / path).is_file():
+            initial.add(Path(path).as_posix())
+            continue
+        marker = "assets/"
+        pos = path.find(marker)
+        if pos >= 0 and (dist / path[pos:]).is_file():
+            initial.add(Path(path[pos:]).as_posix())
+    return initial
+
+
 def human(n: int) -> str:
     """位元組轉成看得懂的字串。1 MB 以下用 KB，以上用 MB。"""
     if n >= 1_000_000:
@@ -137,18 +263,23 @@ def scan(dist: Path) -> tuple[dict[str, int], dict[str, int], list[tuple[int, Pa
     counts = {k: 0 for k in CATEGORIES}
     files: list[tuple[int, Path]] = []
     deferred = load_deferred()
+    result_art = load_result_art()
+    manifest_art = load_manifest_art()
+    encounter_art = load_encounter_art()
     unhash = load_unhash()
+    initial_js = load_initial_js(dist)
     for p in dist.rglob("*"):
         if not p.is_file():
             continue
         n = p.stat().st_size
-        kind = classify(p)
         rel = p.relative_to(dist).as_posix()
-        if kind == "img" and unhash.get(rel, rel) in deferred:
-            kind = "deferred"
+        original = unhash.get(rel, rel)
+        kind = classify_built_asset(p, original, deferred, result_art, manifest_art, encounter_art)
+        if kind == "js" and rel not in initial_js:
+            kind = "lazy_js"
         sizes[kind] += n
         counts[kind] += 1
-        if kind not in ("other", "deferred"):   # 背景音樂點到才下載、二三關魔物進關才載，都不算首載
+        if kind not in ("other", "lazy_js", "deferred", "encounter", "result", "motion", "unreferenced"):   # 按需或未引用的項目都不算首載
             sizes["total"] += n
             counts["total"] += 1
         files.append((n, p))
@@ -187,8 +318,8 @@ def main() -> int:
         for n, p in sorted(files, reverse=True)[:5]:
             print(f"  {human(n):>10}  {p.relative_to(DIST).as_posix()}", file=sys.stderr)
         print(
-            "怎麼瘦身：圖片超標就把 WebP 品質往下調（tools/build_assets.py、tools/chroma_key.py 裡的 quality），"
-            "或把魔物、立繪的輸出尺寸降一級；程式超標就先查是不是把 src/content 的資料重複打包進去了。",
+            "怎麼查：先把執行期預載清單與本表逐檔比對，確認沒有把按需或未引用素材算進首載；"
+            "程式超標先查靜態匯入的角色文字、畫面與動作中繼資料。不要用調高上限掩蓋分類或分包問題。",
             file=sys.stderr,
         )
         return 1

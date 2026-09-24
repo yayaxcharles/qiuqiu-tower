@@ -1,0 +1,4863 @@
+{
+  "date": "2026-09-20",
+  "scope": {
+    "enemyDefinitions": 111,
+    "monsterAppearanceGroups": 116,
+    "monsterStillImages": 503,
+    "bossStillImages": 23,
+    "motionFrames": 39,
+    "heroPhaseRoutes": 484
+  },
+  "monsterSourceFacingCounts": {
+    "left": 403,
+    "lying": 26,
+    "ambiguous": 9,
+    "front": 62,
+    "right": 1
+  },
+  "stills": [
+    {
+      "file": "assets/monsters/armadillo_king_attack.webp",
+      "group": "armadillo_king",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3d507c6af93742c11edb857d3941d82c52b6d1a9aa0c7772fbf5ecfae7a8473f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_king_block.webp",
+      "group": "armadillo_king",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "398e1aa408be2613e7e9ae48bc084bcccbc8246f5ae137c3b026c5d14658bd15",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_king_down.webp",
+      "group": "armadillo_king",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "f759837d1e3e2f126a4339f4225df9a31216db71bcdc0393215516088d07a576",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_king_hurt.webp",
+      "group": "armadillo_king",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7e57863b356168d5c08cc42f1746220dc323faccdebcf5d654800b2f0192385b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_king_idle.webp",
+      "group": "armadillo_king",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6156210c3db0e9e4a8b5e55385bc9c08c394e19a0e659a94fd0fc662d930c7bf",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_pup_attack.webp",
+      "group": "armadillo_pup",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "縮成球，眼部開口位於畫面左前側；與其他姿勢不相反。",
+      "sha256": "b8c612d2d75856a1f1c6425d2b7bccbc90bfd653508f8a3da99828884afeb71e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_pup_block.webp",
+      "group": "armadillo_pup",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ee579f56ff605b08cb2c6d4eb9d688fb9e25ae99c84f12dcdc73a5942d8c6a70",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_pup_hurt.webp",
+      "group": "armadillo_pup",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "deba98a1839f232f0c7d25b2a8889eb6c28eaf870a34aff5658f5561b3e6073e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armadillo_pup_idle.webp",
+      "group": "armadillo_pup",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d8ed273d967f58ce601a44e8fda087850127048f7668d84a93ca3d33ad17f801",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armor_ghost_attack.webp",
+      "group": "armor_ghost",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4afb8084cd6cd099c6967ba9e5c6b539c1f30c3bf0b05e13f059dcadc71e5f50",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armor_ghost_block.webp",
+      "group": "armor_ghost",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e8f64c6a53377cae457d12ab69fb7861638dfa33ef1a7bae43957cb30ef01488",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armor_ghost_hurt.webp",
+      "group": "armor_ghost",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0a9052127c987eb6042b656f7e1bd2cca140a2b96403a35859ca67e86c9c5382",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/armor_ghost_idle.webp",
+      "group": "armor_ghost",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "599d9340557b79d7dac2931775d992bd84c49ccf0a522dacb0e1b977bfc408d3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/big_cucumber_attack.webp",
+      "group": "big_cucumber",
+      "pose": "attack",
+      "facing": "ambiguous",
+      "reason": "滾動攻擊中沒有臉部或明確運動方向；僅憑黃瓜長軸不能判定左右。",
+      "sha256": "324c0837c588e18cffd4aa8304afb8cba6c2637e785f06b959114fca227616b1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/big_cucumber_block.webp",
+      "group": "big_cucumber",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "040507f9ca4464af8b8b9be1922fe2b8f7ec0e99d44d4d9c6b6cfd7cbcc00b9c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/big_cucumber_hurt.webp",
+      "group": "big_cucumber",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4bbb76b5f3caba02bd403684b8a146598ee9430ed99b5e3941459e6a99a05f3b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/big_cucumber_idle.webp",
+      "group": "big_cucumber",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "325fd3d0a08e938a0598826765fb8f9ecd66e031d756d73104f2f3f83911c735",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_kitten_attack.webp",
+      "group": "black_kitten",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "327f41a6a1fdd119330cbbb622ce5f238a4db379239674079efbce863f62ef8f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_kitten_block.webp",
+      "group": "black_kitten",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2c1a2fce7dcf4862a1b89965b7a85f5223ca117e910d5336bf51034e2786572e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_kitten_hurt.webp",
+      "group": "black_kitten",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "98bf07322cf65e8a8715528e6551585f733017da5379739ed25ec9f3d17075db",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_kitten_idle.webp",
+      "group": "black_kitten",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "9dcf2b5be8938bc5713aa46bdace6280556a3feacae4287f5f4b84fb0424109a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_ninja_attack.webp",
+      "group": "black_ninja",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0e4e9b94b7924c42dfa50d075568704423cccd38ad0f5e56a7a7fa83b0a26768",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_ninja_block.webp",
+      "group": "black_ninja",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e10450dab6889765d6ba75392a102925e4019e1811e54d76cf28a50e077d324f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_ninja_hurt.webp",
+      "group": "black_ninja",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "cdf882e94c8f47b60df9e6bde9a40cfd7968c059f9bbae04c682b3e6dff20c16",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/black_ninja_idle.webp",
+      "group": "black_ninja",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "4166790d88aadd332b0880e2f1bc69a28fde96adebc3af7c40bc2bf7a03d4cd6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/box_lurker_attack.webp",
+      "group": "box_lurker",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d4b3de06bc1f89c8b8746c37bf2330e1fe7f48d28274edfce7cfcb8cce1acd7f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/box_lurker_block.webp",
+      "group": "box_lurker",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c3deb34bed19ab44d66459a07ce43b1e976fe86a5b7ac85dc4fafec45f34a5f3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/box_lurker_hurt.webp",
+      "group": "box_lurker",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4ee5eb244eb5146469f3c7966f56638360b6c5bcaa1aa6e7b40832491bc6823d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/box_lurker_idle.webp",
+      "group": "box_lurker",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ca122082f97809f5c26e6c50e5dcfbdfd88b99c3ca9eb46c1470058cec852c95",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/broom_centipede_attack.webp",
+      "group": "broom_centipede",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "92d81d9c3a29eeed452cd48761a33fec598191ee2ba68c458b4e8c5f105df52b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/broom_centipede_block.webp",
+      "group": "broom_centipede",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9c3244a5548dbbe52a25e8398132447a328b8c02a9099818876d749b5e504832",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/broom_centipede_hurt.webp",
+      "group": "broom_centipede",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "34870a4d44a0b43217a31c606b7d64afc78e4a1a0ad8fde2367ebd38fe9c8881",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/broom_centipede_idle.webp",
+      "group": "broom_centipede",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fa66151aa81adae81373f0055e0cccea010abf45eeed4391574f902b0cf529ce",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/butler_cat_attack.webp",
+      "group": "butler_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "911d76168194bfc89e89c1e233da7f98f852e36d5d22242b75475c159d0d601e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/butler_cat_block.webp",
+      "group": "butler_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0c39bbc92bc3bffdb55ebb916a877eee3c2db194d097bc6a150e56c57f391b51",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/butler_cat_hurt.webp",
+      "group": "butler_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e8f5b8b67c08f19c25aaa98162e9374dee32a959f6f68ba4e19806472b103dcb",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/butler_cat_idle.webp",
+      "group": "butler_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8578d5d58277506f465a6a910fe68b6acea956d1984720ef7e8c47a0a0f4491e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_attack.webp",
+      "group": "calico_monk",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d45fc39a1815175927ac4f38ea1f3ce020cb875e61f17b1802a69e648c9ba06a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_block.webp",
+      "group": "calico_monk",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7cb6ea749160cf5311e740fb18bef6f506ca134fbfe9a4661f84d9f27ee6ceb3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_down.webp",
+      "group": "calico_monk",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "dddf508f80837f99b142694e3fbc2d9c5357a9d888c86bd6154ab8ad51ab6306",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_hurt.webp",
+      "group": "calico_monk",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6055eba56f07e94a2032fb843451e01a49c16100ea3d6e3bf5292af629007db1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_idle.webp",
+      "group": "calico_monk",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "83563086963ad66a7d594f57cb0c3b83fc4d2025af276e79206c4398c760ef44",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_p2_attack.webp",
+      "group": "calico_monk_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "feffc06ed97434fb6b0653b17d83833c3a41f83c11007bb0b46a6a8808679df4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_p2_block.webp",
+      "group": "calico_monk_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "264381fec00b69f4f24fe2a721f77664c53a4fbbc4243d74f96d669eb8f7c7da",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_p2_down.webp",
+      "group": "calico_monk_p2",
+      "pose": "down",
+      "facing": "left",
+      "reason": "坐姿倒下或垂頭，臉部偏左；無需因倒地姿勢翻轉。",
+      "sha256": "7e239a5acbebaa056fe8f2e08a7c91e3e41fef3e88d888bd4a025a9d348523d1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_p2_hurt.webp",
+      "group": "calico_monk_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8fe024b789d7ec38f5cda5505251d8f92580902ade44314fa41740cdcd12fe2e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/calico_monk_p2_idle.webp",
+      "group": "calico_monk_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b0eee8b63a4214aadc7cb44e162ed5f044f8f7dd577724c56723c552cdd84f97",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/can_spirit_attack.webp",
+      "group": "can_spirit",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e4f83cba1cfce4be89ce2cfd5433ec42930c7d18242ad8190f314ef0de1c0f10",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/can_spirit_block.webp",
+      "group": "can_spirit",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8e15bbf119afa91a81d8c446bc67c5decbdd56ecc5f0d3939a8bd76cbd77e9fa",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/can_spirit_hurt.webp",
+      "group": "can_spirit",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "431029aceed037c6c9710567f617413d71eaad92ada6d20b8af692d817f750ee",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/can_spirit_idle.webp",
+      "group": "can_spirit",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2a5b45bd06d2f8821271661e189c8d68be946ab21f7c48bb2f058d2af5c55030",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catgrass_bug_attack.webp",
+      "group": "catgrass_bug",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "81b95b807e003084a720d8806fe6555e43b0422c6436ca7f9c7f7b78e3401d1d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catgrass_bug_block.webp",
+      "group": "catgrass_bug",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "42e6b5e6215a730aab5907aa77ad4e6b29a2d3bfc024a42b2283f015d99d7f02",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catgrass_bug_hurt.webp",
+      "group": "catgrass_bug",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "100f93b08f356fae4b3b756ebaee31b2fae4786bd4ae709695624ceedd55cda0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catgrass_bug_idle.webp",
+      "group": "catgrass_bug",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5aaadd2277a0ce09d2b874d26477910e7215d10149fe268e06393afd6627641d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catnip_phantom_attack.webp",
+      "group": "catnip_phantom",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "16c10f3add448e0d40e4ae83f332ac9afc1380761297645e6a75940d74c00d26",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catnip_phantom_block.webp",
+      "group": "catnip_phantom",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6126c3d051f3de906be5aa8b5bc4d960f9863208894b12eaf3943a799b2acf30",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catnip_phantom_hurt.webp",
+      "group": "catnip_phantom",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b5529393fbd921ed06479ffb2232a92e1e23c745b0c632493aadc50fa55f939a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/catnip_phantom_idle.webp",
+      "group": "catnip_phantom",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "32e82daa3e47c6b47f11514de10dddfc4021e04eaafc87e74518ddbf307e1a9f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/chipmunk_attack.webp",
+      "group": "chipmunk",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e2a8793fe2d1dd3ba70c88482e647aa73fd18fc862884a6b9f5b6bfc6d640831",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/chipmunk_block.webp",
+      "group": "chipmunk",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b59865991bf364602a106b8eff69c56fe413d60d02eda0428b74a84bb90256fc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/chipmunk_hurt.webp",
+      "group": "chipmunk",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "96846778bf191d3ea6ff7d00e4490cf496bc26d58e1b035d323f3cf6fda33148",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/chipmunk_idle.webp",
+      "group": "chipmunk",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "834710d8fff5477eb5775adca64fe586e22e89c7fb8909d0bf96eafdbd52fa23",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_attack.webp",
+      "group": "cowcat_boss",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fb2469f6f708bf89d7b32a57ea12a48bcac363d510b70c7345c614e9ec78e1d3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_block.webp",
+      "group": "cowcat_boss",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "794f727ec39419163f7a12d286614e1ed7c1db64afea19882bc5c17bec6c6cf5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_down.webp",
+      "group": "cowcat_boss",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "57ef4f9c1dcfe28b5023e9485d0140d475e581442c0ea5a85b6ad2c00eb7dbd8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_hurt.webp",
+      "group": "cowcat_boss",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "db6d4e3da7c28e23ed28b70a925ce43c9a207d24bc46ba28c2c570469cc79042",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_idle.webp",
+      "group": "cowcat_boss",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a0ae0c40c8d53d21137bf13cabb69aa35e2f980447b72097092ada97806f1f72",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_p2_attack.webp",
+      "group": "cowcat_boss_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "dabd99cb82f92ae9e6b9a59894db43dca8814f4881ecf200c7208e86d9c29188",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_p2_block.webp",
+      "group": "cowcat_boss_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "32e6111e858fcd098ac1b0c9cf4cbc641ac6adb4be03d512ef4b95f3dc57f258",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_p2_down.webp",
+      "group": "cowcat_boss_p2",
+      "pose": "down",
+      "facing": "left",
+      "reason": "坐姿倒下或垂頭，臉部偏左；無需因倒地姿勢翻轉。",
+      "sha256": "8d4ebbce59f256a3ba23667ddaf6b01d7b5d07b02ffa770dd7cede9eef1a1b8a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_p2_hurt.webp",
+      "group": "cowcat_boss_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9eff5f23c1a70b05b5dd6fd8518f018662be3de2a8029809bd43ece8318a507f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cowcat_boss_p2_idle.webp",
+      "group": "cowcat_boss_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bc3d99d626e7b21a1ee964990dde7bb51e4335ea35f7a7b569119d93da8344ee",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/crow_small_attack.webp",
+      "group": "crow_small",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "173b3f0c31b751405ddf3549a7f1273400a2620203948cb7ad41501d6f432e43",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/crow_small_block.webp",
+      "group": "crow_small",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "988484513d29a04a3c0137b5e0d907794c62e14d7d2a10ad9d56e064017f6f95",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/crow_small_hurt.webp",
+      "group": "crow_small",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "696d3e208e6700299bb1fb99b4565520909534047beddeb567e13c36539436dd",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/crow_small_idle.webp",
+      "group": "crow_small",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9f5f22404ccdb99c980ec111796c1e3ffdae0f6ec25fdaa912c30946fbda65a2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cucumber_attack.webp",
+      "group": "cucumber",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "ae76b6eca9514320dcc051c45172958f1153e03241f5b6f9b21b4d614af9be80",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cucumber_block.webp",
+      "group": "cucumber",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b1532bf76f04ad6e7d69965b4b2cf9ff64266ff9028597f640265fc600a57b6c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cucumber_hurt.webp",
+      "group": "cucumber",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6bf1b0e9781ec746141b6430fad051c20616b4a8a641330dd77e37c8b3e260a3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/cucumber_idle.webp",
+      "group": "cucumber",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5549dc50902f5cdd8525fd6ba767b08238cc22018a20be77227f1f761c42fe41",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/curse_priest_attack.webp",
+      "group": "curse_priest",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "38a1ab70f3662c9b91faa7b8fb123611f1848f080749f199bf46caa40e82c758",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/curse_priest_block.webp",
+      "group": "curse_priest",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7d0eb8006cbc3406a2844060dadaf7157af4fa1328f1badeb20b342ff983658a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/curse_priest_hurt.webp",
+      "group": "curse_priest",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "883109e748062827c9432685d05a148b0451a846022fb5d2c53197b0a03cc8c2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/curse_priest_idle.webp",
+      "group": "curse_priest",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4cddeba46303e41f9795d4bad94449439a54a02d8c0c2da42c77fe8a2e151a81",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_bit_attack.webp",
+      "group": "dango_bit",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b28c46c348976f90d67ada16f83f66c0917adef52712c9a2085a6644edf57beb",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_bit_block.webp",
+      "group": "dango_bit",
+      "pose": "block",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "90380afed96efb45c47fb3b1695d4dfce7877a0976987d2a1926b68e768a8903",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_bit_hurt.webp",
+      "group": "dango_bit",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "654591412630dc26ed14c33a91e477387135efbb698c2cbc987d7d5c4197f27b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_bit_idle.webp",
+      "group": "dango_bit",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "3b9f1f35b0c52b3c9fa08bddff617ef17d9f46053d3a65b04ba51ad182fa7858",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_slime_attack.webp",
+      "group": "dango_slime",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4497f0d92f0824f71a11778dfcbdc629422b8567a82f8da94e9b6f16d35d1961",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_slime_block.webp",
+      "group": "dango_slime",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7575ef609ef962c8cde60b261120402fa2aa1414cc82cdb2c39e84152812283a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_slime_hurt.webp",
+      "group": "dango_slime",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f453605810a86f00255252d1ed95edf264358ed2dc67196c769c3dc47a94c400",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dango_slime_idle.webp",
+      "group": "dango_slime",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7a855bc9c70e665d6090abef53c7e832a4d204aed6a0f17e31d48a7fbbf292e3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dozing_tabby_attack.webp",
+      "group": "dozing_tabby",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "79ede4bde7f162832a94c216fb23c2164ffbf598c9d96bc387c89013bc8b6269",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dozing_tabby_block.webp",
+      "group": "dozing_tabby",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6d66d13abe9484b9bf17fba6db7e3f4e0d5a45327d4ddc4dc5af39781adbf182",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dozing_tabby_hurt.webp",
+      "group": "dozing_tabby",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "df058679887fa545fbf881bf2b49381c13e09e5442443d9d8cfefc427e2df14b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dozing_tabby_idle.webp",
+      "group": "dozing_tabby",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c504a2876bce05e492f29523648b5207d4d5b6864c0dbdc1664978ea6478257d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_attack.webp",
+      "group": "dragon_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "daab44e88e01c0705c1a08a71d826208b04cd7344951876c01654a2684b080ec",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_block.webp",
+      "group": "dragon_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "233a2d7df007d16f6dc88dae6db7fa2d29ed1ee02a8a0d5724849f7d208a58f8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_down.webp",
+      "group": "dragon_cat",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "66bb6a775b98d7454730c28e19e9512aca61e80d4243586cb6f5bfaacc45de66",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_hurt.webp",
+      "group": "dragon_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "be4c374c7bfc077867ef2a49fe3ef6c2b6ccc008463d4b8d8e035e59d7b6c6e8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_idle.webp",
+      "group": "dragon_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "881a8c4d99c0fead16ea8ed3c9a855680b24e53a5e8ed1d06d0977f8f494b5e4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_p2_attack.webp",
+      "group": "dragon_cat_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a8a912c23d12a88b3c5ec6baf16ece3111a69606ad8d6660e30f345968fa43c6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_p2_block.webp",
+      "group": "dragon_cat_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "19d0e655a6b63ee6763379b6b4607480435694eb4896ad227fb1ab6b98eb2fa0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_p2_down.webp",
+      "group": "dragon_cat_p2",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "074d79b808f8fd4364efa00072d33bc38c97fbeb4a02cf17574bd51cbd3068b3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_p2_hurt.webp",
+      "group": "dragon_cat_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5c1e6eac2225a73361ccc621209665186ff30d41f65a3c2efbd5da9aca3d4ae0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/dragon_cat_p2_idle.webp",
+      "group": "dragon_cat_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2553ec9176d006ebddcae8541355e0013b66135dc6a135805b9805a1e9e24291",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drum_tanuki_attack.webp",
+      "group": "drum_tanuki",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "27747ec2ce97bdfeb5b29821066e6521cc5383c21a94786541a867da060a7c46",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drum_tanuki_block.webp",
+      "group": "drum_tanuki",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3609b6cdbbb70e4ce3370e6424ab1ff0693b8f7d0a24b19549c7421b6ffe5778",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drum_tanuki_down.webp",
+      "group": "drum_tanuki",
+      "pose": "down",
+      "facing": "left",
+      "reason": "坐姿倒下或垂頭，臉部偏左；無需因倒地姿勢翻轉。",
+      "sha256": "505c877ef6ea45cf395261c36c11ec0ffec00522d4fe8564f4b8da1ed152af3c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drum_tanuki_hurt.webp",
+      "group": "drum_tanuki",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a14c91bbeb70cf6795001d134c94710bd3f93fc30643406af3aa39538296d3f2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drum_tanuki_idle.webp",
+      "group": "drum_tanuki",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3023c24e6d01f880ef45b95e1c0f72020631465e31d49505705a8abf7b381585",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drunk_dog_attack.webp",
+      "group": "drunk_dog",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2bb88bdaa5a169ccc1c3fcfdaf7d13492951f892a88414df4a7682240b19be57",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drunk_dog_block.webp",
+      "group": "drunk_dog",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e87b24dc5aee06c70da7490244968acbea26b6e80b737d22d5be6e4be81e050d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drunk_dog_down.webp",
+      "group": "drunk_dog",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "01a9f3f1c169f0dea15e557715f9282871b4302100793e4b4820749294974d98",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drunk_dog_hurt.webp",
+      "group": "drunk_dog",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "41c2d61f8cbc5c508a7ba561f65c897c920e6abc21f33bb3eaaea5cf599859dc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/drunk_dog_idle.webp",
+      "group": "drunk_dog",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6073955ada28e50d83b2d34db57824114901503e9d3edc39a27afa9ce311f859",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/five_claw_attack.webp",
+      "group": "five_claw",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f26894252d45d7600db009b5d551232dc9a7655f102777aa01152a0baf9eeadb",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/five_claw_block.webp",
+      "group": "five_claw",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c5d5d080da5f0ea1196fac1aa38d684f8c10cd3a980d5a9d4c7f80478c8da150",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/five_claw_hurt.webp",
+      "group": "five_claw",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "05fee43c68078befd1d3a7e76062a95377072908863a23bf3da9b98fef147ad5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/five_claw_idle.webp",
+      "group": "five_claw",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2ae6f85716e7ee73e9174f2b92711288c40cfc88e4bdeaba80abcb030a655f4b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fortune_cat_attack.webp",
+      "group": "fortune_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "aab80c8cc9d73c1af3a562a1cfef4182aa8c7deda7c228e927e680d901316300",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fortune_cat_block.webp",
+      "group": "fortune_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4f1ab5aaed310ba9246158346bef6f048d7a4a2330410fe32e56c337ab21e2cb",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fortune_cat_hurt.webp",
+      "group": "fortune_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0e9d515ebcdd94be2fb5780166423b9ac2951edec4233af9d68aa5de9575903f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fortune_cat_idle.webp",
+      "group": "fortune_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "991dddecf9bd605774880562adddc23b0f660f94816980489d6cb50243018193",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fox_miko_attack.webp",
+      "group": "fox_miko",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "50fff225aacb6aa299bc37e4837a0fa9ae7a89a5b89d405c665e7aebe42dfb6b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fox_miko_block.webp",
+      "group": "fox_miko",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1d95497774e068758e2b2c061280bdf8889194e9253a7a99ed02bca6b34956d6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fox_miko_hurt.webp",
+      "group": "fox_miko",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c2a225b7afc910b36a5b87cac27e1ae924ee5074c1f57fcacc1df24023ed990c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/fox_miko_idle.webp",
+      "group": "fox_miko",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0fbd8c4cc62d62fbd601649d00d3da47b9b1b6832ff49ed488b8d46ad85e706f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_attack.webp",
+      "group": "frog_daimyo",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "040502fe2b71bf0926fc49509aec19c7efe06a679a3485d2dffe25132a1941b1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_block.webp",
+      "group": "frog_daimyo",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "24588f72f28baa7276c9f795cd94976f61272bc8aea9705f8ef3b8c5dcb5e2bf",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_down.webp",
+      "group": "frog_daimyo",
+      "pose": "down",
+      "facing": "left",
+      "reason": "坐姿倒下或垂頭，臉部偏左；無需因倒地姿勢翻轉。",
+      "sha256": "2d6ca8f63082059a719c8181b951f4d92857ff68036678aca25e8c97fe499ff8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_hurt.webp",
+      "group": "frog_daimyo",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "570fa163598c8e47d21ffdda1f3d0cedf7a0357cf92c156d93e7a510f0429760",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_idle.webp",
+      "group": "frog_daimyo",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fcf79ae36d7b12bbbb5f728aa9a34da2dc6bc1b36ad03bf54056baa15d5c10c7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_p2_attack.webp",
+      "group": "frog_daimyo_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7f32de60ae360161d267117de6488db761ad93f6a30f67658c550ce33abe7118",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_p2_block.webp",
+      "group": "frog_daimyo_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1e2f77e9114f7a51f1b4c9de5780a600dc3559d529bb05e058e9b06f84ecf51a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_p2_down.webp",
+      "group": "frog_daimyo_p2",
+      "pose": "down",
+      "facing": "left",
+      "reason": "坐姿倒下或垂頭，臉部偏左；無需因倒地姿勢翻轉。",
+      "sha256": "6e0b40f59dd5295dfa9359a2f22e95bcd63d882e964de2b712e2ae18be360482",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_p2_hurt.webp",
+      "group": "frog_daimyo_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "61338de081826314f3dc28342f2948500ee5c95e9a3cb390e4955afef9e1ee4a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/frog_daimyo_p2_idle.webp",
+      "group": "frog_daimyo_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "783784c69902cdd63d973137d67cb1a3d6c3036a5679de04d7e7e28744eb8b6b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/geta_monster_attack.webp",
+      "group": "geta_monster",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "92348e8bf066f09439ce8098e886a9fcac5fb69dd1511b7b076684c13d568763",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/geta_monster_block.webp",
+      "group": "geta_monster",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a840094c3f426eb12e35112440a824553b7380a3fca9d8eb151497035bcb06a5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/geta_monster_hurt.webp",
+      "group": "geta_monster",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1093e021731b78fdf8a823133b7d1e10ab210a75f2f67cfec480d1c1d6b1b3ac",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/geta_monster_idle.webp",
+      "group": "geta_monster",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "cec140e4910499164d8e402ad332939a4e5d176e3eaa99f69761aff2ac320a7e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/giant_onigiri_attack.webp",
+      "group": "giant_onigiri",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "77f6e272323eebe39e55bda4e2e6367653552d875934de1b6ca005f2986f7932",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/giant_onigiri_block.webp",
+      "group": "giant_onigiri",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "91890e7f063586f460004123f233cb73693cd1f2326e1db80ca35012b0ead2a1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/giant_onigiri_down.webp",
+      "group": "giant_onigiri",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "e2e205e4c0cdc89d676f8685cec846f9d4cf023957dd223e4905466f6a831b19",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/giant_onigiri_hurt.webp",
+      "group": "giant_onigiri",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "91e73ddd042263f5fe92fccdbf2620b05d74718ddfda4f037a0efbd4fda5827c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/giant_onigiri_idle.webp",
+      "group": "giant_onigiri",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "2bc4df4966ba848889b9897e6caf3811a97e3cf50c79f87e7fabc8bd892d9e82",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/goat_attack.webp",
+      "group": "goat",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "33ff033b4fa05b4902b73e49f5dc6e62a50eeabfc5f50b5f036c6f0e6436dd11",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/goat_block.webp",
+      "group": "goat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4987972858dff9366b488eebc8eafca3f62caa81934090c19934c14090d3ad7f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/goat_hurt.webp",
+      "group": "goat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "77d6f3af8423865337e70fb6e2b796b6ab112f85c1fd12640848123b43b42c7f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/goat_idle.webp",
+      "group": "goat",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "正面或近正面，不能據此判定需要水平翻轉。",
+      "sha256": "78f0fa597d5c78e21d9b962e7240b93d753dddf7d8d16c07cfe64cea28173421",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/guardian_statue_attack.webp",
+      "group": "guardian_statue",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6e96862edf3d1c88269272c205b76128c313bf40b2c1f8745c9eadf4926f6865",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/guardian_statue_block.webp",
+      "group": "guardian_statue",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "db63f3c4f6410449de2af7d5c832f71ec45109e3eced4d9bf9399800c32a70d4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/guardian_statue_down.webp",
+      "group": "guardian_statue",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "95083e7cb2ff7077339628431ef4693256540ca7ab07c10e05aafe0f6b8877e7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/guardian_statue_hurt.webp",
+      "group": "guardian_statue",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d06097f616f516f010f6a3a8ab285752dc5f0b6598ddee335f1c44905e7d1271",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/guardian_statue_idle.webp",
+      "group": "guardian_statue",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "78eb2c6d1df1d6026fa99608f70d4576b93ce10b5fafa7e62333d3e89aa08cdd",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hedgehog_attack.webp",
+      "group": "hedgehog",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1fb056b0606168aaba32d1cb08f76a82a37c2a4cd4fffd0583544d1c50491bf9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hedgehog_block.webp",
+      "group": "hedgehog",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "cb2c7975d66689790ab92bf38789a385372003e8804008996cc2b673da9156f5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hedgehog_hurt.webp",
+      "group": "hedgehog",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1795d952fa2938e3fa0e8f1576df21782504a829656234269b2dd36dd72f9eee",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hedgehog_idle.webp",
+      "group": "hedgehog",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "703c8f47cc0d88f0a2d77e3ff7db44a3c97109d835ca3b5747da31ccd2f80aa7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_attack.webp",
+      "group": "hex_abbot",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5fcf076a4c415a8a86aa66a7349977154ea3ec8600ee1d290ef1e2f89b57d91f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_block.webp",
+      "group": "hex_abbot",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "dbb765b95a73d1f8684ad798478dc81e1b5b0e0dca167a9f3e2c8e3846abeaec",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_down.webp",
+      "group": "hex_abbot",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "趴伏、蜷伏或倒地，不據此決定戰鬥朝向。",
+      "sha256": "d247a5f02a1539dd3b16ca2df9536bd5a42e4c0b912e55504cc00be695d36eb8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_hurt.webp",
+      "group": "hex_abbot",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "79c0e82487f3cf4cc7b9bb28654a8c9d0fa339883776549b692e17c762c022d2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_idle.webp",
+      "group": "hex_abbot",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e8526cc6c5b92e66a16f4b4ab1fed77c35c2b31605feb379a65855252d47298b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_p2_attack.webp",
+      "group": "hex_abbot_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c7e4149d3a6b6819808746c68707ed3c9a1578be74e1779b35782aef8cd7147a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_p2_block.webp",
+      "group": "hex_abbot_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b96bac092f838e2763168ea51632f182d0a9b2809dc13edba80a1341ec46d7f0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_p2_down.webp",
+      "group": "hex_abbot_p2",
+      "pose": "down",
+      "facing": "left",
+      "reason": "坐姿倒下或垂頭，臉部偏左；無需因倒地姿勢翻轉。",
+      "sha256": "5fb50b5c53527b7d7a07d58e7633ac3def71a0cc47b7d8bfd8514a8bea55bee4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_p2_hurt.webp",
+      "group": "hex_abbot_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1ce45cf94e3cab7558cb42f16a51a4c4a08fec56f53a4e1d898e24d03a081da0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hex_abbot_p2_idle.webp",
+      "group": "hex_abbot_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d8b3a54fc08b53c181a93dcb5c8afe7c6444c7237f42acb3c16385e74c979968",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hibernating_bear_idle.webp",
+      "group": "hibernating_bear",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "64cdef246383951489f846eba26615e5f9bf52742c025ca565fbc9d2156aa9f9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hibernating_bear_attack.webp",
+      "group": "hibernating_bear",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d580aa5614a96e914ab018f74d0d471a93044e81d9d7abcafd6d13beb4230e4d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hibernating_bear_block.webp",
+      "group": "hibernating_bear",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3d1b265d1cb76ea573d82b2ee59cf38f1a86e3294242687eb2a516285650ac13",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/hibernating_bear_hurt.webp",
+      "group": "hibernating_bear",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bfcc35ec4e1054d104f5858bf65f8599585f3b7de50b268922a755fb3987a3c1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/imp_idle.webp",
+      "group": "imp",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "949e7214bdfaaac08c84be73d0530d1b027f057a94999ce03881587b1239f832",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/imp_attack.webp",
+      "group": "imp",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "71298b0f42efd35fa0f209e36492b9bdf72d74aa005a40259b64827ff507def7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/imp_block.webp",
+      "group": "imp",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "395ad6f4159a0b8e77793e7f07e0d6ea5672e2f147b8b5c9a6263afba1ba8328",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/imp_hurt.webp",
+      "group": "imp",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c6ae1d7abec57418ba60a9cc541b90a515c0460dedf17cc5fc742220bbe0e11d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ink_cat_idle.webp",
+      "group": "ink_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1e6527fe7e2e67c1e7e3322a1051139b5c512604fc46d60b55df8737b2ebcf12",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ink_cat_attack.webp",
+      "group": "ink_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ea9977e1d769a8eb11d8cc465fbb228e54b598fc8cc7be4fbd9e7955672dc81d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ink_cat_block.webp",
+      "group": "ink_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a33b292a09dc82c1bab504f9a31cc5c4363b5fb480134e714fd9d559a5b3519a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ink_cat_hurt.webp",
+      "group": "ink_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "070ccca4fecd8212b5a29f6c0d6ac64cd5aa0d86efecc3bc9228a0ac0989771e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_arhat_idle.webp",
+      "group": "iron_arhat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1a68455ba50baebd4ad07bf18d562b207e12c97c77410fa391b39a233f39580b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_arhat_attack.webp",
+      "group": "iron_arhat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "174673210abb72f7cd41d02a6f643698e227a307ebba6c36e138bb758890b6dd",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_arhat_block.webp",
+      "group": "iron_arhat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "07a63cf1000d01c88ec0d24b32e828965fd0ea1f3ecf08f256022849891cdc91",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_arhat_hurt.webp",
+      "group": "iron_arhat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c685c1d0fd2da5dba0d69a83b1bde184fbe92dae0028ca446bff801269a94e14",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_arhat_down.webp",
+      "group": "iron_arhat",
+      "pose": "down",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ee0526415876c8dcad59b9488d3cd2725a7c1d1cb280c7baa44610570b5af820",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_idle.webp",
+      "group": "iron_claw",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9eb1d38da6d45a99ed9c19cb3de9f1f21f4cfed4334c1465a711e4fe00908dbd",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_attack.webp",
+      "group": "iron_claw",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "efae63ed56bd58489bbceb1672489e0a61986aed6fd44d4814453101a2063357",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_block.webp",
+      "group": "iron_claw",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "31ae01db23c394b9cd30ff4c5a3d6f99c7cad3efb04ced9f074afbcbf8f5dba8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_hurt.webp",
+      "group": "iron_claw",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "651cce289164d3af882fe5a00c3b924d06f7138edba63e24f2291f96be76e724",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_down.webp",
+      "group": "iron_claw",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "倒地或蜷伏姿勢，記為 lying，不強行判定左右。",
+      "sha256": "70db810941e6e635853de352015d5a2ef83f4eccab2123f06ed620edf4ae1242",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_p2_idle.webp",
+      "group": "iron_claw_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "697c8997476a4b38a9d7b62ddb8d34d78b50048fa1be6a0d7dc971667cd53c5c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_p2_attack.webp",
+      "group": "iron_claw_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5c9bb0d5d145e5610954bab5e980d6c8141a6f199ce5129827daab83efe4d86f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_p2_block.webp",
+      "group": "iron_claw_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "85c4ca74a6b1e57f9089c03d2e8d1e517c1df0a4dbd51261f64253314fd6c99c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_p2_hurt.webp",
+      "group": "iron_claw_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "135f930e496b30cb99fd4d770c0a0933ed26ec07c82be170669c8d833efce33a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/iron_claw_p2_down.webp",
+      "group": "iron_claw_p2",
+      "pose": "down",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0c92ec07d37b7bd06cca66621db2d93a13249ee7e9664e0ca325d6002f33b762",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/jizo_golem_idle.webp",
+      "group": "jizo_golem",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fdeb7548d1a8164ae65f88de0ecd258bfedfc81cd51b4c2bcc7c1d8cf3f6774c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/jizo_golem_attack.webp",
+      "group": "jizo_golem",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b072602c4fa98134f99468d2f7e70f7d5eb0a485ff18cf488055674f243ae6c8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/jizo_golem_block.webp",
+      "group": "jizo_golem",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "84f6bfde5428aa32726d2bcb5d1e4265010cc94c3260e91e66b11044bbbb31f4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/jizo_golem_hurt.webp",
+      "group": "jizo_golem",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fdfe5135a959cf5853066d6b002a934f100c95ef57cf9b5b79918c2defc70b35",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kappa_idle.webp",
+      "group": "kappa",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "98f4a049c716558ffc384ad79387d6d08656e22f886c09bb850cccf44b5621ad",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kappa_attack.webp",
+      "group": "kappa",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3a5a754f7dc3898e3a7d265fa8b153beb88da2a652ffdbf862ba1bafea23f496",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kappa_block.webp",
+      "group": "kappa",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5f53475f71cbedbbf451c211efcb0eec90e93da6c30d751d646a538bc484df75",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kappa_hurt.webp",
+      "group": "kappa",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c8ddd7fa4238c360ba0bc8e91be67b282eab1babdcac3a9831d99485938eaded",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kasa_obake_idle.webp",
+      "group": "kasa_obake",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0e4efb9fa67539eb1b702de661b569b694f3c62c16cf967258e7ad73434d0ae5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kasa_obake_attack.webp",
+      "group": "kasa_obake",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "旋轉攻擊時眼睛位於傘面中央，接近正面；不是面向右。",
+      "sha256": "f2b126b943fb2630773c775f3d1d1c84f23f0d132217d202ab615e16206c94db",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kasa_obake_block.webp",
+      "group": "kasa_obake",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2594744879e52ecc89689cbc7e1838235555ff6365495e1c84623af652cc15a0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/kasa_obake_hurt.webp",
+      "group": "kasa_obake",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "197a59879aafaf89bad306e4970d1cf475972dc260fea292499613e3d72d677d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_fish_idle.webp",
+      "group": "lantern_fish",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "578ae2f8bed1d4d998334fbd8997e5074165a0cc92dbb40118398e4d90886368",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_fish_attack.webp",
+      "group": "lantern_fish",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "73f7b9383988af089261638f4e419de200211766253cc17e0964651b99990cfb",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_fish_block.webp",
+      "group": "lantern_fish",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bfe30b00df8239491d4b75cbbf8a519b3257cbde1a0716abf0270e1c46667759",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_fish_hurt.webp",
+      "group": "lantern_fish",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6e356ad15602ae553b96bb62acb0b834a4e34267fe03b278187bc7a5a4d052ae",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_ghost_idle.webp",
+      "group": "lantern_ghost",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c0f923615b2d37fe3919bdb9bbdca1cfd47d8e413c926960419f817a2026a384",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_ghost_attack.webp",
+      "group": "lantern_ghost",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a8deef91d9adc74b606bd329112b4f19810961a26e905b2b1fc6b53738744a1c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_ghost_block.webp",
+      "group": "lantern_ghost",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d864fcce97c73c911d43a64e20371d6ccf011ee9253145192234f1fbc9be678c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_ghost_hurt.webp",
+      "group": "lantern_ghost",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0adb1f2cab1a1d788c5acec3a02051a32a4040cef6cbe0c2fea968d7ea8360db",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_moth_idle.webp",
+      "group": "lantern_moth",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3499d62bd0715f3748110967e38caf025fd42acf7e39ad4930fa6fdb0b14941a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_moth_attack.webp",
+      "group": "lantern_moth",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "abee64ea4c6bcd4195ddc89c2f8e380ca8d771c9a1ccce05f3a11cfae6a42e0c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_moth_block.webp",
+      "group": "lantern_moth",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c56f006b6cca22209582134d4a60ef66b0e586ec14237c6113460bdc8028e2c3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_moth_hurt.webp",
+      "group": "lantern_moth",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "60eaaef722adc27e975c51ded177cf2a3306b27e65ed8546f0332e871b4f2d10",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_twin_idle.webp",
+      "group": "lantern_twin",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c460c9da05242690a8f0206614893a9f6da0b4a1344a97920790683ab06e9486",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_twin_attack.webp",
+      "group": "lantern_twin",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "90f569e508df49f4152eaf27bc80d11089b046eb1de1dcdbd01e82e7a5493f0e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_twin_block.webp",
+      "group": "lantern_twin",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "dc6bc4ab919ba63bb1b386dd47a6d8694a80a2a88530a1d5a6c6a8269fde2ca9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/lantern_twin_hurt.webp",
+      "group": "lantern_twin",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4f7136392512bf4c447e9101451c3005eeffadab1c045dbd5253806c7fc6ec76",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/maid_cat_idle.webp",
+      "group": "maid_cat",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "面部與站姿接近正面。",
+      "sha256": "14c030dafe3080c722200a52aba6466b1d62fa1cc897d6d473743971b2da86e2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/maid_cat_attack.webp",
+      "group": "maid_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "eefda2fe6fba85b794f5ebc0aa22b98f85b6cdbe1dae72beb5fdd585ac03c116",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/maid_cat_block.webp",
+      "group": "maid_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d3c9da0c7515c922a91fc0247794f99375f777f22469b327ade3ad3edf94f2f5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/maid_cat_hurt.webp",
+      "group": "maid_cat",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "面部朝觀者，身體後仰；不因後仰判為面向右。",
+      "sha256": "116084227e234ea356a77c720996924293a11a0d7c9ca9fbcf7f1dcf46ea1790",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mask_dancer_idle.webp",
+      "group": "mask_dancer",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "面具正面朝觀者，扇子位於左側。",
+      "sha256": "941387237c7081a7990052894e97e2ea91cd86f97dbd224be86cf7552cf6daa7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mask_dancer_attack.webp",
+      "group": "mask_dancer",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a377962a9945a50efa24140878828464e6cea1fbccb3d9897b9b4e6677ff4c07",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mask_dancer_block.webp",
+      "group": "mask_dancer",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1e0069d3ce0e28f29a4b1f506b13eca71fe8ddc450005bc6415b2ef8dbdf594b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mask_dancer_hurt.webp",
+      "group": "mask_dancer",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "面具正面朝觀者，受擊後仰。",
+      "sha256": "09b59c7af6399ff8d0b2e2e76ea9aa3987dbcd0b7aba74af8ce212b09d23e280",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mask_dancer_down.webp",
+      "group": "mask_dancer",
+      "pose": "down",
+      "facing": "front",
+      "reason": "坐姿倒下，面具仍朝觀者；不是向右的站姿。",
+      "sha256": "dd24d3537b4027de4be2fddead858780aed83b81faa1d3938b6391ea61f9f9ce",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_blob_idle.webp",
+      "group": "miasma_blob",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5a99313627e30b23fc3d2f556cdb7e53f007e497b35b5e2359b1a5d3ff6f56d9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_blob_attack.webp",
+      "group": "miasma_blob",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "964394ac69d9120d27bea2004133276f1742d563be2912d1844c6e74ec0b7b03",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_blob_block.webp",
+      "group": "miasma_blob",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5512311c6397b4565aac35f738785b45c106d99112a272039136e53411c42ad6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_blob_hurt.webp",
+      "group": "miasma_blob",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "64fd2289f00f3a9abd0f9854b6962a017e9b4e2ef3f042266970f58308d13655",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_crows_idle.webp",
+      "group": "miasma_crows",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "27cbd0d20a9f51cce347cfc00155a879f7938211a5756312f431354c845d56c5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_crows_attack.webp",
+      "group": "miasma_crows",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fc373eb3a78f4f5bcd02e5988ae9e9e9bb20302dd6897ab4ae6b8b6a36a65d54",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_crows_block.webp",
+      "group": "miasma_crows",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bbc5534503145c023832a6b6c35dbde990cc03a0a4dcdbb19e760d959c5e7b57",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/miasma_crows_hurt.webp",
+      "group": "miasma_crows",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "47c8fbfec236eadb8ecf6a7784fda01551b784f76f8c97d7bdc88b7e1365dbc5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mini_broom_idle.webp",
+      "group": "mini_broom",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "433904711242ed1d7b0a0f1aa48c7864ecb5ab3f8d483928b17242704dc0ba94",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mini_broom_attack.webp",
+      "group": "mini_broom",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "臉部兩眼接近正面，掃把刷毛揮向左側。",
+      "sha256": "c53dc7550e9430a146e276d185058d300e2e29a6b279b83d2c0abb1f65b07983",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mini_broom_block.webp",
+      "group": "mini_broom",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e4e34a85a33824a63638911748e32575f8bb5bf954529683606427e8e9e9d4a8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mini_broom_hurt.webp",
+      "group": "mini_broom",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6b67dfe76a42a6747fd583e96f388cbcb3bf561c36ca4017442d73ecec2328b9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_cat_idle.webp",
+      "group": "mirror_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d55560d22e06389673a14404a2741daa3f1fde6ede8d3b83f3019bb43be6cfb1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_cat_attack.webp",
+      "group": "mirror_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ba68d3d9cb4ef2895a2bbeae1e4711a8c3398001ff512d06f913c59de8dc4533",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_cat_block.webp",
+      "group": "mirror_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "08a70eb2c5d9d46666ad35667d78172a334d59fa0c94be0139ed5647f0709de4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_cat_hurt.webp",
+      "group": "mirror_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ec0574c0d31ec6a48f2a1fec3ec84fdd3c9b19e427dda99db30d1bcf2a0e0c58",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_sage_idle.webp",
+      "group": "mirror_sage",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "16ef1be3cd31d6a545e28ca33c4e6a7d93e81c5b3148868aa77a18cc514d1142",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_sage_attack.webp",
+      "group": "mirror_sage",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b0917fe255d6aa6e67d5de0592e0aa4f1b9f2e5aa2a1e4ac337b272dfa65b4e6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_sage_block.webp",
+      "group": "mirror_sage",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5c7bd81afb1fd84449d215a3711dd6846d5900f37e57d8aa2f7c76d5fed86455",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_sage_hurt.webp",
+      "group": "mirror_sage",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3ff4d06477a0127ff391fbd4b493ffd5d50ddda1408a852b2508b107a43ceb61",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_sage_down.webp",
+      "group": "mirror_sage",
+      "pose": "down",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3e36b12c446776bb80a76f10d7db4c6a0dbd57525d6374285544cc04e5dd3ee4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_shard_idle.webp",
+      "group": "mirror_shard",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e9551daf504943d101c770ccc34b1befa307cb44eec338f6c70affb893d6144c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_shard_attack.webp",
+      "group": "mirror_shard",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "43b7ea71a57ffe5a8a157a0dd46b9c7f06b494a9311bbc7f7371ba264c4dca83",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_shard_block.webp",
+      "group": "mirror_shard",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ea847d146ba009d09a6b61efc244b0cca49dd62cac0b2fda2f623ae4cdd83d8e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/mirror_shard_hurt.webp",
+      "group": "mirror_shard",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8f032793eb0f68b40c68b6bc128b30c7315516a2fe9b2f117f85bd2dc4a03e30",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_moth_queen_idle.webp",
+      "group": "moon_moth_queen",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4e6524df54b6ba78a5c87769758a642af6c86d523ec508a0f3902bfab10ea0a5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_moth_queen_attack.webp",
+      "group": "moon_moth_queen",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "87318689794235173bc78438cd93ca28ac954e1a08568e9cea05ff930396f933",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_moth_queen_block.webp",
+      "group": "moon_moth_queen",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c3d357dfdb162406d1bbe32f2801da709a10d0096e8a90eff87d497ddf8bb0a5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_moth_queen_hurt.webp",
+      "group": "moon_moth_queen",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b067e44e4d2627aca2f4315e1c29b3f2d7d0a955d7bacc9980736d5950f2c4cc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_rabbit_idle.webp",
+      "group": "moon_rabbit",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "42ae80f8a742d1380507cfa1e4cba3f116e9ff931d6bb1d2a58f583c3acce7d2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_rabbit_attack.webp",
+      "group": "moon_rabbit",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6409f8d1733228989e4054d978077f59dc92ef555b71c16630647d149396068a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_rabbit_block.webp",
+      "group": "moon_rabbit",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "90f149d598c8a9b6b6667ee0450216a80d098949cf274f60ac4e813a2dc3f9f4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/moon_rabbit_hurt.webp",
+      "group": "moon_rabbit",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bd1a8ff788a4c1ca1babac69611ce383249e7c4bebfcd38673c5eed8e21c2f5f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_idle.webp",
+      "group": "nekomata",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "27654dbda68fef0aea3719de7a18cd8780ab5a1c4ce14b7ff2e2dea478524db8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_attack.webp",
+      "group": "nekomata",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1cbe18614f6c49a2bb1544e85d0e7b5007792ea07d93e1d43b2965ecd8dc3979",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_block.webp",
+      "group": "nekomata",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e2bef643f3c81f675315989d05a09f8109f0dc5975633c0070f506d617a8d4e5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_hurt.webp",
+      "group": "nekomata",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9f29583051d077993525f5a8f72bed670c575e4cd480d34c411c2c6e5af59f1a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_down.webp",
+      "group": "nekomata",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "倒地或蜷伏姿勢，記為 lying，不強行判定左右。",
+      "sha256": "5d39706d57c1a11e154ce721b6fe9ab710b2b1155e9213ac4d3488bca9d72460",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_p2_idle.webp",
+      "group": "nekomata_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9b47502283c1fec03d1b5e869b183a423aece6b268a63da910565c9c37bfcab7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_p2_attack.webp",
+      "group": "nekomata_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "148f0ee415432a762dc5fc544a92bace457995a56da3a130554f002e2ac0aba9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_p2_block.webp",
+      "group": "nekomata_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c8c58cdcf2f3c70f87c4933351de7e429b3ce4cf5b834da0eaf24d24df6f1fa2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_p2_hurt.webp",
+      "group": "nekomata_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0214d5db31ddc5cae82d8e439240527ba8cf545bda7cf9a694d2b9c591e97dab",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_p2_down.webp",
+      "group": "nekomata_p2",
+      "pose": "down",
+      "facing": "left",
+      "reason": "",
+      "sha256": "def1aa099640deb76def21aa2b67f2746162068ed963cd0c8882cdb8d73efce9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_tail_idle.webp",
+      "group": "nekomata_tail",
+      "pose": "idle",
+      "facing": "ambiguous",
+      "reason": "僅有無臉的分叉尾巴，無穩定面部或軀幹朝向；彎曲方向不等於角色面向。",
+      "sha256": "20d4a32eeabb124661539c3b67377b5d4aecca2863b80c73eb8d04f71804f3d7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_tail_attack.webp",
+      "group": "nekomata_tail",
+      "pose": "attack",
+      "facing": "ambiguous",
+      "reason": "僅有無臉的分叉尾巴，無穩定面部或軀幹朝向；彎曲方向不等於角色面向。此張尾端伸向左側。",
+      "sha256": "d0d5e7955fe74acb553d0c43fd2930c0b9064601178c58713a10d275cc43bfe9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_tail_block.webp",
+      "group": "nekomata_tail",
+      "pose": "block",
+      "facing": "ambiguous",
+      "reason": "僅有無臉的分叉尾巴，無穩定面部或軀幹朝向；彎曲方向不等於角色面向。",
+      "sha256": "d909fe600bca1c85b0806a482e2fc230ec2184e1608459e3072fbc61053c097b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/nekomata_tail_hurt.webp",
+      "group": "nekomata_tail",
+      "pose": "hurt",
+      "facing": "ambiguous",
+      "reason": "僅有無臉的分叉尾巴，無穩定面部或軀幹朝向；彎曲方向不等於角色面向。此張尾端向右彎，符合受擊擺動，不能據此認定需要翻轉。",
+      "sha256": "c483e36c54ffa5c2b537191a4386faec34add770ed0edf5de9a56e0b8ba2a8a9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/night_panther_idle.webp",
+      "group": "night_panther",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f3db11a9f09cbb94d9aa52a024000d726a9ebe605b14ce7253549abfb84ed163",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/night_panther_attack.webp",
+      "group": "night_panther",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e8b94ced263dff624c87f59f255f332f5a2a52c4eb6d5d496783213dc8caa4fe",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/night_panther_block.webp",
+      "group": "night_panther",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f81d630b72d958646e48cb1ef9b92267bf1e92865248bdcb223207f5479f157f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/night_panther_hurt.webp",
+      "group": "night_panther",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2343e0a47077c8504b0f5c9c7ad15703c92f2deb1c2412751f6cd216dd51be3e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ninja_boss_idle.webp",
+      "group": "ninja_boss",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "接近正面，略偏左。",
+      "sha256": "4734586eb904e7d78ef4dd1788aa48117655d3ecb7b0c7eb40ed508d5da43a57",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ninja_boss_attack.webp",
+      "group": "ninja_boss",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2a053a4b9db29f6058d9a1fa5bdc89263a61fe067748123e4db48de13221eb68",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ninja_boss_block.webp",
+      "group": "ninja_boss",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3a85f987f6f9e730cc97be22734e5e1561a0e2afecfcbd2b2588e20c9a8d80e8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ninja_boss_hurt.webp",
+      "group": "ninja_boss",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "面部近正面，身體後仰。",
+      "sha256": "ef0e512332597bc30a01be5ecc860a3e1043948f6dbf1ff289b78a61f460c99f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/ninja_boss_down.webp",
+      "group": "ninja_boss",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "倒地或蜷伏姿勢，記為 lying，不強行判定左右。",
+      "sha256": "44f934809f55d7a976e08929a123d407b9eb5dbb02719791414cb394ce533087",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/oni_general_idle.webp",
+      "group": "oni_general",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "576fe0c33f9d803a50bf631540e1b1a61055f0fa18e36eb707f646e7e0ac4301",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/oni_general_attack.webp",
+      "group": "oni_general",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e6c021773b2d093ee0e0e7dfa6bb3ffc61f58a76809e854307c44e2619e4b6e9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/oni_general_block.webp",
+      "group": "oni_general",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "08b5aae4982e048e180c44a12489700c6e4da30e98bd936cc95f1fdbbfb6aa98",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/oni_general_hurt.webp",
+      "group": "oni_general",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d4806d8511b6d7af961608383ac1df0e93dae6d334eae503001fdc5ff353f3e3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/oni_general_down.webp",
+      "group": "oni_general",
+      "pose": "down",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9da085370c4fd4501a963093b5e46c2ad0b5f7be130f8394fd23398c818407ef",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/onigiri_idle.webp",
+      "group": "onigiri",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "臉部與身體左右近對稱，正面。",
+      "sha256": "2ca254eec5e6979a7f43446f6684ba3ed8417a6f6f626e471d264fe5eac5f7fe",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/onigiri_attack.webp",
+      "group": "onigiri",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "臉部朝觀者，雙手向兩側張開。",
+      "sha256": "f93cede51cfdd479507f098d5a0b4f63784a2b6a7069e66dcdeb5db64632c2d7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/onigiri_block.webp",
+      "group": "onigiri",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0188e21bf5f3798121d971ad21f98e0d9cf3496d3d64c3fe9f4b045e953d76ca",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/onigiri_hurt.webp",
+      "group": "onigiri",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "面部近正面，受擊後仰。",
+      "sha256": "85d9a3a626d2033eeabf13924fef113cf24885ad9c16c2fd8c315f288898c058",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_bandit_idle.webp",
+      "group": "orange_bandit",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "接近正面，略偏左。",
+      "sha256": "9f604ee4f8697923cdaeae9e756eb565b7b03196ef1dc2c8bacb0f76518ddc5b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_bandit_attack.webp",
+      "group": "orange_bandit",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2d5333d9cafcda29c9111321c18e9e2b7db8b0df8810881e1996b2ad89bf91d9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_bandit_block.webp",
+      "group": "orange_bandit",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "891f3c86b2e4c764d34e3f2ce9cbf32f968a0e35c4c9917500021e8f25c2c4a5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_bandit_hurt.webp",
+      "group": "orange_bandit",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "面部近正面並向左上方仰起。",
+      "sha256": "2ea164b7c4ef86a679a71f4e43015d1a971876a065be95d54c1a0ea56163c343",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_idle.webp",
+      "group": "orange_king",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d0c2fc5f3431e062d01d80530985ac56dc7e3196b29f367017971ef1646888cb",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_attack.webp",
+      "group": "orange_king",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "211e0623ec96c00e60774364354df51efbed810d8b9433d36764380c7920b850",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_block.webp",
+      "group": "orange_king",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "372b8fc412d1a6e65f284e864b2f1bfd5cbde77bf0293465c62282042656d27f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_hurt.webp",
+      "group": "orange_king",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "501e6dfeebef6f332463409b6c9b38f0a7f90ce4b10660efda2128905edb5b16",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_down.webp",
+      "group": "orange_king",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "倒地或蜷伏姿勢，記為 lying，不強行判定左右。",
+      "sha256": "aa4532edb8f86b7205f1ff6c1eefd72f9995205d426846128442d0aa46a17235",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_p2_idle.webp",
+      "group": "orange_king_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "61f04329779395aada68ce78621e05fa9cd0463db5e5b7ea4b5b9845d111b642",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_p2_attack.webp",
+      "group": "orange_king_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0dddaeaba75e0b02bf0089ad3f7d52e5f2cd1e5e34bf5d2006ba9cc6a8a728f0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_p2_block.webp",
+      "group": "orange_king_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c923188908c1072366376e65636aa4c84fe6806c45af01d1779d501711752d64",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_p2_hurt.webp",
+      "group": "orange_king_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6ff2b3c771136d1069401e127a83cb42e6de1048f56c3923fd84da9aa459ae17",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/orange_king_p2_down.webp",
+      "group": "orange_king_p2",
+      "pose": "down",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9d2c042fdd94f56d75724c4a9a50bc4050bf00b7dd83d486d432962d850981c8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/owl_sentry_idle.webp",
+      "group": "owl_sentry",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6578fd50ae214afba7bdccac79632f6c48462ce0c57ec88f2608d1932cfb7ae6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/owl_sentry_attack.webp",
+      "group": "owl_sentry",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1a700b991d30359964e8a461244d8c6192209ff1fc80875dd056fb24574c28a0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/owl_sentry_block.webp",
+      "group": "owl_sentry",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5a3ea5c709b233fe8707db3fbd0e32725a0894814c537849c43df0b52bd2915d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/owl_sentry_hurt.webp",
+      "group": "owl_sentry",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6bae01b5aeaa5afdce322f7301f755345f6f53dd3ca6dbdc4547b861a29e639c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_crane_idle.webp",
+      "group": "paper_crane",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a22c15d34e5ee1103935f73fc34f27d55ab1fe469127f4ae94b1ca96791fc8b9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_crane_attack.webp",
+      "group": "paper_crane",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "55cfcd3bd4a7a9c058350a851ab3677532944b409cefbd78a54eb6ec0f5b9d1c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_crane_block.webp",
+      "group": "paper_crane",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d55c4e88be654ea30efc4f1c07255b7bbdd5e07562b591afcce61f69f83104aa",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_crane_hurt.webp",
+      "group": "paper_crane",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ca84d0f71f61daec2b51f7d0cf434fbf2adf1f5b44b018e8d0fbca50fabb39d9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_tiger_idle.webp",
+      "group": "paper_tiger",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e7da39a45f97030e509aa47c7c25ea9a2382faf9c1f7a5681127d877f3d04852",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_tiger_attack.webp",
+      "group": "paper_tiger",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "381aa68c8ab41978da957e07854c67e57b87074961d6af4e935293c737f842da",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_tiger_block.webp",
+      "group": "paper_tiger",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "03c5d061ba6950a7fc6f52de46f43c0bfbaafac2a157e5dd8b761bf426ba192c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_tiger_hurt.webp",
+      "group": "paper_tiger",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "64103c3891651f0c8d82f4bef0885e3634a7d881909a23edaf039c2a1e6be898",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/paper_tiger_down.webp",
+      "group": "paper_tiger",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "倒地或蜷伏姿勢，記為 lying，不強行判定左右。",
+      "sha256": "d007caca80af1f35221f2e9272764cc03d90871fa97b4890ccb672e0f8cb9da3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_idle.webp",
+      "group": "persian_lady",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9433e2053c859a505960e91bf5cf55e401a6045f20359b1597ec12a94b94a82e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_attack.webp",
+      "group": "persian_lady",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c275ca49894c38a02cfaa8c9e4d1161dbe5efe8b4a83601b6f6290fb01aa7a6b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_block.webp",
+      "group": "persian_lady",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "57fe7ecaec59b65406048815e2835eeac91f1c845ec08add5301f555d947ba14",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_hurt.webp",
+      "group": "persian_lady",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "49fdbbf7b1ea83c3b429fac72973a07fa45af52a877d582182f73889e45f6af1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_down.webp",
+      "group": "persian_lady",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "倒地或蜷伏姿勢，記為 lying，不強行判定左右。",
+      "sha256": "68e454ccabdac059d13d90e66c42a2f3c08497dbe97b58cbfcbc48103a36a58b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_p2_idle.webp",
+      "group": "persian_lady_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c3616499a9f8527f15861f194c711a26fea4c89b011aaf021bb8b076e3271fd0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_p2_attack.webp",
+      "group": "persian_lady_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e14adb178de0b33e4a044d4498a0a6251fdee28e8ccdfc2686f44435d8cce342",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_p2_block.webp",
+      "group": "persian_lady_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8f347e4f5613586c254279089fb18023c2e01f05ef41fcd896cafbe683810c6c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_p2_hurt.webp",
+      "group": "persian_lady_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0debe4e38cf173187522f5ab74c76a4bd71264ae43f3caeff0b8b450666b8340",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/persian_lady_p2_down.webp",
+      "group": "persian_lady_p2",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "倒地或蜷伏姿勢，記為 lying，不強行判定左右。",
+      "sha256": "97dd69f861919d010b1443dd5f93969868afc82207202c58f038ef6460c053f9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/phantom_fox_idle.webp",
+      "group": "phantom_fox",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8ff6a8e8bc24d25f5e4f6cdb09fd9b3c30b92efb3184451e70fe53b49a2a6f23",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/phantom_fox_attack.webp",
+      "group": "phantom_fox",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6ff3186f1fb832b1422e0c9176fb24beefdfe89053e0c213dd5656d60bdddab6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/phantom_fox_block.webp",
+      "group": "phantom_fox",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5af6f0944bd9840dad57783f38ecccdc56af071348a4b0957b3afdd608a14f6d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/phantom_fox_hurt.webp",
+      "group": "phantom_fox",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b149876c15d5c66ec5b11d0ca8a2cb4acf2d8865ee28fd5a8f53367bbe4b6071",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/plated_beetle_attack.webp",
+      "group": "plated_beetle",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d8b33f03607e05e5390d07ce2ff48d6174e178731207855ab8c81d5387cc7d2a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/plated_beetle_block.webp",
+      "group": "plated_beetle",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "59eb02f2fc6f88b929c256c1543274d14384a270d2e5eb874aec3f9ceb11ddcc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/plated_beetle_hurt.webp",
+      "group": "plated_beetle",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e5b77d6ca492f6474faffa494b791cd81c02931231f95fed33368f7adda9075b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/plated_beetle_idle.webp",
+      "group": "plated_beetle",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1b81422babc562f7a45300187140a7d8368520e0cfe61c5d38e16508b96005a7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puffer_spirit_attack.webp",
+      "group": "puffer_spirit",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "84d90475e4bc120ea60b462d2f82c169a6d5ff84c7f5e9bdad96665985d9f2a8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puffer_spirit_block.webp",
+      "group": "puffer_spirit",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9dc6d07dd9bf80c3104f40080c02a1349d3e075b2109b803968c4a2b4c17fbe2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puffer_spirit_hurt.webp",
+      "group": "puffer_spirit",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a2518192c342abe786d4f93dee1e93f7fc5b277ad8d66ca9d7cc3cd2868f8a46",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puffer_spirit_idle.webp",
+      "group": "puffer_spirit",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "edf5c852bea4978f4928268e4f011c86ceb4d592954ad988615e694473002b83",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppet_attack.webp",
+      "group": "puppet",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5df1f3eba9b8415d9f8109a72b219cc6b0a605670a80f7952a64709a72343837",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppet_block.webp",
+      "group": "puppet",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "090b064b150115113ccd404d0b2088c92e7968421989a280d05c19ccfbb50bdc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppet_hurt.webp",
+      "group": "puppet",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "eca0069255de18a8cf26f52519f380108061508caa5fd8ade21c06b4126f024c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppet_idle.webp",
+      "group": "puppet",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "297073c653ff53b6e5dc626be481546ab430e43aaaac4efa7780eff27a8f7d7c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppeteer_attack.webp",
+      "group": "puppeteer",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e9d5e13cd4809289dc9da00302b182d25db105a153091280bc1eb6b9e855d6d6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppeteer_block.webp",
+      "group": "puppeteer",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e09db54c64dc1763033dabb26118cb3c575dff279fa4e1dda1b99de3fdf9fe48",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppeteer_hurt.webp",
+      "group": "puppeteer",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "3a702256d3de4623e1046c0ad85f01248c344c21d07291952eb8bc0cd377a595",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/puppeteer_idle.webp",
+      "group": "puppeteer",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1f32d06762a41aef3f2771ff8bf31da5eb9c934a19c316b11cc7a90a175db804",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_attack.webp",
+      "group": "rat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9edcc3bdac038c508560373fdee0c7f6e9a38fdee6db5bfd29880477855ecf9c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_block.webp",
+      "group": "rat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2b1b50a4508d34ddc74317a4755479b6e21094548cb207d747473b4188fd8fd3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_hurt.webp",
+      "group": "rat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f832576e756b0227ce203e81f656d768013ad8f63597ab264b8057c49f5ef1a0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_idle.webp",
+      "group": "rat",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "fd2c2aff8be8cb51346cbebfed65dfd0c0ac4819d90710bf4d9c9e3466765f14",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_general_attack.webp",
+      "group": "rat_general",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2629e0382af3f26f71d20da9ff0392c9c55ad5f5a9d290c6c1d2cd5f932de5ae",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_general_block.webp",
+      "group": "rat_general",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "cc58dac29e7542dd9759e0b46753ff2aaa812d70ba4c6019bf86fe0953a33a24",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_general_hurt.webp",
+      "group": "rat_general",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4e9c401bd588b2daf70f23cf8f088fd9b85759c68a6078829e575fc74705d253",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/rat_general_idle.webp",
+      "group": "rat_general",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "58a3285906ef08eeba6534dfd82e446926aed2eac34da1ec8453c489db237833",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/red_oni_attack.webp",
+      "group": "red_oni",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "074f58be8b3aff8d6e5ba7bc30d6a1f70158a73df896026235d26cd71e142c85",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/red_oni_block.webp",
+      "group": "red_oni",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0a9104e87fc71f5e23e028d8e6e53302651e7efc069e1c8283721b66b296897a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/red_oni_hurt.webp",
+      "group": "red_oni",
+      "pose": "hurt",
+      "facing": "right",
+      "reason": "face points right; candidate orientation mismatch",
+      "sha256": "a49f46d91fe4790fdc454843794a1ebcbe01d65d77f3024993666cbc14f75b01",
+      "displayMirror": true,
+      "correction": "combat.css ???????????????????"
+    },
+    {
+      "file": "assets/monsters/red_oni_idle.webp",
+      "group": "red_oni",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0367255222c5eac419eff569b99324c12ffca07b9aeae1008e80ecc6595b7925",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/roomba_king_attack.webp",
+      "group": "roomba_king",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bd6503d7f9d9494811f9f595d754fa3aa870687c96ae2200247be8733eb7d9c0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/roomba_king_block.webp",
+      "group": "roomba_king",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bb55495fd35c1719d2739f65fd0f3ea4bac46280464c42abb155aa1e4732e291",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/roomba_king_down.webp",
+      "group": "roomba_king",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "8ca77f7ff697319a5b0b4fb8a019e0f868814f259f84924cf921ac7868adb8d1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/roomba_king_hurt.webp",
+      "group": "roomba_king",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "079d8a49a5dda491fe579844d1bfeba2fc78411066b56ac6406ba710ca9679f5",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/roomba_king_idle.webp",
+      "group": "roomba_king",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3d79283b2db2b40715ae14e65f9c3a6fdb9007c901b74624ebeb6d4bcf5c5335",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/scarecrow_attack.webp",
+      "group": "scarecrow",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "8629417a4bafafbf009c60d80eac7e296ab1089a39580f75f1ebe4f7495010bd",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/scarecrow_block.webp",
+      "group": "scarecrow",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "b4780574280b5f8f028f8e5f3283499399578a50a23f12a3490a85fb73f3f9fb",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/scarecrow_hurt.webp",
+      "group": "scarecrow",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "7d9f8ad501f6053dd730b817626f8591bb1fc20093400fd694e3b96add6e14c1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/scarecrow_idle.webp",
+      "group": "scarecrow",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "c90f774dbdde643b94ce1e8fa060722904a029f427930d3dc5a7c90e3ed1e472",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_cat_attack.webp",
+      "group": "shadow_cat",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "cf77695eb7537cbab147aae163f0e881ceb5036c9a5afe498c85d01e3df82746",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_cat_block.webp",
+      "group": "shadow_cat",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "8b9bc559d8f4a80ca89dea9ee73f50a0d4c808599e55490d1d82cc78aaabc9ce",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_cat_down.webp",
+      "group": "shadow_cat",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "e41ad3ee6473bc82fb1f89012c3e6413d5292f057e308683dc5fb70a1be1ed99",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_cat_hurt.webp",
+      "group": "shadow_cat",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "f38dc73c10aef4260c022ea1a86bab1b0e15cf9f5ed5d46c84756e4f8282dacf",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_cat_idle.webp",
+      "group": "shadow_cat",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "2b81a0f74b257e6cc1cc432f0eb229a9902f6d0831114711b93b828484a1cc3e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_dangdang_attack.webp",
+      "group": "shadow_dangdang",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "e66f99a74f3e7084a2426e6a234df8320bbfe1ffd40e3b302fc7549f56714262",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_dangdang_block.webp",
+      "group": "shadow_dangdang",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "410b73d8d8ed4523b83cac7d61b60b304aabd03e057bab41713303e8c8b5ac1c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_dangdang_down.webp",
+      "group": "shadow_dangdang",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "c24ef1fcd64b9a3d57a04bf28387cd0bd3e2cd01c4f6643795d01b790afd2a49",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_dangdang_hurt.webp",
+      "group": "shadow_dangdang",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "ae590abb63830972c700d4290057dd5b16d9e4224222188eb8f15d791d0ef239",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_dangdang_idle.webp",
+      "group": "shadow_dangdang",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "747f63353546b9a1b44fb4c01f439241e047cc4465a6014a7de764ed45789439",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_feifei_attack.webp",
+      "group": "shadow_feifei",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b64e5e0e18cbc3633ebc6109baa9257b96c950abe5a5fca2adcb7d36e250164c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_feifei_block.webp",
+      "group": "shadow_feifei",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7a1a75e4a91e1de892b400e2684f33dba11ea3397be1bfaac7d413a6343b0a35",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_feifei_down.webp",
+      "group": "shadow_feifei",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "51f0c937f37fff1e32b6fd8cc90278c4fa4a842bded172e9508a766280eec56b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_feifei_hurt.webp",
+      "group": "shadow_feifei",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fec1e3b9d829c6e3aa3bf49f946efe29259e9c6f37dbdfa6cbcb3be03a1ccd6b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_feifei_idle.webp",
+      "group": "shadow_feifei",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0e6e52eafdf218b2b0d324ca6727df45e5002dbcd272c1a3e0b7a6ce0cf9ce06",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_fengfeng_attack.webp",
+      "group": "shadow_fengfeng",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "83645d546e34465fc8c04c6d73d4c3784a8fe994494b9388d344841e450bbe41",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_fengfeng_block.webp",
+      "group": "shadow_fengfeng",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a9702b6175b6fbd3fd2f52a39e39abbcc4792b76c222f7a8da5110bb29b10ea9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_fengfeng_down.webp",
+      "group": "shadow_fengfeng",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "eed7d255df4c17915bf8cc9d18d29382aec895ff975489f0f8af14337c99b34e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_fengfeng_hurt.webp",
+      "group": "shadow_fengfeng",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "df0a9cd3621c96987c0cc068eb635283a6aae9cab4ea76a733e363e68d45f214",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_fengfeng_idle.webp",
+      "group": "shadow_fengfeng",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7da27f6b749bc189302f77095daface45c89bf673cf38de4d31a0f17261f22d7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_kitten_attack.webp",
+      "group": "shadow_kitten",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "910098442e061386562224fb68bbc2d9606f0987415cc38292f2d8ca99d749f1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_kitten_block.webp",
+      "group": "shadow_kitten",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "33b019f890e58c0f7e247b4952e4ca8f5fc5ef689b5c509de760aafb48e1fd04",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_kitten_hurt.webp",
+      "group": "shadow_kitten",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "abd24945b24f49b138a29b0518031f237150548cad91835c4a6059d78601e20f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_kitten_idle.webp",
+      "group": "shadow_kitten",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f4a8ec14e52ea95286f5f686bf661c51ef071b203263513f3ababb7086835e1e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_spider_attack.webp",
+      "group": "shadow_spider",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9bbb25bbb89decdf7bf7e4fda5ec57426d1a35f1d8477514aa48f7782e9cf459",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_spider_block.webp",
+      "group": "shadow_spider",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "260ed791e6ce6cb392258e3292b6419ad29f84153d0a77f22405d89564e341f1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_spider_down.webp",
+      "group": "shadow_spider",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "43a7726f9d4d84311eb5740c5ae89b8f4dda69aaa716e99f03e870da22b74779",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_spider_hurt.webp",
+      "group": "shadow_spider",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "67803e9306e95adca9147c1e27c43da24ce618fdbcf1a3185cddbabb08ec1d89",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shadow_spider_idle.webp",
+      "group": "shadow_spider",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "21eed409ec5c568d35d42a7cad65332c1a722a71e72f0883cae632382ab0fccc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shamisen_cat_attack.webp",
+      "group": "shamisen_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "1087e25fe977c57a5bedab439348cf6cdf558823ceb7032f357317ac2149374b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shamisen_cat_block.webp",
+      "group": "shamisen_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e8dd6fe619059f29d4c0027671e606cee1a60a26f30ebf82854d1b9ce9c5cdf3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shamisen_cat_hurt.webp",
+      "group": "shamisen_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e0e4f37978e7aafdedc3db08079dff79a8d6f6ea60b433d8b17728f9d9acebe9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shamisen_cat_idle.webp",
+      "group": "shamisen_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2e45a2195676b047e05029c6bc8d0c7c3e1037a65ac11aac728253cb623a224f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shiba_ronin_attack.webp",
+      "group": "shiba_ronin",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "b7f607fd0365e9415cb27d8748045db4f7df0c06792000659026458f1afce0fe",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shiba_ronin_block.webp",
+      "group": "shiba_ronin",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "91ae554bfec5b000e2020341ada26140f7938c134b217f4dca1e6a7fdac63a15",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shiba_ronin_hurt.webp",
+      "group": "shiba_ronin",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7fada98fb81c2feeba2cfb74c1a3ff411b378eca860934623713ef0ca75cb798",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shiba_ronin_idle.webp",
+      "group": "shiba_ronin",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7114a86c49e7fbffe493d5a90973a544fc721bf532c39f2affb307d03e41c5c9",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shuten_imp_attack.webp",
+      "group": "shuten_imp",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c1eee58c9704f1110044265dacf46a2ea18e5fd2644fbb4d48637f43e85a0054",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shuten_imp_block.webp",
+      "group": "shuten_imp",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9f70e4c2076b153bbecdad30640b635af51007cb60c2a0a521df807bbcc313f0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shuten_imp_hurt.webp",
+      "group": "shuten_imp",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "9746b225400ec5089d035d13ab13b72cc92e6cdf1c639378a7a22df6e43fd01b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/shuten_imp_idle.webp",
+      "group": "shuten_imp",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8017a662fb3cfa0be2fd83adc58395f8f3ee972f8ffb6e5fc974de3e2034a24a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/snow_cat_attack.webp",
+      "group": "snow_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "dc33259e37af3ae7690f6a0b925a61927f7cf5a1bc386b4313dd3d6c7b0ec16b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/snow_cat_block.webp",
+      "group": "snow_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e7dd820a890eea399ed8eadd4a20362a7a6a5de7cc4fd18d45a2b9bc9cd737a0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/snow_cat_hurt.webp",
+      "group": "snow_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "6b421963d982fc0393b98527d6e735d58b647411703abf0ec82bc5baeb2bbcd1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/snow_cat_idle.webp",
+      "group": "snow_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2cf54279c3b357b1267d15a80120a886124fc60481fd53cfaaeda9ea2f4f198a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/soy_bottle_attack.webp",
+      "group": "soy_bottle",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "8bc1e808e13194e33aa112667f3216a0f15ffb47650ae96bce02a10940745d6d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/soy_bottle_block.webp",
+      "group": "soy_bottle",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "7f45e537112142665362ed084c2be6cfcee5676588ef4e8bc4bb65cc04c68ad6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/soy_bottle_hurt.webp",
+      "group": "soy_bottle",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d3eae99e281a8b6b84a79954732d3b625fa76a7bace9d79bda7c51b285a0127e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/soy_bottle_idle.webp",
+      "group": "soy_bottle",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f4248417d26434b085abe64a3d714b626e83cb1e84db805b568b877ad023e249",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_attack.webp",
+      "group": "stone_lion",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f8559c76dbf30dfd147ef9d5f496c7790ad0ba8cf29c552ebfae5722e24b9061",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_block.webp",
+      "group": "stone_lion",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "06fe40cfdc7ea9f99d0bfa73cddf9e9e9bb341a66fdaa24dc6e96801d05a2fb2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_hurt.webp",
+      "group": "stone_lion",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "876b7ab217a75d30350f40bb30b4aa125fd07c2d05a70b7c261d0ed007e4a196",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_idle.webp",
+      "group": "stone_lion",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "f5f4e963e152215a240b5e513c40944d58bdf19287833dfacec7c46fa82771a3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_p2_attack.webp",
+      "group": "stone_lion_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "c26039485634704d71ed515a8940b5a8a5757968af801d74753862dd42fb96af",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_p2_idle.webp",
+      "group": "stone_lion_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2ea96b8ffc551bc3565e0153f8bb000f17bfc90728f76a0d79b894318f44aa6e",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_p2_hurt.webp",
+      "group": "stone_lion_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "2026-09-23 新進倉，逐張目視",
+      "sha256": "594386604fbeca5bdda01e1301c570dfbefad96bab19bc3bc309c4126a756156",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/stone_lion_p2_block.webp",
+      "group": "stone_lion_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "2026-09-23 新進倉，逐張目視",
+      "sha256": "446a3ae83cb6748286a734c86b43bf11936fe4e1641075b9956b6b5a21ee093a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tadpole_attack.webp",
+      "group": "tadpole",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "bff1987377c2361743615a2b0825b8f6ee7ab5a3d225564820e788b5a1f705a1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tadpole_block.webp",
+      "group": "tadpole",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e002bdf833b8e3db03117a5296cb3a40d3861bc666bdb101d7fe8a9e0050fb0d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tadpole_hurt.webp",
+      "group": "tadpole",
+      "pose": "hurt",
+      "facing": "ambiguous",
+      "reason": "no reliable left/right cue in this pose",
+      "sha256": "c1009afcbe2aa0d424804300e475faea432da09cd030869d75fabb80b16bba21",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tadpole_idle.webp",
+      "group": "tadpole",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "62bfaff79cdba734b6ab0f0a02fc9cc4130a5e013247cf7960e99470813e7a7d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_kid_attack.webp",
+      "group": "tanuki_kid",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "d557c0c595dd1fb8e9cb5d7b9d8b3a2c1d9ebcc386d7566d90dea3e907805576",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_kid_block.webp",
+      "group": "tanuki_kid",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "97702825ffab7a612bc7bd82a0f5b95cff296807d894470902e646a95c6978f0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_kid_hurt.webp",
+      "group": "tanuki_kid",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "4bf3cb557734afc8fa38ed12231750f2d7c2e52058b0bfd3a04a7cec93bfffa2",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_kid_idle.webp",
+      "group": "tanuki_kid",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ca32e3137d7cfcda7d6f8996bf983646636dec07cfee1430bab4cfb6e808aeb0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_attack.webp",
+      "group": "tanuki_lord",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "cb484b07111befff111e032ae02629b13c0f5e9f4888213dcaaea7f82707b483",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_block.webp",
+      "group": "tanuki_lord",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ced2c46bb58f9af1e5625ba4426ce040742d7d9d9854c9a201bf0528e5c60cf6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_down.webp",
+      "group": "tanuki_lord",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "fba4cd54119388716ad014a82fe1b9c6bf4ca571e20d624f11c9c10a2cca5010",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_hurt.webp",
+      "group": "tanuki_lord",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3447e16d6102f11811772c72c67be1140e87f6be034ee509c3826fc495afaf67",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_idle.webp",
+      "group": "tanuki_lord",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2fcbec97e95792fca00d3f9b3ebf2b1bc8a32a005df5a9546e4257f3161524f3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_p2_attack.webp",
+      "group": "tanuki_lord_p2",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3c5a7a9d365c4b5d1ee077b9c9f2ac4e507053763936fd4f8b111b554f7dea72",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_p2_block.webp",
+      "group": "tanuki_lord_p2",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "380ea7a67bb9bbafa2e9103a08d2b0e56867a67202dfbba337b2313663a6ed20",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_p2_down.webp",
+      "group": "tanuki_lord_p2",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "3af91e084508689a9470d78ffec97c1e3687d240dc46450ed5f05d39dc109f7c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_p2_hurt.webp",
+      "group": "tanuki_lord_p2",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "dd362b43c53d3596afbaded4e32d0351c6df9c4bbf869ea7819ad28eff3e4191",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tanuki_lord_p2_idle.webp",
+      "group": "tanuki_lord_p2",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a65c93200d42965c61eff821877e3197459ded71d18b6c471b27c2ec17d02395",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tengu_attack.webp",
+      "group": "tengu",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "3963994f7c73c83a24597147dac70bd242a99ca54ef1f2de65a3d2c5ea0ff1d0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tengu_block.webp",
+      "group": "tengu",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "62008c6fd1b5ac12a3cca5f0610541ae52d469604586f2ab47a650bcb4a14120",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tengu_hurt.webp",
+      "group": "tengu",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "74e4cceb539a4da8089f317eedb8e01da6cb960aad5fb445ffd3c0a36784d2ed",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tengu_idle.webp",
+      "group": "tengu",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "fb1413952289b50e186b007c6146d399e1091617cb3278874c3b69d6aa0770b0",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tofu_boy_attack.webp",
+      "group": "tofu_boy",
+      "pose": "attack",
+      "facing": "ambiguous",
+      "reason": "no reliable left/right cue in this pose",
+      "sha256": "06b4d10dd257ebcd014cdb5fa4cb619f8f609a9712025e8ce0c9c62ceb48d27b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tofu_boy_block.webp",
+      "group": "tofu_boy",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "24cdbb7ce2519cf564ad405a774207f9465a8bbee4107a2ad3a0ee74431d73a8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tofu_boy_hurt.webp",
+      "group": "tofu_boy",
+      "pose": "hurt",
+      "facing": "ambiguous",
+      "reason": "no reliable left/right cue in this pose",
+      "sha256": "d0ddf8aebd793fdfb1944326b60e008f235b27c7c9b2d23c95ae3e8310e6c93d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/tofu_boy_idle.webp",
+      "group": "tofu_boy",
+      "pose": "idle",
+      "facing": "ambiguous",
+      "reason": "no reliable left/right cue in this pose",
+      "sha256": "307c255f7702bdcc1e6556b0440f390c2c6d05396508b3a5750b064c5dd18ee6",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/training_post_attack.webp",
+      "group": "training_post",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "16ea982f2646636d7992813c83e4a3f33acfdd260c9d5ad90664eaede605d587",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/training_post_block.webp",
+      "group": "training_post",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "c446d3533c44aafe622d954581f67f79d5435acc1ef8c12c0efb38df31f54d29",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/training_post_hurt.webp",
+      "group": "training_post",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "6937f17b680f186323a1a4ef5d5d2e0ce2263f9186deea1d8f52387e6f6f0366",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/training_post_idle.webp",
+      "group": "training_post",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "cceff24f074da4454e0b71a9b9134cc29fa5763aed33731db11acbb681d91bc3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/twin_hound_attack.webp",
+      "group": "twin_hound",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "e3b67a121d2cf1f35be27b2f7b15783bd898f5d30ba62b9d137e18bd2225d677",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/twin_hound_block.webp",
+      "group": "twin_hound",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "2a3297215c6e0257891d60d677038e79103e4266275c1e33b24b8b9df68ce3ad",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/twin_hound_hurt.webp",
+      "group": "twin_hound",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0387abc8ac37034c67f28c6e49110e1f0a1f9a326740fe0aa105c66d3673db51",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/twin_hound_idle.webp",
+      "group": "twin_hound",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "cb9431fe76be99fb36fc2683e03075d78bae284a9c587a307151a7060a1195df",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/vacuum_attack.webp",
+      "group": "vacuum",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "8872033c9e11074d448725e5f566fb20e6c3bd5e382dc1d3f22545c678251b38",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/vacuum_block.webp",
+      "group": "vacuum",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "b9cdc7b62a51aaf7d068b531ce30464edb524703097f388e5f5dd85dd1b89267",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/vacuum_hurt.webp",
+      "group": "vacuum",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "00e4c16f5bbbfe273f2f0464491550452475e0d61cd24b8fb9c9474b94714112",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/vacuum_idle.webp",
+      "group": "vacuum",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "643802c947b30b43002b5b93d69ec94bb9660b38b9b0cb19b7a102bdbe7a34de",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/void_cat_attack.webp",
+      "group": "void_cat",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "33c5aeb58c0770ecd25080ef3fb932d055b444cab2c2c32f7ab6a7e68c2a9526",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/void_cat_block.webp",
+      "group": "void_cat",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "ec4ba356369589b18030b3b4a9e12c09b18087433bc10b433e05c397de442f9d",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/void_cat_down.webp",
+      "group": "void_cat",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "52067405abe8b27e7f57096097cfec11b207aeeaa37f9bb2b6bb3c5cbebfb100",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/void_cat_hurt.webp",
+      "group": "void_cat",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0b056ff10dbea2377954b19f7cdd3369964aec958ba2988653db7f345bf137f1",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/void_cat_idle.webp",
+      "group": "void_cat",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "db5f696250cd4c46548efa6be303dbfb1418f967e968fa4226ab74346cf0e757",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/white_duelist_attack.webp",
+      "group": "white_duelist",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "756a436e7b83447de0a72da7b3f35344d74f42ffabad2f8b947eaf6e29293826",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/white_duelist_block.webp",
+      "group": "white_duelist",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "241d73bd5d9b4c945a6fd08a3b39f68fdb129766ca547cfdafae7cd04c13ad67",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/white_duelist_hurt.webp",
+      "group": "white_duelist",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "dce175cdbb9db3f45f888b7897f5ae9ff19afd9058fa36fecb8a3d8763f65b0f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/white_duelist_idle.webp",
+      "group": "white_duelist",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "5b3b424507aea7df33c597edc28b146fb6cf75259da11137955854cfcce1e1e3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wild_boar_attack.webp",
+      "group": "wild_boar",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "42982717705abb4304ea3ec061a685857e06b6f87c9823d1b6ff65a0d3f16866",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wild_boar_block.webp",
+      "group": "wild_boar",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "73a78c6472b90571ca8f64411234517541b8e458b1628c7f794ed4d87e02f255",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wild_boar_down.webp",
+      "group": "wild_boar",
+      "pose": "down",
+      "facing": "lying",
+      "reason": "down pose; direction not assessed",
+      "sha256": "18ff3c34927884d3440866b79820a686ea7c16c91f5f09dc07c125b4f28765a8",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wild_boar_hurt.webp",
+      "group": "wild_boar",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "84b7ade52245205c0e13f32ad26eb6d49280b7472f1e2e13a3ae279d1af6b7de",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wild_boar_idle.webp",
+      "group": "wild_boar",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "78530abd95e2ca209c0331193dc301d9af9637ff680b06781d1d290ece4d9db3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/windchime_sprite_attack.webp",
+      "group": "windchime_sprite",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "d7c9d4310bd37ebd3cac6365251ffb0763b1a7818bae794268bdd4de1833fb01",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/windchime_sprite_block.webp",
+      "group": "windchime_sprite",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "c73a3dac570058df64053fdbb7a00b5c2b7b9c03411bcd9373762a108e195abc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/windchime_sprite_hurt.webp",
+      "group": "windchime_sprite",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "44f8f6363048f335b365153f83c1e76699eb4dd5f140cad4193139765e294e92",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/windchime_sprite_idle.webp",
+      "group": "windchime_sprite",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "b52d3c4275819cdda97e8e9c582c28fc86b0d9766779294af65a721774719a51",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wood_dummy_attack.webp",
+      "group": "wood_dummy",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "56abdb2683f579b47419163bb2bd3256213a3e017e2bb2defd58fcb47e4b1f91",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wood_dummy_block.webp",
+      "group": "wood_dummy",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "572785ea69a31542a103717876142234571b0853173f70161b5c675f2b565f2a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wood_dummy_hurt.webp",
+      "group": "wood_dummy",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "fb811400a915d83e4f4785e0b44c93582bfa108a52f0eba8ca753c6c0cb60472",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wood_dummy_idle.webp",
+      "group": "wood_dummy",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "6c8919c2942f0264e31e31b94008a2cc01f010b97cb0773d0dcc8ec872b72049",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wraith_samurai_attack.webp",
+      "group": "wraith_samurai",
+      "pose": "attack",
+      "facing": "front",
+      "reason": "",
+      "sha256": "596ef8d43a6749803af88eaf45f48a0531b19eef62f2ca26d5c302d33ef9ff93",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wraith_samurai_block.webp",
+      "group": "wraith_samurai",
+      "pose": "block",
+      "facing": "front",
+      "reason": "",
+      "sha256": "c2ae034a8495f0d60087fcf2067e0e0f3dce23971f87aac697c62b0ac67b573b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wraith_samurai_hurt.webp",
+      "group": "wraith_samurai",
+      "pose": "hurt",
+      "facing": "front",
+      "reason": "",
+      "sha256": "2ac5f79d0bc0d829384092aa8b3fed75d85efa427663bbecbd2cdf013c2fadc3",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/wraith_samurai_idle.webp",
+      "group": "wraith_samurai",
+      "pose": "idle",
+      "facing": "front",
+      "reason": "",
+      "sha256": "bf538792835b6df2327eed58194f5ddee97fa0a9a86d6e50fbf2838617e64cfc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/yarn_ball_attack.webp",
+      "group": "yarn_ball",
+      "pose": "attack",
+      "facing": "left",
+      "reason": "",
+      "sha256": "a625fbb81160cb60e37512d08ccf6a350a5efb57fa1c8759451652f29458b257",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/yarn_ball_block.webp",
+      "group": "yarn_ball",
+      "pose": "block",
+      "facing": "left",
+      "reason": "",
+      "sha256": "9d31256b007f64aacd869d9b436bfc4b70dc1f9a5b70dc4a8de7dffaf12b3e92",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/yarn_ball_hurt.webp",
+      "group": "yarn_ball",
+      "pose": "hurt",
+      "facing": "left",
+      "reason": "",
+      "sha256": "0c5e48cb75e674f199204303dd0a6ef6e56476573a3df51e8379a80c3a35add7",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/monsters/yarn_ball_idle.webp",
+      "group": "yarn_ball",
+      "pose": "idle",
+      "facing": "left",
+      "reason": "",
+      "sha256": "72ac59bfa4a8315de3b7fdad275a376723db878f492b5e946c2e921339d44f2b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/idle1.webp",
+      "group": "tower_master",
+      "pose": "idle1",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "508beaae36c58945b1882e23d47af1da3c6f7561f45e90b165543cabe510db87",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/idle2.webp",
+      "group": "tower_master",
+      "pose": "idle2",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "5fd9b359e29d162adf63c25b41059282f8aa23a82acb88a466aad1a07606265c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/idle3.webp",
+      "group": "tower_master",
+      "pose": "idle3",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "d1eeb8397085e00aa2eaa8880510777d78df9b0fabcfd31f8bb4a85ade62b30f",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/defeat.webp",
+      "group": "tower_master",
+      "pose": "defeat",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "35e206e8669147fb189a87e5a1d3c7d9ac11a96a2a205b14a44a629520526a4a",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/defeat3.webp",
+      "group": "tower_master",
+      "pose": "defeat3",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "3625cea78b348093c5cd033dedae914dd1e3c723e53c1f631145ae3a6897cc36",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/headbutt.webp",
+      "group": "tower_master",
+      "pose": "headbutt",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "80f33d1c860db1b20ed1095e7412d8bfb6376e039bf8d1ca5a1442434a6e8f88",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/guard.webp",
+      "group": "tower_master",
+      "pose": "guard",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "5cd261531a686070df08192c8eef6b015d843a584d68bd51f7dc9304de7eeb79",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/roar.webp",
+      "group": "tower_master",
+      "pose": "roar",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "a327f46f1a72c7b717df3c1e5d1d9558e21421c7f686687966126df22ca7f874",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/drunk.webp",
+      "group": "tower_master",
+      "pose": "drunk",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "2b81f9973ab398573be7b7bca8909178adfdc6e2a30a18175c68faf5208c0356",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/palm.webp",
+      "group": "tower_master",
+      "pose": "palm",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "976ff8a9f87ab5312fe050af81b680e76529f6ec4b3bb39bca0d3e1177f31586",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/seclude.webp",
+      "group": "tower_master",
+      "pose": "seclude",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "ad14f2c65e02731a95514636ac682cfcbff0c17b796e094c619786cd874fbc3b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/hurt1.webp",
+      "group": "tower_master",
+      "pose": "hurt1",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "2c53b0662d8bcfad2eb5e3c4fda93f4bd0ac6e19cc73adf5db2c342a730f7bff",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/hurt2.webp",
+      "group": "tower_master",
+      "pose": "hurt2",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "c9a53f36141dcfdbdaa0e19207e53e0c7d13d58462ec633e9b82438f7aec8275",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/hurt3.webp",
+      "group": "tower_master",
+      "pose": "hurt3",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "fbf11d1a5a9cddb30b11ce83e6a3dc35b09f694022abbf76aceff4c537e25e24",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/palm2.webp",
+      "group": "tower_master",
+      "pose": "palm2",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "f2da7dfc880e05153fef6e97836fa6e78bf874a74a6c8d5c7baf75e8d799b906",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/drunk2.webp",
+      "group": "tower_master",
+      "pose": "drunk2",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "17cbfc38de30ddf7b35e8a12c183e477595b1bdd169e1ef7dd2150f06887adcc",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/guard2.webp",
+      "group": "tower_master",
+      "pose": "guard2",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "cf12b026fdedae842c37966b72eb2c02a0ea1ad37478bd6a353c78b87b181602",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/headbutt2.webp",
+      "group": "tower_master",
+      "pose": "headbutt2",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "47a3a8bb9f2d9cf990afa8e47dbafaedcbf87cd7ce4030d04da628d2dcade42b",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/roar2.webp",
+      "group": "tower_master",
+      "pose": "roar2",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "1562bc3cb7e0c0eb95e0fbd5c00850e53c98753803cabd0ea2d5a62a9c46be75",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/headbutt3.webp",
+      "group": "tower_master",
+      "pose": "headbutt3",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "75190d474425155b3d395f5221a2881bf57d2e49c6051e12ec54f6e653a61a9c",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/palm3.webp",
+      "group": "tower_master",
+      "pose": "palm3",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "2605d841b2263897ef049ce7dea7d107ef01e96631d27df6b2014437a37160a4",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/guard3.webp",
+      "group": "tower_master",
+      "pose": "guard3",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "49aa604b55f92c1702650cf37063a4cdcd52cef332fe5281ba50a8a039ad7d09",
+      "displayMirror": false
+    },
+    {
+      "file": "assets/sprites/boss/drunk3.webp",
+      "group": "tower_master",
+      "pose": "drunk3",
+      "facing": "left",
+      "reason": "?????????????????????????????",
+      "sha256": "bbf97d7cdbb3b1520bd97647bbd23971aa5405817a269b9cc7c2d738ca6d9697",
+      "displayMirror": false
+    }
+  ],
+  "motionTextures": [
+    {
+      "file": "assets/motion/enemies/ninja-air.webp",
+      "sha256": "83a6b46fd507c4e11e557c5744671b522c9ac6aada2d33c8080c1c2000a5693c"
+    },
+    {
+      "file": "assets/motion/enemies/ninja-ground.webp",
+      "sha256": "a204339f85fd3fef8495df8d0c50dd7f547d7c20a245991d5a523f8576e21478"
+    },
+    {
+      "file": "assets/motion/enemies/rat-air.webp",
+      "sha256": "719cffe5239dea49e67fdc2163be43a68c8234bd8eb20d35d6465804e67aba36"
+    },
+    {
+      "file": "assets/motion/enemies/rat-attack.webp",
+      "sha256": "6bcf53f4e93db95123c475fc3e092c70a3d90bfb2893ca7ee30da3a2696cd407"
+    },
+    {
+      "file": "assets/motion/enemies/rat-base.webp",
+      "sha256": "2acc365741808500a387e400123a0e9fe6e091123d3a80ceb6d2b108c094f4fc"
+    }
+  ],
+  "motionActions": [
+    {
+      "kind": "rat",
+      "action": "idle",
+      "frames": 1,
+      "displayMirror": false
+    },
+    {
+      "kind": "rat",
+      "action": "attack",
+      "frames": 8,
+      "displayMirror": true
+    },
+    {
+      "kind": "rat",
+      "action": "hurt",
+      "frames": 5,
+      "displayMirror": false
+    },
+    {
+      "kind": "rat",
+      "action": "air_rise",
+      "frames": 2,
+      "displayMirror": true
+    },
+    {
+      "kind": "rat",
+      "action": "air_fall",
+      "frames": 2,
+      "displayMirror": true
+    },
+    {
+      "kind": "rat",
+      "action": "knockdown",
+      "frames": 2,
+      "displayMirror": true
+    },
+    {
+      "kind": "rat",
+      "action": "getup",
+      "frames": 2,
+      "displayMirror": true
+    },
+    {
+      "kind": "ninja",
+      "action": "idle",
+      "frames": 1,
+      "displayMirror": true
+    },
+    {
+      "kind": "ninja",
+      "action": "attack",
+      "frames": 4,
+      "displayMirror": true
+    },
+    {
+      "kind": "ninja",
+      "action": "hurt",
+      "frames": 4,
+      "displayMirror": true
+    },
+    {
+      "kind": "ninja",
+      "action": "air_rise",
+      "frames": 2,
+      "displayMirror": true
+    },
+    {
+      "kind": "ninja",
+      "action": "air_fall",
+      "frames": 2,
+      "displayMirror": true
+    },
+    {
+      "kind": "ninja",
+      "action": "knockdown",
+      "frames": 2,
+      "displayMirror": true
+    },
+    {
+      "kind": "ninja",
+      "action": "getup",
+      "frames": 2,
+      "displayMirror": true
+    }
+  ]
+}

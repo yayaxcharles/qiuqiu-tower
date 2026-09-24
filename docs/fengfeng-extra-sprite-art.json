@@ -1,0 +1,67 @@
+[
+  {
+    "key": "codex/monster_shadow_fengfeng",
+    "path": "assets/monsters/shadow_fengfeng_idle.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/shadow.png",
+    "size": [
+      460,
+      460
+    ],
+    "sha256": "2f469a448021acc91471e353824946e5a18f3a5991e6d9506bcd780072f2831d",
+    "pose": "idle"
+  },
+  {
+    "key": "codex/monster_shadow_fengfeng",
+    "path": "assets/monsters/shadow_fengfeng_attack.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/shadow.png",
+    "size": [
+      460,
+      460
+    ],
+    "sha256": "af7d9a1f90dc440947b61faa32f0d760d06cbf647d6a9018dce85a4a669283c3",
+    "pose": "attack"
+  },
+  {
+    "key": "codex/monster_shadow_fengfeng",
+    "path": "assets/monsters/shadow_fengfeng_hurt.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/shadow.png",
+    "size": [
+      460,
+      460
+    ],
+    "sha256": "ece3869e6f7c31029779df6f7277faf3a711cb3f570109e245c19ab55153eab9",
+    "pose": "hurt"
+  },
+  {
+    "key": "codex/monster_shadow_fengfeng",
+    "path": "assets/monsters/shadow_fengfeng_block.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/shadow.png",
+    "size": [
+      460,
+      460
+    ],
+    "sha256": "997116112c12d0ea870aef5267bb1f09d65b0acb40f6fda537e51e727137c8b4",
+    "pose": "block"
+  },
+  {
+    "key": "codex/monster_shadow_fengfeng",
+    "path": "assets/monsters/shadow_fengfeng_down.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/shadow.png",
+    "size": [
+      460,
+      460
+    ],
+    "sha256": "d789233adfd8baaa9de23cb1fe316b8d5fc7b63a74bfb3071094dcab259371d8",
+    "pose": "down"
+  },
+  {
+    "key": "codex/relic_old_sword_tassel",
+    "path": "assets/icons/relic_old_sword_tassel.webp",
+    "source": "tools/motion-art-source/fengfeng-extra/relic.png",
+    "size": [
+      128,
+      128
+    ],
+    "sha256": "a867be0f76cd1aea42d5adeeebe51243ba71d208c7f39058b7b4fef469914c5d"
+  }
+]

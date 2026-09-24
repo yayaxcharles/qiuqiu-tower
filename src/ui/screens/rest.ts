@@ -1,27 +1,55 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
-import { dialogue, pick, storyFor } from '../../content/dialogue';
-import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, napHeal, rest, revivePartner } from '../../engine/run';
+import { dialogue, napLinesFor, pick, storyFor } from '../../content/dialogue';
+import { MIASMA_PURE, relicById } from '../../content/relics';
+import { PURIFY_NARRATION, PURIFY_REST_LABEL, purifyLine, purifyRestSub } from '../../content/purify-text';
+import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, miasmaRelicsOf, napHeal, rest, restCardChoices, revivePartner, takeRestCard } from '../../engine/run';
+import { showPurifyPick } from '../purifypick';
 import type { RunAction } from '../../net/runaction';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
-import { artUrl, heroArtUrl } from '../assets';
+import { heroArtUrl } from '../assets';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { showUpgradeConfirm } from '../confirm';
 import { showDeckPicker } from '../deckview';
-import { heroSpeaker, toast } from '../dialogue';
+import { heroSpeaker, notice, toast } from '../dialogue';
 import { el } from '../dom';
 import { burst } from '../fx';
 import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
+import { restRedrawOnMate, type RestPhase } from '../restphase';
 import { me } from '../../engine/runplayer';
-import { heroPronoun, sharpenVerb } from '../../engine/hero';
+import { heroName, heroPronoun, sharpenVerb } from '../../engine/hero';
 
-/** 蜷在貓窩旁的立繪（畫的是這一位自己的角色）；圖還沒生好就不放 */
-function heroPortrait(hero: string | undefined): string | undefined {
-  const url = heroArtUrl(hero, 'hero/ninja_curl');
+/**
+ * 貓窩畫面的立繪（畫的是這一位自己的角色）；圖還沒生好就不放。
+ *
+ * **做哪件事就換哪張**（2026-09-18）：本來三件事共用蜷在窩旁那張，
+ * 打盹、磨爪、扶同伴做完長得一模一樣，玩家看不出自己剛剛做了什麼。
+ * 沒生那張圖的角色由 `heroSpriteKey` 的三層退路自己退回去，不會破圖。
+ */
+function heroPortrait(hero: string | undefined, pose: 'curl' | 'nap' | 'sharpen' | 'helpup' | 'down' = 'curl'): string | undefined {
+  const url = heroArtUrl(hero, `hero/ninja_${pose}`);
   return url.startsWith('data:') ? undefined : url;
+}
+
+/**
+ * 同伴在同一個貓窩做了什麼，講給這一位聽（套用之後才叫：扶起來的血量、升級過的牌名都是新的）。
+ * 不是同伴的動作、或不是貓窩的動作回空字串。說明見畫面裡的 `mateDid`。
+ */
+export function restMateNote(run: RunState, seat: number, a: RunAction): string {
+  if (a.seat === seat) return '';
+  const mate = run.players[a.seat];
+  const who = heroName(mate);
+  if (a.t === 'revive') return a.w === seat ? `${who}把你扶起來了，你回到 ${me(run, seat).hp} 點生命。` : `${who}扶起了同伴。`;
+  if (a.t !== 'rest') return '';
+  if (a.c === '打盹') return `${who}在旁邊睡了一下。`;
+  if (a.c === '淨化') return `${who}點了一炷清心香，淨化了「${relicById[a.r ?? '']?.name ?? ''}」。`;   // 2026-09-23 第三批
+  const c = a.u === undefined ? undefined : me(run, a.seat).deck.find((x) => x.uid === a.u);
+  const nd = c ? cardById[c.cardId] : undefined;
+  const got = nd ? `「${cardNameFor(nd, mate?.hero)}」升級了` : '升級了一張牌';
+  return a.c === '全力準備' ? `${who}全力準備：${got}，小魚乾全換成了生命。` : `${who}去${sharpenVerb(mate?.hero)}了：${got}。`;
 }
 
 registerScreen('rest', (app, root) => {
@@ -58,9 +86,30 @@ registerScreen('rest', (app, root) => {
   const upgradable = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   let used = false;   // 一個貓窩只能做一件事
   let napped = 0;     // 打盹按下去那一刻算出來的回復量（動作繞回來才演得到）
+  // 回 0 點（滿血、或帶著不眠香爐）不要寫「回復 0 點生命」（2026-09-23）
+  const napLine = (n: number): string => (n > 0 ? `${heroSpeaker()}睡了一下，回復 ${n} 點生命。` : `${heroSpeaker()}躺了一下，但沒有回血。`);
+  /** 睡醒那句吐槽：帶著不眠香爐（打盹回 0）就換成「燻得睡不著」那一句（2026-09-23 主控裁決，台詞在 content/dialogue.ts） */
+  const napQuip = (): string => pick(napLinesFor(me(run, seat).hero,
+    napHeal(run, seat) === 0 && me(run, seat).relics.some((id) => relicById[id]?.hooks.restMultiplier === 0)));
+  /**
+   * 同伴剛在這個貓窩做了什麼（2026-09-22 連線盤點 問題 4）。
+   *
+   * 原本收到同伴的動作一律略過：被扶起來的那一位畫面從「躺著動不了」直接跳成一般選單，
+   * 沒有一句「球球把你扶起來了」，血量默默變了；兩個人明明在同一個貓窩，也只看得到自己。
+   * 還在挑的時候寫在對白框裡，自己早就做完、馬上要上樓的時候用公告講。
+   */
+  let mateDid = '';
+  /** 畫面現在停在哪（推前審查五 高-1）：同伴的動作套進來時照它決定重畫哪一頁（`restRedrawOnMate`） */
+  let phase: RestPhase = 'menu';
+  /**
+   * 夢枕的牌已經送出去了（推前審查五 高-2）：連線時要等動作繞回來才換畫面，這段空檔再點一張，
+   * 原本會再送一筆 `restCard`，主機照樣發號碼、兩台套用都失敗，整場斷線。牌是 `div`，設 `disabled` 屬性擋不住點擊，要靠這個旗標
+   */
+  let pillowSent = false;
 
-  /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖 */
-  function afterAction(text: string, line: string, card?: CardInstance): void {
+  /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖。`pose` 是做完那件事的立繪（點清心香用蜷在窩旁那張 `curl`） */
+  function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' | 'curl' = 'nap'): void {
+    phase = 'after';
     clearKeepBg(root);
     renderHud(app, root);
     // 磨好的牌放大秀出來、打鐵發金光（本來只有一行字，使用者：「不太有回饋感」）
@@ -73,7 +122,7 @@ registerScreen('rest', (app, root) => {
       art = el('div', { class: 'showcase' }, host);
       window.setTimeout(() => burst(host, 'buff'), 60);
     }
-    root.append(sceneView({ art, portrait: heroPortrait(me(run, seat).hero), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
+    root.append(sceneView({ art, portrait: heroPortrait(me(run, seat).hero, pose), text: coop && !allDone() ? `${text}（等同伴弄完就一起上樓）` : text }));
     toast(line, heroSpeaker());
     // 連線版：兩個人都做完才走，先做完的那位在這裡等。**回地圖一律由 onRunApplied 那一邊排**（總稽核 B 中-2）：
     // 主機的動作是同步套用的，這支本來就是從 onRunApplied 裡被叫到的，這裡再排一次就是兩個計時器、地圖畫兩次
@@ -83,14 +132,58 @@ registerScreen('rest', (app, root) => {
     app.disposers.push(() => window.clearTimeout(back));
   }
 
+  /** 點完清心香（2026-09-23 第三批）：旁白＋哪一件變成哪一件，換過的那一格圖示閃一下白金光（`.hud-relic.purified`） */
+  function afterPurify(id: string): void {
+    const pure = MIASMA_PURE[id] ?? '';
+    afterAction(`${PURIFY_NARRATION}「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]?.name ?? pure}」了。`, purifyLine(me(run, seat).hero), undefined, 'curl');
+    root.querySelector(`.hud-relic[data-relic="${pure}"]`)?.classList.add('purified');
+  }
+
+  /**
+   * 夢枕（2026-09-23 第三批）：睡完從三張裡挑一張（可以不拿）。三張是引擎照這一格算的（`restCardChoices`，兩台一樣），
+   * 挑好了單人當場收、連線送出去（`restCard`），套用之後才演「睡了一下」那一段。
+   * 同伴在我挑的時候做完事，重畫的是這一頁（不是選單），同伴做了什麼寫在下面（推前審查五 高-1）
+   */
+  function showPillow(heal: number): void {
+    phase = 'pillow';
+    const picks = restCardChoices(run, seat);
+    clearKeepBg(root);
+    renderHud(app, root);
+    const take = (id: string): void => {
+      if (pillowSent) return;   // 已經送出去一張（見 `pillowSent`）
+      pillowSent = true;   // 主機的動作在 `act()` 裡面就套用、畫面當場換掉，所以要先設
+      if (!act({ t: 'restCard', seat, id }, () => takeRestCard(run, id, seat))) { pillowSent = false; return; }
+      if (coop) { root.querySelectorAll('.reward-cards .card, .scene-actions .btn').forEach((b) => { b.classList.add('disabled'); b.setAttribute('disabled', 'disabled'); }); return; }
+      afterPillow(heal, id);
+    };
+    // 三張都是升級版（2026-09-24 b3int 主控裁決）：照＋版畫；已經送出去的（重畫時）一律按不動
+    const grid = el('div', { class: 'reward-cards' }, ...picks.map((c) => cardNode({ uid: -1, cardId: c.id, upgraded: true }, { onClick: () => take(c.id), disabled: pillowSent })));
+    const skip = el('button', { class: 'btn', onclick: () => take('') }, '都不要');
+    if (pillowSent) skip.setAttribute('disabled', 'disabled');
+    root.append(sceneView({ art: grid, portrait: heroPortrait(me(run, seat).hero, 'nap'), speaker: relicById['dream_pillow']?.name ?? '',
+      text: `${napLine(heal)}夢裡好像看見了幾招，${pillowSent ? '挑好了，等同伴弄完。' : '選一張帶走。'}`,
+      extra: mateDid ? [el('p', { class: 'event-note rest-mate' }, mateDid)] : [],
+      actions: [skip] }));
+  }
+  /** 夢枕挑完之後：演睡醒那一段（學到的那張牌秀出來） */
+  function afterPillow(heal: number, id: string): void {
+    const nd = id ? cardById[id] : undefined;
+    afterAction(`${napLine(heal)}${nd ? `學會了「${cardNameFor(nd, me(run, seat).hero)}＋」。` : ''}`, napQuip(), undefined, 'nap');
+  }
+
   function show(): void {
+    phase = 'menu';
     // 重畫前一定要先清（只留底圖）：`renderHud` 是直接 append，不先清會疊出第二條狀態列
     // 與第二個對白框（稽核 2026-09-11 中-6：對方先做完時看得到）
     clearKeepBg(root);
     renderHud(app, root);
     const finalRest = run.act >= 3 && run.floor === 44;   // 師父前一格：回滿（引擎 napHeal 同一條規則）
     const heal = healNow();   // 每次重畫都重算：被扶起來之後血量變了，寫死的數字會對不上
-    const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前睡飽：回復 ${heal} 點生命，補到全滿）` : `打盹（回復 ${heal} 點生命）`) : '打盹（生命已經滿了）');
+    // 回 0 不一定是滿血：帶著「打盹不再回血」的秘寶（不眠香爐，2026-09-23）時要講是誰害的，不然按鈕寫「生命已經滿了」是在騙人
+    const sleepless = me(run, seat).hp < me(run, seat).maxHp && napHeal(run, seat) === 0
+      ? me(run, seat).relics.map((id) => relicById[id]).find((d) => d?.hooks.restMultiplier === 0) : undefined;
+    const nap = el('button', { class: 'btn primary' }, heal > 0 ? (finalRest ? `打盹（上樓前睡飽：回復 ${heal} 點生命，補到全滿）` : `打盹（回復 ${heal} 點生命）`)
+      : sleepless ? `打盹（${sleepless.name}：睡了也不回血）` : '打盹（生命已經滿了）');
     nap.addEventListener('click', () => {
       if (used) return;
       napped = heal;   // 送出之前先記下來：連線要等動作繞回來才演，那時血已經回過了
@@ -98,9 +191,11 @@ registerScreen('rest', (app, root) => {
       used = true;
       if (coop) return;   // 連線的等動作繞回來才演（見 onRunApplied）
       play('heal');
+      // 夢枕（2026-09-23 第三批）：睡完先挑一張牌，挑完才演睡醒
+      if (restCardChoices(run, seat).length) { showPillow(heal); return; }
       // **用按下去之前算好的 `heal`**：`healNow()` 是「缺多少血」，回完血之後再算會變小，
       // 回到滿血時甚至會寫成「回復 0 點」（稽核 2026-09-12 中-3）
-      afterAction(`${heroSpeaker()}睡了一下，回復 ${heal} 點生命。`, pick(storyFor(me(run, seat).hero).restNapLines));
+      afterAction(napLine(heal), napQuip());
     });
 
     const verb = sharpenVerb(me(run, seat).hero);   // 她磨的是針，不是爪子
@@ -141,7 +236,7 @@ registerScreen('rest', (app, root) => {
               ? `「${name}」磨利了，變成「${name}＋」；${fish} 條小魚乾全吃了，回復 ${me(run, seat).hp - hpBefore} 點生命。`
               : `「${name}」磨利了，變成「${name}＋」。`;
             // 吐槽要用這一位自己的那份（夜間稽核 範圍外-1）：原本是球球的「爪子有點鈍了喵。」，菲菲磨針也這樣講
-            afterAction(line, pick(storyFor(me(run, seat).hero).restSharpenLines), c);
+            afterAction(line, pick(storyFor(me(run, seat).hero).restSharpenLines), c, 'sharpen');
           });
         },
       });
@@ -168,6 +263,27 @@ registerScreen('rest', (app, root) => {
      */
     const hurt = fallen();
     const actions = prep ? [nap, sharpen, prep] : [nap, sharpen];
+    /*
+     * 點一炷清心香（2026-09-23 第三批，design3 6-3）：身上有沾了魔氣的秘寶就出現（44F 也有），用掉這一格。
+     * 一件就直接淨化；兩件以上跳小視窗挑（可以按「先不要」回來選別的）。
+     */
+    const miasma = miasmaRelicsOf(run, seat);
+    if (miasma.length) {
+      const incense = el('button', { class: 'btn two-line' }, el('span', {}, PURIFY_REST_LABEL), el('span', { class: 'sub' }, purifyRestSub(verb)));
+      const go = (id: string | null): void => {
+        if (!id || used) return;
+        if (!act({ t: 'rest', seat, c: '淨化', r: id }, () => rest(run, '淨化', undefined, seat, id))) return;
+        used = true;
+        if (coop) return;   // 連線的等動作繞回來才演（見 onRunApplied）
+        play('relic');
+        afterPurify(id);
+      };
+      incense.addEventListener('click', () => {
+        if (used) return;
+        if (miasma.length === 1) go(miasma[0]!); else showPurifyPick(miasma, go, { cancellable: true });
+      });
+      actions.push(incense);
+    }
     if (coop && hurt >= 0 && hurt !== seat) {
       const back = Math.max(1, Math.floor((run.players[hurt]?.maxHp ?? 0) * REVIVE_RATIO));
       const lift = el('button', { class: 'btn two-line' },
@@ -191,7 +307,8 @@ registerScreen('rest', (app, root) => {
      */
     if (me(run, seat).down) {
       root.append(sceneView({
-        portrait: heroPortrait(me(run, seat).hero),
+        // 自己倒下等人扶：用倒地那張（早就畫好了），蜷在窩旁那張看起來像在睡覺
+        portrait: heroPortrait(me(run, seat).hero, 'down'),
         speaker: '貓窩',
                 text: `${heroSpeaker()}躺在貓窩旁邊動不了……得等同伴過來扶一把。`,
         actions: [],
@@ -204,6 +321,7 @@ registerScreen('rest', (app, root) => {
       portrait: heroPortrait(me(run, seat).hero),
       speaker: '貓窩',
       text: coop ? '貓窩暖暖的，一人只能挑一件事做。' : '貓窩暖暖的，只能挑一件事做。',
+      extra: mateDid ? [el('p', { class: 'event-note rest-mate' }, mateDid)] : [],
       actions,
     }));
   }
@@ -216,22 +334,34 @@ registerScreen('rest', (app, root) => {
     coop.onRunApplied((applied) => {
       let didMine = false;
       for (const one of applied) {
-        if (one.a.seat === seat && (one.a.t === 'rest' || one.a.t === 'revive')) didMine = true;
+        if (one.a.seat === seat && (one.a.t === 'rest' || one.a.t === 'revive' || one.a.t === 'restCard')) didMine = true;
         const a = one.a;
-        if (a.t === 'rest' || a.t === 'revive') done.add(a.seat);
-        if (a.seat !== seat) continue;
+        // 帶夢枕的人睡完還要挑一張牌（2026-09-23 第三批）：挑完（`restCard`）才算做完，不然同伴一做完就把他拖上樓
+        const pillowWait = a.t === 'rest' && a.c === '打盹' && restCardChoices(run, a.seat).length > 0;
+        if ((a.t === 'rest' && !pillowWait) || a.t === 'revive' || a.t === 'restCard') done.add(a.seat);
+        if (a.t === 'restCard') {
+          if (a.seat === seat) { play('heal'); afterPillow(napped, a.id); }
+          continue;
+        }
+        if (a.seat !== seat) {
+          mateDid = restMateNote(run, seat, a) || mateDid;
+          // 被扶起來的那一位：扶人的那位講的那句也讓這邊聽到（他那邊的吐槽泡泡只在他自己的畫面上）
+          if (a.t === 'revive' && a.w === seat) { play('heal'); toast(pick(storyFor(run.players[a.seat]?.hero).reviveLines), heroName(run.players[a.seat])); }
+          continue;
+        }
         // 連線這三條原本都拿球球那份吐槽、拍醒的同伴一律寫「牠」（連線稽核 中-4）：改成照座位的角色
         const mine = storyFor(me(run, seat).hero);
         // 救人另配台詞（2026-09-15 改寫稿附的提醒）：原本借用睡醒那組，扶人的一方會說出自己剛睡飽的話；台詞在 dialogue.ts（畫面層不能直接寫喵）
-        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines)); continue; }
+        if (a.t === 'revive') { play('heal'); afterAction(`${heroSpeaker()}把同伴拍醒了，${heroPronoun(run.players[a.w])}搖搖晃晃地站起來。`, pick(storyFor(me(run, seat).hero).reviveLines), undefined, 'helpup'); continue; }
         if (a.t !== 'rest') continue;
-        if (a.c === '打盹') { play('heal'); afterAction(`${heroSpeaker()}睡了一下，回復 ${napped} 點生命。`, pick(mine.restNapLines)); continue; }
+        if (a.c === '打盹') { play('heal'); if (restCardChoices(run, seat).length) showPillow(napped); else afterAction(napLine(napped), napQuip()); continue; }
+        if (a.c === '淨化') { play('relic'); afterPurify(a.r ?? ''); continue; }   // 點清心香（2026-09-23 第三批）
         play('upgrade');
         const pl = pendingLine;
         const line = pl && pl.choice === '全力準備'
           ? `「${pl.name}」磨利了，變成「${pl.name}＋」；${pl.fish} 條小魚乾全吃了，回復 ${me(run, seat).hp - pl.hpBefore} 點生命。`
           : `「${pl?.name ?? ''}」磨利了，變成「${pl?.name ?? ''}＋」。`;
-        afterAction(line, pick(mine.restSharpenLines), pendingCard ?? undefined);
+        afterAction(line, pick(mine.restSharpenLines), pendingCard ?? undefined, 'sharpen');
       }
       /*
        * **不能用 `used` 判斷要不要重畫**（實測撞到的坑）：主機的動作是同步套用的，
@@ -242,12 +372,17 @@ registerScreen('rest', (app, root) => {
       // 兩個人都做完就回地圖；跟單機那條一樣換畫面就撤掉（總稽核 B 中-2）。
       // 磨過牌的多停一下（900／1500 毫秒），讓那張牌的特效先播完，跟單機同一個節奏
       if (allDone()) {
+        // 我早就做完在等：同伴那一下畫面上來不及寫進對白框（馬上要上樓），改用公告講
+        if (!didMine && mateDid) notice(mateDid);
         const back = window.setTimeout(() => app.backToMap(), didMine ? 900 : 700);
         app.disposers.push(() => window.clearTimeout(back));
         return;
       }
       if (didMine) return;
-      show();   // 還沒做的那位：對方扶了誰、按鈕要跟著變
+      // 還沒做的那位：選單重畫（對方扶了誰、按鈕要跟著變）；正在挑夢枕的牌就重畫挑牌那一頁，做完在等的不動（推前審查五 高-1）
+      const how = restRedrawOnMate(phase);
+      if (how === 'pillow') showPillow(napped);
+      else if (how === 'menu') show();
     });
   }
 

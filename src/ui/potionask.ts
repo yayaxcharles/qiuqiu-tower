@@ -19,6 +19,6 @@ export function shouldAskPotion(ask: PotionAsk | undefined): boolean {
 /** 收不下的那支忍具，那一列寫什麼 */
 export function missedPotionLabel(ask: PotionAsk | undefined, name: string): string {
   if (ask === 'swapped') return `換成了「${name}」`;
-  if (ask === 'declined') return `沒有換，「${name}」放棄了`;
+  if (ask === 'declined') return `沒有換，放棄了「${name}」`;
   return `忍具帶滿了，「${name}」收不下`;
 }

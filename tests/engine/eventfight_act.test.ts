@@ -10,8 +10,20 @@ import { applyRunEffects, newRun } from '../../src/engine/run';
  * 這裡釘住「第二三關會出現的事件，其對手都有 _a2／_a3 版本，而且一版比一版硬」。
  */
 describe('事件對手照關數變強', () => {
-  const fightIds = [...new Set(events.flatMap((e) => e.choices.flatMap((c) =>
-    c.outcome.flatMap((o) => (o.kind === 'fight' ? [o.encounterId] : [])))))];
+  // 只收**第二三關會出現**的事件（照上面那句說明）：只在第一關的事件（地窖裡的冬眠熊打第一關的強級熊，
+  // 劇本 design2 L3「第一關打強級的熊」，2026-09-23 內容擴充第二批）不會用到 _a2／_a3，不必補
+  // 打大魔物池的（`pool`，2026-09-23 第三批 睡著的大魔物）不在這裡：它打的就是這一關那一池，本來就照關數變
+  const fightIds = [...new Set(events.filter((e) => !e.acts || e.acts.some((a) => a >= 2)).flatMap((e) => e.choices.flatMap((c) =>
+    c.outcome.flatMap((o) => (o.kind === 'fight' && !o.pool ? [o.encounterId] : [])))))];
+
+  it('只在第一關的事件才可以打沒有 _a2／_a3 的對手（反過來守住上面那條篩選沒有把第二三關的事件篩掉）', () => {
+    const act1Only = events.filter((e) => e.acts && e.acts.every((a) => a === 1));
+    const bare = act1Only.flatMap((e) => e.choices.flatMap((c) => c.outcome.flatMap((o) =>
+      (o.kind === 'fight' && !encounterById[`${o.encounterId}_a2`] ? [o.encounterId] : []))));
+    expect(bare).toEqual(['hibernating_bear']);
+    expect(fightIds).toContain('shadow_duel');
+    expect(fightIds).toContain('wood_dummy');
+  });
 
   it('每個事件對手都有第二關與第三關的版本', () => {
     for (const id of fightIds) {

@@ -1,11 +1,13 @@
 import { cardById } from '../content/cards';
 import type { Hero } from './hero';
 import { eventById } from '../content/events';
-import { allReady, canPlay, endTurn, playCard, resolveChoice, usePotion } from './combat';
+import { allReady, canPlay, endTurn, playCard, potionBlockedReason, resolveChoice, usePotion } from './combat';
+import { choiceEffectsFor, visibleChoices } from './eventcond';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
 import { aliveEnemies } from './actions';
-import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight } from './run';
+import { ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyRemove, chooseNode, finishCombat, makeShop, newRun, openChest, removeCard, rest, rollActCards, rollActRelics, takeCardReward, closeCardReward, takeRelic, upgradeCard, type RunEffectOutcome, resolvePendingAfterFight, makeMerchant, openRoadsideBox } from './run';
+import { ambushOutcomes } from './qmark';
 import { potionById } from '../content/potions';
 import type { CombatState, RunState } from './types';
 import { me } from './runplayer';
@@ -23,10 +25,10 @@ export function playCombat(cs: CombatState, rng: Rng, maxTurns: number, seed = '
       continue;
     }
     const enemies = aliveEnemies(cs);
-    // 有使用條件的（起死回生丹要血低於三成）現在用不出來是**正常的**，先濾掉再抽
+    // 有使用條件的（起死回生丹要血低於三成、集中精神後的飯糰類）現在用不出來是**正常的**，先濾掉再抽
     const ready = cs.potions.filter((id) => {
-      const u = potionById[id]?.usable;
-      return !u || u.check(cs.player.hp, cs.player.maxHp);
+      const def = potionById[id];
+      return !def || potionBlockedReason(cs.player, def) === null;
     });
     if (ready.length > 0 && rng.chance(0.3)) {
       const pid = rng.pick(ready);
@@ -60,6 +62,7 @@ function handleOutcome(run: RunState, rng: Rng, outcome: RunEffectOutcome, maxTu
     if (cands.length) { const c = rng.pick(cands); outcome.needs === 'removeCard' ? removeCard(run, c.uid) : upgradeCard(run, c.uid); }
   } else if ('chooseCard' in outcome) {
     if (outcome.chooseCard.length) { const id = rng.pick(outcome.chooseCard).id; addCard(run, id, outcome.upgradedCard === id); }
+    if (outcome.then) handleOutcome(run, rng, outcome.then, maxTurns, seed);   // 學完再挑牌升級（2026-09-23 內容擴充第二批）
   } else if ('fight' in outcome) {
     run.pendingAfterFight = outcome.fight.afterWin;   // 事件附帶的獎勵：打贏才發（跟畫面同一條路，稽核 2026-09-04 中 2）
     const cs = beginCombat(run, outcome.fight.encounterId);
@@ -101,17 +104,23 @@ export function playRun(seed: string, opts: { maxTurnsPerCombat?: number; hero?:
         break;
       }
       case '事件': {
+        // 問號格變化（2026-09-23 內容擴充第三批）：亂打的也要走得過——伏擊隨便挑一條、行腳商一半機會買一張牌、路邊紙箱照開
+        if (node.variant === '伏擊') { handleOutcome(run, rng, applyRunEffects(run, rng.pick(ambushOutcomes(node))), maxTurns, seed); break; }
+        if (node.variant === '行腳商') { const shop = makeMerchant(run); if (shop.cards.length && rng.chance(0.5)) buyCard(run, shop, rng.int(0, shop.cards.length - 1)); break; }
+        if (node.variant === '路邊紙箱') { openRoadsideBox(run); break; }
         const ev = eventById[node.eventId!]!;
-        const options = ev.choices.filter((c) => (c.costFish ?? 0) <= me(run).fish);
-        const c = rng.pick(options.length ? options : ev.choices);
+        // 只從看得到的選項裡挑（條件選項沒達成就不在，2026-09-23 內容擴充第二批）
+        const shown = visibleChoices(run, ev).map((i) => ev.choices[i]!);
+        const options = shown.filter((c) => (c.costFish ?? 0) <= me(run).fish);
+        const c = rng.pick(options.length ? options : shown);
         me(run).fish = Math.max(0, me(run).fish - (c.costFish ?? 0));   // 買不起也硬選的話，小魚乾扣到 0 為止，不會變負的
-        handleOutcome(run, rng, applyRunEffects(run, c.outcome), maxTurns, seed);
+        handleOutcome(run, rng, applyRunEffects(run, choiceEffectsFor(c, 0)), maxTurns, seed);
         break;
       }
       case '罐頭鋪': {
         const shop = makeShop(run);
         for (let i = 0; i < shop.cards.length; i++) if (rng.chance(0.4)) buyCard(run, shop, i);
-        if (rng.chance(0.5) && me(run).deck.length > 0) buyRemove(run, rng.pick(me(run).deck).uid);
+        if (rng.chance(0.5) && me(run).deck.length > 0) buyRemove(run, rng.pick(me(run).deck).uid, 0, shop);   // 帶貨架：阿福那間半價（2026-09-23 第三批）
         break;
       }
       case '貓窩': {

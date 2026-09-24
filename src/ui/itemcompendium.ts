@@ -1,5 +1,6 @@
 import { potions } from '../content/potions';
-import { relics } from '../content/relics';
+import { MIASMA_PURE, relicById, relicLongText, relics, RELIC_SETS, setCount, setMembers } from '../content/relics';
+import type { RelicSet } from '../engine/types';
 import { artUrl } from './assets';
 import { el } from './dom';
 import { overlayRoot } from './overlay';
@@ -9,34 +10,65 @@ import { overlayRoot } from './overlay';
  * 疊層跟卡牌圖鑑同一套（`.compendium`），只是內容換成一列一件：圖、名字、價錢、效果。
  * 圖還沒生好的用名字前兩個字當牌子。
  */
-const RELIC_POOLS = ['起始', '常見', '大魔物', '塔主'] as const;
+// 罐頭鋪、事件是 2026-09-23 第二批的兩個限定池（美術 art2 報告：圖鑑原本沒有這兩區，那 6 件不會出現）
+const RELIC_POOLS = ['起始', '常見', '大魔物', '塔主', '罐頭鋪', '事件'] as const;
 const POOL_NOTE: Record<string, string> = {
   起始: '開局就戴著',
   常見: '紙箱、罐頭鋪、事件',
   大魔物: '打倒大魔物',
   塔主: '過關三選一',
+  罐頭鋪: '只擺在罐頭鋪最右邊的「店長私藏」（一半的店有）',
+  事件: '只從特定的事件拿得到',
 };
+/** 圖鑑裡的秘寶區名：限定池寫成「罐頭鋪限定」「事件限定」，不然「秘寶‧事件」讀起來像是事件本身 */
+const POOL_TITLE: Record<string, string> = { 罐頭鋪: '罐頭鋪限定', 事件: '事件限定' };
 
 function icon(art: string, name: string): HTMLElement {
   const url = artUrl('icons', art);
   return url.startsWith('data:') ? el('span', { class: 'item-icon-name' }, name.slice(0, 2)) : el('img', { class: 'item-icon', src: url, alt: name });
 }
 
-export function showItemCompendium(): void {
+/**
+ * 套組那一區（2026-09-23 第二批，事件劇本第八節）：三件並排，身上有的框金色（沒有的照常顯示圖，
+ * 原本畫全黑剪影、深色底上看不見，2026-09-24 改），標題寫集到幾件。
+ * `owned`＝這一局身上的秘寶（標題畫面拿存檔那一局的；沒有進行中的局就是空的，寫 0）。
+ */
+function setSection(owned: readonly string[]): HTMLElement[] {
+  const out: HTMLElement[] = [];
+  for (const set of Object.keys(RELIC_SETS) as RelicSet[]) {
+    const members = setMembers(set);
+    const got = setCount(set, owned);
+    out.push(el('div', { class: 'comp-section' },
+      el('span', { class: 'comp-pool' }, `${set}套組（集到 ${got}／${members.length}）`),
+      el('span', { class: 'comp-note' }, `${RELIC_SETS[set].text}${got >= RELIC_SETS[set].need ? '（已生效）' : ''}`)));
+    out.push(el('div', { class: 'item-set' }, ...members.map((r) => el('div', { class: `item-set-slot${owned.includes(r.id) ? ' owned' : ''}` },
+      icon(r.art, r.name), el('b', {}, r.name)))));
+  }
+  return out;
+}
+
+export function showItemCompendium(owned: readonly string[] = []): void {
   const layer = overlayRoot();
   if (!layer || layer.querySelector('.compendium')) return;
   const body = el('div', { class: 'comp-body' });
+  body.append(...setSection(owned));
   for (const pool of RELIC_POOLS) {
     const group = relics.filter((r) => r.pool === pool);
     if (!group.length) continue;
     body.append(el('div', { class: 'comp-section' },
-      el('span', { class: 'comp-pool' }, `秘寶‧${pool}（${group.length}）`),
+      el('span', { class: 'comp-pool' }, `秘寶‧${POOL_TITLE[pool] ?? pool}（${group.length}）`),
       el('span', { class: 'comp-note' }, POOL_NOTE[pool] ?? '')));
     const list = el('div', { class: 'item-grid' });
     for (const r of [...group].sort((a, b) => (a.price ?? 150) - (b.price ?? 150))) {
       list.append(el('div', { class: 'item-row' }, icon(r.art, r.name),
-        el('div', { class: 'item-text' }, el('b', {}, r.name), el('em', {}, r.text)),
+        el('div', { class: 'item-text' }, el('b', {}, r.name), el('em', {}, relicLongText(r, owned))),
         el('span', { class: 'item-price' }, `${r.price ?? 150} 條`)));
+      // 淨化版跟在原件下面一格（2026-09-23 第三批，design3 6-1）：`淨化` 池不自成一區、抽不到也買不到。
+      // `unseen` 只是記號，圖照常顯示（2026-09-24 拿掉全黑剪影，見 screens.css）
+      const pure = relicById[MIASMA_PURE[r.id] ?? ''];
+      if (pure) list.append(el('div', { class: `item-row pure${owned.includes(pure.id) ? '' : ' unseen'}` }, icon(pure.art, pure.name),
+        el('div', { class: 'item-text' }, el('b', {}, `${pure.name}（淨化後）`), el('em', {}, pure.text)),
+        el('span', { class: 'item-price' }, '淨化')));
     }
     body.append(list);
   }

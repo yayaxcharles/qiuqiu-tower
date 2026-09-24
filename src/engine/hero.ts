@@ -1,19 +1,27 @@
-import { cards } from '../content/cards';
+import { cards, grantsStrength, NO_STRENGTH_HEROES } from '../content/cards';
 import type { CardDef, RunPlayer } from './types';
 
 /**
- * 職業（2026-09-05 拍板）。同一隻球球的兩種打法，不是兩個角色。
+ * 職業（2026-09-05 拍板）。
  *
  * - `ninja`：現況。靠隱身與潛水閃掉傷害，蜷縮每回合重新賺、回合末歸零＝流動防禦。
- * - `samurai`：穿重甲。沒有任何閃避手段，改用「甲」硬吃——甲不歸零、被打永久扣，
- *   整場就那些，得規劃著用（見 `PlayerCombat.armour` 與 `damagePlayer` 的受傷順序）。
+ * - ~~`samurai`~~：武士球球（穿重甲、用「甲」硬吃）**2026-09-22 使用者裁定整套拆掉**：
+ *   他一直沒有自己的立繪與專屬牌、選角畫面也沒放。舊存檔裡的他讀回來當忍者球球（見 `save.ts` 的 `checkRun`）。
  * - `feifei`：**不是球球**，是球球的師妹、一隻暹羅貓（2026-09-12）。丟毒暗器，
  *   路數是**毒＋攻擊自帶蜷縮**：她的攻擊牌大多同時給幾點擋，不用在打與擋之間二選一，
  *   傷害低但毒會滾（原本設計過一套「距離」機制，2026-09-12 整個拆掉了）。
+ * - `dangdang`：**第三隻貓**（2026-09-17），黑白賓士、村口修東西的工匠，走硬碰硬的護衛路數。
+ *   **他跟大俠貓不是師徒**（2026-09-17 稽核 高-2：這裡本來寫「球球的師弟」，是錯的）。
+ *   球球喊「師父」、菲菲喊「師父」與「師兄」，他只喊「大俠貓」——村裡的鄰居。
+ *   他上塔的理由也不同：不是「把師父帶回家」，是「他村裡還有人等著」。
+ *   這一行是查角色設定最先讀到的地方，寫錯會被後面每一場會話沿用，所以特別註明。
+ *   路數是**蜷縮當彈藥**：蜷縮既是防禦也是攻擊的本錢，出招會把它消耗掉，
+ *   所以每一張牌都在問「現在要打還是要留」；另一條路是反彈——不被消耗，挨打才回敬。
+ *   刻意跟菲菲相反：她攻擊自帶蜷縮、不用選，他非選不可（見 `Effect` 的 `damageSpendBlock`）。
  *
  * 分流深度是**中分流**：大部分牌共用，各自有一批獨占牌（`CardDef.hero`）。
  */
-export type Hero = 'ninja' | 'samurai' | 'feifei';
+export type Hero = 'ninja' | 'feifei' | 'dangdang' | 'fengfeng';
 
 /**
  * 合法的職業清單。**存檔驗證要用這一份，不要在別的檔案再手寫一次**。
@@ -23,7 +31,7 @@ export type Hero = 'ninja' | 'samurai' | 'feifei';
  * 而且**存檔是真的被刪掉**（驗不過 → `checkRun` 回 null → `loadRun` 呼叫 `clearSave()`），
  * 回到標題就會發生。共用一份之後，加第四個角色不會再漏。
  */
-export const HEROES: readonly Hero[] = ['ninja', 'samurai', 'feifei'];
+export const HEROES: readonly Hero[] = ['ninja', 'feifei', 'dangdang', 'fengfeng'];
 
 /**
  * 這一位的職業。沒寫＝忍者。
@@ -38,11 +46,10 @@ export function heroOf(p: Pick<RunPlayer, 'hero'>): Hero {
 /**
  * 畫面上叫他什麼。
  *
- * 忍者與武士是**同一隻球球**的兩種打法，所以都叫「球球」；
- * 菲菲是另一隻貓（球球的師妹），名字必須不一樣——不然連線時兩格都寫「球球」，
+ * 菲菲是另一隻貓（球球的師妹），名字必須跟球球不一樣——不然連線時兩格都寫「球球」，
  * 玩家根本分不出哪一格是誰。
  */
-const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', samurai: '球球', feifei: '菲菲' };
+const HERO_NAME: Readonly<Record<Hero, string>> = { ninja: '球球', feifei: '菲菲', dangdang: '噹噹', fengfeng: '封封' };
 export function heroName(p: Pick<RunPlayer, 'hero'> | undefined): string {
   return HERO_NAME[heroOf(p ?? {})];
 }
@@ -69,15 +76,23 @@ export function unitName(p: { hero?: Hero } | undefined): string {
  * 但兩邊的 `hero` 欄位長一樣，這支兩種都吃得下。
  */
 export function heroPronoun(p: { hero?: Hero } | undefined): string {
-  return (p?.hero ?? 'ninja') === 'feifei' ? '她' : '他';
+  return HERO_PRONOUN[p?.hero ?? 'ninja'] ?? '他';
 }
+// 角色 → 值的表一律用 `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是 `if` 連鎖或三元式，
+// 沒列到的角色默默拿球球那一份；寫成表之後加第五隻貓漏了這一格，tsc 當場擋。這支原本只有菲菲回「她」，新的母貓會被叫「他」
+const HERO_PRONOUN: Readonly<Record<Hero, string>> = { ninja: '他', feifei: '她', dangdang: '他', fengfeng: '他' };
 
 /**
- * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽一張），菲菲是毒針袋（每回合開始給所有魔物 1 層中毒）。
+ * 這個職業的起始秘寶。球球是藍頭巾（第一回合多抽兩張；09-23 平衡從一張加到兩張），菲菲是毒針袋（每場戰鬥開始時給全體魔物 3 層中毒，之後不再長），
+ * 噹噹是銅護臂（開場 4 點蜷縮＋2 點反彈），封封是舊劍穗（開場 2 點蓄氣、每回合再 1 點）。效果以 `content/relics.ts` 為準。
+ *（毒針袋 09-13 曾改成每回合 1 層，09-16 使用者裁定改回開場一次給三層；這一行 09-23 才跟上，health H-6 第 1 條）
  */
 export function startRelicFor(hero: Hero): string {
-  return hero === 'feifei' ? 'backstep' : 'blue_headband';
+  return START_RELIC[hero] ?? START_RELIC.ninja;   // 退路照舊：不認得的值（壞存檔）拿藍頭巾
 }
+const START_RELIC: Readonly<Record<Hero, string>> = {
+  ninja: 'blue_headband', feifei: 'backstep', dangdang: 'copper_bracer', fengfeng: 'old_sword_tassel',
+};
 
 /**
  * 貓窩裡那個動作叫什麼（2026-09-12）。
@@ -87,8 +102,13 @@ export function startRelicFor(hero: Hero): string {
  *「磨利一點，扎得淺也能把藥送進去」對不起來。
  */
 export function sharpenVerb(hero: string | undefined): string {
-  return hero === 'feifei' ? '磨針' : '磨爪';
+  // 噹噹用的是銅護臂、不是爪子，而且他在貓窩講的話全是在喬站姿與接招
+  //（`dialogue.ts` 的 `restSharpenLines`），按鈕寫「磨爪」跟他講的話對不上（稽核 2026-09-17 中-9）。
+  // 寫成查表而不是再串一個三元式；表的鍵是 `Hero`，加第五隻貓漏了這一格 tsc 會擋（health H-2）。
+  // 參數收字串是因為畫面層傳的是 `localHero()`；不認得的值照舊寫「磨爪」
+  return SHARPEN_VERB[(hero ?? 'ninja') as Hero] ?? '磨爪';
 }
+const SHARPEN_VERB: Readonly<Record<Hero, string>> = { ninja: '磨爪', feifei: '磨針', dangdang: '調護臂', fengfeng: '磨劍' };
 
 /** 這個職業拿得到的牌：沒標 `hero` 的是共用，標了的只有那個職業拿得到。 */
 export function cardsForHero(hero: Hero): CardDef[] {
@@ -101,15 +121,24 @@ export function cardsForHero(hero: Hero): CardDef[] {
  * 抽成一支共用的判準是刻意的：同一條規則散在四個地方各寫一次，
  * 遲早會有人只改了三個（這一批的稽核就抓到過同型的問題）。
  *
- * 三道關卡：
+ * 五道關卡：
+ * - `起手`：起手十張的牌，四隻都不進池（見下）
  * - `combatOnly`：魔物塞牌用的雜牌（黏液、眼冒金星），任何池子都不進
  * - `hidden`：插圖還沒生好，圖到齊由生圖腳本拿掉旗標
- * - `hero`：職業獨占。不濾的話武士會開出隱身牌，但他整套機制裡根本沒有隱身
+ * - `hero`：職業獨占。不濾的話別的角色會開出球球的隱身牌
  * - `coop`：連線專用牌，**只有兩個人以上的局才進池**（使用者 2026-09-11 指定）
+ *
+ * 起手牌那一道（2026-09-23 health H-7，主控裁定收成一種寫法）：實際上四隻的起手牌本來就都開不到——
+ * 獎勵、罐頭鋪、事件抽牌時都指定「忍術」「絕學」「壞毛病」池。可是 09-20 封封進來時只替他在這裡擋
+ *（`c.hero === 'fengfeng' && …`），另外三隻靠抽牌時指定的池子擋，同一件事兩種寫法、各守一半，
+ * 測試還兩邊各釘一條。收成這一條、四隻一起擋：`Pool` 型別裡有「起手」，哪天有事件指定起手池，
+ * 也不會把球球的貓抓、淡定（沒標 `hero`，照職業那道會當成共用）發給別隻貓。
  */
 export function pickable(c: CardDef, hero: Hero, players = 1): boolean {
-  if (c.combatOnly || c.hidden) return false;
+  if (c.pool === '起手' || c.combatOnly || c.hidden) return false;
   if (c.hero && c.hero !== hero) return false;
   if (c.coop && players < 2) return false;
+  // 菲菲主打中毒，不拿加爪力的牌（2026-09-25 使用者裁定；判準與圖鑑共用，見 cards.ts 的 `grantsStrength`）
+  if (NO_STRENGTH_HEROES.includes(hero) && grantsStrength(c)) return false;
   return true;
 }

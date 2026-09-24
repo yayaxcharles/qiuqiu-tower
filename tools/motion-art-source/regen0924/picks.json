@@ -1,0 +1,29 @@
+{
+  "event_fengfeng_lost_medicine": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_lost_medicine.webp",
+    "bytes": 42414,
+    "droppedSpecks": 247,
+    "gate": [],
+    "sha256": "6f56c19f317e22d9424f2617313da4cfb0b4cf0e78473f538f11dbbf377be909",
+    "at": "2026-09-24 11:05:06"
+  },
+  "event_fengfeng_stuck_scabbard_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_stuck_scabbard_r0.webp",
+    "bytes": 36446,
+    "droppedSpecks": 149,
+    "gate": [],
+    "sha256": "55ba38da5e2721210374d25b24a5dbbaefcecba528cd39a003f89fef26c7d125",
+    "at": "2026-09-24 11:04:58"
+  },
+  "event_fengfeng_stuck_scabbard_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_stuck_scabbard_r1.webp",
+    "bytes": 36692,
+    "droppedSpecks": 194,
+    "gate": [],
+    "sha256": "d160b326d7470595d6869d3c699410adfa31b730c2656dc2bfb89311cde2d19f",
+    "at": "2026-09-24 11:05:02"
+  }
+}

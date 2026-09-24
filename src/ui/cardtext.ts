@@ -8,13 +8,25 @@ import type { CardDef, Effect, StatusName } from '../engine/types';
  * 後面再用逗號接「獲得 6 點蜷縮」會黏成一長串，看不出那 6 點是另一件事。
  */
 const CLAUSE_AFTER: ReadonlySet<Effect['kind']> = new Set(['scry', 'retainFromHand', 'damageEqualBlock']);
-const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst']);
+const CLAUSE_BEFORE: ReadonlySet<Effect['kind']> = new Set(['drawIfTargetStatus', 'noAttacksThisTurn', 'poisonBurst', 'blockBonus', 'poisonOnAttack', 'echoFirst',
+  'halfSpendBlock', 'blockWhenAttacked', 'thornsBonus', 'keepBlock', 'ifBlock', 'ifEnemyIntent',
+  // `ifSelfStatus`（2026-09-17 稽核 中-1）：在噹噹之前，用這種效果的牌兩邊都有內容，
+  // 「；否則」自己就把句子切開了；護臂格擋的 `otherwise` 是空的，切點跟著不見，
+  // 就變成「獲得 7 點蜷縮，自己身上有反彈的話，獲得 4 點蜷縮。」兩個逗號串成一句
+  'ifSelfStatus',
+  'blockOnThorns', 'thornsFromSpend', 'blockToThorns']);
 
 /** 效果落在同伴身上的那幾種：一個人玩的時候會算回自己身上（句尾統一補一句） */
 /** 效果可能包在 `ifSelfStatus` 的 `then`／`otherwise` 裡，要一路往下看（推前審查 高-2） */
 function hasAlly(fx: Effect): boolean {
   if (ALLY_KINDS.has(fx.kind)) return true;
   if (fx.kind === 'ifSelfStatus') return [...fx.then, ...fx.otherwise].some((f) => f && hasAlly(f));
+  if (fx.kind === 'blockSpendQi') return fx.recipient === 'ally';
+  if (fx.kind === 'nextAttackBonusSpendQi') return true;
+  // 條件本身就在看同伴（借我擋一下：一個人或同伴倒下時改看自己的蜷縮），
+  // 不能只看 `then` 裡有沒有同伴效果——`then` 是自己拿蓄氣，句尾那句就漏掉了（2026-09-23 稽核 引擎 低-4）
+  if (fx.kind === 'ifAllyBlockAtPlay') return true;
+  if (fx.kind === 'ifQiAtPlay' || fx.kind === 'ifSpentQiAtLeast') return fx.then.some(hasAlly);
   return false;
 }
 
@@ -26,7 +38,29 @@ const ALLY_KINDS = new Set<Effect['kind']>([
   //（改成看自己出牌／根本不轉），不是「算在自己身上」，各自的句子裡有交代
 ]);
 
-/** 一次性的狀態：牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」） */
+/**
+ * 魔物這回合要做什麼，寫成玩家看得懂的一句話（噹噹的見招拆招）。
+ * 用的字跟戰鬥畫面那排意圖圖示的說明一致，不然牌面講一套、圖示講另一套。
+ */
+const INTENT_TEXT: Readonly<Record<string, string>> = {
+  // 引擎是「**任何一隻**符合就算」，所以寫「有魔物」不寫「魔物」（審查 2026-09-17 低-6）
+  attack: '有魔物這回合要攻擊', block: '有魔物這回合要防禦', buff: '有魔物這回合要強化自己',
+  debuff: '有魔物這回合要對你下手', summon: '有魔物這回合要叫幫手', special: '有魔物這回合要出怪招',
+  idle: '有魔物這回合按兵不動',   // 引擎是 `some`（任何一隻符合就算），不能寫「都」（稽核 2026-09-17 低-3）
+};
+
+/** 條件句裡的「再」：「造成 6 點傷害；蜷縮大於 10 的話，**再**造成 6 點傷害」 */
+function again(s: string): string {
+  return /^(造成|獲得|抽|回復)/.test(s) ? `再${s}` : s;
+}
+
+/**
+ * 一次性的狀態：**只給 1 層時**牌面不寫層數（規格 §6.1 定身術、點穴手都只寫「給目標定身」）。
+ *
+ * 2026-09-17 加上「只給 1 層時」這個但書。原本一律不寫，於是菲菲的絆線升級之後
+ * 定身從 1 層變 2 層，牌面卻一個字都沒變——玩家磨了一張牌回來，完全看不出多了什麼。
+ * 規格那句話是對「都只給 1 層」的牌講的，2 層以上就不成立了。
+ */
 const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
 
 /**
@@ -36,6 +70,8 @@ const ONE_SHOT: ReadonlySet<StatusName> = new Set(['定身']);
  */
 export const STATUS_UNIT: Readonly<Record<string, string>> = {
   隱身: '層', 翻肚: '層', 懶洋洋: '層', 炸毛: '層', 中毒: '層',
+  // 定身本來不用量詞（只給 1 層時牌面不寫層數），2026-09-17 絆線升級寫出兩層之後才需要
+  定身: '層',
   爪力: '點', 貓步: '點', 反彈: '點',
 };
 
@@ -58,6 +94,7 @@ function namesAllFoes(fx: Effect | undefined): boolean {
 /** 這張牌有沒有動到魔物——有的話回復要寫成「你回復 N 生命」才分得清誰回血（規格 §6.1 以德服人） */
 const FOE_KINDS: ReadonlySet<Effect['kind']> = new Set(
   ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
+   'damageSpendBlock', 'damageByOwnStatus', 'damageSpendQi',
    'stealBlock', 'removeStatuses', 'transferDebuffs']);
 function touchesFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => FOE_KINDS.has(e.kind) || (e.kind === 'status' && e.target !== 'self'));
@@ -69,7 +106,8 @@ function touchesFoes(effects: readonly Effect[]): boolean {
  * 寫「也」會害玩家回頭去找那個根本不存在的前一下。
  */
 const HURT_KINDS: ReadonlySet<Effect['kind']> = new Set(
-  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus']);
+  ['damage', 'damageRamp', 'damageRandom', 'damageEqualBlock', 'damageByStatus', 'execByStatus',
+   'damageSpendBlock', 'damageByOwnStatus', 'damageSpendQi']);
 function hurtsFoes(effects: readonly Effect[]): boolean {
   return effects.some((e) => HURT_KINDS.has(e.kind));
 }
@@ -80,6 +118,12 @@ function sep(prev: Effect, next: Effect): string {
   // 連續兩條都打全體魔物：主詞只講一次，第二條用頓號接在後面（規格 §6.1 催眠術）
   if (namesAllFoes(prev) && namesAllFoes(next) && next.kind === 'status' && prev.kind === 'status') return '、';
   if ((next.kind === 'gold' || next.kind === 'energy' || next.kind === 'energyAlly') && next.onKill) return '；';
+  // 條件句後的抽牌獨立成句，避免看成也要符合前面的條件。
+  if (next.kind === 'drawAlly' && (prev.kind === 'ifSelfStatus' || (prev.kind === 'energyAlly' && prev.onKill))) return '。';
+  if (next.kind === 'blockIfPoisoned' && namesAllFoes(prev)) return '。';
+  // 「目標身上有中毒就抽 N 張牌」後面還有事（補一針、看準破綻＋再上毒，2026-09-25）：用逗號接會被讀成
+  // 「有毒才抽、也才上毒」，其實上毒是無條件的。用分號切開，跟前面「造成 N 點傷害；」那一刀對稱
+  if (prev.kind === 'drawIfTargetStatus') return '；';
   return CLAUSE_AFTER.has(prev.kind) || CLAUSE_BEFORE.has(next.kind) ? '；' : '，';
 }
 
@@ -109,6 +153,58 @@ interface Ctx {
  */
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
+    case 'gainQi': return `獲得 ${fx.n} 點蓄氣`;
+    case 'damageSpendQi': {
+      const spend = fx.allQi ? '用盡蓄氣' : `最多花 ${fx.maxQi ?? 0} 點蓄氣`;
+      const who = fx.target === 'all' ? '對全體魔物' : '';
+      const hits = (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
+      return `${spend}，${who}造成 ${fx.amount} 點傷害，每點蓄氣多 ${fx.perQi} 點${hits}`
+        + (fx.ignoreBlock ? '，無視蜷縮' : '');
+    }
+    case 'blockSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipient === 'ally' ? '同伴' : '自己'}獲得 ${fx.amount} 點蜷縮，每點蓄氣多 ${fx.perQi} 點`;
+    case 'nextAttackBonusSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipients === 'ally' ? '同伴' : '雙方'}本回合下一張攻擊牌的首段首目標多 ${fx.amount} 點傷害，每點蓄氣再多 ${fx.perQi} 點（取高不疊加）`;
+    // 門檻是「至少」（引擎 `>=`），條件成立才跑的那段接「再」——跟噹噹的 `ifBlock` 同一套（2026-09-23 稽核 引擎 低-3）：
+    // 原本印「獲得 8 點蜷縮，出牌前有 3 點蓄氣的話，獲得 3 點蜷縮」，像同一份拿兩次，「有 3 點」也會被讀成剛好 3 點。
+    // 借我擋一下（`ifAllyBlockAtPlay`）是同一型句子，一起補「再」
+    case 'ifQiAtPlay': return `出牌前有至少 ${fx.min} 點蓄氣的話，` + fx.then.map((e) => again(one(e, ctx))).join('，');
+    case 'ifSpentQiAtLeast': return `這張牌花了至少 ${fx.min} 點蓄氣的話，` + fx.then.map((e) => one(e, ctx)).join('，');
+    case 'ifAllyBlockAtPlay': return `同伴原有至少 ${fx.min} 點蜷縮的話，` + fx.then.map((e) => again(one(e, ctx))).join('，');
+    case 'preventEnergyGainThisPhase': return '這回合不能再獲得飯糰';
+    /*
+     * ===== 噹噹（2026-09-17）=====
+     *
+     * 措辭統一寫「**卸掉**蜷縮」而不是「消耗」：「消耗」在這個遊戲已經是關鍵字
+     *（打完就不見的那種牌），同一個詞當兩件事用，提示框會兩條都跳出來。
+     */
+    case 'damageSpendBlock': {
+      // 「卸掉身上的蜷縮」不寫「全部」：帶著銅牆鐵壁時只卸一半，寫「全部」跟實際對不上
+      const spend = fx.all ? '卸掉身上的蜷縮' : `最多卸掉 ${fx.max ?? 0} 點蜷縮`;
+      const n = ({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `;
+      const hit = (fx.mul ?? 1) > 1 ? `造成卸掉點數${n}倍的傷害` : '造成等量傷害';
+      const who = fx.target === 'all' ? hit.replace('造成', '對全體魔物造成') : hit;
+      const plus = fx.plusOwnStatus ? `，每有 1 點${fx.plusOwnStatus}再多打 1 點` : '';
+      // 保底那段寫在前面（卸力掌乙方案）：「造成 4 點傷害，最多卸掉 6 點蜷縮加上去」
+      if (fx.plus) return `造成 ${fx.plus} 點傷害，${spend}加上去${plus}` + (fx.ignoreBlock ? '，無視防禦' : '');
+      return `${spend}，${who}${plus}` + (fx.ignoreBlock ? '，無視防禦' : '');
+    }
+    case 'healSpendBlock': return `最多卸掉 ${fx.max} 點蜷縮，回復等量生命`;
+    case 'blockFromThorns': return '把你的反彈點數加到蜷縮上（反彈不會因此減少）';
+    case 'damageByOwnStatus': return (fx.mul ?? 1) > 1
+      ? `造成你${fx.name}點數${({ 2: '兩', 3: '三' } as Record<number, string>)[fx.mul!] ?? `${fx.mul} `}倍的傷害`
+      : `造成等同你${fx.name}點數的傷害`;
+    // 「身上有蜷縮」比「蜷縮不少於 1 點」好唸，只有門檻 1 這樣寫
+    // 條件成立才跑的那幾條接在前一句後面，動詞前補個「再」才不會唸成重複兩次
+    case 'ifBlock': return `${fx.min <= 1 ? '身上有蜷縮的話' : `蜷縮大於 ${fx.min - 1} 的話`}，`
+      + fx.then.map((e) => again(one(e, ctx))).join('，');
+    case 'ifEnemyIntent': return `${INTENT_TEXT[fx.intent]}的話，` + fx.then.map((e) => again(one(e, ctx))).join('，');
+    case 'keepBlock': return `這回合結束時最多保留 ${fx.n} 點蜷縮`;
+    case 'halfSpendBlock': return '之後卸掉蜷縮的牌只卸一半（不滿一點算一點，連卸光那種也是），打出去的力道不變';
+    case 'blockWhenAttacked': return `之後每次被魔物攻擊（擋下來也算），獲得 ${fx.n} 點蜷縮`;
+    case 'thornsBonus': return `之後反彈回敬時多打 ${fx.n} 點`;
+    case 'blockOnThorns': return `之後每次反彈回敬，獲得 ${fx.n} 點蜷縮`;
+    case 'thornsFromSpend': return `之後卸掉蜷縮打人時，獲得等同卸掉點數${fx.full ? '' : '一半'}的反彈`;
+    // 蜷縮回合末本來就歸零，這張把要被丟掉的那份存成不會消失的一半
+    case 'blockToThorns': return `這回合結束時，剩下的蜷縮每 ${fx.per} 點換成 ${fx.gain} 點反彈`;
     case 'damageScatter': return `對隨機魔物造成 ${fx.amount} 點傷害，打 ${fx.times} 次`;
     case 'skipEnemyTurn': return '魔物這回合不出手';
     // 倍率寫成「兩倍」不是「×2」：牌面其他地方都用中文，突然冒一個乘號很跳（2026-09-14）。
@@ -132,7 +228,9 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'poisonOnAttack': return `之後每打出一張攻擊牌，再給那個目標 ${fx.n} 層中毒`;
     // 幫隊友的三招（連線版 2026-09-11）。措辭刻意寫成「兩個人一起玩才看得出差別」，
     // 不寫成「給隊友」——單機也抽得到這些牌，說了做不到的事會讓玩家以為壞掉
-    case 'blockIfPoisoned': return `目標原本就中毒的話，獲得 ${fx.amount} 點蜷縮`;
+    case 'blockIfPoisoned': return namesAllFoes(ctx.prev)
+      ? `出牌前已有任一隻魔物中毒的話，自己獲得 ${fx.amount} 點蜷縮`
+      : `目標原本就中毒的話，獲得 ${fx.amount} 點蜷縮`;
     case 'blockAll': return `每個人各獲得 ${fx.amount} 點蜷縮`;
     case 'statusAlly': return `同伴獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '層'}${fx.name}`;
     case 'taunt': return '這一輪魔物全部衝著你來（攻擊、偷小魚乾、減益都算）';
@@ -156,17 +254,27 @@ function one(fx: Effect, ctx: Ctx = {}): string {
     case 'watchAllyPlay': return `之後每一輪，同伴第一次打出${fx.cardType === 'any' ? '牌' : '技能牌'}時，自己抽 1 張`
       + '（自己一個人時改成看自己出牌）';
     case 'watchSelfPlay': return `之後每一輪，自己第一次打出${fx.cardType === 'any' ? '牌' : '攻擊牌'}時，同伴獲得 6 點蜷縮`;
-    case 'watchPoisonHit': return `之後每一輪一次，${fx.who === 'both' ? '任一方打中' : '同伴的攻擊打中'}原本就中毒的魔物時，兩個人各獲得 4 點蜷縮`   // 升級版技能傷害也算，所以不寫「攻擊」（審查 2026-09-15 引擎 低-7）
+    case 'watchPoisonHit': return `之後每輪一次，${fx.who === 'both' ? '任一方讓' : '同伴用攻擊牌讓'}原本就中毒的魔物扣血時，兩人各獲得 4 點蜷縮`   // 升級版技能傷害也算，所以不寫「攻擊」（審查 2026-09-15 引擎 低-7）
       + '（自己一個人時自己出手也算，獲得 8 點）';
-    case 'poisonAllyNextAttack': return `同伴本輪下一張${fx.anyDamage ? '造成傷害的牌' : '攻擊牌'}，`
-      + `對每隻被打到的魔物各施加 ${fx.amount} 層中毒`;
+    case 'poisonAllyNextAttack': return `同伴本輪下一張讓魔物扣血的${fx.anyDamage ? '牌' : '攻擊牌'}，`
+      + `對牠們各施加 ${fx.amount} 層中毒`;
     case 'energyForAllyEachRound': return `之後每一輪開始時，同伴多 1 顆飯糰`
       + `${fx.draw ? '、並多抽 1 張' : ''}`;
     // `.map(one)` 不行：`map` 會把索引當成第二個參數塞進 `ctx`（型別檢查抓到的）
-    case 'ifSelfStatus': return `自己身上有${fx.name}的話，${fx.then.map((e) => one(e, ctx)).join('，')}`
-      + `；否則${fx.otherwise.map((e) => one(e, ctx)).join('，')}`;
+    /*
+     * **另一邊是空的就不要接「否則」**（2026-09-17 抓到）。
+     * 這條原本一律接「；否則」加上另一組的內容，而噹噹的護臂格擋沒有另一組，
+     * 印出來變成「……獲得 4 點蜷縮；**否則。**」——一句沒講完的話。
+     * 全牌池只有那一張中招，因為在那之前每一張用這個效果的牌兩邊都有東西。
+     */
+    case 'ifSelfStatus': {
+      const then = fx.then.map((e) => one(e, ctx)).join('，');
+      const other = fx.otherwise.map((e) => one(e, ctx)).join('，');
+      // 沒有「否則」的是加碼（護臂格擋：7 點之外再 4 點），寫「再」，不然唸起來像同一份拿兩次（2026-09-25 文字盤點）
+      return other ? `自己身上有${fx.name}的話，${then}；否則${other}` : `自己身上有${fx.name}的話，再${then}`;
+    }
     case 'energyAlly': return fx.onKill
-      ? `打倒牠，同伴就這回合多 ${fx.n} 顆飯糰`   // 審查 2026-09-15 高-1：原本沒寫條件，9 點打不死玩家以為牌壞了
+      ? `打倒牠，同伴這回合就多 ${fx.n} 顆飯糰`   // 審查 2026-09-15 高-1：原本沒寫條件，9 點打不死玩家以為牌壞了
       : `同伴這回合多 ${fx.n} 顆飯糰`;
     case 'damage': {
       // 前面剛「把目標的防禦全部搶過來」，這一下要接「再造成 N 點傷害」（規格 §6.1 交出來）
@@ -203,7 +311,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       }
       if (isDive(fx)) return `下回合開始時再獲得 ${fx.amount} 層隱身`;
       if (fx.name === '鐵布衫') return `下回合開始時再獲得 ${fx.amount} 點蜷縮`;
-      const oneShot = ONE_SHOT.has(fx.name);
+      const oneShot = ONE_SHOT.has(fx.name) && fx.amount <= 1;
       const body = oneShot ? fx.name : `${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`;
       const say = (head: string): string => (oneShot ? head + body : `${head} ${body}`);
       if (namesAllFoes(fx) && namesAllFoes(ctx.prev)) {
@@ -215,7 +323,12 @@ function one(fx: Effect, ctx: Ctx = {}): string {
         : fx.target === 'all' ? say('全體魔物獲得')
           : say('給目標');
     }
-    case 'removeStatuses': return fx.max === undefined
+    // 2026-09-23 內容擴充第二批的四個（今天只有忍具用，忍具的牌面是手寫的 `text`；這裡寫好是為了哪天有牌用到時不會漏）
+    case 'energyNextTurn': return `下回合開始時多 ${fx.n} 顆飯糰`;
+    case 'guardLethal': return '這場戰鬥接下來第一次會被打倒時，留下 1 點生命；這個魔物回合剩下的攻擊也打不死你（最低留 1 點）';
+    case 'transformFromHand': return '挑一張手牌，換成一張隨機的升級牌（只在這場戰鬥）';
+    case 'daze': return '目標這回合的攻擊改打牠旁邊的同伴（沒有同伴就打空）';
+    case 'removeStatuses': return fx.target === 'all' ? `拔掉全體魔物身上的${fx.names.join('、')}` : fx.max === undefined
       ? `移除目標的${fx.names.join('、')}${fx.removeBlock ? '與防禦' : ''}`
       : `移除目標最多 ${fx.max} 點${fx.names.join('、')}${fx.removeBlock ? `與 ${fx.max} 點防禦` : ''}`;
     case 'transferDebuffs': return `把你身上的${DEBUFFS.join('、')}全部丟到目標身上`;   // 照引擎的表，不手抄
@@ -241,9 +354,19 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       const inner = fx.effects.map((e) => one(e, { inPower: true })).join('，');
       // 只限本回合的能力一定要講出來，不然玩家會當成永久的（2026-09-04 起沒有牌用 `thisTurn`，保留給日後）
       const scope = fx.thisTurn ? '這回合內，' : '';
-      return fx.trigger === 'turnStart' ? `${scope}每回合開始時${inner}`
+      if (fx.trigger === 'afterCard') {
+        const condition = fx.minQiSpent ? `花至少 ${fx.minQiSpent} 點蓄氣的` : '';
+        return `${scope}${fx.oncePerTurn ? '每回合第一次' : '每次'}打出${condition}${fx.cardType ?? ''}牌後，${inner}`
+          + (fx.maxPerTurn !== undefined ? `（每回合最多 ${fx.maxPerTurn} 次）` : '')
+          + (fx.sameNameMax ? '（同名取高）' : '');
+      }
+      if (fx.trigger === 'passive') return inner;
+      // 「同名取高」每種觸發都要講（2026-09-23 稽核 引擎 低-2）：原本只有上面那一支有，
+      // 絕學·藏鋒（每回合開始時）第二張會變灰，牌面卻沒交代為什麼
+      return (fx.trigger === 'turnStart' ? `${scope}每回合開始時${inner}`
         : fx.trigger === 'onKill' ? `${scope}每打倒一隻魔物就${inner}`
-          : `${scope}回合結束時，如果這回合沒打過攻擊牌，${inner}`;
+          : `${scope}回合結束時，如果這回合沒打過攻擊牌，${inner}`)
+        + (fx.sameNameMax ? '（同名取高）' : '');
     }
   }
 }

@@ -1,6 +1,6 @@
 /* ===== 地圖畫面 ===== */
 /* 狀態列後面是捲軸看不到的地方，鋪深色免得透出舞台的米色 */
-#stage[data-screen="map"] { background-color: #14100c; }
+:is(#stage, .screen-leaving)[data-screen="map"] { background-color: #14100c; }
 /* 底圖沒生好時漸層撐著；有圖時行內樣式會蓋掉這裡的 background-image。
    這層放在捲軸內容裡，尺寸跟內容一樣高，所以跟著捲。 */
 .map-bg {
@@ -130,6 +130,7 @@
 .map-node.past { opacity: .3; filter: grayscale(.75) drop-shadow(0 0 2px rgba(0, 0, 0, .8)); }
 /* 打完的格子（足跡上）：比其他舊樓層清楚一點，右上角蓋一顆勾勾章＝「這格辦完了」 */
 .map-node.cleared { opacity: .72; filter: grayscale(.2) drop-shadow(0 0 3px rgba(255, 211, 92, .45)); }   /* .55→.72：打過的格子要看得出來（使用者 2026-09-06） */
+.map-node.rare img { filter: sepia(1) saturate(3) hue-rotate(-8deg) brightness(1.15) drop-shadow(0 0 6px #ffd35c); }   /* 走過的稀有事件：金色問號（2026-09-23 第三批） */
 .map-node.cleared::after {
   content: '✓';
   position: absolute;
@@ -241,3 +242,15 @@
   pointer-events: none;
 }
 .map-node.past .map-mod, .map-node.cleared .map-mod { display: none; }
+/* 變過的問號格（2026-09-23 第三批）：左上角一顆小問號，看得出「這格原本是問號格」（右上角是打過的勾勾） */
+.map-qv {
+  position: absolute; left: -4px; top: -4px; width: 20px; height: 20px; border-radius: 50%;
+  background: #f6e7c1; border: 2px solid #2b2118; color: #b0402a;
+  font: bold 13px/16px sans-serif; text-align: center; pointer-events: none;
+}
+/* 罐頭鋪的客座店主小頭像（2026-09-23 第三批 新J）：疊在圖示右下角，從招呼立繪裁頭（裁切在 map.ts 的 keeperHead 算，直徑 30 兩邊要一致） */
+.map-keeper {
+  position: absolute; right: -8px; bottom: -6px; width: 30px; height: 30px;
+  border: 2px solid #2b2118; border-radius: 50%; background-color: #f2dfb4; background-repeat: no-repeat;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .7); pointer-events: none;
+}

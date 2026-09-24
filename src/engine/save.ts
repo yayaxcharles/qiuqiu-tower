@@ -5,7 +5,10 @@ import { HEROES, type Hero } from './hero';
 import { relicById } from '../content/relics';
 import { MAX_DIFFICULTY, clampDifficulty } from '../content/difficulty';
 import { cardById } from '../content/cards';
+import { blessingById } from '../content/blessings';
+import { isKeeperId } from '../content/keepers';
 import { ACTS } from './run';
+import { QMARK_WEIGHTS } from './qmark';
 import type { CardInstance, RunPlayer, RunState } from './types';
 
 export interface KeyValueStore { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void }
@@ -32,7 +35,6 @@ const PREFIX = BASE_PATH || 'qiuqiu-tower';
 /** 匯出給測試用：測試寫死字串的話，這裡一改就會默默測到不存在的鍵 */
 export const RUN_KEY = `${PREFIX}/run`;
 export const BEST_KEY = `${PREFIX}/best`;
-const UNLOCK_KEY = `${PREFIX}/difficulty-unlocked`;
 const SELECT_KEY = `${PREFIX}/difficulty`;
 
 function memoryStore(): KeyValueStore {
@@ -126,7 +128,8 @@ function usableMap(map: unknown, currentNode: unknown): boolean {
 /** 第 1 版的存檔長相：每人一份的家當直接攤在最上層（那時只有一位玩家） */
 type RunV1 = Omit<RunState, 'version' | 'players'> & {
   version: 1;
-  hero?: 'ninja' | 'samurai';
+  /** 那時只有忍者與武士。武士 2026-09-22 拆掉了，`checkRun` 會把他換回忍者 */
+  hero?: string;
   hp: number; maxHp: number; fish: number;
   deck: CardInstance[]; relics: string[]; potions: string[];
   removeCost: number; restBlock?: number; rarePity?: number;
@@ -144,7 +147,7 @@ function migrateV1(old: Partial<RunV1>): Partial<RunState> {
     ...(rest as Partial<RunState>),
     version: 2,
     players: [{
-      ...(hero ? { hero } : {}),
+      ...(hero ? { hero: hero as RunPlayer['hero'] } : {}),
       hp: hp as number, maxHp: maxHp as number, fish: fish as number,
       deck: deck as CardInstance[], relics: relics as string[], potions: potions as string[],
       removeCost: removeCost as number,
@@ -160,12 +163,19 @@ function usablePlayer(p: Partial<RunPlayer> | undefined): boolean {
   if (!Array.isArray(p.deck) || !p.deck.every(knownCard)) return false;
   if (!Array.isArray(p.potions) || !Array.isArray(p.relics)) return false;
   if (!p.relics.every((id) => relicById[id]) || !p.potions.every((id) => potionById[id])) return false;
-  if (typeof p.hp !== 'number' || p.hp <= 0 || typeof p.maxHp !== 'number' || p.maxHp <= 0) return false;
+  if (typeof p.hp !== 'number' || typeof p.maxHp !== 'number' || p.maxHp <= 0) return false;
+  // 合作局戰後會把倒下席保存成 0 生命；只有這一種 0 合法，站立者仍須有正生命。
+  if (p.down === true ? p.hp !== 0 : p.hp <= 0) return false;
   if (p.hp > p.maxHp) return false;
   if (p.hero !== undefined && !HEROES.includes(p.hero as Hero)) return false;   // 清單在 engine/hero.ts，不要在這裡再寫一次（稽核 2026-09-12 高-1）
   if (!finiteNum(p.removeCost) || !finiteNum(p.fish) || (p.fish as number) < 0) return false;
   // uid 撞號會讓「放生這一張」放掉別張（`deck.find` 只找得到第一個）
   if (new Set(p.deck.map((c) => c.uid)).size !== p.deck.length) return false;
+  // 事件帶進下一場的東西（2026-09-23 內容擴充第二批）：可選、舊檔沒有；有的話每一筆都要有效果陣列，不然開打那一拍才炸
+  if (p.nextFight !== undefined && !(Array.isArray(p.nextFight)
+    && p.nextFight.every((x) => !!x && typeof x === 'object' && typeof x.note === 'string' && Array.isArray(x.effects)
+      // 連套幾場的剩幾場（護身符，2026-09-23 第三批）：可選，有的話要是正整數，不然開打那一拍減出負的就永遠拿不掉
+      && (x.left === undefined || (Number.isInteger(x.left) && x.left >= 1))))) return false;
   return true;
 }
 
@@ -177,10 +187,60 @@ export function checkRun(input: Partial<RunState>): RunState | null {
   const run: Partial<RunState> = ver === 1 ? migrateV1(input as unknown as Partial<RunV1>) : input;
   if (run.version !== 2 || !run.map || !run.rng) return null;
   if (!Array.isArray(run.players) || run.players.length < 1) return null;
+  /*
+   * 武士球球（`samurai`）與他的「甲」2026-09-22 整套拆掉了（使用者裁定）。舊存檔裡的他本來就是
+   * 同一隻球球換打法、起手牌也是球球那份，所以讀回來直接當忍者球球續玩，不判成壞檔。
+   * `armour` 只存在戰鬥中，照理不會進存檔；真的出現（手改的局面碼）也一律丟掉。
+   */
+  for (const p of run.players) {
+    if (!p || typeof p !== 'object') continue;
+    const old = p as { hero?: string; armour?: unknown };
+    if (old.hero === 'samurai') delete old.hero;
+    delete old.armour;
+  }
   // 每一位的家當各驗各的：兩個人一起玩的時候，壞掉的可能是任何一位
   if (!run.players.every((p) => usablePlayer(p))) return null;
+  /*
+   * 跨戰鬥的秘寶計數（木人樁、撲滿，2026-09-23 第二批）。舊存檔沒有這一欄＝全部從 0 算，不必升版本；
+   * 壞掉的（不是物件、值不是非負整數、代號不是秘寶）**只丟那幾格**，不整份判壞檔——
+   * 計數錯了頂多早一點或晚一點發動，為了它把整局進度清掉不划算。
+   */
+  for (const p of run.players) {
+    const c = p.counters as unknown;
+    if (c === undefined) continue;
+    if (!c || typeof c !== 'object' || Array.isArray(c)) { delete p.counters; continue; }
+    const rec = c as Record<string, unknown>;
+    for (const k of Object.keys(rec)) {
+      const v = rec[k];
+      if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || !Object.hasOwn(relicById, k)) delete rec[k];
+    }
+  }
+  /*
+   * 開局祝福（2026-09-23 第三批 新A）。舊存檔沒有這一欄＝不演、照舊續玩（進行中的舊局不補發）。
+   * 壞掉的（包袱不是四個認得的代號、拿的那樣不在包袱裡）**只丟這一欄**：頂多少演一次選祝福，不值得把整局判成壞檔
+   */
+  for (const p of run.players) {
+    const b = p.bless as unknown;
+    if (b === undefined) continue;
+    const o = b as { offer?: unknown; took?: unknown } | null;
+    const offer = o && typeof o === 'object' && Array.isArray(o.offer) ? o.offer as unknown[] : null;
+    const good = !!offer && offer.length === 4 && offer.every((id) => typeof id === 'string' && Object.hasOwn(blessingById, id))
+      && (o!.took === undefined || (typeof o!.took === 'string' && offer.includes(o!.took)));
+    if (!good) delete p.bless;
+  }
   // 地圖沒有節點陣列、或站在一個地圖上不存在的節點上，一樣當作不相容
   if (!usableMap(run.map, run.currentNode)) return null;
+  /*
+   * 問號格變化（2026-09-23 內容擴充第三批 新G）：舊存檔沒有 `qmark`＝0、格子沒有 `variant`＝原本那篇事件，不必升版本。
+   * 壞掉的**只丟那一欄**，不整份判壞檔（累積數錯了頂多早一點或晚一點變）；伏擊那一格要有遭遇，沒有就當原本的事件。
+   */
+  if (run.qmark !== undefined && !(typeof run.qmark === 'number' && Number.isInteger(run.qmark) && run.qmark >= 0)) delete run.qmark;
+  for (const n of run.map.nodes) {
+    if (n.variant === undefined) continue;
+    if (n.type !== '事件' || !QMARK_WEIGHTS.some(([v]) => v === n.variant) || (n.variant === '伏擊' && !n.encounterId)) delete n.variant;
+  }
+  // 罐頭鋪誰顧店（2026-09-23 第三批 新J）：舊存檔沒有＝橘貓老闆；認不得的值（手改的局面碼、之後拿掉的店主）只丟那一格、當橘貓老闆
+  for (const n of run.map.nodes) if ((n as { keeper?: unknown }).keeper !== undefined && !isKeeperId(n.keeper)) delete n.keeper;
   // 統計缺了會在畫狀態列時炸掉（2026-09-02 稽核 L-1）：一樣當作不相容
   if (!run.stats || typeof run.stats !== 'object') return null;
   // 遭遇、事件、秘寶、忍具的 id 對不上（內容改名、拆併之後帶舊檔）也當不相容。原本只驗牌：
@@ -259,7 +319,11 @@ export function loadBestFor(level: number): BestRecord | null {
     return b as BestRecord;
   } catch { return null; }
 }
-/** 解鎖到第幾級難度。2026-09-03 使用者拍板：五級預設全開，讓玩家自己選；通關紀錄仍照舊寫（UNLOCK_KEY），只是不再拿來鎖 */
+/**
+ * 解鎖到第幾級難度。2026-09-03 使用者拍板：五級預設全開，讓玩家自己選。
+ * 以前通關會寫一個「解鎖到第幾級」的鍵，全開之後那行的條件永遠不成立、從沒寫過，2026-09-23 拿掉（health H-7）。
+ * 舊版寫過的那個鍵（`/difficulty-unlocked`）留在玩家瀏覽器裡也沒人讀，不必清。
+ */
 export function unlockedDifficulty(): number {
   return MAX_DIFFICULTY;
 }
@@ -273,10 +337,9 @@ export function recordBest(run: RunState, date = new Date().toISOString().slice(
   const old = loadBest();
   const best = old && !better(cur, old) ? old : cur;
   write(BEST_KEY, JSON.stringify(best));
-  // 分難度再記一份；通關就解鎖下一級
+  // 分難度再記一份
   const level = clampDifficulty(run.difficulty ?? 1);
   const oldL = loadBestFor(level);
   write(`${BEST_KEY}/${level}`, JSON.stringify(oldL && !better(cur, oldL) ? oldL : cur));
-  if (cur.won && level < MAX_DIFFICULTY && unlockedDifficulty() <= level) write(UNLOCK_KEY, String(level + 1));
   return best;
 }

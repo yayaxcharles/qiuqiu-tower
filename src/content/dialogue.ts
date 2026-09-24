@@ -1,6 +1,15 @@
-import { FEIFEI_STARTER_DECK, STARTER_DECK, cardById } from './cards';
+import { cardById, starterDeckFor } from './cards';
+import { HEROES, heroName, type Hero } from '../engine/hero';
+import {
+  FENGFENG_BOSS_LINES,
+  FENGFENG_CAST_LINES,
+  fengfengCoopBossLines,
+  fengfengCoopScenes,
+  fengfengDialogue,
+  fengfengFirstMeet,
+} from './fengfeng-dialogue';
 export interface DialogueLine {
-  speaker: '球球' | '菲菲' | '塔主' | '旁白' | '黑貓忍者頭目';
+  speaker: '球球' | '菲菲' | '噹噹' | '封封' | '村貓' | '塔主' | '旁白' | '黑貓忍者頭目';
   text: string;
   /**
    * 通關幻燈片的切點：**這一句演完就換第二張圖**（2026-09-12 稽核 中-1）。
@@ -11,6 +20,11 @@ export interface DialogueLine {
    * 跟紀錄字串那個雷同一類：**字串是給人看的，不是給程式比對的**。
    */
   slideBreak?: true;
+  /**
+   * 結局的打法插句**接在這一句後面**（2026-09-23，封封的稿子寫「接 FG-V-03 後」）。
+   * 沒標的照舊插在師父那句之後（第三句）。跟 `slideBreak` 同一個道理：位置用標記，不用數第幾句。
+   */
+  narrationAfter?: true;
 }
 
 /** 球球台詞的句尾檢查：去掉結尾標點後最後一個字必須是「喵」 */
@@ -37,6 +51,127 @@ export const dialogue = {
     { speaker: '球球', text: '師父，你等等我喵！' },
     { speaker: '球球', text: '我要把師父帶回家，也要把村裡的小魚乾拿回來喵。' },
   ],
+  /**
+   * 每隻魔物第一次登場時**噹噹**的吐槽（2026-09-17）。
+   *
+   * 跟菲菲那份一樣是整份重寫、不是把「喵」拿掉。他看魔物的角度也跟另外兩位不同：
+   * 球球想的是「怎麼衝過去」，菲菲想的是「能不能靠近、要疊幾層毒」，
+   * 他想的是**這東西會不會砸到人、路會不會被堵住、我站的地方穩不穩**——
+   * 那是守村口的人留下來的習慣。
+   */
+  firstMeetDangdang: <Record<string, string>>{
+    white_duelist: '要切磋可以，先把路邊的東西挪開。',
+    wild_boar: '刨夠了？我可不會站著讓你撞。',
+    paper_tiger: '紙邊也能割傷手，不能直接抓。',
+    drum_tanuki: '敲得這麼急，你自己跟得上嗎？',
+    iron_arhat: '這層鐵皮敲下去，手都要麻了。',
+    shadow_spider: '絲別纏到扣帶上，等一下解不開。',
+    drunk_dog: '腳步都歪了，拳頭倒還挺準。',
+    oni_general: '原來是你在叫牠們。',
+    imp: '藏那麼遠，還扔得到？',
+    mirror_sage: '先別晃鏡子，我看得見你。',
+    mirror_shard: '碎片飛過來了，護住眼睛！',
+    void_cat: '牠的身子都透光了……打得到嗎？',
+    dango_slime: '剛才誰把會動的東西擺上盤子？',
+    dango_bit: '分開以後還會追人？',
+    armadillo_pup: '頭縮得真快。連腳都收進去了。',
+    lantern_moth: '下來一點。一直仰頭，脖子都痠了。',
+    hibernating_bear: '這麼大的熊，我可搬不動。',
+    puffer_spirit: '還在鼓？我再退兩步。',
+    plated_beetle: '這殼比護臂還厚。',
+    rat_general: '前面排得整整齊齊，後面還有人指揮。',
+    rat_guard: '槍尖別亂晃，眼睛差點被你戳到。',
+    curse_priest: '你嘴裡在唸什麼？聽了就不舒服。',
+    phantom_fox: '等一下，剛才牠還在那邊。',
+    red_oni: '握那麼緊，手指不會痛嗎？',
+    moon_moth_queen: '這些粉別沾到臉上。',
+    jizo_golem: '石頭手掌……這一下不能硬吃。',
+    frog_daimyo: '池子也是你的，樓梯也是你的？',
+    tadpole: '這些小兵連武器都快舉不住了。',
+    armadillo_king: '整條路都被殼堵住了。',
+    dragon_cat: '鼻子冒煙了。牠睡著也這麼燙？',
+    hex_abbot: '眼睛都紫了，您還認得人嗎？',
+    shiba_ronin: '刀先收回去，話還沒說完。',
+    shamisen_cat: '弦沒斷，我耳朵倒快受不了了。',
+    lantern_ghost: '燈籠也有舌頭？難怪一直漏風。',
+    windchime_sprite: '這聲音……靠這麼近，真受不了。',
+    tanuki_kid: '這麼小就出來攔路，誰叫你來的？',
+    geta_monster: '少了一隻還跳得這麼快？',
+    ink_cat: '墨還在滴。腳下全黑了。',
+    moon_rabbit: '你拿那把槌子，是來搗東西還是打架？',
+    owl_sentry: '頭轉到後面，身子不用跟著轉？',
+    paper_crane: '紙折得這麼薄，邊緣跟刀一樣利。',
+    miasma_blob: '裡面那張臉，是活的嗎？',
+    night_panther: '站在暗處，我差點撞上你。',
+    kasa_obake: '一條腿也站得這麼穩？',
+    kappa: '頭上的水快灑出來了。',
+    tofu_boy: '這味道不對，別再往我這邊遞了。',
+    tengu: '風把工具袋都掀開了！',
+    fox_miko: '你拿著符往我這邊走做什麼？',
+    armor_ghost: '空盔甲怎麼自己站起來了？',
+    shadow_cat: '這不是球球。他的影子不會自己跑。',
+    mirror_qiuqiu: '鏡子裡的影子走出來了。',
+    sparring_partner: '說好切磋，你也要上？',
+    orange_king: '那幾桶小魚乾，全被你搬來了？',
+    cowcat_boss: '站得高也不用把整條路擋住。',
+    tanuki_lord: '酒離我遠點，聞著都嗆。',
+    persian_lady: '來的人不少。到底是誰要跟我打？',
+    butler_cat: '袖子挽得這麼整齊，是早就等著了？',
+    maid_cat: '你也要攔我？托盤先放下吧。',
+    rat: '糧箱上的牙印，是你們啃的吧？',
+    yarn_ball: '別往腳底下滾！',
+    soy_bottle: '地上都是醬油，腳都站不穩了。',
+    box_lurker: '我差點伸手去掀蓋子。',
+    hedgehog: '這身刺，連碰都不能碰。',
+    can_spirit: '又滿了？這罐頭從哪裡補進去的？',
+    five_claw: '一隻一隻來，我看不清你的手。',
+    dozing_tabby: '睡在這裡，不怕別人踩到？',
+    chipmunk: '把手從我的袋子拿開。',
+    chipmunk_small: '小隻的也會偷，果然是一夥的。',
+    mirror_cat: '我抬手你也抬，那我不動呢？',
+    broom_centipede: '底下這麼多腳，難怪掃得快。',
+    stone_lion: '石座空了……原來你走下來了。',
+    catnip_phantom: '這味道太濃，得換口氣。',
+    roomba_king: '別撞我的腳，我又不是地上的垃圾。',
+    mini_broom: '連小掃把都跟來了。',
+    calico_monk: '您這個站姿，一看就練了很多年。',
+    shadow_kitten_a: '影子裡還藏著一隻。',
+    shadow_kitten_b: '別繞到背後去。',
+    shadow_kitten_c: '這隻一直不動，在等什麼？',
+    training_post: '底座做得不錯，比村裡那根還牢靠。',
+    nekomata: '婆婆，您的尾巴碰到我了。',
+    nekomata_tail: '尾巴還能自己追過來？',
+    iron_claw: '這些爪子一合起來，護臂都會被夾扁。',
+    cucumber: '剛才它是不是動了？',
+    onigiri_monster: '飯糰長腳，我還是第一次見。',
+    wood_dummy: '這木頭關節，怎麼自己動起來了？',
+    goat: '你也走錯路了？出口在下面。',
+    vacuum: '這麼吵，開關在哪裡？',
+    black_ninja: '堵在門口，是在等我？',
+    orange_bandit: '要東西就好好說，爪子先收起來。',
+    catgrass_bug: '別吐在我身上！',
+    scarecrow: '稻草紮得挺緊，還會拿武器。',
+    black_ninja_elite: '好快，差點沒接住。',
+    big_cucumber: '這麼大根，門都快擠不下了。',
+    ninja_boss: '你就是叫牠們守在下面的那隻？',
+    giant_onigiri: '這個要是往下滾，整條樓梯都會被堵住。',
+    black_kitten: '你後面還有人？別往前擠。',
+    tower_master: '大俠貓，您看我一眼。',
+    snow_cat: '冷得手指都僵了。',
+    fortune_cat: '一直招手，也不代表我會掏錢。',
+    lantern_fish: '光照在前面，嘴藏在後面。好險。',
+    puppeteer: '線連到後面去了。原來是你在拉。',
+    puppet: '木頭做的，打下來可不輕。',
+    shuten_imp: '還喝？你都快站不住了。',
+    lantern_twin_a: '這盞一亮，那盞也亮了。',
+    lantern_twin_b: '得留意另一盞，別只顧眼前。',
+    miasma_crows: '太多了，頭上全是翅膀！',
+    crow_small: '散開了還不走？',
+    wraith_samurai: '聲音在盔甲裡，裡面卻沒人。',
+    twin_hound: '兩張嘴，一張咬這邊，一張咬那邊。',
+    guardian_statue: '石像也攔在最後一段樓梯上。',
+    mask_dancer: '又換面具。這次手勢也變了。',
+  },
   /** 每種魔物第一次登場時球球的吐槽（鍵＝魔物 id） */
   /**
    * 每隻魔物第一次登場時**菲菲**的吐槽（2026-09-12，使用者指定全部重寫）。
@@ -68,14 +203,14 @@ export const dialogue = {
     hibernating_bear: '睡得這麼沉，連我走過來都沒發現。',
     puffer_spirit: '肚子還在鼓……不好，得找個能遮住的地方。',
     plated_beetle: '殼一層疊一層，連腳都快藏進去了。',
-    rat_general: '那隻一抬手，其他的就圍上來了。原來聽牠的。',
+    rat_general: '那隻一抬手，其他的就圍上來了。原來都聽牠的。',
     rat_guard: '長槍後面還有盾，這條路堵得真緊。',
     curse_priest: '別再唸了，我想不起招式了。',
     phantom_fox: '影子在變淡。牠是想逃，還是想繞到我後面？',
     red_oni: '牠越瞪越兇。我連針都還沒拿出來呢。',
-    moon_moth_queen: '鱗粉飄過來了……還好口罩帶著。',
+    moon_moth_queen: '鱗粉飄過來了……還好我有戴口罩。',
     jizo_golem: '那隻手掌比我的頭還大。光看就覺得痛。',
-    frog_daimyo: '連池子旁邊都有人守，不能繞嗎？',
+    frog_daimyo: '連池子旁邊都有人守，不能繞過去嗎？',
     tadpole: '池水裡那些黑點，原來都是兵。',
     armadillo_king: '把頭縮進去了……這是在拒絕我嗎？',
     dragon_cat: '牠一呼吸，鱗片就跟著動。原來真的有這麼大的貓。',
@@ -129,8 +264,8 @@ export const dialogue = {
     shadow_kitten_a: '牠貼著地面過來，我差點把腳伸進去了。',
     shadow_kitten_b: '旁邊兩隻也在動。不能只顧著眼前這一隻。',
     shadow_kitten_c: '牠一聲不響地守著我後面，反而最讓人不安。',
-    training_post: '怎麼和家裡那根不一樣，連碰都碰不動。',
-    nekomata: '婆婆，尾巴借我讓一點，我怕踩著。',
+    training_post: '怎麼和家裡那根不一樣，推都推不動。',
+    nekomata: '婆婆，尾巴可以挪開一點嗎？我怕踩到。',
     nekomata_tail: '尾巴過來了，婆婆卻沒動！',
     iron_claw: '齒輪聲好刺耳。這麼多鐵爪，都是它在控制？',
     cucumber: '這根本就是黃瓜……可是黃瓜為什麼在追我！',
@@ -142,7 +277,7 @@ export const dialogue = {
     orange_bandit: '我還要靠這袋小魚乾走下去，不能給你。',
     catgrass_bug: '嘴裡鼓起來了。等等，別吐！',
     scarecrow: '明明只有一肚子稻草，聲音卻這麼大。',
-    black_ninja_elite: '剛看見在前面，現在又到旁邊了。好快。',
+    black_ninja_elite: '剛才還在前面，現在又跑到旁邊了。好快。',
     big_cucumber: '這根黃瓜大得快頂到屋頂了，還往這裡拱。',
     ninja_boss: '我師父在塔頂，你見過他嗎？',
     giant_onigiri: '這顆要是滾過來，整條走廊都塞住了。',
@@ -268,7 +403,7 @@ export const dialogue = {
     // 2026-09-04 第三波
     snow_cat: '好冷，鼻子都凍僵了喵。',
     fortune_cat: '別招了，小魚乾不會給你的喵。',
-    lantern_fish: '燈後面那張嘴好大，差點沒注意喵。',
+    lantern_fish: '燈後面那張嘴好大，差點沒注意到喵。',
     puppeteer: '後面有隻貓在拉線，是牠讓傀儡動的喵。',
     puppet: '木頭手還會揮拳喵！',
     shuten_imp: '還在喝，你到底帶了多少酒喵？',
@@ -283,7 +418,7 @@ export const dialogue = {
   },
   // 2026-09-02 使用者：「打贏只說還好啦沒很難喵太單調」——每一類都多寫幾句，畫面用 pick() 隨機挑
   battleStart: ['球球來了喵！', '看招喵！', '不要擋路喵。', '讓開，我趕時間喵。', '我先上了喵！', '誰怕誰喵！', '要打就快點喵。', '想攔我，先打贏我喵。'],
-  battleWin: ['總算打完了喵。', '這下知道厲害了喵。', '有沒有掉小魚乾喵？', '走了喵。', '呼，歇一口氣喵。', '功夫沒白練喵。', '頭巾綁好，走了喵。', '毛都亂了，先理一下喵。', '師父應該會誇我吧喵。', '打完更餓了喵。'],
+  battleWin: ['總算打完了喵。', '這下知道厲害了喵。', '有沒有掉小魚乾喵？', '走了喵。', '呼，先喘口氣喵。', '功夫沒白練喵。', '頭巾綁好，走了喵。', '毛都亂了，先理一下喵。', '師父應該會誇我吧喵。', '打完更餓了喵。'],
   hungry: ['餓得沒力氣了喵……', '飯糰吃完了喵……', '好想吃東西喵……'],
   lowHp: ['好痛喵……', '還能再打喵……', '先別過來，讓我站穩喵。'],
   secretScroll: <DialogueLine[]>[
@@ -517,6 +652,8 @@ export const dialogue = {
     stealth: '深藏不露。',
     // 菲菲的毒流（使用者 2026-09-14 裁定：她的第二派就是毒。同日深夜「後退閃躲」已改成獲得隱身，裁定不變、別改回 stealth）：師父那句沿用「深藏不露」
     poison: '深藏不露。',
+    // 噹噹的反彈流沿用蜷縮流那句：他這兩條路在師父眼裡是同一件事——站著沒退
+    thorns: '在下不才。',
     block: '在下不才。',
     plain: '承讓。',
   },
@@ -585,7 +722,7 @@ export const feifeiDialogue = {
   defeat: <DialogueLine[]>[
     { speaker: '旁白', text: '菲菲伸手去摸竹筒，膝蓋卻再也撐不住。她沿著牆滑坐下去，想喊人，喉嚨裡只擠得出一點氣音。' },
     { speaker: '菲菲', text: '還沒……找到他們……' },
-    { speaker: '旁白', text: '恍惚間，有人將她背離了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父和球球仍沒有回來。' },
+    { speaker: '旁白', text: '恍惚間，有人背著她離開了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父和球球仍沒有回來。' },
     { speaker: '菲菲', text: '傷口好了，我就回去。' },
   ],
   /*
@@ -611,8 +748,8 @@ export const feifeiDialogue = {
    * 這句旁白會靜靜消失（師父那句兩派都是「深藏不露」，看不出來）；
    * 毒是她的招牌，這句接序章師父教她的那句「力氣小，就別跟人比力氣」。
    */
-  victoryNarration: <Partial<Record<Exclude<DeckLeaning, 'plain'>, string>>>{
-    strength: '師父碰了碰她的手。那隻爪比從前有力，卻還攥著竹筒，不知道該往哪裡放。',
+  victoryNarration: <Partial<Record<DeckLeaning, string>>>{
+    strength: '師父碰了碰她的手。那隻爪比從前有力，卻還緊握著竹筒，不知道該往哪裡放。',
     poison: '師父認出了她針上的藥味，神情終於柔和下來。菲菲卻只盯著他的眼睛，確認紫光沒有再亮起。',
     block: '師父認得她縮起肩膀的樣子。他將手放低，讓她看清掌心裡沒有東西，才朝她走近。',
   },
@@ -623,11 +760,11 @@ export const feifeiDialogue = {
    * 語氣記號：**「那個……」開頭、結巴、先道歉**，以及對手中毒後小聲補一句「我有先提醒你喔」。
    * **句尾不加「喵」**（那是球球的招牌，見 `feifeiLineOk`）。
    */
-  battleStart: ['那個……借過一下。', '針上有毒，別碰。', '別追了，前面沒路啦！', '袖口綁緊，免得礙手。', '再靠近，我就丟針了。', '可以別打臉嗎……拜託。', '我不跟你比力氣。', '師兄碰上你，會怎麼辦呢？', '你一定要守在這裡嗎？', '看牠的手，別只顧著怕。', '等一下，衣服勾住了！', '我只是想把人接回家。', '師父教過這個，我記得。', '出口在後面，記住了。'],
+  battleStart: ['那個……借過一下。', '針上有毒，別碰。', '別追了，前面沒路啦！', '袖口綁緊，免得礙手礙腳。', '再靠近，我就丟針了。', '可以別打臉嗎……拜託。', '我不跟你比力氣。', '師兄碰上你，會怎麼辦呢？', '你一定要守在這裡嗎？', '看牠的手，別只顧著怕。', '等一下，衣服勾住了！', '我只是想把人接回家。', '師父教過這個，我記得。', '出口在後面，記住了。'],
   battleWin: ['不動了……結束了吧？', '我有先提醒你喔。', '袖子沒破，還好。', '呼，終於能喘口氣。', '針差點拿不住。', '剛才那一下好險。', '咦，真的過去了。', '借我坐一下，腿軟。', '這次沒忘記護住自己。', '原來一直緊張也會餓。', '沒人聽見我尖叫吧？', '手上有藥，不能揉眼睛。', '你別再爬起來了，拜託。', '針袋還在，沒弄丟。', '門口就是來時的路。', '舌頭咬到了，嗚。'],
   hungry: ['餓得使不上力了。', '飯糰……沒有了。', '現在給我白飯也好，真的。', '那個……剛才是肚子叫。', '先別講吃的，我受不了。', '回家我要先盛一大碗。'],
   lowHp: ['不要碰傷口！', '不行，我還不能倒……', '血止不住，怎麼辦……', '繃帶快不夠了。', '握緊，還不能鬆手。', '我還得帶他們回家……'],
-  chestLines: ['箱蓋下面沒夾東西吧？', '我敲一下，你別突然跳出來。', '空的嗎？我掀開囉。', '這邊開，才不會夾尾巴。', '有乾淨繃帶就好了。', '這個紙箱有人要嗎？', '家裡也有個這樣的紙箱。', '師兄倒是很會找地方睡。'],
+  chestLines: ['箱蓋下面沒夾東西吧？', '我敲一下，你別突然跳出來。', '空的嗎？我掀開囉。', '從這邊打開，才不會夾到尾巴。', '有乾淨繃帶就好了。', '這個紙箱有人要嗎？', '家裡也有個這樣的紙箱。', '師兄倒是很會找地方睡。'],
   restNapLines: ['唔……還以為回到家了。', '外面還是很安靜。', '好久沒睡得這麼沉了。', '眼睛舒服多了，剛才好澀。', '被子好暖，捨不得掀開。', '夢還沒做完，就醒了。', '尾巴睡麻了……讓我伸一下。'],
   reviveLines: ['太好了……你還在。', '先坐一下，我扶著你。', '嚇到我了。別再倒下去了。'],
   restSharpenLines: ['這根的毛邊總算磨掉了。', '這樣拿，出手就不會卡住。', '針尖沾好藥，握的地方也擦乾淨了。', '磨好了，心裡踏實些。', '彎的挑出來了，這些都能用。', '這個角度，終於對了。', '下次手別抖就好了。'],
@@ -638,6 +775,120 @@ export const feifeiDialogue = {
    */
   victoryTeaser: '師父、師兄，明天也一起吃早飯吧。',
 };
+
+/**
+ * ===== 噹噹的劇本（2026-09-17）=====
+ *
+ * 第三隻貓，村裡修東西的黑白賓士貓。球球是「我要把師父帶回家」，
+ * 菲菲是「師兄也進去了、而且沒回來」；**他的起點是門**——
+ * 魔塔出現那一夜他沒有追上去，他留在村口攔魔物、讓村貓先進門，
+ * 直到門補好、糧食推進屋裡，才輪到他上塔。
+ *
+ * 所以他整條線的口氣不是急，是**把事情一件一件做完**：
+ * 講的多半是手上的東西（護臂、扣帶、釘子、工具袋），不喊口號、不講心情。
+ * 句尾不加「喵」（那是球球的招牌）。
+ *
+ * 沒寫進這裡的一律共用（老闆的碎念、貓窩、紙箱那些是「這座塔的事」）。
+ */
+export const dangdangDialogue = {
+  /*
+   * 序章九句，照稿子建議的四張插圖切成四段：
+   * 修理鋪 → 那一夜的村口 → 第三天菲菲出發 → 他自己上塔。
+   *
+   * 原本十八句（2026-09-25 使用者：「開頭劇情太長，要一直點」）：相鄰的旁白併成一張、
+   * 同一場對話裡同一個人的話併成一句，刪掉重複交代的（「糧袋放進屋」「這個也麻煩你」）。
+   * 每一句最長壓在 71 字以內（菲菲序章第一句那麼長，畫面放得下）。
+   */
+  prologue: <DialogueLine[]>[
+    { speaker: '旁白', text: '球球把一根斷成兩截的木樁拖到修理鋪前，菲菲跟在後面，把扣環壞了的竹筒放到桌上。噹噹放下銅錘，翻過木樁，找到上次補過的地方。' },
+    { speaker: '球球', text: '這次不是從你補的地方斷的喵。' },
+    { speaker: '噹噹', text: '我看見了，你把另一頭也打斷了。東西都放著，你們吃過飯再來拿。', slideBreak: true },
+    { speaker: '旁白', text: '那天夜裡，村外冒出魔塔。大俠貓中了魔氣，衝向塔頂，球球追了上去。魔物趁亂來搶糧，噹噹架起銅護臂擋在村口，等抱著糧袋的村貓都進了門，才推上門閂。', slideBreak: true },
+    { speaker: '旁白', text: '第三天，菲菲背著行囊來到門口。噹噹正在修門框，停下了手裡的錘子。' },
+    { speaker: '噹噹', text: '你要去找球球？外面的木橋缺了一塊，從左邊走。' },
+    { speaker: '菲菲', text: '還有師父，他們三天都沒回來了。村裡就拜託你了。', slideBreak: true },
+    { speaker: '旁白', text: '傍晚，兩隻村貓扛來木料，接過噹噹的錘子說：「這邊交給我們，你去吧。」噹噹帶上工具袋，扣好銅護臂。走到塔下，他回頭看了一眼，村口已經點起燈。' },
+    { speaker: '噹噹', text: '球球，菲菲，我來了。' },
+  ],
+  actClear1: <DialogueLine[]>[
+    { speaker: '旁白', text: '關主倒下後，噹噹在樓梯旁看見幾個空糧箱。其中一個補著銅片，邊角還有他敲過的釘痕。' },
+    { speaker: '噹噹', text: '這些果然被搬到塔裡了。' },
+    { speaker: '旁白', text: '他把堵在階梯上的空箱移到牆邊。扶手上有爪痕，往上幾階，還散著幾點沒乾的藥汁。' },
+    { speaker: '噹噹', text: '是菲菲帶的藥。她應該沒走遠。' },
+    { speaker: '旁白', text: '噹噹沿著樓梯往上走。轉過彎後，他停下來聽了聽；上面傳來一聲重物撞地的悶響。' },
+  ],
+  actClear2: <DialogueLine[]>[
+    { speaker: '旁白', text: '塔頂傳來一聲低吼，扶手跟著震了一下。是大俠貓的聲音。' },
+    { speaker: '噹噹', text: '大俠貓！是我，噹噹！' },
+    { speaker: '旁白', text: '沒有回答。低吼聲漸漸停了，階梯間只剩穿過石縫的風聲。' },
+    { speaker: '噹噹', text: '他在上面。' },
+    { speaker: '旁白', text: '噹噹拉住鬆動的扶手，一階一階試過，繼續往上走。' },
+  ],
+  /*
+   * 稿子裡還有一句 DD-RETRY-01（「手能動了。這次我換條路試。」），
+   * 是「養好傷再次出發」時的可選台詞，稿子自己註明不可以在普通睡醒時隨機播放。
+   * 目前引擎沒有那個時機（落敗演完就回標題），所以先不收——有了再補。
+   */
+  /*
+   * 原本七句（2026-09-25 使用者：「玩噹噹死掉時也一堆話點超多下」）：
+   * 醒來後那三句旁白與「是誰把我帶回來的」併成一句旁白，最後一句（結算畫面的遺言）不動。
+   */
+  defeat: <DialogueLine[]>[
+    { speaker: '旁白', text: '噹噹的手臂垂了下來。他想再撐起身子，膝蓋卻先撞上地面。' },
+    { speaker: '噹噹', text: '糟了……手抬不起來。' },
+    { speaker: '旁白', text: '再醒來時，他已躺在村裡，銅護臂放在床邊。守門的村貓說，有人把他送到門口，他們先替他止了血。噹噹想去拿護臂，手臂一用力就痛。' },
+    { speaker: '噹噹', text: '有他們的消息，就叫我。' },
+  ],
+  /*
+   * 結局。第二句照規矩是師父醒來的第一句話，由 `victoryLinesFor` 換成
+   * 那四句大俠貼圖標題之一（`masterFirstWords`），所以這裡先擺「承讓。」佔位。
+   */
+  victory: <DialogueLine[]>[
+    { speaker: '旁白', text: '大俠貓眼裡的紫光熄了，伸出的手停在半空。噹噹聽見他的聲音，才把架著的手臂放下來。' },
+    { speaker: '塔主', text: '承讓。' },
+    { speaker: '噹噹', text: '您再打下去，我這對護臂就得重做了。' },
+    { speaker: '旁白', text: '大俠貓看了看護臂上的凹痕，托住噹噹的手腕。菲菲扶著球球，從門邊慢慢走過來。' },
+    { speaker: '球球', text: '師父，你認得我們了喵？' },
+    { speaker: '旁白', text: '大俠貓點點頭，攬住球球，又朝菲菲伸出手。菲菲碰了碰他的掌心，眼淚才落下來。' },
+    { speaker: '菲菲', text: '師父，我們回家吧。' },
+    { speaker: '旁白', text: '噹噹靠著牆坐下，把護臂擱在腿上，手指一根根鬆開。' },
+    { speaker: '球球', text: '噹噹，你不過來喵？' },
+    { speaker: '噹噹', text: '等我一下，腿有點軟。' },
+    { speaker: '旁白', text: '大俠貓走過來扶起他。下樓時，球球和菲菲走在前面，踩到鬆動的踏板就回頭提醒。', slideBreak: true },
+    { speaker: '旁白', text: '四個人帶著小魚乾回到村口。守門的村貓拉開新補的門，朝屋裡喊一聲，就有人端著熱湯跑出來。' },
+    { speaker: '噹噹', text: '門閂還差一根釘子，我吃完就補。' },
+    { speaker: '球球', text: '我幫你扶門喵。' },
+    { speaker: '菲菲', text: '先把手伸過來。繃帶都濕了。' },
+    { speaker: '旁白', text: '噹噹把手交給菲菲，另一手接過湯碗。球球蹲在旁邊，已經開始講剛才怎麼替他守住塔頂的門。' },
+    { speaker: '噹噹', text: '那鍋還有嗎？幫我再盛一碗。' },
+  ],
+  /*
+   * 打法不同、結局多插一句旁白。他的分法跟另外兩位不一樣：
+   * **招架流**（純擋）對上**反彈流**（挨了打再還回去）。
+   * 「以援護為主」那一句稿子裡也有，但他的連線互助牌還沒設計，
+   * `deckLeaning` 數不出那一派，所以先不接——有牌了再補。
+   */
+  victoryNarration: <Partial<Record<DeckLeaning, string>>>{
+    block: '大俠貓輕推他的護臂。噹噹下意識把腳站開，這次沒有退。大俠貓收回手，點了點頭。',
+    thorns: '銅面上留著幾道深凹痕。噹噹試著握拳，大俠貓按住他的手，示意他先休息。',
+    plain: '噹噹卸下護臂，才發現裡面的布墊早已濕透。',
+  },
+  hardModeEpilogue: '球球抱起木樁往院子走。噹噹收好錘子，跟過去幫他扶住。菲菲搬了張凳子，在旁邊看著。',
+  /*
+   * 全破結算畫面的最後一句。他不講「明天再一起練功」那種——
+   * 他的收尾就是回去把門閂補完，那是他這一路唯一惦記的事。
+   */
+  victoryTeaser: '回去先補門閂，再把護臂重做一對。',
+  battleStart: ['你不讓路，那就動手。', '等一下，先讓我站穩。', '我看見你了，出來吧。', '離樓梯遠點，別把路打塌了。', '要從正面來？好。', '工具先收好，免得灑一地。', '手伸得這麼長，倒挺敢的。', '護臂扣好了。來吧。', '別往我背後繞。', '你先把那東西放下！', '站在那裡等我？等很久了吧。', '這地方有點窄，我得挪一步。', '先過你這一關。', '我可沒帶東西給你搶。'],
+  battleWin: ['打完了。看看樓梯在哪裡。', '剛才那一下，震得我手指發麻。', '扣帶還在，沒有鬆。', '呼，總算能把手放下了。', '先把袖子拉好。', '護臂又多一道痕。', '工具袋沒破吧……還好。', '坐一下，腿有點痠。', '這裡灰真多，毛都變色了。', '耳朵裡還嗡嗡響。', '路空出來了。', '先喘口氣。', '尾巴沒事，差點被踩到。', '銅面擦一擦，髒得看不清了。', '腳底全是沙。', '把東西拿好，繼續走。'],
+  hungry: ['飯糰不夠，這招使不出來。', '先省著點力氣。', '肚子在叫了。', '剩下這點，得算著用。', '空著肚子，手都抬不久。', '飯糰再多一點就好了。', '這一下太費力，現在不行。', '想吃口熱的……等打完吧。'],
+  lowHp: ['這一下真痛……', '手別抖，先抬起來。', '腿快撐不住了。', '得先處理傷口。', '眼前有點花，扶一下。', '不能再挨了。', '呼……還能站。', '護臂好重，快抬不動了。'],
+  chestLines: ['箱蓋沒釘死，能打開。', '我先看看裡面。', '這箱角包得挺牢。', '該不會是裝石頭的吧。', '蓋子有點卡，從這邊掀。', '裡頭沒聲音。打開看看。'],
+  restNapLines: ['肩膀不那麼緊了。', '睡著的時候，手還緊緊握著。', '這墊子挺厚。', '剛才壓到尾巴了……', '把護臂戴回去，走吧。', '睡過一覺，眼睛總算睜得開。'],
+  restSharpenLines: ['剛才是腳站太窄了。', '換這個角度，接起來順多了。', '收手要跟上。再來就不會卡了。', '這一下總算做對了。', '原來不用抬那麼高。', '練好了，記住這個位置。'],
+  reviveLines: ['醒了？先坐好。', '手搭過來，我扶你。', '看著我。認得我是誰吧？'],
+};
+
 
 /**
  * 這一位要看哪一份劇情。
@@ -668,9 +919,23 @@ let coopStory: CoopStoryCtx = {};
 
 /** 開局、續玩、連線大廳都要設；單機傳 `null`（`app.ts` 的 `syncStory`） */
 export function setCoopStory(ctx: CoopStoryCtx | null): void { coopStory = ctx ?? {}; }
+/** 鏡子走廊那隻照誰：事件文字搬到 `event-text.ts` 之後（2026-09-23 0-1），那邊從這裡讀 */
+export function coopMirror(): string | undefined { return coopStory.mirror; }
 
-const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+/*
+ * ===== 混搭連線時要改口的句子（2026-09-11，2026-09-17 加一層）=====
+ *
+ * 外層是**我是誰**，第二層是**對方是誰**，最裡面才是「原句 → 換成這句」。
+ *
+ * 第二層是加第三隻貓時補的。原本只有兩層，因為那時候只有兩個角色可以配——
+ * 「對方」不必寫也只可能是另外那一位。加了噹噹之後那個假設就不成立了：
+ * 球球跟噹噹一起爬時，會讀到「身形跟師妹一模一樣」這種指名道姓的句子，
+ * 而師妹根本不在場。這種錯不會報錯、測試也照樣綠，只有玩家看得出來。
+ */
+// 匯出只給測試盯「每個鍵都還對得到原句」（`tests/content/coop_partner_lines_0923.test.ts`）；畫面層一律走 `mixedLine`
+export const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
   feifei: {
+    ninja: {
     '是師兄的頭巾。他以前也老是勾破……回去又得替他補了。':
       '師兄，你的頭巾又勾破了……回去我再幫你補。',
     '師父，您再撐一下……師兄，你到底在哪裡？':
@@ -678,69 +943,449 @@ const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, string>>>> = 
     '師父，這又不是切磋……您剛才連我都不認得了。師兄也是，連個消息都沒有。':
       '師父，這又不是切磋……您剛才連我都不認得了。我跟師兄喊了您一路呢。',
     '還沒……找到他們……': '還沒……把師父帶回來……',
-    '恍惚間，有人將她背離了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父和球球仍沒有回來。':
-      '恍惚間，有人將她背離了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父仍沒有回來。',
+    '恍惚間，有人背著她離開了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父和球球仍沒有回來。':
+      '恍惚間，有人背著她離開了魔塔。再醒來時，她已躺在村裡，傷口換上新的繃帶，竹筒放在伸手可及的地方。窗外的塔還在，師父仍沒有回來。',
     '婆婆，我也想回去。可是家裡少了兩個人，我不能就這樣走。':
       '婆婆，我也想回去。可是師父還在上面，我不能就這樣走。',
     '師父、師兄……你們那邊也看得到月亮嗎？':
       '師父……您那邊也看得到月亮嗎？',
+    // 哭牆「敲開藏物磚」與古井許願（2026-09-23 稽核 中-2）：師兄就站在旁邊，她還在說他沒回來、替他求平安
+    '我知道上面危險，可師父和師兄都還沒回來。':
+      '我知道上面危險……可師父還在上面。師兄，我們一起上去。',
+    '我不求別的，讓師父和師兄平安就好。':
+      '我不求別的，只要我們三個都平安回家。',
+    },
+    /*
+     * 她跟噹噹一起爬。她的原句幾乎每一句都在找「師父跟師兄」兩個人，
+     * 而這一局師兄仍然下落不明——所以多半不用改口，只有指名的那幾句要調。
+     */
+    dangdang: {
+      '是師兄的頭巾。他以前也老是勾破……回去又得替他補了。':
+        '是師兄的頭巾。噹噹，你看——他真的走過這裡。',
+      '我還以為，找不到你們了。':
+        '我還以為，找不到你們了……噹噹，謝謝你陪我上來。',
+    },
   },
   ninja: {
+    feifei: {
     '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。':
       '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父和師妹就在旁邊聽。走到家門口時，球球才發現自己餓壞了。',
     '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。':
-      '回村以後，球球常向村裡的小貓講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下，師妹在旁邊補上他漏講的那幾段。',
+        '回村以後，球球常向村裡的小貓講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下，師妹在旁邊補上他漏講的那幾段。',
+    },
+    // 他跟噹噹一起爬：結局那兩段原本寫「師徒倆」與「向師妹講」，這一局旁邊站的是噹噹
+    dangdang: {
+      '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。':
+        '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父跟噹噹就在旁邊聽。走到村口時，噹噹先去看那扇門，球球才發現自己餓壞了。',
+      '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。':
+        '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下；噹噹在旁邊修門，偶爾補一句「那次你退了三步」。',
+    },
   },
-};
-
-/** 鏡子走廊：鏡中那隻照座位 0 變裝，跟自己不同角色時讀到的是同伴的鏡像。鍵是**球球那份原句** */
-const MIRROR_EVENT_TEXT: Readonly<Record<string, Readonly<Record<string, string>>>> = {
-  feifei: {
-    '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
-      '走廊兩側排滿鏡子。菲菲停步，其中一面慢了半拍——鏡子裡站著的不是她，是一個綁著頭巾的黑影，身形跟師兄一模一樣。那個「師兄」沒有笑，先擺出了迎戰的架勢。',
-    '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
-      '跟鏡中的假師兄過招（進入戰鬥，勝利後可升級至多 2 張牌）',
-    '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
-      '黑影踏出鏡面，抬爪的角度跟師兄一模一樣，一出手卻全是照著學來的招式——這不是師兄。菲菲握緊飛針，往後退了半步。菲菲：「那個……你連我發抖都學，能不能不要靠過來？」',
-    '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
-      '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那個假的沒有跟上吧？」',
+  /*
+   * 噹噹自己的劇本本來就沒有把同伴寫死（他上塔是為了「把人帶回去」，不是師徒情），
+   * 所以要改口的地方少。這裡先放兩句最明顯的，其餘等真人玩過再補。
+   */
+  dangdang: {
+    ninja: {
+      '球球，菲菲，我來了。': '球球，我來了。菲菲還在裡面。',
+      // 破戒住持倒下後那句（2026-09-23 稽核 低-3）：這一組菲菲留在村口替傷貓包紮，沒有進塔找師父
+      '他的兩個徒弟都在找他。我這就上去。': '球球一路找他找到這裡。我們這就上去。',
+    },
+    feifei: {
+      '球球，菲菲，我來了。': '菲菲，我跟上了。球球還在裡面。',
+      // 同一句：菲菲就站在旁邊，不要用「他的兩個徒弟」把她講成第三人
+      '他的兩個徒弟都在找他。我這就上去。': '菲菲跟球球都在找他。我們這就上去。',
+    },
+    // 跟封封一起時原句成立（球球、菲菲都在塔裡找師父），不必換
   },
-  ninja: {
-    '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
-      '走廊兩側排滿鏡子，無數個球球同時抬起頭。只有一面裡站的不是他——是個紮著蝴蝶結的黑影，身形跟師妹一模一樣，手裡還捏著針。',
-    '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
-      '跟鏡中的假師妹過招（進入戰鬥，勝利後可升級至多 2 張牌）',
-    '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
-      '黑影踏出鏡面，抬手的角度跟師妹一模一樣，針尖卻對著他。球球壓低身子，把師妹擋在身後。球球：「假的就是假的，動作再像也沒用喵。」',
-    '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
-      '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「別看了，那不是師妹喵。」',
+  /*
+   * 封封跟人一起爬（2026-09-23 稽核 中-1）。他的序章、過關、結局、落敗在連線時整段換成
+   * 共用場景（`fengfengCoopScenes`），剩下會逐句經過這裡的是關主台詞（`lineFor`）與事件（`eventTextFor`）。
+   * 三組搭檔各自「誰留在村裡」不一樣——跟球球：菲菲、噹噹都在村裡，只少大俠貓，而且是當晚就追上去；
+   * 跟菲菲：大俠貓跟球球三天沒回來；跟噹噹：球球、菲菲都在塔裡。原句「兩個徒弟都沒回村」只有最後一組成立。
+   */
+  fengfeng: {
+    ninja: {
+      '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我陪球球來找大俠貓。他中了魔氣，跑上塔頂了。',
+      '他的徒弟沒有放棄找他。我也會上去。': '球球一路追他追到這裡。我們這就上去。',
+      '小魚乾落進井裡，水面泛起一圈漣漪。封封扶著井沿等待。封封：「能讓我把他們找到就好了。」':
+        '小魚乾落進井裡，水面泛起一圈漣漪。封封扶著井沿等待。封封：「能讓我們把大俠貓帶回村就好了。」',
+      '封封敲鬆磚塊，取出布包，手卻被碎石劃開。他用袖布壓住傷口，聽著牆裡的勸阻。封封：「我知道上面危險。朋友還沒回來，我得去找。」':
+        '封封敲鬆磚塊，取出布包，手卻被碎石劃開。他用袖布壓住傷口，聽著牆裡的勸阻。封封：「我知道上面危險。大俠貓還在上面，我們得去。」',
+    },
+    feifei: {
+      '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我陪菲菲來找大俠貓和球球。他們三天沒回村了。',
+      '他的徒弟沒有放棄找他。我也會上去。': '菲菲在村裡等了他三天。我們這就上去。',
+    },
+    dangdang: {
+      // 原句成立（球球、菲菲都在塔裡），只把「我」換成兩個人：婆婆面前站的是他跟噹噹
+      '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我和噹噹來找大俠貓和他的兩個徒弟。他們都沒回村。',
+    },
   },
 };
 
 /** 混搭時把整份故事的句子換過一遍；不換就原樣回（陣列參照不動，既有測試照舊） */
 function withMixed<T extends { prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[]; defeat: DialogueLine[];
-  victory: DialogueLine[]; victoryNarration: Partial<Record<string, string>>; hardModeEpilogue: string; victoryTeaser: string }>(hero: string | undefined, s: T): T {
-  if (!mixedOn(hero)) return s;
+  victory: DialogueLine[]; victoryNarration: Partial<Record<string, string>>; hardModeEpilogue: string; victoryTeaser: string; topScene?: DialogueLine[] }>(hero: string | undefined, s: T): T {
+  const key = pairKey(hero);
+  const scenes = key === null ? undefined : MIXED_SCENES[key];
+  if (!mixedOn(hero) && !scenes) return s;
   const ls = (xs: DialogueLine[]): DialogueLine[] => xs.map((l) => ({ ...l, text: mixedLine(hero, l.text) }));
+  /*
+   * 有整段場景就**整段換掉**，不再逐句過 `mixedLine`——那張表是替單人劇本寫的，
+   * 套到已經是連線版的句子上只會白跑一趟（也查不到東西）。
+   */
+  if (scenes) {
+    return {
+      ...s,
+      prologue: scenes.prologue.map((l) => ({ ...l })),
+      actClear1: scenes.actClear1.map((l) => ({ ...l })),
+      actClear2: scenes.actClear2.map((l) => ({ ...l })),
+      topScene: (scenes.topScene ?? []).map((l) => ({ ...l })),
+      victory: scenes.victory.map((l) => ({ ...l })),
+      defeat: scenes.defeat.map((l) => ({ ...l })),
+      victoryNarration: {},   // 打法插句是寫給單人結局的，連線場景自己收尾
+      hardModeEpilogue: mixedLine(hero, s.hardModeEpilogue), victoryTeaser: mixedLine(hero, s.victoryTeaser),
+    };
+  }
   return {
     ...s,
-    prologue: ls(s.prologue), actClear1: ls(s.actClear1), actClear2: ls(s.actClear2), defeat: ls(s.defeat), victory: ls(s.victory),
+    prologue: ls(s.prologue), actClear1: ls(s.actClear1), actClear2: ls(s.actClear2), topScene: ls(s.topScene ?? []), defeat: ls(s.defeat), victory: ls(s.victory),
     victoryNarration: Object.fromEntries(Object.entries(s.victoryNarration).map(([k, v]) => [k, mixedLine(hero, v as string)])),
     hardModeEpilogue: mixedLine(hero, s.hardModeEpilogue), victoryTeaser: mixedLine(hero, s.victoryTeaser),
   };
 }
 
 /** 混搭時換句子；沒設連線情境、或同伴跟自己同角色就原樣回 */
-function mixedLine(hero: string | undefined, text: string): string {
+
+/**
+ * ===== 連線的兩套完整路線（2026-09-17）=====
+ *
+ * `MIXED_LINES` 是「把我的某幾句換掉」，這一張不一樣：稿子把連線寫成
+ * **兩個人共用的一整段場景**（兩位都有台詞、互相接話），所以整段替換。
+ *
+ * 鍵是**排序過的兩個角色**（`ninja+dangdang`），不是「我是誰」——
+ * 同一局的兩台機器要演同一段戲，不能各演各的。
+ *
+ * 沒有這一組搭檔的場景就照舊：各自播各自的單人劇本、再過 `MIXED_LINES` 換那幾句。
+ * 球球＋菲菲 2026-09-22 補上了（原本兩人各播各的單人序章，他說「沒聽見師妹在身後叫他」、
+ * 她說「三天了，師兄也沒回來」，明明兩個人一起從 1F 進塔——連線盤點 問題 6）。
+ *
+ * **插圖**：沒有專屬幻燈片圖的配對，`slidesReady` 查不到就整段退回純對白
+ *（`storyslides.ts` 本來就是這個規矩）；2026-09-23 起六組搭檔都有自己的連線劇情圖（`storyslides.ts` 的 `COOP_ART`），
+ * 序章與結局兩張圖的那三組靠這裡標的 `slideBreak` 分句。
+ */
+const MIXED_SCENES: Readonly<Record<string, {
+  prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
+  topScene?: DialogueLine[]; victory: DialogueLine[]; defeat: DialogueLine[];
+}>> = {
+  ...fengfengCoopScenes,
+  'dangdang+ninja': {
+    prologue: [
+      { speaker: '旁白', text: '村口的門剛關上，噹噹就看見球球往魔塔跑。兩隻村貓接過門閂，催他跟去看看。' },
+      { speaker: '旁白', text: '守門的村貓說：「我們守著。別讓他一個人進去！」' },
+      { speaker: '旁白', text: '門邊坐著幾隻受傷的村貓，菲菲正抱著藥箱替他們包紮。她抬頭叫住噹噹。' },
+      { speaker: '菲菲', text: '找到師兄，叫他別自己亂闖。', slideBreak: true },
+      { speaker: '旁白', text: '噹噹追到塔下，球球正蹲在台階前，重新綁住跑鬆的頭巾。' },
+      { speaker: '球球', text: '師父就在上面，你也看見他了喵？' },
+      { speaker: '噹噹', text: '看見了。走，上去找他。你腳邊那塊磚鬆了，跨過來。' },
+    ],
+    actClear1: [
+      { speaker: '旁白', text: '球球在樓梯旁找到村裡的糧箱，抱起來晃了晃。箱底掉出幾條碎魚乾。' },
+      { speaker: '球球', text: '連一箱都不剩，牠們到底吃了多少喵！' },
+      { speaker: '噹噹', text: '先放到牆邊。回程搬東西才有路走。' },
+      { speaker: '旁白', text: '球球放下箱子，轉身上樓，頭巾卻勾住了扶手。噹噹伸手解開布角。' },
+      { speaker: '噹噹', text: '別扯，會破。好了，走吧。' },
+    ],
+    actClear2: [
+      { speaker: '旁白', text: '塔頂傳來低吼。球球立刻跑到樓梯口，扶著牆往上喊。' },
+      { speaker: '球球', text: '師父！我們上來了喵！' },
+      { speaker: '旁白', text: '上面沒有回話，只有一陣拖動石塊的聲音。' },
+      { speaker: '球球', text: '他剛才是不是很痛喵？' },
+      { speaker: '噹噹', text: '我也聽見了。走，去看看。' },
+    ],
+    /*
+     * **「塔頂門外」不在這裡**（2026-09-17 修正時序）。
+     *
+     * 原本併在第二關過關的尾巴，可是那一段講的是「推開門就看到大俠貓」——
+     * 而第二關過完還要走完整個第三關才會見到他，**早了一整關**。
+     * 現在搬到 `COOP_BOSS_LINES` 那組接話的最前面，真的推門那一刻才播。
+     */
+    victory: [
+      { speaker: '旁白', text: '紫光散去，大俠貓看著眼前的球球，放下了手。' },
+      { speaker: '塔主', text: '承讓。' },
+      { speaker: '球球', text: '你終於認得我了喵。' },
+      { speaker: '旁白', text: '大俠貓蹲下來，把球球抱進懷裡。噹噹卸下護臂，坐在門檻上等。' },
+      { speaker: '球球', text: '噹噹，你的手在抖喵。' },
+      { speaker: '噹噹', text: '剛才擋太久了。幫我拿一下工具袋。' },
+      { speaker: '旁白', text: '球球把工具袋拿過來。大俠貓替噹噹揉了揉手臂，三人休息了一會兒，才帶著找回的小魚乾下樓。', slideBreak: true },
+      { speaker: '旁白', text: '村口的燈還亮著。菲菲看見三人，提著藥箱跑出來。' },
+      { speaker: '菲菲', text: '師父！師兄！……噹噹，你也把手伸出來。' },
+      { speaker: '球球', text: '先看他，他替我擋了好幾下喵。' },
+      { speaker: '噹噹', text: '都要看。先坐下，別光顧著說。' },
+      { speaker: '旁白', text: '菲菲讓兩人坐在門邊，大俠貓去端了水。球球把工具袋放回噹噹腳邊，這回沒有急著站起來。' },
+    ],
+    defeat: [
+      { speaker: '旁白', text: '噹噹抓住球球的手，想把他拉起來，自己卻也跪倒在地。兩人眼前漸漸暗了。' },
+      { speaker: '旁白', text: '醒來時，兩人已躺在村裡。菲菲坐在床邊，正在收起換下來的繃帶。' },
+      { speaker: '球球', text: '師父回來了沒有喵？' },
+      { speaker: '菲菲', text: '還沒有。有人把你們送到村口，就走了。' },
+      { speaker: '噹噹', text: '球球，先別下床。你看，頭巾都還沒綁好。' },
+    ],
+  },
+  'dangdang+feifei': {
+    prologue: [
+      { speaker: '旁白', text: '第三天，菲菲背著行囊走到村口。噹噹剛裝好新門閂，把錘子交給來換班的村貓。' },
+      { speaker: '菲菲', text: '你也要去塔裡？' },
+      { speaker: '噹噹', text: '球球三天沒回來了。我去找他。' },
+      { speaker: '菲菲', text: '那我們一起。我還帶了師父的藥。', slideBreak: true },
+      { speaker: '噹噹', text: '竹筒給我看看。上次修的扣環，還會鬆嗎？' },
+      { speaker: '菲菲', text: '不會。現在要用力才打得開。' },
+      { speaker: '旁白', text: '噹噹把扣環調鬆一點，還給菲菲。兩人走過缺了一塊木板的橋，來到塔門前。' },
+    ],
+    actClear1: [
+      { speaker: '旁白', text: '兩人在糧箱後找到樓梯。菲菲停在扶手旁，小心取下一縷藍線。' },
+      { speaker: '菲菲', text: '是師兄的頭巾。這裡還勾著一點。' },
+      { speaker: '噹噹', text: '他往上走了。扶手有毛刺，別碰。' },
+      { speaker: '旁白', text: '噹噹移開階梯上的空箱。菲菲收起藍線，跟著他往上走。' },
+    ],
+    actClear2: [
+      { speaker: '旁白', text: '塔頂傳來吼聲。菲菲扶住樓梯邊的牆，抬起頭。' },
+      { speaker: '菲菲', text: '是師父。他的聲音怎麼變成這樣……' },
+      { speaker: '噹噹', text: '大俠貓！球球！聽得見嗎？' },
+      { speaker: '旁白', text: '上方傳來一聲模糊的回喊，很快被撞擊聲蓋過。兩人一起跑上最後一段樓梯。' },
+    ],
+    /*
+     * **「塔頂門外」不在這裡**（2026-09-17 修正時序）。
+     *
+     * 原本併在第二關過關的尾巴，可是那一段講的是「推開門就看到大俠貓」——
+     * 而第二關過完還要走完整個第三關才會見到他，**早了一整關**。
+     * 現在搬到 `COOP_BOSS_LINES` 那組接話的最前面，真的推門那一刻才播。
+     */
+    victory: [
+      { speaker: '旁白', text: '大俠貓眼裡的紫光退去。菲菲喊了一聲「師父」，他循著聲音，看向她。' },
+      { speaker: '塔主', text: '承讓。' },
+      { speaker: '菲菲', text: '您認得我了，對不對？' },
+      { speaker: '旁白', text: '大俠貓點頭，伸手輕碰她的頭頂。球球扶著門框走過來，菲菲趕緊去扶他。' },
+      { speaker: '球球', text: '我找了你好久喵。', slideBreak: true },
+      { speaker: '旁白', text: '大俠貓把兩個徒弟拉到身邊。噹噹靠著牆，把卡住的護臂扣帶往外抽。' },
+      { speaker: '噹噹', text: '菲菲，剪刀借我。扣帶卡住了。' },
+      { speaker: '菲菲', text: '別拉，會磨到傷口。我來剪。' },
+      { speaker: '球球', text: '你這對護臂還修得好嗎喵？' },
+      { speaker: '噹噹', text: '修得好。回去你幫我拉風箱。' },
+      { speaker: '旁白', text: '菲菲剪開扣帶，大俠貓接住掉下來的銅護臂。四人休息了一會兒，帶著小魚乾一起下樓。' },
+      { speaker: '旁白', text: '村貓打開門，把熱湯送到他們手裡。噹噹這才想起自己還沒吃飯，把工具袋一放，端起碗喝了起來。' },
+    ],
+    defeat: [
+      { speaker: '旁白', text: '菲菲伸手扶住噹噹，兩人卻一起跌坐下去。頭頂的燈晃了幾下，便看不清了。' },
+      { speaker: '旁白', text: '醒來時，噹噹先看見床邊的藥箱。菲菲睡在另一張床上，手臂已經包好。村貓端水進來，說有人把他們送到了門口。' },
+      { speaker: '噹噹', text: '她醒過嗎？' },
+      { speaker: '旁白', text: '守門的村貓說：「醒過，問了球球的消息，又睡了。」' },
+      { speaker: '旁白', text: '噹噹往窗外看。塔頂的紫光還亮著，他把手放回被子上，等菲菲醒來。' },
+      // 菲菲那台落敗結算要有她自己的最後一句（2026-09-23 稽核 低-1）：原本她整段沒開口，結算畫面退回「菲菲倒下了。」
+      { speaker: '菲菲', text: '……噹噹，你也醒了。等傷好了，我們再去找師父和師兄。' },
+    ],
+  },
+  /*
+   * 師兄妹一起爬（2026-09-22，連線盤點 問題 6）。
+   *
+   * 時間線跟兩人的單人序章接得起來：魔塔冒出來那一夜他抓了頭巾就追（他的序章），
+   * 她在後面喊他沒聽見（她的序章也寫了）——這一局她**當晚就追上去**，不是等了三天。
+   * 噹噹照其他幾組的設定留在村口守門，所以結局是他開的門、落敗是他在床邊補竹筒。
+   * 單人改句表（`MIXED_LINES.feifei.ninja`）裡使用者看過的那幾句原樣收進來
+   *（頭巾勾破、「你也聽見了吧」、「我跟師兄喊了您一路」、「還沒……把師父帶回來……」）。
+   * 口氣照兩人各自的記號：他話少、句尾有喵、衝第一個；她叫「師兄」、結巴、先退半步再下針。
+   */
+  'feifei+ninja': {
+    prologue: [
+      { speaker: '旁白', text: '那天夜裡，村外冒出一座魔塔。大俠貓的眼睛變成紫色，頭也不回地衝向塔頂。球球抓起藍頭巾就追了出去。' },
+      // 切點（2026-09-23）：前兩句配「村外夜裡一前一後追出去」、之後配「塔下說好一起進去」兩張連線劇情圖
+      { speaker: '旁白', text: '菲菲在後面喊了他兩聲，他都沒有回頭。她只好抓起竹筒，一路追到塔下。', slideBreak: true },
+      { speaker: '菲菲', text: '師兄！我、我叫你好幾次了……你都沒聽見。' },
+      { speaker: '球球', text: '師父跑進去了，我不能停下來喵。' },
+      { speaker: '菲菲', text: '我知道……可是你一個人進去，我在外面會更怕。' },
+      { speaker: '球球', text: '那你跟在我後面。前面有東西，我先上喵。' },
+      { speaker: '菲菲', text: '好。你別跑太快，我的針還沒排好。' },
+    ],
+    actClear1: [
+      { speaker: '旁白', text: '關主倒下後，牆邊露出往上的樓梯。球球第一個衝上去，頭巾卻勾到扶手，扯出一縷藍線。' },
+      { speaker: '菲菲', text: '師兄，你的頭巾又勾破了……回去我再幫你補。' },
+      { speaker: '球球', text: '破一點沒關係，綁得住就好喵。' },
+      { speaker: '旁白', text: '菲菲把線頭收進口袋，蹲下來撿回射出去的針，有幾根已經彎了。' },
+      { speaker: '球球', text: '你慢慢撿，我先去前面看看喵。' },
+      { speaker: '旁白', text: '菲菲數了數竹筒裡的針，小跑步跟了上去。' },
+    ],
+    actClear2: [
+      { speaker: '旁白', text: '塔頂又傳來師父的吼聲，這一次聽起來更痛苦了。球球停下腳步，抬頭往上看。' },
+      { speaker: '球球', text: '師父，我在這裡！聽見就回我一聲喵！' },
+      { speaker: '旁白', text: '上面沒有回話，只傳來石塊被拖動的聲音。' },
+      { speaker: '菲菲', text: '師父，您再撐一下……師兄，你也聽見了吧？' },
+      { speaker: '球球', text: '聽見了。他很痛，我們快點上去喵。' },
+      { speaker: '旁白', text: '球球重新綁好頭巾。菲菲拉好口罩，跟在他後面，踏上最後一段樓梯。' },
+    ],
+    /* 「推門見到大俠貓」那一段跟另外兩組一樣放在 `COOP_BOSS_LINES` 的開場最前面（見上面噹噹那組的說明） */
+    victory: [
+      { speaker: '旁白', text: '最後一縷魔氣散去，大俠貓眼裡的紫光熄了。球球還擺著架勢，菲菲握針的手終於垂了下來。' },
+      { speaker: '塔主', text: '承讓。' },
+      { speaker: '菲菲', text: '師父，這又不是切磋……您剛才連我都不認得了。我跟師兄喊了您一路呢。' },
+      { speaker: '球球', text: '師父，你終於醒了喵。' },
+      { speaker: '旁白', text: '大俠貓蹲下來，一手把球球抱進懷裡，一手把菲菲拉到身邊。球球哭得說不出話，菲菲愣愣地張著眼睛，忍了一路的眼淚終於掉了下來。', slideBreak: true },
+      { speaker: '菲菲', text: '師兄，你也在哭。' },
+      { speaker: '球球', text: '我才沒有，是灰跑進眼睛了喵。' },
+      { speaker: '旁白', text: '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。菲菲落在後頭，把掉在台階上的針一根根撿回竹筒。' },
+      { speaker: '旁白', text: '村口的燈還亮著。噹噹拉開門閂，朝屋裡喊了一聲，村貓們端著熱湯跑了出來。' },
+      { speaker: '噹噹', text: '都回來了？先進來，門我來關。' },
+      { speaker: '菲菲', text: '師兄，手伸過來。你的繃帶都濕了。' },
+      { speaker: '旁白', text: '球球乖乖把手伸出去。走到家門口時，他才發現自己餓壞了。' },
+    ],
+    defeat: [
+      { speaker: '旁白', text: '球球擋在菲菲前面，膝蓋卻先撐不住了。菲菲伸手去扶他，自己也跟著跌坐下去。' },
+      { speaker: '菲菲', text: '還沒……把師父帶回來……' },
+      { speaker: '旁白', text: '再醒來時，兩人已經躺在村裡。噹噹坐在門邊，替菲菲補好撞歪的竹筒，窗外還看得見魔塔的紫光。' },
+      { speaker: '球球', text: '師父呢？他回來了沒有喵？' },
+      { speaker: '噹噹', text: '還沒。有人把你們送到村口就走了。' },
+      { speaker: '菲菲', text: '傷口好了，我們就再上去。' },
+    ],
+  },
+};
+
+/**
+ * 這一局的劇情是不是「兩個人共用的一整段場景」（`MIXED_SCENES`）。
+ *
+ * 畫面層要拿它決定**照不照字面播**：共用場景裡「球球：……喵」是球球本人在講，
+ * 過了 `lineFor`／`heroSpeaker` 會被改成我的口氣、名牌與立繪也會變成我
+ *（稽核 2026-09-17 高-1、高-2）。
+ */
+export function hasCoopScene(hero: string | undefined): boolean {
+  const key = pairKey(hero);
+  return key !== null && MIXED_SCENES[key] !== undefined;
+}
+
+/** 這一局兩位的搭檔鍵（排序過，兩台機器算出來一樣）。一個人玩、或兩位同角色時回 null */
+function pairKey(hero: string | undefined): string | null {
+  const h = hero ?? 'ninja';
+  const p = coopStory.partner;
+  if (!p || p === h) return null;
+  return [h, p].sort().join('+');
+}
+
+/** 供劇情美術路由使用的排序後搭檔鍵；不暴露連線狀態，只讀取目前這一局的配對。 */
+export function coopStoryKey(hero: string | undefined): string | null {
+  return pairKey(hero);
+}
+
+
+/**
+ * 搭檔一起打大俠貓時的整組接話（2026-09-17）。
+ *
+ * 跟 `MIXED_SCENES` 同一個道理：兩位互相接話，所以整組替換，**不逐句換口氣**——
+ * 這裡的「球球：……喵」就是球球本人在講，不是「我」講的話。
+ * 呼叫端拿到非 null 就要照字面播，不要再過 `lineFor`／`heroSpeaker`
+ *（過了的話球球那句會被改成我的口氣、木牌還會寫我的名字）。
+ *
+ * 用了這一組就不重播單人版的那幾句（稿子交代「一次階段變換只播放一組」）。
+ */
+const COOP_BOSS_LINES: Readonly<Record<string, Readonly<Record<'intro' | 'phase2' | 'phase3', DialogueLine[]>>>> = {
+  ...fengfengCoopBossLines,
+  'dangdang+ninja': {
+    intro: [
+      { speaker: '旁白', text: '門後的大俠貓猛然轉身。球球伸出的手停住了——那雙眼睛仍泛著紫光。' },
+      { speaker: '球球', text: '師父，是我喵。' },
+      { speaker: '旁白', text: '大俠貓抬掌，噹噹側身擋到球球前面。球球退開一步，也擺好了架勢。' },
+      { speaker: '噹噹', text: '他要出手了！' },
+      { speaker: '球球', text: '我看到了。噹噹，右邊留給我喵。' },
+      { speaker: '塔主', text: '難逢敵手。' },
+      { speaker: '球球', text: '師父，看清楚！我跟噹噹都在這裡喵！' },
+      { speaker: '塔主', text: '退隱江湖。' },
+      { speaker: '噹噹', text: '要回去，門就在後面。您先把手放下。' },
+    ],
+    phase2: [
+      { speaker: '塔主', text: '走火入魔。' },
+      { speaker: '噹噹', text: '球球，往旁邊站！' },
+      { speaker: '球球', text: '我沒事。師父，你聽得見嗎喵？' },
+    ],
+    phase3: [
+      { speaker: '塔主', text: '深藏不露。' },
+      { speaker: '球球', text: '他手上都是傷，不能再拖了喵！' },
+      { speaker: '噹噹', text: '好。我從這邊上。' },
+    ],
+  },
+  'dangdang+feifei': {
+    intro: [
+      { speaker: '旁白', text: '球球坐在門後，額頭擦破了，正撐著想站起來。看見兩人，他先是一愣，接著指向屋裡。' },
+      { speaker: '球球', text: '師妹，小心！師父誰都不認得了喵！' },
+      { speaker: '菲菲', text: '師兄，你先把頭低下來。我幫你擦一下。' },
+      { speaker: '旁白', text: '噹噹擋在門內，菲菲替球球壓住傷口，把乾布交到他手裡，才走到噹噹身旁。' },
+      { speaker: '噹噹', text: '球球，門外還有魔物嗎？' },
+      { speaker: '球球', text: '沒有，我剛看過了。你們小心他的掌喵。' },
+      { speaker: '菲菲', text: '噹噹，我好了。' },
+      { speaker: '塔主', text: '難逢敵手。' },
+      { speaker: '菲菲', text: '師父，我和噹噹來接您。師兄也在門邊。' },
+      { speaker: '塔主', text: '退隱江湖。' },
+      { speaker: '噹噹', text: '村裡的門修好了。您跟我們回去看看。' },
+    ],
+    phase2: [
+      { speaker: '塔主', text: '走火入魔。' },
+      { speaker: '菲菲', text: '又是這種眼神……他沒聽進去。' },
+      { speaker: '噹噹', text: '先顧好自己。他要過來了。' },
+    ],
+    phase3: [
+      { speaker: '塔主', text: '深藏不露。' },
+      { speaker: '噹噹', text: '大俠貓，您的手在流血！' },
+      { speaker: '菲菲', text: '師父，求您停下來！' },
+    ],
+  },
+  // 師兄妹一起打大俠貓（2026-09-22，場景見 `MIXED_SCENES['feifei+ninja']`）：推門那一段接在最前面，跟另外兩組同一個時序
+  'feifei+ninja': {
+    intro: [
+      { speaker: '旁白', text: '推開門，門後的大俠貓猛然轉過身。那雙眼睛還泛著紫光，看著兩人，卻像不認得他們。' },
+      { speaker: '球球', text: '師父，是我喵。' },
+      { speaker: '菲菲', text: '師父……是我們啊。您看看我。' },
+      { speaker: '旁白', text: '大俠貓抬起手掌。球球立刻站到菲菲前面，菲菲往後退了半步，從竹筒抽出三根針。' },
+      { speaker: '球球', text: '師妹，你站後面。我先上喵。' },
+      { speaker: '菲菲', text: '好……我從旁邊下針，你小心他的掌。' },
+      { speaker: '塔主', text: '難逢敵手。' },
+      { speaker: '球球', text: '師父，看清楚！我跟師妹都在這裡喵！' },
+      { speaker: '塔主', text: '退隱江湖。' },
+      { speaker: '菲菲', text: '要退隱也可以……可是先跟我們回家，好不好？' },
+    ],
+    phase2: [
+      { speaker: '塔主', text: '走火入魔。' },
+      { speaker: '菲菲', text: '又是那種眼神……師兄，他要過來了！' },
+      { speaker: '球球', text: '我擋著，你別靠太近喵！' },
+    ],
+    phase3: [
+      { speaker: '塔主', text: '深藏不露。' },
+      { speaker: '菲菲', text: '師父，您的手在流血……求您停下來！' },
+      { speaker: '球球', text: '師父，別再打了！我們是來帶你回家的喵！' },
+    ],
+  },
+};
+
+/**
+ * 這一場的關主對白有沒有「這一組搭檔專屬」的版本。**只有大俠貓有**，
+ * 其餘關主連線時照舊用共用那份（稿子：「單人、兩種搭檔路線皆可使用一般關主對話」）。
+ *
+ * 回 null＝照舊。回陣列＝**照字面播**，呼叫端不要再換口氣或換名牌。
+ */
+export function coopBossLines(bossId: string, stage: 'intro' | 'phase2' | 'phase3',
+                              hero: string | undefined): DialogueLine[] | null {
+  if (bossId !== 'tower_master') return null;
+  const key = pairKey(hero);
+  return (key === null ? undefined : COOP_BOSS_LINES[key]?.[stage]) ?? null;
+}
+
+// 匯出給 `event-text.ts` 的 `eventTextFor`（2026-09-23 0-1：事件文字分包之後那邊也要過混搭）
+export function mixedLine(hero: string | undefined, text: string): string {
   const h = hero ?? 'ninja';
   if (!coopStory.partner || coopStory.partner === h) return text;
-  return MIXED_LINES[h]?.[text] ?? text;
+  return MIXED_LINES[h]?.[coopStory.partner]?.[text] ?? text;
 }
 
 /** 這一局要不要換（`storyFor` 靠它決定要不要重建陣列，不換就維持原本的參照，既有測試照舊） */
 function mixedOn(hero: string | undefined): boolean {
   const h = hero ?? 'ninja';
-  return !!coopStory.partner && coopStory.partner !== h && !!MIXED_LINES[h];
+  return !!coopStory.partner && coopStory.partner !== h && !!MIXED_LINES[h]?.[coopStory.partner];
 }
 
 /**
@@ -749,40 +1394,64 @@ function mixedOn(hero: string | undefined): boolean {
  * 事件文字換了、這一句沒換的話，她會對著鏡中球球說「那張臉明明是我」（推前審查 中-1）。
  * 不能改成拿座位 0 的角色去查整張 `firstMeet`——那會讓另外一百多隻魔物的吐槽全變成同伴的口氣。
  */
-const MIXED_FIRST_MEET: Readonly<Record<string, string>> = {
-  feifei: '那是師兄的臉……可是師兄不會這樣笑。',
-  ninja: '鏡子裡站的是師妹，怎麼衝著我笑喵？',
+/**
+ * 鏡中那隻照的是**同伴**時，第一次看到牠講的話。
+ * 外層是我是誰、第二層是鏡子照的是誰（理由同 `MIXED_LINES`）。
+ *
+ * 查不到就退回自己那 111 句裡的 `mirror_qiuqiu`——那句講的是「鏡子裡的我」，
+ * 跟畫面上站的不是同一隻，但**至少不會叫錯人**，比指名道姓講錯好。
+ */
+// 2026-09-23 補齊十二組（跟 `MIRROR_EVENT_TEXT` 同一批）：缺的那幾組會退回「鏡子裡的我」，打的卻是同伴的影子
+export const MIXED_FIRST_MEET: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  feifei: {
+    ninja: '那是師兄的臉……可是師兄不會這樣笑。',
+    dangdang: '是噹噹的護臂……可是噹噹不會這樣看人。',
+    fengfeng: '封封的影子？……劍尖怎麼對著我。',
+  },
+  ninja: {
+    feifei: '鏡子裡站的是師妹，怎麼衝著我笑喵？',
+    dangdang: '鏡子裡的噹噹，怎麼先舉起護臂了喵？',
+    fengfeng: '那是封封的影子？劍別對著我喵！',
+  },
+  // 稿子 DD-MIR-02／03：只有對應的真人隊友真的在場時才用（這張表本來就只在混搭時查）
+  dangdang: {
+    ninja: '頭巾也一樣……球球，你別跟牠站在一起。',
+    feifei: '菲菲在我旁邊。你這個假的，別再往前了。',
+    fengfeng: '封封在我旁邊。拿著劍的這個，是假的。',
+  },
+  fengfeng: {
+    ninja: '那是球球的影子。球球，別跟牠站在一邊。',
+    feifei: '菲菲在我後面。你這個假的，把針放下。',
+    dangdang: '噹噹在我旁邊。你這副護臂是假的。',
+  },
 };
 
 /** 鏡中那隻照的是同伴時，牠的初見吐槽（`app.ts` 跳泡泡前過一手）；其餘魔物一律回 `undefined` */
 export function firstMeetLine(hero: string | undefined, enemyId: string): string {
   const h = hero ?? 'ninja';
   if (enemyId === 'mirror_qiuqiu' && coopStory.mirror && coopStory.mirror !== h) {
-    const mixed = MIXED_FIRST_MEET[h];
+    const mixed = MIXED_FIRST_MEET[h]?.[coopStory.mirror];
     if (mixed !== undefined) return mixed;
   }
   return storyFor(h).firstMeet[enemyId] ?? '';
 }
 
-/** 鏡中那隻照的是同伴（座位 0 跟我不同角色）：事件整句換成「假的同伴」版 */
-function mirrorEventText(hero: string | undefined, original: string): string | undefined {
-  const h = hero ?? 'ninja';
-  if (!coopStory.mirror || coopStory.mirror === h) return undefined;
-  return MIRROR_EVENT_TEXT[h]?.[original];
-}
-
 export function storyFor(hero: string | undefined): {
   prologue: DialogueLine[]; actClear1: DialogueLine[]; actClear2: DialogueLine[];
+  topScene: DialogueLine[];
   defeat: DialogueLine[]; victoryTeaser: string;
-  victory: DialogueLine[]; victoryNarration: Partial<Record<Exclude<DeckLeaning, 'plain'>, string>>;
+  victory: DialogueLine[]; victoryNarration: Partial<Record<DeckLeaning, string>>;
   hardModeEpilogue: string;
   battleStart: string[]; battleWin: string[]; hungry: string[]; lowHp: string[];
   chestLines: string[]; restNapLines: string[]; restSharpenLines: string[]; reviveLines: string[];
   firstMeet: Record<string, string>;
 } {
-  if (hero === 'feifei') return withMixed(hero, { ...feifeiDialogue, firstMeet: dialogue.firstMeetFeifei });
+  if (hero === 'fengfeng') return withMixed(hero, { ...fengfengDialogue, firstMeet: fengfengFirstMeet });
+  if (hero === 'feifei') return withMixed(hero, { ...feifeiDialogue, topScene: [], firstMeet: dialogue.firstMeetFeifei });
+  if (hero === 'dangdang') return withMixed(hero, { ...dangdangDialogue, topScene: [], firstMeet: dialogue.firstMeetDangdang });
   return withMixed(hero, {
     prologue: dialogue.prologue, actClear1: dialogue.actClear1, actClear2: dialogue.actClear2,
+    topScene: [],
     defeat: dialogue.defeat, victoryTeaser: dialogue.victoryTeaser,
     victory: dialogue.victory, victoryNarration: dialogue.masterFirstWordsNarration,
     hardModeEpilogue: dialogue.hardModeEpilogue,
@@ -794,6 +1463,26 @@ export function storyFor(hero: string | undefined): {
 }
 
 /**
+ * 帶著不眠香爐在貓窩打盹（2026-09-23 主控裁決）：睡了也不回血，醒來卻說「睡飽了，出發喵」是在騙人。
+ * 四隻各一句，講的是「那個香爐燻得睡不著」；照各自的口吻（球球句尾喵、菲菲結巴、噹噹短句講手上的東西、封封平靜講路）。
+ */
+export const RESTLESS_NAP_LINES: Readonly<Record<Hero, string>> = {
+  ninja: '那個香爐一直冒煙，燻得我整晚睡不著喵。',
+  feifei: '香、香爐的煙一直往鼻子鑽……我一整晚都沒闔眼，對不起……',
+  dangdang: '香爐還在冒煙。躺了半天，一點都沒睡著。',
+  fengfeng: '香爐的煙整夜沒停。沒睡著也好，天亮就上路。',
+};
+
+/**
+ * 打盹之後那一句吐槽從哪一組挑（貓窩畫面的單機與連線兩條路都走這支）。
+ * `restless`＝帶著「打盹不再回血」的秘寶、而且這一格真的沒回到血（44F 最後那個貓窩照樣回滿，那時照常講睡飽）。
+ */
+export function napLinesFor(hero: string | undefined, restless: boolean): readonly string[] {
+  if (restless) return [RESTLESS_NAP_LINES[(hero ?? 'ninja') as Hero] ?? RESTLESS_NAP_LINES.ninja];
+  return storyFor(hero).restNapLines;
+}
+
+/**
  * 把一句球球的台詞換成她的口氣：**只拿掉句尾的「喵」**。
  *
  * 魔物的初見吐槽本來走這一條，2026-09-12 使用者否決了（「不建議只把句尾的喵拿掉」），
@@ -801,306 +1490,6 @@ export function storyFor(hero: string | undefined): {
  * 塔主開場、換階段、倒下、上樓那批共 49 句，目前仍寫死 `speaker: '球球'`，
  * 由 `playDialogue` 的入口統一過一次，她才不會開口講「喵」。
  */
-/**
- * **共用事件裡她講的話，她自己的版本**（2026-09-13 使用者逐句改寫交回）。
- *
- * 鍵是球球的原句（含句尾的「喵」），值是她的。跟 `FEIFEI_BOSS_LINES` 同一套作法，
- * 連同一個已知的脆弱處也一樣：**改了 `events.ts` 裡球球那句的字，她這邊會靜靜掉回
- *「只拿掉喵」的舊行為，不報錯**。所以 `tests/content/feifei_event_lines.test.ts`
- * 盯著每一個鍵都還真的存在於 `events.ts`，對不上就變紅。
- *
- * 88 句全部有她的版本：當初收 82 句、留 6 句維持原樣，2026-09-14 使用者說「可以先做」補齊了。
- *
- * 她跟球球的差別，整批讀下來是這樣：球球是嘴硬、愛算帳、先衝再說；
- * 她是**先道歉、先退開、先確認自己有沒有受傷**，而且常常話講一半。
- */
-export const FEIFEI_EVENT_LINES: Readonly<Record<string, string>> = {
-  '字有點難認，先看圖好了喵。':
-    '是這招。我總在這裡卡住，原來手要這樣收。',
-  '這招看不懂，等找到師父再問他喵。':
-    '這幾招還看不懂。等見了面，再請師父教我。',
-  '數好了就讓開，我還要趕路喵。':
-    '數好了吧？那我過去了。',
-  '還在等幫手喵？我可不等喵。':
-    '我不想傷你。把木棒放下，讓我過去。',
-  '你們先吃，我坐一會兒就走喵。':
-    '先吃，別跟我客氣。我坐一下就走。',
-  '對不起，這些還得留著路上吃喵。':
-    '我不知道還要走多久，這袋得留著……對不起。',
-  '好苦，快給我一口水喵！':
-    '原來你也喝這麼苦的藥。我還以為只有師父會開。',
-  '傷還沒好，先別亂跑喵。':
-    '繃帶沒鬆。我走了，你也早點回村裡。',
-  '痛死了，早知道就踩穩再拿喵。':
-    '肩膀好痛，卷軸倒是一點都沒破。',
-  '這邊明明能走，差點白爬一趟喵。':
-    '這裡通得過！幸好沒有硬往上爬。',
-  '原來要往這邊，我再試試喵。':
-    '角度改成這樣，手就不會卡在這裡了。',
-  '睡了多久喵？該出發了喵。':
-    '真的睡著了……還好沒人看見。',
-  '誰放的機關，差點打到我喵！':
-    '差點打到鼻子！師父，這不會又是您放的吧？',
-  // 2026-09-14 紙條改成「意味不明」（使用者），原本那句「上面寫了別拿」對不上了
-  '這張紙條怪怪的，別開好了喵。':
-    '這種紙條最讓人想伸手……不能上當。',
-  '好舒服，連背都不痠了喵。':
-    '光斑都挪到旁邊了，我居然睡了這麼久。',
-  '這招老是出錯，就先不練了喵。':
-    '不用把每招都留著。這一招，我現在用不上。',
-  '飯糰都吃了，你怎麼還躲著我喵？':
-    '你這樣看著我做什麼？這飯糰裡到底放了什麼？',
-  '咬過的還拿出來賣，我才不買喵。':
-    '這個有人咬過了……我不買，謝謝。',
-  '下次跟緊一點，別再走丟了喵。':
-    '找到同伴了就好。下次頭巾滑下來，先掀開看看。',
-  '希望這趟能順利找到師父喵。':
-    '我不求別的，讓師父和師兄平安就好。',
-  '右肩抬太高了，這樣難怪打不準喵。':
-    '原來我出手時肩膀會歪，難怪總覺得不順。',
-  '還是留著買吃的好了喵。':
-    '願望我自己記著。小魚乾留在路上用。',
-  '這是在謝我喵？':
-    '這樣應該坐穩了。剛才那一下，是你在謝我嗎？',
-  '怎麼回事，胸口好冷喵！':
-    '這股冷氣是……我拿了你的東西，你生氣了？',
-  '兩個一起打，你們也好意思喵？':
-    '說好是切磋，別把人打傷了。你師弟也要上嗎？',
-  // 球球的原句 2026-09-14 使用者改成「人多算什麼本事」，她這句照舊（被撞、只想過去，情境沒變）
-  '不陪你打，就故意撞我喵？':
-    '肩膀都撞麻了。我說借過，又沒說要跟你練。',
-  '拿到了，可是爪子好痛喵。':
-    '拿到了！手火辣辣的，等下去再看。',
-  '原來爪痕是照順序留的喵。':
-    '這幾道爪痕連起來，剛好是一整招。',
-  '先挑一招學，別一次弄混了喵。':
-    '還好手勢畫得清楚，換個方向就差很多。',
-  '夠買頓飯了喵。':
-    '有這些小魚乾，下一頓就不用發愁了。',
-  '這湯真好喝喵。':
-    '連湯裡的料都燉軟了。真想坐久一點。',
-  '原來是給路過的人用的，我收下了喵。':
-    '還附了用法……是怕後來的人不會用吧。',
-  '連這也要學，那就來打一場喵。':
-    '我換手，你也換……到底怎樣才跟不上？',
-  '這地方真怪，別待了喵。':
-    '出來了……那些影子沒有跟上吧？',
-  '醒得也太快了喵！':
-    '是我不對。錢袋還在，你別追過來！',
-  '原來這樣走路，不用一直憋著氣喵。':
-    '腳步跟著呼吸，真的能不出聲。記住這種感覺。',
-  '這兩個怎麼用，你說清楚一點喵。':
-    '這兩個我沒用過，用的時候有什麼要留意的？',
-  '真的有用，就是賣得太貴了喵。':
-    '好貴……不過喝完真的比較有力氣了。',
-  '太貴了，這次先不買喵。':
-    '價錢我記下了，等口糧夠了再說。',
-  '下次別往那麼窄的地方鑽了喵。':
-    '出來了就好。笑成這樣，下次可別再鑽進去了。',
-  '結果出來了，該算清楚了喵。':
-    '我不押下一把了，心跳得太厲害。',
-  '好啊，這次不賭，直接打喵！':
-    '糟了，把他們全惹急了……木棍先放下！',
-  '不賭了，輸了就沒飯吃喵。':
-    '我連還要吃幾頓都不知道，不能拿這些來押。',
-  '這門也太重了，肩膀好痛喵。':
-    '秘寶拿到了，肩膀卻連衣服都不能碰。',
-  '拿到了，不用推門了喵。':
-    '還好手伸得進去，肩膀過去就卡住了。',
-  '師父以前也這樣教我喵。':
-    '您連糾正我的口氣都像他。我能再聽一遍嗎？',
-  '這兩招不適合我，換別的練喵。':
-    '這兩招留著也用不好。不勉強，反而接得上了。',
-  '又沒在跑，心怎麼跳得這麼快喵？':
-    '背不痠了，心口卻亂跳。那層紫霧，果然有問題。',
-  '葉子都在這裡，謝謝你的忍具喵。':
-    '忍具收好了，手上卻還是那股香味。',
-  '再聞下去，我也想躺下來滾了喵。':
-    '差點又想回頭了。把鼻子遮住，走到門外再說。',
-  '這個拿得動，先試它的招式喵。':
-    '這把還算順手。出手的方式先記下來。',
-  '這些鏽掉的也能賣，太好了喵。':
-    '鏽成這樣也收？那請您把尖的那頭包好。',
-  '我記住了，謝謝你教我喵。':
-    '我知道您是在擔心。您教的護身法，我會記著。',
-  '我知道上面危險，可是師父還沒回來喵。':
-    '我知道上面危險，可師父和師兄都還沒回來。',
-  '底下那隻是什麼，好大喵。':
-    '水底下那個……可不是這些小魚。',
-  '好吃，可是那隻大的還在，別抓了喵。':
-    '吃一條就夠了。我可不想再驚動水底那個。',
-  '好痛，我這就走喵！':
-    '原來那籃是你的！別打了，我走！',
-  '今天先放過你們喵。':
-    '我把手收回來了，水底那位別生氣。',
-  '這裡好像有人練過功喵。':
-    '地板都磨出了腳印，以前一定有人天天在這裡練。',
-  '從這邊轉過去，就不會卡住了喵。':
-    '這一步是為了轉身，難怪不能直接往前。',
-  '原來你在守這個喵。':
-    '你是守櫃子的？難怪剛才一聲不響。',
-  '有人在這裡餵貓喵？':
-    '這隻小貓刻得真像，只是碗裡空空的。',
-  '碗是你的喵？那這些給你吃喵。':
-    '你還會蹭人呀……是不是在這裡等很久了？',
-  '家裡這時候，應該也看得見月亮喵。':
-    '師父、師兄……你們那邊也看得到月亮嗎？',
-  '花了這麼多，可別賣壞東西給我喵。':
-    '東西齊了。您別再拿新的出來，我真的買不起。',
-  '不對，剛才明明還好好的喵。':
-    '東西是拿到了，氣卻接不上……這代價也太大了。',
-  '會留下毛病的功夫，我可不練喵。':
-    '拿了秘寶卻使不上力，我還怎麼走下去？不試了。',
-  '你娘曬的魚真香，替我謝謝她喵。':
-    '你娘好多了就好……也替我跟她說聲謝謝。',
-  '這招很有用，我學會了喵。':
-    '呼吸順多了，謝謝。回去替我問候你娘。',
-  '上次還沒打夠，這次又來喵？':
-    '看到你的木棒，我就知道又走不成了。',
-  '你們分吧，別再攔我喵。':
-    '你們分吧，我要趁現在走。',
-  '謝謝，我會好好保管喵。':
-    '我一直惦記著你的腳。這下看到你走路，總算放心了。',
-  '順多了，再幫我看看喵。':
-    '這裡不用停，直接接過去……對，就是這樣。謝謝你。',
-  '真好吃，謝謝你們請我喵。':
-    '你們都在，還有熱湯喝……我好久沒這樣吃飯了。',
-  '說好不挑的，就換這兩件吧喵。':
-    '真的換走了啊……好，要替我收好。',
-  '我帶的都還用得上，不換了喵。':
-    '背得動，還是留著。',
-  '練這個會傷身，得想清楚喵。':
-    '連身體都會練壞……這法子真的值得嗎？',
-  '呼，這次真的練過頭了喵。':
-    '胸口一直發虛，連站著都累。這下得省著力氣走了。',
-  '還沒決定放棄哪幾招，先算了喵。':
-    '學了反而撐不住，還是算了。',
-  '練了會怎樣，怎麼不寫清楚喵？':
-    '『後果自負』……哪種後果？怎麼不寫清楚。',
-  '怎麼會這樣，是哪裡練錯了喵？':
-    '收手的時候不對勁……剛才那招，真的能這樣練嗎？',
-  '來路不明的功夫，還是別亂練喵。':
-    '連墨都還沒乾，我可不敢照著亂練。',
-  /*
-   * 原本維持原樣的那 6 句（使用者 2026-09-14：「可以先做」）。
-   * 當時覺得「拿掉喵她講也通」，實際念起來還是球球的口氣；照她的記號補上：先道歉、話講一半、怕痛。
-   */
-  '對，就是那邊，看著路喵。':
-    '聽，那邊還在叫你。別讓他們找急了。',
-  '留給後面的人吧喵。':
-    '碗放回去了。留給下一個經過的人吧。',
-  '先轉肩膀，身子就過得去了喵。':
-    '原來要先轉肩膀，再把身子收過來。這動作也能拿來練。',
-  '上次收了你的口糧，這次換我請你吃喵。':
-    '上次收了你的口糧，這回換我請你。別再餓著自己了。',
-  '牠還餓著，我卻就這樣走了喵……':
-    '牠就那樣坐著看我走，我卻連頭都不敢抬……',
-  '夠吃一陣子了，謝謝你們喵。':
-    '連忍具都包好了。等我回來，再陪你們吃一頓。',
-};
-
-/**
- * 共用事件裡**整句換掉**的幾句（使用者 2026-09-14）。
- *
- * 一般的共用事件只換引號裡的台詞、把名字換成菲菲；可是鏡子走廊照這樣換，
- * 就變成「鏡中的菲菲」「與鏡中的自己過招」——開打之後對手卻是球球的剪影（鏡中球球）。
- * 使用者裁定（2026-09-14）：對她來說鏡子裡是長得像師兄的假貨。
- * **2026-09-15 改回「鏡中的自己」**：使用者決定做「影菲菲」（鏡貓照被抄那位的角色換外觀、也學她的毒針牌），
- * 假師兄的框架就不成立了。
- *
- * 鍵是球球的原句（整句，敘述、選項、結果都可以），值是她看到的整句，不再過名字替換與句尾的喵。
- * `tests/content/feifei_event_text.test.ts` 盯著每個鍵都還對得到事件裡的原句，改了球球那邊的字會變紅。
- */
-export const FEIFEI_EVENT_TEXT: Readonly<Record<string, string>> = {
-  // 敘述句裡就是球球的招牌動作（亮爪、吃成一顆球），只換名字會變成「菲菲亮出爪子」（總稽核 C 中-1、中-2）
-  '球球收緊魚乾袋，伸出爪子。山賊舉起木棒，又朝轉角看了一眼。球球：「還在等幫手喵？我可不等喵。」':
-    '菲菲將魚乾袋護在身後，從竹筒抽出一根針。山賊舉起木棒，頻頻朝轉角張望，像在等人接應。菲菲：「我不想傷你。把木棒放下，讓我過去。」',
-  '村貓們端來熱湯和飯菜，球球一碗接一碗地吃，身上的疲倦也減輕了。等肚子吃飽，牠才放下碗。球球：「真好吃，謝謝你們請我喵。」':
-    '村貓們輪流替她添湯。菲菲吃飽了，仍捧著碗坐在大家中間，聽牠們聊路上的事。菲菲：「你們都在，還有熱湯喝……我好久沒這樣吃飯了。」',
-  '走廊兩側排滿鏡子，無數個球球同時抬起頭。其中一面慢了半拍，接著，鏡中的球球竟先擺出了迎戰的架勢。':
-    '走廊兩側排滿鏡子。菲菲停步，其中一個倒影卻沒有停下。它朝她笑了笑，抬起握針的手；其餘的倒影，也一個個轉向了她。',
-  '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）':
-    '跟鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）',
-  '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」':
-    // 引號裡沿用使用者改寫過的那兩句（`FEIFEI_EVENT_LINES`），只換敘述。
-    // 不寫「學的是誰的招式」：鏡貓抄的是座位 0 的牌組，連線時她坐 1 號就是抄師兄的（審查 低-1）
-    '鏡中的菲菲踏出鏡面，握針的手勢與她完全相同。她試著將針交到另一隻手，對方立即照做，眼睛卻始終盯著她。菲菲：「我換手，你也換……到底怎樣才跟不上？」',
-  '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」':
-    '菲菲盯著出口，一口氣穿過走廊。跨過門檻後，她停在牆邊，側耳聽了聽身後的動靜。菲菲：「出來了……那些影子沒有跟上吧？」',
-};
-
-/**
- * 事件文案換角色：**敘述句換名字，她開口講的話換成她自己的版本**。
- *
- * 38 個事件的文案裡「球球」出現 197 次。她玩的時候會讀到
- * 「球球把受傷的村貓救到安全的角落」，整個出戲。
- *
- * **敘述句**做機械替換就好：那些講的是這座塔發生的事，換個主角照樣成立
- *（「菲菲把受傷的村貓救到安全的角落」唸起來一樣通）。
- *
- * **引號裡她講的話不行**（2026-09-13 使用者實測抓到）。原本這裡只拿掉句尾的「喵」，
- * 於是她會講出「價錢讓我心疼，藥倒是有下本。」——那是球球在賣藥三花貓那個事件的台詞，
- * 嘴硬又愛算計，跟她完全不是同一個人。使用者的原話：「我覺得好奇怪」。
- * 那 88 句交給使用者逐句改寫，收在 `FEIFEI_EVENT_LINES`（當時留的 6 句 2026-09-14 補齊了）。
- *
- * 順序：**整句替換先查**（`FEIFEI_EVENT_TEXT`），查不到才**先換句子再換名字**。
- * 反過來的話 `球球：「…」` 已經變成 `菲菲：「…」`，對照表的鍵（球球的原句）就對不上了。
- */
-
-/**
- * 事件旁白裡**指她**的「牠」換成「她」（使用者 2026-09-16 裁定「統一用她」）。
- *
- * 不能整段把「牠」都換掉：同一句裡常常還有別的貓（村貓、老鼠、母貓、灰貓、山賊、關主），
- * 那些照舊用「牠」。所以逐句挑出主角那幾處，換的是**片語**不是整段——
- * 整段抄一份會跟球球那邊各改各的，日後改一邊就靜靜分岔。
- * 每個片語在 `events.ts` 都必須剛好出現一次（`tests/content/feifei_ta.test.ts` 盯著）。
- */
-export const FEIFEI_TA: Readonly<Record<string, string>> = {
-  '牠坐起來揉揉肩膀': '她坐起來揉揉肩膀',
-  '差點打中牠的鼻子。牠嚇得往後縮': '差點打中她的鼻子。她嚇得往後縮',
-  '揮爪向牠道謝': '揮爪向她道謝',
-  '牠深吸一口氣，胸口也舒展了': '她深吸一口氣，胸口也舒展了',
-  '鑽進牠的胸口。牠急忙停下': '鑽進她的胸口。她急忙停下',
-  '撞得牠肩膀發麻。牠忍痛鑽過空隙': '撞得她肩膀發麻。她忍痛鑽過空隙',
-  '牠試著讓呼吸配合步伐': '她試著讓呼吸配合步伐',
-  '牠把空瓶還給三花貓': '她把空瓶還給三花貓',
-  '三花貓見牠不買': '三花貓見她不買',
-  '牠立刻湊上前看': '她立刻湊上前看',
-  '拿起木棍把牠圍住': '拿起木棍把她圍住',
-  '牠忍著痛走進去': '她忍著痛走進去',
-  '開始教牠護身吐納的方法': '開始教她護身吐納的方法',
-  '牠的呼吸比先前深了': '她的呼吸比先前深了',
-  '還在勸牠別上樓': '還在勸她別上樓',
-  '牠連忙縮手': '她連忙縮手',
-  '牠也有力氣繼續走': '她也有力氣繼續走',
-  '把牠打倒在地。牠爬起來': '把她打倒在地。她爬起來',
-  '輕輕蹭過牠的胸口': '輕輕蹭過她的胸口',
-  '沒再攔牠': '沒再攔她',
-  '牠趁機走了過去': '她趁機走了過去',
-  '牠甩甩爪子': '她甩甩爪子',
-  '指出牠抬爪的角度不對': '指出她抬爪的角度不對',
-  '牠越想越恍神': '她越想越恍神',
-  '拿出傷藥替牠包紮': '拿出傷藥替她包紮',
-};
-
-export function eventTextFor(hero: string | undefined, text: string): string {
-  // 鏡子走廊那隻照座位 0 變裝：坐 1 號又跟 0 號不同角色時，讀到的要是「假的同伴」版（2026-09-16）
-  const fake = mirrorEventText(hero, text);
-  if (fake !== undefined) return fake;
-  if (hero !== 'feifei') return text;
-  const override = FEIFEI_EVENT_TEXT[text];
-  if (override !== undefined) return mixedLine(hero, override);
-  const swapped = text.replace(/球球：「(.+?)」/su, (whole, inner: string) => {
-    const mine = FEIFEI_EVENT_LINES[inner];
-    // 引號裡那句也要過混搭（月亮窗那句「師父、師兄……你們那邊」，師兄就坐在旁邊——2026-09-16）
-    return mine === undefined ? whole : `球球：「${mixedLine(hero, mine)}」`;
-  });
-  let out = lineFor(hero, swapped.replace(/球球/g, '菲菲'));
-  // 指她的「牠」換成「她」（其他貓的照舊）
-  for (const [他, 她] of Object.entries(FEIFEI_TA)) if (out.includes(他)) out = out.replace(他, 她);
-  return out;
-}
-
 /**
  * 塔主那批共用台詞的她版（使用者 2026-09-12：「要 要改」）。
  *
@@ -1175,7 +1564,7 @@ export const FEIFEI_BOSS_LINES: Readonly<Record<string, string>> = {
   '這麼大一顆，滾過來可躲不掉喵！':
     '樓梯就這麼寬，你捲成球我要躲哪裡！',
   '原來還有一套爪法，真難纏喵。':
-    '還有另一套爪法……看清楚，不能照剛才的接。',
+    '還有另一套爪法……看清楚，不能照剛才那樣接。',
   '變出這麼多隻，哪隻才是真的喵？':
     '變出這麼多隻……哪一隻才是真的啊？',
   '自己躲在後面，倒叫別人來打喵！':
@@ -1223,6 +1612,12 @@ export const FEIFEI_BOSS_LINES: Readonly<Record<string, string>> = {
 };
 
 export function lineFor(hero: string | undefined, text: string): string {
+  // 查不到改句也要拿掉句尾的「喵」（2026-09-22 連線盤點 問題 10：過關拿信物那句原句照回，封封講了「信物喵！」）
+  // 混搭時再換一手（2026-09-23 稽核 中-1：原本沒過 `mixedLine`，跟球球一起爬還對貓又婆婆說「兩個徒弟都沒回村」）
+  if (hero === 'fengfeng') return mixedLine(hero, FENGFENG_BOSS_LINES[text] ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, ''));
+  // 噹噹跟她走同一條路：有重寫過的整句換掉，沒有的照舊只拿掉句尾的「喵」
+  if (hero === 'dangdang') return mixedLine(hero, DANGDANG_BOSS_LINES[text]
+    ?? text.replace(/喵(?=[！？。…～、,.!?]*[」』》）)"'’”]*$)/u, ''));
   if (hero !== 'feifei') return text;
   /*
    * 有重寫過的整句換掉；沒有的照舊只拿掉句尾的「喵」。
@@ -1252,8 +1647,151 @@ export const FEIFEI_CAST_LINES: Record<string, string> = {
   '你們還站著做什麼？快替本小姐收拾他！': '你們還站著做什麼？快替本小姐收拾她！',
 };
 
+
+/**
+ * 塔主那批共用台詞的**噹噹版**（2026-09-17）。
+ *
+ * 跟菲菲那份同一套作法、同一個已知的脆弱處：**鍵是球球的原句**，
+ * 改了球球那邊的字，他這邊會靜靜掉回原句（句尾還有「喵」），不報錯。
+ * 所以 `tests/content/dangdang_boss_lines.test.ts` 盯著每個鍵都還真的在球球那幾張表裡。
+ *
+ * 他跟另外兩位最大的差別：**他跟師父不是師徒**。球球喊「師父」、菲菲喊「師父、師兄」，
+ * 他喊的是「大俠貓」——村口修東西的鄰居，不是門下弟子。
+ * 所以他的理由也不是「我要把師父帶回家」，是「他村裡還有人等著」。
+ */
+export const DANGDANG_BOSS_LINES: Readonly<Record<string, string>> = {
+  '師父，是我，球球喵！你看清楚喵！':
+    '大俠貓，是我。村口修鍋的噹噹。',
+  '退隱也要回家喵！你看著我，我是你徒弟喵！':
+    '要回去，我陪您。先把手放下，好嗎？',
+  '師父，聽我說！我是球球，你的徒弟喵！':
+    '大俠貓！以前站不穩、讓您扶起來的那個，就是我！',
+  '師父，你都受傷了，別再打了喵！':
+    '您的手都在流血，別再使勁了！',
+  '婆婆，我得去救師父，再危險也要上去喵。':
+    '婆婆，我來接大俠貓。村裡還有人在等他。',
+  '他還有救就好，謝謝婆婆喵。':
+    '謝謝婆婆。我上去找他。',
+  '原來婆婆剛才還留了一手喵！':
+    '婆婆，那我得站遠點了。',
+  '胸口那道紫光，跟師父眼裡的一樣喵。':
+    '那團紫光，跟大俠貓眼裡的一樣。',
+  '它一直攔著路，看來非拆掉不可喵。':
+    '你不讓開，那我只好把你拆了。',
+  '師父身上的魔氣，也能散掉喵。':
+    '紫光散了。大俠貓身上的那團，也弄得掉。',
+  '爪子燒紅了，被碰到可不得了喵！':
+    '爪子燒紅了，不能貼著接！',
+  '村裡的小魚乾是你搶的喵？你跟上面那隻大貓是一夥的喵？':
+    '後面那些是村裡的糧食。你跟塔頂那位是一夥的？',
+  '既然不是一夥的，就別攔我，小魚乾也得還來喵。':
+    '那就讓路，糧食也放回來。',
+  '早說嘛喵。':
+    '桶子放著，我回來搬。別再拿了。',
+  '這麼大一顆，滾過來可躲不掉喵！':
+    '要滾過來了！往旁邊閃！',
+  '二當家，那大當家是誰喵？':
+    '你是二當家，誰是大當家？',
+  '那是我師父，我得上去看看他到底怎麼了喵。':
+    '那是大俠貓。他平常不會讓人堵路收東西。',
+  '我認識的師父，不會隨便傷人喵。':
+    '他以前陪我們練功，誰摔倒了，他都會伸手扶一把。',
+  '原來還有一套爪法，真難纏喵。':
+    '換成白爪，出手的方向也變了。',
+  '我不喝，師父交代過，狸貓遞的酒不能碰喵。':
+    '不喝。我來找大俠貓，你知道他在哪裡嗎？',
+  '變出這麼多隻，哪隻才是真的喵？':
+    '煙散了，人反而更多。哪隻是真的？',
+  '我只是從這裡經過，要去的是塔頂喵。':
+    '我踩髒的地方，回來再擦。現在得上樓。',
+  '自己躲在後面，倒叫別人來打喵！':
+    '妳也往前站，別光叫他們上。',
+  '借過一下，我要從那邊的樓梯上去喵。':
+    '借過。我只走樓梯，不進你的池子。',
+  '又叫來這麼多小兵，得先處理牠們喵。':
+    '小兵從旁邊來了，別讓牠們繞到後面。',
+  '殼上都是傷……牠看起來也不好受喵。':
+    '殼上這些傷，你也遇到塔裡的魔物了？',
+  '能不能讓我過去喵？我真的得上樓喵。':
+    '我從旁邊過。能不能挪開一點？',
+  '謝謝你讓路，剛才對不起喵。':
+    '剛才打痛你了，對不住。謝謝你讓路。',
+  '樓梯都被牠壓住了，不叫醒就過不去喵。':
+    '醒一醒，你壓住樓梯了。',
+  '那我走了，你繼續睡喵。':
+    '路空出來了。好，你接著睡。',
+  '這下全醒了，我得找地方躲喵！':
+    '終於睜眼了。這下得小心。',
+  '我沒殺誰，是來接師父回家的，請你讓開喵。':
+    '我沒有殺誰。我是來接大俠貓回去的。',
+  '好，我去叫他喵。':
+    '他的兩個徒弟都在找他。我這就上去。',
+  '身上長出鱗甲了，這魔氣還在變強喵。':
+    '鱗甲還在長，魔氣沒停。',
+  '這是師父寫的喵。':
+    '這是大俠貓的字。球球拿來的秘笈，也是這樣寫的。',
+  '他把秘笈帶在身邊，怎麼會掉在這裡喵？':
+    '書頁都折到了。他是一路帶著這本書上來的？',
+  '我還是得去找他喵。':
+    '我知道他變了。總得有人把他帶回去。',
+  '我還沒打算回去喵。':
+    '我還有人沒找到。',
+  '看來還沒打完喵。':
+    '架勢換了，不能照剛才那樣接。',
+  '還有力氣，我就繼續打喵。':
+    '魔氣又湧上來了……我還得撐住。',
+  '明天打贏關主，就能到上面找師父了喵。':
+    '守樓梯的就在上面，今晚先在這裡休息。',
+  '這裡正好能休息，先吃點東西，再把爪子磨好喵。':
+    '把護臂卸下來，手指都快彎不動了。',
+  '睡一下，還是先磨爪喵？':
+    '睡一覺，還是把接招的動作再練一遍？',
+  '越往上走，這股魔氣就越嗆喵。':
+    '這股氣味越來越重，喉嚨都發乾了。',
+  '剛才好像是師父的聲音，他是不是很痛喵？':
+    '剛才那聲音，是大俠貓吧？',
+  '得趕快過這一關，才能上去找他喵。':
+    '上樓以前，得先讓手臂休息一下。',
+  '明天就要見到師父了喵。':
+    '再上去，就是大俠貓了。',
+  '以前蜷縮練不好，都是師父在旁邊扶著我喵。':
+    '上次他一掌推過來，我連退三步。',
+  '等見到師父，不知道他還認不認得我喵。':
+    '這次不是練習，他不會收力。',
+  '這次一定要把他帶回家喵。':
+    '扣帶綁緊一點，明天得接住他那一掌。',
+};
+
+/**
+ * **不是主角在講、卻講到主角的那幾句**的噹噹版。跟 `FEIFEI_CAST_LINES` 同一個理由：
+ * `lineFor` 只管說話者是球球的句子，關主與旁白的原封不動，
+ * 於是貓又婆婆對他喊「孩子」時講的還是「你師父……」——他沒有師父。
+ */
+export const DANGDANG_CAST_LINES: Readonly<Record<string, string>> = {
+  '你師父……婆婆見過他上去。那雙眼睛已經是紫的了。婆婆守在這，就是不想再有孩子跟上去送命。':
+    '大俠貓……婆婆見過他上去。那雙眼睛已經是紫的了。婆婆守在這，就是不想再有孩子跟上去送命。',
+  '記住，他還沒被魔氣吞光。你要快，再晚，剩下的就不是你師父了。':
+    '記住，他還沒被魔氣吞光。你要快，再晚，剩下的就不是大俠貓了。',
+  '你師父？呵，上面那位灌的可不是酒，是魔氣。喝了就再也想不起自己是誰。':
+    '大俠貓？呵，上面那位灌的可不是酒，是魔氣。喝了就再也想不起自己是誰。',
+  '巨大的殼緩緩鬆開。牠看了球球一眼，慢慢挪到牆邊，把路讓了出來。':
+    '巨大的殼緩緩鬆開。牠看了噹噹一眼，慢慢挪到牆邊，把路讓了出來。',
+  '龍貓睜開一隻眼睛，看了球球一會，又慢慢閉上。牠只是想繼續睡。':
+    '龍貓睜開一隻眼睛，看了噹噹一會，又慢慢閉上。牠只是想繼續睡。',
+  '你師父？呵……貧僧也曾想勸他。結果你看，貧僧的眼睛也紫了。':
+    '大俠貓？呵……貧僧也曾想勸他。結果你看，貧僧的眼睛也紫了。',
+  '樓梯間掉著一本秘笈，翻開第一頁，是熟悉的字跡。':
+    '樓梯間掉著一本秘笈。噹噹撿起來，拍掉封面上的灰，翻開第一頁。',
+  '（氣勢整個變了）':
+    '對手突然換了架勢，周圍的氣流也跟著變了。',
+  '（魔氣直往天上冒）':
+    '更多魔氣從對手身上湧出，衝向塔頂。',
+};
+
 /** 塔主、旁白這類**非主角**說的話，講到主角的換成這一位的版本。球球那邊一個字不動 */
 export function castLineFor(hero: string | undefined, text: string): string {
+  if (hero === 'fengfeng') return FENGFENG_CAST_LINES[text] ?? text;
+  if (hero === 'dangdang') return DANGDANG_CAST_LINES[text] ?? text;
   return hero === 'feifei' ? (FEIFEI_CAST_LINES[text] ?? text) : text;
 }
 
@@ -1270,7 +1808,17 @@ export function pick<T>(xs: readonly T[]): T {
 const lastPick = new WeakMap<readonly unknown[], number>();
 
 /** 結局依牌組傾向換的那幾句用哪一派。`poison` 只有菲菲會判到，`stealth` 只有球球會判到 */
-export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'block' | 'plain';
+/**
+ * 牌組往哪一派長。第二派**看角色**：球球算隱身、菲菲算下毒、噹噹算反彈。
+ * `thorns` 是 2026-09-17 為噹噹加的——他的兩條路是「純擋」跟「挨了打再還回去」，
+ * 原本那四個值分不出這兩種。
+ */
+export type DeckLeaning = 'strength' | 'stealth' | 'poison' | 'thorns' | 'block' | 'plain';
+
+/** 每一位的第二派（2026-09-23 health H-2 第 2 塊：原本是三元式，沒列到的默默算隱身；封封照舊算隱身，這裡照原行為列出來） */
+const LEANING_ALT: Readonly<Record<Hero, 'stealth' | 'poison' | 'thorns'>> = {
+  ninja: 'stealth', feifei: 'poison', dangdang: 'thorns', fengfeng: 'stealth',
+};
 
 /**
  * 牌組傾向：只看這一路**自己拿的牌**（起始那十張不算——它們本來就偏蜷縮，算進去每個人都是蜷縮流）。
@@ -1284,7 +1832,7 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
    * `feifeiDialogue.victoryNarration` 沒有 stealth 鍵，別把第二派改回去。
    * 計數物件的鍵順序刻意跟原本一樣（爪力、第二派、蜷縮），球球算出來跟改之前一模一樣。
    */
-  const alt: 'stealth' | 'poison' = hero === 'feifei' ? 'poison' : 'stealth';
+  const alt = LEANING_ALT[(hero ?? 'ninja') as Hero] ?? 'stealth';
   const count = { strength: 0, alt: 0, block: 0 };
   /*
    * **兩位主角的起手牌都要排掉**（2026-09-12 補的）。
@@ -1294,7 +1842,9 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
    * 而那正是這支函式的註解自己寫著要避免的事（「算進去每個人都是蜷縮流」）。
    * 兩副牌的牌號不重疊，直接併成一個集合就好。
    */
-  const starter = new Set<string>([...STARTER_DECK, ...FEIFEI_STARTER_DECK]);
+  // 封封的起手牌也要排掉（2026-09-22：漏了這副，只帶起手十張就被判成蜷縮流，結局師父第一句幾乎每局都講錯）。
+  // 改從 `HEROES` 產生（2026-09-23 health H-2 第 2 塊）：手列四副的寫法 09-22 已經漏過封封一次，第五隻貓進來會自動算進去
+  const starter = new Set<string>(HEROES.flatMap((h) => starterDeckFor(h)));
   const picked = deckIds.filter((id) => !starter.has(id));
   for (const id of picked) {
     const def = cardById[id];
@@ -1306,11 +1856,18 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
      * **能力牌的毒包在 `power` 裡**（毒霧：每回合開始給全體上毒），只在她這條攤開一起數——
      * 球球那條不攤，攤開會改到他原本的判定（審查 中-1）。
      */
-    const flat = alt === 'poison' ? fx.flatMap((e) => (e.kind === 'power' ? [e, ...e.effects] : [e])) : fx;
+    const flat = alt === 'poison' || alt === 'thorns' ? fx.flatMap((e) => (e.kind === 'power' ? [e, ...e.effects] : [e])) : fx;
     const poisons = flat.some((e) => ('name' in e && e.name === '中毒' && !('target' in e && e.target === 'self'))
       || e.kind === 'poisonOnAttack' || e.kind === 'poisonBurst' || e.kind === 'poisonAllyNextAttack' || e.kind === 'watchPoisonHit');
     if (selfStatus('爪力')) count.strength += 1;
-    if (alt === 'stealth' ? selfStatus('隱身') || selfStatus('潛水') : poisons) count.alt += 1;
+    // 反彈流（噹噹）：給自己上反彈的牌，加上那兩個把反彈變強的長效旗標
+    const thorns = flat.some((e) => (e.kind === 'status' && e.target === 'self' && e.name === '反彈')
+      || e.kind === 'thornsBonus' || e.kind === 'blockWhenAttacked' || e.kind === 'blockFromThorns'
+      || e.kind === 'damageByOwnStatus'
+      // 橋接牌那三個也算反彈流（2026-09-17）：漏掉的話帶著整套橋接牌反而被判成沒有傾向
+      || e.kind === 'blockOnThorns' || e.kind === 'thornsFromSpend' || e.kind === 'blockToThorns'
+      || (e.kind === 'damageSpendBlock' && e.plusOwnStatus === '反彈'));
+    if (alt === 'stealth' ? selfStatus('隱身') || selfStatus('潛水') : alt === 'poison' ? poisons : thorns) count.alt += 1;
     if (fx.some((e) => e.kind === 'block')) count.block += 1;
   }
   const sorted = ([['strength', count.strength], [alt, count.alt], ['block', count.block]] as [Exclude<DeckLeaning, 'plain'>, number][])
@@ -1331,9 +1888,15 @@ export function deckLeaning(deckIds: readonly string[], hero?: string): DeckLean
  */
 export function defeatLastWord(hero: string | undefined): string {
   const lines = storyFor(hero).defeat;
+  /*
+   * 說話者**照角色查**，不要把名字寫死（2026-09-17 加噹噹時抓到）。
+   * 原本寫死「球球」與「菲菲」，加第三位之後這支回空字串——
+   * 落敗結算畫面的那句遺言會變成一片空白，而且不會有任何錯誤訊息。
+   */
+  const me = heroName({ hero: hero as Hero | undefined });
   for (let i = lines.length - 1; i >= 0; i -= 1) {
     const l = lines[i];
-    if (l && (l.speaker === '球球' || l.speaker === '菲菲')) return l.text;
+    if (l && l.speaker === me) return l.text;
   }
   return '';
 }
@@ -1347,8 +1910,15 @@ export function victoryLinesFor(deckIds: readonly string[], difficulty: number, 
   const second = lines[1];
   if (second && second.speaker === '塔主') second.text = dialogue.masterFirstWords[key];
   // 個人化那一句插在**師父講完之後**（兩位主角的第二句都是師父，位置一樣，不用分兩種寫法）
-  const narration = key === 'plain' ? undefined : story.victoryNarration[key];
-  if (narration) lines.splice(2, 0, { speaker: '旁白', text: narration });
-  if (difficulty >= 4) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
+  /*
+   * 「沒有明顯傾向」本來一律不插旁白。噹噹那份稿子連這一格都寫了一句
+   *（他卸下護臂，才發現裡面的布墊早就濕透），所以改成「有寫才播」。
+   * 球球與菲菲的表裡沒有 `plain` 這個鍵，兩位的行為跟改之前一模一樣。
+   */
+  const narration = story.victoryNarration[key];
+  // 標了 `narrationAfter` 的就接在那一句後面（封封：稿子寫「接 FG-V-03 後」，插句講的是他收劍那一下，2026-09-23）
+  const after = lines.findIndex((l) => l.narrationAfter);
+  if (narration) lines.splice(after >= 0 ? after + 1 : 2, 0, { speaker: '旁白', text: narration });
+  if (difficulty >= 4 && story.hardModeEpilogue) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
   return lines;
 }

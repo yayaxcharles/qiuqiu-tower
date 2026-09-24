@@ -11,7 +11,7 @@ export function inst(cardId: string, uid: number, upgraded = false): CardInstanc
 export function blankPlayer(deckIds: string[] = [], seat = 0): PlayerCombat {
   return {
     seat, relics: [], potions: [],
-    hp: 70, maxHp: 70, block: 0, armour: 0, statuses: {},
+    hp: 70, maxHp: 70, block: 0, statuses: {},
     energy: 3, maxEnergy: 3,
     // uid 加上座位偏移：真實遊戲裡 `RunState.nextUid` 是整局共用的，兩個人的牌不會撞號，
     // 測試也得照這條走——撞號的話「打對方的牌」會誤打成自己同號的那張，測出假的結果

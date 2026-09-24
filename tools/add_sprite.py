@@ -84,6 +84,9 @@ def main() -> None:
     ap.add_argument("--refit", action="store_true",
                     help="來源改成同組現成的 webp（已去背），把主體高度縮放到跟基準圖一樣、貼回基準畫布。"
                          "球球的待機批畫布 1005×1037、出招批 640×625，同一個框裡貓會差兩成（使用者 2026-09-08：忽大忽小），用這個把站姿全部對齊")
+    ap.add_argument("--scale", type=float, default=1.0,
+                    help="塞進框之後再把主體等比縮這麼多。縮成球、仰躺、坐地、蹲低的姿勢主體接近正方形，"
+                         "塞滿框就比站姿大一圈（使用者 2026-09-17：噹噹蜷縮變超大隻），用這個縮回跟站姿同一個頭身")
     args = ap.parse_args()
     group = args.group
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -161,6 +164,9 @@ def main() -> None:
             k = min(max_w / im.width, max_h / im.height)
             im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
             print(f"  {raw_name} 比畫布大，等比縮到 {im.size}")
+        if args.scale != 1.0:
+            im = im.resize((max(1, round(im.width * args.scale)), max(1, round(im.height * args.scale))), Image.LANCZOS)
+            print(f"  {raw_name} 再縮 {args.scale}，主體 {im.size}")
         # 出招／防禦圖在遊戲裡會比待機矮多少（2026-09-14 深夜，使用者：「有些怪物攻擊時的動作變得比待機小」）。
         # 畫布高度跟待機一樣、寬度最多放到框的比例，所以 contain 的縮放率兩張相同，
         # 「主體高 ÷ 待機主體高」就是玩家看到的比例。姿勢畫成橫向撲出（老鼠伏低刺矛、傀儡師針伸長）

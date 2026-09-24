@@ -1,4 +1,5 @@
 import { el } from './dom';
+import { goodsShrink, nextGoodsScale, type Box } from './goodsfit';
 
 /**
  * 劇場版面：整張底圖鋪滿舞台、插圖（或商品、或牌）立在中上方、底下一個跟序章幻燈片同一套的對白框，
@@ -11,6 +12,8 @@ export interface SceneOpts {
   art?: Node | string;
   /** 站在對白框左側的立繪（老闆、球球）；跟對白疊層的立繪同一個位置 */
   portrait?: string;
+  /** 站在右側的第二張立繪（連線限定事件：本機這一位在左、同伴在右，2026-09-23 內容擴充第二批） */
+  portrait2?: string;
   /** 對白框左上角的名牌；不給或給空字串就是旁白（字置中、冷色紙） */
   speaker?: string;
   text: string;
@@ -19,6 +22,12 @@ export interface SceneOpts {
   /** 對白框裡的按鈕；`column` 讓它們一列一顆撐滿（事件的選項），否則一排排開 */
   actions?: (Node | string)[];
   column?: boolean;
+  /**
+   * 同一個畫面只是內容換了一點的重畫（罐頭鋪買完、過關點選、連線時同伴投一票）：
+   * 對白框、立繪、戰利品列、備註不再播一次進場動畫（`.scene.calm`，樣式在 screens.css；畫面抖動稽核 2026-09-24）。
+   * 類別跟著這個新節點一起生、一起死，不會有「拿掉那一刻動畫重播」的問題。第一次進場、換成另一段內容照舊播
+   */
+  calm?: boolean;
 }
 
 export function sceneView(o: SceneOpts): HTMLElement {
@@ -28,12 +37,72 @@ export function sceneView(o: SceneOpts): HTMLElement {
     el('div', { class: 'dialogue-text scene-text' }, o.text),
     ...(o.extra ?? []),
     o.actions?.length ? el('div', { class: `scene-actions${o.column ? ' column' : ''}` }, ...o.actions) : '');
-  const scene = el('div', { class: 'scene' },
+  const scene = el('div', { class: o.calm ? 'scene calm' : 'scene' },
     o.art ? el('div', { class: 'scene-art' }, o.art) : '',
     o.portrait ? el('img', { class: 'scene-portrait', src: o.portrait, alt: '' }) : '',
+    o.portrait2 ? el('img', { class: 'scene-portrait right', src: o.portrait2, alt: '' }) : '',
     box);
   fitArt(scene, box);
+  if (scene.querySelector('.scene-goods')) watchGoods(scene);
   return scene;
+}
+
+/**
+ * 貨架與對白框的高度畫好之後還會變：牌面的圖晚到、牌面說明自己縮字（`cardview.ts` 的 `fitCardText`）、台詞晚到換成兩行，
+ * 第一版只在下一個畫格量一次，量的時候秘寶那排還沒沉下去，縮得不夠（實機量到還蓋 19 像素）。
+ * 改成盯著兩塊的大小（`ResizeObserver`），一變就重量；縮放用 `scale` 不改版面大小，不會自己觸發自己。畫面換掉就收掉。
+ * 對白框進場有一段 0.28 秒的彈入動畫（`base.css` 的 `dialogue-in`），那段時間量到的字比實際低；動畫播完（`animationend` 會冒泡上來）再量一次。
+ */
+function watchGoods(scene: HTMLElement): void {
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => refitGoods(scene)); else refitGoods(scene);
+  scene.addEventListener('animationend', () => refitGoods(scene));
+  if (typeof ResizeObserver !== 'function') return;
+  const watch = new ResizeObserver(() => {
+    if (!scene.isConnected) { watch.disconnect(); return; }
+    refitGoods(scene);
+  });
+  for (const e of scene.querySelectorAll('.scene-goods, .scene-box')) watch.observe(e);
+}
+
+/**
+ * 罐頭鋪的貨架讓位給對白（2026-09-24 實機驗收五 中，理由與純計算見 `goodsfit.ts`）：量每一格價錢跟對白框裡每一行字、每一顆按鈕，
+ * 左右有交集又上下撞到（含 `GOODS_GAP` 的留白），就把整座貨架從上緣往上縮（`scale`，原點在上緣正中，樣式表 `.scene-goods` 那條），
+ * 縮完再量一次（左右位置會跟著動），最多四輪。沒撞到就維持原樣——橘貓老闆那幾間一個像素都不動。
+ * 畫面畫好時 `sceneView` 自己叫；對白那一行字就地換掉（行腳商的 `say`）不重畫，要自己叫一次。
+ */
+export function refitGoods(scope: ParentNode): void {
+  const goods = scope.querySelector<HTMLElement>('.scene-goods');
+  const box = scope.querySelector<HTMLElement>('.scene-box');
+  if (!goods || !box || !goods.isConnected) return;
+  const k = stageScale();
+  const stage = document.getElementById('stage')?.getBoundingClientRect();
+  const ox = stage?.left ?? 0, oy = stage?.top ?? 0;
+  const R = (r: DOMRect): Box => ({ x: (r.left - ox) / k, y: (r.top - oy) / k, w: r.width / k, h: r.height / k });
+  goods.style.removeProperty('scale');
+  /*
+   * 對白框彈入動畫（`base.css` 的 `dialogue-in`，從下面 26 像素滑上來）播的時候，量到的字比實際低。
+   * 扣掉框現在的位移，量的是「動畫播完的位置」，什麼時候量都一樣（2026-09-24 使用者：長毛掌櫃那間買完東西畫面忽大忽小——
+   * 每買一次整個畫面重畫、框重播彈入，那 0.28 秒量到「不用縮」貨架彈回原大，播完又縮回去）。
+   */
+  const t = getComputedStyle(box).transform;
+  const lift = t && t !== 'none' && typeof DOMMatrixReadOnly === 'function' ? new DOMMatrixReadOnly(t).m42 : 0;
+  const settled = (b: Box): Box => ({ ...b, y: b.y - lift });
+  const covers: Box[] = [];
+  for (const e of box.querySelectorAll('.dialogue-speaker, .scene-text, .shop-reply, .event-note')) {
+    const range = document.createRange();
+    range.selectNodeContents(e);
+    for (const r of range.getClientRects()) if (r.width > 1 && r.height > 1) covers.push(settled(R(r)));
+  }
+  for (const b of box.querySelectorAll('.scene-actions .btn')) covers.push(settled(R(b.getBoundingClientRect())));
+  let scale = 1;
+  for (let i = 0; i < 4; i++) {
+    const top = R(goods.getBoundingClientRect()).y;
+    const prices = [...goods.querySelectorAll('.price')].map((p) => R(p.getBoundingClientRect()));
+    const next = nextGoodsScale(scale, goodsShrink(top, prices, covers));
+    if (next >= scale) break;   // 不用再縮，或已經縮到底
+    scale = next;
+    goods.style.scale = String(Math.floor(scale * 1000) / 1000);
+  }
 }
 
 /**
@@ -69,13 +138,16 @@ function fitArt(scene: HTMLElement, box: HTMLElement): void {
   const firstText = box.querySelector<HTMLElement>('.dialogue-speaker, .scene-text');
   // 量高度要等節點進到文件裡；`requestAnimationFrame` 在測試環境（jsdom、node）可能沒有
   const run = (): void => {
-    // `scene` 是每次 `sceneView()` 新建、`app.show()` 會整個清掉的節點，
-    // 所以它的 `isConnected` 真的代表「這張畫面還在不在」——
-    // 跟 `app.screen`（常駐節點、恆真）那個坑正好相反，這裡是安全的
+    // `scene` 是每次 `sceneView()` 新建的節點，畫面換掉它就跟著拔掉（淡入換場時晚 220 毫秒，舊畫面墊在底下淡出，
+    // 見 screenswap.ts）。這裡只是量版面，那段時間多量一次舊的也無害
     if (!scene.isConnected || !firstText) return;
     const k = stageScale();
     const sceneTop = scene.getBoundingClientRect().top;
-    const textTop = (firstText.getBoundingClientRect().top - sceneTop) / k;
+    // 對白框彈入動畫（從下面 26 像素滑上來）播的時候量到的字比實際低：扣掉框現在的位移，量播完的位置（同 `refitGoods`）。
+    // 不扣的話第一次進事件插圖撐到 360、壓到第一行字；連線時同伴一投票（安靜重畫不再彈入）才量對、插圖縮一截（畫面稽核重量 2026-09-24）
+    const t = getComputedStyle(box).transform;
+    const lift = t && t !== 'none' && typeof DOMMatrixReadOnly === 'function' ? new DOMMatrixReadOnly(t).m42 : 0;
+    const textTop = (firstText.getBoundingClientRect().top - sceneTop) / k - lift;
     if (!textTop) return;
     const ART_TOP = 18;   // `.scene-art` 的 top，對 `.scene` 算（screens.css:685）
     img.style.height = `${Math.max(210, Math.min(360, textTop - ART_TOP - 8))}px`;

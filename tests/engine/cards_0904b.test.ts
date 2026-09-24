@@ -33,7 +33,9 @@ describe('2026-09-04 補牌的新機制', () => {
     let cs = start([['cuiye', false]]); toHand(cs, 100);
     playCard(cs, 100, cs.enemies[0]!.uid);
     expect(foe(cs, '中毒')).toBe(0);
-    expect(cs.player.energy).toBe(8);
+    // 2026-09-17 使用者把催噎（菲菲那邊叫「絕學·毒發」）從 1 費調到 3 費，所以 9 − 3 = 6。
+    // 這一條的重點沒變：**對 0 層催不動，飯糰照樣扣掉**
+    expect(cs.player.energy).toBe(6);
 
     cs = start([['cuiye', false]]); toHand(cs, 100); cs.enemies[0]!.statuses['中毒'] = 4;
     playCard(cs, 100, cs.enemies[0]!.uid);

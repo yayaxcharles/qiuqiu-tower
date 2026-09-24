@@ -245,8 +245,9 @@ describe('幫隊友的九張牌', () => {
     const asIfDrawn = { ...card, hidden: undefined } as typeof card;
     expect(pickable(asIfDrawn, 'ninja', 1), '一個人玩不該開出連線牌').toBe(false);
     expect(pickable(asIfDrawn, 'ninja', 2), '兩個人就開得到').toBe(true);
-    // 一般牌不受人數影響
-    const normal = cardById['tanding']!;
+    // 一般牌不受人數影響。原本拿淡定當例子，2026-09-23 起手牌一律不進池（health H-7），改拿池子裡的共用牌
+    const normal = cardById['shunkan']!;
+    expect(normal.pool === '起手' || normal.hero || normal.coop || normal.hidden, '要是池子裡的一般共用牌').toBeFalsy();
     expect(pickable(normal, 'ninja', 1)).toBe(true);
     expect(pickable(normal, 'ninja', 2)).toBe(true);
   });

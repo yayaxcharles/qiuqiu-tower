@@ -3,8 +3,8 @@ import type { CardInstance } from '../engine/types';
 import { play } from './audio';
 import { upgradeDiff } from './cardtext';
 import { cardNode } from './cardview';
-import { el } from './dom';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { el, stageFrame } from './dom';
+import { closeWithScreen, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
 
 export interface DeckPickerOpts {
@@ -29,6 +29,11 @@ export interface DeckPickerOpts {
    * （使用者的原話：「升級兩張牌結果我點一張就跳過去結束了」）。
    */
   pickCount?: number;
+  /**
+   * 多選時湊到幾張就能按「確定」，預設＝`pickCount`（一定要挑滿）。
+   * 事件寫「至多 2 張」的那幾個選項傳 1：挑一張也算數（見 `eventPickRule`）。
+   */
+  minPick?: number;
   onPick: (uid: number | null) => void;
   /** 多選時改叫這個；使用者放棄就給空陣列 */
   onPickMany?: (uids: number[]) => void;
@@ -65,6 +70,24 @@ export function deckPickerLayout(
   };
 }
 
+/**
+ * 事件挑牌視窗的規矩**照選項上寫的字走**（2026-09-22 畫面盤點 問題 11）。
+ *
+ * 選項寫「升級至多 1 張牌」，視窗卻是不給關、「不選」灰掉按不下去，玩家以為可以不選、結果被卡在視窗裡。
+ * 寫「至多」的：可以不選、多選時挑一張也能確定；寫死張數的（「移除 1 張牌」「移除 2 張牌」「升級一張牌」）照舊一定要挑滿。
+ * `label` 給的是事件表裡的原文（球球那份），換角色的文案只換口氣不換這兩個字。
+ */
+export function eventPickRule(label: string, want: number, verb: string): { cancellable: boolean; minPick: number; title: string } {
+  const upTo = label.includes('至多');
+  const title = want > 1 ? `${upTo ? '最多' : ''}選 ${want} 張牌${verb}` : `選一張牌${verb}${upTo ? '（也可以不選）' : ''}`;
+  return { cancellable: upTo, minPick: upTo ? 1 : want, title };
+}
+
+/** 多選的「確定」按不按得下去：湊到 `minPick` 張就可以（預設要挑滿） */
+export function confirmReady(chosen: number, many: number, minPick = many): boolean {
+  return chosen >= Math.max(1, Math.min(minPick, many)) && chosen <= many;
+}
+
 /** 牌組檢視／挑牌疊層。挑完或關掉都會叫 onPick（沒挑就給 null） */
 export function showDeckPicker(opts: DeckPickerOpts): void {
   const layer = overlayRoot();
@@ -84,8 +107,14 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
   // 疊出兩個一模一樣的確認視窗。引擎那邊有守門（不會重複扣錢或白賺升級），純粹是玩家要多關一個視窗。
   // 寫法跟 `confirm.ts` 的 `done` 一致。
   let done = false;
+  /** 換到別的畫面時直接收掉、不叫回呼（見 `closeWithScreen`） */
+  const forget = closeWithScreen(() => {
+    if (done) return; done = true;
+    hidePreview(); overlay.remove(); unlockScreen(); hideTooltip();
+  });
   const dismiss = (uid: number | null): void => {
     if (done) return; done = true;
+    forget();
     hidePreview();
     overlay.remove();
     unlockScreen();
@@ -112,7 +141,7 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     hidePreview();
     const stage = document.getElementById('stage');
     if (!stage) return;
-    const k = 1280 / stage.getBoundingClientRect().width;
+    const { k } = stageFrame(stage);
     const or = overlay.getBoundingClientRect();
     const cr = node.getBoundingClientRect();
     // 升級只是「拿掉」東西的牌（出大事了少掉自傷、踏雪無痕少掉消耗、拼命少掉自傷、催噎少掉那句括號），
@@ -178,7 +207,7 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
   function refreshConfirm(): void {
     if (!confirm) return;
     confirm.textContent = `確定（${chosen.length}／${many}）`;
-    if (chosen.length === many) confirm.removeAttribute('disabled');
+    if (confirmReady(chosen.length, many, opts.minPick)) confirm.removeAttribute('disabled');
     else confirm.setAttribute('disabled', 'disabled');
   }
   refreshConfirm();

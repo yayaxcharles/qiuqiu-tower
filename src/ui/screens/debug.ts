@@ -4,12 +4,16 @@ import { newRun as engineNewRun } from '../../engine/run';
 import { actVariantKey } from '../screenbg';
 import { events } from '../../content/events';
 import { enemyNameFor } from '../../content/enemies';
-import { eventTextFor, storyFor, dialogue, lineFor, FEIFEI_EVENT_LINES, FEIFEI_BOSS_LINES } from '../../content/dialogue';
+import { storyFor, dialogue, lineFor, FEIFEI_BOSS_LINES } from '../../content/dialogue';
+// 經由事件畫面那一塊拿（2026-09-23 推前審查 低-1）：事件文案只有事件畫面直接引用，打包時才會跟事件畫面併成**同一塊**，
+// 下載失敗換網址參數重試時只有一個網址要換（見 `app.ts` 的 `loadEventScreen`）
+import { eventTextFor, FEIFEI_EVENT_LINES } from './event';
 import { registerScreen } from '../app';
 import { artUrl, eventArtKey, hasHeroSprite, heroArtUrl, setLocalHero, localHero } from '../assets';
 import { setSfxHero } from '../audio';
 import { cardNode } from '../cardview';
 import { el } from '../dom';
+import { HEROES, heroName, type Hero } from '../../engine/hero';
 
 /**
  * **除錯模式**（2026-09-14 使用者要求：「讓我能自由選擇或是移動到場景上，
@@ -80,7 +84,7 @@ registerScreen('debug', (app, root) => {
         return !m || ownEvent || hero !== 'feifei' || FEIFEI_EVENT_LINES[m[1]!] !== undefined;
       };
       const box = el('div', { class: 'dbg-event' },
-        el('h3', {}, e.title, e.hero ? el('span', { class: 'dbg-tag' }, `${e.hero === 'feifei' ? '菲菲' : '球球'}專屬`) : '',
+        el('h3', {}, eventTextFor(hero, e.title), e.hero ? el('span', { class: 'dbg-tag' }, `${heroName({ hero: e.hero })}專屬`) : '',
           e.fixedFloor ? el('span', { class: 'dbg-tag' }, `固定 ${e.fixedFloor}F`) : ''),
         el('div', { class: 'dbg-row' },
           shot(eventArtKey(e.id), '事件插圖'),
@@ -221,7 +225,8 @@ registerScreen('debug', (app, root) => {
      */
     const jump = (screen: 'rest' | 'chest' | 'shop' | 'result', act: number, label: string): HTMLElement =>
       el('button', { class: 'btn small', onclick: () => {
-        const run = engineNewRun('debug', 1, hero === 'feifei' ? 'feifei' : 'ninja');
+        // 照清單認，不要一個一個 if——第三隻貓進來時這一行漏改，除錯頁就永遠跳不到他的畫面
+        const run = engineNewRun('debug', 1, HEROES.includes(hero as Hero) ? hero as Hero : 'ninja');
         run.act = act;
         run.flags['prologue'] = true;          // 別播序章
         app.leaveCoop();
@@ -285,7 +290,7 @@ registerScreen('debug', (app, root) => {
       el('span', { class: 'dbg-title' }, '除錯模式'),
       tabBtn('事件'), tabBtn('牌'), tabBtn('台詞'), tabBtn('立繪'), tabBtn('劇情'), tabBtn('場景'),
       el('span', { class: 'dbg-sep' }, '｜'),
-      heroBtn('ninja', '球球'), heroBtn('feifei', '菲菲'),
+      ...HEROES.map((h) => heroBtn(h, heroName({ hero: h }))),
       el('button', {
         class: 'btn small dbg-close',
         onclick: () => { setLocalHero(heroBeforeDebug ?? 'ninja'); setSfxHero(heroBeforeDebug ?? 'ninja'); heroBeforeDebug = null; app.show('title'); },

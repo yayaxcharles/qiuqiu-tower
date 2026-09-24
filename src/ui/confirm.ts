@@ -4,7 +4,7 @@ import { localHero } from './assets';
 import type { CardInstance } from '../engine/types';
 import { cardNode } from './cardview';
 import { el } from './dom';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
 
 /**
@@ -76,7 +76,9 @@ export function showRemoveConfirm(card: CardInstance, cost: number, onDone: (ok:
   hideTooltip();
   const overlay = el('div', { class: 'modal-overlay' });
   let done = false;
-  const dismiss = (ok: boolean): void => { if (done) return; done = true; overlay.remove(); unlockScreen(); hideTooltip(); onDone(ok); };
+  // 整局被換掉（重新同步、離開連線）時一起收掉、不叫 onDone（推前稽核 2026-09-25 低-1，理由同 potionswap.ts）
+  const forget = closeWithStory(() => { if (done) return; done = true; overlay.remove(); unlockScreen(); hideTooltip(); });
+  const dismiss = (ok: boolean): void => { if (done) return; done = true; forget(); overlay.remove(); unlockScreen(); hideTooltip(); onDone(ok); };
   const shown = cardNode(card);
   overlay.append(el('div', { class: 'modal' },
     el('h2', { class: 'modal-title' }, `要放生「${cardNameFor(def, localHero())}${card.upgraded ? '＋' : ''}」嗎？`),

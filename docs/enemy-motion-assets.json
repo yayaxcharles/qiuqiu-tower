@@ -1,0 +1,459 @@
+{
+  "source": {
+    "root": "F:/GODOT/qiuqiu-2d-motion-lab/qiuqiu-air-combat-v005",
+    "main_gd": "scripts/main.gd",
+    "json": {
+      "rat_frames": {
+        "path": "assets/target/target_frames.json",
+        "bytes": 1210,
+        "sha256": "d28ec4133a19ee09fc5c2ed6f9f26c096be3a6a726dc7b8a4d995a57efbb9185"
+      },
+      "rat_attack": {
+        "path": "assets/target/attack_frames.json",
+        "bytes": 1562,
+        "sha256": "411a0a9bfbf746b3ef5edc564403b488c986205d45c63081045da7097472ff71"
+      },
+      "rat_air": {
+        "path": "assets/target/air_motions.json",
+        "bytes": 2979,
+        "sha256": "c6ce95634a0290f405f5abc3ea78ff9b3473fbef58819c5f4881a917d512868f"
+      },
+      "ninja_ground": {
+        "path": "assets/ninja/motions.json",
+        "bytes": 4605,
+        "sha256": "57d5059e1e2a251bfa350227a6aa85a7716bbdbb79b75cc5e967b6d40329c2c4"
+      },
+      "ninja_air": {
+        "path": "assets/ninja/air_motions.json",
+        "bytes": 2971,
+        "sha256": "e84812232b54a28ad182e2327177e7a28256bba6be775c4524bb7fcfe01e2d6e"
+      }
+    }
+  },
+  "target": {
+    "motion_data": "src/ui/enemy-motion-data.json",
+    "asset_directory": "public/assets/motion/enemies"
+  },
+  "textures": [
+    {
+      "source": {
+        "path": "assets/target/target_sheet.png",
+        "bytes": 1888705,
+        "sha256": "cac401edacb033f59ef6444268b24ff083ce46c9eecf556bdbfb652c0ced4168",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGB"
+      },
+      "output": {
+        "path": "public/assets/motion/enemies/rat-base.webp",
+        "texture": "assets/motion/enemies/rat-base.webp",
+        "bytes": 820820,
+        "sha256": "2acc365741808500a387e400123a0e9fe6e091123d3a80ceb6d2b108c094f4fc",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA",
+        "webp_chunk": "VP8L"
+      },
+      "consumers": [
+        "rat_frames/rat_frames"
+      ],
+      "source_transform": "anchored_frame_player.gd chroma shader baked to alpha",
+      "validation": {
+        "expected_dimensions": [
+          1536,
+          1024
+        ],
+        "output_dimensions": [
+          1536,
+          1024
+        ],
+        "output_mode": "RGBA",
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "visible_pixels": 586970,
+        "transparent_pixels": 985894,
+        "visible_pixels_and_alpha_match": true
+      }
+    },
+    {
+      "source": {
+        "path": "assets/target/attack_sheet.png",
+        "bytes": 1387684,
+        "sha256": "bc86377323c6e0335f3930874947460f7a8b0f92a6dc35d2b778ac276a3cf146",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/enemies/rat-attack.webp",
+        "texture": "assets/motion/enemies/rat-attack.webp",
+        "bytes": 935286,
+        "sha256": "6bcf53f4e93db95123c475fc3e092c70a3d90bfb2893ca7ee30da3a2696cd407",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA",
+        "webp_chunk": "VP8L"
+      },
+      "consumers": [
+        "rat_attack/rat_attack"
+      ],
+      "source_transform": "RGBA conversion only",
+      "validation": {
+        "expected_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "output_mode": "RGBA",
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "visible_pixels": 590082,
+        "transparent_pixels": 983456,
+        "visible_pixels_and_alpha_match": true
+      }
+    },
+    {
+      "source": {
+        "path": "assets/target/air_sheet.png",
+        "bytes": 1459133,
+        "sha256": "3d6822a5ecd9d0b4ae17b3b533aa86c3975d8d1cb43e66993d6fa5cc950af15a",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/enemies/rat-air.webp",
+        "texture": "assets/motion/enemies/rat-air.webp",
+        "bytes": 983008,
+        "sha256": "719cffe5239dea49e67fdc2163be43a68c8234bd8eb20d35d6465804e67aba36",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA",
+        "webp_chunk": "VP8L"
+      },
+      "consumers": [
+        "rat_air/idle",
+        "rat_air/air_rise",
+        "rat_air/air_fall",
+        "rat_air/knockdown",
+        "rat_air/getup"
+      ],
+      "source_transform": "RGBA conversion only",
+      "validation": {
+        "expected_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "output_mode": "RGBA",
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "visible_pixels": 609854,
+        "transparent_pixels": 963684,
+        "visible_pixels_and_alpha_match": true
+      }
+    },
+    {
+      "source": {
+        "path": "assets/ninja/motion_sheet.png",
+        "bytes": 1582263,
+        "sha256": "c19a2a5e1c511e319ac89b63b38eadebf71dbd33294d344e3d3de0f6931c7bae",
+        "dimensions": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/enemies/ninja-ground.webp",
+        "texture": "assets/motion/enemies/ninja-ground.webp",
+        "bytes": 1097680,
+        "sha256": "a204339f85fd3fef8495df8d0c50dd7f547d7c20a245991d5a523f8576e21478",
+        "dimensions": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA",
+        "webp_chunk": "VP8L"
+      },
+      "consumers": [
+        "ninja_ground/idle",
+        "ninja_ground/run",
+        "ninja_ground/attack",
+        "ninja_ground/hurt"
+      ],
+      "source_transform": "RGBA conversion only",
+      "validation": {
+        "expected_dimensions": [
+          1254,
+          1254
+        ],
+        "output_dimensions": [
+          1254,
+          1254
+        ],
+        "output_mode": "RGBA",
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "visible_pixels": 738200,
+        "transparent_pixels": 834316,
+        "visible_pixels_and_alpha_match": true
+      }
+    },
+    {
+      "source": {
+        "path": "assets/ninja/air_sheet.png",
+        "bytes": 1158373,
+        "sha256": "a79c3de8dbd89b4fa57818049dde10b7546789e2d76974017d242859648ad4e0",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/enemies/ninja-air.webp",
+        "texture": "assets/motion/enemies/ninja-air.webp",
+        "bytes": 750168,
+        "sha256": "83a6b46fd507c4e11e557c5744671b522c9ac6aada2d33c8080c1c2000a5693c",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA",
+        "webp_chunk": "VP8L"
+      },
+      "consumers": [
+        "ninja_air/idle",
+        "ninja_air/air_rise",
+        "ninja_air/air_fall",
+        "ninja_air/knockdown",
+        "ninja_air/getup"
+      ],
+      "source_transform": "RGBA conversion only",
+      "validation": {
+        "expected_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "output_mode": "RGBA",
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "visible_pixels": 595241,
+        "transparent_pixels": 978297,
+        "visible_pixels_and_alpha_match": true
+      }
+    }
+  ],
+  "kinds": {
+    "rat": {
+      "ready_actions": [
+        "idle",
+        "attack",
+        "hurt",
+        "air_rise",
+        "air_fall",
+        "knockdown",
+        "getup"
+      ],
+      "native_height": 231,
+      "normalized_height": 150,
+      "idle_visible_height_from_alpha": 231.5,
+      "source_facing": "mixed",
+      "canvas_facing": "left",
+      "actions": {
+        "idle": {
+          "source": "target_frames.json frame 1",
+          "frames": 1,
+          "duration_ms": 100,
+          "texture": "assets/motion/enemies/rat-base.webp",
+          "source_facing": "left"
+        },
+        "attack": {
+          "source": "attack_frames.json frames 1-8",
+          "frames": 8,
+          "duration_ms": 820,
+          "texture": "assets/motion/enemies/rat-attack.webp",
+          "source_facing": "right"
+        },
+        "hurt": {
+          "source": "target_frames.json frames 2-6",
+          "frames": 5,
+          "duration_ms": 400,
+          "texture": "assets/motion/enemies/rat-base.webp",
+          "source_facing": "left"
+        },
+        "air_rise": {
+          "source": "target/air_motions.json air_rise",
+          "frames": 2,
+          "duration_ms": 240,
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "source_facing": "right"
+        },
+        "air_fall": {
+          "source": "target/air_motions.json air_fall",
+          "frames": 2,
+          "duration_ms": 210,
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "source_facing": "right"
+        },
+        "knockdown": {
+          "source": "target/air_motions.json knockdown",
+          "frames": 2,
+          "duration_ms": 200,
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "source_facing": "right"
+        },
+        "getup": {
+          "source": "target/air_motions.json getup",
+          "frames": 2,
+          "duration_ms": 280,
+          "texture": "assets/motion/enemies/rat-air.webp",
+          "source_facing": "right"
+        }
+      },
+      "air_frame_bottom_offsets_at_normalized_height": {
+        "air_rise": [
+          0.405844,
+          -16.233766
+        ],
+        "air_fall": [
+          -23.944805,
+          0.405844
+        ],
+        "knockdown": [
+          1.217532,
+          0.405844
+        ],
+        "getup": [
+          0.405844,
+          0.405844
+        ]
+      }
+    },
+    "ninja": {
+      "ready_actions": [
+        "idle",
+        "attack",
+        "hurt",
+        "air_rise",
+        "air_fall",
+        "knockdown",
+        "getup"
+      ],
+      "native_height": 231,
+      "normalized_height": 210,
+      "idle_visible_height_from_alpha": 230.85,
+      "source_facing": "right",
+      "canvas_facing": "left",
+      "actions": {
+        "idle": {
+          "source": "ninja/motions.json idle",
+          "frames": 1,
+          "duration_ms": 1000,
+          "texture": "assets/motion/enemies/ninja-ground.webp",
+          "source_facing": "right"
+        },
+        "attack": {
+          "source": "ninja/motions.json attack",
+          "frames": 4,
+          "duration_ms": 720,
+          "texture": "assets/motion/enemies/ninja-ground.webp",
+          "source_facing": "right"
+        },
+        "hurt": {
+          "source": "ninja/motions.json hurt",
+          "frames": 4,
+          "duration_ms": 400,
+          "texture": "assets/motion/enemies/ninja-ground.webp",
+          "source_facing": "right"
+        },
+        "air_rise": {
+          "source": "ninja/air_motions.json air_rise",
+          "frames": 2,
+          "duration_ms": 240,
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "source_facing": "right"
+        },
+        "air_fall": {
+          "source": "ninja/air_motions.json air_fall",
+          "frames": 2,
+          "duration_ms": 210,
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "source_facing": "right"
+        },
+        "knockdown": {
+          "source": "ninja/air_motions.json knockdown",
+          "frames": 2,
+          "duration_ms": 200,
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "source_facing": "right"
+        },
+        "getup": {
+          "source": "ninja/air_motions.json getup",
+          "frames": 2,
+          "duration_ms": 280,
+          "texture": "assets/motion/enemies/ninja-air.webp",
+          "source_facing": "right"
+        }
+      },
+      "air_frame_bottom_offsets_at_normalized_height": {
+        "air_rise": [
+          1.236364,
+          -22.872727
+        ],
+        "air_fall": [
+          -22.872727,
+          1.236364
+        ],
+        "knockdown": [
+          1.236364,
+          1.236364
+        ],
+        "getup": [
+          1.236364,
+          1.236364
+        ]
+      }
+    }
+  },
+  "reuse_notes": {
+    "rat": "待機取 target_frames 第 1 格；受傷取第 2-6 格，沒有新增或捏造影格。",
+    "ninja": "所有要求動作都有獨立來源；未使用 motions.json 的 run。"
+  },
+  "summary": {
+    "kind_count": 2,
+    "unique_source_texture_count": 5,
+    "output_texture_count": 5,
+    "same_source_texture_deduplicated": true,
+    "all_outputs_vp8l": true,
+    "all_visible_pixels_and_alpha_match": true
+  }
+}

@@ -3,7 +3,7 @@ import { cardById, cardNameFor } from '../../content/cards';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
-import { closeCardReward, runRng, takeCardReward, upgradeCard } from '../../engine/run';
+import { closeCardReward, heroesIn, relicForPartnerOnly, runRng, takeCardReward, upgradeCard } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import type { CardInstance } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -83,7 +83,7 @@ registerScreen('reward', (app, root, props) => {
       const picks = onlyStanding(coop.picks('relic', run.players.length), alive());   // 結算前先洗掉倒下的人那幾票：不洗的話結果會跟票到達的順序有關（稽核第二輪 高-5）
       if (!allVoted(picks, alive())) return;
       r.relicSettled = true;
-      const got = settleRelicPicks(runRng(run), offers, picks);
+      const got = settleRelicPicks(runRng(run), offers, picks, heroesIn(run));   // 撞件輸的那位不會被塞鎖他的那件（2026-09-23）
       notice(relicOutcomeText(offers, picks, got, seat));   // 誰拿到什麼、有沒有擲骰，講出來（使用者 2026-09-15）
       /*
        * **分不到的座位也要算完成**（2026-09-12 稽核 中-1）。
@@ -293,9 +293,12 @@ registerScreen('reward', (app, root, props) => {
       if (!d) continue;
       const who = picks.map((v, i) => (v === id ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
       const got = me(run, seat).relics.includes(id);
-      const b = el('button', { class: `relic-offer${mine === id ? ' picked' : ''}${got ? ' got' : ''}` },
+      // 鎖住我、只有同伴用得到的那件要講明白（推前審查 2026-09-23 中-1，照過關三選一的做法）：清單照「有一位用得到」開
+      const partnerOnly = relicForPartnerOnly(run, id, seat);
+      const b = el('button', { class: `relic-offer${mine === id ? ' picked' : ''}${got ? ' got' : ''}${partnerOnly ? ' partner-only' : ''}` },
         icon(d.art, d.name),
-        el('span', { class: 'relic-offer-text' }, el('b', {}, d.name), el('em', {}, d.text)),
+        el('span', { class: 'relic-offer-text' }, el('b', {}, d.name),
+          partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '', el('em', {}, d.text)),
         who.length ? el('span', { class: 'relic-offer-who' }, who.join('、')) : '');
       if (mine || r.relicSettled || iDown) b.setAttribute('disabled', 'disabled');
       else b.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
@@ -317,7 +320,9 @@ registerScreen('reward', (app, root, props) => {
    * 怎麼問、怎麼畫的判斷在 `potionask.ts`（純函式，有測試釘著）。
    */
   // 倒下的人沒分到這支、背包也沒滿：原本 `potionMissed`（站著的人全收不下）連他一起問，按「換」被引擎擋下又回到沒問過，同伴一動就再彈（推前審查 2026-09-16 中-1）
-  const missedId = iDown ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? r.potion : null));
+  // 兩個人、有人帶藥簍時各拿各的那一支（`potionPerSeat`，2026-09-23 第三批）；沒有就是大家同一支
+  const myPotion = r.potionPerSeat ? r.potionPerSeat[seat] ?? null : r.potion;
+  const missedId = iDown ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? myPotion : null));
   const missed = missedId ? potionById[missedId] : undefined;
   if (missed && missedId) {
     const label = (): Node[] => [el('b', {}, missedPotionLabel(r.potionAsk, missed.name)), el('em', {}, missed.text)];
@@ -327,7 +332,8 @@ registerScreen('reward', (app, root, props) => {
     // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）；
     // 計時器到的時候再看一次記號：這 350 毫秒裡重畫過，那一次的計時器可能已經先開了視窗
     if (shouldAskPotion(r.potionAsk)) window.setTimeout(() => {
-      if (!line.isConnected || !shouldAskPotion(r.potionAsk)) return;
+      // 看「還在現在的畫面上」不看 `isConnected`：換場後舊畫面會墊在底下淡出（見 screenswap.ts），那段時間它還連在文件上
+      if (!app.screen.contains(line) || !shouldAskPotion(r.potionAsk)) return;
       r.potionAsk = 'asking';
       showPotionSwap(run, newId, (idx) => {
         // 換不成（連線停了）就回到沒問過，下一次重畫再問；換了要送出去，只改本機會分岔（稽核 高-3）
@@ -341,7 +347,7 @@ registerScreen('reward', (app, root, props) => {
       }, { seat, apply: false });
     }, 350);
   }
-  const potion = r.potion && !missedId && !iDown ? potionById[r.potion] : undefined;
+  const potion = myPotion && !missedId && !iDown ? potionById[myPotion] : undefined;
   if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),
     el('span', { class: 'reward-line' },
       el('b', {}, `獲得忍具「${potion.name}」`), el('em', {}, potion.text))));
@@ -413,13 +419,16 @@ registerScreen('reward', (app, root, props) => {
   root.append(sceneView({
     art: middle,
     speaker: r.escaped ? '牠散掉了' : title,
+    // 倒下的人沒得挑（牌是灰的），不要寫「選一張牌帶走」（2026-09-22 連線盤點 問題 3）
     text: r.escaped ? '一團煙散在空氣裡，什麼都沒剩下。走吧。'
+      : iDown ? '你倒下了，這次拿不到新牌。等同伴挑完就一起上樓。'
       : waiting ? '挑好了，等同伴挑完就一起上樓。'
       : myCards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
     extra: [items],
-    actions: [waiting
-      // 已經挑完就只留一顆按不下去的鈕：兩個人得一起走，這裡不能讓任何一邊先跑
-      ? el('button', { class: 'btn', disabled: 'disabled' }, '等對方…')
+    actions: [waiting || iDown
+      // 已經挑完就只留一顆按不下去的鈕：兩個人得一起走，這裡不能讓任何一邊先跑。
+      // 倒下的人也一樣：他那一票結算時本來就會被洗掉，按「放棄牌並跳過」只是看起來能走
+      ? el('button', { class: 'btn', disabled: 'disabled' }, !iDown ? '等對方…' : r.escaped ? '等同伴…' : '等同伴選…')
       /*
        * **秘寶還沒挑就不放行**（稽核 2026-09-11 中-5）。
        *
@@ -431,5 +440,7 @@ registerScreen('reward', (app, root, props) => {
         ? el('button', { class: 'btn', disabled: 'disabled' }, '先挑一件秘寶')
         : el('button', { class: 'btn primary', onclick: () => done(null) },
           !r.escaped && myCards.length ? '放棄牌並跳過' : '繼續')],
+    // 同伴投一票的安靜重畫：對白框與戰利品列不再彈一次（畫面抖動稽核 2026-09-24 第 4 項，見 `App.redraw`）
+    calm: app.redraw,
   }));
 });

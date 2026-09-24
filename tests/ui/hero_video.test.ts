@@ -22,8 +22,13 @@ describe('過場影片要看角色', () => {
       if (!/playVideo\(/.test(line)) return;
       if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;          // 註解不算
       if (/import .*playVideo/.test(line)) return;          // 匯入那一行不算
-      // 開頭：檔名從對照表查出來、查不到就不播（同一行要看得到 `clip ?`）
+      /*
+       * 開頭：檔名從對照表查出來、查不到就不播。同一行要看得到那個判斷——
+       * 三元式與 `if` 兩種寫法都收（2026-09-17 把序章抽成 `playPrologue` 時改成 `if`，
+       * 守的是同一件事：`clip` 是 `OPENING_CLIP[hero]` 查來的，查不到就不會走到這裡）。
+       */
       if (/clip \? playVideo\(clip,/.test(line)) return;
+      if (/if \(clip\) playVideo\(clip,/.test(line)) return;
       // 結尾：仍寫成只給球球的三元式
       if (/=== 'ninja'/.test(line)) return;
       bad.push(`${i + 1}: ${line.trim().slice(0, 110)}`);
@@ -33,8 +38,12 @@ describe('過場影片要看角色', () => {
 
   it('開頭影片對照表：球球與菲菲各一支、鐵爪機關貓沒有；結尾那支還在', () => {
     expect(SRC).toMatch(/OPENING_CLIP[^\n]*=\s*\{[^}]*ninja: 'opening'[^}]*feifei: 'opening_feifei'/);
-    expect(SRC).not.toMatch(/samurai: 'opening/);
     expect(SRC).toContain("playVideo('ending'");
+  });
+
+  it('連線局通關不播球球的單人結尾影片（2026-09-23，比照開場連線不播）', () => {
+    const line = SRC.split('\n').find((l) => /playVideo\('ending'/.test(l) && !/^\s*(\/\/|\*)/.test(l)) ?? '';
+    expect(line).toMatch(/!this\.coop && \(me\(run, this\.seat\)\.hero \?\? 'ninja'\) === 'ninja' \? playVideo\('ending'/);
   });
 
   it('菲菲的開頭影片檔真的在（對照表寫了就要有檔，不然她的開場會少一段而沒人發現）', () => {

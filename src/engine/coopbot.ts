@@ -1,22 +1,25 @@
 import { cardById } from '../content/cards';
 import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
+import { relicById } from '../content/relics';
 import { advanceMove, log, runEnemyEffects } from './actions';
 import { allReady, beginEnemyTurn, finishEnemyTurn, setReady, stepEnemyTurn } from './combat';
 import { coopHpMul } from './coopscale';
-import type { Hero } from './hero';
+import { choiceEffectsFor, visibleChoices } from './eventcond';
+import { heroOf, type Hero } from './hero';
 import { nextChoices } from './map';
-import { settleRelicPicks } from './rewards';
+import { relicOk, settleRelicPicks } from './rewards';
 import { Rng, seedFromString } from './rng';
 import {
   ACTS, addCard, advanceAct, applyRunEffects, beginCombat, buyCard, buyPotion, buyRelic, buyRemove, chooseNode,
-  closeCardReward, finishCombat, makeShops, newCoopRun, openChestCoop, removeCard, rest, resolvePendingAfterFight,
+  closeCardReward, finishCombat, heroesIn, makeShops, newCoopRun, openChestCoop, purifyRelic, removeCard, removePrice, rest, resolvePendingAfterFight,
   revivePartner, rollActCardsPerSeat, rollActRelics, runRng, takeCardReward, takeRelic, upgradeCard,
-  type RunEffectOutcome } from './run';
+  type RunEffectOutcome, makeMerchants, openRoadsideBoxCoop } from './run';
+import { ambushOutcomes } from './qmark';
 import { me, standing } from './runplayer';
 import { addStatus } from './statuses';
-import { bestUpgrade, deckJunk, eventValue, pickCard, rating, relicRating, smartPending, smartSeatAct } from './smartbot';
-import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunState } from './types';
+import { bestPurify, bestRelic, bestUpgrade, deckJunk, eventValue, keeperDetour, keeperPotions, keeperServices, napWorks, pickCard, pillowWorthNap, rating, relicRating, restPurifyPick, scoutDue, setBonusScore, shopAtMerchant, smartBless, smartPending, smartSeatAct, takePillowCard } from './smartbot';
+import type { CombatState, EnemyCombat, EnemyPool, MapNode, RunEffect, RunState } from './types';
 
 /**
  * **兩個人的量平衡機器人**（2026-09-16）。
@@ -89,6 +92,8 @@ export interface CoopStats {
   coopCards: number[];
   fights: CoopFight[];
   bosses: { id: string; act: number; turns: number; won: boolean; hpIn: number[]; maxHp: number[] }[];
+  /** 走進了哪些事件、挑了第幾個選項（2026-09-23 內容擴充第二批：量連線限定事件有沒有真的走完、兩人分工選了哪邊） */
+  events: { id: string; choice: number }[];
 }
 
 // ===== 戰鬥 =====
@@ -106,7 +111,7 @@ export function applyTuning(cs: CombatState, players: number, t: CoopTuning): vo
   if (want !== undefined) {
     // 引擎是「基礎血 × 遭遇倍率 × 難度倍率 × 人數倍率」算出來的，這裡只換掉**人數**那一項：
     // 拿新舊倍率的比值去乘現有的血量。四捨五入會跟直接改表差個一兩點，對統計沒有影響。
-    const ratio = want / coopHpMul(pool, players);
+    const ratio = want / coopHpMul(pool, players, cs.encounterId);
     if (ratio !== 1) {
       for (const e of cs.enemies) {
         e.maxHp = Math.max(1, Math.round(e.maxHp * ratio));
@@ -200,10 +205,12 @@ function nodeScoreCoop(run: RunState, n: MapNode): number {
   const anyDown = run.players.some((p) => p.down);
   const fish = Math.min(...run.players.map((p) => p.fish));
   const canUpgrade = run.players.some((_, i) => !!bestUpgrade(run, i));
+  // 缺血而且**打盹真的回得了血**的那位才算「要去睡」（帶不眠香爐的睡了也不回，2026-09-23）；沒人帶時跟 `hpPct < 0.55` 同一件事
+  const needNap = alive.some((p) => p.hp / p.maxHp < 0.55 && napWorks(run, run.players.indexOf(p)));
   switch (n.type) {
-    case '貓窩': return anyDown ? 130 : hpPct < 0.55 ? 100 : canUpgrade ? 55 : 20;
-    case '罐頭鋪': return fish >= 120 ? 75 : fish >= 75 ? 45 : 15;
-    case '事件': return 50;
+    case '貓窩': return anyDown ? 130 : needNap ? 100 : canUpgrade ? 55 : 20;
+    case '罐頭鋪': return (fish >= 120 ? 75 : fish >= 75 ? 45 : 15) + keeperDetour(run, n);   // 為了店主繞路看座位 0（2026-09-23 第三批）
+    case '事件': return 50 + (scoutDue(run) ? 20 : 0);   // 探路杖到點了往問號格走（2026-09-24 b3int，同單人）
     case '紙箱': return 90;
     case '大魔物': return hpPct >= 0.7 && run.players.some((p) => p.deck.some((c) => c.upgraded)) ? 62 : 8;
     case '戰鬥': return 42;
@@ -214,14 +221,18 @@ function nodeScoreCoop(run: RunState, n: MapNode): number {
 /** 一件秘寶要不要挑：兩個人從同一份選項各挑自己最想要的（撞件由 `settleRelicPicks` 擲骰） */
 function pickRelic(offers: readonly string[], run: RunState, seat: number): string | null {
   const mine = me(run, seat).relics;
-  const want = offers.filter((id) => !mine.includes(id)).sort((a, b) => relicRating(b) - relicRating(a))[0];
+  // 分數照**這一位**的角色（2026-09-23 量尺：同一件對不同貓價值不同）。
+  // 鎖這一位的不挑（2026-09-23 內容擴充第一批）：混搭時清單照「有人用得到」開，量尺對鎖住的那格留空＝5 分，
+  // 不濾的話別件量出來比 5 低時，菲菲會去挑封封的磨劍石
+  const hero = heroOf(me(run, seat));
+  const want = bestRelic(offers.filter((id) => !mine.includes(id) && relicOk(relicById[id] ?? {}, [hero])), hero, mine);   // 帶身上的：湊成師門套組的那件加分（2026-09-23 第二批）
   return want ?? null;
 }
 
 function takeOffers(run: RunState, offers: string[]): void {
   if (!offers.length) return;
   const picks = run.players.map((p, i) => (p.down ? null : pickRelic(offers, run, i)));
-  const got = settleRelicPicks(runRng(run), offers, picks);
+  const got = settleRelicPicks(runRng(run), offers, picks, heroesIn(run));
   got.forEach((id, i) => { if (id) takeRelic(run, id, i); });
 }
 
@@ -236,6 +247,11 @@ function handleNeeds(run: RunState, outcome: RunEffectOutcome, seat: number): vo
   } else if ('chooseCard' in outcome) {
     const id = pickCard(run, outcome.chooseCard, seat) ?? outcome.chooseCard[0]?.id;
     if (id) addCard(run, id, outcome.upgradedCard === id, seat);
+    if (outcome.then) handleNeeds(run, outcome.then, seat);   // 學完再挑牌升級（2026-09-23 內容擴充第二批）
+  } else if ('purify' in outcome) {
+    // 兩件以上沾了魔氣的：挑淨化後分數多最多的那件（2026-09-23 第三批）
+    const id = bestPurify(outcome.purify, heroOf(me(run, seat)));
+    if (id) purifyRelic(run, id, seat);
   }
 }
 
@@ -271,6 +287,29 @@ function fight(run: RunState, rng: Rng, encounterId: string | undefined, bonusFi
 }
 
 /**
+ * 問號格變成的那一種（2026-09-23 內容擴充第三批，設計稿 3-5），照畫面那邊的規則：
+ * 伏擊兩人投同一條（兩位的估值加起來比），效果各跑一次、要打的那一場兩個人一起打一次；
+ * 行腳商一人一個攤子各買各的一樣；路邊紙箱開兩件各挑一件（撞件擲骰，同 8F 紙箱）。
+ */
+function coopQmark(run: RunState, rng: Rng, node: MapNode, seed: string, stats: CoopStats, t: CoopTuning): void {
+  const seats = run.players.map((_, i) => i).filter((i) => !run.players[i]?.down);
+  if (node.variant === '伏擊') {
+    const [fightFx, fleeFx] = ambushOutcomes(node);
+    const value = (fx: RunEffect[]): number => seats.reduce((s, i) => s + eventValue(run, fx, 0, i), 0);
+    const fx = value(fightFx) >= value(fleeFx) ? fightFx : fleeFx;
+    const outcomes = seats.map((i) => applyRunEffects(run, fx, undefined, undefined, i));
+    const f = outcomes.find((o) => !!o && 'fight' in o);
+    if (f && 'fight' in f) fight(run, rng, f.fight.encounterId, f.fight.bonusFish, seed, stats, t);
+    return;
+  }
+  if (node.variant === '行腳商') {
+    makeMerchants(run).forEach((shop, i) => { if (!run.players[i]?.down) shopAtMerchant(run, shop, i); });
+    return;
+  }
+  takeOffers(run, openRoadsideBoxCoop(run));
+}
+
+/**
  * 跑一整局兩個人的。
  *
  * `heroes`＝兩位的角色（`['ninja','ninja']` 或 `['ninja','feifei']`…）。
@@ -282,8 +321,10 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
   const rng = new Rng(seedFromString('coop:' + seed));
   const stats: CoopStats = {
     seed, won: false, floor: 0, act: 1, diedTo: null,
-    deckSize: [], upgraded: [], relics: [], cardsPlayed: [0, 0], coopCards: [], fights: [], bosses: [],
+    deckSize: [], upgraded: [], relics: [], cardsPlayed: [0, 0], coopCards: [], fights: [], bosses: [], events: [],
   };
+  // 開局祝福各選各的（2026-09-23 第三批）：照座位順序，用各自的分支亂數，順序不影響結果
+  run.players.forEach((_, i) => { smartBless(run, i); });
   let guard = 0;
   while (run.status === 'playing') {
     if (++guard > 140) throw new Error('節點推進超過 140 次');
@@ -314,18 +355,25 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
         break;
       }
       case '事件': {
+        // 問號格變化（2026-09-23 內容擴充第三批，設計稿 3-5）：走進去才知道變成什麼
+        if (node.variant) { coopQmark(run, rng, node, seed, stats, t); break; }
         const ev = eventById[node.eventId!]!;
         /*
          * 兩個人投同一個選項（真人會商量）：估值把兩位各自的加起來挑最高的那個，
          * 因為事件的效果**每個人各跑一次**（見 `ui/screens/event.ts` 的 `take`）。
          */
-        const choice = ev.choices
-          .map((c) => ({ c, v: eventValue(run, c.outcome, c.costFish ?? 0, 0) + eventValue(run, c.outcome, c.costFish ?? 0, 1) }))
+        /*
+         * 只挑看得到的選項（條件選項、倒下時的分工選項，2026-09-23 內容擴充第二批）；
+         * 座位不對稱的（連線限定事件的「我拿／我付」）照每一位自己那一串估，兩人加起來比。
+         */
+        const choice = visibleChoices(run, ev).map((i) => ev.choices[i]!)
+          .map((c) => ({ c, v: eventValue(run, choiceEffectsFor(c, 0), c.costFish ?? 0, 0) + eventValue(run, choiceEffectsFor(c, 1), c.costFish ?? 0, 1) }))
           .sort((a, b) => b.v - a.v)[0]!.c;
+        stats.events.push({ id: ev.id, choice: ev.choices.indexOf(choice) });
         const seats = run.players.map((_, i) => i).filter((i) => !run.players[i]?.down);
         for (const i of seats) me(run, i).fish = Math.max(0, me(run, i).fish - (choice.costFish ?? 0));
         const outcomes: RunEffectOutcome[] = [];
-        for (const i of seats) outcomes[i] = applyRunEffects(run, choice.outcome, undefined, undefined, i);
+        for (const i of seats) outcomes[i] = applyRunEffects(run, choiceEffectsFor(choice, i), undefined, undefined, i);
         // 各自的挑牌／放生／升級先處理掉
         for (const i of seats) handleNeeds(run, outcomes[i] ?? null, i);
         // 「打一場」是**兩個人一起打的同一場**，只打一次
@@ -348,13 +396,14 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
         run.players.forEach((_, i) => {
           const shop = shops[i];
           if (!shop) return;
+          keeperServices(run, shop, i);   // 客座店主（2026-09-23 第三批）：阿福放生換招、婆婆淨化，規則同單人機器人
           const junk = deckJunk(run, i);
-          if (junk.length >= 3 && me(run, i).fish >= me(run, i).removeCost + 60) buyRemove(run, junk[0]!.uid, i);
-          const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id), p: r.price })).sort((a, b) => b.v - a.v)[0];
+          if (shop.keeper !== 'junk' && junk.length >= 3 && me(run, i).fish >= removePrice(run, i, shop) + 60) buyRemove(run, junk[0]!.uid, i, shop);   // 會員卡的固定價（2026-09-23 第二批）
+          const relicIdx = shop.relics.map((r, k) => ({ k, v: relicRating(r.id, heroOf(me(run, i))) + setBonusScore(r.id, heroOf(me(run, i)), me(run, i).relics), p: r.price })).sort((a, b) => b.v - a.v)[0];
           if (relicIdx && relicIdx.v >= 6 && me(run, i).fish >= relicIdx.p) buyRelic(run, shop, relicIdx.k, i);
           const cardIdx = shop.cards.map((c, k) => ({ k, v: rating(c.def.id), p: c.price })).sort((a, b) => b.v - a.v)[0];
           if (cardIdx && cardIdx.v >= 7 && me(run, i).fish >= cardIdx.p && me(run, i).deck.length < 24) buyCard(run, shop, cardIdx.k, i);
-          for (let k = 0; k < shop.potions.length; k++) {
+          if (!keeperPotions(run, shop, i)) for (let k = 0; k < shop.potions.length; k++) {   // 婆婆那間照她的規則買（2026-09-23 第三批）
             const it = shop.potions[k]!;
             if (me(run, i).potions.length < 2 && me(run, i).fish >= it.price + 40) buyPotion(run, shop, k, undefined, i);
           }
@@ -372,7 +421,9 @@ export function coopRun(seed: string, difficulty = 1, heroes: readonly [Hero, He
         run.players.forEach((p, i) => {
           if (p.down || (downSeat >= 0 && i === helper)) return;   // 救人的那位這一格用掉了
           const u = bestUpgrade(run, i);
-          if (p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) || !u) rest(run, '打盹', undefined, i);
+          const pur = restPurifyPick(run, i);   // 點清心香（2026-09-23 第三批），判準同單人
+          if (pur) rest(run, '淨化', undefined, i, pur);
+          else if ((p.hp < p.maxHp * (run.floor === 44 ? 0.98 : 0.6) && napWorks(run, i)) || !u || pillowWorthNap(run, i)) { rest(run, '打盹', undefined, i); takePillowCard(run, i); }
           else rest(run, '磨爪', u.uid, i);
         });
         break;

@@ -25,7 +25,7 @@
   83% { filter: brightness(1.015); }
 }
 /* 開始畫面是夜景不是火光，改成天色極慢的明暗（22 秒），不要跟著火在跳 */
-#stage[data-screen="title"] .screen-bg {
+:is(#stage, .screen-leaving)[data-screen="title"] .screen-bg {
   animation: night-drift 22s ease-in-out infinite;
 }
 @keyframes night-drift {
@@ -42,7 +42,7 @@
     rgba(10, 8, 6, .58) 100%);
 }
 /* 開始畫面沒有面板，罩子放淡一點，讓貓村夜景看得清楚 */
-#stage[data-screen="title"] .screen-bg::after {
+:is(#stage, .screen-leaving)[data-screen="title"] .screen-bg::after {
   background: radial-gradient(ellipse 80% 84% at 50% 46%,
     rgba(10, 12, 24, .1) 0%,
     rgba(10, 12, 24, .26) 66%,
@@ -97,54 +97,6 @@
 }
 
 /* ===== 獎勵 ===== */
-/* ===== 打贏的結算畫面 =====
-   本來是「標題一行字＋三行戰利品＋一排牌」全部靠 gap 疊在一起，
-   沒有分區也沒有層次，所以很死板。現在分三塊：
-   上面一條橫幅放標題、中間一個框起來的戰利品區、下面才是選牌。 */
-
-/* 標題橫幅：掛在面板上緣的木牌，跟對白框的名牌同一套 */
-.reward-banner {
-  align-self: center;
-  margin: -4px 0 0;
-  padding: 2px 30px 4px;
-  border: 3px solid #3a2a1c;
-  border-radius: 11px;
-  background: linear-gradient(#c9702a, #8a4a22);
-  box-shadow: 0 3px 0 #00000038, inset 0 1px 0 #ffffff4d;
-}
-.reward-banner h1 {
-  margin: 0;
-  color: #fff6e2;
-  font-size: 26px;
-  letter-spacing: 3px;
-  text-shadow: 0 2px 3px #00000099;
-}
-
-/* 戰利品區：框起來自成一塊，跟下面的選牌分開 */
-/* 這一整個畫面的高度是硬上限：面板最多 648，四件戰利品＋一排 250 高的牌
-   原本疊到 812，會擠出捲軸。所以每一格都比一般畫面再收一點。 */
-.reward-loot {
-  position: relative;
-  align-self: stretch;
-  margin: 6px 0 0;
-  padding: 10px 14px 9px;
-  border: 2px solid #3a2a1c4d;
-  border-radius: 12px;
-  background: #3a2a1c0a;
-}
-/* 「戰利品」三個字騎在框線上，像貼在框上的標籤 */
-.reward-loot-label {
-  position: absolute;
-  top: 0;
-  left: 22px;
-  transform: translateY(-52%);
-  padding: 1px 12px 2px;
-  border-radius: 6px;
-  background: #f8f2e8;
-  color: #7a5a34;
-  font-size: 14px;
-  letter-spacing: 3px;
-}
 
 /* 只有一行字的戰利品（小魚乾）用 flex 換行自己併排：
    兩筆就左右各一，只有一筆就自己撐滿，不用在程式那邊分情況。 */
@@ -249,16 +201,6 @@
   object-fit: contain;
   margin: 0 auto 2px;
 }
-.event-text, .event-result {
-  max-width: 900px;
-  margin: 0;
-  font-size: 21px;
-  line-height: 1.6;
-  background: var(--panel);
-  border: 2px solid var(--ink);
-  border-radius: 14px;
-  padding: 14px 22px;
-}
 .event-note {
   margin: 0;
   font-size: 19px;
@@ -268,13 +210,6 @@
 /* 兩行式選項（44F 的全力準備）：第一行選項名，第二行小字寫算好的數字 */
 .btn.two-line { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.25; }
 .btn.two-line .sub { font-size: .78em; opacity: .85; font-weight: normal; }
-.event-choices, .rest-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: stretch;
-  width: 560px;
-}
 
 /* ===== 罐頭鋪 ===== */
 /* ===== 罐頭鋪 =====
@@ -310,60 +245,6 @@
 /* 店裡的貨架格子比別處窄一點，換兩側的店景露出來 */
 .screen.shop .shop-item { width: 148px; }
 .screen.shop .shop-item.card-item { width: auto; }
-.shop-head {
-  align-self: stretch;
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  margin-bottom: 2px;
-}
-/* 老闆站到貨架左邊的空地上，不排進版面。
-   面板拿掉之後畫面就是整間店，他縮在角落只有 84 像素、還壓在魚燈籠上，
-   看起來像貼紙。改成絕對定位站在左側留白（舞台 1280 減內容 940，兩側各餘 170），
-   高度就不吃版面上限，可以放大成真的站在店裡的人。 */
-.shop-keeper {
-  position: absolute;
-  right: -158px;   /* 改站右側空地（使用者指定右下角）；老闆的立繪本來就面朝左，站右邊剛好面向店裡 */
-  bottom: 4px;
-  width: 150px;
-  height: 196px;
-  object-fit: contain;
-  object-position: center bottom;
-  filter: drop-shadow(0 6px 14px #000000a6);
-}
-.shop-head-text { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
-/* 店名做成掛在牆上的木招牌，跟對白框的名牌同一套 */
-.shop-sign {
-  padding: 2px 22px 4px;
-  border: 3px solid #3a2a1c;
-  border-radius: 9px;
-  background: linear-gradient(#c9702a, #8a4a22);
-  box-shadow: 0 3px 0 #00000038, inset 0 1px 0 #ffffff4d;
-  color: #fff6e2;
-  font-size: 22px;
-  font-weight: bold;
-  letter-spacing: 3px;
-  text-shadow: 0 2px 3px #00000099;
-}
-/* 老闆講話的泡泡，尾巴指向他。
-   底下的貨架換成木頭之後，泡泡再用一片純白就像網頁的輸入框，
-   所以跟價標同一套：微微的紙色漸層＋一道落影，看起來是張紙不是一個欄位 */
-.shop-bubble {
-  position: relative;
-  align-self: flex-start;   /* 只有一句話，不要拉滿整排 */
-  max-width: 560px;
-  padding: 6px 13px 7px;
-  border: 2px solid #3a2a1c;
-  border-radius: 10px;
-  background: linear-gradient(#fffdf7, #f7eede);
-  box-shadow: inset 0 1px 0 #ffffffd9, 0 3px 7px -2px #00000047;
-  font-size: 15px;
-  line-height: 1.35;
-  text-align: left;
-}
-/* 尾巴拿掉了：老闆改站到畫面左下角的地板上，泡泡在右上方，
-   尾巴會指著一個沒有人的位置，比沒有尾巴更奇怪。
-   泡泡就當成招牌下面的一句招呼，老闆本人在畫面裡看得到。 */
 
 /* 貨架＝店裡真的一座木架子，不是「框起來的一區」。
    本來是淡淡的圓角虛框（#3a2a1c0a 底、半透明邊），店景一露出來，
@@ -534,7 +415,30 @@
 .shop-item.card-item:not(.sold):not(.poor):hover { transform: translateY(-3px); box-shadow: none; }
 .shop-item img { width: 40px; height: 40px; object-fit: contain; }
 .shop-item .shop-name { font-weight: bold; font-size: 15px; }
+/* 忍具的稀有度（2026-09-23 內容擴充第一批）：跟牌同一組顏色（components.css 的 .card.rarity-*）——常見樸素、罕見藍、稀有金；
+   菱形同牌面底部那條標籤，玩家在牌上學過一次就認得 */
+.shop-item .potion-rarity {
+  font-size: 11px; font-weight: bold; line-height: 1.4;
+  padding: 0 7px; border-radius: 7px;
+  border: 1px solid #8a7458; color: #5c4a35; background: #f1e6cf;
+}
+.shop-item .potion-rarity.rarity-罕見 { border-color: #2f5fa8; color: #234a85; background: #dbe7f7; }
+/* 店長私藏（罐頭鋪限定池，2026-09-23 第二批）：紫色小牌子，跟稀有度的藍、金分得開 */
+.shop-item .potion-rarity.rarity-limited { border-color: #7a3fa0; color: #5a2a78; background: #efe0f7; }
+.shop-item .potion-rarity.rarity-稀有 { border-color: #b8860b; color: #6b4d05; background: linear-gradient(#ffe9a8, #f3cf6d); }
+.shop-item .potion-rarity.rarity-罕見::before,
+.shop-item .potion-rarity.rarity-稀有::before {
+  content: ''; display: inline-block; vertical-align: -1px; margin-right: 4px;
+  width: 9px; height: 9px; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+.shop-item .potion-rarity.rarity-罕見::before { background: linear-gradient(#7ea9e0, #2f5fa8 55%, #1d3f74); }
+.shop-item .potion-rarity.rarity-稀有::before { background: linear-gradient(#ffe9a8, #e8b23a 50%, #a8760c); }
 .shop-item .small { font-size: 11.5px; line-height: 1.3; color: #5c4a35; text-align: center; }
+/* 貨架說明最多四行（2026-09-24 使用者：長毛掌櫃那間買完東西畫面忽大忽小、字比原本小）：店長私藏（集章卡）的說明七行，
+   把整座貨架撐高、價錢沉進對白框，貨架只好整座縮到八成（`scene.ts` 的 `refitGoods`）。超過四行的收成「…」，
+   滑鼠停上去看全文（`shop.ts` 的 `title`）。只夾罐頭鋪貨架（`.scene-goods` 裡）：開局祝福也用 `.shop-item`，不能連帶夾到
+   （推前審查 中）；手機按住放大的那張畫在疊層、不在貨架裡，自然是全文。 */
+.scene-goods .shop-item:not(.card-item) .small { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
 /* 價錢做成價標底部那條牛皮紙色的帶子，橫貫整格、切齊圓角，
    像貼在貨架上的標價條；深色的字壓在淺色帶子上才讀得動 */
 .shop-item .price {
@@ -577,15 +481,6 @@
 .shop-item.poor { cursor: default; }
 .shop-item.poor > :not(.price) { opacity: .5; }
 .shop-item.poor .price { color: #8a2f1c; }
-.shop-actions {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  margin-top: auto;
-}
-
-/* ===== 貓窩 ===== */
-.rest-result { font-size: 22px; }
 
 /*
  * 吐槽是疊層元件，固定貼在 top: 60px（base.css）——那個位置在戰鬥畫面是空的，
@@ -608,7 +503,6 @@
   background-color: rgba(30, 24, 19, .9);
   border-color: rgba(200, 180, 150, .45);
 }
-.result-cat { height: 220px; object-fit: contain; }
 .result-stats { font-size: 20px; }
 .result-stats.small { font-size: 14px; opacity: .7; }
 .result-relics {
@@ -625,18 +519,9 @@
   padding: 3px 10px;
   font-size: 15px;
 }
-.result-actions { display: flex; gap: 14px; }
 .result-best { font-size: 18px; }
-.teaser { margin: 0; font-size: 20px; opacity: .85; }
 
-/* 選完之後的反應。原本選項一按，結果那段字就「瞬間出現在原地」，
-   跟按了沒反應很難分。這裡讓結果滑進來、獎勵那句再晚一點蹦出來——
-   收穫感就是從這個先後順序來的。
-   只掛在 .event-result／.rest-result 上，不掛問題那段（.event-text）：
-   問題是一進畫面就在的，讓它也動反而變成每進一個事件都要等它演完。 */
-.event-result, .rest-result {
-  animation: result-in 320ms cubic-bezier(.2, .9, .3, 1.08) backwards;
-}
+/* 升級預覽（components.css 的 .upgrade-preview）滑進來用 */
 @keyframes result-in {
   from { opacity: 0; transform: translateY(14px); }
 }
@@ -659,7 +544,7 @@
  * 改用位移＋亮度做進場，**透明度全程是 1**：就算凍住也是「已經在定位、只是還沒收亮」，
  * 看得到東西。正常播放時跟原本幾乎沒有差別。
  *
- * `result-in` 的另外兩個用處（`.event-result`／`.rest-result`、`.upgrade-preview`）沒有延遲，
+ * `result-in` 的另一個用處（`.upgrade-preview`）沒有延遲，
  * 風險窗口只有動畫開始那一瞬間，維持原樣不動。
  */
 .reward-item {
@@ -674,33 +559,11 @@
 .reward-item:nth-child(n+5) { animation-delay: 420ms; }
 
 /* ===== 過關畫面 ===== */
-.actclear-note { margin: 0; font-size: 19px; }
 .screen.actclear .reward-item.clickable { cursor: pointer; }
 .screen.actclear .reward-item.clickable:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 #fff, 0 4px 9px #00000038; }
 
 .screen.actclear .reward-item.selected { outline: 3px solid #ffd35c; box-shadow: inset 0 1px 0 #fff, 0 0 0 3px #ffd35c40; }
 
-
-/* 老闆頭上的台詞泡泡：跟老闆同一套絕對定位（右側空地），下緣長一根小尾巴指向他 */
-.keeper-bubble {
-  position: absolute;
-  right: -166px;
-  bottom: 206px;
-  width: 170px;
-  font-size: 13px;
-  line-height: 1.5;
-  text-align: center;
-}
-.keeper-bubble::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-  border: 8px solid transparent;
-  border-top-color: #f3e9d2;
-  border-bottom: 0;
-}
 
 /* ===== 劇場版面（事件／貓窩／罐頭鋪）：底圖鋪滿、主圖在中上、對白框在底下 =====
    對白框沿用 .dialogue-box 的紙與名牌；差別只在定位（貼著舞台底邊、左右各留 90）跟按鈕排法。 */
@@ -729,6 +592,9 @@
   filter: drop-shadow(0 8px 16px #000000a6);
   animation: portrait-in 260ms cubic-bezier(.2, .9, .3, 1.1);
 }
+/* 同一個畫面的重畫（`sceneView` 的 `calm`：罐頭鋪買完、連線時同伴投一票）：進場動畫只在第一次進場播，
+   重畫時對白框不再從下面滑上來、立繪不再閃、戰利品列不再一列列彈上來（畫面抖動稽核 2026-09-24） */
+.scene.calm > .dialogue-box, .scene.calm > .scene-portrait, .scene.calm .reward-item, .scene.calm .event-note { animation: none; }
 .scene .dialogue-box.scene-box {
   position: absolute; left: 90px; right: 90px; bottom: 30px;
   width: auto; margin: 0; padding: 22px 34px 22px;
@@ -755,7 +621,63 @@
 .scene:has(.scene-goods) .scene-portrait { height: 290px; bottom: 140px; left: 24px; }
 /* 橘貓老闆的立繪原圖面向左、背對貨架與對白；左右翻過來面向右邊（使用者 2026-09-06）。
    用獨立的 scale 屬性，才不會被 portrait-in 進場動畫的 transform 蓋掉 */
-#stage[data-screen="shop"] .scene-portrait { scale: -1 1; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-portrait { scale: -1 1; }
+/* 開局祝福（2026-09-23 第三批）：主圖在上、包袱四樣排一排（格子借罐頭鋪的 .shop-item），同伴那四張縮小排在最下面 */
+.scene-art:has(.bless-stage) { top: 4px; max-height: none; }
+.bless-stage { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.bless-art { height: 250px; width: auto; filter: drop-shadow(0 10px 18px #000000a6); }
+.bless-row .shop-item { width: 220px; padding-bottom: 8px; }
+.bless-row .shop-item + .shop-item::before { display: none; }   /* 罐頭鋪貨架的立柱：這裡不是貨架 */
+/* 圖示與字級掛在 `.bless-card` 上：手機按住放大的複製品（疊層裡、不在 `.bless-row` 底下）也要一樣大（複審 低-3） */
+.shop-item.bless-card img { width: 64px; height: 64px; }
+.shop-item.bless-card .small { font-size: 13px; }
+.bless-row .shop-item.took { outline: 4px solid #ffd35c; }
+/*
+ * 包袱裡的四樣換成生出來的木框（使用者 2026-09-24 晚：「用黃色框框顯示而已…用生圖設計比較好的框」）。
+ * 九宮格：四個角的銅飾（原圖 512 裡約 72 像素）整塊落在切線 15%＝77 像素之內，只縮放不拉伸；四條邊是素面木紋，
+ * 中間的和紙跟著拉（`fill`）。框吃掉的那一圈用內距讓開，字不壓到木頭。
+ * 原本的價標底色縮到內容區（`content-box`）當退路：框的圖沒載到時字底下仍有紙色，不會變成暗底黑字。
+ * 價標的厚度、落地影子、選中的黃框都換成照著框外形走的 `drop-shadow`（`box-shadow`／`outline` 是方的，框的四角是圓銅飾）
+ * 掛在 `.shop-item.bless-card` 不掛 `.bless-row` 底下：手機按住放大的複製品在疊層裡（cardpeek.ts），也要是同一個框（推前稽核 低-3）。
+ * 邊框留 2 像素透明、不寫 0：有些瀏覽器邊框寬度 0 就不畫 `border-image`（推前稽核 低-2，MDN 的提醒；Safari 沒實測）
+ */
+.shop-item.bless-card {
+  background: linear-gradient(#fffdf6, #f1e4c8) content-box;
+  border: 2px solid transparent;
+  border-radius: 0;
+  border-image-source: var(--ui-blessframe);
+  border-image-slice: 15% fill;
+  border-image-width: 34px;
+  border-image-repeat: stretch;
+  /* 木頭約佔框寬的 57%（原圖 44／77）＝19 像素，上下左右都讓出來；最長的骰子說明（五行）才不壓到下緣 */
+  width: 236px;
+  padding: 22px 18px 24px;
+  box-shadow: none;
+  filter: drop-shadow(0 6px 8px #000000a6);
+}
+.shop-item.bless-card::after { display: none; }
+/* 已選的那張不吃滑過的淡光與上浮：連線等同伴時滑鼠停在上面，要一直是選中的金光（推前稽核 低-1） */
+.shop-item.bless-card:not(.sold):not(.poor):not(.took):hover {
+  transform: translateY(-4px);
+  box-shadow: none;
+  filter: drop-shadow(0 10px 12px #000000b3) drop-shadow(0 0 8px #ffd35c99);
+}
+/* `:hover` 那條要一起寫：罐頭鋪通用的滑過（`.shop-item:not(.sold):not(.poor):hover`，權重 0,4,0）比 `.took` 高，
+   不寫會照樣上浮、還冒出方形的價標影子（複審 低-1） */
+.shop-item.bless-card.took, .shop-item.bless-card.took:hover {
+  outline: none; transform: none; box-shadow: none;
+  filter: drop-shadow(0 0 5px #ffd35c) drop-shadow(0 0 14px #ffd35cd9);
+}
+/* 沒選的那三張：罐頭鋪「賣完」那條（`.shop-item.sold:not(.card-item)`，0,3,0）會把紙底鋪回整個外框，
+   框圖外緣與四角的透明邊就透出一圈灰（複審 低-2）。底色留在內容區 */
+.shop-item.bless-card.sold { background: linear-gradient(#fffdf6, #f1e4c8) content-box; box-shadow: none; }
+.bless-cls[data-cls="換牌"] { border-color: #2f5fa8; color: #234a85; background: #dbe7f7; }
+.bless-cls[data-cls="代價"] { border-color: #7a3fa0; color: #5a2a78; background: #efe0f7; }
+.bless-cls[data-cls="賭運氣"] { border-color: #b8860b; color: #6b4d05; background: #ffe9a8; }
+.bless-mate { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; background: #000000a0; color: #fff; font-size: 14px; }
+.bless-mate img { width: 30px; height: 30px; filter: grayscale(1) opacity(.5); }
+.bless-mate img.took { filter: drop-shadow(0 0 4px #ffd35c); }
+.scene .bless-say { margin: 6px 0 0; font-size: 20px; text-align: center; }
 /* 紙箱：秘寶的圖放大立在中上（圖示原檔夠大，放到 200 還清楚），輕輕上下浮 */
 .scene-art img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
 
@@ -783,6 +705,12 @@
   translate: -50% -50%;
   filter: drop-shadow(0 6px 14px #00000080) drop-shadow(0 0 18px #ffd97a99);
 }
+/* 光柱中心照各自那張插圖（2026-09-23 使用者：「紙箱開出寶物的位置歪掉了……偏左邊，沒有在光的正中間」）：
+   上面的 33% 是照球球那張量的；各角色的開箱插圖是另外生的，光柱位置不一樣。
+   用透明度掃高度 8～36% 每一列的光柱左右緣取中心：球球 34、菲菲 32、噹噹 29、封封 41（差 1% 以內的照舊用 33）。
+   `data-hero`＝本機這一位，跟挑哪張插圖（`eventArtKey`）同一個人；退場層也抄了 data-*，淡出時不會跳 */
+:is(#stage, .screen-leaving)[data-hero="dangdang"] .scene-art :is(img.chest-loot, .chest-loot-missing).in-beam { left: 29%; }
+:is(#stage, .screen-leaving)[data-hero="fengfeng"] .scene-art :is(img.chest-loot, .chest-loot-missing).in-beam { left: 41%; }
 /* 浮動改用獨立屬性：`translate` 已經拿去置中了，再用 transform 動 Y 才不會打架 */
 .scene-art img.chest-loot.in-beam { animation: loot-float-beam 2.6s ease-in-out infinite; }
 @keyframes loot-float-beam { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -950,6 +878,17 @@
 .pick-tile img { width: 72px; height: 72px; object-fit: contain; }
 .pick-tile b { font-size: 17px; }
 .pick-tile em { font-style: normal; font-size: 13px; color: #5a4a3a; line-height: 1.35; }
+/* 連線時鎖住自己、只有同伴用得到的那件（主控 2026-09-23）：名字底下一個橘色小牌子，
+   字級跟說明一樣大再加粗（手機橫拿整個舞台一起縮，說明讀得到它就讀得到）；格子本身照樣點得下去，只是圖淡一點。
+   過關三選一、連線紙箱、大魔物戰利品二選一共用這一個牌子（推前審查 中-1：原本只有過關三選一掛了）。
+   自己帶底色，淺色的方塊（過關）與深色的格子（紙箱、戰利品）上都讀得到 */
+.pick-tile-note {
+  font-size: 13px; font-weight: bold; line-height: 1.4;
+  padding: 0 8px; border-radius: 7px;
+  color: #7a3d12; background: #ffe2bd; border: 1px solid #b8692a;
+}
+.relic-offer-text .pick-tile-note { align-self: flex-start; }   /* 戰利品那格是直排的字欄，不要被拉滿整欄寬 */
+.pick-tile.partner-only img, .chest-offer.partner-only img, .relic-offer.partner-only img { opacity: .7; }
 .pick-tile:hover { transform: translateY(-4px); }
 .pick-tile.selected { box-shadow: 0 0 0 4px var(--accent), 0 8px 18px #00000073; transform: translateY(-4px); }
 .scene-art:has(.scene-picks) { top: 50%; transform: translate(-50%, -66%); max-height: none; }
@@ -1000,6 +939,8 @@
   box-shadow: 0 3px 8px #00000080;
   animation: showcase-pop .3s cubic-bezier(.2, .9, .3, 1.3) both;
 }
+/* 重畫前就選著、重畫後還選著的那張（`kept`，actclear.ts）：勾章不再消失再彈一次（畫面抖動稽核 2026-09-24） */
+.scene-picks .kept.selected::after { animation: none; }
 .pick-row:has(.selected) .pick-tile:not(.selected), .scene-picks .reward-cards:has(.selected) .card:not(.selected) { opacity: .55; filter: saturate(.7); }
 .pick-row:has(.selected) .pick-tile:not(.selected):hover, .scene-picks .reward-cards:has(.selected) .card:not(.selected):hover { opacity: .9; }
 /* ===== 結算畫面（劇場版面） ===== */
@@ -1064,9 +1005,10 @@
 .title-best { font-size: 18px; }
 .title-screen { gap: 11px; }
 .title-cat-box .title-cat { height: 290px; }
+.title-cat-box.three .title-cat { height: 248px; }
+.title-cat-box.four .title-cat { height: 220px; }
 .title-cat-box .title-cat-feifei { height: 190px; }
 .title-screen h1 { margin: 0; }
-.title-sub { margin: 0; }
 .title-note, .title-credit { text-align: center; }   /* 釘在底部後要自己置中（絕對定位不吃 flex 的置中） */
 
 /* 難度顏色：1 到 5 越來越紅（使用者 2026-09-02） */
@@ -1089,8 +1031,33 @@
 /* 字不往右讓（讓了整條帶子看起來偏右，使用者 2026-09-02：「不是置中而是整體偏右」）；
    改成把球球立繪抬高一點，腳底離開名字那一行就不會踩到 */
 .scene .scene-portrait { bottom: 172px; height: 300px; }
-.scene:has(.scene-goods) .scene-portrait { bottom: 160px; height: 280px; }
-#stage:has(.scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
+/* 老闆 280→266 高（2026-09-23 polish 第 7 條，複驗 09-22「另外看到」）：秘寶三格時（第二、三關、珍品架）貨架第一格左緣在 219，
+   280 高時招手的手尖到 221，蓋到第一格。試過四種排版：貨架右移會超出舞台右緣、老闆左移會把尾巴切掉、
+   貨架疊到老闆前面手指會被框切斷；縮小五趴手尖退到 210，第一格清清楚楚，腳底位置不變 */
+.scene:has(.scene-goods) .scene-portrait { bottom: 160px; height: 266px; }
+/* 行腳商（2026-09-24 實機驗收五 低-4）：照頭寬重縮之後畫布大一號（360×480，店主是 332×420，`gen_content_batch3_art.py` 的 `MERCHANT_SIZE`），
+   框照同一個每像素比例放大（266 × 480 ÷ 420 = 304），頭就跟橘貓老闆一樣大；底邊照舊＝腳底線不變。他的攤子貨少，右邊離貨架還有兩百多像素 */
+.scene:has(.scene-goods) .scene-portrait.merchant { height: 304px; }
+/* 事件畫面的立繪（2026-09-23 實機驗收 M-1：連線鏡子走廊坐 1 號的人，插圖是同伴那張、旁邊放自己）：
+   事件的選項排在框裡、框比紙箱高得多，照紙箱那條（腳底離下緣 172）會踩在「鏡子走廊」名牌上。
+   改成站在插圖左邊、腳底對齊插圖底邊（插圖 top 18、高 360），離名牌還有一段 */
+:is(#stage, .screen-leaving)[data-screen="event"] .scene .scene-portrait { left: 150px; top: 108px; bottom: auto; height: 270px; }
+/* 連線限定事件（2026-09-23 內容擴充第二批）：插圖是純場景，兩位立繪站兩邊——本機這一位在左、同伴在右，
+   右邊那張左右翻過來面向插圖（用獨立的 scale 屬性，才不會被 portrait-in 進場動畫的 transform 蓋掉） */
+:is(#stage, .screen-leaving)[data-screen="event"] .scene .scene-portrait.right { left: auto; right: 150px; scale: -1 1; }
+/* 條件選項（2026-09-23 內容擴充第二批）：按鈕最前面的金底小標籤、按鈕底下一行灰字講「因為…」 */
+.scene-actions .btn .choice-tag {
+  display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 4px;
+  background: linear-gradient(#ffe08a, #e0a93a); color: #4a2a08; font-weight: 700; font-size: .9em;
+}
+.scene-actions .btn .choice-why { display: block; margin-top: 2px; font-size: .78em; color: #d9d0c2; opacity: .9; }
+/* 稀有事件（2026-09-23 第三批）：名牌旁的金色小牌「難得一見」；圖鑑裡淨化版跟在原件下面縮一格。
+   沒拿過的原本畫成全黑剪影，在深色底上幾乎看不見，使用者以為圖壞了（2026-09-24），改成照常顯示 */
+.rare-badge { margin-left: 8px; padding: 0 6px; border-radius: 4px; background: linear-gradient(#ffe08a, #e0a93a); color: #4a2a08; font-size: .72em; vertical-align: 2px; }
+.compendium.items .item-row.pure { margin-left: 22px; }
+/* 只看現在的畫面層（`#screen`）：換畫面時墊在底下淡出的舊畫面也有 .scene，從事件「打一場」進戰鬥那 0.2 秒
+   開場泡泡會先被推到右上、再跳回頭上（2026-09-23 推前審查二 低-1） */
+#stage:has(#screen .scene) .toast { left: auto; right: 36px; top: 78px; transform: none; animation: toast-in-side .28s cubic-bezier(.2, .9, .3, 1.15); }
 @keyframes toast-in-side { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
 
 /* 罐頭鋪貨架（使用者 2026-09-02：「太緊湊、下面到放生鈕還有很大空間、卡牌跟文字超出到下面的貨架」）：
@@ -1124,18 +1091,35 @@
 .scene-actions .btn:disabled { opacity: .4; filter: grayscale(.6); }
 /* 貓窩：球球要正好趴在蒲團上（使用者 2026-09-02：「現在稍微偏左了」）。蒲團畫在底圖上約 x 300、y 470～540（舞台座標），
    立繪底邊放到 160、左緣 150，趴姿的圖寬約 300 → 屁股坐進蒲團、中心對到蒲團 */
-#stage[data-screen="rest"] .scene-portrait { left: 156px; bottom: 150px; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-portrait { left: 156px; bottom: 150px; }
 /* 各關的貓窩底圖不同，蒲團位置也不同（使用者 2026-09-03：「44F 這背景時他應該要再往左邊一些才能剛好趴在圓形床」）。
    塔頂（第三關）的蒲團畫在左下 x 20～290、y 400～570，球球整隻往左貼齊、抬高一點坐進籃子。關數由 app.show() 標在 #stage 的 data-act。 */
-#stage[data-screen="rest"][data-act="3"] .scene-portrait { left: 2px; bottom: 178px; }
-/* 塔中（第二關）的蒲團畫在右下 x 790～1090、y 545～690：球球挪到右邊坐進去，底邊抬到按鈕列上方（按鈕頂端約 y 599） */
-#stage[data-screen="rest"][data-act="2"] .scene-portrait { left: 790px; bottom: 95px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"] .scene-portrait { left: 2px; bottom: 178px; }
+/*
+ * 第二關的基準（2026-09-17 改）。
+ *
+ * 這條本來寫 `left: 790px`，那是**舊底圖**的座標——貓窩後來重生過、三關的窩全部搬到左下角，
+ * 球球與菲菲各自補了自己那條蓋掉它，只有這條基準沒跟著改。
+ * 於是第三隻貓一進來就掉回舊座標，坐到右邊沒有籃子的地方（使用者 2026-09-17：「又來了」）。
+ *
+ * 改成跟現在的底圖一致（＝球球那組數字，他是對位的基準）。
+ * 球球與菲菲都有自己的覆寫，兩位的畫面一個像素都沒變。
+ */
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"] .scene-portrait { left: 42px; bottom: 100px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
+/* 第一關的基準：窩中心 x ≈ 185～200，立繪框中心＝left＋150 */
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="1"] .scene-portrait { left: 42px; }
+/* 噹噹原本另外縮到 0.87（舊蜷縮圖比別人大一號）；2026-09-22 貓窩立繪換新畫風後四隻都照戰鬥比例畫，
+   再縮就比戰鬥裡小一成三，那條規則拿掉了（tests/ui/rest_art_0922.test.ts 守著） */
+/* 第三關**原版**那張底圖的窩在比較右邊（≈228，另外兩張 _b／_c ≈150），球球與菲菲各有一條，
+   他漏了就停在基準的 2、比兩位左 76 像素（稽核 2026-09-17 中-4）。除錯頁跳進去看到的就是這一張 */
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="dangdang"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 /* 菲菲在第二關要坐**左邊那個籃子**（2026-09-14 使用者：「她位置完全不對」「右邊沒有籃子」）。
    兩隻的立繪大小不一樣——球球的蜷縮是小小一團，她整個大一圈；同一個座標他剛好坐進去，
    她會滿出來坐到地板上、還壓到右邊那疊摺好的棉被。
    左邊籃子的舞台座標約 x 69～327、y 473～595，籃子中心 x ≈ 198；她的立繪寬約 313 →
    left = 198 − 313/2 ≈ 42。**只改她這一條**，球球那條原封不動（他本來就是對的）。 */
-#stage[data-screen="rest"][data-act="2"][data-hero="feifei"] .scene-portrait { left: 42px; bottom: 110px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="feifei"] .scene-portrait { left: 42px; bottom: 110px; }
 /*
  * **球球的三關重新對位**（2026-09-14 使用者：「第一關再更左邊一點、第二關跑去右邊了（窩在左邊）、第三關偏右一點點」）。
  * 貓窩的底圖後來重生過，窩全部改到左下角，上面那幾條還是舊底圖量的座標。這次逐張量了九張底圖：
@@ -1146,18 +1130,33 @@
  * 除錯頁「跳進畫面」開的是第 0 層，看到的永遠是原版那張——使用者說「偏右一點點」看的就是它。
  * **只改球球**（`data-hero="ninja"`）：菲菲照舊用上面那幾條，她的部分使用者之後再看。
  */
-#stage[data-screen="rest"][data-act="1"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 150px; }
-#stage[data-screen="rest"][data-act="2"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 100px; }
-#stage[data-screen="rest"][data-act="2"][data-hero="ninja"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
-#stage[data-screen="rest"][data-act="3"][data-hero="ninja"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="1"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 150px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="ninja"] .scene-portrait { left: 42px; bottom: 100px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="ninja"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 150px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="ninja"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
 /*
  * **菲菲的三關**（2026-09-14 下午使用者：「第一關往左、第二關位置對但往上一點、第三關往右一點」）。
  * 她的立繪框跟球球同一個，貓的中心一樣是 left＋150，所以左右照球球那幾條的窩中心算；
  * 高低另外量過（她蜷起來比球球大一圈）。第二關整體抬高：_b、_c 寫在她原本那條（95→110），原版那張窩比較高、另外 135。
  */
-#stage[data-screen="rest"][data-act="1"][data-hero="feifei"] .scene-portrait { left: 42px; }
-#stage[data-screen="rest"][data-act="2"][data-hero="feifei"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 135px; }
-#stage[data-screen="rest"][data-act="3"][data-hero="feifei"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="1"][data-hero="feifei"] .scene-portrait { left: 42px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="2"][data-hero="feifei"][data-restbg="screen_rest_mid"] .scene-portrait { bottom: 135px; }
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="feifei"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+/* 封封 2026-09-20 才進來，漏了這一條：第三關原版底圖停在基準的 2、坐在窩左邊的邊上（2026-09-22 換新畫風時實機看到） */
+:is(#stage, .screen-leaving)[data-screen="rest"][data-act="3"][data-hero="fengfeng"][data-restbg="screen_rest_top"] .scene-portrait { left: 78px; }
+/*
+ * 貓窩的旁白與按鈕（2026-09-24 實機驗收五 低）：**上面那幾條貓的位置一個像素都不動**（貓窩門檻），只動字與鈕。
+ * 多了清心香那顆鈕（全力準備、扶起同伴也一樣）按鈕排不下一行、換成兩排，對白框頂被推高 78 像素，
+ * 「貓窩」名牌與「貓窩暖暖的…」那行字疊到貓的下半身（貓趴在左下角，字原本從 120 開始靠左排）。
+ * 1. 字與名牌改成置中：貓最右只到 372 左右，置中的那一行從 480 起，框再高也蓋不到貓（手機本來就有一點壓到籃子，一起好）。
+ * 2. 三顆鈕以上桌機縮一級（字 17、內距收窄、兩行鈕的行高收緊），三顆排得進一行、框跟兩顆時一樣高；
+ *    手機照手機那份的 22 字、72 高（字小了讀不到），排不下就換行——字已經置中，換行也蓋不到貓。
+ */
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene .scene-box .scene-text { text-align: center; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene .scene-box .dialogue-speaker { left: 50%; translate: -50% 0; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-actions:has(> .btn:nth-child(3)) { gap: 8px; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-actions:has(> .btn:nth-child(3)) .btn { min-width: 0; padding: 10px 14px; font-size: 17px; letter-spacing: 0; }
+:is(#stage, .screen-leaving)[data-screen="rest"] .scene-actions:has(> .btn:nth-child(3)) .btn.two-line { padding-top: 4px; padding-bottom: 4px; line-height: 1.1; }
 
 /* ===== 2026-09-02 使用者：「按鈕樣式你都改成這樣吧」——全部按鈕統一深色玻璃＋金邊（含標題、疊層、結束回合、狀態列小鈕）。
    難度鈕保留自己的顏色（.diff-btn.dN 在後面蓋掉底色）。 ===== */
@@ -1186,7 +1185,7 @@
 .scene .reward-items .reward-item.relic { border-color: #c9a0ffb3; }
 .scene .reward-items .reward-item.potion { border-color: #8fc2ffb3; }
 /* 結算畫面的帶子比較高（成績、秘寶、最佳三行），球球要站得更高才不會踩到名字 */
-#stage[data-screen="result"] .scene-portrait { bottom: 300px; height: 260px; }
+:is(#stage, .screen-leaving)[data-screen="result"] .scene-portrait { bottom: 300px; height: 260px; }
 /* 淺色面板（磨爪確認、挑牌）裡的按鈕也統一深色玻璃（使用者：全部都改）；兩顆之間用外距拉開（.modal-foot 不是 flex，gap 沒作用） */
 .modal-foot .btn, .scene-actions .btn, .dialogue-overlay .btn {
   border-image: none; border: 1.5px solid #ffd98a8c; border-radius: 12px;
@@ -1199,9 +1198,14 @@
 .modal-foot .btn.primary:hover:not(:disabled) { filter: none; background: linear-gradient(#8f4a1cf0, #5a2a0cf5); }
 
 /* 對話疊層（戰鬥前後的喊話）：立繪本來站在帶子上緣、腳踩到名字，也壓在戰鬥裡的球球身上（使用者 2026-09-02：「講話時球球的位置會卡到」）。
-   1. 立繪抬到帶子上方（兩行對白的帶子高約 210）；2. 疊層在戰鬥畫面上時，戰場上的球球先隱形，講完再回來 */
+   1. 立繪抬到帶子上方（兩行對白的帶子高約 210）；2. 疊層在戰鬥畫面上時，戰場上的球球先隱形，講完再回來。
+   **只有真的放了頭像才藏**（2026-09-22 畫面盤點 問題 3）：原本不分這句有沒有頭像一律藏，
+   倒下時旁白「球球再也站不住，倒在地上。」一出來，倒地的貓整隻不見。`data-hide` 由 dialogue.ts 的 `portraitPlan` 標：
+   slot＝頭像疊著的左邊那一格（座位 0）、mine／mate＝頭像就是自己／同伴那隻；旁白與村貓沒有臉，一個都不標 */
 .dialogue-overlay .dialogue-portrait { bottom: 214px; height: 290px; }
-#stage:has(#overlay .dialogue-overlay) .combat .unit.player .sprite-box { visibility: hidden; }
+#stage:has(#overlay .dialogue-overlay[data-hide~="slot"]) .combat .unit.player[data-seat="0"] .sprite-box,
+#stage:has(#overlay .dialogue-overlay[data-hide~="mine"]) .combat .unit.player.mine .sprite-box,
+#stage:has(#overlay .dialogue-overlay[data-hide~="mate"]) .combat .unit.player:not(.mine) .sprite-box { visibility: hidden; }
 
 /* ===== 換忍具的小視窗（2026-09-02） ===== */
 .swap-modal { max-width: 560px; }
@@ -1235,6 +1239,11 @@
 .compendium.items .item-text b { font-size: 14px; color: #fff3d6; }
 .compendium.items .item-text em { font-style: normal; font-size: 12px; color: #d9cdb4; line-height: 1.3; }
 .compendium.items .item-price { font-size: 12px; color: #ffd98a; white-space: nowrap; }
+/* 套組那一區（2026-09-23 第二批）：三件並排，沒拿到的畫剪影 */
+.item-set { display: flex; gap: 10px; margin-bottom: 6px; }
+.item-set-slot { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid #ffd98a40; border-radius: 10px; background: #00000040; color: #fff3d6; font-size: 13px; }
+/* 身上有的那件框成金色；沒有的照常顯示圖（原本畫全黑剪影，深色底上看不見，2026-09-24 使用者以為壞了） */
+.item-set-slot.owned { border-color: #ffd98a; background: #ffd98a2e; }
 /* 圖鑑兩顆鈕改釘在封面右上角：放在難度列下面會把「最佳成績」跟「存檔說明」擠到疊在一起 */
 .title-books { position: absolute; top: 14px; right: 16px; margin: 0; }
 
@@ -1262,10 +1271,29 @@
 .shop-shelves.six .shop-item .small { font-size: 11.5px; }
 .shop-shelves.six { gap: 14px; }
 .shop-shelves.six .shop-row { gap: 12px; }
+/* 第二關起珍品架＋店長私藏（2026-09-23 第二批）：秘寶四格＋忍具三格七格並排，再縮一級才不會擠出舞台 */
+.shop-shelves.seven .shop-item { width: 130px; font-size: 12.5px; }
+.shop-shelves.seven .shop-row { gap: 9px; }
 
 /* 第二關起新招區六張牌：格距縮一點，整排仍在舞台內（2026-09-04） */
 .shelf-cards.six .shop-row { gap: 12px; }
 .shelf-cards.six .shop-item.card-item { width: 158px; }
+
+/* 客座店主（2026-09-23 第三批 新J）：招牌木牌掛在新牌架子上緣的右邊（跟左邊「新牌」同一塊木牌料、字深一點的底），
+   不多佔一排高度——多一排的話貨架最下面那排價錢會被對白框壓住（實機量過） */
+.shelf-label.shop-sign { left: auto; right: 18px; background: linear-gradient(#a3471c, #6b2f12); font-weight: bold; }
+/* 店主一句＋自己回一句（兩行）：名牌不再浮在框頂那一條留白裡，改成跟店主那句排在同一行、自己那句排第二行，
+   框的高度跟橘貓老闆一行字時差不多（名牌那條留白省下來給第二行）。照原樣多一行的話，手機橫拿時框頂壓到貨架最下面那排價錢（實機截圖） */
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene .dialogue-box.scene-box:has(.shop-reply) {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; padding-top: 30px;
+}
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) .dialogue-speaker { position: static; grid-column: 1; justify-self: start; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) > .scene-text { grid-column: 2; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) > .shop-reply,
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-box:has(.shop-reply) > .scene-actions { grid-column: 1 / -1; }
+/* 有服務鈕時對白框裡四顆鈕：照原本的最小寬度排不下一行，換行之後框頂整個往上長、蓋住貨架最下面那排價錢（實機截圖）。四顆時鈕縮一號 */
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-actions:has(> .btn:nth-child(4)) { gap: 8px; }
+:is(#stage, .screen-leaving)[data-screen="shop"] .scene-actions:has(> .btn:nth-child(4)) .btn { min-width: 0; padding-left: 14px; padding-right: 14px; font-size: 18px; }
 
 /* 首頁：貼進局面碼時的說明。會蓋掉自己進度的時候換成警告色，讓人按下去之前先看到 */
 .title-note.share-note { min-height: 18px; margin-top: 2px; }
@@ -1405,6 +1433,13 @@
  * 所以三個步驟各自獨立一塊，每一塊都帶一句「這一步在做什麼」。
  */
 .lobby {
+  /* 2026-09-18 加了村口夜景當底圖：這一層要壓在底圖上面（底圖是 z-index 0）。
+     這一頁本來是深色底配深棕字，鋪上夜景之後字幾乎看不見（實機截圖確認過），
+     所以跟開始畫面同一招：字翻成米色再加一層字影，壓在夜景上照樣讀得出來。
+     輸入框與代碼框本來就是半透明深底加淺框，不用動。 */
+  z-index: 1;
+  color: #f8f2e6;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, .6);
   position: absolute;
   inset: 0;
   display: flex;
@@ -1500,6 +1535,8 @@
   box-shadow: 0 2px 10px #0008;
 }
 
+/* 自己與對方同時斷線時兩條都在：第二條往下錯開一條的高度（2026-09-22） */
+.net-link + .net-link { top: 40px; }
 /* 線路暫時斷了（自己或對方）的琥珀色橫幅：接回來就撕掉（`lobby.ts` 的 `linkBanner`，2026-09-15） */
 .net-link {
   position: fixed;
@@ -1514,7 +1551,7 @@
 }
 
 /* ===== 選角畫面（2026-09-12，使用者：「開頭進地圖前可以選角色」）=====
-   排在「新的一局」與序章之間。兩張角色卡並排、選中的那張亮起來，
+   排在「新的一局」與序章之間。角色卡並排、選中的那張亮起來，
    底下寫這一位的起手十張、起始秘寶與一張代表牌——那三樣才是玩家真正在選的東西。
    整頁塞在 720 高裡：卡片 300 高、說明區固定 150，不會把按鈕擠出舞台。 */
 .heroselect {
@@ -1617,3 +1654,21 @@
 .debug-screen .dbg-slide .dbg-shot { width: 300px; }
 .debug-screen .dbg-slide .dbg-text { margin-top: 4px; line-height: 1.6; }
 .debug-screen .dbg-jump { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+
+/* 問號格揭曉一拍（2026-09-23 第三批，設計稿 3-3）：問號卡翻面 0.4 秒內翻完淡掉，橫幅留著給人讀；整塊不擋點擊 */
+.qmark-reveal { position: absolute; inset: 0; pointer-events: none; }
+/* 淡出放在外層：卡片本身動到不透明度會被瀏覽器壓平成 2D，背面那張就永遠翻不出來（實機膠卷抓到的：翻過去只看到鏡像的問號） */
+.qmark-flip { position: absolute; left: calc(50% - 75px); top: 124px; width: 150px; height: 150px; animation: qm-out .12s .28s ease-in forwards; }
+.qmark-card { position: absolute; inset: 0; transform-style: preserve-3d; animation: qm-flip .28s ease-out forwards; }
+.qmark-face { position: absolute; inset: 0; display: grid; place-items: center; backface-visibility: hidden; border-radius: 22px; border: 4px solid #2b2118; background: #f6e7c1; box-shadow: 0 6px 18px #0008; }
+.qmark-face.front { font: 900 108px/1 serif; color: #b0402a; }
+.qmark-face.back { transform: rotateY(180deg); }
+.qmark-face.back img { width: 84%; height: 84%; object-fit: contain; }
+@keyframes qm-flip { from { transform: perspective(600px) rotateY(0) scale(.8); } to { transform: perspective(600px) rotateY(180deg) scale(1); } }
+@keyframes qm-out { to { transform: scale(1.12); opacity: 0; } }
+.qmark-banner {
+  position: absolute; left: 50%; top: 64px; padding: 6px 26px; border-radius: 12px; white-space: nowrap;
+  background: #2b2118eb; color: #fff4d8; border: 2px solid #d9a441; font-size: 22px; font-weight: bold;
+  animation: qm-banner 1.9s ease-out forwards;
+}
+@keyframes qm-banner { 0% { opacity: 0; transform: translate(-50%, -12px); } 10%, 78% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }

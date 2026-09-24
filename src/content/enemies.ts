@@ -87,7 +87,7 @@ export const enemies: EnemyDef[] = [
   // 招式走堂堂正正的劍客路線：起手亮劍（蓄力）、正面重斬，跟忍者的隱身流分開。
   // 2026-09-04 使用者：「白貓超弱、血少攻低技能爛」→ 血量與招式全面加重，並帶一個陪練的同伴
   { id: 'white_duelist', name: '切磋的白貓', hp: [66, 72], pool: '召喚', pattern: 'cycle', size: 'medium', art: 'codex/monster_white_duelist',
-    line: '打一場。全力來。', lines: ['點到為止？不，全力。', '讓我看看你有幾分本事。'],   // 原本「讓我看看你的爪子」，菲菲不亮爪（總稽核 C 中-3）；開場台詞進的是戰報，沒過 castLineFor，改成兩位都通的
+    line: '打一場。拿出全力來。', lines: ['點到為止？不，全力。', '讓我看看你有幾分本事。'],   // 原本「讓我看看你的爪子」，菲菲不亮爪（總稽核 C 中-3）；開場台詞進的是戰報，沒過 castLineFor，改成兩位都通的
     moves: [
       { intent: 'special', label: '亮劍', effects: [{ kind: 'chargeNext' }] },
       { intent: 'attack', label: '正面斬', effects: [{ kind: 'damage', amount: 13 }] },
@@ -210,29 +210,55 @@ export const enemies: EnemyDef[] = [
       { intent: 'special', label: '渡氣', effects: [{ kind: 'heal', n: 4 }] },
     ] },
 
-  // 鐵爪機關貓：**蜷縮擋不住的那種**。招招都是多段小刀，而且每兩回合自己變強。
-  // 十點蜷縮對 4×4 只擋得掉前兩下，解法是隱身跟定身，不是硬擋。
+  // 鐵爪機關貓：**蜷縮擋不住的那種**，解法是隱身跟定身，不是硬擋。
+  // 原始設計是「招招多段小刀、十點蜷縮對 4×4 只擋得掉前兩下」，實際沒做到；2026-09-22 起改成穿透才真的做到，見下。
   // 2026-09-01 減壓：原本三個成長來源疊加（每 2 回合+1、發條+3、二階段每回合+1），
   // 爪力疊到 +4 之後 3×6 變 7×6＝42、4×4 變 9×4＝36，第一關牌組完全扛不住（使用者實玩回報）。
   // 段數砍一級、發條 +3→+2、自動成長改每 3 回合、血 140→120。多段穿蜷縮的性格保留。
   // 2026-09-01 二刀（機器人探測 0/60 勝）：血 105、自動成長改每 4 回合、絞刃 3×3、全開 4×4、收爪 12。
   // 之後幾輪加硬到 125；下一輪平衡 2026-09-05 五隻關主血 −10% → 113（機器人 47%→57%，是五隻裡最軟的，下輪順手看）。
+  /*
+   * 2026-09-22 重做攻擊（血量不動）：**四招攻擊全部穿透**，絞刃、全開從三下小刀改成一記 12，爪暴五下改四下。
+   *
+   * 上面那段設計說「蜷縮擋不住、解法是隱身跟定身」，但原本的寫法剛好相反：
+   * 蜷縮是一整池、多段小刀加起來照樣被整池吃掉；隱身卻是一層只閃**一下**，三四段就把隱身磨光。
+   * 所以靠蜷縮的菲菲、噹噹打牠九成以上（全遊戲最好打的關主），靠隱身的球球反而最吃虧（56%）。
+   * 量測時把四招改成「段數少、總傷一樣」，球球立刻從 56% 跳到 88%——病根就是段數，不是血量。
+   * （定案版不是總傷一樣：絞刃 9→12、爪暴 20→16；單下只吃一次爪力，所以有爪力時絞刃反而略低於舊版。）
+   * 改完（兩批種子各 600 局）：球球 56→60%、菲菲 93→74%（連同她的起手調整）、噹噹 92→67%、封封 74→59%。
+   * 雙人（300 局）61／79／50% → 47／40／42%，跟雙人打另外四隻第一關關主（22～50%）同一級。
+   * 穿透照規則吃隱身與反彈、不吃蜷縮，也不吃蓄力加倍（見 actions.ts）；頭上的意圖會寫「（穿透）」。
+   */
   { id: 'iron_claw', name: '鐵爪機關貓', hp: [113, 113], pool: '塔主', pattern: 'cycle', size: 'large', art: 'codex/monster_iron_claw',
     strengthEveryNTurns: 3,   // 機關越轉越快（2026-09-03 關主加硬）
     line: '（齒輪轉了一圈）', lines: ['（發出喀噠喀噠的聲音）', '（眼睛亮起紅光）'],
     moves: [
-      { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
+      { intent: 'attack', label: '四連爪', effects: [{ kind: 'damage', amount: 4, times: 3, pierce: true }] },
       { intent: 'buff', label: '上緊發條', effects: [{ kind: 'statusSelf', name: '爪力', amount: 2 }] },
-      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 3, times: 3 }] },
+      { intent: 'attack', label: '絞刃', effects: [{ kind: 'damage', amount: 12, pierce: true }] },   // 3×3 → 一記 12（2026-09-22）
       { intent: 'block', label: '收爪', effects: [{ kind: 'block', amount: 12 }] },
     ],
     phases: [{
       hpBelow: 55, line: '（外殼彈開，裡面全是爪子）', pattern: 'cycle',
       onEnter: [{ kind: 'statusSelf', name: '反彈', amount: 1 }],   // 反彈 2026-09-02 才真的生效：關主只給 1（機器人實測 2 就從 17% 敗變 37% 敗）
       moves: [
-        { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 5 }] },
-        { intent: 'debuff', label: '卡住', effects: [{ kind: 'discardRandomHand', n: 2 }, { kind: 'statusPlayer', name: '炸毛', amount: 3 }] },
-        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 4, times: 3 }] },
+        { intent: 'attack', label: '爪暴', effects: [{ kind: 'damage', amount: 4, times: 4, pierce: true }] },   // 4×5 → 4×4（2026-09-22）
+        /*
+         * 卡住：原本「下回合少抽 2 張＋3 層炸毛」。炸毛只打折**獲得的蜷縮**，可是牠四招攻擊全部穿透、蜷縮本來就擋不住，
+         * 那 3 層等於沒寫（使用者 2026-09-22）。換成看破：把你身上的隱身、潛水拍掉一半——牠的解法本來就是隱身，
+         * 這一拍就是在逼靠閃躲的角色「隱身留到卡住之後再疊」，下一招全開（一記 12 穿透）一層隱身就閃得掉。
+         *
+         * 少抽 2 張一起拿掉：只把炸毛換成看破、少抽照留，球球打牠從 55.7% 掉到 53.1%，跌出 55～75% 的目標。
+         * 量測（難度 1，單人每隻 48000 局、雙人每組 48000 局，同一批種子只換這一招；鐵爪那一場的勝率）：
+         *   單人 球球／菲菲／噹噹／封封：改前 55.7／75.9／66.4／61.5% → 看破＋少抽 2 張 53.1／75.7／66.3／60.7%
+         *     → 看破＋少抽 1 張 54.4／76.0／66.4／61.7% → **只留看破 55.3／76.3／66.2／61.8%**（定案）
+         *   雙人 球球＋球球／噹噹＋球球／封封＋球球：改前 41.0／43.1／38.2% → 定案 40.8／42.7／38.0%
+         * 菲菲改前就在 75.9%，比 75% 的上緣多一點；這一刀只讓她多 0.4 點（少抽拿掉的那點好處，她不靠隱身，看破對她沒作用）。
+         * 頭上的意圖自動帶「（看破）」、滑上去寫「看破：把你身上的隱身、潛水拍掉一半」（combat.ts 的 intentChip／describeMove），
+         * 不用另外改畫面。
+         */
+        { intent: 'debuff', label: '卡住', effects: [{ kind: 'stripPlayer', names: ['隱身', '潛水'] }] },
+        { intent: 'attack', label: '全開', effects: [{ kind: 'damage', amount: 12, pierce: true }] },   // 4×3 → 一記 12（2026-09-22）
       ],
     }] },
   // 第三關的最終戰。他是師父：招式全是玩家牌組裡絕學的放大版，「同門過招」一看就懂。
@@ -271,7 +297,9 @@ export const enemies: EnemyDef[] = [
       hpBar: 300, line: '深藏不露', pattern: 'cycle', strengthPerTurn: 1, drainPlayerPerTurn: { 爪力: 2, 貓步: 2 },   // 成長 2→1（使用者 2026-09-06：衝通關 2%）；震散 2／2 照舊   // 使用者 2026-09-03 晚：師父不放軟，維持第三條血每回合 +2、震散 2／2
       onEnter: [{ kind: 'statusSelf', name: '爪力', amount: 2 }],   // 第三條血本來還有反彈 6：反彈生效後配上震散太狠（機器人 97% 敗），拿掉，只留爪力
       moves: [
-        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 26, times: 2, pierce: true }] },
+        // 26×2 ＝ 52 → 20×2 ＝ 40（使用者 2026-09-17）：穿透擋不住，52 對難度 5 的 70 血是七成四，
+        // 沒有閃避手段的角色只能等死。上限壓到 40。
+        { intent: 'attack', label: '亡命一擊', effects: [{ kind: 'damage', amount: 20, times: 2, pierce: true }] },
         { intent: 'attack', label: '破功', effects: [{ kind: 'purgePlayer', names: ['爪力', '貓步'] }, { kind: 'stripPlayer', names: ['隱身', '潛水'] }, { kind: 'damage', amount: 14 }] },
         { intent: 'attack', label: '狂風連掌', effects: [{ kind: 'damage', amount: 10, times: 7 }] },
         { intent: 'attack', label: '氣沉丹田', effects: [{ kind: 'block', amount: 28 }, { kind: 'heal', n: 15 }, { kind: 'damage', amount: 8 }] },
@@ -1075,7 +1103,7 @@ export const enemies: EnemyDef[] = [
     ] },
   // 小鬼：跟鬼將同一組（reviveGroup 'imps'），鬼將還站著就會爬起來。要三隻同一回合一起清光
   { id: 'imp', name: '小鬼', hp: [12, 12], pool: '召喚', pattern: 'cycle', size: 'small', art: 'codex/monster_imp',
-    line: '（躲在鬼將腳邊，探出半顆頭）', lines: ['（呲牙笑了一下）', '（拿著一根小木棒）'],
+    line: '（躲在鬼將腳邊，探出半顆頭）', lines: ['（齜牙笑了一下）', '（拿著一根小木棒）'],
     reviveGroup: 'imps', reviveHp: 8,
     moves: [
       { intent: 'attack', label: '戳', effects: [{ kind: 'damage', amount: 6 }] },
@@ -1179,7 +1207,7 @@ export const enemies: EnemyDef[] = [
   { id: 'wraith_samurai', name: '怨靈武者', hp: [80, 86], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_wraith_samurai',
     thorns: 3,   // 碰牠會被反彈。原本還有 `fadeAfter: 6`（六回合打不死就散去），
     // 2026-09-11 一併拿掉——使用者：「除了偷小魚乾的外，其他的怪都別逃跑」
-    line: '（刀還握著，握刀的手卻看得見後面的牆）', lines: ['……回去。', '（走過的地方留著一層淡淡的殘影）'], moves: [
+    line: '（刀還握著，卻能透過握刀的手看見後面的牆）', lines: ['……回去。', '（走過的地方留著一層淡淡的殘影）'], moves: [
       { intent: 'attack', label: '怨斬', effects: [{ kind: 'damage', amount: 16 }] },
       // 翻肚 1→2（稽核 2026-09-10 中-2）：玩家身上的減益在**魔物出手之前**就先減一層（combat.ts 的 freshDebuffs 那段），
       // 所以給 1 層的翻肚到牠下一次出手前就歸零、等於整個效果作廢。給 2 層的其他七招都正常，只有這招與波斯大小姐的尖叫中招。
@@ -1223,7 +1251,7 @@ export const enemies: EnemyDef[] = [
  * `tests/ui/cardtext.test.ts` 有一條會擋住這種漏配。
  */
 export const BOSS_MOVE_ART: Record<string, string> = {
-  // 蓄力、閉關兩招在師父 3.0 拿掉了（boss/charge 那張圖先留著）
+  // 蓄力、閉關兩招在師父 3.0 拿掉了（boss/charge 那張圖 2026-09-22 跟著刪了）
   鐵頭功: 'boss/headbutt', 金鐘罩: 'boss/guard', 獅吼功: 'boss/roar', 醉拳: 'boss/drunk',
   // 三階段重做（2026-09-01）加的招，先共用最接近的現有立繪
   沾衣十八跌: 'boss/palm', 十二連環: 'boss/palm', 亡命一擊: 'boss/headbutt', 破功: 'boss/palm', 狂風連掌: 'boss/drunk', 蹲下調息: 'boss/seclude',
@@ -1267,6 +1295,11 @@ export const encounters: EncounterDef[] = [
   { id: 'mirror_duel', pool: '召喚', enemies: ['mirror_qiuqiu'] },   // 第一關用這個基本版（沒有 _a1）
   { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [], learnCards: 2 },
   { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [], learnCards: 2 },
+  // 影子鏈（屋頂上的影子、偷練的影子、影子的真面目，2026-09-23 內容擴充第二批）：數值與學牌照鏡子走廊那三筆，
+  // 只換名牌與開場白（`skin`，見檔尾的 `encounterSkin`）——第一批暫用鏡子走廊那場，開場白是「從鏡子裡跨出來」，屋頂上沒有鏡子
+  { id: 'shadow_duel', pool: '召喚', enemies: ['mirror_qiuqiu'], skin: 'shadow' },
+  { id: 'shadow_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [], learnCards: 2, skin: 'shadow' },
+  { id: 'shadow_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [], learnCards: 2, skin: 'shadow' },
   // 2026-09-04 使用者：「事件怪有點爛」——事件對手原本第二三關還在打第一關的怪。
   // 引擎會先找 `<遭遇>_a<關數>`，找不到才退回基本版（run.ts 的 fight），所以只要補這幾筆就跟著關卡變強。
   { id: 'orange_bandit_a2', pool: '中', enemies: ['orange_bandit', 'orange_bandit'], hpScale: 1.3, strength: 3, acts: [] },
@@ -1322,15 +1355,25 @@ export const encounters: EncounterDef[] = [
   { id: 'owl_geta', pool: '強', enemies: ['owl_sentry', 'geta_monster'], hpScale: 0.8, acts: [2] },
   // 塔頂＝魔氣加成（設計總覽 §2）：中池一律血 ×1.2、出場帶 2 點爪力；強池帶 3 點。
   // 2026-09-02 機器人 300 局：第一刀之後塔頂一般戰每場仍只掉 1～3 血、四回合打完，比塔中還軟。
-  { id: 'night_panther', pool: '中', enemies: ['night_panther'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.6, strength: 8, acts: [3] , reinforce: [{ turn: 4, enemyId: 'paper_crane', hpScale: 0.5, strength: 3, line: '伏兵！一隻紙鶴從樑上飄了下來' }] },   // 伏兵（2026-09-04）：壓回小怪量級（不然照 1.6×＋8 爪力放大會是 98 血 8 爪力，稽核中 8）
+  /*
+   * 2026-09-22 第三關放軟（「第三關是一道牆」）。那時加硬是對著舊機器人量的；
+   * 修好的機器人（smartbot）到了第三關有 87～93% 死在這一關，強怪戰每場輸 25～44%。
+   * 改成：**中池魔氣 8→4（血照舊 1.6×）；強池魔氣各少 4（單隻 8→4、雙怪組 6→2）、血打八折**
+   * （單隻 1.6→1.3、雙怪組 1.0→0.8——跟第二關「雙怪照慣例 0.8 血」同一條、鼠大將一夥 1.2→1.0）。
+   * 機器人（四隻貓各 3000 局、只算到了第三關的局）：強怪戰每場輸 25～44% → 11～24%、死在第三關 86～94% → 77～88%、
+   * 通關 0.5～2.2% → 0.9～3.5%；雙人（1500 局）死在第三關 74～84% → 64～69%。沒動大魔物與師父。
+   * 為什麼沒有降到 75%：弱牌組在第三關總會死在某處——強怪變軟之後，原本死在強怪戰的局
+   * 改死在一般戰或師父手上（單人打師父勝率 30～55%）。
+   */
+  { id: 'night_panther', pool: '中', enemies: ['night_panther'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'miasma_blob', pool: '強', enemies: ['miasma_blob'], hpScale: 1.3, strength: 4, acts: [3] , reinforce: [{ turn: 4, enemyId: 'paper_crane', hpScale: 0.5, strength: 3, line: '伏兵！一隻紙鶴從樑上飄了下來' }] },   // 伏兵（2026-09-04）：壓回小怪量級（不填會照這場的倍率與魔氣放大，稽核中 8；2026-09-22 這場降到 1.3×，紙鶴跟著是 0.65×）
   // 塔頂雙怪組的教訓（探測 1～6/40）：血量倍率救不了「兩隻重砲同回合疊擊」，
   // 要拆組合——重砲一定配有守勢回合的（紙鶴會摺翼、墨貓會入卷軸那型）。
   // 貓頭鷹＋月兔那組直接砍掉，牠們照樣在中池單獨出場。
   // 2026-09-02 補怪：塔頂單怪 4→7、強池再加三組（空鎧武者血厚，倍率壓低）
-  { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 8, acts: [3] },
+  { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 4, acts: [3] },
   { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], hpScale: 1.2, strength: 9, acts: [3] },   // 塔頂菁英版：血 1.2×、魔氣 9（2026-09-04 加硬兩刀 4→7→9）
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
@@ -1384,26 +1427,26 @@ export const encounters: EncounterDef[] = [
   { id: 'bear_pup', pool: '強', enemies: ['hibernating_bear', 'armadillo_pup'], hpScale: 0.8, acts: [1] },
   // 塔中：自爆、鱗甲、指揮官、詛咒
   { id: 'puffer_spirit', pool: '強', enemies: ['puffer_spirit'], acts: [2] },
-  // 塔頂：照塔頂慣例掛魔氣（strength 3），單獨出場血 ×1.25、重砲型 ×1.1
-  { id: 'phantom_fox', pool: '中', enemies: ['phantom_fox'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'red_oni', pool: '強', enemies: ['red_oni'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'moon_moth_queen', pool: '中', enemies: ['moon_moth_queen'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'jizo_golem', pool: '強', enemies: ['jizo_golem'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'fox_moth', pool: '強', enemies: ['phantom_fox', 'moon_moth_queen'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'oni_golem', pool: '強', enemies: ['red_oni', 'jizo_golem'], hpScale: 1.0, strength: 6, acts: [3] },
+  // 塔頂：照塔頂慣例掛魔氣（數字幾經加硬，現行值見「塔頂＝魔氣加成」那段開頭的 2026-09-22 說明）
+  { id: 'phantom_fox', pool: '中', enemies: ['phantom_fox'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'red_oni', pool: '強', enemies: ['red_oni'], hpScale: 1.3, strength: 4, acts: [3] },
+  { id: 'moon_moth_queen', pool: '中', enemies: ['moon_moth_queen'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'jizo_golem', pool: '強', enemies: ['jizo_golem'], hpScale: 1.3, strength: 4, acts: [3] },
+  { id: 'fox_moth', pool: '強', enemies: ['phantom_fox', 'moon_moth_queen'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'oni_golem', pool: '強', enemies: ['red_oni', 'jizo_golem'], hpScale: 0.8, strength: 2, acts: [3] },
   // 2026-09-03 換池：墨貓、鎧甲甲蟲、鼠將軍一夥、詛咒法師從塔中升到塔頂，照塔頂慣例掛魔氣
-  { id: 'ink_cat', pool: '中', enemies: ['ink_cat'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'plated_beetle', pool: '中', enemies: ['plated_beetle'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'curse_priest', pool: '中', enemies: ['curse_priest'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'rat_general', pool: '強', enemies: ['rat_general', 'rat_guard', 'rat_guard'], hpScale: 1.2, strength: 6, acts: [3] },
-  { id: 'ink_panther', pool: '強', enemies: ['ink_cat', 'night_panther'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 32%、真人不覺得兇，維持魔氣 6
-  { id: 'beetle_armor', pool: '強', enemies: ['plated_beetle', 'armor_ghost'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 33%、真人不覺得兇，維持魔氣 6
-  { id: 'priest_fox', pool: '強', enemies: ['curse_priest', 'fox_miko'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'priest_moth', pool: '強', enemies: ['curse_priest', 'moon_moth_queen'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'tengu_beetle', pool: '強', enemies: ['tengu', 'plated_beetle'], hpScale: 1.0, strength: 6, acts: [3] },   // 機器人輸 22%、真人不覺得兇，維持魔氣 6
-  { id: 'blob_ink', pool: '強', enemies: ['miasma_blob', 'ink_cat'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'panther_fox', pool: '強', enemies: ['night_panther', 'phantom_fox'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'tengu_priest', pool: '強', enemies: ['tengu', 'curse_priest'], hpScale: 1.0, strength: 6, acts: [3] },
+  { id: 'ink_cat', pool: '中', enemies: ['ink_cat'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'plated_beetle', pool: '中', enemies: ['plated_beetle'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'curse_priest', pool: '中', enemies: ['curse_priest'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'rat_general', pool: '強', enemies: ['rat_general', 'rat_guard', 'rat_guard'], hpScale: 1.0, strength: 2, acts: [3] },
+  { id: 'ink_panther', pool: '強', enemies: ['ink_cat', 'night_panther'], hpScale: 0.8, strength: 2, acts: [3] },   // 舊註：機器人輸 32%、真人不覺得兇，當時維持魔氣 6（2026-09-22 第三關放軟一併改 2，見本段開頭）
+  { id: 'beetle_armor', pool: '強', enemies: ['plated_beetle', 'armor_ghost'], hpScale: 0.8, strength: 2, acts: [3] },   // 舊註：機器人輸 33%、真人不覺得兇，當時維持魔氣 6（2026-09-22 第三關放軟一併改 2，見本段開頭）
+  { id: 'priest_fox', pool: '強', enemies: ['curse_priest', 'fox_miko'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'priest_moth', pool: '強', enemies: ['curse_priest', 'moon_moth_queen'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'tengu_beetle', pool: '強', enemies: ['tengu', 'plated_beetle'], hpScale: 0.8, strength: 2, acts: [3] },   // 舊註：機器人輸 22%、真人不覺得兇，當時維持魔氣 6（2026-09-22 第三關放軟一併改 2，見本段開頭）
+  { id: 'blob_ink', pool: '強', enemies: ['miasma_blob', 'ink_cat'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'panther_fox', pool: '強', enemies: ['night_panther', 'phantom_fox'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'tengu_priest', pool: '強', enemies: ['tengu', 'curse_priest'], hpScale: 0.8, strength: 2, acts: [3] },
   // 新關主（塔下兩個、塔中兩個）
   { id: 'frog_daimyo', pool: '塔主', enemies: ['frog_daimyo'] },
   { id: 'armadillo_king', pool: '塔主', enemies: ['armadillo_king'] },
@@ -1442,14 +1485,14 @@ export const encounters: EncounterDef[] = [
   { id: 'puppeteer_tofu', pool: '強', enemies: ['puppeteer', 'tofu_boy'], hpScale: 0.85, acts: [2] },
   { id: 'snow_shuten', pool: '強', enemies: ['snow_cat', 'shuten_imp'], hpScale: 0.8, acts: [2] },
   { id: 'lantern_twins', pool: '強', enemies: ['lantern_twin_a', 'lantern_twin_b'], acts: [2] },
-  { id: 'miasma_crows', pool: '中', enemies: ['miasma_crows'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'wraith_samurai', pool: '中', enemies: ['wraith_samurai'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'twin_hound', pool: '中', enemies: ['twin_hound'], hpScale: 1.6, strength: 8, acts: [3] },
-  { id: 'crows_ink', pool: '強', enemies: ['miasma_crows', 'ink_cat'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'wraith_armor', pool: '強', enemies: ['wraith_samurai', 'armor_ghost'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'hound_panther', pool: '強', enemies: ['twin_hound', 'night_panther'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'wraith_priest', pool: '強', enemies: ['wraith_samurai', 'curse_priest'], hpScale: 1.0, strength: 6, acts: [3] },
-  { id: 'hound_crows', pool: '強', enemies: ['twin_hound', 'miasma_crows'], hpScale: 1.0, strength: 6, acts: [3] },
+  { id: 'miasma_crows', pool: '中', enemies: ['miasma_crows'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'wraith_samurai', pool: '中', enemies: ['wraith_samurai'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'twin_hound', pool: '中', enemies: ['twin_hound'], hpScale: 1.6, strength: 4, acts: [3] },
+  { id: 'crows_ink', pool: '強', enemies: ['miasma_crows', 'ink_cat'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'wraith_armor', pool: '強', enemies: ['wraith_samurai', 'armor_ghost'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'hound_panther', pool: '強', enemies: ['twin_hound', 'night_panther'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'wraith_priest', pool: '強', enemies: ['wraith_samurai', 'curse_priest'], hpScale: 0.8, strength: 2, acts: [3] },
+  { id: 'hound_crows', pool: '強', enemies: ['twin_hound', 'miasma_crows'], hpScale: 0.8, strength: 2, acts: [3] },
   { id: 'guardian_statue', pool: '大魔物', enemies: ['guardian_statue'], strength: 6, acts: [3] },
   { id: 'mask_dancer', pool: '大魔物', enemies: ['mask_dancer'], strength: 6, acts: [3] },
 ];
@@ -1492,8 +1535,7 @@ export interface EnemySkin { name: string; art: string; line: string; lines: str
 
 const MIRROR_FEIFEI: EnemySkin = {
   name: '鏡中菲菲',
-  // 這組立繪美術正在生（shadow_feifei_{idle,attack,hurt,block,down}）。
-  // 還沒進倉時 `ui/assets.ts` 會自動退回影球球那組，不會出現破圖或灰剪影
+  // 這組立繪（shadow_feifei_{idle,attack,hurt,block,down}）2026-09-15 已全部進倉
   art: 'codex/monster_shadow_feifei',
   // 她是暹羅貓、怕痛、講話會遲疑但不加「喵」；鏡子裡的那個講同樣的話，只是一點都不抖
   line: '（鏡子裡的她先站直了，針尖朝著你，一點都沒抖）',
@@ -1504,9 +1546,87 @@ const MIRROR_FEIFEI: EnemySkin = {
   ],
 };
 
-/** 這隻魔物在**鏡子照的那一位**面前長什麼樣；沒有變裝就回 undefined */
+const MIRROR_DANGDANG: EnemySkin = {
+  name: '鏡中噹噹',
+  // 五張立繪 2026-09-17 都生完了（`ui/assets.ts` 裡那條退回影球球的臨時退路也跟著拿掉）。
+  // 這一格當初是**先寫名字、圖後補**：不寫的話他打的那隻會叫「鏡中球球」，
+  // 可是他的事件文字講的是自己的倒影，名字與文字當場打架（稽核 2026-09-17 中-7／高-3）。
+  art: 'codex/monster_shadow_dangdang',
+  // 他是賓士貓、話少、用護臂擋；鏡子裡那個照做，只是先動手
+  line: '（鏡子裡的他把護臂抬到同樣的高度，卻先踏了一步）',
+  lines: [
+    '你要站到什麼時候？',
+    '（他跟著沉下肩膀，角度一模一樣）',
+    '擋得住就換你出手了。',
+  ],
+};
+
+const MIRROR_FENGFENG: EnemySkin = {
+  name: '鏡中封封',
+  // 五張立繪（shadow_fengfeng_{idle,attack,hurt,block,down}）2026-09-20 進倉；那一批畫成灰虎斑穿封封的衣服、
+  // 只佔畫布六成，2026-09-23 照另外三隻影子重生成黑紫煙霧的封封（tools/gen_shadow_fengfeng.py），朝向重新目視過
+  art: 'codex/monster_shadow_fengfeng',
+  /*
+   * 稿子沒有替鏡中封封寫專屬開場白（2026-09-22 接線時查過）。先沿用鏡中球球原本那三句裡
+   * 沒點名的兩句；「是球球的影子」那句不能用。要像鏡中菲菲、鏡中噹噹那樣有自己的話，得另外寫。
+   */
+  line: '（從鏡子裡跨出來，貼著地面滑到你面前）',
+  lines: ['（影子學著你的動作，先出手了）'],
+};
+
+/*
+ * 這隻魔物在**鏡子照的那一位**面前長什麼樣；沒有變裝就回 undefined。
+ *
+ * 2026-09-17 稽核 中-7：原本寫成 `hero === 'feifei' ? MIRROR_FEIFEI : undefined` 的二選一，
+ * 第三個角色一進來就走錯分支——這是「寫死只有兩個角色」的第六次。改成查表之後，
+ * 第四隻貓進來只要在表裡加一格，不用再回來改判斷式。
+ */
+const MIRROR_SKINS: Readonly<Record<string, EnemySkin>> = {
+  feifei: MIRROR_FEIFEI,
+  dangdang: MIRROR_DANGDANG,
+  fengfeng: MIRROR_FENGFENG,
+};
+
 export function enemySkin(enemyId: string, hero: string | undefined): EnemySkin | undefined {
-  return enemyId === 'mirror_qiuqiu' && hero === 'feifei' ? MIRROR_FEIFEI : undefined;
+  return enemyId === 'mirror_qiuqiu' && hero ? MIRROR_SKINS[hero] : undefined;
+}
+
+/*
+ * ===== 影子鏈那一場的名牌與開場白（2026-09-23 內容擴充第二批）=====
+ *
+ * 影子是**你自己的影子**被魔氣拉起來（劇本 design2 第四節），所以照鏡子那一位（單人＝自己）換名牌：
+ * 「球球的影子」「菲菲的影子」……立繪沿用那一位的鏡中對手（`enemyArtFor`），不另生圖。
+ * 開場白寫成三個場面（屋頂、練功房、塔頂石階）都說得通的一句：擺出跟你一樣的起手式。
+ * 只換名牌與開場白，魔物 id 照舊是 `mirror_qiuqiu`（理由同上面那段「做成變裝不是做成新的一隻魔物」）。
+ */
+const SHADOW_SKINS: Readonly<Record<string, Omit<EnemySkin, 'art'>>> = {
+  ninja: {
+    name: '球球的影子',
+    line: '（影子擺出跟你一模一樣的起手式，連頭巾的結都打在同一邊）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+  feifei: {
+    name: '菲菲的影子',
+    line: '（影子舉起跟你一樣的竹筒，指間夾著三根針，手一點也不抖）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+  dangdang: {
+    name: '噹噹的影子',
+    line: '（影子把護臂抬到跟你一樣高，兩腳分得剛剛好）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+  fengfeng: {
+    name: '封封的影子',
+    line: '（影子拔出一把跟你一樣的劍，收劍時一聲都沒響）',
+    lines: ['（影子學著你的動作，先出手了）'],
+  },
+};
+
+/** 這場遭遇有沒有自己的名牌與開場白（目前只有影子鏈那三筆 `shadow_duel*`）；沒有就回 undefined，照魔物自己的變裝走 */
+export function encounterSkin(enc: EncounterDef | undefined, enemyId: string, hero: string | undefined): EnemySkin | undefined {
+  if (enc?.skin !== 'shadow' || enemyId !== 'mirror_qiuqiu') return undefined;
+  const s = SHADOW_SKINS[hero ?? 'ninja'];
+  return s ? { ...s, art: enemyArtFor(enemyId, hero) } : undefined;
 }
 
 /** 戰場上顯示的名字（含紀錄）。沒有變裝就是魔物表上的名字 */

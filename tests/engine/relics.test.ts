@@ -22,8 +22,8 @@ function attackNext(cs: CombatState, amount: number): void {
 }
 
 describe('秘寶（戰鬥端）', () => {
-  it('藍頭巾：第一回合多抽 1；沒有就 5', () => {
-    expect(start(['blue_headband']).player.hand.length).toBe(6);
+  it('藍頭巾：第一回合多抽 2（2026-09-23 平衡 1 → 2）；沒有就 5', () => {
+    expect(start(['blue_headband']).player.hand.length).toBe(7);
     expect(start([]).player.hand.length).toBe(5);
   });
   it('飯糰袋：第一回合 4 顆，第二回合 3 顆', () => {
@@ -54,13 +54,20 @@ describe('秘寶（戰鬥端）', () => {
     attackNext(cs, 7); endTurn(cs);
     expect(cs.player.hp).toBe(57);          // 7 − 4
   });
-  it('毛線球：每回合第一張便宜 1', () => {
-    const cs = start(['yarn_ball']);
+  it('毛線球：每回合第一張便宜 1；每場戰鬥第一回合少 1 顆（2026-09-23 平衡）', () => {
+    const cs = start(['yarn_ball'], 'wood_dummy');
     const e = cs.enemies[0]!.uid;
-    playCard(cs, toHand(cs, 'sanjo'), e); expect(cs.player.energy).toBe(3);
+    expect(cs.player.energy).toBe(2);   // 第一回合 3 − 1
     playCard(cs, toHand(cs, 'sanjo'), e); expect(cs.player.energy).toBe(2);
+    playCard(cs, toHand(cs, 'sanjo'), e); expect(cs.player.energy).toBe(1);
+    // 第二回合起不再少：滿 3 顆，第一張照樣便宜 1
+    for (const x of cs.enemies) x.move = { intent: 'block', label: '躺', effects: [{ kind: 'block', amount: 1 }] };
+    endTurn(cs);
+    expect(cs.turn).toBe(2);
+    expect(cs.player.energy).toBe(3);
+    playCard(cs, toHand(cs, 'sanjo'), e); expect(cs.player.energy).toBe(3);
   });
-  it('算盤珠：第 3 張牌抽 1（逗貓棒 2026-09-02 改成攻擊牌機率抽）', () => {
+  it('算盤珠：第 2 張牌抽 3（2026-09-23 平衡；原本第 3 張抽 1）', () => {
     const cs = start(['counting_beads'], 'wood_dummy');
     const e = cs.enemies[0]!.uid;
     cs.player.energy = 9;
@@ -70,11 +77,11 @@ describe('秘寶（戰鬥端）', () => {
     expect(cs.player.hand.length).toBe(n1 - 1);   // 第 1 張：只是打出去
     const u2 = toHand(cs, 'sanjo'); const n2 = cs.player.hand.length;
     playCard(cs, u2, e);
-    expect(cs.player.hand.length).toBe(n2 - 1);   // 第 2 張：只是打出去
+    expect(cs.player.cardsPlayedThisTurn).toBe(2);
+    expect(cs.player.hand.length).toBe(n2 - 1 + 3);   // 第 2 張：−1 ＋3
     const u3 = toHand(cs, 'sanjo'); const n3 = cs.player.hand.length;
     playCard(cs, u3, e);
-    expect(cs.player.cardsPlayedThisTurn).toBe(3);
-    expect(cs.player.hand.length).toBe(n3);       // 第 3 張：−1 ＋1
+    expect(cs.player.hand.length).toBe(n3 - 1);   // 第 3 張：只是打出去
   });
   it('紙袋：每回合第一次隱身多 1 層', () => {
     // 要連打兩張給隱身的牌，所以得挑 0 費的：替身術 2026-08-31 漲到 2 飯糰，一回合打不了兩次

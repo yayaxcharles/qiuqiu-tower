@@ -1,0 +1,539 @@
+{
+  "note": "菲菲飛針起點（相對腳底定位點的遊戲單位，x 往右、y 往上為負）。由 tools/measure_feifei_needle_hands.py 產生；程式裡的表在 src/ui/feifei-needle-patterns.ts。",
+  "defaultOrigin": [
+    82,
+    -118
+  ],
+  "actions": {
+    "shuriken": {
+      "texture": "assets/motion/feifei/needle.webp",
+      "textureSha256": "41a58c362530b6fe73579fefedefaf4e8f2395bc3719cd268c39f9afe34de466",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 285,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                122.6,
+                -127.3,
+                146.5,
+                -109.6
+              ],
+              "palm": [
+                131.7,
+                -120.3
+              ],
+              "glove": [
+                92.5,
+                -127.3,
+                146.5,
+                -102.6
+              ],
+              "areaUnits2": 783
+            }
+          ],
+          "handRange": [
+            122.6,
+            -127.3,
+            146.5,
+            -109.6
+          ],
+          "origin": [
+            132,
+            -120
+          ]
+        }
+      ]
+    },
+    "storm": {
+      "texture": "assets/motion/feifei/fan.webp",
+      "textureSha256": "1e66240e21bf06b3c50a2000331406f59fea95d2a449baf4970a051f8a082c58",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 285,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                95.5,
+                -129.8,
+                119.4,
+                -100.6
+              ],
+              "palm": [
+                104.7,
+                -115.2
+              ],
+              "glove": [
+                68.0,
+                -129.8,
+                119.4,
+                -100.0
+              ],
+              "areaUnits2": 819
+            }
+          ],
+          "handRange": [
+            95.5,
+            -129.8,
+            119.4,
+            -100.6
+          ],
+          "origin": [
+            105,
+            -115
+          ]
+        },
+        {
+          "wave": 1,
+          "release": 385,
+          "frame": 6,
+          "hands": [
+            {
+              "box": [
+                94.6,
+                -127.5,
+                118.5,
+                -99.4
+              ],
+              "palm": [
+                104.6,
+                -111.9
+              ],
+              "glove": [
+                84.0,
+                -127.5,
+                118.5,
+                -98.8
+              ],
+              "areaUnits2": 590
+            }
+          ],
+          "handRange": [
+            94.6,
+            -127.5,
+            118.5,
+            -99.4
+          ],
+          "origin": [
+            105,
+            -112
+          ]
+        }
+      ]
+    },
+    "needle_fan": {
+      "texture": "assets/motion/feifei/fan.webp",
+      "textureSha256": "1e66240e21bf06b3c50a2000331406f59fea95d2a449baf4970a051f8a082c58",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 285,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                95.5,
+                -129.8,
+                119.4,
+                -100.6
+              ],
+              "palm": [
+                104.7,
+                -115.2
+              ],
+              "glove": [
+                68.0,
+                -129.8,
+                119.4,
+                -100.0
+              ],
+              "areaUnits2": 819
+            }
+          ],
+          "handRange": [
+            95.5,
+            -129.8,
+            119.4,
+            -100.6
+          ],
+          "origin": [
+            105,
+            -115
+          ]
+        }
+      ]
+    },
+    "needle_combo": {
+      "texture": "assets/motion/feifei/needle_combo_v3.webp",
+      "textureSha256": "7ca185f9d91c8ce14045b1de8986af8b9e667ceb2afd8cdbfd62d7a89189b655",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 220,
+          "frame": 4,
+          "hands": [
+            {
+              "box": [
+                122.2,
+                -136.0,
+                145.6,
+                -98.5
+              ],
+              "palm": [
+                131.7,
+                -116.5
+              ],
+              "glove": [
+                78.4,
+                -136.0,
+                145.6,
+                -89.1
+              ],
+              "areaUnits2": 1024
+            }
+          ],
+          "handRange": [
+            122.2,
+            -136.0,
+            145.6,
+            -98.5
+          ],
+          "origin": [
+            132,
+            -116
+          ]
+        },
+        {
+          "wave": 1,
+          "release": 380,
+          "frame": 6,
+          "hands": [
+            {
+              "box": [
+                131.6,
+                -153.2,
+                155.0,
+                -117.2
+              ],
+              "palm": [
+                140.4,
+                -133.3
+              ],
+              "glove": [
+                108.1,
+                -153.2,
+                155.0,
+                -109.4
+              ],
+              "areaUnits2": 965
+            }
+          ],
+          "handRange": [
+            131.6,
+            -153.2,
+            155.0,
+            -117.2
+          ],
+          "origin": [
+            140,
+            -133
+          ]
+        }
+      ]
+    },
+    "needle_backhand": {
+      "texture": "assets/motion/feifei/needle_backhand_v3.webp",
+      "textureSha256": "4745690a3eeef33c351f5c64c8403ddfaf4e8a73875c9d5acb251db5dbb04890",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 260,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                138.7,
+                -144.4,
+                162.0,
+                -97.0
+              ],
+              "palm": [
+                148.4,
+                -119.3
+              ],
+              "glove": [
+                107.8,
+                -144.4,
+                162.0,
+                -97.0
+              ],
+              "areaUnits2": 1482
+            }
+          ],
+          "handRange": [
+            138.7,
+            -144.4,
+            162.0,
+            -97.0
+          ],
+          "origin": [
+            148,
+            -119
+          ]
+        }
+      ]
+    },
+    "needle_venom": {
+      "texture": "assets/motion/feifei/needle_venom_v3.webp",
+      "textureSha256": "91d192cd2b898e6904f38446ff8c34fbce30c9b5d9837fdce4a0816f9f14b838",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 360,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                134.4,
+                -131.5,
+                157.8,
+                -100.8
+              ],
+              "palm": [
+                143.6,
+                -118.1
+              ],
+              "glove": [
+                114.2,
+                -131.5,
+                157.8,
+                -99.2
+              ],
+              "areaUnits2": 889
+            }
+          ],
+          "handRange": [
+            134.4,
+            -131.5,
+            157.8,
+            -100.8
+          ],
+          "origin": [
+            144,
+            -118
+          ]
+        }
+      ]
+    },
+    "needle_pierce": {
+      "texture": "assets/motion/feifei/needle_pierce_v3.webp",
+      "textureSha256": "45993103eaa62f15e0e4e1172524ef250b09166517c8de91e4dc859b529c5247",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 420,
+          "frame": 6,
+          "hands": [
+            {
+              "box": [
+                155.6,
+                -136.7,
+                179.2,
+                -102.5
+              ],
+              "palm": [
+                166.1,
+                -119.9
+              ],
+              "glove": [
+                132.9,
+                -136.7,
+                179.2,
+                -102.5
+              ],
+              "areaUnits2": 1028
+            }
+          ],
+          "handRange": [
+            155.6,
+            -136.7,
+            179.2,
+            -102.5
+          ],
+          "origin": [
+            166,
+            -120
+          ]
+        }
+      ]
+    },
+    "needle_retreat": {
+      "texture": "assets/motion/feifei/needle_retreat_v3.webp",
+      "textureSha256": "5e629ff2edda1d9c8401a769172474a3eb425024f404873d3b803e13ba04c182",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 260,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                144.2,
+                -158.8,
+                167.6,
+                -119.3
+              ],
+              "palm": [
+                153.4,
+                -138.0
+              ],
+              "glove": [
+                131.0,
+                -158.8,
+                167.6,
+                -119.3
+              ],
+              "areaUnits2": 616
+            },
+            {
+              "box": [
+                121.5,
+                -155.9,
+                144.9,
+                -104.7
+              ],
+              "palm": [
+                130.3,
+                -130.1
+              ],
+              "glove": [
+                90.0,
+                -155.9,
+                144.9,
+                -104.7
+              ],
+              "areaUnits2": 1336
+            }
+          ],
+          "handRange": [
+            121.5,
+            -158.8,
+            167.6,
+            -104.7
+          ],
+          "origin": [
+            142,
+            -134
+          ]
+        }
+      ]
+    },
+    "needle_rain": {
+      "texture": "assets/motion/feifei/needle_rain_v3.webp",
+      "textureSha256": "a357bc4ff3ca4552eea50d048975cb0088230ef7337ac93d2b7469c79ade0f82",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 350,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                86.7,
+                -272.2,
+                118.3,
+                -248.9
+              ],
+              "palm": [
+                100.3,
+                -258.2
+              ],
+              "glove": [
+                86.7,
+                -272.2,
+                118.3,
+                -225.6
+              ],
+              "areaUnits2": 885
+            }
+          ],
+          "handRange": [
+            86.7,
+            -272.2,
+            118.3,
+            -248.9
+          ],
+          "origin": [
+            100,
+            -258
+          ]
+        }
+      ]
+    },
+    "needle_barrage": {
+      "texture": "assets/motion/feifei/needle_barrage_v3.webp",
+      "textureSha256": "f185bed0484bf57a03f789c51d62293e57e11acd49e9d211a2df12b8a4527056",
+      "waves": [
+        {
+          "wave": 0,
+          "release": 350,
+          "frame": 5,
+          "hands": [
+            {
+              "box": [
+                132.2,
+                -202.1,
+                155.7,
+                -159.8
+              ],
+              "palm": [
+                141.3,
+                -177.4
+              ],
+              "glove": [
+                103.2,
+                -202.1,
+                155.7,
+                -148.0
+              ],
+              "areaUnits2": 1270
+            },
+            {
+              "box": [
+                112.6,
+                -103.4,
+                136.1,
+                -58.7
+              ],
+              "palm": [
+                120.6,
+                -80.5
+              ],
+              "glove": [
+                63.3,
+                -103.4,
+                136.1,
+                -54.0
+              ],
+              "areaUnits2": 1842
+            }
+          ],
+          "handRange": [
+            112.6,
+            -202.1,
+            155.7,
+            -58.7
+          ],
+          "origin": [
+            131,
+            -129
+          ]
+        }
+      ]
+    }
+  }
+}

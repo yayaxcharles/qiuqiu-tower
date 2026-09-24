@@ -1,7 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { _setManifestForTest, artUrl, hasMonsterPose, monsterUrl } from '../../src/ui/assets';
+import {
+  _setManifestForTest, artUrl, heroOfKey, heroSpriteKey, heroSpriteUrls,
+  hasMonsterPose, monsterUrl, TITLE_ART,
+} from '../../src/ui/assets';
 
 describe('素材查表', () => {
+  it('封封的角色鍵、姿勢、首頁圖與預載都歸到封封', () => {
+    _setManifestForTest({
+      cards: { 'card/fengfeng_pingzhan': 'assets/cards/fengfeng_pingzhan.webp' },
+      sprites: {
+        'hero/fengfeng_idle': 'assets/sprites/hero/fengfeng_idle.webp',
+        'hero/fengfeng_claw': 'assets/sprites/hero/fengfeng_claw.webp',
+        'hero/fengfeng_cover': 'assets/sprites/hero/fengfeng_cover.webp',
+        'hero/fengfeng_nap': 'assets/sprites/hero/fengfeng_nap.webp',
+      },
+      monsters: {}, icons: {}, bg: {}, review: [],
+    });
+    expect(heroOfKey('card/fengfeng_pingzhan')).toBe('fengfeng');
+    expect(heroOfKey('hero/fengfeng_idle')).toBe('fengfeng');
+    expect(heroSpriteKey('fengfeng', 'hero/ninja_claw')).toBe('hero/fengfeng_claw');
+    expect(TITLE_ART.has('hero/fengfeng_cover')).toBe(true);
+    const urls = heroSpriteUrls(['fengfeng']);
+    expect(urls.some((url) => url.endsWith('fengfeng_claw.webp'))).toBe(true);
+    expect(urls.some((url) => url.endsWith('fengfeng_nap.webp'))).toBe(false);
+    expect(urls.some((url) => url.endsWith('fengfeng_cover.webp'))).toBe(false);
+  });
+
   it('有圖給路徑，缺圖給剪影', () => {
     _setManifestForTest({
       cards: { 'ninja/01': 'assets/cards/ninja/01.webp' },
@@ -19,23 +43,21 @@ describe('素材查表', () => {
   });
 
   /*
-   * 影菲菲（鏡中球球照到菲菲時的變裝）的五張姿勢還在生。
-   * 清單裡查不到那個鍵時**要退回影球球那組**，不能掉成灰剪影——
-   * 一隻沒有五官的灰團在鏡子走廊裡打你，比暫時借用影球球的立繪難看得多。
+   * 原本這裡守著「影菲菲的圖還沒進倉就先借影球球那組」。
+   * 那張替身對照表 2026-09-18 拿掉了（她的五張 2026-09-15 當天就進倉，表空了三天），
+   * 所以改成守現在真正的行為：**有自己的鍵就用自己的，查無鍵退成剪影、不會借別隻的圖**。
    */
-  it('立繪還沒進倉的鍵退回替身，不掉成剪影；圖進倉之後就不走替身了', () => {
-    const shadowCat = { idle: 'assets/monsters/shadow_cat_idle.webp', down: 'assets/monsters/shadow_cat_down.webp' };
-    _setManifestForTest({ cards: {}, sprites: {}, monsters: { 'codex/monster_shadow_cat': shadowCat }, icons: {}, bg: {}, review: [] });
-    expect(monsterUrl('codex/monster_shadow_feifei', 'idle')).toContain('shadow_cat_idle');
-    expect(monsterUrl('codex/monster_shadow_feifei', 'idle').startsWith('data:'), '不可以是剪影').toBe(false);
-    expect(hasMonsterPose('codex/monster_shadow_feifei', 'down')).toBe(true);
-    expect(hasMonsterPose('codex/monster_shadow_feifei', 'attack'), '替身也沒有的姿勢照樣回 false').toBe(false);
-
-    // 圖進倉之後：有自己的鍵就用自己的
+  it('魔物立繪只認自己的鍵，查不到就退成剪影', () => {
     _setManifestForTest({
       cards: {}, sprites: {}, icons: {}, bg: {}, review: [],
-      monsters: { 'codex/monster_shadow_cat': shadowCat, 'codex/monster_shadow_feifei': { idle: 'assets/monsters/shadow_feifei_idle.webp' } },
+      monsters: {
+        'codex/monster_shadow_cat': { idle: 'assets/monsters/shadow_cat_idle.webp', down: 'assets/monsters/shadow_cat_down.webp' },
+        'codex/monster_shadow_feifei': { idle: 'assets/monsters/shadow_feifei_idle.webp' },
+      },
     });
     expect(monsterUrl('codex/monster_shadow_feifei', 'idle')).toContain('shadow_feifei_idle');
+    expect(monsterUrl('codex/monster_shadow_feifei', 'attack'), '自己沒有的姿勢退回自己的待機圖').toContain('shadow_feifei_idle');
+    expect(hasMonsterPose('codex/monster_shadow_feifei', 'down'), '別隻有、自己沒有的姿勢回 false').toBe(false);
+    expect(monsterUrl('codex/monster_shadow_none', 'idle').startsWith('data:'), '查不到的鍵是剪影').toBe(true);
   });
 });

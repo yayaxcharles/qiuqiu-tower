@@ -1,0 +1,1204 @@
+{
+  "source": {
+    "root": "F:/GODOT/qiuqiu-2d-motion-lab/qiuqiu-air-combat-v005",
+    "motions_json": {
+      "path": "assets/player/motions.json",
+      "bytes": 41423,
+      "sha256": "7d18c7ac2db529f32e04a7ab410e1133a9266a08e88ee4bf2ff38bd069631d04"
+    }
+  },
+  "target": {
+    "motion_data": "src/ui/qiuqiu-motion-data.json",
+    "asset_directory": "public/assets/motion/qiuqiu"
+  },
+  "actions": [
+    {
+      "action": "idle",
+      "texture": "assets/motion/qiuqiu/idle_hurt_sheet.webp",
+      "frames": 5,
+      "duration": 2.0,
+      "scale": 0.622,
+      "source": {
+        "path": "assets/player/idle_hurt_sheet.png",
+        "bytes": 1321656,
+        "sha256": "d8bbbff5f892e7a4b6447f05387d5d2a9ac76d45dcbb2519fddcba2d8edbdcbe",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/idle_hurt_sheet.webp",
+        "bytes": 882974,
+        "sha256": "05da06296d9201dde57b775fd10a74d77506d30dca747579437ca6aa0b1f6cf0",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 53401,
+        "visible_pixels": 682626,
+        "transparent_pixels": 890912,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "hurt",
+      "texture": "assets/motion/qiuqiu/idle_hurt_sheet.webp",
+      "frames": 4,
+      "duration": 0.32,
+      "scale": 0.622,
+      "source": {
+        "path": "assets/player/idle_hurt_sheet.png",
+        "bytes": 1321656,
+        "sha256": "d8bbbff5f892e7a4b6447f05387d5d2a9ac76d45dcbb2519fddcba2d8edbdcbe",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/idle_hurt_sheet.webp",
+        "bytes": 882974,
+        "sha256": "05da06296d9201dde57b775fd10a74d77506d30dca747579437ca6aa0b1f6cf0",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 53401,
+        "visible_pixels": 682626,
+        "transparent_pixels": 890912,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "down",
+      "texture": "assets/motion/qiuqiu/idle_hurt_sheet.webp",
+      "frames": 1,
+      "duration": 1.0,
+      "scale": 0.622,
+      "source": {
+        "path": "assets/player/idle_hurt_sheet.png",
+        "bytes": 1321656,
+        "sha256": "d8bbbff5f892e7a4b6447f05387d5d2a9ac76d45dcbb2519fddcba2d8edbdcbe",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/idle_hurt_sheet.webp",
+        "bytes": 882974,
+        "sha256": "05da06296d9201dde57b775fd10a74d77506d30dca747579437ca6aa0b1f6cf0",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 53401,
+        "visible_pixels": 682626,
+        "transparent_pixels": 890912,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "walk",
+      "texture": "assets/motion/qiuqiu/walk_sheet.webp",
+      "frames": 8,
+      "duration": 0.64,
+      "scale": 0.68,
+      "source": {
+        "path": "assets/player/walk_sheet.png",
+        "bytes": 1208859,
+        "sha256": "15d7a68b72e0c350d91dd568a9f37615d42029a54df50204b830f29a54809b0f",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/walk_sheet.webp",
+        "bytes": 805812,
+        "sha256": "dd623d13c706acf95389eeae1c7ce78c372b34f494cf797eed6f2d668e54fddf",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 114308,
+        "visible_pixels": 618765,
+        "transparent_pixels": 954773,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "run",
+      "texture": "assets/motion/qiuqiu/run_claws_sheet.webp",
+      "frames": 8,
+      "duration": 0.48,
+      "scale": 0.622,
+      "source": {
+        "path": "assets/player/run_claws_sheet.png",
+        "bytes": 1333377,
+        "sha256": "d2d4d2dff83efcb7e929f186d65d42a64cd94f526f582d6f95123cee164da778",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/run_claws_sheet.webp",
+        "bytes": 875460,
+        "sha256": "a5d8f816a36aa49fba3d5627aa7733c0a9a0e9b3528afae4371b46186ab154c1",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 155638,
+        "visible_pixels": 648389,
+        "transparent_pixels": 925149,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "roll",
+      "texture": "assets/motion/qiuqiu/roll_sheet.webp",
+      "frames": 8,
+      "duration": 0.4,
+      "scale": 0.705,
+      "source": {
+        "path": "assets/player/roll_sheet.png",
+        "bytes": 1101176,
+        "sha256": "386459a9eaea1766e7db7011ab4115f4af8ee909ad2af8410f57adb8f529f7be",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/roll_sheet.webp",
+        "bytes": 723990,
+        "sha256": "1c02f383b2974f3f1e4b19972ffbbed13b2a9a6276e52e64a7a919fa087e355b",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 25533,
+        "visible_pixels": 543052,
+        "transparent_pixels": 1030486,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "jump",
+      "texture": "assets/motion/qiuqiu/jump_sheet.webp",
+      "frames": 5,
+      "duration": 0.82,
+      "scale": 0.73,
+      "source": {
+        "path": "assets/player/jump_sheet.png",
+        "bytes": 1070312,
+        "sha256": "3582f2ded24d42565c337d5524abe384b8903ecb0a0c8a0caa1ef02428b0c471",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/jump_sheet.webp",
+        "bytes": 709466,
+        "sha256": "a259f94ffd8522d0e568a16ac71858a2154a258e55839f14cfb00c385b8c6fb2",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 115225,
+        "visible_pixels": 515021,
+        "transparent_pixels": 1058517,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "land",
+      "texture": "assets/motion/qiuqiu/jump_sheet.webp",
+      "frames": 3,
+      "duration": 0.1,
+      "scale": 0.73,
+      "source": {
+        "path": "assets/player/jump_sheet.png",
+        "bytes": 1070312,
+        "sha256": "3582f2ded24d42565c337d5524abe384b8903ecb0a0c8a0caa1ef02428b0c471",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/jump_sheet.webp",
+        "bytes": 709466,
+        "sha256": "a259f94ffd8522d0e568a16ac71858a2154a258e55839f14cfb00c385b8c6fb2",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 115225,
+        "visible_pixels": 515021,
+        "transparent_pixels": 1058517,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "attack1",
+      "texture": "assets/motion/qiuqiu/claw_1_sheet.webp",
+      "frames": 6,
+      "duration": 0.3,
+      "scale": 0.5,
+      "source": {
+        "path": "assets/player/claw_1_sheet.png",
+        "bytes": 1903209,
+        "sha256": "c7d315fb57ec4d36d999b7f48483976139c8972148d1278ea879014fa1e8dac1",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/claw_1_sheet.webp",
+        "bytes": 811262,
+        "sha256": "e2e0a2c7c70a9368f579c08d6476f331ebb625655cd3803f133f58306f609762",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1536,
+          1024
+        ],
+        "output_dimensions": [
+          1536,
+          1024
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 863034,
+        "visible_pixels": 707479,
+        "transparent_pixels": 865385,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "attack2",
+      "texture": "assets/motion/qiuqiu/claw_2_sheet.webp",
+      "frames": 6,
+      "duration": 0.34,
+      "scale": 0.505,
+      "source": {
+        "path": "assets/player/claw_2_sheet.png",
+        "bytes": 1858469,
+        "sha256": "aa38461095d3d0ea15d44bedb01131f146c6092b04516142eb5b7da83453c2c2",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/claw_2_sheet.webp",
+        "bytes": 763932,
+        "sha256": "2fd2b19b94f8f92553b6f8ab7f366f8d11ac67aeb61af80c56ba3a47d904add2",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1536,
+          1024
+        ],
+        "output_dimensions": [
+          1536,
+          1024
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 901880,
+        "visible_pixels": 668770,
+        "transparent_pixels": 904094,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "attack3",
+      "texture": "assets/motion/qiuqiu/claw_3_sheet.webp",
+      "frames": 8,
+      "duration": 0.42,
+      "scale": 0.72,
+      "source": {
+        "path": "assets/player/claw_3_sheet.png",
+        "bytes": 1090489,
+        "sha256": "1c533c6d64dd5ba4b60676260b04777c0187125ce47852909d49d69fb821a592",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/claw_3_sheet.webp",
+        "bytes": 735520,
+        "sha256": "d3fc6a4f456c79130dc55993fd2a7480ee46fac0d366bfb638f3e3b153f75381",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 80885,
+        "visible_pixels": 517362,
+        "transparent_pixels": 1056176,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "dash",
+      "texture": "assets/motion/qiuqiu/skills_sheet.webp",
+      "frames": 6,
+      "duration": 0.42,
+      "scale": 0.795,
+      "source": {
+        "path": "assets/player/skills_sheet.png",
+        "bytes": 1397473,
+        "sha256": "01877dddee55da67367cb4d72f0e9c0aa66849e4e195eeaf55acfe7ce8c7c46b",
+        "dimensions": [
+          1448,
+          1086
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/skills_sheet.webp",
+        "bytes": 956922,
+        "sha256": "7355ed06f0296f53ebc56a89bf3f754450aaa5d523eab6b7c102be8fb2455170",
+        "dimensions": [
+          1448,
+          1086
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1448,
+          1086
+        ],
+        "output_dimensions": [
+          1448,
+          1086
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 56339,
+        "visible_pixels": 665096,
+        "transparent_pixels": 907432,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "clone",
+      "texture": "assets/motion/qiuqiu/skills_sheet.webp",
+      "frames": 6,
+      "duration": 0.56,
+      "scale": 0.795,
+      "source": {
+        "path": "assets/player/skills_sheet.png",
+        "bytes": 1397473,
+        "sha256": "01877dddee55da67367cb4d72f0e9c0aa66849e4e195eeaf55acfe7ce8c7c46b",
+        "dimensions": [
+          1448,
+          1086
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/skills_sheet.webp",
+        "bytes": 956922,
+        "sha256": "7355ed06f0296f53ebc56a89bf3f754450aaa5d523eab6b7c102be8fb2455170",
+        "dimensions": [
+          1448,
+          1086
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1448,
+          1086
+        ],
+        "output_dimensions": [
+          1448,
+          1086
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 56339,
+        "visible_pixels": 665096,
+        "transparent_pixels": 907432,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "attack4",
+      "texture": "assets/motion/qiuqiu/claw_4_sheet.webp",
+      "frames": 8,
+      "duration": 0.52,
+      "scale": 0.635,
+      "source": {
+        "path": "assets/player/claw_4_sheet.png",
+        "bytes": 1218433,
+        "sha256": "67dc2e8ce701dc731aa70343374bddd691b45dee8499b855d476115e45c4c50e",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/claw_4_sheet.webp",
+        "bytes": 793406,
+        "sha256": "465bafef40fef9be55dbd0c1594abf6ba094234e87dcbbb895a4c8e3ff73128f",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 41138,
+        "visible_pixels": 610426,
+        "transparent_pixels": 963112,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "attack_run",
+      "texture": "assets/motion/qiuqiu/claw_run_sheet.webp",
+      "frames": 6,
+      "duration": 0.4,
+      "scale": 0.585,
+      "source": {
+        "path": "assets/player/claw_run_sheet.png",
+        "bytes": 1840531,
+        "sha256": "23b3105f751d034fd295bf667ebf2718ad2d54b9c0317dc0f5e02e821c60a69a",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/claw_run_sheet.webp",
+        "bytes": 714176,
+        "sha256": "3093f1058e0d76c93ededeb1f3f6b6075dd328d87873e60a0e75172215338b30",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1536,
+          1024
+        ],
+        "output_dimensions": [
+          1536,
+          1024
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 973286,
+        "visible_pixels": 595972,
+        "transparent_pixels": 976892,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "attack_air",
+      "texture": "assets/motion/qiuqiu/claw_air_sheet.webp",
+      "frames": 6,
+      "duration": 0.34,
+      "scale": 0.515,
+      "source": {
+        "path": "assets/player/claw_air_sheet.png",
+        "bytes": 1831321,
+        "sha256": "963962c82f3f8cce9af492ea8eaef1240671c7da425ba9755abf794f73fdf2bb",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/claw_air_sheet.webp",
+        "bytes": 697844,
+        "sha256": "9380447b84baccb69fb36d5a21497cf4c891a093c69f1345c57acc4421ed5a98",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1536,
+          1024
+        ],
+        "output_dimensions": [
+          1536,
+          1024
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 985293,
+        "visible_pixels": 580833,
+        "transparent_pixels": 992031,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "shuriken",
+      "texture": "assets/motion/qiuqiu/shuriken_sheet.webp",
+      "frames": 8,
+      "duration": 0.7,
+      "scale": 0.61,
+      "source": {
+        "path": "assets/player/shuriken_sheet.png",
+        "bytes": 1348129,
+        "sha256": "7ae6848caea9c824b1adec6176cdb9b8c3dd54898e4a8fae345556f86405e219",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/shuriken_sheet.webp",
+        "bytes": 893836,
+        "sha256": "af9b59672ef805b39e0caa2d2f6fa8e2606b6a1e5294bed27d29f315d7dd6920",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 143506,
+        "visible_pixels": 667544,
+        "transparent_pixels": 905994,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "kick",
+      "texture": "assets/motion/qiuqiu/kick_spin_sheet.webp",
+      "frames": 12,
+      "duration": 0.58,
+      "scale": 0.75,
+      "source": {
+        "path": "assets/player/kick_spin_sheet.png",
+        "bytes": 1239255,
+        "sha256": "4a77450b24432eebdc0209f1ed153079964b21bfba9815b4a3174e0a49545fbe",
+        "dimensions": [
+          1448,
+          1086
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/kick_spin_sheet.webp",
+        "bytes": 816416,
+        "sha256": "d58057afc5aecd69413d6d13d5b6fcbbc872cc8a516435e6a956c29030e27230",
+        "dimensions": [
+          1448,
+          1086
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1448,
+          1086
+        ],
+        "output_dimensions": [
+          1448,
+          1086
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 52491,
+        "visible_pixels": 583639,
+        "transparent_pixels": 988889,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "seal",
+      "texture": "assets/motion/qiuqiu/seal_sheet.webp",
+      "frames": 8,
+      "duration": 0.48,
+      "scale": 0.58,
+      "source": {
+        "path": "assets/player/seal_sheet.png",
+        "bytes": 1269448,
+        "sha256": "d6491604f367c57544183104362a2fed581815d0deb4bda4264d083540aaa705",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/seal_sheet.webp",
+        "bytes": 830894,
+        "sha256": "1ccc44c0f0dfd46fc6dce4f9ea1409be02993cf6254f314a50572687ce793114",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 110037,
+        "visible_pixels": 654325,
+        "transparent_pixels": 919213,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "storm",
+      "texture": "assets/motion/qiuqiu/storm_sheet.webp",
+      "frames": 8,
+      "duration": 0.64,
+      "scale": 0.622,
+      "source": {
+        "path": "assets/player/storm_sheet.png",
+        "bytes": 1299592,
+        "sha256": "4978f4b10a6ef5054f9ee42909c93e9161cbc35b27c7dd094a17b640c8949b8f",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/storm_sheet.webp",
+        "bytes": 874878,
+        "sha256": "8dbc2cb709bbb894cbacb8aef1b5a1acdfe1c6be62ff23858ac9991f0a18cec6",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 110377,
+        "visible_pixels": 647103,
+        "transparent_pixels": 926435,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "rush",
+      "texture": "assets/motion/qiuqiu/rush_sheet.webp",
+      "frames": 8,
+      "duration": 0.48,
+      "scale": 0.622,
+      "source": {
+        "path": "assets/player/rush_sheet.png",
+        "bytes": 1152730,
+        "sha256": "a9283a82604cc199a34ed314a0ea69af77f7f7d252e92d94d5f5142ca349304a",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/rush_sheet.webp",
+        "bytes": 763328,
+        "sha256": "6b58eebcc3160a8ec79fccce5c75597ac961aec1e17ff02d65d1decf1ce5ec6c",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 160719,
+        "visible_pixels": 588617,
+        "transparent_pixels": 984921,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "combo_kick",
+      "texture": "assets/motion/qiuqiu/combo_kick_sheet.webp",
+      "frames": 8,
+      "duration": 0.4,
+      "scale": 0.605,
+      "source": {
+        "path": "assets/player/combo_kick_sheet.png",
+        "bytes": 1142597,
+        "sha256": "5f679171fc50aa6d626230a196ee2027d3426ee4df6562f15b529f7b4289e7d4",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/combo_kick_sheet.webp",
+        "bytes": 751980,
+        "sha256": "15fbc0294cc5c20f959442070bb64446bbda1492c9d3a3aa67a0a2d88ac3aece",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 145605,
+        "visible_pixels": 568906,
+        "transparent_pixels": 1004632,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "uppercut",
+      "texture": "assets/motion/qiuqiu/uppercut_sheet.webp",
+      "frames": 8,
+      "duration": 0.56,
+      "scale": 0.625,
+      "source": {
+        "path": "assets/player/uppercut_sheet.png",
+        "bytes": 1251965,
+        "sha256": "9ff27612d92a7d26d63be491057fbe554cd2020185267731281381bf96556097",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/uppercut_sheet.webp",
+        "bytes": 816986,
+        "sha256": "b2643e1a386ce22a118a717397d10787737b2f8922b346179a7233d178dff004",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 134931,
+        "visible_pixels": 627114,
+        "transparent_pixels": 946424,
+        "rgba_visible_alpha_match": true
+      }
+    },
+    {
+      "action": "flying_kick",
+      "texture": "assets/motion/qiuqiu/flying_kick_spaced_sheet.webp",
+      "frames": 8,
+      "duration": 0.52,
+      "scale": 0.7,
+      "source": {
+        "path": "assets/player/flying_kick_spaced_sheet.png",
+        "bytes": 945819,
+        "sha256": "6f4f51d2996e6415b8427e0047eda50c9b58a59628419a78d11db4ddd77214ac",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/flying_kick_spaced_sheet.webp",
+        "bytes": 630200,
+        "sha256": "f87fba3730592a8ce6ef62c9751717720b54818886841839fea388676d6e68f5",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGBA"
+      },
+      "validation": {
+        "source_mode": "RGBA",
+        "output_mode": "RGBA",
+        "source_dimensions": [
+          1774,
+          887
+        ],
+        "output_dimensions": [
+          1774,
+          887
+        ],
+        "dimensions_match": true,
+        "alpha_mismatch_pixels": 0,
+        "visible_rgb_mismatch_pixels": 0,
+        "transparent_rgb_mismatch_pixels": 192815,
+        "visible_pixels": 437660,
+        "transparent_pixels": 1135878,
+        "rgba_visible_alpha_match": true
+      }
+    }
+  ],
+  "projectiles": [
+    {
+      "projectile": "shuriken",
+      "texture": "assets/motion/qiuqiu/shuriken_128.webp",
+      "source": {
+        "path": "assets/fx/shuriken.png",
+        "bytes": 422145,
+        "sha256": "fbc6434a5fbd738bfa9e36f204a6fb7ae5ae20fe94bc7cbb01fea79ef2bf3ad2",
+        "dimensions": [
+          1254,
+          1254
+        ],
+        "mode": "RGBA"
+      },
+      "output": {
+        "path": "public/assets/motion/qiuqiu/shuriken_128.webp",
+        "bytes": 10118,
+        "sha256": "3ce6c60e3f3ab22e9fa9deebcdba9e55e2158fcf93b185c7385ef73c6365e52e",
+        "dimensions": [
+          125,
+          128
+        ],
+        "mode": "RGBA"
+      },
+      "derived": {
+        "note": "2026-09-22 清理：遊戲只把中間那一塊畫成 40×41，改成預先裁切縮小。從無損移植的 1254×1254 版裁出實際畫的範圍，先預乘透明度再用 LANCZOS 縮到 128 高，存無損 WebP；無損移植那一版（下面 port）已從 public 刪除，要重做就先跑 tools/port_qiuqiu_motion.py 再裁。",
+        "crop": [
+          137,
+          112,
+          979,
+          1001
+        ],
+        "resample": "LANCZOS（預乘透明度 RGBa）",
+        "encoding": "WebP lossless, method 6",
+        "port": {
+          "path": "public/assets/motion/qiuqiu/shuriken.webp",
+          "bytes": 261790,
+          "sha256": "d854b776efae30e57f7c66f97d832d4403aa36f03a1c2287ec7f23cf4fef22fe",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGBA",
+          "validation": {
+            "source_mode": "RGBA",
+            "output_mode": "RGBA",
+            "source_dimensions": [
+              1254,
+              1254
+            ],
+            "output_dimensions": [
+              1254,
+              1254
+            ],
+            "dimensions_match": true,
+            "alpha_mismatch_pixels": 0,
+            "visible_rgb_mismatch_pixels": 0,
+            "transparent_rgb_mismatch_pixels": 2327,
+            "visible_pixels": 289595,
+            "transparent_pixels": 1282921,
+            "rgba_visible_alpha_match": true
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "action_count": 24,
+    "projectile_count": 1,
+    "source_bytes": 31935937,
+    "output_bytes": 19029946,
+    "unique_action_image_count": 20,
+    "unique_action_output_bytes": 15849282,
+    "unique_projectile_image_count": 1,
+    "unique_projectile_output_bytes": 10118,
+    "unique_image_count": 21,
+    "unique_output_bytes": 15859400,
+    "total_duration": 13.42,
+    "all_dimensions_match": true,
+    "all_visible_pixels_and_alpha_match": true,
+    "all_projectile_dimensions_match": false,
+    "all_projectile_visible_pixels_and_alpha_match": false,
+    "projectile_note": "手裏劍 2026-09-22 起改用裁切縮小版（見 projectiles[0].derived），不再逐像素對應來源"
+  }
+}

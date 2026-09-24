@@ -1,0 +1,58 @@
+{
+  "event_daxia_teach": {
+    "why": "（使用者 09-24 晚：封封那張倒著看書，同一毛病）書頁正對我們、球球從書後面往下看＝倒著讀；球球還是舊版冷灰毛色",
+    "scene": "Qiuqiu sits on a low stone step on a small patch of cracked stone floor. In both paws he holds an old martial-arts manual with a frayed, worn dark-blue cover, open in front of his chest, and with one paw he is turning a page further on (the page mid-turn, bending over). He looks into the book with a curious, searching face. THE BOOK FACES ITS READER: the cat holds the open manual up in front of himself with the open pages turned TOWARD HIS OWN FACE, so from our side we see the worn dark-blue COVER on the outside of the book (and at most a thin sliver of page edge) - we do NOT see the pages' pictures or writing. Never draw the pages facing us while the cat looks at them from behind or from above - that would mean he is reading upside down. The book is held firmly in his paws, not floating. ",
+    "style": "bg/event_daxia_teach.webp",
+    "refs": [
+      [
+        "bg/event_daxia_teach.webp",
+        "the SETTING of this event: the small patch of cracked grey stone floor in a stairwell - copy the place and the old worn dark-blue manual, but NOT the way the cat leans over a book lying flat."
+      ]
+    ]
+  },
+  "event_daxia_teach_r0": {
+    "why": "（使用者 09-24 晚：封封那張倒著看書，同一毛病）書攤在石板上正對我們、球球從書後面看＝倒著讀；球球舊版冷灰毛色",
+    "scene": "Qiuqiu sits on the low stone step holding the open manual up close to his face with both paws, squinting hard at the pages with a small sweat drop - the writing is hard to read, so he is studying the pictures instead: his head is tilted and his eyes follow the page. THE BOOK FACES ITS READER: the cat holds the open manual up in front of himself with the open pages turned TOWARD HIS OWN FACE, so from our side we see the worn dark-blue COVER on the outside of the book (and at most a thin sliver of page edge) - we do NOT see the pages' pictures or writing. Never draw the pages facing us while the cat looks at them from behind or from above - that would mean he is reading upside down. The book is held firmly in his paws, not floating. ",
+    "style": "bg/event_daxia_teach.webp",
+    "refs": [
+      [
+        "bg/event_daxia_teach.webp",
+        "the SETTING of this event: the small patch of cracked grey stone floor in a stairwell - copy the place and the old worn dark-blue manual, but NOT the way the cat leans over a book lying flat."
+      ]
+    ]
+  },
+  "event_fengfeng_daxia_teach": {
+    "why": "（使用者 09-24 晚抓到結果圖倒著看書，主圖同一毛病）書攤在石板上正對我們、封封從書後面看＝倒著讀",
+    "scene": "Fengfeng stands on a small patch of cracked stone floor in a stairwell, his sheathed straight jian at his waist. He holds the old manual (frayed, worn dark-blue cover) open in both paws at chest height and reads it attentively, calm and focused, studying the footwork shown inside. THE BOOK FACES ITS READER: the cat holds the open manual up in front of himself with the open pages turned TOWARD HIS OWN FACE, so from our side we see the worn dark-blue COVER on the outside of the book (and at most a thin sliver of page edge) - we do NOT see the pages' pictures or writing. Never draw the pages facing us while the cat looks at them from behind or from above - that would mean he is reading upside down. The book is held firmly in his paws, not floating. ",
+    "style": "bg/event_fengfeng_daxia_teach.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_daxia_teach.webp",
+        "the SETTING of this event: the small patch of cracked grey stone floor in a stairwell - copy the place and the old worn dark-blue manual, but NOT the way the cat leans over a book lying flat."
+      ]
+    ]
+  },
+  "event_fengfeng_daxia_teach_r0": {
+    "why": "（使用者 09-24 晚抓到）書頁正對我們、封封在上方＝倒著看書；文字是「選一幅圖照著踏步，再用劍鞘試過出手的方向」，圖上只有趴著看",
+    "scene": "Fengfeng steps forward into a low stance on the small patch of cracked stone floor, front foot planted. In one paw he holds the open manual up beside his head, glancing at it to follow the pictured footwork. In his other paw he holds his straight jian STILL IN ITS dark-brown SCABBARD and points it forward like a thrust, testing the direction of the strike. His face is focused and satisfied - the step fits his sword style. THE BOOK FACES ITS READER: the cat holds the open manual up in front of himself with the open pages turned TOWARD HIS OWN FACE, so from our side we see the worn dark-blue COVER on the outside of the book (and at most a thin sliver of page edge) - we do NOT see the pages' pictures or writing. Never draw the pages facing us while the cat looks at them from behind or from above - that would mean he is reading upside down. The book is held firmly in his paws, not floating. ",
+    "gear_off": "the red scarf stays on his neck. His jian stays sheathed but is taken off his waist: he holds the sheathed sword in one paw (there is no second scabbard at his waist). There is exactly one sword.",
+    "style": "bg/event_fengfeng_daxia_teach.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_daxia_teach.webp",
+        "the SETTING of this event: the small patch of cracked grey stone floor in a stairwell - copy the place and the old worn dark-blue manual, but NOT the way the cat leans over a book lying flat."
+      ]
+    ]
+  },
+  "event_dangdang_daxia_teach": {
+    "why": "（使用者 09-24 晚：封封那張倒著看書，同一毛病）書攤在腿上、圖正對我們、噹噹從上面看＝倒著讀",
+    "scene": "Dangdang sits on a low block of cracked stone, his canvas tool bag on the ground beside him. He has just picked up the old manual (frayed, worn dark-blue cover) and holds it open in both paws in front of his chest, reading with a curious, interested face. THE BOOK FACES ITS READER: the cat holds the open manual up in front of himself with the open pages turned TOWARD HIS OWN FACE, so from our side we see the worn dark-blue COVER on the outside of the book (and at most a thin sliver of page edge) - we do NOT see the pages' pictures or writing. Never draw the pages facing us while the cat looks at them from behind or from above - that would mean he is reading upside down. The book is held firmly in his paws, not floating. ",
+    "style": "bg/event_dangdang_daxia_teach.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_daxia_teach.webp",
+        "the SETTING of this event: the small patch of cracked grey stone floor in a stairwell - copy the place and the old worn dark-blue manual, but NOT the way the cat leans over a book lying flat."
+      ]
+    ]
+  }
+}

@@ -36,6 +36,15 @@ import type { Plugin } from 'vite';
 const MANIFEST_REL = 'assets/manifest.json';
 
 /**
+ * 小圖示的位置（相對於 `dist/`，2026-09-23）。`index.html` 用 `%BASE_URL%favicon.png` 寫死網址，
+ * 跟清單一樣不能加雜湊——副檔名是 `.png`，不在下面 `SKIP_EXT` 那張表裡（那張表是給
+ * `.ico` 這種傳統副檔名用的），不額外排掉的話會被改名成 `favicon-XXXXXXXX.png`、
+ * `index.html` 裡的舊名字就 404。不把 `.png` 整個加進 `SKIP_EXT`：這個專案的圖大多是
+ * `.webp`，但以後真的進了 png 素材圖，還是要照樣加雜湊防快取，不能因為一張圖示就整類放行。
+ */
+const FAVICON_REL = 'favicon.png';
+
+/**
  * 這些副檔名不加雜湊。
  *
  * `.js`／`.css`／`.map` 是 Vite 自己打包的產物（已經有雜湊）；`.html` 是進入點；
@@ -128,6 +137,7 @@ export function assetHash(): Plugin {
         const name = rel.slice(rel.lastIndexOf('/') + 1);
         if (name.startsWith('.')) continue;                 // `.nojekyll` 這一類不能改名
         if (rel === MANIFEST_REL) continue;                 // 入口，見檔頭第 2 條
+        if (rel === FAVICON_REL) continue;                  // index.html 寫死網址，見上面 FAVICON_REL 的說明
         if (emitted.has(rel)) continue;                     // Vite 自己的產物，見檔頭第 3 條
         const ext = extname(name);
         if (ext === '' || SKIP_EXT.has(ext.toLowerCase())) continue;
@@ -157,8 +167,9 @@ export function assetHash(): Plugin {
        * 從來沒進過 `manifest.json` 的分類。執行期由 `assets.ts` 的 `fileUrl()` 查這張表；
        * 查不到就照原路徑走（開發伺服器就是這條，那邊的檔名本來就沒有雜湊）。
        *
-       * 只放「清單分類沒用到的」46 筆，不放全部 1327 筆：清單是每次開遊戲都得重新問一次的入口，
-       * 多塞一份完整對照表會讓它從 75 KB 變成快 200 KB。
+       * 只放清單分類沒用到的檔案（逐格動作的圖集也在這裡：`assets/motion/**` 由 `fileUrl()` 載入）。
+       * 2026-09-20～22 曾經另外補列四張「同時當逐格受擊」的舊挨打立繪；挨打換成
+       * `assets/motion/<角色>/hit_recoil.webp` 之後沒有圖再同時走兩條路，那個例外拿掉了。
        */
       const files: Record<string, string> = {};
       for (const [orig, hashed] of renamed) if (!used.has(orig)) files[orig] = hashed;

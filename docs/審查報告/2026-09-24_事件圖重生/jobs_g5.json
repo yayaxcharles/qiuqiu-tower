@@ -1,0 +1,327 @@
+{
+  "event_fengfeng_old_well_r1": {
+    "why": "文字寫「對照倒影調整握劍的位置……兩邊肩膀放平」，圖上封封兩隻前爪都搭在井沿上，直劍連鞘斜背在身後，沒有任何一隻爪子握著劍，倒影裡也只是空爪。",
+    "scene": "A round grey-brown stone well stands on a small patch of ground (copy the well from reference image 3), with a plain wooden signboard on a post behind it (blank board, no writing). Fengfeng STANDS on the ground right beside the well, his body turned three-quarters toward the viewer, practising a sword stance: BOTH of his paws are closed firmly around the hilt of his drawn straight jian (the hilt sits inside his closed paws), and the blade is held level in front of his chest, pointing forward out over the well. Both of his shoulders are level and relaxed. His EMPTY dark-brown scabbard hangs at his waist. He looks down into the well: the calm, perfectly still water inside the well is a clear mirror that shows his reflection holding the sword in the same pose. Calm, focused face, as if he has just noticed what was wrong. No fish, no ripples.",
+    "style": "bg/event_fengfeng_old_well_r0.webp",
+    "refs": [
+      [
+        "bg/event_old_well_r1.webp",
+        "the round grey-brown stone WELL and the wooden signpost of this same event - copy the well's look exactly. Ignore the grey tabby cat."
+      ]
+    ]
+  },
+  "event_fengfeng_old_well": {
+    "why": "文字寫「井水很靜，照得出封封握著劍鞘的手」，圖上封封雙爪都搭在井沿上，身上和倒影裡都看不到劍或劍鞘（招牌直劍整把不見）。",
+    "scene": "A round grey-brown stone well stands on a small patch of ground (copy the well and signpost from reference image 3), and a plain wooden signboard on a post stands right behind it (the board is blank - no writing). Fengfeng stands on the ground at the edge of the well and leans over to look in. His LEFT paw rests on the stone rim. His RIGHT paw firmly grips the dark-brown scabbard of his sheathed straight jian at his waist (the sword is fully inside the scabbard; the brass guard and the red tassel show at his hip). The water in the well is perfectly still like a mirror and clearly reflects Fengfeng's face and his paw holding the scabbard. Quiet, calm expression. No fish, no ripples.",
+    "style": "bg/event_fengfeng_old_well_r0.webp",
+    "refs": [
+      [
+        "bg/event_old_well.webp",
+        "the round grey-brown stone WELL and the blank wooden signpost of this same event - copy their look exactly. Ignore the grey tabby cat."
+      ]
+    ]
+  },
+  "event_dangdang_lost_kitten_r0": {
+    "why": "文字寫「送到轉角，等同伴接住牠才鬆手」，圖上沒有同伴，只有噹噹和小黑貓；小黑貓頭巾還蓋著眼睛、掉大顆眼淚，像還在迷路。",
+    "scene": "SETTING: a small patch of stone-paved floor at a corridor corner, with a short stone-block wall corner at the back right whose bottom row of blocks sits on the floor. Dangdang crouches down low on the floor. In front of him stands the LITTLE BLACK KITTEN (copy it from reference image 3): a small all-black kitten with an oversized navy-blue ninja headband, which is now pushed up on its forehead so BOTH of its eyes show. It smiles happily, with only a tiny leftover tear, and with both paws it presses two ninja tools into Dangdang's open, upturned right paw: a small steel four-pointed shuriken and a small round black bomb with a short fuse - both tools lie IN his palm. Right behind the kitten stand TWO other little black kittens WITHOUT headbands (its friends, copy them from reference image 4), each resting a paw on the kitten's shoulders to hold on to it. Dangdang looks at the kitten with a gentle, slightly stern big-brother face; his left paw rests on his knee.",
+    "style": "bg/event_dangdang_lost_kitten_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_lost_kitten.webp",
+        "the LITTLE BLACK KITTEN on the right (small all-black kitten with an oversized navy-blue headband) - copy its look, but in the new picture its headband is pushed up so both eyes show and it is not crying. Ignore Dangdang's pose."
+      ],
+      [
+        "bg/event_dangdang_lost_kitten_r2.webp",
+        "the kitten's FRIENDS: the small all-black kittens WITHOUT headbands - copy their look. Ignore the bell, the potion bottle and Dangdang's pose."
+      ]
+    ]
+  },
+  "event_fengfeng_lost_kitten": {
+    "why": "文字寫「頭巾遮住一隻眼睛，正站在岔路口張望……牠卻一直望著樓上」，圖是照球球版改的：小黑貓坐在石台上、頭巾壓住兩眼、張嘴大哭，沒有站、沒有張望、沒有岔路或樓梯。",
+    "scene": "SETTING: a small stone-paved crossroads: the flagstone floor patch splits into two ways, and on the right a short flight of stone steps rises upward (its bottom step sits on the floor). The LITTLE BLACK KITTEN (copy it from reference image 3) STANDS on its hind legs in the middle of the crossroads, not crying. Its oversized navy-blue ninja headband has slipped down at a slant and covers ONLY ONE of its eyes; its other eye is open. It tilts its head back and gazes UP the stone steps. Fengfeng stands a few steps away on the left, upright, watching the kitten with a curious, slightly puzzled face, his paws down at his sides - he has not reached out to it yet. His straight jian stays sheathed in the dark-brown scabbard at his waist.",
+    "style": "bg/event_fengfeng_lost_kitten_r1.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_lost_kitten.webp",
+        "the LITTLE BLACK KITTEN on the left (small all-black kitten with an oversized navy-blue headband) - copy its look only; in the new picture it is NOT sitting on a block and NOT crying. Ignore the stone block and Fengfeng."
+      ]
+    ]
+  },
+  "event_fengfeng_sunbath": {
+    "why": "其實是球球版換色：尾巴是灰白底深灰條紋；劍還掛在腰上，跟「封封把劍挪開」矛盾；光斑畫成有閉眼和嘴巴的貓形，木地板切成貓頭形浮島。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Fengfeng crouches down at the edge of the patch of light and presses one paw flat onto the warm, glowing floorboards to feel how warm they are, with a pleased, curious face. He has taken his sword off and moved it aside: his straight jian, sheathed in its dark-brown scabbard, lies FLAT ON THE FLOORBOARDS just outside the patch of light, a little behind him. Nothing hangs at his waist except his brown sash. His tail is his own ORANGE TABBY tail with darker orange rings, and his red scarf is around his neck.",
+    "style": "bg/event_fengfeng_stuck_scabbard.webp",
+    "gear_off": "Fengfeng has taken his sword off: the straight jian in its dark-brown scabbard lies flat on the floorboards just outside the patch of light; nothing hangs at his waist except his brown sash. Exactly ONE sword and ONE scabbard in the whole picture. His red scarf stays around his neck and never detaches."
+  },
+  "event_fengfeng_sunbath_r1": {
+    "why": "文字寫「封封坐在窗邊，回想幾招總接不順的劍法」，圖上封封仰躺在貓形木板上、雙爪朝天，沒有窗；一卷帶螢光綠光暈的卷軸浮在頭上半空。光斑有五官、地板是貓頭形浮島。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Fengfeng sits cross-legged on the floor inside the patch of sunlight, right beside the window. He has taken his sword off: his straight jian, sheathed in its dark-brown scabbard, lies FLAT ON THE FLOORBOARDS in front of his crossed legs. He rests his chin on one paw, both eyes gently closed the same way, quietly thinking back over his sword moves. Calm, thoughtful face. No scroll, no papers, no glow, no sparkles, no floating objects.",
+    "style": "bg/event_fengfeng_stuck_scabbard.webp",
+    "gear_off": "Fengfeng has taken his sword off: the straight jian in its dark-brown scabbard lies flat on the floorboards in front of his crossed legs; nothing hangs at his waist except his brown sash. Exactly ONE sword and ONE scabbard in the whole picture. His red scarf stays around his neck and never detaches."
+  },
+  "event_dangdang_sunbath_r1": {
+    "why": "噹噹兩隻前臂都戴著銅護臂在比出拳，身旁地上又擺兩只，一共四只；主圖已寫明護臂卸下放在旁邊。光斑有五官、地板形狀怪。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Dangdang sits on the floor at the EDGE of the patch of sunlight. He has taken his copper bracers OFF: both of his forearms are BARE (just his black fur down to his large white paws), and his TWO copper bracers lie side by side on the floorboards right next to him. With one bare arm he slowly throws a punch forward, replaying a move, while his other paw rests under his chin; he frowns, thinking hard about the move that always gets stuck.",
+    "style": "bg/event_dangdang_lost_kitten_r1.webp",
+    "gear_off": "Dangdang has taken his two copper bracers OFF: both forearms are bare (black fur, white paws) and wear nothing; the two bracers lie side by side on the floorboards right next to him. Exactly two bracers in the whole picture, both on the floor, none on his arms."
+  },
+  "event_dangdang_sunbath_r0": {
+    "why": "噹噹仰躺在光斑裡睡覺，但右前臂還套著一只銅護臂，地上只放一只，跟「噹噹把護臂放在陰影裡，躺到陽光下」矛盾。光斑有五官、地板形狀怪。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Dangdang lies on his back inside the patch of sunlight, fast asleep, both eyes peacefully closed, belly up, a small content smile. He has taken his copper bracers OFF: both of his forearms are BARE (just his black fur down to his large white paws) - he wears no bracers at all. His TWO copper bracers stand side by side on the floorboards OUTSIDE the light, in the shade near the wall.",
+    "style": "bg/event_dangdang_lost_kitten_r1.webp",
+    "gear_off": "Dangdang has taken his two copper bracers OFF: both forearms are bare (black fur, white paws) and wear nothing; the two bracers stand side by side on the floorboards outside the light, in the shade. Exactly two bracers in the whole picture, both on the floor, none on his arms."
+  },
+  "event_sunbath_r1": {
+    "why": "球球仰躺、一爪往上伸，頭頂一卷卷軸憑空浮著，外圈螢光綠光暈（浮空＋螢光綠）；卷軸上是像草寫字的符號。光斑有五官、地板是貓頭形浮島。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Qiuqiu sits cross-legged on the floor inside the patch of sunlight. Three rolled-open martial-arts scrolls lie spread flat on the floorboards in front of him, each showing a few simple ink drawings of a small cat doing a move (pictures only, no writing). He holds a fourth scroll open in front of his eyes with both paws (the scroll firmly in his paws) and looks at it with a displeased, fed-up face. One more scroll has been pushed away and lies on the floor just outside the patch of light. No glow, no sparkles, no floating objects.",
+    "style": "bg/event_old_well_r0.webp"
+  },
+  "event_feifei_sunbath_r1": {
+    "why": "菲菲坐在貓耳形亮黃色光斑上揉眼睛、單眼閉著，像「剛睡醒」，跟打盹選項混在一起；沒有「回想招式、挑出一招」的東西；光斑底下沒有地板。（09-24 晚使用者要求再重生：第 1 次採用的地板前緣缺角像八角形，同組另兩張是長方形；第 3、4 次只加句子沒用，這次改給長方形地板那兩張當參考圖）",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Feifei sits cross-legged on the floorboards inside the patch of sunlight. Three rolled-open martial-arts scrolls lie flat on the floor in front of her, each showing a few simple ink drawings of a small cat doing a move (pictures only, no writing). With one paw she pushes one of the scrolls aside, away from the others; her other paw rests under her chin. Her face is brisk and decided, both eyes open - she has made up her mind. No glow, no sparkles, no floating objects.",
+    "style": "bg/event_feifei_sunbath_r0.webp",
+    "refs": [
+      [
+        "bg/event_feifei_sunbath.webp",
+        "the SAME ROOM from the same event (reference image 4, and also reference image 2): copy this SETTING exactly - the plank floor is a plain RECTANGLE seen in three-quarter view, with four straight edges and four square corners (no cut-off corners, no notch, not eight-sided), the wooden wall with the window along the back edge, and the slanted patch of sunlight on the planks. Only Feifei's pose and the scrolls are new."
+      ]
+    ]
+  },
+  "event_feifei_rat_stall_r0": {
+    "why": "老鼠整個低頭、眼睛盯著車上的飯糰，完全沒看菲菲，跟菲菲那句「你這樣看著我做什麼？」矛盾。",
+    "scene": "Feifei stands on the left side of the rat's wooden food cart, holding a rice ball (onigiri) with one bite taken out of it in both paws (the rice ball sits firmly in her paws), mid-chew, looking at the rat with a puzzled, uneasy face. The RAT (copy it from reference image 3) stands still behind the cart on the right, both front paws resting on the cart's edge, its body not moving, and it STARES straight at Feifei with wide, unblinking eyes and its mouth closed - not smiling, not talking, not looking at the rice balls. The cart, still piled with rice balls, stands on its wheels on the ground between them.",
+    "style": "bg/event_feifei_rat_stall.webp",
+    "refs": [
+      [
+        "bg/event_feifei_rat_stall_r0.webp",
+        "the RAT (scruffy brown rat in a ragged tan vest, pink ears and pink tail) and its wooden food cart piled with rice balls - copy their look exactly. Ignore Feifei's pose and the rat's pose."
+      ]
+    ]
+  },
+  "event_dangdang_sparring_cat": {
+    "why": "只畫了噹噹和白貓，文字寫「身旁還有穿著黑衣的師弟」，師弟整隻不見；沒畫樓梯；噹噹擺對峙架勢，不是想從旁邊走。",
+    "scene": "SETTING: on the right, a short flight of grey stone steps rises upward to the right; its bottom step sits on a small patch of stone floor that runs under everyone. The WHITE CAT (fluffy pure-white fur, golden-yellow eyes; copy it from reference image 3) stands squarely at the foot of the steps, blocking them: arms crossed, chin up, one foot just stepping sideways to cut off the way. Right beside the white cat stands its JUNIOR, an all-black cat in a black martial gi with a red belt (copy it from reference image 3), grinning. Dangdang stands on the left, his body turned sideways as if trying to walk around them toward the stairs, one foot stepping to the side; his arms hang relaxed (NOT a fighting stance, no raised fists), and he gives the white cat an annoyed, fed-up look. Only these three cats.",
+    "style": "bg/event_dangdang_sparring_cat_r1.webp",
+    "refs": [
+      [
+        "bg/event_sparring_cat_r2.webp",
+        "the two other cats of this event - copy their looks: the WHITE CAT in the middle (fluffy pure-white fur) and the JUNIOR on the left (all-black cat in a black gi with a red belt). Ignore the grey tabby, the dizzy stars and all the poses."
+      ]
+    ]
+  },
+  "event_dangdang_sparring_cat_r2": {
+    "why": "文字寫「黑衣師弟憋著笑，塞了一個忍具給噹噹」，師弟整隻沒畫；白貓丟來的那袋小魚乾也沒有；噹噹閉眼大笑，跟他一本正經的語氣不合。",
+    "scene": "SETTING: a small patch of stone floor. Dangdang stands firmly with his feet planted wide apart, both copper-bracered forearms raised in front of his chest as a guard, with a calm, steady, serious face (both eyes open, mouth closed). In front of him the WHITE CAT (fluffy pure-white fur; copy it from reference image 3) sits on its bottom on the floor after bouncing off him, a little dizzy, rubbing its forehead with one paw, and with its other paw it holds out a small tied cloth pouch of dried fish toward Dangdang (the pouch firmly in its paw). Beside them stands the JUNIOR, an all-black cat in a black martial gi with a red belt (copy it from reference image 3): one paw over its mouth, holding back a laugh, and with its other paw it holds out a small steel shuriken toward Dangdang (the shuriken held in its paw). Only these three cats.",
+    "style": "bg/event_dangdang_sparring_cat_r1.webp",
+    "refs": [
+      [
+        "bg/event_sparring_cat_r2.webp",
+        "the two other cats of this event - copy their looks: the WHITE CAT in the middle (fluffy pure-white fur, sitting) and the JUNIOR on the left (all-black cat in a black gi with a red belt). Ignore the grey tabby and the dizzy stars."
+      ]
+    ]
+  },
+  "event_fengfeng_sparring_cat": {
+    "why": "動作跟文字對調：文字是「白貓在樓梯前拉開架勢」「封封看向兩人之間的空位」，圖上白貓抱臂站著，反而封封擺握拳備戰架勢；也沒有樓梯。",
+    "scene": "SETTING: on the right, a short flight of grey stone steps rises upward to the right; its bottom step sits on a small patch of stone floor that runs under everyone. In front of the steps the WHITE CAT (fluffy pure-white fur, golden-yellow eyes; copy it from reference image 3) takes a martial-arts opening stance: knees bent, one open paw pushed forward, the other paw drawn back, a challenging look. Beside it the JUNIOR, an all-black cat in a black martial gi with a red belt (copy it from reference image 3), is just getting up from sitting - one knee still bent, one paw pushing off the floor. Fengfeng stands on the left, upright and calm, one paw resting on the hilt of his straight jian, which stays sheathed in the dark-brown scabbard at his waist (not drawn). His eyes glance sideways at the gap between the two cats, sizing it up. Only these three cats.",
+    "style": "bg/event_fengfeng_sparring_cat_r2.webp",
+    "refs": [
+      [
+        "bg/event_sparring_cat_r2.webp",
+        "the two other cats of this event - copy their looks: the WHITE CAT in the middle (fluffy pure-white fur) and the JUNIOR on the left (all-black cat in a black gi with a red belt). Ignore the grey tabby, the dizzy stars and all the poses."
+      ]
+    ]
+  },
+  "event_sparring_cat": {
+    "why": "（驗收複查）右側石階被一道圓弧硬切掉、切口沒描邊；構圖與動作照 09-24 新圖。",
+    "scene": "Keep the composition of reference image 3 exactly: Qiuqiu on the left, body turned sideways as if trying to slip past, paws relaxed (no fighting stance), a helpless look and a sweat drop; the JUNIOR (all-black cat in a black gi with a red belt) in the middle, arms crossed, grinning; the WHITE CAT (fluffy pure-white fur, golden-yellow eyes, short chibi legs) on the right with arms crossed, standing squarely at the foot of the stairs to block them. All three stand on a small patch of grey stone floor. STAIRS: on the right, a SHORT flight of four grey stone steps rises to the right from the stone floor up to a small flat stone landing at the top. The WHOLE staircase is inside the picture with a clear transparent margin around it: every step is drawn complete with its black outline on every edge, and the right-hand side of the staircase is closed off by a low grey stone-block side wall (fully outlined in black) running from the floor up to the landing. The stairs are NOT cut off anywhere - no curved cut, no straight vertical cut, no edge that fades or stops without an outline. Only these three cats.",
+    "style": "bg/event_sparring_cat_r2.webp",
+    "refs": [
+      [
+        "bg/event_sparring_cat.webp",
+        "the COMPOSITION to keep exactly - the three cats, their positions, poses, expressions and looks. Do NOT copy the right end of its stairs, which is wrongly cut off by a curved line; draw the stairs complete as the SCENE says."
+      ]
+    ]
+  },
+  "event_feifei_sparring_cat": {
+    "why": "（驗收複查）右側石階被一刀直直切掉、切口沒描邊；構圖與動作照 09-24 新圖。",
+    "scene": "Keep the composition of reference image 3 exactly: Feifei on the left, body turned sideways as if trying to slip past, both paws drawn up close together in front of her chest, a troubled face and a sweat drop (no fighting stance); the JUNIOR (all-black cat in a black gi with a red belt) in the middle, grinning; the WHITE CAT (cream-white cat with golden-yellow eyes in a beige martial gi with a black belt, short chibi legs) on the right with arms crossed, standing at the foot of the stairs to block them. All three stand on a small patch of grey stone floor. STAIRS: on the right, a SHORT flight of four grey stone steps rises to the right from the stone floor up to a small flat stone landing at the top. The WHOLE staircase is inside the picture with a clear transparent margin around it: every step is drawn complete with its black outline on every edge, and the right-hand side of the staircase is closed off by a low grey stone-block side wall (fully outlined in black) running from the floor up to the landing. The stairs are NOT cut off anywhere - no curved cut, no straight vertical cut, no edge that fades or stops without an outline. Only these three cats.",
+    "style": "bg/event_feifei_sparring_cat_r2.webp",
+    "refs": [
+      [
+        "bg/event_feifei_sparring_cat.webp",
+        "the COMPOSITION to keep exactly - the three cats, their positions, poses, expressions and looks. Do NOT copy the right end of its stairs, which is wrongly cut off by a straight vertical line; draw the stairs complete as the SCENE says."
+      ]
+    ]
+  },
+  "event_heavy_door": {
+    "why": "主圖卻畫成球球用肩膀使勁頂門、冒汗，等於先畫出選項 1；門內的一籃小魚乾、刻魔物紋樣的寶箱都沒畫。",
+    "scene": "SETTING: a massive grey stone door set in a thick stone-block door frame, standing on a small patch of stone floor. The heavy door is stuck almost shut, leaving only a narrow vertical gap between the door and the frame - just wide enough to slip a paw through. The door is seen at a three-quarter angle so the viewer can look past the gap into the dim room behind it: just inside, close to the gap, a small woven basket full of dried fish sits on the floor; further back in the dark corner stands a closed wooden treasure chest whose lid is carved with a fierce monster-face emblem. Qiuqiu stands on the floor in front of the door, head tilted, peering at the narrow gap with a curious, thoughtful face, his paws at his sides - he has NOT touched the door yet. No sweat, no pushing.",
+    "style": "bg/event_heavy_door_r2.webp",
+    "refs": [
+      [
+        "bg/event_heavy_door_r1.webp",
+        "the heavy grey stone DOOR with its iron ring handle, its stone-block frame and the woven fish basket of this same event - copy their look. Ignore the cat and his pose."
+      ]
+    ]
+  },
+  "event_feifei_heavy_door": {
+    "why": "主圖卻畫成菲菲雙手使勁推門、咬牙冒汗，等於先畫出選項 1；門內的一籃小魚乾和寶箱都沒畫。",
+    "scene": "SETTING: a massive dark-grey stone door set in a thick stone-block door frame, standing on a small patch of stone floor. The heavy door is stuck almost shut, leaving only a narrow vertical gap between the door and the frame - just wide enough to slip a paw through. The door is seen at a three-quarter angle so the viewer can look past the gap into the dim room behind it: just inside, close to the gap, a small woven basket full of dried fish sits on the floor; further back in the dark corner stands a closed wooden treasure chest whose lid is carved with a fierce monster-face emblem. Feifei stands in front of the door and bends forward at the waist to peek into the narrow gap, both paws tucked in close to her chest - she has NOT touched the door. Curious, careful face, both eyes open. No sweat, no pushing.",
+    "style": "bg/event_feifei_heavy_door_r2.webp",
+    "refs": [
+      [
+        "bg/event_feifei_heavy_door_r1.webp",
+        "the heavy dark-grey stone DOOR with its iron studs and hinges, its stone-block frame and the woven fish basket of this same event - copy their look. Ignore Feifei and her pose."
+      ]
+    ]
+  },
+  "event_dangdang_heavy_door": {
+    "why": "主圖卻畫成噹噹雙掌使勁推門、咬牙冒汗，等於先畫出選項 1；門內的一籃小魚乾和寶箱都沒畫。",
+    "scene": "SETTING: a massive grey stone door set in a thick stone-block door frame, standing on a small patch of rough stone floor. The heavy door is stuck almost shut, leaving only a narrow vertical gap between the door and the frame - just wide enough to slip a paw through. The door is seen at a three-quarter angle so the viewer can look past the gap into the dim room behind it: just inside, close to the gap, a small woven basket full of dried fish sits on the floor; further back in the dark corner stands a closed wooden treasure chest whose lid is carved with a fierce monster-face emblem. Dangdang stands in front of the door with his arms crossed over his chest (his copper bracers showing), looking the narrow gap up and down with a measuring, thoughtful face - he has NOT touched the door. No sweat, no pushing.",
+    "style": "bg/event_dangdang_heavy_door_r2.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_heavy_door_r1.webp",
+        "the heavy grey stone DOOR, its stone-block frame, the rough stone floor and the woven fish basket of this same event - copy their look. Ignore Dangdang and his pose."
+      ]
+    ]
+  },
+  "event_dangdang_heavy_door_r0": {
+    "why": "跟主圖幾乎同一張：一樣推門姿勢，門縫窄到過不去；文字的「擠出能通過的空隙」「拿到秘寶」「胳膊疼得抬不高」都沒畫，也不是「墊著護臂頂住」。",
+    "scene": "SETTING: a massive grey stone door set in a thick stone-block door frame, standing on a small patch of rough stone floor. The door has been forced open a gap just wide enough for a cat to pass through. Through the gap, deeper inside the dim room, a wooden treasure chest with a fierce monster-face emblem carved on its lid stands OPEN on the floor. Dangdang has just squeezed out through the gap and stands in front of the door. His LEFT paw firmly holds a round golden amulet with a red gem - the treasure he took - sitting in his closed paw. His RIGHT arm hangs limp and heavy at his side; the copper bracer on it is scuffed, and the fur on that shoulder is rubbed off in a small sore pink patch. He winces in pain, teeth gritted, both eyes squeezed shut the same way.",
+    "style": "bg/event_dangdang_heavy_door_r2.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_heavy_door_r1.webp",
+        "the heavy grey stone DOOR, its stone-block frame and the rough stone floor of this same event - copy their look. Ignore Dangdang, his pose and the fish basket."
+      ]
+    ]
+  },
+  "event_dangdang_broken_shrine_r0": {
+    "why": "神像接好、手臂發光是對的，但神龕跟主圖一模一樣還歪斜倒靠牆邊，跟「噹噹扶正神龕」矛盾；門板上有像書法字的橘色筆畫。",
+    "scene": "SETTING: a small patch of old stone floor with a low crumbling stone wall behind it (the wall stands on the floor). The little wooden cat-god SHRINE now stands UPRIGHT and straight: its base sits flat on the floor, its roof is level, its side boards are whole, and its wooden doors show only plain wood grain (no writing, no marks, no brush strokes). In front of the shrine sits the grey stone CAT-GOD STATUE, its head set back on its body and lined up straight, a thin crack still visible around its neck. Dangdang stands beside the statue with both paws resting on it to steady it. A soft warm golden glow runs up along his forearms and copper bracers. He rolls his shoulders back with a relaxed, contented face, both eyes gently closed the same way. A small offering plate with a few dried fish sits upright on the floor in front of the statue.",
+    "style": "bg/event_dangdang_broken_shrine_r2.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_broken_shrine.webp",
+        "the wooden SHRINE (brown roof) and the grey stone CAT-GOD STATUE of this same event - copy their look, but in the new picture the shrine stands upright and the statue is put back together; the shrine doors have NO marks on them. Ignore Dangdang's pose and the spilled fish."
+      ]
+    ]
+  },
+  "event_sunbath": {
+    "why": "（主控補件：同事件統一）木地板切成貓頭形浮島、光斑畫成有閉眼和嘴巴的貓形、沒有窗；要跟重生過的曬太陽圖同一套方形地板＋窗縫斜光。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Qiuqiu stands on the floorboards at the EDGE of the patch of sunlight and looks down at it with a pleased, sleepy little smile, as if measuring it - the patch is just big enough for him to curl up in. His paws hang relaxed at his sides; he has not lain down yet. Nothing else on the floor.",
+    "style": "bg/event_sunbath_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_sunbath_r0.webp",
+        "the SETTING of this same event to copy: the rectangular wooden floorboards, the short wooden back wall with the window shutter open a crack, and the slanted plain patch of sunlight. Ignore the black-and-white cat and the bracers."
+      ]
+    ]
+  },
+  "event_sunbath_r0": {
+    "why": "（主控補件：同事件統一）仰躺伸懶腰的動作對，但地板是貓頭形浮島、光斑有五官、沒有窗；腰帶畫成棕色。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Qiuqiu lies on his back inside the patch of sunlight, just waking from a nap, and gives a big lazy stretch: both front paws stretched up above his head, back legs stretched out long, both eyes squeezed shut the same way in a happy stretch, a warm contented smile. His sash is BLACK. Nothing else on the floor.",
+    "style": "bg/event_sunbath_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_sunbath_r0.webp",
+        "the SETTING of this same event to copy: the rectangular wooden floorboards, the short wooden back wall with the window shutter open a crack, and the slanted plain patch of sunlight. Ignore the black-and-white cat and the bracers."
+      ]
+    ]
+  },
+  "event_feifei_sunbath": {
+    "why": "（主控補件：同事件統一）前伸懶腰的動作對，但光斑是有五官的貓形、沒有窗。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Feifei, at the EDGE of the patch of sunlight, gives a long cat-like forward stretch: her front paws and forearms stretched out flat on the warm glowing floorboards inside the light, her hind legs and tail still in the shade behind, both eyes closed contentedly the same way, a small happy smile. She has not lain down yet. Nothing else on the floor.",
+    "style": "bg/event_feifei_sunbath_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_sunbath_r0.webp",
+        "the SETTING of this same event to copy: the rectangular wooden floorboards, the short wooden back wall with the window shutter open a crack, and the slanted plain patch of sunlight. Ignore the black-and-white cat and the bracers."
+      ]
+    ]
+  },
+  "event_feifei_sunbath_r0": {
+    "why": "（主控補件：同事件統一）光斑有五官、地板形狀怪、沒有窗；她那句「光斑都挪到旁邊了，我居然睡了這麼久」圖上也看不出來。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Feifei has just woken up from a long nap. She lies on her side on the floorboards, propped up on one elbow, and looks with surprised, wide-open eyes (both the same) at the patch of sunlight, which has MOVED while she slept: it now lies on the floor a little way beside her, and she herself is lying in the plain shade. Her other paw rubs the back of her head sheepishly. Nothing else on the floor.",
+    "style": "bg/event_feifei_sunbath_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_sunbath_r0.webp",
+        "the SETTING of this same event to copy: the rectangular wooden floorboards, the short wooden back wall with the window shutter open a crack, and the slanted plain patch of sunlight. Ignore the black-and-white cat and the bracers."
+      ]
+    ]
+  },
+  "event_fengfeng_sunbath_r0": {
+    "why": "（主控補件：同事件統一）仰躺伸懶腰、腰上沒劍是對的，但卸下的劍沒畫出放在哪；光斑有五官、地板是貓頭形浮島、沒有窗。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Fengfeng lies on his back inside the patch of sunlight, just waking from a nap, and stretches his legs out long and lazily, front paws stretched up above his head, both eyes closed the same way, a relaxed contented smile. He took his sword off before lying down: his straight jian in its dark-brown scabbard lies FLAT ON THE FLOORBOARDS right beside him. His red scarf is around his neck; his tail is his own orange tabby tail.",
+    "style": "bg/event_fengfeng_sunbath_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_sunbath_r0.webp",
+        "the SETTING of this same event to copy: the rectangular wooden floorboards, the short wooden back wall with the window shutter open a crack, and the slanted plain patch of sunlight. Ignore the black-and-white cat and the bracers."
+      ]
+    ],
+    "gear_off": "Fengfeng has taken his sword off: the straight jian in its dark-brown scabbard lies flat on the floorboards beside him; nothing hangs at his waist except his brown sash. Exactly ONE sword and ONE scabbard in the whole picture. His red scarf stays around his neck and never detaches."
+  },
+  "event_dangdang_sunbath": {
+    "why": "（主控補件：同事件統一）光斑是石頭圍起的一塊、沒有窗，跟重生過的曬太陽圖不一致。",
+    "scene": "SETTING: a plain RECTANGULAR patch of warm honey-brown wooden floorboards seen in three-quarter view (an ordinary rectangle of planks - NOT shaped like a cat, no ears, no tail). Along the back edge of the floor stands a short section of plain wooden wall with a small window whose wooden shutter is open just a crack; the wall's bottom edge stands on the floorboards. Sunlight slanting in through that crack lands on the floor as ONE plain bright warm-yellow patch of light (a simple slanted four-sided shape of light on the planks - NO face, no eyes, no mouth, no ears, no cat shape). Dangdang sits on the floorboards inside the patch of sunlight and is taking his copper bracers off to put them aside: his LEFT forearm is already bare (black fur down to his large white paw) and that first bracer stands on the floor in the shade beside him; with his bare left paw he slides the second copper bracer down off his RIGHT forearm - that bracer is halfway off, down near his wrist, gripped in his left paw. Calm, relaxed face, looking forward to the warmth.",
+    "style": "bg/event_dangdang_sunbath_r1.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_sunbath.webp",
+        "the SETTING of this same event to copy: the rectangular wooden floorboards, the short wooden back wall with the window shutter open a crack, and the slanted plain patch of sunlight. Ignore the orange cat and the sword."
+      ]
+    ],
+    "gear_off": "Dangdang is taking his two copper bracers off: his left forearm is bare and the first bracer stands on the floor beside him; the second bracer is being slid off his right forearm, halfway down near the wrist, gripped in his bare left paw. Exactly two bracers in the whole picture."
+  },
+  "event_sparring_cat_r1": {
+    "why": "（驗收複查）右側石階被一道圓弧硬切掉、切口沒描邊；構圖與動作照 09-24 新圖。",
+    "scene": "Keep the composition of reference image 3 exactly: the JUNIOR (all-black cat in a black gi with a red belt) on the left watching with wide eyes; the WHITE CAT (fluffy pure-white fur, golden-yellow eyes, short chibi legs) in the middle ramming its shoulder into Qiuqiu's shoulder with a small yellow impact burst and a smug look; Qiuqiu on the right squeezing past toward the stairs with one foot already up on the bottom step, teeth gritted, both eyes squeezed shut the same way, a sweat drop. All stand on a small patch of grey stone floor. STAIRS: on the right, a SHORT flight of four grey stone steps rises to the right from the stone floor up to a small flat stone landing at the top. The WHOLE staircase is inside the picture with a clear transparent margin around it: every step is drawn complete with its black outline on every edge, and the right-hand side of the staircase is closed off by a low grey stone-block side wall (fully outlined in black) running from the floor up to the landing. The stairs are NOT cut off anywhere - no curved cut, no straight vertical cut, no edge that fades or stops without an outline. Only these three cats.",
+    "style": "bg/event_sparring_cat_r2.webp",
+    "refs": [
+      [
+        "bg/event_sparring_cat_r1.webp",
+        "the COMPOSITION to keep exactly - the three cats, their positions, poses, expressions and looks. Do NOT copy the right end of its stairs, which is wrongly cut off by a curved line; draw the stairs complete as the SCENE says."
+      ]
+    ]
+  },
+  "event_fengfeng_sparring_cat_r1": {
+    "why": "（主控補件：同事件統一）樓梯是棕色木梯、白貓是長腿舊畫法，跟新主圖的灰色石階、短腿白貓不一致。",
+    "scene": "SETTING: on the right, a short flight of GREY STONE steps rises upward to the right (copy the steps from reference image 3); its bottom step sits on a small patch of grey stone floor that runs under everyone. Fengfeng is squeezing past the WHITE CAT toward the stairs, one foot already up on the bottom step, his LEFT paw holding the dark-brown scabbard of his sheathed straight jian close against his hip so it will not catch (the sword stays sheathed). The WHITE CAT (fluffy pure-white fur, golden-yellow eyes, short chibi legs; copy it from reference image 3) rams its shoulder hard into Fengfeng's shoulder, with a small yellow impact burst at the point of contact, and gives a smug look. Fengfeng grits his teeth, both eyes squeezed shut the same way, and keeps pushing through. The JUNIOR, an all-black cat in a black martial gi with a red belt (copy it from reference image 3), stands a little behind on the left watching. Only these three cats.",
+    "style": "bg/event_fengfeng_sparring_cat_r2.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_sparring_cat.webp",
+        "the grey stone STEPS and the two other cats of this same event to copy: the WHITE CAT (fluffy pure-white fur, short chibi legs) and the JUNIOR (all-black cat in a black gi with a red belt). Ignore Fengfeng and all the poses."
+      ]
+    ]
+  },
+  "event_feifei_sparring_cat_r1": {
+    "why": "（驗收複查）右側石階被一刀直直切掉、切口沒描邊；構圖、動作、短腿米色道服白貓照 09-24 新圖。",
+    "scene": "Keep the composition of reference image 3 exactly: the JUNIOR (all-black cat in a black gi with a red belt) on the left, arms crossed, grinning; the WHITE CAT (cream-white cat with golden-yellow eyes in a beige martial gi with a black belt, short chibi legs, the same height as Feifei) in the middle, arms crossed, ramming its shoulder into Feifei's shoulder with a small yellow impact burst and a smug sideways look; Feifei on the right squeezing past toward the stairs with one foot already up on the bottom step, one paw in a small fist, teeth gritted, both eyes squeezed shut the same way. All stand on a small patch of grey stone floor. STAIRS: on the right, a SHORT flight of four grey stone steps rises to the right from the stone floor up to a small flat stone landing at the top. The WHOLE staircase is inside the picture with a clear transparent margin around it: every step is drawn complete with its black outline on every edge, and the right-hand side of the staircase is closed off by a low grey stone-block side wall (fully outlined in black) running from the floor up to the landing. The stairs are NOT cut off anywhere - no curved cut, no straight vertical cut, no edge that fades or stops without an outline. Only these three cats.",
+    "style": "bg/event_feifei_sparring_cat_r2.webp",
+    "refs": [
+      [
+        "bg/event_feifei_sparring_cat_r1.webp",
+        "the COMPOSITION to keep exactly - the three cats, their positions, poses, expressions and looks. Do NOT copy the right end of its stairs, which is wrongly cut off by a straight vertical line; draw the stairs complete as the SCENE says."
+      ]
+    ]
+  },
+  "event_dangdang_sparring_cat_r1": {
+    "why": "（主控補件：同事件統一）構圖、動作、石階都對，但白貓是長腿舊畫法，跟新主圖的短腿白貓不一致。",
+    "scene": "Keep the composition of reference image 3 exactly: a wide patch of rough grey stone steps under both cats. Dangdang, on the left, is squeezing past the WHITE CAT up the steps, one foot lifted onto the next step, one bracered arm swung back; the WHITE CAT rams its shoulder hard into Dangdang's shoulder where they meet. Dangdang winces, teeth gritted, both eyes squeezed shut the same way. The WHITE CAT, on the right, gives a smug sideways look while leaning into him. It is the SAME white cat as in reference image 4: fluffy pure-white fur, golden-yellow eyes, no clothes, and SHORT, chunky chibi legs, a little smaller than Dangdang - NOT tall, NOT long-legged. Only these two cats.",
+    "style": "bg/event_dangdang_sparring_cat_r2.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_sparring_cat_r1.webp",
+        "the COMPOSITION, the poses and the grey stone steps to keep. Do NOT copy the white cat's tall body and long legs from it."
+      ],
+      [
+        "bg/event_dangdang_sparring_cat.webp",
+        "the WHITE CAT's look to copy: the fluffy pure-white cat with short chibi legs on the right. Ignore Dangdang, the black junior and the poses."
+      ]
+    ]
+  }
+}

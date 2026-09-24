@@ -37,18 +37,19 @@ describe('名詞表與牌面文字要跟引擎規則同步', () => {
 
 describe('職業過濾要蓋到起手牌、罐頭鋪補位、事件撿牌', () => {
   const ninjaOnly = (id: string) => cardById[id]?.hero === 'ninja';
-  it('武士的起手牌沒有忍者獨占牌，而且還是 10 張', () => {
-    const run = newRun('sam-start', 1, 'samurai');
+  // 本來拿武士球球測，他 2026-09-22 拆掉了，改拿菲菲測同一條規則
+  it('菲菲的起手牌沒有忍者獨占牌，而且還是 10 張', () => {
+    const run = newRun('sam-start', 1, 'feifei');
     expect(me(run).deck.some((c) => ninjaOnly(c.cardId))).toBe(false);
     expect(me(run).deck).toHaveLength(10);
   });
   it('忍者的起手牌照舊含替身術', () => {
     expect(me(newRun('nin-start')).deck.some((c) => c.cardId === 'kawarimi')).toBe(true);
   });
-  it('事件「撿到一張牌」對武士不會撿到忍者獨占牌', () => {
+  it('事件「撿到一張牌」對菲菲不會撿到忍者獨占牌', () => {
     let seen = 0;
     for (let i = 0; i < 200; i++) {
-      const run = newRun(`pick${i}`, 1, 'samurai');
+      const run = newRun(`pick${i}`, 1, 'feifei');
       const before = me(run).deck.length;
       applyRunEffects(run, [{ kind: 'addRandomCard', pool: '忍術' }]);
       const added = me(run).deck.slice(before);

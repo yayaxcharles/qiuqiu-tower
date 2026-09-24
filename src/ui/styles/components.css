@@ -107,6 +107,14 @@
  * 往**下**浮不是往上：狀態列貼在畫面最上緣（top 0、高 56），往上浮會直接出界。
  */
 .hud-relic { position: relative; }   /* 發動時浮出來的名牌（`.relic-pop`）以這一格定位 */
+/* 計數型秘寶的數字（2026-09-23 第二批）：疊在圖示右下角那塊留白（美術 art2 留了 44×44 透明），白字黑邊 */
+.hud-relic .relic-count { position: absolute; right: -1px; bottom: -2px; font: bold 11px/1 sans-serif; color: #fff; pointer-events: none;
+  text-shadow: 1px 0 #000, -1px 0 #000, 0 1px #000, 0 -1px #000, 1px 1px #000, -1px -1px #000; }
+/* 2026-09-23 第三批：沾了魔氣的左上角一顆小紫火、次數用完的變灰、剛淨化的那一格閃一下白金光（0.3 秒） */
+.hud-relic.miasma::before { content: ''; position: absolute; left: -3px; top: -3px; width: 9px; height: 11px; border-radius: 50% 50% 45% 45%; background: radial-gradient(#e9c8ff, #8a3fd1 70%); pointer-events: none; }
+.hud-relic.spent img { filter: grayscale(1); opacity: .5; }
+.hud-relic.purified { animation: relic-pure .3s ease-out; }
+@keyframes relic-pure { 50% { box-shadow: 0 0 0 4px #fff8dd, 0 0 16px #ffe7a0; } }
 .hud-relic.fired { animation: relic-fire .62s cubic-bezier(.2, .9, .3, 1.25); z-index: 3; }
 @keyframes relic-fire {
   0%   { transform: scale(1); box-shadow: inset 0 -2px 3px #8a6a3f3d, inset 0 1px 0 #fff; }
@@ -356,9 +364,11 @@
   pointer-events: none;
   z-index: 3;
 }
+/* 以前動的是 left（每一格都要重新排版），改成 translateX（清理 2026-09-22）。位移量換算成自身寬度：
+   left 從 −80% 走到 130%＝牌寬的 210%，這道光本身寬 55%，所以是自身寬度的 210 ÷ 55＝381.82%。 */
 @keyframes rare-sheen {
-  0%, 62% { left: -80%; }
-  86%, 100% { left: 130%; }
+  0%, 62% { transform: translateX(0) skewX(-18deg); }
+  86%, 100% { transform: translateX(381.8182%) skewX(-18deg); }
 }
 /* 稀有度記號本來是右上角一顆小菱形，13 像素、離文字很遠，等於沒有
    （使用者的原話：「很不顯眼」）。搬到底部「攻擊／技能」那條標籤的字前面，
@@ -393,14 +403,10 @@
   height: 13px;
   vertical-align: -2px;
   background: linear-gradient(#ffe9a8, #e8b23a 50%, #a8760c);
-  box-shadow: 0 0 6px #ffc83ce0;
-  animation: rare-gem 2.6s ease-in-out infinite;
 }
-/* 稀有牌的寶石會慢慢亮起來——拿到稀有牌該有「挖到寶」的感覺 */
-@keyframes rare-gem {
-  0%, 100% { box-shadow: 0 0 6px #ffc83c8c; }
-  50% { box-shadow: 0 0 12px #ffc83cf5; }
-}
+/* 這裡本來還有一圈會呼吸的光暈（box-shadow 6→12 像素、2.6 秒一輪）。但菱形是用 clip-path 切的，
+   clip-path 會把 box-shadow 整圈切掉——實測有沒有那圈光暈，截圖一個像素都不差（清理 2026-09-22）。
+   等於每一格都在重畫一個看不見的東西，所以拿掉；想要真的看得到的光暈要另外設計。 */
 
 .card.clickable { cursor: pointer; }
 .card.clickable:hover { box-shadow: 0 0 0 3px var(--accent); }
@@ -683,7 +689,7 @@
   display: flex; align-items: center; gap: 6px;
   color: #f3e9d2; font-size: 14px; cursor: pointer; user-select: none;
 }
-/* 看誰的牌：兩顆鈕，目前在看的那顆亮著（`.on`） */
+/* 看誰的牌：正式角色各一顆鈕，目前在看的那顆亮著（`.on`） */
 .compendium .comp-heroes { display: flex; gap: 6px; }
 .compendium .comp-hero.on {
   background: #ffd35c; color: #2b2013; border-color: #ffd35c; font-weight: 800;

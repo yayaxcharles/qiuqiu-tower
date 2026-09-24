@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "status": "integrated_waiting_for_browser_qa",
+  "scope": {
+    "hero": "dangdang",
+    "displayName": "噹噹",
+    "codeWiringAllowedInThisPhase": true,
+    "placeholderMotionAllowed": false,
+    "note": "16 組素材與 metadata 已到位，已接入 companion-motion、combat、試打頁與跑步換場；程式測試完成，等待固定建置的實機視覺驗收。"
+  },
+  "sourcesOfTruth": [
+    "src/content/cards.ts",
+    "src/ui/heropose.ts",
+    "src/ui/screens/combat.ts",
+    "src/ui/companion-motion.ts",
+    "tools/make_dangdang_hero_jobs.py",
+    "public/assets/sprites/hero/dangdang_*.webp"
+  ],
+  "inventory": {
+    "availableCards": 147,
+    "heroSpecificCards": 31,
+    "sharedCards": 116,
+    "starterDeck": {
+      "dangdang_zhengquan": 5,
+      "dangdang_jiapan": 4,
+      "dangdang_huijing": 1
+    },
+    "coverageRule": "31 張專屬牌逐張對照；116 張共用牌逐張收進 sharedCardGroups。升級版沿用同一動作，段數只讀實際結算，不從動畫新增。"
+  },
+  "characterContract": {
+    "species": "黑白賓士貓",
+    "eyes": "琥珀金眼",
+    "clothing": "青綠無袖中式武服、米色滾邊、深色盤扣、棕色腰帶、深色長褲與腳踝綁布",
+    "weapons": "兩側前臂各一只圓形銅護臂；拳掌、架擋與推卸都由護臂帶動",
+    "furPattern": "黑毛；臉中央白紋、白口鼻、白胸、白爪與白腳",
+    "forbiddenChanges": [
+      "不得把球球換色當噹噹",
+      "不得拿掉或複製銅護臂",
+      "不得改毛色、眼色、武服色與身形比例",
+      "不得添加爪刃、手裏劍、銀針或其他武器",
+      "不得用動畫新增技能、傷害、命中段數或狀態"
+    ],
+    "sourceFacing": "right",
+    "combatFacing": "right",
+    "mirrorByDefault": false,
+    "wholeBodyFrames": true,
+    "footPivot": "每格以實際接地腳底固定；run 可保留真實離地相位，其他站地動作不得因透明留白上下跳動",
+    "nativeIdleVisibleHeight": 252,
+    "normalizedDisplayHeight": 252,
+    "heightPolicy": "打包後以 idle 的可見 alpha 高度量測 nativeIdleVisibleHeight，再依正式戰場既有噹噹比例決定 normalizedDisplayHeight；不得先用畫布尺寸或菲菲高度硬套。"
+  },
+  "motionSet": {
+    "directActions": [
+      {
+        "key": "idle",
+        "frames": 8,
+        "loop": true,
+        "purpose": "平靜備戰，雙拳收在胸前、護臂朝外"
+      },
+      {
+        "key": "hurt",
+        "frames": 8,
+        "loop": false,
+        "purpose": "實際受傷反應；低血量長駐仍使用既有 dangdang_hurt 靜態圖"
+      },
+      {
+        "key": "run",
+        "frames": 8,
+        "loop": true,
+        "purpose": "跑步換場；超過兩個週期仍須持續交替手腳"
+      },
+      {
+        "key": "dodge",
+        "frames": 8,
+        "loop": false,
+        "purpose": "隱身被消耗或閃避時後撤，不表現成球球翻滾"
+      },
+      {
+        "key": "punch",
+        "frames": 8,
+        "loop": false,
+        "recommendedImpactMs": 300,
+        "purpose": "正拳、崩拳與拳系單段命中"
+      },
+      {
+        "key": "palm",
+        "frames": 8,
+        "loop": false,
+        "recommendedImpactMs": 340,
+        "purpose": "護臂帶掌卸力或橫掃；不產生忍具投射物"
+      },
+      {
+        "key": "kick",
+        "frames": 8,
+        "loop": false,
+        "recommendedImpactMs": 300,
+        "purpose": "共用牌中的真踢技"
+      },
+      {
+        "key": "shoulder",
+        "frames": 8,
+        "loop": false,
+        "recommendedImpactMs": 360,
+        "purpose": "鐵山靠、捨身撞、亡命與背刺類近身衝撞"
+      },
+      {
+        "key": "counter",
+        "frames": 8,
+        "loop": false,
+        "recommendedImpactMs": 360,
+        "purpose": "化勁後雙掌或雙護臂把力量送回；可在原地演架勢，也可在真傷害牌貼近目標"
+      },
+      {
+        "key": "ground_slam",
+        "frames": 8,
+        "loop": false,
+        "recommendedImpactMs": 430,
+        "purpose": "震盪波、千斤墜與吼震家族；固定原位，以結算決定是否有命中"
+      },
+      {
+        "key": "guard",
+        "frames": 8,
+        "loop": false,
+        "purpose": "雙護臂交叉架擋與反彈備勢；不生成額外蜷縮或反彈"
+      },
+      {
+        "key": "focus",
+        "frames": 8,
+        "loop": false,
+        "purpose": "能力、恢復、支援與沒有專屬肢體招式的技能，全部留在原位"
+      },
+      {
+        "key": "eat",
+        "frames": 8,
+        "loop": false,
+        "purpose": "現有真正吃喝或休養牌；不套到替同伴治療的支援牌"
+      },
+      {
+        "key": "win",
+        "frames": 8,
+        "loop": false,
+        "purpose": "勝利收尾，需完整可見後才離場"
+      },
+      {
+        "key": "defeat",
+        "frames": 8,
+        "loop": false,
+        "purpose": "倒下或落敗；最後一格保持到離場"
+      },
+      {
+        "key": "poison",
+        "frames": 8,
+        "loop": true,
+        "purpose": "中毒待機循環"
+      }
+    ],
+    "composites": {
+      "multiHit": {
+        "assets": [
+          "punch",
+          "palm",
+          "counter"
+        ],
+        "rule": "依該次引擎實際 hit 數重播完整子段，拳、掌或反擊交替；升級增加段數時只增加已存在子段，不捏造新傷害。",
+        "extraImpactSpacingMs": 150
+      }
+    },
+    "suggestedSourceSheets": [
+      "idle_hurt: idle 8 + hurt 8",
+      "run_dodge: run 8 + dodge 8",
+      "punch_palm: punch 8 + palm 8",
+      "kick_shoulder: kick 8 + shoulder 8",
+      "counter_ground_slam: counter 8 + ground_slam 8",
+      "guard_focus: guard 8 + focus 8",
+      "eat_win: eat 8 + win 8",
+      "poison_defeat: poison 8 + defeat 8"
+    ],
+    "metadataContract": "沿用 feifei-motion-data.json 的 actions 結構：texture、scale、loop、frames[{rect,pivot,duration}]；impactTimes 可附在會命中的直接動作。所有 source texture 依網址去重預載。"
+  },
+  "positioningRules": {
+    "meleeNearTarget": "只有實際造成傷害且屬 punch、palm、kick、shoulder、counter 的牌才移到目標旁；全體真近戰取最近仍存活敵人作視覺錨點。命中與傷害仍完全讀引擎。",
+    "stationary": "所有防禦、恢復、技能、能力與 ground_slam 留在原位；技能即使指定敵人也不因指定目標而瞬移。",
+    "returnHome": "近戰子段完整後回原腳底；連續出牌各自保留時間軸，不取消前一張命中或視覺收尾。",
+    "remoteSeat": "本機與座位 1 均以事件中的 seat、uid、前後快照與 elapsed 排程，不以名稱或最後一張牌覆蓋。"
+  },
+  "heroSpecificCardToAction": {
+    "taiji": { "action": "counter", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_zhengquan": { "action": "punch", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_jiapan": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_huijing": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_xieli": { "action": "palm", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_huben": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_yingpeng": { "action": "punch", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_tiesha": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_tiaoxin": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_fanshou": { "action": "punch", "position": "melee_near_target", "hits": "engine", "choreography": "multiHit：punch 與 counter 依實際段數交替" },
+    "dangdang_wenzhu": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_jieliqi": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_bengshan": { "action": "palm", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_jiahou": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_yibi": { "action": "counter", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_zhendang": { "action": "ground_slam", "position": "stationary", "hits": "engine" },
+    "dangdang_jianzhao": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_yingkang": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_zhanzhuang": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_jieshi": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_jielidali": { "action": "counter", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_shunshi": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_fanzhen": { "action": "guard", "position": "stationary", "hits": "engine" },
+    "dangdang_yishenzuodun": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_tongqiang": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_tieshan": { "action": "shoulder", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_hubigong": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_huima": { "action": "counter", "position": "melee_near_target", "hits": "engine" },
+    "dangdang_qianjin": { "action": "ground_slam", "position": "stationary", "hits": "engine", "note": "只演沉身落樁；此牌本身不命中，不得掛 impact callback" },
+    "dangdang_yishang": { "action": "focus", "position": "stationary", "hits": "engine" },
+    "dangdang_sheshen": { "action": "shoulder", "position": "melee_near_target", "hits": "engine" }
+  },
+  "sharedCardGroups": {
+    "palm": [
+      "shengdong", "shunshou", "bangnidianyixia", "wobangnishouwei", "zhaonishuodeda",
+      "jienideliqi", "wozaizhe", "susu", "tieshazhang", "juye", "roubao", "luoye",
+      "paozhao", "sashoujian", "dieda", "liandao", "luanwu", "zhuiji", "maoqiudan"
+    ],
+    "punch": [
+      "qinna", "dianxue", "zuiquan", "shierlian", "bengquan", "ehou", "jiuweiquan"
+    ],
+    "kick": [
+      "caiweiba", "huixuan", "lianhuan"
+    ],
+    "shoulder": [
+      "shunkan", "wangming", "beici"
+    ],
+    "counter": [
+      "jiedao", "jiaochulai", "shuaiguo", "yide", "fanzhua", "tuishou", "jieli"
+    ],
+    "ground_slam": [
+      "shihou", "weihe", "chudashi", "youcike", "boming"
+    ],
+    "guard": [
+      "fenyiban", "ninaqudang", "wolaidang", "huannieduochoudian", "kaoniyixia",
+      "chenxianzaichushou", "xianbangniliuzhe", "bianshen", "meikandao", "jinzhong",
+      "suoyituan", "hujin", "tiebushan"
+    ],
+    "dodge": [
+      "zhanshu", "gaotui", "yixing", "diaohu"
+    ],
+    "eat": [
+      "xianshuile", "guixi", "tianmao", "jiuming", "fanpu"
+    ],
+    "focus": [
+      "bangnisheme", "jienicailiangbu", "niyechouyizhang", "wobangnipaidiao", "fantuanfenni",
+      "shoujiewoyixia", "yuganjijiu", "yiqichuankou", "huannimangyixia", "zhexienixianchi",
+      "biezhanzaishenshang", "duxin", "qianliyan", "shunfenger", "dingshang", "tuozi",
+      "dingshen", "cuimian", "fengkou", "touchi", "xuli", "gekong", "liangzhua", "sanhua",
+      "jingzhi", "doumao", "qianglafen", "cuiye", "nimangwobuwei", "fantuanliuyikou",
+      "jiejie", "fantan", "renwuwancheng", "fengyin", "mabu", "yungong", "wanhua", "wufeng",
+      "tiexin", "huxin"
+    ],
+    "no_motion_unplayable_burden": [
+      "zhongji", "shishou", "zouhuo", "neili", "shibai", "maoqiu", "zuiyang", "fanwei",
+      "slime_card", "dazed_card"
+    ],
+    "resolution": {
+      "exactHeroSpecificFirst": true,
+      "sharedGroupsSecond": true,
+      "unknownFallback": "不啟動逐格動作，保留噹噹自己的靜態立繪；不得退回球球畫布",
+      "positionRule": "共用攻擊牌的 punch、palm、kick、shoulder、counter 依真近戰規則移動；ground_slam 與所有非攻擊牌原地。全體近戰以最近存活敵人作視覺錨點。",
+      "projectileRule": "噹噹不建立球球手裏劍或菲菲銀針。既有共用忍具語意一律以本表的掌、拳或震地表現，結算不變。"
+    }
+  },
+  "statusAndPhaseToPresentation": [
+    {
+      "condition": "down 或 phase=lost",
+      "presentation": "defeat",
+      "priority": 1
+    },
+    {
+      "condition": "phase=won",
+      "presentation": "win",
+      "priority": 2
+    },
+    {
+      "condition": "hp <= ceil(maxHp*0.3)",
+      "presentation": "hero/dangdang_hurt 靜態圖",
+      "priority": 3,
+      "reason": "hurt 逐格留給受傷反應；低血量需長駐且不能播完回 idle"
+    },
+    {
+      "condition": "中毒 > 0",
+      "presentation": "poison",
+      "priority": 4
+    },
+    {
+      "condition": "定身 > 0",
+      "presentation": "hero/dangdang_dizzy 靜態圖",
+      "priority": 5
+    },
+    {
+      "condition": "翻肚 > 0",
+      "presentation": "hero/dangdang_belly 靜態圖",
+      "priority": 6
+    },
+    {
+      "condition": "隱身 > 0 或 潛水 > 0",
+      "presentation": "hero/dangdang_stealth 靜態圖",
+      "priority": 7
+    },
+    {
+      "condition": "懶洋洋 > 0",
+      "presentation": "hero/dangdang_lazy 靜態圖",
+      "priority": 8
+    },
+    {
+      "condition": "炸毛 > 0",
+      "presentation": "hero/dangdang_puff 靜態圖",
+      "priority": 9
+    },
+    {
+      "condition": "爪力 >= 5",
+      "presentation": "hero/dangdang_power 靜態圖",
+      "priority": 10
+    },
+    {
+      "condition": "鐵布衫 > 0 或 貓步 >= 5",
+      "presentation": "hero/dangdang_iron 靜態圖",
+      "priority": 11
+    },
+    {
+      "condition": "其他待機",
+      "presentation": "idle",
+      "priority": 12
+    }
+  ],
+  "reactivePresentation": {
+    "hpLossWithoutOutgoingAttackMotion": "hurt",
+    "selfDamageDuringOwnAttack": "保留出招，沿用紅閃與浮字",
+    "stealthConsumed": "dodge",
+    "enemyAttackBlocked": "guard",
+    "healed": "eat 僅限實際吃喝牌；其他回血與回合事件使用 focus 或維持目前動作",
+    "thornsDamage": "不讓噹噹主動瞬移；以被打當下 guard、敵方受傷與浮字表現",
+    "persistentThorns": "只顯示反彈狀態籤，不長駐播放 counter"
+  },
+  "minimalApiExtensionAfterMetadata": {
+    "CompanionMotionKind": [
+      "feifei",
+      "dangdang"
+    ],
+    "DangdangMotionAction": [
+      "idle", "hurt", "run", "dodge", "punch", "palm", "kick", "shoulder",
+      "counter", "ground_slam", "guard", "focus", "eat", "win", "defeat", "poison"
+    ],
+    "newDataImport": "src/ui/dangdang-motion-data.json",
+    "reuse": [
+      "frame-motion.ts 的影格、pivot、duration、scale 與同 texture 去重",
+      "preloadCompanionMotion、companionMotionReady、createCompanionMotionActor、companionMotionDuration",
+      "既有每張牌的事件快照、seat、uid、elapsed 與多段命中排程"
+    ],
+    "smallNewHelpers": [
+      "依 kind 分流 card→action",
+      "依 kind 回傳 stealth consumed 的 dodge 或 roll",
+      "判斷噹噹 punch、palm、kick、shoulder、counter 是否為真近戰",
+      "依 kind 讀 metadata impactTimes；多段只延展既有子段"
+    ],
+    "combatSource": "motionSourceFor 增加 dangdang；預載只看本場 players 是否含 dangdang，載入未完成時保留靜態圖",
+    "preview": "試打角色選單只新增噹噹；牌組與動作頁各自分流，不新增噹噹以外角色占位"
+  },
+  "acceptance": [
+    "JSON 中 31 個 heroSpecificCardToAction 鍵與 cards.ts 的 hero=dangdang 完全一致",
+    "sharedCardGroups 合計 116 個唯一牌號，與 inHeroCollection(card,'dangdang') 的共用牌完全一致",
+    "任何升級與多段只依真結算的 hit 數播放，不新增傷害",
+    "防禦、恢復、技能、能力與 ground_slam 全部原地；真近戰才移到敵人旁",
+    "噹噹全程面向右側敵人，腳底 pivot 穩定；run 兩週期後仍持續動",
+    "同時兩位出招、連續出牌與座位 1 重播互不取消，uid 相同名稱不同的敵人不混用",
+    "素材未預載成功時維持 dangdang 靜態圖，不顯示白框、灰剪影或球球動作",
+    "靜態狀態優先序維持 heropose.ts：低血量、中毒、定身、翻肚、隱身、懶洋洋、炸毛、爪力、鐵布衫或貓步、待機"
+  ]
+}

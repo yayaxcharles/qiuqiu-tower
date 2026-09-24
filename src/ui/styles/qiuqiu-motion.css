@@ -1,0 +1,43 @@
+.qiuqiu-motion {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  display: block;
+  max-width: none;
+  max-height: none;
+  pointer-events: none;
+}
+
+.sprite-box.has-qiuqiu-motion > .sprite {
+  visibility: hidden;
+  /* 被逐格畫布蓋住看不到，呼吸、前撲那些動畫跑了也是白跑（清理 2026-09-22）。
+     要 !important：combat.css 裡掛在 .sprite 上的動畫選擇器權重都比這條高（例如 .combat .unit.enemy.boss-fall.downed .sprite） */
+  animation: none !important;
+}
+
+.sprite-box.qiuqiu-stealth-idle > .qiuqiu-motion {
+  opacity: .58;
+}
+
+.qiuqiu-melee {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.qiuqiu-melee-shadow {
+  position: absolute;
+  left: -72px;
+  bottom: 3px;
+  width: 144px;
+  height: 17px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #0008 0%, #0005 52%, #0000 76%);
+}
+
+.combat .sprite-box.qiuqiu-melee-away > .ground-shadow { visibility: hidden; }
+.combat .unit.qiuqiu-melee-front { z-index: 4; }

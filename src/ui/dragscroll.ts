@@ -111,3 +111,30 @@ export function attachDragScroll(node: HTMLElement): void {
   node.addEventListener('pointerup', end);
   node.addEventListener('pointercancel', end);
 }
+
+/**
+ * 地圖往上爬那段平滑捲動（捲到 `want`）期間：現在的捲動位置可不可以照實記下來（畫面抖動稽核 2026-09-24 第 5 項的後續）。
+ *
+ * 可以＝玩家自己捲過，或爬升已經捲到了。不可以＝還在半路、玩家也沒碰：這時換畫面（連線時同伴投票的安靜重畫）
+ * 要記「要去的那一層」，不然之後每次重畫都接回半路。
+ * 「自己捲過」只算真的會捲的動作：滾輪、手指拖、鍵盤、按在捲軸本身、滑鼠拖地圖（`attachDragScroll` 過了門檻掛上 `dragging`，
+ * 所以這支要在它**之後**掛）。點節點投票的按下不算——它也會冒泡到捲軸（推前稽核 2026-09-24 低-2；
+ * 複審中-1：第一版漏了滑鼠拖地圖，桌機拖著看前面的路時同伴一投票就被拉回）。
+ * 爬升捲到了之後，不管用什麼方式捲（拖捲軸、中鍵自動捲動）都照實記。
+ */
+const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End']);
+
+export function watchClimb(node: HTMLElement, want: number): () => boolean {
+  let trust = false;
+  const mine = (): void => { trust = true; };
+  for (const ev of ['wheel', 'touchmove'] as const) node.addEventListener(ev, mine, { passive: true });
+  // 鍵盤只認會捲的鍵：節點是按鈕、拿得到焦點，在節點上按 Enter 投票、或按 Esc 也會傳上來（複審 2026-09-24 低）。
+  // 空白鍵在按鈕上是「按下去」，只有焦點在捲軸本身才是捲
+  node.addEventListener('keydown', (e) => {
+    if (SCROLL_KEYS.has(e.key) || (e.key === ' ' && e.target === node)) mine();
+  }, { passive: true });
+  node.addEventListener('pointerdown', (e) => { if (e.target === node) mine(); }, { passive: true });
+  node.addEventListener('pointermove', () => { if (node.classList.contains('dragging')) mine(); }, { passive: true });
+  node.addEventListener('scroll', () => { if (Math.abs(node.scrollTop - want) < 1) mine(); }, { passive: true });
+  return () => trust;
+}

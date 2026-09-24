@@ -4,7 +4,7 @@ import type { App } from './app';
 import type { RunState } from '../engine/types';
 import { artUrl } from './assets';
 import { el } from './dom';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 
@@ -21,7 +21,14 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
   if (!layer || !def) { onDone(-1); return; }
   hideTooltip();
   const overlay = el('div', { class: 'modal-overlay' });
+  let done = false;
+  // 整局被換掉（重新同步、離開連線）時一起收掉、不叫 onDone：答了會套到換掉之後的那一局（推前稽核 2026-09-25 低-1）。
+  // 刻意不跟著換畫面收：同伴挑完把我帶回地圖時，這個視窗要留著讓我答（見 reward.ts）
+  const forget = closeWithStory(() => { if (done) return; done = true; overlay.remove(); unlockScreen(); hideTooltip(); });
   const dismiss = (index: number): void => {
+    if (done) return;
+    done = true;
+    forget();
     overlay.remove();
     unlockScreen();
     hideTooltip();

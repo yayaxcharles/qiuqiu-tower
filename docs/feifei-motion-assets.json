@@ -1,0 +1,135 @@
+{
+  "hero": "feifei",
+  "reproducer": "python tools/pack_companion_motion.py feifei",
+  "wholeBodyFrames": true,
+  "actions": 14,
+  "frames": 112,
+  "assets": [
+    {
+      "source": "tools/motion-art-source/feifei/idle_hurt.png",
+      "sourceSha256": "92b0edbae70ecf82b9953025032c65dd7bea9413e4812008a36e29b9e1cb0c45",
+      "target": "public/assets/motion/feifei/idle_hurt.webp",
+      "targetSha256": "c65dab9a3e53cad96506a4c448160230bf840136dbaed87b94e4a50329c8d213",
+      "bytes": 1283594,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/ff1/feifei/run.png",
+      "sourceSha256": "618279d19d3213211430e01ad4a52eb19f23d896fe13606cb6d99dce84a47b3f",
+      "target": "public/assets/motion/feifei/run.webp",
+      "targetSha256": "7b4afed8f0b8098519da4cbedf788cb05bde7a0c0314ea20a11b07e7c2abc43d",
+      "bytes": 653444,
+      "size": [
+        1536,
+        1024
+      ],
+      "rgbaExact": true,
+      "redrawnBy": "python tools/redraw_ff1.py pack（2026-09-22 重畫：頭部比例）"
+    },
+    {
+      "source": "tools/motion-art-source/ff1/feifei/shuriken.png",
+      "sourceSha256": "e4b6b742b54fd0ff913e05174f9a3c8abe518f214f7e42d4a0660bc99b082cfd",
+      "target": "public/assets/motion/feifei/needle.webp",
+      "targetSha256": "41a58c362530b6fe73579fefedefaf4e8f2395bc3719cd268c39f9afe34de466",
+      "bytes": 724278,
+      "size": [
+        1536,
+        1024
+      ],
+      "rgbaExact": true,
+      "redrawnBy": "python tools/redraw_ff1.py pack（2026-09-22 重畫：頭部比例）"
+    },
+    {
+      "source": "tools/motion-art-source/feifei/fan.png",
+      "sourceSha256": "6f3f8dfcca33bec14e6c2679132826802455425794205a4b395a93942ab334d8",
+      "target": "public/assets/motion/feifei/fan.webp",
+      "targetSha256": "1e66240e21bf06b3c50a2000331406f59fea95d2a449baf4970a051f8a082c58",
+      "bytes": 1064198,
+      "size": [
+        1774,
+        887
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/ff1/feifei/guard.png",
+      "sourceSha256": "14ef72ba063f3028120236bb151b5b1ea941ba24cd45c053991abe38e3677c01",
+      "target": "public/assets/motion/feifei/guard.webp",
+      "targetSha256": "b0f0379a66d4c186a46c0afe2fdb1101664fd6775c3d6392af680872bb565a13",
+      "bytes": 727780,
+      "size": [
+        1536,
+        1024
+      ],
+      "rgbaExact": true,
+      "redrawnBy": "python tools/redraw_ff1.py pack（2026-09-22 重畫：頭部比例）"
+    },
+    {
+      "source": "tools/motion-art-source/feifei/seal_eat.png",
+      "sourceSha256": "744416f583b04c9e29efb9ae94079b6cde1eaf597e65d40d64243f03a6183b4d",
+      "target": "public/assets/motion/feifei/seal_eat.webp",
+      "targetSha256": "0577d5af90df6037f84f9b11bb527d1b68df98a9f2c54c260df361feb4e5f31d",
+      "bytes": 1247010,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/ff1/feifei/kick.png",
+      "sourceSha256": "a5a9dd98019325861aeed08d7433e538977275a62b2deacb928dd1ff607ff5ea",
+      "target": "public/assets/motion/feifei/kick_claw.webp",
+      "targetSha256": "f686c8e024d62cac1ea14200dcd4bc5263e19dd0b96d1eb23299f8b6f23f31d2",
+      "bytes": 672278,
+      "size": [
+        1536,
+        1024
+      ],
+      "rgbaExact": true,
+      "redrawnBy": "python tools/redraw_ff1.py pack（2026-09-22 重畫：頭部比例）"
+    },
+    {
+      "source": "tools/motion-art-source/ff1/feifei/attack1.png",
+      "sourceSha256": "125967c2a40ebeca59ba062f90473aa09629770369ce723bd9b0c0ac5eb3ba73",
+      "target": "public/assets/motion/feifei/claw.webp",
+      "targetSha256": "f36acf6ba67e3764d12d8dd5a093b3f3b571299e762820ff822eedbc8c89f04c",
+      "bytes": 774012,
+      "size": [
+        1536,
+        1024
+      ],
+      "rgbaExact": true,
+      "redrawnBy": "python tools/redraw_ff1.py pack（2026-09-22 重畫：頭部比例）"
+    },
+    {
+      "source": "tools/motion-art-source/feifei/roll_win.png",
+      "sourceSha256": "c7903256d543866805fa71963f5260ce2d69dcc2ded7f2bf1e2f86a1d92b956e",
+      "target": "public/assets/motion/feifei/roll_win.webp",
+      "targetSha256": "e798c7cb97013c018cd98d0b6c9095c114fdcdce416f97706946825fe6aaae42",
+      "bytes": 1194270,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    },
+    {
+      "source": "tools/motion-art-source/feifei/poison_defeat.png",
+      "sourceSha256": "517c43baa0325d25e95c4299eb6e6f5cf5ced87ac0d63eab6a9a66526bad1a04",
+      "target": "public/assets/motion/feifei/poison_defeat.webp",
+      "targetSha256": "df6923f079a8577a83dea681f2d48755e9bed5b0849d00c0aadca380aeef073a",
+      "bytes": 1023942,
+      "size": [
+        1254,
+        1254
+      ],
+      "rgbaExact": true
+    }
+  ],
+  "uniqueBytes": 9364806
+}

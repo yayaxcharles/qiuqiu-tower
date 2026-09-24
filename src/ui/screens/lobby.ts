@@ -1,18 +1,20 @@
 import { registerScreen } from '../app';
 import { clear, el } from '../dom';
+import { clearKeepBg, screenBg } from '../screenbg';
 import { hostRoom as hostDirect, joinRoom as joinDirect } from '../../net/rtc';
-import { hostRoom as hostRelay, joinRoom as joinRelay } from '../../net/ws';
-import { CoopSession } from '../../net/session';
-import { beginCombat, newCoopRun } from '../../engine/run';
+import { hostRoom as hostRelay, joinRoom as joinRelay, resumeRoom as resumeRelay } from '../../net/ws';
+import { clearRejoin, noteRejoinRecv, touchRejoin, writeRejoin, type RejoinRecord } from '../../net/rejoin';
+import { CoopSession, REJOIN_WHY } from '../../net/session';
+import { newCoopRun } from '../../engine/run';
 import type { App } from '../app';
 import type { LinkStatus, Transport } from '../../net/transport';
-import { setLocalHero } from '../assets';
-import { setSfxHero } from '../audio';
-import { preloadCoopArt, preloadHeroArt } from '../preload';
+import { preloadCoopArt, warmBlessing } from '../preload';
+import { rollBlessings } from '../../engine/blessing';
 import { me } from '../../engine/runplayer';
-import { heroName, type Hero } from '../../engine/hero';
+import { HEROES, heroName, type Hero } from '../../engine/hero';
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
-import { selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
+import { checkRun, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
+import type { RunState } from '../../engine/types';
 
 /**
  * 開房畫面：兩台瀏覽器直連，**不經過任何伺服器**。
@@ -94,10 +96,16 @@ function troubleBanner(app: App, why: string): void {
  * 接回來（back）或對方回來（peerBack）就拿掉。斷線期間傳輸層自己在接、自己在補，畫面只要讓玩家知道「等一下」。
  */
 function linkBanner(_app: App, s: LinkStatus): void {
-  document.querySelectorAll('.net-link').forEach((n) => n.remove());
+  /*
+   * 自己那條與對方那條分開記（推前審查 2026-09-22 低-3）：以前一律先撕掉全部，
+   * 自己一報「接回來了」，對方還在斷線的那條也被一起撕掉。
+   * 自己那條的文字不說「正在重新連線」：網頁端心跳 3.5 秒收不到回音就會先報，那時線還沒真的斷。
+   */
+  const who = s === 'away' || s === 'back' ? 'me' : 'peer';
+  document.querySelectorAll(`.net-link[data-who="${who}"]`).forEach((n) => n.remove());
   if (s === 'back' || s === 'peerBack') return;
-  document.body.append(el('div', { class: 'net-link' },
-    s === 'away' ? '連線中斷，正在重新連線…（會等幾分鐘，接回來就繼續）' : '對方斷線了，等對方回來…（會等幾分鐘）'));
+  document.body.append(el('div', { class: 'net-link', 'data-who': who },
+    who === 'me' ? '連線不穩，等待回應中…（接回來就繼續，會等幾分鐘）' : '對方斷線了，等對方回來…（會等幾分鐘）'));
 }
 
 /*
@@ -110,24 +118,115 @@ function linkBanner(_app: App, s: LinkStatus): void {
  */
 const coopHeroes: [Hero, Hero] = ['ninja', 'ninja'];
 
-function startCoop(app: App, tx: Transport, isHost: boolean): void {
+/**
+ * 重新同步了（2026-09-25 使用者：「先做重新同步」）：載入主機傳來的存檔點（最近一次兩個人都回到地圖時的整局狀態），
+ * 清掉戰鬥與蓋在上面的劇情層，兩個人一起回到那一層的地圖。讀不回來（存檔點壞了）才照舊停下。
+ * 告訴玩家「剛剛那一格要重來」，技術原因放在滑鼠提示與主控台。
+ */
+function resyncTo(app: App, session: CoopSession, seat: number, json: string, why: string): void {
+  let run: RunState | null = null;
+  try { run = checkRun(JSON.parse(json) as Partial<RunState>); } catch { run = null; }
+  if (!run) { troubleBanner(app, `${why}（存檔點讀不回來）`); session.leave(); return; }
+  // 劇情幻燈片、過場影片、對白這些蓋在上面的層：演完會自己接下一個畫面，重新同步之後不能再接。
+  // 要走 `dropPendingFlows` 收（連畫面鎖一起解開），不能只拔節點（推前稽核 高-2）；過關走路那層沒有鎖，直接拔
+  app.dropPendingFlows();
+  document.querySelectorAll('.actwalk-overlay').forEach((n) => n.remove());
+  app.adoptRun(run, seat);
+  void preloadCoopArt(run.players.map((p) => p.hero));   // 同一組搭檔不會重抓；重新整理接回的那台要靠這一行補（開打前會等它）
+  session.useRun(run);
+  app.cs = null;
+  app.show('map');
+  // eslint-disable-next-line no-console
+  console.warn('[連線] 已重新同步：', why);
+  document.querySelectorAll('.net-link[data-who="resync"], .net-link[data-who="rejoin"]').forEach((n) => n.remove());
+  const bar = el('div', { class: 'net-link', 'data-who': 'resync' }, why === REJOIN_WHY
+    ? '剛剛有人重新整理了網頁，已經接回來了：兩個人一起回到這一層的地圖，剛剛那一格要重來。'
+    : '兩台的遊戲狀態對不上，已經自動對齊：兩個人一起回到這一層的地圖，剛剛那一格要重來。');
+  bar.title = why;
+  document.body.append(bar);
+  window.setTimeout(() => bar.remove(), 9000);
+}
+
+/**
+ * 連線局的會話（開局與重新整理接回共用）。房號中繼那條路會把「接回要用的東西」存進分頁（`net/rejoin.ts`）：
+ * 房號、身分、座位、收到幾則、最近的存檔點與第幾輪。貼碼直連沒有房號，接不回來，不存。
+ */
+function makeSession(app: App, tx: Transport, isHost: boolean, resume?: { gen: number; checkpoint: string | null }): CoopSession {
   const seat = isHost ? 0 : 1;
-  const session = new CoopSession(tx, { isHost, seat, onDesync: (w) => troubleBanner(app, w), onClose: (w) => troubleBanner(app, w), onLink: (s) => linkBanner(app, s) });
+  const link = tx.link;
+  const remember = link
+    ? (patch: { checkpoint?: string | null; gen?: number }): void => writeRejoin({ code: link.code, role: link.role, seat, ...patch })
+    : null;
+  const session: CoopSession = new CoopSession(tx, {
+    isHost, seat, resume,
+    onDesync: (w) => { clearRejoin(); troubleBanner(app, w); },
+    onClose: (w) => { clearRejoin(); troubleBanner(app, w); },
+    onLink: (s) => linkBanner(app, s),
+    onResync: (json, why) => resyncTo(app, session, seat, json, why),
+    // 第一次記下存檔點之後才「離開頁面不說 bye」（稽核第三輪 低-1）：還沒回到過地圖（序章、開局祝福）就重新整理，
+    // 本來就接不回來，照舊當場通知對方，對方馬上看到原因，不用乾等兩分鐘
+    onCheckpoint: remember ? (json, gen) => { remember({ checkpoint: json, gen }); tx.stayOnReload?.(true); } : undefined,
+  });
+  if (remember) {
+    // 接回的會話分頁裡一定已經有存檔點：當場就不說 bye，不然存檔點還沒到就又重新整理一次會接不回來（推前稽核 第四輪 低-2）
+    if (resume) tx.stayOnReload?.(true);
+    tx.onProgress?.(noteRejoinRecv);
+    // 有效期從離開頁面那一刻算（跟中繼等人的算法一樣，推前稽核 中-1）；記錄已經清掉的話什麼都不做
+    window.addEventListener('pagehide', touchRejoin);
+  }
   app.coop = session;
   app.seat = seat;
+  return session;
+}
+
+/**
+ * 重新整理之後接回剛剛的連線局（2026-09-25 使用者：「兩件都做」）。開機時分頁裡有兩分鐘內的記錄才會走這裡（`main.ts`）。
+ * 接回之後兩台一起回到最近一次的地圖（主機的存檔點），剛剛那一格要重來——跟重新同步同一套。
+ */
+export function rejoinCoop(app: App, rec: RejoinRecord): void {
+  // 舞台先空著（不要清它：裡面有換畫面要用的畫面層），接回之後直接換到地圖；等的期間用上緣那條提示
+  document.body.append(el('div', { class: 'net-link', 'data-who': 'rejoin' }, '正在接回剛剛的連線局……'));
+  const back = (why: string): void => {
+    clearRejoin();
+    app.leaveCoop();
+    app.show('title');
+    troubleBanner(app, why);
+  };
+  resumeRelay(rec.code, rec.role, rec.recv).ready.then((tx) => {
+    const session = makeSession(app, tx, rec.role === 'host', { gen: rec.gen, checkpoint: rec.checkpoint });
+    session.rejoin();
+  }).catch((e: unknown) => back(e instanceof Error ? e.message : '接不回剛剛的連線局'));
+}
+
+function startCoop(app: App, tx: Transport, isHost: boolean): void {
+  const seat = isHost ? 0 : 1;
+  clearRejoin();   // 新的一局：上一局留在分頁裡的（例如打完之後還數著的「收到幾則」）清掉
+  const session = makeSession(app, tx, isHost);
   const begin = (seed: string, diff: number, heroes?: string[]): void => {
     // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）。
     // 角色也一樣：開房的人挑好兩位，跟種子一起宣布，兩邊算出來的起手牌才會一樣
-    const h = (i: number): Hero => (heroes?.[i] === 'feifei' ? 'feifei' : 'ninja');
-    app.run = newCoopRun(seed, diff, h(0), h(1));
-    setLocalHero(me(app.run, seat).hero);
-    setSfxHero(me(app.run, seat).hero);   // 貓叫也照本機角色換（推前審查 高-1：只設了圖沒設聲）
-    app.syncStory(app.run);   // 混搭時個人主線要換幾句（2026-09-16）
-    void preloadHeroArt(app.run.players.map((p) => p.hero));   // 兩位的專屬圖開場都沒載（同伴的立繪戰鬥裡看得到）
-    void preloadCoopArt();   // 雙人專屬牌的牌面也是進大廳才補
-    session.useRun(app.run);   // 整局只有一份，設一次就不動（見 `useRun`）
+    // 主機宣布的字串**照清單認**，不要一個一個 if——第三隻貓進來時這一行漏改，
+    // 加入的人會安靜地變成球球（2026-09-17）
+    const h = (i: number): Hero => (HEROES.includes(heroes?.[i] as Hero) ? heroes![i] as Hero : 'ninja');
+    const run = newCoopRun(seed, diff, h(0), h(1));
+    // 開局祝福的包袱（2026-09-23 第三批）：**在同伴的動作到得了之前**就摸好（兩台照種子摸出一樣的），
+    // 不然他序章點得快、先選好送過來，這邊還沒有包袱，那個動作就套不進去、整場停掉
+    rollBlessings(run);
+    // 本機角色的立繪、貓叫、劇情情境、兩位的專屬圖一起設（health H-3：這裡原本各寫一行，推前審查 高-1 就是漏了聲音）
+    app.adoptRun(run, seat);
+    warmBlessing(run, seat);
+    // 連線牌的牌面也是開局才補，**只抓這一組搭檔的**（2026-09-23；開打前 `startFight` 會等它抓完）
+    void preloadCoopArt(run.players.map((p) => p.hero));
+    session.useRun(run);   // 整局只有一份，設一次就不動（見 `useRun`）
     app.cs = null;
-    app.show('map');
+    /*
+     * 連線也要演序章（2026-09-17 使用者指出「從頭到尾不會播」）。
+     * 這裡本來直接 `show('map')`，所以那兩段替搭檔寫的序章一直躺著沒人看得到。
+     * **不播開頭影片**：那支三十秒、一個人看另一個人乾等，而且兩位的影片還不一樣；
+     * 幻燈片可以自己點過去，影片不行。
+     */
+    // 序章播完先選開局祝福（兩個人各選各的，都選好才一起進地圖，見 `screens/blessing.ts`）
+    app.playPrologue(me(run, seat).hero ?? 'ninja', () => app.afterPrologue(), { video: false });
   };
   if (isHost) {
     const seed = `coop-${Math.floor(Math.random() * 1e9).toString(36)}`;
@@ -186,6 +285,10 @@ registerScreen('lobby', (app, root) => {
   let left = false;
   app.disposers.push(() => { left = true; st.cancel?.(); st.cancel = undefined; });
 
+  // 村口的夜景鋪在最底下，之後每次重畫都留著它（`render` 用 `clearKeepBg`）
+  clear(root);
+  root.append(screenBg('bg/screen_lobby'));
+
   const fail = (e: unknown): void => {
     if (left) return;   // 已經離開大廳，別回頭改別人的畫面
     st.step = 'failed';
@@ -201,7 +304,7 @@ registerScreen('lobby', (app, root) => {
   const heroPicker = (): HTMLElement => {
     const row = (label: string, i: 0 | 1): HTMLElement => el('div', { class: 'lobby-hero-row' },
       el('b', {}, label),
-      ...(['ninja', 'feifei'] as const).map((h) => el('button', {
+      ...HEROES.map((h) => el('button', {
         class: `btn small${coopHeroes[i] === h ? ' selected' : ''}`,
         onclick: () => { coopHeroes[i] = h; render(); },
       }, heroName({ hero: h }))));
@@ -229,7 +332,12 @@ registerScreen('lobby', (app, root) => {
   };
 
   const render = (): void => {
-    clear(root);
+    /*
+     * 底圖那一層留著（2026-09-18 加背景時一起改）：這一頁每按一個按鈕就整個重畫，
+     * 用 `clear(root)` 會把底圖也清掉，第二次重畫之後就變成一片深色。
+     * 其他有底圖的畫面早就是這個規矩，見 `screenbg.ts` 的 `clearKeepBg`。
+     */
+    clearKeepBg(root);
     const box = el('div', { class: 'lobby' });
     box.append(el('h1', {}, '兩個人一起爬塔'));
 
@@ -332,7 +440,7 @@ registerScreen('lobby', (app, root) => {
     if (st.step === 'connected') {
       box.append(
         el('p', { class: 'lobby-ok' }, '連上了！'),
-        el('p', { class: 'lobby-note' }, '正在開一局兩個人的…'));
+        el('p', { class: 'lobby-note' }, '正在開一局兩個人的遊戲…'));
     }
 
     if (st.step === 'failed') {

@@ -1,8 +1,8 @@
 import { ENCOUNTER_MODIFIERS, modifierChanceFor } from '../content/modifiers';
 import { encounterById, encountersOfPool } from '../content/enemies';
-import { FIXED_EVENT_FLOOR_5, eventById, events } from '../content/events';
+import { FIXED_EVENT_FLOOR_5, eventById, events, fixedEventFloor5 } from '../content/events';
 import type { Rng } from './rng';
-import type { GameMap, MapNode, NodeType } from './types';
+import type { EventDef, GameMap, MapNode, NodeType } from './types';
 
 export const FLOORS = 15;
 /**
@@ -300,12 +300,21 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   // 內容：遭遇與事件
   // 事件前後集（2026-09-04）：後集要有前集留下的旗標、且在指定的關才排進來；這一關的選擇要到下一關的地圖才看得到結果
   const eligible = events.filter((e) => e.fixedFloor === undefined
+    && !e.artPending          // 插圖還沒生好的一律不排（2026-09-17，跟牌的 `hidden` 同一道閘門）
+    && !e.rare                // 稀有事件不進一般的洗牌佇列，只靠 `run.ts` 的 `placeRareEvent` 放（2026-09-23 第三批）；排掉之後佇列跟加它們之前一模一樣
     && (!e.acts || e.acts.includes(act))
     /*
      * 職業獨占（2026-09-12）：菲菲的「師兄的痕跡」是她在追球球留下的東西，球球自己遇到會很怪。
      * `hero` 傳 null（連線局）時整批不排——那些故事在兩個人一起爬的時候不成立。
      */
     && (!e.hero || (opts.hero !== null && e.hero === (opts.hero ?? 'ninja')))
+    /*
+     * 只在單人／只在連線（2026-09-23 內容擴充第二批，劇本 design2 新7、新8）：`hero` 傳 null 就是連線局。
+     * 單人而且這一位有自己那一篇的（`soloHeroSwap`，新9），這篇不排——換關時會改標他那一篇當後集（`run.ts` 的 `advanceAct`）。
+     */
+    && (!e.soloOnly || opts.hero !== null)
+    && (!e.coopOnly || opts.hero === null)
+    && (opts.hero === null || !e.soloHeroSwap?.[(opts.hero ?? 'ninja') as keyof NonNullable<EventDef['soloHeroSwap']>])
     && (!e.requiresFlag || opts.flags?.[e.requiresFlag])).map((e) => e.id);
   /*
    * **這一局前面關卡遇過的不再排**（使用者 2026-09-14）：原本每一關各自洗牌，一局平均重複遇到 0.45 次。
@@ -315,8 +324,8 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
   const fresh = eligible.filter((id) => !opts.flags?.[`event:${id}`]);
   const slots = nodes.filter((n) => n.type === '事件' && n.floor !== 5).length;
   const eventQueue = fresh.length >= slots
-    ? rng.shuffle(fresh)
-    : [...rng.shuffle(fresh), ...rng.shuffle(eligible.filter((id) => !fresh.includes(id)))];
+    ? weightedOrder(rng, fresh)
+    : [...weightedOrder(rng, fresh), ...weightedOrder(rng, eligible.filter((id) => !fresh.includes(id)))];
   let eventIdx = 0;
   // 遭遇也排成洗好的佇列、一池一條：整關抽完一輪才會重複（本來每格獨立亂抽，塔頂強池只有三組，
   // 九場架平均每組遇三次；使用者：「怎麼一直遇到重複的」）。佇列用完就重洗再來一輪。
@@ -379,7 +388,8 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
       n.encounterId = rng.pick(pool.length ? pool : encountersOfPool('塔主')).id;
     }
     else if (n.type === '事件') {
-      if (n.floor === 5) n.eventId = FIXED_EVENT_FLOOR_5;
+      // 5F 一關一版（2026-09-23 內容擴充第一批）：只換排哪一篇，不多抽亂數，地圖的其餘部分跟以前一模一樣
+      if (n.floor === 5) n.eventId = fixedEventFloor5(act);
       else { n.eventId = eventQueue[eventIdx % eventQueue.length]; eventIdx++; }
     }
     // 遭遇修飾詞（使用者 2026-09-04 拍板）：一般怪與菁英在這裡就抽好，地圖上才標得出來、
@@ -389,6 +399,28 @@ export function generateMap(rng: Rng, opts: MapOpts = {}): GameMap {
     }
   }
   return { nodes, start: byFloor[1]!.map((n) => n.id) };
+}
+
+/**
+ * 事件排進地圖的順序（2026-09-23 內容擴充第二批：事件權重）。地圖照這個順序從低樓層往上填事件格，
+ * 玩家一關只走進兩三格，所以**越前面越容易遇到**。
+ *
+ * 整批都是權重 1（沒寫）的時候照舊用 `rng.shuffle`——亂數走向跟以前一模一樣，第二、三關的地圖一個位元都不變。
+ * 有權重時用「不放回的加權抽」：每次從剩下的裡照權重抽一篇排到下一位（權重 2 的大約是別篇兩倍機會排在前面）。
+ */
+export function weightedOrder(rng: Rng, ids: readonly string[]): string[] {
+  const w = (id: string): number => Math.max(0, eventById[id]?.weight ?? 1);
+  if (ids.every((id) => w(id) === 1)) return rng.shuffle(ids);
+  const left = [...ids];
+  const out: string[] = [];
+  while (left.length) {
+    const total = left.reduce((s, id) => s + w(id), 0);
+    let r = rng.next() * total;
+    let k = 0;
+    for (; k < left.length - 1; k++) { r -= w(left[k]!); if (r < 0) break; }
+    out.push(left.splice(k, 1)[0]!);
+  }
+  return out;
 }
 
 export function nodeById(map: GameMap, id: string): MapNode {
@@ -415,7 +447,9 @@ export function validateMap(map: GameMap, act = 1): string[] {
   if (nodesOnFloor(map, 14).map((n) => n.type).join() !== '貓窩') p.push('14F 必須是唯一的貓窩');
   if (!nodesOnFloor(map, 1).every((n) => n.type === '戰鬥')) p.push('1F 必須全是戰鬥');
   const f5 = nodesOnFloor(map, 5);
-  if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && n.eventId === FIXED_EVENT_FLOOR_5)) p.push('5F 必須是唯一的大俠傳功');
+  // 5F 是這一關那一版；**舊存檔**第二、三關的地圖是改版前生的，5F 仍是第一關那篇，照樣合法（2026-09-23 內容擴充第一批）
+  const f5ok = (id: string | undefined): boolean => id === fixedEventFloor5(act) || id === FIXED_EVENT_FLOOR_5;
+  if (f5.length !== 1 || !f5.every((n) => n.type === '事件' && f5ok(n.eventId))) p.push('5F 必須是唯一的大俠傳功（這一關那一版）');
   // 整關至少一個大魔物（2026-09-03 起不再綁 7F：大魔物要放在避得開的格子，7F 沒位置就往上放）
   if (!map.nodes.some((n) => n.type === '大魔物')) p.push('整關必須至少有一個大魔物');
 

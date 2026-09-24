@@ -1,8 +1,10 @@
-import type { RunState } from '../engine/types';
+import type { PlayerCombat, RunState } from '../engine/types';
 import { DIFFICULTY_TEXT, difficultyName } from '../content/difficulty';
 import { potionById } from '../content/potions';
 import { showCompendium } from './compendium';
-import { relicById } from '../content/relics';
+import { activeSets, isMiasma, relicById, relicLongText, RELIC_SETS, setCount } from '../content/relics';
+import { relicCounter, relicSpent } from '../engine/counters';
+import { notice } from './dialogue';
 import type { App } from './app';
 import { artUrl } from './assets';
 import { ACT_NAMES, potionCapacity } from '../engine/run';
@@ -49,7 +51,17 @@ let lastRelics: { seed: string; ids: Set<string> } | null = null;
  * 戰鬥畫面把當下的 delta 傳進來，這裡就畫「現在實際有多少」——偷走馬上少、
  * 打倒牠馬上加回來，本來就有的變動閃光也跟著會亮。
  */
-export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLElement {
+/**
+ * 上一次畫到的撲滿計數（2026-09-23 第二批）：這次比上次小＝剛剛倒出小魚乾，講一句。
+ * 小魚乾那格本來就會閃「+25」，但玩家不知道那 25 條是誰給的（走進事件格就憑空多了錢）。連種子一起記，跟 `lastFish` 同一套。
+ */
+let lastPiggy: { seed: string; n: number } | null = null;
+
+/**
+ * `combat`（2026-09-23 第二批）：戰鬥畫面傳進來這一場的回合數與「我」那一位，計數型秘寶的數字才照戰鬥裡的算
+ *（沙漏、線香看回合、暗器匣看這回合打了幾張、木人樁看這一場數到哪）。地圖等其他畫面不傳，只畫跨場的那兩件。
+ */
+export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: { turn: number; p: PlayerCombat }): HTMLElement {
   const run = app.run;
   const hud = el('div', { class: 'hud' });
   root.append(hud);
@@ -85,6 +97,23 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
   // 同一局才比得出「新拿到的」；換一局（或第一次畫）就整份當成已知，不演
   const seenRelics = lastRelics && lastRelics.seed === run.seed ? lastRelics.ids : null;
   lastRelics = { seed: run.seed, ids: new Set(me(run, seat).relics) };
+  /*
+   * 套組湊成的那一刻跳一次提示（2026-09-23 第二批，事件劇本第八節）：紙箱、戰利品、罐頭鋪、事件都會給秘寶，
+   * 每個畫面都畫狀態列，所以在這裡看「這次多出來的那件讓某一套剛好湊滿」最省事，不用每個給秘寶的地方各寫一次。
+   */
+  if (seenRelics) {
+    const fresh = me(run, seat).relics.filter((id) => !seenRelics.has(id));
+    for (const set of activeSets(me(run, seat).relics)) {
+      const before = [...seenRelics];
+      if (fresh.some((id) => relicById[id]?.set === set) && setCount(set, before) < RELIC_SETS[set].need) notice(`${set}套組湊成了：${RELIC_SETS[set].text}`);
+    }
+  }
+  const piggy = me(run, seat).relics.find((id) => relicById[id]?.hooks.nodeCounterFish);
+  const piggyNow = piggy ? me(run, seat).counters?.[piggy] ?? 0 : 0;
+  if (piggy && lastPiggy && lastPiggy.seed === run.seed && piggyNow < lastPiggy.n) {
+    notice(`${relicById[piggy]!.name}滿了，倒出 ${relicById[piggy]!.hooks.nodeCounterFish!.fish} 條小魚乾`);
+  }
+  lastPiggy = piggy ? { seed: run.seed, n: piggyNow } : null;
   // 最多畫 8 件、最新的排前面，其餘收成「+N」（使用者 2026-09-06：秘寶沒有上限，十幾件會把狀態列擠爆）；
   // 點任何一件或「+N」開「本局秘寶」清單，一行一件看得完整
   const MAX_ICONS = 8;
@@ -96,11 +125,17 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0): HTMLEleme
     const url = artUrl('icons', r.art);
     const fresh = seenRelics !== null && !seenRelics.has(id);
     // `data-relic`：戰鬥畫面靠它找到「剛剛發動的那一件」讓它閃一下（見 combat.ts 的 `flashRelics`）
-    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}`, 'data-relic': id }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
+    // 沾了魔氣的掛一個小紫火（`miasma`）、次數用完的變灰（`spent`，箱中箱）：2026-09-23 第三批
+    const spent = relicSpent(id, me(run, seat));
+    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}${isMiasma(id) ? ' miasma' : ''}${spent ? ' spent' : ''}`, 'data-relic': id }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
+    // 計數型秘寶：右下角疊目前數到幾（2026-09-23 第二批，圖上留了空角，見 `engine/counters.ts`）
+    const count = relicCounter(id, me(run, seat), combat);
+    if (count !== null) node.append(el('span', { class: 'relic-count' }, String(count)));
     // 原本掛瀏覽器原生的 `title`：要停住一秒才跳出來、長相也跟遊戲裡其他提示不一樣，
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
-    attachTextTooltip(node, r.name, r.text);
+    // 套組的秘寶多一段「【師門 n／3】…」（2026-09-23 第二批）；計數型的補一句目前數到幾
+    attachTextTooltip(node, r.name, relicLongText(r, me(run, seat).relics) + (spent ? '（用完了）' : count !== null ? `（${r.hooks.chestExtra ? '還剩' : '目前數到'} ${count}${r.hooks.chestExtra ? ' 次' : ''}）` : ''));
     node.addEventListener('click', () => showRelicList(run, seat));
     relics.append(node);
   }
@@ -223,8 +258,8 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
       '點一下複製一長串局面碼（十幾行，正常）。別人貼到首頁的「本局代碼」欄，就會從你的位置接著打——'
       + '同一套牌組、秘寶、忍具、血量、樓層。適合幾個人拿一樣的條件比誰打得好。'
       + '分享的是你最近一次離開節點的狀態，也就是按「續玩」會回到的那個點——'
-      + '在地圖上按就是你現在站的位置；戰鬥打到一半按，給出去的是進這場戰鬥之前，這樣對方才打得到同一場。'
-      + '你自己的進度本來就會自動存，回首頁按「續玩」即可，不需要這串。');
+      + '在地圖上按就是你現在站的位置；戰鬥打到一半按，給出去的是進這場戰鬥之前的狀態，這樣對方才打得到同一場。'
+      + '你自己的進度本來就會自動存，回首頁按「續玩」就好，不需要這串。');
   }
   let resetTimer = 0;
   const copy = (text: string): void => {

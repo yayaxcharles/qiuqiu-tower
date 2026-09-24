@@ -1,0 +1,344 @@
+{
+  "event_fengfeng_toll_r0": {
+    "why": "封封拔劍衝刺刺向山賊；文字是付錢後山賊退到牆邊數魚乾、封封拉緊袋口從旁走過",
+    "scene": "On the left, a short piece of rough stone wall stands on the floor patch. The ORANGE BANDIT CAT has backed up against this wall: his long wooden staff is tucked under one arm and leans against the wall, and he holds a small heap of dried fish in both paws, counting them with a nervous sweat drop, eyes on the fish. On the right, Fengfeng walks past him, calm and unhurried, one foot stepping forward on the floor: with both paws he pulls the drawstring of his own small cloth fish pouch tight at his belt, glancing sideways at the bandit. Fengfeng's jian stays SHEATHED in the scabbard at his waist - no drawn sword, no fighting pose. Both cats stand on the same small floor patch.",
+    "style": "bg/event_fengfeng_toll.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_toll.webp",
+        "the ORANGE BANDIT CAT on the left (orange tabby with a black cloth headband, ragged brown vest, long wooden staff) - copy his look exactly. Ignore the Fengfeng in this picture."
+      ]
+    ]
+  },
+  "event_robin": {
+    "why": "主圖已畫球球提著一串魚乾遞給村貓（先畫出選項結果）；文字是摸魚乾袋；球球毛色冷灰",
+    "scene": "On the left, a corner made of two short pieces of rough stone wall standing on the floor patch. Three thin, hungry VILLAGE CATS huddle together in that corner, sitting on the floor, looking up sadly with droopy ears (one holds its empty tummy). On the right, Qiuqiu has just stopped walking: he stands with both feet on the floor, looking at them with a worried face, one paw resting on the small CLOSED cloth fish pouch tied at his waist. The pouch stays closed and tied at his belt - no fish are taken out, nothing is being handed over. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_robin.webp",
+        "the three VILLAGE CATS on the left (a grey tabby with a white muzzle, a sandy-ginger cat with folded ears, a white calico with tan and brown patches; plain cats with no clothes) - copy these three cats exactly. Ignore the black-and-white cat on the right."
+      ]
+    ]
+  },
+  "event_robin_r0": {
+    "why": "球球跪著發紙片，橘村貓替球球包紮手臂，村貓拿紙片，魚乾丟在地上沒人吃；文字是村貓分吃魚乾、球球坐著歇",
+    "scene": "The three VILLAGE CATS sit close together on the floor patch on the left, happily eating dried fish: each one holds a dried fish in its paws and nibbles it, and a small pile of dried fish lies on a cloth on the floor between them. On the right, Qiuqiu sits down on the floor a little apart, resting: legs stretched out, his small open fish pouch lying on the floor beside him, one paw on his chin, looking up thoughtfully with a small tired smile. No papers, no cards, no bandages, nobody touching Qiuqiu. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_robin.webp",
+        "the three VILLAGE CATS on the left (a grey tabby with a white muzzle, a sandy-ginger cat with folded ears, a white calico with tan and brown patches; plain cats with no clothes) - copy these three cats exactly. Ignore the black-and-white cat on the right."
+      ]
+    ]
+  },
+  "event_feifei_robin": {
+    "why": "主圖已提著魚乾遞給村貓（先畫出選項結果）；文字是摸魚乾袋",
+    "scene": "On the left, a corner made of two short pieces of rough stone wall standing on the floor patch. Three thin, hungry VILLAGE CATS huddle together in that corner, sitting on the floor, looking up sadly with droopy ears (one holds its empty tummy). On the right, Feifei has just stopped walking: she stands with both feet on the floor, looking at them with a concerned face, one paw resting on the small CLOSED cloth fish pouch tied at her belt. The pouch stays closed and tied at her belt - no fish are taken out, nothing is being handed over.",
+    "style": "bg/event_feifei_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_robin.webp",
+        "the three VILLAGE CATS on the left (a grey tabby with a white muzzle, a sandy-ginger cat with folded ears, a white calico with tan and brown patches; plain cats with no clothes) - copy these three cats exactly. Ignore the black-and-white cat on the right."
+      ]
+    ]
+  },
+  "event_feifei_robin_r0": {
+    "why": "菲菲遞紙片、地上畫叉的紙片、村貓拿碗和布替她處理傷；沒人吃魚乾；文字是村貓分吃魚乾、菲菲坐著歇",
+    "scene": "The three VILLAGE CATS sit close together on the floor patch on the left, happily eating dried fish: each one holds a dried fish in its paws and nibbles it, and a small pile of dried fish lies on a cloth on the floor between them. On the right, Feifei sits down on the floor a little apart, resting, her small open fish pouch lying on the floor beside her, one paw on her chin, looking to the side thoughtfully with a calm little smile. No papers, no cards, no bowls, no bandages, nobody touching Feifei.",
+    "style": "bg/event_feifei_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_robin.webp",
+        "the three VILLAGE CATS on the left (a grey tabby with a white muzzle, a sandy-ginger cat with folded ears, a white calico with tan and brown patches; plain cats with no clothes) - copy these three cats exactly. Ignore the black-and-white cat on the right."
+      ]
+    ]
+  },
+  "event_fengfeng_robin": {
+    "why": "提著魚乾遞給村貓；文字是村貓抱空糧袋坐在牆邊、封封打開自己袋子估算",
+    "scene": "On the left, a short piece of rough stone wall stands on the floor patch. Three thin, hungry VILLAGE CATS sit on the floor with their backs against this wall, each one hugging an EMPTY, flat, crumpled cloth grain sack in its arms, looking down sadly. On the right, Fengfeng has stopped and stands on the floor: he holds his own small cloth fish pouch open in front of his chest with both paws and peers down into it with a thoughtful, calculating look, counting what is left. Nothing is handed over, no fish are taken out.",
+    "style": "bg/event_fengfeng_lost_medicine.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_robin.webp",
+        "the three VILLAGE CATS on the left (a grey tabby with a white muzzle, a sandy-ginger cat with folded ears, a white calico with tan and brown patches; plain cats with no clothes) - copy these three cats exactly. Ignore the black-and-white cat on the right."
+      ]
+    ]
+  },
+  "event_fengfeng_robin_r0": {
+    "why": "發紙片、被包紮，沒一起吃魚乾；文字是封封分一半魚乾、坐下和村貓一起吃",
+    "scene": "Fengfeng and the three VILLAGE CATS sit together in a little circle on the floor patch, sharing dried fish: a small pile of dried fish lies on a cloth on the floor in the middle. Each village cat holds a dried fish in its paws and nibbles it happily. Fengfeng sits cross-legged among them holding one dried fish in his right paw; with his left paw he touches the brown sash at his waist, glancing down at it with a thoughtful frown (thinking about a sword move that keeps bumping his belt). His jian stays sheathed in the scabbard at his waist. No papers, no cards, no bandages.",
+    "style": "bg/event_fengfeng_lost_medicine.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_robin.webp",
+        "the three VILLAGE CATS on the left (a grey tabby with a white muzzle, a sandy-ginger cat with folded ears, a white calico with tan and brown patches; plain cats with no clothes) - copy these three cats exactly. Ignore the black-and-white cat on the right."
+      ]
+    ]
+  },
+  "event_feifei_cat_tower_r1": {
+    "why": "菲菲整隻掛在柱子半空、雙腳離地在爬、爪子抓柱冒木屑；文字是照底部爪痕練招；驗收代理複查：柱子要跟她的新主圖同一根",
+    "scene": "The same tall wooden scratching pole as in reference image 3, standing on the same round wooden floor platform: a coil of thick rope wound around the top of the pole, a short wooden peg near the top from which a worn, dusty GREY patched cloth pouch hangs, a coil of thick rope wound around the base, scratch marks all over the trunk and one neat row of parallel claw marks near the bottom. Feifei stands on the round wooden platform in front of the pole with BOTH feet planted on it (she is NOT climbing and does not touch the pole), facing the row of parallel claw marks at the base: she practises the claw form they show - one paw thrust forward in a claw strike in the same direction as the marks (one short swoosh line), the other paw pulled back at her side, weight low, focused.",
+    "style": "bg/event_feifei_cat_tower_r0.webp",
+    "refs": [
+      [
+        "bg/event_feifei_cat_tower.webp",
+        "the SCRATCHING POLE of this event: copy this exact pole - the rope coil at the top, the peg with the grey worn cloth pouch, the rope coil at the base, the round wooden floor platform. Ignore Feifei's pose in this picture."
+      ]
+    ]
+  },
+  "event_dangdang_cat_tower": {
+    "why": "噹噹已經在爬柱子（雙腳離地抱柱），主圖先畫出選項 1 的結果；文字是柱子直抵天花板、頂端掛小包、底部整齊爪痕",
+    "scene": "A very tall wooden scratching pole stands on a small floor patch of flagstones; its trunk is covered with scratch marks of different depths, and near the bottom there is one neat row of claw marks in a clear order. A small dusty cloth pouch hangs from a peg at the very top of the pole. Dangdang stands on the floor at the foot of the pole with BOTH feet planted on the floor (he is NOT climbing and does not touch the pole): he tilts his head back and looks up at the pouch at the top, one paw on his chin, thinking.",
+    "style": "bg/event_dangdang_cat_tower_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_cat_tower_r0.webp",
+        "the SCRATCHING POLE: copy this tall wooden pole with the small cloth pouch hanging from a peg at the top and the neat row of claw marks at the bottom. Ignore the cat in this picture."
+      ]
+    ]
+  },
+  "event_fengfeng_cat_tower": {
+    "why": "封封整隻抱在柱子半空在爬；柱子短、頂端空的沒有小包；柱身是木頭不是粗繩；文字是仰頭看、低頭看底部爪痕",
+    "scene": "A very tall scratching post stands on a small floor patch: a thick wooden post tightly wrapped from bottom to top in coarse tan rope, the rope covered with many claw marks, with one neat row of claw marks near the bottom. On top of the post is a small round wooden platform, and a small dusty cloth pouch sits on that platform. Fengfeng is on the floor at the foot of the post (he is NOT climbing): he crouches on one knee on the floor and leans in to study the neat bottom row of claw marks, pointing at them with one paw, a focused face. His jian stays sheathed in the scabbard at his waist.",
+    "style": "bg/event_fengfeng_cat_tower_r0.webp"
+  },
+  "event_fengfeng_cat_tower_r1": {
+    "why": "封封抱柱在爬（雙腳離地、爪子刮柱）；文字是照爪痕踏步、轉肩、接劍法",
+    "scene": "A very tall scratching post stands on a small floor patch: a thick wooden post tightly wrapped from bottom to top in coarse tan rope, the rope covered with many claw marks, with one neat row of claw marks near the bottom. On top of the post is a small round wooden platform with a small dusty cloth pouch sitting on it. Fengfeng practises on the floor beside the post, BOTH feet on the floor (he is NOT climbing and does not touch the post): he takes a step back and turns his shoulder, his straight jian drawn and held firmly in his right paw (the hilt inside his closed paw), blade raised for the next swing, the empty scabbard still at his waist, his eyes on the bottom row of claw marks.",
+    "style": "bg/event_fengfeng_cat_tower_r0.webp"
+  },
+  "event_lost_scroll": {
+    "why": "球球在台階上拿起卷軸讀，卷軸只有波浪線沒有三段圖解；沒有舊書攤、沒有攤主；驗收代理複查：卷軸內容要跟 r0 一樣是三個結印手勢，不是武打小貓",
+    "scene": "On the left, a few wide dark-grey stone steps. An old paper scroll with wooden rollers at both ends lies unrolled flat across the steps; it shows three panels side by side, each a simple ink drawing of a pair of cat paws pressed together making a different ninja HAND SEAL (palms together with fingers up; paws cupped; fingers interlocked and pointing up) with a few brush strokes around them - pictures only, no fighting figures, no little cats, no fish - exactly like the scroll in reference image 4. Qiuqiu stands on the floor at the foot of the steps, bending forward to look at the scroll with curious wide eyes, both paws near his knees - he has NOT picked it up. On the right, the small corner BOOK STALL stands on the floor: a low wooden counter under a short slanted plank roof on two posts, with stacks of old books and a few rolled scrolls on the counter. The OLD BOOKSELLER stands behind the counter, visible from the chest up; he leans over the counter and points one paw at the scroll, talking to Qiuqiu. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. IGNORE the drawings on the scroll in this picture - they are wrong."
+      ],
+      [
+        "bg/event_lost_scroll_r0.webp",
+        "the SCROLL: copy the old scroll in this picture and the three ink drawings of HAND SEALS (pairs of paws making ninja hand seals) on it exactly. Ignore the cat in this picture."
+      ]
+    ]
+  },
+  "event_lost_scroll_r1": {
+    "why": "攤主只有兩隻從圖左緣伸進來的棕袖手臂（身體被圖邊切斷）；文字是攤主翻卷軸、付錢，球球收好錢聞袋子；驗收代理複查：攤主手上的卷軸要跟 r0 一樣是三個結印手勢",
+    "scene": "On the left, a small corner BOOK STALL stands on the floor patch: a low wooden counter under a short slanted wooden roof on two posts, with stacks of old books on the counter. The OLD BOOKSELLER stands behind the counter, visible from the chest up (his whole head, body and both arms inside the picture): he holds the old scroll half unrolled in both paws, looking over it through his spectacles. On the right, in front of the stall, Qiuqiu stands on the floor holding a small tied cloth pouch full of dried fish up to his nose with both paws, sniffing it with a happy face and both eyes closed. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey. The scroll is the same old scroll that was found on the steps: its paper shows three panels side by side, each a simple ink drawing of a pair of cat paws pressed together making a different ninja HAND SEAL (palms together with fingers up; paws cupped; fingers interlocked and pointing up) with a few brush strokes around them - pictures only, no fighting figures, no little cats, no fish - exactly like the scroll in reference image 4.",
+    "style": "bg/event_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. IGNORE the drawings on the scroll in this picture - they are wrong."
+      ],
+      [
+        "bg/event_lost_scroll_r0.webp",
+        "the SCROLL: copy the old scroll in this picture and the three ink drawings of HAND SEALS (pairs of paws making ninja hand seals) on it exactly. Ignore the cat in this picture."
+      ]
+    ]
+  },
+  "event_feifei_lost_scroll": {
+    "why": "菲菲站台階上拿卷軸讀（波浪假字），沒有攤主、沒有書攤；台階被底邊切",
+    "scene": "On the left, a few wide stone steps, drawn whole (not cut off at the bottom). An old paper scroll with wooden rollers at both ends lies unrolled flat across one of the steps; it shows three clear panels side by side, each a simple ink drawing of a little cat in a different ninja pose (pictures only). Feifei stands on the floor at the foot of the steps, bending forward to look at the scroll with interest - she has NOT picked it up. On the right, a small corner BOOK STALL stands on the floor: a low wooden counter under a short slanted wooden roof on two posts, with stacks of old books and a few rolled scrolls lying on the counter. The OLD BOOKSELLER stands behind the counter, visible from the chest up: an elderly chubby brown tabby cat with a white muzzle, bushy white eyebrows, small round spectacles and a loose dark-brown robe with wide sleeves; he leans over the counter and points one paw at the scroll, talking to Feifei.",
+    "style": "bg/event_feifei_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. Ignore the navy-headband cat and the scroll on the steps in this picture."
+      ]
+    ]
+  },
+  "event_feifei_lost_scroll_r1": {
+    "why": "攤主只有一隻深棕手臂從圖右緣伸進來（被切）；菲菲腰上還插著一卷卷軸；文字是攤主翻卷軸付錢、菲菲聞袋子",
+    "scene": "On the right, a small corner BOOK STALL stands on the floor patch: a low wooden counter under a short slanted wooden roof on two posts, with stacks of old books on the counter. The OLD BOOKSELLER stands behind the counter, visible from the chest up (his whole head, body and both arms inside the picture): he holds the old scroll half unrolled in both paws, looking over it through his spectacles. On the left, in front of the stall, Feifei stands on the floor holding a small tied cloth pouch full of dried fish up to her nose with both paws, sniffing it with a pleased little smile. Feifei carries NO scroll anywhere - the only scroll is the one in the bookseller's paws. The scroll is the same old scroll that was found on the steps: its paper shows little ink drawings of a cat in fighting poses (pictures only) - no fish drawn on it.",
+    "style": "bg/event_feifei_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. Ignore the navy-headband cat and the scroll on the steps in this picture."
+      ]
+    ]
+  },
+  "event_dangdang_lost_scroll": {
+    "why": "噹噹站在石地上雙手舉起卷軸，沒有台階、沒有書攤、沒有攤主",
+    "scene": "On the left, a few wide grey stone steps. An old paper scroll with wooden rollers at both ends lies unrolled flat across one of the steps; it shows three clear panels side by side, each a simple ink drawing of a little cat in a different fist-fighting pose (pictures only). Dangdang stands on the floor at the foot of the steps, bending forward with his paws on his knees to look at the scroll - he has NOT picked it up. On the right, a small corner BOOK STALL stands on the floor: a low wooden counter under a short slanted wooden roof on two posts, with stacks of old books and a few rolled scrolls lying on the counter. The OLD BOOKSELLER stands behind the counter, visible from the chest up: an elderly chubby brown tabby cat with a white muzzle, bushy white eyebrows, small round spectacles and a loose dark-brown robe with wide sleeves; he leans over the counter and points one paw at the scroll, talking to Dangdang.",
+    "style": "bg/event_dangdang_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. Ignore the navy-headband cat and the scroll on the steps in this picture."
+      ]
+    ]
+  },
+  "event_dangdang_lost_scroll_r1": {
+    "why": "沒有攤主；卷軸自己直立站在地上（沒有東西靠）；文字是攤主檢查卷軸後付錢、噹噹點數收進袋子",
+    "scene": "On the left, a small corner BOOK STALL stands on the floor patch: a low wooden counter under a short slanted wooden roof on two posts, with stacks of old books on the counter. The OLD BOOKSELLER stands behind the counter, visible from the chest up (his whole head, body and both arms inside the picture): he holds the old scroll half unrolled in both paws, checking it through his spectacles. On the right, in front of the stall, Dangdang stands on the floor counting dried fish: his cloth pouch hangs open at his waist, with one paw he tucks a dried fish into the open pouch (the fish still held in his paw, half inside the pouch), and his other paw holds three more dried fish, counting them. Nothing lies on the floor, and the scroll is ONLY in the bookseller's paws. The scroll is the same old scroll that was found on the steps: its paper shows little ink drawings of a cat in fighting poses (pictures only) - no fish drawn on it.",
+    "style": "bg/event_dangdang_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. Ignore the navy-headband cat and the scroll on the steps in this picture."
+      ]
+    ]
+  },
+  "event_fengfeng_lost_scroll": {
+    "why": "封封在台階上拿卷軸讀（波浪線），沒有攤主；文字是卷軸攤在走廊地上、攤主探頭；驗收代理複查：場景要跟封封 r0 同一處（灰色石階）、卷軸是三個結印手勢",
+    "scene": "On the left, a few wide dark-grey stone steps. An old paper scroll with wooden rollers at both ends lies unrolled and draped down across the steps; it shows three panels side by side, each a simple ink drawing of a pair of cat paws pressed together making a different ninja HAND SEAL (palms together with fingers up; paws cupped; fingers interlocked and pointing up) with a few brush strokes around them - pictures only, no fighting figures, no little cats, no fish - exactly like the scroll and the steps in reference image 4. Fengfeng stands on the floor beside the steps and looks down at the scroll, one paw on his chin - he has NOT picked it up; his jian stays sheathed at his waist. On the right, the small BOOK STALL stands on a patch of grey stone flagstones: a low wooden counter under a short slanted plank roof on two posts, with stacks of old books and a few rolled scrolls on the counter. The OLD BOOKSELLER pokes his head and shoulders out from behind the counter post, peeking at Fengfeng; his whole head and both front paws are visible. No wooden floorboards.",
+    "style": "bg/event_fengfeng_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. IGNORE the drawings on the scroll in this picture - they are wrong."
+      ],
+      [
+        "bg/event_fengfeng_lost_scroll_r0.webp",
+        "the SCROLL and the STEPS: copy the old scroll draped over the dark-grey stone steps and the three ink drawings of HAND SEALS (pairs of paws making ninja hand seals) on it exactly. Ignore the cat in this picture."
+      ]
+    ]
+  },
+  "event_fengfeng_lost_scroll_r1": {
+    "why": "攤主只有兩隻棕袖手臂從左邊進來、袖口一刀切；文字是攤主付錢、封封數過魚乾把卷軸交給牠；驗收代理複查：攤主手上的卷軸要跟 r0 一樣是三個結印手勢",
+    "scene": "On the left, a small BOOK STALL stands on the floor patch: a low wooden counter under a short slanted wooden roof on two posts, with stacks of old books on the counter. The OLD BOOKSELLER stands behind the counter, visible from the chest up (his whole head, body and both arms inside the picture), reaching out with one paw to take the rolled-up scroll. On the right, in front of the counter, Fengfeng stands on the floor handing the rolled-up scroll across the counter with his right paw - both of them hold the scroll at the same time. Fengfeng's left paw holds a small tied cloth pouch full of dried fish against his side. His jian stays sheathed at his waist. The scroll is the same old scroll that was found on the steps: its paper shows three panels side by side, each a simple ink drawing of a pair of cat paws pressed together making a different ninja HAND SEAL (palms together with fingers up; paws cupped; fingers interlocked and pointing up) with a few brush strokes around them - pictures only, no fighting figures, no little cats, no fish - exactly like the scroll in reference image 4.",
+    "style": "bg/event_fengfeng_lost_scroll_r0.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the OLD BOOKSELLER and his BOOK STALL on the right (an elderly chubby brown tabby cat with bushy white eyebrows, a white muzzle, small round gold spectacles and a dark-brown robe; the wooden stall with the slanted plank roof, the counter and the stacked books and scrolls) - copy the bookseller and the stall exactly. IGNORE the drawings on the scroll in this picture - they are wrong."
+      ],
+      [
+        "bg/event_fengfeng_lost_scroll_r0.webp",
+        "the SCROLL: copy the old scroll in this picture and the three ink drawings of HAND SEALS (pairs of paws making ninja hand seals) on it exactly. Ignore the cat in this picture."
+      ]
+    ]
+  },
+  "event_noisy_kitchen_r0": {
+    "why": "球球在超大鍋後面拿湯匙吃；砧板、鹽罐、紅蘿蔔、鍋蓋、葉子全部飄在半空",
+    "scene": "A small kitchen floor patch. On the left, the grey portable gas stove stands ON THE FLOOR with the black soup pot sitting on its burner, a little steam rising, the ladle resting inside the pot. A short stack of empty bowls sits on the floor next to the stove. On the right, Qiuqiu sits on the floor beside the stove holding a full bowl of hot soup in his left paw and a spoon in his right paw, blowing on a spoonful of soup (a little steam, cheeks puffed) with a cosy, happy face. Nothing else: no cutting board, no salt shaker, no carrots, no leaves. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_noisy_kitchen.webp",
+        "the STOVE AND POT of this kitchen: copy this grey portable gas stove, the black soup pot and the stack of white bowls. Ignore the cat and the flying lid."
+      ]
+    ]
+  },
+  "event_noisy_kitchen_r1": {
+    "why": "球球拿苦無、手伸進忍具箱；湯勺、砧板、鹽罐、鍋蓋、紅蘿蔔、葉子飄在半空",
+    "scene": "A small kitchen floor patch. At the back left, the grey portable gas stove stands ON THE FLOOR with the black soup pot on its burner, lid on, a little steam. In front, an open wooden box of spare ninja tools stands on the floor; a simple ink picture of a kunai and a picture of a small round smoke bomb are painted on the side of the box (pictures only). Qiuqiu kneels on the floor beside the box: he holds one kunai in his right paw and one small round smoke bomb in his left paw (each held firmly in a closed paw), comparing them with the pictures on the side of the box with a curious face. Nothing else: no cutting board, no salt shaker, no carrots, no leaves, nothing in the air. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_noisy_kitchen.webp",
+        "the STOVE AND POT of this kitchen: copy this grey portable gas stove and the black soup pot. Ignore the cat, the bowls and the flying lid."
+      ]
+    ]
+  },
+  "event_fengfeng_noisy_kitchen_r0": {
+    "why": "同球球 r0：砧板、鹽罐、鍋蓋、紅蘿蔔、葉子飄在半空",
+    "scene": "A small kitchen floor patch. On the left, the grey portable gas stove stands ON THE FLOOR with the black soup pot sitting on its burner, a little steam rising, the ladle resting inside the pot. A short stack of empty bowls sits on the floor next to the stove. On the right, Fengfeng sits on the floor beside the stove, holding a bowl of hot soup up to his mouth with both paws, drinking from it with both eyes closed and a warm, satisfied face (a little steam from the bowl). His jian stays sheathed at his waist. Nothing else: no cutting board, no salt shaker, no carrots, no leaves.",
+    "style": "bg/event_fengfeng_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_noisy_kitchen.webp",
+        "the STOVE AND POT of this kitchen: copy this grey portable gas stove, the black soup pot and the stack of white bowls. Ignore the cat and the flying lid."
+      ]
+    ]
+  },
+  "event_fengfeng_noisy_kitchen_r1": {
+    "why": "同球球 r1：湯勺、砧板、鹽罐、鍋蓋、紅蘿蔔、葉子飄在半空",
+    "scene": "A small kitchen floor patch. At the back left, the grey portable gas stove stands ON THE FLOOR with the black soup pot on its burner, lid on, a little steam. In front, an open wooden box of spare ninja tools stands on the floor; a simple ink picture of a kunai and a picture of a small round smoke bomb are painted on the side of the box (pictures only). Fengfeng kneels on the floor beside the box: he holds one kunai firmly in his left paw, studying it closely, and with his right paw he tucks a small round smoke bomb into the small cloth pouch at his belt. His jian stays sheathed at his waist. Nothing else: no cutting board, no salt shaker, no carrots, no leaves, nothing in the air.",
+    "style": "bg/event_fengfeng_noisy_kitchen_r3.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_noisy_kitchen.webp",
+        "the STOVE AND POT of this kitchen: copy this grey portable gas stove and the black soup pot. Ignore the cat, the bowls and the flying lid."
+      ]
+    ]
+  },
+  "event_fengfeng_medicine_cat_r3": {
+    "why": "封封一屁股坐在地上、臉發青冒汗，三花貓拿筆記本餵湯匙；文字是「臉色發白，仍站著沒動」；劍收在鞘裡看不出用劍刃劃手背",
+    "scene": "On the left, the CALICO MEDICINE SELLER stands behind her wooden stall with the red awning and the row of coloured bottles on the counter; an open notebook with a pencil lies on the counter. She leans over the counter and holds a small antidote bottle to Fengfeng's mouth with one paw, her other paw raised with one claw up as if keeping count of the time. On the right, Fengfeng STANDS upright on the floor in front of the stall, feet firmly planted, not sitting and not falling: his face is noticeably PALE (whitish, a cold sweat drop), jaw set, both eyes open and steady, drinking the antidote. His drawn jian is held firmly in his right paw, point resting on the floor at his side, the empty scabbard at his waist. On the back of his left paw there is one tiny thin scratch with a faint green tint around it.",
+    "style": "bg/event_fengfeng_medicine_cat_r1.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_medicine_cat.webp",
+        "the CALICO MEDICINE SELLER and her stall (a calico cat with white, orange and dark-brown patches, an olive-green robe, a wooden stall with a red awning and coloured bottles) - copy her and the stall exactly. Ignore the Fengfeng in this picture."
+      ]
+    ]
+  },
+  "event_cat_tower_r1": {
+    "why": "選的是「照著底部爪痕練習」，圖上球球卻四肢抱在柱子半空、腳沒著地，像在爬柱子（選項 1）；沒有地面、看不到底部整齊爪痕",
+    "scene": "A tall wooden scratching pole stands on a small floor patch; its trunk is covered with scratch marks of different depths, and near the bottom there is one neat row of claw marks in a clear order. A small dusty cloth pouch hangs from a peg at the very top of the pole. Qiuqiu stands on the floor in front of the bottom of the pole with BOTH feet planted on the floor (he is NOT climbing and does not hug the pole), facing the neat row of claw marks at the base. He raises one front paw and swipes it in a claw strike following the direction of the marks (one short swoosh line behind the paw), the other paw pulled back at his side, with a focused face and a small spark of understanding. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_cat_tower_r0.webp"
+  },
+  "event_feifei_cat_tower": {
+    "why": "主圖卻已抱在柱子半空往上爬（先畫出選項 1）；柱頂小包沒畫、看不到底部整齊爪痕",
+    "scene": "A VERY tall wooden scratching pole stands on a small floor patch, reaching high up; its trunk is covered with scratch marks of different depths, and near the bottom there is one neat row of claw marks in a clear order. A small dusty grey cloth pouch hangs from a peg at the very top of the pole. Feifei stands on the floor at the foot of the pole with BOTH feet planted on the floor (she has NOT started climbing and does not touch the pole): she tilts her head back and looks up at the pouch, one paw under her chin, thinking.",
+    "style": "bg/event_feifei_cat_tower_r0.webp"
+  },
+  "event_cat_tower": {
+    "why": "主圖球球整隻抱在柱子半空在爬，先畫出選項 1 的結果（第二組順手看到、主控追加）",
+    "scene": "A VERY tall wooden scratching pole stands on a small patch of wooden floorboards, reaching high up; its trunk is covered with scratch marks of different depths, and near the bottom there is one neat row of claw marks in a clear order. A small dusty cloth pouch hangs from a short wooden peg at the very top of the pole. Qiuqiu stands on the floor at the foot of the pole with BOTH feet planted on the floor (he has NOT started climbing and does not touch the pole): he tilts his head back and looks up at the pouch, one paw under his chin, thinking. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_cat_tower_r1.webp",
+    "refs": [
+      [
+        "bg/event_cat_tower_r1.webp",
+        "the SCRATCHING POLE of this event: copy this tall wooden pole with the small cloth pouch hanging from a short peg at the top, the scratch marks and the wooden floor patch. Ignore the cat's pose in this picture."
+      ]
+    ]
+  },
+  "event_fengfeng_cat_tower_r0": {
+    "why": "柱子是木頭、頂端用釘子掛小包，跟封封新主圖與 r1 的粗繩柱（頂端平台）對不上（第二組順手看到、主控追加）",
+    "scene": "The very tall scratching post of this event stands on a small floor patch: a thick post tightly wrapped from bottom to top in coarse tan rope, the rope covered with claw marks, with a small round wooden platform on top - now EMPTY, the pouch has been taken. Fengfeng has just climbed back down and stands on the floor beside the post (BOTH feet on the floor, not climbing). He holds the small dusty cloth pouch in his left paw (paw closed around its neck). With his right paw he is rolling up the cream sleeve of his left arm, revealing a few red rope-burn scrape marks on that forearm; he glances at the scrapes with a wry, pained face (both eyes the same). His sheathed jian is slung diagonally across his BACK on a strap, the hilt with its red tassel sticking up behind his right shoulder.",
+    "style": "bg/event_fengfeng_cat_tower_r1.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_cat_tower.webp",
+        "the SCRATCHING POST of this event: copy this rope-wrapped post with the round wooden platform on top and the floor patch (but the pouch is no longer on the platform). Ignore the cat in this picture."
+      ]
+    ],
+    "gear_off": "the red scarf stays on his neck. His jian stays in its dark-brown scabbard, but in this picture the sheathed sword is slung diagonally across his BACK on a strap (he moved it there to climb) - it is NOT at his waist, NOT in his paws, NOT lying on the floor, and it appears only once."
+  },
+  "event_noisy_kitchen": {
+    "why": "主控補件：鍋蓋懸在鍋子上方、沒有爪子拿著（浮空）；球球是舊的銀灰色",
+    "scene": "A small patch of wooden kitchen floorboards. On it stands the grey portable gas stove with a small blue-orange flame, and the black soup pot sits on its burner, bubbling. The pot LID is pushed up by the steam: it rests TILTED on the rim of the pot, one edge still touching the rim and the other edge lifted a little, with puffs of steam escaping from the gap and two or three short rattle lines beside it - the lid is NOT in the air, it is sitting on the pot. A short stack of empty white bowls stands on the floor next to the stove. A small sheet of paper is pinned to the side of the stove with a simple ink drawing of a steaming bowl on it (picture only, no writing). On the floor in front of the stove stands a small open wooden box of spare ninja tools (a few kunai and round smoke bombs inside), with simple ink pictures of a kunai and a smoke bomb painted on its side. Qiuqiu has just come round the corner and stands on the floor beside the stove, leaning in a little with wide curious eyes and ears perked up, looking at the rattling lid; his paws are at his sides, he is not touching anything yet. Qiuqiu's fur is the warm pale cream-white of reference image 1, not cool grey.",
+    "style": "bg/event_noisy_kitchen_r0.webp",
+    "refs": [
+      [
+        "bg/event_noisy_kitchen_r0.webp",
+        "the STOVE, the POT and the BOWLS of this kitchen: copy this grey portable gas stove, the black soup pot and the stack of white bowls. Ignore the cat."
+      ],
+      [
+        "bg/event_noisy_kitchen_r1.webp",
+        "the SPARE NINJA-TOOL BOX of this kitchen: copy this wooden box with the kunai and smoke-bomb pictures on its side. Ignore the cat and what it holds."
+      ]
+    ]
+  },
+  "event_fengfeng_noisy_kitchen": {
+    "why": "主控補件：鍋蓋懸在鍋子上方、沒有爪子拿著（浮空）；文字是鍋蓋敲得很響、封封把劍鞘收近免得碰倒碗盤",
+    "scene": "A small patch of wooden kitchen floorboards. On it stands the grey portable gas stove with a small blue-orange flame, and the black soup pot sits on its burner, bubbling. The pot LID is pushed up by the steam: it rests TILTED on the rim of the pot, one edge still touching the rim and the other edge lifted a little, with puffs of steam escaping from the gap and two or three short rattle lines beside it - the lid is NOT in the air, it is sitting on the pot. A short stack of empty white bowls stands on the floor next to the stove. A small sheet of paper is pinned to the side of the stove with a simple ink drawing of a steaming bowl on it (picture only, no writing). On the floor in front of the stove stands a small open wooden box of spare ninja tools (a few kunai and round smoke bombs inside), with simple ink pictures of a kunai and a smoke bomb painted on its side. Fengfeng stands on the floor beside the stack of bowls, stepping carefully: with one paw he holds the dark-brown scabbard at his waist and presses it close against his hip so it will not knock the bowls over, glancing at the rattling pot lid with a cautious face. His jian stays sheathed.",
+    "style": "bg/event_fengfeng_noisy_kitchen_r0.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_noisy_kitchen_r0.webp",
+        "the STOVE, the POT and the BOWLS of this kitchen: copy this grey portable gas stove, the black soup pot and the stack of white bowls. Ignore the cat."
+      ],
+      [
+        "bg/event_fengfeng_noisy_kitchen_r1.webp",
+        "the SPARE NINJA-TOOL BOX of this kitchen: copy this wooden box with the kunai and smoke-bomb pictures on its side. Ignore the cat and what it holds."
+      ]
+    ]
+  },
+  "event_feifei_cat_tower_r0": {
+    "why": "柱子是舊的木柱配黃褐小包，跟她新主圖與 r1 那根（柱頂粗繩、木栓吊灰色舊補丁布包、柱底繞粗繩、木頭圓台）不同（主控追加）",
+    "scene": "The same tall wooden scratching pole as in reference image 3, drawn WHOLE from its base to its top, standing on the same round wooden floor platform: a coil of thick rope wound around the top of the pole, a short wooden peg near the top, a coil of thick rope wound around the base, scratch marks all over the trunk and one neat row of parallel claw marks near the bottom. Feifei has climbed up to the very top: she clings to the upper part of the pole with both hind legs wrapped firmly around the trunk and her left paw hooked into the rope coil at the top, and with her right paw she pulls the worn, dusty GREY patched cloth pouch off the peg (her paw closed around the pouch's string, the pouch in her grip). Her forearms are hot from the rope: a few small red rub marks on them and two tiny heat wiggle lines. Her face: a triumphant little grin with a wince, both eyes the same.",
+    "style": "bg/event_feifei_cat_tower_r1.webp",
+    "refs": [
+      [
+        "bg/event_feifei_cat_tower.webp",
+        "the SCRATCHING POLE of this event: copy this exact pole - the rope coil at the top, the peg with the grey worn patched cloth pouch, the rope coil at the base, the round wooden floor platform. Ignore Feifei's pose in this picture."
+      ]
+    ]
+  }
+}

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cardById, FEIFEI_STARTER_DECK, starterDeckFor } from '../../src/content/cards';
 import { relicById } from '../../src/content/relics';
 import { damageEnemy, damagePlayer } from '../../src/engine/actions';
-import { canPlay, endTurn, playCard, startCombat } from '../../src/engine/combat';
+import { endTurn, playCard, startCombat } from '../../src/engine/combat';
 import { heroName, pickable, startRelicFor } from '../../src/engine/hero';
 import { beginCombat, newRun } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
@@ -51,7 +51,7 @@ describe('菲菲：她是誰', () => {
     expect(cs.player.block - before, '目標原本沒毒，第一下不該給蜷縮').toBe(0);
     const mid = cs.player.block;
     play(cs, 'feifei_feizhen');
-    expect(cs.player.block - mid, '這下目標身上已經有毒了，該給 2').toBe(2);
+    expect(cs.player.block - mid, '這下目標身上已經有毒了，該給 1（2026-09-22 平衡 2→1）').toBe(1);
     expect(getStatus(foe(cs), '中毒'), '兩張飛針各下 1 層毒').toBe(2);
   });
   it('起手十張是她自己的那一套，起始秘寶是毒針袋', () => {
@@ -71,12 +71,17 @@ describe('菲菲：她是誰', () => {
     expect(heroName({})).toBe('球球');
   });
 
+  // 原本拿飛針、替身術當例子，兩張都是起手牌；2026-09-23 起手牌一律不進池（health H-7）之後，
+  // 改拿池子裡的獨占牌，守的還是「職業那一道」
   it('她的牌只有她拿得到，球球的隱身牌她拿不到', () => {
-    const feizhen = cardById['feifei_feizhen']!;
-    expect(pickable({ ...feizhen, hidden: undefined }, 'feifei')).toBe(true);
-    expect(pickable({ ...feizhen, hidden: undefined }, 'ninja')).toBe(false);
-    const kawarimi = cardById['kawarimi']!;
-    expect(pickable(kawarimi, 'feifei')).toBe(false);
+    const fenshen = cardById['feifei_fenshen']!;
+    expect(fenshen.pool).not.toBe('起手');
+    expect(pickable({ ...fenshen, hidden: undefined }, 'feifei')).toBe(true);
+    expect(pickable({ ...fenshen, hidden: undefined }, 'ninja')).toBe(false);
+    const yinshen = cardById['yinshen']!;
+    expect(yinshen.hero).toBe('ninja');
+    expect(pickable({ ...yinshen, hidden: undefined }, 'ninja')).toBe(true);
+    expect(pickable({ ...yinshen, hidden: undefined }, 'feifei')).toBe(false);
   });
 });
 
@@ -215,7 +220,7 @@ describe('菲菲：三個長效旗標', () => {
     play(cs, 'feifei_feizhen');
     expect(cs.player.block, '第一下目標沒毒，蜷縮不變').toBe(7);
     play(cs, 'feifei_feizhen');
-    expect(cs.player.block, '第二下才給，飛針自帶的 2 ＋ 拒馬 2').toBe(11);
+    expect(cs.player.block, '第二下才給，飛針自帶的 1（2026-09-22 起）＋ 拒馬 2').toBe(10);
   });
 
   it('拒馬疊兩張會累加（升級版跟基礎版一起帶也不會互相蓋掉）', () => {
@@ -282,7 +287,7 @@ describe('菲菲：戰報用她的名字', () => {
 describe('菲菲：牌面文字讀得懂', () => {
   it('毒、屍爆、斬殺、蜷縮加成都寫得出人話', () => {
     expect(describeCard(cardById['feifei_feizhen']!, false)).toContain('點蜷縮');
-    expect(describeCard(cardById['feifei_cuidu']!, false)).toContain('4 層中毒');
+    expect(describeCard(cardById['feifei_cuidu']!, false)).toContain('3 層中毒');   // 4→3（2026-09-22 平衡）
     expect(describeCard(cardById['feifei_juma']!, false)).toContain('每次獲得蜷縮都多 2 點');
     expect(describeCard(cardById['feifei_sandu']!, false)).toContain('分給其他魔物');
     expect(describeCard(cardById['feifei_yudu']!, false)).toContain('分給其他魔物');

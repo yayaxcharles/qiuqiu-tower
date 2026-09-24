@@ -1,17 +1,22 @@
-import { attachDragScroll } from '../dragscroll';
+import { attachDragScroll, watchClimb } from '../dragscroll';
 import { attachTextTooltip } from '../tooltip';
 import { modifierById } from '../../content/modifiers';
 import { play } from '../audio';
 import { FLOORS, nextChoices, nodeById } from '../../engine/map';
-import type { MapNode } from '../../engine/types';
+import type { MapNode, QmarkVariant } from '../../engine/types';
+import { loadQmarkText, qmarkTip } from '../qmark';
 import { registerScreen } from '../app';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
-import { heroName, heroOf } from '../../engine/hero';
-import { lineFor } from '../../content/dialogue';
+import { heroName } from '../../engine/hero';
 import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
+import { eventById } from '../../content/events';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
+import { mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadQmarkArt } from '../preload';
+import { loadEventScreen } from '../event-loader';
+import { loadShopText } from '../shop-text-loader';
+import { KEEPERS, type KeeperDef } from '../../content/keepers';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { notice } from '../dialogue';
@@ -23,6 +28,8 @@ const ICON: Record<MapNode['type'], string> = {
   戰鬥: 'icon/node_fight', 大魔物: 'icon/node_elite', 事件: 'icon/node_event',
   罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
 };
+/** 變過的問號格畫成哪一種節點的圖示（伏擊＝戰鬥、行腳商＝罐頭鋪、路邊紙箱＝紙箱） */
+const VARIANT_ICON: Record<QmarkVariant, MapNode['type']> = { 伏擊: '戰鬥', 行腳商: '罐頭鋪', 路邊紙箱: '紙箱' };
 
 
 /** 地圖上那隻球球的尺寸與跟節點的間隙（樣式在 map.css 的 `.map-hero`，兩邊要一致） */
@@ -111,10 +118,18 @@ function centreLane(nodes: readonly MapNode[]): number {
  * 跟種子綁在一起：換一局要從頭算，不然新局開頭會從上一局的樓層滑下來。
  */
 let lastFloor: { seed: string; floor: number } | null = null;
+/**
+ * 離開這張地圖時捲在哪（畫面抖動稽核 2026-09-24 第 5 項）。連線時同伴投一票整張地圖安靜重畫，
+ * 原本一律捲回「現在站的那一層」——正往上捲著看前面的路，就整張被拉回來 400 舞台像素。
+ * 同一局、同一關、同一層的安靜重畫（`App.redraw`）接回這個位置；真的換了樓層照舊捲過去。
+ */
+let lastScroll: { key: string; top: number } | null = null;
 
 registerScreen('map', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
+  // 連線：回到地圖＝兩個人都走完上一格了，記下這一刻當存檔點；之後兩台一對不上，就一起載入主機這一份回到這裡（2026-09-25 重新同步）
+  app.coop?.checkpoint(run);
 
   /*
    * 兩個人一起選路（連線版 2026-09-11）。
@@ -229,20 +244,30 @@ registerScreen('map', (app, root) => {
      * 認的是輪廓與主色，同一種節點長得一模一樣正是它好認的原因——換了圖案就得重新辨認一次，
      * 省下的重複感遠不如失去的辨識度。變體圖檔留在 `tools/art_inbox/`，要回頭再撿。
      */
+    // 變過的問號格（2026-09-23 第三批，設計稿 3-3）：走過之後畫成實際的那一種（戰鬥／罐頭鋪／紙箱），另掛一個小問號（見下面的 `.map-qv`）
+    if (n.variant) return artUrl('icons', ICON[VARIANT_ICON[n.variant]]);
     return artUrl('icons', ICON[n.type]);
   }
 
   // 可走的下一步：開局 currentNode 是 null，nextChoices 會回 1F 的三個節點
   const choices = new Set(nextChoices(run.map, run.currentNode).map((n) => n.id));
+  /*
+   * **倒下的人不能選路**（規則四），那就不要畫得像可以按（2026-09-22 連線盤點 問題 3）。
+   * 原本照樣亮著可選的光圈、寫「選下一層要去哪」，點下去完全沒反應，也沒說由同伴選。
+   * 同伴投的那一格照樣掛「同伴」記號，看得到他想去哪。
+   */
+  const iDown = !!app.coop && !!me(run, app.seat).down;
   for (const n of run.map.nodes) {
     const { x, y } = pos(n, run.seed, centre);
     const cls = ['map-node', `t-${n.type}`];
     if (n.id === run.currentNode) cls.push('current');
-    if (choices.has(n.id)) cls.push('choice');
+    if (choices.has(n.id) && !iDown) cls.push('choice');
     // n.floor 是關內 1～15，run.floor 是跨關累計（第二關 16～30）——直接比會把第二、三關整張標成走過（2026-09-02 稽核 H-1）
     if (n.floor < run.floor - base) cls.push('past');
     // 真的打過／辦完的（足跡上的格子）蓋一顆勾勾章——跟「只是在下面的樓層」區隔開
     if (n.id !== run.currentNode && run.trail.includes(n.id)) cls.push('cleared');
+    // 走過的稀有事件那一格，問號畫成金色（2026-09-23 第三批，design3 5-1）：沒走進去之前照樣是問號，是驚喜不是暗示
+    if (n.type === '事件' && run.trail.includes(n.id) && eventById[n.eventId ?? '']?.rare) cls.push('rare');
     // 遭遇修飾詞（2026-09-04）：節點下面掛一塊小牌子，選路的當下就看得到這一場不一樣；
     // 完整的得與失用遊戲自己的說明泡泡（原本塞原生 title：要停一秒才跳、長相不同、玩家以為沒說明——hud.ts 早就註解過，體檢 2026-09-05）
     const mod = n.modifier ? modifierById[n.modifier] : undefined;
@@ -252,13 +277,28 @@ registerScreen('map', (app, root) => {
       title: `${base + n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
     }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
     if (mod) { btn.append(el('span', { class: 'map-mod' }, mod.label)); attachTextTooltip(btn, mod.label, mod.desc); }
+    // 問號格的說明寫出**目前的機率**（主控裁決第 3 條）；變過的那一格講它變成了什麼、左上角掛小問號
+    // （設計稿寫右上角，但右上角是打過的勾勾，兩個疊在一起看不清楚）
+    if (n.type === '事件' && (n.variant || (n.floor >= run.floor - base && !run.trail.includes(n.id)))) {
+      const tip = qmarkTip(run, n);
+      attachTextTooltip(btn, tip.title, tip.body);
+      if (n.variant) btn.append(el('span', { class: 'map-qv' }, '？'));
+    }
+    // 罐頭鋪今天誰顧店（2026-09-23 第三批 新J，design3 4-4）：客座店主那一間在圖示右下角疊一顆小頭像、滑上去講招牌——
+    // 要讓人「為了某位店主繞路」，進門前就得看得到是誰。橘貓老闆那間不疊，維持原樣（看得出「換人了」才有意思）
+    const keeper = n.type === '罐頭鋪' && n.keeper && n.keeper !== 'orange' ? KEEPERS[n.keeper] : undefined;
+    if (keeper) {
+      const head = keeperHead(keeper);
+      if (head) btn.append(head);
+      if (keeper.tip) attachTextTooltip(btn, `今天顧店：${keeper.name}`, keeper.tip);
+    }
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
-    if (choices.has(n.id)) {
+    if (choices.has(n.id) && !iDown) {
       btn.addEventListener('click', () => {
         play('step');
         // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
         if (!app.coop) { app.enterNode(n.id); return; }
-        if (me(run, app.seat).down) return;   // 倒下的人沒得選（規則四）；他的票結算時本來就會被洗掉
+        if (me(run, app.seat).down) return;   // 保險（倒下的人本來就掛不到這個監聽）；他的票結算時本來就會被洗掉
         if (votes[app.seat]) return;   // 投過了就不能改——改票會讓兩邊的票面對不上
         app.coop.pick('map', n.id);
       });
@@ -385,7 +425,18 @@ registerScreen('map', (app, root) => {
   // 只在「確實往上走了」才播：重進同一層（存檔載入、看完牌組回來）直接定位，不要每次都演一次。
   const climbed = lastFloor && lastFloor.seed === run.seed && here > lastFloor.floor
     ? clamp(floorY(lastFloor.floor)) : null;
-  if (climbed !== null && climbed !== want && typeof scroll.scrollTo === 'function') {
+  const scrollKey = `${run.seed}|${run.act}|${here}`;
+  /*
+   * 換畫面（含安靜重畫）先跑收尾、再清畫面：這時捲軸還在，量得到。
+   * 但往上爬那段平滑捲動還沒播完（連線時同伴先投了地圖票，晚一步進地圖的人下一拍就被安靜重畫）時，
+   * 當下的位置是起點或半路，記下來之後每次重畫都接回這裡，畫面就一直停在上一層（程式碼稽核 2026-09-24 中-1）。
+   * 所以玩家自己沒捲過、爬升也還沒捲到的話，記「要去的那一層」（`watchClimb`，dragscroll.ts）。
+   */
+  const climbing = climbed !== null && climbed !== want;
+  const trust = climbing ? watchClimb(scroll, want) : () => true;
+  app.disposers.push(() => { lastScroll = { key: scrollKey, top: trust() ? scroll.scrollTop : want }; });
+  if (app.redraw && lastScroll?.key === scrollKey) scroll.scrollTop = lastScroll.top;
+  else if (climbed !== null && climbed !== want && typeof scroll.scrollTo === 'function') {
     scroll.scrollTop = climbed;
     // 等這一格畫完再捲，不然瀏覽器會把「設起點」跟「捲到終點」併成一次，畫面還是用跳的
     requestAnimationFrame(() => scroll.scrollTo({ top: want, behavior: 'smooth' }));
@@ -394,5 +445,34 @@ registerScreen('map', (app, root) => {
   lastFloor = { seed: run.seed, floor: here };
 
   renderHud(app, root);
-  root.append(el('div', { class: 'map-hint' }, run.currentNode ? '選下一層要去哪' : run.act > 1 ? `從 ${base + 1}F 選一條路往上` : '從 1F 選一條路進塔'));
+  root.append(el('div', { class: 'map-hint' }, iDown ? '你倒下了，等同伴選路…'
+    : run.currentNode ? '選下一層要去哪' : run.act > 1 ? `從 ${base + 1}F 選一條路往上` : '從 1F 選一條路進塔'));
+
+  // 事件畫面（連同角色事件文案）與這張地圖排到的事件主圖先在背景抓（2026-09-23 內容擴充 0-1、0-2）：
+  // 走進事件格時通常已經好了，`app.ts` 的 `enterEvent` 就不用等。抓失敗不要緊，走進去時會再要一次
+  // （走 `event-loader.ts`：這裡失敗了，下一次會換網址參數重抓，不會被瀏覽器記住的失敗卡死——推前審查 低-1）
+  void loadEventScreen().catch(() => undefined);
+  void preloadMapEvents(run);
+  // 問號格變化的文字與圖（2026-09-23 第三批）：地圖上還有會變的問號格才抓，一樣不插隊、抓失敗走進去時再要一次
+  if (mapHasQmark(run)) { void loadQmarkText().catch(() => undefined); void preloadQmarkArt(run); }
+  // 這一關有客座店主的店：那一位的三張立繪與店主台詞（延後模組）也先在背景抓（2026-09-23 第三批 新J，design3 4-4）
+  void preloadMapKeepers(run);
+  if (run.map.nodes.some((n) => n.keeper && n.keeper !== 'orange')) void loadShopText().catch(() => undefined);
 });
+
+/** 地圖上罐頭鋪的小頭像直徑（樣式在 map.css 的 `.map-keeper`，兩邊要一致） */
+const KEEPER_HEAD = 30;
+/**
+ * 從招呼立繪裁頭（design3 4-4：不另外生圖）：整張 332×420 當背景，縮放到頭框剛好填滿這顆圓，再把頭框推到圓心。
+ * 裁哪一塊寫在 `KEEPERS[..].head`。立繪還沒到（清單沒有）就不疊，名字照樣在滑上去的說明裡。
+ */
+function keeperHead(k: KeeperDef): HTMLElement | null {
+  const url = artUrl('sprites', k.art);
+  if (!k.head || url.startsWith('data:')) return null;
+  const [x, y, s] = k.head;
+  const z = KEEPER_HEAD / s;
+  return el('span', {
+    class: 'map-keeper',
+    style: `background-image:url(${url});background-size:${(332 * z).toFixed(1)}px ${(420 * z).toFixed(1)}px;background-position:${(-x * z).toFixed(1)}px ${(-y * z).toFixed(1)}px`,
+  });
+}

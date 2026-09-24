@@ -51,6 +51,17 @@ html { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   position: absolute;
   inset: 0;
 }
+/*
+ * 換畫面時退場的舊畫面層（app.ts 的 show()、screenswap.ts；2026-09-23 實機驗收 M-2）。
+ * 墊在新畫面底下（負的層級＝舞台底色之上、新畫面之下），新畫面淡入時透出來的是它，不是舞台的米白底色。
+ * 淡入完就拔掉。看得到、點不到。
+ */
+.screen-leaving {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
 #overlay {
   z-index: 100;         /* 整層壓在畫面層上面；層內誰蓋誰仍看各自的 z-index */
   pointer-events: none; /* 平常不擋畫面，需要吃點擊的疊層自己開回來（見下一條） */
@@ -111,10 +122,21 @@ img { -webkit-user-drag: none; }
   color: #f8f2e6;
 }
 .title-cat-box { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 0; }
-/* 菲菲站在球球旁邊（2026-09-15）：比「參上」貼圖矮一截、往左靠一點跟他擠在同一塊地上 */
-.title-cat-box .title-cat-feifei { height: 210px; margin-left: -28px; margin-bottom: 14px; animation-delay: -1.2s; }
+/* 她的「參上」貼圖還沒進倉時的退路：比貼圖矮一截，往右靠一點跟球球擠在同一塊地上。
+   2026-09-17 她改站左邊（球球擺中間），所以是 margin-right 不是 margin-left */
+.title-cat-box .title-cat-feifei { height: 210px; margin-right: -28px; margin-bottom: 14px; animation-delay: -1.2s; }
 /* 她的「參上」貼圖進倉後跟他同款同大小，只留錯開的彈跳（補審 2026-09-15 低-1） */
 .title-cat-box .title-cat-second { animation-delay: -1.2s; }
+/* 噹噹第三張（2026-09-17）：彈跳再錯開一點。 */
+.title-cat-box .title-cat-third { animation-delay: -0.6s; }
+/* 封封排在最右，第四拍再錯開。 */
+.title-cat-box .title-cat-fourth { animation-delay: -1.8s; }
+/* 三張並排就擠不下原本的高度：整排縮一成四，陰影也跟著拉寬。 */
+.title-cat-box.three .title-cat { height: 274px; }
+.title-cat-box.three .ground-shadow { width: 58%; }
+/* 四位角色同框時再縮一階，仍保留各自完整輪廓與參上題字。 */
+.title-cat-box.four .title-cat { height: 246px; margin-inline: -4px; }
+.title-cat-box.four .ground-shadow { width: 72%; }
 .title-cat-box .ground-shadow {
   position: absolute;
   left: 50%;
@@ -508,11 +530,13 @@ img { -webkit-user-drag: none; }
   animation: actwalk-scroll 3400ms linear forwards;
 }
 @keyframes actwalk-scroll { to { background-position-x: -230px; } }
+/* 靜態圖＝跑步動作第 1 格、跟畫布同比例（2026-09-22）：框放大到 300 寬才裝得下頭巾尾巴與爪子，
+   畫布 (280, 底邊上 15) 那一點＝舞台 (465, 484)，正好是逐格畫布的落腳點（tools/build_walk_first_frame.py） */
 .actwalk-cat {
   position: absolute;
-  left: 340px;
-  bottom: 236px;
-  width: 250px;
+  left: 315px;
+  bottom: 228px;
+  width: 300px;
   filter: drop-shadow(0 8px 14px #00000080);
   animation: actwalk-bob 470ms ease-in-out infinite;   /* 比戰鬥間的步伐慢，走得從容 */
 }
@@ -543,19 +567,6 @@ img { -webkit-user-drag: none; }
   text-shadow: 0 1px 3px #000;
   opacity: .8;
 }
-
-/* 標題畫面的副標「球球參上」：小一號、拉開字距，墊在主標下面 */
-/* 副標再放大一輪（30 還是被嫌小）：粗體、亮金、描邊，跟主標同一個量級的存在感 */
-.title-screen .title-sub {
-  margin-top: -4px;
-  font-size: 42px;
-  font-weight: bold;
-  letter-spacing: 12px;
-  color: #ffd97a;
-  text-shadow: 0 2px 3px #000, 0 0 14px #00000090, 0 4px 10px #000000c0;
-  opacity: 1;
-}
-
 
 /* ===== 標題畫面的飄落粒子（金葉＋淡櫻）===== */
 .title-petals { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }

@@ -29,3 +29,19 @@ tools/codex_raw_old/
 # Cloudflare Worker（worker/）：wrangler 的暫存與產生的型別檔（npx wrangler types 重產）
 worker/.wrangler/
 worker/worker-configuration.d.ts
+
+# 待機狀態補圖（2026-09-21）的生圖原檔、每次嘗試與參考圖：一張 1～2 MB，不進版控。
+# 看得見的像素全部無損存在 public/assets/motion/*/ 的 webp 裡；提示詞與設定（json）照樣進版控。
+tools/motion-art-source/idle-states/**/*.png
+
+# 挨打新畫風立繪（2026-09-22）的生圖原檔、每次嘗試與參考圖：同上，不進版控；提示詞與選定紀錄（json）照樣進版控。
+tools/motion-art-source/hit-recoil/**/*.png
+
+# 菲菲針招重畫（2026-09-22，批次 ff2）的生圖原檔、每次嘗試與參考圖：同上，不進版控；提示詞與選定紀錄（json）照樣進版控。
+tools/motion-art-source/ff2/**/*.png
+# mix 批次（2026-09-22 動作圖大小修正）的生圖原檔、每次嘗試與參考圖：同上，不進版控；提示詞與選定紀錄（json）照樣進版控。
+tools/motion-art-source/mix/**/*.png
+tools/motion-art-source/mix/_cache/
+# 事件圖重生（2026-09-24，`tools/regen_event_art.py`）的每次嘗試、參考圖、備份的舊圖：同上，不進版控；提示詞與選定紀錄（json）照樣進版控。
+tools/motion-art-source/regen0924/**/*.png
+tools/motion-art-source/regen0924/_old/

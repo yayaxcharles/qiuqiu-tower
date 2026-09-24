@@ -1,0 +1,222 @@
+{
+  "event_fengfeng_broken_bridge_r1": {
+    "why": "完全沒有村貓（文字寫劍鞘隔開村貓的腿、村貓取出秘寶相送）；劍橫在身旁半空、劍柄像鬼影；封封下半身淡成半透明、身下沒有橋板",
+    "scene": "A short section of an old wooden plank bridge: solid planks resting on two thick wooden posts, with a rope railing, ending on the right in a jagged broken edge where planks are missing. A cut rope end dangles over the broken edge from the nearest post. Fengfeng kneels on one knee ON the solid planks near the broken edge; his whole body is solid and fully drawn, both legs on the planks. His sword is sheathed in the dark-brown scabbard at his waist. On his left forearm there is one thin red scratch, and with his right paw he presses a small white cloth onto that scratch. The recovered cloth bundle sits on the planks between the two cats, its knot untied and its flap open. The VILLAGE CAT sits on the planks facing Fengfeng; a loosened rope loop lies slack around one of its hind ankles; with BOTH front paws it holds out a small round jade charm toward Fengfeng, offering it as thanks. Fengfeng looks at the charm with a calm, slightly tired smile.",
+    "style": "bg/event_fengfeng_broken_bridge_r2.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_broken_bridge.webp",
+        "the VILLAGE CAT to copy: the small grey-brown and white cat sitting on the far end of the bridge (top right) - draw the village cat with exactly this look (fur colours, patches, size). Ignore the orange cat, the hanging bundle and the composition."
+      ]
+    ]
+  },
+  "event_fengfeng_lost_medicine_r2": {
+    "why": "圖上只有封封持劍往前走的背影，完全沒有村貓；文字寫村貓背著藥包、封封護著牠走到下樓轉角、把劍路留在村貓外側",
+    "scene": "A short stretch of stone floor running along a low stone wall (the wall stands on the floor at the back-left), leading to the top steps of a stone staircase that goes DOWN on the right side of the picture. Two cats walk side by side toward the top of the stairs, seen from a three-quarter front view. On the WALL side (farther from the viewer) walks the VILLAGE CAT; a paper medicine packet stamped with a simple leaf mark (a picture, no writing) is tied onto its back with a string crossed over its chest; one hind leg is wrapped in a dirty grey cloth; it looks forward calmly. On the OUTER side (nearer the viewer) walks Fengfeng, half a step ahead, his head turned slightly toward the village cat. His RIGHT paw firmly grips the hilt of his drawn straight jian (paw closed around the hilt); the blade points down and OUTWARD, away from the village cat. The empty dark-brown scabbard hangs at his waist. Both cats' feet are on the floor.",
+    "style": "bg/event_fengfeng_lost_medicine_r1.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_lost_medicine.webp",
+        "the VILLAGE CAT to copy EXACTLY: the grey-brown and white long-haired cat sitting on the right with a dirty cloth wrapped on one hind leg - same fur colours, same face, same size. Ignore the orange cat, the crate and the composition."
+      ]
+    ]
+  },
+  "event_dangdang_jammed_gate_r2": {
+    "why": "窗戶連同一小塊石牆整塊浮在半空，牆底離地面很遠、窗洞透明；人物本身沒問題",
+    "scene": "Outside a storehouse: a stone floor patch, and behind it one section of rough stone wall that is BUILT UP FROM THE FLOOR (the bottom row of stones sits on the floor patch across its whole width). In that wall, at about the height of Dangdang's head, is one small square window with wooden shutters swung open and NO bars; the window hole is dark inside. Dangdang stands on the floor in front of the wall. VILLAGE CAT 1 has just landed on the floor right under the window, crouching on all four paws. VILLAGE CAT 2 stands beside Dangdang holding a small open clay medicine jar in one paw, and with the other paw it dabs ointment onto a small red scratch on the back of Dangdang's paw, which he holds out to it. Dangdang looks down at it with a mild, grateful expression. VILLAGE CAT 1: white fur with brown patches on the head, ears and back, wearing a plain brown tunic. VILLAGE CAT 2: orange-and-white fur, wearing a plain brown tunic. Both village cats are small, about half of Dangdang's height.",
+    "style": "bg/event_dangdang_jammed_gate_r0.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_jammed_gate.webp",
+        "the TWO VILLAGE CATS to copy: the two small cats peeking out through the gap of the door (the upper one white with brown patches, the lower one orange and white, both in plain brown clothes) - copy their fur colours and clothes. Also copy how the stone wall stands on the floor. Ignore the fallen beam and the door."
+      ]
+    ]
+  },
+  "event_dangdang_jammed_gate_r1": {
+    "why": "主控驗收退回：①兩隻護臂看不出哪隻被壓歪；②地上銅頭槌跟護臂同材質、像多一份護臂；③沒有門和石牆，要放在主圖那扇壓歪的木門前、同樣的石牆",
+    "scene": "THE PLACE is the same storehouse as reference image 3: a wall of tan plastered stone blocks rising from the stone floor patch, a heavy wooden plank door with iron straps and an iron ring handle, and a big broken wooden beam that has fallen at a slant across the top of the door frame, crushing its top corner (splintered wood). The door is still jammed crooked in its frame, open only a narrow crack. On the stone floor in front of the door stands Dangdang, frowning. He wears BOTH copper bracers: the one on his RIGHT forearm is badly crushed out of shape - a deep caved-in dent in its middle and a bent, crooked edge - clearly different from the smooth, round, undamaged bracer on his LEFT forearm. He holds the crushed right forearm up in front of him and taps the dent with the knuckles of his left fist, as if knocking it back into shape. To the left, VILLAGE CAT 1 stands with both paws resting on a wooden grain crate full of grain that sits on the floor. To the right, at the foot of the stone wall, lies an opened cloth bundle, and VILLAGE CAT 2 stands beside it holding out a small golden bell charm in BOTH paws toward Dangdang as a thank-you gift. There are NO tools anywhere: no hammer, no mallet and nothing made of copper or metal lying on the floor. VILLAGE CAT 1: white fur with brown patches on the head, ears and back, wearing a plain brown tunic. VILLAGE CAT 2: orange-and-white fur, wearing a plain brown tunic. Both village cats are small, about half of Dangdang's height.",
+    "style": "bg/event_dangdang_seclusion.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_jammed_gate.webp",
+        "THE PLACE to copy: the tan stone storehouse wall, the heavy wooden plank door with iron straps and ring handle, and the big beam fallen at a slant across the top of the door frame. Draw the same wall, door and beam. Ignore Dangdang's pose here and the two cats peeking through the gap."
+      ],
+      [
+        "bg/event_dangdang_jammed_gate_r2.webp",
+        "the TWO VILLAGE CATS to copy: the white cat with brown patches (crouching, left) and the orange-and-white cat (holding the jar, right), both in plain brown tunics - copy their fur colours, faces, clothes and size. Ignore everything else in this picture."
+      ]
+    ]
+  },
+  "event_fengfeng_fallen_rack": {
+    "why": "半身像被裁切：下半身離圖底約 25 像素處被水平切平、左耳尖切平；文字「擦劍鞘時摸到側面補過的裂口」圖上沒有擦布、看不到裂口（09-24 晚使用者：「看起來有兩把劍」——劍鞘尾端的金色套頭像另一支劍柄，加上右邊的劍柄與護手，縮小看像兩把劍交疊）",
+    "gear_off": "the red scarf stays on his neck. His sheathed jian (sword inside the dark-brown scabbard) is OFF his waist and lies across his lap; there is no second scabbard at his waist.",
+    "scene": "Fengfeng's WHOLE body is in the picture, from ear tips to feet, with a clear empty margin all around. He sits on a small wooden crate that stands on a small floor patch. For this scene his sheathed straight jian is taken off his waist and lies ACROSS HIS LAP, resting on his thighs. His right paw holds a small white cloth and wipes along the dark-brown scabbard. The fingertips of his left paw touch a crack on the side of the scabbard that has been mended by binding it tightly with thin pale cord. He looks down at the mended crack with a thoughtful, slightly nostalgic expression. No other cats. There is exactly ONE sword in the picture: the HILT (small round guard, wrapped grip, red tassel) sticks out at the right end, and at the left end the scabbard simply ends in a plain, rounded dark-brown TIP - no metal cap, no knob, nothing at that end that could look like a second handle. Nothing else long and thin is in the picture.",
+    "style": "bg/event_fengfeng_fallen_rack_r2.webp"
+  },
+  "event_rescue_r0": {
+    "why": "村貓前腳和魚乾袋之間殘留一塊明顯的螢光綠色塊（去背沒去乾淨），另有一條細棕線從袋口拉過村貓手臂",
+    "scene": "Same moment and same layout as reference image 3. On the left the injured VILLAGE CAT lies on its belly on the floor (grey-brown striped tabby, bandaged hind leg, small red scratches), one front paw resting on the top of a burlap sack of dried fish that sits on the floor. On the right Qiuqiu stands and holds a small green glass herb bottle with BOTH paws, tipping it up to his mouth and drinking; his face is scrunched up at the bitter taste, both eyes squeezed shut, tongue slightly out. The sack's tie string stays tied at the sack's neck. The floor under both cats is plain; there is nothing green anywhere except the bottle.",
+    "style": "bg/event_rescue.webp",
+    "refs": [
+      [
+        "bg/event_rescue_r0.webp",
+        "the composition and both characters to copy: the lying grey-brown striped village cat with its paw on the fish sack on the left, Qiuqiu drinking from the green bottle on the right. Redraw it cleanly - no green smear under the village cat's paw and no brown string across its arm."
+      ]
+    ]
+  },
+  "event_seclusion": {
+    "why": "牆上的爪痕畫成三塊斷牆碎片加小石塊，全部浮在半空、沒有一塊連到地面；文字說推上門，圖上沒有門",
+    "scene": "The inside corner of a small quiet stone room: a stone floor patch, a LEFT wall and a BACK wall made of stone blocks that rise straight up from the floor (their bottom rows sit on the floor). Several long claw-scratch marks are carved into the back wall. One lit torch sits in an iron bracket fixed to the back wall. In the left wall is a plain wooden door, now CLOSED. Qiuqiu stands on the floor just inside the door; his left paw is still resting flat on the closed door, having just pushed it shut, and he looks around the room with a relieved, slightly tired face.",
+    "style": "bg/event_rescue_return_herb.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_seclusion.webp",
+        "the ROOM to copy: the wooden door in the left wall and the stone walls rising from the floor with claw marks carved into them. Ignore the black-and-white cat."
+      ]
+    ]
+  },
+  "event_seclusion_r0": {
+    "why": "球球擺架式指向爪痕，動作對；但斷牆碎片與小石塊懸浮在半空",
+    "scene": "The inside corner of a small quiet stone room: a stone floor patch, a LEFT wall and a BACK wall made of stone blocks that rise straight up from the floor (their bottom rows sit on the floor). Several long diagonal claw-scratch marks are carved into the back wall. One lit torch sits in an iron bracket fixed to the back wall. In the left wall is a plain wooden door, closed. Qiuqiu stands on the floor in front of the back wall in a fighting stance, feet planted wide, and thrusts one paw forward in a claw strike that follows the same diagonal direction as the carved claw marks; his other paw is pulled back at his side. Focused, determined face.",
+    "style": "bg/event_rescue_return_herb.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_seclusion.webp",
+        "the ROOM to copy: the wooden door in the left wall and the stone walls rising from the floor with claw marks carved into them. Ignore the black-and-white cat."
+      ]
+    ]
+  },
+  "event_seclusion_r1": {
+    "why": "球球盤腿閉眼睡著，動作對；但斷牆碎片懸浮在半空",
+    "scene": "The inside corner of a small quiet stone room: a stone floor patch, a LEFT wall and a BACK wall made of stone blocks that rise straight up from the floor (their bottom rows sit on the floor). Several long claw-scratch marks are carved into the back wall. One lit torch sits in an iron bracket fixed to the back wall. In the left wall is a plain wooden door, closed. Qiuqiu sits cross-legged ON THE FLOOR with his back leaning against the back wall, both paws resting in his lap, both eyes closed, peacefully asleep with a small smile.",
+    "style": "bg/event_rescue_return_herb.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_seclusion.webp",
+        "the ROOM to copy: the wooden door in the left wall and the stone walls rising from the floor with claw marks carved into them. Ignore the black-and-white cat."
+      ]
+    ]
+  },
+  "event_fengfeng_seclusion": {
+    "why": "跟球球版同一套三塊懸空斷牆＋小石塊；文字「將行囊放下」圖上沒有行囊",
+    "scene": "The inside corner of a small quiet stone room: a stone floor patch, a LEFT wall and a BACK wall made of stone blocks that rise straight up from the floor (their bottom rows sit on the floor). Several long claw-scratch marks are carved into the back wall. One lit torch sits in an iron bracket fixed to the back wall. In the left wall is a plain wooden door, now CLOSED. Fengfeng stands on the floor just inside the door; he has just set his travel pack (a tied cloth bundle) down on the floor at his feet, and he is straightening up with a relieved, tired face. His sheathed sword is at his waist.",
+    "style": "bg/event_fengfeng_lost_medicine_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_seclusion.webp",
+        "the ROOM to copy: the wooden door in the left wall and the stone walls rising from the floor with claw marks carved into them. Ignore the black-and-white cat."
+      ]
+    ]
+  },
+  "event_fengfeng_seclusion_r0": {
+    "why": "同一套懸空斷牆；封封是用爪子指著爪痕，不是文字說的用劍鞘比畫，劍還插在腰上",
+    "gear_off": "the red scarf stays on his neck. His sheathed jian (sword inside the dark-brown scabbard) is OFF his waist and held in both paws; there is no second scabbard at his waist.",
+    "scene": "The inside corner of a small quiet stone room: a stone floor patch, a LEFT wall and a BACK wall made of stone blocks that rise straight up from the floor (their bottom rows sit on the floor). Several long diagonal claw-scratch marks are carved into the back wall. One lit torch sits in an iron bracket fixed to the back wall. In the left wall is a plain wooden door, closed; his tied cloth travel bundle rests on the floor by the door. Fengfeng stands on the floor in front of the back wall. For this scene his straight jian stays SHEATHED in its dark-brown scabbard but is taken off his waist: he grips the sheathed sword with both paws around the hilt and extends it at arm's length, the scabbard tip tracing along the direction of the carved claw marks. His front foot has stepped back so his arms reach fully straight. Focused face.",
+    "style": "bg/event_fengfeng_lost_medicine_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_seclusion.webp",
+        "the ROOM to copy: the wooden door in the left wall and the stone walls rising from the floor with claw marks carved into them. Ignore the black-and-white cat."
+      ]
+    ]
+  },
+  "event_fengfeng_seclusion_r1": {
+    "why": "同一套懸空斷牆；封封盤腿坐在正中間，沒有靠牆坐下；劍還掛在腰上，沒有把劍放到身旁",
+    "gear_off": "the red scarf stays on his neck. His sheathed jian (sword inside the dark-brown scabbard) is OFF his waist and lies flat on the floor beside him; there is no second scabbard at his waist.",
+    "scene": "The inside corner of a small quiet stone room: a stone floor patch, a LEFT wall and a BACK wall made of stone blocks that rise straight up from the floor (their bottom rows sit on the floor). Several long claw-scratch marks are carved into the back wall. One lit torch sits in an iron bracket fixed to the back wall. In the left wall is a plain wooden door, closed; his tied cloth travel bundle rests on the floor by the door. Fengfeng sits ON THE FLOOR with his back leaning against the back wall, legs stretched out loosely, both eyes closed, peacefully asleep. For this scene his sheathed straight jian is taken off his waist and lies FLAT ON THE FLOOR right beside him, parallel to the wall.",
+    "style": "bg/event_fengfeng_lost_medicine_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_seclusion.webp",
+        "the ROOM to copy: the wooden door in the left wall and the stone walls rising from the floor with claw marks carved into them. Ignore the black-and-white cat."
+      ]
+    ]
+  },
+  "event_blocked": {
+    "why": "整座垃圾山找不到卷軸，跟「卷軸露在破木板底下」矛盾（選項 1 的誘因）；小走道也沒畫",
+    "scene": "Same scene as reference image 3: a stone staircase going up, completely blocked by a big junk pile of broken planks, wooden crates, a barrel and rocks; a blank new wooden sign on a post is stuck in the top of the pile; a lit torch on the stair wall on each side. Qiuqiu stands on the floor at the front-left of the pile, looking up at it. IMPORTANT DETAIL: in the lower middle of the pile, one broken plank lies across, and from UNDER that plank half of a rolled-up scroll sticks out, clearly visible - cream paper rolled tight, with a wooden rod knob at the end. On the right side of the pile, between the junk and the stair wall, there is a narrow gap of clear floor - a small side walkway you could squeeze through.",
+    "style": "bg/event_blocked_r0.webp",
+    "refs": [
+      [
+        "bg/event_blocked.webp",
+        "the scene to keep: the junk pile, the blank sign, the staircase, the two torches and Qiuqiu's position. Keep all of it, only ADD the scroll under a plank and the narrow side gap."
+      ],
+      [
+        "bg/event_dangdang_blocked.webp",
+        "how the rolled scroll pokes out from under a broken plank at the bottom of the pile, and how a narrow side passage runs beside the pile - copy these two details only. Ignore the black-and-white cat and the scribbles on the sign."
+      ]
+    ]
+  },
+  "event_feifei_blocked": {
+    "why": "找不到卷軸（只有一塊破布），跟「卷軸露在破木板底下」矛盾",
+    "scene": "Same scene as reference image 3: stone steps going up on the left, blocked by a big junk pile (wooden crates, a barrel, a broken clay pot, rope, a torn cloth, an iron shield, broken planks); a blank new wooden sign on a post is stuck in the top of the pile. Feifei stands on the floor at the front-right of the pile, looking up at it with a wary, curious face. IMPORTANT DETAIL: in the lower half of the pile, one broken plank lies across, and from UNDER that plank half of a rolled-up scroll sticks out, clearly visible - cream paper rolled tight, with a wooden rod knob at the end. Beside the stone steps there is a narrow gap of clear floor - a small side walkway you could squeeze through.",
+    "style": "bg/event_feifei_blocked_r0.webp",
+    "refs": [
+      [
+        "bg/event_feifei_blocked.webp",
+        "the scene to keep: the junk pile, the blank sign, the stone steps and Feifei's position on the right. Keep all of it, only ADD the scroll under a plank and the narrow side gap."
+      ],
+      [
+        "bg/event_dangdang_blocked.webp",
+        "how the rolled scroll pokes out from under a broken plank at the bottom of the pile, and how a narrow side passage runs beside the pile - copy these two details only. Ignore the black-and-white cat and the scribbles on the sign."
+      ]
+    ]
+  },
+  "event_fengfeng_blocked": {
+    "why": "找不到卷軸；小路沒畫；封封只是站著、劍插在腰帶上，沒有「將劍鞘抬高」；人物偏小",
+    "gear_off": "the red scarf stays on his neck. His sheathed jian (sword inside the dark-brown scabbard) is OFF his waist and raised in his right paw; there is no second scabbard at his waist.",
+    "scene": "A stone staircase going up, completely blocked by a big junk pile of broken planks, wooden crates and rocks; a blank new wooden sign on a post is stuck in the top of the pile; a lit torch on the stair wall on each side. Fengfeng stands on the floor at the front-left of the pile, drawn LARGE (about two thirds of the pile's height). For this scene his straight jian stays SHEATHED in its dark-brown scabbard but is taken off his waist: his right paw grips it and raises it high, and the scabbard tip pushes aside a loose plank at the side of the pile. He looks toward the right side of the pile, where a narrow gap of clear floor runs between the junk and the stair wall - a small side path. In the lower half of the pile, one broken plank lies across, and from UNDER that plank half of a rolled-up scroll sticks out, clearly visible - cream paper rolled tight, with a wooden rod knob at the end.",
+    "style": "bg/event_fengfeng_lost_medicine_r1.webp",
+    "refs": [
+      [
+        "bg/event_blocked.webp",
+        "the junk pile, blank sign, staircase and two torches to copy. Ignore the grey cat."
+      ],
+      [
+        "bg/event_dangdang_blocked.webp",
+        "how the rolled scroll pokes out from under a broken plank at the bottom of the pile, and how a narrow side passage runs beside the pile - copy these two details only. Ignore the black-and-white cat and the scribbles on the sign."
+      ]
+    ]
+  },
+  "event_fengfeng_blocked_r0": {
+    "why": "封封頭上多綁一條紅頭巾（立繪只有頸上紅圍巾），造型錯；文字「手背擦出一道血痕」圖上沒有；卷軸整卷攤開垂地",
+    "scene": "The far side of a junk pile of broken planks, crates and rocks. Fengfeng has just fallen: he sits on the floor at the foot of the pile, legs sprawled. His head is BARE - no headband, no head cloth; his only red cloth is the scarf around his NECK. His sheathed sword is at his waist. His left paw firmly holds a rolled-up scroll (cream paper rolled tight, wooden rod knobs), still rolled. On the back of his right paw there is one thin red scratch line, and he holds that paw up and looks down at it with a wry grimace. Behind him one wooden plank has flipped up and leans at a slant against the edge of the junk pile, resting on the floor.",
+    "style": "bg/event_fengfeng_lost_medicine_r1.webp",
+    "refs": [
+      [
+        "bg/event_blocked_r0.webp",
+        "the junk pile to copy (broken planks, crates, rocks, stone steps behind). Ignore the grey cat and its pose."
+      ]
+    ]
+  },
+  "event_feifei_hidden_box_r0": {
+    "why": "驚嚇動作對，但兩隻爪子都是空拳，找不到秘寶，跟「菲菲剛拿起秘寶」矛盾（其他三隻版本都有畫手握秘寶）",
+    "scene": "Same moment and same layout as reference image 3: a small wooden box set into a rough rock wall on the left, its lid flipped open, and a coiled spring shooting out of it with a red boxing glove on the end that has stopped just in front of Feifei's nose. Feifei leans back, startled, mouth open, both eyes wide. IMPORTANT: her right paw is closed tightly around a small round GOLD charm (a little golden amulet), clutched against her chest - the charm is clearly visible in her paw. Her other paw is raised defensively.",
+    "style": "bg/event_feifei_hidden_box.webp",
+    "refs": [
+      [
+        "bg/event_feifei_hidden_box_r0.webp",
+        "the composition to keep: the rock wall with the box, the spring and the red boxing glove, Feifei leaning back. Keep it, only ADD the gold charm in her paw."
+      ],
+      [
+        "bg/event_hidden_box_r0.webp",
+        "the small gold charm held in the paw - copy what the charm looks like and how it is held. Ignore the grey cat."
+      ]
+    ]
+  },
+  "event_dangdang_jammed_gate_r0": {
+    "why": "主控驗收退回：場景變成空地上一座孤立木門框、兩邊沒牆（像繞過去就好），要改成主圖同一處石牆倉房、被橫梁斜壓的木門；先前一輪已把村貓換成跟主圖同一對",
+    "scene": "THE PLACE is the same storehouse as reference image 3: a wall of tan plastered stone blocks rising from the stone floor patch, a heavy wooden plank door with iron straps and an iron ring handle, and a big broken wooden beam that has fallen at a slant across the top of the door frame, crushing its top corner (splintered wood). The wooden door has been pushed open and swung aside against the wall, leaving the doorway open. Dangdang stands IN the doorway in a wide low stance, both copper-bracered forearms raised above his head pushing the slanted fallen beam up so it cannot sink; his arms tremble (small shake lines), he grits his teeth, and there is one small red scrape on his shoulder. VILLAGE CAT 1 is coming out through the doorway beside his legs, leaning back and dragging a wooden grain crate out onto the floor by a rope held in both paws; one more grain crate already sits outside on the floor. VILLAGE CAT 2 stands outside in front of him and holds up a small cloth bag of dried fish in both paws toward Dangdang. VILLAGE CAT 1: white fur with brown patches on the head, ears and back, wearing a plain brown tunic. VILLAGE CAT 2: orange-and-white fur, wearing a plain brown tunic. Both village cats are small, about half of Dangdang's height.",
+    "style": "bg/event_dangdang_seclusion.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_jammed_gate.webp",
+        "THE PLACE to copy: the tan stone storehouse wall, the heavy wooden plank door with iron straps and ring handle, and the big beam fallen at a slant across the top of the door frame. Draw the same wall, door and beam. Ignore Dangdang's pose here and the two cats peeking through the gap."
+      ],
+      [
+        "bg/event_dangdang_jammed_gate_r2.webp",
+        "the TWO VILLAGE CATS to copy: the white cat with brown patches (crouching, left) and the orange-and-white cat (holding the jar, right), both in plain brown tunics - copy their fur colours, faces, clothes and size. Ignore everything else in this picture."
+      ]
+    ]
+  }
+}

@@ -1,10 +1,10 @@
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
-import { hasSave, loadBestFor, saveRun, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
+import { hasSave, loadBestFor, loadRun, saveRun, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
 import { SHARE_PREFIX, decodeRun } from '../../engine/sharecode';
 import { showCompendium } from '../compendium';
 import { showItemCompendium } from '../itemcompendium';
 import { registerScreen } from '../app';
-import { hasSprite, artUrl } from '../assets';
+import { hasSprite, artUrl, heroArtUrl } from '../assets';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
 
@@ -86,15 +86,26 @@ registerScreen('title', (app, root) => {
   root.append(
     el('div', { class: 'title-screen' },
       // 陰影跟戰鬥畫面同一招：去背的角色貼在背景上就是浮著，腳下墊一片橢圓才像站著
-      el('div', { class: 'title-cat-box' },
+      el('div', { class: 'title-cat-box four' },
         el('div', { class: 'ground-shadow' }),
-        // 封面主圖用 LINE 貼圖的「參上」那張（使用者指定）：爆炸背景＋題字，比乾站著的立繪有氣勢
-        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' }),
-        // 菲菲站在他旁邊（使用者 2026-09-15：「菲菲的角色也跟球球一樣出現在首頁，在球球旁邊」）。
-        // 她的「參上」貼圖（`hero/feifei_cover`，生圖中）進倉後就跟他同款同大小；還沒有就先用勝利姿勢的立繪，矮一截、靠右
+        /*
+         * 排法沿用菲菲、球球、噹噹的順序，再把封封接在右側；球球仍靠近整排中央。
+         *
+         * 所以 DOM 的順序就是畫面上的順序，不要再照「誰先做好」排。
+         * 封面主圖一律用 LINE 貼圖的「參上」那張：爆炸背景加題字，比乾站著的立繪有氣勢。
+         * 彈跳各錯開一拍（`base.css` 的 `animation-delay`），四隻才不會同時上下。
+         */
+        // 她的「參上」貼圖沒進倉時退回勝利姿勢的立繪（矮一截）
         hasSprite('hero/feifei_cover')
           ? el('img', { class: 'title-cat title-cat-second', src: artUrl('sprites', 'hero/feifei_cover'), alt: '菲菲參上' })
-          : el('img', { class: 'title-cat title-cat-feifei', src: artUrl('sprites', 'hero/feifei_win'), alt: '菲菲' })),
+          : el('img', { class: 'title-cat title-cat-feifei', src: artUrl('sprites', 'hero/feifei_win'), alt: '菲菲' }),
+        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: '球球參上' }),
+        hasSprite('hero/dangdang_cover')
+          ? el('img', { class: 'title-cat title-cat-third', src: artUrl('sprites', 'hero/dangdang_cover'), alt: '噹噹參上' })
+          : el('img', { class: 'title-cat title-cat-third', src: heroArtUrl('dangdang', 'hero/ninja_win'), alt: '噹噹' }),
+        hasSprite('hero/fengfeng_cover')
+          ? el('img', { class: 'title-cat title-cat-fourth', src: artUrl('sprites', 'hero/fengfeng_cover'), alt: '封封參上' })
+          : el('img', { class: 'title-cat title-cat-fourth', src: heroArtUrl('fengfeng', 'hero/ninja_win'), alt: '封封' })),
       // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名。
       // 副標「－ 球球參上 －」2026-09-15 拿掉（使用者：第三個角色進來之後首頁不該只掛他的名字）
       el('h1', {}, '爪破魔塔'),
@@ -107,7 +118,8 @@ registerScreen('title', (app, root) => {
       // 圖鑑放封面（使用者：秘寶、忍具不需要一直看，不放遊戲內）
       el('div', { class: 'title-books' },
         el('button', { class: 'btn small', onclick: () => showCompendium() }, '📖 卡牌圖鑑'),
-        el('button', { class: 'btn small', onclick: () => showItemCompendium() }, '🎒 秘寶與忍具圖鑑'),
+        // 帶著續玩那一局身上的秘寶：套組那一區寫得出集到幾件（2026-09-23 第二批；沒有進行中的局就是 0）
+        el('button', { class: 'btn small', onclick: () => showItemCompendium(loadRun()?.players[0]?.relics ?? []) }, '🎒 秘寶與忍具圖鑑'),
         // 連線版還在做，按鈕先放這裡（這個網址本來就是實驗版，不會影響單機的那一份）
         el('button', { class: 'btn small', onclick: () => app.show('lobby') }, '🤝 兩個人一起玩')),
       diffText,

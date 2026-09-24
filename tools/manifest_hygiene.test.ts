@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
+import { HEROES } from '../src/engine/hero';
+import { NON_EVENT_ART } from '../src/ui/bgacts';
 
 /**
  * 清單裡不可以留「中途檔」（2026-09-13 總覽稽核抓到 5 筆）。
@@ -43,6 +45,12 @@ function flatten(node: unknown, path: string[] = [], out: [string, string][] = [
 
 const entries = flatten(manifest);
 
+/*
+ * 第三批的暫放名單（2026-09-23 圖先一次登記、程式還沒接的事件圖編號）四條線都接好、合併後名單空了，
+ * 名單與「暫放名單已接線的要拿掉」那條測試整段拿掉（2026-09-24 b3int）：祝福主圖與問號格三張走 `NON_EVENT_ART`，
+ * 稀有事件 5 篇與神龕【魔氣】的結果圖接進 `events.ts`，下面的孤兒檢查照一般事件認。
+ */
+
 describe('素材清單的衛生', () => {
   it('清單裡沒有生圖的中途檔', () => {
     const bad = entries
@@ -72,17 +80,26 @@ describe('素材清單的衛生', () => {
     }
     // 畫面自己組的：紙箱那三態不是事件，是 `chest.ts` 直接叫 `eventArtKey` 的
     for (const k of ['chest_closed', 'chest_open', 'chest_empty']) ids.add(k);
+    // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）：畫面照 `eventArtKey` 挑，名單在 `bgacts.ts`
+    // （問號格那三張的編號照引擎那一份 `QMARK_ART`，`NON_EVENT_ART` 直接併進去）
+    for (const k of NON_EVENT_ART) ids.add(k);
 
     const orphan = Object.keys(manifest)
       .filter((k) => k === 'bg')
       .flatMap(() => Object.keys((manifest as { bg: Record<string, string> }).bg))
       .filter((k) => k.startsWith('bg/event_'))
       .filter((k) => {
-        // 兩種都要試：一般事件的她版是 `event_feifei_<編號>`（前綴要剝掉），
-        // 但**她的專屬事件本身就叫 `feifei_trace`**，那個 `feifei_` 是編號的一部分，
-        // 剝掉就查不到了（第一版就這樣誤報了 8 張）。
+        /*
+         * 兩種都要試：一般事件的他版是 `event_<角色>_<編號>`（前綴要剝掉），
+         * 但**專屬事件本身就叫 `feifei_trace`／`dangdang_lining`**，那個前綴是編號的一部分，
+         * 剝掉就查不到了（第一版就這樣誤報了 8 張）。
+         *
+         * 2026-09-17 改成照 `HEROES` 掃：原本寫死只剝 `feifei_`，噹噹的 13 張專屬事件圖
+         * 一進來就被誤報成孤兒。這是同一類問題今晚第五次——一律照角色清單，不要再列舉。
+         */
         const raw = k.replace(/^bg\/event_/, '');
-        return !ids.has(raw) && !ids.has(raw.replace(/^feifei_/, ''));
+        if (ids.has(raw)) return false;
+        return !HEROES.some((h) => ids.has(raw.replace(new RegExp(`^${h}_`), '')));
       });
     expect(orphan, `這幾張沒人會去要，卻每次首載都被下載：\n${orphan.join('\n')}`).toEqual([]);
   });

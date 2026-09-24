@@ -1,0 +1,166 @@
+{
+  "event_training_hall": {
+    "why": "球球在一塊木地板上擺起手式，地板兩個大凹槽腳印；沒有木樁人、沒有櫃子；主圖已在練步（搶選項一）",
+    "scene": "An empty corner of a training hall on a small wooden floor patch. The floorboards are covered with MANY small paw-print footprints worn into the wood, crossing and overlapping each other in loops and turns. Along the back edge of the floor patch stands a low wooden wall panel whose bottom rests on the floor. In front of that wall, on the left, a wooden training dummy (a thick round wooden post with three short peg arms, on a flat wooden base) stands on the floor. Behind the dummy, a tall wooden cabinet stands on the floor against the wall; its door is opened only a NARROW CRACK, showing a thin dark gap. Qiuqiu stands on the right side of the floor in a relaxed upright pose (NOT a fighting stance, not practising), one paw raised to his chin, looking down curiously at the footprints on the floor. He is the only cat.",
+    "style": "bg/event_training_hall_r0.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_training_hall.webp",
+        "the TRAINING HALL PROPS to copy: the wooden training dummy with peg arms and the tall wooden cabinet behind it, and the low wooden wall they stand against - copy these props only (ignore the black-and-white cat)."
+      ]
+    ]
+  },
+  "event_feifei_training_hall": {
+    "why": "菲菲擺架勢，地板兩個小腳印；沒有木樁人、沒有櫃子",
+    "scene": "An empty corner of a training hall on a small wooden floor patch. The floorboards are covered with MANY small paw-print footprints worn deep into the wood, crossing and overlapping each other in loops and turns. Along the back edge of the floor patch stands a low wooden wall panel whose bottom rests on the floor. In front of that wall, on the left, a wooden training dummy (a thick round wooden post with three short peg arms, on a flat wooden base) stands on the floor. Behind the dummy, a tall wooden cabinet stands on the floor against the wall; its door is opened only a NARROW CRACK, showing a thin dark gap. Feifei crouches on the right side of the floor on one knee (NOT a fighting stance), one paw lightly touching a worn footprint in the floorboards, looking at it with an impressed, thoughtful expression. She is the only cat.",
+    "style": "bg/event_feifei_training_hall_r0.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_training_hall.webp",
+        "the TRAINING HALL PROPS to copy: the wooden training dummy with peg arms and the tall wooden cabinet behind it, and the low wooden wall they stand against - copy these props only (ignore the black-and-white cat)."
+      ]
+    ]
+  },
+  "event_fengfeng_training_hall": {
+    "why": "封封擺抱拳架勢在大凹槽木板上，沒有木樁人、櫃子；文字說沿腳印走一圈",
+    "scene": "An empty corner of a training hall on a small wooden floor patch. The floorboards are covered with MANY small paw-print footprints worn into the wood, crossing and overlapping each other in a looping trail. Along the back edge of the floor patch stands a low wooden wall panel whose bottom rests on the floor. In front of that wall, on the left, a wooden training dummy (a thick round wooden post with three short peg arms, on a flat wooden base) stands on the floor. Behind the dummy, a tall wooden cabinet stands on the floor against the wall; its door is not fully closed - opened only a NARROW CRACK, showing a thin dark gap. Fengfeng stands on the footprint trail on the right side of the floor, both feet placed on footprints, having just walked one lap along them: he looks down over his shoulder at his own feet with a puzzled frown, one paw raised to his chin. NOT a fighting stance. His straight jian stays sheathed in the dark-brown scabbard at his waist. He is the only cat.",
+    "style": "bg/event_fengfeng_stuck_scabbard.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_training_hall.webp",
+        "the TRAINING HALL PROPS to copy: the wooden training dummy with peg arms and the tall wooden cabinet behind it, and the low wooden wall they stand against - copy these props only (ignore the black-and-white cat)."
+      ]
+    ]
+  },
+  "event_fengfeng_training_hall_r0": {
+    "why": "封封空手出拳＋弧線，劍收在腰後沒拔；文字「接上出劍與收劍、轉身時劍鞘不碰腿」",
+    "scene": "The same training hall corner on a small wooden floor patch covered with many small worn paw-print footprints in a looping trail; along the back edge a low wooden wall panel rests on the floor, with a wooden training dummy (round post with short peg arms, on a flat base) and a tall wooden cabinet (door opened a narrow crack) standing on the floor in front of it at the back left. Fengfeng is in the middle of a smooth turning step on the footprints, his straight jian DRAWN: his RIGHT paw is firmly closed around the sword hilt, the blade held out level at shoulder height following the turn, pointing away to the right (not at anything). His LEFT paw rests on the empty dark-brown scabbard at his waist, which swings back and stays clear of his leg. A couple of light curved motion lines on the floor show the turn. Calm, confident expression with a small satisfied smile. He is the only cat.",
+    "style": "bg/event_fengfeng_stuck_scabbard_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_training_hall.webp",
+        "the TRAINING HALL PROPS to copy: the wooden training dummy with peg arms and the tall wooden cabinet behind it, and the low wooden wall they stand against - copy these props only (ignore the black-and-white cat)."
+      ]
+    ]
+  },
+  "event_rescue_return_herb_r1": {
+    "why": "村貓換成米色虎斑、沒有腰間工具、手拎一串魚乾，拱門樣式也換了（跟主圖不是同一隻）",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the left, its base resting on a small stone floor patch. The VILLAGE CAT stands on the floor in front of the archway, next to Qiuqiu: a brown belt at its waist holds a small knife and a whetstone. Qiuqiu stands on the right in a practice strike pose, his right forearm raised with the paw up, ready to strike. The village cat reaches out with one paw and gently pushes Qiuqiu's raised forearm to correct its angle; its other paw is raised with one claw-tip pointing up as it explains. Qiuqiu looks at his own raised paw, concentrating and adjusting. No fish, no bag, no gift anywhere. Only these two cats.",
+    "style": "bg/event_rescue_return_herb_r0.webp",
+    "refs": [
+      [
+        "bg/event_rescue_return_herb.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws standing in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the cat with the navy headband). Also copy that stone archway with the stairs inside it."
+      ]
+    ]
+  },
+  "event_feifei_rescue_return_herb": {
+    "why": "村貓整隻騰空飛撲、拎一串魚乾，菲菲的手已托住魚乾；文字是捧出布包、指腰間磨刀工具（主圖先畫成已收禮；布包變魚乾；村貓懸空）",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the left, its base resting on a small stone floor patch. The VILLAGE CAT stands with BOTH hind feet on the bottom step just inside the archway, leaning its head and upper body out of the doorway with a happy, surprised smile. It holds a small tied cloth bundle (a square of plain brown cloth knotted at the top, its contents hidden) cradled in its LEFT paw against its chest. Its RIGHT paw points down at the brown belt around its own waist, which holds a small knife and a whetstone. Feifei stands on the floor on the right, a step away from the archway, facing the village cat, pleasantly surprised, her paws down at her sides. She has NOT taken anything: there is a clear gap between her paws and the bundle. No fish anywhere. Only these two cats.",
+    "style": "bg/event_feifei_rescue_return_herb_r1.webp",
+    "refs": [
+      [
+        "bg/event_rescue_return_herb.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws standing in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the cat with the navy headband). Also copy that stone archway with the stairs inside it."
+      ]
+    ]
+  },
+  "event_dangdang_rescue_return_herb": {
+    "why": "村貓拎一條魚乾，噹噹已經抓住魚乾（主圖先畫成已收禮；布包變魚乾）",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the left, its base resting on a small stone floor patch. The VILLAGE CAT stands with BOTH hind feet on the bottom step just inside the archway, leaning its head and upper body out of the doorway with a happy, surprised smile. It holds a small tied cloth bundle (a square of plain brown cloth knotted at the top, its contents hidden) cradled in its LEFT paw against its chest. Its RIGHT paw points down at the brown belt around its own waist, which holds a small knife and a whetstone. Dangdang stands on the floor on the right, a step away from the archway, facing the village cat with mild surprise, his paws down at his sides. He has NOT taken anything: there is a clear gap between his paws and the bundle. No fish anywhere. Only these two cats.",
+    "style": "bg/event_dangdang_rescue_return_herb_r1.webp",
+    "refs": [
+      [
+        "bg/event_rescue_return_herb.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws standing in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the cat with the navy headband). Also copy that stone archway with the stairs inside it."
+      ]
+    ]
+  },
+  "event_fengfeng_rescue_return_herb_r1": {
+    "why": "封封空手出拳、身上沒有劍；村貓換成米色拎魚那隻；文字：觀察握劍角度、再試出劍",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the far left, its base resting on a small stone floor patch. The VILLAGE CAT stands on the floor in front of the archway. Fengfeng stands on the right, facing left toward the village cat, in a practice stance with his straight jian DRAWN: his RIGHT paw is firmly closed around the hilt, arm held forward at chest height, the blade angled UPWARD with the tip pointing to the upper left, well above the village cat's head and never touching it. The empty dark-brown scabbard stays at his waist. The village cat reaches up with one paw and lightly holds Fengfeng's right wrist, turning it slightly to straighten it, peering closely at the wrist angle. Fengfeng watches his own wrist, focused. No fish, no bag anywhere. Only these two cats.",
+    "style": "bg/event_fengfeng_rescue_return_herb_r0.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_rescue_return_herb.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws standing in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the orange cat). Also copy that stone archway with the stairs inside it."
+      ]
+    ]
+  },
+  "event_dangdang_rescue_return_fish_r1": {
+    "why": "噹噹暈眩扶牆，左上方一隻小村貓抱袋子飄在半空，沒有想像泡泡外框（村貓浮空）",
+    "scene": "A short flight of three chunky stone steps rises toward the right, sitting solidly on a small stone floor patch; right beside the steps a low stone wall stands on the floor. Dangdang, head bowed, has just missed a step: one foot has slipped down off the edge of a step, his knees are bent and his body tilts. He steadies himself with one paw pressed flat against the top of the stone wall. He is dizzy: both eyes squeezed shut the same way, a few small yellow stars circle just above his head, and one sweat drop sits beside his head. His mouth is a worried wobbly line. He is the only cat - no other cat anywhere, no thought bubble.",
+    "style": "bg/event_dangdang_rescue_return_fish.webp"
+  },
+  "event_fengfeng_rescue_return_fish_r1": {
+    "why": "封封神色輕鬆、嘴角帶笑，大步走向樓梯；沒有踩空、扶牆、眼花",
+    "scene": "A short flight of three chunky stone steps rises toward the right, sitting solidly on a small stone floor patch; right beside the steps a low stone wall stands on the floor. Fengfeng, head bowed and looking guilty, has just missed a step: one foot has slipped down off the edge of a step, his knees are bent and his body tilts. He steadies himself with one paw pressed flat against the top of the stone wall. He is dizzy: both eyes squeezed shut the same way, a few small yellow stars circle just above his head, and one sweat drop sits beside his head. His mouth is a sad, worried wobbly line - NOT smiling. His straight jian stays sheathed in the dark-brown scabbard at his waist. He is the only cat - no other cat anywhere, no thought bubble.",
+    "style": "bg/event_fengfeng_rescue_return_fish.webp"
+  },
+  "event_feifei_rescue_return_herb_r0": {
+    "why": "村貓整隻騰空飛撲、遞的是一包魚乾；跟新主圖不是同一隻村貓、拱門也不同（主控 09-24 追加：統一村貓與拱門、遞出秘寶）",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the left, its base resting on a small stone floor patch. The VILLAGE CAT stands with both feet on the floor in front of the archway (NOT jumping, NOT in the air). It has just unwrapped its brown cloth bundle: with both paws it pushes the open brown cloth, with a small round golden charm on a short cord lying on top of it, into Feifei's paws. Feifei stands on the floor facing it, holding both paws out cupped together; the cloth and the golden charm rest IN her cupped paws. Feifei smiles with relief and glances down at the village cat's legs, which stand steady and healed. The village cat smiles happily. No fish anywhere. Only these two cats.",
+    "style": "bg/event_feifei_rescue_return_herb.webp",
+    "refs": [
+      [
+        "bg/event_rescue_return_herb_r0.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the cat with the navy headband). Also copy that stone archway with the stairs inside it, and the TREASURE: the small round golden charm on a short cord."
+      ]
+    ]
+  },
+  "event_feifei_rescue_return_herb_r1": {
+    "why": "村貓是米灰長毛貓、拱門也不同，跟新主圖不是同一隻（主控 09-24 追加：統一村貓與拱門，構圖照舊）",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the left, its base resting on a small stone floor patch. The VILLAGE CAT stands on the floor in front of the archway, a brown belt at its waist holding a small knife and a whetstone. Feifei stands on the right in a practice stance facing the village cat, one arm extended forward with the paw raised for a strike, looking closely at her own extended paw. The village cat reaches out and taps the top of Feifei's extended forearm with one claw-tip, showing her the right angle, with a friendly explaining expression. Feifei looks focused and grateful. No fish, no bag. Only these two cats.",
+    "style": "bg/event_feifei_rescue_return_herb.webp",
+    "refs": [
+      [
+        "bg/event_rescue_return_herb.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws standing in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the cat with the navy headband). Also copy that stone archway with the stairs inside it."
+      ]
+    ]
+  },
+  "event_dangdang_rescue_return_herb_r0": {
+    "why": "村貓是灰色長毛貓、遞的是紅布包魚乾，跟新主圖不是同一隻村貓、拱門也不同（主控 09-24 追加）",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the left, its base resting on a small stone floor patch. The VILLAGE CAT stands with both feet on the floor in front of the archway. It has just unwrapped its brown cloth bundle and pushes the open brown cloth, with a small round golden charm on a short cord lying on top of it, into Dangdang's paws. Dangdang stands on the floor facing it and supports the cloth from underneath with both big white paws held flat, palms up; the cloth and the golden charm rest ON his paws, and he is folding one corner of the cloth back over the charm to wrap it up again. Dangdang looks a little surprised but pleased. Both copper forearm bracers stay on his forearms. No fish anywhere. Only these two cats.",
+    "style": "bg/event_dangdang_rescue_return_herb.webp",
+    "refs": [
+      [
+        "bg/event_rescue_return_herb_r0.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the cat with the navy headband). Also copy that stone archway with the stairs inside it, and the TREASURE: the small round golden charm on a short cord."
+      ]
+    ]
+  },
+  "event_dangdang_rescue_return_herb_r1": {
+    "why": "村貓是灰色長毛貓、沒有拱門，跟新主圖不是同一隻（主控 09-24 追加：統一村貓與拱門，構圖照舊）",
+    "scene": "A stone archway (the entrance of a stairwell, with stone steps going up inside the dark opening) stands on the left, its base resting on a small stone floor patch. The VILLAGE CAT stands on the floor in front of the archway, a brown belt at its waist holding a small knife and a whetstone. Dangdang stands on the right in a forward punching stance facing the village cat, his right arm extended in a punch, the copper bracer on that forearm clearly visible. The village cat points one claw-tip at the edge of Dangdang's copper bracer, showing him that the angle is slightly off, with a friendly explaining expression. Dangdang looks down at his own bracer, concentrating. No fish, no bag. Only these two cats.",
+    "style": "bg/event_dangdang_rescue_return_herb.webp",
+    "refs": [
+      [
+        "bg/event_rescue_return_herb.webp",
+        "the VILLAGE CAT to copy: the silver-grey striped tabby with white chest and white paws standing in the stone archway on the left, with a brown belt holding small tools at its waist - draw the village cat with exactly this look (ignore the cat with the navy headband). Also copy that stone archway with the stairs inside it."
+      ]
+    ]
+  },
+  "event_training_hall_r0": {
+    "why": "還是舊場景（木板＋兩個大凹槽），跟新主圖的練功房不同（主控 09-24 追加：換成同一個練功房）",
+    "scene": "The same training hall corner as the reference: a small wooden floor patch covered with many small worn paw-print footprints in crossing loops; along the back edge a low wooden wall panel rests on the floor, with a wooden training dummy (round post with short peg arms, on a flat base) and a tall wooden cabinet (door opened only a narrow crack) standing on the floor in front of it at the back left. Qiuqiu is practising footwork along the footprints: he has just finished a smooth turning step, both feet landing on footprints, and follows the turn with a paw strike, one arm extended forward with the paw closed. A couple of light curved motion lines on the floor show the turn. Pleased, confident expression. He is the only cat.",
+    "style": "bg/event_training_hall.webp",
+    "refs": [
+      [
+        "bg/event_training_hall.webp",
+        "the TRAINING HALL to copy: the wooden floor covered with many small paw-print footprints, the low wooden wall, the wooden training dummy with peg arms and the tall wooden cabinet whose door is open only a narrow crack - draw exactly this room (the cat in it is only for style; follow the SCENE for the pose)."
+      ]
+    ]
+  },
+  "event_feifei_training_hall_r0": {
+    "why": "沒有地板、沒有木樁人和櫃子，跟新主圖的練功房不同（主控 09-24 追加：換成同一個練功房）",
+    "scene": "The same training hall corner as the reference: a small wooden floor patch covered with many small worn paw-print footprints in crossing loops; along the back edge a low wooden wall panel rests on the floor, with a wooden training dummy (round post with short peg arms, on a flat base) and a tall wooden cabinet (door opened only a narrow crack) standing on the floor in front of it at the back left. Feifei is practising footwork along the footprints: she has just turned on one foot, both feet on footprints, and follows the turn with a paw strike, one arm extended forward. She glances down at her feet with an understanding look, as if she just realised why the step turns there. A couple of light curved motion lines on the floor show the turn. She is the only cat.",
+    "style": "bg/event_feifei_training_hall.webp",
+    "refs": [
+      [
+        "bg/event_feifei_training_hall.webp",
+        "the TRAINING HALL to copy: the wooden floor covered with many small paw-print footprints, the low wooden wall, the wooden training dummy with peg arms and the tall wooden cabinet whose door is open only a narrow crack - draw exactly this room (the cat in it is only for style; follow the SCENE for the pose)."
+      ]
+    ]
+  }
+}

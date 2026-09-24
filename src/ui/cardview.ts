@@ -1,6 +1,7 @@
 import { cardStats } from '../engine/deck';
 import type { CardDef, CardInstance } from '../engine/types';
 import { artUrl, cardArtKey, localHero } from './assets';
+import { attachCardPeek } from './cardpeek';
 import { cardNameFor } from '../content/cards';
 import { describeCard, upgradedChangedChars } from './cardtext';
 import { el } from './dom';
@@ -23,6 +24,8 @@ export interface CardViewOpts {
    *（2026-09-13 使用者從標題畫面開，看到雙人牌全是球球的圖）。
    */
   hero?: string;
+  /** 同伴出牌預覽明確指定另一位；圖鑑不填，保留角色自己的原圖。 */
+  partnerHero?: string;
 }
 
 /** 畫一張牌：費用、圖、名字、規則文字（名詞會自動變成可提示的）、牌型 */
@@ -67,7 +70,7 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
 
   const node = el('div', { class: cls.join(' ') },
     el('div', { class: costDown ? 'card-cost cost-down' : costUp ? 'card-cost cost-up' : 'card-cost' }, String(cost)),
-    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero)), alt: def.name, draggable: 'false' }),
+    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero, opts.partnerHero)), alt: def.name, draggable: 'false' }),
     el('div', { class: 'card-name' }, cardNameFor(def, opts.hero ?? localHero()) + (upgraded ? '＋' : '')),
     el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),
     el('div', { class: 'card-type' }, def.type));
@@ -75,6 +78,8 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
   if (uid !== null) node.dataset['uid'] = String(uid);
   const onClick = opts.onClick;
   if (onClick) node.addEventListener('click', () => { if (!opts.disabled) onClick(); });
+  // 手機橫拿按住放大看（2026-09-23 polish 第 8 條）：打不出來的牌也要讀得到，所以每張都掛；桌機不作用
+  attachCardPeek(node);
   fitCardText(node);
   return node;
 }

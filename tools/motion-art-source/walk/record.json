@@ -1,0 +1,134 @@
+{
+ "public/assets/sprites/hero/ninja_walk.webp": {
+  "file": "public/assets/sprites/hero/ninja_walk.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "hero": "qiuqiu",
+  "action": "run",
+  "frame": 0,
+  "texture": "assets/motion/qiuqiu/run_claws_sheet.webp",
+  "textureSha256": "a5d8f816a36aa49fba3d5627aa7733c0a9a0e9b3528afae4371b46186ab154c1",
+  "rect": [
+   29,
+   25,
+   381,
+   414
+  ],
+  "pivot": [
+   223,
+   412
+  ],
+  "scale": 0.622,
+  "canvasPerAtlasPx": 1.151852,
+  "pivotCanvas": [
+   280.0,
+   532.0667
+  ],
+  "cutBelowFoot": 0.0001,
+  "stageIou": 0.9983,
+  "stageCentroidDiff": 0.005,
+  "stageMeanRgbDiff": 2.71,
+  "sha256": "9fe3c7f0802db8c10180fc03f6e318c8988159dd596d386a01e78b8fdc7c8549"
+ },
+ "public/assets/sprites/hero/feifei_walk.webp": {
+  "file": "public/assets/sprites/hero/feifei_walk.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "hero": "feifei",
+  "action": "run",
+  "frame": 0,
+  "texture": "assets/motion/feifei/run.webp",
+  "textureSha256": "7b4afed8f0b8098519da4cbedf788cb05bde7a0c0314ea20a11b07e7c2abc43d",
+  "rect": [
+   53,
+   147,
+   276,
+   319
+  ],
+  "pivot": [
+   117.95,
+   318.0
+  ],
+  "scale": 0.7979481333713309,
+  "canvasPerAtlasPx": 1.477682,
+  "pivotCanvas": [
+   280.0,
+   532.0667
+  ],
+  "cutBelowFoot": 0.0,
+  "stageIou": 0.9981,
+  "stageCentroidDiff": 0.006,
+  "stageMeanRgbDiff": 2.73,
+  "sha256": "bed18a735cd17e5046f7ed031b9391964722a9aa7920a51b42a159d6480bf779"
+ },
+ "public/assets/sprites/hero/dangdang_walk.webp": {
+  "file": "public/assets/sprites/hero/dangdang_walk.webp",
+  "canvas": [
+   560,
+   547
+  ],
+  "hero": "dangdang",
+  "action": "run",
+  "frame": 0,
+  "texture": "assets/motion/dangdang/run.webp",
+  "textureSha256": "e0ba596b1da29580bb934a17b8c0434303e51cb5d90573a72a33312c9aa474fa",
+  "rect": [
+   43,
+   37,
+   358,
+   399
+  ],
+  "pivot": [
+   178.75,
+   398.0
+  ],
+  "scale": 0.5741052631578947,
+  "canvasPerAtlasPx": 1.063158,
+  "pivotCanvas": [
+   280.0,
+   532.0667
+  ],
+  "cutBelowFoot": 0.0,
+  "stageIou": 0.9987,
+  "stageCentroidDiff": 0.006,
+  "stageMeanRgbDiff": 2.82,
+  "sha256": "737e712e973dcf053f7e08f75e93a1cf8d0d8a71106358b56a74c729cbfd98fe"
+ },
+ "public/assets/sprites/hero/fengfeng_walk.webp": {
+  "file": "public/assets/sprites/hero/fengfeng_walk.webp",
+  "canvas": [
+   560,
+   560
+  ],
+  "hero": "fengfeng",
+  "action": "run",
+  "frame": 0,
+  "texture": "assets/motion/fengfeng/run.webp",
+  "textureSha256": "1965c5604488d3cd05769729cbd83be9f1b50aa0496f920957043287c88c6b5c",
+  "rect": [
+   70,
+   88,
+   304,
+   329
+  ],
+  "pivot": [
+   151.75,
+   328.0
+  ],
+  "scale": 0.7659574468085106,
+  "canvasPerAtlasPx": 1.41844,
+  "pivotCanvas": [
+   280.0,
+   545.0667
+  ],
+  "cutBelowFoot": 0.0,
+  "stageIou": 0.998,
+  "stageCentroidDiff": 0.009,
+  "stageMeanRgbDiff": 3.47,
+  "sha256": "08121b1abda36a7277b8f1a401d45ceed5a7305458180d315b221c692e3940a6"
+ }
+}

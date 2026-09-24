@@ -2,10 +2,10 @@
 // `npx vitest run` 會一起跑到（tools/ 也在測試範圍），所以檔案不會過期；改了遭遇、關主池或底圖分關規則，
 // 跑完測試把 docs/分關載入.json 一起提交就好
 import { readFileSync, writeFileSync } from 'node:fs';
-import { it } from 'vitest';
+import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
-import { SLIDES_BY_ACT, bgKeysForAct } from '../src/ui/bgacts';
-import { TITLE_ART, heroOfKey, isCoopOnlyArt } from '../src/ui/assets';
+import { NON_EVENT_ART, SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
+import { MERCHANT_SPRITES, TITLE_ART, heroOfKey, isCoopOnlyArt, isGuestKeeperArt, isItemIcon } from '../src/ui/assets';
 
 it('dump monster acts', () => {
   const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as { monsters: Record<string, Record<string, string>>; bg: Record<string, string> };
@@ -32,6 +32,16 @@ it('dump monster acts', () => {
   for (const group of SLIDES_BY_ACT) {
     for (const key of group) { const path = manifest.bg[key]; if (path) out[path] = 0; }
   }
+  // 事件主圖（2026-09-23 內容擴充 0-2）：改成照這張地圖排到的事件格現抓（`preload.ts` 的 `preloadMapEvents`），
+  // 開場與進關都不載，也不在任何一關的 `bgKeysForAct` 裡——跟幻燈片同一類，寫 0。
+  // 名單照事件編號算（`eventMainKeys`），紙箱畫面借用的 `bg/event_chest_*` 不在裡面、照舊算首載
+  for (const key of eventMainKeys()) { const path = manifest.bg[key]; if (path) out[path] = 0; }
+  // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）：用到的畫面自己在背景抓（`bgacts.ts` 的 `NON_EVENT_ART`），同一類寫 0。
+  // 角色版的揭曉圖由下面「角色專屬」那一圈收
+  for (const id of NON_EVENT_ART) { const path = manifest.bg[`bg/event_${id}`]; if (path) out[path] = 0; }
+  // 行腳商三張立繪（2026-09-23 第三批）：地圖上有會變的問號格才背景抓（`preload.ts` 的 `preloadQmarkArt`），同一類、寫 0
+  const sprites = (manifest as unknown as { sprites: Record<string, string> }).sprites;
+  for (const key of MERCHANT_SPRITES) { const path = sprites[key]; if (path) out[path] = 0; }
   /*
    * **事件的「結果圖」不算首載**（2026-09-11）。只認 `_r<數字>` 結尾的，
    * 判準寫緊一點是有原因的，見下面。
@@ -49,6 +59,7 @@ it('dump monster acts', () => {
    * 那就不是修正高估，是**美化數字**。
    *
    * 值寫 0＝「不跟關數綁的按需載入」，跟過關幻燈片同一類。
+   *（2026-09-23 起基底插圖也照地圖現抓、由上面 `eventMainKeys` 那一圈歸 0；這一圈的緊判準照舊，紙箱那三張仍算首載）
    */
   for (const [key, path] of Object.entries(manifest.bg)) {
     if (/_r\d+$/.test(key)) out[path] = 0;
@@ -62,9 +73,42 @@ it('dump monster acts', () => {
       for (const path of typeof v === 'string' ? [v] : Object.values(v)) out[path] = 0;
     }
   }
+  // 秘寶與忍具圖示（2026-09-23 內容擴充第二批）：開場不載、進入一局才補（`assets.ts` 的 `isItemIcon`、
+  // `preload.ts` 的 `preloadHeroArt`），跟角色專屬圖同一類，寫 0
+  const icons = (groups.icons ?? {}) as Record<string, string>;
+  for (const [key, path] of Object.entries(icons)) if (isItemIcon(key)) out[path] = 0;
+  // 客座店主的立繪（2026-09-23 第三批 新J）：開場不載、這一關地圖上有那一位的店才抓（`assets.ts` 的 `isGuestKeeperArt`、
+  // `preload.ts` 的 `preloadMapKeepers`），跟事件主圖同一類，寫 0（`sprites` 跟上面行腳商那一圈同一份）
+  for (const [key, path] of Object.entries(sprites)) if (isGuestKeeperArt(key)) out[path] = 0;
 
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');
   const n = (a: number) => Object.values(sorted).filter((v) => v === a).length;
   console.log(`分關載入：第一關 ${n(1)} 檔、第二關 ${n(2)}、第三關 ${n(3)}、沒用到 ${n(9)}`);
+  // 事件主圖一張都不准算首載（2026-09-23 0-2）：拿掉上面 `eventMainKeys` 那一圈，三關都排得到的三十張會掉回首載，這裡就紅
+  const firstLoad = Object.entries(manifest.bg)
+    .filter(([key]) => eventMainKeys().includes(key) && sorted[manifest.bg[key]!] !== 0).map(([key]) => key);
+  expect(firstLoad, '事件主圖照地圖現抓，不該留在首載').toEqual([]);
+  // 祝福主圖（2026-09-23 第三批）同理：拿掉上面 `NON_EVENT_ART` 那一圈，球球那張就掉回首載，這裡就紅
+  const screenArtFirst = NON_EVENT_ART.map((id) => `bg/event_${id}`).filter((key) => manifest.bg[key] && sorted[manifest.bg[key]!] !== 0);
+  expect(screenArtFirst, '祝福主圖序章時才抓，不該留在首載').toEqual([]);
+  expect(NON_EVENT_ART.length, '前提：名單裡真的有東西').toBeGreaterThan(0);
+  // 紙箱畫面借用的三張不是事件，照舊算首載
+  expect(sorted[manifest.bg['bg/event_chest_closed']!]).toBeUndefined();
+  // 秘寶與忍具圖示一張都不准算首載（2026-09-23 第二批）：拿掉上面 `isItemIcon` 那一圈，這裡就紅
+  const iconFirstLoad = Object.entries(icons).filter(([key, path]) => isItemIcon(key) && sorted[path] !== 0).map(([key]) => key);
+  expect(iconFirstLoad, '秘寶與忍具圖示進入一局才補，不該留在首載').toEqual([]);
+  // 狀態、節點、介面那些 `icon/` 圖示開場就要，照舊算首載
+  expect(sorted[icons['icon/onigiri_full']!]).toBeUndefined();
+  // 問號格那三張（四隻各一份）與行腳商三張一張都不准算首載（2026-09-23 第三批）：拿掉上面那兩圈，這裡就紅
+  const qmarkFirstLoad = [
+    ...Object.entries(manifest.bg).filter(([key]) => /^bg\/event_(?:(?:feifei|dangdang|fengfeng)_)?q_(?:ambush|merchant|roadbox)$/.test(key)),
+    ...MERCHANT_SPRITES.map((key): [string, string] => [key, sprites[key]!]),
+  ].filter(([, path]) => sorted[path] !== 0).map(([key]) => key);
+  expect(qmarkFirstLoad, '問號格的圖照地圖現抓，不該留在首載').toEqual([]);
+  // 三位客座店主九張立繪一張都不准算首載（2026-09-23 第三批）：拿掉上面 `isGuestKeeperArt` 那一圈，這裡就紅；橘貓老闆那三張照舊首載
+  const keeperFirstLoad = Object.entries(sprites).filter(([key, path]) => isGuestKeeperArt(key) && sorted[path] !== 0).map(([key]) => key);
+  expect(keeperFirstLoad, '客座店主的立繪照地圖現抓，不該留在首載').toEqual([]);
+  expect(Object.keys(sprites).filter((k) => isGuestKeeperArt(k))).toHaveLength(9);
+  for (const k of ['shop/keeper', 'shop/keeper_happy', 'shop/keeper_no']) expect(sorted[sprites[k]!], k).toBeUndefined();
 });
