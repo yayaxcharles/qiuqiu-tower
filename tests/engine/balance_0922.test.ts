@@ -83,6 +83,8 @@ describe('封封：花蓄氣的牌每點蓄氣多 1 點效果', () => {
     fengfeng_pingzhan: 3, fengfeng_hengsao: 2, fengfeng_tabu: 3, fengfeng_huibu: 3, fengfeng_chuantang: 3,
     fengfeng_shuangduan: 2, fengfeng_huzhou: 3, fengfeng_zhenshou: 3, fengfeng_youbian: 3, fengfeng_husong: 3,
     fengfeng_duanliu: 4, fengfeng_kaishan: 3, fengfeng_pozhen: 3, fengfeng_yiqichushou: 2,
+    // 2026-09-24 憋氣乙版：劍鞘架擋、退步守勢改成花氣架擋，照同一個係數 3
+    fengfeng_jianqiao: 3, fengfeng_tuibu: 3,
   };
   it('14 張（含連線專用三張）逐張、升級前後都是新係數，沒有漏掉任何一張花氣牌', () => {
     const spenders = Object.values(cardById).filter((d) => d.effects.some((e) =>
@@ -94,13 +96,14 @@ describe('封封：花蓄氣的牌每點蓄氣多 1 點效果', () => {
       expect((fx as { perQi: number }).perQi, `${id}${up ? '＋' : ''}`).toBe(k);
     }
   });
-  it('實際打出來：平斬 2 氣打 11、斷流 5 氣打 30、振袖收劍 3 氣給 16 點蜷縮', () => {
+  // 斷流 5 氣：10＋4×5＝30，2026-09-24 起花 4 點以上 ×1.3 → 39；平斬 2 氣、振袖收劍 3 氣沒到門檻，照舊
+  it('實際打出來：平斬 2 氣打 11、斷流 5 氣打 39（憋氣 ×1.3）、振袖收劍 3 氣給 16 點蜷縮', () => {
     const a = setup('fengfeng'); const ea = a.cs.enemies[0]!;
     a.p.qi = 2; play(a.cs, a.p, 'fengfeng_pingzhan', ea.uid);
     expect(300 - ea.hp).toBe(11);
     const b = setup('fengfeng'); const eb = b.cs.enemies[0]!;
     b.p.qi = 5; play(b.cs, b.p, 'fengfeng_duanliu', eb.uid);
-    expect(300 - eb.hp).toBe(30);
+    expect(300 - eb.hp).toBe(39);
     const c = setup('fengfeng');
     c.p.qi = 3; play(c.cs, c.p, 'fengfeng_zhenshou');
     expect(c.p.block).toBe(16);

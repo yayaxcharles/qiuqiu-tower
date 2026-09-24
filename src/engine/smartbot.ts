@@ -11,6 +11,7 @@ import BLESS_RATINGS from './bless-ratings.json';
 import { aliveEnemies, attackable, dazeTarget, isDazed } from './actions';
 import { allReady, canPlay, canUsePotion, endTurn, playCard, potionBlockedReason, resolveChoice, usePotion, willAct } from './combat';
 import { cardStats } from './deck';
+import { qiAmount } from './effects';
 import { choiceEffectsFor, visibleChoices } from './eventcond';
 import { nextChoices } from './map';
 import { Rng, seedFromString } from './rng';
@@ -369,7 +370,7 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       for (let i = 0; i < times; i++) swing(computeAttack(fx.amount * (doubled ? 2 : 1), p, e, { noStrength }), fx.ignoreBlock);
     } else if (fx.kind === 'damageSpendQi') {
       const spentQi = fx.allQi ? (p.qi ?? 0) : Math.min(p.qi ?? 0, fx.maxQi ?? (p.qi ?? 0));
-      const raw = (fx.amount + fx.perQi * spentQi) * (doubled ? 2 : 1);
+      const raw = qiAmount(fx, spentQi) * (doubled ? 2 : 1);
       for (let i = 0; i < (fx.times ?? 1); i++) swing(computeAttack(raw, p, e), fx.ignoreBlock);
     } else if (fx.kind === 'damageRamp') {
       // 分身術：這場這張已打過幾次就加幾段（plays 由呼叫端查 cs.cardPlays）
@@ -427,6 +428,29 @@ interface Plan { uid: number; target?: number; value: number; cost: number; ends
  * `seat`＝現在輪到誰在挑牌（2026-09-16 量雙人時加的）。不傳就是座位 0，單機那條路一個字都沒動；
  * 連線量測時兩個座位各叫一次，估的是各自的手牌、飯糰、蜷縮與身上的狀態。
  */
+/**
+ * **憋氣**（2026-09-24）：手上的一點氣「留著以後花」值多少。
+ * 看整副牌裡花氣的招式，花滿上限時每點氣平均打幾點，打五折（晚點才用得到、不一定抽得到；
+ * 0.5～0.7 量出來最好，0.85 以上存太兇反而變差）。這場快打完時氣會清掉，留著不值錢。
+ * 拿它當「氣的價錢」：產氣的牌照這個價加分、花氣的牌照這個價扣回來。
+ * 沒有這條，機器人一律「有氣就花」，憋氣規則（`qiAmount`）量不出來、會把封封量弱。
+ */
+function qiHoldValue(p: PlayerCombat, enemies: EnemyCombat[], rest: number): number {
+  if (rest <= 1) return 0;
+  let best = 0;
+  for (const c of [...p.hand, ...p.drawPile, ...p.discardPile]) {
+    for (const fx of cardStats(c).effects) {
+      if (fx.kind !== 'damageSpendQi') continue;
+      const q = fx.allQi ? 12 : Math.min(12, fx.maxQi ?? 12);
+      if (q <= 0) continue;
+      const rate = (qiAmount(fx, q) - qiAmount(fx, 0)) / q
+        * (fx.times ?? 1) * (fx.target === 'all' ? Math.max(1, enemies.length) : 1);
+      best = Math.max(best, rate);
+    }
+  }
+  return 0.5 * best;
+}
+
 function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: number, seat = 0): Plan | null {
   const p = (cs.players[seat] ?? cs.player) as PlayerCombat;
   const st = cardStats(c);
@@ -445,6 +469,9 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
   const plays = cs.cardPlays?.[c.uid] ?? 0;   // 分身術這場已打過幾次
   /** 粗估這一場還要打幾回合（長效旗標要乘它；跟 `power` 那條同一個算法） */
   const rest = Math.max(1, Math.min(8, Math.ceil(totalEnemyHp / 14)));
+  // 憋氣（2026-09-24）：氣的價錢，只有碰到蓄氣的牌才算（其他三隻一個位元都不會變）
+  const usesQi = st.effects.some((fx) => fx.kind === 'gainQi' || fx.kind === 'damageSpendQi' || fx.kind === 'blockSpendQi' || fx.kind === 'nextAttackBonusSpendQi');
+  const hold = usesQi ? qiHoldValue(p, enemies, rest) : 0;
   /*
    * 這張牌會不會打人——**決定要不要進挑目標那一段**，而挑不到目標的指定牌會被
    * `if (def.target === 'enemy' && !target) return null` 整張丟掉。
@@ -614,7 +641,8 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'energy': value += fx.n * 3.5; break;
       case 'gainQi': {
         const room = Math.min(fx.n, Math.max(0, 12 - (p.qi ?? 0)));
-        let v = room * 1.4;
+        const keep = Math.max(1.4, hold);
+        let v = room * keep;
         /*
          * **先吐納、再出斬**（2026-09-22 量測修正，策略性的）。手上有花蓄氣的攻擊牌、飯糰也夠
          * 兩張一起打時，這幾點氣「這一回合就換得成傷害」，照那張牌每點氣加幾點估；
@@ -635,7 +663,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
           rate = Math.max(rate, s.e.perQi * (s.e.times ?? 1) * (s.e.target === 'all' ? Math.max(1, enemies.length) : 1));
         }
         const usable = Math.max(0, Math.min(room, need - (p.qi ?? 0)));
-        if (usable > 0) v = usable * rate + (room - usable) * 1.4;
+        if (usable > 0) v = Math.max(v, usable * rate + (room - usable) * keep);
         /*
          * 滿月劍意（2026-09-23 第二批）：這一張把蓄氣蓄到門檻（10）的話，這回合下一張攻擊牌加倍——照分身油那條估（手上還有攻擊牌才算）。
          * 不寫的話機器人不會為了蓄氣去打吐納，量尺量到這件每場只發動 0.06 次，分數等於沒量。
@@ -809,7 +837,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       }
       case 'blockSpendQi': {
         const spentQi = Math.min(p.qi ?? 0, fx.maxQi);
-        const b = computeBlock(fx.amount + fx.perQi * spentQi + (p.blockBonus ?? 0), p);
+        const b = computeBlock(qiAmount(fx, spentQi) + (p.blockBonus ?? 0), p);
         value += Math.min(b, incoming) * (lowHp ? 3 : danger ? 1.6 : 1.1);
         break;
       }
@@ -952,6 +980,15 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
     const big = enemies.filter((e) => attackable(cs, e)).sort((a, b) => b.hp - a.hp)[0] ?? target0;
     if (!big) return null;
     target = big.uid;
+  }
+  // 憋氣：花掉的氣本來可以留著，照「留著值多少」扣回來（產氣那邊照同一個價加分，見 gainQi）
+  if (hold > 0) {
+    const bank = Math.max(0, Math.min(12, p.qi ?? 0));
+    const spender = st.effects.find((e) => e.kind === 'damageSpendQi' || e.kind === 'blockSpendQi' || e.kind === 'nextAttackBonusSpendQi');
+    if (spender) {
+      const spent = spender.kind === 'damageSpendQi' && spender.allQi ? bank : Math.min(bank, (spender as { maxQi?: number }).maxQi ?? bank);
+      value -= hold * spent;
+    }
   }
   // 費用效率：同樣的價值便宜的先打；0 費的牌永遠可以塞
   const cost = chk.cost;

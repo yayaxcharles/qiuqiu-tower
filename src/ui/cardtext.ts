@@ -1,4 +1,4 @@
-import { DEBUFFS } from '../engine/types';
+import { DEBUFFS, QI_BURST_MIN } from '../engine/types';
 import type { CardDef, Effect, StatusName } from '../engine/types';
 
 /**
@@ -141,6 +141,11 @@ interface Ctx {
   plays?: number;
 }
 
+/** 憋氣（2026-09-24）：花得到門檻的牌才印，跟引擎 `qiAmount` 同一個門檻 */
+function burst(maxQi: number): string {
+  return maxQi >= QI_BURST_MIN ? `，花 ${QI_BURST_MIN} 點以上再 ×1.3` : '';
+}
+
 /**
  * 一條效果的文字。
  *
@@ -155,10 +160,10 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       const spend = fx.allQi ? '用盡蓄氣' : `最多花 ${fx.maxQi ?? 0} 點蓄氣`;
       const who = fx.target === 'all' ? '對全體魔物' : '';
       const hits = (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
-      return `${spend}，${who}造成 ${fx.amount} 點傷害，每點蓄氣多 ${fx.perQi} 點${hits}`
+      return `${spend}，${who}造成 ${fx.amount} 點傷害，每點蓄氣多 ${fx.perQi} 點${burst(fx.allQi ? 12 : fx.maxQi ?? 0)}${hits}`
         + (fx.ignoreBlock ? '，無視蜷縮' : '');
     }
-    case 'blockSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipient === 'ally' ? '同伴' : '自己'}獲得 ${fx.amount} 點蜷縮，每點蓄氣多 ${fx.perQi} 點`;
+    case 'blockSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipient === 'ally' ? '同伴' : '自己'}獲得 ${fx.amount} 點蜷縮，每點蓄氣多 ${fx.perQi} 點${burst(fx.maxQi)}`;
     case 'nextAttackBonusSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipients === 'ally' ? '同伴' : '雙方'}本回合下一張攻擊首段首目標多 ${fx.amount} 點傷害，每點蓄氣再多 ${fx.perQi} 點（取高不疊加）`;
     // 門檻是「至少」（引擎 `>=`），條件成立才跑的那段接「再」——跟噹噹的 `ifBlock` 同一套（2026-09-23 稽核 引擎 低-3）：
     // 原本印「獲得 8 點蜷縮，出牌前有 3 點蓄氣的話，獲得 3 點蜷縮」，像同一份拿兩次，「有 3 點」也會被讀成剛好 3 點。

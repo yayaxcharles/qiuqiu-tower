@@ -94,12 +94,25 @@ describe('量測工具修正 2026-09-22：封封的蓄氣', () => {
     const b = setup('fengfeng', ['fengfeng_tuibu', 'feifei_tieqiang'], { move: hit(20), energy: 1, qi: 3 });
     expect(nextPlay(b.cs, b.p)).toBe('fengfeng_tuibu');
   });
-  it('先吐納、再出斬：兩張都打得起時先補氣，平斬吃到 2 點氣打 11', () => {
+  it('先吐納、再出斬：兩張都打得起時先補氣，平斬吃到 3 點氣打 14', () => {
     const { cs, p } = setup('fengfeng', ['fengfeng_pingzhan', 'fengfeng_tuna']);
     const e = cs.enemies[0]!;
     expect(nextPlay(cs, p)).toBe('fengfeng_tuna');
     expect(nextPlay(cs, p)).toBe('fengfeng_pingzhan');
-    expect(e.hp).toBe(89);   // 5＋3×2（2026-09-22 平衡調整後每點氣 +3）
+    expect(e.hp).toBe(86);   // 5＋3×3（2026-09-24 平斬上限 2→4，吐納的 3 點全吃；還不到 4 點，不套 ×1.3）
+  });
+});
+
+describe('量測工具 2026-09-24：憋氣（氣有價錢）', () => {
+  // 一顆飯糰、手上平斬與挑開：氣不到 4 點時平斬只打 11，扣掉「這 2 點氣留著值多少」後輸給不花氣的挑開 7，
+  // 先打挑開把氣存著；氣到 4 點時平斬 5＋3×4＝17×1.3＝22，照樣花。拿掉 `qiHoldValue` 的話第一條會變成打平斬
+  it('氣不到門檻先打不花氣的牌存著，到門檻就一口氣花掉', () => {
+    const a = setup('fengfeng', ['fengfeng_pingzhan', 'fengfeng_tiaokai'], { qi: 2, energy: 1 });
+    expect(nextPlay(a.cs, a.p)).toBe('fengfeng_tiaokai');
+    expect(a.p.qi).toBe(2);
+    const b = setup('fengfeng', ['fengfeng_pingzhan', 'fengfeng_tiaokai'], { qi: 4, energy: 1 });
+    expect(nextPlay(b.cs, b.p)).toBe('fengfeng_pingzhan');
+    expect(b.cs.enemies[0]!.hp).toBe(78);
   });
 });
 

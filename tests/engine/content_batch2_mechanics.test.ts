@@ -191,12 +191,13 @@ describe('角色的新時機', () => {
     tank(cs); quiet(cs);
     const p = cs.player;
     const e = cs.enemies[0]!;
-    p.qi = 12; p.energy = 9;
-    playCard(cs, toHand(cs, 'fengfeng_pingzhan'), e.uid);   // 花 2
-    playCard(cs, toHand(cs, 'fengfeng_pingzhan'), e.uid);   // 花 2（累計 4）
+    // 2026-09-24 平斬上限 2→4：每次出牌前把氣設成 2，讓每張只花 2 點（測的是零頭累計，不是平斬）
+    p.energy = 9;
+    p.qi = 2; playCard(cs, toHand(cs, 'fengfeng_pingzhan'), e.uid);   // 花 2
+    p.qi = 2; playCard(cs, toHand(cs, 'fengfeng_pingzhan'), e.uid);   // 花 2（累計 4）
     expect(p.energy).toBe(7);
     expect(p.qiSpentAcc).toBe(4);
-    playCard(cs, toHand(cs, 'fengfeng_pingzhan'), e.uid);   // 花 2（累計 6）→ +1
+    p.qi = 2; playCard(cs, toHand(cs, 'fengfeng_pingzhan'), e.uid);   // 花 2（累計 6）→ +1
     expect(p.energy).toBe(7);   // 花 1 顆、拿回 1 顆
     expect(p.qiSpentAcc).toBe(0);
     expect(cs.relicFired).toContain('sheath_pendant');

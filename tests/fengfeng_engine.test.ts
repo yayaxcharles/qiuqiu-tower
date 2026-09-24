@@ -30,8 +30,9 @@ function play(cs: CombatState, p: PlayerCombat, id: string, target?: number, upg
  * 測的支付規則（只付一次、上限、多段、群攻、重播重新支付）一條都沒變。
  */
 describe('封封 FG-T01～FG-T10', () => {
-  it('FG-T01～03：平斬依出牌前蓄氣最多支付 2', () => {
-    for (const [qi, spent, damage] of [[0, 0, 5], [1, 1, 8], [5, 2, 11]] as const) {
+  // 2026-09-24 憋氣乙版：上限 2→4；一次花 4 點以上整招 ×1.3（5＋3×4＝17 → 22）。3 點還不到門檻，照原樣 14
+  it('FG-T01～03：平斬依出牌前蓄氣最多支付 4，花滿 4 點 ×1.3', () => {
+    for (const [qi, spent, damage] of [[0, 0, 5], [1, 1, 8], [3, 3, 14], [4, 4, 22], [7, 4, 22]] as const) {
       const { cs, p } = setup(); const e = cs.enemies[0]!; e.hp = e.maxHp = 100;
       p.qi = qi; const hp = e.hp; const energy = p.energy;
       expect(play(cs, p, 'fengfeng_pingzhan', e.uid)).toBe(true);

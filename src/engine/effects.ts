@@ -3,7 +3,7 @@ import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEne
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
 import { heroPronoun, unitName } from './hero';
-import { DEBUFFS, TURN_DECAY } from './types';
+import { DEBUFFS, QI_BURST_MIN, TURN_DECAY } from './types';
 import type { CardInstance, CombatState, Effect, EffectCtx, EnemyCombat, PendingChoice, PlayerCombat } from './types';
 
 /** 依序執行效果；需要玩家選牌時把剩下的效果存進 cs.pending 後返回（Task 10） */
@@ -46,6 +46,18 @@ function targetsOf(cs: CombatState, ctx: EffectCtx, all: boolean) {
  */
 function ally(cs: CombatState, me: PlayerCombat): PlayerCombat {
   return cs.players.find((q) => q !== me && !q.down) ?? me;
+}
+
+/**
+ * **憋氣**（2026-09-24 使用者拍板「乙版」）：一張牌一次花 4 點以上的蓄氣，那一招的傷害或蜷縮 ×1.3（無條件捨去）。
+ * 花氣出招（`damageSpendQi`）與花氣架擋（`blockSpendQi`）都走這支；下一擊準備（`nextAttackBonusSpendQi`）不套。
+ * 為什麼：原本每點氣固定換 3 點、多數招一次只吃 2 點，存氣沒有好處，量尺機器人憋氣反而少爬 3 層——
+ * 封封的「蓄氣」其實只是每回合補兩點花兩點。量測與取捨見 `docs/審查報告/2026-09-24_封封憋氣/`。
+ * 鏡中封封（`mimic.ts`）照舊學成「花滿上限」的固定值、不套這個加成。
+ */
+export function qiAmount(fx: { amount: number; perQi: number }, spent: number): number {
+  const base = fx.amount + fx.perQi * spent;
+  return spent >= QI_BURST_MIN ? Math.floor(base * 13 / 10) : base;
 }
 
 /** 同一串效果中的蓄氣牌只支付一次；影子分身重播會拿新的 ctx，因此會重新支付。 */
@@ -242,7 +254,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'damageSpendQi': {
       const spent = spendQi(cs, p, ctx, fx.maxQi, !!fx.allQi);
-      const base = fx.amount + fx.perQi * spent;
+      const base = qiAmount(fx, spent);
       const times = fx.times ?? 1;
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
         for (let i = 0; i < times; i++) {
@@ -289,7 +301,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'blockSpendQi': {
       const spent = spendQi(cs, p, ctx, fx.maxQi, false);
-      const amount = fx.amount + fx.perQi * spent;
+      const amount = qiAmount(fx, spent);
       const recipient = fx.recipient === 'ally' ? ally(cs, p) : p;
       if (recipient === p) {
         ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + amount;
