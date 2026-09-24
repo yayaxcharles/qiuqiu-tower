@@ -55,26 +55,26 @@ describe('量測工具修正 2026-09-22：反彈整場有效', () => {
 
 describe('量測工具修正 2026-09-22：卸蜷縮的代價', () => {
   it('蜷縮 10、這一拍要挨 12：卸 6 點會多吃 6 點，不該拿去打（原本估成免費）', () => {
-    const { cs, p } = setup('dangdang', ['dangdang_xieli'], { block: 10, move: hit(12) });
+    const { cs, p } = setup('dangdang', ['dangdang_jielidali'], { block: 10, move: hit(12) });
     expect(nextPlay(cs, p)).toBeNull();
   });
   it('蜷縮多出來、擋完還有剩：卸掉剩的那幾點照樣打', () => {
-    const { cs, p } = setup('dangdang', ['dangdang_xieli'], { block: 20, move: hit(12) });
-    expect(nextPlay(cs, p)).toBe('dangdang_xieli');
+    const { cs, p } = setup('dangdang', ['dangdang_jielidali'], { block: 20, move: hit(12) });
+    expect(nextPlay(cs, p)).toBe('dangdang_jielidali');
   });
-  it('身上沒蜷縮：卸力掌整張撲空，不打（原本目標血少於 20 就照打）', () => {
-    const { cs, p } = setup('dangdang', ['dangdang_xieli'], { enemyHp: 15 });
+  it('身上沒蜷縮：借力打力整張撲空，不打（原本目標血少於 20 就照打）', () => {
+    const { cs, p } = setup('dangdang', ['dangdang_jielidali'], { enemyHp: 15 });
     expect(nextPlay(cs, p)).toBeNull();
   });
   it('沒有反彈：原樣奉還也是撲空，不打', () => {
     const { cs, p } = setup('dangdang', ['dangdang_yibi'], { enemyHp: 15 });
     expect(nextPlay(cs, p)).toBeNull();
   });
-  it('先存蜷縮、再卸出去：手上有架盤＋卸力掌、魔物不攻擊時，兩張都打、打得到人', () => {
-    const { cs, p } = setup('dangdang', ['dangdang_xieli', 'dangdang_jiapan']);
+  it('先存蜷縮、再卸出去：手上有架盤＋借力打力、魔物不攻擊時，兩張都打、打得到人', () => {
+    const { cs, p } = setup('dangdang', ['dangdang_jielidali', 'dangdang_jiapan']);
     const e = cs.enemies[0]!;
     expect(nextPlay(cs, p)).toBe('dangdang_jiapan');
-    expect(nextPlay(cs, p)).toBe('dangdang_xieli');
+    expect(nextPlay(cs, p)).toBe('dangdang_jielidali');
     expect(e.hp).toBe(95);
   });
 });

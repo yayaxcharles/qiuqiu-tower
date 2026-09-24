@@ -7,7 +7,7 @@
       "action": "guard",
       "source": "tools/motion-art-source/qiuqiu/guard.png",
       "sourceSha256": "1561cba5975ef0ac81f3e03c72f90e9595c191ed13877d23c10fb69562b41b3a",
-      "outputSha256": "31f9a7fbb4358de1f145a4cc7d5b0876b94a2968f80d6c0e21af0eea478198ea",
+      "outputSha256": "ecea94941a3a791dbb15287fe01a59a00ade741f622d0a8ef102c7a114bfe5ba",
       "bytes": 857388,
       "size": [
         1774,
@@ -21,7 +21,7 @@
       "action": "eat",
       "source": "tools/motion-art-source/qiuqiu/eat.png",
       "sourceSha256": "4b6863e62cc4d93ce99edbb129e75a311443c956538566faaf2af3d62888890d",
-      "outputSha256": "1a58a9a4810bd1f4e19a6649dc37a63b2e76ff13eb4f6c36e0ec945109a41ff5",
+      "outputSha256": "998cb693a12ec65f1f47c647084049b7255ea345b2b1fb484f14e1497eada1a9",
       "bytes": 888448,
       "size": [
         1774,
@@ -35,7 +35,7 @@
       "action": "win",
       "source": "tools/motion-art-source/qiuqiu/win.png",
       "sourceSha256": "e451c5af6c0a35fa16feaa47fa35ff11d598707567acf8a9a279aca897cca419",
-      "outputSha256": "fad19da7b38771230ef92c4e4aab2a6f7c1c1333302380783dfe722b3e25963a",
+      "outputSha256": "e12298bc4a81448991e5e57a601833cc55bc7fb8b5425bdb48c58d383b117b51",
       "bytes": 869088,
       "size": [
         1774,
@@ -49,7 +49,7 @@
       "action": "poison",
       "source": "tools/motion-art-source/qiuqiu/poison.png",
       "sourceSha256": "c7f2ce0c675a1c4376f1699e69ed7739592c845ce895e1099d15296b1d7732d5",
-      "outputSha256": "d37739997034e5f0489b5d31f1678c0ef218211cdeec8c1557e19a2237ba0db6",
+      "outputSha256": "cd9b97310921443a927c29a36a882c718d558c4cefaca3a34ce7b57059b9d163",
       "bytes": 870412,
       "size": [
         1774,
@@ -63,7 +63,7 @@
       "action": "belly",
       "source": "tools/motion-art-source/qiuqiu/belly.png",
       "sourceSha256": "1746d6255906045c090ae63c1eeae6691849e1d4d0174a7f5d078716393f765f",
-      "outputSha256": "19f3fd1223d3e881c732a1e51d12eefc90adc8e80ef8fbbf1d91a75cca9ef8ae",
+      "outputSha256": "5a123773e538b36579adcf699e46e34821c80c83707797c6e51606789ab653b0",
       "bytes": 698274,
       "size": [
         1774,
@@ -77,7 +77,7 @@
       "action": "defeat",
       "source": "tools/motion-art-source/qiuqiu/defeat.png",
       "sourceSha256": "79743e6684980faf3cdf826624f0d94e2ad7d50751640474da61068ba29ed08c",
-      "outputSha256": "be647b2798478e34ec2a9ffe847af22bcd1042ce37a922d33fa7f51308fa6fdf",
+      "outputSha256": "cdec558d3ad0ea417405fbbb8537863580267b5013c7c46d771998553a083f16",
       "bytes": 683062,
       "size": [
         1774,
@@ -91,7 +91,7 @@
       "action": "puff",
       "source": "tools/motion-art-source/qiuqiu/puff.png",
       "sourceSha256": "48aef6778b83416c7636d88e3b6e964cfd4345755f54f342c6123f595d91d3d9",
-      "outputSha256": "e739f19e6b4dcbfa38dbb6e7625f211ccc64c9b060171d4b1034f540a2b7a7b4",
+      "outputSha256": "089e66d31907a5e990a99f01693b1dbcb178145c33d80f79986dd5f42cd60161",
       "bytes": 1295154,
       "size": [
         1774,
@@ -105,7 +105,7 @@
       "action": "stealth",
       "source": "tools/motion-art-source/qiuqiu/stealth.png",
       "sourceSha256": "884b1641c7f2bb7cf06ca33c5ff6c78c62b51521bf9c649dfab5c791ed669295",
-      "outputSha256": "6ddd6fd287edaad5e91d993657df0243656810e7f9189da5e0eb619d9db58420",
+      "outputSha256": "d9a2a251b72fc845f711cf32e6b2de82e341389d910bc8784099b6d4534161d6",
       "bytes": 902808,
       "size": [
         1774,

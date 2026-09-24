@@ -15,7 +15,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_return.webp",
       "path": "assets/bg/fengfeng_still_return.webp",
       "sourceSha256": "d72a3acb24c48e258023674249c4f315fe1e1941823c8919ac03819b1cbf03d5",
-      "sha256": "bc483a328d112a1d9b24df79cd050302882f91033581a4748625deb05b1da273",
+      "sha256": "6652892bb6e7398ba1372195f98960b0cd9f552310bee06b6a383e920acf47b8",
       "size": [
         1672,
         941
@@ -40,7 +40,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_shop.webp",
       "path": "assets/bg/fengfeng_still_shop.webp",
       "sourceSha256": "42f9ef192b51bffb382f14b08a3b06360f014a3658f9fd251ec5dac0bbd84f2c",
-      "sha256": "f021b39707cb09de9d915b801c8fb7bf85b42a36e757ea93dfb9294ee5581026",
+      "sha256": "df473ef353b87eca7b02c343ba7eb3d50cc0360413cfe050cc2b9d48fa40267c",
       "size": [
         1672,
         941
@@ -65,7 +65,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_meet.webp",
       "path": "assets/bg/fengfeng_still_meet.webp",
       "sourceSha256": "3ca2d1ccf233aa9c2579d3c2f04cb4a9e68b85d1c2c78473b9015e4f2b9255ba",
-      "sha256": "045609d58f02de59855f5e3dd2c8fb7bbfa9b05af756cae441036669ee10d16c",
+      "sha256": "f02902a5a8ae9fa364cc28da8f90df8a7e2ff5fe723c5294082f252247bfdf63",
       "size": [
         1672,
         941
@@ -90,7 +90,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_tower.webp",
       "path": "assets/bg/fengfeng_still_tower.webp",
       "sourceSha256": "3ab3a2d80bb1a9ad005dbff3e0e10e7c59773d1f1c010c1ef4512d2fc85a9718",
-      "sha256": "4d72e9a40b4c51986a145a651c9ce4b13e8aea6aff03422b6e1dce25e4861f4b",
+      "sha256": "6f5643498a8940e89f17a9900d70f70be2658033df2a9b13077336cb4abd0543",
       "size": [
         1672,
         941
@@ -115,7 +115,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_act1_stairs.webp",
       "path": "assets/bg/fengfeng_still_act1_stairs.webp",
       "sourceSha256": "0279b21d86c69b3607c74a8557389bca224f5167fe547bc03e9f7cd2164782fb",
-      "sha256": "1365a0a21ecbfb227250b53a1ed12c2b9e1f0718e9a422ef4019c9772820c653",
+      "sha256": "8a0a23e1b03c256588e936aa93792b2f0c7d53e50baf421a9ee8927548cc5e63",
       "size": [
         1672,
         941
@@ -138,7 +138,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_act1_fish.webp",
       "path": "assets/bg/fengfeng_still_act1_fish.webp",
       "sourceSha256": "be79b98e8ef5653b8417936819d68bfc8bffb40f964e113f6b92b01fb78959c9",
-      "sha256": "6917091bf5198d01001b2722ff2db8faf07cd23c6eee64637e493ff7add3d961",
+      "sha256": "b5f93ad46168e2fa6fad861fd598938ee7a8e6f3284c0f01703f0a911f523719",
       "size": [
         1280,
         720
@@ -153,7 +153,7 @@
       "fullScene": true,
       "scene": "空糧箱與魚乾碎屑；封封在魔塔樓梯口檢查商隊記號。",
       "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
-      "outputSha256": "6917091bf5198d01001b2722ff2db8faf07cd23c6eee64637e493ff7add3d961",
+      "outputSha256": "b5f93ad46168e2fa6fad861fd598938ee7a8e6f3284c0f01703f0a911f523719",
       "wideScene": true,
       "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-02_act1_fish.png",
       "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A1-02_act1_fish.png",
@@ -169,7 +169,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_act1_climb.webp",
       "path": "assets/bg/fengfeng_still_act1_climb.webp",
       "sourceSha256": "454a80c6e5fc7474abb205cfee724fbf15c6202aedff2495e4bcfdf9c171d140",
-      "sha256": "78ba2f4554367481082a899a8d872fbb18ff3a5cfa2d524c149924711d965a76",
+      "sha256": "e822c1c5b77e8fe3b721593d5a92d62225f916e1f68beba01ad26cf0d803e43b",
       "size": [
         1280,
         720
@@ -184,7 +184,7 @@
       "fullScene": true,
       "scene": "封封扶著有新刮痕的扶手抬頭，準備追上樓梯上的腳步聲。",
       "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
-      "outputSha256": "78ba2f4554367481082a899a8d872fbb18ff3a5cfa2d524c149924711d965a76",
+      "outputSha256": "e822c1c5b77e8fe3b721593d5a92d62225f916e1f68beba01ad26cf0d803e43b",
       "wideScene": true,
       "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A1-03_act1_climb.png",
       "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A1-03_act1_climb.png",
@@ -202,7 +202,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_act2_smoke.webp",
       "path": "assets/bg/fengfeng_still_act2_smoke.webp",
       "sourceSha256": "42f819dd565bcb68fc59833bd6902d0aa6f100a1c209fa22383b4591a746fabc",
-      "sha256": "881d097049b2ef953910e36c0f138302599282f1eb2070a8f96298c2e2bf4fc9",
+      "sha256": "35ec912c6d8550c7adeab448095b6995e15e53563a6e1e47bf6f3e643e9bcd88",
       "size": [
         1672,
         941
@@ -225,7 +225,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_act2_voice.webp",
       "path": "assets/bg/fengfeng_still_act2_voice.webp",
       "sourceSha256": "860cbb48d2a97ebe31ed5906fa44fb268662f3435e374b043aa96e8feac23712",
-      "sha256": "0325d842b1a165357fa6b3c3d0aba8923caed8944969c99a44698d34c4f513aa",
+      "sha256": "0994c80eba7650093293c8ca685a8c7f502d336cbff9f2201b07134362b5ac01",
       "size": [
         1280,
         720
@@ -240,7 +240,7 @@
       "fullScene": true,
       "scene": "封封與黑白噹噹接住腿傷村貓的包袱，在樓梯間護送下樓。",
       "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
-      "outputSha256": "0325d842b1a165357fa6b3c3d0aba8923caed8944969c99a44698d34c4f513aa",
+      "outputSha256": "0994c80eba7650093293c8ca685a8c7f502d336cbff9f2201b07134362b5ac01",
       "wideScene": true,
       "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-02_act2_voice.png",
       "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A2-02_act2_voice.png",
@@ -256,7 +256,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_act2_moonstairs.webp",
       "path": "assets/bg/fengfeng_still_act2_moonstairs.webp",
       "sourceSha256": "aef2a3e114851ff465c912aa997b6ea9f20d4ff6bcc7361edb7714e960b1a157",
-      "sha256": "2a46605e33f7779c303234523d27087b6b784c502ed00be4082100cd79a8c6c4",
+      "sha256": "fb0ef6be261dccf1df857c7acce046f095cff56ed191701f6cddaca32766154a",
       "size": [
         1280,
         720
@@ -271,7 +271,7 @@
       "fullScene": true,
       "scene": "噹噹與村貓離開後，封封獨自在月光樓梯下抬頭聽見塔上吼聲。",
       "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
-      "outputSha256": "2a46605e33f7779c303234523d27087b6b784c502ed00be4082100cd79a8c6c4",
+      "outputSha256": "fb0ef6be261dccf1df857c7acce046f095cff56ed191701f6cddaca32766154a",
       "wideScene": true,
       "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-A2-06_act2_moonstairs.png",
       "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-A2-06_act2_moonstairs.png",
@@ -289,7 +289,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_embrace.webp",
       "path": "assets/bg/fengfeng_still_embrace.webp",
       "sourceSha256": "2f5b0ebc5f4075b37dd613c423f1ed1dde46255342896efa92386eebbb93a706",
-      "sha256": "1d22cb9ed316606b6e5e454f4d76c103a482c56fbc744fba6bcb8f664ff6691e",
+      "sha256": "088f700c5ae32c7f26ab8e82a162bf6eabf55334ebc5d5c9ea4c7406a40dc0bc",
       "size": [
         1280,
         720
@@ -304,7 +304,7 @@
       "fullScene": true,
       "scene": "紫光退去後，橘白封封收劍；大俠貓師父扶住他，菲菲查看球球傷勢。",
       "visualQa": "stylized-2d; identity-reviewed; full-scene; no-crop; no-stretch; no-transparency",
-      "outputSha256": "1d22cb9ed316606b6e5e454f4d76c103a482c56fbc744fba6bcb8f664ff6691e",
+      "outputSha256": "088f700c5ae32c7f26ab8e82a162bf6eabf55334ebc5d5c9ea4c7406a40dc0bc",
       "wideScene": true,
       "retainedSource": "tools/motion-art-source/fengfeng-extra/story-missing-v2/FG-V-01_embrace.png",
       "retainedPreviousSource": "tools/motion-art-source/fengfeng-extra/story-missing/FG-V-01_embrace.png",
@@ -323,7 +323,7 @@
       "outputPath": "public/assets/bg/fengfeng_still_home.webp",
       "path": "assets/bg/fengfeng_still_home.webp",
       "sourceSha256": "e1313ce155f0f24a0f970e961ff761d01fd3f1187af3a34f02c75983ccdd0d3b",
-      "sha256": "7734dc454a5ea2d0678833103434ea9230045044fd4dd62d289ff532c7cc1190",
+      "sha256": "cc2f8460544b21e200d5927d33c3b46d6e02d9c8eb6b1805f6c5edc13a8b4b83",
       "size": [
         1672,
         941
@@ -350,7 +350,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_ninja_prologue.webp",
       "path": "assets/bg/fengfeng_coop_ninja_prologue.webp",
       "sourceSha256": "9e8f5144547d5eebf5a1e7c679658aa50899c0ae4c31146360ce99895400771b",
-      "sha256": "e3f240ee8812622e1dfb8642d52a33005925875708785d4b1ead9031659d1917",
+      "sha256": "8adb39dd1164a7cc8179852b72aaadb512fba2f79b841f4f40f675ef262e33b4",
       "size": [
         1672,
         941
@@ -381,7 +381,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_ninja_top.webp",
       "path": "assets/bg/fengfeng_coop_ninja_top.webp",
       "sourceSha256": "35afed36b00fcf4f52be88019ebeecffeb9a60316d0a8c2fb4b8ecd81d33077e",
-      "sha256": "3f750318ec6bf406f20bd9e8bacf58622e5200e72098688e588783be8b5d42a5",
+      "sha256": "6f9017b25cc0f93001ca3fd23ddff223260cca09e4b795a15cd8983a175971cb",
       "size": [
         1672,
         941
@@ -408,7 +408,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_ninja_victory.webp",
       "path": "assets/bg/fengfeng_coop_ninja_victory.webp",
       "sourceSha256": "ff8bb4d9019089a32941492984a887bbfa6630a544472ccd9f6d136c78e71cf7",
-      "sha256": "b0fbf307ac4e3c593796564a272f25a3479e177a702217b86c53bda927f34276",
+      "sha256": "b8f4c63ed36e450b78d2f2d445bf198fee2991e0a5348a458f8ebd7a393106f1",
       "size": [
         1672,
         941
@@ -435,7 +435,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_feifei_prologue.webp",
       "path": "assets/bg/fengfeng_coop_feifei_prologue.webp",
       "sourceSha256": "2ee6f81c89d01e0565478135269547c80ecc34088bbce29412f0d8e3526e54af",
-      "sha256": "abf7b00bbe85bc5062448eae8417a6ae17b7557559f5976558c30b6242dab65b",
+      "sha256": "1ec5d59bcda1f8f084c61c23ededce8baa2bb5f1afeabc83d4257e37c8f19664",
       "size": [
         1672,
         941
@@ -463,7 +463,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_feifei_top.webp",
       "path": "assets/bg/fengfeng_coop_feifei_top.webp",
       "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CFT.png",
-      "sha256": "7dea2773340bcbe6a73147087a6b6e79a4ba8cb1fe7c99822f86ea7cc6ae332c",
+      "sha256": "c408fd6d12ac3ebdc3cae8ebc895e728695434d96a994d5567a985d20f6ef899",
       "size": [
         1672,
         941
@@ -488,7 +488,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_feifei_victory.webp",
       "path": "assets/bg/fengfeng_coop_feifei_victory.webp",
       "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CFV.png",
-      "sha256": "50f1052ce79b6be0ddfa125c7c16137979c18e8bd3643ad77c358d6950dc03f1",
+      "sha256": "a885a71ea8024b535fbaa5aedb07ca91bb578ec6e80dab5de4adf2dba5104150",
       "size": [
         1672,
         941
@@ -512,7 +512,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_dangdang_prologue.webp",
       "path": "assets/bg/fengfeng_coop_dangdang_prologue.webp",
       "sourceSha256": "0a9a37563207392aacf4d58a67c4239e9b2caff31590e91eb9523e2ba735d18c",
-      "sha256": "8b42b5d4b70efecca95e5be51de0b1da065f62197be13be16eced27b6f26699b",
+      "sha256": "36b1d14e91d4558804ce12c1a5e28507e0a97129ecd770bb18d0dcc2de966c3e",
       "size": [
         1672,
         941
@@ -540,7 +540,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_dangdang_top.webp",
       "path": "assets/bg/fengfeng_coop_dangdang_top.webp",
       "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CDT.png",
-      "sha256": "f004fc430baf6b1949c461936acf0240659887d027b2b90aafac9d57654fdb30",
+      "sha256": "c49bf40babb4237d1b5ac8f60d1109d658f2f41300ef2355340065475319db87",
       "size": [
         1672,
         941
@@ -565,7 +565,7 @@
       "outputPath": "public/assets/bg/fengfeng_coop_dangdang_victory.webp",
       "path": "assets/bg/fengfeng_coop_dangdang_victory.webp",
       "sourcePath": "tools/motion-art-source/fengfeng-extra/story_CDV.png",
-      "sha256": "f8f987bfd753e1fa08b16aaf0ce687b48e01d6a655d84ae123b31b0e5f6b1020",
+      "sha256": "27f9ed866f1a0723537d379bd475751acc91a82adfa6eeddb8ec03ffb1bd2dda",
       "size": [
         1672,
         941
@@ -711,7 +711,7 @@
       "outputPath": "public/assets/bg/event_fengfeng_stuck_scabbard_r2.webp",
       "path": "assets/bg/event_fengfeng_stuck_scabbard_r2.webp",
       "sourceSha256": "0acd0deca3217b13b1d2b317180837ea3a46994752e5c0ee90df9098fa04a978",
-      "sha256": "b9ad7be6473065d29815527fd9f9b67bcac266211044ad9d01095efbfb7d6a0a",
+      "sha256": "2b1faed961ed404a9132fcd48bd10495c2607b9895981b04e17ffb671af55f15",
       "size": [
         560,
         420
@@ -799,7 +799,7 @@
       "outputPath": "public/assets/bg/event_fengfeng_lost_medicine_r0.webp",
       "path": "assets/bg/event_fengfeng_lost_medicine_r0.webp",
       "sourceSha256": "8aab0fa284c1a9bf0ac67d6779c22a4ab4099ecb7637eba9da2969ac792e7ca7",
-      "sha256": "c82ef6cd7a69665d9b3052c6499adffffeb666491dee68ee552ef3d64d21b3f2",
+      "sha256": "1bb82fbd9bed50c2f18c90a5948d4bde8bce4e5a557716cb824d286b81df17a1",
       "size": [
         560,
         420
@@ -1013,7 +1013,7 @@
       "sourceSlot": "R02",
       "formalSlot": "r1",
       "sourceSha256": "4377506a601bca0923d6090b5e78018e7d875ba4d72c6409fd3037cbfacb6325",
-      "sha256": "9ac0a2845feed32531a31a2ec9a35e6bfe1b2f87d807aaa204f0d662e6edff9c",
+      "sha256": "7659de358e496dd1cbffa33e3e4d2d284bf85289fcf1d74e88cbfe0d720cda4a",
       "size": [
         560,
         420
@@ -1051,7 +1051,7 @@
       "sourceSlot": "R03",
       "formalSlot": "r2",
       "sourceSha256": "86be946d9ccb1d791af54a160d58c9e2836d66d3b4d24aef05ba7f0b4bc8491a",
-      "sha256": "c07d3d31a1be9c7415b4352446b7c96a0085d2c02d8bc1364c37bdf4e005b611",
+      "sha256": "8a3958c4813e4bb58c90816f7d50b8eba109eafa6f7a74a20f6bcfae4407ea9d",
       "size": [
         560,
         420
@@ -1093,7 +1093,7 @@
       "outputPath": "public/assets/bg/event_fengfeng_broken_bridge.webp",
       "path": "assets/bg/event_fengfeng_broken_bridge.webp",
       "sourceSha256": "925af8765c947fc952ae01625bee999d89357de46145be8ba77427b7b50fbcb9",
-      "sha256": "efbd21816bbb029f99e6eb7ef497fb0389b4fe1910f3aa63983f261d1ba7b494",
+      "sha256": "da0f5a0c94199cd43d8cdd9db7a66cbc5464e1483c3f8703b032c7f4a2ea2c7b",
       "size": [
         560,
         420
@@ -1260,7 +1260,7 @@
       "outputPath": "public/assets/bg/fengfeng_story_p05.webp",
       "path": "assets/bg/fengfeng_story_p05.webp",
       "sourceSha256": "49c2d0ad630765cb3e4e4bbec16f33a69e12fd2bfd98cf20bae808b8a4f9bbcf",
-      "sha256": "d6892511b96fadf7db52779faa990fd3981be194f1d18becc75e0055c7846f83",
+      "sha256": "3a2ac9840428c2c40f8fc4f00ba77bcbd9c8e70aab7589ee6892e132f327b51e",
       "size": [
         1672,
         941
@@ -1284,7 +1284,7 @@
       "outputPath": "public/assets/bg/fengfeng_story_top.webp",
       "path": "assets/bg/fengfeng_story_top.webp",
       "sourceSha256": "15715c999213641efe8d0412662e86e08135767f773bb1906ebf1a3fbb0d52f5",
-      "sha256": "45a2cf487b71a7df66e7218f986275a3cd0fb0977d3b8f5869a57f05fa4ee60b",
+      "sha256": "5c53fff711da5773f0210c4ba182ce23c57be7a99e72722020b01bcde146e495",
       "size": [
         1672,
         941
@@ -1308,7 +1308,7 @@
       "outputPath": "public/assets/bg/fengfeng_story_defeat.webp",
       "path": "assets/bg/fengfeng_story_defeat.webp",
       "sourceSha256": "099b5e61034dd82a9a1fb6d5f505e8809f3a2cc631adee3851c611b2b322ef96",
-      "sha256": "e87064a53bafeaddaf7b1e525a27d076d273cb7efd490eddae64d856254aff9d",
+      "sha256": "1429da409292da7b0af7ade3883a49946787826683391835b059a481657141f7",
       "size": [
         1672,
         941
@@ -1332,7 +1332,7 @@
       "outputPath": "public/assets/bg/fengfeng_story_ep01.webp",
       "path": "assets/bg/fengfeng_story_ep01.webp",
       "sourceSha256": "8a4a73187985e8508c988cdada0f0b3c70af3379ea32305a52049992494300a0",
-      "sha256": "ed642121c07c5171ffda1265abac39bc600313de034b8f21a73d594abaa08adc",
+      "sha256": "55ecb6c88c6dc1caa4f75fa65a4bc01caa4230106b94fdfcccc7ce6f281b1a3f",
       "size": [
         1672,
         941
@@ -1486,7 +1486,7 @@
       "sourceId": "FG-EX1-R03",
       "formalSlot": "r2",
       "outputPath": "public/assets/bg/event_fengfeng_stuck_scabbard_r2.webp",
-      "sha256": "b9ad7be6473065d29815527fd9f9b67bcac266211044ad9d01095efbfb7d6a0a",
+      "sha256": "2b1faed961ed404a9132fcd48bd10495c2607b9895981b04e17ffb671af55f15",
       "size": [
         560,
         420
@@ -1500,7 +1500,7 @@
       "sourceId": "FG-EX3-R03",
       "formalSlot": "r2",
       "outputPath": "public/assets/bg/event_fengfeng_fallen_rack_r2.webp",
-      "sha256": "c07d3d31a1be9c7415b4352446b7c96a0085d2c02d8bc1364c37bdf4e005b611",
+      "sha256": "8a3958c4813e4bb58c90816f7d50b8eba109eafa6f7a74a20f6bcfae4407ea9d",
       "size": [
         560,
         420

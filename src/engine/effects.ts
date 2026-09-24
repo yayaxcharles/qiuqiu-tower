@@ -735,7 +735,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         const back = p.thornsFromSpend === 'full' ? spent : Math.floor(spent / 2);
         if (back > 0) { addStatus(p, '反彈', back); log(cs, `${unitName(p)}把卸出去的力道反了 ${back} 點回來`); }
       }
-      const base = Math.floor(hit * (fx.mul ?? 1)) + bonus;
+      const base = Math.floor(hit * (fx.mul ?? 1)) + bonus + (fx.plus ?? 0);
       // 蜷縮 0 時整張撲空，補一行交代（稽核 2026-09-17 低-4）：不寫的話玩家花了飯糰、畫面什麼都沒發生
       if (base <= 0) { log(cs, `${unitName(p)}身上沒有蜷縮可卸`); return false; }
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {

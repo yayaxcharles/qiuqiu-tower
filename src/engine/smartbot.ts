@@ -402,7 +402,7 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       const want = fx.all ? pool : (fx.max ?? 0);
       const hit = Math.min(want, p.halfSpendBlock ? pool * 2 : pool);
       spent += p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
-      const plus = fx.plusOwnStatus ? getStatus(p, fx.plusOwnStatus) : 0;
+      const plus = (fx.plusOwnStatus ? getStatus(p, fx.plusOwnStatus) : 0) + (fx.plus ?? 0);
       swing(computeAttack((Math.floor(hit * (fx.mul ?? 1)) + plus) * (doubled ? 2 : 1), p, e, { noStrength: true }), fx.ignoreBlock);
     } else if (fx.kind === 'damageByOwnStatus') {
       // 以彼之道：照**自己**的反彈打。反彈是自己身上的，跟目標無關，所以每一隻的估值都一樣

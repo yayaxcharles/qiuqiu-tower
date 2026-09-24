@@ -1,0 +1,170 @@
+{
+ "efbd21816bbb029f99e6eb7ef497fb0389b4fe1910f3aa63983f261d1ba7b494": {
+  "file": "public/assets/bg/event_fengfeng_broken_bridge.webp",
+  "new": "da0f5a0c94199cd43d8cdd9db7a66cbc5464e1483c3f8703b032c7f4a2ea2c7b",
+  "before": 188864,
+  "after": 53318
+ },
+ "c82ef6cd7a69665d9b3052c6499adffffeb666491dee68ee552ef3d64d21b3f2": {
+  "file": "public/assets/bg/event_fengfeng_lost_medicine_r0.webp",
+  "new": "1bb82fbd9bed50c2f18c90a5948d4bde8bce4e5a557716cb824d286b81df17a1",
+  "before": 211326,
+  "after": 52322
+ },
+ "b9ad7be6473065d29815527fd9f9b67bcac266211044ad9d01095efbfb7d6a0a": {
+  "file": "public/assets/bg/event_fengfeng_stuck_scabbard_r2.webp",
+  "new": "2b1faed961ed404a9132fcd48bd10495c2607b9895981b04e17ffb671af55f15",
+  "before": 175726,
+  "after": 51052
+ },
+ "8b42b5d4b70efecca95e5be51de0b1da065f62197be13be16eced27b6f26699b": {
+  "file": "public/assets/bg/fengfeng_coop_dangdang_prologue.webp",
+  "new": "36b1d14e91d4558804ce12c1a5e28507e0a97129ecd770bb18d0dcc2de966c3e",
+  "before": 398904,
+  "after": 188676
+ },
+ "f004fc430baf6b1949c461936acf0240659887d027b2b90aafac9d57654fdb30": {
+  "file": "public/assets/bg/fengfeng_coop_dangdang_top.webp",
+  "new": "c49bf40babb4237d1b5ac8f60d1109d658f2f41300ef2355340065475319db87",
+  "before": 511304,
+  "after": 247900
+ },
+ "f8f987bfd753e1fa08b16aaf0ce687b48e01d6a655d84ae123b31b0e5f6b1020": {
+  "file": "public/assets/bg/fengfeng_coop_dangdang_victory.webp",
+  "new": "27f9ed866f1a0723537d379bd475751acc91a82adfa6eeddb8ec03ffb1bd2dda",
+  "before": 491090,
+  "after": 254042
+ },
+ "abf7b00bbe85bc5062448eae8417a6ae17b7557559f5976558c30b6242dab65b": {
+  "file": "public/assets/bg/fengfeng_coop_feifei_prologue.webp",
+  "new": "1ec5d59bcda1f8f084c61c23ededce8baa2bb5f1afeabc83d4257e37c8f19664",
+  "before": 393344,
+  "after": 189788
+ },
+ "7dea2773340bcbe6a73147087a6b6e79a4ba8cb1fe7c99822f86ea7cc6ae332c": {
+  "file": "public/assets/bg/fengfeng_coop_feifei_top.webp",
+  "new": "c408fd6d12ac3ebdc3cae8ebc895e728695434d96a994d5567a985d20f6ef899",
+  "before": 441158,
+  "after": 211058
+ },
+ "50f1052ce79b6be0ddfa125c7c16137979c18e8bd3643ad77c358d6950dc03f1": {
+  "file": "public/assets/bg/fengfeng_coop_feifei_victory.webp",
+  "new": "a885a71ea8024b535fbaa5aedb07ca91bb578ec6e80dab5de4adf2dba5104150",
+  "before": 465828,
+  "after": 222134
+ },
+ "e3f240ee8812622e1dfb8642d52a33005925875708785d4b1ead9031659d1917": {
+  "file": "public/assets/bg/fengfeng_coop_ninja_prologue.webp",
+  "new": "8adb39dd1164a7cc8179852b72aaadb512fba2f79b841f4f40f675ef262e33b4",
+  "before": 557556,
+  "after": 268260
+ },
+ "3f750318ec6bf406f20bd9e8bacf58622e5200e72098688e588783be8b5d42a5": {
+  "file": "public/assets/bg/fengfeng_coop_ninja_top.webp",
+  "new": "6f9017b25cc0f93001ca3fd23ddff223260cca09e4b795a15cd8983a175971cb",
+  "before": 498008,
+  "after": 224760
+ },
+ "b0fbf307ac4e3c593796564a272f25a3479e177a702217b86c53bda927f34276": {
+  "file": "public/assets/bg/fengfeng_coop_ninja_victory.webp",
+  "new": "b8f4c63ed36e450b78d2f2d445bf198fee2991e0a5348a458f8ebd7a393106f1",
+  "before": 502308,
+  "after": 252054
+ },
+ "78ba2f4554367481082a899a8d872fbb18ff3a5cfa2d524c149924711d965a76": {
+  "file": "public/assets/bg/fengfeng_still_act1_climb.webp",
+  "new": "e822c1c5b77e8fe3b721593d5a92d62225f916e1f68beba01ad26cf0d803e43b",
+  "before": 273562,
+  "after": 124262
+ },
+ "6917091bf5198d01001b2722ff2db8faf07cd23c6eee64637e493ff7add3d961": {
+  "file": "public/assets/bg/fengfeng_still_act1_fish.webp",
+  "new": "b5f93ad46168e2fa6fad861fd598938ee7a8e6f3284c0f01703f0a911f523719",
+  "before": 295566,
+  "after": 133914
+ },
+ "1365a0a21ecbfb227250b53a1ed12c2b9e1f0718e9a422ef4019c9772820c653": {
+  "file": "public/assets/bg/fengfeng_still_act1_stairs.webp",
+  "new": "8a0a23e1b03c256588e936aa93792b2f0c7d53e50baf421a9ee8927548cc5e63",
+  "before": 405968,
+  "after": 175222
+ },
+ "2a46605e33f7779c303234523d27087b6b784c502ed00be4082100cd79a8c6c4": {
+  "file": "public/assets/bg/fengfeng_still_act2_moonstairs.webp",
+  "new": "fb0ef6be261dccf1df857c7acce046f095cff56ed191701f6cddaca32766154a",
+  "before": 279442,
+  "after": 123540
+ },
+ "881d097049b2ef953910e36c0f138302599282f1eb2070a8f96298c2e2bf4fc9": {
+  "file": "public/assets/bg/fengfeng_still_act2_smoke.webp",
+  "new": "35ec912c6d8550c7adeab448095b6995e15e53563a6e1e47bf6f3e643e9bcd88",
+  "before": 416290,
+  "after": 172278
+ },
+ "0325d842b1a165357fa6b3c3d0aba8923caed8944969c99a44698d34c4f513aa": {
+  "file": "public/assets/bg/fengfeng_still_act2_voice.webp",
+  "new": "0994c80eba7650093293c8ca685a8c7f502d336cbff9f2201b07134362b5ac01",
+  "before": 295850,
+  "after": 128932
+ },
+ "1d22cb9ed316606b6e5e454f4d76c103a482c56fbc744fba6bcb8f664ff6691e": {
+  "file": "public/assets/bg/fengfeng_still_embrace.webp",
+  "new": "088f700c5ae32c7f26ab8e82a162bf6eabf55334ebc5d5c9ea4c7406a40dc0bc",
+  "before": 267050,
+  "after": 128614
+ },
+ "7734dc454a5ea2d0678833103434ea9230045044fd4dd62d289ff532c7cc1190": {
+  "file": "public/assets/bg/fengfeng_still_home.webp",
+  "new": "cc2f8460544b21e200d5927d33c3b46d6e02d9c8eb6b1805f6c5edc13a8b4b83",
+  "before": 452400,
+  "after": 212086
+ },
+ "045609d58f02de59855f5e3dd2c8fb7bbfa9b05af756cae441036669ee10d16c": {
+  "file": "public/assets/bg/fengfeng_still_meet.webp",
+  "new": "f02902a5a8ae9fa364cc28da8f90df8a7e2ff5fe723c5294082f252247bfdf63",
+  "before": 535836,
+  "after": 260466
+ },
+ "bc483a328d112a1d9b24df79cd050302882f91033581a4748625deb05b1da273": {
+  "file": "public/assets/bg/fengfeng_still_return.webp",
+  "new": "6652892bb6e7398ba1372195f98960b0cd9f552310bee06b6a383e920acf47b8",
+  "before": 565968,
+  "after": 285578
+ },
+ "f021b39707cb09de9d915b801c8fb7bf85b42a36e757ea93dfb9294ee5581026": {
+  "file": "public/assets/bg/fengfeng_still_shop.webp",
+  "new": "df473ef353b87eca7b02c343ba7eb3d50cc0360413cfe050cc2b9d48fa40267c",
+  "before": 530308,
+  "after": 264246
+ },
+ "4d72e9a40b4c51986a145a651c9ce4b13e8aea6aff03422b6e1dce25e4861f4b": {
+  "file": "public/assets/bg/fengfeng_still_tower.webp",
+  "new": "6f5643498a8940e89f17a9900d70f70be2658033df2a9b13077336cb4abd0543",
+  "before": 525388,
+  "after": 239632
+ },
+ "e87064a53bafeaddaf7b1e525a27d076d273cb7efd490eddae64d856254aff9d": {
+  "file": "public/assets/bg/fengfeng_story_defeat.webp",
+  "new": "1429da409292da7b0af7ade3883a49946787826683391835b059a481657141f7",
+  "before": 395816,
+  "after": 178012
+ },
+ "ed642121c07c5171ffda1265abac39bc600313de034b8f21a73d594abaa08adc": {
+  "file": "public/assets/bg/fengfeng_story_ep01.webp",
+  "new": "55ecb6c88c6dc1caa4f75fa65a4bc01caa4230106b94fdfcccc7ce6f281b1a3f",
+  "before": 504936,
+  "after": 253336
+ },
+ "d6892511b96fadf7db52779faa990fd3981be194f1d18becc75e0055c7846f83": {
+  "file": "public/assets/bg/fengfeng_story_p05.webp",
+  "new": "3a2ac9840428c2c40f8fc4f00ba77bcbd9c8e70aab7589ee6892e132f327b51e",
+  "before": 451780,
+  "after": 209548
+ },
+ "45a2cf487b71a7df66e7218f986275a3cd0fb0977d3b8f5869a57f05fa4ee60b": {
+  "file": "public/assets/bg/fengfeng_story_top.webp",
+  "new": "5c53fff711da5773f0210c4ba182ce23c57be7a99e72722020b01bcde146e495",
+  "before": 526222,
+  "after": 250058
+ }
+}

@@ -23,7 +23,7 @@
       "scale": 0.8164109589041095,
       "loop": false,
       "texture": "assets/motion/dangdang/dodge_win.webp",
-      "textureSha256": "6854392cf4981c05531865cd02bc41e8d54996f24965384e34b351dc0c82f1a4",
+      "textureSha256": "d5f423c1e8a1ea6afd4413af6c4a05cb5f6cd34de38e5e8a99a18fed800a5ea4",
       "bytes": 929196,
       "frames": [
         {
@@ -240,7 +240,7 @@
       "scale": 0.8330721649484536,
       "loop": false,
       "texture": "assets/motion/dangdang/dodge_win.webp",
-      "textureSha256": "6854392cf4981c05531865cd02bc41e8d54996f24965384e34b351dc0c82f1a4",
+      "textureSha256": "d5f423c1e8a1ea6afd4413af6c4a05cb5f6cd34de38e5e8a99a18fed800a5ea4",
       "bytes": 929196,
       "frames": [
         {
@@ -457,7 +457,7 @@
       "scale": 0.63283,
       "loop": false,
       "texture": "assets/motion/qiuqiu/combo_kick_sheet.webp",
-      "textureSha256": "f7704100af3a2173bd8515037d69d9c535eafa7a40e565f600bd4881fa81e2f7",
+      "textureSha256": "15fbc0294cc5c20f959442070bb64446bbda1492c9d3a3aa67a0a2d88ac3aece",
       "bytes": 751980,
       "frames": [
         {
@@ -693,7 +693,7 @@
       "scale": 0.6531,
       "loop": false,
       "texture": "assets/motion/qiuqiu/rush_sheet.webp",
-      "textureSha256": "6a89fe0a6e32b35b4d23c6a4d5a334f097b6111e17a02df8bb484ed02e54dd93",
+      "textureSha256": "6b58eebcc3160a8ec79fccce5c75597ac961aec1e17ff02d65d1decf1ce5ec6c",
       "bytes": 763328,
       "frames": [
         {
@@ -910,7 +910,7 @@
       "scale": 0.635684,
       "loop": true,
       "texture": "assets/motion/qiuqiu/storm_sheet.webp",
-      "textureSha256": "b116708742d18f5c463c120ce87b7ecaeea2cb5d37f6d88638fc8affce8a8be0",
+      "textureSha256": "8dbc2cb709bbb894cbacb8aef1b5a1acdfe1c6be62ff23858ac9991f0a18cec6",
       "bytes": 874878,
       "frames": [
         {
@@ -1119,7 +1119,7 @@
       "scale": 0.5407500000000001,
       "loop": false,
       "texture": "assets/motion/qiuqiu/claw_air_sheet.webp",
-      "textureSha256": "9dbe9730a89f9c641197073fc3e653839108af8bd54e37a89e2213b2f766dd37",
+      "textureSha256": "9380447b84baccb69fb36d5a21497cf4c891a093c69f1345c57acc4421ed5a98",
       "bytes": 697844,
       "frames": [
         {

@@ -180,6 +180,8 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       const hit = (fx.mul ?? 1) > 1 ? `造成卸掉點數${n}倍的傷害` : '造成等量傷害';
       const who = fx.target === 'all' ? hit.replace('造成', '對全體魔物造成') : hit;
       const plus = fx.plusOwnStatus ? `，每有 1 點${fx.plusOwnStatus}再多打 1 點` : '';
+      // 保底那段寫在前面（卸力掌乙方案）：「造成 4 點傷害，最多卸掉 6 點蜷縮加上去」
+      if (fx.plus) return `造成 ${fx.plus} 點傷害，${spend}加上去${plus}` + (fx.ignoreBlock ? '，無視防禦' : '');
       return `${spend}，${who}${plus}` + (fx.ignoreBlock ? '，無視防禦' : '');
     }
     case 'healSpendBlock': return `最多卸掉 ${fx.max} 點蜷縮，回復等量生命`;

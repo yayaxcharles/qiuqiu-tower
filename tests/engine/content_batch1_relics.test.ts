@@ -118,13 +118,13 @@ describe('噹噹那三件（反彈、蜷縮當彈藥）', () => {
     expect(cs.player.block).toBe(8);
   });
 
-  it('秤砣腰帶：卸掉蜷縮的牌只卸一半（卸力掌 6 點：蜷縮 10 → 7，照打 6）', () => {
-    const cs = start(['iron_weight_belt'], { hero: 'dangdang', deck: ['dangdang_xieli', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan'] });
+  it('秤砣腰帶：卸掉蜷縮的牌只卸一半（借力打力 6 點：蜷縮 10 → 7，照打 6）', () => {
+    const cs = start(['iron_weight_belt'], { hero: 'dangdang', deck: ['dangdang_jielidali', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan', 'dangdang_jiapan'] });
     expect(cs.player.halfSpendBlock).toBe(true);
     const e = cs.enemies[0]!;
     cs.player.block = 10;
     const hp = e.hp;
-    playCard(cs, toHand(cs, 'dangdang_xieli'), e.uid);
+    playCard(cs, toHand(cs, 'dangdang_jielidali'), e.uid);
     expect(cs.player.block).toBe(7);
     expect(hp - e.hp).toBe(6);
   });

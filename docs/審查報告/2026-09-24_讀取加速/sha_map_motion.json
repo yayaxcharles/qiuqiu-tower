@@ -1,0 +1,932 @@
+{
+ "ba14cda55ba9c8c96fc07c9c83a017175242364346206e6e638cbb73be33a276": {
+  "file": "public/assets/motion/dangdang/belly.webp",
+  "new": "c8a5f753d9734dae0703c0f55498d7ec40c35c76ef3a72211b9765204f37e38b",
+  "before": 514014,
+  "after": 131504
+ },
+ "b7dbacf080ee892eb853172075aec74154eff4f1ad39d3e27db92c4d464883f4": {
+  "file": "public/assets/motion/dangdang/counter_slam.webp",
+  "new": "16f525116619d100a8c667311929540c11ef4ad43da90d306433edac71ddfe36",
+  "before": 874086,
+  "after": 304004
+ },
+ "13c147637f94e3c4ca21c70800a1dcf7aa4bc5826050c803d96648db51defbcb": {
+  "file": "public/assets/motion/dangdang/curl.webp",
+  "new": "eadf9a5e66190b02db30f3b25b423638669d76c1bbe5cb6a9890eb8b182de549",
+  "before": 534348,
+  "after": 124942
+ },
+ "ba7a8bbc2380b82547e9160da2df978bbcdc6cd9e1772691acfdc24faa79458e": {
+  "file": "public/assets/motion/dangdang/defeat.webp",
+  "new": "805dcdbc8d4e03ce30548b227b8a5fcfd8f4077660dc590be0aaec12d6d7e020",
+  "before": 564202,
+  "after": 164490
+ },
+ "75e958cddc4edd6ba4678b4b716c30b09473d5c68841ecaf36c68cc19a759a7a": {
+  "file": "public/assets/motion/dangdang/dizzy.webp",
+  "new": "85cecaab0fd45879311d6b5736d0f43f4a57dec7ba2f8fe1798e58080202b26a",
+  "before": 640020,
+  "after": 179920
+ },
+ "6854392cf4981c05531865cd02bc41e8d54996f24965384e34b351dc0c82f1a4": {
+  "file": "public/assets/motion/dangdang/dodge_win.webp",
+  "new": "d5f423c1e8a1ea6afd4413af6c4a05cb5f6cd34de38e5e8a99a18fed800a5ea4",
+  "before": 929196,
+  "after": 309126
+ },
+ "9971e80f8df179cfb0ad3e676adcb8546bd09a0302680e00d25fa678e09fd539": {
+  "file": "public/assets/motion/dangdang/eat_poison.webp",
+  "new": "315bb5ffe3a461fc5ea4033e350dcda762799341066ad264174406340e24c591",
+  "before": 504994,
+  "after": 152578
+ },
+ "efb4e8f93268b5799d95c86328c68cfc9142218c1e1edb6277c275117151a6e0": {
+  "file": "public/assets/motion/dangdang/guard_focus.webp",
+  "new": "33856e56265dc1ba3697bc8a09d5ee7a6d0be8328d0376db9d120f14ad9bff9f",
+  "before": 745412,
+  "after": 252138
+ },
+ "f34d00034227f6d57a73e9c66d93e462f1a761cccfb50d437bf43c756352503c": {
+  "file": "public/assets/motion/dangdang/heavy_palm_v2.webp",
+  "new": "c09030c8b383a944208e882a0eb47814d2a51e4291ae3aa71bea7b13d37a561e",
+  "before": 811028,
+  "after": 236494
+ },
+ "d8bb4f0d9d2610971b4fdfa12fda51961ecd86b28607eb811687f597578c029d": {
+  "file": "public/assets/motion/dangdang/hit_recoil.webp",
+  "new": "2b3d72818db8d41e6008797ff9b9d2da2961199209632ab1ecffe6c2b4f55461",
+  "before": 42800,
+  "after": 14500
+ },
+ "c2d9374eaaf2cbfcf4461a92d0beae51c51da3bf13d66aeba71b1c132fadb2e2": {
+  "file": "public/assets/motion/dangdang/hungry.webp",
+  "new": "f422b45d368d0e777db2452cf33d4fba9fa034e57fb1104eca25c6c802eba617",
+  "before": 598056,
+  "after": 146642
+ },
+ "b063bad1578c1d7c8a9c6360e002d8b4e7dda0e9e21b5561d640973ebe06e528": {
+  "file": "public/assets/motion/dangdang/idle_hurt.webp",
+  "new": "4e5bc979ec8d6c3c8b6c1ba2e7f3a83408e30e37b24b06b39577186c820644d1",
+  "before": 665664,
+  "after": 238198
+ },
+ "54c27680aae3060e49b6be1b60a3eca47a6d2ec1e05a0c3664ff8422fa37fb12": {
+  "file": "public/assets/motion/dangdang/iron.webp",
+  "new": "dc4ba58d0ba093ff768e2ecfd8ed93f7769853dc3e279b1154dccd5d2945d971",
+  "before": 581582,
+  "after": 149254
+ },
+ "c4c7335998570e26ef4fc889d9e9f98f9f93a32d3fab6d1983790954032d55ed": {
+  "file": "public/assets/motion/dangdang/kick_shoulder.webp",
+  "new": "48f60d2d8fa9336a021b2cbe564c272d8c00fd1c45c2e13ff6a849cec15e31a0",
+  "before": 790388,
+  "after": 277794
+ },
+ "4e2cde0eee63dac7fb6ce3d22ba011c8c753870e38b84d846065559f2c1b6b35": {
+  "file": "public/assets/motion/dangdang/lazy.webp",
+  "new": "5e3c619b90f4ee40ccd80fd54e446e22455babf6217b7b2c363877eeccae81c3",
+  "before": 625776,
+  "after": 157498
+ },
+ "951669df3feea18da98b93aa0eaf77ab7dd54e1fa7b5c1605063731b491e639c": {
+  "file": "public/assets/motion/dangdang/palm.webp",
+  "new": "d4f37acee1d42a810fdff7b30117c3d12ccf780592bd85d773ac6425d44223ea",
+  "before": 814042,
+  "after": 244946
+ },
+ "ccd5be2cb2b18c219fca91496eac1568ede8f16cef74c95b0f09ac686294c468": {
+  "file": "public/assets/motion/dangdang/power.webp",
+  "new": "cbcd9fd2d3e102515f7e818731405c391bf75ea4d6f732c4564c09b74f5b1d8d",
+  "before": 696796,
+  "after": 184464
+ },
+ "cbd49f4a37006d34e86f088a6b068c370eb7a380da3537dff68a2a0dce998559": {
+  "file": "public/assets/motion/dangdang/puff.webp",
+  "new": "0fe0143e2b02f38c5686c88c9ac58560f8aa3f2fb2ad55d6df72b47b7c30e857",
+  "before": 698876,
+  "after": 185732
+ },
+ "3646ab1509cb0d785a7365d68a46aaab39361f74206ba798e8a27c0dda7ff15b": {
+  "file": "public/assets/motion/dangdang/punch.webp",
+  "new": "29d2fe9d37fc622e67e44e933967b4b4bb6e1bb0f872d6253af6f77e88006136",
+  "before": 739774,
+  "after": 219962
+ },
+ "f43b7139d8343ea8b00ff3af06017f9d8bcfd1e298d565df1344f9fbbcdcd8c6": {
+  "file": "public/assets/motion/dangdang/rapid_combo_v2.webp",
+  "new": "d2527eb40167d02d806d9fc8c08c1a0569350c3119260cf724f789dae713a787",
+  "before": 927766,
+  "after": 290392
+ },
+ "006b3c85e2c99f0ca99a03b42192b6bd563624bbbbb7ee5cead4db802b0521ae": {
+  "file": "public/assets/motion/dangdang/reckless_bash_v2.webp",
+  "new": "495dc06b73ea6eb681ad52c1baac37ce81a09f874ca69b2776229c2595e669e6",
+  "before": 760272,
+  "after": 218644
+ },
+ "4e3b1dedcbd90647f92ca717bab474f2f0c45238ef808cb49cfd40f49779b727": {
+  "file": "public/assets/motion/dangdang/run.webp",
+  "new": "e0ba596b1da29580bb934a17b8c0434303e51cb5d90573a72a33312c9aa474fa",
+  "before": 756856,
+  "after": 222258
+ },
+ "fbe11a4486e20db079a2fc3582b3c1dc08f8faa6a8607eace4951fd229bfb119": {
+  "file": "public/assets/motion/dangdang/stealth.webp",
+  "new": "b237b9f90a8f07dca3f084c1ff0605387debdf87acb7cb76e1897268f734a971",
+  "before": 575356,
+  "after": 142780
+ },
+ "acbfee0e1a24aa0873027e352743e7e16d087f904e63a40f30560e5cbc9cedd6": {
+  "file": "public/assets/motion/dangdang/sweep_combo_v2.webp",
+  "new": "fbcab9cad92059886169e1dcdb266daca18c4cbcc08dfdfdedc254960b4477ef",
+  "before": 838236,
+  "after": 258166
+ },
+ "e3df7af8e26e05def14b247b451ea67bce37530c87d3379192e3f66475acc3d8": {
+  "file": "public/assets/motion/dangdang/toss.webp",
+  "new": "78375662a85e3b96aa37c51df7322b57875d35fa173d6aa2087f09c3e1975319",
+  "before": 530906,
+  "after": 139570
+ },
+ "5c6fe86cfce04811d01eb7fea6c2673a0a51b2add3e54139df4daa62e7884190": {
+  "file": "public/assets/motion/dangdang/wounded.webp",
+  "new": "d87e01b25ce31ad4552a1700e2378b1c232e9b3bcb7944e965eca584489068f1",
+  "before": 617524,
+  "after": 155960
+ },
+ "69470fb7fac94d577d495eae76837a27aa9094f9aa5c4a48211a2180eff28f61": {
+  "file": "public/assets/motion/enemies/ninja-air.webp",
+  "new": "83a6b46fd507c4e11e557c5744671b522c9ac6aada2d33c8080c1c2000a5693c",
+  "before": 750168,
+  "after": 217764
+ },
+ "bdfff9579d930b87a01046e9918d1080c806bf3214bd0f2099b97d5037bcc502": {
+  "file": "public/assets/motion/enemies/ninja-ground.webp",
+  "new": "a204339f85fd3fef8495df8d0c50dd7f547d7c20a245991d5a523f8576e21478",
+  "before": 1097680,
+  "after": 355868
+ },
+ "a92996905dcced600d1ad400f0df04f17debecb3323d3a707cfcb74f42ff0c8c": {
+  "file": "public/assets/motion/enemies/rat-air.webp",
+  "new": "719cffe5239dea49e67fdc2163be43a68c8234bd8eb20d35d6465804e67aba36",
+  "before": 983008,
+  "after": 319820
+ },
+ "db495fa29e5dfd8b5590328702a5de7f41567c41618e654416b2bf85f95f49ec": {
+  "file": "public/assets/motion/enemies/rat-attack.webp",
+  "new": "6bcf53f4e93db95123c475fc3e092c70a3d90bfb2893ca7ee30da3a2696cd407",
+  "before": 935286,
+  "after": 307454
+ },
+ "69e0abd41033ce67cc397b667f2a5c5569da9f1a066406f810f9675f1f4e526d": {
+  "file": "public/assets/motion/enemies/rat-base.webp",
+  "new": "2acc365741808500a387e400123a0e9fe6e091123d3a80ceb6d2b108c094f4fc",
+  "before": 820820,
+  "after": 151386
+ },
+ "55c5851115ddc62148138b6642b9cff896bd7a4b49dc20531e0de5430ca18bb2": {
+  "file": "public/assets/motion/feifei/belly.webp",
+  "new": "e14c1ad1d003bef2532840d20b403facbfe5a44752b996827f0d5235f891f4e2",
+  "before": 619878,
+  "after": 157684
+ },
+ "b04e0d023e83fbe42145f106d6a35135f665ccd441b3016032b56d2028eaffe9": {
+  "file": "public/assets/motion/feifei/claw.webp",
+  "new": "f36acf6ba67e3764d12d8dd5a093b3f3b571299e762820ff822eedbc8c89f04c",
+  "before": 774012,
+  "after": 192368
+ },
+ "3292c9e129dd977a95bf8fb7c462350e9de6ee7d7bd3bca34a508cefed33cfdd": {
+  "file": "public/assets/motion/feifei/curl.webp",
+  "new": "40fab7adf12582f2289e152be22247c0744b1f6b1bc436ba4f2721c87dbae0cb",
+  "before": 566814,
+  "after": 134888
+ },
+ "a3d3fbcd8c853d37b1708255b0f89ea0f9e1d3ef2772617318d4365ac7335759": {
+  "file": "public/assets/motion/feifei/dizzy.webp",
+  "new": "eadf562bf7ecaf6a50c23d920d8aa9d04154d8d4942a7a6335764cd72122891a",
+  "before": 784288,
+  "after": 206002
+ },
+ "778114f0a6d6c72ecdc2c3cfaf5742433971bfe02d3a9f261f9547cbc9381ec8": {
+  "file": "public/assets/motion/feifei/fan.webp",
+  "new": "1e66240e21bf06b3c50a2000331406f59fea95d2a449baf4970a051f8a082c58",
+  "before": 1064198,
+  "after": 310198
+ },
+ "d7d6ac27bead04e709f28f95f0caa5ec1dc58299ca3b01297dac0350f0714fb7": {
+  "file": "public/assets/motion/feifei/guard.webp",
+  "new": "b0f0379a66d4c186a46c0afe2fdb1101664fd6775c3d6392af680872bb565a13",
+  "before": 727780,
+  "after": 183088
+ },
+ "de4ba009cd3375ba5ebb22b781a40ea82910ede9cb9a887a7efa1383a4ce56d3": {
+  "file": "public/assets/motion/feifei/hit_recoil.webp",
+  "new": "e1ba22e0827cba62c9f42af52f0d208f94fa3053fb765ae036241c5101c2276b",
+  "before": 71080,
+  "after": 22218
+ },
+ "9df2271f7c96f031288ebc02770ee115fdba69bc6489fba26edbd1928aa416ac": {
+  "file": "public/assets/motion/feifei/hungry.webp",
+  "new": "9c1ab7aa3730af3f62e85d2c91e2244cefc7b134130c4cc9943bf7277793d434",
+  "before": 694344,
+  "after": 171630
+ },
+ "f7c80b977d5df3362aca8082ca4d6f27d2bb75763cf6f8aeb30e6394a729c790": {
+  "file": "public/assets/motion/feifei/idle_hurt.webp",
+  "new": "c65dab9a3e53cad96506a4c448160230bf840136dbaed87b94e4a50329c8d213",
+  "before": 1283594,
+  "after": 399774
+ },
+ "7e5ad63023df7cf321c5153164d0d671af825c90b8ff8faeb1098901d75871fe": {
+  "file": "public/assets/motion/feifei/iron.webp",
+  "new": "049164099ab9ffcc257a33dd1a4e908d88c5b23fccdc1bb15da5f1eb897c166b",
+  "before": 768852,
+  "after": 192130
+ },
+ "bb1a48b1511f97486edc1cbead967c9bbdfc63e25734135e98608fa84494248f": {
+  "file": "public/assets/motion/feifei/kick_claw.webp",
+  "new": "f686c8e024d62cac1ea14200dcd4bc5263e19dd0b96d1eb23299f8b6f23f31d2",
+  "before": 672278,
+  "after": 169442
+ },
+ "33caf7a8c618f6cad622b6bcfdc5ca75c044c66fe3a5e1d4df13966a2d962993": {
+  "file": "public/assets/motion/feifei/lazy.webp",
+  "new": "fd956996fcac1797bde45b6ab0fe98438e936f1259442e244a9c03dad26569c6",
+  "before": 688918,
+  "after": 170588
+ },
+ "00031bca71e61cb40f33aa2117ec5f9acf568e9a0f91833b2465aeddf62166f5": {
+  "file": "public/assets/motion/feifei/needle.webp",
+  "new": "41a58c362530b6fe73579fefedefaf4e8f2395bc3719cd268c39f9afe34de466",
+  "before": 724278,
+  "after": 183660
+ },
+ "ccb315c28f116d0f04b216c5d639774b45bd1fc473ae02f85628e357b3b4460a": {
+  "file": "public/assets/motion/feifei/needle_backhand_v3.webp",
+  "new": "4745690a3eeef33c351f5c64c8403ddfaf4e8a73875c9d5acb251db5dbb04890",
+  "before": 711304,
+  "after": 176584
+ },
+ "09883729ddce6be2125246985c52ae154360c75c228e6d5ce24bb5915314d125": {
+  "file": "public/assets/motion/feifei/needle_barrage_v3.webp",
+  "new": "f185bed0484bf57a03f789c51d62293e57e11acd49e9d211a2df12b8a4527056",
+  "before": 716840,
+  "after": 184112
+ },
+ "a5d7cdd3a94e457d82e9f40a718daccee4048032a5ec5e7da7df2b0ae10c96e4": {
+  "file": "public/assets/motion/feifei/needle_combo_v3.webp",
+  "new": "7ca185f9d91c8ce14045b1de8986af8b9e667ceb2afd8cdbfd62d7a89189b655",
+  "before": 708348,
+  "after": 180260
+ },
+ "63020b80e07e9fe4c556385813f8cde0b25c3aa5bfbe5157a3900960504fd12d": {
+  "file": "public/assets/motion/feifei/needle_pierce_v3.webp",
+  "new": "45993103eaa62f15e0e4e1172524ef250b09166517c8de91e4dc859b529c5247",
+  "before": 668558,
+  "after": 169548
+ },
+ "24a50ff9e220b3c76ce96bcd540bfbf99f1fefe024d226075fd43d43bd04dae7": {
+  "file": "public/assets/motion/feifei/needle_rain_v3.webp",
+  "new": "a357bc4ff3ca4552eea50d048975cb0088230ef7337ac93d2b7469c79ade0f82",
+  "before": 735622,
+  "after": 186164
+ },
+ "8d63f5f22f403d1413059f2d27f6ff3b633699e22f74eb80370f496872a7428a": {
+  "file": "public/assets/motion/feifei/needle_retreat_v3.webp",
+  "new": "5e629ff2edda1d9c8401a769172474a3eb425024f404873d3b803e13ba04c182",
+  "before": 733718,
+  "after": 183948
+ },
+ "3b5a749d38a1177162e8e36e12a918f757569a6f52592e177cb9fc849f6c1b68": {
+  "file": "public/assets/motion/feifei/needle_venom_v3.webp",
+  "new": "91d192cd2b898e6904f38446ff8c34fbce30c9b5d9837fdce4a0816f9f14b838",
+  "before": 630240,
+  "after": 159556
+ },
+ "a42d57afd96bf8baea32d3f677fa3af1a9b22deee28b180eec5d8e58dcea3a75": {
+  "file": "public/assets/motion/feifei/poison_defeat.webp",
+  "new": "df6923f079a8577a83dea681f2d48755e9bed5b0849d00c0aadca380aeef073a",
+  "before": 1023942,
+  "after": 319424
+ },
+ "e2f7ee8647277204d41a08586fa96a35268f762a59c278edbefbd447e2700667": {
+  "file": "public/assets/motion/feifei/power.webp",
+  "new": "c24d3b868e9cd79ee901193012f916da0b6cadca36b9aa4232c652b1d63fc809",
+  "before": 836326,
+  "after": 217720
+ },
+ "a657ad8f90434d5ec0a34c3eeb1bd2202ba1aa020ca015fe1aa0db2eb50ab948": {
+  "file": "public/assets/motion/feifei/puff.webp",
+  "new": "64705dc09a41f880e661daea238250af337b3737ebf76e817a10ca58ba8480b4",
+  "before": 831484,
+  "after": 222136
+ },
+ "43dda6c9f97f2cbb833fad518d881f64c6da5b5a180424a29f16065213fe0d99": {
+  "file": "public/assets/motion/feifei/roar.webp",
+  "new": "e29f9306d984b35e42cb4cbbfef5d383654d00235f86b464cb7d8dc60b354117",
+  "before": 757058,
+  "after": 189804
+ },
+ "3cd8469116426ef1ca6ef18808676029a14975db76702601b40033815a4a5c9b": {
+  "file": "public/assets/motion/feifei/roll_win.webp",
+  "new": "e798c7cb97013c018cd98d0b6c9095c114fdcdce416f97706946825fe6aaae42",
+  "before": 1194270,
+  "after": 374888
+ },
+ "61fde27df419e77fc0a5fe94064a46c70987fa1cde696d36d87f221d3a77c354": {
+  "file": "public/assets/motion/feifei/run.webp",
+  "new": "7b4afed8f0b8098519da4cbedf788cb05bde7a0c0314ea20a11b07e7c2abc43d",
+  "before": 653444,
+  "after": 170910
+ },
+ "7f6bceba5b3780c38bd43cafb3d700e702d131a44ec86fec652a81949444df8b": {
+  "file": "public/assets/motion/feifei/seal_eat.webp",
+  "new": "0577d5af90df6037f84f9b11bb527d1b68df98a9f2c54c260df361feb4e5f31d",
+  "before": 1247010,
+  "after": 391418
+ },
+ "3a67acb9f8cd765f630c2e02bbf5507a6a23de98178dc74c40c02072bf7acd1d": {
+  "file": "public/assets/motion/feifei/stealth.webp",
+  "new": "d74e5616c630e83e33f6f71cc240463ec1ee774b1d5b45df0a0d1d0ca39b96e9",
+  "before": 713896,
+  "after": 174236
+ },
+ "8e966df3054aef35e1d0073337a1e2776b2db4c91f876b38d232c4d3c07c7c73": {
+  "file": "public/assets/motion/feifei/taiji.webp",
+  "new": "cacb66d1e79faf4dacea5bb1adc4d867663adec3cbe52534a925a6ae43492f49",
+  "before": 714436,
+  "after": 179586
+ },
+ "ee57f70fdd0ba31f4a8f5c26888d7ff835aea7dc4b1cce9d7f5526d9ec50f439": {
+  "file": "public/assets/motion/feifei/toss.webp",
+  "new": "01a8fa793bc3b2471ecfab3c06e1d632148dd410027b21fc550a5c605d2b554e",
+  "before": 672866,
+  "after": 170348
+ },
+ "7583e60b4c70c765deb237fc7bcaccb7ab9b33e5cbe1a17ff6151d253943170f": {
+  "file": "public/assets/motion/feifei/wounded.webp",
+  "new": "f97009c14f7d7b219a7bc959d85c8fa3e0e6a1d8e2660a8fe2115169f758c31e",
+  "before": 713796,
+  "after": 180464
+ },
+ "6080eea74f401ea95e8e6db52327fd13eea451a6549da7612bfc4e798d7c8ee5": {
+  "file": "public/assets/motion/fengfeng/belly.webp",
+  "new": "d34063515443606f32aadfe6db20b91407e85393f4e14e5bd91228c3bd247a56",
+  "before": 637794,
+  "after": 170966
+ },
+ "e527ec9ecee23e083e1c69ad3420f2b9c6910dcb85bc35cb114e418a625a062a": {
+  "file": "public/assets/motion/fengfeng/curl.webp",
+  "new": "663a80a427460107d6e1d839c8749350d34385a363bc472bc9507e54a5a4caa1",
+  "before": 619724,
+  "after": 158568
+ },
+ "00318f14a6ba040ece51697c192e914a1d321ddf72592d46028742ec7737efdc": {
+  "file": "public/assets/motion/fengfeng/dizzy.webp",
+  "new": "deae20579c738e66a3dd05dcdf2a19616d0b407ab60612b24b237b61c8391456",
+  "before": 760548,
+  "after": 215540
+ },
+ "74ee166671f67a4f3e2fd425ee940f249bcffbd50ebf672b7b089a982e6b621a": {
+  "file": "public/assets/motion/fengfeng/dodge_win.webp",
+  "new": "5160062d8d3c464c0cb157f52ee8d86a49cd13b17abf3ca6e6cdf008943efdc6",
+  "before": 1168732,
+  "after": 397936
+ },
+ "6ea9c62bf05cf23997bbfd8fb50263935f76d21ffeda789e325bee683ab578aa": {
+  "file": "public/assets/motion/fengfeng/double_slash.webp",
+  "new": "6b58af61a4ecd22a75d4f91bab706c49cf459a53ee98f6a26fbd8f81e11ad363",
+  "before": 571594,
+  "after": 167040
+ },
+ "12ba5519a7b4bbad665f59ad0086e4117cf413b37e042a2dfcb16f44b12f379b": {
+  "file": "public/assets/motion/fengfeng/earth_split_v2.webp",
+  "new": "6cf0b47e43c1084f920aee45aede686d1b453459dcc35eafc13665ada33cbd41",
+  "before": 812806,
+  "after": 268510
+ },
+ "8ec914ddb7469764970cdfd3c24a1727dd8b5167f906821bd87ac8967f108ee8": {
+  "file": "public/assets/motion/fengfeng/guard_focus.webp",
+  "new": "6a0205a75053e4d57053a80244652620360f0650692f09760f29b55d04ff192d",
+  "before": 1206772,
+  "after": 411526
+ },
+ "7fdfb429654a1833859f30c682f493cb640cd7ccc1dcc1fe21576d46434d4603": {
+  "file": "public/assets/motion/fengfeng/heavy_slash.webp",
+  "new": "15fca1a4e8955360f3f0c6504948665986d493d8683d23bbd0fb94bbad5c632b",
+  "before": 806532,
+  "after": 278738
+ },
+ "aedd498b47552e1df5e68e73c78895f304a3298e66e915b2e3f95f6d854749e2": {
+  "file": "public/assets/motion/fengfeng/hit_recoil.webp",
+  "new": "62067177ae3ac7e205c7ed68158dd5fd691ba07afbc61995b9b5c1b473c4a22a",
+  "before": 66746,
+  "after": 23208
+ },
+ "4fb48c233c5f1f99aa7a9d81d46a302d8a52292b2d04a16132e5cc35176d497e": {
+  "file": "public/assets/motion/fengfeng/hungry.webp",
+  "new": "26f38d2da73253f6956d9e9542366139d795ec7cbbcab5175e355fd6172a3a3d",
+  "before": 754402,
+  "after": 205772
+ },
+ "07f1379607075b7b98ef36fc0cf559d4569e65a0baeb914158e15ca6b5fa63c3": {
+  "file": "public/assets/motion/fengfeng/idle_hurt.webp",
+  "new": "f5038478650ec7d17cfbfbe6689ae0ca8259cf9f8ea9e2a0d4a651267819013a",
+  "before": 1211272,
+  "after": 411948
+ },
+ "ef2551e74fdbcf26ea4ddc5bae0100471c566af89d08610100fca4ba0edd674b": {
+  "file": "public/assets/motion/fengfeng/iron.webp",
+  "new": "7964b90dc353fc65885efd9b4133f7ad09a9f32dbe76f3f121c9cc33278f31a6",
+  "before": 677652,
+  "after": 187468
+ },
+ "f61022fab7c53397759105d23ff4096a8e2649536ea43799cbba0c3f2ce65f90": {
+  "file": "public/assets/motion/fengfeng/lazy.webp",
+  "new": "5fc137d83ea3c77b2b3e9356187d5c7cf8bc495d9f67136f74df5ccc03a6bc46",
+  "before": 697014,
+  "after": 190156
+ },
+ "5579b2e59070fbd5d11788e1710ec8eb46e71c8c4df51c287674390ee64a00ce": {
+  "file": "public/assets/motion/fengfeng/poison_defeat.webp",
+  "new": "84bd5dd71bdebca2d3e9bfa17e10e94860e8fa1f427d9b9f90989b965834e116",
+  "before": 1025300,
+  "after": 353416
+ },
+ "5bb8b0ea3947caf62b1efe8a9090ce4b4776a4b2284d9e0021f1504fbc559129": {
+  "file": "public/assets/motion/fengfeng/power.webp",
+  "new": "3e34f4e70059b8f7f4ee5f2b5f61b7ce71f773f10f9fd0dee59f97f7e9df7073",
+  "before": 852498,
+  "after": 244014
+ },
+ "8388f87fbbf61c722723f1e2629656b66e136b9beade1d73a7a45961e02b6f89": {
+  "file": "public/assets/motion/fengfeng/puff.webp",
+  "new": "76c40a065c6281e53a83802264a3a71b39488639ed7b0170933f82d1ab73a573",
+  "before": 944680,
+  "after": 269064
+ },
+ "1e72317350a62eb5c5efde42180285c009474b22bd9b6dc8326ef7be9c2a7bf1": {
+  "file": "public/assets/motion/fengfeng/qi_cleave_v2.webp",
+  "new": "d10de719735ed527615f79e11e73101ee49da522588194d3f72add98b2abdfae",
+  "before": 564748,
+  "after": 200148
+ },
+ "3425b717aa7de20d7da5c1bfd94598b0e4f4168cd1fd9b8b1eee6cf2eb87b5f6": {
+  "file": "public/assets/motion/fengfeng/retreat_thrust_v2.webp",
+  "new": "aa0456f2e4a48fc18c7e60496944a4b2211dea15982ebc1894ee59c05340e435",
+  "before": 822906,
+  "after": 273016
+ },
+ "55dfeb66f9b25ff1bb04e36d3cd76a402f63cddfd88db26bda610515c8533382": {
+  "file": "public/assets/motion/fengfeng/roar.webp",
+  "new": "9bf02e0eb707abefec8252fe380c55df01bc21f6fd85486bc85b4bd2db7f1d8b",
+  "before": 747136,
+  "after": 205366
+ },
+ "48c1589e01a064964a16f4343da22128e23364f447b11f97e5f279058656c986": {
+  "file": "public/assets/motion/fengfeng/run.webp",
+  "new": "1965c5604488d3cd05769729cbd83be9f1b50aa0496f920957043287c88c6b5c",
+  "before": 686070,
+  "after": 223788
+ },
+ "d5127b75a25f98ac845dd6003b37b2115ff590eb80f7f6a1c2d202d3efd4bc74": {
+  "file": "public/assets/motion/fengfeng/sheath_eat.webp",
+  "new": "04687d984aa19e8017c1738b4ea8d4da365116b44d1994a5283351846ebfa766",
+  "before": 1024246,
+  "after": 358170
+ },
+ "e47017aaf43d0366b51b0d69f88a465087333c342703d095b807da0e95734b2a": {
+  "file": "public/assets/motion/fengfeng/slash.webp",
+  "new": "17734eb555ff023f76a9ce2ad38b69151a7b3b157d689d213c24363335e79edc",
+  "before": 804786,
+  "after": 274644
+ },
+ "fce053fa26114ab49c2b4775350c8386ca3ddf5ff3116fc8b185f8f38639ca38": {
+  "file": "public/assets/motion/fengfeng/stealth.webp",
+  "new": "03364f4e7c0d78928b1acde2c2404aaad5a26c45d9d4ec5deaf82f96966da68a",
+  "before": 664040,
+  "after": 182022
+ },
+ "9ef56ea7b5428f5ce9e57361224765abdcdf54bbff0a82dafdcdd69dadfe8bae": {
+  "file": "public/assets/motion/fengfeng/sweep.webp",
+  "new": "8116536486f9095c4a874a1dbb7285a5938e9186c7f993469b2dcac8f95c233b",
+  "before": 594628,
+  "after": 172738
+ },
+ "057f07b3b955d571f1eaff6c4262215346096fecdb898adf90ed2cffde9673fe": {
+  "file": "public/assets/motion/fengfeng/sword_combo_v2.webp",
+  "new": "66de657e8ccc3d725c47e310f0d5d1541f681dc471ca1f36b64b143e2a03e1ee",
+  "before": 849760,
+  "after": 306034
+ },
+ "b84eafe5f0812ba8f1896532e44b07e19117c02722c6fe59965f34bbc9a6831d": {
+  "file": "public/assets/motion/fengfeng/taiji.webp",
+  "new": "e209e6803585edae6da5e7b34c4f599e3a928160d42c18426ee6b558083a035b",
+  "before": 737238,
+  "after": 205928
+ },
+ "9da427a0843d9ce4f6c8ff67b01c3437270f9444f62c04053997a919404e974c": {
+  "file": "public/assets/motion/fengfeng/thrust.webp",
+  "new": "8222b21d75bf7ff64aeeabdace6cf1f8f0526b6fa4624b4bc9a1aaae547ed064",
+  "before": 585038,
+  "after": 172586
+ },
+ "b797d0ef9c257bd002d7952cf1ac7452d63a4015ecf32781857848bc64a22fd7": {
+  "file": "public/assets/motion/fengfeng/toss.webp",
+  "new": "ebc1958980475886000dbd59ce2ee59ba9a5b66eef98303926efbfc1844e9654",
+  "before": 716216,
+  "after": 196030
+ },
+ "9f5c99579dc4229080054eb306a3caa5bcb022bb567558a2a6333eb2e9d4ec6e": {
+  "file": "public/assets/motion/fengfeng/wounded.webp",
+  "new": "b35e37b81dc4de8c69eca9282679199e77c007eb385e8b62dd68a9a970257a0b",
+  "before": 793884,
+  "after": 218050
+ },
+ "0003efc23106920d12a0af3ce0667b434d866f5220bdeb58d0e8d33f3d357985": {
+  "file": "public/assets/motion/projectile/barrel.webp",
+  "new": "622b450bc215753564548b59006a87e44e69eae4caeea1c8c75a04526e6a2fa4",
+  "before": 8228,
+  "after": 7674
+ },
+ "765ad0de3e7bc2cac908f4da7f1bd1b2887090462e02685d4afc6dee721b9c69": {
+  "file": "public/assets/motion/projectile/bind_nail.webp",
+  "new": "ce5bad1da9d42c1de87b28aa15bd1c3d9863cb0aab26a9efe822471b5cff43b5",
+  "before": 3350,
+  "after": 3126
+ },
+ "5c3eb7722d56ebb4f2ffd305efa24baec336a53d57918d16d5ae5989c72d5c8c": {
+  "file": "public/assets/motion/projectile/daze_incense.webp",
+  "new": "81d7ff35c7a92480b855d43ecb52fe5c8c0c7a3286395335a605a271c4762cc2",
+  "before": 4552,
+  "after": 4212
+ },
+ "0344c90781186021ce72927432e83d8d0b66d7e432ee329fb07b187446b27c6d": {
+  "file": "public/assets/motion/projectile/firecracker.webp",
+  "new": "5d7109b0b2a397280ded9862d0ac43c0701082e9106be461594d02daec272be1",
+  "before": 6446,
+  "after": 5848
+ },
+ "309d3816469785047563edc2e56dfaa38395ed6e8ebb3953707661d6ba05092f": {
+  "file": "public/assets/motion/projectile/furball_dangdang.webp",
+  "new": "d48df3b8489e595dcd1569689e409b040159623cf7d65b8b4a400649e0410f96",
+  "before": 5246,
+  "after": 4878
+ },
+ "254bc8cf1400427c6954020b17fddae18aacb1f14bdefaf156c7d8afeab06acf": {
+  "file": "public/assets/motion/projectile/furball_fengfeng.webp",
+  "new": "0ddd5e025ba3cb69b8c2f29160a502626732c1f7640d7fcec5e7803f36442a11",
+  "before": 6404,
+  "after": 5844
+ },
+ "ffeef09ea1bab6078994d4847a0a50d653271298d89a6ba8c6a5b1f6e43abc1d": {
+  "file": "public/assets/motion/projectile/furball_qiuqiu.webp",
+  "new": "48995ab750f156b5e29adee1fe00f27306a2616047e760eec2a0d179b1898d46",
+  "before": 5656,
+  "after": 5282
+ },
+ "2b559f560433a9ba13d43604b8f73605b00280aae72ecb4eb0452fdef9f59417": {
+  "file": "public/assets/motion/projectile/grapple.webp",
+  "new": "baf4d6aa1a06a8af11239cfe3ddf9fddb91d29899513cde73ba7c22712a59fe7",
+  "before": 5072,
+  "after": 4694
+ },
+ "7cfaaee9551c99764f387438efd2c0192ea1986c583afd0a83cc8bc426f92ef7": {
+  "file": "public/assets/motion/projectile/hemp_rope.webp",
+  "new": "ea6a455aacefbfb5b75b51b60bedda503df9caf12c82f09c74f993af151c1612",
+  "before": 4766,
+  "after": 4422
+ },
+ "7298b01624312ac3b06ba5e14f9e7af7452a446f605dafe37da59d7a235533ed": {
+  "file": "public/assets/motion/projectile/kunai.webp",
+  "new": "5276ec9b84e1231a98f3577172871d8247659d637b475275f130ee6815bd63bc",
+  "before": 2754,
+  "after": 2598
+ },
+ "1b0f6101f5bd6f8dc6d2ba9fedc31aa7b5c8e953ad028dd5c0f4999c161bcba5": {
+  "file": "public/assets/motion/projectile/leaf.webp",
+  "new": "82970ed8b62b02276172ad98ac2664a2251b251973b1d9a18fb19a6e08f40cbb",
+  "before": 2812,
+  "after": 2572
+ },
+ "82f182ccf3b81aa6f88bc0f5bca2f600b5e5a7f7707eb7cf00c990b8ef1bb634": {
+  "file": "public/assets/motion/projectile/nip_ball.webp",
+  "new": "c63f0d62be85d716aca52bd0db15acbec1e6153d238238a12c8daa37ec09902b",
+  "before": 4186,
+  "after": 3846
+ },
+ "3784df02015aeea808bdd9793879f6e1024b54a4f199ecadb72a28362bcbb316": {
+  "file": "public/assets/motion/projectile/poison_pill.webp",
+  "new": "6d8ab62ca3c512cc9944ed2a8d7660047bbec651cf5811c7ddbcdaa85a1e7eb3",
+  "before": 3124,
+  "after": 2906
+ },
+ "9caee94af955271e22aa3483c51e7f632a5753ccae061357ee0e33f557a224c6": {
+  "file": "public/assets/motion/projectile/poison_sand.webp",
+  "new": "1dfdd6a64aeefd240faf0e20248ae5f31f8375f83199f221e8324f294c654aa7",
+  "before": 8998,
+  "after": 8294
+ },
+ "b032021fe431bf90c6279c01819f9c8d854cf2c74596eafa91a0305895769e25": {
+  "file": "public/assets/motion/projectile/rubble.webp",
+  "new": "af1b3b538478df9fd24d3cd9454b9d3df3efba798dbd282ff81876289a61130c",
+  "before": 5314,
+  "after": 4948
+ },
+ "9d57cfd234f0739340f50537e27052b3068b497c2642b28cc824c4426a9b3b6e": {
+  "file": "public/assets/motion/projectile/smoke_bomb.webp",
+  "new": "56fe64579ad1d6d697bcebd230bdce376e69ac85a0e54c1ab30d91e64d9679f1",
+  "before": 3946,
+  "after": 3642
+ },
+ "580f8d5da320e423e68722f508014b9c23ce4ed884cce274c3c67c85fb8851ac": {
+  "file": "public/assets/motion/projectile/snare_cord.webp",
+  "new": "f0273122f0283cbcbdfa0b528c11a0e81742d053ad00ecf03447f54b371c3172",
+  "before": 4262,
+  "after": 3896
+ },
+ "4c0ab05dc154dba87d28bafb307810f358008e4f4596a68b72222ec21ea11d80": {
+  "file": "public/assets/motion/projectile/thunder_bead.webp",
+  "new": "57f38d145a12308274f1ac7f314dfd3716964bd74c1eb183e4a7d891cc8ae5a0",
+  "before": 5882,
+  "after": 5406
+ },
+ "8083435a8113eb5caf7b2da52810fe1272ff627fed0076f4b224f468c83dc84e": {
+  "file": "public/assets/motion/qiuqiu/body_bash_v2.webp",
+  "new": "6e92f41708a52958b7655e327495ed61f60d34c40b62cbe9c002c738a948fd6f",
+  "before": 836732,
+  "after": 244902
+ },
+ "24bef46a0e49c32f3c21b7c6e0e6cbd45ecbd0d0beb9dc2110331d1ede075896": {
+  "file": "public/assets/motion/qiuqiu/claw_1_sheet.webp",
+  "new": "e2e0a2c7c70a9368f579c08d6476f331ebb625655cd3803f133f58306f609762",
+  "before": 811262,
+  "after": 227312
+ },
+ "cd2ad892cee1f6be90998f71605e3da4614a6d647d2bd4f33d4d7dece7af24e0": {
+  "file": "public/assets/motion/qiuqiu/claw_2_sheet.webp",
+  "new": "2fd2b19b94f8f92553b6f8ab7f366f8d11ac67aeb61af80c56ba3a47d904add2",
+  "before": 763932,
+  "after": 217140
+ },
+ "383e7782b4d464ba24fbcd6e31cd96ae1a9d268c2a5db8e1d82fd18269b1cc41": {
+  "file": "public/assets/motion/qiuqiu/claw_3_sheet.webp",
+  "new": "d3fc6a4f456c79130dc55993fd2a7480ee46fac0d366bfb638f3e3b153f75381",
+  "before": 735520,
+  "after": 237716
+ },
+ "eac7c7d0f20be0ebbc8076f327edc9b3a5dffffca1fad0af7220fd422868e6b9": {
+  "file": "public/assets/motion/qiuqiu/claw_4_sheet.webp",
+  "new": "465bafef40fef9be55dbd0c1594abf6ba094234e87dcbbb895a4c8e3ff73128f",
+  "before": 793406,
+  "after": 248718
+ },
+ "9dbe9730a89f9c641197073fc3e653839108af8bd54e37a89e2213b2f766dd37": {
+  "file": "public/assets/motion/qiuqiu/claw_air_sheet.webp",
+  "new": "9380447b84baccb69fb36d5a21497cf4c891a093c69f1345c57acc4421ed5a98",
+  "before": 697844,
+  "after": 201398
+ },
+ "1252a8a54922ac3025ddd32b3620dd0c650cffeca983591c35d06fb26f833d53": {
+  "file": "public/assets/motion/qiuqiu/claw_run_sheet.webp",
+  "new": "3093f1058e0d76c93ededeb1f3f6b6075dd328d87873e60a0e75172215338b30",
+  "before": 714176,
+  "after": 208696
+ },
+ "f7704100af3a2173bd8515037d69d9c535eafa7a40e565f600bd4881fa81e2f7": {
+  "file": "public/assets/motion/qiuqiu/combo_kick_sheet.webp",
+  "new": "15fbc0294cc5c20f959442070bb64446bbda1492c9d3a3aa67a0a2d88ac3aece",
+  "before": 751980,
+  "after": 242740
+ },
+ "6c935f4a0416613864b5427b32af84d2fc3dfd70866a33fd7758b2cc5ddd6613": {
+  "file": "public/assets/motion/qiuqiu/flying_kick_spaced_sheet.webp",
+  "new": "f87fba3730592a8ce6ef62c9751717720b54818886841839fea388676d6e68f5",
+  "before": 630200,
+  "after": 200760
+ },
+ "19f3fd1223d3e881c732a1e51d12eefc90adc8e80ef8fbbf1d91a75cca9ef8ae": {
+  "file": "public/assets/motion/qiuqiu/generated_belly.webp",
+  "new": "5a123773e538b36579adcf699e46e34821c80c83707797c6e51606789ab653b0",
+  "before": 698274,
+  "after": 203186
+ },
+ "edcdb4545e970de8fd5cf912c8f370954ae4b9b248faa973089249a76f4afc8e": {
+  "file": "public/assets/motion/qiuqiu/generated_curl.webp",
+  "new": "463129eb73cda80070bed76de07574953c49616737bdbef565d711af76ccc8c6",
+  "before": 562446,
+  "after": 135376
+ },
+ "be647b2798478e34ec2a9ffe847af22bcd1042ce37a922d33fa7f51308fa6fdf": {
+  "file": "public/assets/motion/qiuqiu/generated_defeat.webp",
+  "new": "cdec558d3ad0ea417405fbbb8537863580267b5013c7c46d771998553a083f16",
+  "before": 683062,
+  "after": 193636
+ },
+ "16589e5e57dac4c517ac7fc39e25c8ca82debd0a154f350237ec57c13a22fdbf": {
+  "file": "public/assets/motion/qiuqiu/generated_dizzy.webp",
+  "new": "e1eef615094adad224c86a5da7d67cd55af6eb66aee311acb1521e9c11d985d7",
+  "before": 612190,
+  "after": 166258
+ },
+ "1a58a9a4810bd1f4e19a6649dc37a63b2e76ff13eb4f6c36e0ec945109a41ff5": {
+  "file": "public/assets/motion/qiuqiu/generated_eat.webp",
+  "new": "998cb693a12ec65f1f47c647084049b7255ea345b2b1fb484f14e1497eada1a9",
+  "before": 888448,
+  "after": 251680
+ },
+ "b8cf7a4fb66f8f1a12334632f580bfd383560a4d0da7f5f3a20311afadccb464": {
+  "file": "public/assets/motion/qiuqiu/generated_focus.webp",
+  "new": "0eecde2700217c74ae42b2ce52f1e3cf1f5124e6bbe18165edb494f2eae6e193",
+  "before": 546924,
+  "after": 143880
+ },
+ "31f9a7fbb4358de1f145a4cc7d5b0876b94a2968f80d6c0e21af0eea478198ea": {
+  "file": "public/assets/motion/qiuqiu/generated_guard.webp",
+  "new": "ecea94941a3a791dbb15287fe01a59a00ade741f622d0a8ef102c7a114bfe5ba",
+  "before": 857388,
+  "after": 252884
+ },
+ "9486e5987c1f06a584963d4e8cd3ed86b59b65fce91787169ce3cde6d3f92d3e": {
+  "file": "public/assets/motion/qiuqiu/generated_hungry.webp",
+  "new": "0b82373f75eaa412557e2c4ccd7d9ca90cbb0b02772f4a370a2c7cad0fe5b09b",
+  "before": 548618,
+  "after": 143724
+ },
+ "a392da7cae60a6238fcde27b656882c23089fe1adc91ea4887827a06a4b1034d": {
+  "file": "public/assets/motion/qiuqiu/generated_iron.webp",
+  "new": "f954c86b368f2d3f6f332f364a9d9070a613eba786f2bf19d2a632b019699b64",
+  "before": 580238,
+  "after": 150704
+ },
+ "4fcec10b39cf7f2f39cfcca4a7e67170c2b1cd78dc49df222339fbbde66441e8": {
+  "file": "public/assets/motion/qiuqiu/generated_lazy.webp",
+  "new": "023f74cb8f7d9c06400bf6625d4e132b112a8d4ce4a425edb1740422c4cf9e3f",
+  "before": 606792,
+  "after": 160142
+ },
+ "d37739997034e5f0489b5d31f1678c0ef218211cdeec8c1557e19a2237ba0db6": {
+  "file": "public/assets/motion/qiuqiu/generated_poison.webp",
+  "new": "cd9b97310921443a927c29a36a882c718d558c4cefaca3a34ce7b57059b9d163",
+  "before": 870412,
+  "after": 246286
+ },
+ "fde0bb80a0093772cb76639b1c770556f4103a3e3d7556cbd849c5ef686cf717": {
+  "file": "public/assets/motion/qiuqiu/generated_power.webp",
+  "new": "beb73289c095d7527fc322744444fcf0dd8d18c4d9e76f6abe6303c87d55a913",
+  "before": 626196,
+  "after": 170674
+ },
+ "e739f19e6b4dcbfa38dbb6e7625f211ccc64c9b060171d4b1034f540a2b7a7b4": {
+  "file": "public/assets/motion/qiuqiu/generated_puff.webp",
+  "new": "089e66d31907a5e990a99f01693b1dbcb178145c33d80f79986dd5f42cd60161",
+  "before": 1295154,
+  "after": 396844
+ },
+ "c4d29cb934e8954c485af33ff5cdd43fe16d13749da3d4c9c94ffc3357ec9924": {
+  "file": "public/assets/motion/qiuqiu/generated_qinggong.webp",
+  "new": "f39f42e1cf01aa8137964d41acbc3cdda3e26a5adc4affff9fccfe3f17492d6f",
+  "before": 564632,
+  "after": 153202
+ },
+ "d77c2da69727fae7c9d2845e63da14b254ca41b761b43cdf522a5e8e62c40a61": {
+  "file": "public/assets/motion/qiuqiu/generated_scroll.webp",
+  "new": "c9559b32cc6675b56106bb6a47bc848ff265485bb1e4819fafa31d1741fd68e2",
+  "before": 652498,
+  "after": 168136
+ },
+ "6ddd6fd287edaad5e91d993657df0243656810e7f9189da5e0eb619d9db58420": {
+  "file": "public/assets/motion/qiuqiu/generated_stealth.webp",
+  "new": "d9a2a251b72fc845f711cf32e6b2de82e341389d910bc8784099b6d4534161d6",
+  "before": 902808,
+  "after": 264994
+ },
+ "5dfef904214155ea75a29c087292de7fb4f697942a4ca1716b13654993d247f1": {
+  "file": "public/assets/motion/qiuqiu/generated_taiji.webp",
+  "new": "d0c68ff0d9ed101f55c897df5de0977e5ec4ba0d609e065662a7d9d6a2c10019",
+  "before": 636878,
+  "after": 169834
+ },
+ "48df8de3de3e4dc12f0b6f10136468fd3d5af2428095f38acca219a4ecb44945": {
+  "file": "public/assets/motion/qiuqiu/generated_toss.webp",
+  "new": "2e8161550db7f7c8f443c0ab0b3048fc1d5e91d3666ddda04c8f2e613d63aa15",
+  "before": 590542,
+  "after": 155012
+ },
+ "fad19da7b38771230ef92c4e4aab2a6f7c1c1333302380783dfe722b3e25963a": {
+  "file": "public/assets/motion/qiuqiu/generated_win.webp",
+  "new": "e12298bc4a81448991e5e57a601833cc55bc7fb8b5425bdb48c58d383b117b51",
+  "before": 869088,
+  "after": 252854
+ },
+ "459a559ac3a4e927efd29ab60dcdf27f0fa4f525d309a115609f19c50b54215f": {
+  "file": "public/assets/motion/qiuqiu/generated_wounded.webp",
+  "new": "b5742d021574f789164b46ee9a452e552decd45f8a71bc192727ddc48796fe67",
+  "before": 590318,
+  "after": 153738
+ },
+ "86750ea8bf9659d5453985e5216e2055108703e1d9cc962e95a0df769513694a": {
+  "file": "public/assets/motion/qiuqiu/ground_slam_v2.webp",
+  "new": "4c88f8455cb77a903316c4d793f4a52f0481d5996543269656e8fdee1858d575",
+  "before": 903354,
+  "after": 258040
+ },
+ "d47819604f4082339287d1f0a2d6e6e5deb17f08fc237a93c8a84b488ab4c866": {
+  "file": "public/assets/motion/qiuqiu/hit_recoil.webp",
+  "new": "bb9c647551bca21b3e947d93bdd9f95e0d5edacb6e72b403a19aab4c29baf97a",
+  "before": 85090,
+  "after": 23804
+ },
+ "d8da5dab6ffc66e44d766e3ec01faffca11cb64a2fc08bf13149f59132458be1": {
+  "file": "public/assets/motion/qiuqiu/idle_hurt_sheet.webp",
+  "new": "05da06296d9201dde57b775fd10a74d77506d30dca747579437ca6aa0b1f6cf0",
+  "before": 882974,
+  "after": 258952
+ },
+ "579e598261a159af43c45825415844d3e4021148ed8277fcfe7646f74041a64d": {
+  "file": "public/assets/motion/qiuqiu/jump_sheet.webp",
+  "new": "a259f94ffd8522d0e568a16ac71858a2154a258e55839f14cfb00c385b8c6fb2",
+  "before": 709466,
+  "after": 220072
+ },
+ "d714bc14cab2c161269b32aadc9ffdd935559120305a67647a7e0cb41d6dd973": {
+  "file": "public/assets/motion/qiuqiu/kick_spin_sheet.webp",
+  "new": "d58057afc5aecd69413d6d13d5b6fcbbc872cc8a516435e6a956c29030e27230",
+  "before": 816416,
+  "after": 271388
+ },
+ "b58e3bf846d0d263af8866ad583cf1d47dc7751b44f25408aa3700a70fe5db36": {
+  "file": "public/assets/motion/qiuqiu/palm_combo_v2.webp",
+  "new": "286168ddbcf8ab298b565bacf85fd65d6823fc6783e6f368ee6dcb83647bab09",
+  "before": 981874,
+  "after": 312790
+ },
+ "630de6f5785518cf098c1ede9e3747636a9a9742e66f9bccb0b79518ae62dd0b": {
+  "file": "public/assets/motion/qiuqiu/roar_v2.webp",
+  "new": "fc2aa4c2c9fd7b6360a2375d283d861907fe922481c7cc901d0e3daa2f659216",
+  "before": 947642,
+  "after": 268542
+ },
+ "49502d96a8b7a54b8576a51a3b06bcee33c38b5cdcdc5bb34ca6ea07c4b79c5a": {
+  "file": "public/assets/motion/qiuqiu/roll_sheet.webp",
+  "new": "1c02f383b2974f3f1e4b19972ffbbed13b2a9a6276e52e64a7a919fa087e355b",
+  "before": 723990,
+  "after": 220670
+ },
+ "9769269e1be3a8805aa500b852a4ea776ba4164fb8b5c9b727557a228f0b352a": {
+  "file": "public/assets/motion/qiuqiu/run_claws_sheet.webp",
+  "new": "a5d8f816a36aa49fba3d5627aa7733c0a9a0e9b3528afae4371b46186ab154c1",
+  "before": 875460,
+  "after": 269534
+ },
+ "6a89fe0a6e32b35b4d23c6a4d5a334f097b6111e17a02df8bb484ed02e54dd93": {
+  "file": "public/assets/motion/qiuqiu/rush_sheet.webp",
+  "new": "6b58eebcc3160a8ec79fccce5c75597ac961aec1e17ff02d65d1decf1ce5ec6c",
+  "before": 763328,
+  "after": 243736
+ },
+ "8f1363222dc49e6265e392e00aad66d1b6947ae348538e2924d763aea613304c": {
+  "file": "public/assets/motion/qiuqiu/seal_sheet.webp",
+  "new": "1ccc44c0f0dfd46fc6dce4f9ea1409be02993cf6254f314a50572687ce793114",
+  "before": 830894,
+  "after": 254188
+ },
+ "4df98963a033d08d5aa353afb0262ebf4beb07e4b670c0b21541e7ec005bafc4": {
+  "file": "public/assets/motion/qiuqiu/shuriken_128.webp",
+  "new": "3ce6c60e3f3ab22e9fa9deebcdba9e55e2158fcf93b185c7385ef73c6365e52e",
+  "before": 10118,
+  "after": 4448
+ },
+ "de231aa6dfbcb53313e2f6ac15e3099b81edce0f85f254969141239fc5dd0d02": {
+  "file": "public/assets/motion/qiuqiu/shuriken_sheet.webp",
+  "new": "af9b59672ef805b39e0caa2d2f6fa8e2606b6a1e5294bed27d29f315d7dd6920",
+  "before": 893836,
+  "after": 264610
+ },
+ "6e72dd8af3493270743e214fc6eb87f9744565aecd6ba5b4bbab4fe4ee4eb59a": {
+  "file": "public/assets/motion/qiuqiu/skills_sheet.webp",
+  "new": "7355ed06f0296f53ebc56a89bf3f754450aaa5d523eab6b7c102be8fb2455170",
+  "before": 956922,
+  "after": 313704
+ },
+ "b116708742d18f5c463c120ce87b7ecaeea2cb5d37f6d88638fc8affce8a8be0": {
+  "file": "public/assets/motion/qiuqiu/storm_sheet.webp",
+  "new": "8dbc2cb709bbb894cbacb8aef1b5a1acdfe1c6be62ff23858ac9991f0a18cec6",
+  "before": 874878,
+  "after": 267622
+ },
+ "35fb4997ecf151e9b281e20ed8e8c114701cd2941d01f061545445040ec08721": {
+  "file": "public/assets/motion/qiuqiu/uppercut_sheet.webp",
+  "new": "b2643e1a386ce22a118a717397d10787737b2f8922b346179a7233d178dff004",
+  "before": 816986,
+  "after": 265454
+ },
+ "381b73167d86ee91d8960c95367034053b8557cbfa57232285b3fb914ba0b75d": {
+  "file": "public/assets/motion/qiuqiu/walk_sheet.webp",
+  "new": "dd623d13c706acf95389eeae1c7ce78c372b34f494cf797eed6f2d668e54fddf",
+  "before": 805812,
+  "after": 256182
+ }
+}

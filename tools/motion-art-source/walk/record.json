@@ -9,7 +9,7 @@
   "action": "run",
   "frame": 0,
   "texture": "assets/motion/qiuqiu/run_claws_sheet.webp",
-  "textureSha256": "9769269e1be3a8805aa500b852a4ea776ba4164fb8b5c9b727557a228f0b352a",
+  "textureSha256": "a5d8f816a36aa49fba3d5627aa7733c0a9a0e9b3528afae4371b46186ab154c1",
   "rect": [
    29,
    25,
@@ -42,7 +42,7 @@
   "action": "run",
   "frame": 0,
   "texture": "assets/motion/feifei/run.webp",
-  "textureSha256": "61fde27df419e77fc0a5fe94064a46c70987fa1cde696d36d87f221d3a77c354",
+  "textureSha256": "7b4afed8f0b8098519da4cbedf788cb05bde7a0c0314ea20a11b07e7c2abc43d",
   "rect": [
    53,
    147,
@@ -75,7 +75,7 @@
   "action": "run",
   "frame": 0,
   "texture": "assets/motion/dangdang/run.webp",
-  "textureSha256": "4e3b1dedcbd90647f92ca717bab474f2f0c45238ef808cb49cfd40f49779b727",
+  "textureSha256": "e0ba596b1da29580bb934a17b8c0434303e51cb5d90573a72a33312c9aa474fa",
   "rect": [
    43,
    37,
@@ -108,7 +108,7 @@
   "action": "run",
   "frame": 0,
   "texture": "assets/motion/fengfeng/run.webp",
-  "textureSha256": "48c1589e01a064964a16f4343da22128e23364f447b11f97e5f279058656c986",
+  "textureSha256": "1965c5604488d3cd05769729cbd83be9f1b50aa0496f920957043287c88c6b5c",
   "rect": [
    70,
    88,

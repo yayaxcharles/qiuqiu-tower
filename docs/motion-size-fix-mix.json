@@ -13,7 +13,7 @@
       "sizeFix": 0.909,
       "scale": 0.5741052631578947,
       "texture": "assets/motion/dangdang/run.webp",
-      "textureSha256": "4e3b1dedcbd90647f92ca717bab474f2f0c45238ef808cb49cfd40f49779b727",
+      "textureSha256": "e0ba596b1da29580bb934a17b8c0434303e51cb5d90573a72a33312c9aa474fa",
       "bytes": 756856,
       "godotOriginal": false,
       "before": {
@@ -54,7 +54,7 @@
       "sizeFix": 0.909,
       "scale": 0.6181200000000001,
       "texture": "assets/motion/qiuqiu/walk_sheet.webp",
-      "textureSha256": "381b73167d86ee91d8960c95367034053b8557cbfa57232285b3fb914ba0b75d",
+      "textureSha256": "dd623d13c706acf95389eeae1c7ce78c372b34f494cf797eed6f2d668e54fddf",
       "bytes": 805812,
       "godotOriginal": true,
       "before": {
@@ -95,7 +95,7 @@
       "sizeFix": 1.081,
       "scale": 0.7738977272727273,
       "texture": "assets/motion/qiuqiu/generated_taiji.webp",
-      "textureSha256": "5dfef904214155ea75a29c087292de7fb4f697942a4ca1716b13654993d247f1",
+      "textureSha256": "d0c68ff0d9ed101f55c897df5de0977e5ec4ba0d609e065662a7d9d6a2c10019",
       "bytes": 636878,
       "godotOriginal": false,
       "before": {
@@ -510,7 +510,7 @@
   "atlases": {
     "eat_poison": {
       "target": "public/assets/motion/dangdang/eat_poison.webp",
-      "sha256": "9971e80f8df179cfb0ad3e676adcb8546bd09a0302680e00d25fa678e09fd539",
+      "sha256": "315bb5ffe3a461fc5ea4033e350dcda762799341066ad264174406340e24c591",
       "bytes": 504994,
       "bytesBefore": 828954,
       "size": [
@@ -520,7 +520,7 @@
     },
     "thrust": {
       "target": "public/assets/motion/fengfeng/thrust.webp",
-      "sha256": "9da427a0843d9ce4f6c8ff67b01c3437270f9444f62c04053997a919404e974c",
+      "sha256": "8222b21d75bf7ff64aeeabdace6cf1f8f0526b6fa4624b4bc9a1aaae547ed064",
       "bytes": 585038,
       "bytesBefore": 652796,
       "size": [
@@ -530,7 +530,7 @@
     },
     "double_slash": {
       "target": "public/assets/motion/fengfeng/double_slash.webp",
-      "sha256": "6ea9c62bf05cf23997bbfd8fb50263935f76d21ffeda789e325bee683ab578aa",
+      "sha256": "6b58af61a4ecd22a75d4f91bab706c49cf459a53ee98f6a26fbd8f81e11ad363",
       "bytes": 571594,
       "bytesBefore": 778274,
       "size": [
@@ -540,7 +540,7 @@
     },
     "sweep": {
       "target": "public/assets/motion/fengfeng/sweep.webp",
-      "sha256": "9ef56ea7b5428f5ce9e57361224765abdcdf54bbff0a82dafdcdd69dadfe8bae",
+      "sha256": "8116536486f9095c4a874a1dbb7285a5938e9186c7f993469b2dcac8f95c233b",
       "bytes": 594628,
       "bytesBefore": 819356,
       "size": [

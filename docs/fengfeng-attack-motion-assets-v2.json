@@ -9,7 +9,7 @@
       "source": "tools/motion-art-source/attack-variety-v2/fengfeng/sword_combo_v2.png",
       "sourceSha256": "2dc6b679cfdfcd8542462f9f53b3b2ec900c6bb358818485e307122cceb8893d",
       "target": "public/assets/motion/fengfeng/sword_combo_v2.webp",
-      "targetSha256": "057f07b3b955d571f1eaff6c4262215346096fecdb898adf90ed2cffde9673fe",
+      "targetSha256": "66de657e8ccc3d725c47e310f0d5d1541f681dc471ca1f36b64b143e2a03e1ee",
       "bytes": 849760,
       "size": [
         1448,
@@ -21,7 +21,7 @@
       "source": "tools/motion-art-source/attack-variety-v2/fengfeng/qi_cleave_v2.png",
       "sourceSha256": "83e993952a5cce36540221976cdf3ac87b0234355acd130592384a50d2a619b6",
       "target": "public/assets/motion/fengfeng/qi_cleave_v2.webp",
-      "targetSha256": "1e72317350a62eb5c5efde42180285c009474b22bd9b6dc8326ef7be9c2a7bf1",
+      "targetSha256": "d10de719735ed527615f79e11e73101ee49da522588194d3f72add98b2abdfae",
       "bytes": 564748,
       "size": [
         1774,
@@ -33,7 +33,7 @@
       "source": "tools/motion-art-source/attack-variety-v2/fengfeng/earth_split_v2.png",
       "sourceSha256": "9be91bbab7fac676ba2bbee7f84c690441a6fc7f46aba71f0c4461e685e09681",
       "target": "public/assets/motion/fengfeng/earth_split_v2.webp",
-      "targetSha256": "12ba5519a7b4bbad665f59ad0086e4117cf413b37e042a2dfcb16f44b12f379b",
+      "targetSha256": "6cf0b47e43c1084f920aee45aede686d1b453459dcc35eafc13665ada33cbd41",
       "bytes": 812806,
       "size": [
         1774,
@@ -45,7 +45,7 @@
       "source": "tools/motion-art-source/attack-variety-v2/fengfeng/retreat_thrust_v2.png",
       "sourceSha256": "48b62592704c744a28cf8fc16ecf58a42ffb047a45540bef72786e7484070e7d",
       "target": "public/assets/motion/fengfeng/retreat_thrust_v2.webp",
-      "targetSha256": "3425b717aa7de20d7da5c1bfd94598b0e4f4168cd1fd9b8b1eee6cf2eb87b5f6",
+      "targetSha256": "aa0456f2e4a48fc18c7e60496944a4b2211dea15982ebc1894ee59c05340e435",
       "bytes": 822906,
       "size": [
         1774,

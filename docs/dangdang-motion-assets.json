@@ -9,7 +9,7 @@
       "source": "tools/motion-art-source/dangdang/idle_hurt.png",
       "sourceSha256": "3cd65a5de2f487608d8b69eb8a1b8209c4b6f0b7b61f33f0a9a8b2f0a43e4c1d",
       "target": "public/assets/motion/dangdang/idle_hurt.webp",
-      "targetSha256": "b063bad1578c1d7c8a9c6360e002d8b4e7dda0e9e21b5561d640973ebe06e528",
+      "targetSha256": "4e5bc979ec8d6c3c8b6c1ba2e7f3a83408e30e37b24b06b39577186c820644d1",
       "bytes": 665664,
       "size": [
         1254,
@@ -21,7 +21,7 @@
       "source": "tools/motion-art-source/dangdang/run.png",
       "sourceSha256": "74ee352d8129e1632253a7347c59b81c7826ac33fedda608d642d44c67453037",
       "target": "public/assets/motion/dangdang/run.webp",
-      "targetSha256": "4e3b1dedcbd90647f92ca717bab474f2f0c45238ef808cb49cfd40f49779b727",
+      "targetSha256": "e0ba596b1da29580bb934a17b8c0434303e51cb5d90573a72a33312c9aa474fa",
       "bytes": 756856,
       "size": [
         1774,
@@ -33,7 +33,7 @@
       "source": "tools/motion-art-source/dangdang/punch.png",
       "sourceSha256": "d0b30de17f2f65098cfc9817ad044f6b2b680652f116e68135ee5134ad711ab8",
       "target": "public/assets/motion/dangdang/punch.webp",
-      "targetSha256": "3646ab1509cb0d785a7365d68a46aaab39361f74206ba798e8a27c0dda7ff15b",
+      "targetSha256": "29d2fe9d37fc622e67e44e933967b4b4bb6e1bb0f872d6253af6f77e88006136",
       "bytes": 739774,
       "size": [
         1774,
@@ -45,7 +45,7 @@
       "source": "tools/motion-art-source/dangdang/palm.png",
       "sourceSha256": "03042eaf8d11bbe8e469747c735a475226cae1253413b8bf4c811d450dd2bd6f",
       "target": "public/assets/motion/dangdang/palm.webp",
-      "targetSha256": "951669df3feea18da98b93aa0eaf77ab7dd54e1fa7b5c1605063731b491e639c",
+      "targetSha256": "d4f37acee1d42a810fdff7b30117c3d12ccf780592bd85d773ac6425d44223ea",
       "bytes": 814042,
       "size": [
         1774,
@@ -57,7 +57,7 @@
       "source": "tools/motion-art-source/dangdang/guard_focus.png",
       "sourceSha256": "0ec778153fc470b690ca92b496e9760deef235a43d64f6cf57ef06804474371b",
       "target": "public/assets/motion/dangdang/guard_focus.webp",
-      "targetSha256": "efb4e8f93268b5799d95c86328c68cfc9142218c1e1edb6277c275117151a6e0",
+      "targetSha256": "33856e56265dc1ba3697bc8a09d5ee7a6d0be8328d0376db9d120f14ad9bff9f",
       "bytes": 745412,
       "size": [
         1254,
@@ -69,7 +69,7 @@
       "source": "tools/motion-art-source/dangdang/kick_shoulder.png",
       "sourceSha256": "4ec5b766f103ce78af92b9f9e2562938f45dc709f828c4d049b52cd611d27708",
       "target": "public/assets/motion/dangdang/kick_shoulder.webp",
-      "targetSha256": "c4c7335998570e26ef4fc889d9e9f98f9f93a32d3fab6d1983790954032d55ed",
+      "targetSha256": "48f60d2d8fa9336a021b2cbe564c272d8c00fd1c45c2e13ff6a849cec15e31a0",
       "bytes": 790388,
       "size": [
         1254,
@@ -81,7 +81,7 @@
       "source": "tools/motion-art-source/dangdang/counter_slam.png",
       "sourceSha256": "5af99ee5e4bfadaef3e94652f6dc61177f487961033113d46dc19874b0e31c69",
       "target": "public/assets/motion/dangdang/counter_slam.webp",
-      "targetSha256": "b7dbacf080ee892eb853172075aec74154eff4f1ad39d3e27db92c4d464883f4",
+      "targetSha256": "16f525116619d100a8c667311929540c11ef4ad43da90d306433edac71ddfe36",
       "bytes": 874086,
       "size": [
         1254,
@@ -93,7 +93,7 @@
       "source": "tools/motion-art-source/dangdang/dodge_win.png",
       "sourceSha256": "cf6f39c85a0209d9610cba0cd0e8b297b9afb93cdd6a985104a1b00ac7f89dc4",
       "target": "public/assets/motion/dangdang/dodge_win.webp",
-      "targetSha256": "6854392cf4981c05531865cd02bc41e8d54996f24965384e34b351dc0c82f1a4",
+      "targetSha256": "d5f423c1e8a1ea6afd4413af6c4a05cb5f6cd34de38e5e8a99a18fed800a5ea4",
       "bytes": 929196,
       "size": [
         1254,
@@ -105,7 +105,7 @@
       "source": "tools/motion-art-source/mix/dangdang_eat.png＋tools/motion-art-source/mix/dangdang_poison.png",
       "sourceSha256": "f190698cafddca2ca68a1ce8f7ed44b67e415efac2e2ad8c1c4a7d67c6d848ab＋3f891efc9a4a233ea63bd8a842c77822d46db14e568037342354d12d434eb649",
       "target": "public/assets/motion/dangdang/eat_poison.webp",
-      "targetSha256": "9971e80f8df179cfb0ad3e676adcb8546bd09a0302680e00d25fa678e09fd539",
+      "targetSha256": "315bb5ffe3a461fc5ea4033e350dcda762799341066ad264174406340e24c591",
       "bytes": 504994,
       "size": [
         772,
@@ -118,7 +118,7 @@
       "source": "tools/motion-art-source/dangdang/defeat.png",
       "sourceSha256": "0e27e43f164976fc777afef6ef6d0c178dad8edddc72c75eb04cb6b16c59b5d0",
       "target": "public/assets/motion/dangdang/defeat.webp",
-      "targetSha256": "ba7a8bbc2380b82547e9160da2df978bbcdc6cd9e1772691acfdc24faa79458e",
+      "targetSha256": "805dcdbc8d4e03ce30548b227b8a5fcfd8f4077660dc590be0aaec12d6d7e020",
       "bytes": 564202,
       "size": [
         1774,

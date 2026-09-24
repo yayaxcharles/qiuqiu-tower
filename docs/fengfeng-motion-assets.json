@@ -9,7 +9,7 @@
       "source": "tools/motion-art-source/fengfeng/idle_hurt.png",
       "sourceSha256": "778684e8e789c599d17a9d2834dab65b7d536c058e19a23d87ccb22b3fd57d17",
       "target": "public/assets/motion/fengfeng/idle_hurt.webp",
-      "targetSha256": "07f1379607075b7b98ef36fc0cf559d4569e65a0baeb914158e15ca6b5fa63c3",
+      "targetSha256": "f5038478650ec7d17cfbfbe6689ae0ca8259cf9f8ea9e2a0d4a651267819013a",
       "bytes": 1211272,
       "size": [
         1254,
@@ -21,7 +21,7 @@
       "source": "tools/motion-art-source/fengfeng/run.png",
       "sourceSha256": "c84b7f47960533538f458bf4fc639a9b607728995c7e2c65775878d838f4565c",
       "target": "public/assets/motion/fengfeng/run.webp",
-      "targetSha256": "48c1589e01a064964a16f4343da22128e23364f447b11f97e5f279058656c986",
+      "targetSha256": "1965c5604488d3cd05769729cbd83be9f1b50aa0496f920957043287c88c6b5c",
       "bytes": 686070,
       "size": [
         1774,
@@ -33,7 +33,7 @@
       "source": "tools/motion-art-source/fengfeng/slash.png",
       "sourceSha256": "e4a8ba2424f21e2dd9a2979d4f6fc17c866792649823cb1ddbdf2e74169dd153",
       "target": "public/assets/motion/fengfeng/slash.webp",
-      "targetSha256": "e47017aaf43d0366b51b0d69f88a465087333c342703d095b807da0e95734b2a",
+      "targetSha256": "17734eb555ff023f76a9ce2ad38b69151a7b3b157d689d213c24363335e79edc",
       "bytes": 804786,
       "size": [
         1774,
@@ -45,7 +45,7 @@
       "source": "tools/motion-art-source/mix/fengfeng_sweep_a.png＋tools/motion-art-source/mix/fengfeng_sweep_b.png",
       "sourceSha256": "42a30193985ee407a7b197a9aa0fb9b8c8e3153303bcc8c7d9d76f136f6c1404＋1c6e7bf360f90fef906ef8199f06158801e363d5b715a95b183996d7d19f51eb",
       "target": "public/assets/motion/fengfeng/sweep.webp",
-      "targetSha256": "9ef56ea7b5428f5ce9e57361224765abdcdf54bbff0a82dafdcdd69dadfe8bae",
+      "targetSha256": "8116536486f9095c4a874a1dbb7285a5938e9186c7f993469b2dcac8f95c233b",
       "bytes": 594628,
       "size": [
         1896,
@@ -58,7 +58,7 @@
       "source": "tools/motion-art-source/fengfeng/heavy_slash.png",
       "sourceSha256": "2df4038556fd642aecb9d46e0c42f4a1b40ae0968333299646369c6d1c24b773",
       "target": "public/assets/motion/fengfeng/heavy_slash.webp",
-      "targetSha256": "7fdfb429654a1833859f30c682f493cb640cd7ccc1dcc1fe21576d46434d4603",
+      "targetSha256": "15fca1a4e8955360f3f0c6504948665986d493d8683d23bbd0fb94bbad5c632b",
       "bytes": 806532,
       "size": [
         1774,
@@ -70,7 +70,7 @@
       "source": "tools/motion-art-source/mix/fengfeng_thrust_a.png＋tools/motion-art-source/mix/fengfeng_thrust_b.png",
       "sourceSha256": "bb1583480c35d1f5d076a2fa1ace92dc21fa313e60a872b234df8bd63a5c1420＋9be0611adbb0e603d4354b45ced08cf0a4736661a043755d1440c1ee12c059d7",
       "target": "public/assets/motion/fengfeng/thrust.webp",
-      "targetSha256": "9da427a0843d9ce4f6c8ff67b01c3437270f9444f62c04053997a919404e974c",
+      "targetSha256": "8222b21d75bf7ff64aeeabdace6cf1f8f0526b6fa4624b4bc9a1aaae547ed064",
       "bytes": 585038,
       "size": [
         1992,
@@ -83,7 +83,7 @@
       "source": "tools/motion-art-source/mix/fengfeng_double_slash_a.png＋tools/motion-art-source/mix/fengfeng_double_slash_b.png",
       "sourceSha256": "94b85c43461c208cff81e43579d6cf42fd09dfb9a2c084ced4a89f6664c75cec＋7a83ebbea53cf3fa3c040d59d2b6b6e4f7d0f86aba285ea79bcc21f020f6b76f",
       "target": "public/assets/motion/fengfeng/double_slash.webp",
-      "targetSha256": "6ea9c62bf05cf23997bbfd8fb50263935f76d21ffeda789e325bee683ab578aa",
+      "targetSha256": "6b58af61a4ecd22a75d4f91bab706c49cf459a53ee98f6a26fbd8f81e11ad363",
       "bytes": 571594,
       "size": [
         1672,
@@ -96,7 +96,7 @@
       "source": "tools/motion-art-source/fengfeng/guard_focus.png",
       "sourceSha256": "3cf74366985c2e1292722aa625050d729a3246258158d97c295346fdb840dfc8",
       "target": "public/assets/motion/fengfeng/guard_focus.webp",
-      "targetSha256": "8ec914ddb7469764970cdfd3c24a1727dd8b5167f906821bd87ac8967f108ee8",
+      "targetSha256": "6a0205a75053e4d57053a80244652620360f0650692f09760f29b55d04ff192d",
       "bytes": 1206772,
       "size": [
         1254,
@@ -108,7 +108,7 @@
       "source": "tools/motion-art-source/fengfeng/sheath_eat.png",
       "sourceSha256": "4e82c09b8c857510578d2720bafcc8201f8b4b84615ed5ab1d514be5bf659785",
       "target": "public/assets/motion/fengfeng/sheath_eat.webp",
-      "targetSha256": "d5127b75a25f98ac845dd6003b37b2115ff590eb80f7f6a1c2d202d3efd4bc74",
+      "targetSha256": "04687d984aa19e8017c1738b4ea8d4da365116b44d1994a5283351846ebfa766",
       "bytes": 1024246,
       "size": [
         1254,
@@ -120,7 +120,7 @@
       "source": "tools/motion-art-source/fengfeng/dodge_win.png",
       "sourceSha256": "5a07fe669baec6d5cae312e5c6cd0d03cbd68c9c795e431781b3ec9b1701b4e3",
       "target": "public/assets/motion/fengfeng/dodge_win.webp",
-      "targetSha256": "74ee166671f67a4f3e2fd425ee940f249bcffbd50ebf672b7b089a982e6b621a",
+      "targetSha256": "5160062d8d3c464c0cb157f52ee8d86a49cd13b17abf3ca6e6cdf008943efdc6",
       "bytes": 1168732,
       "size": [
         1254,
@@ -132,7 +132,7 @@
       "source": "tools/motion-art-source/fengfeng/poison_defeat.png",
       "sourceSha256": "8b902c3c20622ab49c32ce53c6b57cb5d81fc0119159dbf6be31816ebfb09d6b",
       "target": "public/assets/motion/fengfeng/poison_defeat.webp",
-      "targetSha256": "5579b2e59070fbd5d11788e1710ec8eb46e71c8c4df51c287674390ee64a00ce",
+      "targetSha256": "84bd5dd71bdebca2d3e9bfa17e10e94860e8fa1f427d9b9f90989b965834e116",
       "bytes": 1025300,
       "size": [
         1254,

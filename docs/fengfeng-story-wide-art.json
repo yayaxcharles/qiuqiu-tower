@@ -10,7 +10,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-01.png",
     "sourceSha256": "6289b8dd6ddeca07545666782610614ee13e8ee8b8bddfdeb29c89e4e2743a79",
-    "outputSha256": "bc483a328d112a1d9b24df79cd050302882f91033581a4748625deb05b1da273",
+    "outputSha256": "6652892bb6e7398ba1372195f98960b0cd9f552310bee06b6a383e920acf47b8",
     "size": [
       1672,
       941
@@ -30,7 +30,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-02.png",
     "sourceSha256": "c905871de431ad0665de1d8987978cf3692e5290d0e60713c4535145d692d539",
-    "outputSha256": "f021b39707cb09de9d915b801c8fb7bf85b42a36e757ea93dfb9294ee5581026",
+    "outputSha256": "df473ef353b87eca7b02c343ba7eb3d50cc0360413cfe050cc2b9d48fa40267c",
     "size": [
       1672,
       941
@@ -50,7 +50,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-03.png",
     "sourceSha256": "9a8397c0d44ab3598e54e9a27151e277f443eadf335ef18cf04469c389adc526",
-    "outputSha256": "045609d58f02de59855f5e3dd2c8fb7bbfa9b05af756cae441036669ee10d16c",
+    "outputSha256": "f02902a5a8ae9fa364cc28da8f90df8a7e2ff5fe723c5294082f252247bfdf63",
     "size": [
       1672,
       941
@@ -70,7 +70,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-04.png",
     "sourceSha256": "814fae34adc6372a54694f6c2bb6f3d598829c9fa0a9fb233a930ee9cf6a06a5",
-    "outputSha256": "4d72e9a40b4c51986a145a651c9ce4b13e8aea6aff03422b6e1dce25e4861f4b",
+    "outputSha256": "6f5643498a8940e89f17a9900d70f70be2658033df2a9b13077336cb4abd0543",
     "size": [
       1672,
       941
@@ -90,7 +90,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-P-05.png",
     "sourceSha256": "98d043ebe735b350caa041e4cdda6d710601bab1c0318a5d3cc17e072ae13e70",
-    "outputSha256": "d6892511b96fadf7db52779faa990fd3981be194f1d18becc75e0055c7846f83",
+    "outputSha256": "3a2ac9840428c2c40f8fc4f00ba77bcbd9c8e70aab7589ee6892e132f327b51e",
     "size": [
       1672,
       941
@@ -110,7 +110,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-A1-01.png",
     "sourceSha256": "1cbdf6c590efc2668faa4a3abbc26610cf7ec613d1578567fecc3155a9aaeea5",
-    "outputSha256": "1365a0a21ecbfb227250b53a1ed12c2b9e1f0718e9a422ef4019c9772820c653",
+    "outputSha256": "8a0a23e1b03c256588e936aa93792b2f0c7d53e50baf421a9ee8927548cc5e63",
     "size": [
       1672,
       941
@@ -130,7 +130,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-A2-01.png",
     "sourceSha256": "11f71697c6456dd75bcd249fd9158a264f4ada5d840d3b040dbd24b66deae321",
-    "outputSha256": "881d097049b2ef953910e36c0f138302599282f1eb2070a8f96298c2e2bf4fc9",
+    "outputSha256": "35ec912c6d8550c7adeab448095b6995e15e53563a6e1e47bf6f3e643e9bcd88",
     "size": [
       1672,
       941
@@ -150,7 +150,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-TOP-01.png",
     "sourceSha256": "82c5d62bcbfe10bea588ca3f939d86dffa7d5a6cdfc591dd81553aa1d429396e",
-    "outputSha256": "45a2cf487b71a7df66e7218f986275a3cd0fb0977d3b8f5869a57f05fa4ee60b",
+    "outputSha256": "5c53fff711da5773f0210c4ba182ce23c57be7a99e72722020b01bcde146e495",
     "size": [
       1672,
       941
@@ -170,7 +170,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-D-01.png",
     "sourceSha256": "c97af52cac8097cd50d57de5a6d74f367f1142248a1860be5870dab17c16ea45",
-    "outputSha256": "e87064a53bafeaddaf7b1e525a27d076d273cb7efd490eddae64d856254aff9d",
+    "outputSha256": "1429da409292da7b0af7ade3883a49946787826683391835b059a481657141f7",
     "size": [
       1672,
       941
@@ -190,7 +190,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-V-08.png",
     "sourceSha256": "479768fef5f2bb48d3c532484cc6bad7b632ce02fcb618ee10bcd04f685ce087",
-    "outputSha256": "7734dc454a5ea2d0678833103434ea9230045044fd4dd62d289ff532c7cc1190",
+    "outputSha256": "cc2f8460544b21e200d5927d33c3b46d6e02d9c8eb6b1805f6c5edc13a8b4b83",
     "size": [
       1672,
       941
@@ -210,7 +210,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-EP01.png",
     "sourceSha256": "35ada1d623c78327ad7a2385a9f70101cf24f6d5286f048f77882fae9dba66b8",
-    "outputSha256": "ed642121c07c5171ffda1265abac39bc600313de034b8f21a73d594abaa08adc",
+    "outputSha256": "55ecb6c88c6dc1caa4f75fa65a4bc01caa4230106b94fdfcccc7ce6f281b1a3f",
     "size": [
       1672,
       941
@@ -230,7 +230,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQP.png",
     "sourceSha256": "e7a1ca52a27f88e40d878213f2941401a5d81b14a56dd758769cad6aa8c1021c",
-    "outputSha256": "e3f240ee8812622e1dfb8642d52a33005925875708785d4b1ead9031659d1917",
+    "outputSha256": "8adb39dd1164a7cc8179852b72aaadb512fba2f79b841f4f40f675ef262e33b4",
     "size": [
       1672,
       941
@@ -250,7 +250,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQT.png",
     "sourceSha256": "cc8afadb4813604f00aae92ec66b2315ab8ad2e9f3f6a5bb3ce96f4371f2cab0",
-    "outputSha256": "3f750318ec6bf406f20bd9e8bacf58622e5200e72098688e588783be8b5d42a5",
+    "outputSha256": "6f9017b25cc0f93001ca3fd23ddff223260cca09e4b795a15cd8983a175971cb",
     "size": [
       1672,
       941
@@ -270,7 +270,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CQV.png",
     "sourceSha256": "96fd6403b90f635109300df9a6c8075c468d3bac54c64482f795c628f970e4aa",
-    "outputSha256": "b0fbf307ac4e3c593796564a272f25a3479e177a702217b86c53bda927f34276",
+    "outputSha256": "b8f4c63ed36e450b78d2f2d445bf198fee2991e0a5348a458f8ebd7a393106f1",
     "size": [
       1672,
       941
@@ -290,7 +290,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CFP.png",
     "sourceSha256": "9762351a3dcad5e163615086394095492bcfb99035e804a6867fbfa4c5e85eef",
-    "outputSha256": "abf7b00bbe85bc5062448eae8417a6ae17b7557559f5976558c30b6242dab65b",
+    "outputSha256": "1ec5d59bcda1f8f084c61c23ededce8baa2bb5f1afeabc83d4257e37c8f19664",
     "size": [
       1672,
       941
@@ -310,7 +310,7 @@
     "accepted": true,
     "retainedSource": "tools/motion-art-source/fengfeng-story-wide/FG-ART-CDP.png",
     "sourceSha256": "27ddfbde02a09ce152b39a12eda108e5c4df2b405620e9468347580e452cd8b0",
-    "outputSha256": "8b42b5d4b70efecca95e5be51de0b1da065f62197be13be16eced27b6f26699b",
+    "outputSha256": "36b1d14e91d4558804ce12c1a5e28507e0a97129ecd770bb18d0dcc2de966c3e",
     "size": [
       1672,
       941

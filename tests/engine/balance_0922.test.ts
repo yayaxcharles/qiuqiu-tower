@@ -121,9 +121,9 @@ describe('噹噹：銅牆鐵壁 3 費（升級 2）→ 2 費（升級 1），打
     expect(p.energy).toBe(1);
     expect(p.block).toBe(8);
     expect(p.halfSpendBlock).toBe(true);
-    // 卸力掌：卸掉 3 點（6 的一半）打出 6 點
+    // 借力打力：卸掉 3 點（6 的一半）打出 6 點
     const e = cs.enemies[0]!;
-    play(cs, p, 'dangdang_xieli', e.uid);
+    play(cs, p, 'dangdang_jielidali', e.uid);
     expect(300 - e.hp).toBe(6);
     expect(p.block).toBe(5);
   });

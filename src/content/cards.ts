@@ -804,7 +804,9 @@ export const cards: readonly CardDef[] = [
 
   // ----- 忍術・常見 8 張：先讓玩家學會「蜷縮是彈藥」，數值都小 -----
   { id: 'dangdang_xieli', name: '卸力掌', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_xieli',
-    effects: [{ kind: 'damageSpendBlock', max: 6 }], upgrade: { effects: [{ kind: 'damageSpendBlock', max: 8 }] } },
+    // 2026-09-24 深夜使用者：「感覺好弱，去除防禦、打出等量防禦的數值，還一費，幾乎沒好處」→ 乙方案：保底 4 點＋最多卸 6 點蜷縮加上去（升級 5＋8）。
+    // 蜷縮 0 也打得出去；最多 10（升級 13），仍低於 2 費的崩山掌（卸 12／16）
+    effects: [{ kind: 'damageSpendBlock', max: 6, plus: 4 }], upgrade: { effects: [{ kind: 'damageSpendBlock', max: 8, plus: 5 }] } },
   /*
    * 6 點對上共用的變身術（1 費常見 10 點）是嚴格比較差，等於白做（審查 2026-09-17 中-4）。
    * 不把數字加大——那只是變成第二張變身術。改成跟他的另一條路綁在一起：

@@ -99,13 +99,13 @@ describe('封封 FG-T13～FG-T17、FG-T21', () => {
     const { cs, p, q } = setup(); q.hero = 'dangdang';
     p.qi = 3; play(cs, p, 'fengfeng_youbian');
     q.block = 6; addStatus(q, '爪力', 2); const e = cs.enemies[0]!; const hp = e.hp;
-    play(cs, q, 'dangdang_xieli', e.uid);
+    play(cs, q, 'dangdang_jielidali', e.uid);
     expect(hp - e.hp).toBe(18);   // 卸 6 點＋支援 12，爪力不吃
     expect(q.block).toBe(0);
     expect(q.nextAttackBonus).toBeUndefined();
   });
 
-  it('封封支援接零蜷縮的卸力掌：消耗加成但不強造傷害事件', () => {
+  it('封封支援接零蜷縮的借力打力：消耗加成但不強造傷害事件', () => {
     const { cs, p, q } = setup(); q.hero = 'dangdang';
     p.qi = 3; expect(play(cs, p, 'fengfeng_youbian')).toBe(true);
     expect(q.nextAttackBonus).toBe(12);
@@ -114,7 +114,7 @@ describe('封封 FG-T13～FG-T17、FG-T21', () => {
     const hp = enemy.hp;
     const hits = cs.hits.length;
 
-    expect(play(cs, q, 'dangdang_xieli', enemy.uid)).toBe(true);
+    expect(play(cs, q, 'dangdang_jielidali', enemy.uid)).toBe(true);
     expect(enemy.hp).toBe(hp);
     expect(cs.hits).toHaveLength(hits);
     expect(q.nextAttackBonus).toBeUndefined();

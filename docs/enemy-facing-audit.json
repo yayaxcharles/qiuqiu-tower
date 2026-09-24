@@ -4755,23 +4755,23 @@
   "motionTextures": [
     {
       "file": "assets/motion/enemies/ninja-air.webp",
-      "sha256": "69470fb7fac94d577d495eae76837a27aa9094f9aa5c4a48211a2180eff28f61"
+      "sha256": "83a6b46fd507c4e11e557c5744671b522c9ac6aada2d33c8080c1c2000a5693c"
     },
     {
       "file": "assets/motion/enemies/ninja-ground.webp",
-      "sha256": "bdfff9579d930b87a01046e9918d1080c806bf3214bd0f2099b97d5037bcc502"
+      "sha256": "a204339f85fd3fef8495df8d0c50dd7f547d7c20a245991d5a523f8576e21478"
     },
     {
       "file": "assets/motion/enemies/rat-air.webp",
-      "sha256": "a92996905dcced600d1ad400f0df04f17debecb3323d3a707cfcb74f42ff0c8c"
+      "sha256": "719cffe5239dea49e67fdc2163be43a68c8234bd8eb20d35d6465804e67aba36"
     },
     {
       "file": "assets/motion/enemies/rat-attack.webp",
-      "sha256": "db495fa29e5dfd8b5590328702a5de7f41567c41618e654416b2bf85f95f49ec"
+      "sha256": "6bcf53f4e93db95123c475fc3e092c70a3d90bfb2893ca7ee30da3a2696cd407"
     },
     {
       "file": "assets/motion/enemies/rat-base.webp",
-      "sha256": "69e0abd41033ce67cc397b667f2a5c5569da9f1a066406f810f9675f1f4e526d"
+      "sha256": "2acc365741808500a387e400123a0e9fe6e091123d3a80ceb6d2b108c094f4fc"
     }
   ],
   "motionActions": [

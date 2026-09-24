@@ -164,7 +164,7 @@ export function learnCard(inst: CardInstance): EnemyEffect[] | null {
        */
       case 'damageSpendBlock': {
         if (fx.all || !fx.max) break;
-        const hit: Extract<EnemyEffect, { kind: 'damage' }> = { kind: 'damage', amount: Math.floor(fx.max * (fx.mul ?? 1)) };
+        const hit: Extract<EnemyEffect, { kind: 'damage' }> = { kind: 'damage', amount: Math.floor(fx.max * (fx.mul ?? 1)) + (fx.plus ?? 0) };
         if (fx.ignoreBlock) hit.pierce = true;
         out.push(hit);
         break;

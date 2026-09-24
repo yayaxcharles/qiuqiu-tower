@@ -18,7 +18,7 @@
       "source": "tools/motion-art-source/ff1/feifei/attack1.png",
       "sourceSha256": "125967c2a40ebeca59ba062f90473aa09629770369ce723bd9b0c0ac5eb3ba73",
       "target": "public/assets/motion/feifei/claw.webp",
-      "targetSha256": "b04e0d023e83fbe42145f106d6a35135f665ccd441b3016032b56d2028eaffe9",
+      "targetSha256": "f36acf6ba67e3764d12d8dd5a093b3f3b571299e762820ff822eedbc8c89f04c",
       "bytesBefore": 919016,
       "bytes": 774012,
       "size": [
@@ -107,7 +107,7 @@
       "source": "tools/motion-art-source/ff1/feifei/guard.png",
       "sourceSha256": "14ef72ba063f3028120236bb151b5b1ea941ba24cd45c053991abe38e3677c01",
       "target": "public/assets/motion/feifei/guard.webp",
-      "targetSha256": "d7d6ac27bead04e709f28f95f0caa5ec1dc58299ca3b01297dac0350f0714fb7",
+      "targetSha256": "b0f0379a66d4c186a46c0afe2fdb1101664fd6775c3d6392af680872bb565a13",
       "bytesBefore": 992460,
       "bytes": 727780,
       "size": [
@@ -196,7 +196,7 @@
       "source": "tools/motion-art-source/ff1/feifei/kick.png",
       "sourceSha256": "a5a9dd98019325861aeed08d7433e538977275a62b2deacb928dd1ff607ff5ea",
       "target": "public/assets/motion/feifei/kick_claw.webp",
-      "targetSha256": "bb1a48b1511f97486edc1cbead967c9bbdfc63e25734135e98608fa84494248f",
+      "targetSha256": "f686c8e024d62cac1ea14200dcd4bc5263e19dd0b96d1eb23299f8b6f23f31d2",
       "bytesBefore": 1165950,
       "bytes": 672278,
       "size": [
@@ -285,7 +285,7 @@
       "source": "tools/motion-art-source/ff1/feifei/shuriken.png",
       "sourceSha256": "e4b6b742b54fd0ff913e05174f9a3c8abe518f214f7e42d4a0660bc99b082cfd",
       "target": "public/assets/motion/feifei/needle.webp",
-      "targetSha256": "00031bca71e61cb40f33aa2117ec5f9acf568e9a0f91833b2465aeddf62166f5",
+      "targetSha256": "41a58c362530b6fe73579fefedefaf4e8f2395bc3719cd268c39f9afe34de466",
       "bytesBefore": 1008828,
       "bytes": 724278,
       "size": [
@@ -374,7 +374,7 @@
       "source": "tools/motion-art-source/ff1/feifei/run.png",
       "sourceSha256": "618279d19d3213211430e01ad4a52eb19f23d896fe13606cb6d99dce84a47b3f",
       "target": "public/assets/motion/feifei/run.webp",
-      "targetSha256": "61fde27df419e77fc0a5fe94064a46c70987fa1cde696d36d87f221d3a77c354",
+      "targetSha256": "7b4afed8f0b8098519da4cbedf788cb05bde7a0c0314ea20a11b07e7c2abc43d",
       "bytesBefore": 952508,
       "bytes": 653444,
       "size": [

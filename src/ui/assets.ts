@@ -65,6 +65,21 @@ export async function loadManifest(): Promise<void> {
 export function _setManifestForTest(m: Manifest): void { manifest = m; }
 
 /**
+ * 這一版素材清單裡**所有圖**的路徑（相對 `BASE`，例：`assets/bg/foo-7WQhIcB8.webp`），整棵樹往下收，含 `files` 表。
+ * 給圖片離線快取清掉舊版用不到的圖（`assetcache.ts` → `public/sw.js`）
+ */
+export function manifestImagePaths(): string[] {
+  const out = new Set<string>();
+  const walk = (node: unknown): void => {
+    if (typeof node === 'string') { if (/\.(?:webp|png|jpe?g)$/.test(node)) out.add(node); return; }
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (node && typeof node === 'object') Object.values(node as Record<string, unknown>).forEach(walk);
+  };
+  walk(manifest);
+  return [...out];
+}
+
+/**
  * 照**原始相對路徑**取一個靜態檔的網址（音效、背景音樂、過場影片）。
  *
  * 這三類跟圖不一樣：它們不在清單的分類裡，程式是照名字現組路徑的

@@ -18,6 +18,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import motionData from '../../src/ui/feifei-motion-data.json';
 import record from '../../docs/redraw-ff1-motion-assets.json';
+import { webpSizeOf } from '../webp-size';
 
 type Motion = {
   texture: string; scale: number; loop: boolean;
@@ -46,12 +47,9 @@ const RUN_LIFT = [0, 0, 6, 12, 0, 0, 6, 12];   // 跑步騰空高度（遊戲單
 
 const sha = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
 
-/** 無損 webp（VP8L）檔頭裡的寬高 */
+/** webp 檔頭裡的寬高（2026-09-24 起動作圖是有損帶透明的 VP8X，三種容器都認，見 tests/webp-size.ts） */
 function webpSize(path: string): [number, number] {
-  const bytes = readFileSync(path);
-  expect(new TextDecoder().decode(bytes.subarray(12, 16))).toBe('VP8L');
-  const [b1, b2, b3, b4] = [bytes[21]!, bytes[22]!, bytes[23]!, bytes[24]!];
-  return [1 + (b1 | ((b2 & 0x3f) << 8)), 1 + ((b2 >> 6) | (b3 << 2) | ((b4 & 0x0f) << 10))];
+  return webpSizeOf(readFileSync(path));
 }
 
 const asset = (action: string): Asset => {

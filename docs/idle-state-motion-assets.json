@@ -9,7 +9,7 @@
       "source": "tools/motion-art-source/idle-states/qiuqiu/wounded.png",
       "sourceSha256": "37df2417b3042889f307d7720b84d3d0ff50ed5e80afaffc17f14d78c69c6b7b",
       "target": "public/assets/motion/qiuqiu/generated_wounded.webp",
-      "targetSha256": "459a559ac3a4e927efd29ab60dcdf27f0fa4f525d309a115609f19c50b54215f",
+      "targetSha256": "b5742d021574f789164b46ee9a452e552decd45f8a71bc192727ddc48796fe67",
       "bytes": 590318,
       "size": [
         1536,
@@ -46,7 +46,7 @@
       "source": "tools/motion-art-source/idle-states/qiuqiu/power.png",
       "sourceSha256": "1a911ae141c0cb4a4ecc508fec52bffba170e71459599fdfe6510fe1185a2de9",
       "target": "public/assets/motion/qiuqiu/generated_power.webp",
-      "targetSha256": "fde0bb80a0093772cb76639b1c770556f4103a3e3d7556cbd849c5ef686cf717",
+      "targetSha256": "beb73289c095d7527fc322744444fcf0dd8d18c4d9e76f6abe6303c87d55a913",
       "bytes": 626196,
       "size": [
         1536,
@@ -83,7 +83,7 @@
       "source": "tools/motion-art-source/idle-states/qiuqiu/hungry.png",
       "sourceSha256": "298ea7577a777ca3d9b8f960e44de979b47e119a8afaf0a3e4bb75f867cd0000",
       "target": "public/assets/motion/qiuqiu/generated_hungry.webp",
-      "targetSha256": "9486e5987c1f06a584963d4e8cd3ed86b59b65fce91787169ce3cde6d3f92d3e",
+      "targetSha256": "0b82373f75eaa412557e2c4ccd7d9ca90cbb0b02772f4a370a2c7cad0fe5b09b",
       "bytes": 548618,
       "size": [
         1536,
@@ -120,7 +120,7 @@
       "source": "tools/motion-art-source/idle-states/qiuqiu/dizzy.png",
       "sourceSha256": "7a8782421eed6a8727eed9412f8c107c5983d2030b8efa158afaee202e2a1e41",
       "target": "public/assets/motion/qiuqiu/generated_dizzy.webp",
-      "targetSha256": "16589e5e57dac4c517ac7fc39e25c8ca82debd0a154f350237ec57c13a22fdbf",
+      "targetSha256": "e1eef615094adad224c86a5da7d67cd55af6eb66aee311acb1521e9c11d985d7",
       "bytes": 612190,
       "size": [
         1536,
@@ -157,7 +157,7 @@
       "source": "tools/motion-art-source/idle-states/qiuqiu/lazy.png",
       "sourceSha256": "fdf89ad617f43741b9e44403e60c0f1a467c85871d203a504ea54cc2d3890e49",
       "target": "public/assets/motion/qiuqiu/generated_lazy.webp",
-      "targetSha256": "4fcec10b39cf7f2f39cfcca4a7e67170c2b1cd78dc49df222339fbbde66441e8",
+      "targetSha256": "023f74cb8f7d9c06400bf6625d4e132b112a8d4ce4a425edb1740422c4cf9e3f",
       "bytes": 606792,
       "size": [
         1536,
@@ -194,7 +194,7 @@
       "source": "tools/motion-art-source/idle-states/qiuqiu/iron.png",
       "sourceSha256": "651fcdbde8311d0952c0f1e4204d305d07e955cbfc74377b0cdbfcdc1e311a30",
       "target": "public/assets/motion/qiuqiu/generated_iron.webp",
-      "targetSha256": "a392da7cae60a6238fcde27b656882c23089fe1adc91ea4887827a06a4b1034d",
+      "targetSha256": "f954c86b368f2d3f6f332f364a9d9070a613eba786f2bf19d2a632b019699b64",
       "bytes": 580238,
       "size": [
         1536,
@@ -231,7 +231,7 @@
       "source": "tools/motion-art-source/idle-states/qiuqiu/curl.png",
       "sourceSha256": "e629830c5a1649f6c051f5f94739f194ae310e8de7e9c2c8812cf8ce31d8a567",
       "target": "public/assets/motion/qiuqiu/generated_curl.webp",
-      "targetSha256": "edcdb4545e970de8fd5cf912c8f370954ae4b9b248faa973089249a76f4afc8e",
+      "targetSha256": "463129eb73cda80070bed76de07574953c49616737bdbef565d711af76ccc8c6",
       "bytes": 562446,
       "size": [
         1536,
@@ -268,7 +268,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/wounded.png",
       "sourceSha256": "3b4885049086881bc29e5b6d7b75c4f36e5e7e7231b83bda179aafe9f1ffbb7f",
       "target": "public/assets/motion/feifei/wounded.webp",
-      "targetSha256": "7583e60b4c70c765deb237fc7bcaccb7ab9b33e5cbe1a17ff6151d253943170f",
+      "targetSha256": "f97009c14f7d7b219a7bc959d85c8fa3e0e6a1d8e2660a8fe2115169f758c31e",
       "bytes": 713796,
       "size": [
         1536,
@@ -305,7 +305,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/power.png",
       "sourceSha256": "bdb2198fa3198619e8020cd0f0dcb4e31a315fe0af80cd2cacba040f8ea37bf5",
       "target": "public/assets/motion/feifei/power.webp",
-      "targetSha256": "e2f7ee8647277204d41a08586fa96a35268f762a59c278edbefbd447e2700667",
+      "targetSha256": "c24d3b868e9cd79ee901193012f916da0b6cadca36b9aa4232c652b1d63fc809",
       "bytes": 836326,
       "size": [
         1536,
@@ -342,7 +342,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/hungry.png",
       "sourceSha256": "638255ef9d2308bc908d8f66fca73e31225def13d42a9f490c20b8e25d1bb982",
       "target": "public/assets/motion/feifei/hungry.webp",
-      "targetSha256": "9df2271f7c96f031288ebc02770ee115fdba69bc6489fba26edbd1928aa416ac",
+      "targetSha256": "9c1ab7aa3730af3f62e85d2c91e2244cefc7b134130c4cc9943bf7277793d434",
       "bytes": 694344,
       "size": [
         1536,
@@ -379,7 +379,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/dizzy.png",
       "sourceSha256": "0e72af7053a3216dace0002c825a43a5c32862032aec999f4e1e27f78c0258f2",
       "target": "public/assets/motion/feifei/dizzy.webp",
-      "targetSha256": "a3d3fbcd8c853d37b1708255b0f89ea0f9e1d3ef2772617318d4365ac7335759",
+      "targetSha256": "eadf562bf7ecaf6a50c23d920d8aa9d04154d8d4942a7a6335764cd72122891a",
       "bytes": 784288,
       "size": [
         1536,
@@ -416,7 +416,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/belly.png",
       "sourceSha256": "48bbc1375d59bb58087c5f48e593eddcf6758ff1975ea6f6caf22239db70718a",
       "target": "public/assets/motion/feifei/belly.webp",
-      "targetSha256": "55c5851115ddc62148138b6642b9cff896bd7a4b49dc20531e0de5430ca18bb2",
+      "targetSha256": "e14c1ad1d003bef2532840d20b403facbfe5a44752b996827f0d5235f891f4e2",
       "bytes": 619878,
       "size": [
         1536,
@@ -453,7 +453,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/stealth.png",
       "sourceSha256": "d90674471097908dfd674acb4938c44f31e067015fc47652fdb0c0770f2471ef",
       "target": "public/assets/motion/feifei/stealth.webp",
-      "targetSha256": "3a67acb9f8cd765f630c2e02bbf5507a6a23de98178dc74c40c02072bf7acd1d",
+      "targetSha256": "d74e5616c630e83e33f6f71cc240463ec1ee774b1d5b45df0a0d1d0ca39b96e9",
       "bytes": 713896,
       "size": [
         1536,
@@ -490,7 +490,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/lazy.png",
       "sourceSha256": "3ca2bef3728334bc47b8749d7c1bb34ce294cb170cfa3f307417eef96da22bf2",
       "target": "public/assets/motion/feifei/lazy.webp",
-      "targetSha256": "33caf7a8c618f6cad622b6bcfdc5ca75c044c66fe3a5e1d4df13966a2d962993",
+      "targetSha256": "fd956996fcac1797bde45b6ab0fe98438e936f1259442e244a9c03dad26569c6",
       "bytes": 688918,
       "size": [
         1536,
@@ -527,7 +527,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/puff.png",
       "sourceSha256": "c528320bf09638b3f36409292f3558ae4c2bd32c934172c870daf20ef4f76b7a",
       "target": "public/assets/motion/feifei/puff.webp",
-      "targetSha256": "a657ad8f90434d5ec0a34c3eeb1bd2202ba1aa020ca015fe1aa0db2eb50ab948",
+      "targetSha256": "64705dc09a41f880e661daea238250af337b3737ebf76e817a10ca58ba8480b4",
       "bytes": 831484,
       "size": [
         1536,
@@ -564,7 +564,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/iron.png",
       "sourceSha256": "d683a0d052feb747bde652e7165cc671094f45d85b359525657ab897d901e303",
       "target": "public/assets/motion/feifei/iron.webp",
-      "targetSha256": "7e5ad63023df7cf321c5153164d0d671af825c90b8ff8faeb1098901d75871fe",
+      "targetSha256": "049164099ab9ffcc257a33dd1a4e908d88c5b23fccdc1bb15da5f1eb897c166b",
       "bytes": 768852,
       "size": [
         1536,
@@ -601,7 +601,7 @@
       "source": "tools/motion-art-source/idle-states/feifei/curl.png",
       "sourceSha256": "e2f9d113ff071f7b2f477c275ce964e96e1dfc7d32b18c1bb6bf671461940ba0",
       "target": "public/assets/motion/feifei/curl.webp",
-      "targetSha256": "3292c9e129dd977a95bf8fb7c462350e9de6ee7d7bd3bca34a508cefed33cfdd",
+      "targetSha256": "40fab7adf12582f2289e152be22247c0744b1f6b1bc436ba4f2721c87dbae0cb",
       "bytes": 566814,
       "size": [
         1536,
@@ -638,7 +638,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/wounded.png",
       "sourceSha256": "876e8850d84b11725203059c09e7e09727843e340c3cc41b1947588d07754814",
       "target": "public/assets/motion/dangdang/wounded.webp",
-      "targetSha256": "5c6fe86cfce04811d01eb7fea6c2673a0a51b2add3e54139df4daa62e7884190",
+      "targetSha256": "d87e01b25ce31ad4552a1700e2378b1c232e9b3bcb7944e965eca584489068f1",
       "bytes": 617524,
       "size": [
         1536,
@@ -675,7 +675,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/power.png",
       "sourceSha256": "75f3e4e4ef45f9c27352a96d7668230643460417d086638e337e236c4e4522b6",
       "target": "public/assets/motion/dangdang/power.webp",
-      "targetSha256": "ccd5be2cb2b18c219fca91496eac1568ede8f16cef74c95b0f09ac686294c468",
+      "targetSha256": "cbcd9fd2d3e102515f7e818731405c391bf75ea4d6f732c4564c09b74f5b1d8d",
       "bytes": 696796,
       "size": [
         1536,
@@ -712,7 +712,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/hungry.png",
       "sourceSha256": "8b2e5dd11d6eb1817706e6f260a10ddf74683e4b091bba962984aa529c091ac9",
       "target": "public/assets/motion/dangdang/hungry.webp",
-      "targetSha256": "c2d9374eaaf2cbfcf4461a92d0beae51c51da3bf13d66aeba71b1c132fadb2e2",
+      "targetSha256": "f422b45d368d0e777db2452cf33d4fba9fa034e57fb1104eca25c6c802eba617",
       "bytes": 598056,
       "size": [
         1536,
@@ -749,7 +749,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/dizzy.png",
       "sourceSha256": "e82fc9778323bded702f98077463d20030e9e37a7438cc76580f43a79d922bb1",
       "target": "public/assets/motion/dangdang/dizzy.webp",
-      "targetSha256": "75e958cddc4edd6ba4678b4b716c30b09473d5c68841ecaf36c68cc19a759a7a",
+      "targetSha256": "85cecaab0fd45879311d6b5736d0f43f4a57dec7ba2f8fe1798e58080202b26a",
       "bytes": 640020,
       "size": [
         1536,
@@ -786,7 +786,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/belly.png",
       "sourceSha256": "1dd2fb300d26489b18c79f5d685c1c7550cae279a422da482971ea932aad705f",
       "target": "public/assets/motion/dangdang/belly.webp",
-      "targetSha256": "ba14cda55ba9c8c96fc07c9c83a017175242364346206e6e638cbb73be33a276",
+      "targetSha256": "c8a5f753d9734dae0703c0f55498d7ec40c35c76ef3a72211b9765204f37e38b",
       "bytes": 514014,
       "size": [
         1536,
@@ -823,7 +823,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/stealth.png",
       "sourceSha256": "155e62e3db2c6262e0559abce4e6209d93943ab0aa1cde6c2431bd4fe2820f7c",
       "target": "public/assets/motion/dangdang/stealth.webp",
-      "targetSha256": "fbe11a4486e20db079a2fc3582b3c1dc08f8faa6a8607eace4951fd229bfb119",
+      "targetSha256": "b237b9f90a8f07dca3f084c1ff0605387debdf87acb7cb76e1897268f734a971",
       "bytes": 575356,
       "size": [
         1536,
@@ -860,7 +860,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/lazy.png",
       "sourceSha256": "1966bbc4b240aaeccf62bd40ce339975ea86db2de7d529bc91b0968a5f48152c",
       "target": "public/assets/motion/dangdang/lazy.webp",
-      "targetSha256": "4e2cde0eee63dac7fb6ce3d22ba011c8c753870e38b84d846065559f2c1b6b35",
+      "targetSha256": "5e3c619b90f4ee40ccd80fd54e446e22455babf6217b7b2c363877eeccae81c3",
       "bytes": 625776,
       "size": [
         1536,
@@ -897,7 +897,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/puff.png",
       "sourceSha256": "747ee13dbb6a22e981f50e933fd5b7308cf12cdcee5cd55aa79bcbed0ebb00ac",
       "target": "public/assets/motion/dangdang/puff.webp",
-      "targetSha256": "cbd49f4a37006d34e86f088a6b068c370eb7a380da3537dff68a2a0dce998559",
+      "targetSha256": "0fe0143e2b02f38c5686c88c9ac58560f8aa3f2fb2ad55d6df72b47b7c30e857",
       "bytes": 698876,
       "size": [
         1536,
@@ -934,7 +934,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/iron.png",
       "sourceSha256": "4e5a6494f5a879ab73549b85f66cf67337d41a0a46cac9ae949a2bde3f730d06",
       "target": "public/assets/motion/dangdang/iron.webp",
-      "targetSha256": "54c27680aae3060e49b6be1b60a3eca47a6d2ec1e05a0c3664ff8422fa37fb12",
+      "targetSha256": "dc4ba58d0ba093ff768e2ecfd8ed93f7769853dc3e279b1154dccd5d2945d971",
       "bytes": 581582,
       "size": [
         1536,
@@ -971,7 +971,7 @@
       "source": "tools/motion-art-source/idle-states/dangdang/curl.png",
       "sourceSha256": "4fbc88942106e2dde1cebcca21cf5e73462ace0129d4c6f67364a36f8000aad4",
       "target": "public/assets/motion/dangdang/curl.webp",
-      "targetSha256": "13c147637f94e3c4ca21c70800a1dcf7aa4bc5826050c803d96648db51defbcb",
+      "targetSha256": "eadf9a5e66190b02db30f3b25b423638669d76c1bbe5cb6a9890eb8b182de549",
       "bytes": 534348,
       "size": [
         1536,
@@ -1008,7 +1008,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/wounded.png",
       "sourceSha256": "15edce70cd646b65321298339d157a8c937ed09b91d6d4cefabdaed781a40a19",
       "target": "public/assets/motion/fengfeng/wounded.webp",
-      "targetSha256": "9f5c99579dc4229080054eb306a3caa5bcb022bb567558a2a6333eb2e9d4ec6e",
+      "targetSha256": "b35e37b81dc4de8c69eca9282679199e77c007eb385e8b62dd68a9a970257a0b",
       "bytes": 793884,
       "size": [
         1536,
@@ -1045,7 +1045,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/power.png",
       "sourceSha256": "40e921a8cad85e312ae4b55863b0c8a453b2313fef3f10b785a7a7027516ada0",
       "target": "public/assets/motion/fengfeng/power.webp",
-      "targetSha256": "5bb8b0ea3947caf62b1efe8a9090ce4b4776a4b2284d9e0021f1504fbc559129",
+      "targetSha256": "3e34f4e70059b8f7f4ee5f2b5f61b7ce71f773f10f9fd0dee59f97f7e9df7073",
       "bytes": 852498,
       "size": [
         1536,
@@ -1082,7 +1082,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/hungry.png",
       "sourceSha256": "17eb0448828ce2ca56f06cc6b8098a5b355bb3fbcde64dd441ff585b18fe24ea",
       "target": "public/assets/motion/fengfeng/hungry.webp",
-      "targetSha256": "4fb48c233c5f1f99aa7a9d81d46a302d8a52292b2d04a16132e5cc35176d497e",
+      "targetSha256": "26f38d2da73253f6956d9e9542366139d795ec7cbbcab5175e355fd6172a3a3d",
       "bytes": 754402,
       "size": [
         1536,
@@ -1119,7 +1119,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/dizzy.png",
       "sourceSha256": "69499955f29134f36ebba2956346d6b83c0dea03da475e1e861b56636f8188a2",
       "target": "public/assets/motion/fengfeng/dizzy.webp",
-      "targetSha256": "00318f14a6ba040ece51697c192e914a1d321ddf72592d46028742ec7737efdc",
+      "targetSha256": "deae20579c738e66a3dd05dcdf2a19616d0b407ab60612b24b237b61c8391456",
       "bytes": 760548,
       "size": [
         1536,
@@ -1156,7 +1156,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/belly.png",
       "sourceSha256": "07e81311e5cbb2b5ddf7b3a434357f683ebfd53819760b182540695456b8e1d9",
       "target": "public/assets/motion/fengfeng/belly.webp",
-      "targetSha256": "6080eea74f401ea95e8e6db52327fd13eea451a6549da7612bfc4e798d7c8ee5",
+      "targetSha256": "d34063515443606f32aadfe6db20b91407e85393f4e14e5bd91228c3bd247a56",
       "bytes": 637794,
       "size": [
         1536,
@@ -1193,7 +1193,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/stealth.png",
       "sourceSha256": "9aa40e52ee772f7c923a64f06b555d2c7cbb94534a1be35d5946128df74caded",
       "target": "public/assets/motion/fengfeng/stealth.webp",
-      "targetSha256": "fce053fa26114ab49c2b4775350c8386ca3ddf5ff3116fc8b185f8f38639ca38",
+      "targetSha256": "03364f4e7c0d78928b1acde2c2404aaad5a26c45d9d4ec5deaf82f96966da68a",
       "bytes": 664040,
       "size": [
         1536,
@@ -1230,7 +1230,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/lazy.png",
       "sourceSha256": "ac4996b8c314e89d804508fee23c356b1ea6a77fce349442bc9bfa39d0b3c4df",
       "target": "public/assets/motion/fengfeng/lazy.webp",
-      "targetSha256": "f61022fab7c53397759105d23ff4096a8e2649536ea43799cbba0c3f2ce65f90",
+      "targetSha256": "5fc137d83ea3c77b2b3e9356187d5c7cf8bc495d9f67136f74df5ccc03a6bc46",
       "bytes": 697014,
       "size": [
         1536,
@@ -1267,7 +1267,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/puff.png",
       "sourceSha256": "683e1d065741ccc781ae9733d2e9688b1e062410a66e8be38d51eac06eb50e31",
       "target": "public/assets/motion/fengfeng/puff.webp",
-      "targetSha256": "8388f87fbbf61c722723f1e2629656b66e136b9beade1d73a7a45961e02b6f89",
+      "targetSha256": "76c40a065c6281e53a83802264a3a71b39488639ed7b0170933f82d1ab73a573",
       "bytes": 944680,
       "size": [
         1536,
@@ -1304,7 +1304,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/iron.png",
       "sourceSha256": "e9d3bfd02c38b3b5119e8c38a9f0dcd65bff00a3b9b5f90ca6f95a7b38fc8255",
       "target": "public/assets/motion/fengfeng/iron.webp",
-      "targetSha256": "ef2551e74fdbcf26ea4ddc5bae0100471c566af89d08610100fca4ba0edd674b",
+      "targetSha256": "7964b90dc353fc65885efd9b4133f7ad09a9f32dbe76f3f121c9cc33278f31a6",
       "bytes": 677652,
       "size": [
         1536,
@@ -1341,7 +1341,7 @@
       "source": "tools/motion-art-source/idle-states/fengfeng/curl.png",
       "sourceSha256": "421ba1bc979ec612857417196641d8448463d96cbc45760019ab1c8a3c967e92",
       "target": "public/assets/motion/fengfeng/curl.webp",
-      "targetSha256": "e527ec9ecee23e083e1c69ad3420f2b9c6910dcb85bc35cb114e418a625a062a",
+      "targetSha256": "663a80a427460107d6e1d839c8749350d34385a363bc472bc9507e54a5a4caa1",
       "bytes": 619724,
       "size": [
         1536,

@@ -7,7 +7,7 @@
   "actions": {
     "shuriken": {
       "texture": "assets/motion/feifei/needle.webp",
-      "textureSha256": "00031bca71e61cb40f33aa2117ec5f9acf568e9a0f91833b2465aeddf62166f5",
+      "textureSha256": "41a58c362530b6fe73579fefedefaf4e8f2395bc3719cd268c39f9afe34de466",
       "waves": [
         {
           "wave": 0,
@@ -49,7 +49,7 @@
     },
     "storm": {
       "texture": "assets/motion/feifei/fan.webp",
-      "textureSha256": "778114f0a6d6c72ecdc2c3cfaf5742433971bfe02d3a9f261f9547cbc9381ec8",
+      "textureSha256": "1e66240e21bf06b3c50a2000331406f59fea95d2a449baf4970a051f8a082c58",
       "waves": [
         {
           "wave": 0,
@@ -127,7 +127,7 @@
     },
     "needle_fan": {
       "texture": "assets/motion/feifei/fan.webp",
-      "textureSha256": "778114f0a6d6c72ecdc2c3cfaf5742433971bfe02d3a9f261f9547cbc9381ec8",
+      "textureSha256": "1e66240e21bf06b3c50a2000331406f59fea95d2a449baf4970a051f8a082c58",
       "waves": [
         {
           "wave": 0,
@@ -169,7 +169,7 @@
     },
     "needle_combo": {
       "texture": "assets/motion/feifei/needle_combo_v3.webp",
-      "textureSha256": "a5d7cdd3a94e457d82e9f40a718daccee4048032a5ec5e7da7df2b0ae10c96e4",
+      "textureSha256": "7ca185f9d91c8ce14045b1de8986af8b9e667ceb2afd8cdbfd62d7a89189b655",
       "waves": [
         {
           "wave": 0,
@@ -247,7 +247,7 @@
     },
     "needle_backhand": {
       "texture": "assets/motion/feifei/needle_backhand_v3.webp",
-      "textureSha256": "ccb315c28f116d0f04b216c5d639774b45bd1fc473ae02f85628e357b3b4460a",
+      "textureSha256": "4745690a3eeef33c351f5c64c8403ddfaf4e8a73875c9d5acb251db5dbb04890",
       "waves": [
         {
           "wave": 0,
@@ -289,7 +289,7 @@
     },
     "needle_venom": {
       "texture": "assets/motion/feifei/needle_venom_v3.webp",
-      "textureSha256": "3b5a749d38a1177162e8e36e12a918f757569a6f52592e177cb9fc849f6c1b68",
+      "textureSha256": "91d192cd2b898e6904f38446ff8c34fbce30c9b5d9837fdce4a0816f9f14b838",
       "waves": [
         {
           "wave": 0,
@@ -331,7 +331,7 @@
     },
     "needle_pierce": {
       "texture": "assets/motion/feifei/needle_pierce_v3.webp",
-      "textureSha256": "63020b80e07e9fe4c556385813f8cde0b25c3aa5bfbe5157a3900960504fd12d",
+      "textureSha256": "45993103eaa62f15e0e4e1172524ef250b09166517c8de91e4dc859b529c5247",
       "waves": [
         {
           "wave": 0,
@@ -373,7 +373,7 @@
     },
     "needle_retreat": {
       "texture": "assets/motion/feifei/needle_retreat_v3.webp",
-      "textureSha256": "8d63f5f22f403d1413059f2d27f6ff3b633699e22f74eb80370f496872a7428a",
+      "textureSha256": "5e629ff2edda1d9c8401a769172474a3eb425024f404873d3b803e13ba04c182",
       "waves": [
         {
           "wave": 0,
@@ -434,7 +434,7 @@
     },
     "needle_rain": {
       "texture": "assets/motion/feifei/needle_rain_v3.webp",
-      "textureSha256": "24a50ff9e220b3c76ce96bcd540bfbf99f1fefe024d226075fd43d43bd04dae7",
+      "textureSha256": "a357bc4ff3ca4552eea50d048975cb0088230ef7337ac93d2b7469c79ade0f82",
       "waves": [
         {
           "wave": 0,
@@ -476,7 +476,7 @@
     },
     "needle_barrage": {
       "texture": "assets/motion/feifei/needle_barrage_v3.webp",
-      "textureSha256": "09883729ddce6be2125246985c52ae154360c75c228e6d5ce24bb5915314d125",
+      "textureSha256": "f185bed0484bf57a03f789c51d62293e57e11acd49e9d211a2df12b8a4527056",
       "waves": [
         {
           "wave": 0,

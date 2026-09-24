@@ -8,6 +8,7 @@ import {
   preloadQiuqiuShuriken,
 } from '../../src/ui/qiuqiu-shuriken';
 import { motionMs } from '../../src/ui/motion-speed';
+import { webpSizeOf } from '../webp-size';
 
 // 出手、飛行、間隔取自模組常數，已經是 1.5 倍速後的時間（原速 180／170／140 毫秒，換算見 motion-speed.ts）；
 // 升級風暴的兩個命中點原速是 470／730 毫秒
@@ -108,13 +109,10 @@ afterEach(() => {
 
 describe('手裏劍圖檔（清理 2026-09-22：預先裁好縮好，整張拿來畫）', () => {
   it('圖檔就是 125×128，畫的時候取整張', () => {
-    // WebP 無損格式（VP8L）的檔頭：第 21～24 位元組是寬減一、高減一，各 14 位元
-    const raw = readFileSync(new URL('../../public/assets/motion/qiuqiu/shuriken_128.webp', import.meta.url), 'latin1');
-    const b = (i: number): number => raw.charCodeAt(i);
-    expect(raw.slice(0, 4) + raw.slice(8, 16)).toBe('RIFFWEBPVP8L');
-    const width = 1 + (((b(22) & 0x3f) << 8) | b(21));
-    const height = 1 + (((b(24) & 0xf) << 10) | (b(23) << 2) | ((b(22) & 0xc0) >> 6));
-    expect([width, height]).toEqual([125, 128]);
+    // 2026-09-24 起動作圖存成有損帶透明（VP8X），三種容器都認（tests/webp-size.ts）
+    const bytes = readFileSync(new URL('../../public/assets/motion/qiuqiu/shuriken_128.webp', import.meta.url));
+    expect(new TextDecoder().decode(bytes.subarray(0, 4)) + new TextDecoder().decode(bytes.subarray(8, 12))).toBe('RIFFWEBP');
+    expect(webpSizeOf(bytes)).toEqual([125, 128]);
   });
 });
 

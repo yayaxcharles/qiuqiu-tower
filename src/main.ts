@@ -14,6 +14,7 @@ import { probeNetSpeed } from './ui/netspeed';
 import { unlockOnFirstGesture } from './ui/audio';
 import { deferBgm, unlockBgmOnFirstGesture } from './ui/bgm';
 import { applyArtVars } from './ui/screenbg';
+import { registerAssetCache } from './ui/assetcache';
 import './ui/screens/actclear';
 import './ui/screens/chest';
 import './ui/screens/bossdoor';
@@ -38,6 +39,8 @@ registerLazyScreen('lobby', () => import('./ui/screens/lobby'), '正在準備合
 
 async function boot(): Promise<void> {
   await loadManifest();
+  // 圖片離線快取：看過的圖留在本機，推新版只重下換過的那幾張（2026-09-24 使用者「優化載入的速度」）
+  registerAssetCache();
   applyArtVars();
   // 音訊環境要等使用者動過畫面才建得起來（瀏覽器的自動播放限制）
   unlockOnFirstGesture();

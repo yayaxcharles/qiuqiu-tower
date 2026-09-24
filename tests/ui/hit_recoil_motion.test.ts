@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { createQiuqiuActor, qiuqiuMotionDuration } from '../../src/ui/qiuqiu-motion';
 import { companionMotionDuration, createCompanionMotionActor } from '../../src/ui/companion-motion';
 import hitData from '../../src/ui/hit-recoil-motion-data.json';
+import { webpSizeOf } from '../webp-size';
 
 /**
  * 挨打那一下（2026-09-22 換成新畫風）：一張挨打立繪停滿 650 毫秒（09-20 依使用者「挨打看不清楚」拉長的，不能縮），
@@ -67,12 +68,9 @@ const CASES = [
 ] as const;
 const HIT = hitData.heroes as unknown as Record<string, { sizeFix?: number; drawnHeightRatio?: number }>;
 
-/** 無損 webp（VP8L）檔頭裡的寬高：確認上面量到的數字真的是這張圖的 */
+/** webp 檔頭裡的寬高：確認上面量到的數字真的是這張圖的（2026-09-24 起動作圖是有損帶透明的 VP8X，見 tests/webp-size.ts） */
 function webpSize(path: string): [number, number] {
-  const bytes = readFileSync(path);
-  expect(new TextDecoder().decode(bytes.subarray(12, 16))).toBe('VP8L');
-  const [b1, b2, b3, b4] = [bytes[21]!, bytes[22]!, bytes[23]!, bytes[24]!];
-  return [1 + (b1 | ((b2 & 0x3f) << 8)), 1 + ((b2 >> 6) | (b3 << 2) | ((b4 & 0x0f) << 10))];
+  return webpSizeOf(readFileSync(path));
 }
 
 /** 這一筆畫圖呼叫裡，某張圖（格內座標）的一個點畫到畫布的哪裡 */

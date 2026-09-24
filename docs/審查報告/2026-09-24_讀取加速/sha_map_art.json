@@ -1,0 +1,752 @@
+{
+ "9ac0a2845feed32531a31a2ec9a35e6bfe1b2f87d807aaa204f0d662e6edff9c": {
+  "file": "public/assets/bg/event_fengfeng_fallen_rack_r1.webp",
+  "new": "7659de358e496dd1cbffa33e3e4d2d284bf85289fcf1d74e88cbfe0d720cda4a",
+  "before": 107450,
+  "after": 36454
+ },
+ "c07d3d31a1be9c7415b4352446b7c96a0085d2c02d8bc1364c37bdf4e005b611": {
+  "file": "public/assets/bg/event_fengfeng_fallen_rack_r2.webp",
+  "new": "8a3958c4813e4bb58c90816f7d50b8eba109eafa6f7a74a20f6bcfae4407ea9d",
+  "before": 109328,
+  "after": 39180
+ },
+ "4d1aef800c658cdbf710aa7269b82732b31e83ef08fd007b064f87d8a550f37b": {
+  "file": "public/assets/cards/card/coop_dangdang_fengfeng_fenyiban.webp",
+  "new": "348d62624fd228183f31f6fc0a6c9fc058e1df1515aff8ee9d1e5ee5e185c228",
+  "before": 104572,
+  "after": 41320
+ },
+ "fcce79f8c40ad573915a82c6657198a2ff5c8afeaf9f8bd732a9d73ac74ab7e9": {
+  "file": "public/assets/cards/card/coop_dangdang_fengfeng_yiqichuankou.webp",
+  "new": "e8c970f32890cbf3937157ced418c5a33e1dc872af5e146705f88cd35ab1789c",
+  "before": 103230,
+  "after": 40338
+ },
+ "458bea63f44ebc6801a5f1767ff52d8d5075b19f235e7cb5d4d1a2ecfca93653": {
+  "file": "public/assets/cards/card/coop_feifei_fengfeng_fenyiban.webp",
+  "new": "95215ad737b52660e3a91b0a126dc847ba65d62d5ae4ec5674482b294de1d04d",
+  "before": 103316,
+  "after": 41358
+ },
+ "53b444786ff1f8d94124ee2198f73b16ee8c928653f8ae4efadf76c1471c5fbc": {
+  "file": "public/assets/cards/card/coop_feifei_fengfeng_yiqichuankou.webp",
+  "new": "2fc73f4aae09895f9d2e4e2781c253046ca44a7c2ab9e6c0f9aab8ed5fc2b86e",
+  "before": 102644,
+  "after": 39564
+ },
+ "1c3fc1996e8574cc6e27a4d2ffc0f9f32857f0cd23dd6b772a964e837a296d48": {
+  "file": "public/assets/cards/card/coop_fengfeng_ninja_fenyiban.webp",
+  "new": "79972b0323fe8757459efa64e552f8465cec6233c4504b438e309a2ac8ac1bed",
+  "before": 105196,
+  "after": 43084
+ },
+ "29d12e595d3a30061d0e26b65f3395a4e58c5a0aa25734fa8f9d6d63a4a5ca95": {
+  "file": "public/assets/cards/card/coop_fengfeng_ninja_yiqichuankou.webp",
+  "new": "6f8512e0fd46668c4b281560e7cbca2e8baafb6d44a5e52ad799063228a3b295",
+  "before": 99942,
+  "after": 38940
+ },
+ "352dd0852fedf4d3411d2697e9c1e80fa8e105c7932a4c287c1a9f81dd58ffce": {
+  "file": "public/assets/cards/card/fengfeng_bangnidianyixia.webp",
+  "new": "567a0660ea2d6bdbf578ef8f42f5e8ff0cb8fdb0a2e3817847dd5f71c4532722",
+  "before": 77736,
+  "after": 29238
+ },
+ "22ebf1765b7355b35ce164d9e00c8e7e168225bee7aef05fb54204a809c6b7ec": {
+  "file": "public/assets/cards/card/fengfeng_bangnisheme.webp",
+  "new": "1535ed1b0885406d2fa84aaf059a4dc0017352ce20b22778c04372ce6abf6c72",
+  "before": 76638,
+  "after": 29566
+ },
+ "ba2c318feea7d3875f0794500d242657540aaf3bf0072ad6086aea51f873c712": {
+  "file": "public/assets/cards/card/fengfeng_beici.webp",
+  "new": "b3d7bb42a65e7f20d201cb432c5fcc4a2df9ef737f361b9dd20c57d8ca42fba3",
+  "before": 58268,
+  "after": 21268
+ },
+ "b8a7276efd346f3bea0318698290b079967c7f2bad1f876cdec3fc343b16be15": {
+  "file": "public/assets/cards/card/fengfeng_bengquan.webp",
+  "new": "ffefb127c345927e9920245b0e038c0fe0125fff742073e627e7fbcc489560f0",
+  "before": 81318,
+  "after": 34542
+ },
+ "d6032cf71d7804eeda52b6806a65d360fcdf454bd7ca60ca891f1b38224d72aa": {
+  "file": "public/assets/cards/card/fengfeng_bianshen.webp",
+  "new": "46a2ca3e6a083b362a35831dea0052dee64e82f86b1ca41c3174b12b5fd6cd3c",
+  "before": 54596,
+  "after": 21016
+ },
+ "f32a198d91d892bf9e7071f922ec5b6656a57389bdc60f8c0f1d0a3769c000c8": {
+  "file": "public/assets/cards/card/fengfeng_biezhanzaishenshang.webp",
+  "new": "df6d6e6444a9d97f052df02ff489a77912b53a131cea1f30fb687c25d8c0516d",
+  "before": 70658,
+  "after": 28188
+ },
+ "f98ca3da32ba82ccc5626e1f19af402e4f4cd8515876b49715e43723b7837725": {
+  "file": "public/assets/cards/card/fengfeng_boming.webp",
+  "new": "0fc9c3f4a32a2b43d6b8d19485ff51a632ef1da2627a2d7b2d7f645f592dfc55",
+  "before": 73220,
+  "after": 31176
+ },
+ "28491606918e7ea586d3debf3ea696b8c2d5beffc8f705ddc45e3d986e2f96e7": {
+  "file": "public/assets/cards/card/fengfeng_caiweiba.webp",
+  "new": "7d78dace3b78064105c0747fd0ca86d66a4b148df847b9228fb245f9f94e068f",
+  "before": 73058,
+  "after": 26804
+ },
+ "4ec1e23027a5271dd3b65c48bbbf8e5d3a19ec7d450457c4454abd0befada57b": {
+  "file": "public/assets/cards/card/fengfeng_chenxianzaichushou.webp",
+  "new": "6002889e8d2200c6ea32717b3580fc277d2ca6273d977d205bff4b07038d4a8a",
+  "before": 71916,
+  "after": 31146
+ },
+ "cd3c8d33011d9ec0b6bdf91681dc7499353ce7aaaed2b322ceade53395782b97": {
+  "file": "public/assets/cards/card/fengfeng_chudashi.webp",
+  "new": "929d4b16768bb42dbdc4f0e53e9c4217dc9d20c6de11106c12981bb22be1b244",
+  "before": 66654,
+  "after": 27342
+ },
+ "f5c48c5a43f2bc11bac081d2da7cd2a60017fe99eb417f442049e4762b9b8b10": {
+  "file": "public/assets/cards/card/fengfeng_cuimian.webp",
+  "new": "59534a1f5300e1070ea3fd28b68c8980d87187d01647369d0b8b59bb338f4a50",
+  "before": 76008,
+  "after": 30854
+ },
+ "4c37d193f41b55fdca77e586435f12e2174bbb4e20e3a2f40d857bf89326c01b": {
+  "file": "public/assets/cards/card/fengfeng_cuiye.webp",
+  "new": "0754e82f1ff056ba5db8d36b428dea932122cf709d28e88f4b0fbe8a60dbefd1",
+  "before": 73104,
+  "after": 27314
+ },
+ "14a1240fc8e12443f16012664de63a368fa0e5b4a68c3e627b1f579b39624410": {
+  "file": "public/assets/cards/card/fengfeng_dazed_card.webp",
+  "new": "8d8bfd0c34eb74794891bfbaa6137de7434d067151eddfb17fb3a17351ea6181",
+  "before": 69134,
+  "after": 29714
+ },
+ "0992b0d076f2170d12abfcb02dd5f157fc88cec24d170288c1f67fd9ef12cc73": {
+  "file": "public/assets/cards/card/fengfeng_dianxue.webp",
+  "new": "aa921286e6a9230a2f8561b03dfb04cac22c3d298ebf327e5f6280059a6b9342",
+  "before": 89678,
+  "after": 38394
+ },
+ "c0ed3383e0d0c68c056ad4235f21037f1f4b48938c231cdcd111f1d547fb6322": {
+  "file": "public/assets/cards/card/fengfeng_diaohu.webp",
+  "new": "2c3571afc5a37bd1de08bf6fa0c1f43f9bb097d31ff4e29786555b8bcdf01bbc",
+  "before": 68748,
+  "after": 26402
+ },
+ "5c94f9f234365e7b649ce9e4fd14caec665fa5dfeb50fd89ac3fdf73a70e87ea": {
+  "file": "public/assets/cards/card/fengfeng_dieda.webp",
+  "new": "ba0317f1b8f5fc56fef7674b2687638b3879ced3748076a13e41d83b6438370a",
+  "before": 70690,
+  "after": 32204
+ },
+ "c172b5c361683500b2b96df307160c20e12b51cf4ff93a5a05dc31605723de89": {
+  "file": "public/assets/cards/card/fengfeng_dingshang.webp",
+  "new": "8902110231e7ad499cc0f47505fbf8f2528f9f12c2d8d09cd085a3dc9f83536e",
+  "before": 71616,
+  "after": 23498
+ },
+ "a9c41f7274da48dfcdf46db10ff5b9864542395bcd36937ddfda4d592f25f998": {
+  "file": "public/assets/cards/card/fengfeng_dingshen.webp",
+  "new": "330c6ca5ef04c894b7dcf76908eb7d9c8657592548f6e5c413f1cc83bc59dd5b",
+  "before": 76170,
+  "after": 29082
+ },
+ "aa0ac4805e21a424e17fb1a12980ce6bad7b77936f442c351a19d00e8dcea5ab": {
+  "file": "public/assets/cards/card/fengfeng_doumao.webp",
+  "new": "f69323887cf31b0b60824611532271e332ea634dad14c8054be0e2a2eb7d6945",
+  "before": 92422,
+  "after": 37622
+ },
+ "d9a2038b91f5a1d82f1c8b6cae98c27f6327dd19f4504fde5404a8ad309aa652": {
+  "file": "public/assets/cards/card/fengfeng_duxin.webp",
+  "new": "fa5641cf8b5027daca7a551aaf258b08c15aec5e54eb78816b1eb06f24fe1772",
+  "before": 66200,
+  "after": 24406
+ },
+ "7d3f9c1dbe17812735e78795328088678297366517f20c53c4ae2e075a0ff8fe": {
+  "file": "public/assets/cards/card/fengfeng_ehou.webp",
+  "new": "e6e213c77128745c425b531464562da4def727ece2bfee47008afa4061d64d6e",
+  "before": 76458,
+  "after": 25122
+ },
+ "ab816c19555316c0642e6696c267e51f167868f2c7fa53d340741ccfbad2b8e2": {
+  "file": "public/assets/cards/card/fengfeng_fanpu.webp",
+  "new": "e13312b9cded9a81816883e63a53f97b1f85243042d96e2b1bcc172e82fb523a",
+  "before": 58606,
+  "after": 25486
+ },
+ "af0210df99d8569430bd29dfe5d79c13c734f504b73090eaf88dce029a3051db": {
+  "file": "public/assets/cards/card/fengfeng_fantan.webp",
+  "new": "455ee02ed8f1226d621c72e6d1ee2d2c547c4a53bde2e744ae4a94071d06b750",
+  "before": 64866,
+  "after": 29898
+ },
+ "1f478c76cba0c441d047ebeedfafde93908bc935c26d0c2b9b5f3a91ce0f2e2b": {
+  "file": "public/assets/cards/card/fengfeng_fantuanfenni.webp",
+  "new": "bc8772d56a30596b1e26cf6af385f9bcc83bc82df10dff1c6f0892a99a719817",
+  "before": 52140,
+  "after": 22114
+ },
+ "166f9c438b21d203310cf291a351d938a5c200e02941117f7a21c2ec218f6e6d": {
+  "file": "public/assets/cards/card/fengfeng_fantuanliuyikou.webp",
+  "new": "7af7f637fa2877ac26e667b32735afe025d3b8595e4c897083af02c924053aa1",
+  "before": 63646,
+  "after": 25770
+ },
+ "b0f23450ff43936f099adc2464fcdf4e5b0abd011e3847b072142ca7ed85a3d9": {
+  "file": "public/assets/cards/card/fengfeng_fanwei.webp",
+  "new": "f45319ca94587871919915fc1bcfe1db7e1cb44c3f3c1420f29af74ef7028b27",
+  "before": 65992,
+  "after": 27190
+ },
+ "6b0169f7b0144b2a9a3b21ed99c86e639502c4d53a42ea25ff9cce000b642809": {
+  "file": "public/assets/cards/card/fengfeng_fanzhua.webp",
+  "new": "b1e4307cef0b7f1635305caac39cecf3513afa95e011f613e7601d4ee047d58a",
+  "before": 90576,
+  "after": 43750
+ },
+ "99ffbbd8cf8666f93d017672332f4bbb205540007f93d4cae010e401f1d70da3": {
+  "file": "public/assets/cards/card/fengfeng_fengkou.webp",
+  "new": "142548926985605b312fdb7414da6369dd35d7f54491e91938a23515138e48f5",
+  "before": 54638,
+  "after": 22076
+ },
+ "501013fca78ab499fa0f080a1d5e050de07c7c97501b6585b8034ae0bab9d8b9": {
+  "file": "public/assets/cards/card/fengfeng_fengyin.webp",
+  "new": "d02104f769ebc08ba99ad621d48ecf8031a12868a30d28913db126dcf3c420c5",
+  "before": 71884,
+  "after": 26800
+ },
+ "a9feab16c946ee7f8aef1dd6860b57264a105c53b27d82489b0c290d5a5d8db9": {
+  "file": "public/assets/cards/card/fengfeng_fenyiban.webp",
+  "new": "bdf2f98284e683cb16be51af39f3dcbf6d8256969681eda5e8fc607bcc79e2de",
+  "before": 98896,
+  "after": 42494
+ },
+ "01c518e136d084e5879266723b6e747545addcb1342faecf08c67848a51d1eaf": {
+  "file": "public/assets/cards/card/fengfeng_gekong.webp",
+  "new": "981392e655deefe711fe859612b57658a9b3ec566ca8731823ee61a65bf130e8",
+  "before": 76360,
+  "after": 30774
+ },
+ "fbad7d8fa1c9d9dfe4254648428e824e37efa29df419077a75378259f16a3a32": {
+  "file": "public/assets/cards/card/fengfeng_guixi.webp",
+  "new": "eca74e6b6bb38ca3406daccab00f700378a68b0bf3739ee852a59697a47b145f",
+  "before": 69908,
+  "after": 21948
+ },
+ "8733673a42726914925949361c4b4c1e2fced1bbb9c40d04ed31a8ba54a820eb": {
+  "file": "public/assets/cards/card/fengfeng_huannieduochoudian.webp",
+  "new": "1a0735bfb5c1cfcb16840d830cbf1653779642baff6d75d56611ebf45a69a921",
+  "before": 65918,
+  "after": 26666
+ },
+ "1d2cb77d8063507cad3c9704f9bcfe1d316c192eafa60b48cf2bce1022bbcbd7": {
+  "file": "public/assets/cards/card/fengfeng_huannimangyixia.webp",
+  "new": "cd05f010b751232e02f7b599c1808ddb47f4eb6fa4897b9ae266f1d340b44965",
+  "before": 65728,
+  "after": 26790
+ },
+ "0f1b9abfbc2b0b0656afde0437f6a55579901f7702a969eb9c4c5019b50c58d2": {
+  "file": "public/assets/cards/card/fengfeng_huixuan.webp",
+  "new": "0e14c4953ee2ba327d289db186331643ab244d60a213481cb8eea441469eb041",
+  "before": 81132,
+  "after": 38436
+ },
+ "8974df0898dfa18e4aea71ae8007ade491c8aca2874b24b4105f8662fc023cda": {
+  "file": "public/assets/cards/card/fengfeng_hujin.webp",
+  "new": "3a57d16e5326093bebab91d40ba27d0c9a8eb3e90de5dd50428ac673c8331403",
+  "before": 53184,
+  "after": 19174
+ },
+ "536d61af50999b5d828a8b14172132f78ffcc437b674a4fdc6af267cae2a089e": {
+  "file": "public/assets/cards/card/fengfeng_huxin.webp",
+  "new": "d81840d01778008f5138c898e0bf184f0e56d7701ec7c41520f66346b661c664",
+  "before": 81592,
+  "after": 27310
+ },
+ "2f17bb1d778a1362847bf0bebe640112d0dcb0149f8467880b0fb94ec81a688c": {
+  "file": "public/assets/cards/card/fengfeng_jiaochulai.webp",
+  "new": "390f00174d95a29a9bf5d2ca9be89780833241df4f1762b3f5c17b2ab18cf37d",
+  "before": 56638,
+  "after": 20724
+ },
+ "6882e246b596c4bd8e32e5e9359a4d1baef4a2d92157b3d9e390bca7d8175f53": {
+  "file": "public/assets/cards/card/fengfeng_jiedao.webp",
+  "new": "8c559fe0a5cf52bbf8963e86c272aa3d40bb1074c0c745ae07782a5d8f339514",
+  "before": 65328,
+  "after": 26452
+ },
+ "ad9966f58128af982c6e40ba6baa6e0a807a20013392f5087742abab2bf30e28": {
+  "file": "public/assets/cards/card/fengfeng_jiejie.webp",
+  "new": "572f037d7564f09a25110163077d04baa389351978f045630b2a28789f347295",
+  "before": 85630,
+  "after": 31830
+ },
+ "7fdb33e2bf1d632473a416f734ec5b2160d630001e486e2187666eba056c19fe": {
+  "file": "public/assets/cards/card/fengfeng_jieli.webp",
+  "new": "1a6bc42e81eb58aa18182ddda69e998f6acdfc674c7ccd28b472a84a8fffe734",
+  "before": 79124,
+  "after": 31336
+ },
+ "d548e774b48b3d6bf82371fec39dab359d6d116ce30b180a11c193a77466506f": {
+  "file": "public/assets/cards/card/fengfeng_jienicailiangbu.webp",
+  "new": "46ae5312ec93089b30ca0cca4c8792f2c0c68686aa2118ebe827a3424cca99bd",
+  "before": 55142,
+  "after": 24072
+ },
+ "a967ad9830e44da85cee9e1c24b07b4654ce937739e7f2f03a7ab99fdccb2172": {
+  "file": "public/assets/cards/card/fengfeng_jienideliqi.webp",
+  "new": "ac0776fa1a6cdac739b311d305c0cdc8498f0bd56196e47e255c4043ad8dab98",
+  "before": 81342,
+  "after": 32942
+ },
+ "04a95bfbad02a226d4d39c4d58e7304182f9daabb1cef3f21d747da0a779674a": {
+  "file": "public/assets/cards/card/fengfeng_jingzhi.webp",
+  "new": "89708a2e13eb3c016b4f95b84299582935333aedf26111585f62e2cc4207391b",
+  "before": 71228,
+  "after": 27838
+ },
+ "9e8265852aa65063b08d5c965d9fd33ce067add7fb34c802971bb341dd4430d8": {
+  "file": "public/assets/cards/card/fengfeng_jinzhong.webp",
+  "new": "30cadc2fc222cf1cfdb9096977d342f5545ce44d6513f21b719583ba91abe461",
+  "before": 101436,
+  "after": 40322
+ },
+ "abc30062919ab6413e37bc39c831ee08db56b4457cb669eae56f39b24c07c88a": {
+  "file": "public/assets/cards/card/fengfeng_jiuming.webp",
+  "new": "78893afaad7fd280c81b6a8bd25d5f15e796ee4247f788852a436eaa8e3299c4",
+  "before": 83844,
+  "after": 37672
+ },
+ "b23b97c412d794ed849e31d82d0c6725f07a369643a8f905ea5cc1067bbf37a3": {
+  "file": "public/assets/cards/card/fengfeng_jiuweiquan.webp",
+  "new": "bc053a87dee8e1ad30e43a3f6fd716f0355afa5e3db1f01a437ba77dae421c1e",
+  "before": 98920,
+  "after": 37358
+ },
+ "9720b22d938e5cc3ea1fd067fb575638a5813001431092b69e416287cb2084e4": {
+  "file": "public/assets/cards/card/fengfeng_juye.webp",
+  "new": "1d3ae7d911d25a65387bd8ecce91ca144b28ff127d8f9b27d8d00eaf20f7315f",
+  "before": 79156,
+  "after": 36466
+ },
+ "ed5686a2a2cdf269e6ea167f72b6150905b20bfa25f3526c204a59e15600ce91": {
+  "file": "public/assets/cards/card/fengfeng_kaoniyixia.webp",
+  "new": "47147813e72582ba38fd5091963486e19c3ac9f147c55a25fa4a4d321875d216",
+  "before": 73106,
+  "after": 28506
+ },
+ "e1fe4cf7c0fa8cce8fbe2ccdd02acc39a45efaac30ddb1dce5728fe5ddda189d": {
+  "file": "public/assets/cards/card/fengfeng_liandao.webp",
+  "new": "ad8c98c3867107708f5ffcfb77b1eaf6c9ccf050491452a00aebc83762d5b05e",
+  "before": 71008,
+  "after": 33770
+ },
+ "7d01c1a5ff2d3f96e46ca3278f9266b7dd3933b7cbb953481c10a0aebd67a51f": {
+  "file": "public/assets/cards/card/fengfeng_liangzhua.webp",
+  "new": "44694fe7dec1215f6e02e62de378128dd36d15e44ab3c72223acdac9dd483cb5",
+  "before": 73420,
+  "after": 28522
+ },
+ "aa4f49b41afa791887061acdd70dfb5292f4f8b25f437a98a509c96549f84c18": {
+  "file": "public/assets/cards/card/fengfeng_lianhuan.webp",
+  "new": "2db4f324538ab26191bbdc57939903f5917c0b9954a2b5a3134f951615436ae6",
+  "before": 77390,
+  "after": 32912
+ },
+ "f67f647c64e186e2dee8dd4ef4309cbeda9c5e478decb880016726c6da4e07ee": {
+  "file": "public/assets/cards/card/fengfeng_luanwu.webp",
+  "new": "7665647e7358dc4dec10961b8e643aa90b972a06919890762dcd0ae222945ca7",
+  "before": 82812,
+  "after": 41122
+ },
+ "a8fb5e25697e3f570c8dd639a6096835b9ab91169fe8c311f300ffaeebceccea": {
+  "file": "public/assets/cards/card/fengfeng_luoye.webp",
+  "new": "71a89f15b7d233127cb1fdadd679230d52f64f6d5151441e9e3301590cec8d51",
+  "before": 106732,
+  "after": 46678
+ },
+ "6b3d16dc0899eeb666bf038c6700b16f5f3cc15c938bf986a673051f1f304011": {
+  "file": "public/assets/cards/card/fengfeng_mabu.webp",
+  "new": "26c6a2ffd693cb1b30ac35ed0b5d2b1fe9d0e2a802ddb325bd393ea5cfc2aedd",
+  "before": 67886,
+  "after": 28532
+ },
+ "055b84b6ada12002df5ecd20104d600b537391ea755f6783985c57ad08a7d1e4": {
+  "file": "public/assets/cards/card/fengfeng_maoqiu.webp",
+  "new": "f7f15499ca37c84a352fa667b2077a2354b2f4cb8c20916d731f29350ff6e727",
+  "before": 58128,
+  "after": 22344
+ },
+ "5e47c4982fd7a61b187f0c4323875aa9d743400822ca7e608820e7cdee3c9451": {
+  "file": "public/assets/cards/card/fengfeng_maoqiudan.webp",
+  "new": "7adc7c189f5c58891813a28a73599791f3797c6dacf7e624f1a14fe1c31fbeea",
+  "before": 70084,
+  "after": 28222
+ },
+ "4261a5cf89b8b1a9f7ebc6ae1d73db0ae788afd734b1e98045d91592e3b4d49b": {
+  "file": "public/assets/cards/card/fengfeng_meikandao.webp",
+  "new": "b521ab23e69c529bc7811fccead00986538bc52bf5d746778805f17dde05871d",
+  "before": 50916,
+  "after": 19156
+ },
+ "d6afb6784d5f7af7341be7aa83d7e29d7fca6e13c5f8473ef09b49f1c21738d1": {
+  "file": "public/assets/cards/card/fengfeng_neili.webp",
+  "new": "bfd02b114b758693862eec4e7fa45a62b5c997d1f52f8ddc5b537f6c4e4072f3",
+  "before": 54484,
+  "after": 19292
+ },
+ "233a8590c948de57f2f8da96c33bc3c367e61647a35292e4a6705ab70b9acf53": {
+  "file": "public/assets/cards/card/fengfeng_nimangwobuwei.webp",
+  "new": "20ff294f4b3846e0dcf10d71665e7976c6f209df979e2a6473d296098cee9ede",
+  "before": 63322,
+  "after": 27116
+ },
+ "14cf0b9a05043ebae3338c9b4f2ce3ad326c6b9f1c22dd1c9a6b5797611c9ccd": {
+  "file": "public/assets/cards/card/fengfeng_ninaqudang.webp",
+  "new": "a19c5fba2dc294f1b31dd0c44758d258676492d088d6edcff20b64278fce31d1",
+  "before": 56804,
+  "after": 22562
+ },
+ "f279ebc73b2c4934c3396410ccc12b7a1e3f7a305a9812f0041257d7ee85832d": {
+  "file": "public/assets/cards/card/fengfeng_niyechouyizhang.webp",
+  "new": "1d04f57645b2f28ed328fe3bec375c7feb00833d794a092cd4315e50485da5c4",
+  "before": 51854,
+  "after": 23014
+ },
+ "5e506931915902ca210829adc0ad8fa93fb0a1db5e44cdecbab0766540bcf1e5": {
+  "file": "public/assets/cards/card/fengfeng_paozhao.webp",
+  "new": "79d6b190f6a63f7f12e63c24d4ae50130e2de3b4d3c64ceab5149d485ede3177",
+  "before": 61846,
+  "after": 28354
+ },
+ "2fe442ea792f6486fd82ce1b8c0f5a8fa8487f5e356ba125f2a568164f5afa51": {
+  "file": "public/assets/cards/card/fengfeng_qianglafen.webp",
+  "new": "fcfcc4c2552a45496df57af11f17c84ca7676910cb580951942983b2303ad7b0",
+  "before": 87800,
+  "after": 34056
+ },
+ "de3528a362b63660815fc0c0ad85839e1c40a70f321a7c6e4768f054f084a196": {
+  "file": "public/assets/cards/card/fengfeng_qianliyan.webp",
+  "new": "f6e62cc3af348cb2f83042da036e82f8e12e69c8ee135fc9403ab182157803ce",
+  "before": 51842,
+  "after": 19648
+ },
+ "c82c66d4e970e3be55ec099f5743d332f19a3a6088c3121b30ab9d0a1cb5fe0d": {
+  "file": "public/assets/cards/card/fengfeng_qinna.webp",
+  "new": "698414ddadb272e8e1fa7207382a7f7525851f51802dd0d5443b963fd92a3970",
+  "before": 59350,
+  "after": 22880
+ },
+ "9c589603408e527616ee0751f36bcd9b9fa3d53558d760f77d7b1e715e335d61": {
+  "file": "public/assets/cards/card/fengfeng_renwuwancheng.webp",
+  "new": "9ffa441ffc88e8f963a1906f27ecbd3ae21cfc10efa70026d9188ede1584f20f",
+  "before": 61054,
+  "after": 23456
+ },
+ "55ffe77413de4b73786ed6e714d09ba8b6f36cb5cd0cecc20e08fbdc056f7d55": {
+  "file": "public/assets/cards/card/fengfeng_roubao.webp",
+  "new": "d0ff753d339f29aa4d828d19a021d552c2a0d9e21bac08fe479788b64d66a98a",
+  "before": 85140,
+  "after": 34570
+ },
+ "83a9cd1499fc09d34204913542ba7ece85ee4581444a3b7a096196e5b7f271b9": {
+  "file": "public/assets/cards/card/fengfeng_sanhua.webp",
+  "new": "5c81a29e1e86d7e123675a3556a6242d64ed9ff4d94dd70d689387a3ca77e58c",
+  "before": 70876,
+  "after": 30056
+ },
+ "66cf55a6a6098ab9174f242d8c58b6b6f654b289d63b308b984f3bae3470111c": {
+  "file": "public/assets/cards/card/fengfeng_sanjo.webp",
+  "new": "27bf13a070274224cac23316c411dceeb1837b0ffe603039489cfadded3f9977",
+  "before": 51160,
+  "after": 22548
+ },
+ "c69b291ba157f2d05fee823a919a0e0e0b1c2903c980577bc4fc39da6113d3f7": {
+  "file": "public/assets/cards/card/fengfeng_sashoujian.webp",
+  "new": "ef681085e02b1c9e96cf8e0c6c7a368fe55978089bd86f0792ab7cd40f3a55ee",
+  "before": 68072,
+  "after": 29152
+ },
+ "230a2eace454362b5845470d45281f3673327d064dbb8fed40735241bacf7af0": {
+  "file": "public/assets/cards/card/fengfeng_shengdong.webp",
+  "new": "3501e2c1f69b1c8322d050cbb45424fd501fc6c86094a475cd91910a27bad7d0",
+  "before": 79802,
+  "after": 32340
+ },
+ "3b9456bf4f017be58d25b688d6cfaf499360631044269d82f8cf92187514311f": {
+  "file": "public/assets/cards/card/fengfeng_shibai.webp",
+  "new": "fd41ac3054c3501e930d5674acad8c4c2e7c93a60593b70d6d05461848ab5491",
+  "before": 57064,
+  "after": 17390
+ },
+ "37d47bfa92c36786e41d1bc48ccb31159501da38090f970665d87d74a79cb551": {
+  "file": "public/assets/cards/card/fengfeng_shierlian.webp",
+  "new": "c20cd4ef0d9024fb1941c9e6ef6c4b2734c2189733329548244b22298df8f667",
+  "before": 82976,
+  "after": 38054
+ },
+ "cffcf67ceb3e57defe236516f56cffa880fc847704054e365ab9922d12b2bb63": {
+  "file": "public/assets/cards/card/fengfeng_shihou.webp",
+  "new": "e8e114978e2a53f4f7f0bb145c19dd734508e8fd0a2b63243f0c7fc06b2544c3",
+  "before": 62592,
+  "after": 28536
+ },
+ "dc1a6f320107a6dd42310c6b86d3bcf7705322ea256ab1c456202c37e4d0a8db": {
+  "file": "public/assets/cards/card/fengfeng_shishou.webp",
+  "new": "9d5affa586d985edbab617f0f42dd8e007f83bb6f5965583872caa9c8a375c95",
+  "before": 52142,
+  "after": 23042
+ },
+ "f07247a1db261709dbb4aac75b960c13a3b10dd06fe397b9f45237c0403fa377": {
+  "file": "public/assets/cards/card/fengfeng_shoujiewoyixia.webp",
+  "new": "423e8a4fed381f288607e9a925c0653f8e6321085e3396d5ab5861780a71e8a9",
+  "before": 62908,
+  "after": 24762
+ },
+ "3bc363076cf23954cb8bf67da5b36ceca02b069971bc68261a00212ad9bc94cb": {
+  "file": "public/assets/cards/card/fengfeng_shuaiguo.webp",
+  "new": "e4f194acbcd563ca221b5d10ebc1d696dab218e18f9cf2c31b30cc77c7d5d123",
+  "before": 56452,
+  "after": 25042
+ },
+ "424d0a029f837512a30bad0b896b01f0da95a2f7447dd4adf234d61b4e0fa2d8": {
+  "file": "public/assets/cards/card/fengfeng_shunfenger.webp",
+  "new": "e23bab3e79c8fad11204d3e3f2eec1380004f91ff5bfe3e8a823c7dda04553da",
+  "before": 62924,
+  "after": 28596
+ },
+ "e7dd7fb707d43d6f29a29419792245ee9add61aaa239977fef5115f21c056107": {
+  "file": "public/assets/cards/card/fengfeng_shunkan.webp",
+  "new": "338980793c899d45e4365d044685c7ac1591073dd7cf21acf78ef0eeaa9e1636",
+  "before": 77278,
+  "after": 31698
+ },
+ "a8fd1a9c289d5ea228c4715d96e20227a408687ae3ca513c7dd0c6da78c6e4d1": {
+  "file": "public/assets/cards/card/fengfeng_shunshou.webp",
+  "new": "2c17657aa1bc94bbb5a6a26a654449b91dcc18c59604426ed70df369a7c08447",
+  "before": 96508,
+  "after": 38980
+ },
+ "12cdad31f9d212b86438fc488ece0d808ae600818901cf51a9f0be95e65b8ead": {
+  "file": "public/assets/cards/card/fengfeng_slime_card.webp",
+  "new": "0ceb0fa84d97df8fdd02b5da1f91330ab90660c05e4ed987ec8deb49376b427f",
+  "before": 73342,
+  "after": 28216
+ },
+ "2f0774831972fc8ea5fcbe27fac326381eab4f38de36684ee4400b6a7cc4a157": {
+  "file": "public/assets/cards/card/fengfeng_suoyituan.webp",
+  "new": "b4f38a767d539da70096eafcd58be22cf0135f32651bdceee287faf184c51373",
+  "before": 51146,
+  "after": 19132
+ },
+ "3f1e0779536c11a05d6af7b65a5c7b0d26d5f2d046696b5f6b6ebea76bea0e4f": {
+  "file": "public/assets/cards/card/fengfeng_susu.webp",
+  "new": "382bf68d4343eadc07ab33a89236c944dc1df0582f1f2cd39dfa63142298f61d",
+  "before": 69008,
+  "after": 29416
+ },
+ "7ac9b7155e72a69b2b32cbc0fe4869cf8ef66573150708aad659b21cb1233a23": {
+  "file": "public/assets/cards/card/fengfeng_tanding.webp",
+  "new": "dc5c7c37fa1f5b9fc29d66d63b60e17c6fd7ff0b5e491b20cd6b0a5c18ba0f2e",
+  "before": 46918,
+  "after": 15854
+ },
+ "23a5517d91a78d278fedbdae7b0048bb4e3a39ee81065dbb096c0dd083050198": {
+  "file": "public/assets/cards/card/fengfeng_tianmao.webp",
+  "new": "1b0c89076f140098bef9da0aff55093793cf685d6d9c8c55d764fbd346bb36c2",
+  "before": 57432,
+  "after": 23230
+ },
+ "372fc6c426e67476e535c29f6d2eb52f2918957c7c834b86b4bedfe435a98287": {
+  "file": "public/assets/cards/card/fengfeng_tiebushan.webp",
+  "new": "e73d915dbd13c51df6eea443800829be5bc70f2b539b513204f7f3671a69450f",
+  "before": 68276,
+  "after": 25050
+ },
+ "8d1dfaf0803a09dc2635ab260eacc137768cd9289fe15b7c145845819fd1d0ba": {
+  "file": "public/assets/cards/card/fengfeng_tieshazhang.webp",
+  "new": "f3e3a40948a52ead71310b0cd1521af2ad42502b98b15df9e53f6b11d2a4c1cd",
+  "before": 96506,
+  "after": 39626
+ },
+ "a4c89a745ebb8b493f9f1ccae7af7a952e1f0490faa0ac6f1cdd7c02c9403697": {
+  "file": "public/assets/cards/card/fengfeng_tiexin.webp",
+  "new": "3f0032be2fb616a3ba0941133bb654cc4c77cee73aaa2adfe7d9b0055c6095d2",
+  "before": 76276,
+  "after": 24902
+ },
+ "9e09d448502bf4cb2665b952b1a73c5b1563401e57a94e2bac4dbd9f87148247": {
+  "file": "public/assets/cards/card/fengfeng_touchi.webp",
+  "new": "af07911a235fb9264e9dc161d496caa413602aee68a87ee325f5e2c8624f229a",
+  "before": 59154,
+  "after": 19262
+ },
+ "dbd717189bd80565c0f2c72577e23b7cd9449d523437ffbbf8ddf73b7891bce1": {
+  "file": "public/assets/cards/card/fengfeng_tuishou.webp",
+  "new": "fc37c3a37568607094ca0a90eda2aaa07188da3beec00a7a98914ccc8732e260",
+  "before": 78908,
+  "after": 31744
+ },
+ "8f5cd396178e8e7c74767e80c5bae8d6831b7b91e3d0fcefaa83b31552b72c69": {
+  "file": "public/assets/cards/card/fengfeng_tuozi.webp",
+  "new": "35e8d59b1dce1f9de8d13390773205406d735453d62f7aa9d980c2c1a8276d21",
+  "before": 63416,
+  "after": 21814
+ },
+ "7f1c88267dd2ea879eff79f726d49ec88eaca4c3366b5f2ee1990e48499db567": {
+  "file": "public/assets/cards/card/fengfeng_wangming.webp",
+  "new": "056b35938ca511672583d0488e021cd118b73066556fb148ad81e46daa2aa896",
+  "before": 78668,
+  "after": 34370
+ },
+ "53fbce9a59df412c48fb8f3a3ec7c4a3661a93374cccd3baa07cd45ba09e9cb6": {
+  "file": "public/assets/cards/card/fengfeng_wanhua.webp",
+  "new": "ac976a01e23416cfa85f248b8b574b4d394969d6be0d805d08733babf989c390",
+  "before": 72314,
+  "after": 28210
+ },
+ "c809e8b7c2a25f88f4dd2c1242e5089b8b126b9c45543d20ef49a2c7f502c3c1": {
+  "file": "public/assets/cards/card/fengfeng_weihe.webp",
+  "new": "3561be977d313822fbcdc4578fad9b6c4c5040408b371fd6bb85e570b32f28e7",
+  "before": 76824,
+  "after": 29268
+ },
+ "bb2093d7092695ff7639de76e127d664cc1578b348c3e22510aa6df75d7a29ae": {
+  "file": "public/assets/cards/card/fengfeng_wobangnipaidiao.webp",
+  "new": "3d0abc416db81286ef6b2161b05b42ed16486869704d233422aa2997187966e1",
+  "before": 68372,
+  "after": 27958
+ },
+ "bef8fa996eacf85c1b343d01fd708e2d13b1ec1f3194dd3287708ef643a02715": {
+  "file": "public/assets/cards/card/fengfeng_wobangnishouwei.webp",
+  "new": "00bb1516f5782d0fb0093329b4c7542add8b196a86149a4c3d8e6c80dcf3e928",
+  "before": 77086,
+  "after": 32814
+ },
+ "55dac87b81bd967570777226ba3caf69d23a43e2f9276df28945179eac56629b": {
+  "file": "public/assets/cards/card/fengfeng_wolaidang.webp",
+  "new": "659b1ce7f23f93e2d4ea84b92c33addf99d50239d85a79338fe0a126cd44a62b",
+  "before": 61986,
+  "after": 25662
+ },
+ "bb88ba3091593fc9adc84cfce3b80c620d4757c1170842c1abd20910a66028a8": {
+  "file": "public/assets/cards/card/fengfeng_wozaizhe.webp",
+  "new": "77792831dc7e27af0917c56dcd0c459cd79e719d8a47cf116d166643358db9e4",
+  "before": 51734,
+  "after": 21252
+ },
+ "55a70d1c6dc5c0137dd1e00099aae195c14c00577c81ac90418670a47b160ffc": {
+  "file": "public/assets/cards/card/fengfeng_wufeng.webp",
+  "new": "d6b420d99521436c6a9ff887584c353823366c40e2759811f55d0a2d9f8e7511",
+  "before": 60796,
+  "after": 28898
+ },
+ "43e2cb3724decd63992a3d9e505f806d967be96ae54da4890f2502b0e7bbbaff": {
+  "file": "public/assets/cards/card/fengfeng_xianbangniliuzhe.webp",
+  "new": "6f671be250d8c6441087f42577d1ab2079fe24f65d1aa7a5d811a228ee6dde4f",
+  "before": 71112,
+  "after": 28812
+ },
+ "2dcf26f88ffe519a3414e3bb013659ed288837a338773571a9d864daab707e0a": {
+  "file": "public/assets/cards/card/fengfeng_xianshuile.webp",
+  "new": "f6920f338726a402af7d6471b5545d4e7d774b7464417dcbaae94189875ffbda",
+  "before": 52050,
+  "after": 16880
+ },
+ "855da546a0cc43fdc3ee43e606d1dfc3b9ddeebd974fad27e5f22ccf00e3ce84": {
+  "file": "public/assets/cards/card/fengfeng_xuli.webp",
+  "new": "430a4e3ce0fc5c9ebaa4d77872bf3f8e5dcb1499e6cc55531aba1de866e41ff1",
+  "before": 73706,
+  "after": 30470
+ },
+ "47ca5c071a15c65775598cb19a6a2d2c32daff2a8c15c51d7e4b607532e6aeda": {
+  "file": "public/assets/cards/card/fengfeng_yide.webp",
+  "new": "f9f56c7bc69e9e3be6e249de00699480f51e06fcdc4428b6e58dce380ec6df91",
+  "before": 84376,
+  "after": 29166
+ },
+ "64c6acee4b2d4890e1f728c28a0eeb483210e471a1bf5900a3fb82a80ddad0ca": {
+  "file": "public/assets/cards/card/fengfeng_yiqichuankou.webp",
+  "new": "a719fcd898e632a2cb9b28e1fc2e1454d6dcf8d825d201e021cef052b2d6f25a",
+  "before": 83054,
+  "after": 31306
+ },
+ "ec9ce6ee6ed8e1cdb64ada70df7ca0bd7af73f4afea3ec53825b93e7e099585c": {
+  "file": "public/assets/cards/card/fengfeng_yixing.webp",
+  "new": "04ead62fcc46e9c1d963d8c2cc6ba59d8970daeee92823e0de648d7b9e3d6b19",
+  "before": 74364,
+  "after": 32234
+ },
+ "e0f12d8df6ffdd1c9c3cbda43284cbc94f027bd2ec862b2f6e6a71496c01f2ee": {
+  "file": "public/assets/cards/card/fengfeng_youcike.webp",
+  "new": "0418878a4ff7ee68f82fad52352f079710d940a4220e6bd070e1cb4acd96fa16",
+  "before": 58444,
+  "after": 23794
+ },
+ "7cd488b06c3fee4edb14ac420791e5f9e9795cb2d0b15d54d546f6b9b53d0e14": {
+  "file": "public/assets/cards/card/fengfeng_yuganjijiu.webp",
+  "new": "cf50507831fe936d96655e3793f7ff92e3bcb87115d0ffdad87cb1ec222a9d06",
+  "before": 77648,
+  "after": 28886
+ },
+ "ed27ba64a22da29b8d2d40a5804eb67349b512e84c56db870d4da5a56e78bb7a": {
+  "file": "public/assets/cards/card/fengfeng_yungong.webp",
+  "new": "e675fe230e1a8965c7dd3aa60e9e391d58832c73e17ff1930036aab496b31543",
+  "before": 90062,
+  "after": 40416
+ },
+ "26e670860e4e927b4741f4ce8ab50bd3ae028591d49c373548c3eb8c0d792ce1": {
+  "file": "public/assets/cards/card/fengfeng_zhanshu.webp",
+  "new": "d595da311270b2fc6bc33f28ad733b31058f78a6c6bbdbdfd65a368fb7506cba",
+  "before": 57970,
+  "after": 27850
+ },
+ "98b56be99ce44927d87417b3e55b7d847bcec1e365411ba92dc53a31d9ec2843": {
+  "file": "public/assets/cards/card/fengfeng_zhaonishuodeda.webp",
+  "new": "519b0c25c9e60f6b5c51d441e399ba40f701cff3e02ced13238ff440551653cf",
+  "before": 91714,
+  "after": 38494
+ },
+ "858048daffbba496df26af087121f915893617dd3592488de85884588a407972": {
+  "file": "public/assets/cards/card/fengfeng_zhexienixianchi.webp",
+  "new": "9fd96311078c083f1f4e16dc42f0c1cb428d7bfc3052430ef1dea62c9708af82",
+  "before": 69266,
+  "after": 28550
+ },
+ "c4dec94847b881c9e214aa0992e9000ce2f65b1f9cbd1dd275b3ba61b1a55378": {
+  "file": "public/assets/cards/card/fengfeng_zhongji.webp",
+  "new": "43eabdd1d8ea436b5a4e235586c7ef35fe7df376445f6cbd48427bb3d8177e0a",
+  "before": 64918,
+  "after": 25442
+ },
+ "93035c12369d133697d93168cef9984e6ff5c7051769bef59e82b788b56b2525": {
+  "file": "public/assets/cards/card/fengfeng_zhuiji.webp",
+  "new": "aae925aafbcaab22ad20c548d2b1c502845c204434d9072845786786d410a62a",
+  "before": 76950,
+  "after": 33530
+ },
+ "e61b561f7e63b9393255c8c76b42749111b68b5538b12304cb5248d7642a0d68": {
+  "file": "public/assets/cards/card/fengfeng_zouhuo.webp",
+  "new": "b92d72708d2ea5ecc7947cc8866700d595855f7a22a4d0c4b89d2ca6e66aed69",
+  "before": 62696,
+  "after": 25042
+ },
+ "833e1726d8bb24256b6c603ab619cfc82d36d1ae1e3013b856e3d153c5624fd7": {
+  "file": "public/assets/cards/card/fengfeng_zuiquan.webp",
+  "new": "fcd14d2d01874de049daeb0ff9e7600e1ac23da00f36c6a5f8a501b2880202a7",
+  "before": 64876,
+  "after": 25900
+ },
+ "000cca2e6f9caa93ce60adab9d5f3d777d2f5c9df80a3d7bd123d533c9254fb3": {
+  "file": "public/assets/cards/card/fengfeng_zuiyang.webp",
+  "new": "b84e4a74606c8c65c26c4fdf6a1307446fea4c9e53dee0a3a21254da82eacb1b",
+  "before": 54318,
+  "after": 20050
+ }
+}

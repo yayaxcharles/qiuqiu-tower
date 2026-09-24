@@ -31,7 +31,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/idle_hurt_sheet.webp",
         "bytes": 882974,
-        "sha256": "d8da5dab6ffc66e44d766e3ec01faffca11cb64a2fc08bf13149f59132458be1",
+        "sha256": "05da06296d9201dde57b775fd10a74d77506d30dca747579437ca6aa0b1f6cf0",
         "dimensions": [
           1774,
           887
@@ -77,7 +77,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/idle_hurt_sheet.webp",
         "bytes": 882974,
-        "sha256": "d8da5dab6ffc66e44d766e3ec01faffca11cb64a2fc08bf13149f59132458be1",
+        "sha256": "05da06296d9201dde57b775fd10a74d77506d30dca747579437ca6aa0b1f6cf0",
         "dimensions": [
           1774,
           887
@@ -123,7 +123,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/idle_hurt_sheet.webp",
         "bytes": 882974,
-        "sha256": "d8da5dab6ffc66e44d766e3ec01faffca11cb64a2fc08bf13149f59132458be1",
+        "sha256": "05da06296d9201dde57b775fd10a74d77506d30dca747579437ca6aa0b1f6cf0",
         "dimensions": [
           1774,
           887
@@ -169,7 +169,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/walk_sheet.webp",
         "bytes": 805812,
-        "sha256": "381b73167d86ee91d8960c95367034053b8557cbfa57232285b3fb914ba0b75d",
+        "sha256": "dd623d13c706acf95389eeae1c7ce78c372b34f494cf797eed6f2d668e54fddf",
         "dimensions": [
           1774,
           887
@@ -215,7 +215,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/run_claws_sheet.webp",
         "bytes": 875460,
-        "sha256": "9769269e1be3a8805aa500b852a4ea776ba4164fb8b5c9b727557a228f0b352a",
+        "sha256": "a5d8f816a36aa49fba3d5627aa7733c0a9a0e9b3528afae4371b46186ab154c1",
         "dimensions": [
           1774,
           887
@@ -261,7 +261,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/roll_sheet.webp",
         "bytes": 723990,
-        "sha256": "49502d96a8b7a54b8576a51a3b06bcee33c38b5cdcdc5bb34ca6ea07c4b79c5a",
+        "sha256": "1c02f383b2974f3f1e4b19972ffbbed13b2a9a6276e52e64a7a919fa087e355b",
         "dimensions": [
           1774,
           887
@@ -307,7 +307,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/jump_sheet.webp",
         "bytes": 709466,
-        "sha256": "579e598261a159af43c45825415844d3e4021148ed8277fcfe7646f74041a64d",
+        "sha256": "a259f94ffd8522d0e568a16ac71858a2154a258e55839f14cfb00c385b8c6fb2",
         "dimensions": [
           1774,
           887
@@ -353,7 +353,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/jump_sheet.webp",
         "bytes": 709466,
-        "sha256": "579e598261a159af43c45825415844d3e4021148ed8277fcfe7646f74041a64d",
+        "sha256": "a259f94ffd8522d0e568a16ac71858a2154a258e55839f14cfb00c385b8c6fb2",
         "dimensions": [
           1774,
           887
@@ -399,7 +399,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/claw_1_sheet.webp",
         "bytes": 811262,
-        "sha256": "24bef46a0e49c32f3c21b7c6e0e6cbd45ecbd0d0beb9dc2110331d1ede075896",
+        "sha256": "e2e0a2c7c70a9368f579c08d6476f331ebb625655cd3803f133f58306f609762",
         "dimensions": [
           1536,
           1024
@@ -445,7 +445,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/claw_2_sheet.webp",
         "bytes": 763932,
-        "sha256": "cd2ad892cee1f6be90998f71605e3da4614a6d647d2bd4f33d4d7dece7af24e0",
+        "sha256": "2fd2b19b94f8f92553b6f8ab7f366f8d11ac67aeb61af80c56ba3a47d904add2",
         "dimensions": [
           1536,
           1024
@@ -491,7 +491,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/claw_3_sheet.webp",
         "bytes": 735520,
-        "sha256": "383e7782b4d464ba24fbcd6e31cd96ae1a9d268c2a5db8e1d82fd18269b1cc41",
+        "sha256": "d3fc6a4f456c79130dc55993fd2a7480ee46fac0d366bfb638f3e3b153f75381",
         "dimensions": [
           1774,
           887
@@ -537,7 +537,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/skills_sheet.webp",
         "bytes": 956922,
-        "sha256": "6e72dd8af3493270743e214fc6eb87f9744565aecd6ba5b4bbab4fe4ee4eb59a",
+        "sha256": "7355ed06f0296f53ebc56a89bf3f754450aaa5d523eab6b7c102be8fb2455170",
         "dimensions": [
           1448,
           1086
@@ -583,7 +583,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/skills_sheet.webp",
         "bytes": 956922,
-        "sha256": "6e72dd8af3493270743e214fc6eb87f9744565aecd6ba5b4bbab4fe4ee4eb59a",
+        "sha256": "7355ed06f0296f53ebc56a89bf3f754450aaa5d523eab6b7c102be8fb2455170",
         "dimensions": [
           1448,
           1086
@@ -629,7 +629,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/claw_4_sheet.webp",
         "bytes": 793406,
-        "sha256": "eac7c7d0f20be0ebbc8076f327edc9b3a5dffffca1fad0af7220fd422868e6b9",
+        "sha256": "465bafef40fef9be55dbd0c1594abf6ba094234e87dcbbb895a4c8e3ff73128f",
         "dimensions": [
           1774,
           887
@@ -675,7 +675,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/claw_run_sheet.webp",
         "bytes": 714176,
-        "sha256": "1252a8a54922ac3025ddd32b3620dd0c650cffeca983591c35d06fb26f833d53",
+        "sha256": "3093f1058e0d76c93ededeb1f3f6b6075dd328d87873e60a0e75172215338b30",
         "dimensions": [
           1536,
           1024
@@ -721,7 +721,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/claw_air_sheet.webp",
         "bytes": 697844,
-        "sha256": "9dbe9730a89f9c641197073fc3e653839108af8bd54e37a89e2213b2f766dd37",
+        "sha256": "9380447b84baccb69fb36d5a21497cf4c891a093c69f1345c57acc4421ed5a98",
         "dimensions": [
           1536,
           1024
@@ -767,7 +767,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/shuriken_sheet.webp",
         "bytes": 893836,
-        "sha256": "de231aa6dfbcb53313e2f6ac15e3099b81edce0f85f254969141239fc5dd0d02",
+        "sha256": "af9b59672ef805b39e0caa2d2f6fa8e2606b6a1e5294bed27d29f315d7dd6920",
         "dimensions": [
           1774,
           887
@@ -813,7 +813,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/kick_spin_sheet.webp",
         "bytes": 816416,
-        "sha256": "d714bc14cab2c161269b32aadc9ffdd935559120305a67647a7e0cb41d6dd973",
+        "sha256": "d58057afc5aecd69413d6d13d5b6fcbbc872cc8a516435e6a956c29030e27230",
         "dimensions": [
           1448,
           1086
@@ -859,7 +859,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/seal_sheet.webp",
         "bytes": 830894,
-        "sha256": "8f1363222dc49e6265e392e00aad66d1b6947ae348538e2924d763aea613304c",
+        "sha256": "1ccc44c0f0dfd46fc6dce4f9ea1409be02993cf6254f314a50572687ce793114",
         "dimensions": [
           1774,
           887
@@ -905,7 +905,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/storm_sheet.webp",
         "bytes": 874878,
-        "sha256": "b116708742d18f5c463c120ce87b7ecaeea2cb5d37f6d88638fc8affce8a8be0",
+        "sha256": "8dbc2cb709bbb894cbacb8aef1b5a1acdfe1c6be62ff23858ac9991f0a18cec6",
         "dimensions": [
           1774,
           887
@@ -951,7 +951,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/rush_sheet.webp",
         "bytes": 763328,
-        "sha256": "6a89fe0a6e32b35b4d23c6a4d5a334f097b6111e17a02df8bb484ed02e54dd93",
+        "sha256": "6b58eebcc3160a8ec79fccce5c75597ac961aec1e17ff02d65d1decf1ce5ec6c",
         "dimensions": [
           1774,
           887
@@ -997,7 +997,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/combo_kick_sheet.webp",
         "bytes": 751980,
-        "sha256": "f7704100af3a2173bd8515037d69d9c535eafa7a40e565f600bd4881fa81e2f7",
+        "sha256": "15fbc0294cc5c20f959442070bb64446bbda1492c9d3a3aa67a0a2d88ac3aece",
         "dimensions": [
           1774,
           887
@@ -1043,7 +1043,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/uppercut_sheet.webp",
         "bytes": 816986,
-        "sha256": "35fb4997ecf151e9b281e20ed8e8c114701cd2941d01f061545445040ec08721",
+        "sha256": "b2643e1a386ce22a118a717397d10787737b2f8922b346179a7233d178dff004",
         "dimensions": [
           1774,
           887
@@ -1089,7 +1089,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/flying_kick_spaced_sheet.webp",
         "bytes": 630200,
-        "sha256": "6c935f4a0416613864b5427b32af84d2fc3dfd70866a33fd7758b2cc5ddd6613",
+        "sha256": "f87fba3730592a8ce6ef62c9751717720b54818886841839fea388676d6e68f5",
         "dimensions": [
           1774,
           887
@@ -1134,7 +1134,7 @@
       "output": {
         "path": "public/assets/motion/qiuqiu/shuriken_128.webp",
         "bytes": 10118,
-        "sha256": "4df98963a033d08d5aa353afb0262ebf4beb07e4b670c0b21541e7ec005bafc4",
+        "sha256": "3ce6c60e3f3ab22e9fa9deebcdba9e55e2158fcf93b185c7385ef73c6365e52e",
         "dimensions": [
           125,
           128

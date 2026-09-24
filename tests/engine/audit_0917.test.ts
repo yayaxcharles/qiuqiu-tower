@@ -75,11 +75,11 @@ describe('中-3：借力不要在滿血時白卸蜷縮', () => {
     expect(p.hp).toBe(p.maxHp);
   });
 
-  it('蜷縮 0 時打卸力掌，紀錄要講一句', () => {
+  it('蜷縮 0 時打借力打力，紀錄要講一句', () => {
     const { cs, p } = setup();
     p.block = 0;
     const n = cs.log.length;
-    play(cs, 'dangdang_xieli', cs.enemies[0]!.uid);
+    play(cs, 'dangdang_jielidali', cs.enemies[0]!.uid);
     expect(cs.log.slice(n).join(''), '花了飯糰卻什麼都沒發生，畫面要交代').toContain('沒有蜷縮');
   });
 });

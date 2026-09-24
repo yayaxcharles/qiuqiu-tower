@@ -8,7 +8,7 @@
       "source": "tools/motion-art-source/hit-recoil/qiuqiu.png",
       "sourceSha256": "74adc743b70b2662a173b24d5be3937785c2c23617637c264380355480e59339",
       "target": "public/assets/motion/qiuqiu/hit_recoil.webp",
-      "targetSha256": "d47819604f4082339287d1f0a2d6e6e5deb17f08fc237a93c8a84b488ab4c866",
+      "targetSha256": "bb9c647551bca21b3e947d93bdd9f95e0d5edacb6e72b403a19aab4c29baf97a",
       "bytes": 85090,
       "size": [
         347,
@@ -33,7 +33,7 @@
       "source": "tools/motion-art-source/hit-recoil/feifei.png",
       "sourceSha256": "33d5b5115b3dea9c9d58cbfc92ce79228f085a7edcb162c7f3d9ab9282a070be",
       "target": "public/assets/motion/feifei/hit_recoil.webp",
-      "targetSha256": "de4ba009cd3375ba5ebb22b781a40ea82910ede9cb9a887a7efa1383a4ce56d3",
+      "targetSha256": "e1ba22e0827cba62c9f42af52f0d208f94fa3053fb765ae036241c5101c2276b",
       "bytes": 71080,
       "size": [
         293,
@@ -58,7 +58,7 @@
       "source": "tools/motion-art-source/hit-recoil/dangdang.png",
       "sourceSha256": "66a835a79a9b0bd2a6a212f2a9b5f5e743a172deeed6e9513ada49b109aee7a9",
       "target": "public/assets/motion/dangdang/hit_recoil.webp",
-      "targetSha256": "d8bb4f0d9d2610971b4fdfa12fda51961ecd86b28607eb811687f597578c029d",
+      "targetSha256": "2b3d72818db8d41e6008797ff9b9d2da2961199209632ab1ecffe6c2b4f55461",
       "bytes": 42800,
       "size": [
         212,
@@ -83,7 +83,7 @@
       "source": "tools/motion-art-source/hit-recoil/fengfeng.png",
       "sourceSha256": "93b332e6a90cc6fa1a8c027cfcdb7b39627a8eda96e702a4ba7b7f7026547f07",
       "target": "public/assets/motion/fengfeng/hit_recoil.webp",
-      "targetSha256": "aedd498b47552e1df5e68e73c78895f304a3298e66e915b2e3f95f6d854749e2",
+      "targetSha256": "62067177ae3ac7e205c7ed68158dd5fd691ba07afbc61995b9b5c1b473c4a22a",
       "bytes": 66746,
       "size": [
         274,

@@ -38,13 +38,43 @@ function play(cs: ReturnType<typeof beginCombat>, id: string, target?: number, u
   playCard(cs, u, target);
 }
 
+// 使用者 2026-09-24 深夜：「卸力掌感覺好弱，去除防禦、打出等量防禦的數值，還一費，幾乎沒好處」→ 乙方案
+describe('卸力掌乙方案：保底 4 點＋最多卸 6 點蜷縮加上去（升級 5＋8），同一下', () => {
+  it('蜷縮 0 也打得出 4 點；蜷縮 10 打 10、剩 4；蜷縮 3 打 7、剩 0', () => {
+    for (const [block, dmg, left] of [[0, 4, 0], [10, 10, 4], [3, 7, 0]] as const) {
+      const { cs, p } = setup();
+      p.block = block;
+      const e = cs.enemies[0]!;
+      e.block = 0;
+      const hp0 = e.hp;
+      play(cs, 'dangdang_xieli', e.uid);
+      expect(hp0 - e.hp, `蜷縮 ${block}`).toBe(dmg);
+      expect(p.block).toBe(left);
+    }
+  });
+  it('升級：保底 5＋最多卸 8；是同一下（魔物防禦只擋一次）', () => {
+    const { cs, p } = setup();
+    p.block = 20;
+    const e = cs.enemies[0]!;
+    e.block = 3;
+    const hp0 = e.hp;
+    play(cs, 'dangdang_xieli', e.uid, true);
+    expect(hp0 - e.hp, '13 點被防禦擋 3').toBe(10);
+    expect(p.block).toBe(12);
+  });
+  it('牌面：造成 4 點傷害，最多卸掉 6 點蜷縮加上去', () => {
+    expect(describeCard(cardById['dangdang_xieli']!, false)).toBe('造成 4 點傷害，最多卸掉 6 點蜷縮加上去。');
+    expect(describeCard(cardById['dangdang_xieli']!, true)).toBe('造成 5 點傷害，最多卸掉 8 點蜷縮加上去。');
+  });
+});
+
 describe('噹噹：卸蜷縮出招', () => {
-  it('卸力掌把蜷縮打出去，蜷縮真的變少', () => {
+  it('借力打力把蜷縮打出去，蜷縮真的變少', () => {
     const { cs, p } = setup();
     p.block = 10;
     const e = cs.enemies[0]!;
     const hp0 = e.hp;
-    play(cs, 'dangdang_xieli', e.uid);
+    play(cs, 'dangdang_jielidali', e.uid);
     expect(p.block, '卸掉 6 點').toBe(4);
     expect(hp0 - e.hp, '打出去也是 6 點').toBe(6);
   });
@@ -54,7 +84,7 @@ describe('噹噹：卸蜷縮出招', () => {
     p.block = 2;
     const e = cs.enemies[0]!;
     const hp0 = e.hp;
-    play(cs, 'dangdang_xieli', e.uid);
+    play(cs, 'dangdang_jielidali', e.uid);
     expect(p.block).toBe(0);
     expect(hp0 - e.hp, '只剩 2 點就打 2 點').toBe(2);
   });
@@ -98,7 +128,7 @@ describe('噹噹：卸蜷縮出招', () => {
     p.block = 10;
     const e = cs.enemies[0]!;
     const hp0 = e.hp;
-    play(cs, 'dangdang_xieli', e.uid);
+    play(cs, 'dangdang_jielidali', e.uid);
     expect(hp0 - e.hp, '還是打 6 點').toBe(6);
     expect(p.block, '只卸掉 3 點（6 的一半）').toBe(7);
   });
@@ -109,7 +139,7 @@ describe('噹噹：卸蜷縮出招', () => {
     p.block = 3;
     const e = cs.enemies[0]!;
     const hp0 = e.hp;
-    play(cs, 'dangdang_xieli', e.uid);
+    play(cs, 'dangdang_jielidali', e.uid);
     // 3 點蜷縮在半價下最多撐 6 點的招，卸掉 ceil(6/2)=3
     expect(hp0 - e.hp).toBe(6);
     expect(p.block).toBe(0);
