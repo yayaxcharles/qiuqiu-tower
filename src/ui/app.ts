@@ -712,6 +712,8 @@ export class App {
     // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
     // 局面是兩人局也不准（2026-09-23 稽核 高-1）：跟 `save()` 同一道，連線已經離開、局面還留著時只看 `coop` 擋不住
     if (run.status !== 'playing' && !this.coop && run.players.length === 1) { recordBest(run); clearSave(); }
+    // 連線局打完了：重新整理不再接回（不然會回到最後一戰之前＝悔棋），離開頁面也當場通知對方（推前稽核 2026-09-25 中-2）
+    if (run.status !== 'playing' && this.coop) { clearRejoin(); this.coop.runOver(); }
     /*
      * 落敗這一段**沒有幻燈片版本**，是直接走 `playDialogue`，所以預設會過
      * `lineFor`／`heroSpeaker`——連線時那一段是兩個人共用的場景，裡面「球球：……喵」

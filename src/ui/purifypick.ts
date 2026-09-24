@@ -1,7 +1,7 @@
 import { MIASMA_PURE, relicById } from '../content/relics';
 import { artUrl } from './assets';
 import { el } from './dom';
-import { lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
 
 /**
@@ -15,7 +15,10 @@ export function showPurifyPick(ids: readonly string[], onDone: (id: string | nul
   if (!layer || !ids.length) { onDone(ids[0] ?? null); return; }
   hideTooltip();
   const overlay = el('div', { class: 'modal-overlay' });
-  const dismiss = (id: string | null): void => { overlay.remove(); unlockScreen(); hideTooltip(); onDone(id); };
+  let done = false;
+  // 整局被換掉（重新同步、離開連線）時一起收掉、不叫 onDone（推前稽核 2026-09-25 低-1，理由同 potionswap.ts）
+  const forget = closeWithStory(() => { if (done) return; done = true; overlay.remove(); unlockScreen(); hideTooltip(); });
+  const dismiss = (id: string | null): void => { if (done) return; done = true; forget(); overlay.remove(); unlockScreen(); hideTooltip(); onDone(id); };
   const icon = (art: string, alt: string): Node | string => {
     const url = artUrl('icons', art);
     return url.startsWith('data:') ? '' : el('img', { src: url, alt });

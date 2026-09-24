@@ -96,7 +96,7 @@ export type NetMessage =
    *   `g`＝新的一輪。之後兩台送的每一則都帶這個 `g`，上一輪（重新同步之前）還在路上的訊息一律丟掉。
    */
   | { m: 'resync'; g: number; why: string; re?: boolean }
-  | { m: 'snap'; g: number; i: number; n: number; part: string; why: string };
+  | { m: 'snap'; g: number; i: number; n: number; part: string; why: string; id?: number };
 
 /**
  * 真正送出去的樣子：每一則都帶**第幾輪**（`g`，重新同步一次加一；沒帶＝第 0 輪），

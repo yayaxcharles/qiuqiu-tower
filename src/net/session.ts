@@ -828,7 +828,9 @@ export class CoopSession {
   private resuming = false;
   private snapTimer: ReturnType<typeof setTimeout> | null = null;
   /** 正在收的存檔點（切段收，收齊才用） */
-  private snapIn: { g: number; parts: string[]; got: number } | null = null;
+  private snapIn: { g: number; id: number | undefined; parts: string[]; got: number } | null = null;
+  /** 最近載入的那一份存檔點的編號（重新整理接回的存檔點靠它分新舊，見 `handleResync`） */
+  private lastSnapId: number | undefined = undefined;
 
   /** 每一則都帶上這一輪；等存檔點的期間只送「請重新同步」那一則 */
   private send(m: NetMessage): void {
@@ -841,7 +843,7 @@ export class CoopSession {
    * 第一次回到地圖之前（序章、開局祝福）沒有存檔點，那段對不上照舊停下
    */
   checkpoint(run: RunState): void {
-    if (this.dead) return;
+    if (this.dead || this.over) return;
     this.checkpointJson = JSON.stringify(run);
     this.hooks.onCheckpoint?.(this.checkpointJson, this.gen);
   }
@@ -865,6 +867,16 @@ export class CoopSession {
     if (this.snapTimer !== null) clearTimeout(this.snapTimer);
     this.snapTimer = setTimeout(() => { this.snapTimer = null; this.awaitingSnap = false; this.stop(`${why}（等不到主機的存檔點）`); }, SNAP_WAIT_MS);
     this.send({ m: 'resync', g: this.gen, why, re: true });
+  }
+
+  /**
+   * 這一局打完了（全滅或通關，`app.ts` 的 `afterCombat`；推前稽核 2026-09-25 中-2）：之後有人重新整理就不接回——
+   * 存檔點是最後一次回到地圖時的整局，接回等於把兩個人拉回最後一戰之前（悔棋）。離開頁面也改回當場跟中繼說一聲
+   */
+  private over = false;
+  runOver(): void {
+    this.over = true;
+    this.tx.stayOnReload?.(false);
   }
 
   /** 對不上了：能重新同步就重新同步；不能（沒有存檔點、次數用完、畫面沒接）才照舊停下 */
@@ -902,7 +914,8 @@ export class CoopSession {
     this.gen += 1;
     this.reset();
     const parts = snapParts(json);
-    parts.forEach((part, i) => this.send({ m: 'snap', g: this.gen, i, n: parts.length, part, why }));
+    const id = Math.floor(Math.random() * 2 ** 31);   // 每一份存檔點一個編號（重新整理接回時分新舊用）
+    parts.forEach((part, i) => this.send({ m: 'snap', g: this.gen, i, n: parts.length, part, why, id }));
     this.hooks.onCheckpoint?.(json, this.gen);
     this.hooks.onResync?.(json, why);
   }
@@ -915,14 +928,22 @@ export class CoopSession {
     if (m.m === 'resync') {
       if (!this.isHost) return true;
       // 客戶端重新整理後接回：不管它記的是第幾輪都要回（它的記錄可能慢一拍）；我沒有存檔點就接不回來
-      if (m.re) { if (this.checkpointJson && !this.dead) this.queueHostResync(m.why, false); else this.stop('對方重新整理了，但這一局還沒回到過地圖，接不回來'); return true; }
+      if (m.re) {
+        if (this.over) this.stop('對方重新整理了，這一局已經打完，不再接回');
+        else if (this.checkpointJson && !this.dead) this.queueHostResync(m.why, false);
+        else this.stop('對方重新整理了，但這一局還沒回到過地圖，接不回來');
+        return true;
+      }
       // 客戶端發現對不上。它發現時的那一輪已經被我換掉了（我這邊早一步重新同步過）就不理
       if (m.g === this.gen) this.desync(m.why);
       return true;
     }
     if (m.m !== 'snap') return false;
-    if (this.isHost || m.g <= this.gen) return true;
-    if (!this.snapIn || this.snapIn.g !== m.g) this.snapIn = { g: m.g, parts: Array.from({ length: m.n }, () => ''), got: 0 };
+    // 重新整理接回的存檔點：不看輪次、只要不是剛載入過的那一份就收（推前稽核 低-4）。主機的分頁記錄萬一寫失敗、
+    // 輪次落後，照「比我新才收」的規矩會被丟掉，之後兩台一個在地圖、一個還在戰鬥，互等、也沒有任何提示
+    const rejoinSnap = m.why === REJOIN_WHY;
+    if (this.isHost || (rejoinSnap ? m.id !== undefined && m.id === this.lastSnapId : m.g <= this.gen)) return true;
+    if (!this.snapIn || this.snapIn.g !== m.g || this.snapIn.id !== m.id) this.snapIn = { g: m.g, id: m.id, parts: Array.from({ length: m.n }, () => ''), got: 0 };
     const box = this.snapIn;
     if (m.i < 0 || m.i >= box.parts.length || box.parts[m.i]) return true;   // 超出範圍或重複到的那段
     box.parts[m.i] = m.part;
@@ -931,8 +952,9 @@ export class CoopSession {
     this.snapIn = null;
     if (this.snapTimer !== null) { clearTimeout(this.snapTimer); this.snapTimer = null; }
     this.awaitingSnap = false;
-    this.resyncs += 1;
+    if (!rejoinSnap) this.resyncs += 1;   // 重新整理接回不算進「最多幾次」（主機那邊同一個規矩，推前稽核 低-2）
     this.gen = m.g;
+    this.lastSnapId = m.id;
     this.reset();
     const json = box.parts.join('');
     this.checkpointJson = json;   // 載入的就是新的存檔點（我這台之後再重新整理，也接得回這一份）

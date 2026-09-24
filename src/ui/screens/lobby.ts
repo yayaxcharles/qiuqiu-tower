@@ -3,7 +3,7 @@ import { clear, el } from '../dom';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { hostRoom as hostDirect, joinRoom as joinDirect } from '../../net/rtc';
 import { hostRoom as hostRelay, joinRoom as joinRelay, resumeRoom as resumeRelay } from '../../net/ws';
-import { clearRejoin, writeRejoin, type RejoinRecord } from '../../net/rejoin';
+import { clearRejoin, noteRejoinRecv, touchRejoin, writeRejoin, type RejoinRecord } from '../../net/rejoin';
 import { CoopSession, REJOIN_WHY } from '../../net/session';
 import { newCoopRun } from '../../engine/run';
 import type { App } from '../app';
@@ -155,7 +155,7 @@ function makeSession(app: App, tx: Transport, isHost: boolean, resume?: { gen: n
   const seat = isHost ? 0 : 1;
   const link = tx.link;
   const remember = link
-    ? (patch: { recv?: number; checkpoint?: string | null; gen?: number }): void => writeRejoin({ code: link.code, role: link.role, seat, ...patch })
+    ? (patch: { checkpoint?: string | null; gen?: number }): void => writeRejoin({ code: link.code, role: link.role, seat, ...patch })
     : null;
   const session: CoopSession = new CoopSession(tx, {
     isHost, seat, resume,
@@ -167,7 +167,9 @@ function makeSession(app: App, tx: Transport, isHost: boolean, resume?: { gen: n
   });
   if (remember) {
     tx.stayOnReload?.(true);
-    tx.onProgress?.((recv) => remember({ recv }));
+    tx.onProgress?.(noteRejoinRecv);
+    // 有效期從離開頁面那一刻算（跟中繼等人的算法一樣，推前稽核 中-1）；記錄已經清掉的話什麼都不做
+    window.addEventListener('pagehide', touchRejoin);
   }
   app.coop = session;
   app.seat = seat;

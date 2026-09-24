@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CoopSession } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
-import { clearRejoin, readRejoin, REJOIN_MS, writeRejoin } from '../../src/net/rejoin';
+import { clearRejoin, noteRejoinRecv, readRejoin, REJOIN_MS, touchRejoin, writeRejoin } from '../../src/net/rejoin';
 import { BYE, resumeRoom } from '../../src/net/ws';
 import { startCombat } from '../../src/engine/combat';
 import { newCoopRun } from '../../src/engine/run';
@@ -134,6 +134,59 @@ describe('會話：重新整理的那台接回來，兩台一起回到主機最�
   });
 });
 
+describe('打完之後、次數、輪次（推前稽核 2026-09-25 中-2、低-2、低-4）', () => {
+  it('這一局打完了：對方重新整理來要，不再重新同步（不然兩個人被拉回最後一戰之前＝悔棋）', () => {
+    const t = table();
+    t.host.s.runOver();
+    const guest = side(t.link.b, false, { gen: 0, checkpoint: null });
+    guest.s.rejoin();
+    settle();
+    expect(t.host.resynced).toHaveLength(0);
+    expect(t.host.desync[0]).toContain('打完');
+  });
+
+  it('打完之後回到地圖也不再記存檔點', () => {
+    const t = table();
+    const before = t.host.saved.length;
+    t.host.s.runOver();
+    t.host.s.checkpoint(newCoopRun('rejoin', 1, 'ninja', 'feifei'));
+    expect(t.host.saved).toHaveLength(before);
+  });
+
+  it('客戶端收到重新整理接回的存檔點不算次數：接回幾次之後，真的對不上照樣能重新同步', () => {
+    const t = table();
+    let host = t.host;
+    for (let i = 0; i < 4; i++) {
+      const saved = host.saved.at(-1)!;
+      host = side(t.link.a, true, { gen: saved.gen, checkpoint: saved.run });
+      host.s.rejoin(); settle();
+    }
+    expect(t.guest.resynced).toHaveLength(4);
+    host.s.useRun(JSON.parse(host.saved.at(-1)!.run!) as RunState); host.s.checkpoint(JSON.parse(host.saved.at(-1)!.run!) as RunState);
+    const a = twoPlayerCombat('d'); const b = twoPlayerCombat('d');
+    host.s.attach(a); t.guest.s.attach(b); b.enemies[0]!.hp -= 1;
+    host.s.endOfTurn(); t.guest.s.endOfTurn(); settle();
+    expect(t.guest.desync, '沒有因為次數用完而停下').toEqual([]);
+    expect(t.guest.resynced).toHaveLength(5);
+  });
+
+  it('主機分頁記的輪次落後（寫入失敗）：接回的存檔點輪次比客戶端舊，客戶端照樣收下、改用它的輪次', () => {
+    const t = table();
+    diverge2(t);   // 兩台都到第 1 輪
+    const host = side(t.link.a, true, { gen: 0, checkpoint: t.host.saved[0]!.run });   // 分頁只記到第 0 輪
+    host.s.rejoin(); settle();
+    expect(t.guest.resynced).toHaveLength(2);
+    playsOn(host, t.guest);
+  });
+});
+
+/** 對不上一次：兩台一起到第 1 輪 */
+function diverge2(t: ReturnType<typeof table>): void {
+  const a = twoPlayerCombat('d2'); const b = twoPlayerCombat('d2');
+  t.host.s.attach(a); t.guest.s.attach(b); b.enemies[0]!.hp -= 1;
+  t.host.s.endOfTurn(); t.guest.s.endOfTurn(); settle();
+}
+
 describe('分頁裡記的東西', () => {
   let box: Map<string, string>;
   beforeEach(() => {
@@ -148,23 +201,46 @@ describe('分頁裡記的東西', () => {
 
   it('記下、讀回；同一間房同一個身分是補寫（不會把存檔點洗掉）；清掉就沒了', () => {
     writeRejoin({ code: '123456', role: 'join', seat: 1, checkpoint: '{"x":1}', gen: 2 });
-    writeRejoin({ code: '123456', role: 'join', seat: 1, recv: 40 });
-    const r = readRejoin()!;
-    expect(r).toMatchObject({ code: '123456', role: 'join', seat: 1, checkpoint: '{"x":1}', gen: 2, recv: 40 });
+    noteRejoinRecv(40);
+    writeRejoin({ code: '123456', role: 'join', seat: 1, gen: 3 });
+    expect(readRejoin()).toMatchObject({ code: '123456', role: 'join', seat: 1, checkpoint: '{"x":1}', gen: 3, recv: 40 });
     clearRejoin();
     expect(readRejoin()).toBeNull();
+    expect(box.size, '收到幾則那個鍵也一起清掉').toBe(0);
   });
 
-  it('換了一間房：從頭記，上一間的存檔點不帶過來', () => {
-    writeRejoin({ code: '111111', role: 'host', seat: 0, checkpoint: '{"old":1}', gen: 3, recv: 9 });
-    writeRejoin({ code: '222222', role: 'host', seat: 0, recv: 1 });
-    expect(readRejoin()).toMatchObject({ code: '222222', checkpoint: null, gen: 0, recv: 1 });
+  it('收到幾則只寫一個數字，不動整份記錄（每一則都要寫，整份讀寫太重）', () => {
+    writeRejoin({ code: '123456', role: 'join', seat: 1, checkpoint: 'x'.repeat(5000) });
+    const main = [...box.entries()].find(([k]) => !k.endsWith(':recv'))!;
+    noteRejoinRecv(7);
+    expect(box.get(main[0])).toBe(main[1]);
+    expect(readRejoin()!.recv).toBe(7);
   });
 
-  it(`超過 ${REJOIN_MS / 1000} 秒（中繼不等了）或內容壞掉：當成沒有`, () => {
+  it('換了一間房：從頭記，上一間的存檔點與收到幾則不帶過來', () => {
+    writeRejoin({ code: '111111', role: 'host', seat: 0, checkpoint: '{"old":1}', gen: 3 });
+    noteRejoinRecv(9);
+    writeRejoin({ code: '222222', role: 'host', seat: 0 });
+    expect(readRejoin()).toMatchObject({ code: '222222', checkpoint: null, gen: 0, recv: 0 });
+  });
+
+  it(`有效期從離開頁面算（推前稽核 中-1）：在地圖上待了五分鐘才重新整理照樣接得回；離開超過 ${REJOIN_MS / 1000} 秒就不算`, () => {
+    vi.setSystemTime(0);
+    writeRejoin({ code: '123456', role: 'join', seat: 1, checkpoint: '{"cp":1}', gen: 1 });
+    vi.setSystemTime(5 * 60_000);   // 五分鐘沒有任何訊息
+    expect(readRejoin(), '還沒離開頁面：開機讀的話算過期').toBeNull();
+    writeRejoin({ code: '123456', role: 'join', seat: 1, gen: 2 });
+    expect(readRejoin(), '閒置之後的補寫不會把存檔點洗掉').toMatchObject({ checkpoint: '{"cp":1}', gen: 2 });
+    vi.setSystemTime(9 * 60_000);
+    touchRejoin();                  // 重新整理（離開頁面）
+    vi.setSystemTime(9 * 60_000 + 5_000);
+    expect(readRejoin()).toMatchObject({ checkpoint: '{"cp":1}' });
+    expect(readRejoin(9 * 60_000 + REJOIN_MS + 1)).toBeNull();
+  });
+
+  it('內容壞掉：當成沒有', () => {
     writeRejoin({ code: '123456', role: 'join', seat: 1 });
-    expect(readRejoin(Date.now() + REJOIN_MS + 1)).toBeNull();
-    box.set([...box.keys()][0]!, '{壞掉');
+    box.set([...box.keys()].find((k) => !k.endsWith(':recv'))!, '{壞掉');
     expect(readRejoin()).toBeNull();
   });
 });
