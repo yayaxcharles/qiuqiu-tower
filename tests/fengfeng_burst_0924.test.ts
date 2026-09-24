@@ -3,7 +3,7 @@ import { cardById } from '../src/content/cards';
 import { playCard, startCombat } from '../src/engine/combat';
 import { qiAmount } from '../src/engine/effects';
 import { Rng, seedFromString } from '../src/engine/rng';
-import type { CombatState, PlayerCombat } from '../src/engine/types';
+import { QI_BURST_MIN, type CombatState, type PlayerCombat } from '../src/engine/types';
 import { describeCard } from '../src/ui/cardtext';
 import { glossary } from '../src/content/glossary';
 import HERO_RAW from '../src/ui/screens/heroselect.ts?raw';
@@ -61,7 +61,13 @@ describe('憋氣：一次花 4 點以上 ×1.3', () => {
     expect(describeCard(cardById['fengfeng_pingzhan']!, false)).toBe('最多花 4 點蓄氣，造成 5 點傷害，每點蓄氣多 3 點。');
     expect(describeCard(cardById['fengfeng_duanliu']!, false)).toContain('用盡蓄氣，造成 10 點傷害，每點蓄氣多 4 點');
     for (const c of Object.values(cardById)) expect(describeCard(c, false), c.id).not.toContain('×1.3');
-    expect(glossary['蓄氣']).toContain('一張牌一次花 4 點以上，那一招的傷害或蜷縮再 ×1.3');
+    // 門檻引用引擎常數：哪天改成 5，說明沒跟上會紅（推前稽核 低-4）
+    expect(glossary['蓄氣']).toContain(`出招或架擋的牌一次花 ${QI_BURST_MIN} 點以上，那一招的傷害或蜷縮再 ×1.3`);
+    // 下一擊準備類不套 ×1.3（effects.ts）：有這種牌花得到門檻，名詞表就要講例外（推前稽核 中-1：「現在一起上」最多花 4 點）
+    const prep = Object.values(cardById).filter((c) => [...c.effects, ...(c.upgrade?.effects ?? [])]
+      .some((e) => e.kind === 'nextAttackBonusSpendQi' && e.maxQi >= QI_BURST_MIN));
+    expect(prep.map((c) => c.id)).toContain('fengfeng_yiqichushou');
+    expect(glossary['蓄氣']).toContain('（讓同伴下一擊變強的牌不算）');
     const pick = between(HERO, "hero: 'fengfeng', name: '封封'", '},');
     expect(pick).toContain("rule: '蓄氣',");
     expect(HERO).toContain("p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',");

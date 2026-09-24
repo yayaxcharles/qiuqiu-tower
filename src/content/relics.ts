@@ -400,7 +400,7 @@ export const relics: RelicDef[] = [
   { id: 'miasma_lantern', name: '魔氣燈籠', pool: '大魔物', text: '每回合開始時多抽 1 張牌；每場戰鬥第一回合多 1 顆飯糰；開戰帶 1 層懶洋洋。', art: 'codex/relic_miasma_lantern', price: 200,
     hooks: { turnStart: [{ kind: 'draw', n: 1 }], firstTurnEnergy: 1, combatStart: [{ kind: 'status', name: '懶洋洋', amount: 1, target: 'self' }] } },
   // --- 塔主 +1 ---
-  { id: 'demon_seal', name: '鎮魔符', pool: '塔主', text: '每場戰鬥開始時給全體魔物 1 層定身（每隻七成機會定住）。', art: 'codex/relic_demon_seal', price: 240,
+  { id: 'demon_seal', name: '鎮魔符', pool: '塔主', text: '每場戰鬥開始時給全體魔物 1 層定身（每隻 70%機率定住）。', art: 'codex/relic_demon_seal', price: 240,
     hooks: { combatStart: [{ kind: 'status', name: '定身', amount: 1, target: 'all' }] } },
   // --- 罐頭鋪限定 +1：只擺在店長私藏那一格 ---
   { id: 'stamp_card', name: '集章卡', pool: '罐頭鋪', text: '每走進一間店主不同的罐頭鋪蓋一個章（買到它的這間算第一個）；集滿三個不同的章，隨機獲得 1 件塔主秘寶，之後罐頭鋪的商品打九折。', art: 'codex/relic_stamp_card', price: 150,

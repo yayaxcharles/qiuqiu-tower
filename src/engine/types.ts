@@ -30,7 +30,7 @@ export const DEBUFFS: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', 
 // 定身也走回合衰減：魔物在牠的回合丟上來、你下一個回合攻擊牌全鎖、回合結束消掉。
 // （魔物身上的定身不走這條——那邊是「出招時消耗」，在 endTurn 的攻擊判定裡處理）
 export const TURN_DECAY: readonly StatusName[] = ['翻肚', '懶洋洋', '炸毛', '定身'];
-/** 憋氣：一張牌一次花這麼多點以上的蓄氣，那一招 ×1.3（引擎見 `effects.ts` 的 `qiAmount`，牌面文字見 `cardtext.ts`） */
+/** 憋氣：一張牌一次花這麼多點以上的蓄氣，那一招 ×1.3（引擎見 `effects.ts` 的 `qiAmount`；說明寫在名詞表「蓄氣」，牌面不寫——使用者 2026-09-24 晚） */
 export const QI_BURST_MIN = 4;
 
 /**

@@ -637,10 +637,12 @@
  * 中間的和紙跟著拉（`fill`）。框吃掉的那一圈用內距讓開，字不壓到木頭。
  * 原本的價標底色縮到內容區（`content-box`）當退路：框的圖沒載到時字底下仍有紙色，不會變成暗底黑字。
  * 價標的厚度、落地影子、選中的黃框都換成照著框外形走的 `drop-shadow`（`box-shadow`／`outline` 是方的，框的四角是圓銅飾）
+ * 掛在 `.shop-item.bless-card` 不掛 `.bless-row` 底下：手機按住放大的複製品在疊層裡（cardpeek.ts），也要是同一個框（推前稽核 低-3）。
+ * 邊框留 2 像素透明、不寫 0：有些瀏覽器邊框寬度 0 就不畫 `border-image`（推前稽核 低-2，MDN 的提醒；Safari 沒實測）
  */
-.bless-row .shop-item.bless-card {
+.shop-item.bless-card {
   background: linear-gradient(#fffdf6, #f1e4c8) content-box;
-  border: 0;
+  border: 2px solid transparent;
   border-radius: 0;
   border-image-source: var(--ui-blessframe);
   border-image-slice: 15% fill;
@@ -652,13 +654,14 @@
   box-shadow: none;
   filter: drop-shadow(0 6px 8px #000000a6);
 }
-.bless-row .shop-item.bless-card::after { display: none; }
-.bless-row .shop-item.bless-card:not(.sold):not(.poor):hover {
+.shop-item.bless-card::after { display: none; }
+/* 已選的那張不吃滑過的淡光與上浮：連線等同伴時滑鼠停在上面，要一直是選中的金光（推前稽核 低-1） */
+.shop-item.bless-card:not(.sold):not(.poor):not(.took):hover {
   transform: translateY(-4px);
   box-shadow: none;
   filter: drop-shadow(0 10px 12px #000000b3) drop-shadow(0 0 8px #ffd35c99);
 }
-.bless-row .shop-item.bless-card.took { outline: none; filter: drop-shadow(0 0 5px #ffd35c) drop-shadow(0 0 14px #ffd35cd9); }
+.shop-item.bless-card.took { outline: none; transform: none; filter: drop-shadow(0 0 5px #ffd35c) drop-shadow(0 0 14px #ffd35cd9); }
 .bless-cls[data-cls="換牌"] { border-color: #2f5fa8; color: #234a85; background: #dbe7f7; }
 .bless-cls[data-cls="代價"] { border-color: #7a3fa0; color: #5a2a78; background: #efe0f7; }
 .bless-cls[data-cls="賭運氣"] { border-color: #b8860b; color: #6b4d05; background: #ffe9a8; }

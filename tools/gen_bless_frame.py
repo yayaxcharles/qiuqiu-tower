@@ -71,6 +71,10 @@ def gen(n: int) -> None:
 def pick(attempt: int) -> None:
     im = Image.open(SOURCE / f'frame.try{attempt}.png').convert('RGBA')
     bbox = im.getchannel('A').point(lambda a: 255 if a > 16 else 0).getbbox()
+    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    # 九宮格的角只縮放不拉伸：框不是正方形就直接壓成 512×512，四角銅飾會變形（推前稽核 低-6）
+    if abs(w - h) > 0.02 * max(w, h):
+        raise SystemExit(f'第 {attempt} 次的框不是正方形（{w}×{h}），重生一次')
     im = im.crop(bbox).resize((512, 512), Image.LANCZOS)
     im.save(TARGET, 'WEBP', quality=88, method=6)
     print(f'採用第 {attempt} 次 → {TARGET.relative_to(ROOT).as_posix()}（{TARGET.stat().st_size} 位元組，裁切範圍 {bbox}）')

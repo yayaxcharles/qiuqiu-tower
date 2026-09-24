@@ -185,7 +185,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
     const risky = offer.some((id) => { const d = blessingById[id]; return !!d && (!!d.dice || d.effects.some((e) => e.kind === 'gamble' || e.kind === 'damage')); });
     const extra: (Node | string)[] = [];
     if (choosing === null && !took && !sent) extra.push(el('p', { class: 'bless-say' }, `${heroName(mine)}：「${open.line}」`));
-    if (runMods(run).unlucky && risky && !took) extra.push(el('p', { class: 'event-note' }, '這個難度下，賭運氣只剩七成機會中、掉血多一半（卡面寫的是一般難度的數字）'));
+    if (runMods(run).unlucky && risky && !took) extra.push(el('p', { class: 'event-note' }, '這個難度下，賭運氣只剩 70%機率會中、掉血多一半（卡面寫的是一般難度的數字）'));
     root.append(sceneView({ art: body, speaker: choosing === null && !took && !sent ? '' : heroName(mine), text, extra, actions }));
   }
 
