@@ -72,6 +72,20 @@ describe('previewHpLoss：複本上試打', () => {
     for (const e of cs.enemies) expect(pv.get(e.uid), `魔物 ${e.uid}`).toEqual({ min: 0, max: 5 });
   });
 
+  // 複審 低-1：打的是單體攻擊時，暗器匣那一下可能疊在同一隻身上，也可能打到別隻——每隻都要是正確範圍
+  it('暗器匣＋單體攻擊（貓抓）瞄中間那隻：中間 N～N+5、兩旁 0～5', () => {
+    const cs = fight('rats3', ['sanjo']);
+    cs.player.relics.push('dart_case');
+    cs.player.cardsPlayedThisTurn = 2;
+    for (const e of cs.enemies) { e.hp = e.maxHp = 99; }
+    const [a, mid, c] = cs.enemies;
+    const pv = previewHpLoss(cs, 500, mid!.uid, 0);
+    const hit = pv.get(mid!.uid)!;
+    expect(hit.max - hit.min).toBe(5);
+    expect(pv.get(a!.uid)).toEqual({ min: 0, max: 5 });
+    expect(pv.get(c!.uid)).toEqual({ min: 0, max: 5 });
+  });
+
   // 推前稽核 低-2：打出去會停下來選牌的牌，選完之後才觸發的東西算不到 → 不預覽
   it('會停下來選牌的牌（告退：先消耗一張手牌）不預覽', () => {
     const cs = fight('rats3', ['gaotui', 'sanjo']);

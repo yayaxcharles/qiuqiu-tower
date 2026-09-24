@@ -288,7 +288,8 @@
 .combat .chip.bad { background: linear-gradient(#fce3e0, #f2c4bf); }
 .combat .chip.block { background: linear-gradient(#6ba6e2, #2e6db4); color: #fff; }
 /* 下回合才生效的（下回合隱身、下回合蜷縮）：淡一點、虛線框，跟這回合就擋得住的分得開（使用者 2026-09-24 深夜：影忍頭帶看起來有隱身卻一直被打） */
-.combat .chip.later { opacity: .7; border-style: dashed; }
+/* 點線不用虛線：虛線（dashed）已經是能力牌牌子的記號（`.chip.power`），同一排不要一種線兩個意思（推前稽核 低-2） */
+.combat .chip.later { opacity: .7; border-style: dotted; }
 .combat .chip.later img { filter: grayscale(.7); }
 /* 自己的狀態要比魔物的更好認：牌子大一點、圖示大一點 */
 .combat .unit.player .chip { padding: 2px 7px; font-size: 13px; }

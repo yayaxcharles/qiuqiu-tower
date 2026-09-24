@@ -94,6 +94,9 @@ describe('下回合才生效的狀態牌子分得出來', () => {
     const src = COMBAT_SRC.replace(/\r\n/g, '\n');
     expect(src).toContain("const later = STATUS_LABEL[name] ? ' later' : '';");
     expect(src).toContain('`${tone}${later}`.trim()');
-    expect(readFileSync('src/ui/styles/combat.css', 'utf8')).toContain('.combat .chip.later { opacity: .7; border-style: dashed; }');
+    const css = readFileSync('src/ui/styles/combat.css', 'utf8');
+    // 點線：虛線已經是能力牌的記號（推前稽核 低-2）
+    expect(css).toContain('.combat .chip.later { opacity: .7; border-style: dotted; }');
+    expect(css).toContain('.combat .chip.power { border-style: dashed; }');
   });
 });
