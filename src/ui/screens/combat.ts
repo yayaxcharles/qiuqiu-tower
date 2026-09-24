@@ -7,6 +7,7 @@ import { potionById } from '../../content/potions';
 import { aliveEnemies, dazeTarget, isDazed, willRevive } from '../../engine/actions';
 import { relicCounterKey } from '../../engine/counters';
 import { rampageTurnFor, allReady, beginEnemyTurn, canPlay, endTurn, finishEnemyTurn, IDLE_FORCE_MS, playCard, potionBlockedReason, resolveChoice, stepEnemyTurn, usePotion, waitingFor } from '../../engine/combat';
+import { previewHpLoss } from '../../engine/preview';
 import { cardStats } from '../../engine/deck';
 import { computeBlock, getStatus } from '../../engine/statuses';
 import { previewEnemyHits } from '../../engine/intentpreview';
@@ -1139,6 +1140,7 @@ registerScreen('combat', (app, root, props) => {
   const setTargeting = (t: Targeting): void => {
     targeting = t;
     scheduleHint(t?.kind === 'card' ? t.uid : null);
+    damagePreview(null);   // 換牌或取消瞄準：舊的扣血預覽收掉，等箭頭再吸附到魔物才重算
   };
   app.disposers.push(() => { if (hintTimer !== null) clearTimeout(hintTimer); });
   /**
@@ -2054,6 +2056,12 @@ registerScreen('combat', (app, root, props) => {
       node.style.transform = `rotate(${((i - mid) * spread).toFixed(2)}deg) translateY(${(Math.abs(i - mid) * lift).toFixed(0)}px)`;
       node.style.margin = `0 ${((step - 145) / 2).toFixed(1)}px`;
       node.style.zIndex = String(i + 1);
+      // 不用指定目標的牌（範圍攻擊、打全體）：滑到牌上就先標出每一隻會扣多少，移開收掉（`damagePreview`）。
+      // 要瞄準的牌等箭頭吸附到魔物才算；正在瞄準別張時不搶
+      if (chk.ok && canAct() && st.def.target !== 'enemy') {
+        node.addEventListener('mouseenter', () => { if (!targeting) damagePreview(c.uid); });
+        node.addEventListener('mouseleave', () => { if (!targeting) damagePreview(null); });
+      }
       // 打不出來的原因直接用引擎給的字串，畫面不要自己再寫一套。
       // 用遊戲自己的說明框而不是瀏覽器原生的 `title`：原生的要停一秒才出現、樣式也不同
       if (!chk.ok) {
@@ -2169,6 +2177,7 @@ registerScreen('combat', (app, root, props) => {
             // 直接動 class 不重畫：重畫會把正在拖的那張牌換成新節點，拖曳當場斷掉
             for (const u of root.querySelectorAll('.unit.enemy.drag-over')) u.classList.remove('drag-over');
             if (uid !== null) root.querySelector(`.unit.enemy[data-uid="${uid}"]`)?.classList.add('drag-over');
+            damagePreview(uid === null ? null : c.uid, uid ?? undefined);   // 拖到哪一隻，就先標出會扣多少
           },
           // 點擊那兩條路都先過 canAct()，拖曳這條原本沒有——撒手鐧那類牌打完到自動結束回合之間
           // 有 650 毫秒的空窗，在那時候抓起另一張牌拖到魔物回合再放開，就會繞過那道關
@@ -2341,6 +2350,7 @@ registerScreen('combat', (app, root, props) => {
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     arrowOff?.abort();   // 舊的 box 連同箭頭一起丟掉，監聽也拆掉
     arrowOff = null;
+    previewFor = null;   // 血條整排重建，扣血預覽跟著沒了；記號歸零，箭頭再吸附時才會重畫（見 `damagePreview`）
     const handWas = handSnap();   // 清掉之前先記下手牌在哪（見 `slideHand`）
     clear(root);
     const box = el('div', { class: 'combat' });
@@ -2446,6 +2456,41 @@ registerScreen('combat', (app, root, props) => {
   }
 
   /**
+   * 瞄準時先標出這一下會打掉多少血（使用者 2026-09-24 晚：「指上去但還沒打出去時，就先顯示怪物會扣的血量……
+   * 7 是紅色（跟現在一樣），5 是紫色或藍色，這樣玩家用肉眼看顏色就知道」）。
+   *
+   * 血條上從「打完剩下」到「現在」那一段蓋一層紫色，數字寫成「剩下＋會扣／上限」（例：7+5/12，+5 是紫色）。
+   * 範圍攻擊會同時標出每一隻。傷害怎麼算交給引擎在複本上試打（`previewHpLoss`），這裡不自己算。
+   * 三條路都叫這支：點選瞄準時箭頭吸附到魔物（`mountArrow`）、拖著牌經過魔物（`onHover`）、
+   * 滑到不用指定目標的牌上（範圍攻擊）。同一張牌對同一隻不重算；`cardUid` 是 null 就收掉。
+   * 只動 class 與文字、不重畫（重畫會把正在拖的牌換掉，拖曳當場斷掉）；整頁重畫時血條本來就重建，`render` 把記號歸零。
+   */
+  let previewFor: string | null = null;
+  function damagePreview(cardUid: number | null, foeUid?: number): void {
+    const key = cardUid === null ? null : `${cardUid}>${foeUid ?? '-'}`;
+    if (key === previewFor) return;
+    previewFor = key;
+    for (const n of root.querySelectorAll('.hpbar-preview')) n.remove();
+    for (const s of root.querySelectorAll<HTMLElement>('.hpbar > span[data-plain]')) {
+      s.textContent = s.dataset['plain'] ?? '';
+      delete s.dataset['plain'];
+    }
+    if (cardUid === null) return;
+    for (const [uid, lost] of previewHpLoss(cs, cardUid, foeUid, mySeat)) {
+      const e = cs.enemies.find((x) => x.uid === uid);
+      const bar = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${uid}"] .hpbar`);
+      const label = bar?.querySelector<HTMLElement>(':scope > span');
+      if (!e || !bar || !label || e.maxHp <= 0) continue;
+      const shown = e.hp + (motionPendingDamage.get(uid) ?? 0);   // 血條畫的是這個（命中動畫還沒演完的那段先不扣）
+      const after = Math.max(0, shown - lost);
+      const pct = (n: number): string => `${Math.max(0, Math.min(100, (n / e.maxHp) * 100)).toFixed(2)}%`;
+      label.before(el('div', { class: 'hpbar-preview', style: `left:${pct(after)};width:${pct(shown - after)}` }));
+      label.dataset['plain'] = label.textContent ?? '';
+      label.replaceChildren(String(after), el('b', { class: 'hp-loss' }, `+${shown - after}`), `/${e.maxHp}`);
+    }
+  }
+
+  /**
    * 選目標時從牌拉一條弧線到滑鼠（類殺戮尖塔）。
    *
    * 出牌仍然是「點牌再點魔物」，這條線只是指引——原本選了牌之後畫面沒有任何連線，
@@ -2525,8 +2570,10 @@ registerScreen('combat', (app, root, props) => {
         aimRaf = 0;
         if (!aimAt || !box.isConnected || !svg.isConnected) return;
         const { x, y } = aimAt;
-        const foe = document.elementFromPoint(x, y)?.closest('.unit.enemy.targetable');
+        const foe = document.elementFromPoint(x, y)?.closest<HTMLElement>('.unit.enemy.targetable');
         draw(foe ? centreOf(foe, 0.45) : toStage(x, y), !!foe);
+        // 吸附到哪一隻就先標出這一下會扣多少（`damagePreview`）；沒吸附就收掉
+        damagePreview(foe && targeting?.kind === 'card' ? targeting.uid : null, foe ? Number(foe.dataset['uid']) : undefined);
       });
     }, { signal: arrowOff.signal });
   }

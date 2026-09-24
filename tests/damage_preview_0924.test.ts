@@ -1,0 +1,85 @@
+import { describe, expect, it } from 'vitest';
+import { playCard, startCombat } from '../src/engine/combat';
+import { previewHpLoss } from '../src/engine/preview';
+import { Rng, seedFromString } from '../src/engine/rng';
+import type { CombatState } from '../src/engine/types';
+import { readFileSync } from 'node:fs';
+import COMBAT_RAW from '../src/ui/screens/combat.ts?raw';
+import { inst } from './helpers';
+
+/*
+ * 瞄準時的扣血預覽（使用者 2026-09-24 晚：「指上去但還沒打出去時，就先顯示怪物會扣的血量，
+ * 例如怪物 12 血、這張打 5，血條顯示 7+5/12，7 紅色、5 紫色或藍色」）。
+ * 引擎：在複本上試打，預覽＝真的打出去的結果、而且不動到本尊。畫面：三條路（點選瞄準、拖曳、滑到範圍牌）都接。
+ */
+const COMBAT = COMBAT_RAW.replace(/\r\n/g, '\n'), CSS = readFileSync('src/ui/styles/combat.css', 'utf8').replace(/\r\n/g, '\n');
+
+function fight(enc: string, cards: string[]): CombatState {
+  const cs = startCombat({ hp: 80, maxHp: 80, deck: cards.map((id, i) => inst(id, 500 + i)), relics: [], potions: [], encounterId: enc,
+    rng: new Rng(seedFromString(`preview-${enc}`)), hero: 'ninja' });
+  const p = cs.player;
+  p.hand = cards.map((id, i) => inst(id, 500 + i)); p.drawPile = []; p.discardPile = []; p.energy = 9;
+  return cs;
+}
+const hpOf = (cs: CombatState): number[] => cs.enemies.map((e) => e.hp);
+
+describe('previewHpLoss：複本上試打', () => {
+  it('單體：預覽的扣血＝真的打出去扣的血；本尊的手牌、飯糰、血、亂數都沒動', () => {
+    const cs = fight('rats3', ['sanjo']);
+    const target = cs.enemies[0]!.uid;
+    const before = { hp: hpOf(cs), hand: cs.player.hand.length, energy: cs.player.energy, rng: { ...cs.rng.state }, log: cs.log.length };
+    const pv = previewHpLoss(cs, 500, target, 0);
+    expect([...pv.keys()]).toEqual([target]);
+    expect(hpOf(cs)).toEqual(before.hp);
+    expect(cs.player.hand.length).toBe(before.hand);
+    expect(cs.player.energy).toBe(before.energy);
+    expect(cs.rng.state).toEqual(before.rng);
+    expect(cs.log.length).toBe(before.log);
+    const hp0 = cs.enemies[0]!.hp;
+    expect(playCard(cs, 500, target, 0)).toBe(true);
+    expect(pv.get(target)).toBe(hp0 - cs.enemies[0]!.hp);
+  });
+
+  it('範圍攻擊：每一隻都列，跟真的打出去一樣', () => {
+    const cs = fight('rats3', ['susu']);
+    const hp0 = hpOf(cs);
+    const pv = previewHpLoss(cs, 500, undefined, 0);
+    expect(pv.size).toBe(cs.enemies.filter((e) => !e.dead).length);
+    playCard(cs, 500, undefined, 0);
+    cs.enemies.forEach((e, i) => expect(pv.get(e.uid) ?? 0, `魔物 ${e.uid}`).toBe(hp0[i]! - Math.max(0, e.hp)));
+  });
+
+  it('防禦先吃：只預覽真的會少的血；打不出去（飯糰不夠）就回空的', () => {
+    const cs = fight('rats3', ['sanjo']);
+    const e = cs.enemies[0]!;
+    e.block = 999;
+    expect(previewHpLoss(cs, 500, e.uid, 0).size).toBe(0);
+    e.block = 0;
+    cs.player.energy = 0;
+    expect(previewHpLoss(cs, 500, e.uid, 0).size).toBe(0);
+  });
+});
+
+describe('畫面：三條路都接、收得乾淨、樣式照使用者說的', () => {
+  const between = (start: string, end: string): string => {
+    const a = COMBAT.indexOf(start);
+    const b = COMBAT.indexOf(end, a + start.length);
+    if (a < 0 || b < 0) throw new Error(`找不到片段：${start}`);
+    return COMBAT.slice(a, b);
+  };
+  it('數字寫成「剩下＋會扣／上限」，+N 是紫色；血條蓋一段從剩下到現在', () => {
+    const fn = between('  function damagePreview(cardUid: number | null, foeUid?: number): void {', '   * 選目標時從牌拉一條弧線到滑鼠');
+    expect(fn).toContain("label.replaceChildren(String(after), el('b', { class: 'hp-loss' }, `+${shown - after}`), `/${e.maxHp}`);");
+    expect(fn).toContain("el('div', { class: 'hpbar-preview', style: `left:${pct(after)};width:${pct(shown - after)}` })");
+    expect(fn).toContain('previewHpLoss(cs, cardUid, foeUid, mySeat)');
+    expect(CSS).toContain('.combat .hpbar-preview {');
+    expect(CSS).toContain('.combat .hpbar b.hp-loss { color: #d9c4ff; }');
+  });
+  it('點選瞄準（箭頭吸附）、拖曳經過、滑到不用瞄準的牌：三條路；換瞄準與整頁重畫時收掉', () => {
+    expect(COMBAT).toContain("damagePreview(foe && targeting?.kind === 'card' ? targeting.uid : null, foe ? Number(foe.dataset['uid']) : undefined);");
+    expect(COMBAT).toContain('damagePreview(uid === null ? null : c.uid, uid ?? undefined);');
+    expect(COMBAT).toContain("node.addEventListener('mouseenter', () => { if (!targeting) damagePreview(c.uid); });");
+    expect(between('  const setTargeting = (t: Targeting): void => {', '  };')).toContain('damagePreview(null);');
+    expect(between('  function render(): void {', 'clear(root);')).toContain('previewFor = null;');
+  });
+});

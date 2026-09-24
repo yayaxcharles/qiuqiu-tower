@@ -237,6 +237,22 @@
   transition: width .38s ease-out;
 }
 .combat .hpbar span { position: relative; text-shadow: 0 1px 1px #000; }
+/*
+ * 瞄準時先標出這一下會打掉的那段（使用者 2026-09-24 晚：「7 是紅色（跟現在一樣），5 是紫色或藍色」）。
+ * 疊在紅色血條上、從「打完剩下」蓋到「現在」；斜紋＋輕輕一明一暗，一眼分得出是「還沒扣、快要扣」的那段。
+ * 數字裡的 +5 也用同一個紫（`b.hp-loss`）。見 combat.ts 的 `damagePreview`
+ */
+.combat .hpbar-preview {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: repeating-linear-gradient(135deg, #a77bff 0 5px, #7c4dff 5px 10px);
+  box-shadow: inset 0 0 0 1px #ffffff59;
+  animation: hp-preview 0.8s ease-in-out infinite alternate;
+}
+@keyframes hp-preview { from { opacity: .7; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .combat .hpbar-preview { animation: none; } }
+.combat .hpbar b.hp-loss { color: #d9c4ff; }
 
 /* 狀態與蜷縮的小牌子 */
 .combat .chips {

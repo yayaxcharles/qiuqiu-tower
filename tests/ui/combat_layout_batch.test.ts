@@ -79,6 +79,8 @@ describe('瞄準箭頭：一格裡的好幾次滑鼠移動只算最後一次', (
     await run(listener, {
       box, draw, centreOf: vi.fn(), toStage: (x: number, y: number) => ({ x, y }),
       svg: { isConnected: svgConnected }, arrowOff: null,
+      // 扣血預覽（2026-09-24 晚）：吸附時才算；這幾條只驗「一格一次」，預覽本身在 damage_preview_0924
+      damagePreview: vi.fn(), targeting: null,
       document: { elementFromPoint },
       window: { requestAnimationFrame: (cb: () => void) => { frames.push(cb); return frames.length; } },
     });
