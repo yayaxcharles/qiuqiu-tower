@@ -122,10 +122,17 @@ export function attachDragScroll(node: HTMLElement): void {
  * 複審中-1：第一版漏了滑鼠拖地圖，桌機拖著看前面的路時同伴一投票就被拉回）。
  * 爬升捲到了之後，不管用什麼方式捲（拖捲軸、中鍵自動捲動）都照實記。
  */
+const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End']);
+
 export function watchClimb(node: HTMLElement, want: number): () => boolean {
   let trust = false;
   const mine = (): void => { trust = true; };
-  for (const ev of ['wheel', 'touchmove', 'keydown'] as const) node.addEventListener(ev, mine, { passive: true });
+  for (const ev of ['wheel', 'touchmove'] as const) node.addEventListener(ev, mine, { passive: true });
+  // 鍵盤只認會捲的鍵：節點是按鈕、拿得到焦點，在節點上按 Enter 投票、或按 Esc 也會傳上來（複審 2026-09-24 低）。
+  // 空白鍵在按鈕上是「按下去」，只有焦點在捲軸本身才是捲
+  node.addEventListener('keydown', (e) => {
+    if (SCROLL_KEYS.has(e.key) || (e.key === ' ' && e.target === node)) mine();
+  }, { passive: true });
   node.addEventListener('pointerdown', (e) => { if (e.target === node) mine(); }, { passive: true });
   node.addEventListener('pointermove', () => { if (node.classList.contains('dragging')) mine(); }, { passive: true });
   node.addEventListener('scroll', () => { if (Math.abs(node.scrollTop - want) < 1) mine(); }, { passive: true });
