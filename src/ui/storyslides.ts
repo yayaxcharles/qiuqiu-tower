@@ -83,8 +83,9 @@ export function prologueSlides(hero: string | undefined): Slide[] {
   const pro = storyFor(hero).prologue;
   // 第三張各家不同：球球是「師父衝進塔、他追上去」，菲菲是「三天過去，兩個都沒回來」，
   // 噹噹是「第三天，菲菲背著行囊來到門口」
+  // 封封 2026-09-25 從五張併成四張：`fengfeng_story_p05` 跟 `still_tower` 幾乎同一個畫面，序章縮句後不再用（見 `fengfengPrologue` 的說明）
   const stills = hero === 'fengfeng'
-    ? ['fengfeng_still_return', 'fengfeng_still_shop', 'fengfeng_still_meet', 'fengfeng_still_tower', 'fengfeng_story_p05']
+    ? ['fengfeng_still_return', 'fengfeng_still_shop', 'fengfeng_still_meet', 'fengfeng_still_tower']
     : hero === 'feifei'
     ? ['feifei_still_teach', 'feifei_still_corrupt', 'feifei_still_wait', 'feifei_still_depart']
     : hero === 'dangdang'

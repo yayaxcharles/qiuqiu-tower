@@ -15,9 +15,12 @@ export const fengfengSelection: DialogueLine[] = [
   }
 ];
 /*
- * 序章五張圖的切點（2026-09-23 稽核 中-3）：回村／關門的鋪子／跟村貓問話／塔下撿魚乾／塔下查看。
- * 原本沒標切點，照「一張一句、最後一張吃剩下的」切，村貓回話那句配到封封已經蹲在塔下的圖，
- * 真正講「走到塔下」的旁白又跟最後一句擠在第五張。封封問、村貓答兩句同一張（兩隻貓對話那張）。
+ * 序章四張圖的切點：回村／關門的鋪子／跟村貓問話／塔下撿魚乾，一張一句。
+ *
+ * 2026-09-23 稽核 中-3 定的是五張圖六句（多一張 `fengfeng_story_p05`，跟 `still_tower` 幾乎同一個畫面：
+ * 封封蹲在塔門口看小魚乾）。2026-09-25 使用者嫌序章要點太多下，併成四句：
+ * 封封問話那句收進鋪子那張的旁白、「走到塔下」那句旁白跟他最後那句併成一句，p05 那張就不用了。
+ * 村貓回話仍配兩隻貓對話那張（`still_meet`），封封在塔下那句配塔下那張。
  */
 export const fengfengPrologue: DialogueLine[] = [
   {
@@ -27,12 +30,8 @@ export const fengfengPrologue: DialogueLine[] = [
   },
   {
     "speaker": "旁白",
-    "text": "噹噹的鋪子關著，練功的院子也沒人。封封把藥箱放到門口，叫住一隻經過的村貓。",
+    "text": "噹噹的鋪子關著，練功的院子也沒人。封封把藥箱放到門口，叫住一隻經過的村貓，問球球他們去了哪裡。",
     "slideBreak": true
-  },
-  {
-    "speaker": "封封",
-    "text": "球球他們呢？怎麼連噹噹的鋪子都關了？"
   },
   {
     "speaker": "村貓",
@@ -40,27 +39,22 @@ export const fengfengPrologue: DialogueLine[] = [
     "slideBreak": true
   },
   {
-    "speaker": "旁白",
-    "text": "封封請商隊把貨搬進屋，接過裝滿水的袋子。他走到塔下，看見門檻上散著村裡的小魚乾。",
-    "slideBreak": true
-  },
-  {
     "speaker": "封封",
-    "text": "是從村裡搶來的。人應該也往這裡走了。"
+    "text": "門檻上散著的，都是村裡被搶走的小魚乾。他們應該也是從這裡進去的。"
   }
 ];
 export const fengfengActClear1: DialogueLine[] = [
   {
     "speaker": "旁白",
-    "text": "關主倒下後，封封在樓梯旁找到幾只空糧箱。箱側印著商隊的記號，是他前幾次送進村的貨。"
+    "text": "關主倒下後，封封在樓梯旁找到幾個空糧箱。箱側印著商隊的記號，是他前幾次送進村的貨。"
   },
   {
     "speaker": "封封",
-    "text": "箱子搬到這裡，裡面的東西倒吃得乾淨。"
+    "text": "箱子搬到這裡，裡面的東西倒是被吃得乾乾淨淨。"
   },
   {
     "speaker": "旁白",
-    "text": "他將擋住階梯的一只箱子拉到牆邊。扶手上有新刮痕，上面的樓層傳來腳步聲。"
+    "text": "他將擋住階梯的一個箱子拉到牆邊。扶手上有新刮痕，上面的樓層傳來腳步聲。"
   },
   {
     "speaker": "封封",
@@ -125,18 +119,14 @@ export const fengfengTopScene: DialogueLine[] = [
     "text": "門口交給你們。有人上來就叫我。"
   }
 ];
+/*
+ * 原本五句（2026-09-25 跟噹噹那段一起縮）：倒下與醒來兩句旁白併成一句，拿掉倒下當下那句「手使不上力了」。
+ * 結算畫面的遺言照舊是他醒來後問的那句（`defeatLastWord` 挑主角最後講的一句）。
+ */
 export const fengfengDefeat: DialogueLine[] = [
   {
     "speaker": "旁白",
-    "text": "封封想用劍鞘撐住身體，手指卻握不緊。他跪在地上，劍滑落在身旁。"
-  },
-  {
-    "speaker": "封封",
-    "text": "手使不上力了。"
-  },
-  {
-    "speaker": "旁白",
-    "text": "醒來時，他已躺在村裡。劍與劍鞘放在床邊，村貓正替他換藥。窗外仍看得見魔塔。"
+    "text": "封封想用劍鞘撐住身體，手指卻握不緊，劍滑落在身旁。再醒來時，他已躺在村裡，劍與劍鞘放在床邊，村貓正替他換藥。窗外仍看得見魔塔。"
   },
   {
     "speaker": "封封",
@@ -144,7 +134,7 @@ export const fengfengDefeat: DialogueLine[] = [
   },
   {
     "speaker": "村貓",
-    "text": "還沒消息。你先把傷養好，我們一有消息就來。"
+    "text": "還沒有消息。你先把傷養好，我們一有消息就來告訴你。"
   }
 ];
 /*
@@ -207,7 +197,7 @@ export const fengfengVictory: DialogueLine[] = [
   },
   {
     "speaker": "旁白",
-    "text": "回到村口，封封才發現自己交下的藥箱已經打開。村貓把剩下的藥布遞給菲菲，又端來幾碗熱湯。"
+    "text": "回到村口，封封才發現自己留在門口的藥箱已經打開了。村貓把剩下的藥布遞給菲菲，又端來幾碗熱湯。"
   },
   {
     "speaker": "封封",
@@ -235,7 +225,7 @@ export const fengfengVictory: DialogueLine[] = [
   },
   {
     "speaker": "旁白",
-    "text": "封封看過兩側，向球球點頭。木劍揮出，球球順著收劍的空隙踏進院子。大俠貓坐在門邊，看著兩人練。"
+    "text": "封封看過兩側，向球球點頭。木劍揮出，球球順著收劍的空隙踏進院子。大俠貓坐在門邊，看著兩人練劍。"
   }
 ];
 export const fengfengVictoryVariants: DialogueLine[] = [
@@ -259,8 +249,8 @@ export const fengfengVictoryVariants: DialogueLine[] = [
 export const fengfengFirstMeet: Record<string, string> = {
   "white_duelist": "要切磋可以，把旁邊的東西挪開。",
   "wild_boar": "你一直刨地，是準備衝過來？",
-  "paper_tiger": "紙做的刺也很尖，劍別纏進去了。",
-  "drum_tanuki": "鼓聲越來越急，腳步得跟穩。",
+  "paper_tiger": "紙做的刺也很尖，別讓劍被纏住了。",
+  "drum_tanuki": "鼓聲越來越急，腳步得踩穩。",
   "iron_arhat": "劍敲到鐵皮，震得手都麻了。",
   "shadow_spider": "絲纏到劍鞘了，得挑開。",
   "drunk_dog": "你腳步雖然晃，拳頭倒沒打偏。",
@@ -268,7 +258,7 @@ export const fengfengFirstMeet: Record<string, string> = {
   "imp": "別躲在牆後丟東西！",
   "mirror_sage": "鏡面一直在轉，得找出你站的位置。",
   "mirror_shard": "碎片往這邊飛了，護住臉！",
-  "void_cat": "透得看得見後面的牆，劍碰得到嗎？",
+  "void_cat": "身體透明到看得見後面的牆，劍碰得到嗎？",
   "dango_slime": "會自己爬的團子，我可不吃。",
   "dango_bit": "分成兩隻了，還都往我這裡跳。",
   "armadillo_pup": "頭一縮進去，就找不到臉了。",
@@ -277,7 +267,7 @@ export const fengfengFirstMeet: Record<string, string> = {
   "puffer_spirit": "還在鼓起來，我得再站遠一點。",
   "plated_beetle": "這層殼得換個角度打。",
   "rat_general": "後面那隻在發號施令。",
-  "rat_guard": "槍長盾也大，正面不好進。",
+  "rat_guard": "槍長盾也大，從正面不好打進去。",
   "curse_priest": "你唸一句，這裡就暗一點。",
   "phantom_fox": "剛才還在左邊，怎麼又到右邊去了？",
   "red_oni": "你舉著武器，手都不會酸？",
@@ -289,9 +279,9 @@ export const fengfengFirstMeet: Record<string, string> = {
   "dragon_cat": "鼻子在冒煙，睡著也會噴火嗎？",
   "hex_abbot": "您的眼睛也變紫了。",
   "shiba_ronin": "你拿刀，我拿劍，那就把距離站好。",
-  "shamisen_cat": "弦聲刮得耳朵疼，先停一下！",
+  "shamisen_cat": "弦聲刮得耳朵好痛，先停一下！",
   "lantern_ghost": "燈籠伸出舌頭來了！",
-  "windchime_sprite": "聲音就在耳邊，震得我頭疼。",
+  "windchime_sprite": "聲音就在耳邊，震得我頭好痛。",
   "tanuki_kid": "你也來攔路？把手裡的東西放下。",
   "geta_monster": "一隻木屐也跳得這麼快。",
   "ink_cat": "墨滴到地上了，鞋底別踩進去。",
@@ -307,7 +297,7 @@ export const fengfengFirstMeet: Record<string, string> = {
   "fox_miko": "你把符朝這裡舉，是要對我做什麼？",
   "armor_ghost": "盔甲裡沒有身體，怎麼握住刀的？",
   "shadow_cat": "球球的影子不會自己走過來。你是什麼？",
-  "mirror_qiuqiu": "鏡裡的影子竟然跨出來了。",
+  "mirror_qiuqiu": "鏡子裡的影子竟然跨出來了。",
   "sparring_partner": "你也站過來，是要兩個一起切磋？",
   "orange_king": "那幾桶小魚乾，是村裡丟的。",
   "cowcat_boss": "站這麼高，門框都快碰到你的頭了。",
@@ -317,7 +307,7 @@ export const fengfengFirstMeet: Record<string, string> = {
   "maid_cat": "托盤先放下，別把上面的東西摔了。",
   "rat": "箱角那些牙印，是你們啃的？",
   "yarn_ball": "毛線纏住鞋了，別再往前滾！",
-  "soy_bottle": "醬油流了一地，這裡不能踏步。",
+  "soy_bottle": "醬油流了一地，踩上去會滑倒。",
   "box_lurker": "箱蓋裡有牙！幸好沒伸手。",
   "hedgehog": "刺全豎起來了，不能貼著打。",
   "can_spirit": "罐子明明空了，怎麼又裝滿了？",
@@ -351,12 +341,12 @@ export const fengfengFirstMeet: Record<string, string> = {
   "black_ninja_elite": "這一下好快，差點來不及退。",
   "big_cucumber": "這麼大根，轉個身都會堵住門。",
   "ninja_boss": "下面的黑貓都是聽你的？",
-  "giant_onigiri": "這顆要是滾下來，樓梯就沒法走了。",
+  "giant_onigiri": "這顆要是滾下來，樓梯就沒辦法走了。",
   "black_kitten": "你後面還藏著誰？",
   "tower_master": "大俠貓，是我，封封。",
   "snow_cat": "手指都凍僵了，劍得握緊。",
   "fortune_cat": "招手也沒用，我的錢不給你。",
-  "lantern_fish": "燈後面有一張嘴，差點只顧看光。",
+  "lantern_fish": "燈後面有一張嘴，差點只顧著看燈光。",
   "puppeteer": "線一直連到後面，是你在操縱。",
   "puppet": "線拉起來，木頭手就跟著動了。",
   "shuten_imp": "酒都灑到衣服上了，還喝？",
@@ -378,7 +368,7 @@ export const fengfengShortLines: Record<string, string[]> = {
     "站這麼近，我可不會收著劍。",
     "你已經看見我了，那就出來吧。",
     "劍柄沒鬆，還能用。",
-    "地上有空位，往這邊打。",
+    "這邊比較空，往這邊打。",
     "這次看清楚你的動作了。",
     "把劍拔出來，衣角別纏上去。",
     "你堵著門，我就得先跟你打一場。",
@@ -398,11 +388,11 @@ export const fengfengShortLines: Record<string, string[]> = {
     "這一下震得手指發麻。",
     "終於聽得見自己的呼吸了。",
     "水袋放哪裡去了？在這裡。",
-    "肩膀拉到了，抬手有點疼。",
+    "肩膀拉到了，抬手有點痛。",
     "灰都進領口了。",
     "劍先收好，免得走路碰到牆。",
     "還有一段樓梯要走。",
-    "這塊地板會滑，回來得記著。"
+    "這塊地板會滑，回來時得記住。"
   ],
   "HUNGRY": [
     "飯糰不夠，這招現在用不了。",
@@ -429,7 +419,7 @@ export const fengfengShortLines: Record<string, string[]> = {
     "箱蓋下面像是卡了東西。",
     "先把劍挪開，再掀蓋子。",
     "木板還乾燥，裡面的東西也許能用。",
-    "這只箱子挺深的。",
+    "這個箱子挺深的。",
     "封口繩還在，我解開看看。"
   ],
   "NAP": [
@@ -469,9 +459,9 @@ export const fengfengShortLines: Record<string, string[]> = {
     "腳踩穩了。"
   ],
   "HURT": [
-    "打到胳膊了！",
+    "打到手臂了！",
     "這下躲慢了。",
-    "傷口在疼。",
+    "傷口在痛。",
     "衣服被劃破了。"
   ],
   "REVIVE": [
@@ -545,14 +535,14 @@ export const fengfengDialogue = {
 
 export const FENGFENG_BOSS_LINES: Readonly<Record<string, string>> = {
   "這是師父寫的喵。": "這本書上的字，我在大俠貓的院子裡見過。",
-  "他把秘笈帶在身邊，怎麼會掉在這裡喵？": "書掉在這裡，人應該往上走了。",
+  "他把秘笈帶在身邊，怎麼會掉在這裡喵？": "書掉在這裡，他應該已經往上走了。",
   "我還是得去找他喵。": "那就更得把他帶回村裡。我不能當作沒聽見。",
-  "明天打贏關主，就能到上面找師父了喵。": "守關的就在樓上。這裡還能歇一會兒。",
+  "明天打贏關主，就能到上面找師父了喵。": "守關的就在樓上。這裡還能休息一下。",
   "這裡正好能休息，先吃點東西，再把爪子磨好喵。": "把劍放在手邊，先鬆開腰帶。",
   "睡一下，還是先磨爪喵？": "要睡一覺，還是把剛才沒練好的那招再試一次？",
   "越往上走，這股魔氣就越嗆喵。": "越往上走，這股味道越嗆。",
   "剛才好像是師父的聲音，他是不是很痛喵？": "剛才的吼聲，是大俠貓嗎？",
-  "得趕快過這一關，才能上去找他喵。": "胳膊有點酸，得在這裡歇過來。",
+  "得趕快過這一關，才能上去找他喵。": "手臂有點酸，得在這裡休息一下。",
   "明天就要見到師父了喵。": "最後一段樓梯了，大俠貓就在上面。",
   "以前蜷縮練不好，都是師父在旁邊扶著我喵。": "以前在院子裡，他還會幫忙收好木劍。現在卻連人都不認得。",
   "等見到師父，不知道他還認不認得我喵。": "等會兒靠近他，不能當作還在村裡練招。",
@@ -808,7 +798,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
       },
       {
         "speaker": "封封",
-        "text": "藥箱在我送來的貨裡，最上面那只。"
+        "text": "藥箱在我送來的貨裡，最上面那個。"
       }
     ],
     "defeat": [
@@ -884,7 +874,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
       },
       {
         "speaker": "菲菲",
-        "text": "我看到了。你扶著門框，別踩那隻腳。"
+        "text": "我看到了。你扶著門框，受傷的那隻腳先別踩地。"
       },
       {
         "speaker": "封封",
@@ -982,7 +972,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
       },
       {
         "speaker": "菲菲",
-        "text": "針筒在哪裡？"
+        "text": "我的竹筒在哪裡？"
       },
       {
         "speaker": "封封",
@@ -1016,7 +1006,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
       },
       {
         "speaker": "噹噹",
-        "text": "這個角是我補的。又給撞歪了。"
+        "text": "這個角是我補的。又被撞歪了。"
       },
       {
         "speaker": "封封",
@@ -1150,7 +1140,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
       },
       {
         "speaker": "封封",
-        "text": "我挪開了。你別伸手，剛換好的藥。"
+        "text": "我挪開了。你別伸手，藥才剛換好。"
       }
     ]
   }

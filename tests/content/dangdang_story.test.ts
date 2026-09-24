@@ -43,11 +43,17 @@ describe('噹噹的劇本', () => {
     expect(firstMeetLine('dangdang', 'wild_boar')).toBe(his['wild_boar']);
   });
 
-  it('序章十八句分成四段，每一張圖都有話講', () => {
+  // 2026-09-25 從十八句併成九句（使用者：「開頭劇情太長，要一直點」），切點照舊四段
+  it('序章九句分成四段，每一張圖都有話講', () => {
     const slides = prologueSlides('dangdang');
     expect(slides.length).toBe(4);
     for (const s of slides) expect(s.lines.length, `${s.img} 這張圖沒有台詞`).toBeGreaterThan(0);
-    // 全部十八句都要演到，一句都不能掉
+    expect(storyFor('dangdang').prologue.length, '點擊次數又長回去了').toBeLessThanOrEqual(9);
+    // 併句不能併到畫面放不下：上限照最長的既有那句（菲菲序章第一句，71 字）
+    for (const l of [...storyFor('dangdang').prologue, ...storyFor('dangdang').defeat]) {
+      expect([...l.text].length, l.text).toBeLessThanOrEqual(71);
+    }
+    // 全部的句子都要演到，一句都不能掉
     expect(slides.reduce((n, s) => n + s.lines.length, 0)).toBe(storyFor('dangdang').prologue.length);
     // 球球與菲菲照舊：他們的序章沒標切點，走的還是「一張圖一句、最後一張吃剩下的」
     for (const hero of ['ninja', 'feifei']) {
@@ -86,5 +92,7 @@ describe('噹噹的劇本', () => {
 
   it('落敗結算畫面挑的是他自己最後講的那一句', () => {
     expect(defeatLastWord('dangdang')).toBe('有他們的消息，就叫我。');
+    // 2026-09-25 從七句併成四句（使用者：「死掉時也一堆話點超多下」）
+    expect(storyFor('dangdang').defeat.length, '落敗點擊次數又長回去了').toBeLessThanOrEqual(4);
   });
 });

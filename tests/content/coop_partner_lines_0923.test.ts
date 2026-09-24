@@ -189,14 +189,19 @@ describe('鏡子走廊照的是同伴：十二組都叫得出是誰', () => {
 });
 
 describe('中-3、中-4：封封單人幻燈片的圖跟句子對得上', () => {
-  it('序章：封封問、村貓答配在兩隻貓對話那張；走到塔下那句配塔下那張', () => {
+  /*
+   * 2026-09-25 序章從五張六句併成四張四句（使用者嫌要點太多下）：封封問話收進鋪子那張的旁白，
+   * 走到塔下那句旁白跟他最後那句併成一句；跟 `still_tower` 幾乎同一個畫面的 `story_p05` 不再用。
+   */
+  it('序章：村貓回話配在兩隻貓對話那張；封封在塔下看魚乾那句配塔下那張', () => {
     const slides = prologueSlides('fengfeng');
     expect(slides.map((s) => s.img)).toEqual([
-      'bg/fengfeng_still_return', 'bg/fengfeng_still_shop', 'bg/fengfeng_still_meet', 'bg/fengfeng_still_tower', 'bg/fengfeng_story_p05',
+      'bg/fengfeng_still_return', 'bg/fengfeng_still_shop', 'bg/fengfeng_still_meet', 'bg/fengfeng_still_tower',
     ]);
-    expect(slides[2]!.lines.map((l) => l.speaker), '對話那張').toEqual(['封封', '村貓']);
-    expect(slides[3]!.lines.map((l) => l.text).join(''), '塔下撿魚乾那張').toContain('他走到塔下');
-    expect(slides[4]!.lines.map((l) => l.text)).toEqual(['是從村裡搶來的。人應該也往這裡走了。']);
+    expect(slides[1]!.lines.map((l) => l.text).join(''), '關門的鋪子那張').toContain('叫住一隻經過的村貓');
+    expect(slides[2]!.lines.map((l) => l.speaker), '對話那張').toEqual(['村貓']);
+    expect(slides[3]!.lines.map((l) => l.speaker), '塔下撿魚乾那張').toEqual(['封封']);
+    expect(slides[3]!.lines.map((l) => l.text).join(''), '塔下撿魚乾那張').toContain('門檻上');
     expect(slides.flatMap((s) => s.lines), '一句都不能少').toEqual(storyFor('fengfeng').prologue);
   });
 

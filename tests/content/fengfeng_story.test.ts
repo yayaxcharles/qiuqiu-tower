@@ -14,7 +14,11 @@ beforeEach(() => setCoopStory(null));
 describe('封封劇情內容', () => {
   test('單人主線使用提案中的封封文字與完整初遇表', () => {
     const story = storyFor('fengfeng');
-    expect(story.prologue).toHaveLength(6);
+    // 2026-09-25 從六句併成四句（使用者嫌序章要點太多下），一張圖一句
+    expect(story.prologue).toHaveLength(4);
+    expect(story.defeat, '落敗從五句併成三句').toHaveLength(3);
+    // 併句不能併到畫面放不下：上限照最長的既有那句（菲菲序章第一句，71 字）
+    for (const l of [...story.prologue, ...story.defeat]) expect([...l.text].length, l.text).toBeLessThanOrEqual(71);
     expect(story.prologue[0]?.text).toBe('第三天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。');
     expect(story.actClear1).toHaveLength(4);
     expect(story.actClear2).toHaveLength(6);
