@@ -12,7 +12,8 @@ import { rollBlessings } from '../../engine/blessing';
 import { me } from '../../engine/runplayer';
 import { HEROES, heroName, type Hero } from '../../engine/hero';
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
-import { selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
+import { checkRun, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
+import type { RunState } from '../../engine/types';
 
 /**
  * 開房畫面：兩台瀏覽器直連，**不經過任何伺服器**。
@@ -116,9 +117,38 @@ function linkBanner(_app: App, s: LinkStatus): void {
  */
 const coopHeroes: [Hero, Hero] = ['ninja', 'ninja'];
 
+/**
+ * 重新同步了（2026-09-25 使用者：「先做重新同步」）：載入主機傳來的存檔點（最近一次兩個人都回到地圖時的整局狀態），
+ * 清掉戰鬥與蓋在上面的劇情層，兩個人一起回到那一層的地圖。讀不回來（存檔點壞了）才照舊停下。
+ * 告訴玩家「剛剛那一格要重來」，技術原因放在滑鼠提示與主控台。
+ */
+function resyncTo(app: App, session: CoopSession, seat: number, json: string, why: string): void {
+  let run: RunState | null = null;
+  try { run = checkRun(JSON.parse(json) as Partial<RunState>); } catch { run = null; }
+  if (!run) { troubleBanner(app, `${why}（存檔點讀不回來）`); session.leave(); return; }
+  // 劇情幻燈片、過場影片、關主開場這些蓋在上面的層：演完會自己接下一個畫面，重新同步之後不能再接
+  document.querySelectorAll('.slide-overlay, .cine-overlay, .dialogue-overlay, .actwalk-overlay').forEach((n) => n.remove());
+  app.adoptRun(run, seat);
+  session.useRun(run);
+  app.cs = null;
+  app.show('map');
+  // eslint-disable-next-line no-console
+  console.warn('[連線] 已重新同步：', why);
+  document.querySelectorAll('.net-link[data-who="resync"]').forEach((n) => n.remove());
+  const bar = el('div', { class: 'net-link', 'data-who': 'resync' },
+    '兩台的遊戲狀態對不上，已經自動對齊：兩個人一起回到這一層的地圖，剛剛那一格要重來。');
+  bar.title = why;
+  document.body.append(bar);
+  window.setTimeout(() => bar.remove(), 9000);
+}
+
 function startCoop(app: App, tx: Transport, isHost: boolean): void {
   const seat = isHost ? 0 : 1;
-  const session = new CoopSession(tx, { isHost, seat, onDesync: (w) => troubleBanner(app, w), onClose: (w) => troubleBanner(app, w), onLink: (s) => linkBanner(app, s) });
+  const session: CoopSession = new CoopSession(tx, {
+    isHost, seat,
+    onDesync: (w) => troubleBanner(app, w), onClose: (w) => troubleBanner(app, w), onLink: (s) => linkBanner(app, s),
+    onResync: (json, why) => resyncTo(app, session, seat, json, why),
+  });
   app.coop = session;
   app.seat = seat;
   const begin = (seed: string, diff: number, heroes?: string[]): void => {

@@ -87,7 +87,22 @@ export type NetMessage =
    * 噹噹幾秒就進場，等滿一分鐘「替他收回合」就亮了——封封一進戰鬥，第一回合就被收掉。
    * 有了這一則，「同伴閒置多久」才能從**他也進場了**那一刻起算，他還沒進場前也送不出替他收回合。
    */
-  | { m: 'here'; f: number };
+  | { m: 'here'; f: number }
+  /**
+   * **重新同步**（2026-09-25 使用者：「先做重新同步」）。原本兩台一對不上整場就停；現在由主機把
+   * 「最近一次回到地圖時的整局狀態」（存檔點）傳給對方，兩台都載入同一份、一起回到那一層的地圖重來。
+   * - `resync`：客戶端發現對不上，請主機重新同步。`g`＝發現時自己在第幾輪（主機已經換到更新的一輪就不理）。
+   * - `snap`：主機送出存檔點。整局狀態可能超過中繼一則 16 KB 的上限，切段送：第 `i` 段、共 `n` 段。
+   *   `g`＝新的一輪。之後兩台送的每一則都帶這個 `g`，上一輪（重新同步之前）還在路上的訊息一律丟掉。
+   */
+  | { m: 'resync'; g: number; why: string }
+  | { m: 'snap'; g: number; i: number; n: number; part: string; why: string };
+
+/**
+ * 真正送出去的樣子：每一則都帶**第幾輪**（`g`，重新同步一次加一；沒帶＝第 0 輪），
+ * 收的那一方丟掉不是這一輪的（見 `CoopSession.handle`）
+ */
+export type WireMessage = NetMessage & { g?: number };
 
 /**
  * 傳輸層的介面。**刻意抽成介面**，因為真正的實作（WebRTC）在測試環境跑不起來，
@@ -95,9 +110,9 @@ export type NetMessage =
  * 把兩者分開，會出錯的那一半就測得到了。
  */
 export interface Transport {
-  send(msg: NetMessage): void;
+  send(msg: WireMessage): void;
   /** 收到訊息時呼叫。同一時間只會有一個 */
-  onMessage(fn: (msg: NetMessage) => void): void;
+  onMessage(fn: (msg: WireMessage) => void): void;
   /** 連線斷了（真的結束：對方走了、被拒絕、接不回去） */
   onClose(fn: (why: string) => void): void;
   /** 線路暫時斷了／接回來了（只有房號中繼那條路會有；直連與測試用的對接沒有） */

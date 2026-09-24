@@ -5,7 +5,7 @@ import type { RunAction, RunCtx } from './runaction';
 import type { ShopStock } from '../engine/run';
 import { ActionQueue, Sequencer, diffOf, runCheckOf, syncCheckOf } from './lockstep';
 import type { SequencedAction, SyncCheck } from './lockstep';
-import type { LinkStatus, NetMessage, Transport } from './transport';
+import type { LinkStatus, NetMessage, Transport, WireMessage } from './transport';
 import type { CombatState, RunState } from '../engine/types';
 
 /** 戰鬥那一條的動作訊息（客戶端的請求、主機編號過的動作）：這兩種要照場次排隊 */
@@ -44,16 +44,29 @@ export interface SessionHooks {
   onClose?: (why: string) => void;
   /** 線路暫時斷了／接回來了（自己或對方）：大廳拿它掛琥珀色橫幅（`lobby.ts` 的 `linkBanner`） */
   onLink?: (s: LinkStatus) => void;
+  /**
+   * **重新同步了**（2026-09-25）：兩台對不上，改成大家載入主機的存檔點（`run`＝整局狀態的 JSON），回到那一層的地圖重來。
+   * 畫面要：讀回整局、`useRun`、清掉戰鬥、換到地圖、告訴玩家。沒接這個的話對不上時照舊整場停下（`onDesync`）
+   */
+  onResync?: (run: string, why: string) => void;
 }
+
+/** 重新同步最多幾次：同一個錯一再發生（引擎本身有不決定性的地方），重來也沒用，照舊停下來 */
+export const MAX_RESYNC = 3;
+/** 存檔點一段最多幾個字：中繼一則上限 16,384 字，留點空間給外面那層 JSON */
+export const SNAP_PART = 12_000;
+/** 客戶端請了重新同步之後最多等主機多久（毫秒）：等不到就照舊停下 */
+export const SNAP_WAIT_MS = 15_000;
 
 export class CoopSession {
   readonly isHost: boolean;
   readonly seat: number;
   private readonly tx: Transport;
   private readonly hooks: SessionHooks;
-  private readonly queue = new ActionQueue((a: CoopAction) => (this.cs ? applyAction(this.cs, a) : false));
+  // 這四個（戰鬥與整局的號碼機、佇列）重新同步時換新的，所以不是 readonly（見 `reset`）
+  private queue = new ActionQueue((a: CoopAction) => (this.cs ? applyAction(this.cs, a) : false));
   /** 只有主機有 */
-  private readonly seq: Sequencer | null;
+  private seq: Sequencer | null;
   private cs: CombatState | null = null;
   private dead = false;
   /*
@@ -91,7 +104,7 @@ export class CoopSession {
    * **跟戰鬥那條完全分開數**：戰鬥一場一場換、整局從頭到尾只有一份，
    * 共用一組號碼的話，離開戰鬥再進下一場，號碼會卡在中間等永遠不會來的那一號。
    */
-  private readonly runSeq: Sequencer<RunAction> | null;
+  private runSeq: Sequencer<RunAction> | null;
   /*
    * 請求的去重（兩條通道各一份）。
    *
@@ -108,7 +121,7 @@ export class CoopSession {
     seen.set(seat, n);
     return true;
   }
-  private readonly runQueue = new ActionQueue<RunAction>((a) => this.applyRun(a));
+  private runQueue = new ActionQueue<RunAction>((a) => this.applyRun(a));
   /**
    * 罐頭鋪的動作比貨架早到（審查 2026-09-15 高-2）：同伴先進店買東西，我還沒走到那一格——
    * 一個人倒下時很常見：站著的那位一票就定案、當場進店；倒下的還停在上一頁沒按「繼續」，
@@ -185,7 +198,7 @@ export class CoopSession {
     if (cs && cs !== this.lastCs) {
       this.fight += 1; this.lastCs = cs; this.held = false;
       this.enteredAt = Date.now();   // 同伴一直沒進場時的長上限從這一刻算（見 `mayForce`）
-      if (!this.dead) this.tx.send({ m: 'here', f: this.fight });   // 告訴同伴我進場了（見 `mateHere`）
+      if (!this.dead) this.send({ m: 'here', f: this.fight });   // 告訴同伴我進場了（見 `mateHere`）
     }
     // 這一場結束（`attach(null)`）也把暫停放掉（總稽核 B 中-3）：魔物回合演到一半有人倒下、
     // 畫面被 `afterCombat` 接手時，`runEnemyTurn` 跑不到尾巴的 `release()`，會話會一直停在 held；
@@ -290,7 +303,7 @@ export class CoopSession {
     const ctx = this.rctx;
     if (!ctx) return;
     for (const a of this.earlyShop.splice(0)) {
-      if (!applyRunAction(ctx, a)) { this.stop(`比貨架早到的整局動作在這邊做不出來（${a.t}）`); return; }
+      if (!applyRunAction(ctx, a)) { this.desync(`比貨架早到的整局動作在這邊做不出來（${a.t}）`); return; }
     }
   }
 
@@ -306,11 +319,11 @@ export class CoopSession {
     if (!canApplyRun(this.rctx, a)) return false;
     if (this.isHost) {
       const sa = (this.runSeq as Sequencer<RunAction>).assign(a);
-      this.tx.send({ m: 'ract', seq: sa.seq, a });
+      this.send({ m: 'ract', seq: sa.seq, a });
       this.ingestRun(sa);
     } else {
       this.sentRunReq += 1;
-      this.tx.send({ m: 'rreq', n: this.sentRunReq, a });
+      this.send({ m: 'rreq', n: this.sentRunReq, a });
     }
     return true;
   }
@@ -357,7 +370,7 @@ export class CoopSession {
   /** 我點選了哪張牌，告訴同伴（不進鎖步、不進對帳）。連線停了就不送 */
   hint(u: number | null): void {
     if (this.dead) return;
-    this.tx.send({ m: 'hint', seat: this.seat, u });
+    this.send({ m: 'hint', seat: this.seat, u });
   }
   /**
    * **套用之前**那一刻。畫面用它存一份快照，套用完才有東西可以比對出「變了什麼」。
@@ -401,12 +414,12 @@ export class CoopSession {
     if (!canApply(this.cs, a)) return false;
     if (this.isHost) {
       const sa = (this.seq as Sequencer).assign(a);
-      this.tx.send({ m: 'act', seq: sa.seq, a, f: this.fight });
+      this.send({ m: 'act', seq: sa.seq, a, f: this.fight });
       this.ingest(sa);   // 主機自己也走佇列：套用順序＝廣播順序
     } else {
       this.sentReq += 1;
       // 帶上場次與回合：到得太晚、已經換場或換回合的，主機當成來不及丟掉（見 `take`）
-      this.tx.send({ m: 'req', n: this.sentReq, a, f: this.fight, turn: this.cs.turn });   // 客戶端只是請求，等主機編號繞回來才生效
+      this.send({ m: 'req', n: this.sentReq, a, f: this.fight, turn: this.cs.turn });   // 客戶端只是請求，等主機編號繞回來才生效
     }
     return true;
   }
@@ -427,9 +440,12 @@ export class CoopSession {
     const rfp = this.rctx ? runCheckOf(this.rctx.run).rfp : undefined;
     const key = `${this.fight}:${c.turn}`;
     this.myChecks.set(key, { ...c, ...(rfp ? { rfp } : {}) });
+    const g0 = this.gen;
     this.matchTurn(key);
-    if (this.dead) return;
-    this.tx.send({ m: 'sync', turn: c.turn, fp: c.fp, ...(rfp ? { rfp } : {}), f: this.fight });
+    // 比出不同、當場重新同步了（換了一輪）：這張單子屬於上一輪，不送——送了會在新一輪留一張永遠配不到、
+    // 哪天場次回合剛好撞號又被拿來比的舊單子
+    if (this.dead || this.gen !== g0) return;
+    this.send({ m: 'sync', turn: c.turn, fp: c.fp, ...(rfp ? { rfp } : {}), f: this.fight });
   }
 
   /** 同一場、同一回合的兩張對帳單都到了才比；比過就丟 */
@@ -440,7 +456,7 @@ export class CoopSession {
     this.myChecks.delete(key);
     this.theirChecks.delete(key);
     const why = diffOf(a, b);
-    if (why) this.stop(why);
+    if (why) this.desync(why);
   }
 
   /*
@@ -467,7 +483,7 @@ export class CoopSession {
     const n = Math.min(this.myPath.length, this.theirPath.length);
     for (let i = 0; i < n; i++) {
       if (this.myPath[i] !== this.theirPath[i]) {
-        this.stop(`走進了不一樣的格子（我第 ${i + 1} 步走「${this.myPath[i]}」、對方走「${this.theirPath[i]}」）`);
+        this.desync(`走進了不一樣的格子（我第 ${i + 1} 步走「${this.myPath[i]}」、對方走「${this.theirPath[i]}」）`);
         return;
       }
     }
@@ -476,7 +492,7 @@ export class CoopSession {
     if (a === undefined || b === undefined) return;
     this.myMarks.delete(key);
     this.theirMarks.delete(key);
-    if (a !== b) this.stop(`走到「${key}」的時候，整局的狀態對不上（${a} / ${b}）`);
+    if (a !== b) this.desync(`走到「${key}」的時候，整局的狀態對不上（${a} / ${b}）`);
   }
 
   /**
@@ -493,7 +509,7 @@ export class CoopSession {
     const c = runCheckOf(run);
     this.myMarks.set(key, c.rfp ?? '');
     this.myPath.push(key);
-    this.tx.send({ m: 'sync', turn: c.turn, fp: c.fp, ...(c.rfp ? { rfp: c.rfp } : {}), k: key });
+    this.send({ m: 'sync', turn: c.turn, fp: c.fp, ...(c.rfp ? { rfp: c.rfp } : {}), k: key });
     this.matchMark(key);
   }
 
@@ -530,7 +546,7 @@ export class CoopSession {
   pick(kind: VoteKind, value: string): boolean {
     if (this.dead) { console.error(`連線已經停了，「${kind}」的選擇沒送出去`); return false; }
     if (this.box(kind).has(this.seat)) { console.error(`「${kind}」這一輪已經選過了，不能改`); return false; }
-    this.tx.send({ m: 'pick', seat: this.seat, k: kind, v: value });
+    this.send({ m: 'pick', seat: this.seat, k: kind, v: value });
     this.record(kind, this.seat, value);   // 自己那一份也要進來，兩邊的票面才一樣
     return true;
   }
@@ -585,11 +601,14 @@ export class CoopSession {
   /** 主機用：宣布開局。兩邊各自用同一顆種子跑出同一局 */
   start(seed: string, diff: number, enc: string, heroes?: string[]): void {
     if (this.dead || !this.isHost) return;
-    this.tx.send({ m: 'start', seed, diff, enc, ...(heroes ? { heroes } : {}) });
+    this.send({ m: 'start', seed, diff, enc, ...(heroes ? { heroes } : {}) });
   }
 
-  private handle(m: NetMessage): void {
+  private handle(m: WireMessage): void {
     if (this.dead) return;
+    if (this.handleResync(m)) return;
+    if (this.awaitingSnap) return;   // 在等主機的存檔點：這一輪剩下的都不算了
+    if ((m.g ?? 0) !== this.gen) return;   // 上一輪（重新同步之前）還在路上的，丟掉
     // 開局訊息在 `attach` 之前就會到（那時還沒有戰鬥），所以要擺在 cs 的檢查之前
     // 對面送來的種類是字串：不認得的（兩台版本不同）畫面本來就不理，記一行就丟，不進票箱（health H-10）
     if (m.m === 'pick') { if (isVoteKind(m.k)) this.record(m.k, m.seat, m.v); else console.warn(`不認得的投票種類「${m.k}」，丟掉`); return; }
@@ -676,7 +695,7 @@ export class CoopSession {
      */
     if (m.turn !== undefined && m.turn !== (this.cs as CombatState).turn) {
       console.error(`對方那一下是上一回合的，沒算數（${m.a.t}）`);
-      this.tx.send({ m: 'drop', n: m.n });
+      this.send({ m: 'drop', n: m.n });
       return;
     }
     if (!canApply(this.cs as CombatState, m.a)) {
@@ -692,7 +711,7 @@ export class CoopSession {
        * 主控台留一行，不然這種丟掉會完全無聲。
        */
       console.error(`對方那一下來不及了，沒算數（${m.a.t}）`);
-      this.tx.send({ m: 'drop', n: m.n });
+      this.send({ m: 'drop', n: m.n });
       return;
     }
     this.ingest((this.seq as Sequencer).assign(m.a), true);
@@ -708,10 +727,10 @@ export class CoopSession {
   private stale(m: FightMsg): void {
     if (m.m === 'req') {
       console.error(`對方那一下屬於已經打完的那一場，沒算數（${m.a.t}）`);
-      this.tx.send({ m: 'drop', n: m.n });
+      this.send({ m: 'drop', n: m.n });
       return;
     }
-    this.stop(`第 ${m.seq} 號動作屬於已經打完的那一場（${m.a.t}）`);
+    this.desync(`第 ${m.seq} 號動作屬於已經打完的那一場（${m.a.t}）`);
   }
 
   /** 整局那一條的收信。跟戰鬥那條規矩一樣，只是對象不同 */
@@ -742,20 +761,124 @@ export class CoopSession {
   }
 
   private ingestRun(sa: SequencedAction<RunAction>, broadcast = false): void {
-    if (broadcast) this.tx.send({ m: 'ract', seq: sa.seq, a: sa.a });
+    if (broadcast) this.send({ m: 'ract', seq: sa.seq, a: sa.a });
     const r = this.runQueue.receive(sa);
     if (r.applied.length) { if (this.runApplied) this.runApplied(r.applied); else this.unhandledRun.push(...r.applied.map((a) => ({ e: this.mapEpoch, a }))); }
-    if (r.failed) this.stop(`第 ${r.failed.seq} 號整局動作在這邊做不出來（${r.failed.a.t}）`);
+    if (r.failed) this.desync(`第 ${r.failed.seq} 號整局動作在這邊做不出來（${r.failed.a.t}）`);
   }
 
   /** 把一個編號過的動作丟進佇列，並把結果回報給畫面 */
   private ingest(sa: SequencedAction, broadcast = false): void {
     if (!this.cs) return;
-    if (broadcast) this.tx.send({ m: 'act', seq: sa.seq, a: sa.a, f: this.fight });
+    if (broadcast) this.send({ m: 'act', seq: sa.seq, a: sa.a, f: this.fight });
     this.before?.();   // 套用前先讓畫面存一份快照（見 `beforeApply`）
     const r = this.queue.receive(sa);
     if (r.applied.length) { this.hooks.onApplied?.(r.applied); this.applied?.(r.applied); }
-    if (r.failed) this.stop(`第 ${r.failed.seq} 號動作在這邊做不出來（${r.failed.a.t}）`);
+    if (r.failed) this.desync(`第 ${r.failed.seq} 號動作在這邊做不出來（${r.failed.a.t}）`);
+  }
+
+  /* ================= 重新同步（2026-09-25 使用者：「先做重新同步」） =================
+   *
+   * 原本兩台一對不上（指紋、走格子、編號動作套不進去）整場就停，兩個人只能回標題重開。
+   * 現在改成：**主機把「最近一次回到地圖時的整局狀態」（存檔點）傳給對方，兩台都載入同一份，一起回到那一層的地圖重來**。
+   * 代價是那一格（例如打到一半的戰鬥）要重打；好處是整局不會斷。
+   *
+   * 為什麼選「回到地圖」而不是「就地對齊」：對不上的那一刻兩台可能在不同畫面、戰鬥演到一半、商店各開各的貨架，
+   * 這些有一部分存在畫面的區域變數裡，傳整局狀態也補不回來。地圖是兩個人都走完上一格才會回到的地方，
+   * 那時沒有戰鬥、商店、事件在進行，整局狀態就是全部。
+   */
+
+  /** 第幾輪：重新同步一次加一。送出的每一則都帶著（`send`），收到不是這一輪的就丟 */
+  private gen = 0;
+  /** 最近一次回到地圖時的整局狀態（JSON）。只有主機的那一份會被用到 */
+  private checkpointJson: string | null = null;
+  private resyncs = 0;
+  /** 客戶端請了重新同步、還在等主機的存檔點：這段期間收到的都不算、自己也不送 */
+  private awaitingSnap = false;
+  private snapTimer: ReturnType<typeof setTimeout> | null = null;
+  /** 正在收的存檔點（切段收，收齊才用） */
+  private snapIn: { g: number; parts: string[]; got: number } | null = null;
+
+  /** 每一則都帶上這一輪；等存檔點的期間只送「請重新同步」那一則 */
+  private send(m: NetMessage): void {
+    if (this.awaitingSnap && m.m !== 'resync') return;
+    this.tx.send({ ...m, g: this.gen });
+  }
+
+  /**
+   * 回到地圖了：記下這一刻的整局狀態當存檔點（地圖畫面每次畫都叫）。
+   * 第一次回到地圖之前（序章、開局祝福）沒有存檔點，那段對不上照舊停下
+   */
+  checkpoint(run: RunState): void {
+    if (this.dead) return;
+    this.checkpointJson = JSON.stringify(run);
+  }
+
+  /** 對不上了：能重新同步就重新同步；不能（沒有存檔點、次數用完、畫面沒接）才照舊停下 */
+  private desync(why: string): void {
+    if (this.dead || this.awaitingSnap) return;
+    if (!this.checkpointJson || this.resyncs >= MAX_RESYNC || !this.hooks.onResync) { this.stop(why); return; }
+    // eslint-disable-next-line no-console
+    console.warn('[連線] 兩台對不上，重新同步：', why);
+    if (this.isHost) { this.hostResync(why); return; }
+    // **先標成「在等」再送**：存檔點可能在 `send` 還沒返回前就回來了（對接得很快的時候），
+    // 反過來的話收到存檔點、清掉等待之後，又被這裡標回「在等」，最後等到逾時停下
+    this.awaitingSnap = true;
+    this.snapTimer = setTimeout(() => { this.snapTimer = null; this.awaitingSnap = false; this.stop(`${why}（等不到主機的存檔點）`); }, SNAP_WAIT_MS);
+    this.send({ m: 'resync', g: this.gen, why });
+  }
+
+  /** 主機：換到新的一輪、把存檔點切段送出去、自己也載入它 */
+  private hostResync(why: string): void {
+    const json = this.checkpointJson as string;
+    this.resyncs += 1;
+    this.gen += 1;
+    this.reset();
+    const n = Math.max(1, Math.ceil(json.length / SNAP_PART));
+    for (let i = 0; i < n; i++) this.send({ m: 'snap', g: this.gen, i, n, part: json.slice(i * SNAP_PART, (i + 1) * SNAP_PART), why });
+    this.hooks.onResync?.(json, why);
+  }
+
+  /** 重新同步那兩種訊息。回傳 true＝處理掉了 */
+  private handleResync(m: WireMessage): boolean {
+    if (m.m === 'resync') {
+      // 客戶端請的。它發現時的那一輪已經被我換掉了（我這邊早一步重新同步過）就不理
+      if (this.isHost && m.g === this.gen) this.desync(m.why);
+      return true;
+    }
+    if (m.m !== 'snap') return false;
+    if (this.isHost || m.g <= this.gen) return true;
+    if (!this.snapIn || this.snapIn.g !== m.g) this.snapIn = { g: m.g, parts: Array.from({ length: m.n }, () => ''), got: 0 };
+    const box = this.snapIn;
+    if (m.i < 0 || m.i >= box.parts.length || box.parts[m.i]) return true;   // 超出範圍或重複到的那段
+    box.parts[m.i] = m.part;
+    box.got += 1;
+    if (box.got < box.parts.length) return true;
+    this.snapIn = null;
+    if (this.snapTimer !== null) { clearTimeout(this.snapTimer); this.snapTimer = null; }
+    this.awaitingSnap = false;
+    this.resyncs += 1;
+    this.gen = m.g;
+    this.reset();
+    this.hooks.onResync?.(box.parts.join(''), m.why);
+    return true;
+  }
+
+  /** 換到新的一輪：號碼機、佇列、排隊中的動作、對帳單、票箱、走過的格子全部歸零（兩台在同一個點上一起歸零） */
+  private reset(): void {
+    this.queue = new ActionQueue((a: CoopAction) => (this.cs ? applyAction(this.cs, a) : false));
+    this.runQueue = new ActionQueue<RunAction>((a) => this.applyRun(a));
+    if (this.isHost) { this.seq = new Sequencer(); this.runSeq = new Sequencer<RunAction>(); }
+    this.cs = null; this.lastCs = null; this.fight = 0; this.held = false; this.mateFight = 0;
+    this.backlog.length = 0;
+    this.myChecks.clear(); this.theirChecks.clear();
+    this.sentReq = 0; this.sentRunReq = 0; this.seenReq.clear(); this.seenRunReq.clear();
+    this.earlyShop.length = 0; this.shops = null;
+    this.myMarks.clear(); this.theirMarks.clear(); this.myPath.length = 0; this.theirPath.length = 0;
+    this.ballots.clear(); this.replayed.clear();
+    if (this.replayTimer !== null) { clearTimeout(this.replayTimer); this.replayTimer = null; }
+    this.unhandledRun.length = 0; this.mapEpoch = 0; this.enteredEpoch = 0;
+    this.runState = null;   // 畫面載入存檔點之後會 `useRun` 新的那一份
   }
 
   private stop(why: string): void {

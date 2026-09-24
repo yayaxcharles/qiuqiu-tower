@@ -128,6 +128,8 @@ let lastScroll: { key: string; top: number } | null = null;
 registerScreen('map', (app, root) => {
   const run = app.run;
   if (!run) { app.show('title'); return; }
+  // 連線：回到地圖＝兩個人都走完上一格了，記下這一刻當存檔點；之後兩台一對不上，就一起載入主機這一份回到這裡（2026-09-25 重新同步）
+  app.coop?.checkpoint(run);
 
   /*
    * 兩個人一起選路（連線版 2026-09-11）。
