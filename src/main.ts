@@ -15,6 +15,7 @@ import { unlockOnFirstGesture } from './ui/audio';
 import { deferBgm, unlockBgmOnFirstGesture } from './ui/bgm';
 import { applyArtVars } from './ui/screenbg';
 import { registerAssetCache } from './ui/assetcache';
+import { clearRejoin, readRejoin } from './net/rejoin';
 import './ui/screens/actclear';
 import './ui/screens/chest';
 import './ui/screens/bossdoor';
@@ -84,7 +85,16 @@ async function boot(): Promise<void> {
     }
     return;
   }
-  app.show('title');
+  /*
+   * 連線局打到一半重新整理（2026-09-25 使用者：「兩件都做」）：分頁裡有兩分鐘內的記錄就直接接回那一局，不先停在標題。
+   * 大廳那支是按需載入的，接回要用的函式在裡面；載不下來就退回標題。
+   */
+  const rejoin = readRejoin();
+  if (rejoin) {
+    void import('./ui/screens/lobby').then((m) => m.rejoinCoop(app, rejoin)).catch(() => { clearRejoin(); app.show('title'); });
+  } else {
+    app.show('title');
+  }
   // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
   // 不 await——預載完不完成都不影響能不能玩。
   // UI／牌面／背景先，再抓第一關會遇到的魔物；第二三關的等過關畫面再抓（分關載入，見 preload.ts）

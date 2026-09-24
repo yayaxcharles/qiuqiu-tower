@@ -2,8 +2,9 @@ import { registerScreen } from '../app';
 import { clear, el } from '../dom';
 import { clearKeepBg, screenBg } from '../screenbg';
 import { hostRoom as hostDirect, joinRoom as joinDirect } from '../../net/rtc';
-import { hostRoom as hostRelay, joinRoom as joinRelay } from '../../net/ws';
-import { CoopSession } from '../../net/session';
+import { hostRoom as hostRelay, joinRoom as joinRelay, resumeRoom as resumeRelay } from '../../net/ws';
+import { clearRejoin, writeRejoin, type RejoinRecord } from '../../net/rejoin';
+import { CoopSession, REJOIN_WHY } from '../../net/session';
 import { newCoopRun } from '../../engine/run';
 import type { App } from '../app';
 import type { LinkStatus, Transport } from '../../net/transport';
@@ -126,31 +127,75 @@ function resyncTo(app: App, session: CoopSession, seat: number, json: string, wh
   let run: RunState | null = null;
   try { run = checkRun(JSON.parse(json) as Partial<RunState>); } catch { run = null; }
   if (!run) { troubleBanner(app, `${why}（存檔點讀不回來）`); session.leave(); return; }
-  // 劇情幻燈片、過場影片、關主開場這些蓋在上面的層：演完會自己接下一個畫面，重新同步之後不能再接
-  document.querySelectorAll('.slide-overlay, .cine-overlay, .dialogue-overlay, .actwalk-overlay').forEach((n) => n.remove());
+  // 劇情幻燈片、過場影片、對白這些蓋在上面的層：演完會自己接下一個畫面，重新同步之後不能再接。
+  // 要走 `dropPendingFlows` 收（連畫面鎖一起解開），不能只拔節點（推前稽核 高-2）；過關走路那層沒有鎖，直接拔
+  app.dropPendingFlows();
+  document.querySelectorAll('.actwalk-overlay').forEach((n) => n.remove());
   app.adoptRun(run, seat);
+  void preloadCoopArt(run.players.map((p) => p.hero));   // 同一組搭檔不會重抓；重新整理接回的那台要靠這一行補（開打前會等它）
   session.useRun(run);
   app.cs = null;
   app.show('map');
   // eslint-disable-next-line no-console
   console.warn('[連線] 已重新同步：', why);
-  document.querySelectorAll('.net-link[data-who="resync"]').forEach((n) => n.remove());
-  const bar = el('div', { class: 'net-link', 'data-who': 'resync' },
-    '兩台的遊戲狀態對不上，已經自動對齊：兩個人一起回到這一層的地圖，剛剛那一格要重來。');
+  document.querySelectorAll('.net-link[data-who="resync"], .net-link[data-who="rejoin"]').forEach((n) => n.remove());
+  const bar = el('div', { class: 'net-link', 'data-who': 'resync' }, why === REJOIN_WHY
+    ? '剛剛有人重新整理了網頁，已經接回來了：兩個人一起回到這一層的地圖，剛剛那一格要重來。'
+    : '兩台的遊戲狀態對不上，已經自動對齊：兩個人一起回到這一層的地圖，剛剛那一格要重來。');
   bar.title = why;
   document.body.append(bar);
   window.setTimeout(() => bar.remove(), 9000);
 }
 
-function startCoop(app: App, tx: Transport, isHost: boolean): void {
+/**
+ * 連線局的會話（開局與重新整理接回共用）。房號中繼那條路會把「接回要用的東西」存進分頁（`net/rejoin.ts`）：
+ * 房號、身分、座位、收到幾則、最近的存檔點與第幾輪。貼碼直連沒有房號，接不回來，不存。
+ */
+function makeSession(app: App, tx: Transport, isHost: boolean, resume?: { gen: number; checkpoint: string | null }): CoopSession {
   const seat = isHost ? 0 : 1;
+  const link = tx.link;
+  const remember = link
+    ? (patch: { recv?: number; checkpoint?: string | null; gen?: number }): void => writeRejoin({ code: link.code, role: link.role, seat, ...patch })
+    : null;
   const session: CoopSession = new CoopSession(tx, {
-    isHost, seat,
-    onDesync: (w) => troubleBanner(app, w), onClose: (w) => troubleBanner(app, w), onLink: (s) => linkBanner(app, s),
+    isHost, seat, resume,
+    onDesync: (w) => { clearRejoin(); troubleBanner(app, w); },
+    onClose: (w) => { clearRejoin(); troubleBanner(app, w); },
+    onLink: (s) => linkBanner(app, s),
     onResync: (json, why) => resyncTo(app, session, seat, json, why),
+    onCheckpoint: remember ? (json, gen) => remember({ checkpoint: json, gen }) : undefined,
   });
+  if (remember) {
+    tx.stayOnReload?.(true);
+    tx.onProgress?.((recv) => remember({ recv }));
+  }
   app.coop = session;
   app.seat = seat;
+  return session;
+}
+
+/**
+ * 重新整理之後接回剛剛的連線局（2026-09-25 使用者：「兩件都做」）。開機時分頁裡有兩分鐘內的記錄才會走這裡（`main.ts`）。
+ * 接回之後兩台一起回到最近一次的地圖（主機的存檔點），剛剛那一格要重來——跟重新同步同一套。
+ */
+export function rejoinCoop(app: App, rec: RejoinRecord): void {
+  // 舞台先空著（不要清它：裡面有換畫面要用的畫面層），接回之後直接換到地圖；等的期間用上緣那條提示
+  document.body.append(el('div', { class: 'net-link', 'data-who': 'rejoin' }, '正在接回剛剛的連線局……'));
+  const back = (why: string): void => {
+    clearRejoin();
+    app.leaveCoop();
+    app.show('title');
+    troubleBanner(app, why);
+  };
+  resumeRelay(rec.code, rec.role, rec.recv).ready.then((tx) => {
+    const session = makeSession(app, tx, rec.role === 'host', { gen: rec.gen, checkpoint: rec.checkpoint });
+    session.rejoin();
+  }).catch((e: unknown) => back(e instanceof Error ? e.message : '接不回剛剛的連線局'));
+}
+
+function startCoop(app: App, tx: Transport, isHost: boolean): void {
+  const seat = isHost ? 0 : 1;
+  const session = makeSession(app, tx, isHost);
   const begin = (seed: string, diff: number, heroes?: string[]): void => {
     // 兩邊各自跑同一支、餵同一顆種子——傳的是種子不是狀態（鎖步的整個重點）。
     // 角色也一樣：開房的人挑好兩位，跟種子一起宣布，兩邊算出來的起手牌才會一樣

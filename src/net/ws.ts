@@ -134,10 +134,13 @@ function keepAlive(ws: WebSocket): () => void {
 /** 接回要用的東西：同一個房號、同一個身分、同一個開 socket 的辦法 */
 interface Link { code: string; role: 'host' | 'join'; mk: WsFactory }
 
-function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
+function wrap(first: WebSocket, link: Link, stopPing0: () => void, init: { recv?: number } = {}): Transport & { resumedAt(got: number): void } {
   let ws = first;
   let stopPing = stopPing0;
   let onMsg: ((m: NetMessage) => void) | null = null;
+  let onProgress: ((recv: number) => void) | null = null;
+  /** 連線局進行中：重新整理、關分頁不先說 bye，讓中繼等兩分鐘（見 `Transport.stayOnReload`） */
+  let stay = false;
   let onClose: ((w: string) => void) | null = null;
   let onStatus: ((s: LinkStatus) => void) | null = null;
   // 監聽器掛上之前就到的遊戲訊息先收著（跟 `session.ts` 的 pendingStart 同一招）：不然只要呼叫端多一個 await，開局訊息就無聲消失
@@ -147,7 +150,7 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
   let gen = 0;          // 第幾次接回：補送到一半又斷了，舊的那一輪不可以再宣布「接回來了」
   let sent = 0;         // 自己送出去第幾則（斷線期間排隊的也算）
   const history: { i: number; s: string }[] = [];
-  let recv = 0;         // 收到對方幾則遊戲訊息（中繼的話與 pong 不算）——接回時告訴中繼從第幾則補
+  let recv = init.recv ?? 0;   // 收到對方幾則遊戲訊息（中繼的話與 pong 不算）——接回時告訴中繼從第幾則補；重新整理後接回的從存著的那個數接著數
   let attempting: WebSocket | null = null;   // 接回途中正在試的那一條（中繼補來的舊訊息會先到它上面）
   let heard = Date.now();   // 現在這條線最後一次收到東西的時間（pong 也算）
   let stalled = false;      // 已經跟畫面說過「斷了」、之後還沒收到任何東西
@@ -169,8 +172,12 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
     if (ws.readyState === WebSocket.OPEN) ws.send('ping');
     if (!stalled && now - heard > STALL_MS) { stalled = true; onStatus?.('away'); }
   }, PROBE_MS);
-  /** 關分頁、重新整理：先跟中繼說一聲，對方立刻知道我走了（審查 中-1）。手機切走不一定觸發，那就走斷線那條路 */
-  const onHide = (): void => { if (!closed && !away && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } } };
+  /**
+   * 關分頁、重新整理：先跟中繼說一聲，對方立刻知道我走了（審查 中-1）。手機切走不一定觸發，那就走斷線那條路。
+   * **連線局進行中不說**（2026-09-25 重新整理後接回）：分不出是重新整理還是真的關掉，說了中繼就把房間關了、接不回來；
+   * 不說的話中繼當成斷線等兩分鐘——真的關掉的，對方兩分鐘後才看到「對方離開了」。按「回標題」離開照舊當場說（`close`）
+   */
+  const onHide = (): void => { if (!stay && !closed && !away && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } } };
   if (typeof window !== 'undefined') window.addEventListener('pagehide', onHide);
   const die = (why: string): void => {
     if (closed) return;
@@ -199,6 +206,7 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
       return;   // hosting／open 由等待的那一支接；中繼的話不交給遊戲
     }
     recv += 1;
+    onProgress?.(recv);
     if (onMsg) onMsg(v as NetMessage); else pending.push(v as NetMessage);
   };
   const listen = (sock: WebSocket): void => {
@@ -275,7 +283,30 @@ function wrap(first: WebSocket, link: Link, stopPing0: () => void): Transport {
       if (!closed && ws.readyState === WebSocket.OPEN) { try { ws.send(BYE); } catch { /* 已經關了 */ } }
       die('自己關掉了');
     },
+    link: { code: link.code, role: link.role },
+    onProgress: (fn) => { onProgress = fn; fn(recv); },
+    stayOnReload: (on) => { stay = on; },
+    /**
+     * 重新整理後接回（`resumeRoom`）：中繼在 `open` 裡說它收過我幾則，我從那個數接著編。
+     * 重新整理之前送出、中繼沒收到的那幾則補不回來（記錄跟著頁面沒了），交給會話那層的重新同步對齊
+     */
+    resumedAt: (got) => { sent = got; },
   };
+}
+
+/**
+ * 重新整理後接回同一間房（2026-09-25 使用者：「兩件都做」——重新同步與重新整理後接回）。
+ * 用分頁存著的房號、身分、收到幾則，照「斷線接回」那一套跟中繼說 `resume=1&got=收到幾則`：
+ * 中繼先把漏掉的補過來（一開始就掛好監聽，先收著）、再說 `open`。接不回去（房間關了、等太久、版本不同）就失敗。
+ */
+export function resumeRoom(code: string, role: 'host' | 'join', recv: number, opts: { ws?: WsFactory } = {}): Joining {
+  const mk = opts.ws ?? realWs;
+  const ws = mk(wsUrl(code, role, recv));
+  const stopPing = keepAlive(ws);
+  const tx = wrap(ws, { code, role, mk }, stopPing, { recv });
+  const ready = untilRelay(ws, 'open', JOIN_WAIT_MS, '等了 15 秒中繼都沒回話，接不回剛剛的連線局')
+    .then((open) => { tx.resumedAt(open.got ?? 0); return tx as Transport; });
+  return { ready, cancel: () => { stopPing(); try { ws.close(); } catch { /* 已經關了 */ } } };
 }
 
 export interface Hosting { code: string; ready: Promise<Transport>; cancel: () => void }

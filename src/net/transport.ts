@@ -95,7 +95,7 @@ export type NetMessage =
    * - `snap`：主機送出存檔點。整局狀態可能超過中繼一則 16 KB 的上限，切段送：第 `i` 段、共 `n` 段。
    *   `g`＝新的一輪。之後兩台送的每一則都帶這個 `g`，上一輪（重新同步之前）還在路上的訊息一律丟掉。
    */
-  | { m: 'resync'; g: number; why: string }
+  | { m: 'resync'; g: number; why: string; re?: boolean }
   | { m: 'snap'; g: number; i: number; n: number; part: string; why: string };
 
 /**
@@ -118,6 +118,15 @@ export interface Transport {
   /** 線路暫時斷了／接回來了（只有房號中繼那條路會有；直連與測試用的對接沒有） */
   onStatus?(fn: (s: LinkStatus) => void): void;
   close(): void;
+  /*
+   * 重新整理後接回（2026-09-25，只有房號中繼那條路有）：
+   * - `link`：房號與身分，存進分頁，重新整理之後用它接回同一間房；
+   * - `onProgress`：每收到一則對方的訊息就報「總共收到幾則」，存進分頁，接回時告訴中繼從第幾則補起；
+   * - `stayOnReload`：連線局進行中關分頁或重新整理**不先說「我走了」**，讓中繼當成斷線、等兩分鐘，重新整理的那台才接得回來。
+   */
+  readonly link?: { code: string; role: 'host' | 'join' };
+  onProgress?(fn: (recv: number) => void): void;
+  stayOnReload?(on: boolean): void;
 }
 
 /**

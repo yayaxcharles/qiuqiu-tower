@@ -55,7 +55,7 @@ describe('高-1（c）：兩人局不管 coop 還在不在，一律不寫進單�
 describe('高-1（a）：離開連線時，那一局一起丟掉、還在演的劇情疊層收掉', () => {
   const body = sourceBetween('  leaveCoop(): void {', '  /**\n   * 節點結算完的收尾');
   const deps = (closeStoryOverlays: () => void) => ({
-    setCoopStory: () => {}, closeStoryOverlays,
+    setCoopStory: () => {}, closeStoryOverlays, clearRejoin: () => {},
     document: { querySelectorAll: () => [] },
   });
 

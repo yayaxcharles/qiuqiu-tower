@@ -12,6 +12,7 @@ import { resolvePendingAfterFight, type RunGain } from '../engine/run';
 import { enemyById, encounterById } from '../content/enemies';
 import { hasBossDoor } from './screenbg';
 import type { CoopSession } from '../net/session';
+import { clearRejoin } from '../net/rejoin';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeMerchants, makeShops, newRun as engineNewRun } from '../engine/run';
 import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
@@ -414,6 +415,19 @@ export class App {
     if (coopRun) { this.run = null; this.cs = null; closeStoryOverlays(); }
     // 開打前正在等牌面、暖立繪時斷線回標題：舞台的「點不動」要一起解開，不然標題畫面要等暖機跑完才點得動
     //（2026-09-23 推前審查二 中-1）。那一場的 `proceed` 看 `this.cs !== cs` 自己退場
+    this.fightPending = false;
+    this.stage.classList.remove('fight-pending');
+    clearRejoin();   // 自己離開連線局：重新整理之後不要再接回去
+  }
+
+  /**
+   * 重新同步換掉整局之前（`lobby.ts` 的 `resyncTo`，推前稽核 2026-09-25 高-2、中-1）：
+   * - 還在演的劇情疊層收掉：拆節點、**解開畫面鎖**、不叫 onDone（演完接的是舊那一局的流程）。
+   *   只把節點拔掉的話鎖還在，地圖整片點不動、投不了票，另一台就一直等；
+   * - 「開打前等素材」的鎖放開：等完的那一段看 `this.run !== run` 退場，可是不會替它放鎖，舞台會一直點不到、之後也開不了戰鬥。
+   */
+  dropPendingFlows(): void {
+    closeStoryOverlays();
     this.fightPending = false;
     this.stage.classList.remove('fight-pending');
   }

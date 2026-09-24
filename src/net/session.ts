@@ -49,14 +49,37 @@ export interface SessionHooks {
    * 畫面要：讀回整局、`useRun`、清掉戰鬥、換到地圖、告訴玩家。沒接這個的話對不上時照舊整場停下（`onDesync`）
    */
   onResync?: (run: string, why: string) => void;
+  /**
+   * 存檔點或第幾輪變了（回到地圖、重新同步之後）：畫面把它存進分頁，重新整理之後才接得回來（`rejoin`）。
+   * `run` 可能是 null（還沒回到過地圖）
+   */
+  onCheckpoint?: (run: string | null, gen: number) => void;
 }
 
 /** 重新同步最多幾次：同一個錯一再發生（引擎本身有不決定性的地方），重來也沒用，照舊停下來 */
 export const MAX_RESYNC = 3;
-/** 存檔點一段最多幾個字：中繼一則上限 16,384 字，留點空間給外面那層 JSON */
+/** 存檔點一段**包成字串之後**最多幾個字：中繼一則上限 16,384 字，留點空間給外面那層 JSON */
 export const SNAP_PART = 12_000;
+
+/**
+ * 把存檔點切成幾段。量的是**跳脫之後**的長度（推前稽核 2026-09-25 低-1）：存檔點本身是 JSON，
+ * 包進訊息時每個引號、反斜線都要再多一個字，照原長切的話一段可能變成一萬五、離上限只剩一千多，超過中繼會安靜丟掉。
+ * 切到一半的雙字元字（表情符號）不怕：單獨那半個會跳脫成 `\\uXXXX`，量得到，收的那邊接回去還是原字。
+ */
+export function snapParts(json: string): string[] {
+  const parts: string[] = [];
+  for (let at = 0; at < json.length;) {
+    let len = SNAP_PART;
+    while (len > 256 && JSON.stringify(json.slice(at, at + len)).length > SNAP_PART) len = Math.floor(len * 0.7);
+    parts.push(json.slice(at, at + len));
+    at += len;
+  }
+  return parts;
+}
 /** 客戶端請了重新同步之後最多等主機多久（毫秒）：等不到就照舊停下 */
 export const SNAP_WAIT_MS = 15_000;
+/** 重新整理接回的那一次重新同步的原因（畫面看到這一句就換一段提示，不說「對不上」） */
+export const REJOIN_WHY = '有人重新整理了網頁，接回來了';
 
 export class CoopSession {
   readonly isHost: boolean;
@@ -149,13 +172,19 @@ export class CoopSession {
     return this.runState ? { run: this.runState, shops: this.shops ?? undefined } : null;
   }
 
-  constructor(tx: Transport, opts: { isHost: boolean; seat: number } & SessionHooks) {
+  /**
+   * `resume`＝**重新整理之後接回**（2026-09-25）：接著分頁存著的第幾輪與存檔點。這種會話一開始什麼都不收（`awaitingSnap`），
+   * 等畫面掛好回呼叫 `rejoin()` 才開始：主機拿自己的存檔點重新同步、客戶端請主機重新同步。
+   * 中繼補過來的、重新整理之前那一輪的舊訊息，就在這段期間被丟掉
+   */
+  constructor(tx: Transport, opts: { isHost: boolean; seat: number; resume?: { gen: number; checkpoint: string | null } } & SessionHooks) {
     this.tx = tx;
     this.isHost = opts.isHost;
     this.seat = opts.seat;
     this.hooks = opts;
     this.seq = opts.isHost ? new Sequencer() : null;
     this.runSeq = opts.isHost ? new Sequencer<RunAction>() : null;
+    if (opts.resume) { this.gen = opts.resume.gen; this.checkpointJson = opts.resume.checkpoint; this.awaitingSnap = true; this.resuming = true; }
     tx.onMessage((m) => { this.handle(m); });
     // 自己主動關的（`leave`／`stop`）不再往上報：那不是出問題，報了會多一條「連線出問題：自己關掉了」的橫幅
     tx.onClose((w) => { if (this.dead) return; this.dead = true; this.hooks.onClose?.(w); this.trouble?.(w); });
@@ -795,6 +824,8 @@ export class CoopSession {
   private resyncs = 0;
   /** 客戶端請了重新同步、還在等主機的存檔點：這段期間收到的都不算、自己也不送 */
   private awaitingSnap = false;
+  /** 重新整理接回的會話、畫面還沒叫 `rejoin`（見 `handleResync`） */
+  private resuming = false;
   private snapTimer: ReturnType<typeof setTimeout> | null = null;
   /** 正在收的存檔點（切段收，收齊才用） */
   private snapIn: { g: number; parts: string[]; got: number } | null = null;
@@ -812,15 +843,37 @@ export class CoopSession {
   checkpoint(run: RunState): void {
     if (this.dead) return;
     this.checkpointJson = JSON.stringify(run);
+    this.hooks.onCheckpoint?.(this.checkpointJson, this.gen);
+  }
+
+  /**
+   * 重新整理之後接回（建構時帶 `resume` 的會話，畫面把回呼都掛好之後叫一次）：
+   * 主機拿分頁存著的存檔點直接重新同步、推給對方；客戶端請主機重新同步（`re`：不管我記的是第幾輪，主機都要回）。
+   * 主機沒有存檔點（重新整理前還沒回到過地圖）就接不回來
+   */
+  rejoin(): void {
+    if (this.dead) return;
+    this.resuming = false;
+    const why = REJOIN_WHY;
+    if (this.isHost) {
+      // 還在等的狀態留著，直到下一拍真的重新同步（`hostResync` 會解開）：這段期間中繼補來的舊訊息照丟，
+      // 不然手上還沒有整局（`useRun` 要等重新同步之後），套到一半會出事
+      if (this.checkpointJson) this.queueHostResync(why, false); else this.stop('重新整理之前還沒回到過地圖，接不回剛剛那一局');
+      return;
+    }
+    this.awaitingSnap = true;
+    if (this.snapTimer !== null) clearTimeout(this.snapTimer);
+    this.snapTimer = setTimeout(() => { this.snapTimer = null; this.awaitingSnap = false; this.stop(`${why}（等不到主機的存檔點）`); }, SNAP_WAIT_MS);
+    this.send({ m: 'resync', g: this.gen, why, re: true });
   }
 
   /** 對不上了：能重新同步就重新同步；不能（沒有存檔點、次數用完、畫面沒接）才照舊停下 */
   private desync(why: string): void {
-    if (this.dead || this.awaitingSnap) return;
+    if (this.dead || this.awaitingSnap || this.resyncQueued) return;
     if (!this.checkpointJson || this.resyncs >= MAX_RESYNC || !this.hooks.onResync) { this.stop(why); return; }
     // eslint-disable-next-line no-console
     console.warn('[連線] 兩台對不上，重新同步：', why);
-    if (this.isHost) { this.hostResync(why); return; }
+    if (this.isHost) { this.queueHostResync(why); return; }
     // **先標成「在等」再送**：存檔點可能在 `send` 還沒返回前就回來了（對接得很快的時候），
     // 反過來的話收到存檔點、清掉等待之後，又被這裡標回「在等」，最後等到逾時停下
     this.awaitingSnap = true;
@@ -828,22 +881,43 @@ export class CoopSession {
     this.send({ m: 'resync', g: this.gen, why });
   }
 
-  /** 主機：換到新的一輪、把存檔點切段送出去、自己也載入它 */
-  private hostResync(why: string): void {
+  /**
+   * 主機的重新同步**排到下一拍才做**（推前稽核 2026-09-25 高-1、低-2、低-3）。
+   * 對不上常常是畫面自己叫出來的（走進格子時對帳、收回合時對帳）：當場換掉整局的話，叫的那段畫面流程回去之後照樣往下走——
+   * 主機被帶進那一格、客戶端回到地圖，兩台互等、卡死。排到下一拍，正在跑的流程先跑完，再被地圖整個換掉
+   *（等素材、演動畫的後段各自看 `app.run`／`app.cs` 換了就退場）。排著的期間再對不上不重複排：同一次收信可能判兩次。
+   */
+  private resyncQueued = false;
+  private queueHostResync(why: string, counted = true): void {
+    if (this.resyncQueued) return;
+    this.resyncQueued = true;
+    setTimeout(() => { this.resyncQueued = false; if (!this.dead) this.hostResync(why, counted); }, 0);
+  }
+
+  /** 主機：換到新的一輪、把存檔點切段送出去、自己也載入它。`counted`＝算不算進「最多幾次」（重新整理接回的不算：那不是引擎出錯） */
+  private hostResync(why: string, counted = true): void {
     const json = this.checkpointJson as string;
-    this.resyncs += 1;
+    this.awaitingSnap = false;   // 只有重新整理接回的主機會停在這個狀態（`rejoin`）
+    if (counted) this.resyncs += 1;
     this.gen += 1;
     this.reset();
-    const n = Math.max(1, Math.ceil(json.length / SNAP_PART));
-    for (let i = 0; i < n; i++) this.send({ m: 'snap', g: this.gen, i, n, part: json.slice(i * SNAP_PART, (i + 1) * SNAP_PART), why });
+    const parts = snapParts(json);
+    parts.forEach((part, i) => this.send({ m: 'snap', g: this.gen, i, n: parts.length, part, why }));
+    this.hooks.onCheckpoint?.(json, this.gen);
     this.hooks.onResync?.(json, why);
   }
 
   /** 重新同步那兩種訊息。回傳 true＝處理掉了 */
   private handleResync(m: WireMessage): boolean {
+    // 重新整理接回、還沒叫 `rejoin` 之前：中繼補過來的（建構的當下就會交過來）一律不理，畫面的回呼還沒接好。
+    // 丟掉的存檔點不可惜：`rejoin` 會再要一份新的
+    if (this.resuming) return m.m === 'resync' || m.m === 'snap';
     if (m.m === 'resync') {
-      // 客戶端請的。它發現時的那一輪已經被我換掉了（我這邊早一步重新同步過）就不理
-      if (this.isHost && m.g === this.gen) this.desync(m.why);
+      if (!this.isHost) return true;
+      // 客戶端重新整理後接回：不管它記的是第幾輪都要回（它的記錄可能慢一拍）；我沒有存檔點就接不回來
+      if (m.re) { if (this.checkpointJson && !this.dead) this.queueHostResync(m.why, false); else this.stop('對方重新整理了，但這一局還沒回到過地圖，接不回來'); return true; }
+      // 客戶端發現對不上。它發現時的那一輪已經被我換掉了（我這邊早一步重新同步過）就不理
+      if (m.g === this.gen) this.desync(m.why);
       return true;
     }
     if (m.m !== 'snap') return false;
@@ -860,7 +934,10 @@ export class CoopSession {
     this.resyncs += 1;
     this.gen = m.g;
     this.reset();
-    this.hooks.onResync?.(box.parts.join(''), m.why);
+    const json = box.parts.join('');
+    this.checkpointJson = json;   // 載入的就是新的存檔點（我這台之後再重新整理，也接得回這一份）
+    this.hooks.onCheckpoint?.(json, this.gen);
+    this.hooks.onResync?.(json, m.why);
     return true;
   }
 

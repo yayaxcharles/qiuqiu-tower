@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CoopSession, MAX_RESYNC, SNAP_PART, SNAP_WAIT_MS } from '../../src/net/session';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { CoopSession, MAX_RESYNC, SNAP_PART, SNAP_WAIT_MS, snapParts } from '../../src/net/session';
 import { LoopbackPair } from '../../src/net/transport';
 import { startCombat } from '../../src/engine/combat';
 import { newCoopRun } from '../../src/engine/run';
@@ -46,6 +46,9 @@ function table(opts: { hook?: boolean } = {}) {
   host.s.checkpoint(hostRun); guest.s.checkpoint(guestRun);
   return { link, host, guest, hostRun, guestRun };
 }
+/** 主機的重新同步排在下一拍（推前稽核 高-1）：走一拍讓它做完 */
+const settle = (): void => { vi.advanceTimersByTime(1); };
+
 /** 兩台各開一場一樣的戰鬥，然後讓客戶端那份偷偷不一樣（模擬引擎在某台算歪了），各自收回合 → 對帳對不上 */
 function diverge(t: ReturnType<typeof table>): void {
   const a = twoPlayerCombat('fight'); const b = twoPlayerCombat('fight');
@@ -53,8 +56,10 @@ function diverge(t: ReturnType<typeof table>): void {
   b.enemies[0]!.hp -= 1;
   t.host.s.endOfTurn();
   t.guest.s.endOfTurn();
+  settle();
 }
 
+beforeEach(() => { vi.useFakeTimers(); });
 afterEach(() => { vi.useRealTimers(); });
 
 describe('對不上時：主機的存檔點傳過去，兩台一起回到地圖', () => {
@@ -97,6 +102,7 @@ describe('對不上時：主機的存檔點傳過去，兩台一起回到地圖'
     t.link.hold = false;
     b.enemies[0]!.hp -= 1;
     t.host.s.endOfTurn(); t.guest.s.endOfTurn();   // 對不上 → 重新同步到第 1 輪
+    settle();
     t.link.flush();   // 上一輪那則 act 現在才到
     expect((b.players[0] as PlayerCombat).hand.some((c) => c.uid === uid), '舊的那張沒被套進客戶端').toBe(true);
     expect(t.guest.desync).toEqual([]);
@@ -112,21 +118,45 @@ describe('對不上時：主機的存檔點傳過去，兩台一起回到地圖'
     t.link.flush();
     t.link.flush();
     t.link.hold = false;
+    settle();
     expect(t.host.resynced.length + t.guest.resynced.length).toBeGreaterThan(0);
     expect(t.host.resynced).toHaveLength(1);
     expect(t.guest.resynced).toHaveLength(1);
   });
 
-  it('存檔點太大：切成好幾段送，收齊了才用；重複到的那段不算', () => {
+  it('存檔點太大：切成好幾段送，收齊了才用；每一段包成訊息之後都在中繼上限（16,384 字）以內', () => {
     const t = table();
-    t.hostRun.flags['big'] = 'x'.repeat(SNAP_PART * 2 + 10) as never;
+    // 滿滿的引號：包成訊息時每個都要再跳脫一次，照原長切會超過上限（推前稽核 低-1）
+    t.hostRun.flags['big'] = '"'.repeat(SNAP_PART * 2 + 10) as never;
     t.host.s.checkpoint(t.hostRun);
     const sent: { m: string }[] = [];
     const orig = t.link.a.send;
     t.link.a.send = (m) => { sent.push(m); orig(m); };
     diverge(t);
-    expect(sent.filter((m) => m.m === 'snap')).toHaveLength(3);
+    const snaps = sent.filter((m) => m.m === 'snap');
+    expect(snaps.length).toBeGreaterThan(3);
+    for (const m of snaps) expect(JSON.stringify(m).length).toBeLessThan(16_384);
     expect(t.guest.resynced[0]!.run).toBe(t.host.resynced[0]!.run);
+  });
+
+  it('切段：接回去跟原本一字不差（切在表情符號中間也一樣）', () => {
+    const json = JSON.stringify({ s: '🐟'.repeat(SNAP_PART), q: '"\\'.repeat(3000) });
+    const parts = snapParts(json);
+    expect(parts.length).toBeGreaterThan(1);
+    expect(parts.map((p) => JSON.parse(JSON.stringify(p)) as string).join('')).toBe(json);
+  });
+
+  it('主機在畫面流程裡發現對不上（走進格子時對帳）：當下不換掉整局，下一拍才換', () => {
+    const t = table();
+    const a = twoPlayerCombat('tick'); const b = twoPlayerCombat('tick');
+    t.host.s.attach(a); t.guest.s.attach(b);
+    b.enemies[0]!.hp -= 1;
+    t.guest.s.endOfTurn();   // 客戶端的對帳先到主機
+    t.host.s.endOfTurn();    // 主機收回合時比對：對不上
+    expect(t.host.resynced, '同一個呼叫裡還沒換：叫的那段畫面流程先跑完').toHaveLength(0);
+    settle();
+    expect(t.host.resynced).toHaveLength(1);
+    expect(t.guest.resynced).toHaveLength(1);
   });
 });
 
@@ -161,7 +191,6 @@ describe('救不回來的情況：照舊停下', () => {
   });
 
   it(`客戶端請了、主機一直沒回：等 ${SNAP_WAIT_MS / 1000} 秒後停下；等的期間什麼都不送`, () => {
-    vi.useFakeTimers();
     const t = table();
     const a = twoPlayerCombat('mute'); const b = twoPlayerCombat('mute');
     t.host.s.attach(a); t.guest.s.attach(b);
