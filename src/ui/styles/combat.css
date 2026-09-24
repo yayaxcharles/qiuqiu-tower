@@ -253,6 +253,8 @@
 @keyframes hp-preview { from { opacity: .7; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .combat .hpbar-preview { animation: none; } }
 .combat .hpbar b.hp-loss { color: #d9c4ff; }
+/* 隨機可能多扣的那段（醉拳 4～14）：同一個紫、淡一半，看得出「最少這麼多、最多到這裡」 */
+.combat .hpbar-preview.maybe { opacity: .5; animation: none; }
 
 /* 狀態與蜷縮的小牌子 */
 .combat .chips {

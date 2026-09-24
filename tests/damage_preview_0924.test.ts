@@ -37,7 +37,7 @@ describe('previewHpLoss：複本上試打', () => {
     expect(cs.log.length).toBe(before.log);
     const hp0 = cs.enemies[0]!.hp;
     expect(playCard(cs, 500, target, 0)).toBe(true);
-    expect(pv.get(target)).toBe(hp0 - cs.enemies[0]!.hp);
+    expect(pv.get(target)).toEqual({ min: hp0 - cs.enemies[0]!.hp, max: hp0 - cs.enemies[0]!.hp });
   });
 
   it('範圍攻擊：每一隻都列，跟真的打出去一樣', () => {
@@ -46,7 +46,26 @@ describe('previewHpLoss：複本上試打', () => {
     const pv = previewHpLoss(cs, 500, undefined, 0);
     expect(pv.size).toBe(cs.enemies.filter((e) => !e.dead).length);
     playCard(cs, 500, undefined, 0);
-    cs.enemies.forEach((e, i) => expect(pv.get(e.uid) ?? 0, `魔物 ${e.uid}`).toBe(hp0[i]! - Math.max(0, e.hp)));
+    cs.enemies.forEach((e, i) => expect(pv.get(e.uid)?.max ?? 0, `魔物 ${e.uid}`).toBe(hp0[i]! - Math.max(0, e.hp)));
+  });
+
+  // 推前稽核 2026-09-24 中-1：同一個亂數狀態試打＝先偷看這一次骰到幾點。改報「最少～最多」
+  it('醉拳（隨機 4～14）：報範圍、不報這一次骰到的數字；真的打出去落在範圍裡', () => {
+    const cs = fight('wood_dummy', ['zuiquan']);
+    const e = cs.enemies[0]!;
+    e.hp = e.maxHp = 999;
+    const pv = previewHpLoss(cs, 500, e.uid, 0);
+    expect(pv.get(e.uid)).toEqual({ min: 4, max: 14 });
+    playCard(cs, 500, e.uid, 0);
+    const dealt = 999 - e.hp;
+    expect(dealt).toBeGreaterThanOrEqual(4);
+    expect(dealt).toBeLessThanOrEqual(14);
+  });
+
+  // 推前稽核 低-2：打出去會停下來選牌的牌，選完之後才觸發的東西算不到 → 不預覽
+  it('會停下來選牌的牌（告退：先消耗一張手牌）不預覽', () => {
+    const cs = fight('rats3', ['gaotui', 'sanjo']);
+    expect(previewHpLoss(cs, 500, undefined, 0).size).toBe(0);
   });
 
   it('防禦先吃：只預覽真的會少的血；打不出去（飯糰不夠）就回空的', () => {
@@ -67,13 +86,20 @@ describe('畫面：三條路都接、收得乾淨、樣式照使用者說的', (
     if (a < 0 || b < 0) throw new Error(`找不到片段：${start}`);
     return COMBAT.slice(a, b);
   };
-  it('數字寫成「剩下＋會扣／上限」，+N 是紫色；血條蓋一段從剩下到現在', () => {
+  it('數字寫成「剩下＋會扣／上限」，+N 是紫色；隨機的寫範圍、多扣的那段淡紫；以引擎真實血量為準', () => {
     const fn = between('  function damagePreview(cardUid: number | null, foeUid?: number): void {', '   * 選目標時從牌拉一條弧線到滑鼠');
-    expect(fn).toContain("label.replaceChildren(String(after), el('b', { class: 'hp-loss' }, `+${shown - after}`), `/${e.maxHp}`);");
-    expect(fn).toContain("el('div', { class: 'hpbar-preview', style: `left:${pct(after)};width:${pct(shown - after)}` })");
+    expect(fn).toContain("label.replaceChildren(range(lo, hi), el('b', { class: 'hp-loss' }, `+${range(loss.min, loss.max)}`), `/${e.maxHp}`);");
+    expect(fn).toContain('const lo = Math.max(0, e.hp - loss.max), hi = Math.max(0, e.hp - loss.min);');
+    expect(fn).not.toContain('motionPendingDamage.get(uid)');
+    expect(fn).toContain("class: 'hpbar-preview maybe'");
     expect(fn).toContain('previewHpLoss(cs, cardUid, foeUid, mySeat)');
     expect(CSS).toContain('.combat .hpbar-preview {');
     expect(CSS).toContain('.combat .hpbar b.hp-loss { color: #d9c4ff; }');
+    expect(CSS).toContain('.combat .hpbar-preview.maybe { opacity: .5; animation: none; }');
+  });
+  it('血條被換掉（命中落地、同伴動作的就地修補）時照同一組重畫', () => {
+    expect(COMBAT).toContain("target.querySelector('.hpbar')?.replaceWith(hpBar(`e${e.uid}`, e.hp + pending, e.maxHp));\n            repaintPreview();");
+    expect(between('  function patchField(before: Snap): boolean {', '\n  }\n')).toContain("keepLoops(box, app.loopT0, 'card-idle');\n    repaintPreview();");
   });
   it('點選瞄準（箭頭吸附）、拖曳經過、滑到不用瞄準的牌：三條路；換瞄準與整頁重畫時收掉', () => {
     expect(COMBAT).toContain("damagePreview(foe && targeting?.kind === 'card' ? targeting.uid : null, foe ? Number(foe.dataset['uid']) : undefined);");

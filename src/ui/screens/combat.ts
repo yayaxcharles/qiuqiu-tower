@@ -2294,6 +2294,7 @@ registerScreen('combat', (app, root, props) => {
     if (endBtn) { if (!canAct() || dealDelay > 0 || my().ready || my().down) endBtn.setAttribute('disabled', 'disabled'); else endBtn.removeAttribute('disabled'); }   // 舉手了／倒下了照整頁重畫的判準留灰（審查 中-2）
     // 逐步修補換掉的那幾隻，呼吸也照整頁重畫釘回開場的起點：不釘的話自己從頭起跑，下一次整頁重畫釘回去那一下會縮一下（畫面抖動稽核 2026-09-24 第 3 項）
     keepLoops(box, app.loopT0, 'card-idle');
+    repaintPreview();   // 魔物格子可能整格換掉了（同伴出手）：扣血預覽照同一組重算
     return true;
   }
 
@@ -2466,28 +2467,42 @@ registerScreen('combat', (app, root, props) => {
    * 只動 class 與文字、不重畫（重畫會把正在拖的牌換掉，拖曳當場斷掉）；整頁重畫時血條本來就重建，`render` 把記號歸零。
    */
   let previewFor: string | null = null;
+  /** 最後一次畫的是哪一組（牌、目標）：血條被別的程式換掉時照這組重畫（`repaintPreview`） */
+  let previewArgs: [number, number | undefined] | null = null;
   function damagePreview(cardUid: number | null, foeUid?: number): void {
     const key = cardUid === null ? null : `${cardUid}>${foeUid ?? '-'}`;
     if (key === previewFor) return;
     previewFor = key;
+    previewArgs = cardUid === null ? null : [cardUid, foeUid];
     for (const n of root.querySelectorAll('.hpbar-preview')) n.remove();
     for (const s of root.querySelectorAll<HTMLElement>('.hpbar > span[data-plain]')) {
       s.textContent = s.dataset['plain'] ?? '';
       delete s.dataset['plain'];
     }
     if (cardUid === null) return;
-    for (const [uid, lost] of previewHpLoss(cs, cardUid, foeUid, mySeat)) {
+    for (const [uid, loss] of previewHpLoss(cs, cardUid, foeUid, mySeat)) {
       const e = cs.enemies.find((x) => x.uid === uid);
       const bar = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${uid}"] .hpbar`);
       const label = bar?.querySelector<HTMLElement>(':scope > span');
       if (!e || !bar || !label || e.maxHp <= 0) continue;
-      const shown = e.hp + (motionPendingDamage.get(uid) ?? 0);   // 血條畫的是這個（命中動畫還沒演完的那段先不扣）
-      const after = Math.max(0, shown - lost);
+      // 以引擎的真實血量為準（推前稽核 低-1）：上一招命中動畫還沒落地的那段（`motionPendingDamage`）照舊紅的、馬上會掉，
+      // 不算進「剩下」——不然快手連出兩張時會先看到偏高的剩餘血量
+      const lo = Math.max(0, e.hp - loss.max), hi = Math.max(0, e.hp - loss.min);
       const pct = (n: number): string => `${Math.max(0, Math.min(100, (n / e.maxHp) * 100)).toFixed(2)}%`;
-      label.before(el('div', { class: 'hpbar-preview', style: `left:${pct(after)};width:${pct(shown - after)}` }));
+      // 保底會扣的那段實心紫；隨機可能多扣的那段淡紫（醉拳 4～14，不偷看這一次骰到幾點，見 `previewHpLoss`）
+      if (hi < e.hp) label.before(el('div', { class: 'hpbar-preview', style: `left:${pct(hi)};width:${pct(e.hp - hi)}` }));
+      if (lo < hi) label.before(el('div', { class: 'hpbar-preview maybe', style: `left:${pct(lo)};width:${pct(hi - lo)}` }));
+      const range = (a: number, b: number): string => (a === b ? String(a) : `${a}～${b}`);
       label.dataset['plain'] = label.textContent ?? '';
-      label.replaceChildren(String(after), el('b', { class: 'hp-loss' }, `+${shown - after}`), `/${e.maxHp}`);
+      label.replaceChildren(range(lo, hi), el('b', { class: 'hp-loss' }, `+${range(loss.min, loss.max)}`), `/${e.maxHp}`);
     }
+  }
+  /** 血條被換掉了（命中落地、同伴動作的就地修補）：照同一組再畫一次，不然紫段消失後要移開再移回才出來（推前稽核 低-1） */
+  function repaintPreview(): void {
+    if (!previewArgs) return;
+    const [card, foe] = previewArgs;
+    previewFor = null;
+    damagePreview(card, foe);
   }
 
   /**
@@ -3390,6 +3405,7 @@ registerScreen('combat', (app, root, props) => {
             const pending = Math.max(0, (motionPendingDamage.get(e.uid) ?? 0) - amount);
             if (pending) motionPendingDamage.set(e.uid, pending); else motionPendingDamage.delete(e.uid);
             target.querySelector('.hpbar')?.replaceWith(hpBar(`e${e.uid}`, e.hp + pending, e.maxHp));
+            repaintPreview();   // 瞄著下一張的扣血預覽跟著新血條重畫
           }
           const keepStanding = e.dead && (motionPendingDamage.get(e.uid) ?? 0) > 0;
           if (!keepStanding) motionHeldSprites.delete(e.uid);
