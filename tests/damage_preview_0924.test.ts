@@ -62,6 +62,16 @@ describe('previewHpLoss：複本上試打', () => {
     expect(dealt).toBeLessThanOrEqual(14);
   });
 
+  // 推前稽核（複審）低-2：暗器匣隨機挑一隻打，三隻時中間那隻兩次試打都沒挨到——也要標「0～最多」
+  it('暗器匣（第 3 張牌後隨機打一隻 5 點）：三隻都標得到，各自 0～N', () => {
+    const cs = fight('rats3', ['cuimian']);   // 催眠術：不造成傷害的全體技能，只剩暗器匣那一下
+    cs.player.relics.push('dart_case');
+    cs.player.cardsPlayedThisTurn = 2;
+    const pv = previewHpLoss(cs, 500, undefined, 0);
+    expect(pv.size).toBe(3);
+    for (const e of cs.enemies) expect(pv.get(e.uid), `魔物 ${e.uid}`).toEqual({ min: 0, max: 5 });
+  });
+
   // 推前稽核 低-2：打出去會停下來選牌的牌，選完之後才觸發的東西算不到 → 不預覽
   it('會停下來選牌的牌（告退：先消耗一張手牌）不預覽', () => {
     const cs = fight('rats3', ['gaotui', 'sanjo']);

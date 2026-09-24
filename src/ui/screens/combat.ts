@@ -1466,7 +1466,10 @@ registerScreen('combat', (app, root, props) => {
       // 球球身上的減益（魔物放的翻肚、懶洋洋、炸毛、中毒）用名字寫出來、淺紅底，跟能力牌的牌子一樣看得懂
       //（使用者 2026-09-04：只有小圖示認不出是什麼、也看不出是壞的）
       const textOnly = mine && tone === 'bad';
-      row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), tone, bump));
+      // 「下回合才生效」的（潛水＝下回合隱身、鐵布衫＝下回合蜷縮）掛 `.later`：淡色虛線框，跟這回合就生效的分得開。
+      // 使用者 2026-09-24 深夜：「影忍頭帶顯示我有隱身，卻一直被打到」——下回合隱身跟隱身同一個圖示，看起來就是有隱身
+      const later = STATUS_LABEL[name] ? ' later' : '';
+      row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), `${tone}${later}`.trim(), bump));
     }
     // 「別碰針尖喔」補在針上的毒（`poisonNextAttack`，下一擊命中多給幾層中毒、只到本回合）。
     // 它不是狀態名也沒走 `markPassive`，原本自己那排、同伴那排都沒畫（使用者 2026-09-15：「隊友的下方沒出現這個 BUFF」）。
@@ -2352,6 +2355,7 @@ registerScreen('combat', (app, root, props) => {
     arrowOff?.abort();   // 舊的 box 連同箭頭一起丟掉，監聽也拆掉
     arrowOff = null;
     previewFor = null;   // 血條整排重建，扣血預覽跟著沒了；記號歸零，箭頭再吸附時才會重畫（見 `damagePreview`）
+    previewArgs = null;   // 滑到範圍牌直接點下去不經過 setTargeting：打出去之後別再拿舊的那張重畫（推前稽核 低-1）
     const handWas = handSnap();   // 清掉之前先記下手牌在哪（見 `slideHand`）
     clear(root);
     const box = el('div', { class: 'combat' });

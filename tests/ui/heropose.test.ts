@@ -3,6 +3,8 @@ import { idlePoseKey, type IdlePoses } from '../../src/ui/heropose';
 import { addStatus } from '../../src/engine/statuses';
 import type { StatusName, Unit } from '../../src/engine/types';
 import { blankUnit } from '../helpers';
+import { readFileSync } from 'node:fs';
+import COMBAT_SRC from '../../src/ui/screens/combat.ts?raw';
 
 const POSES: IdlePoses = {
   idle: 'idle', hurt: 'hurt', choke: 'choke', dizzy: 'dizzy',
@@ -28,7 +30,8 @@ describe('球球的待機姿勢', () => {
   it('五個新狀態各有自己的圖', () => {
     expect(idlePoseKey(hero({ 翻肚: 2 }), POSES, ALL)).toBe('belly');
     expect(idlePoseKey(hero({ 隱身: 1 }), POSES, ALL)).toBe('stealth');
-    expect(idlePoseKey(hero({ 潛水: 1 }), POSES, ALL)).toBe('stealth');   // 潛水是「下回合變隱身」，同一張
+    // 潛水是「下回合才變隱身」，這回合不擋：不擺隱身姿勢（使用者 2026-09-24 深夜：看起來在隱身卻一直被打）
+    expect(idlePoseKey(hero({ 潛水: 1 }), POSES, ALL)).toBe('idle');
     expect(idlePoseKey(hero({ 懶洋洋: 2 }), POSES, ALL)).toBe('lazy');
     expect(idlePoseKey(hero({ 炸毛: 2 }), POSES, ALL)).toBe('puff');
     expect(idlePoseKey(hero({ 貓步: 5 }), POSES, ALL)).toBe('iron');
@@ -81,5 +84,16 @@ describe('球球的待機姿勢', () => {
     expect(idlePoseKey(hero({ 翻肚: 2, 炸毛: 2 }), POSES, only('idle', 'puff'))).toBe('puff');
     // 低血圖沒生，但中毒圖生了：退到中毒
     expect(idlePoseKey(hero({ 中毒: 1 }, 20), POSES, only('idle', 'choke'))).toBe('choke');
+  });
+});
+
+// 使用者 2026-09-24 深夜：影忍頭帶「顯示我有隱身卻一直被打」——下回合隱身的牌子跟隱身同一個圖示。
+// 下回合才生效的狀態（潛水、鐵布衫）掛 .later：淡色虛線框
+describe('下回合才生效的狀態牌子分得出來', () => {
+  it('STATUS_LABEL 裡的（下回合隱身、下回合蜷縮）掛 later，樣式表是淡色虛線', () => {
+    const src = COMBAT_SRC.replace(/\r\n/g, '\n');
+    expect(src).toContain("const later = STATUS_LABEL[name] ? ' later' : '';");
+    expect(src).toContain('`${tone}${later}`.trim()');
+    expect(readFileSync('src/ui/styles/combat.css', 'utf8')).toContain('.combat .chip.later { opacity: .7; border-style: dashed; }');
   });
 });

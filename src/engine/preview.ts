@@ -27,6 +27,13 @@ export function previewHpLoss(cs: CombatState, uid: number, targetUid: number | 
     const a = low.get(e.uid) ?? 0, b = high.get(e.uid) ?? 0;
     if (a > 0 || b > 0) out.set(e.uid, { min: Math.min(a, b), max: Math.max(a, b) });
   }
+  // 隨機挑一隻打（暗器匣的 `damageScatter`）：擲最小打第一隻、擲最大打最後一隻，中間那幾隻兩次都沒挨到、卻可能挨打。
+  // 兩次打到的不是同一批，就把其他活著的也標成「0～最多」（最多照兩次裡最大的那一下；防禦、易傷不同時是近似，推前稽核 低-2）
+  const lowKeys = [...low.keys()].sort().join(), highKeys = [...high.keys()].sort().join();
+  if (lowKeys !== highKeys) {
+    const top = Math.max(0, ...[...out.values()].map((x) => x.max));
+    for (const e of cs.enemies) if (!e.dead && e.hp > 0 && !out.has(e.uid)) out.set(e.uid, { min: 0, max: Math.min(top, e.hp) });
+  }
   return out;
 }
 

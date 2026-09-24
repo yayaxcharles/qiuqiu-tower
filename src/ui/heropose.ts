@@ -30,8 +30,10 @@ export function idlePoseKey(p: Unit, poses: IdlePoses, has: (key: string) => boo
     ?? (st('定身') > 0 ? pick(poses.dizzy) : null)
     // 翻肚排在減益裡最前面：它是「挨打 ×1.5」，比攻防被砍幾成痛得多
     ?? (st('翻肚') > 0 ? pick(poses.belly) : null)
-    // 隱身排在懶洋洋／炸毛前面：它只撐到下一次被打，看得到才來得及用
-    ?? (st('隱身') > 0 || st('潛水') > 0 ? pick(poses.stealth) : null)
+    // 隱身排在懶洋洋／炸毛前面：它只撐到下一次被打，看得到才來得及用。
+    // **只看真的隱身，不看潛水**（下回合才變隱身）：原本兩個都擺隱身姿勢，使用者 2026-09-24 深夜玩封封＋影忍頭帶，
+    // 看角色一直在隱身、卻一直被打——那幾回合身上只有潛水，這回合根本不擋
+    ?? (st('隱身') > 0 ? pick(poses.stealth) : null)
     ?? (st('懶洋洋') > 0 ? pick(poses.lazy) : null)
     ?? (st('炸毛') > 0 ? pick(poses.puff) : null)
     ?? (st('爪力') >= 5 ? pick(poses.power) : null)
