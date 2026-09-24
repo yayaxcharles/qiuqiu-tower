@@ -15,8 +15,19 @@
  * 清掉用不到的：頁面讀完素材清單後把「這一版所有圖的路徑」傳過來（`keep`，見 `src/ui/assetcache.ts`），
  * 快取裡不在名單上的圖（舊版換掉的）就刪掉，快取不會一版一版越堆越大。
  */
-const CACHE = 'qiuqiu-img-v1';
+/*
+ * 快取名字帶上這一站的範圍（推前稽核 低-3）：單機版與連線版在同一個網域，快取是整個網域共用的，
+ * 名字不分開的話，哪天兩站都掛上這支，換版時會互砍整份、清舊圖時也會互刪對方的圖
+ */
+const PREFIX = 'qiuqiu-img:' + self.registration.scope + ':';
+const CACHE = PREFIX + 'v1';
 const HASHED_IMAGE = /\/assets\/.+-[A-Za-z0-9_-]{8}\.(?:webp|png|jpe?g)$/;
+/*
+ * 最多存幾張（推前稽核 低-1）：整局玩完看過的圖約 2600 張、120 MB。快取跟存檔在同一個網域，
+ * 有些瀏覽器（Firefox）空間吃緊時兩者共用配額，快取塞滿之後存檔可能寫不進去。
+ * 存到 1500 張（約 70 MB）就從最早存的開始刪——刪掉的下次用到再從網路抓，只是慢一點
+ */
+const MAX_ENTRIES = 1500;
 
 self.addEventListener('install', () => { self.skipWaiting(); });
 
@@ -24,7 +35,7 @@ self.addEventListener('activate', (event) => {
   // 換版時把舊名字的快取整個丟掉（`CACHE` 改名＝快取規則改了）
   event.waitUntil(
     caches.keys()
-      .then((names) => Promise.all(names.filter((n) => n.startsWith('qiuqiu-img-') && n !== CACHE).map((n) => caches.delete(n))))
+      .then((names) => Promise.all(names.filter((n) => n.startsWith(PREFIX) && n !== CACHE).map((n) => caches.delete(n))))
       .then(() => self.clients.claim()),
   );
 });
@@ -40,11 +51,25 @@ self.addEventListener('fetch', (event) => {
       if (hit) return hit;
       const res = await fetch(req);
       // 只存完整、同源的成功回覆；存失敗（空間不夠之類）不影響這一次的顯示
-      if (res.status === 200 && res.type === 'basic') cache.put(req, res.clone()).catch(() => undefined);
+      if (res.status === 200 && res.type === 'basic') cache.put(req, res.clone()).then(() => trim(cache)).catch(() => undefined);
       return res;
-    }),
+    // 快取本身出錯（儲存被封鎖、隱私模式、儲存壞掉）就直接上網抓，不能讓圖整張載不出來（推前稽核 低-2）
+    }).catch(() => fetch(req)),
   );
 });
+
+/** 超過上限就從最早存的刪起（`keys()` 照存入的先後排） */
+let trimming = false;
+async function trim(cache) {
+  if (trimming) return;
+  trimming = true;
+  try {
+    const keys = await cache.keys();
+    for (let i = 0; i < keys.length - MAX_ENTRIES; i++) await cache.delete(keys[i]);
+  } finally {
+    trimming = false;
+  }
+}
 
 self.addEventListener('message', (event) => {
   const data = event.data;

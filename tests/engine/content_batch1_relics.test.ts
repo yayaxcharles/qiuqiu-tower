@@ -200,22 +200,17 @@ describe('球球那三件（隱身、潛水）', () => {
    * 改成「沒有隱身才給 1 層潛水」——潛水下回合才變隱身，所以每次用掉之後要隔一回合才補上，等於每兩回合一次，
    * 用的全是現成的效果（`ifSelfStatus`＋潛水），不必等第二批的計數器。量到 +10～11 層。
    */
-  it('影忍頭帶：沒有隱身才給 1 層潛水——用掉之後隔一回合才補上（每兩回合一次）', () => {
+  // 2026-09-24 深夜使用者改規則：「每 3 回合都給 1 層真的隱身」（舊版每回合沒隱身給潛水、下回合才變隱身，玩家看不懂）
+  it('影忍頭帶：第 3、6 回合開始各給 1 層真的隱身，其他回合不給、也不給潛水', () => {
     const cs = start(['shadow_band']);
-    // 第一回合：沒隱身 → 拿到潛水（這一拍還沒變）
-    expect(getStatus(cs.player, '潛水')).toBe(1);
-    expect(getStatus(cs.player, '隱身')).toBe(0);
-    quiet(cs);
-    endTurn(cs);
-    // 第二回合：潛水變隱身；身上有隱身了，這回合不再給，也不閃「發動」
-    expect(getStatus(cs.player, '隱身')).toBe(1);
-    expect(getStatus(cs.player, '潛水')).toBe(0);
-    expect(cs.relicFired.filter((id) => id === 'shadow_band')).toHaveLength(1);
-    // 第二回合挨打用掉隱身 → 第三回合開始沒隱身，再給潛水
-    quiet(cs, HIT(5));
-    endTurn(cs);
-    expect(getStatus(cs.player, '隱身')).toBe(0);
-    expect(getStatus(cs.player, '潛水')).toBe(1);
+    const seen: [number, number, number][] = [];
+    for (let t = 1; t <= 6; t++) {
+      seen.push([cs.turn, getStatus(cs.player, '隱身'), getStatus(cs.player, '潛水')]);
+      quiet(cs);
+      endTurn(cs);
+    }
+    expect(seen).toEqual([[1, 0, 0], [2, 0, 0], [3, 1, 0], [4, 1, 0], [5, 1, 0], [6, 2, 0]]);
+    expect(cs.relicFired.filter((id) => id === 'shadow_band')).toHaveLength(2);
   });
 });
 

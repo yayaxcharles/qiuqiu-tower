@@ -275,8 +275,10 @@ export const relics: RelicDef[] = [
   // 改成給潛水（下回合開始才變隱身，竹筒、影忍頭帶同一套），+7.7 層，只收一點
   { id: 'startle_bell', name: '驚弓鈴', pool: '大魔物', text: '被魔物打掉血時獲得 1 層潛水（下回合開始變成隱身；每回合最多一次）。', art: 'codex/relic_startle_bell', price: 200,
     hooks: { onHit: [{ kind: 'status', name: '潛水', amount: 1, target: 'self' }] } },
-  { id: 'shadow_band', name: '影忍頭帶', pool: '塔主', text: '每回合開始時，身上沒有隱身的話獲得 1 層潛水（下回合開始變成隱身）。', art: 'codex/relic_shadow_band', price: 240,
-    hooks: { turnStart: [{ kind: 'ifSelfStatus', name: '隱身', then: [], otherwise: [{ kind: 'status', name: '潛水', amount: 1, target: 'self' }] }] } },
+  // 2026-09-24 深夜使用者：玩封封拿到它「顯示我有隱身卻一直被打」——舊版「沒隱身才給潛水、下回合才變隱身」太難懂
+  //（實際是每兩回合一層，而且有一回合身上掛的只是下回合隱身）。問要不要改成每回合都給，使用者：「這樣會太強，改每 3 回合都給 1 層真的隱身就好」
+  { id: 'shadow_band', name: '影忍頭帶', pool: '塔主', text: '每 3 回合（第 3、6、9…回合開始時）獲得 1 層隱身。', art: 'codex/relic_shadow_band', price: 240,
+    hooks: { everyNTurns: { n: 3, effects: [{ kind: 'status', name: '隱身', amount: 1, target: 'self' }] } } },
   // --- 塔主池的代價型（使用者 2026-09-23 裁定要加）：過關三選一要有會猶豫的選項 ---
   // 打盹回血整個歸零（貓草種子那幾點也算在內，見 `run.ts` 的 `napHeal`）；44F 師父門前那一格本來就回滿，照舊；扶同伴起來不受影響
   { id: 'sleepless_censer', name: '不眠香爐', pool: '塔主', text: '每回合多 1 顆飯糰；在貓窩打盹不再回血（44F 最後那個貓窩照樣回滿）。', art: 'codex/relic_sleepless_censer', price: 240,

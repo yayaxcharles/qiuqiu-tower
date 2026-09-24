@@ -10,6 +10,12 @@
 
 **之後重新打包動作圖、重生事件圖（那些工具存的是無損）之後，再跑一次這支就好。**
 
+兩個陷阱（推前稽核 2026-09-24 低-4）：
+- 有幾支動作打包工具拿 `public/assets/motion` 的圖當來源（`pack_idle_state_motion.py`、`motion_size_fix_mix.py`、
+  `pack_hit_recoil_motion.py` 等）：它們讀到的已經是有損版，重打包再跑這支就是「壓第二代」。要重打包的話，
+  先從 git 取回重壓前那一版當來源（重壓前的最後一版是 071f234d；舊雜湊→檔名在 `sha_map_motion.json`）。
+- `integrate_fengfeng_assets.py` 會把封封素材的原檔複製進遊戲：已加防呆，目的地是重壓版、而原檔就是這個來源時不覆蓋。
+
 用法：
     python tools/recompress_webp.py public/assets/motion --name motion
     python tools/recompress_webp.py public/assets/bg public/assets/cards --name art --min-kb 40

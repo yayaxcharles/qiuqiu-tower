@@ -19,10 +19,15 @@ function loadSw() {
     keys: vi.fn(async () => [...store.keys()].map((url) => ({ url }))),
     delete: vi.fn(async (req: { url: string }) => store.delete(req.url)),
   };
-  const caches = { open: vi.fn(async () => cache), keys: vi.fn(async () => ['qiuqiu-img-v0', 'qiuqiu-img-v1', 'other']), delete: vi.fn(async () => true) };
+  const caches = {
+    open: vi.fn(async () => cache),
+    keys: vi.fn(async () => [`${MINE}v0`, `${MINE}v1`, `${OTHER}v0`, 'other']),
+    delete: vi.fn(async () => true),
+  };
   const fetchFn = vi.fn(async (req: { url: string }) => ({ status: 200, type: 'basic', url: req.url, clone() { return this; } }));
   const self = {
     location: { origin: 'https://x.github.io' },
+    registration: { scope: 'https://x.github.io/qiuqiu-tower-coop/' },
     addEventListener: (t: string, h: Handler) => { handlers[t] = h; },
     skipWaiting: vi.fn(), clients: { claim: vi.fn(async () => undefined) },
   };
@@ -37,6 +42,9 @@ function loadSw() {
 }
 
 const IMG = 'https://x.github.io/qiuqiu-tower-coop/assets/bg/fengfeng_story_ep01-7WQhIcB8.webp';
+/** 這一站（連線版）與另一站（單機版）的快取名字前綴（推前稽核 低-3：同網域共用，名字要分站） */
+const MINE = 'qiuqiu-img:https://x.github.io/qiuqiu-tower-coop/:';
+const OTHER = 'qiuqiu-img:https://x.github.io/qiuqiu-tower/:';
 
 describe('sw.js：帶雜湊的圖本機有就用本機', () => {
   it('第一次去網路抓、存一份；第二次直接用本機的，不再上網', async () => {
@@ -70,9 +78,31 @@ describe('sw.js：帶雜湊的圖本機有就用本機', () => {
     let done: Promise<unknown> | null = null;
     s.handlers['activate']!({ waitUntil: (p: Promise<unknown>) => { done = p; } });
     await done;
-    expect(s.caches.delete).toHaveBeenCalledWith('qiuqiu-img-v0');
-    expect(s.caches.delete).not.toHaveBeenCalledWith('qiuqiu-img-v1');
+    expect(s.caches.delete).toHaveBeenCalledWith(`${MINE}v0`);
+    expect(s.caches.delete).not.toHaveBeenCalledWith(`${MINE}v1`);
+    expect(s.caches.delete, '另一站的不碰').not.toHaveBeenCalledWith(`${OTHER}v0`);
     expect(s.caches.delete).not.toHaveBeenCalledWith('other');
+    expect(s.caches.open).not.toHaveBeenCalled();
+  });
+
+  // 推前稽核 低-2：快取本身出錯（隱私模式、儲存被封鎖）時直接上網抓，圖不能整張載不出來
+  it('快取打不開：照樣上網抓回來', async () => {
+    const s = loadSw();
+    s.caches.open.mockRejectedValueOnce(new Error('SecurityError'));
+    expect(await s.fire(IMG)).toMatchObject({ status: 200, url: IMG });
+    expect(s.fetchFn).toHaveBeenCalledTimes(1);
+  });
+
+  // 推前稽核 低-1：跟存檔同網域，Firefox 空間吃緊時共用配額——存到 1500 張就從最早存的刪起
+  it('超過 1500 張：從最早存的刪起', async () => {
+    const s = loadSw();
+    for (let i = 0; i < 1500; i++) s.store.set(`https://x.github.io/qiuqiu-tower-coop/assets/x/${i}-AAAAAAAA.webp`, 'x');
+    await s.fire(IMG);
+    await new Promise((ok) => setTimeout(ok, 0));
+    await new Promise((ok) => setTimeout(ok, 0));
+    expect(s.store.size).toBe(1500);
+    expect(s.store.has('https://x.github.io/qiuqiu-tower-coop/assets/x/0-AAAAAAAA.webp')).toBe(false);
+    expect(s.store.has(IMG)).toBe(true);
   });
 
   it('清單名單傳過來：不在名單上的圖（舊版換掉的）刪掉；名單太短（清單沒載到）不刪', async () => {
