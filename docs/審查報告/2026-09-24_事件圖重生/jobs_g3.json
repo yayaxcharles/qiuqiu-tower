@@ -1,0 +1,248 @@
+{
+  "event_feifei_crying_wall_r0": {
+    "why": "（主控追加）牆是舊的棕色大石塊、沒青苔沒哭臉，也沒有牆腳鬆磚和布包，跟她的新主圖、新 r1 不一致；文字是「菲菲在牆前蹲下……教她護身吐納……呼吸比先前深了」",
+    "scene": "The same tall free-standing old stone wall as in reference image 3 stands on the floor patch, its whole uneven top visible: mossy brown-grey blocks, the dark water stains forming the big CRYING-FACE shape with faint scratch marks beside it, but the crying has stopped - the streaks are dry, no water drips. At the very foot of the wall the loose block still sits slightly pulled out, and from the gap behind it peeks the corner of the small tied pink cloth bundle - untouched. Feifei CROUCHES low on the floor in front of the wall, knees bent, paws resting on her knees, both eyes calmly closed, breathing out slowly (one soft curl of breath in front of her mouth) as the wall teaches her to breathe; a calm, gentle face.",
+    "style": "bg/event_feifei_crying_wall.webp",
+    "refs": [["bg/event_feifei_crying_wall.webp", "the WALL to copy exactly: the tall free-standing mossy brown-grey stone wall with the water-stain crying face and scratch marks, the loose block at its foot and the pink cloth bundle behind it (ignore Feifei's pose)."]]
+  },
+  "event_fengfeng_fish_pond_r0": {
+    "why": "（主控追加）水底沒有大魚影、池邊沒有魚乾籃，跟新主圖不一致；文字是「抓到一條魚，在池邊吃完。他瞥見水下的大影子，將手收回膝上」",
+    "scene": "The same oval pond as in reference image 3 (grey stone rim, bright blue water) sits on the ground, with an orange fish, a red fish and a blue-grey fish swimming in it and, deep under the water, the HUGE dark fish-shaped SHADOW gliding past. The round woven basket of small dried fish sits on the ground beside the pond rim, untouched. Fengfeng crouches on the pond rim, knees bent: he has just finished eating a fish - its clean little fish skeleton lies on the stone rim beside his foot - and now, glancing down at the giant shadow under the water, he has drawn both paws back and rests them on his knees, a calm but wary face. His sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_fish_pond.webp",
+    "refs": [["bg/event_fengfeng_fish_pond.webp", "the POND to copy exactly: the oval pond with a grey stone rim, bright blue water, the three fish, the huge dark fish shadow under the water and the woven basket of dried fish beside it (ignore Fengfeng's pose)."]]
+  },
+  "event_crying_wall_r0": {
+    "why": "（驗收複查）牆是棕色大石塊、沒青苔沒哭臉，跟新主圖的青苔石牆＋水痕哭臉不一致；舊的銀灰色球球；文字是「在牆前蹲下」聽它教吐納",
+    "scene": "The same free-standing old stone wall as in reference image 3 stands on the floor patch, its whole top visible: big dark mossy blocks. On its face the dark water stains still form the big CRYING-FACE shape (two eye spots with long streaks below them and a downturned mouth), but the crying has stopped - the streaks are dry, no water drips. At the very foot of the wall the same loose block still sits slightly pulled out, and from the gap behind it peeks the corner of the same small tied cloth bundle, blue with a white ring pattern - untouched. Qiuqiu CROUCHES low on the floor in front of the wall, knees bent, paws resting on his knees, both eyes calmly closed, breathing out slowly (one soft curl of breath in front of his mouth) as the wall teaches him to breathe; a gentle, peaceful face.",
+    "style": "bg/event_crying_wall.webp",
+    "refs": [["bg/event_crying_wall.webp", "the WALL to copy exactly: the free-standing mossy stone wall with the water-stain crying face, the loose block at its foot and the blue cloth bundle with a white ring pattern behind it (ignore Qiuqiu's pose)."]]
+  },
+  "event_crying_wall_r1": {
+    "why": "（驗收複查）牆是棕色大石塊、沒青苔沒哭臉；布包米色、從牆中段（胸口高）挖出，文字是「牆腳的藏物磚」；舊的銀灰色球球",
+    "scene": "The same free-standing old stone wall as in reference image 3 stands on the floor patch, its whole top visible: big dark mossy blocks, the dark water stains forming the big CRYING-FACE shape with fresh tears still dripping down (the voice keeps begging him not to go up). The upper wall is whole and undamaged. At the very FOOT of the wall, at ground level, the loose block has been knocked out: it lies broken in a few chunks on the floor, leaving a small dark hole at the bottom of the wall. Qiuqiu stands beside that hole hugging the small tied cloth bundle - blue with a white ring pattern - firmly against his chest with one arm; his other paw is held up with a small red scratch on it, and he winces a little (both eyes the same), looking up at the crying face with a sorry but determined expression.",
+    "style": "bg/event_crying_wall.webp",
+    "refs": [["bg/event_crying_wall.webp", "the WALL to copy exactly: the free-standing mossy stone wall with the water-stain crying face, and the blue cloth bundle with a white ring pattern (ignore Qiuqiu's pose)."]]
+  },
+  "event_fengfeng_crying_wall_r0": {
+    "why": "（驗收複查）牆是棕色大石塊、沒青苔沒哭臉，跟新主圖不一致；文字是「封封坐在牆前」聽它教調息，原圖站著",
+    "scene": "The same free-standing old stone wall as in reference image 3 stands on the floor patch, its whole top visible: big dark mossy blocks. On its face the dark water stains still form the big CRYING-FACE shape (two eye spots with long streaks below them and a downturned mouth), but the crying has stopped - the streaks are dry, no water drips. At the very foot of the wall the same loose block still sits slightly pulled out, and from the gap behind it peeks the corner of the same small tied rust-red cloth bundle - untouched. Fengfeng SITS cross-legged on the floor in front of the wall, back straight, paws resting on his knees, both eyes calmly closed, breathing out slowly (one soft curl of breath in front of his mouth), following the breathing lesson; a calm, settled face. His sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_crying_wall.webp",
+    "refs": [["bg/event_fengfeng_crying_wall.webp", "the WALL to copy exactly: the free-standing mossy stone wall with the water-stain crying face, the loose block at its foot and the rust-red cloth bundle behind it (ignore Fengfeng's pose)."]]
+  },
+  "event_fengfeng_crying_wall_r1": {
+    "why": "（驗收複查）牆是棕色大石塊、沒青苔沒哭臉；布包米色、從牆中段挖出，文字是「牆腳的藏物磚」；文字「用袖布壓住傷口」",
+    "scene": "The same free-standing old stone wall as in reference image 3 stands on the floor patch, its whole top visible: big dark mossy blocks, the dark water stains forming the big CRYING-FACE shape with fresh tears still dripping down. The upper wall is whole and undamaged. At the very FOOT of the wall, at ground level, the loose block has been knocked out: it lies broken in a few chunks on the floor, leaving a small dark hole at the bottom of the wall. Fengfeng stands beside that hole with the small tied rust-red cloth bundle tucked firmly under his left arm; his right paw presses a strip of cream sleeve cloth onto a small cut on the back of his left paw. He looks up at the crying face with a serious, steady expression, listening. His sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_crying_wall.webp",
+    "refs": [["bg/event_fengfeng_crying_wall.webp", "the WALL to copy exactly: the free-standing mossy stone wall with the water-stain crying face, and the rust-red cloth bundle (ignore Fengfeng's pose)."]]
+  },
+  "event_feifei_crying_wall_r1": {
+    "why": "（驗收複查）布包從牆中段（胸口高）挖出，文字是「牆腳的藏物磚」；牆與布包跟她的新主圖不一致（沒哭臉、紫色布包）；原圖單眼閉",
+    "scene": "The same tall free-standing old stone wall as in reference image 3 stands on the floor patch, its whole uneven top visible: mossy brown-grey blocks, the dark water stains forming the big CRYING-FACE shape with fresh tears still dripping down, faint scratch marks beside it. The upper wall is whole and undamaged. At the very FOOT of the wall, at ground level, the loose block has been knocked out: it lies broken in a few chunks on the floor, leaving a small dark hole at the bottom of the wall. Feifei crouches beside the hole and has just pulled out the small tied pink cloth bundle, holding it firmly in one paw; her other paw is pulled back with a small cut on it, and she grits her teeth with both eyes narrowed the same way in pain. She glances up at the crying face, determined.",
+    "style": "bg/event_feifei_crying_wall.webp",
+    "refs": [["bg/event_feifei_crying_wall.webp", "the WALL to copy exactly: the tall free-standing mossy brown-grey stone wall with the water-stain crying face and scratch marks, and the pink cloth bundle at its foot (ignore Feifei's pose)."]]
+  },
+  "event_catnip_field_r0": {
+    "why": "（驗收複查）舊的銀灰色球球（規格是奶油白底灰褐虎紋），跟新主圖前後變色；構圖與動作照原圖",
+    "scene": "Qiuqiu lies on his back in the middle of a thick patch of purple catnip bushes, the leaves flattened around him, all four paws up, dazed by the scent: both eyes are matching dizzy spirals, a wide goofy open-mouth smile, pink cheeks, one sweat drop. Swirls of purple mist curl around his body. Keep the composition of reference image 3.",
+    "style": "bg/event_catnip_field.webp",
+    "refs": [["bg/event_catnip_field_r0.webp", "the COMPOSITION to copy: Qiuqiu lying dazed in the purple catnip with purple mist swirls - keep the layout and pose, but the cat's fur in this picture is the WRONG colour (silver-grey): his fur colours and markings come ONLY from reference image 1."]]
+  },
+  "event_fish_pond_r0": {
+    "why": "（驗收複查）舊的銀灰色球球，跟新主圖前後變色；構圖與動作照原圖，池子照新主圖",
+    "scene": "The same oval pond as in reference image 2 (grey stone rim, bright blue water) sits on the ground, with a red fish and a blue-grey fish swimming in it and, deep under the water, the faint dark silhouette of the huge fish. The round woven basket of small dried fish sits on the ground beside the pond rim, untouched. Qiuqiu sits on the pond rim holding a caught fish firmly in both paws and happily eating it, both eyes closed in contentment. Keep the composition of reference image 3.",
+    "style": "bg/event_fish_pond.webp",
+    "refs": [["bg/event_fish_pond_r0.webp", "the COMPOSITION to copy: Qiuqiu sitting on the pond rim eating a fish - keep the layout and pose, but the cat's fur in this picture is the WRONG colour (silver-grey): his fur colours and markings come ONLY from reference image 1."]]
+  },
+  "event_fish_pond_r1": {
+    "why": "（驗收複查）舊的銀灰色球球，跟新主圖前後變色；構圖與動作照原圖，池子照新主圖",
+    "scene": "The same oval pond as in reference image 2 (grey stone rim, bright blue water, an orange fish, a red fish and a blue-grey fish). A huge blue-grey fish tail with fin rays bursts up out of the water with a big splash - a real fish tail attached to a giant fish hidden under the water. Qiuqiu runs away from the pond on the right, hugging the round woven basket of small dried fish tight against his chest with both arms, frightened and in pain (both eyes wide, mouth open), one sore spot on his side, water drops splashing around him. Keep the composition of reference image 3.",
+    "style": "bg/event_fish_pond.webp",
+    "refs": [["bg/event_fish_pond_r1.webp", "the COMPOSITION to copy: the big fish tail splashing out of the pond on the left and Qiuqiu running away with the basket on the right - keep the layout and poses, but the cat's fur in this picture is the WRONG colour (silver-grey): his fur colours and markings come ONLY from reference image 1."]]
+  },
+  "event_stuck_kitten_r0": {
+    "why": "（驗收複查）舊的銀灰色球球，跟新主圖前後變色；構圖與動作照原圖，母貓、小貓、欄杆照新主圖",
+    "scene": "The big plump orange tabby MOTHER CAT stands on the left and gently dabs medicine with a small cloth on Qiuqiu's old wound on his cheek, smiling with closed eyes. Qiuqiu stands in the middle holding a tied bundle of dried fish firmly in both paws (her thank-you gift), a grateful, slightly embarrassed smile. The small orange tabby KITTEN, free now, leans happily against Qiuqiu's side. The dark-orange wooden railing stands on the floor on the right. Keep the composition of reference image 3.",
+    "style": "bg/event_stuck_kitten.webp",
+    "refs": [["bg/event_stuck_kitten_r0.webp", "the COMPOSITION to copy: the mother cat treating Qiuqiu, Qiuqiu holding the dried fish, the kitten beside him and the railing on the right - keep the layout and poses, but Qiuqiu's fur in this picture is the WRONG colour (silver-grey): his fur colours and markings come ONLY from reference image 1."]]
+  },
+  "event_stuck_kitten_r1": {
+    "why": "（驗收複查）舊的銀灰色球球，跟新主圖前後變色；構圖與動作照原圖，母貓、小貓、欄杆照新主圖",
+    "scene": "On the right, the dark-orange wooden railing stands on the floor; the small orange tabby KITTEN has backed out of it and stands free, and the big plump orange tabby MOTHER CAT stands behind it with her paws on its shoulders, both looking relieved and happy. On the left, Qiuqiu practises the same move: he turns one shoulder forward and tucks his paws in, his body twisting sideways as if slipping through a narrow gap, one leg raised in the turn, a focused face; motion lines swirl around his body. Keep the composition of reference image 3.",
+    "style": "bg/event_stuck_kitten.webp",
+    "refs": [["bg/event_stuck_kitten_r1.webp", "the COMPOSITION to copy: Qiuqiu practising the turning move on the left, the mother cat and the kitten by the railing on the right - keep the layout and poses, but Qiuqiu's fur in this picture is the WRONG colour (silver-grey): his fur colours and markings come ONLY from reference image 1."]]
+  },
+  "event_feifei_catnip_field_r1": {
+    "why": "（主控追加）菲菲眼睛畫成藍色同心圈（像被迷暈），但這張是採葉交換、她沒進去打滾；眼睛要改成正常藍眼，構圖照原圖",
+    "scene": "Dark-green catnip bushes with purple flower spikes cover the floor patch around them. The exchange is being made. On the left, Feifei cups both paws together in front of her and receives two ninja tools - a round black bomb and a steel shuriken - which rest firmly in her cupped paws. Her eyes are her NORMAL bright blue eyes (round dark pupils with a white highlight, both the same) - NOT spirals, NOT concentric rings, not dazed; she gives a small calm smile and sniffs lightly, the catnip scent still on her paws. On the right, the OLD GARDEN CAT has exactly TWO arms: one paw places the shuriken into Feifei's cupped paws, and his other arm hugs a big bundle of fresh catnip leaves with purple flower spikes against his chest. He smiles with closed eyes. An open wooden ninja-tool chest sits on the ground in front of him.",
+    "style": "bg/event_feifei_catnip_field.webp",
+    "refs": [["bg/event_feifei_catnip_field_r1.webp", "the COMPOSITION, the OLD GARDEN CAT and the CHEST to copy: Feifei on the left receiving the tools, the old long-haired orange cat with a big white beard in a brown robe handing them over while holding the catnip bundle, and the open chest - keep this layout, but Feifei's eyes in this picture are drawn wrongly as blue spirals: draw them as her normal eyes from reference image 1."]]
+  },
+  "event_catnip_field": {
+    "why": "（主控追加）主圖已經畫成球球仰躺在貓薄荷裡打滾（等於選項 1 的結果）；沒有看園老貓、沒有忍具箱",
+    "scene": "Purple catnip bushes cover the floor patch, and thin wisps of purple mist drift between the leaves. Qiuqiu stands on his feet at the EDGE of the catnip patch - NOT lying down, NOT rolling, still outside the bushes - leaning forward with his nose lifted to sniff the strong scent, a tempted, dreamy smile and pink cheeks, one paw half-raised toward the leaves. Right beside the patch stands the OLD GARDEN CAT, pointing with one paw at a wooden ninja-tool chest that sits on the ground next to him (lid open, a shuriken and a round black bomb inside), looking at Qiuqiu with a knowing, warning face. The old cat has exactly two arms.",
+    "style": "bg/event_catnip_field_r0.webp",
+    "refs": [["bg/event_catnip_field_r1.webp", "the OLD GARDEN CAT to copy: the old long-haired orange cat with a big white beard in a brown robe on the right (ignore Qiuqiu and the leaf bundle) - draw him with exactly this look; also copy the wooden ninja-tool chest and the purple catnip bushes."]]
+  },
+  "event_weapon_rack_r0": {
+    "why": "（主控追加）兵器架是一條懸空的橫木、沒有牆沒有腳，三幅演招圖浮在半空；要換成新主圖那個有腳、立在地上的架子，演招圖釘在架上。球球拿刀比招式的動作本來就對，照原動作",
+    "scene": "The same freestanding wooden weapon rack as in reference image 3 stands on the floor patch on its two sturdy legs, with the three parchment technique diagrams pinned side by side on its lower board (simple ink pictures of a ninja cat silhouette with one red arrow, no writing). Rusty weapons still hang from the pegs on its top plank; one peg is now empty. Qiuqiu stands beside the rack in a practice stance, holding the shiny katana he took from that empty peg: both paws closed firmly around its hilt, the blade raised diagonally, his eyes on the diagrams as he compares his pose with the drawing. The rat and his cart are not in this picture.",
+    "style": "bg/event_weapon_rack.webp",
+    "refs": [["bg/event_weapon_rack.webp", "the WEAPON RACK to copy exactly: the freestanding rack on two legs with feet, the rusty weapons on the pegs of its top plank and the three technique diagrams pinned on its lower board (ignore Qiuqiu, the rat and the cart)."], ["bg/event_weapon_rack_r0.webp", "Qiuqiu's pose to copy: the practice stance holding the katana with both paws on the hilt (ignore the floating plank rack and the floating papers in this picture - they are drawn wrongly)."]]
+  },
+  "event_weapon_rack_r1": {
+    "why": "（主控追加）兵器架是一條懸空的橫木、沒有牆沒有腳；要換成新主圖那個有腳、立在地上的架子。老鼠付小魚乾給球球的動作本來就對，照原動作",
+    "scene": "The same freestanding wooden weapon rack as in reference image 3 stands on the floor patch on its two sturdy legs; all the rusty weapons are gone from it now - the pegs on its top plank are bare - and only the three parchment technique diagrams are still pinned on its lower board. In front of it, the small brown RAT's wooden hand cart stands on the floor piled high with the old rusty weapons (a spiked ball on a chain, rusty blades, a spear). The rat stands by the cart and hands Qiuqiu a bundle of dried fish tied with string; Qiuqiu holds the bundle firmly in both paws, counting the fish with a happy face.",
+    "style": "bg/event_weapon_rack.webp",
+    "refs": [["bg/event_weapon_rack.webp", "the WEAPON RACK to copy exactly: the freestanding rack on two legs with feet and the three technique diagrams pinned on its lower board; also copy the small brown rat with a green vest and satchel, and his cart (ignore Qiuqiu)."], ["bg/event_weapon_rack_r1.webp", "the action to copy: the rat handing the bundle of dried fish to Qiuqiu, and the cart piled with rusty weapons (ignore the floating plank rack in this picture - it is drawn wrongly)."]]
+  },
+  "event_feifei_weapon_rack_r0": {
+    "why": "（主控追加）兵器架懸空、火把沒有柱子撐、演招圖只是幾道紅色刮痕；要換成新主圖那個立地的架子。文字是「拿起兵器試了試重量，再比對圖裡的動作」，原圖菲菲只是伸手碰掛著的苦無",
+    "scene": "The same freestanding wooden weapon rack as in reference image 3 stands on the floor patch on its two sturdy legs with feet: a small torch fixed on top of each leg, three parchment technique diagrams (simple ink pictures of a cat in a fighting pose, no writing) fixed along the top of the rack, rusty weapons and a few shiny kunai hanging from its pegs, one peg now empty. Feifei stands in front of the rack holding the shiny kunai she took from that empty peg: its ring handle is firmly gripped in her paw and she weighs it, her eyes on one of the diagrams as she compares, her other paw raised in the same pose as the drawing. The rat and his cart are not in this picture.",
+    "style": "bg/event_feifei_weapon_rack.webp",
+    "refs": [["bg/event_feifei_weapon_rack.webp", "the WEAPON RACK to copy exactly: the freestanding rack on two legs with torches on top of its legs, the three technique diagrams along its top and the weapons on its pegs (ignore Feifei, the rat and the cart)."]]
+  },
+  "event_feifei_weapon_rack_r1": {
+    "why": "（主控追加）兵器架懸空、火把沒有柱子撐；而且老鼠都把舊兵器搬上車了，架上還掛滿兵器。要換成新主圖那個立地的架子、架上清空",
+    "scene": "The same freestanding wooden weapon rack as in reference image 3 stands on the floor patch on its two sturdy legs with feet, a small torch fixed on top of each leg and the three parchment technique diagrams still fixed along its top; the rusty weapons are gone from it now - its pegs are bare. The small pink-grey RAT's wooden hand cart stands on the floor piled high with the rusty old weapons (a rusty sword, an axe, a spiked ball), one sharp rusty blade tip sticking out over the cart's edge. The rat hands Feifei a bundle of dried fish tied with string; Feifei holds the bundle firmly in one paw and points with her other paw at the sharp blade tip sticking out of the cart, a slightly worried face.",
+    "style": "bg/event_feifei_weapon_rack.webp",
+    "refs": [["bg/event_feifei_weapon_rack.webp", "the WEAPON RACK to copy exactly (the freestanding rack on two legs with torches on top of its legs and the three technique diagrams along its top), and the small pink-grey rat in a tan tunic with his wooden hand cart (ignore Feifei)."]]
+  },
+  "event_fengfeng_weapon_rack_r0": {
+    "why": "（主控追加）兵器架懸空、演招圖浮在半空；而且封封拿的是架上的彎刀，文字是「挑一套能接到自己劍法上的招式……劍可以順著帶過去」，應該是用他自己的直劍",
+    "scene": "The same freestanding wooden weapon rack as in reference image 3 stands on the floor patch on its two sturdy legs, rusty weapons still hanging from the pegs of its top plank and the three parchment footwork diagrams pinned on its lower board (simple ink pictures of a cat silhouette with footprints and one red arrow, no writing). Beside the rack, Fengfeng practises a TURNING STEP: he has drawn his OWN straight jian from his scabbard - his paw closed firmly around its hilt with the brass guard and red tassel - and pivots on one foot, body turning, the straight blade sweeping around with the turn (curved motion lines follow the blade). His eyes glance at the diagrams. The empty dark-brown scabbard stays at his waist. The rat and his cart are not in this picture.",
+    "style": "bg/event_fengfeng_weapon_rack.webp",
+    "refs": [["bg/event_fengfeng_weapon_rack.webp", "the WEAPON RACK to copy exactly: the freestanding rack on two legs with feet, the rusty weapons on the pegs of its top plank and the three footwork diagrams pinned on its lower board (ignore Fengfeng, the rat and the cart)."]]
+  },
+  "event_fengfeng_weapon_rack_r1": {
+    "why": "（主控追加）兵器架懸空；動作照抄球球版（老鼠遞小魚乾），文字是「封封幫牠把露出的尖端包好」",
+    "scene": "The same freestanding wooden weapon rack as in reference image 3 stands on the floor patch on its two sturdy legs; the rusty weapons are gone from it now - the pegs on its top plank are bare - and only the three parchment footwork diagrams are still pinned on its lower board. In front of it, the small brown RAT's wooden hand cart stands on the floor piled high with the old rusty weapons; one rusty spear with a sharp tip sticks out over the cart's edge. Fengfeng wraps a strip of cloth around that sharp spear tip with both paws, tying it safe, a careful serious face. The rat stands at the cart handle, watching and nodding. A small bundle of dried fish tied with string (the rat's payment) lies on the floor at Fengfeng's feet. Fengfeng's sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_weapon_rack.webp",
+    "refs": [["bg/event_fengfeng_weapon_rack.webp", "the WEAPON RACK to copy exactly (the freestanding rack on two legs with feet and the three footwork diagrams on its lower board), and the small brown rat with a green vest and satchel with his wooden hand cart (ignore Fengfeng)."]]
+  },
+  "event_stuck_kitten": {
+    "why": "母貓扶小貓頭肩；小貓卡在兩根柱子間、整隻懸空、後腳沒踩地；球球已經雙手抓住小貓背部往外拉 → 主圖先畫了「上前協助」，也與「後腳踩著地面」不符",
+    "scene": "On the right, a short section of dark-orange wooden railing stands on the floor patch: a top rail and a bottom rail with several vertical balusters, the bottom rail resting on the floor. A small orange tabby KITTEN has pushed its head through the gap between two balusters and cannot pull it back: its head sticks out on the far side of the railing, while its body, all four legs and its tail stay on the near side. Its hind feet stand FLAT ON THE FLOOR. Its body twists anxiously and its tail lashes (two small motion lines by the tail); its face shows panic. The big plump orange tabby MOTHER CAT sits on the floor right beside the kitten on the near side, both of her front paws resting gently on the kitten's shoulders, her head bent close to it as she whispers to calm it down; worried but gentle face. Qiuqiu stands one step away on the left, both paws held up near his chest, NOT touching the kitten, watching with a worried face.",
+    "style": "bg/event_stuck_kitten_r0.webp",
+    "refs": [["bg/event_stuck_kitten_r1.webp", "the MOTHER CAT and the KITTEN to copy: the big plump orange tabby mother cat with a cream chest and the small orange tabby kitten on the right (ignore the hero on the left) - draw both cats with exactly this look; also copy the dark-orange wooden railing."]]
+  },
+  "event_feifei_stuck_kitten": {
+    "why": "小貓頭卡在欄杆裡，菲菲抓住小貓身體往外拉；沒有母貓；小貓後腳懸空",
+    "scene": "On the left, a short section of dark-orange wooden railing stands on the floor patch: a top rail and a bottom rail with several vertical balusters, the bottom rail resting on the floor. A small orange tabby KITTEN has pushed its head through the gap between two balusters and cannot pull it back: its head sticks out on the far side of the railing, while its body, all four legs and its tail stay on the near side. Its hind feet stand FLAT ON THE FLOOR. Its body twists anxiously and its tail lashes (two small motion lines by the tail); its face shows panic. The big plump orange tabby MOTHER CAT sits on the floor right beside the kitten on the near side, both of her front paws resting gently on the kitten's shoulders, her head bent close to it as she whispers to calm it down; worried but gentle face. Feifei stands one step away on the right, one paw raised near her chin, NOT touching the kitten, watching carefully with a concerned face.",
+    "style": "bg/event_feifei_stuck_kitten_r0.webp",
+    "refs": [["bg/event_feifei_stuck_kitten_r1.webp", "the MOTHER CAT and the KITTEN to copy: the big plump orange tabby mother cat with a cream chest and the small orange tabby kitten (ignore Feifei) - draw both cats with exactly this look; also copy the dark-orange wooden railing."]]
+  },
+  "event_dangdang_stuck_kitten": {
+    "why": "小貓頭卡在兩根短木樁間、後腳踩地；母貓在另一側扶頭肩；噹噹一手已按住小貓腰背 → 主圖先畫了主角動手扶",
+    "scene": "On the right, a short section of dark-brown wooden railing stands on the stone floor patch: a top rail and a bottom rail with several vertical posts, the bottom rail resting on the floor. A small brown tabby KITTEN has pushed its head through the gap between two posts and cannot pull it back: its head sticks out on the far side of the railing, while its body, all four legs and its tail stay on the near side. Its hind feet stand FLAT ON THE FLOOR. Its body twists anxiously and its tail lashes (two small motion lines by the tail); its face shows panic. The big brown tabby MOTHER CAT sits on the floor right beside the kitten on the near side, both of her front paws resting gently on the kitten's shoulders, her head bent close to it as she whispers to calm it down; worried but gentle face. Dangdang stands one step away on the left with his arms lowered at his sides, NOT touching the kitten, watching closely with a calm, attentive face, studying how the kitten twists.",
+    "style": "bg/event_dangdang_stuck_kitten_r0.webp",
+    "refs": [["bg/event_dangdang_stuck_kitten_r0.webp", "the MOTHER CAT and the KITTEN to copy: the big brown tabby mother cat with a cream muzzle and chest, and the small brown tabby kitten (ignore Dangdang) - draw both cats with exactly this look; also copy the dark-brown wooden railing and the stone floor patch."]]
+  },
+  "event_dangdang_stuck_kitten_r1": {
+    "why": "噹噹左側練架式，小貓已脫困站在柱旁；沒有母貓（文字「母貓指引小貓…」）；兩根柱子中間夾一條灰白顆粒狀殘留底色（去背沒清掉）",
+    "scene": "On the right, a short section of dark-brown wooden railing stands on the stone floor patch: a top rail and a bottom rail with several vertical posts; the gaps between the posts are EMPTY and see-through (transparent, nothing filling them). The small brown tabby KITTEN has just backed out of the railing and stands free on the floor right beside it, relieved, shaking its head. The big brown tabby MOTHER CAT sits beside the kitten, one front paw on the kitten's back, and turns her own shoulder to show it the move (tuck the front paws in, turn the shoulder). On the left, on an open part of the floor patch, Dangdang practises the same move: both paws tucked in close to his chest, one shoulder turned forward, body angled sideways as if slipping through a narrow gap, focused face; a few small motion lines by his shoulder.",
+    "style": "bg/event_dangdang_stuck_kitten_r0.webp",
+    "refs": [["bg/event_dangdang_stuck_kitten_r0.webp", "the MOTHER CAT and the KITTEN to copy: the big brown tabby mother cat with a cream muzzle and chest, and the small brown tabby kitten (ignore Dangdang) - draw both cats with exactly this look; also copy the dark-brown wooden railing and the stone floor patch."]]
+  },
+  "event_fengfeng_stuck_kitten": {
+    "why": "與球球主圖同構圖，母貓扶小貓頭，封封雙手抓小貓往外拉；文字「封封蹲下查看，發現牠的肩膀正壓在鐵條上」→ 沒蹲、沒查看、是木柱不是鐵條",
+    "scene": "A short railing stands on the floor patch: a wooden top rail and a wooden bottom rail (resting on the floor) with several vertical dark-grey IRON BARS between them. A small orange tabby KITTEN is stuck between two iron bars: its head and one front leg poke through to the far side, its shoulder pressed hard against one iron bar; its body, hind legs and tail stay on the near side, its hind feet standing on the floor, its tail lashing. On the far side of the railing the big plump orange tabby MOTHER CAT anxiously tugs at the kitten's front paw with both paws, worried face. Fengfeng CROUCHES low beside the kitten on the near side, knees bent, one paw resting on his knee and the other paw pointing at the spot where the kitten's shoulder presses on the iron bar, looking at it closely with a serious, thoughtful face. He is NOT pulling or holding the kitten. His sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_stuck_kitten_r0.webp",
+    "refs": [["bg/event_fengfeng_stuck_kitten_r1.webp", "the MOTHER CAT and the KITTEN to copy: the big plump orange tabby mother cat with a cream chest and the small orange tabby kitten on the right (ignore Fengfeng) - draw both cats with exactly this look."]]
+  },
+  "event_dangdang_catnip_field": {
+    "why": "噹噹已經仰躺在葉叢裡打滾、開心伸手；沒有看園老貓、沒有忍具箱 → 主圖先畫了選項一的結果",
+    "scene": "A thick patch of green catnip bushes with tiny white flowers covers the floor patch, and thin wisps of lavender-purple mist float between the leaves. Dangdang stands on his feet at the EDGE of the catnip patch - NOT lying down, NOT rolling - leaning forward a little with his nose lifted to sniff the strong scent, both eyes half-closed and a dreamy, tempted smile. Right beside the patch stands the OLD GARDEN CAT, pointing with one paw at a wooden ninja-tool chest that sits on the ground next to him (lid open, a shuriken and a round black bomb inside), looking at Dangdang with a knowing, warning face. The old cat has exactly two arms.",
+    "style": "bg/event_dangdang_catnip_field_r0.webp",
+    "refs": [["bg/event_dangdang_catnip_field_r1.webp", "the OLD GARDEN CAT to copy: the old grey cat with a white beard, a wide straw hat and an olive-green robe on the right (ignore Dangdang) - draw him with exactly this look; also copy the wooden ninja-tool chest and the green catnip bushes with tiny white flowers and lavender mist wisps."]]
+  },
+  "event_feifei_catnip_field": {
+    "why": "（主控補件）主圖畫成菲菲已經仰躺在貓薄荷裡打滾、眼睛轉圈圈（等於選項 1 的結果）；看園老貓和忍具箱都沒畫，也看不到紫霧；尾巴根部有一小塊來路不明的粉紅色塊",
+    "scene": "Dark-green catnip bushes with purple flower spikes cover the floor patch, and thin wisps of purple mist float between the leaves. Feifei stands on her feet at the EDGE of the catnip patch - NOT lying down, NOT rolling, still outside the bushes - leaning forward toward the bushes, drawn in by the scent, both paws raised in front of her chest as if about to dive in and roll, a tempted, sparkly-eyed face (normal eyes, not spirals). Right beside the patch stands the OLD GARDEN CAT with BOTH PAWS EMPTY - he holds NO catnip, no leaves, nothing: one paw points at the wooden ninja-tool chest that sits open on the ground right beside him (a shuriken and a round black bomb inside), and his other paw rests on the chest's open lid. He looks at Feifei with a knowing, warning face. The old cat has exactly two arms. No picked catnip bundle anywhere.",
+    "style": "bg/event_feifei_catnip_field_r1.webp",
+    "refs": [["bg/event_feifei_catnip_field.webp", "the LAYOUT, the OLD GARDEN CAT and the CHEST to copy: Feifei on the left, the old long-haired orange cat with a big white beard in a brown robe on the right, the open wooden chest and the catnip bushes - but in this picture the old cat wrongly holds a bundle of picked catnip: draw him with both paws empty (one pointing at the chest, one resting on its lid)."]]
+  },
+  "event_fengfeng_catnip_field": {
+    "why": "封封已仰躺在紫色貓薄荷裡打滾；沒有老貓、沒有忍具盒、沒有紫霧 → 主圖先畫了選項一結果",
+    "scene": "Purple catnip bushes cover the floor patch, and thin wisps of purple mist drift between the leaves. Fengfeng stands on his feet at the edge of the catnip - NOT lying down, NOT rolling - sniffing the strong scent with a tempted, slightly dazed smile and pink cheeks, one paw half-raised toward the leaves. Beside the catnip stands the OLD GARDEN CAT, holding up a small wooden ninja-tool box in both paws (lid open, a shuriken and a round black bomb inside), showing it to Fengfeng with a sly, warning look. The old cat has exactly two arms.",
+    "style": "bg/event_fengfeng_crying_wall_r0.webp",
+    "refs": [["bg/event_fengfeng_catnip_field_r1.webp", "the OLD GARDEN CAT to copy: the old long-haired orange cat with a big white beard in a brown robe on the right (ignore Fengfeng) - draw him with exactly this look but with only TWO arms; also copy the wooden ninja-tool box and the purple catnip bushes."]]
+  },
+  "event_fengfeng_catnip_field_r0": {
+    "why": "封封站著擺格鬥架式、漩渦眼咧嘴笑、紫色氣旋；文字「他坐起來後，胸口仍跳得很急…我都沒動了」→ 姿勢與文字矛盾",
+    "scene": "A patch of purple catnip bushes, flattened in the middle where he rolled. Fengfeng SITS UP on his bottom in the flattened catnip, legs stretched out in front of him - not standing, not in a fighting stance. One paw is pressed flat on his chest over his racing heart, the other paw props him up on the ground behind him. He pants with his mouth slightly open, cheeks flushed pink, one drop of sweat, eyebrows raised in puzzled worry, looking down at his own chest. Normal eyes, not spirals. A few thin wisps of purple mist curl around him and a couple of catnip leaves are stuck in his fur.",
+    "style": "bg/event_fengfeng_crying_wall_r0.webp",
+    "refs": [["bg/event_fengfeng_catnip_field_r0.webp", "the purple catnip bushes and the purple mist wisps to copy (ignore Fengfeng's standing pose and spiral eyes)."]]
+  },
+  "event_weapon_rack": {
+    "why": "只有兵器架＋球球踮腳伸手握住劍刃尾端把劍拉下；沒有推空車的老鼠、沒有三幅演招圖 → 主圖先畫了拿兵器（選項一）",
+    "scene": "A freestanding wooden weapon rack stands on the floor patch on two sturdy wooden legs with feet: a long horizontal plank with pegs across the top, and a wooden board fixed between the two legs below it. Most weapons hanging from the pegs are rusty and dusty (a spiked ball on a chain, rusty blades, a spear), and a few better-kept ones shine. Three parchment technique diagrams are pinned side by side on the lower board, each a simple ink picture of a ninja cat silhouette in a pose with one red arrow (no writing). Qiuqiu stands in front of the rack with both paws down at his sides, looking at the diagrams with curious, thoughtful eyes - he has NOT touched any weapon. On the right, a small brown RAT pushes his EMPTY wooden hand cart toward the rack, both paws on the cart handle, peeking round at the rusty weapons with a sly, interested grin.",
+    "style": "bg/event_weapon_rack_r1.webp",
+    "refs": [["bg/event_weapon_rack_r1.webp", "the RAT and his CART to copy: the small brown rat with a green vest and a satchel, and his wooden hand cart with two spoked wheels (ignore Qiuqiu and the dried fish) - draw them with exactly this look, but the cart is EMPTY."], ["bg/event_weapon_rack_r0.webp", "the WEAPONS and the three TECHNIQUE DIAGRAMS to copy: the rusty weapons on the plank (spiked ball on a chain, rusty blades, a shuriken, a spear) and the three parchment sheets with simple dark-blue ninja silhouettes and red arrows (ignore Qiuqiu and his sword)."]]
+  },
+  "event_feifei_weapon_rack": {
+    "why": "菲菲伸手去拿架上苦無；沒有老鼠與推車、沒有三幅演招圖",
+    "scene": "A freestanding wooden weapon rack stands on the floor patch on two sturdy wooden legs with feet: a long horizontal plank with pegs, a small torch fixed on top of each leg, and three parchment technique diagrams pinned side by side on a board fixed along the top of the rack, each a simple ink picture of a cat in a fighting pose (no writing). Most weapons hanging from the pegs are rusty and dusty (rusty blades, an axe, a spiked ball), and a few better-kept kunai shine. Feifei stands in front of the rack with one paw on her chin, looking up at the diagrams, thinking - she has NOT touched any weapon. On the left, a small pink-grey RAT pushes his EMPTY wooden hand cart toward the rack, both paws on the cart handle, peeking at the rusty weapons with a sly, interested grin.",
+    "style": "bg/event_feifei_weapon_rack_r1.webp",
+    "refs": [["bg/event_feifei_weapon_rack_r1.webp", "the RAT and his CART to copy: the small pink-grey rat in a tan tunic and his wooden hand cart (ignore Feifei and the dried fish) - draw them with exactly this look, but the cart is EMPTY; also copy the rack's rusty weapons and torches."], ["bg/event_feifei_weapon_rack_r0.webp", "the three parchment TECHNIQUE DIAGRAMS fixed along the top of the rack (ignore Feifei)."]]
+  },
+  "event_fengfeng_weapon_rack": {
+    "why": "與球球主圖同構圖，封封握劍刃把劍拉下；沒有老鼠推車、沒有演招圖；文字「封封先看了看圖上的步法」",
+    "scene": "A freestanding wooden weapon rack stands on the floor patch on two sturdy wooden legs with feet: a long horizontal plank with pegs across the top, and a wooden board fixed between the two legs below it. Most weapons hanging from the pegs are rusty and dusty (a spiked ball on a chain, rusty blades, a spear), and a few better-kept ones shine. Three parchment technique diagrams are pinned side by side on the lower board, each a simple ink picture of a cat silhouette with footprints and one red arrow showing the footwork (no writing). Fengfeng stands in front of the diagrams, head tilted, studying the footwork, one foot sliding half a step to copy the step drawn on the paper; his paws are at his sides and his sword stays sheathed at his waist - he has NOT touched any weapon. On the right, a small brown RAT stands behind his EMPTY wooden hand cart, both paws on the handle, looking at the rusty weapons with a sly, interested grin.",
+    "style": "bg/event_fengfeng_weapon_rack_r1.webp",
+    "refs": [["bg/event_fengfeng_weapon_rack_r1.webp", "the RAT and his CART to copy: the small brown rat with a green vest and a satchel, and his wooden hand cart with two spoked wheels (ignore Fengfeng and the dried fish) - draw them with exactly this look, but the cart is EMPTY."], ["bg/event_fengfeng_weapon_rack_r0.webp", "the WEAPONS and the three TECHNIQUE DIAGRAMS to copy: the rusty weapons on the plank and the three parchment sheets with simple dark-blue silhouettes and red arrows (ignore Fengfeng and his sword)."]]
+  },
+  "event_crying_wall": {
+    "why": "一塊石牆有直條水痕，球球手扶牆、擔心臉；沒有「哭臉」水痕、沒有牆腳鬆動藏物磚與布包",
+    "scene": "A tall free-standing chunk of old stone wall made of big dark mossy blocks stands on the floor patch; its whole top is visible, nothing cut off. On its face, dark wet water stains clearly form a big CRYING FACE: two long drippy streaks running down from two eye spots like tears, and a downturned curved stain below them like a sad mouth, with a little water trickling down. Beside the face, a few faint old scratch marks in the stone (simple scratches, not letters). At the very foot of the wall one block sits loose and slightly pulled out, and from the gap behind it peeks the corner of a small tied cloth bundle. Qiuqiu stands in front of the wall, leaning close with one ear turned toward the stone, listening; his face is sad and gentle, his paws held near his chest, not touching the loose block.",
+    "style": "bg/event_crying_wall_r0.webp",
+    "refs": [["bg/event_crying_wall_r0.webp", "the STONE WALL to copy: the tall free-standing chunk of wall built of big dark mossy stone blocks (ignore Qiuqiu)."]]
+  },
+  "event_feifei_crying_wall": {
+    "why": "菲菲手扶石牆側耳聽；沒有哭臉、沒有藏物磚布包；牆頂被圖框切平",
+    "scene": "A tall free-standing section of old stone wall made of mossy brown-grey blocks stands on the floor patch; its whole uneven top is visible with clear transparent space above it - nothing cut off. On its face, dark wet water stains clearly form a big CRYING FACE: two long drippy streaks running down from two eye spots like tears, and a downturned curved stain below them like a sad mouth, with a little water trickling down. Beside the face, a few faint old scratch marks in the stone (simple scratches, not letters). At the very foot of the wall one block sits loose and slightly pulled out, and from the gap behind it peeks the corner of a small tied cloth bundle. Feifei stands beside the wall with one paw lightly resting on the stone and her ear turned close to it, listening, her eyes glancing sideways, a serious, wary face.",
+    "style": "bg/event_feifei_crying_wall_r0.webp",
+    "refs": [["bg/event_feifei_crying_wall_r0.webp", "the STONE WALL to copy: the wall of mossy brown-grey stone blocks with thin water streaks (ignore Feifei) - but draw the whole wall including its top."]]
+  },
+  "event_fengfeng_crying_wall": {
+    "why": "封封手扶牆、疑惑臉；沒有哭臉、沒有藏物磚布包",
+    "scene": "A tall free-standing chunk of old stone wall made of big dark mossy blocks stands on the floor patch; its whole top is visible, nothing cut off. On its face, dark wet water stains clearly form a big CRYING FACE: two long drippy streaks running down from two eye spots like tears, and a downturned curved stain below them like a sad mouth, with a little water trickling down. Beside the face, a few faint old scratch marks in the stone (simple scratches, not letters). At the very foot of the wall one block sits loose and slightly pulled out, and from the gap behind it peeks the corner of a small tied cloth bundle. Fengfeng stands in front of the wall, head tilted with one ear toward a crack in the stone where the voice comes from, a puzzled, serious face, his eyes glancing down at the loose block; his paws are at his sides and his sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_crying_wall_r0.webp",
+    "refs": [["bg/event_fengfeng_crying_wall_r0.webp", "the STONE WALL to copy: the tall free-standing chunk of wall built of big dark mossy stone blocks (ignore Fengfeng)."]]
+  },
+  "event_fish_pond": {
+    "why": "球球趴池邊伸爪碰水、表情平靜好奇；沒有魚乾籃、沒有水底大黑影；爪子還在水裡（文字「連忙縮手」）",
+    "scene": "An oval pond with a grey stone rim and bright blue water sits on the ground. A few plump fish (an orange one, a red one and a blue-grey one) swim near the surface. On the ground right beside the pond rim sits a round woven basket full of small dried fish. Deep under the water a HUGE dark fish-shaped SHADOW glides past, bigger than all the other fish together (only a dark silhouette under the surface). Qiuqiu crouches at the pond edge and has just YANKED HIS PAW BACK: the paw is pulled up close to his chest, out of the water, with a few water drops flying off it; his fur puffs up and both eyes are wide with surprise as he stares down at the giant shadow.",
+    "style": "bg/event_fish_pond_r0.webp",
+    "refs": [["bg/event_fish_pond_r1.webp", "the POND to copy: the oval pond with a grey stone rim, bright blue water, an orange fish, a red fish and a blue-grey fish, and the round woven basket of dried fish (ignore Qiuqiu and the big splashing tail)."]]
+  },
+  "event_feifei_fish_pond": {
+    "why": "菲菲伸爪碰水；錦鯉三條、荷葉；沒有魚乾籃、沒有大黑影",
+    "scene": "A pond with a rim of mossy round stones, grass tufts and lily pads sits on the ground; a few plump orange-and-white koi swim near the surface. On the ground right beside the pond rim sits a round woven basket full of small dried fish. Deep under the water a HUGE dark slate-grey fish-shaped SHADOW glides past, bigger than all the koi together (only a dark silhouette under the surface). Feifei crouches at the pond edge and has just YANKED HER PAW BACK: the paw is pulled up close to her chest, out of the water, with a few water drops flying off it; her eyes are narrowed warily as she stares down at the giant shadow.",
+    "style": "bg/event_feifei_fish_pond_r0.webp",
+    "refs": [["bg/event_feifei_fish_pond_r1.webp", "the POND to copy: the pond with a rim of mossy round stones, grass tufts, lily pads and orange-and-white koi, and the round woven basket of dried fish (ignore Feifei and the splashing tail)."]]
+  },
+  "event_dangdang_fish_pond_r1": {
+    "why": "從水裡甩出的大尾巴畫成黑色毛茸茸的貓尾巴，尾端直接接在噹噹屁股上，看起來像噹噹自己的尾巴伸進水裡；噹噹自己的尾巴沒另外畫",
+    "scene": "A pond with a grey stone rim and dark teal water, a couple of koi near the surface. A HUGE FISH TAIL bursts up out of the water with a big splash: a real fish tail - a broad forked tail fin with scales and fin rays, dark slate-grey, wet and shiny, attached to a giant fish body that stays hidden under the water. It is NOT furry and NOT a cat tail. On the ground beside the pond, clearly separated from the fish tail by a wide gap, Dangdang has been knocked over onto his side: he props himself up on one elbow, wincing with both eyes squeezed shut, while his other arm hugs a round woven basket of dried fish tight against his body. Dangdang's own fluffy black cat tail is drawn separately, coming from his own bottom. A few water drops splash around.",
+    "style": "bg/event_dangdang_fish_pond.webp",
+    "refs": [["bg/event_dangdang_fish_pond.webp", "the POND, the KOI and the BASKET of dried fish to copy (ignore Dangdang's pose); the huge dark shadow under the water shows the giant fish's colour."]]
+  },
+  "event_fengfeng_fish_pond": {
+    "why": "與球球主圖同構圖；沒有魚乾籃、沒有大黑影",
+    "scene": "An oval pond with a grey stone rim and bright blue water sits on the ground. A few plump fish (an orange one, a red one and a blue-grey one) swim near the surface. On the ground right beside the pond rim sits a round woven basket full of small dried fish. Deep under the water a HUGE dark fish-shaped SHADOW glides past, bigger than all the other fish together (only a dark silhouette under the surface). Fengfeng CROUCHES at the pond edge, knees bent, both paws on his knees, leaning forward to peer down at the giant shadow with a serious, alert face. His paws are out of the water; his sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_fish_pond_r0.webp",
+    "refs": [["bg/event_fengfeng_fish_pond_r1.webp", "the POND to copy: the oval pond with a grey stone rim, bright blue water, an orange fish, a red fish and a blue-grey fish, and the round woven basket of dried fish (ignore Fengfeng and the big splashing tail)."]]
+  },
+  "event_catnip_field_r1": {
+    "why": "三隻手：老貓一隻手從上方抓嫩葉，胸前又有兩隻手捧著炸彈與手裏劍（已放大確認）",
+    "scene": "Purple catnip bushes around the floor patch. The exchange has just been made. On the left, Qiuqiu happily holds up the two ninja tools he got in return: a round black bomb held firmly in one paw and a steel shuriken held firmly in his other paw. On the right, the OLD GARDEN CAT hugs the neat bundle of tender catnip leaves (tied with string) against his chest with BOTH of his paws and sniffs it with a contented smile. The old cat has exactly TWO arms and both of them are wrapped around the leaf bundle - he holds nothing else, and there is no paw in front of his belly. An open wooden chest of ninja tools sits on the ground beside the old cat.",
+    "style": "bg/event_catnip_field_r0.webp",
+    "refs": [["bg/event_catnip_field_r1.webp", "the OLD GARDEN CAT and the CHEST to copy: the old long-haired orange cat with a big white beard in a brown robe, and the open wooden chest of ninja tools (ignore Qiuqiu). In this reference the old cat's arms and paws are drawn wrongly (three paws) - ignore his pose and hands completely, copy only his face, fur and robe."]]
+  },
+  "event_fengfeng_catnip_field_r1": {
+    "why": "三隻手：老貓一隻手抓嫩葉，胸前又有兩隻手捧著炸彈與手裏劍（已放大確認）",
+    "scene": "Purple catnip bushes around the floor patch. The exchange has just been made. On the left, Fengfeng holds the two ninja tools he got in return: a round black bomb held firmly in one paw and a steel shuriken held firmly in his other paw; a small separate pile of older, darker catnip leaves lies on the ground at his feet, kept apart. On the right, the OLD GARDEN CAT hugs the neat bundle of tender catnip leaves (tied with string) against his chest with BOTH of his paws and sniffs it with a contented smile. The old cat has exactly TWO arms and both of them are wrapped around the leaf bundle - he holds nothing else, and there is no paw in front of his belly. An open wooden chest of ninja tools sits on the ground beside the old cat. Fengfeng's sword stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_crying_wall_r0.webp",
+    "refs": [["bg/event_fengfeng_catnip_field_r1.webp", "the OLD GARDEN CAT and the CHEST to copy: the old long-haired orange cat with a big white beard in a brown robe, and the open wooden chest of ninja tools, and the purple catnip bushes (ignore Fengfeng). In this reference the old cat's arms and paws are drawn wrongly (three paws) - ignore his pose and hands completely, copy only his face, fur and robe."]]
+  }
+}

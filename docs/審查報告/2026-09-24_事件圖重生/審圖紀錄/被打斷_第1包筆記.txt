@@ -1,0 +1,40 @@
+審圖筆記（第 1 包）— 29~98 已親眼看過
+29 feifei_trace_r1 可忍：右側一段深藍線飄在半空沒掛東西；文字的忍術卷與魚乾袋沒畫
+30 feifei_brew 沒問題
+31 feifei_brew_r0 沒問題
+32 feifei_brew_r1 沒問題（本子上是波浪線，不是字）
+33 feifei_pouch 可忍：右側櫃子被畫框右緣、下緣直線切掉；看不到手上滲血繃帶
+34 feifei_pouch_r0 沒問題
+35 feifei_pouch_r1 沒問題（針袋顏色跟主圖不同，紫 vs 麻布）
+36 feifei_signal 可忍?：門柱頂端被畫框上緣直線切
+37 feifei_signal_r0 沒問題
+38 feifei_signal_r1 可忍?：右側鐵機關被畫框上下右三邊切
+39 daxia_teach 可忍：球球毛色偏冷灰（非奶油白）
+40 daxia_teach_r0 可忍：同上
+41 feifei_daxia_teach 沒問題
+42 feifei_daxia_teach_r0 沒問題
+43 dangdang_daxia_teach 沒問題
+44 dangdang_daxia_teach_r0 沒問題
+45 fengfeng_daxia_teach 可忍：文字說三幅圖很清楚，書頁只有波浪紋沒有圖；紅圍巾尾巴在頭高處飄像頭巾（由球球版改色）
+46 fengfeng_daxia_teach_r0 可忍：文字說照圖踏步、用劍鞘試出手，圖只畫趴著看書
+47-58 daxia_chest 四組 12 張 沒問題（47 球球奶油色正確）
+59-74 daxia_lastpage 四組 16 張 沒問題
+75-77 blue_headband 沒問題
+78-80 target 沒問題（r1 三枚：左手兩枚右手一枚）
+81-82 roof_shadow 沒問題
+83 toll 可忍：球球毛色冷灰、畫風不同；山賊腿沒抖（文字說腿抖個不停）
+84 toll_r0 可忍：球球毛色冷灰
+85 feifei_toll 沒問題
+86 feifei_toll_r0 沒問題（木棒斜在背後，勉強算夾在腋下）
+87 dangdang_toll 沒問題
+88 dangdang_toll_r0 沒問題
+89 fengfeng_toll 可忍：封封腳底被直線切掉；沒畫把行囊移到身後
+90 fengfeng_toll_r0 重生：封封拔劍衝刺刺向山賊，文字是付錢後從旁走過
+91 robin 重生：主圖已畫球球提著一串魚乾遞給村貓（先畫出選項結果），文字是摸魚乾袋；球球毛色冷灰
+92 robin_r0 重生：球球跪著發紙片/卡片，橘村貓替球球包紮手臂，村貓手拿紙片，魚乾丟在地上沒人吃；文字是村貓分吃魚乾、球球坐著歇
+93 feifei_robin 重生：主圖已提著魚乾遞給村貓
+94 feifei_robin_r0 重生：菲菲遞紙片，地上畫叉的紙片，村貓拿碗和布替她處理傷；沒人吃魚乾
+95 dangdang_robin 沒問題
+96 dangdang_robin_r0 沒問題（待查右緣尾巴）
+97 fengfeng_robin 重生：提著魚乾遞給村貓；文字是村貓抱空糧袋、封封打開自己袋子估算
+98 fengfeng_robin_r0 重生：同 92 構圖，發紙片、被包紮，沒一起吃魚乾

@@ -1,0 +1,209 @@
+{
+  "event_dangdang_old_master_ghost": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_old_master_ghost.webp",
+    "bytes": 38704,
+    "droppedSpecks": 168,
+    "gate": [],
+    "sha256": "4020e52da9c203684627c3dcb70c7753f39a32a5981071ecf64d89db81977f5d",
+    "at": "2026-09-24 12:34:34"
+  },
+  "event_dangdang_old_master_ghost_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_old_master_ghost_r0.webp",
+    "bytes": 43900,
+    "droppedSpecks": 301,
+    "gate": [],
+    "sha256": "0c05d22830b18d73818944bdb209427ba28a1f7c28652c46eed7ac00cf9708cc",
+    "at": "2026-09-24 12:34:37"
+  },
+  "event_dangdang_old_master_ghost_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_old_master_ghost_r1.webp",
+    "bytes": 41564,
+    "droppedSpecks": 232,
+    "gate": [],
+    "sha256": "3c8a8c11ed6a6268d7f9cc6810e5b407bb6393ac7608c088b7fa483a5aa54869",
+    "at": "2026-09-24 12:34:41"
+  },
+  "event_dangdang_toll_again_paid": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_toll_again_paid.webp",
+    "bytes": 48686,
+    "droppedSpecks": 214,
+    "gate": [],
+    "sha256": "556c31873b77ed53ea3c2a8808e5723ec94edb27011fcbcaf7b0bb8480dabad6",
+    "at": "2026-09-24 12:48:21"
+  },
+  "event_dangdang_toll_again_paid_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_toll_again_paid_r0.webp",
+    "bytes": 48354,
+    "droppedSpecks": 213,
+    "gate": [],
+    "sha256": "c4296bb0c73aa655a30f5af9ec0feb939b5d50677a3014a44c23a1e99b422ea8",
+    "at": "2026-09-24 12:35:17"
+  },
+  "event_dangdang_toll_again_paid_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_toll_again_paid_r1.webp",
+    "bytes": 49002,
+    "droppedSpecks": 156,
+    "gate": [],
+    "sha256": "dc266ff96b123656b20582cb568c8b998cfdbaeb88a3998dfe1d2901fc058d25",
+    "at": "2026-09-24 12:48:24"
+  },
+  "event_feifei_greedy_merchant": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_greedy_merchant.webp",
+    "bytes": 51754,
+    "droppedSpecks": 146,
+    "gate": [],
+    "sha256": "4178a6ff30098567244a02fd21b2f29ce6a6d16c802ae8a956e8cfabe41ce9ac",
+    "at": "2026-09-24 12:35:03"
+  },
+  "event_feifei_old_master_ghost": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_old_master_ghost.webp",
+    "bytes": 62060,
+    "droppedSpecks": 168,
+    "gate": [],
+    "sha256": "538e348a71e701e8b718ec98946e7a5901b1f8dbd050f725cbc60050ed6a67ed",
+    "at": "2026-09-24 12:34:23"
+  },
+  "event_feifei_old_master_ghost_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_old_master_ghost_r0.webp",
+    "bytes": 56096,
+    "droppedSpecks": 202,
+    "gate": [],
+    "sha256": "cf3b565830f6e59cc6f70207849216f2aafdb9c7737b8425591b3584e4e1a585",
+    "at": "2026-09-24 12:34:27"
+  },
+  "event_feifei_old_master_ghost_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_old_master_ghost_r1.webp",
+    "bytes": 49366,
+    "droppedSpecks": 144,
+    "gate": [],
+    "sha256": "e99c47ab5bb07a038ebff69a6340d98d381f66039b2f809149e2e092648f85ee",
+    "at": "2026-09-24 12:34:30"
+  },
+  "event_fengfeng_greedy_merchant": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_greedy_merchant.webp",
+    "bytes": 44452,
+    "droppedSpecks": 160,
+    "gate": [],
+    "sha256": "c295eecf8f23e5687f1992c6d310a39ec4cc96ea41f22b7c26755770971db0b5",
+    "at": "2026-09-24 12:35:06"
+  },
+  "event_fengfeng_moon_window": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_moon_window.webp",
+    "bytes": 32300,
+    "droppedSpecks": 96,
+    "gate": [],
+    "sha256": "10f511a71017effa6d8ed5a520d5a6ecff99032773cc3aeb3a53cdf5aa07bc5f",
+    "at": "2026-09-24 12:34:55"
+  },
+  "event_fengfeng_old_master_ghost": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_old_master_ghost.webp",
+    "bytes": 51534,
+    "droppedSpecks": 194,
+    "gate": [],
+    "sha256": "1b8545a70dd2d7b81a39233201b9799069f35bf17e395e9403cfbf2da6a2a2bb",
+    "at": "2026-09-24 12:34:45"
+  },
+  "event_fengfeng_old_master_ghost_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_old_master_ghost_r0.webp",
+    "bytes": 45674,
+    "droppedSpecks": 163,
+    "gate": [],
+    "sha256": "c683594769faa86becdcfe9eb675174ddcdb3e25cd0dacb1ff72de79a372766f",
+    "at": "2026-09-24 12:34:48"
+  },
+  "event_fengfeng_old_master_ghost_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_old_master_ghost_r1.webp",
+    "bytes": 47056,
+    "droppedSpecks": 172,
+    "gate": [],
+    "sha256": "0801642e1c9e133fe0b797b118d5ddefa9dc812037c66ac01a11bd1fb3132c4f",
+    "at": "2026-09-24 12:34:52"
+  },
+  "event_fengfeng_toll_again_fought": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_toll_again_fought.webp",
+    "bytes": 48418,
+    "droppedSpecks": 155,
+    "gate": [],
+    "sha256": "296b5ce290f65e9ca1584d654d6985dbb8d1742d0e47ec32ac251437aa8a449d",
+    "at": "2026-09-24 12:48:14"
+  },
+  "event_fengfeng_toll_again_fought_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_toll_again_fought_r1.webp",
+    "bytes": 46496,
+    "droppedSpecks": 170,
+    "gate": [],
+    "sha256": "dd0452043b010e16e86fb6f10e87356e61e29ad07e0c197d5939f77487dcc6f8",
+    "at": "2026-09-24 12:48:17"
+  },
+  "event_greedy_merchant": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_greedy_merchant.webp",
+    "bytes": 43344,
+    "droppedSpecks": 135,
+    "gate": [],
+    "sha256": "bb1864d24fafd60fbc3f6caff0ee6bfc0d6bc42cc30aa5e81881ea5642ed1608",
+    "at": "2026-09-24 12:34:59"
+  },
+  "event_old_master_ghost": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_old_master_ghost.webp",
+    "bytes": 46216,
+    "droppedSpecks": 255,
+    "gate": [],
+    "sha256": "e34f2ff0020568b1bcc838ca31e627bbe41fe3a273aea6cfe372cea46de9c583",
+    "at": "2026-09-24 12:34:11"
+  },
+  "event_old_master_ghost_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_old_master_ghost_r0.webp",
+    "bytes": 47914,
+    "droppedSpecks": 173,
+    "gate": [],
+    "sha256": "e82c9639c451648987af05ff7e3a7bebe2d02ce31ad5055b0035b6fb887cc228",
+    "at": "2026-09-24 12:34:15"
+  },
+  "event_old_master_ghost_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_old_master_ghost_r1.webp",
+    "bytes": 44316,
+    "droppedSpecks": 241,
+    "gate": [],
+    "sha256": "d012a9a9e9ff89a35d25340c7d8a13edb06e04845e964365ec41122ea3034010",
+    "at": "2026-09-24 12:34:19"
+  },
+  "event_toll_again_fought": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_toll_again_fought.webp",
+    "bytes": 51438,
+    "droppedSpecks": 347,
+    "gate": [],
+    "sha256": "a4272d4f38d17b8243b1fad2955a2d065d7b9af920b0c187f9d885c760851a08",
+    "at": "2026-09-24 12:35:10"
+  },
+  "event_toll_again_fought_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_toll_again_fought_r1.webp",
+    "bytes": 41478,
+    "droppedSpecks": 371,
+    "gate": [],
+    "sha256": "c88b45ba63043d287aa6bae202bbab2b6da32c8c62d6355b3dd239bb821012ca",
+    "at": "2026-09-24 12:35:14"
+  }
+}

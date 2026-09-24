@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { relics } from '../../src/content/relics';
 
@@ -44,8 +44,12 @@ describe('批次 rest：換新畫風的圖都是閘門量過的那一版', () =>
     for (const file of want) expect(RECORD[file], file).toBeDefined();
     // 封封去殘渣那三張立繪（出招、閃避、輕功）2026-09-23 被批次 statics 整張換成新畫風，改由 static_from_motion.test.ts 守雜湊
     const replaced = new Set((STATICS.assets as { file: string }[]).map((a) => `public/${a.file}`));
+    // 2026-09-24 事件圖重生（`tools/regen_event_art.py`，圖文對不上的整張重畫）又換掉幾張封封插圖，改由 event_regen_0924.test.ts 守雜湊
+    const REGEN = 'tools/motion-art-source/regen0924';
+    const regenerated = new Set(readdirSync(REGEN).filter((f) => /^picks(_g\d+)?\.json$/.test(f))
+      .flatMap((f) => Object.values(JSON.parse(readFileSync(`${REGEN}/${f}`, 'utf8')) as Record<string, { file: string }>).map((p) => p.file)));
     for (const entry of Object.values(RECORD)) {
-      if (replaced.has(entry.file)) continue;
+      if (replaced.has(entry.file) || regenerated.has(entry.file)) continue;
       expect(sha(entry.file), entry.file).toBe(entry.sha256);
     }
     expect([...replaced].filter((file) => RECORD[file]).sort()).toEqual([

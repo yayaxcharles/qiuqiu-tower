@@ -1,0 +1,164 @@
+{
+  "event_blocked": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_blocked.webp",
+    "bytes": 52366,
+    "droppedSpecks": 102,
+    "gate": [],
+    "sha256": "7b05abdba56ef3c31dedf932c81774824e0876cf363e0de6a845e7919185c1c0",
+    "at": "2026-09-24 12:35:13"
+  },
+  "event_dangdang_jammed_gate_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_dangdang_jammed_gate_r0.webp",
+    "bytes": 47806,
+    "droppedSpecks": 150,
+    "gate": [],
+    "sha256": "97e1bf4f1f84287c24288cf24a277293592215694d4e504abe68992df5b14770",
+    "at": "2026-09-24 13:22:55"
+  },
+  "event_dangdang_jammed_gate_r1": {
+    "attempt": 5,
+    "file": "public/assets/bg/event_dangdang_jammed_gate_r1.webp",
+    "bytes": 44368,
+    "droppedSpecks": 119,
+    "gate": [],
+    "sha256": "3432f9cb0bd5071a48d30d615aa3f5606fd87fa03d93b101ef48fdc4f1bdb408",
+    "at": "2026-09-24 13:25:12"
+  },
+  "event_dangdang_jammed_gate_r2": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_jammed_gate_r2.webp",
+    "bytes": 45620,
+    "droppedSpecks": 153,
+    "gate": [],
+    "sha256": "f573981f9fac7ce638db0beddda7399b712e75561fa15f5ca86899a8c9bf3018",
+    "at": "2026-09-24 12:21:53"
+  },
+  "event_feifei_blocked": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_blocked.webp",
+    "bytes": 50752,
+    "droppedSpecks": 99,
+    "gate": [],
+    "sha256": "b286f7ec6b2032d4f61d554b76e1faf917f5083a1622b835c59fffe9bead34ac",
+    "at": "2026-09-24 12:35:16"
+  },
+  "event_feifei_hidden_box_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_hidden_box_r0.webp",
+    "bytes": 47860,
+    "droppedSpecks": 185,
+    "gate": [],
+    "sha256": "23313aaf42617d2d58865cc7d57afc6fa421fc3b6283d7adecfe384ad90fef83",
+    "at": "2026-09-24 12:34:30"
+  },
+  "event_fengfeng_blocked": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_blocked.webp",
+    "bytes": 53286,
+    "droppedSpecks": 87,
+    "gate": [],
+    "sha256": "060798baad8641b0eacd992c2498518dc35956973200415d231ef81246bcdaf8",
+    "at": "2026-09-24 12:33:01"
+  },
+  "event_fengfeng_blocked_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_blocked_r0.webp",
+    "bytes": 42366,
+    "droppedSpecks": 195,
+    "gate": [],
+    "sha256": "4146de02b34400d272b563e68c0bd64cf458defed4c97c2fcdbc18167f31b4c6",
+    "at": "2026-09-24 12:32:57"
+  },
+  "event_fengfeng_broken_bridge_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_broken_bridge_r1.webp",
+    "bytes": 52920,
+    "droppedSpecks": 360,
+    "gate": [],
+    "sha256": "3c9835993dec78558eb685d4003349ad040badb24313e3ac0cdff4a22e5451c4",
+    "at": "2026-09-24 12:18:49"
+  },
+  "event_fengfeng_fallen_rack": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_fallen_rack.webp",
+    "bytes": 34226,
+    "droppedSpecks": 135,
+    "gate": [],
+    "sha256": "288c166c3b6d7b5c23a40d147dd663dc0ecd427400238ab256ef8b161c95f910",
+    "at": "2026-09-24 12:23:20"
+  },
+  "event_fengfeng_lost_medicine_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_lost_medicine_r2.webp",
+    "bytes": 42678,
+    "droppedSpecks": 190,
+    "gate": [],
+    "sha256": "5b984bbf5168e3ff1c569a7ecf447fe81e86d4aca530e6d798a4509c4850cc20",
+    "at": "2026-09-24 12:20:06"
+  },
+  "event_fengfeng_seclusion": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_seclusion.webp",
+    "bytes": 47964,
+    "droppedSpecks": 122,
+    "gate": [],
+    "sha256": "7f9da7f941e3825df6e7ba6eb2002a9ffc6c9d2cbd33d21e9899b6f41ee50f7f",
+    "at": "2026-09-24 12:33:05"
+  },
+  "event_fengfeng_seclusion_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_seclusion_r0.webp",
+    "bytes": 43362,
+    "droppedSpecks": 228,
+    "gate": [],
+    "sha256": "5ae52944e7fc3a89215c3ff4a9726808550cfd690cfba4cfde3ec472e4c45d5a",
+    "at": "2026-09-24 12:26:45"
+  },
+  "event_fengfeng_seclusion_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_seclusion_r1.webp",
+    "bytes": 44278,
+    "droppedSpecks": 86,
+    "gate": [],
+    "sha256": "3261e4d2a05fcd99eba823d35127cc6ae22ada59e03c1394f695c6c1d5cee944",
+    "at": "2026-09-24 12:26:49"
+  },
+  "event_rescue_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rescue_r0.webp",
+    "bytes": 36330,
+    "droppedSpecks": 159,
+    "gate": [],
+    "sha256": "9ea235a8ca766e07576fb44af7c2e4cc4d008e21dda848e5f2730bdf3066b848",
+    "at": "2026-09-24 12:24:10"
+  },
+  "event_seclusion": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_seclusion.webp",
+    "bytes": 43844,
+    "droppedSpecks": 68,
+    "gate": [],
+    "sha256": "a21e3ec45cb0ff9ce9b9539fa9255a2e7d144adbf3b184d0533ab631216f2546",
+    "at": "2026-09-24 12:26:33"
+  },
+  "event_seclusion_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_seclusion_r0.webp",
+    "bytes": 40772,
+    "droppedSpecks": 109,
+    "gate": [],
+    "sha256": "561408320b3678a28b101294846b82541456dd4b15be49c1ba0770f616046dfa",
+    "at": "2026-09-24 12:27:40"
+  },
+  "event_seclusion_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_seclusion_r1.webp",
+    "bytes": 42112,
+    "droppedSpecks": 122,
+    "gate": [],
+    "sha256": "a8da856940e263841ed21c423c47232fe7ce038fb6959abc6bc1d90840eb2f0d",
+    "at": "2026-09-24 12:26:37"
+  }
+}

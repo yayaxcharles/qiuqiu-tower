@@ -6,7 +6,8 @@
 
     { "<檔名，不含 .webp>": { "hero": "fengfeng", "scene": "<英文：誰在場、在做什麼、道具放在哪、手怎麼拿>",
                                "style": "bg/event_xxx.webp", "refs": [["bg/event_yyy.webp", "<英文：這張參考圖給什麼>"]],
-                               "why": "<中文：原本錯在哪>" } }
+                               "why": "<中文：原本錯在哪>",
+                               "gear_off": "<選填，英文：這張卸下了哪件裝備、放在哪；有寫就取代「裝備永遠穿在身上」那條>" } }
 
 參考圖：① 這隻的新版待機第 1 格（長相只照它）② `style`：同一隻畫得對的另一張事件圖（只取畫風）
 ③ `refs`：配角或道具的長相（例如另一張畫得對的村貓）。`hero` 是 `none` 的（連線限定、四隻共用的那幾張）不附①、不畫主角。
@@ -28,6 +29,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -47,9 +49,12 @@ ROOT = c1.ROOT
 SOURCE = ROOT / 'tools/motion-art-source/regen0924'
 REF = SOURCE / '_ref'
 OLD = SOURCE / '_old'
-PROMPTS = SOURCE / 'prompts.json'
-PICKS = SOURCE / 'picks.json'
-JOBS = ROOT / 'docs/審查報告/2026-09-24_事件圖重生/jobs.json'
+# 幾組同時做（`REGEN_GROUP=g1` …）：工單、提示詞紀錄、選定紀錄各組一份，才不會兩個行程同時改同一個 json 互蓋。
+# 圖檔名本來就各不相同（一張圖只在一組），生圖暫存與參考圖共用同一個資料夾。
+_SUFFIX = f'_{os.environ["REGEN_GROUP"]}' if os.environ.get('REGEN_GROUP') else ''
+PROMPTS = SOURCE / f'prompts{_SUFFIX}.json'
+PICKS = SOURCE / f'picks{_SUFFIX}.json'
+JOBS = ROOT / f'docs/審查報告/2026-09-24_事件圖重生/jobs{_SUFFIX}.json'
 ASSETS = ROOT / 'public/assets'
 BG = c1.BG
 
@@ -119,6 +124,10 @@ def prompt_for(name: str) -> str:
                                  'no enemies, no master.', 'Only the characters named in the SCENE appear - no other '
                                  'cats, no extra copies of anyone.')
     rules = '' if hero == 'none' else c1.hero_rules(hero)
+    if job.get('gear_off'):
+        # 這張的文字要卸下裝備（護臂放桌上、劍放窩邊）：原本「永遠穿在身上」那段整段換掉，不然兩句打架、
+        # 模型會照規則畫回身上（2026-09-24 第一組工人查出：澡堂、書庫、貓薄荷田的舊圖都錯在這）
+        rules = re.sub(r'WORN GEAR:[^\n]*\n', f'GEAR IN THIS SCENE: {job["gear_off"]}\n', rules, count=1)
     return head + extra + f'SCENE: {job["scene"]}\n' + PHYSICS + CAST + tail + rules
 
 
