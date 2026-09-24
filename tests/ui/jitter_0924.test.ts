@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { transformWithOxc } from 'vite';
-import { keepLoops } from '../../src/ui/dom';
+import { ENTER_MS, keepLoops } from '../../src/ui/dom';
 import { clearKeepBg } from '../../src/ui/screenbg';
 import APP_RAW from '../../src/ui/app.ts?raw';
 import SCENE_RAW from '../../src/ui/scene.ts?raw';
@@ -113,7 +113,7 @@ async function loadShow() {
   const screens = new Map<string, (app: unknown, root: unknown, props: unknown) => void>();
   new Function('__out', 'screens', 'setBgm', 'hideTooltip', 'closeScreenModals', 'me', 'setLocalPartnerHero', 'clear', 'swapScreen', 'retireLeavingScreen', 'keepLoops', 'document', 'performance', 'ENTER_MS', code)(
     out, screens, () => {}, () => {}, () => {}, () => ({}), () => {}, () => {}, () => ({}), () => {},
-    (root: unknown, t0: number) => kept.push([root, t0]), { timeline }, { now: () => clock.t }, 300);
+    (root: unknown, t0: number) => kept.push([root, t0]), { timeline }, { now: () => clock.t }, ENTER_MS);
   let loading = false;
   const screen = { firstChild: null, animate: undefined, querySelector: (s: string) => (loading && s.includes('.screen-loading') ? {} : null) };
   const app = {
@@ -232,11 +232,10 @@ describe('地圖：同一層的安靜重畫接回自己捲到的位置', () => {
     expect(MAP).toContain('const scrollKey = `${run.seed}|${run.act}|${here}`;');
     // 程式碼稽核 2026-09-24 中-1：往上爬的平滑捲動還沒播完就被安靜重畫時，玩家自己沒捲過就記「要去的那一層」，不記半路
     expect(MAP).toContain('const climbing = climbed !== null && climbed !== want;');
-    // 推前稽核 2026-09-24 低-2：點節點投票的按下會冒泡到捲軸，不算「自己捲過」；只算按在捲軸本身
-    expect(MAP).toContain("for (const ev of ['wheel', 'touchmove', 'keydown'] as const) scroll.addEventListener(ev, moved, { passive: true });");
-    expect(MAP).toContain("scroll.addEventListener('pointerdown', (e) => { if (e.target === scroll) moved(); }, { passive: true });");
-    expect(MAP).not.toContain("'pointerdown', 'touchstart'");
-    expect(MAP).toContain('app.disposers.push(() => { lastScroll = { key: scrollKey, top: climbing && !userMoved ? want : scroll.scrollTop }; });');
+    // 推前稽核 2026-09-24 低-2＋複審中-1：「可不可以照實記」交給 watchClimb（行為測試在 map_climb_watch_0924），而且要掛在拖曳之後
+    expect(MAP).toContain('const trust = climbing ? watchClimb(scroll, want) : () => true;');
+    expect(MAP).toContain('app.disposers.push(() => { lastScroll = { key: scrollKey, top: trust() ? scroll.scrollTop : want }; });');
+    expect(MAP.indexOf('attachDragScroll(scroll);')).toBeLessThan(MAP.indexOf('watchClimb(scroll, want)'));
     expect(MAP).toContain('if (app.redraw && lastScroll?.key === scrollKey) scroll.scrollTop = lastScroll.top;\n  else if (climbed !== null');
     expect(MAP).toContain('else scroll.scrollTop = want;');
   });
