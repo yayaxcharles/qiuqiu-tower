@@ -33,6 +33,8 @@ describe('對白', () => {
     const groups = [dialogue.bossIntroById['tower_master']!, dialogue.bossPhase2ById['tower_master']!, dialogue.bossPhase3ById['tower_master']!, dialogue.victory,
       // 結局依牌組換的那幾句也要在標題裡（稽核 2026-09-04 中 5）
       ...(['strength', 'stealth', 'poison', 'block', 'plain'] as const).map((k) => [{ speaker: '塔主' as const, text: dialogue.masterFirstWords[k] }])];
-    for (const g of groups) for (const l of g) if (l.speaker === '塔主') expect(DAXIA_TITLES, l.text).toContain(l.text.replace(/[。！]$/u, ''));
+    // 結局醒來那句的說話者改叫「大俠貓」（2026-09-25 劇情草稿 8-1），要一起算，不然結局那句會漏檢
+    expect(dialogue.victory.some((l) => l.speaker === '大俠貓'), '結局醒來那句的說話者').toBe(true);
+    for (const g of groups) for (const l of g) if (l.speaker === '塔主' || l.speaker === '大俠貓') expect(DAXIA_TITLES, l.text).toContain(l.text.replace(/[。！]$/u, ''));
   });
 });

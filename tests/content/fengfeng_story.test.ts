@@ -14,15 +14,19 @@ beforeEach(() => setCoopStory(null));
 describe('封封劇情內容', () => {
   test('單人主線使用提案中的封封文字與完整初遇表', () => {
     const story = storyFor('fengfeng');
-    // 2026-09-25 從六句併成四句（使用者嫌序章要點太多下），一張圖一句
-    expect(story.prologue).toHaveLength(4);
+    // 2026-09-25 從六句併成四句（使用者嫌序章要點太多下），一張圖一句；
+    // 同日劇情草稿 5-1 在塔下那張多一句他有感情的話（使用者核可），四張圖五句
+    expect(story.prologue).toHaveLength(5);
     expect(story.defeat, '落敗從五句併成三句').toHaveLength(3);
     // 併句不能併到畫面放不下：上限照最長的既有那句（菲菲序章第一句，71 字）
     for (const l of [...story.prologue, ...story.defeat]) expect([...l.text].length, l.text).toBeLessThanOrEqual(71);
-    expect(story.prologue[0]?.text).toBe('第三天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。');
+    // 「第三天」改「第四天」（2026-09-25）：噹噹第三天傍晚才上塔，封封第三天下午回村會撞見他
+    expect(story.prologue[0]?.text).toBe('第四天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。');
+    expect(story.prologue[2]?.text).toBe('大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹昨天也去了。');
     expect(story.actClear1).toHaveLength(4);
     expect(story.actClear2).toHaveLength(6);
-    expect(story.victory).toHaveLength(16);
+    // 2026-09-25 劇情草稿 2-4：結局從十七句縮成基本 8 句
+    expect(story.victory).toHaveLength(8);
     expect(Object.keys(story.firstMeet)).toHaveLength(111);
     expect(story.firstMeet['white_duelist']).toBeTruthy();
   });

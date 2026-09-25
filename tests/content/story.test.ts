@@ -51,6 +51,11 @@ describe('關主的故事線', () => {
     for (const seg of [st.prologue, st.actClear1, st.actClear2, st.defeat, st.victory]) {
       expect(seg.length).toBeGreaterThan(0);
       for (const l of seg) {
+        /*
+         * 結局裡師兄開口接她那句「連個消息都沒有」（2026-09-25 劇情草稿 2-2，使用者核可）：那一句是**球球本人**在講
+         *（2026-09-23 起單人劇情照字面播，說話者寫球球就是球球），所以結局放行他、但他照樣要有喵；其餘四段照舊不准有他。
+         */
+        if (seg === st.victory && l.speaker === '球球') { expect(qiuqiuLineOk(l.text), l.text).toBe(true); continue; }
         expect(l.speaker, `不該有球球在講話：${l.text}`).not.toBe('球球');
         if (l.speaker === '菲菲') expect(feifeiLineOk(l.text), `她不加喵：${l.text}`).toBe(true);
         if (l.speaker === '旁白') expect(qiuqiuLineOk(l.text), `旁白不可有喵：${l.text}`).toBe(false);

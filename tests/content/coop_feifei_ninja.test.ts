@@ -60,10 +60,14 @@ describe('師兄妹一起爬', () => {
 
   it('師父只講大俠貼圖標題；結局第二句照打法換成師父醒來的第一句', () => {
     const all = [...PARTS.flatMap((k) => asNinja()[k]), ...bossAll('ninja')];
-    for (const l of all.filter((x) => x.speaker === '塔主')) expect(MASTER_TITLES.has(l.text), l.text).toBe(true);
+    // 結局裡醒來那句的說話者是「大俠貓」（2026-09-25），一起算進來，不然結局那句會漏檢
+    const masterLines = all.filter((x) => x.speaker === '塔主' || x.speaker === '大俠貓');
+    expect(masterLines.some((l) => l.speaker === '大俠貓'), '結局醒來那句沒被檢查到').toBe(true);
+    for (const l of masterLines) expect(MASTER_TITLES.has(l.text), l.text).toBe(true);
     setCoopStory({ partner: 'feifei', mirror: 'ninja' });
     const vic = victoryLinesFor([], 1, 'ninja');
-    expect(vic[1]).toEqual({ speaker: '塔主', text: dialogue.masterFirstWords.plain });
+    // 2026-09-25：醒來之後的說話者改叫「大俠貓」（劇情草稿第 3 節），開場、換階段那些還沒醒的仍是「塔主」
+    expect(vic[1]).toEqual({ speaker: '大俠貓', text: dialogue.masterFirstWords.plain });
     expect(vic.filter((l) => l.slideBreak).length, '相擁那張的切點').toBe(1);
   });
 

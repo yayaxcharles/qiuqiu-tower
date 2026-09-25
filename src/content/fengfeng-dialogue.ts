@@ -21,11 +21,15 @@ export const fengfengSelection: DialogueLine[] = [
  * 封封蹲在塔門口看小魚乾）。2026-09-25 使用者嫌序章要點太多下，併成四句：
  * 封封問話那句收進鋪子那張的旁白、「走到塔下」那句旁白跟他最後那句併成一句，p05 那張就不用了。
  * 村貓回話仍配兩隻貓對話那張（`still_meet`），封封在塔下那句配塔下那張。
+ *
+ * 2026-09-25（劇情草稿 5-1）：塔下那張多一句他有感情的話（沒標切點，自動落在第四張）。
+ * 同日改「第三天」為「第四天」、村貓那句改「昨天也去了」：噹噹的序章寫菲菲第三天早上出發、他第三天傍晚才上塔，
+ * 封封第三天下午回村會撞見還沒走的噹噹。不能改成入夜（跟白天那幾張插圖打架）。
  */
 export const fengfengPrologue: DialogueLine[] = [
   {
     "speaker": "旁白",
-    "text": "第三天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。",
+    "text": "第四天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。",
     "slideBreak": true
   },
   {
@@ -35,12 +39,16 @@ export const fengfengPrologue: DialogueLine[] = [
   },
   {
     "speaker": "村貓",
-    "text": "大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹今天也去了。",
+    "text": "大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹昨天也去了。",
     "slideBreak": true
   },
   {
     "speaker": "封封",
     "text": "門檻上散著的，都是村裡被搶走的小魚乾。他們應該也是從這裡進去的。"
+  },
+  {
+    "speaker": "封封",
+    "text": "每次回村，都是他們在路口等我。這次換我去找。"
   }
 ];
 export const fengfengActClear1: DialogueLine[] = [
@@ -126,7 +134,7 @@ export const fengfengTopScene: DialogueLine[] = [
 export const fengfengDefeat: DialogueLine[] = [
   {
     "speaker": "旁白",
-    "text": "封封想用劍鞘撐住身體，手指卻握不緊，劍滑落在身旁。再醒來時，他已躺在村裡，劍與劍鞘放在床邊，村貓正替他換藥。窗外仍看得見魔塔。"
+    "text": "封封想用劍鞘撐住身體，手指卻握不緊，劍滑落在身旁。再醒來時，他已躺在村裡，劍與劍鞘並排放在床邊，村貓正替他換藥。窗外仍看得見魔塔。"
   },
   {
     "speaker": "封封",
@@ -157,8 +165,11 @@ export const FENGFENG_YARD_FIRST = '過了幾天，封封在院子裡用木劍�
  * 結局兩個標記（2026-09-23）：
  * - `narrationAfter` 在 FG-V-03「先坐下，我把劍收好」：稿子寫打法插句「接 FG-V-03 後、FG-V-04 前」，
  *   四句插句講的都是收劍那一下（劍尖對鞘口、收回舉著的劍、劍鞘碰到腰側的傷），要等他說了要收劍才接得上。
- * - `slideBreak` 在 FG-V-06：第一張圖是塔頂四隻貓抱在一起，FG-V-04～06（大俠貓扶住球球、拉過菲菲）就是那一幕；
- *   原本切在 FG-V-03，這三句被配到第二張「村口喝熱湯」的圖上。
+ * - `slideBreak` 在第一張圖（塔頂四隻貓抱在一起）的最後一句。
+ *
+ * 2026-09-25 劇情草稿 2-4：從十七句縮成基本 8 句（三張圖：塔頂相擁／村口熱湯／院子練劍）。
+ * 切點改標在〔來歷句〕（塔的來歷 A 版在這裡點破）；村口整段併成一句；院子那張照舊從 `FENGFENG_YARD_FIRST` 開始，
+ * 收尾旁白裡「看過兩側、等收劍」的性格收進他自己最後那句話。
  */
 export const fengfengVictory: DialogueLine[] = [
   {
@@ -166,7 +177,7 @@ export const fengfengVictory: DialogueLine[] = [
     "text": "大俠貓眼中的紫光退了。他看著封封，手掌停在劍旁，沒有再往前。"
   },
   {
-    "speaker": "塔主",
+    "speaker": "大俠貓",
     "text": "承讓。"
   },
   {
@@ -176,56 +187,24 @@ export const fengfengVictory: DialogueLine[] = [
   },
   {
     "speaker": "旁白",
-    "text": "球球扶著牆走過來。大俠貓伸手扶住他，又將菲菲拉到身邊。封封把劍收入鞘中，解下水袋。"
+    "text": "球球和菲菲從門邊走過來。大俠貓扶住球球，又將菲菲拉到身邊，最後伸手按了按封封的頭，封封沒有躲開。"
   },
   {
-    "speaker": "球球",
-    "text": "師父，我們找了你好久喵。"
-  },
-  {
-    "speaker": "菲菲",
-    "text": "手給我看看。這些傷都得包起來。",
+    "speaker": "旁白",
+    "text": "紫光熄了，塔裡一層層暗下來。練功房、書庫、包鐵角的舊木箱——封封走過的那些地方，全是照大俠貓的記憶長出來的。",
     "slideBreak": true
   },
   {
     "speaker": "旁白",
-    "text": "下樓時，他們遇到折返的噹噹。受傷的村貓已交給守門的人，噹噹帶來了一盞燈。"
-  },
-  {
-    "speaker": "噹噹",
-    "text": "都找到了？好，我照著樓梯，你們跟上。"
-  },
-  {
-    "speaker": "旁白",
-    "text": "回到村口，封封才發現自己留在門口的藥箱已經打開了。村貓把剩下的藥布遞給菲菲，又端來幾碗熱湯。"
-  },
-  {
-    "speaker": "封封",
-    "text": "幸好這批藥趕上了。我的手也得包一下。"
+    "text": "下樓時，噹噹提著燈來接。回到村口，封封留在門口的藥箱早被打開，村貓端來熱湯，藥布剛好夠每個人包一圈。"
   },
   {
     "speaker": "旁白",
     "text": FENGFENG_YARD_FIRST
   },
   {
-    "speaker": "球球",
-    "text": "這樣站夠遠了嗎喵？"
-  },
-  {
     "speaker": "封封",
-    "text": "夠了。等我收劍，你再過來。"
-  },
-  {
-    "speaker": "噹噹",
-    "text": "竹架也搬好了。今天別再打到它。"
-  },
-  {
-    "speaker": "菲菲",
-    "text": "我坐這邊。你們誰都別往這裡跳。"
-  },
-  {
-    "speaker": "旁白",
-    "text": "封封看過兩側，向球球點頭。木劍揮出，球球順著收劍的空隙踏進院子。大俠貓坐在門邊，看著兩人練劍。"
+    "text": "看過兩邊了，沒人。等我收劍，你再進來。"
   }
 ];
 export const fengfengVictoryVariants: DialogueLine[] = [
@@ -247,7 +226,7 @@ export const fengfengVictoryVariants: DialogueLine[] = [
   }
 ];
 export const fengfengFirstMeet: Record<string, string> = {
-  "white_duelist": "要切磋可以，把旁邊的東西挪開。",
+  "white_duelist": "要切磋？往後退三步，劍才伸得開。",
   "wild_boar": "你一直刨地，是準備衝過來？",
   "paper_tiger": "紙做的刺也很尖，別讓劍被纏住了。",
   "drum_tanuki": "鼓聲越來越急，腳步得踩穩。",
@@ -257,7 +236,7 @@ export const fengfengFirstMeet: Record<string, string> = {
   "oni_general": "原來那些小鬼是你叫來的。",
   "imp": "別躲在牆後丟東西！",
   "mirror_sage": "鏡面一直在轉，得找出你站的位置。",
-  "mirror_shard": "碎片往這邊飛了，護住臉！",
+  "mirror_shard": "碎片飛得太散，劍擋不完，先退一步！",
   "void_cat": "身體透明到看得見後面的牆，劍碰得到嗎？",
   "dango_slime": "會自己爬的團子，我可不吃。",
   "dango_bit": "分成兩隻了，還都往我這裡跳。",
@@ -283,21 +262,21 @@ export const fengfengFirstMeet: Record<string, string> = {
   "lantern_ghost": "燈籠伸出舌頭來了！",
   "windchime_sprite": "聲音就在耳邊，震得我頭好痛。",
   "tanuki_kid": "你也來攔路？把手裡的東西放下。",
-  "geta_monster": "一隻木屐也跳得這麼快。",
+  "geta_monster": "木屐聲一下左一下右，想亂我的步子？",
   "ink_cat": "墨滴到地上了，鞋底別踩進去。",
   "moon_rabbit": "那把槌子掉下來，地板都會破。",
   "owl_sentry": "頭轉過去了，身體居然沒動。",
   "paper_crane": "紙翅膀這麼薄，擦過去會割傷。",
   "miasma_blob": "魔氣裡那張臉，剛才是不是看向我？",
-  "night_panther": "藏在暗處，差點沒看見你。",
+  "night_panther": "你站在火光照不到的地方，剛好比劍長一點。",
   "kasa_obake": "只有一條腿，還跳得挺穩。",
-  "kappa": "頭上的水快灑出來了。",
+  "kappa": "頭上頂著那盤水，跟我挑藥罐走山路一樣，一步都不能晃。",
   "tofu_boy": "這豆腐的味道不對，我不拿。",
   "tengu": "風把衣角都掀起來了！",
   "fox_miko": "你把符朝這裡舉，是要對我做什麼？",
   "armor_ghost": "盔甲裡沒有身體，怎麼握住刀的？",
-  "shadow_cat": "球球的影子不會自己走過來。你是什麼？",
-  "mirror_qiuqiu": "鏡子裡的影子竟然跨出來了。",
+  "shadow_cat": "長得像球球，可球球從不擋在我的劍前面。",
+  "mirror_qiuqiu": "鏡子裡那個，出劍比我慢了半拍。",
   "sparring_partner": "你也站過來，是要兩個一起切磋？",
   "orange_king": "那幾桶小魚乾，是村裡丟的。",
   "cowcat_boss": "站這麼高，門框都快碰到你的頭了。",
@@ -305,7 +284,7 @@ export const fengfengFirstMeet: Record<string, string> = {
   "persian_lady": "妳身後的人也要一起上？",
   "butler_cat": "手套都戴好了，是早就準備要打？",
   "maid_cat": "托盤先放下，別把上面的東西摔了。",
-  "rat": "箱角那些牙印，是你們啃的？",
+  "rat": "那些糧箱是我一箱一箱送進村的。牙印倒是新的。",
   "yarn_ball": "毛線纏住鞋了，別再往前滾！",
   "soy_bottle": "醬油流了一地，踩上去會滑倒。",
   "box_lurker": "箱蓋裡有牙！幸好沒伸手。",
@@ -314,29 +293,29 @@ export const fengfengFirstMeet: Record<string, string> = {
   "five_claw": "手太多了，得看哪隻先伸過來。",
   "dozing_tabby": "睡在路中間，不怕被踩到嗎？",
   "chipmunk": "把我的魚乾袋放下。",
-  "chipmunk_small": "小隻的也伸手，你們是一夥的？",
+  "chipmunk_small": "大的在前面擋，小的從袋子底下摸。這套我在山路上見過。",
   "mirror_cat": "我抬劍，你也抬，那就試試收劍。",
   "broom_centipede": "掃把底下全是腳，難怪一直在動。",
-  "stone_lion": "石座空了，原來你自己走下來了。",
+  "stone_lion": "石座空著，你卻站在路中間。守門的，不該離位。",
   "catnip_phantom": "這味道讓我想打滾，得把鼻子遮住。",
-  "roomba_king": "別撞我的劍鞘，它不是垃圾。",
-  "mini_broom": "小掃把也追過來了。",
+  "roomba_king": "繞著地板亂轉，是要把我的退路掃掉？",
+  "mini_broom": "連小掃把都繞著我轉，劍不好往下出。",
   "calico_monk": "您的腳站得很穩，我得留意。",
-  "shadow_kitten_a": "影子後面還有一隻。",
-  "shadow_kitten_b": "別繞到我背後。",
+  "shadow_kitten_a": "這一隻站在最前面，後面兩隻在等我出劍。",
+  "shadow_kitten_b": "背後是我收劍的地方，別站在那裡。",
   "shadow_kitten_c": "這隻一直盯著我的手。",
   "training_post": "木樁在動，底下裝了什麼？",
-  "nekomata": "婆婆，您的尾巴已經伸到樓梯上了。",
-  "nekomata_tail": "尾巴自己追過來了！",
+  "nekomata": "婆婆，您那幾條尾巴，把樓梯兩邊都封住了。",
+  "nekomata_tail": "婆婆還沒動，尾巴先到了。這距離得重新量。",
   "iron_claw": "鐵爪合起來能夾住劍，不能伸得太深。",
   "cucumber": "黃瓜剛才動了，我看得很清楚。",
   "onigiri_monster": "飯糰長腳了，還往這邊跑。",
   "wood_dummy": "木頭的手也能抬起來，真奇怪。",
   "goat": "山路在外面，你是不是走錯了？",
-  "vacuum": "這聲音太吵了，開關在哪裡？",
+  "vacuum": "這麼大的聲響，一路上的魔物都要被引過來了。",
   "black_ninja": "你守著門，是在等誰？",
   "orange_bandit": "把木棒收起來，我不交買路錢。",
-  "catgrass_bug": "別把汁吐到我身上！",
+  "catgrass_bug": "汁噴到劍上會黏，擦不乾淨就收不進鞘。",
   "scarecrow": "稻草紮成的手也能握武器。",
   "black_ninja_elite": "這一下好快，差點來不及退。",
   "big_cucumber": "這麼大根，轉個身都會堵住門。",
@@ -347,15 +326,15 @@ export const fengfengFirstMeet: Record<string, string> = {
   "snow_cat": "手指都凍僵了，劍得握緊。",
   "fortune_cat": "招手也沒用，我的錢不給你。",
   "lantern_fish": "燈後面有一張嘴，差點只顧著看燈光。",
-  "puppeteer": "線一直連到後面，是你在操縱。",
+  "puppeteer": "線拉得那麼長，一劍斷在中間就好。",
   "puppet": "線拉起來，木頭手就跟著動了。",
   "shuten_imp": "酒都灑到衣服上了，還喝？",
-  "lantern_twin_a": "這盞亮起來，旁邊那盞也亮了。",
+  "lantern_twin_a": "兩盞燈隔著三步，一劍只夠得到一盞。",
   "lantern_twin_b": "兩邊都有動靜，不能只看一盞。",
   "miasma_crows": "頭頂全是翅膀，劍得收近一點。",
   "crow_small": "散開了還往回飛，真難纏。",
   "wraith_samurai": "盔甲裡傳來聲音，裡面卻是空的。",
-  "twin_hound": "一張嘴咬左邊，一張嘴咬右邊。",
+  "twin_hound": "兩個頭都盯著我，劍只能先顧一邊。",
   "guardian_statue": "最後這段路也有石像守著。",
   "mask_dancer": "換了面具，連步子也換了。"
 };
@@ -366,7 +345,7 @@ export const fengfengShortLines: Record<string, string[]> = {
     "前面沒路可繞，只能從這裡過了。",
     "別碰我的行囊。",
     "站這麼近，我可不會收著劍。",
-    "你已經看見我了，那就出來吧。",
+    "躲在那裡，我的劍也夠得到。出來吧。",
     "劍柄沒鬆，還能用。",
     "這邊比較空，往這邊打。",
     "這次看清楚你的動作了。",
@@ -381,11 +360,11 @@ export const fengfengShortLines: Record<string, string[]> = {
     "劍上都是灰，擦乾淨再收。",
     "剛才差點滑倒，鞋底得清一清。",
     "手臂有點痠，換隻手拿。",
-    "尾巴還好，沒有被踩到。",
+    "收劍前先看一眼身後。沒人，好。",
     "劍穗纏住了，難怪一直拉著手。",
     "繩結沒鬆，行囊也還在。",
     "出劍的位置比剛才寬多了。",
-    "這一下震得手指發麻。",
+    "劍身還在嗡嗡響，等它停了再收。",
     "終於聽得見自己的呼吸了。",
     "水袋放哪裡去了？在這裡。",
     "肩膀拉到了，抬手有點痛。",
@@ -395,11 +374,11 @@ export const fengfengShortLines: Record<string, string[]> = {
     "這塊地板會滑，回來時得記住。"
   ],
   "HUNGRY": [
-    "飯糰不夠，這招現在用不了。",
+    "乾糧算少了，這一劍撐不起來。",
     "剩下的力氣不夠使這招。",
-    "肚子開始叫了。",
+    "水袋還有，飯糰沒了。",
     "得省著用剩下的飯糰。",
-    "這一招太費力，現在使不出來。",
+    "這一劍太吃力，先緩一口氣再出。",
     "還差一顆飯糰。",
     "再出這招，力氣就不夠了。",
     "先換一招省力的。"
@@ -423,19 +402,19 @@ export const fengfengShortLines: Record<string, string[]> = {
     "封口繩還在，我解開看看。"
   ],
   "NAP": [
-    "肩膀沒那麼痠了。",
+    "醒來先看了一眼門口，劍還在原位。",
     "醒來時還以為在商隊的帳篷裡。",
     "這個墊子比山路邊的石頭舒服。",
     "剛才把袖子壓皺了。",
     "水喝過了，劍也帶上。",
-    "睡了一覺，眼睛總算不那麼澀。"
+    "一覺睡到天亮，連夢都沒做。"
   ],
   "TRAIN": [
     "手腕轉到這裡，劍就不會卡住。",
     "踏步太早了，剛才改過來才順。",
     "這回收劍沒有撞到腰帶。",
     "劍刃上的小缺口磨平了。",
-    "不用把肩膀抬得那麼高。",
+    "劍尖收回半寸，就不會掃到旁邊的人。",
     "這一招接得上了。"
   ],
   "ATTACK": [
@@ -507,12 +486,17 @@ export const fengfengRevivedLines = fengfengShortLines.REVIVED ?? [];
  * 結局的打法插句（稿子 FG-VAR），由 `victoryLinesFor` 插在標了 `narrationAfter` 的 FG-V-03 之後（2026-09-23 改）。
  * 原本照共用接法插在師父那句之後，比稿子寫的「接 FG-V-03 後」早一句。
  * 稿子規定三種打法（重劍、連招、護送配合）要等有封封自己的牌組統計才分，「沒統計就只用通用版」。
- * `deckLeaning` 目前分不出這三派，所以每一派都播通用那句（FG-VAR-04），VAR-01～03 先不接。
+ *
+ * 2026-09-25（劇情草稿 5-2，使用者核可）三種接上，句子一字不動、只改對照：`deckLeaning` 分得出的是爪力、第二派、蜷縮，
+ * 所以重劍配爪力、連招配第二派（他的第二派照舊算隱身 `LEANING_ALT`，他自己的牌沒有給隱身的，這句實際上很少出現）、
+ * 護送配合配蜷縮（擋在前面），其餘（沒有明顯傾向）照舊播通用那句（FG-VAR-04）。
  */
 const fengfengGenericNarration = fengfengVictoryVariants[3]?.text ?? '';
 const fengfengVictoryNarration: Partial<Record<DeckLeaning, string>> = {
-  strength: fengfengGenericNarration, stealth: fengfengGenericNarration, poison: fengfengGenericNarration,
-  thorns: fengfengGenericNarration, block: fengfengGenericNarration, plain: fengfengGenericNarration,
+  strength: fengfengVictoryVariants[0]?.text ?? fengfengGenericNarration,
+  stealth: fengfengVictoryVariants[1]?.text ?? fengfengGenericNarration,
+  block: fengfengVictoryVariants[2]?.text ?? fengfengGenericNarration,
+  poison: fengfengGenericNarration, thorns: fengfengGenericNarration, plain: fengfengGenericNarration,
 };
 
 /*
@@ -522,10 +506,13 @@ const fengfengVictoryNarration: Partial<Record<DeckLeaning, string>> = {
  */
 export const fengfengVictoryTeaser = '下一趟貨晚幾天再送，先在村裡把傷養好。';
 
+/** 難度 4 以上的尾聲（2026-09-25 劇情草稿 5-3；原本是空字串）。接在院子練劍那張後面，另外三隻的尾聲也都是「後來的日子」 */
+export const fengfengHardModeEpilogue = '之後每次封封出門送貨，大俠貓都送到村口。封封走過木橋回頭看，他還站在那裡。';
+
 export const fengfengDialogue = {
   prologue: fengfengPrologue, actClear1: fengfengActClear1, actClear2: fengfengActClear2,
   defeat: fengfengDefeat, victoryTeaser: fengfengVictoryTeaser, victory: fengfengVictory,
-  victoryNarration: fengfengVictoryNarration, hardModeEpilogue: '', topScene: fengfengTopScene,
+  victoryNarration: fengfengVictoryNarration, hardModeEpilogue: fengfengHardModeEpilogue, topScene: fengfengTopScene,
   battleStart: fengfengShortLines.START ?? [], battleWin: fengfengShortLines.WIN ?? [],
   hungry: fengfengShortLines.HUNGRY ?? [], lowHp: fengfengShortLines.LOW ?? [],
   chestLines: fengfengShortLines.CHEST ?? [], restNapLines: fengfengShortLines.NAP ?? [],
@@ -537,31 +524,31 @@ export const FENGFENG_BOSS_LINES: Readonly<Record<string, string>> = {
   "這是師父寫的喵。": "這本書上的字，我在大俠貓的院子裡見過。",
   "他把秘笈帶在身邊，怎麼會掉在這裡喵？": "書掉在這裡，他應該已經往上走了。",
   "我還是得去找他喵。": "那就更得把他帶回村裡。我不能當作沒聽見。",
-  "明天打贏關主，就能到上面找師父了喵。": "守關的就在樓上。這裡還能休息一下。",
-  "這裡正好能休息，先吃點東西，再把爪子磨好喵。": "把劍放在手邊，先鬆開腰帶。",
-  "睡一下，還是先磨爪喵？": "要睡一覺，還是把剛才沒練好的那招再試一次？",
-  "越往上走，這股魔氣就越嗆喵。": "越往上走，這股味道越嗆。",
-  "剛才好像是師父的聲音，他是不是很痛喵？": "剛才的吼聲，是大俠貓嗎？",
-  "得趕快過這一關，才能上去找他喵。": "手臂有點痠，得在這裡休息一下。",
-  "明天就要見到師父了喵。": "最後一段樓梯了，大俠貓就在上面。",
-  "以前蜷縮練不好，都是師父在旁邊扶著我喵。": "以前在院子裡，他還會幫忙收好木劍。現在卻連人都不認得。",
-  "等見到師父，不知道他還認不認得我喵。": "等會兒靠近他，不能當作還在村裡練招。",
-  "這次一定要把他帶回家喵。": "我把劍柄纏緊，免得出手時滑掉。",
+  "明天打贏關主，就能到上面找師父了喵。": "樓上就是守關的。回程的路，我先在心裡走一遍。",
+  "這裡正好能休息，先吃點東西，再把爪子磨好喵。": "劍放在右手邊，半夜拔出來也不會碰到牆。",
+  "睡一下，還是先磨爪喵？": "天亮前還早。先睡，還是把收劍那一下再練順？",
+  "越往上走，這股魔氣就越嗆喵。": "這股味道跟山谷裡的瘴氣很像，越往上越濃。",
+  "剛才好像是師父的聲音，他是不是很痛喵？": "那聲吼從正上方傳來。大俠貓離這裡不遠了。",
+  "得趕快過這一關，才能上去找他喵。": "明天那一關路窄，劍得收短一點出。",
+  "明天就要見到師父了喵。": "明天就到塔頂。送了這麼多年的貨，這是最難走的一段。",
+  "以前蜷縮練不好，都是師父在旁邊扶著我喵。": "以前在院子練劍，他總叫我先看兩邊有沒有人，再出手。",
+  "等見到師父，不知道他還認不認得我喵。": "明天他就站在劍路上。這一劍，只能架，不能砍。",
+  "這次一定要把他帶回家喵。": "回程要揹人下樓。水袋裝滿，繩子也備好了。",
   "師父，是我，球球喵！你看清楚喵！": "大俠貓，是我，封封。球球和菲菲已經退到門邊了。",
   "退隱也要回家喵！你看著我，我是你徒弟喵！": "您要回村，我們就陪您下去。先把手放下。",
   "婆婆，我得去救師父，再危險也要上去喵。": "婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。",
-  "胸口那道紫光，跟師父眼裡的一樣喵。": "胸口那團紫光，跟外面看到的一樣。",
+  "胸口那道紫光，跟師父眼裡的一樣喵。": "紫光從鐵皮縫裡透出來。劍從那道縫進得去。",
   "它一直攔著路，看來非拆掉不可喵。": "鐵爪張得太開了。我從側面過。",
-  "村裡的小魚乾是你搶的喵？你跟上面那隻大貓是一夥的喵？": "這些是村裡的糧食。你和塔頂那位是一夥的？",
+  "村裡的小魚乾是你搶的喵？你跟上面那隻大貓是一夥的喵？": "桶子上的繩結是村裡的綁法。這些糧，你替塔頂那位收的？",
   "既然不是一夥的，就別攔我，小魚乾也得還來喵。": "糧食留下，樓梯也讓開。",
-  "二當家，那大當家是誰喵？": "你說二當家，那大當家是誰？",
+  "二當家，那大當家是誰喵？": "有二當家，就有大當家。他在哪一層？",
   "那是我師父，我得上去看看他到底怎麼了喵。": "大俠貓不會指使人搶糧。你沒看出他不對勁？",
-  "我不喝，師父交代過，狸貓遞的酒不能碰喵。": "我不喝酒。你知道大俠貓在哪一層嗎？",
+  "我不喝，師父交代過，狸貓遞的酒不能碰喵。": "趕路的人不喝酒，喝了就走不直。我找的是大俠貓。",
   "我只是從這裡經過，要去的是塔頂喵。": "鞋底的泥我會擦掉。我得去塔頂找大俠貓，請妳讓路。",
-  "借過一下，我要從那邊的樓梯上去喵。": "借過。我沿池邊上樓，不碰你的東西。",
+  "借過一下，我要從那邊的樓梯上去喵。": "借過。池邊留一條路給我就好，劍不會出鞘。",
   "殼上都是傷……牠看起來也不好受喵。": "殼上的傷還很新。是這裡的魔物打的？",
   "能不能讓我過去喵？我真的得上樓喵。": "你擋住路了。我得從這裡上去。",
-  "樓梯都被牠壓住了，不叫醒就過不去喵。": "醒一醒，你壓住樓梯了。",
+  "樓梯都被牠壓住了，不叫醒就過不去喵。": "這段樓梯是唯一的路。對不住，得請你挪一挪。",
   "我沒殺誰，是來接師父回家的，請你讓開喵。": "我來接大俠貓回村。你見過他嗎？",
   "我還沒打算回去喵。": "人還沒找到，我不能在這裡回頭。",
   "他還有救就好，謝謝婆婆喵。": "他還有救。謝謝婆婆告訴我。",
@@ -570,9 +557,9 @@ export const FENGFENG_BOSS_LINES: Readonly<Record<string, string>> = {
   "謝謝你讓路，剛才對不起喵。": "謝謝你挪開。我從旁邊走，不碰你的傷。",
   "我認識的師父，不會隨便傷人喵。": "他平常不會這樣。我得上去看看他。",
   "那我走了，你繼續睡喵。": "樓梯露出來了。我走了，你繼續睡。",
-  "好，我去叫他喵。": "他的徒弟沒有放棄找他。我也會上去。",
+  "好，我去叫他喵。": "最掛念的人……是球球和菲菲。我先上去，替他們把路清出來。",
   "師父，聽我說！我是球球，你的徒弟喵！": "大俠貓，您看清楚！我不是來跟您比劍的！",
-  "原來婆婆剛才還留了一手喵！": "婆婆，那我也得把劍握穩了。",
+  "原來婆婆剛才還留了一手喵！": "尾巴又多了幾條。劍得收短，別讓它們纏上。",
   "爪子燒紅了，被碰到可不得了喵！": "爪子燒紅了，碰到劍柄都會燙手！",
   "這麼大一顆，滾過來可躲不掉喵！": "身體壓下來了，牠要往前撞！",
   "原來還有一套爪法，真難纏喵。": "換成白爪了。這次是從另一邊打過來。",
@@ -581,7 +568,7 @@ export const FENGFENG_BOSS_LINES: Readonly<Record<string, string>> = {
   "又叫來這麼多小兵，得先處理牠們喵。": "旁邊有腳步聲，小兵來了。",
   "身上長出鱗甲了，這魔氣還在變強喵。": "鱗甲還在長，剛才的地方打不進去了。",
   "這下全醒了，我得找地方躲喵！": "牠醒了。劍先收近一點，別被咬住。",
-  "看來還沒打完喵。": "動作換了，不能照剛才的位置出劍。",
+  "看來還沒打完喵。": "步子變了。剛才量好的距離，不算數了。",
   "師父，你都受傷了，別再打了喵！": "您的手受傷了，再使力會更嚴重！",
   "還有力氣，我就繼續打喵。": "魔氣又多了。得把眼前這一關打完。"
 };
@@ -625,7 +612,8 @@ export const FENGFENG_CAST_LINES: Readonly<Record<string, string>> = {
   "上面那隻紫眼睛的大貓，本小姐才懶得管。你要去救他，隨便你。": "上面那隻紫眼睛的大貓，本小姐才懶得管。你要去救他，隨便你。",
   "龍貓睜開一隻眼睛，看了球球一會，又慢慢閉上。牠只是想繼續睡。": "龍貓睜開一隻眼睛，看了封封一會，又慢慢閉上。牠只是想繼續睡。",
   "……施主，貧僧清醒了。": "……施主，貧僧清醒了。",
-  "上面那位陷得比貧僧深得多。若還救得回來，那只能靠他最掛念的人。快去。": "上面那位陷得比貧僧深得多。若還救得回來，那只能靠他最掛念的人。快去。",
+  "這座塔，是照他記得的東西長出來的。越往上，越是他捨不得的。": "這座塔，是照他記得的東西長出來的。越往上，越是他捨不得的。",
+  "若還救得回來，只能靠他最掛念的人。快去。": "若還救得回來，只能靠他最掛念的人。快去。",
   "走火入魔。": "走火入魔。",
   "老婆子還沒拿出真本事呢。": "老婆子還沒拿出真本事呢。",
   "齒輪過熱……切換第二形態。": "齒輪過熱……切換第二形態。",
@@ -773,7 +761,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
         "text": "大俠貓停下攻擊，眼裡的紫光退了。球球跑上前，這次被他穩穩抱住。"
       },
       {
-        "speaker": "塔主",
+        "speaker": "大俠貓",
         "text": "承讓。"
       },
       {
@@ -937,7 +925,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
         "text": "紫光散去，大俠貓看向門邊。菲菲叫了一聲師父，他便轉過頭，伸手抱住她。"
       },
       {
-        "speaker": "塔主",
+        "speaker": "大俠貓",
         "text": "承讓。"
       },
       {
@@ -1101,7 +1089,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
         "text": "大俠貓終於停下，身上的魔氣散開。噹噹放下護臂，封封也把劍尖移向地面。"
       },
       {
-        "speaker": "塔主",
+        "speaker": "大俠貓",
         "text": "承讓。"
       },
       {
@@ -1149,86 +1137,6 @@ export const fengfengCoopBossLines: Record<string, { intro: DialogueLine[]; phas
   Object.entries(fengfengCoopScenes).map(([key, scene]) => [key, { intro: scene.bossIntro, phase2: scene.bossPhase2, phase3: scene.bossPhase3 }]),
 );
 /*
- * 搭檔閒聊（跟另外三隻各一段）。**還沒有時機，尚未接線**（2026-09-23 health H-7，主控裁定：沒有時機的不刪）：
- * 遊戲裡沒有讓兩位搭檔自己聊幾句的一拍，另外三隻也沒有這種台詞；連線時兩隻貓共用的只有關主場景與 `MIXED_LINES` 換句。
+ * 搭檔閒聊（原本的 `fengfengChats`，跟另外三隻各一段六句）2026-09-25 接上「每關第一個貓窩」，整份搬到延後載入的
+ * `coop-pair-text.ts`（`COOP_REST_CHATS`，前三句第一關、後三句第二關）：只有連線用得到，不佔首載。
  */
-export const fengfengChats: Record<string, DialogueLine[]> = {
-  "ninja": [
-    {
-      "speaker": "球球",
-      "text": "你帶了多少飯糰，袋子這麼鼓喵？"
-    },
-    {
-      "speaker": "封封",
-      "text": "裡面是替換的衣服。飯糰在你那袋。"
-    },
-    {
-      "speaker": "球球",
-      "text": "難怪我這袋比較香喵。"
-    },
-    {
-      "speaker": "球球",
-      "text": "下次我也試試拿劍，怎麼樣喵？"
-    },
-    {
-      "speaker": "封封",
-      "text": "可以，先用木劍。院子裡的竹架也先搬走。"
-    },
-    {
-      "speaker": "球球",
-      "text": "你還記得那個竹架喵。"
-    }
-  ],
-  "feifei": [
-    {
-      "speaker": "菲菲",
-      "text": "這包藥怎麼分成三層？"
-    },
-    {
-      "speaker": "封封",
-      "text": "山上常下雨。外面濕了，裡面還能用。"
-    },
-    {
-      "speaker": "菲菲",
-      "text": "留一張油紙給我，針筒也要包。"
-    },
-    {
-      "speaker": "封封",
-      "text": "手怎麼了？剛才碰到針了？"
-    },
-    {
-      "speaker": "菲菲",
-      "text": "沒有，是竹筒的扣環夾到了。"
-    },
-    {
-      "speaker": "封封",
-      "text": "我幫你按住，你把手抽出來。"
-    }
-  ],
-  "dangdang": [
-    {
-      "speaker": "噹噹",
-      "text": "劍鞘的扣帶還會鬆嗎？"
-    },
-    {
-      "speaker": "封封",
-      "text": "不會。你上次補的那一針很牢。"
-    },
-    {
-      "speaker": "噹噹",
-      "text": "那是鉚釘。別拿針去補。"
-    },
-    {
-      "speaker": "封封",
-      "text": "你那對護臂要不要放下？坐著還戴著。"
-    },
-    {
-      "speaker": "噹噹",
-      "text": "一邊的扣帶卡住了，幫我拉一下。"
-    },
-    {
-      "speaker": "封封",
-      "text": "手放鬆。好了，拿下來了。"
-    }
-  ]
-};

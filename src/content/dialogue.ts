@@ -8,8 +8,14 @@ import {
   fengfengDialogue,
   fengfengFirstMeet,
 } from './fengfeng-dialogue';
+import { TOP_ECHOES, VICTORY_MAX_LINES, victoryEchoes, type VictoryCtx } from './victory-echoes';
 export interface DialogueLine {
-  speaker: '球球' | '菲菲' | '噹噹' | '封封' | '村貓' | '塔主' | '旁白' | '黑貓忍者頭目';
+  /**
+   * `大俠貓`＝結局裡師父醒來之後的說話者（2026-09-25 劇情草稿第 3 節）：醒了就不再是「塔主」，
+   * 木牌寫他的名字、頭像換成承讓躬身那張（`ui/dialogue.ts` 的 `portraitOf`）。只講貼圖標題的規矩不變。
+   * 開場、換階段那些還沒醒的仍是「塔主」。
+   */
+  speaker: '球球' | '菲菲' | '噹噹' | '封封' | '村貓' | '塔主' | '大俠貓' | '旁白' | '黑貓忍者頭目';
   text: string;
   /**
    * 通關幻燈片的切點：**這一句演完就換第二張圖**（2026-09-12 稽核 中-1）。
@@ -46,7 +52,8 @@ export function feifeiLineOk(text: string): boolean {
 export const dialogue = {
   prologue: <DialogueLine[]>[
     { speaker: '旁白', text: '球球是大俠貓的徒弟。每次練習蜷縮，他總是縮到一半就歪倒。師父抱著胸，看得直笑，接著又示範了一次，讓他照著練。' },
-    { speaker: '旁白', text: '那天夜裡，村外突然出現一座魔塔。塔頂亮起紫光，一縷魔氣飄進村裡，鑽入師父體內。師父痛苦地跪倒，渾身的毛都豎了起來，眼睛也變成了紫色。' },
+    // 塔的來歷 A 版（2026-09-25 使用者裁定）：魔氣先鑽進師父體內，塔才照著他的記憶長出來，點破放在結局的〔來歷句〕
+    { speaker: '旁白', text: '那天夜裡，一縷紫色的魔氣飄進村裡，鑽入師父體內。師父痛苦地跪倒，眼睛變成了紫色；村外的空地上，一座魔塔跟著一層一層長了出來。' },
     { speaker: '旁白', text: '師父忽然起身，朝魔塔跑去。球球抓起藍頭巾追了出去，沒聽見師妹在身後叫他。等他跑到塔下，又看見幾隻魔物扛著村裡的小魚乾，正往塔裡搬。' },
     { speaker: '球球', text: '師父，你等等我喵！' },
     { speaker: '球球', text: '我要把師父帶回家，也要把村裡的小魚乾拿回來喵。' },
@@ -570,7 +577,9 @@ export const dialogue = {
     ],
     hex_abbot: [   // 被魔氣控制（清醒）
       { speaker: '塔主', text: '……施主，貧僧清醒了。' },
-      { speaker: '塔主', text: '上面那位陷得比貧僧深得多。若還救得回來，那只能靠他最掛念的人。快去。' },
+      // 塔的來歷 A 版的暗示（2026-09-25）：點破留給結局的〔來歷句〕，這裡只有第二關抽到住持的局聽得到
+      { speaker: '塔主', text: '這座塔，是照他記得的東西長出來的。越往上，越是他捨不得的。' },
+      { speaker: '塔主', text: '若還救得回來，只能靠他最掛念的人。快去。' },
       { speaker: '球球', text: '好，我去叫他喵。' },
     ],
   },
@@ -634,12 +643,20 @@ export const dialogue = {
     { speaker: '塔主', text: '（魔氣直往天上冒）' },
     { speaker: '球球', text: '還有力氣，我就繼續打喵。' },
   ],
+  /*
+   * 結局基本 8 句（2026-09-25 劇情草稿 2-1）：打法插句接在大俠貓那句後面、塔頂伏筆插在〔來歷句〕前面、
+   * 回家路伏筆插在〔來歷句〕後面、難度 4 以上的尾聲在最後，封頂 11 句（`victoryLinesFor`）。
+   * 切點標在〔來歷句〕：第一張相擁圖演到塔暗下來為止。
+   */
   victory: <DialogueLine[]>[
     { speaker: '旁白', text: '師父身上的魔氣散了，眼睛也恢復了原來的顏色。' },
-    { speaker: '塔主', text: '承讓。' },
+    { speaker: '大俠貓', text: '承讓。' },
     { speaker: '球球', text: '師父，你終於醒了喵。' },
-    { speaker: '旁白', text: '師父把球球抱進懷裡。球球哭得說不出話，師父輕拍他的背，等他哭完，才替他擦掉眼淚。', slideBreak: true },
-    { speaker: '旁白', text: '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。' },
+    { speaker: '旁白', text: '師父把球球抱進懷裡。球球哭得說不出話，師父輕拍他的背，等他哭完，才伸手按了按他的頭。' },
+    { speaker: '球球', text: '……還是那麼喜歡按我的頭喵。' },
+    { speaker: '旁白', text: '塔頂的紫光熄了，塔裡一層一層跟著暗下來。練功房、舊木箱、寫著師父字跡的秘笈——這座塔，是照著師父的記憶長出來的。', slideBreak: true },
+    { speaker: '旁白', text: '師徒倆帶著小魚乾走回村子。遠遠地，就看見師妹提著燈，站在村口等。' },
+    { speaker: '球球', text: '師妹，我把師父帶回來了喵！……然後，我肚子好餓喵。' },
   ],
   /**
    * 結局第二句（師父醒來說的第一句）依球球這一路的打法換（使用者 2026-09-04）：
@@ -670,6 +687,8 @@ export const dialogue = {
     { speaker: '旁白', text: '關主倒下後，球球在牆邊找到了樓梯。階梯上散著幾條小魚乾，樓上也傳來一陣魚乾的香味。' },
     { speaker: '球球', text: '味道這麼重，上面肯定還有小魚乾喵。' },
     { speaker: '旁白', text: '球球跑上樓梯，頭巾勾到扶手，留下一縷藍線。' },
+    // 這條藍線就是菲菲第一關撿到的那一縷，也是她結局裡師兄說的「消息」（2026-09-25 劇情草稿 6-1）
+    { speaker: '球球', text: '頭巾又勾破了。以前都是師父一邊笑我，一邊幫我重綁喵。' },
   ],
   /** 打倒第二關關主（塔中→塔頂）。點出最終頭目是誰 */
   actClear2: <DialogueLine[]>[
@@ -680,7 +699,8 @@ export const dialogue = {
   defeat: <DialogueLine[]>[
     { speaker: '旁白', text: '球球再也站不住，倒在地上。' },
     { speaker: '球球', text: '我還……不能倒下喵……' },
-    { speaker: '旁白', text: '迷迷糊糊間，球球感覺有人背起了自己。醒來時，他已經躺在村裡。身上的傷包紮好了，窗外卻還看得見魔塔的紫光。' },
+    // 「又大又歪的結」接包袱開場（師父打的那種結），結局的伏筆「背你回村的人」從這裡收（2026-09-25）
+    { speaker: '旁白', text: '迷迷糊糊間，球球感覺有人背起了自己。醒來時，他已經躺在村裡，身上的繃帶打著一個又大又歪的結。窗外還看得見魔塔的紫光。' },
   ],
   shopkeeper: ['賒帳？貓沒有在賒帳的。', '不買不要摸。', '小魚乾要數清楚，我不找零。', '這批貨是塔裡撿的，別問。', '看一看沒關係，弄壞要賠。', '今天心情好，不加價。', '樓上很危險，多帶點東西。', '賣完就沒了，塔裡沒有第二家。', '你這隻貓看起來還撐得住嘛。', '放生的牌我不收，丟了就是丟了。'],
   restNapLines: ['睡得好舒服，還想再躺一下喵。', '這墊子真好睡喵。', '睡飽了，出發喵。', '哈啊……起床喵。'],
@@ -704,7 +724,8 @@ export const dialogue = {
 export const feifeiDialogue = {
   prologue: <DialogueLine[]>[
     { speaker: '旁白', text: '菲菲比球球晚三年入門。她怕扎到手，師父便把針排在蓆子上，舉起爪子示範握法：「捏住這裡，別碰針尖。力氣小，就別跟人比力氣。」球球在後頭睡得正熟。' },
-    { speaker: '旁白', text: '那天夜裡，魔塔在村外拔地而起。紫光照上大俠貓的臉，他忽然雙眼發紫，衝向塔頂。球球抓起頭巾追了出去，連菲菲喊他都沒聽見。' },
+    // 塔的來歷 A 版（2026-09-25）：先中魔氣、塔才跟著長出來
+    { speaker: '旁白', text: '那天夜裡，一縷魔氣鑽進大俠貓體內，他忽然雙眼發紫；村外跟著拔起一座魔塔。他衝向塔頂，球球抓起頭巾追了出去，連菲菲喊他都沒聽見。' },
     { speaker: '菲菲', text: '……三天了。師父沒回來，師兄也沒回來。' },
     { speaker: '菲菲', text: '我還是很怕受傷。可是他們要是也在等人幫忙呢？……我得去。' },
   ],
@@ -731,14 +752,32 @@ export const feifeiDialogue = {
    *
    * 第二句一樣是師父醒來的第一句話，照她的打法換（`masterFirstWords`，共用那四句大俠貼圖標題）；
    * 第三句之後是她自己的，**不寫成勝利宣言**——她從頭到尾沒有變勇敢，只是做完了。
+   *
+   * 2026-09-25 劇情草稿 2-2：基本 8 句。師兄終於開口接她那句「連個消息都沒有」（拿她第一關收進口袋的藍線當藉口），
+   * 她不接玩笑、直接講真心話。第三、五句一字不動（連線換句表 `MIXED_LINES.feifei` 的鍵）。切點在〔來歷句〕。
    */
   victory: <DialogueLine[]>[
     { speaker: '旁白', text: '最後一縷魔氣散去，師父眼中的紫光熄滅了。塔頂另一端，球球靠著牆抬起頭。菲菲看看師父，又看看師兄，握針的手終於垂了下來。' },
-    { speaker: '塔主', text: '承讓。' },
+    { speaker: '大俠貓', text: '承讓。' },
     { speaker: '菲菲', text: '師父，這又不是切磋……您剛才連我都不認得了。師兄也是，連個消息都沒有。' },
+    { speaker: '球球', text: '對不起喵。扶手上那幾條藍線……不算留消息喵？' },
     { speaker: '菲菲', text: '我還以為，找不到你們了。' },
-    { speaker: '旁白', text: '師父伸手把菲菲攬進懷裡。她握著那根針，愣愣地張著眼睛，忍了一路的眼淚就要掉下來。', slideBreak: true },
+    { speaker: '旁白', text: '師父伸手把菲菲攬進懷裡，另一隻手朝球球招了招。她握著那根針，忍了一路的眼淚終於掉了下來。' },
+    { speaker: '旁白', text: '紫光熄了，塔裡一層層暗了下來。菲菲想起一路上的練功房、舊木箱、師父的書——原來這座塔，是照著師父記得的東西長的。', slideBreak: true },
     { speaker: '旁白', text: '回村的路上，師父舉著小魚乾逗球球，球球跳著去搶。菲菲落在後頭，彎腰撿起一根掉在路上的針，才小跑步追上去。這一次，三個人一起回家。' },
+  ],
+  /*
+   * 塔頂段（2026-09-25 劇情草稿 1-1）：打大俠貓之前先播（`app.ts` 的 `topScene`），她沒有塔頂插圖，
+   * `topSceneSlides` 回空陣列，照字面播純對白（球球那句就是他本人在講）。
+   * 單人的她第三天才出發，師兄已經在塔頂撐了好幾天——結局第一句「塔頂另一端，球球靠著牆抬起頭」從這裡交代。
+   */
+  topScene: <DialogueLine[]>[
+    { speaker: '旁白', text: '推開最上層的門，菲菲先看見師兄。他靠在門邊，額頭擦破了，正撐著牆想站起來；大俠貓背對著門，紫氣一陣一陣往外冒。' },
+    { speaker: '菲菲', text: '師兄！對、對不起，我來晚了……' },
+    { speaker: '球球', text: '師妹？快退回去，師父誰都不認得了喵！' },
+    { speaker: '菲菲', text: '我不退。……每次叫我退的都是你，受傷的也都是你。' },
+    { speaker: '旁白', text: '大俠貓慢慢轉過身。菲菲把師兄扶到門邊坐好，自己往前走了兩步，從竹筒裡抽出三根針。' },
+    { speaker: '菲菲', text: '師兄，門口交給你。這次……換我先上。' },
   ],
   /** 她的個人化旁白（師父講完之後插一句）。口徑跟球球那三句一樣，只是換成她的打法 */
   /*
@@ -803,7 +842,8 @@ export const dangdangDialogue = {
     { speaker: '旁白', text: '球球把一根斷成兩截的木樁拖到修理鋪前，菲菲跟在後面，把扣環壞了的竹筒放到桌上。噹噹放下銅錘，翻過木樁，找到上次補過的地方。' },
     { speaker: '球球', text: '這次不是從你補的地方斷的喵。' },
     { speaker: '噹噹', text: '我看見了，你把另一頭也打斷了。東西都放著，你們吃過飯再來拿。', slideBreak: true },
-    { speaker: '旁白', text: '那天夜裡，村外冒出魔塔。大俠貓中了魔氣，衝向塔頂，球球追了上去。魔物趁亂來搶糧，噹噹架起銅護臂擋在村口，等抱著糧袋的村貓都進了門，才推上門閂。', slideBreak: true },
+    // 塔的來歷 A 版（2026-09-25）：先中魔氣、塔才跟著冒出來
+    { speaker: '旁白', text: '那天夜裡，大俠貓中了魔氣，村外跟著冒出魔塔。球球追著他衝進塔裡。魔物趁亂來搶糧，噹噹架起銅護臂擋在村口，等抱著糧袋的村貓都進了門，才推上門閂。', slideBreak: true },
     { speaker: '旁白', text: '第三天，菲菲背著行囊來到門口。噹噹正在修門框，停下了手裡的錘子。' },
     { speaker: '噹噹', text: '你要去找球球？外面的木橋缺了一塊，從左邊走。' },
     { speaker: '菲菲', text: '還有師父，他們三天都沒回來了。村裡就拜託你了。', slideBreak: true },
@@ -836,31 +876,37 @@ export const dangdangDialogue = {
   defeat: <DialogueLine[]>[
     { speaker: '旁白', text: '噹噹的手臂垂了下來。他想再撐起身子，膝蓋卻先撞上地面。' },
     { speaker: '噹噹', text: '糟了……手抬不起來。' },
-    { speaker: '旁白', text: '再醒來時，他已躺在村裡，銅護臂放在床邊。守門的村貓說，有人把他送到門口，他們先替他止了血。噹噹想去拿護臂，手臂一用力就痛。' },
+    // 「扣帶一條條都鬆開了」替結局的伏筆「背你回村的人」埋線（2026-09-25）
+    { speaker: '旁白', text: '再醒來時，他已躺在村裡，銅護臂放在床邊，扣帶一條條都鬆開了。守門的村貓說，有人把他送到門口，他們先替他止了血。' },
     { speaker: '噹噹', text: '有他們的消息，就叫我。' },
   ],
   /*
    * 結局。第二句照規矩是師父醒來的第一句話，由 `victoryLinesFor` 換成
    * 那四句大俠貼圖標題之一（`masterFirstWords`），所以這裡先擺「承讓。」佔位。
+   *
+   * 2026-09-25 劇情草稿 2-3：從十七句縮成基本 8 句。球球、菲菲跟他的重逢搬到塔頂段演（`topScene`），
+   * 結局不再重複打招呼；村口那段併成一句。切點在〔來歷句〕。
    */
   victory: <DialogueLine[]>[
     { speaker: '旁白', text: '大俠貓眼裡的紫光熄了，伸出的手停在半空。噹噹聽見他的聲音，才把架著的手臂放下來。' },
-    { speaker: '塔主', text: '承讓。' },
+    { speaker: '大俠貓', text: '承讓。' },
     { speaker: '噹噹', text: '您再打下去，我這對護臂就得重做了。' },
-    { speaker: '旁白', text: '大俠貓看了看護臂上的凹痕，托住噹噹的手腕。菲菲扶著球球，從門邊慢慢走過來。' },
-    { speaker: '球球', text: '師父，你認得我們了喵？' },
-    { speaker: '旁白', text: '大俠貓點點頭，攬住球球，又朝菲菲伸出手。菲菲碰了碰他的掌心，眼淚才落下來。' },
-    { speaker: '菲菲', text: '師父，我們回家吧。' },
-    { speaker: '旁白', text: '噹噹靠著牆坐下，把護臂擱在腿上，手指一根根鬆開。' },
-    { speaker: '球球', text: '噹噹，你不過來喵？' },
-    { speaker: '噹噹', text: '等我一下，腿有點軟。' },
-    { speaker: '旁白', text: '大俠貓走過來扶起他。下樓時，球球和菲菲走在前面，踩到鬆動的踏板就回頭提醒。', slideBreak: true },
-    { speaker: '旁白', text: '四個人帶著小魚乾回到村口。守門的村貓拉開新補的門，朝屋裡喊一聲，就有人端著熱湯跑出來。' },
-    { speaker: '噹噹', text: '門閂還差一根釘子，我吃完就補。' },
-    { speaker: '球球', text: '我幫你扶門喵。' },
-    { speaker: '菲菲', text: '先把手伸過來。繃帶都濕了。' },
-    { speaker: '旁白', text: '噹噹把手交給菲菲，另一手接過湯碗。球球蹲在旁邊，已經開始講剛才怎麼替他守住塔頂的門。' },
-    { speaker: '噹噹', text: '那鍋還有嗎？幫我再盛一碗。' },
+    { speaker: '旁白', text: '大俠貓托住他的手腕。菲菲扶著球球從門邊走過來，大俠貓把兩個徒弟一起攬到身邊。' },
+    { speaker: '噹噹', text: '你們先過去。……等我一下，腿有點軟。' },
+    { speaker: '旁白', text: '塔頂的紫光熄了，底下一層層跟著暗掉。噹噹想起那只包鐵角的木箱、那間練功房：這座塔，是照大俠貓記得的地方搭起來的。', slideBreak: true },
+    { speaker: '旁白', text: '回到村口，守門的村貓拉開新補的門，端出熱湯。菲菲抓過噹噹的手換繃帶，球球在旁邊比畫他怎麼守住塔頂那扇門。' },
+    { speaker: '噹噹', text: '門閂還差一根釘子，我吃完就補。……那鍋還有嗎？' },
+  ],
+  /*
+   * 塔頂段（2026-09-25 劇情草稿 1-2）：他第三天傍晚才上塔，菲菲早上先進去；序章最後那句「球球，菲菲，我來了。」在這裡接上。
+   * 沒有塔頂插圖，照字面播純對白（球球、菲菲那兩句就是他們本人在講）。
+   */
+  topScene: <DialogueLine[]>[
+    { speaker: '旁白', text: '最上層的門半掩著。菲菲跪在門邊替球球壓住傷口，大俠貓一步步走近。噹噹把扣帶拉到最緊，擋到兩人前面。' },
+    { speaker: '球球', text: '噹噹？你怎麼也上來了喵？' },
+    { speaker: '噹噹', text: '我來了。門補好了，換村貓守。' },
+    { speaker: '菲菲', text: '噹、噹噹……師兄的腳扭到了，我扶不動他。' },
+    { speaker: '噹噹', text: '扶他到門邊坐好。我站穩了，這一掌我接。' },
   ],
   /*
    * 打法不同、結局多插一句旁白。他的分法跟另外兩位不一樣：
@@ -968,15 +1014,11 @@ export const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readon
   },
   ninja: {
     feifei: {
-    '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。':
-      '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父和師妹就在旁邊聽。走到家門口時，球球才發現自己餓壞了。',
     '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。':
         '回村以後，球球常向村裡的小貓講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下，師妹在旁邊補上他漏講的那幾段。',
     },
     // 他跟噹噹一起爬：結局那兩段原本寫「師徒倆」與「向師妹講」，這一局旁邊站的是噹噹
     dangdang: {
-      '師徒倆帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父就在旁邊聽。走到家門口時，球球才發現自己餓壞了。':
-        '三個人帶著找回的小魚乾走回村子。路上，球球不停地講塔裡遇到的事，師父跟噹噹就在旁邊聽。走到村口時，噹噹先去看那扇門，球球才發現自己餓壞了。',
       '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下。':
         '回村以後，球球常向師妹講起塔裡的事。說到怎麼救出師父時，他總要站起來比畫幾下；噹噹在旁邊修門，偶爾補一句「那次你退了三步」。',
     },
@@ -1007,7 +1049,7 @@ export const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readon
   fengfeng: {
     ninja: {
       '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我陪球球來找大俠貓。他中了魔氣，跑上塔頂了。',
-      '他的徒弟沒有放棄找他。我也會上去。': '球球一路追他追到這裡。我們這就上去。',
+      '最掛念的人……是球球和菲菲。我先上去，替他們把路清出來。': '最掛念的人，就在我旁邊。球球，路我來開。',
       '小魚乾落進井裡，水面泛起一圈漣漪。封封扶著井沿等待。封封：「能讓我把他們找到就好了。」':
         '小魚乾落進井裡，水面泛起一圈漣漪。封封扶著井沿等待。封封：「能讓我們把大俠貓帶回村就好了。」',
       '封封敲鬆磚塊，取出布包，手卻被碎石劃開。他用袖布壓住傷口，聽著牆裡的勸阻。封封：「我知道上面危險。朋友還沒回來，我得去找。」':
@@ -1015,7 +1057,7 @@ export const MIXED_LINES: Readonly<Record<string, Readonly<Record<string, Readon
     },
     feifei: {
       '婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。': '婆婆，我陪菲菲來找大俠貓和球球。他們三天沒回村了。',
-      '他的徒弟沒有放棄找他。我也會上去。': '菲菲在村裡等了他三天。我們這就上去。',
+      '最掛念的人……是球球和菲菲。我先上去，替他們把路清出來。': '最掛念的人……菲菲，是你跟球球。路我來開。',
     },
     dangdang: {
       // 原句成立（球球、菲菲都在塔裡），只把「我」換成兩個人：婆婆面前站的是他跟噹噹
@@ -1113,7 +1155,7 @@ const MIXED_SCENES: Readonly<Record<string, {
      */
     victory: [
       { speaker: '旁白', text: '紫光散去，大俠貓看著眼前的球球，放下了手。' },
-      { speaker: '塔主', text: '承讓。' },
+      { speaker: '大俠貓', text: '承讓。' },
       { speaker: '球球', text: '你終於認得我了喵。' },
       { speaker: '旁白', text: '大俠貓蹲下來，把球球抱進懷裡。噹噹卸下護臂，坐在門檻上等。' },
       { speaker: '球球', text: '噹噹，你的手在抖喵。' },
@@ -1164,7 +1206,7 @@ const MIXED_SCENES: Readonly<Record<string, {
      */
     victory: [
       { speaker: '旁白', text: '大俠貓眼裡的紫光退去。菲菲喊了一聲「師父」，他循著聲音，看向她。' },
-      { speaker: '塔主', text: '承讓。' },
+      { speaker: '大俠貓', text: '承讓。' },
       { speaker: '菲菲', text: '您認得我了，對不對？' },
       { speaker: '旁白', text: '大俠貓點頭，伸手輕碰她的頭頂。球球扶著門框走過來，菲菲趕緊去扶他。' },
       { speaker: '球球', text: '我找了你好久喵。', slideBreak: true },
@@ -1198,7 +1240,8 @@ const MIXED_SCENES: Readonly<Record<string, {
    */
   'feifei+ninja': {
     prologue: [
-      { speaker: '旁白', text: '那天夜裡，村外冒出一座魔塔。大俠貓的眼睛變成紫色，頭也不回地衝向塔頂。球球抓起藍頭巾就追了出去。' },
+      // 塔的來歷 A 版（2026-09-25）：先中魔氣、塔才跟著冒出來
+      { speaker: '旁白', text: '那天夜裡，大俠貓的眼睛變成紫色，村外跟著冒出一座魔塔。他頭也不回地衝向塔頂，球球抓起藍頭巾就追了出去。' },
       // 切點（2026-09-23）：前兩句配「村外夜裡一前一後追出去」、之後配「塔下說好一起進去」兩張連線劇情圖
       { speaker: '旁白', text: '菲菲在後面喊了他兩聲，他都沒有回頭。她只好抓起竹筒，一路追到塔下。', slideBreak: true },
       { speaker: '菲菲', text: '師兄！我、我叫你好幾次了……你都沒聽見。' },
@@ -1226,7 +1269,7 @@ const MIXED_SCENES: Readonly<Record<string, {
     /* 「推門見到大俠貓」那一段跟另外兩組一樣放在 `COOP_BOSS_LINES` 的開場最前面（見上面噹噹那組的說明） */
     victory: [
       { speaker: '旁白', text: '最後一縷魔氣散去，大俠貓眼裡的紫光熄了。球球還擺著架勢，菲菲握針的手終於垂了下來。' },
-      { speaker: '塔主', text: '承讓。' },
+      { speaker: '大俠貓', text: '承讓。' },
       { speaker: '菲菲', text: '師父，這又不是切磋……您剛才連我都不認得了。我跟師兄喊了您一路呢。' },
       { speaker: '球球', text: '師父，你終於醒了喵。' },
       { speaker: '旁白', text: '大俠貓蹲下來，一手把球球抱進懷裡，一手把菲菲拉到身邊。球球哭得說不出話，菲菲愣愣地張著眼睛，忍了一路的眼淚終於掉了下來。', slideBreak: true },
@@ -1447,8 +1490,9 @@ export function storyFor(hero: string | undefined): {
   firstMeet: Record<string, string>;
 } {
   if (hero === 'fengfeng') return withMixed(hero, { ...fengfengDialogue, firstMeet: fengfengFirstMeet });
-  if (hero === 'feifei') return withMixed(hero, { ...feifeiDialogue, topScene: [], firstMeet: dialogue.firstMeetFeifei });
-  if (hero === 'dangdang') return withMixed(hero, { ...dangdangDialogue, topScene: [], firstMeet: dialogue.firstMeetDangdang });
+  // 塔頂段各自寫在劇本裡（2026-09-25：她、他補上了，原本這裡是寫死的空陣列）
+  if (hero === 'feifei') return withMixed(hero, { ...feifeiDialogue, firstMeet: dialogue.firstMeetFeifei });
+  if (hero === 'dangdang') return withMixed(hero, { ...dangdangDialogue, firstMeet: dialogue.firstMeetDangdang });
   return withMixed(hero, {
     prologue: dialogue.prologue, actClear1: dialogue.actClear1, actClear2: dialogue.actClear2,
     topScene: [],
@@ -1510,7 +1554,8 @@ export const FEIFEI_BOSS_LINES: Readonly<Record<string, string>> = {
   '師父，是我，球球喵！你看清楚喵！':
     '師父，我是菲菲！我站在這裡，您看看我！',
   '退隱也要回家喵！你看著我，我是你徒弟喵！':
-    '退隱也可以回家呀。師父，我是來接您的，跟我回去好不好？',
+    // 塔頂段她把師兄扶到門口才上前（2026-09-25 劇情草稿 1-1 選配）：開打時把師兄一起講出來
+    '退隱也可以回家呀。師兄在門口等著……跟我們回去，好不好？',
   '婆婆，我得去救師父，再危險也要上去喵。':
     '婆婆，我也想回去。可是家裡少了兩個人，我不能就這樣走。',
   '胸口那道紫光，跟師父眼裡的一樣喵。':
@@ -1901,15 +1946,25 @@ export function defeatLastWord(hero: string | undefined): string {
   return '';
 }
 
-/** 結局那五句：第二句（師父的第一句話）依牌組傾向在貼圖標題裡換；有傾向時多一句旁白講出個人化的評語；難度 4 以上再多一句旁白。 */
-export function victoryLinesFor(deckIds: readonly string[], difficulty: number, hero?: string): DialogueLine[] {
+/**
+ * 結局的台詞。師父醒來的第一句（說話者「大俠貓」）依牌組傾向在貼圖標題裡換；有傾向時多一句旁白講出個人化的評語；
+ * 難度 4 以上再多一句旁白。
+ *
+ * 2026-09-25（劇情草稿第 2、4、8 節）：四隻的單人結局都是**基本 8 句**，再照這一局插伏筆旁白
+ *（`victory-echoes.ts`），**封頂 11 句**、伏筆一局最多兩句。`ctx` 沒傳就不插（除錯頁、既有測試照舊）；
+ * 連線兩人合演的整段場景（`hasCoopScene`）自己收尾，也不插。同角色雙人走單人劇本，照插。
+ */
+export function victoryLinesFor(deckIds: readonly string[], difficulty: number, hero?: string, ctx?: VictoryCtx): DialogueLine[] {
   const story = storyFor(hero);
   const key = deckLeaning(deckIds, hero);
   const lines = story.victory.map((l) => ({ ...l }));
-  // 師父只講大俠貼圖標題（專案規矩，tests/content/dialogue.test.ts 守著），這四句兩位主角共用
-  const second = lines[1];
-  if (second && second.speaker === '塔主') second.text = dialogue.masterFirstWords[key];
-  // 個人化那一句插在**師父講完之後**（兩位主角的第二句都是師父，位置一樣，不用分兩種寫法）
+  /*
+   * 師父只講大俠貼圖標題（專案規矩，tests/content/dialogue.test.ts 守著）。
+   * 找「大俠貓」那一句換字，不再寫死第二句比對「塔主」（2026-09-25：醒來之後說話者改叫大俠貓）。
+   */
+  const masterAt = lines.findIndex((l) => l.speaker === '大俠貓');
+  if (masterAt >= 0) lines[masterAt]!.text = dialogue.masterFirstWords[key];
+  // 個人化那一句插在**大俠貓講完之後**
   /*
    * 「沒有明顯傾向」本來一律不插旁白。噹噹那份稿子連這一格都寫了一句
    *（他卸下護臂，才發現裡面的布墊早就濕透），所以改成「有寫才播」。
@@ -1918,7 +1973,18 @@ export function victoryLinesFor(deckIds: readonly string[], difficulty: number, 
   const narration = story.victoryNarration[key];
   // 標了 `narrationAfter` 的就接在那一句後面（封封：稿子寫「接 FG-V-03 後」，插句講的是他收劍那一下，2026-09-23）
   const after = lines.findIndex((l) => l.narrationAfter);
-  if (narration) lines.splice(after >= 0 ? after + 1 : 2, 0, { speaker: '旁白', text: narration });
+  if (narration) lines.splice(after >= 0 ? after + 1 : masterAt >= 0 ? masterAt + 1 : 2, 0, { speaker: '旁白', text: narration });
   if (difficulty >= 4 && story.hardModeEpilogue) lines.push({ speaker: '旁白', text: story.hardModeEpilogue });
+  /*
+   * 伏筆旁白：名額＝`min(2, 11 − 目前句數)`，照優先序挑。塔頂那兩種插在切點（〔來歷句〕）前面、
+   * 回家路那三種插在切點後面——**先插後面的再插前面的**，切點的位置才不會跑掉。
+   */
+  const cut = lines.findIndex((l) => l.slideBreak);
+  if (ctx && cut >= 0 && !hasCoopScene(hero)) {
+    const picked = victoryEchoes((hero ?? 'ninja') as Hero, ctx, VICTORY_MAX_LINES - lines.length);
+    const narr = (xs: typeof picked): DialogueLine[] => xs.map((e) => ({ speaker: '旁白', text: e.text }));
+    lines.splice(cut + 1, 0, ...narr(picked.filter((e) => !TOP_ECHOES.has(e.kind))));
+    lines.splice(cut, 0, ...narr(picked.filter((e) => TOP_ECHOES.has(e.kind))));
+  }
   return lines;
 }
