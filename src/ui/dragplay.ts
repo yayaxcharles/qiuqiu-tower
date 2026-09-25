@@ -93,6 +93,8 @@ export interface CardDragHooks {
 export function attachCardDrag(node: HTMLElement, hooks: CardDragHooks): void {
   let state: CardDragState | null = null;
   let hovered: number | null = null;
+  /** 反悔滑回的那段動畫：滑回途中又抓起來要先停掉，不然腳本動畫蓋過行內位移、牌不跟手（推前審查 2026-09-25 低） */
+  let slide: Animation | null = null;
 
   const reset = (): void => {
     node.classList.remove('dragging');
@@ -104,6 +106,7 @@ export function attachCardDrag(node: HTMLElement, hooks: CardDragHooks): void {
 
   node.addEventListener('pointerdown', (ev) => {
     if (ev.pointerType !== 'mouse' || ev.button !== 0) return;
+    slide?.cancel(); slide = null;
     state = beginCardDrag(ev.clientX, ev.clientY);
   });
 
@@ -174,7 +177,7 @@ export function attachCardDrag(node: HTMLElement, hooks: CardDragHooks): void {
     else {
       // 反悔退回：從放手的地方滑回扇形（原本一格之內跳回去，量到一次跳 472 像素）
       if (held && typeof node.animate === 'function') {
-        node.animate([{ translate: held }, { translate: '0px 0px' }], { duration: 200, easing: 'cubic-bezier(.35,0,.25,1)' });   // 頭尾都慢：一開始就衝會像跳
+        slide = node.animate([{ translate: held }, { translate: '0px 0px' }], { duration: 200, easing: 'cubic-bezier(.35,0,.25,1)' });   // 頭尾都慢：一開始就衝會像跳
       }
       hooks.onCancel?.();
     }

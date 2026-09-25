@@ -1343,15 +1343,22 @@ registerScreen('combat', (app, root, props) => {
    * 這個鎖等於沒上過。所以不用另外判斷是不是主機。
    */
   let inflight = false;
+  /**
+   * 剛打出去、還在路上的那張（2026-09-25 推前審查 中）：連線加入方送出之後本機狀態還沒變，
+   * `act` 裡的重畫會把它畫回扇形，玩家看到牌跳回手上；等主機回來才消失。路上這段畫手牌時把它藏起來。
+   * 單機與主機是同一拍套用，重畫時牌早就不在手上，這個值沒有作用。回來了、被退回、保險絲到點都清掉。
+   */
+  let travelingUid: number | null = null;
   /** 保險絲：訊息掉了的話不能讓玩家永遠按不動（正常一個來回 0.1～0.2 秒） */
   let inflightTimer = 0;
   function lockSend(): void {
     inflight = true;
     window.clearTimeout(inflightTimer);
-    inflightTimer = window.setTimeout(() => { inflight = false; render(); }, 3000);
+    inflightTimer = window.setTimeout(() => { inflight = false; travelingUid = null; render(); }, 3000);
   }
   function unlockSend(): void {
     inflight = false;
+    travelingUid = null;
     window.clearTimeout(inflightTimer);
   }
   app.disposers.push(() => window.clearTimeout(inflightTimer));
@@ -2069,6 +2076,7 @@ registerScreen('combat', (app, root, props) => {
         disabled: !canAct() || !chk.ok,
         onClick: () => onCard(c.uid),
       });
+      if (c.uid === travelingUid) node.style.visibility = 'hidden';   // 路上那張（見 `travelingUid`）
       node.style.transform = `rotate(${((i - mid) * spread).toFixed(2)}deg) translateY(${(Math.abs(i - mid) * lift).toFixed(0)}px)`;
       node.style.margin = `0 ${((step - 145) / 2).toFixed(1)}px`;
       node.style.zIndex = String(i + 1);
@@ -2659,6 +2667,7 @@ registerScreen('combat', (app, root, props) => {
     act(() => {
       const ok = sendOrDo({ t: 'potion', seat: mySeat, id, g: enemyUid }, () => usePotion(cs, id, enemyUid, mySeat));
       if (!ok) {
+        travelingUid = null;
         locallyPlayedMotion.dropInFlight();
         console.error(`usePotion 失敗：${id}`);
       }
@@ -2680,15 +2689,15 @@ registerScreen('combat', (app, root, props) => {
     if (!layer || !from || typeof from.animate !== 'function') return;
     const stage = stageFrame(app.stage);
     const { k } = stage;
-    // 拖出去打的：從放手的地方起飛，手上那張先藏起來（不藏的話它會先彈回手牌格子，等重畫才消失，2026-09-25）
+    // 拖出去打的：從放手的地方起飛（2026-09-25）。手上那張由 `travelingUid` 在重畫時藏（見 handRow）
     const r = dropped ?? from.getBoundingClientRect();
-    if (dropped) from.style.visibility = 'hidden';
     const dest = targetUid === undefined
       ? root.querySelector(`${MINE} .sprite`)
       : root.querySelector(`.unit.enemy[data-uid="${targetUid}"] .sprite`);
     const dr = dest?.getBoundingClientRect();
 
     const ghost = from.cloneNode(true) as HTMLElement;
+    ghost.style.visibility = '';   // 保險：手上那張若已被藏起來，複製會把 hidden 一起帶走，分身整段看不見（推前審查 2026-09-25 高）
     ghost.classList.add('flying');
     ghost.style.left = `${(r.left - stage.left) * k}px`;
     ghost.style.top = `${(r.top - stage.top) * k}px`;
@@ -2726,6 +2735,7 @@ registerScreen('combat', (app, root, props) => {
       });
     }
     flyCard(uid, targetUid, dropped);
+    travelingUid = uid;
     sfx('draw', 1.15);   // 牌離手的紙聲，比抽牌高一點才分得出是哪個動作
     // 出招一律用「參上」。以前是照牌面貼圖換姿勢，但牌面已經換成專畫的插圖（`card/*`），
     // 那批不是球球的立繪、也沒有對應的姿勢，所以那條規則已經沒有意義了。
@@ -2939,7 +2949,8 @@ registerScreen('combat', (app, root, props) => {
        * 排著的若是被定住、死掉的，照舊 0.72 秒（牠們那一步可能還有字要看，保守不動）。
        */
       const last = !(cs.enemyQueue?.length);
-      const gap = cs.phase === 'player' && !last ? 720 : 400;
+      // 最後一隻留 0.56 秒：收尾那次是整頁重畫，0.4 秒會把靜態前撲（combat.css 0.52 秒）與邊緣紅暈（0.5 秒）砍在半路（推前審查 中）
+      const gap = cs.phase !== 'player' ? 400 : last ? 560 : 720;
       // 前 0.4 秒看上一隻的結果，剩下 0.32 秒亮下一隻：兩段加起來還是原本的 720，節奏不變
       if (cs.phase === 'player' && !last) {
         window.setTimeout(() => { if (app.cs === cs) telegraphNext(); }, gap - TELEGRAPH_MS);

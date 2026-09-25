@@ -17,9 +17,9 @@ const MAP_CSS = readFileSync('src/ui/styles/map.css', 'utf8');
 
 describe('一、魔物回合收尾不空等', () => {
   const src = lf(COMBAT);
-  it('最後一隻出完手只留 0.4 秒看結果，不再多等 0.32 秒的下一隻預告', () => {
+  it('最後一隻出完手只留 0.56 秒看結果（夠靜態前撲 0.52 秒演完），不再多等下一隻預告', () => {
     expect(src).toContain('const last = !(cs.enemyQueue?.length);');
-    expect(src).toContain("const gap = cs.phase === 'player' && !last ? 720 : 400;");
+    expect(src).toContain("const gap = cs.phase !== 'player' ? 400 : last ? 560 : 720;");
     expect(src).toContain("if (cs.phase === 'player' && !last) {");
   });
   it('逐隻演完的收尾，新手牌只等 0.15 秒；其他發牌照舊 0.46 秒', () => {
@@ -44,7 +44,13 @@ describe('二、拖出去打不再「彈回手上再飛出去」', () => {
   });
   it('飛的那張從放手處起飛、手上那張先藏起來；反悔時滑回去（不是一格跳回）', () => {
     expect(src).toContain('const r = dropped ?? from.getBoundingClientRect();');
-    expect(src).toContain("if (dropped) from.style.visibility = 'hidden';");
+    // 推前審查 2026-09-25 高：分身不能帶著 hidden 飛（原本先藏再複製，整段飛行看不見；舊測試把錯的順序釘成綠燈）
+    const fly = src.slice(src.indexOf('function flyCard('), src.indexOf('function play('));
+    expect(fly).not.toContain("from.style.visibility = 'hidden'");
+    expect(fly.indexOf("ghost.style.visibility = '';")).toBeGreaterThan(fly.indexOf('from.cloneNode(true)'));
+    // 路上那張：重畫手牌時藏起來，回來／被退回／保險絲都會清掉
+    expect(src).toContain("if (c.uid === travelingUid) node.style.visibility = 'hidden';");
+    expect(src).toMatch(/function unlockSend\(\): void \{\n\s*inflight = false;\n\s*travelingUid = null;/);
     expect(src).toContain('play(c.uid, targetUid, dropped)');
     expect(drag).toMatch(/node\.animate\(\[\{ translate: held \}, \{ translate: '0px 0px' \}\]/);
   });
@@ -59,7 +65,10 @@ describe('三、手機橫拿時狀態牌子多的時候字看得到', () => {
 
 describe('四、地圖點格子當下就有反應', () => {
   it('點了就亮起來；按著縮一點', () => {
-    expect(lf(MAP)).toContain("btn.classList.add('picked');");
+    // 連線要過了「投過票就不能改」的防呆才亮（推前審查 中）
+    const click = lf(MAP).slice(lf(MAP).indexOf("play('step');"));
+    expect(click.indexOf("if (votes[app.seat]) return;")).toBeLessThan(click.lastIndexOf("btn.classList.add('picked');"));
+    expect(click).toContain("if (!app.coop) { btn.classList.add('picked'); app.enterNode(n.id); return; }");
     expect(lf(MAP_CSS)).toContain('.map-node.choice.picked {');
     expect(lf(MAP_CSS)).toContain('.map-node.choice:active { scale: .92; }');
   });
