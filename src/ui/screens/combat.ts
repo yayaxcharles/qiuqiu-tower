@@ -1346,7 +1346,9 @@ registerScreen('combat', (app, root, props) => {
   /**
    * 剛打出去、還在路上的那張（2026-09-25 推前審查 中）：連線加入方送出之後本機狀態還沒變，
    * `act` 裡的重畫會把它畫回扇形，玩家看到牌跳回手上；等主機回來才消失。路上這段畫手牌時把它藏起來。
-   * 單機與主機是同一拍套用，重畫時牌早就不在手上，這個值沒有作用。回來了、被退回、保險絲到點都清掉。
+   * **只有加入方會設**：單機與主機是同一拍套用，重畫時牌早就不在手上；而且它們不走 `unlockSend`，
+   * 設了就永遠清不掉——同一場戰鬥牌的編號不變，那張洗回來再抽到時會整張藏著、點不到（複審 2026-09-25 高）。
+   * 清的時機：我那張套進來了（`onApplied` 看到自己的出牌）、被退回（`onDropped`）、保險絲到點、送出失敗。
    */
   let travelingUid: number | null = null;
   /** 保險絲：訊息掉了的話不能讓玩家永遠按不動（正常一個來回 0.1～0.2 秒） */
@@ -1358,7 +1360,6 @@ registerScreen('combat', (app, root, props) => {
   }
   function unlockSend(): void {
     inflight = false;
-    travelingUid = null;
     window.clearTimeout(inflightTimer);
   }
   app.disposers.push(() => window.clearTimeout(inflightTimer));
@@ -2667,7 +2668,6 @@ registerScreen('combat', (app, root, props) => {
     act(() => {
       const ok = sendOrDo({ t: 'potion', seat: mySeat, id, g: enemyUid }, () => usePotion(cs, id, enemyUid, mySeat));
       if (!ok) {
-        travelingUid = null;
         locallyPlayedMotion.dropInFlight();
         console.error(`usePotion 失敗：${id}`);
       }
@@ -2735,7 +2735,7 @@ registerScreen('combat', (app, root, props) => {
       });
     }
     flyCard(uid, targetUid, dropped);
-    travelingUid = uid;
+    travelingUid = session && !session.isHost ? uid : null;   // 只有加入方要藏（見 `travelingUid`）
     sfx('draw', 1.15);   // 牌離手的紙聲，比抽牌高一點才分得出是哪個動作
     // 出招一律用「參上」。以前是照牌面貼圖換姿勢，但牌面已經換成專畫的插圖（`card/*`），
     // 那批不是球球的立繪、也沒有對應的姿勢，所以那條規則已經沒有意義了。
@@ -2744,6 +2744,7 @@ registerScreen('combat', (app, root, props) => {
       const ok = sendOrDo({ t: 'card', seat: mySeat, u: uid, g: targetUid },
         () => playCard(cs, uid, targetUid, mySeat));
       if (!ok) {
+        travelingUid = null;
         locallyPlayedMotion.dropInFlight();
         console.error(`playCard 在 canPlay 放行後仍失敗：${st.name}（uid ${uid}）`);
       }
@@ -4127,6 +4128,7 @@ registerScreen('combat', (app, root, props) => {
     session.onDropped(() => {
       locallyPlayedMotion.dropInFlight();
       unlockSend();
+      travelingUid = null;
       chooseSent = null;
       if (app.cs === cs) { render(); syncPicker(); }
     });
@@ -4147,6 +4149,8 @@ registerScreen('combat', (app, root, props) => {
     const onApplied = (applied: SequencedAction[], turn: AppliedTurn): void => {
       if (!applied.length || app.cs !== cs) return;
       unlockSend();   // 有東西套進去了＝路上那一下回來了
+      // 路上那張只在「我那張」真的套進來才現身（同伴的動作先回來時不清，不然它會在回來前先出現在扇形）
+      if (travelingUid !== null && applied.some((x) => x.a.t === 'card' && x.a.seat === mySeat && x.a.u === travelingUid)) travelingUid = null;
       const mine = applied.every((a) => 'seat' in a.a && a.a.seat === mySeat);
       if (!mine) { mateActAt = Date.now(); mateTurnSeen = cs.turn; }   // 他動了，一分鐘重頭算
       const found = matePlays(applied, mySeat, handsBefore, cs.turn);

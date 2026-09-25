@@ -50,7 +50,15 @@ describe('二、拖出去打不再「彈回手上再飛出去」', () => {
     expect(fly.indexOf("ghost.style.visibility = '';")).toBeGreaterThan(fly.indexOf('from.cloneNode(true)'));
     // 路上那張：重畫手牌時藏起來，回來／被退回／保險絲都會清掉
     expect(src).toContain("if (c.uid === travelingUid) node.style.visibility = 'hidden';");
-    expect(src).toMatch(/function unlockSend\(\): void \{\n\s*inflight = false;\n\s*travelingUid = null;/);
+    // 複審 2026-09-25 高：單機、主機不能設（它們不走 unlockSend，設了就清不掉，洗回來的那張會整張藏著）
+    expect(src).toContain('travelingUid = session && !session.isHost ? uid : null;');
+    expect(src).not.toMatch(/travelingUid = uid;/);
+    // 清的地方：我那張套進來、被退回、保險絲、出牌送出失敗
+    expect(src).toContain("x.a.t === 'card' && x.a.seat === mySeat && x.a.u === travelingUid)) travelingUid = null;");
+    expect(src).toMatch(/session\.onDropped\(\(\) => \{[^}]*travelingUid = null;/);
+    expect(src).toContain('inflight = false; travelingUid = null; render();');
+    const fail = src.slice(src.indexOf('playCard 在 canPlay 放行後仍失敗') - 200, src.indexOf('playCard 在 canPlay 放行後仍失敗'));
+    expect(fail).toContain('travelingUid = null;');
     expect(src).toContain('play(c.uid, targetUid, dropped)');
     expect(drag).toMatch(/node\.animate\(\[\{ translate: held \}, \{ translate: '0px 0px' \}\]/);
   });
