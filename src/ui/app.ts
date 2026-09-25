@@ -5,6 +5,7 @@ import { playVideo, type VideoName } from './video';
 import { coopArtReady, preloadAct, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
 import { anyBlessingPending, rollBlessings } from '../engine/blessing';
 import { loadEventScreen } from './event-loader';
+import { withCoopText } from './coop-text-loader';
 import { QMARK_BANNER, ambushEvent, loadQmarkText, playQmarkReveal, qmarkHeroText, qmarkText } from './qmark';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -673,9 +674,18 @@ export class App {
        * 那是為了「劇本寫球球、實際是誰在玩」而做的，但這裡的球球就是球球本人。
        * 所以先把說話者換成旁白以外都不動的形式：這一組本來就已經是最終文字。
        */
+      const heroes = run.players.map((p) => p.hero);
       const playBoss = (): void => {
         const coop = coopBossLines(bossId, 'intro', localHero());
-        playDialogue(coop ?? dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go, cast, coop !== null);
+        const solo = dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric;
+        if (coop || !this.coop) { playDialogue(coop ?? solo, go, cast, coop !== null); return; }
+        // 貓又婆婆、老住持、狸大人的同伴接話（2026-09-25）：兩人版照整局的兩位角色挑（兩台一樣）、照字面播；
+        // 文字在延後載入的那一塊（地圖畫面早就抓了），載不到就照舊單人版
+        withCoopText((m) => {
+          if (this.run !== run) return;
+          const pair = m?.coopBossPair(bossId, 'intro', heroes) ?? null;
+          playDialogue(pair ?? solo, go, cast, pair !== null);
+        });
       };
       // 塔頂門外段落只在第三關最終頭目前播放一次；前兩關的關主不應提前消耗這段劇情。
       const top = run.act >= ACTS ? storyFor(localHero()).topScene : [];
@@ -787,8 +797,16 @@ export class App {
       const bossUnit = cs.enemies.find((e) => e.enemyId === bossId);
       // 頭像要跟戰場上最後那個樣子一致：變身過（橘皮大王整顆站起來、全身是刺）就用那一階段的圖，不要退回變身前（2026-09-22 畫面盤點 問題 6）
       const outroArt = monsterPhaseKey(bd?.art ?? '', bossUnit?.phase ?? 0);
-      if (outro && bd) playDialogue(outro, toSlides, { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(outroArt, 'idle') } });   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
-      else toSlides();
+      const outroCast = bd ? { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(outroArt, 'idle') } } : undefined;   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
+      const soloOutro = (): void => { if (outro && bd) playDialogue(outro, toSlides, outroCast); else toSlides(); };
+      if (!this.coop || !bd) { soloOutro(); return; }
+      // 連線：貓又婆婆、老住持、狸大人倒下時兩位同伴各接一句（2026-09-25），照整局的兩位角色挑、照字面播；其餘照舊
+      const heroes = run.players.map((p) => p.hero);
+      withCoopText((m) => {
+        if (this.run !== run) return;
+        const pair = m?.coopBossPair(bossId, 'defeat', heroes, outro) ?? null;
+        if (pair) playDialogue(pair, toSlides, outroCast, true); else soloOutro();
+      });
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面

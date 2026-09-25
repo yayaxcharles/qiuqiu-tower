@@ -16,6 +16,7 @@ import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadQmarkArt } from '../preload';
 import { loadEventScreen } from '../event-loader';
 import { loadShopText } from '../shop-text-loader';
+import { loadCoopText } from '../coop-text-loader';
 import { KEEPERS, type KeeperDef } from '../../content/keepers';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
@@ -460,6 +461,8 @@ registerScreen('map', (app, root) => {
   // 這一關有客座店主的店：那一位的三張立繪與店主台詞（延後模組）也先在背景抓（2026-09-23 第三批 新J，design3 4-4）
   void preloadMapKeepers(run);
   if (run.map.nodes.some((n) => n.keeper && n.keeper !== 'orange')) void loadShopText().catch(() => undefined);
+  // 連線兩人版台詞（貓窩、三隻關主的同伴接話，2026-09-25）：只有連線用得到，一樣先在背景抓
+  if (app.coop) void loadCoopText().catch(() => undefined);
 });
 
 /** 地圖上罐頭鋪的小頭像直徑（樣式在 map.css 的 `.map-keeper`，兩邊要一致） */
