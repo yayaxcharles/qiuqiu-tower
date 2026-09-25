@@ -1,0 +1,29 @@
+{
+  "event_coop_seesaw_r2": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_coop_seesaw_r2.webp",
+    "bytes": 32860,
+    "droppedSpecks": 114,
+    "gate": [],
+    "sha256": "6a0b966d64b865b93310e17c5b49ad91691e25f30dae6ca0bf5e45012d54f9da",
+    "at": "2026-09-25 21:18:56"
+  },
+  "event_feifei_lost_scroll_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_feifei_lost_scroll_r0.webp",
+    "bytes": 37844,
+    "droppedSpecks": 163,
+    "gate": [],
+    "sha256": "7e689a44d05757296e5bc73bd4ef5ffb6cd768db2d55868e5326d44e74b69c74",
+    "at": "2026-09-25 21:18:47"
+  },
+  "event_medicine_cat_r3": {
+    "attempt": 4,
+    "file": "public/assets/bg/event_medicine_cat_r3.webp",
+    "bytes": 47464,
+    "droppedSpecks": 105,
+    "gate": [],
+    "sha256": "07be439c730404b4cf4004eaf969c2dba878f5f0bf43d83a190e9f9f34ca3e88",
+    "at": "2026-09-25 21:18:52"
+  }
+}

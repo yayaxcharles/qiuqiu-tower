@@ -1,0 +1,101 @@
+{
+  "event_fengfeng_daxia_chest_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_daxia_chest_r0.webp",
+    "bytes": 40986,
+    "droppedSpecks": 215,
+    "gate": [],
+    "sha256": "d1e1097df7ee2182b02c9349163a8fcba5671a27a8847643fca10871473f84a9",
+    "at": "2026-09-25 19:24:34"
+  },
+  "event_fengfeng_daxia_teach_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_fengfeng_daxia_teach_r0.webp",
+    "bytes": 46110,
+    "droppedSpecks": 127,
+    "gate": [],
+    "sha256": "da09e6e4adf94799cf70c216d704b097824ab12520b48a5c0aedd31d7d141a52",
+    "at": "2026-09-25 19:25:53"
+  },
+  "event_fengfeng_lost_scroll_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_fengfeng_lost_scroll_r0.webp",
+    "bytes": 34876,
+    "droppedSpecks": 110,
+    "gate": [],
+    "sha256": "83bde344ee45a18a2bd44ae7041b6eedb7d458d39c1482fe01b03f9f47874a66",
+    "at": "2026-09-25 19:24:52"
+  },
+  "event_fengfeng_moon_window_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_moon_window_r1.webp",
+    "bytes": 34218,
+    "droppedSpecks": 83,
+    "gate": [],
+    "sha256": "2f10e34b4d1c0c8566150a731495c32e9cd545c3f5bc9a4240b38eaa7c2c56ee",
+    "at": "2026-09-25 19:24:55"
+  },
+  "event_fengfeng_pigeon_grandpa_r0": {
+    "attempt": 5,
+    "file": "public/assets/bg/event_fengfeng_pigeon_grandpa_r0.webp",
+    "bytes": 36780,
+    "droppedSpecks": 117,
+    "gate": [],
+    "sha256": "7777009a9fec1b81c3995c0fe0e826bd9b2f4208cf80d7cf5c8a6126432e6d9c",
+    "at": "2026-09-25 19:28:44"
+  },
+  "event_fengfeng_pigeon_reply_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_pigeon_reply_r1.webp",
+    "bytes": 43800,
+    "droppedSpecks": 133,
+    "gate": [],
+    "sha256": "468868ba65593b8d6c1caa415d8c00da1046ae5f227ce933b9ce214e3bbe6c32",
+    "at": "2026-09-25 19:24:38"
+  },
+  "event_fengfeng_pigeon_reply_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_pigeon_reply_r2.webp",
+    "bytes": 48082,
+    "droppedSpecks": 68,
+    "gate": [],
+    "sha256": "1f837a238578a0cbb96758f73a71dac7f027f9face081ebed6899499b56629ab",
+    "at": "2026-09-25 19:30:29"
+  },
+  "event_fengfeng_rare_hot_spring_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_rare_hot_spring_r1.webp",
+    "bytes": 50714,
+    "droppedSpecks": 48,
+    "gate": [],
+    "sha256": "2583668f434adb3c1e0e7e9dbfb9519a3caab5b1580a8837d2d240c58b1713f8",
+    "at": "2026-09-25 19:24:45"
+  },
+  "event_fengfeng_rat_bathhouse_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_rat_bathhouse_r0.webp",
+    "bytes": 47476,
+    "droppedSpecks": 42,
+    "gate": [],
+    "sha256": "d490b27a3e9aef8da9b8a8cdd082c0be8ce3853a475471c951e1c3b13fd8a4dc",
+    "at": "2026-09-25 19:25:19"
+  },
+  "event_fengfeng_robin_feast": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_robin_feast.webp",
+    "bytes": 55258,
+    "droppedSpecks": 332,
+    "gate": [],
+    "sha256": "6d176c0c833f5d25bf06262c8485d356d97c4652e273c84dce7a45425797ad4b",
+    "at": "2026-09-25 19:24:59"
+  },
+  "event_fengfeng_wooden_men_alley_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_wooden_men_alley_r1.webp",
+    "bytes": 48882,
+    "droppedSpecks": 101,
+    "gate": [],
+    "sha256": "4b3a79ea55c0f9cb5d235e08f7da017b753f53665d79c0e281bb67e77c51a9c0",
+    "at": "2026-09-25 19:24:49"
+  }
+}

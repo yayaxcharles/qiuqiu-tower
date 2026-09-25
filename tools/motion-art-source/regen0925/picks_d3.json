@@ -1,0 +1,74 @@
+{
+  "event_dangdang_bear_cellar_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_bear_cellar_r1.webp",
+    "bytes": 52438,
+    "droppedSpecks": 72,
+    "gate": [],
+    "sha256": "86fa29ebcbfcbdd91042c8ad4fd040f9f86f35231abc30f37a8e98d66ab85997",
+    "at": "2026-09-25 19:19:17"
+  },
+  "event_dangdang_broken_shrine_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_broken_shrine_r1.webp",
+    "bytes": 50470,
+    "droppedSpecks": 179,
+    "gate": [],
+    "sha256": "88935dc1a8727ffede60a34657b376302c448ef0ff1cbb805fca79ed19244f95",
+    "at": "2026-09-25 19:19:13"
+  },
+  "event_dangdang_rescue_return_fish": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_rescue_return_fish.webp",
+    "bytes": 39220,
+    "droppedSpecks": 117,
+    "gate": [],
+    "sha256": "362e8ed72c61647050f87b298b7e0ae0b599428995ab7fe0d2579dcc153f0234",
+    "at": "2026-09-25 19:19:24"
+  },
+  "event_dangdang_rescue_return_fish_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_rescue_return_fish_r0.webp",
+    "bytes": 36194,
+    "droppedSpecks": 124,
+    "gate": [],
+    "sha256": "d941c12f50bab14df80b5534d2646bab2c72e397ba94309551b70c452cb279f1",
+    "at": "2026-09-25 19:24:35"
+  },
+  "event_dangdang_rescue_return_herb": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_rescue_return_herb.webp",
+    "bytes": 47358,
+    "droppedSpecks": 254,
+    "gate": [],
+    "sha256": "43601291eac4495c1b85f7623907d7620d6a601b531c77e81e90afc2b5bf29d8",
+    "at": "2026-09-25 19:19:21"
+  },
+  "event_dangdang_rescue_return_herb_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_rescue_return_herb_r0.webp",
+    "bytes": 45026,
+    "droppedSpecks": 142,
+    "gate": [],
+    "sha256": "ba8021d12e7c3e82575fb8411785238d374591e0d99d35ac04a8405cd1538424",
+    "at": "2026-09-25 19:24:28"
+  },
+  "event_dangdang_rescue_return_herb_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_rescue_return_herb_r1.webp",
+    "bytes": 45916,
+    "droppedSpecks": 176,
+    "gate": [],
+    "sha256": "f8f6f3a8b2efaa9c65120b93890a245b42e8e213f170f9d656651ecb658534da",
+    "at": "2026-09-25 19:24:31"
+  },
+  "event_dangdang_toolbox_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_toolbox_r1.webp",
+    "bytes": 46348,
+    "droppedSpecks": 111,
+    "gate": [],
+    "sha256": "b3ee50f137e6dbf8f8f2a06a2254f7c45b5c91fbdc7d70ef5f63ea3c932a3ff6",
+    "at": "2026-09-25 19:19:10"
+  }
+}

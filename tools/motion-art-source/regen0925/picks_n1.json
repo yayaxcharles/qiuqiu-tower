@@ -1,0 +1,83 @@
+{
+  "event_cell_bandit_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_cell_bandit_r0.webp",
+    "bytes": 50192,
+    "droppedSpecks": 141,
+    "gate": [],
+    "sha256": "54890f4e2d06fe8752ccbe8b978e59b518ddb588194e04c057466b253d860629",
+    "at": "2026-09-25 19:52:30"
+  },
+  "event_daxia_chest_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_daxia_chest_r0.webp",
+    "bytes": 38176,
+    "droppedSpecks": 129,
+    "gate": [],
+    "sha256": "0e3612dfe95830024e4dffdb99b80c376ad71feb0f2002aab992027b2e774b7f",
+    "at": "2026-09-25 19:49:52"
+  },
+  "event_fallen_star_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_fallen_star_r0.webp",
+    "bytes": 47938,
+    "droppedSpecks": 260,
+    "gate": [],
+    "sha256": "0f688ac24b692f822dd9209d9acf21abbe1db1a28c68d9e682b8e0049e500e4f",
+    "at": "2026-09-25 19:54:18"
+  },
+  "event_pigeon_grandpa_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_pigeon_grandpa_r0.webp",
+    "bytes": 39258,
+    "droppedSpecks": 210,
+    "gate": [],
+    "sha256": "ff70edc898b979805a125f44cab87e162967d45a49a3a0b59f72d8c67aa72f80",
+    "at": "2026-09-25 19:49:59"
+  },
+  "event_pigeon_reply_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_pigeon_reply_r1.webp",
+    "bytes": 41068,
+    "droppedSpecks": 114,
+    "gate": [],
+    "sha256": "b1925e1638b002ea59946395083d885c89d0564bcbdb806a0c1c454a982da9c7",
+    "at": "2026-09-25 19:50:55"
+  },
+  "event_rare_catnip_master_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rare_catnip_master_r0.webp",
+    "bytes": 60448,
+    "droppedSpecks": 55,
+    "gate": [],
+    "sha256": "aa56c562070e4dc4053200d1d89a02cf595712207d7f2cbc79e1ac609a011e22",
+    "at": "2026-09-25 19:57:26"
+  },
+  "event_rare_hot_spring_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rare_hot_spring_r1.webp",
+    "bytes": 41428,
+    "droppedSpecks": 109,
+    "gate": [],
+    "sha256": "c9cf8134826298e58e418c680a9111c51eea9a575d8fc4042ed4d90449ee2320",
+    "at": "2026-09-25 19:53:25"
+  },
+  "event_rat_bathhouse_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_rat_bathhouse_r0.webp",
+    "bytes": 50474,
+    "droppedSpecks": 97,
+    "gate": [],
+    "sha256": "e360676f4a2a393c56ff3584b22942451ede6641bb65c390f0b9953c03abfd9f",
+    "at": "2026-09-25 19:52:54"
+  },
+  "event_sunbath_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_sunbath_r1.webp",
+    "bytes": 36110,
+    "droppedSpecks": 57,
+    "gate": [],
+    "sha256": "f25726b23656a7b6f5dfa757980b9b81da30b5e197a3f738a91048948db08a64",
+    "at": "2026-09-25 19:49:55"
+  }
+}
