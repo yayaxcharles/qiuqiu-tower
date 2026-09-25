@@ -77,7 +77,8 @@ describe('中：罐頭鋪價錢永遠看得到（貨架讓位給對白）', () =
     expect(css).toMatch(/\.scene-goods \.shop-item:not\(\.card-item\) \.small \{[^}]*-webkit-line-clamp: 4;/);
     // 沒有別的規則夾 `.shop-item .small`（推前審查 中：開局祝福的卡也是 `.shop-item`，曾被連帶夾成四行）
     expect(css.match(/-webkit-line-clamp: 4/g)?.length).toBe(1);
-    expect(norm(SHOP_SRC)).toContain("el('div', { class: 'small', title: text }, text)");
+    // 2026-09-25：秘寶格子可以另外給提示用的全文（`full`，沾魔氣的格子裡是短句）
+    expect(norm(SHOP_SRC)).toContain("el('div', { class: 'small', title: full ?? text }, text)");
   });
 });
 

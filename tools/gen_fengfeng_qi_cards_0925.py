@@ -25,8 +25,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -44,6 +46,7 @@ PROMPTS = SOURCE / 'prompts.json'
 CARDS_DIR = ROOT / 'public/assets/cards/card'
 MANIFEST = ROOT / 'public/assets/manifest.json'
 ANCHOR = 'card/fengfeng_yiqichushou'
+_LOCK = threading.Lock()   # 三張平行生圖，prompts.json 的讀改寫要排隊（推前審查二 低-4）
 
 # 牌號 → (參考牌面, 主色, 他在做什麼)
 CARDS: dict[str, tuple[str, str, str]] = {
@@ -116,10 +119,22 @@ def generate(name: str, note: str = '') -> str:
         if 'at capacity' not in result.stderr:
             break
         time.sleep(30)
-    data = json.loads(PROMPTS.read_text(encoding='utf-8')) if PROMPTS.exists() else {}
-    data.setdefault(name, []).append({'attempt': attempt, 'status': status, 'prompt': text, 'at': time.strftime('%Y-%m-%d %H:%M:%S')})
-    PROMPTS.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    record(name, {'attempt': attempt, 'status': status, 'prompt': text, 'at': time.strftime('%Y-%m-%d %H:%M:%S')})
     return f'{name} 第 {attempt} 次：{status}（{time.time() - started:.0f} 秒）'
+
+
+def record(name: str, entry: dict) -> None:
+    with _LOCK:
+        data = json.loads(PROMPTS.read_text(encoding='utf-8')) if PROMPTS.exists() else {}
+        data.setdefault(name, []).append(entry)
+        PROMPTS.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+
+def shared_card_ids() -> set[str]:
+    """共用牌的牌號（沒有 hero 的那些）：`fengfeng_<它>` 是封封版共用牌的圖，新牌不能取這個名字"""
+    text = (ROOT / 'src/content/cards.ts').read_text(encoding='utf-8')
+    return {m.group(1) for m in re.finditer(r"\{ id: '([a-z0-9_]+)'(?:(?!\n  \{).)*?", text, re.S)} - {
+        m.group(1) for m in re.finditer(r"\{ id: '([a-z0-9_]+)'[^\n]*hero: '", text)}
 
 
 def add_manifest(key: str) -> None:
@@ -137,11 +152,14 @@ def add_manifest(key: str) -> None:
 
 def pick(name: str, attempt: int) -> None:
     out = CARDS_DIR / f'{name}.webp'
+    if name.startswith('fengfeng_') and name[len('fengfeng_'):] in shared_card_ids():
+        raise SystemExit(f'{name} 跟共用牌「{name[len("fengfeng_"):]}」的封封版圖同名，換一個牌號')
     if out.exists() and not (SOURCE / f'{name}.picked').exists():
         raise SystemExit(f'{out.name} 已經有了（可能是別張牌的圖），不蓋；確定是這張的重選就先建 {name}.picked')
     fit(Image.open(SOURCE / f'{name}.try{attempt}.png')).save(out, 'WEBP', quality=78, method=6)
     add_manifest(f'card/{name}')
     (SOURCE / f'{name}.picked').write_text(str(attempt), encoding='utf-8')
+    record(name, {'picked': attempt, 'at': time.strftime('%Y-%m-%d %H:%M:%S')})   # 選定紀錄進版控（.picked 只是本機記號）
     print(f'{name} 採用第 {attempt} 次（{out.stat().st_size // 1024} KB）')
 
 

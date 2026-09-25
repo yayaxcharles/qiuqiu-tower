@@ -1,6 +1,6 @@
 import { play } from '../audio';
 import { pick, storyFor } from '../../content/dialogue';
-import { relicById } from '../../content/relics';
+import { relicById, relicLongText } from '../../content/relics';
 import { heroesIn, openChest, openChestCoop, openRoadsideBox, openRoadsideBoxCoop, relicForPartnerOnly, runRng } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import { allVoted, onlyStanding } from '../../engine/vote';
@@ -199,7 +199,7 @@ registerScreen('chest', (app, root, props) => {
     } else if (hasLoot) {
       // 舊版面（插圖沒生好時的退路）
       art = el('div', { class: 'loot-stack' },
-        el('p', { class: 'loot-above' }, def.text),
+        el('p', { class: 'loot-above' }, relicLongText(def, me(run, seat).relics, true)),
         el('img', { class: 'chest-loot', src: url, alt: def.name }),
         el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '秘寶'), el('b', { class: 'loot-name' }, def.name)));
     } else {
@@ -225,7 +225,7 @@ registerScreen('chest', (app, root, props) => {
       art.append(el('div', { class: 'chest-loot-line' },
         el('span', { class: 'loot-kind' }, '秘寶'),
         el('b', { class: 'loot-name' }, def.name),
-        el('span', { class: 'loot-text' }, def.text)));
+        el('span', { class: 'loot-text' }, relicLongText(def, me(run, seat).relics, true))));   // 沾魔氣的補「可淨化成…」（2026-09-25）
     }
 
     root.append(sceneView({
@@ -266,7 +266,7 @@ registerScreen('chest', (app, root, props) => {
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('b', {}, d.name),
         partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
-        el('span', { class: 'small' }, d.text),
+        el('span', { class: 'small' }, relicLongText(d, me(run, seat).relics, true)),
         who.length ? el('span', { class: 'chest-offer-who' }, who.join('、')) : '');
       if (!myPick && !settled && !me(run, seat).down) slot.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
       else slot.setAttribute('disabled', 'disabled');

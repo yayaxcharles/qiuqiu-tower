@@ -4,6 +4,8 @@ import { newRun, purifyRelic } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
 import { purifiedBetween } from '../../src/ui/purifyreveal';
 import ACTCLEAR from '../../src/ui/screens/actclear.ts?raw';
+import CHEST from '../../src/ui/screens/chest.ts?raw';
+import REWARD from '../../src/ui/screens/reward.ts?raw';
 import EVENT from '../../src/ui/screens/event.ts?raw';
 import REST from '../../src/ui/screens/rest.ts?raw';
 import SHOP from '../../src/ui/screens/shop.ts?raw';
@@ -62,10 +64,15 @@ describe('窄格子用短句、不套兩層括號（推前審查 2026-09-25 低-
     // 說明外面已經有一層全形括號，裡面不再開括號
     for (const t of [miasmaNote(id), brief.slice(r.text.length)]) expect(t.slice(1, -1), t).not.toMatch(/[（）]/);
   });
-  it('貨架、過關三選一、事件拿到那一列用短句；狀態列、秘寶清單、圖鑑照舊長句', () => {
+  it('貨架、事件拿到那一列、戰利品與紙箱用短句；貨架的滑鼠提示、過關三選一、狀態列、秘寶清單、圖鑑用長句', () => {
+    // 推前審查二（2026-09-25）：短句只講好處，要看得到代價的地方用長句
     expect(lf(SHOP)).toContain('relicLongText(d, me(run, seat).relics, true)');
-    expect(lf(ACTCLEAR)).toContain('relicLongText(d, me(run, seat).relics, true)');
+    expect(lf(SHOP)).toContain('!!it.limited, it, relicLongText(d, me(run, seat).relics)));');
+    expect(lf(ACTCLEAR)).toContain('relicLongText(d, me(run, seat).relics)));');
     expect(lf(EVENT)).toContain('relicLongText(r, owned, true)');
+    expect(lf(REWARD)).toContain('relicLongText(d, me(run, seat).relics, true)');
+    expect(lf(CHEST).match(/relicLongText\((?:def|d), me\(run, seat\)\.relics, true\)/g)?.length).toBe(3);
+    expect(lf(REWARD) + lf(CHEST)).not.toMatch(/\b(?:d|def)\.text\b/);
   });
 });
 

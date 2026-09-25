@@ -489,7 +489,7 @@ export function textWidth(s: string): number {
 }
 /**
  * 窄格子用的短句，接在 `base`（原本的說明）後面：放得下就多講一點，放不下就少講，最少也留「可淨化」。
- * 魔氣燈籠原文就 44 字，只放得下「可淨化成『長明燈』」；全文在滑鼠提示、狀態列、秘寶清單都看得到
+ * 魔氣燈籠原文就 44 字，只放得下「可淨化成『長明燈』」；短句只講好處，代價在全文：罐頭鋪的滑鼠提示、狀態列、秘寶清單、過關三選一
  */
 export function miasmaGist(id: string, base = ''): string {
   const pure = relicById[MIASMA_PURE[id] ?? ''];

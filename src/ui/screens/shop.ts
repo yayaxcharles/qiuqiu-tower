@@ -243,7 +243,9 @@ registerScreen('shop', (app, root, props) => {
     /** 秘寶的「店長私藏」那一格（罐頭鋪限定池，2026-09-23 第二批）：名字底下一個小牌子 */
     limited?: boolean,
     /** 貨架上那一格本身（2026-09-23 第三批）：劃掉的原價要算店主的加價（`priceNode`） */
-    item?: object): HTMLElement {
+    item?: object,
+    /** 滑鼠提示放的全文（2026-09-25 推前審查二 低-1）：沾魔氣的秘寶格子裡是短句，提示要看得到淨化的代價 */
+    full?: string): HTMLElement {
     const afford = me(run, seat).fish >= price;
     const node = el('div', { class: `shop-item${sold ? ' sold' : afford && !blocked ? '' : ' poor'}${sale && !sold ? ' on-sale' : ''}${limited ? ' limited' : ''}` },
       sale ? saleTag(sold ? undefined : sale) : ledgerTag(sold),
@@ -251,7 +253,7 @@ registerScreen('shop', (app, root, props) => {
       el('div', { class: 'shop-name' }, name),
       rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarity) : '',
       limited ? el('div', { class: 'potion-rarity rarity-limited' }, '店長私藏') : '',
-      el('div', { class: 'small', title: text }, text),   // 貨架上最多四行（screens.css），全文放在滑鼠提示
+      el('div', { class: 'small', title: full ?? text }, text),   // 貨架上最多四行（screens.css），全文放在滑鼠提示
       priceNode(price, sold, base, sale, soldText, item));
     if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
     else if (!sold) node.addEventListener('click', () => setMood('no'));   // 買不起：老闆搖頭，不再是死按鈕
@@ -358,7 +360,7 @@ registerScreen('shop', (app, root, props) => {
       // 自己已經有、架上卻還沒賣掉的，寫「你已經有了」：寫「賣掉了」的話同伴明明還買得到（連線稽核 高-8）
       relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics, true), priceFor(run, it, seat, shop), it.sold || owned || closed, false,
         () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale,
-        closedText(it.sold) ?? (!it.sold && owned ? '你已經有了' : undefined), undefined, !!it.limited, it));
+        closedText(it.sold) ?? (!it.sold && owned ? '你已經有了' : undefined), undefined, !!it.limited, it, relicLongText(d, me(run, seat).relics)));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
