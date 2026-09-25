@@ -1,0 +1,126 @@
+{
+  "event_dangdang_medicine_cat": {
+    "hero": "dangdang",
+    "why": "攤子左邊那箱「混裝忍具」畫成鐵鎚、鉗子、扳手等木工工具；文字是一邊放混裝忍具、一邊排祖傳補身藥。",
+    "scene": "Copy reference image 3 as closely as possible: the same cheerful calico cat (orange, black and white patches) sitting behind the same small wooden market stall on a patch of grey stone floor, the same cream cloth with a faded red brush stroke hanging from the front of the counter, the same row of four corked potion bottles (red, blue, green, purple) standing on the right half of the counter, and Dangdang standing on the right in the same pose, holding up a purple potion bottle in his paw and frowning at it. ONLY ONE THING CHANGES: the open wooden crate on the LEFT end of the counter is full of mixed NINJA TOOLS: several silver four-pointed shuriken throwing stars, three black kunai daggers with ring pommels sticking up handle-first, two round black smoke bombs with short fuses, and a coiled tan rope hanging over the crate's front edge. NO hammer, NO pliers, NO wrench, NO screwdriver, NO saw - there are no carpentry or workshop tools anywhere in the picture.",
+    "style": "bg/event_dangdang_greedy_merchant.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_medicine_cat.webp",
+        "the PREVIOUS version of this same picture: copy everything in it (the calico cat, the stall, the cloth, the potion bottles, Dangdang's pose and face). Its only mistake, which must NOT be repeated: the crate on the left of the counter is full of carpentry tools (hammer, pliers, wrench) - in the new picture that crate holds ninja tools instead."
+      ]
+    ]
+  },
+  "event_dangdang_medicine_cat_r0": {
+    "hero": "dangdang",
+    "why": "同事件主圖修正：攤子左邊那箱「忍具」畫成鐵鎚、鉗子、扳手等木工工具，要跟新主圖同一箱忍具。（第二次，驗收員退件）三花貓畫出三隻前掌：一隻拿手裏劍、一隻從手裏劍下方往右伸、一隻擱在櫃台上；要改成只有兩隻前掌，一隻把手裏劍遞給噹噹、一隻擱在櫃台上。",
+    "scene": "Keep the COMPOSITION of reference image 4 (layout only) and draw the calico cat, the stall and the crate like reference image 3: the same calico cat (white with orange and black patches) standing behind the same wooden market stall on a patch of grey stone floor, the same cream cloth with a red brush stroke hanging from the front of the counter, the same four corked potion bottles (red, blue, green, purple) on the right half of the counter, and on the LEFT end of the counter the same open wooden crate of NINJA TOOLS: silver four-pointed shuriken, black kunai daggers with ring pommels sticking up, round black smoke bombs with short fuses and a coiled tan rope over the edge. NO hammer, NO pliers, NO wrench - no carpentry or workshop tools anywhere in the picture.\nTHE CALICO CAT HAS EXACTLY TWO FRONT PAWS (two arms), no more. Her RIGHT arm (the one nearer Dangdang, on the viewer's right) reaches out over the counter toward Dangdang and her paw pads are closed around one point of a silver four-pointed shuriken, handing it to him. Her LEFT arm rests on the counter top beside the crate, its paw lying flat on the wood. Below and beside the shuriken there is only her white chest and the counter - NO third arm, NO extra paw reaching out under the shuriken. Count her paws: one holding the shuriken, one on the counter, that is all. She smiles happily with closed eyes.\nDangdang stands on the right, facing the stall, holding a round black smoke bomb with a short fuse firmly in both front paws up near his face, studying it closely with a serious frown. He has exactly two front paws, and BOTH forearms wear his copper bracers (both bracers visible).",
+    "style": "bg/event_dangdang_greedy_merchant.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_medicine_cat.webp",
+        "the main picture of this same event: copy the calico cat (face, fur patches, body), the wooden stall, the cream cloth with the red brush stroke, the four potion bottles and the open crate of ninja tools on the left end of the counter. Note how the calico cat there has exactly two front paws: one raised, one resting on the counter."
+      ],
+      [
+        "bg/event_dangdang_medicine_cat_r0.webp",
+        "the previous version of this same picture: use it ONLY for the layout (stall on the left, Dangdang on the right studying the smoke bomb). Its mistake must NOT be repeated: the calico cat there has THREE front paws (one holding the shuriken, a second one reaching out right under the shuriken, a third on the counter). The calico cat must have only two front paws."
+      ]
+    ]
+  },
+  "event_dangdang_medicine_cat_r1": {
+    "hero": "dangdang",
+    "why": "同事件主圖修正：攤子左邊那箱「忍具」畫成鐵鎚、鉗子、扳手等木工工具，要跟新主圖同一箱忍具。",
+    "scene": "Copy reference image 3 as closely as possible: the same calico cat smiling contentedly with closed eyes behind the same wooden market stall on a patch of grey stone floor, the same cream cloth hanging from the counter, the same four corked potion bottles on the right half of the counter, and Dangdang standing on the right in the same pose: he has just drunk the tonic and feels warm and light - one arm raised and bent in a strong flex, his other paw holding the small empty potion bottle, a pleased confident face. ONLY ONE THING CHANGES: the open wooden crate on the LEFT end of the counter holds the same jumble of NINJA TOOLS as the crate in reference image 4: silver four-pointed shuriken, black kunai daggers with ring pommels sticking up, round black smoke bombs with short fuses and a coiled tan rope over the edge. NO hammer, NO pliers, NO wrench - no carpentry or workshop tools anywhere in the picture.",
+    "style": "bg/event_dangdang_greedy_merchant.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_medicine_cat_r1.webp",
+        "the PREVIOUS version of this same picture: copy everything in it (the calico cat, the stall, the cloth, the potion bottles, Dangdang's flexing pose and face). Its only mistake, which must NOT be repeated: the crate on the left of the counter is full of carpentry tools (hammer, pliers, wrench)."
+      ],
+      [
+        "bg/event_dangdang_medicine_cat.webp",
+        "the main picture of this same event: copy the open wooden crate of ninja tools on the left end of the counter exactly (same shuriken, kunai, smoke bombs and rope). Take only the crate, not the poses."
+      ]
+    ]
+  },
+  "event_dangdang_medicine_cat_r3": {
+    "hero": "dangdang",
+    "why": "同事件主圖修正：攤子左邊那箱「忍具」畫成鐵鎚、鉗子、扳手等木工工具，要跟新主圖同一箱忍具。順手：舊圖三花貓手上翻開的書把內頁朝向觀眾，改成內頁朝她自己。",
+    "scene": "Copy reference image 3 as closely as possible: the same calico cat behind the same wooden market stall on a patch of grey stone floor, the same four corked potion bottles on the counter, and the same poses: the calico cat cheerfully leans over the counter and holds a wooden spoon of green antidote out to Dangdang's mouth; Dangdang sits on the floor in front of the stall, numb and struggling - a faint pale-green tint on his white cheek, gritted wobbly mouth, a sweat drop, squiggly numbness lines near his shoulder - but he keeps silent. The cloth hanging from the front of the counter is the cream cloth with a faded red brush stroke and two red stripes from reference image 4 (NOT a paw print), so the stall matches the other pictures of this event. In the calico cat's other paw she holds a small open recipe book with its pages turned toward her OWN face, so the viewer sees only the plain brown cover. ONLY ONE THING CHANGES from reference image 3: the open wooden crate on the LEFT end of the counter holds the same jumble of NINJA TOOLS as the crate in reference image 4: silver four-pointed shuriken, black kunai daggers with ring pommels sticking up, round black smoke bombs with short fuses and a coiled tan rope over the edge. NO hammer, NO pliers, NO wrench - no carpentry or workshop tools anywhere in the picture.",
+    "style": "bg/event_dangdang_greedy_merchant.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_medicine_cat_r3.webp",
+        "the PREVIOUS version of this same picture: copy everything in it (the calico cat, the stall, the cloth, the potion bottles, both poses and faces). Its mistakes, which must NOT be repeated: the crate on the left of the counter is full of carpentry tools (hammer, pliers, wrench), and the open book shows its pages to the viewer."
+      ],
+      [
+        "bg/event_dangdang_medicine_cat.webp",
+        "the main picture of this same event: copy the open wooden crate of ninja tools on the left end of the counter exactly (same shuriken, kunai, smoke bombs and rope) and the cream cloth with the faded red brush stroke hanging from the counter. Take only the crate and the cloth, not the poses."
+      ]
+    ]
+  },
+  "event_dangdang_gambling_rats_r0": {
+    "hero": "dangdang",
+    "why": "噹噹站著俯身盯著碗、桌上賭本是一疊金幣；文字是他放下本錢、蹲低身子，看的不是碗是桌腳，賭本是小魚乾。",
+    "scene": "SETTING: the same low wooden table on a patch of grey stone floor, the same three grey rats with big pink ears and the same upside-down tan bowl as in reference image 3. Dangdang has put down his stake and now crouches VERY LOW on the floor at the left end of the table, bending down so that his whole head is BELOW the level of the table top: his face is right beside the nearest front wooden TABLE LEG, only a paw's width from it, and he peers at the BOTTOM of that leg, where its foot stands on the floor, with narrowed, suspicious eyes - his pupils point DOWN at the foot of the table leg, NOT at the bowl, NOT at the rats, NOT at the table top. One front paw rests flat on the floor for balance. On the table top, next to the bowl, lies his stake: a small bundle of about five golden-brown DRIED FISH (small stiff dried sardines) tied together with string - there are NO gold coins anywhere. On the far side of the table one rat lifts the tan bowl up with both paws, just starting to raise it (the gap under the bowl still in shadow, nothing visible under it), and a small 'click' motion mark sits beside the bowl (lines only, no letters). The other two rats lean in excitedly.",
+    "style": "bg/event_dangdang_moving_rat.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_gambling_rats.webp",
+        "the main picture of this same event: copy its low wooden table, the upside-down tan bowl, the patch of stone floor and the three grey rats with big pink ears. Take the setting and the rats' look, not Dangdang's pose."
+      ]
+    ]
+  },
+  "event_dangdang_greedy_merchant_r0": {
+    "hero": "dangdang",
+    "why": "望遠鏡已經在噹噹手上，看起來像連望遠鏡也買了；文字是灰貓交貨後又拿起桌上的望遠鏡要加價，噹噹說鏡片是裂的、不要。",
+    "scene": "SETTING: the same wooden crate stall covered with a cream cloth with a red patterned border, on a patch of grey stone floor, as in reference image 3. The fat GREY cat merchant in a dark brown robe, with small round gold wire glasses, stands behind the stall on the right. He has just handed over the goods and now holds up a brass TELESCOPE in both paws, pushing it toward Dangdang with a greedy, pleading grin and a small sweat drop - trying to sell it for twenty more. The telescope's front glass lens has a clear white CRACK line across it. Dangdang stands on the left facing the merchant. In his LEFT paw he firmly holds the small round blue potion bottle he just bought. His RIGHT paw is raised in front of his chest with the open palm turned toward the telescope in a clear 'no thanks' gesture (whole open paw, all fingers together - no single raised finger). He shakes his head: eyes half closed, mouth a flat unimpressed line, two short motion lines beside his head. Dangdang's paws do NOT touch the telescope. On the cloth only a gold paw-print coin and a small red drawstring pouch remain.",
+    "style": "bg/event_dangdang_gambling_rats.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_greedy_merchant.webp",
+        "the main picture of this same event: copy the fat grey cat merchant (dark brown robe, small round gold wire glasses), the wooden crate stall with its cream cloth and red patterned border, the blue potion bottle, the gold paw-print coin, the red drawstring pouch and the brass telescope. Take the setting and the merchant's look, not the poses."
+      ]
+    ]
+  },
+  "event_dangdang_greedy_merchant_r3": {
+    "hero": "dangdang",
+    "why": "眼鏡還掛在噹噹抱走的包袱上，像連眼鏡一起帶走；文字是噹噹把眼鏡挑出來、扳緊鏡腳，遞還給灰貓。",
+    "scene": "Based on reference image 3 (the previous version of this picture): the same patch of grey stone floor, Dangdang on the left and the fat GREY cat merchant in a dark brown robe on the right, hugging a big armful of golden-brown dried fish against his chest with one arm (a few dried fish fall to the floor). Dangdang holds the whole tied cloth bundle of goods tucked under his LEFT arm (a blue potion bottle and a gold paw-print coin peek out of the bundle's top). With his RIGHT paw he holds out the merchant's round gold wire GLASSES toward the grey cat - handing them back. Draw the glasses big and unmistakable: two round glass lenses side by side joined by a small bridge, with both temple arms unfolded, about as wide as Dangdang's paw, seen from the front so both lenses face the viewer; Dangdang pinches the bridge firmly between his paw pads. Dangdang has a calm, matter-of-fact face, mouth closed. The grey cat is NOT wearing glasses now: his bare face shows slightly squinting, surprised eyes and a small sweat drop, and he reaches his free paw out toward the glasses to take them back. Nothing hangs from the bundle: the glasses are ONLY in Dangdang's outstretched paw.",
+    "style": "bg/event_dangdang_gambling_rats.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_greedy_merchant_r3.webp",
+        "the PREVIOUS, WRONG version of this same picture: copy its floor patch, Dangdang carrying the tied cloth bundle and the grey cat merchant hugging the dried fish. Its mistake, which must NOT be repeated: the glasses hang from the bundle as if Dangdang is taking them away - in the new picture Dangdang holds the glasses out in his paw, handing them back to the grey cat."
+      ],
+      [
+        "bg/event_dangdang_greedy_merchant.webp",
+        "the main picture of this same event: shows the grey cat merchant's look and his small round gold wire glasses. In the new picture those glasses are in Dangdang's paw, not on the merchant's face."
+      ]
+    ]
+  },
+  "event_dangdang_moving_rat_r0": {
+    "hero": "dangdang",
+    "why": "噹噹張大嘴笑、弓步前衝，很興奮；文字是捨不得：收下兩件，目光還停在被拿走的那件上——「用慣的東西。……換了就換了。」",
+    "scene": "SETTING: copy reference image 3: the same grey stone steps with grass tufts, the scattered gold coins, the string of wooden beads, the rolled scroll and the small brown pouch on the steps, and the same big brown rat with pink ears sitting on the steps with its huge patched sack tied on its back. The rat keeps its eyes closed and holds, in one paw close to its sack, the item it just took from Dangdang: a small worn bronze amulet on a frayed cord. The trade is done. Dangdang stands upright and still on the right, facing the rat. He holds the two new items the rat gave him against his chest (a gold coin in one paw, a short string of wooden beads in the other), both firmly held. But his eyes are NOT on the new items: his gaze lingers on the worn bronze amulet in the rat's paw. Quiet, faintly reluctant, wistful face: mouth CLOSED in a small flat line, eyebrows slightly tilted up, soft half-lidded eyes, ears drooping a little. He is NOT smiling and NOT excited: no open mouth, no teeth, no sparkle or excitement marks.",
+    "style": "bg/event_dangdang_pigeon_lost_r0.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_moving_rat_r0.webp",
+        "the PREVIOUS, WRONG version of this same picture: copy its stone steps, the scattered coins, beads, scroll and pouch, and the big brown rat with its patched sack. Its mistake, which must NOT be repeated: Dangdang lunges forward with an excited open-mouth grin - in the new picture he stands still and looks quietly wistful at the amulet the rat took."
+      ]
+    ]
+  },
+  "event_dangdang_pigeon_lost_r1": {
+    "hero": "dangdang",
+    "why": "鐵窗上掛著斷背帶，但飛走的鴿子身上郵差包、背帶都還在，噹噹手上也沒有鉗子；文字是噹噹從工具袋拿出鉗子一下剪斷背帶、鴿子掙脫飛走，他低頭看一地的信。",
+    "scene": "SETTING: the same dungeon corner as in reference image 3: a patch of stone floor, a continuous stone-block wall rising from the floor with a lit wall torch on its left part, and a small barred iron window set high up INSIDE the wall on the right. Dangdang stands on the floor below the window, a small brown tool bag with an open flap on his belt. In his RIGHT paw he firmly grips a pair of dark iron PLIERS (wire cutters), lowered to his side - he has just cut the strap. A cut piece of brown strap dangles from one of the window bars, its cut end hanging loose. The fat grey postman PIGEON has popped free: it flies in the open air OUTSIDE the window, up and to the right, wings spread, wearing only its navy postman cap - NO strap and NO satchel anywhere on its body. The empty brown postman satchel lies on the floor. Many envelopes lie scattered flat all over the floor around Dangdang's feet, and a small tied cloth gift pouch (the pigeon's thank-you gift) lies on the floor by his foot. Dangdang looks DOWN at the scattered letters with a puzzled, slightly troubled face and a small sweat drop, mouth closed.",
+    "style": "bg/event_dangdang_pigeon_lost_r0.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_pigeon_lost.webp",
+        "the main picture of this same event: copy its stone wall with the torch and the barred window set high in the wall, the stone floor, and the grey pigeon's look (navy postman cap). Take the setting and the pigeon's look only - NOT its strap, NOT its satchel and NOT its pose."
+      ]
+    ]
+  }
+}

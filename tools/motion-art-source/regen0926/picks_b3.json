@@ -1,0 +1,83 @@
+{
+  "event_dangdang_gambling_rats_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_dangdang_gambling_rats_r0.webp",
+    "bytes": 35514,
+    "droppedSpecks": 139,
+    "gate": [],
+    "sha256": "da89d7726bbd11b89d5c9e656d293062df4613259de30757010a787739b29426",
+    "at": "2026-09-26 01:36:51"
+  },
+  "event_dangdang_greedy_merchant_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_greedy_merchant_r0.webp",
+    "bytes": 46468,
+    "droppedSpecks": 202,
+    "gate": [],
+    "sha256": "9eb01bfc3bbde4e915060ca7a36f1b01186850bc387c0e082501fb9ac027479c",
+    "at": "2026-09-26 01:36:55"
+  },
+  "event_dangdang_greedy_merchant_r3": {
+    "attempt": 4,
+    "file": "public/assets/bg/event_dangdang_greedy_merchant_r3.webp",
+    "bytes": 48684,
+    "droppedSpecks": 347,
+    "gate": [],
+    "sha256": "55e5b2183504927810173f23969cf6ceed601760d9aaa70ae4af97a3e56f4ebb",
+    "at": "2026-09-26 01:40:48"
+  },
+  "event_dangdang_medicine_cat": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_medicine_cat.webp",
+    "bytes": 50010,
+    "droppedSpecks": 144,
+    "gate": [],
+    "sha256": "2a6f2aea9bdd9f796c76f14efdd9c00250d5e076774200dc8638ca6a16e6b532",
+    "at": "2026-09-26 01:36:48"
+  },
+  "event_dangdang_medicine_cat_r0": {
+    "attempt": 4,
+    "file": "public/assets/bg/event_dangdang_medicine_cat_r0.webp",
+    "bytes": 48806,
+    "droppedSpecks": 116,
+    "gate": [],
+    "sha256": "7370e425c74f4a1f49d6e6fdbd3c6c4479cc5470635e4db7d427a27908e326f6",
+    "at": "2026-09-26 02:11:49"
+  },
+  "event_dangdang_medicine_cat_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_medicine_cat_r1.webp",
+    "bytes": 50348,
+    "droppedSpecks": 174,
+    "gate": [],
+    "sha256": "2fc4f79baffe34e53e7f60dff4ae03e7e754775ce3a2768ec1f687a928fc9e26",
+    "at": "2026-09-26 01:44:20"
+  },
+  "event_dangdang_medicine_cat_r3": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_dangdang_medicine_cat_r3.webp",
+    "bytes": 49214,
+    "droppedSpecks": 154,
+    "gate": [],
+    "sha256": "c355a4f7d1a0105af1defaed7c1814381cb11b81081de1de88d0d348e4c4f87c",
+    "at": "2026-09-26 01:44:24"
+  },
+  "event_dangdang_moving_rat_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_moving_rat_r0.webp",
+    "bytes": 47146,
+    "droppedSpecks": 298,
+    "gate": [],
+    "sha256": "8c937d9a57730ef94ac7fe9ef02a557e24fa1dcc0509305af2c9ff4d72739ac7",
+    "at": "2026-09-26 01:36:59"
+  },
+  "event_dangdang_pigeon_lost_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_pigeon_lost_r1.webp",
+    "bytes": 44482,
+    "droppedSpecks": 82,
+    "gate": [],
+    "sha256": "5493fb485be79df584e68fdce6d700447afec985fb05c2bd594b62c1b397fe87",
+    "at": "2026-09-26 01:37:03"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "event_fengfeng_stuck_scabbard": {
+    "hero": "fengfeng",
+    "why": "去背把封封尾巴裡面挖空，只剩一圈描邊，深色底上像沒有尾巴。構圖照舊（雙爪握柄拔劍、劍卡在鞘裡），尾巴改成完整橘色條紋；順便在鞘口畫幾滴水，對上「滲進去的水讓內襯鼓起來」，腳下補一小塊跟結果圖同款的石地。",
+    "scene": "SETTING: a small patch of grey pebbles and dirt with two or three tufts of green grass under Fengfeng's feet, the same kind of floor patch as in reference image 4. Fengfeng stands on it in a wide braced stance, trying to draw his sword and FAILING, the same pose as in reference image 3: both paws grip the brass-guarded hilt of his straight jian at his left hip and pull hard, his body leaning back with the effort, but the blade is STUCK - the hilt sits right against the scabbard mouth and none of the blade shows. A small sweat drop on his cheek; he frowns down at the scabbard mouth, puzzled. The leather at the scabbard mouth is dark and damp, and two or three small water drops drip from it. The dark-brown scabbard hangs at his waist on his brown sash, its red tassel dangling. His red scarf is wrapped around his neck. HIS TAIL: his long tail curls out behind him and is drawn fully SOLID - opaque orange fur with darker orange stripe bands inside a black outline, exactly like reference image 1. It is never an empty outline and never see-through.",
+    "style": "bg/event_fengfeng_stuck_scabbard_r0.webp",
+    "refs": [
+      ["bg/event_fengfeng_stuck_scabbard.webp", "the PREVIOUS version of this same picture: copy Fengfeng's pose exactly (both paws on the hilt at his left hip, pulling, leaning back, braced legs). Its mistake, which must NOT be repeated: his tail is only an empty grey outline with nothing inside - in the new picture the tail is solid orange with darker stripes."],
+      ["bg/event_fengfeng_stuck_scabbard_r1.webp", "another picture of this same event: copy only the small patch of grey pebbles and grass tufts under his feet. Do not copy its pose or the drawn blade."]
+    ]
+  },
+  "event_fengfeng_broken_bridge_r0": {
+    "hero": "fengfeng",
+    "why": "同事件村貓前後長相不同：主圖與 r1 是白底淺褐斑，這張變成褐色虎斑。改照主圖那隻；構圖照舊（封封繞到村貓身後解腳上繩圈、包袱留在下面斷木上），橋板改成跟 r1 一樣實心的木板。",
+    "scene": "SETTING: a short section of the same weathered brown wooden plank bridge as in reference image 3, ending at a broken jagged edge on the left, with a rope-wrapped wooden railing post. The VILLAGE CAT is EXACTLY the one of reference image 3: a small WHITE cat with a few soft light tan-brown patches on its head, back and tail, a pink nose and big round eyes - NOT a brown tabby, no dark stripes. It sits on the planks near the broken edge. A loop of rope is wrapped around one of its hind feet. Fengfeng has come round behind it by the narrow side path: he kneels on the planks right behind the village cat and, with both paws, loosens and lifts the rope loop off its foot. The village cat looks back over its shoulder at him with a relieved, grateful smile. The other end of the rope hangs down over the broken edge to a broken beam sticking out lower down, and the dark-green cloth bundle hangs from that low beam on the rope, left behind - nobody reaches for it. Fengfeng's straight jian stays sheathed in the dark-brown scabbard at his waist. His red scarf is wrapped around his neck. HIS TAIL: drawn fully SOLID - opaque orange fur with darker orange stripe bands inside a black outline, exactly like reference image 1, never an empty outline.",
+    "style": "bg/event_fengfeng_broken_bridge_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_broken_bridge.webp", "the main picture of this same event: copy the VILLAGE CAT's look exactly (small white cat with light tan-brown patches, pink nose), the dark-green cloth bundle hanging from the low broken beam on a rope, and the weathered wooden planks. Do not copy Fengfeng's pose from it."]
+    ]
+  },
+  "event_fengfeng_broken_bridge_r2": {
+    "hero": "fengfeng",
+    "why": "去背把封封尾巴挖空；封封脖子上沒有紅圍巾、腰間看不到劍；村貓長相跟主圖不同。重畫：尾巴完整、紅圍巾與腰間劍鞘都在，村貓照主圖白底淺褐斑，其餘照文字（解開繩圈後，用行囊帶接長繩子，一邊退步一邊把包袱拉上來）。",
+    "scene": "SETTING: a short section of the same weathered brown wooden plank bridge as in reference image 3, with a rope-wrapped wooden railing post; on the LEFT the planks end at a broken jagged edge. The VILLAGE CAT is EXACTLY the one of reference image 3: a small WHITE cat with a few soft light tan-brown patches on its head, back and tail, a pink nose and big round eyes - NOT a brown tabby. It is free now (no rope on its feet) and sits safely on the planks near the middle, both front paws clasped, watching hopefully. Fengfeng stands on the RIGHT part of the planks hauling in a long rope hand over hand: both paws grip the rope, his body upright and balanced, and he takes a small step BACKWARD with one foot (a short motion line behind that foot) - he steps back instead of leaning back. The rope runs from his paws along the planks and over the broken left edge; halfway along it, the rope is knotted to a flat brown leather pack strap that makes it longer. At the broken left edge, the dark-green cloth bundle from reference image 3 is just being pulled up over the edge of the planks on the end of the rope. His straight jian stays SHEATHED in the dark-brown scabbard at his waist - the brass-guarded hilt and red tassel clearly visible at his hip. His RED SCARF is wrapped around his neck, its ends fluttering behind him. HIS TAIL: drawn fully SOLID - opaque orange fur with darker orange stripe bands inside a black outline, exactly like reference image 1, never an empty outline.",
+    "style": "bg/event_fengfeng_broken_bridge_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_broken_bridge.webp", "the main picture of this same event: copy the VILLAGE CAT's look exactly (small white cat with light tan-brown patches, pink nose), the dark-green cloth bundle and the weathered wooden planks. Do not copy the composition."]
+    ]
+  },
+  "event_fengfeng_seclusion_r0": {
+    "hero": "fengfeng",
+    "why": "文字是封封拔劍，劍尖順著牆上最深的爪痕一劍一劍刺進去；圖裡劍還在鞘裡、連鞘指著牆。改成出鞘的劍身刺進最深那道爪痕、腰間是空鞘；房間照主圖。",
+    "scene": "SETTING: the same small closed stone room as in reference image 3 (the main picture of this same event): the heavy dark wooden door with iron bands and a ring handle on the left, grey stone-block walls meeting in a corner, one lit wall torch, the flagstone floor, and Fengfeng's brown cloth travel bundle on the floor by the door. The walls are covered with many overlapping diagonal claw marks; the DEEPEST, biggest claw mark is on the right wall, its top higher than Fengfeng's head. Fengfeng stands in a forward lunge facing that deepest claw mark. His RIGHT paw grips the hilt of his DRAWN straight jian: the bare, shining silver steel blade is completely out of the scabbard and thrust forward, and its point stabs into the groove of the deepest claw mark (two or three tiny stone chips flying). His LEFT paw is held back for balance. The dark-brown scabbard hangs EMPTY at his waist on his brown sash - no hilt sticking out of it. Focused face, narrowed eyes, mouth closed. His red scarf is wrapped around his neck. HIS TAIL: drawn fully SOLID - opaque orange fur with darker orange stripe bands inside a black outline, exactly like reference image 1.",
+    "style": "bg/event_fengfeng_seclusion_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_seclusion.webp", "the main picture of this same event: copy the room exactly (wooden door with iron bands on the left, the stone-block walls with the diagonal claw marks, the wall torch, the flagstone floor, the brown travel bundle by the door). Do not copy Fengfeng's pose."]
+    ]
+  },
+  "event_fengfeng_rescue_r1": {
+    "hero": "fengfeng",
+    "why": "受傷村貓一條前腳被拉得很長、橫過半個畫面；繃帶綁在前腳，主圖是後腳腳踝。改成正常比例、繃帶在後腳腳踝，村貓照主圖；封封收好小魚乾、替牠把繃帶打結。",
+    "scene": "The same two characters and props as reference image 3 (the main picture of this same event), with at most a small patch of ground. The injured VILLAGE CAT is EXACTLY the one of reference image 3: a grey tabby with darker grey-brown stripes, pink inner ears, a few small red scratch marks on its cheek and body, tired droopy eyes. It lies resting on its belly and side on the ground with NORMAL short chubby legs - all four legs the same normal short length, none stretched out, no long arm. Its injured ANKLE is on one HIND leg (a back leg), wrapped in a white bandage, exactly where the bandage is in reference image 3. Fengfeng kneels beside that hind leg and, with both paws, ties the two ends of the bandage into a small knot, gentle and careful. The orange-brown drawstring bag of dried fish from reference image 3 is now tied at Fengfeng's waist sash - he has accepted it. The small green glass jar of cat herb with its cork stands on the ground beside the village cat, not taken. The village cat looks back at him and gives a small, weak, grateful smile. Fengfeng's straight jian stays sheathed in the dark-brown scabbard at his waist. His red scarf is wrapped around his neck. HIS TAIL: drawn fully SOLID - opaque orange fur with darker orange stripe bands inside a black outline, exactly like reference image 1.",
+    "style": "bg/event_fengfeng_rescue_r0.webp",
+    "refs": [
+      ["bg/event_fengfeng_rescue.webp", "the main picture of this same event: copy the VILLAGE CAT's look exactly (grey tabby, red scratch marks, normal short legs) with the white bandage on its HIND ankle, the orange-brown bag of dried fish and the green glass herb jar. Do not copy Fengfeng's pose."]
+    ]
+  },
+  "event_fengfeng_medicine_cat_r3": {
+    "hero": "fengfeng",
+    "why": "為了畫臉色發白，把封封整顆頭和雙臂塗成淡米色、只剩尾巴橘色，像換了一隻貓。改成正常橘虎斑毛色，只用臉頰蒼白、冷汗、手背傷口冒綠氣表現中毒；構圖照舊（三花貓把解藥灌給他、記時間）。",
+    "scene": "SETTING: the same wooden market stall as in reference image 3 (a wooden frame with a red cloth awning, a wooden counter with rows of round glass potion bottles - red, blue, yellow, green), on a small patch of grey flagstone floor. The CALICO CAT merchant is EXACTLY the one of reference image 3 (white face and chest with black and orange patches, olive-green robe). She stands behind the counter and leans over it, holding a small green glass antidote bottle to Fengfeng's mouth and pouring it in. On the counter beside her lie a small open notebook and a little sand hourglass - she is timing it. Fengfeng stands in front of the stall, bravely still, drinking from the bottle. His RIGHT paw holds his DRAWN straight jian point-down at his side; the dark-brown scabbard hangs empty at his waist. On the back of his LEFT paw there is one thin small red cut with two or three faint green poison wisps curling up from it. His face is grim and stoic, eyes glancing sideways. HIS FUR IS HIS NORMAL BRIGHT ORANGE TABBY EVERYWHERE - head, ears, arms, paws and tail - with darker orange stripes and a cream-white muzzle, EXACTLY like reference image 1. The poisoning shows ONLY as a faint pale-blue tint on his cheeks under the eyes, two cold sweat drops, and the green wisps from the cut. Do NOT make his head, face or arms pale, beige or cream. His red scarf is wrapped around his neck. HIS TAIL: drawn fully SOLID orange with darker stripe bands inside a black outline.",
+    "style": "bg/event_fengfeng_medicine_cat_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_medicine_cat.webp", "the main picture of this same event: copy the CALICO CAT merchant's look exactly and her stall (red cloth awning, wooden frame, wooden counter, the round potion bottles). Do not copy Fengfeng's pose."]
+    ]
+  },
+  "event_fengfeng_heavy_door": {
+    "hero": "fengfeng",
+    "why": "主文：石門開一道縫，近處有籃小魚乾，深處另有一只寶箱；圖裡門縫只有金光，兩樣都沒有。構圖照舊（封封雙爪推石門），門縫裡補畫近處的魚乾籃與深處刻魔物紋樣的寶箱。",
+    "scene": "SETTING: the SAME heavy grey stone door as in reference image 3 - a tall grey stone slab door with round iron rivets and an iron ring handle, set in a frame of big grey stone blocks - standing on a small patch of dark flagstone floor. The door stands open only a NARROW gap on its right side, a crack a little wider than a paw, and warm golden light shines out of it. The view looks slightly into the gap, so the inside can be seen through it: RIGHT inside the gap, close to the doorway, sits a woven wicker basket full of dried fish; further back, deep in the dim room, stands a dark wooden treasure chest whose front is carved with a monster face (a horned demon-face carving). Fengfeng stands on the left in the same pose as in reference image 3: he pushes the door with both paws flat against the stone, straining, feet braced, a sweat drop on his cheek - the heavy door has only moved a little. His straight jian stays sheathed in the dark-brown scabbard at his waist. His red scarf is wrapped around his neck. HIS TAIL: drawn fully SOLID - opaque orange fur with darker orange stripe bands inside a black outline, exactly like reference image 1.",
+    "style": "bg/event_fengfeng_heavy_door_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_heavy_door.webp", "the PREVIOUS version of this same picture: copy the stone door, its frame and Fengfeng's pushing pose exactly. Its mistake, which must NOT be repeated: only golden light shows in the gap - in the new picture the basket of dried fish and the carved monster-face chest are visible inside."],
+      ["bg/event_heavy_door.webp", "this same event drawn for a different cat: copy ONLY what is inside the door gap - the wicker basket of dried fish close to the gap and the dark wooden chest with a carved monster face deeper inside. Do NOT draw the cat with the navy headband from this picture."]
+    ]
+  },
+  "event_fengfeng_greedy_merchant_r3": {
+    "hero": "fengfeng",
+    "why": "灰貓的眼鏡還勾在封封抱著的袋口，像被一起帶走；文字是封封把眼鏡挑出來還給牠。改成封封一手夾著買下的整包貨，另一手把眼鏡遞還給灰貓，灰貓伸手來接。",
+    "scene": "The GREY CAT merchant is EXACTLY the one of reference image 3 (charcoal-grey cat, black tailcoat, purple vest, red bow tie), but his round gold wire glasses are NOT on his face right now. He stands on the LEFT hugging a big armful of dried fish (the payment) against his chest with one arm, squinting a little without his glasses, a sweat drop on his head, and reaches out his other paw, palm up, to take the glasses back. Fengfeng stands on the RIGHT facing him. Under his LEFT arm he carries the big brown cloth sack of goods he has just bought (a few potion bottles and small items poke out of its tied top). With his RIGHT paw he holds out the round gold wire glasses, pinching the frame between his paw pads, handing them back: the glasses are right above the grey cat's open paw, the two paws almost touching. The glasses are IN Fengfeng's right paw - nothing is hooked on the sack. Fengfeng's face is calm, eyes on the grey cat. His straight jian stays sheathed in the dark-brown scabbard at his waist. His red scarf is wrapped around his neck. HIS TAIL: drawn fully SOLID - opaque orange fur with darker orange stripe bands inside a black outline, exactly like reference image 1.",
+    "style": "bg/event_fengfeng_greedy_merchant_r0.webp",
+    "refs": [
+      ["bg/event_fengfeng_greedy_merchant.webp", "the main picture of this same event: copy the GREY CAT merchant's look exactly (charcoal-grey fur, round gold wire glasses, black tailcoat, purple vest, red bow tie). Do not copy the composition."]
+    ]
+  }
+}

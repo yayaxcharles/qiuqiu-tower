@@ -1,0 +1,66 @@
+{
+  "event_feifei_trace": {
+    "hero": "feifei",
+    "why": "主文：牆縫卡著幾根針、有的彎了，地上散著小魚乾，旁邊掛著師兄頭巾的深藍線頭。舊圖牆上只有一根彎針，沒有魚乾也沒有地板，牆也跟結果圖 r0 的灰石牆不是同一面。",
+    "scene": "SETTING on a small patch of grey flagstone floor: the SAME free-standing section of rough grey stone wall as in reference image 3 (a jagged grey rock wall piece standing on the floor, with one long vertical crack running down its front). SEVERAL thin silver needles (four or five) are stuck deep into that crack at different heights, their eyes pointing outward; two of them are clearly BENT at an angle. A short loose tuft of DARK-NAVY thread hangs caught on one of the needles, dangling down. On the grey flagstone floor at the foot of the wall lie a few small dried fish (five or six little brown-silver dried fish) scattered around. Feifei has just walked up to it: she crouches low on the floor in front of the wall, leaning forward, peering closely at the needles in the crack with a serious, searching look, both eyes wide the same way. Her RIGHT paw reaches out toward the dangling navy thread but has not touched it yet; her LEFT paw rests on her knee. Her paws hold nothing. Leave a clear transparent margin all around the wall and the floor patch.",
+    "style": "bg/event_feifei_robin.webp",
+    "refs": [
+      ["bg/event_feifei_trace_r0.webp", "the result picture of this same event: copy its rough grey stone wall piece with the crack full of thin silver needles and its grey flagstone floor patch EXACTLY - it is the same spot. Take only the wall and the floor, NOT Feifei's pose (in the new picture she has just arrived and is crouching to look, not pulling needles out)."]
+    ]
+  },
+  "event_feifei_robin_r0": {
+    "hero": "feifei",
+    "why": "結果文字：村貓分魚也塞幾條給菲菲，她坐下來吃，看牠們縮在角落發抖，挑出一招放慢一步一步教給牠們。舊圖只有村貓開心吃魚、菲菲托腮旁觀，沒吃也沒教。",
+    "scene": "SETTING: the SAME low mossy grey stone rubble wall corner and the same patch of cobblestone floor as in reference image 3 (the main picture of this same event), and the SAME three village cats: a small grey tabby kitten, a tan-orange cat with folded ears, and a cream calico with orange-brown patches. The three village cats still HUDDLE close together in the corner against the stone wall on the LEFT, a little scared and shivering (lowered ears, tiny shiver lines), each with one dried fish lying on the floor by its feet. In front of them on the floor lies an open sheet of brown paper with a few dried fish on it. Feifei SITS on the floor on the RIGHT, facing the village cats. Her LEFT paw holds a dried fish with a small bite taken out of it - she is eating it. Her RIGHT arm slowly demonstrates one simple guarding move for them: her right forearm is raised upright in front of her chest and her right paw is OPEN and flat with the paw pads facing forward like a small shield (all toes together - NOT a pointing finger). A thin dotted curved motion line beside her right paw shows the move is done slowly, step by step. Her face is gentle and a little shy, eyes on the village cats. The three village cats timidly COPY her: each lifts one front paw in front of its chest the same way, watching her closely. Her brown cloth fish bag sits on the floor beside her, its mouth open with a few dried fish showing.",
+    "style": "bg/event_feifei_trace_r0.webp",
+    "refs": [
+      ["bg/event_feifei_robin.webp", "the main picture of this same event: copy the low mossy grey stone wall corner, the cobblestone floor patch and the looks of the THREE village cats (grey tabby kitten, tan-orange folded-ear cat, cream calico with orange-brown patches) EXACTLY. Do NOT copy Feifei's standing pose."]
+    ]
+  },
+  "event_feifei_moon_window": {
+    "hero": "feifei",
+    "why": "主文：月光落在窗台的空碗裡，碗底刻著一隻蜷睡的小貓；菲菲說「這隻小貓刻得真像，只是碗裡空空的」。舊圖菲菲坐著望月，碗是側面看，碗底刻紋完全看不到，跟 r1 幾乎同構圖。",
+    "scene": "SETTING: the SAME round window as in reference image 3 (the other picture of this same event): a big ring of dark purple-brown stone blocks with a warm orange glow on its inner edge, a big pale-cream full moon inside the ring, and at its base the same curved dark stone window ledge. A soft pale beam of moonlight falls onto a small white ceramic bowl with a small blue flower emblem on its outer side, sitting on the ledge toward the RIGHT (the same bowl as in reference image 3, drawn a little bigger). The bowl is seen from a little ABOVE so we look INTO it: on its inside bottom is a simple carved line picture of a small curled-up SLEEPING KITTEN (a carved picture, no writing). The bowl is EMPTY - no food, no glowing cat. Right beside the bowl the ledge is empty - room for one more cat to sit. Feifei kneels on the LEFT part of the ledge, leaning over toward the bowl with her head bent DOWN, peering into it; she looks at the carved kitten, not at the moon. Soft, tender, slightly wistful little smile, both eyes open the same way. Her paws rest on the ledge beside her knees; she does not touch the bowl.",
+    "style": "bg/event_feifei_robin.webp",
+    "refs": [
+      ["bg/event_feifei_moon_window_r1.webp", "another picture of this same event: copy the round window of dark purple-brown stone blocks with the orange inner glow, the big pale-cream moon, the curved dark stone ledge and the small white bowl with the blue flower emblem EXACTLY. Do NOT copy Feifei's pose - here she leans over and peers into the bowl."]
+    ]
+  },
+  "event_feifei_moon_window_r0": {
+    "hero": "feifei",
+    "why": "結果：菲菲把小魚乾放進碗裡，一隻發微光的小貓從碗底浮出來，輕輕蹭過她的胸口。舊圖是一條綠色光帶、菲菲手上拎著一條魚，沒有小貓。",
+    "scene": "SETTING: the SAME round window as in reference image 3 (another picture of this same event): the ring of dark purple-brown stone blocks with a warm orange inner glow, the big pale-cream full moon, the curved dark stone window ledge, and the same small white bowl with the blue flower emblem on the ledge. Feifei kneels on the ledge right beside the bowl. She has just put the dried fish into the bowl: the bowl is FULL of small dried fish, piled up inside it; her paws are now empty. Rising up out of the bowl is a small, softly GLOWING, translucent pale-gold KITTEN SPIRIT (the curled kitten carved on the bowl's bottom, now awake): its lower body still fades into the bowl in soft glowing wisps, and it gently rubs its cheek against the MIDDLE OF FEIFEI'S CHEST - on her purple top, clearly BELOW her chin and below her black scarf - its little front paws resting on her chest. Its head does NOT reach her face. A soft warm glow spreads on her chest where it touches her. Feifei looks down at the kitten with a warm, surprised, gentle smile, both eyes open the same way; her paws rest lightly on her knees. No green light, no light ribbon - only the pale-gold glowing kitten.",
+    "style": "bg/event_feifei_robin.webp",
+    "refs": [
+      ["bg/event_feifei_moon_window_r1.webp", "another picture of this same event: copy the round window of dark purple-brown stone blocks with the orange inner glow, the big pale-cream moon, the curved dark stone ledge and the small white bowl with the blue flower emblem EXACTLY. Do NOT copy Feifei's pose."]
+    ]
+  },
+  "event_dangdang_robin_r0": {
+    "hero": "dangdang",
+    "why": "結果文字溫馨：村貓分幾條魚給噹噹，他坐下吃完，用繩子紮緊牠們破口的糧袋，挑一招慢慢比給牠們看（「腳站開，手這樣擋」）。舊圖噹噹抱胸生悶氣，沒吃、沒紮袋、沒教。",
+    "scene": "SETTING: the SAME patch of cobblestone floor and the SAME three village cats as in reference image 3 (the main picture of this same event): a small grey tabby kitten, a tan-orange cat with folded ears, and a cream calico with orange-brown patches. Dangdang has finished eating: a small pile of clean dried-fish bones (little fish skeletons) lies on the floor near his feet. He now STANDS on the RIGHT, facing the village cats, slowly demonstrating one blocking move: his feet planted wide apart in a steady stance, knees a little bent, his RIGHT forearm raised upright in front of his chest as a block with the paw closed in a round fist (no single raised finger), his LEFT paw resting on his hip. A thin dotted curved motion line beside his raised forearm shows the move is done slowly. Kind, patient face with a small encouraging smile, both eyes open the same way. On the LEFT the three village cats stand in a row facing him and COPY him earnestly: feet apart, each with one small front paw raised in front of its chest, a little wobbly. Beside the village cats on the floor sits their brown cloth grain sack: its torn opening is now TIED SHUT tightly with a piece of rope, a neat rope knot and bow at its neck. His own small brown fish pouch still hangs at his belt.",
+    "style": "bg/event_dangdang_moon_window.webp",
+    "refs": [
+      ["bg/event_dangdang_robin.webp", "the main picture of this same event: copy the cobblestone floor patch and the looks of the THREE village cats (grey tabby kitten, tan-orange folded-ear cat, cream calico with orange-brown patches) EXACTLY, and Dangdang's brown fish pouch at his belt. Do NOT copy the poses."]
+    ]
+  },
+  "event_dangdang_blocked": {
+    "hero": "dangdang",
+    "why": "主文推理：牌子釘得歪，底下的垃圾卻堆得很整齊，所以是有人故意擋路。舊圖牌子是正的、垃圾亂堆，推理對不上。",
+    "scene": "SETTING: the SAME place as in reference image 3 (the previous version of this same picture): grey stone steps rising up behind, a tall grey stone block wall on the right with a NARROW side passage between it and the pile, on a patch of stone floor. The stairs are blocked by a junk pile that is stacked suspiciously NEATLY: wooden crates stacked squarely one on top of another in an even block, and flat wooden planks laid in tidy parallel layers, all edges lined up straight like a deliberately built wall - NOT a messy heap. On TOP of the pile a new wooden sign board is nailed onto a post CROOKEDLY: the board hangs clearly TILTED at a steep slant, held by a single nail, with a few rough brown brush scribbles on it (no readable letters). At the BOTTOM of the pile one short broken plank lies across the floor, and from under it peeks HALF of a rolled-up paper scroll. Dangdang stands on the floor at the LEFT, looking up at the crooked sign with narrowed, shrewd, suspicious eyes and a small knowing frown, his RIGHT paw rubbing his chin, his LEFT paw at his side.",
+    "style": "bg/event_dangdang_robin.webp",
+    "refs": [
+      ["bg/event_dangdang_blocked.webp", "the PREVIOUS, WRONG version of this same picture: copy its grey stone steps, the tall stone wall on the right with the narrow side passage, the stone floor, the wooden sign on its post and the half-hidden rolled scroll. Its mistakes, which must NOT be repeated: the sign is nailed on straight and the junk is a messy heap - in the new picture the sign is clearly CROOKED and the crates and planks under it are stacked NEATLY in square, tidy layers."]
+    ]
+  },
+  "event_dangdang_moon_window_r1": {
+    "hero": "dangdang",
+    "why": "結果：噹噹坐在窗邊，把護臂放到腿旁，看月光一點點移過牆面，歇一會兒手腳沒那麼痠。舊圖他背對月亮蹲著、皺眉看空碗。",
+    "scene": "SETTING: the SAME round window as in reference image 3 (the main picture of this same event): a ring of grey stone blocks with a pale yellow full moon inside it, at its base the same grey stone window ledge, and the same big cream bowl with a teal stripe on the ledge (empty, the carved sleeping kitten on its bottom). Dangdang SITS on the ledge beside the bowl, relaxed and resting: leaning back a little with his legs stretched out loosely in front of him, his paws resting loosely on his lap, his shoulders dropped. He turns his face UP toward the moon and gazes at it with a calm, contented, peaceful face, eyes softly half-closed the same way, a faint small smile. A soft pale patch of moonlight falls across the stone wall of the window ring beside him. His two copper forearm bracers lie side by side on the ledge right next to his leg.",
+    "style": "bg/event_dangdang_robin.webp",
+    "refs": [
+      ["bg/event_dangdang_moon_window.webp", "the main picture of this same event: copy the ring of grey stone blocks, the pale yellow moon, the grey stone ledge and the big cream bowl with the teal stripe EXACTLY. Do NOT copy Dangdang's pose."]
+    ],
+    "gear_off": "his two copper forearm bracers are TAKEN OFF and lie side by side on the ledge right next to his leg; his forearms and paws are bare black-and-white fur with NO bracers. He still wears his teal-green vest and brown sash."
+  }
+}

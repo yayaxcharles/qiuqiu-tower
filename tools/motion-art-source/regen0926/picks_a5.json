@@ -1,0 +1,74 @@
+{
+  "event_dangdang_rat_bathhouse_r2": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_rat_bathhouse_r2.webp",
+    "bytes": 48298,
+    "droppedSpecks": 134,
+    "gate": [],
+    "sha256": "6bf16315639a7e7131b9a3befb27d0291c8151392727a8793db41c0a7ba1479f",
+    "at": "2026-09-26 01:43:51"
+  },
+  "event_dangdang_wooden_men_alley_r2": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_wooden_men_alley_r2.webp",
+    "bytes": 45396,
+    "droppedSpecks": 157,
+    "gate": [],
+    "sha256": "9569aeaddda09661438536ec322eecd39a4a69736982b658b4cf4e571cb29436",
+    "at": "2026-09-26 01:44:06"
+  },
+  "event_feifei_rat_bathhouse_r2": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_feifei_rat_bathhouse_r2.webp",
+    "bytes": 54964,
+    "droppedSpecks": 130,
+    "gate": [],
+    "sha256": "4676d80e86fcdb3473733b5c2e25c8da346da40a75fb0b5cb7be5dc9c096f37f",
+    "at": "2026-09-26 01:43:48"
+  },
+  "event_feifei_wooden_men_alley_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_wooden_men_alley_r2.webp",
+    "bytes": 53712,
+    "droppedSpecks": 190,
+    "gate": [],
+    "sha256": "948d95d59308cefca196cb8bff82c0829598cac2a0aa9a4f455cdb5d7a3db31e",
+    "at": "2026-09-26 01:44:02"
+  },
+  "event_fengfeng_rat_bathhouse_r2": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_rat_bathhouse_r2.webp",
+    "bytes": 48520,
+    "droppedSpecks": 82,
+    "gate": [],
+    "sha256": "c5e2797b22970920eb1da8c0e52fc3dbc6ae7bb297d27dccf8d68948436e9138",
+    "at": "2026-09-26 01:43:55"
+  },
+  "event_fengfeng_wooden_men_alley_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_wooden_men_alley_r2.webp",
+    "bytes": 50950,
+    "droppedSpecks": 213,
+    "gate": [],
+    "sha256": "8c647e9b0e650f95a9c599330ea2e0b0df66196e3c9ac3496501e966e9bc2232",
+    "at": "2026-09-26 01:44:10"
+  },
+  "event_rat_bathhouse_r2": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rat_bathhouse_r2.webp",
+    "bytes": 51996,
+    "droppedSpecks": 49,
+    "gate": [],
+    "sha256": "9a94ae72d7303f67a5ada4c93b69d8f88fbcc9e089e394448040614324cfbcba",
+    "at": "2026-09-26 01:43:44"
+  },
+  "event_wooden_men_alley_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_wooden_men_alley_r2.webp",
+    "bytes": 42156,
+    "droppedSpecks": 120,
+    "gate": [],
+    "sha256": "ea6564c115aadf69a0ce5453d1df2e183b2f44fef77b4e40d77e10372eac2712",
+    "at": "2026-09-26 01:43:58"
+  }
+}

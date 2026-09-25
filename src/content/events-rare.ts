@@ -71,7 +71,7 @@ export const rareEvents: EventDef[] = [
         result: '', resultArt: 'rare_sleeping_hoard_r1' },
       { label: '叫醒牠，堂堂正正打一場（進入戰鬥（這一關的大魔物），勝利後獲得 1 件塔主秘寶、1 件大魔物秘寶與 50 條小魚乾）',
         outcome: [{ kind: 'fight', encounterId: '', pool: '大魔物', bonusFish: 50 }, { kind: 'relic', pool: '塔主' }, { kind: 'relic', pool: '大魔物' }],
-        result: '' },
+        result: '', resultArt: 'rare_sleeping_hoard_r2' },
     ] },
   /* 紫霧裡的聲音：只寫「學他的聲音」，不寫魔氣跟師父之間的設定（設計稿自評）。身上已經有 2 件以上沾了魔氣的就不放 */
   { id: 'rare_miasma_whisper', title: '紫霧裡的聲音', acts: [2], rare: { weight: 2, maxMiasma: 2 },

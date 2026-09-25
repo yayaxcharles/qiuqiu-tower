@@ -1,0 +1,74 @@
+{
+  "event_dangdang_lost_scroll_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_lost_scroll_r1.webp",
+    "bytes": 44724,
+    "droppedSpecks": 129,
+    "gate": [],
+    "sha256": "73ab696624603e0ff247dc646d99a6838703452d7ef4a51df7822fa737c694fa",
+    "at": "2026-09-26 01:43:12"
+  },
+  "event_dangdang_rare_sleeping_hoard_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_rare_sleeping_hoard_r2.webp",
+    "bytes": 43154,
+    "droppedSpecks": 216,
+    "gate": [],
+    "sha256": "9f98a0e652c1fa612012fc28da1dd3553296935935d861035a9f52875f64b954",
+    "at": "2026-09-26 01:42:58"
+  },
+  "event_feifei_lost_scroll_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_lost_scroll_r1.webp",
+    "bytes": 48412,
+    "droppedSpecks": 111,
+    "gate": [],
+    "sha256": "c2fc9e1d9aef1bd697ee80c59a384a7d1bbbcda7599eb9815250767b8035382f",
+    "at": "2026-09-26 01:43:09"
+  },
+  "event_feifei_rare_sleeping_hoard_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_rare_sleeping_hoard_r2.webp",
+    "bytes": 45904,
+    "droppedSpecks": 238,
+    "gate": [],
+    "sha256": "d6569469f3a392cec30c615837fd42f98a86723c4851109c842916e722522f74",
+    "at": "2026-09-26 01:42:54"
+  },
+  "event_fengfeng_lost_scroll_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_lost_scroll_r1.webp",
+    "bytes": 52406,
+    "droppedSpecks": 111,
+    "gate": [],
+    "sha256": "fbc3b63f9b3a6854e4783b5c270ce6721dcb7606dd2871c1e3be60923151f6d3",
+    "at": "2026-09-26 01:43:16"
+  },
+  "event_fengfeng_rare_sleeping_hoard_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_rare_sleeping_hoard_r2.webp",
+    "bytes": 40936,
+    "droppedSpecks": 258,
+    "gate": [],
+    "sha256": "48e92c456592e275c23fa5555ed5104ad81ec078aa0653a7766c9d241ee8f36c",
+    "at": "2026-09-26 01:43:01"
+  },
+  "event_lost_scroll_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_lost_scroll_r1.webp",
+    "bytes": 50144,
+    "droppedSpecks": 106,
+    "gate": [],
+    "sha256": "dd9edf2786a75b784703e95d6c91c8c6a85009dda50342a49d1662c42b15b779",
+    "at": "2026-09-26 01:43:05"
+  },
+  "event_rare_sleeping_hoard_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_rare_sleeping_hoard_r2.webp",
+    "bytes": 44062,
+    "droppedSpecks": 597,
+    "gate": [],
+    "sha256": "37dc858ffe89f94d6759f1ef8b56202bf19469d58a8a46f7a15d1d49e9d60f1a",
+    "at": "2026-09-26 01:42:50"
+  }
+}

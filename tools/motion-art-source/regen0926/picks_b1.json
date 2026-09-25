@@ -1,0 +1,92 @@
+{
+  "event_greedy_merchant_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_greedy_merchant_r1.webp",
+    "bytes": 44726,
+    "droppedSpecks": 181,
+    "gate": [],
+    "sha256": "ebcaa9418a8b442d00d0f737d3c8df64d223ae1708ebb1a1131b07cfb9711844",
+    "at": "2026-09-26 01:37:11"
+  },
+  "event_ninja_target_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_ninja_target_r1.webp",
+    "bytes": 50256,
+    "droppedSpecks": 187,
+    "gate": [],
+    "sha256": "7bf3d7bad4355c6dc156affeb77736e30d6d90bf0f02be9f61a15fb9482ba89a",
+    "at": "2026-09-26 01:37:07"
+  },
+  "event_rescue": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rescue.webp",
+    "bytes": 37576,
+    "droppedSpecks": 96,
+    "gate": [],
+    "sha256": "f5a98e97f5bf073cd9f58d9029916171ce06334716ca965c3a6e22788086edfc",
+    "at": "2026-09-26 01:37:03"
+  },
+  "event_rescue_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rescue_r1.webp",
+    "bytes": 37826,
+    "droppedSpecks": 166,
+    "gate": [],
+    "sha256": "e73a5aaff84082e31866489721f4934265e752295dbbd130944ff05f7b6e495a",
+    "at": "2026-09-26 01:50:47"
+  },
+  "event_robin_feast": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_robin_feast.webp",
+    "bytes": 59802,
+    "droppedSpecks": 201,
+    "gate": [],
+    "sha256": "5dd7d0bbc6f95234b1a1dbeac817a5bbd1f216254dc3af5de7f821a161f97edf",
+    "at": "2026-09-26 01:37:00"
+  },
+  "event_robin_feast_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_robin_feast_r0.webp",
+    "bytes": 58472,
+    "droppedSpecks": 138,
+    "gate": [],
+    "sha256": "07cc4e26da61965b5739c50533dcd0df0da6e6b1f89b86c56a3ab3ac6ba20ae4",
+    "at": "2026-09-26 01:44:32"
+  },
+  "event_robin_feast_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_robin_feast_r1.webp",
+    "bytes": 58188,
+    "droppedSpecks": 110,
+    "gate": [],
+    "sha256": "2443fcffefacd89c14b81272ed252ea7aaf37611672ad289316d0edea836cc3a",
+    "at": "2026-09-26 01:44:35"
+  },
+  "event_stuck_kitten": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_stuck_kitten.webp",
+    "bytes": 43918,
+    "droppedSpecks": 421,
+    "gate": [],
+    "sha256": "fb14499662ef9a0078e90a1ba37a8851af686ba0b931e242d20c5be3dad34772",
+    "at": "2026-09-26 01:36:56"
+  },
+  "event_stuck_kitten_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_stuck_kitten_r0.webp",
+    "bytes": 45426,
+    "droppedSpecks": 168,
+    "gate": [],
+    "sha256": "202f915294f6e239aaac56be173829a79a1b9f5186d752c99178bd0978ba8290",
+    "at": "2026-09-26 01:44:28"
+  },
+  "event_stuck_kitten_r1": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_stuck_kitten_r1.webp",
+    "bytes": 42908,
+    "droppedSpecks": 482,
+    "gate": [],
+    "sha256": "dbe9e152d080fae3fa3ecc841b833913ab4dc8c8f4d81b59a2ffed1b8bba417e",
+    "at": "2026-09-26 01:50:43"
+  }
+}

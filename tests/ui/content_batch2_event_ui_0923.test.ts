@@ -31,7 +31,7 @@ describe('圖：四隻各看自己那一套，一張都不退回球球那張', (
       keys.push(e.id, ...e.choices.flatMap((c) => (c.resultArt ? [c.resultArt] : [])));
     }
     for (const id of COND) keys.push(eventById[id]!.choices.find((c) => c.requires)!.resultArt!);
-    expect(keys.length).toBe(15 + 35 + 8);   // 主圖 15、結果圖 35（進戰鬥與無效果的不配）、條件選項 8
+    expect(keys.length).toBe(15 + 35 + 5 + 8);   // 主圖 15、結果圖 35（無效果的不配）、進戰鬥的 5（2026-09-26 補：偷練、真面目、澡堂、冬眠熊、木人巷）、條件選項 8
     for (const k of keys) {
       const want = hero === 'ninja' ? `bg/event_${k}` : `bg/event_${hero}_${k}`;
       expect(eventArtKey(k, hero), `${hero} ${k}`).toBe(want);

@@ -14,5 +14,350 @@
       "why": "（例子，不會生效）第三關貓窩封封的座位刻意往右移"
     }
   ],
-  "items": []
+  "items": [
+    {
+      "match": "event:*:bg/event_bear_cellar:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_bear_cellar:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_bear_cellar:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_bear_cellar:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_bear_cellar:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_blocked:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_gambling_rats:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_gambling_rats:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_greedy_merchant:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_greedy_merchant:r3",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_lost_scroll:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_medicine_cat:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_medicine_cat:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_medicine_cat:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_medicine_cat:r3",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_mirror_hall:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_moon_window:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_moving_rat:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_pigeon_lost:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_rare_sleeping_hoard:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_rat_bathhouse:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_robin:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_shadow_study:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_shadow_truth:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_sleeping_guard:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_training_hall:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_dangdang_wooden_men_alley:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_bear_cellar:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_bear_cellar:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_bear_cellar:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_gambling_rats:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_lost_scroll:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_mirror_hall:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_moon_window:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_moon_window:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_rare_sleeping_hoard:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_rat_bathhouse:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_robin:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_shadow_study:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_shadow_truth:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_sleeping_guard:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_trace:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_training_hall:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_feifei_wooden_men_alley:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_bear_cellar:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_bear_cellar:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_bear_cellar:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_broken_bridge:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_broken_bridge:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_gambling_rats:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_gambling_rats:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_greedy_merchant:r3",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_heavy_door:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_lost_scroll:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_medicine_cat:r3",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_mirror_hall:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_rare_sleeping_hoard:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_rat_bathhouse:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_rescue:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_seclusion:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_shadow_study:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_shadow_truth:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_sleeping_guard:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_stuck_scabbard:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_training_hall:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_fengfeng_wooden_men_alley:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_gambling_rats:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_greedy_merchant:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_lost_scroll:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_mirror_hall:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_ninja_target:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_rare_sleeping_hoard:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_rat_bathhouse:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_rescue:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_rescue:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_robin_feast:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_robin_feast:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_robin_feast:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_shadow_study:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_shadow_truth:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_sleeping_guard:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_stuck_kitten:main",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_stuck_kitten:r0",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_stuck_kitten:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_training_hall:r1",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    },
+    {
+      "match": "event:*:bg/event_wooden_men_alley:r2",
+      "why": "2026-09-26 第四輪重審：進戰鬥選項補結果圖、圖文不符修圖（docs/審查報告/2026-09-26_球球毛色與場景/）"
+    }
+  ]
 }

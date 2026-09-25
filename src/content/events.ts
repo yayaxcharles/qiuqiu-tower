@@ -362,7 +362,7 @@ export const events: EventDef[] = [
       // 本來是「直接升級兩張牌、掉 12 血」——使用者 2026-09-02：「我以為會有一個影球球是敵人跟我對打」。
       // 改成真的打一場（對手依關數變強），贏了才在獎勵畫面挑兩張牌升級
       { label: '與鏡中的自己過招（進入戰鬥，勝利後可升級至多 2 張牌）', outcome: [{ kind: 'fight', encounterId: 'mirror_duel', bonusFish: 0, bonusUpgrades: 2 }],
-        result: '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」' },
+        result: '鏡中的球球走了出來，跟著牠抬起前爪。球球往旁邊挪了一步，對方也挪了一步。球球：「連這也要學，那就來打一場喵。」', resultArt: 'mirror_hall_r0' },
       { label: '盯著出口快步走過（無效果）', outcome: [], result: '球球盯著走廊出口，沒有再看兩側的鏡子，一口氣走了出去。球球：「這地方真怪，別待了喵。」' },
     ] },
 
@@ -370,7 +370,7 @@ export const events: EventDef[] = [
     text: '一隻大橘貓靠著門邊打盹，腰間的錢袋鼓鼓的。牠每打一次呼，爪尖就跟著動一下；身旁還留著一條能夠側身通過的窄路。',
     choices: [
       { label: '伸爪偷錢袋（進入戰鬥，勝利後額外獲得 70 條小魚乾）', outcome: [{ kind: 'fish', n: 70 }, { kind: 'fight', encounterId: 'orange_bandit', bonusFish: 0 }],
-        result: '爪尖才碰到錢袋，大橘貓就睜開眼睛，擋住去路。球球連忙縮手，往後退了一步。球球：「醒得也太快了喵！」' },
+        result: '爪尖才碰到錢袋，大橘貓就睜開眼睛，擋住去路。球球連忙縮手，往後退了一步。球球：「醒得也太快了喵！」', resultArt: 'sleeping_guard_r0' },
       { label: '調勻氣息，悄悄通過（生命上限與當前生命各 +4）', outcome: [{ kind: 'maxHp', n: 4 }], result: '球球輕輕呼吸，踩穩每一步，悄悄走過守衛身旁。牠試著讓呼吸配合步伐，越走越順。球球：「原來這樣走路，不用一直憋著氣喵。」', resultArt: 'sleeping_guard_r1' },
       { label: '藏在牆角的影子裡摸走錢袋（獲得 45 條小魚乾）', requires: { kind: 'deckTag', tag: '隱身', min: 3 }, requiresLabel: '隱身',
         outcome: [{ kind: 'fish', n: 45 }],
@@ -406,7 +406,7 @@ export const events: EventDef[] = [
         outcome: [{ kind: 'gamble', p: 0.7, win: [{ kind: 'fish', n: 130 }], lose: [] }],
         result: '球球放下本錢，眼睛緊盯著老鼠手裡的碗，連尾巴都不敢動。碗「喀」地一聲掀開——', resultArt: 'gambling_rats_r0' },
       { label: '掀桌挑戰（進入戰鬥，勝利後額外獲得 80 條小魚乾）', outcome: [{ kind: 'fight', encounterId: 'rats3', bonusFish: 80 }],
-        result: '球球掀翻矮桌，老鼠們跳開，拿起木棍把牠圍住。球球：「好啊，這次不賭，直接打喵！」' },
+        result: '球球掀翻矮桌，老鼠們跳開，拿起木棍把牠圍住。球球：「好啊，這次不賭，直接打喵！」', resultArt: 'gambling_rats_r1' },
       { label: '不賭（無效果）', outcome: [], result: '球球把碗推回桌上，收緊魚乾袋，離開了賭桌。球球：「不賭了，輸了就沒飯吃喵。」' },
     ] },
 
@@ -477,7 +477,7 @@ export const events: EventDef[] = [
         result: '球球循著足跡練習進退，試著在轉身後接上熟悉的招式。練過幾次，動作總算順了。球球：「從這邊轉過去，就不會卡住了喵。」', resultArt: 'training_hall_r0' },
       { label: '打開櫃子（進入戰鬥；勝利後隨機獲得 1 件大魔物秘寶，另得 30 條小魚乾）',
         outcome: [{ kind: 'relic', pool: '大魔物' }, { kind: 'fight', encounterId: 'wood_dummy', bonusFish: 30 }],
-        result: '球球打開櫃門，看見裡面有件秘寶，還沒伸手，木樁人就擋在前面。球球：「原來你在守這個喵。」' },
+        result: '球球打開櫃門，看見裡面有件秘寶，還沒伸手，木樁人就擋在前面。球球：「原來你在守這個喵。」', resultArt: 'training_hall_r1' },
     ] },
 
   { id: 'moon_window', title: '看得到月亮的窗',
