@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { KEY_CARD } from '../../src/ui/screens/heroselect';
 import { cardById, starterDeckFor } from '../../src/content/cards';
@@ -47,5 +48,15 @@ describe('選角畫面', () => {
       if (!def?.hero) continue;
       expect(def.hero, `${hero} 的代表牌是 ${def.hero} 的獨占牌`).toBe(hero);
     }
+  });
+
+  it('換角色時整頁不跳：四位說明一次建好疊在同一格，框高＝最長那位（2026-09-26 選封封整頁上移 29 像素）', () => {
+    const code = readFileSync('src/ui/screens/heroselect.ts', 'utf8').replace(/\r\n/g, '\n');
+    const css = readFileSync('src/ui/styles/screens.css', 'utf8').replace(/\r\n/g, '\n');
+    expect(code).toContain("el('div', { class: 'hero-detail' }, ...PICKS.map(panel))");
+    expect(code, '點選時又整個換掉說明內容，框高會跟著角色變').not.toMatch(/detail\.replaceChildren/);
+    expect(css).toMatch(/\.hero-detail \{ display: grid;/);
+    expect(css).toContain('.hero-detail-panel { grid-area: 1 / 1; visibility: hidden; }');
+    expect(css).toContain('.hero-detail-panel.selected { visibility: visible; }');
   });
 });
