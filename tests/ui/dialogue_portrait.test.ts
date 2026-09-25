@@ -58,6 +58,9 @@ describe('對白頭像', () => {
   it('其他說話者不動：塔主、黑貓忍者頭目照舊，旁白與村貓沒有臉', () => {
     _setManifestForTest(MANIFEST);
     expect(portraitOf('塔主')).toBe(artUrl('sprites', 'boss/idle1'));
+    // 結局醒來之後的師父（2026-09-25）：承讓躬身那張，不是戰鬥造型的待機圖
+    expect(portraitOf('大俠貓')).toBe(artUrl('sprites', 'boss/defeat'));
+    expect(portraitOf('大俠貓')).not.toBe(portraitOf('塔主'));
     expect(portraitOf('黑貓忍者頭目')).toBe(monsterUrl('codex/monster_ninja_boss', 'idle'));
     expect(portraitOf('旁白')).toBeNull();
     expect(portraitOf('村貓')).toBeNull();

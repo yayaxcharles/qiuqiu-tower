@@ -332,6 +332,29 @@ export function selectedDifficulty(): number {
   return Math.min(unlockedDifficulty(), Number.isFinite(v) ? clampDifficulty(v) : 1);
 }
 export function setSelectedDifficulty(level: number): void { write(SELECT_KEY, String(clampDifficulty(level))); }
+/**
+ * 每隻貓在塔裡**倒下過幾次**（2026-09-25，使用者點頭：只記數字、不影響任何玩法）。
+ *
+ * 只給結局那句伏筆旁白「背你回村的人」挑句子用（`content/victory-echoes.ts`）：以前倒下過，
+ * 師父打的結、竹筒放的位置才會「跟上次醒來時一樣」。**照角色分開記**——不然球球輸過、拿菲菲贏也會出現。
+ *
+ * 跟最佳成績同一個倉庫、同一套包好例外的 `read`／`write`，鍵掛在 `BEST_KEY` 底下（`…/best/defeats/<角色>`）。
+ * 沒有這個鍵（舊玩家、第一次玩）＝0；值壞掉（不是非負整數）也當 0，不清別的東西。
+ */
+const DEFEATS_KEY = `${BEST_KEY}/defeats`;
+export function loadDefeats(hero: string): number {
+  const raw = read(`${DEFEATS_KEY}/${hero}`);
+  if (raw === null) return 0;
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 0 ? n : 0;
+}
+/** 這一位又倒下了一次（`app.ts` 的 `afterCombat` 在整局輸掉那一刻叫；連線局也算本機這一位） */
+export function recordDefeat(hero: string): number {
+  const n = loadDefeats(hero) + 1;
+  write(`${DEFEATS_KEY}/${hero}`, String(n));
+  return n;
+}
+
 export function recordBest(run: RunState, date = new Date().toISOString().slice(0, 10)): BestRecord {
   const cur: BestRecord = { floor: run.floor, won: run.status === 'won', turns: run.stats.turns, date };
   const old = loadBest();

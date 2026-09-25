@@ -29,7 +29,8 @@ describe('選角介紹只留一份', () => {
 });
 
 describe('封封結局的打法插句', () => {
-  // 稿子 FG-VAR-04「通用」：沒有封封自己的牌組統計前，只用這一句
+  // 稿子 FG-VAR-04「通用」：沒有明顯傾向的牌組用這一句。
+  // 2026-09-25 爪力／隱身／蜷縮三派接上 VAR-01～03（使用者核可），那三條在 `tests/content/story_main_0925.test.ts`
   const generic = fengfengVictoryVariants[3]!.text;
 
   // 2026-09-23 改：稿子寫「接 FG-V-03 後、FG-V-04 前」，插句講的是他收劍那一下，要等他說「我把劍收好」才接得上
@@ -38,10 +39,11 @@ describe('封封結局的打法插句', () => {
     for (const deck of [[], [...FENGFENG_STARTER_DECK], ['sanjo'], ['tanding', 'tanding', 'tanding', 'tanding']]) {
       for (const diff of [1, 5]) {
         const lines = victoryLinesFor(deck, diff, 'fengfeng');
-        expect(lines[1]?.speaker, '第二句仍是師父').toBe('塔主');
+        // 2026-09-25：醒來之後的說話者改叫「大俠貓」（劇情草稿第 3 節）
+        expect(lines[1]?.speaker, '第二句仍是師父').toBe('大俠貓');
         expect(lines[2]?.text, '第三句仍是封封說要收劍（FG-V-03）').toBe('您認得我了。先坐下，我把劍收好。');
         expect(lines[3], `牌組 ${deck.join('+') || '空'}／難度 ${diff}`).toEqual({ speaker: '旁白', text: generic });
-        expect(lines[4]?.text, '插句後面接 FG-V-04').toContain('球球扶著牆走過來');
+        expect(lines[4]?.text, '插句後面接 FG-V-04').toContain('球球和菲菲從門邊走過來');
         // 一次最多一段插句
         expect(lines.filter((l) => fengfengVictoryVariants.some((v) => v.text === l.text))).toHaveLength(1);
       }
@@ -60,8 +62,9 @@ describe('封封結局的打法插句', () => {
     const slides = endingSlides('fengfeng', [], 1);
     expect(slides.map((s) => s.img)).toEqual(['bg/fengfeng_still_embrace', 'bg/fengfeng_still_home', 'bg/fengfeng_story_ep01']);
     expect(slides[0]!.lines.some((l) => l.text === generic)).toBe(true);
-    expect(slides[1]!.lines.at(-1)?.text, '回村那張最後一句是 FG-V-10').toBe(base[9]!.text);
-    expect(slides[2]!.lines.map((l) => l.text), '院子那張是 FG-EP-01～06').toEqual(base.slice(10).map((l) => l.text));
+    // 2026-09-25 劇情草稿 2-4：結局縮成基本 8 句，村口那段併成一句（第 6 句）、院子那段是最後兩句
+    expect(slides[1]!.lines.at(-1)?.text, '回村那張最後一句是村口熱湯那句').toBe(base[5]!.text);
+    expect(slides[2]!.lines.map((l) => l.text), '院子那張是最後兩句').toEqual(base.slice(6).map((l) => l.text));
   });
 });
 
