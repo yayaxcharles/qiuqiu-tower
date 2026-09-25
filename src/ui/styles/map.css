@@ -200,6 +200,12 @@
   animation: map-pulse 1.2s ease-in-out infinite;
 }
 .map-node.choice:hover { filter: drop-shadow(0 0 7px #fff0c0) drop-shadow(0 0 16px rgba(255, 210, 100, .8)); }
+/* 點下去當下就有反應（2026-09-25 流暢度盤點 中）：按著縮一點、點了放大加亮。慢的機器進戰鬥前會停一小段，
+   原本那段畫面完全不動，看起來像沒點到；觸控裝置連 :hover 的光都沒有。
+   用獨立的 `scale` 屬性、不動 `transform`：脈動動畫動的是 transform，兩者疊加不打架（同 .map-hero.flip） */
+.map-node.choice { transition: scale .12s ease-out; }
+.map-node.choice:active { scale: .92; }
+.map-node.choice.picked { scale: 1.16; filter: brightness(1.18) drop-shadow(0 0 8px #fff3c8) drop-shadow(0 0 18px rgba(255, 210, 100, .9)); }
 @keyframes map-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.12); }

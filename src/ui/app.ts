@@ -610,7 +610,13 @@ export class App {
       // 開打前先把這場魔物（含召喚物）的立繪解碼好，最多等 1.5 秒；沒等到也照開（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）
       this.fightPending = true;
       this.stage.classList.add('fight-pending');
+      // 超過 0.4 秒還沒好就在地圖提示一行（比照 `enterEvent`；2026-09-25 流暢度盤點 中：原本最多等 1.5 秒、舞台鎖住又沒提示）
+      const slow = window.setTimeout(() => {
+        const hint = this.screen.querySelector('.map-hint');
+        if (hint) hint.textContent = '正在準備戰鬥……';
+      }, 400);
       const proceed = (): void => {
+      window.clearTimeout(slow);
       this.fightPending = false;
       this.stage.classList.remove('fight-pending');
       if (this.cs !== cs) return;

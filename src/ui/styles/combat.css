@@ -870,7 +870,7 @@
    card-deal 是有限長度、又只填 backwards，播完就不再作數，起伏自己接回去。 */
 .combat .hand .card.dealt {
   animation: card-idle 3.8s ease-in-out infinite,
-             card-deal .44s cubic-bezier(.22, .85, .3, 1.02) backwards;
+             card-deal .32s cubic-bezier(.22, .85, .3, 1.02) backwards;   /* .44→.32（2026-09-25 流暢度：發完牌到點得動太久；長度要跟 combat.ts 的 DEAL_FLY 一樣） */
 }
 /*
  * 正在拖出去打的那張牌不播任何動畫。**這條一定要排在 `.dealt` 後面**：兩者優先序同分，

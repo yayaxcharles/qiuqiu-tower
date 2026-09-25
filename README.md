@@ -86,6 +86,7 @@ npm install
 | 打包成上線的樣子 | `npm run build`（先驗型別再打包，成品在 `dist/`） |
 | 看打包後的成品 | `npm run preview`，開 `http://localhost:4173/qiuqiu-tower/` |
 | 檢查檔案大小 | `npm run size`（等於 `python tools/check_size.py`，要先 `npm run build`） |
+| 推前跟線上那一版比畫面 | `npm run gate:visual`（四道門檻：角色大小、貓窩位置、動作流暢度、事件圖片；兩版都在本機打包比，不連線上網址；報告路徑印在最後，用法 `-- --help`） |
 
 兩個容易踩到的地方：
 

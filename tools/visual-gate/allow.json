@@ -1,0 +1,9 @@
+{
+  "說明": "畫面比對閘門的允許清單：這一批「本來就要改」的差異寫在 items 裡放行（報告標綠色「已放行」，不算不通過）。match 比對報告裡每一筆發現的代號（灰色小字，例：event:feifei:bg/event_feifei_mirror_hall:main），可以用 * 當萬用字元；why 寫這批為什麼改。推上線之後把這批的項目刪掉，免得之後同一張圖又被改壞時被放過。",
+  "例子": [
+    { "match": "event:*:bg/event_mirror_hall:*", "why": "（例子，不會生效）這批重生了鏡子走廊的主圖與結果圖" },
+    { "match": "size:motion:feifei:feifei:kick", "why": "（例子，不會生效）菲菲踢腿重畫" },
+    { "match": "rest:fengfeng:a3:*", "why": "（例子，不會生效）第三關貓窩封封的座位刻意往右移" }
+  ],
+  "items": []
+}
