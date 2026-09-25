@@ -963,7 +963,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damageSpendBlock', all: true, mul: 2 }, { kind: 'selfDamage', amount: 10 }],
     upgrade: { effects: [{ kind: 'damageSpendBlock', all: true, mul: 2 }, { kind: 'selfDamage', amount: 6 }] } },
 
-  // ===== 封封：蓄氣劍客 32 張（規格：docs/fengfeng-integration-contract.md）=====
+  // ===== 封封：蓄氣劍客 35 張（規格：docs/fengfeng-integration-contract.md；2026-09-25 補三張花氣打傷害）=====
   /*
    * **2026-09-22 平衡調整（使用者裁定「方案三」）**：修好量測機器人之後封封平均只爬到 17.9 層，
    * 球球 22.4 層。病根是蓄氣換算划不來——花一張牌、一顆飯糰存下的氣，換回來的傷害跟直接打差不多，
@@ -1013,6 +1013,18 @@ export const cards: readonly CardDef[] = [
   { id: 'fengfeng_huibu', name: '回步刺', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_huibu',
     effects: [{ kind: 'damageSpendQi', amount: 4, perQi: 3, maxQi: 4 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }],
     upgrade: { effects: [{ kind: 'damageSpendQi', amount: 6, perQi: 3, maxQi: 4 }, { kind: 'ifSpentQiAtLeast', min: 2, then: [{ kind: 'draw', n: 1 }] }] } },
+  /*
+   * **2026-09-25 補三張花氣打傷害**（使用者：「利用蓄氣的輸出手段不足，應該要多加一點消耗蓄氣打傷害的攻擊牌」）：
+   * 攻擊牌張數其實四隻裡最多，少的是「把氣花成傷害」——最常開的常見那一格 35 張只有 3 張，三選一很少看得到。
+   * 使用者挑了三張（還有一張「收劍回氣」沒選）：順手一劍（0 費，沒飯糰也能把氣換傷害）、連環三劍（三段，每段吃爪力）、
+   * 一口氣（罕見，便宜的用盡）。牌號別取 `fengfeng_<共用牌號>`（那是封封版共用牌的圖，shunshou／lianhuan 都撞過）。
+   */
+  { id: 'fengfeng_shunjian', name: '順手一劍', cost: 0, type: 攻, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_shunjian',
+    effects: [{ kind: 'damageSpendQi', amount: 2, perQi: 3, maxQi: 3 }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 2, perQi: 3, maxQi: 4 }] } },
+  { id: 'fengfeng_sanlian', name: '連環三劍', cost: 1, type: 攻, rarity: '常見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_sanlian',
+    effects: [{ kind: 'damageSpendQi', amount: 2, perQi: 1, maxQi: 4, times: 3 }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 3, perQi: 1, maxQi: 4, times: 3 }] } },
 
   // 罕見
   { id: 'fengfeng_chuantang', name: '穿堂劍', cost: 2, type: 攻, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_chuantang',
@@ -1050,6 +1062,11 @@ export const cards: readonly CardDef[] = [
   { id: 'fengfeng_husong', name: '我護著你走', cost: 1, type: 技, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_husong', coop: true,
     effects: [{ kind: 'blockSpendQi', amount: 7, perQi: 3, maxQi: 5, recipient: 'ally' }],
     upgrade: { effects: [{ kind: 'blockSpendQi', amount: 10, perQi: 3, maxQi: 5, recipient: 'ally' }] } },
+  // 2026-09-25 補的第三張（見常見那一段的說明）：1 費用盡、每點 3、基礎 6——斷流（2 費、每點 4、基礎 10）的便宜小弟。
+  // 起初基礎 4／每點 2，量到多塞一張反而少 0.41 層（氣全花光卻換得少），改到現在 +0.16 層（smartbot.ts 的評分那段）
+  { id: 'fengfeng_yikouqi', name: '一口氣', cost: 1, type: 攻, rarity: '罕見', pool: '忍術', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_yikouqi',
+    effects: [{ kind: 'damageSpendQi', amount: 6, perQi: 3, allQi: true }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 9, perQi: 3, allQi: true }] } },
 
   // 稀有絕學
   { id: 'fengfeng_duanliu', name: '絕學·斷流', cost: 2, type: 攻, rarity: '稀有', pool: '絕學', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_duanliu',

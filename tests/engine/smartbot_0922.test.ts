@@ -137,7 +137,7 @@ describe('量測工具 2026-09-22：封封專屬牌評分', () => {
    */
   it('單人拿得到的封封專屬牌（起手與連線專用以外）每一張都有手動評分——新加的牌漏評會變紅', () => {
     const own = cards.filter((c) => c.hero === 'fengfeng' && c.pool !== '起手' && !c.coop);
-    expect(own.length).toBe(25);
+    expect(own.length).toBe(28);   // 25→28：2026-09-25 補三張花氣打傷害
     for (const c of own) expect(handRated(c.id), c.id).toBe(true);
   });
   it('照實測排序：斷流、回劍護肘 8 分，長息、藏鋒 3 分（預設會是 7／5／5／7）', () => {

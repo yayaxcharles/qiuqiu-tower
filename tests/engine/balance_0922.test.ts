@@ -85,6 +85,8 @@ describe('封封：花蓄氣的牌每點蓄氣多 1 點效果', () => {
     fengfeng_duanliu: 4, fengfeng_kaishan: 3, fengfeng_pozhen: 3, fengfeng_yiqichushou: 2,
     // 2026-09-24 憋氣乙版：劍鞘架擋、退步守勢改成花氣架擋，照同一個係數 3
     fengfeng_jianqiao: 3, fengfeng_tuibu: 3,
+    // 2026-09-25 補的三張：連環三劍每段每點 1（三段合計 3）
+    fengfeng_shunjian: 3, fengfeng_sanlian: 1, fengfeng_yikouqi: 3,
   };
   it('14 張（含連線專用三張）逐張、升級前後都是新係數，沒有漏掉任何一張花氣牌', () => {
     const spenders = Object.values(cardById).filter((d) => d.effects.some((e) =>

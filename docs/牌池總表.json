@@ -5696,6 +5696,57 @@
   "up": "最多花 4 點蓄氣，造成 6 點傷害，每點蓄氣多 3 點，這張牌花了至少 2 點蓄氣的話，抽 1 張牌。"
  },
  {
+  "id": "fengfeng_shunjian",
+  "name": "順手一劍",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 0,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 2,
+    "perQi": 3,
+    "maxQi": 3
+   }
+  ],
+  "text": "最多花 3 點蓄氣，造成 2 點傷害，每點蓄氣多 3 點。",
+  "up": "最多花 4 點蓄氣，造成 2 點傷害，每點蓄氣多 3 點。"
+ },
+ {
+  "id": "fengfeng_sanlian",
+  "name": "連環三劍",
+  "pool": "忍術",
+  "rarity": "常見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 2,
+    "perQi": 1,
+    "maxQi": 4,
+    "times": 3
+   }
+  ],
+  "text": "最多花 4 點蓄氣，造成 2 點傷害，每點蓄氣多 1 點，連打 3 次。",
+  "up": "最多花 4 點蓄氣，造成 3 點傷害，每點蓄氣多 1 點，連打 3 次。"
+ },
+ {
   "id": "fengfeng_chuantang",
   "name": "穿堂劍",
   "pool": "忍術",
@@ -6044,6 +6095,31 @@
   ],
   "text": "最多花 5 點蓄氣，同伴獲得 7 點蜷縮，每點蓄氣多 3 點。一個人玩時「同伴」＝你自己。",
   "up": "最多花 5 點蓄氣，同伴獲得 10 點蜷縮，每點蓄氣多 3 點。一個人玩時「同伴」＝你自己。"
+ },
+ {
+  "id": "fengfeng_yikouqi",
+  "name": "一口氣",
+  "pool": "忍術",
+  "rarity": "罕見",
+  "cost": 1,
+  "type": "攻擊",
+  "target": "enemy",
+  "keywords": [],
+  "hidden": false,
+  "combatOnly": false,
+  "kinds": [
+   "damageSpendQi"
+  ],
+  "effects": [
+   {
+    "kind": "damageSpendQi",
+    "amount": 6,
+    "perQi": 3,
+    "allQi": true
+   }
+  ],
+  "text": "用盡蓄氣，造成 6 點傷害，每點蓄氣多 3 點。",
+  "up": "用盡蓄氣，造成 9 點傷害，每點蓄氣多 3 點。"
  },
  {
   "id": "fengfeng_duanliu",
