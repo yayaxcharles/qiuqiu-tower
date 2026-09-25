@@ -1228,6 +1228,7 @@
 .purify-icons img, .purify-noart { width: 80px; height: 80px; object-fit: contain; }
 .purify-noart { display: grid; place-items: center; border-radius: 10px; background: #efe6d6; font-weight: bold; }
 .purify-arrow { font-size: 24px; color: #7a3d15; }
+.purify-before, .purify-after { display: block; }
 .purify-before { animation: purify-haze 0.9s ease-in-out infinite alternate; transition: opacity .4s ease, filter .4s ease; }
 .purify-before.cleared { animation: none; filter: grayscale(.7); opacity: .4; }
 .purify-after { opacity: 0; transform: scale(.55); transition: opacity .35s ease, transform .4s cubic-bezier(.2, .9, .3, 1.35); filter: drop-shadow(0 0 8px #ffe7a0); }

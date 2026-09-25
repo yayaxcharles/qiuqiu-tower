@@ -31,15 +31,19 @@ export function showPurifyReveal(ids: readonly string[], onClose?: () => void): 
   const list = el('div', { class: 'purify-list' });
   for (const id of rows) {
     const r = relicById[id]!, pure = relicById[MIASMA_PURE[id]!]!;
-    const before = el('span', { class: 'fx-host purify-before' }, icon(r.art, r.name));
-    const after = el('span', { class: 'fx-host purify-after' }, icon(pure.art, pure.name));
+    // 特效掛在外層（`fx-host`，沒有透明度、濾鏡、縮放），淡出與彈出只套在裡層的圖上：
+    // 原本同一層，煙跟著原件一起變灰剩四成、金光跟著淨化版從小放大（推前審查 2026-09-25 低-3）
+    const before = el('span', { class: 'purify-before' }, icon(r.art, r.name));
+    const after = el('span', { class: 'purify-after' }, icon(pure.art, pure.name));
+    const beforeHost = el('span', { class: 'fx-host' }, before);
+    const afterHost = el('span', { class: 'fx-host' }, after);
     list.append(el('div', { class: 'purify-row' },
-      el('div', { class: 'purify-icons' }, before, el('span', { class: 'purify-arrow' }, '→'), after),
+      el('div', { class: 'purify-icons' }, beforeHost, el('span', { class: 'purify-arrow' }, '→'), afterHost),
       el('b', { class: 'purify-names' }, `${r.name} → ${pure.name}`),
       ...purifyChangeLines(id)));
     // 紫霧先罩著一下，散掉（煙）之後淨化版才彈出來（白金光）；兩個特效都要等節點進了文件才量得到位置
-    timers.push(window.setTimeout(() => { before.classList.add('cleared'); burst(before, 'smoke'); }, 450));
-    timers.push(window.setTimeout(() => { after.classList.add('shown'); burst(after, 'buff'); }, 850));
+    timers.push(window.setTimeout(() => { before.classList.add('cleared'); burst(beforeHost, 'smoke'); }, 450));
+    timers.push(window.setTimeout(() => { after.classList.add('shown'); burst(afterHost, 'buff'); }, 850));
   }
   overlay.append(el('div', { class: 'modal purify-modal' },
     el('h2', { class: 'modal-title' }, '淨化完成'),

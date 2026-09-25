@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { MIASMA_PURE, PURIFY_CHANGE, miasmaNote, relicById, relicLongText } from '../../src/content/relics';
+import { BRIEF_BUDGET, MIASMA_PURE, PURIFY_CHANGE, miasmaNote, relicById, relicLongText, textWidth } from '../../src/content/relics';
 import { newRun, purifyRelic } from '../../src/engine/run';
 import { me } from '../../src/engine/runplayer';
 import { purifiedBetween } from '../../src/ui/purifyreveal';
+import ACTCLEAR from '../../src/ui/screens/actclear.ts?raw';
 import EVENT from '../../src/ui/screens/event.ts?raw';
 import REST from '../../src/ui/screens/rest.ts?raw';
 import SHOP from '../../src/ui/screens/shop.ts?raw';
@@ -47,6 +48,24 @@ describe('淨化會變怎樣（PURIFY_CHANGE）', () => {
     for (const t of PURIFY_CHANGE[id]!.good) expect(note).toContain(t);
     for (const t of PURIFY_CHANGE[id]!.bad) expect(note).toContain(t);
     expect(relicLongText(relicById[id]!)).toContain(note);
+  });
+});
+
+describe('窄格子用短句、不套兩層括號（推前審查 2026-09-25 低-1、低-4）', () => {
+  it.each(Object.keys(MIASMA_PURE))('%s', (id) => {
+    const r = relicById[id]!, pure = relicById[MIASMA_PURE[id]!]!;
+    const brief = relicLongText(r, [], true);
+    expect(brief).toContain('可淨化');
+    // 貨架四行（實機量過約 50 個全形字）；放得下時要講到淨化成哪一件
+    expect(textWidth(brief), `${brief} 會掉到第五行`).toBeLessThanOrEqual(BRIEF_BUDGET);
+    if (textWidth(`${r.text}（可淨化成「${pure.name}」）`) <= BRIEF_BUDGET) expect(brief).toContain(`可淨化成「${pure.name}」`);
+    // 說明外面已經有一層全形括號，裡面不再開括號
+    for (const t of [miasmaNote(id), brief.slice(r.text.length)]) expect(t.slice(1, -1), t).not.toMatch(/[（）]/);
+  });
+  it('貨架、過關三選一、事件拿到那一列用短句；狀態列、秘寶清單、圖鑑照舊長句', () => {
+    expect(lf(SHOP)).toContain('relicLongText(d, me(run, seat).relics, true)');
+    expect(lf(ACTCLEAR)).toContain('relicLongText(d, me(run, seat).relics, true)');
+    expect(lf(EVENT)).toContain('relicLongText(r, owned, true)');
   });
 });
 

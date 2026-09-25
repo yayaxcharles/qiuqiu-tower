@@ -465,20 +465,38 @@ export function ownedForRolls(owned: readonly string[]): string[] {
  * 淨化結果視窗、挑選窗、說明那句都讀這一張，六件一件一列，少一件有測試擋。
  * 淨化當下最大生命的增減（`purifyRelic` 照兩件 `hooks.maxHp` 的差調）也寫在這裡，數字有測試對著掛鉤核。
  */
-export const PURIFY_CHANGE: Readonly<Record<string, { good: readonly string[]; bad: readonly string[] }>> = {
-  miasma_lantern: { good: ['開戰不會再懶洋洋'], bad: [] },
-  black_cat_mask: { good: ['開戰不會再懶洋洋'], bad: [] },
-  miasma_charm: { good: ['開戰的炸毛從 3 層減成 2 層'], bad: [] },
-  miasma_shard: { good: ['開戰不會再炸毛'], bad: ['最大生命加成從 +15 變 +13（當場少 2 點）'] },
-  blood_dagger: { good: ['拿到時扣掉的 12 點最大生命還給你（當場補上）'], bad: ['開戰的爪力從 3 點變 2 點'] },
-  master_bracer: { good: ['開戰不會再翻肚'], bad: ['開戰的爪力從 3 點變 2 點', '最大生命 −3（當場扣掉）'] },
+// 「當場…」用逗號接、不用括號：`relicLongText` 外面還會再包一層全形括號（推前審查 2026-09-25 低-4）。
+// `gist`＝一句話的重點，給貨架、過關三選一、事件拿到那一列這些只有三四行的地方（低-1：長句在貨架上剛好被切在「淨化後變成」）
+export const PURIFY_CHANGE: Readonly<Record<string, { good: readonly string[]; bad: readonly string[]; gist: string }>> = {
+  miasma_lantern: { good: ['開戰不會再懶洋洋'], bad: [], gist: '不再懶洋洋' },
+  black_cat_mask: { good: ['開戰不會再懶洋洋'], bad: [], gist: '不再懶洋洋' },
+  miasma_charm: { good: ['開戰的炸毛從 3 層減成 2 層'], bad: [], gist: '炸毛少一層' },
+  miasma_shard: { good: ['開戰不會再炸毛'], bad: ['最大生命加成從 +15 變 +13，當場少 2 點'], gist: '不再炸毛' },
+  blood_dagger: { good: ['拿到時扣掉的 12 點最大生命還給你，當場補上'], bad: ['開戰的爪力從 3 點變 2 點'], gist: '還回 12 點最大生命' },
+  master_bracer: { good: ['開戰不會再翻肚'], bad: ['開戰的爪力從 3 點變 2 點', '最大生命 −3，當場扣掉'], gist: '不再翻肚' },
 };
 /** 說明後面自動補的那一句（design3 6-1，2026-09-25 補上會變成什麼）：不改原本六件的說明，看到 `isMiasma` 就補 */
 export function miasmaNote(id: string): string {
   const pure = relicById[MIASMA_PURE[id] ?? ''];
   const ch = PURIFY_CHANGE[id];
   if (!pure || !ch) return '沾了魔氣，可以淨化（貓窩、玳瑁婆婆、某些事件）';
-  return `沾了魔氣，可以在貓窩、玳瑁婆婆、某些事件淨化；淨化後變成「${pure.name}」：${ch.good.join('、')}${ch.bad.length ? `，代價是${ch.bad.join('、')}` : ''}`;
+  return `沾了魔氣，可以在貓窩、玳瑁婆婆、某些事件淨化；淨化後變成「${pure.name}」：${ch.good.join('、')}${ch.bad.length ? `；代價是${ch.bad.join('、')}` : ''}`;
+}
+/** 貨架那一格四行放得下多少（全形字寬；數字、空白、英文算半個）：2026-09-25 實機量過，48～50 字剛好四行、56 字就掉到第五行 */
+export const BRIEF_BUDGET = 50;
+export function textWidth(s: string): number {
+  return [...s].reduce((n, c) => n + (c.charCodeAt(0) < 0x2e80 ? 0.5 : 1), 0);
+}
+/**
+ * 窄格子用的短句，接在 `base`（原本的說明）後面：放得下就多講一點，放不下就少講，最少也留「可淨化」。
+ * 魔氣燈籠原文就 44 字，只放得下「可淨化成『長明燈』」；全文在滑鼠提示、狀態列、秘寶清單都看得到
+ */
+export function miasmaGist(id: string, base = ''): string {
+  const pure = relicById[MIASMA_PURE[id] ?? ''];
+  const ch = PURIFY_CHANGE[id];
+  if (!pure || !ch) return '可淨化';
+  const tries = [`沾了魔氣：可淨化成「${pure.name}」，${ch.gist}`, `可淨化成「${pure.name}」，${ch.gist}`, `可淨化成「${pure.name}」`];
+  return tries.find((t) => textWidth(base) + textWidth(t) + 2 <= BRIEF_BUDGET) ?? '可淨化';   // +2＝外面那對括號
 }
 
 export const relicById: Record<string, RelicDef> = Object.fromEntries(relics.map((r) => [r.id, r]));
@@ -510,9 +528,11 @@ export function activeSets(owned: readonly string[]): RelicSet[] {
  * 秘寶說明＋套組那一段（「【師門 1／3】集到任兩件：……」）。狀態列提示、本局秘寶清單、罐頭鋪、圖鑑都用這一支，
  * 集到幾件照 `owned` 數（圖鑑沒有一局可看就傳空的，寫 0）。沒有套組的就是原本的說明。
  */
-export function relicLongText(def: RelicDef, owned: readonly string[] = []): string {
+export function relicLongText(def: RelicDef, owned: readonly string[] = [],
+  /** 只有三四行的格子（貨架、過關三選一、事件拿到那一列）傳 true：淨化那句用短句 `miasmaGist`（2026-09-25 推前審查 低-1） */
+  brief = false): string {
   // 沾了魔氣的六件補一句「可以淨化」（2026-09-23 第三批，design3 6-1：不改原本的說明，看到 `MIASMA_PURE` 就補）
-  if (isMiasma(def.id)) return `${def.text}（${miasmaNote(def.id)}）`;
+  if (isMiasma(def.id)) return `${def.text}（${brief ? miasmaGist(def.id, def.text) : miasmaNote(def.id)}）`;
   if (!def.set) return def.text;
   return `${def.text}【${def.set} ${setCount(def.set, owned)}／${setMembers(def.set).length}】${RELIC_SETS[def.set].text}。`;
 }

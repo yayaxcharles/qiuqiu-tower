@@ -95,7 +95,7 @@ function gainsNode(gains: readonly RunGain[], owned: readonly string[]): HTMLEle
  */
 function gainText(g: RunGain, owned: readonly string[]): string {
   const r = g.kind === '秘寶' ? relicById[g.id] : undefined;
-  return r ? relicLongText(r, owned) : potionById[g.id]?.text ?? '';
+  return r ? relicLongText(r, owned, true) : potionById[g.id]?.text ?? '';
 }
 
 /**

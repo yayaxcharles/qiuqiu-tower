@@ -356,7 +356,7 @@ registerScreen('shop', (app, root, props) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = ownsRelic(me(run, seat).relics, it.id);   // 淨化版在身上也算有（推前審查五 高-3，跟 `buyRelic` 同一個判準）
       // 自己已經有、架上卻還沒賣掉的，寫「你已經有了」：寫「賣掉了」的話同伴明明還買得到（連線稽核 高-8）
-      relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics), priceFor(run, it, seat, shop), it.sold || owned || closed, false,
+      relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics, true), priceFor(run, it, seat, shop), it.sold || owned || closed, false,
         () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale,
         closedText(it.sold) ?? (!it.sold && owned ? '你已經有了' : undefined), undefined, !!it.limited, it));
     });
