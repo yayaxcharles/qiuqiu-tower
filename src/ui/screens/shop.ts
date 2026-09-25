@@ -5,6 +5,7 @@ import { MIASMA_PURE, ownsRelic, relicById, relicLongText } from '../../content/
 import { PURIFY_PRICE, RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, keeperFirstMeet, keeperMulFor, makeShops, miasmaRelicsOf, notMyCard, potionCapacity, priceFor, purifyAtShop, removePrice, reshuffleShop, runMods, shopClosed, shopMulFor, shopService, type ShopStock } from '../../engine/run';
 import { TORTOISE_PURIFY_LINE, purifyLine, tortoisePurifyLabel } from '../../content/purify-text';
 import { showPurifyPick } from '../purifypick';
+import { showPurifyReveal } from '../purifyreveal';
 import type { MERCHANT_LINES } from '../../content/qmark-text';
 import { heroSpeaker, notice, toast } from '../dialogue';
 import { KEEPERS } from '../../content/keepers';
@@ -490,6 +491,7 @@ registerScreen('shop', (app, root, props) => {
     countBuy();   // 服務也算「買了一樣」（design3 4-5）
     play('upgrade'); setMood('happy');
     if (!coop) render();
+    showPurifyReveal([id]);   // 淨化結果視窗（2026-09-25）：疊層不會被店裡重畫掃掉，連線時繞回來那一次重畫也一樣
   }
   /** 服務做完了：系統提示一行、對白框換成自己那一句、老闆笑一下（單機當下叫；連線等動作繞回來才叫） */
   function afterService(): void {

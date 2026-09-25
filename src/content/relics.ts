@@ -460,8 +460,26 @@ export function ownedForRolls(owned: readonly string[]): string[] {
   const extra = Object.keys(MIASMA_PURE).filter((id) => owned.includes(MIASMA_PURE[id]!) && !owned.includes(id));
   return extra.length ? [...owned, ...extra] : [...owned];
 }
-/** 說明下面自動補的那一行紫字（design3 6-1）：不改原本六件的說明，畫面看到 `isMiasma` 就補這一句 */
-export const MIASMA_NOTE = '沾了魔氣：可以淨化（貓窩、玳瑁婆婆、某些事件）';
+/**
+ * **淨化會變怎樣**（2026-09-25 使用者：「淨化完會變怎樣其實看不到」）：拿掉的壞處（`good`，畫面標綠）與代價（`bad`，標橘）。
+ * 淨化結果視窗、挑選窗、說明那句都讀這一張，六件一件一列，少一件有測試擋。
+ * 淨化當下最大生命的增減（`purifyRelic` 照兩件 `hooks.maxHp` 的差調）也寫在這裡，數字有測試對著掛鉤核。
+ */
+export const PURIFY_CHANGE: Readonly<Record<string, { good: readonly string[]; bad: readonly string[] }>> = {
+  miasma_lantern: { good: ['開戰不會再懶洋洋'], bad: [] },
+  black_cat_mask: { good: ['開戰不會再懶洋洋'], bad: [] },
+  miasma_charm: { good: ['開戰的炸毛從 3 層減成 2 層'], bad: [] },
+  miasma_shard: { good: ['開戰不會再炸毛'], bad: ['最大生命加成從 +15 變 +13（當場少 2 點）'] },
+  blood_dagger: { good: ['拿到時扣掉的 12 點最大生命還給你（當場補上）'], bad: ['開戰的爪力從 3 點變 2 點'] },
+  master_bracer: { good: ['開戰不會再翻肚'], bad: ['開戰的爪力從 3 點變 2 點', '最大生命 −3（當場扣掉）'] },
+};
+/** 說明後面自動補的那一句（design3 6-1，2026-09-25 補上會變成什麼）：不改原本六件的說明，看到 `isMiasma` 就補 */
+export function miasmaNote(id: string): string {
+  const pure = relicById[MIASMA_PURE[id] ?? ''];
+  const ch = PURIFY_CHANGE[id];
+  if (!pure || !ch) return '沾了魔氣，可以淨化（貓窩、玳瑁婆婆、某些事件）';
+  return `沾了魔氣，可以在貓窩、玳瑁婆婆、某些事件淨化；淨化後變成「${pure.name}」：${ch.good.join('、')}${ch.bad.length ? `，代價是${ch.bad.join('、')}` : ''}`;
+}
 
 export const relicById: Record<string, RelicDef> = Object.fromEntries(relics.map((r) => [r.id, r]));
 
@@ -494,7 +512,7 @@ export function activeSets(owned: readonly string[]): RelicSet[] {
  */
 export function relicLongText(def: RelicDef, owned: readonly string[] = []): string {
   // 沾了魔氣的六件補一句「可以淨化」（2026-09-23 第三批，design3 6-1：不改原本的說明，看到 `MIASMA_PURE` 就補）
-  if (isMiasma(def.id)) return `${def.text}（${MIASMA_NOTE}）`;
+  if (isMiasma(def.id)) return `${def.text}（${miasmaNote(def.id)}）`;
   if (!def.set) return def.text;
   return `${def.text}【${def.set} ${setCount(def.set, owned)}／${setMembers(def.set).length}】${RELIC_SETS[def.set].text}。`;
 }

@@ -5,6 +5,7 @@ import { MIASMA_PURE, relicById } from '../../content/relics';
 import { PURIFY_NARRATION, PURIFY_REST_LABEL, purifyLine, purifyRestSub } from '../../content/purify-text';
 import { REVIVE_RATIO, fullPrepAvailable, fullPrepHeal, miasmaRelicsOf, napHeal, rest, restCardChoices, revivePartner, takeRestCard } from '../../engine/run';
 import { showPurifyPick } from '../purifypick';
+import { showPurifyReveal } from '../purifyreveal';
 import type { RunAction } from '../../net/runaction';
 import type { CardInstance, RunState } from '../../engine/types';
 import { registerScreen } from '../app';
@@ -108,7 +109,9 @@ registerScreen('rest', (app, root) => {
   let pillowSent = false;
 
   /** 做完事就換成結果版面（按鈕跟著消失），球球吐一句槽，停一下再回地圖。`pose` 是做完那件事的立繪（點清心香用蜷在窩旁那張 `curl`） */
-  function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' | 'curl' = 'nap'): void {
+  function afterAction(text: string, line: string, card?: CardInstance, pose: 'nap' | 'sharpen' | 'helpup' | 'curl' = 'nap',
+    /** 有這個就等它好了才回地圖（淨化結果視窗：按「收好了」之前不能先被帶走，2026-09-25） */
+    hold?: Promise<void>): void {
     phase = 'after';
     clearKeepBg(root);
     renderHud(app, root);
@@ -128,15 +131,28 @@ registerScreen('rest', (app, root) => {
     // 主機的動作是同步套用的，這支本來就是從 onRunApplied 裡被叫到的，這裡再排一次就是兩個計時器、地圖畫兩次
     if (coop) return;
     // 換畫面就撤掉（夜間審查 低-7）：除錯模式在這 0.9 秒內按 Esc 回除錯頁，計時器照樣響會把人踢回標題
-    const back = window.setTimeout(() => app.backToMap(), card ? 1500 : 900);
-    app.disposers.push(() => window.clearTimeout(back));
+    const leave = (): void => {
+      const back = window.setTimeout(() => app.backToMap(), card ? 1500 : 900);
+      app.disposers.push(() => window.clearTimeout(back));
+    };
+    if (!hold) { leave(); return; }
+    let gone = false;   // 視窗還開著就換了畫面（除錯 Esc、整局被換掉）：關掉之後不要再把人帶回地圖
+    app.disposers.push(() => { gone = true; });
+    void hold.then(() => { if (!gone) leave(); });
   }
 
-  /** 點完清心香（2026-09-23 第三批）：旁白＋哪一件變成哪一件，換過的那一格圖示閃一下白金光（`.hud-relic.purified`） */
+  /**
+   * 點完清心香（2026-09-23 第三批）：旁白＋哪一件變成哪一件，換過的那一格圖示閃一下白金光（`.hud-relic.purified`）。
+   * 2026-09-25 加淨化結果視窗（`showPurifyReveal`，使用者：「淨化完會變怎樣其實看不到」）：單機等玩家按「收好了」才回地圖；
+   * 連線不擋上樓（回地圖由 onRunApplied 排），視窗留在地圖上面等玩家自己關。
+   */
   function afterPurify(id: string): void {
     const pure = MIASMA_PURE[id] ?? '';
-    afterAction(`${PURIFY_NARRATION}「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]?.name ?? pure}」了。`, purifyLine(me(run, seat).hero), undefined, 'curl');
+    let closedNow = (): void => {};
+    const closed = new Promise<void>((resolve) => { closedNow = resolve; });
+    afterAction(`${PURIFY_NARRATION}「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]?.name ?? pure}」了。`, purifyLine(me(run, seat).hero), undefined, 'curl', closed);
     root.querySelector(`.hud-relic[data-relic="${pure}"]`)?.classList.add('purified');
+    showPurifyReveal([id], closedNow);   // 貓窩先畫好再蓋上去，關掉時底下就是旁白那一幕
   }
 
   /**

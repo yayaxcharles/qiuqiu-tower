@@ -236,7 +236,8 @@ describe('高-1 連線貓窩：挑夢枕的牌時同伴做完事，不會被蓋�
     expect(src).not.toContain('show();   // 還沒做的那位');
     expect(src).toMatch(/function showPillow\(heal: number\): void \{\n\s*phase = 'pillow';/);
     expect(src).toMatch(/function show\(\): void \{\n\s*phase = 'menu';/);
-    expect(src).toMatch(/pose: 'nap' \| 'sharpen' \| 'helpup' \| 'curl' = 'nap'\): void \{\n\s*phase = 'after';/);
+    // 2026-09-25 多了第六個參數 `hold`（淨化結果視窗關掉才回地圖）：照樣要求第一句就記「停在結果頁」
+    expect(src).toMatch(/pose: 'nap' \| 'sharpen' \| 'helpup' \| 'curl' = 'nap',[^{]*?\): void \{\n\s*phase = 'after';/);
   });
 });
 

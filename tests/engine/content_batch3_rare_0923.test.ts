@@ -165,7 +165,9 @@ describe('沾了魔氣的秘寶與淨化（新K）', () => {
     for (const [id, pure] of Object.entries(MIASMA_PURE)) {
       expect(relicById[id], id).toBeDefined();
       expect(relicById[pure]?.pool, pure).toBe('淨化');
-      expect(relicLongText(relicById[id]!)).toContain('沾了魔氣：可以淨化');
+      // 2026-09-25 補上會變成什麼（使用者：淨化完會變怎樣看不到）：原本只寫「沾了魔氣：可以淨化」
+      expect(relicLongText(relicById[id]!)).toContain('沾了魔氣，可以在貓窩、玳瑁婆婆、某些事件淨化');
+      expect(relicLongText(relicById[id]!)).toContain(`淨化後變成「${relicById[pure]!.name}」`);
       expect(relicLongText(relicById[pure]!)).not.toContain('沾了魔氣');
     }
     for (const id of ['sleepless_censer', 'greedy_pouch', 'renounce_beads', 'mad_sheath', 'glutton_purse', 'bandit_iou']) expect(isMiasma(id), id).toBe(false);
