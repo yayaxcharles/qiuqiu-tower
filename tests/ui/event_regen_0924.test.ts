@@ -12,10 +12,11 @@ interface Pick { file: string; sha256: string }
 const picksOf = (dir: string): [string, Pick][] => (existsSync(dir) ? readdirSync(dir) : [])
   .filter((f) => /^picks(_\w+)?\.json$/.test(f))
   .flatMap((f) => Object.entries(JSON.parse(readFileSync(`${dir}/${f}`, 'utf8')) as Record<string, Pick>));
+// 每一輪一個 regenMMDD 資料夾（0924 全面重審、0925 書信畫拿反、0926 球球毛色與場景…）；同名的以後一輪挑定的為準
+const ROUNDS = readdirSync('tools/motion-art-source').filter((d) => /^regen\d{4}$/.test(d)).sort()
+  .map((d) => picksOf(`tools/motion-art-source/${d}`));
 const picks = picksOf('tools/motion-art-source/regen0924');
-// 2026-09-25 第二輪重審（書信畫拿反、泡澡穿衣）重畫的圖：同名的以第二輪挑定的為準
-const picks0925 = picksOf('tools/motion-art-source/regen0925');
-const latest = new Map([...picks, ...picks0925]);
+const latest = new Map(ROUNDS.flat());
 const sha = (path: string): string => createHash('sha256').update(readFileSync(path)).digest('hex');
 /** WebP（VP8X）表頭裡的畫布大小 */
 const canvasOf = (path: string): [number, number] => {
@@ -35,7 +36,7 @@ describe('事件圖重生：線上是挑定的那一版', () => {
     }
   });
   it('同一張圖只在一組裡挑定（不會兩組各換一次、互相蓋掉）', () => {
-    for (const round of [picks, picks0925]) {
+    for (const round of ROUNDS) {
       const names = round.map(([n]) => n);
       expect(new Set(names).size).toBe(names.length);
     }

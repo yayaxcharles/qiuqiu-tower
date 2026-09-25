@@ -45,8 +45,9 @@ describe('批次 rest：換新畫風的圖都是閘門量過的那一版', () =>
     // 封封去殘渣那三張立繪（出招、閃避、輕功）2026-09-23 被批次 statics 整張換成新畫風，改由 static_from_motion.test.ts 守雜湊
     const replaced = new Set((STATICS.assets as { file: string }[]).map((a) => `public/${a.file}`));
     // 2026-09-24 事件圖重生（`tools/regen_event_art.py`，圖文對不上的整張重畫）又換掉幾張封封插圖，改由 event_regen_0924.test.ts 守雜湊
-    // 2026-09-25 第二輪重審（regen0925）再換的也一樣
-    const regenerated = new Set(['tools/motion-art-source/regen0924', 'tools/motion-art-source/regen0925']
+    // 之後每一輪（regen0925、regen0926…）再換的也一樣
+    const regenerated = new Set(readdirSync('tools/motion-art-source').filter((d) => /^regen\d{4}$/.test(d))
+      .map((d) => `tools/motion-art-source/${d}`)
       .flatMap((REGEN) => (existsSync(REGEN) ? readdirSync(REGEN) : []).filter((f) => /^picks(_\w+)?\.json$/.test(f))
         .flatMap((f) => Object.values(JSON.parse(readFileSync(`${REGEN}/${f}`, 'utf8')) as Record<string, { file: string }>).map((p) => p.file))));
     for (const entry of Object.values(RECORD)) {

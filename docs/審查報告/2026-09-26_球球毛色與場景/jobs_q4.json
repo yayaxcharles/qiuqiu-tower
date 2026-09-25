@@ -1,0 +1,34 @@
+{
+  "event_moving_rat_r0": {
+    "hero": "ninja",
+    "why": "驗收退回：球球半瞇眼、嘴角上揚一臉得意，舉著金鈴鐺欣賞；現行結果文字是「老鼠閉著眼睛往行囊裡一摸，拿走一件……球球伸手想攔，已經來不及了……說好不挑的……那件你要好好用喵」，情緒相反，也沒有伸手想攔。",
+    "scene": "SETTING: EXACTLY the same place and rat as reference image 3: the same wide grey stone steps on a small patch of stone floor, the same big brown rat with pink ears and a long pink tail and his huge patched burlap bundle (frying pan, green mat, yellow gourd) on his back, sitting on the step, with his few belongings (a small rolled scroll, a little cloth sack, a few gold coins) beside him on the step. The trade has JUST happened. The rat sits on the step with BOTH EYES CLOSED and a small content smile, and holds up in one closed paw, by its red cord, the ONE relic he took out of Qiuqiu's pack: a small green jade charm dangling from the red cord in his paw. Qiuqiu stands on the floor in front of the steps, a short distance from the rat, turned toward him. He reached out to stop the rat but was too late: his arm nearer the rat is stretched out toward the green jade charm, the paw OPEN with all its fingers spread (NOT a pointing finger), frozen in mid-air, with a clear gap between his paw and the charm - he does NOT touch it. His other paw is held against his chest and firmly cradles the TWO relics he got in exchange: a small golden bell charm and a small blue crystal amulet, both sitting inside that paw. His face is rueful and resigned, NOT pleased and NOT smug: BOTH ears drooping down and flattened out to the sides, clearly lower than usual, eyebrows raised at the inner ends (sad, worried eyebrows), both eyes open and looking at the jade charm, a small wry lopsided smile, and one sweat drop on the side of his head. The flap of the small brown travel pouch at his black sash hangs open. QIUQIU'S FUR is the warm, slightly pinkish PALE CREAM of reference image 1 with soft grey-brown stripes - NOT cool grey, NOT grey-and-white.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_moving_rat_r0.webp",
+        "the PREVIOUS version of this same picture: copy its stone steps, the rat exactly (his look, his patched bundle, sitting on the step with both eyes closed and a content smile, holding the green jade charm on its red cord), his belongings on the step, the look of the golden bell charm and the blue crystal amulet, and Qiuqiu's pale cream fur colour. Its mistake, which must NOT be repeated: Qiuqiu holds up the golden bell and admires it with a smug, pleased half-closed-eye smile - in the new picture he reaches toward the jade charm too late and looks rueful."
+      ],
+      [
+        "../../tools/motion-art-source/regen0926/_old/event_moving_rat_r0.webp",
+        "an OLD draft of this same moment: copy ONLY the small ninja cat's reaching gesture and worried look (arm stretched out toward the rat, open paw, a sweat drop). Do NOT copy his cool grey fur - it is WRONG, his fur must be the pale cream of reference image 1. Do NOT copy this standing rat either - the rat sits on the step as in reference image 3."
+      ]
+    ]
+  },
+  "event_heavy_door_r2": {
+    "hero": "ninja",
+    "why": "同事件主圖與新 r0 的寶箱是刻魔物臉的款式，這張是爪印圖案、裝滿金幣寶石，並排看得出不是同一個寶箱；畫的是劈門閂那一瞬間，沒畫到現行文字的重點（石門盪回來撞到肩膀、球球揉肩、「原來不用推的……早知道喵」）。",
+    "scene": "SETTING: the SAME massive grey stone door as in reference image 3 (a grey stone slab with iron studs and a round iron ring handle, in a thick frame of big grey stone blocks, on a small patch of grey stone floor), seen at the same angle. The door is now UNLATCHED and stands partly open, leaving a wide opening, and the viewer sees into the small room behind it, lit with warm golden light. Inside the room, at the back on its floor, stands the SAME wooden treasure chest as in reference image 4: bound with iron bands, its front carved with a fierce MONSTER-FACE emblem (NOT a paw print), its lid CLOSED, a soft golden glow around it; no coins or gems spilling out. The small woven basket of dried fish sits on the floor just inside the doorway. On the floor at the threshold lies the door's wooden latch bar - a thick brown wooden beam with dark iron bands at both ends - SNAPPED IN TWO: two separate pieces with jagged splintered broken ends, a few wood splinters around them. Qiuqiu stands right at the opening, in front of it, his whole body clearly visible (not hidden behind the door or the frame), about to walk in. The heavy door slab has just swung back and its edge has bumped his shoulder: the door edge touches his SHOULDER (not his head), with a few short comic impact lines and one tiny yellow star at that shoulder. The impact lines and the star sit at shoulder height, clearly BELOW his head. He rubs that bumped shoulder: his OTHER arm crosses in front of his chest and that paw lies open and flat ON TOP of the bumped shoulder (the shoulder nearer the door), rubbing it - not a fist, not a fighting pose. His free arm hangs relaxed at his side; he is not in a fighting stance, just standing a little hunched. His navy headband keeps its two long tails, clearly visible, fluttering out from the knot behind his head. His face is sheepish and rueful, as if thinking 'it didn't need pushing at all... I should have known': an embarrassed crooked little smile with the mouth closed (NOT gritted teeth, NOT crying), eyebrows raised at the inner ends, one sweat drop, both eyes open and matching. His sleeve is NOT torn and no fur is rubbed off. He stands in the warm light, not in shadow. QIUQIU'S FUR is the warm, slightly pinkish PALE CREAM of reference image 1 with soft grey-brown stripes - NOT cool grey, NOT grey-and-white.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_heavy_door.webp",
+        "the main picture of this same event: copy the heavy grey stone door with its iron studs and round iron ring handle, its stone-block frame, the grey stone floor and the small woven fish basket, and Qiuqiu's pale cream fur colour. Do NOT copy Qiuqiu's pose."
+      ],
+      [
+        "bg/event_heavy_door_r0.webp",
+        "another picture of this same event, with the door open: copy the look of the room behind the door (warm golden light) and the wooden treasure chest bound with iron bands and carved with the fierce MONSTER-FACE emblem - this is the chest to draw. Do NOT copy Qiuqiu's kneeling pose, his torn sleeve or the open lid."
+      ]
+    ]
+  }
+}

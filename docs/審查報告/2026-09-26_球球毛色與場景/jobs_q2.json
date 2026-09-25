@@ -1,0 +1,92 @@
+{
+  "event_old_well": {
+    "hero": "ninja",
+    "why": "球球畫成冷灰色、深灰條紋、白臉（井裡倒影也是灰的）；木牌是空白板，看不出是許願牌；沒有天井地面。",
+    "scene": "SETTING: a small patch of grey flagstone floor in an open courtyard inside the tower. In the middle stands an OLD ROUND STONE WELL: a low, thick ring wall of rounded grey-brown stone blocks (two courses high), filled almost to the top with still, dark teal water. Right beside the well on its right, a WOODEN SIGN on a single wooden post is planted in the floor; its board shows a simple painted picture of a small dried fish dropping toward a wavy water line, with a tiny sparkle (pictures only, no letters). Qiuqiu has just walked up to the well: he stands on the floor on the FAR side of the well, facing the viewer, leaning forward with both front paws resting on the stone rim, peeking curiously down into the water - round curious eyes, mouth closed in a small smile. The calm water mirrors his peeking face: the reflection shows the same Qiuqiu face with the navy headband. Draw the reflection almost like a clear mirror: the reflected Qiuqiu has exactly the same warm pale cream-pink fur, pink inner ears and grey-brown stripes as the real Qiuqiu above it, in full warm colour - only a few thin light-blue shine lines across it show that it is water. Do NOT tint the reflection grey, blue or teal.",
+    "style": "bg/event_grindstone.webp"
+  },
+  "event_old_well_r0": {
+    "hero": "ninja",
+    "why": "球球冷灰色；吐舌頭的表情對不上「希望這趟能順利找到師父喵」的許願心情；要跟新主圖同一口井、同一塊木牌。",
+    "scene": "The SAME courtyard floor patch, the SAME round stone well and the SAME wooden sign as in reference image 3 - copy them exactly. Several small golden-brown DRIED fish (stiff dried sardines, the same colour as dried fish snacks - not live grey fish) are sinking into the water in the middle of the well, with rings of ripples spreading across the surface around them and a couple of tiny splash drops. The ripples break up the surface, so the water shows NO reflection of Qiuqiu at all - only dark teal water, ripple rings and the sinking fish. Qiuqiu kneels on the floor on the FAR side of the well, facing the viewer, and leans his upper body forward over the stone rim: his chin rests on his crossed front paws on top of the rim, and he gazes down into the rippling water for a long while. Gentle, wistful, hopeful face: soft half-lidded eyes looking down, a small closed smile, a faint blush - he is quietly making a wish. No tongue out.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_old_well.webp",
+        "the main picture of this same event: copy its courtyard floor patch, the round stone well and the wooden sign exactly (same stones, same water colour, same sign board and the same painted fish on it). Take the setting only, not Qiuqiu's pose."
+      ]
+    ]
+  },
+  "event_old_well_r1": {
+    "hero": "ninja",
+    "why": "球球冷灰色；文字是對著倒影練招、看自己抬爪轉身（右肩抬太高），舊圖只是趴在井邊看水，沒有練招。",
+    "scene": "The SAME courtyard floor patch, the SAME round stone well and the SAME wooden sign as in reference image 3 - copy them exactly. The water is perfectly calm, clear and smooth like a polished mirror. Qiuqiu stands on the floor right beside the well on its LEFT side, practising a ninja strike while watching himself in the water: his body is half-turned in the middle of a spin, his RIGHT paw raised in a claw strike above his head with his right shoulder hunched up a little too high, his left paw pulled back at his side, feet planted apart. His head leans over the rim and he looks DOWN at his reflection with a serious, self-critical face: one eyebrow lowered, mouth a small flat line, checking his form. In the calm water, his reflection shows the same Qiuqiu in the same pose (the raised paw and the hunched right shoulder visible), with the same navy headband. Draw the reflection almost like a clear mirror: the reflected Qiuqiu has exactly the same warm pale cream-pink fur, pink inner ears and grey-brown stripes as the real Qiuqiu above it, in full warm colour - only a few thin light-blue shine lines across it show that it is water. Do NOT tint the reflection grey, blue or teal.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_old_well.webp",
+        "the main picture of this same event: copy its courtyard floor patch, the round stone well and the wooden sign exactly (same stones, same water colour, same sign board and the same painted fish on it). Also copy how its reflection is drawn: the reflected cat keeps warm cream-pink fur and pink ears, with only a few light shine lines over it. Take the setting only, not Qiuqiu's pose."
+      ]
+    ]
+  },
+  "event_broken_shrine": {
+    "hero": "ninja",
+    "why": "球球冷灰色；主文寫「翻倒的供盤」「神像的眼睛在暗處泛著微光」，舊圖沒有供盤、神像眼睛也沒亮；供盤要跟 r2 那個刻爪印的小木盤同一個。",
+    "scene": "SETTING: the SAME dim corner as in reference image 3, copied exactly: a low wall of rough grey stone blocks, and against it the small wooden cat shrine (dark tiled roof, thick straw rope with white zigzag paper streamers hanging under it) that has TOPPLED over and leans broken to the left, one post snapped. The stone CAT-GOD STATUE lies on the floor in front of it, broken into TWO pieces lying apart: the head piece (a stone cat head with ears) and the body piece (a sitting stone cat body with a curled tail). The statue's eyes glow with a faint soft golden light in the shadow. Beside them, the SAME little wooden offering tray with a carved paw print on its front lies tipped over on its side, and a big handful of dried fish is spilled across the floor around it. Qiuqiu has just found it: he crouches on the floor to the right of the shrine, leaning in cautiously toward the broken statue, one paw curled softly in front of his chest (a closed paw, no pointing finger), eyes wide and worried, mouth a small round 'o'. He touches nothing yet.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_broken_shrine_r2.webp",
+        "another picture of this same event, with the correct colours: copy its stone wall, the toppled wooden shrine with the rope and paper streamers, the two stone statue pieces, the little wooden offering tray with the carved paw print, and the dried fish. Take only the setting and props from it - not Qiuqiu's pose, and not the purple mist (there is no purple mist in this picture)."
+      ]
+    ]
+  },
+  "event_broken_shrine_r0": {
+    "hero": "ninja",
+    "why": "球球冷灰色；文字是「扶起神龕，把兩截神像拼好」，舊圖神龕還是歪的、神像還斷成兩截，只是發光；也沒畫出「暖意從爪尖傳到身上、深吸一口氣」。",
+    "scene": "SETTING: the SAME corner as in reference image 3 (the same rough grey stone-block wall, the same small wooden cat shrine with its dark tiled roof, thick straw rope and white zigzag paper streamers, the same stone cat-god statue, the same little wooden offering tray with a carved paw print, the same dried fish) - but now REPAIRED: Qiuqiu has set the shrine back UPRIGHT, standing straight against the wall, its snapped post propped up straight. Right in front of the shrine's opening, the stone cat-god statue SITS UPRIGHT again as ONE statue, its two broken pieces fitted back together - a clearly visible dark crack line runs all the way around its neck where the head piece joins the body (no collar, no bell, no rope on the statue). The statue glows with warm golden light and its eyes shine gold. Qiuqiu stands upright and relaxed on the floor right beside the statue on its right - NOT a fighting stance, feet close together. His RIGHT paw is laid gently and flat on top of the statue's head; a soft warm golden glow with a few tiny sparkles spreads from the statue into his paw tips and softly around his arm and body (a gentle glow, NOT lightning, NOT a zig-zag beam). His LEFT paw rests open on his own chest, which is puffed out as he takes a deep, easy breath; eyes wide and shining with pleasant surprise, a small happy open mouth. The tipped-over offering tray and the spilled dried fish still lie on the floor in front.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_broken_shrine_r2.webp",
+        "another picture of this same event, with the correct colours: copy its stone wall, the wooden shrine (roof, rope, paper streamers), the stone cat statue's look, the little wooden offering tray with the carved paw print and the dried fish. Take only the setting and props - in THIS picture the shrine stands upright and the statue is put back together as one piece; no purple mist."
+      ]
+    ]
+  },
+  "event_broken_shrine_r1": {
+    "hero": "ninja",
+    "why": "球球冷灰色；構圖大致對（抱魚乾要走、冷氣鑽進胸口），但供盤不見了、呼吸亂的樣子不明顯；場景要對齊 r2。",
+    "scene": "SETTING: the SAME corner as in reference image 3, still broken: the toppled wooden shrine leaning to the left against the rough grey stone-block wall (dark tiled roof, straw rope, white zigzag paper streamers), and the stone cat-god statue lying on the floor in TWO pieces (the head piece and the body piece), its eyes glowing. The same little wooden offering tray with the carved paw print lies tipped over on its side and EMPTY - Qiuqiu has taken all the dried fish. Qiuqiu hugs a big armful of dried fish against his chest with both arms; he was walking away to the right but has stopped short in mid-step and looks back over his shoulder at the statue. A thin wisp of pale icy-blue cold mist curls out of the statue's glowing eyes, snakes through the air and sinks into the middle of Qiuqiu's chest. His face is alarmed: eyes wide, eyebrows raised, mouth open gasping for breath, a sweat drop, two small white puffs of breath at his mouth, small shiver lines beside his body.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_broken_shrine_r2.webp",
+        "another picture of this same event, with the correct colours: copy its stone wall, the toppled wooden shrine with the rope and paper streamers, the two stone statue pieces, the little wooden offering tray with the carved paw print, and the dried fish. Take only the setting and props - not Qiuqiu's pose, and not the purple mist (in this picture the mist is pale icy blue)."
+      ]
+    ]
+  },
+  "event_lost_scroll_r0": {
+    "hero": "ninja",
+    "why": "球球冷灰色、白臉；卷軸斜躺在台階上、圖解朝觀眾，球球站在旁邊側看，卷軸對他是歪的（READING 規則）；也看不出「攤開、一段一段比對」。",
+    "scene": "SETTING: the SAME stone steps and the SAME scroll as in reference image 3, copied exactly: a few wide dark-grey stone steps, and the long cream paper scroll with dark wooden roller ends, its paper covered with faint scribbly brown brush marks (abstract strokes, no readable letters) and THREE big simple ink diagrams of two cat paws making ninja hand seals in a row (1: two paws pressed flat together, 2: two paws clasped with the fingers interlocked, 3: two paws with the fingertips touching in a point). Qiuqiu has spread the scroll out: it lies UNROLLED FLAT and horizontal on the flat stone landing at the foot of the steps. Qiuqiu kneels BETWEEN the viewer and the scroll: the scroll lies just behind him (farther from the viewer than he is), and he faces AWAY from the viewer toward the scroll and the steps, his back turned three-quarters toward the viewer and his head turned so his face is seen in profile, looking DOWN at the paper. He kneels in front of the LEFT end section of the scroll, which holds only faint brush scribbles; the three hand-seal diagrams sit on the middle and right part of the scroll, to the right of him and FULLY visible - his body hides none of them. The top edge of the scroll points AWAY from him (toward the steps), so he sees the diagrams the right way up, and so does the viewer. He leans over the scroll comparing: his eyes are on the FIRST diagram, and his two front paws are pressed flat together in front of his chest, copying exactly the hand seal of that first diagram. Focused face, eyebrows slightly knitted.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_lost_scroll.webp",
+        "the main picture of this same event, with the correct colours: copy its stone steps and the scroll exactly (the same cream paper, wooden roller ends, faint brush scribbles and the three hand-seal diagrams). Take only the steps and the scroll - not Qiuqiu's pose, and no bookstall or shopkeeper in this picture."
+      ]
+    ]
+  },
+  "event_mirror_hall": {
+    "hero": "ninja",
+    "why": "球球與鏡中倒影都是冷灰色；主文的重點「其中一面鏡子裡的球球先擺出迎戰架勢」沒畫出來——舊圖四面鏡子的倒影全都只是皺眉站著，跟本人一模一樣。",
+    "scene": "SETTING: a small patch of grey flagstone corridor floor lined on BOTH sides with tall standing mirrors in dark wooden frames with small gold ornaments on top, two mirrors on the left and two on the right, angled in toward the middle - the layout of reference image 3. Qiuqiu stands in the middle of the corridor, his head just lifted, and looks sideways at the nearest mirror on the RIGHT with a startled face: eyes wide, a sweat drop, two small yellow surprise lines beside his head. His paws hang at his sides. In the other three mirrors, his reflections copy him exactly: Qiuqiu standing with his head lifted. But in the nearest mirror on the right, the reflection does NOT copy him: the reflected Qiuqiu has already dropped into a ninja fighting stance - knees bent, one paw thrust forward in a claw strike, the other pulled back at his side - with a sly, challenging grin and narrowed eyes. Every cat in every mirror is Qiuqiu himself, seen through the glass inside the frames, with the same pale cream fur, grey-brown stripes, navy headband and navy gi as him - NOT orange, NOT grey.",
+    "style": "bg/event_medicine_cat.webp",
+    "refs": [
+      [
+        "bg/event_fengfeng_mirror_hall.webp",
+        "the same event drawn for a DIFFERENT hero: copy only the corridor layout - the tall dark-wood mirrors with gold ornaments angled in on both sides and the stone floor patch - and the idea that one reflection takes a fighting stance. The orange cat with the red scarf and sword in it must NOT appear anywhere; every cat in this picture, and in its mirrors, is Qiuqiu."
+      ]
+    ]
+  }
+}
