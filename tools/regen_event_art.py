@@ -22,6 +22,7 @@
     python tools/regen_event_art.py pick <名> <第幾次> [--force]   # 裁、縮、覆蓋 public/assets/bg/<名>.webp（舊圖先備份）
     python tools/regen_event_art.py sheet <輸出.png> [名...]       # 每列：舊圖｜每一次重生（聯絡表）
 每一次生圖都存成 `<名>.try<N>.png`（不覆蓋），提示詞記在 `prompts.json`、選定紀錄在 `picks.json`。
+第二輪以後在指令前加 `REGEN_ROUND=0925`（工單在 `docs/審查報告/2026-09-25_事件圖重審/`，暫存在 `regen0925/`）。
 清單鍵與檔名都沒變（同名覆蓋），不用登記素材清單；建置時檔名雜湊會跟著內容換。
 """
 from __future__ import annotations
@@ -46,7 +47,11 @@ import gen_content_batch1_art as c1  # noqa: E402
 from gen_rest_art import LOOK, idle_frame, on_white  # noqa: E402
 
 ROOT = c1.ROOT
-SOURCE = ROOT / 'tools/motion-art-source/regen0924'
+# 第幾輪（`REGEN_ROUND=0925`）：0924＝第一次全面重審；0925＝書信畫拿反、泡澡穿衣那一輪。每輪的生圖暫存、舊圖備份、
+# 工單、挑定紀錄各自一份——後一輪重畫前一輪挑過的圖時，備份到的才是「前一輪挑定、線上正在用的那張」。
+ROUND = os.environ.get('REGEN_ROUND', '0924')
+ROUND_DOCS = {'0924': '2026-09-24_事件圖重生', '0925': '2026-09-25_事件圖重審'}
+SOURCE = ROOT / f'tools/motion-art-source/regen{ROUND}'
 REF = SOURCE / '_ref'
 OLD = SOURCE / '_old'
 # 幾組同時做（`REGEN_GROUP=g1` …）：工單、提示詞紀錄、選定紀錄各組一份，才不會兩個行程同時改同一個 json 互蓋。
@@ -54,7 +59,7 @@ OLD = SOURCE / '_old'
 _SUFFIX = f'_{os.environ["REGEN_GROUP"]}' if os.environ.get('REGEN_GROUP') else ''
 PROMPTS = SOURCE / f'prompts{_SUFFIX}.json'
 PICKS = SOURCE / f'picks{_SUFFIX}.json'
-JOBS = ROOT / f'docs/審查報告/2026-09-24_事件圖重生/jobs{_SUFFIX}.json'
+JOBS = ROOT / f'docs/審查報告/{ROUND_DOCS[ROUND]}/jobs{_SUFFIX}.json'
 ASSETS = ROOT / 'public/assets'
 BG = c1.BG
 
@@ -68,6 +73,13 @@ CAST = (
     'CAST - every character named in the SCENE is clearly visible, whole and recognisable (not cropped, not hidden '
     'behind a prop, not shrunk to a speck). If the scene says someone is sitting beside the hero, draw them sitting '
     'right beside the hero.\n'
+)
+# 2026-09-25 第二輪重審：秘笈、念信、蠟筆畫、欠條、舊紙，AI 幾乎都把有內容那面轉向觀眾、角色看背面（兩隻 10 張）
+READING = (
+    'READING - when a character reads, studies or reads aloud a book, scroll, letter, drawing or note: if they HOLD '
+    'it up, its written or drawn side faces the character\'s OWN eyes, so the viewer only sees the plain back of the '
+    'sheet or the book cover; if it lies flat on the floor or across their knees, it is turned so the character reads '
+    'it the right way up (its top edge points away from the character). The character\'s eyes look at the page.\n'
 )
 NONE_HEAD = (
     'Create one new EVENT ILLUSTRATION for a cute cat-ninja card game. It is a cut-out vignette: only the '
@@ -96,7 +108,8 @@ def hero_of(name: str, job: dict) -> str:
 def ref_png(rel: str, box: tuple[int, int] = (1024, 768)) -> Path:
     """`public/assets` 底下的相對路徑 → 鋪白底的參考圖（快取在 _ref）。"""
     out = REF / (rel.replace('/', '__').rsplit('.', 1)[0] + '.png')
-    if not out.exists():
+    # 來源圖比快取新（同一輪剛挑定換掉的圖）就重做，否則會把換掉前的錯圖當參考（2026-09-25 d3 組查出）
+    if not out.exists() or out.stat().st_mtime < (ASSETS / rel).stat().st_mtime:
         REF.mkdir(parents=True, exist_ok=True)
         c1.white(Image.open(ASSETS / rel), box).save(out)
     return out
@@ -128,7 +141,7 @@ def prompt_for(name: str) -> str:
         # 這張的文字要卸下裝備（護臂放桌上、劍放窩邊）：原本「永遠穿在身上」那段整段換掉，不然兩句打架、
         # 模型會照規則畫回身上（2026-09-24 第一組工人查出：澡堂、書庫、貓薄荷田的舊圖都錯在這）
         rules = re.sub(r'WORN GEAR:[^\n]*\n', f'GEAR IN THIS SCENE: {job["gear_off"]}\n', rules, count=1)
-    return head + extra + f'SCENE: {job["scene"]}\n' + PHYSICS + CAST + tail + rules
+    return head + extra + f'SCENE: {job["scene"]}\n' + PHYSICS + CAST + READING + tail + rules
 
 
 def refs() -> None:

@@ -1,0 +1,158 @@
+{
+  "event_feifei_pouch_r0": {
+    "hero": "feifei",
+    "why": "同一個「破針袋」三張長得不一樣：主圖是麻布色束口袋（紫色束繩、側面破口探出毒針），這張畫成棕色皮革長筒。以主圖為準統一；文字是用布條封住破口、試取針角度、把袋子繫回腰邊，傷口留著沒處理。",
+    "scene": "SETTING on a small patch of grey flagstone floor. Feifei sits on the floor with her legs folded. Her NEEDLE POUCH is the SAME bag as in reference image 3: a small tan burlap (sackcloth) drawstring bag with a purple drawstring cord. Its torn hole on the side is now patched: one clean white cloth strip is wrapped tightly around the bag over the hole and tied in a small knot. The patched bag is tied back onto her belt at her LEFT hip, hanging by its purple drawstring. With her RIGHT paw she carefully draws ONE thin needle out of the bag's mouth at a slanted angle, the needle pinched firmly between her fingers, testing how to take a needle out without catching the patch. Her LEFT forearm still wears an old, grubby bandage with a small red stain seeping through it (the wound she left for later). Focused, careful face, eyes on the needle, a faint relieved look. No other bags, no leather tube, no loose needle tubes on the floor.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_pouch.webp", "the main picture of this same event: copy the NEEDLE POUCH exactly - the small tan burlap drawstring bag with the purple drawstring cord - and the thin needles with green poison tips. Take only the bag and the needles, not Feifei's pose, not the cabinet."]
+    ]
+  },
+  "event_feifei_pouch_r1": {
+    "hero": "feifei",
+    "why": "同一個「破針袋」三張長得不一樣：主圖是麻布色束口袋（紫色束繩、側面破口探出毒針），這張畫成洋紫色布袋、看不到破口。以主圖為準統一；包紮傷口的動作是對的，保留。",
+    "scene": "SETTING on a small patch of grey flagstone floor. Feifei sits on the floor, wrapping a clean white cloth strip around her own injured LEFT forearm: her RIGHT paw winds the strip around the forearm and she holds the loose end of the strip in her teeth to pull it tight - the same action as in reference image 4. A little red on the old wound shows under the first turn of cloth. The torn NEEDLE POUCH lies on the floor a short distance away from her, set aside on purpose where her paws will not touch it: it is the SAME bag as in reference image 3 - a small tan burlap (sackcloth) drawstring bag with a purple drawstring cord - lying on its side with the torn hole clearly visible, three thin needle tips with green poison poking out of the hole. The pouch is NOT purple cloth, NOT leather. No needles scattered on the floor. Careful, slightly wincing face.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_pouch.webp", "the main picture of this same event: copy the NEEDLE POUCH exactly - the small tan burlap drawstring bag with the purple drawstring cord, torn open on one side with poisoned needle tips poking out. Take only the bag and the needles, not Feifei's pose, not the cabinet."],
+      ["bg/event_feifei_pouch_r1.webp", "the PREVIOUS version of this same picture: copy Feifei's sitting pose - binding her forearm with the white cloth strip, the strip's end held in her teeth. Its mistake, which must NOT be repeated: the pouch on the floor is a purple cloth bag with no tear - it must be the torn tan burlap bag of reference image 3."]
+    ]
+  },
+  "event_feifei_noisy_kitchen": {
+    "hero": "feifei",
+    "why": "主文是灶邊放著一盒供人取用的備用忍具、蒸氣把鍋蓋頂得直跳、灶邊貼著紙條；舊主圖找不到盒子（到 r1 才出現），大鍋沒有鍋蓋，菲菲還雙爪扶著滾燙的鍋。",
+    "scene": "SETTING: the SAME kitchen corner as in reference image 3 (props standing on the ground, no floor patch drawn, as in that picture): the small black portable stove with its blue flame and brass knob, the big dark iron soup pot on it full of bubbling stew, the wooden cutting board with a mushroom, a carrot and chopped carrot cubes, the cream clay jar holding a wooden spoon and chopsticks, and the small wooden bowl of green herbs. The pot has a round dark iron LID: the steam is pushing it up, so the lid jumps above the rim, tilted, with puffs of white steam bursting out from under it and small motion lines around it (it is clattering). A small paper note is propped upright against the side of the stove; it shows only a simple ink drawing of a steaming bowl (a picture, no writing). Right in front of the stove sits the SPARE NINJA-TOOL BOX of reference image 3, copied exactly: the dark wooden box with its lid open, three simple icons carved on its front (a throwing star, a kunai, a ring), holding a coiled rope, round black bombs, a small rolled scroll and a little pouch. Feifei stands on the other side of the cutting board, a step away from the stove, NOT touching the hot pot: both paws raised in front of her chest in surprise, ears perked, eyes wide, looking at the jumping lid.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_noisy_kitchen_r1.webp", "the kitchen of this same event to copy: the black portable stove, the iron soup pot, the cutting board with vegetables, the clay jar with spoon and chopsticks, the herb bowl, and above all the SPARE NINJA-TOOL BOX (the dark wooden box with the carved star, kunai and ring icons, holding rope, black bombs and a scroll). Copy the box exactly. Do NOT copy Feifei's pose - in the new picture she holds nothing."]
+    ]
+  },
+  "event_feifei_noisy_kitchen_r3": {
+    "hero": "feifei",
+    "why": "同事件的「備用品盒」不一致：主文與 r1 是深色木盒（正面刻手裡劍、苦無、圓環圖示，裝繩子、黑色炸彈、卷軸），這張是另一個裝紅色藥瓶的掀蓋小寶箱，菲菲寫的用法紙條丟在地上。坐著吃燉肉的動作是對的，保留。",
+    "scene": "SETTING: the SAME kitchen corner as in reference image 3 (props standing on the ground, no floor patch drawn): the small black portable stove with its blue flame and brass knob, the big dark iron soup pot full of stew with steam rising (its round iron lid now resting tilted on the rim), the small paper note with the ink drawing of a steaming bowl propped against the stove, the wooden cutting board with a mushroom and carrot, the cream clay jar with a wooden spoon and chopsticks, and the small herb bowl. Right beside Feifei sits the SAME SPARE NINJA-TOOL BOX as in reference image 3, copied exactly: the dark wooden box with its lid open, the carved throwing star, kunai and ring icons on its front, holding a coiled rope, round black bombs and a small rolled scroll. On top of the things inside lies one small iron grappling hook that Feifei has just put in, with a small folded paper note tied to it; the note shows only a tiny simple ink drawing of the hook being thrown (a picture, no writing). There is NO treasure chest, NO potion bottle, NO paw-print paper on the floor. Feifei sits on the floor beside the box, happily eating: she holds a wooden bowl of stew in one paw (the bowl sits in her paw) and with a wooden spoon in her other paw lifts a big soft chunk of stewed meat to her mouth. Both eyes closed happily the same way, a contented face.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_feifei_noisy_kitchen.try3.png", "the main picture of this same event: copy its kitchen EXACTLY - the black portable stove, the iron soup pot and its lid, the note with the bowl drawing, the cutting board, the clay jar, the herb bowl, and above all the SPARE NINJA-TOOL BOX (dark wooden box, carved star, kunai and ring icons, rope, black bombs, scroll). Do NOT copy Feifei's pose."],
+      ["bg/event_feifei_noisy_kitchen_r3.webp", "the PREVIOUS version of this same picture: copy Feifei's pose - sitting on the floor by the stove, eating stew from a wooden bowl with a spoon, eyes happily closed. Its mistake, which must NOT be repeated: the box beside her is a small treasure chest holding a red potion bottle, with a paw-print note on the floor - it must be the ninja-tool box of reference image 3 instead."]
+    ]
+  },
+  "event_feifei_medicine_cat": {
+    "hero": "feifei",
+    "why": "主文是三花貓的攤子一邊放混裝的忍具、一邊排著祖傳補身藥，還沒買；舊主圖攤上只有四瓶藥水，菲菲已經拿著一瓶藥水在挑（先畫出了 r1 的結果）。",
+    "scene": "SETTING: the SAME wooden market stall as in reference image 3: a wooden plank counter with a red cloth banner hanging down its front. Behind the counter stands the CALICO CAT MERCHANT of reference image 3, copied exactly (white, orange and dark-brown patches, cream shirt, red neckerchief, brown apron straps, a happy closed-eye smile). On the LEFT half of the counter stands the same small open wooden crate as in reference image 3, heaped with an assorted jumble of ninja tools: a few silver throwing stars, two small kunai, a round black smoke bomb and a coil of rope. On the RIGHT half of the counter stands a row of small corked glass bottles of coloured tonic medicine (red, blue, green, orange). The calico cat spreads both paws: one paw gestures toward the crate of ninja tools, the other toward the medicine bottles, inviting Feifei to choose one side. Feifei stands in front of the stall on the right, her paws EMPTY: one paw raised to her chin, thinking, her eyes going between the two sides, undecided. She holds NO bottle and NO tool; nothing has been bought yet.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_medicine_cat_r0.webp", "the stall and the calico cat merchant of this same event to copy exactly: the wooden counter with the red banner, the small open wooden crate, the tonic bottles, and the calico cat's face, patches and clothes. Take the stall and the calico cat, not Feifei's pose - in the new picture she holds nothing."]
+    ]
+  },
+  "event_feifei_gambling_rats": {
+    "hero": "feifei",
+    "why": "文字是幾隻老鼠圍著矮桌蹲在角落、桌上倒扣著一個碗；舊主圖的碗倒扣在地上、沒有矮桌，跟 r0 的矮桌也不一致。",
+    "scene": "SETTING: a small patch of floor. In the middle stands the SAME low round wooden table as in reference image 3 (a round wooden top on short stubby legs). On the table top lies the SAME cream bowl with a blue stripe as in reference image 3, turned UPSIDE DOWN, its rim resting flat on the table - covering something. A small pile of dried fish lies on the table beside the upturned bowl. Three brown MICE exactly like in reference image 3 (brown fur, big round pink ears, pink tails) crouch around the low table, and all look toward Feifei, grinning slyly and eagerly beckoning her over with their paws. Nobody is lifting the bowl. Feifei stands a step away from the table, wary and hesitant, one paw raised near her chest, looking at the upside-down bowl. She does not touch the table.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_gambling_rats_r0.webp", "the low round wooden table, the cream bowl with the blue stripe, the dried fish and the brown mice of this same event to copy. In the new picture the bowl lies UPSIDE DOWN flat on the table and nobody lifts it. Do NOT copy Feifei's pose."]
+    ]
+  },
+  "event_feifei_old_master_ghost": {
+    "hero": "feifei",
+    "why": "主圖菲菲已經雙手捧著斗笠往上遞給影子，畫成了第三個選項「把師父的斗笠戴到影子頭上」的結果；主圖應該是還沒選：影子坐在樓梯上回頭、只有模糊輪廓，正在出聲指點。",
+    "scene": "SETTING exactly as in reference image 3: the rough brown stone staircase with small tufts of grass, the stone pillar with a lit wall torch at the top right. On the stairs sits the GHOST of the old master exactly as in reference image 3: a big pale glowing light-blue translucent cat figure in a loose robe with a dark sash, faint grey stripes on its arms and tail, blue wisps floating around it. It sits half turned away and looks back over its shoulder toward Feifei; its face is only a BLURRY, featureless glowing outline (no eyes, no mouth). It raises one paw a little, as if giving advice. Feifei stands at the foot of the stairs, looking up at the ghost, startled and moved, both paws drawn up in front of her chest, EMPTY. The master's woven straw hat (a wide conical bamboo hat with a dark chin cord, as in reference image 3) lies on the ground beside her feet, untouched. She does NOT hold the hat and does NOT offer it; the ghost wears no hat.",
+    "style": "bg/event_feifei_wooden_men_alley.webp",
+    "refs": [
+      ["bg/event_feifei_old_master_ghost.webp", "the PREVIOUS, WRONG version of this same picture: copy its staircase, the pillar with the torch, the glowing blue ghost with its blurry featureless face, and the straw hat's look. Its mistake, which must NOT be repeated: Feifei holds the straw hat up in both paws, offering it to the ghost - in the new picture the hat lies on the ground by her feet and her paws are empty."]
+    ]
+  },
+  "event_feifei_shadow_study_r1": {
+    "hero": "feifei",
+    "why": "文字是菲菲縮在門外、一直看到燈芯快燒完，跟著在袖子裡偷偷比劃；天快亮時影子收起竹筒、朝門縫看一眼，就從窗口溜走。舊圖菲菲站在紙門內側的練功房地板上擺出完整出針架勢、針往外飛。",
+    "scene": "SETTING as in reference image 3: the practice room seen from the side, the tall sliding paper door with its dark wooden frame on the LEFT standing open only a narrow gap, the wooden floor inside, the wooden training dummy (a thick wooden post with round wooden arms on a tripod base) with several thin needles all stuck close together in ONE single spot on its trunk, a paper floor lantern whose wick has burned almost out (only a very dim glow), and a small window in the back wall showing the pale pink-and-blue sky of early dawn. Inside the room, the SHADOW of reference image 3 (a dark purple-black smoky silhouette of Feifei with a ponytail and bow, glowing violet eyes, purple smoky wisps) crouches on the window sill about to slip out, holding a small bamboo tube in one paw, and turns its head to look straight back toward the door gap. Feifei is OUTSIDE the room, on the near side of the paper door at the far left, exactly where she is in reference image 3: she crouches small and huddled against the outside of the door frame, peeking in through the narrow gap. In front of her chest her right paw makes a tiny, secret needle-throwing flick half hidden in the cuff of her left sleeve - nothing is thrown, nothing flies. Quiet, amazed face, eyes on the shadow. She is NOT inside the room and NOT in a fighting stance.",
+    "style": "bg/event_feifei_wooden_men_alley.webp",
+    "refs": [
+      ["bg/event_feifei_shadow_study.webp", "the main picture of this same event: copy the practice room (the sliding paper door on the left, the wooden floor, the paper lantern, the wooden training dummy) and the SHADOW's look (dark purple-black smoky Feifei copy with glowing violet eyes). In this picture too, Feifei stays OUTSIDE the door, peeking in through the gap."]
+    ]
+  },
+  "event_feifei_rescue_return_herb": {
+    "hero": "feifei",
+    "why": "「上次救過的村貓」畫成銀灰虎斑白貓；菲菲版「救村貓」（event_feifei_rescue）那隻是橘黃虎斑、白胸口，要畫成同一隻。",
+    "scene": "SETTING as in reference image 4: a stone archway with a dark staircase going down inside it, on a small patch of stone floor. The VILLAGE CAT of reference image 3 - the SAME cat: golden-orange ginger tabby fur with darker orange stripes, a white muzzle, white chest and white paws, pink inner ears, big brown eyes, no clothes - pokes out of the archway, half stepping out from the stairwell. Its leg has healed: it stands firmly on both feet, no bandage, no scratches. Around its waist is a narrow brown belt with a few small knife-sharpening tools tucked in it (a small whetstone, a file). With one paw it holds out a small tied brown cloth bundle toward Feifei; with the other paw it points at the sharpening tools on its belt. Happy, grateful face. Feifei stands facing it, recognising it with a delighted, surprised face, paws empty; she has not taken the bundle yet.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_rescue.webp", "the village cat to draw: this is the SAME cat Feifei rescued earlier - copy its golden-orange ginger tabby fur with darker stripes, white muzzle, white chest and paws, pink ears and face exactly. It is healed now: no bandage, no scratches, standing up. Take only this cat's look, not its pose or the props."],
+      ["bg/event_feifei_rescue_return_herb.webp", "the PREVIOUS version of this same picture: copy its stone archway with the dark staircase, the brown cloth bundle and the village cat's belt of small tools. Its mistake, which must NOT be repeated: the village cat is a silver-grey tabby - it must be the ginger tabby of reference image 3."]
+    ]
+  },
+  "event_feifei_rescue_return_fish": {
+    "hero": "feifei",
+    "why": "「上次救過的村貓」畫成灰褐長毛貓；菲菲版「救村貓」（event_feifei_rescue）那隻是橘黃虎斑、白胸口，要畫成同一隻。",
+    "scene": "SETTING as in reference image 4: a crumbling dark stone-block wall with warm orange-lit edges on a small patch of floor. The VILLAGE CAT of reference image 3 - the SAME cat: golden-orange ginger tabby fur with darker orange stripes, a white muzzle, white chest and white paws, pink inner ears, big brown eyes, no clothes - sits on the floor leaning back against the wall. Its injuries have healed (no bandage) but it is hungry: droopy ears, a couple of tiny wavy lines beside its belly (its stomach rumbling). With both arms it hugs ONE small brown clay medicine jar with a cork, the only thing it has left. An empty, torn paper wrapper with a fish picture on it lies flat on the floor beside it. It looks up at Feifei and still manages a brave little smile. Feifei stands in front of it, looking down at the village cat with a worried face, both paws drawn up in front of her chest.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_rescue.webp", "the village cat to draw: this is the SAME cat Feifei rescued earlier - copy its golden-orange ginger tabby fur with darker stripes, white muzzle, white chest and paws, pink ears and face exactly. It is healed now: no bandage, no scratches. Take only the cat's look, not its pose or the props."],
+      ["bg/event_feifei_rescue_return_fish.webp", "the PREVIOUS version of this same picture: copy its crumbling stone wall, the small brown clay medicine jar, the empty torn fish wrapper and Feifei's worried standing pose. Its mistake, which must NOT be repeated: the village cat is a scruffy grey-brown long-haired cat - it must be the ginger tabby of reference image 3."]
+    ]
+  },
+  "event_feifei_shortcut_scroll": {
+    "hero": "feifei",
+    "why": "文字是卷軸上只有大字「一練就會！」加底下一行小字「後果自負」，其餘沒有說明；舊圖卷軸從上到下寫滿十幾行墨字。",
+    "scene": "SETTING: the SAME brown brick pillar on the same tiny patch of floor as in reference image 3, with the same long paper scroll hanging down its front from a nail at the top, its bottom end curling on the floor. The scroll is almost BLANK: at the very top there is ONE row of four big, bold, fresh black brush strokes (abstract brush marks, not readable letters), with one small wet ink drip running down from them; directly under them ONE short row of small thin brush marks. EVERYTHING below that is empty plain paper - no more rows, no marks, no pictures. Feifei stands beside the lower part of the scroll and pinches the lower corner of the paper between the fingers of one paw, lifting it a little and peering at the empty paper, searching for more instructions and finding none. A tiny smudge of black ink on the tip of that paw (the ink is still wet). Doubtful, puzzled face: one eyebrow raised, mouth a small flat line. Do NOT fill the scroll with rows of writing.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["bg/event_feifei_shortcut_scroll.webp", "the PREVIOUS, WRONG version of this same picture: copy its brown brick pillar and the hanging scroll's size and shape. Its mistake, which must NOT be repeated: the scroll is covered with a dozen rows of ink scribbles from top to bottom - in the new picture only one row of big strokes and one row of small marks at the top, the rest blank. Do NOT copy Feifei's pose."],
+      ["bg/event_dangdang_shortcut_scroll.webp", "how the scroll's writing must look (another hero's version of this same kind of scroll): only one row of big black brush strokes with an ink drip and one short row of small marks at the very top, and the rest of the paper blank. Take ONLY the writing layout on the paper - not the stone wall, not the cat."]
+    ]
+  },
+  "event_feifei_shortcut_scroll_r0": {
+    "hero": "feifei",
+    "why": "跟主圖同一卷：舊圖卷軸從上到下寫滿十幾行墨字，主圖改成只有一行大字加一行小字後，這張要跟著改，否則同一卷前後不一。姿勢（照著練、收勢不對勁、冒汗）是對的，保留。",
+    "scene": "SETTING: the SAME brown brick pillar and the SAME hanging paper scroll as in reference image 3 - copy the scroll exactly: almost blank paper with ONE row of four big bold black brush strokes at the top (abstract marks, not letters) with one small ink drip, ONE short row of small marks under them, and the rest of the paper completely EMPTY. Feifei stands on the floor in front of the scroll, practising: feet in a wide stance, both paws raised in a guard, trying to pull back into her finishing stance - and it goes wrong: her body jerks awkwardly halfway, a small jolt mark by her elbow. Worried face, a sweat drop, her eyes glancing back up at the scroll.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_feifei_shortcut_scroll.try1.png", "the main picture of this same event: copy the brick pillar and the hanging paper scroll EXACTLY - one row of big brush strokes and one row of small marks at the top, the rest blank. Take only the pillar and the scroll, not Feifei's pose."],
+      ["bg/event_feifei_shortcut_scroll_r0.webp", "the PREVIOUS version of this same picture: copy Feifei's wide practice stance, raised paws, sweat drop and worried upward glance. Its only mistake: the scroll is covered with a dozen rows of ink scribbles - the scroll must be the nearly blank one of reference image 3 instead."]
+    ]
+  },
+  "event_feifei_rescue_return_herb_r0": {
+    "hero": "feifei",
+    "why": "同事件連帶改：村貓是銀灰虎斑，要跟新主圖、菲菲版「救村貓」（event_feifei_rescue）那隻橘黃虎斑白胸口同一隻。遞秘寶、連布一起塞過來的動作是對的，保留。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same stone archway with the dark staircase inside, on the same stone floor. The same VILLAGE CAT as in reference image 3 (golden-orange ginger tabby with darker orange stripes, white muzzle, white chest and white paws, pink ears, big brown eyes, the narrow brown belt with small sharpening tools, no clothes, no bandage) stands on both healed feet in front of the archway and hands its gift to Feifei: the brown cloth has been unwrapped, and with both paws the village cat presses a small shining treasure - a round golden charm on a short red cord - together with the opened brown cloth into Feifei's paws. Feifei's paws are closed firmly around the golden charm and the cloth. She looks down at the village cat's healed feet with a relieved, gentle smile.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_feifei_rescue_return_herb.try2.png", "the main picture of this same event: copy the stone archway with the staircase, the village cat's look (ginger tabby, white muzzle and chest, tool belt) and the brown cloth exactly. Take the setting and the looks, not the poses."],
+      ["bg/event_feifei_rescue.webp", "the same village cat back when Feifei first rescued it: confirms its fur colour and face. It is healed now - no bandage, no scratches. Take only its look."],
+      ["bg/event_feifei_rescue_return_herb_r0.webp", "the PREVIOUS version of this same picture: copy the handing-over pose (the village cat and Feifei facing each other, both holding the opened cloth with the golden charm). Its mistake, which must NOT be repeated: the village cat is a silver-grey tabby - it must be the ginger tabby of reference image 3."]
+    ]
+  },
+  "event_feifei_rescue_return_herb_r1": {
+    "hero": "feifei",
+    "why": "同事件連帶改：村貓是銀灰虎斑，要跟新主圖、菲菲版「救村貓」那隻橘黃虎斑白胸口同一隻。村貓指出抬爪角度的構圖是對的，保留。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same stone archway with the dark staircase inside, on the same stone floor. Feifei stands in a forward practice stance, her RIGHT arm stretched out in front of her with the paw raised in a strike, focused, adjusting the angle. The same VILLAGE CAT as in reference image 3 (golden-orange ginger tabby with darker orange stripes, white muzzle, white chest and white paws, pink ears, big brown eyes, tool belt, no clothes, no bandage) stands close beside her, watching carefully, and points one paw at Feifei's raised wrist to show her the angle - pointing, not grabbing her.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_feifei_rescue_return_herb.try2.png", "the main picture of this same event: copy the stone archway with the staircase and the village cat's look (ginger tabby, white muzzle and chest, tool belt) exactly. Take the setting and the looks, not the poses."],
+      ["bg/event_feifei_rescue.webp", "the same village cat back when Feifei first rescued it: confirms its fur colour and face. It is healed now - no bandage, no scratches. Take only its look."],
+      ["bg/event_feifei_rescue_return_herb_r1.webp", "the PREVIOUS version of this same picture: copy Feifei's forward practice stance and the village cat standing right beside her pointing at her raised paw. Its mistake, which must NOT be repeated: the village cat is a silver-grey tabby - it must be the ginger tabby of reference image 3."]
+    ]
+  },
+  "event_feifei_rescue_return_fish_r0": {
+    "hero": "feifei",
+    "why": "同事件連帶改：村貓是灰褐亂毛貓，要跟新主圖、菲菲版「救村貓」那隻橘黃虎斑白胸口同一隻。村貓替菲菲包紮、魚乾袋放在村貓面前的構圖是對的，保留。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same crumbling dark stone-block wall with warm orange-lit edges, on the same small stone floor. The same VILLAGE CAT as in reference image 3 (golden-orange ginger tabby with darker orange stripes, white muzzle, white chest and white paws, pink ears, big brown eyes, no clothes, no bandage) sits against the wall, fed and content now. In front of it on the floor lies the small brown cloth sack of dried fish that Feifei gave it, with a fish picture on the sack. The village cat holds the SAME small brown clay medicine jar as in reference image 3 open in one paw, and with the other paw dabs white ointment onto a scratch on Feifei's forearm, which is already half wrapped in a white bandage. Feifei kneels on the floor facing it, holding out her forearm calmly, her eyes lowered, thinking. On the floor in front of her knees lie three small cards, each showing only one simple red claw-mark picture (no writing), as in reference image 4.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_feifei_rescue_return_fish.try1.png", "the main picture of this same event: copy the crumbling stone wall, the village cat's look (ginger tabby, white muzzle and chest) and the small brown clay medicine jar exactly. Take the setting and the looks, not the poses."],
+      ["bg/event_feifei_rescue_return_fish_r0.webp", "the PREVIOUS version of this same picture: copy its composition - the village cat by the wall dabbing ointment on Feifei's bandaged forearm, Feifei kneeling, the fish sack in front of the cat, and the three claw-mark cards on the floor. Its mistake, which must NOT be repeated: the village cat is a scruffy grey-brown cat - it must be the ginger tabby of reference image 3."]
+    ]
+  },
+  "event_feifei_rescue_return_fish_r1": {
+    "hero": "feifei",
+    "why": "同事件連帶改：坐在階梯上方看菲菲走的村貓畫成瘦小的灰褐亂毛貓，要跟新主圖、菲菲版「救村貓」那隻橘黃虎斑白胸口同一隻。菲菲低頭恍神下樓的構圖是對的，保留。",
+    "scene": "SETTING as in reference image 4: a staircase of big warm-orange-lit stone blocks going down to the right, with a tall dark stone-block wall at the top left. The same VILLAGE CAT as in reference image 3 (golden-orange ginger tabby with darker orange stripes, white muzzle, white chest and white paws, pink ears, big brown eyes, no clothes, no bandage) sits at the top of the stairs beside the wall, quietly watching Feifei leave with sad eyes. Feifei walks down the steps away from it, head bowed, eyes downcast and dazed, not looking back; small wobble lines around the steps and a dizzy squiggle beside her head, as if the stairs are swaying under her feet.",
+    "style": "bg/event_feifei_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_feifei_rescue_return_fish.try1.png", "the village cat of this same event: copy its look exactly (golden-orange ginger tabby, white muzzle, chest and paws, brown eyes). Take only the cat's look, not its pose or the props."],
+      ["bg/event_feifei_rescue_return_fish_r1.webp", "the PREVIOUS version of this same picture: copy the stone staircase, the wall, and Feifei walking down with her head bowed and the dizzy wobble lines. Its mistake, which must NOT be repeated: the cat at the top of the stairs is a small scruffy grey-brown cat - it must be the ginger tabby of reference image 3."]
+    ]
+  }
+}

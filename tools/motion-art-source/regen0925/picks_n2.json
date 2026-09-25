@@ -1,0 +1,146 @@
+{
+  "event_fengfeng_shortcut_scroll": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_shortcut_scroll.webp",
+    "bytes": 36362,
+    "droppedSpecks": 108,
+    "gate": [],
+    "sha256": "e2d2806628c3f964eac91f12a66f9f345359db781faee5378034f8ca874207f1",
+    "at": "2026-09-25 19:50:04"
+  },
+  "event_fengfeng_shortcut_scroll_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_shortcut_scroll_r0.webp",
+    "bytes": 42320,
+    "droppedSpecks": 92,
+    "gate": [],
+    "sha256": "c0936effd741d5a95bd72149566a845d4b4554f0d1ca8a6785284ee63a280a5f",
+    "at": "2026-09-25 20:01:07"
+  },
+  "event_gambling_rats": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_gambling_rats.webp",
+    "bytes": 41696,
+    "droppedSpecks": 291,
+    "gate": [],
+    "sha256": "7e9271d5ee32dfe82b17c44b5918cebf0c3b3852deb92bcfa49455b7b9af05e1",
+    "at": "2026-09-25 19:49:54"
+  },
+  "event_medicine_cat": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_medicine_cat.webp",
+    "bytes": 47420,
+    "droppedSpecks": 88,
+    "gate": [],
+    "sha256": "47c649c85488551de83037abdced2545e7ec668c801b387e5484434d4c275df5",
+    "at": "2026-09-25 19:49:50"
+  },
+  "event_rescue_return_fish": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_rescue_return_fish.webp",
+    "bytes": 45368,
+    "droppedSpecks": 236,
+    "gate": [],
+    "sha256": "5386a8db7728b66c118f674ff2ab125153deaa015440cf6be5ad2365478c18ee",
+    "at": "2026-09-25 19:50:15"
+  },
+  "event_rescue_return_fish_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rescue_return_fish_r0.webp",
+    "bytes": 43408,
+    "droppedSpecks": 177,
+    "gate": [],
+    "sha256": "500621ed082aae543e913e540a8677e020145968cdab4b9d4bf31cbc67957316",
+    "at": "2026-09-25 20:01:26"
+  },
+  "event_rescue_return_fish_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rescue_return_fish_r1.webp",
+    "bytes": 45860,
+    "droppedSpecks": 145,
+    "gate": [],
+    "sha256": "a8697711ee3fe38a11983169394ba8aeec8d73f0470c41a971b6aef697f37f30",
+    "at": "2026-09-25 20:01:30"
+  },
+  "event_rescue_return_herb": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_rescue_return_herb.webp",
+    "bytes": 42092,
+    "droppedSpecks": 206,
+    "gate": [],
+    "sha256": "09b3cde5e9a30d47d6a01cdb5e0e8b02f49dcf3b769d3f04d1174b3ca1a6848d",
+    "at": "2026-09-25 19:50:11"
+  },
+  "event_rescue_return_herb_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_rescue_return_herb_r0.webp",
+    "bytes": 42076,
+    "droppedSpecks": 185,
+    "gate": [],
+    "sha256": "5bf04ad01486e2a818810ee975c139859e9a8ab82f50dbb5b61070783046b4b4",
+    "at": "2026-09-25 20:01:19"
+  },
+  "event_rescue_return_herb_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_rescue_return_herb_r1.webp",
+    "bytes": 42634,
+    "droppedSpecks": 166,
+    "gate": [],
+    "sha256": "ecb20f3a72bce5d7eded5610206be895950ca73ea3f692e22657d19eab03450a",
+    "at": "2026-09-25 20:01:22"
+  },
+  "event_shortcut_scroll": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_shortcut_scroll.webp",
+    "bytes": 40586,
+    "droppedSpecks": 163,
+    "gate": [],
+    "sha256": "9cd4f49bdc7f540303844e5e85a89579fc010db1239d9475049532c39e286f0e",
+    "at": "2026-09-25 19:50:01"
+  },
+  "event_shortcut_scroll_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_shortcut_scroll_r0.webp",
+    "bytes": 42062,
+    "droppedSpecks": 144,
+    "gate": [],
+    "sha256": "0e0d8e2872ba347e1a215ef5150a5fbe21223ccb4813f7f0cab0f8df63bc4306",
+    "at": "2026-09-25 20:01:04"
+  },
+  "event_toll_again_paid": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_toll_again_paid.webp",
+    "bytes": 50456,
+    "droppedSpecks": 174,
+    "gate": [],
+    "sha256": "ab79547f7e20f9231eb29fbbd13d2e8b3c2d17f0ef7a22f6c6a707f3d6ef12f0",
+    "at": "2026-09-25 19:50:08"
+  },
+  "event_toll_again_paid_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_toll_again_paid_r0.webp",
+    "bytes": 50862,
+    "droppedSpecks": 142,
+    "gate": [],
+    "sha256": "fd03dfe27e538d9189ea6878c200c9c5509da7cac6decf3aacec07322194749f",
+    "at": "2026-09-25 20:01:11"
+  },
+  "event_toll_again_paid_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_toll_again_paid_r1.webp",
+    "bytes": 49024,
+    "droppedSpecks": 159,
+    "gate": [],
+    "sha256": "81c14be9f797c46f5e60e7b1c1c4c224465845c3815dc62a99a2b2f6d7aff150",
+    "at": "2026-09-25 20:01:15"
+  },
+  "event_wooden_men_alley_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_wooden_men_alley_r1.webp",
+    "bytes": 47786,
+    "droppedSpecks": 129,
+    "gate": [],
+    "sha256": "704c667a3e610e8aae2a25e4e3eac141eac1c2afbcfd2f8e28b3cfd9f1fa85ed",
+    "at": "2026-09-25 19:49:57"
+  }
+}

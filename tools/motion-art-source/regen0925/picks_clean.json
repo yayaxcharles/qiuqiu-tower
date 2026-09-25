@@ -1,0 +1,18 @@
+{
+  "event_dangdang_medicine_cat_r1": {
+    "attempt": "clean",
+    "how": "d3 組：清掉兩腿之間的綠幕殘留（regen0925/_tmp_d3/clean_green.py）",
+    "file": "public/assets/bg/event_dangdang_medicine_cat_r1.webp",
+    "bytes": 42696,
+    "sha256": "317febee03e14ac7f906ffaa39e595ea8bdef9adf641f4b2d043746c0c4274d5",
+    "at": "2026-09-25 20:07:25"
+  },
+  "event_sleeping_guard": {
+    "attempt": "clean",
+    "how": "n1 組：尾巴根部綠色殘留補成深色陰影（regen0925/_tmp_n1/clean_residue.py）",
+    "file": "public/assets/bg/event_sleeping_guard.webp",
+    "bytes": 23272,
+    "sha256": "62c421ab6d5db5d8ed5ee2062eb35a7b908d5cb15e11db9132eee1600865eefd",
+    "at": "2026-09-25 20:07:25"
+  }
+}

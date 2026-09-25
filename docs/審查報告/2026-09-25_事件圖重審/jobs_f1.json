@@ -1,0 +1,108 @@
+{
+  "event_fengfeng_daxia_chest_r0": {
+    "hero": "fengfeng",
+    "why": "封封把秘笈舉在胸前，畫三隻貓步法圖的內頁正對觀眾，他看的是書背；文字是秘笈攤在膝上、一頁頁看、手指跟著圖裡的腳步比劃。",
+    "scene": "SETTING: the same corner at the foot of the dark wooden staircase as in reference image 3 (dark wooden floorboards, the bottom of the wooden banister) with the SAME old wooden chest bound with dark iron corner plates and a big cat paw print carved on its lid; the lid is thrown wide open and the old iron padlock hangs sprung open from the hasp. Fengfeng sits on the floorboards right beside the open chest with his legs folded, seen from slightly BEHIND in a three-quarter back view, so the viewer looks over his shoulder. A thick old stitched martial-arts manual with a worn brown cover lies OPEN ACROSS HIS LAP, its pages facing up toward his face and turned the right way up for him (the top edge of the book points away from him, into the picture), so the viewer also sees the two open pages over his shoulder the right way up. The pages show three small ink drawings of footwork: a little cat figure in a stance with pairs of small footprint marks and short curved arrows showing where the feet step (pictures only, no writing). His LEFT paw holds the edge of a page, ready to turn it; the tip of his RIGHT paw touches the page and traces one of the footprint marks. His head is bent over the book, face in profile, eyes shining with excitement. His straight jian stays sheathed in the dark-brown scabbard at his waist; red scarf around his neck.",
+    "style": "bg/event_fengfeng_daxia_chest.webp",
+    "refs": [
+      ["bg/event_fengfeng_daxia_chest_r1.webp", "the staircase corner and the iron-bound wooden chest of this same event, to copy exactly (the carved paw print on the lid, the iron corner plates, the sprung padlock, the open lid). Take only the setting and the chest, not Fengfeng's pose and not the things in his paws."]
+    ]
+  },
+  "event_fengfeng_daxia_teach_r0": {
+    "hero": "fengfeng",
+    "why": "秘笈封面和書脊朝觀眾、內頁朝外側，封封站在書的左側斜看，看不到內頁；文字是把秘笈攤開、選一幅圖照著踏步，再用劍鞘試出手的方向。",
+    "scene": "SETTING: the same few worn grey stone steps and small patch of cracked grey stone floor as in reference image 3. The SAME old manual with a dark navy-blue cloth cover as in reference image 3 now lies OPEN and flat on the lowest stone step beside Fengfeng, its pages facing up and turned toward him so he reads them the right way up (the top edge of the book points away from him). The open pages show simple ink drawings of a little cat figure stepping, with small footprint marks and short arrows (pictures only, no writing). Fengfeng stands on the floor next to the open book in a footwork stance copied from the drawing: one foot stepped forward, knees bent. His RIGHT paw firmly grips his SHEATHED straight jian - the sword still inside its dark-brown scabbard, the brass guard and red tassel at the top end - and thrusts the whole sheathed sword forward like a practice stick to test the direction of the strike. His LEFT paw is held back for balance, empty. He glances down at the open book with a focused, serious face. Red scarf around his neck.",
+    "style": "bg/event_fengfeng_daxia_chest.webp",
+    "refs": [
+      ["bg/event_fengfeng_daxia_teach.webp", "the stone steps and the navy-blue manual of this same event, to copy exactly. Take only the steps and the book's cover, not Fengfeng's pose - in the new picture the book lies open on the step instead of being held."]
+    ],
+    "gear_off": "the red scarf stays wrapped around his neck. His sheathed jian (the sword inside its dark-brown scabbard) has been unhooked from his waist sash and is gripped in his right paw, thrust forward like a practice stick - it is NOT hanging at his waist. There is only ONE sword and ONE scabbard in the picture."
+  },
+  "event_fengfeng_pigeon_grandpa_r0": {
+    "hero": "fengfeng",
+    "why": "念信給爺爺：信紙有內容那面（柿子、蝴蝶結）朝觀眾，封封看的是背面。",
+    "scene": "SETTING: the same small attic as in reference image 3 (dark wooden floorboards, sloping wooden roof beams, a round window showing the night moon, a glowing paper lantern with a paw print, stacked old wooden crates and boxes). The OLD GRANDPA CAT from reference image 3 (brown tabby, round wire glasses, bushy white eyebrows, patched olive-green jacket, grey knitted scarf) sits on the floor at the back beside the crates, facing the viewer, both paws resting in his lap, eyes closed, listening quietly with a moved, gentle face. On the floorboards between them lies the unfolded LETTER, smoothed out flat: cream paper with a few wavy crayon lines and two small crayon drawings - two round orange persimmons and a pink ribbon bow (pictures and wavy lines only, no readable letters). Fengfeng sits on the floor in the FOREGROUND on the near side of the letter, seen in a three-quarter back view so the viewer looks over his shoulder: the letter lies right in front of him, turned the right way up for him (its top edge points away from him, toward the grandpa), so the viewer also sees the drawings the right way up. Fengfeng bends his head over the letter, reading it aloud line by line: face in profile, mouth open speaking, the tip of his RIGHT paw resting on the line he is reading, his LEFT paw flat on the corner of the paper. His straight jian stays sheathed at his waist; red scarf around his neck. No pigeon in this picture.",
+    "style": "bg/event_fengfeng_pigeon_grandpa_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_pigeon_grandpa.webp", "the attic setting and the old grandpa cat of this same event, to copy exactly (brown tabby, round wire glasses, bushy white eyebrows, patched olive-green jacket, grey knitted scarf). Take only the attic and the grandpa's look - not the pigeon (it does not appear) and not anyone's pose."]
+    ]
+  },
+  "event_fengfeng_pigeon_reply_r1": {
+    "hero": "fengfeng",
+    "why": "蠟筆畫的畫面朝觀眾，封封低頭看的是背面。",
+    "scene": "SETTING: the same tower-top as in reference image 3: a round patch of dark stone floor, a low dark stone balustrade with round-topped posts, a big pale full moon in the sky, a small glowing stone lantern. Night; the wind has died down. The picture is seen from slightly BEHIND Fengfeng: he sits on the stone floor in the foreground with his side leaning against a stone balustrade post, in a three-quarter back view, relaxed, his shoulders loose. Both paws hold up one sheet of crayon drawing paper in front of him; its drawn side faces HIS OWN FACE, and because we look over his shoulder the viewer sees that drawn side too, the right way up: a child's crayon drawing of a little orange cat with a red scarf flying up very high, holding a sword twice as long as the cat itself (crayon pictures only, no writing). Fengfeng looks at the drawing with a small, warm, slightly embarrassed smile, face in profile. Right beside him sits the grey POSTMAN PIGEON from reference image 3 (grey pigeon WITHOUT a cap, brown satchel strap across its body), resting calmly and hugging against its chest a small bundle wrapped in old olive-green cloth and tied with string. His straight jian stays sheathed at his waist; red scarf around his neck.",
+    "style": "bg/event_fengfeng_pigeon_reply.webp",
+    "refs": [
+      ["bg/event_fengfeng_pigeon_reply_r0.webp", "the tower-top setting of this same event and the grey postman pigeon (no cap, brown satchel) and the old olive-green cloth, to copy. Take only the setting, the pigeon's look and the cloth - not anyone's pose."]
+    ]
+  },
+  "event_fengfeng_pigeon_reply_r2": {
+    "hero": "fengfeng",
+    "why": "第二張紙應該畫一隻貓把劍收入鞘、敵人倒了一地；圖上畫成橫舉出鞘的劍加一圈旋風。",
+    "scene": "SETTING: the same tower-top as in reference image 3 (round patch of dark stone floor, low dark stone balustrade, big pale full moon, small glowing stone lantern), with orange autumn leaves on the floor. Fengfeng stands on the floor having just finished a lightning-fast draw-and-sheathe: his straight jian is fully back in the dark-brown scabbard at his waist, his RIGHT paw still resting on the hilt, the brass guard pressed against the scabbard mouth; calm, satisfied face. Around his feet the fallen leaves are swept up into a neat swirling ring by the sword wind, with a few curved motion lines. The grey POSTMAN PIGEON from reference image 3 (no cap, brown satchel) stands a little to the side, flapping both wings excitedly and cheering, beak open. On the floor in front lies the SECOND SHEET OF PAPER, flat, drawn side up, the right way up for the viewer: a child's crayon drawing of a little orange cat with a red scarf SLIDING HIS SWORD BACK INTO THE SCABBARD at his waist (the blade almost fully inside the scabbard, NOT raised, NOT held out), and all around that little cat several small black stick-figure enemies lying knocked down flat on the ground, with little stars and X eyes over them (crayon pictures only, no writing, no whirlwind on the paper).",
+    "style": "bg/event_fengfeng_pigeon_reply_r0.webp",
+    "refs": [
+      ["bg/event_fengfeng_pigeon_reply_r2.webp", "the PREVIOUS version of this same picture: copy its tower-top setting, the ring of swept orange leaves, Fengfeng's pose (right paw on the hilt of the sheathed sword) and the cheering grey pigeon. Its only mistake, which must NOT be repeated: the paper on the floor shows a cat holding a drawn sword out sideways inside a whirlwind - the new paper shows a cat SHEATHING his sword with defeated enemies lying all around him."]
+    ]
+  },
+  "event_fengfeng_rare_hot_spring_r1": {
+    "hero": "fengfeng",
+    "why": "泡溫泉還穿著紅背心、圍著紅圍巾。泡澡要脫衣、取下圍巾（放岸邊）。",
+    "scene": "SETTING: the same small hot spring as in reference image 3 (a pool of steaming turquoise water ringed by grey boulders, grey stone walls behind, a hanging paper lantern with a paw print, a wooden sign carved with a cat soaking in a pool, a bamboo spout pouring water, a wooden bucket with a towel). Fengfeng sits in the hot water up to his chest, slowly settling in, relaxed and content, eyes half-closed; a few wisps of faint purple haze drift off his fur and fade into the white steam. He wears NOTHING in the water: his shoulders, chest and arms are bare orange-and-white tabby fur - no vest, no shirt, no collar, no scarf. On a flat dry boulder a little away from the pool (about three steps from the water) his things sit neatly: his brown travel pack, a round water gourd, his red scarf and red vest folded in a neat pile, and his straight jian sheathed in its dark-brown scabbard lying flat beside them.",
+    "style": "bg/event_fengfeng_rare_hot_spring_r2.webp",
+    "refs": [
+      ["bg/event_fengfeng_rare_hot_spring.webp", "the hot spring of this same event, to copy exactly (boulder-ringed pool, stone walls, paw-print lantern, carved cat sign, bamboo spout, wooden bucket with towel). Take only the setting, not Fengfeng's pose or clothes."]
+    ],
+    "gear_off": "THIS PICTURE IS AN EXCEPTION: Fengfeng is bathing, so his red scarf, red vest, cream shirt and his sheathed jian are all OFF his body. The scarf and vest lie folded on a dry boulder away from the pool together with his pack and water gourd; the jian, sheathed in its dark-brown scabbard, lies flat beside them. In the water his fur is bare - he wears nothing. There is only ONE sword and ONE scabbard in the picture."
+  },
+  "event_fengfeng_rat_bathhouse_r0": {
+    "hero": "fengfeng",
+    "why": "澡堂泡在木桶裡，脖子上還圍著紅圍巾（劍靠桶邊是對的）。",
+    "scene": "SETTING: the small stone bathhouse of reference image 3 (stone walls, wall torches, a hanging wooden sign with a simple hot-spring steam symbol, shelves of travel bags, a wooden counter). Fengfeng soaks in a big round wooden bathtub full of steaming hot water; only his head and bare shoulders show above the rim, a small folded white towel on his head, blissful face with both eyes closed. He wears NOTHING in the tub: his neck and shoulders are bare orange-and-white tabby fur - NO red scarf, no vest, no collar. His paws rest bare on the tub rim. His straight jian, sheathed in its dark-brown scabbard with the brass guard and red tassel, leans upright against the outside of the tub within reach. Right beside the tub stands a small wooden stool with his red scarf and red vest folded neatly on it. In the background at the wooden counter, the grey MOUSE KEEPER from reference image 4 (big pink ears, striped apron) quietly re-ties the knot on Fengfeng's beige cloth travel sack with the paw-print patch, which sits on the counter, with a sly grin.",
+    "style": "bg/event_fengfeng_rat_bathhouse_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_rat_bathhouse_r0.webp", "the PREVIOUS version of this same picture: copy its bathhouse setting, the big wooden tub, the steam, the towel on his head and the sword leaning against the tub. Its mistake, which must NOT be repeated: Fengfeng wears his red scarf in the tub - in the new picture his neck is bare and the scarf lies folded on a stool beside the tub. Also, the mouse is at the counter, not next to the tub."],
+      ["bg/event_fengfeng_rat_bathhouse.webp", "the grey mouse keeper (big pink ears, striped apron), the wooden counter and Fengfeng's beige cloth travel sack with the paw-print patch, to copy. Take their looks only, not Fengfeng's pose."]
+    ],
+    "gear_off": "THIS PICTURE IS AN EXCEPTION: Fengfeng is bathing, so his red scarf and red vest are OFF - folded on the stool beside the tub - and his sheathed jian leans against the outside of the tub. Nothing is worn on his neck. There is only ONE sword and ONE scabbard in the picture."
+  },
+  "event_fengfeng_wooden_men_alley_r1": {
+    "hero": "fengfeng",
+    "why": "文字是劍鞘卡住一次、他只好解下來拖著走；圖裡劍鞘還橫掛在腰後，兩手都拿著零件。",
+    "scene": "SETTING: the wooden training alley of reference image 3 (wooden floorboards with carved paw-print footprints, paper-screen walls, hanging paper lanterns, wooden training dummies with round wooden arms and brass gears). Fengfeng crawls low on his knees under the machinery at the foot of a wooden dummy, a few dust smudges on his fur. His sheathed jian (the sword inside its dark-brown scabbard) has been UNTIED from his waist: his LEFT paw grips it just below the brass guard and drags it behind him, the far end of the scabbard scraping along the floorboards. His RIGHT paw picks up a small brass gear from the floor. Loose brass gears, a spring and three small iron throwing darts lie scattered on the floor around him, and a small open cloth pouch on the floor beside him already holds a few sorted parts. Focused face, looking at the gear. Red scarf around his neck.",
+    "style": "bg/event_fengfeng_wooden_men_alley_r0.webp",
+    "refs": [
+      ["bg/event_fengfeng_wooden_men_alley_r1.webp", "the PREVIOUS version of this same picture: copy its alley setting at the foot of the machinery, the wooden dummies with brass gears, the scattered gears and darts on the floor and Fengfeng crouching low with dust smudges. Its mistake, which must NOT be repeated: the sheathed sword still hangs across the back of his waist and both paws hold parts - in the new picture the sword is off his waist and dragged behind him in his left paw."]
+    ],
+    "gear_off": "the red scarf stays wrapped around his neck. His sheathed jian (the sword inside its dark-brown scabbard) is NOT at his waist - he has untied it and drags it behind him along the floor, his left paw gripping it just below the brass guard. There is only ONE sword and ONE scabbard in the picture."
+  },
+  "event_fengfeng_lost_scroll_r0": {
+    "hero": "fengfeng",
+    "why": "文字是封封用劍鞘壓住卷軸邊角、從三段圖解裡選一段練；圖裡劍還掛在腰上、卷軸沒被壓住，三段圖解只有手印沒有腳（文字說這段手腳都有畫）。卷軸朝向要讓封封看得正。",
+    "scene": "SETTING: a small patch of grey stone floor with a few low grey stone blocks at the back, as in reference image 3. The SAME old cream paper scroll as in reference image 3 (rolled wooden ends, divided into three sections) lies unrolled FLAT on the stone floor, stretched from left to right. Each of the three sections shows one ink diagram: a cat's two paws pressed together in a hand seal like those in reference image 3, and BELOW each hand seal a pair of small footprint marks with a short arrow showing where the feet stand (ink pictures only, no writing). Fengfeng's sheathed jian (the sword inside its dark-brown scabbard) lies across the scroll's right corner, weighing it down so it cannot roll up. Fengfeng stands on the floor right at the front edge of the scroll, on the near side, in a three-quarter BACK view so the viewer looks over his shoulder; the scroll is turned the right way up for him (the tops of the diagrams point away from him, into the picture), so the viewer sees the diagrams the right way up too. He practises the MIDDLE diagram: his paws pressed together in the same hand seal in front of his chest, his feet planted apart in the same stance as the footprints, his head bent looking down at the middle section, focused face in profile. Red scarf around his neck.",
+    "style": "bg/event_fengfeng_lost_scroll_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_lost_scroll.webp", "the old scroll of this same event, to copy (cream paper, rolled wooden ends, three hand-seal diagrams) and its grey stone floor. Take only the scroll and the floor - no book stall and no stall keeper in this picture, and not Fengfeng's pose."]
+    ],
+    "gear_off": "the red scarf stays wrapped around his neck. His sheathed jian (the sword inside its dark-brown scabbard) is NOT at his waist: it lies flat across the corner of the scroll as a paperweight. There is only ONE sword and ONE scabbard in the picture."
+  },
+  "event_fengfeng_moon_window_r1": {
+    "hero": "fengfeng",
+    "why": "文字是封封坐在窗旁、把劍放在伸手可及的地方；圖裡劍還掛在他後腰，身旁沒有另外放的劍。",
+    "scene": "SETTING: the same big round wooden window frame as in reference image 3, with the big full moon in a deep blue night sky inside it, and the curved wooden window ledge in front of it. The SAME empty ceramic bowl (a small sleeping kitten carved in its bottom) sits on the ledge. Fengfeng sits on the ledge beside the window, side-on to the viewer in a three-quarter view, his knees drawn up loosely, gazing up at the moon with a calm, relaxed face; his shoulders drop and relax, soft moonlight falls across him. His sheathed jian (the sword inside its dark-brown scabbard, brass guard and red tassel) lies flat on the ledge right beside him, within easy reach of his paw. Red scarf around his neck.",
+    "style": "bg/event_fengfeng_moon_window_r0.webp",
+    "refs": [
+      ["bg/event_fengfeng_moon_window.webp", "the round window with the moon, the curved wooden ledge and the carved bowl of this same event, to copy exactly. Take only the window, ledge and bowl, not Fengfeng's pose."]
+    ],
+    "gear_off": "the red scarf stays wrapped around his neck. His sheathed jian (the sword inside its dark-brown scabbard) is NOT at his waist: it lies flat on the window ledge right beside him, within reach. There is only ONE sword and ONE scabbard in the picture."
+  },
+  "event_fengfeng_robin_feast": {
+    "hero": "fengfeng",
+    "why": "主圖封封腰間沒有劍（同事件其他張都有佩劍）；文字沒寫卸劍。",
+    "scene": "Copy the composition of reference image 3 (the previous version of this same picture): three friendly VILLAGE CATS in simple patched peasant clothes - a calico cat in a brown patched tunic stirring the pot with a ladle, a grey-and-white cat in a green patched tunic holding a small bowl, an orange-and-white cat in a rust-red tunic waving - crowd happily around a big black iron pot of hot fish stew bubbling over a log campfire, steam rising. They have moved aside to leave a small wooden stool free for Fengfeng and wave him over, smiling. Fengfeng stands at the right, just arriving, looking at them with a surprised, touched face. His straight jian with brass guard and red tassel hangs SHEATHED in the dark-brown scabbard at his waist, clearly visible at his hip, exactly as in reference image 1. On the ground beside the stool lies a small tied navy cloth bundle of travel food with a small shuriken on top (provisions for the road). Red scarf around his neck.",
+    "style": "bg/event_fengfeng_robin_feast_r1.webp",
+    "refs": [
+      ["bg/event_fengfeng_robin_feast.webp", "the PREVIOUS version of this same picture: copy its composition, the three village cats, the pot, the campfire and the empty stool exactly. Its only mistake, which must NOT be repeated: Fengfeng has no sword at his waist - in the new picture his sheathed jian hangs at his waist."]
+    ]
+  }
+}

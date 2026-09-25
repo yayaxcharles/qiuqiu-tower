@@ -1,0 +1,65 @@
+{
+  "event_dangdang_lost_scroll": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_dangdang_lost_scroll.webp",
+    "bytes": 43052,
+    "droppedSpecks": 95,
+    "gate": [],
+    "sha256": "d4ab1a39c85e01a0f92b6c5f4fa190c1bdf920a2884dc1f236c0d1a28afdacb2",
+    "at": "2026-09-25 20:19:23"
+  },
+  "event_feifei_noisy_kitchen_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_noisy_kitchen_r0.webp",
+    "bytes": 53228,
+    "droppedSpecks": 204,
+    "gate": [],
+    "sha256": "843b6dce1f327492852af5f7b0ab4b35d0614368a72b7576efd639c0717aae88",
+    "at": "2026-09-25 20:19:26"
+  },
+  "event_gambling_rats_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_gambling_rats_r0.webp",
+    "bytes": 48316,
+    "droppedSpecks": 218,
+    "gate": [],
+    "sha256": "3c9f3d2826a98a1cd9b2ab8d7a381094dc72bb46a3c438045327ed6e1f5a2a73",
+    "at": "2026-09-25 20:19:34"
+  },
+  "event_medicine_cat_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_medicine_cat_r0.webp",
+    "bytes": 49722,
+    "droppedSpecks": 131,
+    "gate": [],
+    "sha256": "ddfee59c3dd169ea5517117363be5e66a13230cdf0e04fd14aec61772b771896",
+    "at": "2026-09-25 20:19:37"
+  },
+  "event_medicine_cat_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_medicine_cat_r1.webp",
+    "bytes": 47542,
+    "droppedSpecks": 126,
+    "gate": [],
+    "sha256": "32bc497b25b4e9908efa1b8af1f94ffd78976323f0ed2c2cee07edf848b6fcfc",
+    "at": "2026-09-25 20:19:41"
+  },
+  "event_toll_again_fought": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_toll_again_fought.webp",
+    "bytes": 43108,
+    "droppedSpecks": 155,
+    "gate": [],
+    "sha256": "4f1a17ee4ee73480a34217b570b316c64a391a78bd6cea4ec786b21acd577d8d",
+    "at": "2026-09-25 20:16:47"
+  },
+  "event_toll_again_fought_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_toll_again_fought_r1.webp",
+    "bytes": 38314,
+    "droppedSpecks": 124,
+    "gate": [],
+    "sha256": "779bcb1c40708c0186b87e756bdfc777b4420b8697c4f660dc4f35c9c7c4824b",
+    "at": "2026-09-25 20:19:30"
+  }
+}

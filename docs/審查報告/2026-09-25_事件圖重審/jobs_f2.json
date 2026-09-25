@@ -1,0 +1,119 @@
+{
+  "event_fengfeng_mirror_hall": {
+    "hero": "fengfeng",
+    "why": "四面鏡子裡的影子姿勢完全一樣，沒有任何一個影子「繼續往前走、抬手擺架勢」；反而是封封本人在擺架勢。事件核心（有一個影子不照你動）沒畫出來。",
+    "scene": "SETTING: a short corridor lined on both sides with tall standing mirrors - two mirrors on the left, two on the right - with dark wooden frames and small gold ornaments on top, as in reference image 3, on a small patch of grey stone floor. Fengfeng has just STOPPED walking in the middle of the corridor: he stands still and upright, feet together, both arms hanging relaxed at his sides, paws empty and open. He has turned his head to stare at the nearest mirror on the RIGHT with a startled face (wide eyes, a small sweat drop). His straight jian stays sheathed in the scabbard at his waist; he does NOT take a fighting stance. The reflections of Fengfeng in three of the mirrors copy him exactly: standing still, arms hanging at the sides. But the reflection in the nearest RIGHT mirror does NOT copy him: inside that glass, the reflected Fengfeng is still walking FORWARD - one foot stepping ahead - and raises one paw up in front of him in a martial-arts fighting stance, his other paw resting on his sword hilt, with a sly, challenging smirk. That one reflection is clearly in a different pose from the real Fengfeng and from the other three reflections.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["bg/event_fengfeng_mirror_hall.webp", "the PREVIOUS, WRONG version of this same picture: copy its four tall standing mirrors (dark wooden frames with gold ornaments, two on each side of the corridor). Its mistake, which must NOT be repeated: Fengfeng himself stands in a fighting stance and all four reflections copy the same pose - in the new picture Fengfeng stands still with his arms down, and only ONE reflection steps forward and raises its paw into a stance."]]
+  },
+  "event_fengfeng_hidden_box": {
+    "hero": "fengfeng",
+    "why": "文字是封封蹲到側面查看、沒有立刻伸手；圖裡他手已經伸直貼到箱子旁。",
+    "scene": "SETTING as in reference image 3: a chunky block of grey stone wall with a deep crack in it, and a small wooden box wedged tightly inside the crack, its lid firmly SHUT, with a small paper note stuck on the front of the lid (only a few messy scribbled squiggles on it, no readable letters). Fengfeng CROUCHES low on his heels at the SIDE of the box, a short distance away from the wall, leaning his head sideways to peer at the box and the note with narrowed, suspicious eyes. Both of his paws stay pulled in close to his own body: his left paw rests on his knee and his right paw is raised to his chin in thought. He does NOT reach out - no arm is stretched toward the box, and there is a clear empty gap between his paws and the box. His straight jian stays sheathed in the scabbard at his waist.",
+    "style": "bg/event_fengfeng_hidden_box_r0.webp",
+    "refs": [["bg/event_fengfeng_hidden_box.webp", "the PREVIOUS, WRONG version of this same picture: copy its grey stone wall block and the small wooden box wedged in the crack with the paper note on its lid. Its mistake, which must NOT be repeated: Fengfeng stands with his arm stretched out, his paw touching the box - in the new picture he crouches at the side with his paws pulled back, not touching anything."]]
+  },
+  "event_fengfeng_medicine_cat": {
+    "hero": "fengfeng",
+    "why": "主文是三花貓攤開布包，一邊是混裝忍具、一邊是補身藥，還有價目牌；圖裡只有四瓶藥水、沒有布包忍具價目牌，封封已經拿著藥水在挑（主圖先畫出結果）。",
+    "scene": "SETTING: the wooden market stall of reference image 3 (wooden counter, wooden posts and a dark red cloth awning on a small wooden roof). Behind the counter stands the CALICO CAT MERCHANT of reference image 3 (white, orange and black patches, green robe). On the counter she has spread open a big square cloth wrapping. On the LEFT half of the cloth lies a jumble of assorted ninja tools: a few shuriken, two small kunai and a round black smoke bomb. On the RIGHT half of the cloth stand several small corked bottles of coloured tonic medicine. A small wooden price board hangs from the awning post at the side of the stall; it shows only simple little pictures of dried fish and tally marks (no letters, no numbers). The calico cat points with one paw at the price board, smiling, inviting Fengfeng to check the prices first. Fengfeng stands in front of the stall looking UP at the price board, his right paw on his chin, thinking. His paws hold NOTHING - no bottle, no tool; nothing has been bought yet. His straight jian stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_medicine_cat_r1.webp",
+    "refs": [["bg/event_fengfeng_medicine_cat_r0.webp", "the stall and the calico cat merchant of this same event to copy exactly: the wooden stall with the dark red awning, and the calico cat's face, patches and green robe. Take only the stall and the calico cat, not the poses or what is on the counter."]]
+  },
+  "event_fengfeng_shadow_study_r1": {
+    "hero": "fengfeng",
+    "why": "文字是封封躲在門外看影子練完、只在心裡把招式走一遍；圖裡他站在練功房裡面、雙手握劍柄在收劍。",
+    "scene": "SETTING as in reference image 3: the training room seen from the side, with the sliding paper door on the LEFT standing open only a narrow crack, the wooden floor inside, a wooden training dummy with wooden arms, and a small paper lantern on the floor whose candle has burned down very short, giving only a dim glow. A small window in the back wall shows the pale pink-and-blue sky of early dawn. Inside the room, the SHADOW of reference image 3 (a dark purple-black cat silhouette with glowing purple eyes and faint smoky wisps, holding a straight sword like Fengfeng's) has just finished its last move: it slides its sword back into its scabbard at its side and turns its head to glance toward the door crack. Fengfeng is OUTSIDE the room, standing on the outer side of the paper door: he presses close to the door frame and peeks in through the narrow crack with one eye, focused and serious. His left paw rests lightly on the door frame; his right paw hangs at his side. His own straight jian stays sheathed in the scabbard at his waist - he does NOT draw it or touch it. He does not step inside.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["bg/event_fengfeng_shadow_study.webp", "the main picture of this same event: copy the training room (sliding paper door, wooden floor, wooden training dummy, paper lantern) and the look of the dark shadow cat with its sword. Fengfeng stays OUTSIDE the door as in this picture, peeking in through the gap."]]
+  },
+  "event_coop_seesaw_r0": {
+    "hero": "none",
+    "why": "連線共用圖（r0、r1 兩個選項共用這一張，不畫主角）。原圖跟主圖對不上：木架和布包木盒不見、變成龍門木框、翹板方向顛倒。要畫成主圖同一座機關、兩個選項都說得通的取完東西之後。",
+    "scene": "SETTING exactly as in reference image 2, the SAME machine seen from the same angle: a round wooden platform floor; a giant wooden seesaw plank on a big central gear axle; the plank's HIGH end rises to the UPPER LEFT and rests right beside a small wooden shelf fixed on top of a tall wooden post at the left; the plank's LOW end rests on the floor at the lower RIGHT, where a cat paw print is carved into the floor; a short wooden railing at the right. Keep the seesaw tilted exactly this way (high on the left at the shelf, low on the right). This is AFTER someone rode up and fetched the things: the shelf on top of the post is now EMPTY. The dark-blue tied cloth bundle and the small wooden box that used to sit on the shelf now sit together on the floor next to the low end of the plank, right beside the carved paw print, neatly set down. No characters at all.",
+    "style": "bg/event_coop_seesaw_r2.webp",
+    "refs": [["bg/event_coop_seesaw.webp", "the main picture of this same event: copy this EXACT machine - the tall post with the shelf at the upper left, the plank rising from lower right to upper left, the central gear axle, the round wooden floor, the carved paw print and the railing - plus the look of the dark-blue cloth bundle and the small wooden box. The only change: the bundle and the box have been taken down from the shelf and now sit on the floor beside the low end."]]
+  },
+  "event_fengfeng_rescue_return_herb": {
+    "hero": "fengfeng",
+    "why": "「上次救過的村貓」這張畫成乾淨的銀灰虎斑，要跟封封版『江湖救急』（event_fengfeng_rescue）那隻米灰色虎斑同一隻。",
+    "scene": "SETTING as in reference image 4: a stone archway with a dark staircase going down inside it, on a small patch of stone floor. The VILLAGE CAT of reference image 3 - the SAME cat: greyish-beige (taupe) fur with dark brown tabby stripes, a white muzzle and chest, pink inner ears, big dark eyes, no clothes, a narrow brown belt with a few small grinding tools at its waist - has just stepped out of the archway. Its leg has healed: it stands firmly on both feet, no bandage, no scratches, happy and grateful. With both paws it holds out a small tied brown cloth bundle toward Fengfeng. Fengfeng stands facing the village cat, recognising it with a pleasantly surprised face, one paw raised a little in greeting. He has not taken the bundle yet. His straight jian stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [
+      ["bg/event_fengfeng_rescue.webp", "the village cat to draw: this is the SAME cat that Fengfeng rescued earlier - copy its fur colour (greyish-beige taupe with dark brown tabby stripes), white muzzle, pink ears and face exactly. It is healed now: no bandage, no scratches, standing up. Take only this cat's look, not its pose or the props."],
+      ["bg/event_fengfeng_rescue_return_herb.webp", "the PREVIOUS version of this same picture: copy its stone archway with the dark staircase and the village cat's belt of small tools. Its mistake, which must NOT be repeated: the village cat is a clean silver-grey tabby - it must be the taupe tabby of reference image 3."]
+    ]
+  },
+  "event_fengfeng_rescue_return_fish": {
+    "hero": "fengfeng",
+    "why": "文字是牠抱著空袋子、身旁只剩一罐藥；圖裡沒抱袋子（袋子丟地上）、沒有藥罐。村貓長相是穿破衣的亂毛褐貓，要跟封封版『江湖救急』（event_fengfeng_rescue）那隻米灰色虎斑同一隻。",
+    "scene": "SETTING as in reference image 4: a crumbling grey stone-block wall on a small patch of stone floor. The VILLAGE CAT of reference image 3 - the SAME cat: greyish-beige (taupe) fur with dark brown tabby stripes, a white muzzle and chest, pink inner ears, big dark eyes, no clothes - sits on the floor leaning back against the wall. Its injuries have healed (no bandage) but it looks hungry and sad, with droopy ears. With BOTH arms it hugs an EMPTY brown cloth sack tightly against its chest - the sack is limp and flat, nothing inside. On the floor right beside it stands ONE small green glass medicine bottle with a cork and a leaf picture on it (the same herb bottle as in reference image 3) - the only thing it has left. Fengfeng stands in front of it, looking down at the village cat with a worried, concerned face, paws empty. His straight jian stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [
+      ["bg/event_fengfeng_rescue.webp", "the village cat to draw: this is the SAME cat that gave Fengfeng its dried fish earlier - copy its fur colour (greyish-beige taupe with dark brown tabby stripes), white muzzle, pink ears and face exactly, and the green corked herb bottle. It is healed now: no bandage, no scratches. Take only the cat's look and the bottle, not the pose."],
+      ["bg/event_fengfeng_rescue_return_fish.webp", "the PREVIOUS version of this same picture: copy only its crumbling stone wall. Its mistakes, which must NOT be repeated: the village cat is a scruffy brown cat in torn clothes, its sack lies on the floor instead of in its arms, and there is no medicine bottle."]
+    ]
+  },
+  "event_fengfeng_toll_again_paid": {
+    "hero": "fengfeng",
+    "why": "「上次收過買路錢的山賊」再出現，這張畫成臉上有疤、圍紅領巾的亂毛橘貓，還拿帶釘大棒；要跟封封版『留下買路財』（event_fengfeng_toll）那隻綁黑頭帶、穿破褐短衣、拿細長木棒的橘虎斑同一隻。",
+    "scene": "SETTING: a stone corner on a small patch of grey stone floor. The ORANGE TABBY BANDIT of reference image 3 - the SAME cat: orange tabby fur with a white muzzle and chest, a BLACK headband tied around his forehead with its two long ends trailing behind, a sleeveless ragged brown tunic with torn edges, a black sash tied at the waist, no scar, no neckerchief. His long, thin, plain wooden staff (longer than he is tall) now LIES FLAT ON THE FLOOR beside his feet - he has put it down. With both paws he holds out toward Fengfeng a string of sun-dried fish tied together, resting on top of a small cloth-wrapped package, with a shy, grateful smile and a light blush. Fengfeng stands facing him, a little surprised, his paws relaxed at his sides; he has not taken the gift yet. Fengfeng's straight jian stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["bg/event_fengfeng_toll.webp", "the bandit to draw: this is the SAME orange tabby bandit Fengfeng paid earlier - copy his face, orange tabby fur, black headband with long trailing ends, sleeveless ragged brown tunic, black sash and his long thin plain wooden staff exactly. Take only the bandit's look and the staff, not his pose."]]
+  },
+  "event_fengfeng_toll_again_fought": {
+    "hero": "fengfeng",
+    "why": "「上次打過的山賊」帶頭的是戴黑頭帶的壯碩橘虎斑、拿帶釘大棒，要跟封封版『留下買路財』（event_fengfeng_toll）那隻綁黑頭帶、穿破褐短衣、拿細長木棒的橘虎斑同一隻。",
+    "scene": "SETTING: a stone corner on a small patch of grey stone floor. In front stands the ORANGE TABBY BANDIT of reference image 3 - the SAME cat, same size as before (not bulky): orange tabby fur with a white muzzle and chest, a BLACK headband with its two long ends trailing behind, a sleeveless ragged brown tunic with torn edges, a black sash. He raises his long, thin, plain wooden staff high with both paws, shouting boldly at Fengfeng, but with a nervous sweat drop. Behind him, three HELPER bandit cats (one brown, one grey, one black-and-white, all in ragged brown clothes, each holding a short wooden stick) are shoving and pushing each other, each one trying to push another forward - none of them wants to go first. Fengfeng stands on the other side facing them calmly, his right paw resting on the hilt of his sheathed straight jian.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["bg/event_fengfeng_toll.webp", "the leader bandit to draw: this is the SAME orange tabby bandit Fengfeng met before - copy his face, orange tabby fur, black headband with long trailing ends, sleeveless ragged brown tunic, black sash and his long thin plain wooden staff exactly. Take only the bandit's look and the staff, not his pose."]]
+  },
+  "event_fengfeng_rescue_return_herb_r0": {
+    "hero": "fengfeng",
+    "why": "同事件連帶改：村貓是乾淨的銀灰虎斑，要跟新主圖、封封版『江湖救急』那隻米灰色虎斑同一隻。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same stone archway with the dark staircase inside, on the same stone floor. The same VILLAGE CAT as in reference image 3 (greyish-beige taupe tabby with dark brown stripes, white muzzle and chest, pink ears, a narrow brown belt with small grinding tools, no clothes, no bandage) has just handed over its gift: its paws are empty now, and it stands proudly on both feet, lifting one hind foot a little to show that its leg walks fine again. Fengfeng holds the small tied brown cloth bundle of reference image 3 in his LEFT paw, the paw wrapped firmly around the knot, and looks DOWN at the village cat's feet with a relieved, gentle smile. His straight jian stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_fengfeng_rescue_return_herb.try2.png", "the main picture of this same event: copy the stone archway with the staircase, the village cat's look (taupe tabby, white muzzle, tool belt) and the brown cloth bundle exactly. Take the setting and the looks, not the poses."],
+      ["bg/event_fengfeng_rescue.webp", "the same village cat back when Fengfeng first rescued it: confirms its fur colour and face. It is healed now - no bandage, no scratches. Take only its look."]
+    ]
+  },
+  "event_fengfeng_rescue_return_herb_r1": {
+    "hero": "fengfeng",
+    "why": "同事件連帶改：村貓是乾淨的銀灰虎斑，要跟新主圖、封封版『江湖救急』那隻同一隻；舊圖村貓的爪子搭在劍上，文字是從旁觀察、指出手腕偏斜。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same stone archway with the dark staircase inside, on the same stone floor. Fengfeng stands in a forward sword-thrust stance, his RIGHT paw firmly gripping the hilt of his drawn straight jian, the blade held straight out in front of him; the empty dark-brown scabbard stays at his waist. The same VILLAGE CAT as in reference image 3 (greyish-beige taupe tabby with dark brown stripes, white muzzle and chest, pink ears, tool belt, no clothes, no bandage) stands close beside him on the side, watching carefully, and points one paw at Fengfeng's right WRIST - pointing near the wrist, NOT touching the sword. Fengfeng glances at his wrist, adjusting its angle, focused.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [
+      ["../../tools/motion-art-source/regen0925/event_fengfeng_rescue_return_herb.try2.png", "the main picture of this same event: copy the stone archway with the staircase and the village cat's look (taupe tabby, white muzzle, tool belt) exactly. Take the setting and the looks, not the poses."],
+      ["bg/event_fengfeng_rescue.webp", "the same village cat back when Fengfeng first rescued it: confirms its fur colour and face. It is healed now - no bandage, no scratches. Take only its look."]
+    ]
+  },
+  "event_fengfeng_rescue_return_fish_r0": {
+    "hero": "fengfeng",
+    "why": "同事件連帶改：村貓是穿破衣的亂毛褐貓，要跟新主圖、封封版『江湖救急』那隻米灰色虎斑同一隻；藥也要是主圖那一罐。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same crumbling grey stone wall on the same stone floor. Fengfeng sits cross-legged on the floor beside the wall, resting, eyes half closed, calmly thinking. The same VILLAGE CAT as in reference image 3 (greyish-beige taupe tabby with dark brown stripes, white muzzle and chest, pink ears, no clothes, no bandage) sits right beside him and, with one paw, dabs a little green herb ointment onto a small scrape on Fengfeng's forearm, looking content and fed. The same green corked glass herb bottle stands open on the floor between them. In front of the village cat, its brown cloth sack lies open on the floor holding a small heap of dried fish, next to two eaten fish skeletons - it has already eaten first.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["../../tools/motion-art-source/regen0925/event_fengfeng_rescue_return_fish.try2.png", "the main picture of this same event: copy the crumbling stone wall, the village cat's look, its brown cloth sack and the green corked herb bottle exactly. Take the setting and the looks, not the poses."]]
+  },
+  "event_fengfeng_toll_again_paid_r0": {
+    "hero": "fengfeng",
+    "why": "同事件連帶改：山賊是臉上有疤、圍紅領巾的亂毛橘貓，要跟新主圖、封封版『留下買路財』那隻綁黑頭帶的橘虎斑同一隻。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same low grey stone-block wall on the same stone floor, with the bandit's long thin wooden staff lying flat on the floor. Fengfeng holds the bandit's gift in both paws: the dark-blue cloth package of reference image 3, now opened, with the string of sun-dried fish and one small kunai inside. He lifts it up toward his nose and sniffs the fish with both eyes closed and a pleased little smile. The same ORANGE TABBY BANDIT as in reference image 3 (black headband with long trailing ends, sleeveless ragged brown tunic, black sash, no scar, no neckerchief) stands beside him with empty paws, one paw scratching the back of his head, grinning happily.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["../../tools/motion-art-source/regen0925/event_fengfeng_toll_again_paid.try2.png", "the main picture of this same event: copy the stone wall, the long thin wooden staff on the floor, the dark-blue cloth package with the dried fish, and the orange tabby bandit's look exactly. Take the setting and the looks, not the poses."]]
+  },
+  "event_fengfeng_toll_again_paid_r1": {
+    "hero": "fengfeng",
+    "why": "同事件連帶改：山賊是臉上有疤、圍紅領巾的亂毛橘貓，要跟新主圖、封封版『留下買路財』那隻綁黑頭帶的橘虎斑同一隻。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same low grey stone-block wall on the same stone floor, the long thin wooden staff lying flat on the floor. The same ORANGE TABBY BANDIT as in reference image 3 (black headband with long trailing ends, sleeveless ragged brown tunic, black sash, no scar, no neckerchief) has taken his gift back: the dark-blue cloth package with the dried fish now rests on the floor by his feet. He shows a breathing exercise: standing tall, one paw resting on his belly, the other paw raised palm-up in front of his chest, eyes closed, breathing out a small puff of white breath. Fengfeng walks forward a few steps beside him, copying the breathing: calm, relaxed face, eyes half closed, a small even puff of white breath in front of his mouth, his paws relaxed at his sides. His straight jian stays sheathed at his waist.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["../../tools/motion-art-source/regen0925/event_fengfeng_toll_again_paid.try2.png", "the main picture of this same event: copy the stone wall, the long thin wooden staff on the floor, the dark-blue cloth package with the dried fish, and the orange tabby bandit's look exactly. Take the setting and the looks, not the poses."]]
+  },
+  "event_fengfeng_toll_again_fought_r1": {
+    "hero": "fengfeng",
+    "why": "同事件連帶改：帶頭的山賊是壯碩橘虎斑、幫手跟新主圖不同，要跟新主圖、封封版『留下買路財』那隻綁黑頭帶、穿破褐短衣的橘虎斑同一隻，幫手也要是主圖那三隻。",
+    "scene": "SETTING exactly as in reference image 3 (the main picture of this same event): the same stone corner and stone floor. The SAME four bandits of reference image 3 - the orange tabby leader with the black headband with long trailing ends, sleeveless ragged brown tunic and black sash, and his three helpers (a brown tabby, a grey tabby and a black-and-white cat, all in ragged brown tunics with black sashes) - crouch together in a tight huddle on the floor, squabbling over a small pile of dried fish on the ground, all grabbing at the fish at once. The leader's long thin wooden staff and the helpers' three short sticks lie dropped flat on the floor around them. Fengfeng walks past on the far side, glancing back at them with a bored, half-lidded look, his paws empty, his straight jian sheathed at his waist.",
+    "style": "bg/event_fengfeng_grindstone.webp",
+    "refs": [["../../tools/motion-art-source/regen0925/event_fengfeng_toll_again_fought.try4.png", "the main picture of this same event: copy the stone corner, the look of the orange tabby leader (black headband, ragged brown tunic, black sash) and the look of the three helpers (brown tabby, grey tabby, black-and-white) exactly, plus the long thin staff and the short sticks. Take the setting and the looks, not the poses."]]
+  }
+}

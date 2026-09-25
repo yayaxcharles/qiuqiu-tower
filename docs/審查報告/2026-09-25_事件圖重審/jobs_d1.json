@@ -1,0 +1,91 @@
+{
+  "event_dangdang_daxia_chest_r0": {
+    "hero": "dangdang",
+    "why": "噹噹把秘笈捧在胸前，畫著拳法小人的內頁朝觀眾，他看的是書背；內頁畫的是踢拳動作，文字是三幅圖都是「站穩了接招的架勢」，他跪坐下來一頁頁看。",
+    "scene": "SETTING, copied from reference image 3 (the main picture of this same event): the dark wooden staircase corner with its banister and round-topped newel post, on a small patch of dark wooden floorboards, and the SAME old wooden chest with iron-capped corners, a big paw print carved on its lid and an opened iron padlock hanging from its hasp. The chest lid is now open. On the floor beside the chest lie a folded old grey cloth and two rolled paper scrolls that Dangdang has moved out of the way. Dangdang KNEELS, sitting back on his heels, on the floor right beside the open chest, seen in three-quarter view, and reads an old manual book. He holds the OPEN book up in front of his chest with both paws, tilted toward his face: the open pages face HIM and his eyes look down into them, so the viewer sees only the OUTSIDE of the book - its plain worn dark-brown leather covers and spine, no writing, no pictures. None of the pages' drawings are visible to the viewer. Calm, focused face, mouth closed, studying carefully.",
+    "style": "bg/event_dangdang_daxia_chest_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_daxia_chest.webp",
+        "the setting of this same event to copy: the staircase corner with its banister, the wooden floorboards and the old iron-cornered chest with the carved paw print and the opened padlock. Take only the setting and the chest, not Dangdang's pose."
+      ]
+    ]
+  },
+  "event_dangdang_pigeon_grandpa_r0": {
+    "hero": "dangdang",
+    "why": "念信給爺爺：畫柿子蝴蝶結的信紙正面朝觀眾，噹噹和老貓都看不到信的內容。",
+    "scene": "SETTING, copied from reference image 3 (another picture of this same event): the attic corner under sloping dark wooden roof beams, a hanging paper lantern with a paw print, a small round window showing the night sky and moon, stacks of old wooden crates and boxes, a patch of wooden floor with an open trapdoor. Dangdang sits on the floor right beside the OLD CAT, who looks EXACTLY as in reference image 3: a big grey-brown tabby with bushy white eyebrows, round wire-rimmed glasses, an olive-green patched coat and a grey scarf. Dangdang holds the letter - one single sheet of paper - up in front of him with both paws and reads it aloud, mouth open, speaking. The written side of the letter faces Dangdang and the old cat (both of them look at it), so the viewer sees only the PLAIN BLANK BACK of the sheet: no drawing, no marks on the side facing the viewer. The old cat leans in close at Dangdang's shoulder, looking at the letter over his shoulder, listening with a soft, moved expression; his round glasses sit straight on his nose.",
+    "style": "bg/event_dangdang_pigeon_grandpa.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_pigeon_grandpa_r1.webp",
+        "the attic setting and the OLD CAT of this same event to copy exactly (grey-brown tabby, bushy white eyebrows, round glasses, olive-green patched coat, grey scarf). Take the attic and the old cat's look, not the poses, and no writing desk."
+      ]
+    ]
+  },
+  "event_dangdang_pigeon_reply_r1": {
+    "hero": "dangdang",
+    "why": "蠟筆畫的畫面朝觀眾，噹噹低頭看的是紙背面。",
+    "scene": "SETTING, copied from reference image 3 (the main picture of this same event): the tower top at night - a patch of dark grey stone paving, a dark stone railing with square pillars, a big pale-yellow full moon behind, a few blown leaves on the ground. Dangdang sits on the stone floor with his back leaning against the railing, legs stretched out in front of him, relaxed: soft half-closed eyes, a small calm smile. He holds the crayon drawing - one sheet of paper - up in front of him with both paws and looks at it: its drawn side faces Dangdang's own eyes, so the viewer sees only the PLAIN BLANK BACK of the paper, no drawing and no colours on the side facing the viewer. Sitting close beside him against the railing is the grey POSTMAN PIGEON exactly as in reference image 3 (grey feathers a little ruffled, NO cap, a brown satchel on a strap across its body); it hugs a small bundle wrapped in old brown cloth and tied with string against its chest with both wings, resting calmly.",
+    "style": "bg/event_dangdang_pigeon_reply_r0.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_pigeon_reply.webp",
+        "the setting of this same event to copy (the stone paving, the dark stone railing, the big full moon) and the grey postman pigeon's look (no cap, brown satchel). Take only the setting and the pigeon's look, not the poses and not the flag."
+      ]
+    ]
+  },
+  "event_dangdang_rare_catnip_master_r0": {
+    "hero": "dangdang",
+    "why": "舊紙畫的那面朝觀眾，噹噹看的是空白背面；紙上畫了三四個踢拳剪影，文字是只畫一隻大貓站好承力的架勢、後腳跟旁一個往外指的小箭頭；他應該跪在窩裡照著練、雙臂發抖、膝蓋磕破。",
+    "scene": "SETTING, copied from reference image 3 (the main picture of this same event): the stone terrace at the tower top - a big bed of green catnip with small white flowers on a stone-edged platform, a low dark stone railing, a stone lantern glowing, a big pale full moon behind. In the middle of the catnip is a large flattened cat-shaped hollow of pressed-down grass with a small tuft of grey fur with dark stripes in it; the orange gourd with its red cord lies at the edge of the field. Dangdang KNEELS inside the flattened hollow in the FOREGROUND, seen from BEHIND (a three-quarter back view from behind and slightly to the left): we see his back, his tail and the back of his head, his face turned in profile. The old paper sheet lies unfolded FLAT on the pressed grass directly BEYOND him - further from the viewer than Dangdang, higher up in the picture, a little to the right of his head so his body does not hide it - so the drawing is the right way up both for Dangdang and for the viewer. The drawing on the paper is exactly the one in reference image 4: ONE simple ink drawing of a single big cat seen from the side, facing RIGHT, in a WIDE, LOW braced stance with feet planted far apart and both arms stretched straight forward pushing; its BACK foot is the LEFT one, and one small arrow is drawn right next to that LEFT back heel, pointing LEFT (outward, away from the body). Nothing else on the paper: no letters, no other figures. Dangdang is practising that stance from his knees, facing the paper: both arms thrust straight forward toward the paper, paws open, his arms trembling (small shake lines beside them), a sweat drop on his head, gritted teeth visible in his profile, his eyes on the paper. The knee nearest the viewer shows a small red scrape.",
+    "style": "bg/event_dangdang_rare_catnip_master_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_rare_catnip_master.webp",
+        "the setting of this same event to copy: the catnip bed with white flowers, the stone railing and stone lantern, the flattened cat-shaped hollow with the grey fur tuft, and the orange gourd with a red cord. Take only the setting, not Dangdang's pose."
+      ],
+      [
+        "../../tools/motion-art-source/regen0925/event_dangdang_rare_catnip_master_r0.try1.png",
+        "an earlier attempt at this same picture: copy ONLY the ink drawing on the paper from it (the single cat in a wide braced stance with arms pushed forward and the small arrow at its left back heel pointing left). Do NOT copy its composition: in the new picture Dangdang kneels in the foreground seen from behind, with the paper beyond him."
+      ]
+    ]
+  },
+  "event_dangdang_cell_bandit_r0": {
+    "hero": "dangdang",
+    "why": "欠條按了紅色貓爪印的那面朝觀眾，噹噹看的是背面。",
+    "scene": "SETTING, copied from reference image 3 (the main picture of this same event): the dungeon cell on a patch of stone floor with some rubble - rusty iron bars with the cell door now swung OPEN, the old rusty padlock hanging open from the door, a rough stone wall with a lit wall torch and a map scratched into the stone. The TABBY BANDIT, looking exactly as in reference image 3 (a grey tabby cat with dark stripes, a bandage plaster on his face, a broken iron chain hanging around his neck, a torn brown vest), has just stepped out of the open cell; he grins widely and claps one paw on Dangdang's shoulder. Dangdang stands beside him and reads the IOU: he holds the crumpled paper sheet up in front of his face with both paws, and its written side with the red paw print faces DANGDANG, so the viewer sees only the plain blank back of the crumpled sheet - no red print, no marks on the side facing the viewer. His eyes look down at the paper. Dangdang's face: doubtful and resigned, eyebrows lowered, a small sweat drop. A thin red scratch shows on the back of his right paw.",
+    "style": "bg/event_dangdang_cell_bandit_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_cell_bandit.webp",
+        "the setting of this same event to copy (iron bars and cell door with the rusty padlock, the stone wall with the wall torch and the scratched map) and the tabby bandit's look (grey tabby, face plaster, broken chain around the neck, torn brown vest). Take the setting and the bandit's look, not the poses."
+      ]
+    ]
+  },
+  "event_dangdang_lost_scroll_r0": {
+    "hero": "dangdang",
+    "why": "卷軸平攤在地上、圖解朝觀眾擺正，噹噹蹲在卷軸上緣那側看，對他是上下顛倒的。",
+    "scene": "SETTING, copied from reference image 3 (the main picture of this same event): a small patch of grey stone paving. The same long paper scroll lies unrolled FLAT on the stone ground, a dark wooden roller rod at each end, with the same three ink diagrams of a cat doing fist-fighting moves side by side (no readable letters). The diagrams are the right way up for the viewer. Dangdang kneels on the NEAR side of the scroll - between the viewer and the scroll, in the foreground - so the diagrams are the right way up for him as well. He kneels in front of the LEFT part of the long side of the scroll that faces the viewer (not at the scroll's end), seen in a three-quarter BACK view: we see his back, his tail and the back of his head, his face turned in profile as he leans forward over the scroll. His right paw points at the middle diagram; all three diagrams stay visible, none hidden under his body. His brown tool bag sits on top of the right end of the scroll, weighing that corner down so it stays flat.",
+    "style": "bg/event_dangdang_lost_scroll_r1.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_lost_scroll.webp",
+        "the scroll of this same event to copy: the long paper scroll with wooden roller rods and its three cat fist-fighting diagrams, and the grey stone paving. Take only the scroll and the paving, not the book stall and not Dangdang's pose."
+      ]
+    ]
+  },
+  "event_dangdang_rare_hot_spring_r1": {
+    "hero": "dangdang",
+    "why": "泡溫泉還戴著兩隻銅護臂、穿著綠上衣。泡澡要卸下護臂、脫上衣（放在池邊）。",
+    "scene": "SETTING, copied from reference image 3 (the main picture of this same event): the hot spring pool among grey rocks, a rough stone wall behind with a hanging wooden board carved with a cat bathing with squinting eyes, a bamboo spout pouring water into the pool, a wooden bucket, a paper lantern with a paw print on a wooden post, white steam rising, a few leaves floating on the water. Dangdang soaks in the hot water up to his shoulders, a blissful relaxed face with both eyes gently closed. He wears NOTHING in the water: no vest, no collar showing; his shoulders and arms are bare black-and-white fur with NO bracers, his bare paws rest on the rock rim. At the pool edge stands a short wooden post; his brown tool bag hangs from it, its strap wound twice around the post and tied tight. On a flat rock at the pool edge next to the post lie his two copper forearm bracers side by side and his neatly folded teal-green vest with the brown sash folded on top. Thin wisps of purple smoke drift up off the fur on his head and shoulders and fade away into the steam.",
+    "style": "bg/event_dangdang_rat_bathhouse_r0.webp",
+    "refs": [
+      [
+        "bg/event_dangdang_rare_hot_spring.webp",
+        "the setting of this same event to copy: the rock pool, the stone wall with the carved bathing-cat board, the bamboo spout, the wooden bucket and the paw-print lantern on its post. Take only the setting, not Dangdang's pose."
+      ]
+    ],
+    "gear_off": "this picture is the ONE EXCEPTION to the worn-gear rule: Dangdang is bathing, so his two copper forearm bracers are taken OFF and lie side by side on a flat rock at the pool edge, next to his folded teal-green vest and brown sash; in the water his arms and shoulders are bare fur - he wears nothing."
+  }
+}
