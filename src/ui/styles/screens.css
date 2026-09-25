@@ -1579,7 +1579,8 @@
 /* ===== 選角畫面（2026-09-12，使用者：「開頭進地圖前可以選角色」）=====
    排在「新的一局」與序章之間。角色卡並排、選中的那張亮起來，
    底下寫這一位的起手十張、起始秘寶與一張代表牌——那三樣才是玩家真正在選的東西。
-   整頁塞在 720 高裡：卡片 300 高、說明區固定 150，不會把按鈕擠出舞台。 */
+   整頁塞在 720 高裡：卡片 300 高、說明區約 210，不會把按鈕擠出舞台。
+   說明區把四位的說明疊在同一格（grid 同一格），只亮選中那位：框高＝最長那位，換角色時整頁不會跳。 */
 .heroselect {
   position: absolute; inset: 0; z-index: 1;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
@@ -1601,7 +1602,9 @@
 .hero-portrait-missing { display: grid; place-items: center; height: 210px; width: 150px; font-size: 34px; color: #ffd98a; border: 2px dashed #ffd98a59; border-radius: 12px; }
 .hero-name { font-size: 26px; font-weight: bold; }
 .hero-tag { font-size: 15px; color: #ffd98a; letter-spacing: 1px; }
-.hero-detail { width: 780px; min-height: 132px; background: #2a1a0da8; border-radius: 14px; padding: 10px 18px; }
+.hero-detail { display: grid; width: 780px; min-height: 132px; background: #2a1a0da8; border-radius: 14px; padding: 10px 18px; }
+.hero-detail-panel { grid-area: 1 / 1; visibility: hidden; }
+.hero-detail-panel.selected { visibility: visible; }
 .hero-blurb { margin: 0 0 6px; font-size: 16px; line-height: 1.55; }
 .hero-kit { display: flex; flex-direction: column; gap: 3px; font-size: 14px; line-height: 1.5; }
 .hero-kit-row { display: flex; gap: 10px; }

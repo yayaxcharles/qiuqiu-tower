@@ -69,13 +69,9 @@ registerScreen('heroselect', (app, root, props) => {
     }).join('、');
   };
 
-  const detail = el('div', { class: 'hero-detail' });
-  const cards = el('div', { class: 'hero-cards' });
-  const goBtn = el('button', { class: 'btn primary', onclick: () => app.newRun(seed, difficulty ?? 1, chosen) });
-
-  const refresh = (): void => {
-    const p = PICKS.find((x) => x.hero === chosen) as Pick;
-    const relic = relicById[startRelicFor(chosen)];
+  /** 一位角色的說明：簡介、專屬規則、起手十張、起始秘寶、代表牌 */
+  const panel = (p: Pick): HTMLElement => {
+    const relic = relicById[startRelicFor(p.hero)];
     /*
      * 起手牌裡最能代表這位角色的那一張，整張畫出來給玩家看（球球是貓抓，菲菲是飛針）。
      *
@@ -84,17 +80,29 @@ registerScreen('heroselect', (app, root, props) => {
      * 於是選菲菲時看不到代表牌、選球球時看得到，只有人眼抓得出來。
      * `heroselect.test.ts` 現在盯著這兩個牌號真的存在。
      */
-    const keyCard = cardById[KEY_CARD[chosen] ?? 'sanjo'];
-    detail.replaceChildren(
+    const keyCard = cardById[KEY_CARD[p.hero] ?? 'sanjo'];
+    return el('div', { class: 'hero-detail-panel', 'data-hero': p.hero },
       el('p', { class: 'hero-blurb' }, p.blurb),
       el('div', { class: 'hero-kit' },
         p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',
-        el('div', { class: 'hero-kit-row' }, el('b', {}, '起手十張'), el('span', {}, deckLine(chosen))),
+        el('div', { class: 'hero-kit-row' }, el('b', {}, '起手十張'), el('span', {}, deckLine(p.hero))),
         el('div', { class: 'hero-kit-row' }, el('b', {}, '起始秘寶'),
           el('span', {}, relic ? `${relic.name}：${relic.text}` : '—')),
-        keyCard ? el('div', { class: 'hero-kit-row' }, el('b', {}, `代表牌「${cardNameFor(keyCard, chosen)}」`),   // 牌名一律過 cardNameFor（總稽核 C 低-6）
+        keyCard ? el('div', { class: 'hero-kit-row' }, el('b', {}, `代表牌「${cardNameFor(keyCard, p.hero)}」`),   // 牌名一律過 cardNameFor（總稽核 C 低-6）
           el('span', {}, describeCard(keyCard, false))) : ''));
-    for (const node of cards.children) {
+  };
+
+  /*
+   * 四位的說明一次建好、疊在同一格，只亮選中的那位：框永遠跟最長的那位一樣高。
+   * 原本每次點選才換內容，封封多一行「蓄氣」、框高了 59 像素，整頁又是上下置中，
+   * 標題和角色卡跟著往上跳（2026-09-26 使用者：「選到封封後，角色會全部上移」）。
+   */
+  const detail = el('div', { class: 'hero-detail' }, ...PICKS.map(panel));
+  const cards = el('div', { class: 'hero-cards' });
+  const goBtn = el('button', { class: 'btn primary', onclick: () => app.newRun(seed, difficulty ?? 1, chosen) });
+
+  const refresh = (): void => {
+    for (const node of [...cards.children, ...detail.children]) {
       node.classList.toggle('selected', node.getAttribute('data-hero') === chosen);
     }
     goBtn.textContent = `就${heroPronoun({ hero: chosen })}了，出發`;
