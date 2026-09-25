@@ -1,0 +1,101 @@
+{
+  "event_heavy_door_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_heavy_door_r0.webp",
+    "bytes": 36772,
+    "droppedSpecks": 100,
+    "gate": [],
+    "sha256": "4b9ec3dd99dde0e266f334a8399df0d0089b15545492e2970c77d12f5793816f",
+    "at": "2026-09-26 00:50:58"
+  },
+  "event_heavy_door_r1": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_heavy_door_r1.webp",
+    "bytes": 36762,
+    "droppedSpecks": 116,
+    "gate": [],
+    "sha256": "05ae90fb3aa819fe12ced3fdad4990f2274a464076b68bd944322d0760b0238c",
+    "at": "2026-09-26 00:56:19"
+  },
+  "event_hidden_box": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_hidden_box.webp",
+    "bytes": 41356,
+    "droppedSpecks": 109,
+    "gate": [],
+    "sha256": "8af213ce25addfc2da8a647aea3bf5fbb435d5c6cd0aba51442ece90ab9724cc",
+    "at": "2026-09-26 00:45:03"
+  },
+  "event_hidden_box_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_hidden_box_r0.webp",
+    "bytes": 42652,
+    "droppedSpecks": 152,
+    "gate": [],
+    "sha256": "165da6e47145e1b040c3b6d08d7e22b13a3a1b012a89f950daf190f8ccdd7829",
+    "at": "2026-09-26 00:50:54"
+  },
+  "event_moon_window": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_moon_window.webp",
+    "bytes": 31966,
+    "droppedSpecks": 171,
+    "gate": [],
+    "sha256": "0964b3efd462e62232a7d751483c823600a9a31ba5f4a6401e96b8b2130406bf",
+    "at": "2026-09-26 00:45:00"
+  },
+  "event_moon_window_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_moon_window_r0.webp",
+    "bytes": 32926,
+    "droppedSpecks": 88,
+    "gate": [],
+    "sha256": "db23f99ca2c58b8e38c3512be3a844829bd5a13bc3b425484ade940c954a2534",
+    "at": "2026-09-26 00:56:23"
+  },
+  "event_moon_window_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_moon_window_r1.webp",
+    "bytes": 31554,
+    "droppedSpecks": 87,
+    "gate": [],
+    "sha256": "99d40ce504fb14f63d41ab144d42f513894b9f49f096e53d3556a7afa056ef82",
+    "at": "2026-09-26 00:52:58"
+  },
+  "event_moving_rat": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_moving_rat.webp",
+    "bytes": 49972,
+    "droppedSpecks": 153,
+    "gate": [],
+    "sha256": "bb1af122f31dceca6c5ebb215ca36a73e5438ba84acff1a857b8dffcbabe657f",
+    "at": "2026-09-26 00:44:57"
+  },
+  "event_sleeping_guard": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_sleeping_guard.webp",
+    "bytes": 43848,
+    "droppedSpecks": 92,
+    "gate": [],
+    "sha256": "95ff269c8de67b3eca0fa228c64558022b681cc1d6ac956252fe943ee7782232",
+    "at": "2026-09-26 00:44:53"
+  },
+  "event_sleeping_guard_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_sleeping_guard_r1.webp",
+    "bytes": 43698,
+    "droppedSpecks": 61,
+    "gate": [],
+    "sha256": "9824f9b308744dd6349a6e5809c8d2aa6aabbb7b6cbc60fdaa4f6d00842af06c",
+    "at": "2026-09-26 00:50:47"
+  },
+  "event_sleeping_guard_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_sleeping_guard_r2.webp",
+    "bytes": 43698,
+    "droppedSpecks": 63,
+    "gate": [],
+    "sha256": "10e529418fe792b3d87c1f582ca421165efbf6e054830289c556159e480cc76b",
+    "at": "2026-09-26 00:56:16"
+  }
+}

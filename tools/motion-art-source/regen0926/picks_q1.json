@@ -1,0 +1,74 @@
+{
+  "event_blocked_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_blocked_r0.webp",
+    "bytes": 44558,
+    "droppedSpecks": 117,
+    "gate": [],
+    "sha256": "5b29250da829caeaef4a2e36affefbcc6d5af4e65a81a5e1280ad179c87bc714",
+    "at": "2026-09-26 00:43:58"
+  },
+  "event_lost_kitten": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_lost_kitten.webp",
+    "bytes": 35722,
+    "droppedSpecks": 178,
+    "gate": [],
+    "sha256": "c3da0ed328e78c838ca6eb273125d34812a72c2597f6c811232488867e3272cf",
+    "at": "2026-09-26 00:43:55"
+  },
+  "event_lost_kitten_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_lost_kitten_r0.webp",
+    "bytes": 38128,
+    "droppedSpecks": 246,
+    "gate": [],
+    "sha256": "9fcf0b1cc1dae6cf11268289650376ba9f9195bbe93e415c1ceadc045848b280",
+    "at": "2026-09-26 00:49:04"
+  },
+  "event_lost_kitten_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_lost_kitten_r1.webp",
+    "bytes": 39152,
+    "droppedSpecks": 172,
+    "gate": [],
+    "sha256": "a759cb86308afeabd16bd7caa890feb534ffe2a7bf54da5d412d3a3e055edcea",
+    "at": "2026-09-26 00:49:08"
+  },
+  "event_rat_stall": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_rat_stall.webp",
+    "bytes": 46614,
+    "droppedSpecks": 168,
+    "gate": [],
+    "sha256": "9977754769ef7016d4c1be5f2da8737657276476fe076030089a7765abeec956",
+    "at": "2026-09-26 00:43:51"
+  },
+  "event_rat_stall_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_rat_stall_r0.webp",
+    "bytes": 44464,
+    "droppedSpecks": 166,
+    "gate": [],
+    "sha256": "c5e38a38d6a6e3569e0b98f0bef49e35dcc38c54c2ff95c34c1afe0196b37fd7",
+    "at": "2026-09-26 00:49:00"
+  },
+  "event_toll": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_toll.webp",
+    "bytes": 50892,
+    "droppedSpecks": 184,
+    "gate": [],
+    "sha256": "8e53550d486a2358422b759b5591cae409d34f209ae4190b0feada3ed660062d",
+    "at": "2026-09-26 00:43:48"
+  },
+  "event_toll_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_toll_r0.webp",
+    "bytes": 47622,
+    "droppedSpecks": 121,
+    "gate": [],
+    "sha256": "6ae867f392a21f0558104fc73910eb70d54b29eea7dfad5eb490469de3929323",
+    "at": "2026-09-26 00:48:57"
+  }
+}

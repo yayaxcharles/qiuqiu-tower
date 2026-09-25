@@ -48,6 +48,8 @@ tools/motion-art-source/regen0924/_old/
 # 2026-09-25 第二輪重審（REGEN_ROUND=0925）同上
 tools/motion-art-source/regen0925/**/*.png
 tools/motion-art-source/regen0925/_old/
+tools/motion-art-source/regen0926/**/*.png
+tools/motion-art-source/regen0926/_old/
 # 封封補三張花蓄氣攻擊牌的原圖與參考圖（2026-09-25，gen_fengfeng_qi_cards_0925.py）：圖不進版控，提示詞紀錄 prompts.json 照樣進
 tools/motion-art-source/fengfeng_qi_0925/**/*.png
 tools/motion-art-source/fengfeng_qi_0925/*.picked

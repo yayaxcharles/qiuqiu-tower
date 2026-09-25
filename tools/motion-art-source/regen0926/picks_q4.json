@@ -1,0 +1,20 @@
+{
+  "event_heavy_door_r2": {
+    "attempt": 4,
+    "file": "public/assets/bg/event_heavy_door_r2.webp",
+    "bytes": 37146,
+    "droppedSpecks": 65,
+    "gate": [],
+    "sha256": "d1d1f440f8f613f5e23d72821bb87592b43dcee4754a3636afe71b7b6d258275",
+    "at": "2026-09-26 01:28:15"
+  },
+  "event_moving_rat_r0": {
+    "attempt": 5,
+    "file": "public/assets/bg/event_moving_rat_r0.webp",
+    "bytes": 49170,
+    "droppedSpecks": 151,
+    "gate": [],
+    "sha256": "a3ec8e6953ba413f825a38c93feabe4f02e3765b32bb09ac8de65310a7f67684",
+    "at": "2026-09-26 01:28:12"
+  }
+}

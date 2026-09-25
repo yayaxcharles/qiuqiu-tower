@@ -1,0 +1,74 @@
+{
+  "event_broken_shrine": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_broken_shrine.webp",
+    "bytes": 49980,
+    "droppedSpecks": 83,
+    "gate": [],
+    "sha256": "6589227ce8a6d32c61c006f302d470668d745ce98359a7ebf4a4ec6a90e3d8c3",
+    "at": "2026-09-26 00:47:47"
+  },
+  "event_broken_shrine_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_broken_shrine_r0.webp",
+    "bytes": 53500,
+    "droppedSpecks": 96,
+    "gate": [],
+    "sha256": "8b6d7529464b79d7dffbc96d0c73a2cebe54b27b21edd43ba8548c1ea576a58c",
+    "at": "2026-09-26 00:47:50"
+  },
+  "event_broken_shrine_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_broken_shrine_r1.webp",
+    "bytes": 55126,
+    "droppedSpecks": 118,
+    "gate": [],
+    "sha256": "0822f4e8ad4718ce9d1cacdd2e239e96f15d788421a1f55652bc11794f9c45f4",
+    "at": "2026-09-26 00:47:54"
+  },
+  "event_lost_scroll_r0": {
+    "attempt": 4,
+    "file": "public/assets/bg/event_lost_scroll_r0.webp",
+    "bytes": 35094,
+    "droppedSpecks": 184,
+    "gate": [],
+    "sha256": "73d3c16e6dded41545e41cb070b83351a702d3a63922245104d9d801a422b85f",
+    "at": "2026-09-26 00:50:15"
+  },
+  "event_mirror_hall": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_mirror_hall.webp",
+    "bytes": 52032,
+    "droppedSpecks": 186,
+    "gate": [],
+    "sha256": "7bab65a4c216f03831f1f6990e0c685ebe464fdc9ee521c087903b33afc892f2",
+    "at": "2026-09-26 00:47:58"
+  },
+  "event_old_well": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_old_well.webp",
+    "bytes": 44296,
+    "droppedSpecks": 182,
+    "gate": [],
+    "sha256": "99470242dee92c59480ec1a87dfcedc404c9071e409f4c8c6f0abbfce5123a41",
+    "at": "2026-09-26 00:49:40"
+  },
+  "event_old_well_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_old_well_r0.webp",
+    "bytes": 45034,
+    "droppedSpecks": 88,
+    "gate": [],
+    "sha256": "33bb3314c7c62318e2d54c607cdcaea140451a6cfc489328e90633bd837df7b5",
+    "at": "2026-09-26 00:52:13"
+  },
+  "event_old_well_r1": {
+    "attempt": 4,
+    "file": "public/assets/bg/event_old_well_r1.webp",
+    "bytes": 45756,
+    "droppedSpecks": 117,
+    "gate": [],
+    "sha256": "cf97d42b2296c3759df2dd729406b228f4256665536a956ca70fb0c928e1effd",
+    "at": "2026-09-26 00:52:16"
+  }
+}
