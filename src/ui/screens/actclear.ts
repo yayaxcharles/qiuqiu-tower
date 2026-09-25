@@ -158,7 +158,7 @@ registerScreen('actclear', (app, root, props) => {
         url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
         el('b', {}, d.name),
         partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
-        el('em', {}, relicLongText(d, me(run, seat).relics)));   // 師門那兩件多一段集到幾件（2026-09-23 第二批），挑的時候就看得到湊不湊得成
+        el('em', {}, relicLongText(d, me(run, seat).relics)));   // 過關三選一沒有行數限制，用長句看得到淨化的代價（2026-09-25 推前審查二 低-1）。師門那兩件多一段集到幾件（2026-09-23 第二批），挑的時候就看得到湊不湊得成
       if (!sent && !iDown) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); refresh(); });
       tiles.set(id, node);
       relicRow.append(node);

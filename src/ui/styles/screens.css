@@ -1219,6 +1219,32 @@
 .swap-text em { font-style: normal; font-size: 12.5px; color: #6b5a45; }
 .swap-go { color: #7a3d15; font-weight: bold; white-space: nowrap; }
 
+/* ===== 淨化結果視窗（purifyreveal.ts，2026-09-25）：原件罩紫霧 → 霧散 → 淨化版白金光彈出；綠字拿掉的壞處、橘字代價 ===== */
+.purify-modal { max-width: 560px; }
+/* 高度用舞台的像素（舞台整塊縮放，vh 照的是真螢幕：手機 390 高只剩 234，溫泉兩件第二列被切掉）；兩件放得下，三件以上自己捲 */
+.purify-list { display: flex; flex-direction: column; gap: 12px; max-height: 440px; overflow-y: auto; }
+.purify-row { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 14px; border: 1.5px solid #3a2a1c33; border-radius: 10px; background: #fffdf6; }
+.purify-icons { display: flex; align-items: center; gap: 28px; margin-bottom: 4px; }
+.purify-icons img, .purify-noart { width: 80px; height: 80px; object-fit: contain; }
+.purify-noart { display: grid; place-items: center; border-radius: 10px; background: #efe6d6; font-weight: bold; }
+.purify-arrow { font-size: 24px; color: #7a3d15; }
+.purify-before, .purify-after, .purify-before > img, .purify-after > img { display: block; }   /* 圖是行內元素的話底下多一條基線空隙 */
+.purify-before { animation: purify-haze 0.9s ease-in-out infinite alternate; transition: opacity .4s ease, filter .4s ease; }
+.purify-before.cleared { animation: none; filter: grayscale(.7); opacity: .4; }
+.purify-after { opacity: 0; transform: scale(.55); transition: opacity .35s ease, transform .4s cubic-bezier(.2, .9, .3, 1.35); filter: drop-shadow(0 0 8px #ffe7a0); }
+.purify-after.shown { opacity: 1; transform: scale(1); }
+@keyframes purify-haze { from { filter: drop-shadow(0 0 3px #8a4fd0); } to { filter: drop-shadow(0 0 11px #6b2fb0) drop-shadow(0 0 4px #8a4fd0); } }
+.purify-names { font-size: 15px; }
+.purify-good, .purify-bad, .purify-none { font-size: 13.5px; }
+.purify-good { color: #2f7d32; }
+.purify-bad { color: #b85c14; }
+.purify-none { color: #8a7a66; }
+.purify-modal .modal-foot { margin-top: 18px; }
+@media (prefers-reduced-motion: reduce) {
+  .purify-before { animation: none; }
+  .purify-after { transition: none; }
+}
+
 /* 帶滿收不下的忍具列：壓暗一點，跟真的拿到的分開 */
 .scene .reward-items .reward-item.missed { opacity: .7; border-style: dashed; }
 .swap-modal .modal-foot { margin-top: 22px; }   /* 「不換」鈕跟清單拉開，不壓到最後一支（使用者 2026-09-02） */

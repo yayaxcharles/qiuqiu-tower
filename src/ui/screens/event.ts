@@ -8,6 +8,7 @@ import { relicById, relicLongText } from '../../content/relics';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, purifyRelic, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
 import { showPurifyPick } from '../purifypick';
+import { purifiedBetween, showPurifyReveal } from '../purifyreveal';
 import { choiceEffectsFor, choiceGate, choiceOrder, resultSeat, seatTextIndex, visibleChoices, type ChoiceGate } from '../../engine/eventcond';
 import { heroName, heroOf, type Hero } from '../../engine/hero';
 import { allVoted, onlyStanding, settleVotes } from '../../engine/vote';
@@ -94,7 +95,7 @@ function gainsNode(gains: readonly RunGain[], owned: readonly string[]): HTMLEle
  */
 function gainText(g: RunGain, owned: readonly string[]): string {
   const r = g.kind === '秘寶' ? relicById[g.id] : undefined;
-  return r ? relicLongText(r, owned) : potionById[g.id]?.text ?? '';
+  return r ? relicLongText(r, owned, true) : potionById[g.id]?.text ?? '';
 }
 
 /**
@@ -205,6 +206,12 @@ registerScreen('event', (app, root, props) => {
    */
   const seat = app.seat;
   const coop = app.coop;
+  /**
+   * 走進事件時自己身上的秘寶（2026-09-25 淨化結果視窗）：結果畫好時跟現在的比，淨化掉哪幾件就秀出來（`purifiedBetween`）。
+   * 一件、全部、挑的、連線投票淨化的都走得到這裡，不用每條路各接一次。`purifyShown` 記秀過的，`finish` 叫幾次都只秀一次
+   */
+  const relicsAtStart = [...me(run, seat).relics];
+  const purifyShown = new Set<string>();
   const evd = ev;   // 收斂成不可為 undefined 的常數，給下面的內部函式用（窄化不會跟進函式裡）
   // 插圖照誰挑、要不要在旁邊放自己的立繪（連線的鏡子走廊照座位 0，見 assets.ts 的 `eventArtHero`）
   const artHero = eventArtHero(ev.id, run.players.map((p) => p.hero));
@@ -410,7 +417,11 @@ registerScreen('event', (app, root, props) => {
         askNext(i + 1);
       }, missed.length > 1 ? { progress: `第 ${i + 1}／${missed.length} 支`, seat, apply: false } : { seat, apply: false });
     };
-    if (missed.length) window.setTimeout(() => askNext(0), 400);
+    // 這一次淨化掉的（2026-09-25）：先秀淨化結果視窗，關掉之後才接著問忍具要不要換，兩個視窗不疊在一起
+    const purified = purifiedBetween(relicsAtStart, me(run, seat).relics).filter((id) => !purifyShown.has(id));
+    for (const id of purified) purifyShown.add(id);
+    if (purified.length) showPurifyReveal(purified, () => { if (missed.length) askNext(0); });
+    else if (missed.length) window.setTimeout(() => askNext(0), 400);
   };
 
   /**

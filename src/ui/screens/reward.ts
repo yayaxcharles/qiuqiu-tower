@@ -1,7 +1,7 @@
 import { play } from '../audio';
 import { cardById, cardNameFor } from '../../content/cards';
 import { potionById } from '../../content/potions';
-import { relicById } from '../../content/relics';
+import { relicById, relicLongText } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
 import { closeCardReward, heroesIn, relicForPartnerOnly, runRng, takeCardReward, upgradeCard } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
@@ -298,7 +298,8 @@ registerScreen('reward', (app, root, props) => {
       const b = el('button', { class: `relic-offer${mine === id ? ' picked' : ''}${got ? ' got' : ''}${partnerOnly ? ' partner-only' : ''}` },
         icon(d.art, d.name),
         el('span', { class: 'relic-offer-text' }, el('b', {}, d.name),
-          partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '', el('em', {}, d.text)),
+          // 沾魔氣的補「可淨化成…」短句（2026-09-25：原本直接寫說明原文，挑的當下看不到可以淨化）
+          partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '', el('em', {}, relicLongText(d, me(run, seat).relics, true))),
         who.length ? el('span', { class: 'relic-offer-who' }, who.join('、')) : '');
       if (mine || r.relicSettled || iDown) b.setAttribute('disabled', 'disabled');
       else b.addEventListener('click', () => { play('click'); coop.pick('relic', id); });

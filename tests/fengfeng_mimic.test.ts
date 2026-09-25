@@ -26,6 +26,10 @@ const EXPECT: Record<string, EnemyEffect[] | null> = {
   fengfeng_huanshou: [{ kind: 'block', amount: 5 }],
   fengfeng_jianqiao: [{ kind: 'block', amount: 26 }],
   fengfeng_huibu: [{ kind: 'damage', amount: 16 }],
+  // 2026-09-25 補的三張：順手一劍 2＋3×3、連環三劍 (2＋1×4)×3；一口氣用光全部蓄氣，跟斷流、開山一樣不學
+  fengfeng_shunjian: [{ kind: 'damage', amount: 11 }],
+  fengfeng_sanlian: [{ kind: 'damage', amount: 6, times: 3 }],
+  fengfeng_yikouqi: null,
   fengfeng_chuantang: [{ kind: 'damage', amount: 26, pierce: true }],
   fengfeng_shuangduan: [{ kind: 'damage', amount: 11, times: 2 }],
   fengfeng_huzhou: [{ kind: 'damage', amount: 20 }],
@@ -48,8 +52,8 @@ const EXPECT: Record<string, EnemyEffect[] | null> = {
 };
 
 describe('鏡中影子學封封的牌', () => {
-  it('32 張逐張都有明確轉譯或明確略過', () => {
-    expect(HERS).toHaveLength(32);
+  it('35 張逐張都有明確轉譯或明確略過', () => {
+    expect(HERS).toHaveLength(35);
     expect(Object.keys(EXPECT).sort()).toEqual([...HERS].sort());
     for (const id of HERS) expect(learnCard(inst(id, 1)), id).toEqual(EXPECT[id]);
   });

@@ -26,7 +26,8 @@ function body(head: string, indent = '', semi = ''): string {
 
 describe('「拿到了什麼」那一欄的秘寶說明走 relicLongText（師門寫集到幾件）', () => {
   it('說明只有一個出口：秘寶走 relicLongText、照身上現在的秘寶數', () => {
-    expect(body('function gainText(')).toContain('relicLongText(r, owned)');
+    // 2026-09-25 第三個參數 true＝淨化那句用短句（對白框那一列只有一兩行，推前審查 低-2）
+    expect(body('function gainText(')).toContain('relicLongText(r, owned, true)');
   });
 
   it('放大彈出的那一顆、對白框那一列都用它，不再直接寫 d.text', () => {

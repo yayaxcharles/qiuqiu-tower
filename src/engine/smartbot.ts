@@ -108,6 +108,11 @@ const RATING: Record<string, number> = {
   fengfeng_lianxi: 3,      // 絕學·連息（−1.7）
   fengfeng_cunfeng: 3,     // 絕學·藏鋒（−1.8）
   fengfeng_changxi: 3,     // 長息（−2.1）
+  // 2026-09-25 補的三張（使用者要多一點花氣打傷害的攻擊牌）：同一個方法、每批 1500 局，憋氣乙版之後的規則。
+  // 同一天量的對照：雙段劍 +0.70、多塞一張平斬 −0.31——上面那些分數是憋氣之前量的，整體要重量再說
+  fengfeng_shunjian: 6,    // 順手一劍（+0.45）
+  fengfeng_sanlian: 5,     // 連環三劍（+0.14；每段 1 起時 −0.22，改 2 起）
+  fengfeng_yikouqi: 5,     // 一口氣（+0.16；基礎 4／每點 2 時 −0.41、基礎 3／每點 3 時 −0.51，改基礎 6）
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,
