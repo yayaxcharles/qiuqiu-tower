@@ -1,0 +1,74 @@
+{
+  "event_fengfeng_broken_bridge_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_broken_bridge_r0.webp",
+    "bytes": 41656,
+    "droppedSpecks": 272,
+    "gate": [],
+    "sha256": "1eb87990c1c23af38a1b245094b2738693a56bc93555fd1df2564c3405267cf2",
+    "at": "2026-09-26 01:44:00"
+  },
+  "event_fengfeng_broken_bridge_r2": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_broken_bridge_r2.webp",
+    "bytes": 46006,
+    "droppedSpecks": 580,
+    "gate": [],
+    "sha256": "2ed3432ff403e86fa6786a99b5ba13323c67d5e1c9550458a92b29f6336a99e5",
+    "at": "2026-09-26 01:44:04"
+  },
+  "event_fengfeng_greedy_merchant_r3": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_greedy_merchant_r3.webp",
+    "bytes": 48318,
+    "droppedSpecks": 160,
+    "gate": [],
+    "sha256": "ed5666df2e1fc803db0474d9ab90c2e3ee34143d8c122039c9b412c1c43a6280",
+    "at": "2026-09-26 01:44:21"
+  },
+  "event_fengfeng_heavy_door": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_heavy_door.webp",
+    "bytes": 38360,
+    "droppedSpecks": 86,
+    "gate": [],
+    "sha256": "1d7aff7db1daed90b5fd77952613a50855b4dbc9e7d49a736ac3ea565096fa89",
+    "at": "2026-09-26 01:44:18"
+  },
+  "event_fengfeng_medicine_cat_r3": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_medicine_cat_r3.webp",
+    "bytes": 53386,
+    "droppedSpecks": 170,
+    "gate": [],
+    "sha256": "037ff6633c979fd76ab8762ff4830087e8960b466be53793c6c067032ce8f1fc",
+    "at": "2026-09-26 01:44:14"
+  },
+  "event_fengfeng_rescue_r1": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_rescue_r1.webp",
+    "bytes": 40256,
+    "droppedSpecks": 178,
+    "gate": [],
+    "sha256": "9924b8f5a34b5a4e8370f3d12fb0b6a89bac0d89d1699707c339de9d804da972",
+    "at": "2026-09-26 01:44:11"
+  },
+  "event_fengfeng_seclusion_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_seclusion_r0.webp",
+    "bytes": 46174,
+    "droppedSpecks": 78,
+    "gate": [],
+    "sha256": "fd1bd5ac3e58026c76b68e328bb5f99060f8760afd0926347428c5f975c744d4",
+    "at": "2026-09-26 01:44:07"
+  },
+  "event_fengfeng_stuck_scabbard": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_stuck_scabbard.webp",
+    "bytes": 34734,
+    "droppedSpecks": 136,
+    "gate": [],
+    "sha256": "5253cde7a1f9a1f211e09fba67ec87f3efb3ac8689a016a9841e825858da7a4b",
+    "at": "2026-09-26 01:43:56"
+  }
+}

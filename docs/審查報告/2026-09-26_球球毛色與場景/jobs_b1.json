@@ -1,0 +1,130 @@
+{
+  "event_stuck_kitten": {
+    "hero": "ninja",
+    "why": "球球偏白灰、深灰條紋，要改成參考圖的淡奶油色、灰褐條紋；場景照現行主文：小貓頭卡在欄杆裡、後腳踩地、尾巴直甩，母貓扶著牠肩膀小聲安撫。",
+    "scene": "SETTING: the same small patch of warm brown wooden plank floor and the same dark-brown wooden railing (a top rail on square posts with vertical balusters) as in reference image 3 - copy the floor, the railing, the ORANGE TABBY MOTHER CAT and the small ORANGE TABBY KITTEN exactly. The railing stands on the RIGHT. The KITTEN has pushed its head through the narrow gap between two balusters and is stuck: its head pokes out on the far side of the railing, its body stays on the near side, its two hind paws pressed down on the floor, and its tail whips wildly (short curved motion lines around the tail); a sweat drop and a panicked face. The MOTHER CAT stands right beside the kitten, both front paws resting gently on the kitten's shoulders, leaning close to it and whispering calmly - a soothing face with a small closed-mouth smile. Qiuqiu stands a few steps away on the LEFT on the same floor, watching with a worried face, both paws held in front of his chest, about to step forward and help. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey, NOT dark grey stripes; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_stuck_kitten.webp",
+        "the PREVIOUS version of this same picture: copy its wooden floor, the wooden railing, the orange tabby mother cat and the small orange tabby kitten exactly. Its Qiuqiu has the WRONG cool white-grey fur with dark grey stripes - do NOT copy Qiuqiu's colours from it."
+      ]
+    ]
+  },
+  "event_stuck_kitten_r0": {
+    "hero": "ninja",
+    "why": "球球偏白灰、深灰條紋，改淡奶油色；舊圖只有母貓遞小魚乾，文字寫的「母貓拿傷藥替球球處理舊傷」沒畫出來。要跟新主圖同一套。",
+    "scene": "SETTING: the same small patch of warm brown wooden plank floor and the same dark-brown wooden railing as in reference image 3 (the main picture of this same event), the railing on the RIGHT, with the same ORANGE TABBY MOTHER CAT and the same small ORANGE TABBY KITTEN - copy them exactly. The rescue is over: the KITTEN is FREE and stands on the floor beside the railing (its head is no longer in the railing), looking up at Qiuqiu sheepishly. Qiuqiu sits on the floor in the middle; one of his paws rests gently on the kitten's head, and he looks at the kitten with a kind, slightly scolding smile. The MOTHER CAT sits on Qiuqiu's other side, treating his old wound: Qiuqiu holds out his other forearm toward her with the navy sleeve pushed up, showing a small old scar on the fur; the mother cat holds a small round open tin of green ointment in one paw and dabs the ointment onto the scar with the other paw. On the floor right in front of Qiuqiu lies her thank-you gift: a bundle of about twenty small silver dried fish tied together with a string. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey, NOT dark grey stripes; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_stuck_kitten.webp",
+        "the main picture of this same event: copy its wooden floor, the wooden railing, the orange tabby mother cat, the small orange tabby kitten and Qiuqiu's colours exactly. Take the setting and the characters' looks, not the poses."
+      ]
+    ]
+  },
+  "event_stuck_kitten_r1": {
+    "hero": "ninja",
+    "why": "球球偏白灰、深灰條紋，改淡奶油色；照現行文字：母貓教小貓轉肩膀從欄杆間退出來，球球在旁看著跟著練轉身。要跟新主圖同一套。",
+    "scene": "SETTING: the same small patch of warm brown wooden plank floor and the same dark-brown wooden railing as in reference image 3, the railing on the RIGHT, with the same ORANGE TABBY MOTHER CAT and the same small ORANGE TABBY KITTEN - copy their looks exactly. THE KITTEN IS NO LONGER STUCK: it has just backed out of the railing and now stands wholly on the near side of it, a little in front of the railing, its head completely OUT of the railing - no part of the kitten is between the balusters, and there is clear empty space between the kitten and the railing. Its body is still twisted, one shoulder turned sideways, as it finishes the turning move, and it looks relieved. The MOTHER CAT stands right beside the kitten, one paw resting on the kitten's turned shoulder, having just shown it how to turn. On the LEFT, Qiuqiu watches closely and practises the same move: he stands with his body turned sideways, one shoulder dipped and turned forward, both paws tucked close to his chest, his eyes fixed on the kitten with a focused, keen look; two small curved motion lines around his turning shoulder. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey, NOT dark grey stripes; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_stuck_kitten.webp",
+        "the main picture of this same event: copy its wooden floor, the wooden railing, the orange tabby mother cat's and the small orange tabby kitten's looks and Qiuqiu's colours exactly. In that picture the kitten's head is stuck in the railing - in THIS picture the kitten is already free and out of the railing. Take the setting and the characters' looks only, NOT the poses."
+      ],
+      [
+        "bg/event_stuck_kitten_r0.webp",
+        "another result picture of this same event, where the kitten is already free: the kitten stands on the floor in front of the railing, not in it. Copy the idea that the kitten is out and free, and the same floor, railing and cats; not the poses."
+      ]
+    ]
+  },
+  "event_robin_feast": {
+    "hero": "ninja",
+    "why": "球球偏白灰，改淡奶油色；主文寫「旁邊還放了一袋備好的乾糧和一個小包」，舊圖沒有，補上。",
+    "scene": "SETTING: a small patch of grey stone floor. The same big black iron pot of hot fish soup over a small campfire of crossed logs, with a wooden ladle in it, and the same three VILLAGE CATS as in reference image 3 - copy them exactly (a calico cat in a patched brown tunic, a grey-and-white cat in a patched olive-green tunic, an orange-and-white cat in a rust-red tunic). Steam rises from the soup. The three village cats stand around the pot on the LEFT, beaming, and have made room for Qiuqiu: the orange-and-white cat waves him over with one open paw, and an empty small wooden stool stands in the free spot beside the pot. On the floor in front of the pot lie a plump brown burlap sack of travel provisions tied at the top with string, a few dried fish tails poking out of its top, and right next to it a small square bundle wrapped in dark-green cloth, knotted on top. Qiuqiu has just arrived on the RIGHT, standing, surprised and touched, sniffing the good smell with a small smile. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_robin_feast.webp",
+        "the PREVIOUS version of this same picture: copy its iron soup pot, the campfire, the wooden stool and the three village cats (their fur and patched tunics) exactly. Its Qiuqiu has the WRONG cool white-grey fur - do NOT copy Qiuqiu's colours from it."
+      ]
+    ]
+  },
+  "event_robin_feast_r0": {
+    "hero": "ninja",
+    "why": "球球偏白灰，改淡奶油色，跟新主圖同一套（同一鍋湯、同三隻村貓）。",
+    "scene": "SETTING: the same small patch of grey stone floor, the same big black iron pot of hot fish soup over the small campfire and the same three VILLAGE CATS as in reference image 3 (the main picture of this same event) - copy them exactly. Qiuqiu sits on the small wooden stool beside the pot, holding a wooden bowl of soup in both paws and eating happily, eyes closed with delight, his belly round and full. On the floor beside his stool stands a stack of four empty wooden bowls he has already finished. The orange-and-white village cat pours more soup into his bowl with the wooden ladle; the calico cat brings a small plate with a rice ball and a grilled fish; the grey-and-white cat claps happily. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_robin_feast.webp",
+        "the main picture of this same event: copy its stone floor, the iron soup pot, the campfire, the wooden stool, the three village cats (their fur and patched tunics) and Qiuqiu's colours exactly. Take the setting and the characters' looks, not the poses."
+      ]
+    ]
+  },
+  "event_robin_feast_r1": {
+    "hero": "ninja",
+    "why": "球球偏白灰，改淡奶油色，跟新主圖同一套；結果是村貓把小魚乾和忍具分開包好交給球球，交的就是主圖那袋乾糧和小包。",
+    "scene": "SETTING: the same small patch of grey stone floor, the same big black iron pot of hot fish soup over the small campfire (on the LEFT) and the same three VILLAGE CATS as in reference image 3 (the main picture of this same event) - copy them exactly, together with the same plump brown burlap sack and the same small dark-green cloth bundle. The village cats hand Qiuqiu supplies for the road, packed separately: the calico cat has just given him the plump brown burlap sack of dried fish (tied at the top, dried fish tails poking out) - Qiuqiu holds it firmly in the crook of one arm against his side; with his other paw he takes the small square bundle wrapped in dark-green cloth, knotted on top, from the orange-and-white cat's paws. The grey-and-white cat smiles and waves. Qiuqiu stands on the RIGHT with a warm, grateful smile. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_robin_feast.webp",
+        "the main picture of this same event: copy its stone floor, the iron soup pot, the campfire, the three village cats (their fur and patched tunics), the brown burlap provisions sack, the small dark-green cloth bundle and Qiuqiu's colours exactly. Take the setting, the props and the characters' looks, not the poses."
+      ]
+    ]
+  },
+  "event_rescue": {
+    "hero": "ninja",
+    "why": "畫風是色鉛筆水彩，跟其他事件圖（粗黑線平塗）不同；球球偏灰褐、跟受傷村貓幾乎同色。改一般畫風、球球淡奶油色；村貓維持米褐底深褐條紋（後續「村貓的回禮」都照這隻），腳踝受傷綁繃帶。",
+    "scene": "SETTING: the same small patch of sandy dirt ground with a few small grey pebbles as in reference image 3 - a quiet, safe corner. The injured VILLAGE CAT - EXACTLY the village cat of reference image 3: light sandy-beige fur with dark-brown tabby stripes, pink inner ears, a few small red scratch marks on its body - lies resting on its side on the ground on the LEFT, propped up on one elbow, tired but relieved. The lower part of one of its front legs, just above the paw (its ankle), is wrapped in a clean white bandage. With its other front paw it pushes two gifts forward on the ground toward Qiuqiu: the same tied brown cloth bag of dried fish as in reference image 3, and a small green glass jar of catnip medicine with a cork stopper and a green leaf on it. Qiuqiu kneels on the ground on the RIGHT, facing the village cat, both paws resting on his knees, looking at the two gifts with a surprised, modest face. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT grey-brown; he is clearly paler and pinker than the sandy-beige village cat; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_rescue_r0.webp",
+        "a result picture of this same event, drawn in the correct game style: copy the injured village cat's look exactly (light sandy-beige fur with dark-brown tabby stripes, red scratch marks, the white bandage just above one front paw), the tied brown cloth bag of dried fish and the sandy dirt ground with pebbles. Take the village cat, the bag and the ground, not the poses and not Qiuqiu."
+      ]
+    ]
+  },
+  "event_rescue_r1": {
+    "hero": "ninja",
+    "why": "跟主圖同樣是色鉛筆水彩畫風、球球偏灰褐跟村貓同色；改一般畫風、球球淡奶油色，跟新主圖同一套；照文字：球球收好小魚乾、替村貓檢查繃帶。",
+    "scene": "SETTING: the same small patch of sandy dirt ground with a few small grey pebbles, the same injured VILLAGE CAT (light sandy-beige fur with dark-brown tabby stripes, red scratch marks, a white bandage just above one front paw), the same tied brown cloth bag of dried fish and the same small green glass jar of catnip medicine as in reference image 3 (the main picture of this same event) - copy them exactly. Qiuqiu has chosen the dried fish: the tied brown cloth bag of dried fish now hangs tied at his black sash. He kneels on the ground beside the village cat and, with both paws, gently holds the village cat's bandaged front leg and checks the white bandage, looking at it carefully with a caring, slightly stern face. The village cat lies on its side propped up on one elbow and smiles at him gratefully. The small green glass jar of catnip medicine stands on the ground right next to the village cat - the village cat keeps it. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT grey-brown; he is clearly paler and pinker than the sandy-beige village cat; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_rescue.webp",
+        "the main picture of this same event: copy its sandy dirt ground, the injured village cat, the brown bag of dried fish, the green catnip jar and Qiuqiu's colours exactly. Take the setting, the props and the characters' looks, not the poses."
+      ],
+      [
+        "bg/event_rescue_r0.webp",
+        "another result picture of this same event: the same village cat (light sandy-beige fur with dark-brown tabby stripes, the white bandage just above one front paw) and the same brown bag of dried fish. Take only the village cat's look and the bag, not the poses and not Qiuqiu."
+      ]
+    ]
+  },
+  "event_ninja_target_r1": {
+    "hero": "ninja",
+    "why": "靶面畫成原木年輪、紅白靶環不見；同事件主圖與 r0 是紅白同心圓靶面。球球也偏白灰。照文字：拔下手裏劍、斷的丟地上、挑三枚握在手裡掂。",
+    "scene": "SETTING: the same small patch of wooden plank floor and the same big round wooden target standing on its wooden A-frame stand lashed with rope, as in reference image 3 (the main picture of this same event) - copy the target exactly: its face is painted with RED-AND-WHITE CONCENTRIC RINGS (an outer red ring, a white ring, an inner red ring, and a pale, shiny worn bullseye in the centre) - NOT bare wood grain, NOT tree rings. Several rusty dark-grey shuriken are still stuck in the target, and there are a few small empty holes where shuriken were pulled out. Qiuqiu stands on the floor in front of the target, turned toward the viewer. His RIGHT paw is raised in front of his chest, palm up and open, with exactly THREE good shuriken resting in it; he bounces them slightly to feel their weight (one tiny curved motion line under the paw) and looks at them with a satisfied, appraising face. His LEFT paw hangs relaxed at his side. On the floor near his feet lie a few BROKEN shuriken - snapped halves and pieces with missing points - that he has thrown away. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_ninja_target.webp",
+        "the main picture of this same event: copy its wooden plank floor and the round target on its roped A-frame stand exactly - especially the RED-AND-WHITE concentric rings on the target face and the rusty shuriken stuck in it. Take only the floor and the target, not Qiuqiu."
+      ]
+    ]
+  },
+  "event_greedy_merchant_r1": {
+    "hero": "ninja",
+    "why": "結果文字的笑點是灰貓拿出小本子、一邊看球球一邊記；舊圖沒有小本子，灰貓還拿著秘寶。補上灰貓拿小本子邊看邊記，秘寶已交到球球手上；球球也偏白灰。",
+    "scene": "SETTING: the same red cloth with gold-tasselled corners spread flat on the floor, and the same GREY MERCHANT CAT as in reference image 3 (the main picture of this same event) - copy him exactly: grey cat with round gold-rimmed spectacles, black tailcoat, purple waistcoat, white shirt, red bow tie. Qiuqiu stands on the red cloth on the RIGHT, hunched over, his chest tight and out of breath: his LEFT paw is pressed flat on his chest, his mouth open, panting, sweat drops on his forehead, and a faint golden glow is still fading on his back where the power was pushed in. His RIGHT paw firmly holds the promised treasure - a glowing blue crystal orb - it is his now. He glares sideways at the merchant with an indignant, annoyed face. The GREY MERCHANT stands on the LEFT, a step behind him, completely calm, taking notes: his LEFT paw holds a small open notebook up with its pages facing HIS OWN eyes (the viewer sees only the plain brown cover of the notebook), and his RIGHT paw writes in it with a tiny brush pen. His eyes peer over his spectacles at Qiuqiu, studying him like an experiment, with a smug little smile. QIUQIU'S COLOURS: his fur is the warm pale pinkish-cream of reference image 1 with grey-brown stripes - NOT cool grey, NOT white-grey; his face is the same pale cream as his head, with only the small white muzzle of reference image 1.",
+    "style": "bg/event_grindstone.webp",
+    "refs": [
+      [
+        "bg/event_greedy_merchant.webp",
+        "the main picture of this same event: copy the grey merchant cat (round gold-rimmed spectacles, black tailcoat, purple waistcoat, red bow tie) and the red cloth with gold tassels exactly. Take only the merchant's look and the cloth, not his pose and not Qiuqiu."
+      ]
+    ]
+  }
+}

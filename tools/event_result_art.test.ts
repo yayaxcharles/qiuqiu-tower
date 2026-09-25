@@ -53,7 +53,7 @@ describe('事件結果圖', () => {
    * 漏掉的話那兩個選項會沿用原插圖——而 `event_toll` 畫的是山賊**舉著木棒擋路**，
    * 跟「已經讓開了」正好相反。
    *
-   * 進戰鬥的不配：選完就切到戰鬥畫面，結果圖根本沒機會出現。
+   * 進戰鬥的不強制配（可以配，見下面 `mayHaveArt`）。
    */
   const shouldHaveArt = (c: { outcome: { kind: string }[]; costFish?: number; bySeat?: { kind: string }[][] }): boolean => {
     // 座位不對稱的選項（連線限定事件，2026-09-23）效果寫在 `bySeat`、`outcome` 是空的：兩個座位的都要算
@@ -71,9 +71,18 @@ describe('事件結果圖', () => {
     expect(missing, `這幾個選項有發生事卻沒配結果圖：${missing.join('、')}`).toEqual([]);
   });
 
-  it('沒發生事、或選完就進戰鬥的選項不該有專屬結果圖', () => {
+  /*
+   * 進戰鬥的選項**可以**配（2026-09-26 第四輪重審）：選完其實會先停在結果畫面——文字加一顆「開打」鈕
+   * （`src/ui/screens/event.ts` 的 `outcome.fight` 那段），沒配圖時頂著主圖。主圖畫的是守衛還在睡、
+   * 老鼠還在招手，文字卻已經寫「睜開眼睛擋住去路」「掀翻矮桌」，所以補了十個選項。不強制：
+   * 其他進戰鬥的選項主圖本來就是對峙的畫面，頂著也說得通。
+   */
+  const mayHaveArt = (c: Parameters<typeof shouldHaveArt>[0]): boolean =>
+    shouldHaveArt(c) || [...c.outcome, ...(c.bySeat?.flat() ?? [])].some((o) => o.kind === 'fight');
+
+  it('沒發生事的選項不該有專屬結果圖', () => {
     const extra = events.flatMap((ev) => ev.choices
-      .filter((c) => !shouldHaveArt(c) && c.resultArt)
+      .filter((c) => !mayHaveArt(c) && c.resultArt)
       .map((c) => `${ev.title}／${c.label.slice(0, 16)}`));
     expect(extra, `這幾個選項不該配結果圖：${extra.join('、')}`).toEqual([]);
   });

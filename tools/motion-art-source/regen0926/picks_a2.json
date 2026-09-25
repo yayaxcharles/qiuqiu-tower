@@ -1,0 +1,74 @@
+{
+  "event_dangdang_shadow_study_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_shadow_study_r0.webp",
+    "bytes": 34048,
+    "droppedSpecks": 285,
+    "gate": [],
+    "sha256": "9d52df51d394079808acf81b7507ec24d6599f345346b4b34895e4c6c81e3b61",
+    "at": "2026-09-26 01:47:36"
+  },
+  "event_dangdang_shadow_truth_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_dangdang_shadow_truth_r0.webp",
+    "bytes": 37278,
+    "droppedSpecks": 167,
+    "gate": [],
+    "sha256": "c3113a6d569915399fa0ed5ebf611db051c37ab7a47a6c29706c5c0b2eb0df3d",
+    "at": "2026-09-26 01:47:52"
+  },
+  "event_feifei_shadow_study_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_shadow_study_r0.webp",
+    "bytes": 43932,
+    "droppedSpecks": 360,
+    "gate": [],
+    "sha256": "862f98012cbf8ecf6838c013e819e5ac0abb9acde1b0705600ce168d45d7ed78",
+    "at": "2026-09-26 01:47:33"
+  },
+  "event_feifei_shadow_truth_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_shadow_truth_r0.webp",
+    "bytes": 48518,
+    "droppedSpecks": 101,
+    "gate": [],
+    "sha256": "4b8423cf7e8ef6ff309f4a20662220b712354d8fd082f3056bf2fdd5eaf463ab",
+    "at": "2026-09-26 01:47:48"
+  },
+  "event_fengfeng_shadow_study_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_shadow_study_r0.webp",
+    "bytes": 34256,
+    "droppedSpecks": 166,
+    "gate": [],
+    "sha256": "5a127c53dea381e260282d50769b5ae4c522e228abcdda0c9c89da149ac1ad1e",
+    "at": "2026-09-26 01:47:40"
+  },
+  "event_fengfeng_shadow_truth_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_fengfeng_shadow_truth_r0.webp",
+    "bytes": 42736,
+    "droppedSpecks": 92,
+    "gate": [],
+    "sha256": "8824c21f01ec560906d9ff082fe086994a9cc5e01c61d94f3269671fe05399d8",
+    "at": "2026-09-26 01:47:56"
+  },
+  "event_shadow_study_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_shadow_study_r0.webp",
+    "bytes": 35654,
+    "droppedSpecks": 146,
+    "gate": [],
+    "sha256": "67a57d8701e86ad0858bc34c62ef2ef6528d0affbc431b8d756b84d350a3e156",
+    "at": "2026-09-26 01:47:29"
+  },
+  "event_shadow_truth_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_shadow_truth_r0.webp",
+    "bytes": 43652,
+    "droppedSpecks": 74,
+    "gate": [],
+    "sha256": "b2e84171cb4fbff1ebaa3ce387a7becdf0831d12436272f4c7521911ace9fad8",
+    "at": "2026-09-26 01:47:44"
+  }
+}

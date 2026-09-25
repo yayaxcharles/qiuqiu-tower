@@ -1,0 +1,74 @@
+{
+  "event_dangdang_mirror_hall_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_dangdang_mirror_hall_r0.webp",
+    "bytes": 53670,
+    "droppedSpecks": 200,
+    "gate": [],
+    "sha256": "be6fb37be6d3c268c0a9abd7a81c919f2f2dabcf91fb7544a50833093eb4a830",
+    "at": "2026-09-26 01:43:29"
+  },
+  "event_dangdang_sleeping_guard_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_sleeping_guard_r0.webp",
+    "bytes": 44296,
+    "droppedSpecks": 143,
+    "gate": [],
+    "sha256": "25d215c0b649c3b3c34335648dab46e25d6a899a217abdc23c00b91289635aa1",
+    "at": "2026-09-26 01:43:15"
+  },
+  "event_feifei_mirror_hall_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_mirror_hall_r0.webp",
+    "bytes": 46798,
+    "droppedSpecks": 144,
+    "gate": [],
+    "sha256": "181c6827747b999f331cef13ef645982f575c1ac9757382c1c5781fb50ce9b06",
+    "at": "2026-09-26 01:43:25"
+  },
+  "event_feifei_sleeping_guard_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_sleeping_guard_r0.webp",
+    "bytes": 46802,
+    "droppedSpecks": 108,
+    "gate": [],
+    "sha256": "6c4f3ae9d25120561a8f3d8bbee3301eadf563b012e9e0e7fbe6aa2a3fb2eaac",
+    "at": "2026-09-26 01:43:11"
+  },
+  "event_fengfeng_mirror_hall_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_fengfeng_mirror_hall_r0.webp",
+    "bytes": 47198,
+    "droppedSpecks": 496,
+    "gate": [],
+    "sha256": "47e9227b60dcec9bcae14a87bbb2f0ce99bf6b270ddc128f9e7c5b7bde954ca1",
+    "at": "2026-09-26 01:43:34"
+  },
+  "event_fengfeng_sleeping_guard_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_fengfeng_sleeping_guard_r0.webp",
+    "bytes": 39814,
+    "droppedSpecks": 113,
+    "gate": [],
+    "sha256": "eb982091e2b47a84b32e8e0ca2b644e614bd815f3e08b7cb786d3bd94402e4ac",
+    "at": "2026-09-26 01:43:18"
+  },
+  "event_mirror_hall_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_mirror_hall_r0.webp",
+    "bytes": 41638,
+    "droppedSpecks": 206,
+    "gate": [],
+    "sha256": "13b990295376fc5e6cddbbd2b2daea84d4bc0d5e22d607d9c0d7172e7f9da3b2",
+    "at": "2026-09-26 01:43:21"
+  },
+  "event_sleeping_guard_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_sleeping_guard_r0.webp",
+    "bytes": 45454,
+    "droppedSpecks": 89,
+    "gate": [],
+    "sha256": "0d925f643720bbb4bf3fba205146af551d6c407d191c9c0a3c24e30fce36e5e3",
+    "at": "2026-09-26 01:43:07"
+  }
+}

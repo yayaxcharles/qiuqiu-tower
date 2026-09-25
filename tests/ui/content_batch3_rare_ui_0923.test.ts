@@ -31,7 +31,7 @@ describe('圖：四隻各看自己那一套、主圖不進首載', () => {
     const keys: string[] = [];
     for (const e of rareEvents) keys.push(e.id, ...e.choices.flatMap((c) => (c.resultArt ? [c.resultArt] : [])));
     keys.push(eventById['broken_shrine']!.choices[2]!.resultArt!);
-    expect(keys.length).toBe(5 + 12 + 1);   // 進戰鬥與無效果的選項不配（籤筒③、大魔物③、紫霧③）
+    expect(keys.length).toBe(5 + 12 + 1 + 1);   // 無效果的不配（籤筒③、紫霧③）；大魔物③「叫醒牠」進戰鬥，2026-09-26 補了結果圖
     for (const k of keys) {
       const want = hero === 'ninja' ? `bg/event_${k}` : `bg/event_${hero}_${k}`;
       expect(eventArtKey(k, hero), `${hero} ${k}`).toBe(want);

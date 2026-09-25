@@ -1,0 +1,65 @@
+{
+  "event_dangdang_blocked": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_blocked.webp",
+    "bytes": 46136,
+    "droppedSpecks": 75,
+    "gate": [],
+    "sha256": "b7b00187b66ce81e741e7817077c66834cb739019c5a7177aaad8531222b435a",
+    "at": "2026-09-26 01:37:17"
+  },
+  "event_dangdang_moon_window_r1": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_moon_window_r1.webp",
+    "bytes": 38516,
+    "droppedSpecks": 68,
+    "gate": [],
+    "sha256": "3e224544c238549f90ba34f44fd9a6ef2cd1b75a4e45a8b48f04a1701ea72f69",
+    "at": "2026-09-26 01:37:20"
+  },
+  "event_dangdang_robin_r0": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_dangdang_robin_r0.webp",
+    "bytes": 43926,
+    "droppedSpecks": 125,
+    "gate": [],
+    "sha256": "519b2da6be673f83d0fd091b34e101d87ea561b97cb2e75ff63a7a30139053a9",
+    "at": "2026-09-26 01:37:13"
+  },
+  "event_feifei_moon_window": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_moon_window.webp",
+    "bytes": 42758,
+    "droppedSpecks": 123,
+    "gate": [],
+    "sha256": "9689716facf5ac7b63e6cc035316d870a8919382a219ed342954ba888dff116b",
+    "at": "2026-09-26 01:37:06"
+  },
+  "event_feifei_moon_window_r0": {
+    "attempt": 1,
+    "file": "public/assets/bg/event_feifei_moon_window_r0.webp",
+    "bytes": 40456,
+    "droppedSpecks": 164,
+    "gate": [],
+    "sha256": "bdca486998994204b8c374f7d53c58938fc289db8a315d28f820372425cadf80",
+    "at": "2026-09-26 01:37:10"
+  },
+  "event_feifei_robin_r0": {
+    "attempt": 3,
+    "file": "public/assets/bg/event_feifei_robin_r0.webp",
+    "bytes": 45138,
+    "droppedSpecks": 210,
+    "gate": [],
+    "sha256": "df826cf7ce971451b9476d9ca6153511f887c7615175db7c499bf27020470cd5",
+    "at": "2026-09-26 01:42:09"
+  },
+  "event_feifei_trace": {
+    "attempt": 2,
+    "file": "public/assets/bg/event_feifei_trace.webp",
+    "bytes": 44660,
+    "droppedSpecks": 214,
+    "gate": [],
+    "sha256": "6e2db331e2d98ef8e6206646a31399dd3782c6067efc923938f98c97dead3f92",
+    "at": "2026-09-26 01:36:59"
+  }
+}
