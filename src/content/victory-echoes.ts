@@ -37,7 +37,7 @@ export const TOP_ECHOES: ReadonlySet<EchoKind> = new Set<EchoKind>(['shadow', 't
 
 type PerHero = Readonly<Record<Hero, string>>;
 
-/** 旁白文字（草稿 4-2 節，一字不動）。共用句的 `{名}` 在組裝時代換 */
+/** 旁白文字（草稿 4-2 節）。共用句的 `{名}` 換成主角名字、`{師}` 換成這隻貓對師父的叫法（審查後改：原稿共用句一律寫大俠貓） */
 export const VICTORY_ECHOES: {
   shadowWalked: PerHero; shadowFought: string;
   woodenSword: PerHero; bracerPure: string; bracer: string; hat: string; gourd: string;
@@ -51,7 +51,7 @@ export const VICTORY_ECHOES: {
     fengfeng: '紫霧散開，那個影子抱著舊木劍站在最高那一階。它把劍交給大俠貓，側身一讓，滑回了封封腳下。',
   },
   // ① 條件乙「攔下它打了一場」：`chain:shadow_3_fought`（那時木劍被拋上最高那一階，一直沒人撿）
-  shadowFought: '最上層的石階上，那把舊木劍還躺在原地。{名}撿起來交給大俠貓，腳下的影子也跟著彎了彎腰。',
+  shadowFought: '最上層的石階上，那把舊木劍還躺在原地。{名}撿起來交給{師}，腳下的影子也跟著彎了彎腰。',
   // ② 身上有好幾件只挑一件：舊木劍＞淨化過的舊護腕＞沒淨化的舊護腕＞斗笠＞酒葫蘆
   woodenSword: {
     ninja: '球球雙手捧出那把舊木劍。師父接過去，用劍背在他頭上輕輕敲了一下，跟以前一模一樣。',
@@ -59,10 +59,10 @@ export const VICTORY_ECHOES: {
     dangdang: '噹噹把舊木劍交還大俠貓，指了指劍身那片銅：釘子一根都沒鬆。大俠貓點點頭，把劍插回腰間。',
     fengfeng: '封封解下綁在劍鞘旁的舊木劍，交還大俠貓。兩把劍分開時輕輕碰了一聲——這趟貨，送到了。',
   },
-  bracerPure: '{名}把洗乾淨的舊護腕還給大俠貓。他戴回手上，扣環扣到慣用的那一格，剛剛好。',
-  bracer: '{名}解下那只還纏著紫氣的舊護腕。大俠貓一握住，最後那一絲紫氣也散了。',
-  hat: '{名}把那頂斗笠還給大俠貓。他接過去看了看，又反手扣回{名}頭上。',
-  gourd: '{名}把那只酒葫蘆遞還給大俠貓。他搖了搖，裡頭早就空了，還是把葫蘆繫回了腰上。',
+  bracerPure: '{名}把洗乾淨的舊護腕還給{師}。他戴回手上，扣環扣到慣用的那一格，剛剛好。',
+  bracer: '{名}解下那只還纏著紫氣的舊護腕。{師}一握住，最後那一絲紫氣也散了。',
+  hat: '{名}把那頂斗笠還給{師}。他接過去看了看，又反手扣回{名}頭上。',
+  gourd: '{名}把那只酒葫蘆遞還給{師}。他搖了搖，裡頭早就空了，還是把葫蘆繫回了腰上。',
   // ③ 這隻貓以前在塔裡倒下過（照角色分開記）。只輕輕點破「習慣一樣」，不講「原來是師父背的」
   carried: {
     ninja: '師父替球球重綁手上的繃帶，打了個又大又歪的結。球球愣住了：上次倒在塔裡、醒在村裡時，身上的繃帶也是這種結。',
@@ -132,11 +132,13 @@ function echoText(kind: EchoKind, hero: Hero, ctx: VictoryCtx): string | null {
 export function victoryEchoes(hero: Hero, ctx: VictoryCtx, room: number): { kind: EchoKind; text: string }[] {
   const quota = Math.max(0, Math.min(MAX_ECHOES, room));
   const name = heroName({ hero });
+  // 球球、菲菲開口閉口都叫「師父」，噹噹、封封叫「大俠貓」（各自那幾句本來就這樣寫）
+  const master = hero === 'ninja' || hero === 'feifei' ? '師父' : '大俠貓';
   const out: { kind: EchoKind; text: string }[] = [];
   for (const kind of PRIORITY) {
     if (out.length >= quota) break;
     const t = echoText(kind, hero, ctx);
-    if (t) out.push({ kind, text: t.replace(/\{名\}/g, name) });
+    if (t) out.push({ kind, text: t.replace(/\{名\}/g, name).replace(/\{師\}/g, master) });
   }
   return out;
 }

@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { _setCoopTextImporterForTest, withCoopText } from '../../src/ui/coop-text-loader';
 import { dialogue, feifeiLineOk, qiuqiuLineOk, setCoopStory, type DialogueLine } from '../../src/content/dialogue';
 import {
   COOP_BOSS_EXTRA, COOP_REST_BEFORE_BOSS, COOP_REST_CHATS, coopBossPair, coopPairKey, coopRestScene,
@@ -235,5 +236,25 @@ describe('接線：畫面照已同步的整局狀態挑、照字面播', () => {
     expect(imports.filter((l) => !l.startsWith('import type ')), '執行期從首載拿東西，打包會把首載切碎').toEqual([]);
     for (const s of [REST, APP, MAP]) expect(src(s)).not.toMatch(/from '[^']*coop-pair-text'/);
     expect(src(LOADER)).toContain("import('../content/coop-pair-text')");
+  });
+
+  it('網路很慢：等超過上限就退回單人版（關主開場不能一直卡著），之後才到也不會再叫第二次', async () => {
+    vi.useFakeTimers();
+    try {
+      let arrive!: (m: never) => void;
+      _setCoopTextImporterForTest(() => new Promise((r) => { arrive = r; }));
+      const got: unknown[] = [];
+      withCoopText((m) => got.push(m), 3000);
+      await vi.advanceTimersByTimeAsync(2999);
+      expect(got).toEqual([]);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(got).toEqual([null]);
+      arrive({} as never);
+      await vi.advanceTimersByTimeAsync(0);
+      expect(got).toEqual([null]);
+    } finally {
+      vi.useRealTimers();
+      _setCoopTextImporterForTest(() => import('../../src/content/coop-pair-text'));
+    }
   });
 });

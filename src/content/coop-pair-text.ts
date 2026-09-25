@@ -57,7 +57,7 @@ export const COOP_REST_BEFORE_BOSS: Readonly<Record<string, readonly DialogueLin
       q('歪一點沒關係，綁得住就好喵。'),
       f('明天……師父要是還認不得我們呢？'),
       q('那我就一直喊，喊到他認得為止喵。'),
-      f('那我幫你看著他的手。他要是抬手，我……我先扎他一針，很小的那種。'),
+      f('那我幫你盯著他的手。他一抬手，我……我就先扎他一針，小小的。'),
       q('……師妹，你有時候比師父還兇喵。'),
     ],
   ],
@@ -96,7 +96,7 @@ export const COOP_REST_BEFORE_BOSS: Readonly<Record<string, readonly DialogueLin
       g('明天上去，你走在左邊。我的劍從右邊出。'),
       q('每次都要先說好站哪邊喵？'),
       g('說好了，劍才不會碰到你。'),
-      q('那……要是師父站在劍路上呢喵？'),
+      q('那……要是師父剛好站在你砍的那邊喵？'),
       g('那我就收劍。回程揹他下樓的繩子，我也帶了。'),
       q('……你連回去的路都想好了喵。'),
     ],
@@ -317,7 +317,7 @@ export const COOP_BOSS_EXTRA: Readonly<Record<string, Readonly<Record<string, Bo
       defeat: [d('最掛念的人……菲菲，是你跟球球。'), f('那……那我要叫很大聲。師兄還在上面，他一定也在叫。')],
     },
     'feifei+fengfeng': {
-      intro: [f('我沒想要誰死。可是師父困在上面，我也不能放著他不管。'), g('勸他的人被拖下去一個。那這次，我們先把您拉回來。')],
+      intro: [f('我沒想要誰死。可是師父困在上面，我也不能放著他不管。'), g('您勸他那天，自己也被拖下去了。這次換我們拉您上來。')],
       defeat: [g('菲菲，路我來開。叫他的事，交給你。'), f('嗯……我會叫到他回頭為止。')],
     },
     'dangdang+fengfeng': {

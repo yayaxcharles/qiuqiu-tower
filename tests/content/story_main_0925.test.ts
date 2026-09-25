@@ -7,7 +7,7 @@ import { cards } from '../../src/content/cards';
 import { eventTextFor } from '../../src/content/event-text';
 import { eventById } from '../../src/content/events';
 import { fengfengVictoryVariants } from '../../src/content/fengfeng-dialogue';
-import { MAX_ECHOES, VICTORY_ECHOES, VICTORY_MAX_LINES, type VictoryCtx } from '../../src/content/victory-echoes';
+import { MAX_ECHOES, VICTORY_ECHOES, VICTORY_MAX_LINES, victoryEchoes, type VictoryCtx } from '../../src/content/victory-echoes';
 import { HEROES, heroName, type Hero } from '../../src/engine/hero';
 import { newRun } from '../../src/engine/run';
 import { BEST_KEY, loadBest, loadDefeats, loadRun, recordBest, recordDefeat, RUN_KEY, saveRun, setStore } from '../../src/engine/save';
@@ -39,12 +39,15 @@ function decksByLeaning(hero: Hero): Map<DeckLeaning, string[]> {
   return out;
 }
 
-/** 這一位所有可能出現的伏筆句（`{名}` 已換好），拿來數結局裡插了幾句 */
+/** 共用句的 `{名}` 換成這一位、`{師}` 換成這一位對師父的叫法（球球、菲菲叫師父，噹噹、封封叫大俠貓） */
+const fill = (hero: Hero, t: string): string => t.replace(/\{名\}/g, heroName({ hero }))
+  .replace(/\{師\}/g, hero === 'ninja' || hero === 'feifei' ? '師父' : '大俠貓');
+
+/** 這一位所有可能出現的伏筆句（已換好），拿來數結局裡插了幾句 */
 function echoTexts(hero: Hero): Set<string> {
-  const name = heroName({ hero });
   const e = VICTORY_ECHOES;
   return new Set([e.shadowWalked[hero], e.shadowFought, e.woodenSword[hero], e.bracerPure, e.bracer, e.hat, e.gourd,
-    e.carried[hero], e.taught[hero], e.bundle[hero]].map((t) => t.replace(/\{名\}/g, name)));
+    e.carried[hero], e.taught[hero], e.bundle[hero]].map((t) => fill(hero, t)));
 }
 const countEchoes = (hero: Hero, lines: DialogueLine[]): number => lines.filter((l) => echoTexts(hero).has(l.text)).length;
 
@@ -171,7 +174,7 @@ describe('師父醒來那句的說話者是「大俠貓」', () => {
 describe('五種伏筆旁白', () => {
   const plainDeck: string[] = [];
   const has = (hero: Hero, ctx: VictoryCtx, text: string): boolean =>
-    victoryLinesFor(plainDeck, 1, hero, ctx).some((l) => l.text === text.replace(/\{名\}/g, heroName({ hero })));
+    victoryLinesFor(plainDeck, 1, hero, ctx).some((l) => l.text === fill(hero, text));
 
   it('① 影子的去向：陪它練完、攔下它打一場各一種；都沒有就不出現', () => {
     for (const hero of HEROES) {
@@ -196,7 +199,21 @@ describe('五種伏筆旁白', () => {
       expect(many.some((l) => l.text === e.woodenSword[hero]), hero).toBe(true);
     }
     // 斗笠那句「扣回{名}頭上」要換成這一位的名字
-    expect(has('feifei', { relics: ['master_hat'] }, '菲菲把那頂斗笠還給大俠貓。他接過去看了看，又反手扣回菲菲頭上。')).toBe(true);
+    expect(has('feifei', { relics: ['master_hat'] }, '菲菲把那頂斗笠還給師父。他接過去看了看，又反手扣回菲菲頭上。')).toBe(true);
+    expect(has('dangdang', { relics: ['master_hat'] }, '噹噹把那頂斗笠還給大俠貓。他接過去看了看，又反手扣回噹噹頭上。')).toBe(true);
+  });
+
+  it('稱呼一致：球球、菲菲的伏筆句一律叫「師父」，不會冒出「大俠貓」（審查抓到共用句寫死大俠貓）', () => {
+    const one = (r: string): VictoryCtx => ({ relics: [r] });
+    const ctxs: VictoryCtx[] = [...ALL_RELICS.map(one), { flags: { 'chain:shadow_3_fought': true } }, FULL];
+    for (const hero of HEROES) {
+      for (const ctx of ctxs) {
+        for (const { text } of victoryEchoes(hero, ctx, MAX_ECHOES)) {
+          expect(text, hero).not.toMatch(/\{[名師]\}/);
+          if (hero === 'ninja' || hero === 'feifei') expect(text, hero).not.toContain('大俠貓');
+        }
+      }
+    }
   });
 
   it('③ 背你回村的人：這隻貓以前倒下過才出現', () => {

@@ -18,11 +18,15 @@ export function loadCoopText(): Promise<CoopText> {
 }
 
 /**
- * 到了就**當場**叫（貓窩剛畫好、關主開場要接著播，不能晚一拍），還沒到就等它；載不到叫 `fn(null)`，畫面退回單人版。
+ * 到了就**當場**叫（貓窩剛畫好、關主開場要接著播，不能晚一拍），還沒到就等它；載不到或等超過 `waitMs` 叫 `fn(null)`，
+ * 畫面退回單人版（網路很慢時關主開場不能一直卡著）。`fn` 保證只叫一次。
  */
-export function withCoopText(fn: (m: CoopText | null) => void): void {
+export function withCoopText(fn: (m: CoopText | null) => void, waitMs = 3000): void {
   if (loaded) { fn(loaded); return; }
-  loadCoopText().then(fn, () => fn(null));
+  let done = false;
+  const once = (m: CoopText | null): void => { if (done) return; done = true; clearTimeout(timer); fn(m); };
+  const timer = setTimeout(() => once(null), waitMs);
+  loadCoopText().then(once, () => once(null));
 }
 
 /** 測試用 */
