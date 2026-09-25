@@ -62,8 +62,11 @@ export interface CardDragHooks {
   enemyAt: (clientX: number, clientY: number) => number | null;
   /** 牌是不是已經拉離手牌區 */
   leftHand: (clientY: number) => boolean;
-  /** 真的要打出去 */
-  onPlay: (targetUid: number | undefined) => void;
+  /**
+   * 真的要打出去。`dropped`＝放手那一刻牌在畫面上的外框：飛出去的那張要從這裡起飛
+   *（2026-09-25 流暢度盤點 中：原本先把牌清回手牌格子才叫這裡，飛的分身從手牌那格出發，看起來一來一回）
+   */
+  onPlay: (targetUid: number | undefined, dropped?: DOMRect) => void;
   /** 拖曳開始（收提示框、把牌提到最上層之類的收尾交給呼叫端） */
   onStart?: () => void;
   /**
@@ -158,14 +161,23 @@ export function attachCardDrag(node: HTMLElement, hooks: CardDragHooks): void {
       overEnemyUid: hooks.enemyAt(ev.clientX, ev.clientY),
       leftHand: hooks.leftHand(ev.clientY),
     });
+    // 清掉位移之前先記下牌現在的位置：打出去的話從這裡飛；退回的話從這裡滑回去
+    const dropped = node.getBoundingClientRect();
+    const held = node.style.translate;
     reset();
     // 拖過就把緊接著那一下 click 攔掉：不攔的話放開瞬間會再觸發一次既有的點擊流程
     //（要選目標的牌會進入「選目標」模式、不用選目標的牌會直接再打一次）
     const swallow = (e: Event): void => { e.stopPropagation(); e.preventDefault(); };
     node.addEventListener('click', swallow, true);
     setTimeout(() => node.removeEventListener('click', swallow, true), 0);
-    if (act.kind === 'play') hooks.onPlay(act.targetUid);
-    else hooks.onCancel?.();
+    if (act.kind === 'play') hooks.onPlay(act.targetUid, dropped);
+    else {
+      // 反悔退回：從放手的地方滑回扇形（原本一格之內跳回去，量到一次跳 472 像素）
+      if (held && typeof node.animate === 'function') {
+        node.animate([{ translate: held }, { translate: '0px 0px' }], { duration: 200, easing: 'cubic-bezier(.35,0,.25,1)' });   // 頭尾都慢：一開始就衝會像跳
+      }
+      hooks.onCancel?.();
+    }
   };
   node.addEventListener('pointerup', end);
   node.addEventListener('pointercancel', end);

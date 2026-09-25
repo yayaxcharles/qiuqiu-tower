@@ -296,6 +296,7 @@ registerScreen('map', (app, root) => {
     if (choices.has(n.id) && !iDown) {
       btn.addEventListener('click', () => {
         play('step');
+        btn.classList.add('picked');   // 點下去就亮起來，等進場的那一小段也看得出點到了（2026-09-25）
         // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
         if (!app.coop) { app.enterNode(n.id); return; }
         if (me(run, app.seat).down) return;   // 保險（倒下的人本來就掛不到這個監聽）；他的票結算時本來就會被洗掉

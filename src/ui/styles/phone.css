@@ -24,6 +24,10 @@ html[data-device="phone"][data-orient="landscape"] .combat .hpbar { height: 24px
    左下角的牌堆計數與戰鬥紀錄第一版照原樣放大會疊在一起（紀錄蓋到「消耗／連抓」），改排法的做法在下面「主控裁定四」那段 */
 html[data-device="phone"][data-orient="landscape"] .combat .intent { font-size: 19px; }
 html[data-device="phone"][data-orient="landscape"] .combat .chip { font-size: 16px; }
+/* 牌子超過八個（`.chips.many`）：電腦版那條縮成 11 像素，選擇器比上一行具體、把手機的 16 蓋掉，
+   手機整頁又縮 0.54 倍，實際只剩約 6 像素（2026-09-25 流暢度盤點 中）。手機另外給 15、圖示 18 */
+html[data-device="phone"][data-orient="landscape"] .combat .unit.player .chips.many .chip { font-size: 15px; padding: 1px 6px; }
+html[data-device="phone"][data-orient="landscape"] .combat .unit.player .chips.many .chip img { width: 18px; height: 18px; }
 
 /* 按鈕：總高至少 72（`<button>` 本來就是 border-box，寫明白讓不是 button 的 .btn 也照這個量）。
    狀態列的小鈕（.small）與連線那兩顆另外處理 */

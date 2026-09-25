@@ -139,7 +139,7 @@ const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
  */
 // 收牌的三個數字（一張飛多久、每張錯開多久、引擎等多久）搬到 collect.ts：
 // 引擎等多久要看手上有幾張牌（見那邊的說明），不再是固定值。
-const DEAL_FLY = 440;          // 一張新牌從牌堆飛到定位要多久（＝ card-deal 的長度）
+const DEAL_FLY = 320;          // 一張新牌從牌堆飛到定位要多久（＝ card-deal 的長度；2026-09-25 從 440 縮）
 
 /**
  * 球球的姿勢。全部是專為這款遊戲畫的忍者裝立繪（`hero/*`），打包時放進同一張畫布
@@ -2198,7 +2198,7 @@ registerScreen('combat', (app, root, props) => {
           // 點擊那兩條路都先過 canAct()，拖曳這條原本沒有——撒手鐧那類牌打完到自動結束回合之間
           // 有 650 毫秒的空窗，在那時候抓起另一張牌拖到魔物回合再放開，就會繞過那道關
           //（目前靠手牌已被清空撿到安全，但那是巧合）。稽核 2026-09-07 低 3
-          onPlay: (targetUid) => { if (canAct()) { setTargeting(null); play(c.uid, targetUid); } },   // 拖出去打的正是點選中的那張：箭頭、攔截層一起撤（審查 2026-09-15 低-3）
+          onPlay: (targetUid, dropped) => { if (canAct()) { setTargeting(null); play(c.uid, targetUid, dropped); } },   // 拖出去打的正是點選中的那張：箭頭、攔截層一起撤（審查 2026-09-15 低-3）
           // 退回不需要重畫：reset() 已經把行內位移與層級清乾淨，牌自己會彈回扇形位置。
           // 重畫反而會在魔物演出中途砍斷動畫與飄字（同上，低 3 的後半）
         });
@@ -2674,13 +2674,15 @@ registerScreen('combat', (app, root, props) => {
    * 複製到疊層而不是動原本那張：出牌會整個重畫手牌，原本那張連同動畫一起被丟掉；
    * 疊層不隨畫面重畫，所以飛行過程才播得完。
    */
-  function flyCard(uid: number, targetUid: number | undefined): void {
+  function flyCard(uid: number, targetUid: number | undefined, dropped?: DOMRect): void {
     const layer = overlayRoot();
     const from = root.querySelector<HTMLElement>(`.hand .card[data-uid="${uid}"]`);
     if (!layer || !from || typeof from.animate !== 'function') return;
     const stage = stageFrame(app.stage);
     const { k } = stage;
-    const r = from.getBoundingClientRect();
+    // 拖出去打的：從放手的地方起飛，手上那張先藏起來（不藏的話它會先彈回手牌格子，等重畫才消失，2026-09-25）
+    const r = dropped ?? from.getBoundingClientRect();
+    if (dropped) from.style.visibility = 'hidden';
     const dest = targetUid === undefined
       ? root.querySelector(`${MINE} .sprite`)
       : root.querySelector(`.unit.enemy[data-uid="${targetUid}"] .sprite`);
@@ -2700,12 +2702,12 @@ registerScreen('combat', (app, root, props) => {
       { transform: 'translate(0,0) scale(1)', opacity: 1 },
       { transform: `translate(${dx * 0.55}px, ${dy * 0.55}px) scale(.85)`, opacity: 1, offset: 0.55 },
       { transform: `translate(${dx}px, ${dy}px) scale(.35)`, opacity: 0 },
-    ], { duration: 340, easing: 'cubic-bezier(.4,0,.6,1)' }).addEventListener('finish', () => ghost.remove());
+    ], { duration: dropped ? 200 : 340, easing: 'cubic-bezier(.4,0,.6,1)' }).addEventListener('finish', () => ghost.remove());   // 拖的已經在魔物附近，飛短一點
     // animate() 保險：動畫被節流沒跑完也要把它收掉，不然疊層會留一堆殘影
     window.setTimeout(() => ghost.remove(), 1200);
   }
 
-  function play(uid: number, targetUid: number | undefined): void {
+  function play(uid: number, targetUid: number | undefined, dropped?: DOMRect): void {
     if (!canAct()) return;
     const card = my().hand.find((c) => c.uid === uid);
     if (!card) return;
@@ -2723,7 +2725,7 @@ registerScreen('combat', (app, root, props) => {
         trip: motionTrip,
       });
     }
-    flyCard(uid, targetUid);
+    flyCard(uid, targetUid, dropped);
     sfx('draw', 1.15);   // 牌離手的紙聲，比抽牌高一點才分得出是哪個動作
     // 出招一律用「參上」。以前是照牌面貼圖換姿勢，但牌面已經換成專畫的插圖（`card/*`），
     // 那批不是球球的立繪、也沒有對應的姿勢，所以那條規則已經沒有意義了。
@@ -2921,7 +2923,8 @@ registerScreen('combat', (app, root, props) => {
       if (!more) {
         finishEnemyTurn(cs);
         enemyTurnRunning = false;
-        settle(b, { deal: true });
+        // 魔物已經一隻一隻演完、也留了時間看最後一隻的結果：新手牌不用再等 0.46 秒（見 settle 的 dealDelay）
+        settle(b, { deal: true, dealDelay: 150 });
         session?.release();
         return;
       }
@@ -2930,9 +2933,15 @@ registerScreen('combat', (app, root, props) => {
         || cs.enemies.some((e) => (b.enemies.get(e.uid)?.turnCount ?? e.turnCount) !== e.turnCount);
       if (!acted) { step(); return; }
       settle(b, { light: true });
-      const gap = cs.phase === 'player' ? 720 : 400;
+      /*
+       * 後面沒有魔物排著了（這一隻是最後一隻）：只留 0.4 秒看牠打完的結果，不用再留 0.32 秒亮下一隻的預告
+       *（2026-09-25 流暢度盤點 高：原本最後一隻出完手照樣等滿 0.72 秒才去確認「還有沒有下一隻」，每回合都卡這一段）。
+       * 排著的若是被定住、死掉的，照舊 0.72 秒（牠們那一步可能還有字要看，保守不動）。
+       */
+      const last = !(cs.enemyQueue?.length);
+      const gap = cs.phase === 'player' && !last ? 720 : 400;
       // 前 0.4 秒看上一隻的結果，剩下 0.32 秒亮下一隻：兩段加起來還是原本的 720，節奏不變
-      if (cs.phase === 'player') {
+      if (cs.phase === 'player' && !last) {
         window.setTimeout(() => { if (app.cs === cs) telegraphNext(); }, gap - TELEGRAPH_MS);
       }
       window.setTimeout(step, gap);
@@ -2989,6 +2998,8 @@ registerScreen('combat', (app, root, props) => {
     pose?: string;
     attack?: boolean;
     deal?: boolean;
+    /** 發新手牌前等多久（毫秒，`deal` 才有用）：沒給＝460。魔物回合逐隻演完的收尾給 150（2026-09-25） */
+    dealDelay?: number;
     light?: boolean;
     motion?: CombatMotionAction;
     motionTrip?: MeleeTrip;
@@ -3219,7 +3230,7 @@ registerScreen('combat', (app, root, props) => {
     // 所以那一拍讓手牌晚 460 毫秒再進場：先看牠們打完，再看自己摸到什麼。
     // 打完了就不要再演發牌（稽核 2026-09-10 低-3）：`runEnemyTurn` 收尾一律傳 `deal: true`，
     // 不看勝負，於是球球倒下的那一拍照樣放一聲「新回合開始」的提示音，跟畫面完全對不上。
-    dealDelay = opts.deal && cs.phase === 'player' ? 460 : 0;
+    dealDelay = opts.deal && cs.phase === 'player' ? (opts.dealDelay ?? 460) : 0;
     // 新回合的手牌全部當成新抽的：上一手沒打完的牌丟進棄牌堆後洗回來、或被拖字訣留下的那張，
     // 編號跟上一手一樣，會被當成「已經在手上」直接出現在定位，其他牌卻還在從牌堆飛——
     // 使用者 2026-09-02：「最後一張牌已經出現，其他牌才從左邊飛出來」
