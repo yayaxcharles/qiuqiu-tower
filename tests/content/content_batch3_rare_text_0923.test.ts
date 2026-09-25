@@ -81,9 +81,11 @@ describe('稀有事件四隻各一份（整段換掉，不是換名字）', () =
 });
 
 describe('抽到之後的那一句', () => {
-  it('籤筒五籤、大魔物兩種，四隻都有；跟引擎寫進提示的那一行（`tier`）對得上', () => {
+  // 2026-09-25 起三個賭運事件（飯糰攤、賭老鼠、古井）也接這一句：`gamble` 寫的提示開頭是「中了！」或「沒中」（`lotteryAfter` 比開頭）
+  it('籤筒五籤、大魔物兩種、三個賭運事件贏輸兩種，四隻都有；跟引擎寫進提示的那一行（`tier`）對得上', () => {
     for (const [id, table] of Object.entries(LOTTERY_AFTER)) {
-      const tiers = new Set(eventById[id]!.choices.flatMap((c) => c.outcome.flatMap((o) => (o.kind === 'lottery' ? o.table.map((t) => t.tier) : []))));
+      const tiers = new Set(eventById[id]!.choices.flatMap((c) => c.outcome.flatMap((o) => (o.kind === 'lottery' ? o.table.map((t) => t.tier)
+        : o.kind === 'gamble' ? ['中了！', '沒中'] : []))));
       expect([...tiers].sort(), id).toEqual(Object.keys(table).sort());
       for (const tier of tiers) for (const hero of HEROES) {
         const line = lotteryAfter(id, ['別的提示', tier], hero);

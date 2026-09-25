@@ -129,9 +129,10 @@ describe('事件文字', () => {
   });
 
   it('共用事件的敘述、選項、標題（3、5、8、9、15），她看到的就是這幾句', () => {
-    expect(eventTextFor('feifei', eventById['blocked']!.text)).toBe('樓梯被一座垃圾山堵住，頂上插著一塊新牌子，感覺就是有人故意擋住的，隱約看見一卷忍術卷軸露在一個破木板底下；旁邊的小走道似乎還是繞得過去。');
+    expect(eventTextFor('feifei', eventById['blocked']!.text)).toBe('樓梯被一座垃圾山堵住了。山頂插著一塊新木牌，寫著「此路不通」——木牌是新的，垃圾卻是舊的，是有人故意擋在這裡。破木板底下露出一卷忍術卷軸；旁邊還有一條小走道，看起來繞得過去。');
     expect(eventTextFor('feifei', choice('sunbath', 1).label)).toBe('曬著太陽整理招式（移除 1 張牌）');
-    expect(eventTextFor('feifei', eventById['lost_scroll']!.text)).toBe('一卷沒署名的卷軸掉在階梯上，潦草的字旁畫著三段忍術圖解。轉角有個舊書攤，攤主喊著：「收購秘笈，破舊的也收。」');
+    // 2026-09-25 弱事件改寫：卷軸開頭她那份整段寫（筆記、戴眼鏡的老貓，劇情打磨草稿 2-8）
+    expect(eventTextFor('feifei', eventById['lost_scroll']!.text)).toBe('階梯上掉著一卷沒署名的卷軸，攤開來是三段忍術圖解。每一段旁邊都有人用小字寫了筆記，最後一段只寫著：「這段我也沒練成。」轉角的舊書攤探出一隻戴眼鏡的老貓：「收秘笈，破的也收。」菲菲：「連沒練成的都寫下來……寫的人，一定很認真。」');
     expect(eventTextFor('feifei', eventById['noisy_kitchen']!.text)).toBe('樓梯轉角的廚房傳來一陣鏗鏘聲，爐上的湯鍋咕嚕作響，蒸氣把鍋蓋頂得直跳。灶邊貼著「我吃不完但得先走了，想吃自己盛一碗」，旁邊還放著一盒供人取用的備用忍具。');
     expect(eventById['grindstone']!.title).toBe('磨利我的刀');
   });

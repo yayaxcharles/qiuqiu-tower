@@ -20,6 +20,7 @@ import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { restRedrawOnMate, type RestPhase } from '../restphase';
+import { withCoopText } from '../coop-text-loader';
 import { me } from '../../engine/runplayer';
 import { heroName, heroPronoun, sharpenVerb } from '../../engine/hero';
 
@@ -405,10 +406,26 @@ registerScreen('rest', (app, root) => {
   // 先把貓窩畫出來，14F 塔主戰前那段獨白再蓋上去播（只播一次，旗標在 run.flags，由結算那次存檔帶走）。
   // 反過來先播的話，玩家會對著一片空白的舞台看獨白。
   show();
+  const afterTalk = (): void => { /* 看完就選 */ };
   // 「floor === 14」在跨關累計後只會中第一關（第二三關是 29、44）——用關內樓層判斷，
   // 獨白內容也依關數換（前兩關的關主不是師父，師父的戲留到第三關）
-  if (run.floor % 15 === 14) {
-    const monologue = dialogue.restBeforeBossByAct[run.act - 1] ?? dialogue.restBeforeBossByAct[0]!;
-    app.playOnce(`restBeforeBoss${run.act}`, monologue, () => { /* 看完就選 */ });
-  }
+  const monologue = (): void => {
+    if (run.floor % 15 !== 14) return;
+    app.playOnce(`restBeforeBoss${run.act}`, dialogue.restBeforeBossByAct[run.act - 1] ?? dialogue.restBeforeBossByAct[0]!, afterTalk);
+  };
+  if (!coop) { monologue(); return; }
+  /*
+   * 連線兩個人坐在同一個貓窩（2026-09-25，草稿 draft_voice_coop 第 4 節）：關主前一晚換成兩人版、每關第一個貓窩兩人聊幾句。
+   * 演哪一段只看已同步的整局狀態（`coopRestScene`），兩台算出同一段、不傳網路訊息；照字面播（「球球：……喵」是球球本人）。
+   * 沒有兩人版（有人倒下）才退回單人獨白。文字在延後載入的那一塊，地圖畫面早就在背景抓了；
+   * 萬一還沒到、而這一格已經換掉了，旗標照樣設上（兩台的旗標要一致），只是不演。
+   */
+  let gone = false;
+  app.disposers.push(() => { gone = true; });
+  withCoopText((m) => {
+    const scene = m?.coopRestScene(run) ?? null;
+    if (gone) { if (scene) run.flags[scene.flag] = true; return; }
+    if (scene) app.playOnce(scene.flag, scene.lines, afterTalk, true);
+    else monologue();
+  });
 });

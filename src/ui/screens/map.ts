@@ -16,6 +16,7 @@ import { artUrl, monsterUrl, mapHeroKey } from '../assets';
 import { mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadQmarkArt } from '../preload';
 import { loadEventScreen } from '../event-loader';
 import { loadShopText } from '../shop-text-loader';
+import { loadCoopText } from '../coop-text-loader';
 import { KEEPERS, type KeeperDef } from '../../content/keepers';
 import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
@@ -297,9 +298,11 @@ registerScreen('map', (app, root) => {
       btn.addEventListener('click', () => {
         play('step');
         // 單機：直接走。兩個人：投一票，等兩邊都投完才移動（見 `engine/vote.ts`）
-        if (!app.coop) { app.enterNode(n.id); return; }
+        // 點下去就亮起來，等進場的那一小段也看得出點到了（2026-09-25）；連線要過了防呆才亮，不然已投過票再點別格那格會一直亮（推前審查 中）
+        if (!app.coop) { btn.classList.add('picked'); app.enterNode(n.id); return; }
         if (me(run, app.seat).down) return;   // 保險（倒下的人本來就掛不到這個監聽）；他的票結算時本來就會被洗掉
         if (votes[app.seat]) return;   // 投過了就不能改——改票會讓兩邊的票面對不上
+        btn.classList.add('picked');
         app.coop.pick('map', n.id);
       });
     }
@@ -458,6 +461,8 @@ registerScreen('map', (app, root) => {
   // 這一關有客座店主的店：那一位的三張立繪與店主台詞（延後模組）也先在背景抓（2026-09-23 第三批 新J，design3 4-4）
   void preloadMapKeepers(run);
   if (run.map.nodes.some((n) => n.keeper && n.keeper !== 'orange')) void loadShopText().catch(() => undefined);
+  // 連線兩人版台詞（貓窩、三隻關主的同伴接話，2026-09-25）：只有連線用得到，一樣先在背景抓
+  if (app.coop) void loadCoopText().catch(() => undefined);
 });
 
 /** 地圖上罐頭鋪的小頭像直徑（樣式在 map.css 的 `.map-keeper`，兩邊要一致） */

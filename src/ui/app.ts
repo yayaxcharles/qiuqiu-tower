@@ -5,6 +5,7 @@ import { playVideo, type VideoName } from './video';
 import { coopArtReady, preloadAct, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
 import { anyBlessingPending, rollBlessings } from '../engine/blessing';
 import { loadEventScreen } from './event-loader';
+import { withCoopText } from './coop-text-loader';
 import { QMARK_BANNER, ambushEvent, loadQmarkText, playQmarkReveal, qmarkHeroText, qmarkText } from './qmark';
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
@@ -15,7 +16,8 @@ import type { CoopSession } from '../net/session';
 import { clearRejoin } from '../net/rejoin';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeMerchants, makeShops, newRun as engineNewRun } from '../engine/run';
-import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
+import { clearSave, loadDefeats, loadRun, recordBest, recordDefeat, saveRun } from '../engine/save';
+import type { VictoryCtx } from '../content/victory-echoes';
 import type { CombatState, MapNode, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
@@ -610,7 +612,13 @@ export class App {
       // 開打前先把這場魔物（含召喚物）的立繪解碼好，最多等 1.5 秒；沒等到也照開（使用者 2026-09-04：「戰鬥中圖要直接到位，不然會有灰影」）
       this.fightPending = true;
       this.stage.classList.add('fight-pending');
+      // 超過 0.4 秒還沒好就在地圖提示一行（比照 `enterEvent`；2026-09-25 流暢度盤點 中：原本最多等 1.5 秒、舞台鎖住又沒提示）
+      const slow = window.setTimeout(() => {
+        const hint = this.screen.querySelector('.map-hint');
+        if (hint) hint.textContent = '正在準備戰鬥……';
+      }, 400);
       const proceed = (): void => {
+      window.clearTimeout(slow);
       this.fightPending = false;
       this.stage.classList.remove('fight-pending');
       if (this.cs !== cs) return;
@@ -666,9 +674,18 @@ export class App {
        * 那是為了「劇本寫球球、實際是誰在玩」而做的，但這裡的球球就是球球本人。
        * 所以先把說話者換成旁白以外都不動的形式：這一組本來就已經是最終文字。
        */
+      const heroes = run.players.map((p) => p.hero);
       const playBoss = (): void => {
         const coop = coopBossLines(bossId, 'intro', localHero());
-        playDialogue(coop ?? dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric, go, cast, coop !== null);
+        const solo = dialogue.bossIntroById[bossId] ?? dialogue.bossIntroGeneric;
+        if (coop || !this.coop) { playDialogue(coop ?? solo, go, cast, coop !== null); return; }
+        // 貓又婆婆、老住持、狸大人的同伴接話（2026-09-25）：兩人版照整局的兩位角色挑（兩台一樣）、照字面播；
+        // 文字在延後載入的那一塊（地圖畫面早就抓了），載不到就照舊單人版
+        withCoopText((m) => {
+          if (this.run !== run) return;
+          const pair = m?.coopBossPair(bossId, 'intro', heroes) ?? null;
+          playDialogue(pair ?? solo, go, cast, pair !== null);
+        });
       };
       // 塔頂門外段落只在第三關最終頭目前播放一次；前兩關的關主不應提前消耗這段劇情。
       const top = run.act >= ACTS ? storyFor(localHero()).topScene : [];
@@ -712,6 +729,8 @@ export class App {
     // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
     // 局面是兩人局也不准（2026-09-23 稽核 高-1）：跟 `save()` 同一道，連線已經離開、局面還留著時只看 `coop` 擋不住
     if (run.status !== 'playing' && !this.coop && run.players.length === 1) { recordBest(run); clearSave(); }
+    // 倒下次數（2026-09-25）：只給結局那句「背你回村的人」挑旁白，不影響玩法；連線局也算本機這一位（`afterCombat` 一場只叫一次）
+    if (run.status === 'lost') recordDefeat(me(run, this.seat).hero ?? 'ninja');
     // 連線局打完了：重新整理不再接回（不然會回到最後一戰之前＝悔棋），離開頁面也當場通知對方（推前稽核 2026-09-25 中-2）
     if (run.status !== 'playing' && this.coop) { clearRejoin(); this.coop.runOver(); }
     /*
@@ -731,9 +750,12 @@ export class App {
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         // 師父醒來的第一句依這一路的打法換（爪力／隱身或毒／蜷縮流，第二派看角色），難度 4 以上多一句旁白（使用者 2026-09-04）
-        const vic = victoryLinesFor(me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1, me(run, this.seat).hero);
+        // 伏筆旁白要的這一局狀況（2026-09-25，`victory-echoes.ts`）：身上的秘寶、旗標、包袱拿過沒、這隻貓以前倒下過幾次
+        const mineP = me(run, this.seat);
+        const endCtx: VictoryCtx = { relics: mineP.relics, flags: run.flags, blessTook: mineP.bless?.took, defeatsBefore: loadDefeats(mineP.hero ?? 'ninja') };
+        const vic = victoryLinesFor(mineP.deck.map((c) => c.cardId), run.difficulty ?? 1, mineP.hero, endCtx);
         // 圖依角色、切點看 `slideBreak`：理由都寫在 storyslides.ts（除錯頁也叫同一支）
-        const endSlides = endingSlides(me(run, this.seat).hero, me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1);
+        const endSlides = endingSlides(mineP.hero, mineP.deck.map((c) => c.cardId), run.difficulty ?? 1, endCtx);
         /*
          * 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片。
          *
@@ -775,8 +797,16 @@ export class App {
       const bossUnit = cs.enemies.find((e) => e.enemyId === bossId);
       // 頭像要跟戰場上最後那個樣子一致：變身過（橘皮大王整顆站起來、全身是刺）就用那一階段的圖，不要退回變身前（2026-09-22 畫面盤點 問題 6）
       const outroArt = monsterPhaseKey(bd?.art ?? '', bossUnit?.phase ?? 0);
-      if (outro && bd) playDialogue(outro, toSlides, { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(outroArt, 'idle') } });   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
-      else toSlides();
+      const outroCast = bd ? { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(outroArt, 'idle') } } : undefined;   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
+      const soloOutro = (): void => { if (outro && bd) playDialogue(outro, toSlides, outroCast); else toSlides(); };
+      if (!this.coop || !bd) { soloOutro(); return; }
+      // 連線：貓又婆婆、老住持、狸大人倒下時兩位同伴各接一句（2026-09-25），照整局的兩位角色挑、照字面播；其餘照舊
+      const heroes = run.players.map((p) => p.hero);
+      withCoopText((m) => {
+        if (this.run !== run) return;
+        const pair = m?.coopBossPair(bossId, 'defeat', heroes, outro) ?? null;
+        if (pair) playDialogue(pair, toSlides, outroCast, true); else soloOutro();
+      });
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
