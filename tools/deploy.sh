@@ -4,6 +4,9 @@
 #   sh tools/deploy.sh                 連線版：coop → coopdeploy 的 main
 #   sh tools/deploy.sh origin main     單機版：main → origin 的 main
 #
+# 推前先跑 `npm run gate:visual`（畫面比對閘門：跟線上那一版比角色大小、貓窩位置、動作流暢度、事件圖片四道門檻，
+# 報告路徑印在最後；見 tools/visual-gate/gate.mjs）。它**沒有**接成這支的必經步驟：誤報會卡住部署，要不要硬接由使用者決定。
+#
 # 為什麼要有這支：2026-09-13 連續八次部署失敗，其中六次我都只看 `git push` 回報成功
 # 就跟使用者說「上線了」。`git push` 成功只代表檔案傳上去了；雲端的測試、打包、發布
 # 任何一步紅了，線上都還是舊的那版，而且沒有人會通知你——除了使用者收到的失敗信。

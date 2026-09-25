@@ -10,12 +10,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "balance": "vitest run tests/balance.report.test.ts",
-    "size": "python tools/check_size.py"
+    "size": "python tools/check_size.py",
+    "gate:visual": "node tools/visual-gate/gate.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
     "vitest": "^4.1.11",
     "wrangler": "^4.131.2"
+  },
+  "optionalDependencies": {
+    "playwright-core": "^1.63.0"
   }
 }
