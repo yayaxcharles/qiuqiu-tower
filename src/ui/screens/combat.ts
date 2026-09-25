@@ -4150,7 +4150,9 @@ registerScreen('combat', (app, root, props) => {
       if (!applied.length || app.cs !== cs) return;
       unlockSend();   // 有東西套進去了＝路上那一下回來了
       // 路上那張只在「我那張」真的套進來才現身（同伴的動作先回來時不清，不然它會在回來前先出現在扇形）
-      if (travelingUid !== null && applied.some((x) => x.a.t === 'card' && x.a.seat === mySeat && x.a.u === travelingUid)) travelingUid = null;
+      // 看的是「我自己的任何一個動作」：主機照順序處理同一位的請求，我後面那一下都回來了，路上那張不是套了就是被退了
+      //（只認那一張的話，它被主機退回、而退回訊息又不是最新一則時，會一直藏到下次出牌——複審 2026-09-25 低）
+      if (travelingUid !== null && applied.some((x) => 'seat' in x.a && x.a.seat === mySeat)) travelingUid = null;
       const mine = applied.every((a) => 'seat' in a.a && a.a.seat === mySeat);
       if (!mine) { mateActAt = Date.now(); mateTurnSeen = cs.turn; }   // 他動了，一分鐘重頭算
       const found = matePlays(applied, mySeat, handsBefore, cs.turn);

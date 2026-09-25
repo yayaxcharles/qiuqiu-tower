@@ -54,7 +54,7 @@ describe('二、拖出去打不再「彈回手上再飛出去」', () => {
     expect(src).toContain('travelingUid = session && !session.isHost ? uid : null;');
     expect(src).not.toMatch(/travelingUid = uid;/);
     // 清的地方：我那張套進來、被退回、保險絲、出牌送出失敗
-    expect(src).toContain("x.a.t === 'card' && x.a.seat === mySeat && x.a.u === travelingUid)) travelingUid = null;");
+    expect(src).toContain("applied.some((x) => 'seat' in x.a && x.a.seat === mySeat)) travelingUid = null;");
     expect(src).toMatch(/session\.onDropped\(\(\) => \{[^}]*travelingUid = null;/);
     expect(src).toContain('inflight = false; travelingUid = null; render();');
     const fail = src.slice(src.indexOf('playCard 在 canPlay 放行後仍失敗') - 200, src.indexOf('playCard 在 canPlay 放行後仍失敗'));
