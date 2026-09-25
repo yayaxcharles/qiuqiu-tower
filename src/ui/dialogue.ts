@@ -50,6 +50,8 @@ export function portraitOf(speaker: DialogueLine['speaker'], literal = false): s
   const hero = portraitHero(speaker, literal);
   if (hero) return heroPortrait(hero);
   if (speaker === '塔主') return artUrl('sprites', 'boss/idle1');
+  // 結局醒來之後的師父（2026-09-25）：承讓躬身、戴斗笠低頭那張，不再掛戰鬥造型的待機圖
+  if (speaker === '大俠貓') return artUrl('sprites', 'boss/defeat');
   if (speaker === '黑貓忍者頭目') return monsterUrl('codex/monster_ninja_boss', 'idle');
   return null;   // 旁白沒有臉
 }

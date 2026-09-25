@@ -94,7 +94,8 @@ export const rareEvents: EventDef[] = [
     text: '',   // 球球的開頭延後載入（`event-text-b3rare.ts` 的 `NINJA_EVENT_TEXT_B3RARE`），載入時填回
     choices: [
       { label: '撿起他掉的一頁筆記，照著練（從 3 張絕學牌中選擇 1 張、自選升級至多 1 張牌；最多失去 12 點生命）',
-        outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }, { kind: 'upgradeCard' }, { kind: 'damage', n: 12 }],
+        // 旗標只給結局挑伏筆旁白（撿了那一頁、照著練過那一招，2026-09-25），不動任何數值
+        outcome: [{ kind: 'flag', name: 'catnip_page' }, { kind: 'chooseCard', pool: '絕學', n: 3 }, { kind: 'upgradeCard' }, { kind: 'damage', n: 12 }],
         result: '', resultArt: 'rare_catnip_master_r0' },
       { label: '撿起他滾落的酒葫蘆（獲得「塔主的酒葫蘆」，已經有了就改成隨機 1 件塔主秘寶；最多失去 8 點生命）',
         outcome: [{ kind: 'relicId', id: 'master_gourd', fallbackFish: 60, fallbackPool: '塔主' }, { kind: 'damage', n: 8 }],

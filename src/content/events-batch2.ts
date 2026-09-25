@@ -88,13 +88,15 @@ export const batch2Events: EventDef[] = [
     text: '',
     choices: [
       { label: '攔下它，打一場（勝利後可升級至多 2 張牌，另得 40 條小魚乾）',
-        outcome: [{ kind: 'fight', encounterId: 'shadow_duel', bonusFish: 40, bonusUpgrades: 2 }],
+        // 旗標只給結局挑伏筆旁白（木劍還躺在最高那一階，2026-09-25），不動任何數值
+        outcome: [{ kind: 'flag', name: 'chain:shadow_3_fought' }, { kind: 'fight', encounterId: 'shadow_duel', bonusFish: 40, bonusUpgrades: 2 }],
         result: '' },
       { label: '伸出手，跟它要那把木劍（獲得「師父的舊木劍」；回復 10 點生命）',
         outcome: [{ kind: 'relicId', id: 'master_wooden_sword', fallbackFish: 60 }, { kind: 'heal', n: 10 }],
         result: '', resultArt: 'shadow_truth_r1' },
       { label: '陪它把那一套練完（從 3 張絕學牌中選擇 1 張、自選升級至多 1 張牌）', requires: { kind: 'flag', name: 'chain:shadow_2_watched' }, requiresLabel: '看過它練',
-        outcome: [{ kind: 'chooseCard', pool: '絕學', n: 3 }, { kind: 'upgradeCard' }],
+        // 旗標只給結局挑伏筆旁白（影子自己走了、那一招練對了，2026-09-25），不動任何數值
+        outcome: [{ kind: 'flag', name: 'chain:shadow_3_walked' }, { kind: 'chooseCard', pool: '絕學', n: 3 }, { kind: 'upgradeCard' }],
         result: '', resultArt: 'shadow_truth_r2' },
     ] },
   { id: 'cell_bandit', title: '牢裡的山賊', acts: [1],

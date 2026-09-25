@@ -21,11 +21,15 @@ export const fengfengSelection: DialogueLine[] = [
  * 封封蹲在塔門口看小魚乾）。2026-09-25 使用者嫌序章要點太多下，併成四句：
  * 封封問話那句收進鋪子那張的旁白、「走到塔下」那句旁白跟他最後那句併成一句，p05 那張就不用了。
  * 村貓回話仍配兩隻貓對話那張（`still_meet`），封封在塔下那句配塔下那張。
+ *
+ * 2026-09-25（劇情草稿 5-1）：塔下那張多一句他有感情的話（沒標切點，自動落在第四張）。
+ * 同日改「第三天」為「第四天」、村貓那句改「昨天也去了」：噹噹的序章寫菲菲第三天早上出發、他第三天傍晚才上塔，
+ * 封封第三天下午回村會撞見還沒走的噹噹。不能改成入夜（跟白天那幾張插圖打架）。
  */
 export const fengfengPrologue: DialogueLine[] = [
   {
     "speaker": "旁白",
-    "text": "第三天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。",
+    "text": "第四天下午，封封帶著商隊回村。村外多了一座魔塔，原本曬魚乾的空地只剩倒下的竹架。",
     "slideBreak": true
   },
   {
@@ -35,12 +39,16 @@ export const fengfengPrologue: DialogueLine[] = [
   },
   {
     "speaker": "村貓",
-    "text": "大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹今天也去了。",
+    "text": "大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹昨天也去了。",
     "slideBreak": true
   },
   {
     "speaker": "封封",
     "text": "門檻上散著的，都是村裡被搶走的小魚乾。他們應該也是從這裡進去的。"
+  },
+  {
+    "speaker": "封封",
+    "text": "每次回村，都是他們在路口等我。這次換我去找。"
   }
 ];
 export const fengfengActClear1: DialogueLine[] = [
@@ -126,7 +134,7 @@ export const fengfengTopScene: DialogueLine[] = [
 export const fengfengDefeat: DialogueLine[] = [
   {
     "speaker": "旁白",
-    "text": "封封想用劍鞘撐住身體，手指卻握不緊，劍滑落在身旁。再醒來時，他已躺在村裡，劍與劍鞘放在床邊，村貓正替他換藥。窗外仍看得見魔塔。"
+    "text": "封封想用劍鞘撐住身體，手指卻握不緊，劍滑落在身旁。再醒來時，他已躺在村裡，劍與劍鞘並排放在床邊，村貓正替他換藥。窗外仍看得見魔塔。"
   },
   {
     "speaker": "封封",
@@ -157,8 +165,11 @@ export const FENGFENG_YARD_FIRST = '過了幾天，封封在院子裡用木劍�
  * 結局兩個標記（2026-09-23）：
  * - `narrationAfter` 在 FG-V-03「先坐下，我把劍收好」：稿子寫打法插句「接 FG-V-03 後、FG-V-04 前」，
  *   四句插句講的都是收劍那一下（劍尖對鞘口、收回舉著的劍、劍鞘碰到腰側的傷），要等他說了要收劍才接得上。
- * - `slideBreak` 在 FG-V-06：第一張圖是塔頂四隻貓抱在一起，FG-V-04～06（大俠貓扶住球球、拉過菲菲）就是那一幕；
- *   原本切在 FG-V-03，這三句被配到第二張「村口喝熱湯」的圖上。
+ * - `slideBreak` 在第一張圖（塔頂四隻貓抱在一起）的最後一句。
+ *
+ * 2026-09-25 劇情草稿 2-4：從十七句縮成基本 8 句（三張圖：塔頂相擁／村口熱湯／院子練劍）。
+ * 切點改標在〔來歷句〕（塔的來歷 A 版在這裡點破）；村口整段併成一句；院子那張照舊從 `FENGFENG_YARD_FIRST` 開始，
+ * 收尾旁白裡「看過兩側、等收劍」的性格收進他自己最後那句話。
  */
 export const fengfengVictory: DialogueLine[] = [
   {
@@ -166,7 +177,7 @@ export const fengfengVictory: DialogueLine[] = [
     "text": "大俠貓眼中的紫光退了。他看著封封，手掌停在劍旁，沒有再往前。"
   },
   {
-    "speaker": "塔主",
+    "speaker": "大俠貓",
     "text": "承讓。"
   },
   {
@@ -176,56 +187,24 @@ export const fengfengVictory: DialogueLine[] = [
   },
   {
     "speaker": "旁白",
-    "text": "球球扶著牆走過來。大俠貓伸手扶住他，又將菲菲拉到身邊。封封把劍收入鞘中，解下水袋。"
+    "text": "球球和菲菲從門邊走過來。大俠貓扶住球球，又將菲菲拉到身邊，最後伸手按了按封封的頭，封封沒有躲開。"
   },
   {
-    "speaker": "球球",
-    "text": "師父，我們找了你好久喵。"
-  },
-  {
-    "speaker": "菲菲",
-    "text": "手給我看看。這些傷都得包起來。",
+    "speaker": "旁白",
+    "text": "紫光熄了，塔裡一層層暗下來。練功房、書庫、包鐵角的舊木箱——封封走過的那些地方，全是照大俠貓的記憶長出來的。",
     "slideBreak": true
   },
   {
     "speaker": "旁白",
-    "text": "下樓時，他們遇到折返的噹噹。受傷的村貓已交給守門的人，噹噹帶來了一盞燈。"
-  },
-  {
-    "speaker": "噹噹",
-    "text": "都找到了？好，我照著樓梯，你們跟上。"
-  },
-  {
-    "speaker": "旁白",
-    "text": "回到村口，封封才發現自己留在門口的藥箱已經打開了。村貓把剩下的藥布遞給菲菲，又端來幾碗熱湯。"
-  },
-  {
-    "speaker": "封封",
-    "text": "幸好這批藥趕上了。我的手也得包一下。"
+    "text": "下樓時，噹噹提著燈來接。回到村口，封封留在門口的藥箱早被打開，村貓端來熱湯，藥布剛好夠每個人包一圈。"
   },
   {
     "speaker": "旁白",
     "text": FENGFENG_YARD_FIRST
   },
   {
-    "speaker": "球球",
-    "text": "這樣站夠遠了嗎喵？"
-  },
-  {
     "speaker": "封封",
-    "text": "夠了。等我收劍，你再過來。"
-  },
-  {
-    "speaker": "噹噹",
-    "text": "竹架也搬好了。今天別再打到它。"
-  },
-  {
-    "speaker": "菲菲",
-    "text": "我坐這邊。你們誰都別往這裡跳。"
-  },
-  {
-    "speaker": "旁白",
-    "text": "封封看過兩側，向球球點頭。木劍揮出，球球順著收劍的空隙踏進院子。大俠貓坐在門邊，看著兩人練劍。"
+    "text": "看過兩邊了，沒人。等我收劍，你再進來。"
   }
 ];
 export const fengfengVictoryVariants: DialogueLine[] = [
@@ -507,12 +486,17 @@ export const fengfengRevivedLines = fengfengShortLines.REVIVED ?? [];
  * 結局的打法插句（稿子 FG-VAR），由 `victoryLinesFor` 插在標了 `narrationAfter` 的 FG-V-03 之後（2026-09-23 改）。
  * 原本照共用接法插在師父那句之後，比稿子寫的「接 FG-V-03 後」早一句。
  * 稿子規定三種打法（重劍、連招、護送配合）要等有封封自己的牌組統計才分，「沒統計就只用通用版」。
- * `deckLeaning` 目前分不出這三派，所以每一派都播通用那句（FG-VAR-04），VAR-01～03 先不接。
+ *
+ * 2026-09-25（劇情草稿 5-2，使用者核可）三種接上，句子一字不動、只改對照：`deckLeaning` 分得出的是爪力、第二派、蜷縮，
+ * 所以重劍配爪力、連招配第二派（他的第二派照舊算隱身 `LEANING_ALT`，他自己的牌沒有給隱身的，這句實際上很少出現）、
+ * 護送配合配蜷縮（擋在前面），其餘（沒有明顯傾向）照舊播通用那句（FG-VAR-04）。
  */
 const fengfengGenericNarration = fengfengVictoryVariants[3]?.text ?? '';
 const fengfengVictoryNarration: Partial<Record<DeckLeaning, string>> = {
-  strength: fengfengGenericNarration, stealth: fengfengGenericNarration, poison: fengfengGenericNarration,
-  thorns: fengfengGenericNarration, block: fengfengGenericNarration, plain: fengfengGenericNarration,
+  strength: fengfengVictoryVariants[0]?.text ?? fengfengGenericNarration,
+  stealth: fengfengVictoryVariants[1]?.text ?? fengfengGenericNarration,
+  block: fengfengVictoryVariants[2]?.text ?? fengfengGenericNarration,
+  poison: fengfengGenericNarration, thorns: fengfengGenericNarration, plain: fengfengGenericNarration,
 };
 
 /*
@@ -522,10 +506,13 @@ const fengfengVictoryNarration: Partial<Record<DeckLeaning, string>> = {
  */
 export const fengfengVictoryTeaser = '下一趟貨晚幾天再送，先在村裡把傷養好。';
 
+/** 難度 4 以上的尾聲（2026-09-25 劇情草稿 5-3；原本是空字串）。接在院子練劍那張後面，另外三隻的尾聲也都是「後來的日子」 */
+export const fengfengHardModeEpilogue = '之後每次封封出門送貨，大俠貓都送到村口。封封走過木橋回頭看，他還站在那裡。';
+
 export const fengfengDialogue = {
   prologue: fengfengPrologue, actClear1: fengfengActClear1, actClear2: fengfengActClear2,
   defeat: fengfengDefeat, victoryTeaser: fengfengVictoryTeaser, victory: fengfengVictory,
-  victoryNarration: fengfengVictoryNarration, hardModeEpilogue: '', topScene: fengfengTopScene,
+  victoryNarration: fengfengVictoryNarration, hardModeEpilogue: fengfengHardModeEpilogue, topScene: fengfengTopScene,
   battleStart: fengfengShortLines.START ?? [], battleWin: fengfengShortLines.WIN ?? [],
   hungry: fengfengShortLines.HUNGRY ?? [], lowHp: fengfengShortLines.LOW ?? [],
   chestLines: fengfengShortLines.CHEST ?? [], restNapLines: fengfengShortLines.NAP ?? [],
@@ -625,7 +612,8 @@ export const FENGFENG_CAST_LINES: Readonly<Record<string, string>> = {
   "上面那隻紫眼睛的大貓，本小姐才懶得管。你要去救他，隨便你。": "上面那隻紫眼睛的大貓，本小姐才懶得管。你要去救他，隨便你。",
   "龍貓睜開一隻眼睛，看了球球一會，又慢慢閉上。牠只是想繼續睡。": "龍貓睜開一隻眼睛，看了封封一會，又慢慢閉上。牠只是想繼續睡。",
   "……施主，貧僧清醒了。": "……施主，貧僧清醒了。",
-  "上面那位陷得比貧僧深得多。若還救得回來，那只能靠他最掛念的人。快去。": "上面那位陷得比貧僧深得多。若還救得回來，那只能靠他最掛念的人。快去。",
+  "這座塔，是照他記得的東西長出來的。越往上，越是他捨不得的。": "這座塔，是照他記得的東西長出來的。越往上，越是他捨不得的。",
+  "若還救得回來，只能靠他最掛念的人。快去。": "若還救得回來，只能靠他最掛念的人。快去。",
   "走火入魔。": "走火入魔。",
   "老婆子還沒拿出真本事呢。": "老婆子還沒拿出真本事呢。",
   "齒輪過熱……切換第二形態。": "齒輪過熱……切換第二形態。",
@@ -773,7 +761,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
         "text": "大俠貓停下攻擊，眼裡的紫光退了。球球跑上前，這次被他穩穩抱住。"
       },
       {
-        "speaker": "塔主",
+        "speaker": "大俠貓",
         "text": "承讓。"
       },
       {
@@ -937,7 +925,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
         "text": "紫光散去，大俠貓看向門邊。菲菲叫了一聲師父，他便轉過頭，伸手抱住她。"
       },
       {
-        "speaker": "塔主",
+        "speaker": "大俠貓",
         "text": "承讓。"
       },
       {
@@ -1101,7 +1089,7 @@ export const fengfengCoopScenes: Record<string, FengfengCoopScene> = {
         "text": "大俠貓終於停下，身上的魔氣散開。噹噹放下護臂，封封也把劍尖移向地面。"
       },
       {
-        "speaker": "塔主",
+        "speaker": "大俠貓",
         "text": "承讓。"
       },
       {

@@ -1,5 +1,6 @@
 import { coopStoryKey, hasCoopScene, storyFor, victoryLinesFor, type DialogueLine } from '../content/dialogue';
 import { FENGFENG_YARD_FIRST } from '../content/fengfeng-dialogue';
+import type { VictoryCtx } from '../content/victory-echoes';
 import type { Slide } from './slides';
 
 /*
@@ -177,16 +178,16 @@ export function topSceneSlides(hero: string | undefined): Slide[] {
  * 圖裡根本沒有球球。`stillKey` 的檔頭訂過規矩：**寧可少一段幻燈片，不要放別人的故事。**
  * 連線配對的結局圖與序章、塔頂圖同一路由（`COOP_ART`），不借用單人圖。
  */
-export function endingSlides(hero: string | undefined, deckIds: string[], difficulty: number): Slide[] {
-  const vic = victoryLinesFor(deckIds, difficulty, hero);
+// `ctx`＝這一局挑伏筆旁白要的狀況（2026-09-25，見 `victory-echoes.ts`）；除錯頁不傳，照舊沒有伏筆
+export function endingSlides(hero: string | undefined, deckIds: string[], difficulty: number, ctx?: VictoryCtx): Slide[] {
+  const vic = victoryLinesFor(deckIds, difficulty, hero, ctx);
   const coopArt = coopArtFor(hero);
   if (coopArt) return coopSlides(coopArt.victory, vic);
   if (hasCoopScene(hero)) return [];
   const cut = Math.max(1, vic.findIndex((l) => l.slideBreak) + 1);
   if (hero === 'fengfeng') {
-    // FengFeng's last six lines are the later yard practice (EP01), after the
-    // return-home and hot-soup scene; keep that scene on its own background.
-    // 打法插句會插在前面（見 `victoryLinesFor`），院子那段的起點要照第一句找，不能寫死第 10 句；
+    // 封封結局最後一段是幾天後的院子練劍（EP01），在村口熱湯那張之後，自己配一張圖。
+    // 打法插句、伏筆旁白都插在前面（見 `victoryLinesFor`），院子那段的起點要照第一句找，不能寫死第 10 句；
     // 那一句收在具名常數裡（2026-09-23 稽核 低-6：原本寫 `victory[10]`，結局多一句少一句就切到別人的話上）
     const found = vic.findIndex((l) => l.text === FENGFENG_YARD_FIRST);
     const yardStart = found > 0 ? found : vic.length;

@@ -200,8 +200,10 @@ describe('中-3、中-4：封封單人幻燈片的圖跟句子對得上', () => 
     ]);
     expect(slides[1]!.lines.map((l) => l.text).join(''), '關門的鋪子那張').toContain('叫住一隻經過的村貓');
     expect(slides[2]!.lines.map((l) => l.speaker), '對話那張').toEqual(['村貓']);
-    expect(slides[3]!.lines.map((l) => l.speaker), '塔下撿魚乾那張').toEqual(['封封']);
+    // 2026-09-25 劇情草稿 5-1：塔下那張多一句他有感情的話，沒標切點，跟著落在塔下那張
+    expect(slides[3]!.lines.map((l) => l.speaker), '塔下撿魚乾那張').toEqual(['封封', '封封']);
     expect(slides[3]!.lines.map((l) => l.text).join(''), '塔下撿魚乾那張').toContain('門檻上');
+    expect(slides[3]!.lines.at(-1)?.text, '塔下撿魚乾那張').toBe('每次回村，都是他們在路口等我。這次換我去找。');
     expect(slides.flatMap((s) => s.lines), '一句都不能少').toEqual(storyFor('fengfeng').prologue);
   });
 
@@ -232,8 +234,9 @@ describe('中-3、中-4：封封單人幻燈片的圖跟句子對得上', () => 
     const sheathe = embrace!.indexOf('您認得我了。先坐下，我把劍收好。');
     expect(embrace![sheathe + 1], '插句接在 FG-V-03 後面').toBe('劍鞘碰到腰側的傷，封封皺了皺眉，把腰帶鬆開一格。');
     expect(embrace!.join(''), '塔頂相擁那幾句').toContain('又將菲菲拉到身邊');
-    expect(embrace!.at(-1)).toBe('手給我看看。這些傷都得包起來。');
-    expect(home!.join(''), '村口喝熱湯那張').not.toContain('球球扶著牆走過來');
+    // 2026-09-25 劇情草稿 2-4：相擁那張收在〔來歷句〕（塔的來歷 A 版在這裡點破），切點跟著搬過來
+    expect(embrace!.at(-1)).toBe('紫光熄了，塔裡一層層暗下來。練功房、書庫、包鐵角的舊木箱——封封走過的那些地方，全是照大俠貓的記憶長出來的。');
+    expect(home!.join(''), '村口喝熱湯那張').not.toContain('球球和菲菲從門邊走過來');
     expect(home![0]).toContain('下樓時');
     expect(yard![0]).toBe(FENGFENG_YARD_FIRST);
   });

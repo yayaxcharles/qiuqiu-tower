@@ -15,7 +15,8 @@ import type { CoopSession } from '../net/session';
 import { clearRejoin } from '../net/rejoin';
 import { nodeById } from '../engine/map';
 import { ACTS, beginCombat, chooseNode, currentNode, finishCombat, makeMerchants, makeShops, newRun as engineNewRun } from '../engine/run';
-import { clearSave, loadRun, recordBest, saveRun } from '../engine/save';
+import { clearSave, loadDefeats, loadRun, recordBest, recordDefeat, saveRun } from '../engine/save';
+import type { VictoryCtx } from '../content/victory-echoes';
 import type { CombatState, MapNode, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
 import { computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
@@ -718,6 +719,8 @@ export class App {
     // 兩人局的成績寫進單機的最佳成績本來就不對，而 `clearSave()` 會把你單機打到一半的那局刪掉
     // 局面是兩人局也不准（2026-09-23 稽核 高-1）：跟 `save()` 同一道，連線已經離開、局面還留著時只看 `coop` 擋不住
     if (run.status !== 'playing' && !this.coop && run.players.length === 1) { recordBest(run); clearSave(); }
+    // 倒下次數（2026-09-25）：只給結局那句「背你回村的人」挑旁白，不影響玩法；連線局也算本機這一位（`afterCombat` 一場只叫一次）
+    if (run.status === 'lost') recordDefeat(me(run, this.seat).hero ?? 'ninja');
     // 連線局打完了：重新整理不再接回（不然會回到最後一戰之前＝悔棋），離開頁面也當場通知對方（推前稽核 2026-09-25 中-2）
     if (run.status !== 'playing' && this.coop) { clearRejoin(); this.coop.runOver(); }
     /*
@@ -737,9 +740,12 @@ export class App {
       if (run.status === 'won') {
         // 通關結局幻燈片：相擁、回家路；圖沒到就退回對白
         // 師父醒來的第一句依這一路的打法換（爪力／隱身或毒／蜷縮流，第二派看角色），難度 4 以上多一句旁白（使用者 2026-09-04）
-        const vic = victoryLinesFor(me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1, me(run, this.seat).hero);
+        // 伏筆旁白要的這一局狀況（2026-09-25，`victory-echoes.ts`）：身上的秘寶、旗標、包袱拿過沒、這隻貓以前倒下過幾次
+        const mineP = me(run, this.seat);
+        const endCtx: VictoryCtx = { relics: mineP.relics, flags: run.flags, blessTook: mineP.bless?.took, defeatsBefore: loadDefeats(mineP.hero ?? 'ninja') };
+        const vic = victoryLinesFor(mineP.deck.map((c) => c.cardId), run.difficulty ?? 1, mineP.hero, endCtx);
         // 圖依角色、切點看 `slideBreak`：理由都寫在 storyslides.ts（除錯頁也叫同一支）
-        const endSlides = endingSlides(me(run, this.seat).hero, me(run, this.seat).deck.map((c) => c.cardId), run.difficulty ?? 1);
+        const endSlides = endingSlides(mineP.hero, mineP.deck.map((c) => c.cardId), run.difficulty ?? 1, endCtx);
         /*
          * 使用者自製的結尾影片先播（沒檔就直接略過），再接結局幻燈片。
          *
