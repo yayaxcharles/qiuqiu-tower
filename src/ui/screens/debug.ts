@@ -79,9 +79,11 @@ registerScreen('debug', (app, root) => {
       `${mine.length} 個事件（這位角色遇得到的）。⚠️ 標示的是「還在用球球的句子」。`));
     for (const e of mine) {
       const ownEvent = e.hero === hero;
+      // 菲菲的事件先查整段改寫（`FEIFEI_EVENT_TEXT`）、查不到才換引號裡那句：只看引號表會把整段改寫過的誤標成「球球的句子」
+      //（2026-09-25 劇情打磨後畫面比對標出 13 項，實際遊戲裡顯示的都是菲菲版）。改成看換完的字裡還有沒有球球原本那句
       const said = (t: string): boolean => {
         const m = /球球：「(.+?)」/su.exec(t);
-        return !m || ownEvent || hero !== 'feifei' || FEIFEI_EVENT_LINES[m[1]!] !== undefined;
+        return !m || ownEvent || hero !== 'feifei' || FEIFEI_EVENT_LINES[m[1]!] !== undefined || !eventTextFor('feifei', t).includes(m[1]!);
       };
       const box = el('div', { class: 'dbg-event' },
         el('h3', {}, eventTextFor(hero, e.title), e.hero ? el('span', { class: 'dbg-tag' }, `${heroName({ hero: e.hero })}專屬`) : '',
