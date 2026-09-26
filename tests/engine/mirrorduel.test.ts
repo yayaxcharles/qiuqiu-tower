@@ -9,7 +9,7 @@ import { applyRunEffects, newRun } from '../../src/engine/run';
 describe('鏡子走廊的鏡中球球', () => {
   it('基本版加二、三關版，越高關越硬', () => {
     expect(encounterById['mirror_duel']?.enemies).toEqual(['mirror_qiuqiu']);
-    expect(encounterById['mirror_duel_a2']?.strength).toBe(3);
+    expect(encounterById['mirror_duel_a2']?.strength).toBe(2);   // 2026-09-26「慢你一拍」抄的是好牌，魔氣 3→2
     expect(encounterById['mirror_duel_a3']?.hpScale).toBeGreaterThan(encounterById['mirror_duel_a2']?.hpScale ?? 0);
   });
   it('fight 效果依關數換成該關的遭遇，並帶 bonusUpgrades', () => {

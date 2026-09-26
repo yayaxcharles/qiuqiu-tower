@@ -1292,14 +1292,16 @@ export const encounters: EncounterDef[] = [
   { id: 'white_duelist_a2', pool: '召喚', enemies: ['white_duelist', 'sparring_partner'], hpScale: 1.35, strength: 3, acts: [] },
   { id: 'white_duelist_a3', pool: '召喚', enemies: ['white_duelist', 'sparring_partner', 'sparring_partner'], hpScale: 1.5, strength: 6, acts: [] },
   // 鏡子走廊：事件寫 mirror_duel，引擎依關數接成 _a2／_a3，找不到就打基本版（見 run.ts 的 fight）
-  { id: 'mirror_duel', pool: '召喚', enemies: ['mirror_qiuqiu'] },   // 第一關用這個基本版（沒有 _a1）
-  { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [], learnCards: 2 },
-  { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [], learnCards: 2 },
+  // 2026-09-26「慢你一拍」：每一動照抄你上一輪打的牌，第一關最多 1 張、二三關最多 2 張（張數跟原本隨機抽一樣；3000 局量過 2／3 張太兇）。
+  // 抄的是你挑過的好牌，比亂抽兇得多，血量與魔氣跟著降：第一關 0.8 倍、二關 1 倍／魔氣 2、三關 1.5 倍／魔氣 4（原本 1／1.4／3／1.8／6）
+  { id: 'mirror_duel', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 0.8 },   // 第一關用這個基本版（沒有 _a1）
+  { id: 'mirror_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.0, strength: 2, acts: [], learnCards: 2 },
+  { id: 'mirror_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.5, strength: 4, acts: [], learnCards: 2 },
   // 影子鏈（屋頂上的影子、偷練的影子、影子的真面目，2026-09-23 內容擴充第二批）：數值與學牌照鏡子走廊那三筆，
   // 只換名牌與開場白（`skin`，見檔尾的 `encounterSkin`）——第一批暫用鏡子走廊那場，開場白是「從鏡子裡跨出來」，屋頂上沒有鏡子
-  { id: 'shadow_duel', pool: '召喚', enemies: ['mirror_qiuqiu'], skin: 'shadow' },
-  { id: 'shadow_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.4, strength: 3, acts: [], learnCards: 2, skin: 'shadow' },
-  { id: 'shadow_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.8, strength: 6, acts: [], learnCards: 2, skin: 'shadow' },
+  { id: 'shadow_duel', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 0.8, skin: 'shadow' },
+  { id: 'shadow_duel_a2', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.0, strength: 2, acts: [], learnCards: 2, skin: 'shadow' },
+  { id: 'shadow_duel_a3', pool: '召喚', enemies: ['mirror_qiuqiu'], hpScale: 1.5, strength: 4, acts: [], learnCards: 2, skin: 'shadow' },
   // 2026-09-04 使用者：「事件怪有點爛」——事件對手原本第二三關還在打第一關的怪。
   // 引擎會先找 `<遭遇>_a<關數>`，找不到才退回基本版（run.ts 的 fight），所以只要補這幾筆就跟著關卡變強。
   { id: 'orange_bandit_a2', pool: '中', enemies: ['orange_bandit', 'orange_bandit'], hpScale: 1.3, strength: 3, acts: [] },
@@ -1316,7 +1318,7 @@ export const encounters: EncounterDef[] = [
   { id: 'scarecrow', pool: '強', enemies: ['scarecrow'], acts: [1] },
   { id: 'black_ninja_duo', pool: '強', enemies: ['black_ninja_elite', 'black_ninja_elite'], hpScale: 0.75, acts: [1] },
   { id: 'big_cucumber', pool: '強', enemies: ['big_cucumber'], acts: [1] },
-  // 精英分關：塔中照本體數值；塔頂的菁英各自標 hpScale／strength（2026-09-04 起：影球球 1.2×／9、鏡仙與虛無貓 1.2×／10、鬼將 5），黑貓頭目／掃地機王／三花貓武僧的塔頂版已拿掉。
+  // 精英分關：塔中照本體數值；塔頂的菁英各自標 hpScale／strength（2026-09-04 起：鏡仙與虛無貓 1.2×／10、鬼將 5；影球球 2026-09-26 改成「你自己的影子」2×／5，見下面那筆），黑貓頭目／掃地機王／三花貓武僧的塔頂版已拿掉。
   // 2026-09-02 機器人 200 局：精英在 29～31F 平均只掉 2～4 血、影球球 0.8 血，比一般戰還軟。
   { id: 'ninja_boss', pool: '大魔物', enemies: ['ninja_boss'], acts: [2] },
   // 巨型飯糰＝第一關的福利菁英（使用者 2026-09-03：只放第一關才會隨機出現，當作福利）：血 100（125×0.8）、打倒回 10 血
@@ -1374,7 +1376,11 @@ export const encounters: EncounterDef[] = [
   { id: 'tengu', pool: '中', enemies: ['tengu'], hpScale: 1.6, strength: 4, acts: [3] },
   { id: 'fox_miko', pool: '中', enemies: ['fox_miko'], hpScale: 1.6, strength: 4, acts: [3] },
   { id: 'armor_ghost', pool: '中', enemies: ['armor_ghost'], hpScale: 1.6, strength: 4, acts: [3] },
-  { id: 'shadow_cat', pool: '大魔物', enemies: ['shadow_cat'], hpScale: 1.2, strength: 9, acts: [3] },   // 塔頂菁英版：血 1.2×、魔氣 9（2026-09-04 加硬兩刀 4→7→9）
+  // 塔頂菁英「影球球」：2026-09-26 使用者裁定改成「你自己的影子」菁英版——玩哪一隻就遇到那一隻的影子（同一隻鏡中對手＋影子名牌），
+  // 原本不管玩誰都是球球的影子，機器人每角 3000 局打完平均只掉 −2～5 血。遭遇 id 照舊叫 shadow_cat（存檔、統計、配樂都認這個名字）
+  // 血 2 倍、魔氣 5：魔氣每一下都加，抄到多段攻擊時比加血兇得多（試過 1.8 倍／魔氣 9，球球被打死近三成）。
+  // 改版前是 110 血的舊影球球 1.2 倍／魔氣 9；那隻魔物（`shadow_cat`）與牠的初見台詞留著，已經沒有遭遇在用
+  { id: 'shadow_cat', pool: '大魔物', enemies: ['mirror_qiuqiu'], hpScale: 2.0, strength: 5, acts: [3], learnCards: 2, skin: 'shadow' },
   { id: 'orange_king', pool: '塔主', enemies: ['orange_king'] },
   { id: 'cowcat_boss', pool: '塔主', enemies: ['cowcat_boss'] },
   { id: 'tanuki_lord', pool: '塔主', enemies: ['tanuki_lord'] },

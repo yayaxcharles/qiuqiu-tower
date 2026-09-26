@@ -10,7 +10,7 @@ import { QMARK_BANNER, ambushEvent, loadQmarkText, playQmarkReveal, qmarkHeroTex
 import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { resolvePendingAfterFight, type RunGain } from '../engine/run';
-import { enemyById, encounterById } from '../content/enemies';
+import { encounterById, encounterSkin, enemyById, enemyNameFor } from '../content/enemies';
 import { hasBossDoor } from './screenbg';
 import type { CoopSession } from '../net/session';
 import { clearRejoin } from '../net/rejoin';
@@ -822,7 +822,13 @@ export class App {
     const run = this.run;
     if (!run) return '';
     const n = nodeById(run.map, nodeId);
-    if (n.encounterId) return (encounterById[n.encounterId]?.enemies ?? []).map((id) => enemyById[id]?.name ?? id).join('、');
+    /*
+     * 名字照戰鬥裡的名牌走（2026-09-26 推前審查 低-3）：第三關菁英改成「你自己的影子」之後，
+     * 魔物表上的名字是「鏡中球球」，進場名牌卻是「菲菲的影子」。變裝照鏡子照的那一位（座位 0），跟戰鬥同一個判準
+     */
+    const enc = n.encounterId ? encounterById[n.encounterId] : undefined;
+    const hero = run.players[0]?.hero;
+    if (n.encounterId) return (enc?.enemies ?? []).map((id) => encounterSkin(enc, id, hero)?.name ?? enemyNameFor(id, hero)).join('、');
     return n.type;
   }
 }
