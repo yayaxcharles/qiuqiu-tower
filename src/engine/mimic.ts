@@ -32,6 +32,7 @@
 import { encounterById, enemyById } from '../content/enemies';
 import { cardById, cardNameFor } from '../content/cards';
 import { cardStats } from './deck';
+import { getStatus } from './statuses';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, Intent, StatusName } from './types';
 import { DEBUFFS } from './types';
 
@@ -187,22 +188,77 @@ export function learnsPlayerCards(e: EnemyCombat): boolean {
   return enemyById[e.enemyId]?.learnsPlayerCards === true;
 }
 
+/** 噹噹的影子開場帶的反彈（連打好幾下會被打回來）。原本另帶鱗甲 4，3000 局實測一場拖到 18 回合，拿掉 */
+export const SHADOW_DANGDANG = { thorns: 3 } as const;
+
+/** 菲菲的影子：你身上的毒疊到這麼多層，下一招就換成見血封喉（照你身上的毒打） */
+export const SHADOW_EXEC_POISON = 8;
+
 /**
- * 他下一動要「學」的那一招：抽 n 張（遭遇的 learnCards，不填＝1）不同的牌，效果接在一起、牌名用「、」串。
+ * 他下一動要「學」的那一招：最多 n 張（遭遇的 learnCards，不填＝1），效果接在一起、牌名用「、」串。
  * 池子空的（牌組裡沒半張學得會的）回 undefined，讓呼叫端退回牠自己的招式表。
+ *
+ * **慢你一拍**（2026-09-26 使用者：「影子系列的怪物超級弱，每隻角色都一樣」）：
+ * 原本每一動從整副牌隨機抽 1～2 張，常抽到基本的抓與擋，打起來沒威脅也沒個性。
+ * 改成**照抄你上一輪真的打出去的牌**（`p.playedThisTurn`），挑費用最高的 n 張——你捨得花飯糰的那幾張。
+ * 敵人回合結束時才挑，所以玩家下一輪看到的預告，就是自己剛打的牌：這一輪猛攻，下一輪就被還回來；
+ * 這一輪改守，牠下一輪就只會擋。開戰第一動、或上一輪沒打半張學得會的，照舊從整副牌隨機抽。
+ *
+ * 四隻各自的招牌（照**鏡子照的那一位**，座位 0，跟變裝同一個判準；開場被動在 `actions.ts` 的 `makeEnemy`）：
+ * - 球球的影子「影分身」：抄來的第一段攻擊多打一下（抄來的隱身一律不學；原本另帶開場隱身，3000 局實測菁英版打死球球近三成，拿掉）
+ * - 菲菲的影子「針上帶毒」：抄來的每一張攻擊牌多上一層中毒；你身上的毒到 `SHADOW_EXEC_POISON` 層，下一招換成見血封喉
+ * - 噹噹的影子「鐵壁」：開場帶反彈，出招照抄；抄來的反彈不學（不然他每回合都打反彈牌，影子越疊越厚，一場拖到快 20 回合）
+ * - 封封的影子「蓄氣」：每第三動多蓄一次氣，下一次攻擊的傷害加倍（引擎既有的 `chargeNext`；那一動只抄到防禦的話，留到下一個攻擊招）
+ *
+ * `e` 只有封封那條要用（看這是牠的第幾動）；不傳就當第一動。
  */
-export function learnedMove(cs: CombatState): EnemyMove | undefined {
-  const pool = learnPool(cs);
-  if (pool.length === 0) return undefined;
-  const n = Math.min(encounterById[cs.encounterId]?.learnCards ?? 1, pool.length);
-  const rest = [...pool];
-  const picks: CardInstance[] = [];
-  for (let i = 0; i < n; i++) {
-    const c = cs.rng.pick(rest);
-    picks.push(c);
-    rest.splice(rest.indexOf(c), 1);
+export function learnedMove(cs: CombatState, e?: EnemyCombat): EnemyMove | undefined {
+  const hero = cs.player.hero ?? 'ninja';
+  if (hero === 'feifei' && getStatus(cs.player, '中毒') >= SHADOW_EXEC_POISON) {
+    return { intent: 'attack', label: '見血封喉', effects: [{ kind: 'damageByPlayerStatus', name: '中毒' }] };
   }
-  const effects = picks.flatMap((c) => learnCard(c) ?? []);
+  /*
+   * **影子學不會隱身**：你這一輪躲起來，牠照抄只會學到「躲」——3000 局實測球球的影子因此每回合疊兩三層隱身，
+   * 一場打到 40 回合。噹噹的影子也不學反彈（理由見檔頭那段）。
+   * 濾掉之後一個效果都不剩的牌不算學得會：不然只打了替身術的那一輪，牠下一招會是空的。
+   */
+  const learnFor = (c: CardInstance): EnemyEffect[] => (learnCard(c) ?? [])
+    .filter((f) => !(f.kind === 'statusSelf' && (f.name === '隱身' || (hero === 'dangdang' && f.name === '反彈'))));
+  const n = encounterById[cs.encounterId]?.learnCards ?? 1;
+  // 連線時座位 0 倒下了，他那份清單停在倒下前那一輪、再也不會清空（2026-09-26 推前審查 中-1）：
+  // 照抄的話影子整場重複同一招，改回隨機抽
+  const played = cs.player.down ? [] : (cs.player.playedThisTurn ?? []).filter((c) => learnFor(c).length > 0);
+  let picks: CardInstance[];
+  if (played.length) {
+    picks = played.map((c, i) => ({ c, i, cost: cardStats(c).cost }))
+      .sort((a, b) => b.cost - a.cost || a.i - b.i).slice(0, n)
+      .sort((a, b) => a.i - b.i).map((x) => x.c);   // 挑完照你打出的順序排，亮牌面時跟你剛才打的一樣
+  } else {
+    const pool = learnPool(cs).filter((c) => learnFor(c).length > 0);
+    if (pool.length === 0) return undefined;
+    const rest = [...pool];
+    picks = [];
+    for (let i = 0; i < Math.min(n, pool.length); i++) {
+      const c = cs.rng.pick(rest);
+      picks.push(c);
+      rest.splice(rest.indexOf(c), 1);
+    }
+  }
+  let effects: EnemyEffect[] = picks.flatMap(learnFor);
+  if (hero === 'feifei') {   // 針上帶毒：抄來的每一張攻擊多上一層中毒（每張一層，不是每一下一層：後者 3000 局實測太兇）
+    effects = effects.flatMap((f): EnemyEffect[] => (f.kind === 'damage' ? [f, { kind: 'statusPlayer', name: '中毒', amount: 1 }] : [f]));
+  }
+  /*
+   * 影分身：抄來的第一段攻擊**多打一下**。原本是整張再打一次，3000 局實測抄到多段攻擊（四連擊）時
+   * 每一下都吃菁英的魔氣、整張再翻倍，菁英版打死球球近三成；改成多一下，單下的牌還是等於打兩次。
+   */
+  const clone = hero === 'ninja' ? effects.findIndex((f) => f.kind === 'damage') : -1;
+  if (clone >= 0) {
+    const f = effects[clone] as Extract<EnemyEffect, { kind: 'damage' }>;
+    effects = effects.map((x, i) => (i === clone ? { ...f, times: (f.times ?? 1) + 1 } : x));
+  }
+  const charge = hero === 'fengfeng' && ((e?.turnCount ?? 0) + 1) % 3 === 0;
+  if (charge) effects = [...effects, { kind: 'chargeNext' }];
   const intent: Intent = effects.some((f) => f.kind === 'damage' || f.kind === 'damageByPlayerStatus') ? 'attack'
     : effects.some((f) => f.kind === 'block') ? 'block'
       : effects.some((f) => f.kind === 'statusPlayer') ? 'debuff' : 'buff';
@@ -219,5 +275,8 @@ export function learnedMove(cs: CombatState): EnemyMove | undefined {
     // 升級的「＋」照 `cardStats` 的規矩自己補（那支是 `def.name + '＋'`）
     return cardNameFor(def, cs.player.hero) + (c.upgraded ? '＋' : '');
   };
-  return { intent, label: picks.map(nameOf).join('、'), effects, learned: picks.map((c) => ({ cardId: c.cardId, upgraded: c.upgraded })) };
+  // 招牌寫在括號裡，不跟牌名混在一起（戰報「照著打出『貓抓、影分身』」會讓人以為有一張叫影分身的牌，推前審查 低-5）
+  const tags = [...(clone >= 0 ? ['影分身'] : []), ...(charge ? ['蓄氣'] : [])];
+  const label = picks.map(nameOf).join('、') + (tags.length ? `（${tags.join('、')}）` : '');
+  return { intent, label, effects, learned: picks.map((c) => ({ cardId: c.cardId, upgraded: c.upgraded })) };
 }

@@ -39,7 +39,8 @@ describe('鏡中球球照著學', () => {
     expect(e.move.learned).toHaveLength(1);
     const id = e.move.learned![0]!.cardId;
     expect(STARTER_DECK).toContain(id);
-    expect(e.move.label).toBe(cardById[id]!.name);
+    // 球球的影子抄到攻擊牌會多一段「影分身」（2026-09-26），牌名仍是第一段
+    expect(e.move.label.replace(/（.*）$/, '')).toBe(cardById[id]!.name);
     expect(pileCount(cs)).toBe(STARTER_DECK.length);
   });
 
@@ -77,10 +78,10 @@ describe('鏡中球球照著學', () => {
     const cs = fight('mirror_duel_a2', 'up', ['tanding', 'sanjo']);
     for (const c of [...cs.player.drawPile, ...cs.player.hand]) c.upgraded = true;
     const m = learnedMove(cs)!;
-    expect(m.label.split('、')).toHaveLength(2);
+    expect(m.label.replace(/（.*）$/, '').split('、')).toHaveLength(2);   // 括號裡的影分身是招牌標記，不是牌名
     expect(m.label).not.toContain('＋＋');
     expect(m.learned!.every((c) => c.upgraded)).toBe(true);
-    expect(m.effects).toEqual(expect.arrayContaining([{ kind: 'damage', amount: 9 }]));
+    expect(m.effects).toEqual(expect.arrayContaining([{ kind: 'damage', amount: 9, times: 2 }]));   // 影分身：第一段攻擊多打一下
   });
 
   it('球球的牌是同一批實例、一張都沒被動到；學的張數不會超過池子；別的魔物完全不碰亂數', () => {

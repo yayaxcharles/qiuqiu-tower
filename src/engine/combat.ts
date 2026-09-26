@@ -419,6 +419,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { self: p, source: 'power' });
   p.noAttacks = false; p.immune = false; p.attackedThisTurn = false; p.cardsPlayedThisTurn = 0; p.echoUsed = false;
+  p.playedThisTurn = [];
   p.taunt = false;   // 「我來擋」只保護一輪（連線版 2026-09-11）
   p.firstCardPlayed = false;   // 蓄力（doubleNext）改在這一支最前面清，見開頭
   const n = 5 + p.drawNextTurn + (cs.turn === 1 ? relicSum(p.relics, 'firstTurnDraw') : 0);
@@ -573,6 +574,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     log(cs, `${relicById[rid]!.name}：第 ${n} 張攻擊牌，傷害加倍`);
   }
   p.cardsPlayedThisTurn += 1;
+  (p.playedThisTurn ??= []).push({ uid: card.uid, cardId: card.cardId, upgraded: card.upgraded });
   cs.cardsPlayed += 1;
   p.firstCardPlayed = true;
   p.firstCardEver = true;

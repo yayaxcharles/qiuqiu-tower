@@ -1624,6 +1624,9 @@ registerScreen('combat', (app, root, props) => {
       }
       // 只有「照層數打」＋守（鏡貓學到見血封喉）：主分支只寫了攻，守要補上（推前審查 2026-09-15 中-1）
       if (byStatus.length && blk && !hits.length && !rnd) text += `＋守 ${computeBlock(blk.amount, e)}`;
+      // 影子照抄的招帶毒（菲菲的影子「針上帶毒」，2026-09-26）：牌子只寫「攻 8」看不出每張攻擊都多上一層毒
+      const poison = m.learned ? m.effects.filter(has('statusPlayer')).filter((f) => f.name === '中毒').reduce((s, f) => s + f.amount, 0) : 0;
+      if (poison && (hits.length || rnd)) text += `＋毒 ${poison}`;
     }
     if (e.charged && m.intent === 'attack') text += '（蓄力）';
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）

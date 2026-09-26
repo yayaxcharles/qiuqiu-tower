@@ -1154,6 +1154,12 @@ export interface PlayerCombat extends Unit {
   immune: boolean;
   attackedThisTurn: boolean;
   cardsPlayedThisTurn: number;
+  /**
+   * 這一輪打出去的牌（照打出的順序，存一份複本；回合開始清空）。
+   * 影子「慢你一拍」讀它：敵人回合結束時挑下一招，照抄你這一輪打的牌（`mimic.ts` 的 `learnedMove`，2026-09-26）。
+   * 選填：舊存檔、別處建的戰鬥狀態沒有這欄就當空的。
+   */
+  playedThisTurn?: CardInstance[];
   firstStealthGiven: boolean;
   firstCardPlayed: boolean;
   lethalPrevented: boolean;

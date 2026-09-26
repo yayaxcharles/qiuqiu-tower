@@ -6,7 +6,7 @@ import { draw } from './deck';
 import { applyEffects } from './effects';
 import { addStatus, computeAttack, computeBlock, getStatus, removeStatus } from './statuses';
 import { DEBUFFS } from './types';
-import { learnedMove, learnsPlayerCards } from './mimic';
+import { learnedMove, learnsPlayerCards, SHADOW_DANGDANG } from './mimic';
 import type { CardInstance, CombatState, EnemyCombat, EnemyEffect, EnemyMove, EnemyPhase, PlayerCombat, Unit, StatusName } from './types';
 
 /** 沉睡中的魔物頭上顯示的意圖。每次都是同一份物件，畫面比對「這一拍出的是哪一招」才穩 */
@@ -398,7 +398,7 @@ export function advanceMove(cs: CombatState, e: EnemyCombat): void {
     e.queuedMove = q;
   }
   // 照著學的（鏡中球球）每一動都從球球的牌組抽，抽不到才照表
-  if (learnsPlayerCards(e)) { const learned = learnedMove(cs); if (learned) { e.move = learned; return; } }
+  if (learnsPlayerCards(e)) { const learned = learnedMove(cs, e); if (learned) { e.move = learned; return; } }
   const { moves, pattern } = moveSet(e);
   /**
    * 被冷卻擋掉的那一招**排進佇列，不是丟掉**（稽核 2026-09-10 中-1）。
@@ -740,7 +740,12 @@ export function makeEnemy(cs: CombatState, enemyId: string, index: number, hpSca
     moveIndex, turnCount: 0, phase: 0, charged: false, reviveIn: 0, invulnIn: 0,
     move: def.chooseMove?.(1, def.moves) ?? move, dead: false, escaped: false, stolen: 0,
   };
-  if (def.learnsPlayerCards) e.move = learnedMove(cs) ?? e.move;   // 第一動也是學來的（開戰時牌組已經在抽牌堆裡）
+  if (def.learnsPlayerCards) {
+    e.move = learnedMove(cs, e) ?? e.move;   // 第一動也是學來的（開戰時牌組已經在抽牌堆裡）
+    // 影子的開場被動（2026-09-26，四隻各自的招牌，說明見 `mimic.ts` 的 `learnedMove`）：照鏡子照的那一位（座位 0）
+    const hero = cs.player.hero ?? 'ninja';
+    if (hero === 'dangdang') addStatus(e, '反彈', SHADOW_DANGDANG.thorns);
+  }
   // 開戰就帶的被動狀態（第二波魔物）。全部走正常的狀態欄位，畫面上就有牌子、滑上去有說明
   if (def.flying) addStatus(e, '飛行', def.flying);
   if (def.plating) addStatus(e, '鱗甲', def.plating);
