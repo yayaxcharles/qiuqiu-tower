@@ -5,6 +5,7 @@ import './ui/styles/combat.css';
 import './ui/styles/screens.css';
 import './ui/styles/phone.css';   // 手機橫拿的字級與按鈕（2026-09-23），排最後才蓋得過前面幾份
 import { App } from './ui/app';
+import { initLang } from './i18n';
 import { registerLazyScreen } from './ui/lazy-screen';
 import { loadEventScreen } from './ui/event-loader';
 import { loadManifest, preloadArt } from './ui/assets';
@@ -39,7 +40,8 @@ registerLazyScreen('debug', () => import('./ui/screens/debug'), '正在準備除
 registerLazyScreen('lobby', () => import('./ui/screens/lobby'), '正在準備合作大廳……');
 
 async function boot(): Promise<void> {
-  await loadManifest();
+  // 語言包跟素材清單一起等（沒存過語言＝繁中，不用等）
+  await Promise.all([loadManifest(), initLang()]);
   // 圖片離線快取：看過的圖留在本機，推新版只重下換過的那幾張（2026-09-24 使用者「優化載入的速度」）
   registerAssetCache();
   applyArtVars();

@@ -2,10 +2,10 @@ import { cardStats } from '../engine/deck';
 import type { CardDef, CardInstance } from '../engine/types';
 import { artUrl, cardArtKey, localHero } from './assets';
 import { attachCardPeek } from './cardpeek';
-import { cardNameFor } from '../content/cards';
-import { describeCard, upgradedChangedChars } from './cardtext';
+import { cardName } from '../i18n/names';
+import { upgradedChangedChars } from './carddiff';
 import { el } from './dom';
-import { cardTypeLabel } from '../i18n';
+import { cardTypeLabel, describeCardText } from '../i18n';
 import { markupKeywords } from './tooltip';
 
 export interface CardViewOpts {
@@ -71,9 +71,9 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
 
   const node = el('div', { class: cls.join(' ') },
     el('div', { class: costDown ? 'card-cost cost-down' : costUp ? 'card-cost cost-up' : 'card-cost' }, String(cost)),
-    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero, opts.partnerHero)), alt: def.name, draggable: 'false' }),
-    el('div', { class: 'card-name' }, cardNameFor(def, opts.hero ?? localHero()) + (upgraded ? '＋' : '')),
-    el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),
+    el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero, opts.partnerHero)), alt: cardName(def, opts.hero ?? localHero()), draggable: 'false' }),
+    el('div', { class: 'card-name' }, cardName(def, opts.hero ?? localHero()) + (upgraded ? '＋' : '')),
+    el('div', { class: 'card-text' }, markupKeywords(describeCardText(def, upgraded, plays), changed)),
     el('div', { class: 'card-type' }, cardTypeLabel(def.type)));
 
   if (uid !== null) node.dataset['uid'] = String(uid);
@@ -99,6 +99,14 @@ function fitCardText(node: HTMLElement): void {
     for (let i = 0; i < 10 && t.scrollHeight > t.clientHeight && size > 10; i++) {
       size -= 0.5;
       t.style.fontSize = `${size}px`;
+    }
+    // 牌名固定一行（英日的牌名比中文長，2026-09-29 多語系）：放不下就一路縮到放得下，最小 9px
+    const name = node.querySelector<HTMLElement>('.card-name');
+    if (!name) return;
+    let ns = parseFloat(getComputedStyle(name).fontSize);
+    for (let i = 0; i < 16 && name.scrollWidth > name.clientWidth && ns > 9; i++) {
+      ns -= 0.5;
+      name.style.fontSize = `${ns}px`;
     }
   });
 }

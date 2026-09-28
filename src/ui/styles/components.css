@@ -483,6 +483,8 @@
   font-weight: bold;
   font-size: 17px;   /* 15→17：規則文字放大到 15 之後牌名不能比它小（稽核 2026-09-06 中-2） */
   text-align: center;
+  white-space: nowrap;   /* 英日牌名較長：固定一行，放不下由 cardview.ts 的 fitCardText 縮字 */
+  overflow: hidden;
 }
 .card-text {
   color: var(--ink);

@@ -61,7 +61,7 @@ export function getLang(): Lang { return lang; }
 export function currentPack(): LangPack | null { return pack; }
 
 function applyDocLang(): void {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined' || !document.documentElement) return;
   document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : lang;
 }
 
@@ -78,12 +78,31 @@ export async function setLang(next: Lang, remember = true): Promise<void> {
   if (remember) { try { window.localStorage.setItem(STORE_KEY, next); } catch { /* 存不了就只這次有效 */ } }
 }
 
-/** 開場叫一次：照這台裝置存的語言載包。載不到（斷網）就先用繁中，不擋開場 */
+/** 繁中的底子（牌面產生器、名詞說明）：任何語言都要，開場載一次（`./zh.ts`） */
+type ZhBase = typeof import('./zh').default;
+let zh: ZhBase | null = null;
+export async function loadZhBase(): Promise<void> {
+  if (zh) return;
+  try { zh = (await import('./zh')).default; } catch { zh = (await import('./zh')).default; }   // 網路抖一下就再抓一次
+}
+
+/**
+ * 開場叫一次：載繁中底子，再照這台裝置存的語言載包。
+ * 語言包載不到（斷網）就先用繁中，不擋開場；繁中底子載不到就真的開不了（牌面要用），讓例外往上丟。
+ */
 export async function initLang(): Promise<void> {
   const want = storedLang();
-  if (want === 'zh') { applyDocLang(); return; }
-  try { await setLang(want, false); } catch { lang = 'zh'; pack = null; applyDocLang(); }
+  await Promise.all([loadZhBase(), want === 'zh' ? null
+    : setLang(want, false).catch(() => { lang = 'zh'; pack = null; })]);
+  applyDocLang();
 }
+
+/** 牌面規則文字（照目前語言；繁中用底子裡的產生器）。底子還沒載好時回空字串 */
+export function describeCardText(def: CardDef, upgraded: boolean, plays = 0): string {
+  return pack?.describeCard(def, upgraded, plays) ?? zh?.describeCard(def, upgraded, plays) ?? '';
+}
+/** 繁中名詞說明表（提示框的名詞清單以它為準） */
+export function zhGlossary(): Readonly<Record<string, string>> { return zh?.glossary ?? {}; }
 
 /** 測試用：直接塞一個包 */
 export function _setPackForTest(next: Lang, p: LangPack | null): void { lang = next; pack = p; version++; }
@@ -108,14 +127,17 @@ export function t(zh: string, params?: Readonly<Record<string, string | number>>
   return format(pack?.ui[zh] ?? zh, params);
 }
 
+/** 只是標記「這句要翻」（給缺譯掃描看），原樣回傳；模組層的表用這個，真正顯示時再 `t(x)`（模組載入時語言包還沒到） */
+export const N_ = (zh: string): string => zh;
+
 /** 「中文當代號」的詞（狀態、關鍵字、節點種類、角色名…） */
 export function term(zh: string): string {
   return pack?.term[zh] ?? zh;
 }
 
-/** 名詞說明；缺譯回 undefined（呼叫端退回中文說明） */
+/** 名詞說明（目前語言；缺譯退回繁中）；查無此詞回 undefined */
 export function glossText(zhTerm: string): string | undefined {
-  return pack?.gloss[zhTerm];
+  return pack?.gloss[zhTerm] ?? zh?.glossary[zhTerm];
 }
 
 const RARITY_ZH = { common: '常見', uncommon: '罕見', rare: '稀有' } as const;
@@ -134,6 +156,11 @@ export function potionNameL(id: string, zh: string): string { return pack?.potio
 export function potionTextL(id: string, zh: string): string { return pack?.potion[id]?.[1] ?? zh; }
 export function enemyNameL(id: string, zh: string): string { return pack?.enemy[id] ?? zh; }
 export function moveLabelL(zh: string): string { return pack?.move[zh] ?? zh; }
+
+/** 幾個子句接成一句（中文用「，」） */
+export function clauseJoin(items: readonly string[]): string {
+  return items.join(lang === 'en' ? ', ' : lang === 'ja' ? '、' : '，');
+}
 
 /** 中文的標點與連接詞在其他語言要換掉的幾個（清單接起來時用） */
 export function listJoin(items: readonly string[]): string {

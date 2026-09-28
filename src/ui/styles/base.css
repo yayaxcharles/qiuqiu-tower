@@ -13,6 +13,9 @@ html, body {
   font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
   color: var(--ink);
 }
+/* 多語系（2026-09-29）：英日先用系統字型，中文字型排在後面接住還沒翻的中文 */
+html:lang(en) body { font-family: "Segoe UI", "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif; }
+html:lang(ja) body { font-family: "Yu Gothic UI", "Yu Gothic", Meiryo, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Microsoft JhengHei", sans-serif; }
 
 #app {
   position: fixed;

@@ -1701,3 +1701,6 @@
   animation: qm-banner 1.9s ease-out forwards;
 }
 @keyframes qm-banner { 0% { opacity: 0; transform: translate(-50%, -12px); } 10%, 78% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }
+/* 語言切換（2026-09-29 多語系）：釘在封面左上角，跟右上角的圖鑑鈕對稱 */
+.lang-picker { position: absolute; top: 14px; left: 16px; margin: 0; }
+.lang-picker .diff-btn { min-width: 0; }
