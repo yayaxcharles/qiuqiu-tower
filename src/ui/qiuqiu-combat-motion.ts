@@ -7,7 +7,7 @@ import {
   type CompanionMotionKind,
   type CompanionMotionAction,
 } from './companion-motion';
-import { enemyMotionDuration, isBossMotionKind, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
+import { enemyMotionDuration, hasLongDeath, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
 import { isFeifeiNeedleAction } from './feifei-needle-patterns';
 import type { MotionMeleePlan } from './qiuqiu-melee';
 
@@ -220,7 +220,7 @@ export function motionStillPlaying(states: Iterable<Readonly<{ active: boolean; 
 }
 
 /**
- * 魔王倒地的爆炸還要演多久才換場（2026-09-28 試做：鐵爪機關貓、掃地機器人王）。
+ * 塔主、大魔物倒地的整段還要演多久才換場（2026-09-28，見 enemy-motion.ts 的 LONG_DEATH_KINDS）。
  * 爆炸演完、最後一格再停 `BOSS_DEATH_HOLD_MS` 才走；背景分頁看不到，不等（同 `motionStillPlaying`）。
  */
 export const BOSS_DEATH_HOLD_MS = 300;
@@ -232,7 +232,7 @@ export function bossDeathMotionLeft(
   if (hidden) return 0;
   let left = 0;
   for (const state of states) {
-    if (state.action === 'knockdown' && isBossMotionKind(state.kind)) left = Math.max(left, state.busyUntil + BOSS_DEATH_HOLD_MS - now);
+    if (state.action === 'knockdown' && hasLongDeath(state.kind)) left = Math.max(left, state.busyUntil + BOSS_DEATH_HOLD_MS - now);
   }
   return left;
 }
@@ -323,10 +323,56 @@ export function buildFeifeiStatusImpactPlan(
 export function qiuqiuEnemyMotionKind(enemyId: string, phase = 0): EnemyMotionKind | undefined {
   if (enemyId === 'rat' || enemyId === 'rat_guard') return 'rat';
   if (enemyId === 'black_ninja' || enemyId === 'black_ninja_elite' || enemyId === 'sparring_partner') return 'ninja';
-  // 兩隻魔王（2026-09-28 試做，素材從橫向捲軸搬來）：鐵爪外殼彈開（第二階段）換成另一套
-  if (enemyId === 'iron_claw') return phase > 0 ? 'iron_claw_p2' : 'iron_claw';
-  if (enemyId === 'roomba_king') return 'roomba_king';
-  return undefined;
+  // 從橫向捲軸搬來的（2026-09-28）：有第二階段的換成另一套
+  const side = SIDE_MOTION_BY_ENEMY[enemyId];
+  if (!side) return undefined;
+  return phase > 0 && side[1] ? side[1] : side[0];
+}
+
+/**
+ * 魔物 → 橫向捲軸的動作套（第一階段, 第二階段）。**拿掉一行測試會紅**（side_motion_0928.test.ts）。
+ * 沒接的：小鴉群（舊圖是一群烏鴉、新圖只有一隻）、掃把蜈蚣（新圖是趴著的一長條，跟舊圖盤起來的樣子差太多）；
+ * 老鼠、黑貓忍者照舊用原本那兩套（畫風跟牠們的靜態圖一致）。
+ */
+const SIDE_MOTION_BY_ENEMY: Readonly<Record<string, readonly [EnemyMotionKind, EnemyMotionKind?]>> = {
+  iron_claw: ['iron_claw', 'iron_claw_p2'],
+  roomba_king: ['roomba_king'],
+  frog_daimyo: ['frog_daimyo', 'frog_daimyo_p2'],
+  orange_king: ['orange_king', 'orange_king_p2'],
+  tanuki_lord: ['tanuki_lord', 'tanuki_lord_p2'],
+  drum_tanuki: ['drum_tanuki'],
+  guardian_statue: ['guardian_statue'],
+  iron_arhat: ['iron_arhat'],
+  mask_dancer: ['mask_dancer'],
+  wild_boar: ['wild_boar'],
+  armor_ghost: ['armor_ghost'],
+  fox_miko: ['fox_miko'],
+  kappa: ['kappa'],
+  kasa_obake: ['kasa_obake'],
+  lantern_ghost: ['lantern_ghost'],
+  mini_broom: ['mini_broom'],
+  orange_bandit: ['orange_bandit'],
+  paper_crane: ['paper_crane'],
+  plated_beetle: ['plated_beetle'],
+  tadpole: ['tadpole'],
+  tanuki_kid: ['tanuki_kid'],
+  tengu: ['tengu'],
+  vacuum: ['vacuum'],
+  wraith_samurai: ['wraith_samurai'],
+};
+
+/** 這隻魔物（含各階段）會叫出來的魔物編號：開打時一起抓牠們的動作（見 combat.ts 的預載） */
+export function summonIdsOf(def: unknown): string[] {
+  const out = new Set<string>();
+  const walk = (v: unknown): void => {
+    if (Array.isArray(v)) { for (const x of v) walk(x); return; }
+    if (!v || typeof v !== 'object') return;
+    const o = v as Record<string, unknown>;
+    if (o.kind === 'summon' && typeof o.enemyId === 'string') out.add(o.enemyId);
+    for (const x of Object.values(o)) walk(x);
+  };
+  walk(def);
+  return [...out];
 }
 
 /** 開打時要先下載哪幾套：鐵爪兩個階段一起抓，變身那一刻才不會退回靜態圖 */

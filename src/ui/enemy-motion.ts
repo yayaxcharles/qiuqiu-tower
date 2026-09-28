@@ -5,16 +5,41 @@ import { decodedAtlas, imageLoaded, prepareDecodedAtlas } from './decoded-atlas'
 import { loadHeavy } from './heavy-lane';
 
 /**
- * 兩隻魔王（鐵爪機關貓兩個階段、掃地機器人王）的逐格動作是從橫向捲軸搬來的（2026-09-28 試做）。
- * 牠們的格子資料放在另一份 JSON、**開打那一刻才用動態載入抓**（`boss-motion-data.json`，
- * 由 `tools/pack_boss_motion.py` 產生），不進開場的主程式；圖集也一樣只在那一場才下載。
+ * 從橫向捲軸搬來的魔物逐格動作（2026-09-28：先試做鐵爪機關貓、掃地機器人王，使用者看過說好，接著全接）。
+ * 每一套的格子資料是 `side-motion/<kind>.json` 一個小檔（`tools/pack_side_motion.py` 產生），
+ * **打到那一場才動態載入**，不進開場的主程式；圖集也一樣只在那一場才下載。
+ * 老鼠、黑貓忍者照舊用原本那兩套（`enemy-motion-data.json`），畫風跟牠們的靜態圖一致。
  */
-export const BOSS_MOTION_KINDS = ['iron_claw', 'iron_claw_p2', 'roomba_king'] as const;
-export type BossMotionKind = typeof BOSS_MOTION_KINDS[number];
-export type EnemyMotionKind = 'rat' | 'ninja' | BossMotionKind;
-export function isBossMotionKind(kind: EnemyMotionKind): kind is BossMotionKind {
-  return (BOSS_MOTION_KINDS as readonly string[]).includes(kind);
+export const SIDE_MOTION_KINDS = [
+  'iron_claw', 'iron_claw_p2', 'roomba_king',
+  'frog_daimyo', 'frog_daimyo_p2', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2',
+  'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer', 'wild_boar',
+  'armor_ghost', 'fox_miko', 'kappa', 'kasa_obake', 'lantern_ghost', 'mini_broom',
+  'orange_bandit', 'paper_crane', 'plated_beetle', 'tadpole', 'tanuki_kid', 'tengu', 'vacuum', 'wraith_samurai',
+] as const;
+export type SideMotionKind = typeof SIDE_MOTION_KINDS[number];
+export type EnemyMotionKind = 'rat' | 'ninja' | SideMotionKind;
+export function isSideMotionKind(kind: EnemyMotionKind): kind is SideMotionKind {
+  return (SIDE_MOTION_KINDS as readonly string[]).includes(kind);
 }
+/**
+ * 倒下演完整段（≤ 3 秒）、停在最後一格、打完等它演完才換場的：塔主與大魔物（一局只遇得到幾隻）。
+ * 其他一般魔物的倒下片段 ≤ 0.85 秒，跟原本 0.8 秒的溶解一起跑，不拉長節奏（使用者 2026-09-28）。
+ */
+const LONG_DEATH_KINDS: ReadonlySet<EnemyMotionKind> = new Set<SideMotionKind>([
+  'iron_claw', 'iron_claw_p2', 'roomba_king',
+  'frog_daimyo', 'frog_daimyo_p2', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2',
+  'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer', 'wild_boar',
+]);
+export function hasLongDeath(kind: EnemyMotionKind): boolean {
+  return LONG_DEATH_KINDS.has(kind);
+}
+/** tsconfig 不吃 vite/client，自己宣告 Vite 的 `import.meta.glob`（打包時 Vite 會換成每個檔各自的動態載入） */
+declare global {
+  interface ImportMeta { glob<T>(pattern: string): Record<string, () => Promise<T>> }
+}
+/** 各套格子資料的載入函式（Vite 會把每個檔拆成獨立的小區塊，要用才抓） */
+const sideLoaders = import.meta.glob<{ default: unknown }>('./side-motion/*.json');
 export type EnemyMotionAction = 'idle' | 'attack' | 'hurt' | 'air_rise' | 'air_fall' | 'knockdown' | 'getup';
 
 type MotionFrame = {
@@ -51,16 +76,25 @@ const ACTIONS: readonly EnemyMotionAction[] = [
   'getup',
 ];
 const kinds: Partial<Record<EnemyMotionKind, MotionKind>> = { ...(motionData.kinds as unknown as Record<'rat' | 'ninja', MotionKind>) };
-let bossData: Promise<void> | null = null;
+const dataLoads = new Map<EnemyMotionKind, Promise<void>>();
 
-/** 魔王的格子資料：第一次用到才抓。抓失敗就清掉、下一場再試（期間照舊畫靜態立繪） */
+/** 這一套的格子資料：第一次用到才抓。抓失敗就清掉、下一場再試（期間照舊畫靜態立繪） */
 function ensureKindData(kind: EnemyMotionKind): Promise<void> {
   if (kinds[kind]) return Promise.resolve();
-  bossData ??= import('./boss-motion-data.json').then((module) => {
-    const data = ((module as { default?: unknown }).default ?? module) as { kinds: Record<BossMotionKind, MotionKind> };
-    Object.assign(kinds, data.kinds);
-  }).catch((error: unknown) => { bossData = null; throw error; });
-  return bossData;
+  const pending = dataLoads.get(kind);
+  if (pending) return pending;
+  const loader = sideLoaders[`./side-motion/${kind}.json`];
+  if (!loader) return Promise.reject(new Error(`沒有這一套敵人動作：${kind}`));
+  const load = loader().then((module: { default: unknown }) => {
+    kinds[kind] = ((module as { default?: unknown }).default ?? module) as MotionKind;
+  }).finally(() => { dataLoads.delete(kind); });
+  dataLoads.set(kind, load);
+  return load;
+}
+
+/** 這一套有沒有自己的這個動作（沒有的：出招交還靜態立繪、倒下照舊溶解）。資料還沒載入就回 false */
+export function enemyMotionHas(kind: EnemyMotionKind, action: EnemyMotionAction): boolean {
+  return kinds[kind]?.actions[action] !== undefined;
 }
 
 function kindOf(kind: EnemyMotionKind): MotionKind {
@@ -192,7 +226,7 @@ export function createEnemyMotionActor(
   const canvas = document.createElement('canvas');
   canvas.className = 'enemy-motion';
   canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', kind === 'rat' ? '老鼠敵人' : kind === 'ninja' ? '忍者敵人' : kind === 'roomba_king' ? '掃地機器人王' : '鐵爪機關貓');
+  canvas.setAttribute('aria-label', kind === 'rat' ? '老鼠敵人' : kind === 'ninja' ? '忍者敵人' : '敵人');
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
   canvas.style.transform = `translateX(${-foot.x}px)`;
