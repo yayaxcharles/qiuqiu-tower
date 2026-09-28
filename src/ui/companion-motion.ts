@@ -454,6 +454,8 @@ const BASE_MOTIONS: Readonly<Record<CompanionMotionKind, Readonly<Record<string,
 };
 const heroVidsApplying: Partial<Record<CompanionMotionKind, Promise<void>>> = {};
 const heroVidsKeys: Record<CompanionMotionKind, string[]> = { feifei: [], dangdang: [], fengfeng: [] };
+/** 已經退回原本那套了（兩處同時預載、都遇到新圖集壞掉時，後到的那個不再丟錯） */
+const heroVidsReverted: Record<CompanionMotionKind, boolean> = { feifei: false, dangdang: false, fengfeng: false };
 
 /**
  * 換上 Flow Omni 的新動作（2026-09-29，比照球球的 hero-vids.ts）：這位同伴第一次預載時才抓格子資料，
@@ -479,6 +481,7 @@ function revertHeroVids(kind: CompanionMotionKind): boolean {
     else delete motions[key];
   }
   heroVidsKeys[kind] = [];
+  heroVidsReverted[kind] = true;
   if (kind === 'feifei') setFeifeiNeedleVidsOrigins({});
   return true;
 }
@@ -501,6 +504,11 @@ export async function preloadCompanionMotion(kind: CompanionMotionKind): Promise
   try {
     await frameSet(kind).preload();
   } catch (error: unknown) {
+    if (heroVidsReverted[kind]) {
+      // 另一處同時預載已經退回了：照原本那套再預載一次就好
+      await frameSet(kind).preload();
+      return;
+    }
     if (!revertHeroVids(kind)) throw error;
     console.warn('同伴新動作圖集載入失敗，退回原本的動作', kind, error);
     await frameSet(kind).preload();

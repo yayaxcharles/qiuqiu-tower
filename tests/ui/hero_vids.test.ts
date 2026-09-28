@@ -278,6 +278,18 @@ describe('球球新動作接上遊戲', () => {
     expect(lastTexture()).toContain('assets/motion/qiuqiu/hit_recoil.webp');
   });
 
+  it('新圖集載不到、兩處同時預載：後到的那個不丟錯，一起退回原本的動作', async () => {
+    broken = (src) => src.includes('hero-vids');
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const motion = await import('../../src/ui/qiuqiu-motion');
+    await expect(Promise.all([motion.preloadQiuqiuMotion(), motion.preloadQiuqiuMotion()])).resolves.toBeDefined();
+    expect(motion.qiuqiuHeroVidsActions()).toEqual([]);
+    expect(motion.qiuqiuMotionReady()).toBe(true);
+    motion.createQiuqiuActor({ action: 'attack1' });
+    expect(lastTexture()).toContain('assets/motion/qiuqiu/claw_1_sheet.webp');
+    warn.mockRestore();
+  });
+
   it('網址帶 vids=0 就完全不抓新動作', async () => {
     vi.stubGlobal('location', { search: '?vids=0' });
     const motion = await import('../../src/ui/qiuqiu-motion');
@@ -354,6 +366,18 @@ describe.each(KINDS)('%s 新動作接上遊戲', (kind) => {
     motion.createCompanionMotionActor(kind, { action: 'run' });
     expect(lastTexture()).toContain(`assets/motion/${kind}/run.webp`);
     expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('新圖集載不到、兩處同時預載：後到的那個不丟錯，一起退回原本的動作', async () => {
+    broken = (src) => src.includes('hero-vids');
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const motion = await import('../../src/ui/companion-motion');
+    await expect(Promise.all([motion.preloadCompanionMotion(kind), motion.preloadCompanionMotion(kind)])).resolves.toBeDefined();
+    expect(motion.companionHeroVidsActions(kind)).toEqual([]);
+    expect(motion.companionMotionReady(kind)).toBe(true);
+    motion.createCompanionMotionActor(kind, { action: 'hurt' });
+    expect(lastTexture()).toContain(`assets/motion/${kind}/hit_recoil.webp`);
     warn.mockRestore();
   });
 });
