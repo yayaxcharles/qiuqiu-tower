@@ -945,7 +945,15 @@
     "shop/keeper_junk_no": "assets/sprites/shop/keeper_junk_no.webp",
     "shop/merchant": "assets/sprites/shop/merchant.webp",
     "shop/merchant_happy": "assets/sprites/shop/merchant_happy.webp",
-    "shop/merchant_no": "assets/sprites/shop/merchant_no.webp"
+    "shop/merchant_no": "assets/sprites/shop/merchant_no.webp",
+    "hero/cover_en": "assets/sprites/hero/cover_en.webp",
+    "hero/cover_ja": "assets/sprites/hero/cover_ja.webp",
+    "hero/feifei_cover_en": "assets/sprites/hero/feifei_cover_en.webp",
+    "hero/feifei_cover_ja": "assets/sprites/hero/feifei_cover_ja.webp",
+    "hero/dangdang_cover_en": "assets/sprites/hero/dangdang_cover_en.webp",
+    "hero/dangdang_cover_ja": "assets/sprites/hero/dangdang_cover_ja.webp",
+    "hero/fengfeng_cover_en": "assets/sprites/hero/fengfeng_cover_en.webp",
+    "hero/fengfeng_cover_ja": "assets/sprites/hero/fengfeng_cover_ja.webp"
   },
   "review": [],
   "monsters": {
