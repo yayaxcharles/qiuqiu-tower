@@ -507,11 +507,11 @@ describe('菲菲全身逐格畫布', () => {
   it('三秒換場期間跑步跨過兩輪後仍交替四肢影格', () => {
     const actor = createCompanionMotionActor('feifei', { action: 'run' });
     step(0);
-    step(1025);
+    step(1060);
     expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.run.frames[1]!.rect);
     expect(rafs.size).toBe(1);
-    step(1265);
-    expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.run.frames[5]!.rect);
+    step(1300);
+    expect(lastDraw().slice(1, 5)).toEqual(motionData.actions.run.frames[4]!.rect);
     expect(rafs.size).toBe(1);
     actor.dispose();
   });
@@ -523,8 +523,8 @@ describe('菲菲全身逐格畫布', () => {
     step(0);
     step(1090);
     expect(lastDraw().slice(1, 5)).toEqual(dangdangMotionData.actions.run.frames[0]!.rect);
-    step(1230);
-    expect(lastDraw().slice(1, 5)).toEqual(dangdangMotionData.actions.run.frames[2]!.rect);
+    step(1380);
+    expect(lastDraw().slice(1, 5)).toEqual(dangdangMotionData.actions.run.frames[3]!.rect);
     expect(rafs.size).toBe(1);
     actor.dispose();
   });
@@ -535,9 +535,9 @@ describe('菲菲全身逐格畫布', () => {
     expect(actor.element.getAttribute?.('aria-label') ?? (actor.element as unknown as FakeCanvas).attrs.get('aria-label')).toBe('封封');
     step(0);
     step(1080);
-    expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.run.frames[2]!.rect);
+    expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.run.frames[1]!.rect);
     step(1310);
-    expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.run.frames[5]!.rect);
+    expect(lastDraw().slice(1, 5)).toEqual(fengfengMotionData.actions.run.frames[4]!.rect);
     expect(rafs.size).toBe(1);
     actor.dispose();
   });
