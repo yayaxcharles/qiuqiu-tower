@@ -79,7 +79,8 @@ describe('只改縮放的三套（圖不動，資料檔 scale ＝ 打包值 × �
     expect(fix.scale).toBeCloseTo(m.scale, 9);
     expect(m.texture).toBe(fix.texture);
     expect(sha(`public/${m.texture}`)).toBe(fix.textureSha256);
-    expect(m.frames).toHaveLength(8);
+    // 噹噹跑步 2026-09-28 拿掉同手同腳的原第 4、6、8 格，只播 5 格（圖集不動）
+    expect(m.frames).toHaveLength(key === 'dangdang/run' ? 5 : 8);
   });
 });
 

@@ -11,6 +11,7 @@ import {
 } from './qiuqiu-choreography';
 import { preloadQiuqiuShuriken, QIUQIU_SHURIKEN_RELEASE_MS, QIUQIU_SHURIKEN_FLIGHT_MS } from './qiuqiu-shuriken';
 import { motionMs, speedUpMotions } from './motion-speed';
+import { loadHeroVids } from './hero-vids';
 import './styles/qiuqiu-motion.css';
 
 export type QiuqiuAction = QiuqiuPoseAction
@@ -33,6 +34,8 @@ const motions: Record<string, Motion> = {
   }),
   hurt: HIT_RECOIL_MOTIONS.qiuqiu,
 };
+/** 原本那套（新動作載不到或圖壞掉時整組換回來，見 `preloadQiuqiuMotion`） */
+const BASE_MOTIONS: Readonly<Record<string, Motion>> = { ...motions };
 
 const FALLBACK_POSES: Partial<Record<QiuqiuPoseAction, QiuqiuPoseAction>> = {
   hurt: 'idle',
@@ -345,9 +348,55 @@ const qiuqiuFrameMotions = createFrameMotionSet<QiuqiuAction>({
   duration: (action, options) => qiuqiuMotionDuration(action, options.waves),
 });
 
+let heroVidsApplying: Promise<void> | null = null;
+let heroVidsKeys: string[] = [];
+
+/**
+ * 換上 Google Vids 的新動作（2026-09-28 球球試做，見 hero-vids.ts）：選到球球、第一次預載時才抓格子資料，
+ * 蓋掉有新片的那幾個動作，再照舊預載（新圖集也在這時才下載）。
+ * 動作畫布都是預載完才建立（`qiuqiuMotionReady`），外框一開始就把新動作算進去。
+ */
+function applyHeroVids(): Promise<void> {
+  // 開局預載、戰鬥畫面、過關轉場可能同時叫：共用同一次，後到的也要等新動作換上去才開始預載
+  heroVidsApplying ??= loadHeroVids('qiuqiu').then((vids) => {
+    if (!vids) return;
+    heroVidsKeys = Object.keys(vids);
+    Object.assign(motions, vids);
+  });
+  return heroVidsApplying;
+}
+
+/** 新圖集下載失敗：有新片的動作整組換回原本那套（不留一半新一半舊），回傳有沒有換 */
+function revertHeroVids(): boolean {
+  if (heroVidsKeys.length === 0) return false;
+  for (const key of heroVidsKeys) {
+    const base = BASE_MOTIONS[key];
+    if (base) motions[key] = base;
+    else delete motions[key];
+  }
+  heroVidsKeys = [];
+  return true;
+}
+
+/** 這些動作現在用的是新的 Vids 動作（測試、除錯用） */
+export function qiuqiuHeroVidsActions(): readonly string[] {
+  return heroVidsKeys;
+}
+
+async function preloadFrames(): Promise<void> {
+  await applyHeroVids();
+  try {
+    await qiuqiuFrameMotions.preload();
+  } catch (error: unknown) {
+    if (!revertHeroVids()) throw error;
+    console.warn('球球新動作圖集載入失敗，退回原本的動作', error);
+    await qiuqiuFrameMotions.preload();
+  }
+}
+
 /** 每個貼圖網址只建立一個影像，並一併預載額外動作素材。 */
 export async function preloadQiuqiuMotion(): Promise<void> {
-  await Promise.all([qiuqiuFrameMotions.preload(), preloadQiuqiuShuriken()]);
+  await Promise.all([preloadFrames(), preloadQiuqiuShuriken()]);
 }
 
 /** 延後下載的待機狀態圖還沒到（或壞了）時回 false，戰鬥畫面就先交還靜態立繪。 */

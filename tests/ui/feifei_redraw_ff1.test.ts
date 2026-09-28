@@ -39,11 +39,12 @@ const ORIGINAL: Record<string, { texture: string; loop: boolean; ms: number[]; i
   guard: { texture: 'guard.webp', loop: false, ms: [70, 70, 70, 90, 110, 80, 90, 140] },
   kick: { texture: 'kick_claw.webp', loop: false, ms: [60, 80, 100, 60, 90, 90, 100, 120], impactTimes: [300] },
   shuriken: { texture: 'needle.webp', loop: false, ms: [60, 80, 100, 45, 75, 100, 120, 120], releaseTimes: [285] },
-  run: { texture: 'run.webp', loop: true, ms: [65, 55, 55, 65, 65, 55, 55, 65] },
+  // 跑步 2026-09-28 拿掉同手同腳的原第 4、8 格（手晚腳四分之一拍才換邊），剩 6 格各 80 毫秒、一輪仍 0.48 秒
+  run: { texture: 'run.webp', loop: true, ms: [80, 80, 80, 80, 80, 80] },
 };
 // 改前量到的頭部倍率上限（每套 8 格裡最大的一格）：新圖最小的一格也要比這個大一截
 const BEFORE_MAX: Record<string, number> = { attack1: .91, guard: .92, kick: .90, shuriken: .88, run: .91 };
-const RUN_LIFT = [0, 0, 6, 12, 0, 0, 6, 12];   // 跑步騰空高度（遊戲單位），照舊資料
+const RUN_LIFT = [0, 0, 6, 0, 0, 6];   // 跑步騰空高度（遊戲單位），照舊資料；騰空 12 的兩格就是 09-28 拿掉的同手同腳格
 
 const sha = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
 

@@ -668,10 +668,16 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'execByStatus': {
-      // 毒撐得比牠的血還多就直接了結。**用現在的生命比，不是最大生命**
+      // 斬殺線：生命 ≤ 層數＋bonus 就直接了結。**用現在的生命比，不是最大生命**。
+      // 無敵（調息）、僕從護體、虛化照 `damageEnemy` 的規矩擋，不另開例外。
+      // 目標至少要有 1 層（毒系牌，沒中毒就不算數，審查 低-1）；失敗那行印真的層數，不把 bonus 算成層數（低-2）
       for (const t of targetsOf(cs, ctx, false)) {
-        const n = getStatus(t, fx.name);
-        if (n < t.hp) { log(cs, `${t.name}的${fx.name}還不夠（${n}／${t.hp}）`); continue; }
+        const s = getStatus(t, fx.name), bonus = fx.bonus ?? 0;
+        if (s <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (t.hp > s + bonus) {
+          log(cs, `${t.name}的${fx.name}還不夠（${fx.name} ${s} 層${bonus ? `＋${bonus}` : ''}，生命 ${t.hp}，還差 ${t.hp - s - bonus}）`);
+          continue;
+        }
         log(cs, `${t.name}的${fx.name}發作了`);
         if (damageEnemy(cs, t, t.hp, { direct: true, by: p }).killed) ctx.killed = true;
       }
