@@ -1,0 +1,760 @@
+{
+ "kinds": {
+  "iron_claw": {
+   "idle": {
+    "src": "walk",
+    "frames": 14,
+    "seconds": 1.56,
+    "atlas": [
+     3847,
+     640
+    ]
+   },
+   "attack": {
+    "src": "swipe",
+    "frames": 23,
+    "seconds": 1.38,
+    "atlas": [
+     4077,
+     1666
+    ]
+   },
+   "_lift": 2.7,
+   "_textures": [
+    "assets/motion/side/iron_claw-swipe.webp",
+    "assets/motion/side/iron_claw-walk.webp"
+   ]
+  },
+  "iron_claw_p2": {
+   "idle": {
+    "src": "walk_p2",
+    "frames": 26,
+    "seconds": 2.89,
+    "atlas": [
+     3802,
+     1241
+    ]
+   },
+   "attack": {
+    "src": "laser_p2",
+    "frames": 28,
+    "seconds": 1.37,
+    "atlas": [
+     3846,
+     980
+    ]
+   },
+   "knockdown": {
+    "src": "down_p2",
+    "frames": 32,
+    "seconds": 2.67,
+    "atlas": [
+     3814,
+     1332
+    ]
+   },
+   "_lift": 1.6,
+   "_textures": [
+    "assets/motion/side/iron_claw-down_p2.webp",
+    "assets/motion/side/iron_claw-laser_p2.webp",
+    "assets/motion/side/iron_claw-walk_p2.webp"
+   ]
+  },
+  "roomba_king": {
+   "idle": {
+    "src": "drive",
+    "frames": 8,
+    "seconds": 0.67,
+    "atlas": [
+     2119,
+     211
+    ]
+   },
+   "attack": {
+    "src": "ram",
+    "frames": 23,
+    "seconds": 1.38,
+    "atlas": [
+     3952,
+     1021
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 33,
+    "seconds": 2.75,
+    "atlas": [
+     3997,
+     639
+    ]
+   },
+   "_lift": 2.1,
+   "_textures": [
+    "assets/motion/side/roomba_king-down.webp",
+    "assets/motion/side/roomba_king-drive.webp",
+    "assets/motion/side/roomba_king-ram.webp"
+   ]
+  },
+  "frog_daimyo": {
+   "idle": {
+    "src": "walk",
+    "frames": 14,
+    "seconds": 1.56,
+    "atlas": [
+     3768,
+     283
+    ]
+   },
+   "attack": {
+    "src": "tongue",
+    "frames": 26,
+    "seconds": 1.38,
+    "atlas": [
+     3719,
+     798
+    ]
+   },
+   "_lift": 1.14,
+   "_textures": [
+    "assets/motion/side/frog_daimyo-tongue.webp",
+    "assets/motion/side/frog_daimyo-walk.webp"
+   ]
+  },
+  "frog_daimyo_p2": {
+   "idle": {
+    "src": "walk_p2",
+    "frames": 12,
+    "seconds": 0.67,
+    "atlas": [
+     2674,
+     270
+    ]
+   },
+   "attack": {
+    "src": "tongue_p2",
+    "frames": 29,
+    "seconds": 1.37,
+    "atlas": [
+     3762,
+     808
+    ]
+   },
+   "knockdown": {
+    "src": "down_p2",
+    "frames": 37,
+    "seconds": 3.0,
+    "atlas": [
+     3950,
+     487
+    ]
+   },
+   "_lift": 0.0,
+   "_textures": [
+    "assets/motion/side/frog_daimyo-down_p2.webp",
+    "assets/motion/side/frog_daimyo-tongue_p2.webp",
+    "assets/motion/side/frog_daimyo-walk_p2.webp"
+   ]
+  },
+  "orange_king": {
+   "idle": {
+    "src": "walk",
+    "frames": 22,
+    "seconds": 2.44,
+    "atlas": [
+     4044,
+     631
+    ]
+   },
+   "attack": {
+    "src": "throw",
+    "frames": 22,
+    "seconds": 1.38,
+    "atlas": [
+     4080,
+     640
+    ]
+   },
+   "_lift": 1.7,
+   "_textures": [
+    "assets/motion/side/orange_king-throw.webp",
+    "assets/motion/side/orange_king-walk.webp"
+   ]
+  },
+  "orange_king_p2": {
+   "idle": {
+    "src": "walk_p2",
+    "frames": 16,
+    "seconds": 1.78,
+    "atlas": [
+     3942,
+     624
+    ]
+   },
+   "attack": {
+    "src": "jump_p2",
+    "frames": 23,
+    "seconds": 1.38,
+    "atlas": [
+     3940,
+     1033
+    ]
+   },
+   "knockdown": {
+    "src": "down_p2",
+    "frames": 37,
+    "seconds": 3.0,
+    "atlas": [
+     3955,
+     643
+    ]
+   },
+   "_lift": 0.57,
+   "_textures": [
+    "assets/motion/side/orange_king-down_p2.webp",
+    "assets/motion/side/orange_king-jump_p2.webp",
+    "assets/motion/side/orange_king-walk_p2.webp"
+   ]
+  },
+  "tanuki_lord": {
+   "idle": {
+    "src": "walk",
+    "frames": 15,
+    "seconds": 1.67,
+    "atlas": [
+     3981,
+     322
+    ]
+   },
+   "attack": {
+    "src": "leaf",
+    "frames": 18,
+    "seconds": 1.39,
+    "atlas": [
+     3979,
+     640
+    ]
+   },
+   "_lift": 1.7,
+   "_textures": [
+    "assets/motion/side/tanuki_lord-leaf.webp",
+    "assets/motion/side/tanuki_lord-walk.webp"
+   ]
+  },
+  "tanuki_lord_p2": {
+   "idle": {
+    "src": "walk_p2",
+    "frames": 10,
+    "seconds": 1.11,
+    "atlas": [
+     2451,
+     330
+    ]
+   },
+   "attack": {
+    "src": "stomp_p2",
+    "frames": 21,
+    "seconds": 1.38,
+    "atlas": [
+     3857,
+     709
+    ]
+   },
+   "knockdown": {
+    "src": "down_p2",
+    "frames": 37,
+    "seconds": 3.0,
+    "atlas": [
+     3978,
+     525
+    ]
+   },
+   "_lift": 0.57,
+   "_textures": [
+    "assets/motion/side/tanuki_lord-down_p2.webp",
+    "assets/motion/side/tanuki_lord-stomp_p2.webp",
+    "assets/motion/side/tanuki_lord-walk_p2.webp"
+   ]
+  },
+  "drum_tanuki": {
+   "idle": {
+    "src": "walk",
+    "frames": 14,
+    "seconds": 1.56,
+    "atlas": [
+     2931,
+     229
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 23,
+    "seconds": 1.38,
+    "atlas": [
+     3965,
+     480
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 37,
+    "seconds": 3.0,
+    "atlas": [
+     3976,
+     296
+    ]
+   },
+   "_lift": 1.71,
+   "_textures": [
+    "assets/motion/side/drum_tanuki-attack.webp",
+    "assets/motion/side/drum_tanuki-down.webp",
+    "assets/motion/side/drum_tanuki-walk.webp"
+   ]
+  },
+  "guardian_statue": {
+   "idle": {
+    "src": "idle",
+    "frames": 8,
+    "seconds": 0.67,
+    "atlas": [
+     1497,
+     272
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 21,
+    "seconds": 1.38,
+    "atlas": [
+     3965,
+     657
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 37,
+    "seconds": 3.0,
+    "atlas": [
+     4065,
+     408
+    ]
+   },
+   "_lift": 1.14,
+   "_textures": [
+    "assets/motion/side/guardian_statue-attack.webp",
+    "assets/motion/side/guardian_statue-down.webp",
+    "assets/motion/side/guardian_statue-idle.webp"
+   ]
+  },
+  "iron_arhat": {
+   "idle": {
+    "src": "walk",
+    "frames": 15,
+    "seconds": 1.67,
+    "atlas": [
+     2070,
+     234
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 20,
+    "seconds": 1.38,
+    "atlas": [
+     4028,
+     534
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 37,
+    "seconds": 3.0,
+    "atlas": [
+     4033,
+     448
+    ]
+   },
+   "_lift": 1.14,
+   "_textures": [
+    "assets/motion/side/iron_arhat-attack.webp",
+    "assets/motion/side/iron_arhat-down.webp",
+    "assets/motion/side/iron_arhat-walk.webp"
+   ]
+  },
+  "mask_dancer": {
+   "idle": {
+    "src": "walk",
+    "frames": 17,
+    "seconds": 1.89,
+    "atlas": [
+     2229,
+     214
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 21,
+    "seconds": 1.38,
+    "atlas": [
+     2801,
+     212
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 37,
+    "seconds": 3.0,
+    "atlas": [
+     3921,
+     234
+    ]
+   },
+   "_lift": 1.14,
+   "_textures": [
+    "assets/motion/side/mask_dancer-attack.webp",
+    "assets/motion/side/mask_dancer-down.webp",
+    "assets/motion/side/mask_dancer-walk.webp"
+   ]
+  },
+  "armor_ghost": {
+   "idle": {
+    "src": "walk",
+    "frames": 15,
+    "seconds": 1.67,
+    "atlas": [
+     1813,
+     222
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 19,
+    "seconds": 1.39,
+    "atlas": [
+     4091,
+     426
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 12,
+    "seconds": 0.85,
+    "atlas": [
+     3283,
+     224
+    ]
+   },
+   "_lift": 1.71,
+   "_textures": [
+    "assets/motion/side/armor_ghost-attack.webp",
+    "assets/motion/side/armor_ghost-down.webp",
+    "assets/motion/side/armor_ghost-walk.webp"
+   ]
+  },
+  "kappa": {
+   "idle": {
+    "src": "walk",
+    "frames": 13,
+    "seconds": 1.44,
+    "atlas": [
+     1720,
+     203
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 20,
+    "seconds": 1.38,
+    "atlas": [
+     3409,
+     188
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 13,
+    "seconds": 0.85,
+    "atlas": [
+     2072,
+     186
+    ]
+   },
+   "_lift": 1.71,
+   "_textures": [
+    "assets/motion/side/kappa-attack.webp",
+    "assets/motion/side/kappa-down.webp",
+    "assets/motion/side/kappa-walk.webp"
+   ]
+  },
+  "lantern_ghost": {
+   "idle": {
+    "src": "float",
+    "frames": 19,
+    "seconds": 2.11,
+    "atlas": [
+     3027,
+     179
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 21,
+    "seconds": 1.38,
+    "atlas": [
+     2989,
+     173
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 12,
+    "seconds": 0.85,
+    "atlas": [
+     1849,
+     178
+    ]
+   },
+   "_lift": 1.71,
+   "_textures": [
+    "assets/motion/side/lantern_ghost-attack.webp",
+    "assets/motion/side/lantern_ghost-down.webp",
+    "assets/motion/side/lantern_ghost-float.webp"
+   ]
+  },
+  "orange_bandit": {
+   "idle": {
+    "src": "idle",
+    "frames": 8,
+    "seconds": 0.67,
+    "atlas": [
+     1502,
+     196
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 20,
+    "seconds": 1.38,
+    "atlas": [
+     4015,
+     409
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 13,
+    "seconds": 0.85,
+    "atlas": [
+     2811,
+     202
+    ]
+   },
+   "_lift": 0.0,
+   "_textures": [
+    "assets/motion/side/orange_bandit-attack.webp",
+    "assets/motion/side/orange_bandit-down.webp",
+    "assets/motion/side/orange_bandit-idle.webp"
+   ]
+  },
+  "plated_beetle": {
+   "idle": {
+    "src": "crawl",
+    "frames": 14,
+    "seconds": 1.56,
+    "atlas": [
+     2289,
+     143
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 19,
+    "seconds": 1.39,
+    "atlas": [
+     3544,
+     161
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 11,
+    "seconds": 0.85,
+    "atlas": [
+     2031,
+     194
+    ]
+   },
+   "_lift": 1.71,
+   "_textures": [
+    "assets/motion/side/plated_beetle-attack.webp",
+    "assets/motion/side/plated_beetle-crawl.webp",
+    "assets/motion/side/plated_beetle-down.webp"
+   ]
+  },
+  "tengu": {
+   "idle": {
+    "src": "fly",
+    "frames": 13,
+    "seconds": 1.44,
+    "atlas": [
+     2462,
+     244
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 20,
+    "seconds": 1.38,
+    "atlas": [
+     3715,
+     490
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 12,
+    "seconds": 0.85,
+    "atlas": [
+     3176,
+     260
+    ]
+   },
+   "_lift": 1.71,
+   "_textures": [
+    "assets/motion/side/tengu-attack.webp",
+    "assets/motion/side/tengu-down.webp",
+    "assets/motion/side/tengu-fly.webp"
+   ]
+  },
+  "vacuum": {
+   "idle": {
+    "src": "glide",
+    "frames": 21,
+    "seconds": 2.33,
+    "atlas": [
+     3613,
+     107
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 20,
+    "seconds": 1.38,
+    "atlas": [
+     3841,
+     307
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 12,
+    "seconds": 0.85,
+    "atlas": [
+     2442,
+     143
+    ]
+   },
+   "_lift": 0.0,
+   "_textures": [
+    "assets/motion/side/vacuum-attack.webp",
+    "assets/motion/side/vacuum-down.webp",
+    "assets/motion/side/vacuum-glide.webp"
+   ]
+  },
+  "wraith_samurai": {
+   "idle": {
+    "src": "walk",
+    "frames": 10,
+    "seconds": 1.11,
+    "atlas": [
+     2014,
+     216
+    ]
+   },
+   "attack": {
+    "src": "attack",
+    "frames": 17,
+    "seconds": 1.39,
+    "atlas": [
+     3805,
+     492
+    ]
+   },
+   "knockdown": {
+    "src": "down",
+    "frames": 12,
+    "seconds": 0.85,
+    "atlas": [
+     2185,
+     198
+    ]
+   },
+   "_lift": 1.71,
+   "_textures": [
+    "assets/motion/side/wraith_samurai-attack.webp",
+    "assets/motion/side/wraith_samurai-down.webp",
+    "assets/motion/side/wraith_samurai-walk.webp"
+   ]
+  }
+ },
+ "bytes": {
+  "assets/motion/side/iron_claw-walk.webp": 334182,
+  "assets/motion/side/iron_claw-swipe.webp": 1112442,
+  "assets/motion/side/iron_claw-walk_p2.webp": 735198,
+  "assets/motion/side/iron_claw-laser_p2.webp": 786812,
+  "assets/motion/side/iron_claw-down_p2.webp": 986138,
+  "assets/motion/side/roomba_king-drive.webp": 120364,
+  "assets/motion/side/roomba_king-ram.webp": 717384,
+  "assets/motion/side/roomba_king-down.webp": 558312,
+  "assets/motion/side/frog_daimyo-walk.webp": 260848,
+  "assets/motion/side/frog_daimyo-tongue.webp": 534438,
+  "assets/motion/side/frog_daimyo-walk_p2.webp": 208154,
+  "assets/motion/side/frog_daimyo-tongue_p2.webp": 583264,
+  "assets/motion/side/frog_daimyo-down_p2.webp": 493560,
+  "assets/motion/side/orange_king-walk.webp": 395488,
+  "assets/motion/side/orange_king-throw.webp": 444046,
+  "assets/motion/side/orange_king-walk_p2.webp": 315716,
+  "assets/motion/side/orange_king-jump_p2.webp": 522966,
+  "assets/motion/side/orange_king-down_p2.webp": 529524,
+  "assets/motion/side/tanuki_lord-walk.webp": 267978,
+  "assets/motion/side/tanuki_lord-leaf.webp": 302694,
+  "assets/motion/side/tanuki_lord-walk_p2.webp": 185914,
+  "assets/motion/side/tanuki_lord-stomp_p2.webp": 446548,
+  "assets/motion/side/tanuki_lord-down_p2.webp": 417808,
+  "assets/motion/side/drum_tanuki-walk.webp": 191872,
+  "assets/motion/side/drum_tanuki-attack.webp": 351420,
+  "assets/motion/side/drum_tanuki-down.webp": 340822,
+  "assets/motion/side/guardian_statue-idle.webp": 98252,
+  "assets/motion/side/guardian_statue-attack.webp": 456684,
+  "assets/motion/side/guardian_statue-down.webp": 417598,
+  "assets/motion/side/iron_arhat-walk.webp": 138860,
+  "assets/motion/side/iron_arhat-attack.webp": 265292,
+  "assets/motion/side/iron_arhat-down.webp": 335960,
+  "assets/motion/side/mask_dancer-walk.webp": 142374,
+  "assets/motion/side/mask_dancer-attack.webp": 172512,
+  "assets/motion/side/mask_dancer-down.webp": 259068,
+  "assets/motion/side/armor_ghost-walk.webp": 129878,
+  "assets/motion/side/armor_ghost-attack.webp": 272674,
+  "assets/motion/side/armor_ghost-down.webp": 137394,
+  "assets/motion/side/kappa-walk.webp": 100320,
+  "assets/motion/side/kappa-attack.webp": 176568,
+  "assets/motion/side/kappa-down.webp": 114870,
+  "assets/motion/side/lantern_ghost-float.webp": 118766,
+  "assets/motion/side/lantern_ghost-attack.webp": 117802,
+  "assets/motion/side/lantern_ghost-down.webp": 81678,
+  "assets/motion/side/orange_bandit-idle.webp": 93374,
+  "assets/motion/side/orange_bandit-attack.webp": 254188,
+  "assets/motion/side/orange_bandit-down.webp": 149176,
+  "assets/motion/side/plated_beetle-crawl.webp": 121538,
+  "assets/motion/side/plated_beetle-attack.webp": 195382,
+  "assets/motion/side/plated_beetle-down.webp": 113286,
+  "assets/motion/side/tengu-fly.webp": 167512,
+  "assets/motion/side/tengu-attack.webp": 389674,
+  "assets/motion/side/tengu-down.webp": 150802,
+  "assets/motion/side/vacuum-glide.webp": 132370,
+  "assets/motion/side/vacuum-attack.webp": 239410,
+  "assets/motion/side/vacuum-down.webp": 98146,
+  "assets/motion/side/wraith_samurai-walk.webp": 113528,
+  "assets/motion/side/wraith_samurai-attack.webp": 372064,
+  "assets/motion/side/wraith_samurai-down.webp": 106484
+ }
+}

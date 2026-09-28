@@ -7,7 +7,7 @@ import {
   type CompanionMotionKind,
   type CompanionMotionAction,
 } from './companion-motion';
-import { enemyMotionDuration, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
+import { enemyMotionDuration, playsLongDeath, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
 import { isFeifeiNeedleAction } from './feifei-needle-patterns';
 import type { MotionMeleePlan } from './qiuqiu-melee';
 
@@ -219,6 +219,31 @@ export function motionStillPlaying(states: Iterable<Readonly<{ active: boolean; 
   return false;
 }
 
+/**
+ * 塔主、大魔物倒地的整段還要演多久才換場（2026-09-28，見 enemy-motion.ts 的 LONG_DEATH_KINDS）。
+ * 爆炸演完、最後一格再停 `BOSS_DEATH_HOLD_MS` 才走；背景分頁看不到，不等（同 `motionStillPlaying`）。
+ */
+export const BOSS_DEATH_HOLD_MS = 300;
+export const BOSS_DEATH_POLL_MS = 80;
+export function bossDeathMotionLeft(
+  states: ReadonlyMap<number, Readonly<{ kind: EnemyMotionKind; action: EnemyMotionAction; busyUntil: number }>>,
+  now: number,
+  /** 已經判定打死、但最後一下還在飛、還沒開始倒下的（combat.ts 的 fallingUids） */
+  falling: ReadonlySet<number> = new Set(),
+  hidden = typeof document !== 'undefined' && document.hidden === true,
+  longDeath: (kind: EnemyMotionKind) => boolean = playsLongDeath,
+): number {
+  if (hidden) return 0;
+  let left = 0;
+  for (const [uid, state] of states) {
+    if (!longDeath(state.kind)) continue;
+    if (state.action === 'knockdown') left = Math.max(left, state.busyUntil + BOSS_DEATH_HOLD_MS - now);
+    // 最後一下晚到（稽核 2026-09-28 低-4）：爆炸還沒開始就換場了。還在等倒下的，過一下再看
+    else if (falling.has(uid)) left = Math.max(left, BOSS_DEATH_POLL_MS);
+  }
+  return left;
+}
+
 /** 敵人逐格不能被通用 650ms 收姿勢計時提早截斷。 */
 export function qiuqiuEnemyMotionHold(kind: EnemyMotionKind, action: EnemyMotionAction, baseMs: number): number {
   return Math.max(baseMs, enemyMotionDuration(kind, action));
@@ -302,11 +327,57 @@ export function buildFeifeiStatusImpactPlan(
 }
 
 /** 只把有同源逐格素材的普通怪交給敵人動作層。 */
-export function qiuqiuEnemyMotionKind(enemyId: string): EnemyMotionKind | undefined {
+export function qiuqiuEnemyMotionKind(enemyId: string, phase = 0): EnemyMotionKind | undefined {
   if (enemyId === 'rat' || enemyId === 'rat_guard') return 'rat';
   if (enemyId === 'black_ninja' || enemyId === 'black_ninja_elite' || enemyId === 'sparring_partner') return 'ninja';
-  return undefined;
+  // 從橫向捲軸搬來的（2026-09-28）：有第二階段的換成另一套
+  const side = SIDE_MOTION_BY_ENEMY[enemyId];
+  if (!side) return undefined;
+  return phase > 0 && side[1] ? side[1] : side[0];
 }
+
+/**
+ * 魔物 → 橫向捲軸的動作套（第一階段, 第二階段）。**拿掉一行測試會紅**（side_motion_0928.test.ts）。
+ * 沒接的：小鴉群（舊圖是一群烏鴉、新圖只有一隻）、掃把蜈蚣（新圖是趴著的一長條，跟舊圖盤起來的樣子差太多）；
+ * 使用者看過對照圖退回舊圖的：白狐巫女（畫風差太多）、紙鶴式神、蝌蚪兵、山豬頭目（輪廓差太多）、
+ * 唐傘小僧、小掃把、狸小弟（沒有出招片段，不要新動作配舊出招圖）；
+ * 老鼠、黑貓忍者照舊用原本那兩套（畫風跟牠們的靜態圖一致）。
+ */
+const SIDE_MOTION_BY_ENEMY: Readonly<Record<string, readonly [EnemyMotionKind, EnemyMotionKind?]>> = {
+  iron_claw: ['iron_claw', 'iron_claw_p2'],
+  roomba_king: ['roomba_king'],
+  frog_daimyo: ['frog_daimyo', 'frog_daimyo_p2'],
+  orange_king: ['orange_king', 'orange_king_p2'],
+  tanuki_lord: ['tanuki_lord', 'tanuki_lord_p2'],
+  drum_tanuki: ['drum_tanuki'],
+  guardian_statue: ['guardian_statue'],
+  iron_arhat: ['iron_arhat'],
+  mask_dancer: ['mask_dancer'],
+  armor_ghost: ['armor_ghost'],
+  kappa: ['kappa'],
+  lantern_ghost: ['lantern_ghost'],
+  orange_bandit: ['orange_bandit'],
+  plated_beetle: ['plated_beetle'],
+  tengu: ['tengu'],
+  vacuum: ['vacuum'],
+  wraith_samurai: ['wraith_samurai'],
+};
+
+/** 這隻魔物（含各階段）會叫出來的魔物編號：開打時一起抓牠們的動作（見 combat.ts 的預載） */
+export function summonIdsOf(def: unknown): string[] {
+  const out = new Set<string>();
+  const walk = (v: unknown): void => {
+    if (Array.isArray(v)) { for (const x of v) walk(x); return; }
+    if (!v || typeof v !== 'object') return;
+    const o = v as Record<string, unknown>;
+    if (o.kind === 'summon' && typeof o.enemyId === 'string') out.add(o.enemyId);
+    for (const x of Object.values(o)) walk(x);
+  };
+  walk(def);
+  return [...out];
+}
+
+
 
 /**
  * 沒有逐格素材的狀態回交既有立繪，避免動作畫布把狀態外觀蓋掉。
