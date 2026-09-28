@@ -55,6 +55,19 @@ for (const lang of ['en', 'ja'] as const) {
       expect(missing, `缺 ${missing.length} 條`).toEqual([]);
       expect(bad).toEqual([]);
     });
+    it('畫面文字：語言包裡沒有過期的鍵（原始碼的中文原句改了、包裡還留著舊句）', () => {
+      const live = new Set(uiKeys());
+      const stale = Object.keys(pack.ui).filter((k) => !live.has(k));
+      expect(stale, `過期 ${stale.length} 條：原句改了的話，把譯文搬到新鍵上`).toEqual([]);
+    });
+    it('內容：沒有過期的鍵（牌、秘寶等刪了或改了代號）', () => {
+      const src = contentSource() as unknown as Record<string, Record<string, unknown>>;
+      const stale: string[] = [];
+      for (const [sec, entries] of Object.entries(pack.content)) {
+        for (const k of Object.keys(entries)) if (!(k in (src[sec] ?? {}))) stale.push(`${sec}.${k}`);
+      }
+      expect(stale).toEqual([]);
+    });
     it('內容：牌、秘寶、忍具、魔物、招式、名詞都有譯文', () => {
       const src = contentSource() as unknown as Record<string, Record<string, unknown>>;
       const missing: string[] = [];
