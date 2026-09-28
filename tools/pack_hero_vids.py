@@ -128,6 +128,9 @@ HEROES: dict[str, dict] = {
             "win": ("flow/爪破/菲菲/勝利_omni_v3", "idle", False),
             "hurt": ("flow/爪破/菲菲/挨打_omni_v2", "idle", True),      # 第 25～32 格有白色衝擊光，從第 33 格開始用
             "run": ("flow/爪破/菲菲/跑_omni_v4", "idle", False),
+            # 09-29 重生：第 37～43 格片子自己畫了一根飛出去的針（跟身體分開），只留最大一塊
+            "toss": ("flow/爪破/菲菲/空手擲_omni_v5", "idle", True),
+            "defeat": ("flow/爪破/菲菲/倒下_omni_v2", "idle", False),
         },
         # 爪擊的命中寫死在 companion-motion.ts（companionImpactTimes：原速 340）
         "hits": {"attack1": [340]},
@@ -147,7 +150,12 @@ HEROES: dict[str, dict] = {
             # 挨打（0.65 秒、不加速）：從第 24 格站姿開始（直接從第 33 格後仰開始，第一格就跳 60 多像素）；
             # 第 27～28 格衝擊光貼著手去不掉，關鍵格挑成第 26 格直接接第 29 格；第 29～32 格的碎光只留最大一塊就不見
             "hurt": {"clip": "hurt", "keys": [(24, 0), (26, 0.08), (29, 0.1), (36, 0.22), (50, 0.45), (60, 0.65)]},
-            # 倒下（倒下_omni_v1）不收（2026-09-29 審查）：往前（敵人那邊）撲倒，躺平後比舊版多伸出 80 多像素、還低於腳底線，照舊用原本的圖
+            # 空手擲（0.71 秒、出手 240、命中 410）：第 16～35 格手拉到耳邊、第 36 格手往前伸、針剛離手（片子畫的針已去掉，
+            # 飛出去的東西交給程式畫）；出手點照舊用 projectile-flight.ts 的 TOSS_ORIGIN
+            "toss": {"clip": "toss", "keys": [(14, 0), (28, 0.16), (36, 0.24), (48, 0.45), (64, 0.71)]},
+            # 倒下（1.18 秒，09-29 重生 v2）：第 0～70 格慢慢往後退太長，從第 60 格開始；第 71～80 格往後（背對敵人）倒、
+            # 之後頭朝左縮著躺。退了幾步，腳底定位改用第 60 格（anchor），不然第一格就往左跳
+            "defeat": {"clip": "defeat", "keys": [(60, 0), (71, 0.3), (80, 0.6), (92, 1.18)], "anchor": 60, "clamp": True},
             "run": {"clip": "run", "loop": (20, 72, 14, 26), "cycle": 0.48},
         },
     },
@@ -198,13 +206,30 @@ HEROES: dict[str, dict] = {
             "thrust": ("flow/爪破/封封/突刺_omni_v2", "idle", True),     # 第 41 格頭頂左邊一小點白光，只留最大一塊
             "hurt": ("flow/爪破/封封/挨打_omni_v2", "idle", False),
             "run": ("flow/爪破/封封/跑_omni_v1", "idle", False),
+            "defeat": ("flow/爪破/封封/倒下_omni_v3", "idle", False),
+            # 09-29 重生：開始影格是出鞘那張立繪（第 0 格蹲低舉刀、刀擋在頭旁），量頭改量站直的那一格。
+            # 站直時身高跟待機組差 2% 以內（566／556 對 558 像素），片子本身大小相同，歸進待機組取中位數；
+            # 平斬、重劈的頭微微轉向鏡頭，單量會偏大 7%（相關係數只有 0.94），不能自己一組
+            "slash": ("flow/爪破/封封/平斬_omni_v5", "idle", False, ("measureAt", 50)),
+            "heavy": ("flow/爪破/封封/重劈_omni_v5", "idle", False, ("measureAt", 90)),
+            "sheath": ("flow/爪破/封封/收刀_omni_v4", "idle", False, ("measureAt", 88)),
         },
         "hits": {},
         "actions": {
-            # 以下三個 2026-09-29 審查後不收，照舊用原本的圖（平斬、收刀已列回 Flow 待生清單）：
-            # 平斬（平斬_omni_v3）拔刀後只往前平舉，看起來像刺不像斬；
-            # 收刀（收刀_omni_v2）收完刀身體轉開、刀掛到背後，接回待機會跳一下（逐格也找不到接近待機的收尾格）；
-            # 倒下（倒下_omni_v2）往前撲倒，躺平後比舊版多伸出 30 多像素、低於腳底線
+            # 平斬、收刀、倒下 09-29 審查退回（v3 像刺、v2 收完轉身、v2 往前撲），同日重生 v5／v4／v3 再接：
+            # 平斬（0.72 秒、命中 300）：「太極拳速度」片很慢，壓時間：第 14 格刀在身後、第 24～36 格由後往前水平掃，
+            # 第 36 格刀剛掃到身前＝命中；之後刀平舉向前，程式接收刀
+            # 平斬、重劈也加 clamp：站直後腳比出鞘蹲姿（第 0 格）低 8 像素，不壓就沉到腳底線下 2～4 像素
+            "slash": {"clip": "slash", "keys": [(14, 0), (24, 0.15), (36, 0.3), (48, 0.5), (60, 0.72)], "clamp": True},
+            # 重劈（0.96 秒、命中 430）：第 20～40 格舉刀過頭、第 56～74 格由直立往前下劈，第 74 格刀劈到前方＝命中，
+            # 收在腰高平舉（不是劈到膝蓋）
+            "heavy_slash": {"clip": "heavy", "keys": [(20, 0), (40, 0.2), (56, 0.3), (74, 0.43), (86, 0.96)], "clamp": True},
+            # 收刀（0.63 秒；出劍後接上時跳過原速前 120 毫秒＝第 32 格，刀在身前往下）：第 36～72 格刀插回腰間鞘，
+            # 從第 30 格開始（第 24～29 格刀尖往下戳到腳底線以下 6～20 像素）；
+            # 第 72 格起跟待機同一個站姿（結束影格就是待機收鞘圖）
+            "sheath": {"clip": "sheath", "keys": [(30, 0), (32, 0.12), (44, 0.35), (60, 0.5), (78, 0.63)]},
+            # 倒下（1.18 秒，09-29 重生 v3）：第 36～59 格坐倒、第 60～70 格往後躺、頭朝左縮身，刀留在腰間
+            "defeat": {"clip": "defeat", "keys": [(26, 0), (48, 0.35), (66, 0.8), (80, 1.18)], "clamp": True},
             # 凝神（0.96 秒）：第 16～70 格閉眼、手搭刀柄
             "focus": {"clip": "focus", "keys": [(8, 0), (24, 0.35), (60, 0.96)]},
             # 防禦（0.76 秒）：第 20～34 格拔刀、第 44～62 格刀舉過頭橫擋
@@ -289,6 +314,21 @@ def best_loop(frames: list[np.ndarray], lo: int, hi: int) -> tuple[int, int]:
             if d < best[0]:
                 best = (d, s, e)
     return best[1], best[2]
+
+
+def clamp_frames(frames: list[dict], scale: float, old: dict) -> None:
+    """倒下用（clamp）：躺下時片子裡的身體比站姿腳底低、也可能往右（敵人那邊）伸得比舊版倒下遠。
+    逐格把定位點往上／往左推，讓每格不低於腳底線、右緣不超過舊倒下最右那格；推的量只增不減（倒下去就不再彈回來），
+    所以站著的開頭幾格不動、倒的過程中慢慢挪過去。"""
+    s_old = old["scale"]
+    limit = max((f["rect"][2] - f["pivot"][0]) * s_old for f in old["frames"])   # 舊倒下最右（CSS 像素，相對腳底）
+    dx = dy = 0.0
+    for f in frames:
+        w, h = f["rect"][2], f["rect"][3]
+        px, py = f["pivot"]
+        dy = max(dy, (h - py) * scale - 1)          # 低於腳底線幾 CSS 像素（容許 1，跟舊圖一樣）
+        dx = max(dx, (w - px) * scale - limit)
+        f["pivot"] = [round(px + dx / scale, 2), round(py + dy / scale, 2)]
 
 
 def plan(spec: dict, fps: int, action: str) -> list[tuple[float, float]]:
@@ -390,7 +430,7 @@ def pack_hero(hero: str, tmp: Path) -> dict:
     picks: dict[str, dict] = {}
     for action, spec in cfg["actions"].items():
         fr = frames_of(spec["clip"])
-        first = fr[0][..., 3]
+        first = fr[spec.get("anchor", 0)][..., 3]   # anchor：腳底定位用哪一格（片子前段有走位時）
         base = {"display": sizes[spec["clip"]]["display"], "foot_y": solid_foot(first), "foot_x": centroid_x(first)}
         if "loop" in spec:
             s0, s1, lo, hi = spec["loop"]
@@ -460,6 +500,8 @@ def pack_hero(hero: str, tmp: Path) -> dict:
                         "duration": round(dur, 6),
                         "src": idx,
                     })
+                if cfg["actions"][action].get("clamp"):
+                    clamp_frames(frames, pa["display"] / pack, old[action])
                 entry = {"texture": tex, "scale": round(pa["display"] / pack, 6), "loop": "loop" in cfg["actions"][action], "frames": frames}
                 entry.update(carry.get(action, {}))
                 if "originAt" in cfg["actions"][action]:
