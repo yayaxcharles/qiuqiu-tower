@@ -455,31 +455,6 @@
     "assets/motion/side/mask_dancer-walk.webp"
    ]
   },
-  "wild_boar": {
-   "idle": {
-    "src": "run",
-    "frames": 14,
-    "seconds": 2.33,
-    "atlas": [
-     3876,
-     309
-    ]
-   },
-   "knockdown": {
-    "src": "down",
-    "frames": 37,
-    "seconds": 3.0,
-    "atlas": [
-     4086,
-     463
-    ]
-   },
-   "_lift": 1.14,
-   "_textures": [
-    "assets/motion/side/wild_boar-down.webp",
-    "assets/motion/side/wild_boar-run.webp"
-   ]
-  },
   "armor_ghost": {
    "idle": {
     "src": "walk",
@@ -513,41 +488,6 @@
     "assets/motion/side/armor_ghost-attack.webp",
     "assets/motion/side/armor_ghost-down.webp",
     "assets/motion/side/armor_ghost-walk.webp"
-   ]
-  },
-  "fox_miko": {
-   "idle": {
-    "src": "idle",
-    "frames": 6,
-    "seconds": 0.5,
-    "atlas": [
-     1265,
-     212
-    ]
-   },
-   "attack": {
-    "src": "attack",
-    "frames": 20,
-    "seconds": 1.38,
-    "atlas": [
-     4002,
-     465
-    ]
-   },
-   "knockdown": {
-    "src": "down",
-    "frames": 13,
-    "seconds": 0.85,
-    "atlas": [
-     3393,
-     244
-    ]
-   },
-   "_lift": 1.14,
-   "_textures": [
-    "assets/motion/side/fox_miko-attack.webp",
-    "assets/motion/side/fox_miko-down.webp",
-    "assets/motion/side/fox_miko-idle.webp"
    ]
   },
   "kappa": {
@@ -585,31 +525,6 @@
     "assets/motion/side/kappa-walk.webp"
    ]
   },
-  "kasa_obake": {
-   "idle": {
-    "src": "hop",
-    "frames": 24,
-    "seconds": 2.67,
-    "atlas": [
-     4058,
-     206
-    ]
-   },
-   "knockdown": {
-    "src": "down",
-    "frames": 14,
-    "seconds": 0.85,
-    "atlas": [
-     2328,
-     199
-    ]
-   },
-   "_lift": 1.71,
-   "_textures": [
-    "assets/motion/side/kasa_obake-down.webp",
-    "assets/motion/side/kasa_obake-hop.webp"
-   ]
-  },
   "lantern_ghost": {
    "idle": {
     "src": "float",
@@ -643,31 +558,6 @@
     "assets/motion/side/lantern_ghost-attack.webp",
     "assets/motion/side/lantern_ghost-down.webp",
     "assets/motion/side/lantern_ghost-float.webp"
-   ]
-  },
-  "mini_broom": {
-   "idle": {
-    "src": "hop",
-    "frames": 12,
-    "seconds": 1.33,
-    "atlas": [
-     655,
-     126
-    ]
-   },
-   "knockdown": {
-    "src": "down",
-    "frames": 13,
-    "seconds": 0.85,
-    "atlas": [
-     1294,
-     127
-    ]
-   },
-   "_lift": 1.7,
-   "_textures": [
-    "assets/motion/side/mini_broom-down.webp",
-    "assets/motion/side/mini_broom-hop.webp"
    ]
   },
   "orange_bandit": {
@@ -705,21 +595,6 @@
     "assets/motion/side/orange_bandit-idle.webp"
    ]
   },
-  "paper_crane": {
-   "idle": {
-    "src": "fly",
-    "frames": 16,
-    "seconds": 1.78,
-    "atlas": [
-     2886,
-     140
-    ]
-   },
-   "_lift": 1.13,
-   "_textures": [
-    "assets/motion/side/paper_crane-fly.webp"
-   ]
-  },
   "plated_beetle": {
    "idle": {
     "src": "crawl",
@@ -753,36 +628,6 @@
     "assets/motion/side/plated_beetle-attack.webp",
     "assets/motion/side/plated_beetle-crawl.webp",
     "assets/motion/side/plated_beetle-down.webp"
-   ]
-  },
-  "tadpole": {
-   "idle": {
-    "src": "swim",
-    "frames": 18,
-    "seconds": 2.0,
-    "atlas": [
-     1751,
-     96
-    ]
-   },
-   "_lift": 1.7,
-   "_textures": [
-    "assets/motion/side/tadpole-swim.webp"
-   ]
-  },
-  "tanuki_kid": {
-   "idle": {
-    "src": "run",
-    "frames": 16,
-    "seconds": 2.67,
-    "atlas": [
-     1727,
-     122
-    ]
-   },
-   "_lift": 1.13,
-   "_textures": [
-    "assets/motion/side/tanuki_kid-run.webp"
    ]
   },
   "tengu": {
@@ -927,33 +772,21 @@
   "assets/motion/side/mask_dancer-walk.webp": 142374,
   "assets/motion/side/mask_dancer-attack.webp": 172512,
   "assets/motion/side/mask_dancer-down.webp": 339658,
-  "assets/motion/side/wild_boar-run.webp": 145388,
-  "assets/motion/side/wild_boar-down.webp": 322486,
   "assets/motion/side/armor_ghost-walk.webp": 129878,
   "assets/motion/side/armor_ghost-attack.webp": 272674,
   "assets/motion/side/armor_ghost-down.webp": 137394,
-  "assets/motion/side/fox_miko-idle.webp": 99226,
-  "assets/motion/side/fox_miko-attack.webp": 319736,
-  "assets/motion/side/fox_miko-down.webp": 193978,
   "assets/motion/side/kappa-walk.webp": 100320,
   "assets/motion/side/kappa-attack.webp": 176568,
   "assets/motion/side/kappa-down.webp": 114870,
-  "assets/motion/side/kasa_obake-hop.webp": 205484,
-  "assets/motion/side/kasa_obake-down.webp": 131156,
   "assets/motion/side/lantern_ghost-float.webp": 118766,
   "assets/motion/side/lantern_ghost-attack.webp": 117802,
   "assets/motion/side/lantern_ghost-down.webp": 81678,
-  "assets/motion/side/mini_broom-hop.webp": 33964,
-  "assets/motion/side/mini_broom-down.webp": 46948,
   "assets/motion/side/orange_bandit-idle.webp": 93374,
   "assets/motion/side/orange_bandit-attack.webp": 254188,
   "assets/motion/side/orange_bandit-down.webp": 149176,
-  "assets/motion/side/paper_crane-fly.webp": 91870,
   "assets/motion/side/plated_beetle-crawl.webp": 121538,
   "assets/motion/side/plated_beetle-attack.webp": 195382,
   "assets/motion/side/plated_beetle-down.webp": 113286,
-  "assets/motion/side/tadpole-swim.webp": 49656,
-  "assets/motion/side/tanuki_kid-run.webp": 83716,
   "assets/motion/side/tengu-fly.webp": 167512,
   "assets/motion/side/tengu-attack.webp": 389674,
   "assets/motion/side/tengu-down.webp": 150802,

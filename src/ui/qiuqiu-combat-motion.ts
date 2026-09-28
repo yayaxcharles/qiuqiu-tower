@@ -332,6 +332,8 @@ export function qiuqiuEnemyMotionKind(enemyId: string, phase = 0): EnemyMotionKi
 /**
  * 魔物 → 橫向捲軸的動作套（第一階段, 第二階段）。**拿掉一行測試會紅**（side_motion_0928.test.ts）。
  * 沒接的：小鴉群（舊圖是一群烏鴉、新圖只有一隻）、掃把蜈蚣（新圖是趴著的一長條，跟舊圖盤起來的樣子差太多）；
+ * 使用者看過對照圖退回舊圖的：白狐巫女（畫風差太多）、紙鶴式神、蝌蚪兵、山豬頭目（輪廓差太多）、
+ * 唐傘小僧、小掃把、狸小弟（沒有出招片段，不要新動作配舊出招圖）；
  * 老鼠、黑貓忍者照舊用原本那兩套（畫風跟牠們的靜態圖一致）。
  */
 const SIDE_MOTION_BY_ENEMY: Readonly<Record<string, readonly [EnemyMotionKind, EnemyMotionKind?]>> = {
@@ -344,18 +346,11 @@ const SIDE_MOTION_BY_ENEMY: Readonly<Record<string, readonly [EnemyMotionKind, E
   guardian_statue: ['guardian_statue'],
   iron_arhat: ['iron_arhat'],
   mask_dancer: ['mask_dancer'],
-  wild_boar: ['wild_boar'],
   armor_ghost: ['armor_ghost'],
-  fox_miko: ['fox_miko'],
   kappa: ['kappa'],
-  kasa_obake: ['kasa_obake'],
   lantern_ghost: ['lantern_ghost'],
-  mini_broom: ['mini_broom'],
   orange_bandit: ['orange_bandit'],
-  paper_crane: ['paper_crane'],
   plated_beetle: ['plated_beetle'],
-  tadpole: ['tadpole'],
-  tanuki_kid: ['tanuki_kid'],
   tengu: ['tengu'],
   vacuum: ['vacuum'],
   wraith_samurai: ['wraith_samurai'],

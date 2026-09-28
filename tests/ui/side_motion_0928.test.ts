@@ -17,10 +17,9 @@ const read = (rel: string): string => readFileSync(join(ROOT, rel), 'utf8');
 const EXPECTED: Record<string, [string, string?]> = {
   iron_claw: ['iron_claw', 'iron_claw_p2'], roomba_king: ['roomba_king'],
   frog_daimyo: ['frog_daimyo', 'frog_daimyo_p2'], orange_king: ['orange_king', 'orange_king_p2'], tanuki_lord: ['tanuki_lord', 'tanuki_lord_p2'],
-  drum_tanuki: ['drum_tanuki'], guardian_statue: ['guardian_statue'], iron_arhat: ['iron_arhat'], mask_dancer: ['mask_dancer'], wild_boar: ['wild_boar'],
-  armor_ghost: ['armor_ghost'], fox_miko: ['fox_miko'], kappa: ['kappa'], kasa_obake: ['kasa_obake'],
-  lantern_ghost: ['lantern_ghost'], mini_broom: ['mini_broom'], orange_bandit: ['orange_bandit'], paper_crane: ['paper_crane'],
-  plated_beetle: ['plated_beetle'], tadpole: ['tadpole'], tanuki_kid: ['tanuki_kid'], tengu: ['tengu'], vacuum: ['vacuum'], wraith_samurai: ['wraith_samurai'],
+  drum_tanuki: ['drum_tanuki'], guardian_statue: ['guardian_statue'], iron_arhat: ['iron_arhat'], mask_dancer: ['mask_dancer'],
+  armor_ghost: ['armor_ghost'], kappa: ['kappa'], lantern_ghost: ['lantern_ghost'], orange_bandit: ['orange_bandit'],
+  plated_beetle: ['plated_beetle'], tengu: ['tengu'], vacuum: ['vacuum'], wraith_samurai: ['wraith_samurai'],
 };
 
 type Motion = { texture: string; loop: boolean; frames: { duration: number }[] };
@@ -35,7 +34,19 @@ describe('橫向捲軸動作：對照表', () => {
     expect(qiuqiuEnemyMotionKinds(enemyId)).toEqual(second ? [first, second] : [first]);
   });
 
-  it('開打時連會被叫出來的也一起抓（小掃把、狸小弟、蝌蚪兵）', () => {
+  it('退回舊圖的七隻沒有逐格動作（使用者 2026-09-28 看過對照圖）', () => {
+    for (const id of ['fox_miko', 'paper_crane', 'tadpole', 'wild_boar', 'kasa_obake', 'mini_broom', 'tanuki_kid']) {
+      expect(qiuqiuEnemyMotionKind(id), id).toBeUndefined();
+      expect(existsSync(join(ROOT, `src/ui/side-motion/${id}.json`)), id).toBe(false);
+      expect(readdirSync(join(ROOT, 'public/assets/motion/side')).filter((f) => f.startsWith(`${id}-`)), id).toEqual([]);
+    }
+  });
+
+  it('接上的一共 17 隻', () => {
+    expect(Object.keys(EXPECTED)).toHaveLength(17);
+  });
+
+  it('開打時連會被叫出來的魔物編號也找得到（小掃把、狸小弟、蝌蚪兵；牠們目前沒有逐格，照舊靜態）', () => {
     expect(summonIdsOf(enemyById.roomba_king)).toContain('mini_broom');
     expect(summonIdsOf(enemyById.tanuki_lord)).toContain('tanuki_kid');
     expect(summonIdsOf(enemyById.frog_daimyo)).toContain('tadpole');

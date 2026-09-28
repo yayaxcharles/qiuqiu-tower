@@ -99,41 +99,21 @@ KINDS: dict[str, dict] = {
     # 面具舞者：頭偏小 0.833 → 0.9
     "mask_dancer": {"src": "mask_dancer", "display": 0.9, "size": "medium", "long": True,
                     "clips": [idle("walk"), attack("attack", 8, 48), death("down", 0, 72, long=True)]},
-    # 山豬頭目：新圖是橫著跑的全身，照整隻高度算頭會大一倍半，照頭 → 1.05；沒有出招片段（出招交還靜態圖）
-    "wild_boar": {"src": "wild_boar", "display": 1.05, "size": "large", "long": True,
-                  "clips": [idle("run", speed=0.5), death("down", 0, 72, long=True)]},
 
     # ---- 一般魔物（倒下 ≤ 0.85 秒） ----
+    # 使用者 2026-09-28 看過對照圖後退回舊圖的七隻（不接）：白狐巫女（畫風差太多）、紙鶴式神、蝌蚪兵、山豬頭目（輪廓差太多）、
+    # 唐傘小僧、小掃把、狸小弟（沒有出招片段，使用者：不要新動作配舊出招圖）
     "armor_ghost": {"src": "armor_ghost", "display": 0.83, "size": "medium",
                     "clips": [idle("walk"), attack("attack", 24, 60), death("down", 0, 44)]},
-    # 掃把蜈蚣：不接。新圖是趴著的一長條（舊圖是盤起來的一座），照頭對大小整隻只剩舊圖四成高、卻寬到擠到旁邊那隻，
-    # 而且只有爬行一段（2026-09-28 實機截圖判斷）
-    # 白狐巫女：新舊是兩種畫風（舊圖是暗色九尾），照整隻高度
-    "fox_miko": {"src": "fox_miko", "display": 0.838, "size": "medium",
-                 "clips": [idle("idle", speed=0.5), attack("attack", 22, 60), death("down", 0, 48)]},
     "kappa": {"src": "kappa", "display": 0.976, "size": "medium",
               # 倒下第 0～2 格有子彈飛進來的殘影，從第 3 格開始
               "clips": [idle("walk"), attack("attack", 2, 40), death("down", 3, 49)]},
-    # 唐傘小僧：傘（頭）偏小 0.956 → 1.05；沒有出招片段
-    "kasa_obake": {"src": "kasa_obake", "display": 1.05, "size": "medium",
-                   "clips": [idle("hop"), death("down", 2, 65)]},
     "lantern_ghost": {"src": "lantern_ghost", "display": 1.024, "size": "medium",
                       "clips": [idle("float"), attack("attack", 4, 44), death("down", 0, 54)]},
-    "mini_broom": {"src": "mini_broom", "display": 1.2, "size": "small",
-                   "clips": [idle("hop"), death("down", 0, 36)]},
     "orange_bandit": {"src": "orange_bandit", "display": 0.964, "size": "medium",
                       "clips": [idle("idle", speed=0.5), attack("attack", 18, 56), death("down", 0, 48)]},
-    # 紙鶴式神：新圖翅膀張很開，照整隻高度算整隻大一倍，照頭 → 0.75；只有飛
-    "paper_crane": {"src": "paper_crane", "display": 0.75, "size": "small",
-                    "clips": [idle("fly")]},
     "plated_beetle": {"src": "plated_beetle", "display": 1.2, "size": "medium",
                       "clips": [idle("crawl"), attack("attack", 20, 56), death("down", 0, 30)]},
-    # 蝌蚪兵：頭偏大 1.525 → 1.2；只有游
-    "tadpole": {"src": "tadpole", "display": 1.2, "size": "small",
-                "clips": [idle("swim")]},
-    # 狸小弟：只有跑（原地跑步）
-    "tanuki_kid": {"src": "tanuki_kid", "display": 1.145, "size": "small",
-                   "clips": [idle("run", speed=0.5)]},
     "tengu": {"src": "tengu", "display": 0.836, "size": "medium",
               "clips": [idle("fly"), attack("attack", 8, 46), death("down", 0, 54)]},
     "vacuum": {"src": "vacuum", "display": 1.2, "size": "medium",

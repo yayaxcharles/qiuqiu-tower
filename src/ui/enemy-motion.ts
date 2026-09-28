@@ -13,9 +13,9 @@ import { loadHeavy } from './heavy-lane';
 export const SIDE_MOTION_KINDS = [
   'iron_claw', 'iron_claw_p2', 'roomba_king',
   'frog_daimyo', 'frog_daimyo_p2', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2',
-  'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer', 'wild_boar',
-  'armor_ghost', 'fox_miko', 'kappa', 'kasa_obake', 'lantern_ghost', 'mini_broom',
-  'orange_bandit', 'paper_crane', 'plated_beetle', 'tadpole', 'tanuki_kid', 'tengu', 'vacuum', 'wraith_samurai',
+  'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer',
+  'armor_ghost', 'kappa', 'lantern_ghost',
+  'orange_bandit', 'plated_beetle', 'tengu', 'vacuum', 'wraith_samurai',
 ] as const;
 export type SideMotionKind = typeof SIDE_MOTION_KINDS[number];
 export type EnemyMotionKind = 'rat' | 'ninja' | SideMotionKind;
@@ -29,7 +29,7 @@ export function isSideMotionKind(kind: EnemyMotionKind): kind is SideMotionKind 
 const LONG_DEATH_KINDS: ReadonlySet<EnemyMotionKind> = new Set<SideMotionKind>([
   'iron_claw', 'iron_claw_p2', 'roomba_king',
   'frog_daimyo', 'frog_daimyo_p2', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2',
-  'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer', 'wild_boar',
+  'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer',
 ]);
 export function hasLongDeath(kind: EnemyMotionKind): boolean {
   return LONG_DEATH_KINDS.has(kind);
