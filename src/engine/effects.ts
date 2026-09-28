@@ -668,10 +668,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       return false;
     }
     case 'execByStatus': {
-      // 毒撐得比牠的血還多就直接了結。**用現在的生命比，不是最大生命**
+      // 斬殺線：生命 ≤ 層數＋bonus 就直接了結。**用現在的生命比，不是最大生命**。
+      // 無敵（調息）、僕從護體、虛化照 `damageEnemy` 的規矩擋，不另開例外
       for (const t of targetsOf(cs, ctx, false)) {
-        const n = getStatus(t, fx.name);
-        if (n < t.hp) { log(cs, `${t.name}的${fx.name}還不夠（${n}／${t.hp}）`); continue; }
+        const n = getStatus(t, fx.name) + (fx.bonus ?? 0);
+        if (t.hp > n) { log(cs, `${t.name}的${fx.name}還不夠（${n}／${t.hp}）`); continue; }
         log(cs, `${t.name}的${fx.name}發作了`);
         if (damageEnemy(cs, t, t.hp, { direct: true, by: p }).killed) ctx.killed = true;
       }

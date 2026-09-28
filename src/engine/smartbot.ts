@@ -394,7 +394,7 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       swing(getStatus(e, fx.name) * (fx.mul ?? 1) * (doubled ? 2 : 1), true);
     } else if (fx.kind === 'execByStatus') {
       // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
-      if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);
+      if (getStatus(e, fx.name) + (fx.bonus ?? 0) >= e.hp) swing(e.hp, true);
     } else if (fx.kind === 'damageSpendBlock') {
       /*
        * 噹噹：卸掉蜷縮打出去。**照實模擬「吃多少打多少」**，不要假設蜷縮夠——

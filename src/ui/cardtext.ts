@@ -215,7 +215,10 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       : `造成等同目標${fx.name}層數的傷害`)
       + (fx.consume ? `，然後把${fx.name}清掉` : '');
     // 「不少於」跟引擎一致（`effects.ts` 是層數 ≥ 生命就打倒）：原本寫「比…還多」，剛好相等時牌面說不行、實際會成功（夜間稽核 低-7）
-    case 'execByStatus': return `目標的${fx.name}層數不少於牠剩下的生命的話，直接打倒牠`;
+    // 門檻＝層數＋bonus（2026-09-28 斬殺線），「以下」含等於，跟引擎的 ≤ 一致
+    case 'execByStatus': return fx.bonus
+      ? `目標剩下的生命在「${fx.name}層數＋${fx.bonus}」以下的話，直接打倒牠`
+      : `目標的${fx.name}層數不少於牠剩下的生命的話，直接打倒牠`;
     case 'spreadStatus': return fx.half
       ? `把目標身上的${fx.name}分給其他魔物，各拿一半`
       : `把目標身上的${fx.name}原封不動複製給其他每一隻魔物`;

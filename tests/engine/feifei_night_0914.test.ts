@@ -84,7 +84,9 @@ describe('中-3：塔主與旁白講到主角的句子，玩菲菲時換掉', ()
 });
 
 describe('低-7：牌面文字跟引擎一致', () => {
-  it('一針斃命：層數「不少於」生命就打倒（引擎是 ≥）', () => {
-    expect(describeCard(cardById['feifei_yizhen']!, false)).toContain('不少於');
+  // 2026-09-28 改成斬殺線：生命「在層數＋10 以下」（引擎是 ≤，含等於）
+  it('一針斃命：生命在「層數＋10」以下就打倒；升級版＋15', () => {
+    expect(describeCard(cardById['feifei_yizhen']!, false)).toContain('中毒層數＋10」以下');
+    expect(describeCard(cardById['feifei_yizhen']!, true)).toContain('中毒層數＋15」以下');
   });
 });

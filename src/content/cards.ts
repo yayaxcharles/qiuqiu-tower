@@ -808,8 +808,8 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'power', trigger: 'afterCard', cardType: '技能', maxPerTurn: 5, effects: [{ kind: 'status', name: '中毒', amount: 1, target: 'all' }] }],
     upgrade: { cost: 1 } },
   { id: 'feifei_yizhen', name: '一針斃命', cost: 2, type: 攻, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'enemy', art: 'card/feifei_yizhen', keywords: ['消耗'],
-    effects: [{ kind: 'execByStatus', name: '中毒' }],
-    upgrade: { keywords: [] } },
+    effects: [{ kind: 'execByStatus', name: '中毒', bonus: 10 }],
+    upgrade: { effects: [{ kind: 'execByStatus', name: '中毒', bonus: 15 }] } },
   // 最能代表她的一張：慌了、豁出去，然後抱著頭蹲下來
   { id: 'feifei_buyaoguolai', name: '不要過來！', cost: 2, type: 攻, rarity: '稀有', hero: 'feifei', pool: '絕學', target: 'enemy', art: 'card/feifei_buyaoguolai',
     effects: [{ kind: 'damage', amount: 25 }, { kind: 'selfDamage', amount: 8 }, { kind: 'block', amount: 12 }],

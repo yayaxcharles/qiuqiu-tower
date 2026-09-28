@@ -8,6 +8,7 @@ import { beginCombat, newRun } from '../../src/engine/run';
 import { Rng, seedFromString } from '../../src/engine/rng';
 import { addStatus, getStatus } from '../../src/engine/statuses';
 import { describeCard } from '../../src/ui/cardtext';
+import { previewHpLoss } from '../../src/engine/preview';
 import type { CombatState } from '../../src/engine/types';
 import { inst } from '../helpers';
 
@@ -166,16 +167,43 @@ describe('菲菲：中毒', () => {
     expect(foe(cs).block, '蜷縮一點都沒掉').toBe(20);
   });
 
-  it('一針斃命：毒 ≥ 現在的生命才殺得掉', () => {
+  // 2026-09-28 斬殺線：原本「毒 ≥ 生命」的目標下回合開頭本來就會被毒死，這張等於白打
+  it('一針斃命：生命 ≤ 毒＋10 才殺得掉；升級版是＋15、仍然消耗', () => {
     const no = fight(['feifei_yizhen']);
-    foe(no).hp = 30; addStatus(foe(no), '中毒', 29);
+    foe(no).hp = 30; addStatus(foe(no), '中毒', 19);
+    const hp0 = foe(no).hp;
     play(no, 'feifei_yizhen');
-    expect(foe(no).dead, '差一層就殺不掉').toBe(false);
+    expect(foe(no).dead, '差一點就殺不掉').toBe(false);
+    expect(foe(no).hp, '沒成立就什麼都不發生').toBe(hp0);
 
     const yes = fight(['feifei_yizhen']);
-    foe(yes).hp = 30; addStatus(foe(yes), '中毒', 30);
+    foe(yes).hp = 30; addStatus(foe(yes), '中毒', 20);
     play(yes, 'feifei_yizhen');
     expect(foe(yes).dead).toBe(true);
+
+    const up = fight([]);
+    up.player.hand = [inst('feifei_yizhen', 1, true)];
+    foe(up).hp = 30; addStatus(foe(up), '中毒', 15);
+    playCard(up, 1, foe(up).uid);
+    expect(foe(up).dead, '升級版門檻＋15').toBe(true);
+    expect(up.player.exhaustPile.some((c) => c.cardId === 'feifei_yizhen'), '升級版照樣消耗').toBe(true);
+  });
+
+  it('一針斃命：瞄準時的扣血預覽會說會不會打倒（沿用 previewHpLoss，不另做畫面）', () => {
+    const yes = fight(['feifei_yizhen']);
+    foe(yes).hp = 25; addStatus(foe(yes), '中毒', 15);
+    expect(previewHpLoss(yes, uidOf(yes, 'feifei_yizhen'), foe(yes).uid, 0).get(foe(yes).uid)).toEqual({ min: 25, max: 25 });
+    const no = fight(['feifei_yizhen']);
+    foe(no).hp = 26; addStatus(foe(no), '中毒', 15);
+    expect(previewHpLoss(no, uidOf(no, 'feifei_yizhen'), foe(no).uid, 0).size).toBe(0);
+  });
+
+  it('一針斃命：調息中的魔物（無敵）照 damageEnemy 的規矩擋下', () => {
+    const cs = fight(['feifei_yizhen']);
+    foe(cs).hp = 10; addStatus(foe(cs), '中毒', 5); foe(cs).invulnIn = 1;
+    play(cs, 'feifei_yizhen');
+    expect(foe(cs).dead).toBe(false);
+    expect(foe(cs).hp).toBe(10);
   });
 });
 
