@@ -64,7 +64,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionDuration, enemyMotionHas, enemyMotionReady, hasLongDeath, isSideMotionKind, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionDuration, enemyMotionHas, enemyMotionReady, isSideMotionKind, playsLongDeath, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
   buildCombatMotionImpactPlan,
   buildFeifeiStatusImpactPlan,
@@ -76,12 +76,12 @@ import {
   motionPresentationMatches,
   motionStillPlaying,
   bossDeathMotionLeft,
+  BOSS_DEATH_HOLD_MS,
   qiuqiuConsumedStealth,
   qiuqiuEnemyBlocked,
   qiuqiuEnemyMotionAllowed,
   qiuqiuEnemyMotionHold,
   qiuqiuEnemyMotionKind,
-  qiuqiuEnemyMotionKinds,
   summonIdsOf,
   qiuqiuMotionBatchBoundaries,
   qiuqiuRestMotionAction,
@@ -515,7 +515,9 @@ registerScreen('combat', (app, root, props) => {
     /** 這一招的衝刺殘影收掉的方法：下一招接手時連殘影一起收（2026-09-23 稽核 ui 低-1） */
     afterimages?: () => void };
   type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
-  type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number };
+  type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number;
+    /** 長倒下演完、場上還有別隻：已經開始淡掉（重畫時照樣掛淡出類別） */
+    faded?: boolean };
   const motionActors = new Map<number, CombatMotion>();
   // 全場最後一個出手動作收掉的時間；收場用它判斷勝利動作是不是太早就開始（見 checkOver 的 finish）
   let lastMotionEndAt = 0;
@@ -682,6 +684,16 @@ registerScreen('combat', (app, root, props) => {
       if (app.cs === cs && !ended) render();
     }).catch((error) => console.error('封封動作素材載入失敗', error));
   }
+  /** 這一場抓過的敵人動作套（要放在底下開打預載之前宣告）：抓失敗的這一場不再重抓（照舊靜態），抓好了重畫一次 */
+  const enemyMotionAsked = new Set<EnemyMotionKind>();
+  function ensureEnemyMotion(kind: EnemyMotionKind): void {
+    if (enemyMotionReady(kind) || enemyMotionAsked.has(kind)) return;
+    enemyMotionAsked.add(kind);
+    void preloadEnemyMotion([kind]).then(() => {
+      if (app.cs === cs && !ended) render();
+    }).catch((error: unknown) => console.error('敵人動作素材載入失敗', kind, error));
+  }
+
   // 丟出去的東西的圖（每張幾 KB，連線時同伴丟的也要有，所以全部先載）
   if (motionEnabled) preloadProjectiles();
   if (qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) {
@@ -690,12 +702,16 @@ registerScreen('combat', (app, root, props) => {
       ...cs.enemies.flatMap((enemy) => summonIdsOf(enemyById[enemy.enemyId])),
       ...(encounterById[cs.encounterId]?.reinforce ?? []).map((r) => r.enemyId),   // 伏兵（河童的蝌蚪兵）
     ];
-    const requested = [...new Set([...cs.enemies.map((enemy) => enemy.enemyId), ...summoned].flatMap((id) => qiuqiuEnemyMotionKinds(id)))];
-    if (requested.some((kind) => !enemyMotionReady(kind))) {
-      void preloadEnemyMotion(requested).then(() => {
-        if (app.cs === cs && !ended) render();
-      }).catch((error) => console.error('敵人動作素材載入失敗', error));
-    }
+    /*
+     * 只抓**現在這個階段**的（塔主的第二階段等變身那一刻才抓，見 mountEnemyMotion；稽核 2026-09-28 低-2）。
+     * 一套一套各自抓、各自接錯（低-3）：部署後沒重新整理的分頁會拿舊檔名去要、回 404，
+     * 一套失敗不能拖住別套，也不能變成沒人接的錯誤。
+     */
+    const requested = [
+      ...cs.enemies.map((enemy) => qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase)),
+      ...summoned.map((id) => qiuqiuEnemyMotionKind(id, 0)),
+    ];
+    for (const kind of new Set(requested)) if (kind) ensureEnemyMotion(kind);
   }
 
   const refreshMotion = (q: PlayerCombat): void => {
@@ -922,6 +938,8 @@ registerScreen('combat', (app, root, props) => {
     motionImpactTimers.add(timer);
   };
 
+  /** 長倒下演完、場上還有別隻時淡掉要多久（跟 enemy-motion.css 的 `motion-death-fade` 同步） */
+  const MOTION_DEATH_FADE_MS = 500;
   const disposeEnemyMotion = (uid: number): void => {
     const state = enemyMotionActors.get(uid);
     if (!state) return;
@@ -935,7 +953,7 @@ registerScreen('combat', (app, root, props) => {
     const state = enemyMotionActors.get(uid);
     if (!state) return;
     state.action = action;
-    state.busyUntil = action === 'attack' || (action === 'knockdown' && hasLongDeath(state.kind))
+    state.busyUntil = action === 'attack' || (action === 'knockdown' && playsLongDeath(state.kind))
       ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
     state.actor.play(action);
     if (action === 'attack') {
@@ -957,11 +975,31 @@ registerScreen('combat', (app, root, props) => {
      * 溶解與關主慢倒由 `motion-death` 類別關掉（enemy-motion.css），換場時跟著整個畫面走。
      * 打死那一拍重畫時可能已經開演了，這裡不要從頭再播一次。
      */
-    if (hasLongDeath(state.kind)) {
+    if (playsLongDeath(state.kind)) {
       if (state.action !== 'knockdown') playEnemyMotion(uid, 'knockdown');
       root.querySelector(`.unit.enemy[data-uid="${uid}"]`)?.classList.add('motion-death');
+      /*
+       * 打完了（這隻是最後一隻）就停在最後一格等換場；還有叫出來的小兵站著（掃地機器人王的小掃把、
+       * 狸大人的狸小弟、蛙大名的蝌蚪兵），就在演完之後淡掉，不然那一格整場都杵在那裡（稽核 2026-09-28 低-1）
+       */
+      const timer = window.setTimeout(() => {
+        motionImpactTimers.delete(timer);
+        if (app.cs !== cs || cs.phase === 'won' || cs.phase === 'lost') return;
+        const live = enemyMotionActors.get(uid);
+        if (live !== state) return;
+        live.faded = true;
+        root.querySelector(`.unit.enemy[data-uid="${uid}"]`)?.classList.add('motion-death-fade');
+        const gone = window.setTimeout(() => {
+          motionImpactTimers.delete(gone);
+          if (app.cs === cs && enemyMotionActors.get(uid) === state) disposeEnemyMotion(uid);
+        }, MOTION_DEATH_FADE_MS);
+        motionImpactTimers.add(gone);
+      }, Math.max(0, state.busyUntil - performance.now()) + BOSS_DEATH_HOLD_MS);
+      motionImpactTimers.add(timer);
       return;
     }
+    // 沒有自己倒下片段的（塔主第一階段那一套）：馬上交還靜態，倒地圖與慢倒照舊
+    if (isSideMotionKind(state.kind) && !enemyMotionHas(state.kind, 'knockdown')) { disposeEnemyMotion(uid); return; }
     playEnemyMotion(uid, 'knockdown');
     const timer = window.setTimeout(() => {
       motionImpactTimers.delete(timer);
@@ -979,6 +1017,8 @@ registerScreen('combat', (app, root, props) => {
       return;
     }
     const kind = qiuqiuEnemyMotionKind(e.enemyId, e.phase);
+    // 還沒抓的（變身成第二階段、叫出來的小兵）現在開始抓，抓好之前畫靜態立繪
+    if (kind && !enemyMotionReady(kind) && !e.dead) ensureEnemyMotion(kind);
     if (!kind || !enemyMotionReady(kind)) {
       disposeEnemyMotion(e.uid);
       box.classList.remove('has-enemy-motion');
@@ -1005,10 +1045,13 @@ registerScreen('combat', (app, root, props) => {
      */
     // 重生中的殘影（蝌蚪兵的同生共死）：靜態那邊畫成貼地的半透明影子，逐格畫布沒有這一套，交還靜態
     const revivingNow = e.dead && !fallingUids.has(e.uid) && e.reviveIn > 0 && willRevive(cs, e);
-    const handBack = side && ((revivingNow) || (!e.dead && !keepAttack
+    const handBack = side && ((revivingNow) || (e.dead && !enemyMotionHas(kind, 'knockdown')) || (!e.dead && !keepAttack
       && ((action === 'attack' && !enemyMotionHas(kind, 'attack')) || (action === 'idle' && enemyStaticPose(e) === 'block'))));
     if (!handBack && !keepAttack && state.action !== action) playEnemyMotion(e.uid, action);
-    if (hasLongDeath(kind) && action === 'knockdown') box.closest('.unit')?.classList.add('motion-death');
+    if (playsLongDeath(kind) && action === 'knockdown') {
+      box.closest('.unit')?.classList.add('motion-death');
+      if (state.faded) box.closest('.unit')?.classList.add('motion-death-fade');
+    }
     if (handBack) {
       box.classList.remove('has-enemy-motion');
       state.actor.element.remove();
@@ -3962,7 +4005,7 @@ registerScreen('combat', (app, root, props) => {
         if (wait > 0) { window.setTimeout(finish, wait + 30); return; }
       }
       // 魔王倒地的爆炸（2026-09-28 試做）還沒演完就再等它（跟勝利動作同時在跑，不是接在後面）
-      const deathLeft = bossDeathMotionLeft(enemyMotionActors.values(), performance.now());
+      const deathLeft = bossDeathMotionLeft(enemyMotionActors, performance.now(), fallingUids);
       if (deathLeft > 0) { window.setTimeout(finish, deathLeft); return; }
       app.afterCombat(bonusFish, bonusUpgrades);
     };

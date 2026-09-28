@@ -28,3 +28,5 @@
 }
 .combat .unit.enemy.motion-death :is(.name, .chips, .hpbar, .intent) { opacity: 0; transition: opacity .3s; }
 .combat .unit.enemy.motion-death .ground-shadow { animation: none; opacity: .45; }
+/* 長倒下演完、場上還有叫出來的小兵：淡掉，不整場杵著（稽核 2026-09-28 低-1；時間跟 combat.ts 的 MOTION_DEATH_FADE_MS 同步） */
+.combat .unit.enemy.motion-death.motion-death-fade { opacity: 0 !important; transition: opacity .5s ease-in; }

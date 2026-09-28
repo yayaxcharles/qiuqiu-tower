@@ -19,18 +19,8 @@
      1666
     ]
    },
-   "knockdown": {
-    "src": "down_p2",
-    "frames": 32,
-    "seconds": 2.67,
-    "atlas": [
-     4037,
-     2624
-    ]
-   },
    "_lift": 2.7,
    "_textures": [
-    "assets/motion/side/iron_claw-down_p2.webp",
     "assets/motion/side/iron_claw-swipe.webp",
     "assets/motion/side/iron_claw-walk.webp"
    ]
@@ -59,8 +49,8 @@
     "frames": 32,
     "seconds": 2.67,
     "atlas": [
-     4037,
-     2624
+     3814,
+     1332
     ]
    },
    "_lift": 1.6,
@@ -94,8 +84,8 @@
     "frames": 33,
     "seconds": 2.75,
     "atlas": [
-     3995,
-     1096
+     3997,
+     639
     ]
    },
    "_lift": 2.1,
@@ -124,18 +114,8 @@
      798
     ]
    },
-   "knockdown": {
-    "src": "down_p2",
-    "frames": 37,
-    "seconds": 3.0,
-    "atlas": [
-     3957,
-     859
-    ]
-   },
    "_lift": 1.14,
    "_textures": [
-    "assets/motion/side/frog_daimyo-down_p2.webp",
     "assets/motion/side/frog_daimyo-tongue.webp",
     "assets/motion/side/frog_daimyo-walk.webp"
    ]
@@ -164,8 +144,8 @@
     "frames": 37,
     "seconds": 3.0,
     "atlas": [
-     3957,
-     859
+     3950,
+     487
     ]
    },
    "_lift": 0.0,
@@ -194,18 +174,8 @@
      640
     ]
    },
-   "knockdown": {
-    "src": "down_p2",
-    "frames": 37,
-    "seconds": 3.0,
-    "atlas": [
-     4024,
-     1117
-    ]
-   },
    "_lift": 1.7,
    "_textures": [
-    "assets/motion/side/orange_king-down_p2.webp",
     "assets/motion/side/orange_king-throw.webp",
     "assets/motion/side/orange_king-walk.webp"
    ]
@@ -234,8 +204,8 @@
     "frames": 37,
     "seconds": 3.0,
     "atlas": [
-     4024,
-     1117
+     3955,
+     643
     ]
    },
    "_lift": 0.57,
@@ -264,18 +234,8 @@
      640
     ]
    },
-   "knockdown": {
-    "src": "down_p2",
-    "frames": 37,
-    "seconds": 3.0,
-    "atlas": [
-     4090,
-     920
-    ]
-   },
    "_lift": 1.7,
    "_textures": [
-    "assets/motion/side/tanuki_lord-down_p2.webp",
     "assets/motion/side/tanuki_lord-leaf.webp",
     "assets/motion/side/tanuki_lord-walk.webp"
    ]
@@ -304,8 +264,8 @@
     "frames": 37,
     "seconds": 3.0,
     "atlas": [
-     4090,
-     920
+     3978,
+     525
     ]
    },
    "_lift": 0.57,
@@ -339,8 +299,8 @@
     "frames": 37,
     "seconds": 3.0,
     "atlas": [
-     3919,
-     601
+     3976,
+     296
     ]
    },
    "_lift": 1.71,
@@ -374,8 +334,8 @@
     "frames": 37,
     "seconds": 3.0,
     "atlas": [
-     3951,
-     731
+     4065,
+     408
     ]
    },
    "_lift": 1.14,
@@ -409,8 +369,8 @@
     "frames": 37,
     "seconds": 3.0,
     "atlas": [
-     3877,
-     541
+     4033,
+     448
     ]
    },
    "_lift": 1.14,
@@ -444,8 +404,8 @@
     "frames": 37,
     "seconds": 3.0,
     "atlas": [
-     3876,
-     323
+     3921,
+     234
     ]
    },
    "_lift": 1.14,
@@ -739,39 +699,39 @@
  "bytes": {
   "assets/motion/side/iron_claw-walk.webp": 334182,
   "assets/motion/side/iron_claw-swipe.webp": 1112442,
-  "assets/motion/side/iron_claw-down_p2.webp": 1424246,
   "assets/motion/side/iron_claw-walk_p2.webp": 735198,
   "assets/motion/side/iron_claw-laser_p2.webp": 786812,
+  "assets/motion/side/iron_claw-down_p2.webp": 986138,
   "assets/motion/side/roomba_king-drive.webp": 120364,
   "assets/motion/side/roomba_king-ram.webp": 717384,
-  "assets/motion/side/roomba_king-down.webp": 831530,
+  "assets/motion/side/roomba_king-down.webp": 558312,
   "assets/motion/side/frog_daimyo-walk.webp": 260848,
   "assets/motion/side/frog_daimyo-tongue.webp": 534438,
-  "assets/motion/side/frog_daimyo-down_p2.webp": 746680,
   "assets/motion/side/frog_daimyo-walk_p2.webp": 208154,
   "assets/motion/side/frog_daimyo-tongue_p2.webp": 583264,
+  "assets/motion/side/frog_daimyo-down_p2.webp": 493560,
   "assets/motion/side/orange_king-walk.webp": 395488,
   "assets/motion/side/orange_king-throw.webp": 444046,
-  "assets/motion/side/orange_king-down_p2.webp": 775016,
   "assets/motion/side/orange_king-walk_p2.webp": 315716,
   "assets/motion/side/orange_king-jump_p2.webp": 522966,
+  "assets/motion/side/orange_king-down_p2.webp": 529524,
   "assets/motion/side/tanuki_lord-walk.webp": 267978,
   "assets/motion/side/tanuki_lord-leaf.webp": 302694,
-  "assets/motion/side/tanuki_lord-down_p2.webp": 600628,
   "assets/motion/side/tanuki_lord-walk_p2.webp": 185914,
   "assets/motion/side/tanuki_lord-stomp_p2.webp": 446548,
+  "assets/motion/side/tanuki_lord-down_p2.webp": 417808,
   "assets/motion/side/drum_tanuki-walk.webp": 191872,
   "assets/motion/side/drum_tanuki-attack.webp": 351420,
-  "assets/motion/side/drum_tanuki-down.webp": 508602,
+  "assets/motion/side/drum_tanuki-down.webp": 340822,
   "assets/motion/side/guardian_statue-idle.webp": 98252,
   "assets/motion/side/guardian_statue-attack.webp": 456684,
-  "assets/motion/side/guardian_statue-down.webp": 578616,
+  "assets/motion/side/guardian_statue-down.webp": 417598,
   "assets/motion/side/iron_arhat-walk.webp": 138860,
   "assets/motion/side/iron_arhat-attack.webp": 265292,
-  "assets/motion/side/iron_arhat-down.webp": 387148,
+  "assets/motion/side/iron_arhat-down.webp": 335960,
   "assets/motion/side/mask_dancer-walk.webp": 142374,
   "assets/motion/side/mask_dancer-attack.webp": 172512,
-  "assets/motion/side/mask_dancer-down.webp": 339658,
+  "assets/motion/side/mask_dancer-down.webp": 259068,
   "assets/motion/side/armor_ghost-walk.webp": 129878,
   "assets/motion/side/armor_ghost-attack.webp": 272674,
   "assets/motion/side/armor_ghost-down.webp": 137394,

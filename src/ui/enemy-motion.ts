@@ -34,6 +34,13 @@ const LONG_DEATH_KINDS: ReadonlySet<EnemyMotionKind> = new Set<SideMotionKind>([
 export function hasLongDeath(kind: EnemyMotionKind): boolean {
   return LONG_DEATH_KINDS.has(kind);
 }
+/**
+ * 這一套倒下時真的會演長倒下：該演，而且帶倒下片段、資料已載入。
+ * 塔主第一階段那一套不帶倒下（一刀從第一階段打死就照舊靜態倒下，見 pack_side_motion.py）。
+ */
+export function playsLongDeath(kind: EnemyMotionKind): boolean {
+  return LONG_DEATH_KINDS.has(kind) && kinds[kind]?.actions.knockdown !== undefined;
+}
 /** tsconfig 不吃 vite/client，自己宣告 Vite 的 `import.meta.glob`（打包時 Vite 會換成每個檔各自的動態載入） */
 declare global {
   interface ImportMeta { glob<T>(pattern: string): Record<string, () => Promise<T>> }

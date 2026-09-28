@@ -7,7 +7,7 @@ import {
   type CompanionMotionKind,
   type CompanionMotionAction,
 } from './companion-motion';
-import { enemyMotionDuration, hasLongDeath, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
+import { enemyMotionDuration, playsLongDeath, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
 import { isFeifeiNeedleAction } from './feifei-needle-patterns';
 import type { MotionMeleePlan } from './qiuqiu-melee';
 
@@ -224,15 +224,22 @@ export function motionStillPlaying(states: Iterable<Readonly<{ active: boolean; 
  * 爆炸演完、最後一格再停 `BOSS_DEATH_HOLD_MS` 才走；背景分頁看不到，不等（同 `motionStillPlaying`）。
  */
 export const BOSS_DEATH_HOLD_MS = 300;
+export const BOSS_DEATH_POLL_MS = 80;
 export function bossDeathMotionLeft(
-  states: Iterable<Readonly<{ kind: EnemyMotionKind; action: EnemyMotionAction; busyUntil: number }>>,
+  states: ReadonlyMap<number, Readonly<{ kind: EnemyMotionKind; action: EnemyMotionAction; busyUntil: number }>>,
   now: number,
+  /** 已經判定打死、但最後一下還在飛、還沒開始倒下的（combat.ts 的 fallingUids） */
+  falling: ReadonlySet<number> = new Set(),
   hidden = typeof document !== 'undefined' && document.hidden === true,
+  longDeath: (kind: EnemyMotionKind) => boolean = playsLongDeath,
 ): number {
   if (hidden) return 0;
   let left = 0;
-  for (const state of states) {
-    if (state.action === 'knockdown' && hasLongDeath(state.kind)) left = Math.max(left, state.busyUntil + BOSS_DEATH_HOLD_MS - now);
+  for (const [uid, state] of states) {
+    if (!longDeath(state.kind)) continue;
+    if (state.action === 'knockdown') left = Math.max(left, state.busyUntil + BOSS_DEATH_HOLD_MS - now);
+    // 最後一下晚到（稽核 2026-09-28 低-4）：爆炸還沒開始就換場了。還在等倒下的，過一下再看
+    else if (falling.has(uid)) left = Math.max(left, BOSS_DEATH_POLL_MS);
   }
   return left;
 }
@@ -370,13 +377,7 @@ export function summonIdsOf(def: unknown): string[] {
   return [...out];
 }
 
-/** 開打時要先下載哪幾套：鐵爪兩個階段一起抓，變身那一刻才不會退回靜態圖 */
-export function qiuqiuEnemyMotionKinds(enemyId: string): EnemyMotionKind[] {
-  const first = qiuqiuEnemyMotionKind(enemyId, 0);
-  if (!first) return [];
-  const second = qiuqiuEnemyMotionKind(enemyId, 1);
-  return second && second !== first ? [first, second] : [first];
-}
+
 
 /**
  * 沒有逐格素材的狀態回交既有立繪，避免動作畫布把狀態外觀蓋掉。

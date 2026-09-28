@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { hasLongDeath, SIDE_MOTION_KINDS, type EnemyMotionKind } from '../../src/ui/enemy-motion';
-import { bossDeathMotionLeft, BOSS_DEATH_HOLD_MS, qiuqiuEnemyMotionKind, qiuqiuEnemyMotionKinds, summonIdsOf } from '../../src/ui/qiuqiu-combat-motion';
+import { bossDeathMotionLeft, BOSS_DEATH_HOLD_MS, BOSS_DEATH_POLL_MS, qiuqiuEnemyMotionKind, summonIdsOf } from '../../src/ui/qiuqiu-combat-motion';
 import { enemyById } from '../../src/content/enemies';
 
 /*
@@ -31,7 +31,6 @@ describe('橫向捲軸動作：對照表', () => {
     expect(enemyById[enemyId], `爪破魔塔裡沒有 ${enemyId}`).toBeDefined();
     expect(qiuqiuEnemyMotionKind(enemyId)).toBe(first);
     expect(qiuqiuEnemyMotionKind(enemyId, 1)).toBe(second ?? first);
-    expect(qiuqiuEnemyMotionKinds(enemyId)).toEqual(second ? [first, second] : [first]);
   });
 
   it('退回舊圖的七隻沒有逐格動作（使用者 2026-09-28 看過對照圖）', () => {
@@ -116,14 +115,39 @@ describe('橫向捲軸動作：不進開場下載', () => {
 });
 
 describe('長倒下：演完才換場', () => {
-  const dying = { kind: 'roomba_king' as const, action: 'knockdown' as const, busyUntil: 3000 };
+  const long = (kind: EnemyMotionKind): boolean => hasLongDeath(kind);
+  const dying = new Map([[7, { kind: 'roomba_king' as EnemyMotionKind, action: 'knockdown' as const, busyUntil: 3000 }]]);
   it('還在演就回剩下的時間（含最後一格停一下）', () => {
-    expect(bossDeathMotionLeft([dying], 1000, false)).toBe(2000 + BOSS_DEATH_HOLD_MS);
-    expect(bossDeathMotionLeft([dying], 3000 + BOSS_DEATH_HOLD_MS, false)).toBe(0);
+    expect(bossDeathMotionLeft(dying, 1000, new Set(), false, long)).toBe(2000 + BOSS_DEATH_HOLD_MS);
+    expect(bossDeathMotionLeft(dying, 3000 + BOSS_DEATH_HOLD_MS, new Set(), false, long)).toBe(0);
+  });
+  it('最後一下還在飛、倒下還沒開始的也要等（稽核 2026-09-28 低-4）', () => {
+    const waiting = new Map([[7, { kind: 'roomba_king' as EnemyMotionKind, action: 'idle' as const, busyUntil: 0 }]]);
+    expect(bossDeathMotionLeft(waiting, 1000, new Set([7]), false, long)).toBe(BOSS_DEATH_POLL_MS);
+    expect(bossDeathMotionLeft(waiting, 1000, new Set(), false, long)).toBe(0);
   });
   it('背景分頁不等；一般魔物、老鼠的倒下不算', () => {
-    expect(bossDeathMotionLeft([dying], 1000, true)).toBe(0);
-    expect(bossDeathMotionLeft([{ kind: 'rat', action: 'knockdown', busyUntil: 3000 }], 1000, false)).toBe(0);
-    expect(bossDeathMotionLeft([{ kind: 'kappa', action: 'knockdown', busyUntil: 3000 }], 1000, false)).toBe(0);
+    expect(bossDeathMotionLeft(dying, 1000, new Set(), true, long)).toBe(0);
+    expect(bossDeathMotionLeft(new Map([[1, { kind: 'rat' as EnemyMotionKind, action: 'knockdown' as const, busyUntil: 3000 }]]), 1000, new Set(), false, long)).toBe(0);
+    expect(bossDeathMotionLeft(new Map([[1, { kind: 'kappa' as EnemyMotionKind, action: 'knockdown' as const, busyUntil: 3000 }]]), 1000, new Set([1]), false, long)).toBe(0);
+  });
+  it('塔主第一階段那一套不帶倒下（不會一開打就載第二階段的爆炸圖集）', () => {
+    for (const kind of ['iron_claw', 'frog_daimyo', 'orange_king', 'tanuki_lord']) {
+      expect(dataOf(kind).actions.knockdown, kind).toBeUndefined();
+      expect(dataOf(`${kind}_p2`).actions.knockdown, `${kind}_p2`).toBeDefined();
+    }
+  });
+});
+
+/*
+ * 打包後的首頁（稽核 2026-09-28 低-6）：開場預載清單裡不能有這批動作的格子資料或圖集。
+ * 要先打包（npm run build）才驗得到；沒打包就跳過。
+ */
+describe.skipIf(!existsSync(join(ROOT, 'dist/index.html')))('打包後的首頁', () => {
+  it('index.html 的預載清單沒有橫向捲軸動作的 json／webp', () => {
+    const html = read('dist/index.html');
+    const preloads = [...html.matchAll(/<link[^>]+rel="(?:modulepreload|preload|prefetch)"[^>]*>/g)].map((m) => m[0]);
+    for (const tag of preloads) expect(tag).not.toMatch(/side-motion|motion\/side|iron_claw|roomba_king|kappa-/);
+    expect(html).not.toMatch(/motion\/side\//);
   });
 });

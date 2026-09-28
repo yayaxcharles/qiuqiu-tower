@@ -43,7 +43,7 @@ describe('combat motion confirmation and victory flow', () => {
       cs, app: { cs, afterCombat() {} }, ended: false, session: { attach() {} },
       encounterById: { normal: { pool: 'normal' } }, my: () => players[1 - downSeat], mySeat: 1 - downSeat,
       storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
-      motionActors: states, motionStillPlaying, enemyMotionActors: new Map(), bossDeathMotionLeft: () => 0, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
+      motionActors: states, motionStillPlaying, enemyMotionActors: new Map(), fallingUids: new Set(), bossDeathMotionLeft: () => 0, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
       motionSourceFor: () => 'dangdang', motionDuration: () => 500,
       qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => 500, heroOf: () => 'dangdang',
       refreshMotion() {}, render() {}, performance: { now: () => 0 }, bonusFish: 0, bonusUpgrades: 0,
@@ -238,7 +238,7 @@ describe('稽核 2026-09-21：多段牌自動結束回合與勝利動作', () =>
       cs, app: { cs, afterCombat() {} }, ended: false, session: { attach() {} },
       encounterById: { normal: { pool: 'normal' } }, my: () => players[0], mySeat: 0,
       storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
-      motionActors: states, motionStillPlaying, enemyMotionActors: new Map(), bossDeathMotionLeft: () => 0, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
+      motionActors: states, motionStillPlaying, enemyMotionActors: new Map(), fallingUids: new Set(), bossDeathMotionLeft: () => 0, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
       motionSourceFor: () => 'qiuqiu', motionDuration: () => 500, lastMotionEndAt,
       qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => 500, heroOf: () => 'ninja',
       refreshMotion() {}, render() {}, performance: { now: () => 0 }, bonusFish: 0, bonusUpgrades: 0,
@@ -357,7 +357,7 @@ describe('勝利收尾只等勝利動作剩下的時間', () => {
   const WIN = motionMs(1180);   // 球球勝利動作 1.5 倍速後的長度
 
   /** 照 combat.ts 真正的 checkOver／finish 跑一遍，時鐘跟著計時器往前走，回傳離開戰鬥的時間與重播次數。 */
-  async function wrapUp(options: { winAt?: number; lastMotionEndAt: number; boss?: boolean; seats?: number }) {
+  async function wrapUp(options: { winAt?: number; lastMotionEndAt: number; boss?: boolean; seats?: number; deathUntil?: number }) {
     let now = 0;
     let leftAt: number | null = null;
     let plays = 0;
@@ -375,7 +375,7 @@ describe('勝利收尾只等勝利動作剩下的時間', () => {
       encounterById: { fight: { pool } }, my: () => players[0], mySeat: 0,
       storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
       el: () => ({ remove() {} }), root: { append() {} },
-      motionActors: states, motionStillPlaying, enemyMotionActors: new Map(), bossDeathMotionLeft: () => 0, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
+      motionActors: states, motionStillPlaying, enemyMotionActors: new Map(), fallingUids: new Set(), bossDeathMotionLeft: () => Math.max(0, (options.deathUntil ?? 0) - now), motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
       motionSourceFor: () => 'qiuqiu', motionDuration: () => WIN, lastMotionEndAt: options.lastMotionEndAt,
       qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => WIN, heroOf: () => 'ninja',
       refreshMotion() {}, render() {}, performance: { now: () => now }, bonusFish: 0, bonusUpgrades: 0,
@@ -414,5 +414,14 @@ describe('勝利收尾只等勝利動作剩下的時間', () => {
 
   it('塔主戰照舊多站白閃慢倒的時間（2400 毫秒），不再疊一整遍勝利動作', async () => {
     expect(await wrapUp({ winAt: 200, lastMotionEndAt: 200, boss: true })).toEqual({ leftAt: 2400, plays: 0 });
+  });
+
+  /*
+   * 塔主、大魔物的長倒下（2026-09-28 橫向捲軸動作）：爆炸還沒演完就不交棒，演完那一刻才交（稽核 2026-09-28 低-6）。
+   * 把 checkOver 的 finish 裡「bossDeathMotionLeft」那兩行拿掉 → 第一個會變成 2400。
+   */
+  it('魔王倒下還在演就等它，演完才交棒；已經演完的不多等', async () => {
+    expect(await wrapUp({ winAt: 200, lastMotionEndAt: 200, boss: true, deathUntil: 3100 })).toEqual({ leftAt: 3100, plays: 0 });
+    expect(await wrapUp({ winAt: 200, lastMotionEndAt: 200, boss: true, deathUntil: 1000 })).toEqual({ leftAt: 2400, plays: 0 });
   });
 });

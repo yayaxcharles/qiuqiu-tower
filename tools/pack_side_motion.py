@@ -32,6 +32,9 @@ TOWER_ART = ROOT / "public" / "assets" / "monsters"
 
 # 圖集比畫面大多少倍（retina 螢幕才不糊）；來源本身不夠大就不放大（來源多大就多大）
 OVERSAMPLE = 1.2
+# 塔主、大魔物的長倒下：火花、煙塵飛很開，圖集最大（鐵爪那張 4037×2624、解開約 40 MB），
+# 而且一場只演一次、邊炸邊散，縮到 0.9 倍（稽核 2026-09-28 低-2）
+OVERSAMPLE_LONG_DEATH = 0.9
 QUALITY = 80
 MAX_W = 4096
 SRC_FPS = 24.0
@@ -63,28 +66,27 @@ size＝爪破魔塔那隻的框（small／medium／large），算 lift 用。
 KINDS: dict[str, dict] = {
     # ---- 2026-09-28 試做（使用者看過說好），數字不動 ----
     "iron_claw": {"src": "iron_claw", "display": 0.69, "lift": 2.7, "size": "large", "long": True,
-                  "clips": [idle("walk"), attack("swipe", 20, 64), death("down_p2", 0, 62, long=True)],
-                  "knockdown_display": 0.63},
+                  "clips": [idle("walk"), attack("swipe", 20, 64)]},
     "iron_claw_p2": {"src": "iron_claw", "display": 0.63, "lift": 1.6, "size": "large", "long": True,
                      "clips": [idle("walk_p2"), attack("laser_p2", 12, 66), death("down_p2", 0, 62, long=True)]},
     "roomba_king": {"src": "roomba_king", "display": 0.57, "lift": 2.1, "size": "large", "long": True,
                     # 倒下第 0～5 格是橫向捲軸裡玩家的子彈飛進來，拿掉
                     "clips": [idle("drive", speed=1.0), attack("ram", 14, 58), death("down", 6, 70, long=True)]},
 
-    # ---- 塔主（有第二階段；倒下只有第二階段的片段，第一階段被一刀打死時借用） ----
+    # ---- 塔主（有第二階段；倒下只有第二階段的片段） ----
+    # 第一階段那一套**不帶倒下**：一刀從第一階段打死（很少見）就照舊靜態倒下。
+    # 原本借第二階段的爆炸，等於第一階段就要先載那張最大的圖集（稽核 2026-09-28 低-2）
     # 蛙大名：頭照舊圖比，第一階段 0.667 頭偏小 → 0.72
     "frog_daimyo": {"src": "frog_daimyo", "display": 0.72, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("tongue", 2, 52), death("down_p2", 0, 72, long=True)],
-                    "knockdown_display": 0.694},
+                    "clips": [idle("walk"), attack("tongue", 2, 52)]},
     "frog_daimyo_p2": {"src": "frog_daimyo", "display": 0.694, "size": "large", "long": True, "art": "frog_daimyo_p2",
                        "clips": [idle("walk_p2"), attack("tongue_p2", 0, 56), death("down_p2", 0, 72, long=True)]},
     "orange_king": {"src": "orange_king", "display": 0.678, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("throw", 8, 50), death("down_p2", 2, 74, long=True)]},
+                    "clips": [idle("walk"), attack("throw", 8, 50)]},
     "orange_king_p2": {"src": "orange_king", "display": 0.678, "size": "large", "long": True, "art": "orange_king_p2",
                        "clips": [idle("walk_p2"), attack("jump_p2", 28, 72), death("down_p2", 2, 74, long=True)]},
     "tanuki_lord": {"src": "tanuki_lord", "display": 0.695, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("leaf", 12, 46), death("down_p2", 3, 75, long=True)],
-                    "knockdown_display": 0.675},
+                    "clips": [idle("walk"), attack("leaf", 12, 46)]},
     # 倒下第 0 格是子彈飛進來的白線，從第 3 格開始
     "tanuki_lord_p2": {"src": "tanuki_lord", "display": 0.675, "size": "large", "long": True, "art": "tanuki_lord_p2",
                        "clips": [idle("walk_p2"), attack("stomp_p2", 4, 44), death("down_p2", 3, 75, long=True)]},
@@ -219,7 +221,8 @@ def main() -> None:
             name = clip["action"]
             display = spec.get(f"{name}_display", spec["display"])
             # 圖集比畫面大 OVERSAMPLE 倍，但不超過來源
-            pack = min(1.0, display * OVERSAMPLE)
+            over = OVERSAMPLE_LONG_DEATH if clip.get("long") else OVERSAMPLE
+            pack = min(1.0, display * over)
             n = len(anims[clip["src"]]["frames"])
             idx, duration = pick(n, clip)
             tex = texture_name(spec["src"], clip["src"])
