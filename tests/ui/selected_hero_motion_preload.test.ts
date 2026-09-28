@@ -54,8 +54,10 @@ describe('確定本局角色後才預載逐格動作', () => {
     expect(motionHeroes()).toEqual([hero === 'ninja' ? 'qiuqiu' : hero]);
     const staticSources = sources.filter((url) => !url.includes('/motion/'));
     // 逐格受擊 2026-09-22 起用該角色動作資料夾裡的新畫風挨打圖，不再到 sprites 目錄借舊立繪
-    // 球球 2026-09-28 起挨打換成 Vids 影片版（hero-vids.ts），其他三位照舊
-    expect(sources).toContain(hero === 'ninja' ? '/assets/motion/hero-vids/qiuqiu-hurt-d.webp' : `/assets/motion/${hero}/hit_recoil.webp`);
+    // 挨打換成影片版（hero-vids.ts）：球球 2026-09-28、其他三位 2026-09-29；舊的挨打立繪不再下載
+    const code = hero === 'ninja' ? 'qiuqiu' : hero;
+    expect(sources).toContain(`/assets/motion/hero-vids/${code}-hurt-d.webp`);
+    expect(sources).not.toContain(`/assets/motion/${code}/hit_recoil.webp`);
     expect(staticSources.sort()).toEqual(hero === 'ninja' ? [] : [`/assets/sprites/hero/${hero}_idle.webp`]);
   });
 

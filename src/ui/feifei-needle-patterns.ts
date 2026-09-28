@@ -67,9 +67,18 @@ const ORIGINS: Readonly<Partial<Record<FeifeiNeedleAction, readonly FeifeiNeedle
   needle_barrage: [{ x: 131, y: -129 }],
 };
 
+/**
+ * 菲菲換上 Flow Omni 新動作時（2026-09-29，companion-motion.ts 預載換上去那一刻），出手那格的手換了位置，
+ * 用新圖量到的出手點（菲菲新動作資料的 releaseOrigins，`tools/pack_hero_vids.py` 量的）；退回原本的動作就清掉。
+ */
+let vidsOrigins: Readonly<Partial<Record<FeifeiNeedleAction, readonly FeifeiNeedleOffset[]>>> = {};
+export function setFeifeiNeedleVidsOrigins(origins: Readonly<Partial<Record<FeifeiNeedleAction, readonly FeifeiNeedleOffset[]>>>): void {
+  vidsOrigins = origins;
+}
+
 /** 第 wave 波飛針放出去的位置（相對腳底定位點）。沒量過的招用共用預設。 */
 export function feifeiNeedleOrigin(action: FeifeiNeedleAction, wave: number): FeifeiNeedleOffset {
-  const list = ORIGINS[action];
+  const list = vidsOrigins[action] ?? ORIGINS[action];
   return list?.length ? list[Math.max(0, wave) % list.length]! : FEIFEI_NEEDLE_DEFAULT_ORIGIN;
 }
 

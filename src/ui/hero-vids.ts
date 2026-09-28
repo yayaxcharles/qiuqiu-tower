@@ -2,7 +2,7 @@ import type { FrameMotion } from './frame-motion';
 import { speedUpMotions } from './motion-speed';
 
 /**
- * 主角的 Google Vids 逐格動作（2026-09-28 球球試做，規劃見 qiuqiu-side/docs/2026-09-28_爪破主角Vids動作規劃.md）。
+ * 主角的 Google Vids／Flow Omni 逐格動作（2026-09-28 球球試做、09-29 擴到四位，規劃見 qiuqiu-side/docs/2026-09-28_爪破主角Vids動作規劃.md）。
  *
  * - 格子資料是 `hero-vids/<主角>.json` 一個小檔（`tools/pack_hero_vids.py` 產生），**選到這位主角、要預載動作時才動態載入**，
  *   不進開場的主程式；圖集（public 底下 motion 的 hero-vids 資料夾）也一樣只在預載這位主角時才下載。
@@ -11,7 +11,7 @@ import { speedUpMotions } from './motion-speed';
  * - 時間在 json 裡是原速，這裡照舊經 `speedUpMotions` 加快 1.5 倍；json 的 `unscaled`（挨打）不加速，
  *   比照原本那張挨打立繪停 0.65 秒（hit-recoil-motion.ts）。
  */
-export type HeroVidsHero = 'qiuqiu';
+export type HeroVidsHero = 'qiuqiu' | 'feifei' | 'dangdang' | 'fengfeng';
 export type HeroVidsVariant = 'desktop' | 'mobile';
 
 type TimedMotion = FrameMotion & Readonly<{ impactTimes?: readonly number[]; releaseTimes?: readonly number[] }>;
@@ -25,6 +25,9 @@ type HeroVidsFile = Readonly<{
 /** 每位主角一個動態載入函式（打包時各自拆成獨立小檔，要用才抓） */
 const LOADERS: Readonly<Record<HeroVidsHero, () => Promise<unknown>>> = {
   qiuqiu: () => import('./hero-vids/qiuqiu.json'),
+  feifei: () => import('./hero-vids/feifei.json'),
+  dangdang: () => import('./hero-vids/dangdang.json'),
+  fengfeng: () => import('./hero-vids/fengfeng.json'),
 };
 
 /**

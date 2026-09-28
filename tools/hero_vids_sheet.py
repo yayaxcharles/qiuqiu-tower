@@ -3,7 +3,7 @@
 主角 Vids 動作的逐格膠卷（聯絡表）：每個動作一列新、一列舊，照遊戲裡實際播的時間每 50 毫秒取一格，
 畫在同一條腳底線上、同一個縮放（預設高度 252），最左邊放舊待機第 1 格當大小基準。
 
-用法：python tools/hero_vids_sheet.py <輸出.png> [desktop|mobile]
+用法：python tools/hero_vids_sheet.py <輸出.png> [desktop|mobile] [qiuqiu|feifei|dangdang|fengfeng]
 """
 from __future__ import annotations
 
@@ -19,14 +19,22 @@ STEP_MS = 50
 CELL_W, CELL_H, BASE_Y = 230, 330, 300
 SPEED = 1.5
 NAMES = {"attack1": "貓抓 A（attack1）", "attack3": "貓抓 A 長（attack3）", "attack2": "貓抓 B（attack2）", "attack4": "貓抓 B 長（attack4）", "toss": "空手擲（toss）", "dash": "衝刺（dash）",
-         "hurt": "挨打（hurt）", "defeat": "倒下（defeat）", "run": "跑（run，循環）"}
+         "hurt": "挨打（hurt）", "defeat": "倒下（defeat）", "run": "跑（run，循環）", "seal": "結印（seal）", "guard": "防禦（guard）",
+         "win": "勝利（win）", "focus": "凝神（focus）", "shuriken": "彈針（shuriken）", "punch": "正拳（punch）", "palm": "推掌（palm）",
+         "shoulder": "肩撞（shoulder）", "slash": "平斬（slash）", "sheath": "收刀（sheath）", "thrust": "突刺（thrust）"}
+OLD_FILES = {
+    "qiuqiu": ("qiuqiu-motion-data.json", "qiuqiu-extra-motion-data.json", "qiuqiu-attack-motion-data.json"),
+    "feifei": ("feifei-motion-data.json",),
+    "dangdang": ("dangdang-motion-data.json", "dangdang-attack-motion-data.json"),
+    "fengfeng": ("fengfeng-motion-data.json", "fengfeng-attack-motion-data.json"),
+}
 
 
-def load_old() -> dict:
+def load_old(hero: str) -> dict:
     acts = {}
-    for f in ("qiuqiu-motion-data.json", "qiuqiu-extra-motion-data.json", "qiuqiu-attack-motion-data.json"):
+    for f in OLD_FILES[hero]:
         acts.update(json.loads((UI / f).read_text(encoding="utf-8"))["actions"])
-    hit = json.loads((UI / "hit-recoil-motion-data.json").read_text(encoding="utf-8"))["heroes"]["qiuqiu"]
+    hit = json.loads((UI / "hit-recoil-motion-data.json").read_text(encoding="utf-8"))["heroes"][hero]
     acts["hurt"] = {"texture": hit["texture"], "scale": hit["scale"], "loop": False,
                     "frames": [{"rect": hit["rect"], "pivot": hit["pivot"], "duration": 0.65}]}
     return acts
@@ -66,10 +74,11 @@ def draw(canvas: Image.Image, motion: dict, fr: dict, cx: int) -> None:
 def main() -> None:
     out = Path(sys.argv[1])
     variant = sys.argv[2] if len(sys.argv) > 2 else "desktop"
-    new = json.loads((UI / "hero-vids" / "qiuqiu.json").read_text(encoding="utf-8"))
+    hero = sys.argv[3] if len(sys.argv) > 3 else "qiuqiu"
+    new = json.loads((UI / "hero-vids" / f"{hero}.json").read_text(encoding="utf-8"))
     unscaled = set(new["unscaled"])
     acts = new["variants"][variant]["actions"]
-    old = load_old()
+    old = load_old(hero)
     font = ImageFont.truetype("C:/Windows/Fonts/msjh.ttc", 18)
     rows = []
     for action, motion in acts.items():
