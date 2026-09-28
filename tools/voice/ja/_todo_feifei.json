@@ -1,0 +1,1472 @@
+[
+ {
+  "zh": "……三天了。師父沒回來，師兄也沒回來。",
+  "ctx": [
+   "feifei/prologue#2"
+  ]
+ },
+ {
+  "zh": "我還是很怕受傷。可是他們要是也在等人幫忙呢？……我得去。",
+  "ctx": [
+   "feifei/prologue#3"
+  ]
+ },
+ {
+  "zh": "是師兄的頭巾。他以前也老是勾破……回去又得替他補了。",
+  "ctx": [
+   "feifei/actClear1#1"
+  ]
+ },
+ {
+  "zh": "師父，您再撐一下……師兄，你到底在哪裡？",
+  "ctx": [
+   "feifei/actClear2#1"
+  ]
+ },
+ {
+  "zh": "我聽見了，師父。我正在上去。",
+  "ctx": [
+   "feifei/actClear2#3"
+  ]
+ },
+ {
+  "zh": "師兄！對、對不起，我來晚了……",
+  "ctx": [
+   "feifei/topScene#1"
+  ]
+ },
+ {
+  "zh": "我不退。……每次叫我退的都是你，受傷的也都是你。",
+  "ctx": [
+   "feifei/topScene#3"
+  ]
+ },
+ {
+  "zh": "師兄，門口交給你。這次……換我先上。",
+  "ctx": [
+   "feifei/topScene#5"
+  ]
+ },
+ {
+  "zh": "還沒……找到他們……",
+  "ctx": [
+   "feifei/defeat#1"
+  ]
+ },
+ {
+  "zh": "傷口好了，我就回去。",
+  "ctx": [
+   "feifei/defeat#3"
+  ]
+ },
+ {
+  "zh": "師父，這又不是切磋……您剛才連我都不認得了。師兄也是，連個消息都沒有。",
+  "ctx": [
+   "feifei/victory#1"
+  ]
+ },
+ {
+  "zh": "我還以為，找不到你們了。",
+  "ctx": [
+   "feifei/victory#3"
+  ]
+ },
+ {
+  "zh": "師父、師兄，明天也一起吃早飯吧。",
+  "ctx": [
+   "feifei/result:victoryTeaser"
+  ]
+ },
+ {
+  "zh": "是師父親手寫的。",
+  "ctx": [
+   "feifei/secretScroll#1"
+  ]
+ },
+ {
+  "zh": "怎麼會留在這裡？他出門時總會帶著的。",
+  "ctx": [
+   "feifei/secretScroll#2"
+  ]
+ },
+ {
+  "zh": "那他現在更需要有人去找他。",
+  "ctx": [
+   "feifei/afterFirstElite#1"
+  ]
+ },
+ {
+  "zh": "明天要過關主守的門，光想就睡不著。",
+  "ctx": [
+   "feifei/restBeforeBoss1#0"
+  ]
+ },
+ {
+  "zh": "藥分好了，針也檢查過了。還漏了什麼嗎？",
+  "ctx": [
+   "feifei/restBeforeBoss1#1"
+  ]
+ },
+ {
+  "zh": "再翻一次只會更清醒……把竹筒放好，睡吧。",
+  "ctx": [
+   "feifei/restBeforeBoss1#2"
+  ]
+ },
+ {
+  "zh": "魔氣這麼重，連呼吸都覺得嗆。",
+  "ctx": [
+   "feifei/restBeforeBoss2#0"
+  ]
+ },
+ {
+  "zh": "剛才那一聲像師父，可我從沒聽他叫得那麼痛。",
+  "ctx": [
+   "feifei/restBeforeBoss2#1"
+  ]
+ },
+ {
+  "zh": "得先過眼前這一關，才走得到他那裡。",
+  "ctx": [
+   "feifei/restBeforeBoss2#2"
+  ]
+ },
+ {
+  "zh": "明天就要見到師父了。我想過好多次，卻不知道見了他該先說什麼。",
+  "ctx": [
+   "feifei/restBeforeBoss3#0"
+  ]
+ },
+ {
+  "zh": "師父第一次教我握針，還特地把尖端轉開，怕我扎到自己。",
+  "ctx": [
+   "feifei/restBeforeBoss3#1"
+  ]
+ },
+ {
+  "zh": "他總記得我怕痛。現在，還會記得嗎？",
+  "ctx": [
+   "feifei/restBeforeBoss3#2"
+  ]
+ },
+ {
+  "zh": "等見了面，我要先叫他一聲。",
+  "ctx": [
+   "feifei/restBeforeBoss3#3"
+  ]
+ },
+ {
+  "zh": "師父，我是菲菲！我站在這裡，您看看我！",
+  "ctx": [
+   "feifei/bossIntro:tower_master#1"
+  ]
+ },
+ {
+  "zh": "退隱也可以回家呀。師兄在門口等著……跟我們回去，好不好？",
+  "ctx": [
+   "feifei/bossIntro:tower_master#3"
+  ]
+ },
+ {
+  "zh": "師父，聽我的聲音。我是您教過握針的那個小徒弟。",
+  "ctx": [
+   "feifei/bossPhase2:tower_master#1"
+  ]
+ },
+ {
+  "zh": "師父，這套招式我認得。您教我的時候，從來不肯真的打下來。",
+  "ctx": [
+   "feifei/bossPhase3:tower_master#1"
+  ]
+ },
+ {
+  "zh": "婆婆，我也想回去。可是家裡少了兩個人，我不能就這樣走。",
+  "ctx": [
+   "feifei/bossIntro:nekomata#1"
+  ]
+ },
+ {
+  "zh": "婆婆剛才還在讓我……這下不能大意。",
+  "ctx": [
+   "feifei/bossPhase2:nekomata#1"
+  ]
+ },
+ {
+  "zh": "還有救……我記住了，不在這裡耽擱。",
+  "ctx": [
+   "feifei/bossDefeat:nekomata#2"
+  ]
+ },
+ {
+  "zh": "這道紫光，跟師父那晚眼裡的一樣。這裡的魔物，都受了魔氣影響。",
+  "ctx": [
+   "feifei/bossIntro:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "爪子這麼密……得看準空隙，別把自己逼到牆角。",
+  "ctx": [
+   "feifei/bossIntro:iron_claw#2"
+  ]
+ },
+ {
+  "zh": "爪子都燒紅了，隔這麼遠還覺得燙。",
+  "ctx": [
+   "feifei/bossPhase2:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "紫光會散，師父也能醒吧？",
+  "ctx": [
+   "feifei/bossDefeat:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "這些是村裡丟的小魚乾嗎？你跟我師父是一夥的？",
+  "ctx": [
+   "feifei/bossIntro:orange_king#1"
+  ]
+ },
+ {
+  "zh": "既然你怕他，為什麼還攔我？那些小魚乾，村裡也還有人等著吃。",
+  "ctx": [
+   "feifei/bossIntro:orange_king#3"
+  ]
+ },
+ {
+  "zh": "樓梯就這麼寬，你捲成球我要躲哪裡！",
+  "ctx": [
+   "feifei/bossPhase2:orange_king#1"
+  ]
+ },
+ {
+  "zh": "別再搶了。",
+  "ctx": [
+   "feifei/bossDefeat:orange_king#2"
+  ]
+ },
+ {
+  "zh": "你說的二當家，是替誰守這裡？",
+  "ctx": [
+   "feifei/bossIntro:cowcat_boss#1"
+  ]
+ },
+ {
+  "zh": "那不是他的本意。他以前從不會叫人這樣守著路。",
+  "ctx": [
+   "feifei/bossIntro:cowcat_boss#3"
+  ]
+ },
+ {
+  "zh": "還有另一套爪法……看清楚，不能照剛才那樣接。",
+  "ctx": [
+   "feifei/bossPhase2:cowcat_boss#1"
+  ]
+ },
+ {
+  "zh": "他以前連罰我蹲馬步都捨不得……您說的，好像是另一個人。",
+  "ctx": [
+   "feifei/bossDefeat:cowcat_boss#2"
+  ]
+ },
+ {
+  "zh": "我不喝，謝謝。師父特別交代過，不能碰您的酒。",
+  "ctx": [
+   "feifei/bossIntro:tanuki_lord#1"
+  ]
+ },
+ {
+  "zh": "變出這麼多隻……哪一隻才是真的啊？",
+  "ctx": [
+   "feifei/bossPhase2:tanuki_lord#2"
+  ]
+ },
+ {
+  "zh": "我會擦乾淨腳再走。塔頂還有人等我，請別攔我。",
+  "ctx": [
+   "feifei/bossIntro:persian_lady#1"
+  ]
+ },
+ {
+  "zh": "我沒有要找你們算帳，別替她擋在前面。",
+  "ctx": [
+   "feifei/bossPhase2:persian_lady#1"
+  ]
+ },
+ {
+  "zh": "借過，我只走池邊，不碰您的東西。",
+  "ctx": [
+   "feifei/bossIntro:frog_daimyo#1"
+  ]
+ },
+ {
+  "zh": "水面都被擠滿了……這麼多，我得顧著兩邊。",
+  "ctx": [
+   "feifei/bossPhase2:frog_daimyo#1"
+  ]
+ },
+ {
+  "zh": "殼上這麼多舊傷……牠也遇過那天的魔氣嗎？",
+  "ctx": [
+   "feifei/bossIntro:armadillo_king#1"
+  ]
+ },
+ {
+  "zh": "我不想碰那些傷口……能讓我從旁邊過嗎？",
+  "ctx": [
+   "feifei/bossIntro:armadillo_king#2"
+  ]
+ },
+ {
+  "zh": "謝謝你讓路。",
+  "ctx": [
+   "feifei/bossDefeat:armadillo_king#1"
+  ]
+ },
+ {
+  "zh": "整條樓梯都被牠壓住了……叫醒牠，一定會生氣吧。",
+  "ctx": [
+   "feifei/bossIntro:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "是我把您吵醒的。可是路就這一條，我得過去。",
+  "ctx": [
+   "feifei/bossPhase2:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "我走了，這次不吵你。",
+  "ctx": [
+   "feifei/bossDefeat:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "我沒想要誰死。可是師父困在上面，我也不能放著他不管。",
+  "ctx": [
+   "feifei/bossIntro:hex_abbot#1"
+  ]
+ },
+ {
+  "zh": "老住持也長出鱗甲了……這還是他原本的樣子嗎？",
+  "ctx": [
+   "feifei/bossPhase2:hex_abbot#1"
+  ]
+ },
+ {
+  "zh": "他連我怕什麼都記得……不會把我全忘了的。我得親口叫叫他。",
+  "ctx": [
+   "feifei/bossDefeat:hex_abbot#3"
+  ]
+ },
+ {
+  "zh": "呼吸穩住。牠的動作跟剛才不同了。",
+  "ctx": [
+   "feifei/bossPhase2Generic#1"
+  ]
+ },
+ {
+  "zh": "還有魔氣……不能在這裡鬆手。",
+  "ctx": [
+   "feifei/bossPhase3Generic#1"
+  ]
+ },
+ {
+  "zh": "那個……借過一下。",
+  "ctx": [
+   "feifei/bark:battleStart#0"
+  ]
+ },
+ {
+  "zh": "針上有毒，別碰。",
+  "ctx": [
+   "feifei/bark:battleStart#1"
+  ]
+ },
+ {
+  "zh": "別追了，前面沒路啦！",
+  "ctx": [
+   "feifei/bark:battleStart#2"
+  ]
+ },
+ {
+  "zh": "袖口綁緊，免得礙手礙腳。",
+  "ctx": [
+   "feifei/bark:battleStart#3"
+  ]
+ },
+ {
+  "zh": "再靠近，我就丟針了。",
+  "ctx": [
+   "feifei/bark:battleStart#4"
+  ]
+ },
+ {
+  "zh": "可以別打臉嗎……拜託。",
+  "ctx": [
+   "feifei/bark:battleStart#5"
+  ]
+ },
+ {
+  "zh": "我不跟你比力氣。",
+  "ctx": [
+   "feifei/bark:battleStart#6"
+  ]
+ },
+ {
+  "zh": "師兄碰上你，會怎麼辦呢？",
+  "ctx": [
+   "feifei/bark:battleStart#7"
+  ]
+ },
+ {
+  "zh": "你一定要守在這裡嗎？",
+  "ctx": [
+   "feifei/bark:battleStart#8"
+  ]
+ },
+ {
+  "zh": "看牠的手，別只顧著怕。",
+  "ctx": [
+   "feifei/bark:battleStart#9"
+  ]
+ },
+ {
+  "zh": "等一下，衣服勾住了！",
+  "ctx": [
+   "feifei/bark:battleStart#10"
+  ]
+ },
+ {
+  "zh": "我只是想把人接回家。",
+  "ctx": [
+   "feifei/bark:battleStart#11"
+  ]
+ },
+ {
+  "zh": "師父教過這個，我記得。",
+  "ctx": [
+   "feifei/bark:battleStart#12"
+  ]
+ },
+ {
+  "zh": "出口在後面，記住了。",
+  "ctx": [
+   "feifei/bark:battleStart#13"
+  ]
+ },
+ {
+  "zh": "不動了……結束了吧？",
+  "ctx": [
+   "feifei/bark:battleWin#0"
+  ]
+ },
+ {
+  "zh": "我有先提醒你喔。",
+  "ctx": [
+   "feifei/bark:battleWin#1"
+  ]
+ },
+ {
+  "zh": "袖子沒破，還好。",
+  "ctx": [
+   "feifei/bark:battleWin#2"
+  ]
+ },
+ {
+  "zh": "呼，終於能喘口氣。",
+  "ctx": [
+   "feifei/bark:battleWin#3"
+  ]
+ },
+ {
+  "zh": "針差點拿不住。",
+  "ctx": [
+   "feifei/bark:battleWin#4"
+  ]
+ },
+ {
+  "zh": "剛才那一下好險。",
+  "ctx": [
+   "feifei/bark:battleWin#5"
+  ]
+ },
+ {
+  "zh": "咦，真的過去了。",
+  "ctx": [
+   "feifei/bark:battleWin#6"
+  ]
+ },
+ {
+  "zh": "借我坐一下，腿軟。",
+  "ctx": [
+   "feifei/bark:battleWin#7"
+  ]
+ },
+ {
+  "zh": "這次沒忘記護住自己。",
+  "ctx": [
+   "feifei/bark:battleWin#8"
+  ]
+ },
+ {
+  "zh": "原來一直緊張也會餓。",
+  "ctx": [
+   "feifei/bark:battleWin#9"
+  ]
+ },
+ {
+  "zh": "沒人聽見我尖叫吧？",
+  "ctx": [
+   "feifei/bark:battleWin#10"
+  ]
+ },
+ {
+  "zh": "手上有藥，不能揉眼睛。",
+  "ctx": [
+   "feifei/bark:battleWin#11"
+  ]
+ },
+ {
+  "zh": "你別再爬起來了，拜託。",
+  "ctx": [
+   "feifei/bark:battleWin#12"
+  ]
+ },
+ {
+  "zh": "針袋還在，沒弄丟。",
+  "ctx": [
+   "feifei/bark:battleWin#13"
+  ]
+ },
+ {
+  "zh": "門口就是來時的路。",
+  "ctx": [
+   "feifei/bark:battleWin#14"
+  ]
+ },
+ {
+  "zh": "舌頭咬到了，嗚。",
+  "ctx": [
+   "feifei/bark:battleWin#15"
+  ]
+ },
+ {
+  "zh": "餓得使不上力了。",
+  "ctx": [
+   "feifei/bark:hungry#0"
+  ]
+ },
+ {
+  "zh": "飯糰……沒有了。",
+  "ctx": [
+   "feifei/bark:hungry#1"
+  ]
+ },
+ {
+  "zh": "現在給我白飯也好，真的。",
+  "ctx": [
+   "feifei/bark:hungry#2"
+  ]
+ },
+ {
+  "zh": "那個……剛才是肚子叫。",
+  "ctx": [
+   "feifei/bark:hungry#3"
+  ]
+ },
+ {
+  "zh": "先別講吃的，我受不了。",
+  "ctx": [
+   "feifei/bark:hungry#4"
+  ]
+ },
+ {
+  "zh": "回家我要先盛一大碗。",
+  "ctx": [
+   "feifei/bark:hungry#5"
+  ]
+ },
+ {
+  "zh": "不要碰傷口！",
+  "ctx": [
+   "feifei/bark:lowHp#0"
+  ]
+ },
+ {
+  "zh": "不行，我還不能倒……",
+  "ctx": [
+   "feifei/bark:lowHp#1"
+  ]
+ },
+ {
+  "zh": "血止不住，怎麼辦……",
+  "ctx": [
+   "feifei/bark:lowHp#2"
+  ]
+ },
+ {
+  "zh": "繃帶快不夠了。",
+  "ctx": [
+   "feifei/bark:lowHp#3"
+  ]
+ },
+ {
+  "zh": "握緊，還不能鬆手。",
+  "ctx": [
+   "feifei/bark:lowHp#4"
+  ]
+ },
+ {
+  "zh": "我還得帶他們回家……",
+  "ctx": [
+   "feifei/bark:lowHp#5"
+  ]
+ },
+ {
+  "zh": "箱蓋下面沒夾東西吧？",
+  "ctx": [
+   "feifei/bark:chest#0"
+  ]
+ },
+ {
+  "zh": "我敲一下，你別突然跳出來。",
+  "ctx": [
+   "feifei/bark:chest#1"
+  ]
+ },
+ {
+  "zh": "空的嗎？我掀開囉。",
+  "ctx": [
+   "feifei/bark:chest#2"
+  ]
+ },
+ {
+  "zh": "從這邊打開，才不會夾到尾巴。",
+  "ctx": [
+   "feifei/bark:chest#3"
+  ]
+ },
+ {
+  "zh": "有乾淨繃帶就好了。",
+  "ctx": [
+   "feifei/bark:chest#4"
+  ]
+ },
+ {
+  "zh": "這個紙箱有人要嗎？",
+  "ctx": [
+   "feifei/bark:chest#5"
+  ]
+ },
+ {
+  "zh": "家裡也有個這樣的紙箱。",
+  "ctx": [
+   "feifei/bark:chest#6"
+  ]
+ },
+ {
+  "zh": "師兄倒是很會找地方睡。",
+  "ctx": [
+   "feifei/bark:chest#7"
+  ]
+ },
+ {
+  "zh": "唔……還以為回到家了。",
+  "ctx": [
+   "feifei/bark:restNap#0"
+  ]
+ },
+ {
+  "zh": "外面還是很安靜。",
+  "ctx": [
+   "feifei/bark:restNap#1"
+  ]
+ },
+ {
+  "zh": "好久沒睡得這麼沉了。",
+  "ctx": [
+   "feifei/bark:restNap#2"
+  ]
+ },
+ {
+  "zh": "眼睛舒服多了，剛才好澀。",
+  "ctx": [
+   "feifei/bark:restNap#3"
+  ]
+ },
+ {
+  "zh": "被子好暖，捨不得掀開。",
+  "ctx": [
+   "feifei/bark:restNap#4"
+  ]
+ },
+ {
+  "zh": "夢還沒做完，就醒了。",
+  "ctx": [
+   "feifei/bark:restNap#5"
+  ]
+ },
+ {
+  "zh": "尾巴睡麻了……讓我伸一下。",
+  "ctx": [
+   "feifei/bark:restNap#6"
+  ]
+ },
+ {
+  "zh": "香、香爐的煙一直往鼻子鑽……我一整晚都沒闔眼，對不起……",
+  "ctx": [
+   "feifei/bark:restNapRestless#0"
+  ]
+ },
+ {
+  "zh": "這根的毛邊總算磨掉了。",
+  "ctx": [
+   "feifei/bark:restSharpen#0"
+  ]
+ },
+ {
+  "zh": "這樣拿，出手就不會卡住。",
+  "ctx": [
+   "feifei/bark:restSharpen#1"
+  ]
+ },
+ {
+  "zh": "針尖沾好藥，握的地方也擦乾淨了。",
+  "ctx": [
+   "feifei/bark:restSharpen#2"
+  ]
+ },
+ {
+  "zh": "磨好了，心裡踏實些。",
+  "ctx": [
+   "feifei/bark:restSharpen#3"
+  ]
+ },
+ {
+  "zh": "彎的挑出來了，這些都能用。",
+  "ctx": [
+   "feifei/bark:restSharpen#4"
+  ]
+ },
+ {
+  "zh": "這個角度，終於對了。",
+  "ctx": [
+   "feifei/bark:restSharpen#5"
+  ]
+ },
+ {
+  "zh": "下次手別抖就好了。",
+  "ctx": [
+   "feifei/bark:restSharpen#6"
+  ]
+ },
+ {
+  "zh": "太好了……你還在。",
+  "ctx": [
+   "feifei/bark:revive#0"
+  ]
+ },
+ {
+  "zh": "先坐一下，我扶著你。",
+  "ctx": [
+   "feifei/bark:revive#1"
+  ]
+ },
+ {
+  "zh": "嚇到我了。別再倒下去了。",
+  "ctx": [
+   "feifei/bark:revive#2"
+  ]
+ },
+ {
+  "zh": "有伏兵跳出來了！",
+  "ctx": [
+   "feifei/bark:ambush#0"
+  ]
+ },
+ {
+  "zh": "你都擺好架勢了……看來不是問路就能過去。",
+  "ctx": [
+   "feifei/firstMeet:white_duelist"
+  ]
+ },
+ {
+  "zh": "牠刨地刨得好用力，鼻子還朝著我。這是要衝過來嗎？",
+  "ctx": [
+   "feifei/firstMeet:wild_boar"
+  ]
+ },
+ {
+  "zh": "遠看像紙做的，近看全是尖角。被劃到可不是鬧著玩的。",
+  "ctx": [
+   "feifei/firstMeet:paper_tiger"
+  ]
+ },
+ {
+  "zh": "鼓聲越來越急了。我連自己的心跳都聽不見。",
+  "ctx": [
+   "feifei/firstMeet:drum_tanuki"
+  ]
+ },
+ {
+  "zh": "鐵皮底下還有關節在動。原來不是一整塊鐵。",
+  "ctx": [
+   "feifei/firstMeet:iron_arhat"
+  ]
+ },
+ {
+  "zh": "絲都纏到手上了！這樣叫我怎麼拿針。",
+  "ctx": [
+   "feifei/firstMeet:shadow_spider"
+  ]
+ },
+ {
+  "zh": "站都站不穩，怎麼還能出拳？不能跟著牠的腳步晃。",
+  "ctx": [
+   "feifei/firstMeet:drunk_dog"
+  ]
+ },
+ {
+  "zh": "小鬼都在等牠點頭……原來是牠叫你們攔我的。",
+  "ctx": [
+   "feifei/firstMeet:oni_general"
+  ]
+ },
+ {
+  "zh": "這幾隻一直互相看，不能只盯住一隻。",
+  "ctx": [
+   "feifei/firstMeet:imp"
+  ]
+ },
+ {
+  "zh": "鏡子裡全是我的臉，我都快分不清出口了。",
+  "ctx": [
+   "feifei/firstMeet:mirror_sage"
+  ]
+ },
+ {
+  "zh": "碎成這樣還會動？我不要踩到那些碎片。",
+  "ctx": [
+   "feifei/firstMeet:mirror_shard"
+  ]
+ },
+ {
+  "zh": "剛剛還看得見，現在又只剩影子。牠究竟站在哪裡？",
+  "ctx": [
+   "feifei/firstMeet:void_cat"
+  ]
+ },
+ {
+  "zh": "我差點以為是點心。牠剛才是不是看了我一眼？",
+  "ctx": [
+   "feifei/firstMeet:dango_slime"
+  ]
+ },
+ {
+  "zh": "又分開了！大的小的都別往鞋子裡鑽。",
+  "ctx": [
+   "feifei/firstMeet:dango_bit"
+  ]
+ },
+ {
+  "zh": "縮得只剩一個殼。你害怕，我也害怕呀。",
+  "ctx": [
+   "feifei/firstMeet:armadillo_pup"
+  ]
+ },
+ {
+  "zh": "翅膀一直晃，我得看清牠停在哪裡。",
+  "ctx": [
+   "feifei/firstMeet:lantern_moth"
+  ]
+ },
+ {
+  "zh": "睡得這麼沉，連我走過來都沒發現。",
+  "ctx": [
+   "feifei/firstMeet:hibernating_bear"
+  ]
+ },
+ {
+  "zh": "肚子還在鼓……不好，得找個能遮住的地方。",
+  "ctx": [
+   "feifei/firstMeet:puffer_spirit"
+  ]
+ },
+ {
+  "zh": "殼一層疊一層，連腳都快藏進去了。",
+  "ctx": [
+   "feifei/firstMeet:plated_beetle"
+  ]
+ },
+ {
+  "zh": "那隻一抬手，其他的就圍上來了。原來都聽牠的。",
+  "ctx": [
+   "feifei/firstMeet:rat_general"
+  ]
+ },
+ {
+  "zh": "長槍後面還有盾，這條路堵得真緊。",
+  "ctx": [
+   "feifei/firstMeet:rat_guard"
+  ]
+ },
+ {
+  "zh": "別再唸了，我想不起招式了。",
+  "ctx": [
+   "feifei/firstMeet:curse_priest"
+  ]
+ },
+ {
+  "zh": "影子在變淡。牠是想逃，還是想繞到我後面？",
+  "ctx": [
+   "feifei/firstMeet:phantom_fox"
+  ]
+ },
+ {
+  "zh": "牠越瞪越兇。我連針都還沒拿出來呢。",
+  "ctx": [
+   "feifei/firstMeet:red_oni"
+  ]
+ },
+ {
+  "zh": "鱗粉飄過來了……還好我有戴口罩。",
+  "ctx": [
+   "feifei/firstMeet:moon_moth_queen"
+  ]
+ },
+ {
+  "zh": "那隻手掌比我的頭還大。光看就覺得痛。",
+  "ctx": [
+   "feifei/firstMeet:jizo_golem"
+  ]
+ },
+ {
+  "zh": "連池子旁邊都有人守，不能繞過去嗎？",
+  "ctx": [
+   "feifei/firstMeet:frog_daimyo"
+  ]
+ },
+ {
+  "zh": "池水裡那些黑點，原來都是兵。",
+  "ctx": [
+   "feifei/firstMeet:tadpole"
+  ]
+ },
+ {
+  "zh": "把頭縮進去了……這是在拒絕我嗎？",
+  "ctx": [
+   "feifei/firstMeet:armadillo_king"
+  ]
+ },
+ {
+  "zh": "牠一呼吸，鱗片就跟著動。原來真的有這麼大的貓。",
+  "ctx": [
+   "feifei/firstMeet:dragon_cat"
+  ]
+ },
+ {
+  "zh": "您在唸經，還是在咒我？",
+  "ctx": [
+   "feifei/firstMeet:hex_abbot"
+  ]
+ },
+ {
+  "zh": "牠按住刀柄了。我才剛走過來，還沒說話呢。",
+  "ctx": [
+   "feifei/firstMeet:shiba_ronin"
+  ]
+ },
+ {
+  "zh": "曲子明明很好聽，背上卻一直發冷。",
+  "ctx": [
+   "feifei/firstMeet:shamisen_cat"
+  ]
+ },
+ {
+  "zh": "舌頭收回去啦，我看見了！",
+  "ctx": [
+   "feifei/firstMeet:lantern_ghost"
+  ]
+ },
+ {
+  "zh": "聲音四面都有，到底是哪一個在響？",
+  "ctx": [
+   "feifei/firstMeet:windchime_sprite"
+  ]
+ },
+ {
+  "zh": "你也替那位大人跑腿？這裡可不是玩耍的地方。",
+  "ctx": [
+   "feifei/firstMeet:tanuki_kid"
+  ]
+ },
+ {
+  "zh": "一隻鞋？另一隻呢……會不會從後面過來。",
+  "ctx": [
+   "feifei/firstMeet:geta_monster"
+  ]
+ },
+ {
+  "zh": "牠才從畫裡出來，就把地上滴得到處都是墨。",
+  "ctx": [
+   "feifei/firstMeet:ink_cat"
+  ]
+ },
+ {
+  "zh": "那是搗麻糬的杵吧？拜託別拿來搗我。",
+  "ctx": [
+   "feifei/firstMeet:moon_rabbit"
+  ]
+ },
+ {
+  "zh": "我繞到哪，牠就看到哪。連背後都躲不了。",
+  "ctx": [
+   "feifei/firstMeet:owl_sentry"
+  ]
+ },
+ {
+  "zh": "紙邊這麼利……剛才差點就用手去接了。",
+  "ctx": [
+   "feifei/firstMeet:paper_crane"
+  ]
+ },
+ {
+  "zh": "那團霧一直朝這裡聚。裡面的臉，我不認得。",
+  "ctx": [
+   "feifei/firstMeet:miasma_blob"
+  ]
+ },
+ {
+  "zh": "剛才暗處那雙眼睛，原來離我這麼近。",
+  "ctx": [
+   "feifei/firstMeet:night_panther"
+  ]
+ },
+ {
+  "zh": "傘底下伸出一隻腳……我今天到底看到了什麼。",
+  "ctx": [
+   "feifei/firstMeet:kasa_obake"
+  ]
+ },
+ {
+  "zh": "你看的是袋子吧？裡面的小魚乾我還要留著。",
+  "ctx": [
+   "feifei/firstMeet:kappa"
+  ]
+ },
+ {
+  "zh": "謝謝，可是這塊豆腐的味道不太對。",
+  "ctx": [
+   "feifei/firstMeet:tofu_boy"
+  ]
+ },
+ {
+  "zh": "扇子一動，我連站都站不住了。",
+  "ctx": [
+   "feifei/firstMeet:tengu"
+  ]
+ },
+ {
+  "zh": "牠一唸咒，我的毛就豎起來。",
+  "ctx": [
+   "feifei/firstMeet:fox_miko"
+  ]
+ },
+ {
+  "zh": "裡面是空的……到底是誰在讓這副盔甲動？",
+  "ctx": [
+   "feifei/firstMeet:armor_ghost"
+  ]
+ },
+ {
+  "zh": "師兄？……不對。那雙紫眼睛，跟那天晚上的師父一樣。",
+  "ctx": [
+   "feifei/firstMeet:shadow_cat"
+  ]
+ },
+ {
+  "zh": "那張臉明明是我，怎麼會自己笑起來？",
+  "ctx": [
+   "feifei/firstMeet:mirror_qiuqiu"
+  ]
+ },
+ {
+  "zh": "你也要陪練？我沒答應一次兩個啊。",
+  "ctx": [
+   "feifei/firstMeet:sparring_partner"
+  ]
+ },
+ {
+  "zh": "小魚乾堆得比牠還高……村裡卻都沒得吃。",
+  "ctx": [
+   "feifei/firstMeet:orange_king"
+  ]
+ },
+ {
+  "zh": "肩膀比門還寬。這一拳過來，我可接不住。",
+  "ctx": [
+   "feifei/firstMeet:cowcat_boss"
+  ]
+ },
+ {
+  "zh": "您別靠這麼近，酒味好重。",
+  "ctx": [
+   "feifei/firstMeet:tanuki_lord"
+  ]
+ },
+ {
+  "zh": "她一抬下巴，後面就有人替她擋著。連話都不用說。",
+  "ctx": [
+   "feifei/firstMeet:persian_lady"
+  ]
+ },
+ {
+  "zh": "您把路擋得這麼緊，是誰叫您來的？",
+  "ctx": [
+   "feifei/firstMeet:butler_cat"
+  ]
+ },
+ {
+  "zh": "妳也得聽她的話，不能放我走嗎？",
+  "ctx": [
+   "feifei/firstMeet:maid_cat"
+  ]
+ },
+ {
+  "zh": "那些小魚乾是從村裡拿來的吧？",
+  "ctx": [
+   "feifei/firstMeet:rat"
+  ]
+ },
+ {
+  "zh": "別滾到我腳邊，會絆倒的。",
+  "ctx": [
+   "feifei/firstMeet:yarn_ball"
+  ]
+ },
+ {
+  "zh": "衣服沾上這個，怎麼洗啊。",
+  "ctx": [
+   "feifei/firstMeet:soy_bottle"
+  ]
+ },
+ {
+  "zh": "裡面還有東西！我剛才差點坐下去。",
+  "ctx": [
+   "feifei/firstMeet:box_lurker"
+  ]
+ },
+ {
+  "zh": "師傅，您的刺掉了一地……我都不敢踩。",
+  "ctx": [
+   "feifei/firstMeet:hedgehog"
+  ]
+ },
+ {
+  "zh": "罐頭裡又滿起來了。這裡面的東西吃不完嗎？",
+  "ctx": [
+   "feifei/firstMeet:can_spirit"
+  ]
+ },
+ {
+  "zh": "五隻爪子一起伸過來，我該看哪一隻？",
+  "ctx": [
+   "feifei/firstMeet:five_claw"
+  ]
+ },
+ {
+  "zh": "耳朵還在動……你其實沒睡著，對吧？",
+  "ctx": [
+   "feifei/firstMeet:dozing_tabby"
+  ]
+ },
+ {
+  "zh": "那是我的小魚乾。還我。",
+  "ctx": [
+   "feifei/firstMeet:chipmunk"
+  ]
+ },
+ {
+  "zh": "這隻也在盯我的袋子。",
+  "ctx": [
+   "feifei/firstMeet:chipmunk_small"
+  ]
+ },
+ {
+  "zh": "我歪頭，牠也歪頭。別連出招都照學呀。",
+  "ctx": [
+   "feifei/firstMeet:mirror_cat"
+  ]
+ },
+ {
+  "zh": "原來那不是掃把毛，是腳！難怪會往這邊爬。",
+  "ctx": [
+   "feifei/firstMeet:broom_centipede"
+  ]
+ },
+ {
+  "zh": "村口那對石獅子，不會也這樣動吧？",
+  "ctx": [
+   "feifei/firstMeet:stone_lion"
+  ]
+ },
+ {
+  "zh": "好熟悉的味道，可是聞久了頭好暈。",
+  "ctx": [
+   "feifei/firstMeet:catnip_phantom"
+  ]
+ },
+ {
+  "zh": "地上那個會轉的東西，怎麼衝著我來了？",
+  "ctx": [
+   "feifei/firstMeet:roomba_king"
+  ]
+ },
+ {
+  "zh": "連掃把都來幫忙了？",
+  "ctx": [
+   "feifei/firstMeet:mini_broom"
+  ]
+ },
+ {
+  "zh": "站了這麼久，連衣角都沒晃一下。",
+  "ctx": [
+   "feifei/firstMeet:calico_monk"
+  ]
+ },
+ {
+  "zh": "牠貼著地面過來，我差點把腳伸進去了。",
+  "ctx": [
+   "feifei/firstMeet:shadow_kitten_a"
+  ]
+ },
+ {
+  "zh": "旁邊兩隻也在動。不能只顧著眼前這一隻。",
+  "ctx": [
+   "feifei/firstMeet:shadow_kitten_b"
+  ]
+ },
+ {
+  "zh": "牠一聲不響地守著我後面，反而最讓人不安。",
+  "ctx": [
+   "feifei/firstMeet:shadow_kitten_c"
+  ]
+ },
+ {
+  "zh": "怎麼和家裡那根不一樣，推都推不動。",
+  "ctx": [
+   "feifei/firstMeet:training_post"
+  ]
+ },
+ {
+  "zh": "婆婆，尾巴可以挪開一點嗎？我怕踩到。",
+  "ctx": [
+   "feifei/firstMeet:nekomata"
+  ]
+ },
+ {
+  "zh": "尾巴過來了，婆婆卻沒動！",
+  "ctx": [
+   "feifei/firstMeet:nekomata_tail"
+  ]
+ },
+ {
+  "zh": "齒輪聲好刺耳。這麼多鐵爪，都是它在控制？",
+  "ctx": [
+   "feifei/firstMeet:iron_claw"
+  ]
+ },
+ {
+  "zh": "這根本就是黃瓜……可是黃瓜為什麼在追我！",
+  "ctx": [
+   "feifei/firstMeet:cucumber"
+  ]
+ },
+ {
+  "zh": "都長出臉了……再餓也不能當飯糰吃。",
+  "ctx": [
+   "feifei/firstMeet:onigiri_monster"
+  ]
+ },
+ {
+  "zh": "原來這裡的木樁會自己找人練。",
+  "ctx": [
+   "feifei/firstMeet:wood_dummy"
+  ]
+ },
+ {
+  "zh": "你也迷路了嗎？……別低頭，角正對著我呢。",
+  "ctx": [
+   "feifei/firstMeet:goat"
+  ]
+ },
+ {
+  "zh": "關掉！拜託把那個聲音關掉！",
+  "ctx": [
+   "feifei/firstMeet:vacuum"
+  ]
+ },
+ {
+  "zh": "你也用飛針？那我們都別站得太近。",
+  "ctx": [
+   "feifei/firstMeet:black_ninja"
+  ]
+ },
+ {
+  "zh": "我還要靠這袋小魚乾走下去，不能給你。",
+  "ctx": [
+   "feifei/firstMeet:orange_bandit"
+  ]
+ },
+ {
+  "zh": "嘴裡鼓起來了。等等，別吐！",
+  "ctx": [
+   "feifei/firstMeet:catgrass_bug"
+  ]
+ },
+ {
+  "zh": "明明只有一肚子稻草，聲音卻這麼大。",
+  "ctx": [
+   "feifei/firstMeet:scarecrow"
+  ]
+ },
+ {
+  "zh": "剛才還在前面，現在又跑到旁邊了。好快。",
+  "ctx": [
+   "feifei/firstMeet:black_ninja_elite"
+  ]
+ },
+ {
+  "zh": "這根黃瓜大得快頂到屋頂了，還往這裡拱。",
+  "ctx": [
+   "feifei/firstMeet:big_cucumber"
+  ]
+ },
+ {
+  "zh": "我師父在塔頂，你見過他嗎？",
+  "ctx": [
+   "feifei/firstMeet:ninja_boss"
+  ]
+ },
+ {
+  "zh": "這顆要是滾過來，整條走廊都塞住了。",
+  "ctx": [
+   "feifei/firstMeet:giant_onigiri"
+  ]
+ },
+ {
+  "zh": "你還這麼小，也被叫來守路嗎？",
+  "ctx": [
+   "feifei/firstMeet:black_kitten"
+  ]
+ },
+ {
+  "zh": "師父，這樣會打傷我的！",
+  "ctx": [
+   "feifei/firstMeet:tower_master"
+  ]
+ },
+ {
+  "zh": "指尖都凍麻了。針還握得住，不能弄丟。",
+  "ctx": [
+   "feifei/firstMeet:snow_cat"
+  ]
+ },
+ {
+  "zh": "招的是財，還是我的魚乾袋？",
+  "ctx": [
+   "feifei/firstMeet:fortune_cat"
+  ]
+ },
+ {
+  "zh": "那盞燈底下有牙齒。差點就只顧著看亮光了。",
+  "ctx": [
+   "feifei/firstMeet:lantern_fish"
+  ]
+ },
+ {
+  "zh": "牠藏在後面，手上全是線。這些傀儡都由牠拉著。",
+  "ctx": [
+   "feifei/firstMeet:puppeteer"
+  ]
+ },
+ {
+  "zh": "腳沒有落地，卻一步步往前……是上面的線在拉。",
+  "ctx": [
+   "feifei/firstMeet:puppet"
+  ]
+ },
+ {
+  "zh": "還在喝？酒都灑到下巴了。",
+  "ctx": [
+   "feifei/firstMeet:shuten_imp"
+  ]
+ },
+ {
+  "zh": "兩盞燈互相照著，影子反而看不清。",
+  "ctx": [
+   "feifei/firstMeet:lantern_twin_a"
+  ]
+ },
+ {
+  "zh": "別轉了，我快分不清哪一盞是哪一盞。",
+  "ctx": [
+   "feifei/firstMeet:lantern_twin_b"
+  ]
+ },
+ {
+  "zh": "翅膀把路全擋住了！",
+  "ctx": [
+   "feifei/firstMeet:miasma_crows"
+  ]
+ },
+ {
+  "zh": "飛散了，別鑽到頭髮裡！",
+  "ctx": [
+   "feifei/firstMeet:crow_small"
+  ]
+ },
+ {
+  "zh": "鎧甲正在變淡……裡面沒有誰能回答我。",
+  "ctx": [
+   "feifei/firstMeet:wraith_samurai"
+  ]
+ },
+ {
+  "zh": "一個頭盯袋子，一個頭盯我。",
+  "ctx": [
+   "feifei/firstMeet:twin_hound"
+  ]
+ },
+ {
+  "zh": "樓梯就在後面……偏偏是這尊石像守著。",
+  "ctx": [
+   "feifei/firstMeet:guardian_statue"
+  ]
+ },
+ {
+  "zh": "剛才還在笑，換張面具連動作都變了。",
+  "ctx": [
+   "feifei/firstMeet:mask_dancer"
+  ]
+ },
+ {
+  "zh": "還有師父，他們三天都沒回來了。村裡就拜託你了。",
+  "ctx": [
+   "dangdang/prologue#6"
+  ]
+ },
+ {
+  "zh": "噹、噹噹……師兄的腳扭到了，我扶不動他。",
+  "ctx": [
+   "dangdang/topScene#3"
+  ]
+ },
+ {
+  "zh": "師兄，我扶你過去。",
+  "ctx": [
+   "fengfeng/topScene#3"
+  ]
+ }
+]

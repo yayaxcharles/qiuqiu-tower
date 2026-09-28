@@ -1,0 +1,1304 @@
+[
+ {
+  "zh": "師父，你等等我喵！",
+  "ctx": [
+   "ninja/prologue#3"
+  ]
+ },
+ {
+  "zh": "我要把師父帶回家，也要把村裡的小魚乾拿回來喵。",
+  "ctx": [
+   "ninja/prologue#4"
+  ]
+ },
+ {
+  "zh": "味道這麼重，上面肯定還有小魚乾喵。",
+  "ctx": [
+   "ninja/actClear1#1"
+  ]
+ },
+ {
+  "zh": "頭巾又勾破了。以前都是師父一邊笑我，一邊幫我重綁喵。",
+  "ctx": [
+   "ninja/actClear1#3"
+  ]
+ },
+ {
+  "zh": "師父，我在這裡！聽見就回我一聲喵！",
+  "ctx": [
+   "ninja/actClear2#1"
+  ]
+ },
+ {
+  "zh": "我還……不能倒下喵……",
+  "ctx": [
+   "ninja/defeat#1"
+  ]
+ },
+ {
+  "zh": "師父，你終於醒了喵。",
+  "ctx": [
+   "ninja/victory#1"
+  ]
+ },
+ {
+  "zh": "……還是那麼喜歡按我的頭喵。",
+  "ctx": [
+   "ninja/victory#3"
+  ]
+ },
+ {
+  "zh": "師妹，我把師父帶回來了喵！……然後，我肚子好餓喵。",
+  "ctx": [
+   "ninja/victory#6"
+  ]
+ },
+ {
+  "zh": "師父，明天也陪我練功喵。",
+  "ctx": [
+   "ninja/result:victoryTeaser"
+  ]
+ },
+ {
+  "zh": "這是師父寫的喵。",
+  "ctx": [
+   "ninja/secretScroll#1"
+  ]
+ },
+ {
+  "zh": "他把秘笈帶在身邊，怎麼會掉在這裡喵？",
+  "ctx": [
+   "ninja/secretScroll#2"
+  ]
+ },
+ {
+  "zh": "我還是得去找他喵。",
+  "ctx": [
+   "ninja/afterFirstElite#1"
+  ]
+ },
+ {
+  "zh": "明天打贏關主，就能到上面找師父了喵。",
+  "ctx": [
+   "ninja/restBeforeBoss1#0"
+  ]
+ },
+ {
+  "zh": "這裡正好能休息，先吃點東西，再把爪子磨好喵。",
+  "ctx": [
+   "ninja/restBeforeBoss1#1"
+  ]
+ },
+ {
+  "zh": "睡一下，還是先磨爪喵？",
+  "ctx": [
+   "ninja/restBeforeBoss1#2"
+  ]
+ },
+ {
+  "zh": "越往上走，這股魔氣就越嗆喵。",
+  "ctx": [
+   "ninja/restBeforeBoss2#0"
+  ]
+ },
+ {
+  "zh": "剛才好像是師父的聲音，他是不是很痛喵？",
+  "ctx": [
+   "ninja/restBeforeBoss2#1"
+  ]
+ },
+ {
+  "zh": "得趕快過這一關，才能上去找他喵。",
+  "ctx": [
+   "ninja/restBeforeBoss2#2"
+  ]
+ },
+ {
+  "zh": "明天就要見到師父了喵。",
+  "ctx": [
+   "ninja/restBeforeBoss3#0"
+  ]
+ },
+ {
+  "zh": "以前蜷縮練不好，都是師父在旁邊扶著我喵。",
+  "ctx": [
+   "ninja/restBeforeBoss3#1"
+  ]
+ },
+ {
+  "zh": "等見到師父，不知道他還認不認得我喵。",
+  "ctx": [
+   "ninja/restBeforeBoss3#2"
+  ]
+ },
+ {
+  "zh": "這次一定要把他帶回家喵。",
+  "ctx": [
+   "ninja/restBeforeBoss3#3"
+  ]
+ },
+ {
+  "zh": "師父，是我，球球喵！你看清楚喵！",
+  "ctx": [
+   "ninja/bossIntro:tower_master#1"
+  ]
+ },
+ {
+  "zh": "退隱也要回家喵！你看著我，我是你徒弟喵！",
+  "ctx": [
+   "ninja/bossIntro:tower_master#3"
+  ]
+ },
+ {
+  "zh": "師父，聽我說！我是球球，你的徒弟喵！",
+  "ctx": [
+   "ninja/bossPhase2:tower_master#1"
+  ]
+ },
+ {
+  "zh": "師父，你都受傷了，別再打了喵！",
+  "ctx": [
+   "ninja/bossPhase3:tower_master#1"
+  ]
+ },
+ {
+  "zh": "婆婆，我得去救師父，再危險也要上去喵。",
+  "ctx": [
+   "ninja/bossIntro:nekomata#1"
+  ]
+ },
+ {
+  "zh": "原來婆婆剛才還留了一手喵！",
+  "ctx": [
+   "ninja/bossPhase2:nekomata#1"
+  ]
+ },
+ {
+  "zh": "他還有救就好，謝謝婆婆喵。",
+  "ctx": [
+   "ninja/bossDefeat:nekomata#2"
+  ]
+ },
+ {
+  "zh": "胸口那道紫光，跟師父眼裡的一樣喵。",
+  "ctx": [
+   "ninja/bossIntro:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "它一直攔著路，看來非拆掉不可喵。",
+  "ctx": [
+   "ninja/bossIntro:iron_claw#2"
+  ]
+ },
+ {
+  "zh": "爪子燒紅了，被碰到可不得了喵！",
+  "ctx": [
+   "ninja/bossPhase2:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "師父身上的魔氣，也能散掉喵。",
+  "ctx": [
+   "ninja/bossDefeat:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "村裡的小魚乾是你搶的喵？你跟上面那隻大貓是一夥的喵？",
+  "ctx": [
+   "ninja/bossIntro:orange_king#1"
+  ]
+ },
+ {
+  "zh": "既然不是一夥的，就別攔我，小魚乾也得還來喵。",
+  "ctx": [
+   "ninja/bossIntro:orange_king#3"
+  ]
+ },
+ {
+  "zh": "這麼大一顆，滾過來可躲不掉喵！",
+  "ctx": [
+   "ninja/bossPhase2:orange_king#1"
+  ]
+ },
+ {
+  "zh": "早說嘛喵。",
+  "ctx": [
+   "ninja/bossDefeat:orange_king#2"
+  ]
+ },
+ {
+  "zh": "二當家，那大當家是誰喵？",
+  "ctx": [
+   "ninja/bossIntro:cowcat_boss#1"
+  ]
+ },
+ {
+  "zh": "那是我師父，我得上去看看他到底怎麼了喵。",
+  "ctx": [
+   "ninja/bossIntro:cowcat_boss#3"
+  ]
+ },
+ {
+  "zh": "原來還有一套爪法，真難纏喵。",
+  "ctx": [
+   "ninja/bossPhase2:cowcat_boss#1"
+  ]
+ },
+ {
+  "zh": "我認識的師父，不會隨便傷人喵。",
+  "ctx": [
+   "ninja/bossDefeat:cowcat_boss#2"
+  ]
+ },
+ {
+  "zh": "我不喝，師父交代過，狸貓遞的酒不能碰喵。",
+  "ctx": [
+   "ninja/bossIntro:tanuki_lord#1"
+  ]
+ },
+ {
+  "zh": "變出這麼多隻，哪隻才是真的喵？",
+  "ctx": [
+   "ninja/bossPhase2:tanuki_lord#2"
+  ]
+ },
+ {
+  "zh": "我只是從這裡經過，要去的是塔頂喵。",
+  "ctx": [
+   "ninja/bossIntro:persian_lady#1"
+  ]
+ },
+ {
+  "zh": "自己躲在後面，倒叫別人來打喵！",
+  "ctx": [
+   "ninja/bossPhase2:persian_lady#1"
+  ]
+ },
+ {
+  "zh": "借過一下，我要從那邊的樓梯上去喵。",
+  "ctx": [
+   "ninja/bossIntro:frog_daimyo#1"
+  ]
+ },
+ {
+  "zh": "又叫來這麼多小兵，得先處理牠們喵。",
+  "ctx": [
+   "ninja/bossPhase2:frog_daimyo#1"
+  ]
+ },
+ {
+  "zh": "殼上都是傷……牠看起來也不好受喵。",
+  "ctx": [
+   "ninja/bossIntro:armadillo_king#1"
+  ]
+ },
+ {
+  "zh": "能不能讓我過去喵？我真的得上樓喵。",
+  "ctx": [
+   "ninja/bossIntro:armadillo_king#2"
+  ]
+ },
+ {
+  "zh": "謝謝你讓路，剛才對不起喵。",
+  "ctx": [
+   "ninja/bossDefeat:armadillo_king#1"
+  ]
+ },
+ {
+  "zh": "樓梯都被牠壓住了，不叫醒就過不去喵。",
+  "ctx": [
+   "ninja/bossIntro:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "這下全醒了，我得找地方躲喵！",
+  "ctx": [
+   "ninja/bossPhase2:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "那我走了，你繼續睡喵。",
+  "ctx": [
+   "ninja/bossDefeat:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "我沒殺誰，是來接師父回家的，請你讓開喵。",
+  "ctx": [
+   "ninja/bossIntro:hex_abbot#1"
+  ]
+ },
+ {
+  "zh": "身上長出鱗甲了，這魔氣還在變強喵。",
+  "ctx": [
+   "ninja/bossPhase2:hex_abbot#1"
+  ]
+ },
+ {
+  "zh": "好，我去叫他喵。",
+  "ctx": [
+   "ninja/bossDefeat:hex_abbot#3"
+  ]
+ },
+ {
+  "zh": "看來還沒打完喵。",
+  "ctx": [
+   "ninja/bossPhase2Generic#1"
+  ]
+ },
+ {
+  "zh": "還有力氣，我就繼續打喵。",
+  "ctx": [
+   "ninja/bossPhase3Generic#1"
+  ]
+ },
+ {
+  "zh": "球球來了喵！",
+  "ctx": [
+   "ninja/bark:battleStart#0"
+  ]
+ },
+ {
+  "zh": "看招喵！",
+  "ctx": [
+   "ninja/bark:battleStart#1"
+  ]
+ },
+ {
+  "zh": "不要擋路喵。",
+  "ctx": [
+   "ninja/bark:battleStart#2"
+  ]
+ },
+ {
+  "zh": "讓開，我趕時間喵。",
+  "ctx": [
+   "ninja/bark:battleStart#3"
+  ]
+ },
+ {
+  "zh": "我先上了喵！",
+  "ctx": [
+   "ninja/bark:battleStart#4"
+  ]
+ },
+ {
+  "zh": "誰怕誰喵！",
+  "ctx": [
+   "ninja/bark:battleStart#5"
+  ]
+ },
+ {
+  "zh": "要打就快點喵。",
+  "ctx": [
+   "ninja/bark:battleStart#6"
+  ]
+ },
+ {
+  "zh": "想攔我，先打贏我喵。",
+  "ctx": [
+   "ninja/bark:battleStart#7"
+  ]
+ },
+ {
+  "zh": "總算打完了喵。",
+  "ctx": [
+   "ninja/bark:battleWin#0"
+  ]
+ },
+ {
+  "zh": "這下知道厲害了喵。",
+  "ctx": [
+   "ninja/bark:battleWin#1"
+  ]
+ },
+ {
+  "zh": "有沒有掉小魚乾喵？",
+  "ctx": [
+   "ninja/bark:battleWin#2"
+  ]
+ },
+ {
+  "zh": "走了喵。",
+  "ctx": [
+   "ninja/bark:battleWin#3"
+  ]
+ },
+ {
+  "zh": "呼，先喘口氣喵。",
+  "ctx": [
+   "ninja/bark:battleWin#4"
+  ]
+ },
+ {
+  "zh": "功夫沒白練喵。",
+  "ctx": [
+   "ninja/bark:battleWin#5"
+  ]
+ },
+ {
+  "zh": "頭巾綁好，走了喵。",
+  "ctx": [
+   "ninja/bark:battleWin#6"
+  ]
+ },
+ {
+  "zh": "毛都亂了，先理一下喵。",
+  "ctx": [
+   "ninja/bark:battleWin#7"
+  ]
+ },
+ {
+  "zh": "師父應該會誇我吧喵。",
+  "ctx": [
+   "ninja/bark:battleWin#8"
+  ]
+ },
+ {
+  "zh": "打完更餓了喵。",
+  "ctx": [
+   "ninja/bark:battleWin#9"
+  ]
+ },
+ {
+  "zh": "餓得沒力氣了喵……",
+  "ctx": [
+   "ninja/bark:hungry#0"
+  ]
+ },
+ {
+  "zh": "飯糰吃完了喵……",
+  "ctx": [
+   "ninja/bark:hungry#1"
+  ]
+ },
+ {
+  "zh": "好想吃東西喵……",
+  "ctx": [
+   "ninja/bark:hungry#2"
+  ]
+ },
+ {
+  "zh": "好痛喵……",
+  "ctx": [
+   "ninja/bark:lowHp#0"
+  ]
+ },
+ {
+  "zh": "還能再打喵……",
+  "ctx": [
+   "ninja/bark:lowHp#1"
+  ]
+ },
+ {
+  "zh": "先別過來，讓我站穩喵。",
+  "ctx": [
+   "ninja/bark:lowHp#2"
+  ]
+ },
+ {
+  "zh": "紙箱耶，打開看看喵！",
+  "ctx": [
+   "ninja/bark:chest#0"
+  ]
+ },
+ {
+  "zh": "裡面裝了什麼喵？",
+  "ctx": [
+   "ninja/bark:chest#1"
+  ]
+ },
+ {
+  "zh": "這個大小，我剛好鑽得進去喵。",
+  "ctx": [
+   "ninja/bark:chest#2"
+  ]
+ },
+ {
+  "zh": "不會又藏著機關吧喵？",
+  "ctx": [
+   "ninja/bark:chest#3"
+  ]
+ },
+ {
+  "zh": "先打開，再鑽進去喵。",
+  "ctx": [
+   "ninja/bark:chest#4"
+  ]
+ },
+ {
+  "zh": "睡得好舒服，還想再躺一下喵。",
+  "ctx": [
+   "ninja/bark:restNap#0"
+  ]
+ },
+ {
+  "zh": "這墊子真好睡喵。",
+  "ctx": [
+   "ninja/bark:restNap#1"
+  ]
+ },
+ {
+  "zh": "睡飽了，出發喵。",
+  "ctx": [
+   "ninja/bark:restNap#2"
+  ]
+ },
+ {
+  "zh": "哈啊……起床喵。",
+  "ctx": [
+   "ninja/bark:restNap#3"
+  ]
+ },
+ {
+  "zh": "那個香爐一直冒煙，燻得我整晚睡不著喵。",
+  "ctx": [
+   "ninja/bark:restNapRestless#0"
+  ]
+ },
+ {
+  "zh": "爪子磨利了，試起來順手多了喵。",
+  "ctx": [
+   "ninja/bark:restSharpen#0"
+  ]
+ },
+ {
+  "zh": "這下夠利了喵。",
+  "ctx": [
+   "ninja/bark:restSharpen#1"
+  ]
+ },
+ {
+  "zh": "練好了，下次給師父看看喵。",
+  "ctx": [
+   "ninja/bark:restSharpen#2"
+  ]
+ },
+ {
+  "zh": "這招熟練多了喵。",
+  "ctx": [
+   "ninja/bark:restSharpen#3"
+  ]
+ },
+ {
+  "zh": "醒了就好喵。",
+  "ctx": [
+   "ninja/bark:revive#0"
+  ]
+ },
+ {
+  "zh": "嚇死我了，還以為你不起來了喵。",
+  "ctx": [
+   "ninja/bark:revive#1"
+  ]
+ },
+ {
+  "zh": "站穩，等一下換你保護我喵。",
+  "ctx": [
+   "ninja/bark:revive#2"
+  ]
+ },
+ {
+  "zh": "有伏兵跳出來了喵！",
+  "ctx": [
+   "ninja/bark:ambush#0"
+  ]
+ },
+ {
+  "zh": "架勢擺好了，那我出招了喵。",
+  "ctx": [
+   "ninja/firstMeet:white_duelist"
+  ]
+ },
+ {
+  "zh": "牠一直在刨地，看來要衝過來了喵。",
+  "ctx": [
+   "ninja/firstMeet:wild_boar"
+  ]
+ },
+ {
+  "zh": "紙做的也能長刺，不能亂抓喵。",
+  "ctx": [
+   "ninja/firstMeet:paper_tiger"
+  ]
+ },
+ {
+  "zh": "這鼓聲越敲越快，聽得我好緊張喵。",
+  "ctx": [
+   "ninja/firstMeet:drum_tanuki"
+  ]
+ },
+ {
+  "zh": "鐵皮這麼厚，我抓一下試試喵。",
+  "ctx": [
+   "ninja/firstMeet:iron_arhat"
+  ]
+ },
+ {
+  "zh": "蜘蛛絲纏過來了，得把爪子抽開喵。",
+  "ctx": [
+   "ninja/firstMeet:shadow_spider"
+  ]
+ },
+ {
+  "zh": "都醉成這樣了，還能打拳喵？",
+  "ctx": [
+   "ninja/firstMeet:drunk_dog"
+  ]
+ },
+ {
+  "zh": "牠一叫，小鬼就全跑出來了喵。",
+  "ctx": [
+   "ninja/firstMeet:oni_general"
+  ]
+ },
+ {
+  "zh": "別躲在後面，有本事過來喵。",
+  "ctx": [
+   "ninja/firstMeet:imp"
+  ]
+ },
+ {
+  "zh": "這麼多面鏡子，我都快看暈了喵。",
+  "ctx": [
+   "ninja/firstMeet:mirror_sage"
+  ]
+ },
+ {
+  "zh": "碎片還會動，別往我這邊飛喵！",
+  "ctx": [
+   "ninja/firstMeet:mirror_shard"
+  ]
+ },
+ {
+  "zh": "半透明的身體，伸爪過去會不會穿過去喵？",
+  "ctx": [
+   "ninja/firstMeet:void_cat"
+  ]
+ },
+ {
+  "zh": "這團子在動，不能吃喵！",
+  "ctx": [
+   "ninja/firstMeet:dango_slime"
+  ]
+ },
+ {
+  "zh": "怎麼分成兩隻了喵？",
+  "ctx": [
+   "ninja/firstMeet:dango_bit"
+  ]
+ },
+ {
+  "zh": "一下就縮進殼裡，連頭都不露喵。",
+  "ctx": [
+   "ninja/firstMeet:armadillo_pup"
+  ]
+ },
+ {
+  "zh": "飛這麼高，我怎麼抓得到喵？",
+  "ctx": [
+   "ninja/firstMeet:lantern_moth"
+  ]
+ },
+ {
+  "zh": "熊睡在路中間，得把牠叫醒喵。",
+  "ctx": [
+   "ninja/firstMeet:hibernating_bear"
+  ]
+ },
+ {
+  "zh": "越鼓越大，站遠一點比較好喵。",
+  "ctx": [
+   "ninja/firstMeet:puffer_spirit"
+  ]
+ },
+ {
+  "zh": "這殼看起來就很硬，爪子別抓斷了喵。",
+  "ctx": [
+   "ninja/firstMeet:plated_beetle"
+  ]
+ },
+ {
+  "zh": "後面那隻在指揮，先找牠算帳喵。",
+  "ctx": [
+   "ninja/firstMeet:rat_general"
+  ]
+ },
+ {
+  "zh": "還拿著盾牌和長槍，這幾隻不好對付喵。",
+  "ctx": [
+   "ninja/firstMeet:rat_guard"
+  ]
+ },
+ {
+  "zh": "又在唸咒，肯定沒好事喵。",
+  "ctx": [
+   "ninja/firstMeet:curse_priest"
+  ]
+ },
+ {
+  "zh": "牠的身體好透明，差點沒看見喵。",
+  "ctx": [
+   "ninja/firstMeet:phantom_fox"
+  ]
+ },
+ {
+  "zh": "臉都氣紅了，真兇喵。",
+  "ctx": [
+   "ninja/firstMeet:red_oni"
+  ]
+ },
+ {
+  "zh": "鱗粉飛過來了，別吸進鼻子喵。",
+  "ctx": [
+   "ninja/firstMeet:moon_moth_queen"
+  ]
+ },
+ {
+  "zh": "這麼大一隻石頭手，不能硬接喵。",
+  "ctx": [
+   "ninja/firstMeet:jizo_golem"
+  ]
+ },
+ {
+  "zh": "連青蛙都有自己的兵了喵？",
+  "ctx": [
+   "ninja/firstMeet:frog_daimyo"
+  ]
+ },
+ {
+  "zh": "蝌蚪也拿得動武器喵？",
+  "ctx": [
+   "ninja/firstMeet:tadpole"
+  ]
+ },
+ {
+  "zh": "縮成這麼大一顆，連路都堵住了喵。",
+  "ctx": [
+   "ninja/firstMeet:armadillo_king"
+  ]
+ },
+ {
+  "zh": "身上有鱗片，鼻子還冒煙，這是龍喵？",
+  "ctx": [
+   "ninja/firstMeet:dragon_cat"
+  ]
+ },
+ {
+  "zh": "老住持的眼睛也變紫了喵。",
+  "ctx": [
+   "ninja/firstMeet:hex_abbot"
+  ]
+ },
+ {
+  "zh": "這隻狗會用刀喵！",
+  "ctx": [
+   "ninja/firstMeet:shiba_ronin"
+  ]
+ },
+ {
+  "zh": "琴聲怎麼這麼刺耳，耳朵都痛了喵。",
+  "ctx": [
+   "ninja/firstMeet:shamisen_cat"
+  ]
+ },
+ {
+  "zh": "燈籠裡怎麼伸出舌頭了喵！",
+  "ctx": [
+   "ninja/firstMeet:lantern_ghost"
+  ]
+ },
+ {
+  "zh": "叮得我頭都痛了喵。",
+  "ctx": [
+   "ninja/firstMeet:windchime_sprite"
+  ]
+ },
+ {
+  "zh": "小狸貓也要打架喵？",
+  "ctx": [
+   "ninja/firstMeet:tanuki_kid"
+  ]
+ },
+ {
+  "zh": "只有一隻木屐，誰穿的喵？",
+  "ctx": [
+   "ninja/firstMeet:geta_monster"
+  ]
+ },
+ {
+  "zh": "牠從畫裡跑出來了，身上還在滴墨喵。",
+  "ctx": [
+   "ninja/firstMeet:ink_cat"
+  ]
+ },
+ {
+  "zh": "兔子手上那把槌子，比我頭還大喵。",
+  "ctx": [
+   "ninja/firstMeet:moon_rabbit"
+  ]
+ },
+ {
+  "zh": "頭轉到後面去了，還看得見我喵？",
+  "ctx": [
+   "ninja/firstMeet:owl_sentry"
+  ]
+ },
+ {
+  "zh": "紙鶴的翅膀這麼利，要小心喵。",
+  "ctx": [
+   "ninja/firstMeet:paper_crane"
+  ]
+ },
+ {
+  "zh": "那團魔氣裡，好像有張臉喵。",
+  "ctx": [
+   "ninja/firstMeet:miasma_blob"
+  ]
+ },
+ {
+  "zh": "黑成這樣，剛才還以為是影子喵。",
+  "ctx": [
+   "ninja/firstMeet:night_panther"
+  ]
+ },
+ {
+  "zh": "傘自己跳過來了，底下還有腳喵！",
+  "ctx": [
+   "ninja/firstMeet:kasa_obake"
+  ]
+ },
+ {
+  "zh": "河童的頭上真的有個盤子喵。",
+  "ctx": [
+   "ninja/firstMeet:kappa"
+  ]
+ },
+ {
+  "zh": "這豆腐有股怪味，我不吃喵。",
+  "ctx": [
+   "ninja/firstMeet:tofu_boy"
+  ]
+ },
+ {
+  "zh": "扇一下風就這麼大，頭巾都快掉了喵。",
+  "ctx": [
+   "ninja/firstMeet:tengu"
+  ]
+ },
+ {
+  "zh": "白狐狸手裡拿著符，不知道要做什麼喵。",
+  "ctx": [
+   "ninja/firstMeet:fox_miko"
+  ]
+ },
+ {
+  "zh": "盔甲裡空空的，那雙眼睛是哪來的喵？",
+  "ctx": [
+   "ninja/firstMeet:armor_ghost"
+  ]
+ },
+ {
+  "zh": "這影子怎麼長得跟我一樣喵？",
+  "ctx": [
+   "ninja/firstMeet:shadow_cat"
+  ]
+ },
+ {
+  "zh": "鏡子裡的我，怎麼自己跑出來了喵？",
+  "ctx": [
+   "ninja/firstMeet:mirror_qiuqiu"
+  ]
+ },
+ {
+  "zh": "黑貓也來了，你們要兩個一起打喵？",
+  "ctx": [
+   "ninja/firstMeet:sparring_partner"
+  ]
+ },
+ {
+  "zh": "吃得這麼胖，難怪還想搶小魚乾喵。",
+  "ctx": [
+   "ninja/firstMeet:orange_king"
+  ]
+ },
+ {
+  "zh": "這傢伙站起來，比我高好多喵。",
+  "ctx": [
+   "ninja/firstMeet:cowcat_boss"
+  ]
+ },
+ {
+  "zh": "好重的酒味，鼻子受不了喵。",
+  "ctx": [
+   "ninja/firstMeet:tanuki_lord"
+  ]
+ },
+ {
+  "zh": "後面還跟著僕人，難怪這麼神氣喵。",
+  "ctx": [
+   "ninja/firstMeet:persian_lady"
+  ]
+ },
+ {
+  "zh": "這執事把路擋住了，得先過他這關喵。",
+  "ctx": [
+   "ninja/firstMeet:butler_cat"
+  ]
+ },
+ {
+  "zh": "怎麼連女僕也要打喵？",
+  "ctx": [
+   "ninja/firstMeet:maid_cat"
+  ]
+ },
+ {
+  "zh": "偷小魚乾的就是你們喵！",
+  "ctx": [
+   "ninja/firstMeet:rat"
+  ]
+ },
+ {
+  "zh": "毛線球自己滾過來了喵。",
+  "ctx": [
+   "ninja/firstMeet:yarn_ball"
+  ]
+ },
+ {
+  "zh": "醬油流得滿地都是，小心滑倒喵。",
+  "ctx": [
+   "ninja/firstMeet:soy_bottle"
+  ]
+ },
+ {
+  "zh": "紙箱裡長了牙，差點就鑽進去了喵。",
+  "ctx": [
+   "ninja/firstMeet:box_lurker"
+  ]
+ },
+ {
+  "zh": "渾身都是刺，爪子要往哪放喵？",
+  "ctx": [
+   "ninja/firstMeet:hedgehog"
+  ]
+ },
+ {
+  "zh": "罐頭怎麼還會自己補滿喵？",
+  "ctx": [
+   "ninja/firstMeet:can_spirit"
+  ]
+ },
+ {
+  "zh": "爪子好多，別全伸過來喵。",
+  "ctx": [
+   "ninja/firstMeet:five_claw"
+  ]
+ },
+ {
+  "zh": "這隻虎斑睡得真熟喵。",
+  "ctx": [
+   "ninja/firstMeet:dozing_tabby"
+  ]
+ },
+ {
+  "zh": "別偷我的小魚乾喵！",
+  "ctx": [
+   "ninja/firstMeet:chipmunk"
+  ]
+ },
+ {
+  "zh": "又來一隻搶吃的喵！",
+  "ctx": [
+   "ninja/firstMeet:chipmunk_small"
+  ]
+ },
+ {
+  "zh": "我動一下，牠也跟著動喵。",
+  "ctx": [
+   "ninja/firstMeet:mirror_cat"
+  ]
+ },
+ {
+  "zh": "掃把下面全是腳喵？",
+  "ctx": [
+   "ninja/firstMeet:broom_centipede"
+  ]
+ },
+ {
+  "zh": "石獅子真的走下來了喵。",
+  "ctx": [
+   "ninja/firstMeet:stone_lion"
+  ]
+ },
+ {
+  "zh": "這味道聞得我暈暈的喵。",
+  "ctx": [
+   "ninja/firstMeet:catnip_phantom"
+  ]
+ },
+ {
+  "zh": "我不是灰塵喵！",
+  "ctx": [
+   "ninja/firstMeet:roomba_king"
+  ]
+ },
+ {
+  "zh": "別掃我的腳喵。",
+  "ctx": [
+   "ninja/firstMeet:mini_broom"
+  ]
+ },
+ {
+  "zh": "這位師傅的架勢好穩喵。",
+  "ctx": [
+   "ninja/firstMeet:calico_monk"
+  ]
+ },
+ {
+  "zh": "這幾隻看起來一模一樣喵。",
+  "ctx": [
+   "ninja/firstMeet:shadow_kitten_a"
+  ]
+ },
+ {
+  "zh": "三隻全圍過來了喵。",
+  "ctx": [
+   "ninja/firstMeet:shadow_kitten_b"
+  ]
+ },
+ {
+  "zh": "牠一直盯著我，都不動喵。",
+  "ctx": [
+   "ninja/firstMeet:shadow_kitten_c"
+  ]
+ },
+ {
+  "zh": "這木樁比家裡的粗喵。",
+  "ctx": [
+   "ninja/firstMeet:training_post"
+  ]
+ },
+ {
+  "zh": "婆婆怎麼有這麼多條尾巴喵？",
+  "ctx": [
+   "ninja/firstMeet:nekomata"
+  ]
+ },
+ {
+  "zh": "尾巴追過來了喵！",
+  "ctx": [
+   "ninja/firstMeet:nekomata_tail"
+  ]
+ },
+ {
+  "zh": "鐵爪張開了，得躲遠一點喵。",
+  "ctx": [
+   "ninja/firstMeet:iron_claw"
+  ]
+ },
+ {
+  "zh": "黃瓜怎麼自己站起來了喵！",
+  "ctx": [
+   "ninja/firstMeet:cucumber"
+  ]
+ },
+ {
+  "zh": "飯糰也會追著我跑喵？",
+  "ctx": [
+   "ninja/firstMeet:onigiri_monster"
+  ]
+ },
+ {
+  "zh": "跟練功用的木樁一樣，怎麼還會自己走喵？",
+  "ctx": [
+   "ninja/firstMeet:wood_dummy"
+  ]
+ },
+ {
+  "zh": "羊也跑進塔裡了喵？",
+  "ctx": [
+   "ninja/firstMeet:goat"
+  ]
+ },
+ {
+  "zh": "吸塵器又開了，好吵喵！",
+  "ctx": [
+   "ninja/firstMeet:vacuum"
+  ]
+ },
+ {
+  "zh": "忍者也替這座塔守門喵？",
+  "ctx": [
+   "ninja/firstMeet:black_ninja"
+  ]
+ },
+ {
+  "zh": "來，接我一爪喵！",
+  "ctx": [
+   "ninja/firstMeet:orange_bandit"
+  ]
+ },
+ {
+  "zh": "別朝我吐喵！",
+  "ctx": [
+   "ninja/firstMeet:catgrass_bug"
+  ]
+ },
+ {
+  "zh": "稻草人拿著武器，還真的在守門喵。",
+  "ctx": [
+   "ninja/firstMeet:scarecrow"
+  ]
+ },
+ {
+  "zh": "這隻出手好快喵！",
+  "ctx": [
+   "ninja/firstMeet:black_ninja_elite"
+  ]
+ },
+ {
+  "zh": "這根黃瓜也太大了喵！",
+  "ctx": [
+   "ninja/firstMeet:big_cucumber"
+  ]
+ },
+ {
+  "zh": "你就是這群忍者的頭目喵？",
+  "ctx": [
+   "ninja/firstMeet:ninja_boss"
+  ]
+ },
+ {
+  "zh": "這麼大的飯糰，得吃多久喵？",
+  "ctx": [
+   "ninja/firstMeet:giant_onigiri"
+  ]
+ },
+ {
+  "zh": "小黑貓也要攔我喵？",
+  "ctx": [
+   "ninja/firstMeet:black_kitten"
+  ]
+ },
+ {
+  "zh": "師父，我來找你了喵！",
+  "ctx": [
+   "ninja/firstMeet:tower_master"
+  ]
+ },
+ {
+  "zh": "好冷，鼻子都凍僵了喵。",
+  "ctx": [
+   "ninja/firstMeet:snow_cat"
+  ]
+ },
+ {
+  "zh": "別招了，小魚乾不會給你的喵。",
+  "ctx": [
+   "ninja/firstMeet:fortune_cat"
+  ]
+ },
+ {
+  "zh": "燈後面那張嘴好大，差點沒注意到喵。",
+  "ctx": [
+   "ninja/firstMeet:lantern_fish"
+  ]
+ },
+ {
+  "zh": "後面有隻貓在拉線，是牠讓傀儡動的喵。",
+  "ctx": [
+   "ninja/firstMeet:puppeteer"
+  ]
+ },
+ {
+  "zh": "木頭手還會揮拳喵！",
+  "ctx": [
+   "ninja/firstMeet:puppet"
+  ]
+ },
+ {
+  "zh": "還在喝，你到底帶了多少酒喵？",
+  "ctx": [
+   "ninja/firstMeet:shuten_imp"
+  ]
+ },
+ {
+  "zh": "一盞亮，另一盞也跟著亮了喵。",
+  "ctx": [
+   "ninja/firstMeet:lantern_twin_a"
+  ]
+ },
+ {
+  "zh": "兩盞都得弄熄喵。",
+  "ctx": [
+   "ninja/firstMeet:lantern_twin_b"
+  ]
+ },
+ {
+  "zh": "烏鴉太多了喵！",
+  "ctx": [
+   "ninja/firstMeet:miasma_crows"
+  ]
+ },
+ {
+  "zh": "散開了還在追我喵！",
+  "ctx": [
+   "ninja/firstMeet:crow_small"
+  ]
+ },
+ {
+  "zh": "盔甲裡明明沒人，聲音從哪裡來的喵？",
+  "ctx": [
+   "ninja/firstMeet:wraith_samurai"
+  ]
+ },
+ {
+  "zh": "兩張嘴，別一起咬喵！",
+  "ctx": [
+   "ninja/firstMeet:twin_hound"
+  ]
+ },
+ {
+  "zh": "連石像都來擋路，要怎麼過去喵？",
+  "ctx": [
+   "ninja/firstMeet:guardian_statue"
+  ]
+ },
+ {
+  "zh": "面具一換，招式就跟著變了喵。",
+  "ctx": [
+   "ninja/firstMeet:mask_dancer"
+  ]
+ },
+ {
+  "zh": "師妹？快退回去，師父誰都不認得了喵！",
+  "ctx": [
+   "feifei/topScene#2"
+  ]
+ },
+ {
+  "zh": "對不起喵。扶手上那幾條藍線……不算留消息喵？",
+  "ctx": [
+   "feifei/victory#2"
+  ]
+ },
+ {
+  "zh": "這次不是從你補的地方斷的喵。",
+  "ctx": [
+   "dangdang/prologue#1"
+  ]
+ },
+ {
+  "zh": "噹噹？你怎麼也上來了喵？",
+  "ctx": [
+   "dangdang/topScene#1"
+  ]
+ },
+ {
+  "zh": "封封，別傷到師父喵！",
+  "ctx": [
+   "fengfeng/topScene#1"
+  ]
+ }
+]

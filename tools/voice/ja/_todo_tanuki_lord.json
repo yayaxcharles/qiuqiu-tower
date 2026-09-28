@@ -1,0 +1,62 @@
+[
+ {
+  "zh": "呵呵，小兄弟，何必急著動手？先陪老夫喝一杯吧。",
+  "ctx": [
+   "ninja/bossIntro:tanuki_lord#0",
+   "dangdang/bossIntro:tanuki_lord#0",
+   "fengfeng/bossIntro:tanuki_lord#0"
+  ]
+ },
+ {
+  "zh": "你師父？呵，上面那位灌的可不是酒，是魔氣。喝了就再也想不起自己是誰。",
+  "ctx": [
+   "ninja/bossIntro:tanuki_lord#2",
+   "feifei/bossIntro:tanuki_lord#2"
+  ]
+ },
+ {
+  "zh": "看仔細了——變！",
+  "ctx": [
+   "ninja/bossPhase2:tanuki_lord#1",
+   "feifei/bossPhase2:tanuki_lord#1",
+   "dangdang/bossPhase2:tanuki_lord#1",
+   "fengfeng/bossPhase2:tanuki_lord#1"
+  ]
+ },
+ {
+  "zh": "呵呵……老夫本想騙你一杯酒的。",
+  "ctx": [
+   "ninja/bossDefeat:tanuki_lord#0",
+   "feifei/bossDefeat:tanuki_lord#0",
+   "dangdang/bossDefeat:tanuki_lord#0",
+   "fengfeng/bossDefeat:tanuki_lord#0"
+  ]
+ },
+ {
+  "zh": "上面那位喝的不是酒，是魔氣。喝了就想不起自己是誰。小兄弟，你上去可要記得叫醒他。",
+  "ctx": [
+   "ninja/bossDefeat:tanuki_lord#1",
+   "dangdang/bossDefeat:tanuki_lord#1",
+   "fengfeng/bossDefeat:tanuki_lord#1"
+  ]
+ },
+ {
+  "zh": "呵呵，小姑娘，坐下喘口氣。酒都倒好了，何必急著走呢？",
+  "ctx": [
+   "feifei/bossIntro:tanuki_lord#0"
+  ]
+ },
+ {
+  "zh": "上面那位已經快忘了自己是誰。小姑娘，到了上面，好好叫叫他；也許他還記得你的聲音。",
+  "ctx": [
+   "feifei/bossDefeat:tanuki_lord#1"
+  ]
+ },
+ {
+  "zh": "大俠貓？呵，上面那位灌的可不是酒，是魔氣。喝了就再也想不起自己是誰。",
+  "ctx": [
+   "dangdang/bossIntro:tanuki_lord#2",
+   "fengfeng/bossIntro:tanuki_lord#2"
+  ]
+ }
+]

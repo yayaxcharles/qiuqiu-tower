@@ -1,0 +1,1478 @@
+[
+ {
+  "zh": "我看見了，你把另一頭也打斷了。東西都放著，你們吃過飯再來拿。",
+  "ctx": [
+   "dangdang/prologue#2"
+  ]
+ },
+ {
+  "zh": "你要去找球球？外面的木橋缺了一塊，從左邊走。",
+  "ctx": [
+   "dangdang/prologue#5"
+  ]
+ },
+ {
+  "zh": "球球，菲菲，我來了。",
+  "ctx": [
+   "dangdang/prologue#8"
+  ]
+ },
+ {
+  "zh": "這些果然被搬到塔裡了。",
+  "ctx": [
+   "dangdang/actClear1#1"
+  ]
+ },
+ {
+  "zh": "是菲菲帶的藥。她應該沒走遠。",
+  "ctx": [
+   "dangdang/actClear1#3"
+  ]
+ },
+ {
+  "zh": "大俠貓！是我，噹噹！",
+  "ctx": [
+   "dangdang/actClear2#1"
+  ]
+ },
+ {
+  "zh": "他在上面。",
+  "ctx": [
+   "dangdang/actClear2#3"
+  ]
+ },
+ {
+  "zh": "我來了。門補好了，換村貓守。",
+  "ctx": [
+   "dangdang/topScene#2"
+  ]
+ },
+ {
+  "zh": "扶他到門邊坐好。我站穩了，這一掌我接。",
+  "ctx": [
+   "dangdang/topScene#4"
+  ]
+ },
+ {
+  "zh": "糟了……手抬不起來。",
+  "ctx": [
+   "dangdang/defeat#1"
+  ]
+ },
+ {
+  "zh": "有他們的消息，就叫我。",
+  "ctx": [
+   "dangdang/defeat#3"
+  ]
+ },
+ {
+  "zh": "您再打下去，我這對護臂就得重做了。",
+  "ctx": [
+   "dangdang/victory#1"
+  ]
+ },
+ {
+  "zh": "你們先過去。……等我一下，腿有點軟。",
+  "ctx": [
+   "dangdang/victory#3"
+  ]
+ },
+ {
+  "zh": "門閂還差一根釘子，我吃完就補。……那鍋還有嗎？",
+  "ctx": [
+   "dangdang/victory#6"
+  ]
+ },
+ {
+  "zh": "回去先補門閂，再把護臂重做一對。",
+  "ctx": [
+   "dangdang/result:victoryTeaser"
+  ]
+ },
+ {
+  "zh": "這是大俠貓的字。球球拿來的秘笈，也是這樣寫的。",
+  "ctx": [
+   "dangdang/secretScroll#1"
+  ]
+ },
+ {
+  "zh": "書頁都折到了。他是一路帶著這本書上來的？",
+  "ctx": [
+   "dangdang/secretScroll#2"
+  ]
+ },
+ {
+  "zh": "我知道他變了。總得有人把他帶回去。",
+  "ctx": [
+   "dangdang/afterFirstElite#1"
+  ]
+ },
+ {
+  "zh": "守樓梯的就在上面，今晚先在這裡休息。",
+  "ctx": [
+   "dangdang/restBeforeBoss1#0"
+  ]
+ },
+ {
+  "zh": "把護臂卸下來，手指都快彎不動了。",
+  "ctx": [
+   "dangdang/restBeforeBoss1#1"
+  ]
+ },
+ {
+  "zh": "睡一覺，還是把接招的動作再練一遍？",
+  "ctx": [
+   "dangdang/restBeforeBoss1#2"
+  ]
+ },
+ {
+  "zh": "這股氣味越來越重，喉嚨都發乾了。",
+  "ctx": [
+   "dangdang/restBeforeBoss2#0"
+  ]
+ },
+ {
+  "zh": "剛才那聲音，是大俠貓吧？",
+  "ctx": [
+   "dangdang/restBeforeBoss2#1"
+  ]
+ },
+ {
+  "zh": "上樓以前，得先讓手臂休息一下。",
+  "ctx": [
+   "dangdang/restBeforeBoss2#2"
+  ]
+ },
+ {
+  "zh": "再上去，就是大俠貓了。",
+  "ctx": [
+   "dangdang/restBeforeBoss3#0"
+  ]
+ },
+ {
+  "zh": "上次他一掌推過來，我連退三步。",
+  "ctx": [
+   "dangdang/restBeforeBoss3#1"
+  ]
+ },
+ {
+  "zh": "這次不是練習，他不會收力。",
+  "ctx": [
+   "dangdang/restBeforeBoss3#2"
+  ]
+ },
+ {
+  "zh": "扣帶綁緊一點，明天得接住他那一掌。",
+  "ctx": [
+   "dangdang/restBeforeBoss3#3"
+  ]
+ },
+ {
+  "zh": "大俠貓，是我。村口修鍋的噹噹。",
+  "ctx": [
+   "dangdang/bossIntro:tower_master#1"
+  ]
+ },
+ {
+  "zh": "要回去，我陪您。先把手放下，好嗎？",
+  "ctx": [
+   "dangdang/bossIntro:tower_master#3"
+  ]
+ },
+ {
+  "zh": "大俠貓！以前站不穩、讓您扶起來的那個，就是我！",
+  "ctx": [
+   "dangdang/bossPhase2:tower_master#1"
+  ]
+ },
+ {
+  "zh": "您的手都在流血，別再使勁了！",
+  "ctx": [
+   "dangdang/bossPhase3:tower_master#1"
+  ]
+ },
+ {
+  "zh": "婆婆，我來接大俠貓。村裡還有人在等他。",
+  "ctx": [
+   "dangdang/bossIntro:nekomata#1"
+  ]
+ },
+ {
+  "zh": "婆婆，那我得站遠點了。",
+  "ctx": [
+   "dangdang/bossPhase2:nekomata#1"
+  ]
+ },
+ {
+  "zh": "謝謝婆婆。我上去找他。",
+  "ctx": [
+   "dangdang/bossDefeat:nekomata#2"
+  ]
+ },
+ {
+  "zh": "那團紫光，跟大俠貓眼裡的一樣。",
+  "ctx": [
+   "dangdang/bossIntro:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "你不讓開，那我只好把你拆了。",
+  "ctx": [
+   "dangdang/bossIntro:iron_claw#2"
+  ]
+ },
+ {
+  "zh": "爪子燒紅了，不能貼著接！",
+  "ctx": [
+   "dangdang/bossPhase2:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "紫光散了。大俠貓身上的那團，也弄得掉。",
+  "ctx": [
+   "dangdang/bossDefeat:iron_claw#1"
+  ]
+ },
+ {
+  "zh": "後面那些是村裡的糧食。你跟塔頂那位是一夥的？",
+  "ctx": [
+   "dangdang/bossIntro:orange_king#1"
+  ]
+ },
+ {
+  "zh": "那就讓路，糧食也放回來。",
+  "ctx": [
+   "dangdang/bossIntro:orange_king#3"
+  ]
+ },
+ {
+  "zh": "要滾過來了！往旁邊閃！",
+  "ctx": [
+   "dangdang/bossPhase2:orange_king#1"
+  ]
+ },
+ {
+  "zh": "桶子放著，我回來搬。別再拿了。",
+  "ctx": [
+   "dangdang/bossDefeat:orange_king#2"
+  ]
+ },
+ {
+  "zh": "你是二當家，誰是大當家？",
+  "ctx": [
+   "dangdang/bossIntro:cowcat_boss#1"
+  ]
+ },
+ {
+  "zh": "那是大俠貓。他平常不會讓人堵路收東西。",
+  "ctx": [
+   "dangdang/bossIntro:cowcat_boss#3"
+  ]
+ },
+ {
+  "zh": "換成白爪，出手的方向也變了。",
+  "ctx": [
+   "dangdang/bossPhase2:cowcat_boss#1"
+  ]
+ },
+ {
+  "zh": "他以前陪我們練功，誰摔倒了，他都會伸手扶一把。",
+  "ctx": [
+   "dangdang/bossDefeat:cowcat_boss#2"
+  ]
+ },
+ {
+  "zh": "不喝。我來找大俠貓，你知道他在哪裡嗎？",
+  "ctx": [
+   "dangdang/bossIntro:tanuki_lord#1"
+  ]
+ },
+ {
+  "zh": "煙散了，人反而更多。哪隻是真的？",
+  "ctx": [
+   "dangdang/bossPhase2:tanuki_lord#2"
+  ]
+ },
+ {
+  "zh": "我踩髒的地方，回來再擦。現在得上樓。",
+  "ctx": [
+   "dangdang/bossIntro:persian_lady#1"
+  ]
+ },
+ {
+  "zh": "妳也往前站，別光叫他們上。",
+  "ctx": [
+   "dangdang/bossPhase2:persian_lady#1"
+  ]
+ },
+ {
+  "zh": "借過。我只走樓梯，不進你的池子。",
+  "ctx": [
+   "dangdang/bossIntro:frog_daimyo#1"
+  ]
+ },
+ {
+  "zh": "小兵從旁邊來了，別讓牠們繞到後面。",
+  "ctx": [
+   "dangdang/bossPhase2:frog_daimyo#1"
+  ]
+ },
+ {
+  "zh": "殼上這些傷，你也遇到塔裡的魔物了？",
+  "ctx": [
+   "dangdang/bossIntro:armadillo_king#1"
+  ]
+ },
+ {
+  "zh": "我從旁邊過。能不能挪開一點？",
+  "ctx": [
+   "dangdang/bossIntro:armadillo_king#2"
+  ]
+ },
+ {
+  "zh": "剛才打痛你了，對不住。謝謝你讓路。",
+  "ctx": [
+   "dangdang/bossDefeat:armadillo_king#1"
+  ]
+ },
+ {
+  "zh": "醒一醒，你壓住樓梯了。",
+  "ctx": [
+   "dangdang/bossIntro:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "終於睜眼了。這下得小心。",
+  "ctx": [
+   "dangdang/bossPhase2:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "路空出來了。好，你接著睡。",
+  "ctx": [
+   "dangdang/bossDefeat:dragon_cat#1"
+  ]
+ },
+ {
+  "zh": "我沒有殺誰。我是來接大俠貓回去的。",
+  "ctx": [
+   "dangdang/bossIntro:hex_abbot#1"
+  ]
+ },
+ {
+  "zh": "鱗甲還在長，魔氣沒停。",
+  "ctx": [
+   "dangdang/bossPhase2:hex_abbot#1"
+  ]
+ },
+ {
+  "zh": "他的兩個徒弟都在找他。我這就上去。",
+  "ctx": [
+   "dangdang/bossDefeat:hex_abbot#3"
+  ]
+ },
+ {
+  "zh": "架勢換了，不能照剛才那樣接。",
+  "ctx": [
+   "dangdang/bossPhase2Generic#1"
+  ]
+ },
+ {
+  "zh": "魔氣又湧上來了……我還得撐住。",
+  "ctx": [
+   "dangdang/bossPhase3Generic#1"
+  ]
+ },
+ {
+  "zh": "你不讓路，那就動手。",
+  "ctx": [
+   "dangdang/bark:battleStart#0"
+  ]
+ },
+ {
+  "zh": "等一下，先讓我站穩。",
+  "ctx": [
+   "dangdang/bark:battleStart#1"
+  ]
+ },
+ {
+  "zh": "我看見你了，出來吧。",
+  "ctx": [
+   "dangdang/bark:battleStart#2"
+  ]
+ },
+ {
+  "zh": "離樓梯遠點，別把路打塌了。",
+  "ctx": [
+   "dangdang/bark:battleStart#3"
+  ]
+ },
+ {
+  "zh": "要從正面來？好。",
+  "ctx": [
+   "dangdang/bark:battleStart#4"
+  ]
+ },
+ {
+  "zh": "工具先收好，免得灑一地。",
+  "ctx": [
+   "dangdang/bark:battleStart#5"
+  ]
+ },
+ {
+  "zh": "手伸得這麼長，倒挺敢的。",
+  "ctx": [
+   "dangdang/bark:battleStart#6"
+  ]
+ },
+ {
+  "zh": "護臂扣好了。來吧。",
+  "ctx": [
+   "dangdang/bark:battleStart#7"
+  ]
+ },
+ {
+  "zh": "別往我背後繞。",
+  "ctx": [
+   "dangdang/bark:battleStart#8"
+  ]
+ },
+ {
+  "zh": "你先把那東西放下！",
+  "ctx": [
+   "dangdang/bark:battleStart#9"
+  ]
+ },
+ {
+  "zh": "站在那裡等我？等很久了吧。",
+  "ctx": [
+   "dangdang/bark:battleStart#10"
+  ]
+ },
+ {
+  "zh": "這地方有點窄，我得挪一步。",
+  "ctx": [
+   "dangdang/bark:battleStart#11"
+  ]
+ },
+ {
+  "zh": "先過你這一關。",
+  "ctx": [
+   "dangdang/bark:battleStart#12"
+  ]
+ },
+ {
+  "zh": "我可沒帶東西給你搶。",
+  "ctx": [
+   "dangdang/bark:battleStart#13"
+  ]
+ },
+ {
+  "zh": "打完了。看看樓梯在哪裡。",
+  "ctx": [
+   "dangdang/bark:battleWin#0"
+  ]
+ },
+ {
+  "zh": "剛才那一下，震得我手指發麻。",
+  "ctx": [
+   "dangdang/bark:battleWin#1"
+  ]
+ },
+ {
+  "zh": "扣帶還在，沒有鬆。",
+  "ctx": [
+   "dangdang/bark:battleWin#2"
+  ]
+ },
+ {
+  "zh": "呼，總算能把手放下了。",
+  "ctx": [
+   "dangdang/bark:battleWin#3"
+  ]
+ },
+ {
+  "zh": "先把袖子拉好。",
+  "ctx": [
+   "dangdang/bark:battleWin#4"
+  ]
+ },
+ {
+  "zh": "護臂又多一道痕。",
+  "ctx": [
+   "dangdang/bark:battleWin#5"
+  ]
+ },
+ {
+  "zh": "工具袋沒破吧……還好。",
+  "ctx": [
+   "dangdang/bark:battleWin#6"
+  ]
+ },
+ {
+  "zh": "坐一下，腿有點痠。",
+  "ctx": [
+   "dangdang/bark:battleWin#7"
+  ]
+ },
+ {
+  "zh": "這裡灰真多，毛都變色了。",
+  "ctx": [
+   "dangdang/bark:battleWin#8"
+  ]
+ },
+ {
+  "zh": "耳朵裡還嗡嗡響。",
+  "ctx": [
+   "dangdang/bark:battleWin#9"
+  ]
+ },
+ {
+  "zh": "路空出來了。",
+  "ctx": [
+   "dangdang/bark:battleWin#10"
+  ]
+ },
+ {
+  "zh": "先喘口氣。",
+  "ctx": [
+   "dangdang/bark:battleWin#11"
+  ]
+ },
+ {
+  "zh": "尾巴沒事，差點被踩到。",
+  "ctx": [
+   "dangdang/bark:battleWin#12"
+  ]
+ },
+ {
+  "zh": "銅面擦一擦，髒得看不清了。",
+  "ctx": [
+   "dangdang/bark:battleWin#13"
+  ]
+ },
+ {
+  "zh": "腳底全是沙。",
+  "ctx": [
+   "dangdang/bark:battleWin#14"
+  ]
+ },
+ {
+  "zh": "把東西拿好，繼續走。",
+  "ctx": [
+   "dangdang/bark:battleWin#15"
+  ]
+ },
+ {
+  "zh": "飯糰不夠，這招使不出來。",
+  "ctx": [
+   "dangdang/bark:hungry#0"
+  ]
+ },
+ {
+  "zh": "先省著點力氣。",
+  "ctx": [
+   "dangdang/bark:hungry#1"
+  ]
+ },
+ {
+  "zh": "肚子在叫了。",
+  "ctx": [
+   "dangdang/bark:hungry#2"
+  ]
+ },
+ {
+  "zh": "剩下這點，得算著用。",
+  "ctx": [
+   "dangdang/bark:hungry#3"
+  ]
+ },
+ {
+  "zh": "空著肚子，手都抬不久。",
+  "ctx": [
+   "dangdang/bark:hungry#4"
+  ]
+ },
+ {
+  "zh": "飯糰再多一點就好了。",
+  "ctx": [
+   "dangdang/bark:hungry#5"
+  ]
+ },
+ {
+  "zh": "這一下太費力，現在不行。",
+  "ctx": [
+   "dangdang/bark:hungry#6"
+  ]
+ },
+ {
+  "zh": "想吃口熱的……等打完吧。",
+  "ctx": [
+   "dangdang/bark:hungry#7"
+  ]
+ },
+ {
+  "zh": "這一下真痛……",
+  "ctx": [
+   "dangdang/bark:lowHp#0"
+  ]
+ },
+ {
+  "zh": "手別抖，先抬起來。",
+  "ctx": [
+   "dangdang/bark:lowHp#1"
+  ]
+ },
+ {
+  "zh": "腿快撐不住了。",
+  "ctx": [
+   "dangdang/bark:lowHp#2"
+  ]
+ },
+ {
+  "zh": "得先處理傷口。",
+  "ctx": [
+   "dangdang/bark:lowHp#3"
+  ]
+ },
+ {
+  "zh": "眼前有點花，扶一下。",
+  "ctx": [
+   "dangdang/bark:lowHp#4"
+  ]
+ },
+ {
+  "zh": "不能再挨了。",
+  "ctx": [
+   "dangdang/bark:lowHp#5"
+  ]
+ },
+ {
+  "zh": "呼……還能站。",
+  "ctx": [
+   "dangdang/bark:lowHp#6"
+  ]
+ },
+ {
+  "zh": "護臂好重，快抬不動了。",
+  "ctx": [
+   "dangdang/bark:lowHp#7"
+  ]
+ },
+ {
+  "zh": "箱蓋沒釘死，能打開。",
+  "ctx": [
+   "dangdang/bark:chest#0"
+  ]
+ },
+ {
+  "zh": "我先看看裡面。",
+  "ctx": [
+   "dangdang/bark:chest#1"
+  ]
+ },
+ {
+  "zh": "這箱角包得挺牢。",
+  "ctx": [
+   "dangdang/bark:chest#2"
+  ]
+ },
+ {
+  "zh": "該不會是裝石頭的吧。",
+  "ctx": [
+   "dangdang/bark:chest#3"
+  ]
+ },
+ {
+  "zh": "蓋子有點卡，從這邊掀。",
+  "ctx": [
+   "dangdang/bark:chest#4"
+  ]
+ },
+ {
+  "zh": "裡頭沒聲音。打開看看。",
+  "ctx": [
+   "dangdang/bark:chest#5"
+  ]
+ },
+ {
+  "zh": "肩膀不那麼緊了。",
+  "ctx": [
+   "dangdang/bark:restNap#0"
+  ]
+ },
+ {
+  "zh": "睡著的時候，手還緊緊握著。",
+  "ctx": [
+   "dangdang/bark:restNap#1"
+  ]
+ },
+ {
+  "zh": "這墊子挺厚。",
+  "ctx": [
+   "dangdang/bark:restNap#2"
+  ]
+ },
+ {
+  "zh": "剛才壓到尾巴了……",
+  "ctx": [
+   "dangdang/bark:restNap#3"
+  ]
+ },
+ {
+  "zh": "把護臂戴回去，走吧。",
+  "ctx": [
+   "dangdang/bark:restNap#4"
+  ]
+ },
+ {
+  "zh": "睡過一覺，眼睛總算睜得開。",
+  "ctx": [
+   "dangdang/bark:restNap#5"
+  ]
+ },
+ {
+  "zh": "香爐還在冒煙。躺了半天，一點都沒睡著。",
+  "ctx": [
+   "dangdang/bark:restNapRestless#0"
+  ]
+ },
+ {
+  "zh": "剛才是腳站太窄了。",
+  "ctx": [
+   "dangdang/bark:restSharpen#0"
+  ]
+ },
+ {
+  "zh": "換這個角度，接起來順多了。",
+  "ctx": [
+   "dangdang/bark:restSharpen#1"
+  ]
+ },
+ {
+  "zh": "收手要跟上。再來就不會卡了。",
+  "ctx": [
+   "dangdang/bark:restSharpen#2"
+  ]
+ },
+ {
+  "zh": "這一下總算做對了。",
+  "ctx": [
+   "dangdang/bark:restSharpen#3"
+  ]
+ },
+ {
+  "zh": "原來不用抬那麼高。",
+  "ctx": [
+   "dangdang/bark:restSharpen#4"
+  ]
+ },
+ {
+  "zh": "練好了，記住這個位置。",
+  "ctx": [
+   "dangdang/bark:restSharpen#5"
+  ]
+ },
+ {
+  "zh": "醒了？先坐好。",
+  "ctx": [
+   "dangdang/bark:revive#0"
+  ]
+ },
+ {
+  "zh": "手搭過來，我扶你。",
+  "ctx": [
+   "dangdang/bark:revive#1"
+  ]
+ },
+ {
+  "zh": "看著我。認得我是誰吧？",
+  "ctx": [
+   "dangdang/bark:revive#2"
+  ]
+ },
+ {
+  "zh": "有伏兵跳出來了！",
+  "ctx": [
+   "dangdang/bark:ambush#0"
+  ]
+ },
+ {
+  "zh": "要切磋可以，先把路邊的東西挪開。",
+  "ctx": [
+   "dangdang/firstMeet:white_duelist"
+  ]
+ },
+ {
+  "zh": "刨夠了？我可不會站著讓你撞。",
+  "ctx": [
+   "dangdang/firstMeet:wild_boar"
+  ]
+ },
+ {
+  "zh": "紙邊也能割傷手，不能直接抓。",
+  "ctx": [
+   "dangdang/firstMeet:paper_tiger"
+  ]
+ },
+ {
+  "zh": "敲得這麼急，你自己跟得上嗎？",
+  "ctx": [
+   "dangdang/firstMeet:drum_tanuki"
+  ]
+ },
+ {
+  "zh": "這層鐵皮敲下去，手都要麻了。",
+  "ctx": [
+   "dangdang/firstMeet:iron_arhat"
+  ]
+ },
+ {
+  "zh": "絲別纏到扣帶上，等一下解不開。",
+  "ctx": [
+   "dangdang/firstMeet:shadow_spider"
+  ]
+ },
+ {
+  "zh": "腳步都歪了，拳頭倒還挺準。",
+  "ctx": [
+   "dangdang/firstMeet:drunk_dog"
+  ]
+ },
+ {
+  "zh": "原來是你在叫牠們。",
+  "ctx": [
+   "dangdang/firstMeet:oni_general"
+  ]
+ },
+ {
+  "zh": "藏那麼遠，還扔得到？",
+  "ctx": [
+   "dangdang/firstMeet:imp"
+  ]
+ },
+ {
+  "zh": "先別晃鏡子，我看得見你。",
+  "ctx": [
+   "dangdang/firstMeet:mirror_sage"
+  ]
+ },
+ {
+  "zh": "碎片飛過來了，護住眼睛！",
+  "ctx": [
+   "dangdang/firstMeet:mirror_shard"
+  ]
+ },
+ {
+  "zh": "牠的身子都透光了……打得到嗎？",
+  "ctx": [
+   "dangdang/firstMeet:void_cat"
+  ]
+ },
+ {
+  "zh": "剛才誰把會動的東西擺上盤子？",
+  "ctx": [
+   "dangdang/firstMeet:dango_slime"
+  ]
+ },
+ {
+  "zh": "分開以後還會追人？",
+  "ctx": [
+   "dangdang/firstMeet:dango_bit"
+  ]
+ },
+ {
+  "zh": "頭縮得真快。連腳都收進去了。",
+  "ctx": [
+   "dangdang/firstMeet:armadillo_pup"
+  ]
+ },
+ {
+  "zh": "下來一點。一直仰頭，脖子都痠了。",
+  "ctx": [
+   "dangdang/firstMeet:lantern_moth"
+  ]
+ },
+ {
+  "zh": "這麼大的熊，我可搬不動。",
+  "ctx": [
+   "dangdang/firstMeet:hibernating_bear"
+  ]
+ },
+ {
+  "zh": "還在鼓？我再退兩步。",
+  "ctx": [
+   "dangdang/firstMeet:puffer_spirit"
+  ]
+ },
+ {
+  "zh": "這殼比護臂還厚。",
+  "ctx": [
+   "dangdang/firstMeet:plated_beetle"
+  ]
+ },
+ {
+  "zh": "前面排得整整齊齊，後面還有人指揮。",
+  "ctx": [
+   "dangdang/firstMeet:rat_general"
+  ]
+ },
+ {
+  "zh": "槍尖別亂晃，眼睛差點被你戳到。",
+  "ctx": [
+   "dangdang/firstMeet:rat_guard"
+  ]
+ },
+ {
+  "zh": "你嘴裡在唸什麼？聽了就不舒服。",
+  "ctx": [
+   "dangdang/firstMeet:curse_priest"
+  ]
+ },
+ {
+  "zh": "等一下，剛才牠還在那邊。",
+  "ctx": [
+   "dangdang/firstMeet:phantom_fox"
+  ]
+ },
+ {
+  "zh": "握那麼緊，手指不會痛嗎？",
+  "ctx": [
+   "dangdang/firstMeet:red_oni"
+  ]
+ },
+ {
+  "zh": "這些粉別沾到臉上。",
+  "ctx": [
+   "dangdang/firstMeet:moon_moth_queen"
+  ]
+ },
+ {
+  "zh": "石頭手掌……這一下不能硬吃。",
+  "ctx": [
+   "dangdang/firstMeet:jizo_golem"
+  ]
+ },
+ {
+  "zh": "池子也是你的，樓梯也是你的？",
+  "ctx": [
+   "dangdang/firstMeet:frog_daimyo"
+  ]
+ },
+ {
+  "zh": "這些小兵連武器都快舉不住了。",
+  "ctx": [
+   "dangdang/firstMeet:tadpole"
+  ]
+ },
+ {
+  "zh": "整條路都被殼堵住了。",
+  "ctx": [
+   "dangdang/firstMeet:armadillo_king"
+  ]
+ },
+ {
+  "zh": "鼻子冒煙了。牠睡著也這麼燙？",
+  "ctx": [
+   "dangdang/firstMeet:dragon_cat"
+  ]
+ },
+ {
+  "zh": "眼睛都紫了，您還認得人嗎？",
+  "ctx": [
+   "dangdang/firstMeet:hex_abbot"
+  ]
+ },
+ {
+  "zh": "刀先收回去，話還沒說完。",
+  "ctx": [
+   "dangdang/firstMeet:shiba_ronin"
+  ]
+ },
+ {
+  "zh": "弦沒斷，我耳朵倒快受不了了。",
+  "ctx": [
+   "dangdang/firstMeet:shamisen_cat"
+  ]
+ },
+ {
+  "zh": "燈籠也有舌頭？難怪一直漏風。",
+  "ctx": [
+   "dangdang/firstMeet:lantern_ghost"
+  ]
+ },
+ {
+  "zh": "這聲音……靠這麼近，真受不了。",
+  "ctx": [
+   "dangdang/firstMeet:windchime_sprite"
+  ]
+ },
+ {
+  "zh": "這麼小就出來攔路，誰叫你來的？",
+  "ctx": [
+   "dangdang/firstMeet:tanuki_kid"
+  ]
+ },
+ {
+  "zh": "少了一隻還跳得這麼快？",
+  "ctx": [
+   "dangdang/firstMeet:geta_monster"
+  ]
+ },
+ {
+  "zh": "墨還在滴。腳下全黑了。",
+  "ctx": [
+   "dangdang/firstMeet:ink_cat"
+  ]
+ },
+ {
+  "zh": "你拿那把槌子，是來搗東西還是打架？",
+  "ctx": [
+   "dangdang/firstMeet:moon_rabbit"
+  ]
+ },
+ {
+  "zh": "頭轉到後面，身子不用跟著轉？",
+  "ctx": [
+   "dangdang/firstMeet:owl_sentry"
+  ]
+ },
+ {
+  "zh": "紙折得這麼薄，邊緣跟刀一樣利。",
+  "ctx": [
+   "dangdang/firstMeet:paper_crane"
+  ]
+ },
+ {
+  "zh": "裡面那張臉，是活的嗎？",
+  "ctx": [
+   "dangdang/firstMeet:miasma_blob"
+  ]
+ },
+ {
+  "zh": "站在暗處，我差點撞上你。",
+  "ctx": [
+   "dangdang/firstMeet:night_panther"
+  ]
+ },
+ {
+  "zh": "一條腿也站得這麼穩？",
+  "ctx": [
+   "dangdang/firstMeet:kasa_obake"
+  ]
+ },
+ {
+  "zh": "頭上的水快灑出來了。",
+  "ctx": [
+   "dangdang/firstMeet:kappa"
+  ]
+ },
+ {
+  "zh": "這味道不對，別再往我這邊遞了。",
+  "ctx": [
+   "dangdang/firstMeet:tofu_boy"
+  ]
+ },
+ {
+  "zh": "風把工具袋都掀開了！",
+  "ctx": [
+   "dangdang/firstMeet:tengu"
+  ]
+ },
+ {
+  "zh": "你拿著符往我這邊走做什麼？",
+  "ctx": [
+   "dangdang/firstMeet:fox_miko"
+  ]
+ },
+ {
+  "zh": "空盔甲怎麼自己站起來了？",
+  "ctx": [
+   "dangdang/firstMeet:armor_ghost"
+  ]
+ },
+ {
+  "zh": "這不是球球。他的影子不會自己跑。",
+  "ctx": [
+   "dangdang/firstMeet:shadow_cat"
+  ]
+ },
+ {
+  "zh": "鏡子裡的影子走出來了。",
+  "ctx": [
+   "dangdang/firstMeet:mirror_qiuqiu"
+  ]
+ },
+ {
+  "zh": "說好切磋，你也要上？",
+  "ctx": [
+   "dangdang/firstMeet:sparring_partner"
+  ]
+ },
+ {
+  "zh": "那幾桶小魚乾，全被你搬來了？",
+  "ctx": [
+   "dangdang/firstMeet:orange_king"
+  ]
+ },
+ {
+  "zh": "站得高也不用把整條路擋住。",
+  "ctx": [
+   "dangdang/firstMeet:cowcat_boss"
+  ]
+ },
+ {
+  "zh": "酒離我遠點，聞著都嗆。",
+  "ctx": [
+   "dangdang/firstMeet:tanuki_lord"
+  ]
+ },
+ {
+  "zh": "來的人不少。到底是誰要跟我打？",
+  "ctx": [
+   "dangdang/firstMeet:persian_lady"
+  ]
+ },
+ {
+  "zh": "袖子挽得這麼整齊，是早就等著了？",
+  "ctx": [
+   "dangdang/firstMeet:butler_cat"
+  ]
+ },
+ {
+  "zh": "你也要攔我？托盤先放下吧。",
+  "ctx": [
+   "dangdang/firstMeet:maid_cat"
+  ]
+ },
+ {
+  "zh": "糧箱上的牙印，是你們啃的吧？",
+  "ctx": [
+   "dangdang/firstMeet:rat"
+  ]
+ },
+ {
+  "zh": "別往腳底下滾！",
+  "ctx": [
+   "dangdang/firstMeet:yarn_ball"
+  ]
+ },
+ {
+  "zh": "地上都是醬油，腳都站不穩了。",
+  "ctx": [
+   "dangdang/firstMeet:soy_bottle"
+  ]
+ },
+ {
+  "zh": "我差點伸手去掀蓋子。",
+  "ctx": [
+   "dangdang/firstMeet:box_lurker"
+  ]
+ },
+ {
+  "zh": "這身刺，連碰都不能碰。",
+  "ctx": [
+   "dangdang/firstMeet:hedgehog"
+  ]
+ },
+ {
+  "zh": "又滿了？這罐頭從哪裡補進去的？",
+  "ctx": [
+   "dangdang/firstMeet:can_spirit"
+  ]
+ },
+ {
+  "zh": "一隻一隻來，我看不清你的手。",
+  "ctx": [
+   "dangdang/firstMeet:five_claw"
+  ]
+ },
+ {
+  "zh": "睡在這裡，不怕別人踩到？",
+  "ctx": [
+   "dangdang/firstMeet:dozing_tabby"
+  ]
+ },
+ {
+  "zh": "把手從我的袋子拿開。",
+  "ctx": [
+   "dangdang/firstMeet:chipmunk"
+  ]
+ },
+ {
+  "zh": "小隻的也會偷，果然是一夥的。",
+  "ctx": [
+   "dangdang/firstMeet:chipmunk_small"
+  ]
+ },
+ {
+  "zh": "我抬手你也抬，那我不動呢？",
+  "ctx": [
+   "dangdang/firstMeet:mirror_cat"
+  ]
+ },
+ {
+  "zh": "底下這麼多腳，難怪掃得快。",
+  "ctx": [
+   "dangdang/firstMeet:broom_centipede"
+  ]
+ },
+ {
+  "zh": "石座空了……原來你走下來了。",
+  "ctx": [
+   "dangdang/firstMeet:stone_lion"
+  ]
+ },
+ {
+  "zh": "這味道太濃，得換口氣。",
+  "ctx": [
+   "dangdang/firstMeet:catnip_phantom"
+  ]
+ },
+ {
+  "zh": "別撞我的腳，我又不是地上的垃圾。",
+  "ctx": [
+   "dangdang/firstMeet:roomba_king"
+  ]
+ },
+ {
+  "zh": "連小掃把都跟來了。",
+  "ctx": [
+   "dangdang/firstMeet:mini_broom"
+  ]
+ },
+ {
+  "zh": "您這個站姿，一看就練了很多年。",
+  "ctx": [
+   "dangdang/firstMeet:calico_monk"
+  ]
+ },
+ {
+  "zh": "影子裡還藏著一隻。",
+  "ctx": [
+   "dangdang/firstMeet:shadow_kitten_a"
+  ]
+ },
+ {
+  "zh": "別繞到背後去。",
+  "ctx": [
+   "dangdang/firstMeet:shadow_kitten_b"
+  ]
+ },
+ {
+  "zh": "這隻一直不動，在等什麼？",
+  "ctx": [
+   "dangdang/firstMeet:shadow_kitten_c"
+  ]
+ },
+ {
+  "zh": "底座做得不錯，比村裡那根還牢靠。",
+  "ctx": [
+   "dangdang/firstMeet:training_post"
+  ]
+ },
+ {
+  "zh": "婆婆，您的尾巴碰到我了。",
+  "ctx": [
+   "dangdang/firstMeet:nekomata"
+  ]
+ },
+ {
+  "zh": "尾巴還能自己追過來？",
+  "ctx": [
+   "dangdang/firstMeet:nekomata_tail"
+  ]
+ },
+ {
+  "zh": "這些爪子一合起來，護臂都會被夾扁。",
+  "ctx": [
+   "dangdang/firstMeet:iron_claw"
+  ]
+ },
+ {
+  "zh": "剛才它是不是動了？",
+  "ctx": [
+   "dangdang/firstMeet:cucumber"
+  ]
+ },
+ {
+  "zh": "飯糰長腳，我還是第一次見。",
+  "ctx": [
+   "dangdang/firstMeet:onigiri_monster"
+  ]
+ },
+ {
+  "zh": "這木頭關節，怎麼自己動起來了？",
+  "ctx": [
+   "dangdang/firstMeet:wood_dummy"
+  ]
+ },
+ {
+  "zh": "你也走錯路了？出口在下面。",
+  "ctx": [
+   "dangdang/firstMeet:goat"
+  ]
+ },
+ {
+  "zh": "這麼吵，開關在哪裡？",
+  "ctx": [
+   "dangdang/firstMeet:vacuum"
+  ]
+ },
+ {
+  "zh": "堵在門口，是在等我？",
+  "ctx": [
+   "dangdang/firstMeet:black_ninja"
+  ]
+ },
+ {
+  "zh": "要東西就好好說，爪子先收起來。",
+  "ctx": [
+   "dangdang/firstMeet:orange_bandit"
+  ]
+ },
+ {
+  "zh": "別吐在我身上！",
+  "ctx": [
+   "dangdang/firstMeet:catgrass_bug"
+  ]
+ },
+ {
+  "zh": "稻草紮得挺緊，還會拿武器。",
+  "ctx": [
+   "dangdang/firstMeet:scarecrow"
+  ]
+ },
+ {
+  "zh": "好快，差點沒接住。",
+  "ctx": [
+   "dangdang/firstMeet:black_ninja_elite"
+  ]
+ },
+ {
+  "zh": "這麼大根，門都快擠不下了。",
+  "ctx": [
+   "dangdang/firstMeet:big_cucumber"
+  ]
+ },
+ {
+  "zh": "你就是叫牠們守在下面的那隻？",
+  "ctx": [
+   "dangdang/firstMeet:ninja_boss"
+  ]
+ },
+ {
+  "zh": "這個要是往下滾，整條樓梯都會被堵住。",
+  "ctx": [
+   "dangdang/firstMeet:giant_onigiri"
+  ]
+ },
+ {
+  "zh": "你後面還有人？別往前擠。",
+  "ctx": [
+   "dangdang/firstMeet:black_kitten"
+  ]
+ },
+ {
+  "zh": "大俠貓，您看我一眼。",
+  "ctx": [
+   "dangdang/firstMeet:tower_master"
+  ]
+ },
+ {
+  "zh": "冷得手指都僵了。",
+  "ctx": [
+   "dangdang/firstMeet:snow_cat"
+  ]
+ },
+ {
+  "zh": "一直招手，也不代表我會掏錢。",
+  "ctx": [
+   "dangdang/firstMeet:fortune_cat"
+  ]
+ },
+ {
+  "zh": "光照在前面，嘴藏在後面。好險。",
+  "ctx": [
+   "dangdang/firstMeet:lantern_fish"
+  ]
+ },
+ {
+  "zh": "線連到後面去了。原來是你在拉。",
+  "ctx": [
+   "dangdang/firstMeet:puppeteer"
+  ]
+ },
+ {
+  "zh": "木頭做的，打下來可不輕。",
+  "ctx": [
+   "dangdang/firstMeet:puppet"
+  ]
+ },
+ {
+  "zh": "還喝？你都快站不住了。",
+  "ctx": [
+   "dangdang/firstMeet:shuten_imp"
+  ]
+ },
+ {
+  "zh": "這盞一亮，那盞也亮了。",
+  "ctx": [
+   "dangdang/firstMeet:lantern_twin_a"
+  ]
+ },
+ {
+  "zh": "得留意另一盞，別只顧眼前。",
+  "ctx": [
+   "dangdang/firstMeet:lantern_twin_b"
+  ]
+ },
+ {
+  "zh": "太多了，頭上全是翅膀！",
+  "ctx": [
+   "dangdang/firstMeet:miasma_crows"
+  ]
+ },
+ {
+  "zh": "散開了還不走？",
+  "ctx": [
+   "dangdang/firstMeet:crow_small"
+  ]
+ },
+ {
+  "zh": "聲音在盔甲裡，裡面卻沒人。",
+  "ctx": [
+   "dangdang/firstMeet:wraith_samurai"
+  ]
+ },
+ {
+  "zh": "兩張嘴，一張咬這邊，一張咬那邊。",
+  "ctx": [
+   "dangdang/firstMeet:twin_hound"
+  ]
+ },
+ {
+  "zh": "石像也攔在最後一段樓梯上。",
+  "ctx": [
+   "dangdang/firstMeet:guardian_statue"
+  ]
+ },
+ {
+  "zh": "又換面具。這次手勢也變了。",
+  "ctx": [
+   "dangdang/firstMeet:mask_dancer"
+  ]
+ },
+ {
+  "zh": "我沒事，是牠走不動。球球和菲菲還在上面。",
+  "ctx": [
+   "fengfeng/actClear2#2"
+  ]
+ },
+ {
+  "zh": "大俠貓現在認不得人。看到他抬手，就躲開。",
+  "ctx": [
+   "fengfeng/actClear2#4"
+  ]
+ }
+]

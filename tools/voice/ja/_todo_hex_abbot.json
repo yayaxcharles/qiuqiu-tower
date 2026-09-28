@@ -1,0 +1,61 @@
+[
+ {
+  "zh": "施主一路殺上來，手上的血債要怎麼算？",
+  "ctx": [
+   "ninja/bossIntro:hex_abbot#0",
+   "feifei/bossIntro:hex_abbot#0",
+   "dangdang/bossIntro:hex_abbot#0",
+   "fengfeng/bossIntro:hex_abbot#0"
+  ]
+ },
+ {
+  "zh": "你師父？呵……貧僧也曾想勸他。結果你看，貧僧的眼睛也紫了。",
+  "ctx": [
+   "ninja/bossIntro:hex_abbot#2",
+   "feifei/bossIntro:hex_abbot#2"
+  ]
+ },
+ {
+  "zh": "阿彌陀佛。",
+  "ctx": [
+   "ninja/bossPhase2:hex_abbot#0",
+   "feifei/bossPhase2:hex_abbot#0",
+   "dangdang/bossPhase2:hex_abbot#0",
+   "fengfeng/bossPhase2:hex_abbot#0"
+  ]
+ },
+ {
+  "zh": "……施主，貧僧清醒了。",
+  "ctx": [
+   "ninja/bossDefeat:hex_abbot#0",
+   "feifei/bossDefeat:hex_abbot#0",
+   "dangdang/bossDefeat:hex_abbot#0",
+   "fengfeng/bossDefeat:hex_abbot#0"
+  ]
+ },
+ {
+  "zh": "這座塔，是照他記得的東西長出來的。越往上，越是他捨不得的。",
+  "ctx": [
+   "ninja/bossDefeat:hex_abbot#1",
+   "feifei/bossDefeat:hex_abbot#1",
+   "dangdang/bossDefeat:hex_abbot#1",
+   "fengfeng/bossDefeat:hex_abbot#1"
+  ]
+ },
+ {
+  "zh": "若還救得回來，只能靠他最掛念的人。快去。",
+  "ctx": [
+   "ninja/bossDefeat:hex_abbot#2",
+   "feifei/bossDefeat:hex_abbot#2",
+   "dangdang/bossDefeat:hex_abbot#2",
+   "fengfeng/bossDefeat:hex_abbot#2"
+  ]
+ },
+ {
+  "zh": "大俠貓？呵……貧僧也曾想勸他。結果你看，貧僧的眼睛也紫了。",
+  "ctx": [
+   "dangdang/bossIntro:hex_abbot#2",
+   "fengfeng/bossIntro:hex_abbot#2"
+  ]
+ }
+]
