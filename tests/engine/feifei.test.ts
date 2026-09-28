@@ -198,6 +198,18 @@ describe('菲菲：中毒', () => {
     expect(previewHpLoss(no, uidOf(no, 'feifei_yizhen'), foe(no).uid, 0).size).toBe(0);
   });
 
+  it('一針斃命：沒中毒就不算數，生命再低也不打倒；失敗那行印真的層數', () => {
+    const cs = fight(['feifei_yizhen']);
+    foe(cs).hp = 5;
+    play(cs, 'feifei_yizhen');
+    expect(foe(cs).dead).toBe(false);
+    expect(foe(cs).hp).toBe(5);
+    const more = fight(['feifei_yizhen']);
+    foe(more).hp = 30; addStatus(foe(more), '中毒', 12);
+    play(more, 'feifei_yizhen');
+    expect(more.log.some((l) => l.includes('中毒 12 層＋10，生命 30，還差 8'))).toBe(true);
+  });
+
   it('一針斃命：調息中的魔物（無敵）照 damageEnemy 的規矩擋下', () => {
     const cs = fight(['feifei_yizhen']);
     foe(cs).hp = 10; addStatus(foe(cs), '中毒', 5); foe(cs).invulnIn = 1;
