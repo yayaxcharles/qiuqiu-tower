@@ -64,7 +64,7 @@ describe('收場（checkOver 的 finish）在背景分頁也會交棒給戰利�
       encounterById: { fight: { pool: 'normal' } }, my: () => players[0], mySeat: 0,
       storyFor: () => ({ battleWin: [] }), toast() {}, pick() {}, heroSpeaker() {}, mySpeech() {},
       el: () => ({ remove() {} }), root: { append() {} },
-      motionActors: states, motionStillPlaying, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
+      motionActors: states, motionStillPlaying, enemyMotionActors: new Map(), fallingUids: new Set(), bossDeathMotionLeft: () => 0, motionEnabled: true, motionState: (q: { seat: number }) => states.get(q.seat),
       motionSourceFor: () => undefined, motionDuration: () => 0, lastMotionEndAt: 0,
       qiuqiuCombatMotionDecision: () => 'play', qiuqiuVictoryLinger: () => 0, heroOf: (q: { hero: string }) => q.hero,
       refreshMotion() {}, render() {}, performance: { now: () => now }, bonusFish: 0, bonusUpgrades: 0,

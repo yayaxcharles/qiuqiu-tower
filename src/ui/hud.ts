@@ -10,6 +10,7 @@ import { artUrl } from './assets';
 import { ACT_NAMES, potionCapacity } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
 import { musicOn, musicVolume, setMusicVolume, toggleMusic } from './bgm';
+import { toggleVoice, voiceOn } from './voicegate';
 import { showDeckPicker } from './deckview';
 import { loadRun } from '../engine/save';
 import { encodeRun } from '../engine/sharecode';
@@ -187,6 +188,12 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
   music.addEventListener('click', () => {
     music.textContent = toggleMusic() ? '🎵 音樂' : '🔇 音樂';
   });
+  // 日文配音另一顆開關（2026-09-28）：預設開；音效關掉時配音本來就跟著沒聲音，這顆只多給「要音效、不要人聲」的人
+  const voice = el('button', { class: 'btn small hud-sound' }, voiceOn() ? '🗣 語音' : '🔇 語音');
+  voice.title = '開關日文配音（音效關掉時配音也不會出聲）';
+  voice.addEventListener('click', () => {
+    voice.textContent = toggleVoice() ? '🗣 語音' : '🔇 語音';
+  });
   // 音量拉桿：拉了立刻生效、直接記住，不經過任何重畫
   const vol = el('input', { class: 'hud-vol', type: 'range', min: '0', max: '100', value: String(musicVolume()) }) as HTMLInputElement;
   vol.title = '音樂音量';
@@ -213,7 +220,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
      * 那個災情（魔物血量按兩人放大、第二位站著不動還會被打）。
      * 連線本來就不支援續玩，分享局面在這裡沒有能成立的語意。
      */
-    seedTag(run.seed, false, app.coop ? undefined : run), music, vol, sound);
+    seedTag(run.seed, false, app.coop ? undefined : run), music, vol, sound, voice);
   return hud;
 }
 

@@ -62,10 +62,26 @@ let enabled = readEnabled();
 export function soundOn(): boolean { return enabled; }
 
 export function setSoundOn(on: boolean): void {
-  if (!on) playbackEpoch++;
+  if (!on) { playbackEpoch++; soundOffHook?.(); }
   enabled = on;
   try { window.localStorage.setItem(STORE_KEY, on ? 'on' : 'off'); } catch { /* 存不了就算了 */ }
   if (master && ctx) master.gain.setTargetAtTime(on ? 1 : 0, ctx.currentTime, 0.01);
+}
+
+/** 聲音被關掉時要順便做的事（`voice.ts` 用來當場停掉正在講的那句、還回背景音樂音量） */
+let soundOffHook: (() => void) | null = null;
+export function onSoundOff(fn: () => void): void { soundOffHook = fn; }
+
+/**
+ * 給配音（`voice.ts`）用的出口：同一個音訊環境、接在總音量後面——**音效關掉，配音就跟著沒聲音**（使用者規則）。
+ * 還沒解鎖（第一次點擊前）或音效關著就回 null；手機上環境被暫停時先喚醒再回。
+ */
+export async function audioOut(): Promise<{ ctx: AudioContext; out: GainNode } | null> {
+  const audio = ctx;
+  const output = master;
+  if (!enabled || !audio || !output || audio.state === 'closed') return null;
+  await resume(audio);
+  return audio.state === 'running' && ctx === audio ? { ctx: audio, out: output } : null;
 }
 
 /** 切換並回傳切換後的狀態，給按鈕用。 */

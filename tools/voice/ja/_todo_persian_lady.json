@@ -1,0 +1,52 @@
+[
+ {
+  "zh": "渾身髒兮兮的野貓，也敢闖進本小姐的樓層？",
+  "ctx": [
+   "ninja/bossIntro:persian_lady#0",
+   "feifei/bossIntro:persian_lady#0",
+   "dangdang/bossIntro:persian_lady#0",
+   "fengfeng/bossIntro:persian_lady#0"
+  ]
+ },
+ {
+  "zh": "塔頂？那隻紫眼睛的大貓連本小姐都不放在眼裡。你要去送死，本小姐先把你攔下來。",
+  "ctx": [
+   "ninja/bossIntro:persian_lady#2",
+   "feifei/bossIntro:persian_lady#2",
+   "dangdang/bossIntro:persian_lady#2",
+   "fengfeng/bossIntro:persian_lady#2"
+  ]
+ },
+ {
+  "zh": "你們還站著做什麼？快替本小姐收拾他！",
+  "ctx": [
+   "ninja/bossPhase2:persian_lady#0",
+   "dangdang/bossPhase2:persian_lady#0",
+   "fengfeng/bossPhase2:persian_lady#0"
+  ]
+ },
+ {
+  "zh": "哼……本小姐的樓層，讓你過。",
+  "ctx": [
+   "ninja/bossDefeat:persian_lady#0",
+   "feifei/bossDefeat:persian_lady#0",
+   "dangdang/bossDefeat:persian_lady#0",
+   "fengfeng/bossDefeat:persian_lady#0"
+  ]
+ },
+ {
+  "zh": "上面那隻紫眼睛的大貓，本小姐才懶得管。你要去救他，隨便你。",
+  "ctx": [
+   "ninja/bossDefeat:persian_lady#1",
+   "feifei/bossDefeat:persian_lady#1",
+   "dangdang/bossDefeat:persian_lady#1",
+   "fengfeng/bossDefeat:persian_lady#1"
+  ]
+ },
+ {
+  "zh": "你們還站著做什麼？快替本小姐收拾她！",
+  "ctx": [
+   "feifei/bossPhase2:persian_lady#0"
+  ]
+ }
+]

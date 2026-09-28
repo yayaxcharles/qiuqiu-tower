@@ -1,0 +1,7514 @@
+{
+ "lines": [
+  {
+   "speaker": "ninja",
+   "text": "師父，你等等我喵！",
+   "ctx": [
+    "ninja/prologue#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我要把師父帶回家，也要把村裡的小魚乾拿回來喵。",
+   "ctx": [
+    "ninja/prologue#4"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "味道這麼重，上面肯定還有小魚乾喵。",
+   "ctx": [
+    "ninja/actClear1#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "頭巾又勾破了。以前都是師父一邊笑我，一邊幫我重綁喵。",
+   "ctx": [
+    "ninja/actClear1#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父，我在這裡！聽見就回我一聲喵！",
+   "ctx": [
+    "ninja/actClear2#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我還……不能倒下喵……",
+   "ctx": [
+    "ninja/defeat#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父，你終於醒了喵。",
+   "ctx": [
+    "ninja/victory#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "……還是那麼喜歡按我的頭喵。",
+   "ctx": [
+    "ninja/victory#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師妹，我把師父帶回來了喵！……然後，我肚子好餓喵。",
+   "ctx": [
+    "ninja/victory#6"
+   ]
+  },
+  {
+   "speaker": "daxia",
+   "text": "難逢敵手。",
+   "ctx": [
+    "ninja/victory:master:strength",
+    "ninja/bossIntro:tower_master#0",
+    "feifei/victory:master:strength",
+    "feifei/bossIntro:tower_master#0",
+    "dangdang/victory:master:strength",
+    "dangdang/bossIntro:tower_master#0",
+    "fengfeng/victory:master:strength",
+    "fengfeng/bossIntro:tower_master#0"
+   ]
+  },
+  {
+   "speaker": "daxia",
+   "text": "深藏不露。",
+   "ctx": [
+    "ninja/victory:master:stealth",
+    "ninja/victory:master:poison",
+    "ninja/bossPhase3:tower_master#0",
+    "feifei/victory:master:stealth",
+    "feifei/victory:master:poison",
+    "feifei/bossPhase3:tower_master#0",
+    "dangdang/victory:master:stealth",
+    "dangdang/victory:master:poison",
+    "dangdang/bossPhase3:tower_master#0",
+    "fengfeng/victory:master:stealth",
+    "fengfeng/victory:master:poison",
+    "fengfeng/bossPhase3:tower_master#0"
+   ]
+  },
+  {
+   "speaker": "daxia",
+   "text": "在下不才。",
+   "ctx": [
+    "ninja/victory:master:thorns",
+    "ninja/victory:master:block",
+    "feifei/victory:master:thorns",
+    "feifei/victory:master:block",
+    "dangdang/victory:master:thorns",
+    "dangdang/victory:master:block",
+    "fengfeng/victory:master:thorns",
+    "fengfeng/victory:master:block"
+   ]
+  },
+  {
+   "speaker": "daxia",
+   "text": "承讓。",
+   "ctx": [
+    "ninja/victory:master:plain",
+    "feifei/victory:master:plain",
+    "dangdang/victory:master:plain",
+    "fengfeng/victory:master:plain"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父，明天也陪我練功喵。",
+   "ctx": [
+    "ninja/result:victoryTeaser"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這是師父寫的喵。",
+   "ctx": [
+    "ninja/secretScroll#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "他把秘笈帶在身邊，怎麼會掉在這裡喵？",
+   "ctx": [
+    "ninja/secretScroll#2"
+   ]
+  },
+  {
+   "speaker": "ninja_boss",
+   "text": "上面那位，不是你認識的那隻貓了。",
+   "ctx": [
+    "ninja/afterFirstElite#0",
+    "feifei/afterFirstElite#0",
+    "dangdang/afterFirstElite#0",
+    "fengfeng/afterFirstElite#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我還是得去找他喵。",
+   "ctx": [
+    "ninja/afterFirstElite#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "明天打贏關主，就能到上面找師父了喵。",
+   "ctx": [
+    "ninja/restBeforeBoss1#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這裡正好能休息，先吃點東西，再把爪子磨好喵。",
+   "ctx": [
+    "ninja/restBeforeBoss1#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "睡一下，還是先磨爪喵？",
+   "ctx": [
+    "ninja/restBeforeBoss1#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "越往上走，這股魔氣就越嗆喵。",
+   "ctx": [
+    "ninja/restBeforeBoss2#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "剛才好像是師父的聲音，他是不是很痛喵？",
+   "ctx": [
+    "ninja/restBeforeBoss2#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "得趕快過這一關，才能上去找他喵。",
+   "ctx": [
+    "ninja/restBeforeBoss2#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "明天就要見到師父了喵。",
+   "ctx": [
+    "ninja/restBeforeBoss3#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "以前蜷縮練不好，都是師父在旁邊扶著我喵。",
+   "ctx": [
+    "ninja/restBeforeBoss3#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "等見到師父，不知道他還認不認得我喵。",
+   "ctx": [
+    "ninja/restBeforeBoss3#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這次一定要把他帶回家喵。",
+   "ctx": [
+    "ninja/restBeforeBoss3#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父，是我，球球喵！你看清楚喵！",
+   "ctx": [
+    "ninja/bossIntro:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "daxia",
+   "text": "退隱江湖。",
+   "ctx": [
+    "ninja/bossIntro:tower_master#2",
+    "feifei/bossIntro:tower_master#2",
+    "dangdang/bossIntro:tower_master#2",
+    "fengfeng/bossIntro:tower_master#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "退隱也要回家喵！你看著我，我是你徒弟喵！",
+   "ctx": [
+    "ninja/bossIntro:tower_master#3"
+   ]
+  },
+  {
+   "speaker": "daxia",
+   "text": "走火入魔。",
+   "ctx": [
+    "ninja/bossPhase2:tower_master#0",
+    "feifei/bossPhase2:tower_master#0",
+    "dangdang/bossPhase2:tower_master#0",
+    "fengfeng/bossPhase2:tower_master#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父，聽我說！我是球球，你的徒弟喵！",
+   "ctx": [
+    "ninja/bossPhase2:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父，你都受傷了，別再打了喵！",
+   "ctx": [
+    "ninja/bossPhase3:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "孩子，回去吧。再往上走，可不是逞強就能活下來的地方。",
+   "ctx": [
+    "ninja/bossIntro:nekomata#0",
+    "feifei/bossIntro:nekomata#0",
+    "dangdang/bossIntro:nekomata#0",
+    "fengfeng/bossIntro:nekomata#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "婆婆，我得去救師父，再危險也要上去喵。",
+   "ctx": [
+    "ninja/bossIntro:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "你師父……婆婆見過他上去。那雙眼睛已經是紫的了。婆婆守在這，就是不想再有孩子跟上去送命。",
+   "ctx": [
+    "ninja/bossIntro:nekomata#2",
+    "feifei/bossIntro:nekomata#2"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "好吧。那就讓婆婆看看，你到底有多少本事。",
+   "ctx": [
+    "ninja/bossIntro:nekomata#3",
+    "feifei/bossIntro:nekomata#3",
+    "dangdang/bossIntro:nekomata#3",
+    "fengfeng/bossIntro:nekomata#3"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "老婆子還沒拿出真本事呢。",
+   "ctx": [
+    "ninja/bossPhase2:nekomata#0",
+    "feifei/bossPhase2:nekomata#0",
+    "dangdang/bossPhase2:nekomata#0",
+    "fengfeng/bossPhase2:nekomata#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "原來婆婆剛才還留了一手喵！",
+   "ctx": [
+    "ninja/bossPhase2:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "……好孩子。婆婆攔不住你了。",
+   "ctx": [
+    "ninja/bossDefeat:nekomata#0",
+    "feifei/bossDefeat:nekomata#0",
+    "dangdang/bossDefeat:nekomata#0",
+    "fengfeng/bossDefeat:nekomata#0"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "記住，他還沒被魔氣吞光。你要快，再晚，剩下的就不是你師父了。",
+   "ctx": [
+    "ninja/bossDefeat:nekomata#1",
+    "feifei/bossDefeat:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "他還有救就好，謝謝婆婆喵。",
+   "ctx": [
+    "ninja/bossDefeat:nekomata#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "胸口那道紫光，跟師父眼裡的一樣喵。",
+   "ctx": [
+    "ninja/bossIntro:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "它一直攔著路，看來非拆掉不可喵。",
+   "ctx": [
+    "ninja/bossIntro:iron_claw#2"
+   ]
+  },
+  {
+   "speaker": "iron_claw",
+   "text": "齒輪過熱……切換第二形態。",
+   "ctx": [
+    "ninja/bossPhase2:iron_claw#0",
+    "feifei/bossPhase2:iron_claw#0",
+    "dangdang/bossPhase2:iron_claw#0",
+    "fengfeng/bossPhase2:iron_claw#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "爪子燒紅了，被碰到可不得了喵！",
+   "ctx": [
+    "ninja/bossPhase2:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父身上的魔氣，也能散掉喵。",
+   "ctx": [
+    "ninja/bossDefeat:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "orange_king",
+   "text": "敢打擾本王用膳，就把身上的小魚乾全留下！",
+   "ctx": [
+    "ninja/bossIntro:orange_king#0",
+    "feifei/bossIntro:orange_king#0",
+    "dangdang/bossIntro:orange_king#0",
+    "fengfeng/bossIntro:orange_king#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "村裡的小魚乾是你搶的喵？你跟上面那隻大貓是一夥的喵？",
+   "ctx": [
+    "ninja/bossIntro:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "orange_king",
+   "text": "一夥？本王只是趁塔冒出來的時候搬進來罷了。上面那位，本王可不敢惹。",
+   "ctx": [
+    "ninja/bossIntro:orange_king#2",
+    "feifei/bossIntro:orange_king#2",
+    "dangdang/bossIntro:orange_king#2",
+    "fengfeng/bossIntro:orange_king#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "既然不是一夥的，就別攔我，小魚乾也得還來喵。",
+   "ctx": [
+    "ninja/bossIntro:orange_king#3"
+   ]
+  },
+  {
+   "speaker": "orange_king",
+   "text": "你真的惹怒本王了！",
+   "ctx": [
+    "ninja/bossPhase2:orange_king#0",
+    "feifei/bossPhase2:orange_king#0",
+    "dangdang/bossPhase2:orange_king#0",
+    "fengfeng/bossPhase2:orange_king#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這麼大一顆，滾過來可躲不掉喵！",
+   "ctx": [
+    "ninja/bossPhase2:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "orange_king",
+   "text": "別打了別打了！本王只是想吃飽……",
+   "ctx": [
+    "ninja/bossDefeat:orange_king#0",
+    "feifei/bossDefeat:orange_king#0",
+    "dangdang/bossDefeat:orange_king#0",
+    "fengfeng/bossDefeat:orange_king#0"
+   ]
+  },
+  {
+   "speaker": "orange_king",
+   "text": "小魚乾在後面的桶子裡，拿去。上面那位上去以後，這塔裡就再也沒有能吃的東西了。",
+   "ctx": [
+    "ninja/bossDefeat:orange_king#1",
+    "feifei/bossDefeat:orange_king#1",
+    "dangdang/bossDefeat:orange_king#1",
+    "fengfeng/bossDefeat:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "早說嘛喵。",
+   "ctx": [
+    "ninja/bossDefeat:orange_king#2"
+   ]
+  },
+  {
+   "speaker": "cowcat_boss",
+   "text": "塔下那群傢伙攔不住你，算你有點本事。接下來，就由本二當家親自陪你過招。",
+   "ctx": [
+    "ninja/bossIntro:cowcat_boss#0",
+    "feifei/bossIntro:cowcat_boss#0",
+    "dangdang/bossIntro:cowcat_boss#0",
+    "fengfeng/bossIntro:cowcat_boss#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "二當家，那大當家是誰喵？",
+   "ctx": [
+    "ninja/bossIntro:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "cowcat_boss",
+   "text": "塔頂那位紫眼睛的大貓。他一句話，這座塔的傢伙都得聽。",
+   "ctx": [
+    "ninja/bossIntro:cowcat_boss#2",
+    "feifei/bossIntro:cowcat_boss#2",
+    "dangdang/bossIntro:cowcat_boss#2",
+    "fengfeng/bossIntro:cowcat_boss#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "那是我師父，我得上去看看他到底怎麼了喵。",
+   "ctx": [
+    "ninja/bossIntro:cowcat_boss#3"
+   ]
+  },
+  {
+   "speaker": "cowcat_boss",
+   "text": "黑爪只是熱身，接下來換白爪！",
+   "ctx": [
+    "ninja/bossPhase2:cowcat_boss#0",
+    "feifei/bossPhase2:cowcat_boss#0",
+    "dangdang/bossPhase2:cowcat_boss#0",
+    "fengfeng/bossPhase2:cowcat_boss#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "原來還有一套爪法，真難纏喵。",
+   "ctx": [
+    "ninja/bossPhase2:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "cowcat_boss",
+   "text": "二當家……居然輸給你這種小不點。",
+   "ctx": [
+    "ninja/bossDefeat:cowcat_boss#0",
+    "feifei/bossDefeat:cowcat_boss#0",
+    "dangdang/bossDefeat:cowcat_boss#0",
+    "fengfeng/bossDefeat:cowcat_boss#0"
+   ]
+  },
+  {
+   "speaker": "cowcat_boss",
+   "text": "去吧。跟你講，上面那位的脾氣比我差一百倍。他一掌拍下來，連我都不敢站著。",
+   "ctx": [
+    "ninja/bossDefeat:cowcat_boss#1",
+    "feifei/bossDefeat:cowcat_boss#1",
+    "dangdang/bossDefeat:cowcat_boss#1",
+    "fengfeng/bossDefeat:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我認識的師父，不會隨便傷人喵。",
+   "ctx": [
+    "ninja/bossDefeat:cowcat_boss#2"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "呵呵，小兄弟，何必急著動手？先陪老夫喝一杯吧。",
+   "ctx": [
+    "ninja/bossIntro:tanuki_lord#0",
+    "dangdang/bossIntro:tanuki_lord#0",
+    "fengfeng/bossIntro:tanuki_lord#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我不喝，師父交代過，狸貓遞的酒不能碰喵。",
+   "ctx": [
+    "ninja/bossIntro:tanuki_lord#1"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "你師父？呵，上面那位灌的可不是酒，是魔氣。喝了就再也想不起自己是誰。",
+   "ctx": [
+    "ninja/bossIntro:tanuki_lord#2",
+    "feifei/bossIntro:tanuki_lord#2"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "看仔細了——變！",
+   "ctx": [
+    "ninja/bossPhase2:tanuki_lord#1",
+    "feifei/bossPhase2:tanuki_lord#1",
+    "dangdang/bossPhase2:tanuki_lord#1",
+    "fengfeng/bossPhase2:tanuki_lord#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "變出這麼多隻，哪隻才是真的喵？",
+   "ctx": [
+    "ninja/bossPhase2:tanuki_lord#2"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "呵呵……老夫本想騙你一杯酒的。",
+   "ctx": [
+    "ninja/bossDefeat:tanuki_lord#0",
+    "feifei/bossDefeat:tanuki_lord#0",
+    "dangdang/bossDefeat:tanuki_lord#0",
+    "fengfeng/bossDefeat:tanuki_lord#0"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "上面那位喝的不是酒，是魔氣。喝了就想不起自己是誰。小兄弟，你上去可要記得叫醒他。",
+   "ctx": [
+    "ninja/bossDefeat:tanuki_lord#1",
+    "dangdang/bossDefeat:tanuki_lord#1",
+    "fengfeng/bossDefeat:tanuki_lord#1"
+   ]
+  },
+  {
+   "speaker": "persian_lady",
+   "text": "渾身髒兮兮的野貓，也敢闖進本小姐的樓層？",
+   "ctx": [
+    "ninja/bossIntro:persian_lady#0",
+    "feifei/bossIntro:persian_lady#0",
+    "dangdang/bossIntro:persian_lady#0",
+    "fengfeng/bossIntro:persian_lady#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我只是從這裡經過，要去的是塔頂喵。",
+   "ctx": [
+    "ninja/bossIntro:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "persian_lady",
+   "text": "塔頂？那隻紫眼睛的大貓連本小姐都不放在眼裡。你要去送死，本小姐先把你攔下來。",
+   "ctx": [
+    "ninja/bossIntro:persian_lady#2",
+    "feifei/bossIntro:persian_lady#2",
+    "dangdang/bossIntro:persian_lady#2",
+    "fengfeng/bossIntro:persian_lady#2"
+   ]
+  },
+  {
+   "speaker": "persian_lady",
+   "text": "你們還站著做什麼？快替本小姐收拾他！",
+   "ctx": [
+    "ninja/bossPhase2:persian_lady#0",
+    "dangdang/bossPhase2:persian_lady#0",
+    "fengfeng/bossPhase2:persian_lady#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "自己躲在後面，倒叫別人來打喵！",
+   "ctx": [
+    "ninja/bossPhase2:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "persian_lady",
+   "text": "哼……本小姐的樓層，讓你過。",
+   "ctx": [
+    "ninja/bossDefeat:persian_lady#0",
+    "feifei/bossDefeat:persian_lady#0",
+    "dangdang/bossDefeat:persian_lady#0",
+    "fengfeng/bossDefeat:persian_lady#0"
+   ]
+  },
+  {
+   "speaker": "persian_lady",
+   "text": "上面那隻紫眼睛的大貓，本小姐才懶得管。你要去救他，隨便你。",
+   "ctx": [
+    "ninja/bossDefeat:persian_lady#1",
+    "feifei/bossDefeat:persian_lady#1",
+    "dangdang/bossDefeat:persian_lady#1",
+    "fengfeng/bossDefeat:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "frog_daimyo",
+   "text": "呱——本大名的池子，什麼時候輪到一隻小貓來撒野了？",
+   "ctx": [
+    "ninja/bossIntro:frog_daimyo#0",
+    "feifei/bossIntro:frog_daimyo#0",
+    "dangdang/bossIntro:frog_daimyo#0",
+    "fengfeng/bossIntro:frog_daimyo#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "借過一下，我要從那邊的樓梯上去喵。",
+   "ctx": [
+    "ninja/bossIntro:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "frog_daimyo",
+   "text": "借過？上面那位紫眼睛的說了，一個都不許放上去。本大名答應過的事，呱，就要做到。",
+   "ctx": [
+    "ninja/bossIntro:frog_daimyo#2",
+    "feifei/bossIntro:frog_daimyo#2",
+    "dangdang/bossIntro:frog_daimyo#2",
+    "fengfeng/bossIntro:frog_daimyo#2"
+   ]
+  },
+  {
+   "speaker": "frog_daimyo",
+   "text": "來人！",
+   "ctx": [
+    "ninja/bossPhase2:frog_daimyo#0",
+    "feifei/bossPhase2:frog_daimyo#0",
+    "dangdang/bossPhase2:frog_daimyo#0",
+    "fengfeng/bossPhase2:frog_daimyo#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "又叫來這麼多小兵，得先處理牠們喵。",
+   "ctx": [
+    "ninja/bossPhase2:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "frog_daimyo",
+   "text": "呱……本大名答應過的事，沒做到。",
+   "ctx": [
+    "ninja/bossDefeat:frog_daimyo#0",
+    "feifei/bossDefeat:frog_daimyo#0",
+    "dangdang/bossDefeat:frog_daimyo#0",
+    "fengfeng/bossDefeat:frog_daimyo#0"
+   ]
+  },
+  {
+   "speaker": "frog_daimyo",
+   "text": "罷了。你這膽子，本大名認了。上去吧，池子借你過。",
+   "ctx": [
+    "ninja/bossDefeat:frog_daimyo#1",
+    "feifei/bossDefeat:frog_daimyo#1",
+    "dangdang/bossDefeat:frog_daimyo#1",
+    "fengfeng/bossDefeat:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "殼上都是傷……牠看起來也不好受喵。",
+   "ctx": [
+    "ninja/bossIntro:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "能不能讓我過去喵？我真的得上樓喵。",
+   "ctx": [
+    "ninja/bossIntro:armadillo_king#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "謝謝你讓路，剛才對不起喵。",
+   "ctx": [
+    "ninja/bossDefeat:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "樓梯都被牠壓住了，不叫醒就過不去喵。",
+   "ctx": [
+    "ninja/bossIntro:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "dragon_cat",
+   "text": "……吵醒我的，要付代價。",
+   "ctx": [
+    "ninja/bossPhase2:dragon_cat#0",
+    "feifei/bossPhase2:dragon_cat#0",
+    "dangdang/bossPhase2:dragon_cat#0",
+    "fengfeng/bossPhase2:dragon_cat#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這下全醒了，我得找地方躲喵！",
+   "ctx": [
+    "ninja/bossPhase2:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "那我走了，你繼續睡喵。",
+   "ctx": [
+    "ninja/bossDefeat:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "hex_abbot",
+   "text": "施主一路殺上來，手上的血債要怎麼算？",
+   "ctx": [
+    "ninja/bossIntro:hex_abbot#0",
+    "feifei/bossIntro:hex_abbot#0",
+    "dangdang/bossIntro:hex_abbot#0",
+    "fengfeng/bossIntro:hex_abbot#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我沒殺誰，是來接師父回家的，請你讓開喵。",
+   "ctx": [
+    "ninja/bossIntro:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "hex_abbot",
+   "text": "你師父？呵……貧僧也曾想勸他。結果你看，貧僧的眼睛也紫了。",
+   "ctx": [
+    "ninja/bossIntro:hex_abbot#2",
+    "feifei/bossIntro:hex_abbot#2"
+   ]
+  },
+  {
+   "speaker": "hex_abbot",
+   "text": "阿彌陀佛。",
+   "ctx": [
+    "ninja/bossPhase2:hex_abbot#0",
+    "feifei/bossPhase2:hex_abbot#0",
+    "dangdang/bossPhase2:hex_abbot#0",
+    "fengfeng/bossPhase2:hex_abbot#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "身上長出鱗甲了，這魔氣還在變強喵。",
+   "ctx": [
+    "ninja/bossPhase2:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "hex_abbot",
+   "text": "……施主，貧僧清醒了。",
+   "ctx": [
+    "ninja/bossDefeat:hex_abbot#0",
+    "feifei/bossDefeat:hex_abbot#0",
+    "dangdang/bossDefeat:hex_abbot#0",
+    "fengfeng/bossDefeat:hex_abbot#0"
+   ]
+  },
+  {
+   "speaker": "hex_abbot",
+   "text": "這座塔，是照他記得的東西長出來的。越往上，越是他捨不得的。",
+   "ctx": [
+    "ninja/bossDefeat:hex_abbot#1",
+    "feifei/bossDefeat:hex_abbot#1",
+    "dangdang/bossDefeat:hex_abbot#1",
+    "fengfeng/bossDefeat:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "hex_abbot",
+   "text": "若還救得回來，只能靠他最掛念的人。快去。",
+   "ctx": [
+    "ninja/bossDefeat:hex_abbot#2",
+    "feifei/bossDefeat:hex_abbot#2",
+    "dangdang/bossDefeat:hex_abbot#2",
+    "fengfeng/bossDefeat:hex_abbot#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "好，我去叫他喵。",
+   "ctx": [
+    "ninja/bossDefeat:hex_abbot#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "看來還沒打完喵。",
+   "ctx": [
+    "ninja/bossPhase2Generic#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "還有力氣，我就繼續打喵。",
+   "ctx": [
+    "ninja/bossPhase3Generic#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "球球來了喵！",
+   "ctx": [
+    "ninja/bark:battleStart#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "看招喵！",
+   "ctx": [
+    "ninja/bark:battleStart#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "不要擋路喵。",
+   "ctx": [
+    "ninja/bark:battleStart#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "讓開，我趕時間喵。",
+   "ctx": [
+    "ninja/bark:battleStart#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我先上了喵！",
+   "ctx": [
+    "ninja/bark:battleStart#4"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "誰怕誰喵！",
+   "ctx": [
+    "ninja/bark:battleStart#5"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "要打就快點喵。",
+   "ctx": [
+    "ninja/bark:battleStart#6"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "想攔我，先打贏我喵。",
+   "ctx": [
+    "ninja/bark:battleStart#7"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "總算打完了喵。",
+   "ctx": [
+    "ninja/bark:battleWin#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這下知道厲害了喵。",
+   "ctx": [
+    "ninja/bark:battleWin#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "有沒有掉小魚乾喵？",
+   "ctx": [
+    "ninja/bark:battleWin#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "走了喵。",
+   "ctx": [
+    "ninja/bark:battleWin#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "呼，先喘口氣喵。",
+   "ctx": [
+    "ninja/bark:battleWin#4"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "功夫沒白練喵。",
+   "ctx": [
+    "ninja/bark:battleWin#5"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "頭巾綁好，走了喵。",
+   "ctx": [
+    "ninja/bark:battleWin#6"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "毛都亂了，先理一下喵。",
+   "ctx": [
+    "ninja/bark:battleWin#7"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父應該會誇我吧喵。",
+   "ctx": [
+    "ninja/bark:battleWin#8"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "打完更餓了喵。",
+   "ctx": [
+    "ninja/bark:battleWin#9"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "餓得沒力氣了喵……",
+   "ctx": [
+    "ninja/bark:hungry#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "飯糰吃完了喵……",
+   "ctx": [
+    "ninja/bark:hungry#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "好想吃東西喵……",
+   "ctx": [
+    "ninja/bark:hungry#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "好痛喵……",
+   "ctx": [
+    "ninja/bark:lowHp#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "還能再打喵……",
+   "ctx": [
+    "ninja/bark:lowHp#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "先別過來，讓我站穩喵。",
+   "ctx": [
+    "ninja/bark:lowHp#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "紙箱耶，打開看看喵！",
+   "ctx": [
+    "ninja/bark:chest#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "裡面裝了什麼喵？",
+   "ctx": [
+    "ninja/bark:chest#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這個大小，我剛好鑽得進去喵。",
+   "ctx": [
+    "ninja/bark:chest#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "不會又藏著機關吧喵？",
+   "ctx": [
+    "ninja/bark:chest#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "先打開，再鑽進去喵。",
+   "ctx": [
+    "ninja/bark:chest#4"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "睡得好舒服，還想再躺一下喵。",
+   "ctx": [
+    "ninja/bark:restNap#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這墊子真好睡喵。",
+   "ctx": [
+    "ninja/bark:restNap#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "睡飽了，出發喵。",
+   "ctx": [
+    "ninja/bark:restNap#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "哈啊……起床喵。",
+   "ctx": [
+    "ninja/bark:restNap#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "那個香爐一直冒煙，燻得我整晚睡不著喵。",
+   "ctx": [
+    "ninja/bark:restNapRestless#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "爪子磨利了，試起來順手多了喵。",
+   "ctx": [
+    "ninja/bark:restSharpen#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這下夠利了喵。",
+   "ctx": [
+    "ninja/bark:restSharpen#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "練好了，下次給師父看看喵。",
+   "ctx": [
+    "ninja/bark:restSharpen#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這招熟練多了喵。",
+   "ctx": [
+    "ninja/bark:restSharpen#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "醒了就好喵。",
+   "ctx": [
+    "ninja/bark:revive#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "嚇死我了，還以為你不起來了喵。",
+   "ctx": [
+    "ninja/bark:revive#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "站穩，等一下換你保護我喵。",
+   "ctx": [
+    "ninja/bark:revive#2"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "有伏兵跳出來了喵！",
+   "ctx": [
+    "ninja/bark:ambush#0"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "架勢擺好了，那我出招了喵。",
+   "ctx": [
+    "ninja/firstMeet:white_duelist"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "牠一直在刨地，看來要衝過來了喵。",
+   "ctx": [
+    "ninja/firstMeet:wild_boar"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "紙做的也能長刺，不能亂抓喵。",
+   "ctx": [
+    "ninja/firstMeet:paper_tiger"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這鼓聲越敲越快，聽得我好緊張喵。",
+   "ctx": [
+    "ninja/firstMeet:drum_tanuki"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "鐵皮這麼厚，我抓一下試試喵。",
+   "ctx": [
+    "ninja/firstMeet:iron_arhat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "蜘蛛絲纏過來了，得把爪子抽開喵。",
+   "ctx": [
+    "ninja/firstMeet:shadow_spider"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "都醉成這樣了，還能打拳喵？",
+   "ctx": [
+    "ninja/firstMeet:drunk_dog"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "牠一叫，小鬼就全跑出來了喵。",
+   "ctx": [
+    "ninja/firstMeet:oni_general"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "別躲在後面，有本事過來喵。",
+   "ctx": [
+    "ninja/firstMeet:imp"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這麼多面鏡子，我都快看暈了喵。",
+   "ctx": [
+    "ninja/firstMeet:mirror_sage"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "碎片還會動，別往我這邊飛喵！",
+   "ctx": [
+    "ninja/firstMeet:mirror_shard"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "半透明的身體，伸爪過去會不會穿過去喵？",
+   "ctx": [
+    "ninja/firstMeet:void_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這團子在動，不能吃喵！",
+   "ctx": [
+    "ninja/firstMeet:dango_slime"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "怎麼分成兩隻了喵？",
+   "ctx": [
+    "ninja/firstMeet:dango_bit"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "一下就縮進殼裡，連頭都不露喵。",
+   "ctx": [
+    "ninja/firstMeet:armadillo_pup"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "飛這麼高，我怎麼抓得到喵？",
+   "ctx": [
+    "ninja/firstMeet:lantern_moth"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "熊睡在路中間，得把牠叫醒喵。",
+   "ctx": [
+    "ninja/firstMeet:hibernating_bear"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "越鼓越大，站遠一點比較好喵。",
+   "ctx": [
+    "ninja/firstMeet:puffer_spirit"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這殼看起來就很硬，爪子別抓斷了喵。",
+   "ctx": [
+    "ninja/firstMeet:plated_beetle"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "後面那隻在指揮，先找牠算帳喵。",
+   "ctx": [
+    "ninja/firstMeet:rat_general"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "還拿著盾牌和長槍，這幾隻不好對付喵。",
+   "ctx": [
+    "ninja/firstMeet:rat_guard"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "又在唸咒，肯定沒好事喵。",
+   "ctx": [
+    "ninja/firstMeet:curse_priest"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "牠的身體好透明，差點沒看見喵。",
+   "ctx": [
+    "ninja/firstMeet:phantom_fox"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "臉都氣紅了，真兇喵。",
+   "ctx": [
+    "ninja/firstMeet:red_oni"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "鱗粉飛過來了，別吸進鼻子喵。",
+   "ctx": [
+    "ninja/firstMeet:moon_moth_queen"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這麼大一隻石頭手，不能硬接喵。",
+   "ctx": [
+    "ninja/firstMeet:jizo_golem"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "連青蛙都有自己的兵了喵？",
+   "ctx": [
+    "ninja/firstMeet:frog_daimyo"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "蝌蚪也拿得動武器喵？",
+   "ctx": [
+    "ninja/firstMeet:tadpole"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "縮成這麼大一顆，連路都堵住了喵。",
+   "ctx": [
+    "ninja/firstMeet:armadillo_king"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "身上有鱗片，鼻子還冒煙，這是龍喵？",
+   "ctx": [
+    "ninja/firstMeet:dragon_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "老住持的眼睛也變紫了喵。",
+   "ctx": [
+    "ninja/firstMeet:hex_abbot"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這隻狗會用刀喵！",
+   "ctx": [
+    "ninja/firstMeet:shiba_ronin"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "琴聲怎麼這麼刺耳，耳朵都痛了喵。",
+   "ctx": [
+    "ninja/firstMeet:shamisen_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "燈籠裡怎麼伸出舌頭了喵！",
+   "ctx": [
+    "ninja/firstMeet:lantern_ghost"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "叮得我頭都痛了喵。",
+   "ctx": [
+    "ninja/firstMeet:windchime_sprite"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "小狸貓也要打架喵？",
+   "ctx": [
+    "ninja/firstMeet:tanuki_kid"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "只有一隻木屐，誰穿的喵？",
+   "ctx": [
+    "ninja/firstMeet:geta_monster"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "牠從畫裡跑出來了，身上還在滴墨喵。",
+   "ctx": [
+    "ninja/firstMeet:ink_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "兔子手上那把槌子，比我頭還大喵。",
+   "ctx": [
+    "ninja/firstMeet:moon_rabbit"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "頭轉到後面去了，還看得見我喵？",
+   "ctx": [
+    "ninja/firstMeet:owl_sentry"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "紙鶴的翅膀這麼利，要小心喵。",
+   "ctx": [
+    "ninja/firstMeet:paper_crane"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "那團魔氣裡，好像有張臉喵。",
+   "ctx": [
+    "ninja/firstMeet:miasma_blob"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "黑成這樣，剛才還以為是影子喵。",
+   "ctx": [
+    "ninja/firstMeet:night_panther"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "傘自己跳過來了，底下還有腳喵！",
+   "ctx": [
+    "ninja/firstMeet:kasa_obake"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "河童的頭上真的有個盤子喵。",
+   "ctx": [
+    "ninja/firstMeet:kappa"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這豆腐有股怪味，我不吃喵。",
+   "ctx": [
+    "ninja/firstMeet:tofu_boy"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "扇一下風就這麼大，頭巾都快掉了喵。",
+   "ctx": [
+    "ninja/firstMeet:tengu"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "白狐狸手裡拿著符，不知道要做什麼喵。",
+   "ctx": [
+    "ninja/firstMeet:fox_miko"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "盔甲裡空空的，那雙眼睛是哪來的喵？",
+   "ctx": [
+    "ninja/firstMeet:armor_ghost"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這影子怎麼長得跟我一樣喵？",
+   "ctx": [
+    "ninja/firstMeet:shadow_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "鏡子裡的我，怎麼自己跑出來了喵？",
+   "ctx": [
+    "ninja/firstMeet:mirror_qiuqiu"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "黑貓也來了，你們要兩個一起打喵？",
+   "ctx": [
+    "ninja/firstMeet:sparring_partner"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "吃得這麼胖，難怪還想搶小魚乾喵。",
+   "ctx": [
+    "ninja/firstMeet:orange_king"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這傢伙站起來，比我高好多喵。",
+   "ctx": [
+    "ninja/firstMeet:cowcat_boss"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "好重的酒味，鼻子受不了喵。",
+   "ctx": [
+    "ninja/firstMeet:tanuki_lord"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "後面還跟著僕人，難怪這麼神氣喵。",
+   "ctx": [
+    "ninja/firstMeet:persian_lady"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這執事把路擋住了，得先過他這關喵。",
+   "ctx": [
+    "ninja/firstMeet:butler_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "怎麼連女僕也要打喵？",
+   "ctx": [
+    "ninja/firstMeet:maid_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "偷小魚乾的就是你們喵！",
+   "ctx": [
+    "ninja/firstMeet:rat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "毛線球自己滾過來了喵。",
+   "ctx": [
+    "ninja/firstMeet:yarn_ball"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "醬油流得滿地都是，小心滑倒喵。",
+   "ctx": [
+    "ninja/firstMeet:soy_bottle"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "紙箱裡長了牙，差點就鑽進去了喵。",
+   "ctx": [
+    "ninja/firstMeet:box_lurker"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "渾身都是刺，爪子要往哪放喵？",
+   "ctx": [
+    "ninja/firstMeet:hedgehog"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "罐頭怎麼還會自己補滿喵？",
+   "ctx": [
+    "ninja/firstMeet:can_spirit"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "爪子好多，別全伸過來喵。",
+   "ctx": [
+    "ninja/firstMeet:five_claw"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這隻虎斑睡得真熟喵。",
+   "ctx": [
+    "ninja/firstMeet:dozing_tabby"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "別偷我的小魚乾喵！",
+   "ctx": [
+    "ninja/firstMeet:chipmunk"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "又來一隻搶吃的喵！",
+   "ctx": [
+    "ninja/firstMeet:chipmunk_small"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我動一下，牠也跟著動喵。",
+   "ctx": [
+    "ninja/firstMeet:mirror_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "掃把下面全是腳喵？",
+   "ctx": [
+    "ninja/firstMeet:broom_centipede"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "石獅子真的走下來了喵。",
+   "ctx": [
+    "ninja/firstMeet:stone_lion"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這味道聞得我暈暈的喵。",
+   "ctx": [
+    "ninja/firstMeet:catnip_phantom"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "我不是灰塵喵！",
+   "ctx": [
+    "ninja/firstMeet:roomba_king"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "別掃我的腳喵。",
+   "ctx": [
+    "ninja/firstMeet:mini_broom"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這位師傅的架勢好穩喵。",
+   "ctx": [
+    "ninja/firstMeet:calico_monk"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這幾隻看起來一模一樣喵。",
+   "ctx": [
+    "ninja/firstMeet:shadow_kitten_a"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "三隻全圍過來了喵。",
+   "ctx": [
+    "ninja/firstMeet:shadow_kitten_b"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "牠一直盯著我，都不動喵。",
+   "ctx": [
+    "ninja/firstMeet:shadow_kitten_c"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這木樁比家裡的粗喵。",
+   "ctx": [
+    "ninja/firstMeet:training_post"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "婆婆怎麼有這麼多條尾巴喵？",
+   "ctx": [
+    "ninja/firstMeet:nekomata"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "尾巴追過來了喵！",
+   "ctx": [
+    "ninja/firstMeet:nekomata_tail"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "鐵爪張開了，得躲遠一點喵。",
+   "ctx": [
+    "ninja/firstMeet:iron_claw"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "黃瓜怎麼自己站起來了喵！",
+   "ctx": [
+    "ninja/firstMeet:cucumber"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "飯糰也會追著我跑喵？",
+   "ctx": [
+    "ninja/firstMeet:onigiri_monster"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "跟練功用的木樁一樣，怎麼還會自己走喵？",
+   "ctx": [
+    "ninja/firstMeet:wood_dummy"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "羊也跑進塔裡了喵？",
+   "ctx": [
+    "ninja/firstMeet:goat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "吸塵器又開了，好吵喵！",
+   "ctx": [
+    "ninja/firstMeet:vacuum"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "忍者也替這座塔守門喵？",
+   "ctx": [
+    "ninja/firstMeet:black_ninja"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "來，接我一爪喵！",
+   "ctx": [
+    "ninja/firstMeet:orange_bandit"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "別朝我吐喵！",
+   "ctx": [
+    "ninja/firstMeet:catgrass_bug"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "稻草人拿著武器，還真的在守門喵。",
+   "ctx": [
+    "ninja/firstMeet:scarecrow"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這隻出手好快喵！",
+   "ctx": [
+    "ninja/firstMeet:black_ninja_elite"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這根黃瓜也太大了喵！",
+   "ctx": [
+    "ninja/firstMeet:big_cucumber"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "你就是這群忍者的頭目喵？",
+   "ctx": [
+    "ninja/firstMeet:ninja_boss"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這麼大的飯糰，得吃多久喵？",
+   "ctx": [
+    "ninja/firstMeet:giant_onigiri"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "小黑貓也要攔我喵？",
+   "ctx": [
+    "ninja/firstMeet:black_kitten"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師父，我來找你了喵！",
+   "ctx": [
+    "ninja/firstMeet:tower_master"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "好冷，鼻子都凍僵了喵。",
+   "ctx": [
+    "ninja/firstMeet:snow_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "別招了，小魚乾不會給你的喵。",
+   "ctx": [
+    "ninja/firstMeet:fortune_cat"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "燈後面那張嘴好大，差點沒注意到喵。",
+   "ctx": [
+    "ninja/firstMeet:lantern_fish"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "後面有隻貓在拉線，是牠讓傀儡動的喵。",
+   "ctx": [
+    "ninja/firstMeet:puppeteer"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "木頭手還會揮拳喵！",
+   "ctx": [
+    "ninja/firstMeet:puppet"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "還在喝，你到底帶了多少酒喵？",
+   "ctx": [
+    "ninja/firstMeet:shuten_imp"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "一盞亮，另一盞也跟著亮了喵。",
+   "ctx": [
+    "ninja/firstMeet:lantern_twin_a"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "兩盞都得弄熄喵。",
+   "ctx": [
+    "ninja/firstMeet:lantern_twin_b"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "烏鴉太多了喵！",
+   "ctx": [
+    "ninja/firstMeet:miasma_crows"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "散開了還在追我喵！",
+   "ctx": [
+    "ninja/firstMeet:crow_small"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "盔甲裡明明沒人，聲音從哪裡來的喵？",
+   "ctx": [
+    "ninja/firstMeet:wraith_samurai"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "兩張嘴，別一起咬喵！",
+   "ctx": [
+    "ninja/firstMeet:twin_hound"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "連石像都來擋路，要怎麼過去喵？",
+   "ctx": [
+    "ninja/firstMeet:guardian_statue"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "面具一換，招式就跟著變了喵。",
+   "ctx": [
+    "ninja/firstMeet:mask_dancer"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "……三天了。師父沒回來，師兄也沒回來。",
+   "ctx": [
+    "feifei/prologue#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我還是很怕受傷。可是他們要是也在等人幫忙呢？……我得去。",
+   "ctx": [
+    "feifei/prologue#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "是師兄的頭巾。他以前也老是勾破……回去又得替他補了。",
+   "ctx": [
+    "feifei/actClear1#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父，您再撐一下……師兄，你到底在哪裡？",
+   "ctx": [
+    "feifei/actClear2#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我聽見了，師父。我正在上去。",
+   "ctx": [
+    "feifei/actClear2#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師兄！對、對不起，我來晚了……",
+   "ctx": [
+    "feifei/topScene#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "師妹？快退回去，師父誰都不認得了喵！",
+   "ctx": [
+    "feifei/topScene#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我不退。……每次叫我退的都是你，受傷的也都是你。",
+   "ctx": [
+    "feifei/topScene#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師兄，門口交給你。這次……換我先上。",
+   "ctx": [
+    "feifei/topScene#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "還沒……找到他們……",
+   "ctx": [
+    "feifei/defeat#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "傷口好了，我就回去。",
+   "ctx": [
+    "feifei/defeat#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父，這又不是切磋……您剛才連我都不認得了。師兄也是，連個消息都沒有。",
+   "ctx": [
+    "feifei/victory#1"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "對不起喵。扶手上那幾條藍線……不算留消息喵？",
+   "ctx": [
+    "feifei/victory#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我還以為，找不到你們了。",
+   "ctx": [
+    "feifei/victory#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父、師兄，明天也一起吃早飯吧。",
+   "ctx": [
+    "feifei/result:victoryTeaser"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "是師父親手寫的。",
+   "ctx": [
+    "feifei/secretScroll#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "怎麼會留在這裡？他出門時總會帶著的。",
+   "ctx": [
+    "feifei/secretScroll#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那他現在更需要有人去找他。",
+   "ctx": [
+    "feifei/afterFirstElite#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "明天要過關主守的門，光想就睡不著。",
+   "ctx": [
+    "feifei/restBeforeBoss1#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "藥分好了，針也檢查過了。還漏了什麼嗎？",
+   "ctx": [
+    "feifei/restBeforeBoss1#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "再翻一次只會更清醒……把竹筒放好，睡吧。",
+   "ctx": [
+    "feifei/restBeforeBoss1#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "魔氣這麼重，連呼吸都覺得嗆。",
+   "ctx": [
+    "feifei/restBeforeBoss2#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "剛才那一聲像師父，可我從沒聽他叫得那麼痛。",
+   "ctx": [
+    "feifei/restBeforeBoss2#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "得先過眼前這一關，才走得到他那裡。",
+   "ctx": [
+    "feifei/restBeforeBoss2#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "明天就要見到師父了。我想過好多次，卻不知道見了他該先說什麼。",
+   "ctx": [
+    "feifei/restBeforeBoss3#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父第一次教我握針，還特地把尖端轉開，怕我扎到自己。",
+   "ctx": [
+    "feifei/restBeforeBoss3#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "他總記得我怕痛。現在，還會記得嗎？",
+   "ctx": [
+    "feifei/restBeforeBoss3#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "等見了面，我要先叫他一聲。",
+   "ctx": [
+    "feifei/restBeforeBoss3#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父，我是菲菲！我站在這裡，您看看我！",
+   "ctx": [
+    "feifei/bossIntro:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "退隱也可以回家呀。師兄在門口等著……跟我們回去，好不好？",
+   "ctx": [
+    "feifei/bossIntro:tower_master#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父，聽我的聲音。我是您教過握針的那個小徒弟。",
+   "ctx": [
+    "feifei/bossPhase2:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父，這套招式我認得。您教我的時候，從來不肯真的打下來。",
+   "ctx": [
+    "feifei/bossPhase3:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "婆婆，我也想回去。可是家裡少了兩個人，我不能就這樣走。",
+   "ctx": [
+    "feifei/bossIntro:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "婆婆剛才還在讓我……這下不能大意。",
+   "ctx": [
+    "feifei/bossPhase2:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "還有救……我記住了，不在這裡耽擱。",
+   "ctx": [
+    "feifei/bossDefeat:nekomata#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這道紫光，跟師父那晚眼裡的一樣。這裡的魔物，都受了魔氣影響。",
+   "ctx": [
+    "feifei/bossIntro:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "爪子這麼密……得看準空隙，別把自己逼到牆角。",
+   "ctx": [
+    "feifei/bossIntro:iron_claw#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "爪子都燒紅了，隔這麼遠還覺得燙。",
+   "ctx": [
+    "feifei/bossPhase2:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "紫光會散，師父也能醒吧？",
+   "ctx": [
+    "feifei/bossDefeat:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這些是村裡丟的小魚乾嗎？你跟我師父是一夥的？",
+   "ctx": [
+    "feifei/bossIntro:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "既然你怕他，為什麼還攔我？那些小魚乾，村裡也還有人等著吃。",
+   "ctx": [
+    "feifei/bossIntro:orange_king#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "樓梯就這麼寬，你捲成球我要躲哪裡！",
+   "ctx": [
+    "feifei/bossPhase2:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "別再搶了。",
+   "ctx": [
+    "feifei/bossDefeat:orange_king#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你說的二當家，是替誰守這裡？",
+   "ctx": [
+    "feifei/bossIntro:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那不是他的本意。他以前從不會叫人這樣守著路。",
+   "ctx": [
+    "feifei/bossIntro:cowcat_boss#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "還有另一套爪法……看清楚，不能照剛才那樣接。",
+   "ctx": [
+    "feifei/bossPhase2:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "他以前連罰我蹲馬步都捨不得……您說的，好像是另一個人。",
+   "ctx": [
+    "feifei/bossDefeat:cowcat_boss#2"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "呵呵，小姑娘，坐下喘口氣。酒都倒好了，何必急著走呢？",
+   "ctx": [
+    "feifei/bossIntro:tanuki_lord#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我不喝，謝謝。師父特別交代過，不能碰您的酒。",
+   "ctx": [
+    "feifei/bossIntro:tanuki_lord#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "變出這麼多隻……哪一隻才是真的啊？",
+   "ctx": [
+    "feifei/bossPhase2:tanuki_lord#2"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "上面那位已經快忘了自己是誰。小姑娘，到了上面，好好叫叫他；也許他還記得你的聲音。",
+   "ctx": [
+    "feifei/bossDefeat:tanuki_lord#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我會擦乾淨腳再走。塔頂還有人等我，請別攔我。",
+   "ctx": [
+    "feifei/bossIntro:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "persian_lady",
+   "text": "你們還站著做什麼？快替本小姐收拾她！",
+   "ctx": [
+    "feifei/bossPhase2:persian_lady#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我沒有要找你們算帳，別替她擋在前面。",
+   "ctx": [
+    "feifei/bossPhase2:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "借過，我只走池邊，不碰您的東西。",
+   "ctx": [
+    "feifei/bossIntro:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "水面都被擠滿了……這麼多，我得顧著兩邊。",
+   "ctx": [
+    "feifei/bossPhase2:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "殼上這麼多舊傷……牠也遇過那天的魔氣嗎？",
+   "ctx": [
+    "feifei/bossIntro:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我不想碰那些傷口……能讓我從旁邊過嗎？",
+   "ctx": [
+    "feifei/bossIntro:armadillo_king#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "謝謝你讓路。",
+   "ctx": [
+    "feifei/bossDefeat:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "整條樓梯都被牠壓住了……叫醒牠，一定會生氣吧。",
+   "ctx": [
+    "feifei/bossIntro:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "是我把您吵醒的。可是路就這一條，我得過去。",
+   "ctx": [
+    "feifei/bossPhase2:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我走了，這次不吵你。",
+   "ctx": [
+    "feifei/bossDefeat:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我沒想要誰死。可是師父困在上面，我也不能放著他不管。",
+   "ctx": [
+    "feifei/bossIntro:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "老住持也長出鱗甲了……這還是他原本的樣子嗎？",
+   "ctx": [
+    "feifei/bossPhase2:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "他連我怕什麼都記得……不會把我全忘了的。我得親口叫叫他。",
+   "ctx": [
+    "feifei/bossDefeat:hex_abbot#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "呼吸穩住。牠的動作跟剛才不同了。",
+   "ctx": [
+    "feifei/bossPhase2Generic#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "還有魔氣……不能在這裡鬆手。",
+   "ctx": [
+    "feifei/bossPhase3Generic#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那個……借過一下。",
+   "ctx": [
+    "feifei/bark:battleStart#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "針上有毒，別碰。",
+   "ctx": [
+    "feifei/bark:battleStart#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "別追了，前面沒路啦！",
+   "ctx": [
+    "feifei/bark:battleStart#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "袖口綁緊，免得礙手礙腳。",
+   "ctx": [
+    "feifei/bark:battleStart#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "再靠近，我就丟針了。",
+   "ctx": [
+    "feifei/bark:battleStart#4"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "可以別打臉嗎……拜託。",
+   "ctx": [
+    "feifei/bark:battleStart#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我不跟你比力氣。",
+   "ctx": [
+    "feifei/bark:battleStart#6"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師兄碰上你，會怎麼辦呢？",
+   "ctx": [
+    "feifei/bark:battleStart#7"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你一定要守在這裡嗎？",
+   "ctx": [
+    "feifei/bark:battleStart#8"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "看牠的手，別只顧著怕。",
+   "ctx": [
+    "feifei/bark:battleStart#9"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "等一下，衣服勾住了！",
+   "ctx": [
+    "feifei/bark:battleStart#10"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我只是想把人接回家。",
+   "ctx": [
+    "feifei/bark:battleStart#11"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父教過這個，我記得。",
+   "ctx": [
+    "feifei/bark:battleStart#12"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "出口在後面，記住了。",
+   "ctx": [
+    "feifei/bark:battleStart#13"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "不動了……結束了吧？",
+   "ctx": [
+    "feifei/bark:battleWin#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我有先提醒你喔。",
+   "ctx": [
+    "feifei/bark:battleWin#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "袖子沒破，還好。",
+   "ctx": [
+    "feifei/bark:battleWin#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "呼，終於能喘口氣。",
+   "ctx": [
+    "feifei/bark:battleWin#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "針差點拿不住。",
+   "ctx": [
+    "feifei/bark:battleWin#4"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "剛才那一下好險。",
+   "ctx": [
+    "feifei/bark:battleWin#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "咦，真的過去了。",
+   "ctx": [
+    "feifei/bark:battleWin#6"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "借我坐一下，腿軟。",
+   "ctx": [
+    "feifei/bark:battleWin#7"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這次沒忘記護住自己。",
+   "ctx": [
+    "feifei/bark:battleWin#8"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "原來一直緊張也會餓。",
+   "ctx": [
+    "feifei/bark:battleWin#9"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "沒人聽見我尖叫吧？",
+   "ctx": [
+    "feifei/bark:battleWin#10"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "手上有藥，不能揉眼睛。",
+   "ctx": [
+    "feifei/bark:battleWin#11"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你別再爬起來了，拜託。",
+   "ctx": [
+    "feifei/bark:battleWin#12"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "針袋還在，沒弄丟。",
+   "ctx": [
+    "feifei/bark:battleWin#13"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "門口就是來時的路。",
+   "ctx": [
+    "feifei/bark:battleWin#14"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "舌頭咬到了，嗚。",
+   "ctx": [
+    "feifei/bark:battleWin#15"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "餓得使不上力了。",
+   "ctx": [
+    "feifei/bark:hungry#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "飯糰……沒有了。",
+   "ctx": [
+    "feifei/bark:hungry#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "現在給我白飯也好，真的。",
+   "ctx": [
+    "feifei/bark:hungry#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那個……剛才是肚子叫。",
+   "ctx": [
+    "feifei/bark:hungry#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "先別講吃的，我受不了。",
+   "ctx": [
+    "feifei/bark:hungry#4"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "回家我要先盛一大碗。",
+   "ctx": [
+    "feifei/bark:hungry#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "不要碰傷口！",
+   "ctx": [
+    "feifei/bark:lowHp#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "不行，我還不能倒……",
+   "ctx": [
+    "feifei/bark:lowHp#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "血止不住，怎麼辦……",
+   "ctx": [
+    "feifei/bark:lowHp#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "繃帶快不夠了。",
+   "ctx": [
+    "feifei/bark:lowHp#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "握緊，還不能鬆手。",
+   "ctx": [
+    "feifei/bark:lowHp#4"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我還得帶他們回家……",
+   "ctx": [
+    "feifei/bark:lowHp#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "箱蓋下面沒夾東西吧？",
+   "ctx": [
+    "feifei/bark:chest#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我敲一下，你別突然跳出來。",
+   "ctx": [
+    "feifei/bark:chest#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "空的嗎？我掀開囉。",
+   "ctx": [
+    "feifei/bark:chest#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "從這邊打開，才不會夾到尾巴。",
+   "ctx": [
+    "feifei/bark:chest#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "有乾淨繃帶就好了。",
+   "ctx": [
+    "feifei/bark:chest#4"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這個紙箱有人要嗎？",
+   "ctx": [
+    "feifei/bark:chest#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "家裡也有個這樣的紙箱。",
+   "ctx": [
+    "feifei/bark:chest#6"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師兄倒是很會找地方睡。",
+   "ctx": [
+    "feifei/bark:chest#7"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "唔……還以為回到家了。",
+   "ctx": [
+    "feifei/bark:restNap#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "外面還是很安靜。",
+   "ctx": [
+    "feifei/bark:restNap#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "好久沒睡得這麼沉了。",
+   "ctx": [
+    "feifei/bark:restNap#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "眼睛舒服多了，剛才好澀。",
+   "ctx": [
+    "feifei/bark:restNap#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "被子好暖，捨不得掀開。",
+   "ctx": [
+    "feifei/bark:restNap#4"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "夢還沒做完，就醒了。",
+   "ctx": [
+    "feifei/bark:restNap#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "尾巴睡麻了……讓我伸一下。",
+   "ctx": [
+    "feifei/bark:restNap#6"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "香、香爐的煙一直往鼻子鑽……我一整晚都沒闔眼，對不起……",
+   "ctx": [
+    "feifei/bark:restNapRestless#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這根的毛邊總算磨掉了。",
+   "ctx": [
+    "feifei/bark:restSharpen#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這樣拿，出手就不會卡住。",
+   "ctx": [
+    "feifei/bark:restSharpen#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "針尖沾好藥，握的地方也擦乾淨了。",
+   "ctx": [
+    "feifei/bark:restSharpen#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "磨好了，心裡踏實些。",
+   "ctx": [
+    "feifei/bark:restSharpen#3"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "彎的挑出來了，這些都能用。",
+   "ctx": [
+    "feifei/bark:restSharpen#4"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這個角度，終於對了。",
+   "ctx": [
+    "feifei/bark:restSharpen#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "下次手別抖就好了。",
+   "ctx": [
+    "feifei/bark:restSharpen#6"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "太好了……你還在。",
+   "ctx": [
+    "feifei/bark:revive#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "先坐一下，我扶著你。",
+   "ctx": [
+    "feifei/bark:revive#1"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "嚇到我了。別再倒下去了。",
+   "ctx": [
+    "feifei/bark:revive#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "有伏兵跳出來了！",
+   "ctx": [
+    "feifei/bark:ambush#0"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你都擺好架勢了……看來不是問路就能過去。",
+   "ctx": [
+    "feifei/firstMeet:white_duelist"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠刨地刨得好用力，鼻子還朝著我。這是要衝過來嗎？",
+   "ctx": [
+    "feifei/firstMeet:wild_boar"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "遠看像紙做的，近看全是尖角。被劃到可不是鬧著玩的。",
+   "ctx": [
+    "feifei/firstMeet:paper_tiger"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "鼓聲越來越急了。我連自己的心跳都聽不見。",
+   "ctx": [
+    "feifei/firstMeet:drum_tanuki"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "鐵皮底下還有關節在動。原來不是一整塊鐵。",
+   "ctx": [
+    "feifei/firstMeet:iron_arhat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "絲都纏到手上了！這樣叫我怎麼拿針。",
+   "ctx": [
+    "feifei/firstMeet:shadow_spider"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "站都站不穩，怎麼還能出拳？不能跟著牠的腳步晃。",
+   "ctx": [
+    "feifei/firstMeet:drunk_dog"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "小鬼都在等牠點頭……原來是牠叫你們攔我的。",
+   "ctx": [
+    "feifei/firstMeet:oni_general"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這幾隻一直互相看，不能只盯住一隻。",
+   "ctx": [
+    "feifei/firstMeet:imp"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "鏡子裡全是我的臉，我都快分不清出口了。",
+   "ctx": [
+    "feifei/firstMeet:mirror_sage"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "碎成這樣還會動？我不要踩到那些碎片。",
+   "ctx": [
+    "feifei/firstMeet:mirror_shard"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "剛剛還看得見，現在又只剩影子。牠究竟站在哪裡？",
+   "ctx": [
+    "feifei/firstMeet:void_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我差點以為是點心。牠剛才是不是看了我一眼？",
+   "ctx": [
+    "feifei/firstMeet:dango_slime"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "又分開了！大的小的都別往鞋子裡鑽。",
+   "ctx": [
+    "feifei/firstMeet:dango_bit"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "縮得只剩一個殼。你害怕，我也害怕呀。",
+   "ctx": [
+    "feifei/firstMeet:armadillo_pup"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "翅膀一直晃，我得看清牠停在哪裡。",
+   "ctx": [
+    "feifei/firstMeet:lantern_moth"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "睡得這麼沉，連我走過來都沒發現。",
+   "ctx": [
+    "feifei/firstMeet:hibernating_bear"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "肚子還在鼓……不好，得找個能遮住的地方。",
+   "ctx": [
+    "feifei/firstMeet:puffer_spirit"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "殼一層疊一層，連腳都快藏進去了。",
+   "ctx": [
+    "feifei/firstMeet:plated_beetle"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那隻一抬手，其他的就圍上來了。原來都聽牠的。",
+   "ctx": [
+    "feifei/firstMeet:rat_general"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "長槍後面還有盾，這條路堵得真緊。",
+   "ctx": [
+    "feifei/firstMeet:rat_guard"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "別再唸了，我想不起招式了。",
+   "ctx": [
+    "feifei/firstMeet:curse_priest"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "影子在變淡。牠是想逃，還是想繞到我後面？",
+   "ctx": [
+    "feifei/firstMeet:phantom_fox"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠越瞪越兇。我連針都還沒拿出來呢。",
+   "ctx": [
+    "feifei/firstMeet:red_oni"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "鱗粉飄過來了……還好我有戴口罩。",
+   "ctx": [
+    "feifei/firstMeet:moon_moth_queen"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那隻手掌比我的頭還大。光看就覺得痛。",
+   "ctx": [
+    "feifei/firstMeet:jizo_golem"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "連池子旁邊都有人守，不能繞過去嗎？",
+   "ctx": [
+    "feifei/firstMeet:frog_daimyo"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "池水裡那些黑點，原來都是兵。",
+   "ctx": [
+    "feifei/firstMeet:tadpole"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "把頭縮進去了……這是在拒絕我嗎？",
+   "ctx": [
+    "feifei/firstMeet:armadillo_king"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠一呼吸，鱗片就跟著動。原來真的有這麼大的貓。",
+   "ctx": [
+    "feifei/firstMeet:dragon_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "您在唸經，還是在咒我？",
+   "ctx": [
+    "feifei/firstMeet:hex_abbot"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠按住刀柄了。我才剛走過來，還沒說話呢。",
+   "ctx": [
+    "feifei/firstMeet:shiba_ronin"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "曲子明明很好聽，背上卻一直發冷。",
+   "ctx": [
+    "feifei/firstMeet:shamisen_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "舌頭收回去啦，我看見了！",
+   "ctx": [
+    "feifei/firstMeet:lantern_ghost"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "聲音四面都有，到底是哪一個在響？",
+   "ctx": [
+    "feifei/firstMeet:windchime_sprite"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你也替那位大人跑腿？這裡可不是玩耍的地方。",
+   "ctx": [
+    "feifei/firstMeet:tanuki_kid"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "一隻鞋？另一隻呢……會不會從後面過來。",
+   "ctx": [
+    "feifei/firstMeet:geta_monster"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠才從畫裡出來，就把地上滴得到處都是墨。",
+   "ctx": [
+    "feifei/firstMeet:ink_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那是搗麻糬的杵吧？拜託別拿來搗我。",
+   "ctx": [
+    "feifei/firstMeet:moon_rabbit"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我繞到哪，牠就看到哪。連背後都躲不了。",
+   "ctx": [
+    "feifei/firstMeet:owl_sentry"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "紙邊這麼利……剛才差點就用手去接了。",
+   "ctx": [
+    "feifei/firstMeet:paper_crane"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那團霧一直朝這裡聚。裡面的臉，我不認得。",
+   "ctx": [
+    "feifei/firstMeet:miasma_blob"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "剛才暗處那雙眼睛，原來離我這麼近。",
+   "ctx": [
+    "feifei/firstMeet:night_panther"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "傘底下伸出一隻腳……我今天到底看到了什麼。",
+   "ctx": [
+    "feifei/firstMeet:kasa_obake"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你看的是袋子吧？裡面的小魚乾我還要留著。",
+   "ctx": [
+    "feifei/firstMeet:kappa"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "謝謝，可是這塊豆腐的味道不太對。",
+   "ctx": [
+    "feifei/firstMeet:tofu_boy"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "扇子一動，我連站都站不住了。",
+   "ctx": [
+    "feifei/firstMeet:tengu"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠一唸咒，我的毛就豎起來。",
+   "ctx": [
+    "feifei/firstMeet:fox_miko"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "裡面是空的……到底是誰在讓這副盔甲動？",
+   "ctx": [
+    "feifei/firstMeet:armor_ghost"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師兄？……不對。那雙紫眼睛，跟那天晚上的師父一樣。",
+   "ctx": [
+    "feifei/firstMeet:shadow_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那張臉明明是我，怎麼會自己笑起來？",
+   "ctx": [
+    "feifei/firstMeet:mirror_qiuqiu"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你也要陪練？我沒答應一次兩個啊。",
+   "ctx": [
+    "feifei/firstMeet:sparring_partner"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "小魚乾堆得比牠還高……村裡卻都沒得吃。",
+   "ctx": [
+    "feifei/firstMeet:orange_king"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "肩膀比門還寬。這一拳過來，我可接不住。",
+   "ctx": [
+    "feifei/firstMeet:cowcat_boss"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "您別靠這麼近，酒味好重。",
+   "ctx": [
+    "feifei/firstMeet:tanuki_lord"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "她一抬下巴，後面就有人替她擋著。連話都不用說。",
+   "ctx": [
+    "feifei/firstMeet:persian_lady"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "您把路擋得這麼緊，是誰叫您來的？",
+   "ctx": [
+    "feifei/firstMeet:butler_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "妳也得聽她的話，不能放我走嗎？",
+   "ctx": [
+    "feifei/firstMeet:maid_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那些小魚乾是從村裡拿來的吧？",
+   "ctx": [
+    "feifei/firstMeet:rat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "別滾到我腳邊，會絆倒的。",
+   "ctx": [
+    "feifei/firstMeet:yarn_ball"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "衣服沾上這個，怎麼洗啊。",
+   "ctx": [
+    "feifei/firstMeet:soy_bottle"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "裡面還有東西！我剛才差點坐下去。",
+   "ctx": [
+    "feifei/firstMeet:box_lurker"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師傅，您的刺掉了一地……我都不敢踩。",
+   "ctx": [
+    "feifei/firstMeet:hedgehog"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "罐頭裡又滿起來了。這裡面的東西吃不完嗎？",
+   "ctx": [
+    "feifei/firstMeet:can_spirit"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "五隻爪子一起伸過來，我該看哪一隻？",
+   "ctx": [
+    "feifei/firstMeet:five_claw"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "耳朵還在動……你其實沒睡著，對吧？",
+   "ctx": [
+    "feifei/firstMeet:dozing_tabby"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那是我的小魚乾。還我。",
+   "ctx": [
+    "feifei/firstMeet:chipmunk"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這隻也在盯我的袋子。",
+   "ctx": [
+    "feifei/firstMeet:chipmunk_small"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我歪頭，牠也歪頭。別連出招都照學呀。",
+   "ctx": [
+    "feifei/firstMeet:mirror_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "原來那不是掃把毛，是腳！難怪會往這邊爬。",
+   "ctx": [
+    "feifei/firstMeet:broom_centipede"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "村口那對石獅子，不會也這樣動吧？",
+   "ctx": [
+    "feifei/firstMeet:stone_lion"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "好熟悉的味道，可是聞久了頭好暈。",
+   "ctx": [
+    "feifei/firstMeet:catnip_phantom"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "地上那個會轉的東西，怎麼衝著我來了？",
+   "ctx": [
+    "feifei/firstMeet:roomba_king"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "連掃把都來幫忙了？",
+   "ctx": [
+    "feifei/firstMeet:mini_broom"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "站了這麼久，連衣角都沒晃一下。",
+   "ctx": [
+    "feifei/firstMeet:calico_monk"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠貼著地面過來，我差點把腳伸進去了。",
+   "ctx": [
+    "feifei/firstMeet:shadow_kitten_a"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "旁邊兩隻也在動。不能只顧著眼前這一隻。",
+   "ctx": [
+    "feifei/firstMeet:shadow_kitten_b"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠一聲不響地守著我後面，反而最讓人不安。",
+   "ctx": [
+    "feifei/firstMeet:shadow_kitten_c"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "怎麼和家裡那根不一樣，推都推不動。",
+   "ctx": [
+    "feifei/firstMeet:training_post"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "婆婆，尾巴可以挪開一點嗎？我怕踩到。",
+   "ctx": [
+    "feifei/firstMeet:nekomata"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "尾巴過來了，婆婆卻沒動！",
+   "ctx": [
+    "feifei/firstMeet:nekomata_tail"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "齒輪聲好刺耳。這麼多鐵爪，都是它在控制？",
+   "ctx": [
+    "feifei/firstMeet:iron_claw"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這根本就是黃瓜……可是黃瓜為什麼在追我！",
+   "ctx": [
+    "feifei/firstMeet:cucumber"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "都長出臉了……再餓也不能當飯糰吃。",
+   "ctx": [
+    "feifei/firstMeet:onigiri_monster"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "原來這裡的木樁會自己找人練。",
+   "ctx": [
+    "feifei/firstMeet:wood_dummy"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你也迷路了嗎？……別低頭，角正對著我呢。",
+   "ctx": [
+    "feifei/firstMeet:goat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "關掉！拜託把那個聲音關掉！",
+   "ctx": [
+    "feifei/firstMeet:vacuum"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你也用飛針？那我們都別站得太近。",
+   "ctx": [
+    "feifei/firstMeet:black_ninja"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我還要靠這袋小魚乾走下去，不能給你。",
+   "ctx": [
+    "feifei/firstMeet:orange_bandit"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "嘴裡鼓起來了。等等，別吐！",
+   "ctx": [
+    "feifei/firstMeet:catgrass_bug"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "明明只有一肚子稻草，聲音卻這麼大。",
+   "ctx": [
+    "feifei/firstMeet:scarecrow"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "剛才還在前面，現在又跑到旁邊了。好快。",
+   "ctx": [
+    "feifei/firstMeet:black_ninja_elite"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這根黃瓜大得快頂到屋頂了，還往這裡拱。",
+   "ctx": [
+    "feifei/firstMeet:big_cucumber"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "我師父在塔頂，你見過他嗎？",
+   "ctx": [
+    "feifei/firstMeet:ninja_boss"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "這顆要是滾過來，整條走廊都塞住了。",
+   "ctx": [
+    "feifei/firstMeet:giant_onigiri"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "你還這麼小，也被叫來守路嗎？",
+   "ctx": [
+    "feifei/firstMeet:black_kitten"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師父，這樣會打傷我的！",
+   "ctx": [
+    "feifei/firstMeet:tower_master"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "指尖都凍麻了。針還握得住，不能弄丟。",
+   "ctx": [
+    "feifei/firstMeet:snow_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "招的是財，還是我的魚乾袋？",
+   "ctx": [
+    "feifei/firstMeet:fortune_cat"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "那盞燈底下有牙齒。差點就只顧著看亮光了。",
+   "ctx": [
+    "feifei/firstMeet:lantern_fish"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "牠藏在後面，手上全是線。這些傀儡都由牠拉著。",
+   "ctx": [
+    "feifei/firstMeet:puppeteer"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "腳沒有落地，卻一步步往前……是上面的線在拉。",
+   "ctx": [
+    "feifei/firstMeet:puppet"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "還在喝？酒都灑到下巴了。",
+   "ctx": [
+    "feifei/firstMeet:shuten_imp"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "兩盞燈互相照著，影子反而看不清。",
+   "ctx": [
+    "feifei/firstMeet:lantern_twin_a"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "別轉了，我快分不清哪一盞是哪一盞。",
+   "ctx": [
+    "feifei/firstMeet:lantern_twin_b"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "翅膀把路全擋住了！",
+   "ctx": [
+    "feifei/firstMeet:miasma_crows"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "飛散了，別鑽到頭髮裡！",
+   "ctx": [
+    "feifei/firstMeet:crow_small"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "鎧甲正在變淡……裡面沒有誰能回答我。",
+   "ctx": [
+    "feifei/firstMeet:wraith_samurai"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "一個頭盯袋子，一個頭盯我。",
+   "ctx": [
+    "feifei/firstMeet:twin_hound"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "樓梯就在後面……偏偏是這尊石像守著。",
+   "ctx": [
+    "feifei/firstMeet:guardian_statue"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "剛才還在笑，換張面具連動作都變了。",
+   "ctx": [
+    "feifei/firstMeet:mask_dancer"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "這次不是從你補的地方斷的喵。",
+   "ctx": [
+    "dangdang/prologue#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我看見了，你把另一頭也打斷了。東西都放著，你們吃過飯再來拿。",
+   "ctx": [
+    "dangdang/prologue#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你要去找球球？外面的木橋缺了一塊，從左邊走。",
+   "ctx": [
+    "dangdang/prologue#5"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "還有師父，他們三天都沒回來了。村裡就拜託你了。",
+   "ctx": [
+    "dangdang/prologue#6"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "球球，菲菲，我來了。",
+   "ctx": [
+    "dangdang/prologue#8"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這些果然被搬到塔裡了。",
+   "ctx": [
+    "dangdang/actClear1#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "是菲菲帶的藥。她應該沒走遠。",
+   "ctx": [
+    "dangdang/actClear1#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "大俠貓！是我，噹噹！",
+   "ctx": [
+    "dangdang/actClear2#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "他在上面。",
+   "ctx": [
+    "dangdang/actClear2#3"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "噹噹？你怎麼也上來了喵？",
+   "ctx": [
+    "dangdang/topScene#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我來了。門補好了，換村貓守。",
+   "ctx": [
+    "dangdang/topScene#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "噹、噹噹……師兄的腳扭到了，我扶不動他。",
+   "ctx": [
+    "dangdang/topScene#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "扶他到門邊坐好。我站穩了，這一掌我接。",
+   "ctx": [
+    "dangdang/topScene#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "糟了……手抬不起來。",
+   "ctx": [
+    "dangdang/defeat#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "有他們的消息，就叫我。",
+   "ctx": [
+    "dangdang/defeat#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "您再打下去，我這對護臂就得重做了。",
+   "ctx": [
+    "dangdang/victory#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你們先過去。……等我一下，腿有點軟。",
+   "ctx": [
+    "dangdang/victory#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "門閂還差一根釘子，我吃完就補。……那鍋還有嗎？",
+   "ctx": [
+    "dangdang/victory#6"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "回去先補門閂，再把護臂重做一對。",
+   "ctx": [
+    "dangdang/result:victoryTeaser"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這是大俠貓的字。球球拿來的秘笈，也是這樣寫的。",
+   "ctx": [
+    "dangdang/secretScroll#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "書頁都折到了。他是一路帶著這本書上來的？",
+   "ctx": [
+    "dangdang/secretScroll#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我知道他變了。總得有人把他帶回去。",
+   "ctx": [
+    "dangdang/afterFirstElite#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "守樓梯的就在上面，今晚先在這裡休息。",
+   "ctx": [
+    "dangdang/restBeforeBoss1#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "把護臂卸下來，手指都快彎不動了。",
+   "ctx": [
+    "dangdang/restBeforeBoss1#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "睡一覺，還是把接招的動作再練一遍？",
+   "ctx": [
+    "dangdang/restBeforeBoss1#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這股氣味越來越重，喉嚨都發乾了。",
+   "ctx": [
+    "dangdang/restBeforeBoss2#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剛才那聲音，是大俠貓吧？",
+   "ctx": [
+    "dangdang/restBeforeBoss2#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "上樓以前，得先讓手臂休息一下。",
+   "ctx": [
+    "dangdang/restBeforeBoss2#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "再上去，就是大俠貓了。",
+   "ctx": [
+    "dangdang/restBeforeBoss3#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "上次他一掌推過來，我連退三步。",
+   "ctx": [
+    "dangdang/restBeforeBoss3#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這次不是練習，他不會收力。",
+   "ctx": [
+    "dangdang/restBeforeBoss3#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "扣帶綁緊一點，明天得接住他那一掌。",
+   "ctx": [
+    "dangdang/restBeforeBoss3#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "大俠貓，是我。村口修鍋的噹噹。",
+   "ctx": [
+    "dangdang/bossIntro:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "要回去，我陪您。先把手放下，好嗎？",
+   "ctx": [
+    "dangdang/bossIntro:tower_master#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "大俠貓！以前站不穩、讓您扶起來的那個，就是我！",
+   "ctx": [
+    "dangdang/bossPhase2:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "您的手都在流血，別再使勁了！",
+   "ctx": [
+    "dangdang/bossPhase3:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "婆婆，我來接大俠貓。村裡還有人在等他。",
+   "ctx": [
+    "dangdang/bossIntro:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "大俠貓……婆婆見過他上去。那雙眼睛已經是紫的了。婆婆守在這，就是不想再有孩子跟上去送命。",
+   "ctx": [
+    "dangdang/bossIntro:nekomata#2",
+    "fengfeng/bossIntro:nekomata#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "婆婆，那我得站遠點了。",
+   "ctx": [
+    "dangdang/bossPhase2:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "nekomata",
+   "text": "記住，他還沒被魔氣吞光。你要快，再晚，剩下的就不是大俠貓了。",
+   "ctx": [
+    "dangdang/bossDefeat:nekomata#1",
+    "fengfeng/bossDefeat:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "謝謝婆婆。我上去找他。",
+   "ctx": [
+    "dangdang/bossDefeat:nekomata#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "那團紫光，跟大俠貓眼裡的一樣。",
+   "ctx": [
+    "dangdang/bossIntro:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你不讓開，那我只好把你拆了。",
+   "ctx": [
+    "dangdang/bossIntro:iron_claw#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "爪子燒紅了，不能貼著接！",
+   "ctx": [
+    "dangdang/bossPhase2:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "紫光散了。大俠貓身上的那團，也弄得掉。",
+   "ctx": [
+    "dangdang/bossDefeat:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "後面那些是村裡的糧食。你跟塔頂那位是一夥的？",
+   "ctx": [
+    "dangdang/bossIntro:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "那就讓路，糧食也放回來。",
+   "ctx": [
+    "dangdang/bossIntro:orange_king#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "要滾過來了！往旁邊閃！",
+   "ctx": [
+    "dangdang/bossPhase2:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "桶子放著，我回來搬。別再拿了。",
+   "ctx": [
+    "dangdang/bossDefeat:orange_king#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你是二當家，誰是大當家？",
+   "ctx": [
+    "dangdang/bossIntro:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "那是大俠貓。他平常不會讓人堵路收東西。",
+   "ctx": [
+    "dangdang/bossIntro:cowcat_boss#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "換成白爪，出手的方向也變了。",
+   "ctx": [
+    "dangdang/bossPhase2:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "他以前陪我們練功，誰摔倒了，他都會伸手扶一把。",
+   "ctx": [
+    "dangdang/bossDefeat:cowcat_boss#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "不喝。我來找大俠貓，你知道他在哪裡嗎？",
+   "ctx": [
+    "dangdang/bossIntro:tanuki_lord#1"
+   ]
+  },
+  {
+   "speaker": "tanuki_lord",
+   "text": "大俠貓？呵，上面那位灌的可不是酒，是魔氣。喝了就再也想不起自己是誰。",
+   "ctx": [
+    "dangdang/bossIntro:tanuki_lord#2",
+    "fengfeng/bossIntro:tanuki_lord#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "煙散了，人反而更多。哪隻是真的？",
+   "ctx": [
+    "dangdang/bossPhase2:tanuki_lord#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我踩髒的地方，回來再擦。現在得上樓。",
+   "ctx": [
+    "dangdang/bossIntro:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "妳也往前站，別光叫他們上。",
+   "ctx": [
+    "dangdang/bossPhase2:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "借過。我只走樓梯，不進你的池子。",
+   "ctx": [
+    "dangdang/bossIntro:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "小兵從旁邊來了，別讓牠們繞到後面。",
+   "ctx": [
+    "dangdang/bossPhase2:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "殼上這些傷，你也遇到塔裡的魔物了？",
+   "ctx": [
+    "dangdang/bossIntro:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我從旁邊過。能不能挪開一點？",
+   "ctx": [
+    "dangdang/bossIntro:armadillo_king#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剛才打痛你了，對不住。謝謝你讓路。",
+   "ctx": [
+    "dangdang/bossDefeat:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "醒一醒，你壓住樓梯了。",
+   "ctx": [
+    "dangdang/bossIntro:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "終於睜眼了。這下得小心。",
+   "ctx": [
+    "dangdang/bossPhase2:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "路空出來了。好，你接著睡。",
+   "ctx": [
+    "dangdang/bossDefeat:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我沒有殺誰。我是來接大俠貓回去的。",
+   "ctx": [
+    "dangdang/bossIntro:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "hex_abbot",
+   "text": "大俠貓？呵……貧僧也曾想勸他。結果你看，貧僧的眼睛也紫了。",
+   "ctx": [
+    "dangdang/bossIntro:hex_abbot#2",
+    "fengfeng/bossIntro:hex_abbot#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "鱗甲還在長，魔氣沒停。",
+   "ctx": [
+    "dangdang/bossPhase2:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "他的兩個徒弟都在找他。我這就上去。",
+   "ctx": [
+    "dangdang/bossDefeat:hex_abbot#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "架勢換了，不能照剛才那樣接。",
+   "ctx": [
+    "dangdang/bossPhase2Generic#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "魔氣又湧上來了……我還得撐住。",
+   "ctx": [
+    "dangdang/bossPhase3Generic#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你不讓路，那就動手。",
+   "ctx": [
+    "dangdang/bark:battleStart#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "等一下，先讓我站穩。",
+   "ctx": [
+    "dangdang/bark:battleStart#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我看見你了，出來吧。",
+   "ctx": [
+    "dangdang/bark:battleStart#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "離樓梯遠點，別把路打塌了。",
+   "ctx": [
+    "dangdang/bark:battleStart#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "要從正面來？好。",
+   "ctx": [
+    "dangdang/bark:battleStart#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "工具先收好，免得灑一地。",
+   "ctx": [
+    "dangdang/bark:battleStart#5"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "手伸得這麼長，倒挺敢的。",
+   "ctx": [
+    "dangdang/bark:battleStart#6"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "護臂扣好了。來吧。",
+   "ctx": [
+    "dangdang/bark:battleStart#7"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "別往我背後繞。",
+   "ctx": [
+    "dangdang/bark:battleStart#8"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你先把那東西放下！",
+   "ctx": [
+    "dangdang/bark:battleStart#9"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "站在那裡等我？等很久了吧。",
+   "ctx": [
+    "dangdang/bark:battleStart#10"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這地方有點窄，我得挪一步。",
+   "ctx": [
+    "dangdang/bark:battleStart#11"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "先過你這一關。",
+   "ctx": [
+    "dangdang/bark:battleStart#12"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我可沒帶東西給你搶。",
+   "ctx": [
+    "dangdang/bark:battleStart#13"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "打完了。看看樓梯在哪裡。",
+   "ctx": [
+    "dangdang/bark:battleWin#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剛才那一下，震得我手指發麻。",
+   "ctx": [
+    "dangdang/bark:battleWin#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "扣帶還在，沒有鬆。",
+   "ctx": [
+    "dangdang/bark:battleWin#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "呼，總算能把手放下了。",
+   "ctx": [
+    "dangdang/bark:battleWin#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "先把袖子拉好。",
+   "ctx": [
+    "dangdang/bark:battleWin#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "護臂又多一道痕。",
+   "ctx": [
+    "dangdang/bark:battleWin#5"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "工具袋沒破吧……還好。",
+   "ctx": [
+    "dangdang/bark:battleWin#6"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "坐一下，腿有點痠。",
+   "ctx": [
+    "dangdang/bark:battleWin#7"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這裡灰真多，毛都變色了。",
+   "ctx": [
+    "dangdang/bark:battleWin#8"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "耳朵裡還嗡嗡響。",
+   "ctx": [
+    "dangdang/bark:battleWin#9"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "路空出來了。",
+   "ctx": [
+    "dangdang/bark:battleWin#10"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "先喘口氣。",
+   "ctx": [
+    "dangdang/bark:battleWin#11"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "尾巴沒事，差點被踩到。",
+   "ctx": [
+    "dangdang/bark:battleWin#12"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "銅面擦一擦，髒得看不清了。",
+   "ctx": [
+    "dangdang/bark:battleWin#13"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "腳底全是沙。",
+   "ctx": [
+    "dangdang/bark:battleWin#14"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "把東西拿好，繼續走。",
+   "ctx": [
+    "dangdang/bark:battleWin#15"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "飯糰不夠，這招使不出來。",
+   "ctx": [
+    "dangdang/bark:hungry#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "先省著點力氣。",
+   "ctx": [
+    "dangdang/bark:hungry#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "肚子在叫了。",
+   "ctx": [
+    "dangdang/bark:hungry#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剩下這點，得算著用。",
+   "ctx": [
+    "dangdang/bark:hungry#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "空著肚子，手都抬不久。",
+   "ctx": [
+    "dangdang/bark:hungry#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "飯糰再多一點就好了。",
+   "ctx": [
+    "dangdang/bark:hungry#5"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這一下太費力，現在不行。",
+   "ctx": [
+    "dangdang/bark:hungry#6"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "想吃口熱的……等打完吧。",
+   "ctx": [
+    "dangdang/bark:hungry#7"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這一下真痛……",
+   "ctx": [
+    "dangdang/bark:lowHp#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "手別抖，先抬起來。",
+   "ctx": [
+    "dangdang/bark:lowHp#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "腿快撐不住了。",
+   "ctx": [
+    "dangdang/bark:lowHp#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "得先處理傷口。",
+   "ctx": [
+    "dangdang/bark:lowHp#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "眼前有點花，扶一下。",
+   "ctx": [
+    "dangdang/bark:lowHp#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "不能再挨了。",
+   "ctx": [
+    "dangdang/bark:lowHp#5"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "呼……還能站。",
+   "ctx": [
+    "dangdang/bark:lowHp#6"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "護臂好重，快抬不動了。",
+   "ctx": [
+    "dangdang/bark:lowHp#7"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "箱蓋沒釘死，能打開。",
+   "ctx": [
+    "dangdang/bark:chest#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我先看看裡面。",
+   "ctx": [
+    "dangdang/bark:chest#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這箱角包得挺牢。",
+   "ctx": [
+    "dangdang/bark:chest#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "該不會是裝石頭的吧。",
+   "ctx": [
+    "dangdang/bark:chest#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "蓋子有點卡，從這邊掀。",
+   "ctx": [
+    "dangdang/bark:chest#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "裡頭沒聲音。打開看看。",
+   "ctx": [
+    "dangdang/bark:chest#5"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "肩膀不那麼緊了。",
+   "ctx": [
+    "dangdang/bark:restNap#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "睡著的時候，手還緊緊握著。",
+   "ctx": [
+    "dangdang/bark:restNap#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這墊子挺厚。",
+   "ctx": [
+    "dangdang/bark:restNap#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剛才壓到尾巴了……",
+   "ctx": [
+    "dangdang/bark:restNap#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "把護臂戴回去，走吧。",
+   "ctx": [
+    "dangdang/bark:restNap#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "睡過一覺，眼睛總算睜得開。",
+   "ctx": [
+    "dangdang/bark:restNap#5"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "香爐還在冒煙。躺了半天，一點都沒睡著。",
+   "ctx": [
+    "dangdang/bark:restNapRestless#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剛才是腳站太窄了。",
+   "ctx": [
+    "dangdang/bark:restSharpen#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "換這個角度，接起來順多了。",
+   "ctx": [
+    "dangdang/bark:restSharpen#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "收手要跟上。再來就不會卡了。",
+   "ctx": [
+    "dangdang/bark:restSharpen#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這一下總算做對了。",
+   "ctx": [
+    "dangdang/bark:restSharpen#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "原來不用抬那麼高。",
+   "ctx": [
+    "dangdang/bark:restSharpen#4"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "練好了，記住這個位置。",
+   "ctx": [
+    "dangdang/bark:restSharpen#5"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "醒了？先坐好。",
+   "ctx": [
+    "dangdang/bark:revive#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "手搭過來，我扶你。",
+   "ctx": [
+    "dangdang/bark:revive#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "看著我。認得我是誰吧？",
+   "ctx": [
+    "dangdang/bark:revive#2"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "有伏兵跳出來了！",
+   "ctx": [
+    "dangdang/bark:ambush#0"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "要切磋可以，先把路邊的東西挪開。",
+   "ctx": [
+    "dangdang/firstMeet:white_duelist"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "刨夠了？我可不會站著讓你撞。",
+   "ctx": [
+    "dangdang/firstMeet:wild_boar"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "紙邊也能割傷手，不能直接抓。",
+   "ctx": [
+    "dangdang/firstMeet:paper_tiger"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "敲得這麼急，你自己跟得上嗎？",
+   "ctx": [
+    "dangdang/firstMeet:drum_tanuki"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這層鐵皮敲下去，手都要麻了。",
+   "ctx": [
+    "dangdang/firstMeet:iron_arhat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "絲別纏到扣帶上，等一下解不開。",
+   "ctx": [
+    "dangdang/firstMeet:shadow_spider"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "腳步都歪了，拳頭倒還挺準。",
+   "ctx": [
+    "dangdang/firstMeet:drunk_dog"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "原來是你在叫牠們。",
+   "ctx": [
+    "dangdang/firstMeet:oni_general"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "藏那麼遠，還扔得到？",
+   "ctx": [
+    "dangdang/firstMeet:imp"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "先別晃鏡子，我看得見你。",
+   "ctx": [
+    "dangdang/firstMeet:mirror_sage"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "碎片飛過來了，護住眼睛！",
+   "ctx": [
+    "dangdang/firstMeet:mirror_shard"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "牠的身子都透光了……打得到嗎？",
+   "ctx": [
+    "dangdang/firstMeet:void_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剛才誰把會動的東西擺上盤子？",
+   "ctx": [
+    "dangdang/firstMeet:dango_slime"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "分開以後還會追人？",
+   "ctx": [
+    "dangdang/firstMeet:dango_bit"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "頭縮得真快。連腳都收進去了。",
+   "ctx": [
+    "dangdang/firstMeet:armadillo_pup"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "下來一點。一直仰頭，脖子都痠了。",
+   "ctx": [
+    "dangdang/firstMeet:lantern_moth"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這麼大的熊，我可搬不動。",
+   "ctx": [
+    "dangdang/firstMeet:hibernating_bear"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "還在鼓？我再退兩步。",
+   "ctx": [
+    "dangdang/firstMeet:puffer_spirit"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這殼比護臂還厚。",
+   "ctx": [
+    "dangdang/firstMeet:plated_beetle"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "前面排得整整齊齊，後面還有人指揮。",
+   "ctx": [
+    "dangdang/firstMeet:rat_general"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "槍尖別亂晃，眼睛差點被你戳到。",
+   "ctx": [
+    "dangdang/firstMeet:rat_guard"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你嘴裡在唸什麼？聽了就不舒服。",
+   "ctx": [
+    "dangdang/firstMeet:curse_priest"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "等一下，剛才牠還在那邊。",
+   "ctx": [
+    "dangdang/firstMeet:phantom_fox"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "握那麼緊，手指不會痛嗎？",
+   "ctx": [
+    "dangdang/firstMeet:red_oni"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這些粉別沾到臉上。",
+   "ctx": [
+    "dangdang/firstMeet:moon_moth_queen"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "石頭手掌……這一下不能硬吃。",
+   "ctx": [
+    "dangdang/firstMeet:jizo_golem"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "池子也是你的，樓梯也是你的？",
+   "ctx": [
+    "dangdang/firstMeet:frog_daimyo"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這些小兵連武器都快舉不住了。",
+   "ctx": [
+    "dangdang/firstMeet:tadpole"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "整條路都被殼堵住了。",
+   "ctx": [
+    "dangdang/firstMeet:armadillo_king"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "鼻子冒煙了。牠睡著也這麼燙？",
+   "ctx": [
+    "dangdang/firstMeet:dragon_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "眼睛都紫了，您還認得人嗎？",
+   "ctx": [
+    "dangdang/firstMeet:hex_abbot"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "刀先收回去，話還沒說完。",
+   "ctx": [
+    "dangdang/firstMeet:shiba_ronin"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "弦沒斷，我耳朵倒快受不了了。",
+   "ctx": [
+    "dangdang/firstMeet:shamisen_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "燈籠也有舌頭？難怪一直漏風。",
+   "ctx": [
+    "dangdang/firstMeet:lantern_ghost"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這聲音……靠這麼近，真受不了。",
+   "ctx": [
+    "dangdang/firstMeet:windchime_sprite"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這麼小就出來攔路，誰叫你來的？",
+   "ctx": [
+    "dangdang/firstMeet:tanuki_kid"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "少了一隻還跳得這麼快？",
+   "ctx": [
+    "dangdang/firstMeet:geta_monster"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "墨還在滴。腳下全黑了。",
+   "ctx": [
+    "dangdang/firstMeet:ink_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你拿那把槌子，是來搗東西還是打架？",
+   "ctx": [
+    "dangdang/firstMeet:moon_rabbit"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "頭轉到後面，身子不用跟著轉？",
+   "ctx": [
+    "dangdang/firstMeet:owl_sentry"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "紙折得這麼薄，邊緣跟刀一樣利。",
+   "ctx": [
+    "dangdang/firstMeet:paper_crane"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "裡面那張臉，是活的嗎？",
+   "ctx": [
+    "dangdang/firstMeet:miasma_blob"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "站在暗處，我差點撞上你。",
+   "ctx": [
+    "dangdang/firstMeet:night_panther"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "一條腿也站得這麼穩？",
+   "ctx": [
+    "dangdang/firstMeet:kasa_obake"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "頭上的水快灑出來了。",
+   "ctx": [
+    "dangdang/firstMeet:kappa"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這味道不對，別再往我這邊遞了。",
+   "ctx": [
+    "dangdang/firstMeet:tofu_boy"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "風把工具袋都掀開了！",
+   "ctx": [
+    "dangdang/firstMeet:tengu"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你拿著符往我這邊走做什麼？",
+   "ctx": [
+    "dangdang/firstMeet:fox_miko"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "空盔甲怎麼自己站起來了？",
+   "ctx": [
+    "dangdang/firstMeet:armor_ghost"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這不是球球。他的影子不會自己跑。",
+   "ctx": [
+    "dangdang/firstMeet:shadow_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "鏡子裡的影子走出來了。",
+   "ctx": [
+    "dangdang/firstMeet:mirror_qiuqiu"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "說好切磋，你也要上？",
+   "ctx": [
+    "dangdang/firstMeet:sparring_partner"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "那幾桶小魚乾，全被你搬來了？",
+   "ctx": [
+    "dangdang/firstMeet:orange_king"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "站得高也不用把整條路擋住。",
+   "ctx": [
+    "dangdang/firstMeet:cowcat_boss"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "酒離我遠點，聞著都嗆。",
+   "ctx": [
+    "dangdang/firstMeet:tanuki_lord"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "來的人不少。到底是誰要跟我打？",
+   "ctx": [
+    "dangdang/firstMeet:persian_lady"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "袖子挽得這麼整齊，是早就等著了？",
+   "ctx": [
+    "dangdang/firstMeet:butler_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你也要攔我？托盤先放下吧。",
+   "ctx": [
+    "dangdang/firstMeet:maid_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "糧箱上的牙印，是你們啃的吧？",
+   "ctx": [
+    "dangdang/firstMeet:rat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "別往腳底下滾！",
+   "ctx": [
+    "dangdang/firstMeet:yarn_ball"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "地上都是醬油，腳都站不穩了。",
+   "ctx": [
+    "dangdang/firstMeet:soy_bottle"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我差點伸手去掀蓋子。",
+   "ctx": [
+    "dangdang/firstMeet:box_lurker"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這身刺，連碰都不能碰。",
+   "ctx": [
+    "dangdang/firstMeet:hedgehog"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "又滿了？這罐頭從哪裡補進去的？",
+   "ctx": [
+    "dangdang/firstMeet:can_spirit"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "一隻一隻來，我看不清你的手。",
+   "ctx": [
+    "dangdang/firstMeet:five_claw"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "睡在這裡，不怕別人踩到？",
+   "ctx": [
+    "dangdang/firstMeet:dozing_tabby"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "把手從我的袋子拿開。",
+   "ctx": [
+    "dangdang/firstMeet:chipmunk"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "小隻的也會偷，果然是一夥的。",
+   "ctx": [
+    "dangdang/firstMeet:chipmunk_small"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我抬手你也抬，那我不動呢？",
+   "ctx": [
+    "dangdang/firstMeet:mirror_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "底下這麼多腳，難怪掃得快。",
+   "ctx": [
+    "dangdang/firstMeet:broom_centipede"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "石座空了……原來你走下來了。",
+   "ctx": [
+    "dangdang/firstMeet:stone_lion"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這味道太濃，得換口氣。",
+   "ctx": [
+    "dangdang/firstMeet:catnip_phantom"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "別撞我的腳，我又不是地上的垃圾。",
+   "ctx": [
+    "dangdang/firstMeet:roomba_king"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "連小掃把都跟來了。",
+   "ctx": [
+    "dangdang/firstMeet:mini_broom"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "您這個站姿，一看就練了很多年。",
+   "ctx": [
+    "dangdang/firstMeet:calico_monk"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "影子裡還藏著一隻。",
+   "ctx": [
+    "dangdang/firstMeet:shadow_kitten_a"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "別繞到背後去。",
+   "ctx": [
+    "dangdang/firstMeet:shadow_kitten_b"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這隻一直不動，在等什麼？",
+   "ctx": [
+    "dangdang/firstMeet:shadow_kitten_c"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "底座做得不錯，比村裡那根還牢靠。",
+   "ctx": [
+    "dangdang/firstMeet:training_post"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "婆婆，您的尾巴碰到我了。",
+   "ctx": [
+    "dangdang/firstMeet:nekomata"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "尾巴還能自己追過來？",
+   "ctx": [
+    "dangdang/firstMeet:nekomata_tail"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這些爪子一合起來，護臂都會被夾扁。",
+   "ctx": [
+    "dangdang/firstMeet:iron_claw"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "剛才它是不是動了？",
+   "ctx": [
+    "dangdang/firstMeet:cucumber"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "飯糰長腳，我還是第一次見。",
+   "ctx": [
+    "dangdang/firstMeet:onigiri_monster"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這木頭關節，怎麼自己動起來了？",
+   "ctx": [
+    "dangdang/firstMeet:wood_dummy"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你也走錯路了？出口在下面。",
+   "ctx": [
+    "dangdang/firstMeet:goat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這麼吵，開關在哪裡？",
+   "ctx": [
+    "dangdang/firstMeet:vacuum"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "堵在門口，是在等我？",
+   "ctx": [
+    "dangdang/firstMeet:black_ninja"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "要東西就好好說，爪子先收起來。",
+   "ctx": [
+    "dangdang/firstMeet:orange_bandit"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "別吐在我身上！",
+   "ctx": [
+    "dangdang/firstMeet:catgrass_bug"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "稻草紮得挺緊，還會拿武器。",
+   "ctx": [
+    "dangdang/firstMeet:scarecrow"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "好快，差點沒接住。",
+   "ctx": [
+    "dangdang/firstMeet:black_ninja_elite"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這麼大根，門都快擠不下了。",
+   "ctx": [
+    "dangdang/firstMeet:big_cucumber"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你就是叫牠們守在下面的那隻？",
+   "ctx": [
+    "dangdang/firstMeet:ninja_boss"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這個要是往下滾，整條樓梯都會被堵住。",
+   "ctx": [
+    "dangdang/firstMeet:giant_onigiri"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "你後面還有人？別往前擠。",
+   "ctx": [
+    "dangdang/firstMeet:black_kitten"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "大俠貓，您看我一眼。",
+   "ctx": [
+    "dangdang/firstMeet:tower_master"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "冷得手指都僵了。",
+   "ctx": [
+    "dangdang/firstMeet:snow_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "一直招手，也不代表我會掏錢。",
+   "ctx": [
+    "dangdang/firstMeet:fortune_cat"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "光照在前面，嘴藏在後面。好險。",
+   "ctx": [
+    "dangdang/firstMeet:lantern_fish"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "線連到後面去了。原來是你在拉。",
+   "ctx": [
+    "dangdang/firstMeet:puppeteer"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "木頭做的，打下來可不輕。",
+   "ctx": [
+    "dangdang/firstMeet:puppet"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "還喝？你都快站不住了。",
+   "ctx": [
+    "dangdang/firstMeet:shuten_imp"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "這盞一亮，那盞也亮了。",
+   "ctx": [
+    "dangdang/firstMeet:lantern_twin_a"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "得留意另一盞，別只顧眼前。",
+   "ctx": [
+    "dangdang/firstMeet:lantern_twin_b"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "太多了，頭上全是翅膀！",
+   "ctx": [
+    "dangdang/firstMeet:miasma_crows"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "散開了還不走？",
+   "ctx": [
+    "dangdang/firstMeet:crow_small"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "聲音在盔甲裡，裡面卻沒人。",
+   "ctx": [
+    "dangdang/firstMeet:wraith_samurai"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "兩張嘴，一張咬這邊，一張咬那邊。",
+   "ctx": [
+    "dangdang/firstMeet:twin_hound"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "石像也攔在最後一段樓梯上。",
+   "ctx": [
+    "dangdang/firstMeet:guardian_statue"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "又換面具。這次手勢也變了。",
+   "ctx": [
+    "dangdang/firstMeet:mask_dancer"
+   ]
+  },
+  {
+   "speaker": "villager",
+   "text": "大俠貓中了魔氣，跑進那座塔。球球追了進去，菲菲和噹噹昨天也去了。",
+   "ctx": [
+    "fengfeng/prologue#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "門檻上散著的，都是村裡被搶走的小魚乾。他們應該也是從這裡進去的。",
+   "ctx": [
+    "fengfeng/prologue#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "每次回村，都是他們在路口等我。這次換我去找。",
+   "ctx": [
+    "fengfeng/prologue#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "箱子搬到這裡，裡面的東西倒是被吃得乾乾淨淨。",
+   "ctx": [
+    "fengfeng/actClear1#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "上面有人。我去問問。",
+   "ctx": [
+    "fengfeng/actClear1#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你受傷了？",
+   "ctx": [
+    "fengfeng/actClear2#1"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "我沒事，是牠走不動。球球和菲菲還在上面。",
+   "ctx": [
+    "fengfeng/actClear2#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你把牠送出去。我去找他們。",
+   "ctx": [
+    "fengfeng/actClear2#3"
+   ]
+  },
+  {
+   "speaker": "dangdang",
+   "text": "大俠貓現在認不得人。看到他抬手，就躲開。",
+   "ctx": [
+    "fengfeng/actClear2#4"
+   ]
+  },
+  {
+   "speaker": "ninja",
+   "text": "封封，別傷到師父喵！",
+   "ctx": [
+    "fengfeng/topScene#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "我知道。你退到門邊，別伸手擋劍。",
+   "ctx": [
+    "fengfeng/topScene#2"
+   ]
+  },
+  {
+   "speaker": "feifei",
+   "text": "師兄，我扶你過去。",
+   "ctx": [
+    "fengfeng/topScene#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "門口交給你們。有人上來就叫我。",
+   "ctx": [
+    "fengfeng/topScene#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "我的朋友有回來嗎？",
+   "ctx": [
+    "fengfeng/defeat#1"
+   ]
+  },
+  {
+   "speaker": "villager",
+   "text": "還沒有消息。你先把傷養好，我們一有消息就來告訴你。",
+   "ctx": [
+    "fengfeng/defeat#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "您認得我了。先坐下，我把劍收好。",
+   "ctx": [
+    "fengfeng/victory#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "看過兩邊了，沒人。等我收劍，你再進來。",
+   "ctx": [
+    "fengfeng/victory#6"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "下一趟貨晚幾天再送，先在村裡把傷養好。",
+   "ctx": [
+    "fengfeng/result:victoryTeaser"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這本書上的字，我在大俠貓的院子裡見過。",
+   "ctx": [
+    "fengfeng/secretScroll#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "書掉在這裡，他應該已經往上走了。",
+   "ctx": [
+    "fengfeng/secretScroll#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "那就更得把他帶回村裡。我不能當作沒聽見。",
+   "ctx": [
+    "fengfeng/afterFirstElite#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "樓上就是守關的。回程的路，我先在心裡走一遍。",
+   "ctx": [
+    "fengfeng/restBeforeBoss1#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍放在右手邊，半夜拔出來也不會碰到牆。",
+   "ctx": [
+    "fengfeng/restBeforeBoss1#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "天亮前還早。先睡，還是把收劍那一下再練順？",
+   "ctx": [
+    "fengfeng/restBeforeBoss1#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這股味道跟山谷裡的瘴氣很像，越往上越濃。",
+   "ctx": [
+    "fengfeng/restBeforeBoss2#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "那聲吼從正上方傳來。大俠貓離這裡不遠了。",
+   "ctx": [
+    "fengfeng/restBeforeBoss2#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "明天那一關路窄，劍得收短一點出。",
+   "ctx": [
+    "fengfeng/restBeforeBoss2#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "明天就到塔頂。送了這麼多年的貨，這是最難走的一段。",
+   "ctx": [
+    "fengfeng/restBeforeBoss3#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "以前在院子練劍，他總叫我先看兩邊有沒有人，再出手。",
+   "ctx": [
+    "fengfeng/restBeforeBoss3#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "明天他就站在劍路上。這一劍，只能架，不能砍。",
+   "ctx": [
+    "fengfeng/restBeforeBoss3#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "回程要揹人下樓。水袋裝滿，繩子也備好了。",
+   "ctx": [
+    "fengfeng/restBeforeBoss3#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "大俠貓，是我，封封。球球和菲菲已經退到門邊了。",
+   "ctx": [
+    "fengfeng/bossIntro:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "您要回村，我們就陪您下去。先把手放下。",
+   "ctx": [
+    "fengfeng/bossIntro:tower_master#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "大俠貓，您看清楚！我不是來跟您比劍的！",
+   "ctx": [
+    "fengfeng/bossPhase2:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "您的手受傷了，再使力會更嚴重！",
+   "ctx": [
+    "fengfeng/bossPhase3:tower_master#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "婆婆，我來找大俠貓和他的兩個徒弟。他們都沒回村。",
+   "ctx": [
+    "fengfeng/bossIntro:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "尾巴又多了幾條。劍得收短，別讓它們纏上。",
+   "ctx": [
+    "fengfeng/bossPhase2:nekomata#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "他還有救。謝謝婆婆告訴我。",
+   "ctx": [
+    "fengfeng/bossDefeat:nekomata#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "紫光從鐵皮縫裡透出來。劍從那道縫進得去。",
+   "ctx": [
+    "fengfeng/bossIntro:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鐵爪張得太開了。我從側面過。",
+   "ctx": [
+    "fengfeng/bossIntro:iron_claw#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "爪子燒紅了，碰到劍柄都會燙手！",
+   "ctx": [
+    "fengfeng/bossPhase2:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "紫光散了，機關也停了。上面那股魔氣應該也能除掉。",
+   "ctx": [
+    "fengfeng/bossDefeat:iron_claw#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "桶子上的繩結是村裡的綁法。這些糧，你替塔頂那位收的？",
+   "ctx": [
+    "fengfeng/bossIntro:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "糧食留下，樓梯也讓開。",
+   "ctx": [
+    "fengfeng/bossIntro:orange_king#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "身體壓下來了，牠要往前撞！",
+   "ctx": [
+    "fengfeng/bossPhase2:orange_king#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "那些是村裡的糧食，別再吃了。我下樓時來拿。",
+   "ctx": [
+    "fengfeng/bossDefeat:orange_king#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "有二當家，就有大當家。他在哪一層？",
+   "ctx": [
+    "fengfeng/bossIntro:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "大俠貓不會指使人搶糧。你沒看出他不對勁？",
+   "ctx": [
+    "fengfeng/bossIntro:cowcat_boss#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "換成白爪了。這次是從另一邊打過來。",
+   "ctx": [
+    "fengfeng/bossPhase2:cowcat_boss#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "他平常不會這樣。我得上去看看他。",
+   "ctx": [
+    "fengfeng/bossDefeat:cowcat_boss#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "趕路的人不喝酒，喝了就走不直。我找的是大俠貓。",
+   "ctx": [
+    "fengfeng/bossIntro:tanuki_lord#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "影子突然多了，得認清拿酒葫蘆的那隻。",
+   "ctx": [
+    "fengfeng/bossPhase2:tanuki_lord#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鞋底的泥我會擦掉。我得去塔頂找大俠貓，請妳讓路。",
+   "ctx": [
+    "fengfeng/bossIntro:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "他們都上來了。妳也要一起打？",
+   "ctx": [
+    "fengfeng/bossPhase2:persian_lady#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "借過。池邊留一條路給我就好，劍不會出鞘。",
+   "ctx": [
+    "fengfeng/bossIntro:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "旁邊有腳步聲，小兵來了。",
+   "ctx": [
+    "fengfeng/bossPhase2:frog_daimyo#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "殼上的傷還很新。是這裡的魔物打的？",
+   "ctx": [
+    "fengfeng/bossIntro:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你擋住路了。我得從這裡上去。",
+   "ctx": [
+    "fengfeng/bossIntro:armadillo_king#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "謝謝你挪開。我從旁邊走，不碰你的傷。",
+   "ctx": [
+    "fengfeng/bossDefeat:armadillo_king#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這段樓梯是唯一的路。對不住，得請你挪一挪。",
+   "ctx": [
+    "fengfeng/bossIntro:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "牠醒了。劍先收近一點，別被咬住。",
+   "ctx": [
+    "fengfeng/bossPhase2:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "樓梯露出來了。我走了，你繼續睡。",
+   "ctx": [
+    "fengfeng/bossDefeat:dragon_cat#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "我來接大俠貓回村。你見過他嗎？",
+   "ctx": [
+    "fengfeng/bossIntro:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鱗甲還在長，剛才的地方打不進去了。",
+   "ctx": [
+    "fengfeng/bossPhase2:hex_abbot#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "最掛念的人……是球球和菲菲。我先上去，替他們把路清出來。",
+   "ctx": [
+    "fengfeng/bossDefeat:hex_abbot#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "步子變了。剛才量好的距離，不算數了。",
+   "ctx": [
+    "fengfeng/bossPhase2Generic#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "魔氣又多了。得把眼前這一關打完。",
+   "ctx": [
+    "fengfeng/bossPhase3Generic#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "把武器放下，我只是要過去。",
+   "ctx": [
+    "fengfeng/bark:battleStart#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你一直跟到這裡，是想搶東西？",
+   "ctx": [
+    "fengfeng/bark:battleStart#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "前面沒路可繞，只能從這裡過了。",
+   "ctx": [
+    "fengfeng/bark:battleStart#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "別碰我的行囊。",
+   "ctx": [
+    "fengfeng/bark:battleStart#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "站這麼近，我可不會收著劍。",
+   "ctx": [
+    "fengfeng/bark:battleStart#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "躲在那裡，我的劍也夠得到。出來吧。",
+   "ctx": [
+    "fengfeng/bark:battleStart#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍柄沒鬆，還能用。",
+   "ctx": [
+    "fengfeng/bark:battleStart#6"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這邊比較空，往這邊打。",
+   "ctx": [
+    "fengfeng/bark:battleStart#7"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這次看清楚你的動作了。",
+   "ctx": [
+    "fengfeng/bark:battleStart#8"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "把劍拔出來，衣角別纏上去。",
+   "ctx": [
+    "fengfeng/bark:battleStart#9"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你堵著門，我就得先跟你打一場。",
+   "ctx": [
+    "fengfeng/bark:battleStart#10"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "爪子收回去，別伸到劍前面。",
+   "ctx": [
+    "fengfeng/bark:battleStart#11"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這裡的路比山上還難走。",
+   "ctx": [
+    "fengfeng/bark:battleStart#12"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "行囊放好了。我來會會你。",
+   "ctx": [
+    "fengfeng/bark:battleStart#13"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這一場打完了。",
+   "ctx": [
+    "fengfeng/bark:battleWin#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍上都是灰，擦乾淨再收。",
+   "ctx": [
+    "fengfeng/bark:battleWin#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "剛才差點滑倒，鞋底得清一清。",
+   "ctx": [
+    "fengfeng/bark:battleWin#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "手臂有點痠，換隻手拿。",
+   "ctx": [
+    "fengfeng/bark:battleWin#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "收劍前先看一眼身後。沒人，好。",
+   "ctx": [
+    "fengfeng/bark:battleWin#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍穗纏住了，難怪一直拉著手。",
+   "ctx": [
+    "fengfeng/bark:battleWin#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "繩結沒鬆，行囊也還在。",
+   "ctx": [
+    "fengfeng/bark:battleWin#6"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "出劍的位置比剛才寬多了。",
+   "ctx": [
+    "fengfeng/bark:battleWin#7"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍身還在嗡嗡響，等它停了再收。",
+   "ctx": [
+    "fengfeng/bark:battleWin#8"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "終於聽得見自己的呼吸了。",
+   "ctx": [
+    "fengfeng/bark:battleWin#9"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "水袋放哪裡去了？在這裡。",
+   "ctx": [
+    "fengfeng/bark:battleWin#10"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "肩膀拉到了，抬手有點痛。",
+   "ctx": [
+    "fengfeng/bark:battleWin#11"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "灰都進領口了。",
+   "ctx": [
+    "fengfeng/bark:battleWin#12"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍先收好，免得走路碰到牆。",
+   "ctx": [
+    "fengfeng/bark:battleWin#13"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "還有一段樓梯要走。",
+   "ctx": [
+    "fengfeng/bark:battleWin#14"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這塊地板會滑，回來時得記住。",
+   "ctx": [
+    "fengfeng/bark:battleWin#15"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "乾糧算少了，這一劍撐不起來。",
+   "ctx": [
+    "fengfeng/bark:hungry#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "剩下的力氣不夠使這招。",
+   "ctx": [
+    "fengfeng/bark:hungry#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "水袋還有，飯糰沒了。",
+   "ctx": [
+    "fengfeng/bark:hungry#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "得省著用剩下的飯糰。",
+   "ctx": [
+    "fengfeng/bark:hungry#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這一劍太吃力，先緩一口氣再出。",
+   "ctx": [
+    "fengfeng/bark:hungry#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "還差一顆飯糰。",
+   "ctx": [
+    "fengfeng/bark:hungry#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "再出這招，力氣就不夠了。",
+   "ctx": [
+    "fengfeng/bark:hungry#6"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "先換一招省力的。",
+   "ctx": [
+    "fengfeng/bark:hungry#7"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "手抖得快握不住劍了。",
+   "ctx": [
+    "fengfeng/bark:lowHp#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這裡的傷又裂開了。",
+   "ctx": [
+    "fengfeng/bark:lowHp#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "腿使不上力，得扶著牆。",
+   "ctx": [
+    "fengfeng/bark:lowHp#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "別再打到這隻手。",
+   "ctx": [
+    "fengfeng/bark:lowHp#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "眼前有些模糊，不能再往前衝。",
+   "ctx": [
+    "fengfeng/bark:lowHp#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "得找機會把血止住。",
+   "ctx": [
+    "fengfeng/bark:lowHp#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "再挨一下，我就站不住了。",
+   "ctx": [
+    "fengfeng/bark:lowHp#6"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "呼吸有點痛，剛才傷到胸口了。",
+   "ctx": [
+    "fengfeng/bark:lowHp#7"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這個箱子沒有上鎖。",
+   "ctx": [
+    "fengfeng/bark:chest#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "箱蓋下面像是卡了東西。",
+   "ctx": [
+    "fengfeng/bark:chest#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "先把劍挪開，再掀蓋子。",
+   "ctx": [
+    "fengfeng/bark:chest#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "木板還乾燥，裡面的東西也許能用。",
+   "ctx": [
+    "fengfeng/bark:chest#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這個箱子挺深的。",
+   "ctx": [
+    "fengfeng/bark:chest#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "封口繩還在，我解開看看。",
+   "ctx": [
+    "fengfeng/bark:chest#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "醒來先看了一眼門口，劍還在原位。",
+   "ctx": [
+    "fengfeng/bark:restNap#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "醒來時還以為在商隊的帳篷裡。",
+   "ctx": [
+    "fengfeng/bark:restNap#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這個墊子比山路邊的石頭舒服。",
+   "ctx": [
+    "fengfeng/bark:restNap#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "剛才把袖子壓皺了。",
+   "ctx": [
+    "fengfeng/bark:restNap#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "水喝過了，劍也帶上。",
+   "ctx": [
+    "fengfeng/bark:restNap#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "一覺睡到天亮，連夢都沒做。",
+   "ctx": [
+    "fengfeng/bark:restNap#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "香爐的煙整夜沒停。沒睡著也好，天亮就上路。",
+   "ctx": [
+    "fengfeng/bark:restNapRestless#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "手腕轉到這裡，劍就不會卡住。",
+   "ctx": [
+    "fengfeng/bark:restSharpen#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "踏步太早了，剛才改過來才順。",
+   "ctx": [
+    "fengfeng/bark:restSharpen#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這回收劍沒有撞到腰帶。",
+   "ctx": [
+    "fengfeng/bark:restSharpen#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍刃上的小缺口磨平了。",
+   "ctx": [
+    "fengfeng/bark:restSharpen#3"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍尖收回半寸，就不會掃到旁邊的人。",
+   "ctx": [
+    "fengfeng/bark:restSharpen#4"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這一招接得上了。",
+   "ctx": [
+    "fengfeng/bark:restSharpen#5"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "抓住我的手，我扶你坐起來。",
+   "ctx": [
+    "fengfeng/bark:revive#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "醒了就好，先靠著這邊。",
+   "ctx": [
+    "fengfeng/bark:revive#1"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你的東西在旁邊，我幫你拿。",
+   "ctx": [
+    "fengfeng/bark:revive#2"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "有伏兵跳出來了！",
+   "ctx": [
+    "fengfeng/bark:ambush#0"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "要切磋？往後退三步，劍才伸得開。",
+   "ctx": [
+    "fengfeng/firstMeet:white_duelist"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你一直刨地，是準備衝過來？",
+   "ctx": [
+    "fengfeng/firstMeet:wild_boar"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "紙做的刺也很尖，別讓劍被纏住了。",
+   "ctx": [
+    "fengfeng/firstMeet:paper_tiger"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鼓聲越來越急，腳步得踩穩。",
+   "ctx": [
+    "fengfeng/firstMeet:drum_tanuki"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "劍敲到鐵皮，震得手都麻了。",
+   "ctx": [
+    "fengfeng/firstMeet:iron_arhat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "絲纏到劍鞘了，得挑開。",
+   "ctx": [
+    "fengfeng/firstMeet:shadow_spider"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你腳步雖然晃，拳頭倒沒打偏。",
+   "ctx": [
+    "fengfeng/firstMeet:drunk_dog"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "原來那些小鬼是你叫來的。",
+   "ctx": [
+    "fengfeng/firstMeet:oni_general"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "別躲在牆後丟東西！",
+   "ctx": [
+    "fengfeng/firstMeet:imp"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鏡面一直在轉，得找出你站的位置。",
+   "ctx": [
+    "fengfeng/firstMeet:mirror_sage"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "碎片飛得太散，劍擋不完，先退一步！",
+   "ctx": [
+    "fengfeng/firstMeet:mirror_shard"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "身體透明到看得見後面的牆，劍碰得到嗎？",
+   "ctx": [
+    "fengfeng/firstMeet:void_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "會自己爬的團子，我可不吃。",
+   "ctx": [
+    "fengfeng/firstMeet:dango_slime"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "分成兩隻了，還都往我這裡跳。",
+   "ctx": [
+    "fengfeng/firstMeet:dango_bit"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "頭一縮進去，就找不到臉了。",
+   "ctx": [
+    "fengfeng/firstMeet:armadillo_pup"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "牠飛得太高，不能一直仰著頭追。",
+   "ctx": [
+    "fengfeng/firstMeet:lantern_moth"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這麼大的熊壓著路，怎麼叫才會醒？",
+   "ctx": [
+    "fengfeng/firstMeet:hibernating_bear"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "還在鼓起來，我得再站遠一點。",
+   "ctx": [
+    "fengfeng/firstMeet:puffer_spirit"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這層殼得換個角度打。",
+   "ctx": [
+    "fengfeng/firstMeet:plated_beetle"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "後面那隻在發號施令。",
+   "ctx": [
+    "fengfeng/firstMeet:rat_general"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "槍長盾也大，從正面不好打進去。",
+   "ctx": [
+    "fengfeng/firstMeet:rat_guard"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你唸一句，這裡就暗一點。",
+   "ctx": [
+    "fengfeng/firstMeet:curse_priest"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "剛才還在左邊，怎麼又到右邊去了？",
+   "ctx": [
+    "fengfeng/firstMeet:phantom_fox"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你舉著武器，手都不會痠？",
+   "ctx": [
+    "fengfeng/firstMeet:red_oni"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "粉都飄過來了，不能吸進去。",
+   "ctx": [
+    "fengfeng/firstMeet:moon_moth_queen"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這隻手是整塊石頭，劍鞘擋不住。",
+   "ctx": [
+    "fengfeng/firstMeet:jizo_golem"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你守的是池子，還是後面的樓梯？",
+   "ctx": [
+    "fengfeng/firstMeet:frog_daimyo"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這些槍比你們自己還長。",
+   "ctx": [
+    "fengfeng/firstMeet:tadpole"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這麼大的殼，連旁邊的縫都堵住了。",
+   "ctx": [
+    "fengfeng/firstMeet:armadillo_king"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鼻子在冒煙，睡著也會噴火嗎？",
+   "ctx": [
+    "fengfeng/firstMeet:dragon_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "您的眼睛也變紫了。",
+   "ctx": [
+    "fengfeng/firstMeet:hex_abbot"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你拿刀，我拿劍，那就把距離站好。",
+   "ctx": [
+    "fengfeng/firstMeet:shiba_ronin"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "弦聲刮得耳朵好痛，先停一下！",
+   "ctx": [
+    "fengfeng/firstMeet:shamisen_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "燈籠伸出舌頭來了！",
+   "ctx": [
+    "fengfeng/firstMeet:lantern_ghost"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "聲音就在耳邊，震得我頭好痛。",
+   "ctx": [
+    "fengfeng/firstMeet:windchime_sprite"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你也來攔路？把手裡的東西放下。",
+   "ctx": [
+    "fengfeng/firstMeet:tanuki_kid"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "木屐聲一下左一下右，想亂我的步子？",
+   "ctx": [
+    "fengfeng/firstMeet:geta_monster"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "墨滴到地上了，鞋底別踩進去。",
+   "ctx": [
+    "fengfeng/firstMeet:ink_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "那把槌子掉下來，地板都會破。",
+   "ctx": [
+    "fengfeng/firstMeet:moon_rabbit"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "頭轉過去了，身體居然沒動。",
+   "ctx": [
+    "fengfeng/firstMeet:owl_sentry"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "紙翅膀這麼薄，擦過去會割傷。",
+   "ctx": [
+    "fengfeng/firstMeet:paper_crane"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "魔氣裡那張臉，剛才是不是看向我？",
+   "ctx": [
+    "fengfeng/firstMeet:miasma_blob"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你站在火光照不到的地方，剛好比劍長一點。",
+   "ctx": [
+    "fengfeng/firstMeet:night_panther"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "只有一條腿，還跳得挺穩。",
+   "ctx": [
+    "fengfeng/firstMeet:kasa_obake"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "頭上頂著那盤水，跟我挑藥罐走山路一樣，一步都不能晃。",
+   "ctx": [
+    "fengfeng/firstMeet:kappa"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這豆腐的味道不對，我不拿。",
+   "ctx": [
+    "fengfeng/firstMeet:tofu_boy"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "風把衣角都掀起來了！",
+   "ctx": [
+    "fengfeng/firstMeet:tengu"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你把符朝這裡舉，是要對我做什麼？",
+   "ctx": [
+    "fengfeng/firstMeet:fox_miko"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "盔甲裡沒有身體，怎麼握住刀的？",
+   "ctx": [
+    "fengfeng/firstMeet:armor_ghost"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "長得像球球，可球球從不擋在我的劍前面。",
+   "ctx": [
+    "fengfeng/firstMeet:shadow_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鏡子裡那個，出劍比我慢了半拍。",
+   "ctx": [
+    "fengfeng/firstMeet:mirror_qiuqiu"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你也站過來，是要兩個一起切磋？",
+   "ctx": [
+    "fengfeng/firstMeet:sparring_partner"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "那幾桶小魚乾，是村裡丟的。",
+   "ctx": [
+    "fengfeng/firstMeet:orange_king"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "站這麼高，門框都快碰到你的頭了。",
+   "ctx": [
+    "fengfeng/firstMeet:cowcat_boss"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "好重的酒味，我站遠一點。",
+   "ctx": [
+    "fengfeng/firstMeet:tanuki_lord"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "妳身後的人也要一起上？",
+   "ctx": [
+    "fengfeng/firstMeet:persian_lady"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "手套都戴好了，是早就準備要打？",
+   "ctx": [
+    "fengfeng/firstMeet:butler_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "托盤先放下，別把上面的東西摔了。",
+   "ctx": [
+    "fengfeng/firstMeet:maid_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "那些糧箱是我一箱一箱送進村的。牙印倒是新的。",
+   "ctx": [
+    "fengfeng/firstMeet:rat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "毛線纏住鞋了，別再往前滾！",
+   "ctx": [
+    "fengfeng/firstMeet:yarn_ball"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "醬油流了一地，踩上去會滑倒。",
+   "ctx": [
+    "fengfeng/firstMeet:soy_bottle"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "箱蓋裡有牙！幸好沒伸手。",
+   "ctx": [
+    "fengfeng/firstMeet:box_lurker"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "刺全豎起來了，不能貼著打。",
+   "ctx": [
+    "fengfeng/firstMeet:hedgehog"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "罐子明明空了，怎麼又裝滿了？",
+   "ctx": [
+    "fengfeng/firstMeet:can_spirit"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "手太多了，得看哪隻先伸過來。",
+   "ctx": [
+    "fengfeng/firstMeet:five_claw"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "睡在路中間，不怕被踩到嗎？",
+   "ctx": [
+    "fengfeng/firstMeet:dozing_tabby"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "把我的魚乾袋放下。",
+   "ctx": [
+    "fengfeng/firstMeet:chipmunk"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "大的在前面擋，小的從袋子底下摸。這套我在山路上見過。",
+   "ctx": [
+    "fengfeng/firstMeet:chipmunk_small"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "我抬劍，你也抬，那就試試收劍。",
+   "ctx": [
+    "fengfeng/firstMeet:mirror_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "掃把底下全是腳，難怪一直在動。",
+   "ctx": [
+    "fengfeng/firstMeet:broom_centipede"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "石座空著，你卻站在路中間。守門的，不該離位。",
+   "ctx": [
+    "fengfeng/firstMeet:stone_lion"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這味道讓我想打滾，得把鼻子遮住。",
+   "ctx": [
+    "fengfeng/firstMeet:catnip_phantom"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "繞著地板亂轉，是要把我的退路掃掉？",
+   "ctx": [
+    "fengfeng/firstMeet:roomba_king"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "連小掃把都繞著我轉，劍不好往下出。",
+   "ctx": [
+    "fengfeng/firstMeet:mini_broom"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "您的腳站得很穩，我得留意。",
+   "ctx": [
+    "fengfeng/firstMeet:calico_monk"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這一隻站在最前面，後面兩隻在等我出劍。",
+   "ctx": [
+    "fengfeng/firstMeet:shadow_kitten_a"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "背後是我收劍的地方，別站在那裡。",
+   "ctx": [
+    "fengfeng/firstMeet:shadow_kitten_b"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這隻一直盯著我的手。",
+   "ctx": [
+    "fengfeng/firstMeet:shadow_kitten_c"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "木樁在動，底下裝了什麼？",
+   "ctx": [
+    "fengfeng/firstMeet:training_post"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "婆婆，您那幾條尾巴，把樓梯兩邊都封住了。",
+   "ctx": [
+    "fengfeng/firstMeet:nekomata"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "婆婆還沒動，尾巴先到了。這距離得重新量。",
+   "ctx": [
+    "fengfeng/firstMeet:nekomata_tail"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "鐵爪合起來能夾住劍，不能伸得太深。",
+   "ctx": [
+    "fengfeng/firstMeet:iron_claw"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "黃瓜剛才動了，我看得很清楚。",
+   "ctx": [
+    "fengfeng/firstMeet:cucumber"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "飯糰長腳了，還往這邊跑。",
+   "ctx": [
+    "fengfeng/firstMeet:onigiri_monster"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "木頭的手也能抬起來，真奇怪。",
+   "ctx": [
+    "fengfeng/firstMeet:wood_dummy"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "山路在外面，你是不是走錯了？",
+   "ctx": [
+    "fengfeng/firstMeet:goat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這麼大的聲響，一路上的魔物都要被引過來了。",
+   "ctx": [
+    "fengfeng/firstMeet:vacuum"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你守著門，是在等誰？",
+   "ctx": [
+    "fengfeng/firstMeet:black_ninja"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "把木棒收起來，我不交買路錢。",
+   "ctx": [
+    "fengfeng/firstMeet:orange_bandit"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "汁噴到劍上會黏，擦不乾淨就收不進鞘。",
+   "ctx": [
+    "fengfeng/firstMeet:catgrass_bug"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "稻草紮成的手也能握武器。",
+   "ctx": [
+    "fengfeng/firstMeet:scarecrow"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這一下好快，差點來不及退。",
+   "ctx": [
+    "fengfeng/firstMeet:black_ninja_elite"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這麼大根，轉個身都會堵住門。",
+   "ctx": [
+    "fengfeng/firstMeet:big_cucumber"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "下面的黑貓都是聽你的？",
+   "ctx": [
+    "fengfeng/firstMeet:ninja_boss"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "這顆要是滾下來，樓梯就沒辦法走了。",
+   "ctx": [
+    "fengfeng/firstMeet:giant_onigiri"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "你後面還藏著誰？",
+   "ctx": [
+    "fengfeng/firstMeet:black_kitten"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "大俠貓，是我，封封。",
+   "ctx": [
+    "fengfeng/firstMeet:tower_master"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "手指都凍僵了，劍得握緊。",
+   "ctx": [
+    "fengfeng/firstMeet:snow_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "招手也沒用，我的錢不給你。",
+   "ctx": [
+    "fengfeng/firstMeet:fortune_cat"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "燈後面有一張嘴，差點只顧著看燈光。",
+   "ctx": [
+    "fengfeng/firstMeet:lantern_fish"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "線拉得那麼長，一劍斷在中間就好。",
+   "ctx": [
+    "fengfeng/firstMeet:puppeteer"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "線拉起來，木頭手就跟著動了。",
+   "ctx": [
+    "fengfeng/firstMeet:puppet"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "酒都灑到衣服上了，還喝？",
+   "ctx": [
+    "fengfeng/firstMeet:shuten_imp"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "兩盞燈隔著三步，一劍只夠得到一盞。",
+   "ctx": [
+    "fengfeng/firstMeet:lantern_twin_a"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "兩邊都有動靜，不能只看一盞。",
+   "ctx": [
+    "fengfeng/firstMeet:lantern_twin_b"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "頭頂全是翅膀，劍得收近一點。",
+   "ctx": [
+    "fengfeng/firstMeet:miasma_crows"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "散開了還往回飛，真難纏。",
+   "ctx": [
+    "fengfeng/firstMeet:crow_small"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "盔甲裡傳來聲音，裡面卻是空的。",
+   "ctx": [
+    "fengfeng/firstMeet:wraith_samurai"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "兩個頭都盯著我，劍只能先顧一邊。",
+   "ctx": [
+    "fengfeng/firstMeet:twin_hound"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "最後這段路也有石像守著。",
+   "ctx": [
+    "fengfeng/firstMeet:guardian_statue"
+   ]
+  },
+  {
+   "speaker": "fengfeng",
+   "text": "換了面具，連步子也換了。",
+   "ctx": [
+    "fengfeng/firstMeet:mask_dancer"
+   ]
+  }
+ ],
+ "skipped": [
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "ninja",
+   "ctx": "bossPhase2Generic",
+   "speaker": "塔主",
+   "text": "（氣勢整個變了）"
+  },
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "ninja",
+   "ctx": "bossPhase3Generic",
+   "speaker": "塔主",
+   "text": "（魔氣直往天上冒）"
+  },
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "feifei",
+   "ctx": "bossPhase2Generic",
+   "speaker": "塔主",
+   "text": "（氣勢整個變了）"
+  },
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "feifei",
+   "ctx": "bossPhase3Generic",
+   "speaker": "塔主",
+   "text": "（魔氣直往天上冒）"
+  },
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "dangdang",
+   "ctx": "bossPhase2Generic",
+   "speaker": "塔主",
+   "text": "對手突然換了架勢，周圍的氣流也跟著變了。"
+  },
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "dangdang",
+   "ctx": "bossPhase3Generic",
+   "speaker": "塔主",
+   "text": "更多魔氣從對手身上湧出，衝向塔頂。"
+  },
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "fengfeng",
+   "ctx": "bossPhase2Generic",
+   "speaker": "塔主",
+   "text": "對手突然換了架勢，周圍的氣流也跟著變了。"
+  },
+  {
+   "why": "通用換階段的舞台指示",
+   "hero": "fengfeng",
+   "ctx": "bossPhase3Generic",
+   "speaker": "塔主",
+   "text": "更多魔氣從對手身上湧出，衝向塔頂。"
+  },
+  {
+   "why": "通用關主開場（所有塔主都有專屬開場，走不到）",
+   "hero": "*",
+   "ctx": "bossIntroGeneric",
+   "speaker": "塔主",
+   "text": "到此為止了。"
+  },
+  {
+   "why": "通用關主開場（所有塔主都有專屬開場，走不到）",
+   "hero": "*",
+   "ctx": "bossIntroGeneric",
+   "speaker": "球球",
+   "text": "我還沒打算回去喵。"
+  }
+ ],
+ "coopExtra": [
+  "菲菲|師兄！我、我叫你好幾次了……你都沒聽見。",
+  "球球|師父跑進去了，我不能停下來喵。",
+  "菲菲|我知道……可是你一個人進去，我在外面會更怕。",
+  "球球|那你跟在我後面。前面有東西，我先上喵。",
+  "菲菲|好。你別跑太快，我的針還沒排好。",
+  "菲菲|師兄，你的頭巾又勾破了……回去我再幫你補。",
+  "球球|破一點沒關係，綁得住就好喵。",
+  "球球|你慢慢撿，我先去前面看看喵。",
+  "菲菲|師父，您再撐一下……師兄，你也聽見了吧？",
+  "球球|聽見了。他很痛，我們快點上去喵。",
+  "菲菲|還沒……把師父帶回來……",
+  "球球|師父呢？他回來了沒有喵？",
+  "噹噹|還沒。有人把你們送到村口就走了。",
+  "菲菲|傷口好了，我們就再上去。",
+  "菲菲|師父，這又不是切磋……您剛才連我都不認得了。我跟師兄喊了您一路呢。",
+  "菲菲|師兄，你也在哭。",
+  "球球|我才沒有，是灰跑進眼睛了喵。",
+  "噹噹|都回來了？先進來，門我來關。",
+  "菲菲|師兄，手伸過來。你的繃帶都濕了。",
+  "球球|師父，是我喵。",
+  "菲菲|師父……是我們啊。您看看我。",
+  "球球|師妹，你站後面。我先上喵。",
+  "菲菲|好……我從旁邊下針，你小心他的掌。",
+  "球球|師父，看清楚！我跟師妹都在這裡喵！",
+  "菲菲|要退隱也可以……可是先跟我們回家，好不好？",
+  "菲菲|又是那種眼神……師兄，他要過來了！",
+  "球球|我擋著，你別靠太近喵！",
+  "菲菲|師父，您的手在流血……求您停下來！",
+  "球球|師父，別再打了！我們是來帶你回家的喵！",
+  "菲菲|找到師兄，叫他別自己亂闖。",
+  "球球|師父就在上面，你也看見他了喵？",
+  "噹噹|看見了。走，上去找他。你腳邊那塊磚鬆了，跨過來。",
+  "球球|連一箱都不剩，牠們到底吃了多少喵！",
+  "噹噹|先放到牆邊。回程搬東西才有路走。",
+  "噹噹|別扯，會破。好了，走吧。",
+  "球球|師父！我們上來了喵！",
+  "球球|他剛才是不是很痛喵？",
+  "噹噹|我也聽見了。走，去看看。",
+  "球球|師父回來了沒有喵？",
+  "菲菲|還沒有。有人把你們送到村口，就走了。",
+  "噹噹|球球，先別下床。你看，頭巾都還沒綁好。",
+  "球球|你終於認得我了喵。",
+  "球球|噹噹，你的手在抖喵。",
+  "噹噹|剛才擋太久了。幫我拿一下工具袋。",
+  "菲菲|師父！師兄！……噹噹，你也把手伸出來。",
+  "球球|先看他，他替我擋了好幾下喵。",
+  "噹噹|都要看。先坐下，別光顧著說。",
+  "噹噹|他要出手了！",
+  "球球|我看到了。噹噹，右邊留給我喵。",
+  "球球|師父，看清楚！我跟噹噹都在這裡喵！",
+  "噹噹|要回去，門就在後面。您先把手放下。",
+  "噹噹|球球，往旁邊站！",
+  "球球|我沒事。師父，你聽得見嗎喵？",
+  "球球|他手上都是傷，不能再拖了喵！",
+  "噹噹|好。我從這邊上。",
+  "封封|球球，出了什麼事？",
+  "球球|師父的眼睛變紫了，誰叫他都不理喵！",
+  "封封|我跟你去。跑到轉角要等我，別走散了。",
+  "球球|連箱底都快吃光了，牠們到底搶了多少喵？",
+  "封封|我上回送來的幾箱都在這裡。這條拖痕還通到上面。",
+  "球球|師父，我和封封來了喵！",
+  "封封|聲音是從上面來的。走這邊。",
+  "封封|球球，你從右邊上。我這一劍要往左邊揮。",
+  "球球|好，我不擋你的劍喵！",
+  "球球|封封，你醒了嗎喵？",
+  "封封|醒了。你先別起來，傷口又滲血了。",
+  "球球|不是切磋，我是來找你的喵。",
+  "封封|水在這裡。喝一口，我們就下去。",
+  "菲菲|師兄，你跑出去也不回頭！",
+  "球球|我沒聽見。下次我會回頭喵。",
+  "封封|藥箱在我送來的貨裡，最上面那個。",
+  "球球|師父，看清楚，是我們喵！",
+  "封封|我們就是來接您的。把手放下。",
+  "封封|右手又抬起來了！",
+  "球球|我看見了喵！",
+  "球球|師父，別再打了！你的手在流血喵！",
+  "封封|球球，退開。我來接這一下。",
+  "菲菲|你也要去塔裡？",
+  "噹噹|球球三天沒回來了。我去找他。",
+  "菲菲|那我們一起。我還帶了師父的藥。",
+  "噹噹|竹筒給我看看。上次修的扣環，還會鬆嗎？",
+  "菲菲|不會。現在要用力才打得開。",
+  "菲菲|是師兄的頭巾。這裡還勾著一點。",
+  "噹噹|他往上走了。扶手有毛刺，別碰。",
+  "菲菲|是師父。他的聲音怎麼變成這樣……",
+  "噹噹|大俠貓！球球！聽得見嗎？",
+  "噹噹|她醒過嗎？",
+  "菲菲|……噹噹，你也醒了。等傷好了，我們再去找師父和師兄。",
+  "菲菲|您認得我了，對不對？",
+  "球球|我找了你好久喵。",
+  "噹噹|菲菲，剪刀借我。扣帶卡住了。",
+  "菲菲|別拉，會磨到傷口。我來剪。",
+  "球球|你這對護臂還修得好嗎喵？",
+  "噹噹|修得好。回去你幫我拉風箱。",
+  "球球|師妹，小心！師父誰都不認得了喵！",
+  "菲菲|師兄，你先把頭低下來。我幫你擦一下。",
+  "噹噹|球球，門外還有魔物嗎？",
+  "球球|沒有，我剛看過了。你們小心他的掌喵。",
+  "菲菲|噹噹，我好了。",
+  "菲菲|師父，我和噹噹來接您。師兄也在門邊。",
+  "噹噹|村裡的門修好了。您跟我們回去看看。",
+  "菲菲|又是這種眼神……他沒聽進去。",
+  "噹噹|先顧好自己。他要過來了。",
+  "噹噹|大俠貓，您的手在流血！",
+  "菲菲|師父，求您停下來！",
+  "菲菲|我今天要進塔。這些藥先放屋裡，讓村貓來拿。",
+  "封封|我陪你去。先把藥交給村貓，水也帶夠。",
+  "菲菲|是師兄的。他從這裡上去了。",
+  "封封|我看看前面。你收好針再跟上。",
+  "菲菲|是師父，可是聲音不太對。",
+  "封封|我也聽見了。上面那道門後面還有樓梯。",
+  "球球|師妹，先別過來！師父還認不得我們喵！",
+  "菲菲|我看到了。你扶著門框，受傷的那隻腳先別踩地。",
+  "封封|菲菲，我站左邊。你從右邊出針。",
+  "菲菲|我的竹筒在哪裡？",
+  "封封|床邊，和我的劍放在一起。我拿給你。",
+  "菲菲|您認得我們了，對不對？",
+  "封封|藥布還乾淨，先替他包上。",
+  "噹噹|熱水備好了。誰先換藥？",
+  "封封|讓他們先換。我去把水端過來。",
+  "菲菲|師父，師兄在門口。我和封封來接你們。",
+  "封封|村裡的人都在等您，回去吧。",
+  "菲菲|封封，他要轉身了！",
+  "封封|看見了，你退到柱子旁邊。",
+  "封封|他左手已經握不緊了。",
+  "菲菲|師父，停下來！再打會傷得更重！",
+  "封封|我跟你去。這批藥讓村裡先用。",
+  "噹噹|水袋裝滿。上面不知道有沒有水。",
+  "噹噹|這個角是我補的。又被撞歪了。",
+  "封封|裡面都空了。先把路清出來，回程才好搬。",
+  "噹噹|是大俠貓。聲音比村裡那晚更重了。",
+  "封封|到上面先找球球和菲菲，別讓他們夾在中間。",
+  "噹噹|我接著，你們先過去！",
+  "菲菲|師兄，手搭過來。",
+  "球球|我還能自己走喵。",
+  "封封|那就走到門邊。我的劍要從這邊過。",
+  "噹噹|劍鞘別壓在下面，會裂。",
+  "封封|我挪開了。你別伸手，藥才剛換好。",
+  "噹噹|終於肯停了。我的手都快抬不起來。",
+  "封封|噹噹，幫我扶一下劍鞘。手抖得對不準。",
+  "噹噹|拿來，我扶著。",
+  "封封|明天我替你把鋪子打開。今天先休息。",
+  "噹噹|大俠貓，人都在這裡。您看清楚。",
+  "封封|回村的路已經清好了。我們陪您下去。",
+  "噹噹|這一下太重，不能再正面接！",
+  "封封|你往右退，我從左邊上。",
+  "封封|噹噹，我要出劍了。",
+  "噹噹|好，我退開了。"
+ ],
+ "bossNames": {
+  "rat": "小老鼠兵",
+  "cucumber": "黃瓜怪",
+  "onigiri_monster": "飯糰怪",
+  "wood_dummy": "木樁人",
+  "goat": "迷途山羊",
+  "vacuum": "吸塵器",
+  "black_ninja": "黑貓忍者",
+  "white_duelist": "切磋的白貓",
+  "sparring_partner": "陪練的黑貓",
+  "orange_bandit": "橘貓山賊",
+  "catgrass_bug": "貓草蟲",
+  "scarecrow": "稻草人守衛",
+  "black_ninja_elite": "黑貓忍者（老手）",
+  "big_cucumber": "大黃瓜怪",
+  "ninja_boss": "黑貓忍者頭目",
+  "giant_onigiri": "巨型飯糰",
+  "black_kitten": "小黑貓",
+  "nekomata": "貓又婆婆",
+  "nekomata_tail": "貓又的尾巴",
+  "iron_claw": "鐵爪機關貓",
+  "tower_master": "走火入魔的大俠貓",
+  "yarn_ball": "毛線球怪",
+  "soy_bottle": "打翻的醬油瓶",
+  "box_lurker": "紙箱怪",
+  "hedgehog": "刺蝟師傅",
+  "can_spirit": "貓罐頭精",
+  "five_claw": "五爪貓",
+  "dozing_tabby": "打盹的虎斑",
+  "chipmunk": "花栗鼠",
+  "chipmunk_small": "小花栗鼠",
+  "mirror_cat": "鏡子貓",
+  "broom_centipede": "掃把蜈蚣",
+  "stone_lion": "石獅子",
+  "catnip_phantom": "貓薄荷幻影",
+  "shadow_kitten_a": "影子小貓·壹",
+  "shadow_kitten_b": "影子小貓·貳",
+  "shadow_kitten_c": "影子小貓·參",
+  "training_post": "練功樁",
+  "roomba_king": "掃地機器人王",
+  "mini_broom": "小掃把",
+  "calico_monk": "三花貓武僧",
+  "shiba_ronin": "柴犬浪人",
+  "shamisen_cat": "三味線貓",
+  "lantern_ghost": "燈籠妖",
+  "windchime_sprite": "風鈴精",
+  "tanuki_kid": "狸小弟",
+  "geta_monster": "木屐怪",
+  "ink_cat": "掛軸墨貓",
+  "kasa_obake": "唐傘小僧",
+  "kappa": "河童",
+  "tofu_boy": "豆腐小僧",
+  "moon_rabbit": "月見兔",
+  "owl_sentry": "貓頭鷹夜哨",
+  "paper_crane": "紙鶴式神",
+  "miasma_blob": "魔氣凝塊",
+  "night_panther": "夜行黑豹",
+  "shadow_cat": "影球球",
+  "tengu": "烏天狗",
+  "fox_miko": "白狐巫女",
+  "armor_ghost": "空鎧武者",
+  "mirror_qiuqiu": "鏡中球球",
+  "orange_king": "橘皮大王",
+  "cowcat_boss": "奶牛貓二當家",
+  "tanuki_lord": "狸大人",
+  "persian_lady": "波斯大小姐",
+  "butler_cat": "執事貓",
+  "maid_cat": "女僕貓",
+  "dango_slime": "團子史萊姆",
+  "dango_bit": "小團子",
+  "armadillo_pup": "犰狳寶寶",
+  "lantern_moth": "燈蛾",
+  "hibernating_bear": "冬眠熊",
+  "puffer_spirit": "河豚精",
+  "plated_beetle": "鎧甲獨角仙",
+  "rat_guard": "鼠親兵",
+  "rat_general": "鼠大將",
+  "curse_priest": "詛咒神官",
+  "phantom_fox": "幻狐",
+  "red_oni": "赤鬼武夫",
+  "moon_moth_queen": "月蛾后",
+  "jizo_golem": "地藏石偶",
+  "frog_daimyo": "蛙大名",
+  "tadpole": "蝌蚪兵",
+  "armadillo_king": "犰狳王",
+  "dragon_cat": "沉睡的龍貓",
+  "hex_abbot": "詛咒老住持",
+  "wild_boar": "山豬頭目",
+  "paper_tiger": "紙老虎",
+  "drum_tanuki": "太鼓狸",
+  "iron_arhat": "鐵羅漢",
+  "shadow_spider": "織影蜘蛛",
+  "drunk_dog": "醉拳狗",
+  "oni_general": "鬼將",
+  "imp": "小鬼",
+  "mirror_sage": "鏡仙",
+  "mirror_shard": "鏡影",
+  "void_cat": "虛無貓",
+  "snow_cat": "雪女貓",
+  "fortune_cat": "招財貓",
+  "lantern_fish": "提燈鮟鱇",
+  "puppeteer": "傀儡師",
+  "puppet": "傀儡",
+  "shuten_imp": "酒吞小鬼",
+  "lantern_twin_a": "紙燈籠雙子・甲",
+  "lantern_twin_b": "紙燈籠雙子・乙",
+  "miasma_crows": "魔氣鴉群",
+  "crow_small": "小鴉群",
+  "wraith_samurai": "怨靈武者",
+  "twin_hound": "雙頭魔犬",
+  "guardian_statue": "塔頂守護石像",
+  "mask_dancer": "面具舞者"
+ }
+}

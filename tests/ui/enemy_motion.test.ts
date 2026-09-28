@@ -228,7 +228,7 @@ describe('敵人逐格畫布', () => {
   });
 
   it('依原圖朝向逐動作面向左側，換待機、攻擊、受擊時腳底不跳位', () => {
-    for (const kind of ['rat', 'ninja'] as EnemyMotionKind[]) {
+    for (const kind of ['rat', 'ninja'] as const) {
       const actor = motion.createEnemyMotionActor(kind);
       const canvas = canvases.at(-1)!;
       const initialTransform = canvas.style.transform;
@@ -298,5 +298,34 @@ describe('敵人逐格畫布', () => {
     expect(cancelled).toHaveLength(1);
     step(20);
     expect(canvas.context.draws.length).toBe(before);
+  });
+});
+
+/*
+ * 橫向捲軸搬來的 17 隻（2026-09-28，稽核 低-6）：每一套的每個動作，第一格的腳底都要畫在同一個定位點上，
+ * 切換動作不改畫布位置——換待機、出招、倒下時整隻不會跳位。
+ */
+describe('橫向捲軸動作：腳底不跳位', () => {
+  it.each(['iron_claw', 'iron_claw_p2', 'roomba_king', 'frog_daimyo', 'frog_daimyo_p2', 'orange_king', 'orange_king_p2',
+    'tanuki_lord', 'tanuki_lord_p2', 'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer', 'armor_ghost', 'kappa',
+    'lantern_ghost', 'orange_bandit', 'plated_beetle', 'tengu', 'vacuum', 'wraith_samurai'] as const)('%s', async (kind) => {
+    await motion.preloadEnemyMotion([kind]);
+    expect(motion.enemyMotionReady(kind)).toBe(true);
+    const data = (await import(`../../src/ui/side-motion/${kind}.json`)).default as {
+      actions: Record<string, { scale: number; frames: { pivot: [number, number] }[] }>;
+    };
+    const actor = motion.createEnemyMotionActor(kind);
+    const canvas = canvases.at(-1)!;
+    const initial = { transform: canvas.style.transform, bottom: canvas.style.bottom };
+    for (const [action, motionData] of Object.entries(data.actions)) {
+      actor.play(action as EnemyMotionAction);
+      const [, , , , , dx, dy] = lastDraw();
+      const [px, py] = motionData.frames[0]!.pivot;
+      expect(dx + px * motionData.scale, `${kind} ${action} 腳底 x`).toBeCloseTo(actor.foot.x, 4);
+      expect(dy + py * motionData.scale, `${kind} ${action} 腳底 y`).toBeCloseTo(actor.foot.y, 4);
+      expect(canvas.style.transform).toBe(initial.transform);
+      expect(canvas.style.bottom).toBe(initial.bottom);
+    }
+    actor.dispose();
   });
 });

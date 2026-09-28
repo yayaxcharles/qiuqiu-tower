@@ -1,0 +1,47 @@
+[
+ {
+  "zh": "敢打擾本王用膳，就把身上的小魚乾全留下！",
+  "ctx": [
+   "ninja/bossIntro:orange_king#0",
+   "feifei/bossIntro:orange_king#0",
+   "dangdang/bossIntro:orange_king#0",
+   "fengfeng/bossIntro:orange_king#0"
+  ]
+ },
+ {
+  "zh": "一夥？本王只是趁塔冒出來的時候搬進來罷了。上面那位，本王可不敢惹。",
+  "ctx": [
+   "ninja/bossIntro:orange_king#2",
+   "feifei/bossIntro:orange_king#2",
+   "dangdang/bossIntro:orange_king#2",
+   "fengfeng/bossIntro:orange_king#2"
+  ]
+ },
+ {
+  "zh": "你真的惹怒本王了！",
+  "ctx": [
+   "ninja/bossPhase2:orange_king#0",
+   "feifei/bossPhase2:orange_king#0",
+   "dangdang/bossPhase2:orange_king#0",
+   "fengfeng/bossPhase2:orange_king#0"
+  ]
+ },
+ {
+  "zh": "別打了別打了！本王只是想吃飽……",
+  "ctx": [
+   "ninja/bossDefeat:orange_king#0",
+   "feifei/bossDefeat:orange_king#0",
+   "dangdang/bossDefeat:orange_king#0",
+   "fengfeng/bossDefeat:orange_king#0"
+  ]
+ },
+ {
+  "zh": "小魚乾在後面的桶子裡，拿去。上面那位上去以後，這塔裡就再也沒有能吃的東西了。",
+  "ctx": [
+   "ninja/bossDefeat:orange_king#1",
+   "feifei/bossDefeat:orange_king#1",
+   "dangdang/bossDefeat:orange_king#1",
+   "fengfeng/bossDefeat:orange_king#1"
+  ]
+ }
+]
