@@ -4,6 +4,7 @@ import { artUrl, hasHeroSprite, heroArtUrl, localHero, localPartner, monsterUrl 
 import { el, stageFrame } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
+import { heroVoice, prefetchVoice, speak, stopVoice, voiceGroup } from './voice';
 
 /**
  * 全螢幕對白疊層，點一下下一句；播完自己移除再叫 onDone。
@@ -98,7 +99,11 @@ function screenArtCast(layer: HTMLElement): string[] {
 }
 
 /** 「塔主」這個說話者實際上是誰：關主開場時傳進來，木牌與立繪都換成該關關主本人 */
-export interface SpeakerCast { name: string; portrait: string }
+export interface SpeakerCast {
+  name: string; portrait: string;
+  /** 關主 id（配音查表用；名牌可能帶「暴怒的」前綴，不能拿名字查） */
+  id?: string;
+}
 
 export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: { 塔主?: SpeakerCast },
                              /**
@@ -136,6 +141,11 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
   const hint = el('div', { class: 'dialogue-hint' },
     el('span', {}, '點一下繼續'), el('i', { class: 'paw' }));
   box.append(portrait, el('div', { class: 'dialogue-box' }, speaker, text, hint));
+  // 配音（voice.ts）：每句的聲音角色，跟木牌同一套判斷
+  const hero = localHero();
+  const voiceOf = (l: DialogueLine): { group: string | null; text: string } =>
+    ({ group: voiceGroup(l.speaker, { hero, literal, bossId: cast?.['塔主']?.id }), text: l.text });
+  prefetchVoice(lines.slice(0, 3).map(voiceOf));
   const render = (): void => {
     const l = lines[i];
     if (!l) return;
@@ -144,6 +154,8 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     const who = l.speaker === '塔主' ? cast?.['塔主'] : undefined;
     speaker.textContent = l.speaker === '旁白' ? '' : (who?.name ?? (l.speaker === '球球' && !literal ? heroSpeaker() : l.speaker));
     text.textContent = l.text;
+    speak(voiceOf(l).group, l.text);
+    prefetchVoice(lines.slice(i + 1, i + 3).map(voiceOf));
     box.classList.toggle('narration', l.speaker === '旁白');
     // 換人講話才重設圖，同一個人連講好幾句時不要每句都重播進場動畫
     const plan = portraitPlan(l.speaker, literal, { artCast: screenArtCast(layer), mine: localHero(), mate: localPartner() });
@@ -168,12 +180,13 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     }
   };
   // 這一局被丟掉（連線斷了回標題）時整段收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`，2026-09-23 稽核 高-1）
-  const forget = closeWithStory(() => { if (ended) return; ended = true; box.remove(); unlockScreen(); });
+  const forget = closeWithStory(() => { if (ended) return; ended = true; stopVoice(); box.remove(); unlockScreen(); });
   /** 收尾只會發生一次：對白住在疊層裡，換畫面不會把它拔走，這個旗標再擋住連點重播 */
   const end = (): void => {
     if (ended) return;
     ended = true;
     forget();
+    stopVoice();
     box.remove();
     unlockScreen();   // 排在 onDone 之前：回呼裡就會換畫面、擺上新的按鈕
     onDone();
@@ -335,6 +348,8 @@ export function toast(text: string, speaker = '', at?: { left: number } | { righ
   const layer = overlayRoot();
   if (!layer) return;
   const t = el('div', { class: 'toast' }, speaker ? el('b', {}, `${speaker}：`) : '', text);
+  // 主角的吐槽念出來（查不到就安靜；已經有一句在講就不插嘴，見 voice.ts）
+  speak(heroVoice(speaker), text, 'bark');
   // 戰鬥裡的泡泡要從說話那一格冒出來（連線盤點 2026-09-22 問題 5）：樣式表寫死的 left 200 只對得上單機那一格。
   // 給 right 的是右邊那一格：尾巴改到右下角、泡泡往左長（位置算法在 enemylayout.ts 的 speechBubbleAt）
   if (at && 'left' in at) t.style.left = `${Math.round(at.left)}px`;

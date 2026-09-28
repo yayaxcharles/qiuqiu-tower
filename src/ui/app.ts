@@ -666,7 +666,7 @@ export class App {
       const bossId = ids.find((id) => enemyById[id]?.pool === '塔主') ?? ids[0] ?? '';
       const bd = enemyById[bossId];
       const cast = bd && bossId !== 'tower_master'
-        ? { 塔主: { name: bd.name, portrait: monsterUrl(bd.art, 'idle') } }
+        ? { 塔主: { name: bd.name, portrait: monsterUrl(bd.art, 'idle'), id: bossId } }
         : undefined;   // 師父維持「塔主」木牌與大俠貓立繪
       /*
        * 搭檔專屬的整組接話（2026-09-17）：兩位互相接話，所以**照字面播**。
@@ -797,7 +797,7 @@ export class App {
       const bossUnit = cs.enemies.find((e) => e.enemyId === bossId);
       // 頭像要跟戰場上最後那個樣子一致：變身過（橘皮大王整顆站起來、全身是刺）就用那一階段的圖，不要退回變身前（2026-09-22 畫面盤點 問題 6）
       const outroArt = monsterPhaseKey(bd?.art ?? '', bossUnit?.phase ?? 0);
-      const outroCast = bd ? { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(outroArt, 'idle') } } : undefined;   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
+      const outroCast = bd ? { 塔主: { name: bossUnit?.name ?? bd.name, portrait: monsterUrl(outroArt, 'idle'), id: bossId } } : undefined;   // 名牌用戰場上的名字（含「暴怒的」前綴，稽核 2026-09-04 中 9）
       const soloOutro = (): void => { if (outro && bd) playDialogue(outro, toSlides, outroCast); else toSlides(); };
       if (!this.coop || !bd) { soloOutro(); return; }
       // 連線：貓又婆婆、老住持、狸大人倒下時兩位同伴各接一句（2026-09-25），照整局的兩位角色挑、照字面播；其餘照舊

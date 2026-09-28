@@ -37,6 +37,7 @@ import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
 import { bubbleOverUnit, heroSpeaker, toast } from '../dialogue';
+import { speak as speakVoice, voiceGroup } from '../voice';
 import { clear, el, keepLoops, stageFrame } from '../dom';
 import { play as sfx } from '../audio';
 import { enemyLeft, nextLineup, playerLeft, speechBubbleAt } from '../enemylayout';
@@ -3971,6 +3972,8 @@ registerScreen('combat', (app, root, props) => {
       if (document.querySelector('.dialogue-overlay')) return;
       // 旁白不是誰在講：照舊從原本的位置冒，不要從關主嘴裡出來（狸大人第二階段第一句，推前審查 中-1）
       if (l.speaker === '旁白') { toast(text(l), name(l.speaker)); return; }
+      // 關主那句的配音（主角那句由 toast 自己念）：聲音角色照關主 id，不照名牌
+      if (l.speaker === '塔主') speakVoice(voiceGroup('塔主', { bossId }), text(l), 'bark');
       const seat = speakerSeat(l.speaker, !!coop, cs.players, mySeat);
       if (seat !== undefined) { toast(text(l), name(l.speaker), speechBubbleAt(seat, cs.players.length)); return; }
       if (!bubbleOverUnit(app.stage, root.querySelector(`.unit.enemy[data-id="${bossId}"]`), text(l), name(l.speaker))) toast(text(l), name(l.speaker));

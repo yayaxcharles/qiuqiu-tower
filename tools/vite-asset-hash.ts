@@ -45,6 +45,13 @@ const MANIFEST_REL = 'assets/manifest.json';
 const FAVICON_REL = 'favicon.png';
 
 /**
+ * 配音查表（2026-09-28，`src/ui/voice.ts`）。裡面的音檔路徑**直接在這份改寫成帶雜湊的名字**，
+ * 不進清單的 `files` 平表：清單是每次開遊戲都要下載的入口，五百多筆配音路徑會白白讓首載變大，
+ * 而查表檔本身是第一次要講話時才抓。它是 `.json`，自己不加雜湊（同清單，它是入口）。
+ */
+const VOICE_MAP_REL = 'voice/voice-map.json';
+
+/**
  * 這些副檔名不加雜湊。
  *
  * `.js`／`.css`／`.map` 是 Vite 自己打包的產物（已經有雜湊）；`.html` 是進入點；
@@ -171,12 +178,16 @@ export function assetHash(): Plugin {
        * 2026-09-20～22 曾經另外補列四張「同時當逐格受擊」的舊挨打立繪；挨打換成
        * `assets/motion/<角色>/hit_recoil.webp` 之後沒有圖再同時走兩條路，那個例外拿掉了。
        */
+      const voicePath = join(outDir, VOICE_MAP_REL);
+      const voiceMap = existsSync(voicePath)
+        ? swapPaths(JSON.parse(readFileSync(voicePath, 'utf-8')) as unknown, renamed, used) : null;
+      if (voiceMap) writeFileSync(voicePath, JSON.stringify(voiceMap), 'utf-8');
       const files: Record<string, string> = {};
       for (const [orig, hashed] of renamed) if (!used.has(orig)) files[orig] = hashed;
       next['files'] = files;
 
       // 清單指到的檔案要真的在。這一條擋的是「改名漏了一批、畫面全變灰剪影」那種靜音失效
-      const missing = collectPaths(next).filter((p) => !existsSync(join(outDir, p)));
+      const missing = [...collectPaths(next), ...collectPaths(voiceMap)].filter((p) => !existsSync(join(outDir, p)));
       if (missing.length > 0) {
         throw new Error(`[素材雜湊] 清單指到 ${missing.length} 個不存在的檔案，前幾個：\n${missing.slice(0, 5).join('\n')}`);
       }

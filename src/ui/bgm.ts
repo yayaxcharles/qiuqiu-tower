@@ -44,8 +44,20 @@ export function setMusicVolume(v: number): void {
   volume = Math.max(0, Math.min(100, Math.round(v)));
   try { window.localStorage.setItem(VOL_KEY, String(volume)); } catch { /* 存不了就算了 */ }
   // 正在淡入淡出就把過場砍掉直接設定——使用者在拉的時候要立刻聽到差別
-  if (el && !el.paused) { window.clearInterval(fadeTimer); el.volume = volume / 100; }
+  if (el && !el.paused) { window.clearInterval(fadeTimer); swapping = false; el.volume = level(); }
 }
+
+/**
+ * 配音講話時把音樂壓低（`voice.ts`，2026-09-28）：`k`＝音量倍率，講完傳 1 還原。
+ * 正在淡出換曲就不插手（打斷會讓換曲卡住）；新曲淡入的目標音量本來就照 `level()` 算。
+ */
+let duck = 1;
+export function duckBgm(k: number): void {
+  duck = Math.max(0, Math.min(1, k));
+  if (el && !el.paused && !swapping) fade(el, level());
+}
+/** 現在該有的音量（0～1）：拉桿 × 講話壓低 */
+function level(): number { return (volume / 100) * duck; }
 
 function readEnabled(): boolean {
   try { return window.localStorage.getItem(STORE_KEY) !== 'off'; } catch { return true; }
@@ -56,6 +68,8 @@ let unlocked = false;        // 瀏覽器規定：使用者互動前不准出聲
 let current: BgmName | null = null;      // 現在「應該」放哪首（未解鎖時也記著，解鎖後補播）
 let el: HTMLAudioElement | null = null;
 let fadeTimer = 0;
+/** 正在淡出、淡完要接下一首（這時不能打斷） */
+let swapping = false;
 
 export function musicOn(): boolean { return enabled; }
 
@@ -70,18 +84,20 @@ export function toggleMusic(): boolean { setMusicOn(!enabled); return enabled; }
 
 function stopNow(): void {
   window.clearInterval(fadeTimer);
+  swapping = false;
   if (el) { el.pause(); el.src = ''; el = null; }
 }
 
 /** 每 40 毫秒推一步音量。不用 Web Audio 的排程——這裡只有一個 <audio>，簡單的就好 */
 function fade(a: HTMLAudioElement, to: number, then?: () => void): void {
   window.clearInterval(fadeTimer);
+  swapping = !!then;
   const from = a.volume;
   const t0 = performance.now();
   fadeTimer = window.setInterval(() => {
     const k = Math.min(1, (performance.now() - t0) / FADE_MS);
     a.volume = from + (to - from) * k;
-    if (k >= 1) { window.clearInterval(fadeTimer); then?.(); }
+    if (k >= 1) { window.clearInterval(fadeTimer); swapping = false; then?.(); }
   }, 40);
 }
 
@@ -111,7 +127,7 @@ function startPlaying(name: BgmName): void {
     a.volume = 0;
     el = a;
     // play() 可能被瀏覽器拒絕（理論上解鎖後不會，但拒絕就靜靜算了，不能讓畫面炸掉）
-    a.play().then(() => fade(a, volume / 100)).catch(() => { /* 沒聲音就沒聲音 */ });
+    a.play().then(() => fade(a, level())).catch(() => { /* 沒聲音就沒聲音 */ });
   };
   if (el && !el.paused) fade(el, 0, swap);   // 前一首淡出再接，不要硬切
   else swap();

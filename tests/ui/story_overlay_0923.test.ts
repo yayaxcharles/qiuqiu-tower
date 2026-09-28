@@ -38,7 +38,7 @@ vi.mock('../../src/ui/assets', () => ({
   artUrl: () => 'bg.webp', fileUrl: (p: string) => p, hasHeroSprite: () => false, heroArtUrl: () => 'hero.webp',
   localHero: () => 'ninja', localPartner: () => undefined, monsterUrl: () => 'monster.webp',
 }));
-vi.mock('../../src/ui/bgm', () => ({ pauseBgm: () => {}, setBgm: () => {} }));
+vi.mock('../../src/ui/bgm', () => ({ pauseBgm: () => {}, setBgm: () => {}, duckBgm: () => {} }));
 
 import { playSlides } from '../../src/ui/slides';
 import { playDialogue } from '../../src/ui/dialogue';
