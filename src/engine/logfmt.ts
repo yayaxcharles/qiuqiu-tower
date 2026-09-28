@@ -32,6 +32,8 @@ export type LogArg =
   | { tx: string }
   /** 一句台詞（畫面用台詞表翻） */
   | { say: string }
+  /** 一小段帶參數的句型（畫面用 t() 翻、再填自己的參數；例：「{n} 點{st}」） */
+  | { sub: string; p: Readonly<Record<string, LogArg>> }
   /** 一串東西，中文用「、」接 */
   | { ls: LogArg[] };
 
@@ -48,6 +50,7 @@ export function argZh(a: LogArg): string {
   if ('st' in a) return a.st;
   if ('tx' in a) return a.tx;
   if ('say' in a) return a.say;
+  if ('sub' in a) return fill(a.sub, a.p, argZh);
   return a.ls.map(argZh).join('、');
 }
 

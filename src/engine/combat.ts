@@ -968,7 +968,8 @@ function beginEnemyTurnRest(cs: CombatState): boolean {
     const name = enemyById[r.enemyId]?.name ?? r.enemyId;
     // 紀錄照實際來了幾隻講（只來得及一隻就不要說兩隻，稽核 2026-09-04 低 12）
     if (came === (r.n ?? 1) && r.line) log(cs, r.line);
-    else log(cs, '伏兵！{n}{e}從煙裡跳了出來', { n: came > 1 ? `${came} 隻` : '', e: E({ enemyId: r.enemyId, name }) });
+    else if (came > 1) log(cs, '伏兵！{n} 隻{e}從煙裡跳了出來', { n: came, e: E({ enemyId: r.enemyId, name }) });
+    else log(cs, '伏兵！{e}從煙裡跳了出來', { e: E({ enemyId: r.enemyId, name }) });
   }
   /**
    * 先手香（`skipEnemyTurn`）：這一輪整排魔物不出手。
@@ -1061,12 +1062,12 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     if (ph?.drainPlayerPerTurn && !frozen) {
       for (const q of cs.players) {
         if (q.down) continue;
-        const parts: string[] = [];
+        const parts: LogArg[] = [];
         for (const [name, n] of Object.entries(ph.drainPlayerPerTurn) as [StatusName, number][]) {
           const cut = Math.min(n, getStatus(q, name));
-          if (cut > 0) { addStatus(q, name, -cut); parts.push(`${cut} 點${name}`); }
+          if (cut > 0) { addStatus(q, name, -cut); parts.push({ sub: '{n} 點{st}', p: { n: cut, st: { st: name } } }); }
         }
-        if (parts.length) log(cs, '{e}震散了{who} {parts}', { e: E(e), who: cs.players.length > 1 ? H(q) : { tx: K_('你') }, parts: { tx: parts.join('、') } });
+        if (parts.length) log(cs, '{e}震散了{who} {parts}', { e: E(e), who: cs.players.length > 1 ? H(q) : { tx: K_('你') }, parts: { ls: parts } });
       }
     }
     if (def?.strengthEveryNTurns && !frozen && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);

@@ -695,12 +695,12 @@ export function damageEnemy(cs: CombatState, e: EnemyCombat, base: number,
        * 折半兩邊都保得住——「越打越難」還在（層數真的掉了一半），她也不會被整組廢掉。
        * 算法沿用玩家身上的破功、看破（`Math.floor` 向下取整保留）。
        */
-      const purged: string[] = [];
+      const purged: LogArg[] = [];
       for (const name of DEBUFFS) {
         const v = getStatus(e, name);
         if (v <= 0) continue;
-        if (name === '中毒') { const keep = Math.floor(v / 2); removeStatus(e, name); if (keep > 0) addStatus(e, name, keep); purged.push(`一半的${name}`); }
-        else { removeStatus(e, name); purged.push(name); }
+        if (name === '中毒') { const keep = Math.floor(v / 2); removeStatus(e, name); if (keep > 0) addStatus(e, name, keep); purged.push({ tx: '一半的中毒' }); }
+        else { removeStatus(e, name); purged.push({ st: name }); }
       }
       if (purged.length) log(cs, '{e}調息之際把身上的{ls}化掉了', { e: E(e), ls: { ls: purged } });
       e.moveIndex = -1;   // 起身後 advanceMove 會 +1，從新階段的第一招開始

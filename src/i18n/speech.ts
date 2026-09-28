@@ -80,15 +80,20 @@ function argL(a: LogArg): string {
   if ('st' in a) return term(a.st);
   if ('tx' in a) return t(a.tx);
   if ('say' in a) return lineL(a.say);
+  if ('sub' in a) return fill(format(t(a.sub), numsOf(a.p)), a.p, argL);
   return listJoin(a.ls.map(argL));
+}
+
+function numsOf(p: Readonly<Record<string, LogArg>> | undefined): Record<string, number> {
+  const nums: Record<string, number> = {};
+  for (const [k, v] of Object.entries(p ?? {})) if (typeof v === 'number') nums[k] = v;
+  return nums;
 }
 
 function render(zh: string): string | undefined {
   const ev = logEvent(zh);
   if (!ev) return undefined;
-  const nums: Record<string, number> = {};
-  for (const [k, v] of Object.entries(ev.p ?? {})) if (typeof v === 'number') nums[k] = v;
-  return fill(format(t(ev.k), nums), ev.p, argL);   // 先填數字（英文單複數 `{n|a|b}` 在這一步挑），再填名字
+  return fill(format(t(ev.k), numsOf(ev.p)), ev.p, argL);   // 先填數字（英文單複數 `{n|a|b}` 在這一步挑），再填名字
 }
 
 /** 戰鬥紀錄的一行，照目前語言顯示 */

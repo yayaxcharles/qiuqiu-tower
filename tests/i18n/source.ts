@@ -36,14 +36,46 @@ function walk(dir: string, out: string[] = []): string[] {
 /** 單引號字面值裡的跳脫（\' 與 \\）還原 */
 function unquote(s: string): string { return s.replace(/\\(.)/g, (_m, c: string) => (c === 'n' ? '\n' : c)); }
 
+/**
+ * 戰鬥紀錄的句型：`log(cs, 句型, { … })` 的第二個參數（`engine/logfmt.ts`，畫面用 `t(句型)` 照語言顯示）。
+ * 句型可能是單一字面值、`K_('…')`，也可能是 `mate === p ? '甩掉了{ls}' : '幫對方拍掉了{ls}'` 這種二選一，
+ * 所以掃到第二個參數結束為止，把裡面每個單引號字面值都收進來。
+ */
+export function logTemplates(source: string): string[] {
+  const out: string[] = [];
+  const src = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');   // 註解裡的範例不算
+  for (const m of src.matchAll(/(?<![\w.$])log\(\s*\w+\s*,/g)) {
+    let i = m.index! + m[0].length;
+    let depth = 0;
+    let expr = '';
+    for (; i < src.length; i++) {
+      const c = src[i]!;
+      if (c === "'") {
+        let j = i + 1;
+        while (j < src.length && src[j] !== "'") j += src[j] === '\\' ? 2 : 1;
+        expr += src.slice(i, j + 1);
+        i = j;
+        continue;
+      }
+      if (c === '(' || c === '[' || c === '{') depth++;
+      else if (c === ')' || c === ']' || c === '}') { if (depth === 0) break; depth--; }
+      else if (c === ',' && depth === 0) break;
+      expr += c;
+    }
+    for (const q of expr.matchAll(/'((?:[^'\\\n]|\\.)*)'/g)) out.push(unquote(q[1]!));
+  }
+  return out;
+}
+
 /** 原始碼裡所有 `t('…')` 的鍵 → 出現在哪個檔 */
 export function scannedUiKeys(root = 'src'): Map<string, string> {
   const keys = new Map<string, string>();
   const re = /(?<![\w.$])(?:t|N_|i18nT)\(\s*'((?:[^'\\\n]|\\.)*)'/g;
   for (const f of walk(root)) {
     const src = readFileSync(f, 'utf-8');
-    for (const m of src.matchAll(re)) {
-      const k = unquote(m[1]!);
+    const found = [...src.matchAll(re)].map((m) => unquote(m[1]!));
+    found.push(...logTemplates(src));
+    for (const k of found) {
       if (/[　-鿿＀-￯]/.test(k) && !keys.has(k)) keys.set(k, f);
     }
   }
@@ -64,6 +96,10 @@ export function dynamicUiKeys(): string[] {
   out.add('集中精神之後，這回合不能再獲得飯糰');
   out.add('手上沒有牌可以換');
   out.add('他'); out.add('她');
+  // 紀錄參數裡的小句型（`{ sub, p }`、`{ tx }`，`engine/combat.ts`、`engine/actions.ts`）：掃不到 `log(` 的字面值
+  out.add('{n} 點{st}'); out.add('一半的中毒');
+  // 秘寶發動那一行的句型是 `relicLine` 現組的（`engine/actions.ts`），掃不到字面值
+  for (const own of ['{who}（{seat} 號）的秘寶發動：{list}', '秘寶發動：{list}']) { out.add(own); out.add(`${own}…等 {n} 件`); }
   // 整檔都是給畫面看的短句（錯誤訊息、難度說明、店主招牌、戰鬥變化）：每個含中文的單引號字面值都算
   for (const f of ['src/engine/sharecode.ts', 'src/net/rtc.ts', 'src/net/ws.ts', 'src/net/code.ts', 'src/net/session.ts',
     'src/content/modifiers.ts', 'src/content/keepers.ts', 'src/content/difficulty.ts']) {
