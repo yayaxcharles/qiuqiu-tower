@@ -39,8 +39,13 @@ async function preload(heroes: readonly (string | undefined)[]): Promise<void> {
   await preloadHeroArt(heroes);
 }
 
+/** 動作圖集屬於哪一位：Vids 新動作（2026-09-28 球球試做）放在共用的 hero-vids 資料夾、檔名以主角開頭 */
 function motionHeroes(): string[] {
-  return [...new Set(sources.flatMap((url) => url.match(/\/motion\/([^/]+)\//)?.[1] ?? []))].sort();
+  return [...new Set(sources.flatMap((url) => {
+    const vids = url.match(/\/motion\/hero-vids\/([a-z]+)-/)?.[1];
+    if (vids) return [vids];
+    return url.match(/\/motion\/([^/]+)\//)?.[1] ?? [];
+  }))].sort();
 }
 
 describe('確定本局角色後才預載逐格動作', () => {
@@ -49,7 +54,8 @@ describe('確定本局角色後才預載逐格動作', () => {
     expect(motionHeroes()).toEqual([hero === 'ninja' ? 'qiuqiu' : hero]);
     const staticSources = sources.filter((url) => !url.includes('/motion/'));
     // 逐格受擊 2026-09-22 起用該角色動作資料夾裡的新畫風挨打圖，不再到 sprites 目錄借舊立繪
-    expect(sources).toContain(`/assets/motion/${hero === 'ninja' ? 'qiuqiu' : hero}/hit_recoil.webp`);
+    // 球球 2026-09-28 起挨打換成 Vids 影片版（hero-vids.ts），其他三位照舊
+    expect(sources).toContain(hero === 'ninja' ? '/assets/motion/hero-vids/qiuqiu-hurt-d.webp' : `/assets/motion/${hero}/hit_recoil.webp`);
     expect(staticSources.sort()).toEqual(hero === 'ninja' ? [] : [`/assets/sprites/hero/${hero}_idle.webp`]);
   });
 
