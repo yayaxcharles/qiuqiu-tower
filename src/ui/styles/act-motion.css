@@ -4,3 +4,5 @@
 .actwalk-motion canvas { pointer-events: none; }
 /* 等逐格動作載好的那一小段：靜態圖＝跑步第 1 格，不晃、不加影子，換上畫布時才一模一樣（2026-09-22） */
 .actwalk-await .actwalk-cat { animation: none; filter: none; }
+/* 2026-09-29：動作一下子就載好時不先閃舊畫風的靜態圖（acttransition.ts 的 HOLD_STATIC_MS 後才亮出來） */
+.actwalk-hold .actwalk-cat { visibility: hidden; }

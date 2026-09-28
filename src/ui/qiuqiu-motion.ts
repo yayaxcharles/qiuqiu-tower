@@ -350,6 +350,8 @@ const qiuqiuFrameMotions = createFrameMotionSet<QiuqiuAction>({
 
 let heroVidsApplying: Promise<void> | null = null;
 let heroVidsKeys: string[] = [];
+/** 已經退回原本那套了（兩處同時預載、都遇到新圖集壞掉時，後到的那個不再丟錯） */
+let heroVidsReverted = false;
 
 /**
  * 換上 Google Vids 的新動作（2026-09-28 球球試做，見 hero-vids.ts）：選到球球、第一次預載時才抓格子資料，
@@ -375,6 +377,7 @@ function revertHeroVids(): boolean {
     else delete motions[key];
   }
   heroVidsKeys = [];
+  heroVidsReverted = true;
   return true;
 }
 
@@ -388,6 +391,11 @@ async function preloadFrames(): Promise<void> {
   try {
     await qiuqiuFrameMotions.preload();
   } catch (error: unknown) {
+    if (heroVidsReverted) {
+      // 另一處同時預載已經退回了：照原本那套再預載一次就好
+      await qiuqiuFrameMotions.preload();
+      return;
+    }
     if (!revertHeroVids()) throw error;
     console.warn('球球新動作圖集載入失敗，退回原本的動作', error);
     await qiuqiuFrameMotions.preload();

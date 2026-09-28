@@ -11,7 +11,9 @@ import {
   feifeiNeedleGapMs,
   feifeiNeedleReleaseTimes,
   isFeifeiNeedleAction,
+  setFeifeiNeedleVidsOrigins,
   type FeifeiNeedleAction,
+  type FeifeiNeedleOffset,
 } from './feifei-needle-patterns';
 import {
   createFrameMotionSet,
@@ -22,6 +24,7 @@ import {
 } from './frame-motion';
 import { DEFERRED_COMPANION_REST_ACTIONS, restStateAction, type RestStateAction, type RestStatePoses } from './rest-state-motion';
 import { motionMs, speedUpMotions } from './motion-speed';
+import { loadHeroVids } from './hero-vids';
 import './styles/companion-motion.css';
 
 export type CompanionMotionKind = 'feifei' | 'dangdang' | 'fengfeng';
@@ -441,8 +444,75 @@ const frameSets = {
 
 const frameSet = (kind: CompanionMotionKind) => frameSets[kind];
 
+const motionsOf = (kind: CompanionMotionKind): Record<string, TimedFrameMotion> =>
+  kind === 'feifei' ? feifeiMotions : kind === 'dangdang' ? dangdangMotions : fengfengMotions;
+/** 原本那套（新動作載不到或圖壞掉時整組換回來，見 `preloadCompanionMotion`） */
+const BASE_MOTIONS: Readonly<Record<CompanionMotionKind, Readonly<Record<string, TimedFrameMotion>>>> = {
+  feifei: { ...feifeiMotions },
+  dangdang: { ...dangdangMotions },
+  fengfeng: { ...fengfengMotions },
+};
+const heroVidsApplying: Partial<Record<CompanionMotionKind, Promise<void>>> = {};
+const heroVidsKeys: Record<CompanionMotionKind, string[]> = { feifei: [], dangdang: [], fengfeng: [] };
+/** 已經退回原本那套了（兩處同時預載、都遇到新圖集壞掉時，後到的那個不再丟錯） */
+const heroVidsReverted: Record<CompanionMotionKind, boolean> = { feifei: false, dangdang: false, fengfeng: false };
+
+/**
+ * 換上 Flow Omni 的新動作（2026-09-29，比照球球的 hero-vids.ts）：這位同伴第一次預載時才抓格子資料，
+ * 蓋掉有新片的那幾個動作，再照舊預載（新圖集也在這時才下載）。連線版兩個座位各叫各的，只抓選到的那一兩位。
+ */
+function applyHeroVids(kind: CompanionMotionKind): Promise<void> {
+  heroVidsApplying[kind] ??= loadHeroVids(kind).then((vids) => {
+    if (!vids) return;
+    heroVidsKeys[kind] = Object.keys(vids);
+    Object.assign(motionsOf(kind), vids);
+    if (kind === 'feifei') setFeifeiNeedleVidsOrigins(vidsNeedleOrigins(vids));
+  });
+  return heroVidsApplying[kind]!;
+}
+
+/** 新圖集下載失敗：有新片的動作整組換回原本那套（不留一半新一半舊），回傳有沒有換 */
+function revertHeroVids(kind: CompanionMotionKind): boolean {
+  if (heroVidsKeys[kind].length === 0) return false;
+  const motions = motionsOf(kind);
+  for (const key of heroVidsKeys[kind]) {
+    const base = BASE_MOTIONS[kind][key];
+    if (base) motions[key] = base;
+    else delete motions[key];
+  }
+  heroVidsKeys[kind] = [];
+  heroVidsReverted[kind] = true;
+  if (kind === 'feifei') setFeifeiNeedleVidsOrigins({});
+  return true;
+}
+
+/** 新動作裡量好的飛針出手點（彈針換了圖，手的位置跟舊圖不一樣） */
+function vidsNeedleOrigins(vids: Readonly<Record<string, unknown>>): Partial<Record<FeifeiNeedleAction, readonly FeifeiNeedleOffset[]>> {
+  return Object.fromEntries(Object.entries(vids).flatMap(([action, motion]) => {
+    const origins = (motion as { releaseOrigins?: readonly FeifeiNeedleOffset[] }).releaseOrigins;
+    return isFeifeiNeedleAction(action) && origins?.length ? [[action, origins]] : [];
+  }));
+}
+
+/** 這些動作現在用的是新的 Vids 動作（測試、除錯用） */
+export function companionHeroVidsActions(kind: CompanionMotionKind): readonly string[] {
+  return heroVidsKeys[kind];
+}
+
 export async function preloadCompanionMotion(kind: CompanionMotionKind): Promise<void> {
-  await frameSet(kind).preload();
+  await applyHeroVids(kind);
+  try {
+    await frameSet(kind).preload();
+  } catch (error: unknown) {
+    if (heroVidsReverted[kind]) {
+      // 另一處同時預載已經退回了：照原本那套再預載一次就好
+      await frameSet(kind).preload();
+      return;
+    }
+    if (!revertHeroVids(kind)) throw error;
+    console.warn('同伴新動作圖集載入失敗，退回原本的動作', kind, error);
+    await frameSet(kind).preload();
+  }
 }
 
 /** 延後下載的待機狀態圖還沒到（或壞了）時回 false，戰鬥畫面就先交還靜態立繪。 */

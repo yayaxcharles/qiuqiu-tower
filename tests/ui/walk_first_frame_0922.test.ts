@@ -167,6 +167,39 @@ describe('走路轉場：等動作時靜態圖先定住', () => {
     expect(overlayOf(stage).classList.values.has('actwalk-motion')).toBe(false);
   });
 
+  it('動作很快載好：靜態圖從頭到尾都藏著，直接從新跑步開始（2026-09-29 不再先閃舊畫風）', async () => {
+    const stage = new FakeElement();
+    actWalkTransition(stage as unknown as HTMLElement, 16, () => {});
+    expect(overlayOf(stage).classList.values.has('actwalk-hold')).toBe(true);
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+    expect(overlayOf(stage).classList.values.has('actwalk-motion')).toBe(true);
+    vi.advanceTimersByTime(400);
+    expect(overlayOf(stage).classList.values.has('actwalk-hold')).toBe(true);
+  });
+
+  it('動作載得慢：等 300 毫秒還沒到才亮出靜態圖頂著；載不到立刻亮出來', async () => {
+    mocks.preload.mockReturnValue(new Promise(() => {}));
+    const stage = new FakeElement();
+    actWalkTransition(stage as unknown as HTMLElement, 16, () => {});
+    vi.advanceTimersByTime(299);
+    expect(overlayOf(stage).classList.values.has('actwalk-hold')).toBe(true);
+    vi.advanceTimersByTime(2);
+    expect(overlayOf(stage).classList.values.has('actwalk-hold')).toBe(false);
+
+    mocks.preload.mockRejectedValue(new Error('404'));
+    const stage2 = new FakeElement();
+    actWalkTransition(stage2 as unknown as HTMLElement, 16, () => {});
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+    expect(overlayOf(stage2).classList.values.has('actwalk-hold')).toBe(false);
+  });
+
+  it('藏靜態圖的樣式在（樣式表）', () => {
+    const css = src('src/ui/styles/act-motion.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(css).toMatch(/\.actwalk-hold \.actwalk-cat \{[^}]*visibility: hidden/);
+  });
+
   it('關掉動作（?motion=0）：一開始就不掛', () => {
     vi.stubGlobal('location', { search: '?motion=0' });
     const stage = new FakeElement();
