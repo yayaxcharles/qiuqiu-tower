@@ -4,5 +4,5 @@ import ui from './ui.json';
 import content from './content.json';
 import { describeCardJa } from './cardtext';
 
-const pack: LangPack = { ui, ...content, describeCard: describeCardJa } as LangPack;
+const pack: LangPack = { ui, ...content, describeCard: describeCardJa } as unknown as LangPack;
 export default pack;
