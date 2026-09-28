@@ -590,10 +590,10 @@
      "cells": 16
     },
     "assets/motion/hero-vids/dangdang-defeat-d.webp": {
-     "bytes": 387720,
+     "bytes": 291704,
      "size": [
-      4064,
-      603
+      3940,
+      592
      ],
      "cells": 19
     },
@@ -662,10 +662,10 @@
      "cells": 7
     },
     "assets/motion/hero-vids/dangdang-defeat-m.webp": {
-     "bytes": 146090,
+     "bytes": 116930,
      "size": [
-      3136,
-      292
+      3027,
+      289
      ],
      "cells": 10
     },
@@ -679,12 +679,12 @@
     }
    },
    "downloadMB": {
-    "desktop": 2.47,
-    "mobile": 0.91
+    "desktop": 2.38,
+    "mobile": 0.89
    },
    "decodedMB": {
-    "desktop": 97.4,
-    "mobile": 19.1
+    "desktop": 97.0,
+    "mobile": 18.9
    },
    "size": {
     "guard": {
@@ -737,10 +737,10 @@
      "display": 0.44538
     },
     "defeat": {
-     "rough": 0.45161,
+     "rough": 0.45487,
      "head": 1.014,
-     "corr": 0.98,
-     "own": 0.44538,
+     "corr": 0.976,
+     "own": 0.44859,
      "display": 0.44538
     },
     "run": {
