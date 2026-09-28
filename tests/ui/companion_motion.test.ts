@@ -523,7 +523,8 @@ describe('菲菲全身逐格畫布', () => {
     step(0);
     step(1090);
     expect(lastDraw().slice(1, 5)).toEqual(dangdangMotionData.actions.run.frames[0]!.rect);
-    step(1380);
+    // 噹噹跑步 5 格各 108 毫秒（一輪 0.54 秒）：1500 落在第二輪 420 毫秒＝第 4 格（324～432）；舊的 90/90/90/135/135 會是第 5 格
+    step(1500);
     expect(lastDraw().slice(1, 5)).toEqual(dangdangMotionData.actions.run.frames[3]!.rect);
     expect(rafs.size).toBe(1);
     actor.dispose();
